@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [develop, preprod, main]
+
+jobs:
+  validate:
+    name: Lint · Check · Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm run check
+
+      - name: Security grep — no secrets in src/
+        run: |
+          echo "Checking for exposed secrets..."
+          FOUND=0
+          for pattern in service_role SERVICE_KEY ANTHROPIC_API_KEY OPENAI_API_KEY VOYAGE_API_KEY WOMPI_PRIVATE WOMPI_EVENTS_SECRET STRIPE_SECRET STRIPE_WEBHOOK_SECRET TURNSTILE_SECRET; do
+            if grep -r --include="*.ts" --include="*.astro" --include="*.js" "$pattern" src/ 2>/dev/null; then
+              echo "SECRET FOUND: $pattern"
+              FOUND=1
+            fi
+          done
+          if [ $FOUND -ne 0 ]; then exit 1; fi
+          echo "No secrets found in src/"
+
+      - name: Build
+        run: npm run build
+        env:
+          PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}

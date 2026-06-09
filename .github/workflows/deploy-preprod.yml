@@ -1,0 +1,41 @@
+name: Deploy Preprod
+
+on:
+  push:
+    branches: [preprod]
+
+concurrency:
+  group: deploy-preprod
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Build · Deploy Preprod
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+
+      - name: Deploy to Hostinger Preprod (FTP)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.HOSTINGER_FTP_HOST }}
+          username: ${{ secrets.HOSTINGER_FTP_USER }}
+          password: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
+          local-dir: ./dist/
+          server-dir: ${{ secrets.HOSTINGER_PREPROD_PATH }}
+          dangerous-clean-slate: false

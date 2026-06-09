@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+.DS_Store
+*.log
+.astro/
+.cache/
+playwright-report/
+test-results/
+.github/SECRETS.md
+.idea/
