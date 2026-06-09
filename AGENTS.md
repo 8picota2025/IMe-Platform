@@ -71,8 +71,8 @@ CLAUDE.md, AGENTS.md, PENDIENTES.md, BACKLOG_V2.md, README.md
 
 ## Estado de fases (actualizar al cerrar cada una)
 
-[ ] Fase -1 — Infra, GitHub, agentes, CI/CD | rama: main (base)
-[ ] F0 — Discovery y tokens | rama: feature/fase-0
+[x] Fase -1 — Infra, GitHub, agentes, CI/CD | rama: main (base)
+[x] F0 — Discovery y tokens | rama: feature/fase-0
 [ ] F1 — Fundaciones, Home e infra | rama: feature/fase-1
 [ ] F2 — Catálogo, landings y SEO | rama: feature/fase-2
 [ ] F3 — CMS, ingesta PDF y rebuild | rama: feature/fase-3

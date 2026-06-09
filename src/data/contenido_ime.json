@@ -1,0 +1,134 @@
+{
+  "fuente": "https://i-me.com.co/77/",
+  "fecha_extraccion": "2026-06-09T09:34:39.718Z",
+  "home": {
+    "claim_hero": "Equipos biomédicos que salvan vidas",
+    "subclaim_hero": "Distribuimos tecnología médica de clase mundial certificada internacionalmente para hospitales, clínicas y centros de salud en todo Colombia.",
+    "ctas_hero": ["Ver catálogo", "Solicitar asesoría"],
+    "slogan": "\"Equipamos tu misión de salvar vidas.\"",
+    "metricas": [
+      "24+\n          Categorías de equipos\n        \n        \n          100%\n          Certificados INVIMA\n        \n        \n          32 Dpt\n          Cobertura nacional",
+      "24+",
+      "Categorías de equipos",
+      "100%",
+      "Certificados INVIMA",
+      "32 Dpt",
+      "Cobertura nacional"
+    ],
+    "servicios": [
+      "01\n        \n          \n          Venta y distribución\n          Distribución de equipos biomédicos de alta tecnología con certificaciones internacionales CE, FDA e INVIMA para hospitales, clínicas y centros de salud en Colombia.\n          \n            Equipos certificados internacionalmente\n            Asesoría técnica especializada precompra\n            Instalación y puesta en marcha incluida\n          \n        \n        \n      \n\n      \n        02\n        \n          \n          Soporte técnico\n          Mantenimiento preventivo, correctivo y calibración de equipos biomédicos realizado por ingenieros certificados en todo el territorio colombiano.\n          \n            Mantenimiento preventivo y correctivo\n            Calibración y verificación metrológica\n            Repuestos y consumibles originales\n          \n        \n        \n      \n\n      \n        03\n        \n          \n          Financiamiento médico\n          Planes de adquisición a medida para instituciones de salud. Cuotas flexibles, plazos extendidos y condiciones adaptadas a las necesidades de cada organización.\n          \n            Cuotas mensuales flexibles\n            Plazos hasta 60 meses\n            Sin codeudor para instituciones de salud\n          \n        \n        \n      \n\n      \n        04\n        \n          \n          Asesoría biomédica\n          Consultoría especializada para la correcta selección, adquisición y gestión del parque tecnológico biomédico de su institución de salud.\n          \n            Diagnóstico del parque tecnológico\n            Plan de renovación y adquisición\n            Capacitación al personal clínico"
+    ],
+    "valores": [],
+    "faq_preguntas": [],
+    "faq_respuestas": [],
+    "quienes_somos": "Quiénes somos\n        Tecnología médica que transforma instituciones de salud\n        I-ME International Medical Enterprise es una empresa colombiana con más de 15 años de experiencia en la distribución, instalación y mantenimiento de equipos biomédicos de alta tecnología para el sector salud.\n        Trabajamos con los principales fabricantes del mundo para llevar soluciones certificadas internacionalmente a hospitales, clínicas, centros médicos y consultorios en todo el territorio colombiano.\n\n        \n          \n             Visión\n            Ser la empresa líder en Colombia en distribución de tecnología biomédica de vanguardia.\n          \n          \n             Misión\n            Equipar las instituciones de salud con tecnología certificada que mejore la atención al paciente.\n          \n          \n             Calidad\n            Todos nuestros equipos cuentan con certificaciones CE, FDA e INVIMA vigentes.\n          \n          \n             Compromiso\n            Soporte técnico especializado durante toda la vida útil de cada equipo.",
+    "vision": null,
+    "mision": null,
+    "whatsapp": "https://wa.me/573138674059",
+    "email": "info@i-me.com.co",
+    "copyright": null
+  },
+  "servicios": {
+    "titulo": "Servicios especializados",
+    "servicios": []
+  },
+  "contacto": {
+    "whatsapp": "https://wa.me/573138674059",
+    "email": "info@i-me.com.co",
+    "telefono": null,
+    "direccion": null,
+    "campos_formulario": [
+      {
+        "tipo": "input",
+        "name": "nombre",
+        "placeholder": "Tu nombre",
+        "requerido": true
+      },
+      {
+        "tipo": "input",
+        "name": "apellido",
+        "placeholder": "Tu apellido",
+        "requerido": true
+      },
+      {
+        "tipo": "input",
+        "name": "email",
+        "placeholder": "tu@correo.com",
+        "requerido": true
+      },
+      {
+        "tipo": "input",
+        "name": "telefono",
+        "placeholder": "+57 300 000 0000",
+        "requerido": true
+      },
+      {
+        "tipo": "input",
+        "name": "institucion",
+        "placeholder": "Hospital, clínica, consultorio…",
+        "requerido": false
+      },
+      {
+        "tipo": "select",
+        "name": "interes",
+        "placeholder": "",
+        "requerido": true
+      },
+      {
+        "tipo": "textarea",
+        "name": "mensaje",
+        "placeholder": "Cuéntanos sobre el equipo que necesitas, tu institución y cualquier detalle relevante…",
+        "requerido": true
+      }
+    ]
+  },
+  "footer": {
+    "html_reducido": "Empresa colombiana especializada en distribución y soporte de equipos biomédicos certificados internacionalmente.\n\n\"Equipamos tu misión de salvar vidas.\"\nNAVEGACIÓN\nInicio\nCatálogo\nServicios\nContacto\nSERVICIOS\nVenta de equipos\nSoporte técnico\nFinanciamiento\nAsesoría biomédica\nCONTACTO\n+57 313 867 4059\nWhatsApp\ninfo@i-me.com.co\n© 2025 I-ME International Medical Enterprise. Todos los derechos reservados.\nColombia · Equipos Biomédicos Certificados INVIMA",
+    "links": [
+      {
+        "texto": "Inicio",
+        "href": "index.html"
+      },
+      {
+        "texto": "Catálogo",
+        "href": "catalogo.html"
+      },
+      {
+        "texto": "Servicios",
+        "href": "servicios.html"
+      },
+      {
+        "texto": "Contacto",
+        "href": "contacto.html"
+      },
+      {
+        "texto": "Venta de equipos",
+        "href": "servicios.html#venta"
+      },
+      {
+        "texto": "Soporte técnico",
+        "href": "servicios.html#soporte"
+      },
+      {
+        "texto": "Financiamiento",
+        "href": "servicios.html#financiamiento"
+      },
+      {
+        "texto": "Asesoría biomédica",
+        "href": "servicios.html#asesoria"
+      },
+      {
+        "texto": "+57 313 867 4059",
+        "href": "tel:+573138674059"
+      },
+      {
+        "texto": "WhatsApp",
+        "href": "https://wa.me/573138674059"
+      },
+      {
+        "texto": "info@i-me.com.co",
+        "href": "mailto:info@i-me.com.co"
+      }
+    ]
+  }
+}
