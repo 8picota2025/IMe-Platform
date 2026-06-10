@@ -36,7 +36,6 @@
 - [ ] Carrito y checkout — F4
 - [ ] Catálogo completo con filtros y landings de producto — F2
 - [ ] SimuladorFinanciero real — F4
-- [ ] `npm run validate` falla (ts2739 en src/i18n/utils.ts): en.json no tiene las ~30 claves nuevas agregadas a es.json para F2 (`nav.conocimiento`, `catalogo.*` filtros/comparador, `producto.*`, `conocimiento.*`). Traducir a EN (o COPY_CLIENTE_REVISAR donde aplique) antes de cerrar F2.
 
 ## BLOQUEANTE_LEGAL — Impide operar o publicar
 

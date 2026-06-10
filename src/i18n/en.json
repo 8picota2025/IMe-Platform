@@ -28,8 +28,33 @@
     "cotizar": "Request quote",
     "proxima_entrega": "F2 — Full catalog coming soon",
     "familias_titulo": "Our categories",
+    "todos_los_productos": "All equipment",
+    "buscar_placeholder": "Search by name, category or feature…",
+    "buscar_label": "Search the catalog",
+    "mostrar_todos": "Show all",
     "migas_inicio": "Home",
-    "migas_catalogo": "Catalog"
+    "migas_catalogo": "Catalog",
+    "filtros_titulo": "Filters",
+    "abrir_filtros": "Open filters",
+    "cerrar_filtros": "Close filters",
+    "resetear_filtros": "Clear filters",
+    "resultados_un": "result",
+    "resultados_otros": "results",
+    "sin_resultados_titulo": "We couldn't find equipment matching those filters",
+    "sin_resultados_desc": "Try different terms or adjust the filters. If you can't find what you're looking for, contact us and we'll help.",
+    "filtro_destacado": "Featured",
+    "filtro_nuevo": "New",
+    "filtro_comercial": "Product type",
+    "filtro_comercial_equipo": "Equipment",
+    "filtro_comercial_consumible": "Consumables",
+    "comparar_titulo": "Compare products",
+    "comparar_anadir": "Compare",
+    "comparar_quitar": "Remove from comparison",
+    "comparar_ver": "View comparison",
+    "comparar_limite": "You can compare up to 3 products at a time",
+    "comparar_vacio": "Add products from the catalog to compare them here.",
+    "comparar_cerrar": "Close comparison",
+    "comparar_vaciar": "Clear comparison"
   },
   "servicios": {
     "titulo": "Our Services",
@@ -112,5 +137,29 @@
   "destacados": {
     "titulo": "Featured equipment",
     "ver_todos": "View full catalog"
+  },
+  "producto": {
+    "badge_destacado": "Featured",
+    "badge_nuevo": "New",
+    "specs_titulo": "Specifications",
+    "specs_pendiente": "Technical specifications are being loaded. Contact us to receive the full data sheet.",
+    "galeria_titulo": "Gallery",
+    "galeria_abrir": "Enlarge image",
+    "galeria_cerrar": "Close gallery",
+    "galeria_anterior": "Previous image",
+    "galeria_siguiente": "Next image",
+    "relacionados_titulo": "Related products",
+    "cotizar_cta": "Request quote",
+    "ficha_pdf": "Download data sheet (PDF)",
+    "contacto_titulo": "Need more information?",
+    "contacto_desc": "Our sales team can help you choose the right equipment and prepare your quote.",
+    "volver_catalogo": "Back to catalog",
+    "ver_familia": "View full category"
+  },
+  "conocimiento": {
+    "titulo": "Knowledge Center",
+    "proximamente": "Coming soon",
+    "descripcion": "We're preparing technical guides, articles and resources about biomedical equipment. Check back soon.",
+    "cta_contacto": "Have a question now? Contact us"
   }
 }
