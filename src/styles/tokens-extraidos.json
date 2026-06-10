@@ -1,0 +1,62 @@
+{
+  "fuente": "https://i-me.com.co/77/",
+  "fecha_extraccion": "2026-06-09T09:34:39.718Z",
+  "css_links": [
+    "https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=Inter:wght@400;500;600&display=swap",
+    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css",
+    "https://i-me.com.co/77/css/styles.css"
+  ],
+  "custom_properties": {
+    "--white": "#FFFFFF",
+    "--off": "#F7F9FB",
+    "--off2": "#EFF4F7",
+    "--t900": "#0F4C5C",
+    "--t800": "#145567",
+    "--t700": "#1A5F6E",
+    "--t100": "#E6EFF3",
+    "--t50": "#F0F6F8",
+    "--blue": "#4A90E2",
+    "--blue-light": "rgba(74,144,226,0.1)",
+    "--green": "#7ED957",
+    "--green-pale": "rgba(126,217,87,0.12)",
+    "--ink": "#0B1B22",
+    "--text": "#1D3A47",
+    "--text-mid": "#456070",
+    "--text-muted": "#7A9BAB",
+    "--border": "rgba(15,76,92,0.1)",
+    "--border-mid": "rgba(15,76,92,0.18)",
+    "--shadow-sm": "0 2px 12px rgba(15,76,92,0.08)",
+    "--shadow-md": "0 8px 40px rgba(15,76,92,0.12)",
+    "--shadow-lg": "0 20px 80px rgba(15,76,92,0.16)",
+    "--radius": "14px",
+    "--radius-lg": "24px",
+    "--radius-xl": "36px",
+    "--ease": "cubic-bezier(0.16, 1, 0.3, 1)"
+  },
+  "colores_detectados": [
+    "rgb(29, 58, 71)",
+    "rgb(0, 0, 0)",
+    "rgb(255, 255, 255)",
+    "rgb(15, 76, 92)",
+    "rgb(11, 27, 34)",
+    "rgb(126, 217, 87)",
+    "rgba(255, 255, 255, 0.88)"
+  ],
+  "fuentes_detectadas": ["Inter, sans-serif", "Sora, sans-serif", "Arial"],
+  "nota": "Tokens aproximados por computed style — revisar CSS fuente para valores exactos",
+  "css_descargados": [
+    {
+      "url": "https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=Inter:wght@400;500;600&display=swap",
+      "local": "public/assets/extraccion/css/css2"
+    },
+    {
+      "url": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css",
+      "local": "public/assets/extraccion/css/all.min.css"
+    },
+    {
+      "url": "https://i-me.com.co/77/css/styles.css",
+      "local": "public/assets/extraccion/css/styles.css"
+    }
+  ],
+  "nota_uso": "Revisar CSS fuente en public/assets/extraccion/css/ para extraer variables exactas"
+}

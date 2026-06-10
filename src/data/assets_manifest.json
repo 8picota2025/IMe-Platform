@@ -1,0 +1,155 @@
+[
+  {
+    "nombre": "Img11.jpg",
+    "url_origen": "https://i-me.com.co/77/assets/img/portfolio/Img11.jpg",
+    "ruta_local": "public/assets/extraccion/img/Img11.jpg",
+    "tipo": "img",
+    "uso": "producto",
+    "estado": "ok",
+    "bytes": 17247
+  },
+  {
+    "nombre": "Img1.jpg",
+    "url_origen": "https://i-me.com.co/77/assets/img/portfolio/Img1.jpg",
+    "ruta_local": "public/assets/extraccion/img/Img1.jpg",
+    "tipo": "img",
+    "uso": "producto",
+    "estado": "ok",
+    "bytes": 17134
+  },
+  {
+    "nombre": "Img19.jpg",
+    "url_origen": "https://i-me.com.co/77/assets/img/portfolio/Img19.jpg",
+    "ruta_local": "public/assets/extraccion/img/Img19.jpg",
+    "tipo": "img",
+    "uso": "producto",
+    "estado": "ok",
+    "bytes": 13688
+  },
+  {
+    "nombre": "Img18.jpg",
+    "url_origen": "https://i-me.com.co/77/assets/img/portfolio/Img18.jpg",
+    "ruta_local": "public/assets/extraccion/img/Img18.jpg",
+    "tipo": "img",
+    "uso": "producto",
+    "estado": "ok",
+    "bytes": 17299
+  },
+  {
+    "nombre": "Img6.jpg",
+    "url_origen": "https://i-me.com.co/77/assets/img/portfolio/Img6.jpg",
+    "ruta_local": "public/assets/extraccion/img/Img6.jpg",
+    "tipo": "img",
+    "uso": "producto",
+    "estado": "ok",
+    "bytes": 13685
+  },
+  {
+    "nombre": "Img21.jpg",
+    "url_origen": "https://i-me.com.co/77/assets/img/portfolio/Img21.jpg",
+    "ruta_local": "public/assets/extraccion/img/Img21.jpg",
+    "tipo": "img",
+    "uso": "producto",
+    "estado": "ok",
+    "bytes": 13280
+  },
+  {
+    "nombre": "Img4.jpg",
+    "url_origen": "https://i-me.com.co/77/assets/img/portfolio/Img4.jpg",
+    "ruta_local": "public/assets/extraccion/img/Img4.jpg",
+    "tipo": "img",
+    "uso": "producto",
+    "estado": "ok",
+    "bytes": 15273
+  },
+  {
+    "nombre": "Img22.jpg",
+    "url_origen": "https://i-me.com.co/77/assets/img/portfolio/Img22.jpg",
+    "ruta_local": "public/assets/extraccion/img/Img22.jpg",
+    "tipo": "img",
+    "uso": "producto",
+    "estado": "ok",
+    "bytes": 15152
+  },
+  {
+    "nombre": "Img25.jpg",
+    "url_origen": "https://i-me.com.co/77/assets/img/portfolio/Img25.jpg",
+    "ruta_local": "public/assets/extraccion/img/Img25.jpg",
+    "tipo": "img",
+    "uso": "producto",
+    "estado": "ok",
+    "bytes": 17576
+  },
+  {
+    "nombre": "Img14.jpg",
+    "url_origen": "https://i-me.com.co/77/assets/img/portfolio/Img14.jpg",
+    "ruta_local": "public/assets/extraccion/img/Img14.jpg",
+    "tipo": "img",
+    "uso": "producto",
+    "estado": "ok",
+    "bytes": 13125
+  },
+  {
+    "nombre": "Img27.jpg",
+    "url_origen": "https://i-me.com.co/77/assets/img/portfolio/Img27.jpg",
+    "ruta_local": "public/assets/extraccion/img/Img27.jpg",
+    "tipo": "img",
+    "uso": "producto",
+    "estado": "ok",
+    "bytes": 16239
+  },
+  {
+    "nombre": "Img26.jpg",
+    "url_origen": "https://i-me.com.co/77/assets/img/portfolio/Img26.jpg",
+    "ruta_local": "public/assets/extraccion/img/Img26.jpg",
+    "tipo": "img",
+    "uso": "producto",
+    "estado": "ok",
+    "bytes": 13297
+  },
+  {
+    "nombre": "Img28.jpg",
+    "url_origen": "https://i-me.com.co/77/assets/img/portfolio/Img28.jpg",
+    "ruta_local": "public/assets/extraccion/img/Img28.jpg",
+    "tipo": "img",
+    "uso": "producto",
+    "estado": "ok",
+    "bytes": 18401
+  },
+  {
+    "nombre": "Img2.jpg",
+    "url_origen": "https://i-me.com.co/77/assets/img/portfolio/Img2.jpg",
+    "ruta_local": "public/assets/extraccion/img/Img2.jpg",
+    "tipo": "img",
+    "uso": "producto",
+    "estado": "ok",
+    "bytes": 11991
+  },
+  {
+    "nombre": "Img7.jpg",
+    "url_origen": "https://i-me.com.co/77/assets/img/portfolio/Img7.jpg",
+    "ruta_local": "public/assets/extraccion/img/Img7.jpg",
+    "tipo": "img",
+    "uso": "producto",
+    "estado": "ok",
+    "bytes": 15511
+  },
+  {
+    "nombre": "logo-ime.png",
+    "url_origen": "https://i-me.com.co/77/assets/img/logo-ime.png",
+    "ruta_local": "public/assets/extraccion/img/logo-ime.png",
+    "tipo": "img",
+    "uso": "logo",
+    "estado": "ok",
+    "bytes": 152310
+  },
+  {
+    "nombre": "quirofano-completo.mp4",
+    "url_origen": "https://i-me.com.co/77/assets/video/quirofano-completo.mp4",
+    "ruta_local": "public/assets/extraccion/video/quirofano-completo.mp4",
+    "tipo": "video",
+    "uso": "video-hero",
+    "estado": "ok",
+    "bytes": 2422673
+  }
+]

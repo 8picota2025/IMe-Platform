@@ -1,0 +1,3 @@
+
+  {"@context":"https://schema.org","@type":"ItemList","name":"Catálogo de Equipos Biomédicos I-ME Colombia","url":"https://i-me.com.co/77/catalogo.html","description":"Listado completo de equipos médicos y biomédicos para hospitales, clínicas y centros de salud en Colombia."}
+  
