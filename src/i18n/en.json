@@ -1,0 +1,113 @@
+{
+  "nav": {
+    "inicio": "Home",
+    "catalogo": "Catalog",
+    "servicios": "Services",
+    "financiacion": "Financing",
+    "contacto": "Contact",
+    "cta_cotizar": "Request Quote",
+    "abrir_menu": "Open navigation menu",
+    "cerrar_menu": "Close navigation menu",
+    "cambiar_idioma": "Change language",
+    "tema_claro": "Switch to light theme",
+    "tema_oscuro": "Switch to dark theme",
+    "carrito": "View quote cart",
+    "items_carrito": "items in cart"
+  },
+  "hero": {
+    "ver_catalogo": "View catalog",
+    "solicitar_asesoria": "Request advisory",
+    "pausa_video": "Pause background video",
+    "reproducir_video": "Play background video"
+  },
+  "catalogo": {
+    "titulo": "Equipment Catalog",
+    "ver_categoria": "View category",
+    "ver_detalle": "View details",
+    "cotizar": "Request quote",
+    "proxima_entrega": "F2 — Full catalog coming soon",
+    "familias_titulo": "Our categories"
+  },
+  "servicios": {
+    "titulo": "Our Services",
+    "ver_servicios": "View all services"
+  },
+  "financiacion": {
+    "titulo": "Financing",
+    "cta": "Explore plans",
+    "disclaimer": "COPY_CLIENTE_REVISAR — Terms subject to approval. Rates and terms to be confirmed."
+  },
+  "contacto": {
+    "titulo": "Contact",
+    "nombre": "First name",
+    "apellido": "Last name",
+    "email": "Email address",
+    "telefono": "Phone",
+    "institucion": "Institution",
+    "interes": "Area of interest",
+    "mensaje": "Message",
+    "enviar": "Send request",
+    "enviando": "Sending…",
+    "exito": "Request sent! We will contact you soon.",
+    "error": "An error occurred. Please try again.",
+    "requerido": "Required field",
+    "whatsapp": "Write to us on WhatsApp",
+    "email_directo": "Send direct email",
+    "consentimiento": "I accept the processing of my personal data in accordance with the privacy policy.",
+    "interes_opciones": [
+      "Patient Monitors",
+      "Cardiology",
+      "Operating Room",
+      "Neonatology",
+      "Ultrasound",
+      "IV Solutions",
+      "Hospital Furniture",
+      "Anesthesia & Ventilation",
+      "Other"
+    ]
+  },
+  "footer": {
+    "descripcion": "COPY_CLIENTE_REVISAR — Colombian company specialized in the distribution and support of internationally certified biomedical equipment.",
+    "navegacion": "Navigation",
+    "categorias": "Categories",
+    "servicios": "Services",
+    "legal": "Legal",
+    "privacidad": "Privacy policy",
+    "terminos": "Terms and conditions",
+    "derechos": "All rights reserved",
+    "pais": "Colombia",
+    "certif": "INVIMA Certified Biomedical Equipment"
+  },
+  "asesor": {
+    "titulo": "I-ME Advisor",
+    "abrir": "Open virtual advisor",
+    "cerrar": "Close advisor",
+    "placeholder": "Type your question about biomedical equipment…",
+    "enviar": "Send",
+    "bienvenida": "COPY_CLIENTE_REVISAR — Hello, I am the I-ME assistant. I can help you find the biomedical equipment you need. In which medical area are you looking for solutions?",
+    "mock_nota": "Advisor in demo mode — real logic comes in Advisor Phase.",
+    "cargando": "Just a moment…"
+  },
+  "accesibilidad": {
+    "saltar_contenido": "Skip to main content",
+    "imagen_decorativa": "Decorative image",
+    "logo": "I-ME International Medical Enterprise — Go to home",
+    "nueva_ventana": "(opens in new window)"
+  },
+  "estados": {
+    "cargando": "Loading…",
+    "error": "Error loading data",
+    "sin_resultados": "No results found",
+    "proximamente": "Coming soon"
+  },
+  "faq": {
+    "titulo": "Frequently asked questions"
+  },
+  "quienes_somos": {
+    "titulo": "About us"
+  },
+  "destacados": {
+    "titulo": "Featured equipment",
+    "ver_todos": "View full catalog"
+  }
+}

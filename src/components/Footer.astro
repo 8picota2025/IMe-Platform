@@ -1,0 +1,231 @@
+---
+/**
+ * Footer — datos reales de contenido_ime.json: contacto, links, familias, slogan, copyright.
+ */
+import type { Locale } from '../i18n/utils'
+import { t, getLocalizedPath } from '../i18n/utils'
+
+interface Props {
+  locale: Locale
+}
+
+const { locale } = Astro.props
+
+const familias = [
+  { slug: 'monitores', label_es: 'Monitores de Signos Vitales', label_en: 'Patient Monitors' },
+  { slug: 'cardiologia', label_es: 'Cardiología', label_en: 'Cardiology' },
+  { slug: 'sala-cirugia', label_es: 'Sala de Cirugía', label_en: 'Operating Room' },
+  { slug: 'neonatologia', label_es: 'Neonatología', label_en: 'Neonatology' },
+  { slug: 'ultrasonido', label_es: 'Ultrasonido', label_en: 'Ultrasound' },
+  { slug: 'soluciones-iv', label_es: 'Soluciones IV', label_en: 'IV Solutions' },
+  { slug: 'mobiliario', label_es: 'Mobiliario Hospitalario', label_en: 'Hospital Furniture' },
+  { slug: 'anestesia', label_es: 'Anestesia y Ventilación', label_en: 'Anesthesia & Ventilation' },
+]
+
+const catalogoBase = getLocalizedPath('/catalogo', locale)
+const year = new Date().getFullYear()
+---
+
+<footer class="footer" role="contentinfo">
+  <div class="footer__inner container">
+    <!-- Columna 1: Marca -->
+    <div class="footer__brand">
+      <a href={getLocalizedPath('/', locale)} aria-label={t(locale, 'accesibilidad.logo')}>
+        <img
+          src="/assets/extraccion/img/logo-ime.png"
+          alt="I-ME International Medical Enterprise"
+          width="110"
+          height="37"
+          loading="lazy"
+          decoding="async"
+        />
+      </a>
+      <p class="footer__desc">{t(locale, 'footer.descripcion')}</p>
+      <!-- Slogan real de contenido_ime.json -->
+      <p class="footer__slogan">"Equipamos tu misión de salvar vidas."</p>
+    </div>
+
+    <!-- Columna 2: Navegación -->
+    <nav class="footer__col" aria-label={t(locale, 'footer.navegacion')}>
+      <h3 class="footer__heading">{t(locale, 'footer.navegacion')}</h3>
+      <ul role="list">
+        <li><a href={getLocalizedPath('/', locale)}>{t(locale, 'nav.inicio')}</a></li>
+        <li><a href={getLocalizedPath('/catalogo', locale)}>{t(locale, 'nav.catalogo')}</a></li>
+        <li><a href={getLocalizedPath('/servicios', locale)}>{t(locale, 'nav.servicios')}</a></li>
+        <li>
+          <a href={getLocalizedPath('/financiacion', locale)}>{t(locale, 'nav.financiacion')}</a>
+        </li>
+        <li><a href={getLocalizedPath('/contacto', locale)}>{t(locale, 'nav.contacto')}</a></li>
+      </ul>
+    </nav>
+
+    <!-- Columna 3: Categorías (8 familias reales) -->
+    <nav class="footer__col" aria-label={t(locale, 'catalogo.familias_titulo')}>
+      <h3 class="footer__heading">{t(locale, 'footer.categorias')}</h3>
+      <ul role="list">
+        {
+          familias.map((f) => (
+            <li>
+              <a href={`${catalogoBase}?cat=${f.slug}`}>
+                {locale === 'en' ? f.label_en : f.label_es}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <!-- Columna 4: Contacto real -->
+    <div class="footer__col footer__contact">
+      <h3 class="footer__heading">{locale === 'es' ? 'Contacto' : 'Contact'}</h3>
+      <ul role="list">
+        <li>
+          <a href="tel:+573138674059" aria-label="+57 313 867 4059">+57 313 867 4059</a>
+        </li>
+        <li>
+          <a href="https://wa.me/573138674059" target="_blank" rel="noopener noreferrer">
+            WhatsApp
+            <span class="sr-only">{t(locale, 'accesibilidad.nueva_ventana')}</span>
+          </a>
+        </li>
+        <li>
+          <a href="mailto:info@i-me.com.co">info@i-me.com.co</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Bottom bar -->
+  <div class="footer__bottom">
+    <div class="container footer__bottom-inner">
+      <p class="footer__copy">
+        &copy; {year} I-ME International Medical Enterprise. {t(locale, 'footer.derechos')}.
+      </p>
+      <p class="footer__certif">
+        {t(locale, 'footer.pais')} &middot; {t(locale, 'footer.certif')}
+      </p>
+      <nav class="footer__legal" aria-label={t(locale, 'footer.legal')}>
+        <!-- BLOQUEANTE_LEGAL: textos legales se crean en F5 -->
+        <a href="#" aria-disabled="true">{t(locale, 'footer.privacidad')}</a>
+        <a href="#" aria-disabled="true">{t(locale, 'footer.terminos')}</a>
+      </nav>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: var(--ink);
+    color: var(--text-muted);
+    margin-top: auto;
+  }
+  .footer__inner {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    padding-block: var(--space-2xl);
+  }
+  @media (min-width: 640px) {
+    .footer__inner {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (min-width: 1024px) {
+    .footer__inner {
+      grid-template-columns: 2fr 1fr 1.5fr 1fr;
+    }
+  }
+  .footer__brand {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .footer__brand img {
+    filter: brightness(0) invert(1);
+    opacity: 0.9;
+  }
+  .footer__desc {
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.55);
+    margin: 0;
+  }
+  .footer__slogan {
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-style: italic;
+    color: var(--green);
+    margin: 0;
+  }
+  .footer__col {
+  }
+  .footer__heading {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.4);
+    margin-block-end: 1rem;
+    margin-block-start: 0;
+  }
+  .footer__col ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .footer__col a {
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.65);
+    text-decoration: none;
+    transition: color 180ms var(--ease);
+  }
+  .footer__col a:hover {
+    color: var(--white);
+  }
+  .footer__bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-block: 1.25rem;
+  }
+  .footer__bottom-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    justify-content: space-between;
+  }
+  .footer__copy,
+  .footer__certif {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.35);
+    margin: 0;
+  }
+  .footer__legal {
+    display: flex;
+    gap: 1rem;
+  }
+  .footer__legal a {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.35);
+    text-decoration: none;
+    transition: color 180ms var(--ease);
+  }
+  .footer__legal a:hover {
+    color: rgba(255, 255, 255, 0.7);
+  }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+</style>

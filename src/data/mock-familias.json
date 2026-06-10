@@ -1,0 +1,90 @@
+[
+  {
+    "id": "fam-monitores",
+    "slug": "monitores",
+    "nombre_es": "Monitores de Signos Vitales",
+    "nombre_en": "Patient Monitors",
+    "descripcion_es": "Monitores multiparamétricos para UCI, hospitalización y transporte prehospitalario.",
+    "descripcion_en": "COPY_CLIENTE_REVISAR — Multiparameter monitors for ICU, hospitalization and pre-hospital transport.",
+    "icono": "activity",
+    "orden": 1,
+    "activo": true
+  },
+  {
+    "id": "fam-cardiologia",
+    "slug": "cardiologia",
+    "nombre_es": "Cardiología",
+    "nombre_en": "Cardiology",
+    "descripcion_es": "Electrocardiógrafs, desfibriladores, holter y sistemas de monitoreo cardíaco.",
+    "descripcion_en": "COPY_CLIENTE_REVISAR — ECGs, defibrillators, Holter monitors and cardiac monitoring systems.",
+    "icono": "heart",
+    "orden": 2,
+    "activo": true
+  },
+  {
+    "id": "fam-sala-cirugia",
+    "slug": "sala-cirugia",
+    "nombre_es": "Sala de Cirugía",
+    "nombre_en": "Operating Room",
+    "descripcion_es": "Mesas quirúrgicas, lámparas cialíticas y equipamiento para salas de operaciones.",
+    "descripcion_en": "COPY_CLIENTE_REVISAR — Surgical tables, operating lights and OR equipment.",
+    "icono": "scissors",
+    "orden": 3,
+    "activo": true
+  },
+  {
+    "id": "fam-neonatologia",
+    "slug": "neonatologia",
+    "nombre_es": "Neonatología",
+    "nombre_en": "Neonatology",
+    "descripcion_es": "Incubadoras, cunas de calor radiante, monitores fetales y sistemas CPAP neonatal.",
+    "descripcion_en": "COPY_CLIENTE_REVISAR — Incubators, radiant warmers, fetal monitors and neonatal CPAP systems.",
+    "icono": "baby",
+    "orden": 4,
+    "activo": true
+  },
+  {
+    "id": "fam-ultrasonido",
+    "slug": "ultrasonido",
+    "nombre_es": "Ultrasonido",
+    "nombre_en": "Ultrasound",
+    "descripcion_es": "Ecógrafos diagnósticos, Doppler color y equipos portátiles point-of-care.",
+    "descripcion_en": "COPY_CLIENTE_REVISAR — Diagnostic ultrasound, color Doppler and portable point-of-care devices.",
+    "icono": "radio",
+    "orden": 5,
+    "activo": true
+  },
+  {
+    "id": "fam-soluciones-iv",
+    "slug": "soluciones-iv",
+    "nombre_es": "Soluciones IV",
+    "nombre_en": "IV Solutions",
+    "descripcion_es": "Bombas de infusión volumétricas y de jeringa para UCI y hospitalización.",
+    "descripcion_en": "COPY_CLIENTE_REVISAR — Volumetric and syringe infusion pumps for ICU and hospitalization.",
+    "icono": "droplets",
+    "orden": 6,
+    "activo": true
+  },
+  {
+    "id": "fam-mobiliario",
+    "slug": "mobiliario",
+    "nombre_es": "Mobiliario Hospitalario",
+    "nombre_en": "Hospital Furniture",
+    "descripcion_es": "Camillas hospitalarias eléctricas, carros de paro y mobiliario clínico.",
+    "descripcion_en": "COPY_CLIENTE_REVISAR — Electric hospital beds, code carts and clinical furniture.",
+    "icono": "bed",
+    "orden": 7,
+    "activo": true
+  },
+  {
+    "id": "fam-anestesia",
+    "slug": "anestesia",
+    "nombre_es": "Anestesia y Ventilación",
+    "nombre_en": "Anesthesia & Ventilation",
+    "descripcion_es": "Máquinas de anestesia y ventiladores mecánicos para UCI adultos y pediatría.",
+    "descripcion_en": "COPY_CLIENTE_REVISAR — Anesthesia machines and mechanical ventilators for adult and pediatric ICU.",
+    "icono": "wind",
+    "orden": 8,
+    "activo": true
+  }
+]

@@ -1,0 +1,33 @@
+---
+/**
+ * Services EN — stub with COPY_CLIENTE_REVISAR
+ */
+import Layout from '../../layouts/Layout.astro'
+import { buildPageTitle, buildCanonical } from '../../lib/seo'
+
+const locale = 'en'
+const title = buildPageTitle('Specialized Services — Biomedical Support')
+const description =
+  'COPY_CLIENTE_REVISAR — Equipment sales, technical support, medical financing and biomedical advisory for hospitals and clinics.'
+const canonical = buildCanonical('/en/services')
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  locale={locale}
+  currentPath="/en/services"
+>
+  <div style="padding-top:130px;padding-bottom:var(--space-2xl);background:var(--off)">
+    <div class="container">
+      <h1>COPY_CLIENTE_REVISAR — Specialized Services</h1>
+      <p style="color:var(--text-mid)">
+        English services content — pending client review and translation.
+      </p>
+    </div>
+  </div>
+  <section class="section container">
+    <a href="/en/contact" class="btn btn-primary">Request Information</a>
+  </section>
+</Layout>

@@ -1,0 +1,466 @@
+---
+/**
+ * Contacto ES — formulario real con submitCotizacion, datos reales de contacto.
+ */
+import Layout from '../../layouts/Layout.astro'
+import { buildPageTitle, buildCanonical } from '../../lib/seo'
+import { t } from '../../i18n/utils'
+
+const locale = 'es'
+const title = buildPageTitle('Contacto — Solicitar Cotización')
+const description =
+  'Contáctanos para solicitar cotización de equipos biomédicos. Respondemos en menos de 24 horas. Tel: +57 313 867 4059 | info@i-me.com.co'
+const canonical = buildCanonical('/es/contacto')
+
+const opciones = [
+  'Monitores de signos vitales',
+  'Cardiología',
+  'Sala de cirugía',
+  'Neonatología',
+  'Ultrasonido',
+  'Soluciones IV',
+  'Mobiliario hospitalario',
+  'Anestesia y ventilación',
+  'Otro',
+]
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  locale={locale}
+  currentPath="/es/contacto"
+>
+  <div
+    class="page-hero"
+    style="padding-top:130px;padding-bottom:var(--space-2xl);background:var(--off)"
+  >
+    <div class="container">
+      <span class="section-tag">Contacto</span>
+      <h1>{t(locale, 'contacto.titulo')}</h1>
+      <p style="color:var(--text-mid);max-width:560px;margin:0.75rem 0 0">
+        Cuéntanos sobre el equipo que necesitas. Un asesor especializado te responderá en menos de
+        24 horas.
+      </p>
+    </div>
+  </div>
+
+  <section class="section container">
+    <div class="contacto-grid">
+      <!-- Formulario -->
+      <div class="contacto-form-wrapper">
+        <form
+          id="contacto-form"
+          class="contacto-form"
+          novalidate
+          aria-label="Formulario de contacto y cotización"
+        >
+          <div class="form-row">
+            <div class="form-field">
+              <label for="nombre" class="form-label"
+                >{t(locale, 'contacto.nombre')}
+                <span aria-hidden="true" class="required">*</span></label
+              >
+              <input
+                type="text"
+                id="nombre"
+                name="nombre"
+                class="form-input"
+                autocomplete="given-name"
+                required
+                aria-required="true"
+                placeholder="Tu nombre"
+              />
+            </div>
+            <div class="form-field">
+              <label for="apellido" class="form-label"
+                >{t(locale, 'contacto.apellido')}
+                <span aria-hidden="true" class="required">*</span></label
+              >
+              <input
+                type="text"
+                id="apellido"
+                name="apellido"
+                class="form-input"
+                autocomplete="family-name"
+                required
+                aria-required="true"
+                placeholder="Tu apellido"
+              />
+            </div>
+          </div>
+          <div class="form-field">
+            <label for="email" class="form-label"
+              >{t(locale, 'contacto.email')}
+              <span aria-hidden="true" class="required">*</span></label
+            >
+            <input
+              type="email"
+              id="email"
+              name="email"
+              class="form-input"
+              autocomplete="email"
+              required
+              aria-required="true"
+              placeholder="tu@correo.com"
+            />
+          </div>
+          <div class="form-field">
+            <label for="telefono" class="form-label"
+              >{t(locale, 'contacto.telefono')}
+              <span aria-hidden="true" class="required">*</span></label
+            >
+            <input
+              type="tel"
+              id="telefono"
+              name="telefono"
+              class="form-input"
+              autocomplete="tel"
+              required
+              aria-required="true"
+              placeholder="+57 300 000 0000"
+            />
+          </div>
+          <div class="form-field">
+            <label for="institucion" class="form-label">{t(locale, 'contacto.institucion')}</label>
+            <input
+              type="text"
+              id="institucion"
+              name="institucion"
+              class="form-input"
+              autocomplete="organization"
+              placeholder="Hospital, clínica, consultorio…"
+            />
+          </div>
+          <div class="form-field">
+            <label for="interes" class="form-label"
+              >{t(locale, 'contacto.interes')}
+              <span aria-hidden="true" class="required">*</span></label
+            >
+            <select
+              id="interes"
+              name="interes"
+              class="form-input form-select"
+              required
+              aria-required="true"
+            >
+              <option value="">Selecciona una categoría</option>
+              {opciones.map((op) => <option value={op}>{op}</option>)}
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="mensaje" class="form-label"
+              >{t(locale, 'contacto.mensaje')}
+              <span aria-hidden="true" class="required">*</span></label
+            >
+            <textarea
+              id="mensaje"
+              name="mensaje"
+              class="form-input form-textarea"
+              rows={5}
+              required
+              aria-required="true"
+              placeholder="Cuéntanos sobre el equipo que necesitas, tu institución y cualquier detalle relevante…"
+            ></textarea>
+          </div>
+
+          <!-- Consentimiento BLOQUEANTE_LEGAL -->
+          <div class="form-consent">
+            <label class="consent-label">
+              <input
+                type="checkbox"
+                id="consentimiento"
+                name="consentimiento"
+                required
+                aria-required="true"
+                class="consent-checkbox"
+              />
+              <span
+                >{t(locale, 'contacto.consentimiento')}
+                <strong>BLOQUEANTE_LEGAL: Enlace a política de privacidad pendiente (F5).</strong
+                ></span
+              >
+            </label>
+          </div>
+
+          <div
+            role="alert"
+            aria-live="polite"
+            id="form-status"
+            class="form-status"
+            aria-atomic="true"
+          >
+          </div>
+
+          <button type="submit" class="btn btn-primary form-submit" id="form-submit-btn">
+            {t(locale, 'contacto.enviar')}
+          </button>
+        </form>
+      </div>
+
+      <!-- Info de contacto real -->
+      <aside class="contacto-info" aria-label="Información de contacto">
+        <h2 class="contacto-info__heading">Canales directos</h2>
+
+        <div class="contacto-info__item">
+          <div class="contacto-info__icon" aria-hidden="true">📞</div>
+          <div>
+            <p class="contacto-info__label">Teléfono</p>
+            <a href="tel:+573138674059" class="contacto-info__value">+57 313 867 4059</a>
+          </div>
+        </div>
+
+        <div class="contacto-info__item">
+          <div class="contacto-info__icon" aria-hidden="true">💬</div>
+          <div>
+            <p class="contacto-info__label">WhatsApp</p>
+            <a
+              href="https://wa.me/573138674059"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="contacto-info__value"
+            >
+              {t(locale, 'contacto.whatsapp')}
+              <span class="sr-only">(abre en nueva ventana)</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="contacto-info__item">
+          <div class="contacto-info__icon" aria-hidden="true">✉️</div>
+          <div>
+            <p class="contacto-info__label">Email</p>
+            <a href="mailto:info@i-me.com.co" class="contacto-info__value">info@i-me.com.co</a>
+          </div>
+        </div>
+
+        <!-- TODO_CLIENTE: dirección física si existe -->
+        <!-- TODO_CLIENTE: horario de atención -->
+      </aside>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .section-tag {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--t900);
+    background: var(--t100);
+    padding: 0.3rem 0.875rem;
+    border-radius: 999px;
+    margin-block-end: 0.75rem;
+  }
+  .contacto-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-xl);
+  }
+  @media (min-width: 900px) {
+    .contacto-grid {
+      grid-template-columns: 1.5fr 1fr;
+    }
+  }
+  .contacto-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .form-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    font-family: var(--font-display);
+    color: var(--ink);
+  }
+  .required {
+    color: #c0392b;
+  }
+  .form-input {
+    border: 1px solid var(--border-mid);
+    border-radius: var(--radius);
+    padding: 0.7rem 1rem;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--text);
+    background: var(--white);
+    transition:
+      border-color 180ms var(--ease),
+      box-shadow 180ms var(--ease);
+    width: 100%;
+  }
+  .form-input:focus {
+    outline: none;
+    border-color: var(--t800);
+    box-shadow: 0 0 0 3px rgba(15, 76, 92, 0.12);
+  }
+  .form-textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+  .form-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23456070' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2.5rem;
+    cursor: pointer;
+  }
+  .form-consent {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .consent-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    font-size: 0.8rem;
+    color: var(--text-mid);
+    cursor: pointer;
+    line-height: 1.5;
+  }
+  .consent-checkbox {
+    flex-shrink: 0;
+    margin-top: 2px;
+    accent-color: var(--t900);
+    width: 16px;
+    height: 16px;
+  }
+  .form-status {
+    min-height: 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  .form-status.success {
+    color: #2a7d1e;
+  }
+  .form-status.error {
+    color: #c0392b;
+  }
+  .form-submit {
+    align-self: flex-start;
+  }
+  .contacto-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .contacto-info__heading {
+    font-size: var(--step-1);
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0 0 0.5rem;
+  }
+  .contacto-info__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: var(--off);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+  }
+  .contacto-info__icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+  .contacto-info__label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin: 0 0 0.2rem;
+    font-family: var(--font-display);
+  }
+  .contacto-info__value {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--t800);
+    text-decoration: none;
+  }
+  .contacto-info__value:hover {
+    color: var(--t900);
+  }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+</style>
+
+<script>
+  import { submitCotizacion } from '../../lib/datos'
+
+  const form = document.getElementById('contacto-form') as HTMLFormElement | null
+  const status = document.getElementById('form-status')
+  const submitBtn = document.getElementById('form-submit-btn') as HTMLButtonElement | null
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    if (!form.checkValidity()) {
+      form.reportValidity()
+      return
+    }
+
+    if (submitBtn) {
+      submitBtn.disabled = true
+      submitBtn.textContent = 'Enviando…'
+    }
+    if (status) {
+      status.className = 'form-status'
+      status.textContent = ''
+    }
+
+    const data = new FormData(form)
+    const result = await submitCotizacion({
+      nombre: (data.get('nombre') as string) ?? '',
+      apellido: (data.get('apellido') as string) ?? '',
+      email: (data.get('email') as string) ?? '',
+      telefono: (data.get('telefono') as string) ?? '',
+      institucion: (data.get('institucion') as string) ?? '',
+      interes: (data.get('interes') as string) ?? '',
+      mensaje: (data.get('mensaje') as string) ?? '',
+      consentimiento_datos: data.get('consentimiento') === 'on',
+    })
+
+    if (result.ok) {
+      if (status) {
+        status.className = 'form-status success'
+        status.textContent = '¡Solicitud enviada! Te contactaremos pronto.'
+      }
+      form.reset()
+    } else {
+      if (status) {
+        status.className = 'form-status error'
+        status.textContent = 'Ocurrió un error. Por favor intenta de nuevo.'
+      }
+    }
+
+    if (submitBtn) {
+      submitBtn.disabled = false
+      submitBtn.textContent = 'Enviar solicitud'
+    }
+  })
+</script>

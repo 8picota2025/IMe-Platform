@@ -1,15 +1,1067 @@
 ---
-// Stub de Home ES — F1 implementará el Home premium real
+/**
+ * Home premium ES — datos reales de contenido_ime.json y extraccion_ime.json.
+ */
+import Layout from '../../layouts/Layout.astro'
+import { t } from '../../i18n/utils'
+import { getFamilias, getProductosDestacados } from '../../lib/datos'
+import { buildHomeSeo, buildOrganizationJsonLd } from '../../lib/seo'
+
+const locale = 'es'
+const seo = buildHomeSeo(locale)
+const jsonLd = buildOrganizationJsonLd()
+
+const familias = await getFamilias(locale)
+const productosDestacados = await getProductosDestacados(locale)
+
+// Servicios reales de contenido_ime.json (parseados manualmente)
+const servicios = [
+  {
+    num: '01',
+    titulo: 'Venta y distribución',
+    desc: 'Distribución de equipos biomédicos de alta tecnología con certificaciones internacionales CE, FDA e INVIMA para hospitales, clínicas y centros de salud en Colombia.',
+    items: [
+      'Equipos certificados internacionalmente',
+      'Asesoría técnica especializada precompra',
+      'Instalación y puesta en marcha incluida',
+    ],
+  },
+  {
+    num: '02',
+    titulo: 'Soporte técnico',
+    desc: 'Mantenimiento preventivo, correctivo y calibración de equipos biomédicos realizado por ingenieros certificados en todo el territorio colombiano.',
+    items: [
+      'Mantenimiento preventivo y correctivo',
+      'Calibración y verificación metrológica',
+      'Repuestos y consumibles originales',
+    ],
+  },
+  {
+    num: '03',
+    titulo: 'Financiamiento médico',
+    desc: 'Planes de adquisición a medida para instituciones de salud. Cuotas flexibles, plazos extendidos y condiciones adaptadas a las necesidades de cada organización.',
+    items: [
+      'Cuotas mensuales flexibles',
+      'Plazos hasta 60 meses',
+      'Sin codeudor para instituciones de salud',
+    ],
+  },
+  {
+    num: '04',
+    titulo: 'Asesoría biomédica',
+    desc: 'Consultoría especializada para la correcta selección, adquisición y gestión del parque tecnológico biomédico de su institución de salud.',
+    items: [
+      'Diagnóstico del parque tecnológico',
+      'Plan de renovación y adquisición',
+      'Capacitación al personal clínico',
+    ],
+  },
+]
+
+// Métricas reales de contenido_ime.json
+const metricas = [
+  { valor: '24+', label: 'Categorías de equipos' },
+  { valor: '100%', label: 'Certificados INVIMA' },
+  { valor: '32 Dpt', label: 'Cobertura nacional' },
+]
 ---
 
-<html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>I-ME — Equipos Médicos</title>
-  </head>
-  <body>
-    <h1>I-ME Platform</h1>
-    <p>Fase -1 completada. F0 y F1 por ejecutar.</p>
-  </body>
-</html>
+<Layout
+  title={seo.title}
+  description={seo.description}
+  canonical={seo.canonical}
+  locale={locale}
+  currentPath="/es/"
+  ogImage={seo.ogImage}
+  jsonLd={jsonLd}
+>
+  <!-- ============================================================
+       1. HERO — video real quirofano-completo.mp4
+       ============================================================ -->
+  <section class="hero" aria-label="Encabezado principal">
+    <!-- Video de fondo -->
+    <div class="hero__bg" aria-hidden="true">
+      <video
+        class="hero__video"
+        src="/assets/extraccion/video/quirofano-completo.mp4"
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="none"
+        poster="/assets/extraccion/img/Img11.jpg"
+        aria-hidden="true"></video>
+      <div class="hero__overlay"></div>
+    </div>
+
+    <!-- ECG decorativo sutil -->
+    <div class="hero__ecg" aria-hidden="true">
+      <svg viewBox="0 0 800 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+        <polyline
+          points="0,30 100,30 130,30 145,10 160,50 175,5 190,55 205,30 220,30 350,30 380,30 395,10 410,50 425,5 440,55 455,30 470,30 600,30 630,30 645,10 660,50 675,5 690,55 705,30 720,30 800,30"
+          fill="none"
+          stroke="rgba(126,217,87,0.35)"
+          stroke-width="1.5"></polyline>
+      </svg>
+    </div>
+
+    <div class="hero__content container">
+      <div class="hero__text" data-animate="hero-text">
+        <!-- Badge -->
+        <span class="badge badge-teal hero__badge">I-ME International Medical Enterprise</span>
+
+        <!-- H1 único de la página -->
+        <h1 class="hero__title">Equipos biomédicos que salvan vidas</h1>
+
+        <p class="hero__subtitle">
+          Distribuimos tecnología médica de clase mundial certificada internacionalmente para
+          hospitales, clínicas y centros de salud en todo Colombia.
+        </p>
+
+        <div class="hero__ctas">
+          <a href="/es/catalogo" class="btn btn-primary hero__cta-primary">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              ><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path
+                d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg
+            >
+            {t(locale, 'hero.ver_catalogo')}
+          </a>
+          <a href="/es/contacto" class="btn btn-ghost">
+            {t(locale, 'hero.solicitar_asesoria')}
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="hero__scroll" aria-hidden="true">
+      <span class="hero__scroll-line"></span>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       2. BANDA DE CONFIANZA — métricas reales
+       ============================================================ -->
+  <section class="trust-band section-sm" aria-label="Métricas de confianza">
+    <div class="container">
+      <ul class="trust-band__list" role="list">
+        {
+          metricas.map((m) => (
+            <li class="trust-band__item" data-animate="fade-up">
+              <strong class="trust-band__valor">{m.valor}</strong>
+              <span class="trust-band__label">{m.label}</span>
+            </li>
+          ))
+        }
+        <!-- Sello certificación -->
+        <li class="trust-band__item trust-band__item--sello" data-animate="fade-up">
+          <span class="trust-band__sello-icon" aria-hidden="true">✓</span>
+          <span class="trust-band__label">CE · FDA · INVIMA</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       3. QUIÉNES SOMOS — contenido real
+       ============================================================ -->
+  <section class="about section" id="quienes-somos" aria-labelledby="about-heading">
+    <div class="container about__grid">
+      <div class="about__image" data-animate="fade-left">
+        <img
+          src="/assets/extraccion/img/Img11.jpg"
+          alt="Monitor multiparamétrico UCI en sala de cuidados intensivos"
+          width="600"
+          height="450"
+          loading="lazy"
+          decoding="async"
+          class="about__img"
+        />
+      </div>
+      <div class="about__content" data-animate="fade-right">
+        <span class="section-tag">{t(locale, 'quienes_somos.titulo')}</span>
+        <h2 id="about-heading">Tecnología médica que transforma instituciones de salud</h2>
+        <p>
+          I-ME International Medical Enterprise es una empresa colombiana con más de 15 años de
+          experiencia en la distribución, instalación y mantenimiento de equipos biomédicos de alta
+          tecnología para el sector salud.
+        </p>
+        <p>
+          Trabajamos con los principales fabricantes del mundo para llevar soluciones certificadas
+          internacionalmente a hospitales, clínicas, centros médicos y consultorios en todo el
+          territorio colombiano.
+        </p>
+
+        <!-- Visión, Misión, Calidad, Compromiso -->
+        <div class="about__pillars">
+          <div class="pillar">
+            <h3 class="pillar__title">Visión</h3>
+            <p>
+              Ser la empresa líder en Colombia en distribución de tecnología biomédica de
+              vanguardia.
+            </p>
+          </div>
+          <div class="pillar">
+            <h3 class="pillar__title">Misión</h3>
+            <p>
+              Equipar las instituciones de salud con tecnología certificada que mejore la atención
+              al paciente.
+            </p>
+          </div>
+          <div class="pillar">
+            <h3 class="pillar__title">Calidad</h3>
+            <p>Todos nuestros equipos cuentan con certificaciones CE, FDA e INVIMA vigentes.</p>
+          </div>
+          <div class="pillar">
+            <h3 class="pillar__title">Compromiso</h3>
+            <p>Soporte técnico especializado durante toda la vida útil de cada equipo.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       4. CATÁLOGO POR CATEGORÍA — 8 familias reales
+       ============================================================ -->
+  <section
+    class="categorias section"
+    id="categorias"
+    aria-labelledby="categorias-heading"
+    style="background:var(--off)"
+  >
+    <div class="container">
+      <div class="section-header" data-animate="fade-up">
+        <span class="section-tag">{t(locale, 'catalogo.familias_titulo')}</span>
+        <h2 id="categorias-heading">Soluciones para cada especialidad</h2>
+        <p class="section-desc">
+          24 equipos de clase mundial en 8 familias especializadas, todos certificados para el
+          sistema de salud colombiano.
+        </p>
+      </div>
+
+      <ul class="categorias__grid" role="list">
+        {
+          familias.map((familia) => (
+            <li data-animate="fade-up">
+              <a href={`/es/catalogo?cat=${familia.slug}`} class="categoria-card">
+                <div class="categoria-card__icon" aria-hidden="true">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="28"
+                    height="28"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                  </svg>
+                </div>
+                <h3 class="categoria-card__name">{familia.nombre}</h3>
+                <p class="categoria-card__desc">{familia.descripcion}</p>
+                <span class="categoria-card__link" aria-hidden="true">
+                  {t(locale, 'catalogo.ver_categoria')} →
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="section-cta" data-animate="fade-up">
+        <a href="/es/catalogo" class="btn btn-primary"> Ver catálogo completo </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       5. EQUIPOS DESTACADOS — productos con destacado:true de extraccion_ime.json
+       ============================================================ -->
+  <section class="destacados section" id="destacados" aria-labelledby="destacados-heading">
+    <div class="container">
+      <div class="section-header" data-animate="fade-up">
+        <span class="section-tag">{t(locale, 'destacados.titulo')}</span>
+        <h2 id="destacados-heading">{t(locale, 'destacados.titulo')}</h2>
+        <p class="section-desc">
+          Equipos de alta demanda para UCI, salas de cirugía, neonatología y diagnóstico, con la
+          mayor tecnología disponible.
+        </p>
+      </div>
+
+      <ul class="destacados__grid" role="list">
+        {
+          productosDestacados.map((producto) => (
+            <li class="card producto-card" data-animate="fade-up">
+              <a
+                href={`/es/productos/${producto.slug}`}
+                class="producto-card__link"
+                aria-label={`Ver detalles de ${producto.nombre}`}
+              >
+                <div class="producto-card__img-wrapper">
+                  <img
+                    src={producto.imagen_principal}
+                    alt={producto.nombre}
+                    width="400"
+                    height="280"
+                    loading="lazy"
+                    decoding="async"
+                    class="producto-card__img"
+                  />
+                </div>
+                <div class="producto-card__body">
+                  <p class="producto-card__familia">{producto.familia_slug}</p>
+                  <h3 class="producto-card__nombre">{producto.nombre}</h3>
+                  <p class="producto-card__desc">{producto.descripcion_corta}</p>
+                  <span class="btn btn-secondary producto-card__cta">
+                    {t(locale, 'catalogo.ver_detalle')}
+                  </span>
+                </div>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="section-cta" data-animate="fade-up">
+        <a href="/es/catalogo" class="btn btn-primary">{t(locale, 'destacados.ver_todos')}</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       6. SERVICIOS 01–04 — datos reales
+       ============================================================ -->
+  <section
+    class="servicios section"
+    id="servicios"
+    aria-labelledby="servicios-heading"
+    style="background:var(--off)"
+  >
+    <div class="container">
+      <div class="section-header" data-animate="fade-up">
+        <span class="section-tag">{t(locale, 'servicios.titulo')}</span>
+        <h2 id="servicios-heading">Servicios especializados</h2>
+        <p class="section-desc">
+          Soluciones integrales que acompañan a las instituciones de salud desde la adquisición
+          hasta el soporte técnico de largo plazo.
+        </p>
+      </div>
+
+      <ul class="servicios__grid" role="list">
+        {
+          servicios.map((s) => (
+            <li class="servicio-card" data-animate="fade-up">
+              <span class="servicio-card__num" aria-hidden="true">
+                {s.num}
+              </span>
+              <h3 class="servicio-card__titulo">{s.titulo}</h3>
+              <p class="servicio-card__desc">{s.desc}</p>
+              <ul class="servicio-card__items" role="list">
+                {s.items.map((item) => (
+                  <li>
+                    <span aria-hidden="true">✓</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       7. TEASER FINANCIACIÓN — copy real de financiacion_referencia.json (sin tasas)
+       ============================================================ -->
+  <section
+    class="financiacion-teaser section"
+    id="financiacion"
+    aria-labelledby="financiacion-heading"
+  >
+    <div class="container financiacion-teaser__inner">
+      <div class="financiacion-teaser__content" data-animate="fade-right">
+        <span class="section-tag">Financiación</span>
+        <h2 id="financiacion-heading">Planes de adquisición a medida para su institución</h2>
+        <p>
+          Facilitamos la adquisición de equipos mediante planes de financiamiento flexibles para
+          instituciones de salud. Incluye opción de financiamiento para la creación de clínicas y
+          salas de cirugía.
+        </p>
+        <!-- COPY_CLIENTE_REVISAR: plazos específicos pendientes de confirmación legal -->
+        <ul class="financiacion-teaser__features" role="list">
+          <li>Cuotas mensuales flexibles</li>
+          <li>Plazos extendidos para instituciones</li>
+          <li>Sin codeudor para instituciones de salud</li>
+          <li>Opciones para creación de nuevas unidades clínicas</li>
+        </ul>
+        <p class="financiacion-teaser__disclaimer">
+          COPY_CLIENTE_REVISAR — Condiciones definitivas sujetas a aprobación y política vigente.
+          BLOQUEANTE_LEGAL.
+        </p>
+        <a href="/es/financiacion" class="btn btn-primary">Consultar planes de financiación</a>
+      </div>
+      <div class="financiacion-teaser__visual" data-animate="fade-left" aria-hidden="true">
+        <img
+          src="/assets/extraccion/img/Img27.jpg"
+          alt=""
+          width="500"
+          height="380"
+          loading="lazy"
+          decoding="async"
+          class="financiacion-teaser__img"
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       8. FAQ — pendiente de datos reales (faq_preguntas estaba vacío en contenido_ime.json)
+       ============================================================ -->
+  <!-- BLOQUEANTE_CONTENIDO: faq_preguntas y faq_respuestas estaban vacíos en contenido_ime.json -->
+
+  <!-- ============================================================
+       9. CIERRE EMOCIONAL + CTA
+       ============================================================ -->
+  <section
+    class="cierre section"
+    aria-label="Llamada a la acción final"
+    style="background:var(--t900)"
+  >
+    <div class="container cierre__inner" data-animate="fade-up">
+      <h2 class="cierre__title">¿Listo para equipar su institución?</h2>
+      <p class="cierre__subtitle">
+        "Equipamos tu misión de salvar vidas." — Un asesor especializado está listo para
+        acompañarte.
+      </p>
+      <div class="cierre__ctas">
+        <a href="/es/contacto" class="btn btn-primary cierre__btn-primary">
+          Solicitar cotización
+        </a>
+        <a
+          href="https://wa.me/573138674059"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn-ghost"
+        >
+          WhatsApp
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            aria-hidden="true"
+            style="margin-left:0.25rem"
+          >
+            <path
+              d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"
+            ></path>
+          </svg>
+          <span class="sr-only">(abre en nueva ventana)</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  /* ===================== HERO ===================== */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    padding-top: 70px;
+  }
+  .hero__bg {
+    position: absolute;
+    inset: 0;
+  }
+  .hero__video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .hero__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(11, 27, 34, 0.82) 0%,
+      rgba(15, 76, 92, 0.6) 60%,
+      rgba(11, 27, 34, 0.55) 100%
+    );
+  }
+  .hero__ecg {
+    position: absolute;
+    bottom: 15%;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+    opacity: 0.6;
+  }
+  .hero__ecg svg {
+    width: 100%;
+    height: 60px;
+  }
+  .hero__content {
+    position: relative;
+    z-index: 1;
+    padding-block: var(--space-3xl);
+  }
+  .hero__text {
+    max-width: 680px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .hero__badge {
+    align-self: flex-start;
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+  }
+  .hero__title {
+    font-size: var(--step-5);
+    font-weight: 800;
+    color: white;
+    line-height: 1.08;
+    margin: 0;
+  }
+  .hero__subtitle {
+    font-size: var(--step-1);
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+    margin: 0;
+    max-width: 560px;
+  }
+  .hero__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .hero__cta-primary {
+    background: white;
+    color: var(--t900);
+  }
+  .hero__cta-primary:hover {
+    background: var(--off);
+    color: var(--t800);
+  }
+  .hero__scroll {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .hero__scroll-line {
+    display: block;
+    width: 1px;
+    height: 48px;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.6), transparent);
+    animation: scroll-pulse 2s ease-in-out infinite;
+  }
+  @keyframes scroll-pulse {
+    0%,
+    100% {
+      opacity: 0.3;
+      transform: scaleY(1);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scaleY(1.2);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero__scroll-line {
+      animation: none;
+    }
+  }
+
+  /* ===================== TRUST BAND ===================== */
+  .trust-band {
+    background: var(--t900);
+    color: white;
+  }
+  .trust-band__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 2rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+  }
+  .trust-band__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .trust-band__valor {
+    font-family: var(--font-display);
+    font-size: var(--step-3);
+    font-weight: 800;
+    color: white;
+  }
+  .trust-band__label {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+  }
+  .trust-band__item--sello .trust-band__sello-icon {
+    font-size: var(--step-2);
+    color: var(--green);
+    font-weight: 800;
+  }
+
+  /* ===================== SECTION COMMON ===================== */
+  .section-tag {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--t900);
+    background: var(--t100);
+    padding: 0.3rem 0.875rem;
+    border-radius: 999px;
+    margin-block-end: 0.75rem;
+  }
+  .section-header {
+    text-align: center;
+    max-width: 680px;
+    margin-inline: auto;
+    margin-block-end: var(--space-xl);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .section-header h2 {
+    margin-block-end: 0.75rem;
+  }
+  .section-desc {
+    color: var(--text-mid);
+    font-size: var(--step-0);
+    margin: 0;
+  }
+  .section-cta {
+    text-align: center;
+    margin-block-start: var(--space-xl);
+  }
+
+  /* ===================== ABOUT ===================== */
+  .about__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-xl);
+    align-items: center;
+  }
+  @media (min-width: 900px) {
+    .about__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .about__img {
+    border-radius: var(--radius-lg);
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    box-shadow: var(--shadow-lg);
+  }
+  .about__content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .about__content h2 {
+    margin: 0;
+  }
+  .about__content p {
+    color: var(--text-mid);
+    margin: 0;
+  }
+  .about__pillars {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-block-start: 0.5rem;
+  }
+  .pillar {
+    background: var(--off);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--border);
+  }
+  .pillar__title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    font-family: var(--font-display);
+    color: var(--t900);
+    margin: 0 0 0.35rem;
+  }
+  .pillar p {
+    font-size: 0.825rem;
+    color: var(--text-mid);
+    margin: 0;
+  }
+
+  /* ===================== CATEGORÍAS ===================== */
+  .categorias__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .categoria-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1.5rem;
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    text-decoration: none;
+    color: var(--text);
+    transition:
+      box-shadow 260ms var(--ease),
+      transform 260ms var(--ease),
+      border-color 260ms var(--ease);
+  }
+  .categoria-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-3px);
+    border-color: var(--t700);
+  }
+  .categoria-card__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius);
+    background: var(--t100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--t900);
+  }
+  .categoria-card__name {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0;
+  }
+  .categoria-card__desc {
+    font-size: 0.825rem;
+    color: var(--text-mid);
+    line-height: 1.5;
+    margin: 0;
+    flex: 1;
+  }
+  .categoria-card__link {
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: var(--font-display);
+    color: var(--t800);
+    margin-block-start: auto;
+  }
+
+  /* ===================== DESTACADOS ===================== */
+  .destacados__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .producto-card {
+    display: flex;
+    flex-direction: column;
+  }
+  .producto-card__link {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .producto-card__img-wrapper {
+    overflow: hidden;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    aspect-ratio: 4/3;
+    background: var(--off2);
+  }
+  .producto-card__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 400ms var(--ease);
+  }
+  .producto-card:hover .producto-card__img {
+    transform: scale(1.04);
+  }
+  .producto-card__body {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+  }
+  .producto-card__familia {
+    font-size: 0.7rem;
+    font-weight: 700;
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--t800);
+    margin: 0;
+  }
+  .producto-card__nombre {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0;
+    line-height: 1.3;
+  }
+  .producto-card__desc {
+    font-size: 0.825rem;
+    color: var(--text-mid);
+    line-height: 1.5;
+    margin: 0;
+    flex: 1;
+  }
+  .producto-card__cta {
+    align-self: flex-start;
+    margin-block-start: 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  /* ===================== SERVICIOS ===================== */
+  .servicios__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .servicio-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    box-shadow: var(--shadow-sm);
+    transition:
+      box-shadow 260ms var(--ease),
+      transform 260ms var(--ease);
+  }
+  .servicio-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+  .servicio-card__num {
+    font-family: var(--font-display);
+    font-size: var(--step-3);
+    font-weight: 800;
+    color: var(--t100);
+    line-height: 1;
+    display: block;
+  }
+  .servicio-card__titulo {
+    font-size: var(--step-1);
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0;
+  }
+  .servicio-card__desc {
+    font-size: 0.875rem;
+    color: var(--text-mid);
+    margin: 0;
+    line-height: 1.6;
+  }
+  .servicio-card__items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .servicio-card__items li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-size: 0.825rem;
+    color: var(--text);
+  }
+  .servicio-card__items span {
+    color: var(--green);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* ===================== FINANCIACIÓN TEASER ===================== */
+  .financiacion-teaser__inner {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-xl);
+    align-items: center;
+  }
+  @media (min-width: 900px) {
+    .financiacion-teaser__inner {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .financiacion-teaser__content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .financiacion-teaser__content h2 {
+    margin: 0;
+  }
+  .financiacion-teaser__content p {
+    color: var(--text-mid);
+    margin: 0;
+  }
+  .financiacion-teaser__features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .financiacion-teaser__features li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text);
+  }
+  .financiacion-teaser__features li::before {
+    content: '✓';
+    color: var(--green);
+    font-weight: 700;
+  }
+  .financiacion-teaser__disclaimer {
+    font-size: 0.75rem;
+    color: var(--text-muted) !important;
+    border-left: 3px solid var(--border-mid);
+    padding-left: 0.75rem;
+  }
+  .financiacion-teaser__img {
+    border-radius: var(--radius-lg);
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* ===================== CIERRE ===================== */
+  .cierre__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.5rem;
+  }
+  .cierre__title {
+    font-size: var(--step-3);
+    font-weight: 800;
+    color: white;
+    margin: 0;
+  }
+  .cierre__subtitle {
+    font-size: var(--step-1);
+    color: rgba(255, 255, 255, 0.75);
+    max-width: 600px;
+    margin: 0;
+  }
+  .cierre__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+  .cierre__btn-primary {
+    background: white;
+    color: var(--t900);
+  }
+  .cierre__btn-primary:hover {
+    background: var(--off);
+    color: var(--t800);
+  }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+</style>
+
+<script>
+  // GSAP reveals con prefers-reduced-motion
+  import { prefersReducedMotion } from '../../lib/motion'
+
+  if (!prefersReducedMotion()) {
+    const load = async () => {
+      const { gsap } = await import('gsap')
+      const { ScrollTrigger } = await import('gsap/ScrollTrigger')
+      gsap.registerPlugin(ScrollTrigger)
+
+      document.querySelectorAll('[data-animate]').forEach((el) => {
+        const type = el.getAttribute('data-animate')
+        const vars: gsap.TweenVars = { opacity: 0 }
+        const toVars: gsap.TweenVars = {
+          opacity: 1,
+          duration: 0.7,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: el,
+            start: 'top 88%',
+            once: true,
+          },
+        }
+        if (type === 'fade-up' || type === 'hero-text') {
+          vars.y = 30
+          toVars.y = 0
+        } else if (type === 'fade-left') {
+          vars.x = -30
+          toVars.x = 0
+        } else if (type === 'fade-right') {
+          vars.x = 30
+          toVars.x = 0
+        }
+        gsap.fromTo(el, vars, toVars)
+      })
+    }
+    load()
+  }
+</script>

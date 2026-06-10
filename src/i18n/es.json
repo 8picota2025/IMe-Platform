@@ -1,0 +1,113 @@
+{
+  "nav": {
+    "inicio": "Inicio",
+    "catalogo": "Catálogo",
+    "servicios": "Servicios",
+    "financiacion": "Financiación",
+    "contacto": "Contacto",
+    "cta_cotizar": "Cotizar ahora",
+    "abrir_menu": "Abrir menú de navegación",
+    "cerrar_menu": "Cerrar menú de navegación",
+    "cambiar_idioma": "Cambiar idioma",
+    "tema_claro": "Cambiar a tema claro",
+    "tema_oscuro": "Cambiar a tema oscuro",
+    "carrito": "Ver carrito de cotización",
+    "items_carrito": "elementos en el carrito"
+  },
+  "hero": {
+    "ver_catalogo": "Ver catálogo",
+    "solicitar_asesoria": "Solicitar asesoría",
+    "pausa_video": "Pausar video de fondo",
+    "reproducir_video": "Reproducir video de fondo"
+  },
+  "catalogo": {
+    "titulo": "Catálogo de Equipos",
+    "ver_categoria": "Ver categoría",
+    "ver_detalle": "Ver detalles",
+    "cotizar": "Solicitar cotización",
+    "proxima_entrega": "F2 — Catálogo completo próximamente",
+    "familias_titulo": "Nuestras categorías"
+  },
+  "servicios": {
+    "titulo": "Nuestros Servicios",
+    "ver_servicios": "Ver todos los servicios"
+  },
+  "financiacion": {
+    "titulo": "Financiación",
+    "cta": "Consultar planes",
+    "disclaimer": "COPY_CLIENTE_REVISAR — Condiciones sujetas a aprobación. Tasas y plazos a confirmar."
+  },
+  "contacto": {
+    "titulo": "Contacto",
+    "nombre": "Nombre",
+    "apellido": "Apellido",
+    "email": "Correo electrónico",
+    "telefono": "Teléfono",
+    "institucion": "Institución",
+    "interes": "Área de interés",
+    "mensaje": "Mensaje",
+    "enviar": "Enviar solicitud",
+    "enviando": "Enviando…",
+    "exito": "¡Solicitud enviada! Te contactaremos pronto.",
+    "error": "Ocurrió un error. Por favor intenta de nuevo.",
+    "requerido": "Campo requerido",
+    "whatsapp": "Escríbenos por WhatsApp",
+    "email_directo": "Enviar correo directo",
+    "consentimiento": "Acepto el tratamiento de mis datos personales de acuerdo con la política de privacidad.",
+    "interes_opciones": [
+      "Monitores de signos vitales",
+      "Cardiología",
+      "Sala de cirugía",
+      "Neonatología",
+      "Ultrasonido",
+      "Soluciones IV",
+      "Mobiliario hospitalario",
+      "Anestesia y ventilación",
+      "Otro"
+    ]
+  },
+  "footer": {
+    "descripcion": "Empresa colombiana especializada en distribución y soporte de equipos biomédicos certificados internacionalmente.",
+    "navegacion": "Navegación",
+    "categorias": "Categorías",
+    "servicios": "Servicios",
+    "legal": "Legal",
+    "privacidad": "Política de privacidad",
+    "terminos": "Términos y condiciones",
+    "derechos": "Todos los derechos reservados",
+    "pais": "Colombia",
+    "certif": "Equipos Biomédicos Certificados INVIMA"
+  },
+  "asesor": {
+    "titulo": "Asesor I-ME",
+    "abrir": "Abrir asesor virtual",
+    "cerrar": "Cerrar asesor",
+    "placeholder": "Escribe tu pregunta sobre equipos biomédicos…",
+    "enviar": "Enviar",
+    "bienvenida": "Hola, soy el asistente de I-ME. Puedo ayudarte a encontrar el equipo biomédico que necesitas. ¿En qué área médica estás buscando soluciones?",
+    "mock_nota": "Asesor en modo demo — lógica real llega en Fase Asesor.",
+    "cargando": "Un momento…"
+  },
+  "accesibilidad": {
+    "saltar_contenido": "Saltar al contenido principal",
+    "imagen_decorativa": "Imagen decorativa",
+    "logo": "I-ME International Medical Enterprise — Ir al inicio",
+    "nueva_ventana": "(abre en nueva ventana)"
+  },
+  "estados": {
+    "cargando": "Cargando…",
+    "error": "Error al cargar los datos",
+    "sin_resultados": "No se encontraron resultados",
+    "proximamente": "Próximamente"
+  },
+  "faq": {
+    "titulo": "Preguntas frecuentes"
+  },
+  "quienes_somos": {
+    "titulo": "Quiénes somos"
+  },
+  "destacados": {
+    "titulo": "Equipos destacados",
+    "ver_todos": "Ver catálogo completo"
+  }
+}
