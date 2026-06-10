@@ -1,0 +1,475 @@
+---
+/**
+ * Asesor comercial — Shell mock F1.
+ * Lógica RAG real: Fase Asesor (después de F3).
+ * Regla: solo asesoría comercial — prohibido diagnóstico clínico o precio comprometido.
+ */
+import type { Locale } from '../i18n/utils'
+import { t } from '../i18n/utils'
+
+interface Props {
+  locale: Locale
+}
+
+const { locale } = Astro.props
+---
+
+<!-- Botón flotante para abrir el asesor -->
+<button
+  id="asesor-trigger"
+  class="asesor-fab"
+  aria-label={t(locale, 'asesor.abrir')}
+  aria-haspopup="dialog"
+  aria-expanded="false"
+  aria-controls="asesor-dialog"
+  type="button"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+  </svg>
+  <span class="asesor-fab__label">{locale === 'es' ? 'Asesor' : 'Advisor'}</span>
+</button>
+
+<!-- Dialog del asesor -->
+<div
+  id="asesor-dialog"
+  class="asesor-dialog"
+  role="dialog"
+  aria-modal="true"
+  aria-label={t(locale, 'asesor.titulo')}
+  aria-live="polite"
+  hidden
+>
+  <div class="asesor-dialog__inner">
+    <!-- Header -->
+    <div class="asesor-dialog__header">
+      <div class="asesor-dialog__title-row">
+        <div class="asesor-dialog__avatar" aria-hidden="true">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"
+            ></circle>
+          </svg>
+        </div>
+        <div>
+          <p class="asesor-dialog__name">{t(locale, 'asesor.titulo')}</p>
+          <p class="asesor-dialog__status">
+            <span class="asesor-dialog__dot" aria-hidden="true"></span>
+            {locale === 'es' ? 'En línea' : 'Online'}
+          </p>
+        </div>
+      </div>
+      <button
+        id="asesor-close"
+        class="asesor-dialog__close"
+        aria-label={t(locale, 'asesor.cerrar')}
+        type="button"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Mensajes -->
+    <div
+      id="asesor-messages"
+      class="asesor-dialog__messages"
+      role="log"
+      aria-live="polite"
+      aria-label={locale === 'es' ? 'Conversación con el asesor' : 'Conversation with advisor'}
+    >
+      <!-- Los mensajes se insertan dinámicamente -->
+    </div>
+
+    <!-- Nota mock -->
+    <div class="asesor-dialog__mock-note" role="note">
+      <small>
+        {t(locale, 'asesor.mock_nota')}
+      </small>
+    </div>
+
+    <!-- Input -->
+    <form id="asesor-form" class="asesor-dialog__form" novalidate>
+      <label for="asesor-input" class="sr-only">{t(locale, 'asesor.placeholder')}</label>
+      <textarea
+        id="asesor-input"
+        name="mensaje"
+        class="asesor-dialog__input"
+        placeholder={t(locale, 'asesor.placeholder')}
+        rows={2}
+        maxlength={500}
+        autocomplete="off"></textarea>
+      <button
+        type="submit"
+        class="asesor-dialog__send btn btn-primary"
+        aria-label={t(locale, 'asesor.enviar')}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"
+          ></polygon>
+        </svg>
+      </button>
+    </form>
+  </div>
+</div>
+
+<style>
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+  .asesor-fab {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--t900);
+    color: white;
+    border: none;
+    border-radius: 999px;
+    font-family: var(--font-display);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: var(--shadow-lg);
+    transition:
+      transform 180ms var(--ease),
+      background-color 180ms var(--ease);
+  }
+  .asesor-fab:hover {
+    background: var(--t800);
+    transform: scale(1.04);
+  }
+  .asesor-fab__label {
+    display: none;
+  }
+  @media (min-width: 480px) {
+    .asesor-fab__label {
+      display: inline;
+    }
+  }
+
+  .asesor-dialog {
+    position: fixed;
+    bottom: 5rem;
+    right: 1.5rem;
+    z-index: 201;
+    width: min(380px, calc(100vw - 2rem));
+    max-height: calc(100vh - 8rem);
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--radius-lg);
+    background: var(--white);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .asesor-dialog[hidden] {
+    display: none;
+  }
+  .asesor-dialog__inner {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .asesor-dialog__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    background: var(--t900);
+    color: white;
+    gap: 1rem;
+  }
+  .asesor-dialog__title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .asesor-dialog__avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .asesor-dialog__name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin: 0;
+    color: white;
+  }
+  .asesor-dialog__status {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+  }
+  .asesor-dialog__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+    display: inline-block;
+  }
+  .asesor-dialog__close {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: color 180ms var(--ease);
+    flex-shrink: 0;
+  }
+  .asesor-dialog__close:hover {
+    color: white;
+  }
+
+  .asesor-dialog__messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-height: 180px;
+    max-height: 300px;
+  }
+  .asesor-dialog__mock-note {
+    padding: 0.5rem 1rem;
+    background: var(--off);
+    border-top: 1px solid var(--border);
+  }
+  .asesor-dialog__mock-note small {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+  .asesor-dialog__form {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border-top: 1px solid var(--border);
+  }
+  .asesor-dialog__input {
+    flex: 1;
+    border: 1px solid var(--border-mid);
+    border-radius: var(--radius);
+    padding: 0.6rem 0.875rem;
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    resize: none;
+    color: var(--text);
+    background: var(--white);
+    transition: border-color 180ms var(--ease);
+  }
+  .asesor-dialog__input:focus {
+    outline: none;
+    border-color: var(--t800);
+  }
+  .asesor-dialog__send {
+    padding: 0.6rem 0.875rem;
+    flex-shrink: 0;
+  }
+
+  /* Burbujas de chat */
+  .chat-bubble {
+    max-width: 85%;
+    padding: 0.65rem 0.875rem;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+  .chat-bubble--user {
+    background: var(--t900);
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+  }
+  .chat-bubble--asesor {
+    background: var(--off2);
+    color: var(--text);
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+  }
+  .chat-bubble--loading {
+    background: var(--off2);
+    color: var(--text-muted);
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+  }
+</style>
+
+<script>
+  // Carga diferida — la lógica del asesor solo se importa al primer clic
+  let initialized = false
+
+  const trigger = document.getElementById('asesor-trigger')
+  const dialog = document.getElementById('asesor-dialog')
+  const closeBtn = document.getElementById('asesor-close')
+  const form = document.getElementById('asesor-form') as HTMLFormElement | null
+  const messagesEl = document.getElementById('asesor-messages')
+  const inputEl = document.getElementById('asesor-input') as HTMLTextAreaElement | null
+
+  // Locale detectado desde el HTML lang
+  const locale = document.documentElement.lang === 'en' ? 'en' : 'es'
+
+  const bienvenida =
+    locale === 'es'
+      ? 'Hola, soy el asistente de I-ME. Puedo ayudarte a encontrar el equipo biomédico que necesitas. ¿En qué área médica estás buscando soluciones?'
+      : 'Hello, I am the I-ME assistant. I can help you find the biomedical equipment you need. In which medical area are you looking for solutions?'
+
+  function addBubble(text: string, role: 'user' | 'asesor' | 'loading') {
+    if (!messagesEl) return
+    const div = document.createElement('div')
+    div.className = `chat-bubble chat-bubble--${role}`
+    div.textContent = text
+    messagesEl.appendChild(div)
+    messagesEl.scrollTop = messagesEl.scrollHeight
+    return div
+  }
+
+  function openDialog() {
+    if (!dialog || !trigger) return
+    dialog.removeAttribute('hidden')
+    trigger.setAttribute('aria-expanded', 'true')
+
+    if (!initialized) {
+      initialized = true
+      addBubble(bienvenida, 'asesor')
+    }
+
+    // Focus input
+    setTimeout(() => inputEl?.focus(), 100)
+  }
+
+  function closeDialog() {
+    if (!dialog || !trigger) return
+    dialog.setAttribute('hidden', '')
+    trigger.setAttribute('aria-expanded', 'false')
+    trigger.focus()
+  }
+
+  trigger?.addEventListener('click', openDialog)
+  closeBtn?.addEventListener('click', closeDialog)
+
+  // Escape closes
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !dialog?.hasAttribute('hidden')) {
+      closeDialog()
+    }
+  })
+
+  // Focus trap
+  dialog?.addEventListener('keydown', (e) => {
+    if (e.key !== 'Tab') return
+    const focusable = Array.from(
+      dialog.querySelectorAll<HTMLElement>('button, textarea, [tabindex]:not([tabindex="-1"])')
+    )
+    const first = focusable[0]
+    const last = focusable[focusable.length - 1]
+    if (!first || !last) return
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault()
+      last.focus()
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault()
+      first.focus()
+    }
+  })
+
+  // Submit form
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const msg = inputEl?.value.trim()
+    if (!msg) return
+
+    addBubble(msg, 'user')
+    if (inputEl) inputEl.value = ''
+
+    const loadingBubble = addBubble(locale === 'es' ? 'Un momento…' : 'Just a moment…', 'loading')
+
+    try {
+      // Carga diferida del módulo asesor
+      const { responderAsesor } = await import('../lib/asesor')
+      const respuesta = await responderAsesor(msg)
+      loadingBubble?.remove()
+      addBubble(respuesta, 'asesor')
+    } catch {
+      loadingBubble?.remove()
+      addBubble(
+        locale === 'es'
+          ? 'Error al conectar. Por favor intenta de nuevo.'
+          : 'Connection error. Please try again.',
+        'asesor'
+      )
+    }
+  })
+
+  // Enter sin Shift envía
+  inputEl?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      form?.requestSubmit()
+    }
+  })
+</script>

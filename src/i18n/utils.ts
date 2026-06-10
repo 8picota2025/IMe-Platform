@@ -1,0 +1,74 @@
+import es from './es.json'
+import en from './en.json'
+
+export type Locale = 'es' | 'en'
+
+const translations: Record<Locale, typeof es> = { es, en }
+
+/**
+ * Extracts locale from an Astro URL object or pathname string.
+ * Routes: /es/..., /en/...
+ */
+export function getLocale(url: URL | string): Locale {
+  const pathname = typeof url === 'string' ? url : url.pathname
+  if (pathname.startsWith('/en')) return 'en'
+  return 'es'
+}
+
+/**
+ * Typed translation helper.
+ * Usage: t(locale, 'nav.catalogo')
+ */
+export function t(locale: Locale, key: string): string {
+  const dict = translations[locale] ?? translations.es
+  const parts = key.split('.')
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let value: any = dict
+  for (const part of parts) {
+    if (value == null || typeof value !== 'object') return key
+    value = (value as Record<string, unknown>)[part]
+  }
+  if (typeof value === 'string') return value
+  return key
+}
+
+/**
+ * Returns the localized path for a given path + locale.
+ * Strips the current locale prefix and adds the new one.
+ */
+export function getLocalizedPath(path: string, targetLocale: Locale): string {
+  // Remove existing locale prefix
+  const stripped = path.replace(/^\/(es|en)/, '') || '/'
+  return `/${targetLocale}${stripped === '/' ? '' : stripped}`
+}
+
+/**
+ * Returns alternate link objects for hreflang.
+ * currentPath should be the full pathname like /es/catalogo
+ */
+export function getAlternateLinks(
+  currentPath: string
+): Array<{ locale: Locale | 'x-default'; hreflang: string; href: string }> {
+  const base = 'https://i-me.com.co'
+  const esPath = getLocalizedPath(currentPath, 'es')
+  const enPath = getLocalizedPath(currentPath, 'en')
+
+  return [
+    { locale: 'es', hreflang: 'es', href: `${base}${esPath}` },
+    { locale: 'es', hreflang: 'es-CO', href: `${base}${esPath}` },
+    { locale: 'en', hreflang: 'en', href: `${base}${enPath}` },
+    { locale: 'x-default', hreflang: 'x-default', href: `${base}${esPath}` },
+  ]
+}
+
+/**
+ * Maps a localized entity slug to the correct path segment for the current locale.
+ * For now, slugs are the same in both locales (English slugs may be added in F2).
+ */
+export function normalizeLocalizedSlug(
+  entity: { slug: string; slug_en?: string },
+  locale: Locale
+): string {
+  if (locale === 'en' && entity.slug_en) return entity.slug_en
+  return entity.slug
+}

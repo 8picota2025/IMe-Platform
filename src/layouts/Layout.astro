@@ -1,0 +1,65 @@
+---
+/**
+ * Layout global — skip-link, header, main, footer, View Transitions, Lenis.
+ */
+import { ClientRouter } from 'astro:transitions'
+import BaseHead from '../components/BaseHead.astro'
+import Navbar from '../components/Navbar.astro'
+import Footer from '../components/Footer.astro'
+import Asesor from '../components/Asesor.astro'
+import type { Locale } from '../i18n/utils'
+import { t } from '../i18n/utils'
+
+interface Props {
+  title: string
+  description: string
+  canonical: string
+  locale: Locale
+  currentPath: string
+  ogImage?: string
+  jsonLd?: string
+}
+
+const { title, description, canonical, locale, currentPath, ogImage, jsonLd } = Astro.props
+---
+
+<!doctype html>
+<html lang={locale === 'en' ? 'en' : 'es'} dir="ltr">
+  <head>
+    <BaseHead
+      title={title}
+      description={description}
+      canonical={canonical}
+      locale={locale}
+      currentPath={currentPath}
+      {...ogImage !== undefined ? { ogImage } : {}}
+      {...jsonLd !== undefined ? { jsonLd } : {}}
+    />
+    <ClientRouter />
+  </head>
+  <body>
+    <!-- Skip link de accesibilidad -->
+    <a href="#main-content" class="skip-link">{t(locale, 'accesibilidad.saltar_contenido')}</a>
+
+    <Navbar locale={locale} currentPath={currentPath} />
+
+    <main id="main-content" tabindex="-1">
+      <slot />
+    </main>
+
+    <Footer locale={locale} />
+    <Asesor locale={locale} />
+
+    <!-- Lenis smooth scroll + GSAP init -->
+    <script>
+      import { initLenis } from '../lib/motion'
+
+      // Inicializar Lenis al cargar la página
+      document.addEventListener('astro:page-load', () => {
+        initLenis()
+      })
+      // Primer load
+      initLenis()
+    </script>
+  </body>
+</html>

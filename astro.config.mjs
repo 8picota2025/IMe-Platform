@@ -1,12 +1,15 @@
 // @ts-check
 import { defineConfig } from 'astro/config'
 import sitemap from '@astrojs/sitemap'
-// Tailwind se configura en F1 con @tailwindcss/vite (Tailwind 4 + Astro 6)
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   site: 'https://i-me.com.co',
   output: 'static',
   integrations: [sitemap()],
+  vite: {
+    plugins: [tailwindcss()],
+  },
   i18n: {
     defaultLocale: 'es',
     locales: ['es', 'en'],

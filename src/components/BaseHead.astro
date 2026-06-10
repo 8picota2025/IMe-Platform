@@ -1,0 +1,76 @@
+---
+/**
+ * BaseHead — metadatos SEO, hreflang, OG, JSON-LD.
+ * Solo datos reales. Ver lib/seo.ts.
+ */
+import { getAlternateLinks } from '../i18n/utils'
+import type { Locale } from '../i18n/utils'
+import '../styles/globals.css'
+
+interface Props {
+  title: string
+  description: string
+  canonical: string
+  locale: Locale
+  ogImage?: string
+  jsonLd?: string
+  currentPath: string
+}
+
+const { title, description, canonical, locale, ogImage, jsonLd, currentPath } = Astro.props
+const alternates = getAlternateLinks(currentPath)
+const ogImageUrl = ogImage ?? 'https://i-me.com.co/assets/extraccion/img/Img11.jpg'
+---
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="generator" content={Astro.generator} />
+
+<!-- Primary Meta -->
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+
+<!-- hreflang -->
+{alternates.map((alt) => <link rel="alternate" hreflang={alt.hreflang} href={alt.href} />)}
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:url" content={canonical} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={ogImageUrl} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:locale" content={locale === 'en' ? 'en_US' : 'es_CO'} />
+<meta property="og:site_name" content="I-ME International Medical Enterprise" />
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImageUrl} />
+
+<!-- Theme color -->
+<meta name="theme-color" content="#0F4C5C" />
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0b1b22" />
+
+<!-- Favicon TODO_CLIENTE: reemplazar con favicon real -->
+<link rel="icon" type="image/x-icon" href="/favicon.ico" />
+
+<!-- JSON-LD -->
+{jsonLd && <script type="application/ld+json" set:html={jsonLd} />}
+
+<!-- Anti-FOUC: detecta tema guardado antes de pintar -->
+<script is:inline>
+  ;(function () {
+    try {
+      const t = localStorage.getItem('ime-theme')
+      if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.setAttribute('data-theme', 'dark')
+      }
+    } catch {
+      // ignore localStorage errors
+    }
+  })()
+</script>

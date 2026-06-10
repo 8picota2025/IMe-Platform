@@ -1,0 +1,46 @@
+# I-ME Platform — Apache/Hostinger static hosting config
+# Compresión, caché, security headers, redirect / → /es/
+
+# ── Compresión ──────────────────────────────────────────────
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json image/svg+xml
+</IfModule>
+
+# ── Caché de assets estáticos ───────────────────────────────
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType image/x-icon "access plus 1 year"
+  ExpiresByType video/mp4 "access plus 1 year"
+  ExpiresByType text/css "access plus 3 months"
+  ExpiresByType application/javascript "access plus 3 months"
+  ExpiresByType application/json "access plus 1 day"
+  ExpiresByType text/html "access plus 1 hour"
+</IfModule>
+
+# ── Security headers básicos ────────────────────────────────
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set X-XSS-Protection "1; mode=block"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  # HSTS — solo habilitar en producción HTTPS
+  # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+</IfModule>
+
+# ── Redirect / → /es/ ──────────────────────────────────────
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Redirect raíz a /es/ con 301
+  RewriteRule ^$ /es/ [R=301,L]
+
+  # Sin SPA fallback — site es estático
+</IfModule>
+
+# ── Deshabilitar directory listing ─────────────────────────
+Options -Indexes

@@ -1,0 +1,195 @@
+---
+/**
+ * Financiación ES — copy real de financiacion_referencia.json (sin tasas reales).
+ * COPY_CLIENTE_REVISAR: condiciones definitivas pendientes.
+ * BLOQUEANTE_LEGAL: simulador real necesita abogado + condiciones aprobadas.
+ */
+import Layout from '../../layouts/Layout.astro'
+import { buildPageTitle, buildCanonical } from '../../lib/seo'
+import { t } from '../../i18n/utils'
+
+const locale = 'es'
+const title = buildPageTitle('Financiación — Planes de Adquisición para Instituciones de Salud')
+const description =
+  'Planes de adquisición flexibles para equipos biomédicos. Cuotas mensuales, plazos extendidos para instituciones de salud en Colombia.'
+const canonical = buildCanonical('/es/financiacion')
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  locale={locale}
+  currentPath="/es/financiacion"
+>
+  <div
+    class="page-hero"
+    style="padding-top:130px;padding-bottom:var(--space-2xl);background:var(--t900);color:white"
+  >
+    <div class="container">
+      <span class="section-tag-light">Financiación</span>
+      <h1 style="color:white;margin:0.75rem 0">{t(locale, 'financiacion.titulo')}</h1>
+      <p style="color:rgba(255,255,255,0.78);max-width:600px;margin:0">
+        Facilitamos la adquisición de equipos mediante planes de financiamiento flexibles,
+        incluyendo opción de financiamiento para la creación de clínicas y salas de cirugía.
+      </p>
+    </div>
+  </div>
+
+  <section class="section container">
+    <!-- Copy real de financiacion_referencia.json -->
+    <div class="financiacion-intro">
+      <h2>
+        Tecnología biomédica de vanguardia para hospitales, clínicas, centros radiológicos y
+        profesionales que transforman vidas cada día.
+      </h2>
+      <p>
+        I-ME es una empresa líder en la distribución de equipos biomédicos de alta tecnología. Nos
+        especializamos en brindar soluciones innovadoras para el sector de la salud, combinando
+        servicio al cliente excepcional, soporte técnico especializado y un impacto social positivo.
+      </p>
+      <p>
+        Además de ofrecer equipos de la más alta calidad, contamos con un sistema de financiamiento
+        exclusivo para médicos e instituciones de salud, permitiendo la adquisición de tecnología de
+        punta y la creación de espacios clínicos y quirúrgicos.
+      </p>
+    </div>
+
+    <!-- Características del plan (sin tasas reales) -->
+    <div class="financiacion-features">
+      <h2>¿Por qué financiar con I-ME?</h2>
+      <ul class="features-grid" role="list">
+        <li class="feature-card">
+          <div class="feature-icon" aria-hidden="true">💰</div>
+          <h3>Cuotas mensuales flexibles</h3>
+          <p>Adaptamos las cuotas a la capacidad financiera de su institución.</p>
+        </li>
+        <li class="feature-card">
+          <div class="feature-icon" aria-hidden="true">📅</div>
+          <h3>Plazos extendidos</h3>
+          <!-- COPY_CLIENTE_REVISAR: plazos exactos pendientes de confirmación -->
+          <p>COPY_CLIENTE_REVISAR — Plazos adaptados a cada proyecto.</p>
+        </li>
+        <li class="feature-card">
+          <div class="feature-icon" aria-hidden="true">🏥</div>
+          <h3>Sin codeudor para instituciones</h3>
+          <p>Condiciones especiales para hospitales, clínicas y centros de salud.</p>
+        </li>
+        <li class="feature-card">
+          <div class="feature-icon" aria-hidden="true">🏗️</div>
+          <h3>Creación de espacios clínicos</h3>
+          <p>Financiamiento para la implementación de clínicas, consultorios y salas de cirugía.</p>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Aviso legal -->
+    <div class="financiacion-disclaimer" role="note">
+      <h3>Aviso importante</h3>
+      <ul>
+        <li>
+          COPY_CLIENTE_REVISAR — Las tasas, plazos y condiciones definitivas requieren revisión y
+          aprobación del cliente antes de publicar.
+        </li>
+        <li>
+          BLOQUEANTE_LEGAL — Este contenido necesita revisión de asesor jurídico antes de ser
+          vinculante.
+        </li>
+        <li>
+          No hay tasas reales publicadas actualmente — solo copy de referencia extraído del sitio
+          anterior.
+        </li>
+        <li>El simulador de financiación interactivo llegará en Fase 4.</li>
+      </ul>
+    </div>
+
+    <div style="text-align:center;margin-top:var(--space-xl)">
+      <a href="/es/contacto" class="btn btn-primary">Consultar planes con un asesor</a>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .section-tag-light {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: white;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 0.3rem 0.875rem;
+    border-radius: 999px;
+    margin-block-end: 0.75rem;
+  }
+  .financiacion-intro {
+    max-width: 760px;
+    margin-inline: auto;
+    margin-block-end: var(--space-2xl);
+  }
+  .financiacion-intro h2 {
+    font-size: var(--step-2);
+    color: var(--ink);
+    margin-block-end: 1rem;
+  }
+  .financiacion-intro p {
+    color: var(--text-mid);
+  }
+  .financiacion-features {
+    margin-block-end: var(--space-xl);
+  }
+  .financiacion-features h2 {
+    margin-block-end: var(--space-lg);
+  }
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .feature-card {
+    background: var(--off);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    border: 1px solid var(--border);
+  }
+  .feature-icon {
+    font-size: 2rem;
+    margin-block-end: 0.75rem;
+  }
+  .feature-card h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0 0 0.5rem;
+  }
+  .feature-card p {
+    font-size: 0.875rem;
+    color: var(--text-mid);
+    margin: 0;
+  }
+  .financiacion-disclaimer {
+    background: #fff8e1;
+    border: 1px solid #f9c74f;
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+  }
+  .financiacion-disclaimer h3 {
+    color: #a67c00;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+  }
+  .financiacion-disclaimer ul {
+    margin: 0;
+    padding: 0 0 0 1.25rem;
+    color: #6b5300;
+    font-size: 0.8rem;
+  }
+  .financiacion-disclaimer li {
+    margin-block-end: 0.25rem;
+  }
+</style>
