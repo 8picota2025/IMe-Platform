@@ -14,6 +14,8 @@ export default [
     },
   },
   {
-    ignores: ['dist/', '.astro/', 'node_modules/', 'public/'],
+    // src/data/raw_js_cms.js: artefacto de referencia extraído en F0 (JS de navegador
+    // del sitio legado, no es código fuente de la app). Se excluye del lint.
+    ignores: ['dist/', '.astro/', 'node_modules/', 'public/', 'src/data/raw_js_cms.js'],
   },
 ]
