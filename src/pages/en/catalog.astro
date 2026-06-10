@@ -4,12 +4,26 @@
  */
 import Layout from '../../layouts/Layout.astro'
 import { t } from '../../i18n/utils'
-import { buildCatalogoSeo } from '../../lib/seo'
+import {
+  buildCatalogoSeo,
+  buildCanonical,
+  buildOrganizationJsonLd,
+  buildBreadcrumbJsonLd,
+  combineJsonLd,
+} from '../../lib/seo'
 import { getFamilias } from '../../lib/datos'
 
 const locale = 'en'
 const seo = buildCatalogoSeo(locale)
 const familias = await getFamilias(locale)
+
+const jsonLd = combineJsonLd(
+  buildOrganizationJsonLd(),
+  buildBreadcrumbJsonLd([
+    { name: t(locale, 'catalogo.migas_inicio'), url: buildCanonical('/en/') },
+    { name: t(locale, 'catalogo.migas_catalogo'), url: seo.canonical },
+  ])
+)
 ---
 
 <Layout
@@ -18,6 +32,7 @@ const familias = await getFamilias(locale)
   canonical={seo.canonical}
   locale={locale}
   currentPath="/en/catalog"
+  jsonLd={jsonLd}
 >
   <div
     class="page-hero"

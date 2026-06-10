@@ -4,6 +4,7 @@
     "catalogo": "Catalog",
     "servicios": "Services",
     "financiacion": "Financing",
+    "conocimiento": "Knowledge",
     "contacto": "Contact",
     "cta_cotizar": "Request Quote",
     "abrir_menu": "Open navigation menu",
@@ -26,7 +27,9 @@
     "ver_detalle": "View details",
     "cotizar": "Request quote",
     "proxima_entrega": "F2 — Full catalog coming soon",
-    "familias_titulo": "Our categories"
+    "familias_titulo": "Our categories",
+    "migas_inicio": "Home",
+    "migas_catalogo": "Catalog"
   },
   "servicios": {
     "titulo": "Our Services",

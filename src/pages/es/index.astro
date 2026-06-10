@@ -9,7 +9,7 @@ import { buildHomeSeo, buildOrganizationJsonLd } from '../../lib/seo'
 
 const locale = 'es'
 const seo = buildHomeSeo(locale)
-const jsonLd = buildOrganizationJsonLd()
+const jsonLd = JSON.stringify(buildOrganizationJsonLd())
 
 const familias = await getFamilias(locale)
 const productosDestacados = await getProductosDestacados(locale)

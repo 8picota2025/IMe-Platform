@@ -45,10 +45,11 @@ export function buildProductoSeo(
   producto: { nombre: string; descripcion_corta: string; imagen_principal: string; slug: string },
   locale: Locale
 ): SeoPageMeta {
+  const segment = locale === 'en' ? 'products' : 'productos'
   return {
     title: buildPageTitle(producto.nombre),
     description: producto.descripcion_corta.slice(0, 155),
-    canonical: buildCanonical(`/${locale}/productos/${producto.slug}`),
+    canonical: buildCanonical(`/${locale}/${segment}/${producto.slug}`),
     ogImage: producto.imagen_principal.startsWith('http')
       ? producto.imagen_principal
       : `${SITE}${producto.imagen_principal}`,
@@ -73,8 +74,8 @@ export function buildCatalogoSeo(locale: Locale): SeoPageMeta {
 /**
  * JSON-LD Organization — solo datos reales de contenido_ime.json.
  */
-export function buildOrganizationJsonLd(): string {
-  return JSON.stringify({
+export function buildOrganizationJsonLd(): Record<string, unknown> {
+  return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'I-ME International Medical Enterprise',
@@ -96,19 +97,25 @@ export function buildOrganizationJsonLd(): string {
     },
     description:
       'Empresa colombiana con más de 15 años de experiencia en la distribución, instalación y mantenimiento de equipos biomédicos de alta tecnología para el sector salud.',
-  })
+  }
 }
 
 /**
  * JSON-LD Product — solo si hay datos reales.
+ * No incluye price/SKU/rating/availability: no existen datos reales para esos campos.
  */
-export function buildProductJsonLd(producto: {
-  nombre: string
-  descripcion_corta: string
-  imagen_principal: string
-  slug: string
-}): string {
-  return JSON.stringify({
+export function buildProductJsonLd(
+  producto: {
+    nombre: string
+    descripcion_corta: string
+    imagen_principal: string
+    slug: string
+  },
+  locale: Locale,
+  categoria?: string
+): Record<string, unknown> {
+  const segment = locale === 'en' ? 'products' : 'productos'
+  const jsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: producto.nombre,
@@ -116,10 +123,41 @@ export function buildProductJsonLd(producto: {
     image: producto.imagen_principal.startsWith('http')
       ? producto.imagen_principal
       : `${SITE}${producto.imagen_principal}`,
-    url: `${SITE}/es/productos/${producto.slug}`,
+    url: `${SITE}/${locale}/${segment}/${producto.slug}`,
     brand: {
       '@type': 'Brand',
       name: 'I-ME International Medical Enterprise',
     },
+  }
+  if (categoria) jsonLd.category = categoria
+  return jsonLd
+}
+
+/**
+ * JSON-LD BreadcrumbList — a partir de una lista ordenada {name, url}.
+ */
+export function buildBreadcrumbJsonLd(
+  items: Array<{ name: string; url: string }>
+): Record<string, unknown> {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  }
+}
+
+/**
+ * Combina varios bloques JSON-LD en un único <script type="application/ld+json">
+ * usando @graph, y serializa el resultado.
+ */
+export function combineJsonLd(...blocks: Record<string, unknown>[]): string {
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@graph': blocks.map(({ '@context': _ctx, ...rest }) => rest),
   })
 }

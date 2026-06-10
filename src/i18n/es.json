@@ -4,6 +4,7 @@
     "catalogo": "Catálogo",
     "servicios": "Servicios",
     "financiacion": "Financiación",
+    "conocimiento": "Conocimiento",
     "contacto": "Contacto",
     "cta_cotizar": "Cotizar ahora",
     "abrir_menu": "Abrir menú de navegación",
@@ -26,7 +27,34 @@
     "ver_detalle": "Ver detalles",
     "cotizar": "Solicitar cotización",
     "proxima_entrega": "F2 — Catálogo completo próximamente",
-    "familias_titulo": "Nuestras categorías"
+    "familias_titulo": "Nuestras categorías",
+    "todos_los_productos": "Todos los equipos",
+    "buscar_placeholder": "Buscar por nombre, categoría o característica…",
+    "buscar_label": "Buscar en el catálogo",
+    "mostrar_todos": "Mostrar todos",
+    "migas_inicio": "Inicio",
+    "migas_catalogo": "Catálogo",
+    "filtros_titulo": "Filtros",
+    "abrir_filtros": "Abrir filtros",
+    "cerrar_filtros": "Cerrar filtros",
+    "resetear_filtros": "Limpiar filtros",
+    "resultados_un": "resultado",
+    "resultados_otros": "resultados",
+    "sin_resultados_titulo": "No encontramos equipos con esos filtros",
+    "sin_resultados_desc": "Prueba con otros términos o ajusta los filtros. Si no encuentras lo que buscas, contáctanos y te ayudamos.",
+    "filtro_destacado": "Destacados",
+    "filtro_nuevo": "Nuevos",
+    "filtro_comercial": "Tipo de producto",
+    "filtro_comercial_equipo": "Equipos",
+    "filtro_comercial_consumible": "Consumibles",
+    "comparar_titulo": "Comparar productos",
+    "comparar_anadir": "Comparar",
+    "comparar_quitar": "Quitar de comparar",
+    "comparar_ver": "Ver comparación",
+    "comparar_limite": "Puedes comparar hasta 3 productos a la vez",
+    "comparar_vacio": "Añade productos desde el catálogo para compararlos aquí.",
+    "comparar_cerrar": "Cerrar comparador",
+    "comparar_vaciar": "Vaciar comparación"
   },
   "servicios": {
     "titulo": "Nuestros Servicios",
@@ -109,5 +137,29 @@
   "destacados": {
     "titulo": "Equipos destacados",
     "ver_todos": "Ver catálogo completo"
+  },
+  "producto": {
+    "badge_destacado": "Destacado",
+    "badge_nuevo": "Nuevo",
+    "specs_titulo": "Especificaciones",
+    "specs_pendiente": "Especificaciones técnicas en proceso de carga. Contáctanos para recibir la ficha técnica completa.",
+    "galeria_titulo": "Galería",
+    "galeria_abrir": "Ampliar imagen",
+    "galeria_cerrar": "Cerrar galería",
+    "galeria_anterior": "Imagen anterior",
+    "galeria_siguiente": "Imagen siguiente",
+    "relacionados_titulo": "Productos relacionados",
+    "cotizar_cta": "Solicitar cotización",
+    "ficha_pdf": "Descargar ficha técnica (PDF)",
+    "contacto_titulo": "¿Necesitas más información?",
+    "contacto_desc": "Nuestro equipo comercial te ayuda a elegir el equipo adecuado y a preparar tu cotización.",
+    "volver_catalogo": "Volver al catálogo",
+    "ver_familia": "Ver toda la categoría"
+  },
+  "conocimiento": {
+    "titulo": "Centro de Conocimiento",
+    "proximamente": "Próximamente",
+    "descripcion": "Estamos preparando guías técnicas, artículos y recursos sobre equipamiento biomédico. Vuelve pronto.",
+    "cta_contacto": "¿Tienes una pregunta ahora? Contáctanos"
   }
 }
