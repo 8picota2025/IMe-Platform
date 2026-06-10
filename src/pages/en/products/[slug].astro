@@ -1,0 +1,74 @@
+---
+/**
+ * Landing estática de producto EN — getStaticPaths desde la capa de datos.
+ */
+import Layout from '../../../layouts/Layout.astro'
+import ProductoLanding from '../../../components/ProductoLanding.astro'
+import { t } from '../../../i18n/utils'
+import {
+  buildProductoSeo,
+  buildCanonical,
+  buildProductJsonLd,
+  buildBreadcrumbJsonLd,
+  combineJsonLd,
+} from '../../../lib/seo'
+import { getProductos, getFamilias, type Producto } from '../../../lib/datos'
+
+const locale = 'en'
+
+export async function getStaticPaths() {
+  const productos = await getProductos({ pageSize: 1000 }, 'en')
+  return productos.map((producto) => ({
+    params: { slug: producto.slug },
+    props: { producto },
+  }))
+}
+
+interface Props {
+  producto: Producto
+}
+
+const { producto } = Astro.props as Props
+
+const familias = await getFamilias(locale)
+const familia = familias.find((f) => f.slug === producto.familia_slug) ?? {
+  id: producto.familia_slug,
+  slug: producto.familia_slug,
+  nombre: producto.familia_slug,
+  descripcion: '',
+  orden: 0,
+  activo: true,
+}
+
+const todosProductos = await getProductos({ familia: producto.familia_slug, pageSize: 100 }, locale)
+const relacionados = todosProductos.filter((p) => p.slug !== producto.slug).slice(0, 4)
+
+const seo = buildProductoSeo(producto, locale)
+
+const jsonLd = combineJsonLd(
+  buildProductJsonLd(producto, locale, familia.nombre),
+  buildBreadcrumbJsonLd([
+    { name: t(locale, 'catalogo.migas_inicio'), url: buildCanonical('/en/') },
+    { name: t(locale, 'catalogo.migas_catalogo'), url: buildCanonical('/en/catalog') },
+    { name: familia.nombre, url: buildCanonical(`/en/catalog?familia=${familia.slug}`) },
+    { name: producto.nombre, url: seo.canonical },
+  ])
+)
+---
+
+<Layout
+  title={seo.title}
+  description={seo.description}
+  canonical={seo.canonical}
+  locale={locale}
+  currentPath={`/en/products/${producto.slug}`}
+  ogImage={seo.ogImage}
+  jsonLd={jsonLd}
+>
+  <ProductoLanding
+    producto={producto}
+    familia={familia}
+    relacionados={relacionados}
+    locale={locale}
+  />
+</Layout>

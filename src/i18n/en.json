@@ -54,7 +54,22 @@
     "comparar_limite": "You can compare up to 3 products at a time",
     "comparar_vacio": "Add products from the catalog to compare them here.",
     "comparar_cerrar": "Close comparison",
-    "comparar_vaciar": "Clear comparison"
+    "comparar_vaciar": "Clear comparison",
+    "familia_titulo": "Category",
+    "todas_familias": "All categories",
+    "facetas_titulo": "Specifications",
+    "paginacion_label": "Pagination",
+    "comparar_columna_producto": "Product",
+    "comparar_familia": "Category",
+    "comparar_tipo": "Product type"
+  },
+  "comun": {
+    "anterior": "Previous",
+    "siguiente": "Next",
+    "pagina": "Page",
+    "de": "of",
+    "si": "Yes",
+    "no": "No"
   },
   "servicios": {
     "titulo": "Our Services",

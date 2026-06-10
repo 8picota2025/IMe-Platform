@@ -54,7 +54,22 @@
     "comparar_limite": "Puedes comparar hasta 3 productos a la vez",
     "comparar_vacio": "Añade productos desde el catálogo para compararlos aquí.",
     "comparar_cerrar": "Cerrar comparador",
-    "comparar_vaciar": "Vaciar comparación"
+    "comparar_vaciar": "Vaciar comparación",
+    "familia_titulo": "Categoría",
+    "todas_familias": "Todas las categorías",
+    "facetas_titulo": "Características",
+    "paginacion_label": "Paginación",
+    "comparar_columna_producto": "Producto",
+    "comparar_familia": "Categoría",
+    "comparar_tipo": "Tipo de producto"
+  },
+  "comun": {
+    "anterior": "Anterior",
+    "siguiente": "Siguiente",
+    "pagina": "Página",
+    "de": "de",
+    "si": "Sí",
+    "no": "No"
   },
   "servicios": {
     "titulo": "Nuestros Servicios",

@@ -1,0 +1,185 @@
+---
+/**
+ * ProductoCard — tarjeta de producto reutilizable para catálogo,
+ * landings (relacionados) y home (destacados).
+ * Solo datos reales: badges, precio y CTA dependen de los campos provistos.
+ */
+import { t, type Locale } from '../i18n/utils'
+
+interface ProductoCardData {
+  slug: string
+  nombre: string
+  descripcion_corta: string
+  imagen_principal: string
+  destacado: boolean
+  nuevo: boolean
+  familia: { slug: string; nombre: string }
+  /** Campos adicionales para filtrado en cliente (catálogo). */
+  tipo_comercial?: string
+  texto_busqueda?: string
+  especificaciones_reducidas?: Record<string, string>
+}
+
+interface Props {
+  producto: ProductoCardData
+  locale: Locale
+  /** Habilita el checkbox de comparación (catálogo). */
+  comparable?: boolean
+}
+
+const { producto, locale, comparable = false } = Astro.props
+const segment = locale === 'en' ? 'products' : 'productos'
+const href = `/${locale}/${segment}/${producto.slug}`
+---
+
+<li
+  class="card producto-card"
+  data-producto-slug={producto.slug}
+  data-nombre={producto.nombre}
+  data-imagen={producto.imagen_principal}
+  data-familia={producto.familia.slug}
+  data-familia-nombre={producto.familia.nombre}
+  data-comercial={producto.tipo_comercial ?? ''}
+  data-destacado={producto.destacado ? '1' : '0'}
+  data-nuevo={producto.nuevo ? '1' : '0'}
+  data-busqueda={producto.texto_busqueda ?? ''}
+  data-specs={JSON.stringify(producto.especificaciones_reducidas ?? {})}
+>
+  <a
+    href={href}
+    class="producto-card__link"
+    aria-label={`${t(locale, 'catalogo.ver_detalle')}: ${producto.nombre}`}
+  >
+    <div class="producto-card__img-wrapper">
+      <img
+        src={producto.imagen_principal}
+        alt={producto.nombre}
+        width="400"
+        height="280"
+        loading="lazy"
+        decoding="async"
+        class="producto-card__img"
+      />
+      {
+        (producto.destacado || producto.nuevo) && (
+          <div class="producto-card__badges" aria-hidden="true">
+            {producto.nuevo && (
+              <span class="badge badge-green">{t(locale, 'producto.badge_nuevo')}</span>
+            )}
+            {producto.destacado && (
+              <span class="badge badge-teal">{t(locale, 'producto.badge_destacado')}</span>
+            )}
+          </div>
+        )
+      }
+    </div>
+    <div class="producto-card__body">
+      <p class="producto-card__familia">{producto.familia.nombre}</p>
+      <h3 class="producto-card__nombre">{producto.nombre}</h3>
+      <p class="producto-card__desc">{producto.descripcion_corta}</p>
+      <span class="btn btn-secondary producto-card__cta">{t(locale, 'catalogo.ver_detalle')}</span>
+    </div>
+  </a>
+  {
+    comparable && (
+      <label class="producto-card__compare">
+        <input
+          type="checkbox"
+          class="producto-card__compare-input"
+          data-compare-slug={producto.slug}
+        />
+        <span>{t(locale, 'catalogo.comparar_anadir')}</span>
+      </label>
+    )
+  }
+</li>
+
+<style>
+  .producto-card {
+    display: flex;
+    flex-direction: column;
+  }
+  .producto-card__link {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .producto-card__img-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    aspect-ratio: 4/3;
+    background: var(--off2);
+  }
+  .producto-card__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 400ms var(--ease);
+  }
+  .producto-card:hover .producto-card__img {
+    transform: scale(1.04);
+  }
+  .producto-card__badges {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    display: flex;
+    gap: 0.4rem;
+  }
+  .producto-card__body {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+  }
+  .producto-card__familia {
+    font-size: 0.7rem;
+    font-weight: 700;
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--t800);
+    margin: 0;
+  }
+  .producto-card__nombre {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0;
+    line-height: 1.3;
+  }
+  .producto-card__desc {
+    font-size: 0.825rem;
+    color: var(--text-mid);
+    line-height: 1.5;
+    margin: 0;
+    flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .producto-card__cta {
+    align-self: flex-start;
+    margin-block-start: 0.75rem;
+    font-size: 0.8rem;
+  }
+  .producto-card__compare {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.25rem 1rem;
+    font-size: 0.8rem;
+    color: var(--text-mid);
+    cursor: pointer;
+  }
+  .producto-card__compare-input {
+    width: 1rem;
+    height: 1rem;
+    accent-color: var(--t800);
+  }
+</style>

@@ -14,16 +14,72 @@ the healthcare sector in Colombia and Latin America.
 - Medical financing plans for healthcare institutions
 - Biomedical advisory and consultancy
 
-## Product categories
+## Site sections
 
-- Patient Monitors (multiparametric, ICU, transport, central monitoring)
-- Cardiology (ECG machines, defibrillators, Holter systems)
-- Operating Room (surgical tables, cialytic lamps)
-- Neonatology (incubators, radiant warmers, CPAP systems, fetal monitors)
-- Ultrasound (color Doppler, portable, point-of-care)
-- IV Solutions (volumetric and syringe infusion pumps)
-- Hospital Furniture (electric hospital beds, code carts)
-- Anesthesia & Ventilation (anesthesia machines, ICU ventilators)
+- Home: https://i-me.com.co/es/ | https://i-me.com.co/en/
+- Catalog (24 products, 8 categories, filters and search): https://i-me.com.co/es/catalogo | https://i-me.com.co/en/catalog
+- Services: https://i-me.com.co/es/servicios | https://i-me.com.co/en/services
+- Financing (informational, no live simulator yet): https://i-me.com.co/es/financiacion | https://i-me.com.co/en/financing
+- Contact (quote request form): https://i-me.com.co/es/contacto | https://i-me.com.co/en/contact
+- Knowledge center (coming soon, no articles published yet): https://i-me.com.co/es/conocimiento | https://i-me.com.co/en/knowledge
+
+## Catalog — categories and products
+
+### Monitores de Signos Vitales / Patient Monitors
+https://i-me.com.co/es/catalogo?familia=monitores | https://i-me.com.co/en/catalog?familia=monitores
+
+- Monitor Multiparamétrico UCI Avanzado: https://i-me.com.co/es/productos/monitor-multiparametrico-uci-avanzado | https://i-me.com.co/en/products/monitor-multiparametrico-uci-avanzado
+- Monitor Multiparamétrico Básico: https://i-me.com.co/es/productos/monitor-multiparametrico-basico | https://i-me.com.co/en/products/monitor-multiparametrico-basico
+- Monitor de Transporte Prehospitalario: https://i-me.com.co/es/productos/monitor-de-transporte-prehospitalario | https://i-me.com.co/en/products/monitor-de-transporte-prehospitalario
+- Monitor Central UCI Multicama: https://i-me.com.co/es/productos/monitor-central-uci-multicama | https://i-me.com.co/en/products/monitor-central-uci-multicama
+
+### Cardiología / Cardiology
+https://i-me.com.co/es/catalogo?familia=cardiologia | https://i-me.com.co/en/catalog?familia=cardiologia
+
+- Electrocardiógrafo 12 Derivaciones Digital: https://i-me.com.co/es/productos/electrocardiografo-12-derivaciones-digital | https://i-me.com.co/en/products/electrocardiografo-12-derivaciones-digital
+- Desfibrilador Bifásico con Monitor: https://i-me.com.co/es/productos/desfibrilador-bifasico-con-monitor | https://i-me.com.co/en/products/desfibrilador-bifasico-con-monitor
+- Holter 24 Horas Ritmo Cardíaco: https://i-me.com.co/es/productos/holter-24-horas-ritmo-cardiaco | https://i-me.com.co/en/products/holter-24-horas-ritmo-cardiaco
+- Electrocardiógrafo Inalámbrico Portátil: https://i-me.com.co/es/productos/electrocardiografo-inalambrico-portatil | https://i-me.com.co/en/products/electrocardiografo-inalambrico-portatil
+
+### Sala de Cirugía / Operating Room
+https://i-me.com.co/es/catalogo?familia=sala-cirugia | https://i-me.com.co/en/catalog?familia=sala-cirugia
+
+- Mesa Quirúrgica Motorizada Multiposición: https://i-me.com.co/es/productos/mesa-quirurgica-motorizada-multiposicion | https://i-me.com.co/en/products/mesa-quirurgica-motorizada-multiposicion
+- Lámpara Cialítica LED Doble para Quirófano: https://i-me.com.co/es/productos/lampara-cialitica-led-doble-para-quirofano | https://i-me.com.co/en/products/lampara-cialitica-led-doble-para-quirofano
+- Mesa Quirúrgica Ortopédica Radiolúcida: https://i-me.com.co/es/productos/mesa-quirurgica-ortopedica-radiolucida | https://i-me.com.co/en/products/mesa-quirurgica-ortopedica-radiolucida
+
+### Neonatología / Neonatology
+https://i-me.com.co/es/catalogo?familia=neonatologia | https://i-me.com.co/en/catalog?familia=neonatologia
+
+- Incubadora Neonatal de Transporte: https://i-me.com.co/es/productos/incubadora-neonatal-de-transporte | https://i-me.com.co/en/products/incubadora-neonatal-de-transporte
+- Cuna de Calor Radiante Neonatal Servo: https://i-me.com.co/es/productos/cuna-de-calor-radiante-neonatal-servo | https://i-me.com.co/en/products/cuna-de-calor-radiante-neonatal-servo
+- Monitor Fetal CTG con Impresora: https://i-me.com.co/es/productos/monitor-fetal-ctg-con-impresora | https://i-me.com.co/en/products/monitor-fetal-ctg-con-impresora
+- Sistema CPAP Neonatal para UCI: https://i-me.com.co/es/productos/sistema-cpap-neonatal-para-uci | https://i-me.com.co/en/products/sistema-cpap-neonatal-para-uci
+
+### Ultrasonido / Ultrasound
+https://i-me.com.co/es/catalogo?familia=ultrasonido | https://i-me.com.co/en/catalog?familia=ultrasonido
+
+- Ecógrafo Color Doppler Diagnóstico Vascular: https://i-me.com.co/es/productos/ecografo-color-doppler-diagnostico-vascular | https://i-me.com.co/en/products/ecografo-color-doppler-diagnostico-vascular
+- Ecógrafo Portátil con WiFi y DICOM: https://i-me.com.co/es/productos/ecografo-portatil-con-wifi-y-dicom | https://i-me.com.co/en/products/ecografo-portatil-con-wifi-y-dicom
+- Ultrasonido Point-of-Care Pocket: https://i-me.com.co/es/productos/ultrasonido-point-of-care-pocket | https://i-me.com.co/en/products/ultrasonido-point-of-care-pocket
+
+### Soluciones IV / IV Solutions
+https://i-me.com.co/es/catalogo?familia=soluciones-iv | https://i-me.com.co/en/catalog?familia=soluciones-iv
+
+- Bomba de Infusión Volumétrica UCI: https://i-me.com.co/es/productos/bomba-de-infusion-volumetrica-uci | https://i-me.com.co/en/products/bomba-de-infusion-volumetrica-uci
+- Bomba de Jeringa Precisión Microdosis: https://i-me.com.co/es/productos/bomba-de-jeringa-precision-microdosis | https://i-me.com.co/en/products/bomba-de-jeringa-precision-microdosis
+
+### Mobiliario Hospitalario / Hospital Furniture
+https://i-me.com.co/es/catalogo?familia=mobiliario | https://i-me.com.co/en/catalog?familia=mobiliario
+
+- Camilla Hospitalaria Eléctrica Articulable: https://i-me.com.co/es/productos/camilla-hospitalaria-electrica-articulable | https://i-me.com.co/en/products/camilla-hospitalaria-electrica-articulable
+- Carro de Paro para Reanimación: https://i-me.com.co/es/productos/carro-de-paro-para-reanimacion | https://i-me.com.co/en/products/carro-de-paro-para-reanimacion
+
+### Anestesia y Ventilación / Anesthesia & Ventilation
+https://i-me.com.co/es/catalogo?familia=anestesia | https://i-me.com.co/en/catalog?familia=anestesia
+
+- Máquina de Anestesia con Ventilador: https://i-me.com.co/es/productos/maquina-de-anestesia-con-ventilador | https://i-me.com.co/en/products/maquina-de-anestesia-con-ventilador
+- Ventilador Mecánico UCI Adulto-Pediátrico: https://i-me.com.co/es/productos/ventilador-mecanico-uci-adulto-pediatrico | https://i-me.com.co/en/products/ventilador-mecanico-uci-adulto-pediatrico
 
 ## Contact
 
@@ -52,3 +108,5 @@ All prices and financing terms are delivered through formal quotes.
 - All equipment is INVIMA certified for the Colombian healthcare market.
 - Prices are quoted individually — no public pricing.
 - This site does not provide medical diagnoses or clinical recommendations.
+- Online checkout, cart and live financing simulator are not yet available — all
+  purchases go through a quote request via the contact form, WhatsApp or phone.

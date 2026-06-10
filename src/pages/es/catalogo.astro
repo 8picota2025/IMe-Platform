@@ -1,8 +1,10 @@
 ---
 /**
- * Catálogo ES — stub navegable. Catálogo completo en F2.
+ * Catálogo ES — explorador completo: familias, filtros, búsqueda,
+ * facetas dinámicas, paginación y comparador (F2).
  */
 import Layout from '../../layouts/Layout.astro'
+import CatalogoExplorer from '../../components/CatalogoExplorer.astro'
 import { t } from '../../i18n/utils'
 import {
   buildCatalogoSeo,
@@ -11,18 +13,31 @@ import {
   buildBreadcrumbJsonLd,
   combineJsonLd,
 } from '../../lib/seo'
-import { getFamilias } from '../../lib/datos'
+import { buildCatalogoIndex } from '../../lib/catalogo'
 
 const locale = 'es'
 const seo = buildCatalogoSeo(locale)
-const familias = await getFamilias(locale)
+const items = await buildCatalogoIndex(locale)
+
+const itemListJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: seo.title,
+  itemListElement: items.map((item, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    url: buildCanonical(`/es/productos/${item.slug}`),
+    name: item.nombre,
+  })),
+}
 
 const jsonLd = combineJsonLd(
   buildOrganizationJsonLd(),
   buildBreadcrumbJsonLd([
     { name: t(locale, 'catalogo.migas_inicio'), url: buildCanonical('/es/') },
     { name: t(locale, 'catalogo.migas_catalogo'), url: seo.canonical },
-  ])
+  ]),
+  itemListJsonLd
 )
 ---
 
@@ -36,7 +51,7 @@ const jsonLd = combineJsonLd(
 >
   <div
     class="page-hero"
-    style="padding-top:130px;padding-bottom:var(--space-2xl);background:var(--off)"
+    style="padding-top:130px;padding-bottom:var(--space-md);background:var(--off)"
   >
     <div class="container">
       <span class="section-tag">{t(locale, 'catalogo.familias_titulo')}</span>
@@ -47,47 +62,9 @@ const jsonLd = combineJsonLd(
     </div>
   </div>
 
-  <section class="section container">
-    <!-- F2 NOTICE -->
-    <div class="f2-notice" role="note">
-      <p>
-        <strong>{t(locale, 'catalogo.proxima_entrega')}</strong> — El catálogo filtrable con landings
-        de producto individuales llega en la Fase 2 del proyecto.
-      </p>
-    </div>
-
-    <!-- Familias navegables ya disponibles -->
-    <ul class="categorias__grid" role="list" style="margin-top:var(--space-xl)">
-      {
-        familias.map((familia) => (
-          <li>
-            <a href={`/es/catalogo?cat=${familia.slug}`} class="categoria-card">
-              <div class="categoria-card__icon" aria-hidden="true">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="28"
-                  height="28"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                </svg>
-              </div>
-              <h2 class="categoria-card__name">{familia.nombre}</h2>
-              <p class="categoria-card__desc">{familia.descripcion}</p>
-              <span class="categoria-card__link" aria-hidden="true">
-                {t(locale, 'catalogo.ver_categoria')} →
-              </span>
-            </a>
-          </li>
-        ))
-      }
-    </ul>
-  </section>
+  <div class="container">
+    <CatalogoExplorer locale={locale} />
+  </div>
 </Layout>
 
 <style>
@@ -103,73 +80,5 @@ const jsonLd = combineJsonLd(
     padding: 0.3rem 0.875rem;
     border-radius: 999px;
     margin-block-end: 0.75rem;
-  }
-  .f2-notice {
-    background: var(--t100);
-    border: 1px solid var(--border-mid);
-    border-radius: var(--radius);
-    padding: 1.25rem 1.5rem;
-    color: var(--t900);
-  }
-  .f2-notice p {
-    margin: 0;
-    font-size: 0.9rem;
-  }
-  .categorias__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 1.25rem;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  .categoria-card {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    padding: 1.5rem;
-    background: var(--white);
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border);
-    text-decoration: none;
-    color: var(--text);
-    transition:
-      box-shadow 260ms var(--ease),
-      transform 260ms var(--ease);
-  }
-  .categoria-card:hover {
-    box-shadow: var(--shadow-md);
-    transform: translateY(-3px);
-  }
-  .categoria-card__icon {
-    width: 48px;
-    height: 48px;
-    border-radius: var(--radius);
-    background: var(--t100);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--t900);
-  }
-  .categoria-card__name {
-    font-family: var(--font-display);
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--ink);
-    margin: 0;
-  }
-  .categoria-card__desc {
-    font-size: 0.825rem;
-    color: var(--text-mid);
-    line-height: 1.5;
-    margin: 0;
-    flex: 1;
-  }
-  .categoria-card__link {
-    font-size: 0.8rem;
-    font-weight: 600;
-    font-family: var(--font-display);
-    color: var(--t800);
-    margin-block-start: auto;
   }
 </style>
