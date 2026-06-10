@@ -1,0 +1,707 @@
+---
+/**
+ * CatalogoExplorer — explorador de catálogo compartido ES/EN.
+ * Jerarquía Familia → Producto (sin nivel Tipo, no hay datos),
+ * con búsqueda, filtros, facetas dinámicas, paginación, comparador
+ * y sincronización de estado vía query params. Progressive enhancement:
+ * todo el contenido está en el HTML; el script solo filtra/oculta.
+ */
+import { t, type Locale } from '../i18n/utils'
+import { getFamilias } from '../lib/datos'
+import { buildCatalogoIndex } from '../lib/catalogo'
+import ProductoCard from './ProductoCard.astro'
+
+interface Props {
+  locale: Locale
+}
+
+const { locale } = Astro.props
+
+const familias = await getFamilias(locale)
+const items = await buildCatalogoIndex(locale)
+
+const tiposComerciales = [
+  ...new Set(items.map((item) => item.tipo_comercial).filter(Boolean)),
+].sort()
+const hayDestacados = items.some((item) => item.destacado)
+const hayNuevos = items.some((item) => item.nuevo)
+---
+
+<div id="catalogo-root" class="catalogo">
+  <div id="catalogo-anuncios" class="sr-only" role="status" aria-live="polite"></div>
+
+  <!-- Buscador -->
+  <div class="catalogo__buscador">
+    <label for="catalogo-buscar" class="sr-only">{t(locale, 'catalogo.buscar_label')}</label>
+    <input
+      type="search"
+      id="catalogo-buscar"
+      class="catalogo__buscar-input"
+      placeholder={t(locale, 'catalogo.buscar_placeholder')}
+      autocomplete="off"
+    />
+  </div>
+
+  <!-- Familia actual (navegación dentro de una categoría) -->
+  <div id="catalogo-familia-actual" class="catalogo__familia-actual" hidden>
+    <h2 id="catalogo-familia-actual-nombre" class="section-subtitle"></h2>
+    <button type="button" id="catalogo-familia-actual-quitar" class="btn btn-ghost">
+      {t(locale, 'catalogo.mostrar_todos')}
+    </button>
+  </div>
+
+  <!-- Vista familias (overview) -->
+  <section id="vista-familias" aria-labelledby="familias-heading">
+    <div class="catalogo__familias-header">
+      <h2 id="familias-heading" class="section-subtitle">
+        {t(locale, 'catalogo.familias_titulo')}
+      </h2>
+      <button type="button" class="btn btn-secondary" data-mostrar-todos>
+        {t(locale, 'catalogo.todos_los_productos')}
+      </button>
+    </div>
+    <ul class="categorias__grid" role="list">
+      {
+        familias.map((familia) => (
+          <li>
+            <a
+              href={`?familia=${familia.slug}`}
+              class="categoria-card"
+              data-familia-link={familia.slug}
+              data-familia-nombre={familia.nombre}
+            >
+              <div class="categoria-card__icon" aria-hidden="true">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="28"
+                  height="28"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                </svg>
+              </div>
+              <h3 class="categoria-card__name">{familia.nombre}</h3>
+              <p class="categoria-card__desc">{familia.descripcion}</p>
+              <span class="categoria-card__link" aria-hidden="true">
+                {t(locale, 'catalogo.ver_categoria')} →
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <div class="catalogo__layout" id="catalogo-resultados">
+    <!-- Filtros -->
+    <aside
+      id="catalogo-filtros"
+      class="catalogo-filtros"
+      aria-label={t(locale, 'catalogo.filtros_titulo')}
+    >
+      <div class="catalogo-filtros__header">
+        <h2 class="catalogo-filtros__titulo">{t(locale, 'catalogo.filtros_titulo')}</h2>
+        <button
+          type="button"
+          id="catalogo-filtros-cerrar"
+          class="catalogo-filtros__cerrar"
+          aria-label={t(locale, 'catalogo.cerrar_filtros')}
+        >
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+
+      <div class="catalogo-filtros__grupo-bloque">
+        <p class="catalogo-filtros__heading">{t(locale, 'catalogo.familia_titulo')}</p>
+        <div id="catalogo-familia-lista" class="catalogo-filtros__lista">
+          <button type="button" class="catalogo-filtros__familia" data-familia-filter="">
+            {t(locale, 'catalogo.todas_familias')}
+          </button>
+          {
+            familias.map((familia) => (
+              <button
+                type="button"
+                class="catalogo-filtros__familia"
+                data-familia-filter={familia.slug}
+              >
+                {familia.nombre}
+              </button>
+            ))
+          }
+        </div>
+      </div>
+
+      {
+        tiposComerciales.length >= 2 && (
+          <fieldset class="catalogo-filtros__grupo-bloque">
+            <legend class="catalogo-filtros__heading">
+              {t(locale, 'catalogo.filtro_comercial')}
+            </legend>
+            <div id="catalogo-comercial">
+              {tiposComerciales.map((tipo) => (
+                <label class="catalogo-filtros__opcion">
+                  <input type="checkbox" data-filtro-comercial={tipo} />
+                  {tipo === 'consumible'
+                    ? t(locale, 'catalogo.filtro_comercial_consumible')
+                    : t(locale, 'catalogo.filtro_comercial_equipo')}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        )
+      }
+
+      {
+        (hayDestacados || hayNuevos) && (
+          <fieldset class="catalogo-filtros__grupo-bloque">
+            <legend class="catalogo-filtros__heading">
+              {t(locale, 'catalogo.filtros_titulo')}
+            </legend>
+            {hayDestacados && (
+              <label class="catalogo-filtros__opcion">
+                <input type="checkbox" id="catalogo-filtro-destacado" />
+                {t(locale, 'catalogo.filtro_destacado')}
+              </label>
+            )}
+            {hayNuevos && (
+              <label class="catalogo-filtros__opcion">
+                <input type="checkbox" id="catalogo-filtro-nuevo" />
+                {t(locale, 'catalogo.filtro_nuevo')}
+              </label>
+            )}
+          </fieldset>
+        )
+      }
+
+      <div id="catalogo-facetas" class="catalogo-filtros__grupo-bloque" hidden></div>
+
+      <button type="button" class="btn btn-ghost catalogo-filtros__reset" data-reset-filtros>
+        {t(locale, 'catalogo.resetear_filtros')}
+      </button>
+    </aside>
+
+    <!-- Resultados -->
+    <div class="catalogo__resultados">
+      <div class="catalogo__toolbar">
+        <button
+          type="button"
+          id="catalogo-filtros-toggle"
+          class="btn btn-secondary catalogo__filtros-toggle"
+          aria-expanded="false"
+          aria-controls="catalogo-filtros"
+        >
+          {t(locale, 'catalogo.abrir_filtros')}
+        </button>
+        <p id="catalogo-contador" class="catalogo__contador" role="status" aria-live="polite"></p>
+      </div>
+
+      <ul id="vista-productos" class="productos__grid" role="list" hidden>
+        {items.map((item) => <ProductoCard producto={item} locale={locale} comparable />)}
+      </ul>
+
+      <div id="catalogo-sin-resultados" class="catalogo__sin-resultados" hidden>
+        <h2 class="section-subtitle">{t(locale, 'catalogo.sin_resultados_titulo')}</h2>
+        <p>{t(locale, 'catalogo.sin_resultados_desc')}</p>
+        <div class="catalogo__sin-resultados-acciones">
+          <button type="button" class="btn btn-secondary" data-reset-filtros>
+            {t(locale, 'catalogo.resetear_filtros')}
+          </button>
+          <a href={locale === 'en' ? '/en/contact' : '/es/contacto'} class="btn btn-ghost">
+            {t(locale, 'producto.cotizar_cta')}
+          </a>
+        </div>
+      </div>
+
+      <nav
+        id="catalogo-paginacion"
+        class="catalogo-paginacion"
+        aria-label={t(locale, 'catalogo.paginacion_label')}
+        hidden
+      >
+      </nav>
+    </div>
+  </div>
+</div>
+
+<!-- Comparador -->
+<div id="comparador-bar" class="comparador-bar" hidden>
+  <p class="comparador-bar__texto">
+    <span id="comparador-contador">0/3</span> · {t(locale, 'catalogo.comparar_titulo')}
+  </p>
+  <div class="comparador-bar__acciones">
+    <button type="button" id="comparador-ver" class="btn btn-secondary"
+      >{t(locale, 'catalogo.comparar_ver')}</button
+    >
+    <button type="button" id="comparador-vaciar" class="btn btn-ghost"
+      >{t(locale, 'catalogo.comparar_vaciar')}</button
+    >
+  </div>
+</div>
+
+<dialog id="comparador-dialog" aria-label={t(locale, 'catalogo.comparar_titulo')}>
+  <div class="comparador-dialog__header">
+    <h2>{t(locale, 'catalogo.comparar_titulo')}</h2>
+    <button type="button" data-comparador-close class="comparador-dialog__cerrar">
+      <span aria-hidden="true">×</span>
+      <span class="sr-only">{t(locale, 'catalogo.comparar_cerrar')}</span>
+    </button>
+  </div>
+  <p class="comparador-dialog__limite">{t(locale, 'catalogo.comparar_limite')}</p>
+  <div id="comparador-tabla" class="comparador-dialog__tabla"></div>
+</dialog>
+
+<style>
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+  .section-subtitle {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  .catalogo {
+    padding-block-start: var(--space-lg);
+  }
+
+  /* Buscador */
+  .catalogo__buscador {
+    margin-block-end: var(--space-lg);
+  }
+  .catalogo__buscar-input {
+    width: 100%;
+    max-width: 520px;
+    padding: 0.85rem 1.1rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-mid);
+    background: var(--white);
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+  .catalogo__buscar-input:focus-visible {
+    outline: 2px solid var(--t800);
+    outline-offset: 2px;
+  }
+
+  /* Familia actual */
+  .catalogo__familia-actual {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-block-end: var(--space-lg);
+  }
+  .catalogo__familia-actual[hidden] {
+    display: none;
+  }
+
+  /* Vista familias */
+  .catalogo__familias-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-block-end: var(--space-md);
+  }
+  #vista-familias[hidden] {
+    display: none;
+  }
+  .categorias__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.25rem;
+    list-style: none;
+    margin: 0 0 var(--space-2xl);
+    padding: 0;
+  }
+  .categoria-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1.5rem;
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    text-decoration: none;
+    color: var(--text);
+    transition:
+      box-shadow 260ms var(--ease),
+      transform 260ms var(--ease);
+  }
+  .categoria-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-3px);
+  }
+  .categoria-card__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius);
+    background: var(--t100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--t900);
+  }
+  .categoria-card__name {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0;
+  }
+  .categoria-card__desc {
+    font-size: 0.825rem;
+    color: var(--text-mid);
+    line-height: 1.5;
+    margin: 0;
+    flex: 1;
+  }
+  .categoria-card__link {
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: var(--font-display);
+    color: var(--t800);
+    margin-block-start: auto;
+  }
+
+  /* Layout filtros + resultados */
+  .catalogo__layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+    padding-block-end: var(--space-2xl);
+  }
+  @media (min-width: 900px) {
+    .catalogo__layout {
+      grid-template-columns: 240px 1fr;
+      align-items: start;
+    }
+  }
+
+  /* Sidebar filtros */
+  .catalogo-filtros {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+  .catalogo-filtros__header {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .catalogo-filtros__titulo {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0;
+  }
+  .catalogo-filtros__cerrar {
+    display: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--ink);
+  }
+  .catalogo-filtros__grupo-bloque {
+    border: none;
+    padding: 0;
+    margin: 0;
+  }
+  .catalogo-filtros__grupo-bloque[hidden] {
+    display: none;
+  }
+  .catalogo-filtros__heading,
+  .catalogo-filtros__grupo-bloque legend {
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--t900);
+    margin: 0 0 0.6rem;
+    padding: 0;
+  }
+  .catalogo-filtros__lista {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .catalogo-filtros__familia {
+    text-align: left;
+    padding: 0.45rem 0.6rem;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: var(--text-mid);
+    cursor: pointer;
+    transition:
+      background-color 180ms var(--ease),
+      color 180ms var(--ease);
+  }
+  .catalogo-filtros__familia:hover {
+    background: var(--t50);
+    color: var(--t900);
+  }
+  .catalogo-filtros__familia--activa {
+    background: var(--t100);
+    color: var(--t900);
+    font-weight: 700;
+  }
+  .catalogo-filtros__opcion {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-mid);
+    cursor: pointer;
+    padding: 0.25rem 0;
+  }
+  .catalogo-filtros__opcion input {
+    width: 1rem;
+    height: 1rem;
+    accent-color: var(--t800);
+  }
+  .catalogo-filtros__reset {
+    align-self: flex-start;
+  }
+
+  @media (max-width: 899px) {
+    .catalogo-filtros__header {
+      display: flex;
+    }
+    .catalogo-filtros__cerrar {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .catalogo__filtros-toggle {
+      display: inline-flex;
+    }
+    .catalogo-filtros {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: min(320px, 85vw);
+      background: var(--white);
+      box-shadow: var(--shadow-md);
+      padding: var(--space-md);
+      overflow-y: auto;
+      z-index: 95;
+      transform: translateX(-100%);
+      transition: transform 260ms var(--ease);
+    }
+    .catalogo-filtros--abierto {
+      transform: translateX(0);
+    }
+  }
+  @media (min-width: 900px) {
+    .catalogo__filtros-toggle {
+      display: none;
+    }
+  }
+
+  /* Toolbar + resultados */
+  .catalogo__toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-block-end: var(--space-md);
+  }
+  .catalogo__contador {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--text-mid);
+  }
+  .productos__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .productos__grid[hidden] {
+    display: none;
+  }
+  .productos__grid :global(mark) {
+    background: var(--t100);
+    color: var(--t900);
+    border-radius: 2px;
+    padding: 0 0.1em;
+  }
+
+  /* Sin resultados */
+  .catalogo__sin-resultados {
+    background: var(--off);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    text-align: center;
+  }
+  .catalogo__sin-resultados[hidden] {
+    display: none;
+  }
+  .catalogo__sin-resultados p {
+    color: var(--text-mid);
+    max-width: 480px;
+    margin: 0.75rem auto var(--space-md);
+  }
+  .catalogo__sin-resultados-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  /* Paginación */
+  .catalogo-paginacion {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    margin-block-start: var(--space-lg);
+  }
+  .catalogo-paginacion[hidden] {
+    display: none;
+  }
+  .catalogo-paginacion :global(.catalogo-paginacion__info) {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--text-mid);
+  }
+
+  /* Comparador */
+  .comparador-bar {
+    position: fixed;
+    left: 50%;
+    bottom: 1rem;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    background: var(--ink);
+    color: var(--white);
+    border-radius: 999px;
+    padding: 0.75rem 1.25rem;
+    box-shadow: var(--shadow-md);
+    z-index: 60;
+    max-width: calc(100vw - 2rem);
+  }
+  .comparador-bar[hidden] {
+    display: none;
+  }
+  .comparador-bar__texto {
+    margin: 0;
+    font-size: 0.875rem;
+    white-space: nowrap;
+  }
+  .comparador-bar__acciones {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .comparador-bar .btn {
+    font-size: 0.8rem;
+    padding: 0.45rem 1rem;
+  }
+  .comparador-bar .btn-secondary {
+    background: var(--white);
+  }
+  .comparador-bar .btn-ghost {
+    color: var(--white);
+  }
+
+  #comparador-dialog {
+    border: none;
+    border-radius: var(--radius-lg);
+    padding: var(--space-md);
+    max-width: min(90vw, 900px);
+    width: 100%;
+    background: var(--white);
+  }
+  #comparador-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.6);
+  }
+  .comparador-dialog__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-block-end: 0.5rem;
+  }
+  .comparador-dialog__header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+  .comparador-dialog__cerrar {
+    background: none;
+    border: none;
+    font-size: 1.75rem;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--ink);
+    padding: 0.25rem 0.5rem;
+  }
+  .comparador-dialog__limite {
+    font-size: 0.8rem;
+    color: var(--text-mid);
+    margin: 0 0 0.75rem;
+  }
+  .comparador-dialog__tabla {
+    overflow-x: auto;
+  }
+  .comparador-dialog__tabla :global(.comparador__table) {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .comparador-dialog__tabla :global(.comparador__table th),
+  .comparador-dialog__tabla :global(.comparador__table td) {
+    text-align: left;
+    padding: 0.6rem 0.85rem;
+    font-size: 0.85rem;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .comparador-dialog__tabla :global(.comparador__table th[scope='row']) {
+    font-weight: 600;
+    color: var(--ink);
+    white-space: normal;
+  }
+  .comparador-dialog__tabla :global(.comparador__vacio) {
+    color: var(--text-mid);
+    font-size: 0.9rem;
+  }
+</style>
+
+<script>
+  import { initCatalogo } from '../lib/catalogo-cliente'
+
+  document.addEventListener('astro:page-load', () => {
+    const locale = document.documentElement.lang === 'en' ? 'en' : 'es'
+    initCatalogo(locale)
+  })
+</script>

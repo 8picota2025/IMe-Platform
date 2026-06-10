@@ -34,7 +34,6 @@
 - [ ] Edge Function ingesta-pdf/ — F3
 - [ ] Edge Function trigger-rebuild/ — F3
 - [ ] Carrito y checkout — F4
-- [ ] Catálogo completo con filtros y landings de producto — F2
 - [ ] SimuladorFinanciero real — F4
 
 ## BLOQUEANTE_LEGAL — Impide operar o publicar

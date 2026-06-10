@@ -33,13 +33,40 @@ export function t(locale: Locale, key: string): string {
 }
 
 /**
+ * Segmentos de ruta cuyo nombre difiere entre idiomas.
+ * Solo se traduce el primer segmento del path (sección); slugs de
+ * entidades (productos, etc.) se mantienen igual en ambos idiomas.
+ */
+const PATH_SEGMENT_PAIRS: Array<{ es: string; en: string }> = [
+  { es: 'catalogo', en: 'catalog' },
+  { es: 'contacto', en: 'contact' },
+  { es: 'servicios', en: 'services' },
+  { es: 'financiacion', en: 'financing' },
+  { es: 'productos', en: 'products' },
+  { es: 'conocimiento', en: 'knowledge' },
+]
+
+const PATH_SEGMENT_LOOKUP = new Map<string, { es: string; en: string }>()
+for (const pair of PATH_SEGMENT_PAIRS) {
+  PATH_SEGMENT_LOOKUP.set(pair.es, pair)
+  PATH_SEGMENT_LOOKUP.set(pair.en, pair)
+}
+
+/**
  * Returns the localized path for a given path + locale.
- * Strips the current locale prefix and adds the new one.
+ * Strips the current locale prefix, translates the section segment
+ * if needed (e.g. /catalogo <-> /catalog), and adds the target locale.
  */
 export function getLocalizedPath(path: string, targetLocale: Locale): string {
-  // Remove existing locale prefix
-  const stripped = path.replace(/^\/(es|en)/, '') || '/'
-  return `/${targetLocale}${stripped === '/' ? '' : stripped}`
+  const stripped = path.replace(/^\/(es|en)/, '')
+  if (!stripped || stripped === '/') return `/${targetLocale}`
+
+  const segments = stripped.split('/').filter(Boolean)
+  const first = segments[0]
+  const pair = first ? PATH_SEGMENT_LOOKUP.get(first) : undefined
+  if (pair && first) segments[0] = pair[targetLocale]
+
+  return `/${targetLocale}/${segments.join('/')}`
 }
 
 /**

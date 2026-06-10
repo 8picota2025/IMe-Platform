@@ -21,9 +21,7 @@ const links = [
 ]
 
 const altLocale: Locale = locale === 'es' ? 'en' : 'es'
-// Strip locale prefix to get path segment for alternate language
-const pathWithoutLocale = currentPath.replace(/^\/(es|en)/, '') || '/'
-const altHref = `/${altLocale}${pathWithoutLocale === '/' ? '' : pathWithoutLocale}`
+const altHref = getLocalizedPath(currentPath, altLocale)
 ---
 
 <header class="navbar" id="navbar" role="banner">

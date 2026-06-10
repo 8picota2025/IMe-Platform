@@ -1,0 +1,59 @@
+---
+/**
+ * Conocimiento ES — stub visual (BACKLOG_V2: centro de contenido/artículos).
+ * No se inventan artículos ni recursos — solo aviso "próximamente".
+ */
+import Layout from '../../layouts/Layout.astro'
+import { buildPageTitle, buildCanonical } from '../../lib/seo'
+import { t } from '../../i18n/utils'
+
+const locale = 'es'
+const title = buildPageTitle(t(locale, 'conocimiento.titulo'))
+const description = t(locale, 'conocimiento.descripcion')
+const canonical = buildCanonical('/es/conocimiento')
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  locale={locale}
+  currentPath="/es/conocimiento"
+>
+  <div
+    class="page-hero conocimiento-hero"
+    style="padding-top:130px;padding-bottom:var(--space-2xl);background:var(--off)"
+  >
+    <div class="container">
+      <span class="section-tag">{t(locale, 'conocimiento.proximamente')}</span>
+      <h1>{t(locale, 'conocimiento.titulo')}</h1>
+      <p style="color:var(--text-mid);max-width:560px;margin:0.75rem 0 0">
+        {t(locale, 'conocimiento.descripcion')}
+      </p>
+      <a href="/es/contacto" class="btn btn-secondary" style="margin-top:1.5rem">
+        {t(locale, 'conocimiento.cta_contacto')}
+      </a>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .section-tag {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--t900);
+    background: var(--t100);
+    padding: 0.3rem 0.875rem;
+    border-radius: 999px;
+    margin-block-end: 0.75rem;
+  }
+  .conocimiento-hero {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+  }
+</style>

@@ -1,0 +1,678 @@
+---
+/**
+ * ProductoLanding — landing estática de producto (ES/EN).
+ * Estructura: breadcrumb, hero, galería (si hay datos reales),
+ * especificaciones (o aviso de pendiente), relacionados, CTA sticky,
+ * bloque de contacto/cotización.
+ */
+import { t, type Locale } from '../i18n/utils'
+import ProductoCard from './ProductoCard.astro'
+import type { Producto, Familia } from '../lib/datos'
+import { formatMoneda } from '../lib/format'
+
+interface EspecificacionItem {
+  clave: string
+  valor: string
+  grupo?: string
+}
+
+interface Props {
+  producto: Producto
+  familia: Familia
+  relacionados: Producto[]
+  locale: Locale
+}
+
+const { producto, familia, relacionados, locale } = Astro.props
+
+const catalogoPath = locale === 'en' ? '/en/catalog' : '/es/catalogo'
+const contactoPath = locale === 'en' ? '/en/contact' : '/es/contacto'
+
+function normalizarEspecs(raw: unknown[]): EspecificacionItem[] {
+  return raw.filter((item): item is EspecificacionItem => {
+    if (!item || typeof item !== 'object') return false
+    const obj = item as Record<string, unknown>
+    return typeof obj.clave === 'string' && typeof obj.valor === 'string'
+  })
+}
+
+const especificaciones = normalizarEspecs(producto.especificaciones)
+const grupos = new Map<string, EspecificacionItem[]>()
+for (const espec of especificaciones) {
+  const grupo = espec.grupo ?? ''
+  if (!grupos.has(grupo)) grupos.set(grupo, [])
+  grupos.get(grupo)!.push(espec)
+}
+
+const galeria = producto.galeria.filter((url) => url && url !== producto.imagen_principal)
+const imagenes = [producto.imagen_principal, ...galeria]
+
+const precioFormateado = formatMoneda(producto.precio, producto.moneda, locale)
+
+const migas = [
+  { nombre: t(locale, 'catalogo.migas_inicio'), href: `/${locale}/` },
+  { nombre: t(locale, 'catalogo.migas_catalogo'), href: catalogoPath },
+  { nombre: familia.nombre, href: `${catalogoPath}?familia=${familia.slug}` },
+]
+
+const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.nombre)}`
+---
+
+<article class="producto-landing">
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb container" aria-label={t(locale, 'catalogo.migas_inicio')}>
+    <ol>
+      {
+        migas.map((miga) => (
+          <li>
+            <a href={miga.href}>{miga.nombre}</a>
+            <span aria-hidden="true">/</span>
+          </li>
+        ))
+      }
+      <li aria-current="page">{producto.nombre}</li>
+    </ol>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero-producto container">
+    <div class="hero-producto__media">
+      <img
+        src={imagenes[0]}
+        alt={producto.nombre}
+        width="640"
+        height="480"
+        decoding="async"
+        fetchpriority="high"
+        class="hero-producto__img"
+        id="producto-imagen-principal"
+      />
+      {
+        (producto.destacado || producto.nuevo) && (
+          <div class="hero-producto__badges" aria-hidden="true">
+            {producto.nuevo && (
+              <span class="badge badge-green">{t(locale, 'producto.badge_nuevo')}</span>
+            )}
+            {producto.destacado && (
+              <span class="badge badge-teal">{t(locale, 'producto.badge_destacado')}</span>
+            )}
+          </div>
+        )
+      }
+    </div>
+    <div class="hero-producto__info">
+      <a href={`${catalogoPath}?familia=${familia.slug}`} class="hero-producto__familia">
+        {familia.nombre}
+      </a>
+      <h1>{producto.nombre}</h1>
+      <p class="hero-producto__desc">{producto.descripcion_corta}</p>
+      {precioFormateado && <p class="hero-producto__precio">{precioFormateado}</p>}
+
+      <div class="hero-producto__cta-group" id="cta-principal">
+        <a href={ctaCotizarHref} class="btn btn-primary">
+          {t(locale, 'producto.cotizar_cta')}
+        </a>
+        {
+          producto.ficha_pdf && (
+            <a
+              href={producto.ficha_pdf}
+              class="btn btn-secondary"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t(locale, 'producto.ficha_pdf')}
+            </a>
+          )
+        }
+      </div>
+
+      <label class="producto-landing__compare">
+        <input type="checkbox" id="comparador-toggle" data-compare-slug={producto.slug} />
+        <span>{t(locale, 'catalogo.comparar_anadir')}</span>
+      </label>
+    </div>
+  </section>
+
+  <!-- Galería -->
+  {
+    galeria.length > 0 && (
+      <section class="section container" aria-labelledby="galeria-heading">
+        <h2 id="galeria-heading" class="section-subtitle">
+          {t(locale, 'producto.galeria_titulo')}
+        </h2>
+        <ul class="galeria__grid" role="list">
+          {imagenes.map((src, index) => (
+            <li>
+              <button
+                type="button"
+                class="galeria__thumb"
+                data-galeria-index={index}
+                aria-label={`${t(locale, 'producto.galeria_abrir')}: ${producto.nombre} ${index + 1}/${imagenes.length}`}
+              >
+                <img src={src} alt="" width="200" height="150" loading="lazy" decoding="async" />
+              </button>
+            </li>
+          ))}
+        </ul>
+
+        <dialog id="galeria-lightbox" aria-label={t(locale, 'producto.galeria_titulo')}>
+          <div class="lightbox__header">
+            <p class="lightbox__contador" aria-live="polite" id="lightbox-contador" />
+            <button type="button" class="lightbox__cerrar" data-lightbox-close>
+              <span aria-hidden="true">×</span>
+              <span class="sr-only">{t(locale, 'producto.galeria_cerrar')}</span>
+            </button>
+          </div>
+          <img id="lightbox-img" src={imagenes[0]} alt="" />
+          <div class="lightbox__nav">
+            <button type="button" data-lightbox-prev class="btn btn-secondary">
+              {t(locale, 'producto.galeria_anterior')}
+            </button>
+            <button type="button" data-lightbox-next class="btn btn-secondary">
+              {t(locale, 'producto.galeria_siguiente')}
+            </button>
+          </div>
+        </dialog>
+      </section>
+    )
+  }
+
+  <!-- Especificaciones -->
+  <section class="section container" aria-labelledby="specs-heading">
+    <h2 id="specs-heading" class="section-subtitle">{t(locale, 'producto.specs_titulo')}</h2>
+    {
+      especificaciones.length > 0 ? (
+        [...grupos.entries()].map(([grupo, items]) => (
+          <div class="specs-grupo">
+            {grupo && <h3 class="specs-grupo__titulo">{grupo}</h3>}
+            <table class="specs-table">
+              <tbody>
+                {items.map((item) => (
+                  <tr>
+                    <th scope="row">{item.clave}</th>
+                    <td>{item.valor}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ))
+      ) : (
+        <p class="specs-pendiente">{t(locale, 'producto.specs_pendiente')}</p>
+      )
+    }
+  </section>
+
+  <!-- Relacionados -->
+  {
+    relacionados.length > 0 && (
+      <section class="section container" aria-labelledby="relacionados-heading">
+        <div class="section-header">
+          <h2 id="relacionados-heading" class="section-subtitle">
+            {t(locale, 'producto.relacionados_titulo')}
+          </h2>
+          <a href={`${catalogoPath}?familia=${familia.slug}`} class="ver-familia-link">
+            {t(locale, 'producto.ver_familia')} →
+          </a>
+        </div>
+        <ul class="relacionados__grid" role="list">
+          {relacionados.map((rel) => (
+            <ProductoCard
+              producto={{
+                slug: rel.slug,
+                nombre: rel.nombre,
+                descripcion_corta: rel.descripcion_corta,
+                imagen_principal: rel.imagen_principal,
+                destacado: rel.destacado,
+                nuevo: rel.nuevo,
+                familia: { slug: familia.slug, nombre: familia.nombre },
+              }}
+              locale={locale}
+            />
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+  <!-- Bloque contacto -->
+  <section class="section container">
+    <div class="contacto-cta">
+      <div>
+        <h2 class="section-subtitle">{t(locale, 'producto.contacto_titulo')}</h2>
+        <p>{t(locale, 'producto.contacto_desc')}</p>
+      </div>
+      <div class="contacto-cta__acciones">
+        <a href={ctaCotizarHref} class="btn btn-primary">
+          {t(locale, 'producto.cotizar_cta')}
+        </a>
+        <a href={catalogoPath} class="btn btn-ghost">
+          {t(locale, 'producto.volver_catalogo')}
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA sticky -->
+  <div class="cta-sticky" id="cta-sticky" hidden>
+    <div class="container cta-sticky__inner">
+      <p class="cta-sticky__nombre">{producto.nombre}</p>
+      <a href={ctaCotizarHref} class="btn btn-primary">
+        {t(locale, 'producto.cotizar_cta')}
+      </a>
+    </div>
+  </div>
+</article>
+
+<style>
+  .breadcrumb {
+    padding-block-start: 110px;
+    padding-block-end: var(--space-sm);
+  }
+  .breadcrumb ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 0.8rem;
+    color: var(--text-mid);
+  }
+  .breadcrumb li {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .breadcrumb a {
+    color: var(--text-mid);
+    text-decoration: none;
+  }
+  .breadcrumb a:hover {
+    color: var(--t900);
+    text-decoration: underline;
+  }
+  .breadcrumb li[aria-current='page'] {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .hero-producto {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+    padding-block-end: var(--space-xl);
+  }
+  @media (min-width: 900px) {
+    .hero-producto {
+      grid-template-columns: 1.1fr 1fr;
+      align-items: start;
+    }
+  }
+  .hero-producto__media {
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--off2);
+    aspect-ratio: 4/3;
+  }
+  .hero-producto__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .hero-producto__badges {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    display: flex;
+    gap: 0.5rem;
+  }
+  .hero-producto__info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+  .hero-producto__familia {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--t800);
+    text-decoration: none;
+  }
+  .hero-producto__familia:hover {
+    text-decoration: underline;
+  }
+  .hero-producto__info h1 {
+    margin: 0;
+  }
+  .hero-producto__desc {
+    color: var(--text-mid);
+    line-height: 1.6;
+    margin: 0;
+  }
+  .hero-producto__precio {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0;
+  }
+  .hero-producto__cta-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-block-start: 0.5rem;
+  }
+  .producto-landing__compare {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.825rem;
+    color: var(--text-mid);
+    cursor: pointer;
+    margin-block-start: 0.25rem;
+  }
+  .producto-landing__compare input {
+    width: 1rem;
+    height: 1rem;
+    accent-color: var(--t800);
+  }
+
+  .section-subtitle {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0 0 var(--space-md);
+  }
+  .section-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: var(--space-md);
+  }
+  .section-header .section-subtitle {
+    margin: 0;
+  }
+  .ver-familia-link {
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-family: var(--font-display);
+    color: var(--t800);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .ver-familia-link:hover {
+    text-decoration: underline;
+  }
+
+  /* Galería */
+  .galeria__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.75rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .galeria__thumb {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    cursor: zoom-in;
+    background: none;
+  }
+  .galeria__thumb img {
+    width: 100%;
+    height: 105px;
+    object-fit: cover;
+    display: block;
+  }
+  #galeria-lightbox {
+    border: none;
+    border-radius: var(--radius-lg);
+    padding: var(--space-md);
+    max-width: min(90vw, 900px);
+    background: var(--white);
+  }
+  #galeria-lightbox::backdrop {
+    background: rgba(0, 0, 0, 0.7);
+  }
+  .lightbox__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-block-end: 0.75rem;
+  }
+  .lightbox__contador {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-mid);
+  }
+  .lightbox__cerrar {
+    background: none;
+    border: none;
+    font-size: 1.75rem;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--ink);
+    padding: 0.25rem 0.5rem;
+  }
+  #lightbox-img {
+    display: block;
+    width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+    border-radius: var(--radius);
+  }
+  .lightbox__nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-block-start: 0.75rem;
+  }
+
+  /* Especificaciones */
+  .specs-grupo {
+    margin-block-end: var(--space-md);
+  }
+  .specs-grupo__titulo {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0 0 0.5rem;
+  }
+  .specs-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .specs-table tr:nth-child(even) {
+    background: var(--off);
+  }
+  .specs-table th,
+  .specs-table td {
+    text-align: left;
+    padding: 0.65rem 1rem;
+    font-size: 0.875rem;
+    border-block-end: 1px solid var(--border);
+  }
+  .specs-table th {
+    font-family: var(--font-display);
+    font-weight: 600;
+    color: var(--ink);
+    width: 40%;
+  }
+  .specs-table td {
+    color: var(--text-mid);
+  }
+  .specs-pendiente {
+    background: var(--t100);
+    border: 1px solid var(--border-mid);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    color: var(--t900);
+    font-size: 0.9rem;
+    max-width: 640px;
+  }
+
+  /* Relacionados */
+  .relacionados__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Contacto CTA */
+  .contacto-cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    background: var(--off);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+  }
+  .contacto-cta p {
+    color: var(--text-mid);
+    margin: 0.5rem 0 0;
+    max-width: 520px;
+  }
+  .contacto-cta__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  /* CTA sticky */
+  .cta-sticky {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--white);
+    border-top: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+    z-index: 40;
+    padding-block: 0.75rem;
+  }
+  .cta-sticky[hidden] {
+    display: none;
+  }
+  .cta-sticky__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .cta-sticky__nombre {
+    margin: 0;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+</style>
+
+<script>
+  import { toggleComparador, getComparador } from '../lib/comparador'
+
+  // Estado inicial del checkbox de comparación
+  const compareToggle = document.getElementById('comparador-toggle') as HTMLInputElement | null
+  if (compareToggle) {
+    const slug = compareToggle.dataset['compareSlug'] ?? ''
+    compareToggle.checked = getComparador().includes(slug)
+    compareToggle.addEventListener('change', () => {
+      const result = toggleComparador(slug)
+      compareToggle.checked = result.slugs.includes(slug)
+    })
+  }
+
+  // CTA sticky tras pasar el CTA principal
+  const ctaPrincipal = document.getElementById('cta-principal')
+  const ctaSticky = document.getElementById('cta-sticky')
+  if (ctaPrincipal && ctaSticky) {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry) return
+        ctaSticky.hidden = entry.isIntersecting
+      },
+      { rootMargin: '-80px 0px 0px 0px' }
+    )
+    observer.observe(ctaPrincipal)
+  }
+
+  // Lightbox de galería
+  const lightbox = document.getElementById('galeria-lightbox') as HTMLDialogElement | null
+  const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement | null
+  const lightboxContador = document.getElementById('lightbox-contador')
+  const thumbs = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-galeria-index]'))
+
+  if (lightbox && lightboxImg && thumbs.length > 0) {
+    let indiceActual = 0
+
+    const actualizar = () => {
+      const thumb = thumbs[indiceActual]
+      const img = thumb?.querySelector('img')
+      if (img) {
+        lightboxImg.src = img.src
+        lightboxImg.alt = img.alt || ''
+      }
+      if (lightboxContador) {
+        lightboxContador.textContent = `${indiceActual + 1} / ${thumbs.length}`
+      }
+    }
+
+    thumbs.forEach((thumb, index) => {
+      thumb.addEventListener('click', () => {
+        indiceActual = index
+        actualizar()
+        lightbox.showModal()
+      })
+    })
+
+    document
+      .querySelector('[data-lightbox-close]')
+      ?.addEventListener('click', () => lightbox.close())
+    document.querySelector('[data-lightbox-prev]')?.addEventListener('click', () => {
+      indiceActual = (indiceActual - 1 + thumbs.length) % thumbs.length
+      actualizar()
+    })
+    document.querySelector('[data-lightbox-next]')?.addEventListener('click', () => {
+      indiceActual = (indiceActual + 1) % thumbs.length
+      actualizar()
+    })
+    lightbox.addEventListener('click', (event) => {
+      if (event.target === lightbox) lightbox.close()
+    })
+  }
+</script>
