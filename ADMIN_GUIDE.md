@@ -12,6 +12,9 @@
 - Crear primero familias, luego tipos asociados a una familia.
 - No eliminar familias o tipos que tengan productos sin revisar reasignacion.
 - Desactivar una familia o tipo la oculta del catalogo publico por RLS.
+- La tabla de tipos muestra cuantos productos tiene cada uno.
+- "Productos sin tipo asignado" lista cada producto sin `tipo_id` con un formulario
+  para asignarle familia y tipo (o dejarlo "Sin asignar" si aun no corresponde).
 
 ## Productos
 
@@ -32,9 +35,18 @@
 1. Subir o pegar la URL de la ficha PDF.
 2. Pegar texto extraido del PDF cuando el documento no pueda enviarse como texto.
 3. Ejecutar ingesta.
-4. Revisar el JSON campo a campo: origen, confianza, ausentes y advertencias.
-5. Crear o actualizar el producto manualmente como `activo=false`.
-6. Activar solo despues de revision humana.
+4. Revisar el borrador campo a campo: cada campo muestra su origen (PDF, ausente,
+   manual), su confianza y un check "Revisado" obligatorio cuando el campo esta
+   marcado para revision. El formulario no se puede enviar hasta marcar todos
+   los checks requeridos.
+5. Especificaciones y aplicaciones se editan como filas repetibles (agregar/quitar)
+   con su propio check de revision.
+6. La traduccion EN es siempre borrador: requiere un check unico "Traduccion EN
+   revisada" antes de poder crear el producto.
+7. Asignar familia/tipo sugeridos (o dejar "Sin asignar" si no corresponde).
+8. Al enviar, el producto se crea siempre con `activo=false`.
+9. Activar el producto solo despues de revision humana completa, desde la vista
+   Productos.
 
 La IA no publica, no autoguarda y no debe completar datos ausentes.
 
@@ -44,6 +56,29 @@ La IA no publica, no autoguarda y no debe completar datos ausentes.
 - La Edge Function usa `CI_DEPLOY_HOOK` o `GITHUB_TOKEN` server-side.
 - El secreto nunca se devuelve al cliente.
 - Si no hay credenciales de CI, queda como `NO_EJECUTADO_ENTORNO`.
+
+## Proveedores y productos asignados
+
+- Cada proveedor muestra cuantos productos tiene asignados y un boton "Productos"
+  que abre la vista de asignacion.
+- En esa vista se listan los productos ya asignados (con `precio_costo`, moneda,
+  prioridad y estado) y un formulario para asignar un producto nuevo del catalogo
+  (solo se ofrecen productos aun no asignados a ese proveedor).
+- `precio_costo` es **CONFIDENCIAL**: solo visible en este panel admin, nunca en
+  el sitio publico ni en `dist/`.
+- `prioridad` (1 = preferente) define el orden de preferencia entre proveedores
+  para un mismo producto.
+- "Quitar" elimina la asignacion proveedor-producto (no afecta al producto ni al
+  proveedor).
+
+## Fulfillments
+
+- Cada fila muestra el pedido asociado, el cliente, el proveedor (si tiene) y,
+  si existe, el detalle de error.
+- `Estado`, `Numero de tracking`, `URL de tracking` y `Notas` se editan inline y
+  se guardan con el boton "Guardar" de cada fila.
+- Reenviar notificacion al proveedor (Edge Function `notificar-proveedor`) queda
+  fuera de alcance de F3 — esta planificado para F4.
 
 ## Cotizaciones y Pedidos
 

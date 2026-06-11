@@ -8,6 +8,7 @@ type View =
   | 'cotizaciones'
   | 'pedidos'
   | 'proveedores'
+  | 'proveedor-productos'
   | 'fulfillments'
   | 'conocimiento'
   | 'ingesta'
@@ -40,6 +41,21 @@ type ProductoDraft = {
   orden: number
 }
 
+interface CampoRevisable {
+  valor: string
+  origen: string
+  confianza: number
+  requiere_revision: boolean
+}
+
+interface EspecRevisable extends CampoRevisable {
+  clave: string
+  grupo: string
+}
+
+let ingestFamilias: Row[] = []
+let ingestTipos: Row[] = []
+
 const appElement = document.getElementById('admin-app')
 const supabase = getSupabaseClient()
 
@@ -48,13 +64,13 @@ const app = appElement
 
 const state = {
   view: parseView(location.hash),
-  productId: new URLSearchParams(location.hash.split('?')[1] ?? '').get('id'),
+  recordId: new URLSearchParams(location.hash.split('?')[1] ?? '').get('id'),
   email: '',
 }
 
 window.addEventListener('hashchange', () => {
   state.view = parseView(location.hash)
-  state.productId = new URLSearchParams(location.hash.split('?')[1] ?? '').get('id')
+  state.recordId = new URLSearchParams(location.hash.split('?')[1] ?? '').get('id')
   void render()
 })
 
@@ -69,6 +85,7 @@ function parseView(hash: string): View {
     raw === 'cotizaciones' ||
     raw === 'pedidos' ||
     raw === 'proveedores' ||
+    raw === 'proveedor-productos' ||
     raw === 'fulfillments' ||
     raw === 'conocimiento' ||
     raw === 'ingesta'
@@ -145,10 +162,12 @@ async function routeView(): Promise<{ title: string; body: string }> {
     return { title: 'Cotizaciones', body: await cotizacionesView() }
   if (state.view === 'pedidos') return { title: 'Pedidos', body: await pedidosView() }
   if (state.view === 'proveedores') return { title: 'Proveedores', body: await proveedoresView() }
+  if (state.view === 'proveedor-productos')
+    return { title: 'Productos del proveedor', body: await proveedorProductosView() }
   if (state.view === 'fulfillments')
     return { title: 'Fulfillments', body: await fulfillmentsView() }
   if (state.view === 'conocimiento') return { title: 'Conocimiento', body: conocimientoView() }
-  if (state.view === 'ingesta') return { title: 'Ingesta PDF', body: ingestaView() }
+  if (state.view === 'ingesta') return { title: 'Ingesta PDF', body: await ingestaView() }
   return { title: 'Dashboard', body: await dashboardView() }
 }
 
@@ -208,8 +227,11 @@ function bindView() {
   bindProductList()
   bindProductForm()
   bindTaxonomy()
+  bindReasignacion()
   bindSimpleTables()
   bindIngest()
+  bindProveedorProductos()
+  bindFulfillments()
 }
 
 async function dashboardView(): Promise<string> {
@@ -272,7 +294,7 @@ async function productoFormView(): Promise<string> {
   const [familias, tipos, producto] = await Promise.all([
     selectRows('familias', '*', 'orden', 200),
     selectRows('tipos', '*', 'orden', 300),
-    state.productId ? getRow('productos', state.productId) : Promise.resolve(null),
+    state.recordId ? getRow('productos', state.recordId) : Promise.resolve(null),
   ])
   const draft = productDraft(producto)
   return `
@@ -329,10 +351,26 @@ async function productoFormView(): Promise<string> {
 }
 
 async function taxonomiaView(): Promise<string> {
-  const [familias, tipos] = await Promise.all([
+  const [familias, tipos, productos] = await Promise.all([
     selectRows('familias', '*', 'orden', 200),
     selectRows('tipos', '*', 'orden', 300),
+    selectRows('productos', 'id,nombre_es,slug,familia_id,tipo_id', 'nombre_es', 500),
   ])
+  const familiasPorId = new Map(familias.map((f) => [text(f.id), text(f.nombre_es)]))
+  const conteoPorTipo = new Map<string, number>()
+  const productosSinTipo: Row[] = []
+  for (const producto of productos) {
+    const tipoId = text(producto.tipo_id)
+    if (!tipoId) {
+      productosSinTipo.push(producto)
+      continue
+    }
+    conteoPorTipo.set(tipoId, (conteoPorTipo.get(tipoId) ?? 0) + 1)
+  }
+  const tiposParaSelect = tipos.map((t) => ({
+    ...t,
+    nombre_es: `${familiasPorId.get(text(t.familia_id)) ?? 'Sin familia'} / ${text(t.nombre_es)}`,
+  }))
   return `
     <section class="admin-grid">
       <form class="admin-panel admin-form" data-simple-form data-table="familias" data-fields="slug,nombre_es,nombre_en,descripcion_es,descripcion_en,orden,activo">
@@ -362,10 +400,36 @@ async function taxonomiaView(): Promise<string> {
           ${checkbox('activo', 'Activo', true)}
         </div>
         ${table(
-          ['Slug', 'Nombre', 'Estado'],
-          tipos.map((r) => [text(r.slug), text(r.nombre_es), status(r.activo)])
+          ['Slug', 'Nombre', 'Productos', 'Estado'],
+          tipos.map((r) => [
+            text(r.slug),
+            text(r.nombre_es),
+            String(conteoPorTipo.get(text(r.id)) ?? 0),
+            status(r.activo),
+          ])
         )}
       </form>
+    </section>
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Productos sin tipo asignado (${productosSinTipo.length})</h2></div>
+      ${
+        productosSinTipo.length === 0
+          ? '<p class="admin-help" style="padding:16px">Todos los productos tienen tipo asignado.</p>'
+          : productosSinTipo
+              .map(
+                (p) => `
+        <form class="admin-form" data-reasignar-form style="padding:16px;border-top:1px solid var(--admin-line)">
+          <input type="hidden" name="producto_id" value="${escapeHtml(text(p.id))}" />
+          <div class="admin-editor__cols">
+            <div class="admin-field">Producto<strong>${escapeHtml(text(p.nombre_es))} <span class="admin-meta">(${escapeHtml(text(p.slug))})</span></strong></div>
+            ${select('familia_id', 'Familia', text(p.familia_id), familias, 'nombre_es', true)}
+            ${select('tipo_id', 'Tipo', '', tiposParaSelect, 'nombre_es', true)}
+          </div>
+          <button class="admin-button" type="submit">Reasignar</button>
+        </form>`
+              )
+              .join('')
+      }
     </section>`
 }
 
@@ -396,7 +460,15 @@ async function pedidosView(): Promise<string> {
 }
 
 async function proveedoresView(): Promise<string> {
-  const rows = await selectRows('proveedores', '*', 'nombre', 100)
+  const [rows, asignaciones] = await Promise.all([
+    selectRows('proveedores', '*', 'nombre', 100),
+    selectRows('proveedor_producto', 'proveedor_id', 'prioridad', 1000),
+  ])
+  const conteos = new Map<string, number>()
+  for (const row of asignaciones) {
+    const id = text(row.proveedor_id)
+    conteos.set(id, (conteos.get(id) ?? 0) + 1)
+  }
   return `
     <form class="admin-panel admin-form" data-simple-form data-table="proveedores" data-fields="slug,nombre,contacto_email,contacto_whatsapp,canal,webhook_url,notas,activo">
       <div class="admin-panel__head"><h2>Proveedores</h2><button class="admin-button" type="submit">Crear proveedor</button></div>
@@ -417,44 +489,159 @@ async function proveedoresView(): Promise<string> {
         ${checkbox('activo', 'Activo', true)}
       </div>
       ${table(
-        ['Nombre', 'Canal', 'Estado'],
-        rows.map((r) => [text(r.nombre), text(r.canal), status(r.activo)])
+        ['Nombre', 'Canal', 'Estado', 'Productos asignados', 'Acciones'],
+        rows.map((r) => [
+          text(r.nombre),
+          text(r.canal),
+          status(r.activo),
+          String(conteos.get(text(r.id)) ?? 0),
+          `<a class="admin-button admin-button--ghost" href="#/proveedor-productos?id=${encodeURIComponent(text(r.id))}">Productos</a>`,
+        ])
       )}
     </form>`
 }
 
-async function fulfillmentsView(): Promise<string> {
-  const rows = await selectRows('fulfillments', '*', 'created_at', 100, false)
-  return listWithCsv('fulfillments', rows, [
-    'created_at',
-    'pedido_id',
-    'proveedor_id',
-    'estado',
-    'tracking_number',
-    'error_detalle',
+async function proveedorProductosView(): Promise<string> {
+  const proveedorId = state.recordId
+  if (!proveedorId) {
+    return `<section class="admin-panel"><div style="padding:16px" class="admin-alert">Selecciona un proveedor desde la lista de Proveedores.</div></section>`
+  }
+  const [proveedor, asignaciones, productos] = await Promise.all([
+    getRow('proveedores', proveedorId),
+    selectProveedorProductos(proveedorId),
+    selectRows('productos', 'id,nombre_es,slug,fulfillment_mode', 'nombre_es', 500),
   ])
+  if (!proveedor) {
+    return `<section class="admin-panel"><div style="padding:16px" class="admin-alert">Proveedor no encontrado.</div></section>`
+  }
+  const asignados = new Set(asignaciones.map((row) => text(row.producto_id)))
+  const disponibles = productos.filter((p) => !asignados.has(text(p.id)))
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head">
+        <h2>Productos de ${escapeHtml(text(proveedor.nombre))}</h2>
+        <a class="admin-button admin-button--ghost" href="#/proveedores">Volver a proveedores</a>
+      </div>
+      <div style="padding:16px" class="admin-alert">precio_costo es CONFIDENCIAL: nunca se expone en APIs publicas ni en el sitio.</div>
+      ${table(
+        ['Producto', 'Fulfillment', 'Precio costo', 'Moneda', 'Prioridad', 'Activo', 'Acciones'],
+        asignaciones.map((row) => {
+          const producto =
+            row.productos && typeof row.productos === 'object' ? (row.productos as Row) : {}
+          return [
+            text(producto.nombre_es) || text(row.producto_id),
+            text(producto.fulfillment_mode),
+            text(row.precio_costo),
+            text(row.moneda_costo),
+            text(row.prioridad),
+            status(row.activo),
+            `<button class="admin-button admin-button--ghost admin-button--danger" data-remove-pp="${escapeHtml(text(row.id))}" type="button">Quitar</button>`,
+          ]
+        })
+      )}
+      <form class="admin-form" data-pp-form style="padding:16px">
+        <input type="hidden" name="proveedor_id" value="${escapeHtml(proveedorId)}" />
+        <div class="admin-editor__cols">
+          ${select('producto_id', 'Producto', '', disponibles, 'nombre_es', true)}
+          ${field('precio_costo', 'Precio costo', '', true, 'number')}
+          ${field('moneda_costo', 'Moneda', 'COP', true)}
+          ${field('prioridad', 'Prioridad (1 = preferente)', '1', true, 'number')}
+          ${checkbox('activo', 'Activo', true)}
+        </div>
+        <button class="admin-button" type="submit">Asignar producto</button>
+      </form>
+    </section>`
+}
+
+async function selectProveedorProductos(proveedorId: string): Promise<Row[]> {
+  const { data, error } = await supabase!
+    .from('proveedor_producto')
+    .select('*, productos(nombre_es, slug, fulfillment_mode)')
+    .eq('proveedor_id', proveedorId)
+    .order('prioridad')
+  if (error) {
+    toast(error.message)
+    return []
+  }
+  return (data ?? []) as unknown as Row[]
+}
+
+const FULFILLMENT_ESTADOS: Array<[string, string]> = [
+  ['pendiente', 'Pendiente'],
+  ['notificado', 'Notificado'],
+  ['preparando', 'Preparando'],
+  ['enviado', 'Enviado'],
+  ['entregado', 'Entregado'],
+  ['cancelado', 'Cancelado'],
+  ['error', 'Error'],
+]
+
+async function fulfillmentsView(): Promise<string> {
+  const { data, error } = await supabase!
+    .from('fulfillments')
+    .select('*, pedidos(cliente, total, moneda), proveedores(nombre)')
+    .order('created_at', { ascending: false })
+    .limit(100)
+  if (error) toast(error.message)
+  const rows = (data ?? []) as unknown as Row[]
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Fulfillments</h2></div>
+      ${
+        rows.length === 0
+          ? '<p class="admin-help" style="padding:16px">Sin registros.</p>'
+          : rows
+              .map((row) => {
+                const pedido =
+                  row.pedidos && typeof row.pedidos === 'object' ? (row.pedidos as Row) : {}
+                const proveedor =
+                  row.proveedores && typeof row.proveedores === 'object'
+                    ? (row.proveedores as Row)
+                    : {}
+                return `
+              <form class="admin-form" data-fulfillment-form style="padding:16px;border-top:1px solid var(--admin-line)">
+                <input type="hidden" name="id" value="${escapeHtml(text(row.id))}" />
+                <div class="admin-campo-revisable__head">
+                  <span>Pedido: ${formatCell(pedido.cliente)} — ${escapeHtml(text(pedido.total))} ${escapeHtml(text(pedido.moneda))}</span>
+                  <span>Proveedor: ${escapeHtml(text(proveedor.nombre) || 'Sin asignar')}</span>
+                  ${row.error_detalle ? `<span class="admin-badge admin-badge--warn">Error: ${escapeHtml(text(row.error_detalle))}</span>` : ''}
+                </div>
+                <div class="admin-editor__cols">
+                  ${selectStatic('estado', 'Estado', text(row.estado), FULFILLMENT_ESTADOS)}
+                  ${field('tracking_number', 'Numero de tracking', text(row.tracking_number))}
+                  ${field('tracking_url', 'URL de tracking', text(row.tracking_url))}
+                </div>
+                ${textarea('notas', 'Notas', text(row.notas))}
+                <button class="admin-button" type="submit">Guardar</button>
+              </form>`
+              })
+              .join('')
+      }
+    </section>`
 }
 
 function conocimientoView(): string {
   return `<section class="admin-panel"><div class="admin-panel__head"><h2>Conocimiento</h2></div><div style="padding:16px"><div class="admin-alert">BACKLOG_V2: el CMS completo de articulos queda fuera del alcance V1. Este panel queda como stub documentado.</div></div></section>`
 }
 
-function ingestaView(): string {
+async function ingestaView(): Promise<string> {
+  const [familias, tipos] = await Promise.all([
+    selectRows('familias', '*', 'orden', 200),
+    selectRows('tipos', '*', 'orden', 300),
+  ])
+  ingestFamilias = familias
+  ingestTipos = tipos
   return `
     <section class="admin-panel">
       <div class="admin-panel__head"><h2>PDF a borrador revisable</h2></div>
-      <form class="admin-editor" data-ingest-form>
-        <div class="admin-form">
-          ${field('pdf_url', 'URL de PDF en Storage')}
-          ${textarea('pdf_text', 'Texto extraido del PDF')}
-          <button class="admin-button" type="submit">Extraer borrador</button>
-          <div class="admin-alert">La IA solo propone. Revise campos, origen y confianza antes de crear producto.</div>
-        </div>
-        <aside>
-          <pre class="admin-card" data-ingest-output style="white-space:pre-wrap;overflow:auto;max-height:60vh">Sin borrador.</pre>
-        </aside>
+      <form class="admin-form" data-ingest-form style="padding:16px">
+        ${field('pdf_url', 'URL de PDF en Storage')}
+        ${textarea('pdf_text', 'Texto extraido del PDF')}
+        <button class="admin-button" type="submit">Extraer borrador</button>
+        <div class="admin-alert">La IA solo propone. Revise cada campo, marque "Revisado" en los campos marcados y complete los datos comerciales antes de crear el producto.</div>
       </form>
-    </section>`
+    </section>
+    <div data-ingest-review></div>`
 }
 
 function bindProductList() {
@@ -506,6 +693,27 @@ function bindProductForm() {
   })
 }
 
+function bindReasignacion() {
+  app.querySelectorAll<HTMLFormElement>('[data-reasignar-form]').forEach((form) => {
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault()
+      const data = new FormData(form)
+      const productoId = String(data.get('producto_id') ?? '')
+      const payload: Row = {
+        familia_id: emptyToNull(data.get('familia_id')),
+        tipo_id: emptyToNull(data.get('tipo_id')),
+      }
+      const { error } = await supabase!.from('productos').update(payload).eq('id', productoId)
+      if (error) {
+        toast(error.message)
+        return
+      }
+      toast('Producto reasignado')
+      await render()
+    })
+  })
+}
+
 function bindTaxonomy() {
   app.querySelectorAll<HTMLFormElement>('[data-simple-form]').forEach((form) => {
     form.addEventListener('submit', async (event) => {
@@ -536,6 +744,69 @@ function bindTaxonomy() {
   })
 }
 
+function bindFulfillments() {
+  app.querySelectorAll<HTMLFormElement>('[data-fulfillment-form]').forEach((form) => {
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault()
+      const data = new FormData(form)
+      const id = String(data.get('id') ?? '')
+      const payload: Row = {
+        estado: String(data.get('estado') ?? 'pendiente'),
+        tracking_number: emptyToNull(data.get('tracking_number')),
+        tracking_url: emptyToNull(data.get('tracking_url')),
+        notas: emptyToNull(data.get('notas')),
+      }
+      const { error } = await supabase!.from('fulfillments').update(payload).eq('id', id)
+      if (error) {
+        toast(error.message)
+        return
+      }
+      toast('Fulfillment actualizado')
+      await render()
+    })
+  })
+}
+
+function bindProveedorProductos() {
+  const form = app.querySelector<HTMLFormElement>('[data-pp-form]')
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault()
+    const data = new FormData(form)
+    const productoId = String(data.get('producto_id') ?? '')
+    if (!productoId) {
+      toast('Selecciona un producto')
+      return
+    }
+    const payload: Row = {
+      proveedor_id: String(data.get('proveedor_id') ?? ''),
+      producto_id: productoId,
+      precio_costo: numberOrZero(data.get('precio_costo')),
+      moneda_costo: emptyToNull(data.get('moneda_costo')) ?? 'COP',
+      prioridad: numberOrZero(data.get('prioridad')) || 1,
+      activo:
+        form.elements.namedItem('activo') instanceof HTMLInputElement
+          ? (form.elements.namedItem('activo') as HTMLInputElement).checked
+          : true,
+    }
+    const { error } = await supabase!.from('proveedor_producto').insert(payload)
+    if (error) {
+      toast(error.message)
+      return
+    }
+    toast('Producto asignado')
+    await render()
+  })
+  app.querySelectorAll<HTMLButtonElement>('[data-remove-pp]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const id = button.dataset['removePp']
+      if (!id || !confirm('Quitar esta asignacion?')) return
+      const { error } = await supabase!.from('proveedor_producto').delete().eq('id', id)
+      if (error) toast(error.message)
+      await render()
+    })
+  })
+}
+
 function bindSimpleTables() {
   app.querySelectorAll<HTMLButtonElement>('[data-mark-read]').forEach((button) => {
     button.addEventListener('click', async () => {
@@ -558,20 +829,340 @@ function bindSimpleTables() {
 
 function bindIngest() {
   const form = app.querySelector<HTMLFormElement>('[data-ingest-form]')
-  const output = app.querySelector<HTMLElement>('[data-ingest-output]')
-  if (!form || !output) return
+  const reviewContainer = app.querySelector<HTMLElement>('[data-ingest-review]')
+  if (!form || !reviewContainer) return
   form.addEventListener('submit', async (event) => {
     event.preventDefault()
-    output.textContent = 'Extrayendo...'
+    reviewContainer.innerHTML = '<p class="admin-help">Extrayendo borrador...</p>'
     const data = new FormData(form)
+    const pdfUrl = String(data.get('pdf_url') ?? '').trim()
     const { data: json, error } = await supabase!.functions.invoke('ingesta-pdf', {
       body: {
         pdf_url: emptyToNull(data.get('pdf_url')),
         pdf_text: emptyToNull(data.get('pdf_text')),
       },
     })
-    output.textContent = JSON.stringify(error ? { error: error.message } : json, null, 2)
+    if (error || !json) {
+      reviewContainer.innerHTML = `<div class="admin-alert">${escapeHtml(error?.message ?? 'No se pudo generar el borrador.')}</div>`
+      return
+    }
+    reviewContainer.innerHTML = renderIngestReview(json as Row, pdfUrl)
+    bindIngestReview(reviewContainer)
   })
+}
+
+function arrayOf<T>(value: unknown, mapItem: (item: unknown) => T): T[] {
+  return Array.isArray(value) ? value.map(mapItem) : []
+}
+
+function campoRevisable(value: unknown): CampoRevisable {
+  const obj = value && typeof value === 'object' ? (value as Row) : {}
+  return {
+    valor: text(obj.valor),
+    origen: text(obj.origen) || 'ausente',
+    confianza: typeof obj.confianza === 'number' ? obj.confianza : 0,
+    requiere_revision: obj.requiere_revision !== false,
+  }
+}
+
+function especRevisable(value: unknown): EspecRevisable {
+  const obj = value && typeof value === 'object' ? (value as Row) : {}
+  return {
+    clave: text(obj.clave),
+    valor: text(obj.valor),
+    grupo: text(obj.grupo),
+    origen: text(obj.origen) || 'ausente',
+    confianza: typeof obj.confianza === 'number' ? obj.confianza : 0,
+    requiere_revision: obj.requiere_revision !== false,
+  }
+}
+
+function campoBadges(campo: CampoRevisable, traduccion = false): string {
+  const badges: string[] = []
+  if (campo.origen === 'manual') {
+    badges.push('<span class="admin-badge">Agregado manualmente</span>')
+  } else if (campo.origen === 'ausente') {
+    badges.push('<span class="admin-badge admin-badge--warn">Ausente / requiere cliente</span>')
+  } else if (campo.confianza < 0.6) {
+    badges.push('<span class="admin-badge admin-badge--warn">Baja confianza</span>')
+  } else {
+    badges.push('<span class="admin-badge admin-badge--ok">Extraido del PDF</span>')
+  }
+  if (traduccion)
+    badges.push('<span class="admin-badge admin-badge--info">Traduccion borrador</span>')
+  return badges.join(' ')
+}
+
+function campoRevisableField(
+  name: string,
+  label: string,
+  campo: CampoRevisable,
+  multiline = false
+): string {
+  const inputHtml = multiline
+    ? `<textarea name="${escapeHtml(name)}">${escapeHtml(campo.valor)}</textarea>`
+    : `<input name="${escapeHtml(name)}" type="text" value="${escapeHtml(campo.valor)}" />`
+  return `
+    <div class="admin-campo-revisable">
+      <div class="admin-campo-revisable__head">
+        <span>${escapeHtml(label)}</span>
+        <span class="admin-campo-revisable__badges">${campoBadges(campo)}</span>
+      </div>
+      <label class="admin-field">${inputHtml}</label>
+      <label class="admin-campo-revisable__check">
+        <input type="checkbox" name="revisado__${escapeHtml(name)}" ${campo.requiere_revision ? 'required' : ''} /> Revisado
+      </label>
+    </div>`
+}
+
+function especRevisableRow(espec: EspecRevisable): string {
+  return `
+    <div class="admin-campo-revisable" data-spec-row>
+      <div class="admin-campo-revisable__head">
+        <span>Especificacion</span>
+        <span class="admin-campo-revisable__badges">${campoBadges(espec)}</span>
+        <button class="admin-button admin-button--ghost" type="button" data-remove-row>Quitar</button>
+      </div>
+      <div class="admin-editor__cols">
+        ${field('spec_clave', 'Clave', espec.clave)}
+        ${field('spec_valor', 'Valor', espec.valor)}
+        ${field('spec_grupo', 'Grupo', espec.grupo)}
+      </div>
+      <label class="admin-campo-revisable__check">
+        <input type="checkbox" name="spec_revisado" ${espec.requiere_revision ? 'required' : ''} /> Revisado
+      </label>
+    </div>`
+}
+
+function aplicacionRevisableRow(item: CampoRevisable): string {
+  return `
+    <div class="admin-campo-revisable" data-aplicacion-row>
+      <div class="admin-campo-revisable__head">
+        <span>Aplicacion</span>
+        <span class="admin-campo-revisable__badges">${campoBadges(item)}</span>
+        <button class="admin-button admin-button--ghost" type="button" data-remove-row>Quitar</button>
+      </div>
+      ${field('aplicacion_valor', 'Descripcion', item.valor)}
+      <label class="admin-campo-revisable__check">
+        <input type="checkbox" name="aplicacion_revisado" ${item.requiere_revision ? 'required' : ''} /> Revisado
+      </label>
+    </div>`
+}
+
+function emptySpecRow(): string {
+  return especRevisableRow({
+    clave: '',
+    valor: '',
+    grupo: '',
+    origen: 'manual',
+    confianza: 1,
+    requiere_revision: false,
+  })
+}
+
+function emptyAplicacionRow(): string {
+  return aplicacionRevisableRow({
+    valor: '',
+    origen: 'manual',
+    confianza: 1,
+    requiere_revision: false,
+  })
+}
+
+function renderIngestReview(draft: Row, pdfUrl: string): string {
+  const productoEs =
+    draft.producto_es && typeof draft.producto_es === 'object' ? (draft.producto_es as Row) : {}
+  const productoEn =
+    draft.producto_en_borrador && typeof draft.producto_en_borrador === 'object'
+      ? (draft.producto_en_borrador as Row)
+      : {}
+  const ausentes = arrayOf(draft.ausentes, (v) => text(v)).filter(Boolean)
+  const advertencias = arrayOf(draft.advertencias, (v) => text(v)).filter(Boolean)
+  const rawOutput = typeof draft.raw_output === 'string' ? draft.raw_output : ''
+
+  const nombre = campoRevisable(productoEs.nombre)
+  const descripcionCorta = campoRevisable(productoEs.descripcion_corta)
+  const descripcionLarga = campoRevisable(productoEs.descripcion_larga)
+  const familiaSugerida = campoRevisable(productoEs.familia_sugerida)
+  const tipoSugerido = campoRevisable(productoEs.tipo_sugerido)
+  const especs = arrayOf(productoEs.especificaciones, especRevisable)
+  const aplicaciones = arrayOf(productoEs.aplicaciones, campoRevisable)
+  const metaSeo =
+    productoEs.meta_seo && typeof productoEs.meta_seo === 'object'
+      ? (productoEs.meta_seo as Row)
+      : {}
+
+  const nombreEn = campoRevisable(productoEn.nombre)
+  const descripcionCortaEn = campoRevisable(productoEn.descripcion_corta)
+  const descripcionLargaEn = campoRevisable(productoEn.descripcion_larga)
+  const aplicacionesEn = arrayOf(productoEn.aplicaciones, campoRevisable)
+  const hasEnDraft =
+    Boolean(nombreEn.valor || descripcionCortaEn.valor || descripcionLargaEn.valor) ||
+    aplicacionesEn.length > 0
+
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Borrador para revision</h2></div>
+      <div style="padding:16px">
+        ${advertencias.length ? `<div class="admin-alert"><strong>Advertencias del modelo:</strong><ul>${advertencias.map((a) => `<li>${escapeHtml(a)}</li>`).join('')}</ul></div>` : ''}
+        ${ausentes.length ? `<div class="admin-alert"><strong>Campos ausentes en el PDF:</strong> ${escapeHtml(ausentes.join(', '))}</div>` : ''}
+        ${rawOutput ? `<div class="admin-alert"><strong>El modelo no devolvio JSON valido.</strong> Revise la salida cruda antes de continuar.</div><pre class="admin-card" style="white-space:pre-wrap;overflow:auto;max-height:30vh">${escapeHtml(rawOutput)}</pre>` : ''}
+      </div>
+      <form class="admin-form" data-ingest-review-form style="padding:16px">
+        <input type="hidden" name="ficha_pdf" value="${escapeHtml(pdfUrl)}" />
+        <h3>Espanol (fuente)</h3>
+        ${field('slug', 'Slug', slugify(nombre.valor), true)}
+        ${campoRevisableField('nombre_es', 'Nombre', nombre)}
+        <div class="admin-editor__cols">
+          <div>
+            <p class="admin-help">Sugerencia LLM (familia): ${escapeHtml(familiaSugerida.valor) || '—'} ${campoBadges(familiaSugerida)}</p>
+            ${select('familia_id', 'Familia (asignar)', '', ingestFamilias, 'nombre_es', true)}
+          </div>
+          <div>
+            <p class="admin-help">Sugerencia LLM (tipo): ${escapeHtml(tipoSugerido.valor) || '—'} ${campoBadges(tipoSugerido)}</p>
+            ${select('tipo_id', 'Tipo (asignar)', '', ingestTipos, 'nombre_es', true)}
+          </div>
+        </div>
+        ${campoRevisableField('descripcion_corta_es', 'Descripcion corta', descripcionCorta, true)}
+        ${campoRevisableField('descripcion_larga_es', 'Descripcion larga', descripcionLarga, true)}
+
+        <h3>Especificaciones</h3>
+        <div data-spec-rows>${especs.length ? especs.map(especRevisableRow).join('') : emptySpecRow()}</div>
+        <button class="admin-button admin-button--ghost" type="button" data-add-spec>Agregar especificacion</button>
+
+        <h3>Aplicaciones (ES)</h3>
+        <div data-aplicacion-rows>${aplicaciones.length ? aplicaciones.map(aplicacionRevisableRow).join('') : emptyAplicacionRow()}</div>
+        <button class="admin-button admin-button--ghost" type="button" data-add-aplicacion>Agregar aplicacion</button>
+
+        <h3>Traduccion EN (borrador)</h3>
+        <div class="admin-campo-revisable">
+          <div class="admin-campo-revisable__head">
+            <span>Campos EN</span>
+            <span class="admin-campo-revisable__badges">${campoBadges(nombreEn, true)}</span>
+          </div>
+          ${field('nombre_en', 'Nombre EN', nombreEn.valor)}
+          ${textarea('descripcion_corta_en', 'Descripcion corta EN', descripcionCortaEn.valor)}
+          ${textarea('descripcion_larga_en', 'Descripcion larga EN', descripcionLargaEn.valor)}
+          ${textarea(
+            'aplicaciones_en',
+            'Aplicaciones EN (una por linea)',
+            aplicacionesEn
+              .map((a) => a.valor)
+              .filter(Boolean)
+              .join('\n')
+          )}
+          <label class="admin-campo-revisable__check">
+            <input type="checkbox" name="revisado_en" ${hasEnDraft ? 'required' : ''} /> Traduccion EN revisada
+          </label>
+        </div>
+
+        <h3>SEO</h3>
+        <div class="admin-editor__cols">
+          ${field('meta_title', 'Meta title', text(metaSeo.title))}
+          ${field('meta_description', 'Meta description', text(metaSeo.description))}
+        </div>
+
+        <h3>Datos comerciales</h3>
+        <div class="admin-editor__cols">
+          ${selectStatic('tipo_comercial', 'Tipo comercial', 'equipo', [
+            ['equipo', 'Equipo'],
+            ['consumible', 'Consumible'],
+          ])}
+          ${selectStatic('fulfillment_mode', 'Fulfillment', 'cotizacion', [
+            ['cotizacion', 'Cotizacion'],
+            ['dropship', 'Dropship'],
+            ['individualizado', 'Individualizado'],
+          ])}
+        </div>
+        <div class="admin-alert">El producto se creara con activo=false. Complete precio, imagenes y publicacion desde el formulario de producto.</div>
+        <button class="admin-button" type="submit">Crear como borrador</button>
+      </form>
+    </section>`
+}
+
+function bindIngestReview(container: HTMLElement) {
+  container.querySelectorAll<HTMLButtonElement>('[data-add-spec]').forEach((button) => {
+    button.addEventListener('click', () => {
+      container.querySelector('[data-spec-rows]')?.insertAdjacentHTML('beforeend', emptySpecRow())
+    })
+  })
+  container.querySelectorAll<HTMLButtonElement>('[data-add-aplicacion]').forEach((button) => {
+    button.addEventListener('click', () => {
+      container
+        .querySelector('[data-aplicacion-rows]')
+        ?.insertAdjacentHTML('beforeend', emptyAplicacionRow())
+    })
+  })
+  container.addEventListener('click', (event) => {
+    const target = event.target
+    const removeButton =
+      target instanceof HTMLElement ? target.closest<HTMLElement>('[data-remove-row]') : null
+    removeButton?.closest('[data-spec-row], [data-aplicacion-row]')?.remove()
+  })
+
+  const form = container.querySelector<HTMLFormElement>('[data-ingest-review-form]')
+  if (!form) return
+
+  const nombreInput = form.elements.namedItem('nombre_es')
+  if (nombreInput instanceof HTMLInputElement) {
+    nombreInput.addEventListener('input', () => {
+      const slugInput = form.elements.namedItem('slug')
+      if (slugInput instanceof HTMLInputElement && !slugInput.value) {
+        slugInput.value = slugify(nombreInput.value)
+      }
+    })
+  }
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault()
+    const payload = ingestPayload(form)
+    const { data, error } = await supabase!.from('productos').insert(payload).select('id').single()
+    if (error) {
+      toast(error.message)
+      return
+    }
+    toast('Producto creado como borrador')
+    location.hash = `#/producto?id=${encodeURIComponent(text((data as Row).id))}`
+    await render()
+  })
+}
+
+function ingestPayload(form: HTMLFormElement): Row {
+  const data = new FormData(form)
+  const especificaciones = Array.from(form.querySelectorAll<HTMLElement>('[data-spec-row]'))
+    .map((row) => ({
+      clave: text(row.querySelector<HTMLInputElement>('input[name="spec_clave"]')?.value),
+      valor: text(row.querySelector<HTMLInputElement>('input[name="spec_valor"]')?.value),
+      grupo: text(row.querySelector<HTMLInputElement>('input[name="spec_grupo"]')?.value),
+    }))
+    .filter((item) => item.clave || item.valor)
+  const aplicaciones_es = Array.from(form.querySelectorAll<HTMLElement>('[data-aplicacion-row]'))
+    .map((row) =>
+      text(row.querySelector<HTMLInputElement>('input[name="aplicacion_valor"]')?.value)
+    )
+    .filter(Boolean)
+  return {
+    slug: String(data.get('slug') ?? ''),
+    nombre_es: String(data.get('nombre_es') ?? ''),
+    nombre_en: emptyToNull(data.get('nombre_en')),
+    descripcion_corta_es: emptyToNull(data.get('descripcion_corta_es')),
+    descripcion_corta_en: emptyToNull(data.get('descripcion_corta_en')),
+    descripcion_larga_es: emptyToNull(data.get('descripcion_larga_es')),
+    descripcion_larga_en: emptyToNull(data.get('descripcion_larga_en')),
+    familia_id: emptyToNull(data.get('familia_id')),
+    tipo_id: emptyToNull(data.get('tipo_id')),
+    especificaciones,
+    aplicaciones_es,
+    aplicaciones_en: lines(data.get('aplicaciones_en')),
+    ficha_pdf: emptyToNull(data.get('ficha_pdf')),
+    tipo_comercial: String(data.get('tipo_comercial') ?? 'equipo'),
+    fulfillment_mode: String(data.get('fulfillment_mode') ?? 'cotizacion'),
+    moneda: 'COP',
+    destacado: false,
+    nuevo: false,
+    activo: false,
+    orden: 0,
+  }
 }
 
 async function triggerRebuild() {

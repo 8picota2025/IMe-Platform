@@ -372,6 +372,67 @@
   color: var(--admin-ok);
 }
 
+.admin-badge--info {
+  background: rgba(0, 94, 96, 0.12);
+  color: var(--admin-accent);
+}
+
+.admin-form h3 {
+  margin: 8px 0 0;
+  font-size: 1.1rem;
+}
+
+.admin-campo-revisable {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--admin-line);
+  border-radius: var(--admin-radius);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.admin-campo-revisable__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.admin-campo-revisable__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.admin-campo-revisable__check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.admin-campo-revisable__check input {
+  width: auto;
+}
+
 .admin-editor {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(280px, 380px);
