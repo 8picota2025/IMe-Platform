@@ -44,7 +44,7 @@ cp .env.example .env
 
 1. Crear proyecto en supabase.com (TODO_CLIENTE)
 2. Aplicar `supabase/schema.sql` en el SQL Editor
-3. Crear usuario admin manualmente (ver ADMIN_GUIDE.md cuando exista)
+3. Crear usuario admin manualmente (ver `ADMIN_GUIDE.md`)
 
 ## Build y deploy
 
@@ -64,6 +64,7 @@ cada sesión. Estado de fases en AGENTS.md sección "Estado de fases".
 - `SETUP.md` — prerrequisitos e instalación local
 - `CONTRIBUTING.md` — flujo de ramas y git
 - `AGENTS_GUIDE.md` — división de trabajo entre agentes
+- `ADMIN_GUIDE.md` — uso operativo del back-office `/admin`
 - `PENDIENTES.md` — pendientes activos por etiqueta
 - `BACKLOG_V2.md` — fuera de alcance V1
 - `docs/prompts/` — prompts de fase versionados

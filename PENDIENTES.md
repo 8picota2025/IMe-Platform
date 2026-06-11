@@ -25,14 +25,14 @@
 - [ ] Credenciales Supabase (bloquea Edge Functions, auth, BD real)
 - [ ] Credenciales Wompi (bloquea pagos CO) — F4
 - [ ] Credenciales Stripe (bloquea pagos INTL) — F4
-- [ ] Credenciales LLM (bloquea asesor RAG e ingesta PDF) — Fase Asesor
+- [ ] Credenciales LLM (`LLM_PROVIDER`, `ANTHROPIC_API_KEY` u `OPENAI_API_KEY`, `LLM_INGEST_MODEL`) — bloquea ingesta PDF real y Asesor RAG
 - [ ] Edge Function asesor/ — lógica RAG llega en Fase Asesor
 - [ ] Edge Function crear-pago/ — F4
 - [ ] Edge Function webhook-wompi/ — F4
 - [ ] Edge Function webhook-stripe/ — F4
 - [ ] Edge Function notificar-proveedor/ — F4
-- [ ] Edge Function ingesta-pdf/ — F3
-- [ ] Edge Function trigger-rebuild/ — F3
+- [x] Edge Function ingesta-pdf/ — F3 base implementada; requiere credenciales LLM y texto/OCR revisable
+- [x] Edge Function trigger-rebuild/ — F3 base implementada; requiere `CI_DEPLOY_HOOK` o `GITHUB_TOKEN` + `GITHUB_REPOSITORY`
 - [ ] Carrito y checkout — F4
 - [ ] SimuladorFinanciero real — F4
 
@@ -66,6 +66,9 @@
 - [ ] Verificación de contraste AA en tema oscuro
 - [ ] Test de video autoplay en mobile (Chrome/Safari iOS)
 - [ ] Deploy a preprod en Hostinger
+- [ ] Prueba real de `/admin` contra Supabase con usuario admin y RLS aplicadas
+- [ ] Prueba real de `ingesta-pdf` con ficha PDF/OCR y clave LLM
+- [ ] Prueba real de `trigger-rebuild` contra deploy hook o GitHub repository_dispatch
 
 ## BACKLOG_V2
 
