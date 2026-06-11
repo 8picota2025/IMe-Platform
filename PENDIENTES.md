@@ -66,9 +66,23 @@
 - [ ] Verificación de contraste AA en tema oscuro
 - [ ] Test de video autoplay en mobile (Chrome/Safari iOS)
 - [ ] Deploy a preprod en Hostinger
-- [ ] Prueba real de `/admin` contra Supabase con usuario admin y RLS aplicadas
+- [x] Prueba real de `/admin` contra Supabase con usuario admin y RLS aplicadas
 - [ ] Prueba real de `ingesta-pdf` con ficha PDF/OCR y clave LLM
 - [ ] Prueba real de `trigger-rebuild` contra deploy hook o GitHub repository_dispatch
+
+## OPCIONAL_MEJORA — Admin CMS (F3)
+
+- [ ] Editor de especificaciones de producto: reemplazar el textarea JSON por un
+      editor estructurado fila a fila (clave/valor/grupo), igual al usado en la
+      revision de ingesta PDF
+- [ ] Subida múltiple de imágenes para `productos.galeria` (hoy solo existe
+      `imagen_principal`; la columna `galeria TEXT[]` no se edita desde el admin)
+- [ ] Editar/eliminar familias y tipos desde Taxonomía (hoy solo se pueden crear);
+      validar que no queden productos huérfanos al eliminar
+- [ ] Dashboard: cards adicionales (p.ej. fulfillments con error, solicitudes de
+      cotización del último mes) más allá de las 5 métricas actuales
+- [ ] Estado/historial de publicaciones: registrar y mostrar el resultado de cada
+      `trigger-rebuild` (hoy solo se muestra un toast puntual, sin persistencia)
 
 ## BACKLOG_V2
 

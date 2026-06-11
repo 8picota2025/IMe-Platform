@@ -18,6 +18,9 @@
 
 ## Productos
 
+- La lista permite buscar por nombre/slug, filtrar por familia, tipo, estado
+  (activo/inactivo) y tipo comercial, y se pagina de 20 en 20. Cada fila
+  muestra una miniatura de `imagen_principal`.
 - `Guardar borrador` crea o actualiza el producto.
 - `activo=false` mantiene el producto fuera del sitio publico.
 - `activo=true` lo deja listo para el siguiente rebuild estatico.
@@ -73,18 +76,32 @@ La IA no publica, no autoguarda y no debe completar datos ausentes.
 
 ## Fulfillments
 
-- Cada fila muestra el pedido asociado, el cliente, el proveedor (si tiene) y,
-  si existe, el detalle de error.
+- Un panel de estadisticas muestra el total de fulfillments pendientes,
+  notificados, enviados, entregados y con error.
+- La lista se puede filtrar por estado, proveedor y rango de fechas (creado
+  entre "Desde" y "Hasta").
+- Cada fila muestra el pedido asociado, el cliente, el proveedor (si tiene), la
+  fecha de creacion y, si existe, el detalle de error.
 - `Estado`, `Numero de tracking`, `URL de tracking` y `Notas` se editan inline y
   se guardan con el boton "Guardar" de cada fila.
-- Reenviar notificacion al proveedor (Edge Function `notificar-proveedor`) queda
-  fuera de alcance de F3 — esta planificado para F4.
+- "Reenviar notificacion al proveedor" llama a la Edge Function
+  `notificar-proveedor`. La logica real (envio por email/WhatsApp/webhook segun
+  el canal del proveedor) se implementa en F4; hasta entonces la funcion
+  responde con `BLOQUEANTE_BACKEND` y el admin lo muestra como aviso.
 
 ## Cotizaciones y Pedidos
 
-- Cotizaciones y pedidos se listan en orden cronologico inverso.
-- Se pueden marcar como leidos.
+- Cotizaciones y pedidos se listan en orden cronologico inverso, con un boton
+  "Ver" que abre el detalle de cada registro.
+- Se pueden marcar como leidos desde la lista o desde el detalle.
 - El boton CSV descarga los datos visibles para revision comercial.
+- Detalle de cotizacion: datos de contacto, productos solicitados (JSON),
+  mensaje y estado del consentimiento de datos.
+- Detalle de pedido: datos del cliente, items, totales, referencia de pago y
+  consentimiento. Incluye un formulario para cambiar el `estado` manualmente
+  (pendiente/pagado/procesando/enviado/entregado/cancelado/error); este cambio
+  es solo administrativo y **no** dispara notificaciones de pago ni al
+  proveedor (eso llega con F4).
 
 ## Errores Comunes
 

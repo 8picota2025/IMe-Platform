@@ -6,7 +6,9 @@ type View =
   | 'producto'
   | 'taxonomia'
   | 'cotizaciones'
+  | 'cotizacion'
   | 'pedidos'
+  | 'pedido'
   | 'proveedores'
   | 'proveedor-productos'
   | 'fulfillments'
@@ -76,6 +78,10 @@ window.addEventListener('hashchange', () => {
 
 void render()
 
+function hashParams(): URLSearchParams {
+  return new URLSearchParams(location.hash.split('?')[1] ?? '')
+}
+
 function parseView(hash: string): View {
   const raw = hash.replace(/^#\/?/, '').split('?')[0]
   if (
@@ -83,7 +89,9 @@ function parseView(hash: string): View {
     raw === 'producto' ||
     raw === 'taxonomia' ||
     raw === 'cotizaciones' ||
+    raw === 'cotizacion' ||
     raw === 'pedidos' ||
+    raw === 'pedido' ||
     raw === 'proveedores' ||
     raw === 'proveedor-productos' ||
     raw === 'fulfillments' ||
@@ -160,7 +168,10 @@ async function routeView(): Promise<{ title: string; body: string }> {
   if (state.view === 'taxonomia') return { title: 'Taxonomia', body: await taxonomiaView() }
   if (state.view === 'cotizaciones')
     return { title: 'Cotizaciones', body: await cotizacionesView() }
+  if (state.view === 'cotizacion')
+    return { title: 'Cotizacion', body: await cotizacionDetailView() }
   if (state.view === 'pedidos') return { title: 'Pedidos', body: await pedidosView() }
+  if (state.view === 'pedido') return { title: 'Pedido', body: await pedidoDetailView() }
   if (state.view === 'proveedores') return { title: 'Proveedores', body: await proveedoresView() }
   if (state.view === 'proveedor-productos')
     return { title: 'Productos del proveedor', body: await proveedorProductosView() }
@@ -224,6 +235,7 @@ function bindShell() {
 }
 
 function bindView() {
+  bindProductFilters()
   bindProductList()
   bindProductForm()
   bindTaxonomy()
@@ -266,20 +278,99 @@ function metric(label: string, value: number): string {
   return `<article class="admin-card"><strong>${escapeHtml(label)}</strong><span>${value}</span></article>`
 }
 
+const PRODUCTOS_PAGE_SIZE = 20
+
+function productosLink(overrides: Record<string, string>): string {
+  const params = hashParams()
+  for (const [key, value] of Object.entries(overrides)) {
+    if (value) params.set(key, value)
+    else params.delete(key)
+  }
+  const qs = params.toString()
+  return `#/productos${qs ? `?${qs}` : ''}`
+}
+
 async function productosView(): Promise<string> {
-  const rows = await selectRows('productos', '*', 'orden', 80)
+  const params = hashParams()
+  const q = (params.get('q') ?? '').trim()
+  const familiaId = params.get('familia_id') ?? ''
+  const tipoId = params.get('tipo_id') ?? ''
+  const activo = params.get('activo') ?? ''
+  const tipoComercial = params.get('tipo_comercial') ?? ''
+  const page = Math.max(1, numberOrZero(params.get('page')) || 1)
+
+  const [familias, tipos] = await Promise.all([
+    selectRows('familias', '*', 'orden', 200),
+    selectRows('tipos', '*', 'orden', 300),
+  ])
+  const familiasPorId = new Map(familias.map((f) => [text(f.id), text(f.nombre_es)]))
+  const tiposPorId = new Map(tipos.map((t) => [text(t.id), text(t.nombre_es)]))
+  const tiposParaSelect = tipos.map(
+    (t): Row => ({
+      ...t,
+      nombre_es: `${familiasPorId.get(text(t.familia_id)) ?? 'Sin familia'} / ${text(t.nombre_es)}`,
+    })
+  )
+
+  let query = supabase!.from('productos').select('*', { count: 'exact' })
+  if (q) {
+    const safeQ = q.replace(/[,()%]/g, '')
+    if (safeQ) query = query.or(`nombre_es.ilike.%${safeQ}%,slug.ilike.%${safeQ}%`)
+  }
+  if (familiaId) query = query.eq('familia_id', familiaId)
+  if (tipoId) query = query.eq('tipo_id', tipoId)
+  if (activo === '1') query = query.eq('activo', true)
+  if (activo === '0') query = query.eq('activo', false)
+  if (tipoComercial) query = query.eq('tipo_comercial', tipoComercial)
+
+  const from = (page - 1) * PRODUCTOS_PAGE_SIZE
+  const { data, count, error } = await query
+    .order('orden', { ascending: true })
+    .range(from, from + PRODUCTOS_PAGE_SIZE - 1)
+  if (error) toast(error.message)
+  const rows = (data ?? []) as unknown as Row[]
+  const total = count ?? 0
+  const totalPages = Math.max(1, Math.ceil(total / PRODUCTOS_PAGE_SIZE))
+
   return `
     <section class="admin-panel">
       <div class="admin-panel__head">
-        <h2>Catalogo</h2>
+        <h2>Catalogo (${total})</h2>
         <a class="admin-button" href="#/producto">Nuevo producto</a>
       </div>
+      <form class="admin-filters" data-productos-filter>
+        ${field('q', 'Buscar por nombre o slug', q, false, 'search')}
+        ${selectStatic('familia_id', 'Familia', familiaId, [
+          ['', 'Todas las familias'],
+          ...familias.map((f): [string, string] => [text(f.id), text(f.nombre_es)]),
+        ])}
+        ${selectStatic('tipo_id', 'Tipo', tipoId, [
+          ['', 'Todos los tipos'],
+          ...tiposParaSelect.map((t): [string, string] => [text(t.id), text(t.nombre_es)]),
+        ])}
+        ${selectStatic('activo', 'Estado', activo, [
+          ['', 'Todos'],
+          ['1', 'Activo'],
+          ['0', 'Borrador'],
+        ])}
+        ${selectStatic('tipo_comercial', 'Tipo comercial', tipoComercial, [
+          ['', 'Todos'],
+          ['equipo', 'Equipo'],
+          ['consumible', 'Consumible'],
+        ])}
+        <button class="admin-button" type="submit">Filtrar</button>
+        <a class="admin-button admin-button--ghost" href="#/productos">Limpiar</a>
+      </form>
       ${table(
-        ['Nombre', 'Slug', 'Tipo', 'Fulfillment', 'Estado', 'Acciones'],
+        ['Imagen', 'Nombre', 'Slug', 'Familia', 'Tipo', 'Fulfillment', 'Estado', 'Acciones'],
         rows.map((row) => [
+          text(row.imagen_principal)
+            ? `<img class="admin-thumb" src="${escapeHtml(text(row.imagen_principal))}" alt="" width="48" height="48" loading="lazy" />`
+            : '',
           text(row.nombre_es),
           text(row.slug),
-          text(row.tipo_comercial),
+          familiasPorId.get(text(row.familia_id)) ?? '—',
+          tiposPorId.get(text(row.tipo_id)) ?? '—',
           text(row.fulfillment_mode),
           row.activo
             ? '<span class="admin-badge admin-badge--ok">Activo</span>'
@@ -287,6 +378,13 @@ async function productosView(): Promise<string> {
           `<a class="admin-button admin-button--ghost" href="#/producto?id=${encodeURIComponent(text(row.id))}">Editar</a>`,
         ])
       )}
+      <div class="admin-pagination">
+        <span class="admin-meta">Pagina ${page} de ${totalPages}</span>
+        <div class="admin-toolbar">
+          <a class="admin-button admin-button--ghost" href="${productosLink({ page: page > 2 ? String(page - 1) : '' })}" ${page <= 1 ? 'aria-disabled="true" tabindex="-1" style="pointer-events:none;opacity:.5"' : ''}>Anterior</a>
+          <a class="admin-button admin-button--ghost" href="${productosLink({ page: String(page + 1) })}" ${page >= totalPages ? 'aria-disabled="true" tabindex="-1" style="pointer-events:none;opacity:.5"' : ''}>Siguiente</a>
+        </div>
+      </div>
     </section>`
 }
 
@@ -435,28 +533,178 @@ async function taxonomiaView(): Promise<string> {
 
 async function cotizacionesView(): Promise<string> {
   const rows = await selectRows('solicitudes_cotizacion', '*', 'created_at', 100, false)
-  return listWithCsv('solicitudes_cotizacion', rows, [
-    'created_at',
-    'nombre',
-    'empresa',
-    'email',
-    'telefono',
-    'leida',
-  ])
+  return listWithCsv(
+    'solicitudes_cotizacion',
+    rows,
+    ['created_at', 'nombre', 'empresa', 'email', 'telefono', 'leida'],
+    'cotizacion'
+  )
 }
+
+async function cotizacionDetailView(): Promise<string> {
+  const row = state.recordId ? await getRow('solicitudes_cotizacion', state.recordId) : null
+  if (!row) return notFoundPanel('Cotizacion no encontrada', '#/cotizaciones')
+  const productos = Array.isArray(row.productos) ? row.productos : []
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head">
+        <h2>Cotizacion de ${escapeHtml(text(row.nombre))}</h2>
+        <div class="admin-toolbar">
+          ${
+            row.leida === false
+              ? `<button class="admin-button admin-button--ghost" data-table="solicitudes_cotizacion" data-mark-read="${escapeHtml(text(row.id))}" type="button">Marcar leida</button>`
+              : '<span class="admin-badge admin-badge--ok">Leida</span>'
+          }
+          <a class="admin-button admin-button--ghost" href="#/cotizaciones">Volver</a>
+        </div>
+      </div>
+      <div style="padding:16px">
+        ${table(
+          ['Campo', 'Valor'],
+          [
+            ['Empresa', escapeHtml(text(row.empresa)) || '—'],
+            ['Email', escapeHtml(text(row.email))],
+            ['Telefono', escapeHtml(text(row.telefono))],
+            ['Fecha', formatCell(row.created_at)],
+          ]
+        )}
+      </div>
+      <div style="padding:0 16px 16px">
+        <h3>Productos solicitados</h3>
+        ${jsonRowsTable(productos)}
+      </div>
+      <div style="padding:0 16px 16px">
+        <h3>Mensaje</h3>
+        <p class="admin-help">${escapeHtml(text(row.mensaje)) || 'Sin mensaje.'}</p>
+      </div>
+      <div style="padding:0 16px 16px">
+        <h3>Consentimiento de datos</h3>
+        <p class="admin-help">${
+          row.consentimiento_datos
+            ? `Aceptado el ${formatCell(row.consentimiento_timestamp)}`
+            : 'No aceptado / no registrado'
+        }</p>
+      </div>
+    </section>`
+}
+
+const PEDIDO_ESTADOS: Array<[string, string]> = [
+  ['pendiente', 'Pendiente'],
+  ['pagado', 'Pagado'],
+  ['procesando', 'Procesando'],
+  ['enviado', 'Enviado'],
+  ['entregado', 'Entregado'],
+  ['cancelado', 'Cancelado'],
+  ['error', 'Error'],
+]
 
 async function pedidosView(): Promise<string> {
   const rows = await selectRows('pedidos', '*', 'created_at', 100, false)
-  return listWithCsv('pedidos', rows, [
-    'created_at',
-    'cliente',
-    'total',
-    'moneda',
-    'mercado',
-    'estado',
-    'referencia_pasarela',
-    'leida',
-  ])
+  return listWithCsv(
+    'pedidos',
+    rows,
+    [
+      'created_at',
+      'cliente',
+      'total',
+      'moneda',
+      'mercado',
+      'estado',
+      'referencia_pasarela',
+      'leida',
+    ],
+    'pedido'
+  )
+}
+
+async function pedidoDetailView(): Promise<string> {
+  const row = state.recordId ? await getRow('pedidos', state.recordId) : null
+  if (!row) return notFoundPanel('Pedido no encontrado', '#/pedidos')
+  const cliente = row.cliente && typeof row.cliente === 'object' ? (row.cliente as Row) : {}
+  const items = Array.isArray(row.items) ? row.items : []
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head">
+        <h2>Pedido ${escapeHtml(text(row.referencia_pasarela)) || escapeHtml(text(row.id)).slice(0, 8)}</h2>
+        <div class="admin-toolbar">
+          ${
+            row.leida === false
+              ? `<button class="admin-button admin-button--ghost" data-table="pedidos" data-mark-read="${escapeHtml(text(row.id))}" type="button">Marcar leida</button>`
+              : '<span class="admin-badge admin-badge--ok">Leida</span>'
+          }
+          <a class="admin-button admin-button--ghost" href="#/pedidos">Volver</a>
+        </div>
+      </div>
+      <div style="padding:16px">
+        ${table(
+          ['Campo', 'Valor'],
+          [
+            ['Fecha', formatCell(row.created_at)],
+            ['Subtotal', escapeHtml(text(row.subtotal))],
+            ['Total', `${escapeHtml(text(row.total))} ${escapeHtml(text(row.moneda))}`],
+            ['Mercado', escapeHtml(text(row.mercado))],
+            ['Pasarela', escapeHtml(text(row.proveedor_pago))],
+            ['Referencia', escapeHtml(text(row.referencia_pasarela)) || '—'],
+            ['Checkout URL', escapeHtml(text(row.checkout_url)) || '—'],
+          ]
+        )}
+      </div>
+      <div style="padding:0 16px 16px">
+        <h3>Cliente</h3>
+        ${jsonObjectTable(cliente)}
+      </div>
+      <div style="padding:0 16px 16px">
+        <h3>Items</h3>
+        ${jsonRowsTable(items)}
+      </div>
+      <div style="padding:0 16px 16px">
+        <h3>Consentimiento de datos</h3>
+        <p class="admin-help">${
+          row.consentimiento_datos
+            ? `Aceptado el ${formatCell(row.consentimiento_timestamp)}`
+            : 'No aceptado / no registrado'
+        }</p>
+      </div>
+      <form class="admin-form" data-pedido-estado-form style="padding:0 16px 16px">
+        <input type="hidden" name="id" value="${escapeHtml(text(row.id))}" />
+        <div class="admin-alert">Cambiar el estado aqui es manual y no envia notificaciones de pago ni al proveedor (eso llega en F4). Usalo solo para correcciones administrativas.</div>
+        <div class="admin-editor__cols">
+          ${selectStatic('estado', 'Estado', text(row.estado), PEDIDO_ESTADOS)}
+        </div>
+        <button class="admin-button" type="submit">Cambiar estado</button>
+      </form>
+    </section>`
+}
+
+function notFoundPanel(message: string, backHref: string): string {
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head">
+        <h2>${escapeHtml(message)}</h2>
+        <a class="admin-button admin-button--ghost" href="${escapeHtml(backHref)}">Volver</a>
+      </div>
+    </section>`
+}
+
+function jsonObjectTable(obj: Row): string {
+  const keys = Object.keys(obj)
+  if (keys.length === 0) return '<p class="admin-help">Sin datos.</p>'
+  return table(
+    ['Campo', 'Valor'],
+    keys.map((key) => [escapeHtml(key), formatCell(obj[key])])
+  )
+}
+
+function jsonRowsTable(items: unknown[]): string {
+  if (items.length === 0) return '<p class="admin-help">Sin elementos.</p>'
+  const objectItems = items.map((item) =>
+    item && typeof item === 'object' ? (item as Row) : { valor: item }
+  )
+  const keys = Array.from(new Set(objectItems.flatMap((item) => Object.keys(item))))
+  return table(
+    keys,
+    objectItems.map((item) => keys.map((key) => formatCell(item[key])))
+  )
 }
 
 async function proveedoresView(): Promise<string> {
@@ -577,16 +825,55 @@ const FULFILLMENT_ESTADOS: Array<[string, string]> = [
 ]
 
 async function fulfillmentsView(): Promise<string> {
-  const { data, error } = await supabase!
+  const params = hashParams()
+  const estado = params.get('estado') ?? ''
+  const proveedorId = params.get('proveedor_id') ?? ''
+  const desde = params.get('desde') ?? ''
+  const hasta = params.get('hasta') ?? ''
+
+  const [pendientes, notificados, enviados, entregados, conError, proveedores] = await Promise.all([
+    count('fulfillments', { estado: 'pendiente' }),
+    count('fulfillments', { estado: 'notificado' }),
+    count('fulfillments', { estado: 'enviado' }),
+    count('fulfillments', { estado: 'entregado' }),
+    count('fulfillments', { estado: 'error' }),
+    selectRows('proveedores', 'id, nombre', 'nombre', 200),
+  ])
+
+  let query = supabase!
     .from('fulfillments')
     .select('*, pedidos(cliente, total, moneda), proveedores(nombre)')
     .order('created_at', { ascending: false })
     .limit(100)
+  if (estado) query = query.eq('estado', estado)
+  if (proveedorId) query = query.eq('proveedor_id', proveedorId)
+  if (desde) query = query.gte('created_at', desde)
+  if (hasta) query = query.lte('created_at', `${hasta}T23:59:59`)
+  const { data, error } = await query
   if (error) toast(error.message)
   const rows = (data ?? []) as unknown as Row[]
+
   return `
+    <section class="admin-grid">
+      ${metric('Pendientes', pendientes)}
+      ${metric('Notificados', notificados)}
+      ${metric('Enviados', enviados)}
+      ${metric('Entregados', entregados)}
+      ${metric('Con error', conError)}
+    </section>
     <section class="admin-panel">
       <div class="admin-panel__head"><h2>Fulfillments</h2></div>
+      <form class="admin-filters" data-fulfillments-filter>
+        ${selectStatic('estado', 'Estado', estado, [['', 'Todos'], ...FULFILLMENT_ESTADOS])}
+        ${selectStatic('proveedor_id', 'Proveedor', proveedorId, [
+          ['', 'Todos'],
+          ...proveedores.map((p): [string, string] => [text(p.id), text(p.nombre)]),
+        ])}
+        ${field('desde', 'Desde', desde, false, 'date')}
+        ${field('hasta', 'Hasta', hasta, false, 'date')}
+        <button class="admin-button" type="submit">Filtrar</button>
+        <a class="admin-button admin-button--ghost" href="#/fulfillments">Limpiar</a>
+      </form>
       ${
         rows.length === 0
           ? '<p class="admin-help" style="padding:16px">Sin registros.</p>'
@@ -604,6 +891,7 @@ async function fulfillmentsView(): Promise<string> {
                 <div class="admin-campo-revisable__head">
                   <span>Pedido: ${formatCell(pedido.cliente)} — ${escapeHtml(text(pedido.total))} ${escapeHtml(text(pedido.moneda))}</span>
                   <span>Proveedor: ${escapeHtml(text(proveedor.nombre) || 'Sin asignar')}</span>
+                  <span>Creado: ${formatCell(row.created_at)}</span>
                   ${row.error_detalle ? `<span class="admin-badge admin-badge--warn">Error: ${escapeHtml(text(row.error_detalle))}</span>` : ''}
                 </div>
                 <div class="admin-editor__cols">
@@ -612,7 +900,10 @@ async function fulfillmentsView(): Promise<string> {
                   ${field('tracking_url', 'URL de tracking', text(row.tracking_url))}
                 </div>
                 ${textarea('notas', 'Notas', text(row.notas))}
-                <button class="admin-button" type="submit">Guardar</button>
+                <div class="admin-toolbar">
+                  <button class="admin-button" type="submit">Guardar</button>
+                  <button class="admin-button admin-button--ghost" data-resend-notification="${escapeHtml(text(row.id))}" type="button">Reenviar notificacion al proveedor</button>
+                </div>
               </form>`
               })
               .join('')
@@ -642,6 +933,21 @@ async function ingestaView(): Promise<string> {
       </form>
     </section>
     <div data-ingest-review></div>`
+}
+
+function bindProductFilters() {
+  const form = app.querySelector<HTMLFormElement>('[data-productos-filter]')
+  form?.addEventListener('submit', (event) => {
+    event.preventDefault()
+    const data = new FormData(form)
+    const params = new URLSearchParams()
+    for (const key of ['q', 'familia_id', 'tipo_id', 'activo', 'tipo_comercial']) {
+      const value = String(data.get(key) ?? '').trim()
+      if (value) params.set(key, value)
+    }
+    const qs = params.toString()
+    location.hash = `#/productos${qs ? `?${qs}` : ''}`
+  })
 }
 
 function bindProductList() {
@@ -765,6 +1071,28 @@ function bindFulfillments() {
       await render()
     })
   })
+  const filterForm = app.querySelector<HTMLFormElement>('[data-fulfillments-filter]')
+  filterForm?.addEventListener('submit', (event) => {
+    event.preventDefault()
+    const data = new FormData(filterForm)
+    const params = new URLSearchParams()
+    for (const key of ['estado', 'proveedor_id', 'desde', 'hasta']) {
+      const value = String(data.get(key) ?? '').trim()
+      if (value) params.set(key, value)
+    }
+    const qs = params.toString()
+    location.hash = `#/fulfillments${qs ? `?${qs}` : ''}`
+  })
+  app.querySelectorAll<HTMLButtonElement>('[data-resend-notification]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const fulfillmentId = button.dataset['resendNotification']
+      if (!fulfillmentId) return
+      const { error } = await supabase!.functions.invoke('notificar-proveedor', {
+        body: { fulfillment_id: fulfillmentId },
+      })
+      toast(error ? error.message : 'Notificacion enviada al proveedor.')
+    })
+  })
 }
 
 function bindProveedorProductos() {
@@ -824,6 +1152,18 @@ function bindSimpleTables() {
       if (!raw) return
       downloadCsv(button.dataset['filename'] ?? 'export.csv', JSON.parse(raw) as Row[])
     })
+  })
+  const pedidoForm = app.querySelector<HTMLFormElement>('[data-pedido-estado-form]')
+  pedidoForm?.addEventListener('submit', async (event) => {
+    event.preventDefault()
+    const data = new FormData(pedidoForm)
+    const id = String(data.get('id') ?? '')
+    const estado = String(data.get('estado') ?? '')
+    if (!id || !estado) return
+    const { error } = await supabase!.from('pedidos').update({ estado }).eq('id', id)
+    if (error) toast(error.message)
+    else toast('Estado actualizado.')
+    await render()
   })
 }
 
@@ -1319,7 +1659,7 @@ async function uploadFile(button: HTMLButtonElement, form: HTMLFormElement) {
   input.click()
 }
 
-function listWithCsv(tableName: string, rows: Row[], keys: string[]): string {
+function listWithCsv(tableName: string, rows: Row[], keys: string[], detailRoute?: string): string {
   const csvPayload = escapeHtml(JSON.stringify(rows))
   return `
     <section class="admin-panel">
@@ -1331,9 +1671,16 @@ function listWithCsv(tableName: string, rows: Row[], keys: string[]): string {
         [...keys, 'Acciones'],
         rows.map((row) => [
           ...keys.map((key) => formatCell(row[key])),
-          row['leida'] === false
-            ? `<button class="admin-button admin-button--ghost" data-table="${escapeHtml(tableName)}" data-mark-read="${escapeHtml(text(row.id))}" type="button">Marcar leida</button>`
-            : '',
+          [
+            detailRoute
+              ? `<a class="admin-button admin-button--ghost" href="#/${detailRoute}?id=${escapeHtml(text(row.id))}">Ver</a>`
+              : '',
+            row['leida'] === false
+              ? `<button class="admin-button admin-button--ghost" data-table="${escapeHtml(tableName)}" data-mark-read="${escapeHtml(text(row.id))}" type="button">Marcar leida</button>`
+              : '',
+          ]
+            .filter(Boolean)
+            .join(' '),
         ])
       )}
     </section>`
