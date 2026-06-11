@@ -1,10 +1,15 @@
 name: Deploy Producción
 
+# Solo manual hasta F5: el deploy automático en cada push a main
+# publicaría el sitio con catálogo mock y copy EN sin revisar en cuanto
+# existan los secretos FTP. Reactivar push/repository_dispatch al cerrar
+# F5 (auditoría, legales y despliegue).
 on:
-  push:
-    branches: [main]
-  repository_dispatch:
-    types: [trigger-rebuild]
+  workflow_dispatch:
+  # push:
+  #   branches: [main]
+  # repository_dispatch:
+  #   types: [trigger-rebuild]
 
 concurrency:
   group: deploy-prod

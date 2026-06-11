@@ -1,8 +1,11 @@
 name: CI
 
+# Sin filtro de base: el flujo por fases encadena PRs entre ramas feature
+# (fase-N → fase-N+1) y un filtro por rama dejaba esos PRs sin validar.
+# "edited" cubre el retarget de base (p. ej. feature/fase-1 → main).
 on:
   pull_request:
-    branches: [develop, preprod, main]
+    types: [opened, synchronize, reopened, edited]
 
 jobs:
   validate:
