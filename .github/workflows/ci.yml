@@ -1,8 +1,11 @@
 name: CI
 
+# Sin filtro de base: el flujo por fases encadena PRs entre ramas feature
+# (fase-N → fase-N+1) y un filtro por rama dejaba esos PRs sin validar.
+# "edited" cubre el retarget de base (p. ej. feature/fase-1 → main).
 on:
   pull_request:
-    branches: [develop, preprod, main]
+    types: [opened, synchronize, reopened, edited]
 
 jobs:
   validate:
@@ -30,8 +33,12 @@ jobs:
         run: |
           echo "Checking for exposed secrets..."
           FOUND=0
+          # Se ignoran líneas de comentario (// y bloques *): documentan la
+          # política de seguridad y mencionan los nombres sin exponer valores.
           for pattern in service_role SERVICE_KEY ANTHROPIC_API_KEY OPENAI_API_KEY VOYAGE_API_KEY WOMPI_PRIVATE WOMPI_EVENTS_SECRET STRIPE_SECRET STRIPE_WEBHOOK_SECRET TURNSTILE_SECRET; do
-            if grep -r --include="*.ts" --include="*.astro" --include="*.js" "$pattern" src/ 2>/dev/null; then
+            MATCHES=$(grep -rn --include="*.ts" --include="*.astro" --include="*.js" "$pattern" src/ 2>/dev/null | grep -vE '^[^:]+:[0-9]+:[[:space:]]*(//|\*|/\*)' || true)
+            if [ -n "$MATCHES" ]; then
+              echo "$MATCHES"
               echo "SECRET FOUND: $pattern"
               FOUND=1
             fi
