@@ -27,6 +27,55 @@ function registrarErrorSupabase(scope: string, error: { message?: string } | nul
   )
 }
 
+function registrarVacioSupabase(scope: string): void {
+  console.warn(`[datos] Supabase ${scope} devolvió 0 filas, usando mock como respaldo`)
+}
+
+// Cache de mapeo familia_id <-> familia_slug, resuelto vía Supabase (productos.familia_id
+// es FK a familias.id; no existe columna familia_slug en la tabla productos).
+let familiaIdPorSlug: Record<string, string> | null = null
+let familiaSlugPorId: Record<string, string> | null = null
+
+async function cargarMapaFamilias(supabase: ReturnType<typeof getSupabaseClient>): Promise<void> {
+  if (familiaIdPorSlug && familiaSlugPorId) return
+  const { data, error } = await supabase!.from('familias').select('id, slug')
+  if (!error && data && data.length > 0) {
+    familiaIdPorSlug = {}
+    familiaSlugPorId = {}
+    for (const f of data as { id: string; slug: string }[]) {
+      familiaIdPorSlug[f.slug] = f.id
+      familiaSlugPorId[f.id] = f.slug
+    }
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mapProductoSupabase(raw: any, locale: Locale): Producto {
+  return {
+    id: raw.id,
+    slug: raw.slug,
+    familia_id: raw.familia_id,
+    familia_slug: familiaSlugPorId?.[raw.familia_id] ?? '',
+    tipo_id: raw.tipo_id,
+    nombre: locale === 'en' ? raw.nombre_en : raw.nombre_es,
+    descripcion_corta: locale === 'en' ? raw.descripcion_corta_en : raw.descripcion_corta_es,
+    descripcion_larga: locale === 'en' ? raw.descripcion_larga_en : raw.descripcion_larga_es,
+    especificaciones: raw.especificaciones ?? [],
+    imagen_principal: raw.imagen_principal,
+    galeria: raw.galeria ?? [],
+    ficha_pdf: raw.ficha_pdf,
+    tipo_comercial: raw.tipo_comercial,
+    fulfillment_mode: raw.fulfillment_mode,
+    precio: raw.precio,
+    moneda: raw.moneda,
+    stock: raw.stock ?? null,
+    destacado: raw.destacado,
+    nuevo: raw.nuevo,
+    activo: raw.activo,
+    orden: raw.orden,
+  }
+}
+
 /* ============================================================
    Tipos
    ============================================================ */
@@ -157,7 +206,7 @@ export async function getFamilias(locale: Locale): Promise<Familia[]> {
       .order('orden')
     if (error) {
       registrarErrorSupabase('getFamilias', error)
-    } else if (data) {
+    } else if (data && data.length > 0) {
       return data.map((raw) => ({
         id: raw.id as string,
         slug: raw.slug as string,
@@ -166,6 +215,8 @@ export async function getFamilias(locale: Locale): Promise<Familia[]> {
         orden: raw.orden as number,
         activo: raw.activo as boolean,
       }))
+    } else if (data) {
+      registrarVacioSupabase('getFamilias')
     }
   }
   return mockFamilias.filter((f) => f.activo).map((f) => mapFamilia(f, locale))
@@ -178,7 +229,7 @@ export async function getTipos(familiaSlug: string, locale: Locale): Promise<Tip
       .from('familias')
       .select('id')
       .eq('slug', familiaSlug)
-      .single()
+      .maybeSingle()
     if (familiaError) registrarErrorSupabase('getTipos/familia', familiaError)
     if (familiaData) {
       const { data, error } = await supabase
@@ -187,7 +238,7 @@ export async function getTipos(familiaSlug: string, locale: Locale): Promise<Tip
         .eq('familia_id', familiaData.id)
         .eq('activo', true)
         .order('orden')
-      if (!error && data) {
+      if (!error && data && data.length > 0) {
         return data.map((raw) => ({
           id: raw.id as string,
           familia_id: raw.familia_id as string,
@@ -227,16 +278,21 @@ export async function getProductos(filtros: FiltrosProductos, locale: Locale): P
 
   if (debeUsarSupabase()) {
     const supabase = getSupabaseClient()!
+    await cargarMapaFamilias(supabase)
     let req = supabase.from('productos').select('*').eq('activo', true)
-    if (familia) req = req.eq('familia_slug', familia)
+    if (familia) {
+      const familiaId = familiaIdPorSlug?.[familia]
+      // Familia sin equivalente en Supabase: no hay filas que coincidan.
+      req = req.eq('familia_id', familiaId ?? '00000000-0000-0000-0000-000000000000')
+    }
     if (destacado !== undefined) req = req.eq('destacado', destacado)
     req = req.order('orden').range((page - 1) * pageSize, page * pageSize - 1)
     const { data, error } = await req
-    if (!error && data) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return data.map((raw: any) => mapProducto(raw as (typeof mockProductos)[0], locale))
+    if (!error && data && data.length > 0) {
+      return data.map((raw) => mapProductoSupabase(raw, locale))
     }
     if (error) registrarErrorSupabase('getProductos', error)
+    else if (data && !familia) registrarVacioSupabase('getProductos')
   }
 
   let lista = mockProductos.filter((p) => p.activo)
@@ -257,15 +313,15 @@ export async function getProductos(filtros: FiltrosProductos, locale: Locale): P
 export async function getProductoBySlug(slug: string, locale: Locale): Promise<Producto | null> {
   if (debeUsarSupabase()) {
     const supabase = getSupabaseClient()!
+    await cargarMapaFamilias(supabase)
     const { data, error } = await supabase
       .from('productos')
       .select('*')
       .eq('slug', slug)
       .eq('activo', true)
-      .single()
+      .maybeSingle()
     if (!error && data) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return mapProducto(data as any, locale)
+      return mapProductoSupabase(data, locale)
     }
     if (error) registrarErrorSupabase('getProductoBySlug', error)
   }
@@ -280,16 +336,17 @@ export async function getProductosDestacados(locale: Locale): Promise<Producto[]
 export async function getProductosBySlugs(slugs: string[], locale: Locale): Promise<Producto[]> {
   if (debeUsarSupabase()) {
     const supabase = getSupabaseClient()!
+    await cargarMapaFamilias(supabase)
     const { data, error } = await supabase
       .from('productos')
       .select('*')
       .in('slug', slugs)
       .eq('activo', true)
-    if (!error && data) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return data.map((raw: any) => mapProducto(raw as (typeof mockProductos)[0], locale))
+    if (!error && data && data.length > 0) {
+      return data.map((raw) => mapProductoSupabase(raw, locale))
     }
     if (error) registrarErrorSupabase('getProductosBySlugs', error)
+    else if (data) registrarVacioSupabase('getProductosBySlugs')
   }
   return mockProductos
     .filter((p) => slugs.includes(p.slug) && p.activo)
