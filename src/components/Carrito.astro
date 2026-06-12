@@ -1,0 +1,709 @@
+---
+/**
+ * Carrito de consumibles — drawer lateral accesible (rol dialog, focus trap,
+ * Escape, aria-live). Estado real en src/lib/carrito.ts (sessionStorage).
+ * El total mostrado es orientativo: crear-pago recalcula siempre en el servidor.
+ */
+import type { Locale } from '../i18n/utils'
+import { t } from '../i18n/utils'
+
+interface Props {
+  locale: Locale
+}
+
+const { locale } = Astro.props
+
+const config = {
+  locale,
+  i18n: {
+    titulo: t(locale, 'carrito.titulo'),
+    cerrar: t(locale, 'carrito.cerrar'),
+    vacio: t(locale, 'carrito.vacio'),
+    vacioCta: t(locale, 'carrito.vacio_cta'),
+    cantidad: t(locale, 'carrito.cantidad'),
+    aumentar: t(locale, 'carrito.aumentar'),
+    disminuir: t(locale, 'carrito.disminuir'),
+    eliminar: t(locale, 'carrito.eliminar'),
+    subtotal: t(locale, 'carrito.subtotal'),
+    total: t(locale, 'carrito.total'),
+    vaciar: t(locale, 'carrito.vaciar'),
+    seguirComprando: t(locale, 'carrito.seguir_comprando'),
+    mercadoTitulo: t(locale, 'carrito.mercado_titulo'),
+    mercadoCo: t(locale, 'carrito.mercado_co'),
+    mercadoIntl: t(locale, 'carrito.mercado_intl'),
+    datosTitulo: t(locale, 'carrito.datos_titulo'),
+    nombre: t(locale, 'carrito.nombre'),
+    apellido: t(locale, 'carrito.apellido'),
+    email: t(locale, 'carrito.email'),
+    telefono: t(locale, 'carrito.telefono'),
+    institucion: t(locale, 'carrito.institucion'),
+    consentimiento: t(locale, 'carrito.consentimiento'),
+    irPagar: t(locale, 'carrito.ir_pagar'),
+    procesando: t(locale, 'carrito.procesando'),
+    stockLimitado: t(locale, 'carrito.stock_limitado'),
+    errorGenerico: t(locale, 'carrito.error_generico'),
+    errorCarritoVacio: t(locale, 'carrito.error_carrito_vacio'),
+    errorNoDisponible: t(locale, 'carrito.error_no_disponible'),
+    errorValidacion: t(locale, 'carrito.error_validacion'),
+    requerido: t(locale, 'carrito.requerido'),
+    avisoRecalculo: t(locale, 'carrito.aviso_recalculo'),
+  },
+  catalogoHref: locale === 'en' ? '/en/catalog' : '/es/catalogo',
+}
+---
+
+<div id="carrito-backdrop" class="drawer-backdrop" hidden></div>
+
+<aside
+  id="carrito-drawer"
+  class="carrito-drawer"
+  role="dialog"
+  aria-modal="true"
+  aria-label={config.i18n.titulo}
+  data-carrito-config={JSON.stringify(config)}
+  hidden
+>
+  <div class="carrito-drawer__header">
+    <h2 class="carrito-drawer__title">{config.i18n.titulo}</h2>
+    <button
+      id="carrito-close"
+      class="carrito-drawer__close"
+      aria-label={config.i18n.cerrar}
+      type="button"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+
+  <div class="carrito-drawer__body">
+    <p id="carrito-vacio" class="carrito-vacio">
+      {config.i18n.vacio}
+      <a href={config.catalogoHref} class="btn btn-secondary">{config.i18n.vacioCta}</a>
+    </p>
+
+    <ul id="carrito-items" class="carrito-items" aria-live="polite" aria-atomic="false"></ul>
+
+    <div id="carrito-resumen" class="carrito-resumen" hidden>
+      <div class="carrito-resumen__row">
+        <span>{config.i18n.subtotal}</span>
+        <span id="carrito-subtotal">—</span>
+      </div>
+      <div class="carrito-resumen__row carrito-resumen__row--total">
+        <span>{config.i18n.total}</span>
+        <span id="carrito-total">—</span>
+      </div>
+      <p class="carrito-aviso">{config.i18n.avisoRecalculo}</p>
+    </div>
+  </div>
+
+  <form id="carrito-form" class="carrito-form" novalidate hidden>
+    <fieldset class="carrito-fieldset">
+      <legend>{config.i18n.mercadoTitulo}</legend>
+      <label class="carrito-radio">
+        <input type="radio" name="mercado" value="CO" checked />
+        {config.i18n.mercadoCo}
+      </label>
+      <label class="carrito-radio">
+        <input type="radio" name="mercado" value="INTL" />
+        {config.i18n.mercadoIntl}
+      </label>
+    </fieldset>
+
+    <fieldset class="carrito-fieldset">
+      <legend>{config.i18n.datosTitulo}</legend>
+      <div class="carrito-grid">
+        <div class="carrito-field">
+          <label for="carrito-nombre">{config.i18n.nombre}</label>
+          <input id="carrito-nombre" name="nombre" type="text" required autocomplete="given-name" />
+        </div>
+        <div class="carrito-field">
+          <label for="carrito-apellido">{config.i18n.apellido}</label>
+          <input
+            id="carrito-apellido"
+            name="apellido"
+            type="text"
+            required
+            autocomplete="family-name"
+          />
+        </div>
+      </div>
+      <div class="carrito-field">
+        <label for="carrito-email">{config.i18n.email}</label>
+        <input id="carrito-email" name="email" type="email" required autocomplete="email" />
+      </div>
+      <div class="carrito-field">
+        <label for="carrito-telefono">{config.i18n.telefono}</label>
+        <input id="carrito-telefono" name="telefono" type="tel" required autocomplete="tel" />
+      </div>
+      <div class="carrito-field">
+        <label for="carrito-institucion">{config.i18n.institucion}</label>
+        <input
+          id="carrito-institucion"
+          name="institucion"
+          type="text"
+          autocomplete="organization"
+        />
+      </div>
+      <label class="carrito-checkbox">
+        <input id="carrito-consentimiento" name="consentimiento" type="checkbox" required />
+        <span>{config.i18n.consentimiento}</span>
+      </label>
+    </fieldset>
+
+    <p id="carrito-error" class="carrito-error" role="alert" aria-live="assertive" hidden></p>
+
+    <div class="carrito-actions">
+      <button id="carrito-vaciar" class="btn btn-secondary" type="button"
+        >{config.i18n.vaciar}</button
+      >
+      <button id="carrito-submit" class="btn btn-primary" type="submit"
+        >{config.i18n.irPagar}</button
+      >
+    </div>
+  </form>
+</aside>
+
+<style>
+  .drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(11, 27, 34, 0.45);
+    z-index: 210;
+  }
+  .drawer-backdrop[hidden] {
+    display: none;
+  }
+
+  .carrito-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 211;
+    width: min(420px, 100vw);
+    display: flex;
+    flex-direction: column;
+    background: var(--white);
+    box-shadow: var(--shadow-lg);
+    transform: translateX(100%);
+  }
+  .carrito-drawer[hidden] {
+    display: none;
+  }
+
+  .carrito-drawer__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    background: var(--t900);
+    color: white;
+  }
+  .carrito-drawer__title {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+  .carrito-drawer__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    background: rgba(255, 255, 255, 0.12);
+    color: white;
+    cursor: pointer;
+  }
+  .carrito-drawer__close:hover {
+    background: rgba(255, 255, 255, 0.22);
+  }
+
+  .carrito-drawer__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.25rem 1.5rem;
+  }
+  .carrito-vacio {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    color: var(--text-mid);
+    font-size: 0.9rem;
+  }
+  .carrito-vacio[hidden] {
+    display: none;
+  }
+
+  .carrito-items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .carrito-item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.75rem;
+    align-items: start;
+    padding-block-end: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .carrito-item__nombre {
+    font-weight: 600;
+    color: var(--ink);
+    font-size: 0.875rem;
+    margin: 0 0 0.25rem;
+  }
+  .carrito-item__precio {
+    font-size: 0.8rem;
+    color: var(--text-mid);
+    margin: 0;
+  }
+  .carrito-item__stock {
+    font-size: 0.7rem;
+    color: var(--text-mid);
+    margin: 0.25rem 0 0;
+  }
+  .carrito-item__qty {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+  }
+  .carrito-item__qty button {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    border: 1px solid var(--border-mid);
+    background: transparent;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+  }
+  .carrito-item__qty button:hover {
+    background: var(--t50);
+  }
+  .carrito-item__qty span {
+    min-width: 1.5rem;
+    text-align: center;
+    font-size: 0.875rem;
+  }
+  .carrito-item__remove {
+    border: none;
+    background: transparent;
+    color: var(--text-mid);
+    cursor: pointer;
+    padding: 0.25rem;
+  }
+  .carrito-item__remove:hover {
+    color: var(--t900);
+  }
+
+  .carrito-resumen {
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.875rem;
+  }
+  .carrito-resumen[hidden] {
+    display: none;
+  }
+  .carrito-resumen__row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.4rem;
+  }
+  .carrito-resumen__row--total {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--ink);
+  }
+  .carrito-aviso {
+    margin: 0.75rem 0 0;
+    font-size: 0.7rem;
+    color: var(--text-mid);
+  }
+
+  .carrito-form {
+    border-top: 1px solid var(--border);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-height: 55vh;
+    overflow-y: auto;
+  }
+  .carrito-form[hidden] {
+    display: none;
+  }
+  .carrito-fieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .carrito-fieldset legend {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-mid);
+    padding: 0;
+    margin-bottom: 0.25rem;
+  }
+  .carrito-radio {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+  .carrito-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .carrito-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin-bottom: 0.6rem;
+  }
+  .carrito-field label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-mid);
+  }
+  .carrito-field input {
+    padding: 0.55rem 0.7rem;
+    border: 1px solid var(--border-mid);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    background: var(--white);
+    color: var(--ink);
+  }
+  .carrito-field input:focus-visible {
+    outline: 2px solid var(--t800);
+    outline-offset: 1px;
+  }
+  .carrito-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text-mid);
+    cursor: pointer;
+  }
+  .carrito-checkbox input {
+    margin-top: 0.2rem;
+  }
+  .carrito-error {
+    background: #fdecea;
+    border: 1px solid #f5b5ad;
+    color: #8a1f11;
+    border-radius: 8px;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.8rem;
+  }
+  .carrito-error[hidden] {
+    display: none;
+  }
+  .carrito-actions {
+    display: flex;
+    gap: 0.75rem;
+  }
+  .carrito-actions .btn {
+    flex: 1;
+    justify-content: center;
+    font-size: 0.85rem;
+  }
+  .carrito-actions .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .carrito-drawer {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  import {
+    getCarrito,
+    getCarritoTotal,
+    actualizarCantidad,
+    quitarDelCarrito,
+    vaciarCarrito,
+    suscribirCarrito,
+    alAbrirCarrito,
+    iniciarCheckout,
+    type CarritoItem,
+    type Mercado,
+  } from '../lib/carrito'
+  import { formatMoneda } from '../lib/format'
+  import { abrirDrawer, cerrarDrawer } from '../lib/motion'
+
+  interface CarritoI18n {
+    titulo: string
+    cerrar: string
+    vacio: string
+    vacioCta: string
+    cantidad: string
+    aumentar: string
+    disminuir: string
+    eliminar: string
+    subtotal: string
+    total: string
+    vaciar: string
+    seguirComprando: string
+    mercadoTitulo: string
+    mercadoCo: string
+    mercadoIntl: string
+    datosTitulo: string
+    nombre: string
+    apellido: string
+    email: string
+    telefono: string
+    institucion: string
+    consentimiento: string
+    irPagar: string
+    procesando: string
+    stockLimitado: string
+    errorGenerico: string
+    errorCarritoVacio: string
+    errorNoDisponible: string
+    errorValidacion: string
+    requerido: string
+    avisoRecalculo: string
+  }
+
+  interface CarritoConfig {
+    locale: 'es' | 'en'
+    i18n: CarritoI18n
+    catalogoHref: string
+  }
+
+  const drawer = document.getElementById('carrito-drawer')
+  const backdrop = document.getElementById('carrito-backdrop')
+  const closeBtn = document.getElementById('carrito-close')
+  const itemsEl = document.getElementById('carrito-items')
+  const vacioEl = document.getElementById('carrito-vacio')
+  const resumenEl = document.getElementById('carrito-resumen')
+  const subtotalEl = document.getElementById('carrito-subtotal')
+  const totalEl = document.getElementById('carrito-total')
+  const formEl = document.getElementById('carrito-form') as HTMLFormElement | null
+  const vaciarBtn = document.getElementById('carrito-vaciar')
+  const submitBtn = document.getElementById('carrito-submit') as HTMLButtonElement | null
+  const errorEl = document.getElementById('carrito-error')
+
+  if (!drawer) {
+    // Componente no presente en esta página
+  } else {
+    const config: CarritoConfig = JSON.parse(drawer.dataset.carritoConfig ?? '{}') as CarritoConfig
+    const { i18n, locale } = config
+    let enviando = false
+
+    function escapeHtml(value: string): string {
+      return value
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+    }
+
+    function render(items: CarritoItem[]) {
+      if (!itemsEl || !vacioEl || !resumenEl || !formEl) return
+      if (items.length === 0) {
+        vacioEl.hidden = false
+        itemsEl.innerHTML = ''
+        resumenEl.hidden = true
+        formEl.hidden = true
+        return
+      }
+      vacioEl.hidden = true
+      resumenEl.hidden = false
+      formEl.hidden = false
+
+      itemsEl.innerHTML = items
+        .map((item) => {
+          const precio = formatMoneda(item.precio, item.moneda, locale) ?? ''
+          const subtotalItem = formatMoneda(item.precio * item.cantidad, item.moneda, locale) ?? ''
+          const stockMsg =
+            item.stock !== null
+              ? `<p class="carrito-item__stock">${escapeHtml(i18n.stockLimitado.replace('{stock}', String(item.stock)))}</p>`
+              : ''
+          return `
+            <li class="carrito-item" data-slug="${escapeHtml(item.slug)}">
+              <div>
+                <p class="carrito-item__nombre">${escapeHtml(item.nombre)}</p>
+                <p class="carrito-item__precio">${escapeHtml(precio)} c/u — ${escapeHtml(subtotalItem)}</p>
+                ${stockMsg}
+                <div class="carrito-item__qty">
+                  <button type="button" data-action="dec" aria-label="${escapeHtml(i18n.disminuir)}">−</button>
+                  <span aria-label="${escapeHtml(i18n.cantidad)}">${item.cantidad}</span>
+                  <button type="button" data-action="inc" aria-label="${escapeHtml(i18n.aumentar)}">+</button>
+                </div>
+              </div>
+              <button type="button" class="carrito-item__remove" data-action="remove" aria-label="${escapeHtml(i18n.eliminar)}: ${escapeHtml(item.nombre)}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
+            </li>`
+        })
+        .join('')
+
+      const { total, moneda } = getCarritoTotal(items)
+      const totalFmt = formatMoneda(total, moneda, locale) ?? ''
+      if (subtotalEl) subtotalEl.textContent = totalFmt
+      if (totalEl) totalEl.textContent = totalFmt
+    }
+
+    function showError(message: string | null) {
+      if (!errorEl) return
+      if (message) {
+        errorEl.textContent = message
+        errorEl.hidden = false
+      } else {
+        errorEl.hidden = true
+        errorEl.textContent = ''
+      }
+    }
+
+    render(getCarrito())
+    suscribirCarrito(render)
+
+    itemsEl?.addEventListener('click', (event) => {
+      const target = event.target as HTMLElement
+      const button = target.closest<HTMLElement>('button[data-action]')
+      if (!button) return
+      const li = button.closest<HTMLElement>('.carrito-item')
+      const slug = li?.dataset.slug
+      if (!slug) return
+      const items = getCarrito()
+      const item = items.find((i) => i.slug === slug)
+      if (!item) return
+      const action = button.dataset.action
+      if (action === 'inc') actualizarCantidad(slug, item.cantidad + 1)
+      else if (action === 'dec') actualizarCantidad(slug, item.cantidad - 1)
+      else if (action === 'remove') quitarDelCarrito(slug)
+    })
+
+    vaciarBtn?.addEventListener('click', () => {
+      vaciarCarrito()
+      showError(null)
+    })
+
+    function open() {
+      if (!drawer || !backdrop) return
+      drawer.removeAttribute('hidden')
+      backdrop.removeAttribute('hidden')
+      document.body.style.overflow = 'hidden'
+      void abrirDrawer(drawer, backdrop)
+      const firstFocusable = drawer.querySelector<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      )
+      firstFocusable?.focus()
+    }
+
+    function close() {
+      if (!drawer || !backdrop) return
+      void cerrarDrawer(drawer, backdrop, () => {
+        drawer.setAttribute('hidden', '')
+        backdrop.setAttribute('hidden', '')
+        document.body.style.overflow = ''
+      })
+    }
+
+    alAbrirCarrito(open)
+    closeBtn?.addEventListener('click', close)
+    backdrop?.addEventListener('click', close)
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && drawer && !drawer.hasAttribute('hidden')) close()
+    })
+
+    // Focus trap
+    drawer?.addEventListener('keydown', (event) => {
+      if (event.key !== 'Tab') return
+      const focusable = Array.from(
+        drawer.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter((el) => el.offsetParent !== null || el === document.activeElement)
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (!first || !last) return
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    })
+
+    formEl?.addEventListener('submit', async (event) => {
+      event.preventDefault()
+      if (enviando || !formEl || !submitBtn) return
+      showError(null)
+
+      if (!formEl.checkValidity()) {
+        formEl.reportValidity()
+        showError(i18n.errorValidacion)
+        return
+      }
+
+      const data = new FormData(formEl)
+      const mercado = String(data.get('mercado') ?? 'CO') as Mercado
+      const cliente = {
+        nombre: String(data.get('nombre') ?? ''),
+        apellido: String(data.get('apellido') ?? ''),
+        email: String(data.get('email') ?? ''),
+        telefono: String(data.get('telefono') ?? ''),
+      }
+      const institucion = String(data.get('institucion') ?? '').trim()
+      if (institucion) Object.assign(cliente, { institucion })
+      const consentimientoDatos = data.get('consentimiento') === 'on'
+
+      enviando = true
+      submitBtn.disabled = true
+      submitBtn.textContent = i18n.procesando
+
+      const resultado = await iniciarCheckout({ cliente, mercado, consentimientoDatos, locale })
+
+      enviando = false
+      submitBtn.disabled = false
+      submitBtn.textContent = i18n.irPagar
+
+      if (!resultado.ok || !resultado.checkoutUrl) {
+        if (resultado.error === 'CARRITO_VACIO') showError(i18n.errorCarritoVacio)
+        else if (resultado.error === 'NO_DISPONIBLE') showError(i18n.errorNoDisponible)
+        else showError(i18n.errorGenerico)
+        return
+      }
+
+      window.location.href = resultado.checkoutUrl
+    })
+  }
+</script>

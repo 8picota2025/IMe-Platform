@@ -5,6 +5,7 @@
  * BLOQUEANTE_LEGAL: simulador real necesita abogado + condiciones aprobadas.
  */
 import Layout from '../../layouts/Layout.astro'
+import SimuladorFinanciero from '../../components/SimuladorFinanciero.astro'
 import { buildPageTitle, buildCanonical } from '../../lib/seo'
 import { t } from '../../i18n/utils'
 
@@ -83,6 +84,8 @@ const canonical = buildCanonical('/es/financiacion')
       </ul>
     </div>
 
+    <SimuladorFinanciero locale={locale} />
+
     <!-- Aviso legal -->
     <div class="financiacion-disclaimer" role="note">
       <h3>Aviso importante</h3>
@@ -99,7 +102,9 @@ const canonical = buildCanonical('/es/financiacion')
           No hay tasas reales publicadas actualmente — solo copy de referencia extraído del sitio
           anterior.
         </li>
-        <li>El simulador de financiación interactivo llegará en Fase 4.</li>
+        <li>
+          El simulador no calcula cuotas ni publica condiciones vinculantes sin aprobación legal.
+        </li>
       </ul>
     </div>
 

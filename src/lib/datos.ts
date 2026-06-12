@@ -13,6 +13,20 @@ import mockFamilias from '../data/mock-familias.json'
 import mockProductos from '../data/mock-productos.json'
 import mockTipos from '../data/mock-tipos.json'
 
+let supabaseDeshabilitadoPorError = false
+
+function debeUsarSupabase(): boolean {
+  return isSupabaseConfigured() && !supabaseDeshabilitadoPorError
+}
+
+function registrarErrorSupabase(scope: string, error: { message?: string } | null): void {
+  supabaseDeshabilitadoPorError = true
+  console.error(
+    `[datos] Supabase ${scope} error, falling back to mock:`,
+    error?.message ?? 'error desconocido'
+  )
+}
+
 /* ============================================================
    Tipos
    ============================================================ */
@@ -53,6 +67,7 @@ export interface Producto {
   fulfillment_mode: 'dropship' | 'cotizacion' | 'individualizado'
   precio: number | null
   moneda: string
+  stock: number | null
   destacado: boolean
   nuevo: boolean
   activo: boolean
@@ -68,6 +83,12 @@ export interface FiltrosProductos {
   pageSize?: number
 }
 
+export interface CotizacionProducto {
+  slug: string
+  nombre: string
+  cantidad: number
+}
+
 export interface CotizacionPayload {
   nombre: string
   apellido: string
@@ -77,6 +98,7 @@ export interface CotizacionPayload {
   interes?: string
   mensaje: string
   consentimiento_datos: boolean
+  productos?: CotizacionProducto[]
 }
 
 /* ============================================================
@@ -113,6 +135,7 @@ function mapProducto(raw: (typeof mockProductos)[0], locale: Locale): Producto {
     fulfillment_mode: raw.fulfillment_mode as Producto['fulfillment_mode'],
     precio: raw.precio,
     moneda: raw.moneda,
+    stock: (raw as { stock?: number | null }).stock ?? null,
     destacado: raw.destacado,
     nuevo: raw.nuevo,
     activo: raw.activo,
@@ -125,7 +148,7 @@ function mapProducto(raw: (typeof mockProductos)[0], locale: Locale): Producto {
    ============================================================ */
 
 export async function getFamilias(locale: Locale): Promise<Familia[]> {
-  if (isSupabaseConfigured()) {
+  if (debeUsarSupabase()) {
     const supabase = getSupabaseClient()!
     const { data, error } = await supabase
       .from('familias')
@@ -133,7 +156,7 @@ export async function getFamilias(locale: Locale): Promise<Familia[]> {
       .eq('activo', true)
       .order('orden')
     if (error) {
-      console.error('[datos] Supabase getFamilias error, falling back to mock:', error.message)
+      registrarErrorSupabase('getFamilias', error)
     } else if (data) {
       return data.map((raw) => ({
         id: raw.id as string,
@@ -149,13 +172,14 @@ export async function getFamilias(locale: Locale): Promise<Familia[]> {
 }
 
 export async function getTipos(familiaSlug: string, locale: Locale): Promise<Tipo[]> {
-  if (isSupabaseConfigured()) {
+  if (debeUsarSupabase()) {
     const supabase = getSupabaseClient()!
-    const { data: familiaData } = await supabase
+    const { data: familiaData, error: familiaError } = await supabase
       .from('familias')
       .select('id')
       .eq('slug', familiaSlug)
       .single()
+    if (familiaError) registrarErrorSupabase('getTipos/familia', familiaError)
     if (familiaData) {
       const { data, error } = await supabase
         .from('tipos')
@@ -173,6 +197,7 @@ export async function getTipos(familiaSlug: string, locale: Locale): Promise<Tip
           activo: raw.activo as boolean,
         }))
       }
+      if (error) registrarErrorSupabase('getTipos', error)
     }
   }
   return mockTipos
@@ -200,7 +225,7 @@ export async function getTipos(familiaSlug: string, locale: Locale): Promise<Tip
 export async function getProductos(filtros: FiltrosProductos, locale: Locale): Promise<Producto[]> {
   const { familia, tipo, destacado, query, page = 1, pageSize = 24 } = filtros
 
-  if (isSupabaseConfigured()) {
+  if (debeUsarSupabase()) {
     const supabase = getSupabaseClient()!
     let req = supabase.from('productos').select('*').eq('activo', true)
     if (familia) req = req.eq('familia_slug', familia)
@@ -211,6 +236,7 @@ export async function getProductos(filtros: FiltrosProductos, locale: Locale): P
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return data.map((raw: any) => mapProducto(raw as (typeof mockProductos)[0], locale))
     }
+    if (error) registrarErrorSupabase('getProductos', error)
   }
 
   let lista = mockProductos.filter((p) => p.activo)
@@ -229,7 +255,7 @@ export async function getProductos(filtros: FiltrosProductos, locale: Locale): P
 }
 
 export async function getProductoBySlug(slug: string, locale: Locale): Promise<Producto | null> {
-  if (isSupabaseConfigured()) {
+  if (debeUsarSupabase()) {
     const supabase = getSupabaseClient()!
     const { data, error } = await supabase
       .from('productos')
@@ -241,6 +267,7 @@ export async function getProductoBySlug(slug: string, locale: Locale): Promise<P
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return mapProducto(data as any, locale)
     }
+    if (error) registrarErrorSupabase('getProductoBySlug', error)
   }
   const found = mockProductos.find((p) => p.slug === slug && p.activo)
   return found ? mapProducto(found, locale) : null
@@ -251,7 +278,7 @@ export async function getProductosDestacados(locale: Locale): Promise<Producto[]
 }
 
 export async function getProductosBySlugs(slugs: string[], locale: Locale): Promise<Producto[]> {
-  if (isSupabaseConfigured()) {
+  if (debeUsarSupabase()) {
     const supabase = getSupabaseClient()!
     const { data, error } = await supabase
       .from('productos')
@@ -262,6 +289,7 @@ export async function getProductosBySlugs(slugs: string[], locale: Locale): Prom
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return data.map((raw: any) => mapProducto(raw as (typeof mockProductos)[0], locale))
     }
+    if (error) registrarErrorSupabase('getProductosBySlugs', error)
   }
   return mockProductos
     .filter((p) => slugs.includes(p.slug) && p.activo)
@@ -282,7 +310,7 @@ export async function submitCotizacion(
       empresa: datos.institucion ?? '',
       email: datos.email,
       telefono: datos.telefono,
-      productos: [],
+      productos: datos.productos ?? [],
       mensaje: `[${datos.interes ?? 'General'}] ${datos.mensaje}`,
       consentimiento_datos: datos.consentimiento_datos,
       consentimiento_timestamp: new Date().toISOString(),

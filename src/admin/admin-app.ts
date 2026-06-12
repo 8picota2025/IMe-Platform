@@ -627,6 +627,25 @@ async function pedidoDetailView(): Promise<string> {
   if (!row) return notFoundPanel('Pedido no encontrado', '#/pedidos')
   const cliente = row.cliente && typeof row.cliente === 'object' ? (row.cliente as Row) : {}
   const items = Array.isArray(row.items) ? row.items : []
+
+  const referencia = text(row.referencia_pasarela)
+  const [eventosResult, fulfillmentsResult] = await Promise.all([
+    referencia
+      ? supabase!
+          .from('eventos_pago')
+          .select('*')
+          .eq('referencia_pasarela', referencia)
+          .order('created_at', { ascending: false })
+      : Promise.resolve({ data: [] as Row[] }),
+    supabase!
+      .from('fulfillments')
+      .select('*, proveedores(nombre)')
+      .eq('pedido_id', text(row.id))
+      .order('created_at', { ascending: false }),
+  ])
+  const eventos = (eventosResult.data ?? []) as Row[]
+  const fulfillments = (fulfillmentsResult.data ?? []) as Row[]
+
   return `
     <section class="admin-panel">
       <div class="admin-panel__head">
@@ -661,6 +680,43 @@ async function pedidoDetailView(): Promise<string> {
       <div style="padding:0 16px 16px">
         <h3>Items</h3>
         ${jsonRowsTable(items)}
+      </div>
+      <div style="padding:0 16px 16px">
+        <h3>Fulfillments / proveedores</h3>
+        ${
+          fulfillments.length === 0
+            ? '<p class="admin-help">Sin fulfillments asociados aun.</p>'
+            : table(
+                ['Proveedor', 'Estado', 'Notificado', 'Notas', 'Acciones'],
+                fulfillments.map((f) => {
+                  const proveedor =
+                    f.proveedores && typeof f.proveedores === 'object' ? (f.proveedores as Row) : {}
+                  return [
+                    escapeHtml(text(proveedor.nombre)) || '—',
+                    formatCell(f.estado),
+                    formatCell(f.notificado_at),
+                    escapeHtml(text(f.notas)) || escapeHtml(text(f.error_detalle)) || '—',
+                    `<button class="admin-button admin-button--ghost" data-resend-notification="${escapeHtml(text(f.id))}" type="button">Reenviar</button>`,
+                  ]
+                })
+              )
+        }
+      </div>
+      <div style="padding:0 16px 16px">
+        <h3>Eventos de pago</h3>
+        ${
+          eventos.length === 0
+            ? '<p class="admin-help">Sin eventos registrados aun (esperando webhook del proveedor de pago).</p>'
+            : table(
+                ['Fecha', 'Proveedor', 'Event ID', 'Procesado'],
+                eventos.map((e) => [
+                  formatCell(e.created_at),
+                  escapeHtml(text(e.proveedor_pago)),
+                  escapeHtml(text(e.event_id)),
+                  formatCell(e.procesado),
+                ])
+              )
+        }
       </div>
       <div style="padding:0 16px 16px">
         <h3>Consentimiento de datos</h3>

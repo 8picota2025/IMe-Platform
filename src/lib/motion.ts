@@ -57,6 +57,47 @@ export function getMicroVars() {
 }
 
 /**
+ * Anima la apertura de un drawer lateral (carrito/cotización) con GSAP,
+ * deslizándolo desde la derecha y desvaneciendo el backdrop.
+ * Con prefers-reduced-motion: aplica el estado final sin animación.
+ */
+export async function abrirDrawer(panel: HTMLElement, backdrop: HTMLElement | null): Promise<void> {
+  panel.style.transform = ''
+  if (backdrop) backdrop.style.opacity = ''
+  if (prefersReducedMotion()) return
+  try {
+    const { gsap } = await import('gsap')
+    gsap.fromTo(panel, { x: '100%' }, { x: '0%', duration: 0.4, ease: 'power3.out' })
+    if (backdrop) gsap.fromTo(backdrop, { opacity: 0 }, { opacity: 1, duration: 0.3 })
+  } catch (e) {
+    console.warn('[motion] abrirDrawer: GSAP no disponible', e)
+  }
+}
+
+/**
+ * Anima el cierre de un drawer lateral con GSAP y ejecuta `onComplete`
+ * (normalmente, ocultar el elemento con `hidden`) al finalizar.
+ */
+export async function cerrarDrawer(
+  panel: HTMLElement,
+  backdrop: HTMLElement | null,
+  onComplete: () => void
+): Promise<void> {
+  if (prefersReducedMotion()) {
+    onComplete()
+    return
+  }
+  try {
+    const { gsap } = await import('gsap')
+    gsap.to(panel, { x: '100%', duration: 0.3, ease: 'power2.in', onComplete })
+    if (backdrop) gsap.to(backdrop, { opacity: 0, duration: 0.25 })
+  } catch (e) {
+    console.warn('[motion] cerrarDrawer: GSAP no disponible', e)
+    onComplete()
+  }
+}
+
+/**
  * Inicializa Lenis smooth scroll de forma dinámica.
  * Llama desde el layout (solo en cliente).
  * BLOQUEANTE_BACKEND: Si Lenis no está instalado, falla silenciosamente.

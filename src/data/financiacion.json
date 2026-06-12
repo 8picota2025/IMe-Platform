@@ -1,0 +1,11 @@
+{
+  "tasa_anual": null,
+  "plazos_meses": [12, 24, 36, 48, 60],
+  "monto_min": 1000000,
+  "monto_max": 500000000,
+  "monto_paso": 500000,
+  "monto_sugerido": 50000000,
+  "moneda": "COP",
+  "fuente": "src/data/financiacion_referencia.json (sin tasas reales publicadas)",
+  "nota": "OPCIONAL_MEJORA — plazos_meses son opciones genéricas de exploración para el simulador, no un catálogo de planes confirmado por I-ME. BLOQUEANTE_LEGAL: tasa_anual real, plazos definitivos y condiciones requieren aprobación del cliente y revisión legal antes de publicar valores vinculantes."
+}

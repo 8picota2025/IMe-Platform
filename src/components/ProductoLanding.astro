@@ -109,7 +109,43 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
       {precioFormateado && <p class="hero-producto__precio">{precioFormateado}</p>}
 
       <div class="hero-producto__cta-group" id="cta-principal">
-        <a href={ctaCotizarHref} class="btn btn-primary">
+        {
+          producto.tipo_comercial === 'equipo' && (
+            <button
+              type="button"
+              class="btn btn-primary"
+              aria-live="polite"
+              data-add-cotizacion={producto.slug}
+              data-nombre={producto.nombre}
+              data-imagen={producto.imagen_principal}
+              data-label-agregar={t(locale, 'cotizacion_equipos.agregar')}
+              data-label-agregado={t(locale, 'cotizacion_equipos.agregado')}
+            >
+              {t(locale, 'cotizacion_equipos.agregar')}
+            </button>
+          )
+        }
+        {
+          producto.tipo_comercial === 'consumible' &&
+            producto.precio != null &&
+            producto.precio > 0 && (
+              <button
+                type="button"
+                class="btn btn-primary"
+                aria-live="polite"
+                data-add-carrito={producto.slug}
+                data-nombre={producto.nombre}
+                data-precio={producto.precio}
+                data-moneda={producto.moneda}
+                data-stock={producto.stock ?? ''}
+                data-label-agregar={t(locale, 'carrito.agregar')}
+                data-label-agregado={t(locale, 'carrito.agregado')}
+              >
+                {t(locale, 'carrito.agregar')}
+              </button>
+            )
+        }
+        <a href={ctaCotizarHref} class="btn btn-secondary">
           {t(locale, 'producto.cotizar_cta')}
         </a>
         {
@@ -226,6 +262,10 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
                 destacado: rel.destacado,
                 nuevo: rel.nuevo,
                 familia: { slug: familia.slug, nombre: familia.nombre },
+                tipo_comercial: rel.tipo_comercial,
+                precio: rel.precio,
+                moneda: rel.moneda,
+                stock: rel.stock,
               }}
               locale={locale}
             />
@@ -675,4 +715,46 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
       if (event.target === lightbox) lightbox.close()
     })
   }
+
+  // Añadir a cotización / carrito desde el CTA principal
+  const addCotizacionBtn = document.querySelector<HTMLButtonElement>(
+    '#cta-principal [data-add-cotizacion]'
+  )
+  const addCarritoBtn = document.querySelector<HTMLButtonElement>(
+    '#cta-principal [data-add-carrito]'
+  )
+
+  const confirmarAdd = (btn: HTMLButtonElement) => {
+    const original = btn.dataset['labelAgregar'] ?? btn.textContent ?? ''
+    const agregado = btn.dataset['labelAgregado'] ?? original
+    btn.textContent = agregado
+    window.setTimeout(() => {
+      btn.textContent = original
+    }, 1800)
+  }
+
+  addCotizacionBtn?.addEventListener('click', () => {
+    const slug = addCotizacionBtn.dataset['addCotizacion']
+    const nombre = addCotizacionBtn.dataset['nombre']
+    const imagen = addCotizacionBtn.dataset['imagen']
+    if (!slug || !nombre || !imagen) return
+    void import('../lib/cotizacion-equipos').then(({ agregarACotizacion }) => {
+      agregarACotizacion({ slug, nombre, imagen })
+      confirmarAdd(addCotizacionBtn)
+    })
+  })
+
+  addCarritoBtn?.addEventListener('click', () => {
+    const slug = addCarritoBtn.dataset['addCarrito']
+    const nombre = addCarritoBtn.dataset['nombre']
+    const precio = Number(addCarritoBtn.dataset['precio'])
+    const moneda = addCarritoBtn.dataset['moneda'] ?? 'COP'
+    const stockRaw = addCarritoBtn.dataset['stock']
+    const stock = stockRaw ? Number(stockRaw) : null
+    if (!slug || !nombre || Number.isNaN(precio)) return
+    void import('../lib/carrito').then(({ agregarAlCarrito }) => {
+      agregarAlCarrito({ slug, nombre, precio, moneda, stock })
+      confirmarAdd(addCarritoBtn)
+    })
+  })
 </script>

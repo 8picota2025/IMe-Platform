@@ -1,0 +1,25 @@
+---
+/**
+ * Página de resultado de pago — pendiente de verificación. No indexable.
+ * El estado real se verifica server-side vía consultar-pedido.
+ */
+import Layout from '../../../layouts/Layout.astro'
+import ResultadoPago from '../../../components/ResultadoPago.astro'
+import { buildPageTitle, buildCanonical } from '../../../lib/seo'
+
+const locale = 'es'
+const title = buildPageTitle('Pago en proceso')
+const description = 'Tu pago está siendo verificado.'
+const canonical = buildCanonical('/es/pago/pendiente')
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  locale={locale}
+  currentPath="/es/pago/pendiente"
+  noindex
+>
+  <ResultadoPago locale={locale} tipo="pendiente" />
+</Layout>

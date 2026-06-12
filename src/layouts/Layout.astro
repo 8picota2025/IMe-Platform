@@ -7,6 +7,8 @@ import BaseHead from '../components/BaseHead.astro'
 import Navbar from '../components/Navbar.astro'
 import Footer from '../components/Footer.astro'
 import Asesor from '../components/Asesor.astro'
+import Carrito from '../components/Carrito.astro'
+import CotizacionDrawer from '../components/CotizacionDrawer.astro'
 import type { Locale } from '../i18n/utils'
 import { t } from '../i18n/utils'
 
@@ -18,9 +20,10 @@ interface Props {
   currentPath: string
   ogImage?: string
   jsonLd?: string
+  noindex?: boolean
 }
 
-const { title, description, canonical, locale, currentPath, ogImage, jsonLd } = Astro.props
+const { title, description, canonical, locale, currentPath, ogImage, jsonLd, noindex } = Astro.props
 ---
 
 <!doctype html>
@@ -34,6 +37,7 @@ const { title, description, canonical, locale, currentPath, ogImage, jsonLd } = 
       currentPath={currentPath}
       {...ogImage !== undefined ? { ogImage } : {}}
       {...jsonLd !== undefined ? { jsonLd } : {}}
+      {...noindex !== undefined ? { noindex } : {}}
     />
     <ClientRouter />
   </head>
@@ -49,6 +53,8 @@ const { title, description, canonical, locale, currentPath, ogImage, jsonLd } = 
 
     <Footer locale={locale} />
     <Asesor locale={locale} />
+    <Carrito locale={locale} />
+    <CotizacionDrawer locale={locale} />
 
     <!-- Lenis smooth scroll + GSAP init -->
     <script>

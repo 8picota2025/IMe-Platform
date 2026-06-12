@@ -1,0 +1,251 @@
+---
+/**
+ * SimuladorFinanciero — simulador orientativo de financiación.
+ *
+ * BLOQUEANTE_LEGAL: no existen tasas reales publicadas (ver
+ * src/data/financiacion.json y financiacion_referencia.json). Por eso nunca
+ * se calcula ni muestra una cuota: siempre se invita a solicitar una
+ * simulación personalizada, y el aviso legal es siempre visible.
+ */
+import { t, type Locale } from '../i18n/utils'
+import financiacion from '../data/financiacion.json'
+
+interface Props {
+  locale: Locale
+}
+
+const { locale } = Astro.props
+
+const contactoHref = locale === 'en' ? '/en/contact' : '/es/contacto'
+const whatsappUrl = 'https://wa.me/573138674059'
+
+const config = {
+  locale,
+  montoMin: financiacion.monto_min,
+  montoMax: financiacion.monto_max,
+  montoPaso: financiacion.monto_paso,
+  montoSugerido: financiacion.monto_sugerido,
+  plazos: financiacion.plazos_meses,
+  i18n: {
+    monto: t(locale, 'financiacion.simulador_monto'),
+    plazo: t(locale, 'financiacion.simulador_plazo'),
+    meses: t(locale, 'financiacion.meses'),
+    calcular: t(locale, 'financiacion.calcular'),
+    resultado: t(locale, 'financiacion.simulador_resultado'),
+    sinTasa: t(locale, 'financiacion.simulador_sin_tasa'),
+    ctaPersonalizada: t(locale, 'financiacion.cta_personalizada'),
+    ctaWhatsapp: t(locale, 'financiacion.cta_whatsapp'),
+    ctaCotizacion: t(locale, 'financiacion.cta_cotizacion'),
+  },
+  contactoHref,
+  whatsappUrl,
+}
+---
+
+<section
+  class="simulador"
+  aria-labelledby="simulador-titulo"
+  data-simulador-config={JSON.stringify(config)}
+>
+  <h2 id="simulador-titulo">{t(locale, 'financiacion.simulador_titulo')}</h2>
+  <p class="simulador__desc">{t(locale, 'financiacion.simulador_desc')}</p>
+
+  <form id="simulador-form" class="simulador__form">
+    <div class="simulador__field">
+      <label for="simulador-monto">
+        {config.i18n.monto} ({t(locale, 'financiacion.moneda_cop')})
+      </label>
+      <input
+        type="range"
+        id="simulador-monto-rango"
+        min={config.montoMin}
+        max={config.montoMax}
+        step={config.montoPaso}
+        value={config.montoSugerido}
+        aria-describedby="simulador-monto-valor"
+      />
+      <input
+        type="number"
+        id="simulador-monto"
+        name="monto"
+        min={config.montoMin}
+        max={config.montoMax}
+        step={config.montoPaso}
+        value={config.montoSugerido}
+        inputmode="numeric"
+      />
+      <output id="simulador-monto-valor" for="simulador-monto-rango simulador-monto"></output>
+    </div>
+
+    <div class="simulador__field">
+      <label for="simulador-plazo">{config.i18n.plazo}</label>
+      <select id="simulador-plazo" name="plazo">
+        {
+          config.plazos.map((meses) => (
+            <option value={meses}>
+              {meses} {config.i18n.meses}
+            </option>
+          ))
+        }
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">{config.i18n.calcular}</button>
+  </form>
+
+  <div
+    id="simulador-resultado"
+    class="simulador__resultado"
+    role="status"
+    aria-live="polite"
+    hidden
+  >
+    <p>{config.i18n.sinTasa}</p>
+    <div class="simulador__cta">
+      <a href={config.contactoHref} class="btn btn-primary">{config.i18n.ctaPersonalizada}</a>
+      <a
+        href={config.whatsappUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-secondary">{config.i18n.ctaWhatsapp}</a
+      >
+      <button type="button" id="simulador-cta-cotizacion" class="btn btn-secondary"
+        >{config.i18n.ctaCotizacion}</button
+      >
+    </div>
+  </div>
+
+  <p class="simulador__aviso" role="note">{t(locale, 'financiacion.simulador_aviso')}</p>
+</section>
+
+<style>
+  .simulador {
+    background: var(--off);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    margin-block-end: var(--space-xl);
+  }
+  .simulador h2 {
+    margin: 0 0 0.5rem;
+    font-size: var(--step-1);
+  }
+  .simulador__desc {
+    color: var(--text-mid);
+    margin: 0 0 1.25rem;
+    max-width: 640px;
+  }
+  .simulador__form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 1.25rem;
+    margin-block-end: 1.25rem;
+  }
+  .simulador__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    min-width: 220px;
+    flex: 1;
+  }
+  .simulador__field label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-mid);
+  }
+  .simulador__field input,
+  .simulador__field select {
+    padding: 0.55rem 0.7rem;
+    border: 1px solid var(--border-mid);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    background: var(--white);
+    color: var(--ink);
+    font-family: inherit;
+  }
+  .simulador__field input[type='range'] {
+    padding: 0;
+    border: none;
+    background: transparent;
+    accent-color: var(--t800);
+  }
+  .simulador__field output {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--t900);
+  }
+  .simulador__resultado {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    margin-block-end: 1.25rem;
+  }
+  .simulador__resultado[hidden] {
+    display: none;
+  }
+  .simulador__resultado p {
+    margin: 0 0 1rem;
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .simulador__cta {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .simulador__aviso {
+    font-size: 0.78rem;
+    color: var(--text-mid);
+    margin: 0;
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+  }
+</style>
+
+<script>
+  import { formatMoneda } from '../lib/format'
+  import { abrirCotizacion } from '../lib/cotizacion-equipos'
+  import { getLocale } from '../i18n/utils'
+
+  const section = document.querySelector<HTMLElement>('.simulador')
+  if (section) {
+    const config = JSON.parse(section.dataset['simuladorConfig'] ?? '{}') as {
+      locale: 'es' | 'en'
+    }
+    const locale = config.locale ?? getLocale(window.location.pathname)
+
+    const form = document.getElementById('simulador-form') as HTMLFormElement | null
+    const rango = document.getElementById('simulador-monto-rango') as HTMLInputElement | null
+    const numero = document.getElementById('simulador-monto') as HTMLInputElement | null
+    const valor = document.getElementById('simulador-monto-valor')
+    const resultado = document.getElementById('simulador-resultado')
+    const cotizacionBtn = document.getElementById('simulador-cta-cotizacion')
+
+    function actualizarValor() {
+      if (!numero || !valor) return
+      const monto = Number(numero.value)
+      valor.textContent = formatMoneda(monto, 'COP', locale) ?? ''
+    }
+
+    rango?.addEventListener('input', () => {
+      if (!numero || !rango) return
+      numero.value = rango.value
+      actualizarValor()
+    })
+    numero?.addEventListener('input', () => {
+      if (!numero || !rango) return
+      rango.value = numero.value
+      actualizarValor()
+    })
+    actualizarValor()
+
+    form?.addEventListener('submit', (event) => {
+      event.preventDefault()
+      if (resultado) resultado.hidden = false
+    })
+
+    cotizacionBtn?.addEventListener('click', () => abrirCotizacion())
+  }
+</script>

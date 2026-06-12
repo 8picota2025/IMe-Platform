@@ -15,9 +15,10 @@ interface Props {
   ogImage?: string
   jsonLd?: string
   currentPath: string
+  noindex?: boolean
 }
 
-const { title, description, canonical, locale, ogImage, jsonLd, currentPath } = Astro.props
+const { title, description, canonical, locale, ogImage, jsonLd, currentPath, noindex } = Astro.props
 const alternates = getAlternateLinks(currentPath)
 const ogImageUrl = ogImage ?? 'https://i-me.com.co/assets/extraccion/img/Img11.jpg'
 ---
@@ -30,6 +31,7 @@ const ogImageUrl = ogImage ?? 'https://i-me.com.co/assets/extraccion/img/Img11.j
 <title>{title}</title>
 <meta name="description" content={description} />
 <link rel="canonical" href={canonical} />
+{noindex && <meta name="robots" content="noindex, nofollow" />}
 
 <!-- hreflang -->
 {alternates.map((alt) => <link rel="alternate" hreflang={alt.hreflang} href={alt.href} />)}

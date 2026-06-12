@@ -18,6 +18,10 @@ interface ProductoCardData {
   tipo_comercial?: string
   texto_busqueda?: string
   especificaciones_reducidas?: Record<string, string>
+  /** Campos comerciales para los CTA de carrito/cotización (F4). */
+  precio?: number | null
+  moneda?: string
+  stock?: number | null
 }
 
 interface Props {
@@ -90,6 +94,40 @@ const href = `/${locale}/${segment}/${producto.slug}`
         />
         <span>{t(locale, 'catalogo.comparar_anadir')}</span>
       </label>
+    )
+  }
+  {
+    producto.tipo_comercial === 'equipo' && (
+      <button
+        type="button"
+        class="btn btn-secondary producto-card__add"
+        aria-live="polite"
+        data-add-cotizacion={producto.slug}
+        data-nombre={producto.nombre}
+        data-imagen={producto.imagen_principal}
+        data-label-agregar={t(locale, 'cotizacion_equipos.agregar')}
+        data-label-agregado={t(locale, 'cotizacion_equipos.agregado')}
+      >
+        {t(locale, 'cotizacion_equipos.agregar')}
+      </button>
+    )
+  }
+  {
+    producto.tipo_comercial === 'consumible' && producto.precio != null && producto.precio > 0 && (
+      <button
+        type="button"
+        class="btn btn-secondary producto-card__add"
+        aria-live="polite"
+        data-add-carrito={producto.slug}
+        data-nombre={producto.nombre}
+        data-precio={producto.precio}
+        data-moneda={producto.moneda ?? 'COP'}
+        data-stock={producto.stock ?? ''}
+        data-label-agregar={t(locale, 'carrito.agregar')}
+        data-label-agregado={t(locale, 'carrito.agregado')}
+      >
+        {t(locale, 'carrito.agregar')}
+      </button>
     )
   }
 </li>
@@ -182,4 +220,54 @@ const href = `/${locale}/${segment}/${producto.slug}`
     height: 1rem;
     accent-color: var(--t800);
   }
+  .producto-card__add {
+    margin: 0 1.25rem 1.25rem;
+    width: calc(100% - 2.5rem);
+    justify-content: center;
+    font-size: 0.8rem;
+  }
 </style>
+
+<script>
+  document.addEventListener('click', (event) => {
+    const target = event.target as HTMLElement
+    const cotizacionBtn = target.closest<HTMLButtonElement>('[data-add-cotizacion]')
+    const carritoBtn = target.closest<HTMLButtonElement>('[data-add-carrito]')
+    if (!cotizacionBtn && !carritoBtn) return
+
+    const confirmar = (btn: HTMLButtonElement) => {
+      const original = btn.dataset['labelAgregar'] ?? btn.textContent ?? ''
+      const agregado = btn.dataset['labelAgregado'] ?? original
+      btn.textContent = agregado
+      window.setTimeout(() => {
+        btn.textContent = original
+      }, 1800)
+    }
+
+    if (cotizacionBtn) {
+      const slug = cotizacionBtn.dataset['addCotizacion']
+      const nombre = cotizacionBtn.dataset['nombre']
+      const imagen = cotizacionBtn.dataset['imagen']
+      if (!slug || !nombre || !imagen) return
+      void import('../lib/cotizacion-equipos').then(({ agregarACotizacion }) => {
+        agregarACotizacion({ slug, nombre, imagen })
+        confirmar(cotizacionBtn)
+      })
+      return
+    }
+
+    if (carritoBtn) {
+      const slug = carritoBtn.dataset['addCarrito']
+      const nombre = carritoBtn.dataset['nombre']
+      const precio = Number(carritoBtn.dataset['precio'])
+      const moneda = carritoBtn.dataset['moneda'] ?? 'COP'
+      const stockRaw = carritoBtn.dataset['stock']
+      const stock = stockRaw ? Number(stockRaw) : null
+      if (!slug || !nombre || Number.isNaN(precio)) return
+      void import('../lib/carrito').then(({ agregarAlCarrito }) => {
+        agregarAlCarrito({ slug, nombre, precio, moneda, stock })
+        confirmar(carritoBtn)
+      })
+    }
+  })
+</script>
