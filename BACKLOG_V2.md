@@ -10,6 +10,7 @@ Funcionalidades identificadas pero explícitamente excluidas del alcance inicial
 - Devoluciones y reembolsos automatizados
 - Inventario multi-almacén
 - Multi-proveedor con comparación de precios
+- Portal de tracking público para pedidos pagados
 
 ## Contenido y marketing
 
@@ -17,6 +18,7 @@ Funcionalidades identificadas pero explícitamente excluidas del alcance inicial
 - Email marketing integrado
 - Programa de fidelización / puntos
 - Comparador avanzado de productos
+- Banner granular de consentimiento de cookies para analítica/marketing si se agregan terceros
 
 ## IA y asesor
 

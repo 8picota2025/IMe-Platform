@@ -31,7 +31,7 @@ export interface FulfillmentResumen {
 
 /**
  * Retorna los fulfillments pendientes de notificar.
- * STUB — implementar en F4 con service_role en Edge Function.
+ * STUB — implementar en Edge Function con credenciales privilegiadas.
  */
 export async function getFulfillmentPendientes(): Promise<FulfillmentResumen[]> {
   // BLOQUEANTE_BACKEND: Lógica real en Edge Function notificar-proveedor (F4)
@@ -54,11 +54,9 @@ export async function actualizarEstadoFulfillment(
 /**
  * Obtiene el proveedor preferente para un producto (sin precio_costo).
  * La función real es get_proveedor_para_producto RPC en Supabase.
- * STUB — implementar en F4 vía Edge Function con service_role.
+ * STUB — implementar vía Edge Function con credenciales privilegiadas.
  */
-export async function getProveedorParaProducto(
-  _productoId: string
-): Promise<{
+export async function getProveedorParaProducto(_productoId: string): Promise<{
   proveedor_id: string
   canal: string
   contacto_email: string

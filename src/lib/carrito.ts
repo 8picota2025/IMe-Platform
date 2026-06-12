@@ -4,7 +4,7 @@
  * Nota sobre precios: precio/nombre/moneda se guardan junto al slug/cantidad
  * únicamente para renderizar el drawer sin re-consultar Supabase en cada visita.
  * NUNCA son la fuente de verdad del cobro: crear-pago (Edge Function) recalcula
- * siempre precio, stock y total desde la tabla `productos` con service_role.
+ * siempre precio, stock y total desde la tabla `productos` con credenciales privilegiadas.
  */
 
 import { getSupabaseClient } from './supabase'

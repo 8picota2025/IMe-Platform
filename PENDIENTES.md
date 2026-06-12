@@ -31,14 +31,14 @@
 - [x] Edge Function generar-embeddings/ — implementada (embedding individual por producto y reindexado masivo con estimación de coste)
 - [ ] Aplicar migraciones nuevas de `supabase/schema.sql` (pgvector, `productos.embedding`, `llm_uso`, `asesor_uso`, `asesor_rate_limit`, RPC `match_productos`/`buscar_productos_keyword`) en el proyecto Supabase
 - [ ] Desplegar Edge Functions `asesor/` y `generar-embeddings/` a Supabase (en preprod responden 404 `NOT_FOUND` — aún no desplegadas)
-- [ ] Edge Function crear-pago/ — F4
-- [ ] Edge Function webhook-wompi/ — F4
-- [ ] Edge Function webhook-stripe/ — F4
-- [ ] Edge Function notificar-proveedor/ — F4
+- [x] Edge Function crear-pago/ — F4 implementada; prueba real bloqueada por credenciales/Supabase desplegado
+- [x] Edge Function webhook-wompi/ — F4 implementada; prueba real bloqueada por credenciales Wompi
+- [x] Edge Function webhook-stripe/ — F4 implementada; prueba real bloqueada por credenciales Stripe
+- [x] Edge Function notificar-proveedor/ — F4 implementada; envío real por canal proveedor requiere configuración operativa
 - [x] Edge Function ingesta-pdf/ — F3 base implementada; requiere credenciales LLM y texto/OCR revisable
 - [x] Edge Function trigger-rebuild/ — F3 base implementada; requiere `CI_DEPLOY_HOOK` o `GITHUB_TOKEN` + `GITHUB_REPOSITORY`
-- [ ] Carrito y checkout — F4
-- [ ] SimuladorFinanciero real — F4
+- [x] Carrito y checkout — F4 implementado; prueba end-to-end bloqueada por Supabase/pasarelas
+- [x] SimuladorFinanciero orientativo — F4 implementado sin tasas ni cuotas vinculantes
 
 ## Coste estimado — Asesor RAG
 
@@ -70,10 +70,14 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
 ## BLOQUEANTE_LEGAL — Impide operar o publicar
 
 - [ ] Tasas y condiciones reales de financiación — página financiacion.astro tiene placeholders
-- [ ] Política de privacidad (texto legal) — F5
-- [ ] Términos y condiciones (texto legal) — F5
+- [x] Política de privacidad (borrador enlazado) — F5; BLOQUEANTE_LEGAL hasta revisión jurídica
+- [x] Términos y condiciones (borrador enlazado) — F5; BLOQUEANTE_LEGAL hasta revisión jurídica
+- [x] Autorización tratamiento de datos / Habeas Data (borrador enlazado) — F5; BLOQUEANTE_LEGAL hasta revisión jurídica
+- [x] Política de cookies (borrador enlazado) — F5; BLOQUEANTE_LEGAL hasta revisión jurídica
+- [x] Aviso de copyright (borrador enlazado) — F5; COPY_CLIENTE_REVISAR
 - [ ] NIT, razón social y domicilio legal de I-ME para documentos legales
 - [ ] Revisión por abogado de consentimiento en formularios de contacto/cotización
+- [ ] Revisión por abogado de legales F5 y autorización de datos
 
 ## COPY_CLIENTE_REVISAR — Textos que requieren aprobación
 
@@ -97,6 +101,8 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
 - [ ] Verificación de contraste AA en tema oscuro
 - [ ] Test de video autoplay en mobile (Chrome/Safari iOS)
 - [ ] Deploy a preprod en Hostinger
+- [ ] Verificación 301 `/77/` y `/1old` en Hostinger tras deploy
+- [ ] Prueba real de Wompi sandbox CO y Stripe test INTL
 - [x] Prueba real de `/admin` contra Supabase con usuario admin y RLS aplicadas
 - [ ] Prueba real de `ingesta-pdf` con ficha PDF/OCR y clave LLM
 - [ ] Prueba real de `trigger-rebuild` contra deploy hook o GitHub repository_dispatch

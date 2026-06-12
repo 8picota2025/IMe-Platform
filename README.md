@@ -45,6 +45,22 @@ cp .env.example .env
 1. Crear proyecto en supabase.com (TODO_CLIENTE)
 2. Aplicar `supabase/schema.sql` en el SQL Editor
 3. Crear usuario admin manualmente (ver `ADMIN_GUIDE.md`)
+4. Desplegar Edge Functions desde `supabase/functions/`
+
+## Pagos y asesor
+
+- Consumibles: checkout online con Wompi (CO) o Stripe (INTL) desde Edge Function `crear-pago`.
+- Equipos: cotización o atención personalizada según `tipo_comercial` y `fulfillment_mode`.
+- Webhooks: `webhook-wompi` y `webhook-stripe` verifican firma y estado server-side.
+- Asesor IA: Edge Function `asesor` con Turnstile, rate-limit, presupuesto y fallback por palabra clave.
+- Las pruebas reales requieren secretos en Supabase/CI; ver `PENDIENTES.md`.
+
+## Legales y F5
+
+- Páginas legales borrador: `/es/legal/*` y `/en/legal/*`.
+- Los textos legales están marcados `COPY_CLIENTE_REVISAR` / `BLOQUEANTE_LEGAL` hasta revisión de abogado.
+- `public/.htaccess` incluye redirecciones 301 para legado `/77/` y `/1old`.
+- Auditoría y QA: `VALIDACION.md`, `VALIDACION_VISUAL.md`, `QA.md`, `REMEDIACION.md`, `CRITERIOS_ACEPTACION.md`.
 
 ## Build y deploy
 
@@ -65,6 +81,11 @@ cada sesión. Estado de fases en AGENTS.md sección "Estado de fases".
 - `CONTRIBUTING.md` — flujo de ramas y git
 - `AGENTS_GUIDE.md` — división de trabajo entre agentes
 - `ADMIN_GUIDE.md` — uso operativo del back-office `/admin`
+- `VALIDACION.md` — evidencia y pipeline F5
+- `QA.md` — matriz de pruebas F5
+- `REMEDIACION.md` — hallazgos abiertos/cerrados
+- `CRITERIOS_ACEPTACION.md` — criterios para preprod/prod
+- `RESUMEN_EJECUTIVO.md` — estado ejecutivo del proyecto
 - `PENDIENTES.md` — pendientes activos por etiqueta
 - `BACKLOG_V2.md` — fuera de alcance V1
 - `docs/prompts/` — prompts de fase versionados

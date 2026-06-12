@@ -42,6 +42,7 @@ Dev: http://localhost:43421
 src/layouts/Layout.astro
 src/pages/es/{index,catalogo,productos/[slug],servicios,financiacion,contacto,admin}.astro
 src/pages/en/{index,catalog,products/[slug],services,financing,contact,admin}.astro
+src/pages/{es,en}/legal/[slug].astro
 src/components/{Navbar,Footer,Hero,CatalogoGrid,ProductoCard,ProductoShell,Asesor,Carrito,SimuladorFinanciero}.astro
 src/lib/{supabase,datos,embeddings,llm-gateway,payment-gateway,cotizacion,fulfillment,format,seo,motion}.ts
 src/data/{mock-productos,mock-familias,mock-tipos,financiacion,contacto,extraccion_ime}.json
@@ -77,8 +78,8 @@ CLAUDE.md, AGENTS.md, PENDIENTES.md, BACKLOG_V2.md, README.md
 [x] F2 — Catálogo, landings y SEO | rama: feature/fase-2
 [x] F3 — CMS, ingesta PDF y rebuild | rama: feature/fase-3
 [x] Asesor — RAG conversacional | rama: feature/fase-asesor
-[ ] F4 — Comercio híbrido y dropshipping | rama: feature/fase-4
-[ ] F5 — Auditoría, legales y despliegue | rama: feature/fase-5
+[x] F4 — Comercio híbrido y dropshipping | rama: feature/fase-4 (código implementado; pruebas reales bloqueadas por credenciales)
+[ ] F5 — Auditoría, legales y despliegue | rama: feature/fase-5 (iniciada)
 
 ## Etiquetas de pendiente (usar exactamente estas)
 

@@ -100,8 +100,15 @@ La IA no publica, no autoguarda y no debe completar datos ausentes.
 - Detalle de pedido: datos del cliente, items, totales, referencia de pago y
   consentimiento. Incluye un formulario para cambiar el `estado` manualmente
   (pendiente/pagado/procesando/enviado/entregado/cancelado/error); este cambio
-  es solo administrativo y **no** dispara notificaciones de pago ni al
-  proveedor (eso llega con F4).
+  es solo administrativo y **no** sustituye la verificación server-side de la
+  pasarela. Las notificaciones automáticas al proveedor se disparan desde los
+  webhooks/post-pago cuando el pedido queda pagado.
+
+## Legales y auditoría F5
+
+- Las páginas legales viven en `/es/legal/*` y `/en/legal/*`.
+- Son borradores: no operar producción hasta cerrar `BLOQUEANTE_LEGAL`.
+- Revisar `VALIDACION.md`, `QA.md` y `REMEDIACION.md` antes de promover preprod a producción.
 
 ## Errores Comunes
 

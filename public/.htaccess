@@ -1,46 +1,36 @@
-# I-ME Platform — Apache/Hostinger static hosting config
-# Compresión, caché, security headers, redirect / → /es/
+# I-ME F5 legacy redirects
+# Apache/Hostinger static deployment. Keep redirects explicit; do not add SPA fallback.
 
-# ── Compresión ──────────────────────────────────────────────
-<IfModule mod_deflate.c>
-  AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json image/svg+xml
-</IfModule>
+RewriteEngine On
 
-# ── Caché de assets estáticos ───────────────────────────────
-<IfModule mod_expires.c>
-  ExpiresActive On
-  ExpiresByType image/jpeg "access plus 1 year"
-  ExpiresByType image/png "access plus 1 year"
-  ExpiresByType image/webp "access plus 1 year"
-  ExpiresByType image/svg+xml "access plus 1 year"
-  ExpiresByType image/x-icon "access plus 1 year"
-  ExpiresByType video/mp4 "access plus 1 year"
-  ExpiresByType text/css "access plus 3 months"
-  ExpiresByType application/javascript "access plus 3 months"
-  ExpiresByType application/json "access plus 1 day"
-  ExpiresByType text/html "access plus 1 hour"
-</IfModule>
+# Canonical entry points
+RewriteRule ^index\.html$ /es/ [R=301,L]
+RewriteRule ^77/?$ /es/ [R=301,L]
+RewriteRule ^77/index\.html$ /es/ [R=301,L]
 
-# ── Security headers básicos ────────────────────────────────
+# Legacy catalog and category URLs. Query strings are preserved by default.
+RewriteRule ^77/catalogo\.html$ /es/catalogo [R=301,L]
+RewriteRule ^77/monitores\.html$ /es/catalogo?familia=monitores [R=301,L,QSA]
+RewriteRule ^77/cardiologia\.html$ /es/catalogo?familia=cardiologia [R=301,L,QSA]
+RewriteRule ^77/sala-cirugia\.html$ /es/catalogo?familia=sala-cirugia [R=301,L,QSA]
+RewriteRule ^77/neonatologia\.html$ /es/catalogo?familia=neonatologia [R=301,L,QSA]
+RewriteRule ^77/ultrasonido\.html$ /es/catalogo?familia=ultrasonido [R=301,L,QSA]
+RewriteRule ^77/soluciones-iv\.html$ /es/catalogo?familia=soluciones-iv [R=301,L,QSA]
+RewriteRule ^77/mobiliario\.html$ /es/catalogo?familia=mobiliario [R=301,L,QSA]
+RewriteRule ^77/anestesia\.html$ /es/catalogo?familia=anestesia [R=301,L,QSA]
+
+# Legacy core pages
+RewriteRule ^77/servicios\.html$ /es/servicios [R=301,L]
+RewriteRule ^77/contacto\.html$ /es/contacto [R=301,L]
+RewriteRule ^77/financiacion\.html$ /es/financiacion [R=301,L]
+
+# Old archive. Default to Spanish home unless a future audited mapping says otherwise.
+RewriteRule ^1old(/.*)?$ /es/ [R=301,L]
+
+# Security headers for static hosting.
 <IfModule mod_headers.c>
   Header always set X-Content-Type-Options "nosniff"
-  Header always set X-Frame-Options "SAMEORIGIN"
-  Header always set X-XSS-Protection "1; mode=block"
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
   Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
-  # HSTS — solo habilitar en producción HTTPS
-  # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+  Header always set X-Frame-Options "SAMEORIGIN"
 </IfModule>
-
-# ── Redirect / → /es/ ──────────────────────────────────────
-<IfModule mod_rewrite.c>
-  RewriteEngine On
-
-  # Redirect raíz a /es/ con 301
-  RewriteRule ^$ /es/ [R=301,L]
-
-  # Sin SPA fallback — site es estático
-</IfModule>
-
-# ── Deshabilitar directory listing ─────────────────────────
-Options -Indexes

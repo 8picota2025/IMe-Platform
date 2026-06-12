@@ -4,6 +4,7 @@
  */
 import type { Locale } from '../i18n/utils'
 import { t, getLocalizedPath } from '../i18n/utils'
+import { getLegalSlug, type LegalKind } from '../lib/legal'
 
 interface Props {
   locale: Locale
@@ -24,6 +25,13 @@ const familias = [
 
 const catalogoBase = getLocalizedPath('/catalogo', locale)
 const year = new Date().getFullYear()
+const legalLinks: Array<{ kind: LegalKind; label: string }> = [
+  { kind: 'privacidad', label: t(locale, 'footer.privacidad') },
+  { kind: 'habeas-data', label: t(locale, 'footer.habeas_data') },
+  { kind: 'cookies', label: t(locale, 'footer.cookies') },
+  { kind: 'terminos', label: t(locale, 'footer.terminos') },
+  { kind: 'copyright', label: t(locale, 'footer.copyright') },
+]
 ---
 
 <footer class="footer" role="contentinfo">
@@ -108,9 +116,11 @@ const year = new Date().getFullYear()
         {t(locale, 'footer.pais')} &middot; {t(locale, 'footer.certif')}
       </p>
       <nav class="footer__legal" aria-label={t(locale, 'footer.legal')}>
-        <!-- BLOQUEANTE_LEGAL: textos legales se crean en F5 -->
-        <a href="#" aria-disabled="true">{t(locale, 'footer.privacidad')}</a>
-        <a href="#" aria-disabled="true">{t(locale, 'footer.terminos')}</a>
+        {
+          legalLinks.map((link) => (
+            <a href={`/${locale}/legal/${getLegalSlug(link.kind, locale)}`}>{link.label}</a>
+          ))
+        }
       </nav>
     </div>
   </div>
@@ -209,6 +219,7 @@ const year = new Date().getFullYear()
   }
   .footer__legal {
     display: flex;
+    flex-wrap: wrap;
     gap: 1rem;
   }
   .footer__legal a {

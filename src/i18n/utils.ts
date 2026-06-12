@@ -46,10 +46,24 @@ const PATH_SEGMENT_PAIRS: Array<{ es: string; en: string }> = [
   { es: 'conocimiento', en: 'knowledge' },
 ]
 
+const LEGAL_SLUG_PAIRS: Array<{ es: string; en: string }> = [
+  { es: 'privacidad', en: 'privacy' },
+  { es: 'habeas-data', en: 'data-authorization' },
+  { es: 'cookies', en: 'cookies' },
+  { es: 'terminos', en: 'terms' },
+  { es: 'copyright', en: 'copyright' },
+]
+
 const PATH_SEGMENT_LOOKUP = new Map<string, { es: string; en: string }>()
 for (const pair of PATH_SEGMENT_PAIRS) {
   PATH_SEGMENT_LOOKUP.set(pair.es, pair)
   PATH_SEGMENT_LOOKUP.set(pair.en, pair)
+}
+
+const LEGAL_SLUG_LOOKUP = new Map<string, { es: string; en: string }>()
+for (const pair of LEGAL_SLUG_PAIRS) {
+  LEGAL_SLUG_LOOKUP.set(pair.es, pair)
+  LEGAL_SLUG_LOOKUP.set(pair.en, pair)
 }
 
 /**
@@ -65,6 +79,10 @@ export function getLocalizedPath(path: string, targetLocale: Locale): string {
   const first = segments[0]
   const pair = first ? PATH_SEGMENT_LOOKUP.get(first) : undefined
   if (pair && first) segments[0] = pair[targetLocale]
+  if (segments[0] === 'legal' && segments[1]) {
+    const legalPair = LEGAL_SLUG_LOOKUP.get(segments[1])
+    if (legalPair) segments[1] = legalPair[targetLocale]
+  }
 
   return `/${targetLocale}/${segments.join('/')}`
 }

@@ -2,7 +2,7 @@
  * Supabase client — public (anon key) for client and static build.
  * BLOQUEANTE_BACKEND: Requires PUBLIC_SUPABASE_URL and PUBLIC_SUPABASE_ANON_KEY in .env
  *
- * service_role key ONLY lives in supabase/functions/_shared/supabase-server.ts
+ * Privileged server keys ONLY live in supabase/functions/_shared/supabase-server.ts
  * and is never imported here or exposed in dist/.
  */
 

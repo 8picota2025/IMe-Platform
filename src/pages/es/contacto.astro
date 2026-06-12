@@ -165,7 +165,6 @@ const opciones = [
             ></textarea>
           </div>
 
-          <!-- Consentimiento BLOQUEANTE_LEGAL -->
           <div class="form-consent">
             <label class="consent-label">
               <input
@@ -178,7 +177,8 @@ const opciones = [
               />
               <span
                 >{t(locale, 'contacto.consentimiento')}
-                <strong>BLOQUEANTE_LEGAL: Enlace a política de privacidad pendiente (F5).</strong
+                <a href="/es/legal/privacidad" target="_blank" rel="noopener noreferrer"
+                  >{t(locale, 'footer.privacidad')}</a
                 ></span
               >
             </label>

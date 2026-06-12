@@ -3,7 +3,7 @@
  * Edge Function crear-pago.
  *
  * La implementación real de PaymentGateway (WompiGateway/StripeGateway) vive en
- * supabase/functions/_shared/payment-gateway.ts — solo accesible con service_role.
+ * supabase/functions/_shared/payment-gateway.ts — solo accesible desde Edge Functions.
  *
  * Regla crítica: el servidor recalcula siempre — el cliente NUNCA decide precios ni
  * estado de pago. precio_unitario aquí es solo lo que el cliente cree pagar; crear-pago

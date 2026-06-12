@@ -2,5 +2,7 @@ User-agent: *
 Disallow: /admin/
 Disallow: /admin
 Disallow: /_astro/
+Disallow: /77/
+Disallow: /1old/
 
 Sitemap: https://i-me.com.co/sitemap-index.xml

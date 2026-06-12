@@ -12,6 +12,7 @@ interface Props {
 }
 
 const { locale } = Astro.props
+const privacidadHref = locale === 'en' ? '/en/legal/privacy' : '/es/legal/privacidad'
 
 const config = {
   locale,
@@ -146,7 +147,12 @@ const config = {
       </div>
       <label class="cotizacion-checkbox">
         <input id="cotizacion-consentimiento" name="consentimiento" type="checkbox" required />
-        <span>{config.i18n.consentimiento}</span>
+        <span>
+          {config.i18n.consentimiento}
+          <a href={privacidadHref} target="_blank" rel="noopener noreferrer">
+            {t(locale, 'footer.privacidad')}
+          </a>
+        </span>
       </label>
 
       <p
