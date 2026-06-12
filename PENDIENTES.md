@@ -22,7 +22,7 @@
 
 ## BLOQUEANTE_BACKEND — Impide integración real
 
-- [ ] Credenciales Supabase (bloquea Edge Functions, auth, BD real)
+- [x] Credenciales Supabase de lectura/escritura básica (`.env` ya tiene `PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` reales); tablas `familias` (8) y `productos` (24) sembradas el 2026-06-12 con datos reales de F0 vía `scripts/seed-catalogo.mjs` (idempotente, upsert por slug). RLS verificada: anon lee catálogo y escribe `solicitudes_cotizacion`, no puede escribir `productos`. Sigue faltando: migraciones pgvector/Asesor y despliegue de Edge Functions (ver ítems siguientes).
 - [ ] Credenciales Wompi (bloquea pagos CO) — F4
 - [ ] Credenciales Stripe (bloquea pagos INTL) — F4
 - [ ] Credenciales LLM (`LLM_PROVIDER`, `ANTHROPIC_API_KEY` u `OPENAI_API_KEY`, `LLM_INGEST_MODEL`) — bloquea ingesta PDF real y Asesor RAG
@@ -96,9 +96,9 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
 
 ## NO_EJECUTADO_ENTORNO — Validación pendiente
 
-- [ ] Lighthouse scores Home mobile (objetivo: Perf ≥90, A11y ≥95, SEO ≥95)
-- [ ] Test de navegación por teclado en dispositivo real
-- [ ] Verificación de contraste AA en tema oscuro
+- [x] Lighthouse scores Home (`/es/`, dist estático, preset móvil simulado, 2026-06-12): Accessibility 1.0 ✓, SEO 1.0 ✓, Best Practices 1.0 ✓, **Performance 0.66-0.79 ✗** (objetivo ≥90; mayor oportunidad: `total-byte-weight` ~3.1MB, `unused-javascript` ~248KiB — ver REMEDIACION.md, no bloqueante)
+- [ ] Test de navegación por teclado en dispositivo real (solo se probó interacción con click/Playwright; falta recorrido Tab/Enter/Esc completo en dispositivo)
+- [x] Verificación de contraste AA en tema oscuro: encontrado y corregido el 2026-06-12 — el footer quedaba casi blanco-sobre-blanco en `data-theme="dark"` (fondo `var(--ink)` invertido + texto `rgba(255,255,255,X)`); ahora usa tokens fijos `--footer-bg`/`--footer-text-muted` independientes del tema (ver REMEDIACION.md)
 - [ ] Test de video autoplay en mobile (Chrome/Safari iOS)
 - [ ] Deploy a preprod en Hostinger
 - [ ] Verificación 301 `/77/` y `/1old` en Hostinger tras deploy
