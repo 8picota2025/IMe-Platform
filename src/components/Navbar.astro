@@ -76,7 +76,7 @@ const altHref = getLocalizedPath(currentPath, altLocale)
       <a
         href={altHref}
         class="navbar__lang-btn"
-        aria-label={t(locale, 'nav.cambiar_idioma')}
+        aria-label={`${t(locale, 'nav.cambiar_idioma')} (${altLocale.toUpperCase()})`}
         lang={altLocale}
       >
         {altLocale.toUpperCase()}

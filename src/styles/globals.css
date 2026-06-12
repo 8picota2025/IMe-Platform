@@ -35,6 +35,10 @@
   --text-mid: #456070;
   --text-muted: #7a9bab;
 
+  /* Footer: siempre oscuro (independiente del tema), igual al sitio real */
+  --footer-bg: #0b1b22;
+  --footer-text-muted: rgba(255, 255, 255, 0.7);
+
   /* Bordes */
   --border: rgba(15, 76, 92, 0.1);
   --border-mid: rgba(15, 76, 92, 0.18);
