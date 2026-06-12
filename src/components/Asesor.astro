@@ -1,7 +1,7 @@
 ---
 /**
- * Asesor comercial — Shell mock F1.
- * Lógica RAG real: Fase Asesor (después de F3).
+ * Asesor comercial RAG — widget de chat.
+ * Lógica real: Edge Function `asesor` (Fase Asesor), vía src/lib/asesor.ts.
  * Regla: solo asesoría comercial — prohibido diagnóstico clínico o precio comprometido.
  */
 import type { Locale } from '../i18n/utils'
@@ -12,6 +12,28 @@ interface Props {
 }
 
 const { locale } = Astro.props
+
+const turnstileSiteKey = (import.meta.env['PUBLIC_TURNSTILE_SITE_KEY'] as string | undefined) ?? ''
+
+const asesorConfig = {
+  locale,
+  turnstileSiteKey,
+  whatsappUrl: 'https://wa.me/573138674059',
+  contactoHref: locale === 'en' ? '/en/contact' : '/es/contacto',
+  i18n: {
+    bienvenida: t(locale, 'asesor.bienvenida'),
+    buscando: t(locale, 'asesor.buscando'),
+    limite: t(locale, 'asesor.limite'),
+    degradado: t(locale, 'asesor.degradado'),
+    error: t(locale, 'asesor.error'),
+    noDisponible: t(locale, 'asesor.no_disponible'),
+    verProducto: t(locale, 'asesor.ver_producto'),
+    handoffWhatsapp: t(locale, 'asesor.handoff_whatsapp'),
+    handoffCotizacion: t(locale, 'asesor.handoff_cotizacion'),
+    reintentar: t(locale, 'asesor.reintentar'),
+    nuevaVentana: t(locale, 'accesibilidad.nueva_ventana'),
+  },
+}
 ---
 
 <!-- Botón flotante para abrir el asesor -->
@@ -48,7 +70,7 @@ const { locale } = Astro.props
   role="dialog"
   aria-modal="true"
   aria-label={t(locale, 'asesor.titulo')}
-  aria-live="polite"
+  data-asesor-config={JSON.stringify(asesorConfig)}
   hidden
 >
   <div class="asesor-dialog__inner">
@@ -112,12 +134,8 @@ const { locale } = Astro.props
       <!-- Los mensajes se insertan dinámicamente -->
     </div>
 
-    <!-- Nota mock -->
-    <div class="asesor-dialog__mock-note" role="note">
-      <small>
-        {t(locale, 'asesor.mock_nota')}
-      </small>
-    </div>
+    <!-- Contenedor invisible para el widget Turnstile -->
+    <div id="asesor-turnstile" class="asesor-turnstile" aria-hidden="true"></div>
 
     <!-- Input -->
     <form id="asesor-form" class="asesor-dialog__form" novalidate>
@@ -295,14 +313,11 @@ const { locale } = Astro.props
     min-height: 180px;
     max-height: 300px;
   }
-  .asesor-dialog__mock-note {
-    padding: 0.5rem 1rem;
-    background: var(--off);
-    border-top: 1px solid var(--border);
-  }
-  .asesor-dialog__mock-note small {
-    font-size: 0.7rem;
-    color: var(--text-muted);
+  .asesor-turnstile {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
   }
   .asesor-dialog__form {
     display: flex;
@@ -326,9 +341,16 @@ const { locale } = Astro.props
     outline: none;
     border-color: var(--t800);
   }
+  .asesor-dialog__input:disabled {
+    opacity: 0.6;
+  }
   .asesor-dialog__send {
     padding: 0.6rem 0.875rem;
     flex-shrink: 0;
+  }
+  .asesor-dialog__send:disabled {
+    opacity: 0.6;
+    cursor: default;
   }
 
   /* Burbujas de chat */
@@ -357,11 +379,124 @@ const { locale } = Astro.props
     align-self: flex-start;
     border-bottom-left-radius: 4px;
   }
+  .asesor-bubble--rich p {
+    margin: 0;
+  }
+
+  /* Tarjetas de producto sugeridas */
+  .asesor-productos {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  .asesor-producto {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--white);
+    text-decoration: none;
+    color: var(--text);
+    transition: border-color 180ms var(--ease);
+  }
+  .asesor-producto:hover {
+    border-color: var(--t800);
+  }
+  .asesor-producto__img {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: var(--off);
+  }
+  .asesor-producto__nombre {
+    flex: 1;
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .asesor-producto__link {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  /* CTA de handoff (WhatsApp / cotización / reintentar) */
+  .asesor-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 0.5rem;
+    padding: 0.5rem 0.875rem;
+    border-radius: var(--radius);
+    background: var(--t900);
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: background-color 180ms var(--ease);
+  }
+  .asesor-cta:hover {
+    background: var(--t800);
+  }
 </style>
 
 <script>
-  // Carga diferida — la lógica del asesor solo se importa al primer clic
+  import type {
+    MensajeAsesor,
+    RespuestaAsesor,
+    AccionHandoff,
+    ErrorAsesor,
+    ProductoSugerido,
+  } from '../lib/asesor'
+
+  interface AsesorI18n {
+    bienvenida: string
+    buscando: string
+    limite: string
+    degradado: string
+    error: string
+    noDisponible: string
+    verProducto: string
+    handoffWhatsapp: string
+    handoffCotizacion: string
+    reintentar: string
+    nuevaVentana: string
+  }
+
+  interface AsesorConfig {
+    locale: 'es' | 'en'
+    turnstileSiteKey: string
+    whatsappUrl: string
+    contactoHref: string
+    i18n: AsesorI18n
+  }
+
+  declare global {
+    interface Window {
+      turnstile?: {
+        render: (container: string | HTMLElement, options: Record<string, unknown>) => string
+        execute: (widgetId: string | HTMLElement, options?: Record<string, unknown>) => void
+        reset: (widgetId?: string | HTMLElement) => void
+      }
+    }
+  }
+
   let initialized = false
+  let asesorLib: typeof import('../lib/asesor') | null = null
+  let enviando = false
+  let ultimoMensaje: string | null = null
+  let turnstileWidgetId: string | null = null
+  let turnstileLoadPromise: Promise<void> | null = null
+  let resolveTurnstileToken: ((token: string | undefined) => void) | null = null
+
+  const historial: MensajeAsesor[] = []
 
   const trigger = document.getElementById('asesor-trigger')
   const dialog = document.getElementById('asesor-dialog')
@@ -369,16 +504,21 @@ const { locale } = Astro.props
   const form = document.getElementById('asesor-form') as HTMLFormElement | null
   const messagesEl = document.getElementById('asesor-messages')
   const inputEl = document.getElementById('asesor-input') as HTMLTextAreaElement | null
+  const sendBtn = form?.querySelector<HTMLButtonElement>('.asesor-dialog__send') ?? null
+  const turnstileContainer = document.getElementById('asesor-turnstile')
 
-  // Locale detectado desde el HTML lang
-  const locale = document.documentElement.lang === 'en' ? 'en' : 'es'
+  const config: AsesorConfig = JSON.parse(dialog?.dataset.asesorConfig ?? '{}') as AsesorConfig
 
-  const bienvenida =
-    locale === 'es'
-      ? 'Hola, soy el asistente de I-ME. Puedo ayudarte a encontrar el equipo biomédico que necesitas. ¿En qué área médica estás buscando soluciones?'
-      : 'Hello, I am the I-ME assistant. I can help you find the biomedical equipment you need. In which medical area are you looking for solutions?'
+  function escapeHtml(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+  }
 
-  function addBubble(text: string, role: 'user' | 'asesor' | 'loading') {
+  function addBubble(text: string, role: 'user' | 'asesor' | 'loading'): HTMLElement | undefined {
     if (!messagesEl) return
     const div = document.createElement('div')
     div.className = `chat-bubble chat-bubble--${role}`
@@ -388,6 +528,144 @@ const { locale } = Astro.props
     return div
   }
 
+  function addHtmlBubble(html: string): HTMLElement | undefined {
+    if (!messagesEl) return
+    const div = document.createElement('div')
+    div.className = 'chat-bubble chat-bubble--asesor asesor-bubble--rich'
+    div.innerHTML = html
+    messagesEl.appendChild(div)
+    messagesEl.scrollTop = messagesEl.scrollHeight
+    return div
+  }
+
+  function buildProductosHtml(productos: ProductoSugerido[]): string {
+    const items = productos
+      .map((p) => {
+        const imagen = p.imagen
+          ? `<img class="asesor-producto__img" src="${escapeHtml(p.imagen)}" alt="" loading="lazy" width="40" height="40" />`
+          : ''
+        return `<a class="asesor-producto" href="${escapeHtml(p.urlLanding)}">${imagen}<span class="asesor-producto__nombre">${escapeHtml(p.nombre)}</span><span class="asesor-producto__link">${escapeHtml(config.i18n.verProducto)}</span></a>`
+      })
+      .join('')
+    return `<div class="asesor-productos">${items}</div>`
+  }
+
+  function buildHandoffHtml(handoff: AccionHandoff): string {
+    if (handoff.tipo === 'whatsapp') {
+      const url = handoff.resumen
+        ? `${config.whatsappUrl}?text=${encodeURIComponent(handoff.resumen)}`
+        : config.whatsappUrl
+      return `<a class="asesor-cta" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(config.i18n.handoffWhatsapp)} <span class="sr-only">${escapeHtml(config.i18n.nuevaVentana)}</span></a>`
+    }
+    return `<a class="asesor-cta" href="${escapeHtml(config.contactoHref)}">${escapeHtml(config.i18n.handoffCotizacion)}</a>`
+  }
+
+  function renderRespuesta(respuesta: RespuestaAsesor) {
+    addBubble(respuesta.texto, 'asesor')
+    if (respuesta.modo === 'keyword_degradado') addBubble(config.i18n.degradado, 'loading')
+    if (respuesta.productos.length > 0) addHtmlBubble(buildProductosHtml(respuesta.productos))
+    if (respuesta.accionHandoff) addHtmlBubble(buildHandoffHtml(respuesta.accionHandoff))
+  }
+
+  function renderError(error: ErrorAsesor) {
+    if (error.tipo === 'rate_limited') {
+      addBubble(config.i18n.limite, 'asesor')
+      return
+    }
+    if (error.tipo === 'no_disponible') {
+      addHtmlBubble(
+        `<p>${escapeHtml(config.i18n.noDisponible)}</p>${buildHandoffHtml({ tipo: 'whatsapp', resumen: '' })}`
+      )
+      return
+    }
+    addHtmlBubble(
+      `<p>${escapeHtml(config.i18n.error)}</p><button type="button" class="asesor-cta asesor-cta--retry" data-asesor-retry>${escapeHtml(config.i18n.reintentar)}</button>`
+    )
+  }
+
+  function setEnviando(value: boolean) {
+    enviando = value
+    if (inputEl) inputEl.disabled = value
+    if (sendBtn) sendBtn.disabled = value
+    form?.setAttribute('aria-busy', value ? 'true' : 'false')
+  }
+
+  function loadTurnstileScript(): Promise<void> {
+    if (window.turnstile) return Promise.resolve()
+    if (turnstileLoadPromise) return turnstileLoadPromise
+    turnstileLoadPromise = new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js'
+      script.async = true
+      script.onload = () => resolve()
+      script.onerror = () => reject(new Error('turnstile load error'))
+      document.head.appendChild(script)
+    })
+    return turnstileLoadPromise
+  }
+
+  async function getTurnstileToken(): Promise<string | undefined> {
+    if (!config.turnstileSiteKey || !turnstileContainer) return undefined
+    try {
+      await loadTurnstileScript()
+      if (!window.turnstile) return undefined
+
+      if (turnstileWidgetId === null) {
+        turnstileWidgetId = window.turnstile.render(turnstileContainer, {
+          sitekey: config.turnstileSiteKey,
+          size: 'invisible',
+          execution: 'execute',
+          callback: (token: string) => resolveTurnstileToken?.(token),
+          'error-callback': () => resolveTurnstileToken?.(undefined),
+          'expired-callback': () => resolveTurnstileToken?.(undefined),
+        })
+      }
+      const widgetId = turnstileWidgetId
+      if (widgetId === null) return undefined
+
+      return await new Promise<string | undefined>((resolve) => {
+        const timeout = setTimeout(() => resolve(undefined), 8000)
+        resolveTurnstileToken = (token) => {
+          clearTimeout(timeout)
+          resolveTurnstileToken = null
+          resolve(token)
+        }
+        window.turnstile?.execute(widgetId)
+      })
+    } catch {
+      return undefined
+    }
+  }
+
+  async function enviarMensaje(mensaje: string) {
+    if (enviando) return
+    ultimoMensaje = mensaje
+    setEnviando(true)
+    const loadingBubble = addBubble(config.i18n.buscando, 'loading')
+
+    if (!asesorLib) asesorLib = await import('../lib/asesor')
+    const turnstileToken = await getTurnstileToken()
+
+    const resultado = await asesorLib.preguntarAsesor({
+      mensaje,
+      historial,
+      locale: config.locale,
+      turnstileToken,
+    })
+
+    loadingBubble?.remove()
+    setEnviando(false)
+
+    if (!resultado.ok) {
+      renderError(resultado.error)
+      return
+    }
+
+    historial.push({ rol: 'usuario', contenido: mensaje, timestamp: new Date() })
+    historial.push({ rol: 'asesor', contenido: resultado.respuesta.texto, timestamp: new Date() })
+    renderRespuesta(resultado.respuesta)
+  }
+
   function openDialog() {
     if (!dialog || !trigger) return
     dialog.removeAttribute('hidden')
@@ -395,10 +673,9 @@ const { locale } = Astro.props
 
     if (!initialized) {
       initialized = true
-      addBubble(bienvenida, 'asesor')
+      addBubble(config.i18n.bienvenida, 'asesor')
     }
 
-    // Focus input
     setTimeout(() => inputEl?.focus(), 100)
   }
 
@@ -423,7 +700,9 @@ const { locale } = Astro.props
   dialog?.addEventListener('keydown', (e) => {
     if (e.key !== 'Tab') return
     const focusable = Array.from(
-      dialog.querySelectorAll<HTMLElement>('button, textarea, [tabindex]:not([tabindex="-1"])')
+      dialog.querySelectorAll<HTMLElement>(
+        'button, textarea, a[href], [tabindex]:not([tabindex="-1"])'
+      )
     )
     const first = focusable[0]
     const last = focusable[focusable.length - 1]
@@ -446,22 +725,15 @@ const { locale } = Astro.props
     addBubble(msg, 'user')
     if (inputEl) inputEl.value = ''
 
-    const loadingBubble = addBubble(locale === 'es' ? 'Un momento…' : 'Just a moment…', 'loading')
+    await enviarMensaje(msg)
+  })
 
-    try {
-      // Carga diferida del módulo asesor
-      const { responderAsesor } = await import('../lib/asesor')
-      const respuesta = await responderAsesor(msg)
-      loadingBubble?.remove()
-      addBubble(respuesta, 'asesor')
-    } catch {
-      loadingBubble?.remove()
-      addBubble(
-        locale === 'es'
-          ? 'Error al conectar. Por favor intenta de nuevo.'
-          : 'Connection error. Please try again.',
-        'asesor'
-      )
+  // Reintentar tras error
+  messagesEl?.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement
+    if (target.closest('[data-asesor-retry]') && ultimoMensaje) {
+      target.closest('.chat-bubble')?.remove()
+      void enviarMensaje(ultimoMensaje)
     }
   })
 

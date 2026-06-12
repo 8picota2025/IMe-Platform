@@ -128,8 +128,15 @@
     "placeholder": "Type your question about biomedical equipment…",
     "enviar": "Send",
     "bienvenida": "COPY_CLIENTE_REVISAR — Hello, I am the I-ME assistant. I can help you find the biomedical equipment you need. In which medical area are you looking for solutions?",
-    "mock_nota": "Advisor in demo mode — real logic comes in Advisor Phase.",
-    "cargando": "Just a moment…"
+    "buscando": "Searching the catalog…",
+    "limite": "You've reached the message limit for now. Try again in a few minutes or message us on WhatsApp.",
+    "degradado": "Keyword-based results (simplified mode).",
+    "error": "We couldn't process your message. Try again or contact us on WhatsApp.",
+    "no_disponible": "The advisor is not available right now. Contact us on WhatsApp.",
+    "ver_producto": "View product",
+    "handoff_whatsapp": "Continue on WhatsApp",
+    "handoff_cotizacion": "Request a quote",
+    "reintentar": "Retry"
   },
   "accesibilidad": {
     "saltar_contenido": "Skip to main content",

@@ -14,6 +14,7 @@ type View =
   | 'fulfillments'
   | 'conocimiento'
   | 'ingesta'
+  | 'asesor'
 
 type Row = Record<string, unknown>
 type ProductoDraft = {
@@ -96,7 +97,8 @@ function parseView(hash: string): View {
     raw === 'proveedor-productos' ||
     raw === 'fulfillments' ||
     raw === 'conocimiento' ||
-    raw === 'ingesta'
+    raw === 'ingesta' ||
+    raw === 'asesor'
   ) {
     return raw
   }
@@ -179,6 +181,7 @@ async function routeView(): Promise<{ title: string; body: string }> {
     return { title: 'Fulfillments', body: await fulfillmentsView() }
   if (state.view === 'conocimiento') return { title: 'Conocimiento', body: conocimientoView() }
   if (state.view === 'ingesta') return { title: 'Ingesta PDF', body: await ingestaView() }
+  if (state.view === 'asesor') return { title: 'Asesor', body: await asesorView() }
   return { title: 'Dashboard', body: await dashboardView() }
 }
 
@@ -193,6 +196,7 @@ function shellHtml(title: string, body: string): string {
     ['proveedores', 'Proveedores'],
     ['fulfillments', 'Fulfillments'],
     ['conocimiento', 'Conocimiento'],
+    ['asesor', 'Asesor'],
   ]
   return `
     <section class="admin-shell">
@@ -244,6 +248,7 @@ function bindView() {
   bindIngest()
   bindProveedorProductos()
   bindFulfillments()
+  bindAsesorPanel()
 }
 
 async function dashboardView(): Promise<string> {
@@ -935,6 +940,139 @@ async function ingestaView(): Promise<string> {
     <div data-ingest-review></div>`
 }
 
+const TIPOS_USO_LLM: Array<[string, string]> = [
+  ['chat', 'Chat (Asesor)'],
+  ['embedding', 'Embeddings'],
+  ['ingesta', 'Ingesta PDF'],
+]
+
+const MODOS_ASESOR: Array<[string, string]> = [
+  ['rag', 'RAG (normal)'],
+  ['keyword_degradado', 'Degradado (palabra clave)'],
+  ['sin_resultados', 'Sin resultados'],
+]
+
+function periodoActualCliente(): string {
+  const now = new Date()
+  return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`
+}
+
+function sumField(rows: Row[], key: string): number {
+  return rows.reduce((acc, row) => acc + Number(row[key] ?? 0), 0)
+}
+
+async function asesorView(): Promise<string> {
+  const periodo = periodoActualCliente()
+  const [{ data: llmData, error: llmError }, { data: asesorData, error: asesorError }] =
+    await Promise.all([
+      supabase!.from('llm_uso').select('*').eq('periodo_yyyy_mm', periodo),
+      supabase!.from('asesor_uso').select('*').eq('periodo_yyyy_mm', periodo),
+    ])
+  if (llmError) toast(llmError.message)
+  if (asesorError) toast(asesorError.message)
+  const llmRows = (llmData ?? []) as unknown as Row[]
+  const asesorRows = (asesorData ?? []) as unknown as Row[]
+
+  const costeTotal = sumField(llmRows, 'coste_estimado')
+  const conversaciones = asesorRows.length
+  const handoffs = asesorRows.filter((r) => r.hubo_handoff === true).length
+  const latencias = asesorRows
+    .map((r) => Number(r.latencia_ms ?? 0))
+    .filter((v) => Number.isFinite(v) && v > 0)
+  const latenciaPromedio = latencias.length
+    ? Math.round(latencias.reduce((acc, v) => acc + v, 0) / latencias.length)
+    : 0
+
+  return `
+    <div class="admin-alert">Periodo actual: ${escapeHtml(periodo)}. El limite mensual (BUDGET_MENSUAL_USD) se controla en las Edge Functions; aqui solo se muestra el gasto registrado.</div>
+    <section class="admin-grid">
+      ${metric('Conversaciones', conversaciones)}
+      ${metric('Con handoff', handoffs)}
+      ${metric('Latencia media (ms)', latenciaPromedio)}
+      ${metric('Gasto LLM ($ est.)', Number(costeTotal.toFixed(4)))}
+    </section>
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Uso LLM por tipo (${escapeHtml(periodo)})</h2></div>
+      ${table(
+        ['Tipo', 'Tokens entrada', 'Tokens salida', 'Coste estimado ($)'],
+        TIPOS_USO_LLM.map(([tipo, label]) => {
+          const filas = llmRows.filter((r) => text(r.tipo) === tipo)
+          return [
+            label,
+            String(sumField(filas, 'input_tokens')),
+            String(sumField(filas, 'output_tokens')),
+            sumField(filas, 'coste_estimado').toFixed(4),
+          ]
+        })
+      )}
+    </section>
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Conversaciones por modo (${escapeHtml(periodo)})</h2></div>
+      ${table(
+        ['Modo', 'Conversaciones'],
+        MODOS_ASESOR.map(([modo, label]) => [
+          label,
+          String(asesorRows.filter((r) => text(r.modo) === modo).length),
+        ])
+      )}
+    </section>
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Reindexar catalogo (embeddings Asesor)</h2></div>
+      <div style="padding:16px" class="admin-form">
+        <div class="admin-alert">Reindexar recalcula el embedding de todos los productos activos y consume presupuesto LLM. Estima el coste antes de confirmar.</div>
+        <div class="admin-toolbar">
+          <button class="admin-button admin-button--ghost" data-asesor-estimar type="button">Estimar coste de reindexado completo</button>
+          <button class="admin-button" data-asesor-reindexar type="button">Reindexar catalogo</button>
+        </div>
+        <div data-asesor-reindex-result></div>
+      </div>
+    </section>`
+}
+
+function bindAsesorPanel() {
+  const resultado = app.querySelector<HTMLElement>('[data-asesor-reindex-result]')
+  if (!resultado) return
+
+  app.querySelector('[data-asesor-estimar]')?.addEventListener('click', async () => {
+    resultado.innerHTML = '<p class="admin-help">Estimando coste...</p>'
+    const { data, error } = await supabase!.functions.invoke('generar-embeddings', {
+      body: { todos: true, estimar: true },
+    })
+    if (error) {
+      resultado.innerHTML = `<div class="admin-alert">${escapeHtml(error.message)}</div>`
+      return
+    }
+    const json = data as Row
+    resultado.innerHTML = `
+      <div class="admin-alert">
+        Productos a procesar: ${escapeHtml(text(json['productos_a_procesar']))} ·
+        Tokens estimados: ${escapeHtml(text(json['tokens_estimados']))} ·
+        Coste estimado: $${escapeHtml(text(json['coste_estimado']))} (${escapeHtml(text(json['proveedor']))}/${escapeHtml(text(json['modelo']))})
+      </div>`
+  })
+
+  app.querySelector('[data-asesor-reindexar]')?.addEventListener('click', async () => {
+    if (!confirm('Reindexar todo el catalogo activo? Esto consume presupuesto LLM.')) return
+    resultado.innerHTML = '<p class="admin-help">Reindexando catalogo, esto puede tardar...</p>'
+    const { data, error } = await supabase!.functions.invoke('generar-embeddings', {
+      body: { todos: true },
+    })
+    if (error) {
+      resultado.innerHTML = `<div class="admin-alert">${escapeHtml(error.message)}</div>`
+      return
+    }
+    const json = data as Row
+    const errores = Array.isArray(json['errores']) ? json['errores'] : []
+    resultado.innerHTML = `
+      <div class="admin-alert">
+        Procesados: ${escapeHtml(text(json['procesados']))} ·
+        Omitidos: ${escapeHtml(text(json['omitidos']))} ·
+        Coste estimado: $${escapeHtml(text(json['coste_estimado']))}
+      </div>
+      ${errores.length ? jsonRowsTable(errores) : ''}`
+  })
+}
+
 function bindProductFilters() {
   const form = app.querySelector<HTMLFormElement>('[data-productos-filter]')
   form?.addEventListener('submit', (event) => {
@@ -976,14 +1114,23 @@ function bindProductForm() {
     event.preventDefault()
     const payload = productPayload(form)
     const id = String(new FormData(form).get('id') ?? '')
-    const request = id
-      ? supabase!.from('productos').update(payload).eq('id', id)
-      : supabase!.from('productos').insert(payload)
-    const { error } = await request
+    if (id) {
+      const { error } = await supabase!.from('productos').update(payload).eq('id', id)
+      if (error) {
+        toast(error.message)
+        return
+      }
+      if (payload['activo']) await generarEmbeddingProducto(id)
+      toast('Producto guardado')
+      location.hash = '#/productos'
+      return
+    }
+    const { data, error } = await supabase!.from('productos').insert(payload).select('id').single()
     if (error) {
       toast(error.message)
       return
     }
+    if (payload['activo']) await generarEmbeddingProducto(text((data as Row).id))
     toast('Producto guardado')
     location.hash = '#/productos'
   })
@@ -1515,6 +1662,16 @@ async function triggerRebuild() {
       ? 'Rebuild solicitado'
       : (error?.message ?? json?.error?.message ?? 'No se pudo solicitar rebuild')
   )
+}
+
+/** Genera/actualiza el embedding del producto al activarlo (Asesor RAG). No bloquea el guardado si falla. */
+async function generarEmbeddingProducto(productoId: string) {
+  if (!productoId) return
+  const { error } = await supabase!.functions.invoke('generar-embeddings', {
+    body: { producto_id: productoId },
+  })
+  if (error)
+    toast(`Producto guardado, pero el embedding del Asesor no se actualizo: ${error.message}`)
 }
 
 async function selectRows(

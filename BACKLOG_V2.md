@@ -23,6 +23,13 @@ Funcionalidades identificadas pero explícitamente excluidas del alcance inicial
 - Historial persistente de conversaciones del asesor
 - Asesor multimodal (imágenes de equipos)
 - Recomendaciones personalizadas por historial de usuario
+- Streaming SSE de la respuesta del Asesor para distinguir estados "escribiendo"
+  (generando respuesta) y "buscando" (recuperando productos) — hoy ambos se
+  muestran como un único estado de carga (`asesor.buscando`) porque la Edge
+  Function `asesor` responde JSON sin streaming
+- Prellenar el formulario de cotización/contacto con el `resumen` del
+  `accion_handoff` del Asesor (hoy el handoff de tipo `cotizacion` enlaza a la
+  página de contacto sin parámetros de query)
 
 ## Usuarios y B2B
 

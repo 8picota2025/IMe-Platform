@@ -76,7 +76,7 @@ CLAUDE.md, AGENTS.md, PENDIENTES.md, BACKLOG_V2.md, README.md
 [x] F1 — Fundaciones, Home e infra | rama: feature/fase-1
 [x] F2 — Catálogo, landings y SEO | rama: feature/fase-2
 [x] F3 — CMS, ingesta PDF y rebuild | rama: feature/fase-3
-[ ] Asesor — RAG conversacional | rama: feature/fase-asesor
+[x] Asesor — RAG conversacional | rama: feature/fase-asesor
 [ ] F4 — Comercio híbrido y dropshipping | rama: feature/fase-4
 [ ] F5 — Auditoría, legales y despliegue | rama: feature/fase-5
 

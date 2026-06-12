@@ -128,8 +128,15 @@
     "placeholder": "Escribe tu pregunta sobre equipos biomédicos…",
     "enviar": "Enviar",
     "bienvenida": "Hola, soy el asistente de I-ME. Puedo ayudarte a encontrar el equipo biomédico que necesitas. ¿En qué área médica estás buscando soluciones?",
-    "mock_nota": "Asesor en modo demo — lógica real llega en Fase Asesor.",
-    "cargando": "Un momento…"
+    "buscando": "Buscando en el catálogo…",
+    "limite": "Has alcanzado el límite de mensajes por ahora. Intenta de nuevo en unos minutos o escríbenos por WhatsApp.",
+    "degradado": "Resultados por palabra clave (modo simplificado).",
+    "error": "No pudimos procesar tu mensaje. Intenta de nuevo o contáctanos por WhatsApp.",
+    "no_disponible": "El asesor no está disponible en este momento. Contáctanos por WhatsApp.",
+    "ver_producto": "Ver producto",
+    "handoff_whatsapp": "Continuar por WhatsApp",
+    "handoff_cotizacion": "Solicitar cotización",
+    "reintentar": "Reintentar"
   },
   "accesibilidad": {
     "saltar_contenido": "Saltar al contenido principal",

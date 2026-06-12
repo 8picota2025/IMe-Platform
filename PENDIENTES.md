@@ -11,7 +11,7 @@
 - [ ] `VOYAGE_API_KEY`: cuenta en voyageai.com
 - [ ] `WOMPI_PUBLIC_KEY` / `WOMPI_PRIVATE_KEY` / `WOMPI_EVENTS_SECRET`: cuenta en wompi.co
 - [ ] `STRIPE_PUBLIC_KEY` / `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET`: cuenta en stripe.com
-- [ ] `TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY`: crear en Cloudflare Dashboard
+- [ ] `TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY` / `PUBLIC_TURNSTILE_SITE_KEY` (mismo valor que `TURNSTILE_SITE_KEY`): crear en Cloudflare Dashboard — sin esto el Asesor responde 503 (modo "no disponible")
 - [ ] `HOSTINGER_FTP_HOST` / `HOSTINGER_FTP_USER` / `HOSTINGER_FTP_PASSWORD`: panel Hostinger
 - [ ] `HOSTINGER_PREPROD_PATH` / `HOSTINGER_PROD_PATH`: confirmar rutas de deploy
 - [ ] GitHub repo URL: crear en github.com y configurar como remote
@@ -26,7 +26,11 @@
 - [ ] Credenciales Wompi (bloquea pagos CO) — F4
 - [ ] Credenciales Stripe (bloquea pagos INTL) — F4
 - [ ] Credenciales LLM (`LLM_PROVIDER`, `ANTHROPIC_API_KEY` u `OPENAI_API_KEY`, `LLM_INGEST_MODEL`) — bloquea ingesta PDF real y Asesor RAG
-- [ ] Edge Function asesor/ — lógica RAG llega en Fase Asesor
+- [ ] Credenciales embeddings (`EMBEDDING_PROVIDER`, `VOYAGE_API_KEY` u `OPENAI_API_KEY`) — bloquea `generar-embeddings` y la búsqueda vectorial del Asesor (sin esto, el Asesor degrada a búsqueda por palabra clave)
+- [x] Edge Function asesor/ — RAG completo implementado (Turnstile, rate-limit, presupuesto, match vectorial + fallback keyword, system prompt comercial §5, validación de slugs citados, registro de uso)
+- [x] Edge Function generar-embeddings/ — implementada (embedding individual por producto y reindexado masivo con estimación de coste)
+- [ ] Aplicar migraciones nuevas de `supabase/schema.sql` (pgvector, `productos.embedding`, `llm_uso`, `asesor_uso`, `asesor_rate_limit`, RPC `match_productos`/`buscar_productos_keyword`) en el proyecto Supabase
+- [ ] Desplegar Edge Functions `asesor/` y `generar-embeddings/` a Supabase (en preprod responden 404 `NOT_FOUND` — aún no desplegadas)
 - [ ] Edge Function crear-pago/ — F4
 - [ ] Edge Function webhook-wompi/ — F4
 - [ ] Edge Function webhook-stripe/ — F4
@@ -35,6 +39,33 @@
 - [x] Edge Function trigger-rebuild/ — F3 base implementada; requiere `CI_DEPLOY_HOOK` o `GITHUB_TOKEN` + `GITHUB_REPOSITORY`
 - [ ] Carrito y checkout — F4
 - [ ] SimuladorFinanciero real — F4
+
+## Coste estimado — Asesor RAG
+
+Estimación con los modelos por defecto (`LLM_CHAT_MODEL=claude-sonnet-4-6`,
+`EMBEDDING_PROVIDER=voyage`/`voyage-3`) y la tabla de precios de
+`supabase/functions/_shared/llm-gateway.ts` (`PRICING_USD_POR_1M`):
+
+- **Por turno de conversación (modo `rag`)**:
+  - Embedding de la consulta (voyage-3, ~50-100 tokens): ~$0.000003-0.000006
+  - Chat (entrada ~1.500-2.500 tokens con system prompt + contexto + historial,
+    salida hasta `MAX_TOKENS_RESPUESTA=700`): entrada ~$0.0045-0.0075,
+    salida hasta ~$0.0105
+  - **Total aproximado por turno: ~$0.01-0.02 USD**
+- **Modo `keyword_degradado` o presupuesto agotado**: $0 (no se invoca al LLM; solo
+  búsqueda por palabra clave vía RPC `buscar_productos_keyword`)
+- **Reindexar catálogo (`generar-embeddings` masivo)**: ~$0.06 por cada 1M tokens de
+  texto de producto (voyage-3). Para un catálogo de ~50 productos con ~200 tokens de
+  texto cada uno (~10.000 tokens totales), el coste es prácticamente nulo
+  (< $0.001 USD). El panel admin "Reindexar catálogo" muestra una estimación previa
+  antes de confirmar.
+- Con `BUDGET_MENSUAL_USD=50` (valor de ejemplo en `.env.example`), esto permite del
+  orden de 2.500-5.000 turnos de conversación en modo `rag` por mes antes de que el
+  Asesor degrade automáticamente a `keyword_degradado`.
+
+Estos valores son estimaciones de diseño basadas en los límites configurados
+(`MAX_HISTORIAL_CHARS`, `MAX_TOKENS_RESPUESTA`, `MATCH_COUNT`), no mediciones de uso
+real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM activas.
 
 ## BLOQUEANTE_LEGAL — Impide operar o publicar
 
@@ -69,6 +100,13 @@
 - [x] Prueba real de `/admin` contra Supabase con usuario admin y RLS aplicadas
 - [ ] Prueba real de `ingesta-pdf` con ficha PDF/OCR y clave LLM
 - [ ] Prueba real de `trigger-rebuild` contra deploy hook o GitHub repository_dispatch
+- [ ] Prueba real del Asesor RAG end-to-end (requiere migraciones aplicadas, despliegue de
+      `asesor`/`generar-embeddings` y credenciales `ANTHROPIC_API_KEY`/`VOYAGE_API_KEY`/`TURNSTILE_SECRET_KEY`):
+      validar respuesta en modo `rag`, fallback `keyword_degradado`, `sin_resultados`,
+      rate-limit (429) y degradación por presupuesto agotado
+- [x] Widget Asesor probado en navegador (es): abre, muestra bienvenida, envía mensaje y
+      degrada correctamente al estado de error con CTA de WhatsApp/reintentar cuando la
+      Edge Function no responde (404 por no estar desplegada aún)
 
 ## OPCIONAL_MEJORA — Admin CMS (F3)
 

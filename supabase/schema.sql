@@ -194,10 +194,53 @@ CREATE TRIGGER set_articulos_updated_at
   BEFORE UPDATE ON articulos
   FOR EACH ROW EXECUTE FUNCTION trigger_set_updated_at();
 
--- ── 8. llm_uso y asesor_uso (stub para Fase Asesor) ─────────
--- Comentado — se activa en Fase Asesor
--- CREATE TABLE IF NOT EXISTS llm_uso (...);
--- CREATE TABLE IF NOT EXISTS asesor_uso (...);
+-- ── 8. llm_uso, asesor_uso, asesor_rate_limit (Fase Asesor) ──
+CREATE TABLE IF NOT EXISTS llm_uso (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  periodo_yyyy_mm TEXT NOT NULL,
+  proveedor       TEXT NOT NULL,
+  modelo          TEXT NOT NULL,
+  tipo            TEXT NOT NULL CHECK (tipo IN ('chat', 'ingesta', 'embedding')),
+  input_tokens    INT NOT NULL DEFAULT 0,
+  output_tokens   INT NOT NULL DEFAULT 0,
+  coste_estimado  NUMERIC NOT NULL DEFAULT 0,
+  session_id      TEXT,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_llm_uso_periodo ON llm_uso(periodo_yyyy_mm);
+CREATE INDEX IF NOT EXISTS idx_llm_uso_tipo    ON llm_uso(tipo);
+
+CREATE TABLE IF NOT EXISTS asesor_uso (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id      TEXT NOT NULL,
+  locale          TEXT NOT NULL CHECK (locale IN ('es', 'en')),
+  modo            TEXT NOT NULL CHECK (modo IN ('rag', 'keyword_degradado', 'sin_resultados')),
+  turnos          INT NOT NULL DEFAULT 1,
+  tokens_totales  INT NOT NULL DEFAULT 0,
+  coste_estimado  NUMERIC NOT NULL DEFAULT 0,
+  latencia_ms     INT NOT NULL DEFAULT 0,
+  hubo_handoff    BOOLEAN NOT NULL DEFAULT false,
+  tipo_handoff    TEXT CHECK (tipo_handoff IN ('whatsapp', 'cotizacion', 'compra')),
+  periodo_yyyy_mm TEXT NOT NULL,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_asesor_uso_periodo ON asesor_uso(periodo_yyyy_mm);
+CREATE INDEX IF NOT EXISTS idx_asesor_uso_session ON asesor_uso(session_id);
+
+-- Rate-limit por identificador ('ip:<ip>' o 'session:<id>'): ventana corta + tope diario
+CREATE TABLE IF NOT EXISTS asesor_rate_limit (
+  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  identificador    TEXT NOT NULL UNIQUE,
+  ventana_inicio   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  contador_ventana INT NOT NULL DEFAULT 0,
+  dia              DATE NOT NULL DEFAULT CURRENT_DATE,
+  contador_dia     INT NOT NULL DEFAULT 0,
+  updated_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_asesor_rate_limit_identificador ON asesor_rate_limit(identificador);
 
 -- ── 9. proveedores (módulo dropshipping) ────────────────────
 CREATE TABLE IF NOT EXISTS proveedores (
@@ -348,6 +391,22 @@ CREATE POLICY "articulos_write_auth"
   ON articulos FOR ALL
   USING (auth.role() = 'authenticated');
 
+-- llm_uso / asesor_uso: lectura solo authenticated (panel admin); escritura via service_role
+ALTER TABLE llm_uso ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "llm_uso_select_auth" ON llm_uso;
+CREATE POLICY "llm_uso_select_auth"
+  ON llm_uso FOR SELECT
+  USING (auth.role() = 'authenticated');
+
+ALTER TABLE asesor_uso ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "asesor_uso_select_auth" ON asesor_uso;
+CREATE POLICY "asesor_uso_select_auth"
+  ON asesor_uso FOR SELECT
+  USING (auth.role() = 'authenticated');
+
+-- asesor_rate_limit: sin politicas (deny-all a anon/authenticated); solo service_role (bypassa RLS)
+ALTER TABLE asesor_rate_limit ENABLE ROW LEVEL SECURITY;
+
 -- proveedores: solo authenticated
 ALTER TABLE proveedores ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "proveedores_auth_only" ON proveedores;
@@ -399,6 +458,98 @@ AS $$
     AND p.activo = true
   ORDER BY pp.prioridad ASC
   LIMIT 1;
+$$;
+
+-- ── RPC match_productos (Asesor RAG) ────────────────────────
+-- Busqueda vectorial sobre productos.embedding (Voyage voyage-3, 1024 dims).
+-- security definer: solo expone productos activos, sin precio_costo.
+-- filtro jsonb opcional: {"familia_id":"...","tipo_id":"...","tipo_comercial":"..."}
+CREATE OR REPLACE FUNCTION match_productos(
+  query_embedding vector(1024),
+  match_count INT DEFAULT 6,
+  filtro JSONB DEFAULT NULL
+)
+RETURNS TABLE (
+  id                   UUID,
+  slug                 TEXT,
+  nombre_es            TEXT,
+  nombre_en            TEXT,
+  descripcion_corta_es TEXT,
+  descripcion_corta_en TEXT,
+  imagen_principal     TEXT,
+  tipo_comercial       TEXT,
+  familia_id           UUID,
+  tipo_id              UUID,
+  score                FLOAT
+)
+LANGUAGE SQL
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT
+    p.id, p.slug, p.nombre_es, p.nombre_en, p.descripcion_corta_es, p.descripcion_corta_en,
+    p.imagen_principal, p.tipo_comercial, p.familia_id, p.tipo_id,
+    1 - (p.embedding <=> query_embedding) AS score
+  FROM productos p
+  WHERE p.activo = true
+    AND p.embedding IS NOT NULL
+    AND (
+      filtro IS NULL OR filtro = '{}'::jsonb OR (
+        (NOT (filtro ? 'familia_id') OR p.familia_id::text = filtro->>'familia_id')
+        AND (NOT (filtro ? 'tipo_id') OR p.tipo_id::text = filtro->>'tipo_id')
+        AND (NOT (filtro ? 'tipo_comercial') OR p.tipo_comercial = filtro->>'tipo_comercial')
+      )
+    )
+  ORDER BY p.embedding <=> query_embedding
+  LIMIT match_count;
+$$;
+
+-- ── RPC buscar_productos_keyword (fallback Asesor) ──────────
+-- Fallback por texto (busqueda_tsv) cuando falla el vector o se agota presupuesto.
+-- security definer: solo expone productos activos, sin precio_costo.
+CREATE OR REPLACE FUNCTION buscar_productos_keyword(
+  query_text TEXT,
+  match_count INT DEFAULT 6,
+  filtro JSONB DEFAULT NULL
+)
+RETURNS TABLE (
+  id                   UUID,
+  slug                 TEXT,
+  nombre_es            TEXT,
+  nombre_en            TEXT,
+  descripcion_corta_es TEXT,
+  descripcion_corta_en TEXT,
+  imagen_principal     TEXT,
+  tipo_comercial       TEXT,
+  familia_id           UUID,
+  tipo_id              UUID,
+  score                FLOAT
+)
+LANGUAGE SQL
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT
+    p.id, p.slug, p.nombre_es, p.nombre_en, p.descripcion_corta_es, p.descripcion_corta_en,
+    p.imagen_principal, p.tipo_comercial, p.familia_id, p.tipo_id,
+    ts_rank(p.busqueda_tsv, q.query) AS score
+  FROM productos p,
+       LATERAL (
+         SELECT
+           websearch_to_tsquery('spanish', query_text) ||
+           websearch_to_tsquery('english', query_text) AS query
+       ) q
+  WHERE p.activo = true
+    AND p.busqueda_tsv @@ q.query
+    AND (
+      filtro IS NULL OR filtro = '{}'::jsonb OR (
+        (NOT (filtro ? 'familia_id') OR p.familia_id::text = filtro->>'familia_id')
+        AND (NOT (filtro ? 'tipo_id') OR p.tipo_id::text = filtro->>'tipo_id')
+        AND (NOT (filtro ? 'tipo_comercial') OR p.tipo_comercial = filtro->>'tipo_comercial')
+      )
+    )
+  ORDER BY score DESC
+  LIMIT match_count;
 $$;
 
 -- ── Storage RLS ──────────────────────────────────────────────

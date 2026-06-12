@@ -1,7 +1,10 @@
 /**
- * Gateway LLM minimo para ingesta PDF.
+ * Gateway LLM para ingesta PDF y Asesor RAG.
  * Claves solo en Edge Functions.
  */
+
+import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createEmbedder, type EmbedResult } from './embeddings.ts'
 
 export type LlmProvider = 'anthropic' | 'openai'
 
@@ -27,7 +30,12 @@ export interface LlmResponse {
 export interface LlmGateway {
   readonly provider: LlmProvider
   chat(request: LlmRequest): Promise<LlmResponse>
-  embed(text: string | string[]): Promise<number[][]>
+  embed(texts: string[]): Promise<EmbedResult>
+}
+
+/** Embeddings: proveedor configurado vía EMBEDDING_PROVIDER (independiente de LLM_PROVIDER). */
+async function embedTexts(texts: string[]): Promise<EmbedResult> {
+  return createEmbedder().embed(texts)
 }
 
 interface AnthropicResponse {
@@ -93,8 +101,8 @@ class AnthropicGateway implements LlmGateway {
     }
   }
 
-  embed(_text: string | string[]): Promise<number[][]> {
-    throw new Error('Embeddings se implementan en Fase Asesor')
+  embed(texts: string[]): Promise<EmbedResult> {
+    return embedTexts(texts)
   }
 }
 
@@ -130,8 +138,8 @@ class OpenAiGateway implements LlmGateway {
     }
   }
 
-  embed(_text: string | string[]): Promise<number[][]> {
-    throw new Error('Embeddings se implementan en Fase Asesor')
+  embed(texts: string[]): Promise<EmbedResult> {
+    return embedTexts(texts)
   }
 }
 
@@ -144,4 +152,102 @@ async function fetchWithTimeout(url: string, init: RequestInit): Promise<Respons
   } finally {
     clearTimeout(timer)
   }
+}
+
+// ────────────────────────────────────────────────────────────
+// Coste y presupuesto (llm_uso / BUDGET_MENSUAL_USD)
+// ────────────────────────────────────────────────────────────
+
+export type TipoUsoLlm = 'chat' | 'ingesta' | 'embedding'
+
+/**
+ * USD por 1M tokens (input/output). Valores de referencia — verificar
+ * periodicamente contra la consola de cada proveedor (cambian con el tiempo).
+ * 'default' se usa para modelos no listados (estimacion conservadora).
+ */
+const PRICING_USD_POR_1M: Record<string, { input: number; output: number }> = {
+  'claude-sonnet-4-6': { input: 3, output: 15 },
+  'claude-3-5-sonnet-latest': { input: 3, output: 15 },
+  'gpt-4.1-mini': { input: 0.4, output: 1.6 },
+  'voyage-3': { input: 0.06, output: 0 },
+  'text-embedding-3-small': { input: 0.02, output: 0 },
+  default: { input: 3, output: 15 },
+}
+
+/** Periodo actual en formato YYYY-MM (UTC), usado como clave en llm_uso/asesor_uso. */
+export function periodoActual(): string {
+  const now = new Date()
+  return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`
+}
+
+/** Estima el coste en USD de una llamada LLM/embedding según tokens y modelo. */
+export function estimateCost(params: {
+  model: string
+  inputTokens: number
+  outputTokens?: number
+}): number {
+  const pricing = PRICING_USD_POR_1M[params.model] ?? PRICING_USD_POR_1M['default']!
+  const inputCost = (params.inputTokens / 1_000_000) * pricing.input
+  const outputCost = ((params.outputTokens ?? 0) / 1_000_000) * pricing.output
+  return Number((inputCost + outputCost).toFixed(6))
+}
+
+/** Registra el uso/coste de una llamada LLM o embedding en llm_uso. Devuelve el coste estimado. */
+export async function registrarUsoLlm(
+  supabase: SupabaseClient,
+  uso: {
+    proveedor: string
+    modelo: string
+    tipo: TipoUsoLlm
+    inputTokens: number
+    outputTokens?: number
+    sessionId?: string | null
+  }
+): Promise<number> {
+  const coste = estimateCost({
+    model: uso.modelo,
+    inputTokens: uso.inputTokens,
+    outputTokens: uso.outputTokens ?? 0,
+  })
+
+  const { error } = await supabase.from('llm_uso').insert({
+    periodo_yyyy_mm: periodoActual(),
+    proveedor: uso.proveedor,
+    modelo: uso.modelo,
+    tipo: uso.tipo,
+    input_tokens: uso.inputTokens,
+    output_tokens: uso.outputTokens ?? 0,
+    coste_estimado: coste,
+    session_id: uso.sessionId ?? null,
+  })
+  if (error) throw new Error(`registrarUsoLlm: ${error.message}`)
+
+  return coste
+}
+
+export interface EstadoPresupuesto {
+  disponible: boolean
+  gastado: number
+  limite: number
+  periodo: string
+}
+
+/** Comprueba el gasto del periodo actual contra BUDGET_MENSUAL_USD. */
+export async function enforceBudget(supabase: SupabaseClient): Promise<EstadoPresupuesto> {
+  const limite = Number(Deno.env.get('BUDGET_MENSUAL_USD') ?? '50')
+  const periodo = periodoActual()
+
+  const { data, error } = await supabase
+    .from('llm_uso')
+    .select('coste_estimado')
+    .eq('periodo_yyyy_mm', periodo)
+  if (error) throw new Error(`enforceBudget: ${error.message}`)
+
+  const gastado = (data ?? []).reduce(
+    (acc: number, row: { coste_estimado: number | string | null }) =>
+      acc + Number(row.coste_estimado ?? 0),
+    0
+  )
+
+  return { disponible: gastado < limite, gastado, limite, periodo }
 }
