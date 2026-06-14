@@ -58,7 +58,7 @@ F1 pero nunca implementados). Decisiones documentadas en `docs/decisions/0001-00
       migración pgvector del 2026-06-14 y verificar columnas en
       `information_schema.columns`. Aplicar en el mismo lote:
       `solicitudes_cotizacion.estado TEXT NOT NULL DEFAULT 'nueva' CHECK (estado IN
-    ('nueva','en_revision','respondida'))` + `notas_internas TEXT` (ver
+  ('nueva','en_revision','respondida'))` + `notas_internas TEXT` (ver
       `docs/decisions/0004-cotizaciones-estado-seguimiento.md`).
 - [x] `.env.example` completado con `WOMPI_INTEGRITY_SECRET`, `CREAR_PAGO_RATE_LIMIT_*`
       y `MAILER_API_KEY`/`MAILER_FROM` (faltaban variables ya usadas por
@@ -92,6 +92,36 @@ F1 pero nunca implementados). Decisiones documentadas en `docs/decisions/0001-00
 - [x] CTA WhatsApp (+57 313 867 4059) en páginas de resultado de pago `exito`/`fallo`
       (TAREA 5 v1.1), con la referencia del pedido añadida automáticamente al mensaje
       prellenado una vez resuelve `consultarPedido()` — `ResultadoPago.astro`
+
+### Paridad WooCommerce/B2B-B2C y RBAC admin (PR #7, mergeado 2026-06-14)
+
+Trabajo de otra sesión/agente, integrado junto con el cierre de F4.1 anterior. Código
+en `schema.sql`/`crear-pago`/admin/webhooks ya está, **nada aplicado a la base de
+datos real** y sin entrada previa en este documento.
+
+- [ ] Migración SQL pendiente — nuevas tablas `producto_variantes`, `clientes`,
+      `cliente_direcciones`, `cupones`, `cupon_usos`, `pedido_notas`,
+      `pedido_eventos`, `admin_profiles`; nuevas columnas en `productos` (`sku`,
+      `gtin`, `atributos`, `peso_kg`, `dimensiones_cm`, `precio_regular`,
+      `precio_oferta`, `oferta_inicio`, `oferta_fin`, `gestionar_stock`,
+      `stock_estado`, `backorder_policy`) y en `pedidos` (`cliente_id`,
+      `descuento_total`, `impuesto_total`, `envio_total`, `cupon_codigo`,
+      `direccion_facturacion`, `direccion_envio`); función `is_admin()` y
+      reescritura de las políticas RLS `*_admin_all` para usar
+      `is_admin(roles)` en vez de `TO authenticated USING (true)`.
+- [ ] **BLOQUEANTE — riesgo de bloqueo del admin**: las nuevas políticas RLS exigen
+      una fila en `admin_profiles` (`rol IN ('owner','admin',...)`) para que
+      cualquier escritura desde `/admin` (catálogo, cotizaciones, pedidos, cupones,
+      clientes, etc.) sea permitida. `admin_profiles` se crea vacía. Si se aplica
+      `schema.sql` sin sembrar primero (o en el mismo paso) el usuario admin actual
+      en `admin_profiles` con `rol='owner'`, el panel `/admin` queda sin permisos de
+      escritura para ese usuario (RLS deniega). Aplicar ambos pasos juntos.
+- [ ] `schema.sql` es idempotente completo (`CREATE TABLE IF NOT EXISTS`,
+      `ADD COLUMN IF NOT EXISTS`, `DROP POLICY IF EXISTS` + `CREATE POLICY`,
+      `CREATE OR REPLACE FUNCTION`) — se puede ejecutar el archivo completo sin
+      romper lo ya existente; cubre también la migración pendiente de F4.1
+      (`productos.disponible`/`disponible_actualizado_at`,
+      `solicitudes_cotizacion.estado`/`notas_internas`) en el mismo paso.
 
 ## Coste estimado — Asesor RAG
 
@@ -158,11 +188,16 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
 - [ ] Test de video autoplay en mobile (Chrome/Safari iOS)
 - [ ] Deploy a preprod en Hostinger
 - [ ] Verificación 301 `/77/` y `/1old` en Hostinger tras deploy
-- [ ] Migración SQL de F4.1 (`productos.disponible` + `disponible_actualizado_at` +
-      `solicitudes_cotizacion.estado`/`notas_internas`, ya en `supabase/schema.sql`)
+- [ ] Migración SQL de `supabase/schema.sql` (F4.1 — `productos.disponible` +
+      `disponible_actualizado_at` + `solicitudes_cotizacion.estado`/`notas_internas` —
+      y paridad B2B/B2C de PR #7 — `producto_variantes`, `clientes`,
+      `cliente_direcciones`, `cupones`, `cupon_usos`, `pedido_notas`,
+      `pedido_eventos`, `admin_profiles`/RBAC, columnas nuevas de `productos`/`pedidos`)
       no aplicada a la base de datos real — bloqueada por acceso a credenciales en
-      esta sesión (ver sección F4.1 en BLOQUEANTE_BACKEND). Aplicar vía Management API
-      igual que la migración pgvector del 2026-06-14.
+      esta sesión (ver secciones F4.1 y "Paridad WooCommerce/B2B-B2C" en
+      BLOQUEANTE_BACKEND). Aplicar el archivo completo (idempotente) vía SQL Editor o
+      Management API, **y sembrar `admin_profiles` con el usuario admin actual
+      (`rol='owner'`) en el mismo paso** para no perder acceso de escritura en `/admin`.
 - [ ] Prueba real de Wompi sandbox CO y Stripe test INTL — depende de que la migración
       de F4.1 (`productos.disponible`) esté aplicada en BD real; sin ella, el rechazo
       422 por `disponible=false` en `crear-pago` no puede validarse end-to-end aunque
