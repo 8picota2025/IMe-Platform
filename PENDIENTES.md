@@ -110,10 +110,19 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
 - [x] Prueba real de `/admin` contra Supabase con usuario admin y RLS aplicadas
 - [ ] Prueba real de `ingesta-pdf` con ficha PDF/OCR y clave LLM
 - [ ] Prueba real de `trigger-rebuild` contra deploy hook o GitHub repository_dispatch
-- [ ] Prueba real del Asesor RAG end-to-end (requiere migraciones aplicadas, despliegue de
-      `asesor`/`generar-embeddings` y credenciales `ANTHROPIC_API_KEY`/`VOYAGE_API_KEY`/`TURNSTILE_SECRET_KEY`):
-      validar respuesta en modo `rag`, fallback `keyword_degradado`, `sin_resultados`,
-      rate-limit (429) y degradación por presupuesto agotado
+- [x] Smoke test post-despliegue (2026-06-14) de `asesor`/`generar-embeddings` ya desplegadas:
+      `asesor` con `mensaje` válido responde `503 NOT_CONFIGURED` "BLOQUEANTE_BACKEND:
+      TURNSTILE_SECRET_KEY no configurado" (fail-closed correcto antes de tocar presupuesto/RAG,
+      confirma routing/CORS/conexión a Supabase OK); `generar-embeddings` responde `401`
+      tanto sin `Authorization` (`UNAUTHORIZED_NO_AUTH_HEADER`) como con `SUPABASE_SERVICE_ROLE_KEY`
+      como Bearer (`UNAUTHORIZED` — `auth.getUser()` exige sesión de usuario admin real, no
+      service_role). Ambas respuestas son el comportamiento esperado dado el estado actual de
+      credenciales.
+- [ ] Prueba real del Asesor RAG end-to-end (migraciones y despliegue ya OK desde 2026-06-14;
+      pendiente credenciales `ANTHROPIC_API_KEY`/`VOYAGE_API_KEY`/`TURNSTILE_SECRET_KEY` y un
+      usuario admin Supabase Auth para `generar-embeddings`): validar respuesta en modo `rag`,
+      fallback `keyword_degradado`, `sin_resultados`, rate-limit (429) y degradación por
+      presupuesto agotado
 - [x] Widget Asesor probado en navegador (es): abre, muestra bienvenida, envía mensaje y
       degrada correctamente al estado de error con CTA de WhatsApp/reintentar cuando la
       Edge Function no responde (404 por no estar desplegada aún)
