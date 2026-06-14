@@ -26,15 +26,15 @@
 
 ## BLOQUEANTE_BACKEND — Impide integración real
 
-- [x] Credenciales Supabase de lectura/escritura básica (`.env` ya tiene `PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` reales); tablas `familias` (8) y `productos` (24) sembradas el 2026-06-12 con datos reales de F0 vía `scripts/seed-catalogo.mjs` (idempotente, upsert por slug). RLS verificada: anon lee catálogo y escribe `solicitudes_cotizacion`, no puede escribir `productos`. Sigue faltando: migraciones pgvector/Asesor y despliegue de Edge Functions (ver ítems siguientes).
+- [x] Credenciales Supabase de lectura/escritura básica (`.env` ya tiene `PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` reales); tablas `familias` (8) y `productos` (24) sembradas el 2026-06-12 con datos reales de F0 vía `scripts/seed-catalogo.mjs` (idempotente, upsert por slug). RLS verificada: anon lee catálogo y escribe `solicitudes_cotizacion`, no puede escribir `productos`. Migraciones pgvector/Asesor aplicadas y Edge Functions desplegadas el 2026-06-14 (ver ítems siguientes).
 - [ ] Credenciales Wompi (bloquea pagos CO) — F4
 - [ ] Credenciales Stripe (bloquea pagos INTL) — F4
 - [ ] Credenciales LLM (`LLM_PROVIDER`, `ANTHROPIC_API_KEY` u `OPENAI_API_KEY`, `LLM_INGEST_MODEL`) — bloquea ingesta PDF real y Asesor RAG
 - [ ] Credenciales embeddings (`EMBEDDING_PROVIDER`, `VOYAGE_API_KEY` u `OPENAI_API_KEY`) — bloquea `generar-embeddings` y la búsqueda vectorial del Asesor (sin esto, el Asesor degrada a búsqueda por palabra clave)
 - [x] Edge Function asesor/ — RAG completo implementado (Turnstile, rate-limit, presupuesto, match vectorial + fallback keyword, system prompt comercial §5, validación de slugs citados, registro de uso)
 - [x] Edge Function generar-embeddings/ — implementada (embedding individual por producto y reindexado masivo con estimación de coste)
-- [ ] Aplicar migraciones nuevas de `supabase/schema.sql` (pgvector, `productos.embedding`, `llm_uso`, `asesor_uso`, `asesor_rate_limit`, RPC `match_productos`/`buscar_productos_keyword`) en el proyecto Supabase
-- [ ] Desplegar Edge Functions `asesor/` y `generar-embeddings/` a Supabase (en preprod responden 404 `NOT_FOUND` — aún no desplegadas)
+- [x] Migraciones nuevas de `supabase/schema.sql` aplicadas el 2026-06-14 vía Management API (pgvector, `productos.embedding`, `llm_uso`, `asesor_uso`, `asesor_rate_limit`, RPC `match_productos`/`buscar_productos_keyword` verificados en `information_schema`/`pg_extension`)
+- [x] Edge Functions `asesor/` y `generar-embeddings/` desplegadas el 2026-06-14 (antes 404 `NOT_FOUND`; ahora responden 400/401 — desplegadas y validando input/auth correctamente). Sigue faltando: credenciales LLM/embeddings (ver ítems anteriores) para que el Asesor responda en modo `rag` en vez de `keyword_degradado`
 - [x] Edge Function crear-pago/ — F4 implementada; prueba real bloqueada por credenciales/Supabase desplegado
 - [x] Edge Function webhook-wompi/ — F4 implementada; prueba real bloqueada por credenciales Wompi
 - [x] Edge Function webhook-stripe/ — F4 implementada; prueba real bloqueada por credenciales Stripe

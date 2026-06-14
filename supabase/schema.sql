@@ -554,6 +554,7 @@ $$;
 
 -- ── Storage RLS ──────────────────────────────────────────────
 -- Lectura pública, escritura authenticated
+DROP POLICY IF EXISTS "storage_productos_public_read" ON storage.objects;
 CREATE POLICY "storage_productos_public_read"
   ON storage.objects FOR SELECT
   USING (bucket_id = 'productos')
