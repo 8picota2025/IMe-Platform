@@ -9,6 +9,7 @@ import Footer from '../components/Footer.astro'
 import Asesor from '../components/Asesor.astro'
 import Carrito from '../components/Carrito.astro'
 import CotizacionDrawer from '../components/CotizacionDrawer.astro'
+import WhatsAppFloat from '../components/WhatsAppFloat.astro'
 import type { Locale } from '../i18n/utils'
 import { t } from '../i18n/utils'
 
@@ -21,9 +22,20 @@ interface Props {
   ogImage?: string
   jsonLd?: string
   noindex?: boolean
+  fontAwesome?: boolean
 }
 
-const { title, description, canonical, locale, currentPath, ogImage, jsonLd, noindex } = Astro.props
+const {
+  title,
+  description,
+  canonical,
+  locale,
+  currentPath,
+  ogImage,
+  jsonLd,
+  noindex,
+  fontAwesome,
+} = Astro.props
 ---
 
 <!doctype html>
@@ -38,6 +50,7 @@ const { title, description, canonical, locale, currentPath, ogImage, jsonLd, noi
       {...ogImage !== undefined ? { ogImage } : {}}
       {...jsonLd !== undefined ? { jsonLd } : {}}
       {...noindex !== undefined ? { noindex } : {}}
+      {...fontAwesome !== undefined ? { fontAwesome } : {}}
     />
     <ClientRouter />
   </head>
@@ -55,6 +68,7 @@ const { title, description, canonical, locale, currentPath, ogImage, jsonLd, noi
     <Asesor locale={locale} />
     <Carrito locale={locale} />
     <CotizacionDrawer locale={locale} />
+    <WhatsAppFloat />
 
     <!-- Lenis smooth scroll + GSAP init -->
     <script>

@@ -16,9 +16,9 @@ Rama: `feature/fase-5`
 
 ## Sitemap (dist/sitemap-0.xml vía sitemap-index.xml)
 
-- 78 `<loc>` (coincide con las 78 páginas del build): 24 `/es/productos/<slug>` + 24 `/en/products/<slug>` + 13 rutas ES (`/`, `/catalogo`, `/servicios`, `/contacto`, `/financiacion`, `/conocimiento`, `/legal/{privacidad,habeas-data,cookies,terminos,copyright}`, `/pago/{exito,fallo,pendiente}`) + 13 equivalentes EN + `/admin/` + `/` (raíz).
+- 71 `<loc>` tras filtrar rutas no indexables: 24 `/es/productos/<slug>` + 24 `/en/products/<slug>` + 10 rutas ES (`/`, `/catalogo`, `/servicios`, `/contacto`, `/financiacion`, `/conocimiento`, `/legal/{privacidad,habeas-data,cookies,terminos,copyright}`) + 10 equivalentes EN + `/` (raíz). El build sigue generando 78 páginas; el sitemap excluye `/admin/` y `/es|en/pago/*` porque son `noindex,nofollow`.
 - Las 24 landings de producto por locale corresponden 1:1 con `mock-productos.json` / la tabla `productos` sembrada (8 familias × 3-4 productos cada una).
-- **Hallazgo (Opcional, registrado en REMEDIACION.md)**: `/admin/` y `/es|en/pago/*` están en el sitemap aunque llevan `<meta name="robots" content="noindex, nofollow">` (verificado en dist/admin/index.html y dist/es/pago/{exito,fallo,pendiente}/index.html) y `/admin` está además bloqueado en `robots.txt`. El `noindex` evita la indexación real, pero listar `/admin/` en el sitemap es una mala práctica (puede revelar la ruta). Fix sugerido: filtrar esas rutas en la integración `@astrojs/sitemap` (`astro.config.mjs`).
+- Fix aplicado en `astro.config.mjs`: integración `@astrojs/sitemap` con `filter` para excluir `/admin/`, `/es/pago/*` y `/en/payment/*`.
 
 ## JSON-LD, canonical y hreflang (landing de producto, verificado en dist)
 

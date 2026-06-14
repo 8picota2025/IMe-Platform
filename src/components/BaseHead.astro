@@ -16,9 +16,20 @@ interface Props {
   jsonLd?: string
   currentPath: string
   noindex?: boolean
+  fontAwesome?: boolean
 }
 
-const { title, description, canonical, locale, ogImage, jsonLd, currentPath, noindex } = Astro.props
+const {
+  title,
+  description,
+  canonical,
+  locale,
+  ogImage,
+  jsonLd,
+  currentPath,
+  noindex,
+  fontAwesome,
+} = Astro.props
 const alternates = getAlternateLinks(currentPath)
 const ogImageUrl = ogImage ?? 'https://i-me.com.co/assets/extraccion/img/Img11.jpg'
 ---
@@ -35,6 +46,18 @@ const ogImageUrl = ogImage ?? 'https://i-me.com.co/assets/extraccion/img/Img11.j
 
 <!-- hreflang -->
 {alternates.map((alt) => <link rel="alternate" hreflang={alt.hreflang} href={alt.href} />)}
+
+<!-- Font Awesome 6.5.1 — iconos fieles al sitio en producción (solo páginas que lo solicitan) -->
+{
+  fontAwesome && (
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+  )
+}
 
 <!-- Open Graph -->
 <meta property="og:type" content="website" />

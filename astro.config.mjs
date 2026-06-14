@@ -6,7 +6,17 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   site: 'https://i-me.com.co',
   output: 'static',
-  integrations: [sitemap()],
+  integrations: [
+    sitemap({
+      filter: (page) => {
+        const url = new URL(page)
+        return !(
+          url.pathname === '/admin/' ||
+          /^\/(es\/pago|en\/payment)\//.test(url.pathname)
+        )
+      },
+    }),
+  ],
   vite: {
     plugins: [tailwindcss()],
   },
@@ -18,7 +28,10 @@ export default defineConfig({
     },
   },
   server: {
-    port: 43421,
+    port: 44334,
     host: '0.0.0.0',
+  },
+  devToolbar: {
+    enabled: false,
   },
 })

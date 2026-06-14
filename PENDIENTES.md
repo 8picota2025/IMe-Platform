@@ -2,6 +2,10 @@
 
 > Actualizar en cada fase. Usar exactamente las etiquetas definidas.
 
+## Criterio operativo actual
+
+- [ ] Se puede avanzar con QA, performance, contenido aprobado, Supabase/Asesor y deploy técnico sin cerrar aprobación jurídica ni pruebas reales de medios de pago. Jurídica queda bajo `BLOQUEANTE_LEGAL`; Wompi/Stripe quedan bajo `BLOQUEANTE_BACKEND`/`NO_EJECUTADO_ENTORNO` hasta recibir credenciales y ejecutar sandbox real.
+
 ## TODO_CLIENTE — Datos o credenciales que entrega el cliente
 
 - [ ] `SUPABASE_URL` y `SUPABASE_ANON_KEY`: crear proyecto en supabase.com

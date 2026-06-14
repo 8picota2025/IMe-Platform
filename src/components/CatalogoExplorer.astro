@@ -702,6 +702,22 @@ const hayNuevos = items.some((item) => item.nuevo)
 
   document.addEventListener('astro:page-load', () => {
     const locale = document.documentElement.lang === 'en' ? 'en' : 'es'
+
+    // Captura el deep-link de categoría (?cat=slug) ANTES de inicializar el
+    // catálogo, ya que initCatalogo puede limpiar la query de la URL.
+    const cat = new URLSearchParams(window.location.search).get('cat')
+
     initCatalogo(locale)
+
+    // Replica el comportamiento de las cat-card de producción: abre el catálogo
+    // ya filtrado por familia activando el botón de filtro correspondiente.
+    if (cat) {
+      requestAnimationFrame(() => {
+        const btn = document.querySelector<HTMLButtonElement>(
+          `[data-familia-filter="${CSS.escape(cat)}"]`
+        )
+        if (btn) btn.click()
+      })
+    }
   })
 </script>

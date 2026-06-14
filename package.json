@@ -7,9 +7,9 @@
     "node": ">=22.12.0"
   },
   "scripts": {
-    "dev": "astro dev --host 0.0.0.0 --port 43421",
+    "dev": "astro dev --host 0.0.0.0 --port 44334",
     "build": "astro build",
-    "preview": "astro preview --port 43421",
+    "preview": "astro preview --host 0.0.0.0 --port 44334",
     "check": "astro check",
     "lint": "eslint src --max-warnings 0",
     "format": "prettier --write src",

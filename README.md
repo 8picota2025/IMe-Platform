@@ -59,6 +59,7 @@ cp .env.example .env
 
 - Páginas legales borrador: `/es/legal/*` y `/en/legal/*`.
 - Los textos legales están marcados `COPY_CLIENTE_REVISAR` / `BLOQUEANTE_LEGAL` hasta revisión de abogado.
+- El desarrollo puede continuar en QA, performance, contenido aprobado, Supabase, Asesor y deploy técnico sin cerrar aprobación jurídica ni pruebas reales de pasarelas; esos dos frentes permanecen como ToDo bloqueante antes de producción.
 - `public/.htaccess` incluye redirecciones 301 para legado `/77/` y `/1old`.
 - Auditoría y QA: `VALIDACION.md`, `VALIDACION_VISUAL.md`, `QA.md`, `REMEDIACION.md`, `CRITERIOS_ACEPTACION.md`.
 

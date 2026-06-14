@@ -1,15 +1,33 @@
 ---
 /**
- * Services EN — stub with COPY_CLIENTE_REVISAR
+ * Services EN — faithful visual replica of the production services page, English copy.
+ * 4 alternating about-grid sections + teal env-grid + CTA. CSS in site-faithful.css.
+ * Catalog/quote buttons → new functions (/en/catalog, /en/contact).
  */
 import Layout from '../../layouts/Layout.astro'
 import { buildPageTitle, buildCanonical } from '../../lib/seo'
+import '../../styles/site-faithful.css'
 
 const locale = 'en'
-const title = buildPageTitle('Specialized Services — Biomedical Support')
+const title = buildPageTitle('Services | Sales, Support, Financing & Biomedical Advisory')
 const description =
-  'COPY_CLIENTE_REVISAR — Equipment sales, technical support, medical financing and biomedical advisory for hospitals and clinics.'
+  'I-ME Colombia offers certified biomedical equipment sales, specialized technical support, medical financing and integral biomedical advisory for hospitals and clinics in Colombia.'
 const canonical = buildCanonical('/en/services')
+
+const jsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Distribution, technical support, financing and advisory of biomedical equipment',
+  provider: {
+    '@type': 'Organization',
+    name: 'I-ME International Medical Enterprise',
+    url: 'https://i-me.com.co',
+  },
+  areaServed: { '@type': 'Country', name: 'Colombia' },
+  description:
+    'Sales and distribution of certified biomedical equipment, specialized technical support, flexible medical financing and integral biomedical advisory for hospitals and clinics in Colombia.',
+  url: 'https://i-me.com.co/servicios.html',
+})
 ---
 
 <Layout
@@ -18,16 +36,295 @@ const canonical = buildCanonical('/en/services')
   canonical={canonical}
   locale={locale}
   currentPath="/en/services"
+  jsonLd={jsonLd}
+  fontAwesome={true}
 >
-  <div style="padding-top:130px;padding-bottom:var(--space-2xl);background:var(--off)">
-    <div class="container">
-      <h1>COPY_CLIENTE_REVISAR — Specialized Services</h1>
-      <p style="color:var(--text-mid)">
-        English services content — pending client review and translation.
-      </p>
-    </div>
+  <div class="site-faithful">
+    <header class="page-hero" aria-labelledby="svc-h1">
+      <div class="container">
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          <a href="/en/">Home</a><span class="sep">/</span><span aria-current="page">Services</span>
+        </nav>
+        <h1 id="svc-h1">Specialized services</h1>
+        <p class="ph-sub">
+          Beyond sales: technical support, financing and integral biomedical advisory for health
+          institutions in Colombia.
+        </p>
+      </div>
+    </header>
+
+    <!-- Service 01 — Sales -->
+    <section class="section" id="venta" aria-labelledby="svc1-h2">
+      <div class="container">
+        <div class="about-grid">
+          <div class="about-imgs fade-in">
+            <div class="about-img-main">
+              <img
+                src="/assets/img/tienda-material-biomedico.png"
+                alt="Biomedical material store and distribution — I-ME Colombia"
+                width="700"
+                height="480"
+                loading="lazy"
+              />
+            </div>
+          </div>
+          <div class="about-text fade-in d2">
+            <div class="s-label">Service 01</div>
+            <h2 id="svc1-h2" class="s-title">Sales and distribution of biomedical equipment</h2>
+            <p>
+              We distribute high-technology medical equipment from the world’s leading brands,
+              guaranteeing valid CE, FDA and INVIMA certifications for legal and safe operation in
+              Colombia.
+            </p>
+            <p>
+              Every sale includes installation, commissioning and clinical staff training, to ensure
+              correct use of the equipment from day one.
+            </p>
+            <ul class="svc-features" style="margin-top:24px">
+              <li>Equipment with INVIMA registration and CE/FDA certification</li>
+              <li>Pre-purchase technical advice with no obligation</li>
+              <li>On-site installation and configuration</li>
+              <li>Training for medical and nursing staff</li>
+              <li>Manufacturer warranty + I-ME warranty</li>
+              <li>Coverage across the 32 departments of Colombia</li>
+            </ul>
+            <div style="margin-top:36px;display:flex;gap:14px;flex-wrap:wrap">
+              <a href="/en/catalog" class="btn btn-primary"
+                ><i class="fas fa-microscope"></i> View catalog</a
+              >
+              <a href="/en/contact" class="btn btn-outline">Request a quote</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Service 02 — Support -->
+    <section class="section section-off" id="soporte" aria-labelledby="svc2-h2">
+      <div class="container">
+        <div class="about-grid" style="direction:rtl">
+          <div class="about-imgs fade-in">
+            <div class="about-img-main">
+              <img
+                src="/assets/img/soporte-tecnico-especializado.png"
+                alt="Specialized technical support for biomedical equipment — I-ME Colombia"
+                width="700"
+                height="480"
+                loading="lazy"
+              />
+            </div>
+          </div>
+          <div class="about-text fade-in d2" style="direction:ltr">
+            <div class="s-label">Service 02</div>
+            <h2 id="svc2-h2" class="s-title">Certified technical support</h2>
+            <p>
+              We have a team of certified biomedical engineers specialized in preventive, corrective
+              maintenance, calibration and metrological verification of medical equipment.
+            </p>
+            <p>
+              We respond to service requests in less than 48 hours with field technicians,
+              minimizing the downtime of your critical equipment.
+            </p>
+            <ul class="svc-features" style="margin-top:24px">
+              <li>Scheduled preventive maintenance</li>
+              <li>Emergency corrective maintenance</li>
+              <li>Calibration and metrological verification</li>
+              <li>Original spare parts and consumables</li>
+              <li>Annual maintenance contracts</li>
+              <li>Field response &lt;48 hours</li>
+            </ul>
+            <div style="margin-top:36px">
+              <a href="/en/contact" class="btn btn-primary"
+                ><i class="fas fa-headset"></i> Request technical support</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Service 03 — Financing -->
+    <section class="section" id="financiamiento" aria-labelledby="svc3-h2">
+      <div class="container">
+        <div class="about-grid">
+          <div class="about-imgs fade-in">
+            <div class="about-img-main">
+              <img
+                src="/assets/img/venta-distribucion-equipos-biomedicos.png"
+                alt="Sales and distribution of biomedical equipment for health institutions — I-ME Colombia"
+                width="700"
+                height="480"
+                loading="lazy"
+              />
+            </div>
+          </div>
+          <div class="about-text fade-in d2">
+            <div class="s-label">Service 03</div>
+            <h2 id="svc3-h2" class="s-title">Flexible medical financing</h2>
+            <p>
+              We design tailored financing plans so that health institutions of all sizes can access
+              first-line biomedical technology without compromising their cash flow.
+            </p>
+            <p>
+              We work with financial institutions specialized in the health sector to offer you the
+              best conditions in the Colombian market.
+            </p>
+            <ul class="svc-features" style="margin-top:24px">
+              <li>Fixed monthly installments with no surprises</li>
+              <li>Terms from 12 to 60 months</li>
+              <li>No co-signer for health institutions</li>
+              <li>Fast approval in 48 business hours</li>
+              <li>Preferential rate for public hospitals</li>
+              <li>Operating lease option</li>
+            </ul>
+            <div style="margin-top:36px">
+              <a href="/en/financing" class="btn btn-primary"
+                ><i class="fas fa-coins"></i> Consult financing</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Service 04 — Advisory -->
+    <section class="section section-off" id="asesoria" aria-labelledby="svc4-h2">
+      <div class="container">
+        <div class="about-grid" style="direction:rtl">
+          <div class="about-imgs fade-in">
+            <div class="about-img-main">
+              <img
+                src="/assets/img/asesoramiento-tecnico-especializado.png"
+                alt="Specialized technical advisory for biomedical equipment selection — I-ME Colombia"
+                width="700"
+                height="480"
+                loading="lazy"
+              />
+            </div>
+          </div>
+          <div class="about-text fade-in d2" style="direction:ltr">
+            <div class="s-label">Service 04</div>
+            <h2 id="svc4-h2" class="s-title">Integral biomedical advisory</h2>
+            <p>
+              Our team of biomedical consultants accompanies your institution from the initial
+              assessment of the technology portfolio through to the implementation of a renewal or
+              strategic acquisition plan.
+            </p>
+            <p>
+              Over 15 years of experience in the Colombian health sector allow us to offer objective
+              advice, free of conflicts of interest, geared toward the best results for your
+              institution.
+            </p>
+            <ul class="svc-features" style="margin-top:24px">
+              <li>Assessment of the current technology portfolio</li>
+              <li>Strategic acquisition and renewal plan</li>
+              <li>Technical specifications for tenders</li>
+              <li>Comparative equipment evaluation</li>
+              <li>Training for technical and clinical staff</li>
+              <li>Support with INVIMA management</li>
+            </ul>
+            <div style="margin-top:36px">
+              <a href="/en/contact" class="btn btn-primary"
+                ><i class="fas fa-user-tie"></i> Request advisory</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ENV GRID -->
+    <section class="section section-teal" aria-label="Hospital environments">
+      <div class="container">
+        <div class="s-header s-header-center fade-in">
+          <div class="s-label s-label-white">Clinical environment</div>
+          <h2 class="s-title s-title-white">We cover every area of your institution</h2>
+        </div>
+        <div class="env-grid">
+          <div class="env-card">
+            <img
+              src="/assets/img/hospital-uci-pasillo.webp"
+              alt="Intensive Care Unit ICU with biomedical monitoring — I-ME Colombia"
+              width="500"
+              height="340"
+              loading="lazy"
+            />
+            <div class="env-card-label">
+              <span>ICU</span><small>Continuous critical monitoring</small>
+            </div>
+          </div>
+          <div class="env-card" style="transition-delay:0.15s">
+            <img
+              src="/assets/img/sala-cirugia-robotica.webp"
+              alt="Robotic operating room with advanced equipment — I-ME Colombia"
+              width="500"
+              height="340"
+              loading="lazy"
+            />
+            <div class="env-card-label">
+              <span>Robotic Operating Room</span><small>High-complexity surgery</small>
+            </div>
+          </div>
+          <div class="env-card" style="transition-delay:0.3s">
+            <img
+              src="/assets/img/sala-radiologia-diagnostica.webp"
+              alt="Radiology and diagnostic imaging suite — I-ME Colombia"
+              width="500"
+              height="340"
+              loading="lazy"
+            />
+            <div class="env-card-label">
+              <span>Diagnostic imaging</span><small>X-ray · Ultrasound</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section" aria-label="Call to action">
+      <div class="container">
+        <div class="cta-block fade-in">
+          <div class="s-label s-label-white">Contact us</div>
+          <h2 class="cta-title">How can we help you today?</h2>
+          <p class="cta-sub">
+            Talk directly with one of our specialized biomedical engineers. Free advice for your
+            institution.
+          </p>
+          <div class="cta-btns">
+            <a
+              href="https://wa.me/573138674059"
+              target="_blank"
+              rel="noopener"
+              class="btn btn-green"
+            >
+              <i class="fab fa-whatsapp"></i> WhatsApp directly
+            </a>
+            <a href="/en/contact" class="btn btn-outline-white">Contact form</a>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
-  <section class="section container">
-    <a href="/en/contact" class="btn btn-primary">Request Information</a>
-  </section>
 </Layout>
+
+<script>
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const faders = document.querySelectorAll<HTMLElement>('.site-faithful .fade-in')
+  if (reduce || !('IntersectionObserver' in window)) {
+    faders.forEach((el) => el.classList.add('visible'))
+  } else {
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible')
+            io.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+    )
+    faders.forEach((el) => io.observe(el))
+  }
+</script>

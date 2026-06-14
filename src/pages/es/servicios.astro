@@ -1,62 +1,33 @@
 ---
 /**
- * Servicios ES — contenido real de contenido_ime.json.servicios
+ * Servicios ES — réplica visual FIEL del sitio en producción (servicios.html).
+ * 4 secciones about-grid alternadas + env-grid teal + CTA. CSS en site-faithful.css.
+ * Botones de catálogo/cotización → funciones nuevas (/es/catalogo, /es/contacto).
  */
 import Layout from '../../layouts/Layout.astro'
 import { buildPageTitle, buildCanonical } from '../../lib/seo'
+import '../../styles/site-faithful.css'
 
 const locale = 'es'
-const title = buildPageTitle('Servicios Especializados — Soporte Biomédico')
+const title = buildPageTitle('Servicios | Venta, Soporte, Financiamiento y Asesoría Biomédica')
 const description =
-  'Venta y distribución, soporte técnico, financiamiento médico y asesoría biomédica para hospitales y clínicas en Colombia.'
+  'I-ME Colombia ofrece venta de equipos biomédicos certificados, soporte técnico especializado, financiamiento médico y asesoría biomédica integral para hospitales y clínicas en Colombia.'
 const canonical = buildCanonical('/es/servicios')
 
-const servicios = [
-  {
-    num: '01',
-    titulo: 'Venta y distribución',
-    desc: 'Distribución de equipos biomédicos de alta tecnología con certificaciones internacionales CE, FDA e INVIMA para hospitales, clínicas y centros de salud en Colombia.',
-    items: [
-      'Equipos certificados internacionalmente',
-      'Asesoría técnica especializada precompra',
-      'Instalación y puesta en marcha incluida',
-    ],
-    img: '/assets/extraccion/img/Img11.jpg',
+const jsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Distribución, soporte técnico, financiamiento y asesoría de equipos biomédicos',
+  provider: {
+    '@type': 'Organization',
+    name: 'I-ME International Medical Enterprise',
+    url: 'https://i-me.com.co',
   },
-  {
-    num: '02',
-    titulo: 'Soporte técnico',
-    desc: 'Mantenimiento preventivo, correctivo y calibración de equipos biomédicos realizado por ingenieros certificados en todo el territorio colombiano.',
-    items: [
-      'Mantenimiento preventivo y correctivo',
-      'Calibración y verificación metrológica',
-      'Repuestos y consumibles originales',
-    ],
-    img: '/assets/extraccion/img/Img4.jpg',
-  },
-  {
-    num: '03',
-    titulo: 'Financiamiento médico',
-    desc: 'Planes de adquisición a medida para instituciones de salud. Cuotas flexibles, plazos extendidos y condiciones adaptadas a las necesidades de cada organización.',
-    items: [
-      'Cuotas mensuales flexibles',
-      'Plazos hasta 60 meses',
-      'Sin codeudor para instituciones de salud',
-    ],
-    img: '/assets/extraccion/img/Img27.jpg',
-  },
-  {
-    num: '04',
-    titulo: 'Asesoría biomédica',
-    desc: 'Consultoría especializada para la correcta selección, adquisición y gestión del parque tecnológico biomédico de su institución de salud.',
-    items: [
-      'Diagnóstico del parque tecnológico',
-      'Plan de renovación y adquisición',
-      'Capacitación al personal clínico',
-    ],
-    img: '/assets/extraccion/img/Img25.jpg',
-  },
-]
+  areaServed: { '@type': 'Country', name: 'Colombia' },
+  description:
+    'Venta y distribución de equipos biomédicos certificados, soporte técnico especializado, financiamiento médico flexible y asesoría biomédica integral para hospitales y clínicas en Colombia.',
+  url: 'https://i-me.com.co/servicios.html',
+})
 ---
 
 <Layout
@@ -65,152 +36,299 @@ const servicios = [
   canonical={canonical}
   locale={locale}
   currentPath="/es/servicios"
+  jsonLd={jsonLd}
+  fontAwesome={true}
 >
-  <div
-    class="page-hero"
-    style="padding-top:130px;padding-bottom:var(--space-2xl);background:var(--off)"
-  >
-    <div class="container">
-      <span class="section-tag">Servicios</span>
-      <h1>Servicios especializados</h1>
-      <p style="color:var(--text-mid);max-width:560px;margin:0.75rem 0 0">
-        Soluciones integrales desde la adquisición hasta el soporte técnico de largo plazo para
-        instituciones de salud.
-      </p>
-    </div>
-  </div>
-
-  <section class="section container">
-    <ul class="servicios-list" role="list">
-      {
-        servicios.map((s, i) => (
-          <li
-            class:list={['servicio-row', { 'servicio-row--reverse': i % 2 !== 0 }]}
-            id={`servicio-${s.num}`}
+  <div class="site-faithful">
+    <header class="page-hero" aria-labelledby="svc-h1">
+      <div class="container">
+        <nav class="breadcrumb" aria-label="Ruta">
+          <a href="/es/">Inicio</a><span class="sep">/</span><span aria-current="page"
+            >Servicios</span
           >
-            <div class="servicio-row__img">
+        </nav>
+        <h1 id="svc-h1">Servicios especializados</h1>
+        <p class="ph-sub">
+          Más allá de la venta: soporte técnico, financiamiento y asesoría biomédica integral para
+          instituciones de salud en Colombia.
+        </p>
+      </div>
+    </header>
+
+    <!-- Servicio 01 — Venta -->
+    <section class="section" id="venta" aria-labelledby="svc1-h2">
+      <div class="container">
+        <div class="about-grid">
+          <div class="about-imgs fade-in">
+            <div class="about-img-main">
               <img
-                src={s.img}
-                alt=""
-                width="560"
-                height="380"
+                src="/assets/img/tienda-material-biomedico.png"
+                alt="Tienda y distribución de material biomédico — I-ME Colombia"
+                width="700"
+                height="480"
                 loading="lazy"
-                decoding="async"
-                class="servicio-row__photo"
-                aria-hidden="true"
               />
             </div>
-            <div class="servicio-row__content">
-              <span class="servicio-num" aria-hidden="true">
-                {s.num}
-              </span>
-              <h2 class="servicio-titulo">{s.titulo}</h2>
-              <p class="servicio-desc">{s.desc}</p>
-              <ul class="servicio-items" role="list">
-                {s.items.map((item) => (
-                  <li>
-                    <span aria-hidden="true">✓</span> {item}
-                  </li>
-                ))}
-              </ul>
-              <a
-                href="/es/contacto"
-                class="btn btn-primary"
-                style="align-self:flex-start;margin-top:0.5rem"
+          </div>
+          <div class="about-text fade-in d2">
+            <div class="s-label">Servicio 01</div>
+            <h2 id="svc1-h2" class="s-title">Venta y distribución de equipos biomédicos</h2>
+            <p>
+              Distribuimos equipos médicos de alta tecnología con las principales marcas del mundo,
+              garantizando certificaciones CE, FDA e INVIMA vigentes para la operación legal y
+              segura en Colombia.
+            </p>
+            <p>
+              Cada venta incluye instalación, puesta en marcha y capacitación al personal clínico,
+              para garantizar el correcto uso del equipo desde el primer día.
+            </p>
+            <ul class="svc-features" style="margin-top:24px">
+              <li>Equipos con registro INVIMA y certificación CE/FDA</li>
+              <li>Asesoría técnica precompra sin compromiso</li>
+              <li>Instalación y configuración en sitio</li>
+              <li>Capacitación al personal médico y de enfermería</li>
+              <li>Garantía del fabricante + garantía I-ME</li>
+              <li>Cobertura en los 32 departamentos de Colombia</li>
+            </ul>
+            <div style="margin-top:36px;display:flex;gap:14px;flex-wrap:wrap">
+              <a href="/es/catalogo" class="btn btn-primary"
+                ><i class="fas fa-microscope"></i> Ver catálogo</a
               >
-                Consultar este servicio
-              </a>
+              <a href="/es/contacto" class="btn btn-outline">Solicitar cotización</a>
             </div>
-          </li>
-        ))
-      }
-    </ul>
-  </section>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Servicio 02 — Soporte -->
+    <section class="section section-off" id="soporte" aria-labelledby="svc2-h2">
+      <div class="container">
+        <div class="about-grid" style="direction:rtl">
+          <div class="about-imgs fade-in">
+            <div class="about-img-main">
+              <img
+                src="/assets/img/soporte-tecnico-especializado.png"
+                alt="Soporte técnico especializado de equipos biomédicos — I-ME Colombia"
+                width="700"
+                height="480"
+                loading="lazy"
+              />
+            </div>
+          </div>
+          <div class="about-text fade-in d2" style="direction:ltr">
+            <div class="s-label">Servicio 02</div>
+            <h2 id="svc2-h2" class="s-title">Soporte técnico certificado</h2>
+            <p>
+              Contamos con un equipo de ingenieros biomédicos certificados y especializados en
+              mantenimiento preventivo, correctivo, calibración y verificación metrológica de
+              equipos médicos.
+            </p>
+            <p>
+              Respondemos a solicitudes de servicio en menos de 48 horas con técnicos en campo,
+              minimizando el tiempo de inactividad de sus equipos críticos.
+            </p>
+            <ul class="svc-features" style="margin-top:24px">
+              <li>Mantenimiento preventivo programado</li>
+              <li>Mantenimiento correctivo de emergencia</li>
+              <li>Calibración y verificación metrológica</li>
+              <li>Repuestos y consumibles originales</li>
+              <li>Contratos de mantenimiento anuales</li>
+              <li>Respuesta en campo &lt;48 horas</li>
+            </ul>
+            <div style="margin-top:36px">
+              <a href="/es/contacto" class="btn btn-primary"
+                ><i class="fas fa-headset"></i> Solicitar soporte técnico</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Servicio 03 — Financiamiento -->
+    <section class="section" id="financiamiento" aria-labelledby="svc3-h2">
+      <div class="container">
+        <div class="about-grid">
+          <div class="about-imgs fade-in">
+            <div class="about-img-main">
+              <img
+                src="/assets/img/venta-distribucion-equipos-biomedicos.png"
+                alt="Venta y distribución de equipos biomédicos para instituciones de salud — I-ME Colombia"
+                width="700"
+                height="480"
+                loading="lazy"
+              />
+            </div>
+          </div>
+          <div class="about-text fade-in d2">
+            <div class="s-label">Servicio 03</div>
+            <h2 id="svc3-h2" class="s-title">Financiamiento médico flexible</h2>
+            <p>
+              Diseñamos planes de financiamiento a medida para que instituciones de salud de todos
+              los tamaños puedan acceder a tecnología biomédica de primera línea sin comprometer su
+              flujo de caja.
+            </p>
+            <p>
+              Trabajamos con entidades financieras especializadas en el sector salud para ofrecerle
+              las mejores condiciones del mercado colombiano.
+            </p>
+            <ul class="svc-features" style="margin-top:24px">
+              <li>Cuotas mensuales fijas sin sorpresas</li>
+              <li>Plazos de 12 a 60 meses</li>
+              <li>Sin codeudor para instituciones de salud</li>
+              <li>Aprobación rápida en 48 horas hábiles</li>
+              <li>Tasa preferencial para hospitales públicos</li>
+              <li>Posibilidad de leasing operativo</li>
+            </ul>
+            <div style="margin-top:36px">
+              <a href="/es/financiacion" class="btn btn-primary"
+                ><i class="fas fa-coins"></i> Consultar financiamiento</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Servicio 04 — Asesoría -->
+    <section class="section section-off" id="asesoria" aria-labelledby="svc4-h2">
+      <div class="container">
+        <div class="about-grid" style="direction:rtl">
+          <div class="about-imgs fade-in">
+            <div class="about-img-main">
+              <img
+                src="/assets/img/asesoramiento-tecnico-especializado.png"
+                alt="Asesoramiento técnico especializado para selección de equipos biomédicos — I-ME Colombia"
+                width="700"
+                height="480"
+                loading="lazy"
+              />
+            </div>
+          </div>
+          <div class="about-text fade-in d2" style="direction:ltr">
+            <div class="s-label">Servicio 04</div>
+            <h2 id="svc4-h2" class="s-title">Asesoría biomédica integral</h2>
+            <p>
+              Nuestro equipo de consultores biomédicos acompaña a su institución desde el
+              diagnóstico inicial del parque tecnológico hasta la implementación de un plan de
+              renovación o adquisición estratégica.
+            </p>
+            <p>
+              Más de 15 años de experiencia en el sector salud colombiano nos permiten ofrecer
+              asesoría objetiva, sin conflicto de interés, orientada a los mejores resultados para
+              su institución.
+            </p>
+            <ul class="svc-features" style="margin-top:24px">
+              <li>Diagnóstico del parque tecnológico actual</li>
+              <li>Plan de adquisición y renovación estratégica</li>
+              <li>Especificaciones técnicas para licitaciones</li>
+              <li>Evaluación comparativa de equipos</li>
+              <li>Capacitación al personal técnico y clínico</li>
+              <li>Acompañamiento en la gestión INVIMA</li>
+            </ul>
+            <div style="margin-top:36px">
+              <a href="/es/contacto" class="btn btn-primary"
+                ><i class="fas fa-user-tie"></i> Solicitar asesoría</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ENV GRID -->
+    <section class="section section-teal" aria-label="Ambientes hospitalarios">
+      <div class="container">
+        <div class="s-header s-header-center fade-in">
+          <div class="s-label s-label-white">Entorno clínico</div>
+          <h2 class="s-title s-title-white">Cubrimos cada área de su institución</h2>
+        </div>
+        <div class="env-grid">
+          <div class="env-card">
+            <img
+              src="/assets/img/hospital-uci-pasillo.webp"
+              alt="Unidad de Cuidados Intensivos UCI con monitoreo biomédico — I-ME Colombia"
+              width="500"
+              height="340"
+              loading="lazy"
+            />
+            <div class="env-card-label">
+              <span>UCI</span><small>Monitoreo crítico continuo</small>
+            </div>
+          </div>
+          <div class="env-card" style="transition-delay:0.15s">
+            <img
+              src="/assets/img/sala-cirugia-robotica.webp"
+              alt="Sala de cirugía robótica con equipos avanzados — I-ME Colombia"
+              width="500"
+              height="340"
+              loading="lazy"
+            />
+            <div class="env-card-label">
+              <span>Quirófano Robótico</span><small>Cirugía de alta complejidad</small>
+            </div>
+          </div>
+          <div class="env-card" style="transition-delay:0.3s">
+            <img
+              src="/assets/img/sala-radiologia-diagnostica.webp"
+              alt="Sala de radiología y diagnóstico por imagen — I-ME Colombia"
+              width="500"
+              height="340"
+              loading="lazy"
+            />
+            <div class="env-card-label">
+              <span>Diagnóstico por imagen</span><small>Rayos X · Ecografía</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section" aria-label="Llamado a la acción">
+      <div class="container">
+        <div class="cta-block fade-in">
+          <div class="s-label s-label-white">Contáctenos</div>
+          <h2 class="cta-title">¿En qué podemos ayudarle hoy?</h2>
+          <p class="cta-sub">
+            Habla directamente con uno de nuestros ingenieros biomédicos especializados. Asesoría
+            gratuita para su institución.
+          </p>
+          <div class="cta-btns">
+            <a
+              href="https://wa.me/573138674059"
+              target="_blank"
+              rel="noopener"
+              class="btn btn-green"
+            >
+              <i class="fab fa-whatsapp"></i> WhatsApp directo
+            </a>
+            <a href="/es/contacto" class="btn btn-outline-white">Formulario de contacto</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
 </Layout>
 
-<style>
-  .section-tag {
-    display: inline-block;
-    font-family: var(--font-display);
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--t900);
-    background: var(--t100);
-    padding: 0.3rem 0.875rem;
-    border-radius: 999px;
-    margin-block-end: 0.75rem;
+<script>
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const faders = document.querySelectorAll<HTMLElement>('.site-faithful .fade-in')
+  if (reduce || !('IntersectionObserver' in window)) {
+    faders.forEach((el) => el.classList.add('visible'))
+  } else {
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible')
+            io.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+    )
+    faders.forEach((el) => io.observe(el))
   }
-  .servicios-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2xl);
-  }
-  .servicio-row {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-xl);
-    align-items: center;
-  }
-  @media (min-width: 900px) {
-    .servicio-row {
-      grid-template-columns: 1fr 1fr;
-    }
-    .servicio-row--reverse .servicio-row__img {
-      order: 2;
-    }
-  }
-  .servicio-row__photo {
-    border-radius: var(--radius-lg);
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-    box-shadow: var(--shadow-lg);
-  }
-  .servicio-row__content {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-  .servicio-num {
-    font-family: var(--font-display);
-    font-size: var(--step-4);
-    font-weight: 800;
-    color: var(--t100);
-    line-height: 1;
-  }
-  .servicio-titulo {
-    font-size: var(--step-2);
-    font-weight: 700;
-    color: var(--ink);
-    margin: 0;
-  }
-  .servicio-desc {
-    color: var(--text-mid);
-    margin: 0;
-    line-height: 1.6;
-  }
-  .servicio-items {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-  }
-  .servicio-items li {
-    display: flex;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    color: var(--text);
-  }
-  .servicio-items span {
-    color: var(--green);
-    font-weight: 700;
-    flex-shrink: 0;
-  }
-</style>
+</script>

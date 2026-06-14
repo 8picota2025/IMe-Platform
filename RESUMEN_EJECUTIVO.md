@@ -23,13 +23,14 @@ QA/SEO/seguridad/a11y/performance sobre el build estático con evidencia.
 - **Seguridad**: matriz RLS básica verificada contra el proyecto Supabase real (catálogo público de solo
   lectura para `anon`, escritura bloqueada en `productos`, formulario de cotización funcional con RLS que
   oculta solicitudes de terceros). Grep de secretos en `src`/`dist`: 0 coincidencias.
+- **Continuidad de desarrollo**: se puede avanzar con QA, performance, contenido aprobado, Supabase/Asesor y deploy
+  técnico dejando aprobación jurídica y pruebas reales Wompi/Stripe como ToDo bloqueante antes de producción.
 
 ## Hallazgos nuevos (no bloqueantes, registrados en PENDIENTES.md/REMEDIACION.md)
 
 - Performance Lighthouse (`dist/`, preset móvil simulado) en 0.66-0.79, por debajo del objetivo ≥90 — pendiente
   optimización de peso de imágenes/JS.
 - Tabla `tipos` (subcategorías) sigue vacía — catálogo no agrupa por tipo dentro de cada familia.
-- `sitemap-0.xml` incluye `/admin/` y páginas `/pago/*` (ambas `noindex,nofollow`) — sugerido filtrarlas del sitemap.
 - `.htaccess` no define HSTS ni CSP — pendiente de añadir tras confirmar despliegue HTTPS en Hostinger.
 
 ## Bloqueantes antes de producción

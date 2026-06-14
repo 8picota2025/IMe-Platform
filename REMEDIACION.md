@@ -12,7 +12,7 @@ Formato: `[ubicación] [severidad] [descripción] [evidencia] [fix concreto] [fa
 - `[SEO] [Mayor] Redirecciones 301 no verificadas en hosting real. Evidencia: .htaccess creado pero no desplegado. Fix: deploy y curl -I de matriz legacy. [F5]`
 - `[Datos] [Menor] Tabla tipos sigue vacía (mock y Supabase). Evidencia: src/data/mock-tipos.json = []. getTipos() siempre cae a lista vacía; el catálogo no agrupa por subcategoría. Fix: definir subcategorías reales por familia y sembrarlas (TODO_CLIENTE). [F2-F5]`
 - `[Performance] [Menor] Lighthouse (preset móvil simulado) sobre dist estático da Performance ~0.66-0.79, por debajo del objetivo >=90. Evidencia: /tmp/lh-dist-home2.json y /tmp/lh-final.json — total-byte-weight ~3.1MB y unused-javascript ~248KiB son las mayores oportunidades. Fix: optimizar imágenes (astro:assets/formatos modernos) y revisar JS no usado (GSAP/Lenis) por ruta. [F5]`
-- `[SEO] [Opcional] sitemap-0.xml incluye /admin/ y las páginas /es|en/pago/* (noindex,nofollow), pese a que robots.txt bloquea /admin. Evidencia: grep sobre dist/sitemap-0.xml. Fix: excluir esas rutas del sitemap vía filter en la integración @astrojs/sitemap. [F5]`
+- `[SEO] [Opcional] sitemap-0.xml incluía /admin/ y las páginas /es|en/pago/* (noindex,nofollow), pese a que robots.txt bloquea /admin. Fix aplicado: `astro.config.mjs`filtra`/admin/`, `/es/pago/_`y`/en/payment/_`en la integración @astrojs/sitemap. Verificar con`npm run build`y recuento de 71 loc en`dist/sitemap-0.xml`. [F5]`
 
 ## Cerrados en esta pasada
 
