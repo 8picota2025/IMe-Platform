@@ -225,52 +225,52 @@ const altHref = getLocalizedPath(currentPath, altLocale)
       </button>
     </div>
   </div>
-
-  <!-- Mobile menu -->
-  <div
-    id="mobile-menu"
-    class="navbar__mobile"
-    role="dialog"
-    aria-modal="true"
-    aria-label={locale === 'es' ? 'Menú de navegación' : 'Navigation menu'}
-    hidden
-  >
-    <nav aria-label={locale === 'es' ? 'Navegación móvil' : 'Mobile navigation'}>
-      <ul class="navbar__mobile-list" role="list">
-        {
-          links.map(({ key, href }) => (
-            <li>
-              <a
-                href={href}
-                class:list={[
-                  'navbar__mobile-link',
-                  { 'navbar__mobile-link--active': currentPath === href },
-                ]}
-                aria-current={currentPath === href ? 'page' : undefined}
-              >
-                {t(locale, key)}
-              </a>
-            </li>
-          ))
-        }
-        <li>
-          <a href={altHref} class="navbar__mobile-link" lang={altLocale}>
-            {t(locale, 'nav.cambiar_idioma')}: {altLocale.toUpperCase()}
-          </a>
-        </li>
-        <li>
-          <a
-            href={getLocalizedPath('/contacto', locale)}
-            class="btn btn-primary"
-            style="width:100%;justify-content:center;margin-top:1rem"
-          >
-            {t(locale, 'nav.cta_cotizar')}
-          </a>
-        </li>
-      </ul>
-    </nav>
-  </div>
 </header>
+
+<!-- Mobile menu -->
+<div
+  id="mobile-menu"
+  class="navbar__mobile"
+  role="dialog"
+  aria-modal="true"
+  aria-label={locale === 'es' ? 'Menú de navegación' : 'Navigation menu'}
+  hidden
+>
+  <nav aria-label={locale === 'es' ? 'Navegación móvil' : 'Mobile navigation'}>
+    <ul class="navbar__mobile-list" role="list">
+      {
+        links.map(({ key, href }) => (
+          <li>
+            <a
+              href={href}
+              class:list={[
+                'navbar__mobile-link',
+                { 'navbar__mobile-link--active': currentPath === href },
+              ]}
+              aria-current={currentPath === href ? 'page' : undefined}
+            >
+              {t(locale, key)}
+            </a>
+          </li>
+        ))
+      }
+      <li>
+        <a href={altHref} class="navbar__mobile-link" lang={altLocale}>
+          {t(locale, 'nav.cambiar_idioma')}: {altLocale.toUpperCase()}
+        </a>
+      </li>
+      <li>
+        <a
+          href={getLocalizedPath('/contacto', locale)}
+          class="btn btn-primary"
+          style="width:100%;justify-content:center;margin-top:1rem"
+        >
+          {t(locale, 'nav.cta_cotizar')}
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>
 
 <style>
   .navbar {
