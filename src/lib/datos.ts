@@ -69,6 +69,7 @@ function mapProductoSupabase(raw: any, locale: Locale): Producto {
     precio: raw.precio,
     moneda: raw.moneda,
     stock: raw.stock ?? null,
+    disponible: raw.disponible ?? true,
     destacado: raw.destacado,
     nuevo: raw.nuevo,
     activo: raw.activo,
@@ -117,6 +118,9 @@ export interface Producto {
   precio: number | null
   moneda: string
   stock: number | null
+  // Escenario A: el proveedor flaguea disponibilidad en tiempo real.
+  // false → fuera de carrito/checkout (independiente de `activo`/catálogo).
+  disponible: boolean
   destacado: boolean
   nuevo: boolean
   activo: boolean
@@ -185,6 +189,7 @@ function mapProducto(raw: (typeof mockProductos)[0], locale: Locale): Producto {
     precio: raw.precio,
     moneda: raw.moneda,
     stock: (raw as { stock?: number | null }).stock ?? null,
+    disponible: (raw as { disponible?: boolean }).disponible ?? true,
     destacado: raw.destacado,
     nuevo: raw.nuevo,
     activo: raw.activo,

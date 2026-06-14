@@ -22,6 +22,8 @@ interface ProductoCardData {
   precio?: number | null
   moneda?: string
   stock?: number | null
+  /** Escenario A: disponibilidad en tiempo real provista por el proveedor. */
+  disponible?: boolean
 }
 
 interface Props {
@@ -34,6 +36,10 @@ interface Props {
 const { producto, locale, comparable = false } = Astro.props
 const segment = locale === 'en' ? 'products' : 'productos'
 const href = `/${locale}/${segment}/${producto.slug}`
+const noDisponible = producto.disponible === false
+const whatsappHref = `https://wa.me/573138674059?text=${encodeURIComponent(
+  `${t(locale, 'producto.cta_consultar_disponibilidad')}: ${producto.nombre}`
+)}`
 ---
 
 <li
@@ -65,13 +71,16 @@ const href = `/${locale}/${segment}/${producto.slug}`
         class="producto-card__img"
       />
       {
-        (producto.destacado || producto.nuevo) && (
+        (producto.destacado || producto.nuevo || noDisponible) && (
           <div class="producto-card__badges" aria-hidden="true">
             {producto.nuevo && (
               <span class="badge badge-green">{t(locale, 'producto.badge_nuevo')}</span>
             )}
             {producto.destacado && (
               <span class="badge badge-teal">{t(locale, 'producto.badge_destacado')}</span>
+            )}
+            {noDisponible && (
+              <span class="badge badge-gris">{t(locale, 'producto.badge_no_disponible')}</span>
             )}
           </div>
         )
@@ -113,22 +122,34 @@ const href = `/${locale}/${segment}/${producto.slug}`
     )
   }
   {
-    producto.tipo_comercial === 'consumible' && producto.precio != null && producto.precio > 0 && (
-      <button
-        type="button"
-        class="btn btn-secondary producto-card__add"
-        aria-live="polite"
-        data-add-carrito={producto.slug}
-        data-nombre={producto.nombre}
-        data-precio={producto.precio}
-        data-moneda={producto.moneda ?? 'COP'}
-        data-stock={producto.stock ?? ''}
-        data-label-agregar={t(locale, 'carrito.agregar')}
-        data-label-agregado={t(locale, 'carrito.agregado')}
-      >
-        {t(locale, 'carrito.agregar')}
-      </button>
-    )
+    producto.tipo_comercial === 'consumible' &&
+      producto.precio != null &&
+      producto.precio > 0 &&
+      (noDisponible ? (
+        <a
+          href={whatsappHref}
+          class="btn btn-secondary producto-card__add"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {t(locale, 'producto.cta_consultar_disponibilidad')}
+        </a>
+      ) : (
+        <button
+          type="button"
+          class="btn btn-secondary producto-card__add"
+          aria-live="polite"
+          data-add-carrito={producto.slug}
+          data-nombre={producto.nombre}
+          data-precio={producto.precio}
+          data-moneda={producto.moneda ?? 'COP'}
+          data-stock={producto.stock ?? ''}
+          data-label-agregar={t(locale, 'carrito.agregar')}
+          data-label-agregado={t(locale, 'carrito.agregado')}
+        >
+          {t(locale, 'carrito.agregar')}
+        </button>
+      ))
   }
 </li>
 

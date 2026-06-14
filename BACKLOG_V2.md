@@ -4,6 +4,13 @@ Funcionalidades identificadas pero explícitamente excluidas del alcance inicial
 
 ## Comercio
 
+- Stripe / mercado INTL: `StripeGateway` (`payment-gateway.ts`) está completamente
+  implementado desde F4 (checkout, verificación, webhook), pero su activación real
+  (credenciales `STRIPE_*`, pruebas sandbox) queda diferida a la fase internacional —
+  ver `NO_EJECUTADO_ENTORNO` en PENDIENTES.md. No es deuda técnica, es alcance
+  geográfico diferido.
+- Portal de proveedor para gestionar `productos.disponible` (Escenario A, F4.1) — hoy
+  el flag lo gestiona el admin manualmente desde el formulario de producto.
 - Facturación electrónica DIAN
 - IVA / retenciones automáticas
 - Logística / cálculo de envío

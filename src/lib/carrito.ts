@@ -34,6 +34,9 @@ export interface ResultadoCheckout {
   checkoutUrl?: string
   referencia?: string
   error?: string
+  /** Codigo de error de la Edge Function (ej. 'PRODUCTO_NO_DISPONIBLE_TEMPORAL'). */
+  codigo?: string
+  detalles?: unknown
 }
 
 const STORAGE_KEY = 'ime_carrito'
@@ -118,6 +121,46 @@ export function vaciarCarrito(): CarritoItem[] {
   return escribir([])
 }
 
+export interface RevalidacionResultado {
+  items: CarritoItem[]
+  eliminados: CarritoItem[]
+}
+
+/**
+ * Escenario A: revalida `disponible` contra Supabase y quita del carrito los
+ * ítems que el proveedor marcó como no disponibles desde que se agregaron.
+ * crear-pago vuelve a validar igualmente — esto solo evita sorpresas en el drawer.
+ */
+export async function revalidarDisponibilidad(): Promise<RevalidacionResultado> {
+  const items = leer()
+  if (items.length === 0) return { items, eliminados: [] }
+
+  const supabase = getSupabaseClient()
+  if (!supabase) return { items, eliminados: [] }
+
+  const { data, error } = await supabase
+    .from('productos')
+    .select('slug, disponible')
+    .in(
+      'slug',
+      items.map((i) => i.slug)
+    )
+
+  if (error || !data) return { items, eliminados: [] }
+
+  const noDisponibles = new Set(
+    (data as { slug: string; disponible: boolean }[])
+      .filter((p) => p.disponible === false)
+      .map((p) => p.slug)
+  )
+  if (noDisponibles.size === 0) return { items, eliminados: [] }
+
+  const eliminados = items.filter((i) => noDisponibles.has(i.slug))
+  const restantes = items.filter((i) => !noDisponibles.has(i.slug))
+  escribir(restantes)
+  return { items: restantes, eliminados }
+}
+
 export function suscribirCarrito(callback: (items: CarritoItem[]) => void): () => void {
   if (typeof window === 'undefined') return () => undefined
   const handler = (event: Event) => callback((event as CustomEvent<CarritoItem[]>).detail)
@@ -164,15 +207,26 @@ export async function iniciarCheckout(params: {
   if (error) {
     const context = (error as { context?: unknown }).context
     let mensaje = error.message
+    let codigo: string | undefined
+    let detalles: unknown
     if (context instanceof Response) {
       try {
-        const json = (await context.json()) as { error?: { message?: string } }
+        const json = (await context.json()) as {
+          error?: { code?: string; message?: string; details?: unknown }
+        }
         if (json?.error?.message) mensaje = json.error.message
+        codigo = json?.error?.code
+        detalles = json?.error?.details
       } catch {
         /* respuesta no JSON, usar mensaje por defecto */
       }
     }
-    return { ok: false, error: mensaje }
+    return {
+      ok: false,
+      error: mensaje,
+      ...(codigo ? { codigo } : {}),
+      ...(detalles !== undefined ? { detalles } : {}),
+    }
   }
 
   const json = data as { ok?: boolean; checkout_url?: string; referencia?: string }

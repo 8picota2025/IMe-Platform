@@ -74,6 +74,10 @@ CREATE TABLE IF NOT EXISTS productos (
   precio                NUMERIC,           -- COP, CONFIDENCIAL si es precio_costo
   moneda                TEXT NOT NULL DEFAULT 'COP',
   stock                 INT,
+  -- Escenario A: el proveedor flaguea disponibilidad en tiempo real.
+  -- false → fuera de catálogo activo para venta, carrito y crear-pago (422).
+  disponible              BOOLEAN NOT NULL DEFAULT true,
+  disponible_actualizado_at TIMESTAMPTZ,
   destacado             BOOLEAN NOT NULL DEFAULT false,
   nuevo                 BOOLEAN NOT NULL DEFAULT false,
   activo                BOOLEAN NOT NULL DEFAULT true,
@@ -147,6 +151,10 @@ CREATE TABLE IF NOT EXISTS pedidos (
                            CHECK (mercado IN ('CO', 'INTL')),
   proveedor_pago           TEXT NOT NULL
                            CHECK (proveedor_pago IN ('wompi', 'stripe')),
+  -- valores: pendiente|pagado|rechazado|expirado|cancelado|reembolsado|error_verificacion
+  --          |procesando|enviado|entregado|retrasado
+  -- (retrasado = rotura de stock post-pago, Escenario A; corresponde al ENUM
+  --  estado_pedido de plataforma/prompts/IME_F4_Commerce_Pasarelas_v1.1.md)
   estado                   TEXT NOT NULL DEFAULT 'pendiente',
   referencia_pasarela      TEXT UNIQUE,
   checkout_url             TEXT,
@@ -165,6 +173,9 @@ CREATE TRIGGER set_pedidos_updated_at
   FOR EACH ROW EXECUTE FUNCTION trigger_set_updated_at();
 
 -- ── 6. eventos_pago ─────────────────────────────────────────
+-- Equivalente funcional a la tabla 'eventos_procesados' de
+-- IME_F4_Commerce_Pasarelas_v1.1.md: idempotencia de webhooks por
+-- (proveedor_pago, event_id). No se renombra.
 CREATE TABLE IF NOT EXISTS eventos_pago (
   id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   proveedor_pago      TEXT NOT NULL CHECK (proveedor_pago IN ('wompi', 'stripe')),

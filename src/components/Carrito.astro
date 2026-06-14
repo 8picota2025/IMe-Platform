@@ -48,6 +48,7 @@ const config = {
     errorValidacion: t(locale, 'carrito.error_validacion'),
     requerido: t(locale, 'carrito.requerido'),
     avisoRecalculo: t(locale, 'carrito.aviso_recalculo'),
+    itemNoDisponible: t(locale, 'carrito.item_no_disponible'),
   },
   catalogoHref: locale === 'en' ? '/en/catalog' : '/es/catalogo',
 }
@@ -93,6 +94,8 @@ const config = {
       {config.i18n.vacio}
       <a href={config.catalogoHref} class="btn btn-secondary">{config.i18n.vacioCta}</a>
     </p>
+
+    <div id="carrito-avisos" class="carrito-avisos" role="status" aria-live="polite" hidden></div>
 
     <ul id="carrito-items" class="carrito-items" aria-live="polite" aria-atomic="false"></ul>
 
@@ -252,6 +255,24 @@ const config = {
   }
   .carrito-vacio[hidden] {
     display: none;
+  }
+
+  .carrito-avisos {
+    background: var(--off2);
+    color: var(--text-mid);
+    border-radius: var(--radius);
+    padding: 0.6rem 0.85rem;
+    font-size: 0.8rem;
+    margin-bottom: 1rem;
+  }
+  .carrito-avisos[hidden] {
+    display: none;
+  }
+  .carrito-avisos p {
+    margin: 0;
+  }
+  .carrito-avisos p + p {
+    margin-top: 0.35rem;
   }
 
   .carrito-items {
@@ -464,6 +485,7 @@ const config = {
     suscribirCarrito,
     alAbrirCarrito,
     iniciarCheckout,
+    revalidarDisponibilidad,
     type CarritoItem,
     type Mercado,
   } from '../lib/carrito'
@@ -502,6 +524,7 @@ const config = {
     errorValidacion: string
     requerido: string
     avisoRecalculo: string
+    itemNoDisponible: string
   }
 
   interface CarritoConfig {
@@ -515,6 +538,7 @@ const config = {
   const closeBtn = document.getElementById('carrito-close')
   const itemsEl = document.getElementById('carrito-items')
   const vacioEl = document.getElementById('carrito-vacio')
+  const avisosEl = document.getElementById('carrito-avisos')
   const resumenEl = document.getElementById('carrito-resumen')
   const subtotalEl = document.getElementById('carrito-subtotal')
   const totalEl = document.getElementById('carrito-total')
@@ -585,6 +609,21 @@ const config = {
       if (totalEl) totalEl.textContent = totalFmt
     }
 
+    function showAvisos(eliminados: CarritoItem[]) {
+      if (!avisosEl) return
+      if (eliminados.length === 0) {
+        avisosEl.hidden = true
+        avisosEl.innerHTML = ''
+        return
+      }
+      avisosEl.innerHTML = eliminados
+        .map(
+          (item) => `<p>${escapeHtml(i18n.itemNoDisponible.replace('{nombre}', item.nombre))}</p>`
+        )
+        .join('')
+      avisosEl.hidden = false
+    }
+
     function showError(message: string | null) {
       if (!errorEl) return
       if (message) {
@@ -630,6 +669,7 @@ const config = {
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
       )
       firstFocusable?.focus()
+      void revalidarDisponibilidad().then(({ eliminados }) => showAvisos(eliminados))
     }
 
     function close() {
@@ -705,7 +745,14 @@ const config = {
       if (!resultado.ok || !resultado.checkoutUrl) {
         if (resultado.error === 'CARRITO_VACIO') showError(i18n.errorCarritoVacio)
         else if (resultado.error === 'NO_DISPONIBLE') showError(i18n.errorNoDisponible)
-        else showError(i18n.errorGenerico)
+        else if (resultado.codigo === 'PRODUCTO_NO_DISPONIBLE_TEMPORAL') {
+          const detalles = resultado.detalles as { slugs?: string[] } | undefined
+          const slugsAfectados = new Set(detalles?.slugs ?? [])
+          const eliminados = getCarrito().filter((i) => slugsAfectados.has(i.slug))
+          for (const item of eliminados) quitarDelCarrito(item.slug)
+          showAvisos(eliminados)
+          showError(i18n.errorGenerico)
+        } else showError(i18n.errorGenerico)
         return
       }
 

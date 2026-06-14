@@ -1,9 +1,17 @@
 /**
  * Rate-limit por identificador ('ip:<ip>' o 'session:<id>') contra la tabla
  * asesor_rate_limit: ventana corta (anti-burst) + tope diario.
+ *
+ * Tabla compartida entre acciones ('asesor' | 'crear-pago'): cada accion tiene
+ * sus propios umbrales (env vars) pero el `identificador` (con su prefijo,
+ * ej. 'pago:ip:<ip>' vs 'asesor:...') ya evita que se mezclen los contadores.
+ * No se crea una tabla `rate_limits` separada — el esquema actual admite una
+ * clave por accion sin migracion.
  */
 
 import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+export type RateLimitAccion = 'asesor' | 'crear-pago'
 
 export interface RateLimitResult {
   limited: boolean
@@ -11,9 +19,25 @@ export interface RateLimitResult {
   retryAfterSeconds?: number
 }
 
-const WINDOW_SECONDS = Number(Deno.env.get('ASESOR_RATE_LIMIT_VENTANA_SEGUNDOS') ?? 60)
-const MAX_PER_WINDOW = Number(Deno.env.get('ASESOR_RATE_LIMIT_MAX_VENTANA') ?? 8)
-const MAX_PER_DAY = Number(Deno.env.get('ASESOR_RATE_LIMIT_MAX_DIA') ?? 60)
+interface RateLimitThresholds {
+  windowSeconds: number
+  maxPerWindow: number
+  maxPerDay: number
+}
+
+const THRESHOLDS: Record<RateLimitAccion, RateLimitThresholds> = {
+  asesor: {
+    windowSeconds: Number(Deno.env.get('ASESOR_RATE_LIMIT_VENTANA_SEGUNDOS') ?? 60),
+    maxPerWindow: Number(Deno.env.get('ASESOR_RATE_LIMIT_MAX_VENTANA') ?? 8),
+    maxPerDay: Number(Deno.env.get('ASESOR_RATE_LIMIT_MAX_DIA') ?? 60),
+  },
+  'crear-pago': {
+    // v1.1: 10 intentos de pago por hora por IP.
+    windowSeconds: Number(Deno.env.get('CREAR_PAGO_RATE_LIMIT_VENTANA_SEGUNDOS') ?? 3600),
+    maxPerWindow: Number(Deno.env.get('CREAR_PAGO_RATE_LIMIT_MAX_VENTANA') ?? 10),
+    maxPerDay: Number(Deno.env.get('CREAR_PAGO_RATE_LIMIT_MAX_DIA') ?? 30),
+  },
+}
 
 interface RateLimitRow {
   ventana_inicio: string
@@ -24,8 +48,14 @@ interface RateLimitRow {
 
 export async function checkRateLimit(
   supabase: SupabaseClient,
-  identificador: string
+  identificador: string,
+  accion: RateLimitAccion = 'asesor'
 ): Promise<RateLimitResult> {
+  const {
+    windowSeconds: WINDOW_SECONDS,
+    maxPerWindow: MAX_PER_WINDOW,
+    maxPerDay: MAX_PER_DAY,
+  } = THRESHOLDS[accion]
   const now = new Date()
   const hoy = now.toISOString().slice(0, 10)
 

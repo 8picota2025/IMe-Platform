@@ -41,6 +41,8 @@ type ProductoDraft = {
   destacado: boolean
   nuevo: boolean
   activo: boolean
+  /** Escenario A: disponibilidad en tiempo real (independiente de `activo`). */
+  disponible: boolean
   orden: number
 }
 
@@ -447,6 +449,8 @@ async function productoFormView(): Promise<string> {
           ${checkbox('destacado', 'Destacado', draft.destacado)}
           ${checkbox('nuevo', 'Nuevo', draft.nuevo)}
           ${checkbox('activo', 'Activo / publicado en sitio estatico', draft.activo)}
+          ${checkbox('disponible', 'Disponible (Escenario A)', draft.disponible)}
+          <div class="admin-help">Desmarcar "Disponible" saca el producto del carrito y de crear-pago en tiempo real (sin rebuild), aunque siga "Activo" para SEO/landing. Usalo para roturas de stock del proveedor.</div>
           <div class="admin-alert">Guardar desde ingesta siempre debe quedar como borrador hasta revision humana. Publicar cambios dispara rebuild separado.</div>
         </aside>
       </div>
@@ -599,8 +603,12 @@ const PEDIDO_ESTADOS: Array<[string, string]> = [
   ['procesando', 'Procesando'],
   ['enviado', 'Enviado'],
   ['entregado', 'Entregado'],
+  ['retrasado', 'Retrasado (rotura de stock post-pago)'],
+  ['rechazado', 'Rechazado'],
+  ['expirado', 'Expirado'],
   ['cancelado', 'Cancelado'],
-  ['error', 'Error'],
+  ['reembolsado', 'Reembolsado'],
+  ['error_verificacion', 'Error de verificacion'],
 ]
 
 async function pedidosView(): Promise<string> {
@@ -728,7 +736,8 @@ async function pedidoDetailView(): Promise<string> {
       </div>
       <form class="admin-form" data-pedido-estado-form style="padding:0 16px 16px">
         <input type="hidden" name="id" value="${escapeHtml(text(row.id))}" />
-        <div class="admin-alert">Cambiar el estado aqui es manual y no envia notificaciones de pago ni al proveedor (eso llega en F4). Usalo solo para correcciones administrativas.</div>
+        <div class="admin-alert">Cambiar el estado aqui es manual y no envia notificaciones de pago al proveedor. Usalo para correcciones administrativas y para reflejar el seguimiento (envio, entrega, retrasos).</div>
+        <div class="admin-alert">"Retrasado" = Escenario A: el pedido ya estaba pagado cuando el producto quedo sin disponibilidad. Implica contactar al cliente manualmente.</div>
         <div class="admin-editor__cols">
           ${selectStatic('estado', 'Estado', text(row.estado), PEDIDO_ESTADOS)}
         </div>
@@ -1363,6 +1372,14 @@ function bindSimpleTables() {
     const id = String(data.get('id') ?? '')
     const estado = String(data.get('estado') ?? '')
     if (!id || !estado) return
+    if (
+      estado === 'retrasado' &&
+      !confirm(
+        'Marcar como "retrasado" implica que un pedido ya pagado no podra cumplirse a tiempo (Escenario A). Recuerda contactar al cliente manualmente. Continuar?'
+      )
+    ) {
+      return
+    }
     const { error } = await supabase!.from('pedidos').update({ estado }).eq('id', id)
     if (error) toast(error.message)
     else toast('Estado actualizado.')
@@ -1803,6 +1820,7 @@ function productDraft(row: Row | null): ProductoDraft {
     destacado: Boolean(row?.destacado),
     nuevo: Boolean(row?.nuevo),
     activo: row ? Boolean(row.activo) : false,
+    disponible: row ? row.disponible !== false : true,
     orden: numberOrZero(row?.orden),
   }
 }
@@ -1845,6 +1863,10 @@ function productPayload(form: HTMLFormElement): Row {
     activo:
       form.elements.namedItem('activo') instanceof HTMLInputElement &&
       (form.elements.namedItem('activo') as HTMLInputElement).checked,
+    disponible:
+      form.elements.namedItem('disponible') instanceof HTMLInputElement &&
+      (form.elements.namedItem('disponible') as HTMLInputElement).checked,
+    disponible_actualizado_at: new Date().toISOString(),
     orden: numberOrZero(data.get('orden')),
   }
 }

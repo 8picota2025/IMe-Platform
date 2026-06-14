@@ -18,6 +18,7 @@ export interface CatalogoIndexItem {
   precio?: number
   moneda: string
   stock: number | null
+  disponible: boolean
   destacado: boolean
   nuevo: boolean
   texto_busqueda: string
@@ -93,6 +94,7 @@ export async function buildCatalogoIndex(locale: Locale): Promise<CatalogoIndexI
       tipo_comercial: producto.tipo_comercial,
       moneda: producto.moneda,
       stock: producto.stock,
+      disponible: producto.disponible,
       destacado: producto.destacado,
       nuevo: producto.nuevo,
       texto_busqueda: textoBusqueda,

@@ -111,7 +111,7 @@
     "requerido": "Campo requerido",
     "whatsapp": "Escríbenos por WhatsApp",
     "email_directo": "Enviar correo directo",
-    "consentimiento": "Acepto el tratamiento de mis datos personales de acuerdo con la política de privacidad.",
+    "consentimiento": "Acepto el tratamiento de mis datos personales conforme a la Ley 1581 de 2012 (Habeas Data) y la política de privacidad.",
     "interes_opciones": [
       "Monitores de signos vitales",
       "Cardiología",
@@ -184,7 +184,7 @@
     "email": "Correo electrónico",
     "telefono": "Teléfono",
     "institucion": "Institución (opcional)",
-    "consentimiento": "Acepto el tratamiento de mis datos personales de acuerdo con la política de privacidad.",
+    "consentimiento": "Acepto el tratamiento de mis datos personales conforme a la Ley 1581 de 2012 (Habeas Data) y la política de privacidad.",
     "ir_pagar": "Ir a pagar",
     "procesando": "Procesando…",
     "stock_limitado": "Stock disponible: {stock}",
@@ -195,7 +195,8 @@
     "agregar": "Añadir al carrito",
     "agregado": "Producto añadido al carrito",
     "requerido": "Campo requerido",
-    "aviso_recalculo": "Los precios y el stock se confirman al procesar el pago."
+    "aviso_recalculo": "Los precios y el stock se confirman al procesar el pago.",
+    "item_no_disponible": "{nombre} ya no está disponible y se quitó del carrito."
   },
   "cotizacion_equipos": {
     "titulo": "Lista de cotización",
@@ -218,7 +219,7 @@
     "enviando": "Enviando…",
     "exito": "¡Solicitud enviada! Te contactaremos pronto.",
     "error": "Ocurrió un error. Intenta de nuevo.",
-    "consentimiento": "Acepto el tratamiento de mis datos personales de acuerdo con la política de privacidad.",
+    "consentimiento": "Acepto el tratamiento de mis datos personales conforme a la Ley 1581 de 2012 (Habeas Data) y la política de privacidad.",
     "productos_titulo": "Equipos seleccionados",
     "requerido": "Campo requerido"
   },
@@ -240,7 +241,11 @@
     "estado_expirado": "Expirado",
     "estado_cancelado": "Cancelado",
     "estado_reembolsado": "Reembolsado",
-    "estado_error_verificacion": "Error de verificación"
+    "estado_error_verificacion": "Error de verificación",
+    "estado_procesando": "Procesando",
+    "estado_enviado": "Enviado",
+    "estado_entregado": "Entregado",
+    "estado_retrasado": "Retrasado"
   },
   "estados": {
     "cargando": "Cargando…",
@@ -261,6 +266,8 @@
   "producto": {
     "badge_destacado": "Destacado",
     "badge_nuevo": "Nuevo",
+    "badge_no_disponible": "Temporalmente agotado",
+    "cta_consultar_disponibilidad": "Consultar disponibilidad",
     "specs_titulo": "Especificaciones",
     "specs_pendiente": "Especificaciones técnicas en proceso de carga. Contáctanos para recibir la ficha técnica completa.",
     "galeria_titulo": "Galería",

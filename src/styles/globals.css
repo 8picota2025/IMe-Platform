@@ -339,3 +339,7 @@ img {
   background: var(--green-pale);
   color: #3a7d1e;
 }
+.badge-gris {
+  background: var(--off2);
+  color: var(--text-mid);
+}

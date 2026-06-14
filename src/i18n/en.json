@@ -111,7 +111,7 @@
     "requerido": "Required field",
     "whatsapp": "Write to us on WhatsApp",
     "email_directo": "Send direct email",
-    "consentimiento": "I accept the processing of my personal data in accordance with the privacy policy.",
+    "consentimiento": "I accept the processing of my personal data in accordance with Colombian Law 1581 of 2012 (Habeas Data) and the privacy policy.",
     "interes_opciones": [
       "Patient Monitors",
       "Cardiology",
@@ -184,7 +184,7 @@
     "email": "Email address",
     "telefono": "Phone",
     "institucion": "Institution (optional)",
-    "consentimiento": "I accept the processing of my personal data in accordance with the privacy policy.",
+    "consentimiento": "I accept the processing of my personal data in accordance with Colombian Law 1581 of 2012 (Habeas Data) and the privacy policy.",
     "ir_pagar": "Proceed to payment",
     "procesando": "Processing…",
     "stock_limitado": "Available stock: {stock}",
@@ -195,7 +195,8 @@
     "agregar": "Add to cart",
     "agregado": "Product added to cart",
     "requerido": "Required field",
-    "aviso_recalculo": "Prices and stock are confirmed when processing payment."
+    "aviso_recalculo": "Prices and stock are confirmed when processing payment.",
+    "item_no_disponible": "{nombre} is no longer available and was removed from your cart."
   },
   "cotizacion_equipos": {
     "titulo": "Quote list",
@@ -218,7 +219,7 @@
     "enviando": "Sending…",
     "exito": "Request sent! We will contact you soon.",
     "error": "An error occurred. Please try again.",
-    "consentimiento": "I accept the processing of my personal data in accordance with the privacy policy.",
+    "consentimiento": "I accept the processing of my personal data in accordance with Colombian Law 1581 of 2012 (Habeas Data) and the privacy policy.",
     "productos_titulo": "Selected equipment",
     "requerido": "Required field"
   },
@@ -240,7 +241,11 @@
     "estado_expirado": "Expired",
     "estado_cancelado": "Cancelled",
     "estado_reembolsado": "Refunded",
-    "estado_error_verificacion": "Verification error"
+    "estado_error_verificacion": "Verification error",
+    "estado_procesando": "Processing",
+    "estado_enviado": "Shipped",
+    "estado_entregado": "Delivered",
+    "estado_retrasado": "Delayed"
   },
   "estados": {
     "cargando": "Loading…",
@@ -261,6 +266,8 @@
   "producto": {
     "badge_destacado": "Featured",
     "badge_nuevo": "New",
+    "badge_no_disponible": "Temporarily unavailable",
+    "cta_consultar_disponibilidad": "Check availability",
     "specs_titulo": "Specifications",
     "specs_pendiente": "Technical specifications are being loaded. Contact us to receive the full data sheet.",
     "galeria_titulo": "Gallery",

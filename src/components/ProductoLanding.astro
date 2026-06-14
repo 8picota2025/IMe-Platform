@@ -48,6 +48,10 @@ const galeria = producto.galeria.filter((url) => url && url !== producto.imagen_
 const imagenes = [producto.imagen_principal, ...galeria]
 
 const precioFormateado = formatMoneda(producto.precio, producto.moneda, locale)
+const noDisponible = producto.disponible === false
+const whatsappHref = `https://wa.me/573138674059?text=${encodeURIComponent(
+  `${t(locale, 'producto.cta_consultar_disponibilidad')}: ${producto.nombre}`
+)}`
 
 const migas = [
   { nombre: t(locale, 'catalogo.migas_inicio'), href: `/${locale}/` },
@@ -88,13 +92,16 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
         id="producto-imagen-principal"
       />
       {
-        (producto.destacado || producto.nuevo) && (
+        (producto.destacado || producto.nuevo || noDisponible) && (
           <div class="hero-producto__badges" aria-hidden="true">
             {producto.nuevo && (
               <span class="badge badge-green">{t(locale, 'producto.badge_nuevo')}</span>
             )}
             {producto.destacado && (
               <span class="badge badge-teal">{t(locale, 'producto.badge_destacado')}</span>
+            )}
+            {noDisponible && (
+              <span class="badge badge-gris">{t(locale, 'producto.badge_no_disponible')}</span>
             )}
           </div>
         )
@@ -128,7 +135,17 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
         {
           producto.tipo_comercial === 'consumible' &&
             producto.precio != null &&
-            producto.precio > 0 && (
+            producto.precio > 0 &&
+            (noDisponible ? (
+              <a
+                href={whatsappHref}
+                class="btn btn-primary"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {t(locale, 'producto.cta_consultar_disponibilidad')}
+              </a>
+            ) : (
               <button
                 type="button"
                 class="btn btn-primary"
@@ -143,7 +160,7 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
               >
                 {t(locale, 'carrito.agregar')}
               </button>
-            )
+            ))
         }
         <a href={ctaCotizarHref} class="btn btn-secondary">
           {t(locale, 'producto.cotizar_cta')}
@@ -266,6 +283,7 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
                 precio: rel.precio,
                 moneda: rel.moneda,
                 stock: rel.stock,
+                disponible: rel.disponible,
               }}
               locale={locale}
             />

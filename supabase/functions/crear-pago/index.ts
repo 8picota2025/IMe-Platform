@@ -52,6 +52,8 @@ interface ProductoRow {
   moneda: string
   stock: number | null
   activo: boolean
+  /** Escenario A: disponibilidad en tiempo real provista por el proveedor. */
+  disponible: boolean
   tipo_comercial: string
   fulfillment_mode: string
 }
@@ -129,7 +131,7 @@ Deno.serve(async (req) => {
   const ip = obtenerIp(req)
 
   // ── Rate-limit por IP ────────────────────────────────────
-  const limite = await checkRateLimit(supabase, `pago:ip:${ip}`)
+  const limite = await checkRateLimit(supabase, `pago:ip:${ip}`, 'crear-pago')
   if (limite.limited) {
     return new Response(
       JSON.stringify({
@@ -151,7 +153,7 @@ Deno.serve(async (req) => {
   const { data: productos, error: productosError } = await supabase
     .from('productos')
     .select(
-      'id, slug, nombre_es, nombre_en, precio, moneda, stock, activo, tipo_comercial, fulfillment_mode'
+      'id, slug, nombre_es, nombre_en, precio, moneda, stock, activo, disponible, tipo_comercial, fulfillment_mode'
     )
     .in('slug', slugs)
 
@@ -162,6 +164,24 @@ Deno.serve(async (req) => {
   const productosPorSlug = new Map<string, ProductoRow>(
     ((productos ?? []) as ProductoRow[]).map((p) => [p.slug, p])
   )
+
+  // ── Escenario A: rechazar el pedido completo si algun item ya no esta
+  // disponible (proveedor lo flagueo en tiempo real). El cliente nunca decide
+  // disponibilidad — esta comprobacion es la fuente de verdad final.
+  const slugsNoDisponibles = slugs.filter(
+    (slug) => productosPorSlug.get(slug)?.disponible === false
+  )
+  if (slugsNoDisponibles.length > 0) {
+    return errorResponse(
+      {
+        code: 'PRODUCTO_NO_DISPONIBLE_TEMPORAL',
+        message: 'Uno o mas productos del carrito ya no estan disponibles',
+        details: { slugs: slugsNoDisponibles },
+      },
+      422,
+      origin
+    )
+  }
 
   const checkoutItems: CheckoutItem[] = []
   const itemsSnapshot: Array<Record<string, unknown>> = []

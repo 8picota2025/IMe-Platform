@@ -27,6 +27,7 @@
 ## BLOQUEANTE_BACKEND — Impide integración real
 
 - [x] Credenciales Supabase de lectura/escritura básica (`.env` ya tiene `PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` reales); tablas `familias` (8) y `productos` (24) sembradas el 2026-06-12 con datos reales de F0 vía `scripts/seed-catalogo.mjs` (idempotente, upsert por slug). RLS verificada: anon lee catálogo y escribe `solicitudes_cotizacion`, no puede escribir `productos`. Migraciones pgvector/Asesor aplicadas y Edge Functions desplegadas el 2026-06-14 (ver ítems siguientes).
+- [x] Nueva familia "Radiología y Diagnóstico por Imagen" (`radiologia`, orden 9) y 9 productos (prod-25..prod-33) sembrados el 2026-06-14 vía `scripts/seed-catalogo.mjs` (total ahora 9 familias / 33 productos). Origen: catálogo de Szangell (proveedor/fabricante de I-ME en dropshipping, confirmado por el cliente); descripciones y especificaciones ES/EN redactadas de forma original a partir de las características publicadas (no copiadas literalmente), `especificaciones` solo incluye datos verificados (algunos productos tienen pocas specs por falta de datos numéricos en la fuente — "cero invención"). Imágenes descargadas y servidas localmente desde `public/assets/productos/radiologia/*.jpg` (mismo patrón que el resto del catálogo, no Supabase Storage). Verificado en `/es/catalogo` (33 equipos / 9 categorías) y `/es/productos/sistema-radiografico-3d-wr-3d`; `npm run validate` OK (96 páginas).
 - [ ] Credenciales Wompi (bloquea pagos CO) — F4
 - [ ] Credenciales Stripe (bloquea pagos INTL) — F4
 - [ ] Credenciales LLM (`LLM_PROVIDER`, `ANTHROPIC_API_KEY` u `OPENAI_API_KEY`, `LLM_INGEST_MODEL`) — bloquea ingesta PDF real y Asesor RAG
@@ -43,6 +44,39 @@
 - [x] Edge Function trigger-rebuild/ — F3 base implementada; requiere `CI_DEPLOY_HOOK` o `GITHUB_TOKEN` + `GITHUB_REPOSITORY`
 - [x] Carrito y checkout — F4 implementado; prueba end-to-end bloqueada por Supabase/pasarelas
 - [x] SimuladorFinanciero orientativo — F4 implementado sin tasas ni cuotas vinculantes
+
+### F4.1 — Escenario A y cierre de Comercio (Wompi v1.1)
+
+Spec: `plataforma/prompts/IME_F4_Commerce_Pasarelas_v1.1.md` + huecos de F1 §8.3/§8.5
+(flag `productos.disponible` y valores ampliados de `pedidos.estado`, especificados en
+F1 pero nunca implementados). Decisiones documentadas en `docs/decisions/0001-0003`.
+
+- [ ] Migración SQL: `productos.disponible BOOLEAN NOT NULL DEFAULT true` +
+      `disponible_actualizado_at TIMESTAMPTZ` ya están en `supabase/schema.sql` pero
+      **no aplicadas a la base de datos real** (bloqueado por acceso a credenciales en
+      esta sesión, ver NO_EJECUTADO_ENTORNO). Aplicar vía Management API igual que la
+      migración pgvector del 2026-06-14 y verificar columnas en
+      `information_schema.columns`.
+- [x] Catálogo/ficha de producto: badge "Temporalmente agotado" y CTA alternativo
+      cuando `disponible=false` (sin afectar `activo`/SEO)
+- [x] Carrito: `revalidarDisponibilidad()` al abrir el drawer, quita ítems con
+      `disponible=false` y avisa al usuario (`carrito.item_no_disponible`)
+- [x] `crear-pago`: rechazo `422 PRODUCTO_NO_DISPONIBLE_TEMPORAL` con `slugs` afectados
+      si algún item ya no está disponible; el carrito los elimina automáticamente al
+      recibir ese código
+- [x] Admin: `PEDIDO_ESTADOS` ampliado (`procesando|enviado|entregado|retrasado` +
+      estados existentes), confirmación extra al marcar `retrasado` (Escenario A,
+      pedido pagado sin stock), toggle `disponible` en el formulario de producto
+- [x] Rate-limit dedicado para `crear-pago` (10/hora/IP vía `CREAR_PAGO_RATE_LIMIT_*`,
+      `checkRateLimit(..., 'crear-pago')`) — `docs/decisions/0001-rate-limit-crear-pago.md`
+- [x] Campos PSE: no se requieren en el formulario propio — Wompi Web Checkout
+      (hosted) ya los captura — `docs/decisions/0002-pse-checkout-hospedado.md`
+- [x] Habeas Data: `consentimiento_datos`/`consentimiento_timestamp` ≡
+      `habeas_data_ok`/`habeas_data_at`; checkbox de carrito/contacto/cotización
+      actualizado para citar Ley 1581/2012 y enlazar `/legal/privacidad` —
+      `docs/decisions/0003-habeas-data-equivalencia.md`
+- [x] Stripe/INTL: implementado desde F4, activación real diferida — ver BACKLOG_V2.md
+      §Comercio
 
 ## Coste estimado — Asesor RAG
 
@@ -91,6 +125,9 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
 - [ ] Textos de servicios en EN
 - [ ] Teaser financiación EN
 - [ ] Mensaje de bienvenida del Asesor EN
+- [ ] EN de la familia "radiologia" y sus 9 productos (prod-25..prod-33), marcados
+      `COPY_CLIENTE_REVISAR` en `mock-familias.json`/`mock-productos.json` —
+      traducción provisional generada junto con el ES original (2026-06-14)
 
 ## BLOQUEANTE_CONTENIDO — Falta contenido real
 
@@ -106,7 +143,14 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
 - [ ] Test de video autoplay en mobile (Chrome/Safari iOS)
 - [ ] Deploy a preprod en Hostinger
 - [ ] Verificación 301 `/77/` y `/1old` en Hostinger tras deploy
-- [ ] Prueba real de Wompi sandbox CO y Stripe test INTL
+- [ ] Migración SQL de F4.1 (`productos.disponible` + `disponible_actualizado_at`,
+      ya en `supabase/schema.sql`) no aplicada a la base de datos real — bloqueada por
+      acceso a credenciales en esta sesión (ver sección F4.1 en BLOQUEANTE_BACKEND).
+      Aplicar vía Management API igual que la migración pgvector del 2026-06-14.
+- [ ] Prueba real de Wompi sandbox CO y Stripe test INTL — depende de que la migración
+      de F4.1 (`productos.disponible`) esté aplicada en BD real; sin ella, el rechazo
+      422 por `disponible=false` en `crear-pago` no puede validarse end-to-end aunque
+      lleguen credenciales Wompi
 - [x] Prueba real de `/admin` contra Supabase con usuario admin y RLS aplicadas
 - [ ] Prueba real de `ingesta-pdf` con ficha PDF/OCR y clave LLM
 - [ ] Prueba real de `trigger-rebuild` contra deploy hook o GitHub repository_dispatch
