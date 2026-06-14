@@ -234,6 +234,8 @@
     "estado": "Estado",
     "volver_catalogo": "Volver al catálogo",
     "contactar": "Contáctanos",
+    "whatsapp": "Escríbenos por WhatsApp",
+    "whatsapp_mensaje": "Hola, tengo una consulta sobre mi pedido",
     "no_encontrado": "No encontramos información para esta referencia. Si realizaste un pago, contáctanos con tu referencia.",
     "estado_pendiente": "Pendiente",
     "estado_pagado": "Pagado",

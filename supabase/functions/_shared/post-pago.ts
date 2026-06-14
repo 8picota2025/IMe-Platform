@@ -58,3 +58,50 @@ export async function notificarFulfillmentDropship(
     console.error('notificarFulfillmentDropship: error invocando notificar-proveedor', err)
   }
 }
+
+export async function registrarPedidoPagado(
+  supabase: SupabaseClient,
+  pedidoId: string,
+  provider: 'wompi' | 'stripe',
+  eventId: string
+): Promise<void> {
+  const { data: pedido, error } = await supabase
+    .from('pedidos')
+    .select('id, cliente_id, total')
+    .eq('id', pedidoId)
+    .maybeSingle()
+
+  if (error) {
+    console.error('registrarPedidoPagado: error consultando pedido', error.message)
+    return
+  }
+
+  const row = pedido as { cliente_id?: string | null; total?: number | string | null } | null
+  if (row?.cliente_id) {
+    const { data: cliente } = await supabase
+      .from('clientes')
+      .select('total_pedidos, total_gastado')
+      .eq('id', row.cliente_id)
+      .maybeSingle()
+    const totalPedidos = Number((cliente as { total_pedidos?: number } | null)?.total_pedidos ?? 0)
+    const totalGastado = Number(
+      (cliente as { total_gastado?: number | string } | null)?.total_gastado ?? 0
+    )
+    await supabase
+      .from('clientes')
+      .update({
+        total_pedidos: totalPedidos + 1,
+        total_gastado: totalGastado + Number(row.total ?? 0),
+        ultimo_pedido_at: new Date().toISOString(),
+      })
+      .eq('id', row.cliente_id)
+  }
+
+  await supabase.from('pedido_eventos').insert({
+    pedido_id: pedidoId,
+    tipo: 'pago_confirmado',
+    de_estado: 'pendiente',
+    a_estado: 'pagado',
+    metadata: { provider, event_id: eventId },
+  })
+}

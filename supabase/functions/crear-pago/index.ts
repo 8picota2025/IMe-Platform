@@ -39,6 +39,7 @@ interface CrearPagoRequest {
   items?: ItemRequest[]
   cliente?: ClienteRequest
   mercado?: string
+  cupon_codigo?: string
   consentimiento_datos?: boolean
   locale?: string
 }
@@ -46,9 +47,13 @@ interface CrearPagoRequest {
 interface ProductoRow {
   id: string
   slug: string
+  familia_id: string | null
   nombre_es: string
   nombre_en: string | null
   precio: number | string | null
+  precio_oferta: number | string | null
+  oferta_inicio: string | null
+  oferta_fin: string | null
   moneda: string
   stock: number | null
   activo: boolean
@@ -58,12 +63,254 @@ interface ProductoRow {
   fulfillment_mode: string
 }
 
+interface CuponRow {
+  id: string
+  codigo: string
+  tipo_descuento: 'porcentaje' | 'monto_carrito' | 'monto_producto'
+  valor: number | string
+  moneda: string
+  activo: boolean
+  monto_minimo: number | string | null
+  monto_maximo: number | string | null
+  productos_incluidos: string[] | null
+  productos_excluidos: string[] | null
+  familias_incluidas: string[] | null
+  familias_excluidas: string[] | null
+  emails_permitidos: string[] | null
+  limite_uso_total: number | null
+  limite_uso_por_usuario: number | null
+  usos: number
+  empieza_at: string | null
+  expira_at: string | null
+}
+
 function obtenerIp(req: Request): string {
   return (
     req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
     req.headers.get('cf-connecting-ip') ??
     'unknown'
   )
+}
+
+function precioVigente(producto: ProductoRow): number | string | null {
+  if (producto.precio_oferta === null) return producto.precio
+  const now = Date.now()
+  const inicioOk = !producto.oferta_inicio || new Date(producto.oferta_inicio).getTime() <= now
+  const finOk = !producto.oferta_fin || new Date(producto.oferta_fin).getTime() >= now
+  return inicioOk && finOk ? producto.precio_oferta : producto.precio
+}
+
+async function upsertCliente(
+  supabase: ReturnType<typeof getServerSupabase>,
+  cliente: ClienteRequest
+): Promise<string | null> {
+  const email = String(cliente.email ?? '')
+    .trim()
+    .toLowerCase()
+  if (!email) return null
+  const { data, error } = await supabase
+    .from('clientes')
+    .upsert(
+      {
+        email,
+        nombre: cliente.nombre ?? null,
+        apellido: cliente.apellido ?? null,
+        telefono: cliente.telefono ?? null,
+        institucion: cliente.institucion ?? null,
+        tipo_cliente: cliente.institucion ? 'b2b' : 'b2c',
+        consentimiento_datos: true,
+        consentimiento_timestamp: new Date().toISOString(),
+      },
+      { onConflict: 'email' }
+    )
+    .select('id')
+    .single()
+  if (error) {
+    console.error('upsertCliente: no se pudo persistir cliente', error.message)
+    return null
+  }
+  return (data as { id: string }).id
+}
+
+function emailPermitido(email: string, restricciones: string[] | null): boolean {
+  const rules = restricciones ?? []
+  if (rules.length === 0) return true
+  return rules.some((rule) => {
+    const clean = rule.trim().toLowerCase()
+    if (!clean) return false
+    if (clean.includes('*')) {
+      const pattern = `^${clean.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replaceAll('*', '.*')}$`
+      return new RegExp(pattern).test(email)
+    }
+    return clean === email
+  })
+}
+
+async function calcularDescuentoCupon(args: {
+  supabase: ReturnType<typeof getServerSupabase>
+  codigo: string
+  subtotal: number
+  moneda: string
+  email: string
+  items: Array<Record<string, unknown>>
+  origin: string | null
+}): Promise<
+  { ok: true; descuento: number; cupon: CuponRow | null } | { ok: false; response: Response }
+> {
+  const { data, error } = await args.supabase
+    .from('cupones')
+    .select('*')
+    .eq('codigo', args.codigo)
+    .maybeSingle()
+  if (error) {
+    return {
+      ok: false,
+      response: internalError(`error consultando cupon: ${error.message}`, args.origin),
+    }
+  }
+  const cupon = data as CuponRow | null
+  if (!cupon || !cupon.activo) {
+    return {
+      ok: false,
+      response: errorResponse(
+        { code: 'CUPON_INVALIDO', message: 'Cupon invalido o inactivo' },
+        422,
+        args.origin
+      ),
+    }
+  }
+
+  const now = Date.now()
+  if (cupon.empieza_at && new Date(cupon.empieza_at).getTime() > now) {
+    return {
+      ok: false,
+      response: errorResponse(
+        { code: 'CUPON_NO_VIGENTE', message: 'Cupon aun no vigente' },
+        422,
+        args.origin
+      ),
+    }
+  }
+  if (cupon.expira_at && new Date(cupon.expira_at).getTime() < now) {
+    return {
+      ok: false,
+      response: errorResponse(
+        { code: 'CUPON_EXPIRADO', message: 'Cupon expirado' },
+        422,
+        args.origin
+      ),
+    }
+  }
+  if (cupon.moneda !== args.moneda) {
+    return {
+      ok: false,
+      response: errorResponse(
+        { code: 'CUPON_MONEDA_INVALIDA', message: 'El cupon no aplica a la moneda del carrito' },
+        422,
+        args.origin
+      ),
+    }
+  }
+  if (cupon.limite_uso_total !== null && cupon.usos >= cupon.limite_uso_total) {
+    return {
+      ok: false,
+      response: errorResponse(
+        { code: 'CUPON_AGOTADO', message: 'Cupon sin usos disponibles' },
+        422,
+        args.origin
+      ),
+    }
+  }
+  if (!emailPermitido(args.email, cupon.emails_permitidos)) {
+    return {
+      ok: false,
+      response: errorResponse(
+        { code: 'CUPON_EMAIL_NO_PERMITIDO', message: 'Cupon no valido para este email' },
+        422,
+        args.origin
+      ),
+    }
+  }
+
+  if (cupon.limite_uso_por_usuario !== null) {
+    const { count } = await args.supabase
+      .from('cupon_usos')
+      .select('id', { count: 'exact', head: true })
+      .eq('cupon_id', cupon.id)
+      .eq('email', args.email)
+    if ((count ?? 0) >= cupon.limite_uso_por_usuario) {
+      return {
+        ok: false,
+        response: errorResponse(
+          { code: 'CUPON_LIMITE_USUARIO', message: 'Limite de uso alcanzado para este email' },
+          422,
+          args.origin
+        ),
+      }
+    }
+  }
+
+  const min = cupon.monto_minimo === null ? null : Number(cupon.monto_minimo)
+  const max = cupon.monto_maximo === null ? null : Number(cupon.monto_maximo)
+  if (min !== null && args.subtotal < min) {
+    return {
+      ok: false,
+      response: errorResponse(
+        { code: 'CUPON_MONTO_MINIMO', message: 'El carrito no alcanza el minimo del cupon' },
+        422,
+        args.origin
+      ),
+    }
+  }
+  if (max !== null && args.subtotal > max) {
+    return {
+      ok: false,
+      response: errorResponse(
+        { code: 'CUPON_MONTO_MAXIMO', message: 'El carrito supera el maximo del cupon' },
+        422,
+        args.origin
+      ),
+    }
+  }
+
+  const incluidos = new Set(cupon.productos_incluidos ?? [])
+  const excluidos = new Set(cupon.productos_excluidos ?? [])
+  const familiasIncluidas = new Set(cupon.familias_incluidas ?? [])
+  const familiasExcluidas = new Set(cupon.familias_excluidas ?? [])
+  const elegibles = args.items.filter((item) => {
+    const slug = String(item.slug ?? '')
+    const familiaId = String(item.familia_id ?? '')
+    if (excluidos.has(slug) || familiasExcluidas.has(familiaId)) return false
+    if (incluidos.size > 0 && !incluidos.has(slug)) return false
+    if (familiasIncluidas.size > 0 && !familiasIncluidas.has(familiaId)) return false
+    return true
+  })
+  if (elegibles.length === 0) {
+    return {
+      ok: false,
+      response: errorResponse(
+        { code: 'CUPON_NO_APLICA', message: 'El cupon no aplica a los productos del carrito' },
+        422,
+        args.origin
+      ),
+    }
+  }
+
+  const baseElegible = elegibles.reduce(
+    (acc, item) => acc + Number(item.precio_unitario ?? 0) * Number(item.cantidad ?? 0),
+    0
+  )
+  const valor = Number(cupon.valor)
+  const descuento =
+    cupon.tipo_descuento === 'porcentaje'
+      ? baseElegible * (valor / 100)
+      : cupon.tipo_descuento === 'monto_producto'
+        ? Math.min(
+            baseElegible,
+            valor * elegibles.reduce((acc, item) => acc + Number(item.cantidad ?? 0), 0)
+          )
+        : Math.min(args.subtotal, valor)
+  return { ok: true, descuento: Math.max(0, Math.round(descuento)), cupon }
 }
 
 Deno.serve(async (req) => {
@@ -153,7 +400,7 @@ Deno.serve(async (req) => {
   const { data: productos, error: productosError } = await supabase
     .from('productos')
     .select(
-      'id, slug, nombre_es, nombre_en, precio, moneda, stock, activo, disponible, tipo_comercial, fulfillment_mode'
+      'id, slug, familia_id, nombre_es, nombre_en, precio, precio_oferta, oferta_inicio, oferta_fin, moneda, stock, activo, disponible, tipo_comercial, fulfillment_mode'
     )
     .in('slug', slugs)
 
@@ -209,7 +456,8 @@ Deno.serve(async (req) => {
         origin
       )
     }
-    const precio = producto.precio === null ? null : Number(producto.precio)
+    const precioBase = precioVigente(producto)
+    const precio = precioBase === null ? null : Number(precioBase)
     if (precio === null || Number.isNaN(precio)) {
       return errorResponse(
         {
@@ -265,6 +513,7 @@ Deno.serve(async (req) => {
     itemsSnapshot.push({
       producto_id: producto.id,
       slug: producto.slug,
+      familia_id: producto.familia_id,
       nombre,
       cantidad,
       precio_unitario: precio,
@@ -274,13 +523,32 @@ Deno.serve(async (req) => {
 
   const moneda = monedaComun ?? 'COP'
   const subtotal = checkoutItems.reduce((acc, it) => acc + it.precio_unitario * it.cantidad, 0)
-  const total = subtotal // Sin impuestos/envio en V1 — ver BACKLOG_V2
+  const cuponCodigo =
+    typeof body.cupon_codigo === 'string' ? body.cupon_codigo.trim().toUpperCase() : ''
+  const descuento = cuponCodigo
+    ? await calcularDescuentoCupon({
+        supabase,
+        codigo: cuponCodigo,
+        subtotal,
+        moneda,
+        email: cliente.email.toLowerCase(),
+        items: itemsSnapshot,
+        origin,
+      })
+    : { ok: true as const, descuento: 0, cupon: null as CuponRow | null }
+  if (!descuento.ok) return descuento.response
+
+  const impuestoTotal = 0
+  const envioTotal = 0
+  const total = Math.max(0, subtotal - descuento.descuento + impuestoTotal + envioTotal)
 
   const pedidoId = crypto.randomUUID()
   const proveedorPago = mercado === 'CO' ? 'wompi' : 'stripe'
+  const clienteId = await upsertCliente(supabase, cliente)
 
   const { error: insertError } = await supabase.from('pedidos').insert({
     id: pedidoId,
+    cliente_id: clienteId,
     cliente: {
       nombre: cliente.nombre,
       apellido: cliente.apellido,
@@ -290,12 +558,16 @@ Deno.serve(async (req) => {
     },
     items: itemsSnapshot,
     subtotal,
+    descuento_total: descuento.descuento,
+    impuesto_total: impuestoTotal,
+    envio_total: envioTotal,
     total,
     moneda,
     mercado,
     proveedor_pago: proveedorPago,
     estado: 'pendiente',
     referencia_pasarela: pedidoId,
+    cupon_codigo: descuento.cupon?.codigo ?? null,
     consentimiento_datos: true,
     consentimiento_timestamp: new Date().toISOString(),
     leida: false,
@@ -303,6 +575,20 @@ Deno.serve(async (req) => {
 
   if (insertError) {
     return internalError(`error creando pedido: ${insertError.message}`, origin)
+  }
+
+  if (descuento.cupon) {
+    await supabase.from('cupon_usos').insert({
+      cupon_id: descuento.cupon.id,
+      pedido_id: pedidoId,
+      cliente_id: clienteId,
+      email: cliente.email.toLowerCase(),
+      descuento: descuento.descuento,
+    })
+    await supabase
+      .from('cupones')
+      .update({ usos: descuento.cupon.usos + 1 })
+      .eq('id', descuento.cupon.id)
   }
 
   const gateway = getPaymentGateway(mercado as Mercado)

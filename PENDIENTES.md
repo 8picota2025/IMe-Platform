@@ -56,7 +56,19 @@ F1 pero nunca implementados). Decisiones documentadas en `docs/decisions/0001-00
       **no aplicadas a la base de datos real** (bloqueado por acceso a credenciales en
       esta sesión, ver NO_EJECUTADO_ENTORNO). Aplicar vía Management API igual que la
       migración pgvector del 2026-06-14 y verificar columnas en
-      `information_schema.columns`.
+      `information_schema.columns`. Aplicar en el mismo lote:
+      `solicitudes_cotizacion.estado TEXT NOT NULL DEFAULT 'nueva' CHECK (estado IN
+    ('nueva','en_revision','respondida'))` + `notas_internas TEXT` (ver
+      `docs/decisions/0004-cotizaciones-estado-seguimiento.md`).
+- [x] `.env.example` completado con `WOMPI_INTEGRITY_SECRET`, `CREAR_PAGO_RATE_LIMIT_*`
+      y `MAILER_API_KEY`/`MAILER_FROM` (faltaban variables ya usadas por
+      `payment-gateway.ts`/`notificar-proveedor` pero no documentadas como
+      `TODO_CLIENTE`)
+- [x] `COMMERCE_GUIDE.md` (entregable #12 de v1.1): configuración de webhooks
+      Wompi/Stripe, secrets, métodos de pago a habilitar, checklist de pruebas
+- [x] Cotizaciones: seguimiento comercial `estado` (nueva/en_revision/respondida) +
+      `notas_internas` en `/admin#cotizaciones` (código listo, columnas SQL pendientes
+      de migración — ver punto anterior) — `docs/decisions/0004-cotizaciones-estado-seguimiento.md`
 - [x] Catálogo/ficha de producto: badge "Temporalmente agotado" y CTA alternativo
       cuando `disponible=false` (sin afectar `activo`/SEO)
 - [x] Carrito: `revalidarDisponibilidad()` al abrir el drawer, quita ítems con
@@ -77,6 +89,9 @@ F1 pero nunca implementados). Decisiones documentadas en `docs/decisions/0001-00
       `docs/decisions/0003-habeas-data-equivalencia.md`
 - [x] Stripe/INTL: implementado desde F4, activación real diferida — ver BACKLOG_V2.md
       §Comercio
+- [x] CTA WhatsApp (+57 313 867 4059) en páginas de resultado de pago `exito`/`fallo`
+      (TAREA 5 v1.1), con la referencia del pedido añadida automáticamente al mensaje
+      prellenado una vez resuelve `consultarPedido()` — `ResultadoPago.astro`
 
 ## Coste estimado — Asesor RAG
 
@@ -143,10 +158,11 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
 - [ ] Test de video autoplay en mobile (Chrome/Safari iOS)
 - [ ] Deploy a preprod en Hostinger
 - [ ] Verificación 301 `/77/` y `/1old` en Hostinger tras deploy
-- [ ] Migración SQL de F4.1 (`productos.disponible` + `disponible_actualizado_at`,
-      ya en `supabase/schema.sql`) no aplicada a la base de datos real — bloqueada por
-      acceso a credenciales en esta sesión (ver sección F4.1 en BLOQUEANTE_BACKEND).
-      Aplicar vía Management API igual que la migración pgvector del 2026-06-14.
+- [ ] Migración SQL de F4.1 (`productos.disponible` + `disponible_actualizado_at` +
+      `solicitudes_cotizacion.estado`/`notas_internas`, ya en `supabase/schema.sql`)
+      no aplicada a la base de datos real — bloqueada por acceso a credenciales en
+      esta sesión (ver sección F4.1 en BLOQUEANTE_BACKEND). Aplicar vía Management API
+      igual que la migración pgvector del 2026-06-14.
 - [ ] Prueba real de Wompi sandbox CO y Stripe test INTL — depende de que la migración
       de F4.1 (`productos.disponible`) esté aplicada en BD real; sin ella, el rechazo
       422 por `disponible=false` en `crear-pago` no puede validarse end-to-end aunque

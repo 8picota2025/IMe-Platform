@@ -7,8 +7,13 @@ type View =
   | 'taxonomia'
   | 'cotizaciones'
   | 'cotizacion'
+  | 'clientes'
+  | 'cliente'
   | 'pedidos'
   | 'pedido'
+  | 'cupones'
+  | 'cupon'
+  | 'reportes'
   | 'proveedores'
   | 'proveedor-productos'
   | 'fulfillments'
@@ -20,6 +25,8 @@ type Row = Record<string, unknown>
 type ProductoDraft = {
   id: string | undefined
   slug: string
+  sku: string
+  gtin: string
   nombre_es: string
   nombre_en: string
   descripcion_corta_es: string
@@ -33,11 +40,21 @@ type ProductoDraft = {
   aplicaciones_en: string[]
   imagen_principal: string
   ficha_pdf: string
+  atributos: Row
+  peso_kg: number | null
+  dimensiones_cm: Row
   tipo_comercial: 'consumible' | 'equipo'
   fulfillment_mode: 'dropship' | 'cotizacion' | 'individualizado'
   precio: number | null
+  precio_regular: number | null
+  precio_oferta: number | null
+  oferta_inicio: string
+  oferta_fin: string
   moneda: string
   stock: number | null
+  gestionar_stock: boolean
+  stock_estado: 'instock' | 'outofstock' | 'onbackorder'
+  backorder_policy: 'no' | 'notify' | 'yes'
   destacado: boolean
   nuevo: boolean
   activo: boolean
@@ -93,8 +110,13 @@ function parseView(hash: string): View {
     raw === 'taxonomia' ||
     raw === 'cotizaciones' ||
     raw === 'cotizacion' ||
+    raw === 'clientes' ||
+    raw === 'cliente' ||
     raw === 'pedidos' ||
     raw === 'pedido' ||
+    raw === 'cupones' ||
+    raw === 'cupon' ||
+    raw === 'reportes' ||
     raw === 'proveedores' ||
     raw === 'proveedor-productos' ||
     raw === 'fulfillments' ||
@@ -174,8 +196,13 @@ async function routeView(): Promise<{ title: string; body: string }> {
     return { title: 'Cotizaciones', body: await cotizacionesView() }
   if (state.view === 'cotizacion')
     return { title: 'Cotizacion', body: await cotizacionDetailView() }
+  if (state.view === 'clientes') return { title: 'Clientes', body: await clientesView() }
+  if (state.view === 'cliente') return { title: 'Cliente', body: await clienteDetailView() }
   if (state.view === 'pedidos') return { title: 'Pedidos', body: await pedidosView() }
   if (state.view === 'pedido') return { title: 'Pedido', body: await pedidoDetailView() }
+  if (state.view === 'cupones') return { title: 'Cupones', body: await cuponesView() }
+  if (state.view === 'cupon') return { title: 'Cupon', body: await cuponFormView() }
+  if (state.view === 'reportes') return { title: 'Reportes', body: await reportesView() }
   if (state.view === 'proveedores') return { title: 'Proveedores', body: await proveedoresView() }
   if (state.view === 'proveedor-productos')
     return { title: 'Productos del proveedor', body: await proveedorProductosView() }
@@ -193,10 +220,13 @@ function shellHtml(title: string, body: string): string {
     ['productos', 'Productos'],
     ['taxonomia', 'Taxonomia'],
     ['ingesta', 'Ingesta PDF'],
+    ['clientes', 'Clientes'],
     ['cotizaciones', 'Cotizaciones'],
     ['pedidos', 'Pedidos'],
+    ['cupones', 'Cupones'],
     ['proveedores', 'Proveedores'],
     ['fulfillments', 'Fulfillments'],
+    ['reportes', 'Reportes'],
     ['conocimiento', 'Conocimiento'],
     ['asesor', 'Asesor'],
   ]
@@ -247,6 +277,9 @@ function bindView() {
   bindTaxonomy()
   bindReasignacion()
   bindSimpleTables()
+  bindClientes()
+  bindCupones()
+  bindPedidoOperaciones()
   bindIngest()
   bindProveedorProductos()
   bindFulfillments()
@@ -254,21 +287,28 @@ function bindView() {
 }
 
 async function dashboardView(): Promise<string> {
-  const [productos, cotizaciones, pedidos, dropship] = await Promise.all([
-    count('productos'),
-    count('solicitudes_cotizacion', { leida: false }),
-    count('pedidos', { leida: false }),
-    count('productos', { fulfillment_mode: 'dropship' }),
-  ])
+  const [productos, cotizaciones, pedidos, dropship, clientes, cupones, fulfillmentsError] =
+    await Promise.all([
+      count('productos'),
+      count('solicitudes_cotizacion', { leida: false }),
+      count('pedidos', { leida: false }),
+      count('productos', { fulfillment_mode: 'dropship' }),
+      count('clientes'),
+      count('cupones', { activo: true }),
+      count('fulfillments', { estado: 'error' }),
+    ])
   const withoutProvider = await productosDropshipSinProveedor()
   return `
     ${withoutProvider > 0 ? `<div class="admin-alert">${withoutProvider} productos dropship no tienen proveedor asignado.</div>` : ''}
     <section class="admin-grid">
       ${metric('Total productos', productos)}
+      ${metric('Clientes', clientes)}
       ${metric('Cotizaciones sin leer', cotizaciones)}
       ${metric('Pedidos sin leer', pedidos)}
+      ${metric('Cupones activos', cupones)}
       ${metric('Dropship', dropship)}
       ${metric('Dropship sin proveedor', withoutProvider)}
+      ${metric('Fulfillments con error', fulfillmentsError)}
     </section>
     <section class="admin-panel">
       <div class="admin-panel__head"><h2>Accesos</h2></div>
@@ -276,7 +316,10 @@ async function dashboardView(): Promise<string> {
         <a class="admin-button" href="#/producto">Crear producto</a>
         <a class="admin-button" href="#/ingesta">Ingesta PDF</a>
         <a class="admin-button admin-button--ghost" href="#/taxonomia">Taxonomia</a>
+        <a class="admin-button admin-button--ghost" href="#/clientes">Clientes</a>
+        <a class="admin-button admin-button--ghost" href="#/cupones">Cupones</a>
         <a class="admin-button admin-button--ghost" href="#/cotizaciones">Cotizaciones</a>
+        <a class="admin-button admin-button--ghost" href="#/reportes">Reportes</a>
       </div>
     </section>`
 }
@@ -418,6 +461,8 @@ async function productoFormView(): Promise<string> {
             ${field('nombre_es', 'Nombre ES', draft.nombre_es, true)}
             ${field('nombre_en', 'Nombre EN', draft.nombre_en)}
             ${field('slug', 'Slug', draft.slug, true)}
+            ${field('sku', 'SKU', draft.sku)}
+            ${field('gtin', 'GTIN / codigo externo', draft.gtin)}
             ${select('familia_id', 'Familia', draft.familia_id, familias, 'nombre_es')}
             ${select('tipo_id', 'Tipo', draft.tipo_id, tipos, 'nombre_es', true)}
             ${selectStatic('tipo_comercial', 'Tipo comercial', draft.tipo_comercial, [
@@ -429,10 +474,27 @@ async function productoFormView(): Promise<string> {
               ['dropship', 'Dropship'],
               ['individualizado', 'Individualizado'],
             ])}
-            ${field('precio', 'Precio COP', draft.precio?.toString() ?? '', false, 'number')}
+            ${field('precio', 'Precio actual COP', draft.precio?.toString() ?? '', false, 'number')}
+            ${field('precio_regular', 'Precio regular COP', draft.precio_regular?.toString() ?? '', false, 'number')}
+            ${field('precio_oferta', 'Precio oferta COP', draft.precio_oferta?.toString() ?? '', false, 'number')}
+            ${field('oferta_inicio', 'Inicio oferta', draft.oferta_inicio, false, 'datetime-local')}
+            ${field('oferta_fin', 'Fin oferta', draft.oferta_fin, false, 'datetime-local')}
             ${field('stock', 'Stock', draft.stock?.toString() ?? '', false, 'number')}
+            ${selectStatic('stock_estado', 'Estado stock', draft.stock_estado, [
+              ['instock', 'En stock'],
+              ['outofstock', 'Agotado'],
+              ['onbackorder', 'Bajo pedido'],
+            ])}
+            ${selectStatic('backorder_policy', 'Backorders', draft.backorder_policy, [
+              ['no', 'No permitir'],
+              ['notify', 'Permitir avisando'],
+              ['yes', 'Permitir'],
+            ])}
+            ${field('peso_kg', 'Peso kg', draft.peso_kg?.toString() ?? '', false, 'number')}
             ${field('orden', 'Orden', String(draft.orden), false, 'number')}
           </div>
+          ${textarea('atributos', 'Atributos JSON', JSON.stringify(draft.atributos, null, 2))}
+          ${textarea('dimensiones_cm', 'Dimensiones cm JSON', JSON.stringify(draft.dimensiones_cm, null, 2))}
           ${textarea('descripcion_corta_es', 'Descripcion corta ES', draft.descripcion_corta_es)}
           ${textarea('descripcion_corta_en', 'Descripcion corta EN', draft.descripcion_corta_en)}
           ${textarea('descripcion_larga_es', 'Descripcion larga ES', draft.descripcion_larga_es)}
@@ -446,6 +508,7 @@ async function productoFormView(): Promise<string> {
           ${upload('productos', 'imagen_principal', 'Subir imagen')}
           ${field('ficha_pdf', 'URL ficha PDF', draft.ficha_pdf)}
           ${upload('fichas', 'ficha_pdf', 'Subir PDF')}
+          ${checkbox('gestionar_stock', 'Gestionar stock automaticamente', draft.gestionar_stock)}
           ${checkbox('destacado', 'Destacado', draft.destacado)}
           ${checkbox('nuevo', 'Nuevo', draft.nuevo)}
           ${checkbox('activo', 'Activo / publicado en sitio estatico', draft.activo)}
@@ -540,12 +603,18 @@ async function taxonomiaView(): Promise<string> {
     </section>`
 }
 
+const COTIZACION_ESTADOS: Array<[string, string]> = [
+  ['nueva', 'Nueva'],
+  ['en_revision', 'En revision'],
+  ['respondida', 'Respondida'],
+]
+
 async function cotizacionesView(): Promise<string> {
   const rows = await selectRows('solicitudes_cotizacion', '*', 'created_at', 100, false)
   return listWithCsv(
     'solicitudes_cotizacion',
     rows,
-    ['created_at', 'nombre', 'empresa', 'email', 'telefono', 'leida'],
+    ['created_at', 'nombre', 'empresa', 'email', 'telefono', 'estado', 'leida'],
     'cotizacion'
   )
 }
@@ -594,7 +663,181 @@ async function cotizacionDetailView(): Promise<string> {
             : 'No aceptado / no registrado'
         }</p>
       </div>
+      <form class="admin-form" data-cotizacion-estado-form style="padding:0 16px 16px">
+        <input type="hidden" name="id" value="${escapeHtml(text(row.id))}" />
+        <div class="admin-editor__cols">
+          ${selectStatic('estado', 'Estado', text(row.estado) || 'nueva', COTIZACION_ESTADOS)}
+        </div>
+        ${textarea('notas_internas', 'Notas internas', text(row.notas_internas))}
+        <button class="admin-button" type="submit">Guardar seguimiento</button>
+      </form>
     </section>`
+}
+
+async function clientesView(): Promise<string> {
+  const params = hashParams()
+  const q = (params.get('q') ?? '').trim()
+  const tipo = params.get('tipo_cliente') ?? ''
+  let query = supabase!
+    .from('clientes')
+    .select('*')
+    .order('updated_at', { ascending: false })
+    .limit(100)
+  if (q) {
+    const safeQ = q.replace(/[,()%]/g, '')
+    if (safeQ)
+      query = query.or(
+        `email.ilike.%${safeQ}%,nombre.ilike.%${safeQ}%,apellido.ilike.%${safeQ}%,institucion.ilike.%${safeQ}%`
+      )
+  }
+  if (tipo) query = query.eq('tipo_cliente', tipo)
+  const { data, error } = await query
+  if (error) toast(error.message)
+  const rows = (data ?? []) as unknown as Row[]
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head">
+        <h2>Clientes (${rows.length})</h2>
+        <button class="admin-button" data-new-cliente type="button">Nuevo cliente</button>
+      </div>
+      <form class="admin-filters" data-clientes-filter>
+        ${field('q', 'Buscar cliente', q, false, 'search')}
+        ${selectStatic('tipo_cliente', 'Tipo', tipo, [
+          ['', 'Todos'],
+          ['b2b', 'B2B'],
+          ['b2c', 'B2C'],
+          ['mixto', 'Mixto'],
+        ])}
+        <button class="admin-button" type="submit">Filtrar</button>
+        <a class="admin-button admin-button--ghost" href="#/clientes">Limpiar</a>
+      </form>
+      ${table(
+        ['Cliente', 'Email', 'Telefono', 'Tipo', 'Pedidos', 'Total gastado', 'Acciones'],
+        rows.map((row) => [
+          [text(row.nombre), text(row.apellido)].filter(Boolean).join(' ') ||
+            text(row.institucion) ||
+            '—',
+          text(row.email),
+          text(row.telefono),
+          text(row.tipo_cliente).toUpperCase(),
+          text(row.total_pedidos),
+          `${text(row.total_gastado)} COP`,
+          `<a class="admin-button admin-button--ghost" href="#/cliente?id=${encodeURIComponent(text(row.id))}">Ver</a>`,
+        ])
+      )}
+    </section>`
+}
+
+async function clienteDetailView(): Promise<string> {
+  const cliente = state.recordId ? await getRow('clientes', state.recordId) : null
+  const [direcciones, pedidos, cotizaciones] = cliente
+    ? await Promise.all([
+        selectRowsWhere(
+          'cliente_direcciones',
+          '*',
+          'created_at',
+          { cliente_id: text(cliente.id) },
+          50,
+          false
+        ),
+        selectRowsWhere('pedidos', '*', 'created_at', { cliente_id: text(cliente.id) }, 50, false),
+        selectRowsWhere(
+          'solicitudes_cotizacion',
+          '*',
+          'created_at',
+          { email: text(cliente.email) },
+          50,
+          false
+        ),
+      ])
+    : [[], [], []]
+
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head">
+        <h2>${cliente ? 'Ficha de cliente' : 'Nuevo cliente'}</h2>
+        <a class="admin-button admin-button--ghost" href="#/clientes">Volver</a>
+      </div>
+      <form class="admin-form" data-cliente-form style="padding:16px">
+        <input type="hidden" name="id" value="${escapeHtml(text(cliente?.id))}" />
+        <div class="admin-editor__cols">
+          ${field('email', 'Email', text(cliente?.email), true, 'email')}
+          ${selectStatic('tipo_cliente', 'Tipo cliente', text(cliente?.tipo_cliente) || 'b2b', [
+            ['b2b', 'B2B'],
+            ['b2c', 'B2C'],
+            ['mixto', 'Mixto'],
+          ])}
+          ${field('nombre', 'Nombre', text(cliente?.nombre))}
+          ${field('apellido', 'Apellido', text(cliente?.apellido))}
+          ${field('telefono', 'Telefono', text(cliente?.telefono))}
+          ${field('institucion', 'Institucion / empresa', text(cliente?.institucion))}
+          ${field('documento_tipo', 'Tipo documento', text(cliente?.documento_tipo))}
+          ${field('documento_numero', 'Numero documento', text(cliente?.documento_numero))}
+        </div>
+        ${textarea('notas', 'Notas internas', text(cliente?.notas))}
+        ${checkbox('consentimiento_datos', 'Consentimiento datos registrado', Boolean(cliente?.consentimiento_datos))}
+        <button class="admin-button" type="submit">Guardar cliente</button>
+      </form>
+    </section>
+    ${
+      cliente
+        ? `
+      <section class="admin-panel">
+        <div class="admin-panel__head"><h2>Direcciones</h2></div>
+        ${table(
+          ['Tipo', 'Nombre', 'Ciudad', 'Direccion', 'Principal'],
+          direcciones.map((row) => [
+            text(row.tipo),
+            text(row.nombre),
+            [text(row.ciudad), text(row.departamento), text(row.pais)].filter(Boolean).join(', '),
+            text(row.direccion),
+            formatCell(row.principal),
+          ])
+        )}
+        <form class="admin-form" data-direccion-form style="padding:16px">
+          <input type="hidden" name="cliente_id" value="${escapeHtml(text(cliente.id))}" />
+          <div class="admin-editor__cols">
+            ${selectStatic('tipo', 'Tipo', 'facturacion', [
+              ['facturacion', 'Facturacion'],
+              ['envio', 'Envio'],
+              ['legal', 'Legal'],
+            ])}
+            ${field('nombre', 'Nombre contacto')}
+            ${field('telefono', 'Telefono')}
+            ${field('pais', 'Pais', 'CO')}
+            ${field('departamento', 'Departamento')}
+            ${field('ciudad', 'Ciudad')}
+            ${field('direccion', 'Direccion', '', true)}
+            ${field('codigo_postal', 'Codigo postal')}
+          </div>
+          ${checkbox('principal', 'Principal', false)}
+          <button class="admin-button" type="submit">Agregar direccion</button>
+        </form>
+      </section>
+      <section class="admin-panel">
+        <div class="admin-panel__head"><h2>Actividad comercial</h2></div>
+        ${table(
+          ['Fecha', 'Tipo', 'Estado', 'Total', 'Acciones'],
+          [
+            ...pedidos.map((row) => [
+              formatCell(row.created_at),
+              'Pedido',
+              formatCell(row.estado),
+              `${text(row.total)} ${text(row.moneda)}`,
+              `<a class="admin-button admin-button--ghost" href="#/pedido?id=${encodeURIComponent(text(row.id))}">Ver</a>`,
+            ]),
+            ...cotizaciones.map((row) => [
+              formatCell(row.created_at),
+              'Cotizacion',
+              formatCell(row.estado),
+              '—',
+              `<a class="admin-button admin-button--ghost" href="#/cotizacion?id=${encodeURIComponent(text(row.id))}">Ver</a>`,
+            ]),
+          ]
+        )}
+      </section>`
+        : ''
+    }`
 }
 
 const PEDIDO_ESTADOS: Array<[string, string]> = [
@@ -637,7 +880,7 @@ async function pedidoDetailView(): Promise<string> {
   const items = Array.isArray(row.items) ? row.items : []
 
   const referencia = text(row.referencia_pasarela)
-  const [eventosResult, fulfillmentsResult] = await Promise.all([
+  const [eventosResult, fulfillmentsResult, notasResult, timelineResult] = await Promise.all([
     referencia
       ? supabase!
           .from('eventos_pago')
@@ -650,9 +893,21 @@ async function pedidoDetailView(): Promise<string> {
       .select('*, proveedores(nombre)')
       .eq('pedido_id', text(row.id))
       .order('created_at', { ascending: false }),
+    supabase!
+      .from('pedido_notas')
+      .select('*')
+      .eq('pedido_id', text(row.id))
+      .order('created_at', { ascending: false }),
+    supabase!
+      .from('pedido_eventos')
+      .select('*')
+      .eq('pedido_id', text(row.id))
+      .order('created_at', { ascending: false }),
   ])
   const eventos = (eventosResult.data ?? []) as Row[]
   const fulfillments = (fulfillmentsResult.data ?? []) as Row[]
+  const notas = (notasResult.data ?? []) as Row[]
+  const timeline = (timelineResult.data ?? []) as Row[]
 
   return `
     <section class="admin-panel">
@@ -673,7 +928,11 @@ async function pedidoDetailView(): Promise<string> {
           [
             ['Fecha', formatCell(row.created_at)],
             ['Subtotal', escapeHtml(text(row.subtotal))],
+            ['Descuento', escapeHtml(text(row.descuento_total))],
+            ['Impuestos', escapeHtml(text(row.impuesto_total))],
+            ['Envio', escapeHtml(text(row.envio_total))],
             ['Total', `${escapeHtml(text(row.total))} ${escapeHtml(text(row.moneda))}`],
+            ['Cupon', escapeHtml(text(row.cupon_codigo)) || '—'],
             ['Mercado', escapeHtml(text(row.mercado))],
             ['Pasarela', escapeHtml(text(row.proveedor_pago))],
             ['Referencia', escapeHtml(text(row.referencia_pasarela)) || '—'],
@@ -727,6 +986,49 @@ async function pedidoDetailView(): Promise<string> {
         }
       </div>
       <div style="padding:0 16px 16px">
+        <h3>Timeline interno</h3>
+        ${
+          timeline.length === 0
+            ? '<p class="admin-help">Sin eventos internos aun.</p>'
+            : table(
+                ['Fecha', 'Tipo', 'De', 'A', 'Actor'],
+                timeline.map((e) => [
+                  formatCell(e.created_at),
+                  escapeHtml(text(e.tipo)),
+                  escapeHtml(text(e.de_estado)) || '—',
+                  escapeHtml(text(e.a_estado)) || '—',
+                  escapeHtml(text(e.actor_email)) || '—',
+                ])
+              )
+        }
+      </div>
+      <div style="padding:0 16px 16px">
+        <h3>Notas</h3>
+        ${
+          notas.length === 0
+            ? '<p class="admin-help">Sin notas.</p>'
+            : table(
+                ['Fecha', 'Tipo', 'Autor', 'Nota'],
+                notas.map((n) => [
+                  formatCell(n.created_at),
+                  escapeHtml(text(n.tipo)),
+                  escapeHtml(text(n.autor_email)) || '—',
+                  escapeHtml(text(n.nota)),
+                ])
+              )
+        }
+        <form class="admin-form" data-pedido-nota-form style="margin-top:12px">
+          <input type="hidden" name="pedido_id" value="${escapeHtml(text(row.id))}" />
+          ${selectStatic('tipo', 'Tipo de nota', 'interna', [
+            ['interna', 'Interna'],
+            ['cliente', 'Visible para cliente (futuro portal)'],
+            ['sistema', 'Sistema'],
+          ])}
+          ${textarea('nota', 'Nueva nota')}
+          <button class="admin-button" type="submit">Agregar nota</button>
+        </form>
+      </div>
+      <div style="padding:0 16px 16px">
         <h3>Consentimiento de datos</h3>
         <p class="admin-help">${
           row.consentimiento_datos
@@ -743,6 +1045,134 @@ async function pedidoDetailView(): Promise<string> {
         </div>
         <button class="admin-button" type="submit">Cambiar estado</button>
       </form>
+    </section>`
+}
+
+const CUPON_TIPOS: Array<[string, string]> = [
+  ['porcentaje', 'Porcentaje'],
+  ['monto_carrito', 'Monto fijo carrito'],
+  ['monto_producto', 'Monto fijo producto'],
+]
+
+async function cuponesView(): Promise<string> {
+  const rows = await selectRows('cupones', '*', 'created_at', 100, false)
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head">
+        <h2>Cupones (${rows.length})</h2>
+        <a class="admin-button" href="#/cupon">Nuevo cupon</a>
+      </div>
+      ${table(
+        ['Codigo', 'Tipo', 'Valor', 'Usos', 'Vigencia', 'Estado', 'Acciones'],
+        rows.map((row) => [
+          text(row.codigo),
+          text(row.tipo_descuento),
+          `${text(row.valor)} ${text(row.tipo_descuento) === 'porcentaje' ? '%' : text(row.moneda)}`,
+          `${text(row.usos)}${row.limite_uso_total ? ` / ${text(row.limite_uso_total)}` : ''}`,
+          [formatCell(row.empieza_at), formatCell(row.expira_at)].join(' → '),
+          status(row.activo),
+          `<a class="admin-button admin-button--ghost" href="#/cupon?id=${encodeURIComponent(text(row.id))}">Editar</a>`,
+        ])
+      )}
+    </section>`
+}
+
+async function cuponFormView(): Promise<string> {
+  const row = state.recordId ? await getRow('cupones', state.recordId) : null
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head">
+        <h2>${row ? 'Editar cupon' : 'Nuevo cupon'}</h2>
+        <a class="admin-button admin-button--ghost" href="#/cupones">Volver</a>
+      </div>
+      <form class="admin-form" data-cupon-form style="padding:16px">
+        <input type="hidden" name="id" value="${escapeHtml(text(row?.id))}" />
+        <div class="admin-editor__cols">
+          ${field('codigo', 'Codigo', text(row?.codigo), true)}
+          ${selectStatic('tipo_descuento', 'Tipo descuento', text(row?.tipo_descuento) || 'porcentaje', CUPON_TIPOS)}
+          ${field('valor', 'Valor', text(row?.valor), true, 'number')}
+          ${field('moneda', 'Moneda', text(row?.moneda) || 'COP', true)}
+          ${field('monto_minimo', 'Monto minimo', text(row?.monto_minimo), false, 'number')}
+          ${field('monto_maximo', 'Monto maximo', text(row?.monto_maximo), false, 'number')}
+          ${field('limite_uso_total', 'Limite uso total', text(row?.limite_uso_total), false, 'number')}
+          ${field('limite_uso_por_usuario', 'Limite por usuario/email', text(row?.limite_uso_por_usuario), false, 'number')}
+          ${field('empieza_at', 'Empieza', datetimeLocal(row?.empieza_at), false, 'datetime-local')}
+          ${field('expira_at', 'Expira', datetimeLocal(row?.expira_at), false, 'datetime-local')}
+        </div>
+        ${textarea('productos_incluidos', 'Productos incluidos (slugs, uno por linea)', stringArray(row?.productos_incluidos).join('\n'))}
+        ${textarea('productos_excluidos', 'Productos excluidos (slugs, uno por linea)', stringArray(row?.productos_excluidos).join('\n'))}
+        ${textarea('familias_incluidas', 'Familias incluidas (slugs, una por linea)', stringArray(row?.familias_incluidas).join('\n'))}
+        ${textarea('familias_excluidas', 'Familias excluidas (slugs, una por linea)', stringArray(row?.familias_excluidas).join('\n'))}
+        ${textarea('emails_permitidos', 'Emails permitidos (uno por linea, soporta * como convencion documental)', stringArray(row?.emails_permitidos).join('\n'))}
+        ${textarea('descripcion', 'Descripcion interna', text(row?.descripcion))}
+        <div class="admin-editor__cols">
+          ${checkbox('activo', 'Activo', row ? Boolean(row.activo) : true)}
+          ${checkbox('uso_individual', 'Uso individual (no combinable)', Boolean(row?.uso_individual))}
+          ${checkbox('excluir_ofertas', 'Excluir productos en oferta', Boolean(row?.excluir_ofertas))}
+          ${checkbox('envio_gratis', 'Envio gratis', Boolean(row?.envio_gratis))}
+        </div>
+        <button class="admin-button" type="submit">Guardar cupon</button>
+      </form>
+    </section>`
+}
+
+async function reportesView(): Promise<string> {
+  const [pedidos, cotizaciones, productos, fulfillments, cupones] = await Promise.all([
+    selectRows('pedidos', '*', 'created_at', 500, false),
+    selectRows('solicitudes_cotizacion', '*', 'created_at', 500, false),
+    selectRows(
+      'productos',
+      'id,nombre_es,slug,stock,stock_estado,disponible,tipo_comercial,fulfillment_mode',
+      'nombre_es',
+      500
+    ),
+    selectRows('fulfillments', '*', 'created_at', 500, false),
+    selectRows('cupones', '*', 'created_at', 200, false),
+  ])
+  const ventas = pedidos
+    .filter((p) => ['pagado', 'procesando', 'enviado', 'entregado'].includes(text(p.estado)))
+    .reduce((acc, p) => acc + Number(p.total ?? 0), 0)
+  const pedidosPorEstado = groupCount(pedidos, 'estado')
+  const cotizacionesPorEstado = groupCount(cotizaciones, 'estado')
+  const productosCriticos = productos.filter(
+    (p) => p.disponible === false || text(p.stock_estado) !== 'instock'
+  )
+  return `
+    <section class="admin-grid">
+      ${metric('Ventas reconocidas COP', Math.round(ventas))}
+      ${metric('Pedidos', pedidos.length)}
+      ${metric('Cotizaciones', cotizaciones.length)}
+      ${metric('Productos criticos', productosCriticos.length)}
+      ${metric('Fulfillments error', fulfillments.filter((f) => text(f.estado) === 'error').length)}
+      ${metric('Cupones activos', cupones.filter((c) => c.activo === true).length)}
+    </section>
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Pedidos por estado</h2></div>
+      ${table(
+        ['Estado', 'Cantidad'],
+        Array.from(pedidosPorEstado.entries()).map(([k, v]) => [k || 'sin_estado', String(v)])
+      )}
+    </section>
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Cotizaciones por estado</h2></div>
+      ${table(
+        ['Estado', 'Cantidad'],
+        Array.from(cotizacionesPorEstado.entries()).map(([k, v]) => [k || 'sin_estado', String(v)])
+      )}
+    </section>
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Productos con riesgo operativo</h2></div>
+      ${table(
+        ['Producto', 'Tipo', 'Fulfillment', 'Stock', 'Estado', 'Disponible'],
+        productosCriticos.map((p) => [
+          text(p.nombre_es),
+          text(p.tipo_comercial),
+          text(p.fulfillment_mode),
+          text(p.stock),
+          text(p.stock_estado),
+          formatCell(p.disponible),
+        ])
+      )}
     </section>`
 }
 
@@ -1365,6 +1795,23 @@ function bindSimpleTables() {
       downloadCsv(button.dataset['filename'] ?? 'export.csv', JSON.parse(raw) as Row[])
     })
   })
+  const cotizacionForm = app.querySelector<HTMLFormElement>('[data-cotizacion-estado-form]')
+  cotizacionForm?.addEventListener('submit', async (event) => {
+    event.preventDefault()
+    const data = new FormData(cotizacionForm)
+    const id = String(data.get('id') ?? '')
+    const estado = String(data.get('estado') ?? '')
+    const notas_internas = String(data.get('notas_internas') ?? '')
+    if (!id || !estado) return
+    const { error } = await supabase!
+      .from('solicitudes_cotizacion')
+      .update({ estado, notas_internas: notas_internas || null })
+      .eq('id', id)
+    if (error) toast(error.message)
+    else toast('Seguimiento actualizado.')
+    await render()
+  })
+
   const pedidoForm = app.querySelector<HTMLFormElement>('[data-pedido-estado-form]')
   pedidoForm?.addEventListener('submit', async (event) => {
     event.preventDefault()
@@ -1380,9 +1827,177 @@ function bindSimpleTables() {
     ) {
       return
     }
+    const before = await getRow('pedidos', id)
+    const estadoAnterior = text(before?.estado)
     const { error } = await supabase!.from('pedidos').update({ estado }).eq('id', id)
     if (error) toast(error.message)
-    else toast('Estado actualizado.')
+    else {
+      const {
+        data: { user },
+      } = await supabase!.auth.getUser()
+      await supabase!.from('pedido_eventos').insert({
+        pedido_id: id,
+        actor_id: user?.id ?? null,
+        actor_email: user?.email ?? state.email,
+        tipo: 'estado_actualizado',
+        de_estado: estadoAnterior || null,
+        a_estado: estado,
+        metadata: { source: 'admin' },
+      })
+      toast('Estado actualizado.')
+    }
+    await render()
+  })
+}
+
+function bindClientes() {
+  const filterForm = app.querySelector<HTMLFormElement>('[data-clientes-filter]')
+  filterForm?.addEventListener('submit', (event) => {
+    event.preventDefault()
+    const data = new FormData(filterForm)
+    const params = new URLSearchParams()
+    for (const key of ['q', 'tipo_cliente']) {
+      const value = String(data.get(key) ?? '').trim()
+      if (value) params.set(key, value)
+    }
+    location.hash = `#/clientes${params.toString() ? `?${params.toString()}` : ''}`
+  })
+  app.querySelector('[data-new-cliente]')?.addEventListener('click', () => {
+    location.hash = '#/cliente'
+  })
+
+  const form = app.querySelector<HTMLFormElement>('[data-cliente-form]')
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault()
+    const data = new FormData(form)
+    const id = String(data.get('id') ?? '')
+    const payload: Row = {
+      email: String(data.get('email') ?? '')
+        .trim()
+        .toLowerCase(),
+      tipo_cliente: String(data.get('tipo_cliente') ?? 'b2b'),
+      nombre: emptyToNull(data.get('nombre')),
+      apellido: emptyToNull(data.get('apellido')),
+      telefono: emptyToNull(data.get('telefono')),
+      institucion: emptyToNull(data.get('institucion')),
+      documento_tipo: emptyToNull(data.get('documento_tipo')),
+      documento_numero: emptyToNull(data.get('documento_numero')),
+      notas: emptyToNull(data.get('notas')),
+      consentimiento_datos:
+        form.elements.namedItem('consentimiento_datos') instanceof HTMLInputElement &&
+        (form.elements.namedItem('consentimiento_datos') as HTMLInputElement).checked,
+      consentimiento_timestamp:
+        form.elements.namedItem('consentimiento_datos') instanceof HTMLInputElement &&
+        (form.elements.namedItem('consentimiento_datos') as HTMLInputElement).checked
+          ? new Date().toISOString()
+          : null,
+    }
+    const req = id
+      ? supabase!.from('clientes').update(payload).eq('id', id).select('id').single()
+      : supabase!.from('clientes').insert(payload).select('id').single()
+    const { data: saved, error } = await req
+    if (error) {
+      toast(error.message)
+      return
+    }
+    toast('Cliente guardado')
+    location.hash = `#/cliente?id=${encodeURIComponent(text((saved as Row).id))}`
+  })
+
+  const dirForm = app.querySelector<HTMLFormElement>('[data-direccion-form]')
+  dirForm?.addEventListener('submit', async (event) => {
+    event.preventDefault()
+    const data = new FormData(dirForm)
+    const payload: Row = {
+      cliente_id: String(data.get('cliente_id') ?? ''),
+      tipo: String(data.get('tipo') ?? 'facturacion'),
+      nombre: emptyToNull(data.get('nombre')),
+      telefono: emptyToNull(data.get('telefono')),
+      pais: String(data.get('pais') ?? 'CO'),
+      departamento: emptyToNull(data.get('departamento')),
+      ciudad: emptyToNull(data.get('ciudad')),
+      direccion: String(data.get('direccion') ?? ''),
+      codigo_postal: emptyToNull(data.get('codigo_postal')),
+      principal:
+        dirForm.elements.namedItem('principal') instanceof HTMLInputElement &&
+        (dirForm.elements.namedItem('principal') as HTMLInputElement).checked,
+    }
+    const { error } = await supabase!.from('cliente_direcciones').insert(payload)
+    if (error) toast(error.message)
+    else toast('Direccion agregada')
+    await render()
+  })
+}
+
+function bindCupones() {
+  const form = app.querySelector<HTMLFormElement>('[data-cupon-form]')
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault()
+    const data = new FormData(form)
+    const id = String(data.get('id') ?? '')
+    const payload: Row = {
+      codigo: String(data.get('codigo') ?? '')
+        .trim()
+        .toUpperCase(),
+      tipo_descuento: String(data.get('tipo_descuento') ?? 'porcentaje'),
+      valor: numberOrZero(data.get('valor')),
+      moneda: String(data.get('moneda') ?? 'COP'),
+      monto_minimo: numberOrNull(data.get('monto_minimo')),
+      monto_maximo: numberOrNull(data.get('monto_maximo')),
+      limite_uso_total: numberOrNull(data.get('limite_uso_total')),
+      limite_uso_por_usuario: numberOrNull(data.get('limite_uso_por_usuario')),
+      empieza_at: emptyToNull(data.get('empieza_at')),
+      expira_at: emptyToNull(data.get('expira_at')),
+      productos_incluidos: lines(data.get('productos_incluidos')),
+      productos_excluidos: lines(data.get('productos_excluidos')),
+      familias_incluidas: lines(data.get('familias_incluidas')),
+      familias_excluidas: lines(data.get('familias_excluidas')),
+      emails_permitidos: lines(data.get('emails_permitidos')).map((email) => email.toLowerCase()),
+      descripcion: emptyToNull(data.get('descripcion')),
+      activo:
+        form.elements.namedItem('activo') instanceof HTMLInputElement &&
+        (form.elements.namedItem('activo') as HTMLInputElement).checked,
+      uso_individual:
+        form.elements.namedItem('uso_individual') instanceof HTMLInputElement &&
+        (form.elements.namedItem('uso_individual') as HTMLInputElement).checked,
+      excluir_ofertas:
+        form.elements.namedItem('excluir_ofertas') instanceof HTMLInputElement &&
+        (form.elements.namedItem('excluir_ofertas') as HTMLInputElement).checked,
+      envio_gratis:
+        form.elements.namedItem('envio_gratis') instanceof HTMLInputElement &&
+        (form.elements.namedItem('envio_gratis') as HTMLInputElement).checked,
+    }
+    const { error } = id
+      ? await supabase!.from('cupones').update(payload).eq('id', id)
+      : await supabase!.from('cupones').insert(payload)
+    if (error) {
+      toast(error.message)
+      return
+    }
+    toast('Cupon guardado')
+    location.hash = '#/cupones'
+  })
+}
+
+function bindPedidoOperaciones() {
+  const noteForm = app.querySelector<HTMLFormElement>('[data-pedido-nota-form]')
+  noteForm?.addEventListener('submit', async (event) => {
+    event.preventDefault()
+    const data = new FormData(noteForm)
+    const {
+      data: { user },
+    } = await supabase!.auth.getUser()
+    const payload: Row = {
+      pedido_id: String(data.get('pedido_id') ?? ''),
+      tipo: String(data.get('tipo') ?? 'interna'),
+      nota: String(data.get('nota') ?? '').trim(),
+      autor_id: user?.id ?? null,
+      autor_email: user?.email ?? state.email,
+    }
+    if (!payload['nota']) return
+    const { error } = await supabase!.from('pedido_notas').insert(payload)
+    if (error) toast(error.message)
+    else toast('Nota agregada')
     await render()
   })
 }
@@ -1766,6 +2381,24 @@ async function selectRows(
   return (data ?? []) as unknown as Row[]
 }
 
+async function selectRowsWhere(
+  tableName: string,
+  columns: string,
+  order: string,
+  eq: Row,
+  limit: number,
+  ascending = true
+): Promise<Row[]> {
+  let req = supabase!.from(tableName).select(columns).order(order, { ascending }).limit(limit)
+  for (const [key, value] of Object.entries(eq)) req = req.eq(key, value)
+  const { data, error } = await req
+  if (error) {
+    toast(error.message)
+    return []
+  }
+  return (data ?? []) as unknown as Row[]
+}
+
 async function getRow(tableName: string, id: string): Promise<Row | null> {
   const { data, error } = await supabase!.from(tableName).select('*').eq('id', id).maybeSingle()
   if (error) {
@@ -1792,10 +2425,21 @@ async function productosDropshipSinProveedor(): Promise<number> {
   return dropship.filter((row) => !linked.has(text(row.id))).length
 }
 
+function groupCount(rows: Row[], key: string): Map<string, number> {
+  const grouped = new Map<string, number>()
+  for (const row of rows) {
+    const value = text(row[key])
+    grouped.set(value, (grouped.get(value) ?? 0) + 1)
+  }
+  return grouped
+}
+
 function productDraft(row: Row | null): ProductoDraft {
   return {
     id: text(row?.id) || undefined,
     slug: text(row?.slug),
+    sku: text(row?.sku),
+    gtin: text(row?.gtin),
     nombre_es: text(row?.nombre_es),
     nombre_en: text(row?.nombre_en),
     descripcion_corta_es: text(row?.descripcion_corta_es),
@@ -1809,14 +2453,33 @@ function productDraft(row: Row | null): ProductoDraft {
     aplicaciones_en: stringArray(row?.aplicaciones_en),
     imagen_principal: text(row?.imagen_principal),
     ficha_pdf: text(row?.ficha_pdf),
+    atributos: row?.atributos && typeof row.atributos === 'object' ? (row.atributos as Row) : {},
+    peso_kg: numberOrNull(row?.peso_kg),
+    dimensiones_cm:
+      row?.dimensiones_cm && typeof row.dimensiones_cm === 'object'
+        ? (row.dimensiones_cm as Row)
+        : {},
     tipo_comercial: row?.tipo_comercial === 'consumible' ? 'consumible' : 'equipo',
     fulfillment_mode:
       row?.fulfillment_mode === 'dropship' || row?.fulfillment_mode === 'individualizado'
         ? row.fulfillment_mode
         : 'cotizacion',
     precio: numberOrNull(row?.precio),
+    precio_regular: numberOrNull(row?.precio_regular),
+    precio_oferta: numberOrNull(row?.precio_oferta),
+    oferta_inicio: datetimeLocal(row?.oferta_inicio),
+    oferta_fin: datetimeLocal(row?.oferta_fin),
     moneda: text(row?.moneda) || 'COP',
     stock: numberOrNull(row?.stock),
+    gestionar_stock: Boolean(row?.gestionar_stock),
+    stock_estado:
+      row?.stock_estado === 'outofstock' || row?.stock_estado === 'onbackorder'
+        ? row.stock_estado
+        : 'instock',
+    backorder_policy:
+      row?.backorder_policy === 'notify' || row?.backorder_policy === 'yes'
+        ? row.backorder_policy
+        : 'no',
     destacado: Boolean(row?.destacado),
     nuevo: Boolean(row?.nuevo),
     activo: row ? Boolean(row.activo) : false,
@@ -1827,15 +2490,12 @@ function productDraft(row: Row | null): ProductoDraft {
 
 function productPayload(form: HTMLFormElement): Row {
   const data = new FormData(form)
-  let specs: unknown[]
-  try {
-    const parsed = JSON.parse(String(data.get('especificaciones') ?? '[]')) as unknown
-    specs = Array.isArray(parsed) ? parsed : []
-  } catch {
-    specs = []
-  }
+  const specsParsed = parseJson(data.get('especificaciones'), [])
+  const specs = Array.isArray(specsParsed) ? specsParsed : []
   return {
     slug: String(data.get('slug') ?? ''),
+    sku: emptyToNull(data.get('sku')),
+    gtin: emptyToNull(data.get('gtin')),
     nombre_es: String(data.get('nombre_es') ?? ''),
     nombre_en: emptyToNull(data.get('nombre_en')),
     descripcion_corta_es: emptyToNull(data.get('descripcion_corta_es')),
@@ -1849,11 +2509,23 @@ function productPayload(form: HTMLFormElement): Row {
     aplicaciones_en: lines(data.get('aplicaciones_en')),
     imagen_principal: emptyToNull(data.get('imagen_principal')),
     ficha_pdf: emptyToNull(data.get('ficha_pdf')),
+    atributos: parseJson(data.get('atributos'), {}),
+    peso_kg: numberOrNull(data.get('peso_kg')),
+    dimensiones_cm: parseJson(data.get('dimensiones_cm'), {}),
     tipo_comercial: String(data.get('tipo_comercial') ?? 'equipo'),
     fulfillment_mode: String(data.get('fulfillment_mode') ?? 'cotizacion'),
     precio: numberOrNull(data.get('precio')),
+    precio_regular: numberOrNull(data.get('precio_regular')),
+    precio_oferta: numberOrNull(data.get('precio_oferta')),
+    oferta_inicio: emptyToNull(data.get('oferta_inicio')),
+    oferta_fin: emptyToNull(data.get('oferta_fin')),
     moneda: 'COP',
     stock: numberOrNull(data.get('stock')),
+    gestionar_stock:
+      form.elements.namedItem('gestionar_stock') instanceof HTMLInputElement &&
+      (form.elements.namedItem('gestionar_stock') as HTMLInputElement).checked,
+    stock_estado: String(data.get('stock_estado') ?? 'instock'),
+    backorder_policy: String(data.get('backorder_policy') ?? 'no'),
     destacado:
       form.elements.namedItem('destacado') instanceof HTMLInputElement &&
       (form.elements.namedItem('destacado') as HTMLInputElement).checked,
@@ -2028,6 +2700,22 @@ function numberOrNull(value: unknown): number | null {
 
 function numberOrZero(value: unknown): number {
   return numberOrNull(value) ?? 0
+}
+
+function parseJson(value: unknown, fallback: unknown): unknown {
+  try {
+    return JSON.parse(String(value ?? ''))
+  } catch {
+    return fallback
+  }
+}
+
+function datetimeLocal(value: unknown): string {
+  const raw = text(value)
+  if (!raw) return ''
+  const date = new Date(raw)
+  if (Number.isNaN(date.getTime())) return ''
+  return date.toISOString().slice(0, 16)
 }
 
 function stringArray(value: unknown): string[] {

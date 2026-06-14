@@ -49,6 +49,7 @@ const config = {
     requerido: t(locale, 'carrito.requerido'),
     avisoRecalculo: t(locale, 'carrito.aviso_recalculo'),
     itemNoDisponible: t(locale, 'carrito.item_no_disponible'),
+    cupon: locale === 'en' ? 'Coupon code' : 'Codigo de cupon',
   },
   catalogoHref: locale === 'en' ? '/en/catalog' : '/es/catalogo',
 }
@@ -159,6 +160,10 @@ const config = {
           type="text"
           autocomplete="organization"
         />
+      </div>
+      <div class="carrito-field">
+        <label for="carrito-cupon">{config.i18n.cupon}</label>
+        <input id="carrito-cupon" name="cupon" type="text" autocomplete="off" />
       </div>
       <label class="carrito-checkbox">
         <input id="carrito-consentimiento" name="consentimiento" type="checkbox" required />
@@ -525,6 +530,7 @@ const config = {
     requerido: string
     avisoRecalculo: string
     itemNoDisponible: string
+    cupon: string
   }
 
   interface CarritoConfig {
@@ -731,12 +737,19 @@ const config = {
       const institucion = String(data.get('institucion') ?? '').trim()
       if (institucion) Object.assign(cliente, { institucion })
       const consentimientoDatos = data.get('consentimiento') === 'on'
+      const cuponCodigo = String(data.get('cupon') ?? '').trim()
 
       enviando = true
       submitBtn.disabled = true
       submitBtn.textContent = i18n.procesando
 
-      const resultado = await iniciarCheckout({ cliente, mercado, consentimientoDatos, locale })
+      const resultado = await iniciarCheckout({
+        cliente,
+        mercado,
+        cuponCodigo,
+        consentimientoDatos,
+        locale,
+      })
 
       enviando = false
       submitBtn.disabled = false

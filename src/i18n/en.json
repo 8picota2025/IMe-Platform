@@ -234,6 +234,8 @@
     "estado": "Status",
     "volver_catalogo": "Back to catalog",
     "contactar": "Contact us",
+    "whatsapp": "Message us on WhatsApp",
+    "whatsapp_mensaje": "Hi, I have a question about my order",
     "no_encontrado": "We couldn't find information for this reference. If you made a payment, contact us with your reference.",
     "estado_pendiente": "Pending",
     "estado_pagado": "Paid",

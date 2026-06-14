@@ -185,6 +185,7 @@ export function alAbrirCarrito(callback: () => void): () => void {
 export async function iniciarCheckout(params: {
   cliente: CarritoCliente
   mercado: Mercado
+  cuponCodigo?: string
   consentimientoDatos: boolean
   locale: Locale
 }): Promise<ResultadoCheckout> {
@@ -199,6 +200,7 @@ export async function iniciarCheckout(params: {
       items: items.map((i) => ({ slug: i.slug, cantidad: i.cantidad })),
       cliente: params.cliente,
       mercado: params.mercado,
+      cupon_codigo: params.cuponCodigo || undefined,
       consentimiento_datos: params.consentimientoDatos,
       locale: params.locale,
     },

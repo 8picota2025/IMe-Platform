@@ -16,7 +16,7 @@ import { handleCors, getCorsHeaders } from '../_shared/cors.ts'
 import { badRequest, internalError, unauthorized } from '../_shared/errors.ts'
 import { getServerSupabase } from '../_shared/supabase-server.ts'
 import { getGatewayByProvider } from '../_shared/payment-gateway.ts'
-import { notificarFulfillmentDropship } from '../_shared/post-pago.ts'
+import { notificarFulfillmentDropship, registrarPedidoPagado } from '../_shared/post-pago.ts'
 
 interface PedidoRow {
   id: string
@@ -106,6 +106,7 @@ Deno.serve(async (req) => {
     .eq('event_id', evento.event_id)
 
   if (!eraPagado && nuevoEstado === 'pagado') {
+    await registrarPedidoPagado(supabase, pedidoRow.id, 'wompi', evento.event_id)
     await notificarFulfillmentDropship(supabase, pedidoRow.id, pedidoRow.items ?? [])
   }
 

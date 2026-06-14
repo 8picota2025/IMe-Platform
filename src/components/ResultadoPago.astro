@@ -23,6 +23,11 @@ const tituloKey = `pago.${tipo}_titulo` as const
 const descKey = `pago.${tipo}_desc` as const
 
 const icono = { exito: '✓', pendiente: '…', fallo: '✕' }[tipo]
+
+// CTA WhatsApp directo para exito/fallo (TAREA 5 v1.1) — el mensaje se
+// completa con la referencia del pedido en el script si está disponible.
+const mostrarWhatsapp = tipo === 'exito' || tipo === 'fallo'
+const whatsappHref = `https://wa.me/573138674059?text=${encodeURIComponent(t(locale, 'pago.whatsapp_mensaje'))}`
 ---
 
 <section class="resultado-pago container">
@@ -49,6 +54,19 @@ const icono = { exito: '✓', pendiente: '…', fallo: '✕' }[tipo]
   <div class="resultado-pago__cta">
     <a href={catalogoHref} class="btn btn-primary">{t(locale, 'pago.volver_catalogo')}</a>
     <a href={contactoHref} class="btn btn-secondary">{t(locale, 'pago.contactar')}</a>
+    {
+      mostrarWhatsapp && (
+        <a
+          id="resultado-pago-whatsapp"
+          href={whatsappHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn-secondary"
+        >
+          {t(locale, 'pago.whatsapp')}
+        </a>
+      )
+    }
   </div>
 </section>
 
@@ -163,6 +181,12 @@ const icono = { exito: '✓', pendiente: '…', fallo: '✕' }[tipo]
 
     const { t, getLocale } = await import('../i18n/utils')
     const locale = getLocale(window.location.pathname)
+
+    const whatsappEl = document.getElementById('resultado-pago-whatsapp')
+    if (whatsappEl instanceof HTMLAnchorElement) {
+      const mensaje = `${t(locale, 'pago.whatsapp_mensaje')}\n\n${t(locale, 'pago.referencia')}: ${referencia}`
+      whatsappEl.href = `https://wa.me/573138674059?text=${encodeURIComponent(mensaje)}`
+    }
 
     const resultado = await consultarPedido(referencia)
     if (!resultado.ok || !resultado.pedido.encontrado) {
