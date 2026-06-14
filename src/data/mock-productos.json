@@ -598,5 +598,395 @@
     "nuevo": false,
     "activo": true,
     "orden": 24
+  },
+  {
+    "id": "prod-25",
+    "slug": "sistema-radiografico-3d-wr-3d",
+    "familia_id": "fam-radiologia",
+    "familia_slug": "radiologia",
+    "tipo_id": null,
+    "nombre_es": "Sistema Radiográfico 3D en Carga WR-3D",
+    "nombre_en": "COPY_CLIENTE_REVISAR — WR-3D Weight-Bearing 3D Radiographic System",
+    "descripcion_corta_es": "Sistema de radiografía digital con reconstrucción volumétrica 3D (MIP, MPR, VR) para columna completa y miembros inferiores en posición de carga, con medición automática asistida por IA de escoliosis y artrosis de rodilla.",
+    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — Digital radiography system with 3D volumetric reconstruction (MIP, MPR, VR) for full-spine and lower-limb weight-bearing studies, including AI-assisted automatic measurement for scoliosis and knee osteoarthritis.",
+    "descripcion_larga_es": "",
+    "descripcion_larga_en": "",
+    "especificaciones": [
+      {
+        "clave": "Reconstrucción 3D",
+        "valor": "MIP, MPR y VR (renderizado volumétrico)"
+      },
+      {
+        "clave": "Planos de adquisición",
+        "valor": "Coronal, axial y sagital"
+      },
+      {
+        "clave": "Estudios en carga",
+        "valor": "Columna completa y miembros inferiores (cadera, rodilla, tobillo)"
+      },
+      {
+        "clave": "Medición asistida por IA",
+        "valor": "Escoliosis y artrosis de rodilla"
+      },
+      {
+        "clave": "Modos adicionales",
+        "valor": "Radiografía convencional, stitching de imágenes, estudios con contraste, fluoroscopia y neumoconiosis"
+      }
+    ],
+    "imagen_principal": "/assets/productos/radiologia/wr-3d.jpg",
+    "galeria": [],
+    "ficha_pdf": null,
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "destacado": false,
+    "nuevo": true,
+    "activo": true,
+    "orden": 25
+  },
+  {
+    "id": "prod-26",
+    "slug": "rx-movil-dinamico-lingxi",
+    "familia_id": "fam-radiologia",
+    "familia_slug": "radiologia",
+    "tipo_id": null,
+    "nombre_es": "Equipo Móvil de Radiografía Digital Dinámica Lingxi",
+    "nombre_en": "COPY_CLIENTE_REVISAR — Lingxi Series Mobile Dynamic DR",
+    "descripcion_corta_es": "Unidad móvil de radiografía digital dinámica con análisis funcional pulmonar (ventilación, perfusión y volúmenes), maniobrable en espacios reducidos y operable con una sola mano.",
+    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — Mobile dynamic digital radiography unit with functional lung analysis (ventilation, perfusion and volumes), maneuverable in tight spaces and operable with one hand.",
+    "descripcion_larga_es": "",
+    "descripcion_larga_en": "",
+    "especificaciones": [
+      {
+        "clave": "Tipo de equipo",
+        "valor": "Radiografía digital dinámica (DR) móvil"
+      },
+      {
+        "clave": "Inclinación máxima de desplazamiento",
+        "valor": "13°"
+      },
+      {
+        "clave": "Operación",
+        "valor": "Con una sola mano"
+      },
+      {
+        "clave": "Análisis funcional",
+        "valor": "Cinemática diafragmática, ventilación pulmonar, perfusión pulmonar y volúmenes pulmonares (curvas tiempo-volumen)"
+      }
+    ],
+    "imagen_principal": "/assets/productos/radiologia/lingxi-series.jpg",
+    "galeria": [],
+    "ficha_pdf": null,
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "destacado": false,
+    "nuevo": true,
+    "activo": true,
+    "orden": 26
+  },
+  {
+    "id": "prod-27",
+    "slug": "rx-techo-dinamico-qomo",
+    "familia_id": "fam-radiologia",
+    "familia_slug": "radiologia",
+    "tipo_id": null,
+    "nombre_es": "Sistema de Radiografía Digital Dinámica de Techo QOMO",
+    "nombre_en": "COPY_CLIENTE_REVISAR — QOMO Series Ceiling-Mounted Dynamic DR",
+    "descripcion_corta_es": "Sistema de radiografía digital de techo con doble detector (dinámico y estático), movimiento sincronizado de 10 ejes y mesa de elevación eléctrica para estudios generales y dinámicos.",
+    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — Ceiling-mounted digital radiography system with dual detector (dynamic and static), 10-axis synchronized motion and an electrically elevating table for general and dynamic studies.",
+    "descripcion_larga_es": "",
+    "descripcion_larga_en": "",
+    "especificaciones": [
+      {
+        "clave": "Detectores",
+        "valor": "Panel plano dinámico y panel plano estático (configuración dual)"
+      },
+      {
+        "clave": "Sistema de movimiento",
+        "valor": "4D de 10 ejes sincronizados"
+      },
+      {
+        "clave": "Cambio de detector",
+        "valor": "Conmutación en milisegundos"
+      },
+      {
+        "clave": "Posicionamiento",
+        "valor": "Detector y tubo de rayos X descienden a nivel próximo al suelo"
+      },
+      {
+        "clave": "Mesa",
+        "valor": "Elevación eléctrica"
+      },
+      {
+        "clave": "Consola",
+        "valor": "Puesto de control ergonómico para operación remota"
+      }
+    ],
+    "imagen_principal": "/assets/productos/radiologia/qomo-series.jpg",
+    "galeria": [],
+    "ficha_pdf": null,
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "destacado": false,
+    "nuevo": true,
+    "activo": true,
+    "orden": 27
+  },
+  {
+    "id": "prod-28",
+    "slug": "rx-techo-dinamico-changfeng",
+    "familia_id": "fam-radiologia",
+    "familia_slug": "radiologia",
+    "tipo_id": null,
+    "nombre_es": "Sistema de Radiografía Digital Dinámica de Techo Changfeng",
+    "nombre_en": "COPY_CLIENTE_REVISAR — Changfeng Series Ceiling-Mounted Dynamic DR",
+    "descripcion_corta_es": "Sistema de radiografía digital de techo con detector de gran formato de 47\" que permite columna completa y miembros inferiores completos en una sola exposición, con seguimiento bidireccional automático y stitching angular.",
+    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — Ceiling-mounted digital radiography system with a 47-inch large-format detector for full-spine and full-lower-limb imaging in a single exposure, with bidirectional auto-tracking and automatic angular stitching.",
+    "descripcion_larga_es": "",
+    "descripcion_larga_en": "",
+    "especificaciones": [
+      {
+        "clave": "Formato del detector",
+        "valor": "47\" (gran formato)"
+      },
+      {
+        "clave": "Estudios en una exposición",
+        "valor": "Columna completa y miembros inferiores completos"
+      },
+      {
+        "clave": "Seguimiento del detector",
+        "valor": "Bidireccional automático (decúbito)"
+      },
+      {
+        "clave": "Colimación",
+        "valor": "Automática inteligente"
+      },
+      {
+        "clave": "Control de exposición",
+        "valor": "AEC (control automático de exposición)"
+      },
+      {
+        "clave": "Anticolisión",
+        "valor": "Sensor ultrasónico en el cabezal del tubo"
+      },
+      {
+        "clave": "Stitching",
+        "valor": "Automático para imagen de cuerpo completo en decúbito"
+      }
+    ],
+    "imagen_principal": "/assets/productos/radiologia/changfeng-series.jpg",
+    "galeria": [],
+    "ficha_pdf": null,
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "destacado": false,
+    "nuevo": true,
+    "activo": true,
+    "orden": 28
+  },
+  {
+    "id": "prod-29",
+    "slug": "telemando-digital-rf-talent-ii",
+    "familia_id": "fam-radiologia",
+    "familia_slug": "radiologia",
+    "tipo_id": null,
+    "nombre_es": "Sistema de Telemando Digital R/F Talent II",
+    "nombre_en": "COPY_CLIENTE_REVISAR — Talent II Series Digital R/F Table System",
+    "descripcion_corta_es": "Sistema de telemando digital de radiografía y fluoroscopia (R/F) para estudios generales, contrastados y funcionales.",
+    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — Digital radiography/fluoroscopy (R/F) remote-control table system for general, contrast and functional studies.",
+    "descripcion_larga_es": "",
+    "descripcion_larga_en": "",
+    "especificaciones": [
+      {
+        "clave": "Tipo de equipo",
+        "valor": "Telemando digital de radiografía y fluoroscopia (R/F)"
+      }
+    ],
+    "imagen_principal": "/assets/productos/radiologia/talent-ii-series.jpg",
+    "galeria": [],
+    "ficha_pdf": null,
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "destacado": false,
+    "nuevo": true,
+    "activo": true,
+    "orden": 29
+  },
+  {
+    "id": "prod-30",
+    "slug": "rx-multifuncional-uc-arm-dtp580",
+    "familia_id": "fam-radiologia",
+    "familia_slug": "radiologia",
+    "tipo_id": null,
+    "nombre_es": "Sistema de Radiografía Digital Dinámica UC-ARM DTP580",
+    "nombre_en": "COPY_CLIENTE_REVISAR — DTP580 Series UC-ARM Dynamic DR System",
+    "descripcion_corta_es": "Sistema multifuncional de radiografía digital con arco en U y detector giratorio, para fluoroscopia, radiografía, estudios con contraste, stitching de cuerpo completo y neumoconiosis.",
+    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — Multifunctional digital radiography system with a U-shaped arm and rotating detector, for fluoroscopy, radiography, contrast studies, full-body stitching and pneumoconiosis exams.",
+    "descripcion_larga_es": "",
+    "descripcion_larga_en": "",
+    "especificaciones": [
+      {
+        "clave": "Configuración",
+        "valor": "Arco en U (UC-ARM) con detector giratorio y brazo horizontal"
+      },
+      {
+        "clave": "Modos de estudio",
+        "valor": "Fluoroscopia, radiografía, estudios con contraste, stitching de cuerpo completo y neumoconiosis"
+      }
+    ],
+    "imagen_principal": "/assets/productos/radiologia/dtp580-series.jpg",
+    "galeria": [],
+    "ficha_pdf": null,
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "destacado": false,
+    "nuevo": true,
+    "activo": true,
+    "orden": 30
+  },
+  {
+    "id": "prod-31",
+    "slug": "rx-piso-mtp",
+    "familia_id": "fam-radiologia",
+    "familia_slug": "radiologia",
+    "tipo_id": null,
+    "nombre_es": "Sistema Radiográfico de Piso MTP",
+    "nombre_en": "COPY_CLIENTE_REVISAR — MTP Series Floor-Mounted Radiographic System",
+    "descripcion_corta_es": "Sistema radiográfico de piso con mesa flotante de cuatro movimientos, seguimiento eléctrico sincronizado entre el tubo de rayos X y el detector, y columna giratoria compatible con camilla y silla de ruedas.",
+    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — Floor-mounted radiographic system with a four-way floating table, electrically synchronized tracking between the X-ray tube and detector, and a rotating column compatible with stretcher and wheelchair exams.",
+    "descripcion_larga_es": "",
+    "descripcion_larga_en": "",
+    "especificaciones": [
+      {
+        "clave": "Mesa",
+        "valor": "Flotante de cuatro movimientos, operación automática y manual"
+      },
+      {
+        "clave": "Seguimiento tubo-detector",
+        "valor": "Eléctrico, sincronizado con el panel detector en el bucky"
+      },
+      {
+        "clave": "Columna porta-tubo",
+        "valor": "Giratoria, compatible con exámenes en camilla y silla de ruedas"
+      },
+      {
+        "clave": "Panel de control",
+        "valor": "Pantalla táctil LCD en la columna"
+      }
+    ],
+    "imagen_principal": "/assets/productos/radiologia/mtp-series.jpg",
+    "galeria": [],
+    "ficha_pdf": null,
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "destacado": false,
+    "nuevo": true,
+    "activo": true,
+    "orden": 31
+  },
+  {
+    "id": "prod-32",
+    "slug": "mamografo-digital-fanghua",
+    "familia_id": "fam-radiologia",
+    "familia_slug": "radiologia",
+    "tipo_id": null,
+    "nombre_es": "Sistema de Mamografía Digital Fanghua",
+    "nombre_en": "COPY_CLIENTE_REVISAR — Fanghua Series Digital Mammography System",
+    "descripcion_corta_es": "Sistema de mamografía digital con detector de panel plano de gran formato, capacidad de tomosíntesis, colimación motorizada inteligente y control automático de exposición, con ánodo opcional de tungsteno para reducción de dosis.",
+    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — Digital mammography system with a large-format flat-panel detector, tomosynthesis capability, intelligent motorized collimation and automatic exposure control, with an optional tungsten target for dose reduction.",
+    "descripcion_larga_es": "",
+    "descripcion_larga_en": "",
+    "especificaciones": [
+      {
+        "clave": "Detector",
+        "valor": "Panel plano digital de gran formato"
+      },
+      {
+        "clave": "Tomosíntesis",
+        "valor": "Capacidad estándar"
+      },
+      {
+        "clave": "Colimador",
+        "valor": "Motorizado inteligente con ajuste automático del campo de luz"
+      },
+      {
+        "clave": "Control de exposición",
+        "valor": "AEC (control automático de exposición)"
+      },
+      {
+        "clave": "Ánodo opcional",
+        "valor": "Tungsteno (para reducción de dosis)"
+      },
+      {
+        "clave": "Resolución",
+        "valor": "Alta resolución para detección de microcalcificaciones"
+      }
+    ],
+    "imagen_principal": "/assets/productos/radiologia/fanghua-series.jpg",
+    "galeria": [],
+    "ficha_pdf": null,
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "destacado": false,
+    "nuevo": true,
+    "activo": true,
+    "orden": 32
+  },
+  {
+    "id": "prod-33",
+    "slug": "arco-c-movil-dinamico-hua-ii",
+    "familia_id": "fam-radiologia",
+    "familia_slug": "radiologia",
+    "tipo_id": null,
+    "nombre_es": "Arco en C Móvil de Radiografía Digital Dinámica HUA II",
+    "nombre_en": "COPY_CLIENTE_REVISAR — HUA II Series Mobile Dynamic FPD C-arm",
+    "descripcion_corta_es": "Arco en C móvil con detector de panel plano (FPD) para imagen dinámica intraoperatoria, configuración modular y diseño orientado a baja dosis de radiación.",
+    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — Mobile C-arm with flat-panel detector (FPD) for dynamic intraoperative imaging, modular configuration and low-dose-oriented design.",
+    "descripcion_larga_es": "",
+    "descripcion_larga_en": "",
+    "especificaciones": [
+      {
+        "clave": "Tipo de equipo",
+        "valor": "Arco en C móvil con detector de panel plano (FPD)"
+      },
+      {
+        "clave": "Imagen",
+        "valor": "Dinámica (fluoroscopia en tiempo real)"
+      },
+      {
+        "clave": "Configuración",
+        "valor": "Modular"
+      },
+      {
+        "clave": "Diseño de dosis",
+        "valor": "Orientado a baja dosis de radiación"
+      }
+    ],
+    "imagen_principal": "/assets/productos/radiologia/hua-ii-series.jpg",
+    "galeria": [],
+    "ficha_pdf": null,
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "destacado": false,
+    "nuevo": true,
+    "activo": true,
+    "orden": 33
   }
 ]

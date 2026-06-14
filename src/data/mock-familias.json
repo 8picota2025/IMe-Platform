@@ -86,5 +86,16 @@
     "icono": "wind",
     "orden": 8,
     "activo": true
+  },
+  {
+    "id": "fam-radiologia",
+    "slug": "radiologia",
+    "nombre_es": "Radiología y Diagnóstico por Imagen",
+    "nombre_en": "COPY_CLIENTE_REVISAR — Radiology & Diagnostic Imaging",
+    "descripcion_es": "Sistemas de radiografía digital (DR), telemandos R/F, mamografía y arcos en C para diagnóstico por imagen hospitalario.",
+    "descripcion_en": "COPY_CLIENTE_REVISAR — Digital radiography (DR) systems, R/F tables, mammography units and C-arms for hospital diagnostic imaging.",
+    "icono": "scan",
+    "orden": 9,
+    "activo": true
   }
 ]
