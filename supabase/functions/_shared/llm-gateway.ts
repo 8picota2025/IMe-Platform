@@ -159,7 +159,7 @@ class OllamaGateway implements LlmGateway {
   readonly provider = 'ollama' as const
 
   async chat(request: LlmRequest): Promise<LlmResponse> {
-    const model = request.model ?? Deno.env.get('LLM_INGEST_MODEL') ?? 'llama3'
+    const model = request.model ?? Deno.env.get('LLM_INGEST_MODEL') ?? 'qwen3:8b'
 
     const res = await fetchWithTimeout(`${OLLAMA_BASE_URL}/api/chat`, {
       method: 'POST',

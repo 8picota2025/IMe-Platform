@@ -22,8 +22,11 @@ desarrollo local:
 
 - **Chat/ingesta** (`OllamaGateway` en `llm-gateway.ts`): `POST
 ${OLLAMA_BASE_URL}/api/chat` con `{ model, messages, stream: false, options:
-{ temperature, num_predict } }`. Modelo por defecto `llama3` (configurable vía
-  `LLM_CHAT_MODEL`/`LLM_INGEST_MODEL`, igual que los demás proveedores).
+{ temperature, num_predict } }`. Modelo por defecto **`qwen3:8b`** (configurable
+  vía `LLM_CHAT_MODEL`/`LLM_INGEST_MODEL`, igual que los demás proveedores) — es el
+  modelo instalado en el servidor de desarrollo. Qwen3 devuelve razonamiento en
+  `message.thinking` además de `message.content`; `OllamaGateway` solo lee
+  `content`, por lo que el "thinking" no llega al usuario ni se factura.
 - **Embeddings** (`OllamaEmbedder` en `embeddings.ts`): `POST
 ${OLLAMA_BASE_URL}/api/embed` con `{ model, input }`. Modelo por defecto
   **`mxbai-embed-large` (1024 dims)** — coincide exactamente con
@@ -51,24 +54,44 @@ apunta al host. Opciones:
 
 ## Cómo probar
 
-```bash
-ollama pull llama3
-ollama pull mxbai-embed-large
+### Chat (verificado)
 
+El servidor de desarrollo ya tiene `qwen3:8b` instalado y corriendo como
+`systemd` service (`ollama.service`). `curl http://localhost:11434/api/chat`
+con `{ model: 'qwen3:8b', messages: [...], stream: false, options: {
+temperature: 0.3, num_predict: 700 } }` responde correctamente con
+`message.content` (texto), `message.thinking` (razonamiento, ignorado por
+`OllamaGateway`), `prompt_eval_count` y `eval_count`.
+
+```bash
 # .env / .env.local
 LLM_PROVIDER=ollama
-LLM_CHAT_MODEL=llama3
-LLM_INGEST_MODEL=llama3
-EMBEDDING_PROVIDER=ollama
-EMBEDDING_MODEL=mxbai-embed-large
-EMBEDDING_DIM=1024
-OLLAMA_BASE_URL=http://172.17.0.1:11434   # o el valor que aplique en tu entorno
+LLM_CHAT_MODEL=qwen3:8b
+LLM_INGEST_MODEL=qwen3:8b
+OLLAMA_BASE_URL=http://localhost:11434   # o el valor que aplique en tu entorno
 
 supabase functions serve
 curl -X POST http://localhost:54321/functions/v1/asesor -d '{"mensaje":"..."}'
 ```
 
-Verificar en `llm_uso`/`asesor_uso`: `proveedor='ollama'`, `coste_estimado=0`.
+Verificar en `asesor_uso`: `proveedor='ollama'`, `modelo='qwen3:8b'`,
+`coste_estimado=0`.
+
+### Embeddings (pendiente en este servidor)
+
+`curl http://localhost:11434/api/embed` con `qwen3:8b` devuelve
+`{"error":"This server does not support embeddings. Start it with
+--embeddings"}` — qwen3:8b es un modelo de chat, no de embeddings. Para activar
+`EMBEDDING_PROVIDER=ollama` en este servidor falta:
+
+1. `ollama pull mxbai-embed-large` (1024 dims, compatible con
+   `productos.embedding vector(1024)` sin migración).
+2. Añadir `--embeddings` al `ExecStart` de `/etc/systemd/system/ollama.service`
+   y `systemctl restart ollama` (requiere `sudo`, no disponible para el agente
+   en este entorno).
+
+Hasta entonces, `EMBEDDING_PROVIDER` debe seguir en `voyage`/`openai` (o el
+Asesor degrada a búsqueda por palabra clave, que ya funciona sin LLM).
 
 ## Alternativas consideradas
 
@@ -86,5 +109,7 @@ Verificar en `llm_uso`/`asesor_uso`: `proveedor='ollama'`, `coste_estimado=0`.
   de producción — Ollama es opt-in vía variables de entorno, sin UI de selección.
 - No requiere cambios en `schema.sql` ni en `asesor/index.ts`/
   `generar-embeddings/index.ts`.
-- Prueba real con Ollama es NO_EJECUTADO_ENTORNO en CI/sandbox (no hay Ollama
-  instalado); debe ejecutarse en máquina del desarrollador.
+- Chat con `OllamaGateway`/`qwen3:8b` verificado contra el Ollama del servidor de
+  desarrollo (ver "Cómo probar"). Embeddings (`OllamaEmbedder`) sigue
+  NO_EJECUTADO_ENTORNO — requiere `ollama pull mxbai-embed-large` y reconfigurar
+  `ollama.service` con `--embeddings` (acceso `sudo`).
