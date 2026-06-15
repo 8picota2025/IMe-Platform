@@ -93,8 +93,9 @@ Estructura requerida:
 }
 
 function normalizeJson(content: string, model: string): string {
+  const jsonText = extractJson(content)
   try {
-    const parsed = JSON.parse(content) as Record<string, unknown>
+    const parsed = JSON.parse(jsonText) as Record<string, unknown>
     parsed['raw_model_id'] = parsed['raw_model_id'] || model
     return JSON.stringify(parsed)
   } catch {
@@ -108,4 +109,16 @@ function normalizeJson(content: string, model: string): string {
       raw_output: content,
     })
   }
+}
+
+function extractJson(content: string): string {
+  const clean = content.trim()
+  const fenced = clean.match(/```(?:json)?\s*([\s\S]*?)\s*```/i)?.[1]?.trim()
+  if (fenced) return fenced
+
+  const firstObject = clean.indexOf('{')
+  const lastObject = clean.lastIndexOf('}')
+  if (firstObject >= 0 && lastObject > firstObject) return clean.slice(firstObject, lastObject + 1)
+
+  return clean
 }

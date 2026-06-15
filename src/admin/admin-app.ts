@@ -2039,7 +2039,9 @@ function bindIngest() {
       },
     })
     if (error || !json) {
-      reviewContainer.innerHTML = `<div class="admin-alert">${escapeHtml(error?.message ?? 'No se pudo generar el borrador.')}</div>`
+      const fallback = buildLocalIngestDraft(pdfText, pdfUrl, error?.message)
+      reviewContainer.innerHTML = renderIngestReview(fallback, pdfUrl)
+      bindIngestReview(reviewContainer)
       return
     }
     reviewContainer.innerHTML = renderIngestReview(json as Row, pdfUrl)
@@ -2181,6 +2183,8 @@ function renderIngestReview(draft: Row, pdfUrl: string): string {
   const descripcionLarga = campoRevisable(productoEs.descripcion_larga)
   const familiaSugerida = campoRevisable(productoEs.familia_sugerida)
   const tipoSugerido = campoRevisable(productoEs.tipo_sugerido)
+  const familiaId = matchTaxonomyId(familiaSugerida.valor, ingestFamilias)
+  const tipoId = matchTaxonomyId(tipoSugerido.valor, ingestTipos)
   const especs = arrayOf(productoEs.especificaciones, especRevisable)
   const aplicaciones = arrayOf(productoEs.aplicaciones, campoRevisable)
   const metaSeo =
@@ -2212,11 +2216,11 @@ function renderIngestReview(draft: Row, pdfUrl: string): string {
         <div class="admin-editor__cols">
           <div>
             <p class="admin-help">Sugerencia LLM (familia): ${escapeHtml(familiaSugerida.valor) || '—'} ${campoBadges(familiaSugerida)}</p>
-            ${select('familia_id', 'Familia (asignar)', '', ingestFamilias, 'nombre_es', true)}
+            ${select('familia_id', 'Familia (asignar)', familiaId, ingestFamilias, 'nombre_es', true)}
           </div>
           <div>
             <p class="admin-help">Sugerencia LLM (tipo): ${escapeHtml(tipoSugerido.valor) || '—'} ${campoBadges(tipoSugerido)}</p>
-            ${select('tipo_id', 'Tipo (asignar)', '', ingestTipos, 'nombre_es', true)}
+            ${select('tipo_id', 'Tipo (asignar)', tipoId, ingestTipos, 'nombre_es', true)}
           </div>
         </div>
         ${campoRevisableField('descripcion_corta_es', 'Descripcion corta', descripcionCorta, true)}
@@ -2270,8 +2274,9 @@ function renderIngestReview(draft: Row, pdfUrl: string): string {
             ['individualizado', 'Individualizado'],
           ])}
         </div>
-        <div class="admin-alert">El producto se creara con activo=false. Complete precio, imagenes y publicacion desde el formulario de producto.</div>
-        <button class="admin-button" type="submit">Crear como borrador</button>
+        ${checkbox('activo', 'Publicar en catalogo al crear', false)}
+        <div class="admin-alert">Si no publica al crear, el producto queda como borrador interno. Si publica, revise familia, descripcion e imagen antes de confirmar; la publicacion solicita rebuild automaticamente.</div>
+        <button class="admin-button" type="submit">Crear producto</button>
       </form>
     </section>`
 }
@@ -2312,15 +2317,188 @@ function bindIngestReview(container: HTMLElement) {
   form.addEventListener('submit', async (event) => {
     event.preventDefault()
     const payload = ingestPayload(form)
+    payload['slug'] = await uniqueProductSlug(
+      text(payload['slug']) || slugify(text(payload['nombre_es']))
+    )
     const { data, error } = await supabase!.from('productos').insert(payload).select('id').single()
     if (error) {
       toast(error.message)
       return
     }
-    toast('Producto creado como borrador')
+    if (payload['activo'] === true) {
+      await generarEmbeddingProducto(text((data as Row).id))
+      await triggerRebuild()
+    }
+    toast(
+      payload['activo'] === true
+        ? 'Producto creado y publicacion solicitada'
+        : 'Producto creado como borrador'
+    )
     location.hash = `#/producto?id=${encodeURIComponent(text((data as Row).id))}`
     await render()
   })
+}
+
+function buildLocalIngestDraft(pdfText: string, pdfUrl: string, errorMessage?: string): Row {
+  const clean = pdfText
+    .replace(/\r/g, '')
+    .split('\n')
+    .map((line) => line.replace(/\s+/g, ' ').trim())
+    .filter(Boolean)
+  const title = inferProductName(clean, pdfUrl)
+  const description = clean
+    .filter((line) => line.length > 35 && !/^pagina\s+\d+/i.test(line))
+    .slice(0, 4)
+    .join(' ')
+    .slice(0, 900)
+  const specs = inferSpecs(clean)
+  const family = inferFamily(`${title} ${description}`)
+  return {
+    producto_es: {
+      nombre: revisable(title, 'pdf', 0.55, true),
+      familia_sugerida: revisable(family, family ? 'pdf' : 'ausente', family ? 0.5 : 0, true),
+      tipo_sugerido: revisable('', 'ausente', 0, true),
+      descripcion_corta: revisable(
+        description.slice(0, 240),
+        description ? 'pdf' : 'ausente',
+        0.45,
+        true
+      ),
+      descripcion_larga: revisable(description, description ? 'pdf' : 'ausente', 0.45, true),
+      especificaciones: specs,
+      aplicaciones: [],
+      meta_seo: {
+        title,
+        description: description.slice(0, 155),
+      },
+    },
+    producto_en_borrador: {},
+    campos_confianza: [],
+    ausentes: specs.length ? ['tipo_sugerido'] : ['tipo_sugerido', 'especificaciones'],
+    advertencias: [
+      errorMessage
+        ? `La IA no genero el borrador (${errorMessage}). Se creo un borrador local editable desde el texto del PDF.`
+        : 'Se creo un borrador local editable desde el texto del PDF.',
+    ],
+    raw_model_id: 'local-pdf-parser',
+  }
+}
+
+function revisable(
+  valor: string,
+  origen: 'pdf' | 'ausente' | 'manual',
+  confianza: number,
+  requiere_revision: boolean
+): CampoRevisable {
+  return { valor, origen, confianza, requiere_revision }
+}
+
+function inferProductName(lines: string[], pdfUrl: string): string {
+  const candidate =
+    lines.find((line) => {
+      const words = line.split(/\s+/).length
+      return line.length >= 6 && line.length <= 90 && words <= 12 && !/^pagina\s+\d+/i.test(line)
+    }) ?? ''
+  if (candidate) return candidate
+  const fromUrl = decodeURIComponent(pdfUrl.split('/').pop() ?? '').replace(/\.pdf$/i, '')
+  return fromUrl ? fromUrl.replace(/[-_]+/g, ' ').trim() : 'Producto desde PDF'
+}
+
+function inferSpecs(lines: string[]): EspecRevisable[] {
+  const specs: EspecRevisable[] = []
+  for (const line of lines) {
+    if (specs.length >= 18) break
+    const colon = line.match(/^([^:]{3,45}):\s*(.{2,160})$/)
+    if (colon?.[1] && colon?.[2]) {
+      specs.push({
+        clave: colon[1],
+        valor: colon[2],
+        grupo: '',
+        origen: 'pdf',
+        confianza: 0.55,
+        requiere_revision: true,
+      })
+      continue
+    }
+    const technical = line.match(
+      /\b(\d+(?:[.,]\d+)?\s?(?:mm|cm|kg|g|hz|khz|mhz|v|w|kw|ma|a|mah|kva|mpa|bar|psi|rpm|l\/min|ml\/h|bpm|°c|lux|inch|pulgadas?))\b/i
+    )
+    if (technical) {
+      specs.push({
+        clave: 'Caracteristica',
+        valor: line.slice(0, 160),
+        grupo: '',
+        origen: 'pdf',
+        confianza: 0.4,
+        requiere_revision: true,
+      })
+    }
+  }
+  return specs
+}
+
+function inferFamily(textValue: string): string {
+  const value = normalizeMatchText(textValue)
+  const matches: Array<[string, string[]]> = [
+    [
+      'Radiología y Diagnóstico por Imagen',
+      ['radiologia', 'rayos x', 'rx', 'mamogra', 'arco c', 'radiograf'],
+    ],
+    ['Anestesia y Ventilación', ['anestesia', 'ventilador', 'respirador']],
+    ['Ultrasonido', ['ecogra', 'ultrasonido', 'doppler']],
+    ['Monitores', ['monitor multiparam', 'monitor de signos', 'uci']],
+    ['Cardiología', ['ecg', 'electrocardio', 'desfibrilador', 'holter', 'cardio']],
+    ['Neonatología', ['neonatal', 'incubadora', 'cpap', 'cuna radiante']],
+    ['Soluciones IV', ['infusion', 'jeringa', 'bomba']],
+    ['Mobiliario Hospitalario', ['camilla', 'cama', 'carro de paro', 'mobiliario']],
+    ['Sala de Cirugía', ['quirurg', 'cialitica', 'mesa']],
+  ]
+  return (
+    matches.find(([, keywords]) => keywords.some((keyword) => value.includes(keyword)))?.[0] ?? ''
+  )
+}
+
+function matchTaxonomyId(suggestion: string, rows: Row[]): string {
+  const normalizedSuggestion = normalizeMatchText(suggestion)
+  if (!normalizedSuggestion) return ''
+  const match = rows.find((row) => {
+    const candidates = [row['nombre_es'], row['nombre_en'], row['slug']].map((value) =>
+      normalizeMatchText(text(value))
+    )
+    return candidates.some(
+      (candidate) =>
+        candidate &&
+        (candidate === normalizedSuggestion ||
+          candidate.includes(normalizedSuggestion) ||
+          normalizedSuggestion.includes(candidate))
+    )
+  })
+  return text(match?.['id'])
+}
+
+function normalizeMatchText(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+}
+
+async function uniqueProductSlug(baseSlug: string): Promise<string> {
+  const base = baseSlug || 'producto'
+  let candidate = base
+  for (let i = 2; i <= 100; i += 1) {
+    const { data, error } = await supabase!
+      .from('productos')
+      .select('id')
+      .eq('slug', candidate)
+      .maybeSingle()
+    if (error) return `${base}-${Date.now()}`
+    if (!data) return candidate
+    candidate = `${base}-${i}`
+  }
+  return `${base}-${Date.now()}`
 }
 
 function ingestPayload(form: HTMLFormElement): Row {
@@ -2356,7 +2534,9 @@ function ingestPayload(form: HTMLFormElement): Row {
     moneda: 'COP',
     destacado: false,
     nuevo: false,
-    activo: false,
+    activo:
+      form.elements.namedItem('activo') instanceof HTMLInputElement &&
+      (form.elements.namedItem('activo') as HTMLInputElement).checked,
     orden: 0,
   }
 }
@@ -2618,13 +2798,6 @@ async function uploadIngestPdf(form: HTMLFormElement) {
     const textTarget = form.elements.namedItem('pdf_text')
     if (textTarget instanceof HTMLTextAreaElement) textTarget.value = extractedText
 
-    if (!extractedText.trim()) {
-      if (statusEl)
-        statusEl.textContent =
-          'PDF cargado en el dispositivo, pero no contiene texto seleccionable. Pega texto extraido por OCR para continuar.'
-      return
-    }
-
     if (statusEl) statusEl.textContent = `Subiendo ${file.name}...`
     const path = `ingesta/${Date.now()}-${slugify(file.name)}`
     const { error } = await supabase!.storage.from('fichas').upload(path, file, {
@@ -2640,8 +2813,15 @@ async function uploadIngestPdf(form: HTMLFormElement) {
     const publicUrl = supabase!.storage.from('fichas').getPublicUrl(path).data.publicUrl
     const target = form.elements.namedItem('pdf_url')
     if (target instanceof HTMLInputElement) target.value = publicUrl
-    if (statusEl)
+    if (!extractedText.trim()) {
+      if (statusEl)
+        statusEl.textContent =
+          'PDF subido, pero no contiene texto seleccionable. Pega texto extraido por OCR para generar el borrador.'
+      return
+    }
+    if (statusEl) {
       statusEl.textContent = `PDF cargado: ${file.name}. Texto extraido: ${extractedText.length.toLocaleString('es-CO')} caracteres.`
+    }
   })
   input.click()
 }
