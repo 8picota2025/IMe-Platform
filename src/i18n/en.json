@@ -80,7 +80,7 @@
   "financiacion": {
     "titulo": "Financing",
     "cta": "Explore plans",
-    "disclaimer": "COPY_CLIENTE_REVISAR — Terms subject to approval. Rates and terms to be confirmed.",
+    "disclaimer": "Terms subject to approval. Rates and terms to be confirmed.",
     "simulador_titulo": "Indicative simulator",
     "simulador_desc": "Explore, as a guide only, how the investment in equipment could be distributed over time.",
     "simulador_monto": "Amount to finance",
@@ -125,7 +125,7 @@
     ]
   },
   "footer": {
-    "descripcion": "COPY_CLIENTE_REVISAR — Colombian company specialized in the distribution and support of internationally certified biomedical equipment.",
+    "descripcion": "Colombian company specialized in the distribution and support of internationally certified biomedical equipment.",
     "navegacion": "Navigation",
     "categorias": "Categories",
     "servicios": "Services",
@@ -145,7 +145,7 @@
     "cerrar": "Close advisor",
     "placeholder": "Type your question about biomedical equipment…",
     "enviar": "Send",
-    "bienvenida": "COPY_CLIENTE_REVISAR — Hello, I am the I-ME assistant. I can help you find the biomedical equipment you need. In which medical area are you looking for solutions?",
+    "bienvenida": "Hello, I am the I-ME assistant. I can help you find the biomedical equipment you need. In which medical area are you looking for solutions?",
     "buscando": "Searching the catalog…",
     "limite": "You've reached the message limit for now. Try again in a few minutes or message us on WhatsApp.",
     "degradado": "Keyword-based results (simplified mode).",

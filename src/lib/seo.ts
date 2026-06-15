@@ -35,7 +35,7 @@ export function buildHomeSeo(locale: Locale): SeoPageMeta {
       : 'I-ME — Certified Biomedical Equipment for Hospitals and Clinics in Colombia',
     description: isEs
       ? 'Distribuimos tecnología médica de clase mundial certificada internacionalmente para hospitales, clínicas y centros de salud en todo Colombia. 24+ categorías, cobertura en 32 departamentos.'
-      : 'COPY_CLIENTE_REVISAR — We distribute internationally certified world-class medical technology for hospitals, clinics and health centers throughout Colombia.',
+      : 'We distribute internationally certified world-class medical technology for hospitals, clinics and health centers throughout Colombia.',
     canonical: buildCanonical(`/${locale}/`),
     ogImage: DEFAULT_OG_IMAGE,
   }
@@ -65,7 +65,7 @@ export function buildCatalogoSeo(locale: Locale): SeoPageMeta {
     description:
       locale === 'es'
         ? 'Explora nuestro catálogo de equipos biomédicos certificados: monitores, cardiología, sala de cirugía, neonatología, ultrasonido y más.'
-        : 'COPY_CLIENTE_REVISAR — Explore our catalog of certified biomedical equipment: monitors, cardiology, operating room, neonatology, ultrasound and more.',
+        : 'Explore our catalog of certified biomedical equipment: monitors, cardiology, operating room, neonatology, ultrasound and more.',
     canonical: buildCanonical(locale === 'es' ? '/es/catalogo' : '/en/catalog'),
     ogImage: DEFAULT_OG_IMAGE,
   }

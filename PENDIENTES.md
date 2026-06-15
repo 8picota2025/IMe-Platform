@@ -52,9 +52,9 @@ Spec: `plataforma/prompts/IME_F4_Commerce_Pasarelas_v1.1.md` + huecos de F1 §8.
 F1 pero nunca implementados). Decisiones documentadas en `docs/decisions/0001-0003`.
 
 - [x] Migración SQL aplicada el 2026-06-15 vía Management API: `productos.disponible
-  BOOLEAN NOT NULL DEFAULT true` + `disponible_actualizado_at TIMESTAMPTZ` y
+BOOLEAN NOT NULL DEFAULT true` + `disponible_actualizado_at TIMESTAMPTZ` y
       `solicitudes_cotizacion.estado TEXT NOT NULL DEFAULT 'nueva' CHECK (estado IN
-  ('nueva','en_revision','respondida'))` + `notas_internas TEXT` (ver
+('nueva','en_revision','respondida'))` + `notas_internas TEXT` (ver
       `docs/decisions/0004-cotizaciones-estado-seguimiento.md`). Estas columnas estaban
       solo dentro de `CREATE TABLE IF NOT EXISTS` (no-op en BD existente); se añadieron
       sus `ALTER TABLE ... ADD COLUMN IF NOT EXISTS` correspondientes en `schema.sql`.
@@ -170,15 +170,19 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
 
 ## COPY_CLIENTE_REVISAR — Textos que requieren aprobación
 
-- [ ] Traducción EN de todo el contenido factual (specs, descripciones, cifras)
-- [ ] Slogan EN de la Home
-- [ ] Visión, Misión, Calidad, Compromiso en EN
-- [ ] Textos de servicios en EN
-- [ ] Teaser financiación EN
-- [ ] Mensaje de bienvenida del Asesor EN
-- [ ] EN de la familia "radiologia" y sus 9 productos (prod-25..prod-33), marcados
-      `COPY_CLIENTE_REVISAR` en `mock-familias.json`/`mock-productos.json` —
-      traducción provisional generada junto con el ES original (2026-06-14)
+- [x] Traducción EN de todo el contenido factual (specs, descripciones, cifras) — revisada
+      y aprobada por el cliente (2026-06-15); se quitó el marcador `COPY_CLIENTE_REVISAR`
+      de `mock-familias.json`, `mock-productos.json`, `src/i18n/en.json`, `src/lib/seo.ts`
+      y `src/pages/en/{financing,catalog,contact}.astro`
+- [x] Slogan EN de la Home — aprobado (2026-06-15)
+- [x] Visión, Misión, Calidad, Compromiso en EN — aprobado (2026-06-15)
+- [x] Textos de servicios en EN — aprobado (2026-06-15)
+- [x] Teaser financiación EN — aprobado (2026-06-15); el contenido de tasas/condiciones
+      reales sigue pendiente bajo `BLOQUEANTE_LEGAL` (no es un tema de traducción)
+- [x] Mensaje de bienvenida del Asesor EN — aprobado (2026-06-15)
+- [x] EN de la familia "radiologia" y sus 9 productos (prod-25..prod-33) — aprobado
+      (2026-06-15), marcador `COPY_CLIENTE_REVISAR` retirado de
+      `mock-familias.json`/`mock-productos.json`
 
 ## BLOQUEANTE_CONTENIDO — Falta contenido real
 
