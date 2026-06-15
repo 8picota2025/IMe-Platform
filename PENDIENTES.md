@@ -52,9 +52,9 @@ Spec: `plataforma/prompts/IME_F4_Commerce_Pasarelas_v1.1.md` + huecos de F1 §8.
 F1 pero nunca implementados). Decisiones documentadas en `docs/decisions/0001-0003`.
 
 - [x] Migración SQL aplicada el 2026-06-15 vía Management API: `productos.disponible
-    BOOLEAN NOT NULL DEFAULT true` + `disponible_actualizado_at TIMESTAMPTZ` y
+  BOOLEAN NOT NULL DEFAULT true` + `disponible_actualizado_at TIMESTAMPTZ` y
       `solicitudes_cotizacion.estado TEXT NOT NULL DEFAULT 'nueva' CHECK (estado IN
-    ('nueva','en_revision','respondida'))` + `notas_internas TEXT` (ver
+  ('nueva','en_revision','respondida'))` + `notas_internas TEXT` (ver
       `docs/decisions/0004-cotizaciones-estado-seguimiento.md`). Estas columnas estaban
       solo dentro de `CREATE TABLE IF NOT EXISTS` (no-op en BD existente); se añadieron
       sus `ALTER TABLE ... ADD COLUMN IF NOT EXISTS` correspondientes en `schema.sql`.
@@ -112,6 +112,13 @@ Trabajo de otra sesión/agente, integrado junto con el cierre de F4.1 anterior.
       (`8picota2025@gmail.com`, `rol='owner'`, `activo=true`), evitando que las
       nuevas políticas RLS (`is_admin(roles)`) dejen `/admin` sin permisos de
       escritura.
+- [x] Verificación post-migración (2026-06-15) de `/admin` vía navegador contra
+      Supabase real: login con `8picota2025@gmail.com` OK, dashboard y listados leen
+      datos reales (33 productos, cotizaciones, etc.) bajo las nuevas políticas RLS,
+      y se probó un `UPDATE` real en `solicitudes_cotizacion.estado`/`notas_internas`
+      (columnas F4.1 nuevas) desde `/admin#/cotizacion` — pasó de `nueva` a
+      `en_revision` en BD y se revirtió a `nueva` tras la prueba. Confirma que
+      `is_admin()` + `admin_profiles` seed no bloquean la escritura de `/admin`.
 - [x] Bug de orden corregido en `schema.sql`: las columnas `productos.sku` (y el
       resto de columnas B2B/B2C) y `productos.disponible`/`disponible_actualizado_at`
       y `solicitudes_cotizacion.estado`/`notas_internas` solo estaban dentro de
