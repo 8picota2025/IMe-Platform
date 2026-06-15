@@ -1,13 +1,14 @@
 /**
  * Embeddings para el Asesor RAG.
  * Proveedor default: Voyage voyage-3 (1024 dims).
- * Alternativa: OpenAI text-embedding-3-small (1536 dims).
+ * Alternativas: OpenAI text-embedding-3-small (1536 dims), Ollama
+ * mxbai-embed-large (1024 dims, ver docs/decisions/0005-ollama-asesor-local.md).
  *
  * REGLA: cambiar EMBEDDING_PROVIDER o EMBEDDING_DIM implica re-embeber todo
  * el catalogo (productos.embedding queda con dimension mezclada si no).
  */
 
-export type EmbeddingProvider = 'voyage' | 'openai'
+export type EmbeddingProvider = 'voyage' | 'openai' | 'ollama'
 
 export interface EmbedResult {
   vectors: number[][]
@@ -26,6 +27,7 @@ export interface Embedder {
 export function createEmbedder(): Embedder {
   const provider = (Deno.env.get('EMBEDDING_PROVIDER') ?? 'voyage') as EmbeddingProvider
   if (provider === 'openai') return new OpenAiEmbedder()
+  if (provider === 'ollama') return new OllamaEmbedder()
   return new VoyageEmbedder()
 }
 
@@ -100,6 +102,42 @@ class OpenAiEmbedder implements Embedder {
     return {
       vectors: (json.data ?? []).map((item) => item.embedding ?? []),
       inputTokens: json.usage?.total_tokens ?? json.usage?.prompt_tokens ?? 0,
+      model: json.model ?? this.model,
+      provider: this.provider,
+    }
+  }
+}
+
+interface OllamaEmbedResponse {
+  embeddings?: number[][]
+  model?: string
+}
+
+/**
+ * Proveedor local autoalojado (sin API key), vía OLLAMA_BASE_URL.
+ * Modelo por defecto `mxbai-embed-large` (1024 dims) coincide con
+ * productos.embedding vector(1024) — sin migración de schema.
+ * Ver docs/decisions/0005-ollama-asesor-local.md.
+ */
+class OllamaEmbedder implements Embedder {
+  readonly provider = 'ollama' as const
+  readonly model = Deno.env.get('EMBEDDING_MODEL') ?? 'mxbai-embed-large'
+  readonly dimensions = Number(Deno.env.get('EMBEDDING_DIM') ?? 1024)
+
+  async embed(texts: string[]): Promise<EmbedResult> {
+    const baseUrl = Deno.env.get('OLLAMA_BASE_URL') ?? 'http://localhost:11434'
+
+    const res = await fetch(`${baseUrl}/api/embed`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: this.model, input: texts }),
+    })
+    if (!res.ok) throw new Error(`Ollama error ${res.status}`)
+
+    const json = (await res.json()) as OllamaEmbedResponse
+    return {
+      vectors: json.embeddings ?? [],
+      inputTokens: 0,
       model: json.model ?? this.model,
       provider: this.provider,
     }

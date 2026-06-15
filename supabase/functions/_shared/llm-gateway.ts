@@ -6,7 +6,10 @@
 import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { createEmbedder, type EmbedResult } from './embeddings.ts'
 
-export type LlmProvider = 'anthropic' | 'openai'
+export type LlmProvider = 'anthropic' | 'openai' | 'ollama'
+
+/** Base URL del servidor Ollama local. Ver docs/decisions/0005-ollama-asesor-local.md. */
+export const OLLAMA_BASE_URL = Deno.env.get('OLLAMA_BASE_URL') ?? 'http://localhost:11434'
 
 export interface LlmMessage {
   role: 'system' | 'user' | 'assistant'
@@ -53,6 +56,7 @@ interface OpenAiResponse {
 export function createLlmGateway(): LlmGateway {
   const provider = (Deno.env.get('LLM_PROVIDER') ?? 'anthropic') as LlmProvider
   if (provider === 'openai') return new OpenAiGateway()
+  if (provider === 'ollama') return new OllamaGateway()
   return new AnthropicGateway()
 }
 
@@ -143,6 +147,49 @@ class OpenAiGateway implements LlmGateway {
   }
 }
 
+interface OllamaChatResponse {
+  message?: { content?: string }
+  prompt_eval_count?: number
+  eval_count?: number
+  model?: string
+}
+
+/** Proveedor local autoalojado (sin API key). Ver docs/decisions/0005-ollama-asesor-local.md. */
+class OllamaGateway implements LlmGateway {
+  readonly provider = 'ollama' as const
+
+  async chat(request: LlmRequest): Promise<LlmResponse> {
+    const model = request.model ?? Deno.env.get('LLM_INGEST_MODEL') ?? 'llama3'
+
+    const res = await fetchWithTimeout(`${OLLAMA_BASE_URL}/api/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model,
+        messages: request.messages,
+        stream: false,
+        options: {
+          temperature: request.temperature ?? 0,
+          num_predict: request.maxTokens ?? 4000,
+        },
+      }),
+    })
+    if (!res.ok) throw new Error(`Ollama error ${res.status}`)
+
+    const json = (await res.json()) as OllamaChatResponse
+    return {
+      content: json.message?.content?.trim() ?? '',
+      inputTokens: json.prompt_eval_count ?? 0,
+      outputTokens: json.eval_count ?? 0,
+      model: json.model ?? model,
+    }
+  }
+
+  embed(texts: string[]): Promise<EmbedResult> {
+    return embedTexts(texts)
+  }
+}
+
 async function fetchWithTimeout(url: string, init: RequestInit): Promise<Response> {
   const controller = new AbortController()
   const timeout = Number(Deno.env.get('LLM_TIMEOUT_MS') ?? 45000)
@@ -180,12 +227,18 @@ export function periodoActual(): string {
   return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`
 }
 
-/** Estima el coste en USD de una llamada LLM/embedding según tokens y modelo. */
+/**
+ * Estima el coste en USD de una llamada LLM/embedding según tokens y modelo.
+ * `provider: 'ollama'` siempre cuesta 0 (autoalojado, sin facturación por token).
+ */
 export function estimateCost(params: {
   model: string
+  provider?: string
   inputTokens: number
   outputTokens?: number
 }): number {
+  if (params.provider === 'ollama') return 0
+
   const pricing = PRICING_USD_POR_1M[params.model] ?? PRICING_USD_POR_1M['default']!
   const inputCost = (params.inputTokens / 1_000_000) * pricing.input
   const outputCost = ((params.outputTokens ?? 0) / 1_000_000) * pricing.output
@@ -206,6 +259,7 @@ export async function registrarUsoLlm(
 ): Promise<number> {
   const coste = estimateCost({
     model: uso.modelo,
+    provider: uso.proveedor,
     inputTokens: uso.inputTokens,
     outputTokens: uso.outputTokens ?? 0,
   })

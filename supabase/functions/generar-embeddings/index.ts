@@ -89,7 +89,11 @@ Deno.serve(async (req) => {
         estimar: true,
         productos_a_procesar: productos.length,
         tokens_estimados: tokensEstimados,
-        coste_estimado: estimateCost({ model: embedder.model, inputTokens: tokensEstimados }),
+        coste_estimado: estimateCost({
+          model: embedder.model,
+          provider: embedder.provider,
+          inputTokens: tokensEstimados,
+        }),
         modelo: embedder.model,
         proveedor: embedder.provider,
       })

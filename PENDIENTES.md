@@ -32,6 +32,11 @@
 - [ ] Credenciales Stripe (bloquea pagos INTL) — F4
 - [ ] Credenciales LLM (`LLM_PROVIDER`, `ANTHROPIC_API_KEY` u `OPENAI_API_KEY`, `LLM_INGEST_MODEL`) — bloquea ingesta PDF real y Asesor RAG
 - [ ] Credenciales embeddings (`EMBEDDING_PROVIDER`, `VOYAGE_API_KEY` u `OPENAI_API_KEY`) — bloquea `generar-embeddings` y la búsqueda vectorial del Asesor (sin esto, el Asesor degrada a búsqueda por palabra clave)
+- [x] Vía de prueba local sin credenciales: `LLM_PROVIDER=ollama` / `EMBEDDING_PROVIDER=ollama`
+      (Ollama autoalojado, `mxbai-embed-large` 1024 dims = sin migración, coste $0) —
+      `docs/decisions/0005-ollama-asesor-local.md`. No sustituye las credenciales de
+      producción (Anthropic/Voyage), pero permite probar `asesor`/`generar-embeddings`
+      de extremo a extremo en local mientras llegan.
 - [x] Edge Function asesor/ — RAG completo implementado (Turnstile, rate-limit, presupuesto, match vectorial + fallback keyword, system prompt comercial §5, validación de slugs citados, registro de uso)
 - [x] Edge Function generar-embeddings/ — implementada (embedding individual por producto y reindexado masivo con estimación de coste)
 - [x] Migraciones nuevas de `supabase/schema.sql` aplicadas el 2026-06-14 vía Management API (pgvector, `productos.embedding`, `llm_uso`, `asesor_uso`, `asesor_rate_limit`, RPC `match_productos`/`buscar_productos_keyword` verificados en `information_schema`/`pg_extension`)

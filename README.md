@@ -54,6 +54,7 @@ cp .env.example .env
 - Webhooks: `webhook-wompi` y `webhook-stripe` verifican firma y estado server-side.
 - Asesor IA: Edge Function `asesor` con Turnstile, rate-limit, presupuesto y fallback por palabra clave.
 - Las pruebas reales requieren secretos en Supabase/CI; ver `PENDIENTES.md`.
+- Desarrollo local sin credenciales: `LLM_PROVIDER=ollama` / `EMBEDDING_PROVIDER=ollama` (Ollama autoalojado, coste $0) — ver `docs/decisions/0005-ollama-asesor-local.md`.
 
 ## Legales y F5
 
