@@ -17,14 +17,14 @@ Plataforma web biomédica B2B — e-commerce de equipos médicos (Colombia, Espa
 # Requisitos: Node >=22.12.0, git
 node -v   # debe ser >=22.12.0
 npm install
-npm run dev   # http://localhost:43421
+npm run dev   # http://localhost:44334
 ```
 
 ## Comandos
 
 | Comando            | Acción                                   |
 | ------------------ | ---------------------------------------- |
-| `npm run dev`      | Dev server en localhost:43421            |
+| `npm run dev`      | Dev server en localhost:44334            |
 | `npm run build`    | Build de producción → `dist/`            |
 | `npm run preview`  | Preview del build                        |
 | `npm run check`    | TypeScript + Astro check                 |

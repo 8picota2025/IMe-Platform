@@ -5,7 +5,7 @@
 E-commerce biomédico premium B2B para I-ME (International Medical Enterprise).
 Mercados: Colombia, España, Latinoamérica.
 Working dir: /home/shoky/Documents/I-ME/0106-ime-web-claude-design
-Dev: http://localhost:43421
+Dev: http://localhost:44334
 
 ## Stack
 

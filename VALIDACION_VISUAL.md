@@ -19,5 +19,5 @@ NO_EJECUTADO_ENTORNO: no se ejecutó auditoría visual con navegador real en est
 
 ```bash
 npm run dev
-# Abrir http://localhost:43421/es/legal/privacidad y http://localhost:43421/en/legal/privacy
+# Abrir http://localhost:44334/es/legal/privacidad y http://localhost:44334/en/legal/privacy
 ```

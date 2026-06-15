@@ -72,5 +72,5 @@ npx playwright install chromium
 
 ```bash
 npm run dev
-# → http://localhost:43421
+# → http://localhost:44334
 ```

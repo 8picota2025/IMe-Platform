@@ -76,7 +76,7 @@ Fila de prueba (`mensaje: "[QA F5] prueba RLS automatizada"`) insertada y elimin
 ```bash
 npm run validate
 rg -n "service_role|SERVICE_KEY|service_role_key|ANTHROPIC_API_KEY|OPENAI_API_KEY|VOYAGE_API_KEY|WOMPI_PRIVATE|WOMPI_EVENTS_SECRET|STRIPE_SECRET|STRIPE_WEBHOOK_SECRET|TURNSTILE_SECRET" src dist
-npx lighthouse http://localhost:43421/es/ --preset=desktop --output=html --output-path=./lighthouse-home.html
+npx lighthouse http://localhost:44334/es/ --preset=desktop --output=html --output-path=./lighthouse-home.html
 curl -I https://i-me.com.co/77/
 curl -I https://i-me.com.co/1old/
 ```
