@@ -2317,6 +2317,10 @@ function bindIngestReview(container: HTMLElement) {
   form.addEventListener('submit', async (event) => {
     event.preventDefault()
     const payload = ingestPayload(form)
+    if (!text(payload['nombre_es']) || !text(payload['nombre_en'])) {
+      toast('Completa nombre ES y Nombre EN antes de crear el producto')
+      return
+    }
     payload['slug'] = await uniqueProductSlug(
       text(payload['slug']) || slugify(text(payload['nombre_es']))
     )
@@ -2353,6 +2357,7 @@ function buildLocalIngestDraft(pdfText: string, pdfUrl: string, errorMessage?: s
     .slice(0, 900)
   const specs = inferSpecs(clean)
   const family = inferFamily(`${title} ${description}`)
+  const englishName = looksLikeEnglishProductName(title) ? title : ''
   return {
     producto_es: {
       nombre: revisable(title, 'pdf', 0.55, true),
@@ -2372,13 +2377,30 @@ function buildLocalIngestDraft(pdfText: string, pdfUrl: string, errorMessage?: s
         description: description.slice(0, 155),
       },
     },
-    producto_en_borrador: {},
+    producto_en_borrador: {
+      nombre: revisable(
+        englishName,
+        englishName ? 'manual' : 'ausente',
+        englishName ? 0.35 : 0,
+        true
+      ),
+      descripcion_corta: revisable('', 'ausente', 0, true),
+      descripcion_larga: revisable('', 'ausente', 0, true),
+      aplicaciones: [],
+      meta_seo: {
+        title: englishName,
+        description: '',
+      },
+    },
     campos_confianza: [],
-    ausentes: specs.length ? ['tipo_sugerido'] : ['tipo_sugerido', 'especificaciones'],
+    ausentes: specs.length
+      ? ['tipo_sugerido', 'producto_en_borrador']
+      : ['tipo_sugerido', 'especificaciones', 'producto_en_borrador'],
     advertencias: [
       errorMessage
         ? `La IA no genero el borrador (${errorMessage}). Se creo un borrador local editable desde el texto del PDF.`
         : 'Se creo un borrador local editable desde el texto del PDF.',
+      'El fallback local no traduce contenido medico. Complete y revise los campos EN antes de crear el producto.',
     ],
     raw_model_id: 'local-pdf-parser',
   }
@@ -2456,6 +2478,21 @@ function inferFamily(textValue: string): string {
   return (
     matches.find(([, keywords]) => keywords.some((keyword) => value.includes(keyword)))?.[0] ?? ''
   )
+}
+
+function looksLikeEnglishProductName(value: string): boolean {
+  if (!value) return false
+  const normalized = ` ${normalizeMatchText(value)} `
+  const spanishSignals = [
+    ' de ',
+    ' para ',
+    ' con ',
+    ' equipo ',
+    ' maquina ',
+    ' anestesia',
+    ' radiologia',
+  ]
+  return !spanishSignals.some((signal) => normalized.includes(signal))
 }
 
 function matchTaxonomyId(suggestion: string, rows: Row[]): string {
