@@ -79,7 +79,7 @@ CLAUDE.md, AGENTS.md, PENDIENTES.md, BACKLOG_V2.md, README.md
 [x] F3 — CMS, ingesta PDF y rebuild | rama: feature/fase-3
 [x] Asesor — RAG conversacional | rama: feature/fase-asesor
 [x] F4 — Comercio híbrido y dropshipping | rama: feature/fase-4 (código implementado; pruebas reales bloqueadas por credenciales)
-[x] F4.1 — Escenario A y cierre de Comercio (Wompi v1.1) | rama: feature/fase-4.1 (código implementado; migración SQL `productos.disponible`/`disponible_actualizado_at` pendiente de aplicar en BD real — ver PENDIENTES; origen: plataforma/prompts/IME_F4_Commerce_Pasarelas_v1.1.md + huecos F1 §8.3/§8.5)
+[x] F4.1 — Escenario A y cierre de Comercio (Wompi v1.1) | rama: feature/fase-4.1 (código implementado; migración SQL `productos.disponible`/`disponible_actualizado_at` aplicada en BD real el 2026-06-15 — ver PENDIENTES; origen: plataforma/prompts/IME_F4_Commerce_Pasarelas_v1.1.md + huecos F1 §8.3/§8.5)
 [ ] F5 — Auditoría, legales y despliegue | rama: feature/fase-5 (iniciada)
 
 ## Etiquetas de pendiente (usar exactamente estas)

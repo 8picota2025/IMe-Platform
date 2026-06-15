@@ -126,23 +126,15 @@ CREATE TRIGGER productos_tsv_update
   BEFORE INSERT OR UPDATE ON productos
   FOR EACH ROW EXECUTE FUNCTION update_productos_tsv();
 
--- Índices productos
-CREATE INDEX IF NOT EXISTS idx_productos_slug        ON productos(slug);
-CREATE INDEX IF NOT EXISTS idx_productos_sku         ON productos(sku);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_productos_sku_unique
-  ON productos(sku)
-  WHERE sku IS NOT NULL;
-CREATE INDEX IF NOT EXISTS idx_productos_familia_id  ON productos(familia_id);
-CREATE INDEX IF NOT EXISTS idx_productos_tipo_id     ON productos(tipo_id);
-CREATE INDEX IF NOT EXISTS idx_productos_activo      ON productos(activo);
-CREATE INDEX IF NOT EXISTS idx_productos_destacado   ON productos(destacado);
-CREATE INDEX IF NOT EXISTS idx_productos_specs_gin   ON productos USING GIN (especificaciones);
-CREATE INDEX IF NOT EXISTS idx_productos_tsv_gin     ON productos USING GIN (busqueda_tsv);
--- HNSW para búsqueda vectorial (activo cuando vector extension disponible)
-CREATE INDEX IF NOT EXISTS idx_productos_embedding_hnsw
-  ON productos USING hnsw (embedding vector_cosine_ops);
+-- Columnas F4.1 (Escenario A) — ver huecos F1 §8.3/§8.5.
+ALTER TABLE productos ADD COLUMN IF NOT EXISTS disponible BOOLEAN NOT NULL DEFAULT true;
+ALTER TABLE productos ADD COLUMN IF NOT EXISTS disponible_actualizado_at TIMESTAMPTZ;
 
 -- Columnas agregadas post-F4 para paridad WooCommerce/B2B-B2C.
+-- Deben ir antes de los índices de productos: en una BD existente
+-- CREATE TABLE IF NOT EXISTS es un no-op, así que estas columnas
+-- (incluida sku, referenciada por los índices de abajo) solo existen
+-- tras ejecutar estos ALTER TABLE.
 ALTER TABLE productos ADD COLUMN IF NOT EXISTS sku TEXT UNIQUE;
 ALTER TABLE productos ADD COLUMN IF NOT EXISTS gtin TEXT;
 ALTER TABLE productos ADD COLUMN IF NOT EXISTS atributos JSONB NOT NULL DEFAULT '{}';
@@ -169,6 +161,22 @@ BEGIN
     CHECK (backorder_policy IN ('no', 'notify', 'yes'));
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
+
+-- Índices productos
+CREATE INDEX IF NOT EXISTS idx_productos_slug        ON productos(slug);
+CREATE INDEX IF NOT EXISTS idx_productos_sku         ON productos(sku);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_productos_sku_unique
+  ON productos(sku)
+  WHERE sku IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_productos_familia_id  ON productos(familia_id);
+CREATE INDEX IF NOT EXISTS idx_productos_tipo_id     ON productos(tipo_id);
+CREATE INDEX IF NOT EXISTS idx_productos_activo      ON productos(activo);
+CREATE INDEX IF NOT EXISTS idx_productos_destacado   ON productos(destacado);
+CREATE INDEX IF NOT EXISTS idx_productos_specs_gin   ON productos USING GIN (especificaciones);
+CREATE INDEX IF NOT EXISTS idx_productos_tsv_gin     ON productos USING GIN (busqueda_tsv);
+-- HNSW para búsqueda vectorial (activo cuando vector extension disponible)
+CREATE INDEX IF NOT EXISTS idx_productos_embedding_hnsw
+  ON productos USING hnsw (embedding vector_cosine_ops);
 
 -- ── 3b. producto_variantes ─────────────────────────────────
 CREATE TABLE IF NOT EXISTS producto_variantes (
@@ -217,6 +225,17 @@ CREATE TABLE IF NOT EXISTS solicitudes_cotizacion (
   notas_internas           TEXT,
   created_at               TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Columnas F4.1 (Escenario A) — seguimiento comercial de cotizaciones.
+ALTER TABLE solicitudes_cotizacion ADD COLUMN IF NOT EXISTS estado TEXT NOT NULL DEFAULT 'nueva';
+ALTER TABLE solicitudes_cotizacion ADD COLUMN IF NOT EXISTS notas_internas TEXT;
+
+DO $$
+BEGIN
+  ALTER TABLE solicitudes_cotizacion ADD CONSTRAINT solicitudes_cotizacion_estado_check
+    CHECK (estado IN ('nueva', 'en_revision', 'respondida'));
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- ── 4b. clientes ────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS clientes (

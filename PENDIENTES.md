@@ -51,15 +51,14 @@ Spec: `plataforma/prompts/IME_F4_Commerce_Pasarelas_v1.1.md` + huecos de F1 §8.
 (flag `productos.disponible` y valores ampliados de `pedidos.estado`, especificados en
 F1 pero nunca implementados). Decisiones documentadas en `docs/decisions/0001-0003`.
 
-- [ ] Migración SQL: `productos.disponible BOOLEAN NOT NULL DEFAULT true` +
-      `disponible_actualizado_at TIMESTAMPTZ` ya están en `supabase/schema.sql` pero
-      **no aplicadas a la base de datos real** (bloqueado por acceso a credenciales en
-      esta sesión, ver NO_EJECUTADO_ENTORNO). Aplicar vía Management API igual que la
-      migración pgvector del 2026-06-14 y verificar columnas en
-      `information_schema.columns`. Aplicar en el mismo lote:
+- [x] Migración SQL aplicada el 2026-06-15 vía Management API: `productos.disponible
+    BOOLEAN NOT NULL DEFAULT true` + `disponible_actualizado_at TIMESTAMPTZ` y
       `solicitudes_cotizacion.estado TEXT NOT NULL DEFAULT 'nueva' CHECK (estado IN
-  ('nueva','en_revision','respondida'))` + `notas_internas TEXT` (ver
-      `docs/decisions/0004-cotizaciones-estado-seguimiento.md`).
+    ('nueva','en_revision','respondida'))` + `notas_internas TEXT` (ver
+      `docs/decisions/0004-cotizaciones-estado-seguimiento.md`). Estas columnas estaban
+      solo dentro de `CREATE TABLE IF NOT EXISTS` (no-op en BD existente); se añadieron
+      sus `ALTER TABLE ... ADD COLUMN IF NOT EXISTS` correspondientes en `schema.sql`.
+      Verificado en `information_schema.columns`.
 - [x] `.env.example` completado con `WOMPI_INTEGRITY_SECRET`, `CREAR_PAGO_RATE_LIMIT_*`
       y `MAILER_API_KEY`/`MAILER_FROM` (faltaban variables ya usadas por
       `payment-gateway.ts`/`notificar-proveedor` pero no documentadas como
@@ -95,33 +94,33 @@ F1 pero nunca implementados). Decisiones documentadas en `docs/decisions/0001-00
 
 ### Paridad WooCommerce/B2B-B2C y RBAC admin (PR #7, mergeado 2026-06-14)
 
-Trabajo de otra sesión/agente, integrado junto con el cierre de F4.1 anterior. Código
-en `schema.sql`/`crear-pago`/admin/webhooks ya está, **nada aplicado a la base de
-datos real** y sin entrada previa en este documento.
+Trabajo de otra sesión/agente, integrado junto con el cierre de F4.1 anterior.
 
-- [ ] Migración SQL pendiente — nuevas tablas `producto_variantes`, `clientes`,
-      `cliente_direcciones`, `cupones`, `cupon_usos`, `pedido_notas`,
-      `pedido_eventos`, `admin_profiles`; nuevas columnas en `productos` (`sku`,
-      `gtin`, `atributos`, `peso_kg`, `dimensiones_cm`, `precio_regular`,
-      `precio_oferta`, `oferta_inicio`, `oferta_fin`, `gestionar_stock`,
-      `stock_estado`, `backorder_policy`) y en `pedidos` (`cliente_id`,
-      `descuento_total`, `impuesto_total`, `envio_total`, `cupon_codigo`,
-      `direccion_facturacion`, `direccion_envio`); función `is_admin()` y
-      reescritura de las políticas RLS `*_admin_all` para usar
-      `is_admin(roles)` en vez de `TO authenticated USING (true)`.
-- [ ] **BLOQUEANTE — riesgo de bloqueo del admin**: las nuevas políticas RLS exigen
-      una fila en `admin_profiles` (`rol IN ('owner','admin',...)`) para que
-      cualquier escritura desde `/admin` (catálogo, cotizaciones, pedidos, cupones,
-      clientes, etc.) sea permitida. `admin_profiles` se crea vacía. Si se aplica
-      `schema.sql` sin sembrar primero (o en el mismo paso) el usuario admin actual
-      en `admin_profiles` con `rol='owner'`, el panel `/admin` queda sin permisos de
-      escritura para ese usuario (RLS deniega). Aplicar ambos pasos juntos.
-- [ ] `schema.sql` es idempotente completo (`CREATE TABLE IF NOT EXISTS`,
-      `ADD COLUMN IF NOT EXISTS`, `DROP POLICY IF EXISTS` + `CREATE POLICY`,
-      `CREATE OR REPLACE FUNCTION`) — se puede ejecutar el archivo completo sin
-      romper lo ya existente; cubre también la migración pendiente de F4.1
-      (`productos.disponible`/`disponible_actualizado_at`,
-      `solicitudes_cotizacion.estado`/`notas_internas`) en el mismo paso.
+- [x] Migración SQL aplicada el 2026-06-15 vía Management API — nuevas tablas
+      `producto_variantes`, `clientes`, `cliente_direcciones`, `cupones`,
+      `cupon_usos`, `pedido_notas`, `pedido_eventos`, `admin_profiles`; nuevas
+      columnas en `productos` (`sku`, `gtin`, `atributos`, `peso_kg`,
+      `dimensiones_cm`, `precio_regular`, `precio_oferta`, `oferta_inicio`,
+      `oferta_fin`, `gestionar_stock`, `stock_estado`, `backorder_policy`) y en
+      `pedidos` (`cliente_id`, `descuento_total`, `impuesto_total`, `envio_total`,
+      `cupon_codigo`, `direccion_facturacion`, `direccion_envio`); función
+      `is_admin()` y reescritura de las políticas RLS `*_admin_all` para usar
+      `is_admin(roles)` en vez de `TO authenticated USING (true)`. Verificado en
+      `information_schema`.
+- [x] **Riesgo de bloqueo del admin resuelto**: `admin_profiles` se sembró en el
+      mismo lote/transacción con el único usuario de Supabase Auth
+      (`8picota2025@gmail.com`, `rol='owner'`, `activo=true`), evitando que las
+      nuevas políticas RLS (`is_admin(roles)`) dejen `/admin` sin permisos de
+      escritura.
+- [x] Bug de orden corregido en `schema.sql`: las columnas `productos.sku` (y el
+      resto de columnas B2B/B2C) y `productos.disponible`/`disponible_actualizado_at`
+      y `solicitudes_cotizacion.estado`/`notas_internas` solo estaban dentro de
+      `CREATE TABLE IF NOT EXISTS` (no-op en BD ya existente) o, en el caso de `sku`,
+      los índices que la referencian se creaban antes del `ALTER TABLE ADD COLUMN`.
+      Se añadieron los `ALTER TABLE ... ADD COLUMN IF NOT EXISTS` faltantes y se
+      reordenaron las secciones de `productos` para que las columnas existan antes
+      de los índices que las usan. `schema.sql` ahora es idempotente y re-ejecutable
+      completo contra la BD real (`ime-platform`, ref `nnfbucwiasuggyfoyydo`).
 
 ## Coste estimado — Asesor RAG
 
@@ -188,16 +187,15 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
 - [ ] Test de video autoplay en mobile (Chrome/Safari iOS)
 - [ ] Deploy a preprod en Hostinger
 - [ ] Verificación 301 `/77/` y `/1old` en Hostinger tras deploy
-- [ ] Migración SQL de `supabase/schema.sql` (F4.1 — `productos.disponible` +
+- [x] Migración SQL de `supabase/schema.sql` (F4.1 — `productos.disponible` +
       `disponible_actualizado_at` + `solicitudes_cotizacion.estado`/`notas_internas` —
       y paridad B2B/B2C de PR #7 — `producto_variantes`, `clientes`,
       `cliente_direcciones`, `cupones`, `cupon_usos`, `pedido_notas`,
       `pedido_eventos`, `admin_profiles`/RBAC, columnas nuevas de `productos`/`pedidos`)
-      no aplicada a la base de datos real — bloqueada por acceso a credenciales en
-      esta sesión (ver secciones F4.1 y "Paridad WooCommerce/B2B-B2C" en
-      BLOQUEANTE_BACKEND). Aplicar el archivo completo (idempotente) vía SQL Editor o
-      Management API, **y sembrar `admin_profiles` con el usuario admin actual
-      (`rol='owner'`) en el mismo paso** para no perder acceso de escritura en `/admin`.
+      aplicada a la base de datos real el 2026-06-15 vía Management API, con
+      `admin_profiles` sembrado en el mismo paso (`8picota2025@gmail.com`,
+      `rol='owner'`) — ver detalle en secciones F4.1 y "Paridad WooCommerce/B2B-B2C"
+      en BLOQUEANTE_BACKEND.
 - [ ] Prueba real de Wompi sandbox CO y Stripe test INTL — depende de que la migración
       de F4.1 (`productos.disponible`) esté aplicada en BD real; sin ella, el rechazo
       422 por `disponible=false` en `crear-pago` no puede validarse end-to-end aunque
