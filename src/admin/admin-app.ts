@@ -77,6 +77,8 @@ interface EspecRevisable extends CampoRevisable {
 
 let ingestFamilias: Row[] = []
 let ingestTipos: Row[] = []
+const INGEST_PDF_MAX_BYTES = 25 * 1024 * 1024
+const INGEST_PDF_MAX_CHARS = 60_000
 
 const appElement = document.getElementById('admin-app')
 const supabase = getSupabaseClient()
@@ -1426,6 +1428,14 @@ async function ingestaView(): Promise<string> {
     <section class="admin-panel">
       <div class="admin-panel__head"><h2>PDF a borrador revisable</h2></div>
       <form class="admin-form" data-ingest-form style="padding:16px">
+        <div class="admin-upload-box">
+          <div>
+            <strong>Ingesta desde el dispositivo</strong>
+            <p>Selecciona una ficha PDF local. Se subira al bucket de fichas y se usara como fuente del borrador.</p>
+          </div>
+          <button class="admin-button admin-button--ghost" data-ingest-upload-pdf type="button">Seleccionar PDF</button>
+        </div>
+        <div data-ingest-upload-status class="admin-help"></div>
         ${field('pdf_url', 'URL de PDF en Storage')}
         ${textarea('pdf_text', 'Texto extraido del PDF')}
         <button class="admin-button" type="submit">Extraer borrador</button>
@@ -2006,15 +2016,26 @@ function bindIngest() {
   const form = app.querySelector<HTMLFormElement>('[data-ingest-form]')
   const reviewContainer = app.querySelector<HTMLElement>('[data-ingest-review]')
   if (!form || !reviewContainer) return
+  app
+    .querySelector<HTMLButtonElement>('[data-ingest-upload-pdf]')
+    ?.addEventListener('click', async () => {
+      await uploadIngestPdf(form)
+    })
   form.addEventListener('submit', async (event) => {
     event.preventDefault()
     reviewContainer.innerHTML = '<p class="admin-help">Extrayendo borrador...</p>'
     const data = new FormData(form)
     const pdfUrl = String(data.get('pdf_url') ?? '').trim()
+    const pdfText = String(data.get('pdf_text') ?? '').trim()
+    if (!pdfText) {
+      reviewContainer.innerHTML =
+        '<div class="admin-alert">No hay texto extraido. Selecciona un PDF con texto real desde el dispositivo o pega el texto extraido antes de generar el borrador.</div>'
+      return
+    }
     const { data: json, error } = await supabase!.functions.invoke('ingesta-pdf', {
       body: {
         pdf_url: emptyToNull(data.get('pdf_url')),
-        pdf_text: emptyToNull(data.get('pdf_text')),
+        pdf_text: pdfText,
       },
     })
     if (error || !json) {
@@ -2564,6 +2585,97 @@ async function uploadFile(button: HTMLButtonElement, form: HTMLFormElement) {
     if (target instanceof HTMLInputElement) target.value = publicUrl
   })
   input.click()
+}
+
+async function uploadIngestPdf(form: HTMLFormElement) {
+  const statusEl = app.querySelector<HTMLElement>('[data-ingest-upload-status]')
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.accept = 'application/pdf,.pdf'
+  input.addEventListener('change', async () => {
+    const file = input.files?.[0]
+    if (!file) return
+    const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')
+    if (!isPdf) {
+      toast('Selecciona un archivo PDF.')
+      return
+    }
+    if (file.size > INGEST_PDF_MAX_BYTES) {
+      toast('El PDF supera 25 MB. Reduce el archivo antes de subirlo.')
+      return
+    }
+
+    if (statusEl) statusEl.textContent = `Leyendo texto de ${file.name}...`
+    let extractedText: string
+    try {
+      extractedText = await extractPdfText(file)
+    } catch (error) {
+      if (statusEl) statusEl.textContent = ''
+      toast(error instanceof Error ? error.message : 'No se pudo leer el PDF.')
+      return
+    }
+
+    const textTarget = form.elements.namedItem('pdf_text')
+    if (textTarget instanceof HTMLTextAreaElement) textTarget.value = extractedText
+
+    if (!extractedText.trim()) {
+      if (statusEl)
+        statusEl.textContent =
+          'PDF cargado en el dispositivo, pero no contiene texto seleccionable. Pega texto extraido por OCR para continuar.'
+      return
+    }
+
+    if (statusEl) statusEl.textContent = `Subiendo ${file.name}...`
+    const path = `ingesta/${Date.now()}-${slugify(file.name)}`
+    const { error } = await supabase!.storage.from('fichas').upload(path, file, {
+      contentType: 'application/pdf',
+      upsert: false,
+    })
+    if (error) {
+      if (statusEl) statusEl.textContent = ''
+      toast(error.message)
+      return
+    }
+
+    const publicUrl = supabase!.storage.from('fichas').getPublicUrl(path).data.publicUrl
+    const target = form.elements.namedItem('pdf_url')
+    if (target instanceof HTMLInputElement) target.value = publicUrl
+    if (statusEl)
+      statusEl.textContent = `PDF cargado: ${file.name}. Texto extraido: ${extractedText.length.toLocaleString('es-CO')} caracteres.`
+  })
+  input.click()
+}
+
+async function extractPdfText(file: File): Promise<string> {
+  const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs')
+  pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+    'pdfjs-dist/legacy/build/pdf.worker.mjs',
+    import.meta.url
+  ).toString()
+  const bytes = new Uint8Array(await file.arrayBuffer())
+  const pdf = await pdfjs.getDocument({ data: bytes }).promise
+  const pages: string[] = []
+  let totalChars = 0
+
+  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+    const page = await pdf.getPage(pageNumber)
+    const content = await page.getTextContent()
+    const pageText = content.items
+      .map((item) => ('str' in item ? item.str : ''))
+      .join(' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+    if (!pageText) continue
+
+    pages.push(`Pagina ${pageNumber}\n${pageText}`)
+    totalChars += pageText.length
+    if (totalChars >= INGEST_PDF_MAX_CHARS) {
+      pages.push('[Texto truncado por limite de ingesta.]')
+      break
+    }
+  }
+
+  return pages.join('\n\n').slice(0, INGEST_PDF_MAX_CHARS)
 }
 
 function listWithCsv(tableName: string, rows: Row[], keys: string[], detailRoute?: string): string {

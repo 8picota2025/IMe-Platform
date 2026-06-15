@@ -24,7 +24,7 @@ const currentPath = `/es/legal/${page.slug}`
       <p class="legal-page__badge">{page.badge}</p>
       <h1>{page.title}</h1>
       <p class="legal-page__summary">{page.description}</p>
-      <p class="legal-page__updated">Última actualización del borrador: {page.updated}</p>
+      <p class="legal-page__updated">Última actualización: {page.updated}</p>
 
       {
         page.sections.map((section) => (
@@ -38,8 +38,8 @@ const currentPath = `/es/legal/${page.slug}`
       }
 
       <aside class="legal-page__notice" role="note">
-        <strong>BLOQUEANTE_LEGAL:</strong> este texto debe ser revisado por abogado y aprobado por I-ME
-        antes de publicarse como política definitiva.
+        <strong>Versión vigente:</strong> este documento forma parte de las políticas publicadas de I-ME
+        International Medical Enterprise.
       </aside>
     </div>
   </article>

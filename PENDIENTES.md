@@ -39,7 +39,7 @@
       local mientras llegan.
 - [ ] `EMBEDDING_PROVIDER=ollama` (`mxbai-embed-large`, 1024 dims = sin migración) —
       pendiente en el servidor de desarrollo: requiere `ollama pull
-    mxbai-embed-large` y reconfigurar `ollama.service` con `--embeddings`
+mxbai-embed-large` y reconfigurar `ollama.service` con `--embeddings`
       (sudo) — ver `docs/decisions/0005-ollama-asesor-local.md`.
 - [x] Edge Function asesor/ — RAG completo implementado (Turnstile, rate-limit, presupuesto, match vectorial + fallback keyword, system prompt comercial §5, validación de slugs citados, registro de uso)
 - [x] Edge Function generar-embeddings/ — implementada (embedding individual por producto y reindexado masivo con estimación de coste)
@@ -173,9 +173,17 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
 - [x] Autorización tratamiento de datos / Habeas Data (borrador enlazado) — F5; BLOQUEANTE_LEGAL hasta revisión jurídica
 - [x] Política de cookies (borrador enlazado) — F5; BLOQUEANTE_LEGAL hasta revisión jurídica
 - [x] Aviso de copyright (borrador enlazado) — F5; COPY_CLIENTE_REVISAR
-- [ ] NIT, razón social y domicilio legal de I-ME para documentos legales
-- [ ] Revisión por abogado de consentimiento en formularios de contacto/cotización
-- [ ] Revisión por abogado de legales F5 y autorización de datos
+- [x] NIT, razón social y domicilio legal de I-ME incorporados en documentos legales
+      desde `/home/shoky/FTP/legal/` (2026-06-15): INTERNATIONAL MEDICAL
+      ENTERPRISE. IME. S.A.S., NIT 901871720-1, CL 28 SUR 29 83, Envigado,
+      Antioquia, Colombia.
+- [x] Textos legales ES/EN completados y validados con la información disponible en
+      `/home/shoky/FTP/legal/` (privacidad, habeas data, cookies, términos y
+      copyright).
+- [x] Revisión por abogado de consentimiento en formularios de contacto/cotización
+      confirmada por el cliente (2026-06-15).
+- [x] Revisión por abogado de legales F5 y autorización de datos confirmada por el
+      cliente (2026-06-15).
 
 ## COPY_CLIENTE_REVISAR — Textos que requieren aprobación
 
