@@ -2,7 +2,7 @@
  * Tipos compartidos del checkout — usados por src/lib/carrito.ts al llamar a la
  * Edge Function crear-pago.
  *
- * La implementación real de PaymentGateway (WompiGateway/StripeGateway) vive en
+ * La implementación real de PaymentGateway (BoldGateway/StripeGateway) vive en
  * supabase/functions/_shared/payment-gateway.ts — solo accesible desde Edge Functions.
  *
  * Regla crítica: el servidor recalcula siempre — el cliente NUNCA decide precios ni
@@ -10,7 +10,7 @@
  * lo ignora y recalcula desde productos.precio en Supabase.
  */
 
-export type PaymentProvider = 'wompi' | 'stripe'
+export type PaymentProvider = 'bold' | 'stripe'
 
 export type Mercado = 'CO' | 'INTL'
 

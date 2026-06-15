@@ -3,13 +3,13 @@
  *
  * Checkout de consumibles. Recalcula precios server-side desde Supabase,
  * crea un pedido 'pendiente' y devuelve la URL de checkout hospedado
- * (Wompi para mercado CO, Stripe para INTL).
+ * (Bold.co para mercado CO, Stripe para INTL).
  *
  * REGLA RECTORA: el servidor recalcula siempre — el cliente nunca decide
  * precios ni estado de pago.
  *
  * Variables requeridas: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,
- * WOMPI_PUBLIC_KEY/WOMPI_INTEGRITY_SECRET (mercado CO) o STRIPE_SECRET_KEY (mercado INTL),
+ * BOLD_API_KEY (mercado CO) o STRIPE_SECRET_KEY (mercado INTL),
  * SITE_URL.
  */
 
@@ -543,7 +543,7 @@ Deno.serve(async (req) => {
   const total = Math.max(0, subtotal - descuento.descuento + impuestoTotal + envioTotal)
 
   const pedidoId = crypto.randomUUID()
-  const proveedorPago = mercado === 'CO' ? 'wompi' : 'stripe'
+  const proveedorPago = mercado === 'CO' ? 'bold' : 'stripe'
   const clienteId = await upsertCliente(supabase, cliente)
 
   const { error: insertError } = await supabase.from('pedidos').insert({

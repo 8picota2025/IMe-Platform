@@ -1,20 +1,20 @@
 /**
- * PaymentGateway swappable — implementaciones Wompi (Colombia) y Stripe (internacional).
+ * PaymentGateway swappable — implementaciones Bold.co (Colombia) y Stripe (internacional).
  *
  * REGLA CRÍTICA: El servidor recalcula siempre — el cliente NUNCA decide precios ni
  * estado de pago. crearCheckout/verificarPago/validarWebhook solo se llaman desde
  * Edge Functions con service_role.
  *
  * Variables de entorno (Supabase Edge Functions, nunca en cliente):
- * - WOMPI_PUBLIC_KEY, WOMPI_PRIVATE_KEY, WOMPI_EVENTS_SECRET
- * - WOMPI_INTEGRITY_SECRET (TODO_CLIENTE: "secreto de integridad" del dashboard Wompi,
- *   distinto de WOMPI_PRIVATE_KEY — necesario para firmar el Web Checkout hospedado)
+ * - BOLD_API_KEY — API key de Bold.co para crear checkouts y verificar pagos
+ * - BOLD_WEBHOOK_SECRET — secreto para validar firmas de webhooks de Bold
+ * - BOLD_API_BASE — (opcional) endpoint base API de Bold, default: https://api.bold.co/v1
  * - STRIPE_PUBLIC_KEY, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
  * - SITE_URL (origen público del sitio, p.ej. https://i-me.com.co) — usado para
- *   construir redirect-url/success_url/cancel_url
+ *   construir redirect URLs
  */
 
-export type PaymentProvider = 'wompi' | 'stripe'
+export type PaymentProvider = 'bold' | 'stripe'
 export type Mercado = 'CO' | 'INTL'
 
 /**
@@ -95,14 +95,6 @@ export interface PaymentGateway {
    Helpers criptográficos (Web Crypto API, disponible en Deno)
    ============================================================ */
 
-async function sha256Hex(input: string): Promise<string> {
-  const data = new TextEncoder().encode(input)
-  const hash = await crypto.subtle.digest('SHA-256', data)
-  return Array.from(new Uint8Array(hash))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('')
-}
-
 async function hmacSha256Hex(key: string, input: string): Promise<string> {
   const enc = new TextEncoder()
   const cryptoKey = await crypto.subtle.importKey(
@@ -118,123 +110,161 @@ async function hmacSha256Hex(key: string, input: string): Promise<string> {
     .join('')
 }
 
-/** Navega un path tipo "transaction.id" dentro de un objeto, devuelve '' si no existe. */
-function getNestedValue(obj: unknown, path: string): string {
-  let current: unknown = obj
-  for (const part of path.split('.')) {
-    if (current && typeof current === 'object' && part in (current as Record<string, unknown>)) {
-      current = (current as Record<string, unknown>)[part]
-    } else {
-      return ''
-    }
-  }
-  return current === undefined || current === null ? '' : String(current)
-}
-
 /* ============================================================
-   WompiGateway — Colombia, COP
+   BoldGateway — Colombia, COP + USD + INTL
    ============================================================ */
 
-const WOMPI_API_BASE = Deno.env.get('WOMPI_API_BASE') ?? 'https://api.wompi.co/v1'
-const WOMPI_CHECKOUT_BASE = Deno.env.get('WOMPI_CHECKOUT_BASE') ?? 'https://checkout.wompi.co/p/'
+const BOLD_API_BASE = Deno.env.get('BOLD_API_BASE') ?? 'https://api.bold.co/v1'
 
-interface WompiTransaction {
+interface BoldTransaction {
   id: string
   status: string
   reference: string
+  reference_code?: string
+  amount?: number
+  currency?: string
   created_at?: string
+  updated_at?: string
 }
 
-interface WompiTransactionsResponse {
-  data?: WompiTransaction[]
+interface BoldCheckoutResponse {
+  data?: {
+    id: string
+    checkout_url?: string
+    payment_link?: string
+    transaction?: BoldTransaction
+  }
+  transaction?: BoldTransaction
 }
 
-function mapWompiEstado(status: string): PedidoEstado {
-  switch (status) {
+function mapBoldEstado(status: string): PedidoEstado {
+  switch (status?.toUpperCase()) {
+    case 'COMPLETED':
     case 'APPROVED':
+    case 'CAPTURED':
       return 'pagado'
     case 'DECLINED':
+    case 'REJECTED':
+    case 'FAILED':
       return 'rechazado'
     case 'VOIDED':
+    case 'REVERSED':
+    case 'CANCELED':
       return 'cancelado'
-    case 'ERROR':
-      return 'error_verificacion'
+    case 'EXPIRED':
+      return 'expirado'
     case 'PENDING':
+    case 'PROCESSING':
     default:
       return 'pendiente'
   }
 }
 
-export class WompiGateway implements PaymentGateway {
-  readonly provider: PaymentProvider = 'wompi'
+export class BoldGateway implements PaymentGateway {
+  readonly provider: PaymentProvider = 'bold'
 
   async crearCheckout(request: CheckoutRequest): Promise<CheckoutResult> {
-    const publicKey = Deno.env.get('WOMPI_PUBLIC_KEY')
-    const integritySecret = Deno.env.get('WOMPI_INTEGRITY_SECRET')
-    if (!publicKey || !integritySecret) {
+    const apiKey = Deno.env.get('BOLD_API_KEY')
+    if (!apiKey) {
       return {
         ok: false,
-        error: 'BLOQUEANTE_BACKEND: WOMPI_PUBLIC_KEY / WOMPI_INTEGRITY_SECRET no configurados',
+        error: 'BLOQUEANTE_BACKEND: BOLD_API_KEY no configurado',
       }
-    }
-    if (request.moneda !== 'COP') {
-      return { ok: false, error: `Wompi solo soporta COP, recibido ${request.moneda}` }
     }
 
     const amountInCents = Math.round(request.total * 100)
     const reference = request.referencia
-    const signature = await sha256Hex(
-      `${reference}${amountInCents}${request.moneda}${integritySecret}`
-    )
+    const siteUrl = Deno.env.get('SITE_URL') ?? 'https://i-me.com.co'
 
-    const siteUrl = Deno.env.get('SITE_URL')
-    const params = new URLSearchParams({
-      'public-key': publicKey,
+    const payload = {
+      amount: amountInCents,
       currency: request.moneda,
-      'amount-in-cents': String(amountInCents),
       reference,
-      'signature:integrity': signature,
-      'customer-data:email': request.cliente.email,
-      'customer-data:full-name': `${request.cliente.nombre} ${request.cliente.apellido}`.trim(),
-      'customer-data:phone-number': request.cliente.telefono,
-    })
-    if (siteUrl) {
-      params.set('redirect-url', `${siteUrl}/es/pago/exito?ref=${reference}`)
+      description: `Pedido ${reference}`,
+      customer: {
+        email: request.cliente.email,
+        name: `${request.cliente.nombre} ${request.cliente.apellido}`.trim(),
+        phone: request.cliente.telefono,
+      },
+      redirect_url: `${siteUrl}/${request.cliente.email?.includes('@') ? 'es' : 'en'}/pago/exito?ref=${reference}`,
+      items: request.items.map((item) => ({
+        sku: item.producto_id,
+        name: item.nombre,
+        quantity: item.cantidad,
+        price: Math.round(item.precio_unitario * 100),
+      })),
     }
 
-    return {
-      ok: true,
-      checkout_url: `${WOMPI_CHECKOUT_BASE}?${params.toString()}`,
-      referencia_pasarela: reference,
+    try {
+      const res = await fetch(`${BOLD_API_BASE}/payments/app-checkout`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
+
+      const json = (await res.json()) as BoldCheckoutResponse & {
+        error?: { message?: string; code?: string }
+      }
+
+      if (!res.ok) {
+        return {
+          ok: false,
+          error: json.error?.message ?? `Error Bold: ${res.status}`,
+        }
+      }
+
+      const checkoutUrl = json.data?.checkout_url || json.data?.payment_link || json.data?.id
+      if (!checkoutUrl) {
+        return { ok: false, error: 'No checkout URL en respuesta Bold' }
+      }
+
+      return {
+        ok: true,
+        checkout_url: checkoutUrl,
+        referencia_pasarela: reference,
+      }
+    } catch (err) {
+      return {
+        ok: false,
+        error: err instanceof Error ? err.message : 'Error desconocido Bold',
+      }
     }
   }
 
   async verificarPago(referenciaPasarela: string): Promise<VerificacionPago> {
-    const privateKey = Deno.env.get('WOMPI_PRIVATE_KEY')
-    if (!privateKey) return { estado: 'error_verificacion' }
+    const apiKey = Deno.env.get('BOLD_API_KEY')
+    if (!apiKey) return { estado: 'error_verificacion' }
 
     try {
       const res = await fetch(
-        `${WOMPI_API_BASE}/transactions?reference=${encodeURIComponent(referenciaPasarela)}`,
-        { headers: { Authorization: `Bearer ${privateKey}` } }
+        `${BOLD_API_BASE}/payments?reference=${encodeURIComponent(referenciaPasarela)}`,
+        {
+          headers: { Authorization: `Bearer ${apiKey}` },
+        }
       )
-      if (!res.ok) return { estado: 'error_verificacion' }
-      const json = (await res.json()) as WompiTransactionsResponse
-      const transacciones = Array.isArray(json.data) ? json.data : []
-      if (transacciones.length === 0) return { estado: 'pendiente' }
 
-      const masReciente = transacciones.reduce((a, b) =>
-        new Date(b.created_at ?? 0).getTime() > new Date(a.created_at ?? 0).getTime() ? b : a
-      )
-      return { estado: mapWompiEstado(masReciente.status), raw: masReciente }
+      if (!res.ok) return { estado: 'error_verificacion' }
+
+      const json = (await res.json()) as BoldCheckoutResponse
+      const transaction = json.data?.transaction || json.transaction
+
+      if (!transaction) return { estado: 'pendiente' }
+
+      return { estado: mapBoldEstado(transaction.status), raw: transaction }
     } catch {
       return { estado: 'error_verificacion' }
     }
   }
 
-  async validarWebhook(rawBody: string, _req: Request): Promise<WebhookEvento | null> {
-    const eventsSecret = Deno.env.get('WOMPI_EVENTS_SECRET')
-    if (!eventsSecret) return null
+  async validarWebhook(rawBody: string, req: Request): Promise<WebhookEvento | null> {
+    const webhookSecret = Deno.env.get('BOLD_WEBHOOK_SECRET')
+    if (!webhookSecret) return null
+
+    const signature = req.headers.get('x-bold-signature')
+    if (!signature) return null
 
     let payload: Record<string, unknown>
     try {
@@ -243,22 +273,10 @@ export class WompiGateway implements PaymentGateway {
       return null
     }
 
-    const signature = payload['signature'] as
-      | { checksum?: string; properties?: string[] }
-      | undefined
-    const properties = signature?.properties
-    const checksum = signature?.checksum
-    const timestamp = payload['timestamp']
-    if (!Array.isArray(properties) || !checksum || timestamp === undefined) return null
+    const expectedSignature = await hmacSha256Hex(webhookSecret, rawBody)
+    if (expectedSignature !== signature) return null
 
-    const data = payload['data']
-    const valores = properties.map((path) => getNestedValue(data, path)).join('')
-    const esperado = await sha256Hex(`${valores}${timestamp}${eventsSecret}`)
-    if (esperado.toLowerCase() !== String(checksum).toLowerCase()) return null
-
-    const transaction = (data as Record<string, unknown> | undefined)?.['transaction'] as
-      | WompiTransaction
-      | undefined
+    const transaction = payload as BoldTransaction | undefined
     if (!transaction?.id || !transaction?.reference) return null
 
     return {
@@ -404,9 +422,9 @@ export class StripeGateway implements PaymentGateway {
    ============================================================ */
 
 export function getPaymentGateway(mercado: Mercado): PaymentGateway {
-  return mercado === 'CO' ? new WompiGateway() : new StripeGateway()
+  return mercado === 'CO' ? new BoldGateway() : new StripeGateway()
 }
 
 export function getGatewayByProvider(provider: PaymentProvider): PaymentGateway {
-  return provider === 'wompi' ? new WompiGateway() : new StripeGateway()
+  return provider === 'bold' ? new BoldGateway() : new StripeGateway()
 }
