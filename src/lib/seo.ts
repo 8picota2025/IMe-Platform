@@ -42,13 +42,18 @@ export function buildHomeSeo(locale: Locale): SeoPageMeta {
 }
 
 export function buildProductoSeo(
-  producto: { nombre: string; descripcion_corta: string; imagen_principal: string; slug: string },
+  producto: {
+    nombre: string
+    descripcion_corta: string | null
+    imagen_principal: string
+    slug: string
+  },
   locale: Locale
 ): SeoPageMeta {
   const segment = locale === 'en' ? 'products' : 'productos'
   return {
     title: buildPageTitle(producto.nombre),
-    description: producto.descripcion_corta.slice(0, 155),
+    description: (producto.descripcion_corta || '').slice(0, 155),
     canonical: buildCanonical(`/${locale}/${segment}/${producto.slug}`),
     ogImage: producto.imagen_principal.startsWith('http')
       ? producto.imagen_principal
@@ -107,7 +112,7 @@ export function buildOrganizationJsonLd(): Record<string, unknown> {
 export function buildProductJsonLd(
   producto: {
     nombre: string
-    descripcion_corta: string
+    descripcion_corta: string | null
     imagen_principal: string
     slug: string
   },
@@ -119,7 +124,7 @@ export function buildProductJsonLd(
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: producto.nombre,
-    description: producto.descripcion_corta,
+    description: producto.descripcion_corta || '',
     image: producto.imagen_principal.startsWith('http')
       ? producto.imagen_principal
       : `${SITE}${producto.imagen_principal}`,

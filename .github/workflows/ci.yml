@@ -3,6 +3,8 @@ name: CI
 on:
   pull_request:
     branches: [develop, preprod, main]
+  push:
+    branches: [develop, preprod, main]
 
 jobs:
   validate:
@@ -30,7 +32,7 @@ jobs:
         run: |
           echo "Checking for exposed secrets..."
           FOUND=0
-          for pattern in service_role SERVICE_KEY ANTHROPIC_API_KEY OPENAI_API_KEY VOYAGE_API_KEY WOMPI_PRIVATE WOMPI_EVENTS_SECRET STRIPE_SECRET STRIPE_WEBHOOK_SECRET TURNSTILE_SECRET; do
+          for pattern in service_role SERVICE_KEY ANTHROPIC_API_KEY OPENAI_API_KEY VOYAGE_API_KEY WOMI_API_KEY WOMPI_PRIVATE WOMPI_EVENTS_SECRET STRIPE_SECRET STRIPE_WEBHOOK_SECRET TURNSTILE_SECRET; do
             if grep -r --include="*.ts" --include="*.astro" --include="*.js" "$pattern" src/ 2>/dev/null; then
               echo "SECRET FOUND: $pattern"
               FOUND=1
@@ -39,8 +41,43 @@ jobs:
           if [ $FOUND -ne 0 ]; then exit 1; fi
           echo "No secrets found in src/"
 
+      - name: Dependency audit (npm audit — production only)
+        run: |
+          echo "Running npm audit on production dependencies..."
+          npm audit --audit-level=high --omit=dev 2>&1 | tee audit-output.txt
+          # Only fail on critical vulnerabilities in production deps
+          if grep -q "critical" audit-output.txt; then
+            echo "CRITICAL vulnerabilities found in production dependencies"
+            exit 1
+          fi
+          echo "No critical vulnerabilities in production dependencies"
+
       - name: Build
         run: npm run build
         env:
           PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Snyk security scan
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: test
+          args: --severity-threshold=high
