@@ -3,31 +3,31 @@
  * ResultadoPago — bloque compartido para las páginas de resultado de pago
  * (/es/pago/{exito,pendiente,fallo} y /en/payment/{success,pending,failure}).
  *
- * El "tipo" refleja la redirección de la pasarela (Wompi/Stripe). El estado
+ * El "tipo" refleja la redirección de la pasarela (Bold/Stripe). El estado
  * real del pedido se consulta server-side (Edge Function consultar-pedido)
  * porque el cliente nunca decide si un pago quedó aprobado.
  */
-import { t, type Locale } from '../i18n/utils'
+import { t, type Locale } from '../i18n/utils';
 
 interface Props {
-  locale: Locale
-  tipo: 'exito' | 'pendiente' | 'fallo'
+  locale: Locale;
+  tipo: 'exito' | 'pendiente' | 'fallo';
 }
 
-const { locale, tipo } = Astro.props
+const { locale, tipo } = Astro.props;
 
-const catalogoHref = locale === 'en' ? '/en/catalog' : '/es/catalogo'
-const contactoHref = locale === 'en' ? '/en/contact' : '/es/contacto'
+const catalogoHref = locale === 'en' ? '/en/catalog' : '/es/catalogo';
+const contactoHref = locale === 'en' ? '/en/contact' : '/es/contacto';
 
-const tituloKey = `pago.${tipo}_titulo` as const
-const descKey = `pago.${tipo}_desc` as const
+const tituloKey = `pago.${tipo}_titulo` as const;
+const descKey = `pago.${tipo}_desc` as const;
 
-const icono = { exito: '✓', pendiente: '…', fallo: '✕' }[tipo]
+const icono = { exito: '✓', pendiente: '…', fallo: '✕' }[tipo];
 
 // CTA WhatsApp directo para exito/fallo (TAREA 5 v1.1) — el mensaje se
 // completa con la referencia del pedido en el script si está disponible.
-const mostrarWhatsapp = tipo === 'exito' || tipo === 'fallo'
-const whatsappHref = `https://wa.me/573138674059?text=${encodeURIComponent(t(locale, 'pago.whatsapp_mensaje'))}`
+const mostrarWhatsapp = tipo === 'exito' || tipo === 'fallo';
+const whatsappHref = `https://wa.me/573138674059?text=${encodeURIComponent(t(locale, 'pago.whatsapp_mensaje'))}`;
 ---
 
 <section class="resultado-pago container">
@@ -152,8 +152,8 @@ const whatsappHref = `https://wa.me/573138674059?text=${encodeURIComponent(t(loc
 </style>
 
 <script>
-  import { consultarPedido, leerReferenciaDeUrl } from '../lib/pedido'
-  import { formatMoneda } from '../lib/format'
+  import { consultarPedido, leerReferenciaDeUrl } from '../lib/pedido';
+  import { formatMoneda } from '../lib/format';
 
   const ESTADO_KEYS: Record<string, string> = {
     pendiente: 'pago.estado_pendiente',
@@ -163,54 +163,54 @@ const whatsappHref = `https://wa.me/573138674059?text=${encodeURIComponent(t(loc
     cancelado: 'pago.estado_cancelado',
     reembolsado: 'pago.estado_reembolsado',
     error_verificacion: 'pago.estado_error_verificacion',
-  }
+  };
 
   void (async () => {
-    const referencia = leerReferenciaDeUrl()
-    if (!referencia) return
+    const referencia = leerReferenciaDeUrl();
+    if (!referencia) return;
 
-    const detalle = document.getElementById('pedido-detalle')
-    const referenciaEl = document.getElementById('pedido-referencia')
-    const estadoFila = document.getElementById('pedido-estado-fila')
-    const estadoEl = document.getElementById('pedido-estado')
-    const noEncontradoEl = document.getElementById('pedido-no-encontrado')
-    if (!detalle || !referenciaEl) return
+    const detalle = document.getElementById('pedido-detalle');
+    const referenciaEl = document.getElementById('pedido-referencia');
+    const estadoFila = document.getElementById('pedido-estado-fila');
+    const estadoEl = document.getElementById('pedido-estado');
+    const noEncontradoEl = document.getElementById('pedido-no-encontrado');
+    if (!detalle || !referenciaEl) return;
 
-    detalle.hidden = false
-    referenciaEl.textContent = referencia
+    detalle.hidden = false;
+    referenciaEl.textContent = referencia;
 
-    const { t, getLocale } = await import('../i18n/utils')
-    const locale = getLocale(window.location.pathname)
+    const { t, getLocale } = await import('../i18n/utils');
+    const locale = getLocale(window.location.pathname);
 
-    const whatsappEl = document.getElementById('resultado-pago-whatsapp')
+    const whatsappEl = document.getElementById('resultado-pago-whatsapp');
     if (whatsappEl instanceof HTMLAnchorElement) {
-      const mensaje = `${t(locale, 'pago.whatsapp_mensaje')}\n\n${t(locale, 'pago.referencia')}: ${referencia}`
-      whatsappEl.href = `https://wa.me/573138674059?text=${encodeURIComponent(mensaje)}`
+      const mensaje = `${t(locale, 'pago.whatsapp_mensaje')}\n\n${t(locale, 'pago.referencia')}: ${referencia}`;
+      whatsappEl.href = `https://wa.me/573138674059?text=${encodeURIComponent(mensaje)}`;
     }
 
-    const resultado = await consultarPedido(referencia)
+    const resultado = await consultarPedido(referencia);
     if (!resultado.ok || !resultado.pedido.encontrado) {
-      if (noEncontradoEl) noEncontradoEl.hidden = false
-      return
+      if (noEncontradoEl) noEncontradoEl.hidden = false;
+      return;
     }
 
-    const { estado, total, moneda } = resultado.pedido
+    const { estado, total, moneda } = resultado.pedido;
     if (estado && estadoFila && estadoEl) {
-      const key = ESTADO_KEYS[estado]
-      estadoEl.textContent = key ? t(locale, key) : estado
-      estadoFila.hidden = false
+      const key = ESTADO_KEYS[estado];
+      estadoEl.textContent = key ? t(locale, key) : estado;
+      estadoFila.hidden = false;
     }
     if (total !== undefined && moneda) {
-      const formateado = formatMoneda(total, moneda, locale)
+      const formateado = formatMoneda(total, moneda, locale);
       if (formateado) {
-        const totalFila = document.createElement('div')
-        const dt = document.createElement('dt')
-        dt.textContent = 'Total'
-        const dd = document.createElement('dd')
-        dd.textContent = formateado
-        totalFila.append(dt, dd)
-        detalle.querySelector('dl')?.append(totalFila)
+        const totalFila = document.createElement('div');
+        const dt = document.createElement('dt');
+        dt.textContent = 'Total';
+        const dd = document.createElement('dd');
+        dd.textContent = formateado;
+        totalFila.append(dt, dd);
+        detalle.querySelector('dl')?.append(totalFila);
       }
     }
-  })()
+  })();
 </script>

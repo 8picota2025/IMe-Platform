@@ -95,6 +95,19 @@
     "calcular": "Calculate",
     "moneda_cop": "COP"
   },
+  "conocimiento": {
+    "titulo": "Knowledge",
+    "descripcion": "Articles, guides, and editorial notes from the I-ME team to support biomedical technology purchasing decisions and responsible use.",
+    "proximamente": "Editorial hub",
+    "cta_contacto": "Talk to an advisor",
+    "vacio": "No articles have been published yet.",
+    "listado_titulo": "Published articles",
+    "leer_mas": "Read article",
+    "publicado": "Published",
+    "actualizado": "Updated",
+    "volver": "Back to knowledge",
+    "ninguno": "There is no published content yet."
+  },
   "contacto": {
     "titulo": "Contact",
     "nombre": "First name",

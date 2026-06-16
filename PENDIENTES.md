@@ -253,8 +253,23 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
 - [ ] Editor de especificaciones de producto: reemplazar el textarea JSON por un
       editor estructurado fila a fila (clave/valor/grupo), igual al usado en la
       revision de ingesta PDF
-- [ ] Subida múltiple de imágenes para `productos.galeria` (hoy solo existe
-      `imagen_principal`; la columna `galeria TEXT[]` no se edita desde el admin)
+- [x] Ingesta PDF: formulario de revisión ahora incluye campo y botón de subida de
+      `imagen_principal` (antes los productos creados por ingesta quedaban sin imagen,
+      rompiendo la landing pública). Payload `ingestPayload` actualizado (2026-06-16).
+- [x] Ingesta PDF: validación de submit relajada — `nombre_es` es obligatorio,
+      `nombre_en` es opcional (confirm antes de crear sin traducción EN). Antes bloqueaba
+      la creación de cualquier producto de PDF en español (2026-06-16).
+- [x] Admin productos: nueva columna "PDF" en la tabla del listado con enlace directo
+      a la ficha técnica cuando `ficha_pdf` está presente (2026-06-16).
+- [x] Admin CMS conocimiento: vista y formulario de artículos editoriales implementados
+      en `/admin#/conocimiento` (crear, editar, publicar, eliminar artículos con
+      preview Markdown ES/EN en tiempo real).
+- [x] Admin productos: importación y exportación masiva via Excel (.xlsx) con
+      plantilla descargable, upsert por `slug`, y creación automática de taxonomía
+      faltante al importar.
+- [ ] Subida múltiple de imágenes para `productos.galeria` (la columna `galeria TEXT[]`
+      no se edita desde el admin; `imagen_principal` ya se puede subir en ingesta y en
+      el formulario de producto)
 - [ ] Editar/eliminar familias y tipos desde Taxonomía (hoy solo se pueden crear);
       validar que no queden productos huérfanos al eliminar
 - [ ] Dashboard: cards adicionales (p.ej. fulfillments con error, solicitudes de

@@ -2,26 +2,26 @@
 /**
  * Layout global — skip-link, header, main, footer, View Transitions, Lenis.
  */
-import { ClientRouter } from 'astro:transitions'
-import BaseHead from '../components/BaseHead.astro'
-import Navbar from '../components/Navbar.astro'
-import Footer from '../components/Footer.astro'
-import Asesor from '../components/Asesor.astro'
-import Carrito from '../components/Carrito.astro'
-import CotizacionDrawer from '../components/CotizacionDrawer.astro'
-import type { Locale } from '../i18n/utils'
-import { t } from '../i18n/utils'
+import { ClientRouter } from 'astro:transitions';
+import BaseHead from '../components/BaseHead.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import Asesor from '../components/Asesor.astro';
+import Carrito from '../components/Carrito.astro';
+import CotizacionDrawer from '../components/CotizacionDrawer.astro';
+import type { Locale } from '../i18n/utils';
+import { t } from '../i18n/utils';
 
 interface Props {
-  title: string
-  description: string
-  canonical: string
-  locale: Locale
-  currentPath: string
-  ogImage?: string
-  jsonLd?: string
-  noindex?: boolean
-  fontAwesome?: boolean
+  title: string;
+  description: string;
+  canonical: string;
+  locale: Locale;
+  currentPath: string;
+  ogImage?: string;
+  jsonLd?: string;
+  noindex?: boolean;
+  fontAwesome?: boolean;
 }
 
 const {
@@ -34,7 +34,7 @@ const {
   jsonLd,
   noindex,
   fontAwesome,
-} = Astro.props
+} = Astro.props;
 ---
 
 <!doctype html>
@@ -70,14 +70,19 @@ const {
 
     <!-- Lenis smooth scroll + GSAP init -->
     <script>
-      import { initLenis } from '../lib/motion'
+      import { destroyLenis, initLenis, resetTransientUiState } from '../lib/motion';
 
-      // Inicializar Lenis al cargar la página
-      document.addEventListener('astro:page-load', () => {
-        initLenis()
-      })
-      // Primer load
-      initLenis()
+      const win = window as Window & { __imeLayoutLifecycleInstalled?: boolean };
+      if (!win.__imeLayoutLifecycleInstalled) {
+        win.__imeLayoutLifecycleInstalled = true;
+        document.addEventListener('astro:before-swap', () => {
+          destroyLenis();
+          resetTransientUiState();
+        });
+      }
+
+      resetTransientUiState();
+      void initLenis();
     </script>
   </body>
 </html>

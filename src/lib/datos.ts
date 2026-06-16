@@ -6,45 +6,53 @@
  * BLOQUEANTE_BACKEND: Supabase real en F2.
  */
 
-import type { Locale } from '../i18n/utils'
-import { isSupabaseConfigured, getSupabaseClient } from './supabase'
+import type { Locale } from '../i18n/utils';
+import { isSupabaseConfigured, getSupabaseClient } from './supabase';
 
-import mockFamilias from '../data/mock-familias.json'
-import mockProductos from '../data/mock-productos.json'
-import mockTipos from '../data/mock-tipos.json'
+import mockFamilias from '../data/mock-familias.json';
+import mockArticulos from '../data/mock-articulos.json';
+import mockProductos from '../data/mock-productos.json';
+import mockTipos from '../data/mock-tipos.json';
 
-let supabaseDeshabilitadoPorError = false
+let supabaseDeshabilitadoPorError = false;
+type RawRow = Record<string, unknown>;
 
 function debeUsarSupabase(): boolean {
-  return isSupabaseConfigured() && !supabaseDeshabilitadoPorError
+  return isSupabaseConfigured() && !supabaseDeshabilitadoPorError;
 }
 
 function registrarErrorSupabase(scope: string, error: { message?: string } | null): void {
-  supabaseDeshabilitadoPorError = true
+  supabaseDeshabilitadoPorError = true;
   console.error(
     `[datos] Supabase ${scope} error, falling back to mock:`,
     error?.message ?? 'error desconocido'
-  )
+  );
 }
 
 function registrarVacioSupabase(scope: string): void {
-  console.warn(`[datos] Supabase ${scope} devolvió 0 filas, usando mock como respaldo`)
+  console.warn(`[datos] Supabase ${scope} devolvió 0 filas, usando mock como respaldo`);
+}
+
+function stringValue(value: unknown): string {
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  return '';
 }
 
 // Cache de mapeo familia_id <-> familia_slug, resuelto vía Supabase (productos.familia_id
 // es FK a familias.id; no existe columna familia_slug en la tabla productos).
-let familiaIdPorSlug: Record<string, string> | null = null
-let familiaSlugPorId: Record<string, string> | null = null
+let familiaIdPorSlug: Record<string, string> | null = null;
+let familiaSlugPorId: Record<string, string> | null = null;
 
 async function cargarMapaFamilias(supabase: ReturnType<typeof getSupabaseClient>): Promise<void> {
-  if (familiaIdPorSlug && familiaSlugPorId) return
-  const { data, error } = await supabase!.from('familias').select('id, slug')
+  if (familiaIdPorSlug && familiaSlugPorId) return;
+  const { data, error } = await supabase!.from('familias').select('id, slug');
   if (!error && data && data.length > 0) {
-    familiaIdPorSlug = {}
-    familiaSlugPorId = {}
+    familiaIdPorSlug = {};
+    familiaSlugPorId = {};
     for (const f of data as { id: string; slug: string }[]) {
-      familiaIdPorSlug[f.slug] = f.id
-      familiaSlugPorId[f.id] = f.slug
+      familiaIdPorSlug[f.slug] = f.id;
+      familiaSlugPorId[f.id] = f.slug;
     }
   }
 }
@@ -74,7 +82,7 @@ function mapProductoSupabase(raw: any, locale: Locale): Producto {
     nuevo: raw.nuevo,
     activo: raw.activo,
     orden: raw.orden,
-  }
+  };
 }
 
 /* ============================================================
@@ -82,76 +90,86 @@ function mapProductoSupabase(raw: any, locale: Locale): Producto {
    ============================================================ */
 
 export interface Familia {
-  id: string
-  slug: string
-  nombre: string
-  descripcion: string
-  icono?: string
-  orden: number
-  activo: boolean
+  id: string;
+  slug: string;
+  nombre: string;
+  descripcion: string;
+  icono?: string;
+  orden: number;
+  activo: boolean;
 }
 
 export interface Tipo {
-  id: string
-  familia_id: string
-  slug: string
-  nombre: string
-  orden: number
-  activo: boolean
+  id: string;
+  familia_id: string;
+  slug: string;
+  nombre: string;
+  orden: number;
+  activo: boolean;
 }
 
 export interface Producto {
-  id: string
-  slug: string
-  familia_id: string
-  familia_slug: string
-  tipo_id: string | null
-  nombre: string
-  descripcion_corta: string
-  descripcion_larga: string
-  especificaciones: unknown[]
-  imagen_principal: string
-  galeria: string[]
-  ficha_pdf: string | null
-  tipo_comercial: 'consumible' | 'equipo'
-  fulfillment_mode: 'dropship' | 'cotizacion' | 'individualizado'
-  precio: number | null
-  moneda: string
-  stock: number | null
+  id: string;
+  slug: string;
+  familia_id: string;
+  familia_slug: string;
+  tipo_id: string | null;
+  nombre: string;
+  descripcion_corta: string;
+  descripcion_larga: string;
+  especificaciones: unknown[];
+  imagen_principal: string;
+  galeria: string[];
+  ficha_pdf: string | null;
+  tipo_comercial: 'consumible' | 'equipo';
+  fulfillment_mode: 'dropship' | 'cotizacion' | 'individualizado';
+  precio: number | null;
+  moneda: string;
+  stock: number | null;
   // Escenario A: el proveedor flaguea disponibilidad en tiempo real.
   // false → fuera de carrito/checkout (independiente de `activo`/catálogo).
-  disponible: boolean
-  destacado: boolean
-  nuevo: boolean
-  activo: boolean
-  orden: number
+  disponible: boolean;
+  destacado: boolean;
+  nuevo: boolean;
+  activo: boolean;
+  orden: number;
 }
 
 export interface FiltrosProductos {
-  familia?: string
-  tipo?: string
-  destacado?: boolean
-  query?: string
-  page?: number
-  pageSize?: number
+  familia?: string;
+  tipo?: string;
+  destacado?: boolean;
+  query?: string;
+  page?: number;
+  pageSize?: number;
 }
 
 export interface CotizacionProducto {
-  slug: string
-  nombre: string
-  cantidad: number
+  slug: string;
+  nombre: string;
+  cantidad: number;
 }
 
 export interface CotizacionPayload {
-  nombre: string
-  apellido: string
-  email: string
-  telefono: string
-  institucion?: string
-  interes?: string
-  mensaje: string
-  consentimiento_datos: boolean
-  productos?: CotizacionProducto[]
+  nombre: string;
+  apellido: string;
+  email: string;
+  telefono: string;
+  institucion?: string;
+  interes?: string;
+  mensaje: string;
+  consentimiento_datos: boolean;
+  productos?: CotizacionProducto[];
+}
+
+export interface Articulo {
+  id: string;
+  slug: string;
+  titulo: string;
+  cuerpo: string;
+  publicado: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 /* ============================================================
@@ -167,7 +185,7 @@ function mapFamilia(raw: (typeof mockFamilias)[0], locale: Locale): Familia {
     icono: raw.icono,
     orden: raw.orden,
     activo: raw.activo,
-  }
+  };
 }
 
 function mapProducto(raw: (typeof mockProductos)[0], locale: Locale): Producto {
@@ -194,7 +212,7 @@ function mapProducto(raw: (typeof mockProductos)[0], locale: Locale): Producto {
     nuevo: raw.nuevo,
     activo: raw.activo,
     orden: raw.orden,
-  }
+  };
 }
 
 /* ============================================================
@@ -203,69 +221,69 @@ function mapProducto(raw: (typeof mockProductos)[0], locale: Locale): Producto {
 
 export async function getFamilias(locale: Locale): Promise<Familia[]> {
   if (debeUsarSupabase()) {
-    const supabase = getSupabaseClient()!
+    const supabase = getSupabaseClient()!;
     const { data, error } = await supabase
       .from('familias')
       .select('*')
       .eq('activo', true)
-      .order('orden')
+      .order('orden');
     if (error) {
-      registrarErrorSupabase('getFamilias', error)
+      registrarErrorSupabase('getFamilias', error);
     } else if (data && data.length > 0) {
-      return data.map((raw) => ({
+      return data.map(raw => ({
         id: raw.id as string,
         slug: raw.slug as string,
         nombre: (locale === 'en' ? raw.nombre_en : raw.nombre_es) as string,
         descripcion: (locale === 'en' ? raw.descripcion_en : raw.descripcion_es) as string,
         orden: raw.orden as number,
         activo: raw.activo as boolean,
-      }))
+      }));
     } else if (data) {
-      registrarVacioSupabase('getFamilias')
+      registrarVacioSupabase('getFamilias');
     }
   }
-  return mockFamilias.filter((f) => f.activo).map((f) => mapFamilia(f, locale))
+  return mockFamilias.filter(f => f.activo).map(f => mapFamilia(f, locale));
 }
 
 export async function getTipos(familiaSlug: string, locale: Locale): Promise<Tipo[]> {
   if (debeUsarSupabase()) {
-    const supabase = getSupabaseClient()!
+    const supabase = getSupabaseClient()!;
     const { data: familiaData, error: familiaError } = await supabase
       .from('familias')
       .select('id')
       .eq('slug', familiaSlug)
-      .maybeSingle()
-    if (familiaError) registrarErrorSupabase('getTipos/familia', familiaError)
+      .maybeSingle();
+    if (familiaError) registrarErrorSupabase('getTipos/familia', familiaError);
     if (familiaData) {
       const { data, error } = await supabase
         .from('tipos')
         .select('*')
         .eq('familia_id', familiaData.id)
         .eq('activo', true)
-        .order('orden')
+        .order('orden');
       if (!error && data && data.length > 0) {
-        return data.map((raw) => ({
+        return data.map(raw => ({
           id: raw.id as string,
           familia_id: raw.familia_id as string,
           slug: raw.slug as string,
           nombre: (locale === 'en' ? raw.nombre_en : raw.nombre_es) as string,
           orden: raw.orden as number,
           activo: raw.activo as boolean,
-        }))
+        }));
       }
-      if (error) registrarErrorSupabase('getTipos', error)
+      if (error) registrarErrorSupabase('getTipos', error);
     }
   }
   return mockTipos
-    .filter((t) => {
-      const familiaObj = mockFamilias.find((f) => f.slug === familiaSlug)
+    .filter(t => {
+      const familiaObj = mockFamilias.find(f => f.slug === familiaSlug);
       return (
         familiaObj &&
         (t as { familia_id: string }).familia_id === familiaObj.id &&
         (t as { activo: boolean }).activo
-      )
+      );
     })
-    .map((t) => ({
+    .map(t => ({
       id: (t as { id: string }).id,
       familia_id: (t as { familia_id: string }).familia_id,
       slug: (t as { slug: string }).slug,
@@ -275,98 +293,180 @@ export async function getTipos(familiaSlug: string, locale: Locale): Promise<Tip
           : (t as { nombre_es?: string }).nombre_es) ?? '',
       orden: (t as { orden: number }).orden,
       activo: (t as { activo: boolean }).activo,
-    }))
+    }));
 }
 
 export async function getProductos(filtros: FiltrosProductos, locale: Locale): Promise<Producto[]> {
-  const { familia, tipo, destacado, query, page = 1, pageSize = 24 } = filtros
+  const { familia, tipo, destacado, query, page = 1, pageSize = 24 } = filtros;
 
   if (debeUsarSupabase()) {
-    const supabase = getSupabaseClient()!
-    await cargarMapaFamilias(supabase)
-    let req = supabase.from('productos').select('*').eq('activo', true)
+    const supabase = getSupabaseClient()!;
+    await cargarMapaFamilias(supabase);
+    let req = supabase.from('productos').select('*').eq('activo', true);
     if (familia) {
-      const familiaId = familiaIdPorSlug?.[familia]
+      const familiaId = familiaIdPorSlug?.[familia];
       // Familia sin equivalente en Supabase: no hay filas que coincidan.
-      req = req.eq('familia_id', familiaId ?? '00000000-0000-0000-0000-000000000000')
+      req = req.eq('familia_id', familiaId ?? '00000000-0000-0000-0000-000000000000');
     }
-    if (destacado !== undefined) req = req.eq('destacado', destacado)
-    req = req.order('orden').range((page - 1) * pageSize, page * pageSize - 1)
-    const { data, error } = await req
+    if (destacado !== undefined) req = req.eq('destacado', destacado);
+    req = req.order('orden').range((page - 1) * pageSize, page * pageSize - 1);
+    const { data, error } = await req;
     if (!error && data && data.length > 0) {
-      return data.map((raw) => mapProductoSupabase(raw, locale))
+      return data.map(raw => mapProductoSupabase(raw, locale));
     }
-    if (error) registrarErrorSupabase('getProductos', error)
-    else if (data && !familia) registrarVacioSupabase('getProductos')
+    if (error) registrarErrorSupabase('getProductos', error);
+    else if (data && !familia) registrarVacioSupabase('getProductos');
   }
 
-  let lista = mockProductos.filter((p) => p.activo)
-  if (familia) lista = lista.filter((p) => p.familia_slug === familia)
-  if (tipo) lista = lista.filter((p) => p.tipo_id === tipo)
-  if (destacado !== undefined) lista = lista.filter((p) => p.destacado === destacado)
+  let lista = mockProductos.filter(p => p.activo);
+  if (familia) lista = lista.filter(p => p.familia_slug === familia);
+  if (tipo) lista = lista.filter(p => p.tipo_id === tipo);
+  if (destacado !== undefined) lista = lista.filter(p => p.destacado === destacado);
   if (query) {
-    const q = query.toLowerCase()
+    const q = query.toLowerCase();
     lista = lista.filter(
-      (p) =>
-        p.nombre_es.toLowerCase().includes(q) || p.descripcion_corta_es.toLowerCase().includes(q)
-    )
+      p => p.nombre_es.toLowerCase().includes(q) || p.descripcion_corta_es.toLowerCase().includes(q)
+    );
   }
-  const start = (page - 1) * pageSize
-  return lista.slice(start, start + pageSize).map((p) => mapProducto(p, locale))
+  const start = (page - 1) * pageSize;
+  return lista.slice(start, start + pageSize).map(p => mapProducto(p, locale));
 }
 
 export async function getProductoBySlug(slug: string, locale: Locale): Promise<Producto | null> {
   if (debeUsarSupabase()) {
-    const supabase = getSupabaseClient()!
-    await cargarMapaFamilias(supabase)
+    const supabase = getSupabaseClient()!;
+    await cargarMapaFamilias(supabase);
     const { data, error } = await supabase
       .from('productos')
       .select('*')
       .eq('slug', slug)
       .eq('activo', true)
-      .maybeSingle()
+      .maybeSingle();
     if (!error && data) {
-      return mapProductoSupabase(data, locale)
+      return mapProductoSupabase(data, locale);
     }
-    if (error) registrarErrorSupabase('getProductoBySlug', error)
+    if (error) registrarErrorSupabase('getProductoBySlug', error);
   }
-  const found = mockProductos.find((p) => p.slug === slug && p.activo)
-  return found ? mapProducto(found, locale) : null
+  const found = mockProductos.find(p => p.slug === slug && p.activo);
+  return found ? mapProducto(found, locale) : null;
 }
 
 export async function getProductosDestacados(locale: Locale): Promise<Producto[]> {
-  return getProductos({ destacado: true, pageSize: 12 }, locale)
+  return getProductos({ destacado: true, pageSize: 12 }, locale);
 }
 
 export async function getProductosBySlugs(slugs: string[], locale: Locale): Promise<Producto[]> {
   if (debeUsarSupabase()) {
-    const supabase = getSupabaseClient()!
-    await cargarMapaFamilias(supabase)
+    const supabase = getSupabaseClient()!;
+    await cargarMapaFamilias(supabase);
     const { data, error } = await supabase
       .from('productos')
       .select('*')
       .in('slug', slugs)
-      .eq('activo', true)
+      .eq('activo', true);
     if (!error && data && data.length > 0) {
-      return data.map((raw) => mapProductoSupabase(raw, locale))
+      return data.map(raw => mapProductoSupabase(raw, locale));
     }
-    if (error) registrarErrorSupabase('getProductosBySlugs', error)
-    else if (data) registrarVacioSupabase('getProductosBySlugs')
+    if (error) registrarErrorSupabase('getProductosBySlugs', error);
+    else if (data) registrarVacioSupabase('getProductosBySlugs');
   }
   return mockProductos
-    .filter((p) => slugs.includes(p.slug) && p.activo)
-    .map((p) => mapProducto(p, locale))
+    .filter(p => slugs.includes(p.slug) && p.activo)
+    .map(p => mapProducto(p, locale));
 }
 
 export async function buscarProductos(query: string, locale: Locale): Promise<Producto[]> {
-  return getProductos({ query, pageSize: 20 }, locale)
+  return getProductos({ query, pageSize: 20 }, locale);
+}
+
+export async function getArticulos(locale: Locale): Promise<Articulo[]> {
+  if (debeUsarSupabase()) {
+    const supabase = getSupabaseClient()!;
+    const { data, error } = await supabase
+      .from('articulos')
+      .select('*')
+      .eq('publicado', true)
+      .order('created_at', { ascending: false });
+    if (error) {
+      registrarErrorSupabase('getArticulos', error);
+    } else if (data) {
+      return (data as RawRow[]).map(raw => ({
+        id: stringValue(raw.id),
+        slug: stringValue(raw.slug),
+        titulo:
+          locale === 'en'
+            ? stringValue(raw.titulo_en) || stringValue(raw.titulo_es)
+            : stringValue(raw.titulo_es),
+        cuerpo:
+          locale === 'en'
+            ? stringValue(raw.cuerpo_en) || stringValue(raw.cuerpo_es)
+            : stringValue(raw.cuerpo_es),
+        publicado: Boolean(raw.publicado),
+        created_at: stringValue(raw.created_at),
+        updated_at: stringValue(raw.updated_at),
+      }));
+    }
+  }
+  return mockArticulos
+    .filter(articulo => articulo.publicado)
+    .map(articulo => ({
+      id: articulo.id,
+      slug: articulo.slug,
+      titulo: locale === 'en' ? articulo.titulo_en || articulo.titulo_es : articulo.titulo_es,
+      cuerpo: locale === 'en' ? articulo.cuerpo_en || articulo.cuerpo_es : articulo.cuerpo_es,
+      publicado: articulo.publicado,
+      created_at: articulo.created_at,
+      updated_at: articulo.updated_at,
+    }));
+}
+
+export async function getArticuloBySlug(slug: string, locale: Locale): Promise<Articulo | null> {
+  if (debeUsarSupabase()) {
+    const supabase = getSupabaseClient()!;
+    const { data, error } = await supabase
+      .from('articulos')
+      .select('*')
+      .eq('slug', slug)
+      .eq('publicado', true)
+      .maybeSingle();
+    if (error) {
+      registrarErrorSupabase('getArticuloBySlug', error);
+    } else if (data) {
+      return {
+        id: stringValue(data.id),
+        slug: stringValue(data.slug),
+        titulo:
+          locale === 'en'
+            ? stringValue(data.titulo_en) || stringValue(data.titulo_es)
+            : stringValue(data.titulo_es),
+        cuerpo:
+          locale === 'en'
+            ? stringValue(data.cuerpo_en) || stringValue(data.cuerpo_es)
+            : stringValue(data.cuerpo_es),
+        publicado: Boolean(data.publicado),
+        created_at: stringValue(data.created_at),
+        updated_at: stringValue(data.updated_at),
+      };
+    }
+  }
+  const found = mockArticulos.find(articulo => articulo.slug === slug && articulo.publicado);
+  if (!found) return null;
+  return {
+    id: found.id,
+    slug: found.slug,
+    titulo: locale === 'en' ? found.titulo_en || found.titulo_es : found.titulo_es,
+    cuerpo: locale === 'en' ? found.cuerpo_en || found.cuerpo_es : found.cuerpo_es,
+    publicado: found.publicado,
+    created_at: found.created_at,
+    updated_at: found.updated_at,
+  };
 }
 
 export async function submitCotizacion(
   datos: CotizacionPayload
 ): Promise<{ ok: boolean; error?: string }> {
   if (isSupabaseConfigured()) {
-    const supabase = getSupabaseClient()!
+    const supabase = getSupabaseClient()!;
     const { error } = await supabase.from('solicitudes_cotizacion').insert({
       nombre: datos.nombre,
       empresa: datos.institucion ?? '',
@@ -377,11 +477,11 @@ export async function submitCotizacion(
       consentimiento_datos: datos.consentimiento_datos,
       consentimiento_timestamp: new Date().toISOString(),
       leida: false,
-    })
-    if (error) return { ok: false, error: error.message }
-    return { ok: true }
+    });
+    if (error) return { ok: false, error: error.message };
+    return { ok: true };
   }
   // Mock: siempre OK en desarrollo sin Supabase
-  console.warn('[datos] submitCotizacion mock (sin Supabase):', datos.email)
-  return { ok: true }
+  console.warn('[datos] submitCotizacion mock (sin Supabase):', datos.email);
+  return { ok: true };
 }

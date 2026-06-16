@@ -5,10 +5,10 @@
     "moduleResolution": "bundler",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "strict": true,
-    "noUncheckedIndexedAccess": false,
+    "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
     "noImplicitOverride": true,
-    "noPropertyAccessFromIndexSignature": false,
+    "noPropertyAccessFromIndexSignature": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
@@ -20,16 +20,9 @@
     "composite": false,
     "baseUrl": ".",
     "paths": {
-      "@ime/shared/*": ["packages/shared/src/*"],
-      "@ime/config/*": ["packages/config/*"]
+      "@ime/shared/*": ["../shared/src/*"],
+      "@ime/config/*": ["./*"]
     }
   },
-  "include": [".astro/types.d.ts", "**/*", "packages/shared/src/**/*"],
-  "exclude": [
-    "dist",
-    "node_modules",
-    "supabase/functions",
-    "packages/*/node_modules",
-    "packages/*/dist"
-  ]
+  "exclude": ["node_modules", "dist", ".astro"]
 }

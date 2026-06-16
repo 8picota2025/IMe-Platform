@@ -28,6 +28,9 @@ jobs:
       - name: Type check
         run: npm run check
 
+      - name: Test
+        run: npm run test
+
       - name: Security grep — no secrets in src/
         run: |
           echo "Checking for exposed secrets..."

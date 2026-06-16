@@ -3,7 +3,7 @@
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "lib": ["ES2022"],
     "strict": true,
     "noUncheckedIndexedAccess": false,
     "exactOptionalPropertyTypes": true,
@@ -17,19 +17,10 @@
     "verbatimModuleSyntax": true,
     "declaration": true,
     "declarationMap": true,
-    "composite": false,
-    "baseUrl": ".",
-    "paths": {
-      "@ime/shared/*": ["packages/shared/src/*"],
-      "@ime/config/*": ["packages/config/*"]
-    }
+    "composite": true,
+    "rootDir": "src",
+    "outDir": "dist"
   },
-  "include": [".astro/types.d.ts", "**/*", "packages/shared/src/**/*"],
-  "exclude": [
-    "dist",
-    "node_modules",
-    "supabase/functions",
-    "packages/*/node_modules",
-    "packages/*/dist"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

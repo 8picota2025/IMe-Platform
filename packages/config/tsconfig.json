@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "rootDir": ".",
+    "outDir": "dist"
+  },
+  "include": ["*.json", "*.mjs"],
+  "exclude": ["node_modules", "dist"]
+}

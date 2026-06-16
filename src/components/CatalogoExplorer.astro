@@ -6,25 +6,25 @@
  * y sincronización de estado vía query params. Progressive enhancement:
  * todo el contenido está en el HTML; el script solo filtra/oculta.
  */
-import { t, type Locale } from '../i18n/utils'
-import { getFamilias } from '../lib/datos'
-import { buildCatalogoIndex } from '../lib/catalogo'
-import ProductoCard from './ProductoCard.astro'
+import { t, type Locale } from '../i18n/utils';
+import { getFamilias } from '../lib/datos';
+import { buildCatalogoIndex } from '../lib/catalogo';
+import ProductoCard from './ProductoCard.astro';
 
 interface Props {
-  locale: Locale
+  locale: Locale;
 }
 
-const { locale } = Astro.props
+const { locale } = Astro.props;
 
-const familias = await getFamilias(locale)
-const items = await buildCatalogoIndex(locale)
+const familias = await getFamilias(locale);
+const items = await buildCatalogoIndex(locale);
 
 const tiposComerciales = [
-  ...new Set(items.map((item) => item.tipo_comercial).filter(Boolean)),
-].sort()
-const hayDestacados = items.some((item) => item.destacado)
-const hayNuevos = items.some((item) => item.nuevo)
+  ...new Set(items.map(item => item.tipo_comercial).filter(Boolean)),
+].sort();
+const hayDestacados = items.some(item => item.destacado);
+const hayNuevos = items.some(item => item.nuevo);
 ---
 
 <div id="catalogo-root" class="catalogo">
@@ -62,7 +62,7 @@ const hayNuevos = items.some((item) => item.nuevo)
     </div>
     <ul class="categorias__grid" role="list">
       {
-        familias.map((familia) => (
+        familias.map(familia => (
           <li>
             <a
               href={`?familia=${familia.slug}`}
@@ -123,7 +123,7 @@ const hayNuevos = items.some((item) => item.nuevo)
             {t(locale, 'catalogo.todas_familias')}
           </button>
           {
-            familias.map((familia) => (
+            familias.map(familia => (
               <button
                 type="button"
                 class="catalogo-filtros__familia"
@@ -143,7 +143,7 @@ const hayNuevos = items.some((item) => item.nuevo)
               {t(locale, 'catalogo.filtro_comercial')}
             </legend>
             <div id="catalogo-comercial">
-              {tiposComerciales.map((tipo) => (
+              {tiposComerciales.map(tipo => (
                 <label class="catalogo-filtros__opcion">
                   <input type="checkbox" data-filtro-comercial={tipo} />
                   {tipo === 'consumible'
@@ -201,7 +201,7 @@ const hayNuevos = items.some((item) => item.nuevo)
       </div>
 
       <ul id="vista-productos" class="productos__grid" role="list" hidden>
-        {items.map((item) => <ProductoCard producto={item} locale={locale} comparable />)}
+        {items.map(item => <ProductoCard producto={item} locale={locale} comparable />)}
       </ul>
 
       <div id="catalogo-sin-resultados" class="catalogo__sin-resultados" hidden>
@@ -698,26 +698,27 @@ const hayNuevos = items.some((item) => item.nuevo)
 </style>
 
 <script>
-  import { initCatalogo } from '../lib/catalogo-cliente'
+  import { initCatalogo } from '../lib/catalogo-cliente';
 
-  document.addEventListener('astro:page-load', () => {
-    const locale = document.documentElement.lang === 'en' ? 'en' : 'es'
+  const locale = document.documentElement.lang === 'en' ? 'en' : 'es';
+  const catalogoWindow = window as Window & { __imeCatalogoCleanup?: (() => void) | null };
 
-    // Captura el deep-link de categoría (?cat=slug) ANTES de inicializar el
-    // catálogo, ya que initCatalogo puede limpiar la query de la URL.
-    const cat = new URLSearchParams(window.location.search).get('cat')
+  catalogoWindow.__imeCatalogoCleanup?.();
 
-    initCatalogo(locale)
+  // Captura el deep-link de categoría (?cat=slug) antes de inicializar el
+  // catálogo, ya que initCatalogo puede limpiar la query de la URL.
+  const cat = new URLSearchParams(window.location.search).get('cat');
 
-    // Replica el comportamiento de las cat-card de producción: abre el catálogo
-    // ya filtrado por familia activando el botón de filtro correspondiente.
-    if (cat) {
-      requestAnimationFrame(() => {
-        const btn = document.querySelector<HTMLButtonElement>(
-          `[data-familia-filter="${CSS.escape(cat)}"]`
-        )
-        if (btn) btn.click()
-      })
-    }
-  })
+  catalogoWindow.__imeCatalogoCleanup = initCatalogo(locale);
+
+  // Replica el comportamiento de las cat-card de producción: abre el catálogo
+  // ya filtrado por familia activando el botón de filtro correspondiente.
+  if (cat) {
+    requestAnimationFrame(() => {
+      const btn = document.querySelector<HTMLButtonElement>(
+        `[data-familia-filter="${CSS.escape(cat)}"]`
+      );
+      if (btn) btn.click();
+    });
+  }
 </script>

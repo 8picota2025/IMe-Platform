@@ -95,6 +95,19 @@
     "calcular": "Calcular",
     "moneda_cop": "COP"
   },
+  "conocimiento": {
+    "titulo": "Conocimiento",
+    "descripcion": "Artículos, guías y notas editoriales del equipo I-ME para apoyar decisiones de compra y uso responsable de tecnología biomédica.",
+    "proximamente": "Centro editorial",
+    "cta_contacto": "Hablar con un asesor",
+    "vacio": "Aún no hay artículos publicados.",
+    "listado_titulo": "Artículos publicados",
+    "leer_mas": "Leer artículo",
+    "publicado": "Publicado",
+    "actualizado": "Actualizado",
+    "volver": "Volver al conocimiento",
+    "ninguno": "No hay contenido publicado todavía."
+  },
   "contacto": {
     "titulo": "Contacto",
     "nombre": "Nombre",

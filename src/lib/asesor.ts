@@ -5,72 +5,72 @@
  * recuperados del catálogo y solo afirma datos reales.
  */
 
-import { getSupabaseClient } from './supabase'
-import type { Locale } from '../i18n/utils'
+import { getSupabaseClient } from './supabase';
+import type { Locale } from '../i18n/utils';
 
 export interface MensajeAsesor {
-  rol: 'usuario' | 'asesor'
-  contenido: string
-  timestamp: Date
+  rol: 'usuario' | 'asesor';
+  contenido: string;
+  timestamp: Date;
 }
 
-export type ModoAsesor = 'rag' | 'keyword_degradado' | 'sin_resultados'
-export type TipoHandoff = 'whatsapp' | 'cotizacion'
+export type ModoAsesor = 'rag' | 'keyword_degradado' | 'sin_resultados';
+export type TipoHandoff = 'whatsapp' | 'cotizacion';
 
 export interface ProductoSugerido {
-  slug: string
-  nombre: string
-  imagen: string | null
-  urlLanding: string
-  score: number
+  slug: string;
+  nombre: string;
+  imagen: string | null;
+  urlLanding: string;
+  score: number;
 }
 
 export interface AccionHandoff {
-  tipo: TipoHandoff
-  resumen: string
+  tipo: TipoHandoff;
+  resumen: string;
 }
 
 export interface RespuestaAsesor {
-  texto: string
-  productos: ProductoSugerido[]
-  accionHandoff: AccionHandoff | null
-  modo: ModoAsesor
+  texto: string;
+  productos: ProductoSugerido[];
+  accionHandoff: AccionHandoff | null;
+  modo: ModoAsesor;
 }
 
 export type ErrorAsesor =
   | { tipo: 'rate_limited'; retryAfterSegundos: number | null }
   | { tipo: 'no_disponible' }
-  | { tipo: 'error' }
+  | { tipo: 'error' };
 
 export type ResultadoAsesor =
   | { ok: true; respuesta: RespuestaAsesor }
-  | { ok: false; error: ErrorAsesor }
+  | { ok: false; error: ErrorAsesor };
 
 interface AsesorApiResponse {
-  texto: string
+  texto: string;
   productos: Array<{
-    slug: string
-    nombre: string
-    imagen: string | null
-    url_landing: string
-    score: number
-  }>
-  accion_handoff: { tipo: TipoHandoff; resumen: string } | null
-  modo: ModoAsesor
+    slug: string;
+    nombre: string;
+    imagen: string | null;
+    url_landing: string;
+    score: number;
+  }>;
+  accion_handoff: { tipo: TipoHandoff; resumen: string } | null;
+  modo: ModoAsesor;
 }
 
-const SESSION_STORAGE_KEY = 'ime_asesor_session'
+const SESSION_STORAGE_KEY = 'ime_asesor_session';
 
 /** Identificador de sesión persistido en localStorage, usado para rate-limit y métricas. */
 export function getSessionId(): string {
   try {
-    const existente = localStorage.getItem(SESSION_STORAGE_KEY)
-    if (existente) return existente
-    const nuevo = crypto.randomUUID()
-    localStorage.setItem(SESSION_STORAGE_KEY, nuevo)
-    return nuevo
+    const existente = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (existente) return existente;
+    const nuevo = crypto.randomUUID();
+    localStorage.setItem(SESSION_STORAGE_KEY, nuevo);
+    return nuevo;
   } catch {
-    return crypto.randomUUID()
+    return crypto.randomUUID();
   }
 }
 
@@ -79,15 +79,15 @@ export function getSessionId(): string {
  * (rate-limit, no disponible, error genérico) para que la UI elija el estado adecuado.
  */
 export async function preguntarAsesor(params: {
-  mensaje: string
-  historial: MensajeAsesor[]
-  locale: Locale
-  turnstileToken?: string | undefined
+  mensaje: string;
+  historial: MensajeAsesor[];
+  locale: Locale;
+  turnstileToken?: string | undefined;
 }): Promise<ResultadoAsesor> {
-  const supabase = getSupabaseClient()
-  if (!supabase) return { ok: false, error: { tipo: 'no_disponible' } }
+  const supabase = getSupabaseClient();
+  if (!supabase) return { ok: false, error: { tipo: 'no_disponible' } };
 
-  const historial = params.historial.slice(-8).map((m) => ({ rol: m.rol, contenido: m.contenido }))
+  const historial = params.historial.slice(-8).map(m => ({ rol: m.rol, contenido: m.contenido }));
 
   const { data, error } = await supabase.functions.invoke('asesor', {
     body: {
@@ -97,34 +97,34 @@ export async function preguntarAsesor(params: {
       turnstileToken: params.turnstileToken,
       sessionId: getSessionId(),
     },
-  })
+  });
 
   if (error) {
-    const context = (error as { context?: unknown }).context
+    const context = (error as { context?: unknown }).context;
     if (context instanceof Response) {
       if (context.status === 429) {
-        const retryAfter = context.headers.get('Retry-After')
+        const retryAfter = context.headers.get('Retry-After');
         return {
           ok: false,
           error: {
             tipo: 'rate_limited',
             retryAfterSegundos: retryAfter ? Number(retryAfter) : null,
           },
-        }
+        };
       }
-      if (context.status === 503) return { ok: false, error: { tipo: 'no_disponible' } }
+      if (context.status === 503) return { ok: false, error: { tipo: 'no_disponible' } };
     }
-    return { ok: false, error: { tipo: 'error' } }
+    return { ok: false, error: { tipo: 'error' } };
   }
 
-  if (!data) return { ok: false, error: { tipo: 'error' } }
-  const json = data as AsesorApiResponse
+  if (!data) return { ok: false, error: { tipo: 'error' } };
+  const json = data as AsesorApiResponse;
 
   return {
     ok: true,
     respuesta: {
       texto: json.texto,
-      productos: (json.productos ?? []).map((p) => ({
+      productos: (json.productos ?? []).map(p => ({
         slug: p.slug,
         nombre: p.nombre,
         imagen: p.imagen,
@@ -134,5 +134,29 @@ export async function preguntarAsesor(params: {
       accionHandoff: json.accion_handoff,
       modo: json.modo,
     },
+  };
+}
+
+export function resetHistorial(): void {
+  try {
+    localStorage.removeItem(SESSION_STORAGE_KEY);
+  } catch {
+    // ignore
   }
+}
+
+export function obtenerHistorial(): MensajeAsesor[] {
+  // This is a stub - the actual historial is managed in the component
+  return [];
+}
+
+export interface AsesorModule {
+  preguntarAsesor: (params: {
+    mensaje: string;
+    historial: MensajeAsesor[];
+    locale: Locale;
+    turnstileToken?: string;
+  }) => Promise<ResultadoAsesor>;
+  resetHistorial: () => void;
+  obtenerHistorial: () => MensajeAsesor[];
 }

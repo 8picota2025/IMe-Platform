@@ -3,20 +3,20 @@
  * BaseHead — metadatos SEO, hreflang, OG, JSON-LD.
  * Solo datos reales. Ver lib/seo.ts.
  */
-import { getAlternateLinks } from '../i18n/utils'
-import type { Locale } from '../i18n/utils'
-import '../styles/globals.css'
+import { getAlternateLinks } from '../i18n/utils';
+import type { Locale } from '../i18n/utils';
+import '../styles/globals.css';
 
 interface Props {
-  title: string
-  description: string
-  canonical: string
-  locale: Locale
-  ogImage?: string
-  jsonLd?: string
-  currentPath: string
-  noindex?: boolean
-  fontAwesome?: boolean
+  title: string;
+  description: string;
+  canonical: string;
+  locale: Locale;
+  ogImage?: string;
+  jsonLd?: string;
+  currentPath: string;
+  noindex?: boolean;
+  fontAwesome?: boolean;
 }
 
 const {
@@ -29,9 +29,9 @@ const {
   currentPath,
   noindex,
   fontAwesome,
-} = Astro.props
-const alternates = getAlternateLinks(currentPath)
-const ogImageUrl = ogImage ?? 'https://i-me.com.co/assets/extraccion/img/Img11.jpg'
+} = Astro.props;
+const alternates = getAlternateLinks(currentPath);
+const ogImageUrl = ogImage ?? 'https://i-me.com.co/assets/extraccion/img/Img11.jpg';
 ---
 
 <meta charset="UTF-8" />
@@ -45,7 +45,7 @@ const ogImageUrl = ogImage ?? 'https://i-me.com.co/assets/extraccion/img/Img11.j
 {noindex && <meta name="robots" content="noindex, nofollow" />}
 
 <!-- hreflang -->
-{alternates.map((alt) => <link rel="alternate" hreflang={alt.hreflang} href={alt.href} />)}
+{alternates.map(alt => <link rel="alternate" hreflang={alt.hreflang} href={alt.href} />)}
 
 <!-- Font Awesome 6.5.1 — iconos fieles al sitio en producción (solo páginas que lo solicitan) -->
 {
@@ -83,18 +83,18 @@ const ogImageUrl = ogImage ?? 'https://i-me.com.co/assets/extraccion/img/Img11.j
 <link rel="icon" type="image/png" href="/favicon.ico" />
 
 <!-- JSON-LD -->
-{jsonLd && <script type="application/ld+json" set:html={jsonLd} />}
+{jsonLd && <script is:inline type="application/ld+json" set:html={jsonLd} />}
 
 <!-- Anti-FOUC: detecta tema guardado antes de pintar -->
 <script is:inline>
-  ;(function () {
+  (function () {
     try {
-      const t = localStorage.getItem('ime-theme')
+      const t = localStorage.getItem('ime-theme');
       if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.setAttribute('data-theme', 'dark')
+        document.documentElement.setAttribute('data-theme', 'dark');
       }
     } catch {
       // ignore localStorage errors
     }
-  })()
+  })();
 </script>

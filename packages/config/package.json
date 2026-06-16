@@ -1,0 +1,24 @@
+{
+  "name": "@ime/config",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./index.ts",
+  "exports": {
+    "./eslint": "./eslint.config.mjs",
+    "./tsconfig": "./tsconfig.base.json",
+    "./prettier": "./prettier.config.mjs"
+  },
+  "scripts": {
+    "lint": "echo 'No lint needed for config package'"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.4.1",
+    "eslint-plugin-astro": "^1.7.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.61.0",
+    "prettier": "^3.8.3",
+    "prettier-plugin-astro": "^0.14.1"
+  }
+}

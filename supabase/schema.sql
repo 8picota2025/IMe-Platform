@@ -306,7 +306,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
   mercado                  TEXT NOT NULL DEFAULT 'CO'
                            CHECK (mercado IN ('CO', 'INTL')),
   proveedor_pago           TEXT NOT NULL
-                           CHECK (proveedor_pago IN ('wompi', 'stripe')),
+                           CHECK (proveedor_pago IN ('bold', 'stripe', 'wompi')),
   -- valores: pendiente|pagado|rechazado|expirado|cancelado|reembolsado|error_verificacion
   --          |procesando|enviado|entregado|retrasado
   -- (retrasado = rotura de stock post-pago, Escenario A; corresponde al ENUM
@@ -333,6 +333,10 @@ ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS envio_total NUMERIC NOT NULL DEFAUL
 ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS cupon_codigo TEXT;
 ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS direccion_facturacion JSONB;
 ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS direccion_envio JSONB;
+ALTER TABLE pedidos DROP CONSTRAINT IF EXISTS pedidos_proveedor_pago_check;
+ALTER TABLE pedidos
+  ADD CONSTRAINT pedidos_proveedor_pago_check
+  CHECK (proveedor_pago IN ('bold', 'stripe', 'wompi'));
 
 DROP TRIGGER IF EXISTS set_pedidos_updated_at ON pedidos;
 CREATE TRIGGER set_pedidos_updated_at
@@ -345,7 +349,7 @@ CREATE TRIGGER set_pedidos_updated_at
 -- (proveedor_pago, event_id). No se renombra.
 CREATE TABLE IF NOT EXISTS eventos_pago (
   id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  proveedor_pago      TEXT NOT NULL CHECK (proveedor_pago IN ('wompi', 'stripe')),
+  proveedor_pago      TEXT NOT NULL CHECK (proveedor_pago IN ('bold', 'stripe', 'wompi')),
   event_id            TEXT NOT NULL,
   referencia_pasarela TEXT,
   payload             JSONB NOT NULL,
@@ -353,6 +357,10 @@ CREATE TABLE IF NOT EXISTS eventos_pago (
   created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   UNIQUE(proveedor_pago, event_id)
 );
+ALTER TABLE eventos_pago DROP CONSTRAINT IF EXISTS eventos_pago_proveedor_pago_check;
+ALTER TABLE eventos_pago
+  ADD CONSTRAINT eventos_pago_proveedor_pago_check
+  CHECK (proveedor_pago IN ('bold', 'stripe', 'wompi'));
 
 -- ── 6b. cupones y uso ───────────────────────────────────────
 CREATE TABLE IF NOT EXISTS cupones (
@@ -449,6 +457,97 @@ DROP TRIGGER IF EXISTS set_articulos_updated_at ON articulos;
 CREATE TRIGGER set_articulos_updated_at
   BEFORE UPDATE ON articulos
   FOR EACH ROW EXECUTE FUNCTION trigger_set_updated_at();
+
+INSERT INTO articulos (slug, titulo_es, titulo_en, cuerpo_es, cuerpo_en, publicado, created_at, updated_at)
+VALUES
+  (
+    'como-elegir-un-monitor-biomedico',
+    'Cómo elegir un monitor biomédico sin perder trazabilidad',
+    'How to choose a biomedical monitor without losing traceability',
+    '# Punto de partida
+
+Antes de comparar especificaciones, define el contexto de uso: sala, UCI, transporte o quirófano.
+
+- Verifica compatibilidad con la instalación clínica.
+- Revisa servicio técnico y disponibilidad de consumibles.
+- Documenta la decisión comercial y clínica.
+
+> Una compra clara empieza por un caso de uso claro.
+
+## Siguiente paso
+
+Si necesitas apoyo, el equipo de I-ME puede ayudarte a estructurar el requerimiento.',
+    '# Starting point
+
+Before comparing specifications, define the operating context: ward, ICU, transport, or OR.
+
+- Check compatibility with the clinical installation.
+- Review technical support and consumables availability.
+- Document the commercial and clinical decision.
+
+> A clear purchase starts with a clear use case.
+
+## Next step
+
+If you need help, the I-ME team can help structure the requirement.',
+    true,
+    NOW(),
+    NOW()
+  ),
+  (
+    'rutina-basica-de-mantenimiento-preventivo',
+    'Rutina básica de mantenimiento preventivo',
+    'Basic preventive maintenance routine',
+    '## Checklist operativo
+
+1. Inspecciona el equipo antes de cada turno.
+2. Registra alertas, fallas y consumibles.
+3. Programa calibración y revisión técnica periódica.
+
+Mantener una rutina simple evita paradas innecesarias.',
+    '## Operational checklist
+
+1. Inspect the device before each shift.
+2. Record alerts, failures, and consumables.
+3. Schedule calibration and periodic technical review.
+
+Keeping a simple routine helps avoid unnecessary downtime.',
+    true,
+    NOW(),
+    NOW()
+  ),
+  (
+    'como-preparar-una-solicitud-de-cotizacion',
+    'Cómo preparar una solicitud de cotización más precisa',
+    'How to prepare a more accurate quote request',
+    '### Incluye siempre
+
+- Necesidad clínica concreta.
+- Cantidad estimada.
+- Condiciones de instalación.
+- Restricciones de presupuesto o plazo.
+
+Cuanto más clara sea la solicitud, mejor será la comparación entre alternativas.',
+    '### Always include
+
+- A concrete clinical need.
+- Estimated quantity.
+- Installation conditions.
+- Budget or timeline constraints.
+
+The clearer the request, the better the comparison between alternatives.',
+    true,
+    NOW(),
+    NOW()
+  )
+ON CONFLICT (slug) DO UPDATE
+SET
+  titulo_es = EXCLUDED.titulo_es,
+  titulo_en = EXCLUDED.titulo_en,
+  cuerpo_es = EXCLUDED.cuerpo_es,
+  cuerpo_en = EXCLUDED.cuerpo_en,
+  publicado = EXCLUDED.publicado,
+  updated_at = NOW();
 
 -- ── 8. llm_uso, asesor_uso, asesor_rate_limit (Fase Asesor) ──
 CREATE TABLE IF NOT EXISTS llm_uso (

@@ -1,16 +1,46 @@
 ---
-/**
- * Conocimiento ES — stub visual (BACKLOG_V2: centro de contenido/artículos).
- * No se inventan artículos ni recursos — solo aviso "próximamente".
- */
-import Layout from '../../layouts/Layout.astro'
-import { buildPageTitle, buildCanonical } from '../../lib/seo'
-import { t } from '../../i18n/utils'
+import Layout from '../../layouts/Layout.astro';
+import {
+  buildPageTitle,
+  buildCanonical,
+  buildOrganizationJsonLd,
+  buildBreadcrumbJsonLd,
+  combineJsonLd,
+} from '../../lib/seo';
+import { getArticulos } from '../../lib/datos';
+import { stripMarkdown } from '../../lib/markdown';
+import { t } from '../../i18n/utils';
 
-const locale = 'es'
-const title = buildPageTitle(t(locale, 'conocimiento.titulo'))
-const description = t(locale, 'conocimiento.descripcion')
-const canonical = buildCanonical('/es/conocimiento')
+const locale = 'es';
+const title = buildPageTitle(t(locale, 'conocimiento.titulo'));
+const description = t(locale, 'conocimiento.descripcion');
+const canonical = buildCanonical('/es/conocimiento');
+const articulos = await getArticulos(locale);
+const articulosVista = articulos.map(articulo => ({
+  ...articulo,
+  resumen: stripMarkdown(articulo.cuerpo),
+}));
+
+const itemListJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: t(locale, 'conocimiento.listado_titulo'),
+  itemListElement: articulos.map((articulo, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    url: buildCanonical(`/es/conocimiento/${articulo.slug}`),
+    name: articulo.titulo,
+  })),
+};
+
+const jsonLd = combineJsonLd(
+  buildOrganizationJsonLd(),
+  buildBreadcrumbJsonLd([
+    { name: t(locale, 'catalogo.migas_inicio'), url: buildCanonical('/es/') },
+    { name: t(locale, 'conocimiento.titulo'), url: canonical },
+  ]),
+  itemListJsonLd
+);
 ---
 
 <Layout
@@ -19,22 +49,64 @@ const canonical = buildCanonical('/es/conocimiento')
   canonical={canonical}
   locale={locale}
   currentPath="/es/conocimiento"
+  jsonLd={jsonLd}
 >
-  <div
-    class="page-hero conocimiento-hero"
-    style="padding-top:130px;padding-bottom:var(--space-2xl);background:var(--off)"
-  >
-    <div class="container">
-      <span class="section-tag">{t(locale, 'conocimiento.proximamente')}</span>
-      <h1>{t(locale, 'conocimiento.titulo')}</h1>
-      <p style="color:var(--text-mid);max-width:560px;margin:0.75rem 0 0">
-        {t(locale, 'conocimiento.descripcion')}
-      </p>
-      <a href="/es/contacto" class="btn btn-secondary" style="margin-top:1.5rem">
-        {t(locale, 'conocimiento.cta_contacto')}
-      </a>
+  <section class="page-hero conocimiento-hero">
+    <div class="container conocimiento-layout">
+      <div>
+        <span class="section-tag">{t(locale, 'conocimiento.proximamente')}</span>
+        <h1>{t(locale, 'conocimiento.titulo')}</h1>
+        <p class="lead">{t(locale, 'conocimiento.descripcion')}</p>
+      </div>
+      <div class="knowledge-panel">
+        <strong>{t(locale, 'conocimiento.listado_titulo')}</strong>
+        <p>
+          {
+            articulos.length
+              ? `${articulos.length} artículos publicados`
+              : t(locale, 'conocimiento.vacio')
+          }
+        </p>
+        <a href="/es/contacto" class="btn btn-secondary">{t(locale, 'conocimiento.cta_contacto')}</a
+        >
+      </div>
     </div>
-  </div>
+  </section>
+
+  <section class="container conocimiento-grid">
+    {
+      articulos.length ? (
+        articulosVista.map(articulo => (
+          <article class="knowledge-card">
+            <p class="knowledge-meta">
+              {t(locale, 'conocimiento.actualizado')}{' '}
+              {new Date(articulo.updated_at || articulo.created_at).toLocaleDateString('es-CO', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </p>
+            <h2>{articulo.titulo}</h2>
+            <p>
+              {articulo.resumen.slice(0, 180)}
+              {articulo.resumen.length > 180 ? '…' : ''}
+            </p>
+            <a class="btn btn-primary" href={`/es/conocimiento/${articulo.slug}`}>
+              {t(locale, 'conocimiento.leer_mas')}
+            </a>
+          </article>
+        ))
+      ) : (
+        <article class="knowledge-empty">
+          <h2>{t(locale, 'conocimiento.ninguno')}</h2>
+          <p>{t(locale, 'conocimiento.vacio')}</p>
+          <a href="/es/contacto" class="btn btn-secondary">
+            {t(locale, 'conocimiento.cta_contacto')}
+          </a>
+        </article>
+      )
+    }
+  </section>
 </Layout>
 
 <style>
@@ -52,8 +124,56 @@ const canonical = buildCanonical('/es/conocimiento')
     margin-block-end: 0.75rem;
   }
   .conocimiento-hero {
-    min-height: 60vh;
-    display: flex;
-    align-items: center;
+    padding-top: 130px;
+    padding-bottom: var(--space-2xl);
+    background: var(--off);
+  }
+  .conocimiento-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
+    gap: 1.5rem;
+    align-items: end;
+  }
+  .lead {
+    color: var(--text-mid);
+    max-width: 620px;
+    margin: 0.75rem 0 0;
+  }
+  .knowledge-panel,
+  .knowledge-card,
+  .knowledge-empty {
+    background: var(--card);
+    border: 1px solid color-mix(in srgb, var(--line) 90%, transparent);
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 16px 44px rgba(20, 38, 64, 0.08);
+  }
+  .knowledge-panel {
+    display: grid;
+    gap: 0.75rem;
+    align-content: start;
+  }
+  .conocimiento-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+    padding-bottom: var(--space-3xl);
+  }
+  .knowledge-card h2,
+  .knowledge-empty h2 {
+    margin: 0.4rem 0 0.6rem;
+  }
+  .knowledge-meta {
+    margin: 0;
+    color: var(--text-mid);
+    font-size: 0.9rem;
+  }
+  .knowledge-card p {
+    color: var(--text-mid);
+  }
+  @media (max-width: 840px) {
+    .conocimiento-layout {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

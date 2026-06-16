@@ -1,0 +1,35 @@
+[
+  {
+    "id": "mock-articulo-1",
+    "slug": "como-elegir-un-monitor-biomedico",
+    "titulo_es": "Cómo elegir un monitor biomédico sin perder trazabilidad",
+    "titulo_en": "How to choose a biomedical monitor without losing traceability",
+    "cuerpo_es": "# Punto de partida\n\nAntes de comparar especificaciones, define el contexto de uso: sala, UCI, transporte o quirófano.\n\n- Verifica compatibilidad con la instalación clínica.\n- Revisa servicio técnico y disponibilidad de consumibles.\n- Documenta la decisión comercial y clínica.\n\n> Una compra clara empieza por un caso de uso claro.\n\n## Siguiente paso\n\nSi necesitas apoyo, el equipo de I-ME puede ayudarte a estructurar el requerimiento.",
+    "cuerpo_en": "# Starting point\n\nBefore comparing specifications, define the operating context: ward, ICU, transport, or OR.\n\n- Check compatibility with the clinical installation.\n- Review technical support and consumables availability.\n- Document the commercial and clinical decision.\n\n> A clear purchase starts with a clear use case.\n\n## Next step\n\nIf you need help, the I-ME team can help structure the requirement.",
+    "publicado": true,
+    "created_at": "2026-06-01T10:00:00.000Z",
+    "updated_at": "2026-06-01T10:00:00.000Z"
+  },
+  {
+    "id": "mock-articulo-2",
+    "slug": "rutina-basica-de-mantenimiento-preventivo",
+    "titulo_es": "Rutina básica de mantenimiento preventivo",
+    "titulo_en": "Basic preventive maintenance routine",
+    "cuerpo_es": "## Checklist operativo\n\n1. Inspecciona el equipo antes de cada turno.\n2. Registra alertas, fallas y consumibles.\n3. Programa calibración y revisión técnica periódica.\n\nMantener una rutina simple evita paradas innecesarias.",
+    "cuerpo_en": "## Operational checklist\n\n1. Inspect the device before each shift.\n2. Record alerts, failures, and consumables.\n3. Schedule calibration and periodic technical review.\n\nKeeping a simple routine helps avoid unnecessary downtime.",
+    "publicado": true,
+    "created_at": "2026-06-03T10:00:00.000Z",
+    "updated_at": "2026-06-03T10:00:00.000Z"
+  },
+  {
+    "id": "mock-articulo-3",
+    "slug": "como-preparar-una-solicitud-de-cotizacion",
+    "titulo_es": "Cómo preparar una solicitud de cotización más precisa",
+    "titulo_en": "How to prepare a more accurate quote request",
+    "cuerpo_es": "### Incluye siempre\n\n- Necesidad clínica concreta.\n- Cantidad estimada.\n- Condiciones de instalación.\n- Restricciones de presupuesto o plazo.\n\nCuanto más clara sea la solicitud, mejor será la comparación entre alternativas.",
+    "cuerpo_en": "### Always include\n\n- A concrete clinical need.\n- Estimated quantity.\n- Installation conditions.\n- Budget or timeline constraints.\n\nThe clearer the request, the better the comparison between alternatives.",
+    "publicado": true,
+    "created_at": "2026-06-05T10:00:00.000Z",
+    "updated_at": "2026-06-05T10:00:00.000Z"
+  }
+]
