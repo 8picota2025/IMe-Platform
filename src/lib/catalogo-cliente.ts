@@ -21,9 +21,12 @@ interface CatalogoState {
   comercial: Set<string>;
   destacado: boolean;
   nuevo: boolean;
+  disponible: string;
+  modalidades: Set<string>;
   facetas: Map<string, Set<string>>;
   pagina: number;
   todos: boolean;
+  orden: string;
 }
 
 function parseStateFromUrl(): CatalogoState {
@@ -46,9 +49,12 @@ function parseStateFromUrl(): CatalogoState {
     comercial: new Set((params.get('comercial') ?? '').split(',').filter(Boolean)),
     destacado: params.get('destacado') === '1',
     nuevo: params.get('nuevo') === '1',
+    disponible: params.get('disponible') ?? '',
+    modalidades: new Set((params.get('modalidad') ?? '').split(',').filter(Boolean)),
     facetas,
     pagina: Number.isFinite(paginaRaw) && paginaRaw > 0 ? paginaRaw : 1,
     todos: params.get('todos') === '1',
+    orden: params.get('orden') ?? 'relevancia',
   };
 }
 
@@ -59,6 +65,8 @@ function serializeState(state: CatalogoState): string {
   if (state.comercial.size > 0) params.set('comercial', [...state.comercial].join(','));
   if (state.destacado) params.set('destacado', '1');
   if (state.nuevo) params.set('nuevo', '1');
+  if (state.disponible) params.set('disponible', state.disponible);
+  if (state.modalidades.size > 0) params.set('modalidad', [...state.modalidades].join(','));
   if (state.facetas.size > 0) {
     const partes = [...state.facetas.entries()].map(
       ([clave, valores]) =>
@@ -66,6 +74,7 @@ function serializeState(state: CatalogoState): string {
     );
     params.set('filtros', partes.join(';'));
   }
+  if (state.orden && state.orden !== 'relevancia') params.set('orden', state.orden);
   if (state.pagina > 1) params.set('pagina', String(state.pagina));
   const sinOtrosFiltros =
     !state.familia &&
@@ -86,6 +95,8 @@ function shouldShowGrid(state: CatalogoState): boolean {
     state.comercial.size > 0 ||
     state.destacado ||
     state.nuevo ||
+    state.disponible !== '' ||
+    state.modalidades.size > 0 ||
     state.facetas.size > 0
   );
 }
@@ -107,6 +118,11 @@ function matchesBase(card: HTMLElement, state: CatalogoState): boolean {
   }
   if (state.destacado && card.dataset['destacado'] !== '1') return false;
   if (state.nuevo && card.dataset['nuevo'] !== '1') return false;
+  if (state.disponible === '1' && card.dataset['disponible'] !== '1') return false;
+  if (state.disponible === '0' && card.dataset['disponible'] !== '0') return false;
+  if (state.modalidades.size > 0 && !state.modalidades.has(card.dataset['fulfillment'] ?? '')) {
+    return false;
+  }
   if (state.q) {
     const needle = normalizarTexto(state.q);
     const texto = card.dataset['busqueda'] ?? '';
@@ -181,7 +197,14 @@ export function initCatalogo(locale: Locale): () => void {
     'catalogo-filtro-destacado'
   ) as HTMLInputElement | null;
   const nuevoInput = document.getElementById('catalogo-filtro-nuevo') as HTMLInputElement | null;
+  const disponibilidadInputs = Array.from(
+    document.querySelectorAll<HTMLInputElement>('input[name="catalogo-disponibilidad"]')
+  );
+  const modalidadInputs = Array.from(
+    document.querySelectorAll<HTMLInputElement>('[data-filtro-modalidad]')
+  );
   const facetasContenedor = document.getElementById('catalogo-facetas');
+  const ordenSelect = document.getElementById('catalogo-orden') as HTMLSelectElement | null;
   const resetBtns = Array.from(document.querySelectorAll('[data-reset-filtros]'));
   const mostrarTodosBtns = Array.from(document.querySelectorAll('[data-mostrar-todos]'));
   const paginacion = document.getElementById('catalogo-paginacion');
@@ -192,6 +215,20 @@ export function initCatalogo(locale: Locale): () => void {
   const filtrosToggle = document.getElementById('catalogo-filtros-toggle');
   const filtrosPanel = document.getElementById('catalogo-filtros');
   const filtrosCerrar = document.getElementById('catalogo-filtros-cerrar');
+  const quickviewDialog = document.getElementById('quickview-dialog') as HTMLDialogElement | null;
+  const quickviewImagen = document.getElementById('quickview-imagen') as HTMLImageElement | null;
+  const quickviewFamilia = document.getElementById('quickview-familia');
+  const quickviewNombre = document.getElementById('quickview-nombre');
+  const quickviewDescripcion = document.getElementById('quickview-descripcion');
+  const quickviewModalidad = document.getElementById('quickview-modalidad');
+  const quickviewDisponibilidad = document.getElementById('quickview-disponibilidad');
+  const quickviewStock = document.getElementById('quickview-stock');
+  const quickviewPrecio = document.getElementById('quickview-precio');
+  const quickviewFicha = document.getElementById('quickview-ficha') as HTMLAnchorElement | null;
+  const quickviewCta = document.getElementById('quickview-cta') as HTMLButtonElement | null;
+  const quickviewWhatsapp = document.getElementById(
+    'quickview-whatsapp'
+  ) as HTMLAnchorElement | null;
   let cleanupComparadorWindow: (() => void) | null = null;
 
   const state = parseStateFromUrl();
@@ -219,6 +256,7 @@ export function initCatalogo(locale: Locale): () => void {
 
   function syncFiltrosUI(): void {
     if (buscarInput) buscarInput.value = state.q;
+    if (ordenSelect) ordenSelect.value = state.orden;
     familiaLista?.querySelectorAll<HTMLButtonElement>('[data-familia-filter]').forEach(btn => {
       const valor = btn.dataset['familiaFilter'] ?? '';
       const activo = valor === state.familia;
@@ -233,6 +271,12 @@ export function initCatalogo(locale: Locale): () => void {
       });
     if (destacadoInput) destacadoInput.checked = state.destacado;
     if (nuevoInput) nuevoInput.checked = state.nuevo;
+    disponibilidadInputs.forEach(input => {
+      input.checked = input.value === (state.disponible || '');
+    });
+    modalidadInputs.forEach(input => {
+      input.checked = state.modalidades.has(input.dataset['filtroModalidad'] ?? '');
+    });
   }
 
   function renderFacetas(facetas: Map<string, string[]>): void {
@@ -364,7 +408,34 @@ export function initCatalogo(locale: Locale): () => void {
     const facetas = computeFacetas(baseCoincide);
     renderFacetas(facetas);
 
-    const visibles = baseCoincide.filter(card => matchesFacetas(card, state.facetas));
+    let visibles = baseCoincide.filter(card => matchesFacetas(card, state.facetas));
+    if (state.orden === 'nombre_asc' || state.orden === 'nombre_desc') {
+      const factor = state.orden === 'nombre_asc' ? 1 : -1;
+      visibles = [...visibles].sort((a, b) => {
+        const an = a.dataset['nombre'] ?? '';
+        const bn = b.dataset['nombre'] ?? '';
+        return (
+          factor *
+          an.localeCompare(bn, locale === 'en' ? 'en' : 'es', {
+            sensitivity: 'base',
+          })
+        );
+      });
+    } else if (state.orden === 'precio_asc' || state.orden === 'precio_desc') {
+      const factor = state.orden === 'precio_asc' ? 1 : -1;
+      visibles = [...visibles].sort((a, b) => {
+        const ap = Number.parseFloat(a.dataset['precio'] ?? '');
+        const bp = Number.parseFloat(b.dataset['precio'] ?? '');
+        const aVal = Number.isFinite(ap) ? ap : Number.POSITIVE_INFINITY;
+        const bVal = Number.isFinite(bp) ? bp : Number.POSITIVE_INFINITY;
+        return factor * (aVal - bVal);
+      });
+    }
+
+    if (grid) {
+      const resto = cards.filter(card => !visibles.includes(card));
+      [...visibles, ...resto].forEach(card => grid.appendChild(card));
+    }
 
     const totalPaginas = Math.max(1, Math.ceil(visibles.length / PAGE_SIZE));
     if (state.pagina > totalPaginas) state.pagina = totalPaginas;
@@ -410,9 +481,12 @@ export function initCatalogo(locale: Locale): () => void {
     state.comercial = new Set();
     state.destacado = false;
     state.nuevo = false;
+    state.disponible = '';
+    state.modalidades = new Set();
     state.facetas = new Map();
     state.pagina = 1;
     state.todos = false;
+    state.orden = 'relevancia';
     syncFiltrosUI();
     applyFiltros();
   }
@@ -428,6 +502,13 @@ export function initCatalogo(locale: Locale): () => void {
     }, 300);
   };
   buscarInput?.addEventListener('input', onBuscarInput);
+
+  const onOrdenChange = () => {
+    state.orden = ordenSelect?.value || 'relevancia';
+    state.pagina = 1;
+    applyFiltros();
+  };
+  ordenSelect?.addEventListener('change', onOrdenChange);
 
   // Navegación por familia (overview)
   familiasView?.querySelectorAll<HTMLAnchorElement>('[data-familia-link]').forEach(enlace => {
@@ -490,12 +571,38 @@ export function initCatalogo(locale: Locale): () => void {
   };
   nuevoInput?.addEventListener('change', onNuevoChange);
 
+  disponibilidadInputs.forEach(input => {
+    input.addEventListener('change', () => {
+      if (input.checked) {
+        state.disponible = input.value;
+        disponibilidadInputs.forEach(other => {
+          if (other !== input) other.checked = false;
+        });
+      } else if (!disponibilidadInputs.some(other => other.checked)) {
+        state.disponible = '';
+      }
+      state.pagina = 1;
+      applyFiltros();
+    });
+  });
+
+  modalidadInputs.forEach(input => {
+    input.addEventListener('change', () => {
+      const valor = input.dataset['filtroModalidad'] ?? '';
+      if (input.checked) state.modalidades.add(valor);
+      else state.modalidades.delete(valor);
+      state.pagina = 1;
+      applyFiltros();
+    });
+  });
+
   // Mostrar todos
   mostrarTodosBtns.forEach(btn => {
     const onClick = () => {
       state.todos = true;
       state.familia = '';
       state.pagina = 1;
+      state.orden = 'relevancia';
       syncFiltrosUI();
       applyFiltros();
       scrollToResultados();
@@ -527,6 +634,116 @@ export function initCatalogo(locale: Locale): () => void {
     }
   };
   filtrosPanel?.addEventListener('keydown', onFiltrosKeydown);
+
+  function modalidadTexto(valor?: string): string {
+    if (valor === 'dropship') return t(locale, 'catalogo.modalidad_dropship');
+    if (valor === 'individualizado') return t(locale, 'catalogo.modalidad_individualizado');
+    return t(locale, 'catalogo.modalidad_cotizacion');
+  }
+
+  function disponibilidadTexto(valor?: string): string {
+    if (valor === '0') return t(locale, 'catalogo.disponibilidad_no');
+    if (valor === '1') return t(locale, 'catalogo.disponibilidad_si');
+    return t(locale, 'catalogo.disponibilidad_todas');
+  }
+
+  function precioTexto(card: HTMLElement): string {
+    const raw = Number.parseFloat(card.dataset['precio'] ?? '');
+    if (!Number.isFinite(raw)) return t(locale, 'producto.ficha_atencion_desc');
+    const moneda = card.dataset['moneda'] ?? (locale === 'en' ? 'USD' : 'COP');
+    try {
+      return new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'es-CO', {
+        style: 'currency',
+        currency: moneda,
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(raw);
+    } catch {
+      return `${moneda} ${raw.toLocaleString()}`;
+    }
+  }
+
+  function renderQuickView(card: HTMLElement): void {
+    if (!quickviewDialog || !quickviewImagen || !quickviewNombre || !quickviewDescripcion) return;
+    const nombre = card.dataset['nombre'] ?? '';
+    const imagen = card.dataset['imagen'] ?? '';
+    const familia = card.dataset['familiaNombre'] ?? '';
+    const descripcion = card.querySelector<HTMLElement>('.producto-card__desc')?.textContent ?? '';
+    const disponible = card.dataset['disponible'] ?? '1';
+    const fulfillment = card.dataset['fulfillment'] ?? 'cotizacion';
+    const precio = card.dataset['precio'] ?? '';
+    const href = card.dataset['href'] ?? '#';
+    const tipo = card.dataset['comercial'] ?? '';
+    const whatsappHref = `https://wa.me/573138674059?text=${encodeURIComponent(
+      `${t(locale, 'producto.cta_consultar_disponibilidad')}: ${nombre}`
+    )}`;
+
+    quickviewImagen.src = imagen;
+    quickviewImagen.alt = nombre;
+    if (quickviewFamilia) quickviewFamilia.textContent = familia;
+    quickviewNombre.textContent = nombre;
+    quickviewDescripcion.textContent = descripcion;
+    if (quickviewModalidad) quickviewModalidad.textContent = modalidadTexto(fulfillment);
+    if (quickviewDisponibilidad)
+      quickviewDisponibilidad.textContent = disponibilidadTexto(disponible);
+    if (quickviewStock)
+      quickviewStock.textContent =
+        disponible === '0' || card.dataset['stock'] === '0'
+          ? t(locale, 'producto.ficha_no_disponible')
+          : card.dataset['stock']
+            ? t(locale, 'carrito.stock_limitado').replace('{stock}', card.dataset['stock'] ?? '')
+            : t(locale, 'producto.ficha_disponible');
+    if (quickviewPrecio) quickviewPrecio.textContent = precioTexto(card);
+    if (quickviewFicha) quickviewFicha.href = href;
+
+    if (quickviewWhatsapp) {
+      const mostrarWhatsapp = tipo === 'consumible' && disponible === '0';
+      quickviewWhatsapp.hidden = !mostrarWhatsapp;
+      quickviewWhatsapp.href = whatsappHref;
+    }
+
+    if (quickviewCta) {
+      quickviewCta.hidden = false;
+      if (tipo === 'consumible' && disponible !== '0' && Number.parseFloat(precio) > 0) {
+        const stockAgotado = card.dataset['stock'] === '0';
+        if (stockAgotado) {
+          quickviewCta.hidden = true;
+          if (quickviewWhatsapp) quickviewWhatsapp.hidden = false;
+          return;
+        }
+        quickviewCta.textContent = t(locale, 'carrito.agregar');
+        quickviewCta.onclick = () => {
+          const slug = card.dataset['productoSlug'] ?? '';
+          const nombreProducto = card.dataset['nombre'] ?? '';
+          const moneda = card.dataset['moneda'] ?? (locale === 'en' ? 'USD' : 'COP');
+          const stockRaw = card.dataset['stock'] ?? '';
+          const stock = stockRaw ? Number(stockRaw) : null;
+          const precioNumero = Number.parseFloat(precio);
+          if (!slug || !nombreProducto || !Number.isFinite(precioNumero)) return;
+          void import('./carrito').then(({ agregarAlCarrito }) => {
+            agregarAlCarrito({ slug, nombre: nombreProducto, precio: precioNumero, moneda, stock });
+          });
+          quickviewDialog.close();
+        };
+      } else if (tipo === 'equipo') {
+        quickviewCta.textContent = t(locale, 'cotizacion_equipos.agregar');
+        quickviewCta.onclick = () => {
+          const slug = card.dataset['productoSlug'] ?? '';
+          const nombreProducto = card.dataset['nombre'] ?? '';
+          const imagenProducto = card.dataset['imagen'] ?? '';
+          if (!slug || !nombreProducto || !imagenProducto) return;
+          void import('./cotizacion-equipos').then(({ agregarACotizacion }) => {
+            agregarACotizacion({ slug, nombre: nombreProducto, imagen: imagenProducto });
+          });
+          quickviewDialog.close();
+        };
+      } else {
+        quickviewCta.hidden = true;
+      }
+    }
+
+    quickviewDialog.showModal();
+  }
 
   // --- Comparador ---
   function initComparador(): void {
@@ -699,6 +916,26 @@ export function initCatalogo(locale: Locale): () => void {
     dialog?.addEventListener('click', onDialogClick);
   }
 
+  const onQuickViewClick = (event: MouseEvent) => {
+    const target = event.target as HTMLElement | null;
+    const btn = target?.closest<HTMLButtonElement>('[data-quick-view]');
+    if (!btn) return;
+    const card = btn.closest<HTMLElement>('[data-producto-slug]');
+    if (!card) return;
+    renderQuickView(card);
+  };
+  document.addEventListener('click', onQuickViewClick);
+
+  const quickviewClose = quickviewDialog?.querySelector('[data-quickview-close]');
+  const closeQuickView = () => quickviewDialog?.close();
+  quickviewClose?.addEventListener('click', closeQuickView);
+  quickviewDialog?.addEventListener('click', event => {
+    if (event.target === quickviewDialog) quickviewDialog.close();
+  });
+  quickviewDialog?.addEventListener('close', () => {
+    if (quickviewCta) quickviewCta.onclick = null;
+  });
+
   syncFiltrosUI();
   applyFiltros();
   initComparador();
@@ -706,5 +943,6 @@ export function initCatalogo(locale: Locale): () => void {
   return () => {
     if (debounceTimer) clearTimeout(debounceTimer);
     cleanupComparadorWindow?.();
+    document.removeEventListener('click', onQuickViewClick);
   };
 }

@@ -178,6 +178,40 @@ const hayNuevos = items.some(item => item.nuevo);
         )
       }
 
+      <fieldset class="catalogo-filtros__grupo-bloque">
+        <legend class="catalogo-filtros__heading"
+          >{t(locale, 'catalogo.filtro_disponibilidad')}</legend
+        >
+        <label class="catalogo-filtros__opcion">
+          <input type="radio" name="catalogo-disponibilidad" value="" checked />
+          {t(locale, 'catalogo.disponibilidad_todas')}
+        </label>
+        <label class="catalogo-filtros__opcion">
+          <input type="radio" name="catalogo-disponibilidad" value="1" />
+          {t(locale, 'catalogo.disponibilidad_si')}
+        </label>
+        <label class="catalogo-filtros__opcion">
+          <input type="radio" name="catalogo-disponibilidad" value="0" />
+          {t(locale, 'catalogo.disponibilidad_no')}
+        </label>
+      </fieldset>
+
+      <fieldset class="catalogo-filtros__grupo-bloque">
+        <legend class="catalogo-filtros__heading">{t(locale, 'catalogo.filtro_modalidad')}</legend>
+        <label class="catalogo-filtros__opcion">
+          <input type="checkbox" data-filtro-modalidad="dropship" />
+          {t(locale, 'catalogo.modalidad_dropship')}
+        </label>
+        <label class="catalogo-filtros__opcion">
+          <input type="checkbox" data-filtro-modalidad="cotizacion" />
+          {t(locale, 'catalogo.modalidad_cotizacion')}
+        </label>
+        <label class="catalogo-filtros__opcion">
+          <input type="checkbox" data-filtro-modalidad="individualizado" />
+          {t(locale, 'catalogo.modalidad_individualizado')}
+        </label>
+      </fieldset>
+
       <div id="catalogo-facetas" class="catalogo-filtros__grupo-bloque" hidden></div>
 
       <button type="button" class="btn btn-ghost catalogo-filtros__reset" data-reset-filtros>
@@ -197,7 +231,19 @@ const hayNuevos = items.some(item => item.nuevo);
         >
           {t(locale, 'catalogo.abrir_filtros')}
         </button>
-        <p id="catalogo-contador" class="catalogo__contador" role="status" aria-live="polite"></p>
+        <div class="catalogo__toolbar-meta">
+          <label class="catalogo__orden" for="catalogo-orden">
+            <span class="catalogo__orden-label">{t(locale, 'catalogo.ordenar')}</span>
+            <select id="catalogo-orden" class="catalogo__orden-select">
+              <option value="relevancia">{t(locale, 'catalogo.ordenar_relevancia')}</option>
+              <option value="nombre_asc">{t(locale, 'catalogo.ordenar_nombre_az')}</option>
+              <option value="nombre_desc">{t(locale, 'catalogo.ordenar_nombre_za')}</option>
+              <option value="precio_asc">{t(locale, 'catalogo.ordenar_precio_asc')}</option>
+              <option value="precio_desc">{t(locale, 'catalogo.ordenar_precio_desc')}</option>
+            </select>
+          </label>
+          <p id="catalogo-contador" class="catalogo__contador" role="status" aria-live="polite"></p>
+        </div>
       </div>
 
       <ul id="vista-productos" class="productos__grid" role="list" hidden>
@@ -253,6 +299,59 @@ const hayNuevos = items.some(item => item.nuevo);
   </div>
   <p class="comparador-dialog__limite">{t(locale, 'catalogo.comparar_limite')}</p>
   <div id="comparador-tabla" class="comparador-dialog__tabla"></div>
+</dialog>
+
+<dialog id="quickview-dialog" aria-label={t(locale, 'catalogo.vista_rapida')}>
+  <div class="quickview-dialog__shell">
+    <button
+      type="button"
+      class="quickview-dialog__close"
+      data-quickview-close
+      aria-label={t(locale, 'catalogo.quickview_cerrar')}>×</button
+    >
+    <div class="quickview-dialog__media">
+      <img id="quickview-imagen" src="" alt="" width="640" height="480" decoding="async" />
+    </div>
+    <div class="quickview-dialog__body">
+      <p id="quickview-familia" class="quickview-dialog__familia"></p>
+      <h2 id="quickview-nombre" class="quickview-dialog__titulo"></h2>
+      <p id="quickview-descripcion" class="quickview-dialog__desc"></p>
+      <dl class="quickview-dialog__facts">
+        <div>
+          <dt>{t(locale, 'producto.ficha_modalidad')}</dt>
+          <dd id="quickview-modalidad"></dd>
+        </div>
+        <div>
+          <dt>{t(locale, 'producto.ficha_disponibilidad')}</dt>
+          <dd id="quickview-disponibilidad"></dd>
+        </div>
+        <div>
+          <dt>{t(locale, 'producto.ficha_stock')}</dt>
+          <dd id="quickview-stock"></dd>
+        </div>
+        <div>
+          <dt>{t(locale, 'producto.ficha_precio')}</dt>
+          <dd id="quickview-precio"></dd>
+        </div>
+      </dl>
+      <div class="quickview-dialog__actions">
+        <a id="quickview-ficha" class="btn btn-primary" href="#"
+          >{t(locale, 'catalogo.ver_ficha')}</a
+        >
+        <button id="quickview-cta" type="button" class="btn btn-secondary"></button>
+        <a
+          id="quickview-whatsapp"
+          class="btn btn-secondary"
+          href="#"
+          target="_blank"
+          rel="noopener noreferrer"
+          hidden
+        >
+          {t(locale, 'producto.cta_consultar_disponibilidad')}
+        </a>
+      </div>
+    </div>
+  </div>
 </dialog>
 
 <style>
@@ -518,6 +617,23 @@ const hayNuevos = items.some(item => item.nuevo);
     .catalogo-filtros--abierto {
       transform: translateX(0);
     }
+    .catalogo__toolbar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .catalogo__toolbar-meta {
+      width: 100%;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.65rem;
+    }
+    .catalogo__orden {
+      justify-content: space-between;
+      width: 100%;
+    }
+    .catalogo__orden-select {
+      width: 100%;
+    }
   }
   @media (min-width: 900px) {
     .catalogo__filtros-toggle {
@@ -532,6 +648,35 @@ const hayNuevos = items.some(item => item.nuevo);
     justify-content: space-between;
     gap: 1rem;
     margin-block-end: var(--space-md);
+  }
+  .catalogo__toolbar-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-inline-start: auto;
+  }
+  .catalogo__orden {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-size: 0.82rem;
+    color: var(--text-mid);
+  }
+  .catalogo__orden-label {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .catalogo__orden-select {
+    min-width: 180px;
+    padding: 0.7rem 0.9rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-mid);
+    background: var(--white);
+    color: var(--ink);
+    font: inherit;
   }
   .catalogo__contador {
     margin: 0;
@@ -694,6 +839,117 @@ const hayNuevos = items.some(item => item.nuevo);
   .comparador-dialog__tabla :global(.comparador__vacio) {
     color: var(--text-mid);
     font-size: 0.9rem;
+  }
+
+  #quickview-dialog {
+    border: none;
+    border-radius: var(--radius-xl);
+    padding: 0;
+    width: min(980px, calc(100vw - 2rem));
+    background: var(--white);
+    box-shadow: var(--shadow-lg);
+  }
+  #quickview-dialog::backdrop {
+    background: rgba(11, 27, 34, 0.68);
+  }
+  .quickview-dialog__shell {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+    position: relative;
+  }
+  .quickview-dialog__close {
+    position: absolute;
+    top: 0.85rem;
+    right: 0.85rem;
+    width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.88);
+    color: var(--ink);
+    cursor: pointer;
+    z-index: 2;
+    font-size: 1.4rem;
+    line-height: 1;
+  }
+  .quickview-dialog__media {
+    min-height: 100%;
+    background: linear-gradient(180deg, var(--off), var(--off2));
+  }
+  .quickview-dialog__media img {
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .quickview-dialog__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    padding: 1.6rem;
+  }
+  .quickview-dialog__familia {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--t800);
+  }
+  .quickview-dialog__titulo {
+    margin: 0;
+    font-size: clamp(1.5rem, 2vw, 2.25rem);
+  }
+  .quickview-dialog__desc {
+    margin: 0;
+    color: var(--text-mid);
+  }
+  .quickview-dialog__facts {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin: 0;
+  }
+  .quickview-dialog__facts div {
+    padding: 0.85rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--off);
+  }
+  .quickview-dialog__facts dt {
+    margin: 0 0 0.25rem;
+    font-family: var(--font-display);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+  }
+  .quickview-dialog__facts dd {
+    margin: 0;
+    color: var(--ink);
+    font-size: 0.9rem;
+    line-height: 1.35;
+  }
+  .quickview-dialog__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: auto;
+  }
+  @media (max-width: 900px) {
+    .quickview-dialog__shell {
+      grid-template-columns: 1fr;
+    }
+    .quickview-dialog__media {
+      aspect-ratio: 4 / 3;
+      min-height: 0;
+    }
+    .quickview-dialog__facts {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
 

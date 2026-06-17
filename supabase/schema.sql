@@ -1069,6 +1069,68 @@ AS $$
   LIMIT match_count;
 $$;
 
+-- ── Embeddings para articulos (Asesor RAG) ──────────────────
+ALTER TABLE articulos ADD COLUMN IF NOT EXISTS embedding vector(1024);
+CREATE INDEX IF NOT EXISTS idx_articulos_embedding_hnsw
+  ON articulos USING hnsw (embedding vector_cosine_ops)
+  WHERE embedding IS NOT NULL;
+
+-- match_articulos: busqueda vectorial sobre articulos publicados
+CREATE OR REPLACE FUNCTION match_articulos(
+  query_embedding vector(1024),
+  match_count INT DEFAULT 3
+)
+RETURNS TABLE (
+  id        UUID,
+  slug      TEXT,
+  titulo_es TEXT,
+  titulo_en TEXT,
+  cuerpo_es TEXT,
+  cuerpo_en TEXT,
+  score     FLOAT
+)
+LANGUAGE SQL
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT a.id, a.slug, a.titulo_es, a.titulo_en, a.cuerpo_es, a.cuerpo_en,
+    1 - (a.embedding <=> query_embedding) AS score
+  FROM articulos a
+  WHERE a.publicado = true
+    AND a.embedding IS NOT NULL
+  ORDER BY a.embedding <=> query_embedding
+  LIMIT match_count;
+$$;
+
+-- buscar_articulos_keyword: fallback texto cuando no hay vector
+CREATE OR REPLACE FUNCTION buscar_articulos_keyword(
+  query_text TEXT,
+  match_count INT DEFAULT 3
+)
+RETURNS TABLE (
+  id        UUID,
+  slug      TEXT,
+  titulo_es TEXT,
+  titulo_en TEXT,
+  cuerpo_es TEXT,
+  cuerpo_en TEXT,
+  score     FLOAT
+)
+LANGUAGE SQL
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT a.id, a.slug, a.titulo_es, a.titulo_en, a.cuerpo_es, a.cuerpo_en,
+    ts_rank(
+      to_tsvector('spanish', coalesce(a.titulo_es,'') || ' ' || coalesce(a.cuerpo_es,'')),
+      websearch_to_tsquery('spanish', query_text)
+    ) AS score
+  FROM articulos a
+  WHERE a.publicado = true
+  ORDER BY score DESC
+  LIMIT match_count;
+$$;
+
 -- ── Storage RLS ──────────────────────────────────────────────
 -- Lectura pública, escritura authenticated
 DROP POLICY IF EXISTS "storage_productos_public_read" ON storage.objects;

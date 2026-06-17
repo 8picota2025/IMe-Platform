@@ -4,42 +4,51 @@
  * landings (relacionados) y home (destacados).
  * Solo datos reales: badges, precio y CTA dependen de los campos provistos.
  */
-import { t, type Locale } from '../i18n/utils'
+import { t, type Locale } from '../i18n/utils';
+import { formatMoneda } from '../lib/format';
 
 interface ProductoCardData {
-  slug: string
-  nombre: string
-  descripcion_corta: string
-  imagen_principal: string
-  destacado: boolean
-  nuevo: boolean
-  familia: { slug: string; nombre: string }
+  slug: string;
+  nombre: string;
+  descripcion_corta: string;
+  imagen_principal: string;
+  destacado: boolean;
+  nuevo: boolean;
+  familia: { slug: string; nombre: string };
   /** Campos adicionales para filtrado en cliente (catálogo). */
-  tipo_comercial?: string
-  texto_busqueda?: string
-  especificaciones_reducidas?: Record<string, string>
+  tipo_comercial?: string;
+  texto_busqueda?: string;
+  especificaciones_reducidas?: Record<string, string>;
   /** Campos comerciales para los CTA de carrito/cotización (F4). */
-  precio?: number | null
-  moneda?: string
-  stock?: number | null
+  precio?: number | null;
+  moneda?: string;
+  stock?: number | null;
   /** Escenario A: disponibilidad en tiempo real provista por el proveedor. */
-  disponible?: boolean
+  disponible?: boolean;
+  fulfillment_mode?: 'dropship' | 'cotizacion' | 'individualizado';
 }
 
 interface Props {
-  producto: ProductoCardData
-  locale: Locale
+  producto: ProductoCardData;
+  locale: Locale;
   /** Habilita el checkbox de comparación (catálogo). */
-  comparable?: boolean
+  comparable?: boolean;
 }
 
-const { producto, locale, comparable = false } = Astro.props
-const segment = locale === 'en' ? 'products' : 'productos'
-const href = `/${locale}/${segment}/${producto.slug}`
-const noDisponible = producto.disponible === false
+const { producto, locale, comparable = false } = Astro.props;
+const segment = locale === 'en' ? 'products' : 'productos';
+const href = `/${locale}/${segment}/${producto.slug}`;
+const noDisponible = producto.disponible === false;
+const precioFormateado = formatMoneda(producto.precio ?? null, producto.moneda ?? 'COP', locale);
 const whatsappHref = `https://wa.me/573138674059?text=${encodeURIComponent(
   `${t(locale, 'producto.cta_consultar_disponibilidad')}: ${producto.nombre}`
-)}`
+)}`;
+
+function modalidadLabel(modalidad?: string): string {
+  if (modalidad === 'dropship') return locale === 'en' ? 'Dropship' : 'Dropship';
+  if (modalidad === 'individualizado') return locale === 'en' ? 'Custom order' : 'A medida';
+  return locale === 'en' ? 'Quotation' : 'Cotización';
+}
 ---
 
 <li
@@ -50,10 +59,16 @@ const whatsappHref = `https://wa.me/573138674059?text=${encodeURIComponent(
   data-familia={producto.familia.slug}
   data-familia-nombre={producto.familia.nombre}
   data-comercial={producto.tipo_comercial ?? ''}
+  data-fulfillment={producto.fulfillment_mode ?? ''}
+  data-disponible={producto.disponible === false ? '0' : '1'}
   data-destacado={producto.destacado ? '1' : '0'}
   data-nuevo={producto.nuevo ? '1' : '0'}
   data-busqueda={producto.texto_busqueda ?? ''}
   data-specs={JSON.stringify(producto.especificaciones_reducidas ?? {})}
+  data-precio={producto.precio ?? ''}
+  data-moneda={producto.moneda ?? 'COP'}
+  data-stock={producto.stock ?? ''}
+  data-href={href}
 >
   <a
     href={href}
@@ -90,6 +105,38 @@ const whatsappHref = `https://wa.me/573138674059?text=${encodeURIComponent(
       <p class="producto-card__familia">{producto.familia.nombre}</p>
       <h3 class="producto-card__nombre">{producto.nombre}</h3>
       <p class="producto-card__desc">{producto.descripcion_corta}</p>
+      <div class="producto-card__meta" aria-label={t(locale, 'producto.ficha_resumen_titulo')}>
+        <div class="producto-card__meta-item">
+          <span class="producto-card__meta-label">
+            {
+              producto.tipo_comercial === 'consumible' && precioFormateado
+                ? locale === 'en'
+                  ? 'From'
+                  : 'Desde'
+                : t(locale, 'producto.ficha_modalidad')
+            }
+          </span>
+          <strong class="producto-card__meta-value">
+            {
+              producto.tipo_comercial === 'consumible' && precioFormateado
+                ? precioFormateado
+                : modalidadLabel(producto.fulfillment_mode)
+            }
+          </strong>
+        </div>
+        <div class="producto-card__meta-item">
+          <span class="producto-card__meta-label">{t(locale, 'producto.ficha_stock')}</span>
+          <strong class="producto-card__meta-value">
+            {
+              noDisponible || producto.stock === 0
+                ? t(locale, 'producto.ficha_no_disponible')
+                : producto.stock != null && producto.stock > 0
+                  ? t(locale, 'carrito.stock_limitado').replace('{stock}', String(producto.stock))
+                  : t(locale, 'producto.ficha_disponible')
+            }
+          </strong>
+        </div>
+      </div>
       <span class="btn btn-secondary producto-card__cta">{t(locale, 'catalogo.ver_detalle')}</span>
     </div>
   </a>
@@ -105,6 +152,9 @@ const whatsappHref = `https://wa.me/573138674059?text=${encodeURIComponent(
       </label>
     )
   }
+  <button type="button" class="btn btn-secondary producto-card__quick" data-quick-view>
+    {t(locale, 'catalogo.vista_rapida')}
+  </button>
   {
     producto.tipo_comercial === 'equipo' && (
       <button
@@ -227,6 +277,32 @@ const whatsappHref = `https://wa.me/573138674059?text=${encodeURIComponent(
     margin-block-start: 0.75rem;
     font-size: 0.8rem;
   }
+  .producto-card__meta {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    padding: 0.85rem 0;
+    margin-block-start: 0.25rem;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .producto-card__meta-item {
+    display: grid;
+    gap: 0.2rem;
+  }
+  .producto-card__meta-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    font-family: var(--font-display);
+    font-weight: 700;
+  }
+  .producto-card__meta-value {
+    font-size: 0.85rem;
+    color: var(--ink);
+    line-height: 1.3;
+  }
   .producto-card__compare {
     display: flex;
     align-items: center;
@@ -241,54 +317,66 @@ const whatsappHref = `https://wa.me/573138674059?text=${encodeURIComponent(
     height: 1rem;
     accent-color: var(--t800);
   }
+  .producto-card__quick {
+    margin: 0 1.25rem 0.75rem;
+    width: calc(100% - 2.5rem);
+    justify-content: center;
+    font-size: 0.8rem;
+    background: rgba(255, 255, 255, 0.7);
+  }
   .producto-card__add {
     margin: 0 1.25rem 1.25rem;
     width: calc(100% - 2.5rem);
     justify-content: center;
     font-size: 0.8rem;
   }
+  @media (max-width: 520px) {
+    .producto-card__meta {
+      grid-template-columns: 1fr;
+    }
+  }
 </style>
 
 <script>
-  document.addEventListener('click', (event) => {
-    const target = event.target as HTMLElement
-    const cotizacionBtn = target.closest<HTMLButtonElement>('[data-add-cotizacion]')
-    const carritoBtn = target.closest<HTMLButtonElement>('[data-add-carrito]')
-    if (!cotizacionBtn && !carritoBtn) return
+  document.addEventListener('click', event => {
+    const target = event.target as HTMLElement;
+    const cotizacionBtn = target.closest<HTMLButtonElement>('[data-add-cotizacion]');
+    const carritoBtn = target.closest<HTMLButtonElement>('[data-add-carrito]');
+    if (!cotizacionBtn && !carritoBtn) return;
 
     const confirmar = (btn: HTMLButtonElement) => {
-      const original = btn.dataset['labelAgregar'] ?? btn.textContent ?? ''
-      const agregado = btn.dataset['labelAgregado'] ?? original
-      btn.textContent = agregado
+      const original = btn.dataset['labelAgregar'] ?? btn.textContent ?? '';
+      const agregado = btn.dataset['labelAgregado'] ?? original;
+      btn.textContent = agregado;
       window.setTimeout(() => {
-        btn.textContent = original
-      }, 1800)
-    }
+        btn.textContent = original;
+      }, 1800);
+    };
 
     if (cotizacionBtn) {
-      const slug = cotizacionBtn.dataset['addCotizacion']
-      const nombre = cotizacionBtn.dataset['nombre']
-      const imagen = cotizacionBtn.dataset['imagen']
-      if (!slug || !nombre || !imagen) return
+      const slug = cotizacionBtn.dataset['addCotizacion'];
+      const nombre = cotizacionBtn.dataset['nombre'];
+      const imagen = cotizacionBtn.dataset['imagen'];
+      if (!slug || !nombre || !imagen) return;
       void import('../lib/cotizacion-equipos').then(({ agregarACotizacion }) => {
-        agregarACotizacion({ slug, nombre, imagen })
-        confirmar(cotizacionBtn)
-      })
-      return
+        agregarACotizacion({ slug, nombre, imagen });
+        confirmar(cotizacionBtn);
+      });
+      return;
     }
 
     if (carritoBtn) {
-      const slug = carritoBtn.dataset['addCarrito']
-      const nombre = carritoBtn.dataset['nombre']
-      const precio = Number(carritoBtn.dataset['precio'])
-      const moneda = carritoBtn.dataset['moneda'] ?? 'COP'
-      const stockRaw = carritoBtn.dataset['stock']
-      const stock = stockRaw ? Number(stockRaw) : null
-      if (!slug || !nombre || Number.isNaN(precio)) return
+      const slug = carritoBtn.dataset['addCarrito'];
+      const nombre = carritoBtn.dataset['nombre'];
+      const precio = Number(carritoBtn.dataset['precio']);
+      const moneda = carritoBtn.dataset['moneda'] ?? 'COP';
+      const stockRaw = carritoBtn.dataset['stock'];
+      const stock = stockRaw ? Number(stockRaw) : null;
+      if (!slug || !nombre || Number.isNaN(precio)) return;
       void import('../lib/carrito').then(({ agregarAlCarrito }) => {
-        agregarAlCarrito({ slug, nombre, precio, moneda, stock })
-        confirmar(carritoBtn)
-      })
+        agregarAlCarrito({ slug, nombre, precio, moneda, stock });
+        confirmar(carritoBtn);
+      });
     }
-  })
+  });
 </script>

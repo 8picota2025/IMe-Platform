@@ -191,6 +191,10 @@
   .admin-markdown-grid {
     grid-template-columns: 1fr;
   }
+
+  .admin-health {
+    grid-template-columns: 1fr;
+  }
 }
 
 .admin-upload-box {
@@ -460,6 +464,16 @@
 
 .admin-card {
   padding: 18px;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+}
+
+.admin-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 42px rgba(23, 26, 28, 0.14);
+  border-color: rgba(0, 94, 96, 0.28);
 }
 
 .admin-card strong {
@@ -486,6 +500,46 @@
 .admin-panel {
   margin-top: 16px;
   overflow: hidden;
+}
+
+.admin-panel__body {
+  padding: 16px;
+}
+
+.admin-health {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  padding: 16px;
+}
+
+.admin-health__item {
+  padding: 16px;
+  border: 1px solid var(--admin-line);
+  border-radius: calc(var(--admin-radius) + 2px);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(248, 245, 237, 0.96));
+}
+
+.admin-health__item strong {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: var(--admin-ink);
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  font-size: 0.84rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.admin-health__item p {
+  margin: 0;
+  color: var(--admin-muted);
+  line-height: 1.55;
 }
 
 .admin-panel__head {
@@ -714,6 +768,161 @@
     sans-serif;
 }
 
+.cotizacion-workflow,
+.fulfillment-workflow {
+  margin: 16px 16px 0;
+  padding: 16px;
+  border: 1px solid rgba(0, 94, 96, 0.18);
+  border-radius: calc(var(--admin-radius) + 2px);
+  background:
+    linear-gradient(135deg, rgba(0, 94, 96, 0.07), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 245, 237, 0.95));
+}
+
+.cotizacion-workflow__chips,
+.fulfillment-workflow__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cotizacion-workflow__actions,
+.fulfillment-workflow__actions {
+  margin-top: 8px;
+}
+
+.cotizacion-feed {
+  display: grid;
+  gap: 10px;
+}
+
+.cotizacion-feed__item {
+  padding: 12px 14px;
+  border: 1px solid var(--admin-line);
+  border-radius: calc(var(--admin-radius) + 2px);
+  background: rgba(255, 255, 255, 0.86);
+  color: var(--admin-ink);
+  line-height: 1.5;
+}
+
+.pedido-workflow {
+  margin: 16px 16px 0;
+  padding: 16px;
+  border: 1px solid rgba(0, 94, 96, 0.18);
+  border-radius: calc(var(--admin-radius) + 2px);
+  background:
+    linear-gradient(135deg, rgba(0, 94, 96, 0.07), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 245, 237, 0.95));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+.pedido-workflow__meta,
+.pedido-nota-templates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pedido-workflow__actions {
+  margin-top: 4px;
+}
+
+.pedido-feed {
+  display: grid;
+  gap: 12px;
+}
+
+.pedido-feed__item {
+  padding: 14px;
+  border: 1px solid var(--admin-line);
+  border-radius: calc(var(--admin-radius) + 2px);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(249, 247, 241, 0.96));
+}
+
+.pedido-feed__item--estado {
+  border-color: rgba(0, 94, 96, 0.22);
+}
+
+.pedido-feed__item--nota {
+  border-color: rgba(154, 101, 0, 0.22);
+}
+
+.pedido-feed__item--pago {
+  border-color: rgba(33, 122, 67, 0.22);
+}
+
+.pedido-feed__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--admin-muted);
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  font-size: 0.8rem;
+}
+
+.pedido-feed__item h4 {
+  margin: 10px 0 6px;
+  font-size: 1rem;
+}
+
+.pedido-feed__meta {
+  margin: 0 0 8px;
+  color: var(--admin-muted);
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  font-size: 0.86rem;
+}
+
+.admin-flow-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
+  gap: 16px;
+}
+
+.admin-cards-stack {
+  display: grid;
+  gap: 12px;
+}
+
+.admin-workcard {
+  padding: 14px;
+  border: 1px solid var(--admin-line);
+  border-radius: calc(var(--admin-radius) + 2px);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 245, 237, 0.96));
+}
+
+.admin-workcard strong {
+  display: block;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+}
+
+.admin-workcard p {
+  margin: 8px 0 12px;
+  color: var(--admin-muted);
+  line-height: 1.5;
+}
+
 .admin-toast {
   position: fixed;
   right: 18px;
@@ -758,13 +967,24 @@
     display: grid;
   }
 
+  .admin-panel__body,
   .admin-editor,
   .admin-editor__cols,
+  .admin-flow-grid,
   .admin-taxonomy-grid,
   .admin-taxonomy-list--familias,
   .admin-taxonomy-assign,
   .admin-taxonomy-assign__fields {
     grid-template-columns: 1fr;
+  }
+
+  .pedido-workflow {
+    margin-inline: 0;
+  }
+
+  .cotizacion-workflow,
+  .fulfillment-workflow {
+    margin-inline: 0;
   }
 
   .admin-taxonomy-list .admin-field {

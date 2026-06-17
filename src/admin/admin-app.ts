@@ -2,6 +2,10 @@ import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase';
 import { renderMarkdown } from '../lib/markdown';
 import * as XLSX from 'xlsx';
 
+const OLLAMA_URL = (import.meta.env['PUBLIC_OLLAMA_URL'] as string | undefined) ?? '';
+const OLLAMA_INGEST_MODEL = 'qwen3:1.7b';
+const OLLAMA_EMBED_MODEL = 'mxbai-embed-large';
+
 type View =
   | 'dashboard'
   | 'productos'
@@ -293,39 +297,81 @@ function bindView() {
   bindTaxonomy();
   bindReasignacion();
   bindSimpleTables();
+  bindCotizaciones();
   bindClientes();
   bindCupones();
   bindPedidoOperaciones();
+  bindPedidoMasivo();
   bindIngest();
   bindArticulos();
+  bindProviderFilters();
   bindProveedorProductos();
   bindFulfillments();
   bindAsesorPanel();
 }
 
 async function dashboardView(): Promise<string> {
-  const [productos, cotizaciones, pedidos, dropship, clientes, cupones, fulfillmentsError] =
-    await Promise.all([
-      count('productos'),
-      count('solicitudes_cotizacion', { leida: false }),
-      count('pedidos', { leida: false }),
-      count('productos', { fulfillment_mode: 'dropship' }),
-      count('clientes'),
-      count('cupones', { activo: true }),
-      count('fulfillments', { estado: 'error' }),
-    ]);
+  const [
+    productos,
+    productosActivos,
+    productosBorrador,
+    productosDropship,
+    productosDisponibles,
+    cotizaciones,
+    pedidos,
+    clientes,
+    cupones,
+    fulfillmentsError,
+    productosRows,
+  ] = await Promise.all([
+    count('productos'),
+    count('productos', { activo: true }),
+    count('productos', { activo: false }),
+    count('productos', { fulfillment_mode: 'dropship' }),
+    count('productos', { disponible: true }),
+    count('solicitudes_cotizacion', { leida: false }),
+    count('pedidos', { leida: false }),
+    count('clientes'),
+    count('cupones', { activo: true }),
+    count('fulfillments', { estado: 'error' }),
+    selectRows('productos', 'id,tipo_id', 'nombre_es', 500),
+  ]);
   const withoutProvider = await productosDropshipSinProveedor();
+  const productosSinTipo = productosRows.filter(row => !text(row.tipo_id)).length;
+  const productosNoDisponibles = Math.max(0, productos - productosDisponibles);
   return `
     ${withoutProvider > 0 ? `<div class="admin-alert">${withoutProvider} productos dropship no tienen proveedor asignado.</div>` : ''}
     <section class="admin-grid">
       ${metric('Total productos', productos)}
+      ${metric('Productos activos', productosActivos)}
+      ${metric('Borradores', productosBorrador)}
       ${metric('Clientes', clientes)}
       ${metric('Cotizaciones sin leer', cotizaciones)}
       ${metric('Pedidos sin leer', pedidos)}
       ${metric('Cupones activos', cupones)}
-      ${metric('Dropship', dropship)}
+      ${metric('Dropship', productosDropship)}
+      ${metric('Disponibles', productosDisponibles)}
+      ${metric('No disponibles', productosNoDisponibles)}
+      ${metric('Sin tipo', productosSinTipo)}
       ${metric('Dropship sin proveedor', withoutProvider)}
       ${metric('Fulfillments con error', fulfillmentsError)}
+    </section>
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Salud operativa</h2></div>
+      <div class="admin-health">
+        <div class="admin-health__item">
+          <strong>Inventario</strong>
+          <p>${productosDisponibles} productos disponibles y ${productosNoDisponibles} temporalmente no disponibles.</p>
+        </div>
+        <div class="admin-health__item">
+          <strong>Catálogo</strong>
+          <p>${productosActivos} publicados y ${productosBorrador} borradores en revisión.</p>
+        </div>
+        <div class="admin-health__item">
+          <strong>Fulfillment</strong>
+          <p>${productosDropship} productos con modalidad dropship, ${withoutProvider} sin proveedor asignado.</p>
+        </div>
+      </div>
     </section>
     <section class="admin-panel">
       <div class="admin-panel__head"><h2>Accesos</h2></div>
@@ -364,6 +410,10 @@ async function productosView(): Promise<string> {
   const tipoId = params.get('tipo_id') ?? '';
   const activo = params.get('activo') ?? '';
   const tipoComercial = params.get('tipo_comercial') ?? '';
+  const disponible = params.get('disponible') ?? '';
+  const incorporadoDesde = params.get('incorporado_desde') ?? '';
+  const incorporadoHasta = params.get('incorporado_hasta') ?? '';
+  const ordenar = params.get('ordenar') ?? 'interno';
   const page = Math.max(1, numberOrZero(params.get('page')) || 1);
 
   const [familias, tipos] = await Promise.all([
@@ -389,11 +439,25 @@ async function productosView(): Promise<string> {
   if (activo === '1') query = query.eq('activo', true);
   if (activo === '0') query = query.eq('activo', false);
   if (tipoComercial) query = query.eq('tipo_comercial', tipoComercial);
+  if (disponible === '1') query = query.eq('disponible', true);
+  if (disponible === '0') query = query.eq('disponible', false);
+  if (incorporadoDesde) query = query.gte('created_at', `${incorporadoDesde}T00:00:00`);
+  if (incorporadoHasta) query = query.lte('created_at', `${incorporadoHasta}T23:59:59.999`);
+
+  if (ordenar === 'alfabetico_asc') {
+    query = query.order('nombre_es', { ascending: true }).order('orden', { ascending: true });
+  } else if (ordenar === 'alfabetico_desc') {
+    query = query.order('nombre_es', { ascending: false }).order('orden', { ascending: true });
+  } else if (ordenar === 'recientes') {
+    query = query.order('created_at', { ascending: false }).order('nombre_es', { ascending: true });
+  } else if (ordenar === 'antiguos') {
+    query = query.order('created_at', { ascending: true }).order('nombre_es', { ascending: true });
+  } else {
+    query = query.order('orden', { ascending: true }).order('nombre_es', { ascending: true });
+  }
 
   const from = (page - 1) * PRODUCTOS_PAGE_SIZE;
-  const { data, count, error } = await query
-    .order('orden', { ascending: true })
-    .range(from, from + PRODUCTOS_PAGE_SIZE - 1);
+  const { data, count, error } = await query.range(from, from + PRODUCTOS_PAGE_SIZE - 1);
   if (error) toast(error.message);
   const rows = (data ?? []) as unknown as Row[];
   const total = count ?? 0;
@@ -429,6 +493,20 @@ async function productosView(): Promise<string> {
           ['equipo', 'Equipo'],
           ['consumible', 'Consumible'],
         ])}
+        ${selectStatic('disponible', 'Disponibilidad', disponible, [
+          ['', 'Todos'],
+          ['1', 'Disponible'],
+          ['0', 'Temporalmente no disponible'],
+        ])}
+        ${field('incorporado_desde', 'Fecha incorporación desde', incorporadoDesde, false, 'date')}
+        ${field('incorporado_hasta', 'Fecha incorporación hasta', incorporadoHasta, false, 'date')}
+        ${selectStatic('ordenar', 'Ordenar', ordenar, [
+          ['interno', 'Orden interno'],
+          ['alfabetico_asc', 'A-Z'],
+          ['alfabetico_desc', 'Z-A'],
+          ['recientes', 'Más recientes'],
+          ['antiguos', 'Más antiguos'],
+        ])}
         <button class="admin-button" type="submit">Filtrar</button>
         <a class="admin-button admin-button--ghost" href="#/productos">Limpiar</a>
       </form>
@@ -453,7 +531,18 @@ async function productosView(): Promise<string> {
         <p class="admin-help" data-products-import-status>Sin archivo seleccionado.</p>
       </form>
       ${table(
-        ['Imagen', 'Nombre', 'Slug', 'Familia', 'Tipo', 'Fulfillment', 'Estado', 'PDF', 'Acciones'],
+        [
+          'Imagen',
+          'Nombre',
+          'Slug',
+          'Familia',
+          'Tipo',
+          'Fulfillment',
+          'Disponibilidad',
+          'Estado',
+          'PDF',
+          'Acciones',
+        ],
         rows.map(row => [
           text(row.imagen_principal)
             ? `<img class="admin-thumb" src="${escapeHtml(text(row.imagen_principal))}" alt="" width="48" height="48" loading="lazy" />`
@@ -463,6 +552,9 @@ async function productosView(): Promise<string> {
           familiasPorId.get(text(row.familia_id)) ?? '—',
           tiposPorId.get(text(row.tipo_id)) ?? '—',
           text(row.fulfillment_mode),
+          row.disponible
+            ? '<span class="admin-badge admin-badge--ok">Disponible</span>'
+            : '<span class="admin-badge admin-badge--warn">Temporalmente no disponible</span>',
           row.activo
             ? '<span class="admin-badge admin-badge--ok">Activo</span>'
             : '<span class="admin-badge admin-badge--warn">Borrador</span>',
@@ -657,6 +749,100 @@ const COTIZACION_ESTADOS: Array<[string, string]> = [
   ['respondida', 'Respondida'],
 ];
 
+function cotizacionEstadoLabel(estado: string): string {
+  return COTIZACION_ESTADOS.find(([value]) => value === estado)?.[1] ?? estado;
+}
+
+function timestampCorto(): string {
+  return new Date().toISOString().replace('T', ' ').slice(0, 16);
+}
+
+function appendNotaInterna(base: string, linea: string): string {
+  const trimmed = linea.trim();
+  if (!trimmed) return base.trim();
+  const actual = base.trim();
+  return actual ? `${actual}\n${trimmed}` : trimmed;
+}
+
+function parseNotasInternas(valor: string): string[] {
+  return valor
+    .split(/\r?\n+/)
+    .map(linea => linea.trim())
+    .filter(Boolean);
+}
+
+function cotizacionResumenTexto(row: Row): string {
+  const nombre = text(row.nombre) || 'Sin nombre';
+  const empresa = text(row.empresa) || 'Sin empresa';
+  const email = text(row.email) || 'Sin email';
+  const estado = cotizacionEstadoLabel(text(row.estado) || 'nueva');
+  return [
+    `Cotizacion: ${nombre}`,
+    `Empresa: ${empresa}`,
+    `Email: ${email}`,
+    `Estado: ${estado}`,
+    `Fecha: ${text(row.created_at) || '—'}`,
+  ].join(' | ');
+}
+
+async function actualizarSeguimientoCotizacion(
+  id: string,
+  estado: string,
+  opciones: { nota?: string; notas?: string } = {}
+): Promise<boolean> {
+  const before = await getRow('solicitudes_cotizacion', id);
+  const estadoAnterior = text(before?.estado) || 'nueva';
+  const baseNotas =
+    opciones.notas !== undefined ? opciones.notas.trim() : text(before?.notas_internas);
+  const historial = appendNotaInterna(
+    baseNotas,
+    `[${timestampCorto()}] Estado: ${cotizacionEstadoLabel(estadoAnterior)} -> ${cotizacionEstadoLabel(
+      estado
+    )}${opciones.nota ? ` | ${opciones.nota}` : ''}`
+  );
+  const { error } = await supabase!
+    .from('solicitudes_cotizacion')
+    .update({
+      estado,
+      notas_internas: historial || null,
+      leida: true,
+    })
+    .eq('id', id);
+  if (error) {
+    toast(error.message);
+    return false;
+  }
+  return true;
+}
+
+async function actualizarSeguimientoFulfillment(
+  id: string,
+  estado: string,
+  nota?: string
+): Promise<boolean> {
+  const before = await getRow('fulfillments', id);
+  const notasPrevias = text(before?.notas);
+  const cambios: Row = { estado };
+  const ahora = new Date().toISOString();
+  if (estado === 'notificado' && !before?.notificado_at) cambios.notificado_at = ahora;
+  if (estado === 'enviado') {
+    cambios.enviado_at = before?.enviado_at ? before.enviado_at : ahora;
+  }
+  if (estado === 'entregado') {
+    cambios.entregado_at = before?.entregado_at ? before.entregado_at : ahora;
+  }
+  cambios.notas = appendNotaInterna(
+    notasPrevias,
+    `[${timestampCorto()}] Estado: ${text(before?.estado) || 'pendiente'} -> ${estado}${nota ? ` | ${nota}` : ''}`
+  );
+  const { error } = await supabase!.from('fulfillments').update(cambios).eq('id', id);
+  if (error) {
+    toast(error.message);
+    return false;
+  }
+  return true;
+}
+
 async function cotizacionesView(): Promise<string> {
   const rows = await selectRows('solicitudes_cotizacion', '*', 'created_at', 100, false);
   return listWithCsv(
@@ -671,17 +857,39 @@ async function cotizacionDetailView(): Promise<string> {
   const row = state.recordId ? await getRow('solicitudes_cotizacion', state.recordId) : null;
   if (!row) return notFoundPanel('Cotizacion no encontrada', '#/cotizaciones');
   const productos = Array.isArray(row.productos) ? row.productos : [];
+  const notasInternas = parseNotasInternas(text(row.notas_internas));
+  const resumen = cotizacionResumenTexto(row);
   return `
     <section class="admin-panel">
       <div class="admin-panel__head">
-        <h2>Cotizacion de ${escapeHtml(text(row.nombre))}</h2>
+        <div>
+          <h2>Cotizacion de ${escapeHtml(text(row.nombre))}</h2>
+          <p class="admin-meta">${escapeHtml(text(row.empresa) || 'Sin empresa')} · ${escapeHtml(
+            text(row.email)
+          )} · ${escapeHtml(cotizacionEstadoLabel(text(row.estado) || 'nueva'))}</p>
+        </div>
         <div class="admin-toolbar">
           ${
             row.leida === false
               ? `<button class="admin-button admin-button--ghost" data-table="solicitudes_cotizacion" data-mark-read="${escapeHtml(text(row.id))}" type="button">Marcar leida</button>`
               : '<span class="admin-badge admin-badge--ok">Leida</span>'
           }
+          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-copy-summary>Copiar resumen</button>
+          <a class="admin-button admin-button--ghost" href="mailto:${escapeHtml(text(row.email))}">Responder email</a>
           <a class="admin-button admin-button--ghost" href="#/cotizaciones">Volver</a>
+        </div>
+      </div>
+      <div class="cotizacion-workflow">
+        <div class="cotizacion-workflow__summary" data-cotizacion-summary hidden>${escapeHtml(resumen)}</div>
+        <div class="cotizacion-workflow__chips">
+          <span class="admin-badge admin-badge--info">${escapeHtml(text(row.empresa) || 'Sin empresa')}</span>
+          <span class="admin-badge">${escapeHtml(text(row.created_at))}</span>
+          <span class="admin-badge ${row.leida ? 'admin-badge--ok' : 'admin-badge--warn'}">${row.leida ? 'Leida' : 'Sin leer'}</span>
+        </div>
+        <div class="admin-toolbar cotizacion-workflow__actions">
+          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="nueva">Volver a nueva</button>
+          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="en_revision">Enviar a revision</button>
+          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="respondida">Marcar respondida</button>
         </div>
       </div>
       <div style="padding:16px">
@@ -704,6 +912,39 @@ async function cotizacionDetailView(): Promise<string> {
         <p class="admin-help">${escapeHtml(text(row.mensaje)) || 'Sin mensaje.'}</p>
       </div>
       <div style="padding:0 16px 16px">
+        <h3>Historial interno</h3>
+        ${
+          notasInternas.length === 0
+            ? '<p class="admin-help">Sin historial interno. Usa los botones rápidos o las notas para registrar seguimiento.</p>'
+            : `<div class="cotizacion-feed">${notasInternas
+                .slice()
+                .reverse()
+                .map(
+                  linea => `<article class="cotizacion-feed__item">${escapeHtml(linea)}</article>`
+                )
+                .join('')}</div>`
+        }
+      </div>
+      <div style="padding:0 16px 16px">
+        <h3>Notas internas</h3>
+        <div class="admin-toolbar cotizacion-nota-templates">
+          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-nota-template="Cliente contactado. Se comparte avance comercial y siguiente paso.">Contactado</button>
+          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-nota-template="Cotizacion revisada. Falta confirmar volumen o especificaciones finales.">En revisión</button>
+          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-nota-template="Cotizacion respondida. Enviar seguimiento en 24-48 horas.">Respondida</button>
+          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-nota-template="Cotizacion escalada a equipo tecnico/comercial para validacion.">Escalar</button>
+        </div>
+        <form class="admin-form" data-cotizacion-estado-form style="margin-top:12px">
+          <input type="hidden" name="id" value="${escapeHtml(text(row.id))}" />
+          <div class="admin-editor__cols">
+            ${selectStatic('estado', 'Estado', text(row.estado) || 'nueva', COTIZACION_ESTADOS)}
+          </div>
+          <textarea name="notas_internas" rows="4" placeholder="Notas internas" data-cotizacion-nota-input>${escapeHtml(
+            text(row.notas_internas)
+          )}</textarea>
+          <button class="admin-button" type="submit">Guardar seguimiento</button>
+        </form>
+      </div>
+      <div style="padding:0 16px 16px">
         <h3>Consentimiento de datos</h3>
         <p class="admin-help">${
           row.consentimiento_datos
@@ -711,14 +952,6 @@ async function cotizacionDetailView(): Promise<string> {
             : 'No aceptado / no registrado'
         }</p>
       </div>
-      <form class="admin-form" data-cotizacion-estado-form style="padding:0 16px 16px">
-        <input type="hidden" name="id" value="${escapeHtml(text(row.id))}" />
-        <div class="admin-editor__cols">
-          ${selectStatic('estado', 'Estado', text(row.estado) || 'nueva', COTIZACION_ESTADOS)}
-        </div>
-        ${textarea('notas_internas', 'Notas internas', text(row.notas_internas))}
-        <button class="admin-button" type="submit">Guardar seguimiento</button>
-      </form>
     </section>`;
 }
 
@@ -902,23 +1135,125 @@ const PEDIDO_ESTADOS: Array<[string, string]> = [
   ['error_verificacion', 'Error de verificacion'],
 ];
 
+function pedidoEstadoLabel(estado: string): string {
+  return PEDIDO_ESTADOS.find(([value]) => value === estado)?.[1] ?? estado;
+}
+
+function pedidoResumenTexto(row: Row): string {
+  const referencia = text(row.referencia_pasarela) || text(row.id).slice(0, 8);
+  const cliente = row.cliente && typeof row.cliente === 'object' ? (row.cliente as Row) : {};
+  const clienteLabel =
+    [text(cliente.nombre), text(cliente.apellido)].filter(Boolean).join(' ') ||
+    text(cliente.institucion) ||
+    text(cliente.email) ||
+    'Cliente sin nombre';
+  const total = `${text(row.total)} ${text(row.moneda)}`.trim();
+  return [
+    `Pedido ${referencia}`,
+    `Estado: ${pedidoEstadoLabel(text(row.estado))}`,
+    `Total: ${total}`,
+    `Cliente: ${clienteLabel}`,
+    `Mercado: ${text(row.mercado)}`,
+  ].join(' | ');
+}
+
 async function pedidosView(): Promise<string> {
-  const rows = await selectRows('pedidos', '*', 'created_at', 100, false);
-  return listWithCsv(
-    'pedidos',
-    rows,
-    [
-      'created_at',
-      'cliente',
-      'total',
-      'moneda',
-      'mercado',
-      'estado',
-      'referencia_pasarela',
-      'leida',
-    ],
-    'pedido'
-  );
+  const params = hashParams();
+  const q = (params.get('q') ?? '').trim();
+  const estado = params.get('estado') ?? '';
+  const mercado = params.get('mercado') ?? '';
+  const leida = params.get('leida') ?? '';
+  let query = supabase!
+    .from('pedidos')
+    .select('id,created_at,cliente,total,moneda,mercado,estado,referencia_pasarela,leida', {
+      count: 'exact',
+    })
+    .order('created_at', { ascending: false })
+    .limit(200);
+  if (q) {
+    const safeQ = q.replace(/[,()%]/g, '');
+    if (safeQ) {
+      query = query.or(
+        `referencia_pasarela.ilike.%${safeQ}%,checkout_url.ilike.%${safeQ}%,moneda.ilike.%${safeQ}%`
+      );
+    }
+  }
+  if (estado) query = query.eq('estado', estado);
+  if (mercado) query = query.eq('mercado', mercado);
+  if (leida === '1') query = query.eq('leida', true);
+  if (leida === '0') query = query.eq('leida', false);
+  const { data, error, count } = await query;
+  if (error) toast(error.message);
+  const rows = (data ?? []) as unknown as Row[];
+  const csvPayload = escapeHtml(JSON.stringify(rows));
+  const total = count ?? rows.length;
+
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head">
+        <h2>Pedidos (${total})</h2>
+        <div class="admin-toolbar">
+          <button class="admin-button admin-button--ghost" type="button" data-pedidos-select-all>Seleccionar todo</button>
+          <button class="admin-button admin-button--ghost" type="button" data-csv="${csvPayload}" data-filename="pedidos.csv">Exportar CSV</button>
+          <button class="admin-button" type="button" data-bulk-pedido-read>Marcar leidos</button>
+          <button class="admin-button" type="button" data-bulk-pedido-estado="procesando">Procesar</button>
+          <button class="admin-button" type="button" data-bulk-pedido-estado="enviado">Enviar</button>
+        </div>
+      </div>
+      <form class="admin-filters" data-pedidos-filter>
+        ${field('q', 'Buscar referencia', q, false, 'search')}
+        ${selectStatic('estado', 'Estado', estado, [['', 'Todos'], ...PEDIDO_ESTADOS])}
+        ${selectStatic('mercado', 'Mercado', mercado, [
+          ['', 'Todos'],
+          ['CO', 'CO'],
+          ['INTL', 'INTL'],
+        ])}
+        ${selectStatic('leida', 'Leído', leida, [
+          ['', 'Todos'],
+          ['1', 'Sí'],
+          ['0', 'No'],
+        ])}
+        <button class="admin-button" type="submit">Filtrar</button>
+        <a class="admin-button admin-button--ghost" href="#/pedidos">Limpiar</a>
+      </form>
+      <div class="admin-panel__head">
+        <p class="admin-meta">Seleccionados: <strong data-pedidos-selected-count>0</strong></p>
+        <span class="admin-help">Las acciones masivas actualizan estados y registran timeline interno por pedido.</span>
+      </div>
+      ${table(
+        [
+          'Sel',
+          'Fecha',
+          'Cliente',
+          'Total',
+          'Mercado',
+          'Estado',
+          'Leida',
+          'Referencia',
+          'Acciones',
+        ],
+        rows.map(row => {
+          const cliente =
+            row.cliente && typeof row.cliente === 'object' ? (row.cliente as Row) : {};
+          const clienteLabel =
+            [text(cliente.nombre), text(cliente.apellido)].filter(Boolean).join(' ') ||
+            text(cliente.institucion) ||
+            text(cliente.email) ||
+            '—';
+          return [
+            `<input type="checkbox" data-pedido-select value="${escapeHtml(text(row.id))}" aria-label="Seleccionar pedido ${escapeHtml(text(row.referencia_pasarela) || text(row.id))}" />`,
+            formatCell(row.created_at),
+            clienteLabel,
+            `${text(row.total)} ${text(row.moneda)}`,
+            text(row.mercado),
+            status(row.estado),
+            formatCell(row.leida),
+            escapeHtml(text(row.referencia_pasarela)) || '—',
+            `<a class="admin-button admin-button--ghost" href="#/pedido?id=${encodeURIComponent(text(row.id))}">Ver</a>`,
+          ];
+        })
+      )}
+    </section>`;
 }
 
 async function pedidoDetailView(): Promise<string> {
@@ -926,6 +1261,14 @@ async function pedidoDetailView(): Promise<string> {
   if (!row) return notFoundPanel('Pedido no encontrado', '#/pedidos');
   const cliente = row.cliente && typeof row.cliente === 'object' ? (row.cliente as Row) : {};
   const items = Array.isArray(row.items) ? row.items : [];
+  const clienteNombre =
+    [text(cliente.nombre), text(cliente.apellido)].filter(Boolean).join(' ') ||
+    text(cliente.institucion) ||
+    text(cliente.email) ||
+    'Cliente sin nombre';
+  const clienteEmail = text(cliente.email);
+  const referenciaPedido = text(row.referencia_pasarela) || text(row.id).slice(0, 8);
+  const resumenPedido = pedidoResumenTexto(row);
 
   const referencia = text(row.referencia_pasarela);
   const [eventosResult, fulfillmentsResult, notasResult, timelineResult] = await Promise.all([
@@ -956,21 +1299,95 @@ async function pedidoDetailView(): Promise<string> {
   const fulfillments = (fulfillmentsResult.data ?? []) as Row[];
   const notas = (notasResult.data ?? []) as Row[];
   const timeline = (timelineResult.data ?? []) as Row[];
+  const feed = [
+    ...timeline.map(evento => ({
+      kind: 'timeline',
+      createdAt: text(evento.created_at),
+      title: `${pedidoEstadoLabel(text(evento.de_estado))} → ${pedidoEstadoLabel(text(evento.a_estado))}`,
+      meta: [text(evento.tipo), text(evento.actor_email)].filter(Boolean).join(' · '),
+      body:
+        evento.metadata && typeof evento.metadata === 'object'
+          ? JSON.stringify(evento.metadata)
+          : 'Cambio de estado registrado desde el panel.',
+      badge: 'Estado',
+    })),
+    ...notas.map(nota => ({
+      kind: 'nota',
+      createdAt: text(nota.created_at),
+      title:
+        text(nota.tipo) === 'cliente'
+          ? 'Nota para cliente'
+          : text(nota.tipo) === 'sistema'
+            ? 'Nota de sistema'
+            : 'Nota interna',
+      meta: [text(nota.autor_email), text(nota.tipo)].filter(Boolean).join(' · '),
+      body: text(nota.nota),
+      badge: 'Nota',
+    })),
+    ...eventos.map(evento => ({
+      kind: 'pago',
+      createdAt: text(evento.created_at),
+      title: `${text(evento.proveedor_pago)} · ${text(evento.event_id)}`,
+      meta: formatCell(evento.procesado),
+      body: text(evento.referencia_pasarela)
+        ? `Referencia ${text(evento.referencia_pasarela)}`
+        : 'Evento de pago recibido.',
+      badge: 'Pago',
+    })),
+  ].sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
 
   return `
     <section class="admin-panel">
       <div class="admin-panel__head">
-        <h2>Pedido ${escapeHtml(text(row.referencia_pasarela)) || escapeHtml(text(row.id)).slice(0, 8)}</h2>
+        <div>
+          <h2>Pedido ${escapeHtml(referenciaPedido)}</h2>
+          <p class="admin-meta">${escapeHtml(clienteNombre)} · ${escapeHtml(text(row.mercado))} · ${escapeHtml(
+            pedidoEstadoLabel(text(row.estado))
+          )}</p>
+        </div>
         <div class="admin-toolbar">
           ${
             row.leida === false
               ? `<button class="admin-button admin-button--ghost" data-table="pedidos" data-mark-read="${escapeHtml(text(row.id))}" type="button">Marcar leida</button>`
               : '<span class="admin-badge admin-badge--ok">Leida</span>'
           }
+          <button class="admin-button admin-button--ghost" type="button" data-pedido-copy-summary>Copiar resumen</button>
+          ${
+            text(row.checkout_url)
+              ? `<a class="admin-button admin-button--ghost" href="${escapeHtml(text(row.checkout_url))}" target="_blank" rel="noopener noreferrer">Abrir checkout</a>`
+              : ''
+          }
+          ${
+            clienteEmail
+              ? `<a class="admin-button admin-button--ghost" href="mailto:${escapeHtml(clienteEmail)}">Escribir al cliente</a>`
+              : ''
+          }
           <a class="admin-button admin-button--ghost" href="#/pedidos">Volver</a>
         </div>
       </div>
-      <div style="padding:16px">
+      <div class="admin-panel__body">
+        <div class="pedido-workflow">
+          <div class="pedido-workflow__summary" data-pedido-summary hidden>${escapeHtml(resumenPedido)}</div>
+          <div class="pedido-workflow__meta">
+            <span class="admin-badge admin-badge--info">${escapeHtml(text(row.proveedor_pago))}</span>
+            <span class="admin-badge">${escapeHtml(text(row.mercado))}</span>
+            <span class="admin-badge ${row.leida ? 'admin-badge--ok' : 'admin-badge--warn'}">${
+              row.leida ? 'Leida' : 'Sin leer'
+            }</span>
+          </div>
+          <div class="admin-toolbar pedido-workflow__actions">
+            <button class="admin-button admin-button--ghost" type="button" data-pedido-quick-estado="procesando">Procesar</button>
+            <button class="admin-button admin-button--ghost" type="button" data-pedido-quick-estado="enviado">Enviar</button>
+            <button class="admin-button admin-button--ghost" type="button" data-pedido-quick-estado="entregado">Entregar</button>
+            <button class="admin-button admin-button--ghost" type="button" data-pedido-quick-estado="retrasado">Marcar retrasado</button>
+            <button class="admin-button admin-button--danger" type="button" data-pedido-quick-estado="cancelado">Cancelar</button>
+            <button class="admin-button admin-button--danger" type="button" data-pedido-quick-estado="reembolsado">Reembolsar</button>
+          </div>
+        </div>
+        <div style="padding:16px 16px 0">
+          <h3>Resumen operativo</h3>
+        </div>
+        <div style="padding:16px">
         ${table(
           ['Campo', 'Valor'],
           [
@@ -988,9 +1405,32 @@ async function pedidoDetailView(): Promise<string> {
           ]
         )}
       </div>
+      </div>
       <div style="padding:0 16px 16px">
         <h3>Cliente</h3>
-        ${jsonObjectTable(cliente)}
+        <div class="admin-flow-grid">
+          <div>${jsonObjectTable(cliente)}</div>
+          <div class="admin-cards-stack">
+            <div class="admin-workcard">
+              <strong>Acciones del cliente</strong>
+              <p>Contacta, revisa direccion y valida el contexto del pedido sin salir de la ficha.</p>
+              <div class="admin-toolbar">
+                ${
+                  text(row.cliente_id)
+                    ? `<a class="admin-button admin-button--ghost" href="#/cliente?id=${encodeURIComponent(text(row.cliente_id))}">Ver cliente</a>`
+                    : ''
+                }
+                ${
+                  clienteEmail
+                    ? `<button class="admin-button admin-button--ghost" type="button" data-copy-text="${escapeHtml(
+                        clienteEmail
+                      )}">Copiar email</button>`
+                    : ''
+                }
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div style="padding:0 16px 16px">
         <h3>Items</h3>
@@ -1036,20 +1476,33 @@ async function pedidoDetailView(): Promise<string> {
         }
       </div>
       <div style="padding:0 16px 16px">
-        <h3>Timeline interno</h3>
+        <div class="admin-panel__head" style="padding-left:0;padding-right:0;border-bottom:0">
+          <h3>Timeline unificado</h3>
+          <span class="admin-meta">Estado, notas y eventos de pago en una sola vista</span>
+        </div>
         ${
-          timeline.length === 0
-            ? '<p class="admin-help">Sin eventos internos aun.</p>'
-            : table(
-                ['Fecha', 'Tipo', 'De', 'A', 'Actor'],
-                timeline.map(e => [
-                  formatCell(e.created_at),
-                  escapeHtml(text(e.tipo)),
-                  escapeHtml(text(e.de_estado)) || '—',
-                  escapeHtml(text(e.a_estado)) || '—',
-                  escapeHtml(text(e.actor_email)) || '—',
-                ])
-              )
+          feed.length === 0
+            ? '<p class="admin-help">Sin eventos aun.</p>'
+            : `<div class="pedido-feed">${feed
+                .map(item => {
+                  const clase =
+                    item.kind === 'pago'
+                      ? 'pedido-feed__item pedido-feed__item--pago'
+                      : item.kind === 'nota'
+                        ? 'pedido-feed__item pedido-feed__item--nota'
+                        : 'pedido-feed__item pedido-feed__item--estado';
+                  return `
+                    <article class="${clase}">
+                      <div class="pedido-feed__top">
+                        <span class="admin-badge admin-badge--info">${escapeHtml(item.badge)}</span>
+                        <time>${formatCell(item.createdAt)}</time>
+                      </div>
+                      <h4>${escapeHtml(item.title)}</h4>
+                      ${item.meta ? `<p class="pedido-feed__meta">${escapeHtml(item.meta)}</p>` : ''}
+                      <p>${escapeHtml(item.body)}</p>
+                    </article>`;
+                })
+                .join('')}</div>`
         }
       </div>
       <div style="padding:0 16px 16px">
@@ -1067,6 +1520,12 @@ async function pedidoDetailView(): Promise<string> {
                 ])
               )
         }
+        <div class="admin-toolbar pedido-nota-templates">
+          <button class="admin-button admin-button--ghost" type="button" data-pedido-nota-template="Cliente contactado. Seguimiento en curso.">Contactado</button>
+          <button class="admin-button admin-button--ghost" type="button" data-pedido-nota-template="Pago validado. Preparar despacho o fulfillment.">Pago validado</button>
+          <button class="admin-button admin-button--ghost" type="button" data-pedido-nota-template="Pendiente por inventario. Revisar disponibilidad con proveedor.">Pendiente stock</button>
+          <button class="admin-button admin-button--ghost" type="button" data-pedido-nota-template="Despacho programado. Esperando confirmacion final de transporte.">Despacho programado</button>
+        </div>
         <form class="admin-form" data-pedido-nota-form style="margin-top:12px">
           <input type="hidden" name="pedido_id" value="${escapeHtml(text(row.id))}" />
           ${selectStatic('tipo', 'Tipo de nota', 'interna', [
@@ -1074,7 +1533,7 @@ async function pedidoDetailView(): Promise<string> {
             ['cliente', 'Visible para cliente (futuro portal)'],
             ['sistema', 'Sistema'],
           ])}
-          ${textarea('nota', 'Nueva nota')}
+          <textarea name="nota" rows="4" placeholder="Nueva nota" data-pedido-nota-input></textarea>
           <button class="admin-button" type="submit">Agregar nota</button>
         </form>
       </div>
@@ -1258,8 +1717,21 @@ function jsonRowsTable(items: unknown[]): string {
 }
 
 async function proveedoresView(): Promise<string> {
+  const params = hashParams();
+  const q = (params.get('q') ?? '').trim();
+  const activo = params.get('activo') ?? '';
+  const incorporadoDesde = params.get('incorporado_desde') ?? '';
+  const incorporadoHasta = params.get('incorporado_hasta') ?? '';
+  const ordenar = params.get('ordenar') ?? 'alfabetico_asc';
+
   const [rows, asignaciones] = await Promise.all([
-    selectRows('proveedores', '*', 'nombre', 100),
+    selectProveedores({
+      q,
+      activo,
+      incorporado_desde: incorporadoDesde,
+      incorporado_hasta: incorporadoHasta,
+      ordenar,
+    }),
     selectRows('proveedor_producto', 'proveedor_id', 'prioridad', 1000),
   ]);
   const conteos = new Map<string, number>();
@@ -1268,24 +1740,45 @@ async function proveedoresView(): Promise<string> {
     conteos.set(id, (conteos.get(id) ?? 0) + 1);
   }
   return `
-    <form class="admin-panel admin-form" data-simple-form data-table="proveedores" data-fields="slug,nombre,contacto_email,contacto_whatsapp,canal,webhook_url,notas,activo">
-      <div class="admin-panel__head"><h2>Proveedores</h2><button class="admin-button" type="submit">Crear proveedor</button></div>
-      <div style="padding:16px" class="admin-editor__cols">
-        ${field('slug', 'Slug', '', true)}
-        ${field('nombre', 'Nombre', '', true)}
-        ${field('contacto_email', 'Email')}
-        ${field('contacto_whatsapp', 'WhatsApp')}
-        ${selectStatic('canal', 'Canal', 'email', [
-          ['email', 'Email'],
-          ['whatsapp', 'WhatsApp'],
-          ['webhook', 'Webhook'],
-          ['api', 'API'],
-          ['manual', 'Manual'],
+    <section class="admin-panel admin-form">
+      <div class="admin-panel__head"><h2>Proveedores</h2></div>
+      <form class="admin-filters" data-proveedores-filter>
+        ${field('q', 'Buscar por nombre o slug', q, false, 'search')}
+        ${selectStatic('activo', 'Estado', activo, [
+          ['', 'Todos'],
+          ['1', 'Activo'],
+          ['0', 'Inactivo'],
         ])}
-        ${field('webhook_url', 'Webhook URL')}
-        ${textarea('notas', 'Notas')}
-        ${checkbox('activo', 'Activo', true)}
-      </div>
+        ${field('incorporado_desde', 'Fecha incorporación desde', incorporadoDesde, false, 'date')}
+        ${field('incorporado_hasta', 'Fecha incorporación hasta', incorporadoHasta, false, 'date')}
+        ${selectStatic('ordenar', 'Ordenar', ordenar, [
+          ['alfabetico_asc', 'A-Z'],
+          ['alfabetico_desc', 'Z-A'],
+          ['recientes', 'Más recientes'],
+          ['antiguos', 'Más antiguos'],
+        ])}
+        <button class="admin-button" type="submit">Filtrar</button>
+        <a class="admin-button admin-button--ghost" href="#/proveedores">Limpiar</a>
+      </form>
+      <form class="admin-panel admin-form" data-simple-form data-table="proveedores" data-fields="slug,nombre,contacto_email,contacto_whatsapp,canal,webhook_url,notas,activo">
+        <div class="admin-panel__head"><h2>Crear proveedor</h2><button class="admin-button" type="submit">Guardar</button></div>
+        <div style="padding:16px" class="admin-editor__cols">
+          ${field('slug', 'Slug', '', true)}
+          ${field('nombre', 'Nombre', '', true)}
+          ${field('contacto_email', 'Email')}
+          ${field('contacto_whatsapp', 'WhatsApp')}
+          ${selectStatic('canal', 'Canal', 'email', [
+            ['email', 'Email'],
+            ['whatsapp', 'WhatsApp'],
+            ['webhook', 'Webhook'],
+            ['api', 'API'],
+            ['manual', 'Manual'],
+          ])}
+          ${field('webhook_url', 'Webhook URL')}
+          ${textarea('notas', 'Notas')}
+          ${checkbox('activo', 'Activo', true)}
+        </div>
+      </form>
       ${table(
         ['Nombre', 'Canal', 'Estado', 'Productos asignados', 'Acciones'],
         rows.map(r => [
@@ -1296,7 +1789,7 @@ async function proveedoresView(): Promise<string> {
           `<a class="admin-button admin-button--ghost" href="#/proveedor-productos?id=${encodeURIComponent(text(r.id))}">Productos</a>`,
         ])
       )}
-    </form>`;
+    </section>`;
 }
 
 async function proveedorProductosView(): Promise<string> {
@@ -1435,14 +1928,45 @@ async function fulfillmentsView(): Promise<string> {
                   row.proveedores && typeof row.proveedores === 'object'
                     ? (row.proveedores as Row)
                     : {};
+                const resumen = [
+                  `Pedido: ${text(pedido.cliente) || 'Sin cliente'} — ${text(pedido.total)} ${text(
+                    pedido.moneda
+                  )}`,
+                  `Proveedor: ${text(proveedor.nombre) || 'Sin asignar'}`,
+                  `Estado: ${text(row.estado)}`,
+                  `Tracking: ${text(row.tracking_number) || '—'}`,
+                ].join(' | ');
                 return `
               <form class="admin-form" data-fulfillment-form style="padding:16px;border-top:1px solid var(--admin-line)">
                 <input type="hidden" name="id" value="${escapeHtml(text(row.id))}" />
-                <div class="admin-campo-revisable__head">
-                  <span>Pedido: ${formatCell(pedido.cliente)} — ${escapeHtml(text(pedido.total))} ${escapeHtml(text(pedido.moneda))}</span>
-                  <span>Proveedor: ${escapeHtml(text(proveedor.nombre) || 'Sin asignar')}</span>
-                  <span>Creado: ${formatCell(row.created_at)}</span>
-                  ${row.error_detalle ? `<span class="admin-badge admin-badge--warn">Error: ${escapeHtml(text(row.error_detalle))}</span>` : ''}
+                <div class="fulfillment-workflow">
+                  <div class="fulfillment-workflow__summary" data-fulfillment-summary hidden>${escapeHtml(resumen)}</div>
+                  <div class="admin-campo-revisable__head">
+                    <span>Pedido: ${formatCell(pedido.cliente)} — ${escapeHtml(text(pedido.total))} ${escapeHtml(text(pedido.moneda))}</span>
+                    <span>Proveedor: ${escapeHtml(text(proveedor.nombre) || 'Sin asignar')}</span>
+                    <span>Creado: ${formatCell(row.created_at)}</span>
+                    ${row.error_detalle ? `<span class="admin-badge admin-badge--warn">Error: ${escapeHtml(text(row.error_detalle))}</span>` : ''}
+                  </div>
+                  <div class="fulfillment-workflow__chips">
+                    <span class="admin-badge admin-badge--info">${escapeHtml(text(row.estado))}</span>
+                    ${row.notificado_at ? `<span class="admin-badge">Notif. ${formatCell(row.notificado_at)}</span>` : ''}
+                    ${row.enviado_at ? `<span class="admin-badge">Enviado ${formatCell(row.enviado_at)}</span>` : ''}
+                    ${row.entregado_at ? `<span class="admin-badge">Entregado ${formatCell(row.entregado_at)}</span>` : ''}
+                  </div>
+                  <div class="admin-toolbar fulfillment-workflow__actions">
+                    <button class="admin-button admin-button--ghost" type="button" data-fulfillment-quick-estado="notificado">Notificar</button>
+                    <button class="admin-button admin-button--ghost" type="button" data-fulfillment-quick-estado="preparando">Preparar</button>
+                    <button class="admin-button admin-button--ghost" type="button" data-fulfillment-quick-estado="enviado">Enviar</button>
+                    <button class="admin-button admin-button--ghost" type="button" data-fulfillment-quick-estado="entregado">Entregar</button>
+                    <button class="admin-button admin-button--ghost" type="button" data-fulfillment-quick-estado="cancelado">Cancelar</button>
+                    <button class="admin-button admin-button--danger" type="button" data-fulfillment-quick-estado="error">Marcar error</button>
+                    ${
+                      text(row.tracking_url)
+                        ? `<a class="admin-button admin-button--ghost" href="${escapeHtml(text(row.tracking_url))}" target="_blank" rel="noopener noreferrer">Abrir tracking</a>`
+                        : ''
+                    }
+                    <button class="admin-button admin-button--ghost" type="button" data-fulfillment-copy-summary>Copiar resumen</button>
+                  </div>
                 </div>
                 <div class="admin-editor__cols">
                   ${selectStatic('estado', 'Estado', text(row.estado), FULFILLMENT_ESTADOS)}
@@ -1637,10 +2161,12 @@ async function asesorView(): Promise<string> {
     <section class="admin-panel">
       <div class="admin-panel__head"><h2>Reindexar catalogo (embeddings Asesor)</h2></div>
       <div style="padding:16px" class="admin-form">
-        <div class="admin-alert">Reindexar recalcula el embedding de todos los productos activos y consume presupuesto LLM. Estima el coste antes de confirmar.</div>
+        <div class="admin-alert">Reindexar recalcula el embedding de todos los productos activos. <strong>Ollama local</strong>: coste $0, requiere Ollama corriendo en localhost. <strong>Via Edge Function</strong>: consume presupuesto LLM nube.</div>
         <div class="admin-toolbar">
-          <button class="admin-button admin-button--ghost" data-asesor-estimar type="button">Estimar coste de reindexado completo</button>
-          <button class="admin-button" data-asesor-reindexar type="button">Reindexar catalogo</button>
+          <button class="admin-button admin-button--ghost" data-asesor-estimar type="button">Estimar coste (nube)</button>
+          <button class="admin-button admin-button--ghost" data-asesor-reindexar type="button">Reindexar (nube)</button>
+          <button class="admin-button" data-asesor-reindexar-ollama type="button">Reindexar productos (Ollama)</button>
+          <button class="admin-button" data-asesor-reindexar-articulos type="button">Reindexar artículos (Ollama)</button>
         </div>
         <div data-asesor-reindex-result></div>
       </div>
@@ -1689,6 +2215,40 @@ function bindAsesorPanel() {
       </div>
       ${errores.length ? jsonRowsTable(errores) : ''}`;
   });
+
+  app.querySelector('[data-asesor-reindexar-ollama]')?.addEventListener('click', async () => {
+    if (
+      !confirm(
+        'Reindexar todo el catalogo con Ollama local (mxbai-embed-large)? Asegurate de que Ollama este corriendo.'
+      )
+    )
+      return;
+    resultado.innerHTML =
+      '<p class="admin-help">Generando embeddings de productos con Ollama local, esto puede tardar...</p>';
+    try {
+      const stats = await reindexarConOllamaLocal();
+      resultado.innerHTML = `<div class="admin-alert">Procesados: ${stats.procesados} · Errores: ${stats.errores} · Coste: $0 (Ollama local)</div>`;
+    } catch (err) {
+      resultado.innerHTML = `<div class="admin-alert">Error: ${escapeHtml(err instanceof Error ? err.message : String(err))}</div>`;
+    }
+  });
+
+  app.querySelector('[data-asesor-reindexar-articulos]')?.addEventListener('click', async () => {
+    if (
+      !confirm(
+        'Reindexar artículos publicados con Ollama local? Asegurate de que Ollama este corriendo.'
+      )
+    )
+      return;
+    resultado.innerHTML =
+      '<p class="admin-help">Generando embeddings de artículos con Ollama local...</p>';
+    try {
+      const stats = await reindexarArticulosConOllama();
+      resultado.innerHTML = `<div class="admin-alert">Artículos procesados: ${stats.procesados} · Errores: ${stats.errores} · Coste: $0</div>`;
+    } catch (err) {
+      resultado.innerHTML = `<div class="admin-alert">Error: ${escapeHtml(err instanceof Error ? err.message : String(err))}</div>`;
+    }
+  });
 }
 
 function bindProductFilters() {
@@ -1697,12 +2257,36 @@ function bindProductFilters() {
     event.preventDefault();
     const data = new FormData(form);
     const params = new URLSearchParams();
-    for (const key of ['q', 'familia_id', 'tipo_id', 'activo', 'tipo_comercial']) {
+    for (const key of [
+      'q',
+      'familia_id',
+      'tipo_id',
+      'activo',
+      'tipo_comercial',
+      'incorporado_desde',
+      'incorporado_hasta',
+      'ordenar',
+    ]) {
       const value = String(data.get(key) ?? '').trim();
       if (value) params.set(key, value);
     }
     const qs = params.toString();
     location.hash = `#/productos${qs ? `?${qs}` : ''}`;
+  });
+}
+
+function bindProviderFilters() {
+  const form = app.querySelector<HTMLFormElement>('[data-proveedores-filter]');
+  form?.addEventListener('submit', event => {
+    event.preventDefault();
+    const data = new FormData(form);
+    const params = new URLSearchParams();
+    for (const key of ['q', 'activo', 'incorporado_desde', 'incorporado_hasta', 'ordenar']) {
+      const value = String(data.get(key) ?? '').trim();
+      if (value) params.set(key, value);
+    }
+    const qs = params.toString();
+    location.hash = `#/proveedores${qs ? `?${qs}` : ''}`;
   });
 }
 
@@ -1821,19 +2405,54 @@ function bindFulfillments() {
       event.preventDefault();
       const data = new FormData(form);
       const id = String(data.get('id') ?? '');
-      const payload: Row = {
-        estado: String(data.get('estado') ?? 'pendiente'),
-        tracking_number: emptyToNull(data.get('tracking_number')),
-        tracking_url: emptyToNull(data.get('tracking_url')),
-        notas: emptyToNull(data.get('notas')),
+      const estado = String(data.get('estado') ?? 'pendiente');
+      const tracking_number = emptyToNull(data.get('tracking_number'));
+      const tracking_url = emptyToNull(data.get('tracking_url'));
+      const notas = emptyToNull(data.get('notas'));
+      const before = await getRow('fulfillments', id);
+      const cambios: Row = {
+        estado,
+        tracking_number,
+        tracking_url,
+        notas: appendNotaInterna(
+          notas ?? text(before?.notas),
+          `[${timestampCorto()}] Estado: ${text(before?.estado) || 'pendiente'} -> ${estado}`
+        ),
       };
-      const { error } = await supabase!.from('fulfillments').update(payload).eq('id', id);
+      const { error } = await supabase!.from('fulfillments').update(cambios).eq('id', id);
       if (error) {
         toast(error.message);
         return;
       }
       toast('Fulfillment actualizado');
       await render();
+    });
+  });
+  app.querySelectorAll<HTMLButtonElement>('[data-fulfillment-quick-estado]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const row = button.closest<HTMLFormElement>('[data-fulfillment-form]');
+      const id = row?.querySelector<HTMLInputElement>('input[name="id"]')?.value ?? '';
+      const estado = button.dataset['fulfillmentQuickEstado'] ?? '';
+      if (!id || !estado) return;
+      const ok = await actualizarSeguimientoFulfillment(id, estado);
+      if (ok) toast(`Fulfillment actualizado a ${estado}.`);
+      await render();
+    });
+  });
+  app.querySelectorAll<HTMLButtonElement>('[data-fulfillment-copy-summary]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const summary =
+        button
+          .closest<HTMLFormElement>('[data-fulfillment-form]')
+          ?.querySelector<HTMLElement>('[data-fulfillment-summary]')
+          ?.textContent?.trim() ?? '';
+      if (!summary) return;
+      try {
+        await navigator.clipboard.writeText(summary);
+        toast('Copiado al portapapeles.');
+      } catch {
+        toast('No se pudo copiar el texto.');
+      }
     });
   });
   const filterForm = app.querySelector<HTMLFormElement>('[data-fulfillments-filter]');
@@ -1989,6 +2608,46 @@ function bindProveedorProductos() {
   });
 }
 
+async function actualizarEstadoPedido(id: string, estado: string): Promise<boolean> {
+  const before = await getRow('pedidos', id);
+  const estadoAnterior = text(before?.estado);
+  const { error } = await supabase!.from('pedidos').update({ estado }).eq('id', id);
+  if (error) {
+    toast(error.message);
+    return false;
+  }
+  await registrarEventoPedido(id, {
+    tipo: 'estado_actualizado',
+    de_estado: estadoAnterior || null,
+    a_estado: estado,
+    metadata: { source: 'admin' },
+  });
+  return true;
+}
+
+async function registrarEventoPedido(
+  id: string,
+  payload: {
+    tipo: string;
+    de_estado?: string | null;
+    a_estado?: string | null;
+    metadata?: Row['metadata'];
+  }
+): Promise<void> {
+  const {
+    data: { user },
+  } = await supabase!.auth.getUser();
+  await supabase!.from('pedido_eventos').insert({
+    pedido_id: id,
+    actor_id: user?.id ?? null,
+    actor_email: user?.email ?? state.email,
+    tipo: String(payload.tipo ?? 'admin'),
+    de_estado: payload.de_estado ?? null,
+    a_estado: payload.a_estado ?? null,
+    metadata: payload.metadata ?? {},
+  });
+}
+
 function bindSimpleTables() {
   app.querySelectorAll<HTMLButtonElement>('[data-mark-read]').forEach(button => {
     button.addEventListener('click', async () => {
@@ -2007,22 +2666,6 @@ function bindSimpleTables() {
       downloadCsv(button.dataset['filename'] ?? 'export.csv', JSON.parse(raw) as Row[]);
     });
   });
-  const cotizacionForm = app.querySelector<HTMLFormElement>('[data-cotizacion-estado-form]');
-  cotizacionForm?.addEventListener('submit', async event => {
-    event.preventDefault();
-    const data = new FormData(cotizacionForm);
-    const id = String(data.get('id') ?? '');
-    const estado = String(data.get('estado') ?? '');
-    const notas_internas = String(data.get('notas_internas') ?? '');
-    if (!id || !estado) return;
-    const { error } = await supabase!
-      .from('solicitudes_cotizacion')
-      .update({ estado, notas_internas: notas_internas || null })
-      .eq('id', id);
-    if (error) toast(error.message);
-    else toast('Seguimiento actualizado.');
-    await render();
-  });
 
   const pedidoForm = app.querySelector<HTMLFormElement>('[data-pedido-estado-form]');
   pedidoForm?.addEventListener('submit', async event => {
@@ -2039,25 +2682,61 @@ function bindSimpleTables() {
     ) {
       return;
     }
-    const before = await getRow('pedidos', id);
-    const estadoAnterior = text(before?.estado);
-    const { error } = await supabase!.from('pedidos').update({ estado }).eq('id', id);
-    if (error) toast(error.message);
-    else {
-      const {
-        data: { user },
-      } = await supabase!.auth.getUser();
-      await supabase!.from('pedido_eventos').insert({
-        pedido_id: id,
-        actor_id: user?.id ?? null,
-        actor_email: user?.email ?? state.email,
-        tipo: 'estado_actualizado',
-        de_estado: estadoAnterior || null,
-        a_estado: estado,
-        metadata: { source: 'admin' },
+    const ok = await actualizarEstadoPedido(id, estado);
+    if (ok) toast('Estado actualizado.');
+    await render();
+  });
+}
+
+function bindCotizaciones() {
+  app.querySelectorAll<HTMLButtonElement>('[data-cotizacion-quick-estado]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const id = state.recordId;
+      const estado = button.dataset['cotizacionQuickEstado'] ?? '';
+      if (!id || !estado) return;
+      const ok = await actualizarSeguimientoCotizacion(id, estado, {
+        nota: `Actualizado desde acciones rápidas a ${cotizacionEstadoLabel(estado)}.`,
       });
-      toast('Estado actualizado.');
-    }
+      if (ok) toast(`Cotizacion actualizada a ${cotizacionEstadoLabel(estado)}.`);
+      await render();
+    });
+  });
+
+  app.querySelectorAll<HTMLButtonElement>('[data-cotizacion-nota-template]').forEach(button => {
+    button.addEventListener('click', () => {
+      const target = app.querySelector<HTMLTextAreaElement>('[data-cotizacion-nota-input]');
+      const value = button.dataset['cotizacionNotaTemplate'] ?? '';
+      if (!target || !value) return;
+      target.value = value;
+      target.focus();
+      target.setSelectionRange(value.length, value.length);
+    });
+  });
+
+  app.querySelectorAll<HTMLButtonElement>('[data-cotizacion-copy-summary]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const summary =
+        app.querySelector<HTMLElement>('[data-cotizacion-summary]')?.textContent?.trim() ?? '';
+      if (!summary) return;
+      try {
+        await navigator.clipboard.writeText(summary);
+        toast('Copiado al portapapeles.');
+      } catch {
+        toast('No se pudo copiar el texto.');
+      }
+    });
+  });
+
+  const cotizacionForm = app.querySelector<HTMLFormElement>('[data-cotizacion-estado-form]');
+  cotizacionForm?.addEventListener('submit', async event => {
+    event.preventDefault();
+    const data = new FormData(cotizacionForm);
+    const id = String(data.get('id') ?? '');
+    const estado = String(data.get('estado') ?? '');
+    const notas = String(data.get('notas_internas') ?? '');
+    if (!id || !estado) return;
+    const ok = await actualizarSeguimientoCotizacion(id, estado, { notas });
+    if (ok) toast('Seguimiento actualizado.');
     await render();
   });
 }
@@ -2192,15 +2871,70 @@ function bindCupones() {
 }
 
 function bindPedidoOperaciones() {
+  const copyText = async (value: string) => {
+    if (!value) return;
+    try {
+      await navigator.clipboard.writeText(value);
+      toast('Copiado al portapapeles.');
+    } catch {
+      toast('No se pudo copiar el texto.');
+    }
+  };
+
+  app.querySelectorAll<HTMLButtonElement>('[data-pedido-quick-estado]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const id = state.recordId;
+      const estado = button.dataset['pedidoQuickEstado'] ?? '';
+      if (!id || !estado) return;
+      if (
+        estado === 'retrasado' &&
+        !confirm(
+          'Marcar como "retrasado" implica que un pedido ya pagado no podra cumplirse a tiempo. Recuerda contactar al cliente manualmente. Continuar?'
+        )
+      ) {
+        return;
+      }
+      const ok = await actualizarEstadoPedido(id, estado);
+      if (ok) toast(`Pedido actualizado a ${pedidoEstadoLabel(estado)}.`);
+      await render();
+    });
+  });
+
+  app.querySelectorAll<HTMLButtonElement>('[data-pedido-nota-template]').forEach(button => {
+    button.addEventListener('click', () => {
+      const target = app.querySelector<HTMLTextAreaElement>('[data-pedido-nota-input]');
+      const value = button.dataset['pedidoNotaTemplate'] ?? '';
+      if (!target || !value) return;
+      target.value = value;
+      target.focus();
+      target.setSelectionRange(value.length, value.length);
+    });
+  });
+
+  app.querySelectorAll<HTMLButtonElement>('[data-pedido-copy-summary]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const summary =
+        app.querySelector<HTMLElement>('[data-pedido-summary]')?.textContent?.trim() ?? '';
+      if (summary) await copyText(summary);
+    });
+  });
+
+  app.querySelectorAll<HTMLButtonElement>('[data-copy-text]').forEach(button => {
+    button.addEventListener('click', async () => {
+      await copyText(button.dataset['copyText'] ?? '');
+    });
+  });
+
   const noteForm = app.querySelector<HTMLFormElement>('[data-pedido-nota-form]');
   noteForm?.addEventListener('submit', async event => {
     event.preventDefault();
     const data = new FormData(noteForm);
+    const pedidoId = String(data.get('pedido_id') ?? '');
     const {
       data: { user },
     } = await supabase!.auth.getUser();
     const payload: Row = {
-      pedido_id: String(data.get('pedido_id') ?? ''),
+      pedido_id: pedidoId,
       tipo: String(data.get('tipo') ?? 'interna'),
       nota: String(data.get('nota') ?? '').trim(),
       autor_id: user?.id ?? null,
@@ -2209,8 +2943,104 @@ function bindPedidoOperaciones() {
     if (!payload['nota']) return;
     const { error } = await supabase!.from('pedido_notas').insert(payload);
     if (error) toast(error.message);
-    else toast('Nota agregada');
+    else {
+      try {
+        await registrarEventoPedido(pedidoId, {
+          tipo: 'nota_agregada',
+          metadata: { tipo: payload.tipo, nota: payload.nota },
+        });
+      } catch {
+        // La nota ya quedó guardada; el timeline es una mejora de auditoría, no un bloqueo.
+      }
+      toast('Nota agregada');
+      noteForm.reset();
+    }
     await render();
+  });
+}
+
+function bindPedidoMasivo() {
+  const filterForm = app.querySelector<HTMLFormElement>('[data-pedidos-filter]');
+  filterForm?.addEventListener('submit', event => {
+    event.preventDefault();
+    const data = new FormData(filterForm);
+    const params = new URLSearchParams();
+    for (const key of ['q', 'estado', 'mercado', 'leida']) {
+      const value = String(data.get(key) ?? '').trim();
+      if (value) params.set(key, value);
+    }
+    location.hash = `#/pedidos${params.toString() ? `?${params.toString()}` : ''}`;
+  });
+
+  const selectedCountEl = app.querySelector<HTMLElement>('[data-pedidos-selected-count]');
+  const selectAllBtn = app.querySelector<HTMLButtonElement>('[data-pedidos-select-all]');
+  const bulkReadBtn = app.querySelector<HTMLButtonElement>('[data-bulk-pedido-read]');
+  const bulkStateBtns = Array.from(
+    app.querySelectorAll<HTMLButtonElement>('[data-bulk-pedido-estado]')
+  );
+
+  const getSelectedIds = () =>
+    Array.from(app.querySelectorAll<HTMLInputElement>('[data-pedido-select]:checked')).map(
+      input => input.value
+    );
+
+  const syncSelectedCount = () => {
+    if (selectedCountEl) selectedCountEl.textContent = String(getSelectedIds().length);
+  };
+
+  app.querySelectorAll<HTMLInputElement>('[data-pedido-select]').forEach(input => {
+    input.addEventListener('change', syncSelectedCount);
+  });
+  syncSelectedCount();
+
+  selectAllBtn?.addEventListener('click', () => {
+    const checkboxes = Array.from(app.querySelectorAll<HTMLInputElement>('[data-pedido-select]'));
+    const allChecked = checkboxes.length > 0 && checkboxes.every(input => input.checked);
+    checkboxes.forEach(input => {
+      input.checked = !allChecked;
+    });
+    syncSelectedCount();
+  });
+
+  bulkReadBtn?.addEventListener('click', async () => {
+    const ids = getSelectedIds();
+    if (ids.length === 0) {
+      toast('Selecciona al menos un pedido.');
+      return;
+    }
+    const { error } = await supabase!.from('pedidos').update({ leida: true }).in('id', ids);
+    if (error) {
+      toast(error.message);
+      return;
+    }
+    toast('Pedidos marcados como leidos.');
+    await render();
+  });
+
+  bulkStateBtns.forEach(button => {
+    button.addEventListener('click', async () => {
+      const estado = button.dataset['bulkPedidoEstado'] ?? '';
+      const ids = getSelectedIds();
+      if (!estado || ids.length === 0) {
+        toast('Selecciona al menos un pedido.');
+        return;
+      }
+      if (
+        estado === 'retrasado' &&
+        !confirm(
+          'Marcar pedidos como "retrasado" implica una rotura de stock post-pago. Avisa manualmente a cada cliente antes de continuar.'
+        )
+      ) {
+        return;
+      }
+      for (const id of ids) {
+        // Cambios secuenciales para no saturar la BD ni perder el timeline por pedido.
+         
+        await actualizarEstadoPedido(id, estado);
+      }
+      toast(`Pedidos actualizados a ${estado}.`);
+      await render();
+    });
   });
 }
 
@@ -2233,6 +3063,17 @@ function bindIngest() {
       reviewContainer.innerHTML =
         '<div class="admin-alert">No hay texto extraido. Selecciona un PDF con texto real desde el dispositivo o pega el texto extraido antes de generar el borrador.</div>';
       return;
+    }
+    // Intenta Ollama directo si está configurado (dev local, sin Edge Function)
+    if (OLLAMA_URL) {
+      reviewContainer.innerHTML =
+        '<p class="admin-help">Extrayendo borrador con Ollama local (qwen3:8b)...</p>';
+      const ollamaResult = await callOllamaIngest(pdfText, pdfUrl);
+      if (ollamaResult) {
+        reviewContainer.innerHTML = renderIngestReview(ollamaResult, pdfUrl);
+        bindIngestReview(reviewContainer);
+        return;
+      }
     }
     const { data: json, error } = await supabase!.functions.invoke('ingesta-pdf', {
       body: {
@@ -2635,6 +3476,193 @@ function revisable(
   return { valor, origen, confianza, requiere_revision };
 }
 
+/** Llama a Ollama directamente desde el navegador para generar el borrador de ingesta. */
+async function callOllamaIngest(pdfText: string, pdfUrl: string): Promise<Row | null> {
+  if (!OLLAMA_URL) return null;
+  try {
+    const systemPrompt =
+      'Extrae un borrador JSON bilingue para catalogo medico B2B. Devuelve solo JSON valido, sin texto adicional. No inventes datos. Campo no presente: valor vacio, origen="ausente", requiere_revision=true. Genera producto_es desde el PDF y producto_en_borrador como traduccion al ingles. La traduccion EN es borrador y todos sus campos requieren_revision=true. /no_think';
+    const userPrompt = `Fuente PDF: ${pdfUrl || 'texto pegado por admin'}
+
+Texto disponible:
+${pdfText.slice(0, 12000)}
+
+Estructura requerida:
+{
+  "producto_es": {
+    "nombre": {"valor": "", "origen": "pdf|ausente", "confianza": 0, "requiere_revision": true},
+    "familia_sugerida": {"valor": "", "origen": "pdf|ausente", "confianza": 0, "requiere_revision": true},
+    "tipo_sugerido": {"valor": "", "origen": "pdf|ausente", "confianza": 0, "requiere_revision": true},
+    "descripcion_corta": {"valor": "", "origen": "pdf|ausente", "confianza": 0, "requiere_revision": true},
+    "descripcion_larga": {"valor": "", "origen": "pdf|ausente", "confianza": 0, "requiere_revision": true},
+    "especificaciones": [{"clave": "", "valor": "", "grupo": "", "origen": "pdf", "confianza": 0, "requiere_revision": true}],
+    "aplicaciones": [{"valor": "", "origen": "pdf", "confianza": 0, "requiere_revision": true}],
+    "meta_seo": {"title": "", "description": ""}
+  },
+  "producto_en_borrador": {
+    "nombre": {"valor": "", "origen": "traduccion|ausente", "confianza": 0, "requiere_revision": true},
+    "descripcion_corta": {"valor": "", "origen": "traduccion|ausente", "confianza": 0, "requiere_revision": true},
+    "descripcion_larga": {"valor": "", "origen": "traduccion|ausente", "confianza": 0, "requiere_revision": true},
+    "aplicaciones": [{"valor": "", "origen": "traduccion|ausente", "confianza": 0, "requiere_revision": true}],
+    "meta_seo": {"title": "", "description": ""}
+  },
+  "campos_confianza": [],
+  "ausentes": [],
+  "advertencias": [],
+  "raw_model_id": ""
+}`;
+
+    const res = await fetch(`${OLLAMA_URL}/api/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: OLLAMA_INGEST_MODEL,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
+        ],
+        stream: false,
+        options: { temperature: 0, num_predict: 4500 },
+      }),
+    });
+    if (!res.ok) return null;
+    const json = (await res.json()) as { message?: { content?: string }; model?: string };
+    const raw = (json.message?.content ?? '').replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+    const fenced = raw.match(/```(?:json)?\s*([\s\S]*?)\s*```/i)?.[1]?.trim();
+    const jsonStr =
+      fenced ??
+      (() => {
+        const a = raw.indexOf('{'),
+          b = raw.lastIndexOf('}');
+        return a >= 0 && b > a ? raw.slice(a, b + 1) : raw;
+      })();
+    const parsed = JSON.parse(jsonStr) as Row;
+    parsed['raw_model_id'] = json.model ?? OLLAMA_INGEST_MODEL;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+/** Genera embeddings con Ollama local y actualiza productos.embedding via Supabase client. */
+async function reindexarConOllamaLocal(): Promise<{ procesados: number; errores: number }> {
+  const { data, error } = await supabase!
+    .from('productos')
+    .select(
+      'id, nombre_es, nombre_en, descripcion_corta_es, descripcion_corta_en, descripcion_larga_es, descripcion_larga_en, especificaciones, aplicaciones_es, aplicaciones_en'
+    )
+    .eq('activo', true);
+  if (error) throw new Error(error.message);
+  const productos = (data ?? []) as Row[];
+  if (!productos.length) return { procesados: 0, errores: 0 };
+
+  let procesados = 0;
+  let errores = 0;
+  const BATCH = 10;
+
+  for (let i = 0; i < productos.length; i += BATCH) {
+    const lote = productos.slice(i, i + BATCH);
+    const textos = lote.map(p => buildEmbedText(p));
+    try {
+      const res = await fetch(`${OLLAMA_URL}/api/embed`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: OLLAMA_EMBED_MODEL, input: textos }),
+      });
+      if (!res.ok) throw new Error(`Ollama embed ${res.status}`);
+      const json = (await res.json()) as { embeddings?: number[][] };
+      const vectors = json.embeddings ?? [];
+      if (vectors.length !== lote.length) throw new Error('Longitud de embeddings inesperada');
+      for (let j = 0; j < lote.length; j++) {
+        const { error: upErr } = await supabase!
+          .from('productos')
+          .update({ embedding: vectors[j] })
+          .eq('id', text(lote[j]!['id']));
+        if (upErr) {
+          errores++;
+          continue;
+        }
+        procesados++;
+      }
+    } catch {
+      errores += lote.length;
+    }
+  }
+  return { procesados, errores };
+}
+
+function buildEmbedText(p: Row): string {
+  const parts: string[] = [
+    text(p['nombre_es']),
+    text(p['nombre_en']),
+    text(p['descripcion_corta_es']),
+    text(p['descripcion_corta_en']),
+    text(p['descripcion_larga_es']),
+    text(p['descripcion_larga_en']),
+  ];
+  if (Array.isArray(p['especificaciones'])) {
+    for (const s of p['especificaciones'] as Row[]) {
+      const clave = text(s['clave']).trim();
+      const val = text(s['valor']).trim();
+      if (clave || val) parts.push(`${clave}: ${val}`.trim());
+    }
+  }
+  if (Array.isArray(p['aplicaciones_es'])) {
+    for (const a of p['aplicaciones_es'] as string[]) parts.push(String(a));
+  }
+  return parts.filter(Boolean).join('\n').slice(0, 6000);
+}
+
+/** Genera embeddings para todos los artículos publicados con Ollama local. */
+async function reindexarArticulosConOllama(): Promise<{ procesados: number; errores: number }> {
+  const { data, error } = await supabase!
+    .from('articulos')
+    .select('id, titulo_es, titulo_en, cuerpo_es, cuerpo_en')
+    .eq('publicado', true);
+  if (error) throw new Error(error.message);
+  const articulos = (data ?? []) as Row[];
+  if (!articulos.length) return { procesados: 0, errores: 0 };
+
+  let procesados = 0;
+  let errores = 0;
+  const BATCH = 10;
+
+  for (let i = 0; i < articulos.length; i += BATCH) {
+    const lote = articulos.slice(i, i + BATCH);
+    const textos = lote.map(a =>
+      [text(a['titulo_es']), text(a['titulo_en']), text(a['cuerpo_es']), text(a['cuerpo_en'])]
+        .filter(Boolean)
+        .join('\n')
+        .slice(0, 6000)
+    );
+    try {
+      const res = await fetch(`${OLLAMA_URL}/api/embed`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: OLLAMA_EMBED_MODEL, input: textos }),
+      });
+      if (!res.ok) throw new Error(`Ollama embed ${res.status}`);
+      const json = (await res.json()) as { embeddings?: number[][] };
+      const vectors = json.embeddings ?? [];
+      if (vectors.length !== lote.length) throw new Error('Longitud de embeddings inesperada');
+      for (let j = 0; j < lote.length; j++) {
+        const { error: upErr } = await supabase!
+          .from('articulos')
+          .update({ embedding: vectors[j] })
+          .eq('id', text(lote[j]!['id']));
+        if (upErr) {
+          errores++;
+          continue;
+        }
+        procesados++;
+      }
+    } catch {
+      errores += lote.length;
+    }
+  }
+  return { procesados, errores };
+}
+
 function inferProductName(lines: string[], pdfUrl: string): string {
   const candidate =
     lines.find(line => {
@@ -2828,6 +3856,35 @@ async function triggerRebuild() {
 /** Genera/actualiza el embedding del producto al activarlo (Asesor RAG). No bloquea el guardado si falla. */
 async function generarEmbeddingProducto(productoId: string) {
   if (!productoId) return;
+  if (OLLAMA_URL) {
+    try {
+      const { data: row } = await supabase!
+        .from('productos')
+        .select(
+          'id, nombre_es, nombre_en, descripcion_corta_es, descripcion_corta_en, descripcion_larga_es, descripcion_larga_en, especificaciones, aplicaciones_es, aplicaciones_en'
+        )
+        .eq('id', productoId)
+        .single();
+      if (row) {
+        const embedText = buildEmbedText(row as Row);
+        const res = await fetch(`${OLLAMA_URL}/api/embed`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model: OLLAMA_EMBED_MODEL, input: [embedText] }),
+        });
+        if (res.ok) {
+          const json = (await res.json()) as { embeddings?: number[][] };
+          const vector = json.embeddings?.[0];
+          if (vector?.length) {
+            await supabase!.from('productos').update({ embedding: vector }).eq('id', productoId);
+          }
+        }
+      }
+    } catch {
+      /* no bloquea guardado */
+    }
+    return;
+  }
   const { error } = await supabase!.functions.invoke('generar-embeddings', {
     body: { producto_id: productoId },
   });
@@ -3311,6 +4368,17 @@ type ProductosExcelFilters = {
   tipo_id: string;
   activo: string;
   tipo_comercial: string;
+  incorporado_desde: string;
+  incorporado_hasta: string;
+  ordenar: string;
+};
+
+type ProveedoresQuery = {
+  q: string;
+  activo: string;
+  incorporado_desde: string;
+  incorporado_hasta: string;
+  ordenar: string;
 };
 
 type ProductosExcelImportRow = Row & {
@@ -3464,6 +4532,9 @@ function getCurrentProductosFilters(): ProductosExcelFilters {
     tipo_id: params.get('tipo_id') ?? '',
     activo: params.get('activo') ?? '',
     tipo_comercial: params.get('tipo_comercial') ?? '',
+    incorporado_desde: params.get('incorporado_desde') ?? '',
+    incorporado_hasta: params.get('incorporado_hasta') ?? '',
+    ordenar: params.get('ordenar') ?? 'interno',
   };
 }
 
@@ -3478,12 +4549,25 @@ async function fetchAllProductosForExcel(filters: ProductosExcelFilters): Promis
   if (filters.activo === '1') query = query.eq('activo', true);
   if (filters.activo === '0') query = query.eq('activo', false);
   if (filters.tipo_comercial) query = query.eq('tipo_comercial', filters.tipo_comercial);
+  if (filters.incorporado_desde)
+    query = query.gte('created_at', `${filters.incorporado_desde}T00:00:00`);
+  if (filters.incorporado_hasta)
+    query = query.lte('created_at', `${filters.incorporado_hasta}T23:59:59.999`);
+  if (filters.ordenar === 'alfabetico_asc') {
+    query = query.order('nombre_es', { ascending: true }).order('orden', { ascending: true });
+  } else if (filters.ordenar === 'alfabetico_desc') {
+    query = query.order('nombre_es', { ascending: false }).order('orden', { ascending: true });
+  } else if (filters.ordenar === 'recientes') {
+    query = query.order('created_at', { ascending: false }).order('nombre_es', { ascending: true });
+  } else if (filters.ordenar === 'antiguos') {
+    query = query.order('created_at', { ascending: true }).order('nombre_es', { ascending: true });
+  } else {
+    query = query.order('orden', { ascending: true }).order('nombre_es', { ascending: true });
+  }
   const rows: Row[] = [];
   const pageSize = 500;
   for (let from = 0; ; from += pageSize) {
-    const { data, error } = await query
-      .order('orden', { ascending: true })
-      .range(from, from + pageSize - 1);
+    const { data, error } = await query.range(from, from + pageSize - 1);
     if (error) throw error;
     const batch = (data ?? []) as unknown as Row[];
     rows.push(...batch);
@@ -3611,6 +4695,35 @@ function productoToExcelRow(row: Row, familias: Row[], tipos: Row[]): Record<str
     ),
     orden: numberOrZero(row.orden),
   };
+}
+
+async function selectProveedores(filters: ProveedoresQuery): Promise<Row[]> {
+  let query = supabase!.from('proveedores').select('*');
+  if (filters.q) {
+    const safeQ = filters.q.replace(/[,()%]/g, '');
+    if (safeQ) query = query.or(`nombre.ilike.%${safeQ}%,slug.ilike.%${safeQ}%`);
+  }
+  if (filters.activo === '1') query = query.eq('activo', true);
+  if (filters.activo === '0') query = query.eq('activo', false);
+  if (filters.incorporado_desde)
+    query = query.gte('created_at', `${filters.incorporado_desde}T00:00:00`);
+  if (filters.incorporado_hasta)
+    query = query.lte('created_at', `${filters.incorporado_hasta}T23:59:59.999`);
+  if (filters.ordenar === 'alfabetico_desc') {
+    query = query.order('nombre', { ascending: false }).order('created_at', { ascending: false });
+  } else if (filters.ordenar === 'recientes') {
+    query = query.order('created_at', { ascending: false }).order('nombre', { ascending: true });
+  } else if (filters.ordenar === 'antiguos') {
+    query = query.order('created_at', { ascending: true }).order('nombre', { ascending: true });
+  } else {
+    query = query.order('nombre', { ascending: true }).order('created_at', { ascending: false });
+  }
+  const { data, error } = await query.limit(100);
+  if (error) {
+    toast(error.message);
+    return [];
+  }
+  return (data ?? []) as unknown as Row[];
 }
 
 async function importProductosExcel(
