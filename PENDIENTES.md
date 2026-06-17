@@ -32,15 +32,16 @@
 - [ ] Credenciales Stripe (bloquea pagos INTL) — F4
 - [ ] Credenciales LLM (`LLM_PROVIDER`, `ANTHROPIC_API_KEY` u `OPENAI_API_KEY`, `LLM_INGEST_MODEL`) — bloquea ingesta PDF real y Asesor RAG
 - [ ] Credenciales embeddings (`EMBEDDING_PROVIDER`, `VOYAGE_API_KEY` u `OPENAI_API_KEY`) — bloquea `generar-embeddings` y la búsqueda vectorial del Asesor (sin esto, el Asesor degrada a búsqueda por palabra clave)
-- [x] Vía de prueba local sin credenciales: `LLM_PROVIDER=ollama` (verificado con
-      `qwen3:8b` en el servidor de desarrollo, coste $0) —
-      `docs/decisions/0005-ollama-asesor-local.md`. No sustituye las credenciales de
-      producción (Anthropic/Voyage), pero permite probar `asesor` end-to-end en
-      local mientras llegan.
-- [ ] `EMBEDDING_PROVIDER=ollama` (`mxbai-embed-large`, 1024 dims = sin migración) —
-      pendiente en el servidor de desarrollo: requiere `ollama pull
-mxbai-embed-large` y reconfigurar `ollama.service` con `--embeddings`
-      (sudo) — ver `docs/decisions/0005-ollama-asesor-local.md`.
+- [x] Vía de prueba local sin credenciales: `LLM_PROVIDER=ollama` — verificado
+      con `qwen3:1.7b` (modelo chat, CPU-only, fallback ~15 s) y `mxbai-embed-large`
+      (embeddings 1024 dims, coste $0). Asesor local funcional en modo keyword +
+      fallback descriptivo desde catálogo real. Sin GPU, el LLM se usa solo si
+      responde en <15 s; en caso contrario se activa `buildFallbackTexto` con datos
+      reales del catálogo. No sustituye credenciales de producción
+      (Anthropic/Voyage), pero permite probar el flujo RAG completo en local.
+- [x] `EMBEDDING_PROVIDER=ollama` (`mxbai-embed-large`, 1024 dims) — instalado y
+      verificado el 2026-06-17: 224 productos reindexados + 5 artículos de
+      conocimiento indexados (ver ítem Asesor RAG a continuación).
 - [x] Edge Function asesor/ — RAG completo implementado (Turnstile, rate-limit, presupuesto, match vectorial + fallback keyword, system prompt comercial §5, validación de slugs citados, registro de uso)
 - [x] Edge Function generar-embeddings/ — implementada (embedding individual por producto y reindexado masivo con estimación de coste)
 - [x] Migraciones nuevas de `supabase/schema.sql` aplicadas el 2026-06-14 vía Management API (pgvector, `productos.embedding`, `llm_uso`, `asesor_uso`, `asesor_rate_limit`, RPC `match_productos`/`buscar_productos_keyword` verificados en `information_schema`/`pg_extension`)
@@ -239,11 +240,21 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
       como Bearer (`UNAUTHORIZED` — `auth.getUser()` exige sesión de usuario admin real, no
       service_role). Ambas respuestas son el comportamiento esperado dado el estado actual de
       credenciales.
-- [ ] Prueba real del Asesor RAG end-to-end (migraciones y despliegue ya OK desde 2026-06-14;
-      pendiente credenciales `ANTHROPIC_API_KEY`/`VOYAGE_API_KEY`/`TURNSTILE_SECRET_KEY` y un
-      usuario admin Supabase Auth para `generar-embeddings`): validar respuesta en modo `rag`,
-      fallback `keyword_degradado`, `sin_resultados`, rate-limit (429) y degradación por
-      presupuesto agotado
+- [x] Asesor RAG local (modo Ollama, 2026-06-17):
+      — Migración SQL aplicada en BD real: `articulos.embedding vector(1024)` + índice
+      HNSW + RPCs `match_articulos` / `buscar_articulos_keyword` (SECURITY DEFINER).
+      — 5 artículos de conocimiento insertados y vectorizados: `ime-quienes-somos`,
+      `ime-servicios`, `ime-financiamiento`, `ime-proceso-compra`,
+      `ime-certificaciones-calidad`.
+      — 224 productos reindexados con `mxbai-embed-large` (1024 dims).
+      — `src/lib/asesor.ts`: modelo `qwen3:1.7b`, timeout 15 s con `AbortController`,
+      contexto reducido (desc_larga ≤300 chars, ≤12 specs, ≤6 aplicaciones),
+      `buildFallbackTexto()` que genera respuesta descriptiva real sin LLM.
+      — Flujo verificado en navegador: embed → match_productos (semántico) → detalles
+      completos → fallback con tarjetas y texto estructurado en ~20 s.
+- [ ] Prueba real del Asesor RAG en producción (Edge Function): pendiente credenciales
+      `ANTHROPIC_API_KEY`/`VOYAGE_API_KEY`/`TURNSTILE_SECRET_KEY`; validar modo `rag`,
+      `keyword_degradado`, `sin_resultados`, rate-limit (429) y degradación por presupuesto
 - [x] Widget Asesor probado en navegador (es): abre, muestra bienvenida, envía mensaje y
       degrada correctamente al estado de error con CTA de WhatsApp/reintentar cuando la
       Edge Function no responde (404 por no estar desplegada aún)
