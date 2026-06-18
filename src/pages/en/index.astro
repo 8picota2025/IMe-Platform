@@ -8,12 +8,14 @@
  */
 import Layout from '../../layouts/Layout.astro'
 import { getProductosDestacados } from '../../lib/datos'
-import { buildHomeSeo, buildOrganizationJsonLd } from '../../lib/seo'
+import { buildFaqJsonLd, buildHomeSeo, buildOrganizationJsonLd, combineJsonLd } from '../../lib/seo'
+import contenidoIme from '../../data/contenido_ime.json'
 import '../../styles/site-faithful.css'
 
 const locale = 'en'
 const seo = buildHomeSeo(locale)
-const jsonLd = JSON.stringify(buildOrganizationJsonLd())
+const faqData = contenidoIme.home.faq.en
+const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildFaqJsonLd(faqData))
 
 const productosDestacados = await getProductosDestacados(locale)
 
@@ -131,28 +133,6 @@ const servicios = [
   },
 ]
 
-const faqs = [
-  {
-    q: 'What kind of biomedical equipment does I-ME distribute in Colombia?',
-    a: 'I-ME distributes multiparameter monitors, Color Doppler ultrasound systems, neonatology equipment (incubators, radiant warmers), operating room equipment (surgical tables, surgical lights), volumetric and syringe infusion pumps, biphasic defibrillators, electrocardiographs and anesthesia machines, among others.',
-  },
-  {
-    q: 'Does I-ME offer after-sales technical support?',
-    a: 'Yes. We have a team of certified biomedical engineers who provide technical support, preventive and corrective maintenance, calibration and spare parts supply across the 32 departments of Colombia.',
-  },
-  {
-    q: 'How can I request a quote for biomedical equipment?',
-    a: 'You can contact us via WhatsApp at +57 313 867 4059, by email at info@i-me.com.co, or through the contact form on our website. An advisor will respond within 24 hours with a personalized proposal.',
-  },
-  {
-    q: 'Does I-ME equipment have international certifications?',
-    a: 'All the equipment we distribute carries international certifications (CE, FDA) and is registered with INVIMA for legal sale in Colombia. We guarantee the traceability and regulatory compliance of every device.',
-  },
-  {
-    q: 'Do you have coverage throughout Colombia?',
-    a: 'Yes. I-ME has coverage in all 32 departments of Colombia. We carry out deliveries, installations, training and technical support nationwide, including capital cities and municipalities.',
-  },
-]
 ---
 
 <Layout
@@ -619,7 +599,7 @@ const faqs = [
 
         <div class="faq-list" role="list">
           {
-            faqs.map((f, i) => (
+            faqData.map((f, i) => (
               <div class="faq-item fade-in" role="listitem">
                 <button class="faq-q" aria-expanded="false" aria-controls={`faq-body-${i}`}>
                   {f.q}

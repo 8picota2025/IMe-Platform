@@ -11,12 +11,14 @@
  */
 import Layout from '../../layouts/Layout.astro'
 import { getProductosDestacados } from '../../lib/datos'
-import { buildHomeSeo, buildOrganizationJsonLd } from '../../lib/seo'
+import { buildFaqJsonLd, buildHomeSeo, buildOrganizationJsonLd, combineJsonLd } from '../../lib/seo'
+import contenidoIme from '../../data/contenido_ime.json'
 import '../../styles/site-faithful.css'
 
 const locale = 'es'
 const seo = buildHomeSeo(locale)
-const jsonLd = JSON.stringify(buildOrganizationJsonLd())
+const faqData = contenidoIme.home.faq.es
+const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildFaqJsonLd(faqData))
 
 const productosDestacados = await getProductosDestacados(locale)
 
@@ -136,29 +138,6 @@ const servicios = [
   },
 ]
 
-// FAQ — réplica fiel de producción
-const faqs = [
-  {
-    q: '¿Qué tipo de equipos biomédicos distribuye I-ME en Colombia?',
-    a: 'I-ME distribuye monitores multiparamétricos, ecógrafos Color Doppler, equipos de neonatología (incubadoras, cunas de calor radiante), equipos de sala de cirugía (mesas quirúrgicas, lámparas cialíticas), bombas de infusión volumétrica y de jeringa, desfibriladores bifásicos, electrocardiógrafos y máquinas de anestesia, entre otros.',
-  },
-  {
-    q: '¿I-ME ofrece soporte técnico posventa?',
-    a: 'Sí. Contamos con un equipo de ingenieros biomédicos certificados que brindan soporte técnico, mantenimiento preventivo y correctivo, calibración y suministro de repuestos en los 32 departamentos de Colombia.',
-  },
-  {
-    q: '¿Cómo puedo solicitar una cotización de equipos biomédicos?',
-    a: 'Puede contactarnos por WhatsApp al +57 313 867 4059, por correo electrónico a info@i-me.com.co, o a través del formulario de contacto en nuestra página web. Un asesor le responderá en menos de 24 horas con una propuesta personalizada.',
-  },
-  {
-    q: '¿Los equipos de I-ME cuentan con certificaciones internacionales?',
-    a: 'Todos los equipos que distribuimos cuentan con certificaciones internacionales (CE, FDA) y están registrados ante el INVIMA para su comercialización legal en Colombia. Garantizamos la trazabilidad y el cumplimiento normativo de cada equipo.',
-  },
-  {
-    q: '¿Tienen cobertura en todo el territorio colombiano?',
-    a: 'Sí. I-ME tiene cobertura en los 32 departamentos de Colombia. Realizamos entregas, instalaciones, capacitaciones y soporte técnico en todo el territorio nacional, incluyendo ciudades capitales y municipios.',
-  },
-]
 ---
 
 <Layout
@@ -633,7 +612,7 @@ const faqs = [
 
         <div class="faq-list" role="list">
           {
-            faqs.map((f, i) => (
+            faqData.map((f, i) => (
               <div class="faq-item fade-in" role="listitem">
                 <button class="faq-q" aria-expanded="false" aria-controls={`faq-body-${i}`}>
                   {f.q}

@@ -19,8 +19,52 @@
       "01\n        \n          \n          Venta y distribución\n          Distribución de equipos biomédicos de alta tecnología con certificaciones internacionales CE, FDA e INVIMA para hospitales, clínicas y centros de salud en Colombia.\n          \n            Equipos certificados internacionalmente\n            Asesoría técnica especializada precompra\n            Instalación y puesta en marcha incluida\n          \n        \n        \n      \n\n      \n        02\n        \n          \n          Soporte técnico\n          Mantenimiento preventivo, correctivo y calibración de equipos biomédicos realizado por ingenieros certificados en todo el territorio colombiano.\n          \n            Mantenimiento preventivo y correctivo\n            Calibración y verificación metrológica\n            Repuestos y consumibles originales\n          \n        \n        \n      \n\n      \n        03\n        \n          \n          Financiamiento médico\n          Planes de adquisición a medida para instituciones de salud. Cuotas flexibles, plazos extendidos y condiciones adaptadas a las necesidades de cada organización.\n          \n            Cuotas mensuales flexibles\n            Plazos hasta 60 meses\n            Sin codeudor para instituciones de salud\n          \n        \n        \n      \n\n      \n        04\n        \n          \n          Asesoría biomédica\n          Consultoría especializada para la correcta selección, adquisición y gestión del parque tecnológico biomédico de su institución de salud.\n          \n            Diagnóstico del parque tecnológico\n            Plan de renovación y adquisición\n            Capacitación al personal clínico"
     ],
     "valores": [],
-    "faq_preguntas": [],
-    "faq_respuestas": [],
+    "faq": {
+      "es": [
+        {
+          "q": "¿Qué tipo de productos puedo comprar directamente?",
+          "a": "Los consumibles publicados con precio y disponibilidad activa pueden pasar por checkout. Los equipos y productos sin precio operativo se gestionan mediante cotización asistida."
+        },
+        {
+          "q": "¿Cómo verifican disponibilidad y stock antes de cobrar?",
+          "a": "El carrito y el checkout revalidan disponibilidad y stock contra la base de datos antes de iniciar el pago. Si un producto ya no está disponible, se retira del carrito o se bloquea el checkout."
+        },
+        {
+          "q": "¿Puedo solicitar factura electrónica DIAN?",
+          "a": "Sí. Para pedidos en Colombia, el checkout puede capturar los datos fiscales necesarios y dejar preparado el pedido para emisión de factura electrónica, sujeto a la configuración operativa del proveedor DIAN."
+        },
+        {
+          "q": "¿Qué pasarelas de pago están integradas?",
+          "a": "La arquitectura contempla Wompi para Colombia y Stripe para mercados internacionales. La activación real depende de las credenciales y la configuración del entorno."
+        },
+        {
+          "q": "¿Cómo solicito una cotización o hablo con un asesor?",
+          "a": "Puedes usar el formulario de contacto, la lista de cotización o WhatsApp. Un asesor comercial revisa la solicitud y responde con la propuesta correspondiente."
+        }
+      ],
+      "en": [
+        {
+          "q": "Which products can I buy directly?",
+          "a": "Consumables that are published with a price and active availability can go through checkout. Equipment and items without an operational price are handled through assisted quotation."
+        },
+        {
+          "q": "How are availability and stock checked before charging?",
+          "a": "The cart and checkout revalidate availability and stock against the database before payment starts. If a product is no longer available, it is removed from the cart or the checkout is blocked."
+        },
+        {
+          "q": "Can I request a DIAN electronic invoice?",
+          "a": "Yes. For Colombia orders, checkout can capture the fiscal details needed and prepare the order for electronic invoicing, subject to the DIAN provider configuration."
+        },
+        {
+          "q": "Which payment gateways are integrated?",
+          "a": "The architecture supports Wompi for Colombia and Stripe for international markets. Real activation depends on credentials and environment configuration."
+        },
+        {
+          "q": "How do I request a quote or speak with an advisor?",
+          "a": "You can use the contact form, the quote list, or WhatsApp. A sales advisor reviews the request and responds with the corresponding proposal."
+        }
+      ]
+    },
     "quienes_somos": "Quiénes somos\n        Tecnología médica que transforma instituciones de salud\n        I-ME International Medical Enterprise es una empresa colombiana con más de 15 años de experiencia en la distribución, instalación y mantenimiento de equipos biomédicos de alta tecnología para el sector salud.\n        Trabajamos con los principales fabricantes del mundo para llevar soluciones certificadas internacionalmente a hospitales, clínicas, centros médicos y consultorios en todo el territorio colombiano.\n\n        \n          \n             Visión\n            Ser la empresa líder en Colombia en distribución de tecnología biomédica de vanguardia.\n          \n          \n             Misión\n            Equipar las instituciones de salud con tecnología certificada que mejore la atención al paciente.\n          \n          \n             Calidad\n            Todos nuestros equipos cuentan con certificaciones CE, FDA e INVIMA vigentes.\n          \n          \n             Compromiso\n            Soporte técnico especializado durante toda la vida útil de cada equipo.",
     "vision": null,
     "mision": null,

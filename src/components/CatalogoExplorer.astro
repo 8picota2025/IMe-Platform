@@ -10,6 +10,7 @@ import { t, type Locale } from '../i18n/utils';
 import { getFamilias } from '../lib/datos';
 import { buildCatalogoIndex } from '../lib/catalogo';
 import ProductoCard from './ProductoCard.astro';
+import FamiliaIcon from './FamiliaIcon.astro';
 
 interface Props {
   locale: Locale;
@@ -44,7 +45,11 @@ const hayNuevos = items.some(item => item.nuevo);
 
   <!-- Familia actual (navegación dentro de una categoría) -->
   <div id="catalogo-familia-actual" class="catalogo__familia-actual" hidden>
-    <h2 id="catalogo-familia-actual-nombre" class="section-subtitle"></h2>
+    <div class="catalogo__familia-actual-meta">
+      <div id="catalogo-familia-actual-icono" class="catalogo__familia-actual-icono" aria-hidden="true">
+      </div>
+      <h2 id="catalogo-familia-actual-nombre" class="section-subtitle"></h2>
+    </div>
     <button type="button" id="catalogo-familia-actual-quitar" class="btn btn-ghost">
       {t(locale, 'catalogo.mostrar_todos')}
     </button>
@@ -69,21 +74,10 @@ const hayNuevos = items.some(item => item.nuevo);
               class="categoria-card"
               data-familia-link={familia.slug}
               data-familia-nombre={familia.nombre}
+              data-familia-icono={familia.icono}
             >
               <div class="categoria-card__icon" aria-hidden="true">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="28"
-                  height="28"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                </svg>
+                <FamiliaIcon slug={familia.slug} icono={familia.icono} />
               </div>
               <h3 class="categoria-card__name">{familia.nombre}</h3>
               <p class="categoria-card__desc">{familia.descripcion}</p>
@@ -128,8 +122,12 @@ const hayNuevos = items.some(item => item.nuevo);
                 type="button"
                 class="catalogo-filtros__familia"
                 data-familia-filter={familia.slug}
+                data-familia-icono={familia.icono}
               >
-                {familia.nombre}
+                <span class="catalogo-filtros__familia-icono" aria-hidden="true">
+                  <FamiliaIcon slug={familia.slug} icono={familia.icono} size={18} />
+                </span>
+                <span>{familia.nombre}</span>
               </button>
             ))
           }
@@ -409,6 +407,26 @@ const hayNuevos = items.some(item => item.nuevo);
   .catalogo__familia-actual[hidden] {
     display: none;
   }
+  .catalogo__familia-actual-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+  }
+  .catalogo__familia-actual-icono {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--t100), rgba(15, 76, 92, 0.08));
+    color: var(--t900);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+  }
+  .catalogo__familia-actual-icono :global(svg) {
+    width: 24px;
+    height: 24px;
+  }
 
   /* Vista familias */
   .catalogo__familias-header {
@@ -452,11 +470,15 @@ const hayNuevos = items.some(item => item.nuevo);
     width: 48px;
     height: 48px;
     border-radius: var(--radius);
-    background: var(--t100);
+    background: linear-gradient(135deg, var(--t100), rgba(15, 76, 92, 0.08));
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--t900);
+  }
+  .categoria-card__icon :global(svg) {
+    width: 28px;
+    height: 28px;
   }
   .categoria-card__name {
     font-family: var(--font-display);
@@ -549,6 +571,9 @@ const hayNuevos = items.some(item => item.nuevo);
     gap: 0.25rem;
   }
   .catalogo-filtros__familia {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
     text-align: left;
     padding: 0.45rem 0.6rem;
     border: none;
@@ -560,6 +585,15 @@ const hayNuevos = items.some(item => item.nuevo);
     transition:
       background-color 180ms var(--ease),
       color 180ms var(--ease);
+  }
+  .catalogo-filtros__familia-icono {
+    width: 1.35rem;
+    height: 1.35rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: currentColor;
+    flex: 0 0 auto;
   }
   .catalogo-filtros__familia:hover {
     background: var(--t50);

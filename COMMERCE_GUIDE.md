@@ -62,7 +62,8 @@ de fase).
 ### Comunes
 
 `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SITE_URL` (usado para
-`redirect-url` del checkout: `${SITE_URL}/es/pago/exito?ref=...`).
+`redirect-url` del checkout: `${SITE_URL}/es/pago/resultado?ref=...` o
+`${SITE_URL}/en/payment/result?ref=...` según `locale`).
 
 ## Configuración de webhooks
 
@@ -99,6 +100,10 @@ frontend de I-ME — ver `docs/decisions/0002-pse-checkout-hospedado.md`.
   (Transactions API de Wompi / Checkout Sessions de Stripe) antes de
   actualizar `pedidos.estado` — el payload del webhook nunca se confía a
   ciegas.
+- `consultar-pedido` implementa reconciliación Wompi de respaldo: si el pedido
+  sigue `pendiente`, consulta el estado real contra Wompi y actualiza a
+  `pagado`/`rechazado` para no depender exclusivamente del webhook en el
+  retorno del usuario.
 - `pedidos.estado` acepta: `pendiente|pagado|rechazado|expirado|cancelado|
 reembolsado|error_verificacion|procesando|enviado|entregado|retrasado`
   (`retrasado` = Escenario A, rotura de stock post-pago — ver F4.1 en
@@ -146,3 +151,9 @@ la spec v1.1):
 □ SUPABASE_SERVICE_ROLE_KEY ausente del cliente
 □ /admin y páginas de pago/resultado con noindex
 ```
+
+## Nota operativa Wompi
+
+- `webhook-wompi` debe desplegarse en Supabase **sin** verificación JWT del
+  gateway (`--no-verify-jwt`), porque Wompi no firma con JWT de Supabase; la
+  validación correcta la hace la propia función con `WOMPI_EVENTS_SECRET`.

@@ -1,15 +1,12 @@
 /**
- * Edge Function: webhook-bold
+ * Edge Function: webhook-bold — OBSOLETO
  *
- * Recibe eventos de Bold.co (Payment API), valida la firma con
- * BOLD_WEBHOOK_SECRET, verifica el estado real contra la API de Bold
- * (server-side, nunca confía en el payload del webhook por sí solo),
- * actualiza el pedido y registra el evento en eventos_pago (idempotente).
+ * Bold.co fue reemplazado por Wompi como pasarela de pagos para Colombia.
+ * Esta función ya no recibe eventos activos. El webhook activo para el
+ * mercado CO es webhook-wompi.
  *
- * Tras confirmar 'pagado', dispara notificar-proveedor para los items
- * con fulfillment_mode='dropship'.
- *
- * Variables requeridas: BOLD_WEBHOOK_SECRET, BOLD_API_KEY, SUPABASE_SERVICE_ROLE_KEY.
+ * Se mantiene por compatibilidad histórica. No desplegar ni registrar en producción.
+ * @deprecated usar webhook-wompi
  */
 
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts'
@@ -33,7 +30,7 @@ Deno.serve(async (req) => {
 
   const rawBody = await req.text()
 
-  const gateway = getGatewayByProvider('bold')
+  const gateway = getGatewayByProvider('wompi')
   const evento = await gateway.validarWebhook(rawBody, req)
   if (!evento) return unauthorized(origin)
 
@@ -41,7 +38,7 @@ Deno.serve(async (req) => {
 
   // ── Idempotencia: registrar evento (unique proveedor_pago+event_id) ──
   const { error: insertEventoError } = await supabase.from('eventos_pago').insert({
-    proveedor_pago: 'bold',
+    proveedor_pago: 'wompi',
     event_id: evento.event_id,
     referencia_pasarela: evento.referencia_pasarela,
     payload: evento.payload,
@@ -72,7 +69,7 @@ Deno.serve(async (req) => {
     await supabase
       .from('eventos_pago')
       .update({ procesado: true })
-      .eq('proveedor_pago', 'bold')
+      .eq('proveedor_pago', 'wompi')
       .eq('event_id', evento.event_id)
 
     return new Response(JSON.stringify({ ok: true, pedido: 'no encontrado' }), {
@@ -94,7 +91,7 @@ Deno.serve(async (req) => {
       .from('pedidos')
       .update({
         estado: nuevoEstado,
-        metadata: { ...(pedidoRow.metadata ?? {}), ultimo_evento_bold: evento.event_id },
+        metadata: { ...(pedidoRow.metadata ?? {}), ultimo_evento_wompi: evento.event_id },
       })
       .eq('id', pedidoRow.id)
   }
@@ -102,11 +99,11 @@ Deno.serve(async (req) => {
   await supabase
     .from('eventos_pago')
     .update({ procesado: true })
-    .eq('proveedor_pago', 'bold')
+    .eq('proveedor_pago', 'wompi')
     .eq('event_id', evento.event_id)
 
   if (!eraPagado && nuevoEstado === 'pagado') {
-    await registrarPedidoPagado(supabase, pedidoRow.id, 'bold', evento.event_id)
+    await registrarPedidoPagado(supabase, pedidoRow.id, 'wompi', evento.event_id)
     await notificarFulfillmentDropship(supabase, pedidoRow.id, pedidoRow.items ?? [])
   }
 

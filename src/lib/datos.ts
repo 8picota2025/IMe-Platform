@@ -8,6 +8,7 @@
 
 import type { Locale } from '../i18n/utils';
 import { isSupabaseConfigured, getSupabaseClient } from './supabase';
+import { resolveFamiliaIcono } from './familias';
 
 import mockFamilias from '../data/mock-familias.json';
 import mockArticulos from '../data/mock-articulos.json';
@@ -182,7 +183,7 @@ function mapFamilia(raw: (typeof mockFamilias)[0], locale: Locale): Familia {
     slug: raw.slug,
     nombre: locale === 'en' ? raw.nombre_en : raw.nombre_es,
     descripcion: locale === 'en' ? raw.descripcion_en : raw.descripcion_es,
-    icono: raw.icono,
+    icono: resolveFamiliaIcono(raw.slug, raw.icono),
     orden: raw.orden,
     activo: raw.activo,
   };
@@ -235,6 +236,7 @@ export async function getFamilias(locale: Locale): Promise<Familia[]> {
         slug: raw.slug as string,
         nombre: (locale === 'en' ? raw.nombre_en : raw.nombre_es) as string,
         descripcion: (locale === 'en' ? raw.descripcion_en : raw.descripcion_es) as string,
+        icono: resolveFamiliaIcono(raw.slug as string, stringValue((raw as RawRow).icono)),
         orden: raw.orden as number,
         activo: raw.activo as boolean,
       }));

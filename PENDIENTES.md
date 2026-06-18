@@ -22,13 +22,13 @@
 - [ ] Tipos/subcategorías de productos (ausentes en catálogo actual)
 - [ ] Dirección física y horario de atención para página de Contacto
 - [ ] Favicon real (actualmente sin /favicon.ico)
-- [ ] Descripción real de cada familia de equipos para catálogo premium
+- [x] Descripción real de cada familia de equipos para catálogo premium (`mock-familias.json` consolidado con copy ES/EN revisado; el vacío original solo existía en `extraccion_ime.json`)
 
 ## BLOQUEANTE_BACKEND — Impide integración real
 
 - [x] Credenciales Supabase de lectura/escritura básica (`.env` ya tiene `PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` reales); tablas `familias` (8) y `productos` (24) sembradas el 2026-06-12 con datos reales de F0 vía `scripts/seed-catalogo.mjs` (idempotente, upsert por slug). RLS verificada: anon lee catálogo y escribe `solicitudes_cotizacion`, no puede escribir `productos`. Migraciones pgvector/Asesor aplicadas y Edge Functions desplegadas el 2026-06-14 (ver ítems siguientes).
 - [x] Nueva familia "Radiología y Diagnóstico por Imagen" (`radiologia`, orden 9) y 9 productos (prod-25..prod-33) sembrados el 2026-06-14 vía `scripts/seed-catalogo.mjs` (total ahora 9 familias / 33 productos). Origen: catálogo de Szangell (proveedor/fabricante de I-ME en dropshipping, confirmado por el cliente); descripciones y especificaciones ES/EN redactadas de forma original a partir de las características publicadas (no copiadas literalmente), `especificaciones` solo incluye datos verificados (algunos productos tienen pocas specs por falta de datos numéricos en la fuente — "cero invención"). Imágenes descargadas y servidas localmente desde `public/assets/productos/radiologia/*.jpg` (mismo patrón que el resto del catálogo, no Supabase Storage). Verificado en `/es/catalogo` (33 equipos / 9 categorías) y `/es/productos/sistema-radiografico-3d-wr-3d`; `npm run validate` OK (96 páginas).
-- [ ] Credenciales Wompi (bloquea pagos CO) — F4
+- [ ] Credenciales Wompi producción (sandbox validado el 2026-06-18; faltan llaves `prod` para salida real) — F4
 - [ ] Credenciales Stripe (bloquea pagos INTL) — F4
 - [ ] Credenciales LLM (`LLM_PROVIDER`, `ANTHROPIC_API_KEY` u `OPENAI_API_KEY`, `LLM_INGEST_MODEL`) — bloquea ingesta PDF real y Asesor RAG
 - [ ] Credenciales embeddings (`EMBEDDING_PROVIDER`, `VOYAGE_API_KEY` u `OPENAI_API_KEY`) — bloquea `generar-embeddings` y la búsqueda vectorial del Asesor (sin esto, el Asesor degrada a búsqueda por palabra clave)
@@ -101,6 +101,25 @@ BOOLEAN NOT NULL DEFAULT true` + `disponible_actualizado_at TIMESTAMPTZ` y
 - [x] CTA WhatsApp (+57 313 867 4059) en páginas de resultado de pago `exito`/`fallo`
       (TAREA 5 v1.1), con la referencia del pedido añadida automáticamente al mensaje
       prellenado una vez resuelve `consultarPedido()` — `ResultadoPago.astro`
+- [x] Facturación electrónica DIAN + IVA/retenciones automáticas (2026-06-18):
+      checkout captura perfil fiscal del comprador (`src/components/Carrito.astro`),
+      `crear-pago` calcula IVA y retenciones server-side con soporte por producto +
+      defaults por entorno (`src/lib/fiscal.ts`, `supabase/functions/crear-pago/`),
+      `pedidos` guarda desglose y estado de factura, `facturas_electronicas` registra
+      payload/respuesta y `emitir-factura-dian` permite emisión automática post-pago
+      hacia un proveedor configurable por `DIAN_PROVIDER_*`. Requiere migrar
+      la migración SQL en la BD real y configurar variables fiscales/proveedor antes de operar
+      en producción.
+- [x] Wompi sandbox validado end-to-end para checkout y confirmación de estado
+      (2026-06-18): `crear-pago` genera checkout real, Wompi sandbox aprueba
+      transacciones y `consultar-pedido` reconcilia contra Wompi cuando el pedido
+      sigue `pendiente`, dejando el estado final en `pagado` aunque el webhook no
+      haya llegado. Referencias de prueba: `7c859bf2-5f0d-4c8c-a17f-1c5e1a6c628e`
+      y `0b0993a2-9671-438d-8fa8-711fb1da1334`.
+- [ ] Webhook Wompi `transaction.updated` sigue sin registrar eventos en
+      `eventos_pago` pese a que la función fue redeployada con `--no-verify-jwt`
+      el 2026-06-18. Pendiente revisar logs/intentos en el dashboard de Wompi y
+      reenviar un evento sandbox para confirmar entrega server-to-server.
 
 ### Paridad WooCommerce/B2B-B2C y RBAC admin (PR #7, mergeado 2026-06-14)
 
@@ -204,9 +223,9 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
 
 ## BLOQUEANTE_CONTENIDO — Falta contenido real
 
-- [ ] FAQ real (faq_preguntas y faq_respuestas estaban vacíos en contenido_ime.json) — sección FAQ de Home queda pendiente
-- [ ] Descripción real de las 8 familias de equipos (extraccion_ime.json tenía descripcion vacía)
-- [ ] Logos/iconos específicos por familia en catálogo
+- [x] FAQ real (contenido centralizado en `src/data/contenido_ime.json` y consumido por Home ES/EN con `FAQPage` JSON-LD)
+- [x] Descripción real de las familias de equipos (`src/data/mock-familias.json` consolidado con copy ES/EN revisado para las 9 familias activas; el hueco original venía de `extraccion_ime.json`, no de la capa que consume el sitio)
+- [x] Logos/iconos específicos por familia en catálogo (`CatalogoExplorer.astro` ya renderiza iconografía por familia y `getFamilias()` preserva/resuelve `icono` tanto en mock como en Supabase)
 
 ## NO_EJECUTADO_ENTORNO — Validación pendiente
 

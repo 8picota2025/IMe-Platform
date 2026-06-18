@@ -8,7 +8,7 @@ Plataforma web biomédica B2B — e-commerce de equipos médicos (Colombia, Espa
 - **Hosting**: Hostinger estático (`dist/`) vía CI/CD FTP/SSH
 - **Backend**: Supabase Edge Functions (Deno)
 - **Datos**: Supabase Postgres + Auth + Storage + RLS
-- **Pagos**: Bold (CO) + Stripe (INTL) detrás de `PaymentGateway`
+- **Pagos**: Wompi (CO) + Stripe (INTL) detrás de `PaymentGateway`
 - **IA**: Gateway LLM swappable + Voyage `voyage-3` embeddings
 
 ## Desarrollo local
@@ -49,9 +49,9 @@ cp .env.example .env
 
 ## Pagos y asesor
 
-- Consumibles: checkout online con Bold (CO) o Stripe (INTL) desde Edge Function `crear-pago`.
+- Consumibles: checkout online con Wompi (CO) o Stripe (INTL) desde Edge Function `crear-pago`.
 - Equipos: cotización o atención personalizada según `tipo_comercial` y `fulfillment_mode`.
-- Webhooks: `webhook-bold` y `webhook-stripe` verifican firma y estado server-side.
+- Webhooks: `webhook-wompi` y `webhook-stripe` verifican firma y estado server-side.
 - Asesor IA: Edge Function `asesor` con Turnstile, rate-limit, presupuesto y fallback por palabra clave.
 - Las pruebas reales requieren secretos en Supabase/CI; ver `PENDIENTES.md`.
 - Desarrollo local sin credenciales: `LLM_PROVIDER=ollama` / `EMBEDDING_PROVIDER=ollama` (Ollama autoalojado, coste $0) — ver `docs/decisions/0005-ollama-asesor-local.md`.
@@ -68,7 +68,8 @@ cp .env.example .env
 
 ```bash
 npm run validate   # lint + check + build
-# Deploy por FTP/SSH a Hostinger (configurado en .github/workflows/)
+# Deploy web por FTP a Hostinger + deploy de Edge Functions a Supabase
+# (configurado en .github/workflows/)
 ```
 
 ## Agentes IA

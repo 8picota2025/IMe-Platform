@@ -88,6 +88,12 @@ CREATE TABLE IF NOT EXISTS productos (
                         CHECK (stock_estado IN ('instock', 'outofstock', 'onbackorder')),
   backorder_policy      TEXT NOT NULL DEFAULT 'no'
                         CHECK (backorder_policy IN ('no', 'notify', 'yes')),
+  dian_codigo           TEXT,
+  tarifa_iva_pct        NUMERIC,
+  retencion_fuente_pct  NUMERIC,
+  retencion_iva_pct     NUMERIC,
+  retencion_ica_pct     NUMERIC,
+  excluido_iva          BOOLEAN NOT NULL DEFAULT false,
   -- Escenario A: el proveedor flaguea disponibilidad en tiempo real.
   -- false → fuera de catálogo activo para venta, carrito y crear-pago (422).
   disponible              BOOLEAN NOT NULL DEFAULT true,
@@ -129,6 +135,12 @@ CREATE TRIGGER productos_tsv_update
 -- Columnas F4.1 (Escenario A) — ver huecos F1 §8.3/§8.5.
 ALTER TABLE productos ADD COLUMN IF NOT EXISTS disponible BOOLEAN NOT NULL DEFAULT true;
 ALTER TABLE productos ADD COLUMN IF NOT EXISTS disponible_actualizado_at TIMESTAMPTZ;
+ALTER TABLE productos ADD COLUMN IF NOT EXISTS dian_codigo TEXT;
+ALTER TABLE productos ADD COLUMN IF NOT EXISTS tarifa_iva_pct NUMERIC;
+ALTER TABLE productos ADD COLUMN IF NOT EXISTS retencion_fuente_pct NUMERIC;
+ALTER TABLE productos ADD COLUMN IF NOT EXISTS retencion_iva_pct NUMERIC;
+ALTER TABLE productos ADD COLUMN IF NOT EXISTS retencion_ica_pct NUMERIC;
+ALTER TABLE productos ADD COLUMN IF NOT EXISTS excluido_iva BOOLEAN NOT NULL DEFAULT false;
 
 -- Columnas agregadas post-F4 para paridad WooCommerce/B2B-B2C.
 -- Deben ir antes de los índices de productos: en una BD existente
@@ -249,6 +261,15 @@ CREATE TABLE IF NOT EXISTS clientes (
                            CHECK (tipo_cliente IN ('b2b', 'b2c', 'mixto')),
   documento_tipo           TEXT,
   documento_numero         TEXT,
+  razon_social             TEXT,
+  tipo_documento           TEXT,
+  numero_documento         TEXT,
+  tipo_persona             TEXT CHECK (tipo_persona IN ('natural', 'juridica')),
+  responsable_iva          BOOLEAN NOT NULL DEFAULT false,
+  agente_retencion         BOOLEAN NOT NULL DEFAULT false,
+  agente_reteica           BOOLEAN NOT NULL DEFAULT false,
+  email_facturacion        TEXT,
+  direccion_facturacion    JSONB,
   consentimiento_datos     BOOLEAN NOT NULL DEFAULT false,
   consentimiento_timestamp TIMESTAMPTZ,
   notas                    TEXT,
@@ -266,6 +287,15 @@ CREATE TRIGGER set_clientes_updated_at
 
 CREATE INDEX IF NOT EXISTS idx_clientes_email ON clientes(email);
 CREATE INDEX IF NOT EXISTS idx_clientes_tipo ON clientes(tipo_cliente);
+ALTER TABLE clientes ADD COLUMN IF NOT EXISTS razon_social TEXT;
+ALTER TABLE clientes ADD COLUMN IF NOT EXISTS tipo_documento TEXT;
+ALTER TABLE clientes ADD COLUMN IF NOT EXISTS numero_documento TEXT;
+ALTER TABLE clientes ADD COLUMN IF NOT EXISTS tipo_persona TEXT;
+ALTER TABLE clientes ADD COLUMN IF NOT EXISTS responsable_iva BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE clientes ADD COLUMN IF NOT EXISTS agente_retencion BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE clientes ADD COLUMN IF NOT EXISTS agente_reteica BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE clientes ADD COLUMN IF NOT EXISTS email_facturacion TEXT;
+ALTER TABLE clientes ADD COLUMN IF NOT EXISTS direccion_facturacion JSONB;
 
 CREATE TABLE IF NOT EXISTS cliente_direcciones (
   id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -298,8 +328,10 @@ CREATE TABLE IF NOT EXISTS pedidos (
   cliente                  JSONB NOT NULL,
   items                    JSONB NOT NULL,
   subtotal                 NUMERIC NOT NULL,
+  subtotal_sin_impuestos   NUMERIC NOT NULL DEFAULT 0,
   descuento_total          NUMERIC NOT NULL DEFAULT 0,
   impuesto_total           NUMERIC NOT NULL DEFAULT 0,
+  retencion_total          NUMERIC NOT NULL DEFAULT 0,
   envio_total              NUMERIC NOT NULL DEFAULT 0,
   total                    NUMERIC NOT NULL,
   moneda                   TEXT NOT NULL DEFAULT 'COP',
@@ -317,6 +349,8 @@ CREATE TABLE IF NOT EXISTS pedidos (
   cupon_codigo             TEXT,
   direccion_facturacion    JSONB,
   direccion_envio          JSONB,
+  facturacion_electronica_solicitada BOOLEAN NOT NULL DEFAULT false,
+  facturacion_electronica_estado TEXT NOT NULL DEFAULT 'no_solicitada',
   fulfillment_id           UUID,  -- FK a fulfillments (ver tabla 11)
   metadata                 JSONB NOT NULL DEFAULT '{}',
   consentimiento_datos     BOOLEAN NOT NULL DEFAULT false,
@@ -327,20 +361,57 @@ CREATE TABLE IF NOT EXISTS pedidos (
 );
 
 ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS cliente_id UUID REFERENCES clientes(id) ON DELETE SET NULL;
+ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS subtotal_sin_impuestos NUMERIC NOT NULL DEFAULT 0;
 ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS descuento_total NUMERIC NOT NULL DEFAULT 0;
 ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS impuesto_total NUMERIC NOT NULL DEFAULT 0;
+ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS retencion_total NUMERIC NOT NULL DEFAULT 0;
 ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS envio_total NUMERIC NOT NULL DEFAULT 0;
 ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS cupon_codigo TEXT;
 ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS direccion_facturacion JSONB;
 ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS direccion_envio JSONB;
+ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS facturacion_electronica_solicitada BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS facturacion_electronica_estado TEXT NOT NULL DEFAULT 'no_solicitada';
 ALTER TABLE pedidos DROP CONSTRAINT IF EXISTS pedidos_proveedor_pago_check;
 ALTER TABLE pedidos
   ADD CONSTRAINT pedidos_proveedor_pago_check
   CHECK (proveedor_pago IN ('bold', 'stripe', 'wompi'));
+ALTER TABLE pedidos DROP CONSTRAINT IF EXISTS pedidos_facturacion_electronica_estado_check;
+ALTER TABLE pedidos
+  ADD CONSTRAINT pedidos_facturacion_electronica_estado_check
+  CHECK (
+    facturacion_electronica_estado IN (
+      'no_solicitada',
+      'pendiente_pago',
+      'pendiente_envio',
+      'emitida',
+      'rechazada',
+      'error'
+    )
+  );
 
 DROP TRIGGER IF EXISTS set_pedidos_updated_at ON pedidos;
 CREATE TRIGGER set_pedidos_updated_at
   BEFORE UPDATE ON pedidos
+  FOR EACH ROW EXECUTE FUNCTION trigger_set_updated_at();
+
+CREATE TABLE IF NOT EXISTS facturas_electronicas (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  pedido_id       UUID NOT NULL UNIQUE REFERENCES pedidos(id) ON DELETE CASCADE,
+  proveedor       TEXT NOT NULL DEFAULT 'pendiente_configuracion',
+  estado          TEXT NOT NULL DEFAULT 'pendiente_pago'
+                  CHECK (estado IN ('pendiente_pago', 'pendiente_envio', 'emitida', 'rechazada', 'error')),
+  numero_factura  TEXT,
+  cufe            TEXT,
+  payload         JSONB NOT NULL DEFAULT '{}',
+  respuesta       JSONB NOT NULL DEFAULT '{}',
+  error           TEXT,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+DROP TRIGGER IF EXISTS set_facturas_electronicas_updated_at ON facturas_electronicas;
+CREATE TRIGGER set_facturas_electronicas_updated_at
+  BEFORE UPDATE ON facturas_electronicas
   FOR EACH ROW EXECUTE FUNCTION trigger_set_updated_at();
 
 -- ── 6. eventos_pago ─────────────────────────────────────────
@@ -819,6 +890,14 @@ DROP POLICY IF EXISTS "pedidos_auth_only" ON pedidos;
 DROP POLICY IF EXISTS "pedidos_admin_all" ON pedidos;
 CREATE POLICY "pedidos_admin_all"
   ON pedidos FOR ALL
+  TO authenticated
+  USING (is_admin(ARRAY['ventas', 'operaciones']))
+  WITH CHECK (is_admin(ARRAY['ventas', 'operaciones']));
+
+ALTER TABLE facturas_electronicas ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "facturas_electronicas_admin_all" ON facturas_electronicas;
+CREATE POLICY "facturas_electronicas_admin_all"
+  ON facturas_electronicas FOR ALL
   TO authenticated
   USING (is_admin(ARRAY['ventas', 'operaciones']))
   WITH CHECK (is_admin(ARRAY['ventas', 'operaciones']));

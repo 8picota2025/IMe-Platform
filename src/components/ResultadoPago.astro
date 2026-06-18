@@ -3,7 +3,7 @@
  * ResultadoPago — bloque compartido para las páginas de resultado de pago
  * (/es/pago/{exito,pendiente,fallo} y /en/payment/{success,pending,failure}).
  *
- * El "tipo" refleja la redirección de la pasarela (Bold/Stripe). El estado
+ * El "tipo" refleja la redirección de la pasarela (Wompi/Stripe). El estado
  * real del pedido se consulta server-side (Edge Function consultar-pedido)
  * porque el cliente nunca decide si un pago quedó aprobado.
  */
@@ -11,7 +11,7 @@ import { t, type Locale } from '../i18n/utils';
 
 interface Props {
   locale: Locale;
-  tipo: 'exito' | 'pendiente' | 'fallo';
+  tipo: 'exito' | 'pendiente' | 'fallo' | 'resultado';
 }
 
 const { locale, tipo } = Astro.props;
@@ -22,11 +22,11 @@ const contactoHref = locale === 'en' ? '/en/contact' : '/es/contacto';
 const tituloKey = `pago.${tipo}_titulo` as const;
 const descKey = `pago.${tipo}_desc` as const;
 
-const icono = { exito: '✓', pendiente: '…', fallo: '✕' }[tipo];
+const icono = { exito: '✓', pendiente: '…', fallo: '✕', resultado: '…' }[tipo];
 
 // CTA WhatsApp directo para exito/fallo (TAREA 5 v1.1) — el mensaje se
 // completa con la referencia del pedido en el script si está disponible.
-const mostrarWhatsapp = tipo === 'exito' || tipo === 'fallo';
+const mostrarWhatsapp = tipo === 'exito' || tipo === 'fallo' || tipo === 'resultado';
 const whatsappHref = `https://wa.me/573138674059?text=${encodeURIComponent(t(locale, 'pago.whatsapp_mensaje'))}`;
 ---
 
@@ -91,7 +91,8 @@ const whatsappHref = `https://wa.me/573138674059?text=${encodeURIComponent(t(loc
     background: #e6f4ea;
     color: #1e7a34;
   }
-  .resultado-pago__icon--pendiente {
+  .resultado-pago__icon--pendiente,
+  .resultado-pago__icon--resultado {
     background: #fff4e0;
     color: #b06a00;
   }

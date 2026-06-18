@@ -5,6 +5,7 @@ RewriteEngine On
 
 # Canonical entry points
 RewriteRule ^index\.html$ /es/ [R=301,L]
+RewriteRule ^pagoswompi$ /pagoswompi/ [R=301,L]
 RewriteRule ^77/?$ /es/ [R=301,L]
 RewriteRule ^77/index\.html$ /es/ [R=301,L]
 

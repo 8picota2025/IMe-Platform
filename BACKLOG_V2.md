@@ -11,8 +11,6 @@ Funcionalidades identificadas pero explícitamente excluidas del alcance inicial
   geográfico diferido.
 - Portal de proveedor para gestionar `productos.disponible` (Escenario A, F4.1) — hoy
   el flag lo gestiona el admin manualmente desde el formulario de producto.
-- Facturación electrónica DIAN
-- IVA / retenciones automáticas
 - Logística / cálculo de envío
 - Devoluciones y reembolsos automatizados
 - Inventario multi-almacén

@@ -13,6 +13,8 @@
 
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts'
 import { badRequest, internalError } from '../_shared/errors.ts'
+import { getGatewayByProvider } from '../_shared/payment-gateway.ts'
+import { notificarFulfillmentDropship, registrarPedidoPagado } from '../_shared/post-pago.ts'
 import { getServerSupabase } from '../_shared/supabase-server.ts'
 import { checkRateLimit } from '../_shared/rate-limit.ts'
 
@@ -20,6 +22,16 @@ const REFERENCIA_REGEX = /^[a-zA-Z0-9-]{8,64}$/
 
 interface ConsultarPedidoRequest {
   referencia?: string
+}
+
+interface PedidoRow {
+  id: string
+  estado: string
+  moneda: string
+  total: number
+  proveedor_pago?: string | null
+  items?: Array<{ producto_id: string }>
+  metadata?: Record<string, unknown> | null
 }
 
 function obtenerIp(req: Request): string {
@@ -67,7 +79,7 @@ Deno.serve(async (req) => {
 
   const { data, error } = await supabase
     .from('pedidos')
-    .select('estado, moneda, total')
+    .select('id, estado, moneda, total, proveedor_pago, items, metadata')
     .eq('referencia_pasarela', referencia)
     .maybeSingle()
 
@@ -82,14 +94,41 @@ Deno.serve(async (req) => {
     })
   }
 
+  const pedido = data as unknown as PedidoRow
+  let estado = pedido.estado
+
+  if (pedido.proveedor_pago === 'wompi' && pedido.estado === 'pendiente') {
+    const gateway = getGatewayByProvider('wompi')
+    const verificacion = await gateway.verificarPago(referencia)
+    const nuevoEstado = verificacion.estado
+
+    if (nuevoEstado !== 'pendiente' && nuevoEstado !== pedido.estado) {
+      const syntheticEventId = `reconcile:${referencia}:${Date.now()}`
+      await supabase
+        .from('pedidos')
+        .update({
+          estado: nuevoEstado,
+          metadata: { ...(pedido.metadata ?? {}), ultima_reconciliacion_wompi: syntheticEventId },
+        })
+        .eq('id', pedido.id)
+
+      if (nuevoEstado === 'pagado') {
+        await registrarPedidoPagado(supabase, pedido.id, 'wompi', syntheticEventId)
+        await notificarFulfillmentDropship(supabase, pedido.id, pedido.items ?? [])
+      }
+
+      estado = nuevoEstado
+    }
+  }
+
   return new Response(
     JSON.stringify({
       ok: true,
       encontrado: true,
       referencia,
-      estado: data.estado,
-      moneda: data.moneda,
-      total: data.total,
+      estado,
+      moneda: pedido.moneda,
+      total: pedido.total,
     }),
     {
       status: 200,

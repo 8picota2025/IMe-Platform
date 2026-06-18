@@ -210,6 +210,7 @@ export function initCatalogo(locale: Locale): () => void {
   const paginacion = document.getElementById('catalogo-paginacion');
   const familiaActualEl = document.getElementById('catalogo-familia-actual');
   const familiaActualNombre = document.getElementById('catalogo-familia-actual-nombre');
+  const familiaActualIcono = document.getElementById('catalogo-familia-actual-icono');
   const familiaActualQuitar = document.getElementById('catalogo-familia-actual-quitar');
   const resultadosEl = document.getElementById('catalogo-resultados');
   const filtrosToggle = document.getElementById('catalogo-filtros-toggle');
@@ -382,10 +383,26 @@ export function initCatalogo(locale: Locale): () => void {
     if (!familiaActualEl || !familiaActualNombre) return;
     if (!state.familia) {
       familiaActualEl.hidden = true;
+      if (familiaActualIcono) {
+        familiaActualIcono.replaceChildren();
+        familiaActualIcono.style.display = 'none';
+      }
       return;
     }
     familiaActualEl.hidden = false;
     familiaActualNombre.textContent = familiasMap.get(state.familia) ?? state.familia;
+    if (familiaActualIcono) {
+      const iconoOrigen = familiasView?.querySelector<SVGElement>(
+        `[data-familia-link="${state.familia}"] .categoria-card__icon svg`
+      );
+      familiaActualIcono.replaceChildren();
+      if (iconoOrigen) {
+        familiaActualIcono.appendChild(iconoOrigen.cloneNode(true));
+        familiaActualIcono.style.display = 'inline-flex';
+      } else {
+        familiaActualIcono.style.display = 'none';
+      }
+    }
   }
 
   function applyFiltros(): void {

@@ -38,6 +38,23 @@ const config = {
     email: t(locale, 'carrito.email'),
     telefono: t(locale, 'carrito.telefono'),
     institucion: t(locale, 'carrito.institucion'),
+    facturacionTitulo: t(locale, 'carrito.facturacion_titulo'),
+    solicitarFacturaElectronica: t(locale, 'carrito.solicitar_factura_electronica'),
+    tipoDocumento: t(locale, 'carrito.tipo_documento'),
+    numeroDocumento: t(locale, 'carrito.numero_documento'),
+    tipoPersona: t(locale, 'carrito.tipo_persona'),
+    tipoPersonaNatural: t(locale, 'carrito.tipo_persona_natural'),
+    tipoPersonaJuridica: t(locale, 'carrito.tipo_persona_juridica'),
+    razonSocial: t(locale, 'carrito.razon_social'),
+    emailFacturacion: t(locale, 'carrito.email_facturacion'),
+    direccionFacturacion: t(locale, 'carrito.direccion_facturacion'),
+    ciudadFacturacion: t(locale, 'carrito.ciudad_facturacion'),
+    departamentoFacturacion: t(locale, 'carrito.departamento_facturacion'),
+    paisFacturacion: t(locale, 'carrito.pais_facturacion'),
+    responsableIva: t(locale, 'carrito.responsable_iva'),
+    agenteRetencion: t(locale, 'carrito.agente_retencion'),
+    agenteReteica: t(locale, 'carrito.agente_reteica'),
+    soloColombia: t(locale, 'carrito.solo_colombia'),
     consentimiento: t(locale, 'carrito.consentimiento'),
     irPagar: t(locale, 'carrito.ir_pagar'),
     procesando: t(locale, 'carrito.procesando'),
@@ -165,6 +182,130 @@ const config = {
         <label for="carrito-cupon">{config.i18n.cupon}</label>
         <input id="carrito-cupon" name="cupon" type="text" autocomplete="off" />
       </div>
+      <fieldset class="carrito-fieldset carrito-fieldset--fiscal">
+        <legend>{config.i18n.facturacionTitulo}</legend>
+        <p class="carrito-aviso">{config.i18n.soloColombia}</p>
+        <label class="carrito-checkbox">
+          <input
+            id="carrito-solicitar-factura"
+            name="solicitar_factura_electronica"
+            type="checkbox"
+          />
+          <span>{config.i18n.solicitarFacturaElectronica}</span>
+        </label>
+        <div id="carrito-fiscal-fields" hidden>
+          <div class="carrito-grid">
+            <div class="carrito-field">
+              <label for="carrito-tipo-documento">{config.i18n.tipoDocumento}</label>
+              <select id="carrito-tipo-documento" name="tipo_documento" data-fiscal-required>
+                <option value="">—</option>
+                <option value="NIT">NIT</option>
+                <option value="CC">CC</option>
+                <option value="CE">CE</option>
+                <option value="PP">PP</option>
+                <option value="OTRO">Otro</option>
+              </select>
+            </div>
+            <div class="carrito-field">
+              <label for="carrito-numero-documento">{config.i18n.numeroDocumento}</label>
+              <input
+                id="carrito-numero-documento"
+                name="numero_documento"
+                type="text"
+                autocomplete="off"
+                data-fiscal-required
+              />
+            </div>
+          </div>
+          <div class="carrito-grid">
+            <div class="carrito-field">
+              <label for="carrito-tipo-persona">{config.i18n.tipoPersona}</label>
+              <select id="carrito-tipo-persona" name="tipo_persona" data-fiscal-required>
+                <option value="">—</option>
+                <option value="natural">{config.i18n.tipoPersonaNatural}</option>
+                <option value="juridica">{config.i18n.tipoPersonaJuridica}</option>
+              </select>
+            </div>
+            <div class="carrito-field">
+              <label for="carrito-email-facturacion">{config.i18n.emailFacturacion}</label>
+              <input
+                id="carrito-email-facturacion"
+                name="email_facturacion"
+                type="email"
+                autocomplete="email"
+                data-fiscal-required
+              />
+            </div>
+          </div>
+          <div class="carrito-field">
+            <label for="carrito-razon-social">{config.i18n.razonSocial}</label>
+            <input
+              id="carrito-razon-social"
+              name="razon_social"
+              type="text"
+              autocomplete="organization"
+              data-fiscal-required
+            />
+          </div>
+          <div class="carrito-field">
+            <label for="carrito-direccion-facturacion">{config.i18n.direccionFacturacion}</label>
+            <input
+              id="carrito-direccion-facturacion"
+              name="direccion_facturacion"
+              type="text"
+              autocomplete="street-address"
+              data-fiscal-required
+            />
+          </div>
+          <div class="carrito-grid">
+            <div class="carrito-field">
+              <label for="carrito-ciudad-facturacion">{config.i18n.ciudadFacturacion}</label>
+              <input
+                id="carrito-ciudad-facturacion"
+                name="ciudad_facturacion"
+                type="text"
+                autocomplete="address-level2"
+                data-fiscal-required
+              />
+            </div>
+            <div class="carrito-field">
+              <label for="carrito-departamento-facturacion"
+                >{config.i18n.departamentoFacturacion}</label
+              >
+              <input
+                id="carrito-departamento-facturacion"
+                name="departamento_facturacion"
+                type="text"
+                autocomplete="address-level1"
+              />
+            </div>
+          </div>
+          <div class="carrito-field">
+            <label for="carrito-pais-facturacion">{config.i18n.paisFacturacion}</label>
+            <input
+              id="carrito-pais-facturacion"
+              name="pais_facturacion"
+              type="text"
+              value="CO"
+              autocomplete="country-name"
+            />
+          </div>
+          <div class="carrito-grid carrito-grid--checks">
+            <label class="carrito-checkbox">
+              <input id="carrito-responsable-iva" name="responsable_iva" type="checkbox" />
+              <span>{config.i18n.responsableIva}</span>
+            </label>
+            <label class="carrito-checkbox">
+              <input id="carrito-agente-retencion" name="agente_retencion" type="checkbox" />
+              <span>{config.i18n.agenteRetencion}</span>
+            </label>
+            <label class="carrito-checkbox">
+              <input id="carrito-agente-reteica" name="agente_reteica" type="checkbox" />
+              <span>{config.i18n.agenteReteica}</span>
+            </label>
+          </div>
+        </div>
+      </fieldset>
       <label class="carrito-checkbox">
         <input id="carrito-consentimiento" name="consentimiento" type="checkbox" required />
         <span>
@@ -433,9 +574,24 @@ const config = {
     background: var(--white);
     color: var(--ink);
   }
+  .carrito-field select {
+    padding: 0.55rem 0.7rem;
+    border: 1px solid var(--border-mid);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    background: var(--white);
+    color: var(--ink);
+  }
   .carrito-field input:focus-visible {
     outline: 2px solid var(--t800);
     outline-offset: 1px;
+  }
+  .carrito-field select:focus-visible {
+    outline: 2px solid var(--t800);
+    outline-offset: 1px;
+  }
+  .carrito-grid--checks {
+    grid-template-columns: 1fr;
   }
   .carrito-checkbox {
     display: flex;
@@ -519,6 +675,23 @@ const config = {
     email: string
     telefono: string
     institucion: string
+    facturacionTitulo: string
+    solicitarFacturaElectronica: string
+    tipoDocumento: string
+    numeroDocumento: string
+    tipoPersona: string
+    tipoPersonaNatural: string
+    tipoPersonaJuridica: string
+    razonSocial: string
+    emailFacturacion: string
+    direccionFacturacion: string
+    ciudadFacturacion: string
+    departamentoFacturacion: string
+    paisFacturacion: string
+    responsableIva: string
+    agenteRetencion: string
+    agenteReteica: string
+    soloColombia: string
     consentimiento: string
     irPagar: string
     procesando: string
@@ -552,6 +725,10 @@ const config = {
   const vaciarBtn = document.getElementById('carrito-vaciar')
   const submitBtn = document.getElementById('carrito-submit') as HTMLButtonElement | null
   const errorEl = document.getElementById('carrito-error')
+  const solicitarFacturaEl = document.getElementById(
+    'carrito-solicitar-factura'
+  ) as HTMLInputElement | null
+  const fiscalFieldsEl = document.getElementById('carrito-fiscal-fields')
 
   if (!drawer) {
     // Componente no presente en esta página
@@ -643,6 +820,27 @@ const config = {
 
     render(getCarrito())
     suscribirCarrito(render)
+
+    function toggleFiscalFields() {
+      const mercadoActual =
+        formEl?.querySelector<HTMLInputElement>('input[name="mercado"]:checked')?.value ?? 'CO'
+      const enabled = mercadoActual === 'CO' && solicitarFacturaEl?.checked === true
+      if (fiscalFieldsEl) fiscalFieldsEl.hidden = !enabled
+      const fiscalRequired = formEl?.querySelectorAll<
+        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+      >('[data-fiscal-required]')
+      fiscalRequired?.forEach((field) => {
+        field.required = enabled
+        if (!enabled) field.setCustomValidity('')
+      })
+      if (solicitarFacturaEl) solicitarFacturaEl.disabled = mercadoActual !== 'CO'
+    }
+
+    toggleFiscalFields()
+    solicitarFacturaEl?.addEventListener('change', toggleFiscalFields)
+    formEl
+      ?.querySelectorAll<HTMLInputElement>('input[name="mercado"]')
+      .forEach((radio) => radio.addEventListener('change', toggleFiscalFields))
 
     itemsEl?.addEventListener('click', (event) => {
       const target = event.target as HTMLElement
@@ -738,6 +936,28 @@ const config = {
       if (institucion) Object.assign(cliente, { institucion })
       const consentimientoDatos = data.get('consentimiento') === 'on'
       const cuponCodigo = String(data.get('cupon') ?? '').trim()
+      const solicitarFacturaElectronica =
+        mercado === 'CO' && data.get('solicitar_factura_electronica') === 'on'
+      const fiscal = solicitarFacturaElectronica
+        ? {
+            solicitar_factura_electronica: true,
+            tipo_documento: String(data.get('tipo_documento') ?? ''),
+            numero_documento: String(data.get('numero_documento') ?? ''),
+            tipo_persona: String(data.get('tipo_persona') ?? ''),
+            razon_social: String(data.get('razon_social') ?? ''),
+            email_facturacion: String(data.get('email_facturacion') ?? ''),
+            direccion_facturacion: {
+              direccion: String(data.get('direccion_facturacion') ?? ''),
+              ciudad: String(data.get('ciudad_facturacion') ?? ''),
+              departamento: String(data.get('departamento_facturacion') ?? ''),
+              pais: String(data.get('pais_facturacion') ?? 'CO'),
+            },
+            responsable_iva: data.get('responsable_iva') === 'on',
+            agente_retencion: data.get('agente_retencion') === 'on',
+            agente_reteica: data.get('agente_reteica') === 'on',
+          }
+        : undefined
+      if (fiscal) Object.assign(cliente, { fiscal })
 
       enviando = true
       submitBtn.disabled = true

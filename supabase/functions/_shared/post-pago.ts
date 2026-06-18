@@ -1,5 +1,5 @@
 /**
- * Acciones comunes tras confirmar un pago como 'pagado' (webhook-bold/webhook-stripe):
+ * Acciones comunes tras confirmar un pago como 'pagado' (webhook-wompi/webhook-stripe):
  * resolver items dropship del pedido y disparar notificar-proveedor.
  */
 
@@ -62,7 +62,7 @@ export async function notificarFulfillmentDropship(
 export async function registrarPedidoPagado(
   supabase: SupabaseClient,
   pedidoId: string,
-  provider: 'bold' | 'stripe' | 'wompi',
+  provider: 'wompi' | 'stripe',
   eventId: string
 ): Promise<void> {
   const { data: pedido, error } = await supabase
@@ -104,4 +104,34 @@ export async function registrarPedidoPagado(
     a_estado: 'pagado',
     metadata: { provider, event_id: eventId },
   });
+
+  const { data: pedidoFiscal } = await supabase
+    .from('pedidos')
+    .select('facturacion_electronica_solicitada')
+    .eq('id', pedidoId)
+    .maybeSingle();
+
+  if ((pedidoFiscal as { facturacion_electronica_solicitada?: boolean } | null)?.facturacion_electronica_solicitada) {
+    await supabase
+      .from('pedidos')
+      .update({ facturacion_electronica_estado: 'pendiente_envio' })
+      .eq('id', pedidoId);
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    if (supabaseUrl && serviceKey) {
+      try {
+        await fetch(`${supabaseUrl}/functions/v1/emitir-factura-dian`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${serviceKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ pedido_id: pedidoId }),
+        });
+      } catch (err) {
+        console.error('registrarPedidoPagado: error invocando emitir-factura-dian', err);
+      }
+    }
+  }
 }

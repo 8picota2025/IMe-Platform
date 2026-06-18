@@ -54,6 +54,11 @@ type ProductoDraft = {
   precio: number | null;
   precio_regular: number | null;
   precio_oferta: number | null;
+  dian_codigo: string;
+  tarifa_iva_pct: number | null;
+  retencion_fuente_pct: number | null;
+  retencion_iva_pct: number | null;
+  retencion_ica_pct: number | null;
   oferta_inicio: string;
   oferta_fin: string;
   moneda: string;
@@ -66,6 +71,7 @@ type ProductoDraft = {
   activo: boolean;
   /** Escenario A: disponibilidad en tiempo real (independiente de `activo`). */
   disponible: boolean;
+  excluido_iva: boolean;
   orden: number;
 };
 
@@ -616,6 +622,11 @@ async function productoFormView(): Promise<string> {
             ${field('oferta_inicio', 'Inicio oferta', draft.oferta_inicio, false, 'datetime-local')}
             ${field('oferta_fin', 'Fin oferta', draft.oferta_fin, false, 'datetime-local')}
             ${field('stock', 'Stock', draft.stock?.toString() ?? '', false, 'number')}
+            ${field('dian_codigo', 'Codigo DIAN / UNSPSC', draft.dian_codigo ?? '')}
+            ${field('tarifa_iva_pct', 'IVA %', draft.tarifa_iva_pct?.toString() ?? '', false, 'number')}
+            ${field('retencion_fuente_pct', 'Retefuente %', draft.retencion_fuente_pct?.toString() ?? '', false, 'number')}
+            ${field('retencion_iva_pct', 'ReteIVA %', draft.retencion_iva_pct?.toString() ?? '', false, 'number')}
+            ${field('retencion_ica_pct', 'ReteICA %', draft.retencion_ica_pct?.toString() ?? '', false, 'number')}
             ${selectStatic('stock_estado', 'Estado stock', draft.stock_estado, [
               ['instock', 'En stock'],
               ['outofstock', 'Agotado'],
@@ -649,7 +660,9 @@ async function productoFormView(): Promise<string> {
           ${checkbox('nuevo', 'Nuevo', draft.nuevo)}
           ${checkbox('activo', 'Activo / publicado en sitio estatico', draft.activo)}
           ${checkbox('disponible', 'Disponible (Escenario A)', draft.disponible)}
+          ${checkbox('excluido_iva', 'Excluir de IVA', draft.excluido_iva)}
           <div class="admin-help">Desmarcar "Disponible" saca el producto del carrito y de crear-pago en tiempo real (sin rebuild), aunque siga "Activo" para SEO/landing. Usalo para roturas de stock del proveedor.</div>
+          <div class="admin-help">Los porcentajes fiscales se usan en checkout CO para IVA y retenciones automaticas. Si se dejan vacios, la Edge Function usa defaults del entorno si existen.</div>
           <div class="admin-alert">Guardar desde ingesta siempre debe quedar como borrador hasta revision humana. Publicar cambios dispara rebuild separado.</div>
         </aside>
       </div>
@@ -1271,7 +1284,7 @@ async function pedidoDetailView(): Promise<string> {
   const resumenPedido = pedidoResumenTexto(row);
 
   const referencia = text(row.referencia_pasarela);
-  const [eventosResult, fulfillmentsResult, notasResult, timelineResult] = await Promise.all([
+  const [eventosResult, fulfillmentsResult, notasResult, timelineResult, facturaResult] = await Promise.all([
     referencia
       ? supabase!
           .from('eventos_pago')
@@ -1294,11 +1307,17 @@ async function pedidoDetailView(): Promise<string> {
       .select('*')
       .eq('pedido_id', text(row.id))
       .order('created_at', { ascending: false }),
+    supabase!
+      .from('facturas_electronicas')
+      .select('*')
+      .eq('pedido_id', text(row.id))
+      .maybeSingle(),
   ]);
   const eventos = (eventosResult.data ?? []) as Row[];
   const fulfillments = (fulfillmentsResult.data ?? []) as Row[];
   const notas = (notasResult.data ?? []) as Row[];
   const timeline = (timelineResult.data ?? []) as Row[];
+  const factura = (facturaResult.data ?? null) as Row | null;
   const feed = [
     ...timeline.map(evento => ({
       kind: 'timeline',
@@ -1393,11 +1412,16 @@ async function pedidoDetailView(): Promise<string> {
           [
             ['Fecha', formatCell(row.created_at)],
             ['Subtotal', escapeHtml(text(row.subtotal))],
+            ['Base gravable', escapeHtml(text(row.subtotal_sin_impuestos)) || '—'],
             ['Descuento', escapeHtml(text(row.descuento_total))],
             ['Impuestos', escapeHtml(text(row.impuesto_total))],
+            ['Retenciones', escapeHtml(text(row.retencion_total)) || '—'],
             ['Envio', escapeHtml(text(row.envio_total))],
             ['Total', `${escapeHtml(text(row.total))} ${escapeHtml(text(row.moneda))}`],
             ['Cupon', escapeHtml(text(row.cupon_codigo)) || '—'],
+            ['Factura electronica', escapeHtml(text(row.facturacion_electronica_estado)) || '—'],
+            ['Numero factura', factura ? escapeHtml(text(factura.numero_factura)) || '—' : '—'],
+            ['CUFE', factura ? escapeHtml(text(factura.cufe)) || '—' : '—'],
             ['Mercado', escapeHtml(text(row.mercado))],
             ['Pasarela', escapeHtml(text(row.proveedor_pago))],
             ['Referencia', escapeHtml(text(row.referencia_pasarela)) || '—'],
@@ -3997,6 +4021,11 @@ function productDraft(row: Row | null): ProductoDraft {
     precio: numberOrNull(row?.precio),
     precio_regular: numberOrNull(row?.precio_regular),
     precio_oferta: numberOrNull(row?.precio_oferta),
+    dian_codigo: text(row?.dian_codigo),
+    tarifa_iva_pct: numberOrNull(row?.tarifa_iva_pct),
+    retencion_fuente_pct: numberOrNull(row?.retencion_fuente_pct),
+    retencion_iva_pct: numberOrNull(row?.retencion_iva_pct),
+    retencion_ica_pct: numberOrNull(row?.retencion_ica_pct),
     oferta_inicio: datetimeLocal(row?.oferta_inicio),
     oferta_fin: datetimeLocal(row?.oferta_fin),
     moneda: text(row?.moneda) || 'COP',
@@ -4014,6 +4043,7 @@ function productDraft(row: Row | null): ProductoDraft {
     nuevo: Boolean(row?.nuevo),
     activo: row ? Boolean(row.activo) : false,
     disponible: row ? row.disponible !== false : true,
+    excluido_iva: row ? row.excluido_iva === true : false,
     orden: numberOrZero(row?.orden),
   };
 }
@@ -4059,6 +4089,11 @@ function productPayload(form: HTMLFormElement): Row {
     precio: numberOrNull(data.get('precio')),
     precio_regular: numberOrNull(data.get('precio_regular')),
     precio_oferta: numberOrNull(data.get('precio_oferta')),
+    dian_codigo: emptyToNull(data.get('dian_codigo')),
+    tarifa_iva_pct: numberOrNull(data.get('tarifa_iva_pct')),
+    retencion_fuente_pct: numberOrNull(data.get('retencion_fuente_pct')),
+    retencion_iva_pct: numberOrNull(data.get('retencion_iva_pct')),
+    retencion_ica_pct: numberOrNull(data.get('retencion_ica_pct')),
     oferta_inicio: emptyToNull(data.get('oferta_inicio')),
     oferta_fin: emptyToNull(data.get('oferta_fin')),
     moneda: 'COP',
@@ -4080,6 +4115,9 @@ function productPayload(form: HTMLFormElement): Row {
     disponible:
       form.elements.namedItem('disponible') instanceof HTMLInputElement &&
       (form.elements.namedItem('disponible') as HTMLInputElement).checked,
+    excluido_iva:
+      form.elements.namedItem('excluido_iva') instanceof HTMLInputElement &&
+      (form.elements.namedItem('excluido_iva') as HTMLInputElement).checked,
     disponible_actualizado_at: new Date().toISOString(),
     orden: numberOrZero(data.get('orden')),
   };
@@ -4400,12 +4438,18 @@ type ProductosExcelImportRow = Row & {
   precio: number | null;
   precio_regular: number | null;
   precio_oferta: number | null;
+  dian_codigo: string | null;
+  tarifa_iva_pct: number | null;
+  retencion_fuente_pct: number | null;
+  retencion_iva_pct: number | null;
+  retencion_ica_pct: number | null;
   moneda: string;
   stock: number | null;
   gestionar_stock: boolean;
   stock_estado: 'instock' | 'outofstock' | 'onbackorder';
   backorder_policy: 'no' | 'notify' | 'yes';
   disponible: boolean;
+  excluido_iva: boolean;
   activo: boolean;
   destacado: boolean;
   nuevo: boolean;
@@ -4440,12 +4484,18 @@ const PRODUCTOS_EXCEL_HEADERS = [
   'precio',
   'precio_regular',
   'precio_oferta',
+  'dian_codigo',
+  'tarifa_iva_pct',
+  'retencion_fuente_pct',
+  'retencion_iva_pct',
+  'retencion_ica_pct',
   'moneda',
   'stock',
   'gestionar_stock',
   'stock_estado',
   'backorder_policy',
   'disponible',
+  'excluido_iva',
   'activo',
   'destacado',
   'nuevo',
@@ -4887,6 +4937,11 @@ function normalizeExcelImportRow(row: Row): ProductosExcelImportRow {
     precio: numValue('precio'),
     precio_regular: numValue('precio_regular'),
     precio_oferta: numValue('precio_oferta'),
+    dian_codigo: emptyStringToNull(textValue('dian_codigo')),
+    tarifa_iva_pct: numValue('tarifa_iva_pct'),
+    retencion_fuente_pct: numValue('retencion_fuente_pct'),
+    retencion_iva_pct: numValue('retencion_iva_pct'),
+    retencion_ica_pct: numValue('retencion_ica_pct'),
     moneda: textValue('moneda') || 'COP',
     stock: numValue('stock'),
     gestionar_stock: boolValue('gestionar_stock'),
@@ -4899,6 +4954,7 @@ function normalizeExcelImportRow(row: Row): ProductosExcelImportRow {
         ? (textValue('backorder_policy') as 'notify' | 'yes')
         : 'no',
     disponible: boolValue('disponible', true),
+    excluido_iva: boolValue('excluido_iva', false),
     activo: boolValue('activo', true),
     destacado: boolValue('destacado'),
     nuevo: boolValue('nuevo'),

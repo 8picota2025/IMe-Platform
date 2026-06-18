@@ -76,6 +76,21 @@ export function buildCatalogoSeo(locale: Locale): SeoPageMeta {
   }
 }
 
+export function buildFaqJsonLd(items: Array<{ q: string; a: string }>): Record<string, unknown> {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: items.map((item) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.a,
+      },
+    })),
+  }
+}
+
 /**
  * JSON-LD Organization — solo datos reales de contenido_ime.json.
  */

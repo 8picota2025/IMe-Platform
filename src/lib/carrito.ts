@@ -9,6 +9,7 @@
 
 import { getSupabaseClient } from './supabase'
 import type { Locale } from '../i18n/utils'
+import type { ClienteFiscalProfile } from './fiscal'
 
 export interface CarritoItem {
   slug: string
@@ -25,6 +26,7 @@ export interface CarritoCliente {
   email: string
   telefono: string
   institucion?: string
+  fiscal?: ClienteFiscalProfile
 }
 
 export type Mercado = 'CO' | 'INTL'
@@ -203,6 +205,7 @@ export async function iniciarCheckout(params: {
       cupon_codigo: params.cuponCodigo || undefined,
       consentimiento_datos: params.consentimientoDatos,
       locale: params.locale,
+      fiscal: params.cliente.fiscal,
     },
   })
 

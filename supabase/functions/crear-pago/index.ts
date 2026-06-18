@@ -3,13 +3,13 @@
  *
  * Checkout de consumibles. Recalcula precios server-side desde Supabase,
  * crea un pedido 'pendiente' y devuelve la URL de checkout hospedado
- * (Bold.co para mercado CO, Stripe para INTL).
+ * (Wompi Web Checkout para mercado CO, Stripe para INTL).
  *
  * REGLA RECTORA: el servidor recalcula siempre — el cliente nunca decide
  * precios ni estado de pago.
  *
  * Variables requeridas: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,
- * BOLD_API_KEY (mercado CO) o STRIPE_SECRET_KEY (mercado INTL),
+ * WOMPI_PUBLIC_KEY + WOMPI_INTEGRITY_SECRET (mercado CO) o STRIPE_SECRET_KEY (mercado INTL),
  * SITE_URL.
  */
 
@@ -18,6 +18,12 @@ import { badRequest, errorResponse, internalError } from '../_shared/errors.ts'
 import { getServerSupabase } from '../_shared/supabase-server.ts'
 import { checkRateLimit } from '../_shared/rate-limit.ts'
 import { getPaymentGateway, type CheckoutItem, type Mercado } from '../_shared/payment-gateway.ts'
+import {
+  buildDianInvoiceDraft,
+  calculateFiscalSummary,
+  validateClienteFiscal,
+  type ClienteFiscalProfile,
+} from '../../../src/lib/fiscal.ts'
 
 const MAX_ITEMS = 20
 const MAX_CANTIDAD = 50
@@ -35,6 +41,27 @@ interface ClienteRequest {
   institucion?: string
 }
 
+interface FiscalDireccionRequest {
+  direccion?: string
+  ciudad?: string
+  departamento?: string
+  codigo_postal?: string
+  pais?: string
+}
+
+interface FiscalRequest {
+  solicitar_factura_electronica?: boolean
+  tipo_documento?: 'CC' | 'NIT' | 'CE' | 'PP' | 'OTRO'
+  numero_documento?: string
+  tipo_persona?: 'natural' | 'juridica'
+  razon_social?: string
+  responsable_iva?: boolean
+  agente_retencion?: boolean
+  agente_reteica?: boolean
+  email_facturacion?: string
+  direccion_facturacion?: FiscalDireccionRequest
+}
+
 interface CrearPagoRequest {
   items?: ItemRequest[]
   cliente?: ClienteRequest
@@ -42,6 +69,7 @@ interface CrearPagoRequest {
   cupon_codigo?: string
   consentimiento_datos?: boolean
   locale?: string
+  fiscal?: FiscalRequest
 }
 
 interface ProductoRow {
@@ -61,6 +89,12 @@ interface ProductoRow {
   disponible: boolean
   tipo_comercial: string
   fulfillment_mode: string
+  dian_codigo?: string | null
+  tarifa_iva_pct?: number | string | null
+  retencion_fuente_pct?: number | string | null
+  retencion_iva_pct?: number | string | null
+  retencion_ica_pct?: number | string | null
+  excluido_iva?: boolean | null
 }
 
 interface CuponRow {
@@ -102,7 +136,8 @@ function precioVigente(producto: ProductoRow): number | string | null {
 
 async function upsertCliente(
   supabase: ReturnType<typeof getServerSupabase>,
-  cliente: ClienteRequest
+  cliente: ClienteRequest,
+  fiscal: ClienteFiscalProfile
 ): Promise<string | null> {
   const email = String(cliente.email ?? '')
     .trim()
@@ -118,6 +153,15 @@ async function upsertCliente(
         telefono: cliente.telefono ?? null,
         institucion: cliente.institucion ?? null,
         tipo_cliente: cliente.institucion ? 'b2b' : 'b2c',
+        razon_social: fiscal.razon_social ?? cliente.institucion ?? null,
+        tipo_documento: fiscal.tipo_documento ?? null,
+        numero_documento: fiscal.numero_documento ?? null,
+        tipo_persona: fiscal.tipo_persona ?? null,
+        responsable_iva: fiscal.responsable_iva === true,
+        agente_retencion: fiscal.agente_retencion === true,
+        agente_reteica: fiscal.agente_reteica === true,
+        email_facturacion: fiscal.email_facturacion ?? email,
+        direccion_facturacion: fiscal.direccion_facturacion ?? null,
         consentimiento_datos: true,
         consentimiento_timestamp: new Date().toISOString(),
       },
@@ -130,6 +174,47 @@ async function upsertCliente(
     return null
   }
   return (data as { id: string }).id
+}
+
+function parseEnvNumber(name: string, fallback = 0): number {
+  const raw = Deno.env.get(name)
+  if (!raw) return fallback
+  const value = Number(raw)
+  return Number.isFinite(value) ? value : fallback
+}
+
+function normalizeFiscal(
+  fiscal: FiscalRequest | undefined,
+  cliente: ClienteRequest,
+  mercado: Mercado,
+  moneda: string
+): ClienteFiscalProfile {
+  const direccion = fiscal?.direccion_facturacion?.direccion?.trim()
+  const ciudad = fiscal?.direccion_facturacion?.ciudad?.trim()
+  return {
+    solicitar_factura_electronica:
+      mercado === 'CO' &&
+      moneda === 'COP' &&
+      fiscal?.solicitar_factura_electronica === true,
+    tipo_documento: fiscal?.tipo_documento ?? null,
+    numero_documento: fiscal?.numero_documento?.trim() ?? null,
+    tipo_persona: fiscal?.tipo_persona ?? null,
+    razon_social: fiscal?.razon_social?.trim() || cliente.institucion?.trim() || null,
+    responsable_iva: fiscal?.responsable_iva === true,
+    agente_retencion: fiscal?.agente_retencion === true,
+    agente_reteica: fiscal?.agente_reteica === true,
+    email_facturacion: fiscal?.email_facturacion?.trim() || cliente.email?.trim() || null,
+    direccion_facturacion:
+      direccion && ciudad
+        ? {
+            direccion,
+            ciudad,
+            departamento: fiscal?.direccion_facturacion?.departamento?.trim() || null,
+            codigo_postal: fiscal?.direccion_facturacion?.codigo_postal?.trim() || null,
+            pais: fiscal?.direccion_facturacion?.pais?.trim() || 'CO',
+          }
+        : null,
+  }
 }
 
 function emailPermitido(email: string, restricciones: string[] | null): boolean {
@@ -373,6 +458,23 @@ Deno.serve(async (req) => {
   }
 
   const locale = body.locale === 'en' ? 'en' : 'es'
+  const monedaMercado = mercado === 'CO' ? 'COP' : 'USD'
+  const fiscalCliente = normalizeFiscal(body.fiscal, cliente, mercado, monedaMercado)
+  const fiscalErrors = validateClienteFiscal(fiscalCliente, {
+    moneda: monedaMercado,
+    mercado,
+  })
+  if (fiscalErrors.length > 0) {
+    return errorResponse(
+      {
+        code: 'DATOS_FISCALES_INVALIDOS',
+        message: 'Faltan datos fiscales requeridos para facturacion electronica',
+        details: fiscalErrors,
+      },
+      422,
+      origin
+    )
+  }
 
   const supabase = getServerSupabase()
   const ip = obtenerIp(req)
@@ -399,9 +501,7 @@ Deno.serve(async (req) => {
   const slugs = items.map((i) => i.slug as string)
   const { data: productos, error: productosError } = await supabase
     .from('productos')
-    .select(
-      'id, slug, familia_id, nombre_es, nombre_en, precio, precio_oferta, oferta_inicio, oferta_fin, moneda, stock, activo, disponible, tipo_comercial, fulfillment_mode'
-    )
+    .select('*')
     .in('slug', slugs)
 
   if (productosError) {
@@ -432,6 +532,7 @@ Deno.serve(async (req) => {
 
   const checkoutItems: CheckoutItem[] = []
   const itemsSnapshot: Array<Record<string, unknown>> = []
+  const fiscalItems: Array<Record<string, unknown>> = []
   let monedaComun: string | null = null
 
   for (const item of items) {
@@ -519,6 +620,23 @@ Deno.serve(async (req) => {
       precio_unitario: precio,
       moneda: producto.moneda,
     })
+    fiscalItems.push({
+      producto_id: producto.id,
+      slug: producto.slug,
+      nombre,
+      cantidad,
+      precio_unitario: precio,
+      tarifa_iva_pct:
+        producto.tarifa_iva_pct === null ? null : Number(producto.tarifa_iva_pct),
+      retencion_fuente_pct:
+        producto.retencion_fuente_pct === null ? null : Number(producto.retencion_fuente_pct),
+      retencion_iva_pct:
+        producto.retencion_iva_pct === null ? null : Number(producto.retencion_iva_pct),
+      retencion_ica_pct:
+        producto.retencion_ica_pct === null ? null : Number(producto.retencion_ica_pct),
+      dian_codigo: producto.dian_codigo,
+      excluido_iva: producto.excluido_iva === true,
+    })
   }
 
   const moneda = monedaComun ?? 'COP'
@@ -538,13 +656,49 @@ Deno.serve(async (req) => {
     : { ok: true as const, descuento: 0, cupon: null as CuponRow | null }
   if (!descuento.ok) return descuento.response
 
-  const impuestoTotal = 0
-  const envioTotal = 0
-  const total = Math.max(0, subtotal - descuento.descuento + impuestoTotal + envioTotal)
+  const fiscal = calculateFiscalSummary(
+    fiscalItems as Array<{
+      producto_id: string
+      slug: string
+      nombre: string
+      cantidad: number
+      precio_unitario: number
+      tarifa_iva_pct?: number | null
+      retencion_fuente_pct?: number | null
+      retencion_iva_pct?: number | null
+      retencion_ica_pct?: number | null
+      dian_codigo?: string | null
+      excluido_iva?: boolean
+    }>,
+    fiscalCliente,
+    {
+      moneda,
+      mercado: mercado as Mercado,
+      descuento_total: descuento.descuento,
+      envio_total: 0,
+      default_iva_pct: parseEnvNumber('CO_DEFAULT_IVA_PCT', 0),
+      default_retencion_fuente_pct: parseEnvNumber('CO_DEFAULT_RETEFUENTE_PCT', 0),
+      default_retencion_iva_pct: parseEnvNumber('CO_DEFAULT_RETEIVA_PCT', 0),
+      default_retencion_ica_pct: parseEnvNumber('CO_DEFAULT_RETEICA_PCT', 0),
+      retefuente_base_minima: parseEnvNumber('CO_RETEFUENTE_BASE_MINIMA', 0),
+      reteiva_base_minima: parseEnvNumber('CO_RETEIVA_BASE_MINIMA', 0),
+      reteica_base_minima: parseEnvNumber('CO_RETEICA_BASE_MINIMA', 0),
+    }
+  )
 
+  const impuestoTotal = fiscal.impuesto_total
+  const envioTotal = 0
+  const total = fiscal.total
   const pedidoId = crypto.randomUUID()
-  const proveedorPago = mercado === 'CO' ? 'bold' : 'stripe'
-  const clienteId = await upsertCliente(supabase, cliente)
+  const dianDraft = buildDianInvoiceDraft({
+    referencia: pedidoId,
+    fiscal,
+    clienteFiscal: fiscalCliente,
+    moneda,
+  })
+
+  const proveedorPago = mercado === 'CO' ? 'wompi' : 'stripe'
+  const clienteId = await upsertCliente(supabase, cliente, fiscalCliente)
 
   const { error: insertError } = await supabase.from('pedidos').insert({
     id: pedidoId,
@@ -558,23 +712,45 @@ Deno.serve(async (req) => {
     },
     items: itemsSnapshot,
     subtotal,
-    descuento_total: descuento.descuento,
-    impuesto_total: impuestoTotal,
-    envio_total: envioTotal,
     total,
     moneda,
     mercado,
     proveedor_pago: proveedorPago,
     estado: 'pendiente',
     referencia_pasarela: pedidoId,
-    cupon_codigo: descuento.cupon?.codigo ?? null,
     consentimiento_datos: true,
     consentimiento_timestamp: new Date().toISOString(),
-    leida: false,
+    metadata: {
+      fiscal: {
+        solicitar_factura_electronica: fiscalCliente.solicitar_factura_electronica,
+        tipo_documento: fiscalCliente.tipo_documento,
+        numero_documento: fiscalCliente.numero_documento,
+        tipo_persona: fiscalCliente.tipo_persona,
+        razon_social: fiscalCliente.razon_social,
+        responsable_iva: fiscalCliente.responsable_iva === true,
+        agente_retencion: fiscalCliente.agente_retencion === true,
+        agente_reteica: fiscalCliente.agente_reteica === true,
+        email_facturacion: fiscalCliente.email_facturacion,
+      },
+      fiscal_resumen: fiscal,
+      dian_draft: dianDraft,
+    },
   })
 
   if (insertError) {
     return internalError(`error creando pedido: ${insertError.message}`, origin)
+  }
+
+  if (fiscalCliente.solicitar_factura_electronica) {
+    await supabase.from('facturas_electronicas').upsert(
+      {
+        pedido_id: pedidoId,
+        estado: 'pendiente_pago',
+        proveedor: Deno.env.get('DIAN_PROVIDER_NAME') ?? 'pendiente_configuracion',
+        payload: dianDraft ?? {},
+      },
+      { onConflict: 'pedido_id' }
+    )
   }
 
   if (descuento.cupon) {
@@ -602,6 +778,7 @@ Deno.serve(async (req) => {
       ...(cliente.institucion ? { institucion: cliente.institucion } : {}),
     },
     mercado: mercado as Mercado,
+    locale,
     referencia: pedidoId,
     total,
     moneda,
@@ -620,10 +797,14 @@ Deno.serve(async (req) => {
     )
   }
 
-  await supabase
+  const { error: updateCheckoutError } = await supabase
     .from('pedidos')
     .update({ checkout_url: resultado.checkout_url ?? null })
     .eq('id', pedidoId)
+
+  if (updateCheckoutError) {
+    console.warn('crear-pago: no se pudo persistir checkout_url', updateCheckoutError.message)
+  }
 
   return new Response(
     JSON.stringify({ ok: true, checkout_url: resultado.checkout_url, referencia: pedidoId }),

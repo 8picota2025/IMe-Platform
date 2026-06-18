@@ -1,0 +1,231 @@
+{
+  "invima": {
+    "nombre": "Instituto Nacional de Vigilancia de Medicamentos y Alimentos",
+    "website": "https://www.invima.gov.co",
+    "descripcion": "Autoridad sanitaria responsable de vigilancia, licencia y control de dispositivos médicos en Colombia",
+    "dispositivos": {
+      "definicion": "Producto de uso humano que no logra su finalidad principal por medios farmacológicos, inmunológicos o metabólicos, pero puede contar con estos medios como función auxiliar",
+      "regulacion": "Decreto 4725 de 2005",
+      "clasificacion": {
+        "clase_i": {
+          "nombre": "Clase I",
+          "riesgo": "Riesgo mínimo",
+          "ejemplos": [
+            "Equipos de protección personal",
+            "Instrumentos simples",
+            "Vendajes"
+          ],
+          "certificacion_requerida": "Presunción de conformidad",
+          "requisitos": [
+            "Declaración de conformidad del fabricante",
+            "Descripción del dispositivo",
+            "Certificación del sistema de gestión de calidad (BPM)"
+          ]
+        },
+        "clase_ii": {
+          "nombre": "Clase II",
+          "riesgo": "Riesgo moderado",
+          "ejemplos": [
+            "Equipo de diagnóstico",
+            "Monitores de presión",
+            "Equipos de electrocardiografía"
+          ],
+          "certificacion_requerida": "Conformidad evaluada",
+          "requisitos": [
+            "Estudio técnico de biocompatibilidad",
+            "Certificación de sistema de gestión de calidad",
+            "Evaluación de conformidad con estándares aplicables",
+            "Descripción técnica del dispositivo",
+            "Comprobaciones analíticas"
+          ]
+        },
+        "clase_iib": {
+          "nombre": "Clase IIB",
+          "riesgo": "Riesgo moderado-alto",
+          "ejemplos": [
+            "Equipos quirúrgicos con energía",
+            "Implantes óseos",
+            "Sistemas de infusión"
+          ],
+          "certificacion_requerida": "Conformidad evaluada con tercer notificado",
+          "requisitos": [
+            "Ensayos clínicos o pruebas de desempeño",
+            "Evaluación de riesgos completa",
+            "Certificación de calidad por terceros",
+            "Estudios técnicos exhaustivos",
+            "Declaración de conformidad"
+          ]
+        },
+        "clase_iii": {
+          "nombre": "Clase III",
+          "riesgo": "Riesgo alto",
+          "ejemplos": [
+            "Implantes cardiovasculares",
+            "Dispositivos neurales",
+            "Implantes articulares"
+          ],
+          "certificacion_requerida": "Aprobación previa de registro sanitario",
+          "requisitos": [
+            "Ensayos clínicos completos",
+            "Evaluación de riesgos exhaustiva",
+            "Certificación de organismo notificado",
+            "Seguimiento post-comercialización",
+            "Estudios de biocompatibilidad",
+            "Pruebas de esterilidad y pirógenos"
+          ]
+        }
+      },
+      "tipos_especiales": {
+        "dispositivos_sobre_medida": {
+          "descripcion": "Dispositivos diseñados específicamente para un paciente o fabricados a la medida",
+          "categorias": [
+            "Ortopédica externa",
+            "Salud visual y ocular",
+            "Ayuda auditiva",
+            "Salud bucal"
+          ],
+          "requisitos": "Reglamentación especifica por tipo"
+        },
+        "equipos_biomedicos_tecnologia_controlada": {
+          "descripcion": "Equipos de tecnología compleja que requieren personal especializado",
+          "ejemplos": [
+            "Ventiladores mecánicos",
+            "Monitores multiparamétricos",
+            "Sistemas de circulación extracorpórea"
+          ],
+          "requisito_especial": "Registro de técnicos especializados para mantenimiento"
+        }
+      }
+    },
+    "registros_sanitarios": {
+      "definicion": "Documento público expedido por INVIMA que autoriza fabricación, comercialización, importación, exportación y distribución de dispositivos médicos",
+      "vigencia": "Variable según clasificación",
+      "requisitos_generales": [
+        "Fabricante e importador registrados",
+        "Cumplimiento de normas técnicas",
+        "Certificación de calidad",
+        "Estudios técnicos y clínicos según clase",
+        "Declaraciones de conformidad",
+        "Documentación regulatoria completa"
+      ]
+    },
+    "normatividad_clave": {
+      "decreto_4725_2005": {
+        "titulo": "Decreto 4725 de 21 de diciembre de 2005",
+        "contenido": "Reglamenta el régimen de registros sanitarios, permiso de comercialización y vigilancia sanitaria de dispositivos médicos para uso humano",
+        "enlace": "https://www.invima.gov.co/invima_website/static/attachments/dispositivos_dispositivos_medicos_equipos_biomedicos/DECRETO_204725_20DE_202005.pdf"
+      },
+      "resolucion_4002_2007": {
+        "titulo": "Resolución 4002 de 2007",
+        "contenido": "Manual de Requisitos de Capacidad de Almacenamiento y/o Acondicionamiento para Dispositivos Médicos",
+        "enlace": "https://www.invima.gov.co/invima_website/static/attachments/dispositivos_dispositivos_medicos_equipos_biomedicos/Resoluci_C3_B3n_204002_20-_2002_20noviembre_20de_202007.pdf"
+      },
+      "resolucion_0214_2022": {
+        "titulo": "Resolución 0214 de 2022",
+        "contenido": "Requisitos sanitarios para dispositivos médicos sobre medida bucal",
+        "enlace": "https://www.invima.gov.co/invima_website/static/attachments/dispositivos_dispositivos_medicos_equipos_biomedicos/Resoluci_C3_B3n_20214_20de_202022_20v2023_20_1_.pdf"
+      }
+    },
+    "certificaciones_establecimientos": {
+      "descripcion": "Listados de establecimientos nacionales registrados con estado de certificación",
+      "categorias": [
+        "Dispositivos médicos de tecnología ortopédica",
+        "Condiciones técnico-sanitarias (CCAA)",
+        "Ayuda auditiva",
+        "Salud bucal",
+        "Recurso humano mantenimiento equipos biomédicos"
+      ],
+      "fecha_actualizacion": "2026-06-05"
+    },
+    "equipos_biomedicos_comunes": {
+      "diagnostico": [
+        "Electrocardiógrafos",
+        "Monitores cardíacos",
+        "Ecógrafos",
+        "Equipos de rayos X"
+      ],
+      "apoyo_vital": [
+        "Ventiladores mecánicos",
+        "Bombas de infusión",
+        "Monitores multiparamétricos",
+        "Desfibriladores"
+      ],
+      "quirurgico": [
+        "Mesas quirúrgicas",
+        "Lámparas quirúrgicas",
+        "Sistemas de succión",
+        "Electrobisturíes"
+      ],
+      "cuidado_intensivo": [
+        "Monitores UCI",
+        "Sistemas de oxigenación",
+        "Calentadores de fluidos",
+        "Incubadoras neonatales"
+      ]
+    },
+    "procedimientos_registro": {
+      "pasos": [
+        "Solicitar registro sanitario ante INVIMA",
+        "Presentar documentación técnica y regulatoria completa",
+        "Realizar auditoría/evaluación de conformidad",
+        "Obtención del registro sanitario",
+        "Vigilancia post-comercialización"
+      ],
+      "tiempo_promedio": {
+        "clase_i": "60-90 días",
+        "clase_ii": "4-6 meses",
+        "clase_iib": "8-12 meses",
+        "clase_iii": "12-24 meses"
+      }
+    },
+    "documentos_disponibles": [
+      "Listas de verificación de requisitos",
+      "Formatos de solicitud",
+      "Guías de procedimiento",
+      "Manuales de capacidad de almacenamiento",
+      "Fichas técnicas por categoría"
+    ],
+    "contacto": {
+      "pagina": "https://www.invima.gov.co/productos-vigilados/dispositivos-medicos/dispositivos-medicos-equipos-biomedicos",
+      "area": "Sala Especializada de Dispositivos y Reactivos",
+      "servicios": "Preguntas frecuentes, auditorías, certificaciones, registros"
+    }
+  },
+  "informacion_comercial": {
+    "mercado_colombia": {
+      "regulacion": "INVIMA - regulador único",
+      "requisitos": [
+        "Registro sanitario obligatorio",
+        "Cumplimiento normativo verificable",
+        "Certificación de calidad",
+        "Documentación técnica completa"
+      ],
+      "ventajas": [
+        "Mercado regulado y controlado",
+        "Estándares internacionales requeridos",
+        "Productos certificados garantizan calidad",
+        "Protección al consumidor"
+      ]
+    },
+    "oportunidades": {
+      "distribuidores": [
+        "Distribuidores autorizados generan confianza",
+        "Respaldo regulatorio garantiza conformidad",
+        "Servicio técnico especializado diferencia",
+        "Garantía de productos registrados"
+      ],
+      "proveedores": [
+        "Especialización por categoría de dispositivos",
+        "Certificaciones de calidad adicionales (ISO, CE)",
+        "Experiencia técnica es clave",
+        "Redes de distribución establecidas"
+      ]
+    }
+  },
+  "notas": {
+    "integracion_asesor": "Información extraída del INVIMA para proporcionar asesoramiento regulatorio completo",
+    "fuente": "https://www.invima.gov.co/productos-vigilados/dispositivos-medicos/dispositivos-medicos-equipos-biomedicos",
+    "fecha_extraccion": "2026-06-18",
+    "precision": "Alto - Información oficial de autoridad regulatoria colombiana"
+  }
+}

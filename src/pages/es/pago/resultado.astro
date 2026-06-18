@@ -1,0 +1,25 @@
+---
+/**
+ * Página neutral de retorno de Wompi. No asume éxito ni rechazo:
+ * el estado real se verifica server-side vía consultar-pedido.
+ */
+import Layout from '../../../layouts/Layout.astro'
+import ResultadoPago from '../../../components/ResultadoPago.astro'
+import { buildPageTitle, buildCanonical } from '../../../lib/seo'
+
+const locale = 'es'
+const title = buildPageTitle('Resultado del pago')
+const description = 'Verificación del estado real del pago.'
+const canonical = buildCanonical('/es/pago/resultado')
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  locale={locale}
+  currentPath="/es/pago/resultado"
+  noindex
+>
+  <ResultadoPago locale={locale} tipo="resultado" />
+</Layout>
