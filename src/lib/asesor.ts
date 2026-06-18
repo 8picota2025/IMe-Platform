@@ -8,7 +8,11 @@
  */
 
 import { getSupabaseClient } from './supabase';
-import { esConsultaSitioOLegal, getAsesorKnowledgeBase } from './asesor-knowledge';
+import {
+  buildAsesorStaticFallback,
+  esConsultaSitioOLegal,
+  getAsesorKnowledgeBase,
+} from './asesor-knowledge';
 import type { Locale } from '../i18n/utils';
 
 const OLLAMA_URL = (import.meta.env['PUBLIC_OLLAMA_URL'] as string | undefined) ?? '';
@@ -198,6 +202,9 @@ interface ArticuloMatch {
   score: number;
 }
 
+const COMPARE_QUERY_REGEX =
+  /\b(compara|comparar|comparativa|comparacion|vs|versus|diferencias?)\b/i;
+
 function stripThink(text: string): string {
   return text.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
 }
@@ -207,6 +214,59 @@ function extraerJsonOllama(content: string): string {
   const fin = content.lastIndexOf('}');
   if (inicio === -1 || fin === -1 || fin < inicio) return content;
   return content.slice(inicio, fin + 1);
+}
+
+function normalizeSearchText(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+function esConsultaComparativa(texto: string): boolean {
+  return COMPARE_QUERY_REGEX.test(texto);
+}
+
+async function buscarProductosPorNombreEnMensaje(
+  supabase: NonNullable<ReturnType<typeof getSupabaseClient>>,
+  mensaje: string
+): Promise<ProductoMatch[]> {
+  const mensajeNormalizado = normalizeSearchText(mensaje);
+  if (!mensajeNormalizado) return [];
+
+  const { data, error } = await supabase
+    .from('productos')
+    .select(
+      'id, slug, nombre_es, nombre_en, descripcion_corta_es, descripcion_corta_en, imagen_principal, tipo_comercial'
+    )
+    .eq('activo', true);
+  if (error) return [];
+
+  return ((data ?? []) as ProductoMatch[])
+    .map(producto => {
+      const nombres = [producto.nombre_es, producto.nombre_en ?? '']
+        .map(nombre => normalizeSearchText(nombre))
+        .filter(Boolean);
+      let score = 0;
+      for (const nombre of nombres) {
+        if (nombre.length >= 8 && mensajeNormalizado.includes(nombre)) {
+          score = Math.max(score, 1);
+          continue;
+        }
+
+        const mensajeTokens = mensajeNormalizado.split(' ').filter(token => token.length > 2);
+        const nombreTokens = nombre.split(' ').filter(token => token.length > 2);
+        const overlap = nombreTokens.filter(token => mensajeTokens.includes(token)).length;
+        if (overlap >= 2) score = Math.max(score, overlap / Math.max(1, nombreTokens.length));
+      }
+
+      return score >= 0.6 ? { ...producto, score: Math.max(producto.score, score) } : null;
+    })
+    .filter((producto): producto is ProductoMatch => Boolean(producto))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 6);
 }
 
 function buildAsesorSystemPrompt(): string {
@@ -321,17 +381,43 @@ function buildFallbackTexto(
   }>,
   locale: Locale,
   modo: ModoAsesor,
-  consultaSitioOLegal: boolean
+  consultaSitioOLegal: boolean,
+  textoConsulta: string
 ): string {
+  const staticFallback = consultaSitioOLegal
+    ? buildAsesorStaticFallback(locale, textoConsulta)
+    : null;
+  const consultaComparativa = esConsultaComparativa(textoConsulta);
   if (modo === 'sin_resultados') {
-    if (consultaSitioOLegal) {
-      return locale === 'en'
-        ? 'I can usually help with website content, catalog guidance and the Colombian regulatory information published by I-ME, but I could not assemble a reliable answer right now. Please try again or contact the team on WhatsApp.'
-        : 'Puedo ayudarte con el contenido del sitio, el catálogo y la información regulatoria colombiana publicada por I-ME, pero en este momento no pude construir una respuesta fiable. Intenta de nuevo o contáctanos por WhatsApp.';
-    }
+    if (staticFallback) return staticFallback;
     return locale === 'en'
       ? 'We could not find catalog products matching your request. Contact us on WhatsApp so a specialist can help you.'
       : 'No encontramos productos del catálogo que coincidan con tu búsqueda. Escríbenos por WhatsApp para que un asesor te ayude.';
+  }
+
+  if (staticFallback && !contexto.length) return staticFallback;
+
+  if (consultaComparativa && contexto.length >= 2) {
+    const comparados = contexto.slice(0, 2);
+    if (locale === 'en') {
+      return [
+        'With the currently available catalog context, I can compare these products at a descriptive level:',
+        ...comparados.map(
+          (producto, index) =>
+            `${index + 1}. **${producto.nombre}** — ${producto.descripcion_corta || producto.descripcion_larga || 'No additional published description is available.'}`
+        ),
+        'For exact technical specifications, pricing, availability or a formal recommendation, please contact us on WhatsApp or request a quote.',
+      ].join('\n');
+    }
+
+    return [
+      'Con el contexto de catálogo disponible, puedo compararlos a nivel descriptivo:',
+      ...comparados.map(
+        (producto, index) =>
+          `${index + 1}. **${producto.nombre}** — ${producto.descripcion_corta || producto.descripcion_larga || 'No hay una descripción adicional publicada disponible.'}`
+      ),
+      'Para especificaciones técnicas exactas, precio, disponibilidad o una recomendación formal, contáctanos por WhatsApp o solicita una cotización.',
+    ].join('\n');
   }
 
   const top = contexto.slice(0, 3);
@@ -398,7 +484,8 @@ async function preguntarAsesorLocal(params: {
   ]
     .join('\n')
     .slice(0, 2000);
-  const consultaSitioOLegal = esConsultaSitioOLegal(textoConsulta);
+  const consultaSitioOLegal = esConsultaSitioOLegal(params.mensaje);
+  const consultaComparativa = esConsultaComparativa(params.mensaje);
 
   let productos: ProductoMatch[] = [];
   let articulos: ArticuloMatch[] = [];
@@ -467,6 +554,16 @@ async function preguntarAsesorLocal(params: {
       filtro: null,
     });
     productos = (Array.isArray(data) ? data : []) as ProductoMatch[];
+  }
+
+  if (!productos.length || (consultaComparativa && productos.length < 2)) {
+    const directos = await buscarProductosPorNombreEnMensaje(supabase, params.mensaje);
+    if (directos.length) {
+      const merged = new Map(productos.map(producto => [producto.slug, producto]));
+      for (const producto of directos) merged.set(producto.slug, producto);
+      productos = [...merged.values()].sort((a, b) => b.score - a.score).slice(0, 6);
+      if (productos.length) modo = 'keyword_degradado';
+    }
   }
 
   if (!articulos.length && consultaSitioOLegal) {
@@ -546,7 +643,13 @@ async function preguntarAsesorLocal(params: {
     score: p.score,
   });
 
-  const textoFallback = buildFallbackTexto(contexto, params.locale, modo, consultaSitioOLegal);
+  const textoFallback = buildFallbackTexto(
+    contexto,
+    params.locale,
+    modo,
+    consultaSitioOLegal,
+    params.mensaje
+  );
 
   // 7. Chat con Ollama (timeout extendido porque qwen3:8b en CPU puede tardar)
   const abortCtrl = new AbortController();

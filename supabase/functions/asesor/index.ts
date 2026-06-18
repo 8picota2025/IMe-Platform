@@ -22,6 +22,7 @@ import {
 import { verifyTurnstile } from '../_shared/turnstile.ts';
 import { checkRateLimit } from '../_shared/rate-limit.ts';
 import {
+  buildAsesorStaticFallback,
   esConsultaSitioOLegal,
   getAsesorKnowledgeBase,
 } from '../../../src/lib/asesor-knowledge.ts';
@@ -100,6 +101,8 @@ const MAX_HISTORIAL_TURNOS = 8;
 const MAX_HISTORIAL_CHARS = 4000;
 const MATCH_COUNT = 6;
 const MAX_TOKENS_RESPUESTA = 700;
+const COMPARE_QUERY_REGEX =
+  /\b(compara|comparar|comparativa|comparacion|vs|versus|diferencias?)\b/i;
 
 Deno.serve(async req => {
   const inicio = Date.now();
@@ -175,7 +178,8 @@ Deno.serve(async req => {
     const presupuesto = await enforceBudget(supabase);
     const gateway = createLlmGateway();
     const textoConsulta = construirTextoConsulta(mensaje, historial);
-    const consultaSitioOLegal = esConsultaSitioOLegal(textoConsulta);
+    const consultaSitioOLegal = esConsultaSitioOLegal(mensaje);
+    const consultaComparativa = esConsultaComparativa(mensaje);
 
     let productos: ProductoMatch[] = [];
     let articulos: ArticuloMatch[] = [];
@@ -218,6 +222,16 @@ Deno.serve(async req => {
     } else {
       usadoFallbackKeyword = true;
       productos = await buscarKeyword(supabase, mensaje);
+    }
+
+    if (productos.length === 0 || (consultaComparativa && productos.length < 2)) {
+      const directos = await buscarProductosPorNombreEnMensaje(supabase, mensaje);
+      if (directos.length) {
+        const merged = new Map(productos.map(producto => [producto.slug, producto]));
+        for (const producto of directos) merged.set(producto.slug, producto);
+        productos = [...merged.values()].sort((a, b) => b.score - a.score).slice(0, MATCH_COUNT);
+        usadoFallbackKeyword = true;
+      }
     }
 
     if (vector?.length) {
@@ -321,10 +335,10 @@ Deno.serve(async req => {
         productosCitados = parsed.productosCitados;
         accionHandoff = parsed.accionHandoff;
       } catch {
-        texto = mensajeDegradado(locale, modo, productos, consultaSitioOLegal);
+        texto = mensajeDegradado(locale, modo, productos, consultaSitioOLegal, mensaje);
       }
     } else {
-      texto = mensajeDegradado(locale, modo, productos, consultaSitioOLegal);
+      texto = mensajeDegradado(locale, modo, productos, consultaSitioOLegal, mensaje);
     }
 
     // 12. Validar slugs citados contra recuperados; descartar el resto.
@@ -437,6 +451,60 @@ async function buscarArticulosKeyword(
   });
   if (error) return [];
   return (data ?? []) as ArticuloMatch[];
+}
+
+function normalizeSearchText(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+function esConsultaComparativa(texto: string): boolean {
+  return COMPARE_QUERY_REGEX.test(texto);
+}
+
+async function buscarProductosPorNombreEnMensaje(
+  supabase: ReturnType<typeof getServerSupabase>,
+  mensaje: string
+): Promise<ProductoMatch[]> {
+  const mensajeNormalizado = normalizeSearchText(mensaje);
+  if (!mensajeNormalizado) return [];
+
+  const { data, error } = await supabase
+    .from('productos')
+    .select(
+      'id, slug, nombre_es, nombre_en, descripcion_corta_es, descripcion_corta_en, imagen_principal, tipo_comercial'
+    )
+    .eq('activo', true);
+  if (error) return [];
+
+  return ((data ?? []) as ProductoMatch[])
+    .map(producto => {
+      const nombres = [producto.nombre_es, producto.nombre_en ?? '']
+        .map(nombre => normalizeSearchText(nombre))
+        .filter(Boolean);
+      let score = 0;
+
+      for (const nombre of nombres) {
+        if (nombre.length >= 8 && mensajeNormalizado.includes(nombre)) {
+          score = Math.max(score, 1);
+          continue;
+        }
+
+        const mensajeTokens = mensajeNormalizado.split(' ').filter(token => token.length > 2);
+        const nombreTokens = nombre.split(' ').filter(token => token.length > 2);
+        const overlap = nombreTokens.filter(token => mensajeTokens.includes(token)).length;
+        if (overlap >= 2) score = Math.max(score, overlap / Math.max(1, nombreTokens.length));
+      }
+
+      return score >= 0.6 ? { ...producto, score: Math.max(producto.score, score) } : null;
+    })
+    .filter((producto): producto is ProductoMatch => Boolean(producto))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, MATCH_COUNT);
 }
 
 async function cargarDetallesProductos(
@@ -578,17 +646,51 @@ function mensajeDegradado(
   locale: Locale,
   modo: Modo,
   productos: ProductoMatch[],
-  consultaSitioOLegal: boolean
+  consultaSitioOLegal: boolean,
+  textoConsulta: string
 ): string {
+  const staticFallback = consultaSitioOLegal
+    ? buildAsesorStaticFallback(locale, textoConsulta)
+    : null;
+  const consultaComparativa = esConsultaComparativa(textoConsulta);
+
   if (modo === 'sin_resultados') {
-    if (consultaSitioOLegal) {
-      return locale === 'en'
-        ? 'I can usually help with website content, catalog guidance and the Colombian regulatory information published by I-ME, but I could not assemble a reliable answer right now. Please try again or contact the team on WhatsApp.'
-        : 'Puedo ayudarte con el contenido del sitio, el catálogo y la información regulatoria colombiana publicada por I-ME, pero en este momento no pude construir una respuesta fiable. Intenta de nuevo o contáctanos por WhatsApp.';
-    }
+    if (staticFallback) return staticFallback;
     return locale === 'en'
       ? 'We could not find catalog products matching your request right now. Please contact us on WhatsApp so a specialist can help you.'
       : 'No encontramos productos del catálogo que coincidan con tu búsqueda en este momento. Escríbenos por WhatsApp para que un asesor te ayude.';
+  }
+
+  if (staticFallback && productos.length === 0) return staticFallback;
+
+  if (consultaComparativa && productos.length >= 2) {
+    const comparados = productos.slice(0, 2);
+    if (locale === 'en') {
+      return [
+        'With the currently available catalog context, I can compare these products at a descriptive level:',
+        ...comparados.map((producto, index) => {
+          const nombre = producto.nombre_en || producto.nombre_es;
+          const descripcion =
+            producto.descripcion_corta_en ||
+            producto.descripcion_corta_es ||
+            'No additional published description is available.';
+          return `${index + 1}. **${nombre}** — ${descripcion}`;
+        }),
+        'For exact technical specifications, pricing, availability or a formal recommendation, please contact us on WhatsApp or request a quote.',
+      ].join('\n');
+    }
+
+    return [
+      'Con el contexto de catálogo disponible, puedo compararlos a nivel descriptivo:',
+      ...comparados.map((producto, index) => {
+        const descripcion =
+          producto.descripcion_corta_es ||
+          producto.descripcion_corta_en ||
+          'No hay una descripción adicional publicada disponible.';
+        return `${index + 1}. **${producto.nombre_es}** — ${descripcion}`;
+      }),
+      'Para especificaciones técnicas exactas, precio, disponibilidad o una recomendación formal, contáctanos por WhatsApp o solicita una cotización.',
+    ].join('\n');
   }
 
   const nombres = productos

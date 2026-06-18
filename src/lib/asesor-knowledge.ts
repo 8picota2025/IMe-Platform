@@ -1,5 +1,12 @@
 export type AsesorKnowledgeLocale = 'es' | 'en';
 
+const CONTACT_QUERY_REGEX =
+  /\b(whats?app|correo(?:s)?|email|contact(?:o|os|ar|arme|arlos)?|telefono(?:s)?|phone(?:s)?|canal(?:es)?)\b/i;
+const SERVICES_QUERY_REGEX =
+  /\b(servici(?:o|os)|support|soporte|mantenim(?:iento|ientos)|calibr(?:acion|aciones)?|instal(?:acion|aciones|ar)?|asesor(?:ia)?|financi(?:acion|amiento|ar)?)\b/i;
+const LEGAL_QUERY_REGEX =
+  /\b(legal(?:es)?|ley(?:es)?|law(?:s)?|decreto(?:s)?|decree(?:s)?|resoluci(?:on|ones)|resolution(?:s)?|cookies?|privacidad|privacy|habeas|consumidor(?:es)?|consumer(?:s)?|normativ(?:a|as)|regulator(?:io|ios|y)?|registro(?:s)? sanitario(?:s)?|sanitary registration|invima|tecnovigil(?:ancia|ance)?)\b/i;
+
 const ES_SITE_AND_LEGAL_KNOWLEDGE = `CONTEXTO DEL SITIO Y DE I-ME
 - I-ME International Medical Enterprise es una empresa colombiana dedicada a la venta, distribucion, importacion, exportacion, instalacion, soporte tecnico, mantenimiento, asesoria e implementacion de equipos y dispositivos medicos para el sector salud.
 - El sitio publica informacion sobre catalogo de productos, servicios, financiamiento orientativo, contacto, contenido editorial y paginas legales.
@@ -39,7 +46,7 @@ COLOMBIAN LEGAL AND REGULATORY FRAMEWORK AVAILABLE ON THE SITE
 - The virtual advisor may provide commercial, technical and general regulatory guidance based on the site, but it does not replace formal legal advice, a binding regulatory opinion or clinical judgment.`;
 
 const SITE_OR_LEGAL_QUERY_REGEX =
-  /\b(whatsapp|correo|email|contacto|contact|telefono|phone|empresa|company|sitio|site|pagina|page|catalogo|catalog|servicio|service|financi|garanti|warranty|entrega|delivery|instal|calibr|mantenimiento|support|soporte|legal|ley|law|decreto|decree|resoluci|resolution|invima|fda|ce\b|registro sanitario|sanitary registration|tecnovigil|tecnovigilance|normativ|regulator|cookies|privacidad|privacy|habeas|terminos|terms|consumidor|consumer)\b/i;
+  /\b(whats?app|correo(?:s)?|email|contact(?:o|os|ar|arme|arlos)?|telefono(?:s)?|phone(?:s)?|empresa|compania|company|sitio|site|pagina(?:s)?|page(?:s)?|catalogo(?:s)?|catalog(?:s)?|servici(?:o|os)|service(?:s)?|financi(?:acion|amiento|ar)?|garanti(?:a|as)|warrant(?:y|ies)|entreg(?:a|as)|delivery|instal(?:acion|aciones|ar)?|calibr(?:acion|aciones)?|mantenim(?:iento|ientos)|support|soporte|legal(?:es)?|ley(?:es)?|law(?:s)?|decreto(?:s)?|decree(?:s)?|resoluci(?:on|ones)|resolution(?:s)?|invima|fda|ce\b|registro(?:s)? sanitario(?:s)?|sanitary registration|tecnovigil(?:ancia|ance)?|normativ(?:a|as)|regulator(?:io|ios|y)?|cookies?|privacidad|privacy|habeas|terminos|terms|consumidor(?:es)?|consumer(?:s)?|canal(?:es)?|cotizaci(?:on|ones)|quote(?:s)?)\b/i;
 
 export function getAsesorKnowledgeBase(locale: AsesorKnowledgeLocale): string {
   return locale === 'en' ? EN_SITE_AND_LEGAL_KNOWLEDGE : ES_SITE_AND_LEGAL_KNOWLEDGE;
@@ -47,4 +54,33 @@ export function getAsesorKnowledgeBase(locale: AsesorKnowledgeLocale): string {
 
 export function esConsultaSitioOLegal(texto: string): boolean {
   return SITE_OR_LEGAL_QUERY_REGEX.test(texto);
+}
+
+export function buildAsesorStaticFallback(
+  locale: AsesorKnowledgeLocale,
+  texto: string
+): string | null {
+  const wantsContact = CONTACT_QUERY_REGEX.test(texto);
+  const wantsServices = SERVICES_QUERY_REGEX.test(texto);
+  const wantsLegal = LEGAL_QUERY_REGEX.test(texto);
+
+  if (locale === 'en') {
+    if (wantsLegal) {
+      return 'Based on the information published by I-ME, personal data processing in Colombia is generally framed by Law 1581 of 2012 and Decrees 1377 of 2013 and 1074 of 2015, plus Decree 886 of 2014 when the National Database Registry applies. For commercial contact, Law 1266 of 2008 and Law 2300 of 2023 may also apply when relevant. The site also states that Colombia does not have a standalone cookie law like the European model, so if cookies identify a natural person, Law 1581 of 2012 should be considered. This is general guidance based on the published site content, not formal legal advice.';
+    }
+
+    if (wantsServices || wantsContact) {
+      return 'I-ME states that it provides sale and distribution of biomedical equipment, installation and commissioning, preventive and corrective technical support, calibration and metrological verification, spare parts and consumables, indicative financing, and biomedical advisory. The published commercial channels are WhatsApp +57 313 867 4059, email info@i-me.com.co, and the website contact form.';
+    }
+  } else {
+    if (wantsLegal) {
+      return 'Con base en la información publicada por I-ME, el tratamiento de datos personales en Colombia se enmarca de forma general en la Ley 1581 de 2012 y los Decretos 1377 de 2013 y 1074 de 2015, además del Decreto 886 de 2014 cuando aplique el Registro Nacional de Bases de Datos. Para contacto comercial también pueden aplicar la Ley 1266 de 2008 y la Ley 2300 de 2023 cuando corresponda. El sitio además indica que Colombia no tiene una ley autónoma de cookies equivalente al modelo europeo, por lo que si las cookies identifican a una persona natural debe considerarse la Ley 1581 de 2012. Esta es una orientación general basada en el contenido publicado, no asesoría legal definitiva.';
+    }
+
+    if (wantsServices || wantsContact) {
+      return 'I-ME publica que ofrece venta y distribución de equipos biomédicos, instalación y puesta en marcha, soporte técnico preventivo y correctivo, calibración y verificación metrológica, repuestos y consumibles, financiamiento orientativo y asesoría biomédica. Los canales comerciales publicados son WhatsApp +57 313 867 4059, correo info@i-me.com.co y el formulario de contacto del sitio.';
+    }
+  }
+
+  return null;
 }
