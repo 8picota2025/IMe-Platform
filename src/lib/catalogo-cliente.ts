@@ -5,6 +5,7 @@
  */
 import { t, type Locale } from '../i18n/utils';
 import { normalizarTexto } from './catalogo';
+import { resetTransientUiState } from './motion';
 import {
   getComparador,
   toggleComparador,
@@ -759,6 +760,7 @@ export function initCatalogo(locale: Locale): () => void {
       }
     }
 
+    resetTransientUiState();
     quickviewDialog.showModal();
   }
 
@@ -921,6 +923,7 @@ export function initCatalogo(locale: Locale): () => void {
 
     const onVer = () => {
       renderTabla(getComparador());
+      resetTransientUiState();
       dialog?.showModal();
     };
     verBtn?.addEventListener('click', onVer);

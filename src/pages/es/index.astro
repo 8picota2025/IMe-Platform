@@ -9,18 +9,23 @@
  * funciones nuevas: catálogo → /es/catalogo, productos → /es/productos/[slug],
  * "Cotizar" → drawer de cotización nuevo.
  */
-import Layout from '../../layouts/Layout.astro'
-import { getProductosDestacados } from '../../lib/datos'
-import { buildFaqJsonLd, buildHomeSeo, buildOrganizationJsonLd, combineJsonLd } from '../../lib/seo'
-import contenidoIme from '../../data/contenido_ime.json'
-import '../../styles/site-faithful.css'
+import Layout from '../../layouts/Layout.astro';
+import { getProductosDestacados } from '../../lib/datos';
+import {
+  buildFaqJsonLd,
+  buildHomeSeo,
+  buildOrganizationJsonLd,
+  combineJsonLd,
+} from '../../lib/seo';
+import contenidoIme from '../../data/contenido_ime.json';
+import '../../styles/site-faithful.css';
 
-const locale = 'es'
-const seo = buildHomeSeo(locale)
-const faqData = contenidoIme.home.faq.es
-const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildFaqJsonLd(faqData))
+const locale = 'es';
+const seo = buildHomeSeo(locale);
+const faqData = contenidoIme.home.faq.es;
+const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildFaqJsonLd(faqData));
 
-const productosDestacados = await getProductosDestacados(locale)
+const productosDestacados = await getProductosDestacados(locale);
 
 // Categorías — réplica fiel de las 8 cat-card de producción
 const categorias = [
@@ -88,7 +93,7 @@ const categorias = [
     bg: 'https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?w=400&q=70&auto=format&fit=crop',
     aria: 'Ver equipos de anestesia',
   },
-]
+];
 
 // Servicios — réplica fiel de las 4 svc-row de producción
 const servicios = [
@@ -136,8 +141,7 @@ const servicios = [
       'Capacitación al personal clínico',
     ],
   },
-]
-
+];
 ---
 
 <Layout
@@ -159,10 +163,15 @@ const servicios = [
           muted
           loop
           playsinline
+          preload="metadata"
           poster="/assets/img/quirofanos-inteligentes.webp"
           aria-label="Quirófano inteligente en funcionamiento — I-ME International Medical Enterprise Colombia"
         >
-          <source src="/assets/video/quirofano-completo.mp4" type="video/mp4" />
+          <source
+            src="/assets/video/quirofano-completo.mp4"
+            type="video/mp4"
+            media="(min-width: 768px)"
+          />
         </video>
       </div>
       <div class="hero-overlay" aria-hidden="true"></div>
@@ -377,7 +386,7 @@ const servicios = [
       </div>
       <div class="cat-grid" role="list">
         {
-          categorias.map((c) => (
+          categorias.map(c => (
             <a
               href={`/es/catalogo?cat=${c.slug}`}
               class="cat-card"
@@ -439,7 +448,7 @@ const servicios = [
 
         <div class="products-grid" role="list">
           {
-            productosDestacados.map((p) => (
+            productosDestacados.map(p => (
               <article class="product-card fade-in" role="listitem">
                 <a
                   class="product-img-wrap"
@@ -490,11 +499,12 @@ const servicios = [
         <div class="env-grid">
           <div class="env-card">
             <img
-              src="/assets/img/equipamiento-biomedico.png"
+              src="/assets/img/equipamiento-biomedico-vanguardia.webp"
               alt="Equipamiento biomédico integral para instituciones de salud — I-ME Colombia"
               width="500"
               height="340"
               loading="lazy"
+              decoding="async"
             />
             <div class="env-card-label">
               <span>Equipamiento Biomédico</span>
@@ -508,6 +518,7 @@ const servicios = [
               width="500"
               height="340"
               loading="lazy"
+              decoding="async"
             />
             <div class="env-card-label">
               <span>Sala de Cirugía Robótica</span>
@@ -521,6 +532,7 @@ const servicios = [
               width="500"
               height="340"
               loading="lazy"
+              decoding="async"
             />
             <div class="env-card-label">
               <span>Radiología y Diagnóstico</span>
@@ -549,7 +561,7 @@ const servicios = [
 
         <div class="services-list fade-in">
           {
-            servicios.map((s) => (
+            servicios.map(s => (
               <div class="svc-row">
                 <div class="svc-num">{s.num}</div>
                 <div>
@@ -559,7 +571,7 @@ const servicios = [
                   <h3 class="svc-title">{s.titulo}</h3>
                   <p class="svc-desc">{s.desc}</p>
                   <ul class="svc-features">
-                    {s.items.map((it) => (
+                    {s.items.map(it => (
                       <li>{it}</li>
                     ))}
                   </ul>
@@ -583,6 +595,7 @@ const servicios = [
           width="960"
           height="380"
           loading="lazy"
+          decoding="async"
         />
       </div>
       <div class="feature-row-content">
@@ -659,85 +672,85 @@ const servicios = [
 
 <script>
   // ── Reveal on scroll (.fade-in → .visible) ──
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  const faders = document.querySelectorAll<HTMLElement>('.site-faithful .fade-in')
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const faders = document.querySelectorAll<HTMLElement>('.site-faithful .fade-in');
   if (reduce) {
-    faders.forEach((el) => el.classList.add('visible'))
+    faders.forEach(el => el.classList.add('visible'));
   } else if ('IntersectionObserver' in window) {
     const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
+      entries => {
+        entries.forEach(entry => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('visible')
-            io.unobserve(entry.target)
+            entry.target.classList.add('visible');
+            io.unobserve(entry.target);
           }
-        })
+        });
       },
       { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
-    )
-    faders.forEach((el) => io.observe(el))
+    );
+    faders.forEach(el => io.observe(el));
   } else {
-    faders.forEach((el) => el.classList.add('visible'))
+    faders.forEach(el => el.classList.add('visible'));
   }
 
   // ── Contadores de estadísticas (hero-stats) ──
-  const counters = document.querySelectorAll<HTMLElement>('.site-faithful .stat-n[data-count]')
+  const counters = document.querySelectorAll<HTMLElement>('.site-faithful .stat-n[data-count]');
   function animateCounter(el: HTMLElement) {
-    const target = Number(el.dataset.count ?? '0')
-    const suffix = el.dataset.suffix ?? ''
+    const target = Number(el.dataset.count ?? '0');
+    const suffix = el.dataset.suffix ?? '';
     if (reduce || !Number.isFinite(target)) {
-      el.textContent = `${target}${suffix}`
-      return
+      el.textContent = `${target}${suffix}`;
+      return;
     }
-    const duration = 1400
-    const start = performance.now()
+    const duration = 1400;
+    const start = performance.now();
     function tick(now: number) {
-      const p = Math.min((now - start) / duration, 1)
-      const eased = 1 - Math.pow(1 - p, 3)
-      el.textContent = `${Math.round(target * eased)}${suffix}`
-      if (p < 1) requestAnimationFrame(tick)
+      const p = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = `${Math.round(target * eased)}${suffix}`;
+      if (p < 1) requestAnimationFrame(tick);
     }
-    requestAnimationFrame(tick)
+    requestAnimationFrame(tick);
   }
   if ('IntersectionObserver' in window && !reduce) {
     const cio = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
+      entries => {
+        entries.forEach(entry => {
           if (entry.isIntersecting) {
-            animateCounter(entry.target as HTMLElement)
-            cio.unobserve(entry.target)
+            animateCounter(entry.target as HTMLElement);
+            cio.unobserve(entry.target);
           }
-        })
+        });
       },
       { threshold: 0.5 }
-    )
-    counters.forEach((el) => cio.observe(el))
+    );
+    counters.forEach(el => cio.observe(el));
   } else {
-    counters.forEach((el) => animateCounter(el))
+    counters.forEach(el => animateCounter(el));
   }
 
   // ── FAQ acordeón ──
-  document.querySelectorAll<HTMLButtonElement>('.site-faithful .faq-q').forEach((btn) => {
+  document.querySelectorAll<HTMLButtonElement>('.site-faithful .faq-q').forEach(btn => {
     btn.addEventListener('click', () => {
-      const item = btn.closest('.faq-item')
-      if (!item) return
-      const open = item.classList.toggle('open')
-      btn.setAttribute('aria-expanded', open ? 'true' : 'false')
-    })
-  })
+      const item = btn.closest('.faq-item');
+      if (!item) return;
+      const open = item.classList.toggle('open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  });
 
   // ── "Cotizar" → añade a cotización y abre el drawer nuevo ──
   document
     .querySelectorAll<HTMLButtonElement>('.site-faithful [data-add-cotizacion]')
-    .forEach((btn) => {
+    .forEach(btn => {
       btn.addEventListener('click', async () => {
-        const slug = btn.dataset.addCotizacion
-        const nombre = btn.dataset.nombre
-        const imagen = btn.dataset.imagen
-        if (!slug || !nombre) return
-        const mod = await import('../../lib/cotizacion-equipos')
-        mod.agregarACotizacion({ slug, nombre, imagen: imagen ?? '' })
-        mod.abrirCotizacion()
-      })
-    })
+        const slug = btn.dataset.addCotizacion;
+        const nombre = btn.dataset.nombre;
+        const imagen = btn.dataset.imagen;
+        if (!slug || !nombre) return;
+        const mod = await import('../../lib/cotizacion-equipos');
+        mod.agregarACotizacion({ slug, nombre, imagen: imagen ?? '' });
+        mod.abrirCotizacion();
+      });
+    });
 </script>

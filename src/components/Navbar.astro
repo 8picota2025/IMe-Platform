@@ -2,15 +2,15 @@
 /**
  * Navbar — Logo real, links, selector idioma, CTA, tema, carrito placeholder, menú mobile.
  */
-import type { Locale } from '../i18n/utils'
-import { t, getLocalizedPath } from '../i18n/utils'
+import type { Locale } from '../i18n/utils';
+import { t, getLocalizedPath } from '../i18n/utils';
 
 interface Props {
-  locale: Locale
-  currentPath: string
+  locale: Locale;
+  currentPath: string;
 }
 
-const { locale, currentPath } = Astro.props
+const { locale, currentPath } = Astro.props;
 
 const links = [
   { key: 'nav.inicio', href: getLocalizedPath('/', locale) },
@@ -18,10 +18,10 @@ const links = [
   { key: 'nav.servicios', href: getLocalizedPath('/servicios', locale) },
   { key: 'nav.financiacion', href: getLocalizedPath('/financiacion', locale) },
   { key: 'nav.contacto', href: getLocalizedPath('/contacto', locale) },
-]
+];
 
-const altLocale: Locale = locale === 'es' ? 'en' : 'es'
-const altHref = getLocalizedPath(currentPath, altLocale)
+const altLocale: Locale = locale === 'es' ? 'en' : 'es';
+const altHref = getLocalizedPath(currentPath, altLocale);
 ---
 
 <header class="navbar" id="navbar" role="banner">
@@ -509,144 +509,147 @@ const altHref = getLocalizedPath(currentPath, altLocale)
 </style>
 
 <script>
+  import { resetTransientUiState } from '../lib/motion';
+
   // Navbar scroll shadow
-  const navbar = document.getElementById('navbar')
+  const navbar = document.getElementById('navbar');
   if (navbar) {
     window.addEventListener(
       'scroll',
       () => {
-        navbar.classList.toggle('scrolled', window.scrollY > 10)
+        navbar.classList.toggle('scrolled', window.scrollY > 10);
       },
       { passive: true }
-    )
+    );
   }
 
   // Theme toggle
-  const themeBtn = document.getElementById('theme-toggle')
+  const themeBtn = document.getElementById('theme-toggle');
   if (themeBtn) {
     themeBtn.addEventListener('click', () => {
-      const isDark = document.documentElement.getAttribute('data-theme') === 'dark'
-      const next = isDark ? 'light' : 'dark'
-      document.documentElement.setAttribute('data-theme', next)
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const next = isDark ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
       try {
-        localStorage.setItem('ime-theme', next)
+        localStorage.setItem('ime-theme', next);
       } catch {
         /* ignore */
       }
       themeBtn.setAttribute(
         'aria-label',
         next === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'
-      )
-    })
+      );
+    });
   }
 
   // Mobile menu with focus trap
-  const menuToggle = document.getElementById('menu-toggle')
-  const mobileMenu = document.getElementById('mobile-menu')
+  const menuToggle = document.getElementById('menu-toggle');
+  const mobileMenu = document.getElementById('mobile-menu');
 
   function openMenu() {
-    if (!mobileMenu || !menuToggle) return
-    mobileMenu.removeAttribute('hidden')
-    menuToggle.setAttribute('aria-expanded', 'true')
-    menuToggle.setAttribute('aria-label', menuToggle.dataset['closeLabel'] ?? 'Cerrar menú')
-    document.body.style.overflow = 'hidden'
+    if (!mobileMenu || !menuToggle) return;
+    resetTransientUiState();
+    mobileMenu.removeAttribute('hidden');
+    menuToggle.setAttribute('aria-expanded', 'true');
+    menuToggle.setAttribute('aria-label', menuToggle.dataset['closeLabel'] ?? 'Cerrar menú');
+    document.body.style.overflow = 'hidden';
     // Focus first link
-    const firstLink = mobileMenu.querySelector<HTMLElement>('a, button')
-    firstLink?.focus()
+    const firstLink = mobileMenu.querySelector<HTMLElement>('a, button');
+    firstLink?.focus();
   }
 
   function closeMenu() {
-    if (!mobileMenu || !menuToggle) return
-    mobileMenu.setAttribute('hidden', '')
-    menuToggle.setAttribute('aria-expanded', 'false')
-    menuToggle.setAttribute('aria-label', menuToggle.dataset['openLabel'] ?? 'Abrir menú')
-    document.body.style.overflow = ''
-    menuToggle.focus()
+    if (!mobileMenu || !menuToggle) return;
+    mobileMenu.setAttribute('hidden', '');
+    menuToggle.setAttribute('aria-expanded', 'false');
+    menuToggle.setAttribute('aria-label', menuToggle.dataset['openLabel'] ?? 'Abrir menú');
+    document.body.style.overflow = '';
+    menuToggle.focus();
   }
 
   if (menuToggle) {
-    menuToggle.dataset['openLabel'] = menuToggle.getAttribute('aria-label') ?? 'Abrir menú'
-    menuToggle.dataset['closeLabel'] = 'Cerrar menú de navegación'
+    menuToggle.dataset['openLabel'] = menuToggle.getAttribute('aria-label') ?? 'Abrir menú';
+    menuToggle.dataset['closeLabel'] = 'Cerrar menú de navegación';
     menuToggle.addEventListener('click', () => {
-      const isOpen = menuToggle.getAttribute('aria-expanded') === 'true'
+      const isOpen = menuToggle.getAttribute('aria-expanded') === 'true';
       if (isOpen) {
-        closeMenu()
+        closeMenu();
       } else {
-        openMenu()
+        openMenu();
       }
-    })
+    });
   }
 
   // Escape key closes menu
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && menuToggle?.getAttribute('aria-expanded') === 'true') {
-      closeMenu()
+      closeMenu();
     }
-  })
+  });
 
   // Focus trap inside mobile menu
   if (mobileMenu) {
-    mobileMenu.addEventListener('keydown', (e) => {
-      if (e.key !== 'Tab') return
+    mobileMenu.addEventListener('keydown', e => {
+      if (e.key !== 'Tab') return;
       const focusable = Array.from(
         mobileMenu.querySelectorAll<HTMLElement>('a, button, [tabindex]:not([tabindex="-1"])')
-      )
-      const first = focusable[0]
-      const last = focusable[focusable.length - 1]
-      if (!first || !last) return
+      );
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (!first || !last) return;
       if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault()
-        last.focus()
+        e.preventDefault();
+        last.focus();
       } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault()
-        first.focus()
+        e.preventDefault();
+        first.focus();
       }
-    })
+    });
   }
 
   // Close menu on link click
-  mobileMenu?.querySelectorAll('a').forEach((link) => {
-    link.addEventListener('click', closeMenu)
-  })
+  mobileMenu?.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', closeMenu);
+  });
 
   // Carrito de consumibles
   void (async () => {
-    const { getCarritoCantidad, suscribirCarrito, abrirCarrito } = await import('../lib/carrito')
-    const carritoBtn = document.getElementById('nav-carrito-btn')
-    const carritoBadge = document.getElementById('nav-carrito-badge')
+    const { getCarritoCantidad, suscribirCarrito, abrirCarrito } = await import('../lib/carrito');
+    const carritoBtn = document.getElementById('nav-carrito-btn');
+    const carritoBadge = document.getElementById('nav-carrito-badge');
 
     function renderCarritoBadge(cantidad: number) {
-      if (!carritoBadge) return
-      carritoBadge.textContent = String(cantidad)
-      carritoBadge.style.display = cantidad > 0 ? 'flex' : 'none'
+      if (!carritoBadge) return;
+      carritoBadge.textContent = String(cantidad);
+      carritoBadge.style.display = cantidad > 0 ? 'flex' : 'none';
     }
 
-    renderCarritoBadge(getCarritoCantidad())
-    suscribirCarrito((items) => {
-      const total = items.reduce((sum, item) => sum + item.cantidad, 0)
-      renderCarritoBadge(total)
-    })
-    carritoBtn?.addEventListener('click', () => abrirCarrito())
-  })()
+    renderCarritoBadge(getCarritoCantidad());
+    suscribirCarrito(items => {
+      const total = items.reduce((sum, item) => sum + item.cantidad, 0);
+      renderCarritoBadge(total);
+    });
+    carritoBtn?.addEventListener('click', () => abrirCarrito());
+  })();
 
   // Lista de cotización de equipos
   void (async () => {
     const { getCotizacionCantidad, suscribirCotizacion, abrirCotizacion } =
-      await import('../lib/cotizacion-equipos')
-    const cotizacionBtn = document.getElementById('nav-cotizacion-btn')
-    const cotizacionBadge = document.getElementById('nav-cotizacion-badge')
+      await import('../lib/cotizacion-equipos');
+    const cotizacionBtn = document.getElementById('nav-cotizacion-btn');
+    const cotizacionBadge = document.getElementById('nav-cotizacion-badge');
 
     function renderCotizacionBadge(cantidad: number) {
-      if (!cotizacionBadge) return
-      cotizacionBadge.textContent = String(cantidad)
-      cotizacionBadge.style.display = cantidad > 0 ? 'flex' : 'none'
+      if (!cotizacionBadge) return;
+      cotizacionBadge.textContent = String(cantidad);
+      cotizacionBadge.style.display = cantidad > 0 ? 'flex' : 'none';
     }
 
-    renderCotizacionBadge(getCotizacionCantidad())
-    suscribirCotizacion((items) => {
-      const total = items.reduce((sum, item) => sum + item.cantidad, 0)
-      renderCotizacionBadge(total)
-    })
-    cotizacionBtn?.addEventListener('click', () => abrirCotizacion())
-  })()
+    renderCotizacionBadge(getCotizacionCantidad());
+    suscribirCotizacion(items => {
+      const total = items.reduce((sum, item) => sum + item.cantidad, 0);
+      renderCotizacionBadge(total);
+    });
+    cotizacionBtn?.addEventListener('click', () => abrirCotizacion());
+  })();
 </script>
