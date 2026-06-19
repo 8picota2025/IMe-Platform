@@ -2,15 +2,15 @@
 /**
  * Contact EN — formulario con UI en inglés, datos de contacto reales.
  */
-import Layout from '../../layouts/Layout.astro'
-import { buildPageTitle, buildCanonical } from '../../lib/seo'
-import { t } from '../../i18n/utils'
+import Layout from '../../layouts/Layout.astro';
+import { buildPageTitle, buildCanonical } from '../../lib/seo';
+import { t } from '../../i18n/utils';
 
-const locale = 'en'
-const title = buildPageTitle('Contact — Request a Quote')
+const locale = 'en';
+const title = buildPageTitle('Contact — Request a Quote');
 const description =
-  'Contact us to request a biomedical equipment quote. Response within 24 hours. Tel: +57 313 867 4059'
-const canonical = buildCanonical('/en/contact')
+  'Contact us to request a biomedical equipment quote. We reply within 24 hours. Tel: +57 313 867 4059';
+const canonical = buildCanonical('/en/contact');
 
 const options = [
   'Patient Monitors',
@@ -22,7 +22,7 @@ const options = [
   'Hospital Furniture',
   'Anesthesia & Ventilation',
   'Other',
-]
+];
 ---
 
 <Layout
@@ -144,7 +144,7 @@ const options = [
               aria-required="true"
             >
               <option value="">Select a category</option>
-              {options.map((op) => <option value={op}>{op}</option>)}
+              {options.map(op => <option value={op}>{op}</option>)}
             </select>
           </div>
           <div class="form-field">
@@ -174,9 +174,13 @@ const options = [
               />
               <span
                 >{t(locale, 'contacto.consentimiento')}
-                <a href="/en/legal/privacy" target="_blank" rel="noopener noreferrer"
-                  >{t(locale, 'footer.privacidad')}</a
-                ></span
+                <a href="/en/legal/privacy" target="_blank" rel="noopener noreferrer">
+                  Privacy policy
+                </a>
+                and
+                <a href="/en/legal/data-authorization" target="_blank" rel="noopener noreferrer">
+                  data authorization
+                </a>.</span
               >
             </label>
           </div>
@@ -399,25 +403,25 @@ const options = [
 </style>
 
 <script>
-  import { submitCotizacion } from '../../lib/datos'
-  const form = document.getElementById('contacto-form') as HTMLFormElement | null
-  const status = document.getElementById('form-status')
-  const submitBtn = document.getElementById('form-submit-btn') as HTMLButtonElement | null
-  form?.addEventListener('submit', async (e) => {
-    e.preventDefault()
+  import { submitCotizacion } from '../../lib/datos';
+  const form = document.getElementById('contacto-form') as HTMLFormElement | null;
+  const status = document.getElementById('form-status');
+  const submitBtn = document.getElementById('form-submit-btn') as HTMLButtonElement | null;
+  form?.addEventListener('submit', async e => {
+    e.preventDefault();
     if (!form.checkValidity()) {
-      form.reportValidity()
-      return
+      form.reportValidity();
+      return;
     }
     if (submitBtn) {
-      submitBtn.disabled = true
-      submitBtn.textContent = 'Sending…'
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending…';
     }
     if (status) {
-      status.className = 'form-status'
-      status.textContent = ''
+      status.className = 'form-status';
+      status.textContent = '';
     }
-    const data = new FormData(form)
+    const data = new FormData(form);
     const result = await submitCotizacion({
       nombre: (data.get('nombre') as string) ?? '',
       apellido: (data.get('apellido') as string) ?? '',
@@ -427,22 +431,22 @@ const options = [
       interes: (data.get('interes') as string) ?? '',
       mensaje: (data.get('mensaje') as string) ?? '',
       consentimiento_datos: data.get('consentimiento') === 'on',
-    })
+    });
     if (result.ok) {
       if (status) {
-        status.className = 'form-status success'
-        status.textContent = 'Request sent! We will contact you soon.'
+        status.className = 'form-status success';
+        status.textContent = 'Request sent! We will contact you soon.';
       }
-      form.reset()
+      form.reset();
     } else {
       if (status) {
-        status.className = 'form-status error'
-        status.textContent = 'An error occurred. Please try again.'
+        status.className = 'form-status error';
+        status.textContent = 'An error occurred. Please try again.';
       }
     }
     if (submitBtn) {
-      submitBtn.disabled = false
-      submitBtn.textContent = 'Send request'
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Send request';
     }
-  })
+  });
 </script>
