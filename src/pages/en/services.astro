@@ -4,15 +4,15 @@
  * 4 alternating about-grid sections + teal env-grid + CTA. CSS in site-faithful.css.
  * Catalog/quote buttons → new functions (/en/catalog, /en/contact).
  */
-import Layout from '../../layouts/Layout.astro'
-import { buildPageTitle, buildCanonical } from '../../lib/seo'
-import '../../styles/site-faithful.css'
+import Layout from '../../layouts/Layout.astro';
+import { buildPageTitle, buildCanonical } from '../../lib/seo';
+import '../../styles/site-faithful.css';
 
-const locale = 'en'
-const title = buildPageTitle('Services | Sales, Support, Financing & Biomedical Advisory')
+const locale = 'en';
+const title = buildPageTitle('Services | Sales, Support, Financing & Biomedical Advisory');
 const description =
-  'I-ME Colombia offers certified biomedical equipment sales, specialized technical support, medical financing and integral biomedical advisory for hospitals and clinics in Colombia.'
-const canonical = buildCanonical('/en/services')
+  'I-ME Colombia offers certified biomedical equipment sales, specialized technical support, medical financing and integral biomedical advisory for hospitals and clinics in Colombia.';
+const canonical = buildCanonical('/en/services');
 
 const jsonLd = JSON.stringify({
   '@context': 'https://schema.org',
@@ -27,7 +27,7 @@ const jsonLd = JSON.stringify({
   description:
     'Sales and distribution of certified biomedical equipment, specialized technical support, flexible medical financing and integral biomedical advisory for hospitals and clinics in Colombia.',
   url: 'https://i-me.com.co/servicios.html',
-})
+});
 ---
 
 <Layout
@@ -65,6 +65,7 @@ const jsonLd = JSON.stringify({
                 width="700"
                 height="480"
                 loading="lazy"
+                decoding="async"
               />
             </div>
           </div>
@@ -111,6 +112,7 @@ const jsonLd = JSON.stringify({
                 width="700"
                 height="480"
                 loading="lazy"
+                decoding="async"
               />
             </div>
           </div>
@@ -155,6 +157,7 @@ const jsonLd = JSON.stringify({
                 width="700"
                 height="480"
                 loading="lazy"
+                decoding="async"
               />
             </div>
           </div>
@@ -199,6 +202,7 @@ const jsonLd = JSON.stringify({
                 width="700"
                 height="480"
                 loading="lazy"
+                decoding="async"
               />
             </div>
           </div>
@@ -248,6 +252,7 @@ const jsonLd = JSON.stringify({
               width="500"
               height="340"
               loading="lazy"
+              decoding="async"
             />
             <div class="env-card-label">
               <span>ICU</span><small>Continuous critical monitoring</small>
@@ -260,6 +265,7 @@ const jsonLd = JSON.stringify({
               width="500"
               height="340"
               loading="lazy"
+              decoding="async"
             />
             <div class="env-card-label">
               <span>Robotic Operating Room</span><small>High-complexity surgery</small>
@@ -272,6 +278,7 @@ const jsonLd = JSON.stringify({
               width="500"
               height="340"
               loading="lazy"
+              decoding="async"
             />
             <div class="env-card-label">
               <span>Diagnostic imaging</span><small>X-ray · Ultrasound</small>
@@ -309,22 +316,22 @@ const jsonLd = JSON.stringify({
 </Layout>
 
 <script>
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  const faders = document.querySelectorAll<HTMLElement>('.site-faithful .fade-in')
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const faders = document.querySelectorAll<HTMLElement>('.site-faithful .fade-in');
   if (reduce || !('IntersectionObserver' in window)) {
-    faders.forEach((el) => el.classList.add('visible'))
+    faders.forEach(el => el.classList.add('visible'));
   } else {
     const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
+      entries => {
+        entries.forEach(entry => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('visible')
-            io.unobserve(entry.target)
+            entry.target.classList.add('visible');
+            io.unobserve(entry.target);
           }
-        })
+        });
       },
       { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
-    )
-    faders.forEach((el) => io.observe(el))
+    );
+    faders.forEach(el => io.observe(el));
   }
 </script>

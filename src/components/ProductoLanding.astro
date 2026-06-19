@@ -267,7 +267,7 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
               <span class="sr-only">{t(locale, 'producto.galeria_cerrar')}</span>
             </button>
           </div>
-          <img id="lightbox-img" src={imagenes[0]} alt="" />
+          <img id="lightbox-img" src={imagenes[0]} alt="" decoding="async" />
           <div class="lightbox__nav">
             <button type="button" data-lightbox-prev class="btn btn-secondary">
               {t(locale, 'producto.galeria_anterior')}
@@ -784,6 +784,7 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
 
 <script>
   import { toggleComparador, getComparador } from '../lib/comparador';
+  import { resetTransientUiState } from '../lib/motion';
 
   // Estado inicial del checkbox de comparación
   const compareToggle = document.getElementById('comparador-toggle') as HTMLInputElement | null;
@@ -835,6 +836,7 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
       thumb.addEventListener('click', () => {
         indiceActual = index;
         actualizar();
+        resetTransientUiState();
         lightbox.showModal();
       });
     });

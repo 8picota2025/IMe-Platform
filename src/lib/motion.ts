@@ -64,6 +64,35 @@ export function resetTransientUiState(): void {
   if (typeof document === 'undefined') return;
   document.body.style.overflow = '';
   document.documentElement.style.overflow = '';
+
+  const closeDialog = (selector: string) => {
+    const el = document.querySelector<HTMLElement>(selector);
+    if (!el) return;
+    if (el instanceof HTMLDialogElement && el.open) {
+      el.close();
+      return;
+    }
+    el.setAttribute('hidden', '');
+  };
+
+  closeDialog('#mobile-menu');
+  closeDialog('#carrito-drawer');
+  closeDialog('#cotizacion-drawer');
+  closeDialog('#asesor-dialog');
+  closeDialog('#quickview-dialog');
+  closeDialog('#comparador-dialog');
+  closeDialog('#galeria-lightbox');
+
+  document.getElementById('carrito-backdrop')?.setAttribute('hidden', '');
+  document.getElementById('cotizacion-backdrop')?.setAttribute('hidden', '');
+  document.getElementById('carrito-drawer')?.setAttribute('hidden', '');
+  document.getElementById('cotizacion-drawer')?.setAttribute('hidden', '');
+  document.getElementById('asesor-dialog')?.setAttribute('hidden', '');
+  document.getElementById('mobile-menu')?.setAttribute('hidden', '');
+  document.getElementById('navbar')?.classList.remove('scrolled');
+  document
+    .querySelector<HTMLElement>('#catalogo-filtros')
+    ?.classList.remove('catalogo-filtros--abierto');
 }
 
 type LenisInstance = {
@@ -124,6 +153,9 @@ export async function cerrarDrawer(
 export async function initLenis(): Promise<void> {
   if (prefersReducedMotion()) return;
   if (typeof window === 'undefined') return;
+  if (window.matchMedia('(pointer: coarse)').matches) return;
+  const connection = navigator.connection as { saveData?: boolean } | undefined;
+  if (connection?.saveData) return;
   if (lenisInstance || lenisInitPromise) return lenisInitPromise ?? Promise.resolve();
 
   lenisInitPromise = (async () => {

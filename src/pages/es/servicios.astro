@@ -4,15 +4,15 @@
  * 4 secciones about-grid alternadas + env-grid teal + CTA. CSS en site-faithful.css.
  * Botones de catálogo/cotización → funciones nuevas (/es/catalogo, /es/contacto).
  */
-import Layout from '../../layouts/Layout.astro'
-import { buildPageTitle, buildCanonical } from '../../lib/seo'
-import '../../styles/site-faithful.css'
+import Layout from '../../layouts/Layout.astro';
+import { buildPageTitle, buildCanonical } from '../../lib/seo';
+import '../../styles/site-faithful.css';
 
-const locale = 'es'
-const title = buildPageTitle('Servicios | Venta, Soporte, Financiamiento y Asesoría Biomédica')
+const locale = 'es';
+const title = buildPageTitle('Servicios | Venta, Soporte, Financiamiento y Asesoría Biomédica');
 const description =
-  'I-ME Colombia ofrece venta de equipos biomédicos certificados, soporte técnico especializado, financiamiento médico y asesoría biomédica integral para hospitales y clínicas en Colombia.'
-const canonical = buildCanonical('/es/servicios')
+  'I-ME Colombia ofrece venta de equipos biomédicos certificados, soporte técnico especializado, financiamiento médico y asesoría biomédica integral para hospitales y clínicas en Colombia.';
+const canonical = buildCanonical('/es/servicios');
 
 const jsonLd = JSON.stringify({
   '@context': 'https://schema.org',
@@ -27,7 +27,7 @@ const jsonLd = JSON.stringify({
   description:
     'Venta y distribución de equipos biomédicos certificados, soporte técnico especializado, financiamiento médico flexible y asesoría biomédica integral para hospitales y clínicas en Colombia.',
   url: 'https://i-me.com.co/servicios.html',
-})
+});
 ---
 
 <Layout
@@ -67,6 +67,7 @@ const jsonLd = JSON.stringify({
                 width="700"
                 height="480"
                 loading="lazy"
+                decoding="async"
               />
             </div>
           </div>
@@ -113,6 +114,7 @@ const jsonLd = JSON.stringify({
                 width="700"
                 height="480"
                 loading="lazy"
+                decoding="async"
               />
             </div>
           </div>
@@ -158,6 +160,7 @@ const jsonLd = JSON.stringify({
                 width="700"
                 height="480"
                 loading="lazy"
+                decoding="async"
               />
             </div>
           </div>
@@ -203,6 +206,7 @@ const jsonLd = JSON.stringify({
                 width="700"
                 height="480"
                 loading="lazy"
+                decoding="async"
               />
             </div>
           </div>
@@ -252,6 +256,7 @@ const jsonLd = JSON.stringify({
               width="500"
               height="340"
               loading="lazy"
+              decoding="async"
             />
             <div class="env-card-label">
               <span>UCI</span><small>Monitoreo crítico continuo</small>
@@ -264,6 +269,7 @@ const jsonLd = JSON.stringify({
               width="500"
               height="340"
               loading="lazy"
+              decoding="async"
             />
             <div class="env-card-label">
               <span>Quirófano Robótico</span><small>Cirugía de alta complejidad</small>
@@ -276,6 +282,7 @@ const jsonLd = JSON.stringify({
               width="500"
               height="340"
               loading="lazy"
+              decoding="async"
             />
             <div class="env-card-label">
               <span>Diagnóstico por imagen</span><small>Rayos X · Ecografía</small>
@@ -313,22 +320,22 @@ const jsonLd = JSON.stringify({
 </Layout>
 
 <script>
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  const faders = document.querySelectorAll<HTMLElement>('.site-faithful .fade-in')
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const faders = document.querySelectorAll<HTMLElement>('.site-faithful .fade-in');
   if (reduce || !('IntersectionObserver' in window)) {
-    faders.forEach((el) => el.classList.add('visible'))
+    faders.forEach(el => el.classList.add('visible'));
   } else {
     const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
+      entries => {
+        entries.forEach(entry => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('visible')
-            io.unobserve(entry.target)
+            entry.target.classList.add('visible');
+            io.unobserve(entry.target);
           }
-        })
+        });
       },
       { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
-    )
-    faders.forEach((el) => io.observe(el))
+    );
+    faders.forEach(el => io.observe(el));
   }
 </script>

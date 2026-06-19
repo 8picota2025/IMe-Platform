@@ -448,6 +448,7 @@ const asesorConfig = {
 </style>
 
 <script>
+  import { resetTransientUiState } from '../lib/motion';
   import type {
     MensajeAsesor,
     RespuestaAsesor,
@@ -701,6 +702,7 @@ const asesorConfig = {
 
   function openDialog() {
     if (!dialog || !trigger) return;
+    resetTransientUiState();
     dialog.removeAttribute('hidden');
     trigger.setAttribute('aria-expanded', 'true');
 

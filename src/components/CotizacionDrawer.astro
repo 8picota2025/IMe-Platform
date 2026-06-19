@@ -4,15 +4,15 @@
  * focus trap, Escape, aria-live). Estado en src/lib/cotizacion-equipos.ts
  * (sessionStorage). Envío real vía submitCotizacion (src/lib/datos.ts).
  */
-import type { Locale } from '../i18n/utils'
-import { t } from '../i18n/utils'
+import type { Locale } from '../i18n/utils';
+import { t } from '../i18n/utils';
 
 interface Props {
-  locale: Locale
+  locale: Locale;
 }
 
-const { locale } = Astro.props
-const privacidadHref = locale === 'en' ? '/en/legal/privacy' : '/es/legal/privacidad'
+const { locale } = Astro.props;
+const privacidadHref = locale === 'en' ? '/en/legal/privacy' : '/es/legal/privacidad';
 
 const config = {
   locale,
@@ -42,7 +42,7 @@ const config = {
     requerido: t(locale, 'cotizacion_equipos.requerido'),
   },
   catalogoHref: locale === 'en' ? '/en/catalog' : '/es/catalogo',
-}
+};
 ---
 
 <div id="cotizacion-backdrop" class="drawer-backdrop" hidden></div>
@@ -413,59 +413,59 @@ const config = {
     suscribirCotizacion,
     alAbrirCotizacion,
     type CotizacionItem,
-  } from '../lib/cotizacion-equipos'
-  import { submitCotizacion } from '../lib/datos'
-  import { abrirDrawer, cerrarDrawer } from '../lib/motion'
+  } from '../lib/cotizacion-equipos';
+  import { submitCotizacion } from '../lib/datos';
+  import { abrirDrawer, cerrarDrawer, resetTransientUiState } from '../lib/motion';
 
   interface CotizacionI18n {
-    titulo: string
-    cerrar: string
-    vacio: string
-    vacioCta: string
-    eliminar: string
-    vaciar: string
-    cantidad: string
-    aumentar: string
-    disminuir: string
-    formTitulo: string
-    nombre: string
-    apellido: string
-    email: string
-    telefono: string
-    institucion: string
-    mensaje: string
-    enviar: string
-    enviando: string
-    exito: string
-    error: string
-    consentimiento: string
-    productosTitulo: string
-    requerido: string
+    titulo: string;
+    cerrar: string;
+    vacio: string;
+    vacioCta: string;
+    eliminar: string;
+    vaciar: string;
+    cantidad: string;
+    aumentar: string;
+    disminuir: string;
+    formTitulo: string;
+    nombre: string;
+    apellido: string;
+    email: string;
+    telefono: string;
+    institucion: string;
+    mensaje: string;
+    enviar: string;
+    enviando: string;
+    exito: string;
+    error: string;
+    consentimiento: string;
+    productosTitulo: string;
+    requerido: string;
   }
 
   interface CotizacionConfig {
-    locale: 'es' | 'en'
-    i18n: CotizacionI18n
-    catalogoHref: string
+    locale: 'es' | 'en';
+    i18n: CotizacionI18n;
+    catalogoHref: string;
   }
 
-  const drawer = document.getElementById('cotizacion-drawer')
-  const backdrop = document.getElementById('cotizacion-backdrop')
-  const closeBtn = document.getElementById('cotizacion-close')
-  const itemsEl = document.getElementById('cotizacion-items')
-  const vacioEl = document.getElementById('cotizacion-vacio')
-  const productosTituloEl = document.getElementById('cotizacion-productos-titulo')
-  const vaciarBtn = document.getElementById('cotizacion-vaciar') as HTMLButtonElement | null
-  const formEl = document.getElementById('cotizacion-form') as HTMLFormElement | null
-  const submitBtn = document.getElementById('cotizacion-submit') as HTMLButtonElement | null
-  const estadoEl = document.getElementById('cotizacion-mensaje-estado')
+  const drawer = document.getElementById('cotizacion-drawer');
+  const backdrop = document.getElementById('cotizacion-backdrop');
+  const closeBtn = document.getElementById('cotizacion-close');
+  const itemsEl = document.getElementById('cotizacion-items');
+  const vacioEl = document.getElementById('cotizacion-vacio');
+  const productosTituloEl = document.getElementById('cotizacion-productos-titulo');
+  const vaciarBtn = document.getElementById('cotizacion-vaciar') as HTMLButtonElement | null;
+  const formEl = document.getElementById('cotizacion-form') as HTMLFormElement | null;
+  const submitBtn = document.getElementById('cotizacion-submit') as HTMLButtonElement | null;
+  const estadoEl = document.getElementById('cotizacion-mensaje-estado');
 
   if (drawer) {
     const config: CotizacionConfig = JSON.parse(
       drawer.dataset.cotizacionConfig ?? '{}'
-    ) as CotizacionConfig
-    const { i18n } = config
-    let enviando = false
+    ) as CotizacionConfig;
+    const { i18n } = config;
+    let enviando = false;
 
     function escapeHtml(value: string): string {
       return value
@@ -473,27 +473,27 @@ const config = {
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;')
+        .replace(/'/g, '&#39;');
     }
 
     function render(items: CotizacionItem[]) {
-      if (!itemsEl || !vacioEl || !formEl || !vaciarBtn || !productosTituloEl) return
+      if (!itemsEl || !vacioEl || !formEl || !vaciarBtn || !productosTituloEl) return;
       if (items.length === 0) {
-        vacioEl.hidden = false
-        productosTituloEl.hidden = true
-        itemsEl.innerHTML = ''
-        vaciarBtn.hidden = true
-        formEl.hidden = true
-        return
+        vacioEl.hidden = false;
+        productosTituloEl.hidden = true;
+        itemsEl.innerHTML = '';
+        vaciarBtn.hidden = true;
+        formEl.hidden = true;
+        return;
       }
-      vacioEl.hidden = true
-      productosTituloEl.hidden = false
-      vaciarBtn.hidden = false
-      formEl.hidden = false
+      vacioEl.hidden = true;
+      productosTituloEl.hidden = false;
+      vaciarBtn.hidden = false;
+      formEl.hidden = false;
 
       itemsEl.innerHTML = items
         .map(
-          (item) => `
+          item => `
             <li class="cotizacion-item" data-slug="${escapeHtml(item.slug)}">
               <div>
                 <p class="cotizacion-item__nombre">${escapeHtml(item.nombre)}</p>
@@ -508,104 +508,105 @@ const config = {
               </button>
             </li>`
         )
-        .join('')
+        .join('');
     }
 
-    render(getCotizacionItems())
-    suscribirCotizacion(render)
+    render(getCotizacionItems());
+    suscribirCotizacion(render);
 
-    itemsEl?.addEventListener('click', (event) => {
-      const target = event.target as HTMLElement
-      const button = target.closest<HTMLElement>('button[data-action]')
-      if (!button) return
-      const li = button.closest<HTMLElement>('.cotizacion-item')
-      const slug = li?.dataset.slug
-      if (!slug) return
-      const items = getCotizacionItems()
-      const item = items.find((i) => i.slug === slug)
-      if (!item) return
-      const action = button.dataset.action
-      if (action === 'inc') actualizarCantidadCotizacion(slug, item.cantidad + 1)
-      else if (action === 'dec') actualizarCantidadCotizacion(slug, item.cantidad - 1)
-      else if (action === 'remove') quitarDeCotizacion(slug)
-    })
+    itemsEl?.addEventListener('click', event => {
+      const target = event.target as HTMLElement;
+      const button = target.closest<HTMLElement>('button[data-action]');
+      if (!button) return;
+      const li = button.closest<HTMLElement>('.cotizacion-item');
+      const slug = li?.dataset.slug;
+      if (!slug) return;
+      const items = getCotizacionItems();
+      const item = items.find(i => i.slug === slug);
+      if (!item) return;
+      const action = button.dataset.action;
+      if (action === 'inc') actualizarCantidadCotizacion(slug, item.cantidad + 1);
+      else if (action === 'dec') actualizarCantidadCotizacion(slug, item.cantidad - 1);
+      else if (action === 'remove') quitarDeCotizacion(slug);
+    });
 
     vaciarBtn?.addEventListener('click', () => {
-      vaciarCotizacion()
-    })
+      vaciarCotizacion();
+    });
 
     function open() {
-      if (!drawer || !backdrop) return
-      drawer.removeAttribute('hidden')
-      backdrop.removeAttribute('hidden')
-      document.body.style.overflow = 'hidden'
-      void abrirDrawer(drawer, backdrop)
+      if (!drawer || !backdrop) return;
+      resetTransientUiState();
+      drawer.removeAttribute('hidden');
+      backdrop.removeAttribute('hidden');
+      document.body.style.overflow = 'hidden';
+      void abrirDrawer(drawer, backdrop);
       const firstFocusable = drawer.querySelector<HTMLElement>(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      )
-      firstFocusable?.focus()
+      );
+      firstFocusable?.focus();
     }
 
     function close() {
-      if (!drawer || !backdrop) return
+      if (!drawer || !backdrop) return;
       void cerrarDrawer(drawer, backdrop, () => {
-        drawer.setAttribute('hidden', '')
-        backdrop.setAttribute('hidden', '')
-        document.body.style.overflow = ''
-      })
+        drawer.setAttribute('hidden', '');
+        backdrop.setAttribute('hidden', '');
+        document.body.style.overflow = '';
+      });
     }
 
-    alAbrirCotizacion(open)
-    closeBtn?.addEventListener('click', close)
-    backdrop?.addEventListener('click', close)
+    alAbrirCotizacion(open);
+    closeBtn?.addEventListener('click', close);
+    backdrop?.addEventListener('click', close);
 
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && drawer && !drawer.hasAttribute('hidden')) close()
-    })
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && drawer && !drawer.hasAttribute('hidden')) close();
+    });
 
-    drawer?.addEventListener('keydown', (event) => {
-      if (event.key !== 'Tab') return
+    drawer?.addEventListener('keydown', event => {
+      if (event.key !== 'Tab') return;
       const focusable = Array.from(
         drawer.querySelectorAll<HTMLElement>(
           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
         )
-      ).filter((el) => el.offsetParent !== null || el === document.activeElement)
-      const first = focusable[0]
-      const last = focusable[focusable.length - 1]
-      if (!first || !last) return
+      ).filter(el => el.offsetParent !== null || el === document.activeElement);
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (!first || !last) return;
       if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault()
-        last.focus()
+        event.preventDefault();
+        last.focus();
       } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault()
-        first.focus()
+        event.preventDefault();
+        first.focus();
       }
-    })
+    });
 
     function showEstado(message: string, kind: 'exito' | 'error' | null) {
-      if (!estadoEl) return
-      estadoEl.textContent = message
-      estadoEl.className = 'cotizacion-estado'
-      if (kind) estadoEl.classList.add(`cotizacion-estado--${kind}`)
-      estadoEl.hidden = !message
+      if (!estadoEl) return;
+      estadoEl.textContent = message;
+      estadoEl.className = 'cotizacion-estado';
+      if (kind) estadoEl.classList.add(`cotizacion-estado--${kind}`);
+      estadoEl.hidden = !message;
     }
 
-    formEl?.addEventListener('submit', async (event) => {
-      event.preventDefault()
-      if (enviando || !formEl || !submitBtn) return
-      showEstado('', null)
+    formEl?.addEventListener('submit', async event => {
+      event.preventDefault();
+      if (enviando || !formEl || !submitBtn) return;
+      showEstado('', null);
 
       if (!formEl.checkValidity()) {
-        formEl.reportValidity()
-        return
+        formEl.reportValidity();
+        return;
       }
 
-      const data = new FormData(formEl)
-      const items = getCotizacionItems()
+      const data = new FormData(formEl);
+      const items = getCotizacionItems();
 
-      enviando = true
-      submitBtn.disabled = true
-      submitBtn.textContent = i18n.enviando
+      enviando = true;
+      submitBtn.disabled = true;
+      submitBtn.textContent = i18n.enviando;
 
       const payload = {
         nombre: String(data.get('nombre') ?? ''),
@@ -614,24 +615,24 @@ const config = {
         telefono: String(data.get('telefono') ?? ''),
         mensaje: String(data.get('mensaje') ?? ''),
         consentimiento_datos: data.get('consentimiento') === 'on',
-        productos: items.map((i) => ({ slug: i.slug, nombre: i.nombre, cantidad: i.cantidad })),
-      }
-      const institucion = String(data.get('institucion') ?? '').trim()
-      if (institucion) Object.assign(payload, { institucion })
+        productos: items.map(i => ({ slug: i.slug, nombre: i.nombre, cantidad: i.cantidad })),
+      };
+      const institucion = String(data.get('institucion') ?? '').trim();
+      if (institucion) Object.assign(payload, { institucion });
 
-      const resultado = await submitCotizacion(payload)
+      const resultado = await submitCotizacion(payload);
 
-      enviando = false
-      submitBtn.disabled = false
-      submitBtn.textContent = i18n.enviar
+      enviando = false;
+      submitBtn.disabled = false;
+      submitBtn.textContent = i18n.enviar;
 
       if (resultado.ok) {
-        showEstado(i18n.exito, 'exito')
-        vaciarCotizacion()
-        formEl.reset()
+        showEstado(i18n.exito, 'exito');
+        vaciarCotizacion();
+        formEl.reset();
       } else {
-        showEstado(i18n.error, 'error')
+        showEstado(i18n.error, 'error');
       }
-    })
+    });
   }
 </script>

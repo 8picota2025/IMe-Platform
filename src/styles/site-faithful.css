@@ -52,6 +52,13 @@
   padding: 0 40px;
 }
 
+.site-faithful .section,
+.site-faithful .img-band,
+.site-faithful .feature-row {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 900px;
+}
+
 /* ── HERO (full-bleed video) ────────────────────────────── */
 .site-faithful .hero {
   min-height: 100svh;

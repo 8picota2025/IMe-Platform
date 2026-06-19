@@ -4,15 +4,15 @@
  * Escape, aria-live). Estado real en src/lib/carrito.ts (sessionStorage).
  * El total mostrado es orientativo: crear-pago recalcula siempre en el servidor.
  */
-import type { Locale } from '../i18n/utils'
-import { t } from '../i18n/utils'
+import type { Locale } from '../i18n/utils';
+import { t } from '../i18n/utils';
 
 interface Props {
-  locale: Locale
+  locale: Locale;
 }
 
-const { locale } = Astro.props
-const privacidadHref = locale === 'en' ? '/en/legal/privacy' : '/es/legal/privacidad'
+const { locale } = Astro.props;
+const privacidadHref = locale === 'en' ? '/en/legal/privacy' : '/es/legal/privacidad';
 
 const config = {
   locale,
@@ -69,7 +69,7 @@ const config = {
     cupon: locale === 'en' ? 'Coupon code' : 'Codigo de cupon',
   },
   catalogoHref: locale === 'en' ? '/en/catalog' : '/es/catalogo',
-}
+};
 ---
 
 <div id="carrito-backdrop" class="drawer-backdrop" hidden></div>
@@ -649,93 +649,93 @@ const config = {
     revalidarDisponibilidad,
     type CarritoItem,
     type Mercado,
-  } from '../lib/carrito'
-  import { formatMoneda } from '../lib/format'
-  import { abrirDrawer, cerrarDrawer } from '../lib/motion'
+  } from '../lib/carrito';
+  import { formatMoneda } from '../lib/format';
+  import { abrirDrawer, cerrarDrawer, resetTransientUiState } from '../lib/motion';
 
   interface CarritoI18n {
-    titulo: string
-    cerrar: string
-    vacio: string
-    vacioCta: string
-    cantidad: string
-    aumentar: string
-    disminuir: string
-    eliminar: string
-    subtotal: string
-    total: string
-    vaciar: string
-    seguirComprando: string
-    mercadoTitulo: string
-    mercadoCo: string
-    mercadoIntl: string
-    datosTitulo: string
-    nombre: string
-    apellido: string
-    email: string
-    telefono: string
-    institucion: string
-    facturacionTitulo: string
-    solicitarFacturaElectronica: string
-    tipoDocumento: string
-    numeroDocumento: string
-    tipoPersona: string
-    tipoPersonaNatural: string
-    tipoPersonaJuridica: string
-    razonSocial: string
-    emailFacturacion: string
-    direccionFacturacion: string
-    ciudadFacturacion: string
-    departamentoFacturacion: string
-    paisFacturacion: string
-    responsableIva: string
-    agenteRetencion: string
-    agenteReteica: string
-    soloColombia: string
-    consentimiento: string
-    irPagar: string
-    procesando: string
-    stockLimitado: string
-    errorGenerico: string
-    errorCarritoVacio: string
-    errorNoDisponible: string
-    errorValidacion: string
-    requerido: string
-    avisoRecalculo: string
-    itemNoDisponible: string
-    cupon: string
+    titulo: string;
+    cerrar: string;
+    vacio: string;
+    vacioCta: string;
+    cantidad: string;
+    aumentar: string;
+    disminuir: string;
+    eliminar: string;
+    subtotal: string;
+    total: string;
+    vaciar: string;
+    seguirComprando: string;
+    mercadoTitulo: string;
+    mercadoCo: string;
+    mercadoIntl: string;
+    datosTitulo: string;
+    nombre: string;
+    apellido: string;
+    email: string;
+    telefono: string;
+    institucion: string;
+    facturacionTitulo: string;
+    solicitarFacturaElectronica: string;
+    tipoDocumento: string;
+    numeroDocumento: string;
+    tipoPersona: string;
+    tipoPersonaNatural: string;
+    tipoPersonaJuridica: string;
+    razonSocial: string;
+    emailFacturacion: string;
+    direccionFacturacion: string;
+    ciudadFacturacion: string;
+    departamentoFacturacion: string;
+    paisFacturacion: string;
+    responsableIva: string;
+    agenteRetencion: string;
+    agenteReteica: string;
+    soloColombia: string;
+    consentimiento: string;
+    irPagar: string;
+    procesando: string;
+    stockLimitado: string;
+    errorGenerico: string;
+    errorCarritoVacio: string;
+    errorNoDisponible: string;
+    errorValidacion: string;
+    requerido: string;
+    avisoRecalculo: string;
+    itemNoDisponible: string;
+    cupon: string;
   }
 
   interface CarritoConfig {
-    locale: 'es' | 'en'
-    i18n: CarritoI18n
-    catalogoHref: string
+    locale: 'es' | 'en';
+    i18n: CarritoI18n;
+    catalogoHref: string;
   }
 
-  const drawer = document.getElementById('carrito-drawer')
-  const backdrop = document.getElementById('carrito-backdrop')
-  const closeBtn = document.getElementById('carrito-close')
-  const itemsEl = document.getElementById('carrito-items')
-  const vacioEl = document.getElementById('carrito-vacio')
-  const avisosEl = document.getElementById('carrito-avisos')
-  const resumenEl = document.getElementById('carrito-resumen')
-  const subtotalEl = document.getElementById('carrito-subtotal')
-  const totalEl = document.getElementById('carrito-total')
-  const formEl = document.getElementById('carrito-form') as HTMLFormElement | null
-  const vaciarBtn = document.getElementById('carrito-vaciar')
-  const submitBtn = document.getElementById('carrito-submit') as HTMLButtonElement | null
-  const errorEl = document.getElementById('carrito-error')
+  const drawer = document.getElementById('carrito-drawer');
+  const backdrop = document.getElementById('carrito-backdrop');
+  const closeBtn = document.getElementById('carrito-close');
+  const itemsEl = document.getElementById('carrito-items');
+  const vacioEl = document.getElementById('carrito-vacio');
+  const avisosEl = document.getElementById('carrito-avisos');
+  const resumenEl = document.getElementById('carrito-resumen');
+  const subtotalEl = document.getElementById('carrito-subtotal');
+  const totalEl = document.getElementById('carrito-total');
+  const formEl = document.getElementById('carrito-form') as HTMLFormElement | null;
+  const vaciarBtn = document.getElementById('carrito-vaciar');
+  const submitBtn = document.getElementById('carrito-submit') as HTMLButtonElement | null;
+  const errorEl = document.getElementById('carrito-error');
   const solicitarFacturaEl = document.getElementById(
     'carrito-solicitar-factura'
-  ) as HTMLInputElement | null
-  const fiscalFieldsEl = document.getElementById('carrito-fiscal-fields')
+  ) as HTMLInputElement | null;
+  const fiscalFieldsEl = document.getElementById('carrito-fiscal-fields');
 
   if (!drawer) {
     // Componente no presente en esta página
   } else {
-    const config: CarritoConfig = JSON.parse(drawer.dataset.carritoConfig ?? '{}') as CarritoConfig
-    const { i18n, locale } = config
-    let enviando = false
+    const config: CarritoConfig = JSON.parse(drawer.dataset.carritoConfig ?? '{}') as CarritoConfig;
+    const { i18n, locale } = config;
+    let enviando = false;
 
     function escapeHtml(value: string): string {
       return value
@@ -743,30 +743,30 @@ const config = {
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;')
+        .replace(/'/g, '&#39;');
     }
 
     function render(items: CarritoItem[]) {
-      if (!itemsEl || !vacioEl || !resumenEl || !formEl) return
+      if (!itemsEl || !vacioEl || !resumenEl || !formEl) return;
       if (items.length === 0) {
-        vacioEl.hidden = false
-        itemsEl.innerHTML = ''
-        resumenEl.hidden = true
-        formEl.hidden = true
-        return
+        vacioEl.hidden = false;
+        itemsEl.innerHTML = '';
+        resumenEl.hidden = true;
+        formEl.hidden = true;
+        return;
       }
-      vacioEl.hidden = true
-      resumenEl.hidden = false
-      formEl.hidden = false
+      vacioEl.hidden = true;
+      resumenEl.hidden = false;
+      formEl.hidden = false;
 
       itemsEl.innerHTML = items
-        .map((item) => {
-          const precio = formatMoneda(item.precio, item.moneda, locale) ?? ''
-          const subtotalItem = formatMoneda(item.precio * item.cantidad, item.moneda, locale) ?? ''
+        .map(item => {
+          const precio = formatMoneda(item.precio, item.moneda, locale) ?? '';
+          const subtotalItem = formatMoneda(item.precio * item.cantidad, item.moneda, locale) ?? '';
           const stockMsg =
             item.stock !== null
               ? `<p class="carrito-item__stock">${escapeHtml(i18n.stockLimitado.replace('{stock}', String(item.stock)))}</p>`
-              : ''
+              : '';
           return `
             <li class="carrito-item" data-slug="${escapeHtml(item.slug)}">
               <div>
@@ -782,162 +782,161 @@ const config = {
               <button type="button" class="carrito-item__remove" data-action="remove" aria-label="${escapeHtml(i18n.eliminar)}: ${escapeHtml(item.nombre)}">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
               </button>
-            </li>`
+            </li>`;
         })
-        .join('')
+        .join('');
 
-      const { total, moneda } = getCarritoTotal(items)
-      const totalFmt = formatMoneda(total, moneda, locale) ?? ''
-      if (subtotalEl) subtotalEl.textContent = totalFmt
-      if (totalEl) totalEl.textContent = totalFmt
+      const { total, moneda } = getCarritoTotal(items);
+      const totalFmt = formatMoneda(total, moneda, locale) ?? '';
+      if (subtotalEl) subtotalEl.textContent = totalFmt;
+      if (totalEl) totalEl.textContent = totalFmt;
     }
 
     function showAvisos(eliminados: CarritoItem[]) {
-      if (!avisosEl) return
+      if (!avisosEl) return;
       if (eliminados.length === 0) {
-        avisosEl.hidden = true
-        avisosEl.innerHTML = ''
-        return
+        avisosEl.hidden = true;
+        avisosEl.innerHTML = '';
+        return;
       }
       avisosEl.innerHTML = eliminados
-        .map(
-          (item) => `<p>${escapeHtml(i18n.itemNoDisponible.replace('{nombre}', item.nombre))}</p>`
-        )
-        .join('')
-      avisosEl.hidden = false
+        .map(item => `<p>${escapeHtml(i18n.itemNoDisponible.replace('{nombre}', item.nombre))}</p>`)
+        .join('');
+      avisosEl.hidden = false;
     }
 
     function showError(message: string | null) {
-      if (!errorEl) return
+      if (!errorEl) return;
       if (message) {
-        errorEl.textContent = message
-        errorEl.hidden = false
+        errorEl.textContent = message;
+        errorEl.hidden = false;
       } else {
-        errorEl.hidden = true
-        errorEl.textContent = ''
+        errorEl.hidden = true;
+        errorEl.textContent = '';
       }
     }
 
-    render(getCarrito())
-    suscribirCarrito(render)
+    render(getCarrito());
+    suscribirCarrito(render);
 
     function toggleFiscalFields() {
       const mercadoActual =
-        formEl?.querySelector<HTMLInputElement>('input[name="mercado"]:checked')?.value ?? 'CO'
-      const enabled = mercadoActual === 'CO' && solicitarFacturaEl?.checked === true
-      if (fiscalFieldsEl) fiscalFieldsEl.hidden = !enabled
+        formEl?.querySelector<HTMLInputElement>('input[name="mercado"]:checked')?.value ?? 'CO';
+      const enabled = mercadoActual === 'CO' && solicitarFacturaEl?.checked === true;
+      if (fiscalFieldsEl) fiscalFieldsEl.hidden = !enabled;
       const fiscalRequired = formEl?.querySelectorAll<
         HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-      >('[data-fiscal-required]')
-      fiscalRequired?.forEach((field) => {
-        field.required = enabled
-        if (!enabled) field.setCustomValidity('')
-      })
-      if (solicitarFacturaEl) solicitarFacturaEl.disabled = mercadoActual !== 'CO'
+      >('[data-fiscal-required]');
+      fiscalRequired?.forEach(field => {
+        field.required = enabled;
+        if (!enabled) field.setCustomValidity('');
+      });
+      if (solicitarFacturaEl) solicitarFacturaEl.disabled = mercadoActual !== 'CO';
     }
 
-    toggleFiscalFields()
-    solicitarFacturaEl?.addEventListener('change', toggleFiscalFields)
+    toggleFiscalFields();
+    solicitarFacturaEl?.addEventListener('change', toggleFiscalFields);
     formEl
       ?.querySelectorAll<HTMLInputElement>('input[name="mercado"]')
-      .forEach((radio) => radio.addEventListener('change', toggleFiscalFields))
+      .forEach(radio => radio.addEventListener('change', toggleFiscalFields));
 
-    itemsEl?.addEventListener('click', (event) => {
-      const target = event.target as HTMLElement
-      const button = target.closest<HTMLElement>('button[data-action]')
-      if (!button) return
-      const li = button.closest<HTMLElement>('.carrito-item')
-      const slug = li?.dataset.slug
-      if (!slug) return
-      const items = getCarrito()
-      const item = items.find((i) => i.slug === slug)
-      if (!item) return
-      const action = button.dataset.action
-      if (action === 'inc') actualizarCantidad(slug, item.cantidad + 1)
-      else if (action === 'dec') actualizarCantidad(slug, item.cantidad - 1)
-      else if (action === 'remove') quitarDelCarrito(slug)
-    })
+    itemsEl?.addEventListener('click', event => {
+      const target = event.target as HTMLElement;
+      const button = target.closest<HTMLElement>('button[data-action]');
+      if (!button) return;
+      const li = button.closest<HTMLElement>('.carrito-item');
+      const slug = li?.dataset.slug;
+      if (!slug) return;
+      const items = getCarrito();
+      const item = items.find(i => i.slug === slug);
+      if (!item) return;
+      const action = button.dataset.action;
+      if (action === 'inc') actualizarCantidad(slug, item.cantidad + 1);
+      else if (action === 'dec') actualizarCantidad(slug, item.cantidad - 1);
+      else if (action === 'remove') quitarDelCarrito(slug);
+    });
 
     vaciarBtn?.addEventListener('click', () => {
-      vaciarCarrito()
-      showError(null)
-    })
+      vaciarCarrito();
+      showError(null);
+    });
 
     function open() {
-      if (!drawer || !backdrop) return
-      drawer.removeAttribute('hidden')
-      backdrop.removeAttribute('hidden')
-      document.body.style.overflow = 'hidden'
-      void abrirDrawer(drawer, backdrop)
+      if (!drawer || !backdrop) return;
+      resetTransientUiState();
+      drawer.removeAttribute('hidden');
+      backdrop.removeAttribute('hidden');
+      document.body.style.overflow = 'hidden';
+      void abrirDrawer(drawer, backdrop);
       const firstFocusable = drawer.querySelector<HTMLElement>(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      )
-      firstFocusable?.focus()
-      void revalidarDisponibilidad().then(({ eliminados }) => showAvisos(eliminados))
+      );
+      firstFocusable?.focus();
+      void revalidarDisponibilidad().then(({ eliminados }) => showAvisos(eliminados));
     }
 
     function close() {
-      if (!drawer || !backdrop) return
+      if (!drawer || !backdrop) return;
       void cerrarDrawer(drawer, backdrop, () => {
-        drawer.setAttribute('hidden', '')
-        backdrop.setAttribute('hidden', '')
-        document.body.style.overflow = ''
-      })
+        drawer.setAttribute('hidden', '');
+        backdrop.setAttribute('hidden', '');
+        document.body.style.overflow = '';
+      });
     }
 
-    alAbrirCarrito(open)
-    closeBtn?.addEventListener('click', close)
-    backdrop?.addEventListener('click', close)
+    alAbrirCarrito(open);
+    closeBtn?.addEventListener('click', close);
+    backdrop?.addEventListener('click', close);
 
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && drawer && !drawer.hasAttribute('hidden')) close()
-    })
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && drawer && !drawer.hasAttribute('hidden')) close();
+    });
 
     // Focus trap
-    drawer?.addEventListener('keydown', (event) => {
-      if (event.key !== 'Tab') return
+    drawer?.addEventListener('keydown', event => {
+      if (event.key !== 'Tab') return;
       const focusable = Array.from(
         drawer.querySelectorAll<HTMLElement>(
           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
         )
-      ).filter((el) => el.offsetParent !== null || el === document.activeElement)
-      const first = focusable[0]
-      const last = focusable[focusable.length - 1]
-      if (!first || !last) return
+      ).filter(el => el.offsetParent !== null || el === document.activeElement);
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (!first || !last) return;
       if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault()
-        last.focus()
+        event.preventDefault();
+        last.focus();
       } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault()
-        first.focus()
+        event.preventDefault();
+        first.focus();
       }
-    })
+    });
 
-    formEl?.addEventListener('submit', async (event) => {
-      event.preventDefault()
-      if (enviando || !formEl || !submitBtn) return
-      showError(null)
+    formEl?.addEventListener('submit', async event => {
+      event.preventDefault();
+      if (enviando || !formEl || !submitBtn) return;
+      showError(null);
 
       if (!formEl.checkValidity()) {
-        formEl.reportValidity()
-        showError(i18n.errorValidacion)
-        return
+        formEl.reportValidity();
+        showError(i18n.errorValidacion);
+        return;
       }
 
-      const data = new FormData(formEl)
-      const mercado = String(data.get('mercado') ?? 'CO') as Mercado
+      const data = new FormData(formEl);
+      const mercado = String(data.get('mercado') ?? 'CO') as Mercado;
       const cliente = {
         nombre: String(data.get('nombre') ?? ''),
         apellido: String(data.get('apellido') ?? ''),
         email: String(data.get('email') ?? ''),
         telefono: String(data.get('telefono') ?? ''),
-      }
-      const institucion = String(data.get('institucion') ?? '').trim()
-      if (institucion) Object.assign(cliente, { institucion })
-      const consentimientoDatos = data.get('consentimiento') === 'on'
-      const cuponCodigo = String(data.get('cupon') ?? '').trim()
+      };
+      const institucion = String(data.get('institucion') ?? '').trim();
+      if (institucion) Object.assign(cliente, { institucion });
+      const consentimientoDatos = data.get('consentimiento') === 'on';
+      const cuponCodigo = String(data.get('cupon') ?? '').trim();
       const solicitarFacturaElectronica =
-        mercado === 'CO' && data.get('solicitar_factura_electronica') === 'on'
+        mercado === 'CO' && data.get('solicitar_factura_electronica') === 'on';
       const fiscal = solicitarFacturaElectronica
         ? {
             solicitar_factura_electronica: true,
@@ -956,12 +955,12 @@ const config = {
             agente_retencion: data.get('agente_retencion') === 'on',
             agente_reteica: data.get('agente_reteica') === 'on',
           }
-        : undefined
-      if (fiscal) Object.assign(cliente, { fiscal })
+        : undefined;
+      if (fiscal) Object.assign(cliente, { fiscal });
 
-      enviando = true
-      submitBtn.disabled = true
-      submitBtn.textContent = i18n.procesando
+      enviando = true;
+      submitBtn.disabled = true;
+      submitBtn.textContent = i18n.procesando;
 
       const resultado = await iniciarCheckout({
         cliente,
@@ -969,27 +968,27 @@ const config = {
         cuponCodigo,
         consentimientoDatos,
         locale,
-      })
+      });
 
-      enviando = false
-      submitBtn.disabled = false
-      submitBtn.textContent = i18n.irPagar
+      enviando = false;
+      submitBtn.disabled = false;
+      submitBtn.textContent = i18n.irPagar;
 
       if (!resultado.ok || !resultado.checkoutUrl) {
-        if (resultado.error === 'CARRITO_VACIO') showError(i18n.errorCarritoVacio)
-        else if (resultado.error === 'NO_DISPONIBLE') showError(i18n.errorNoDisponible)
+        if (resultado.error === 'CARRITO_VACIO') showError(i18n.errorCarritoVacio);
+        else if (resultado.error === 'NO_DISPONIBLE') showError(i18n.errorNoDisponible);
         else if (resultado.codigo === 'PRODUCTO_NO_DISPONIBLE_TEMPORAL') {
-          const detalles = resultado.detalles as { slugs?: string[] } | undefined
-          const slugsAfectados = new Set(detalles?.slugs ?? [])
-          const eliminados = getCarrito().filter((i) => slugsAfectados.has(i.slug))
-          for (const item of eliminados) quitarDelCarrito(item.slug)
-          showAvisos(eliminados)
-          showError(i18n.errorGenerico)
-        } else showError(i18n.errorGenerico)
-        return
+          const detalles = resultado.detalles as { slugs?: string[] } | undefined;
+          const slugsAfectados = new Set(detalles?.slugs ?? []);
+          const eliminados = getCarrito().filter(i => slugsAfectados.has(i.slug));
+          for (const item of eliminados) quitarDelCarrito(item.slug);
+          showAvisos(eliminados);
+          showError(i18n.errorGenerico);
+        } else showError(i18n.errorGenerico);
+        return;
       }
 
-      window.location.href = resultado.checkoutUrl
-    })
+      window.location.href = resultado.checkoutUrl;
+    });
   }
 </script>

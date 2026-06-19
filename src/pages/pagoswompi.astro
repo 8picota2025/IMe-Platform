@@ -9,8 +9,12 @@ const description =
   'Página técnica pública para alta de I-ME en Wompi: URL de eventos, flujo de checkout, intercambio API, redirects operativos y checklist de activación.';
 
 const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL as string | undefined;
-const wompiWebhookUrl = supabaseUrl ? `${supabaseUrl}/functions/v1/webhook-wompi` : 'Pendiente de entorno';
-const wompiCheckoutApiUrl = supabaseUrl ? `${supabaseUrl}/functions/v1/crear-pago` : 'Pendiente de entorno';
+const wompiWebhookUrl = supabaseUrl
+  ? `${supabaseUrl}/functions/v1/webhook-wompi`
+  : 'Pendiente de entorno';
+const wompiCheckoutApiUrl = supabaseUrl
+  ? `${supabaseUrl}/functions/v1/crear-pago`
+  : 'Pendiente de entorno';
 const redirectSuccessUrl = buildCanonical('/es/pago/exito');
 const redirectFailureUrl = buildCanonical('/es/pago/fallo');
 const pageJsonLd = combineJsonLd(buildOrganizationJsonLd(), {
@@ -191,12 +195,14 @@ const webhookExample = `POST ${wompiWebhookUrl}
         </div>
         <div class="endpoint-grid">
           {
-            endpointCards.map((item) => (
+            endpointCards.map(item => (
               <article class="endpoint-card">
                 <p class="endpoint-card__label">{item.label}</p>
                 <code class="endpoint-card__value">{item.value}</code>
                 <p class="endpoint-card__note">{item.note}</p>
-                <button class="copy-btn" type="button" data-copy={item.value}>Copiar</button>
+                <button class="copy-btn" type="button" data-copy={item.value}>
+                  Copiar
+                </button>
               </article>
             ))
           }
@@ -210,7 +216,7 @@ const webhookExample = `POST ${wompiWebhookUrl}
         </div>
         <div class="flow-list">
           {
-            flujo.map((item) => (
+            flujo.map(item => (
               <article class="flow-step">
                 <h3>{item.step}</h3>
                 <p>{item.detail}</p>
@@ -247,7 +253,7 @@ const webhookExample = `POST ${wompiWebhookUrl}
           <div class="matrix__panel matrix__panel--check">
             <h3>Checklist de activacion</h3>
             <ol>
-              {checklist.map((item) => <li>{item}</li>)}
+              {checklist.map(item => <li>{item}</li>)}
             </ol>
           </div>
         </div>
@@ -286,9 +292,9 @@ const webhookExample = `POST ${wompiWebhookUrl}
       <section class="note" aria-labelledby="note-title">
         <h2 id="note-title">Nota operativa</h2>
         <p>
-          Esta pagina no expone llaves privadas ni secretos. El sitio solo publica rutas y
-          contratos de integracion. La firma de integridad, la validacion del webhook y la
-          actualizacion del pedido ocurren exclusivamente del lado servidor.
+          Esta pagina no expone llaves privadas ni secretos. El sitio solo publica rutas y contratos
+          de integracion. La firma de integridad, la validacion del webhook y la actualizacion del
+          pedido ocurren exclusivamente del lado servidor.
         </p>
       </section>
     </div>
@@ -301,7 +307,20 @@ const webhookExample = `POST ${wompiWebhookUrl}
         const value = button.getAttribute('data-copy') ?? '';
         if (!value) return;
         try {
-          await navigator.clipboard.writeText(value);
+          if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(value);
+          } else {
+            const textarea = document.createElement('textarea');
+            textarea.value = value;
+            textarea.setAttribute('readonly', 'true');
+            textarea.style.position = 'absolute';
+            textarea.style.left = '-9999px';
+            document.body.appendChild(textarea);
+            textarea.select();
+            const copied = document.execCommand('copy');
+            document.body.removeChild(textarea);
+            if (!copied) throw new Error('copy_failed');
+          }
           const original = button.textContent;
           button.textContent = 'Copiado';
           window.setTimeout(() => {
@@ -459,9 +478,15 @@ const webhookExample = `POST ${wompiWebhookUrl}
     display: inline-block;
   }
 
-  .dot--red { background: #ff6c5c; }
-  .dot--amber { background: #ffcf5b; }
-  .dot--green { background: #6bff8b; }
+  .dot--red {
+    background: #ff6c5c;
+  }
+  .dot--amber {
+    background: #ffcf5b;
+  }
+  .dot--green {
+    background: #6bff8b;
+  }
 
   .console__body {
     display: grid;
@@ -479,8 +504,13 @@ const webhookExample = `POST ${wompiWebhookUrl}
     font-size: 0.92rem;
   }
 
-  .console__body span { color: rgba(236, 247, 251, 0.72); }
-  .console__body b { color: var(--wompi-acid); letter-spacing: 0.06em; }
+  .console__body span {
+    color: rgba(236, 247, 251, 0.72);
+  }
+  .console__body b {
+    color: var(--wompi-acid);
+    letter-spacing: 0.06em;
+  }
 
   .section-heading {
     display: grid;
