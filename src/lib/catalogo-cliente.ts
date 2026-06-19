@@ -217,6 +217,7 @@ export function initCatalogo(locale: Locale): () => void {
   const filtrosToggle = document.getElementById('catalogo-filtros-toggle');
   const filtrosPanel = document.getElementById('catalogo-filtros');
   const filtrosCerrar = document.getElementById('catalogo-filtros-cerrar');
+  const filtrosBackdrop = document.getElementById('catalogo-filtros-backdrop');
   const quickviewDialog = document.getElementById('quickview-dialog') as HTMLDialogElement | null;
   const quickviewImagen = document.getElementById('quickview-imagen') as HTMLImageElement | null;
   const quickviewFamilia = document.getElementById('quickview-familia');
@@ -406,11 +407,29 @@ export function initCatalogo(locale: Locale): () => void {
     }
   }
 
+  function updateFiltrosToggle(open: boolean): void {
+    if (!filtrosToggle) return;
+    filtrosToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    filtrosToggle.textContent = t(
+      locale,
+      open ? 'catalogo.cerrar_filtros' : 'catalogo.abrir_filtros'
+    );
+  }
+
+  function setFiltrosPanelOpen(open: boolean): void {
+    if (!filtrosPanel) return;
+    filtrosPanel.classList.toggle('catalogo-filtros--abierto', open);
+    if (filtrosBackdrop) filtrosBackdrop.hidden = !open;
+    updateFiltrosToggle(open);
+    document.body.style.overflow = open ? 'hidden' : '';
+  }
+
   function applyFiltros(): void {
     const mostrarGrid = shouldShowGrid(state);
 
     if (familiasView) familiasView.hidden = mostrarGrid;
     if (grid) grid.hidden = !mostrarGrid;
+    if (mostrarGrid) setFiltrosPanelOpen(false);
 
     if (!mostrarGrid) {
       if (sinResultados) sinResultados.hidden = true;
@@ -507,6 +526,7 @@ export function initCatalogo(locale: Locale): () => void {
     state.orden = 'relevancia';
     syncFiltrosUI();
     applyFiltros();
+    setFiltrosPanelOpen(false);
   }
 
   // Búsqueda con debounce
@@ -623,6 +643,7 @@ export function initCatalogo(locale: Locale): () => void {
       state.orden = 'relevancia';
       syncFiltrosUI();
       applyFiltros();
+      setFiltrosPanelOpen(false);
       scrollToResultados();
     };
     btn.addEventListener('click', onClick);
@@ -633,25 +654,27 @@ export function initCatalogo(locale: Locale): () => void {
 
   // Drawer de filtros (mobile)
   const onFiltrosToggle = () => {
-    const abierto = filtrosPanel?.classList.toggle('catalogo-filtros--abierto') ?? false;
-    filtrosToggle?.setAttribute('aria-expanded', abierto ? 'true' : 'false');
+    const abierto = !(filtrosPanel?.classList.contains('catalogo-filtros--abierto') ?? false);
+    setFiltrosPanelOpen(abierto);
     if (abierto) filtrosPanel?.querySelector<HTMLElement>('input, button, a')?.focus();
   };
   filtrosToggle?.addEventListener('click', onFiltrosToggle);
   const onFiltrosCerrar = () => {
-    filtrosPanel?.classList.remove('catalogo-filtros--abierto');
-    filtrosToggle?.setAttribute('aria-expanded', 'false');
+    setFiltrosPanelOpen(false);
     filtrosToggle?.focus();
   };
   filtrosCerrar?.addEventListener('click', onFiltrosCerrar);
   const onFiltrosKeydown = (evento: KeyboardEvent) => {
     if (evento.key === 'Escape' && filtrosPanel?.classList.contains('catalogo-filtros--abierto')) {
-      filtrosPanel?.classList.remove('catalogo-filtros--abierto');
-      filtrosToggle?.setAttribute('aria-expanded', 'false');
+      setFiltrosPanelOpen(false);
       filtrosToggle?.focus();
     }
   };
   filtrosPanel?.addEventListener('keydown', onFiltrosKeydown);
+  filtrosBackdrop?.addEventListener('click', () => {
+    setFiltrosPanelOpen(false);
+    filtrosToggle?.focus();
+  });
 
   function modalidadTexto(valor?: string): string {
     if (valor === 'dropship') return t(locale, 'catalogo.modalidad_dropship');
@@ -956,6 +979,7 @@ export function initCatalogo(locale: Locale): () => void {
     if (quickviewCta) quickviewCta.onclick = null;
   });
 
+  updateFiltrosToggle(false);
   syncFiltrosUI();
   applyFiltros();
   initComparador();
@@ -964,5 +988,6 @@ export function initCatalogo(locale: Locale): () => void {
     if (debounceTimer) clearTimeout(debounceTimer);
     cleanupComparadorWindow?.();
     document.removeEventListener('click', onQuickViewClick);
+    setFiltrosPanelOpen(false);
   };
 }

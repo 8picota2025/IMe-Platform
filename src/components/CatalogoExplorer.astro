@@ -46,7 +46,11 @@ const hayNuevos = items.some(item => item.nuevo);
   <!-- Familia actual (navegación dentro de una categoría) -->
   <div id="catalogo-familia-actual" class="catalogo__familia-actual" hidden>
     <div class="catalogo__familia-actual-meta">
-      <div id="catalogo-familia-actual-icono" class="catalogo__familia-actual-icono" aria-hidden="true">
+      <div
+        id="catalogo-familia-actual-icono"
+        class="catalogo__familia-actual-icono"
+        aria-hidden="true"
+      >
       </div>
       <h2 id="catalogo-familia-actual-nombre" class="section-subtitle"></h2>
     </div>
@@ -92,6 +96,8 @@ const hayNuevos = items.some(item => item.nuevo);
   </section>
 
   <div class="catalogo__layout" id="catalogo-resultados">
+    <div id="catalogo-filtros-backdrop" class="catalogo-filtros-backdrop" hidden aria-hidden="true">
+    </div>
     <!-- Filtros -->
     <aside
       id="catalogo-filtros"
@@ -651,6 +657,13 @@ const hayNuevos = items.some(item => item.nuevo);
     .catalogo-filtros--abierto {
       transform: translateX(0);
     }
+    .catalogo-filtros-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 24, 28, 0.42);
+      backdrop-filter: blur(1.5px);
+      z-index: 94;
+    }
     .catalogo__toolbar {
       flex-direction: column;
       align-items: stretch;
@@ -672,6 +685,9 @@ const hayNuevos = items.some(item => item.nuevo);
   @media (min-width: 900px) {
     .catalogo__filtros-toggle {
       display: none;
+    }
+    .catalogo-filtros-backdrop {
+      display: none !important;
     }
   }
 

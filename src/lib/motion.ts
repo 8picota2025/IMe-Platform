@@ -154,7 +154,7 @@ export async function initLenis(): Promise<void> {
   if (prefersReducedMotion()) return;
   if (typeof window === 'undefined') return;
   if (window.matchMedia('(pointer: coarse)').matches) return;
-  const connection = navigator.connection as { saveData?: boolean } | undefined;
+  const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
   if (connection?.saveData) return;
   if (lenisInstance || lenisInitPromise) return lenisInitPromise ?? Promise.resolve();
 
