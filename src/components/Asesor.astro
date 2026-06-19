@@ -360,6 +360,7 @@ const asesorConfig = {
     border-radius: 12px;
     font-size: 0.875rem;
     line-height: 1.5;
+    overflow-wrap: anywhere;
   }
   .chat-bubble--user {
     background: var(--t900);
@@ -378,6 +379,12 @@ const asesorConfig = {
     color: var(--text-muted);
     align-self: flex-start;
     border-bottom-left-radius: 4px;
+  }
+  .chat-bubble p {
+    margin: 0 0 0.5rem;
+  }
+  .chat-bubble p:last-child {
+    margin-bottom: 0;
   }
   .asesor-bubble--rich p {
     margin: 0;
@@ -401,6 +408,7 @@ const asesorConfig = {
     text-decoration: none;
     color: var(--text);
     transition: border-color 180ms var(--ease);
+    min-width: 0;
   }
   .asesor-producto:hover {
     border-color: var(--t800);
@@ -415,14 +423,17 @@ const asesorConfig = {
   }
   .asesor-producto__nombre {
     flex: 1;
+    min-width: 0;
     font-size: 0.8rem;
     font-weight: 600;
     line-height: 1.3;
+    overflow-wrap: anywhere;
   }
   .asesor-producto__link {
     font-size: 0.7rem;
     color: var(--text-muted);
     white-space: nowrap;
+    flex-shrink: 0;
   }
 
   /* CTA de handoff (WhatsApp / cotización / reintentar) */
@@ -444,6 +455,44 @@ const asesorConfig = {
   }
   .asesor-cta:hover {
     background: var(--t800);
+  }
+
+  @media (max-width: 479px) {
+    .asesor-dialog {
+      right: 0.75rem;
+      bottom: 4.75rem;
+      width: min(420px, calc(100vw - 1.5rem));
+      max-height: min(620px, calc(100vh - 7rem));
+    }
+
+    .asesor-dialog__header {
+      padding: 0.875rem 1rem;
+    }
+
+    .asesor-dialog__messages {
+      max-height: min(380px, calc(100vh - 14rem));
+      padding: 0.875rem;
+    }
+
+    .chat-bubble {
+      max-width: 100%;
+    }
+
+    .asesor-producto {
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .asesor-producto__img {
+      width: 36px;
+      height: 36px;
+    }
+
+    .asesor-producto__link {
+      width: 100%;
+      padding-left: 46px;
+      white-space: normal;
+    }
   }
 </style>
 
@@ -551,11 +600,25 @@ const asesorConfig = {
       .replace(/'/g, '&#39;');
   }
 
+  function renderMessageHtml(value: string): string {
+    const escaped = escapeHtml(value.trim());
+    if (!escaped) return '';
+    return escaped
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .split(/\n{2,}/)
+      .map(block => `<p>${block.replace(/\n/g, '<br>')}</p>`)
+      .join('');
+  }
+
   function addBubble(text: string, role: 'user' | 'asesor' | 'loading'): HTMLElement | undefined {
     if (!messagesEl) return;
     const div = document.createElement('div');
     div.className = `chat-bubble chat-bubble--${role}`;
-    div.textContent = text;
+    if (role === 'asesor') {
+      div.innerHTML = renderMessageHtml(text);
+    } else {
+      div.textContent = text;
+    }
     messagesEl.appendChild(div);
     messagesEl.scrollTop = messagesEl.scrollHeight;
     return div;
@@ -595,7 +658,9 @@ const asesorConfig = {
 
   function renderRespuesta(respuesta: RespuestaAsesor) {
     addBubble(respuesta.texto, 'asesor');
-    if (respuesta.modo === 'keyword_degradado') addBubble(config.i18n.degradado, 'loading');
+    if (respuesta.modo === 'keyword_degradado' && respuesta.productos.length > 0) {
+      addBubble(config.i18n.degradado, 'loading');
+    }
     if (respuesta.productos.length > 0) addHtmlBubble(buildProductosHtml(respuesta.productos));
     if (respuesta.accionHandoff) addHtmlBubble(buildHandoffHtml(respuesta.accionHandoff));
   }

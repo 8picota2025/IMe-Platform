@@ -5,7 +5,13 @@ const CONTACT_QUERY_REGEX =
 const SERVICES_QUERY_REGEX =
   /\b(servici(?:o|os)|support|soporte|mantenim(?:iento|ientos)|calibr(?:acion|aciones)?|instal(?:acion|aciones|ar)?|asesor(?:ia)?|financi(?:acion|amiento|ar)?)\b/i;
 const LEGAL_QUERY_REGEX =
-  /\b(legal(?:es)?|ley(?:es)?|law(?:s)?|decreto(?:s)?|decree(?:s)?|resoluci(?:on|ones)|resolution(?:s)?|cookies?|privacidad|privacy|habeas|consumidor(?:es)?|consumer(?:s)?|normativ(?:a|as)|regulator(?:io|ios|y)?|registro(?:s)? sanitario(?:s)?|sanitary registration|invima|tecnovigil(?:ancia|ance)?)\b/i;
+  /\b(legal(?:es)?|ley(?:es)?|law(?:s)?|decreto(?:s)?|decree(?:s)?|resoluci(?:on|ones)|resolution(?:s)?|cookies?|privacidad|privacy|habeas|consumidor(?:es)?|consumer(?:s)?|normativ(?:a|as)|regulator(?:io|ios|y)?|registro(?:s)? sanitario(?:s)?|sanitary registration|invima|tecnovigil(?:ancia|ance)?|certific(?:ado|ada|ados|adas|acion|aciones)|certificate(?:s)?|certification(?:s)?|ce\b|fda|iso|calidad|quality)\b/i;
+const FINANCING_QUERY_REGEX =
+  /\b(financi(?:acion|amiento|ar|ado|ados)?|credito(?:s)?|cuota(?:s)?|plazo(?:s)?|tasa(?:s)?|leasing|loan(?:s)?|payment plan(?:s)?|installment(?:s)?)\b/i;
+const WARRANTY_QUERY_REGEX =
+  /\b(garanti(?:a|as)|warrant(?:y|ies)|soporte postventa|posventa|post[- ]?sale|mantenimiento|maintenance|calibraci(?:on|ones)|calibration)\b/i;
+const CERTIFICATIONS_QUERY_REGEX =
+  /\b(certific(?:ado|ada|ados|adas|acion|aciones)|certificate(?:s)?|certification(?:s)?|registro(?:s)? invima|registro(?:s)? sanitario(?:s)?|sanitary registration(?:s)?|ce\b|fda|iso|bpm|calidad|quality|tecnovigil(?:ancia|ance)?)\b/i;
 
 const ES_SITE_AND_LEGAL_KNOWLEDGE = `CONTEXTO DEL SITIO Y DE I-ME
 - I-ME International Medical Enterprise es una empresa colombiana dedicada a la venta, distribucion, importacion, exportacion, instalacion, soporte tecnico, mantenimiento, asesoria e implementacion de equipos y dispositivos medicos para el sector salud.
@@ -14,6 +20,8 @@ const ES_SITE_AND_LEGAL_KNOWLEDGE = `CONTEXTO DEL SITIO Y DE I-ME
 - Cobertura declarada: 32 departamentos de Colombia. Experiencia declarada: mas de 15 anos.
 - Canales comerciales publicados: WhatsApp +57 313 867 4059, correo info@i-me.com.co y formulario de contacto del sitio.
 - Financiamiento: el sitio comunica planes orientativos para instituciones de salud, con referencia a plazos de hasta 60 meses; cualquier aprobacion, tasa, plazo final o condicion vinculante depende de validacion comercial y propuesta formal.
+- Certificaciones y registros: el sitio comunica equipos biomédicos certificados y menciona registros INVIMA y certificaciones CE/FDA cuando correspondan. Cada certificado, registro sanitario, vigencia, alcance de garantía y compatibilidad normativa debe confirmarse por producto en ficha técnica, soporte del fabricante o cotización formal.
+- Garantías y soporte: la garantía, instalación, puesta en marcha, capacitación, mantenimiento, calibración, repuestos y soporte se confirman según el producto, ciudad, alcance contratado y documentación del fabricante.
 - Las solicitudes hechas por el sitio, WhatsApp, correo o asesor virtual no constituyen aceptacion automatica de venta. Precio, disponibilidad, garantia, tiempos, instalacion, soporte y condiciones finales se confirman en cotizacion o propuesta formal.
 
 MARCO LEGAL Y REGULATORIO COLOMBIANO DISPONIBLE EN EL SITIO
@@ -33,6 +41,8 @@ const EN_SITE_AND_LEGAL_KNOWLEDGE = `SITE AND I-ME CONTEXT
 - Declared coverage: Colombia's 32 departments. Declared experience: more than 15 years.
 - Published commercial channels: WhatsApp +57 313 867 4059, email info@i-me.com.co and the website contact form.
 - Financing: the site communicates indicative plans for healthcare institutions, with references to terms up to 60 months; any approval, rate, final term or binding condition depends on commercial validation and a formal proposal.
+- Certifications and registrations: the site communicates certified biomedical equipment and mentions INVIMA registrations and CE/FDA certifications where applicable. Each certificate, sanitary registration, validity, warranty scope and regulatory compatibility must be confirmed per product through the technical sheet, manufacturer support or formal quotation.
+- Warranties and support: warranty, installation, commissioning, training, maintenance, calibration, spare parts and support are confirmed according to the product, city, contracted scope and manufacturer documentation.
 - Requests submitted through the website, WhatsApp, email or the virtual advisor do not automatically create a sale. Price, availability, warranty, timing, installation, support and final conditions must be confirmed in a quote or formal proposal.
 
 COLOMBIAN LEGAL AND REGULATORY FRAMEWORK AVAILABLE ON THE SITE
@@ -46,7 +56,7 @@ COLOMBIAN LEGAL AND REGULATORY FRAMEWORK AVAILABLE ON THE SITE
 - The virtual advisor may provide commercial, technical and general regulatory guidance based on the site, but it does not replace formal legal advice, a binding regulatory opinion or clinical judgment.`;
 
 const SITE_OR_LEGAL_QUERY_REGEX =
-  /\b(whats?app|correo(?:s)?|email|contact(?:o|os|ar|arme|arlos)?|telefono(?:s)?|phone(?:s)?|empresa|compania|company|sitio|site|pagina(?:s)?|page(?:s)?|catalogo(?:s)?|catalog(?:s)?|servici(?:o|os)|service(?:s)?|financi(?:acion|amiento|ar)?|garanti(?:a|as)|warrant(?:y|ies)|entreg(?:a|as)|delivery|instal(?:acion|aciones|ar)?|calibr(?:acion|aciones)?|mantenim(?:iento|ientos)|support|soporte|legal(?:es)?|ley(?:es)?|law(?:s)?|decreto(?:s)?|decree(?:s)?|resoluci(?:on|ones)|resolution(?:s)?|invima|fda|ce\b|registro(?:s)? sanitario(?:s)?|sanitary registration|tecnovigil(?:ancia|ance)?|normativ(?:a|as)|regulator(?:io|ios|y)?|cookies?|privacidad|privacy|habeas|terminos|terms|consumidor(?:es)?|consumer(?:s)?|canal(?:es)?|cotizaci(?:on|ones)|quote(?:s)?)\b/i;
+  /\b(whats?app|correo(?:s)?|email|contact(?:o|os|ar|arme|arlos)?|telefono(?:s)?|phone(?:s)?|empresa|compania|company|sitio|site|pagina(?:s)?|page(?:s)?|catalogo(?:s)?|catalog(?:s)?|servici(?:o|os)|service(?:s)?|financi(?:acion|amiento|ar|ado|ados)?|credito(?:s)?|cuota(?:s)?|plazo(?:s)?|tasa(?:s)?|garanti(?:a|as)|warrant(?:y|ies)|entreg(?:a|as)|delivery|instal(?:acion|aciones|ar)?|calibr(?:acion|aciones)?|mantenim(?:iento|ientos)|support|soporte|legal(?:es)?|ley(?:es)?|law(?:s)?|decreto(?:s)?|decree(?:s)?|resoluci(?:on|ones)|resolution(?:s)?|invima|fda|ce\b|iso|bpm|certific(?:ado|ada|ados|adas|acion|aciones)|certificate(?:s)?|certification(?:s)?|calidad|quality|registro(?:s)? sanitario(?:s)?|sanitary registration(?:s)?|tecnovigil(?:ancia|ance)?|normativ(?:a|as)|regulator(?:io|ios|y)?|cookies?|privacidad|privacy|habeas|terminos|terms|consumidor(?:es)?|consumer(?:s)?|canal(?:es)?|cotizaci(?:on|ones)|quote(?:s)?)\b/i;
 
 export function getAsesorKnowledgeBase(locale: AsesorKnowledgeLocale): string {
   return locale === 'en' ? EN_SITE_AND_LEGAL_KNOWLEDGE : ES_SITE_AND_LEGAL_KNOWLEDGE;
@@ -63,18 +73,45 @@ export function buildAsesorStaticFallback(
   const wantsContact = CONTACT_QUERY_REGEX.test(texto);
   const wantsServices = SERVICES_QUERY_REGEX.test(texto);
   const wantsLegal = LEGAL_QUERY_REGEX.test(texto);
+  const wantsFinancing = FINANCING_QUERY_REGEX.test(texto);
+  const wantsWarranty = WARRANTY_QUERY_REGEX.test(texto);
+  const wantsCertifications = CERTIFICATIONS_QUERY_REGEX.test(texto);
 
   if (locale === 'en') {
+    if (wantsCertifications) {
+      return 'I-ME publishes biomedical equipment with regulatory and quality support such as INVIMA registrations and CE/FDA certifications where applicable. The exact certificate, sanitary registration, validity and scope must be confirmed for the specific product through its technical sheet, manufacturer documentation or a formal quotation. For a purchase decision, ask I-ME to validate the product reference, intended use, regulatory support and warranty conditions before closing the order.';
+    }
+
     if (wantsLegal) {
       return 'Based on the information published by I-ME, personal data processing in Colombia is generally framed by Law 1581 of 2012 and Decrees 1377 of 2013 and 1074 of 2015, plus Decree 886 of 2014 when the National Database Registry applies. For commercial contact, Law 1266 of 2008 and Law 2300 of 2023 may also apply when relevant. The site also states that Colombia does not have a standalone cookie law like the European model, so if cookies identify a natural person, Law 1581 of 2012 should be considered. This is general guidance based on the published site content, not formal legal advice.';
+    }
+
+    if (wantsFinancing) {
+      return 'I-ME publishes indicative financing options for healthcare institutions, including acquisition plans for biomedical equipment and clinical projects. Final rates, terms, approvals, documentation requirements and binding conditions are confirmed only through a formal proposal from I-ME or the relevant financing partner.';
+    }
+
+    if (wantsWarranty) {
+      return 'Warranty, installation, commissioning, preventive or corrective maintenance, calibration and spare parts depend on the product, manufacturer documentation, city, contracted scope and formal quotation. I-ME can guide the institution through technical support and after-sales coordination, but final coverage must be confirmed in the proposal or invoice.';
     }
 
     if (wantsServices || wantsContact) {
       return 'I-ME states that it provides sale and distribution of biomedical equipment, installation and commissioning, preventive and corrective technical support, calibration and metrological verification, spare parts and consumables, indicative financing, and biomedical advisory. The published commercial channels are WhatsApp +57 313 867 4059, email info@i-me.com.co, and the website contact form.';
     }
   } else {
+    if (wantsCertifications) {
+      return 'I-ME publica equipos biomédicos con soporte regulatorio y de calidad como registros INVIMA y certificaciones CE/FDA cuando aplican. El certificado exacto, registro sanitario, vigencia y alcance deben confirmarse para el producto específico mediante ficha técnica, documentación del fabricante o cotización formal. Para decidir una compra, conviene validar referencia, uso previsto, soporte regulatorio y condiciones de garantía antes de cerrar el pedido.';
+    }
+
     if (wantsLegal) {
       return 'Con base en la información publicada por I-ME, el tratamiento de datos personales en Colombia se enmarca de forma general en la Ley 1581 de 2012 y los Decretos 1377 de 2013 y 1074 de 2015, además del Decreto 886 de 2014 cuando aplique el Registro Nacional de Bases de Datos. Para contacto comercial también pueden aplicar la Ley 1266 de 2008 y la Ley 2300 de 2023 cuando corresponda. El sitio además indica que Colombia no tiene una ley autónoma de cookies equivalente al modelo europeo, por lo que si las cookies identifican a una persona natural debe considerarse la Ley 1581 de 2012. Esta es una orientación general basada en el contenido publicado, no asesoría legal definitiva.';
+    }
+
+    if (wantsFinancing) {
+      return 'I-ME publica opciones de financiación orientativas para instituciones de salud, incluyendo planes de adquisición de equipos biomédicos y proyectos clínicos. Tasas, plazos, aprobación, documentos requeridos y condiciones vinculantes se confirman únicamente mediante propuesta formal de I-ME o del aliado financiero correspondiente.';
+    }
+
+    if (wantsWarranty) {
+      return 'La garantía, instalación, puesta en marcha, mantenimiento preventivo o correctivo, calibración y repuestos dependen del producto, documentación del fabricante, ciudad, alcance contratado y cotización formal. I-ME puede orientar a la institución en soporte técnico y posventa, pero la cobertura final debe quedar confirmada en la propuesta o factura.';
     }
 
     if (wantsServices || wantsContact) {

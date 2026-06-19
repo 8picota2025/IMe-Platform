@@ -2,14 +2,14 @@
 /**
  * Financing EN — indicative acquisition plans.
  */
-import Layout from '../../layouts/Layout.astro'
-import { buildPageTitle, buildCanonical } from '../../lib/seo'
+import Layout from '../../layouts/Layout.astro';
+import { buildPageTitle, buildCanonical } from '../../lib/seo';
 
-const locale = 'en'
-const title = buildPageTitle('Financing — Medical Equipment Acquisition Plans')
+const locale = 'en';
+const title = buildPageTitle('Financing — Medical Equipment Acquisition Plans');
 const description =
-  'Flexible acquisition plans for biomedical equipment for healthcare institutions.'
-const canonical = buildCanonical('/en/financing')
+  'Flexible acquisition plans for biomedical equipment for healthcare institutions.';
+const canonical = buildCanonical('/en/financing');
 ---
 
 <Layout
@@ -19,16 +19,171 @@ const canonical = buildCanonical('/en/financing')
   locale={locale}
   currentPath="/en/financing"
 >
-  <div style="padding-top:130px;padding-bottom:var(--space-2xl);background:var(--off)">
+  <div
+    class="page-hero"
+    style="padding-top:130px;padding-bottom:var(--space-2xl);background:var(--t900);color:white"
+  >
     <div class="container">
-      <h1>Financing</h1>
-      <p style="color:var(--text-mid)">
-        Financing terms and rates are confirmed only through a formal proposal from I-ME or the
-        relevant financing partner.
+      <span class="section-tag-light">Financing</span>
+      <h1 style="color:white;margin:0.75rem 0">Medical Equipment Acquisition Plans</h1>
+      <p style="color:rgba(255,255,255,0.78);max-width:600px;margin:0">
+        We support healthcare institutions with flexible acquisition plans for biomedical
+        technology, including projects for clinics, imaging centers and surgical rooms.
       </p>
     </div>
   </div>
   <section class="section container">
-    <a href="/en/contact" class="btn btn-primary">Contact an Advisor</a>
+    <div class="financing-intro">
+      <h2>Technology acquisition support for growing healthcare operations</h2>
+      <p>
+        I-ME distributes advanced biomedical equipment for hospitals, clinics and healthcare
+        professionals. Our commercial team helps evaluate acquisition routes aligned with each
+        institution's operational and financial context.
+      </p>
+      <p>
+        Financing conversations may cover equipment purchases, expansion projects and the setup of
+        clinical or surgical spaces, always subject to documentary review and formal validation.
+      </p>
+    </div>
+
+    <div class="financing-features">
+      <h2>What to expect from the process</h2>
+      <ul class="features-grid" role="list">
+        <li class="feature-card">
+          <div class="feature-icon" aria-hidden="true">1</div>
+          <h3>Project assessment</h3>
+          <p>We review equipment needs, scope, delivery context and institutional profile.</p>
+        </li>
+        <li class="feature-card">
+          <div class="feature-icon" aria-hidden="true">2</div>
+          <h3>Indicative structuring</h3>
+          <p>
+            Possible terms are explored based on the project and the applicable evaluation path.
+          </p>
+        </li>
+        <li class="feature-card">
+          <div class="feature-icon" aria-hidden="true">3</div>
+          <h3>Formal proposal</h3>
+          <p>
+            Final conditions are confirmed only through a written proposal from I-ME or a partner.
+          </p>
+        </li>
+      </ul>
+    </div>
+
+    <div class="financing-disclaimer" role="note">
+      <h3>Important notice</h3>
+      <ul>
+        <li>
+          Rates, tenors, requirements and final conditions are confirmed only through a formal
+          proposal issued by I-ME or the relevant financing partner.
+        </li>
+        <li>
+          Information on this page is indicative and does not constitute a binding offer, loan
+          approval or irrevocable commitment.
+        </li>
+        <li>
+          Any financing route may depend on document review, availability, commercial approval and
+          third-party policies.
+        </li>
+      </ul>
+    </div>
+
+    <div style="text-align:center;margin-top:var(--space-xl)">
+      <a href="/en/contact" class="btn btn-primary">Contact an Advisor</a>
+    </div>
   </section>
 </Layout>
+
+<style>
+  .section-tag-light {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: white;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 0.3rem 0.875rem;
+    border-radius: 999px;
+    margin-block-end: 0.75rem;
+  }
+  .financing-intro {
+    max-width: 760px;
+    margin-inline: auto;
+    margin-block-end: var(--space-2xl);
+  }
+  .financing-intro h2 {
+    font-size: var(--step-2);
+    color: var(--ink);
+    margin-block-end: 1rem;
+  }
+  .financing-intro p {
+    color: var(--text-mid);
+  }
+  .financing-features {
+    margin-block-end: var(--space-xl);
+  }
+  .financing-features h2 {
+    margin-block-end: var(--space-lg);
+  }
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .feature-card {
+    background: var(--off);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    border: 1px solid var(--border);
+  }
+  .feature-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: inline-grid;
+    place-items: center;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 999px;
+    color: white;
+    background: var(--t700);
+    margin-block-end: 0.75rem;
+  }
+  .feature-card h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0 0 0.5rem;
+  }
+  .feature-card p {
+    font-size: 0.875rem;
+    color: var(--text-mid);
+    margin: 0;
+  }
+  .financing-disclaimer {
+    background: #fff8e1;
+    border: 1px solid #f9c74f;
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+  }
+  .financing-disclaimer h3 {
+    color: #a67c00;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+  }
+  .financing-disclaimer ul {
+    margin: 0;
+    padding: 0 0 0 1.25rem;
+    color: #6b5300;
+    font-size: 0.8rem;
+  }
+  .financing-disclaimer li {
+    margin-block-end: 0.25rem;
+  }
+</style>

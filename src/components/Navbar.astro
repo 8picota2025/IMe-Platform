@@ -511,145 +511,206 @@ const altHref = getLocalizedPath(currentPath, altLocale);
 <script>
   import { resetTransientUiState } from '../lib/motion';
 
-  // Navbar scroll shadow
-  const navbar = document.getElementById('navbar');
-  if (navbar) {
-    window.addEventListener(
-      'scroll',
-      () => {
-        navbar.classList.toggle('scrolled', window.scrollY > 10);
-      },
-      { passive: true }
-    );
+  type NavbarWindow = Window & {
+    __imeNavbarLifecycleInstalled?: boolean;
+    __imeNavbarCarritoInstalled?: boolean;
+    __imeNavbarCotizacionInstalled?: boolean;
+    __imeNavbarAbrirCarrito?: () => void;
+    __imeNavbarAbrirCotizacion?: () => void;
+    __imeNavbarGetCarritoCantidad?: () => number;
+    __imeNavbarGetCotizacionCantidad?: () => number;
+  };
+
+  const win = window as NavbarWindow;
+
+  function getNavbarElements() {
+    return {
+      navbar: document.getElementById('navbar'),
+      themeBtn: document.getElementById('theme-toggle'),
+      menuToggle: document.getElementById('menu-toggle'),
+      mobileMenu: document.getElementById('mobile-menu'),
+      carritoBtn: document.getElementById('nav-carrito-btn'),
+      carritoBadge: document.getElementById('nav-carrito-badge'),
+      cotizacionBtn: document.getElementById('nav-cotizacion-btn'),
+      cotizacionBadge: document.getElementById('nav-cotizacion-badge'),
+    };
   }
 
-  // Theme toggle
-  const themeBtn = document.getElementById('theme-toggle');
-  if (themeBtn) {
-    themeBtn.addEventListener('click', () => {
-      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-      const next = isDark ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', next);
-      try {
-        localStorage.setItem('ime-theme', next);
-      } catch {
-        /* ignore */
-      }
-      themeBtn.setAttribute(
-        'aria-label',
-        next === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'
-      );
-    });
+  function syncScrollShadow() {
+    const { navbar } = getNavbarElements();
+    navbar?.classList.toggle('scrolled', window.scrollY > 10);
   }
 
-  // Mobile menu with focus trap
-  const menuToggle = document.getElementById('menu-toggle');
-  const mobileMenu = document.getElementById('mobile-menu');
+  function renderCarritoBadge(cantidad: number) {
+    const { carritoBadge } = getNavbarElements();
+    if (!carritoBadge) return;
+    carritoBadge.textContent = String(cantidad);
+    carritoBadge.style.display = cantidad > 0 ? 'flex' : 'none';
+  }
+
+  function renderCotizacionBadge(cantidad: number) {
+    const { cotizacionBadge } = getNavbarElements();
+    if (!cotizacionBadge) return;
+    cotizacionBadge.textContent = String(cantidad);
+    cotizacionBadge.style.display = cantidad > 0 ? 'flex' : 'none';
+  }
+
+  function closeMenu(options?: { restoreFocus?: boolean }) {
+    const { mobileMenu, menuToggle } = getNavbarElements();
+    if (!mobileMenu || !menuToggle) return;
+    mobileMenu.setAttribute('hidden', '');
+    menuToggle.setAttribute('aria-expanded', 'false');
+    menuToggle.setAttribute('aria-label', menuToggle.dataset['openLabel'] ?? 'Abrir menú');
+    document.body.style.overflow = '';
+    if (options?.restoreFocus !== false) {
+      menuToggle.focus();
+    }
+  }
 
   function openMenu() {
+    const { mobileMenu, menuToggle } = getNavbarElements();
     if (!mobileMenu || !menuToggle) return;
     resetTransientUiState();
     mobileMenu.removeAttribute('hidden');
     menuToggle.setAttribute('aria-expanded', 'true');
     menuToggle.setAttribute('aria-label', menuToggle.dataset['closeLabel'] ?? 'Cerrar menú');
     document.body.style.overflow = 'hidden';
-    // Focus first link
-    const firstLink = mobileMenu.querySelector<HTMLElement>('a, button');
-    firstLink?.focus();
+    mobileMenu.querySelector<HTMLElement>('a, button')?.focus();
   }
 
-  function closeMenu() {
-    if (!mobileMenu || !menuToggle) return;
-    mobileMenu.setAttribute('hidden', '');
-    menuToggle.setAttribute('aria-expanded', 'false');
-    menuToggle.setAttribute('aria-label', menuToggle.dataset['openLabel'] ?? 'Abrir menú');
-    document.body.style.overflow = '';
-    menuToggle.focus();
+  function initNavbar() {
+    const { themeBtn, menuToggle, mobileMenu, carritoBtn, cotizacionBtn } = getNavbarElements();
+
+    syncScrollShadow();
+
+    if (themeBtn && themeBtn.dataset['imeBound'] !== 'true') {
+      themeBtn.dataset['imeBound'] = 'true';
+      themeBtn.addEventListener('click', () => {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const next = isDark ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        try {
+          localStorage.setItem('ime-theme', next);
+        } catch {
+          /* ignore */
+        }
+        themeBtn.setAttribute(
+          'aria-label',
+          next === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'
+        );
+      });
+    }
+
+    if (menuToggle && menuToggle.dataset['imeBound'] !== 'true') {
+      menuToggle.dataset['imeBound'] = 'true';
+      menuToggle.dataset['openLabel'] = menuToggle.getAttribute('aria-label') ?? 'Abrir menú';
+      menuToggle.dataset['closeLabel'] = 'Cerrar menú de navegación';
+      menuToggle.addEventListener('click', () => {
+        const isOpen = menuToggle.getAttribute('aria-expanded') === 'true';
+        if (isOpen) {
+          closeMenu();
+        } else {
+          openMenu();
+        }
+      });
+    }
+
+    if (mobileMenu && mobileMenu.dataset['imeBound'] !== 'true') {
+      mobileMenu.dataset['imeBound'] = 'true';
+      mobileMenu.addEventListener('keydown', e => {
+        if (e.key !== 'Tab') return;
+        const focusable = Array.from(
+          mobileMenu.querySelectorAll<HTMLElement>('a, button, [tabindex]:not([tabindex="-1"])')
+        );
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (!first || !last) return;
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      });
+
+      mobileMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => closeMenu({ restoreFocus: false }));
+      });
+    }
+
+    if (carritoBtn && carritoBtn.dataset['imeBound'] !== 'true') {
+      carritoBtn.dataset['imeBound'] = 'true';
+      carritoBtn.addEventListener('click', () => win.__imeNavbarAbrirCarrito?.());
+    }
+
+    if (cotizacionBtn && cotizacionBtn.dataset['imeBound'] !== 'true') {
+      cotizacionBtn.dataset['imeBound'] = 'true';
+      cotizacionBtn.addEventListener('click', () => win.__imeNavbarAbrirCotizacion?.());
+    }
+
+    if (win.__imeNavbarGetCarritoCantidad) {
+      renderCarritoBadge(win.__imeNavbarGetCarritoCantidad());
+    }
+
+    if (win.__imeNavbarGetCotizacionCantidad) {
+      renderCotizacionBadge(win.__imeNavbarGetCotizacionCantidad());
+    }
   }
 
-  if (menuToggle) {
-    menuToggle.dataset['openLabel'] = menuToggle.getAttribute('aria-label') ?? 'Abrir menú';
-    menuToggle.dataset['closeLabel'] = 'Cerrar menú de navegación';
-    menuToggle.addEventListener('click', () => {
-      const isOpen = menuToggle.getAttribute('aria-expanded') === 'true';
-      if (isOpen) {
+  if (!win.__imeNavbarLifecycleInstalled) {
+    win.__imeNavbarLifecycleInstalled = true;
+
+    window.addEventListener(
+      'scroll',
+      () => {
+        syncScrollShadow();
+      },
+      { passive: true }
+    );
+
+    document.addEventListener('keydown', e => {
+      const { menuToggle } = getNavbarElements();
+      if (e.key === 'Escape' && menuToggle?.getAttribute('aria-expanded') === 'true') {
         closeMenu();
-      } else {
-        openMenu();
       }
+    });
+
+    document.addEventListener('astro:page-load', () => {
+      initNavbar();
     });
   }
 
-  // Escape key closes menu
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && menuToggle?.getAttribute('aria-expanded') === 'true') {
-      closeMenu();
-    }
-  });
-
-  // Focus trap inside mobile menu
-  if (mobileMenu) {
-    mobileMenu.addEventListener('keydown', e => {
-      if (e.key !== 'Tab') return;
-      const focusable = Array.from(
-        mobileMenu.querySelectorAll<HTMLElement>('a, button, [tabindex]:not([tabindex="-1"])')
-      );
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (!first || !last) return;
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    });
+  if (!win.__imeNavbarCarritoInstalled) {
+    win.__imeNavbarCarritoInstalled = true;
+    void (async () => {
+      const { getCarritoCantidad, suscribirCarrito, abrirCarrito } = await import('../lib/carrito');
+      win.__imeNavbarAbrirCarrito = abrirCarrito;
+      win.__imeNavbarGetCarritoCantidad = getCarritoCantidad;
+      renderCarritoBadge(getCarritoCantidad());
+      suscribirCarrito(items => {
+        const total = items.reduce((sum, item) => sum + item.cantidad, 0);
+        renderCarritoBadge(total);
+      });
+      initNavbar();
+    })();
   }
 
-  // Close menu on link click
-  mobileMenu?.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', closeMenu);
-  });
+  if (!win.__imeNavbarCotizacionInstalled) {
+    win.__imeNavbarCotizacionInstalled = true;
+    void (async () => {
+      const { getCotizacionCantidad, suscribirCotizacion, abrirCotizacion } =
+        await import('../lib/cotizacion-equipos');
+      win.__imeNavbarAbrirCotizacion = abrirCotizacion;
+      win.__imeNavbarGetCotizacionCantidad = getCotizacionCantidad;
+      renderCotizacionBadge(getCotizacionCantidad());
+      suscribirCotizacion(items => {
+        const total = items.reduce((sum, item) => sum + item.cantidad, 0);
+        renderCotizacionBadge(total);
+      });
+      initNavbar();
+    })();
+  }
 
-  // Carrito de consumibles
-  void (async () => {
-    const { getCarritoCantidad, suscribirCarrito, abrirCarrito } = await import('../lib/carrito');
-    const carritoBtn = document.getElementById('nav-carrito-btn');
-    const carritoBadge = document.getElementById('nav-carrito-badge');
-
-    function renderCarritoBadge(cantidad: number) {
-      if (!carritoBadge) return;
-      carritoBadge.textContent = String(cantidad);
-      carritoBadge.style.display = cantidad > 0 ? 'flex' : 'none';
-    }
-
-    renderCarritoBadge(getCarritoCantidad());
-    suscribirCarrito(items => {
-      const total = items.reduce((sum, item) => sum + item.cantidad, 0);
-      renderCarritoBadge(total);
-    });
-    carritoBtn?.addEventListener('click', () => abrirCarrito());
-  })();
-
-  // Lista de cotización de equipos
-  void (async () => {
-    const { getCotizacionCantidad, suscribirCotizacion, abrirCotizacion } =
-      await import('../lib/cotizacion-equipos');
-    const cotizacionBtn = document.getElementById('nav-cotizacion-btn');
-    const cotizacionBadge = document.getElementById('nav-cotizacion-badge');
-
-    function renderCotizacionBadge(cantidad: number) {
-      if (!cotizacionBadge) return;
-      cotizacionBadge.textContent = String(cantidad);
-      cotizacionBadge.style.display = cantidad > 0 ? 'flex' : 'none';
-    }
-
-    renderCotizacionBadge(getCotizacionCantidad());
-    suscribirCotizacion(items => {
-      const total = items.reduce((sum, item) => sum + item.cantidad, 0);
-      renderCotizacionBadge(total);
-    });
-    cotizacionBtn?.addEventListener('click', () => abrirCotizacion());
-  })();
+  initNavbar();
 </script>
