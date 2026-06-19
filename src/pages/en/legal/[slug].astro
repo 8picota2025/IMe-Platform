@@ -1,15 +1,18 @@
 ---
-import Layout from '../../../layouts/Layout.astro'
-import { buildCanonical, buildPageTitle } from '../../../lib/seo'
-import { getLegalPages } from '../../../lib/legal'
+import Layout from '../../../layouts/Layout.astro';
+import { buildCanonical, buildPageTitle } from '../../../lib/seo';
+import { getLegalPages } from '../../../lib/legal';
 
 export function getStaticPaths() {
-  return getLegalPages('en').map((page) => ({ params: { slug: page.slug }, props: { page } }))
+  const staticSlugs = new Set(['privacy', 'data-authorization', 'terms']);
+  return getLegalPages('en')
+    .filter(page => !staticSlugs.has(page.slug))
+    .map(page => ({ params: { slug: page.slug }, props: { page } }));
 }
 
-const { page } = Astro.props
-const locale = 'en'
-const currentPath = `/en/legal/${page.slug}`
+const { page } = Astro.props;
+const locale = 'en';
+const currentPath = `/en/legal/${page.slug}`;
 ---
 
 <Layout
@@ -27,10 +30,10 @@ const currentPath = `/en/legal/${page.slug}`
       <p class="legal-page__updated">Last updated: {page.updated}</p>
 
       {
-        page.sections.map((section) => (
+        page.sections.map(section => (
           <section class="legal-section">
             <h2>{section.heading}</h2>
-            {section.body.map((paragraph) => (
+            {section.body.map(paragraph => (
               <p>{paragraph}</p>
             ))}
           </section>
