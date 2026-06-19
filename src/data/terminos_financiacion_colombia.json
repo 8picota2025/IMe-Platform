@@ -1,0 +1,196 @@
+{
+  "titulo": "Términos y Condiciones de Financiación — Colombia",
+  "vigencia": "2026-06-19",
+  "pais": "Colombia",
+  "moneda": "COP",
+  "proveedor": "International Medical Enterprise — I-ME",
+
+  "parametros_principales": {
+    "tasa_interes_anual": {
+      "valor": 12,
+      "unidad": "% anual",
+      "tipo": "tasa nominal anual",
+      "descripcion": "Tasa de interés fija para toda la duración del crédito"
+    },
+    "plazo_maximo": {
+      "meses": 60,
+      "anos": 5,
+      "opciones_disponibles": [12, 24, 36, 48, 60],
+      "descripcion": "Plazo máximo de financiación con opción de elegir períodos intermedios"
+    },
+    "aporte_cliente": {
+      "porcentaje": 50,
+      "descripcion": "Aporte inicial obligatorio que debe realizar el cliente del costo total del equipo",
+      "monto_financiable_maximo_porcentaje": 50,
+      "nota": "Esta restricción es OBLIGATORIA. No se pueden financiar más del 50% del valor del equipo."
+    }
+  },
+
+  "limites_crediticios": {
+    "monto_minimo": {
+      "valor": 1000000,
+      "moneda": "COP",
+      "nota": "Monto mínimo a financiar"
+    },
+    "monto_maximo": {
+      "valor": 500000000,
+      "moneda": "COP",
+      "nota": "Monto máximo a financiar (considerando el 50% de aporte del cliente)"
+    },
+    "monto_maximo_considerando_aporte": {
+      "valor": 1000000000,
+      "moneda": "COP",
+      "descripcion": "Valor total máximo del equipo (cliente aporta 500M, financiamos 500M)"
+    }
+  },
+
+  "restricciones_legales": {
+    "aporte_inicial_obligatorio": {
+      "condicion": "OBLIGATORIA",
+      "porcentaje": 50,
+      "descripcion": "El cliente DEBE aportar mínimo el 50% del costo total del equipo antes de acceder al financiamiento",
+      "implicacion": "Si el equipo cuesta 100M COP, el cliente aporta 50M COP y pueden financiar máximo 50M COP"
+    },
+    "comprobante_aporte": {
+      "requerido": true,
+      "descripcion": "Se requiere comprobante de pago del aporte inicial para procesar el financiamiento"
+    },
+    "destino_credito": {
+      "restriccion": "El crédito es EXCLUSIVAMENTE para adquisición de equipos biomédicos I-ME",
+      "prohibiciones": [
+        "No puede utilizarse para otros fines",
+        "No puede transferirse a terceros",
+        "No puede asignarse como garantía sin previa aprobación escrita"
+      ]
+    },
+    "solicitantes_elegibles": {
+      "categorias": [
+        "Profesionales médicos independientes",
+        "Clínicas y centros médicos privados",
+        "Instituciones de salud (hospitales, centros radiológicos, laboratorios)"
+      ],
+      "requisitos_minimos": [
+        "Registro profesional o legal actualizado",
+        "Capacidad financiera documentada",
+        "Referencias comerciales vigentes"
+      ]
+    }
+  },
+
+  "calculo_financiero": {
+    "ejemplo_practico": {
+      "costo_equipo": 100000000,
+      "aporte_cliente_50_porciento": 50000000,
+      "monto_financiable": 50000000,
+      "tasa_anual": 12,
+      "plazo_meses": 60,
+      "cuota_mensual_aproximada": 1055728,
+      "nota": "Cálculo aproximado con tasa fija del 12% anual sobre saldo"
+    },
+    "formula_cuota": "Cuota = Monto × [r(1+r)^n] / [(1+r)^n - 1]",
+    "donde": {
+      "r": "tasa mensual = 12% anual / 12 = 1% mensual = 0.01",
+      "n": "número de cuotas (60 para 5 años)"
+    }
+  },
+
+  "proceso_solicitud": {
+    "paso_1": "Cliente presenta solicitud con especificaciones del equipo",
+    "paso_2": "I-ME genera cotización formal con costo total",
+    "paso_3": "Cliente confirma aporte del 50% y autoriza crédito",
+    "paso_4": "Cliente realiza pago del 50% inicial",
+    "paso_5": "I-ME procesa crédito y desembolsa monto financiable",
+    "paso_6": "Equipo se entrega cuando ambos montos están confirmados"
+  },
+
+  "garantias_y_seguridad": {
+    "garantia_equipo": {
+      "duracion": "Según especificaciones técnicas del fabricante",
+      "cobertura": "Defectos de fabricación y funcionamiento",
+      "nota": "La garantía NO cubre daños por mal uso o accidentes"
+    },
+    "respaldo_credito": {
+      "opciones": [
+        "Garantía hipotecaria (si aplica)",
+        "Garantía personal de director/propietario",
+        "Póliza de seguros de deudor",
+        "A evaluar según caso"
+      ]
+    },
+    "seguro_deudor": {
+      "recomendado": true,
+      "proposito": "Proteger al cliente y a I-ME en caso de fallecimiento o incapacidad"
+    }
+  },
+
+  "condiciones_cobranza": {
+    "fecha_inicio_cuotas": "Primer mes después del desembolso",
+    "frecuencia_pago": "Mensual",
+    "medio_pago": "Transferencia bancaria directa a I-ME",
+    "dia_vencimiento": "A acordar entre partes (sugerencia: día 5 o 15 de cada mes)",
+    "penalidad_atraso": {
+      "interes_mora": "1% mensual sobre cuota vencida",
+      "gastos_cobranza": "Gastos administrativos y legales a cargo del deudor",
+      "nota": "Se aplicarán conforme a la legislación comercial colombiana"
+    },
+    "prepago": {
+      "permitido": true,
+      "penalidad": "No aplica penalidad por prepago",
+      "beneficio": "Reduce el total de intereses a pagar"
+    }
+  },
+
+  "normativa_legal": {
+    "jurisdiccion": "República de Colombia",
+    "codigo_aplicable": [
+      "Código de Comercio Colombiano",
+      "Código Civil Colombiano",
+      "Estatuto Orgánico del Sistema Financiero",
+      "Regulación Superintendencia Financiera de Colombia (si aplica)"
+    ],
+    "ley_consumidor": "Ley 1480 de 2011 (Estatuto del Consumidor) — si aplica",
+    "tributacion": "Según normativa tributaria vigente en Colombia",
+    "regulacion_financiera": "Sujeto a vigilancia de autoridades competentes según tipo de solicitante"
+  },
+
+  "proteccion_datos": {
+    "datos_personales": "Conforme a Ley 1581 de 2012 y Decreto 1377 de 2013 (HABEAS DATA)",
+    "confidencialidad": "I-ME se compromete a proteger y no divulgar información del cliente",
+    "excepciones": "Puede compartirse con instituciones financieras, aseguradoras y autoridades legales cuando sea requerido"
+  },
+
+  "causas_terminacion_anticipada": {
+    "por_cliente": "Puede terminar anticipadamente mediante prepago total sin penalidad",
+    "por_incumplimiento": [
+      "3 cuotas consecutivas sin pagar",
+      "Incumplimiento de cláusulas de destinación del crédito",
+      "Usar el equipo como garantía sin autorización"
+    ],
+    "consecuencias_incumplimiento": [
+      "Demanda judicial por cobranza",
+      "Retención/recuperación del equipo",
+      "Costas legales a cargo del deudor",
+      "Reporte a centrales de riesgo"
+    ]
+  },
+
+  "revision_legal": {
+    "estado": "BORRADOR — Requiere validación legal formal",
+    "pendiente": "Revisión y firma de abogado especializado en derecho comercial y financiero",
+    "antes_de_publicar": "OBLIGATORIO obtener aprobación legal y del cliente antes de cualquier publicación o vinculación"
+  },
+
+  "observaciones_comerciales": {
+    "nota_1": "Estos términos son básicos y deben adaptarse a cada caso específico",
+    "nota_2": "Tasas y condiciones pueden variar según análisis de riesgo crediticio",
+    "nota_3": "Requiere comunicación clara al cliente en momento de cotización",
+    "nota_4": "Debe incluirse en contrato formal firmado por ambas partes"
+  },
+
+  "historial": {
+    "creacion": "2026-06-19",
+    "version": "1.0",
+    "autor": "Claude Code — Solicitud del cliente I-ME",
+    "validacion_pendiente": "Abogado especializado en derecho comercial"
+  }
+}

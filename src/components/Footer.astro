@@ -2,14 +2,15 @@
 /**
  * Footer — datos reales de contenido_ime.json: contacto, links, familias, slogan, copyright.
  */
-import type { Locale } from '../i18n/utils'
-import { t, getLocalizedPath } from '../i18n/utils'
+import type { Locale } from '../i18n/utils';
+import { t, getLocalizedPath } from '../i18n/utils';
+import { getLegalSlug, type LegalKind } from '../lib/legal';
 
 interface Props {
-  locale: Locale
+  locale: Locale;
 }
 
-const { locale } = Astro.props
+const { locale } = Astro.props;
 
 const familias = [
   { slug: 'monitores', label_es: 'Monitores de Signos Vitales', label_en: 'Patient Monitors' },
@@ -20,10 +21,17 @@ const familias = [
   { slug: 'soluciones-iv', label_es: 'Soluciones IV', label_en: 'IV Solutions' },
   { slug: 'mobiliario', label_es: 'Mobiliario Hospitalario', label_en: 'Hospital Furniture' },
   { slug: 'anestesia', label_es: 'Anestesia y Ventilación', label_en: 'Anesthesia & Ventilation' },
-]
+];
 
-const catalogoBase = getLocalizedPath('/catalogo', locale)
-const year = new Date().getFullYear()
+const catalogoBase = getLocalizedPath('/catalogo', locale);
+const year = new Date().getFullYear();
+const legalLinks: Array<{ kind: LegalKind; label: string }> = [
+  { kind: 'privacidad', label: t(locale, 'footer.privacidad') },
+  { kind: 'habeas-data', label: t(locale, 'footer.habeas_data') },
+  { kind: 'cookies', label: t(locale, 'footer.cookies') },
+  { kind: 'terminos', label: t(locale, 'footer.terminos') },
+  { kind: 'copyright', label: t(locale, 'footer.copyright') },
+];
 ---
 
 <footer class="footer" role="contentinfo">
@@ -67,7 +75,7 @@ const year = new Date().getFullYear()
       <h3 class="footer__heading">{t(locale, 'footer.categorias')}</h3>
       <ul role="list">
         {
-          familias.map((f) => (
+          familias.map(f => (
             <li>
               <a href={`${catalogoBase}?cat=${f.slug}`}>
                 {locale === 'en' ? f.label_en : f.label_es}
@@ -108,9 +116,11 @@ const year = new Date().getFullYear()
         {t(locale, 'footer.pais')} &middot; {t(locale, 'footer.certif')}
       </p>
       <nav class="footer__legal" aria-label={t(locale, 'footer.legal')}>
-        <!-- BLOQUEANTE_LEGAL: textos legales se crean en F5 -->
-        <a href="#" aria-disabled="true">{t(locale, 'footer.privacidad')}</a>
-        <a href="#" aria-disabled="true">{t(locale, 'footer.terminos')}</a>
+        {
+          legalLinks.map(link => (
+            <a href={`/${locale}/legal/${getLegalSlug(link.kind, locale)}`}>{link.label}</a>
+          ))
+        }
       </nav>
     </div>
   </div>
@@ -118,8 +128,8 @@ const year = new Date().getFullYear()
 
 <style>
   .footer {
-    background: var(--ink);
-    color: var(--text-muted);
+    background: var(--footer-bg);
+    color: var(--footer-text-muted);
     margin-top: auto;
   }
   .footer__inner {
@@ -169,7 +179,7 @@ const year = new Date().getFullYear()
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.5);
     margin-block-end: 1rem;
     margin-block-start: 0;
   }
@@ -204,16 +214,17 @@ const year = new Date().getFullYear()
   .footer__copy,
   .footer__certif {
     font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.35);
+    color: rgba(255, 255, 255, 0.5);
     margin: 0;
   }
   .footer__legal {
     display: flex;
+    flex-wrap: wrap;
     gap: 1rem;
   }
   .footer__legal a {
     font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.35);
+    color: rgba(255, 255, 255, 0.5);
     text-decoration: none;
     transition: color 180ms var(--ease);
   }

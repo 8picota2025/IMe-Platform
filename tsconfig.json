@@ -1,9 +1,35 @@
 {
-  "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "strict": true,
+    "noUncheckedIndexedAccess": false,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": false,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "declaration": true,
+    "declarationMap": true,
+    "composite": false,
+    "baseUrl": ".",
+    "paths": {
+      "@ime/shared/*": ["packages/shared/src/*"],
+      "@ime/config/*": ["packages/config/*"]
+    }
   },
-  "include": [".astro/types.d.ts", "**/*"],
-  "exclude": ["dist", "node_modules", "supabase/functions"]
+  "include": [".astro/types.d.ts", "**/*", "packages/shared/src/**/*"],
+  "exclude": [
+    "dist",
+    "node_modules",
+    "supabase/functions",
+    "packages/*/node_modules",
+    "packages/*/dist"
+  ]
 }

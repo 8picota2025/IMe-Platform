@@ -19,9 +19,15 @@ the healthcare sector in Colombia and Latin America.
 - Home: https://i-me.com.co/es/ | https://i-me.com.co/en/
 - Catalog (24 products, 8 categories, filters and search): https://i-me.com.co/es/catalogo | https://i-me.com.co/en/catalog
 - Services: https://i-me.com.co/es/servicios | https://i-me.com.co/en/services
-- Financing (informational, no live simulator yet): https://i-me.com.co/es/financiacion | https://i-me.com.co/en/financing
+- Financing (indicative simulator; no binding rates): https://i-me.com.co/es/financiacion | https://i-me.com.co/en/financing
 - Contact (quote request form): https://i-me.com.co/es/contacto | https://i-me.com.co/en/contact
 - Knowledge center (coming soon, no articles published yet): https://i-me.com.co/es/conocimiento | https://i-me.com.co/en/knowledge
+- Legal drafts for review:
+  - Privacy: https://i-me.com.co/es/legal/privacidad | https://i-me.com.co/en/legal/privacy
+  - Data authorization: https://i-me.com.co/es/legal/habeas-data | https://i-me.com.co/en/legal/data-authorization
+  - Cookies: https://i-me.com.co/es/legal/cookies | https://i-me.com.co/en/legal/cookies
+  - Terms: https://i-me.com.co/es/legal/terminos | https://i-me.com.co/en/legal/terms
+  - Copyright: https://i-me.com.co/es/legal/copyright | https://i-me.com.co/en/legal/copyright
 
 ## Catalog — categories and products
 
@@ -108,5 +114,7 @@ All prices and financing terms are delivered through formal quotes.
 - All equipment is INVIMA certified for the Colombian healthcare market.
 - Prices are quoted individually — no public pricing.
 - This site does not provide medical diagnoses or clinical recommendations.
-- Online checkout, cart and live financing simulator are not yet available — all
-  purchases go through a quote request via the contact form, WhatsApp or phone.
+- Consumables may use online checkout only when real price, stock and provider are configured.
+- Equipment is handled through quote or personalized advisory workflows.
+- Financing simulator is indicative and never a binding offer.
+- Legal pages are drafts marked COPY_CLIENTE_REVISAR / BLOQUEANTE_LEGAL until approved.

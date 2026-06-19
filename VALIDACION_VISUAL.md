@@ -1,25 +1,23 @@
-# VALIDACION VISUAL — F0
+# VALIDACION VISUAL F5
 
-## Estado actual del sitio (i-me.com.co/77/)
+## Estado
 
-| Elemento          | Estado                       | Notas                                                   |
-| ----------------- | ---------------------------- | ------------------------------------------------------- |
-| Paleta de colores | Extraído vía computed style  | Revisar CSS fuente en `public/assets/extraccion/css/`   |
-| Tipografía        | Detectada por computed style | Verificar @font-face y weights exactos                  |
-| Logo              | ✓ Descargado                 | `public/assets/extraccion/img/logo-ime.png`             |
-| Video hero        | ✓ Descargado                 | `public/assets/extraccion/video/quirofano-completo.mp4` |
-| Animaciones       | GSAP detectado               | Confirmar librerías exactas inspeccionando network      |
-| Imágenes producto | ✓ 15 descargadas             | `public/assets/extraccion/img/ImgXX.jpg`                |
+NO_EJECUTADO_ENTORNO: no se ejecutó auditoría visual con navegador real en esta pasada.
 
-## Tokens extraídos
+## Cobertura requerida
 
-Ver `src/styles/tokens-extraidos.json` y `public/assets/extraccion/css/` para CSS fuente.
+- Desktop y mobile: `/es/`, `/en/`, catálogo, landing de producto, contacto, financiación, legales y resultados de pago.
+- Drawers: carrito, lista de cotización y asesor.
+- Admin: login, dashboard, productos, cotizaciones, pedidos, ingesta PDF y rebuild.
 
-Los tokens CSS custom properties deben confirmarse en F1 antes de construir `globals.css`.
+## Hallazgos abiertos
 
-## Pendiente de validación visual (NO_EJECUTADO_ENTORNO)
+- `[Legales] [Menor]` Las páginas legales usan estilos funcionales y sobrios. Evidencia pendiente con capturas. Fix: revisar spacing/contraste en navegador.
+- `[Footer] [Menor]` Footer ahora tiene cinco enlaces legales; revisar wrapping en mobile. Evidencia pendiente con capturas.
 
-- Comparar visualmente el sitio actual con el diseño extraído
-- Confirmar paleta exacta (HEX/HSL) desde CSS fuente descargado
-- Verificar pesos tipográficos y URLs de @font-face
-- Confirmar breakpoints de responsive design
+## Comandos sugeridos
+
+```bash
+npm run dev
+# Abrir http://localhost:44334/es/legal/privacidad y http://localhost:44334/en/legal/privacy
+```

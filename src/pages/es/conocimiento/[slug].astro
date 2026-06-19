@@ -1,0 +1,141 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import {
+  buildPageTitle,
+  buildCanonical,
+  buildOrganizationJsonLd,
+  buildBreadcrumbJsonLd,
+  combineJsonLd,
+} from '../../../lib/seo';
+import { getArticulos, type Articulo } from '../../../lib/datos';
+import { renderMarkdown, stripMarkdown } from '../../../lib/markdown';
+import { t } from '../../../i18n/utils';
+
+const locale = 'es';
+
+export async function getStaticPaths() {
+  const articulos = await getArticulos('es');
+  return articulos.map(articulo => ({
+    params: { slug: articulo.slug },
+    props: { articulo },
+  }));
+}
+
+interface Props {
+  articulo: Articulo;
+}
+
+const { articulo } = Astro.props as Props;
+const canonical = buildCanonical(`/es/conocimiento/${articulo.slug}`);
+const title = buildPageTitle(articulo.titulo);
+const description = stripMarkdown(articulo.cuerpo || articulo.titulo).slice(0, 155);
+
+const jsonLd = combineJsonLd(
+  buildOrganizationJsonLd(),
+  buildBreadcrumbJsonLd([
+    { name: t(locale, 'catalogo.migas_inicio'), url: buildCanonical('/es/') },
+    { name: t(locale, 'conocimiento.titulo'), url: buildCanonical('/es/conocimiento') },
+    { name: articulo.titulo, url: canonical },
+  ]),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: articulo.titulo,
+    description,
+    datePublished: articulo.created_at,
+    dateModified: articulo.updated_at,
+    author: {
+      '@type': 'Organization',
+      name: 'I-ME International Medical Enterprise',
+    },
+    mainEntityOfPage: canonical,
+  }
+);
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  locale={locale}
+  currentPath={`/es/conocimiento/${articulo.slug}`}
+  jsonLd={jsonLd}
+>
+  <article class="article-page">
+    <div class="container article-shell">
+      <div class="article-hero">
+        <a class="article-back" href="/es/conocimiento">← {t(locale, 'conocimiento.volver')}</a>
+        <p class="article-meta">
+          {t(locale, 'conocimiento.publicado')}
+          {
+            new Date(articulo.created_at).toLocaleDateString('es-CO', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })
+          }
+          {' · '}
+          {t(locale, 'conocimiento.actualizado')}
+          {
+            new Date(articulo.updated_at).toLocaleDateString('es-CO', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })
+          }
+        </p>
+        <h1>{articulo.titulo}</h1>
+      </div>
+      <div
+        class="article-body"
+        set:html={renderMarkdown(articulo.cuerpo || t(locale, 'conocimiento.vacio'))}
+      />
+      <div class="article-footer">
+        <a href="/es/contacto" class="btn btn-primary">{t(locale, 'conocimiento.cta_contacto')}</a>
+      </div>
+    </div>
+  </article>
+</Layout>
+
+<style>
+  .article-page {
+    padding: 128px 0 var(--space-3xl);
+    background: linear-gradient(180deg, var(--off), transparent 32%);
+  }
+  .article-shell {
+    max-width: 900px;
+  }
+  .article-hero,
+  .article-body,
+  .article-footer {
+    background: var(--card);
+    border: 1px solid color-mix(in srgb, var(--line) 90%, transparent);
+    border-radius: 1.5rem;
+    box-shadow: 0 16px 44px rgba(20, 38, 64, 0.08);
+  }
+  .article-hero {
+    padding: 1.5rem;
+  }
+  .article-back {
+    display: inline-block;
+    margin-bottom: 1rem;
+  }
+  .article-meta {
+    margin: 0 0 0.75rem;
+    color: var(--text-mid);
+  }
+  .article-hero h1 {
+    margin: 0;
+  }
+  .article-body {
+    margin-top: 1rem;
+    padding: 1.5rem;
+    white-space: pre-wrap;
+    color: var(--text-high);
+    line-height: 1.7;
+  }
+  .article-footer {
+    margin-top: 1rem;
+    padding: 1.25rem 1.5rem;
+  }
+</style>

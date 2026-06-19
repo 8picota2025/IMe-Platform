@@ -6,9 +6,9 @@
     "familia_slug": "monitores",
     "tipo_id": null,
     "nombre_es": "Monitor Multiparamétrico UCI Avanzado",
-    "nombre_en": "COPY_CLIENTE_REVISAR — Advanced ICU Multiparameter Monitor",
+    "nombre_en": "Advanced ICU Multiparameter Monitor",
     "descripcion_corta_es": "Monitor táctil 15\" para UCI. SpO2, NIBP, ECG 5 deriv., temperatura, capnografía. Alarmas inteligentes, conectividad DICOM.",
-    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — 15\" touch monitor for ICU. SpO2, NIBP, 5-lead ECG, temperature, capnography. Smart alarms, DICOM connectivity.",
+    "descripcion_corta_en": "15\" touch monitor for ICU. SpO2, NIBP, 5-lead ECG, temperature, capnography. Smart alarms, DICOM connectivity.",
     "descripcion_larga_es": "",
     "descripcion_larga_en": "",
     "especificaciones": [],
@@ -31,9 +31,9 @@
     "familia_slug": "monitores",
     "tipo_id": null,
     "nombre_es": "Monitor Multiparamétrico Básico",
-    "nombre_en": "COPY_CLIENTE_REVISAR — Basic Multiparameter Monitor",
+    "nombre_en": "Basic Multiparameter Monitor",
     "descripcion_corta_es": "Monitor de signos vitales para hospitalización general. SpO2, NIBP, ECG 3 derivaciones, temperatura. Pantalla 10\".",
-    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — Vital signs monitor for general hospitalization. SpO2, NIBP, 3-lead ECG, temperature. 10\" screen.",
+    "descripcion_corta_en": "Vital signs monitor for general hospitalization. SpO2, NIBP, 3-lead ECG, temperature. 10\" screen.",
     "descripcion_larga_es": "",
     "descripcion_larga_en": "",
     "especificaciones": [],
@@ -56,9 +56,9 @@
     "familia_slug": "monitores",
     "tipo_id": null,
     "nombre_es": "Monitor de Transporte Prehospitalario",
-    "nombre_en": "COPY_CLIENTE_REVISAR — Pre-hospital Transport Monitor",
+    "nombre_en": "Pre-hospital Transport Monitor",
     "descripcion_corta_es": "Monitor compacto para ambulancias y traslados. Batería 4 horas, resistente a golpes, todas las variables vitales.",
-    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — Compact monitor for ambulances and transfers. 4-hour battery, shock-resistant, all vital variables.",
+    "descripcion_corta_en": "Compact monitor for ambulances and transfers. 4-hour battery, shock-resistant, all vital variables.",
     "descripcion_larga_es": "",
     "descripcion_larga_en": "",
     "especificaciones": [],
@@ -81,9 +81,9 @@
     "familia_slug": "monitores",
     "tipo_id": null,
     "nombre_es": "Monitor Central UCI Multicama",
-    "nombre_en": "COPY_CLIENTE_REVISAR — Multi-Bed ICU Central Monitor",
+    "nombre_en": "Multi-Bed ICU Central Monitor",
     "descripcion_corta_es": "Estación central de monitoreo para gestión de camas en UCI. Hasta 32 monitores por central, alertas inteligentes.",
-    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — Central monitoring station for ICU bed management. Up to 32 monitors per station, smart alerts.",
+    "descripcion_corta_en": "Central monitoring station for ICU bed management. Up to 32 monitors per station, smart alerts.",
     "descripcion_larga_es": "",
     "descripcion_larga_en": "",
     "especificaciones": [],
@@ -106,9 +106,9 @@
     "familia_slug": "cardiologia",
     "tipo_id": null,
     "nombre_es": "Electrocardiógrafo 12 Derivaciones Digital",
-    "nombre_en": "COPY_CLIENTE_REVISAR — 12-Lead Digital ECG Machine",
+    "nombre_en": "12-Lead Digital ECG Machine",
     "descripcion_corta_es": "ECG de 12 derivaciones con interpretación automática. Impresión térmica integrada, conectividad USB y red.",
-    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — 12-lead ECG with automatic interpretation. Integrated thermal printing, USB and network connectivity.",
+    "descripcion_corta_en": "12-lead ECG with automatic interpretation. Integrated thermal printing, USB and network connectivity.",
     "descripcion_larga_es": "",
     "descripcion_larga_en": "",
     "especificaciones": [],
@@ -131,9 +131,9 @@
     "familia_slug": "cardiologia",
     "tipo_id": null,
     "nombre_es": "Desfibrilador Bifásico con Monitor",
-    "nombre_en": "COPY_CLIENTE_REVISAR — Biphasic Defibrillator with Monitor",
+    "nombre_en": "Biphasic Defibrillator with Monitor",
     "descripcion_corta_es": "Desfibrilador bifásico con monitoreo ECG, marcapasos externo y capnografía. Carga en menos de 7 segundos.",
-    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — Biphasic defibrillator with ECG monitoring, external pacemaker and capnography. Charges in under 7 seconds.",
+    "descripcion_corta_en": "Biphasic defibrillator with ECG monitoring, external pacemaker and capnography. Charges in under 7 seconds.",
     "descripcion_larga_es": "",
     "descripcion_larga_en": "",
     "especificaciones": [],
@@ -156,9 +156,9 @@
     "familia_slug": "cardiologia",
     "tipo_id": null,
     "nombre_es": "Holter 24 Horas Ritmo Cardíaco",
-    "nombre_en": "COPY_CLIENTE_REVISAR — 24-Hour Cardiac Holter Monitor",
+    "nombre_en": "24-Hour Cardiac Holter Monitor",
     "descripcion_corta_es": "Sistema Holter ambulatorio de 24 horas. Análisis automático de arritmias, taquicardias y bloqueos cardíacos.",
-    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — 24-hour ambulatory Holter system. Automatic analysis of arrhythmias, tachycardias and cardiac blocks.",
+    "descripcion_corta_en": "24-hour ambulatory Holter system. Automatic analysis of arrhythmias, tachycardias and cardiac blocks.",
     "descripcion_larga_es": "",
     "descripcion_larga_en": "",
     "especificaciones": [],
@@ -181,9 +181,9 @@
     "familia_slug": "sala-cirugia",
     "tipo_id": null,
     "nombre_es": "Mesa Quirúrgica Motorizada Multiposición",
-    "nombre_en": "COPY_CLIENTE_REVISAR — Multi-Position Motorized Surgical Table",
+    "nombre_en": "Multi-Position Motorized Surgical Table",
     "descripcion_corta_es": "Mesa quirúrgica eléctrica con 6 posiciones motorizadas. Control por pedal y mando remoto. Altura ajustable 650–950mm.",
-    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — Electric surgical table with 6 motorized positions. Foot pedal and remote control. Adjustable height 650–950mm.",
+    "descripcion_corta_en": "Electric surgical table with 6 motorized positions. Foot pedal and remote control. Adjustable height 650–950mm.",
     "descripcion_larga_es": "",
     "descripcion_larga_en": "",
     "especificaciones": [],
@@ -206,9 +206,9 @@
     "familia_slug": "sala-cirugia",
     "tipo_id": null,
     "nombre_es": "Lámpara Cialítica LED Doble para Quirófano",
-    "nombre_en": "COPY_CLIENTE_REVISAR — Double LED Surgical Light for Operating Room",
+    "nombre_en": "Double LED Surgical Light for Operating Room",
     "descripcion_corta_es": "Doble lámpara LED de 120.000 lux para quirófano. Sin sombras, temperatura de color 4500K, brazo de montaje en techo.",
-    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — Double 120,000 lux LED lamp for OR. Shadowless, 4500K color temperature, ceiling mount arm.",
+    "descripcion_corta_en": "Double 120,000 lux LED lamp for OR. Shadowless, 4500K color temperature, ceiling mount arm.",
     "descripcion_larga_es": "",
     "descripcion_larga_en": "",
     "especificaciones": [],
@@ -231,9 +231,9 @@
     "familia_slug": "anestesia",
     "tipo_id": null,
     "nombre_es": "Máquina de Anestesia con Ventilador",
-    "nombre_en": "COPY_CLIENTE_REVISAR — Anesthesia Machine with Ventilator",
+    "nombre_en": "Anesthesia Machine with Ventilator",
     "descripcion_corta_es": "Máquina de anestesia con ventilador integrado. Vaporizadores intercambiables para sevoflurano e isoflurano. Monitor de agente.",
-    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — Anesthesia machine with integrated ventilator. Interchangeable vaporizers for sevoflurane and isoflurane. Agent monitor.",
+    "descripcion_corta_en": "Anesthesia machine with integrated ventilator. Interchangeable vaporizers for sevoflurane and isoflurane. Agent monitor.",
     "descripcion_larga_es": "",
     "descripcion_larga_en": "",
     "especificaciones": [],
@@ -256,9 +256,9 @@
     "familia_slug": "neonatologia",
     "tipo_id": null,
     "nombre_es": "Incubadora Neonatal de Transporte",
-    "nombre_en": "COPY_CLIENTE_REVISAR — Neonatal Transport Incubator",
+    "nombre_en": "Neonatal Transport Incubator",
     "descripcion_corta_es": "Incubadora neonatal de transporte con servo-temperatura, SpO2 integrado y batería de larga duración para traslados UCI.",
-    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — Neonatal transport incubator with servo-temperature, integrated SpO2 and long-life battery for ICU transfers.",
+    "descripcion_corta_en": "Neonatal transport incubator with servo-temperature, integrated SpO2 and long-life battery for ICU transfers.",
     "descripcion_larga_es": "",
     "descripcion_larga_en": "",
     "especificaciones": [],
@@ -281,9 +281,9 @@
     "familia_slug": "neonatologia",
     "tipo_id": null,
     "nombre_es": "Cuna de Calor Radiante Neonatal Servo",
-    "nombre_en": "COPY_CLIENTE_REVISAR — Servo Neonatal Radiant Warmer",
+    "nombre_en": "Servo Neonatal Radiant Warmer",
     "descripcion_corta_es": "Cuna de calor radiante con control servo-temperatura, fototerapia integrada y monitoreo de temperatura cutánea continuo.",
-    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — Radiant warmer with servo-temperature control, integrated phototherapy and continuous skin temperature monitoring.",
+    "descripcion_corta_en": "Radiant warmer with servo-temperature control, integrated phototherapy and continuous skin temperature monitoring.",
     "descripcion_larga_es": "",
     "descripcion_larga_en": "",
     "especificaciones": [],
@@ -306,9 +306,9 @@
     "familia_slug": "ultrasonido",
     "tipo_id": null,
     "nombre_es": "Ecógrafo Color Doppler Diagnóstico Vascular",
-    "nombre_en": "COPY_CLIENTE_REVISAR — Color Doppler Vascular Diagnostic Ultrasound",
+    "nombre_en": "Color Doppler Vascular Diagnostic Ultrasound",
     "descripcion_corta_es": "Ecógrafo con Color Doppler y Power Doppler. Sondas multifrecuencia para aplicaciones abdominales, obstétricas y vasculares. DICOM WiFi.",
-    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — Ultrasound with Color Doppler and Power Doppler. Multi-frequency probes for abdominal, obstetric and vascular applications. DICOM WiFi.",
+    "descripcion_corta_en": "Ultrasound with Color Doppler and Power Doppler. Multi-frequency probes for abdominal, obstetric and vascular applications. DICOM WiFi.",
     "descripcion_larga_es": "",
     "descripcion_larga_en": "",
     "especificaciones": [],
@@ -331,9 +331,9 @@
     "familia_slug": "ultrasonido",
     "tipo_id": null,
     "nombre_es": "Ecógrafo Portátil con WiFi y DICOM",
-    "nombre_en": "COPY_CLIENTE_REVISAR — Portable WiFi DICOM Ultrasound",
+    "nombre_en": "Portable WiFi DICOM Ultrasound",
     "descripcion_corta_es": "Ecógrafo portátil inalámbrico con conectividad WiFi y soporte DICOM. Ideal para urgencias y uso en consultorio.",
-    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — Wireless portable ultrasound with WiFi connectivity and DICOM support. Ideal for emergencies and clinic use.",
+    "descripcion_corta_en": "Wireless portable ultrasound with WiFi connectivity and DICOM support. Ideal for emergencies and clinic use.",
     "descripcion_larga_es": "",
     "descripcion_larga_en": "",
     "especificaciones": [],
@@ -356,9 +356,9 @@
     "familia_slug": "ultrasonido",
     "tipo_id": null,
     "nombre_es": "Ultrasonido Point-of-Care Pocket",
-    "nombre_en": "COPY_CLIENTE_REVISAR — Pocket Point-of-Care Ultrasound",
+    "nombre_en": "Pocket Point-of-Care Ultrasound",
     "descripcion_corta_es": "Ecógrafo de bolsillo para smartphone. Sonda lineal y convexa, conectividad WiFi, batería 1 hora de uso continuo.",
-    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — Pocket ultrasound for smartphone. Linear and convex probe, WiFi connectivity, 1-hour continuous use battery.",
+    "descripcion_corta_en": "Pocket ultrasound for smartphone. Linear and convex probe, WiFi connectivity, 1-hour continuous use battery.",
     "descripcion_larga_es": "",
     "descripcion_larga_en": "",
     "especificaciones": [],
@@ -381,9 +381,9 @@
     "familia_slug": "soluciones-iv",
     "tipo_id": null,
     "nombre_es": "Bomba de Infusión Volumétrica UCI",
-    "nombre_en": "COPY_CLIENTE_REVISAR — ICU Volumetric Infusion Pump",
+    "nombre_en": "ICU Volumetric Infusion Pump",
     "descripcion_corta_es": "Bomba de infusión volumétrica de alta precisión. Control 0.1–1200 ml/h, alarmas de oclusión y aire, antibolus. Sets universales.",
-    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — High-precision volumetric infusion pump. 0.1–1200 ml/h control, occlusion and air alarms, anti-bolus. Universal sets.",
+    "descripcion_corta_en": "High-precision volumetric infusion pump. 0.1–1200 ml/h control, occlusion and air alarms, anti-bolus. Universal sets.",
     "descripcion_larga_es": "",
     "descripcion_larga_en": "",
     "especificaciones": [],
@@ -406,9 +406,9 @@
     "familia_slug": "soluciones-iv",
     "tipo_id": null,
     "nombre_es": "Bomba de Jeringa Precisión Microdosis",
-    "nombre_en": "COPY_CLIENTE_REVISAR — Precision Microdose Syringe Pump",
+    "nombre_en": "Precision Microdose Syringe Pump",
     "descripcion_corta_es": "Bomba de jeringa para microdosis en UCI. Exactitud ±2%, rango 0.1–1500 ml/h, compatible jeringas 10–60 ml.",
-    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — Syringe pump for ICU microdosing. Accuracy ±2%, range 0.1–1500 ml/h, compatible with 10–60 ml syringes.",
+    "descripcion_corta_en": "Syringe pump for ICU microdosing. Accuracy ±2%, range 0.1–1500 ml/h, compatible with 10–60 ml syringes.",
     "descripcion_larga_es": "",
     "descripcion_larga_en": "",
     "especificaciones": [],
@@ -431,9 +431,9 @@
     "familia_slug": "mobiliario",
     "tipo_id": null,
     "nombre_es": "Camilla Hospitalaria Eléctrica Articulable",
-    "nombre_en": "COPY_CLIENTE_REVISAR — Articulating Electric Hospital Bed",
+    "nombre_en": "Articulating Electric Hospital Bed",
     "descripcion_corta_es": "Camilla hospitalaria eléctrica de 4 secciones. Control por botonera, barandas abatibles, capacidad 250 kg.",
-    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — 4-section electric hospital bed. Button control, folding side rails, 250 kg capacity.",
+    "descripcion_corta_en": "4-section electric hospital bed. Button control, folding side rails, 250 kg capacity.",
     "descripcion_larga_es": "",
     "descripcion_larga_en": "",
     "especificaciones": [],
@@ -456,9 +456,9 @@
     "familia_slug": "mobiliario",
     "tipo_id": null,
     "nombre_es": "Carro de Paro para Reanimación",
-    "nombre_en": "COPY_CLIENTE_REVISAR — Resuscitation Code Cart",
+    "nombre_en": "Resuscitation Code Cart",
     "descripcion_corta_es": "Carro de paro con candado central, bandeja de desfibrilador, cajones numerados y porta-monitor. Acero inoxidable.",
-    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — Code cart with central lock, defibrillator tray, numbered drawers and monitor holder. Stainless steel.",
+    "descripcion_corta_en": "Code cart with central lock, defibrillator tray, numbered drawers and monitor holder. Stainless steel.",
     "descripcion_larga_es": "",
     "descripcion_larga_en": "",
     "especificaciones": [],
@@ -481,9 +481,9 @@
     "familia_slug": "neonatologia",
     "tipo_id": null,
     "nombre_es": "Monitor Fetal CTG con Impresora",
-    "nombre_en": "COPY_CLIENTE_REVISAR — CTG Fetal Monitor with Printer",
+    "nombre_en": "CTG Fetal Monitor with Printer",
     "descripcion_corta_es": "Monitor de bienestar fetal con cardiotocografía. Pantalla táctil a color, impresión térmica integrada, STAN opcional.",
-    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — Fetal wellbeing monitor with cardiotocography. Color touch screen, integrated thermal printing, optional STAN.",
+    "descripcion_corta_en": "Fetal wellbeing monitor with cardiotocography. Color touch screen, integrated thermal printing, optional STAN.",
     "descripcion_larga_es": "",
     "descripcion_larga_en": "",
     "especificaciones": [],
@@ -506,9 +506,9 @@
     "familia_slug": "cardiologia",
     "tipo_id": null,
     "nombre_es": "Electrocardiógrafo Inalámbrico Portátil",
-    "nombre_en": "COPY_CLIENTE_REVISAR — Portable Wireless ECG Machine",
+    "nombre_en": "Portable Wireless ECG Machine",
     "descripcion_corta_es": "ECG de 12 derivaciones inalámbrico con transmisión a tablet o PC. Interpretación automática, almacenamiento de 100 ECGs.",
-    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — Wireless 12-lead ECG with transmission to tablet or PC. Automatic interpretation, storage of 100 ECGs.",
+    "descripcion_corta_en": "Wireless 12-lead ECG with transmission to tablet or PC. Automatic interpretation, storage of 100 ECGs.",
     "descripcion_larga_es": "",
     "descripcion_larga_en": "",
     "especificaciones": [],
@@ -531,9 +531,9 @@
     "familia_slug": "neonatologia",
     "tipo_id": null,
     "nombre_es": "Sistema CPAP Neonatal para UCI",
-    "nombre_en": "COPY_CLIENTE_REVISAR — Neonatal CPAP System for ICU",
+    "nombre_en": "Neonatal CPAP System for ICU",
     "descripcion_corta_es": "Sistema CPAP neonatal de flujo variable con generador de burbujas. Presión ajustable 2–10 cmH2O. Circuito desechable.",
-    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — Variable flow neonatal CPAP system with bubble generator. Adjustable pressure 2–10 cmH2O. Disposable circuit.",
+    "descripcion_corta_en": "Variable flow neonatal CPAP system with bubble generator. Adjustable pressure 2–10 cmH2O. Disposable circuit.",
     "descripcion_larga_es": "",
     "descripcion_larga_en": "",
     "especificaciones": [],
@@ -556,9 +556,9 @@
     "familia_slug": "sala-cirugia",
     "tipo_id": null,
     "nombre_es": "Mesa Quirúrgica Ortopédica Radiolúcida",
-    "nombre_en": "COPY_CLIENTE_REVISAR — Radiolucent Orthopedic Surgical Table",
+    "nombre_en": "Radiolucent Orthopedic Surgical Table",
     "descripcion_corta_es": "Mesa quirúrgica ortopédica con accesorios para cirugía de cadera y columna. Radiolúcida, superficie de carbono.",
-    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — Orthopedic surgical table with accessories for hip and spine surgery. Radiolucent, carbon fiber surface.",
+    "descripcion_corta_en": "Orthopedic surgical table with accessories for hip and spine surgery. Radiolucent, carbon fiber surface.",
     "descripcion_larga_es": "",
     "descripcion_larga_en": "",
     "especificaciones": [],
@@ -581,9 +581,9 @@
     "familia_slug": "anestesia",
     "tipo_id": null,
     "nombre_es": "Ventilador Mecánico UCI Adulto-Pediátrico",
-    "nombre_en": "COPY_CLIENTE_REVISAR — Adult-Pediatric ICU Mechanical Ventilator",
+    "nombre_en": "Adult-Pediatric ICU Mechanical Ventilator",
     "descripcion_corta_es": "Ventilador mecánico para UCI adultos y pediatría. Modos AC, SIMV, CPAP, APRV, NAVA. Módulo de monitoreo integrado.",
-    "descripcion_corta_en": "COPY_CLIENTE_REVISAR — Mechanical ventilator for adult and pediatric ICU. AC, SIMV, CPAP, APRV, NAVA modes. Integrated monitoring module.",
+    "descripcion_corta_en": "Mechanical ventilator for adult and pediatric ICU. AC, SIMV, CPAP, APRV, NAVA modes. Integrated monitoring module.",
     "descripcion_larga_es": "",
     "descripcion_larga_en": "",
     "especificaciones": [],
@@ -598,5 +598,395 @@
     "nuevo": false,
     "activo": true,
     "orden": 24
+  },
+  {
+    "id": "prod-25",
+    "slug": "sistema-radiografico-3d-wr-3d",
+    "familia_id": "fam-radiologia",
+    "familia_slug": "radiologia",
+    "tipo_id": null,
+    "nombre_es": "Sistema Radiográfico 3D en Carga WR-3D",
+    "nombre_en": "WR-3D Weight-Bearing 3D Radiographic System",
+    "descripcion_corta_es": "Sistema de radiografía digital con reconstrucción volumétrica 3D (MIP, MPR, VR) para columna completa y miembros inferiores en posición de carga, con medición automática asistida por IA de escoliosis y artrosis de rodilla.",
+    "descripcion_corta_en": "Digital radiography system with 3D volumetric reconstruction (MIP, MPR, VR) for full-spine and lower-limb weight-bearing studies, including AI-assisted automatic measurement for scoliosis and knee osteoarthritis.",
+    "descripcion_larga_es": "",
+    "descripcion_larga_en": "",
+    "especificaciones": [
+      {
+        "clave": "Reconstrucción 3D",
+        "valor": "MIP, MPR y VR (renderizado volumétrico)"
+      },
+      {
+        "clave": "Planos de adquisición",
+        "valor": "Coronal, axial y sagital"
+      },
+      {
+        "clave": "Estudios en carga",
+        "valor": "Columna completa y miembros inferiores (cadera, rodilla, tobillo)"
+      },
+      {
+        "clave": "Medición asistida por IA",
+        "valor": "Escoliosis y artrosis de rodilla"
+      },
+      {
+        "clave": "Modos adicionales",
+        "valor": "Radiografía convencional, stitching de imágenes, estudios con contraste, fluoroscopia y neumoconiosis"
+      }
+    ],
+    "imagen_principal": "/assets/productos/radiologia/wr-3d.jpg",
+    "galeria": [],
+    "ficha_pdf": null,
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "destacado": false,
+    "nuevo": true,
+    "activo": true,
+    "orden": 25
+  },
+  {
+    "id": "prod-26",
+    "slug": "rx-movil-dinamico-lingxi",
+    "familia_id": "fam-radiologia",
+    "familia_slug": "radiologia",
+    "tipo_id": null,
+    "nombre_es": "Equipo Móvil de Radiografía Digital Dinámica Lingxi",
+    "nombre_en": "Lingxi Series Mobile Dynamic DR",
+    "descripcion_corta_es": "Unidad móvil de radiografía digital dinámica con análisis funcional pulmonar (ventilación, perfusión y volúmenes), maniobrable en espacios reducidos y operable con una sola mano.",
+    "descripcion_corta_en": "Mobile dynamic digital radiography unit with functional lung analysis (ventilation, perfusion and volumes), maneuverable in tight spaces and operable with one hand.",
+    "descripcion_larga_es": "",
+    "descripcion_larga_en": "",
+    "especificaciones": [
+      {
+        "clave": "Tipo de equipo",
+        "valor": "Radiografía digital dinámica (DR) móvil"
+      },
+      {
+        "clave": "Inclinación máxima de desplazamiento",
+        "valor": "13°"
+      },
+      {
+        "clave": "Operación",
+        "valor": "Con una sola mano"
+      },
+      {
+        "clave": "Análisis funcional",
+        "valor": "Cinemática diafragmática, ventilación pulmonar, perfusión pulmonar y volúmenes pulmonares (curvas tiempo-volumen)"
+      }
+    ],
+    "imagen_principal": "/assets/productos/radiologia/lingxi-series.jpg",
+    "galeria": [],
+    "ficha_pdf": null,
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "destacado": false,
+    "nuevo": true,
+    "activo": true,
+    "orden": 26
+  },
+  {
+    "id": "prod-27",
+    "slug": "rx-techo-dinamico-qomo",
+    "familia_id": "fam-radiologia",
+    "familia_slug": "radiologia",
+    "tipo_id": null,
+    "nombre_es": "Sistema de Radiografía Digital Dinámica de Techo QOMO",
+    "nombre_en": "QOMO Series Ceiling-Mounted Dynamic DR",
+    "descripcion_corta_es": "Sistema de radiografía digital de techo con doble detector (dinámico y estático), movimiento sincronizado de 10 ejes y mesa de elevación eléctrica para estudios generales y dinámicos.",
+    "descripcion_corta_en": "Ceiling-mounted digital radiography system with dual detector (dynamic and static), 10-axis synchronized motion and an electrically elevating table for general and dynamic studies.",
+    "descripcion_larga_es": "",
+    "descripcion_larga_en": "",
+    "especificaciones": [
+      {
+        "clave": "Detectores",
+        "valor": "Panel plano dinámico y panel plano estático (configuración dual)"
+      },
+      {
+        "clave": "Sistema de movimiento",
+        "valor": "4D de 10 ejes sincronizados"
+      },
+      {
+        "clave": "Cambio de detector",
+        "valor": "Conmutación en milisegundos"
+      },
+      {
+        "clave": "Posicionamiento",
+        "valor": "Detector y tubo de rayos X descienden a nivel próximo al suelo"
+      },
+      {
+        "clave": "Mesa",
+        "valor": "Elevación eléctrica"
+      },
+      {
+        "clave": "Consola",
+        "valor": "Puesto de control ergonómico para operación remota"
+      }
+    ],
+    "imagen_principal": "/assets/productos/radiologia/qomo-series.jpg",
+    "galeria": [],
+    "ficha_pdf": null,
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "destacado": false,
+    "nuevo": true,
+    "activo": true,
+    "orden": 27
+  },
+  {
+    "id": "prod-28",
+    "slug": "rx-techo-dinamico-changfeng",
+    "familia_id": "fam-radiologia",
+    "familia_slug": "radiologia",
+    "tipo_id": null,
+    "nombre_es": "Sistema de Radiografía Digital Dinámica de Techo Changfeng",
+    "nombre_en": "Changfeng Series Ceiling-Mounted Dynamic DR",
+    "descripcion_corta_es": "Sistema de radiografía digital de techo con detector de gran formato de 47\" que permite columna completa y miembros inferiores completos en una sola exposición, con seguimiento bidireccional automático y stitching angular.",
+    "descripcion_corta_en": "Ceiling-mounted digital radiography system with a 47-inch large-format detector for full-spine and full-lower-limb imaging in a single exposure, with bidirectional auto-tracking and automatic angular stitching.",
+    "descripcion_larga_es": "",
+    "descripcion_larga_en": "",
+    "especificaciones": [
+      {
+        "clave": "Formato del detector",
+        "valor": "47\" (gran formato)"
+      },
+      {
+        "clave": "Estudios en una exposición",
+        "valor": "Columna completa y miembros inferiores completos"
+      },
+      {
+        "clave": "Seguimiento del detector",
+        "valor": "Bidireccional automático (decúbito)"
+      },
+      {
+        "clave": "Colimación",
+        "valor": "Automática inteligente"
+      },
+      {
+        "clave": "Control de exposición",
+        "valor": "AEC (control automático de exposición)"
+      },
+      {
+        "clave": "Anticolisión",
+        "valor": "Sensor ultrasónico en el cabezal del tubo"
+      },
+      {
+        "clave": "Stitching",
+        "valor": "Automático para imagen de cuerpo completo en decúbito"
+      }
+    ],
+    "imagen_principal": "/assets/productos/radiologia/changfeng-series.jpg",
+    "galeria": [],
+    "ficha_pdf": null,
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "destacado": false,
+    "nuevo": true,
+    "activo": true,
+    "orden": 28
+  },
+  {
+    "id": "prod-29",
+    "slug": "telemando-digital-rf-talent-ii",
+    "familia_id": "fam-radiologia",
+    "familia_slug": "radiologia",
+    "tipo_id": null,
+    "nombre_es": "Sistema de Telemando Digital R/F Talent II",
+    "nombre_en": "Talent II Series Digital R/F Table System",
+    "descripcion_corta_es": "Sistema de telemando digital de radiografía y fluoroscopia (R/F) para estudios generales, contrastados y funcionales.",
+    "descripcion_corta_en": "Digital radiography/fluoroscopy (R/F) remote-control table system for general, contrast and functional studies.",
+    "descripcion_larga_es": "",
+    "descripcion_larga_en": "",
+    "especificaciones": [
+      {
+        "clave": "Tipo de equipo",
+        "valor": "Telemando digital de radiografía y fluoroscopia (R/F)"
+      }
+    ],
+    "imagen_principal": "/assets/productos/radiologia/talent-ii-series.jpg",
+    "galeria": [],
+    "ficha_pdf": null,
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "destacado": false,
+    "nuevo": true,
+    "activo": true,
+    "orden": 29
+  },
+  {
+    "id": "prod-30",
+    "slug": "rx-multifuncional-uc-arm-dtp580",
+    "familia_id": "fam-radiologia",
+    "familia_slug": "radiologia",
+    "tipo_id": null,
+    "nombre_es": "Sistema de Radiografía Digital Dinámica UC-ARM DTP580",
+    "nombre_en": "DTP580 Series UC-ARM Dynamic DR System",
+    "descripcion_corta_es": "Sistema multifuncional de radiografía digital con arco en U y detector giratorio, para fluoroscopia, radiografía, estudios con contraste, stitching de cuerpo completo y neumoconiosis.",
+    "descripcion_corta_en": "Multifunctional digital radiography system with a U-shaped arm and rotating detector, for fluoroscopy, radiography, contrast studies, full-body stitching and pneumoconiosis exams.",
+    "descripcion_larga_es": "",
+    "descripcion_larga_en": "",
+    "especificaciones": [
+      {
+        "clave": "Configuración",
+        "valor": "Arco en U (UC-ARM) con detector giratorio y brazo horizontal"
+      },
+      {
+        "clave": "Modos de estudio",
+        "valor": "Fluoroscopia, radiografía, estudios con contraste, stitching de cuerpo completo y neumoconiosis"
+      }
+    ],
+    "imagen_principal": "/assets/productos/radiologia/dtp580-series.jpg",
+    "galeria": [],
+    "ficha_pdf": null,
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "destacado": false,
+    "nuevo": true,
+    "activo": true,
+    "orden": 30
+  },
+  {
+    "id": "prod-31",
+    "slug": "rx-piso-mtp",
+    "familia_id": "fam-radiologia",
+    "familia_slug": "radiologia",
+    "tipo_id": null,
+    "nombre_es": "Sistema Radiográfico de Piso MTP",
+    "nombre_en": "MTP Series Floor-Mounted Radiographic System",
+    "descripcion_corta_es": "Sistema radiográfico de piso con mesa flotante de cuatro movimientos, seguimiento eléctrico sincronizado entre el tubo de rayos X y el detector, y columna giratoria compatible con camilla y silla de ruedas.",
+    "descripcion_corta_en": "Floor-mounted radiographic system with a four-way floating table, electrically synchronized tracking between the X-ray tube and detector, and a rotating column compatible with stretcher and wheelchair exams.",
+    "descripcion_larga_es": "",
+    "descripcion_larga_en": "",
+    "especificaciones": [
+      {
+        "clave": "Mesa",
+        "valor": "Flotante de cuatro movimientos, operación automática y manual"
+      },
+      {
+        "clave": "Seguimiento tubo-detector",
+        "valor": "Eléctrico, sincronizado con el panel detector en el bucky"
+      },
+      {
+        "clave": "Columna porta-tubo",
+        "valor": "Giratoria, compatible con exámenes en camilla y silla de ruedas"
+      },
+      {
+        "clave": "Panel de control",
+        "valor": "Pantalla táctil LCD en la columna"
+      }
+    ],
+    "imagen_principal": "/assets/productos/radiologia/mtp-series.jpg",
+    "galeria": [],
+    "ficha_pdf": null,
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "destacado": false,
+    "nuevo": true,
+    "activo": true,
+    "orden": 31
+  },
+  {
+    "id": "prod-32",
+    "slug": "mamografo-digital-fanghua",
+    "familia_id": "fam-radiologia",
+    "familia_slug": "radiologia",
+    "tipo_id": null,
+    "nombre_es": "Sistema de Mamografía Digital Fanghua",
+    "nombre_en": "Fanghua Series Digital Mammography System",
+    "descripcion_corta_es": "Sistema de mamografía digital con detector de panel plano de gran formato, capacidad de tomosíntesis, colimación motorizada inteligente y control automático de exposición, con ánodo opcional de tungsteno para reducción de dosis.",
+    "descripcion_corta_en": "Digital mammography system with a large-format flat-panel detector, tomosynthesis capability, intelligent motorized collimation and automatic exposure control, with an optional tungsten target for dose reduction.",
+    "descripcion_larga_es": "",
+    "descripcion_larga_en": "",
+    "especificaciones": [
+      {
+        "clave": "Detector",
+        "valor": "Panel plano digital de gran formato"
+      },
+      {
+        "clave": "Tomosíntesis",
+        "valor": "Capacidad estándar"
+      },
+      {
+        "clave": "Colimador",
+        "valor": "Motorizado inteligente con ajuste automático del campo de luz"
+      },
+      {
+        "clave": "Control de exposición",
+        "valor": "AEC (control automático de exposición)"
+      },
+      {
+        "clave": "Ánodo opcional",
+        "valor": "Tungsteno (para reducción de dosis)"
+      },
+      {
+        "clave": "Resolución",
+        "valor": "Alta resolución para detección de microcalcificaciones"
+      }
+    ],
+    "imagen_principal": "/assets/productos/radiologia/fanghua-series.jpg",
+    "galeria": [],
+    "ficha_pdf": null,
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "destacado": false,
+    "nuevo": true,
+    "activo": true,
+    "orden": 32
+  },
+  {
+    "id": "prod-33",
+    "slug": "arco-c-movil-dinamico-hua-ii",
+    "familia_id": "fam-radiologia",
+    "familia_slug": "radiologia",
+    "tipo_id": null,
+    "nombre_es": "Arco en C Móvil de Radiografía Digital Dinámica HUA II",
+    "nombre_en": "HUA II Series Mobile Dynamic FPD C-arm",
+    "descripcion_corta_es": "Arco en C móvil con detector de panel plano (FPD) para imagen dinámica intraoperatoria, configuración modular y diseño orientado a baja dosis de radiación.",
+    "descripcion_corta_en": "Mobile C-arm with flat-panel detector (FPD) for dynamic intraoperative imaging, modular configuration and low-dose-oriented design.",
+    "descripcion_larga_es": "",
+    "descripcion_larga_en": "",
+    "especificaciones": [
+      {
+        "clave": "Tipo de equipo",
+        "valor": "Arco en C móvil con detector de panel plano (FPD)"
+      },
+      {
+        "clave": "Imagen",
+        "valor": "Dinámica (fluoroscopia en tiempo real)"
+      },
+      {
+        "clave": "Configuración",
+        "valor": "Modular"
+      },
+      {
+        "clave": "Diseño de dosis",
+        "valor": "Orientado a baja dosis de radiación"
+      }
+    ],
+    "imagen_principal": "/assets/productos/radiologia/hua-ii-series.jpg",
+    "galeria": [],
+    "ficha_pdf": null,
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "destacado": false,
+    "nuevo": true,
+    "activo": true,
+    "orden": 33
   }
 ]

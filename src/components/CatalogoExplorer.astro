@@ -6,25 +6,26 @@
  * y sincronización de estado vía query params. Progressive enhancement:
  * todo el contenido está en el HTML; el script solo filtra/oculta.
  */
-import { t, type Locale } from '../i18n/utils'
-import { getFamilias } from '../lib/datos'
-import { buildCatalogoIndex } from '../lib/catalogo'
-import ProductoCard from './ProductoCard.astro'
+import { t, type Locale } from '../i18n/utils';
+import { getFamilias } from '../lib/datos';
+import { buildCatalogoIndex } from '../lib/catalogo';
+import ProductoCard from './ProductoCard.astro';
+import FamiliaIcon from './FamiliaIcon.astro';
 
 interface Props {
-  locale: Locale
+  locale: Locale;
 }
 
-const { locale } = Astro.props
+const { locale } = Astro.props;
 
-const familias = await getFamilias(locale)
-const items = await buildCatalogoIndex(locale)
+const familias = await getFamilias(locale);
+const items = await buildCatalogoIndex(locale);
 
 const tiposComerciales = [
-  ...new Set(items.map((item) => item.tipo_comercial).filter(Boolean)),
-].sort()
-const hayDestacados = items.some((item) => item.destacado)
-const hayNuevos = items.some((item) => item.nuevo)
+  ...new Set(items.map(item => item.tipo_comercial).filter(Boolean)),
+].sort();
+const hayDestacados = items.some(item => item.destacado);
+const hayNuevos = items.some(item => item.nuevo);
 ---
 
 <div id="catalogo-root" class="catalogo">
@@ -44,7 +45,15 @@ const hayNuevos = items.some((item) => item.nuevo)
 
   <!-- Familia actual (navegación dentro de una categoría) -->
   <div id="catalogo-familia-actual" class="catalogo__familia-actual" hidden>
-    <h2 id="catalogo-familia-actual-nombre" class="section-subtitle"></h2>
+    <div class="catalogo__familia-actual-meta">
+      <div
+        id="catalogo-familia-actual-icono"
+        class="catalogo__familia-actual-icono"
+        aria-hidden="true"
+      >
+      </div>
+      <h2 id="catalogo-familia-actual-nombre" class="section-subtitle"></h2>
+    </div>
     <button type="button" id="catalogo-familia-actual-quitar" class="btn btn-ghost">
       {t(locale, 'catalogo.mostrar_todos')}
     </button>
@@ -62,28 +71,17 @@ const hayNuevos = items.some((item) => item.nuevo)
     </div>
     <ul class="categorias__grid" role="list">
       {
-        familias.map((familia) => (
+        familias.map(familia => (
           <li>
             <a
               href={`?familia=${familia.slug}`}
               class="categoria-card"
               data-familia-link={familia.slug}
               data-familia-nombre={familia.nombre}
+              data-familia-icono={familia.icono}
             >
               <div class="categoria-card__icon" aria-hidden="true">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="28"
-                  height="28"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                </svg>
+                <FamiliaIcon slug={familia.slug} icono={familia.icono} />
               </div>
               <h3 class="categoria-card__name">{familia.nombre}</h3>
               <p class="categoria-card__desc">{familia.descripcion}</p>
@@ -98,6 +96,8 @@ const hayNuevos = items.some((item) => item.nuevo)
   </section>
 
   <div class="catalogo__layout" id="catalogo-resultados">
+    <div id="catalogo-filtros-backdrop" class="catalogo-filtros-backdrop" hidden aria-hidden="true">
+    </div>
     <!-- Filtros -->
     <aside
       id="catalogo-filtros"
@@ -123,13 +123,17 @@ const hayNuevos = items.some((item) => item.nuevo)
             {t(locale, 'catalogo.todas_familias')}
           </button>
           {
-            familias.map((familia) => (
+            familias.map(familia => (
               <button
                 type="button"
                 class="catalogo-filtros__familia"
                 data-familia-filter={familia.slug}
+                data-familia-icono={familia.icono}
               >
-                {familia.nombre}
+                <span class="catalogo-filtros__familia-icono" aria-hidden="true">
+                  <FamiliaIcon slug={familia.slug} icono={familia.icono} size={18} />
+                </span>
+                <span>{familia.nombre}</span>
               </button>
             ))
           }
@@ -143,7 +147,7 @@ const hayNuevos = items.some((item) => item.nuevo)
               {t(locale, 'catalogo.filtro_comercial')}
             </legend>
             <div id="catalogo-comercial">
-              {tiposComerciales.map((tipo) => (
+              {tiposComerciales.map(tipo => (
                 <label class="catalogo-filtros__opcion">
                   <input type="checkbox" data-filtro-comercial={tipo} />
                   {tipo === 'consumible'
@@ -178,6 +182,40 @@ const hayNuevos = items.some((item) => item.nuevo)
         )
       }
 
+      <fieldset class="catalogo-filtros__grupo-bloque">
+        <legend class="catalogo-filtros__heading"
+          >{t(locale, 'catalogo.filtro_disponibilidad')}</legend
+        >
+        <label class="catalogo-filtros__opcion">
+          <input type="radio" name="catalogo-disponibilidad" value="" checked />
+          {t(locale, 'catalogo.disponibilidad_todas')}
+        </label>
+        <label class="catalogo-filtros__opcion">
+          <input type="radio" name="catalogo-disponibilidad" value="1" />
+          {t(locale, 'catalogo.disponibilidad_si')}
+        </label>
+        <label class="catalogo-filtros__opcion">
+          <input type="radio" name="catalogo-disponibilidad" value="0" />
+          {t(locale, 'catalogo.disponibilidad_no')}
+        </label>
+      </fieldset>
+
+      <fieldset class="catalogo-filtros__grupo-bloque">
+        <legend class="catalogo-filtros__heading">{t(locale, 'catalogo.filtro_modalidad')}</legend>
+        <label class="catalogo-filtros__opcion">
+          <input type="checkbox" data-filtro-modalidad="dropship" />
+          {t(locale, 'catalogo.modalidad_dropship')}
+        </label>
+        <label class="catalogo-filtros__opcion">
+          <input type="checkbox" data-filtro-modalidad="cotizacion" />
+          {t(locale, 'catalogo.modalidad_cotizacion')}
+        </label>
+        <label class="catalogo-filtros__opcion">
+          <input type="checkbox" data-filtro-modalidad="individualizado" />
+          {t(locale, 'catalogo.modalidad_individualizado')}
+        </label>
+      </fieldset>
+
       <div id="catalogo-facetas" class="catalogo-filtros__grupo-bloque" hidden></div>
 
       <button type="button" class="btn btn-ghost catalogo-filtros__reset" data-reset-filtros>
@@ -197,11 +235,23 @@ const hayNuevos = items.some((item) => item.nuevo)
         >
           {t(locale, 'catalogo.abrir_filtros')}
         </button>
-        <p id="catalogo-contador" class="catalogo__contador" role="status" aria-live="polite"></p>
+        <div class="catalogo__toolbar-meta">
+          <label class="catalogo__orden" for="catalogo-orden">
+            <span class="catalogo__orden-label">{t(locale, 'catalogo.ordenar')}</span>
+            <select id="catalogo-orden" class="catalogo__orden-select">
+              <option value="relevancia">{t(locale, 'catalogo.ordenar_relevancia')}</option>
+              <option value="nombre_asc">{t(locale, 'catalogo.ordenar_nombre_az')}</option>
+              <option value="nombre_desc">{t(locale, 'catalogo.ordenar_nombre_za')}</option>
+              <option value="precio_asc">{t(locale, 'catalogo.ordenar_precio_asc')}</option>
+              <option value="precio_desc">{t(locale, 'catalogo.ordenar_precio_desc')}</option>
+            </select>
+          </label>
+          <p id="catalogo-contador" class="catalogo__contador" role="status" aria-live="polite"></p>
+        </div>
       </div>
 
       <ul id="vista-productos" class="productos__grid" role="list" hidden>
-        {items.map((item) => <ProductoCard producto={item} locale={locale} comparable />)}
+        {items.map(item => <ProductoCard producto={item} locale={locale} comparable />)}
       </ul>
 
       <div id="catalogo-sin-resultados" class="catalogo__sin-resultados" hidden>
@@ -253,6 +303,59 @@ const hayNuevos = items.some((item) => item.nuevo)
   </div>
   <p class="comparador-dialog__limite">{t(locale, 'catalogo.comparar_limite')}</p>
   <div id="comparador-tabla" class="comparador-dialog__tabla"></div>
+</dialog>
+
+<dialog id="quickview-dialog" aria-label={t(locale, 'catalogo.vista_rapida')}>
+  <div class="quickview-dialog__shell">
+    <button
+      type="button"
+      class="quickview-dialog__close"
+      data-quickview-close
+      aria-label={t(locale, 'catalogo.quickview_cerrar')}>×</button
+    >
+    <div class="quickview-dialog__media">
+      <img id="quickview-imagen" src="" alt="" width="640" height="480" decoding="async" />
+    </div>
+    <div class="quickview-dialog__body">
+      <p id="quickview-familia" class="quickview-dialog__familia"></p>
+      <h2 id="quickview-nombre" class="quickview-dialog__titulo"></h2>
+      <p id="quickview-descripcion" class="quickview-dialog__desc"></p>
+      <dl class="quickview-dialog__facts">
+        <div>
+          <dt>{t(locale, 'producto.ficha_modalidad')}</dt>
+          <dd id="quickview-modalidad"></dd>
+        </div>
+        <div>
+          <dt>{t(locale, 'producto.ficha_disponibilidad')}</dt>
+          <dd id="quickview-disponibilidad"></dd>
+        </div>
+        <div>
+          <dt>{t(locale, 'producto.ficha_stock')}</dt>
+          <dd id="quickview-stock"></dd>
+        </div>
+        <div>
+          <dt>{t(locale, 'producto.ficha_precio')}</dt>
+          <dd id="quickview-precio"></dd>
+        </div>
+      </dl>
+      <div class="quickview-dialog__actions">
+        <a id="quickview-ficha" class="btn btn-primary" href="#"
+          >{t(locale, 'catalogo.ver_ficha')}</a
+        >
+        <button id="quickview-cta" type="button" class="btn btn-secondary"></button>
+        <a
+          id="quickview-whatsapp"
+          class="btn btn-secondary"
+          href="#"
+          target="_blank"
+          rel="noopener noreferrer"
+          hidden
+        >
+          {t(locale, 'producto.cta_consultar_disponibilidad')}
+        </a>
+      </div>
+    </div>
+  </div>
 </dialog>
 
 <style>
@@ -310,6 +413,26 @@ const hayNuevos = items.some((item) => item.nuevo)
   .catalogo__familia-actual[hidden] {
     display: none;
   }
+  .catalogo__familia-actual-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+  }
+  .catalogo__familia-actual-icono {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--t100), rgba(15, 76, 92, 0.08));
+    color: var(--t900);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+  }
+  .catalogo__familia-actual-icono :global(svg) {
+    width: 24px;
+    height: 24px;
+  }
 
   /* Vista familias */
   .catalogo__familias-header {
@@ -353,11 +476,15 @@ const hayNuevos = items.some((item) => item.nuevo)
     width: 48px;
     height: 48px;
     border-radius: var(--radius);
-    background: var(--t100);
+    background: linear-gradient(135deg, var(--t100), rgba(15, 76, 92, 0.08));
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--t900);
+  }
+  .categoria-card__icon :global(svg) {
+    width: 28px;
+    height: 28px;
   }
   .categoria-card__name {
     font-family: var(--font-display);
@@ -450,6 +577,9 @@ const hayNuevos = items.some((item) => item.nuevo)
     gap: 0.25rem;
   }
   .catalogo-filtros__familia {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
     text-align: left;
     padding: 0.45rem 0.6rem;
     border: none;
@@ -461,6 +591,15 @@ const hayNuevos = items.some((item) => item.nuevo)
     transition:
       background-color 180ms var(--ease),
       color 180ms var(--ease);
+  }
+  .catalogo-filtros__familia-icono {
+    width: 1.35rem;
+    height: 1.35rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: currentColor;
+    flex: 0 0 auto;
   }
   .catalogo-filtros__familia:hover {
     background: var(--t50);
@@ -518,10 +657,37 @@ const hayNuevos = items.some((item) => item.nuevo)
     .catalogo-filtros--abierto {
       transform: translateX(0);
     }
+    .catalogo-filtros-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 24, 28, 0.42);
+      backdrop-filter: blur(1.5px);
+      z-index: 94;
+    }
+    .catalogo__toolbar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .catalogo__toolbar-meta {
+      width: 100%;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.65rem;
+    }
+    .catalogo__orden {
+      justify-content: space-between;
+      width: 100%;
+    }
+    .catalogo__orden-select {
+      width: 100%;
+    }
   }
   @media (min-width: 900px) {
     .catalogo__filtros-toggle {
       display: none;
+    }
+    .catalogo-filtros-backdrop {
+      display: none !important;
     }
   }
 
@@ -532,6 +698,35 @@ const hayNuevos = items.some((item) => item.nuevo)
     justify-content: space-between;
     gap: 1rem;
     margin-block-end: var(--space-md);
+  }
+  .catalogo__toolbar-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-inline-start: auto;
+  }
+  .catalogo__orden {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-size: 0.82rem;
+    color: var(--text-mid);
+  }
+  .catalogo__orden-label {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .catalogo__orden-select {
+    min-width: 180px;
+    padding: 0.7rem 0.9rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-mid);
+    background: var(--white);
+    color: var(--ink);
+    font: inherit;
   }
   .catalogo__contador {
     margin: 0;
@@ -695,13 +890,141 @@ const hayNuevos = items.some((item) => item.nuevo)
     color: var(--text-mid);
     font-size: 0.9rem;
   }
+
+  #quickview-dialog {
+    border: none;
+    border-radius: var(--radius-xl);
+    padding: 0;
+    width: min(980px, calc(100vw - 2rem));
+    background: var(--white);
+    box-shadow: var(--shadow-lg);
+  }
+  #quickview-dialog::backdrop {
+    background: rgba(11, 27, 34, 0.68);
+  }
+  .quickview-dialog__shell {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+    position: relative;
+  }
+  .quickview-dialog__close {
+    position: absolute;
+    top: 0.85rem;
+    right: 0.85rem;
+    width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.88);
+    color: var(--ink);
+    cursor: pointer;
+    z-index: 2;
+    font-size: 1.4rem;
+    line-height: 1;
+  }
+  .quickview-dialog__media {
+    min-height: 100%;
+    background: linear-gradient(180deg, var(--off), var(--off2));
+  }
+  .quickview-dialog__media img {
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .quickview-dialog__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    padding: 1.6rem;
+  }
+  .quickview-dialog__familia {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--t800);
+  }
+  .quickview-dialog__titulo {
+    margin: 0;
+    font-size: clamp(1.5rem, 2vw, 2.25rem);
+  }
+  .quickview-dialog__desc {
+    margin: 0;
+    color: var(--text-mid);
+  }
+  .quickview-dialog__facts {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin: 0;
+  }
+  .quickview-dialog__facts div {
+    padding: 0.85rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--off);
+  }
+  .quickview-dialog__facts dt {
+    margin: 0 0 0.25rem;
+    font-family: var(--font-display);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+  }
+  .quickview-dialog__facts dd {
+    margin: 0;
+    color: var(--ink);
+    font-size: 0.9rem;
+    line-height: 1.35;
+  }
+  .quickview-dialog__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: auto;
+  }
+  @media (max-width: 900px) {
+    .quickview-dialog__shell {
+      grid-template-columns: 1fr;
+    }
+    .quickview-dialog__media {
+      aspect-ratio: 4 / 3;
+      min-height: 0;
+    }
+    .quickview-dialog__facts {
+      grid-template-columns: 1fr;
+    }
+  }
 </style>
 
 <script>
-  import { initCatalogo } from '../lib/catalogo-cliente'
+  import { initCatalogo } from '../lib/catalogo-cliente';
 
-  document.addEventListener('astro:page-load', () => {
-    const locale = document.documentElement.lang === 'en' ? 'en' : 'es'
-    initCatalogo(locale)
-  })
+  const locale = document.documentElement.lang === 'en' ? 'en' : 'es';
+  const catalogoWindow = window as Window & { __imeCatalogoCleanup?: (() => void) | null };
+
+  catalogoWindow.__imeCatalogoCleanup?.();
+
+  // Captura el deep-link de categoría (?cat=slug) antes de inicializar el
+  // catálogo, ya que initCatalogo puede limpiar la query de la URL.
+  const cat = new URLSearchParams(window.location.search).get('cat');
+
+  catalogoWindow.__imeCatalogoCleanup = initCatalogo(locale);
+
+  // Replica el comportamiento de las cat-card de producción: abre el catálogo
+  // ya filtrado por familia activando el botón de filtro correspondiente.
+  if (cat) {
+    requestAnimationFrame(() => {
+      const btn = document.querySelector<HTMLButtonElement>(
+        `[data-familia-filter="${CSS.escape(cat)}"]`
+      );
+      if (btn) btn.click();
+    });
+  }
 </script>

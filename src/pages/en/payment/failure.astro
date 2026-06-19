@@ -1,0 +1,25 @@
+---
+/**
+ * Payment result page — failure/rejection. Not indexable.
+ * The real status is verified server-side via consultar-pedido.
+ */
+import Layout from '../../../layouts/Layout.astro';
+import ResultadoPago from '../../../components/ResultadoPago.astro';
+import { buildPageTitle, buildCanonical } from '../../../lib/seo';
+
+const locale = 'en';
+const title = buildPageTitle('Payment not completed');
+const description = "We couldn't confirm your payment.";
+const canonical = buildCanonical('/en/payment/failure');
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  locale={locale}
+  currentPath="/en/payment/failure"
+  noindex
+>
+  <ResultadoPago locale={locale} tipo="fallo" />
+</Layout>

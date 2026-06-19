@@ -1,0 +1,716 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { buildCanonical, buildOrganizationJsonLd, combineJsonLd } from '../lib/seo';
+
+const locale = 'es';
+const canonical = buildCanonical('/pagoswompi');
+const title = 'Pagos Wompi | Alta Técnica y Flujo API | I-ME';
+const description =
+  'Página técnica pública para alta de I-ME en Wompi: URL de eventos, flujo de checkout, intercambio API, redirects operativos y checklist de activación.';
+
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL as string | undefined;
+const wompiWebhookUrl = supabaseUrl
+  ? `${supabaseUrl}/functions/v1/webhook-wompi`
+  : 'Pendiente de entorno';
+const wompiCheckoutApiUrl = supabaseUrl
+  ? `${supabaseUrl}/functions/v1/crear-pago`
+  : 'Pendiente de entorno';
+const redirectSuccessUrl = buildCanonical('/es/pago/exito');
+const redirectFailureUrl = buildCanonical('/es/pago/fallo');
+const pageJsonLd = combineJsonLd(buildOrganizationJsonLd(), {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: title,
+  description,
+  url: canonical,
+});
+
+const endpointCards = [
+  {
+    label: 'URL pública de alta',
+    value: canonical,
+    note: 'Landing técnica pública para validación operativa y referencia del comercio.',
+  },
+  {
+    label: 'URL de eventos Wompi',
+    value: wompiWebhookUrl,
+    note: 'Endpoint para pegar en Mi cuenta > URL de eventos, siguiendo el flujo recomendado por Wompi y su plugin de WooCommerce.',
+  },
+  {
+    label: 'API de checkout',
+    value: wompiCheckoutApiUrl,
+    note: 'Edge Function que recalcula pedido, firma la integridad y devuelve el checkout hospedado.',
+  },
+  {
+    label: 'Redirect éxito',
+    value: `${redirectSuccessUrl}?ref={pedido_id}`,
+    note: 'Pantalla pública de retorno tras el checkout; la aprobación final la define el webhook server-side.',
+  },
+  {
+    label: 'Redirect fallo',
+    value: `${redirectFailureUrl}?ref={pedido_id}`,
+    note: 'Ruta pública de contingencia para cancelación o rechazo visible al usuario.',
+  },
+];
+
+const flujo = [
+  {
+    step: '1. Alta del comercio',
+    detail:
+      'Crear la cuenta Wompi, habilitar producción o sandbox y registrar la URL de eventos del comercio, igual que en la referencia oficial del plugin de WooCommerce.',
+  },
+  {
+    step: '2. Orquestación del checkout',
+    detail:
+      'El frontend o el carrito llaman a crear-pago. El servidor recalcula stock, precios, IVA y retenciones antes de generar la referencia del pedido.',
+  },
+  {
+    step: '3. Firma y apertura',
+    detail:
+      'La capa de pagos genera amount_in_cents, reference y signature.integrity para Wompi Web Checkout. El usuario es redirigido al checkout hospedado.',
+  },
+  {
+    step: '4. Confirmación asincrónica',
+    detail:
+      'Wompi envía transaction.updated al webhook del comercio. El servidor valida checksum SHA-256, consulta el estado real y actualiza el pedido.',
+  },
+  {
+    step: '5. Post-pago',
+    detail:
+      'Si el estado final es APPROVED, I-ME marca el pedido como pagado, conserva la referencia y dispara el fulfillment definido para los productos aplicables.',
+  },
+];
+
+const checklist = [
+  'Cuenta Wompi del comercio creada y verificada.',
+  'Llaves del ambiente objetivo disponibles: pública, privada, secreto de integridad y secreto de eventos.',
+  'URL de eventos pegada en el dashboard de Wompi.',
+  'SITE_URL y entorno Supabase activos para redirects y Edge Functions.',
+  'Prueba sandbox de transacción y confirmación por webhook completadas antes de activar dinero real.',
+];
+
+const requestExample = `POST ${wompiCheckoutApiUrl}
+Content-Type: application/json
+
+{
+  "items": [
+    { "slug": "consumible-ejemplo", "cantidad": 1 }
+  ],
+  "cliente": {
+    "nombre": "Laura",
+    "apellido": "Gomez",
+    "email": "compras@clinica-ejemplo.com",
+    "telefono": "3001234567",
+    "institucion": "Clinica Ejemplo"
+  },
+  "mercado": "CO",
+  "consentimiento_datos": true,
+  "locale": "es",
+  "fiscal": {
+    "solicitar_factura_electronica": true,
+    "tipo_documento": "NIT",
+    "numero_documento": "900123456",
+    "tipo_persona": "juridica",
+    "razon_social": "Clinica Ejemplo SAS"
+  }
+}`;
+
+const responseExample = `{
+  "ok": true,
+  "checkout_url": "https://checkout.wompi.co/p/?public-key=...&reference=...&signature:integrity=...",
+  "referencia": "pedido_uuid"
+}`;
+
+const webhookExample = `POST ${wompiWebhookUrl}
+
+{
+  "event": "transaction.updated",
+  "data": {
+    "transaction": {
+      "id": "123456-1712345678-99999",
+      "reference": "pedido_uuid",
+      "status": "APPROVED",
+      "amount_in_cents": 11900000
+    }
+  },
+  "signature": {
+    "properties": [
+      "transaction.id",
+      "transaction.status",
+      "transaction.amount_in_cents"
+    ],
+    "checksum": "sha256_calculado_por_wompi"
+  },
+  "timestamp": 1712345678
+}`;
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  locale={locale}
+  currentPath="/pagoswompi"
+  jsonLd={pageJsonLd}
+>
+  <section class="wompi-page">
+    <div class="wompi-shell">
+      <header class="hero">
+        <div class="hero__copy">
+          <p class="eyebrow">Integracion Wompi · Produccion I-ME</p>
+          <h1>Pagina tecnica para dar de alta el comercio y validar el intercambio API</h1>
+          <p class="lead">
+            Esta ruta publica concentra lo que Wompi espera del comercio segun su checkout web y la
+            referencia operativa de WooCommerce: URL de eventos, redirects, endpoint de checkout,
+            payloads y checklist de activacion.
+          </p>
+          <div class="hero__pills">
+            <span>Checkout Web</span>
+            <span>Webhook firmado</span>
+            <span>IVA y retenciones server-side</span>
+            <span>Supabase Edge Functions</span>
+          </div>
+        </div>
+        <aside class="hero__console" aria-label="Resumen operativo de la integración">
+          <div class="console__head">
+            <span class="dot dot--red"></span>
+            <span class="dot dot--amber"></span>
+            <span class="dot dot--green"></span>
+            <strong>WOMPI INTEGRATION STATUS</strong>
+          </div>
+          <div class="console__body">
+            <div><span>Public page</span><b>READY</b></div>
+            <div><span>Webhook URL</span><b>{supabaseUrl ? 'READY' : 'PENDING'}</b></div>
+            <div><span>Checkout API</span><b>{supabaseUrl ? 'READY' : 'PENDING'}</b></div>
+            <div><span>Server validation</span><b>ENFORCED</b></div>
+            <div><span>Final source of truth</span><b>WEBHOOK</b></div>
+          </div>
+        </aside>
+      </header>
+
+      <section class="endpoints" aria-labelledby="endpoints-title">
+        <div class="section-heading">
+          <p>Datos para copiar</p>
+          <h2 id="endpoints-title">URLs operativas del comercio</h2>
+        </div>
+        <div class="endpoint-grid">
+          {
+            endpointCards.map(item => (
+              <article class="endpoint-card">
+                <p class="endpoint-card__label">{item.label}</p>
+                <code class="endpoint-card__value">{item.value}</code>
+                <p class="endpoint-card__note">{item.note}</p>
+                <button class="copy-btn" type="button" data-copy={item.value}>
+                  Copiar
+                </button>
+              </article>
+            ))
+          }
+        </div>
+      </section>
+
+      <section class="flow" aria-labelledby="flow-title">
+        <div class="section-heading">
+          <p>Flujo operativo</p>
+          <h2 id="flow-title">Como se mueve la informacion entre I-ME y Wompi</h2>
+        </div>
+        <div class="flow-list">
+          {
+            flujo.map(item => (
+              <article class="flow-step">
+                <h3>{item.step}</h3>
+                <p>{item.detail}</p>
+              </article>
+            ))
+          }
+        </div>
+      </section>
+
+      <section class="matrix" aria-labelledby="matrix-title">
+        <div class="section-heading">
+          <p>Alta tecnica</p>
+          <h2 id="matrix-title">Checklist minima antes de activar cobro real</h2>
+        </div>
+        <div class="matrix__grid">
+          <div class="matrix__panel">
+            <h3>Lo que pide Wompi</h3>
+            <ul>
+              <li>Cuenta Wompi creada para el comercio.</li>
+              <li>URL de eventos registrada en el dashboard.</li>
+              <li>Ambiente sandbox y produccion separados.</li>
+              <li>Llaves y secretos disponibles para la integracion tecnica.</li>
+            </ul>
+          </div>
+          <div class="matrix__panel">
+            <h3>Lo que ya resuelve I-ME</h3>
+            <ul>
+              <li>Recalculo server-side antes de abrir checkout.</li>
+              <li>Referencia unica de pedido y persistencia de checkout_url.</li>
+              <li>Validacion de webhook por checksum y reconsulta del estado real.</li>
+              <li>Compatibilidad con flujo fiscal colombiano para factura e impuestos.</li>
+            </ul>
+          </div>
+          <div class="matrix__panel matrix__panel--check">
+            <h3>Checklist de activacion</h3>
+            <ol>
+              {checklist.map(item => <li>{item}</li>)}
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <section class="payloads" aria-labelledby="payloads-title">
+        <div class="section-heading">
+          <p>Payloads reales</p>
+          <h2 id="payloads-title">Intercambio API esperado</h2>
+        </div>
+        <div class="payloads__grid">
+          <article class="payload-card">
+            <div class="payload-card__head">
+              <h3>1. Solicitud de checkout</h3>
+              <button class="copy-btn" type="button" data-copy={requestExample}>Copiar</button>
+            </div>
+            <pre><code>{requestExample}</code></pre>
+          </article>
+          <article class="payload-card">
+            <div class="payload-card__head">
+              <h3>2. Respuesta del servidor</h3>
+              <button class="copy-btn" type="button" data-copy={responseExample}>Copiar</button>
+            </div>
+            <pre><code>{responseExample}</code></pre>
+          </article>
+          <article class="payload-card payload-card--full">
+            <div class="payload-card__head">
+              <h3>3. Evento que debe llegar al webhook</h3>
+              <button class="copy-btn" type="button" data-copy={webhookExample}>Copiar</button>
+            </div>
+            <pre><code>{webhookExample}</code></pre>
+          </article>
+        </div>
+      </section>
+
+      <section class="note" aria-labelledby="note-title">
+        <h2 id="note-title">Nota operativa</h2>
+        <p>
+          Esta pagina no expone llaves privadas ni secretos. El sitio solo publica rutas y contratos
+          de integracion. La firma de integridad, la validacion del webhook y la actualizacion del
+          pedido ocurren exclusivamente del lado servidor.
+        </p>
+      </section>
+    </div>
+  </section>
+
+  <script>
+    const buttons = document.querySelectorAll('[data-copy]');
+    for (const button of buttons) {
+      button.addEventListener('click', async () => {
+        const value = button.getAttribute('data-copy') ?? '';
+        if (!value) return;
+        try {
+          if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(value);
+          } else {
+            const textarea = document.createElement('textarea');
+            textarea.value = value;
+            textarea.setAttribute('readonly', 'true');
+            textarea.style.position = 'absolute';
+            textarea.style.left = '-9999px';
+            document.body.appendChild(textarea);
+            textarea.select();
+            const copied = document.execCommand('copy');
+            document.body.removeChild(textarea);
+            if (!copied) throw new Error('copy_failed');
+          }
+          const original = button.textContent;
+          button.textContent = 'Copiado';
+          window.setTimeout(() => {
+            button.textContent = original;
+          }, 1400);
+        } catch {
+          button.textContent = 'Error';
+        }
+      });
+    }
+  </script>
+</Layout>
+
+<style>
+  :root {
+    --wompi-ink: #0a1721;
+    --wompi-paper: #f7f4ef;
+    --wompi-line: rgba(10, 23, 33, 0.12);
+    --wompi-acid: #d9ff6a;
+    --wompi-teal: #0f4c5c;
+    --wompi-coral: #ff7a59;
+    --wompi-fog: rgba(255, 255, 255, 0.72);
+  }
+
+  .wompi-page {
+    background:
+      radial-gradient(circle at top left, rgba(217, 255, 106, 0.34), transparent 24rem),
+      radial-gradient(circle at bottom right, rgba(15, 76, 92, 0.16), transparent 22rem),
+      linear-gradient(180deg, #fefcf8 0%, var(--wompi-paper) 100%);
+    color: var(--wompi-ink);
+    min-height: 100vh;
+    padding: clamp(1.5rem, 2vw, 2rem);
+  }
+
+  .wompi-shell {
+    max-width: 1220px;
+    margin: 0 auto;
+    display: grid;
+    gap: 2rem;
+  }
+
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(290px, 0.85fr);
+    gap: 1.5rem;
+    align-items: stretch;
+  }
+
+  .hero__copy,
+  .hero__console,
+  .endpoint-card,
+  .flow-step,
+  .matrix__panel,
+  .payload-card,
+  .note {
+    border: 1px solid var(--wompi-line);
+    border-radius: 28px;
+    background: var(--wompi-fog);
+    backdrop-filter: blur(18px);
+    box-shadow: 0 18px 48px rgba(10, 23, 33, 0.08);
+  }
+
+  .hero__copy {
+    padding: clamp(1.75rem, 3vw, 3rem);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero__copy::after {
+    content: '';
+    position: absolute;
+    right: -4rem;
+    top: -5rem;
+    width: 16rem;
+    height: 16rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, rgba(217, 255, 106, 0.42), rgba(255, 122, 89, 0.16));
+    filter: blur(8px);
+  }
+
+  .eyebrow,
+  .section-heading p,
+  .endpoint-card__label {
+    margin: 0 0 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: var(--wompi-teal);
+  }
+
+  .hero h1,
+  .section-heading h2 {
+    margin: 0;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 700;
+    line-height: 0.96;
+    letter-spacing: -0.04em;
+    color: var(--wompi-ink);
+  }
+
+  .hero h1 {
+    font-size: clamp(2.8rem, 6vw, 5.6rem);
+    max-width: 13ch;
+  }
+
+  .lead {
+    max-width: 62ch;
+    font-size: 1.02rem;
+    line-height: 1.7;
+    color: rgba(10, 23, 33, 0.82);
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero__pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-top: 1.5rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero__pills span {
+    border-radius: 999px;
+    padding: 0.72rem 1rem;
+    background: rgba(10, 23, 33, 0.04);
+    border: 1px solid rgba(10, 23, 33, 0.08);
+    font-size: 0.84rem;
+    font-weight: 600;
+  }
+
+  .hero__console {
+    padding: 1.25rem;
+    background: linear-gradient(180deg, #09131a 0%, #0d1d28 100%);
+    color: #ecf7fb;
+  }
+
+  .console__head {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.82rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.82;
+    margin-bottom: 1rem;
+  }
+
+  .dot {
+    width: 0.62rem;
+    height: 0.62rem;
+    border-radius: 999px;
+    display: inline-block;
+  }
+
+  .dot--red {
+    background: #ff6c5c;
+  }
+  .dot--amber {
+    background: #ffcf5b;
+  }
+  .dot--green {
+    background: #6bff8b;
+  }
+
+  .console__body {
+    display: grid;
+    gap: 0.8rem;
+  }
+
+  .console__body div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 0.95rem;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 0.92rem;
+  }
+
+  .console__body span {
+    color: rgba(236, 247, 251, 0.72);
+  }
+  .console__body b {
+    color: var(--wompi-acid);
+    letter-spacing: 0.06em;
+  }
+
+  .section-heading {
+    display: grid;
+    gap: 0.4rem;
+  }
+
+  .section-heading h2 {
+    font-size: clamp(2rem, 3vw, 3.2rem);
+    max-width: 14ch;
+  }
+
+  .endpoint-grid,
+  .flow-list,
+  .matrix__grid,
+  .payloads__grid {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .endpoint-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .endpoint-card {
+    padding: 1.25rem;
+    display: grid;
+    gap: 0.95rem;
+  }
+
+  .endpoint-card__value,
+  pre code {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  }
+
+  .endpoint-card__value {
+    display: block;
+    padding: 0.9rem 1rem;
+    border-radius: 18px;
+    background: #0d1720;
+    color: #e2f0ff;
+    font-size: 0.85rem;
+    overflow-wrap: anywhere;
+  }
+
+  .endpoint-card__note,
+  .flow-step p,
+  .note p {
+    margin: 0;
+    line-height: 1.65;
+    color: rgba(10, 23, 33, 0.76);
+  }
+
+  .copy-btn {
+    justify-self: start;
+    appearance: none;
+    border: 0;
+    border-radius: 999px;
+    padding: 0.72rem 1rem;
+    background: linear-gradient(135deg, var(--wompi-teal), #116a80);
+    color: white;
+    font-weight: 700;
+    font-size: 0.84rem;
+    cursor: pointer;
+    transition:
+      transform 180ms ease,
+      box-shadow 180ms ease;
+    box-shadow: 0 10px 24px rgba(15, 76, 92, 0.18);
+  }
+
+  .copy-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 28px rgba(15, 76, 92, 0.22);
+  }
+
+  .flow-list {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .flow-step {
+    padding: 1.2rem;
+    min-height: 13rem;
+    position: relative;
+  }
+
+  .flow-step::before {
+    content: '';
+    position: absolute;
+    inset-inline: 1.2rem;
+    top: 1rem;
+    height: 0.28rem;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--wompi-acid), rgba(255, 122, 89, 0.9));
+  }
+
+  .flow-step h3,
+  .matrix__panel h3,
+  .payload-card h3,
+  .note h2 {
+    margin: 1.2rem 0 0.75rem;
+    font-size: 1.02rem;
+    line-height: 1.25;
+    color: var(--wompi-ink);
+  }
+
+  .matrix__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .matrix__panel {
+    padding: 1.25rem;
+  }
+
+  .matrix__panel ul,
+  .matrix__panel ol {
+    margin: 0;
+    padding-left: 1.2rem;
+    display: grid;
+    gap: 0.7rem;
+    line-height: 1.55;
+    color: rgba(10, 23, 33, 0.82);
+  }
+
+  .matrix__panel--check {
+    background: linear-gradient(180deg, rgba(217, 255, 106, 0.3), rgba(255, 255, 255, 0.72));
+  }
+
+  .payload-card {
+    padding: 1.25rem;
+    overflow: hidden;
+  }
+
+  .payloads__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .payload-card--full {
+    grid-column: 1 / -1;
+  }
+
+  .payload-card__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.9rem;
+  }
+
+  .payload-card__head h3 {
+    margin: 0;
+  }
+
+  pre {
+    margin: 0;
+    padding: 1rem;
+    border-radius: 20px;
+    background: #0b1820;
+    color: #ebf6fb;
+    overflow: auto;
+    font-size: 0.83rem;
+    line-height: 1.6;
+  }
+
+  .note {
+    padding: 1.5rem;
+    border-style: dashed;
+    background: linear-gradient(180deg, rgba(255, 122, 89, 0.08), rgba(255, 255, 255, 0.78));
+  }
+
+  @media (max-width: 1080px) {
+    .hero,
+    .matrix__grid,
+    .flow-list,
+    .payloads__grid,
+    .endpoint-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .payload-card--full {
+      grid-column: auto;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .wompi-page {
+      padding: 1rem;
+    }
+
+    .hero__copy,
+    .hero__console,
+    .endpoint-card,
+    .flow-step,
+    .matrix__panel,
+    .payload-card,
+    .note {
+      border-radius: 22px;
+    }
+
+    .payload-card__head {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>

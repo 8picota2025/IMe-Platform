@@ -1,0 +1,21 @@
+---
+import LegalPage from '../../../components/LegalPage.astro';
+import { buildCanonical, buildPageTitle } from '../../../lib/seo';
+import { legalEs } from '../../../data/legal-content';
+
+const doc = legalEs.habeasData;
+---
+
+<LegalPage
+  locale="es"
+  currentPath="/es/legal/habeas-data"
+  title={buildPageTitle(doc.pageTitle)}
+  description={doc.description}
+  canonical={buildCanonical('/es/legal/habeas-data')}
+  badge={doc.badge}
+  heading={doc.heading}
+  summary={doc.summary}
+  updatedAt={doc.updatedAt}
+  sections={doc.sections}
+  notice={doc.notice}
+/>

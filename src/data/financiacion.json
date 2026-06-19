@@ -1,0 +1,25 @@
+{
+  "pais": "Colombia",
+  "tasa_anual": 12,
+  "plazos_meses": [12, 24, 36, 48, 60],
+  "plazo_maximo_meses": 60,
+  "plazo_maximo_anos": 5,
+  "monto_min": 1000000,
+  "monto_max": 500000000,
+  "monto_paso": 500000,
+  "monto_sugerido": 50000000,
+  "moneda": "COP",
+  "aporte_cliente_porcentaje": 50,
+  "aporte_cliente_nota": "El cliente debe aportar mínimo el 50% del costo del equipo. El monto financiable es el 50% restante.",
+  "monto_financiable_maximo": 250000000,
+  "condiciones": {
+    "aporte_inicial_requerido": "50% del costo total del equipo",
+    "monto_financiable": "Máximo el 50% del costo del equipo",
+    "plazo_maximo": "60 meses (5 años)",
+    "tasa_interes_anual": "12%"
+  },
+  "fuente": "Aprobado por cliente I-ME — Parámetros legales y financieros reales para Colombia",
+  "fecha_vigencia": "2026-06-19",
+  "nota": "Valores vinculantes — requiere revisión legal final y comunicación oficial al cliente antes de publicar en web.",
+  "estado": "COMPLETADO_LEGAL"
+}

@@ -34,12 +34,15 @@ npm run validate
 PUBLIC_SUPABASE_URL=          # URL del proyecto Supabase
 PUBLIC_SUPABASE_ANON_KEY=     # Clave anónima de Supabase (segura en cliente)
 SUPABASE_SERVICE_ROLE_KEY=    # SOLO en Edge Functions — nunca en cliente
+SITE_URL=                     # URL publica del sitio, usada para redirects de checkout
 ANTHROPIC_API_KEY=            # Claude API
 OPENAI_API_KEY=               # OpenAI API (gateway alternativo)
 VOYAGE_API_KEY=               # Voyage embeddings
-WOMPI_PUBLIC_KEY=             # Wompi Colombia (pública)
-WOMPI_PRIVATE_KEY=            # Wompi privada — SOLO Edge Functions
+WOMPI_PUBLIC_KEY=             # Wompi Colombia (publica)
+WOMPI_PRIVATE_KEY=            # Wompi Colombia secreta — SOLO Edge Functions
+WOMPI_INTEGRITY_SECRET=       # Firma checkout Wompi
 WOMPI_EVENTS_SECRET=          # Firma webhooks Wompi
+WOMPI_API_BASE=               # Opcional, default https://production.wompi.co/v1
 STRIPE_PUBLIC_KEY=            # Stripe (pública)
 STRIPE_SECRET_KEY=            # Stripe secreta — SOLO Edge Functions
 STRIPE_WEBHOOK_SECRET=        # Firma webhooks Stripe
@@ -72,5 +75,5 @@ npx playwright install chromium
 
 ```bash
 npm run dev
-# → http://localhost:43421
+# → http://localhost:44334
 ```

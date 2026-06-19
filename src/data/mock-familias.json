@@ -4,8 +4,8 @@
     "slug": "monitores",
     "nombre_es": "Monitores de Signos Vitales",
     "nombre_en": "Patient Monitors",
-    "descripcion_es": "Monitores multiparamétricos para UCI, hospitalización y transporte prehospitalario.",
-    "descripcion_en": "COPY_CLIENTE_REVISAR — Multiparameter monitors for ICU, hospitalization and pre-hospital transport.",
+    "descripcion_es": "Monitores multiparamétricos para urgencias, UCI, hospitalización y transporte asistencial, con configuraciones para adulto, pediatría y neonatos.",
+    "descripcion_en": "Multiparameter monitors for emergency care, ICU, inpatient wards and transport, with adult, pediatric and neonatal configurations.",
     "icono": "activity",
     "orden": 1,
     "activo": true
@@ -15,8 +15,8 @@
     "slug": "cardiologia",
     "nombre_es": "Cardiología",
     "nombre_en": "Cardiology",
-    "descripcion_es": "Electrocardiógrafs, desfibriladores, holter y sistemas de monitoreo cardíaco.",
-    "descripcion_en": "COPY_CLIENTE_REVISAR — ECGs, defibrillators, Holter monitors and cardiac monitoring systems.",
+    "descripcion_es": "Electrocardiógrafos, desfibriladores, holter y soluciones de monitoreo cardíaco para diagnóstico, respuesta a paro y seguimiento clínico.",
+    "descripcion_en": "Electrocardiographs, defibrillators, Holter devices and cardiac monitoring solutions for diagnosis, code response and clinical follow-up.",
     "icono": "heart",
     "orden": 2,
     "activo": true
@@ -26,8 +26,8 @@
     "slug": "sala-cirugia",
     "nombre_es": "Sala de Cirugía",
     "nombre_en": "Operating Room",
-    "descripcion_es": "Mesas quirúrgicas, lámparas cialíticas y equipamiento para salas de operaciones.",
-    "descripcion_en": "COPY_CLIENTE_REVISAR — Surgical tables, operating lights and OR equipment.",
+    "descripcion_es": "Mesas quirúrgicas, lámparas cialíticas y accesorios para quirófanos que exigen posicionamiento preciso, iluminación estable y operación continua.",
+    "descripcion_en": "Surgical tables, operating lights and accessories for OR environments that require precise positioning, stable illumination and continuous operation.",
     "icono": "scissors",
     "orden": 3,
     "activo": true
@@ -37,8 +37,8 @@
     "slug": "neonatologia",
     "nombre_es": "Neonatología",
     "nombre_en": "Neonatology",
-    "descripcion_es": "Incubadoras, cunas de calor radiante, monitores fetales y sistemas CPAP neonatal.",
-    "descripcion_en": "COPY_CLIENTE_REVISAR — Incubators, radiant warmers, fetal monitors and neonatal CPAP systems.",
+    "descripcion_es": "Incubadoras, cunas de calor radiante, monitores fetales y soporte respiratorio neonatal para cuidado crítico materno-infantil.",
+    "descripcion_en": "Incubators, radiant warmers, fetal monitors and neonatal respiratory support for critical maternal and infant care.",
     "icono": "baby",
     "orden": 4,
     "activo": true
@@ -48,8 +48,8 @@
     "slug": "ultrasonido",
     "nombre_es": "Ultrasonido",
     "nombre_en": "Ultrasound",
-    "descripcion_es": "Ecógrafos diagnósticos, Doppler color y equipos portátiles point-of-care.",
-    "descripcion_en": "COPY_CLIENTE_REVISAR — Diagnostic ultrasound, color Doppler and portable point-of-care devices.",
+    "descripcion_es": "Ecógrafos diagnósticos, Doppler color y plataformas portátiles para imagen clínica general, vascular, obstétrica y point-of-care.",
+    "descripcion_en": "Diagnostic ultrasound, color Doppler and portable platforms for general imaging, vascular exams, obstetrics and point-of-care workflows.",
     "icono": "radio",
     "orden": 5,
     "activo": true
@@ -59,8 +59,8 @@
     "slug": "soluciones-iv",
     "nombre_es": "Soluciones IV",
     "nombre_en": "IV Solutions",
-    "descripcion_es": "Bombas de infusión volumétricas y de jeringa para UCI y hospitalización.",
-    "descripcion_en": "COPY_CLIENTE_REVISAR — Volumetric and syringe infusion pumps for ICU and hospitalization.",
+    "descripcion_es": "Bombas de infusión volumétricas y de jeringa para terapias continuas, dosificación controlada y manejo seguro de medicamentos en hospitalización y UCI.",
+    "descripcion_en": "Volumetric and syringe infusion pumps for continuous therapy, controlled dosing and safe medication delivery in inpatient care and ICU.",
     "icono": "droplets",
     "orden": 6,
     "activo": true
@@ -70,8 +70,8 @@
     "slug": "mobiliario",
     "nombre_es": "Mobiliario Hospitalario",
     "nombre_en": "Hospital Furniture",
-    "descripcion_es": "Camillas hospitalarias eléctricas, carros de paro y mobiliario clínico.",
-    "descripcion_en": "COPY_CLIENTE_REVISAR — Electric hospital beds, code carts and clinical furniture.",
+    "descripcion_es": "Camillas, camas hospitalarias, carros de paro y mobiliario clínico para flujo asistencial, traslado y soporte operativo en áreas críticas.",
+    "descripcion_en": "Stretchers, hospital beds, crash carts and clinical furniture for care workflows, patient transport and operational support in critical areas.",
     "icono": "bed",
     "orden": 7,
     "activo": true
@@ -81,10 +81,21 @@
     "slug": "anestesia",
     "nombre_es": "Anestesia y Ventilación",
     "nombre_en": "Anesthesia & Ventilation",
-    "descripcion_es": "Máquinas de anestesia y ventiladores mecánicos para UCI adultos y pediatría.",
-    "descripcion_en": "COPY_CLIENTE_REVISAR — Anesthesia machines and mechanical ventilators for adult and pediatric ICU.",
+    "descripcion_es": "Máquinas de anestesia y ventiladores mecánicos para quirófano y UCI, con soporte para pacientes adultos, pediátricos y neonatales según referencia.",
+    "descripcion_en": "Anesthesia machines and mechanical ventilators for OR and ICU settings, with support for adult, pediatric and neonatal patients depending on the model.",
     "icono": "wind",
     "orden": 8,
+    "activo": true
+  },
+  {
+    "id": "fam-radiologia",
+    "slug": "radiologia",
+    "nombre_es": "Radiología y Diagnóstico por Imagen",
+    "nombre_en": "Radiology & Diagnostic Imaging",
+    "descripcion_es": "Sistemas DR, telemandos R/F, mamografía y arcos en C para servicios de imagen que requieren captura diagnóstica, fluoroscopia y flujo radiológico continuo.",
+    "descripcion_en": "DR systems, R/F tables, mammography units and C-arms for imaging departments that require diagnostic capture, fluoroscopy and continuous radiology throughput.",
+    "icono": "scan",
+    "orden": 9,
     "activo": true
   }
 ]

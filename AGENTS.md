@@ -5,7 +5,7 @@
 E-commerce biomédico premium B2B para I-ME (International Medical Enterprise).
 Mercados: Colombia, España, Latinoamérica.
 Working dir: /home/shoky/Documents/I-ME/0106-ime-web-claude-design
-Dev: http://localhost:43421
+Dev: http://localhost:44334
 
 ## Stack
 
@@ -42,6 +42,7 @@ Dev: http://localhost:43421
 src/layouts/Layout.astro
 src/pages/es/{index,catalogo,productos/[slug],servicios,financiacion,contacto,admin}.astro
 src/pages/en/{index,catalog,products/[slug],services,financing,contact,admin}.astro
+src/pages/{es,en}/legal/[slug].astro
 src/components/{Navbar,Footer,Hero,CatalogoGrid,ProductoCard,ProductoShell,Asesor,Carrito,SimuladorFinanciero}.astro
 src/lib/{supabase,datos,embeddings,llm-gateway,payment-gateway,cotizacion,fulfillment,format,seo,motion}.ts
 src/data/{mock-productos,mock-familias,mock-tipos,financiacion,contacto,extraccion_ime}.json
@@ -75,10 +76,11 @@ CLAUDE.md, AGENTS.md, PENDIENTES.md, BACKLOG_V2.md, README.md
 [x] F0 — Discovery y tokens | rama: feature/fase-0
 [x] F1 — Fundaciones, Home e infra | rama: feature/fase-1
 [x] F2 — Catálogo, landings y SEO | rama: feature/fase-2
-[ ] F3 — CMS, ingesta PDF y rebuild | rama: feature/fase-3
-[ ] Asesor — RAG conversacional | rama: feature/fase-asesor
-[ ] F4 — Comercio híbrido y dropshipping | rama: feature/fase-4
-[ ] F5 — Auditoría, legales y despliegue | rama: feature/fase-5
+[x] F3 — CMS, ingesta PDF y rebuild | rama: feature/fase-3
+[x] Asesor — RAG conversacional | rama: feature/fase-asesor
+[x] F4 — Comercio híbrido y dropshipping | rama: feature/fase-4 (código implementado; pruebas reales bloqueadas por credenciales)
+[x] F4.1 — Escenario A y cierre de Comercio (Wompi v1.1) | rama: feature/fase-4.1 (código implementado; migración SQL `productos.disponible`/`disponible_actualizado_at` aplicada en BD real el 2026-06-15 — ver PENDIENTES; origen: plataforma/prompts/IME_F4_Commerce_Pasarelas_v1.1.md + huecos F1 §8.3/§8.5)
+[ ] F5 — Auditoría, legales y despliegue | rama: feature/fase-5 (iniciada)
 
 ## Etiquetas de pendiente (usar exactamente estas)
 

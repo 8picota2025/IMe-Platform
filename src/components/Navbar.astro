@@ -2,15 +2,15 @@
 /**
  * Navbar — Logo real, links, selector idioma, CTA, tema, carrito placeholder, menú mobile.
  */
-import type { Locale } from '../i18n/utils'
-import { t, getLocalizedPath } from '../i18n/utils'
+import type { Locale } from '../i18n/utils';
+import { t, getLocalizedPath } from '../i18n/utils';
 
 interface Props {
-  locale: Locale
-  currentPath: string
+  locale: Locale;
+  currentPath: string;
 }
 
-const { locale, currentPath } = Astro.props
+const { locale, currentPath } = Astro.props;
 
 const links = [
   { key: 'nav.inicio', href: getLocalizedPath('/', locale) },
@@ -18,10 +18,10 @@ const links = [
   { key: 'nav.servicios', href: getLocalizedPath('/servicios', locale) },
   { key: 'nav.financiacion', href: getLocalizedPath('/financiacion', locale) },
   { key: 'nav.contacto', href: getLocalizedPath('/contacto', locale) },
-]
+];
 
-const altLocale: Locale = locale === 'es' ? 'en' : 'es'
-const altHref = getLocalizedPath(currentPath, altLocale)
+const altLocale: Locale = locale === 'es' ? 'en' : 'es';
+const altHref = getLocalizedPath(currentPath, altLocale);
 ---
 
 <header class="navbar" id="navbar" role="banner">
@@ -76,7 +76,7 @@ const altHref = getLocalizedPath(currentPath, altLocale)
       <a
         href={altHref}
         class="navbar__lang-btn"
-        aria-label={t(locale, 'nav.cambiar_idioma')}
+        aria-label={`${t(locale, 'nav.cambiar_idioma')} (${altLocale.toUpperCase()})`}
         lang={altLocale}
       >
         {altLocale.toUpperCase()}
@@ -137,13 +137,48 @@ const altHref = getLocalizedPath(currentPath, altLocale)
         </svg>
       </button>
 
-      <!-- Carrito placeholder (F4) -->
+      <!-- Lista de cotización (equipos) -->
       <button
+        id="nav-cotizacion-btn"
+        class="navbar__icon-btn navbar__cart-btn"
+        aria-label={t(locale, 'nav.cotizacion')}
+        type="button"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline
+            points="14 2 14 8 20 8"></polyline><line x1="9" y1="13" x2="15" y2="13"></line><line
+            x1="9"
+            y1="17"
+            x2="15"
+            y2="17"></line>
+        </svg>
+        <span
+          id="nav-cotizacion-badge"
+          class="navbar__cart-badge"
+          aria-live="polite"
+          aria-atomic="true"
+          style="display:none">0</span
+        >
+        <span class="sr-only" data-cotizacion-suffix>{t(locale, 'nav.items_cotizacion')}</span>
+      </button>
+
+      <!-- Carrito de consumibles -->
+      <button
+        id="nav-carrito-btn"
         class="navbar__icon-btn navbar__cart-btn"
         aria-label={t(locale, 'nav.carrito')}
         type="button"
-        disabled
-        aria-disabled="true"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -160,9 +195,14 @@ const altHref = getLocalizedPath(currentPath, altLocale)
           <circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path
             d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
         </svg>
-        <span class="navbar__cart-badge" aria-live="polite" aria-atomic="true" style="display:none"
-          >0</span
+        <span
+          id="nav-carrito-badge"
+          class="navbar__cart-badge"
+          aria-live="polite"
+          aria-atomic="true"
+          style="display:none">0</span
         >
+        <span class="sr-only" data-carrito-suffix>{t(locale, 'nav.items_carrito')}</span>
       </button>
 
       <!-- CTA -->
@@ -185,52 +225,52 @@ const altHref = getLocalizedPath(currentPath, altLocale)
       </button>
     </div>
   </div>
-
-  <!-- Mobile menu -->
-  <div
-    id="mobile-menu"
-    class="navbar__mobile"
-    role="dialog"
-    aria-modal="true"
-    aria-label={locale === 'es' ? 'Menú de navegación' : 'Navigation menu'}
-    hidden
-  >
-    <nav aria-label={locale === 'es' ? 'Navegación móvil' : 'Mobile navigation'}>
-      <ul class="navbar__mobile-list" role="list">
-        {
-          links.map(({ key, href }) => (
-            <li>
-              <a
-                href={href}
-                class:list={[
-                  'navbar__mobile-link',
-                  { 'navbar__mobile-link--active': currentPath === href },
-                ]}
-                aria-current={currentPath === href ? 'page' : undefined}
-              >
-                {t(locale, key)}
-              </a>
-            </li>
-          ))
-        }
-        <li>
-          <a href={altHref} class="navbar__mobile-link" lang={altLocale}>
-            {t(locale, 'nav.cambiar_idioma')}: {altLocale.toUpperCase()}
-          </a>
-        </li>
-        <li>
-          <a
-            href={getLocalizedPath('/contacto', locale)}
-            class="btn btn-primary"
-            style="width:100%;justify-content:center;margin-top:1rem"
-          >
-            {t(locale, 'nav.cta_cotizar')}
-          </a>
-        </li>
-      </ul>
-    </nav>
-  </div>
 </header>
+
+<!-- Mobile menu -->
+<div
+  id="mobile-menu"
+  class="navbar__mobile"
+  role="dialog"
+  aria-modal="true"
+  aria-label={locale === 'es' ? 'Menú de navegación' : 'Navigation menu'}
+  hidden
+>
+  <nav aria-label={locale === 'es' ? 'Navegación móvil' : 'Mobile navigation'}>
+    <ul class="navbar__mobile-list" role="list">
+      {
+        links.map(({ key, href }) => (
+          <li>
+            <a
+              href={href}
+              class:list={[
+                'navbar__mobile-link',
+                { 'navbar__mobile-link--active': currentPath === href },
+              ]}
+              aria-current={currentPath === href ? 'page' : undefined}
+            >
+              {t(locale, key)}
+            </a>
+          </li>
+        ))
+      }
+      <li>
+        <a href={altHref} class="navbar__mobile-link" lang={altLocale}>
+          {t(locale, 'nav.cambiar_idioma')}: {altLocale.toUpperCase()}
+        </a>
+      </li>
+      <li>
+        <a
+          href={getLocalizedPath('/contacto', locale)}
+          class="btn btn-primary"
+          style="width:100%;justify-content:center;margin-top:1rem"
+        >
+          {t(locale, 'nav.cta_cotizar')}
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>
 
 <style>
   .navbar {
@@ -362,6 +402,17 @@ const altHref = getLocalizedPath(currentPath, altLocale)
     align-items: center;
     justify-content: center;
   }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
   .icon-moon {
     display: none;
   }
@@ -458,103 +509,208 @@ const altHref = getLocalizedPath(currentPath, altLocale)
 </style>
 
 <script>
-  // Navbar scroll shadow
-  const navbar = document.getElementById('navbar')
-  if (navbar) {
+  import { resetTransientUiState } from '../lib/motion';
+
+  type NavbarWindow = Window & {
+    __imeNavbarLifecycleInstalled?: boolean;
+    __imeNavbarCarritoInstalled?: boolean;
+    __imeNavbarCotizacionInstalled?: boolean;
+    __imeNavbarAbrirCarrito?: () => void;
+    __imeNavbarAbrirCotizacion?: () => void;
+    __imeNavbarGetCarritoCantidad?: () => number;
+    __imeNavbarGetCotizacionCantidad?: () => number;
+  };
+
+  const win = window as NavbarWindow;
+
+  function getNavbarElements() {
+    return {
+      navbar: document.getElementById('navbar'),
+      themeBtn: document.getElementById('theme-toggle'),
+      menuToggle: document.getElementById('menu-toggle'),
+      mobileMenu: document.getElementById('mobile-menu'),
+      carritoBtn: document.getElementById('nav-carrito-btn'),
+      carritoBadge: document.getElementById('nav-carrito-badge'),
+      cotizacionBtn: document.getElementById('nav-cotizacion-btn'),
+      cotizacionBadge: document.getElementById('nav-cotizacion-badge'),
+    };
+  }
+
+  function syncScrollShadow() {
+    const { navbar } = getNavbarElements();
+    navbar?.classList.toggle('scrolled', window.scrollY > 10);
+  }
+
+  function renderCarritoBadge(cantidad: number) {
+    const { carritoBadge } = getNavbarElements();
+    if (!carritoBadge) return;
+    carritoBadge.textContent = String(cantidad);
+    carritoBadge.style.display = cantidad > 0 ? 'flex' : 'none';
+  }
+
+  function renderCotizacionBadge(cantidad: number) {
+    const { cotizacionBadge } = getNavbarElements();
+    if (!cotizacionBadge) return;
+    cotizacionBadge.textContent = String(cantidad);
+    cotizacionBadge.style.display = cantidad > 0 ? 'flex' : 'none';
+  }
+
+  function closeMenu(options?: { restoreFocus?: boolean }) {
+    const { mobileMenu, menuToggle } = getNavbarElements();
+    if (!mobileMenu || !menuToggle) return;
+    mobileMenu.setAttribute('hidden', '');
+    menuToggle.setAttribute('aria-expanded', 'false');
+    menuToggle.setAttribute('aria-label', menuToggle.dataset['openLabel'] ?? 'Abrir menú');
+    document.body.style.overflow = '';
+    if (options?.restoreFocus !== false) {
+      menuToggle.focus();
+    }
+  }
+
+  function openMenu() {
+    const { mobileMenu, menuToggle } = getNavbarElements();
+    if (!mobileMenu || !menuToggle) return;
+    resetTransientUiState();
+    mobileMenu.removeAttribute('hidden');
+    menuToggle.setAttribute('aria-expanded', 'true');
+    menuToggle.setAttribute('aria-label', menuToggle.dataset['closeLabel'] ?? 'Cerrar menú');
+    document.body.style.overflow = 'hidden';
+    mobileMenu.querySelector<HTMLElement>('a, button')?.focus();
+  }
+
+  function initNavbar() {
+    const { themeBtn, menuToggle, mobileMenu, carritoBtn, cotizacionBtn } = getNavbarElements();
+
+    syncScrollShadow();
+
+    if (themeBtn && themeBtn.dataset['imeBound'] !== 'true') {
+      themeBtn.dataset['imeBound'] = 'true';
+      themeBtn.addEventListener('click', () => {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const next = isDark ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        try {
+          localStorage.setItem('ime-theme', next);
+        } catch {
+          /* ignore */
+        }
+        themeBtn.setAttribute(
+          'aria-label',
+          next === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'
+        );
+      });
+    }
+
+    if (menuToggle && menuToggle.dataset['imeBound'] !== 'true') {
+      menuToggle.dataset['imeBound'] = 'true';
+      menuToggle.dataset['openLabel'] = menuToggle.getAttribute('aria-label') ?? 'Abrir menú';
+      menuToggle.dataset['closeLabel'] = 'Cerrar menú de navegación';
+      menuToggle.addEventListener('click', () => {
+        const isOpen = menuToggle.getAttribute('aria-expanded') === 'true';
+        if (isOpen) {
+          closeMenu();
+        } else {
+          openMenu();
+        }
+      });
+    }
+
+    if (mobileMenu && mobileMenu.dataset['imeBound'] !== 'true') {
+      mobileMenu.dataset['imeBound'] = 'true';
+      mobileMenu.addEventListener('keydown', e => {
+        if (e.key !== 'Tab') return;
+        const focusable = Array.from(
+          mobileMenu.querySelectorAll<HTMLElement>('a, button, [tabindex]:not([tabindex="-1"])')
+        );
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (!first || !last) return;
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      });
+
+      mobileMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => closeMenu({ restoreFocus: false }));
+      });
+    }
+
+    if (carritoBtn && carritoBtn.dataset['imeBound'] !== 'true') {
+      carritoBtn.dataset['imeBound'] = 'true';
+      carritoBtn.addEventListener('click', () => win.__imeNavbarAbrirCarrito?.());
+    }
+
+    if (cotizacionBtn && cotizacionBtn.dataset['imeBound'] !== 'true') {
+      cotizacionBtn.dataset['imeBound'] = 'true';
+      cotizacionBtn.addEventListener('click', () => win.__imeNavbarAbrirCotizacion?.());
+    }
+
+    if (win.__imeNavbarGetCarritoCantidad) {
+      renderCarritoBadge(win.__imeNavbarGetCarritoCantidad());
+    }
+
+    if (win.__imeNavbarGetCotizacionCantidad) {
+      renderCotizacionBadge(win.__imeNavbarGetCotizacionCantidad());
+    }
+  }
+
+  if (!win.__imeNavbarLifecycleInstalled) {
+    win.__imeNavbarLifecycleInstalled = true;
+
     window.addEventListener(
       'scroll',
       () => {
-        navbar.classList.toggle('scrolled', window.scrollY > 10)
+        syncScrollShadow();
       },
       { passive: true }
-    )
-  }
+    );
 
-  // Theme toggle
-  const themeBtn = document.getElementById('theme-toggle')
-  if (themeBtn) {
-    themeBtn.addEventListener('click', () => {
-      const isDark = document.documentElement.getAttribute('data-theme') === 'dark'
-      const next = isDark ? 'light' : 'dark'
-      document.documentElement.setAttribute('data-theme', next)
-      try {
-        localStorage.setItem('ime-theme', next)
-      } catch {
-        /* ignore */
+    document.addEventListener('keydown', e => {
+      const { menuToggle } = getNavbarElements();
+      if (e.key === 'Escape' && menuToggle?.getAttribute('aria-expanded') === 'true') {
+        closeMenu();
       }
-      themeBtn.setAttribute(
-        'aria-label',
-        next === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'
-      )
-    })
+    });
+
+    document.addEventListener('astro:page-load', () => {
+      initNavbar();
+    });
   }
 
-  // Mobile menu with focus trap
-  const menuToggle = document.getElementById('menu-toggle')
-  const mobileMenu = document.getElementById('mobile-menu')
-
-  function openMenu() {
-    if (!mobileMenu || !menuToggle) return
-    mobileMenu.removeAttribute('hidden')
-    menuToggle.setAttribute('aria-expanded', 'true')
-    menuToggle.setAttribute('aria-label', menuToggle.dataset['closeLabel'] ?? 'Cerrar menú')
-    document.body.style.overflow = 'hidden'
-    // Focus first link
-    const firstLink = mobileMenu.querySelector<HTMLElement>('a, button')
-    firstLink?.focus()
+  if (!win.__imeNavbarCarritoInstalled) {
+    win.__imeNavbarCarritoInstalled = true;
+    void (async () => {
+      const { getCarritoCantidad, suscribirCarrito, abrirCarrito } = await import('../lib/carrito');
+      win.__imeNavbarAbrirCarrito = abrirCarrito;
+      win.__imeNavbarGetCarritoCantidad = getCarritoCantidad;
+      renderCarritoBadge(getCarritoCantidad());
+      suscribirCarrito(items => {
+        const total = items.reduce((sum, item) => sum + item.cantidad, 0);
+        renderCarritoBadge(total);
+      });
+      initNavbar();
+    })();
   }
 
-  function closeMenu() {
-    if (!mobileMenu || !menuToggle) return
-    mobileMenu.setAttribute('hidden', '')
-    menuToggle.setAttribute('aria-expanded', 'false')
-    menuToggle.setAttribute('aria-label', menuToggle.dataset['openLabel'] ?? 'Abrir menú')
-    document.body.style.overflow = ''
-    menuToggle.focus()
+  if (!win.__imeNavbarCotizacionInstalled) {
+    win.__imeNavbarCotizacionInstalled = true;
+    void (async () => {
+      const { getCotizacionCantidad, suscribirCotizacion, abrirCotizacion } =
+        await import('../lib/cotizacion-equipos');
+      win.__imeNavbarAbrirCotizacion = abrirCotizacion;
+      win.__imeNavbarGetCotizacionCantidad = getCotizacionCantidad;
+      renderCotizacionBadge(getCotizacionCantidad());
+      suscribirCotizacion(items => {
+        const total = items.reduce((sum, item) => sum + item.cantidad, 0);
+        renderCotizacionBadge(total);
+      });
+      initNavbar();
+    })();
   }
 
-  if (menuToggle) {
-    menuToggle.dataset['openLabel'] = menuToggle.getAttribute('aria-label') ?? 'Abrir menú'
-    menuToggle.dataset['closeLabel'] = 'Cerrar menú de navegación'
-    menuToggle.addEventListener('click', () => {
-      const isOpen = menuToggle.getAttribute('aria-expanded') === 'true'
-      if (isOpen) {
-        closeMenu()
-      } else {
-        openMenu()
-      }
-    })
-  }
-
-  // Escape key closes menu
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && menuToggle?.getAttribute('aria-expanded') === 'true') {
-      closeMenu()
-    }
-  })
-
-  // Focus trap inside mobile menu
-  if (mobileMenu) {
-    mobileMenu.addEventListener('keydown', (e) => {
-      if (e.key !== 'Tab') return
-      const focusable = Array.from(
-        mobileMenu.querySelectorAll<HTMLElement>('a, button, [tabindex]:not([tabindex="-1"])')
-      )
-      const first = focusable[0]
-      const last = focusable[focusable.length - 1]
-      if (!first || !last) return
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault()
-        last.focus()
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault()
-        first.focus()
-      }
-    })
-  }
-
-  // Close menu on link click
-  mobileMenu?.querySelectorAll('a').forEach((link) => {
-    link.addEventListener('click', closeMenu)
-  })
+  initNavbar();
 </script>

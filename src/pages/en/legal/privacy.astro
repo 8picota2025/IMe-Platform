@@ -1,0 +1,21 @@
+---
+import LegalPage from '../../../components/LegalPage.astro';
+import { buildCanonical, buildPageTitle } from '../../../lib/seo';
+import { legalEn } from '../../../data/legal-content';
+
+const doc = legalEn.privacy;
+---
+
+<LegalPage
+  locale="en"
+  currentPath="/en/legal/privacy"
+  title={buildPageTitle(doc.pageTitle)}
+  description={doc.description}
+  canonical={buildCanonical('/en/legal/privacy')}
+  badge={doc.badge}
+  heading={doc.heading}
+  summary={doc.summary}
+  updatedAt={doc.updatedAt}
+  sections={doc.sections}
+  notice={doc.notice}
+/>

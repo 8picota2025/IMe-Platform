@@ -1,0 +1,217 @@
+---
+/**
+ * ResultadoPago — bloque compartido para las páginas de resultado de pago
+ * (/es/pago/{exito,pendiente,fallo} y /en/payment/{success,pending,failure}).
+ *
+ * El "tipo" refleja la redirección de la pasarela (Wompi/Stripe). El estado
+ * real del pedido se consulta server-side (Edge Function consultar-pedido)
+ * porque el cliente nunca decide si un pago quedó aprobado.
+ */
+import { t, type Locale } from '../i18n/utils';
+
+interface Props {
+  locale: Locale;
+  tipo: 'exito' | 'pendiente' | 'fallo' | 'resultado';
+}
+
+const { locale, tipo } = Astro.props;
+
+const catalogoHref = locale === 'en' ? '/en/catalog' : '/es/catalogo';
+const contactoHref = locale === 'en' ? '/en/contact' : '/es/contacto';
+
+const tituloKey = `pago.${tipo}_titulo` as const;
+const descKey = `pago.${tipo}_desc` as const;
+
+const icono = { exito: '✓', pendiente: '…', fallo: '✕', resultado: '…' }[tipo];
+
+// CTA WhatsApp directo para exito/fallo (TAREA 5 v1.1) — el mensaje se
+// completa con la referencia del pedido en el script si está disponible.
+const mostrarWhatsapp = tipo === 'exito' || tipo === 'fallo' || tipo === 'resultado';
+const whatsappHref = `https://wa.me/573138674059?text=${encodeURIComponent(t(locale, 'pago.whatsapp_mensaje'))}`;
+---
+
+<section class="resultado-pago container">
+  <div class={`resultado-pago__icon resultado-pago__icon--${tipo}`} aria-hidden="true">
+    {icono}
+  </div>
+  <h1>{t(locale, tituloKey)}</h1>
+  <p class="resultado-pago__desc">{t(locale, descKey)}</p>
+
+  <div id="pedido-detalle" class="resultado-pago__detalle" role="status" aria-live="polite" hidden>
+    <dl>
+      <div>
+        <dt>{t(locale, 'pago.referencia')}</dt>
+        <dd id="pedido-referencia"></dd>
+      </div>
+      <div id="pedido-estado-fila" hidden>
+        <dt>{t(locale, 'pago.estado')}</dt>
+        <dd id="pedido-estado"></dd>
+      </div>
+    </dl>
+    <p id="pedido-no-encontrado" hidden>{t(locale, 'pago.no_encontrado')}</p>
+  </div>
+
+  <div class="resultado-pago__cta">
+    <a href={catalogoHref} class="btn btn-primary">{t(locale, 'pago.volver_catalogo')}</a>
+    <a href={contactoHref} class="btn btn-secondary">{t(locale, 'pago.contactar')}</a>
+    {
+      mostrarWhatsapp && (
+        <a
+          id="resultado-pago-whatsapp"
+          href={whatsappHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn-secondary"
+        >
+          {t(locale, 'pago.whatsapp')}
+        </a>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .resultado-pago {
+    padding-block: 140px var(--space-2xl);
+    max-width: 560px;
+    text-align: center;
+  }
+  .resultado-pago__icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 1.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 700;
+  }
+  .resultado-pago__icon--exito {
+    background: #e6f4ea;
+    color: #1e7a34;
+  }
+  .resultado-pago__icon--pendiente,
+  .resultado-pago__icon--resultado {
+    background: #fff4e0;
+    color: #b06a00;
+  }
+  .resultado-pago__icon--fallo {
+    background: #fdecea;
+    color: #b3261e;
+  }
+  .resultado-pago h1 {
+    margin: 0 0 0.75rem;
+  }
+  .resultado-pago__desc {
+    color: var(--text-mid);
+    margin: 0 0 1.5rem;
+  }
+  .resultado-pago__detalle {
+    background: var(--off);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem 1.5rem;
+    margin: 0 0 1.5rem;
+    text-align: left;
+  }
+  .resultado-pago__detalle[hidden] {
+    display: none;
+  }
+  .resultado-pago__detalle dl {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .resultado-pago__detalle dl > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: 0.875rem;
+  }
+  .resultado-pago__detalle dt {
+    color: var(--text-mid);
+    font-weight: 600;
+  }
+  .resultado-pago__detalle dd {
+    margin: 0;
+    color: var(--ink);
+    word-break: break-all;
+  }
+  .resultado-pago__detalle #pedido-no-encontrado {
+    margin: 0.75rem 0 0;
+    font-size: 0.8rem;
+    color: var(--text-mid);
+  }
+  .resultado-pago__cta {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+</style>
+
+<script>
+  import { consultarPedido, leerReferenciaDeUrl } from '../lib/pedido';
+  import { formatMoneda } from '../lib/format';
+
+  const ESTADO_KEYS: Record<string, string> = {
+    pendiente: 'pago.estado_pendiente',
+    pagado: 'pago.estado_pagado',
+    rechazado: 'pago.estado_rechazado',
+    expirado: 'pago.estado_expirado',
+    cancelado: 'pago.estado_cancelado',
+    reembolsado: 'pago.estado_reembolsado',
+    error_verificacion: 'pago.estado_error_verificacion',
+  };
+
+  void (async () => {
+    const referencia = leerReferenciaDeUrl();
+    if (!referencia) return;
+
+    const detalle = document.getElementById('pedido-detalle');
+    const referenciaEl = document.getElementById('pedido-referencia');
+    const estadoFila = document.getElementById('pedido-estado-fila');
+    const estadoEl = document.getElementById('pedido-estado');
+    const noEncontradoEl = document.getElementById('pedido-no-encontrado');
+    if (!detalle || !referenciaEl) return;
+
+    detalle.hidden = false;
+    referenciaEl.textContent = referencia;
+
+    const { t, getLocale } = await import('../i18n/utils');
+    const locale = getLocale(window.location.pathname);
+
+    const whatsappEl = document.getElementById('resultado-pago-whatsapp');
+    if (whatsappEl instanceof HTMLAnchorElement) {
+      const mensaje = `${t(locale, 'pago.whatsapp_mensaje')}\n\n${t(locale, 'pago.referencia')}: ${referencia}`;
+      whatsappEl.href = `https://wa.me/573138674059?text=${encodeURIComponent(mensaje)}`;
+    }
+
+    const resultado = await consultarPedido(referencia);
+    if (!resultado.ok || !resultado.pedido.encontrado) {
+      if (noEncontradoEl) noEncontradoEl.hidden = false;
+      return;
+    }
+
+    const { estado, total, moneda } = resultado.pedido;
+    if (estado && estadoFila && estadoEl) {
+      const key = ESTADO_KEYS[estado];
+      estadoEl.textContent = key ? t(locale, key) : estado;
+      estadoFila.hidden = false;
+    }
+    if (total !== undefined && moneda) {
+      const formateado = formatMoneda(total, moneda, locale);
+      if (formateado) {
+        const totalFila = document.createElement('div');
+        const dt = document.createElement('dt');
+        dt.textContent = 'Total';
+        const dd = document.createElement('dd');
+        dd.textContent = formateado;
+        totalFila.append(dt, dd);
+        detalle.querySelector('dl')?.append(totalFila);
+      }
+    }
+  })();
+</script>

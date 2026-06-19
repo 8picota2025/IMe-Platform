@@ -1,0 +1,1001 @@
+:root {
+  --admin-bg: #f5f1e8;
+  --admin-panel: #fffdf8;
+  --admin-ink: #171a1c;
+  --admin-muted: #66706f;
+  --admin-line: #d7d0c2;
+  --admin-accent: #005e60;
+  --admin-accent-2: #b53b2f;
+  --admin-ok: #217a43;
+  --admin-warn: #9a6500;
+  --admin-radius: 8px;
+  --admin-shadow: 0 24px 60px rgba(23, 26, 28, 0.12);
+}
+
+.admin-body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    linear-gradient(135deg, rgba(0, 94, 96, 0.08), transparent 36%),
+    linear-gradient(180deg, #faf8f1 0%, var(--admin-bg) 100%);
+  color: var(--admin-ink);
+  font-family: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+}
+
+.admin-root {
+  min-height: 100vh;
+}
+
+.admin-loading,
+.admin-empty {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  color: var(--admin-muted);
+}
+
+.admin-loading__mark {
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--admin-line);
+  border-top-color: var(--admin-accent);
+  border-radius: 50%;
+  animation: admin-spin 900ms linear infinite;
+}
+
+@keyframes admin-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.admin-login {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 24px;
+}
+
+.admin-login__panel {
+  width: min(100%, 420px);
+  padding: 32px;
+  background: var(--admin-panel);
+  border: 1px solid var(--admin-line);
+  border-radius: var(--admin-radius);
+  box-shadow: var(--admin-shadow);
+}
+
+.admin-login h1,
+.admin-shell h1,
+.admin-shell h2 {
+  margin: 0;
+  line-height: 1.05;
+  letter-spacing: 0;
+}
+
+.admin-login h1 {
+  font-size: clamp(2rem, 5vw, 3.4rem);
+}
+
+.admin-login p,
+.admin-help,
+.admin-meta {
+  color: var(--admin-muted);
+  line-height: 1.5;
+}
+
+.admin-form {
+  display: grid;
+  gap: 14px;
+}
+
+.admin-field {
+  display: grid;
+  gap: 7px;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+.admin-field input,
+.admin-field textarea,
+.admin-field select {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--admin-line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--admin-ink);
+  font: inherit;
+  font-weight: 450;
+  padding: 11px 12px;
+}
+
+.admin-field textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.admin-markdown-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.admin-markdown-preview {
+  margin-top: 10px;
+  padding: 14px;
+  min-height: 180px;
+  border: 1px solid var(--admin-line);
+  border-radius: var(--admin-radius);
+  background: linear-gradient(180deg, #fffef9, #f8f5ed);
+  color: var(--admin-ink);
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  line-height: 1.6;
+  overflow: auto;
+}
+
+.admin-markdown-preview h1,
+.admin-markdown-preview h2,
+.admin-markdown-preview h3 {
+  margin: 0 0 0.75rem;
+}
+
+.admin-markdown-preview p {
+  margin: 0 0 0.75rem;
+}
+
+.admin-markdown-preview ul,
+.admin-markdown-preview ol {
+  margin: 0 0 0.75rem 1.25rem;
+  padding: 0;
+}
+
+.admin-markdown-preview blockquote {
+  margin: 0 0 0.75rem;
+  padding-left: 1rem;
+  border-left: 3px solid var(--admin-accent);
+  color: var(--admin-muted);
+}
+
+.admin-markdown-preview pre {
+  margin: 0 0 0.75rem;
+  padding: 0.9rem;
+  overflow: auto;
+  border-radius: 6px;
+  background: #111819;
+  color: #f8f4ea;
+}
+
+.admin-markdown-preview code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.admin-markdown-preview a {
+  color: var(--admin-accent);
+}
+
+@media (max-width: 960px) {
+  .admin-markdown-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-health {
+    grid-template-columns: 1fr;
+  }
+}
+
+.admin-upload-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px;
+  border: 1px dashed rgba(0, 94, 96, 0.45);
+  border-radius: var(--admin-radius);
+  background: rgba(0, 94, 96, 0.06);
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+}
+
+.admin-upload-box p {
+  margin: 4px 0 0;
+  color: var(--admin-muted);
+  line-height: 1.45;
+}
+
+.admin-field input:focus,
+.admin-field textarea:focus,
+.admin-field select:focus,
+.admin-button:focus-visible,
+.admin-nav a:focus-visible {
+  outline: 3px solid rgba(0, 94, 96, 0.26);
+  outline-offset: 2px;
+}
+
+.admin-shell {
+  display: grid;
+  grid-template-columns: 248px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.admin-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  box-sizing: border-box;
+  padding: 22px;
+  background: #111819;
+  color: #f8f4ea;
+}
+
+.admin-brand {
+  display: grid;
+  gap: 2px;
+  margin-bottom: 26px;
+}
+
+.admin-brand strong {
+  font-size: 1.55rem;
+  line-height: 1;
+}
+
+.admin-brand span {
+  color: rgba(248, 244, 234, 0.68);
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+.admin-nav {
+  display: grid;
+  gap: 6px;
+}
+
+.admin-nav a,
+.admin-button {
+  min-height: 40px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-decoration: none;
+}
+
+.admin-nav a {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  color: rgba(248, 244, 234, 0.76);
+}
+
+.admin-nav a[aria-current='page'],
+.admin-nav a:hover {
+  background: rgba(248, 244, 234, 0.1);
+  color: #fff;
+}
+
+.admin-main {
+  padding: 28px;
+}
+
+.admin-topbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.admin-topbar h1 {
+  font-size: clamp(2rem, 4vw, 4rem);
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.admin-taxonomy-grid {
+  display: grid;
+  grid-template-columns: minmax(420px, 1.05fr) minmax(360px, 0.95fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.admin-taxonomy-panel {
+  display: grid;
+  gap: 0;
+}
+
+.admin-taxonomy-list {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border-bottom: 1px solid var(--admin-line);
+}
+
+.admin-taxonomy-list .admin-field {
+  display: grid;
+  grid-template-columns: 118px minmax(0, 1fr);
+  gap: 8px 10px;
+  align-items: center;
+  font-size: 0.82rem;
+}
+
+.admin-taxonomy-list .admin-field input,
+.admin-taxonomy-list .admin-field select {
+  min-height: 34px;
+  padding: 7px 9px;
+}
+
+.admin-taxonomy-list .admin-field textarea {
+  min-height: 58px;
+  padding: 8px 9px;
+}
+
+.admin-taxonomy-list .admin-field:has(input[type='checkbox'])::before {
+  content: 'Estado';
+  color: var(--admin-muted);
+}
+
+.admin-taxonomy-list .admin-field:has(input[type='checkbox']) span {
+  grid-column: 2;
+}
+
+.admin-taxonomy-list--familias {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.admin-taxonomy-list--familias .admin-field:has(textarea) {
+  align-items: start;
+}
+
+.admin-taxonomy-panel .admin-table-wrap {
+  max-height: 46vh;
+  overflow: auto;
+}
+
+.admin-taxonomy-panel .admin-table th,
+.admin-taxonomy-panel .admin-table td {
+  padding: 9px 11px;
+}
+
+.admin-taxonomy-unassigned {
+  margin-top: 14px;
+}
+
+.admin-taxonomy-empty {
+  margin: 0;
+  padding: 14px 16px;
+}
+
+.admin-taxonomy-assign {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(360px, 1.35fr) auto;
+  gap: 12px;
+  align-items: end;
+  padding: 12px 16px;
+  border-top: 1px solid var(--admin-line);
+}
+
+.admin-taxonomy-product {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+}
+
+.admin-taxonomy-product span,
+.admin-taxonomy-product small {
+  color: var(--admin-muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.admin-taxonomy-product strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.95rem;
+}
+
+.admin-taxonomy-assign__fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.admin-taxonomy-assign .admin-field {
+  gap: 5px;
+  font-size: 0.8rem;
+}
+
+.admin-taxonomy-assign .admin-field select {
+  min-height: 34px;
+  padding: 7px 9px;
+}
+
+.admin-card,
+.admin-panel {
+  background: var(--admin-panel);
+  border: 1px solid var(--admin-line);
+  border-radius: var(--admin-radius);
+}
+
+.admin-card {
+  padding: 18px;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+}
+
+.admin-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 42px rgba(23, 26, 28, 0.14);
+  border-color: rgba(0, 94, 96, 0.28);
+}
+
+.admin-card strong {
+  display: block;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  color: var(--admin-muted);
+}
+
+.admin-card span {
+  display: block;
+  margin-top: 8px;
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.admin-panel {
+  margin-top: 16px;
+  overflow: hidden;
+}
+
+.admin-panel__body {
+  padding: 16px;
+}
+
+.admin-health {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  padding: 16px;
+}
+
+.admin-health__item {
+  padding: 16px;
+  border: 1px solid var(--admin-line);
+  border-radius: calc(var(--admin-radius) + 2px);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(248, 245, 237, 0.96));
+}
+
+.admin-health__item strong {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: var(--admin-ink);
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  font-size: 0.84rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.admin-health__item p {
+  margin: 0;
+  color: var(--admin-muted);
+  line-height: 1.55;
+}
+
+.admin-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border-bottom: 1px solid var(--admin-line);
+}
+
+.admin-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.admin-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 14px;
+  background: var(--admin-accent);
+  color: #fff;
+}
+
+.admin-button:hover {
+  background: #034c4e;
+}
+
+.admin-button--ghost {
+  background: transparent;
+  border-color: var(--admin-line);
+  color: var(--admin-ink);
+}
+
+.admin-button--danger {
+  background: var(--admin-accent-2);
+}
+
+.admin-button--sidebar {
+  width: 100%;
+  margin-top: 24px;
+  background: rgba(248, 244, 234, 0.1);
+}
+
+.admin-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid var(--admin-line);
+}
+
+.admin-filters .admin-field {
+  flex: 1 1 160px;
+}
+
+.admin-thumb {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--admin-line);
+  background: #fff;
+}
+
+.admin-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  font-size: 0.9rem;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--admin-line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.admin-table th {
+  color: var(--admin-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.admin-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: rgba(0, 94, 96, 0.1);
+  color: var(--admin-accent);
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
+.admin-badge--warn {
+  background: rgba(154, 101, 0, 0.14);
+  color: var(--admin-warn);
+}
+
+.admin-badge--ok {
+  background: rgba(33, 122, 67, 0.14);
+  color: var(--admin-ok);
+}
+
+.admin-badge--info {
+  background: rgba(0, 94, 96, 0.12);
+  color: var(--admin-accent);
+}
+
+.admin-form h3 {
+  margin: 8px 0 0;
+  font-size: 1.1rem;
+}
+
+.admin-campo-revisable {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--admin-line);
+  border-radius: var(--admin-radius);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.admin-campo-revisable__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.admin-campo-revisable__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.admin-campo-revisable__check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.admin-campo-revisable__check input {
+  width: auto;
+}
+
+.admin-editor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 380px);
+  gap: 16px;
+  padding: 16px;
+}
+
+.admin-editor__cols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.admin-alert {
+  margin: 16px 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(154, 101, 0, 0.35);
+  border-radius: var(--admin-radius);
+  background: rgba(154, 101, 0, 0.08);
+  color: #5f4208;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+}
+
+.cotizacion-workflow,
+.fulfillment-workflow {
+  margin: 16px 16px 0;
+  padding: 16px;
+  border: 1px solid rgba(0, 94, 96, 0.18);
+  border-radius: calc(var(--admin-radius) + 2px);
+  background:
+    linear-gradient(135deg, rgba(0, 94, 96, 0.07), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 245, 237, 0.95));
+}
+
+.cotizacion-workflow__chips,
+.fulfillment-workflow__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cotizacion-workflow__actions,
+.fulfillment-workflow__actions {
+  margin-top: 8px;
+}
+
+.cotizacion-feed {
+  display: grid;
+  gap: 10px;
+}
+
+.cotizacion-feed__item {
+  padding: 12px 14px;
+  border: 1px solid var(--admin-line);
+  border-radius: calc(var(--admin-radius) + 2px);
+  background: rgba(255, 255, 255, 0.86);
+  color: var(--admin-ink);
+  line-height: 1.5;
+}
+
+.pedido-workflow {
+  margin: 16px 16px 0;
+  padding: 16px;
+  border: 1px solid rgba(0, 94, 96, 0.18);
+  border-radius: calc(var(--admin-radius) + 2px);
+  background:
+    linear-gradient(135deg, rgba(0, 94, 96, 0.07), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 245, 237, 0.95));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+.pedido-workflow__meta,
+.pedido-nota-templates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pedido-workflow__actions {
+  margin-top: 4px;
+}
+
+.pedido-feed {
+  display: grid;
+  gap: 12px;
+}
+
+.pedido-feed__item {
+  padding: 14px;
+  border: 1px solid var(--admin-line);
+  border-radius: calc(var(--admin-radius) + 2px);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(249, 247, 241, 0.96));
+}
+
+.pedido-feed__item--estado {
+  border-color: rgba(0, 94, 96, 0.22);
+}
+
+.pedido-feed__item--nota {
+  border-color: rgba(154, 101, 0, 0.22);
+}
+
+.pedido-feed__item--pago {
+  border-color: rgba(33, 122, 67, 0.22);
+}
+
+.pedido-feed__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--admin-muted);
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  font-size: 0.8rem;
+}
+
+.pedido-feed__item h4 {
+  margin: 10px 0 6px;
+  font-size: 1rem;
+}
+
+.pedido-feed__meta {
+  margin: 0 0 8px;
+  color: var(--admin-muted);
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  font-size: 0.86rem;
+}
+
+.admin-flow-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
+  gap: 16px;
+}
+
+.admin-cards-stack {
+  display: grid;
+  gap: 12px;
+}
+
+.admin-workcard {
+  padding: 14px;
+  border: 1px solid var(--admin-line);
+  border-radius: calc(var(--admin-radius) + 2px);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 245, 237, 0.96));
+}
+
+.admin-workcard strong {
+  display: block;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+}
+
+.admin-workcard p {
+  margin: 8px 0 12px;
+  color: var(--admin-muted);
+  line-height: 1.5;
+}
+
+.admin-toast {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 20;
+  max-width: min(420px, calc(100vw - 36px));
+  padding: 13px 15px;
+  border: 1px solid var(--admin-line);
+  border-radius: var(--admin-radius);
+  background: #111819;
+  color: #fff;
+  box-shadow: var(--admin-shadow);
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+}
+
+@media (max-width: 860px) {
+  .admin-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-sidebar {
+    position: static;
+    height: auto;
+  }
+
+  .admin-nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-main {
+    padding: 18px;
+  }
+
+  .admin-topbar,
+  .admin-panel__head {
+    display: grid;
+  }
+
+  .admin-panel__body,
+  .admin-editor,
+  .admin-editor__cols,
+  .admin-flow-grid,
+  .admin-taxonomy-grid,
+  .admin-taxonomy-list--familias,
+  .admin-taxonomy-assign,
+  .admin-taxonomy-assign__fields {
+    grid-template-columns: 1fr;
+  }
+
+  .pedido-workflow {
+    margin-inline: 0;
+  }
+
+  .cotizacion-workflow,
+  .fulfillment-workflow {
+    margin-inline: 0;
+  }
+
+  .admin-taxonomy-list .admin-field {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-taxonomy-list .admin-field:has(input[type='checkbox'])::before {
+    content: none;
+  }
+
+  .admin-taxonomy-list .admin-field:has(input[type='checkbox']) span {
+    grid-column: auto;
+  }
+}

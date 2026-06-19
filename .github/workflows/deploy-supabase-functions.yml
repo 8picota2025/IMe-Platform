@@ -1,0 +1,50 @@
+name: Deploy Supabase Functions
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/functions/**'
+      - '.github/workflows/deploy-supabase-functions.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-supabase-functions
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy Edge Functions
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Push Edge Function secrets
+        run: |
+          cat > .secrets.env <<'EOF'
+          SITE_URL=${{ secrets.SITE_URL }}
+          SUPABASE_URL=${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          WOMPI_PUBLIC_KEY=${{ secrets.WOMPI_PUBLIC_KEY }}
+          WOMPI_PRIVATE_KEY=${{ secrets.WOMPI_PRIVATE_KEY }}
+          WOMPI_INTEGRITY_SECRET=${{ secrets.WOMPI_INTEGRITY_SECRET }}
+          WOMPI_EVENTS_SECRET=${{ secrets.WOMPI_EVENTS_SECRET }}
+          WOMPI_API_BASE=https://production.wompi.co/v1
+          STRIPE_PUBLIC_KEY=${{ secrets.STRIPE_PUBLIC_KEY }}
+          STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET=${{ secrets.STRIPE_WEBHOOK_SECRET }}
+          MAILER_API_KEY=${{ secrets.MAILER_API_KEY }}
+          MAILER_FROM=${{ secrets.MAILER_FROM }}
+          CO_DEFAULT_IVA_PCT=19
+          EOF
+          supabase secrets set --env-file .secrets.env --project-ref "$SUPABASE_PROJECT_REF"
+
+      - name: Deploy Edge Functions
+        run: supabase functions deploy --project-ref "$SUPABASE_PROJECT_REF"

@@ -2,15 +2,15 @@
 /**
  * Contact EN — formulario con UI en inglés, datos de contacto reales.
  */
-import Layout from '../../layouts/Layout.astro'
-import { buildPageTitle, buildCanonical } from '../../lib/seo'
-import { t } from '../../i18n/utils'
+import Layout from '../../layouts/Layout.astro';
+import { buildPageTitle, buildCanonical } from '../../lib/seo';
+import { t } from '../../i18n/utils';
 
-const locale = 'en'
-const title = buildPageTitle('Contact — Request a Quote')
+const locale = 'en';
+const title = buildPageTitle('Contact — Request a Quote');
 const description =
-  'COPY_CLIENTE_REVISAR — Contact us to request a biomedical equipment quote. Response within 24 hours. Tel: +57 313 867 4059'
-const canonical = buildCanonical('/en/contact')
+  'Contact us to request a biomedical equipment quote. We reply within 24 hours. Tel: +57 313 867 4059';
+const canonical = buildCanonical('/en/contact');
 
 const options = [
   'Patient Monitors',
@@ -22,7 +22,7 @@ const options = [
   'Hospital Furniture',
   'Anesthesia & Ventilation',
   'Other',
-]
+];
 ---
 
 <Layout
@@ -40,8 +40,7 @@ const options = [
       <span class="section-tag">Contact</span>
       <h1>{t(locale, 'contacto.titulo')}</h1>
       <p style="color:var(--text-mid);max-width:560px;margin:0.75rem 0 0">
-        COPY_CLIENTE_REVISAR — Tell us about the equipment you need. A specialist will reply within
-        24 hours.
+        Tell us about the equipment you need. A specialist will reply within 24 hours.
       </p>
     </div>
   </div>
@@ -145,7 +144,7 @@ const options = [
               aria-required="true"
             >
               <option value="">Select a category</option>
-              {options.map((op) => <option value={op}>{op}</option>)}
+              {options.map(op => <option value={op}>{op}</option>)}
             </select>
           </div>
           <div class="form-field">
@@ -175,7 +174,13 @@ const options = [
               />
               <span
                 >{t(locale, 'contacto.consentimiento')}
-                <strong>BLOQUEANTE_LEGAL: Privacy policy link pending (F5).</strong></span
+                <a href="/en/legal/privacy" target="_blank" rel="noopener noreferrer">
+                  Privacy policy
+                </a>
+                and
+                <a href="/en/legal/data-authorization" target="_blank" rel="noopener noreferrer">
+                  data authorization
+                </a>.</span
               >
             </label>
           </div>
@@ -199,7 +204,8 @@ const options = [
           <div>
             <p class="contacto-info__label">Phone</p><a
               href="tel:+573138674059"
-              class="contacto-info__value">+57 313 867 4059</a>
+              class="contacto-info__value">+57 313 867 4059</a
+            >
           </div>
         </div>
         <div class="contacto-info__item">
@@ -210,8 +216,8 @@ const options = [
               target="_blank"
               rel="noopener noreferrer"
               class="contacto-info__value"
-              >{t(locale, 'contacto.whatsapp')}<span class="sr-only">(opens in new window)</span
-              ></a>
+              >{t(locale, 'contacto.whatsapp')}<span class="sr-only">(opens in new window)</span></a
+            >
           </div>
         </div>
         <div class="contacto-info__item">
@@ -219,7 +225,8 @@ const options = [
           <div>
             <p class="contacto-info__label">Email</p><a
               href="mailto:info@i-me.com.co"
-              class="contacto-info__value">info@i-me.com.co</a>
+              class="contacto-info__value">info@i-me.com.co</a
+            >
           </div>
         </div>
       </aside>
@@ -396,25 +403,25 @@ const options = [
 </style>
 
 <script>
-  import { submitCotizacion } from '../../lib/datos'
-  const form = document.getElementById('contacto-form') as HTMLFormElement | null
-  const status = document.getElementById('form-status')
-  const submitBtn = document.getElementById('form-submit-btn') as HTMLButtonElement | null
-  form?.addEventListener('submit', async (e) => {
-    e.preventDefault()
+  import { submitCotizacion } from '../../lib/datos';
+  const form = document.getElementById('contacto-form') as HTMLFormElement | null;
+  const status = document.getElementById('form-status');
+  const submitBtn = document.getElementById('form-submit-btn') as HTMLButtonElement | null;
+  form?.addEventListener('submit', async e => {
+    e.preventDefault();
     if (!form.checkValidity()) {
-      form.reportValidity()
-      return
+      form.reportValidity();
+      return;
     }
     if (submitBtn) {
-      submitBtn.disabled = true
-      submitBtn.textContent = 'Sending…'
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending…';
     }
     if (status) {
-      status.className = 'form-status'
-      status.textContent = ''
+      status.className = 'form-status';
+      status.textContent = '';
     }
-    const data = new FormData(form)
+    const data = new FormData(form);
     const result = await submitCotizacion({
       nombre: (data.get('nombre') as string) ?? '',
       apellido: (data.get('apellido') as string) ?? '',
@@ -424,22 +431,22 @@ const options = [
       interes: (data.get('interes') as string) ?? '',
       mensaje: (data.get('mensaje') as string) ?? '',
       consentimiento_datos: data.get('consentimiento') === 'on',
-    })
+    });
     if (result.ok) {
       if (status) {
-        status.className = 'form-status success'
-        status.textContent = 'Request sent! We will contact you soon.'
+        status.className = 'form-status success';
+        status.textContent = 'Request sent! We will contact you soon.';
       }
-      form.reset()
+      form.reset();
     } else {
       if (status) {
-        status.className = 'form-status error'
-        status.textContent = 'An error occurred. Please try again.'
+        status.className = 'form-status error';
+        status.textContent = 'An error occurred. Please try again.';
       }
     }
     if (submitBtn) {
-      submitBtn.disabled = false
-      submitBtn.textContent = 'Send request'
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Send request';
     }
-  })
+  });
 </script>

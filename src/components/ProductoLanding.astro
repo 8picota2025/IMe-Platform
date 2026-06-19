@@ -5,57 +5,76 @@
  * especificaciones (o aviso de pendiente), relacionados, CTA sticky,
  * bloque de contacto/cotización.
  */
-import { t, type Locale } from '../i18n/utils'
-import ProductoCard from './ProductoCard.astro'
-import type { Producto, Familia } from '../lib/datos'
-import { formatMoneda } from '../lib/format'
+import { t, type Locale } from '../i18n/utils';
+import ProductoCard from './ProductoCard.astro';
+import type { Producto, Familia } from '../lib/datos';
+import { formatMoneda } from '../lib/format';
 
 interface EspecificacionItem {
-  clave: string
-  valor: string
-  grupo?: string
+  clave: string;
+  valor: string;
+  grupo?: string;
 }
 
 interface Props {
-  producto: Producto
-  familia: Familia
-  relacionados: Producto[]
-  locale: Locale
+  producto: Producto;
+  familia: Familia;
+  relacionados: Producto[];
+  locale: Locale;
 }
 
-const { producto, familia, relacionados, locale } = Astro.props
+const { producto, familia, relacionados, locale } = Astro.props;
 
-const catalogoPath = locale === 'en' ? '/en/catalog' : '/es/catalogo'
-const contactoPath = locale === 'en' ? '/en/contact' : '/es/contacto'
+const catalogoPath = locale === 'en' ? '/en/catalog' : '/es/catalogo';
+const contactoPath = locale === 'en' ? '/en/contact' : '/es/contacto';
 
 function normalizarEspecs(raw: unknown[]): EspecificacionItem[] {
   return raw.filter((item): item is EspecificacionItem => {
-    if (!item || typeof item !== 'object') return false
-    const obj = item as Record<string, unknown>
-    return typeof obj.clave === 'string' && typeof obj.valor === 'string'
-  })
+    if (!item || typeof item !== 'object') return false;
+    const obj = item as Record<string, unknown>;
+    return typeof obj.clave === 'string' && typeof obj.valor === 'string';
+  });
 }
 
-const especificaciones = normalizarEspecs(producto.especificaciones)
-const grupos = new Map<string, EspecificacionItem[]>()
+const especificaciones = normalizarEspecs(producto.especificaciones);
+const grupos = new Map<string, EspecificacionItem[]>();
 for (const espec of especificaciones) {
-  const grupo = espec.grupo ?? ''
-  if (!grupos.has(grupo)) grupos.set(grupo, [])
-  grupos.get(grupo)!.push(espec)
+  const grupo = espec.grupo ?? '';
+  if (!grupos.has(grupo)) grupos.set(grupo, []);
+  grupos.get(grupo)!.push(espec);
 }
 
-const galeria = producto.galeria.filter((url) => url && url !== producto.imagen_principal)
-const imagenes = [producto.imagen_principal, ...galeria]
+const galeria = producto.galeria.filter(url => url && url !== producto.imagen_principal);
+const imagenes = [producto.imagen_principal, ...galeria];
 
-const precioFormateado = formatMoneda(producto.precio, producto.moneda, locale)
+const precioFormateado = formatMoneda(producto.precio, producto.moneda, locale);
+const noDisponible = producto.disponible === false;
+const modalidadTexto =
+  producto.tipo_comercial === 'consumible'
+    ? locale === 'en'
+      ? 'Consumable'
+      : 'Consumible'
+    : locale === 'en'
+      ? 'Equipment'
+      : 'Equipo';
+const disponibilidadTexto = noDisponible
+  ? t(locale, 'producto.ficha_no_disponible')
+  : producto.stock != null && producto.stock > 0
+    ? t(locale, 'carrito.stock_limitado').replace('{stock}', String(producto.stock))
+    : producto.stock === 0
+      ? t(locale, 'producto.ficha_no_disponible')
+      : t(locale, 'producto.ficha_disponible');
+const whatsappHref = `https://wa.me/573138674059?text=${encodeURIComponent(
+  `${t(locale, 'producto.cta_consultar_disponibilidad')}: ${producto.nombre}`
+)}`;
 
 const migas = [
   { nombre: t(locale, 'catalogo.migas_inicio'), href: `/${locale}/` },
   { nombre: t(locale, 'catalogo.migas_catalogo'), href: catalogoPath },
   { nombre: familia.nombre, href: `${catalogoPath}?familia=${familia.slug}` },
-]
+];
 
-const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.nombre)}`
+const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.nombre)}`;
 ---
 
 <article class="producto-landing">
@@ -63,7 +82,7 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
   <nav class="breadcrumb container" aria-label={t(locale, 'catalogo.migas_inicio')}>
     <ol>
       {
-        migas.map((miga) => (
+        migas.map(miga => (
           <li>
             <a href={miga.href}>{miga.nombre}</a>
             <span aria-hidden="true">/</span>
@@ -88,13 +107,16 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
         id="producto-imagen-principal"
       />
       {
-        (producto.destacado || producto.nuevo) && (
+        (producto.destacado || producto.nuevo || noDisponible) && (
           <div class="hero-producto__badges" aria-hidden="true">
             {producto.nuevo && (
               <span class="badge badge-green">{t(locale, 'producto.badge_nuevo')}</span>
             )}
             {producto.destacado && (
               <span class="badge badge-teal">{t(locale, 'producto.badge_destacado')}</span>
+            )}
+            {noDisponible && (
+              <span class="badge badge-gris">{t(locale, 'producto.badge_no_disponible')}</span>
             )}
           </div>
         )
@@ -109,7 +131,53 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
       {precioFormateado && <p class="hero-producto__precio">{precioFormateado}</p>}
 
       <div class="hero-producto__cta-group" id="cta-principal">
-        <a href={ctaCotizarHref} class="btn btn-primary">
+        {
+          producto.tipo_comercial === 'equipo' && (
+            <button
+              type="button"
+              class="btn btn-primary"
+              aria-live="polite"
+              data-add-cotizacion={producto.slug}
+              data-nombre={producto.nombre}
+              data-imagen={producto.imagen_principal}
+              data-label-agregar={t(locale, 'cotizacion_equipos.agregar')}
+              data-label-agregado={t(locale, 'cotizacion_equipos.agregado')}
+            >
+              {t(locale, 'cotizacion_equipos.agregar')}
+            </button>
+          )
+        }
+        {
+          producto.tipo_comercial === 'consumible' &&
+            producto.precio != null &&
+            producto.precio > 0 &&
+            (noDisponible ? (
+              <a
+                href={whatsappHref}
+                class="btn btn-primary"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {t(locale, 'producto.cta_consultar_disponibilidad')}
+              </a>
+            ) : (
+              <button
+                type="button"
+                class="btn btn-primary"
+                aria-live="polite"
+                data-add-carrito={producto.slug}
+                data-nombre={producto.nombre}
+                data-precio={producto.precio}
+                data-moneda={producto.moneda}
+                data-stock={producto.stock ?? ''}
+                data-label-agregar={t(locale, 'carrito.agregar')}
+                data-label-agregado={t(locale, 'carrito.agregado')}
+              >
+                {t(locale, 'carrito.agregar')}
+              </button>
+            ))
+        }
+        <a href={ctaCotizarHref} class="btn btn-secondary">
           {t(locale, 'producto.cotizar_cta')}
         </a>
         {
@@ -125,6 +193,42 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
           )
         }
       </div>
+
+      <section class="hero-producto__panel" aria-labelledby="ficha-resumen-titulo">
+        <div class="hero-producto__panel-head">
+          <h2 id="ficha-resumen-titulo">{t(locale, 'producto.ficha_resumen_titulo')}</h2>
+          <span class="hero-producto__panel-chip">{modalidadTexto}</span>
+        </div>
+        <dl class="hero-producto__facts">
+          <div>
+            <dt>{t(locale, 'producto.ficha_modalidad')}</dt>
+            <dd>
+              {
+                producto.fulfillment_mode === 'dropship'
+                  ? locale === 'en'
+                    ? 'Dropship'
+                    : 'Dropship'
+                  : producto.fulfillment_mode === 'individualizado'
+                    ? locale === 'en'
+                      ? 'Custom handling'
+                      : 'Atención a medida'
+                    : locale === 'en'
+                      ? 'Quotation'
+                      : 'Cotización'
+              }
+            </dd>
+          </div>
+          <div>
+            <dt>{t(locale, 'producto.ficha_stock')}</dt>
+            <dd>{disponibilidadTexto}</dd>
+          </div>
+          <div>
+            <dt>{t(locale, 'producto.ficha_precio')}</dt>
+            <dd>{precioFormateado ?? t(locale, 'producto.ficha_atencion_desc')}</dd>
+          </div>
+        </dl>
+        <p class="hero-producto__panel-copy">{t(locale, 'producto.ficha_atencion_desc')}</p>
+      </section>
 
       <label class="producto-landing__compare">
         <input type="checkbox" id="comparador-toggle" data-compare-slug={producto.slug} />
@@ -163,7 +267,7 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
               <span class="sr-only">{t(locale, 'producto.galeria_cerrar')}</span>
             </button>
           </div>
-          <img id="lightbox-img" src={imagenes[0]} alt="" />
+          <img id="lightbox-img" src={imagenes[0]} alt="" decoding="async" />
           <div class="lightbox__nav">
             <button type="button" data-lightbox-prev class="btn btn-secondary">
               {t(locale, 'producto.galeria_anterior')}
@@ -187,7 +291,7 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
             {grupo && <h3 class="specs-grupo__titulo">{grupo}</h3>}
             <table class="specs-table">
               <tbody>
-                {items.map((item) => (
+                {items.map(item => (
                   <tr>
                     <th scope="row">{item.clave}</th>
                     <td>{item.valor}</td>
@@ -216,7 +320,7 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
           </a>
         </div>
         <ul class="relacionados__grid" role="list">
-          {relacionados.map((rel) => (
+          {relacionados.map(rel => (
             <ProductoCard
               producto={{
                 slug: rel.slug,
@@ -226,6 +330,12 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
                 destacado: rel.destacado,
                 nuevo: rel.nuevo,
                 familia: { slug: familia.slug, nombre: familia.nombre },
+                tipo_comercial: rel.tipo_comercial,
+                fulfillment_mode: rel.fulfillment_mode,
+                precio: rel.precio,
+                moneda: rel.moneda,
+                stock: rel.stock,
+                disponible: rel.disponible,
               }}
               locale={locale}
             />
@@ -360,6 +470,66 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
     color: var(--ink);
     margin: 0;
   }
+  .hero-producto__panel {
+    margin-block-start: 0.5rem;
+    padding: 1.1rem 1.15rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(247, 249, 251, 0.9)), var(--white);
+    box-shadow: var(--shadow-sm);
+  }
+  .hero-producto__panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-block-end: 0.85rem;
+  }
+  .hero-producto__panel-head h2 {
+    margin: 0;
+    font-size: 1rem;
+  }
+  .hero-producto__panel-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    background: var(--t100);
+    color: var(--t900);
+    font-size: 0.75rem;
+    font-weight: 700;
+    font-family: var(--font-display);
+  }
+  .hero-producto__facts {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin: 0;
+  }
+  .hero-producto__facts div {
+    min-width: 0;
+  }
+  .hero-producto__facts dt {
+    font-size: 0.68rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+  }
+  .hero-producto__facts dd {
+    margin: 0;
+    color: var(--ink);
+    font-size: 0.88rem;
+    line-height: 1.35;
+  }
+  .hero-producto__panel-copy {
+    margin: 0.9rem 0 0;
+    color: var(--text-mid);
+    font-size: 0.85rem;
+  }
   .hero-producto__cta-group {
     display: flex;
     flex-wrap: wrap;
@@ -379,6 +549,15 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
     width: 1rem;
     height: 1rem;
     accent-color: var(--t800);
+  }
+  @media (max-width: 700px) {
+    .hero-producto__facts {
+      grid-template-columns: 1fr;
+    }
+    .hero-producto__panel-head {
+      flex-direction: column;
+      align-items: flex-start;
+    }
   }
 
   .section-subtitle {
@@ -604,75 +783,119 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
 </style>
 
 <script>
-  import { toggleComparador, getComparador } from '../lib/comparador'
+  import { toggleComparador, getComparador } from '../lib/comparador';
+  import { resetTransientUiState } from '../lib/motion';
 
   // Estado inicial del checkbox de comparación
-  const compareToggle = document.getElementById('comparador-toggle') as HTMLInputElement | null
+  const compareToggle = document.getElementById('comparador-toggle') as HTMLInputElement | null;
   if (compareToggle) {
-    const slug = compareToggle.dataset['compareSlug'] ?? ''
-    compareToggle.checked = getComparador().includes(slug)
+    const slug = compareToggle.dataset['compareSlug'] ?? '';
+    compareToggle.checked = getComparador().includes(slug);
     compareToggle.addEventListener('change', () => {
-      const result = toggleComparador(slug)
-      compareToggle.checked = result.slugs.includes(slug)
-    })
+      const result = toggleComparador(slug);
+      compareToggle.checked = result.slugs.includes(slug);
+    });
   }
 
   // CTA sticky tras pasar el CTA principal
-  const ctaPrincipal = document.getElementById('cta-principal')
-  const ctaSticky = document.getElementById('cta-sticky')
+  const ctaPrincipal = document.getElementById('cta-principal');
+  const ctaSticky = document.getElementById('cta-sticky');
   if (ctaPrincipal && ctaSticky) {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (!entry) return
-        ctaSticky.hidden = entry.isIntersecting
+        if (!entry) return;
+        ctaSticky.hidden = entry.isIntersecting;
       },
       { rootMargin: '-80px 0px 0px 0px' }
-    )
-    observer.observe(ctaPrincipal)
+    );
+    observer.observe(ctaPrincipal);
   }
 
   // Lightbox de galería
-  const lightbox = document.getElementById('galeria-lightbox') as HTMLDialogElement | null
-  const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement | null
-  const lightboxContador = document.getElementById('lightbox-contador')
-  const thumbs = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-galeria-index]'))
+  const lightbox = document.getElementById('galeria-lightbox') as HTMLDialogElement | null;
+  const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement | null;
+  const lightboxContador = document.getElementById('lightbox-contador');
+  const thumbs = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-galeria-index]'));
 
   if (lightbox && lightboxImg && thumbs.length > 0) {
-    let indiceActual = 0
+    let indiceActual = 0;
 
     const actualizar = () => {
-      const thumb = thumbs[indiceActual]
-      const img = thumb?.querySelector('img')
+      const thumb = thumbs[indiceActual];
+      const img = thumb?.querySelector('img');
       if (img) {
-        lightboxImg.src = img.src
-        lightboxImg.alt = img.alt || ''
+        lightboxImg.src = img.src;
+        lightboxImg.alt = img.alt || '';
       }
       if (lightboxContador) {
-        lightboxContador.textContent = `${indiceActual + 1} / ${thumbs.length}`
+        lightboxContador.textContent = `${indiceActual + 1} / ${thumbs.length}`;
       }
-    }
+    };
 
     thumbs.forEach((thumb, index) => {
       thumb.addEventListener('click', () => {
-        indiceActual = index
-        actualizar()
-        lightbox.showModal()
-      })
-    })
+        indiceActual = index;
+        actualizar();
+        resetTransientUiState();
+        lightbox.showModal();
+      });
+    });
 
     document
       .querySelector('[data-lightbox-close]')
-      ?.addEventListener('click', () => lightbox.close())
+      ?.addEventListener('click', () => lightbox.close());
     document.querySelector('[data-lightbox-prev]')?.addEventListener('click', () => {
-      indiceActual = (indiceActual - 1 + thumbs.length) % thumbs.length
-      actualizar()
-    })
+      indiceActual = (indiceActual - 1 + thumbs.length) % thumbs.length;
+      actualizar();
+    });
     document.querySelector('[data-lightbox-next]')?.addEventListener('click', () => {
-      indiceActual = (indiceActual + 1) % thumbs.length
-      actualizar()
-    })
-    lightbox.addEventListener('click', (event) => {
-      if (event.target === lightbox) lightbox.close()
-    })
+      indiceActual = (indiceActual + 1) % thumbs.length;
+      actualizar();
+    });
+    lightbox.addEventListener('click', event => {
+      if (event.target === lightbox) lightbox.close();
+    });
   }
+
+  // Añadir a cotización / carrito desde el CTA principal
+  const addCotizacionBtn = document.querySelector<HTMLButtonElement>(
+    '#cta-principal [data-add-cotizacion]'
+  );
+  const addCarritoBtn = document.querySelector<HTMLButtonElement>(
+    '#cta-principal [data-add-carrito]'
+  );
+
+  const confirmarAdd = (btn: HTMLButtonElement) => {
+    const original = btn.dataset['labelAgregar'] ?? btn.textContent ?? '';
+    const agregado = btn.dataset['labelAgregado'] ?? original;
+    btn.textContent = agregado;
+    window.setTimeout(() => {
+      btn.textContent = original;
+    }, 1800);
+  };
+
+  addCotizacionBtn?.addEventListener('click', () => {
+    const slug = addCotizacionBtn.dataset['addCotizacion'];
+    const nombre = addCotizacionBtn.dataset['nombre'];
+    const imagen = addCotizacionBtn.dataset['imagen'];
+    if (!slug || !nombre || !imagen) return;
+    void import('../lib/cotizacion-equipos').then(({ agregarACotizacion }) => {
+      agregarACotizacion({ slug, nombre, imagen });
+      confirmarAdd(addCotizacionBtn);
+    });
+  });
+
+  addCarritoBtn?.addEventListener('click', () => {
+    const slug = addCarritoBtn.dataset['addCarrito'];
+    const nombre = addCarritoBtn.dataset['nombre'];
+    const precio = Number(addCarritoBtn.dataset['precio']);
+    const moneda = addCarritoBtn.dataset['moneda'] ?? 'COP';
+    const stockRaw = addCarritoBtn.dataset['stock'];
+    const stock = stockRaw ? Number(stockRaw) : null;
+    if (!slug || !nombre || Number.isNaN(precio)) return;
+    void import('../lib/carrito').then(({ agregarAlCarrito }) => {
+      agregarAlCarrito({ slug, nombre, precio, moneda, stock });
+      confirmarAdd(addCarritoBtn);
+    });
+  });
 </script>

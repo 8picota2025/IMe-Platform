@@ -134,21 +134,6 @@ async function main() {
   console.log('\n2. Extrayendo catálogo por render DOM...')
 
   const productos = []
-  const familiasExtraidas = []
-
-  // Primero extraer familias desde la página principal de catálogo
-  const familiasDOM = await page.evaluate(() => {
-    const items = Array.from(
-      document.querySelectorAll(
-        '.categoria-item, .family-item, [data-familia], .cat-item, .category-card, .categoria-card'
-      )
-    )
-    return items.map((el) => ({
-      nombre: el.querySelector('h2, h3, h4, .titulo, .nombre')?.textContent?.trim() || '',
-      slug: el.getAttribute('data-familia') || el.getAttribute('data-cat') || '',
-      url: el.querySelector('a')?.getAttribute('href') || '',
-    }))
-  })
 
   // Extraer catálogo de CADA familia
   for (const familia of FAMILIAS_ESPERADAS) {
@@ -297,7 +282,6 @@ async function main() {
   await page.waitForTimeout(1000)
 
   const contenidoHome = await page.evaluate(() => {
-    const getText = (sel) => document.querySelector(sel)?.textContent?.trim() || null
     const getAll = (sel) =>
       Array.from(document.querySelectorAll(sel))
         .map((el) => el.textContent?.trim())
@@ -407,7 +391,6 @@ async function main() {
     await page.waitForTimeout(1500)
 
     financiacion = await page.evaluate((baseFinanciacion) => {
-      const getText = (sel) => document.querySelector(sel)?.textContent?.trim() || null
       const getAll = (sel) =>
         Array.from(document.querySelectorAll(sel))
           .map((el) => el.textContent?.trim())
@@ -452,7 +435,6 @@ async function main() {
   await page.goto(`${BASE_URL}/index.html`, { waitUntil: 'networkidle', timeout: 30000 })
 
   const tokensCSS = await page.evaluate(() => {
-    const estilos = Array.from(document.styleSheets)
     const colores = new Set()
     const fuentes = new Set()
     const customProps = {}

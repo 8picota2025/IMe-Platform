@@ -1,74 +1,41 @@
 /**
- * Interfaces PaymentGateway — contratos sin implementación real.
- * Implementación real en F4: Wompi (Colombia) + Stripe (INTL).
+ * Tipos compartidos del checkout — usados por src/lib/carrito.ts al llamar a la
+ * Edge Function crear-pago.
  *
- * BLOQUEANTE_BACKEND: No implementar hasta F4.
- * Regla crítica: el servidor recalcula siempre — el cliente NUNCA decide precios ni estado de pago.
+ * La implementación real de PaymentGateway (WompiGateway/StripeGateway) vive en
+ * supabase/functions/_shared/payment-gateway.ts — solo accesible desde Edge Functions.
+ *
+ * Regla crítica: el servidor recalcula siempre — el cliente NUNCA decide precios ni
+ * estado de pago. precio_unitario aquí es solo lo que el cliente cree pagar; crear-pago
+ * lo ignora y recalcula desde productos.precio en Supabase.
  */
 
-export type PaymentProvider = 'wompi' | 'stripe'
+export type PaymentProvider = 'wompi' | 'stripe';
 
-export type PaymentStatus = 'pending' | 'approved' | 'declined' | 'voided' | 'error'
-
-export type Mercado = 'CO' | 'INTL'
+export type Mercado = 'CO' | 'INTL';
 
 export interface CheckoutItem {
-  producto_id: string
-  slug: string
-  nombre: string
-  cantidad: number
-  /** precio_unitario viene del servidor, no del cliente */
-  precio_unitario: number
-  moneda: string
+  slug: string;
+  cantidad: number;
 }
 
 export interface CheckoutRequest {
-  items: CheckoutItem[]
+  items: CheckoutItem[];
   cliente: {
-    nombre: string
-    apellido: string
-    email: string
-    telefono: string
-    institucion?: string
-  }
-  mercado: Mercado
-  referencia?: string
+    nombre: string;
+    apellido: string;
+    email: string;
+    telefono: string;
+    institucion?: string;
+    fiscal?: Record<string, unknown>;
+  };
+  mercado: Mercado;
+  consentimiento_datos: boolean;
 }
 
 export interface CheckoutResult {
-  ok: boolean
-  checkout_url?: string
-  referencia_pasarela?: string
-  error?: string
-}
-
-export interface PaymentEvent {
-  proveedor_pago: PaymentProvider
-  event_id: string
-  referencia_pasarela: string
-  estado: PaymentStatus
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  payload: Record<string, any>
-}
-
-/**
- * Contrato de pasarela de pagos intercambiable.
- * Implementaciones reales: WompiGateway (F4), StripeGateway (F4).
- */
-export interface PaymentGateway {
-  readonly provider: PaymentProvider
-  /**
-   * Crea una sesión de pago y devuelve la URL de checkout.
-   * Llamado SOLO desde Edge Functions con service_role.
-   */
-  crearCheckout(request: CheckoutRequest): Promise<CheckoutResult>
-  /**
-   * Verifica el estado de un pago usando la referencia de pasarela.
-   * Llamado SOLO desde Edge Functions con service_role.
-   */
-  verificarPago(referencia: string): Promise<PaymentStatus>
-  /**
-   * Valida la firma/secreto de un webhook entrante.
-   */
-  validarWebhook(payload: string, signature: string): boolean
+  ok: boolean;
+  checkout_url?: string;
+  referencia?: string;
+  error?: string;
 }

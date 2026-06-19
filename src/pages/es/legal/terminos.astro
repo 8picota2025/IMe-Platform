@@ -1,0 +1,21 @@
+---
+import LegalPage from '../../../components/LegalPage.astro';
+import { buildCanonical, buildPageTitle } from '../../../lib/seo';
+import { legalEs } from '../../../data/legal-content';
+
+const doc = legalEs.terminos;
+---
+
+<LegalPage
+  locale="es"
+  currentPath="/es/legal/terminos"
+  title={buildPageTitle(doc.pageTitle)}
+  description={doc.description}
+  canonical={buildCanonical('/es/legal/terminos')}
+  badge={doc.badge}
+  heading={doc.heading}
+  summary={doc.summary}
+  updatedAt={doc.updatedAt}
+  sections={doc.sections}
+  notice={doc.notice}
+/>

@@ -1,24 +1,142 @@
 ---
 /**
- * Home EN — UI en inglés, contenido factual = COPY_CLIENTE_REVISAR.
+ * Home EN — faithful visual replica of the production site, English copy.
+ * Same structure/styles as ES (styles/site-faithful.css). New components in Layout
+ * preserved (Navbar, Footer, CotizacionDrawer, Carrito, Asesor).
+ * Catalog/quote buttons point to new functions (/en/catalog, /en/products/[slug],
+ * quote drawer).
  */
-import Layout from '../../layouts/Layout.astro'
-import { t } from '../../i18n/utils'
-import { getFamilias, getProductosDestacados } from '../../lib/datos'
-import { buildHomeSeo, buildOrganizationJsonLd } from '../../lib/seo'
+import Layout from '../../layouts/Layout.astro';
+import { getProductosDestacados } from '../../lib/datos';
+import {
+  buildFaqJsonLd,
+  buildHomeSeo,
+  buildOrganizationJsonLd,
+  combineJsonLd,
+} from '../../lib/seo';
+import contenidoIme from '../../data/contenido_ime.json';
+import '../../styles/site-faithful.css';
 
-const locale = 'en'
-const seo = buildHomeSeo(locale)
-const jsonLd = JSON.stringify(buildOrganizationJsonLd())
+const locale = 'en';
+const seo = buildHomeSeo(locale);
+const faqData = contenidoIme.home.faq.en;
+const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildFaqJsonLd(faqData));
 
-const familias = await getFamilias(locale)
-const productosDestacados = await getProductosDestacados(locale)
+const productosDestacados = await getProductosDestacados(locale);
 
-const metricas = [
-  { valor: '24+', label: 'Equipment categories' },
-  { valor: '100%', label: 'INVIMA certified' },
-  { valor: '32 Dpt', label: 'National coverage' },
-]
+const categorias = [
+  {
+    slug: 'monitores',
+    icon: 'fa-heartbeat',
+    nombre: 'Monitors',
+    count: 'Multiparameter · ICU',
+    bg: 'https://images.unsplash.com/photo-1559757175-5700dde675bc?w=400&q=70&auto=format&fit=crop',
+    aria: 'View multiparameter monitors',
+  },
+  {
+    slug: 'cardiologia',
+    icon: 'fa-wave-square',
+    nombre: 'Cardiology',
+    count: 'ECG · Holter · Defibrillators',
+    bg: 'https://images.unsplash.com/photo-1530026405186-ed1f139313f8?w=400&q=70&auto=format&fit=crop',
+    aria: 'View cardiology equipment',
+  },
+  {
+    slug: 'sala-cirugia',
+    icon: 'fa-user-md',
+    nombre: 'Operating Room',
+    count: 'Tables · Lights · Electrosurgery',
+    bg: 'https://images.unsplash.com/photo-1551190822-a9333d879b1f?w=400&q=70&auto=format&fit=crop',
+    aria: 'View operating room equipment',
+  },
+  {
+    slug: 'neonatologia',
+    icon: 'fa-baby',
+    nombre: 'Neonatology',
+    count: 'Incubators · Warmers · CPAP',
+    bg: 'https://images.unsplash.com/photo-1631815588090-d4bfec5b1ccb?w=400&q=70&auto=format&fit=crop',
+    aria: 'View neonatology equipment',
+  },
+  {
+    slug: 'ultrasonido',
+    icon: 'fa-satellite-dish',
+    nombre: 'Ultrasound',
+    count: 'Color Doppler · Portable',
+    bg: 'https://images.unsplash.com/photo-1516549655669-df64f2a0aafb?w=400&q=70&auto=format&fit=crop',
+    aria: 'View ultrasound equipment',
+  },
+  {
+    slug: 'soluciones-iv',
+    icon: 'fa-syringe',
+    nombre: 'IV Solutions',
+    count: 'Infusion pumps · Syringe',
+    bg: 'https://images.unsplash.com/photo-1585435557343-3b092031a831?w=400&q=70&auto=format&fit=crop',
+    aria: 'View infusion pumps',
+  },
+  {
+    slug: 'mobiliario',
+    icon: 'fa-bed',
+    nombre: 'Furniture',
+    count: 'Stretchers · Chairs · Carts',
+    bg: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=400&q=70&auto=format&fit=crop',
+    aria: 'View hospital furniture',
+  },
+  {
+    slug: 'anestesia',
+    icon: 'fa-lungs',
+    nombre: 'Anesthesia',
+    count: 'Machines · Ventilators',
+    bg: 'https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?w=400&q=70&auto=format&fit=crop',
+    aria: 'View anesthesia equipment',
+  },
+];
+
+const servicios = [
+  {
+    num: '01',
+    icon: 'fa-boxes-stacking',
+    titulo: 'Sales & distribution',
+    desc: 'Distribution of high-technology biomedical equipment with international CE, FDA and INVIMA certifications for hospitals, clinics and health centers in Colombia.',
+    items: [
+      'Internationally certified equipment',
+      'Specialized pre-purchase technical advice',
+      'Installation and commissioning included',
+    ],
+  },
+  {
+    num: '02',
+    icon: 'fa-screwdriver-wrench',
+    titulo: 'Technical support',
+    desc: 'Preventive, corrective maintenance and calibration of biomedical equipment performed by certified engineers throughout Colombia.',
+    items: [
+      'Preventive and corrective maintenance',
+      'Calibration and metrological verification',
+      'Original spare parts and consumables',
+    ],
+  },
+  {
+    num: '03',
+    icon: 'fa-coins',
+    titulo: 'Medical financing',
+    desc: 'Tailored acquisition plans for health institutions. Flexible installments, extended terms and conditions adapted to the needs of each organization.',
+    items: [
+      'Flexible monthly installments',
+      'Terms up to 60 months',
+      'No co-signer for health institutions',
+    ],
+  },
+  {
+    num: '04',
+    icon: 'fa-user-tie',
+    titulo: 'Biomedical advisory',
+    desc: 'Specialized consulting for the correct selection, acquisition and management of your institution’s biomedical technology portfolio.',
+    items: [
+      'Technology portfolio assessment',
+      'Renewal and acquisition plan',
+      'Clinical staff training',
+    ],
+  },
+];
 ---
 
 <Layout
@@ -29,625 +147,593 @@ const metricas = [
   currentPath="/en/"
   ogImage={seo.ogImage}
   jsonLd={jsonLd}
+  fontAwesome={true}
 >
-  <!-- HERO -->
-  <section class="hero" aria-label="Main header">
-    <div class="hero__bg" aria-hidden="true">
-      <video
-        class="hero__video"
-        src="/assets/extraccion/video/quirofano-completo.mp4"
-        autoplay
-        muted
-        loop
-        playsinline
-        preload="none"
-        poster="/assets/extraccion/img/Img11.jpg"
-        aria-hidden="true"></video>
-      <div class="hero__overlay"></div>
+  <div class="site-faithful">
+    <!-- HERO -->
+    <section class="hero" aria-labelledby="hero-h1">
+      <div class="hero-video-bg" aria-hidden="true">
+        <video
+          autoplay
+          muted
+          loop
+          playsinline
+          preload="metadata"
+          poster="/assets/img/quirofanos-inteligentes.webp"
+          aria-label="Smart operating room — I-ME International Medical Enterprise Colombia"
+        >
+          <source
+            src="/assets/video/quirofano-completo.mp4"
+            type="video/mp4"
+            media="(min-width: 768px)"
+          />
+        </video>
+      </div>
+      <div class="hero-overlay" aria-hidden="true"></div>
+
+      <div class="hero-inner">
+        <div class="hero-left">
+          <div class="hero-kicker">
+            <i class="fas fa-circle-check" style="font-size:9px;color:var(--green)"></i>
+            Certified Distributor · Colombia
+          </div>
+          <h1 id="hero-h1" class="hero-title">
+            <span class="hl">Biomedical</span> equipment that saves lives
+          </h1>
+          <p class="hero-sub">
+            We distribute world-class medical technology, internationally certified, for hospitals,
+            clinics and health centers across Colombia.
+          </p>
+          <div class="hero-actions">
+            <a href="/en/catalog" class="btn btn-primary">
+              <i class="fas fa-microscope"></i> View catalog
+            </a>
+            <a href="/en/contact" class="btn btn-outline-white"> Request advice </a>
+          </div>
+          <div class="hero-stats">
+            <div>
+              <div class="stat-n" data-count="24" data-suffix="+">24+</div>
+              <div class="stat-l">Equipment categories</div>
+            </div>
+            <div>
+              <div class="stat-n" data-count="100" data-suffix="%">100%</div>
+              <div class="stat-l">INVIMA certified</div>
+            </div>
+            <div>
+              <div class="stat-n" data-count="32" data-suffix=" Dpt">32 Dpt</div>
+              <div class="stat-l">National coverage</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-right-panel" aria-hidden="true">
+          <div class="hero-product-img">
+            <img
+              src="/assets/img/equipos-biomedicos-vanguardia-opt.webp"
+              alt="Cutting-edge biomedical technology — I-ME Colombia"
+              width="460"
+              height="380"
+            />
+          </div>
+          <div class="hero-badge-overlay">
+            <div class="hbo-n">+15</div>
+            <div class="hbo-l">Years of experience</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-ecg-wrap" aria-hidden="true">
+        <svg viewBox="0 0 1200 60" fill="none" preserveAspectRatio="none">
+          <polyline
+            points="0,30 100,30 120,10 140,50 155,30 200,30 260,30 280,8 295,52 310,30 400,30 460,30 480,5 500,55 515,30 600,30 700,30 720,10 740,50 755,30 800,30 860,30 880,8 895,52 910,30 1000,30 1060,30 1080,5 1100,55 1115,30 1200,30"
+            stroke="rgba(126,217,87,0.55)"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"></polyline>
+          <polyline
+            points="0,30 100,30 120,10 140,50 155,30 200,30 260,30 280,8 295,52 310,30 400,30 460,30 480,5 500,55 515,30 600,30 700,30 720,10 740,50 755,30 800,30 860,30 880,8 895,52 910,30 1000,30 1060,30 1080,5 1100,55 1115,30 1200,30"
+            stroke="rgba(126,217,87,0.55)"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            transform="translate(1200,0)"></polyline>
+        </svg>
+      </div>
+    </section>
+
+    <!-- MARQUEE -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee-track">
+        <span class="marquee-item"><i class="fas fa-circle"></i> ISO 13485</span>
+        <span class="marquee-item"><i class="fas fa-circle"></i> CE Certification</span>
+        <span class="marquee-item"><i class="fas fa-circle"></i> INVIMA Registration</span>
+        <span class="marquee-item"><i class="fas fa-circle"></i> FDA Cleared</span>
+        <span class="marquee-item"><i class="fas fa-circle"></i> Certified Technical Support</span>
+        <span class="marquee-item"><i class="fas fa-circle"></i> International Warranty</span>
+        <span class="marquee-item"><i class="fas fa-circle"></i> Nationwide Coverage</span>
+        <span class="marquee-item"><i class="fas fa-circle"></i> Medical Financing</span>
+        <span class="marquee-item"><i class="fas fa-circle"></i> ISO 13485</span>
+        <span class="marquee-item"><i class="fas fa-circle"></i> CE Certification</span>
+        <span class="marquee-item"><i class="fas fa-circle"></i> INVIMA Registration</span>
+        <span class="marquee-item"><i class="fas fa-circle"></i> FDA Cleared</span>
+        <span class="marquee-item"><i class="fas fa-circle"></i> Certified Technical Support</span>
+        <span class="marquee-item"><i class="fas fa-circle"></i> International Warranty</span>
+        <span class="marquee-item"><i class="fas fa-circle"></i> Nationwide Coverage</span>
+        <span class="marquee-item"><i class="fas fa-circle"></i> Medical Financing</span>
+      </div>
     </div>
-    <div class="hero__ecg" aria-hidden="true">
-      <svg viewBox="0 0 800 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-        <polyline
-          points="0,30 100,30 130,30 145,10 160,50 175,5 190,55 205,30 220,30 350,30 380,30 395,10 410,50 425,5 440,55 455,30 470,30 600,30 630,30 645,10 660,50 675,5 690,55 705,30 720,30 800,30"
-          fill="none"
-          stroke="rgba(126,217,87,0.35)"
-          stroke-width="1.5"></polyline>
-      </svg>
+
+    <!-- ABOUT -->
+    <section class="section" id="quienes-somos" aria-labelledby="about-h2">
+      <div class="container">
+        <div class="about-grid">
+          <div class="about-imgs about-imgs-bg fade-in" aria-hidden="true"></div>
+          <div class="about-text fade-in d2">
+            <div class="s-label">About us</div>
+            <h2 id="about-h2" class="s-title">
+              Medical technology that transforms health institutions
+            </h2>
+            <p>
+              I-ME International Medical Enterprise is a Colombian company with over 15 years of
+              experience in the distribution, installation and maintenance of high-technology
+              biomedical equipment for the health sector.
+            </p>
+            <p>
+              We work with the world’s leading manufacturers to bring internationally certified
+              solutions to hospitals, clinics, medical centers and practices throughout Colombia.
+            </p>
+            <div class="mv-grid">
+              <div class="mv-card">
+                <h4><i class="fas fa-eye" aria-hidden="true"></i> Vision</h4>
+                <p>
+                  To be Colombia’s leading company in the distribution of cutting-edge biomedical
+                  technology.
+                </p>
+              </div>
+              <div class="mv-card">
+                <h4><i class="fas fa-bullseye" aria-hidden="true"></i> Mission</h4>
+                <p>
+                  To equip health institutions with certified technology that improves patient care.
+                </p>
+              </div>
+              <div class="mv-card">
+                <h4><i class="fas fa-award" aria-hidden="true"></i> Quality</h4>
+                <p>All our equipment holds valid CE, FDA and INVIMA certifications.</p>
+              </div>
+              <div class="mv-card">
+                <h4><i class="fas fa-handshake" aria-hidden="true"></i> Commitment</h4>
+                <p>
+                  Specialized technical support throughout the entire service life of each device.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VALUES -->
+    <section class="section section-off" aria-labelledby="values-h2">
+      <div class="container">
+        <div class="s-header s-header-center fade-in">
+          <div class="s-label">Our values</div>
+          <h2 id="values-h2" class="s-title">Why trust I-ME</h2>
+          <p class="s-sub">
+            We combine technical expertise, international backing and after-sales service to offer
+            the best biomedical solution to every institution.
+          </p>
+        </div>
+        <div class="values-grid">
+          <div class="val-card fade-in">
+            <div class="val-icon"><i class="fas fa-certificate" aria-hidden="true"></i></div>
+            <h3>Certification</h3>
+            <p>
+              Equipment with valid INVIMA registrations and CE/FDA certifications for legal
+              operation in Colombia.
+            </p>
+          </div>
+          <div class="val-card fade-in d1">
+            <div class="val-icon"><i class="fas fa-tools" aria-hidden="true"></i></div>
+            <h3>Technical support</h3>
+            <p>Team of certified biomedical engineers for preventive and corrective maintenance.</p>
+          </div>
+          <div class="val-card fade-in d2">
+            <div class="val-icon"><i class="fas fa-globe-americas" aria-hidden="true"></i></div>
+            <h3>National coverage</h3>
+            <p>
+              Presence in all 32 departments of Colombia with specialized logistics for medical
+              equipment.
+            </p>
+          </div>
+          <div class="val-card fade-in d3">
+            <div class="val-icon"><i class="fas fa-dollar-sign" aria-hidden="true"></i></div>
+            <h3>Financing</h3>
+            <p>
+              Financing plans for biomedical equipment acquisition tailored to each institution.
+            </p>
+          </div>
+          <div class="val-card fade-in d4">
+            <div class="val-icon"><i class="fas fa-headset" aria-hidden="true"></i></div>
+            <h3>Integral advisory</h3>
+            <p>Guidance from needs assessment through to equipment commissioning.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CATEGORIES -->
+    <section class="section section-teal" aria-labelledby="cat-h2">
+      <div class="container">
+        <div class="s-header fade-in">
+          <div class="s-label s-label-white">Catalog by category</div>
+          <h2 id="cat-h2" class="s-title s-title-white">Solutions for every clinical area</h2>
+          <p class="s-sub s-sub-white">
+            Equipment for ICU, operating room, neonatology, cardiology, diagnostic imaging and more.
+          </p>
+        </div>
+      </div>
+      <div class="cat-grid" role="list">
+        {
+          categorias.map(c => (
+            <a
+              href={`/en/catalog?cat=${c.slug}`}
+              class="cat-card"
+              role="listitem"
+              aria-label={c.aria}
+            >
+              <div class="cat-card-bg" style={`background-image:url('${c.bg}')`} />
+              <div class="cat-icon">
+                <i class={`fas ${c.icon}`} aria-hidden="true" />
+              </div>
+              <div>
+                <div class="cat-name">{c.nombre}</div>
+                <div class="cat-count">{c.count}</div>
+              </div>
+              <div class="cat-arrow">
+                <i class="fas fa-arrow-right" />
+              </div>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- IMG BAND -->
+    <div class="img-band" aria-hidden="true">
+      <img
+        src="/assets/img/wr3d-equipo-multifuncional.webp"
+        alt="Diagnostic suite with digital radiology equipment — I-ME Colombia"
+        width="1920"
+        height="320"
+        loading="lazy"
+      />
+      <div class="img-band-overlay">
+        <div class="img-band-text">
+          <h3>Diagnostic imaging technology</h3>
+          <p>
+            Digital X-ray systems, ultrasound and latest-generation radiology equipment for your
+            institution.
+          </p>
+        </div>
+      </div>
     </div>
-    <div class="hero__content container">
-      <div class="hero__text" data-animate="hero-text">
-        <span class="badge badge-teal hero__badge">I-ME International Medical Enterprise</span>
-        <h1 class="hero__title">COPY_CLIENTE_REVISAR — Biomedical equipment that saves lives</h1>
-        <p class="hero__subtitle">
-          COPY_CLIENTE_REVISAR — We distribute internationally certified world-class medical
-          technology for hospitals, clinics and health centers throughout Colombia.
-        </p>
-        <div class="hero__ctas">
-          <a href="/en/catalog" class="btn btn-primary hero__cta-primary"
-            >{t(locale, 'hero.ver_catalogo')}</a
+
+    <!-- FEATURED PRODUCTS -->
+    <section class="section" id="productos" aria-labelledby="prod-h2">
+      <div class="container">
+        <div
+          class="s-header fade-in"
+          style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px"
+        >
+          <div>
+            <div class="s-label">Featured equipment</div>
+            <h2 id="prod-h2" class="s-title">Our main selection</h2>
+          </div>
+          <a href="/en/catalog" class="btn btn-outline"
+            >View full catalog <i class="fas fa-arrow-right" style="font-size:11px"></i></a
           >
-          <a href="/en/contact" class="btn btn-ghost">{t(locale, 'hero.solicitar_asesoria')}</a>
         </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- TRUST BAND -->
-  <section class="trust-band section-sm" aria-label="Trust metrics">
-    <div class="container">
-      <ul class="trust-band__list" role="list">
-        {
-          metricas.map((m) => (
-            <li class="trust-band__item" data-animate="fade-up">
-              <strong class="trust-band__valor">{m.valor}</strong>
-              <span class="trust-band__label">{m.label}</span>
-            </li>
-          ))
-        }
-        <li class="trust-band__item trust-band__item--sello" data-animate="fade-up">
-          <span class="trust-band__sello-icon" aria-hidden="true">✓</span>
-          <span class="trust-band__label">CE · FDA · INVIMA</span>
-        </li>
-      </ul>
-    </div>
-  </section>
-
-  <!-- ABOUT -->
-  <section class="about section" id="about" aria-labelledby="about-heading">
-    <div class="container about__grid">
-      <div class="about__image" data-animate="fade-left">
-        <img
-          src="/assets/extraccion/img/Img11.jpg"
-          alt="ICU multiparameter monitor"
-          width="600"
-          height="450"
-          loading="lazy"
-          decoding="async"
-          class="about__img"
-        />
-      </div>
-      <div class="about__content" data-animate="fade-right">
-        <span class="section-tag">{t(locale, 'quienes_somos.titulo')}</span>
-        <h2 id="about-heading">
-          COPY_CLIENTE_REVISAR — Medical technology that transforms healthcare institutions
-        </h2>
-        <p>
-          COPY_CLIENTE_REVISAR — I-ME International Medical Enterprise is a Colombian company with
-          more than 15 years of experience in the distribution, installation and maintenance of
-          high-tech biomedical equipment for the healthcare sector.
-        </p>
-        <div class="about__pillars">
-          <div class="pillar"><h3 class="pillar__title">Vision</h3><p>COPY_CLIENTE_REVISAR</p></div>
-          <div class="pillar">
-            <h3 class="pillar__title">Mission</h3><p>COPY_CLIENTE_REVISAR</p>
-          </div>
-          <div class="pillar">
-            <h3 class="pillar__title">Quality</h3><p>COPY_CLIENTE_REVISAR</p>
-          </div>
-          <div class="pillar">
-            <h3 class="pillar__title">Commitment</h3><p>COPY_CLIENTE_REVISAR</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- CATEGORIES -->
-  <section
-    class="categorias section"
-    id="categories"
-    aria-labelledby="categorias-heading"
-    style="background:var(--off)"
-  >
-    <div class="container">
-      <div class="section-header" data-animate="fade-up">
-        <span class="section-tag">{t(locale, 'catalogo.familias_titulo')}</span>
-        <h2 id="categorias-heading">COPY_CLIENTE_REVISAR — Solutions for every specialty</h2>
-      </div>
-      <ul class="categorias__grid" role="list">
-        {
-          familias.map((familia) => (
-            <li data-animate="fade-up">
-              <a href={`/en/catalog?cat=${familia.slug}`} class="categoria-card">
-                <div class="categoria-card__icon" aria-hidden="true">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="28"
-                    height="28"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                  </svg>
-                </div>
-                <h3 class="categoria-card__name">{familia.nombre}</h3>
-                <p class="categoria-card__desc">{familia.descripcion}</p>
-                <span class="categoria-card__link" aria-hidden="true">
-                  {t(locale, 'catalogo.ver_categoria')} →
-                </span>
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-      <div class="section-cta" data-animate="fade-up">
-        <a href="/en/catalog" class="btn btn-primary">{t(locale, 'destacados.ver_todos')}</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- FEATURED PRODUCTS -->
-  <section class="destacados section" id="featured" aria-labelledby="destacados-heading">
-    <div class="container">
-      <div class="section-header" data-animate="fade-up">
-        <span class="section-tag">{t(locale, 'destacados.titulo')}</span>
-        <h2 id="destacados-heading">{t(locale, 'destacados.titulo')}</h2>
-      </div>
-      <ul class="destacados__grid" role="list">
-        {
-          productosDestacados.map((producto) => (
-            <li class="card producto-card" data-animate="fade-up">
-              <a
-                href={`/en/products/${producto.slug}`}
-                class="producto-card__link"
-                aria-label={`View details for ${producto.nombre}`}
-              >
-                <div class="producto-card__img-wrapper">
+        <div class="products-grid" role="list">
+          {
+            productosDestacados.map(p => (
+              <article class="product-card fade-in" role="listitem">
+                <a
+                  class="product-img-wrap"
+                  href={`/en/products/${p.slug}`}
+                  aria-label={`View ${p.nombre}`}
+                >
                   <img
-                    src={producto.imagen_principal}
-                    alt={producto.nombre}
+                    src={p.imagen_principal}
+                    alt={p.nombre}
                     width="400"
                     height="280"
                     loading="lazy"
-                    decoding="async"
-                    class="producto-card__img"
                   />
+                  {p.familia_slug && <div class="product-cat-badge">{p.familia_slug}</div>}
+                </a>
+                <div class="product-body">
+                  <h3 class="product-name">{p.nombre}</h3>
+                  <p class="product-desc">{p.descripcion_corta}</p>
+                  <div class="product-footer">
+                    <a class="btn btn-primary btn-sm" href={`/en/products/${p.slug}`}>
+                      View details
+                    </a>
+                    <button
+                      type="button"
+                      class="btn btn-outline btn-sm"
+                      data-add-cotizacion={p.slug}
+                      data-nombre={p.nombre}
+                      data-imagen={p.imagen_principal}
+                    >
+                      <i class="fab fa-whatsapp" /> Quote
+                    </button>
+                  </div>
                 </div>
-                <div class="producto-card__body">
-                  <p class="producto-card__familia">{producto.familia_slug}</p>
-                  <h3 class="producto-card__nombre">{producto.nombre}</h3>
-                  <p class="producto-card__desc">{producto.descripcion_corta}</p>
-                  <span class="btn btn-secondary producto-card__cta">
-                    {t(locale, 'catalogo.ver_detalle')}
-                  </span>
-                </div>
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-      <div class="section-cta" data-animate="fade-up">
-        <a href="/en/catalog" class="btn btn-primary">{t(locale, 'destacados.ver_todos')}</a>
+              </article>
+            ))
+          }
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- CLOSING CTA -->
-  <section class="cierre section" aria-label="Final call to action" style="background:var(--t900)">
-    <div class="container cierre__inner" data-animate="fade-up">
-      <h2 class="cierre__title">COPY_CLIENTE_REVISAR — Ready to equip your institution?</h2>
-      <p class="cierre__subtitle">COPY_CLIENTE_REVISAR — "We equip your mission to save lives."</p>
-      <div class="cierre__ctas">
-        <a href="/en/contact" class="btn btn-primary cierre__btn-primary"
-          >{t(locale, 'nav.cta_cotizar')}</a
+    <!-- HOSPITAL ENVIRONMENT -->
+    <section class="section section-off" aria-label="Hospital environments equipped by I-ME">
+      <div class="container">
+        <div class="s-header s-header-center fade-in">
+          <div class="s-label">Clinical environment</div>
+          <h2 class="s-title">We equip every area of your institution</h2>
+        </div>
+        <div class="env-grid">
+          <div class="env-card">
+            <img
+              src="/assets/img/equipamiento-biomedico-vanguardia.webp"
+              alt="Comprehensive biomedical equipment for health institutions — I-ME Colombia"
+              width="500"
+              height="340"
+              loading="lazy"
+              decoding="async"
+            />
+            <div class="env-card-label">
+              <span>Biomedical Equipment</span>
+              <small>ICU · Diagnostics · Operating Room</small>
+            </div>
+          </div>
+          <div class="env-card" style="transition-delay:0.15s">
+            <img
+              src="/assets/img/sala-cirugia-robotica.webp"
+              alt="Robotic operating room with advanced biomedical equipment — I-ME Colombia"
+              width="500"
+              height="340"
+              loading="lazy"
+              decoding="async"
+            />
+            <div class="env-card-label">
+              <span>Robotic Operating Room</span>
+              <small>Robotic arms · Monitors · Electrosurgery</small>
+            </div>
+          </div>
+          <div class="env-card" style="transition-delay:0.3s">
+            <img
+              src="/assets/img/sala-radiologia-diagnostica.webp"
+              alt="Radiology and diagnostic imaging suite — I-ME Colombia"
+              width="500"
+              height="340"
+              loading="lazy"
+              decoding="async"
+            />
+            <div class="env-card-label">
+              <span>Radiology & Diagnostics</span>
+              <small>Ultrasound · X-ray · Diagnostic monitors</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section class="section" id="servicios" aria-labelledby="svc-h2">
+      <div class="container">
+        <div
+          class="s-header fade-in"
+          style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px"
         >
-        <a
-          href="https://wa.me/573138674059"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="btn btn-ghost">WhatsApp <span class="sr-only">(opens in new window)</span></a
+          <div>
+            <div class="s-label">What we do</div>
+            <h2 id="svc-h2" class="s-title">Specialized services</h2>
+          </div>
+          <a href="/en/services" class="btn btn-outline"
+            >View all services <i class="fas fa-arrow-right" style="font-size:11px"></i></a
+          >
+        </div>
+
+        <div class="services-list fade-in">
+          {
+            servicios.map(s => (
+              <div class="svc-row">
+                <div class="svc-num">{s.num}</div>
+                <div>
+                  <div class="svc-icon">
+                    <i class={`fas ${s.icon}`} aria-hidden="true" />
+                  </div>
+                  <h3 class="svc-title">{s.titulo}</h3>
+                  <p class="svc-desc">{s.desc}</p>
+                  <ul class="svc-features">
+                    {s.items.map(it => (
+                      <li>{it}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div class="svc-arrow">
+                  <i class="fas fa-arrow-right" />
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURE ROW -->
+    <div class="feature-row" aria-label="Cutting-edge biomedical equipment">
+      <div class="feature-row-img">
+        <img
+          src="/assets/img/equipamiento-biomedico-vanguardia.webp"
+          alt="High-technology biomedical equipment for ICU — I-ME Colombia"
+          width="960"
+          height="380"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+      <div class="feature-row-content">
+        <div class="s-label s-label-white">Our commitment</div>
+        <h3>Equipment that meets the most demanding standards</h3>
+        <p>
+          Every device we distribute holds valid CE, FDA and INVIMA certifications. We work
+          exclusively with manufacturers with a proven track record in the global health sector.
+        </p>
+        <a href="/en/catalog" class="btn btn-green"
+          ><i class="fas fa-microscope"></i> View full catalog</a
         >
       </div>
     </div>
-  </section>
+
+    <!-- FAQ -->
+    <section class="section section-off" aria-labelledby="faq-h2">
+      <div class="container">
+        <div class="s-header s-header-center fade-in">
+          <div class="s-label">Frequently asked questions</div>
+          <h2 id="faq-h2" class="s-title">Everything you need to know</h2>
+          <p class="s-sub">
+            Quick answers to the most common questions about our equipment and services.
+          </p>
+        </div>
+
+        <div class="faq-list" role="list">
+          {
+            faqData.map((f, i) => (
+              <div class="faq-item fade-in" role="listitem">
+                <button class="faq-q" aria-expanded="false" aria-controls={`faq-body-${i}`}>
+                  {f.q}
+                  <span class="faq-ico">
+                    <i class="fas fa-plus" aria-hidden="true" />
+                  </span>
+                </button>
+                <div class="faq-body" id={`faq-body-${i}`} role="region">
+                  <div class="faq-inner">{f.a}</div>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section" aria-label="Call to action">
+      <div class="container">
+        <div class="cta-block fade-in">
+          <div class="s-label s-label-white">Let’s talk</div>
+          <h2 class="cta-title">Ready to equip your institution?</h2>
+          <p class="cta-sub">
+            Contact us today and receive a personalized proposal for your hospital, clinic or
+            medical center. No obligation, with specialized advice.
+          </p>
+          <div class="cta-btns">
+            <a
+              href="https://wa.me/573138674059?text=Hello%2C%20I%27m%20interested%20in%20a%20quote%20for%20biomedical%20equipment"
+              target="_blank"
+              rel="noopener"
+              class="btn btn-green"
+            >
+              <i class="fab fa-whatsapp"></i> Message on WhatsApp
+            </a>
+            <a href="/en/contact" class="btn btn-outline-white"> Contact form </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
 </Layout>
 
-<style>
-  .hero {
-    position: relative;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    overflow: hidden;
-    padding-top: 70px;
-  }
-  .hero__bg {
-    position: absolute;
-    inset: 0;
-  }
-  .hero__video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .hero__overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      135deg,
-      rgba(11, 27, 34, 0.82) 0%,
-      rgba(15, 76, 92, 0.6) 60%,
-      rgba(11, 27, 34, 0.55) 100%
-    );
-  }
-  .hero__ecg {
-    position: absolute;
-    bottom: 15%;
-    left: 0;
-    right: 0;
-    pointer-events: none;
-    opacity: 0.6;
-  }
-  .hero__ecg svg {
-    width: 100%;
-    height: 60px;
-  }
-  .hero__content {
-    position: relative;
-    z-index: 1;
-    padding-block: var(--space-3xl);
-  }
-  .hero__text {
-    max-width: 680px;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-  .hero__badge {
-    align-self: flex-start;
-    background: rgba(255, 255, 255, 0.12);
-    color: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(8px);
-  }
-  .hero__title {
-    font-size: var(--step-5);
-    font-weight: 800;
-    color: white;
-    line-height: 1.08;
-    margin: 0;
-  }
-  .hero__subtitle {
-    font-size: var(--step-1);
-    color: rgba(255, 255, 255, 0.8);
-    line-height: 1.6;
-    margin: 0;
-    max-width: 560px;
-  }
-  .hero__ctas {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-  .hero__cta-primary {
-    background: white;
-    color: var(--t900);
-  }
-  .hero__cta-primary:hover {
-    background: var(--off);
-    color: var(--t800);
-  }
-  .trust-band {
-    background: var(--t900);
-    color: white;
-  }
-  .trust-band__list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 2rem;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    text-align: center;
-  }
-  .trust-band__item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.35rem;
-  }
-  .trust-band__valor {
-    font-family: var(--font-display);
-    font-size: var(--step-3);
-    font-weight: 800;
-    color: white;
-  }
-  .trust-band__label {
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.7);
-  }
-  .trust-band__item--sello .trust-band__sello-icon {
-    font-size: var(--step-2);
-    color: var(--green);
-    font-weight: 800;
-  }
-  .section-tag {
-    display: inline-block;
-    font-family: var(--font-display);
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--t900);
-    background: var(--t100);
-    padding: 0.3rem 0.875rem;
-    border-radius: 999px;
-    margin-block-end: 0.75rem;
-  }
-  .section-header {
-    text-align: center;
-    max-width: 680px;
-    margin-inline: auto;
-    margin-block-end: var(--space-xl);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .section-cta {
-    text-align: center;
-    margin-block-start: var(--space-xl);
-  }
-  .about__grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-xl);
-    align-items: center;
-  }
-  @media (min-width: 900px) {
-    .about__grid {
-      grid-template-columns: 1fr 1fr;
-    }
-  }
-  .about__img {
-    border-radius: var(--radius-lg);
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-    box-shadow: var(--shadow-lg);
-  }
-  .about__content {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .about__content h2 {
-    margin: 0;
-  }
-  .about__content p {
-    color: var(--text-mid);
-    margin: 0;
-  }
-  .about__pillars {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-block-start: 0.5rem;
-  }
-  .pillar {
-    background: var(--off);
-    border-radius: var(--radius);
-    padding: 1rem 1.25rem;
-    border: 1px solid var(--border);
-  }
-  .pillar__title {
-    font-size: 0.85rem;
-    font-weight: 700;
-    font-family: var(--font-display);
-    color: var(--t900);
-    margin: 0 0 0.35rem;
-  }
-  .pillar p {
-    font-size: 0.825rem;
-    color: var(--text-mid);
-    margin: 0;
-  }
-  .categorias__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 1.25rem;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  .categoria-card {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    padding: 1.5rem;
-    background: var(--white);
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border);
-    text-decoration: none;
-    color: var(--text);
-    transition:
-      box-shadow 260ms var(--ease),
-      transform 260ms var(--ease),
-      border-color 260ms var(--ease);
-  }
-  .categoria-card:hover {
-    box-shadow: var(--shadow-md);
-    transform: translateY(-3px);
-    border-color: var(--t700);
-  }
-  .categoria-card__icon {
-    width: 48px;
-    height: 48px;
-    border-radius: var(--radius);
-    background: var(--t100);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--t900);
-  }
-  .categoria-card__name {
-    font-family: var(--font-display);
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--ink);
-    margin: 0;
-  }
-  .categoria-card__desc {
-    font-size: 0.825rem;
-    color: var(--text-mid);
-    line-height: 1.5;
-    margin: 0;
-    flex: 1;
-  }
-  .categoria-card__link {
-    font-size: 0.8rem;
-    font-weight: 600;
-    font-family: var(--font-display);
-    color: var(--t800);
-    margin-block-start: auto;
-  }
-  .destacados__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  .producto-card {
-    display: flex;
-    flex-direction: column;
-  }
-  .producto-card__link {
-    text-decoration: none;
-    color: inherit;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-  }
-  .producto-card__img-wrapper {
-    overflow: hidden;
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    aspect-ratio: 4/3;
-    background: var(--off2);
-  }
-  .producto-card__img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 400ms var(--ease);
-  }
-  .producto-card:hover .producto-card__img {
-    transform: scale(1.04);
-  }
-  .producto-card__body {
-    padding: 1.25rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    flex: 1;
-  }
-  .producto-card__familia {
-    font-size: 0.7rem;
-    font-weight: 700;
-    font-family: var(--font-display);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--t800);
-    margin: 0;
-  }
-  .producto-card__nombre {
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--ink);
-    margin: 0;
-    line-height: 1.3;
-  }
-  .producto-card__desc {
-    font-size: 0.825rem;
-    color: var(--text-mid);
-    line-height: 1.5;
-    margin: 0;
-    flex: 1;
-  }
-  .producto-card__cta {
-    align-self: flex-start;
-    margin-block-start: 0.75rem;
-    font-size: 0.8rem;
-  }
-  .cierre__inner {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 1.5rem;
-  }
-  .cierre__title {
-    font-size: var(--step-3);
-    font-weight: 800;
-    color: white;
-    margin: 0;
-  }
-  .cierre__subtitle {
-    font-size: var(--step-1);
-    color: rgba(255, 255, 255, 0.75);
-    max-width: 600px;
-    margin: 0;
-  }
-  .cierre__ctas {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    justify-content: center;
-  }
-  .cierre__btn-primary {
-    background: white;
-    color: var(--t900);
-  }
-  .cierre__btn-primary:hover {
-    background: var(--off);
-    color: var(--t800);
-  }
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border-width: 0;
-  }
-</style>
-
 <script>
-  import { prefersReducedMotion } from '../../lib/motion'
-  if (!prefersReducedMotion()) {
-    const load = async () => {
-      const { gsap } = await import('gsap')
-      const { ScrollTrigger } = await import('gsap/ScrollTrigger')
-      gsap.registerPlugin(ScrollTrigger)
-      document.querySelectorAll('[data-animate]').forEach((el) => {
-        const type = el.getAttribute('data-animate')
-        const vars: gsap.TweenVars = { opacity: 0 }
-        const toVars: gsap.TweenVars = {
-          opacity: 1,
-          duration: 0.7,
-          ease: 'power3.out',
-          scrollTrigger: { trigger: el, start: 'top 88%', once: true },
-        }
-        if (type === 'fade-up' || type === 'hero-text') {
-          vars.y = 30
-          toVars.y = 0
-        } else if (type === 'fade-left') {
-          vars.x = -30
-          toVars.x = 0
-        } else if (type === 'fade-right') {
-          vars.x = 30
-          toVars.x = 0
-        }
-        gsap.fromTo(el, vars, toVars)
-      })
-    }
-    load()
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const faders = document.querySelectorAll<HTMLElement>('.site-faithful .fade-in');
+  if (reduce) {
+    faders.forEach(el => el.classList.add('visible'));
+  } else if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            io.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+    );
+    faders.forEach(el => io.observe(el));
+  } else {
+    faders.forEach(el => el.classList.add('visible'));
   }
+
+  const counters = document.querySelectorAll<HTMLElement>('.site-faithful .stat-n[data-count]');
+  function animateCounter(el: HTMLElement) {
+    const target = Number(el.dataset.count ?? '0');
+    const suffix = el.dataset.suffix ?? '';
+    if (reduce || !Number.isFinite(target)) {
+      el.textContent = `${target}${suffix}`;
+      return;
+    }
+    const duration = 1400;
+    const start = performance.now();
+    function tick(now: number) {
+      const p = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = `${Math.round(target * eased)}${suffix}`;
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+  if ('IntersectionObserver' in window && !reduce) {
+    const cio = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            animateCounter(entry.target as HTMLElement);
+            cio.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+    counters.forEach(el => cio.observe(el));
+  } else {
+    counters.forEach(el => animateCounter(el));
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('.site-faithful .faq-q').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest('.faq-item');
+      if (!item) return;
+      const open = item.classList.toggle('open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  });
+
+  document
+    .querySelectorAll<HTMLButtonElement>('.site-faithful [data-add-cotizacion]')
+    .forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const slug = btn.dataset.addCotizacion;
+        const nombre = btn.dataset.nombre;
+        const imagen = btn.dataset.imagen;
+        if (!slug || !nombre) return;
+        const mod = await import('../../lib/cotizacion-equipos');
+        mod.agregarACotizacion({ slug, nombre, imagen: imagen ?? '' });
+        mod.abrirCotizacion();
+      });
+    });
 </script>

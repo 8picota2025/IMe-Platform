@@ -1,0 +1,96 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { buildCanonical, buildPageTitle } from '../../../lib/seo';
+import { getLegalPages } from '../../../lib/legal';
+
+export function getStaticPaths() {
+  const staticSlugs = new Set(['privacidad', 'habeas-data', 'terminos']);
+  return getLegalPages('es')
+    .filter(page => !staticSlugs.has(page.slug))
+    .map(page => ({ params: { slug: page.slug }, props: { page } }));
+}
+
+const { page } = Astro.props;
+const locale = 'es';
+const currentPath = `/es/legal/${page.slug}`;
+---
+
+<Layout
+  title={buildPageTitle(page.title)}
+  description={page.description}
+  canonical={buildCanonical(currentPath)}
+  locale={locale}
+  currentPath={currentPath}
+>
+  <article class="legal-page">
+    <div class="container legal-page__inner">
+      <p class="legal-page__badge">{page.badge}</p>
+      <h1>{page.title}</h1>
+      <p class="legal-page__summary">{page.description}</p>
+      <p class="legal-page__updated">Última actualización: {page.updated}</p>
+
+      {
+        page.sections.map(section => (
+          <section class="legal-section">
+            <h2>{section.heading}</h2>
+            {section.body.map(paragraph => (
+              <p>{paragraph}</p>
+            ))}
+          </section>
+        ))
+      }
+
+      <aside class="legal-page__notice" role="note">
+        <strong>Versión vigente:</strong> este documento forma parte de las políticas publicadas de I-ME
+        International Medical Enterprise.
+      </aside>
+    </div>
+  </article>
+</Layout>
+
+<style>
+  .legal-page {
+    padding-block: 130px var(--space-2xl);
+    background: var(--white);
+  }
+  .legal-page__inner {
+    max-width: 860px;
+  }
+  .legal-page__badge {
+    display: inline-block;
+    margin: 0 0 1rem;
+    padding: 0.3rem 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--t900);
+    background: var(--off);
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+  .legal-page h1 {
+    margin: 0 0 1rem;
+    color: var(--ink);
+  }
+  .legal-page__summary,
+  .legal-page__updated {
+    color: var(--text-mid);
+  }
+  .legal-section {
+    margin-block-start: var(--space-xl);
+  }
+  .legal-section h2 {
+    font-size: var(--step-1);
+    color: var(--ink);
+  }
+  .legal-section p {
+    color: var(--text-mid);
+  }
+  .legal-page__notice {
+    margin-block-start: var(--space-xl);
+    padding: 1rem 1.25rem;
+    border: 1px solid #f9c74f;
+    border-radius: var(--radius);
+    background: #fff8e1;
+    color: #6b5300;
+  }
+</style>

@@ -3,21 +3,23 @@
  * Catálogo ES — explorador completo: familias, filtros, búsqueda,
  * facetas dinámicas, paginación y comparador (F2).
  */
-import Layout from '../../layouts/Layout.astro'
-import CatalogoExplorer from '../../components/CatalogoExplorer.astro'
-import { t } from '../../i18n/utils'
+import Layout from '../../layouts/Layout.astro';
+import CatalogoExplorer from '../../components/CatalogoExplorer.astro';
+import { t } from '../../i18n/utils';
 import {
   buildCatalogoSeo,
   buildCanonical,
   buildOrganizationJsonLd,
   buildBreadcrumbJsonLd,
   combineJsonLd,
-} from '../../lib/seo'
-import { buildCatalogoIndex } from '../../lib/catalogo'
+} from '../../lib/seo';
+import { buildCatalogoIndex } from '../../lib/catalogo';
+import { getFamilias } from '../../lib/datos';
 
-const locale = 'es'
-const seo = buildCatalogoSeo(locale)
-const items = await buildCatalogoIndex(locale)
+const locale = 'es';
+const seo = buildCatalogoSeo(locale);
+const items = await buildCatalogoIndex(locale);
+const familias = await getFamilias(locale);
 
 const itemListJsonLd = {
   '@context': 'https://schema.org',
@@ -29,7 +31,7 @@ const itemListJsonLd = {
     url: buildCanonical(`/es/productos/${item.slug}`),
     name: item.nombre,
   })),
-}
+};
 
 const jsonLd = combineJsonLd(
   buildOrganizationJsonLd(),
@@ -38,7 +40,7 @@ const jsonLd = combineJsonLd(
     { name: t(locale, 'catalogo.migas_catalogo'), url: seo.canonical },
   ]),
   itemListJsonLd
-)
+);
 ---
 
 <Layout
@@ -57,7 +59,8 @@ const jsonLd = combineJsonLd(
       <span class="section-tag">{t(locale, 'catalogo.familias_titulo')}</span>
       <h1>{t(locale, 'catalogo.titulo')}</h1>
       <p style="color:var(--text-mid);max-width:560px;margin:0.75rem 0 0">
-        24 equipos biomédicos en 8 categorías especializadas. Todos certificados INVIMA.
+        {items.length} equipos biomédicos en {familias.length} categorías especializadas. Todos certificados
+        INVIMA.
       </p>
     </div>
   </div>
