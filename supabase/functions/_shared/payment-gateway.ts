@@ -191,7 +191,9 @@ async function wompiEventoHash(
     return cur ?? '';
   });
 
-  const data = values.join('') + eventsSecret;
+  // Wompi spec: SHA256(property_values + timestamp + events_secret)
+  const timestamp = payload['timestamp'] ?? '';
+  const data = values.join('') + String(timestamp) + eventsSecret;
   const enc = new TextEncoder();
   const hashBuffer = await crypto.subtle.digest('SHA-256', enc.encode(data));
   return Array.from(new Uint8Array(hashBuffer))
