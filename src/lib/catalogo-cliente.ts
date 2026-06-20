@@ -538,10 +538,19 @@ export function initCatalogo(locale: Locale): () => void {
       if (newQ && state.familia) {
         state.familia = '';
         state.todos = true;
-        syncFiltrosUI();
+      } else if (!newQ && state.todos && !state.familia) {
+        const noOtherFilters =
+          state.comercial.size === 0 &&
+          !state.destacado &&
+          !state.nuevo &&
+          !state.disponible &&
+          state.modalidades.size === 0 &&
+          state.facetas.size === 0;
+        if (noOtherFilters) state.todos = false;
       }
       state.q = newQ;
       state.pagina = 1;
+      syncFiltrosUI();
       applyFiltros();
     }, 300);
   };
