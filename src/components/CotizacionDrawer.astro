@@ -458,26 +458,20 @@ const config = {
 
   let unsubCambioCotizacion: (() => void) | null = null;
   let unsubAbrirCotizacion: (() => void) | null = null;
-  let cotizacionEscHandler: ((e: KeyboardEvent) => void) | null = null;
-  const _imeInit = new WeakSet<Element>();
+  let cotizacionAbortController: AbortController | null = null;
 
   function initCotizacionDrawer() {
     const drawer = document.getElementById('cotizacion-drawer');
     if (!drawer) return;
 
-    // transition:persist keeps the same DOM element — skip re-binding to avoid duplicates
-    if (_imeInit.has(drawer)) return;
-    _imeInit.add(drawer);
+    cotizacionAbortController?.abort();
+    cotizacionAbortController = new AbortController();
+    const { signal } = cotizacionAbortController;
 
-    // Fresh element: clean up stale state from a previous (replaced) element
     unsubCambioCotizacion?.();
     unsubCambioCotizacion = null;
     unsubAbrirCotizacion?.();
     unsubAbrirCotizacion = null;
-    if (cotizacionEscHandler) {
-      document.removeEventListener('keydown', cotizacionEscHandler);
-      cotizacionEscHandler = null;
-    }
 
     const backdrop = document.getElementById('cotizacion-backdrop');
     const closeBtn = document.getElementById('cotizacion-close');
@@ -542,25 +536,33 @@ const config = {
     render(getCotizacionItems());
     unsubCambioCotizacion = suscribirCotizacion(render);
 
-    itemsEl?.addEventListener('click', event => {
-      const target = event.target as HTMLElement;
-      const button = target.closest<HTMLElement>('button[data-action]');
-      if (!button) return;
-      const li = button.closest<HTMLElement>('.cotizacion-item');
-      const slug = li?.dataset.slug;
-      if (!slug) return;
-      const items = getCotizacionItems();
-      const item = items.find(i => i.slug === slug);
-      if (!item) return;
-      const action = button.dataset.action;
-      if (action === 'inc') actualizarCantidadCotizacion(slug, item.cantidad + 1);
-      else if (action === 'dec') actualizarCantidadCotizacion(slug, item.cantidad - 1);
-      else if (action === 'remove') quitarDeCotizacion(slug);
-    });
+    itemsEl?.addEventListener(
+      'click',
+      event => {
+        const target = event.target as HTMLElement;
+        const button = target.closest<HTMLElement>('button[data-action]');
+        if (!button) return;
+        const li = button.closest<HTMLElement>('.cotizacion-item');
+        const slug = li?.dataset.slug;
+        if (!slug) return;
+        const items = getCotizacionItems();
+        const item = items.find(i => i.slug === slug);
+        if (!item) return;
+        const action = button.dataset.action;
+        if (action === 'inc') actualizarCantidadCotizacion(slug, item.cantidad + 1);
+        else if (action === 'dec') actualizarCantidadCotizacion(slug, item.cantidad - 1);
+        else if (action === 'remove') quitarDeCotizacion(slug);
+      },
+      { signal }
+    );
 
-    vaciarBtn?.addEventListener('click', () => {
-      vaciarCotizacion();
-    });
+    vaciarBtn?.addEventListener(
+      'click',
+      () => {
+        vaciarCotizacion();
+      },
+      { signal }
+    );
 
     function open() {
       if (!drawer || !backdrop) return;
@@ -585,32 +587,39 @@ const config = {
     }
 
     unsubAbrirCotizacion = alAbrirCotizacion(open);
-    closeBtn?.addEventListener('click', close);
-    backdrop?.addEventListener('click', close);
+    closeBtn?.addEventListener('click', close, { signal });
+    backdrop?.addEventListener('click', close, { signal });
 
-    cotizacionEscHandler = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && !drawer.hasAttribute('hidden')) close();
-    };
-    document.addEventListener('keydown', cotizacionEscHandler);
+    document.addEventListener(
+      'keydown',
+      (event: KeyboardEvent) => {
+        if (event.key === 'Escape' && !drawer.hasAttribute('hidden')) close();
+      },
+      { signal }
+    );
 
-    drawer.addEventListener('keydown', event => {
-      if (event.key !== 'Tab') return;
-      const focusable = Array.from(
-        drawer.querySelectorAll<HTMLElement>(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        )
-      ).filter(el => el.offsetParent !== null || el === document.activeElement);
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (!first || !last) return;
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    });
+    drawer.addEventListener(
+      'keydown',
+      event => {
+        if (event.key !== 'Tab') return;
+        const focusable = Array.from(
+          drawer.querySelectorAll<HTMLElement>(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          )
+        ).filter(el => el.offsetParent !== null || el === document.activeElement);
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (!first || !last) return;
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      },
+      { signal }
+    );
 
     function showEstado(message: string, kind: 'exito' | 'error' | null) {
       if (!estadoEl) return;
@@ -620,49 +629,53 @@ const config = {
       estadoEl.hidden = !message;
     }
 
-    formEl?.addEventListener('submit', async event => {
-      event.preventDefault();
-      if (enviando || !formEl || !submitBtn) return;
-      showEstado('', null);
+    formEl?.addEventListener(
+      'submit',
+      async event => {
+        event.preventDefault();
+        if (enviando || !formEl || !submitBtn) return;
+        showEstado('', null);
 
-      if (!formEl.checkValidity()) {
-        formEl.reportValidity();
-        return;
-      }
+        if (!formEl.checkValidity()) {
+          formEl.reportValidity();
+          return;
+        }
 
-      const data = new FormData(formEl);
-      const items = getCotizacionItems();
+        const data = new FormData(formEl);
+        const items = getCotizacionItems();
 
-      enviando = true;
-      submitBtn.disabled = true;
-      submitBtn.textContent = i18n.enviando;
+        enviando = true;
+        submitBtn.disabled = true;
+        submitBtn.textContent = i18n.enviando;
 
-      const payload = {
-        nombre: String(data.get('nombre') ?? ''),
-        apellido: String(data.get('apellido') ?? ''),
-        email: String(data.get('email') ?? ''),
-        telefono: String(data.get('telefono') ?? ''),
-        mensaje: String(data.get('mensaje') ?? ''),
-        consentimiento_datos: data.get('consentimiento') === 'on',
-        productos: items.map(i => ({ slug: i.slug, nombre: i.nombre, cantidad: i.cantidad })),
-      };
-      const institucion = String(data.get('institucion') ?? '').trim();
-      if (institucion) Object.assign(payload, { institucion });
+        const payload = {
+          nombre: String(data.get('nombre') ?? ''),
+          apellido: String(data.get('apellido') ?? ''),
+          email: String(data.get('email') ?? ''),
+          telefono: String(data.get('telefono') ?? ''),
+          mensaje: String(data.get('mensaje') ?? ''),
+          consentimiento_datos: data.get('consentimiento') === 'on',
+          productos: items.map(i => ({ slug: i.slug, nombre: i.nombre, cantidad: i.cantidad })),
+        };
+        const institucion = String(data.get('institucion') ?? '').trim();
+        if (institucion) Object.assign(payload, { institucion });
 
-      const resultado = await submitCotizacion(payload);
+        const resultado = await submitCotizacion(payload);
 
-      enviando = false;
-      submitBtn.disabled = false;
-      submitBtn.textContent = i18n.enviar;
+        enviando = false;
+        submitBtn.disabled = false;
+        submitBtn.textContent = i18n.enviar;
 
-      if (resultado.ok) {
-        showEstado(i18n.exito, 'exito');
-        vaciarCotizacion();
-        formEl.reset();
-      } else {
-        showEstado(i18n.error, 'error');
-      }
-    });
+        if (resultado.ok) {
+          showEstado(i18n.exito, 'exito');
+          vaciarCotizacion();
+          formEl.reset();
+        } else {
+          showEstado(i18n.error, 'error');
+        }
+      },
+      { signal }
+    );
   }
 
   document.addEventListener('astro:page-load', initCotizacionDrawer);

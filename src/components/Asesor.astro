@@ -581,26 +581,28 @@ const asesorConfig = {
   let resolveTurnstileToken: ((token: string | undefined) => void) | null = null;
   const historial: MensajeAsesor[] = [];
 
-  // Per-init cleanup
-  let asesorEscHandler: ((e: KeyboardEvent) => void) | null = null;
-  const _imeInit = new WeakSet<Element>();
+  let abortController: AbortController | null = null;
+  let asesorTurnstileContainer: HTMLElement | null = null;
 
   function initAsesor() {
     const trigger = document.getElementById('asesor-trigger');
     const dialog = document.getElementById('asesor-dialog');
     if (!trigger || !dialog) return;
 
-    // transition:persist keeps the same DOM element across navigations — skip re-binding
-    if (_imeInit.has(trigger)) return;
-    _imeInit.add(trigger);
+    // Abort all previous element-level listeners before rebinding (works whether
+    // transition:persist kept the same element or a fresh one replaced it)
+    abortController?.abort();
+    abortController = new AbortController();
+    const { signal } = abortController;
 
-    // Fresh element only: clean up any stale doc-level handler and reset turnstile
-    if (asesorEscHandler) {
-      document.removeEventListener('keydown', asesorEscHandler);
-      asesorEscHandler = null;
+    // Only reset Turnstile if the container element changed (dialog not persisted)
+    const newTurnstileContainer = document.getElementById('asesor-turnstile');
+    if (newTurnstileContainer !== asesorTurnstileContainer) {
+      turnstileWidgetId = null;
+      resolveTurnstileToken = null;
+      asesorTurnstileContainer = newTurnstileContainer;
+      historial.length = 0;
     }
-    turnstileWidgetId = null;
-    resolveTurnstileToken = null;
 
     const closeBtn = document.getElementById('asesor-close');
     const form = document.getElementById('asesor-form') as HTMLFormElement | null;
@@ -610,7 +612,8 @@ const asesorConfig = {
     const turnstileContainer = document.getElementById('asesor-turnstile');
 
     const config: AsesorConfig = JSON.parse(dialog.dataset.asesorConfig ?? '{}') as AsesorConfig;
-    let localInitialized = false;
+    // If the dialog persisted (messages already present), don't show welcome again
+    let localInitialized = !!messagesEl?.children.length;
 
     function escapeHtml(value: string): string {
       return value
@@ -745,12 +748,14 @@ const asesorConfig = {
 
         return await new Promise<string | undefined>(resolve => {
           const timeout = setTimeout(() => resolve(undefined), 8000);
+          // Reset BEFORE setting the resolver so any expired/error callback
+          // fired synchronously by reset() finds resolveTurnstileToken null and is a no-op
+          window.turnstile?.reset(widgetId);
           resolveTurnstileToken = token => {
             clearTimeout(timeout);
             resolveTurnstileToken = null;
             resolve(token);
           };
-          window.turnstile?.reset(widgetId);
           window.turnstile?.execute(widgetId);
         });
       } catch {
@@ -763,32 +768,35 @@ const asesorConfig = {
       ultimoMensaje = mensaje;
       setEnviando(true);
       const loadingBubble = addBubble(config.i18n.buscando, 'loading');
+      try {
+        if (!asesorLib) asesorLib = await import('../lib/asesor');
+        const turnstileToken = await getTurnstileToken();
 
-      if (!asesorLib) asesorLib = await import('../lib/asesor');
-      const turnstileToken = await getTurnstileToken();
+        const resultado = await asesorLib.preguntarAsesor({
+          mensaje,
+          historial,
+          locale: config.locale,
+          turnstileToken,
+        });
 
-      const resultado = await asesorLib.preguntarAsesor({
-        mensaje,
-        historial,
-        locale: config.locale,
-        turnstileToken,
-      });
+        if (!resultado.ok) {
+          renderError(resultado.error);
+          return;
+        }
 
-      loadingBubble?.remove();
-      setEnviando(false);
-
-      if (!resultado.ok) {
-        renderError(resultado.error);
-        return;
+        historial.push({ rol: 'usuario', contenido: mensaje, timestamp: new Date() });
+        historial.push({
+          rol: 'asesor',
+          contenido: resultado.respuesta.texto,
+          timestamp: new Date(),
+        });
+        renderRespuesta(resultado.respuesta);
+      } catch {
+        renderError({ tipo: 'error' });
+      } finally {
+        loadingBubble?.remove();
+        setEnviando(false);
       }
-
-      historial.push({ rol: 'usuario', contenido: mensaje, timestamp: new Date() });
-      historial.push({
-        rol: 'asesor',
-        contenido: resultado.respuesta.texto,
-        timestamp: new Date(),
-      });
-      renderRespuesta(resultado.respuesta);
     }
 
     function openDialog() {
@@ -812,58 +820,77 @@ const asesorConfig = {
       trigger.focus();
     }
 
-    trigger.addEventListener('click', openDialog);
-    closeBtn?.addEventListener('click', closeDialog);
+    trigger.addEventListener('click', openDialog, { signal });
+    closeBtn?.addEventListener('click', closeDialog, { signal });
 
-    asesorEscHandler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !dialog.hasAttribute('hidden')) closeDialog();
-    };
-    document.addEventListener('keydown', asesorEscHandler);
+    document.addEventListener(
+      'keydown',
+      (e: KeyboardEvent) => {
+        if (e.key === 'Escape' && !dialog.hasAttribute('hidden')) closeDialog();
+      },
+      { signal }
+    );
 
-    dialog.addEventListener('keydown', e => {
-      if (e.key !== 'Tab') return;
-      const focusable = Array.from(
-        dialog.querySelectorAll<HTMLElement>(
-          'button, textarea, a[href], [tabindex]:not([tabindex="-1"])'
-        )
-      );
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (!first || !last) return;
-      if (e.shiftKey && document.activeElement === first) {
+    dialog.addEventListener(
+      'keydown',
+      e => {
+        if (e.key !== 'Tab') return;
+        const focusable = Array.from(
+          dialog.querySelectorAll<HTMLElement>(
+            'button, textarea, a[href], [tabindex]:not([tabindex="-1"])'
+          )
+        );
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (!first || !last) return;
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      },
+      { signal }
+    );
+
+    form?.addEventListener(
+      'submit',
+      async e => {
         e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    });
+        const msg = inputEl?.value.trim();
+        if (!msg) return;
 
-    form?.addEventListener('submit', async e => {
-      e.preventDefault();
-      const msg = inputEl?.value.trim();
-      if (!msg) return;
+        addBubble(msg, 'user');
+        if (inputEl) inputEl.value = '';
 
-      addBubble(msg, 'user');
-      if (inputEl) inputEl.value = '';
+        await enviarMensaje(msg);
+      },
+      { signal }
+    );
 
-      await enviarMensaje(msg);
-    });
+    messagesEl?.addEventListener(
+      'click',
+      e => {
+        const target = e.target as HTMLElement;
+        if (target.closest('[data-asesor-retry]') && ultimoMensaje) {
+          target.closest('.chat-bubble')?.remove();
+          void enviarMensaje(ultimoMensaje);
+        }
+      },
+      { signal }
+    );
 
-    messagesEl?.addEventListener('click', e => {
-      const target = e.target as HTMLElement;
-      if (target.closest('[data-asesor-retry]') && ultimoMensaje) {
-        target.closest('.chat-bubble')?.remove();
-        void enviarMensaje(ultimoMensaje);
-      }
-    });
-
-    inputEl?.addEventListener('keydown', e => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        form?.requestSubmit();
-      }
-    });
+    inputEl?.addEventListener(
+      'keydown',
+      e => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          form?.requestSubmit();
+        }
+      },
+      { signal }
+    );
   }
 
   document.addEventListener('astro:page-load', initAsesor);

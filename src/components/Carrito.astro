@@ -721,26 +721,20 @@ const config = {
 
   let unsubCambioCarrito: (() => void) | null = null;
   let unsubAbrirCarrito: (() => void) | null = null;
-  let carritoEscHandler: ((e: KeyboardEvent) => void) | null = null;
-  const _imeInit = new WeakSet<Element>();
+  let carritoAbortController: AbortController | null = null;
 
   function initCarrito() {
     const drawer = document.getElementById('carrito-drawer');
     if (!drawer) return;
 
-    // transition:persist keeps the same DOM element — skip re-binding to avoid duplicates
-    if (_imeInit.has(drawer)) return;
-    _imeInit.add(drawer);
+    carritoAbortController?.abort();
+    carritoAbortController = new AbortController();
+    const { signal } = carritoAbortController;
 
-    // Fresh element: clean up stale state from a previous (replaced) element
     unsubCambioCarrito?.();
     unsubCambioCarrito = null;
     unsubAbrirCarrito?.();
     unsubAbrirCarrito = null;
-    if (carritoEscHandler) {
-      document.removeEventListener('keydown', carritoEscHandler);
-      carritoEscHandler = null;
-    }
 
     const backdrop = document.getElementById('carrito-backdrop');
     const closeBtn = document.getElementById('carrito-close');
@@ -861,31 +855,39 @@ const config = {
     }
 
     toggleFiscalFields();
-    solicitarFacturaEl?.addEventListener('change', toggleFiscalFields);
+    solicitarFacturaEl?.addEventListener('change', toggleFiscalFields, { signal });
     formEl
       ?.querySelectorAll<HTMLInputElement>('input[name="mercado"]')
-      .forEach(radio => radio.addEventListener('change', toggleFiscalFields));
+      .forEach(radio => radio.addEventListener('change', toggleFiscalFields, { signal }));
 
-    itemsEl?.addEventListener('click', event => {
-      const target = event.target as HTMLElement;
-      const button = target.closest<HTMLElement>('button[data-action]');
-      if (!button) return;
-      const li = button.closest<HTMLElement>('.carrito-item');
-      const slug = li?.dataset.slug;
-      if (!slug) return;
-      const items = getCarrito();
-      const item = items.find(i => i.slug === slug);
-      if (!item) return;
-      const action = button.dataset.action;
-      if (action === 'inc') actualizarCantidad(slug, item.cantidad + 1);
-      else if (action === 'dec') actualizarCantidad(slug, item.cantidad - 1);
-      else if (action === 'remove') quitarDelCarrito(slug);
-    });
+    itemsEl?.addEventListener(
+      'click',
+      event => {
+        const target = event.target as HTMLElement;
+        const button = target.closest<HTMLElement>('button[data-action]');
+        if (!button) return;
+        const li = button.closest<HTMLElement>('.carrito-item');
+        const slug = li?.dataset.slug;
+        if (!slug) return;
+        const items = getCarrito();
+        const item = items.find(i => i.slug === slug);
+        if (!item) return;
+        const action = button.dataset.action;
+        if (action === 'inc') actualizarCantidad(slug, item.cantidad + 1);
+        else if (action === 'dec') actualizarCantidad(slug, item.cantidad - 1);
+        else if (action === 'remove') quitarDelCarrito(slug);
+      },
+      { signal }
+    );
 
-    vaciarBtn?.addEventListener('click', () => {
-      vaciarCarrito();
-      showError(null);
-    });
+    vaciarBtn?.addEventListener(
+      'click',
+      () => {
+        vaciarCarrito();
+        showError(null);
+      },
+      { signal }
+    );
 
     function open() {
       if (!drawer || !backdrop) return;
@@ -911,111 +913,122 @@ const config = {
     }
 
     unsubAbrirCarrito = alAbrirCarrito(open);
-    closeBtn?.addEventListener('click', close);
-    backdrop?.addEventListener('click', close);
+    closeBtn?.addEventListener('click', close, { signal });
+    backdrop?.addEventListener('click', close, { signal });
 
-    carritoEscHandler = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && !drawer.hasAttribute('hidden')) close();
-    };
-    document.addEventListener('keydown', carritoEscHandler);
+    document.addEventListener(
+      'keydown',
+      (event: KeyboardEvent) => {
+        if (event.key === 'Escape' && !drawer.hasAttribute('hidden')) close();
+      },
+      { signal }
+    );
 
-    drawer.addEventListener('keydown', event => {
-      if (event.key !== 'Tab') return;
-      const focusable = Array.from(
-        drawer.querySelectorAll<HTMLElement>(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        )
-      ).filter(el => el.offsetParent !== null || el === document.activeElement);
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (!first || !last) return;
-      if (event.shiftKey && document.activeElement === first) {
+    drawer.addEventListener(
+      'keydown',
+      event => {
+        if (event.key !== 'Tab') return;
+        const focusable = Array.from(
+          drawer.querySelectorAll<HTMLElement>(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          )
+        ).filter(el => el.offsetParent !== null || el === document.activeElement);
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (!first || !last) return;
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      },
+      { signal }
+    );
+
+    formEl?.addEventListener(
+      'submit',
+      async event => {
         event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    });
+        if (enviando || !formEl || !submitBtn) return;
+        showError(null);
 
-    formEl?.addEventListener('submit', async event => {
-      event.preventDefault();
-      if (enviando || !formEl || !submitBtn) return;
-      showError(null);
+        if (!formEl.checkValidity()) {
+          formEl.reportValidity();
+          showError(i18n.errorValidacion);
+          return;
+        }
 
-      if (!formEl.checkValidity()) {
-        formEl.reportValidity();
-        showError(i18n.errorValidacion);
-        return;
-      }
+        const data = new FormData(formEl);
+        const mercado = String(data.get('mercado') ?? 'CO') as Mercado;
+        const cliente = {
+          nombre: String(data.get('nombre') ?? ''),
+          apellido: String(data.get('apellido') ?? ''),
+          email: String(data.get('email') ?? ''),
+          telefono: String(data.get('telefono') ?? ''),
+        };
+        const institucion = String(data.get('institucion') ?? '').trim();
+        if (institucion) Object.assign(cliente, { institucion });
+        const consentimientoDatos = data.get('consentimiento') === 'on';
+        const cuponCodigo = String(data.get('cupon') ?? '').trim();
+        const solicitarFacturaElectronica =
+          mercado === 'CO' && data.get('solicitar_factura_electronica') === 'on';
+        const fiscal = solicitarFacturaElectronica
+          ? {
+              solicitar_factura_electronica: true,
+              tipo_documento: String(data.get('tipo_documento') ?? ''),
+              numero_documento: String(data.get('numero_documento') ?? ''),
+              tipo_persona: String(data.get('tipo_persona') ?? ''),
+              razon_social: String(data.get('razon_social') ?? ''),
+              email_facturacion: String(data.get('email_facturacion') ?? ''),
+              direccion_facturacion: {
+                direccion: String(data.get('direccion_facturacion') ?? ''),
+                ciudad: String(data.get('ciudad_facturacion') ?? ''),
+                departamento: String(data.get('departamento_facturacion') ?? ''),
+                pais: String(data.get('pais_facturacion') ?? 'CO'),
+              },
+              responsable_iva: data.get('responsable_iva') === 'on',
+              agente_retencion: data.get('agente_retencion') === 'on',
+              agente_reteica: data.get('agente_reteica') === 'on',
+            }
+          : undefined;
+        if (fiscal) Object.assign(cliente, { fiscal });
 
-      const data = new FormData(formEl);
-      const mercado = String(data.get('mercado') ?? 'CO') as Mercado;
-      const cliente = {
-        nombre: String(data.get('nombre') ?? ''),
-        apellido: String(data.get('apellido') ?? ''),
-        email: String(data.get('email') ?? ''),
-        telefono: String(data.get('telefono') ?? ''),
-      };
-      const institucion = String(data.get('institucion') ?? '').trim();
-      if (institucion) Object.assign(cliente, { institucion });
-      const consentimientoDatos = data.get('consentimiento') === 'on';
-      const cuponCodigo = String(data.get('cupon') ?? '').trim();
-      const solicitarFacturaElectronica =
-        mercado === 'CO' && data.get('solicitar_factura_electronica') === 'on';
-      const fiscal = solicitarFacturaElectronica
-        ? {
-            solicitar_factura_electronica: true,
-            tipo_documento: String(data.get('tipo_documento') ?? ''),
-            numero_documento: String(data.get('numero_documento') ?? ''),
-            tipo_persona: String(data.get('tipo_persona') ?? ''),
-            razon_social: String(data.get('razon_social') ?? ''),
-            email_facturacion: String(data.get('email_facturacion') ?? ''),
-            direccion_facturacion: {
-              direccion: String(data.get('direccion_facturacion') ?? ''),
-              ciudad: String(data.get('ciudad_facturacion') ?? ''),
-              departamento: String(data.get('departamento_facturacion') ?? ''),
-              pais: String(data.get('pais_facturacion') ?? 'CO'),
-            },
-            responsable_iva: data.get('responsable_iva') === 'on',
-            agente_retencion: data.get('agente_retencion') === 'on',
-            agente_reteica: data.get('agente_reteica') === 'on',
-          }
-        : undefined;
-      if (fiscal) Object.assign(cliente, { fiscal });
+        enviando = true;
+        submitBtn.disabled = true;
+        submitBtn.textContent = i18n.procesando;
 
-      enviando = true;
-      submitBtn.disabled = true;
-      submitBtn.textContent = i18n.procesando;
+        const resultado = await iniciarCheckout({
+          cliente,
+          mercado,
+          cuponCodigo,
+          consentimientoDatos,
+          locale,
+        });
 
-      const resultado = await iniciarCheckout({
-        cliente,
-        mercado,
-        cuponCodigo,
-        consentimientoDatos,
-        locale,
-      });
+        enviando = false;
+        submitBtn.disabled = false;
+        submitBtn.textContent = i18n.irPagar;
 
-      enviando = false;
-      submitBtn.disabled = false;
-      submitBtn.textContent = i18n.irPagar;
+        if (!resultado.ok || !resultado.checkoutUrl) {
+          if (resultado.error === 'CARRITO_VACIO') showError(i18n.errorCarritoVacio);
+          else if (resultado.error === 'NO_DISPONIBLE') showError(i18n.errorNoDisponible);
+          else if (resultado.codigo === 'PRODUCTO_NO_DISPONIBLE_TEMPORAL') {
+            const detalles = resultado.detalles as { slugs?: string[] } | undefined;
+            const slugsAfectados = new Set(detalles?.slugs ?? []);
+            const eliminados = getCarrito().filter(i => slugsAfectados.has(i.slug));
+            for (const item of eliminados) quitarDelCarrito(item.slug);
+            showAvisos(eliminados);
+            showError(i18n.errorGenerico);
+          } else showError(i18n.errorGenerico);
+          return;
+        }
 
-      if (!resultado.ok || !resultado.checkoutUrl) {
-        if (resultado.error === 'CARRITO_VACIO') showError(i18n.errorCarritoVacio);
-        else if (resultado.error === 'NO_DISPONIBLE') showError(i18n.errorNoDisponible);
-        else if (resultado.codigo === 'PRODUCTO_NO_DISPONIBLE_TEMPORAL') {
-          const detalles = resultado.detalles as { slugs?: string[] } | undefined;
-          const slugsAfectados = new Set(detalles?.slugs ?? []);
-          const eliminados = getCarrito().filter(i => slugsAfectados.has(i.slug));
-          for (const item of eliminados) quitarDelCarrito(item.slug);
-          showAvisos(eliminados);
-          showError(i18n.errorGenerico);
-        } else showError(i18n.errorGenerico);
-        return;
-      }
-
-      window.location.href = resultado.checkoutUrl;
-    });
+        window.location.href = resultado.checkoutUrl;
+      },
+      { signal }
+    );
   }
 
   document.addEventListener('astro:page-load', initCarrito);
