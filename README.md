@@ -72,7 +72,7 @@ cp .env.example .env
 
 ```bash
 npm run validate   # lint + check + build
-# Deploy web por FTP a Hostinger + deploy de Edge Functions a Supabase
+# Deploy web por FTP incremental a Hostinger + deploy de Edge Functions a Supabase
 # (configurado en .github/workflows/)
 ```
 
