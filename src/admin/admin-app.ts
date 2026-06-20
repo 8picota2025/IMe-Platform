@@ -4972,8 +4972,18 @@ async function importEntityExcel(
   return { processed: result.processed, skipped: rows.length - payloads.length + result.skipped };
 }
 
-async function readWorkbookRows(file: File, entity: ExcelEntity | 'productos'): Promise<Row[]> {
-  const buffer = await file.arrayBuffer();
+async function readWorkbookRows(
+  source: File | ArrayBuffer,
+  entity: ExcelEntity | 'productos'
+): Promise<Row[]> {
+  const buffer = source instanceof File ? await readFileArrayBuffer(source) : source;
+  return readWorkbookRowsFromBuffer(buffer, entity);
+}
+
+async function readWorkbookRowsFromBuffer(
+  buffer: ArrayBuffer,
+  entity: ExcelEntity | 'productos'
+): Promise<Row[]> {
   let workbook: XLSX.WorkBook;
   try {
     workbook = XLSX.read(buffer, { type: 'array', cellDates: true });
@@ -4996,6 +5006,32 @@ async function readWorkbookRows(file: File, entity: ExcelEntity | 'productos'): 
     throw new Error(`La hoja "${sheetName}" no contiene filas de datos.`);
   }
   return rows;
+}
+
+async function readFileArrayBuffer(file: File): Promise<ArrayBuffer> {
+  try {
+    return await file.arrayBuffer();
+  } catch {
+    return await new Promise<ArrayBuffer>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => {
+        reject(
+          new Error(
+            'No se pudo leer el archivo seleccionado. En algunos moviles esto pasa si el archivo deja de estar accesible; vuelve a seleccionarlo e intenta de nuevo.'
+          )
+        );
+      };
+      reader.onload = () => {
+        const result = reader.result;
+        if (result instanceof ArrayBuffer) {
+          resolve(result);
+          return;
+        }
+        reject(new Error('No se pudo interpretar el archivo seleccionado.'));
+      };
+      reader.readAsArrayBuffer(file);
+    });
+  }
 }
 
 async function invokeAdminImport(
@@ -5191,6 +5227,8 @@ function formatErrorDetails(details: unknown): string {
 }
 
 function bindProductExcelTools() {
+  const app = document.getElementById('admin-app');
+  if (!app) return;
   const exportButton = app.querySelector<HTMLButtonElement>('[data-products-export-xlsx]');
   exportButton?.addEventListener('click', async () => {
     try {
@@ -5223,10 +5261,31 @@ function bindProductExcelTools() {
   if (!form) return;
   const fileInput = form.querySelector<HTMLInputElement>('[data-products-import-file]');
   const status = form.querySelector<HTMLElement>('[data-products-import-status]');
+  let pendingImportBuffer: ArrayBuffer | null = null;
   fileInput?.addEventListener('change', () => {
-    if (!status) return;
     const file = fileInput.files?.[0];
-    status.textContent = file ? `Archivo seleccionado: ${file.name}` : 'Sin archivo seleccionado.';
+    pendingImportBuffer = null;
+    if (!status) return;
+    if (!file) {
+      status.textContent = 'Sin archivo seleccionado.';
+      return;
+    }
+    status.textContent = `Archivo seleccionado: ${file.name}. Leyendo archivo...`;
+    void (async () => {
+      try {
+        pendingImportBuffer = await readFileArrayBuffer(file);
+        if (fileInput.files?.[0]?.name === file.name) {
+          status.textContent = `Archivo listo: ${file.name}`;
+        }
+      } catch (error) {
+        pendingImportBuffer = null;
+        const message = formatImportError(error);
+        if (fileInput.files?.[0]?.name === file.name) {
+          status.innerHTML = `<span class="admin-import-error">Error al leer:</span> ${escapeHtml(message)}`;
+        }
+        toast(message);
+      }
+    })();
   });
   form.addEventListener('submit', async event => {
     event.preventDefault();
@@ -5239,8 +5298,10 @@ function bindProductExcelTools() {
       form.querySelector<HTMLInputElement>('[data-products-import-create-taxonomy]')?.checked ??
       false;
     try {
-      if (status) status.textContent = 'Leyendo Excel...';
-      const result = await importProductosExcel(file, { createMissingTaxonomy });
+      if (status) status.textContent = 'Procesando Excel...';
+      const buffer = pendingImportBuffer ?? (await readFileArrayBuffer(file));
+      pendingImportBuffer = buffer;
+      const result = await importProductosExcel(buffer, { createMissingTaxonomy });
       if (status) {
         status.textContent = `Importados ${result.upserted} productos. ${result.createdFamilies} familias y ${result.createdTypes} tipos creados. ${result.warnings.length} advertencias.`;
       }
@@ -5465,7 +5526,7 @@ async function selectProveedores(filters: ProveedoresQuery): Promise<Row[]> {
 }
 
 async function importProductosExcel(
-  file: File,
+  source: File | ArrayBuffer,
   options: { createMissingTaxonomy: boolean }
 ): Promise<{
   upserted: number;
@@ -5473,7 +5534,7 @@ async function importProductosExcel(
   createdTypes: number;
   warnings: string[];
 }> {
-  const rawRows = await readWorkbookRows(file, 'productos');
+  const rawRows = await readWorkbookRows(source, 'productos');
   if (!rawRows.length) throw new Error('La hoja principal no contiene filas.');
 
   const [familias, tipos] = await Promise.all([
