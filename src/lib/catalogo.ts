@@ -13,7 +13,7 @@ export interface CatalogoIndexItem {
   familia: { slug: string; nombre: string };
   tipo: { slug: string; nombre: string } | null;
   descripcion_corta: string;
-  imagen_principal: string;
+  imagen_principal: string | null;
   tipo_comercial: Producto['tipo_comercial'];
   fulfillment_mode: Producto['fulfillment_mode'];
   precio?: number;

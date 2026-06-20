@@ -45,7 +45,7 @@ export function buildProductoSeo(
   producto: {
     nombre: string;
     descripcion_corta: string | null;
-    imagen_principal: string;
+    imagen_principal: string | null;
     slug: string;
   },
   locale: Locale
@@ -57,13 +57,16 @@ export function buildProductoSeo(
       : locale === 'es'
         ? 'Consulta la ficha técnica y la disponibilidad de este equipo con el equipo comercial de I-ME.'
         : 'Contact the I-ME team for the full technical sheet and current availability of this equipment.';
+  const ogImage = producto.imagen_principal
+    ? producto.imagen_principal.startsWith('http')
+      ? producto.imagen_principal
+      : `${SITE}${producto.imagen_principal}`
+    : `${SITE}/og-image.jpg`;
   return {
     title: buildPageTitle(producto.nombre),
     description: description.slice(0, 155),
     canonical: buildCanonical(`/${locale}/${segment}/${producto.slug}`),
-    ogImage: producto.imagen_principal.startsWith('http')
-      ? producto.imagen_principal
-      : `${SITE}${producto.imagen_principal}`,
+    ogImage,
   };
 }
 
@@ -134,7 +137,7 @@ export function buildProductJsonLd(
   producto: {
     nombre: string;
     descripcion_corta: string;
-    imagen_principal: string;
+    imagen_principal: string | null;
     slug: string;
   },
   locale: Locale,
@@ -146,9 +149,11 @@ export function buildProductJsonLd(
     '@type': 'Product',
     name: producto.nombre,
     description: producto.descripcion_corta,
-    image: producto.imagen_principal.startsWith('http')
-      ? producto.imagen_principal
-      : `${SITE}${producto.imagen_principal}`,
+    image: producto.imagen_principal
+      ? producto.imagen_principal.startsWith('http')
+        ? producto.imagen_principal
+        : `${SITE}${producto.imagen_principal}`
+      : `${SITE}/og-image.jpg`,
     url: `${SITE}/${locale}/${segment}/${producto.slug}`,
     brand: {
       '@type': 'Brand',

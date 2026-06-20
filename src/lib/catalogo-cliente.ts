@@ -534,7 +534,13 @@ export function initCatalogo(locale: Locale): () => void {
   const onBuscarInput = () => {
     if (debounceTimer) clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
-      state.q = buscarInput?.value.trim() ?? '';
+      const newQ = buscarInput?.value.trim() ?? '';
+      if (newQ && state.familia) {
+        state.familia = '';
+        state.todos = true;
+        syncFiltrosUI();
+      }
+      state.q = newQ;
       state.pagina = 1;
       applyFiltros();
     }, 300);

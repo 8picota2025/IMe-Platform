@@ -119,7 +119,7 @@ export interface Producto {
   descripcion_corta: string;
   descripcion_larga: string;
   especificaciones: unknown[];
-  imagen_principal: string;
+  imagen_principal: string | null;
   galeria: string[];
   ficha_pdf: string | null;
   tipo_comercial: 'consumible' | 'equipo';

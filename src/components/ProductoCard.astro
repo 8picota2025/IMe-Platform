@@ -11,7 +11,7 @@ interface ProductoCardData {
   slug: string;
   nombre: string;
   descripcion_corta: string;
-  imagen_principal: string;
+  imagen_principal: string | null;
   destacado: boolean;
   nuevo: boolean;
   familia: { slug: string; nombre: string };
@@ -55,7 +55,7 @@ function modalidadLabel(modalidad?: string): string {
   class="card producto-card"
   data-producto-slug={producto.slug}
   data-nombre={producto.nombre}
-  data-imagen={producto.imagen_principal}
+  data-imagen={producto.imagen_principal ?? ''}
   data-familia={producto.familia.slug}
   data-familia-nombre={producto.familia.nombre}
   data-comercial={producto.tipo_comercial ?? ''}
@@ -77,7 +77,7 @@ function modalidadLabel(modalidad?: string): string {
   >
     <div class="producto-card__img-wrapper">
       <img
-        src={producto.imagen_principal}
+        src={producto.imagen_principal ?? '/assets/img-placeholder.svg'}
         alt={producto.nombre}
         width="400"
         height="280"
@@ -163,7 +163,7 @@ function modalidadLabel(modalidad?: string): string {
         aria-live="polite"
         data-add-cotizacion={producto.slug}
         data-nombre={producto.nombre}
-        data-imagen={producto.imagen_principal}
+        data-imagen={producto.imagen_principal ?? ''}
         data-label-agregar={t(locale, 'cotizacion_equipos.agregar')}
         data-label-agregado={t(locale, 'cotizacion_equipos.agregado')}
       >

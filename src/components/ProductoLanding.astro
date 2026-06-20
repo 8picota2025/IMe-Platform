@@ -45,7 +45,7 @@ for (const espec of especificaciones) {
 }
 
 const galeria = producto.galeria.filter(url => url && url !== producto.imagen_principal);
-const imagenes = [producto.imagen_principal, ...galeria];
+const imagenes = [producto.imagen_principal ?? '/assets/img-placeholder.svg', ...galeria];
 
 const precioFormateado = formatMoneda(producto.precio, producto.moneda, locale);
 const noDisponible = producto.disponible === false;
