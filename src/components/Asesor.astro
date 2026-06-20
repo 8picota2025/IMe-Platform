@@ -729,6 +729,7 @@ const asesorConfig = {
           resolveTurnstileToken = null;
           resolve(token);
         };
+        window.turnstile?.reset(widgetId);
         window.turnstile?.execute(widgetId);
       });
     } catch {
