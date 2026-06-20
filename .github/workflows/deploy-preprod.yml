@@ -27,6 +27,8 @@ jobs:
       - name: Build
         run: npm run build
         env:
+          ASTRO_BASE: '/pre/'
+          ASTRO_SITE: 'https://i-me.com.co/pre/'
           PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
 

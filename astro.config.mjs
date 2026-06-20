@@ -3,8 +3,13 @@ import { defineConfig } from 'astro/config'
 import sitemap from '@astrojs/sitemap'
 import tailwindcss from '@tailwindcss/vite'
 
+// Support for preprod subdirectory deployment
+const BASE = process.env.ASTRO_BASE || '/'
+const SITE = process.env.ASTRO_SITE || 'https://i-me.com.co'
+
 export default defineConfig({
-  site: 'https://i-me.com.co',
+  site: SITE,
+  base: BASE,
   output: 'static',
   integrations: [
     sitemap({
