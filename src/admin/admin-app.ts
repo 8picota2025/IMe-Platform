@@ -2789,13 +2789,16 @@ function bindEntityExcelTools() {
         if (statusEl) statusEl.textContent = 'Leyendo Excel...';
         const result = await importEntityExcel(entity, file);
         if (statusEl) {
-          statusEl.textContent = `Importación completada: ${result.processed} filas procesadas, ${result.skipped} omitidas.`;
+          statusEl.innerHTML = `<strong>Importación completada.</strong> ${result.processed} filas procesadas, ${result.skipped} omitidas.`;
         }
         toast(`Importación ${entity}: ${result.processed} filas`);
         await render();
       } catch (error) {
-        if (statusEl) statusEl.textContent = 'Error al importar Excel.';
-        toast(error instanceof Error ? error.message : 'No se pudo importar Excel');
+        const message = formatImportError(error);
+        if (statusEl) {
+          statusEl.innerHTML = `<span class="admin-import-error">Error al importar:</span> ${escapeHtml(message)}`;
+        }
+        toast(message);
       }
     });
   });
@@ -4923,35 +4926,80 @@ async function importEntityExcel(
   entity: ExcelEntity,
   file: File
 ): Promise<{ processed: number; skipped: number }> {
-  const rows = await readWorkbookRows(file);
+  const rows = await readWorkbookRows(file, entity);
   if (!rows.length) throw new Error('La hoja principal no contiene filas.');
-  const payloads = rows.map(row => normalizeEntityImportRow(entity, row)).filter(Boolean) as Row[];
-  if (!payloads.length) throw new Error('No hay filas válidas para importar.');
-
-  if (entity === 'pedidos') return importPedidosExcelPayloads(payloads);
-
-  const config = ENTITY_EXCEL_CONFIGS[entity];
-  let processed = 0;
-  const chunkSize = 50;
-  for (let i = 0; i < payloads.length; i += chunkSize) {
-    const chunk = payloads.slice(i, i + chunkSize);
-    const { error } = await supabase!
-      .from(config.table)
-      .upsert(chunk, { onConflict: config.conflict });
-    if (error) throw error;
-    processed += chunk.length;
+  const parsedRows = rows.map((row, index) => ({
+    row: normalizeEntityImportRow(entity, row),
+    index,
+  }));
+  const payloads = parsedRows.filter(item => Boolean(item.row)).map(item => item.row as Row);
+  if (!payloads.length) {
+    const expected = entityImportKeyHint(entity);
+    throw new Error(
+      `No hay filas válidas para importar. Verifica que exista la columna ${expected}.`
+    );
   }
-  return { processed, skipped: rows.length - payloads.length };
+
+  const result = await invokeAdminImport(entity, payloads);
+  return { processed: result.processed, skipped: rows.length - payloads.length + result.skipped };
 }
 
-async function readWorkbookRows(file: File): Promise<Row[]> {
+async function readWorkbookRows(file: File, entity: ExcelEntity | 'productos'): Promise<Row[]> {
   const buffer = await file.arrayBuffer();
-  const workbook = XLSX.read(buffer, { type: 'array', cellDates: true });
-  const sheetName = workbook.SheetNames[0];
+  let workbook: XLSX.WorkBook;
+  try {
+    workbook = XLSX.read(buffer, { type: 'array', cellDates: true });
+  } catch (error) {
+    throw new Error(
+      `No se pudo leer el archivo Excel. Confirma que sea .xlsx/.xls válido y no esté protegido. ${error instanceof Error ? error.message : ''}`.trim(),
+      { cause: error }
+    );
+  }
+  const preferred = entity === 'productos' ? 'productos' : ENTITY_EXCEL_CONFIGS[entity].sheet;
+  const sheetName =
+    workbook.SheetNames.find(name => name.toLowerCase() === preferred.toLowerCase()) ??
+    workbook.SheetNames.find(name => name.toLowerCase() !== 'instrucciones') ??
+    workbook.SheetNames[0];
   if (!sheetName) throw new Error('El archivo Excel no contiene hojas.');
   const sheet = workbook.Sheets[sheetName];
   if (!sheet) throw new Error(`No se pudo leer la hoja ${sheetName}.`);
-  return XLSX.utils.sheet_to_json<Row>(sheet, { defval: '' });
+  const rows = XLSX.utils.sheet_to_json<Row>(sheet, { defval: '' });
+  if (!rows.length) {
+    throw new Error(`La hoja "${sheetName}" no contiene filas de datos.`);
+  }
+  return rows;
+}
+
+async function invokeAdminImport(
+  entity: ExcelEntity,
+  rows: Row[]
+): Promise<{ processed: number; skipped: number }> {
+  const {
+    data: { session },
+  } = await supabase!.auth.getSession();
+  const accessToken = session?.access_token;
+  if (!accessToken) throw new Error('Sesión expirada. Vuelve a entrar al admin.');
+
+  const url = `${import.meta.env['PUBLIC_SUPABASE_URL']}/functions/v1/admin-import`;
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+      apikey: import.meta.env['PUBLIC_SUPABASE_ANON_KEY'] as string,
+    },
+    body: JSON.stringify({ entity, rows }),
+  });
+  const json = (await response.json().catch(() => null)) as Row | null;
+  if (!response.ok) {
+    const error = json?.error && typeof json.error === 'object' ? (json.error as Row) : null;
+    const details = error?.details ? ` Detalle: ${formatErrorDetails(error.details)}` : '';
+    throw new Error(`${text(error?.message) || `HTTP ${response.status}`}${details}`.trim());
+  }
+  return {
+    processed: Number(json?.processed ?? 0),
+    skipped: Number(json?.skipped ?? 0),
+  };
 }
 
 function normalizeEntityImportRow(entity: ExcelEntity, rawRow: Row): Row | null {
@@ -5071,32 +5119,6 @@ function normalizePedidoImportRow(row: Row): Row | null {
   });
 }
 
-async function importPedidosExcelPayloads(
-  payloads: Row[]
-): Promise<{ processed: number; skipped: number }> {
-  let processed = 0;
-  let skipped = 0;
-  for (const payload of payloads) {
-    const id = text(payload.id);
-    if (id) {
-      const { error } = await supabase!.from('pedidos').upsert(payload, { onConflict: 'id' });
-      if (error) throw error;
-      processed += 1;
-      continue;
-    }
-    if (text(payload.referencia_pasarela)) {
-      const { error } = await supabase!
-        .from('pedidos')
-        .upsert(payload, { onConflict: 'referencia_pasarela' });
-      if (error) throw error;
-      processed += 1;
-      continue;
-    }
-    skipped += 1;
-  }
-  return { processed, skipped };
-}
-
 function parseExcelInteger(value: unknown, fallback = 0): number {
   const parsed = parseExcelNumber(value);
   return parsed === null ? fallback : Math.trunc(parsed);
@@ -5104,6 +5126,40 @@ function parseExcelInteger(value: unknown, fallback = 0): number {
 
 function removeUndefined(row: Row): Row {
   return Object.fromEntries(Object.entries(row).filter(([, value]) => value !== undefined));
+}
+
+function entityImportKeyHint(entity: ExcelEntity): string {
+  if (entity === 'clientes') return '"email"';
+  if (entity === 'proveedores') return '"slug"';
+  return '"id" o "referencia_pasarela"';
+}
+
+function formatImportError(error: unknown): string {
+  if (error instanceof Error && error.message) return error.message;
+  if (error && typeof error === 'object') return formatErrorDetails(error);
+  return 'No se pudo importar Excel. Revisa que el archivo tenga la hoja y columnas correctas.';
+}
+
+function formatErrorDetails(details: unknown): string {
+  if (Array.isArray(details)) {
+    return details
+      .slice(0, 5)
+      .map(item => {
+        if (item && typeof item === 'object') {
+          const row = (item as Row).row ? `fila ${text((item as Row).row)}: ` : '';
+          return `${row}${text((item as Row).message) || JSON.stringify(item)}`;
+        }
+        return text(item);
+      })
+      .filter(Boolean)
+      .join(' | ');
+  }
+  if (details && typeof details === 'object') {
+    const message = text((details as Row).message);
+    const code = text((details as Row).code);
+    return [code, message].filter(Boolean).join(' - ') || JSON.stringify(details);
+  }
+  return text(details);
 }
 
 function bindProductExcelTools() {
@@ -5386,13 +5442,7 @@ async function importProductosExcel(
   createdTypes: number;
   warnings: string[];
 }> {
-  const buffer = await file.arrayBuffer();
-  const workbook = XLSX.read(buffer, { type: 'array' });
-  const sheetName = workbook.SheetNames[0];
-  if (!sheetName) throw new Error('El archivo Excel no contiene hojas.');
-  const sheet = workbook.Sheets[sheetName];
-  if (!sheet) throw new Error(`No se pudo leer la hoja ${sheetName}.`);
-  const rawRows = XLSX.utils.sheet_to_json<Row>(sheet, { defval: '' });
+  const rawRows = await readWorkbookRows(file, 'productos');
   if (!rawRows.length) throw new Error('La hoja principal no contiene filas.');
 
   const [familias, tipos] = await Promise.all([
