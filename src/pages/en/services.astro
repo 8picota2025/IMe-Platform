@@ -5,29 +5,19 @@
  * Catalog/quote buttons → new functions (/en/catalog, /en/contact).
  */
 import Layout from '../../layouts/Layout.astro';
-import { buildPageTitle, buildCanonical } from '../../lib/seo';
+import {
+  buildServiciosSeo,
+  buildServiciosJsonLd,
+  buildOrganizationJsonLd,
+  combineJsonLd,
+} from '../../lib/seo';
 import '../../styles/site-faithful.css';
 
 const locale = 'en';
-const title = buildPageTitle('Services | Sales, Support, Financing & Biomedical Advisory');
-const description =
-  'I-ME Colombia offers certified biomedical equipment sales, specialized technical support, medical financing and integral biomedical advisory for hospitals and clinics in Colombia.';
-const canonical = buildCanonical('/en/services');
+const seo = buildServiciosSeo(locale);
+const { title, description, canonical } = seo;
 
-const jsonLd = JSON.stringify({
-  '@context': 'https://schema.org',
-  '@type': 'Service',
-  serviceType: 'Distribution, technical support, financing and advisory of biomedical equipment',
-  provider: {
-    '@type': 'Organization',
-    name: 'I-ME International Medical Enterprise',
-    url: 'https://i-me.com.co',
-  },
-  areaServed: { '@type': 'Country', name: 'Colombia' },
-  description:
-    'Sales and distribution of certified biomedical equipment, specialized technical support, flexible medical financing and integral biomedical advisory for hospitals and clinics in Colombia.',
-  url: 'https://i-me.com.co/servicios.html',
-});
+const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildServiciosJsonLd(locale));
 ---
 
 <Layout
@@ -36,6 +26,7 @@ const jsonLd = JSON.stringify({
   canonical={canonical}
   locale={locale}
   currentPath="/en/services"
+  ogImage={seo.ogImage}
   jsonLd={jsonLd}
   fontAwesome={true}
 >

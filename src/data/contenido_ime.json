@@ -22,46 +22,62 @@
     "faq": {
       "es": [
         {
-          "q": "¿Qué tipo de productos puedo comprar directamente?",
-          "a": "Los consumibles publicados con precio y disponibilidad activa pueden pasar por checkout. Los equipos y productos sin precio operativo se gestionan mediante cotización asistida."
+          "q": "¿Qué tipos de equipos biomédicos distribuye I-ME en Colombia?",
+          "a": "I-ME distribuye más de 24 categorías de equipos biomédicos: monitores multiparamétricos para UCI, desfibriladores y equipos de cardiología, ventiladores mecánicos y máquinas de anestesia, equipos de ultrasonido y diagnóstico por imagen, incubadoras y equipos de neonatología, mesas quirúrgicas y lámparas de cirugía, bombas de infusión, mobiliario hospitalario y equipos de radiología, entre otros. Todos con certificaciones CE, FDA e INVIMA vigentes."
         },
         {
-          "q": "¿Cómo verifican disponibilidad y stock antes de cobrar?",
-          "a": "El carrito y el checkout revalidan disponibilidad y stock contra la base de datos antes de iniciar el pago. Si un producto ya no está disponible, se retira del carrito o se bloquea el checkout."
+          "q": "¿Los equipos tienen registro INVIMA y certificaciones internacionales?",
+          "a": "Sí. El 100% de los equipos que distribuimos cuenta con registro INVIMA vigente, que es obligatorio para operar legalmente en Colombia. Además, trabajamos exclusivamente con fabricantes que tienen certificación CE (Unión Europea) y FDA clearance (Estados Unidos), lo que garantiza que los equipos cumplen los estándares de seguridad y eficacia más exigentes del mundo."
         },
         {
-          "q": "¿Puedo solicitar factura electrónica DIAN?",
-          "a": "Sí. Para pedidos en Colombia, el checkout puede capturar los datos fiscales necesarios y dejar preparado el pedido para emisión de factura electrónica, sujeto a la configuración operativa del proveedor DIAN."
+          "q": "¿I-ME hace instalación y capacitación al comprar un equipo biomédico?",
+          "a": "Sí, cada venta incluye instalación en sitio, puesta en marcha y capacitación al personal médico, de enfermería y técnico de su institución. Nuestro equipo de ingenieros biomédicos se desplaza hasta su hospital o clínica en cualquier departamento de Colombia para garantizar el correcto uso del equipo desde el primer día de operación."
         },
         {
-          "q": "¿Qué pasarelas de pago están integradas?",
-          "a": "La arquitectura contempla Wompi para Colombia y Stripe para mercados internacionales. La activación real depende de las credenciales y la configuración del entorno."
+          "q": "¿Ofrecen soporte técnico y mantenimiento posventa?",
+          "a": "Sí. Contamos con un equipo de ingenieros biomédicos certificados para mantenimiento preventivo programado, mantenimiento correctivo de emergencia, calibración y verificación metrológica. Respondemos solicitudes de servicio en campo en menos de 48 horas. También ofrecemos contratos de mantenimiento anuales y suministro de repuestos y consumibles originales."
         },
         {
-          "q": "¿Cómo solicito una cotización o hablo con un asesor?",
-          "a": "Puedes usar el formulario de contacto, la lista de cotización o WhatsApp. Un asesor comercial revisa la solicitud y responde con la propuesta correspondiente."
+          "q": "¿Cómo funciona el financiamiento de equipos médicos?",
+          "a": "Diseñamos planes de financiamiento a medida para instituciones de salud de todos los tamaños. Las condiciones concretas —plazos, cuotas y tasas— se definen en la propuesta formal según el perfil de cada institución. Trabajamos con plazos de hasta 60 meses, sin codeudor para hospitales y con aprobación en 48 horas hábiles. Para conocer las condiciones exactas para su institución, solicite una cotización."
+        },
+        {
+          "q": "¿En qué ciudades y departamentos de Colombia tienen cobertura?",
+          "a": "Tenemos presencia en los 32 departamentos de Colombia. Atendemos hospitales, clínicas, centros médicos y consultorios en Bogotá, Medellín, Cali, Barranquilla, Bucaramanga, Cartagena, Pereira, Manizales y demás ciudades del territorio nacional. Nuestra sede está en Envigado, Antioquia."
+        },
+        {
+          "q": "¿Cuánto tarda en llegar una cotización o propuesta comercial?",
+          "a": "Una vez recibida su solicitud, un asesor comercial especializado en equipamiento biomédico revisa su requerimiento y le envía la propuesta en menos de 24 horas hábiles. Puede solicitarla por el formulario de contacto, por WhatsApp al +57 313 867 4059 o directamente desde la ficha de cada producto."
         }
       ],
       "en": [
         {
-          "q": "Which products can I buy directly?",
-          "a": "Consumables that are published with a price and active availability can go through checkout. Equipment and items without an operational price are handled through assisted quotation."
+          "q": "What types of biomedical equipment does I-ME distribute in Colombia?",
+          "a": "I-ME distributes more than 24 categories of biomedical equipment: multiparameter ICU monitors, defibrillators and cardiology devices, mechanical ventilators and anesthesia machines, ultrasound and imaging equipment, neonatal incubators and warmers, surgical tables and operating room lights, infusion pumps, hospital furniture, and radiology systems, among others. All carry current CE, FDA and INVIMA certifications."
         },
         {
-          "q": "How are availability and stock checked before charging?",
-          "a": "The cart and checkout revalidate availability and stock against the database before payment starts. If a product is no longer available, it is removed from the cart or the checkout is blocked."
+          "q": "Do the equipment items have INVIMA registration and international certifications?",
+          "a": "Yes. 100% of the equipment we distribute holds a current INVIMA registration, which is mandatory to operate legally in Colombia. We work exclusively with manufacturers that hold CE certification (European Union) and FDA clearance (United States), ensuring the devices meet the world's most demanding safety and efficacy standards."
         },
         {
-          "q": "Can I request a DIAN electronic invoice?",
-          "a": "Yes. For Colombia orders, checkout can capture the fiscal details needed and prepare the order for electronic invoicing, subject to the DIAN provider configuration."
+          "q": "Does I-ME provide installation and training when buying biomedical equipment?",
+          "a": "Yes. Every sale includes on-site installation, commissioning, and training for your medical, nursing and technical staff. Our team of biomedical engineers travels to your hospital or clinic in any Colombian department to ensure correct use of the equipment from day one."
         },
         {
-          "q": "Which payment gateways are integrated?",
-          "a": "The architecture supports Wompi for Colombia and Stripe for international markets. Real activation depends on credentials and environment configuration."
+          "q": "Do you offer after-sales technical support and maintenance?",
+          "a": "Yes. We have a team of certified biomedical engineers for scheduled preventive maintenance, emergency corrective maintenance, calibration and metrological verification. We respond to field service requests in under 48 hours. We also offer annual maintenance contracts and supply of original spare parts and consumables."
         },
         {
-          "q": "How do I request a quote or speak with an advisor?",
-          "a": "You can use the contact form, the quote list, or WhatsApp. A sales advisor reviews the request and responds with the corresponding proposal."
+          "q": "How does medical equipment financing work?",
+          "a": "We design tailored acquisition plans for healthcare institutions of all sizes. Specific terms —installments, duration and rates— are defined in the formal proposal based on each institution's profile. We work with terms of up to 60 months, no co-signer required for hospitals, with approval in 48 business hours. Request a quote to get the exact conditions for your institution."
+        },
+        {
+          "q": "Which cities and departments in Colombia do you cover?",
+          "a": "We have coverage across all 32 departments of Colombia. We serve hospitals, clinics, medical centers and practices in Bogotá, Medellín, Cali, Barranquilla, Bucaramanga, Cartagena, Pereira, Manizales and throughout the country. Our headquarters is in Envigado, Antioquia."
+        },
+        {
+          "q": "How long does it take to receive a quotation or commercial proposal?",
+          "a": "Once we receive your request, a sales advisor specialized in biomedical equipment reviews your requirements and sends you a proposal within 24 business hours. You can request it via the contact form, WhatsApp at +57 313 867 4059, or directly from each product page."
         }
       ]
     },

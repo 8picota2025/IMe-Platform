@@ -15,6 +15,7 @@ import {
   buildFaqJsonLd,
   buildHomeSeo,
   buildOrganizationJsonLd,
+  buildWebSiteJsonLd,
   combineJsonLd,
 } from '../../lib/seo';
 import contenidoIme from '../../data/contenido_ime.json';
@@ -23,7 +24,11 @@ import '../../styles/site-faithful.css';
 const locale = 'es';
 const seo = buildHomeSeo(locale);
 const faqData = contenidoIme.home.faq.es;
-const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildFaqJsonLd(faqData));
+const jsonLd = combineJsonLd(
+  buildOrganizationJsonLd(),
+  buildWebSiteJsonLd(),
+  buildFaqJsonLd(faqData)
+);
 
 const productosDestacados = await getProductosDestacados(locale);
 
@@ -272,7 +277,28 @@ const servicios = [
     <section class="section" id="quienes-somos" aria-labelledby="about-h2">
       <div class="container">
         <div class="about-grid">
-          <div class="about-imgs about-imgs-bg fade-in" aria-hidden="true"></div>
+          <div class="about-imgs fade-in">
+            <a
+              href="/es/servicios"
+              class="founder-link"
+              aria-label="Conoce nuestro equipo y servicios"
+            >
+              <div class="about-img-main founder-card">
+                <img
+                  src="/assets/img/javier-fundador-ime.png"
+                  alt="Javier, Fundador de I-ME — especialista en distribución de equipos biomédicos certificados en Colombia"
+                  width="480"
+                  height="640"
+                  loading="eager"
+                  decoding="async"
+                />
+                <div class="founder-card-label">
+                  <strong>Javier</strong>
+                  <span>Fundador · I-ME International Medical Enterprise</span>
+                </div>
+              </div>
+            </a>
+          </div>
           <div class="about-text fade-in d2">
             <div class="s-label">Quiénes somos</div>
             <h2 id="about-h2" class="s-title">

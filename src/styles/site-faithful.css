@@ -595,6 +595,56 @@
   height: 100%;
   object-fit: cover;
 }
+
+/* ── Founder card (Home about section) ─────────────── */
+.site-faithful .founder-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+.site-faithful .founder-card {
+  position: relative;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  height: 520px;
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+  transition:
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
+}
+.site-faithful .founder-card:hover {
+  box-shadow: 0 24px 56px rgba(15, 76, 92, 0.22);
+  transform: translateY(-3px);
+}
+.site-faithful .founder-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+.site-faithful .founder-card-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20px 24px;
+  background: linear-gradient(to top, rgba(10, 30, 40, 0.88) 0%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.site-faithful .founder-card-label strong {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+.site-faithful .founder-card-label span {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 13px;
+  font-weight: 400;
+}
 .site-faithful .about-text p {
   font-size: 16px;
   color: var(--text-mid);
