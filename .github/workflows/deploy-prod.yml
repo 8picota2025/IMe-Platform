@@ -6,10 +6,10 @@ name: Deploy Producción
 # F5 (auditoría, legales y despliegue).
 on:
   workflow_dispatch:
-  # push:
-  #   branches: [main]
-  # repository_dispatch:
-  #   types: [trigger-rebuild]
+  push:
+    branches: [main]
+  repository_dispatch:
+    types: [trigger-rebuild]
 
 concurrency:
   group: deploy-prod
@@ -45,4 +45,4 @@ jobs:
           password: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
           local-dir: ./dist/
           server-dir: ${{ secrets.HOSTINGER_PROD_PATH }}
-          dangerous-clean-slate: false
+          dangerous-clean-slate: true

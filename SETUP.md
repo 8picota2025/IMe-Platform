@@ -51,6 +51,23 @@ TURNSTILE_SECRET_KEY=         # Turnstile secreta — SOLO Edge Functions
 CI_DEPLOY_HOOK=               # Hook para trigger-rebuild desde CMS
 ```
 
+## Reindexado de embeddings
+
+Cuando cambies `VOYAGE_API_KEY`, `EMBEDDING_PROVIDER`, `EMBEDDING_MODEL` o
+`EMBEDDING_DIM`, vuelve a generar los embeddings del índice RAG:
+
+```bash
+npm run reindex:voyage          # productos activos
+npm run reindex:voyage:articles  # artículos publicados
+npm run reindex:voyage:all       # ambos
+```
+
+Notas:
+
+- Requiere `.env` con `PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` y `VOYAGE_API_KEY`.
+- El script usa lotes con pausa automática para respetar límites de Voyage.
+- Si quieres ajustar el ritmo, puedes usar `REINDEX_BATCH_SIZE`, `REINDEX_REQUEST_GAP_MS` y `REINDEX_MAX_RETRIES`.
+
 ## Instalar agentes IA
 
 ```bash

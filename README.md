@@ -22,15 +22,18 @@ npm run dev   # http://localhost:44334
 
 ## Comandos
 
-| Comando            | Acción                                   |
-| ------------------ | ---------------------------------------- |
-| `npm run dev`      | Dev server en localhost:44334            |
-| `npm run build`    | Build de producción → `dist/`            |
-| `npm run preview`  | Preview del build                        |
-| `npm run check`    | TypeScript + Astro check                 |
-| `npm run lint`     | ESLint (0 warnings tolerados)            |
-| `npm run format`   | Prettier sobre src/                      |
-| `npm run validate` | lint + check + build (pipeline completo) |
+| Comando                           | Acción                                      |
+| --------------------------------- | ------------------------------------------- |
+| `npm run dev`                     | Dev server en localhost:44334               |
+| `npm run build`                   | Build de producción → `dist/`               |
+| `npm run preview`                 | Preview del build                           |
+| `npm run check`                   | TypeScript + Astro check                    |
+| `npm run lint`                    | ESLint (0 warnings tolerados)               |
+| `npm run format`                  | Prettier sobre src/                         |
+| `npm run validate`                | lint + check + build (pipeline completo)    |
+| `npm run reindex:voyage`          | Reindexa embeddings de productos con Voyage |
+| `npm run reindex:voyage:articles` | Reindexa embeddings de artículos publicados |
+| `npm run reindex:voyage:all`      | Reindexa productos y artículos              |
 
 ## Variables de entorno
 
@@ -55,6 +58,7 @@ cp .env.example .env
 - Asesor IA: Edge Function `asesor` con Turnstile, rate-limit, presupuesto y fallback por palabra clave.
 - Las pruebas reales requieren secretos en Supabase/CI; ver `PENDIENTES.md`.
 - Desarrollo local sin credenciales: `LLM_PROVIDER=ollama` / `EMBEDDING_PROVIDER=ollama` (Ollama autoalojado, coste $0) — ver `docs/decisions/0005-ollama-asesor-local.md`.
+- Reindexado Voyage: usa `npm run reindex:voyage[:articles|:all]` tras cambiar `VOYAGE_API_KEY` o parámetros de embeddings.
 
 ## Legales y F5
 
