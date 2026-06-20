@@ -3443,6 +3443,7 @@ function renderIngestReview(draft: Row, pdfUrl: string): string {
         </div>
         ${checkbox('activo', 'Publicar en catalogo al crear', false)}
         <div class="admin-alert">Si no publica al crear, el producto queda como borrador interno. Si publica, revise familia, descripcion e imagen antes de confirmar; la publicacion solicita rebuild automaticamente.</div>
+        <p class="admin-help" data-ingest-save-status aria-live="polite"></p>
         <button class="admin-button" type="submit">Crear producto</button>
       </form>
     </section>`;
@@ -3487,6 +3488,8 @@ function bindIngestReview(container: HTMLElement) {
 
   form.addEventListener('submit', async event => {
     event.preventDefault();
+    const statusEl = form.querySelector<HTMLElement>('[data-ingest-save-status]');
+    const submitButton = form.querySelector<HTMLButtonElement>('button[type="submit"]');
     const payload = ingestPayload(form);
     if (!text(payload['nombre_es'])) {
       toast('El nombre en español (ES) es obligatorio para crear el producto');
@@ -3501,13 +3504,37 @@ function bindIngestReview(container: HTMLElement) {
     payload['slug'] = await uniqueProductSlug(
       text(payload['slug']) || slugify(text(payload['nombre_es']))
     );
-    const { data, error } = await supabase!.from('productos').insert(payload).select('id').single();
-    if (error) {
-      toast(error.message);
+    const slug = text(payload['slug']);
+    if (statusEl) statusEl.textContent = 'Guardando producto en Supabase...';
+    if (submitButton) submitButton.disabled = true;
+    try {
+      await invokeAdminImport('productos', [payload]);
+    } catch (error) {
+      const message = formatImportError(error);
+      if (statusEl) {
+        statusEl.innerHTML = `<span class="admin-import-error">Error al crear producto:</span> ${escapeHtml(message)}`;
+      }
+      toast(message);
+      if (submitButton) submitButton.disabled = false;
       return;
     }
-    if (payload['activo'] === true) {
-      await generarEmbeddingProducto(text((data as Row).id));
+
+    const { data, error } = await supabase!
+      .from('productos')
+      .select('id')
+      .eq('slug', slug)
+      .maybeSingle();
+    if (error) {
+      const message = `Producto guardado, pero no se pudo confirmar el ID para abrirlo: ${error.message}`;
+      if (statusEl)
+        statusEl.innerHTML = `<span class="admin-import-error">Aviso:</span> ${escapeHtml(message)}`;
+      toast(message);
+      if (submitButton) submitButton.disabled = false;
+      return;
+    }
+    const productId = text((data as Row | null)?.id);
+    if (payload['activo'] === true && productId) {
+      await generarEmbeddingProducto(productId);
       await triggerRebuild();
     }
     toast(
@@ -3515,7 +3542,7 @@ function bindIngestReview(container: HTMLElement) {
         ? 'Producto creado y publicacion solicitada'
         : 'Producto creado como borrador'
     );
-    location.hash = `#/producto?id=${encodeURIComponent(text((data as Row).id))}`;
+    location.hash = productId ? `#/producto?id=${encodeURIComponent(productId)}` : '#/productos';
     await render();
   });
 }
@@ -4534,6 +4561,7 @@ type ProveedoresQuery = {
 };
 
 type ExcelEntity = 'clientes' | 'proveedores' | 'pedidos';
+type AdminImportEntity = ExcelEntity | 'productos' | 'familias' | 'tipos';
 
 type EntityExcelConfig = {
   entity: ExcelEntity;
@@ -4971,7 +4999,7 @@ async function readWorkbookRows(file: File, entity: ExcelEntity | 'productos'): 
 }
 
 async function invokeAdminImport(
-  entity: ExcelEntity,
+  entity: AdminImportEntity,
   rows: Row[]
 ): Promise<{ processed: number; skipped: number }> {
   const {
@@ -5219,8 +5247,11 @@ function bindProductExcelTools() {
       toast(`Importación completada: ${result.upserted} productos`);
       await render();
     } catch (error) {
-      if (status) status.textContent = 'Error al importar Excel.';
-      toast(error instanceof Error ? error.message : 'No se pudo importar Excel');
+      const message = formatImportError(error);
+      if (status) {
+        status.innerHTML = `<span class="admin-import-error">Error al importar:</span> ${escapeHtml(message)}`;
+      }
+      toast(message);
     }
   });
 }
@@ -5550,16 +5581,17 @@ async function importProductosExcel(
     });
   }
 
-  const chunkSize = 50;
-  let upserted = 0;
-  for (let i = 0; i < upserts.length; i += chunkSize) {
-    const chunk = upserts.slice(i, i + chunkSize);
-    const { error } = await supabase!.from('productos').upsert(chunk, { onConflict: 'slug' });
-    if (error) throw error;
-    upserted += chunk.length;
+  if (!upserts.length) {
+    throw new Error(
+      warnings.length
+        ? `No hay productos validos para importar. ${warnings.slice(0, 5).join(' ')}`
+        : 'No hay productos validos para importar.'
+    );
   }
 
-  return { upserted, createdFamilies, createdTypes, warnings };
+  const result = await invokeAdminImport('productos', upserts);
+
+  return { upserted: result.processed, createdFamilies, createdTypes, warnings };
 }
 
 function normalizeExcelImportRow(row: Row): ProductosExcelImportRow {
@@ -5653,12 +5685,14 @@ async function resolveExcelFamilia(
     orden: 0,
     activo: true,
   };
+  await invokeAdminImport('familias', [payload]);
   const { data, error } = await supabase!
     .from('familias')
-    .insert(payload)
     .select('id,slug,nombre_es')
-    .single();
+    .eq('slug', slug)
+    .maybeSingle();
   if (error) throw error;
+  if (!data) throw new Error(`Familia "${slug}" creada, pero no se pudo recuperar su ID.`);
   familiasMap.set(slugify(text(data.slug)), data as Row);
   familiasMap.set(text(data.id), data as Row);
   familiasMap.set(slugify(text(data.nombre_es)), data as Row);
@@ -5687,12 +5721,15 @@ async function resolveExcelTipo(
     orden: 0,
     activo: true,
   };
+  await invokeAdminImport('tipos', [payload]);
   const { data, error } = await supabase!
     .from('tipos')
-    .insert(payload)
     .select('id,slug,nombre_es')
-    .single();
+    .eq('familia_id', familiaId)
+    .eq('slug', slug)
+    .maybeSingle();
   if (error) throw error;
+  if (!data) throw new Error(`Tipo "${slug}" creado, pero no se pudo recuperar su ID.`);
   tiposMap.set(`${familiaId}::${slugify(text(data.slug))}`, data as Row);
   tiposMap.set(`${familiaId}::${slugify(text(data.nombre_es))}`, data as Row);
   tiposMap.set(text(data.id), data as Row);

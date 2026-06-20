@@ -2,7 +2,7 @@ import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { badRequest, errorResponse, internalError, unauthorized } from '../_shared/errors.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 
-type Entity = 'clientes' | 'proveedores' | 'pedidos';
+type Entity = 'clientes' | 'proveedores' | 'pedidos' | 'productos' | 'familias' | 'tipos';
 type Row = Record<string, unknown>;
 
 interface ImportRequest {
@@ -95,6 +95,89 @@ const CONFIGS: Record<Entity, EntityConfig> = {
       'consentimiento_datos',
       'consentimiento_timestamp',
       'leida',
+    ]),
+  },
+  productos: {
+    table: 'productos',
+    roles: ['catalogo'],
+    conflict: 'slug',
+    columns: new Set([
+      'id',
+      'slug',
+      'sku',
+      'gtin',
+      'familia_id',
+      'tipo_id',
+      'nombre_es',
+      'nombre_en',
+      'descripcion_corta_es',
+      'descripcion_corta_en',
+      'descripcion_larga_es',
+      'descripcion_larga_en',
+      'especificaciones',
+      'aplicaciones_es',
+      'aplicaciones_en',
+      'imagen_principal',
+      'galeria',
+      'ficha_pdf',
+      'atributos',
+      'peso_kg',
+      'dimensiones_cm',
+      'tipo_comercial',
+      'fulfillment_mode',
+      'precio',
+      'precio_regular',
+      'precio_oferta',
+      'dian_codigo',
+      'tarifa_iva_pct',
+      'retencion_fuente_pct',
+      'retencion_iva_pct',
+      'retencion_ica_pct',
+      'oferta_inicio',
+      'oferta_fin',
+      'moneda',
+      'stock',
+      'gestionar_stock',
+      'stock_estado',
+      'backorder_policy',
+      'disponible',
+      'disponible_actualizado_at',
+      'destacado',
+      'nuevo',
+      'activo',
+      'excluido_iva',
+      'orden',
+    ]),
+  },
+  familias: {
+    table: 'familias',
+    roles: ['catalogo'],
+    conflict: 'slug',
+    columns: new Set([
+      'slug',
+      'nombre_es',
+      'nombre_en',
+      'descripcion_es',
+      'descripcion_en',
+      'imagen',
+      'orden',
+      'activo',
+    ]),
+  },
+  tipos: {
+    table: 'tipos',
+    roles: ['catalogo'],
+    conflict: 'familia_id,slug',
+    columns: new Set([
+      'familia_id',
+      'slug',
+      'nombre_es',
+      'nombre_en',
+      'descripcion_es',
+      'descripcion_en',
+      'imagen',
+      'orden',
+      'activo',
     ]),
   },
 };
@@ -211,9 +294,19 @@ function sanitizeRow(row: Row, config: EntityConfig, index: number): { row: Row;
   }
 
   const requiredKey =
-    config.table === 'clientes' ? 'email' : config.table === 'proveedores' ? 'slug' : null;
+    config.table === 'clientes'
+      ? 'email'
+      : config.table === 'proveedores' ||
+          config.table === 'productos' ||
+          config.table === 'familias' ||
+          config.table === 'tipos'
+        ? 'slug'
+        : null;
   if (requiredKey && !clean[requiredKey]) {
     return { row: clean, error: { row: index + 2, message: `Falta ${requiredKey}` } };
+  }
+  if (config.table === 'tipos' && !clean.familia_id) {
+    return { row: clean, error: { row: index + 2, message: 'Falta familia_id' } };
   }
   if (config.table === 'pedidos' && !clean.id && !clean.referencia_pasarela) {
     return {
