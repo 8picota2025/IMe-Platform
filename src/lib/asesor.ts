@@ -97,6 +97,21 @@ export async function preguntarAsesor(params: {
   locale: Locale;
   turnstileToken?: string | undefined;
 }): Promise<ResultadoAsesor> {
+  const fallbackSitio = esConsultaSitioOLegal(params.mensaje)
+    ? buildAsesorStaticFallback(params.locale, params.mensaje)
+    : null;
+  if (fallbackSitio) {
+    return {
+      ok: true,
+      respuesta: {
+        texto: fallbackSitio,
+        productos: [],
+        accionHandoff: null,
+        modo: 'rag',
+      },
+    };
+  }
+
   if (shouldUseLocalOllama()) {
     try {
       const respuesta = await preguntarAsesorLocal(params);
