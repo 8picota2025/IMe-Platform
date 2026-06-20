@@ -120,6 +120,15 @@ window.addEventListener('hashchange', () => {
   void render();
 });
 
+// Must be registered before render() so PASSWORD_RECOVERY is caught for PKCE flow
+// (Supabase v2 PKCE: link arrives as /admin?code=xxx — no type=recovery in URL hash)
+supabase?.auth.onAuthStateChange(event => {
+  if (event === 'PASSWORD_RECOVERY') {
+    history.replaceState(null, '', location.pathname);
+    renderNewPassword();
+  }
+});
+
 void render();
 
 function hashParams(): URLSearchParams {
@@ -167,15 +176,17 @@ async function render() {
     data: { session },
   } = await supabase.auth.getSession();
 
-  // Detect password-recovery redirect (Supabase sends #...&type=recovery in the URL)
-  const recoveryParams = new URLSearchParams(location.hash.substring(1));
-  if (recoveryParams.get('type') === 'recovery' && session) {
+  // Implicit flow (older Supabase projects): token arrives in hash with type=recovery
+  const hashParams = new URLSearchParams(location.hash.substring(1));
+  if (hashParams.get('type') === 'recovery' && session) {
     history.replaceState(null, '', location.pathname);
     renderNewPassword();
     return;
   }
 
   if (!session) {
+    // PKCE flow: URL has ?code=xxx — hold loading screen; onAuthStateChange handles the rest
+    if (new URLSearchParams(location.search).has('code')) return;
     renderLogin();
     return;
   }
