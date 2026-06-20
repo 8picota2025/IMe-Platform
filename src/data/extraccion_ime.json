@@ -1,6 +1,6 @@
 {
-  "fuente": "https://i-me.com.co/77/",
-  "fuente_datos": "https://i-me.com.co/77/js/cms.js → DEFAULT_PRODUCTS",
+  "fuente": "https://i-me.com.co (legacy extraction from /77/)",
+  "fuente_datos": "https://i-me.com.co (legacy: /77/js/cms.js → DEFAULT_PRODUCTS)",
   "fecha_extraccion": "2026-06-09T09:36:39.166Z",
   "metodo_extraccion": "datos-js",
   "familias": [
