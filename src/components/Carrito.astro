@@ -712,27 +712,40 @@ const config = {
     catalogoHref: string;
   }
 
-  const drawer = document.getElementById('carrito-drawer');
-  const backdrop = document.getElementById('carrito-backdrop');
-  const closeBtn = document.getElementById('carrito-close');
-  const itemsEl = document.getElementById('carrito-items');
-  const vacioEl = document.getElementById('carrito-vacio');
-  const avisosEl = document.getElementById('carrito-avisos');
-  const resumenEl = document.getElementById('carrito-resumen');
-  const subtotalEl = document.getElementById('carrito-subtotal');
-  const totalEl = document.getElementById('carrito-total');
-  const formEl = document.getElementById('carrito-form') as HTMLFormElement | null;
-  const vaciarBtn = document.getElementById('carrito-vaciar');
-  const submitBtn = document.getElementById('carrito-submit') as HTMLButtonElement | null;
-  const errorEl = document.getElementById('carrito-error');
-  const solicitarFacturaEl = document.getElementById(
-    'carrito-solicitar-factura'
-  ) as HTMLInputElement | null;
-  const fiscalFieldsEl = document.getElementById('carrito-fiscal-fields');
+  let unsubCambioCarrito: (() => void) | null = null;
+  let unsubAbrirCarrito: (() => void) | null = null;
+  let carritoEscHandler: ((e: KeyboardEvent) => void) | null = null;
 
-  if (!drawer) {
-    // Componente no presente en esta página
-  } else {
+  function initCarrito() {
+    unsubCambioCarrito?.();
+    unsubCambioCarrito = null;
+    unsubAbrirCarrito?.();
+    unsubAbrirCarrito = null;
+    if (carritoEscHandler) {
+      document.removeEventListener('keydown', carritoEscHandler);
+      carritoEscHandler = null;
+    }
+
+    const drawer = document.getElementById('carrito-drawer');
+    if (!drawer) return;
+
+    const backdrop = document.getElementById('carrito-backdrop');
+    const closeBtn = document.getElementById('carrito-close');
+    const itemsEl = document.getElementById('carrito-items');
+    const vacioEl = document.getElementById('carrito-vacio');
+    const avisosEl = document.getElementById('carrito-avisos');
+    const resumenEl = document.getElementById('carrito-resumen');
+    const subtotalEl = document.getElementById('carrito-subtotal');
+    const totalEl = document.getElementById('carrito-total');
+    const formEl = document.getElementById('carrito-form') as HTMLFormElement | null;
+    const vaciarBtn = document.getElementById('carrito-vaciar');
+    const submitBtn = document.getElementById('carrito-submit') as HTMLButtonElement | null;
+    const errorEl = document.getElementById('carrito-error');
+    const solicitarFacturaEl = document.getElementById(
+      'carrito-solicitar-factura'
+    ) as HTMLInputElement | null;
+    const fiscalFieldsEl = document.getElementById('carrito-fiscal-fields');
+
     const config: CarritoConfig = JSON.parse(drawer.dataset.carritoConfig ?? '{}') as CarritoConfig;
     const { i18n, locale } = config;
     let enviando = false;
@@ -817,7 +830,7 @@ const config = {
     }
 
     render(getCarrito());
-    suscribirCarrito(render);
+    unsubCambioCarrito = suscribirCarrito(render);
 
     function toggleFiscalFields() {
       const mercadoActual =
@@ -884,16 +897,16 @@ const config = {
       });
     }
 
-    alAbrirCarrito(open);
+    unsubAbrirCarrito = alAbrirCarrito(open);
     closeBtn?.addEventListener('click', close);
     backdrop?.addEventListener('click', close);
 
-    document.addEventListener('keydown', event => {
-      if (event.key === 'Escape' && drawer && !drawer.hasAttribute('hidden')) close();
-    });
+    carritoEscHandler = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !drawer.hasAttribute('hidden')) close();
+    };
+    document.addEventListener('keydown', carritoEscHandler);
 
-    // Focus trap
-    drawer?.addEventListener('keydown', event => {
+    drawer.addEventListener('keydown', event => {
       if (event.key !== 'Tab') return;
       const focusable = Array.from(
         drawer.querySelectorAll<HTMLElement>(
@@ -991,4 +1004,7 @@ const config = {
       window.location.href = resultado.checkoutUrl;
     });
   }
+
+  document.addEventListener('astro:page-load', initCarrito);
+  initCarrito();
 </script>

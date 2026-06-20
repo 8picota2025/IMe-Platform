@@ -449,18 +449,33 @@ const config = {
     catalogoHref: string;
   }
 
-  const drawer = document.getElementById('cotizacion-drawer');
-  const backdrop = document.getElementById('cotizacion-backdrop');
-  const closeBtn = document.getElementById('cotizacion-close');
-  const itemsEl = document.getElementById('cotizacion-items');
-  const vacioEl = document.getElementById('cotizacion-vacio');
-  const productosTituloEl = document.getElementById('cotizacion-productos-titulo');
-  const vaciarBtn = document.getElementById('cotizacion-vaciar') as HTMLButtonElement | null;
-  const formEl = document.getElementById('cotizacion-form') as HTMLFormElement | null;
-  const submitBtn = document.getElementById('cotizacion-submit') as HTMLButtonElement | null;
-  const estadoEl = document.getElementById('cotizacion-mensaje-estado');
+  let unsubCambioCotizacion: (() => void) | null = null;
+  let unsubAbrirCotizacion: (() => void) | null = null;
+  let cotizacionEscHandler: ((e: KeyboardEvent) => void) | null = null;
 
-  if (drawer) {
+  function initCotizacionDrawer() {
+    unsubCambioCotizacion?.();
+    unsubCambioCotizacion = null;
+    unsubAbrirCotizacion?.();
+    unsubAbrirCotizacion = null;
+    if (cotizacionEscHandler) {
+      document.removeEventListener('keydown', cotizacionEscHandler);
+      cotizacionEscHandler = null;
+    }
+
+    const drawer = document.getElementById('cotizacion-drawer');
+    if (!drawer) return;
+
+    const backdrop = document.getElementById('cotizacion-backdrop');
+    const closeBtn = document.getElementById('cotizacion-close');
+    const itemsEl = document.getElementById('cotizacion-items');
+    const vacioEl = document.getElementById('cotizacion-vacio');
+    const productosTituloEl = document.getElementById('cotizacion-productos-titulo');
+    const vaciarBtn = document.getElementById('cotizacion-vaciar') as HTMLButtonElement | null;
+    const formEl = document.getElementById('cotizacion-form') as HTMLFormElement | null;
+    const submitBtn = document.getElementById('cotizacion-submit') as HTMLButtonElement | null;
+    const estadoEl = document.getElementById('cotizacion-mensaje-estado');
+
     const config: CotizacionConfig = JSON.parse(
       drawer.dataset.cotizacionConfig ?? '{}'
     ) as CotizacionConfig;
@@ -512,7 +527,7 @@ const config = {
     }
 
     render(getCotizacionItems());
-    suscribirCotizacion(render);
+    unsubCambioCotizacion = suscribirCotizacion(render);
 
     itemsEl?.addEventListener('click', event => {
       const target = event.target as HTMLElement;
@@ -556,15 +571,16 @@ const config = {
       });
     }
 
-    alAbrirCotizacion(open);
+    unsubAbrirCotizacion = alAbrirCotizacion(open);
     closeBtn?.addEventListener('click', close);
     backdrop?.addEventListener('click', close);
 
-    document.addEventListener('keydown', event => {
-      if (event.key === 'Escape' && drawer && !drawer.hasAttribute('hidden')) close();
-    });
+    cotizacionEscHandler = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !drawer.hasAttribute('hidden')) close();
+    };
+    document.addEventListener('keydown', cotizacionEscHandler);
 
-    drawer?.addEventListener('keydown', event => {
+    drawer.addEventListener('keydown', event => {
       if (event.key !== 'Tab') return;
       const focusable = Array.from(
         drawer.querySelectorAll<HTMLElement>(
@@ -635,4 +651,7 @@ const config = {
       }
     });
   }
+
+  document.addEventListener('astro:page-load', initCotizacionDrawer);
+  initCotizacionDrawer();
 </script>
