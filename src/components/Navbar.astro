@@ -283,9 +283,13 @@ const altHref = getLocalizedPath(currentPath, altLocale);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
     transition: box-shadow 260ms var(--ease);
+    view-transition-name: navbar;
   }
   [data-theme='dark'] .navbar {
     background: rgba(11, 27, 34, 0.95);
+  }
+  [data-theme='dark'] .navbar__logo img {
+    filter: brightness(0) invert(1);
   }
   .navbar.scrolled {
     box-shadow: var(--shadow-md);

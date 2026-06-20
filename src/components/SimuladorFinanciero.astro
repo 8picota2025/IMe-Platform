@@ -1,11 +1,8 @@
 ---
 /**
- * SimuladorFinanciero — simulador orientativo de financiación.
- *
- * No existen tasas reales publicadas (ver src/data/financiacion.json y
- * financiacion_referencia.json). Por eso nunca se calcula ni muestra una
- * cuota: siempre se invita a solicitar una simulación personalizada y el
- * aviso informativo permanece visible.
+ * SimuladorFinanciero — calcula cuota mensual orientativa con PMT.
+ * Tasa: financiacion.tasa_anual (actualmente 12% EA).
+ * El monto del slider es el importe a financiar (50% restante tras anticipo).
  */
 import { t, type Locale } from '../i18n/utils';
 import financiacion from '../data/financiacion.json';
@@ -26,13 +23,13 @@ const config = {
   montoPaso: financiacion.monto_paso,
   montoSugerido: financiacion.monto_sugerido,
   plazos: financiacion.plazos_meses,
+  tasaAnual: financiacion.tasa_anual,
   i18n: {
     monto: t(locale, 'financiacion.simulador_monto'),
     plazo: t(locale, 'financiacion.simulador_plazo'),
     meses: t(locale, 'financiacion.meses'),
     calcular: t(locale, 'financiacion.calcular'),
     resultado: t(locale, 'financiacion.simulador_resultado'),
-    sinTasa: t(locale, 'financiacion.simulador_sin_tasa'),
     ctaPersonalizada: t(locale, 'financiacion.cta_personalizada'),
     ctaWhatsapp: t(locale, 'financiacion.cta_whatsapp'),
     ctaCotizacion: t(locale, 'financiacion.cta_cotizacion'),
@@ -40,6 +37,12 @@ const config = {
   contactoHref,
   whatsappUrl,
 };
+
+const labelTotal = locale === 'es' ? 'Total a pagar' : 'Total to pay';
+const labelTasa =
+  locale === 'es'
+    ? `Tasa referencial ${financiacion.tasa_anual}% EA · Simulación orientativa, sujeta a evaluación.`
+    : `Reference rate ${financiacion.tasa_anual}% EA · Indicative simulation, subject to evaluation.`;
 ---
 
 <section
@@ -100,7 +103,17 @@ const config = {
     aria-live="polite"
     hidden
   >
-    <p>{config.i18n.sinTasa}</p>
+    <div class="simulador__numeros">
+      <div class="simulador__numero-main">
+        <span class="simulador__numero-label">{config.i18n.resultado}</span>
+        <strong class="simulador__numero-valor" id="resultado-cuota">—</strong>
+      </div>
+      <div class="simulador__numero-sec">
+        <span class="simulador__numero-label">{labelTotal}</span>
+        <span class="simulador__numero-valor" id="resultado-total">—</span>
+      </div>
+    </div>
+    <p class="simulador__tasa-nota">{labelTasa}</p>
     <div class="simulador__cta">
       <a href={config.contactoHref} class="btn btn-primary">{config.i18n.ctaPersonalizada}</a>
       <a
@@ -185,10 +198,46 @@ const config = {
   .simulador__resultado[hidden] {
     display: none;
   }
-  .simulador__resultado p {
-    margin: 0 0 1rem;
-    color: var(--ink);
+  .simulador__numeros {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-block-end: 0.75rem;
+  }
+  .simulador__numero-main {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    flex: 2;
+    min-width: 180px;
+  }
+  .simulador__numero-sec {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    flex: 1;
+    min-width: 140px;
+  }
+  .simulador__numero-label {
+    font-size: 0.78rem;
     font-weight: 600;
+    color: var(--text-mid);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .simulador__numero-valor {
+    font-size: var(--step-1);
+    font-weight: 700;
+    color: var(--t900);
+  }
+  .simulador__numero-main .simulador__numero-valor {
+    font-size: var(--step-2);
+    color: var(--ink);
+  }
+  .simulador__tasa-nota {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin: 0 0 1rem;
   }
   .simulador__cta {
     display: flex;
@@ -209,12 +258,19 @@ const config = {
   import { abrirCotizacion } from '../lib/cotizacion-equipos';
   import { getLocale } from '../i18n/utils';
 
-  const section = document.querySelector<HTMLElement>('.simulador');
-  if (section) {
-    const config = JSON.parse(section.dataset['simuladorConfig'] ?? '{}') as {
-      locale: 'es' | 'en';
-    };
+  interface SimuladorConfig {
+    locale: 'es' | 'en';
+    tasaAnual: number;
+  }
+
+  function initSimulador() {
+    const section = document.querySelector<HTMLElement>('.simulador');
+    if (!section || section.dataset['simuladorBound'] === 'true') return;
+    section.dataset['simuladorBound'] = 'true';
+
+    const config = JSON.parse(section.dataset['simuladorConfig'] ?? '{}') as SimuladorConfig;
     const locale = config.locale ?? getLocale(window.location.pathname);
+    const tasaAnual = config.tasaAnual ?? 12;
 
     const form = document.getElementById('simulador-form') as HTMLFormElement | null;
     const rango = document.getElementById('simulador-monto-rango') as HTMLInputElement | null;
@@ -225,8 +281,7 @@ const config = {
 
     function actualizarValor() {
       if (!numero || !valor) return;
-      const monto = Number(numero.value);
-      valor.textContent = formatMoneda(monto, 'COP', locale) ?? '';
+      valor.textContent = formatMoneda(Number(numero.value), 'COP', locale) ?? '';
     }
 
     rango?.addEventListener('input', () => {
@@ -243,9 +298,29 @@ const config = {
 
     form?.addEventListener('submit', event => {
       event.preventDefault();
-      if (resultado) resultado.hidden = false;
+      if (!resultado) return;
+
+      const monto = Number(numero?.value ?? 0);
+      const plazoEl = document.getElementById('simulador-plazo') as HTMLSelectElement | null;
+      const n = Number(plazoEl?.value ?? 12);
+      const r = tasaAnual / 100 / 12;
+
+      const pow = Math.pow(1 + r, n);
+      const cuota = (monto * r * pow) / (pow - 1);
+      const total = cuota * n;
+
+      const cuotaEl = document.getElementById('resultado-cuota');
+      const totalEl = document.getElementById('resultado-total');
+      if (cuotaEl) cuotaEl.textContent = formatMoneda(Math.round(cuota), 'COP', locale) ?? '';
+      if (totalEl) totalEl.textContent = formatMoneda(Math.round(total), 'COP', locale) ?? '';
+
+      resultado.hidden = false;
+      resultado.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
 
     cotizacionBtn?.addEventListener('click', () => abrirCotizacion());
   }
+
+  document.addEventListener('astro:page-load', initSimulador);
+  initSimulador();
 </script>

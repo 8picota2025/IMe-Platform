@@ -78,6 +78,11 @@ const {
         document.addEventListener('astro:before-swap', () => {
           destroyLenis();
           resetTransientUiState();
+          document.documentElement.style.scrollBehavior = 'auto';
+        });
+        document.addEventListener('astro:page-load', () => {
+          document.documentElement.style.scrollBehavior = '';
+          void initLenis();
         });
       }
 
