@@ -173,6 +173,38 @@ Deno.serve(async req => {
     );
   }
 
+  const fallbackSitio = esConsultaSitioOLegal(mensaje)
+    ? buildAsesorStaticFallback(locale, mensaje)
+    : null;
+  if (fallbackSitio) {
+    const latenciaMs = Date.now() - inicio;
+    await supabase.from('asesor_uso').insert({
+      session_id: sessionId,
+      locale,
+      modo: 'rag',
+      turnos: historial.filter(h => h.rol === 'usuario').length + 1,
+      tokens_totales: 0,
+      coste_estimado: 0,
+      latencia_ms: latenciaMs,
+      hubo_handoff: false,
+      tipo_handoff: null,
+      periodo_yyyy_mm: periodoActual(),
+    });
+
+    return new Response(
+      JSON.stringify({
+        texto: fallbackSitio,
+        productos: [],
+        accion_handoff: null,
+        modo: 'rag',
+      } satisfies AsesorResponse),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
+      }
+    );
+  }
+
   try {
     // 4-5. Presupuesto.
     const presupuesto = await enforceBudget(supabase);
