@@ -416,9 +416,24 @@ async function importProductos(
     return existing ? { ...row, id: existing.id } : row;
   });
 
-  const { error } = await supabase.from('productos').upsert(resolvedRows, { onConflict: 'id' });
-  if (error) {
-    throw new Error(`Supabase rechazo la importacion en productos: ${error.message}`);
+  // Split: existing rows (have id) vs new rows (no id).
+  // Mixing both in a single upsert causes PostgREST to include 'id' in the
+  // column list for all rows, sending NULL for new ones → NOT NULL violation.
+  const existingRows = resolvedRows.filter(row => row.id);
+  const newRows = resolvedRows.filter(row => !row.id);
+
+  if (existingRows.length) {
+    const { error } = await supabase.from('productos').upsert(existingRows, { onConflict: 'id' });
+    if (error) {
+      throw new Error(`Supabase rechazo la importacion en productos: ${error.message}`);
+    }
+  }
+
+  if (newRows.length) {
+    const { error } = await supabase.from('productos').upsert(newRows, { onConflict: 'slug' });
+    if (error) {
+      throw new Error(`Supabase rechazo la importacion en productos: ${error.message}`);
+    }
   }
 
   return { ok: true, processed: resolvedRows.length, skipped: totalRows - resolvedRows.length };

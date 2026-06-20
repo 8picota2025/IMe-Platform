@@ -5012,26 +5012,32 @@ async function readFileArrayBuffer(file: File): Promise<ArrayBuffer> {
   try {
     return await file.arrayBuffer();
   } catch {
-    return await new Promise<ArrayBuffer>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onerror = () => {
-        reject(
-          new Error(
-            'No se pudo leer el archivo seleccionado. En algunos moviles esto pasa si el archivo deja de estar accesible; vuelve a seleccionarlo e intenta de nuevo.'
-          )
-        );
-      };
-      reader.onload = () => {
-        const result = reader.result;
-        if (result instanceof ArrayBuffer) {
-          resolve(result);
-          return;
-        }
-        reject(new Error('No se pudo interpretar el archivo seleccionado.'));
-      };
-      reader.readAsArrayBuffer(file);
-    });
+    // file.arrayBuffer() no disponible o falló; usar FileReader como fallback
   }
+  return new Promise<ArrayBuffer>((resolve, reject) => {
+    const reader = new FileReader();
+    const failWithMessage = (extra = '') => {
+      reject(
+        new Error(
+          `No se pudo leer el archivo seleccionado.${extra} Vuelve a seleccionarlo e intenta de nuevo.`
+        )
+      );
+    };
+    reader.onerror = () => failWithMessage(' El archivo puede haber dejado de estar accesible.');
+    reader.onload = () => {
+      const result = reader.result;
+      if (result instanceof ArrayBuffer) {
+        resolve(result);
+        return;
+      }
+      reject(new Error('No se pudo interpretar el archivo seleccionado.'));
+    };
+    try {
+      reader.readAsArrayBuffer(file);
+    } catch {
+      failWithMessage(' El archivo puede no ser accesible en este momento.');
+    }
+  });
 }
 
 async function invokeAdminImport(
