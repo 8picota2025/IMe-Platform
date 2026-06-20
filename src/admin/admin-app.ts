@@ -166,6 +166,15 @@ async function render() {
   const {
     data: { session },
   } = await supabase.auth.getSession();
+
+  // Detect password-recovery redirect (Supabase sends #...&type=recovery in the URL)
+  const recoveryParams = new URLSearchParams(location.hash.substring(1));
+  if (recoveryParams.get('type') === 'recovery' && session) {
+    history.replaceState(null, '', location.pathname);
+    renderNewPassword();
+    return;
+  }
+
   if (!session) {
     renderLogin();
     return;
@@ -179,6 +188,10 @@ async function render() {
 }
 
 function renderLogin() {
+  renderLoginPanel();
+}
+
+function renderLoginPanel(prefillEmail = '') {
   app.innerHTML = `
     <section class="admin-login">
       <form class="admin-login__panel admin-form" data-login>
@@ -187,12 +200,13 @@ function renderLogin() {
           <p>Back-office privado para catalogo, cotizaciones, pedidos e ingesta documental.</p>
         </div>
         <label class="admin-field">Email
-          <input name="email" type="email" autocomplete="email" required />
+          <input name="email" type="email" autocomplete="email" required value="${escapeHtml(prefillEmail)}" />
         </label>
         <label class="admin-field">Contrasena
           <input name="password" type="password" autocomplete="current-password" required />
         </label>
         <button class="admin-button" type="submit">Entrar</button>
+        <button class="admin-button admin-button--ghost" type="button" data-show-reset>¿Olvidaste tu contrasena?</button>
         <p class="admin-help">El usuario admin se crea manualmente en Supabase Auth. No hay registro publico.</p>
       </form>
     </section>`;
@@ -209,6 +223,113 @@ function renderLogin() {
     }
     location.hash = '#/dashboard';
     await render();
+  });
+  app.querySelector('[data-show-reset]')?.addEventListener('click', () => {
+    const emailInput = form?.querySelector<HTMLInputElement>('input[name="email"]');
+    renderPasswordReset(emailInput?.value ?? '');
+  });
+}
+
+function renderPasswordReset(prefillEmail = '') {
+  app.innerHTML = `
+    <section class="admin-login">
+      <form class="admin-login__panel admin-form" data-reset-form>
+        <div>
+          <h1>Restablecer contrasena</h1>
+          <p>Introduce tu email de administrador y te enviaremos un enlace de restablecimiento.</p>
+        </div>
+        <label class="admin-field">Email
+          <input name="email" type="email" autocomplete="email" required value="${escapeHtml(prefillEmail)}" />
+        </label>
+        <button class="admin-button" type="submit" data-reset-btn>Enviar enlace</button>
+        <button class="admin-button admin-button--ghost" type="button" data-back-login>Volver al acceso</button>
+        <p class="admin-help">Si el email tiene una cuenta de administrador recibiras el enlace en unos segundos. Revisa tambien la carpeta de spam.</p>
+      </form>
+    </section>`;
+  const form = app.querySelector<HTMLFormElement>('[data-reset-form]');
+  const btn = form?.querySelector<HTMLButtonElement>('[data-reset-btn]');
+  form?.addEventListener('submit', async event => {
+    event.preventDefault();
+    const email = String(new FormData(form).get('email') ?? '');
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Enviando…';
+    }
+    const { error } = await supabase!.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/admin`,
+    });
+    if (error) {
+      toast(error.message);
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'Enviar enlace';
+      }
+      return;
+    }
+    app.innerHTML = `
+      <section class="admin-login">
+        <div class="admin-login__panel admin-form">
+          <div>
+            <h1>Enlace enviado</h1>
+            <p>Si <strong>${escapeHtml(email)}</strong> tiene una cuenta de administrador, recibiras el enlace para restablecer tu contrasena.</p>
+            <p class="admin-help">Revisa tambien la carpeta de spam.</p>
+          </div>
+          <button class="admin-button admin-button--ghost" type="button" data-back-login>Volver al acceso</button>
+        </div>
+      </section>`;
+    app
+      .querySelector('[data-back-login]')
+      ?.addEventListener('click', () => renderLoginPanel(email));
+  });
+  app
+    .querySelector('[data-back-login]')
+    ?.addEventListener('click', () => renderLoginPanel(prefillEmail));
+}
+
+function renderNewPassword() {
+  app.innerHTML = `
+    <section class="admin-login">
+      <form class="admin-login__panel admin-form" data-new-password-form>
+        <div>
+          <h1>Nueva contrasena</h1>
+          <p>Elige una nueva contrasena segura para tu cuenta de administrador.</p>
+        </div>
+        <label class="admin-field">Nueva contrasena
+          <input name="password" type="password" autocomplete="new-password" required minlength="8" />
+        </label>
+        <label class="admin-field">Confirmar contrasena
+          <input name="confirm" type="password" autocomplete="new-password" required minlength="8" />
+        </label>
+        <button class="admin-button" type="submit" data-save-btn>Guardar contrasena</button>
+      </form>
+    </section>`;
+  const form = app.querySelector<HTMLFormElement>('[data-new-password-form]');
+  const btn = form?.querySelector<HTMLButtonElement>('[data-save-btn]');
+  form?.addEventListener('submit', async event => {
+    event.preventDefault();
+    const data = new FormData(form);
+    const password = String(data.get('password') ?? '');
+    const confirm = String(data.get('confirm') ?? '');
+    if (password !== confirm) {
+      toast('Las contrasenas no coinciden');
+      return;
+    }
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Guardando…';
+    }
+    const { error } = await supabase!.auth.updateUser({ password });
+    if (error) {
+      toast(error.message);
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'Guardar contrasena';
+      }
+      return;
+    }
+    toast('Contrasena actualizada correctamente.');
+    await supabase!.auth.signOut();
+    renderLoginPanel();
   });
 }
 
