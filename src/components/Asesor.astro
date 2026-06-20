@@ -45,6 +45,7 @@ const asesorConfig = {
   aria-expanded="false"
   aria-controls="asesor-dialog"
   type="button"
+  transition:persist={`asesor-fab-${locale}`}
 >
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -72,6 +73,7 @@ const asesorConfig = {
   aria-label={t(locale, 'asesor.titulo')}
   data-asesor-config={JSON.stringify(asesorConfig)}
   hidden
+  transition:persist={`asesor-dialog-${locale}`}
 >
   <div class="asesor-dialog__inner">
     <!-- Header -->
@@ -206,7 +208,6 @@ const asesorConfig = {
     transition:
       transform 180ms var(--ease),
       background-color 180ms var(--ease);
-    view-transition-name: asesor-fab;
   }
   .asesor-fab:hover {
     background: var(--t800);
@@ -582,18 +583,22 @@ const asesorConfig = {
 
   // Per-init cleanup
   let asesorEscHandler: ((e: KeyboardEvent) => void) | null = null;
+  const _imeInit = new WeakSet<Element>();
 
   function initAsesor() {
-    if (asesorEscHandler) {
-      document.removeEventListener('keydown', asesorEscHandler);
-      asesorEscHandler = null;
-    }
-
     const trigger = document.getElementById('asesor-trigger');
     const dialog = document.getElementById('asesor-dialog');
     if (!trigger || !dialog) return;
 
-    // Old turnstile container is gone after navigation
+    // transition:persist keeps the same DOM element across navigations — skip re-binding
+    if (_imeInit.has(trigger)) return;
+    _imeInit.add(trigger);
+
+    // Fresh element only: clean up any stale doc-level handler and reset turnstile
+    if (asesorEscHandler) {
+      document.removeEventListener('keydown', asesorEscHandler);
+      asesorEscHandler = null;
+    }
     turnstileWidgetId = null;
     resolveTurnstileToken = null;
 

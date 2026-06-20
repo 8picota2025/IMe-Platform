@@ -45,7 +45,13 @@ const config = {
 };
 ---
 
-<div id="cotizacion-backdrop" class="drawer-backdrop" hidden></div>
+<div
+  id="cotizacion-backdrop"
+  class="drawer-backdrop"
+  hidden
+  transition:persist={`cotizacion-backdrop-${locale}`}
+>
+</div>
 
 <aside
   id="cotizacion-drawer"
@@ -53,6 +59,7 @@ const config = {
   role="dialog"
   aria-modal="true"
   aria-label={config.i18n.titulo}
+  transition:persist={`cotizacion-drawer-${locale}`}
   data-cotizacion-config={JSON.stringify(config)}
   hidden
 >
@@ -452,8 +459,17 @@ const config = {
   let unsubCambioCotizacion: (() => void) | null = null;
   let unsubAbrirCotizacion: (() => void) | null = null;
   let cotizacionEscHandler: ((e: KeyboardEvent) => void) | null = null;
+  const _imeInit = new WeakSet<Element>();
 
   function initCotizacionDrawer() {
+    const drawer = document.getElementById('cotizacion-drawer');
+    if (!drawer) return;
+
+    // transition:persist keeps the same DOM element — skip re-binding to avoid duplicates
+    if (_imeInit.has(drawer)) return;
+    _imeInit.add(drawer);
+
+    // Fresh element: clean up stale state from a previous (replaced) element
     unsubCambioCotizacion?.();
     unsubCambioCotizacion = null;
     unsubAbrirCotizacion?.();
@@ -462,9 +478,6 @@ const config = {
       document.removeEventListener('keydown', cotizacionEscHandler);
       cotizacionEscHandler = null;
     }
-
-    const drawer = document.getElementById('cotizacion-drawer');
-    if (!drawer) return;
 
     const backdrop = document.getElementById('cotizacion-backdrop');
     const closeBtn = document.getElementById('cotizacion-close');

@@ -72,7 +72,13 @@ const config = {
 };
 ---
 
-<div id="carrito-backdrop" class="drawer-backdrop" hidden></div>
+<div
+  id="carrito-backdrop"
+  class="drawer-backdrop"
+  hidden
+  transition:persist={`carrito-backdrop-${locale}`}
+>
+</div>
 
 <aside
   id="carrito-drawer"
@@ -80,6 +86,7 @@ const config = {
   role="dialog"
   aria-modal="true"
   aria-label={config.i18n.titulo}
+  transition:persist={`carrito-drawer-${locale}`}
   data-carrito-config={JSON.stringify(config)}
   hidden
 >
@@ -715,8 +722,17 @@ const config = {
   let unsubCambioCarrito: (() => void) | null = null;
   let unsubAbrirCarrito: (() => void) | null = null;
   let carritoEscHandler: ((e: KeyboardEvent) => void) | null = null;
+  const _imeInit = new WeakSet<Element>();
 
   function initCarrito() {
+    const drawer = document.getElementById('carrito-drawer');
+    if (!drawer) return;
+
+    // transition:persist keeps the same DOM element — skip re-binding to avoid duplicates
+    if (_imeInit.has(drawer)) return;
+    _imeInit.add(drawer);
+
+    // Fresh element: clean up stale state from a previous (replaced) element
     unsubCambioCarrito?.();
     unsubCambioCarrito = null;
     unsubAbrirCarrito?.();
@@ -725,9 +741,6 @@ const config = {
       document.removeEventListener('keydown', carritoEscHandler);
       carritoEscHandler = null;
     }
-
-    const drawer = document.getElementById('carrito-drawer');
-    if (!drawer) return;
 
     const backdrop = document.getElementById('carrito-backdrop');
     const closeBtn = document.getElementById('carrito-close');
