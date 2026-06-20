@@ -261,6 +261,11 @@ Deno.serve(async req => {
     }
 
     const cleanRows = sanitized.map(item => item.row);
+    if (entity === 'productos') {
+      const result = await importProductos(supabase, cleanRows, sanitized.length);
+      return jsonResponse(result, origin);
+    }
+
     const { error } = await supabase
       .from(config.table)
       .upsert(cleanRows, { onConflict: config.conflict });
@@ -358,6 +363,92 @@ async function importPedidos(
   }
 
   return { ok: true, processed, skipped };
+}
+
+async function importProductos(
+  supabase: ReturnType<typeof getServerSupabase>,
+  rows: Row[],
+  totalRows: number
+): Promise<{ ok: boolean; processed: number; skipped: number }> {
+  const slugs = new Set<string>();
+  const skus = new Set<string>();
+  const skuToRow = new Map<string, number>();
+  const slugToRow = new Map<string, number>();
+
+  rows.forEach((row, index) => {
+    const slug = typeof row.slug === 'string' ? row.slug.trim() : '';
+    const sku = typeof row.sku === 'string' ? row.sku.trim() : '';
+    if (slug) {
+      if (slugToRow.has(slug)) {
+        throw new Error(`Fila ${index + 2}: slug duplicado en el archivo: ${slug}`);
+      }
+      slugToRow.set(slug, index + 2);
+      slugs.add(slug);
+    }
+    if (sku) {
+      if (skuToRow.has(sku)) {
+        const firstRow = skuToRow.get(sku);
+        throw new Error(`Filas ${firstRow} y ${index + 2}: sku duplicado en el archivo: ${sku}`);
+      }
+      skuToRow.set(sku, index + 2);
+      skus.add(sku);
+    }
+  });
+
+  const [existingBySku, existingBySlug] = await Promise.all([
+    fetchExistingProductos(supabase, 'sku', [...skus]),
+    fetchExistingProductos(supabase, 'slug', [...slugs]),
+  ]);
+
+  const resolvedRows = rows.map((row, index) => {
+    const slug = typeof row.slug === 'string' ? row.slug.trim() : '';
+    const sku = typeof row.sku === 'string' ? row.sku.trim() : '';
+    const bySku = sku ? existingBySku.get(sku) : null;
+    const bySlug = slug ? existingBySlug.get(slug) : null;
+
+    if (bySku && bySlug && bySku.id !== bySlug.id) {
+      throw new Error(
+        `Fila ${index + 2}: sku ${sku} ya pertenece a otro producto distinto del slug ${slug}.`
+      );
+    }
+
+    const existing = bySku ?? bySlug;
+    return existing ? { ...row, id: existing.id } : row;
+  });
+
+  const { error } = await supabase.from('productos').upsert(resolvedRows, { onConflict: 'id' });
+  if (error) {
+    throw new Error(`Supabase rechazo la importacion en productos: ${error.message}`);
+  }
+
+  return { ok: true, processed: resolvedRows.length, skipped: totalRows - resolvedRows.length };
+}
+
+async function fetchExistingProductos(
+  supabase: ReturnType<typeof getServerSupabase>,
+  column: 'sku' | 'slug',
+  values: string[]
+): Promise<Map<string, { id: string }>> {
+  const result = new Map<string, { id: string }>();
+  if (!values.length) return result;
+  const chunkSize = 100;
+  for (let i = 0; i < values.length; i += chunkSize) {
+    const chunk = values.slice(i, i + chunkSize);
+    const { data, error } = await supabase
+      .from('productos')
+      .select('id,slug,sku')
+      .in(column, chunk);
+    if (error) throw error;
+    for (const row of (data ?? []) as Array<{
+      id: string;
+      slug?: string | null;
+      sku?: string | null;
+    }>) {
+      const key = column === 'sku' ? String(row.sku ?? '').trim() : String(row.slug ?? '').trim();
+      if (key) result.set(key, { id: row.id });
+    }
+  }
+  return result;
 }
 
 function jsonResponse(data: unknown, origin: string | null): Response {
