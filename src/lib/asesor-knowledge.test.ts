@@ -19,8 +19,11 @@ describe('asesor knowledge', () => {
   it('responde con limites claros para financiacion y garantia', () => {
     const financiacion = buildAsesorStaticFallback('es', 'financiacion y tasas');
     const garantia = buildAsesorStaticFallback('es', 'garantia y mantenimiento');
+    const sitio = buildAsesorStaticFallback('es', 'inicio y artículos del sitio');
 
     expect(financiacion).toContain('propuesta formal');
     expect(garantia).toContain('cotización formal');
+    expect(sitio).toContain('página de inicio');
+    expect(sitio).toContain('artículos');
   });
 });

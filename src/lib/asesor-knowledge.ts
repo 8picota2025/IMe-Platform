@@ -2,6 +2,8 @@ export type AsesorKnowledgeLocale = 'es' | 'en';
 
 const CONTACT_QUERY_REGEX =
   /\b(whats?app|correo(?:s)?|email|contact(?:o|os|ar|arme|arlos)?|telefono(?:s)?|phone(?:s)?|canal(?:es)?)\b/i;
+const CONTENT_QUERY_REGEX =
+  /\b(sitio|web|pagina(?:s)?|home|inicio|acerca|quienes somos|about|servici(?:o|os)|catalogo(?:s)?|catalog(?:s)?|conocimiento|articulo(?:s)?|blog|guia(?:s)?|faq(?:s)?|preguntas frecuentes|politica(?:s)?|legal(?:es)?|financi(?:acion|amiento)|soporte|ayuda|proceso(?:s)?|compra|instal(?:acion|acion|es)?|mantenimiento|calibraci(?:on|ones)?|garanti(?:a|as)?|contact(?:o|o))\b/i;
 const SERVICES_QUERY_REGEX =
   /\b(servici(?:o|os)|support|soporte|mantenim(?:iento|ientos)|calibr(?:acion|aciones)?|instal(?:acion|aciones|ar)?|asesor(?:ia)?|financi(?:acion|amiento|ar)?)\b/i;
 const LEGAL_QUERY_REGEX =
@@ -13,6 +15,11 @@ const WARRANTY_QUERY_REGEX =
 const CERTIFICATIONS_QUERY_REGEX =
   /\b(certific(?:ado|ada|ados|adas|acion|aciones)|certificate(?:s)?|certification(?:s)?|registro(?:s)? invima|registro(?:s)? sanitario(?:s)?|sanitary registration(?:s)?|ce\b|fda|iso|bpm|calidad|quality|tecnovigil(?:ancia|ance)?)\b/i;
 
+const EXTERNAL_REFERENCES = `REFERENCIAS EXTERNAS DE APOYO
+- INVIMA (dispositivos médicos y equipos biomédicos): el Instituto publica que estos productos están sujetos a supervisión, control, autorización de comercialización y cumplimiento de requisitos técnico-legales y sanitarios. También reúne normativa, trámites, registros sanitarios, tecnovigilancia y listados de establecimientos certificados. Úsalo para orientar preguntas sobre clasificación, registro, vigilancia, importación y trazabilidad, siempre con validación del producto específico.
+- Distribuidores especializados de equipo médico: los contenidos de referencia resaltan que un distribuidor especializado aporta selección técnica, disponibilidad, logística, soporte, mantenimiento, capacitación y continuidad operativa. Úsalo para responder por qué un distribuidor biomédico no es solo un vendedor, sino un aliado técnico y comercial.
+- Valor operativo del distribuidor: las referencias externas también destacan la reducción de errores de compra, mejor adaptación al entorno clínico, acompañamiento postventa y mayor eficiencia en el ciclo de vida del equipo. Úsalo como contexto orientativo, no como promesa comercial específica.`;
+
 const ES_SITE_AND_LEGAL_KNOWLEDGE = `CONTEXTO DEL SITIO Y DE I-ME
 - I-ME International Medical Enterprise es una empresa colombiana dedicada a la venta, distribucion, importacion, exportacion, instalacion, soporte tecnico, mantenimiento, asesoria e implementacion de equipos y dispositivos medicos para el sector salud.
 - El sitio publica informacion sobre catalogo de productos, servicios, financiamiento orientativo, contacto, contenido editorial y paginas legales.
@@ -23,6 +30,7 @@ const ES_SITE_AND_LEGAL_KNOWLEDGE = `CONTEXTO DEL SITIO Y DE I-ME
 - Certificaciones y registros: el sitio comunica equipos biomédicos certificados y menciona registros INVIMA y certificaciones CE/FDA cuando correspondan. Cada certificado, registro sanitario, vigencia, alcance de garantía y compatibilidad normativa debe confirmarse por producto en ficha técnica, soporte del fabricante o cotización formal.
 - Garantías y soporte: la garantía, instalación, puesta en marcha, capacitación, mantenimiento, calibración, repuestos y soporte se confirman según el producto, ciudad, alcance contratado y documentación del fabricante.
 - Las solicitudes hechas por el sitio, WhatsApp, correo o asesor virtual no constituyen aceptacion automatica de venta. Precio, disponibilidad, garantia, tiempos, instalacion, soporte y condiciones finales se confirman en cotizacion o propuesta formal.
+- El asesor puede responder sobre todo el contenido publicado del sitio: inicio, catálogo, servicios, conocimiento/editorial, financiación, contacto, políticas legales, preguntas frecuentes y guías relacionadas, no solo productos.
 
 MARCO LEGAL Y REGULATORIO COLOMBIANO DISPONIBLE EN EL SITIO
 - Proteccion de datos y habeas data: Ley 1581 de 2012, Decreto 1377 de 2013, Decreto 1074 de 2015 y Decreto 886 de 2014 cuando aplique el Registro Nacional de Bases de Datos.
@@ -44,6 +52,7 @@ const EN_SITE_AND_LEGAL_KNOWLEDGE = `SITE AND I-ME CONTEXT
 - Certifications and registrations: the site communicates certified biomedical equipment and mentions INVIMA registrations and CE/FDA certifications where applicable. Each certificate, sanitary registration, validity, warranty scope and regulatory compatibility must be confirmed per product through the technical sheet, manufacturer support or formal quotation.
 - Warranties and support: warranty, installation, commissioning, training, maintenance, calibration, spare parts and support are confirmed according to the product, city, contracted scope and manufacturer documentation.
 - Requests submitted through the website, WhatsApp, email or the virtual advisor do not automatically create a sale. Price, availability, warranty, timing, installation, support and final conditions must be confirmed in a quote or formal proposal.
+- The advisor can answer about all published website content: home, catalog, services, editorial/knowledge, financing, contact, legal policies, FAQs and related guides, not just products.
 
 COLOMBIAN LEGAL AND REGULATORY FRAMEWORK AVAILABLE ON THE SITE
 - Data protection and habeas data: Law 1581 of 2012, Decree 1377 of 2013, Decree 1074 of 2015 and Decree 886 of 2014 where the National Database Registry applies.
@@ -59,7 +68,9 @@ const SITE_OR_LEGAL_QUERY_REGEX =
   /\b(whats?app|correo(?:s)?|email|contact(?:o|os|ar|arme|arlos)?|telefono(?:s)?|phone(?:s)?|empresa|compania|company|sitio|site|pagina(?:s)?|page(?:s)?|catalogo(?:s)?|catalog(?:s)?|servici(?:o|os)|service(?:s)?|financi(?:acion|amiento|ar|ado|ados)?|credito(?:s)?|cuota(?:s)?|plazo(?:s)?|tasa(?:s)?|garanti(?:a|as)|warrant(?:y|ies)|entreg(?:a|as)|delivery|instal(?:acion|aciones|ar)?|calibr(?:acion|aciones)?|mantenim(?:iento|ientos)|support|soporte|legal(?:es)?|ley(?:es)?|law(?:s)?|decreto(?:s)?|decree(?:s)?|resoluci(?:on|ones)|resolution(?:s)?|invima|fda|ce\b|iso|bpm|certific(?:ado|ada|ados|adas|acion|aciones)|certificate(?:s)?|certification(?:s)?|calidad|quality|registro(?:s)? sanitario(?:s)?|sanitary registration(?:s)?|tecnovigil(?:ancia|ance)?|normativ(?:a|as)|regulator(?:io|ios|y)?|cookies?|privacidad|privacy|habeas|terminos|terms|consumidor(?:es)?|consumer(?:s)?|canal(?:es)?|cotizaci(?:on|ones)|quote(?:s)?)\b/i;
 
 export function getAsesorKnowledgeBase(locale: AsesorKnowledgeLocale): string {
-  return locale === 'en' ? EN_SITE_AND_LEGAL_KNOWLEDGE : ES_SITE_AND_LEGAL_KNOWLEDGE;
+  return locale === 'en'
+    ? `${EN_SITE_AND_LEGAL_KNOWLEDGE}\n\n${EXTERNAL_REFERENCES}`
+    : `${ES_SITE_AND_LEGAL_KNOWLEDGE}\n\n${EXTERNAL_REFERENCES}`;
 }
 
 export function esConsultaSitioOLegal(texto: string): boolean {
@@ -71,6 +82,7 @@ export function buildAsesorStaticFallback(
   texto: string
 ): string | null {
   const wantsContact = CONTACT_QUERY_REGEX.test(texto);
+  const wantsContent = CONTENT_QUERY_REGEX.test(texto);
   const wantsServices = SERVICES_QUERY_REGEX.test(texto);
   const wantsLegal = LEGAL_QUERY_REGEX.test(texto);
   const wantsFinancing = FINANCING_QUERY_REGEX.test(texto);
@@ -97,6 +109,10 @@ export function buildAsesorStaticFallback(
     if (wantsServices || wantsContact) {
       return 'I-ME states that it provides sale and distribution of biomedical equipment, installation and commissioning, preventive and corrective technical support, calibration and metrological verification, spare parts and consumables, indicative financing, and biomedical advisory. The published commercial channels are WhatsApp +57 313 867 4059, email info@i-me.com.co, and the website contact form.';
     }
+
+    if (wantsContent) {
+      return 'I-ME publishes more than products: the website also includes the home page, services, knowledge articles, financing guidance, contact channels and legal policies. For questions about the site structure, editorial content, policies or service flow, I can guide you using what is published on the website and the external reference material we use as support. If you need a product-level decision, we can narrow it down afterward.';
+    }
   } else {
     if (wantsCertifications) {
       return 'I-ME publica equipos biomédicos con soporte regulatorio y de calidad como registros INVIMA y certificaciones CE/FDA cuando aplican. El certificado exacto, registro sanitario, vigencia y alcance deben confirmarse para el producto específico mediante ficha técnica, documentación del fabricante o cotización formal. Para decidir una compra, conviene validar referencia, uso previsto, soporte regulatorio y condiciones de garantía antes de cerrar el pedido.';
@@ -116,6 +132,10 @@ export function buildAsesorStaticFallback(
 
     if (wantsServices || wantsContact) {
       return 'I-ME publica que ofrece venta y distribución de equipos biomédicos, instalación y puesta en marcha, soporte técnico preventivo y correctivo, calibración y verificación metrológica, repuestos y consumibles, financiamiento orientativo y asesoría biomédica. Los canales comerciales publicados son WhatsApp +57 313 867 4059, correo info@i-me.com.co y el formulario de contacto del sitio.';
+    }
+
+    if (wantsContent) {
+      return 'I-ME publica mucho más que productos: el sitio también incluye la página de inicio, servicios, artículos y guías de conocimiento, financiación orientativa, canales de contacto y políticas legales. Para consultas sobre estructura del sitio, contenido editorial, políticas o flujo de servicio, puedo orientarte con lo publicado en la web y con material externo de apoyo. Si luego necesitas aterrizarlo a un equipo concreto, lo hacemos.';
     }
   }
 
