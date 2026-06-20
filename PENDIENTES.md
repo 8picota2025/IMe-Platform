@@ -116,10 +116,13 @@ BOOLEAN NOT NULL DEFAULT true` + `disponible_actualizado_at TIMESTAMPTZ` y
       sigue `pendiente`, dejando el estado final en `pagado` aunque el webhook no
       haya llegado. Referencias de prueba: `7c859bf2-5f0d-4c8c-a17f-1c5e1a6c628e`
       y `0b0993a2-9671-438d-8fa8-711fb1da1334`.
-- [ ] Webhook Wompi `transaction.updated` sigue sin registrar eventos en
-      `eventos_pago` pese a que la función fue redeployada con `--no-verify-jwt`
-      el 2026-06-18. Pendiente revisar logs/intentos en el dashboard de Wompi y
-      reenviar un evento sandbox para confirmar entrega server-to-server.
+- [x] Webhook Wompi `transaction.updated` — bug de firma corregido el 2026-06-20:
+      `wompiEventoHash` omitía el campo `timestamp` del payload en el cálculo SHA256
+      (`property_values + events_secret` en vez de `property_values + timestamp +
+    events_secret`), causando que toda validación fallara y retornara 401 sin
+      registrar nada en `eventos_pago`. Fix en `_shared/payment-gateway.ts` +
+      `webhook-wompi` redeployada. NO_EJECUTADO_ENTORNO: reenviar evento sandbox
+      en el dashboard de Wompi para confirmar persistencia en `eventos_pago`.
 
 ### Paridad WooCommerce/B2B-B2C y RBAC admin (PR #7, mergeado 2026-06-14)
 
