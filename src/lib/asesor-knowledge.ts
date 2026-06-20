@@ -14,6 +14,8 @@ const WARRANTY_QUERY_REGEX =
   /\b(garanti(?:a|as)|warrant(?:y|ies)|soporte postventa|posventa|post[- ]?sale|mantenimiento|maintenance|calibraci(?:on|ones)|calibration)\b/i;
 const CERTIFICATIONS_QUERY_REGEX =
   /\b(certific(?:ado|ada|ados|adas|acion|aciones)|certificate(?:s)?|certification(?:s)?|registro(?:s)? invima|registro(?:s)? sanitario(?:s)?|sanitary registration(?:s)?|ce\b|fda|iso|bpm|calidad|quality|tecnovigil(?:ancia|ance)?)\b/i;
+const MEDICAL_DEVICE_REGULATORY_QUERY_REGEX =
+  /\b(invima|dispositivo(?:s)? medic(?:o|os|a|as)|medical device(?:s)?|equipo(?:s)? biomedic(?:o|os|a|as)|biomedical equipment|registro(?:s)? sanitario(?:s)?|sanitary registration(?:s)?|tecnovigil(?:ancia|ance)|clasificaci(?:on|ones)|classific(?:ation|ations)|importaci(?:on|ones)|import(?:s|ation)?)\b/i;
 
 const EXTERNAL_REFERENCES = `REFERENCIAS EXTERNAS DE APOYO
 - INVIMA (dispositivos médicos y equipos biomédicos): el Instituto publica que estos productos están sujetos a supervisión, control, autorización de comercialización y cumplimiento de requisitos técnico-legales y sanitarios. También reúne normativa, trámites, registros sanitarios, tecnovigilancia y listados de establecimientos certificados. Úsalo para orientar preguntas sobre clasificación, registro, vigilancia, importación y trazabilidad, siempre con validación del producto específico.
@@ -88,8 +90,13 @@ export function buildAsesorStaticFallback(
   const wantsFinancing = FINANCING_QUERY_REGEX.test(texto);
   const wantsWarranty = WARRANTY_QUERY_REGEX.test(texto);
   const wantsCertifications = CERTIFICATIONS_QUERY_REGEX.test(texto);
+  const wantsMedicalDeviceRegulatory = MEDICAL_DEVICE_REGULATORY_QUERY_REGEX.test(texto);
 
   if (locale === 'en') {
+    if (wantsMedicalDeviceRegulatory) {
+      return 'For medical devices and biomedical equipment in Colombia, INVIMA is the health authority that oversees sanitary registration, market authorization, technovigilance and compliance with technical and legal requirements. As general guidance, the applicable route depends on the specific device, its intended use, risk class, manufacturer documentation, traceability and current certificates. I-ME can help review the product reference and supporting documents, but final regulatory validation must be confirmed for the specific product and current documentation.';
+    }
+
     if (wantsCertifications) {
       return 'I-ME publishes biomedical equipment with regulatory and quality support such as INVIMA registrations and CE/FDA certifications where applicable. The exact certificate, sanitary registration, validity and scope must be confirmed for the specific product through its technical sheet, manufacturer documentation or a formal quotation. For a purchase decision, ask I-ME to validate the product reference, intended use, regulatory support and warranty conditions before closing the order.';
     }
@@ -114,6 +121,10 @@ export function buildAsesorStaticFallback(
       return 'I-ME publishes more than products: the website also includes the home page, services, knowledge articles, financing guidance, contact channels and legal policies. For questions about the site structure, editorial content, policies or service flow, I can guide you using what is published on the website and the external reference material we use as support. If you need a product-level decision, we can narrow it down afterward.';
     }
   } else {
+    if (wantsMedicalDeviceRegulatory) {
+      return 'Para dispositivos médicos y equipos biomédicos en Colombia, INVIMA es la autoridad sanitaria que supervisa registros sanitarios, autorización de comercialización, tecnovigilancia y cumplimiento de requisitos técnicos y legales. Como orientación general, la ruta aplicable depende del dispositivo concreto, su uso previsto, clase de riesgo, documentación del fabricante, trazabilidad y certificados vigentes. I-ME puede ayudar a revisar la referencia y los soportes del producto, pero la validación regulatoria final debe confirmarse caso por caso con documentación vigente.';
+    }
+
     if (wantsCertifications) {
       return 'I-ME publica equipos biomédicos con soporte regulatorio y de calidad como registros INVIMA y certificaciones CE/FDA cuando aplican. El certificado exacto, registro sanitario, vigencia y alcance deben confirmarse para el producto específico mediante ficha técnica, documentación del fabricante o cotización formal. Para decidir una compra, conviene validar referencia, uso previsto, soporte regulatorio y condiciones de garantía antes de cerrar el pedido.';
     }

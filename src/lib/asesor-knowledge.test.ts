@@ -26,4 +26,16 @@ describe('asesor knowledge', () => {
     expect(sitio).toContain('página de inicio');
     expect(sitio).toContain('artículos');
   });
+
+  it('prioriza INVIMA como orientacion regulatoria de dispositivos medicos', () => {
+    const respuesta = buildAsesorStaticFallback(
+      'es',
+      'Que dice INVIMA sobre dispositivos medicos?'
+    );
+
+    expect(respuesta).toContain('autoridad sanitaria');
+    expect(respuesta).toContain('dispositivos médicos');
+    expect(respuesta).toContain('documentación vigente');
+    expect(respuesta).not.toContain('Ley 1581');
+  });
 });
