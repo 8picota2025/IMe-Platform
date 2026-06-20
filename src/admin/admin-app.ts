@@ -300,6 +300,7 @@ function bindView() {
   bindProductList();
   bindProductForm();
   bindProductExcelTools();
+  bindEntityExcelTools();
   bindTaxonomy();
   bindReasignacion();
   bindSimpleTables();
@@ -992,7 +993,11 @@ async function clientesView(): Promise<string> {
     <section class="admin-panel">
       <div class="admin-panel__head">
         <h2>Clientes (${rows.length})</h2>
-        <button class="admin-button" data-new-cliente type="button">Nuevo cliente</button>
+        <div class="admin-toolbar">
+          <button class="admin-button" data-new-cliente type="button">Nuevo cliente</button>
+          <button class="admin-button admin-button--ghost" type="button" data-entity-export-xlsx="clientes">Exportar Excel</button>
+          <button class="admin-button admin-button--ghost" type="button" data-entity-template-xlsx="clientes">Plantilla Excel</button>
+        </div>
       </div>
       <form class="admin-filters" data-clientes-filter>
         ${field('q', 'Buscar cliente', q, false, 'search')}
@@ -1005,6 +1010,7 @@ async function clientesView(): Promise<string> {
         <button class="admin-button" type="submit">Filtrar</button>
         <a class="admin-button admin-button--ghost" href="#/clientes">Limpiar</a>
       </form>
+      ${entityImportForm('clientes', 'clientes', 'Upsert por email. No incluyas columnas de métricas si no quieres sobrescribirlas.')}
       ${table(
         ['Cliente', 'Email', 'Telefono', 'Tipo', 'Pedidos', 'Total gastado', 'Acciones'],
         rows.map(row => [
@@ -1208,6 +1214,8 @@ async function pedidosView(): Promise<string> {
         <div class="admin-toolbar">
           <button class="admin-button admin-button--ghost" type="button" data-pedidos-select-all>Seleccionar todo</button>
           <button class="admin-button admin-button--ghost" type="button" data-csv="${csvPayload}" data-filename="pedidos.csv">Exportar CSV</button>
+          <button class="admin-button admin-button--ghost" type="button" data-entity-export-xlsx="pedidos">Exportar Excel</button>
+          <button class="admin-button admin-button--ghost" type="button" data-entity-template-xlsx="pedidos">Plantilla Excel</button>
           <button class="admin-button" type="button" data-bulk-pedido-read>Marcar leidos</button>
           <button class="admin-button" type="button" data-bulk-pedido-estado="procesando">Procesar</button>
           <button class="admin-button" type="button" data-bulk-pedido-estado="enviado">Enviar</button>
@@ -1229,6 +1237,7 @@ async function pedidosView(): Promise<string> {
         <button class="admin-button" type="submit">Filtrar</button>
         <a class="admin-button admin-button--ghost" href="#/pedidos">Limpiar</a>
       </form>
+      ${entityImportForm('pedidos', 'pedidos', 'Actualiza por id o referencia_pasarela. Las columnas JSON deben conservar JSON válido.')}
       <div class="admin-panel__head">
         <p class="admin-meta">Seleccionados: <strong data-pedidos-selected-count>0</strong></p>
         <span class="admin-help">Las acciones masivas actualizan estados y registran timeline interno por pedido.</span>
@@ -1766,7 +1775,13 @@ async function proveedoresView(): Promise<string> {
   }
   return `
     <section class="admin-panel admin-form">
-      <div class="admin-panel__head"><h2>Proveedores</h2></div>
+      <div class="admin-panel__head">
+        <h2>Proveedores</h2>
+        <div class="admin-toolbar">
+          <button class="admin-button admin-button--ghost" type="button" data-entity-export-xlsx="proveedores">Exportar Excel</button>
+          <button class="admin-button admin-button--ghost" type="button" data-entity-template-xlsx="proveedores">Plantilla Excel</button>
+        </div>
+      </div>
       <form class="admin-filters" data-proveedores-filter>
         ${field('q', 'Buscar por nombre o slug', q, false, 'search')}
         ${selectStatic('activo', 'Estado', activo, [
@@ -1785,6 +1800,7 @@ async function proveedoresView(): Promise<string> {
         <button class="admin-button" type="submit">Filtrar</button>
         <a class="admin-button admin-button--ghost" href="#/proveedores">Limpiar</a>
       </form>
+      ${entityImportForm('proveedores', 'proveedores', 'Upsert por slug. api_config debe conservar JSON válido.')}
       <form class="admin-panel admin-form" data-simple-form data-table="proveedores" data-fields="slug,nombre,contacto_email,contacto_whatsapp,canal,webhook_url,notas,activo">
         <div class="admin-panel__head"><h2>Crear proveedor</h2><button class="admin-button" type="submit">Guardar</button></div>
         <div style="padding:16px" class="admin-editor__cols">
@@ -2288,6 +2304,7 @@ function bindProductFilters() {
       'tipo_id',
       'activo',
       'tipo_comercial',
+      'disponible',
       'incorporado_desde',
       'incorporado_hasta',
       'ordenar',
@@ -2710,6 +2727,77 @@ function bindSimpleTables() {
     const ok = await actualizarEstadoPedido(id, estado);
     if (ok) toast('Estado actualizado.');
     await render();
+  });
+}
+
+function bindEntityExcelTools() {
+  app.querySelectorAll<HTMLButtonElement>('[data-entity-export-xlsx]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const entity = getExcelEntity(button.dataset['entityExportXlsx']);
+      if (!entity) return;
+      const originalText = button.textContent ?? 'Exportar Excel';
+      try {
+        button.disabled = true;
+        button.textContent = 'Exportando...';
+        await exportEntityExcel(entity);
+        toast('Excel exportado');
+      } catch (error) {
+        toast(error instanceof Error ? error.message : 'No se pudo exportar a Excel');
+      } finally {
+        button.disabled = false;
+        button.textContent = originalText;
+      }
+    });
+  });
+
+  app.querySelectorAll<HTMLButtonElement>('[data-entity-template-xlsx]').forEach(button => {
+    button.addEventListener('click', () => {
+      const entity = getExcelEntity(button.dataset['entityTemplateXlsx']);
+      if (!entity) return;
+      try {
+        downloadWorkbook(
+          buildEntityTemplateWorkbook(entity),
+          `${entity}-plantilla-${new Date().toISOString().slice(0, 10)}.xlsx`
+        );
+        toast('Plantilla descargada');
+      } catch (error) {
+        toast(error instanceof Error ? error.message : 'No se pudo descargar la plantilla');
+      }
+    });
+  });
+
+  app.querySelectorAll<HTMLFormElement>('[data-entity-import-form]').forEach(form => {
+    const entity = getExcelEntity(form.dataset['entityImportForm']);
+    const fileInput = form.querySelector<HTMLInputElement>('[data-entity-import-file]');
+    const statusEl = form.querySelector<HTMLElement>('[data-entity-import-status]');
+    fileInput?.addEventListener('change', () => {
+      const file = fileInput.files?.[0];
+      if (statusEl) {
+        statusEl.textContent = file
+          ? `Archivo seleccionado: ${file.name}`
+          : 'Sin archivo seleccionado.';
+      }
+    });
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      const file = fileInput?.files?.[0];
+      if (!entity || !file) {
+        toast('Selecciona un archivo Excel.');
+        return;
+      }
+      try {
+        if (statusEl) statusEl.textContent = 'Leyendo Excel...';
+        const result = await importEntityExcel(entity, file);
+        if (statusEl) {
+          statusEl.textContent = `Importación completada: ${result.processed} filas procesadas, ${result.skipped} omitidas.`;
+        }
+        toast(`Importación ${entity}: ${result.processed} filas`);
+        await render();
+      } catch (error) {
+        if (statusEl) statusEl.textContent = 'Error al importar Excel.';
+        toast(error instanceof Error ? error.message : 'No se pudo importar Excel');
+      }
+    });
   });
 }
 
@@ -4265,6 +4353,27 @@ function listWithCsv(tableName: string, rows: Row[], keys: string[], detailRoute
     </section>`;
 }
 
+function entityImportForm(entity: ExcelEntity, label: string, help: string): string {
+  return `
+    <form class="admin-panel admin-form" data-entity-import-form="${escapeHtml(entity)}">
+      <div class="admin-panel__head">
+        <h2>Importar ${escapeHtml(label)} desde Excel</h2>
+        <button class="admin-button" type="submit">Importar Excel</button>
+      </div>
+      <div class="admin-upload-box">
+        <div>
+          <strong>Sube un archivo .xlsx o .xls</strong>
+          <p>${escapeHtml(help)}</p>
+        </div>
+        <label class="admin-button admin-button--ghost">
+          Seleccionar archivo
+          <input data-entity-import-file type="file" accept=".xlsx,.xls" hidden />
+        </label>
+      </div>
+      <p class="admin-help" data-entity-import-status>Sin archivo seleccionado.</p>
+    </form>`;
+}
+
 function table(headers: string[], rows: string[][]): string {
   return `<div class="admin-table-wrap"><table class="admin-table"><thead><tr>${headers
     .map(h => `<th>${escapeHtml(h)}</th>`)
@@ -4330,6 +4439,7 @@ function status(value: unknown): string {
 function text(value: unknown): string {
   if (typeof value === 'string') return value;
   if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  if (value instanceof Date) return value.toISOString();
   return '';
 }
 
@@ -4418,6 +4528,146 @@ type ProveedoresQuery = {
   incorporado_desde: string;
   incorporado_hasta: string;
   ordenar: string;
+};
+
+type ExcelEntity = 'clientes' | 'proveedores' | 'pedidos';
+
+type EntityExcelConfig = {
+  entity: ExcelEntity;
+  table: string;
+  sheet: string;
+  conflict: string;
+  headers: string[];
+  sample: Record<string, unknown>;
+};
+
+const CLIENTES_EXCEL_HEADERS = [
+  'email',
+  'nombre',
+  'apellido',
+  'telefono',
+  'institucion',
+  'tipo_cliente',
+  'documento_tipo',
+  'documento_numero',
+  'razon_social',
+  'tipo_documento',
+  'numero_documento',
+  'tipo_persona',
+  'responsable_iva',
+  'agente_retencion',
+  'agente_reteica',
+  'email_facturacion',
+  'direccion_facturacion',
+  'consentimiento_datos',
+  'consentimiento_timestamp',
+  'notas',
+  'total_pedidos',
+  'total_gastado',
+  'ultimo_pedido_at',
+];
+
+const PROVEEDORES_EXCEL_HEADERS = [
+  'slug',
+  'nombre',
+  'contacto_email',
+  'contacto_whatsapp',
+  'canal',
+  'webhook_url',
+  'api_config',
+  'notas',
+  'activo',
+];
+
+const PEDIDOS_EXCEL_HEADERS = [
+  'id',
+  'cliente_id',
+  'cliente',
+  'items',
+  'subtotal',
+  'subtotal_sin_impuestos',
+  'descuento_total',
+  'impuesto_total',
+  'retencion_total',
+  'envio_total',
+  'total',
+  'moneda',
+  'mercado',
+  'proveedor_pago',
+  'estado',
+  'referencia_pasarela',
+  'checkout_url',
+  'cupon_codigo',
+  'direccion_facturacion',
+  'direccion_envio',
+  'facturacion_electronica_solicitada',
+  'facturacion_electronica_estado',
+  'metadata',
+  'consentimiento_datos',
+  'consentimiento_timestamp',
+  'leida',
+];
+
+const ENTITY_EXCEL_CONFIGS: Record<ExcelEntity, EntityExcelConfig> = {
+  clientes: {
+    entity: 'clientes',
+    table: 'clientes',
+    sheet: 'clientes',
+    conflict: 'email',
+    headers: CLIENTES_EXCEL_HEADERS,
+    sample: {
+      email: 'cliente@ejemplo.com',
+      nombre: 'Nombre',
+      apellido: 'Apellido',
+      telefono: '+57 300 000 0000',
+      institucion: 'Clinica ejemplo',
+      tipo_cliente: 'b2b',
+      responsable_iva: false,
+      agente_retencion: false,
+      agente_reteica: false,
+      direccion_facturacion: '{}',
+      consentimiento_datos: true,
+      notas: 'Notas internas',
+    },
+  },
+  proveedores: {
+    entity: 'proveedores',
+    table: 'proveedores',
+    sheet: 'proveedores',
+    conflict: 'slug',
+    headers: PROVEEDORES_EXCEL_HEADERS,
+    sample: {
+      slug: 'proveedor-ejemplo',
+      nombre: 'Proveedor ejemplo',
+      contacto_email: 'proveedor@ejemplo.com',
+      contacto_whatsapp: '+57 300 000 0000',
+      canal: 'email',
+      webhook_url: '',
+      api_config: '{}',
+      notas: 'Condiciones internas',
+      activo: true,
+    },
+  },
+  pedidos: {
+    entity: 'pedidos',
+    table: 'pedidos',
+    sheet: 'pedidos',
+    conflict: 'referencia_pasarela',
+    headers: PEDIDOS_EXCEL_HEADERS,
+    sample: {
+      cliente: '{"nombre":"Cliente","email":"cliente@ejemplo.com"}',
+      items: '[]',
+      subtotal: 0,
+      total: 0,
+      moneda: 'COP',
+      mercado: 'CO',
+      proveedor_pago: 'wompi',
+      estado: 'pendiente',
+      referencia_pasarela: 'REF-EJEMPLO',
+      metadata: '{}',
+      leida: false,
+    },
+  },
 };
 
 type ProductosExcelImportRow = Row & {
@@ -4511,6 +4761,350 @@ const PRODUCTOS_EXCEL_HEADERS = [
   'dimensiones_cm',
   'orden',
 ];
+
+function getExcelEntity(value: string | undefined): ExcelEntity | null {
+  return value === 'clientes' || value === 'proveedores' || value === 'pedidos' ? value : null;
+}
+
+async function exportEntityExcel(entity: ExcelEntity) {
+  const rows = await fetchEntityRowsForExcel(entity);
+  const config = ENTITY_EXCEL_CONFIGS[entity];
+  const workbook = XLSX.utils.book_new();
+  const sheet = XLSX.utils.json_to_sheet(
+    rows.map(row => entityRowToExcel(row, entity)),
+    {
+      header: config.headers,
+    }
+  );
+  XLSX.utils.book_append_sheet(workbook, sheet, config.sheet);
+  XLSX.utils.book_append_sheet(
+    workbook,
+    XLSX.utils.aoa_to_sheet([
+      [`I-ME ${entity}`],
+      ['Exportado desde el admin.'],
+      [`Edite solo la hoja "${config.sheet}".`],
+      [
+        `Importación: ${entity === 'pedidos' ? 'actualiza por id o referencia_pasarela' : `upsert por ${config.conflict}`}.`,
+      ],
+      ['Columnas JSON deben conservar JSON válido. Booleanos: true/false, si/no, 1/0.'],
+    ]),
+    'instrucciones'
+  );
+  downloadWorkbook(workbook, `${entity}-${new Date().toISOString().slice(0, 10)}.xlsx`);
+}
+
+function buildEntityTemplateWorkbook(entity: ExcelEntity): XLSX.WorkBook {
+  const config = ENTITY_EXCEL_CONFIGS[entity];
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(
+    workbook,
+    XLSX.utils.json_to_sheet([config.sample], { header: config.headers }),
+    config.sheet
+  );
+  XLSX.utils.book_append_sheet(
+    workbook,
+    XLSX.utils.aoa_to_sheet([
+      [`Plantilla de ${entity}`],
+      [`Hoja principal: ${config.sheet}.`],
+      [
+        `Clave de importación: ${entity === 'pedidos' ? 'id o referencia_pasarela' : config.conflict}.`,
+      ],
+      ['No cambies los encabezados de columnas.'],
+    ]),
+    'instrucciones'
+  );
+  return workbook;
+}
+
+async function fetchEntityRowsForExcel(entity: ExcelEntity): Promise<Row[]> {
+  if (entity === 'clientes') return fetchClientesForExcel();
+  if (entity === 'proveedores') return fetchProveedoresForExcel();
+  return fetchPedidosForExcel();
+}
+
+async function fetchClientesForExcel(): Promise<Row[]> {
+  const params = hashParams();
+  const q = (params.get('q') ?? '').trim();
+  const tipo = params.get('tipo_cliente') ?? '';
+  let query = supabase!.from('clientes').select('*').order('updated_at', { ascending: false });
+  if (q) {
+    const safeQ = q.replace(/[,()%]/g, '');
+    if (safeQ) {
+      query = query.or(
+        `email.ilike.%${safeQ}%,nombre.ilike.%${safeQ}%,apellido.ilike.%${safeQ}%,institucion.ilike.%${safeQ}%`
+      );
+    }
+  }
+  if (tipo) query = query.eq('tipo_cliente', tipo);
+  return fetchQueryPages(query);
+}
+
+async function fetchProveedoresForExcel(): Promise<Row[]> {
+  const params = hashParams();
+  const filters: ProveedoresQuery = {
+    q: (params.get('q') ?? '').trim(),
+    activo: params.get('activo') ?? '',
+    incorporado_desde: params.get('incorporado_desde') ?? '',
+    incorporado_hasta: params.get('incorporado_hasta') ?? '',
+    ordenar: params.get('ordenar') ?? 'alfabetico_asc',
+  };
+  let query = supabase!.from('proveedores').select('*');
+  if (filters.q) {
+    const safeQ = filters.q.replace(/[,()%]/g, '');
+    if (safeQ) query = query.or(`nombre.ilike.%${safeQ}%,slug.ilike.%${safeQ}%`);
+  }
+  if (filters.activo === '1') query = query.eq('activo', true);
+  if (filters.activo === '0') query = query.eq('activo', false);
+  if (filters.incorporado_desde)
+    query = query.gte('created_at', `${filters.incorporado_desde}T00:00:00`);
+  if (filters.incorporado_hasta)
+    query = query.lte('created_at', `${filters.incorporado_hasta}T23:59:59.999`);
+  if (filters.ordenar === 'alfabetico_desc') {
+    query = query.order('nombre', { ascending: false }).order('created_at', { ascending: false });
+  } else if (filters.ordenar === 'recientes') {
+    query = query.order('created_at', { ascending: false }).order('nombre', { ascending: true });
+  } else if (filters.ordenar === 'antiguos') {
+    query = query.order('created_at', { ascending: true }).order('nombre', { ascending: true });
+  } else {
+    query = query.order('nombre', { ascending: true }).order('created_at', { ascending: false });
+  }
+  return fetchQueryPages(query);
+}
+
+async function fetchPedidosForExcel(): Promise<Row[]> {
+  const params = hashParams();
+  const q = (params.get('q') ?? '').trim();
+  const estado = params.get('estado') ?? '';
+  const mercado = params.get('mercado') ?? '';
+  const leida = params.get('leida') ?? '';
+  let query = supabase!.from('pedidos').select('*').order('created_at', { ascending: false });
+  if (q) {
+    const safeQ = q.replace(/[,()%]/g, '');
+    if (safeQ) {
+      query = query.or(
+        `referencia_pasarela.ilike.%${safeQ}%,checkout_url.ilike.%${safeQ}%,moneda.ilike.%${safeQ}%`
+      );
+    }
+  }
+  if (estado) query = query.eq('estado', estado);
+  if (mercado) query = query.eq('mercado', mercado);
+  if (leida === '1') query = query.eq('leida', true);
+  if (leida === '0') query = query.eq('leida', false);
+  return fetchQueryPages(query);
+}
+
+async function fetchQueryPages(query: {
+  range: (from: number, to: number) => PromiseLike<{ data: unknown[] | null; error: Error | null }>;
+}): Promise<Row[]> {
+  const rows: Row[] = [];
+  const pageSize = 500;
+  for (let from = 0; ; from += pageSize) {
+    const { data, error } = await query.range(from, from + pageSize - 1);
+    if (error) throw error;
+    const batch = (data ?? []) as unknown as Row[];
+    rows.push(...batch);
+    if (batch.length < pageSize) break;
+  }
+  return rows;
+}
+
+function entityRowToExcel(row: Row, entity: ExcelEntity): Record<string, unknown> {
+  const config = ENTITY_EXCEL_CONFIGS[entity];
+  const result: Record<string, unknown> = {};
+  for (const header of config.headers) {
+    const value = row[header];
+    result[header] =
+      value && typeof value === 'object' ? JSON.stringify(value, null, 2) : (value ?? '');
+  }
+  return result;
+}
+
+async function importEntityExcel(
+  entity: ExcelEntity,
+  file: File
+): Promise<{ processed: number; skipped: number }> {
+  const rows = await readWorkbookRows(file);
+  if (!rows.length) throw new Error('La hoja principal no contiene filas.');
+  const payloads = rows.map(row => normalizeEntityImportRow(entity, row)).filter(Boolean) as Row[];
+  if (!payloads.length) throw new Error('No hay filas válidas para importar.');
+
+  if (entity === 'pedidos') return importPedidosExcelPayloads(payloads);
+
+  const config = ENTITY_EXCEL_CONFIGS[entity];
+  let processed = 0;
+  const chunkSize = 50;
+  for (let i = 0; i < payloads.length; i += chunkSize) {
+    const chunk = payloads.slice(i, i + chunkSize);
+    const { error } = await supabase!
+      .from(config.table)
+      .upsert(chunk, { onConflict: config.conflict });
+    if (error) throw error;
+    processed += chunk.length;
+  }
+  return { processed, skipped: rows.length - payloads.length };
+}
+
+async function readWorkbookRows(file: File): Promise<Row[]> {
+  const buffer = await file.arrayBuffer();
+  const workbook = XLSX.read(buffer, { type: 'array', cellDates: true });
+  const sheetName = workbook.SheetNames[0];
+  if (!sheetName) throw new Error('El archivo Excel no contiene hojas.');
+  const sheet = workbook.Sheets[sheetName];
+  if (!sheet) throw new Error(`No se pudo leer la hoja ${sheetName}.`);
+  return XLSX.utils.sheet_to_json<Row>(sheet, { defval: '' });
+}
+
+function normalizeEntityImportRow(entity: ExcelEntity, rawRow: Row): Row | null {
+  const row = normalizeImportedRowKeys(rawRow);
+  if (entity === 'clientes') return normalizeClienteImportRow(row);
+  if (entity === 'proveedores') return normalizeProveedorImportRow(row);
+  return normalizePedidoImportRow(row);
+}
+
+function normalizeImportedRowKeys(row: Row): Row {
+  const normalized: Row = {};
+  for (const [key, value] of Object.entries(row)) {
+    normalized[normalizeExcelKey(key)] = value;
+  }
+  return normalized;
+}
+
+function normalizeClienteImportRow(row: Row): Row | null {
+  const email = text(row.email).trim().toLowerCase();
+  if (!email) return null;
+  return removeUndefined({
+    email,
+    nombre: emptyStringToNull(text(row.nombre)),
+    apellido: emptyStringToNull(text(row.apellido)),
+    telefono: emptyStringToNull(text(row.telefono)),
+    institucion: emptyStringToNull(text(row.institucion)),
+    tipo_cliente: ['b2b', 'b2c', 'mixto'].includes(text(row.tipo_cliente))
+      ? text(row.tipo_cliente)
+      : 'b2b',
+    documento_tipo: emptyStringToNull(text(row.documento_tipo)),
+    documento_numero: emptyStringToNull(text(row.documento_numero)),
+    razon_social: emptyStringToNull(text(row.razon_social)),
+    tipo_documento: emptyStringToNull(text(row.tipo_documento)),
+    numero_documento: emptyStringToNull(text(row.numero_documento)),
+    tipo_persona: ['natural', 'juridica'].includes(text(row.tipo_persona))
+      ? text(row.tipo_persona)
+      : null,
+    responsable_iva: parseExcelBoolean(row.responsable_iva, false),
+    agente_retencion: parseExcelBoolean(row.agente_retencion, false),
+    agente_reteica: parseExcelBoolean(row.agente_reteica, false),
+    email_facturacion: emptyStringToNull(text(row.email_facturacion)),
+    direccion_facturacion: parseExcelJsonObject(row.direccion_facturacion),
+    consentimiento_datos: parseExcelBoolean(row.consentimiento_datos, false),
+    consentimiento_timestamp: emptyStringToNull(text(row.consentimiento_timestamp)),
+    notas: emptyStringToNull(text(row.notas)),
+    total_pedidos: parseExcelInteger(row.total_pedidos, 0),
+    total_gastado: parseExcelNumber(row.total_gastado) ?? 0,
+    ultimo_pedido_at: emptyStringToNull(text(row.ultimo_pedido_at)),
+  });
+}
+
+function normalizeProveedorImportRow(row: Row): Row | null {
+  const nombre = text(row.nombre).trim();
+  const slug = slugify(text(row.slug) || nombre);
+  if (!slug || !nombre) return null;
+  const canal = text(row.canal);
+  return removeUndefined({
+    slug,
+    nombre,
+    contacto_email: emptyStringToNull(text(row.contacto_email)),
+    contacto_whatsapp: emptyStringToNull(text(row.contacto_whatsapp)),
+    canal: ['email', 'whatsapp', 'webhook', 'api', 'manual'].includes(canal) ? canal : 'email',
+    webhook_url: emptyStringToNull(text(row.webhook_url)),
+    api_config: parseExcelJsonObject(row.api_config),
+    notas: emptyStringToNull(text(row.notas)),
+    activo: parseExcelBoolean(row.activo, true),
+  });
+}
+
+function normalizePedidoImportRow(row: Row): Row | null {
+  const id = normalizeUuid(text(row.id));
+  const referencia = emptyStringToNull(text(row.referencia_pasarela));
+  if (!id && !referencia) return null;
+  const estado = text(row.estado);
+  const mercado = text(row.mercado);
+  const proveedorPago = text(row.proveedor_pago);
+  const facturaEstado = text(row.facturacion_electronica_estado);
+  return removeUndefined({
+    ...(id ? { id } : {}),
+    cliente_id: normalizeUuid(text(row.cliente_id)),
+    cliente: parseExcelJsonObject(row.cliente),
+    items: parseExcelJsonList(row.items),
+    subtotal: parseExcelNumber(row.subtotal) ?? 0,
+    subtotal_sin_impuestos: parseExcelNumber(row.subtotal_sin_impuestos) ?? 0,
+    descuento_total: parseExcelNumber(row.descuento_total) ?? 0,
+    impuesto_total: parseExcelNumber(row.impuesto_total) ?? 0,
+    retencion_total: parseExcelNumber(row.retencion_total) ?? 0,
+    envio_total: parseExcelNumber(row.envio_total) ?? 0,
+    total: parseExcelNumber(row.total) ?? 0,
+    moneda: text(row.moneda) || 'COP',
+    mercado: mercado === 'INTL' ? 'INTL' : 'CO',
+    proveedor_pago: ['bold', 'stripe', 'wompi'].includes(proveedorPago) ? proveedorPago : 'wompi',
+    estado: PEDIDO_ESTADOS.some(([value]) => value === estado) ? estado : 'pendiente',
+    referencia_pasarela: referencia,
+    checkout_url: emptyStringToNull(text(row.checkout_url)),
+    cupon_codigo: emptyStringToNull(text(row.cupon_codigo)),
+    direccion_facturacion: parseExcelJsonObject(row.direccion_facturacion),
+    direccion_envio: parseExcelJsonObject(row.direccion_envio),
+    facturacion_electronica_solicitada: parseExcelBoolean(
+      row.facturacion_electronica_solicitada,
+      false
+    ),
+    facturacion_electronica_estado: [
+      'no_solicitada',
+      'pendiente_pago',
+      'pendiente_envio',
+      'emitida',
+      'rechazada',
+      'error',
+    ].includes(facturaEstado)
+      ? facturaEstado
+      : 'no_solicitada',
+    metadata: parseExcelJsonObject(row.metadata),
+    consentimiento_datos: parseExcelBoolean(row.consentimiento_datos, false),
+    consentimiento_timestamp: emptyStringToNull(text(row.consentimiento_timestamp)),
+    leida: parseExcelBoolean(row.leida, false),
+  });
+}
+
+async function importPedidosExcelPayloads(
+  payloads: Row[]
+): Promise<{ processed: number; skipped: number }> {
+  let processed = 0;
+  let skipped = 0;
+  for (const payload of payloads) {
+    const id = text(payload.id);
+    if (id) {
+      const { error } = await supabase!.from('pedidos').upsert(payload, { onConflict: 'id' });
+      if (error) throw error;
+      processed += 1;
+      continue;
+    }
+    if (text(payload.referencia_pasarela)) {
+      const { error } = await supabase!
+        .from('pedidos')
+        .upsert(payload, { onConflict: 'referencia_pasarela' });
+      if (error) throw error;
+      processed += 1;
+      continue;
+    }
+    skipped += 1;
+  }
+  return { processed, skipped };
+}
+
+function parseExcelInteger(value: unknown, fallback = 0): number {
+  const parsed = parseExcelNumber(value);
+  return parsed === null ? fallback : Math.trunc(parsed);
+}
+
+function removeUndefined(row: Row): Row {
+  return Object.fromEntries(Object.entries(row).filter(([, value]) => value !== undefined));
+}
 
 function bindProductExcelTools() {
   const exportButton = app.querySelector<HTMLButtonElement>('[data-products-export-xlsx]');
@@ -4714,12 +5308,18 @@ function productoToExcelRow(row: Row, familias: Row[], tipos: Row[]): Record<str
     precio: row.precio ?? '',
     precio_regular: row.precio_regular ?? '',
     precio_oferta: row.precio_oferta ?? '',
+    dian_codigo: text(row.dian_codigo),
+    tarifa_iva_pct: row.tarifa_iva_pct ?? '',
+    retencion_fuente_pct: row.retencion_fuente_pct ?? '',
+    retencion_iva_pct: row.retencion_iva_pct ?? '',
+    retencion_ica_pct: row.retencion_ica_pct ?? '',
     moneda: text(row.moneda) || 'COP',
     stock: row.stock ?? '',
     gestionar_stock: Boolean(row.gestionar_stock),
     stock_estado: text(row.stock_estado),
     backorder_policy: text(row.backorder_policy),
     disponible: row.disponible !== false,
+    excluido_iva: Boolean(row.excluido_iva),
     activo: Boolean(row.activo),
     destacado: Boolean(row.destacado),
     nuevo: Boolean(row.nuevo),
@@ -4880,6 +5480,11 @@ async function importProductosExcel(
       precio: normalized.precio,
       precio_regular: normalized.precio_regular,
       precio_oferta: normalized.precio_oferta,
+      dian_codigo: normalized.dian_codigo,
+      tarifa_iva_pct: normalized.tarifa_iva_pct,
+      retencion_fuente_pct: normalized.retencion_fuente_pct,
+      retencion_iva_pct: normalized.retencion_iva_pct,
+      retencion_ica_pct: normalized.retencion_ica_pct,
       moneda: normalized.moneda || 'COP',
       stock: normalized.stock,
       gestionar_stock: normalized.gestionar_stock,
@@ -4887,6 +5492,7 @@ async function importProductosExcel(
       backorder_policy: normalized.backorder_policy,
       disponible: normalized.disponible,
       disponible_actualizado_at: new Date().toISOString(),
+      excluido_iva: normalized.excluido_iva,
       destacado: normalized.destacado,
       nuevo: normalized.nuevo,
       activo: normalized.activo,
