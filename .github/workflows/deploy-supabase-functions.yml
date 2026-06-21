@@ -42,6 +42,7 @@ jobs:
           STRIPE_WEBHOOK_SECRET=${{ secrets.STRIPE_WEBHOOK_SECRET }}
           MAILER_API_KEY=${{ secrets.MAILER_API_KEY }}
           MAILER_FROM=${{ secrets.MAILER_FROM }}
+          TURNSTILE_SECRET_KEY=${{ secrets.TURNSTILE_SECRET_KEY }}
           CO_DEFAULT_IVA_PCT=19
           EOF
           supabase secrets set --env-file .secrets.env --project-ref "$SUPABASE_PROJECT_REF"

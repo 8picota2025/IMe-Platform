@@ -13,7 +13,11 @@ interface Props {
 
 const { locale } = Astro.props;
 
-const turnstileSiteKey = (import.meta.env['PUBLIC_TURNSTILE_SITE_KEY'] as string | undefined) ?? '';
+const turnstileSiteKey = (
+  (import.meta.env['PUBLIC_TURNSTILE_SITE_KEY'] as string | undefined) ??
+  (import.meta.env['TURNSTILE_SITE_KEY'] as string | undefined) ??
+  ''
+).trim();
 
 const asesorConfig = {
   locale,

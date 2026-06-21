@@ -131,19 +131,73 @@ supabase?.auth.onAuthStateChange(event => {
   }
 });
 
-// If the URL signals a recovery flow, clear any cached local session first so
-// Supabase doesn't skip the recovery exchange and misfire as SIGNED_IN instead.
-const _initSearch = new URLSearchParams(location.search);
-const _initHash = new URLSearchParams(location.hash.substring(1));
-const _isRecoveryUrl = _initSearch.has('code') || _initHash.get('type') === 'recovery';
-if (_isRecoveryUrl && supabase) {
-  supabase.auth.signOut({ scope: 'local' }).finally(() => void render());
-} else {
-  void render();
-}
+void initializeAuth();
 
 function hashParams(): URLSearchParams {
   return new URLSearchParams(location.hash.split('?')[1] ?? '');
+}
+
+function recoveryParams() {
+  const search = new URLSearchParams(location.search);
+  const hash = new URLSearchParams(location.hash.substring(1));
+  return {
+    code: search.get('code'),
+    searchType: search.get('type'),
+    hashType: hash.get('type'),
+    hasAccessToken: hash.has('access_token'),
+  };
+}
+
+function isRecoveryFlow(): boolean {
+  const params = recoveryParams();
+  return Boolean(
+    params.code ||
+    params.searchType === 'recovery' ||
+    params.hashType === 'recovery' ||
+    params.hasAccessToken
+  );
+}
+
+function adminAuthRedirectUrl(): string {
+  return new URL(location.pathname, window.location.origin).toString();
+}
+
+function clearRecoveryState() {
+  recoveryHandled = false;
+}
+
+async function initializeAuth() {
+  if (!supabase) {
+    await render();
+    return;
+  }
+
+  const params = recoveryParams();
+  if (!isRecoveryFlow()) {
+    await render();
+    return;
+  }
+
+  // Clear only the local session before recovery so the reset link always
+  // exchanges into the intended recovery session for this browser tab.
+  await supabase.auth.signOut({ scope: 'local' });
+
+  if (params.code) {
+    const { error } = await supabase.auth.exchangeCodeForSession(params.code);
+    if (error) {
+      history.replaceState(null, '', location.pathname);
+      renderLoginPanel();
+      toast(error.message);
+      return;
+    }
+
+    recoveryHandled = true;
+    history.replaceState(null, '', location.pathname);
+    renderNewPassword();
+    return;
+  }
+
+  await render();
 }
 
 function parseView(hash: string): View {
@@ -191,16 +245,15 @@ async function render() {
   if (recoveryHandled) return;
 
   // Implicit flow (older Supabase projects): token arrives in hash with type=recovery
-  const hashParams = new URLSearchParams(location.hash.substring(1));
-  if (hashParams.get('type') === 'recovery' && session) {
+  const recovery = recoveryParams();
+  if ((recovery.searchType === 'recovery' || recovery.hashType === 'recovery') && session) {
     history.replaceState(null, '', location.pathname);
     renderNewPassword();
     return;
   }
 
   if (!session) {
-    // PKCE flow: URL has ?code=xxx — hold loading screen; onAuthStateChange handles the rest
-    if (new URLSearchParams(location.search).has('code')) return;
+    if (isRecoveryFlow()) return;
     renderLogin();
     return;
   }
@@ -213,10 +266,12 @@ async function render() {
 }
 
 function renderLogin() {
+  clearRecoveryState();
   renderLoginPanel();
 }
 
 function renderLoginPanel(prefillEmail = '') {
+  if (!isRecoveryFlow()) clearRecoveryState();
   app.innerHTML = `
     <section class="admin-login">
       <form class="admin-login__panel admin-form" data-login>
@@ -246,6 +301,7 @@ function renderLoginPanel(prefillEmail = '') {
       toast(error.message);
       return;
     }
+    clearRecoveryState();
     location.hash = '#/dashboard';
     await render();
   });
@@ -281,7 +337,7 @@ function renderPasswordReset(prefillEmail = '') {
       btn.textContent = 'Enviando…';
     }
     const { error } = await supabase!.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/admin`,
+      redirectTo: adminAuthRedirectUrl(),
     });
     if (error) {
       toast(error.message);
@@ -353,6 +409,7 @@ function renderNewPassword() {
       return;
     }
     toast('Contrasena actualizada correctamente.');
+    clearRecoveryState();
     await supabase!.auth.signOut();
     renderLoginPanel();
   });
