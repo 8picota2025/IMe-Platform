@@ -38,7 +38,11 @@ const legalLinks: Array<{ kind: LegalKind; label: string }> = [
   <div class="footer__inner container">
     <!-- Columna 1: Marca -->
     <div class="footer__brand">
-      <a href={getLocalizedPath('/', locale)} aria-label={t(locale, 'accesibilidad.logo')}>
+      <a
+        href={getLocalizedPath('/', locale)}
+        aria-label={t(locale, 'accesibilidad.logo')}
+        onclick={`window.location.assign('${getLocalizedPath('/', locale)}'); return false;`}
+      >
         <img
           src="/assets/extraccion/img/logo-ime.png"
           alt="I-ME International Medical Enterprise"

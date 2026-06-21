@@ -31,6 +31,7 @@ const altHref = getLocalizedPath(currentPath, altLocale);
       href={getLocalizedPath('/', locale)}
       class="navbar__logo"
       aria-label={t(locale, 'accesibilidad.logo')}
+      onclick={`window.location.assign('${getLocalizedPath('/', locale)}'); return false;`}
     >
       <img
         src="/assets/extraccion/img/logo-ime.png"
