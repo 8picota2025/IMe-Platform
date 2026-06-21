@@ -16,7 +16,7 @@ interface SeoPageMeta {
   ogImage: string;
 }
 
-const DEFAULT_OG_IMAGE = `${SITE}/assets/img/javier-fundador-ime.png`;
+const DEFAULT_OG_IMAGE = `${SITE}/assets/img/logo-ime.png`;
 
 export function buildPageTitle(pageTitle: string): string {
   if (!pageTitle) return `${BRAND} — Equipos Biomédicos`;
@@ -32,11 +32,11 @@ export function buildHomeSeo(locale: Locale): SeoPageMeta {
   const isEs = locale === 'es';
   return {
     title: isEs
-      ? 'I-ME — Equipos Biomédicos Certificados para Hospitales y Clínicas en Colombia'
-      : 'I-ME — Certified Biomedical Equipment for Hospitals and Clinics in Colombia',
+      ? 'Equipos biomédicos en Colombia | Venta, soporte técnico y financiamiento | I-ME'
+      : 'Biomedical equipment in Colombia | Sales, technical support and financing | I-ME',
     description: isEs
-      ? 'Distribuimos tecnología médica de clase mundial certificada internacionalmente para hospitales, clínicas y centros de salud en todo Colombia. 24+ categorías, cobertura en 32 departamentos.'
-      : 'We distribute internationally certified world-class medical technology for hospitals, clinics and health centers throughout Colombia. 24+ categories, national coverage.',
+      ? 'Venta de equipos biomédicos certificados, soporte técnico, calibración, financiamiento y asesoría para hospitales y clínicas en Colombia. 24+ categorías.'
+      : 'Certified biomedical equipment sales, technical support, calibration, financing and advisory for hospitals and clinics across Colombia. 24+ categories.',
     canonical: buildCanonical(`/${locale}/`),
     ogImage: DEFAULT_OG_IMAGE,
   };
@@ -62,7 +62,7 @@ export function buildProductoSeo(
     ? producto.imagen_principal.startsWith('http')
       ? producto.imagen_principal
       : `${SITE}${producto.imagen_principal}`
-    : `${SITE}/og-image.jpg`;
+    : DEFAULT_OG_IMAGE;
   return {
     title: buildPageTitle(producto.nombre),
     description: description.slice(0, 155),
@@ -75,12 +75,12 @@ export function buildCatalogoSeo(locale: Locale): SeoPageMeta {
   return {
     title:
       locale === 'es'
-        ? 'Catálogo de Equipos Biomédicos | I-ME'
-        : 'Biomedical Equipment Catalog | I-ME',
+        ? 'Catálogo de equipos biomédicos certificados | Monitores, UCI y cirugía | I-ME'
+        : 'Certified biomedical equipment catalog | Monitors, ICU and surgery | I-ME',
     description:
       locale === 'es'
-        ? 'Explora nuestro catálogo de equipos biomédicos certificados: monitores, cardiología, sala de cirugía, neonatología, ultrasonido y más.'
-        : 'Explore our catalog of certified biomedical equipment: monitors, cardiology, operating room, neonatology, ultrasound and more.',
+        ? 'Explora equipos biomédicos certificados para monitores UCI, cardiología, sala de cirugía, neonatología, ultrasonido, anestesia, bombas y cuidados críticos.'
+        : 'Explore certified biomedical equipment for ICU monitors, cardiology, operating room, neonatology, ultrasound, anesthesia, pumps and critical care.',
     canonical: buildCanonical(locale === 'es' ? '/es/catalogo' : '/en/catalog'),
     ogImage: DEFAULT_OG_IMAGE,
   };
@@ -90,14 +90,14 @@ export function buildServiciosSeo(locale: Locale): SeoPageMeta {
   return {
     title:
       locale === 'es'
-        ? 'Servicios Biomédicos | Venta, Soporte Técnico, Financiamiento y Asesoría | I-ME'
-        : 'Biomedical Services | Sales, Technical Support, Financing & Advisory | I-ME',
+        ? 'Servicios biomédicos en Colombia | venta, soporte técnico y financiamiento | I-ME'
+        : 'Biomedical services in Colombia | sales, technical support and financing | I-ME',
     description:
       locale === 'es'
-        ? 'I-ME ofrece venta de equipos biomédicos con registro INVIMA, soporte técnico por ingenieros certificados, financiamiento médico hasta 60 meses y asesoría biomédica integral para hospitales y clínicas en Colombia.'
-        : 'I-ME offers INVIMA-registered biomedical equipment, certified technical support, medical financing up to 60 months and comprehensive biomedical advisory for hospitals and clinics in Colombia.',
+        ? 'I-ME ofrece venta de equipos biomédicos con registro INVIMA, soporte técnico de ingenieros certificados, calibración, financiamiento y asesoría para hospitales y clínicas.'
+        : 'I-ME offers INVIMA-registered biomedical equipment, certified technical support, calibration, financing and advisory for hospitals and clinics.',
     canonical: buildCanonical(locale === 'es' ? '/es/servicios' : '/en/services'),
-    ogImage: `${SITE}/assets/img/javier-fundador-ime.png`,
+    ogImage: DEFAULT_OG_IMAGE,
   };
 }
 
@@ -208,7 +208,7 @@ export function buildWebSiteJsonLd(): Record<string, unknown> {
     url: SITE,
     name: 'I-ME International Medical Enterprise',
     description:
-      'Distribuidor de equipos biomédicos certificados para hospitales y clínicas en Colombia',
+      'Equipos biomédicos certificados, soporte técnico, financiamiento y asesoría para hospitales y clínicas en Colombia',
     inLanguage: ['es-CO', 'en'],
     publisher: { '@id': `${SITE}/#organization` },
     potentialAction: {
@@ -241,7 +241,7 @@ export function buildProductJsonLd(
     ? producto.imagen_principal.startsWith('http')
       ? producto.imagen_principal
       : `${SITE}${producto.imagen_principal}`
-    : `${SITE}/og-image.jpg`;
+    : DEFAULT_OG_IMAGE;
 
   const jsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',

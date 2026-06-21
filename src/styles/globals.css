@@ -194,6 +194,9 @@ h4 {
 
 p {
   margin-block-end: 1rem;
+  text-align: justify;
+  hyphens: auto;
+  overflow-wrap: break-word;
 }
 
 a {

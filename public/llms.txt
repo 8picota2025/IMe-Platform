@@ -14,6 +14,35 @@ the healthcare sector in Colombia and Latin America.
 - Medical financing plans for healthcare institutions
 - Biomedical advisory and consultancy
 
+## Priority search intents
+
+These are the highest-value queries this site should answer clearly:
+
+- equipos biomédicos en Colombia
+- venta de equipos biomédicos
+- distribuidor de equipos biomédicos
+- proveedor de equipos médicos para hospitales y clínicas
+- soporte técnico de equipos biomédicos
+- mantenimiento y calibración de equipos biomédicos
+- financiamiento de equipos médicos
+- asesoría biomédica
+- biomedical equipment in Colombia
+- biomedical equipment sales
+- technical support for biomedical equipment
+- medical equipment financing
+
+## Main keyword clusters
+
+- Patient monitoring / monitores multiparamétricos / ICU monitors
+- Cardiology / ECG / defibrillators
+- Operating room / surgical tables / surgical lights
+- Neonatology / incubators / warmers / CPAP
+- Ultrasound / portable ultrasound / point-of-care ultrasound
+- IV solutions / infusion pumps / syringe pumps
+- Hospital furniture
+- Anesthesia / ventilators
+- Biomedical maintenance / metrology / after-sales support
+
 ## Site sections
 
 - Home: https://i-me.com.co/es/ | https://i-me.com.co/en/
