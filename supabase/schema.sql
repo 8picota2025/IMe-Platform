@@ -774,6 +774,26 @@ CREATE TRIGGER set_fulfillments_updated_at
   BEFORE UPDATE ON fulfillments
   FOR EACH ROW EXECUTE FUNCTION trigger_set_updated_at();
 
+-- ── 12. notification_log (auditoría de notificaciones) ──────────
+CREATE TABLE IF NOT EXISTS notification_log (
+  id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  proveedor_id   UUID REFERENCES proveedores(id) ON DELETE CASCADE,
+  fulfillment_id UUID REFERENCES fulfillments(id) ON DELETE CASCADE,
+  tipo           TEXT NOT NULL
+                 CHECK (tipo IN ('notificacion', 'reintento', 'confirmacion', 'fallo')),
+  status         TEXT NOT NULL
+                 CHECK (status IN ('enviado', 'confirmado', 'rechazado', 'fallido')),
+  metadatos      JSONB,
+  created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_notification_log_proveedor
+  ON notification_log(proveedor_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_notification_log_fulfillment
+  ON notification_log(fulfillment_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_notification_log_created
+  ON notification_log(created_at DESC);
+
 -- ── Storage buckets ──────────────────────────────────────────
 INSERT INTO storage.buckets (id, name, public)
   VALUES ('productos', 'productos', true)
