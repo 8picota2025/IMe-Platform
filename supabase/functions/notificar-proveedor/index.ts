@@ -17,11 +17,20 @@
  * - MAILER_FROM (remitente, default pedidos@i-me.com.co)
  * Sin estas variables: canal='email' queda en estado 'error' con mensaje accionable
  * para que el admin notifique manualmente (modo mock documentado en F4).
+ *
+ * FASE 3 IMPROVEMENTS:
+ * - Structured logging via createLogger
+ * - Exponential backoff retry strategy (configurable per channel)
+ * - Rate limiting per provider (10/min, 100/hour)
+ * - Audit trail in notification_log table
  */
 
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { badRequest, internalError, notFound } from '../_shared/errors.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
+import { createLogger, generateRequestId } from '../_shared/logging.ts';
+import { postWithRetry } from '../_shared/retry-strategy.ts';
+import { checkProviderRateLimit, logNotificationAttempt } from '../_shared/provider-rate-limit.ts';
 
 interface NotificarRequest {
   pedido_id?: string;
@@ -156,35 +165,13 @@ async function enviarEmail(
   }
 }
 
-/** POST con reintento y backoff exponencial (3 intentos: 0s, 1s, 3s). */
-async function postConReintentos(
-  url: string,
-  payload: unknown,
-  extraHeaders?: Record<string, string>
-): Promise<ResultadoNotificacion> {
-  const delays = [0, 1000, 3000];
-  let ultimoError = '';
-  for (const delay of delays) {
-    if (delay > 0) await new Promise(resolve => setTimeout(resolve, delay));
-    try {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...extraHeaders },
-        body: JSON.stringify(payload),
-      });
-      if (res.ok) return { ok: true, mensaje: `Notificado via webhook (HTTP ${res.status})` };
-      ultimoError = `HTTP ${res.status}`;
-    } catch (err) {
-      ultimoError = err instanceof Error ? err.message : 'error de red';
-    }
-  }
-  return { ok: false, mensaje: `Error notificando ${url} tras 3 intentos: ${ultimoError}` };
-}
+// Usa postWithRetry de retry-strategy.ts (FASE 3)
 
 async function notificarPorCanal(
   proveedor: ProveedorRow,
   pedido: PedidoRow,
-  items: PedidoItem[]
+  items: PedidoItem[],
+  _logger: ReturnType<typeof createLogger>
 ): Promise<ResultadoNotificacion> {
   const payload = construirPayload(pedido, items);
 
@@ -196,7 +183,16 @@ async function notificarPorCanal(
           mensaje: `BLOQUEANTE_BACKEND: proveedor ${proveedor.nombre} sin webhook_url configurado.`,
         };
       }
-      return await postConReintentos(proveedor.webhook_url, payload);
+      const result = await postWithRetry(proveedor.webhook_url, payload, {}, 'webhook', {
+        providerId: proveedor.id,
+        fulfillmentId: pedido.id,
+      });
+      return {
+        ok: result.ok,
+        mensaje: result.ok
+          ? `Notificado via webhook (${result.attempts} intento${result.attempts > 1 ? 's' : ''})`
+          : `Error webhook tras ${result.attempts} intentos: ${result.lastError}`,
+      };
     }
     case 'api': {
       const url =
@@ -212,8 +208,16 @@ async function notificarPorCanal(
       const headers =
         proveedor.api_config && typeof proveedor.api_config['headers'] === 'object'
           ? (proveedor.api_config['headers'] as Record<string, string>)
-          : undefined;
-      return await postConReintentos(url, payload, headers);
+          : {};
+      const result = await postWithRetry(url, payload, headers, 'api', {
+        providerId: proveedor.id,
+      });
+      return {
+        ok: result.ok,
+        mensaje: result.ok
+          ? `Notificado via API (${result.attempts} intento${result.attempts > 1 ? 's' : ''})`
+          : `Error API tras ${result.attempts} intentos: ${result.lastError}`,
+      };
     }
     case 'email': {
       if (!proveedor.contacto_email) {
@@ -272,7 +276,8 @@ async function procesarPedido(
   supabase: ReturnType<typeof getServerSupabase>,
   pedidoId: string,
   productoIds: string[],
-  origin: string | null
+  origin: string | null,
+  logger: ReturnType<typeof createLogger>
 ): Promise<Response> {
   const { data: pedido, error: pedidoError } = await supabase
     .from('pedidos')
@@ -299,6 +304,18 @@ async function procesarPedido(
   const resultados: Array<Record<string, unknown>> = [];
 
   for (const [proveedorId, itemsGrupo] of grupos) {
+    // Rate limit check (FASE 3)
+    const { allowed, reason } = await checkProviderRateLimit(supabase, proveedorId);
+    if (!allowed) {
+      logger.warn(`Rate limit alcanzado`, { providerId: proveedorId, reason });
+      resultados.push({
+        proveedor_id: proveedorId,
+        ok: false,
+        mensaje: `Rate limit: ${reason}. Reintenta más tarde.`,
+      });
+      continue;
+    }
+
     const { data: existente } = await supabase
       .from('fulfillments')
       .select('id, estado')
@@ -325,7 +342,8 @@ async function procesarPedido(
     const resultado = await notificarPorCanal(
       proveedor as unknown as ProveedorRow,
       pedidoRow,
-      itemsGrupo
+      itemsGrupo,
+      logger
     );
     const ahora = new Date().toISOString();
     const cambios = {
@@ -343,6 +361,13 @@ async function procesarPedido(
         .insert({ pedido_id: pedidoId, proveedor_id: proveedorId, ...cambios });
     }
 
+    // Log to notification_log (FASE 3 - auditoría)
+    await logNotificationAttempt(supabase, proveedorId, resultado.ok ? 'enviado' : 'fallido', {
+      pedido_id: pedidoId,
+      canal: (proveedor as unknown as ProveedorRow).canal,
+      error: resultado.ok ? null : resultado.mensaje,
+    });
+
     resultados.push({ proveedor_id: proveedorId, ...resultado });
   }
 
@@ -355,7 +380,8 @@ async function procesarPedido(
 async function reenviarFulfillment(
   supabase: ReturnType<typeof getServerSupabase>,
   fulfillmentId: string,
-  origin: string | null
+  origin: string | null,
+  logger: ReturnType<typeof createLogger>
 ): Promise<Response> {
   const { data: fulfillment, error: fulfillmentError } = await supabase
     .from('fulfillments')
@@ -392,7 +418,7 @@ async function reenviarFulfillment(
   }
   const itemsFinal = itemsProveedor.length > 0 ? itemsProveedor : items;
 
-  const resultado = await notificarPorCanal(proveedorRow, pedidoRow, itemsFinal);
+  const resultado = await notificarPorCanal(proveedorRow, pedidoRow, itemsFinal, logger);
   const ahora = new Date().toISOString();
 
   await supabase
@@ -405,6 +431,11 @@ async function reenviarFulfillment(
     })
     .eq('id', fulfillmentId);
 
+  // Log reintento (FASE 3)
+  await logNotificationAttempt(supabase, proveedorRow.id, resultado.ok ? 'enviado' : 'fallido', {
+    fulfillment_id: fulfillmentId,
+  });
+
   return new Response(JSON.stringify(resultado), {
     status: 200,
     headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
@@ -413,6 +444,12 @@ async function reenviarFulfillment(
 
 Deno.serve(async req => {
   const origin = req.headers.get('origin');
+  const requestId = generateRequestId();
+  const logger = createLogger({
+    function: 'notificar-proveedor',
+    requestId,
+  });
+
   const corsRes = handleCors(req);
   if (corsRes) return corsRes;
   if (req.method !== 'POST') return badRequest('Metodo no soportado', origin);
@@ -427,11 +464,16 @@ Deno.serve(async req => {
   const supabase = getServerSupabase();
 
   if (typeof body.fulfillment_id === 'string' && body.fulfillment_id) {
-    return await reenviarFulfillment(supabase, body.fulfillment_id, origin);
+    logger.info('Reenviar fulfillment', { fulfillment_id: body.fulfillment_id });
+    return await reenviarFulfillment(supabase, body.fulfillment_id, origin, logger);
   }
 
   if (typeof body.pedido_id === 'string' && body.pedido_id && Array.isArray(body.producto_ids)) {
-    return await procesarPedido(supabase, body.pedido_id, body.producto_ids, origin);
+    logger.info('Procesar pedido', {
+      pedido_id: body.pedido_id,
+      producto_count: body.producto_ids.length,
+    });
+    return await procesarPedido(supabase, body.pedido_id, body.producto_ids, origin, logger);
   }
 
   return badRequest('Se requiere fulfillment_id o (pedido_id + producto_ids)', origin);
