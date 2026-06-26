@@ -151,7 +151,7 @@ RETURNING id, api_token;
 ```bash
 # En Node.js
 const token = require('crypto').randomBytes(32).toString('hex');
-// sk_live_xxxxxxxxxxxxxxxxxxxxxxxx
+// Resultado: abc123def456...
 
 # En Bash
 openssl rand -hex 32
