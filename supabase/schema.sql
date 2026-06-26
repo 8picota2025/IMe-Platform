@@ -719,6 +719,7 @@ CREATE TABLE IF NOT EXISTS proveedores (
                      CHECK (canal IN ('email', 'whatsapp', 'webhook', 'api', 'manual')),
   webhook_url        TEXT,
   api_config         JSONB,
+  api_token          TEXT UNIQUE, -- Token para autenticar requests de actualización de fulfillments
   notas              TEXT,
   activo             BOOLEAN NOT NULL DEFAULT true,
   created_at         TIMESTAMPTZ NOT NULL DEFAULT NOW(),
