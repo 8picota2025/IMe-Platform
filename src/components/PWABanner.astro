@@ -1,0 +1,54 @@
+---
+// PWA Install Banner - 2nd visit detection
+---
+
+<div id="pwa-banner" style="display:none">
+  <button id="pwa-install">Instalar</button>
+  <button id="pwa-close">Cerrar</button>
+</div>
+
+<script>
+  const VISITS = 'ime_visits';
+  const DISMISSED = 'ime_pwa_dismissed';
+  let prompt: unknown = null;
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+  }
+
+  window.addEventListener('beforeinstallprompt', (e: unknown) => {
+    const event = e as { preventDefault: () => void };
+    event.preventDefault();
+    prompt = e;
+    checkVisits();
+  });
+
+  function checkVisits() {
+    const visits = parseInt(localStorage.getItem(VISITS) || '0');
+    localStorage.setItem(VISITS, (visits + 1).toString());
+
+    if (sessionStorage.getItem(DISMISSED) === '1') return;
+    if (visits < 1) return;
+
+    const banner = document.getElementById('pwa-banner');
+    if (!banner) return;
+    banner.style.display = 'block';
+
+    document.getElementById('pwa-install')?.addEventListener('click', () => {
+      const p = prompt as { prompt: () => void; userChoice: Promise<unknown> };
+      p?.prompt?.();
+      p?.userChoice?.then(() => {
+        banner.style.display = 'none';
+        sessionStorage.setItem(DISMISSED, '1');
+      });
+    });
+
+    document.getElementById('pwa-close')?.addEventListener('click', () => {
+      banner.style.display = 'none';
+      sessionStorage.setItem(DISMISSED, '1');
+    });
+  }
+
+  if (document.readyState !== 'loading') checkVisits();
+  else document.addEventListener('DOMContentLoaded', checkVisits);
+</script>
