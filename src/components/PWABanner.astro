@@ -1,5 +1,5 @@
 ---
-// PWA Install Banner - 2nd visit detection
+// PWA Install Banner - show when logo clicked + page refreshed
 ---
 
 <div id="pwa-banner" style="display:none">
@@ -8,7 +8,7 @@
 </div>
 
 <script>
-  const VISITS = 'ime_visits';
+  const LOGO_CLICKED = 'ime_logo_clicked';
   const DISMISSED = 'ime_pwa_dismissed';
   let prompt: unknown = null;
 
@@ -20,19 +20,23 @@
     const event = e as { preventDefault: () => void };
     event.preventDefault();
     prompt = e;
-    checkVisits();
+    checkConditions();
   });
 
-  function checkVisits() {
-    const visits = parseInt(localStorage.getItem(VISITS) || '0');
-    localStorage.setItem(VISITS, (visits + 1).toString());
-
+  function checkConditions() {
     if (sessionStorage.getItem(DISMISSED) === '1') return;
-    if (visits < 1) return;
+
+    // Check if page was refreshed after logo click
+    const logoClicked = sessionStorage.getItem(LOGO_CLICKED) === '1';
+    const isReload = performance.navigation.type === 1 ||
+                     (window.performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming)?.type === 'reload';
+
+    if (!logoClicked || !isReload) return;
 
     const banner = document.getElementById('pwa-banner');
     if (!banner) return;
     banner.style.display = 'block';
+    sessionStorage.removeItem(LOGO_CLICKED);
 
     document.getElementById('pwa-install')?.addEventListener('click', () => {
       const p = prompt as { prompt: () => void; userChoice: Promise<unknown> };
@@ -49,6 +53,25 @@
     });
   }
 
-  if (document.readyState !== 'loading') checkVisits();
-  else document.addEventListener('DOMContentLoaded', checkVisits);
+  // Detect logo click
+  function initLogoListener() {
+    const logos = document.querySelectorAll('a[href="/"], a[href="/es/"], .navbar__logo, [class*="logo"]');
+    logos.forEach(logo => {
+      logo.addEventListener('click', (e) => {
+        if ((e.target as HTMLElement).closest('[class*="logo"]')) {
+          sessionStorage.setItem(LOGO_CLICKED, '1');
+        }
+      });
+    });
+  }
+
+  if (document.readyState !== 'loading') {
+    initLogoListener();
+    checkConditions();
+  } else {
+    document.addEventListener('DOMContentLoaded', () => {
+      initLogoListener();
+      checkConditions();
+    });
+  }
 </script>
