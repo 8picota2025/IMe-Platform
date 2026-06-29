@@ -32,9 +32,10 @@ const {
 } = Astro.props;
 const alternates = getAlternateLinks(currentPath);
 const ogImageUrl = ogImage ?? 'https://i-me.com.co/assets/img/og-default-ime.png?v=20260629e';
-const ogImageType = ogImageUrl.endsWith('.svg')
+const ogImagePath = ogImageUrl.split('?')[0];
+const ogImageType = ogImagePath.endsWith('.svg')
   ? 'image/svg+xml'
-  : ogImageUrl.endsWith('.png')
+  : ogImagePath.endsWith('.png')
     ? 'image/png'
     : 'image/jpeg';
 const robotsContent = noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large';
