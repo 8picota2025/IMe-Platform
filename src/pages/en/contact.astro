@@ -3,7 +3,7 @@
  * Contact EN — formulario con UI en inglés, datos de contacto reales.
  */
 import Layout from '../../layouts/Layout.astro';
-import { buildPageTitle, buildCanonical } from '../../lib/seo';
+import { buildPageTitle, buildCanonical, getInstitutionalOgImage } from '../../lib/seo';
 import { t } from '../../i18n/utils';
 
 const locale = 'en';
@@ -31,6 +31,7 @@ const options = [
   canonical={canonical}
   locale={locale}
   currentPath="/en/contact"
+  ogImage={getInstitutionalOgImage()}
 >
   <div
     class="page-hero"

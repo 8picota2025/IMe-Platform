@@ -8,6 +8,7 @@ import type { Locale } from '../i18n/utils';
 const SITE = 'https://i-me.com.co';
 const BRAND = 'I-ME';
 const LOGO = `${SITE}/assets/img/logo-ime-site.webp`;
+const OG_IMAGE_VERSION = '20260629e';
 
 interface SeoPageMeta {
   title: string;
@@ -16,7 +17,20 @@ interface SeoPageMeta {
   ogImage: string;
 }
 
-const DEFAULT_OG_IMAGE = `${SITE}/assets/img/og-default-ime.png`;
+function buildVersionedOgImage(path: string): string {
+  return `${SITE}${path}?v=${OG_IMAGE_VERSION}`;
+}
+
+const DEFAULT_OG_IMAGE = buildVersionedOgImage('/assets/img/og-default-ime.png');
+const INSTITUTIONAL_OG_IMAGE = buildVersionedOgImage('/assets/img/og-institutional-ime.png');
+
+export function getDefaultOgImage(): string {
+  return DEFAULT_OG_IMAGE;
+}
+
+export function getInstitutionalOgImage(): string {
+  return INSTITUTIONAL_OG_IMAGE;
+}
 
 export function buildPageTitle(pageTitle: string): string {
   if (!pageTitle) return `${BRAND} — Equipos Biomédicos`;

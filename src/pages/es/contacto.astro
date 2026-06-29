@@ -3,7 +3,7 @@
  * Contacto ES — formulario real con submitCotizacion, datos reales de contacto.
  */
 import Layout from '../../layouts/Layout.astro';
-import { buildPageTitle, buildCanonical } from '../../lib/seo';
+import { buildPageTitle, buildCanonical, getInstitutionalOgImage } from '../../lib/seo';
 import { t } from '../../i18n/utils';
 
 const locale = 'es';
@@ -31,6 +31,7 @@ const opciones = [
   canonical={canonical}
   locale={locale}
   currentPath="/es/contacto"
+  ogImage={getInstitutionalOgImage()}
 >
   <div
     class="page-hero"

@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import type { Locale } from '../i18n/utils';
+import { getInstitutionalOgImage } from '../lib/seo';
 
 interface Section {
   title: string;
@@ -42,6 +43,7 @@ const {
   canonical={canonical}
   locale={locale}
   currentPath={currentPath}
+  ogImage={getInstitutionalOgImage()}
 >
   <article class="legal-page">
     <div class="container legal-page__inner">
