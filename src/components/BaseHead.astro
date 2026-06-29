@@ -31,7 +31,7 @@ const {
   fontAwesome,
 } = Astro.props;
 const alternates = getAlternateLinks(currentPath);
-const ogImageUrl = ogImage ?? 'https://i-me.com.co/assets/img/logo-ime.png';
+const ogImageUrl = ogImage ?? 'https://i-me.com.co/assets/img/og-default-ime.png';
 const ogImageType = ogImageUrl.endsWith('.svg')
   ? 'image/svg+xml'
   : ogImageUrl.endsWith('.png')

@@ -7,7 +7,7 @@ import type { Locale } from '../i18n/utils';
 
 const SITE = 'https://i-me.com.co';
 const BRAND = 'I-ME';
-const LOGO = `${SITE}/assets/img/logo-ime.png`;
+const LOGO = `${SITE}/assets/img/logo-ime-site.webp`;
 
 interface SeoPageMeta {
   title: string;
@@ -16,7 +16,7 @@ interface SeoPageMeta {
   ogImage: string;
 }
 
-const DEFAULT_OG_IMAGE = `${SITE}/assets/img/logo-ime.png`;
+const DEFAULT_OG_IMAGE = `${SITE}/assets/img/og-default-ime.png`;
 
 export function buildPageTitle(pageTitle: string): string {
   if (!pageTitle) return `${BRAND} — Equipos Biomédicos`;
