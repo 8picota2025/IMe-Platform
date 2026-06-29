@@ -221,6 +221,13 @@ function mapProducto(raw: (typeof mockProductos)[0], locale: Locale): Producto {
    ============================================================ */
 
 export async function getFamilias(locale: Locale): Promise<Familia[]> {
+  const mockFamiliasPorSlug = new Map(
+    mockFamilias.filter(f => f.activo).map(f => [f.slug, f] as const)
+  );
+  const esPlaceholder = (value: unknown): boolean =>
+    typeof value === 'string' && value.toUpperCase().includes('COPY_CLIENTE_REVISAR');
+  const textoUsable = (value: unknown): string => (typeof value === 'string' ? value.trim() : '');
+
   if (debeUsarSupabase()) {
     const supabase = getSupabaseClient()!;
     const { data, error } = await supabase
@@ -231,15 +238,40 @@ export async function getFamilias(locale: Locale): Promise<Familia[]> {
     if (error) {
       registrarErrorSupabase('getFamilias', error);
     } else if (data && data.length > 0) {
-      return data.map(raw => ({
-        id: raw.id as string,
-        slug: raw.slug as string,
-        nombre: (locale === 'en' ? raw.nombre_en : raw.nombre_es) as string,
-        descripcion: (locale === 'en' ? raw.descripcion_en : raw.descripcion_es) as string,
-        icono: resolveFamiliaIcono(raw.slug as string, stringValue((raw as RawRow).icono)),
-        orden: raw.orden as number,
-        activo: raw.activo as boolean,
-      }));
+      return data
+        .map(raw => {
+          const slug = raw.slug as string;
+          const mock = mockFamiliasPorSlug.get(slug);
+          if (mock) {
+            const base = mapFamilia(mock, locale);
+            return {
+              ...base,
+              id: raw.id as string,
+              orden: raw.orden as number,
+              activo: raw.activo as boolean,
+              icono: resolveFamiliaIcono(slug, stringValue((raw as RawRow).icono) || mock.icono),
+            };
+          }
+          const nombreDb = locale === 'en' ? raw.nombre_en : raw.nombre_es;
+          const descripcionDb = locale === 'en' ? raw.descripcion_en : raw.descripcion_es;
+          const nombre =
+            textoUsable(nombreDb) && !esPlaceholder(nombreDb) ? textoUsable(nombreDb) : '';
+          const descripcion =
+            textoUsable(descripcionDb) && !esPlaceholder(descripcionDb)
+              ? textoUsable(descripcionDb)
+              : '';
+
+          return {
+            id: raw.id as string,
+            slug,
+            nombre,
+            descripcion,
+            icono: resolveFamiliaIcono(slug, stringValue((raw as RawRow).icono)),
+            orden: raw.orden as number,
+            activo: raw.activo as boolean,
+          };
+        })
+        .filter(familia => familia.nombre && familia.descripcion);
     } else if (data) {
       registrarVacioSupabase('getFamilias');
     }
