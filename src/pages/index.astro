@@ -1,6 +1,31 @@
 ---
-// Redirige / → /es/ (F1 implementará el Layout y Home reales)
+import BaseHead from '../components/BaseHead.astro';
+import { buildHomeSeo } from '../lib/seo';
+
+const locale = 'es';
+const seo = buildHomeSeo(locale);
+const destination = '/es/';
 ---
 
-<meta http-equiv="refresh" content="0; url=/es/" />
-<link rel="canonical" href="/es/" />
+<!doctype html>
+<html lang="es" dir="ltr">
+  <head>
+    <BaseHead
+      title={seo.title}
+      description={seo.description}
+      canonical="https://i-me.com.co/"
+      locale={locale}
+      currentPath="/"
+      ogImage={seo.ogImage}
+    />
+    <meta http-equiv="refresh" content={`0; url=${destination}`} />
+  </head>
+  <body>
+    <script>
+      window.location.replace('/es/');
+    </script>
+    <p>
+      Redirigiendo a <a href={destination}>https://i-me.com.co/es/</a>...
+    </p>
+  </body>
+</html>
