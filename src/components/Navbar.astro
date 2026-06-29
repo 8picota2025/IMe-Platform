@@ -34,10 +34,10 @@ const altHref = getLocalizedPath(currentPath, altLocale);
       onclick={`window.location.assign('${getLocalizedPath('/', locale)}'); return false;`}
     >
       <img
-        src="/assets/img/logo-ime-compact.webp"
+        src="/assets/img/logo-ime-site.webp"
         alt="I-ME International Medical Enterprise"
-        width="120"
-        height="40"
+        width="77"
+        height="38"
         loading="eager"
         decoding="async"
       />
@@ -288,9 +288,6 @@ const altHref = getLocalizedPath(currentPath, altLocale);
   }
   [data-theme='dark'] .navbar {
     background: rgba(11, 27, 34, 0.95);
-  }
-  [data-theme='dark'] .navbar__logo img {
-    filter: brightness(0) invert(1);
   }
   .navbar.scrolled {
     box-shadow: var(--shadow-md);
