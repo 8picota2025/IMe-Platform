@@ -102,6 +102,11 @@ function shouldShowGrid(state: CatalogoState): boolean {
   );
 }
 
+function getInitialFeaturedCards(cards: HTMLElement[]): HTMLElement[] {
+  const destacados = cards.filter(card => card.dataset['destacado'] === '1');
+  return destacados.length > 0 ? destacados : cards.slice(0, PAGE_SIZE);
+}
+
 function parseSpecs(card: HTMLElement): Record<string, string> {
   try {
     const parsed = JSON.parse(card.dataset['specs'] ?? '{}') as unknown;
@@ -432,11 +437,28 @@ export function initCatalogo(locale: Locale): () => void {
     if (mostrarGrid) setFiltrosPanelOpen(false);
 
     if (!mostrarGrid) {
+      const visibles = getInitialFeaturedCards(cards);
+      const totalPaginas = Math.max(1, Math.ceil(visibles.length / PAGE_SIZE));
+      if (state.pagina > totalPaginas || state.pagina < 1) state.pagina = 1;
+      const inicio = (state.pagina - 1) * PAGE_SIZE;
+      const visiblesPagina = new Set(visibles.slice(inicio, inicio + PAGE_SIZE));
+
+      if (grid) grid.hidden = false;
+      cards.forEach(card => {
+        card.hidden = !visiblesPagina.has(card);
+      });
+
       if (sinResultados) sinResultados.hidden = true;
-      if (paginacion) paginacion.hidden = true;
       if (facetasContenedor) facetasContenedor.hidden = true;
       if (familiaActualEl) familiaActualEl.hidden = true;
-      if (contador) contador.textContent = '';
+      if (contador) {
+        const etiqueta =
+          visibles.length === 1
+            ? t(locale, 'catalogo.resultados_un')
+            : t(locale, 'catalogo.resultados_otros');
+        contador.textContent = `${visibles.length} ${etiqueta}`;
+      }
+      renderPaginacion(totalPaginas, state.pagina);
       history.replaceState(null, '', buildUrl());
       return;
     }
