@@ -1,0 +1,143 @@
+{
+  "generado": "2026-06-29T23:58:13.666Z",
+  "dry_run": true,
+  "resultados": [
+    {
+      "prod_id": "prod-25",
+      "tipo": "foto",
+      "estado": "manual_requerido",
+      "url_producto": "https://en.szangell.com/product/wr-3d/",
+      "destino": "i-me-content/photos/angell-technology/wr-3d/",
+      "motivo": "Las imágenes del sitio web del fabricante requieren extracción manual (no hay URL directa de imagen)."
+    },
+    {
+      "prod_id": "prod-25",
+      "tipo": "datasheet",
+      "estado": "verificar_en_sitio",
+      "url_sitio": "https://en.szangell.com/product/wr-3d/",
+      "destino": "i-me-content/datasheets/angell-technology/wr-3d/",
+      "accion": "Visitar página del producto, descargar PDF si disponible, guardar en ruta destino"
+    },
+    {
+      "prod_id": "prod-26",
+      "tipo": "foto",
+      "estado": "url_no_encontrada",
+      "destino": "i-me-content/photos/angell-technology/lingxi-series/",
+      "motivo": "Equipo móvil DR dinámico. Buscar en sección Mobile DR del sitio oficial."
+    },
+    {
+      "prod_id": "prod-26",
+      "tipo": "datasheet",
+      "estado": "buscar_en_sitio",
+      "url_sitio": "https://en.szangell.com",
+      "destino": "i-me-content/datasheets/angell-technology/lingxi-series/",
+      "accion": "Visitar página del producto, descargar PDF si disponible, guardar en ruta destino"
+    },
+    {
+      "prod_id": "prod-27",
+      "tipo": "foto",
+      "estado": "manual_requerido",
+      "url_producto": "https://en.szangell.com/product/qomo-series/",
+      "destino": "i-me-content/photos/angell-technology/qomo-series/",
+      "motivo": "Las imágenes del sitio web del fabricante requieren extracción manual (no hay URL directa de imagen)."
+    },
+    {
+      "prod_id": "prod-27",
+      "tipo": "datasheet",
+      "estado": "verificar_en_sitio",
+      "url_sitio": "https://en.szangell.com/product/qomo-series/",
+      "destino": "i-me-content/datasheets/angell-technology/qomo-series/",
+      "accion": "Visitar página del producto, descargar PDF si disponible, guardar en ruta destino"
+    },
+    {
+      "prod_id": "prod-28",
+      "tipo": "foto",
+      "estado": "url_no_encontrada",
+      "destino": "i-me-content/photos/angell-technology/changfeng-series/",
+      "motivo": "Sistema de techo con detector 47\". Buscar en sección Ceiling DR del sitio oficial."
+    },
+    {
+      "prod_id": "prod-28",
+      "tipo": "datasheet",
+      "estado": "buscar_en_sitio",
+      "url_sitio": "https://en.szangell.com",
+      "destino": "i-me-content/datasheets/angell-technology/changfeng-series/",
+      "accion": "Visitar página del producto, descargar PDF si disponible, guardar en ruta destino"
+    },
+    {
+      "prod_id": "prod-29",
+      "tipo": "foto",
+      "estado": "url_no_encontrada",
+      "destino": "i-me-content/photos/angell-technology/talent-ii-series/",
+      "motivo": "Telemando R/F. Buscar en sección Digital Fluoroscopy del sitio oficial."
+    },
+    {
+      "prod_id": "prod-29",
+      "tipo": "datasheet",
+      "estado": "buscar_en_sitio",
+      "url_sitio": "https://en.szangell.com",
+      "destino": "i-me-content/datasheets/angell-technology/talent-ii-series/",
+      "accion": "Visitar página del producto, descargar PDF si disponible, guardar en ruta destino"
+    },
+    {
+      "prod_id": "prod-30",
+      "tipo": "foto",
+      "estado": "url_no_encontrada",
+      "destino": "i-me-content/photos/angell-technology/dtp580-series/",
+      "motivo": "UC-ARM Dynamic DR. Catálogo disponible en MedicalExpo (distribuidor homologado). Spec sheet también en Scribd: https://www.scribd.com/document/874401510/Angell-DTP580B-3-Specification — PREFERIR fuente oficial en.szangell.com si disponible."
+    },
+    {
+      "estado": "dry_run",
+      "url": "https://pdf.medicalexpo.com/pdf/angell-technology/uc-arm-dynamic-dr/78096-242327.html",
+      "destino": "i-me-content/datasheets/angell-technology/dtp580-series/dtp580-series.html",
+      "prod_id": "prod-30",
+      "tipo": "datasheet"
+    },
+    {
+      "prod_id": "prod-31",
+      "tipo": "foto",
+      "estado": "url_no_encontrada",
+      "destino": "i-me-content/photos/angell-technology/mtp-series/",
+      "motivo": "Sistema radiográfico de piso. Buscar en sección Floor DR del sitio oficial."
+    },
+    {
+      "prod_id": "prod-31",
+      "tipo": "datasheet",
+      "estado": "buscar_en_sitio",
+      "url_sitio": "https://en.szangell.com",
+      "destino": "i-me-content/datasheets/angell-technology/mtp-series/",
+      "accion": "Visitar página del producto, descargar PDF si disponible, guardar en ruta destino"
+    },
+    {
+      "prod_id": "prod-32",
+      "tipo": "foto",
+      "estado": "manual_requerido",
+      "url_producto": "https://en.szangell.com/Products/info.aspx?itemid=1443",
+      "destino": "i-me-content/photos/angell-technology/fanghua-series/",
+      "motivo": "Las imágenes del sitio web del fabricante requieren extracción manual (no hay URL directa de imagen)."
+    },
+    {
+      "prod_id": "prod-32",
+      "tipo": "datasheet",
+      "estado": "verificar_en_sitio",
+      "url_sitio": "https://en.szangell.com/Products/info.aspx?itemid=1443",
+      "destino": "i-me-content/datasheets/angell-technology/fanghua-series/",
+      "accion": "Visitar página del producto, descargar PDF si disponible, guardar en ruta destino"
+    },
+    {
+      "prod_id": "prod-33",
+      "tipo": "foto",
+      "estado": "url_no_encontrada",
+      "destino": "i-me-content/photos/angell-technology/hua-ii-series/",
+      "motivo": "Arco en C FPD móvil. Buscar en sección Mobile C-arm del sitio oficial."
+    },
+    {
+      "prod_id": "prod-33",
+      "tipo": "datasheet",
+      "estado": "buscar_en_sitio",
+      "url_sitio": "https://en.szangell.com",
+      "destino": "i-me-content/datasheets/angell-technology/hua-ii-series/",
+      "accion": "Visitar página del producto, descargar PDF si disponible, guardar en ruta destino"
+    }
+  ]
+}
