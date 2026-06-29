@@ -7,7 +7,6 @@
  * siempre precio, stock y total desde la tabla `productos` con credenciales privilegiadas.
  */
 
-import { getSupabaseClient } from './supabase';
 import type { Locale } from '../i18n/utils';
 import type { ClienteFiscalProfile } from './fiscal';
 
@@ -44,6 +43,11 @@ export interface ResultadoCheckout {
 const STORAGE_KEY = 'ime_carrito';
 export const EVENTO_CAMBIO = 'ime:carrito:cambio';
 export const EVENTO_ABRIR = 'ime:carrito:abrir';
+
+async function loadSupabaseClient() {
+  const { getSupabaseClient } = await import('./supabase');
+  return getSupabaseClient();
+}
 
 function leer(): CarritoItem[] {
   if (typeof sessionStorage === 'undefined') return [];
@@ -137,7 +141,7 @@ export async function revalidarDisponibilidad(): Promise<RevalidacionResultado> 
   const items = leer();
   if (items.length === 0) return { items, eliminados: [] };
 
-  const supabase = getSupabaseClient();
+  const supabase = await loadSupabaseClient();
   if (!supabase) return { items, eliminados: [] };
 
   const { data, error } = await supabase
@@ -194,7 +198,7 @@ export async function iniciarCheckout(params: {
   const items = leer();
   if (items.length === 0) return { ok: false, error: 'CARRITO_VACIO' };
 
-  const supabase = getSupabaseClient();
+  const supabase = await loadSupabaseClient();
   if (!supabase) return { ok: false, error: 'NO_DISPONIBLE' };
 
   const { data, error } = await supabase.functions.invoke('crear-pago', {
