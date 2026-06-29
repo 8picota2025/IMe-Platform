@@ -46,6 +46,20 @@ const canonical = buildCanonical('/en/financing');
       </p>
     </div>
 
+    <div class="financing-confianza" role="note" aria-label="Trust message">
+      <p class="financing-confianza__eyebrow">Buy with complete confidence</p>
+      <h2>Formal backing for higher-value purchases</h2>
+      <p>
+        For purchases equal to or above COP $15,000,000, our company automatically issues an Advance
+        Guarantee Policy at no additional cost to the customer.
+      </p>
+      <p>
+        This helps protect your investment and gives you formal backing that supports the
+        fulfillment of our obligations, reinforcing our commitment to transparency, security and
+        service excellence.
+      </p>
+    </div>
+
     <div class="financing-features">
       <h2>What to expect from the process</h2>
       <ul class="features-grid" role="list">
@@ -124,6 +138,38 @@ const canonical = buildCanonical('/en/financing');
   }
   .financing-features {
     margin-block-end: var(--space-xl);
+  }
+  .financing-confianza {
+    background: linear-gradient(135deg, rgba(15, 76, 92, 0.08), rgba(15, 76, 92, 0.02));
+    border: 1px solid rgba(15, 76, 92, 0.18);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem 1.75rem;
+    margin-block: var(--space-xl);
+    box-shadow: 0 10px 30px rgba(15, 76, 92, 0.08);
+  }
+  .financing-confianza__eyebrow {
+    display: inline-block;
+    margin: 0 0 0.75rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    background: rgba(15, 76, 92, 0.12);
+    color: var(--t700);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .financing-confianza h2 {
+    margin: 0 0 0.75rem;
+    color: var(--ink);
+    font-size: var(--step-1);
+  }
+  .financing-confianza p {
+    margin: 0 0 0.75rem;
+    color: var(--text-mid);
+  }
+  .financing-confianza p:last-child {
+    margin-bottom: 0;
   }
   .financing-features h2 {
     margin-block-end: var(--space-lg);

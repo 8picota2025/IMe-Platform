@@ -55,6 +55,20 @@ const canonical = buildCanonical('/es/financiacion');
       </p>
     </div>
 
+    <div class="financiacion-confianza" role="note" aria-label="Mensaje de confianza">
+      <p class="financiacion-confianza__eyebrow">Compre con total confianza</p>
+      <h2>Respaldo formal para operaciones de alto valor</h2>
+      <p>
+        En compras iguales o superiores a $15.000.000 COP, nuestra empresa emite automáticamente una
+        Póliza de Garantía de Anticipo, sin costo adicional para el cliente.
+      </p>
+      <p>
+        De esta manera protegemos su inversión y le brindamos un respaldo formal que garantiza el
+        cumplimiento de nuestras obligaciones, reafirmando nuestro compromiso con la transparencia,
+        la seguridad y la excelencia en el servicio.
+      </p>
+    </div>
+
     <!-- Características del plan (sin tasas reales) -->
     <div class="financiacion-features">
       <h2>¿Por qué financiar con I-ME?</h2>
@@ -142,6 +156,38 @@ const canonical = buildCanonical('/es/financiacion');
   }
   .financiacion-features {
     margin-block-end: var(--space-xl);
+  }
+  .financiacion-confianza {
+    background: linear-gradient(135deg, rgba(15, 76, 92, 0.08), rgba(15, 76, 92, 0.02));
+    border: 1px solid rgba(15, 76, 92, 0.18);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem 1.75rem;
+    margin-block: var(--space-xl);
+    box-shadow: 0 10px 30px rgba(15, 76, 92, 0.08);
+  }
+  .financiacion-confianza__eyebrow {
+    display: inline-block;
+    margin: 0 0 0.75rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    background: rgba(15, 76, 92, 0.12);
+    color: var(--t700);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .financiacion-confianza h2 {
+    margin: 0 0 0.75rem;
+    color: var(--ink);
+    font-size: var(--step-1);
+  }
+  .financiacion-confianza p {
+    margin: 0 0 0.75rem;
+    color: var(--text-mid);
+  }
+  .financiacion-confianza p:last-child {
+    margin-bottom: 0;
   }
   .financiacion-features h2 {
     margin-block-end: var(--space-lg);
