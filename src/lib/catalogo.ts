@@ -5,12 +5,14 @@
 
 import type { Locale } from '../i18n/utils';
 import { getFamilias, getProductos, getTipos, type Producto } from './datos';
+import { getFamiliasFiltro } from './taxonomia-catalogo';
 
 export interface CatalogoIndexItem {
   id: string;
   slug: string;
   nombre: string;
   familia: { slug: string; nombre: string };
+  familias_filtro: string[];
   tipo: { slug: string; nombre: string } | null;
   descripcion_corta: string;
   imagen_principal: string | null;
@@ -89,6 +91,7 @@ export async function buildCatalogoIndex(locale: Locale): Promise<CatalogoIndexI
       slug: producto.slug,
       nombre: producto.nombre,
       familia: { slug: producto.familia_slug, nombre: familia?.nombre ?? producto.familia_slug },
+      familias_filtro: getFamiliasFiltro(producto),
       tipo,
       descripcion_corta: producto.descripcion_corta,
       imagen_principal: producto.imagen_principal,

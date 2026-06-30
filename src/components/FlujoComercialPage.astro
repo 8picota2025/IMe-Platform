@@ -1,0 +1,128 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { buildCanonical } from '../lib/seo';
+import type { Locale } from '../i18n/utils';
+
+type Flow = 'cart' | 'checkout' | 'quote';
+
+interface Props {
+  locale: Locale;
+  flow: Flow;
+  currentPath: string;
+}
+
+const { locale, flow, currentPath } = Astro.props;
+
+const isEn = locale === 'en';
+const catalogoHref = isEn ? '/en/catalog' : '/es/catalogo';
+const copy = {
+  cart: {
+    title: isEn ? 'Shopping cart' : 'Carrito de compra',
+    description: isEn
+      ? 'Review purchasable products with a valid price before checkout.'
+      : 'Revise productos comprables con precio válido antes del pago.',
+    cta: isEn ? 'Open cart' : 'Abrir carrito',
+    helper: isEn
+      ? 'Only products with price and availability can enter the cart.'
+      : 'Solo productos con precio y disponibilidad pueden entrar al carrito.',
+  },
+  checkout: {
+    title: isEn ? 'Checkout' : 'Checkout',
+    description: isEn
+      ? 'Complete customer and billing information before secure payment.'
+      : 'Complete datos de cliente y facturación antes del pago seguro.',
+    cta: isEn ? 'Continue checkout' : 'Continuar checkout',
+    helper: isEn
+      ? 'The server recalculates price, stock and availability before opening payment.'
+      : 'El servidor recalcula precio, stock y disponibilidad antes de abrir el pago.',
+  },
+  quote: {
+    title: isEn ? 'Quote request' : 'Solicitud de cotización',
+    description: isEn
+      ? 'Request pricing or availability for equipment without public price.'
+      : 'Solicite precio o disponibilidad para equipos sin precio público.',
+    cta: isEn ? 'Open quote list' : 'Abrir cotización',
+    helper: isEn
+      ? 'Products without price or unavailable products are handled through quote.'
+      : 'Los productos sin precio o no disponibles se gestionan por cotización.',
+  },
+}[flow];
+
+const title = `${copy.title} | I-ME`;
+const canonical = buildCanonical(currentPath);
+const openTarget = flow === 'quote' ? 'quote' : 'cart';
+---
+
+<Layout
+  title={title}
+  description={copy.description}
+  canonical={canonical}
+  locale={locale}
+  currentPath={currentPath}
+>
+  <section class="commerce-route container">
+    <span class="section-tag">{isEn ? 'Online store' : 'Tienda online'}</span>
+    <h1>{copy.title}</h1>
+    <p>{copy.description}</p>
+    <div class="commerce-route__actions">
+      <button id="commerce-flow-open" class="btn btn-primary" type="button" data-flow={openTarget}>
+        {copy.cta}
+      </button>
+      <a class="btn btn-secondary" href={catalogoHref}>
+        {isEn ? 'View catalog' : 'Ver catálogo'}
+      </a>
+    </div>
+    <p class="commerce-route__helper">{copy.helper}</p>
+  </section>
+
+  <script>
+    import { abrirCarrito } from '../lib/carrito';
+    import { abrirCotizacion } from '../lib/cotizacion-equipos';
+
+    function initCommerceRoute() {
+      const btn = document.getElementById('commerce-flow-open');
+      if (!btn) return;
+      const open = () => {
+        if (btn.dataset['flow'] === 'quote') abrirCotizacion();
+        else abrirCarrito();
+      };
+      btn.addEventListener('click', open, { once: false });
+      window.requestAnimationFrame(open);
+    }
+
+    document.addEventListener('astro:page-load', initCommerceRoute);
+    initCommerceRoute();
+  </script>
+</Layout>
+
+<style>
+  .commerce-route {
+    padding-block: clamp(3rem, 8vw, 6rem);
+  }
+  .commerce-route h1 {
+    max-width: 760px;
+    margin: 0.4rem 0 1rem;
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 5vw, 4rem);
+    line-height: 0.95;
+    color: var(--ink);
+  }
+  .commerce-route p {
+    max-width: 720px;
+    color: var(--text-mid);
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+  .commerce-route__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+    margin-block: 1.5rem;
+  }
+  .commerce-route__helper {
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--off);
+  }
+</style>

@@ -16,6 +16,7 @@ interface ProductoCardData {
   destacado: boolean;
   nuevo: boolean;
   familia: { slug: string; nombre: string };
+  familias_filtro?: string[];
   /** Campos adicionales para filtrado en cliente (catálogo). */
   tipo_comercial?: string;
   texto_busqueda?: string;
@@ -59,6 +60,7 @@ function modalidadLabel(modalidad?: string): string {
   data-nombre={producto.nombre}
   data-imagen={producto.imagen_principal ?? ''}
   data-familia={producto.familia.slug}
+  data-familias={(producto.familias_filtro ?? [producto.familia.slug]).join(' ')}
   data-familia-nombre={producto.familia.nombre}
   data-comercial={producto.tipo_comercial ?? ''}
   data-fulfillment={producto.fulfillment_mode ?? ''}

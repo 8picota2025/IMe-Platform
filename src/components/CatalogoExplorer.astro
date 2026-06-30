@@ -9,6 +9,7 @@
 import { t, type Locale } from '../i18n/utils';
 import { getFamilias } from '../lib/datos';
 import { buildCatalogoIndex } from '../lib/catalogo';
+import { getCatalogoTaxonomia } from '../lib/taxonomia-catalogo';
 import ProductoCard from './ProductoCard.astro';
 import FamiliaIcon from './FamiliaIcon.astro';
 
@@ -19,6 +20,7 @@ interface Props {
 const { locale } = Astro.props;
 
 const familias = await getFamilias(locale);
+const taxonomia = getCatalogoTaxonomia(familias, locale);
 const items = await buildCatalogoIndex(locale);
 
 const tiposComerciales = [
@@ -71,24 +73,37 @@ const hayNuevos = items.some(item => item.nuevo);
     </div>
     <ul class="categorias__grid" role="list">
       {
-        familias.map(familia => (
+        taxonomia.map(grupo => (
           <li>
             <a
-              href={`?familia=${familia.slug}`}
+              href={`?familia=${grupo.slug}`}
               class="categoria-card"
-              data-familia-link={familia.slug}
-              data-familia-nombre={familia.nombre}
-              data-familia-icono={familia.icono}
+              data-familia-link={grupo.slug}
+              data-familia-nombre={grupo.nombre}
+              data-familia-icono={grupo.icono}
             >
               <div class="categoria-card__icon" aria-hidden="true">
-                <FamiliaIcon slug={familia.slug} icono={familia.icono} />
+                <FamiliaIcon slug={grupo.slug} icono={grupo.icono} />
               </div>
-              <h3 class="categoria-card__name">{familia.nombre}</h3>
-              <p class="categoria-card__desc">{familia.descripcion}</p>
+              <h3 class="categoria-card__name">{grupo.nombre}</h3>
+              <p class="categoria-card__desc">{grupo.descripcion}</p>
               <span class="categoria-card__link" aria-hidden="true">
                 {t(locale, 'catalogo.ver_categoria')} →
               </span>
             </a>
+            <div class="categoria-card__subfamilias" aria-label={grupo.nombre}>
+              {grupo.subfamilias.map(subfamilia => (
+                <a
+                  href={`?familia=${subfamilia.slug}`}
+                  class="categoria-card__subfamilia"
+                  data-familia-link={subfamilia.slug}
+                  data-familia-nombre={subfamilia.nombre}
+                  data-familia-icono={subfamilia.icono}
+                >
+                  {subfamilia.nombre}
+                </a>
+              ))}
+            </div>
           </li>
         ))
       }
@@ -123,18 +138,33 @@ const hayNuevos = items.some(item => item.nuevo);
             {t(locale, 'catalogo.todas_familias')}
           </button>
           {
-            familias.map(familia => (
-              <button
-                type="button"
-                class="catalogo-filtros__familia"
-                data-familia-filter={familia.slug}
-                data-familia-icono={familia.icono}
-              >
-                <span class="catalogo-filtros__familia-icono" aria-hidden="true">
-                  <FamiliaIcon slug={familia.slug} icono={familia.icono} size={18} />
-                </span>
-                <span>{familia.nombre}</span>
-              </button>
+            taxonomia.map(grupo => (
+              <>
+                <button
+                  type="button"
+                  class="catalogo-filtros__familia catalogo-filtros__familia--principal"
+                  data-familia-filter={grupo.slug}
+                  data-familia-icono={grupo.icono}
+                >
+                  <span class="catalogo-filtros__familia-icono" aria-hidden="true">
+                    <FamiliaIcon slug={grupo.slug} icono={grupo.icono} size={18} />
+                  </span>
+                  <span>{grupo.nombre}</span>
+                </button>
+                {grupo.subfamilias.map(familia => (
+                  <button
+                    type="button"
+                    class="catalogo-filtros__familia catalogo-filtros__familia--subfamilia"
+                    data-familia-filter={familia.slug}
+                    data-familia-icono={familia.icono}
+                  >
+                    <span class="catalogo-filtros__familia-icono" aria-hidden="true">
+                      <FamiliaIcon slug={familia.slug} icono={familia.icono} size={16} />
+                    </span>
+                    <span>{familia.nombre}</span>
+                  </button>
+                ))}
+              </>
             ))
           }
         </div>
@@ -507,6 +537,30 @@ const hayNuevos = items.some(item => item.nuevo);
     color: var(--t800);
     margin-block-start: auto;
   }
+  .categoria-card__subfamilias {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-block-start: 0.6rem;
+  }
+  .categoria-card__subfamilia {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.32rem 0.55rem;
+    background: var(--white);
+    color: var(--text-mid);
+    font-size: 0.72rem;
+    font-weight: 650;
+    line-height: 1;
+    text-decoration: none;
+  }
+  .categoria-card__subfamilia:hover {
+    border-color: var(--t300);
+    background: var(--t50);
+    color: var(--t900);
+  }
 
   /* Layout filtros + resultados */
   .catalogo__layout {
@@ -609,6 +663,15 @@ const hayNuevos = items.some(item => item.nuevo);
     background: var(--t100);
     color: var(--t900);
     font-weight: 700;
+  }
+  .catalogo-filtros__familia--principal {
+    margin-block-start: 0.25rem;
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .catalogo-filtros__familia--subfamilia {
+    padding-inline-start: 1.45rem;
+    font-size: 0.8rem;
   }
   .catalogo-filtros__opcion {
     display: flex;

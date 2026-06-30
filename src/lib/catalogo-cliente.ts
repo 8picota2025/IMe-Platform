@@ -118,7 +118,10 @@ function parseSpecs(card: HTMLElement): Record<string, string> {
 }
 
 function matchesBase(card: HTMLElement, state: CatalogoState): boolean {
-  if (state.familia && card.dataset['familia'] !== state.familia) return false;
+  if (state.familia) {
+    const familias = (card.dataset['familias'] ?? card.dataset['familia'] ?? '').split(/\s+/);
+    if (!familias.includes(state.familia)) return false;
+  }
   if (state.comercial.size > 0 && !state.comercial.has(card.dataset['comercial'] ?? '')) {
     return false;
   }
