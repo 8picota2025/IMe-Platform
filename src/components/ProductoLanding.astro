@@ -9,6 +9,7 @@ import { t, type Locale } from '../i18n/utils';
 import ProductoCard from './ProductoCard.astro';
 import type { Producto, Familia } from '../lib/datos';
 import { formatMoneda } from '../lib/format';
+import { getAccionComercial } from '../lib/comercial';
 
 interface EspecificacionItem {
   clave: string;
@@ -49,6 +50,7 @@ const imagenes = [producto.imagen_principal ?? '/assets/img-placeholder.svg', ..
 
 const precioFormateado = formatMoneda(producto.precio, producto.moneda, locale);
 const noDisponible = producto.disponible === false;
+const accionComercial = getAccionComercial(producto, locale);
 const modalidadTexto =
   producto.tipo_comercial === 'consumible'
     ? locale === 'en'
@@ -132,33 +134,30 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
 
       <div class="hero-producto__cta-group" id="cta-principal">
         {
-          /* Productos con precio → carrito (dropshipping); sin precio → cotización conjunta */
-          producto.precio != null && producto.precio > 0 ? (
-            noDisponible ? (
-              <a
-                href={whatsappHref}
-                class="btn btn-primary"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {t(locale, 'producto.cta_consultar_disponibilidad')}
-              </a>
-            ) : (
-              <button
-                type="button"
-                class="btn btn-primary"
-                aria-live="polite"
-                data-add-carrito={producto.slug}
-                data-nombre={producto.nombre}
-                data-precio={producto.precio}
-                data-moneda={producto.moneda ?? 'COP'}
-                data-stock={producto.stock ?? ''}
-                data-label-agregar={t(locale, 'carrito.agregar')}
-                data-label-agregado={t(locale, 'carrito.agregado')}
-              >
-                {t(locale, 'carrito.agregar')}
-              </button>
-            )
+          accionComercial.tipo === 'consultar' ? (
+            <a
+              href={whatsappHref}
+              class="btn btn-primary"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {accionComercial.label}
+            </a>
+          ) : accionComercial.tipo === 'carrito' ? (
+            <button
+              type="button"
+              class="btn btn-primary"
+              aria-live="polite"
+              data-add-carrito={producto.slug}
+              data-nombre={producto.nombre}
+              data-precio={producto.precio}
+              data-moneda={producto.moneda ?? 'COP'}
+              data-stock={producto.stock ?? ''}
+              data-label-agregar={t(locale, 'carrito.agregar')}
+              data-label-agregado={t(locale, 'carrito.agregado')}
+            >
+              {accionComercial.label}
+            </button>
           ) : (
             <button
               type="button"
@@ -170,7 +169,7 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
               data-label-agregar={t(locale, 'cotizacion_equipos.agregar')}
               data-label-agregado={t(locale, 'cotizacion_equipos.agregado')}
             >
-              {t(locale, 'cotizacion_equipos.agregar')}
+              {accionComercial.label}
             </button>
           )
         }

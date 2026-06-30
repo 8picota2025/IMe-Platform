@@ -6,6 +6,7 @@
  */
 import { t, type Locale } from '../i18n/utils';
 import { formatMoneda } from '../lib/format';
+import { getAccionComercial } from '../lib/comercial';
 
 interface ProductoCardData {
   slug: string;
@@ -40,6 +41,7 @@ const segment = locale === 'en' ? 'products' : 'productos';
 const href = `/${locale}/${segment}/${producto.slug}`;
 const noDisponible = producto.disponible === false;
 const precioFormateado = formatMoneda(producto.precio ?? null, producto.moneda ?? 'COP', locale);
+const accionComercial = getAccionComercial(producto, locale);
 const whatsappHref = `https://wa.me/573138674059?text=${encodeURIComponent(
   `${t(locale, 'producto.cta_consultar_disponibilidad')}: ${producto.nombre}`
 )}`;
@@ -156,33 +158,30 @@ function modalidadLabel(modalidad?: string): string {
     {t(locale, 'catalogo.vista_rapida')}
   </button>
   {
-    /* Productos con precio → carrito (dropshipping); sin precio → cotización conjunta */
-    producto.precio != null && producto.precio > 0 ? (
-      noDisponible ? (
-        <a
-          href={whatsappHref}
-          class="btn btn-secondary producto-card__add"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {t(locale, 'producto.cta_consultar_disponibilidad')}
-        </a>
-      ) : (
-        <button
-          type="button"
-          class="btn btn-secondary producto-card__add"
-          aria-live="polite"
-          data-add-carrito={producto.slug}
-          data-nombre={producto.nombre}
-          data-precio={producto.precio}
-          data-moneda={producto.moneda ?? 'COP'}
-          data-stock={producto.stock ?? ''}
-          data-label-agregar={t(locale, 'carrito.agregar')}
-          data-label-agregado={t(locale, 'carrito.agregado')}
-        >
-          {t(locale, 'carrito.agregar')}
-        </button>
-      )
+    accionComercial.tipo === 'consultar' ? (
+      <a
+        href={whatsappHref}
+        class="btn btn-secondary producto-card__add"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {accionComercial.label}
+      </a>
+    ) : accionComercial.tipo === 'carrito' ? (
+      <button
+        type="button"
+        class="btn btn-secondary producto-card__add"
+        aria-live="polite"
+        data-add-carrito={producto.slug}
+        data-nombre={producto.nombre}
+        data-precio={producto.precio}
+        data-moneda={producto.moneda ?? 'COP'}
+        data-stock={producto.stock ?? ''}
+        data-label-agregar={t(locale, 'carrito.agregar')}
+        data-label-agregado={t(locale, 'carrito.agregado')}
+      >
+        {accionComercial.label}
+      </button>
     ) : (
       <button
         type="button"
@@ -194,7 +193,7 @@ function modalidadLabel(modalidad?: string): string {
         data-label-agregar={t(locale, 'cotizacion_equipos.agregar')}
         data-label-agregado={t(locale, 'cotizacion_equipos.agregado')}
       >
-        {t(locale, 'cotizacion_equipos.agregar')}
+        {accionComercial.label}
       </button>
     )
   }

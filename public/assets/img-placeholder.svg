@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300" role="img" aria-label="Imagen de producto no disponible">
+  <rect width="400" height="300" fill="#eef5f6"/>
+  <circle cx="200" cy="128" r="42" fill="#d6e6e9"/>
+  <path d="M136 205h128l-38-46-28 32-19-23-43 37Z" fill="#9bbcc4"/>
+  <path d="M162 121h76v14h-76zm0 28h76v14h-76z" fill="#2f6f7c" opacity=".75"/>
+  <text x="200" y="248" text-anchor="middle" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#2f6f7c">I-ME</text>
+</svg>

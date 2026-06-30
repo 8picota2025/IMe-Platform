@@ -40,6 +40,18 @@ function stringValue(value: unknown): string {
   return '';
 }
 
+function publicImage(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  const src = value.trim();
+  if (!src) return null;
+  if (src.startsWith('/') || src.startsWith('http://') || src.startsWith('https://')) return src;
+  return null;
+}
+
+function isString(value: string | null): value is string {
+  return typeof value === 'string';
+}
+
 // Cache de mapeo familia_id <-> familia_slug, resuelto vía Supabase (productos.familia_id
 // es FK a familias.id; no existe columna familia_slug en la tabla productos).
 let familiaIdPorSlug: Record<string, string> | null = null;
@@ -70,8 +82,8 @@ function mapProductoSupabase(raw: any, locale: Locale): Producto {
     descripcion_corta: locale === 'en' ? raw.descripcion_corta_en : raw.descripcion_corta_es,
     descripcion_larga: locale === 'en' ? raw.descripcion_larga_en : raw.descripcion_larga_es,
     especificaciones: raw.especificaciones ?? [],
-    imagen_principal: raw.imagen_principal,
-    galeria: raw.galeria ?? [],
+    imagen_principal: publicImage(raw.imagen_principal),
+    galeria: Array.isArray(raw.galeria) ? raw.galeria.map(publicImage).filter(isString) : [],
     ficha_pdf: raw.ficha_pdf,
     tipo_comercial: raw.tipo_comercial,
     fulfillment_mode: raw.fulfillment_mode,
@@ -200,8 +212,8 @@ function mapProducto(raw: (typeof mockProductos)[0], locale: Locale): Producto {
     descripcion_corta: locale === 'en' ? raw.descripcion_corta_en : raw.descripcion_corta_es,
     descripcion_larga: locale === 'en' ? raw.descripcion_larga_en : raw.descripcion_larga_es,
     especificaciones: raw.especificaciones,
-    imagen_principal: raw.imagen_principal,
-    galeria: raw.galeria,
+    imagen_principal: publicImage(raw.imagen_principal),
+    galeria: raw.galeria.map(publicImage).filter(isString),
     ficha_pdf: raw.ficha_pdf,
     tipo_comercial: raw.tipo_comercial as Producto['tipo_comercial'],
     fulfillment_mode: raw.fulfillment_mode as Producto['fulfillment_mode'],

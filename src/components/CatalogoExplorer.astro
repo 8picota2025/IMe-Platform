@@ -1011,18 +1011,19 @@ const hayNuevos = items.some(item => item.nuevo);
 
   catalogoWindow.__imeCatalogoCleanup?.();
 
-  // Captura el deep-link de categoría (?cat=slug) antes de inicializar el
+  // Captura el deep-link de categoría antes de inicializar el
   // catálogo, ya que initCatalogo puede limpiar la query de la URL.
-  const cat = new URLSearchParams(window.location.search).get('cat');
+  const searchParams = new URLSearchParams(window.location.search);
+  const familia = searchParams.get('familia') ?? searchParams.get('cat');
 
   catalogoWindow.__imeCatalogoCleanup = initCatalogo(locale);
 
   // Replica el comportamiento de las cat-card de producción: abre el catálogo
   // ya filtrado por familia activando el botón de filtro correspondiente.
-  if (cat) {
+  if (familia) {
     requestAnimationFrame(() => {
       const btn = document.querySelector<HTMLButtonElement>(
-        `[data-familia-filter="${CSS.escape(cat)}"]`
+        `[data-familia-filter="${CSS.escape(familia)}"]`
       );
       if (btn) btn.click();
     });

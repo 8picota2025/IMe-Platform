@@ -81,7 +81,7 @@ const legalLinks: Array<{ kind: LegalKind; label: string }> = [
         {
           familias.map(f => (
             <li>
-              <a href={`${catalogoBase}?cat=${f.slug}`}>
+              <a href={`${catalogoBase}?familia=${f.slug}`}>
                 {locale === 'en' ? f.label_en : f.label_es}
               </a>
             </li>
