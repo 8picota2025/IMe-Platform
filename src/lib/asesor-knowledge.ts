@@ -17,6 +17,39 @@ const CERTIFICATIONS_QUERY_REGEX =
 const MEDICAL_DEVICE_REGULATORY_QUERY_REGEX =
   /\b(invima|dispositivo(?:s)? medic(?:o|os|a|as)|medical device(?:s)?|equipo(?:s)? biomedic(?:o|os|a|as)|biomedical equipment|registro(?:s)? sanitario(?:s)?|sanitary registration(?:s)?|tecnovigil(?:ancia|ance)|clasificaci(?:on|ones)|classific(?:ation|ations)|importaci(?:on|ones)|import(?:s|ation)?)\b/i;
 
+const BIOMEDICAL_DOMAIN_KNOWLEDGE = `CONOCIMIENTO DE INGENIERÍA BIOMÉDICA POR CATEGORÍA
+
+## Diagnóstico por imagen (rayos X, ecografía, radiología)
+- Los equipos portátiles de rayos X (DR móviles) son clase II INVIMA; requieren blindaje y protocolo de dosimetría. Para un servicio de urgencias con <20 estudios/día, un equipo portátil DR es más eficiente que instalar una sala fija.
+- En ecografía, la resolución se determina por la frecuencia del transductor: alta frecuencia (7.5-15 MHz) para estructuras superficiales, baja frecuencia (2-5 MHz) para cavidades profundas. Un ecógrafo "general" no es igual a uno configurado para urgencias o para obstetricia.
+- Error de compra frecuente: adquirir un ecógrafo sin considerar el costo y disponibilidad de los transductores adicionales, que pueden ser 30-50% del valor del equipo base.
+- Para tomografía (TAC), el número de cortes (slices) determina la velocidad de adquisición y la resolución: 16 slices es suficiente para diagnóstico general; 64+ para cardiología. No escalar más allá de la demanda real implica costos operativos innecesarios.
+
+## Monitoreo de signos vitales y cuidado crítico
+- Un monitor multiparamétrico de UCI debe tener módulos de: ECG 12 derivaciones, SpO2 (preferiblemente Masimo SET o Nellcor para pacientes con mala perfusión), NIBP, temperatura y capnografía (EtCO2). La capnografía es crítica en pacientes intubados y suele omitirse en compras de bajo costo.
+- Los oxímetros de pulso de dedo para uso puntual (Clase I-II) son distintos a los de monitoreo continuo (Clase II). Para urgencias con pacientes en movimiento, el algoritmo anti-movimiento es determinante: Masimo RAINBOW SET es el estándar de oro pero tiene costo de consumibles mayor.
+- Bombas de infusión: la diferencia entre una bomba de jeringa y una volumétrica es el tipo de medicamento. Las bombas de jeringa son para medicamentos de alto riesgo en dosis bajas (inotropos, sedación); las volumétricas para volúmenes grandes (hidratación, antibióticos). Una UCI de 10 camas necesita típicamente 2-3 bombas por cama.
+- Ventiladores: en Colombia post-pandemia, la normativa INVIMA para ventiladores de emergencia es más estricta. Los ventiladores de transporte (modo de batería + modos básicos) son clase IIB; los de UCI con modos avanzados (APRV, HFOV) son clase III.
+
+## Electrocardiografía (ECG)
+- Un ECG de 12 derivaciones está en clase II INVIMA. La diferencia entre un ECG básico y uno con interpretación automática es clínicamente relevante solo si el personal no es cardiólogo — en consultorios de medicina general, la interpretación automática reduce errores de clasificación.
+- Para teleconsulta o redes de salud distribuidas, importa la conectividad: algunos equipos exportan PDF, otros tienen módulo HL7/DICOM para integración con HIS. Preguntar por el formato de exportación antes de comprar ahorra una integración costosa después.
+- La ergonomía del papel de registro importa: algunos equipos usan papel térmico propietario con costos de consumibles 3-4x más altos que el papel estándar.
+
+## Glucómetros y diagnóstico de laboratorio punto de cuidado (POC)
+- Los glucómetros hospitalarios deben cumplir ISO 15197:2013 (exactitud ±15 mg/dL o ±15% para valores >100 mg/dL). Los glucómetros domésticos NO son aptos para uso clínico institucional aunque sean más baratos.
+- Error de compra frecuente: subestimar el costo de tiras reactivas. Para una UCI de 10 camas con 4 mediciones/paciente/día, el costo anual de tiras puede ser 5-8x el precio del equipo base. Evaluar el costo total de propiedad (TCO) a 3 años.
+- Los glucómetros para pacientes en estado crítico (hematocrito muy alto >55% o muy bajo <20%) requieren tecnología de medición que compense la interferencia del hematocrito — no todos los modelos lo hacen.
+
+## Esterilización y procesamiento de instrumentos
+- Los autoclaves de vapor (clase II) son el estándar para instrumental reutilizable. El tamaño de cámara debe calcularse en función del volumen de instrumental y el ciclo de rotación: una clínica odontológica con 4 sillones necesita típicamente una cámara de 18-23 L con ciclos de 20 minutos.
+- Los esterilizadores de calor seco (pupineles) solo son aptos para materiales que no toleran humedad; no son equivalentes al autoclave de vapor para instrumental quirúrgico.
+- La trazabilidad de ciclos de esterilización (impresión de parámetros, integración con software de gestión) es obligatoria en instituciones que aplican habilitación MSPS en Colombia.
+
+## Mobiliario clínico y equipos de sala
+- Las camillas de examen clase I no requieren registro INVIMA complejo, pero las camillas hidráulicas o eléctricas para procedimientos (endoscopia, cirugía menor) son clase II y deben tener certificación CE o FDA además de INVIMA.
+- Las lámparas de fototerapia neonatal deben especificar la intensidad de irradiancia (μW/cm²/nm) en la banda 450-470 nm. El estándar clínico es >30 μW/cm²/nm a distancia de tratamiento. Los modelos LED de doble cara son más eficientes en tiempo de tratamiento que los de halógeno simples.`;
+
 const EXTERNAL_REFERENCES = `REFERENCIAS EXTERNAS DE APOYO
 - INVIMA (dispositivos médicos y equipos biomédicos): el Instituto publica que estos productos están sujetos a supervisión, control, autorización de comercialización y cumplimiento de requisitos técnico-legales y sanitarios. También reúne normativa, trámites, registros sanitarios, tecnovigilancia y listados de establecimientos certificados. Úsalo para orientar preguntas sobre clasificación, registro, vigilancia, importación y trazabilidad, siempre con validación del producto específico.
 - Distribuidores especializados de equipo médico: los contenidos de referencia resaltan que un distribuidor especializado aporta selección técnica, disponibilidad, logística, soporte, mantenimiento, capacitación y continuidad operativa. Úsalo para responder por qué un distribuidor biomédico no es solo un vendedor, sino un aliado técnico y comercial.
@@ -71,8 +104,8 @@ const SITE_OR_LEGAL_QUERY_REGEX =
 
 export function getAsesorKnowledgeBase(locale: AsesorKnowledgeLocale): string {
   return locale === 'en'
-    ? `${EN_SITE_AND_LEGAL_KNOWLEDGE}\n\n${EXTERNAL_REFERENCES}`
-    : `${ES_SITE_AND_LEGAL_KNOWLEDGE}\n\n${EXTERNAL_REFERENCES}`;
+    ? `${EN_SITE_AND_LEGAL_KNOWLEDGE}\n\n${EXTERNAL_REFERENCES}\n\n${BIOMEDICAL_DOMAIN_KNOWLEDGE}`
+    : `${ES_SITE_AND_LEGAL_KNOWLEDGE}\n\n${EXTERNAL_REFERENCES}\n\n${BIOMEDICAL_DOMAIN_KNOWLEDGE}`;
 }
 
 export function esConsultaSitioOLegal(texto: string): boolean {
