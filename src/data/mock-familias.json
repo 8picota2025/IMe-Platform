@@ -97,5 +97,16 @@
     "icono": "scan",
     "orden": 9,
     "activo": true
+  },
+  {
+    "id": "fam-imagenologia",
+    "slug": "imagenologia",
+    "nombre_es": "Imagenología",
+    "nombre_en": "Medical Imaging",
+    "descripcion_es": "Mamógrafos digitales, sistemas radiográficos 3D, detectores planos inalámbricos y sistemas de adquisición de imagen para diagnóstico avanzado.",
+    "descripcion_en": "Digital mammography systems, 3D radiographic units, wireless flat-panel detectors and image acquisition systems for advanced diagnostics.",
+    "icono": "scan",
+    "orden": 10,
+    "activo": true
   }
 ]

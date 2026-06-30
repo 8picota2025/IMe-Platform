@@ -224,9 +224,19 @@ export async function getFamilias(locale: Locale): Promise<Familia[]> {
   const mockFamiliasPorSlug = new Map(
     mockFamilias.filter(f => f.activo).map(f => [f.slug, f] as const)
   );
+  // Slugs de BD que no coinciden exactamente con el mock por diferente algoritmo de slugificación
+  const SLUG_ALIASES: Record<string, string> = {
+    'radiolog-a-y-diagn-stico-por-imagen': 'radiolia',
+  };
   const esPlaceholder = (value: unknown): boolean =>
     typeof value === 'string' && value.toUpperCase().includes('COPY_CLIENTE_REVISAR');
   const textoUsable = (value: unknown): string => (typeof value === 'string' ? value.trim() : '');
+  const slugToTitulo = (s: string): string =>
+    s
+      .split('-')
+      .filter(w => w.length > 1)
+      .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ');
 
   if (debeUsarSupabase()) {
     const supabase = getSupabaseClient()!;
@@ -241,12 +251,15 @@ export async function getFamilias(locale: Locale): Promise<Familia[]> {
       return data
         .map(raw => {
           const slug = raw.slug as string;
-          const mock = mockFamiliasPorSlug.get(slug);
+          // Busca mock por slug exacto o por alias (slugs de BD que difieren del mock)
+          const mock =
+            mockFamiliasPorSlug.get(slug) ?? mockFamiliasPorSlug.get(SLUG_ALIASES[slug] ?? '');
           if (mock) {
             const base = mapFamilia(mock, locale);
             return {
               ...base,
               id: raw.id as string,
+              slug, // Siempre usa el slug de BD para coincidir con producto.familia_slug
               orden: raw.orden as number,
               activo: raw.activo as boolean,
               icono: resolveFamiliaIcono(slug, stringValue((raw as RawRow).icono) || mock.icono),
@@ -255,11 +268,13 @@ export async function getFamilias(locale: Locale): Promise<Familia[]> {
           const nombreDb = locale === 'en' ? raw.nombre_en : raw.nombre_es;
           const descripcionDb = locale === 'en' ? raw.descripcion_en : raw.descripcion_es;
           const nombre =
-            textoUsable(nombreDb) && !esPlaceholder(nombreDb) ? textoUsable(nombreDb) : '';
+            textoUsable(nombreDb) && !esPlaceholder(nombreDb)
+              ? textoUsable(nombreDb)
+              : slugToTitulo(slug);
           const descripcion =
             textoUsable(descripcionDb) && !esPlaceholder(descripcionDb)
               ? textoUsable(descripcionDb)
-              : '';
+              : nombre;
 
           return {
             id: raw.id as string,
@@ -271,7 +286,7 @@ export async function getFamilias(locale: Locale): Promise<Familia[]> {
             activo: raw.activo as boolean,
           };
         })
-        .filter(familia => familia.nombre && familia.descripcion);
+        .filter(familia => Boolean(familia.nombre));
     } else if (data) {
       registrarVacioSupabase('getFamilias');
     }
