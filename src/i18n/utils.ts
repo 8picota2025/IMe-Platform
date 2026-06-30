@@ -44,6 +44,7 @@ const PATH_SEGMENT_PAIRS: Array<{ es: string; en: string }> = [
   { es: 'financiacion', en: 'financing' },
   { es: 'productos', en: 'products' },
   { es: 'conocimiento', en: 'knowledge' },
+  { es: 'seguimiento', en: 'order-status' },
 ];
 
 const LEGAL_SLUG_PAIRS: Array<{ es: string; en: string }> = [
@@ -51,6 +52,9 @@ const LEGAL_SLUG_PAIRS: Array<{ es: string; en: string }> = [
   { es: 'habeas-data', en: 'data-authorization' },
   { es: 'cookies', en: 'cookies' },
   { es: 'terminos', en: 'terms' },
+  { es: 'envios', en: 'shipping' },
+  { es: 'devoluciones', en: 'returns' },
+  { es: 'garantias', en: 'warranty' },
   { es: 'copyright', en: 'copyright' },
 ];
 

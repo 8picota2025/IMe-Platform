@@ -30,6 +30,9 @@ const legalLinks: Array<{ kind: LegalKind; label: string }> = [
   { kind: 'habeas-data', label: t(locale, 'footer.habeas_data') },
   { kind: 'cookies', label: t(locale, 'footer.cookies') },
   { kind: 'terminos', label: t(locale, 'footer.terminos') },
+  { kind: 'envios', label: locale === 'en' ? 'Shipping' : 'Envíos' },
+  { kind: 'devoluciones', label: locale === 'en' ? 'Returns' : 'Devoluciones' },
+  { kind: 'garantias', label: locale === 'en' ? 'Warranty' : 'Garantías' },
   { kind: 'copyright', label: t(locale, 'footer.copyright') },
 ];
 ---
@@ -70,6 +73,11 @@ const legalLinks: Array<{ kind: LegalKind; label: string }> = [
         <li><a href={getLocalizedPath('/contacto', locale)}>{t(locale, 'nav.contacto')}</a></li>
         <li>
           <a href={getLocalizedPath('/conocimiento', locale)}>{t(locale, 'nav.conocimiento')}</a>
+        </li>
+        <li>
+          <a href={getLocalizedPath('/seguimiento', locale)}>
+            {locale === 'en' ? 'Order status' : 'Seguimiento'}
+          </a>
         </li>
       </ul>
     </nav>

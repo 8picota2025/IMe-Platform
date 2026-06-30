@@ -15,6 +15,17 @@ import {
 } from './comparador';
 
 const PAGE_SIZE = 12;
+const SEARCH_SYNONYMS: Record<string, string[]> = {
+  defibrillator: ['desfibrilador', 'dea', 'aed'],
+  desfibrilador: ['defibrillator', 'dea', 'aed'],
+  monitor: ['monitoreo', 'multiparametrico', 'multiparameter'],
+  ultrasound: ['ultrasonido', 'ecografo', 'ecografia'],
+  ultrasonido: ['ultrasound', 'ecografo', 'ecografia'],
+  incubator: ['incubadora', 'neonatal'],
+  incubadora: ['incubator', 'neonatal'],
+  ventilator: ['ventilador', 'respirador'],
+  ventilador: ['ventilator', 'respirador'],
+};
 
 interface CatalogoState {
   familia: string;
@@ -117,6 +128,48 @@ function parseSpecs(card: HTMLElement): Record<string, string> {
   }
 }
 
+function getSearchTerms(raw: string): string[] {
+  const base = normalizarTexto(raw);
+  if (!base) return [];
+  const terms = new Set([base]);
+  for (const part of base.split(/\s+/).filter(Boolean)) {
+    terms.add(part);
+    for (const synonym of SEARCH_SYNONYMS[part] ?? []) terms.add(normalizarTexto(synonym));
+  }
+  return [...terms].filter(Boolean);
+}
+
+function relevanceScore(
+  card: HTMLElement,
+  state: CatalogoState,
+  order: Map<HTMLElement, number>
+): number {
+  const terms = getSearchTerms(state.q);
+  let score = 0;
+  const nombre = normalizarTexto(card.dataset['nombre'] ?? '');
+  const familia = normalizarTexto(card.dataset['familiaNombre'] ?? card.dataset['familia'] ?? '');
+  const texto = card.dataset['busqueda'] ?? '';
+  const specs = normalizarTexto(Object.values(parseSpecs(card)).join(' '));
+
+  for (const term of terms) {
+    if (nombre === term) score += 1200;
+    else if (nombre.startsWith(term)) score += 900;
+    else if (nombre.includes(term)) score += 700;
+
+    if (familia === term) score += 500;
+    else if (familia.includes(term)) score += 350;
+
+    if (specs.includes(term)) score += 180;
+    if (texto.includes(term)) score += 80;
+  }
+
+  if (state.familia && (card.dataset['familias'] ?? '').split(/\s+/).includes(state.familia)) {
+    score += 60;
+  }
+  if (card.dataset['destacado'] === '1') score += 15;
+  return score * 10000 - (order.get(card) ?? 0);
+}
+
 function matchesBase(card: HTMLElement, state: CatalogoState): boolean {
   if (state.familia) {
     const familias = (card.dataset['familias'] ?? card.dataset['familia'] ?? '').split(/\s+/);
@@ -196,6 +249,7 @@ export function initCatalogo(locale: Locale): () => void {
   const grid = document.getElementById('vista-productos');
   const familiasView = document.getElementById('vista-familias');
   const cards = Array.from(grid?.querySelectorAll<HTMLElement>('[data-producto-slug]') ?? []);
+  const cardOrder = new Map(cards.map((card, index) => [card, index]));
   const buscarInput = document.getElementById('catalogo-buscar') as HTMLInputElement | null;
   const contador = document.getElementById('catalogo-contador');
   const anuncios = document.getElementById('catalogo-anuncios');
@@ -471,7 +525,11 @@ export function initCatalogo(locale: Locale): () => void {
     renderFacetas(facetas);
 
     let visibles = baseCoincide.filter(card => matchesFacetas(card, state.facetas));
-    if (state.orden === 'nombre_asc' || state.orden === 'nombre_desc') {
+    if (state.orden === 'relevancia') {
+      visibles = [...visibles].sort(
+        (a, b) => relevanceScore(b, state, cardOrder) - relevanceScore(a, state, cardOrder)
+      );
+    } else if (state.orden === 'nombre_asc' || state.orden === 'nombre_desc') {
       const factor = state.orden === 'nombre_asc' ? 1 : -1;
       visibles = [...visibles].sort((a, b) => {
         const an = a.dataset['nombre'] ?? '';

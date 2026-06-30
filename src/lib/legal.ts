@@ -1,6 +1,14 @@
 import type { Locale } from '../i18n/utils';
 
-export type LegalKind = 'privacidad' | 'habeas-data' | 'cookies' | 'terminos' | 'copyright';
+export type LegalKind =
+  | 'privacidad'
+  | 'habeas-data'
+  | 'cookies'
+  | 'terminos'
+  | 'envios'
+  | 'devoluciones'
+  | 'garantias'
+  | 'copyright';
 
 export interface LegalSection {
   heading: string;
@@ -542,6 +550,102 @@ const esPages: LegalPage[] = [
         heading: 'Advertencia de revisión profesional',
         body: [
           'Estos términos requieren revisión final por abogado colombiano, validación técnica, revisión sanitaria/regulatoria cuando aplique, revisión de consumidor/comercio electrónico, confirmación tributaria y validación de políticas reales de garantías, devoluciones, pagos, soporte, proveedores, financiación y tratamiento de datos antes de publicación.',
+        ],
+      },
+    ],
+  },
+  {
+    kind: 'envios',
+    slug: 'envios',
+    title: 'Política de envíos, entregas e instalación',
+    description:
+      'Condiciones operativas de envío, entrega, instalación y recepción de productos biomédicos adquiridos o cotizados con I-ME.',
+    badge: 'POLÍTICA COMERCIAL',
+    updated: '2026-06-30',
+    sections: [
+      {
+        heading: 'Alcance',
+        body: [
+          'Esta política aplica a productos comprados en línea, pedidos confirmados por cotización formal y entregas coordinadas por I-ME International Medical Enterprise en Colombia.',
+          'Los tiempos, costos y condiciones finales dependen del producto, ciudad, disponibilidad, importación, instalación requerida y alcance aprobado en la orden o cotización.',
+        ],
+      },
+      {
+        heading: 'Tiempos y costos',
+        body: [
+          'Los productos con disponibilidad inmediata se despachan después de validar pago, datos de facturación y dirección de entrega. Los equipos bajo pedido, importación o configuración técnica se entregan según cronograma confirmado por asesor comercial.',
+          'El costo de envío, seguro, maniobra, instalación, capacitación o puesta en marcha se informa antes del cierre cuando aplique. Si el sitio no muestra costo automático, I-ME lo confirma en la cotización o confirmación de pedido.',
+        ],
+      },
+      {
+        heading: 'Recepción del producto',
+        body: [
+          'El cliente debe revisar empaque, cantidades, referencia, estado físico y accesorios al recibir. Cualquier novedad debe reportarse por escrito con fotografías o video dentro de un plazo razonable posterior a la entrega.',
+          'Los equipos biomédicos que requieren instalación, calibración, validación técnica o capacitación deben ser operados conforme a manuales del fabricante y recomendaciones de I-ME.',
+        ],
+      },
+    ],
+  },
+  {
+    kind: 'devoluciones',
+    slug: 'devoluciones',
+    title: 'Política de devoluciones, cambios y reembolsos',
+    description:
+      'Condiciones para solicitar devoluciones, cambios o reembolsos en compras, pedidos y productos biomédicos gestionados por I-ME.',
+    badge: 'POLÍTICA COMERCIAL',
+    updated: '2026-06-30',
+    sections: [
+      {
+        heading: 'Condiciones generales',
+        body: [
+          'Las solicitudes de devolución, cambio o reembolso se evalúan según la naturaleza del producto, estado de empaque, uso, condición sanitaria, trazabilidad, factura, orden y legislación colombiana aplicable.',
+          'Por seguridad sanitaria y trazabilidad, consumibles abiertos, productos estériles, repuestos instalados, sensores, accesorios de contacto clínico, productos personalizados o equipos importados bajo pedido pueden no admitir devolución voluntaria, sin perjuicio de garantías legales obligatorias.',
+        ],
+      },
+      {
+        heading: 'Requisitos de solicitud',
+        body: [
+          'El cliente debe enviar número de pedido, factura o cotización, referencia del producto, motivo, evidencia fotográfica o video, datos de contacto y estado del empaque.',
+          'I-ME confirmará si procede cambio, reembolso, revisión técnica, garantía o devolución logística. Ningún producto debe enviarse de regreso sin autorización previa.',
+        ],
+      },
+      {
+        heading: 'Reembolsos',
+        body: [
+          'Cuando proceda un reembolso, se realizará por el medio y plazo operativo que corresponda tras verificar producto, pago, factura, retenciones, costos logísticos y condiciones aprobadas.',
+          'Los gastos de transporte, instalación, desinstalación, alistamiento, comisiones financieras o deterioro atribuible al cliente podrán descontarse cuando legalmente proceda.',
+        ],
+      },
+    ],
+  },
+  {
+    kind: 'garantias',
+    slug: 'garantias',
+    title: 'Política de garantías y soporte posventa',
+    description:
+      'Cobertura, exclusiones y procedimiento para garantías de equipos biomédicos, accesorios, consumibles y soporte posventa de I-ME.',
+    badge: 'POLÍTICA COMERCIAL',
+    updated: '2026-06-30',
+    sections: [
+      {
+        heading: 'Cobertura',
+        body: [
+          'La garantía de cada producto se rige por la cotización formal, factura, documentación del fabricante y normativa colombiana aplicable. El alcance puede variar por equipo, marca, modelo, serial, repuesto, accesorio o consumible.',
+          'Cuando aplique, I-ME coordina diagnóstico, soporte técnico, gestión con fabricante, repuestos, instalación, capacitación o mantenimiento según el alcance contratado.',
+        ],
+      },
+      {
+        heading: 'Exclusiones habituales',
+        body: [
+          'La garantía no cubre mal uso, golpes, accidentes, intervención no autorizada, instalación por terceros no aprobados, fallas eléctricas externas, limpieza inadecuada, uso fuera de especificaciones, desgaste normal de consumibles, alteración de seriales o falta de mantenimiento requerido.',
+          'Consumibles, baterías, sensores, cables, sondas, electrodos y accesorios pueden tener condiciones especiales definidas por fabricante o naturaleza sanitaria.',
+        ],
+      },
+      {
+        heading: 'Cómo solicitar garantía',
+        body: [
+          'El cliente debe enviar factura, número de pedido o cotización, producto, marca, modelo, serial cuando aplique, descripción de falla, evidencia fotográfica o video, ciudad y datos de contacto.',
+          'I-ME indicará el siguiente paso: soporte remoto, revisión técnica, recolección, visita, envío a fabricante, reparación, cambio o concepto de no cobertura.',
         ],
       },
     ],
@@ -1189,6 +1293,102 @@ const enPages: LegalPage[] = [
         heading: 'Professional review warning',
         body: [
           'These terms require final review by Colombian counsel, technical validation, healthcare regulatory review where applicable, consumer/e-commerce review, tax confirmation and validation of actual policies for warranties, returns, payments, support, suppliers, financing and data processing before publication.',
+        ],
+      },
+    ],
+  },
+  {
+    kind: 'envios',
+    slug: 'shipping',
+    title: 'Shipping, delivery and installation policy',
+    description:
+      'Operational terms for shipping, delivery, installation and receipt of biomedical products purchased or quoted through I-ME.',
+    badge: 'COMMERCIAL POLICY',
+    updated: '2026-06-30',
+    sections: [
+      {
+        heading: 'Scope',
+        body: [
+          'This policy applies to online purchases, formally confirmed quote orders and deliveries coordinated by I-ME International Medical Enterprise in Colombia.',
+          'Final timing, costs and conditions depend on product, city, availability, import status, required installation and scope approved in the order or quote.',
+        ],
+      },
+      {
+        heading: 'Timing and costs',
+        body: [
+          'Products with immediate availability are dispatched after payment, billing details and delivery address are validated. Products ordered on demand, imported or requiring technical configuration are delivered according to the schedule confirmed by a commercial advisor.',
+          'Shipping, insurance, handling, installation, training or commissioning costs are disclosed before closing when applicable. If the website does not show an automatic cost, I-ME confirms it in the quote or order confirmation.',
+        ],
+      },
+      {
+        heading: 'Receiving the product',
+        body: [
+          'The customer must check packaging, quantities, reference, physical condition and accessories upon receipt. Any issue must be reported in writing with photographs or video within a reasonable period after delivery.',
+          'Biomedical equipment requiring installation, calibration, technical validation or training must be operated according to manufacturer manuals and I-ME recommendations.',
+        ],
+      },
+    ],
+  },
+  {
+    kind: 'devoluciones',
+    slug: 'returns',
+    title: 'Returns, exchanges and refunds policy',
+    description:
+      'Conditions for requesting returns, exchanges or refunds for purchases, orders and biomedical products managed by I-ME.',
+    badge: 'COMMERCIAL POLICY',
+    updated: '2026-06-30',
+    sections: [
+      {
+        heading: 'General conditions',
+        body: [
+          'Return, exchange or refund requests are evaluated according to product nature, packaging condition, use, sanitary condition, traceability, invoice, order and applicable Colombian law.',
+          'For sanitary safety and traceability, opened consumables, sterile products, installed spare parts, clinical-contact sensors or accessories, customized products or equipment imported on special order may not admit voluntary returns, without prejudice to mandatory statutory warranties.',
+        ],
+      },
+      {
+        heading: 'Request requirements',
+        body: [
+          'The customer must provide order, invoice or quote number, product reference, reason, photo or video evidence, contact details and packaging condition.',
+          'I-ME will confirm whether an exchange, refund, technical inspection, warranty or logistics return applies. No product should be returned without prior authorization.',
+        ],
+      },
+      {
+        heading: 'Refunds',
+        body: [
+          'Where a refund applies, it will be processed through the corresponding method and operational timeframe after product, payment, invoice, withholding, logistics costs and approved conditions are verified.',
+          'Transportation, installation, removal, preparation, financial fees or deterioration attributable to the customer may be deducted where legally allowed.',
+        ],
+      },
+    ],
+  },
+  {
+    kind: 'garantias',
+    slug: 'warranty',
+    title: 'Warranty and after-sales support policy',
+    description:
+      'Coverage, exclusions and procedure for warranties on biomedical equipment, accessories, consumables and I-ME after-sales support.',
+    badge: 'COMMERCIAL POLICY',
+    updated: '2026-06-30',
+    sections: [
+      {
+        heading: 'Coverage',
+        body: [
+          'Each product warranty is governed by the formal quote, invoice, manufacturer documentation and applicable Colombian law. Scope may vary by equipment, brand, model, serial number, spare part, accessory or consumable.',
+          'Where applicable, I-ME coordinates diagnosis, technical support, manufacturer management, spare parts, installation, training or maintenance according to the contracted scope.',
+        ],
+      },
+      {
+        heading: 'Common exclusions',
+        body: [
+          'Warranty does not cover misuse, impacts, accidents, unauthorized intervention, installation by non-approved third parties, external electrical failures, improper cleaning, use outside specifications, normal wear of consumables, serial number alteration or lack of required maintenance.',
+          'Consumables, batteries, sensors, cables, probes, electrodes and accessories may have special terms defined by the manufacturer or sanitary nature.',
+        ],
+      },
+      {
+        heading: 'How to request warranty service',
+        body: [
+          'The customer must provide invoice, order or quote number, product, brand, model, serial number where applicable, failure description, photo or video evidence, city and contact details.',
+          'I-ME will indicate the next step: remote support, technical inspection, collection, visit, manufacturer review, repair, exchange or non-coverage opinion.',
         ],
       },
     ],
