@@ -59,8 +59,32 @@ function contiene(texto: string, palabras: string[]): boolean {
   return palabras.some(p => texto.includes(p));
 }
 
-export function getCatalogoTaxonomia(familias: Familia[], locale: Locale): FamiliaPrincipal[] {
-  const porSlug = new Map(familias.map(f => [f.slug, f]));
+function canonicalFamiliaSlug(slug: string): string {
+  const aliases: Record<string, string> = {
+    'cardiolog-a': 'cardiologia',
+    'neonatolog-a': 'neonatologia',
+    'radiolog-a-y-diagn-stico-por-imagen': 'radiologia',
+    'mobiliario-clinico': 'mobiliario',
+    'monitorizacion-diagnostico': 'monitores',
+    'control-y-prevenci-n': 'monitores',
+    'equipamiento-clinico-general': 'mobiliario',
+    'terapia-infusion': 'soluciones-iv',
+    'terapia-respiratoria-soporte-vital': 'anestesia',
+    'quirofano-anestesia': 'sala-cirugia',
+    'nebulizacion-oxigenoterapia': 'anestesia',
+  };
+  return aliases[slug] ?? slug;
+}
+
+export function getCatalogoTaxonomia(
+  familias: Familia[],
+  locale: Locale,
+  familiasConProductos?: Set<string>
+): FamiliaPrincipal[] {
+  const familiasVisibles = familiasConProductos
+    ? familias.filter(f => familiasConProductos.has(f.slug))
+    : familias;
+  const porSlug = new Map(familiasVisibles.map(f => [f.slug, f]));
   const usadas = new Set<string>();
 
   const principales: FamiliaPrincipal[] = PRINCIPALES.map((grupo): FamiliaPrincipal => {
@@ -77,7 +101,7 @@ export function getCatalogoTaxonomia(familias: Familia[], locale: Locale): Famil
     };
   }).filter(grupo => grupo.subfamilias.length > 0);
 
-  const sinGrupo = familias.filter(f => !usadas.has(f.slug));
+  const sinGrupo = familiasVisibles.filter(f => !usadas.has(f.slug));
   if (sinGrupo.length > 0) {
     principales.push({
       slug: 'otras-especialidades',
@@ -93,7 +117,7 @@ export function getCatalogoTaxonomia(familias: Familia[], locale: Locale): Famil
 }
 
 export function getFamiliasFiltro(producto: Producto): string[] {
-  const slugs = new Set<string>([producto.familia_slug]);
+  const slugs = new Set<string>([canonicalFamiliaSlug(producto.familia_slug)]);
   const texto = normalizar(
     [
       producto.nombre,

@@ -20,8 +20,9 @@ interface Props {
 const { locale } = Astro.props;
 
 const familias = await getFamilias(locale);
-const taxonomia = getCatalogoTaxonomia(familias, locale);
 const items = await buildCatalogoIndex(locale);
+const familiasConProductos = new Set(items.flatMap(item => item.familias_filtro));
+const taxonomia = getCatalogoTaxonomia(familias, locale, familiasConProductos);
 
 const tiposComerciales = [
   ...new Set(items.map(item => item.tipo_comercial).filter(Boolean)),

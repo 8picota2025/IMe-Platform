@@ -43,6 +43,7 @@ const href = `/${locale}/${segment}/${producto.slug}`;
 const noDisponible = producto.disponible === false;
 const precioFormateado = formatMoneda(producto.precio ?? null, producto.moneda ?? 'COP', locale);
 const accionComercial = getAccionComercial(producto, locale);
+const imagenProducto = producto.imagen_principal ?? '/assets/img-placeholder.svg';
 const whatsappHref = `https://wa.me/573138674059?text=${encodeURIComponent(
   `${t(locale, 'producto.cta_consultar_disponibilidad')}: ${producto.nombre}`
 )}`;
@@ -58,7 +59,7 @@ function modalidadLabel(modalidad?: string): string {
   class="card producto-card"
   data-producto-slug={producto.slug}
   data-nombre={producto.nombre}
-  data-imagen={producto.imagen_principal ?? ''}
+  data-imagen={imagenProducto}
   data-familia={producto.familia.slug}
   data-familias={(producto.familias_filtro ?? [producto.familia.slug]).join(' ')}
   data-familia-nombre={producto.familia.nombre}
@@ -81,7 +82,7 @@ function modalidadLabel(modalidad?: string): string {
   >
     <div class="producto-card__img-wrapper">
       <img
-        src={producto.imagen_principal ?? '/assets/img-placeholder.svg'}
+        src={imagenProducto}
         alt={producto.nombre}
         width="400"
         height="280"
@@ -191,7 +192,7 @@ function modalidadLabel(modalidad?: string): string {
         aria-live="polite"
         data-add-cotizacion={producto.slug}
         data-nombre={producto.nombre}
-        data-imagen={producto.imagen_principal ?? ''}
+        data-imagen={imagenProducto}
         data-label-agregar={t(locale, 'cotizacion_equipos.agregar')}
         data-label-agregado={t(locale, 'cotizacion_equipos.agregado')}
       >

@@ -14,6 +14,7 @@ import mockFamilias from '../data/mock-familias.json';
 import mockArticulos from '../data/mock-articulos.json';
 import mockProductos from '../data/mock-productos.json';
 import mockTipos from '../data/mock-tipos.json';
+import productImageManifest from '../data/product-image-manifest.json';
 
 let supabaseDeshabilitadoPorError = false;
 type RawRow = Record<string, unknown>;
@@ -44,12 +45,30 @@ function publicImage(value: unknown): string | null {
   if (typeof value !== 'string') return null;
   const src = value.trim();
   if (!src) return null;
+  if (src.startsWith('public/')) return `/${src.replace(/^public\//, '')}`;
+  if (src.startsWith('assets/')) return `/${src}`;
+  if (src.startsWith('/77/assets/')) return src.replace('/77/assets/', '/assets/');
+  if (src.startsWith('https://i-me.com.co/77/assets/')) {
+    return src.replace('https://i-me.com.co/77/assets/', '/assets/');
+  }
+  if (/^Img\d+\.(jpg|jpeg|png|webp)$/i.test(src)) return `/assets/img/portfolio/${src}`;
   if (src.startsWith('/') || src.startsWith('http://') || src.startsWith('https://')) return src;
   return null;
 }
 
 function isString(value: string | null): value is string {
   return typeof value === 'string';
+}
+
+function localProductImage(slug: unknown): string | null {
+  if (typeof slug !== 'string') return null;
+  const aliases: Record<string, string> = {
+    'sk-c1-v2k': 'sk-c1',
+    'sk-c1-r00': 'sk-c1-r000w',
+    ske001: 'ske001-19',
+  };
+  const manifest = productImageManifest as Record<string, string>;
+  return manifest[slug] ?? manifest[aliases[slug]] ?? null;
 }
 
 // Cache de mapeo familia_id <-> familia_slug, resuelto vía Supabase (productos.familia_id
@@ -82,7 +101,7 @@ function mapProductoSupabase(raw: any, locale: Locale): Producto {
     descripcion_corta: locale === 'en' ? raw.descripcion_corta_en : raw.descripcion_corta_es,
     descripcion_larga: locale === 'en' ? raw.descripcion_larga_en : raw.descripcion_larga_es,
     especificaciones: raw.especificaciones ?? [],
-    imagen_principal: publicImage(raw.imagen_principal),
+    imagen_principal: publicImage(raw.imagen_principal) ?? localProductImage(raw.slug),
     galeria: Array.isArray(raw.galeria) ? raw.galeria.map(publicImage).filter(isString) : [],
     ficha_pdf: raw.ficha_pdf,
     tipo_comercial: raw.tipo_comercial,
