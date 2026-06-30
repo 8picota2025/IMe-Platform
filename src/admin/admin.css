@@ -609,6 +609,143 @@
   background: #fff;
 }
 
+.admin-products-table {
+  min-width: 3600px;
+}
+
+.admin-products-table th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #fffdf8;
+  white-space: nowrap;
+}
+
+.admin-products-table td {
+  vertical-align: top;
+}
+
+.admin-sort-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.admin-sort-link:hover {
+  color: var(--admin-accent);
+  text-decoration: underline;
+}
+
+.admin-inline-input {
+  width: 150px;
+  min-height: 34px;
+  box-sizing: border-box;
+  border: 1px solid var(--admin-line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--admin-ink);
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  font-size: 0.82rem;
+  padding: 7px 8px;
+}
+
+.admin-inline-input--select {
+  width: 180px;
+}
+
+.admin-inline-input--textarea,
+.admin-inline-input--json {
+  width: 220px;
+  min-height: 70px;
+  resize: vertical;
+}
+
+.admin-inline-input--json {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.78rem;
+}
+
+.admin-inline-check {
+  display: inline-flex;
+  min-width: 42px;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-inline-check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--admin-accent);
+}
+
+.admin-product-image-cell {
+  display: grid;
+  gap: 6px;
+  min-width: 68px;
+}
+
+.admin-gallery-cell {
+  display: grid;
+  gap: 8px;
+}
+
+.admin-gallery-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  width: 220px;
+}
+
+.admin-gallery-thumb {
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  border: 1px solid var(--admin-line);
+  border-radius: 5px;
+  background: #fff;
+}
+
+.admin-image-empty {
+  display: inline-flex;
+  width: 48px;
+  height: 48px;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--admin-line);
+  border-radius: 6px;
+  color: var(--admin-muted);
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  font-size: 0.68rem;
+  text-align: center;
+}
+
+.admin-inline-link-cell,
+.admin-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.admin-inline-link-cell .admin-button,
+.admin-row-actions .admin-button {
+  min-height: 34px;
+  padding: 0 10px;
+  font-size: 0.78rem;
+}
+
 .admin-pagination {
   display: flex;
   flex-wrap: wrap;

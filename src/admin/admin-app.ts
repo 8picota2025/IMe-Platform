@@ -603,6 +603,144 @@ function metric(label: string, value: number): string {
 
 const PRODUCTOS_PAGE_SIZE = 20;
 
+type ProductListColumnType =
+  | 'text'
+  | 'textarea'
+  | 'number'
+  | 'boolean'
+  | 'select'
+  | 'image'
+  | 'gallery'
+  | 'link'
+  | 'json'
+  | 'list';
+
+type ProductListColumn = {
+  key: string;
+  label: string;
+  type: ProductListColumnType;
+  sortable?: boolean;
+  options?: Array<[string, string]>;
+};
+
+const PRODUCT_SORT_FIELDS = new Set([
+  'nombre_es',
+  'nombre_en',
+  'slug',
+  'sku',
+  'gtin',
+  'familia_id',
+  'tipo_id',
+  'tipo_comercial',
+  'fulfillment_mode',
+  'precio',
+  'precio_regular',
+  'precio_oferta',
+  'dian_codigo',
+  'tarifa_iva_pct',
+  'retencion_fuente_pct',
+  'retencion_iva_pct',
+  'retencion_ica_pct',
+  'moneda',
+  'stock',
+  'gestionar_stock',
+  'stock_estado',
+  'backorder_policy',
+  'disponible',
+  'excluido_iva',
+  'activo',
+  'destacado',
+  'nuevo',
+  'ficha_pdf',
+  'peso_kg',
+  'orden',
+  'created_at',
+  'updated_at',
+]);
+
+const PRODUCT_LIST_COLUMNS: ProductListColumn[] = [
+  { key: 'imagen_principal', label: 'Foto', type: 'image' },
+  { key: 'galeria', label: 'Galería', type: 'gallery' },
+  { key: 'nombre_es', label: 'Nombre ES', type: 'text', sortable: true },
+  { key: 'nombre_en', label: 'Nombre EN', type: 'text', sortable: true },
+  { key: 'slug', label: 'Slug', type: 'text', sortable: true },
+  { key: 'sku', label: 'SKU', type: 'text', sortable: true },
+  { key: 'gtin', label: 'GTIN', type: 'text', sortable: true },
+  { key: 'familia_id', label: 'Familia', type: 'select', sortable: true },
+  { key: 'tipo_id', label: 'Tipo', type: 'select', sortable: true },
+  {
+    key: 'tipo_comercial',
+    label: 'Tipo comercial',
+    type: 'select',
+    sortable: true,
+    options: [
+      ['equipo', 'Equipo'],
+      ['consumible', 'Consumible'],
+    ],
+  },
+  {
+    key: 'fulfillment_mode',
+    label: 'Fulfillment',
+    type: 'select',
+    sortable: true,
+    options: [
+      ['cotizacion', 'Cotizacion'],
+      ['dropship', 'Dropship'],
+      ['individualizado', 'Individualizado'],
+    ],
+  },
+  { key: 'precio', label: 'Precio', type: 'number', sortable: true },
+  { key: 'precio_regular', label: 'Precio regular', type: 'number', sortable: true },
+  { key: 'precio_oferta', label: 'Precio oferta', type: 'number', sortable: true },
+  { key: 'dian_codigo', label: 'DIAN', type: 'text', sortable: true },
+  { key: 'tarifa_iva_pct', label: 'IVA %', type: 'number', sortable: true },
+  { key: 'retencion_fuente_pct', label: 'Retefuente %', type: 'number', sortable: true },
+  { key: 'retencion_iva_pct', label: 'ReteIVA %', type: 'number', sortable: true },
+  { key: 'retencion_ica_pct', label: 'ReteICA %', type: 'number', sortable: true },
+  { key: 'moneda', label: 'Moneda', type: 'text', sortable: true },
+  { key: 'stock', label: 'Stock', type: 'number', sortable: true },
+  { key: 'gestionar_stock', label: 'Gestionar stock', type: 'boolean', sortable: true },
+  {
+    key: 'stock_estado',
+    label: 'Estado stock',
+    type: 'select',
+    sortable: true,
+    options: [
+      ['instock', 'En stock'],
+      ['outofstock', 'Agotado'],
+      ['onbackorder', 'Bajo pedido'],
+    ],
+  },
+  {
+    key: 'backorder_policy',
+    label: 'Backorders',
+    type: 'select',
+    sortable: true,
+    options: [
+      ['no', 'No permitir'],
+      ['notify', 'Permitir avisando'],
+      ['yes', 'Permitir'],
+    ],
+  },
+  { key: 'disponible', label: 'Disponible', type: 'boolean', sortable: true },
+  { key: 'excluido_iva', label: 'Excluido IVA', type: 'boolean', sortable: true },
+  { key: 'activo', label: 'Activo', type: 'boolean', sortable: true },
+  { key: 'destacado', label: 'Destacado', type: 'boolean', sortable: true },
+  { key: 'nuevo', label: 'Nuevo', type: 'boolean', sortable: true },
+  { key: 'ficha_pdf', label: 'Ficha PDF', type: 'link', sortable: true },
+  { key: 'descripcion_corta_es', label: 'Desc. corta ES', type: 'textarea' },
+  { key: 'descripcion_corta_en', label: 'Desc. corta EN', type: 'textarea' },
+  { key: 'descripcion_larga_es', label: 'Desc. larga ES', type: 'textarea' },
+  { key: 'descripcion_larga_en', label: 'Desc. larga EN', type: 'textarea' },
+  { key: 'especificaciones', label: 'Especificaciones JSON', type: 'json' },
+  { key: 'aplicaciones_es', label: 'Aplicaciones ES', type: 'list' },
+  { key: 'aplicaciones_en', label: 'Aplicaciones EN', type: 'list' },
+  { key: 'atributos', label: 'Atributos JSON', type: 'json' },
+  { key: 'peso_kg', label: 'Peso kg', type: 'number', sortable: true },
+  { key: 'dimensiones_cm', label: 'Dimensiones JSON', type: 'json' },
+  { key: 'orden', label: 'Orden', type: 'number', sortable: true },
+];
+
 function productosLink(overrides: Record<string, string>): string {
   const params = hashParams();
   for (const [key, value] of Object.entries(overrides)) {
@@ -611,6 +749,16 @@ function productosLink(overrides: Record<string, string>): string {
   }
   const qs = params.toString();
   return `#/productos${qs ? `?${qs}` : ''}`;
+}
+
+function productSortLink(field: string, currentSort: string, currentDir: string): string {
+  const direction = currentSort === field && currentDir !== 'desc' ? 'desc' : 'asc';
+  return productosLink({ sort: field, dir: direction, ordenar: '' });
+}
+
+function productSortIndicator(field: string, currentSort: string, currentDir: string): string {
+  if (field !== currentSort) return '';
+  return currentDir === 'desc' ? ' ↓' : ' ↑';
 }
 
 async function productosView(): Promise<string> {
@@ -624,6 +772,8 @@ async function productosView(): Promise<string> {
   const incorporadoDesde = params.get('incorporado_desde') ?? '';
   const incorporadoHasta = params.get('incorporado_hasta') ?? '';
   const ordenar = params.get('ordenar') ?? 'interno';
+  const sort = params.get('sort') ?? '';
+  const dir = params.get('dir') === 'desc' ? 'desc' : 'asc';
   const page = Math.max(1, numberOrZero(params.get('page')) || 1);
 
   const [familias, tipos] = await Promise.all([
@@ -631,7 +781,6 @@ async function productosView(): Promise<string> {
     selectRows('tipos', '*', 'orden', 300),
   ]);
   const familiasPorId = new Map(familias.map(f => [text(f.id), text(f.nombre_es)]));
-  const tiposPorId = new Map(tipos.map(t => [text(t.id), text(t.nombre_es)]));
   const tiposParaSelect = tipos.map(
     (t): Row => ({
       ...t,
@@ -654,7 +803,10 @@ async function productosView(): Promise<string> {
   if (incorporadoDesde) query = query.gte('created_at', `${incorporadoDesde}T00:00:00`);
   if (incorporadoHasta) query = query.lte('created_at', `${incorporadoHasta}T23:59:59.999`);
 
-  if (ordenar === 'alfabetico_asc') {
+  if (sort && PRODUCT_SORT_FIELDS.has(sort)) {
+    query = query.order(sort, { ascending: dir !== 'desc', nullsFirst: false });
+    if (sort !== 'nombre_es') query = query.order('nombre_es', { ascending: true });
+  } else if (ordenar === 'alfabetico_asc') {
     query = query.order('nombre_es', { ascending: true }).order('orden', { ascending: true });
   } else if (ordenar === 'alfabetico_desc') {
     query = query.order('nombre_es', { ascending: false }).order('orden', { ascending: true });
@@ -742,37 +894,25 @@ async function productosView(): Promise<string> {
       </form>
       ${table(
         [
-          'Imagen',
-          'Nombre',
-          'Slug',
-          'Familia',
-          'Tipo',
-          'Fulfillment',
-          'Disponibilidad',
-          'Estado',
-          'PDF',
+          ...PRODUCT_LIST_COLUMNS.map(column =>
+            column.sortable
+              ? `<a class="admin-sort-link" href="${productSortLink(column.key, sort, dir)}">${escapeHtml(column.label)}${productSortIndicator(column.key, sort, dir)}</a>`
+              : escapeHtml(column.label)
+          ),
           'Acciones',
         ],
         rows.map(row => [
-          text(row.imagen_principal)
-            ? `<img class="admin-thumb" src="${escapeHtml(text(row.imagen_principal))}" alt="" width="48" height="48" loading="lazy" />`
-            : '',
-          text(row.nombre_es),
-          text(row.slug),
-          familiasPorId.get(text(row.familia_id)) ?? '—',
-          tiposPorId.get(text(row.tipo_id)) ?? '—',
-          text(row.fulfillment_mode),
-          row.disponible
-            ? '<span class="admin-badge admin-badge--ok">Disponible</span>'
-            : '<span class="admin-badge admin-badge--warn">Temporalmente no disponible</span>',
-          row.activo
-            ? '<span class="admin-badge admin-badge--ok">Activo</span>'
-            : '<span class="admin-badge admin-badge--warn">Borrador</span>',
-          text(row.ficha_pdf)
-            ? `<a class="admin-button admin-button--ghost" href="${escapeHtml(text(row.ficha_pdf))}" target="_blank" rel="noopener noreferrer">Ver PDF</a>`
-            : '—',
-          `<a class="admin-button admin-button--ghost" href="#/producto?id=${encodeURIComponent(text(row.id))}">Editar</a>`,
-        ])
+          ...PRODUCT_LIST_COLUMNS.map(column =>
+            productListCell(row, column, familias, tiposParaSelect)
+          ),
+          `<div class="admin-row-actions">
+            <button class="admin-button" data-product-row-save="${escapeHtml(text(row.id))}" type="button">Guardar</button>
+            <button class="admin-button admin-button--ghost" data-product-row-upload="${escapeHtml(text(row.id))}" type="button">Subir foto</button>
+            <button class="admin-button admin-button--ghost" data-product-row-gallery-upload="${escapeHtml(text(row.id))}" type="button">Subir galería</button>
+            <a class="admin-button admin-button--ghost" href="#/producto?id=${encodeURIComponent(text(row.id))}">Detalle</a>
+          </div>`,
+        ]),
+        'admin-products-table'
       )}
       <div class="admin-pagination">
         <span class="admin-meta">Pagina ${page} de ${totalPages}</span>
@@ -2536,6 +2676,41 @@ function bindProviderFilters() {
 }
 
 function bindProductList() {
+  app.querySelectorAll<HTMLButtonElement>('[data-product-row-save]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const id = button.dataset['productRowSave'];
+      if (!id) return;
+      try {
+        button.disabled = true;
+        button.textContent = 'Guardando...';
+        const payload = productInlinePayload(id);
+        const { error } = await supabase!.from('productos').update(payload).eq('id', id);
+        if (error) throw error;
+        if (payload['activo']) await generarEmbeddingProducto(id);
+        toast('Producto actualizado');
+        await render();
+      } catch (error) {
+        toast(error instanceof Error ? error.message : 'No se pudo guardar el producto');
+      } finally {
+        button.disabled = false;
+        button.textContent = 'Guardar';
+      }
+    });
+  });
+  app.querySelectorAll<HTMLButtonElement>('[data-product-row-upload]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const id = button.dataset['productRowUpload'];
+      if (!id) return;
+      await uploadProductRowImage(id);
+    });
+  });
+  app.querySelectorAll<HTMLButtonElement>('[data-product-row-gallery-upload]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const id = button.dataset['productRowGalleryUpload'];
+      if (!id) return;
+      await uploadProductRowGallery(id);
+    });
+  });
   app.querySelectorAll('[data-delete]').forEach(button => {
     button.addEventListener('click', async () => {
       const tableName = button.getAttribute('data-table');
@@ -2546,6 +2721,141 @@ function bindProductList() {
       await render();
     });
   });
+}
+
+function productInlinePayload(productId: string): Row {
+  const fields = Array.from(
+    app.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(
+      `[data-product-id="${CSS.escape(productId)}"][data-product-field]`
+    )
+  );
+  const get = (key: string): string => {
+    const field = fields.find(element => element.dataset['productField'] === key);
+    if (!field) return '';
+    if (field instanceof HTMLInputElement && field.type === 'checkbox') {
+      return field.checked ? 'true' : 'false';
+    }
+    return field.value;
+  };
+  const bool = (key: string, fallback = false) => parseExcelBoolean(get(key), fallback);
+  const num = (key: string) => parseExcelNumber(get(key));
+  return removeUndefined({
+    nombre_es: get('nombre_es').trim(),
+    nombre_en: emptyStringToNull(get('nombre_en')),
+    slug: slugify(get('slug')) || get('slug').trim(),
+    sku: emptyStringToNull(get('sku')),
+    gtin: emptyStringToNull(get('gtin')),
+    familia_id: emptyStringToNull(get('familia_id')),
+    tipo_id: emptyStringToNull(get('tipo_id')),
+    tipo_comercial: get('tipo_comercial') === 'consumible' ? 'consumible' : 'equipo',
+    fulfillment_mode: ['dropship', 'individualizado'].includes(get('fulfillment_mode'))
+      ? get('fulfillment_mode')
+      : 'cotizacion',
+    precio: num('precio'),
+    precio_regular: num('precio_regular'),
+    precio_oferta: num('precio_oferta'),
+    dian_codigo: emptyStringToNull(get('dian_codigo')),
+    tarifa_iva_pct: num('tarifa_iva_pct'),
+    retencion_fuente_pct: num('retencion_fuente_pct'),
+    retencion_iva_pct: num('retencion_iva_pct'),
+    retencion_ica_pct: num('retencion_ica_pct'),
+    moneda: get('moneda').trim() || 'COP',
+    stock: num('stock'),
+    gestionar_stock: bool('gestionar_stock'),
+    stock_estado: ['outofstock', 'onbackorder'].includes(get('stock_estado'))
+      ? get('stock_estado')
+      : 'instock',
+    backorder_policy: ['notify', 'yes'].includes(get('backorder_policy'))
+      ? get('backorder_policy')
+      : 'no',
+    disponible: bool('disponible', true),
+    disponible_actualizado_at: new Date().toISOString(),
+    excluido_iva: bool('excluido_iva'),
+    activo: bool('activo'),
+    destacado: bool('destacado'),
+    nuevo: bool('nuevo'),
+    ficha_pdf: emptyStringToNull(get('ficha_pdf')),
+    descripcion_corta_es: emptyStringToNull(get('descripcion_corta_es')),
+    descripcion_corta_en: emptyStringToNull(get('descripcion_corta_en')),
+    descripcion_larga_es: emptyStringToNull(get('descripcion_larga_es')),
+    descripcion_larga_en: emptyStringToNull(get('descripcion_larga_en')),
+    especificaciones: parseExcelJsonList(get('especificaciones')),
+    aplicaciones_es: parseExcelList(get('aplicaciones_es')),
+    aplicaciones_en: parseExcelList(get('aplicaciones_en')),
+    galeria: parseExcelList(get('galeria')),
+    atributos: parseExcelJsonObject(get('atributos')),
+    peso_kg: num('peso_kg'),
+    dimensiones_cm: parseExcelJsonObject(get('dimensiones_cm')),
+    orden: parseExcelInteger(get('orden'), 0),
+  });
+}
+
+async function uploadProductRowImage(productId: string) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.addEventListener('change', async () => {
+    const file = input.files?.[0];
+    if (!file) return;
+    const path = `${productId}/${Date.now()}-${slugify(file.name)}`;
+    const options = file.type ? { contentType: file.type, upsert: false } : { upsert: false };
+    const { error } = await supabase!.storage.from('productos').upload(path, file, options);
+    if (error) {
+      toast(error.message);
+      return;
+    }
+    const publicUrl = supabase!.storage.from('productos').getPublicUrl(path).data.publicUrl;
+    const { error: updateError } = await supabase!
+      .from('productos')
+      .update({ imagen_principal: publicUrl })
+      .eq('id', productId);
+    if (updateError) {
+      toast(updateError.message);
+      return;
+    }
+    toast('Imagen actualizada');
+    await render();
+  });
+  input.click();
+}
+
+async function uploadProductRowGallery(productId: string) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.multiple = true;
+  input.addEventListener('change', async () => {
+    const files = Array.from(input.files ?? []);
+    if (!files.length) return;
+    const current = await getRow('productos', productId);
+    const existingGallery = stringArray(current?.galeria);
+    const uploadedUrls: string[] = [];
+    for (const [index, file] of files.entries()) {
+      const path = `${productId}/galeria/${Date.now()}-${index}-${slugify(file.name)}`;
+      const options = file.type ? { contentType: file.type, upsert: false } : { upsert: false };
+      const { error } = await supabase!.storage.from('productos').upload(path, file, options);
+      if (error) {
+        toast(error.message);
+        return;
+      }
+      uploadedUrls.push(supabase!.storage.from('productos').getPublicUrl(path).data.publicUrl);
+    }
+    const nextGallery = [...new Set([...existingGallery, ...uploadedUrls])];
+    const payload: Row = { galeria: nextGallery };
+    if (!text(current?.imagen_principal) && uploadedUrls[0])
+      payload.imagen_principal = uploadedUrls[0];
+    const { error: updateError } = await supabase!
+      .from('productos')
+      .update(payload)
+      .eq('id', productId);
+    if (updateError) {
+      toast(updateError.message);
+      return;
+    }
+    toast(`Galería actualizada: ${uploadedUrls.length} imagen(es) agregadas`);
+    await render();
+  });
+  input.click();
 }
 
 function bindProductForm() {
@@ -4607,14 +4917,96 @@ function entityImportForm(entity: ExcelEntity, label: string, help: string): str
     </form>`;
 }
 
-function table(headers: string[], rows: string[][]): string {
-  return `<div class="admin-table-wrap"><table class="admin-table"><thead><tr>${headers
-    .map(h => `<th>${escapeHtml(h)}</th>`)
+function table(headers: string[], rows: string[][], className = ''): string {
+  return `<div class="admin-table-wrap"><table class="admin-table ${escapeHtml(className)}"><thead><tr>${headers
+    .map(h => `<th>${h.trim().startsWith('<') ? h : escapeHtml(h)}</th>`)
     .join('')}</tr></thead><tbody>${
     rows.length
       ? rows.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`).join('')
       : `<tr><td colspan="${headers.length}">Sin registros.</td></tr>`
   }</tbody></table></div>`;
+}
+
+function productListCell(
+  row: Row,
+  column: ProductListColumn,
+  familias: Row[],
+  tipos: Row[]
+): string {
+  const productId = text(row.id);
+  const name = column.key;
+  const baseAttrs = `data-product-id="${escapeHtml(productId)}" data-product-field="${escapeHtml(name)}"`;
+  const value = row[name];
+  if (column.type === 'image') {
+    const imageUrl = text(value);
+    return `
+      <div class="admin-product-image-cell">
+        ${
+          imageUrl
+            ? `<img class="admin-thumb" src="${escapeHtml(imageUrl)}" alt="" width="48" height="48" loading="lazy" />`
+            : '<span class="admin-image-empty">Sin foto</span>'
+        }
+      </div>`;
+  }
+  if (column.type === 'gallery') {
+    const urls = stringArray(value);
+    return `
+      <div class="admin-gallery-cell">
+        <div class="admin-gallery-preview">
+          ${
+            urls.length
+              ? urls
+                  .slice(0, 4)
+                  .map(
+                    url =>
+                      `<img class="admin-gallery-thumb" src="${escapeHtml(url)}" alt="" width="32" height="32" loading="lazy" />`
+                  )
+                  .join('')
+              : '<span class="admin-image-empty">Sin galería</span>'
+          }
+        </div>
+        <textarea class="admin-inline-input admin-inline-input--textarea" ${baseAttrs}>${escapeHtml(urls.join('\n'))}</textarea>
+      </div>`;
+  }
+  if (column.type === 'boolean') {
+    return `<label class="admin-inline-check"><input ${baseAttrs} type="checkbox" ${value ? 'checked' : ''} /><span></span></label>`;
+  }
+  if (column.type === 'select') {
+    const options =
+      name === 'familia_id'
+        ? familias.map((item): [string, string] => [text(item.id), text(item.nombre_es)])
+        : name === 'tipo_id'
+          ? [['', 'Sin asignar'] as [string, string]].concat(
+              tipos.map((item): [string, string] => [text(item.id), text(item.nombre_es)])
+            )
+          : (column.options ?? []);
+    return `<select class="admin-inline-input admin-inline-input--select" ${baseAttrs}>${options
+      .map(
+        ([optionValue, label]) =>
+          `<option value="${escapeHtml(optionValue)}" ${optionValue === text(value) ? 'selected' : ''}>${escapeHtml(label)}</option>`
+      )
+      .join('')}</select>`;
+  }
+  if (column.type === 'textarea') {
+    return `<textarea class="admin-inline-input admin-inline-input--textarea" ${baseAttrs}>${escapeHtml(text(value))}</textarea>`;
+  }
+  if (column.type === 'json') {
+    const jsonValue =
+      value && typeof value === 'object' ? JSON.stringify(value, null, 2) : text(value);
+    return `<textarea class="admin-inline-input admin-inline-input--json" ${baseAttrs}>${escapeHtml(jsonValue)}</textarea>`;
+  }
+  if (column.type === 'list') {
+    return `<textarea class="admin-inline-input admin-inline-input--textarea" ${baseAttrs}>${escapeHtml(stringArray(value).join('\n'))}</textarea>`;
+  }
+  if (column.type === 'link') {
+    const url = text(value);
+    return `<div class="admin-inline-link-cell"><input class="admin-inline-input" ${baseAttrs} type="url" value="${escapeHtml(url)}" />${
+      url
+        ? `<a class="admin-button admin-button--ghost" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">Abrir</a>`
+        : ''
+    }</div>`;
+  }
+  return `<input class="admin-inline-input" ${baseAttrs} type="${column.type === 'number' ? 'number' : 'text'}" value="${escapeHtml(text(value))}" />`;
 }
 
 function field(name: string, label: string, value = '', required = false, type = 'text'): string {
@@ -4938,8 +5330,6 @@ type ProductosExcelImportRow = Row & {
   activo: boolean;
   destacado: boolean;
   nuevo: boolean;
-  imagen_principal: string | null;
-  galeria: string[];
   ficha_pdf: string | null;
   especificaciones: Row[];
   aplicaciones_es: string[];
@@ -4984,8 +5374,6 @@ const PRODUCTOS_EXCEL_HEADERS = [
   'activo',
   'destacado',
   'nuevo',
-  'imagen_principal',
-  'galeria',
   'ficha_pdf',
   'especificaciones',
   'aplicaciones_es',
@@ -5620,7 +6008,6 @@ function buildProductosTemplateWorkbook(): XLSX.WorkBook {
         moneda: 'COP',
         disponible: true,
         activo: true,
-        galeria: '',
         especificaciones: '[]',
         aplicaciones_es: '[]',
         aplicaciones_en: '[]',
@@ -5680,8 +6067,6 @@ function productoToExcelRow(row: Row, familias: Row[], tipos: Row[]): Record<str
     activo: Boolean(row.activo),
     destacado: Boolean(row.destacado),
     nuevo: Boolean(row.nuevo),
-    imagen_principal: text(row.imagen_principal),
-    galeria: stringArray(row.galeria).join('\n'),
     ficha_pdf: text(row.ficha_pdf),
     especificaciones: JSON.stringify(
       Array.isArray(row.especificaciones) ? row.especificaciones : [],
@@ -5796,11 +6181,6 @@ async function importProductosExcel(
     );
     if (tipoResult.created) createdTypes += 1;
 
-    const imagenPrincipal = normalized.imagen_principal || normalized.galeria[0] || null;
-    const galeria = [
-      ...new Set([normalized.imagen_principal, ...normalized.galeria].filter(Boolean) as string[]),
-    ];
-
     upserts.push({
       slug,
       sku: normalized.sku,
@@ -5816,8 +6196,6 @@ async function importProductosExcel(
       especificaciones: normalized.especificaciones,
       aplicaciones_es: normalized.aplicaciones_es,
       aplicaciones_en: normalized.aplicaciones_en,
-      imagen_principal: imagenPrincipal,
-      galeria,
       ficha_pdf: normalized.ficha_pdf,
       atributos: {
         ...(normalized.atributos ?? {}),
@@ -5917,8 +6295,6 @@ function normalizeExcelImportRow(row: Row): ProductosExcelImportRow {
     activo: boolValue('activo', true),
     destacado: boolValue('destacado'),
     nuevo: boolValue('nuevo'),
-    imagen_principal: emptyStringToNull(textValue('imagen_principal')),
-    galeria: parseExcelList(get('galeria')),
     ficha_pdf: emptyStringToNull(textValue('ficha_pdf')),
     especificaciones: parseExcelJsonList(get('especificaciones')),
     aplicaciones_es: parseExcelList(get('aplicaciones_es')),
