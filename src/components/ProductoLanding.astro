@@ -132,26 +132,9 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
 
       <div class="hero-producto__cta-group" id="cta-principal">
         {
-          producto.tipo_comercial === 'equipo' && (
-            <button
-              type="button"
-              class="btn btn-primary"
-              aria-live="polite"
-              data-add-cotizacion={producto.slug}
-              data-nombre={producto.nombre}
-              data-imagen={producto.imagen_principal}
-              data-label-agregar={t(locale, 'cotizacion_equipos.agregar')}
-              data-label-agregado={t(locale, 'cotizacion_equipos.agregado')}
-            >
-              {t(locale, 'cotizacion_equipos.agregar')}
-            </button>
-          )
-        }
-        {
-          producto.tipo_comercial === 'consumible' &&
-            producto.precio != null &&
-            producto.precio > 0 &&
-            (noDisponible ? (
+          /* Productos con precio → carrito (dropshipping); sin precio → cotización conjunta */
+          producto.precio != null && producto.precio > 0 ? (
+            noDisponible ? (
               <a
                 href={whatsappHref}
                 class="btn btn-primary"
@@ -168,14 +151,28 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
                 data-add-carrito={producto.slug}
                 data-nombre={producto.nombre}
                 data-precio={producto.precio}
-                data-moneda={producto.moneda}
+                data-moneda={producto.moneda ?? 'COP'}
                 data-stock={producto.stock ?? ''}
                 data-label-agregar={t(locale, 'carrito.agregar')}
                 data-label-agregado={t(locale, 'carrito.agregado')}
               >
                 {t(locale, 'carrito.agregar')}
               </button>
-            ))
+            )
+          ) : (
+            <button
+              type="button"
+              class="btn btn-primary"
+              aria-live="polite"
+              data-add-cotizacion={producto.slug}
+              data-nombre={producto.nombre}
+              data-imagen={producto.imagen_principal ?? ''}
+              data-label-agregar={t(locale, 'cotizacion_equipos.agregar')}
+              data-label-agregado={t(locale, 'cotizacion_equipos.agregado')}
+            >
+              {t(locale, 'cotizacion_equipos.agregar')}
+            </button>
+          )
         }
         <a href={ctaCotizarHref} class="btn btn-secondary">
           {t(locale, 'producto.cotizar_cta')}

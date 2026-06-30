@@ -156,26 +156,9 @@ function modalidadLabel(modalidad?: string): string {
     {t(locale, 'catalogo.vista_rapida')}
   </button>
   {
-    producto.tipo_comercial === 'equipo' && (
-      <button
-        type="button"
-        class="btn btn-secondary producto-card__add"
-        aria-live="polite"
-        data-add-cotizacion={producto.slug}
-        data-nombre={producto.nombre}
-        data-imagen={producto.imagen_principal ?? ''}
-        data-label-agregar={t(locale, 'cotizacion_equipos.agregar')}
-        data-label-agregado={t(locale, 'cotizacion_equipos.agregado')}
-      >
-        {t(locale, 'cotizacion_equipos.agregar')}
-      </button>
-    )
-  }
-  {
-    producto.tipo_comercial === 'consumible' &&
-      producto.precio != null &&
-      producto.precio > 0 &&
-      (noDisponible ? (
+    /* Productos con precio → carrito (dropshipping); sin precio → cotización conjunta */
+    producto.precio != null && producto.precio > 0 ? (
+      noDisponible ? (
         <a
           href={whatsappHref}
           class="btn btn-secondary producto-card__add"
@@ -199,7 +182,21 @@ function modalidadLabel(modalidad?: string): string {
         >
           {t(locale, 'carrito.agregar')}
         </button>
-      ))
+      )
+    ) : (
+      <button
+        type="button"
+        class="btn btn-secondary producto-card__add"
+        aria-live="polite"
+        data-add-cotizacion={producto.slug}
+        data-nombre={producto.nombre}
+        data-imagen={producto.imagen_principal ?? ''}
+        data-label-agregar={t(locale, 'cotizacion_equipos.agregar')}
+        data-label-agregado={t(locale, 'cotizacion_equipos.agregado')}
+      >
+        {t(locale, 'cotizacion_equipos.agregar')}
+      </button>
+    )
   }
 </li>
 

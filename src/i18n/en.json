@@ -248,13 +248,13 @@
   "cotizacion_equipos": {
     "titulo": "Quote list",
     "cerrar": "Close quote list",
-    "vacio": "You haven't added any equipment to your quote yet.",
+    "vacio": "You haven't added any products to your quote yet.",
     "vacio_cta": "View catalog",
     "eliminar": "Remove from list",
     "vaciar": "Empty list",
     "cantidad": "Quantity",
     "agregar": "Add to quote",
-    "agregado": "Equipment added to quote list",
+    "agregado": "Product added to quote list",
     "form_titulo": "Request a quote",
     "nombre": "First name",
     "apellido": "Last name",
@@ -267,7 +267,7 @@
     "exito": "Request sent! We will contact you soon.",
     "error": "An error occurred. Please try again.",
     "consentimiento": "I accept the processing of my personal data in accordance with Colombian Law 1581 of 2012 (Habeas Data) and the privacy policy.",
-    "productos_titulo": "Selected equipment",
+    "productos_titulo": "Selected products",
     "requerido": "Required field"
   },
   "pago": {

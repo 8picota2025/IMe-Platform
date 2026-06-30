@@ -248,13 +248,13 @@
   "cotizacion_equipos": {
     "titulo": "Lista de cotización",
     "cerrar": "Cerrar lista de cotización",
-    "vacio": "Aún no has añadido equipos a tu cotización.",
+    "vacio": "Aún no has añadido productos a tu cotización.",
     "vacio_cta": "Ver catálogo",
     "eliminar": "Quitar de la lista",
     "vaciar": "Vaciar lista",
     "cantidad": "Cantidad",
     "agregar": "Añadir a cotización",
-    "agregado": "Equipo añadido a la lista de cotización",
+    "agregado": "Producto añadido a la lista de cotización",
     "form_titulo": "Solicitar cotización",
     "nombre": "Nombre",
     "apellido": "Apellido",
@@ -267,7 +267,7 @@
     "exito": "¡Solicitud enviada! Te contactaremos pronto.",
     "error": "Ocurrió un error. Intenta de nuevo.",
     "consentimiento": "Acepto el tratamiento de mis datos personales conforme a la Ley 1581 de 2012 (Habeas Data) y la política de privacidad.",
-    "productos_titulo": "Equipos seleccionados",
+    "productos_titulo": "Productos seleccionados",
     "requerido": "Campo requerido"
   },
   "pago": {
