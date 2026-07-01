@@ -45,6 +45,12 @@ const sources = [
     images: ['https://saikangmedical.com/wp-content/uploads/2025/08/2_-29.jpg'],
   },
   {
+    sku: 'SKH042',
+    manufacturer: 'Saikang',
+    page: 'https://saikangmedical.com/en/product/skh042-overbed-table/',
+    images: ['https://saikangmedical.com/wp-content/uploads/2025/08/SKH042-2-_-1.jpg'],
+  },
+  {
     sku: 'SKM-B-SKH006-1',
     manufacturer: 'Saikang',
     page: 'https://saikangmedical.com/en/product/skh006c-instrument-trolley/',
@@ -138,6 +144,25 @@ const sources = [
     page: 'https://advanced-inst.com/am-6000/',
     images: ['https://advanced-inst.com/wp-content/uploads/2019/11/am-6000-1.png'],
     pdfs: ['https://advanced-inst.com/wp-content/uploads/2019/11/AM-6000.-pdf.pdf'],
+  },
+  {
+    sku: 'DM156',
+    manufacturer: 'Angell Technology',
+    page: 'https://medsyst.kz/catalog/mammografy/angell-dm156a/',
+    images: [
+      'https://medsyst.kz/upload/iblock/849/j2g3i87f09qhtjp2doaxgue230bf5gvy/202008101758515851.png',
+    ],
+    pdfs: ['https://medsyst.kz/upload/iblock/70e/ng8pn7134j85nnc335xhorpqcch4nu4i/Broshyura-Angell-DM156A.pdf'],
+  },
+  {
+    sku: 'OT-300C',
+    manufacturer: 'Advanced',
+    page: 'https://advanced-inst.com/electric-operating-table/',
+    images: [
+      'https://advanced-inst.com/wp-content/uploads/2019/11/OT-300C.png',
+      'https://advanced-inst.com/wp-content/uploads/2019/11/OT-300C-2.png',
+    ],
+    pdfs: ['https://advanced-inst.com/wp-content/uploads/2019/11/OT-300C.pdf'],
   },
   {
     sku: 'DUS-7000',
