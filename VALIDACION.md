@@ -3,6 +3,11 @@
 Fecha: 2026-06-12  
 Rama: `feature/fase-5`
 
+> Nota (2026-07-01): las cifras de catálogo citadas en este documento (24
+> productos / 8 familias) reflejan el snapshot del 2026-06-12. El catálogo
+> real hoy tiene 121 productos / 10 familias (importaciones equitronic/saikang
+> posteriores) — ver PENDIENTES.md.
+
 ## Evidencia local
 
 - `npm run validate`: Pass el 2026-06-12 (tras los fixes de esta sesión). Resultado: lint 0 errores, Astro check 0 errores/0 warnings (8 hints preexistentes en scripts/ y BaseHead.astro, no relacionados), build 78 páginas.

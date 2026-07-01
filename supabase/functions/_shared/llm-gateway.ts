@@ -32,6 +32,8 @@ export interface LlmResponse {
 
 export interface LlmGateway {
   readonly provider: LlmProvider;
+  /** Modelo que se usaria en chat() si no se pasa `request.model` explicito. */
+  readonly defaultChatModel: string;
   chat(request: LlmRequest): Promise<LlmResponse>;
   embed(texts: string[]): Promise<EmbedResult>;
 }
@@ -62,6 +64,7 @@ export function createLlmGateway(): LlmGateway {
 
 class AnthropicGateway implements LlmGateway {
   readonly provider = 'anthropic' as const;
+  readonly defaultChatModel = Deno.env.get('LLM_INGEST_MODEL') ?? 'claude-3-5-sonnet-latest';
 
   async chat(request: LlmRequest): Promise<LlmResponse> {
     const apiKey = Deno.env.get('ANTHROPIC_API_KEY');
@@ -112,6 +115,7 @@ class AnthropicGateway implements LlmGateway {
 
 class OpenAiGateway implements LlmGateway {
   readonly provider = 'openai' as const;
+  readonly defaultChatModel = Deno.env.get('LLM_INGEST_MODEL') ?? 'gpt-4.1-mini';
 
   async chat(request: LlmRequest): Promise<LlmResponse> {
     const apiKey = Deno.env.get('OPENAI_API_KEY');
@@ -157,6 +161,7 @@ interface OllamaChatResponse {
 /** Proveedor local autoalojado (sin API key). Ver docs/decisions/0005-ollama-asesor-local.md. */
 class OllamaGateway implements LlmGateway {
   readonly provider = 'ollama' as const;
+  readonly defaultChatModel = Deno.env.get('LLM_INGEST_MODEL') ?? 'qwen3:8b';
 
   async chat(request: LlmRequest): Promise<LlmResponse> {
     const model = request.model ?? Deno.env.get('LLM_INGEST_MODEL') ?? 'qwen3:8b';
@@ -245,63 +250,112 @@ export function estimateCost(params: {
   return Number((inputCost + outputCost).toFixed(6));
 }
 
-/** Registra el uso/coste de una llamada LLM o embedding en llm_uso. Devuelve el coste estimado. */
-export async function registrarUsoLlm(
-  supabase: SupabaseClient,
-  uso: {
-    proveedor: string;
-    modelo: string;
-    tipo: TipoUsoLlm;
-    inputTokens: number;
-    outputTokens?: number;
-    sessionId?: string | null;
-  }
-): Promise<number> {
-  const coste = estimateCost({
-    model: uso.modelo,
-    provider: uso.proveedor,
-    inputTokens: uso.inputTokens,
-    outputTokens: uso.outputTokens ?? 0,
-  });
-
-  const { error } = await supabase.from('llm_uso').insert({
-    periodo_yyyy_mm: periodoActual(),
-    proveedor: uso.proveedor,
-    modelo: uso.modelo,
-    tipo: uso.tipo,
-    input_tokens: uso.inputTokens,
-    output_tokens: uso.outputTokens ?? 0,
-    coste_estimado: coste,
-    session_id: uso.sessionId ?? null,
-  });
-  if (error) throw new Error(`registrarUsoLlm: ${error.message}`);
-
-  return coste;
-}
-
-export interface EstadoPresupuesto {
+export interface ReservaPresupuesto {
+  /** true si la reserva se registro y hay presupuesto disponible para el coste estimado. */
   disponible: boolean;
+  /** id de la fila reservada en llm_uso; usar con confirmarUsoLlm() tras la llamada real. */
+  reservaId: string | null;
+  /** coste pesimista reservado (tokens de entrada aproximados + tope de salida). */
+  estimado: number;
   gastado: number;
   limite: number;
   periodo: string;
 }
 
-/** Comprueba el gasto del periodo actual contra BUDGET_MENSUAL_USD. */
-export async function enforceBudget(supabase: SupabaseClient): Promise<EstadoPresupuesto> {
+/**
+ * Reserva presupuesto de forma atomica antes de llamar a un proveedor LLM/embedding.
+ *
+ * Reemplaza el patron previo (enforceBudget + registrarUsoLlm por separado), que
+ * tenia una condicion de carrera: dos solicitudes concurrentes cerca del limite
+ * podian leer el mismo gasto acumulado antes de que cualquiera insertara su fila,
+ * dejando pasar a ambas juntas por encima de BUDGET_MENSUAL_USD (hallazgo de la
+ * auditoria del Asesor). El RPC `reservar_presupuesto_llm` serializa la
+ * comprobacion+insercion con un advisory lock por periodo.
+ *
+ * El coste real de la llamada aun no se conoce (depende de tokens de salida),
+ * asi que se reserva un estimado pesimista (approxInputChars/4 + maxOutputTokens
+ * al precio del modelo). Tras la llamada real, usar confirmarUsoLlm() para
+ * ajustar la fila reservada con el coste real (normalmente menor al estimado).
+ */
+export async function reservarPresupuesto(
+  supabase: SupabaseClient,
+  reserva: {
+    proveedor: string;
+    modelo: string;
+    tipo: TipoUsoLlm;
+    approxInputChars: number;
+    maxOutputTokens?: number;
+    sessionId?: string | null;
+  }
+): Promise<ReservaPresupuesto> {
   const limite = Number(Deno.env.get('BUDGET_MENSUAL_USD') ?? '50');
   const periodo = periodoActual();
+  const inputTokensEstimados = Math.ceil(reserva.approxInputChars / 4);
+  const estimado = estimateCost({
+    model: reserva.modelo,
+    provider: reserva.proveedor,
+    inputTokens: inputTokensEstimados,
+    outputTokens: reserva.maxOutputTokens ?? 0,
+  });
 
-  const { data, error } = await supabase
+  const { data, error } = await supabase.rpc('reservar_presupuesto_llm', {
+    p_periodo: periodo,
+    p_limite: limite,
+    p_estimado: estimado,
+    p_proveedor: reserva.proveedor,
+    p_modelo: reserva.modelo,
+    p_tipo: reserva.tipo,
+    p_session_id: reserva.sessionId ?? null,
+  });
+  if (error) throw new Error(`reservarPresupuesto: ${error.message}`);
+
+  const fila = ((data ?? [])[0] ?? null) as {
+    id: string | null;
+    disponible: boolean;
+    gastado: number | string | null;
+  } | null;
+
+  return {
+    disponible: fila?.disponible ?? false,
+    reservaId: fila?.id ?? null,
+    estimado,
+    gastado: Number(fila?.gastado ?? 0),
+    limite,
+    periodo,
+  };
+}
+
+/**
+ * Ajusta una reserva previa (ver reservarPresupuesto) con el coste real tras la
+ * respuesta del proveedor. Devuelve el coste real registrado.
+ */
+export async function confirmarUsoLlm(
+  supabase: SupabaseClient,
+  ajuste: {
+    reservaId: string;
+    proveedor: string;
+    modelo: string;
+    inputTokens: number;
+    outputTokens?: number;
+  }
+): Promise<number> {
+  const coste = estimateCost({
+    model: ajuste.modelo,
+    provider: ajuste.proveedor,
+    inputTokens: ajuste.inputTokens,
+    outputTokens: ajuste.outputTokens ?? 0,
+  });
+
+  const { error } = await supabase
     .from('llm_uso')
-    .select('coste_estimado')
-    .eq('periodo_yyyy_mm', periodo);
-  if (error) throw new Error(`enforceBudget: ${error.message}`);
+    .update({
+      modelo: ajuste.modelo,
+      input_tokens: ajuste.inputTokens,
+      output_tokens: ajuste.outputTokens ?? 0,
+      coste_estimado: coste,
+    })
+    .eq('id', ajuste.reservaId);
+  if (error) throw new Error(`confirmarUsoLlm: ${error.message}`);
 
-  const gastado = (data ?? []).reduce(
-    (acc: number, row: { coste_estimado: number | string | null }) =>
-      acc + Number(row.coste_estimado ?? 0),
-    0
-  );
-
-  return { disponible: gastado < limite, gastado, limite, periodo };
+  return coste;
 }

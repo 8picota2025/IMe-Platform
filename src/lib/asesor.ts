@@ -72,6 +72,10 @@ interface AsesorApiResponse {
 }
 
 const SESSION_STORAGE_KEY = 'ime_asesor_session';
+const HISTORIAL_STORAGE_KEY = 'ime_asesor_historial';
+/** Tope de mensajes persistidos (8 turnos usuario+asesor = 16 mensajes), acorde
+ * al MAX_HISTORIAL_TURNOS del Edge Function asesor. */
+const MAX_HISTORIAL_MENSAJES = 16;
 
 /** Identificador de sesión persistido en localStorage, usado para rate-limit y métricas. */
 export function getSessionId(): string {
@@ -180,16 +184,55 @@ function shouldUseLocalOllama(): boolean {
   return ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
 }
 
+/** Limpia el contenido de la conversación persistida (no la sessionId de rate-limit/métricas). */
 export function resetHistorial(): void {
   try {
-    localStorage.removeItem(SESSION_STORAGE_KEY);
+    sessionStorage.removeItem(HISTORIAL_STORAGE_KEY);
   } catch {
     // ignore
   }
 }
 
+/**
+ * Persiste el historial de la conversación actual en sessionStorage (por
+ * pestaña, se pierde al cerrarla — evita que sobreviva indefinidamente como
+ * localStorage). Antes esta función no existía y una recarga de página
+ * perdía todo el contexto de la conversación sin aviso.
+ */
+export function guardarHistorial(historial: MensajeAsesor[]): void {
+  try {
+    const recortado = historial.slice(-MAX_HISTORIAL_MENSAJES);
+    sessionStorage.setItem(HISTORIAL_STORAGE_KEY, JSON.stringify(recortado));
+  } catch {
+    // ignore (modo privado, cuota excedida, etc.)
+  }
+}
+
 export function obtenerHistorial(): MensajeAsesor[] {
-  return [];
+  try {
+    const raw = sessionStorage.getItem(HISTORIAL_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as Array<{
+      rol: 'usuario' | 'asesor';
+      contenido: string;
+      timestamp: string;
+    }>;
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter(
+        (item): item is { rol: 'usuario' | 'asesor'; contenido: string; timestamp: string } =>
+          !!item &&
+          (item.rol === 'usuario' || item.rol === 'asesor') &&
+          typeof item.contenido === 'string'
+      )
+      .map(item => ({
+        rol: item.rol,
+        contenido: item.contenido,
+        timestamp: new Date(item.timestamp),
+      }));
+  } catch {
+    return [];
+  }
 }
 
 // ── Modo local Ollama (dev sin Edge Functions) ────────────────────────────────

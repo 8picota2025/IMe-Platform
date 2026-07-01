@@ -18,7 +18,7 @@ import {
   normalizeEmbeddingInput,
   type ProductoEmbeddingInput,
 } from '../_shared/embeddings.ts';
-import { enforceBudget, estimateCost, registrarUsoLlm } from '../_shared/llm-gateway.ts';
+import { confirmarUsoLlm, estimateCost, reservarPresupuesto } from '../_shared/llm-gateway.ts';
 
 type ServerSupabase = ReturnType<typeof getServerSupabase>;
 
@@ -99,18 +99,24 @@ Deno.serve(async req => {
       });
     }
 
-    const presupuesto = await enforceBudget(supabase);
-    if (!presupuesto.disponible) {
+    const totalCharsEstimado = textos.reduce((acc, texto) => acc + texto.length, 0);
+    const reserva = await reservarPresupuesto(supabase, {
+      proveedor: embedder.provider,
+      modelo: embedder.model,
+      tipo: 'embedding',
+      approxInputChars: totalCharsEstimado,
+    });
+    if (!reserva.disponible) {
       return badRequest(
         `BLOQUEANTE_BACKEND: presupuesto LLM mensual agotado ` +
-          `($${presupuesto.gastado.toFixed(2)} / $${presupuesto.limite} en ${presupuesto.periodo}). ` +
+          `($${reserva.gastado.toFixed(2)} / $${reserva.limite} en ${reserva.periodo}). ` +
           `Generacion de embeddings detenida.`,
         origin
       );
     }
 
     let procesados = 0;
-    let costeTotal = 0;
+    let inputTokensReales = 0;
     const errores: Array<{ producto_id: string; error: string }> = [];
 
     for (let i = 0; i < productos.length; i += BATCH_SIZE) {
@@ -133,12 +139,7 @@ Deno.serve(async req => {
           procesados++;
         }
 
-        costeTotal += await registrarUsoLlm(supabase, {
-          proveedor: resultado.provider,
-          modelo: resultado.model,
-          tipo: 'embedding',
-          inputTokens: resultado.inputTokens,
-        });
+        inputTokensReales += resultado.inputTokens;
       } catch (error) {
         const mensaje = error instanceof Error ? error.message : 'embedding error';
         for (const producto of lote) {
@@ -146,6 +147,15 @@ Deno.serve(async req => {
         }
       }
     }
+
+    const costeTotal = reserva.reservaId
+      ? await confirmarUsoLlm(supabase, {
+          reservaId: reserva.reservaId,
+          proveedor: embedder.provider,
+          modelo: embedder.model,
+          inputTokens: inputTokensReales,
+        })
+      : 0;
 
     return ok(origin, {
       procesados,

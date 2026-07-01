@@ -2,6 +2,23 @@
 
 > Actualizar en cada fase. Usar exactamente las etiquetas definidas.
 
+## Nota de estado del catálogo (2026-07-01)
+
+Las cifras de catálogo citadas más abajo (24/33 productos, 8/9 familias) son
+snapshots históricos del momento en que se escribió cada entrada — **no
+reflejan el estado actual**. Tras las importaciones de equitronic.com.co,
+saikang y otros fabricantes (commits `1cc72bc`..`6afcfc9`), el catálogo real
+en `src/data/mock-productos.json`/`mock-familias.json` tiene **121 productos
+en 10 familias**. No se reescriben las entradas históricas para no falsear el
+registro; usar `node -e "console.log(require('./src/data/mock-productos.json').length)"`
+para la cifra vigente en cualquier momento.
+
+**Importante**: con este crecimiento del catálogo, es muy probable que buena
+parte de los productos nuevos no tengan `embedding` generado en Supabase
+(ver `BLOQUEANTE_BACKEND` → Asesor RAG). Verificar y reindexar con
+`scripts/reindex-voyage-embeddings.mjs products` antes de asumir que el
+Asesor puede recuperarlos.
+
 ## Criterio operativo actual
 
 - [ ] Se puede avanzar con QA, performance, contenido aprobado, Supabase/Asesor y deploy técnico sin cerrar aprobación jurídica ni pruebas reales de medios de pago. Jurídica queda bajo `BLOQUEANTE_LEGAL`; Wompi/Stripe quedan bajo `BLOQUEANTE_BACKEND`/`NO_EJECUTADO_ENTORNO` hasta recibir credenciales y ejecutar sandbox real.
@@ -119,7 +136,7 @@ BOOLEAN NOT NULL DEFAULT true` + `disponible_actualizado_at TIMESTAMPTZ` y
 - [x] Webhook Wompi `transaction.updated` — bug de firma corregido el 2026-06-20:
       `wompiEventoHash` omitía el campo `timestamp` del payload en el cálculo SHA256
       (`property_values + events_secret` en vez de `property_values + timestamp +
-    events_secret`), causando que toda validación fallara y retornara 401 sin
+  events_secret`), causando que toda validación fallara y retornara 401 sin
       registrar nada en `eventos_pago`. Fix en `_shared/payment-gateway.ts` +
       `webhook-wompi` redeployada. NO_EJECUTADO_ENTORNO: reenviar evento sandbox
       en el dashboard de Wompi para confirmar persistencia en `eventos_pago`.

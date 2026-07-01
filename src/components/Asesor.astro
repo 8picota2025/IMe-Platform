@@ -577,6 +577,9 @@ const asesorConfig = {
     >;
     resetHistorial: () => void;
     obtenerHistorial: () => { rol: 'usuario' | 'asesor'; contenido: string; timestamp: Date }[];
+    guardarHistorial: (
+      historial: { rol: 'usuario' | 'asesor'; contenido: string; timestamp: Date }[]
+    ) => void;
   } | null = null;
   let enviando = false;
   let ultimoMensaje: string | null = null;
@@ -794,6 +797,7 @@ const asesorConfig = {
           contenido: resultado.respuesta.texto,
           timestamp: new Date(),
         });
+        asesorLib.guardarHistorial(historial);
         renderRespuesta(resultado.respuesta);
       } catch {
         renderError({ tipo: 'error' });
@@ -803,7 +807,7 @@ const asesorConfig = {
       }
     }
 
-    function openDialog() {
+    async function openDialog() {
       if (!dialog || !trigger) return;
       resetTransientUiState();
       dialog.removeAttribute('hidden');
@@ -811,7 +815,18 @@ const asesorConfig = {
 
       if (!localInitialized) {
         localInitialized = true;
-        addBubble(config.i18n.bienvenida, 'asesor');
+        // Restaura la conversación previa (misma pestaña) si existe; antes una
+        // recarga de página perdía todo el historial sin aviso al usuario.
+        if (!asesorLib) asesorLib = await import('../lib/asesor');
+        const historialPrevio = asesorLib.obtenerHistorial();
+        if (historialPrevio.length) {
+          historial.push(...historialPrevio);
+          for (const mensajePrevio of historialPrevio) {
+            addBubble(mensajePrevio.contenido, mensajePrevio.rol === 'usuario' ? 'user' : 'asesor');
+          }
+        } else {
+          addBubble(config.i18n.bienvenida, 'asesor');
+        }
       }
 
       setTimeout(() => inputEl?.focus(), 100);

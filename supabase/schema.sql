@@ -610,6 +610,130 @@ The clearer the request, the better the comparison between alternatives.',
     true,
     NOW(),
     NOW()
+  ),
+  (
+    'clasificacion-de-dispositivos-medicos-invima',
+    'Clasificación de dispositivos médicos según INVIMA (Colombia)',
+    'Medical device classification under INVIMA (Colombia)',
+    '# Clasificación por riesgo (Decreto 4725 de 2005)
+
+INVIMA (Instituto Nacional de Vigilancia de Medicamentos y Alimentos) clasifica los dispositivos médicos en 4 clases según su nivel de riesgo. La clase determina la certificación exigida y el tiempo estimado de registro sanitario.
+
+## Clase I — riesgo mínimo (registro en 60-90 días)
+Ejemplos: equipos de protección personal, instrumentos simples, vendajes.
+Certificación requerida: presunción de conformidad.
+Requisitos: declaración de conformidad del fabricante, descripción del dispositivo, certificación del sistema de gestión de calidad (BPM).
+
+## Clase II — riesgo moderado (4-6 meses)
+Ejemplos: equipos de diagnóstico, monitores de presión, equipos de electrocardiografía.
+Certificación requerida: conformidad evaluada.
+Requisitos: estudio técnico de biocompatibilidad, certificación de sistema de gestión de calidad, evaluación de conformidad con estándares aplicables, descripción técnica del dispositivo, comprobaciones analíticas.
+
+## Clase IIB — riesgo moderado-alto (8-12 meses)
+Ejemplos: equipos quirúrgicos con energía, implantes óseos, sistemas de infusión.
+Certificación requerida: conformidad evaluada con tercero notificado.
+Requisitos: ensayos clínicos o pruebas de desempeño, evaluación de riesgos completa, certificación de calidad por terceros, estudios técnicos exhaustivos, declaración de conformidad.
+
+## Clase III — riesgo alto (12-24 meses)
+Ejemplos: implantes cardiovasculares, dispositivos neurales, implantes articulares.
+Certificación requerida: aprobación previa de registro sanitario.
+Requisitos: ensayos clínicos completos, evaluación de riesgos exhaustiva, certificación de organismo notificado, seguimiento post-comercialización, estudios de biocompatibilidad, pruebas de esterilidad y pirógenos.
+
+> Esta clasificación es orientativa por tipo de dispositivo. La validación regulatoria final depende del producto específico y su documentación vigente ante INVIMA.
+
+Fuente: invima.gov.co, sección dispositivos médicos y equipos biomédicos.',
+    '# Risk classification (Decreto 4725 of 2005)
+
+INVIMA (Colombia''s national health surveillance authority) classifies medical devices into 4 risk classes. The class determines the required certification and the estimated sanitary registration timeline.
+
+## Class I — minimal risk (registration in 60-90 days)
+Examples: personal protective equipment, simple instruments, bandages.
+Required certification: presumption of conformity.
+Requirements: manufacturer''s declaration of conformity, device description, quality management system certification (GMP).
+
+## Class II — moderate risk (4-6 months)
+Examples: diagnostic equipment, pressure monitors, electrocardiography equipment.
+Required certification: evaluated conformity.
+Requirements: biocompatibility technical study, quality management system certification, conformity evaluation against applicable standards, technical device description, analytical testing.
+
+## Class IIB — moderate-high risk (8-12 months)
+Examples: powered surgical equipment, bone implants, infusion systems.
+Required certification: conformity evaluated by a notified third party.
+Requirements: clinical trials or performance testing, complete risk assessment, third-party quality certification, exhaustive technical studies, declaration of conformity.
+
+## Class III — high risk (12-24 months)
+Examples: cardiovascular implants, neural devices, joint implants.
+Required certification: prior approval of sanitary registration.
+Requirements: complete clinical trials, exhaustive risk assessment, notified body certification, post-market surveillance, biocompatibility studies, sterility and pyrogen testing.
+
+> This classification is indicative per device type. Final regulatory validation depends on the specific product and its current documentation before INVIMA.
+
+Source: invima.gov.co, medical devices and biomedical equipment section.',
+    true,
+    NOW(),
+    NOW()
+  ),
+  (
+    'normatividad-y-registro-sanitario-invima',
+    'Normatividad y procedimiento de registro sanitario INVIMA',
+    'INVIMA regulations and sanitary registration procedure',
+    '# Registro sanitario INVIMA
+
+El registro sanitario es el documento público expedido por INVIMA que autoriza la fabricación, comercialización, importación, exportación y distribución de dispositivos médicos en Colombia. Su vigencia varía según la clasificación de riesgo del dispositivo.
+
+## Normatividad clave
+
+- **Decreto 4725 de 21 de diciembre de 2005**: reglamenta el régimen de registros sanitarios, permiso de comercialización y vigilancia sanitaria de dispositivos médicos para uso humano.
+- **Resolución 4002 de 2007**: manual de requisitos de capacidad de almacenamiento y/o acondicionamiento para dispositivos médicos.
+- **Resolución 0214 de 2022**: requisitos sanitarios para dispositivos médicos sobre medida bucal.
+
+## Procedimiento de registro (pasos generales)
+
+1. Solicitar el registro sanitario ante INVIMA.
+2. Presentar documentación técnica y regulatoria completa.
+3. Auditoría/evaluación de conformidad.
+4. Obtención del registro sanitario.
+5. Vigilancia post-comercialización (tecnovigilancia).
+
+Tiempo promedio estimado por clase: Clase I 60-90 días, Clase II 4-6 meses, Clase IIB 8-12 meses, Clase III 12-24 meses.
+
+## Requisitos generales
+
+Fabricante e importador registrados, cumplimiento de normas técnicas, certificación de calidad, estudios técnicos y clínicos según clase, declaraciones de conformidad, documentación regulatoria completa.
+
+> Este resumen orienta sobre el marco normativo; no reemplaza asesoría legal ni la validación puntual de cada producto ante INVIMA.
+
+Fuente: invima.gov.co, sección dispositivos médicos y equipos biomédicos.',
+    '# INVIMA sanitary registration
+
+The sanitary registration is the public document issued by INVIMA that authorizes the manufacturing, marketing, import, export and distribution of medical devices in Colombia. Its validity period varies according to the device''s risk classification.
+
+## Key regulations
+
+- **Decreto 4725 of December 21, 2005**: regulates the sanitary registration regime, marketing permits and sanitary surveillance of medical devices for human use.
+- **Resolución 4002 of 2007**: manual of storage and/or conditioning capacity requirements for medical devices.
+- **Resolución 0214 of 2022**: sanitary requirements for custom-made oral medical devices.
+
+## Registration procedure (general steps)
+
+1. Request the sanitary registration before INVIMA.
+2. Submit complete technical and regulatory documentation.
+3. Conformity audit/evaluation.
+4. Obtain the sanitary registration.
+5. Post-market surveillance (technovigilance).
+
+Estimated average timeline per class: Class I 60-90 days, Class II 4-6 months, Class IIB 8-12 months, Class III 12-24 months.
+
+## General requirements
+
+Registered manufacturer and importer, compliance with technical standards, quality certification, technical and clinical studies per class, declarations of conformity, complete regulatory documentation.
+
+> This summary provides regulatory orientation; it does not replace legal advice or the specific validation of each product before INVIMA.
+
+Source: invima.gov.co, medical devices and biomedical equipment section.',
+    true,
+    NOW(),
+    NOW()
   )
 ON CONFLICT (slug) DO UPDATE
 SET
@@ -636,6 +760,57 @@ CREATE TABLE IF NOT EXISTS llm_uso (
 
 CREATE INDEX IF NOT EXISTS idx_llm_uso_periodo ON llm_uso(periodo_yyyy_mm);
 CREATE INDEX IF NOT EXISTS idx_llm_uso_tipo    ON llm_uso(tipo);
+
+-- Reserva atomica de presupuesto LLM mensual (BUDGET_MENSUAL_USD).
+-- Sin esto, dos solicitudes concurrentes cerca del limite pueden leer el mismo
+-- `gastado` acumulado (SELECT SUM) antes de que cualquiera registre su fila,
+-- dejando pasar a ambas juntas por encima del limite (condicion de carrera
+-- detectada en la auditoria del Asesor). pg_advisory_xact_lock serializa las
+-- solicitudes del mismo periodo y se libera solo al terminar la transaccion
+-- de este RPC (una llamada = una transaccion implicita).
+-- Uso: reservarPresupuesto()/confirmarUsoLlm() en
+-- supabase/functions/_shared/llm-gateway.ts.
+CREATE OR REPLACE FUNCTION reservar_presupuesto_llm(
+  p_periodo    TEXT,
+  p_limite     NUMERIC,
+  p_estimado   NUMERIC,
+  p_proveedor  TEXT,
+  p_modelo     TEXT,
+  p_tipo       TEXT,
+  p_session_id TEXT DEFAULT NULL
+)
+RETURNS TABLE (id UUID, disponible BOOLEAN, gastado NUMERIC)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_gastado NUMERIC;
+  v_id      UUID;
+BEGIN
+  PERFORM pg_advisory_xact_lock(hashtext('llm_uso_budget:' || p_periodo));
+
+  SELECT COALESCE(SUM(coste_estimado), 0) INTO v_gastado
+  FROM llm_uso
+  WHERE periodo_yyyy_mm = p_periodo;
+
+  IF v_gastado + p_estimado > p_limite THEN
+    RETURN QUERY SELECT NULL::UUID, false, v_gastado;
+    RETURN;
+  END IF;
+
+  INSERT INTO llm_uso (
+    periodo_yyyy_mm, proveedor, modelo, tipo, input_tokens, output_tokens, coste_estimado, session_id
+  )
+  VALUES (p_periodo, p_proveedor, p_modelo, p_tipo, 0, 0, p_estimado, p_session_id)
+  RETURNING llm_uso.id INTO v_id;
+
+  RETURN QUERY SELECT v_id, true, v_gastado + p_estimado;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION reservar_presupuesto_llm(TEXT, NUMERIC, NUMERIC, TEXT, TEXT, TEXT, TEXT) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION reservar_presupuesto_llm(TEXT, NUMERIC, NUMERIC, TEXT, TEXT, TEXT, TEXT) TO service_role;
 
 CREATE TABLE IF NOT EXISTS asesor_uso (
   id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -1081,10 +1256,18 @@ $$;
 -- Busqueda vectorial sobre productos.embedding (Voyage voyage-3, 1024 dims).
 -- security definer: solo expone productos activos, sin precio_costo.
 -- filtro jsonb opcional: {"familia_id":"...","tipo_id":"...","tipo_comercial":"..."}
+-- umbral_similitud: score minimo (1 - distancia coseno) para incluir un match.
+-- Default 0.0 solo descarta matches anti-correlados (score negativo); en la
+-- practica casi no cambia el recall previo, pero ya no es "sin umbral" en
+-- sentido estricto. Subir este valor una vez se tengan datos reales de
+-- distribucion de scores en produccion (REMEDIACION/auditoria Asesor: antes
+-- no habia umbral alguno y siempre se devolvian match_count vecinos aunque
+-- el score fuera irrelevante).
 CREATE OR REPLACE FUNCTION match_productos(
   query_embedding vector(1024),
   match_count INT DEFAULT 6,
-  filtro JSONB DEFAULT NULL
+  filtro JSONB DEFAULT NULL,
+  umbral_similitud FLOAT DEFAULT 0.0
 )
 RETURNS TABLE (
   id                   UUID,
@@ -1110,6 +1293,7 @@ AS $$
   FROM productos p
   WHERE p.activo = true
     AND p.embedding IS NOT NULL
+    AND (1 - (p.embedding <=> query_embedding)) >= umbral_similitud
     AND (
       filtro IS NULL OR filtro = '{}'::jsonb OR (
         (NOT (filtro ? 'familia_id') OR p.familia_id::text = filtro->>'familia_id')
@@ -1176,9 +1360,11 @@ CREATE INDEX IF NOT EXISTS idx_articulos_embedding_hnsw
   WHERE embedding IS NOT NULL;
 
 -- match_articulos: busqueda vectorial sobre articulos publicados
+-- umbral_similitud: ver nota en match_productos (default 0.0 solo descarta score negativo).
 CREATE OR REPLACE FUNCTION match_articulos(
   query_embedding vector(1024),
-  match_count INT DEFAULT 3
+  match_count INT DEFAULT 3,
+  umbral_similitud FLOAT DEFAULT 0.0
 )
 RETURNS TABLE (
   id        UUID,
@@ -1198,6 +1384,7 @@ AS $$
   FROM articulos a
   WHERE a.publicado = true
     AND a.embedding IS NOT NULL
+    AND (1 - (a.embedding <=> query_embedding)) >= umbral_similitud
   ORDER BY a.embedding <=> query_embedding
   LIMIT match_count;
 $$;

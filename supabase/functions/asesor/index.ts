@@ -15,10 +15,11 @@ import { badRequest, errorResponse, internalError } from '../_shared/errors.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import {
   createLlmGateway,
-  enforceBudget,
+  confirmarUsoLlm,
   periodoActual,
-  registrarUsoLlm,
+  reservarPresupuesto,
 } from '../_shared/llm-gateway.ts';
+import { createEmbedder } from '../_shared/embeddings.ts';
 import { verifyTurnstile } from '../_shared/turnstile.ts';
 import { checkRateLimit } from '../_shared/rate-limit.ts';
 import {
@@ -26,6 +27,7 @@ import {
   esConsultaSitioOLegal,
   getAsesorKnowledgeBase,
 } from '../../../src/lib/asesor-knowledge.ts';
+import { getClassInfo, getDeviceClass, getRegistrationTimeline } from '../_shared/invima.ts';
 
 type Locale = 'es' | 'en';
 type Modo = 'rag' | 'keyword_degradado' | 'sin_resultados';
@@ -101,6 +103,11 @@ const MAX_HISTORIAL_TURNOS = 8;
 const MAX_HISTORIAL_CHARS = 4000;
 const MATCH_COUNT = 8;
 const MAX_TOKENS_RESPUESTA = 1200;
+// Umbral minimo de similitud (1 - distancia coseno) para aceptar un match vectorial.
+// Default 0 solo descarta matches anti-correlados (score negativo); subir via
+// env una vez se conozca la distribucion real de scores en produccion (auditoria Asesor).
+const MATCH_THRESHOLD_PRODUCTOS = Number(Deno.env.get('ASESOR_MATCH_THRESHOLD_PRODUCTOS') ?? 0);
+const MATCH_THRESHOLD_ARTICULOS = Number(Deno.env.get('ASESOR_MATCH_THRESHOLD_ARTICULOS') ?? 0);
 const COMPARE_QUERY_REGEX =
   /\b(compara|comparar|comparativa|comparacion|vs|versus|diferencias?)\b/i;
 
@@ -206,9 +213,8 @@ Deno.serve(async req => {
   }
 
   try {
-    // 4-5. Presupuesto.
-    const presupuesto = await enforceBudget(supabase);
     const gateway = createLlmGateway();
+    const embedder = createEmbedder();
     const textoConsulta = construirTextoConsulta(mensaje, historial);
     const consultaSitioOLegal = esConsultaSitioOLegal(mensaje);
     const consultaComparativa = esConsultaComparativa(mensaje);
@@ -220,26 +226,38 @@ Deno.serve(async req => {
     let costeTotal = 0;
     let vector: number[] | null = null;
 
-    // 6-9. Embedding + match vectorial, con fallback a keyword.
-    if (presupuesto.disponible) {
+    // 4-9. Reserva atomica de presupuesto (embedding) + match vectorial, con
+    // fallback a keyword. La reserva usa un estimado pesimista y se confirma
+    // con el coste real justo despues de la llamada (ver llm-gateway.ts).
+    const reservaEmbedding = await reservarPresupuesto(supabase, {
+      proveedor: embedder.provider,
+      modelo: embedder.model,
+      tipo: 'embedding',
+      approxInputChars: textoConsulta.length,
+      sessionId,
+    });
+
+    if (reservaEmbedding.disponible) {
       try {
         const embedResult = await gateway.embed([textoConsulta]);
         vector = embedResult.vectors[0];
         if (!vector?.length) throw new Error('embedding vacio');
 
-        costeTotal += await registrarUsoLlm(supabase, {
-          proveedor: embedResult.provider,
-          modelo: embedResult.model,
-          tipo: 'embedding',
-          inputTokens: embedResult.inputTokens,
-          sessionId,
-        });
+        if (reservaEmbedding.reservaId) {
+          costeTotal += await confirmarUsoLlm(supabase, {
+            reservaId: reservaEmbedding.reservaId,
+            proveedor: embedResult.provider,
+            modelo: embedResult.model,
+            inputTokens: embedResult.inputTokens,
+          });
+        }
         tokensTotales += embedResult.inputTokens;
 
         const { data, error } = await supabase.rpc('match_productos', {
           query_embedding: vector,
           match_count: MATCH_COUNT,
           filtro: null,
+          umbral_similitud: MATCH_THRESHOLD_PRODUCTOS,
         });
         if (error) throw new Error(error.message);
         productos = (data ?? []) as ProductoMatch[];
@@ -271,6 +289,7 @@ Deno.serve(async req => {
         const { data, error } = await supabase.rpc('match_articulos', {
           query_embedding: vector,
           match_count: 3,
+          umbral_similitud: MATCH_THRESHOLD_ARTICULOS,
         });
         if (error) throw new Error(error.message);
         articulos = (data ?? []) as ArticuloMatch[];
@@ -307,6 +326,7 @@ Deno.serve(async req => {
             detalleMap.get(producto.slug)?.aplicaciones_es
           : detalleMap.get(producto.slug)?.aplicaciones_es
         )?.slice(0, 6) ?? [],
+      clasificacion_invima: buildClasificacionInvima(producto.nombre_es),
     }));
 
     const articulosContexto = articulos.map(articulo => ({
@@ -332,36 +352,46 @@ Deno.serve(async req => {
     let productosCitados: string[] = productos.map(p => p.slug);
     let accionHandoff: AccionHandoff | null = null;
 
-    // 10-12. Construir contexto y llamar al LLM (si hay presupuesto).
-    if (presupuesto.disponible) {
+    // 10-12. Reserva atomica de presupuesto (chat) + llamada al LLM.
+    const systemPrompt = buildSystemPrompt();
+    const userPrompt = buildUserPrompt({
+      mensaje,
+      historial,
+      locale,
+      contexto,
+      articulos: articulosContexto,
+    });
+    const modeloChat = Deno.env.get('LLM_CHAT_MODEL') ?? gateway.defaultChatModel;
+    const reservaChat = await reservarPresupuesto(supabase, {
+      proveedor: gateway.provider,
+      modelo: modeloChat,
+      tipo: 'chat',
+      approxInputChars: systemPrompt.length + userPrompt.length,
+      maxOutputTokens: MAX_TOKENS_RESPUESTA,
+      sessionId,
+    });
+
+    if (reservaChat.disponible) {
       try {
         const respuesta = await gateway.chat({
-          model: Deno.env.get('LLM_CHAT_MODEL'),
+          model: modeloChat,
           maxTokens: MAX_TOKENS_RESPUESTA,
           temperature: 0.4,
           messages: [
-            { role: 'system', content: buildSystemPrompt() },
-            {
-              role: 'user',
-              content: buildUserPrompt({
-                mensaje,
-                historial,
-                locale,
-                contexto,
-                articulos: articulosContexto,
-              }),
-            },
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt },
           ],
         });
 
-        costeTotal += await registrarUsoLlm(supabase, {
-          proveedor: gateway.provider,
-          modelo: respuesta.model,
-          tipo: 'chat',
-          inputTokens: respuesta.inputTokens,
-          outputTokens: respuesta.outputTokens,
-          sessionId,
-        });
+        if (reservaChat.reservaId) {
+          costeTotal += await confirmarUsoLlm(supabase, {
+            reservaId: reservaChat.reservaId,
+            proveedor: gateway.provider,
+            modelo: respuesta.model,
+            inputTokens: respuesta.inputTokens,
+            outputTokens: respuesta.outputTokens,
+          });
+        }
         tokensTotales += respuesta.inputTokens + respuesta.outputTokens;
 
         const parsed = parseModelOutput(respuesta.content, new Set(productos.map(p => p.slug)));
@@ -427,9 +457,16 @@ Deno.serve(async req => {
 });
 
 function obtenerIp(req: Request): string {
+  // cf-connecting-ip lo fija el edge de Cloudflare y el cliente no puede
+  // sobrescribirlo; x-forwarded-for si puede venir falsificado por el
+  // cliente cuando la funcion es alcanzable sin pasar por Cloudflare,
+  // permitiendo evadir el rate-limit por IP rotando el header
+  // (hallazgo de la auditoria del Asesor). Por eso va primero.
+  const cfIp = req.headers.get('cf-connecting-ip');
+  if (cfIp) return cfIp.trim();
   const forwarded = req.headers.get('x-forwarded-for');
   if (forwarded) return forwarded.split(',')[0]!.trim();
-  return req.headers.get('cf-connecting-ip') ?? req.headers.get('x-real-ip') ?? 'unknown';
+  return req.headers.get('x-real-ip') ?? 'unknown';
 }
 
 function normalizarHistorial(historial: HistorialItem[] | undefined): HistorialItem[] {
@@ -558,6 +595,24 @@ async function cargarDetallesProductos(
   return (data ?? []) as ProductoDetalle[];
 }
 
+/**
+ * Clasificación INVIMA estimada por heurística de nombre (src/lib/invima.ts,
+ * antes sin usar en el Asesor). No sustituye la validación regulatoria real
+ * por producto — solo orienta al modelo con datos concretos en vez de la
+ * tabla generica de 4 clases del prompt.
+ */
+function buildClasificacionInvima(nombreProducto: string): string | null {
+  const clase = getDeviceClass(nombreProducto);
+  if (!clase) return null;
+  const info = getClassInfo(clase);
+  if (!info) return null;
+  const timeline = getRegistrationTimeline(clase);
+  return (
+    `Clase ${clase} (${info.riesgo}) — certificación: ${info.certificacion_requerida} — ` +
+    `registro estimado: ${timeline} (estimación por heurística de nombre, validar con ficha real)`
+  );
+}
+
 function buildSystemPrompt(): string {
   return `Eres un consultor senior de ingeniería biomédica que trabaja para I-ME International Medical Enterprise. Tienes más de 15 años de experiencia en el sector salud colombiano: conoces los protocolos clínicos que condicionan la elección de equipos, los criterios de compra institucional, los ciclos de licitación del sector público, los requisitos INVIMA por clase de dispositivo y las implicaciones operativas de cada tecnología. Eres una IA especializada — lo menciones con naturalidad si te preguntan, sin repetirlo en cada mensaje.
 
@@ -599,6 +654,8 @@ Decreto 4725/2005. Clases de dispositivos médicos:
 
 Cuando el usuario pregunte por clasificación, importación o conformidad, aplica esta orientación y señala que la validación final requiere documentación del producto específico.
 
+Si un producto del CONTEXTO RECUPERADO trae "clasificacion_invima", úsalo como base concreta para ese producto (es más específico que la tabla genérica anterior) y aclara igualmente que es una estimación a validar con la ficha real.
+
 ## Formato de respuesta (obligatorio)
 
 Responde ÚNICAMENTE con JSON válido, sin texto antes ni después:
@@ -624,6 +681,7 @@ function buildUserPrompt(params: {
     tipo_comercial: string;
     especificaciones: Array<{ clave?: string; valor?: string; grupo?: string }>;
     aplicaciones: string[];
+    clasificacion_invima: string | null;
   }>;
   articulos: Array<{ slug: string; titulo: string; cuerpo: string }>;
 }): string {

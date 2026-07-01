@@ -2,6 +2,12 @@
 
 Estados: Pass, Fail, Bloqueado, NO_EJECUTADO_ENTORNO.
 
+> Nota (2026-07-01): las cifras "24 productos / 8 familias" citadas abajo son
+> el snapshot del catálogo cuando se corrió esta QA (2026-06-12). El catálogo
+> real hoy tiene 121 productos / 10 familias (importaciones equitronic/saikang);
+> las pruebas de filtros/paginación deberían re-ejecutarse contra el volumen
+> actual antes de asumir que siguen vigentes.
+
 ## Rutas
 
 (Verificado 2026-06-12 sobre `dist/` reconstruido con catálogo sembrado en Supabase: 78 páginas, navegador real vía Playwright para `/es/catalogo` y landings de producto.)
