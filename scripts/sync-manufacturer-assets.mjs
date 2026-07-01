@@ -90,6 +90,12 @@ const sources = [
     images: ['https://saikangmedical.com/wp-content/uploads/2025/08/S2-2.jpg'],
   },
   {
+    sku: 'SKB3A104',
+    manufacturer: 'Saikang',
+    page: 'https://saikangmedical.com/en/product/skb3a104-soft-stretcher/',
+    images: ['https://saikangmedical.com/wp-content/uploads/2025/08/a_-17.jpg'],
+  },
+  {
     sku: 'SKM-A-SKR-IB00',
     manufacturer: 'Saikang',
     page: 'https://saikangmedical.com/en/product/skr-ib00-simple-laptop-cart/',
@@ -122,6 +128,12 @@ const sources = [
     manufacturer: 'Saikang',
     page: 'https://saikangmedical.com/en/product/ske001-attendant-chair/',
     images: ['https://saikangmedical.com/wp-content/uploads/2025/08/2-33.png'],
+  },
+  {
+    sku: 'SKP011',
+    manufacturer: 'Saikang',
+    page: 'https://saikangmedical.com/en/product/skp011-sectional-memory-foam-mattress/',
+    images: ['https://saikangmedical.com/wp-content/uploads/2025/08/9_-16.jpg'],
   },
   {
     sku: 'SKR-AT625-1',
