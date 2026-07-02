@@ -3,6 +3,7 @@ import {
   planificarAutoasignacionTipos,
   mensajeBloqueoEliminarFamilia,
   mensajeBloqueoEliminarTipo,
+  validarFamiliaYTipoProducto,
 } from './taxonomia-logic';
 
 const familias = [
@@ -111,6 +112,36 @@ describe('mensajeBloqueoEliminarTipo', () => {
   it('bloquea y explica cuantos productos hay asociados', () => {
     expect(mensajeBloqueoEliminarTipo(5)).toBe(
       'No se puede eliminar: tiene 5 productos asociados. Reasigna primero.'
+    );
+  });
+});
+
+describe('validarFamiliaYTipoProducto', () => {
+  it('devuelve null cuando familia_id y tipo_id son strings no vacios', () => {
+    expect(validarFamiliaYTipoProducto({ familia_id: 'fam-1', tipo_id: 'tipo-1' })).toBeNull();
+  });
+
+  it('bloquea cuando falta familia_id', () => {
+    expect(validarFamiliaYTipoProducto({ familia_id: null, tipo_id: 'tipo-1' })).toBe(
+      'Familia y tipo son obligatorios para guardar el producto.'
+    );
+  });
+
+  it('bloquea cuando falta tipo_id', () => {
+    expect(validarFamiliaYTipoProducto({ familia_id: 'fam-1', tipo_id: null })).toBe(
+      'Familia y tipo son obligatorios para guardar el producto.'
+    );
+  });
+
+  it('bloquea cuando ambos son string vacio', () => {
+    expect(validarFamiliaYTipoProducto({ familia_id: '', tipo_id: '' })).toBe(
+      'Familia y tipo son obligatorios para guardar el producto.'
+    );
+  });
+
+  it('bloquea cuando faltan las claves por completo', () => {
+    expect(validarFamiliaYTipoProducto({})).toBe(
+      'Familia y tipo son obligatorios para guardar el producto.'
     );
   });
 });

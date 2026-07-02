@@ -91,3 +91,15 @@ export function mensajeBloqueoEliminarTipo(productosCount: number): string | nul
   if (productosCount === 0) return null;
   return `No se puede eliminar: tiene ${productosCount} productos asociados. Reasigna primero.`;
 }
+
+export function validarFamiliaYTipoProducto(payload: {
+  familia_id?: unknown;
+  tipo_id?: unknown;
+}): string | null {
+  const familiaId = typeof payload.familia_id === 'string' ? payload.familia_id : '';
+  const tipoId = typeof payload.tipo_id === 'string' ? payload.tipo_id : '';
+  if (!familiaId || !tipoId) {
+    return 'Familia y tipo son obligatorios para guardar el producto.';
+  }
+  return null;
+}
