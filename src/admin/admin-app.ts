@@ -3,6 +3,8 @@ import { renderMarkdown } from '../lib/markdown';
 import * as XLSX from 'xlsx';
 import {
   planificarAutoasignacionTipos,
+  mensajeBloqueoEliminarFamilia,
+  mensajeBloqueoEliminarTipo,
   type FamiliaRow,
   type TipoRow,
   type ProductoTaxonomiaRow,
@@ -1054,8 +1056,13 @@ async function taxonomiaView(): Promise<string> {
           ${checkbox('activo', 'Activa', true)}
         </div>
         ${table(
-          ['Slug', 'Nombre', 'Estado'],
-          familias.map(r => [text(r.slug), text(r.nombre_es), status(r.activo)])
+          ['Slug', 'Nombre', 'Estado', 'Acciones'],
+          familias.map(r => [
+            text(r.slug),
+            text(r.nombre_es),
+            status(r.activo),
+            `<button class="admin-button admin-button--danger" type="button" data-delete-familia="${escapeHtml(text(r.id))}">Eliminar</button>`,
+          ])
         )}
       </form>
       <form class="admin-panel admin-form admin-taxonomy-panel" data-simple-form data-table="tipos" data-fields="familia_id,slug,nombre_es,nombre_en,orden,activo">
@@ -1069,12 +1076,13 @@ async function taxonomiaView(): Promise<string> {
           ${checkbox('activo', 'Activo', true)}
         </div>
         ${table(
-          ['Slug', 'Nombre', 'Productos', 'Estado'],
+          ['Slug', 'Nombre', 'Productos', 'Estado', 'Acciones'],
           tipos.map(r => [
             text(r.slug),
             text(r.nombre_es),
             String(conteoPorTipo.get(text(r.id)) ?? 0),
             status(r.activo),
+            `<button class="admin-button admin-button--danger" type="button" data-delete-tipo="${escapeHtml(text(r.id))}">Eliminar</button>`,
           ])
         )}
       </form>
@@ -3039,6 +3047,52 @@ function bindTaxonomy() {
     } finally {
       autoasignarButton.disabled = false;
     }
+  });
+
+  app.querySelectorAll<HTMLButtonElement>('[data-delete-familia]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const id = button.dataset['deleteFamilia'];
+      if (!id) return;
+      const [tiposDependientes, productosDependientes] = await Promise.all([
+        selectRowsWhere('tipos', 'id', 'orden', { familia_id: id }, 1000),
+        selectRowsWhere('productos', 'id', 'nombre_es', { familia_id: id }, 1000),
+      ]);
+      const bloqueo = mensajeBloqueoEliminarFamilia(
+        tiposDependientes.length,
+        productosDependientes.length
+      );
+      if (bloqueo) {
+        toast(bloqueo);
+        return;
+      }
+      if (!confirm('Eliminar familia?')) return;
+      const { error } = await supabase!.from('familias').delete().eq('id', id);
+      if (error) toast(error.message);
+      await render();
+    });
+  });
+
+  app.querySelectorAll<HTMLButtonElement>('[data-delete-tipo]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const id = button.dataset['deleteTipo'];
+      if (!id) return;
+      const productosDependientes = await selectRowsWhere(
+        'productos',
+        'id',
+        'nombre_es',
+        { tipo_id: id },
+        1000
+      );
+      const bloqueo = mensajeBloqueoEliminarTipo(productosDependientes.length);
+      if (bloqueo) {
+        toast(bloqueo);
+        return;
+      }
+      if (!confirm('Eliminar tipo?')) return;
+      const { error } = await supabase!.from('tipos').delete().eq('id', id);
+      if (error) toast(error.message);
+      await render();
+    });
   });
 }
 
