@@ -87,7 +87,7 @@ Deno.serve(async req => {
         rol,
         activo,
       },
-      { onConflict: 'user_id' }
+      { onConflict: 'email' }
     );
     if (profileError) throw profileError;
 
