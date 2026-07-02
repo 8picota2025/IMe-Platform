@@ -1,6 +1,15 @@
 import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase';
 import { renderMarkdown } from '../lib/markdown';
 import * as XLSX from 'xlsx';
+import {
+  planificarAutoasignacionTipos,
+  mensajeBloqueoEliminarFamilia,
+  mensajeBloqueoEliminarTipo,
+  validarFamiliaYTipoProducto,
+  type FamiliaRow,
+  type TipoRow,
+  type ProductoTaxonomiaRow,
+} from './taxonomia-logic';
 
 const OLLAMA_URL = (import.meta.env['PUBLIC_OLLAMA_URL'] as string | undefined) ?? '';
 const OLLAMA_INGEST_MODEL = 'qwen3:1.7b';
@@ -1143,13 +1152,17 @@ async function taxonomiaView(): Promise<string> {
   const familiasPorId = new Map(familias.map(f => [text(f.id), text(f.nombre_es)]));
   const conteoPorTipo = new Map<string, number>();
   const productosSinTipo: Row[] = [];
+  const productosSinFamilia: Row[] = [];
   for (const producto of productos) {
     const tipoId = text(producto.tipo_id);
     if (!tipoId) {
       productosSinTipo.push(producto);
-      continue;
+    } else {
+      conteoPorTipo.set(tipoId, (conteoPorTipo.get(tipoId) ?? 0) + 1);
     }
-    conteoPorTipo.set(tipoId, (conteoPorTipo.get(tipoId) ?? 0) + 1);
+    if (!text(producto.familia_id)) {
+      productosSinFamilia.push(producto);
+    }
   }
   const tiposParaSelect = tipos.map(t => ({
     ...t,
@@ -1169,8 +1182,13 @@ async function taxonomiaView(): Promise<string> {
           ${checkbox('activo', 'Activa', true)}
         </div>
         ${table(
-          ['Slug', 'Nombre', 'Estado'],
-          familias.map(r => [text(r.slug), text(r.nombre_es), status(r.activo)])
+          ['Slug', 'Nombre', 'Estado', 'Acciones'],
+          familias.map(r => [
+            text(r.slug),
+            text(r.nombre_es),
+            status(r.activo),
+            `<button class="admin-button admin-button--danger" type="button" data-delete-familia="${escapeHtml(text(r.id))}">Eliminar</button>`,
+          ])
         )}
       </form>
       <form class="admin-panel admin-form admin-taxonomy-panel" data-simple-form data-table="tipos" data-fields="familia_id,slug,nombre_es,nombre_en,orden,activo">
@@ -1184,18 +1202,22 @@ async function taxonomiaView(): Promise<string> {
           ${checkbox('activo', 'Activo', true)}
         </div>
         ${table(
-          ['Slug', 'Nombre', 'Productos', 'Estado'],
+          ['Slug', 'Nombre', 'Productos', 'Estado', 'Acciones'],
           tipos.map(r => [
             text(r.slug),
             text(r.nombre_es),
             String(conteoPorTipo.get(text(r.id)) ?? 0),
             status(r.activo),
+            `<button class="admin-button admin-button--danger" type="button" data-delete-tipo="${escapeHtml(text(r.id))}">Eliminar</button>`,
           ])
         )}
       </form>
     </section>
     <section class="admin-panel admin-taxonomy-unassigned">
-      <div class="admin-panel__head"><h2>Productos sin tipo asignado (${productosSinTipo.length})</h2></div>
+      <div class="admin-panel__head">
+        <h2>Productos sin tipo asignado (${productosSinTipo.length})</h2>
+        <button class="admin-button" type="button" data-autoasignar-tipos>Autoasignar tipos faltantes</button>
+      </div>
       ${
         productosSinTipo.length === 0
           ? '<p class="admin-help admin-taxonomy-empty">Todos los productos tienen tipo asignado.</p>'
@@ -1212,6 +1234,31 @@ async function taxonomiaView(): Promise<string> {
           <div class="admin-taxonomy-assign__fields">
             ${select('familia_id', 'Familia', text(p.familia_id), familias, 'nombre_es', true)}
             ${select('tipo_id', 'Tipo', '', tiposParaSelect, 'nombre_es', true)}
+          </div>
+          <button class="admin-button" type="submit">Reasignar</button>
+        </form>`
+              )
+              .join('')
+      }
+    </section>
+    <section class="admin-panel admin-taxonomy-unassigned">
+      <div class="admin-panel__head"><h2>Productos sin familia (${productosSinFamilia.length})</h2></div>
+      ${
+        productosSinFamilia.length === 0
+          ? '<p class="admin-help admin-taxonomy-empty">Todos los productos tienen familia asignada.</p>'
+          : productosSinFamilia
+              .map(
+                p => `
+        <form class="admin-taxonomy-assign" data-reasignar-form>
+          <input type="hidden" name="producto_id" value="${escapeHtml(text(p.id))}" />
+          <div class="admin-taxonomy-product">
+            <span>Producto</span>
+            <strong>${escapeHtml(text(p.nombre_es))}</strong>
+            <small>${escapeHtml(text(p.slug))}</small>
+          </div>
+          <div class="admin-taxonomy-assign__fields">
+            ${select('familia_id', 'Familia', '', familias, 'nombre_es', true)}
+            ${select('tipo_id', 'Tipo', text(p.tipo_id), tiposParaSelect, 'nombre_es', true)}
           </div>
           <button class="admin-button" type="submit">Reasignar</button>
         </form>`
@@ -2805,6 +2852,11 @@ function bindProductList() {
         button.disabled = true;
         button.textContent = 'Guardando...';
         const payload = productInlinePayload(id);
+        const errorValidacion = validarFamiliaYTipoProducto(payload);
+        if (errorValidacion) {
+          toast(errorValidacion);
+          return;
+        }
         const { error } = await supabase!.from('productos').update(payload).eq('id', id);
         if (error) throw error;
         if (payload['activo']) await generarEmbeddingProducto(id);
@@ -2991,6 +3043,11 @@ function bindProductForm() {
   form.addEventListener('submit', async event => {
     event.preventDefault();
     const payload = productPayload(form);
+    const errorValidacion = validarFamiliaYTipoProducto(payload);
+    if (errorValidacion) {
+      toast(errorValidacion);
+      return;
+    }
     const id = String(new FormData(form).get('id') ?? '');
     if (id) {
       const { error } = await supabase!.from('productos').update(payload).eq('id', id);
@@ -3034,6 +3091,11 @@ function bindReasignacion() {
         familia_id: emptyToNull(data.get('familia_id')),
         tipo_id: emptyToNull(data.get('tipo_id')),
       };
+      const errorValidacion = validarFamiliaYTipoProducto(payload);
+      if (errorValidacion) {
+        toast(errorValidacion);
+        return;
+      }
       const { error } = await supabase!.from('productos').update(payload).eq('id', productoId);
       if (error) {
         toast(error.message);
@@ -3071,6 +3133,141 @@ function bindTaxonomy() {
       }
       toast('Registro creado');
       await render();
+    });
+  });
+
+  const autoasignarButton = app.querySelector<HTMLButtonElement>('[data-autoasignar-tipos]');
+  autoasignarButton?.addEventListener('click', async () => {
+    autoasignarButton.disabled = true;
+    try {
+      const [familiasRows, tiposRows, productosRows] = await Promise.all([
+        selectRows('familias', 'id,slug,nombre_es,nombre_en', 'orden', 200),
+        selectRows('tipos', 'id,familia_id,nombre_es', 'orden', 300),
+        selectRows('productos', 'id,familia_id,tipo_id', 'nombre_es', 500),
+      ]);
+      const familias: FamiliaRow[] = familiasRows.map(f => ({
+        id: text(f.id),
+        slug: text(f.slug),
+        nombre_es: text(f.nombre_es),
+        nombre_en: emptyStringToNull(text(f.nombre_en)),
+      }));
+      const tipos: TipoRow[] = tiposRows.map(t => ({
+        id: text(t.id),
+        familia_id: text(t.familia_id),
+        nombre_es: text(t.nombre_es),
+      }));
+      const productos: ProductoTaxonomiaRow[] = productosRows.map(p => ({
+        id: text(p.id),
+        familia_id: emptyStringToNull(text(p.familia_id)),
+        tipo_id: emptyStringToNull(text(p.tipo_id)),
+      }));
+      const plan = planificarAutoasignacionTipos(productos, tipos, familias);
+      if (plan.actualizacionesDirectas.length === 0 && plan.tiposACrear.length === 0) {
+        toast('No hay productos pendientes.');
+        return;
+      }
+
+      let productosActualizados = 0;
+      let tiposCreados = 0;
+
+      for (const entrada of plan.tiposACrear) {
+        const { data, error } = await supabase!
+          .from('tipos')
+          .insert(entrada.tipo)
+          .select('id')
+          .single();
+        if (error) {
+          toast(error.message);
+          await render();
+          return;
+        }
+        tiposCreados += 1;
+        const nuevoTipoId = text((data as Row).id);
+        const { error: updateError } = await supabase!
+          .from('productos')
+          .update({ tipo_id: nuevoTipoId })
+          .in('id', entrada.productoIds);
+        if (updateError) {
+          toast(updateError.message);
+          await render();
+          return;
+        }
+        productosActualizados += entrada.productoIds.length;
+      }
+
+      for (const entrada of plan.actualizacionesDirectas) {
+        const { error } = await supabase!
+          .from('productos')
+          .update({ tipo_id: entrada.tipoId })
+          .in('id', entrada.productoIds);
+        if (error) {
+          toast(error.message);
+          await render();
+          return;
+        }
+        productosActualizados += entrada.productoIds.length;
+      }
+
+      toast(`${productosActualizados} productos actualizados, ${tiposCreados} tipos creados.`);
+      await render();
+    } finally {
+      autoasignarButton.disabled = false;
+    }
+  });
+
+  app.querySelectorAll<HTMLButtonElement>('[data-delete-familia]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const id = button.dataset['deleteFamilia'];
+      if (!id) return;
+      button.disabled = true;
+      try {
+        const [tiposDependientes, productosDependientes] = await Promise.all([
+          selectRowsWhere('tipos', 'id', 'orden', { familia_id: id }, 1000),
+          selectRowsWhere('productos', 'id', 'nombre_es', { familia_id: id }, 1000),
+        ]);
+        const bloqueo = mensajeBloqueoEliminarFamilia(
+          tiposDependientes.length,
+          productosDependientes.length
+        );
+        if (bloqueo) {
+          toast(bloqueo);
+          return;
+        }
+        if (!confirm('Eliminar familia?')) return;
+        const { error } = await supabase!.from('familias').delete().eq('id', id);
+        if (error) toast(error.message);
+        await render();
+      } finally {
+        button.disabled = false;
+      }
+    });
+  });
+
+  app.querySelectorAll<HTMLButtonElement>('[data-delete-tipo]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const id = button.dataset['deleteTipo'];
+      if (!id) return;
+      button.disabled = true;
+      try {
+        const productosDependientes = await selectRowsWhere(
+          'productos',
+          'id',
+          'nombre_es',
+          { tipo_id: id },
+          1000
+        );
+        const bloqueo = mensajeBloqueoEliminarTipo(productosDependientes.length);
+        if (bloqueo) {
+          toast(bloqueo);
+          return;
+        }
+        if (!confirm('Eliminar tipo?')) return;
+        const { error } = await supabase!.from('tipos').delete().eq('id', id);
+        if (error) toast(error.message);
+        await render();
+      } finally {
+        button.disabled = false;
+      }
     });
   });
 }
