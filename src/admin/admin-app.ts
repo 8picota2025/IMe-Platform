@@ -5,6 +5,7 @@ import {
   planificarAutoasignacionTipos,
   mensajeBloqueoEliminarFamilia,
   mensajeBloqueoEliminarTipo,
+  validarFamiliaYTipoProducto,
   type FamiliaRow,
   type TipoRow,
   type ProductoTaxonomiaRow,
@@ -2730,6 +2731,11 @@ function bindProductList() {
         button.disabled = true;
         button.textContent = 'Guardando...';
         const payload = productInlinePayload(id);
+        const errorValidacion = validarFamiliaYTipoProducto(payload);
+        if (errorValidacion) {
+          toast(errorValidacion);
+          return;
+        }
         const { error } = await supabase!.from('productos').update(payload).eq('id', id);
         if (error) throw error;
         if (payload['activo']) await generarEmbeddingProducto(id);
@@ -2916,6 +2922,11 @@ function bindProductForm() {
   form.addEventListener('submit', async event => {
     event.preventDefault();
     const payload = productPayload(form);
+    const errorValidacion = validarFamiliaYTipoProducto(payload);
+    if (errorValidacion) {
+      toast(errorValidacion);
+      return;
+    }
     const id = String(new FormData(form).get('id') ?? '');
     if (id) {
       const { error } = await supabase!.from('productos').update(payload).eq('id', id);
