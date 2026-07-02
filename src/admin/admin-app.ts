@@ -1030,13 +1030,17 @@ async function taxonomiaView(): Promise<string> {
   const familiasPorId = new Map(familias.map(f => [text(f.id), text(f.nombre_es)]));
   const conteoPorTipo = new Map<string, number>();
   const productosSinTipo: Row[] = [];
+  const productosSinFamilia: Row[] = [];
   for (const producto of productos) {
     const tipoId = text(producto.tipo_id);
     if (!tipoId) {
       productosSinTipo.push(producto);
-      continue;
+    } else {
+      conteoPorTipo.set(tipoId, (conteoPorTipo.get(tipoId) ?? 0) + 1);
     }
-    conteoPorTipo.set(tipoId, (conteoPorTipo.get(tipoId) ?? 0) + 1);
+    if (!text(producto.familia_id)) {
+      productosSinFamilia.push(producto);
+    }
   }
   const tiposParaSelect = tipos.map(t => ({
     ...t,
@@ -1108,6 +1112,31 @@ async function taxonomiaView(): Promise<string> {
           <div class="admin-taxonomy-assign__fields">
             ${select('familia_id', 'Familia', text(p.familia_id), familias, 'nombre_es', true)}
             ${select('tipo_id', 'Tipo', '', tiposParaSelect, 'nombre_es', true)}
+          </div>
+          <button class="admin-button" type="submit">Reasignar</button>
+        </form>`
+              )
+              .join('')
+      }
+    </section>
+    <section class="admin-panel admin-taxonomy-unassigned">
+      <div class="admin-panel__head"><h2>Productos sin familia (${productosSinFamilia.length})</h2></div>
+      ${
+        productosSinFamilia.length === 0
+          ? '<p class="admin-help admin-taxonomy-empty">Todos los productos tienen familia asignada.</p>'
+          : productosSinFamilia
+              .map(
+                p => `
+        <form class="admin-taxonomy-assign" data-reasignar-form>
+          <input type="hidden" name="producto_id" value="${escapeHtml(text(p.id))}" />
+          <div class="admin-taxonomy-product">
+            <span>Producto</span>
+            <strong>${escapeHtml(text(p.nombre_es))}</strong>
+            <small>${escapeHtml(text(p.slug))}</small>
+          </div>
+          <div class="admin-taxonomy-assign__fields">
+            ${select('familia_id', 'Familia', '', familias, 'nombre_es', true)}
+            ${select('tipo_id', 'Tipo', text(p.tipo_id), tiposParaSelect, 'nombre_es', true)}
           </div>
           <button class="admin-button" type="submit">Reasignar</button>
         </form>`
