@@ -676,7 +676,7 @@ const servicios = [
 </Layout>
 
 <script>
-  // ── Reveal on scroll (.fade-in → .visible) ──
+  // ── Reveal on scroll (.fade-in ↔ .visible, fades back out when a section leaves view) ──
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const faders = document.querySelectorAll<HTMLElement>('.site-faithful .fade-in');
   if (reduce) {
@@ -685,10 +685,7 @@ const servicios = [
     const io = new IntersectionObserver(
       entries => {
         entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            io.unobserve(entry.target);
-          }
+          entry.target.classList.toggle('visible', entry.isIntersecting);
         });
       },
       { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }

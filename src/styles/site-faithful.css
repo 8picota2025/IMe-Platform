@@ -546,13 +546,15 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 60px;
-  align-items: center;
+  align-items: stretch;
 }
 .site-faithful .about-imgs {
   position: relative;
+  height: 100%;
 }
 .site-faithful .about-imgs-bg {
   min-height: 500px;
+  height: 100%;
   border-radius: var(--radius-xl);
   background: url('/assets/img/surgery-room.jpg') center/cover no-repeat;
   box-shadow: var(--shadow-lg);
