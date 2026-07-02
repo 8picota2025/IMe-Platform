@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { planificarAutoasignacionTipos } from './taxonomia-logic';
+import {
+  planificarAutoasignacionTipos,
+  mensajeBloqueoEliminarFamilia,
+  mensajeBloqueoEliminarTipo,
+} from './taxonomia-logic';
 
 const familias = [
   {
@@ -78,5 +82,35 @@ describe('planificarAutoasignacionTipos', () => {
     const plan = planificarAutoasignacionTipos(productos, [], familias);
     expect(plan.tiposACrear).toHaveLength(2);
     expect(plan.tiposACrear.map(t => t.familiaId).sort()).toEqual(['fam-1', 'fam-2']);
+  });
+});
+
+describe('mensajeBloqueoEliminarFamilia', () => {
+  it('devuelve null cuando no hay tipos ni productos asociados', () => {
+    expect(mensajeBloqueoEliminarFamilia(0, 0)).toBeNull();
+  });
+
+  it('bloquea y explica cuantos tipos/productos hay cuando existen dependientes', () => {
+    expect(mensajeBloqueoEliminarFamilia(3, 12)).toBe(
+      'No se puede eliminar: tiene 3 tipos y 12 productos asociados. Reasigna primero.'
+    );
+  });
+
+  it('bloquea aunque solo haya tipos y cero productos', () => {
+    expect(mensajeBloqueoEliminarFamilia(1, 0)).toBe(
+      'No se puede eliminar: tiene 1 tipos y 0 productos asociados. Reasigna primero.'
+    );
+  });
+});
+
+describe('mensajeBloqueoEliminarTipo', () => {
+  it('devuelve null cuando no hay productos asociados', () => {
+    expect(mensajeBloqueoEliminarTipo(0)).toBeNull();
+  });
+
+  it('bloquea y explica cuantos productos hay asociados', () => {
+    expect(mensajeBloqueoEliminarTipo(5)).toBe(
+      'No se puede eliminar: tiene 5 productos asociados. Reasigna primero.'
+    );
   });
 });

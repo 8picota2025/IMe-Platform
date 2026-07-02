@@ -78,3 +78,16 @@ export function planificarAutoasignacionTipos(
 
   return { actualizacionesDirectas, tiposACrear };
 }
+
+export function mensajeBloqueoEliminarFamilia(
+  tiposCount: number,
+  productosCount: number
+): string | null {
+  if (tiposCount === 0 && productosCount === 0) return null;
+  return `No se puede eliminar: tiene ${tiposCount} tipos y ${productosCount} productos asociados. Reasigna primero.`;
+}
+
+export function mensajeBloqueoEliminarTipo(productosCount: number): string | null {
+  if (productosCount === 0) return null;
+  return `No se puede eliminar: tiene ${productosCount} productos asociados. Reasigna primero.`;
+}
