@@ -1423,6 +1423,35 @@ $$;
 DROP POLICY IF EXISTS "storage_productos_public_read" ON storage.objects;
 CREATE POLICY "storage_productos_public_read"
   ON storage.objects FOR SELECT
-  USING (bucket_id = 'productos')
-  ;
--- (Supabase aplica estas políticas automáticamente si el bucket es public)
+  USING (bucket_id IN ('productos', 'fichas', 'articulos'));
+
+DROP POLICY IF EXISTS "storage_cms_insert" ON storage.objects;
+CREATE POLICY "storage_cms_insert"
+  ON storage.objects FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    bucket_id IN ('productos', 'fichas', 'articulos')
+    AND is_admin(ARRAY['catalogo'])
+  );
+
+DROP POLICY IF EXISTS "storage_cms_update" ON storage.objects;
+CREATE POLICY "storage_cms_update"
+  ON storage.objects FOR UPDATE
+  TO authenticated
+  USING (
+    bucket_id IN ('productos', 'fichas', 'articulos')
+    AND is_admin(ARRAY['catalogo'])
+  )
+  WITH CHECK (
+    bucket_id IN ('productos', 'fichas', 'articulos')
+    AND is_admin(ARRAY['catalogo'])
+  );
+
+DROP POLICY IF EXISTS "storage_cms_delete" ON storage.objects;
+CREATE POLICY "storage_cms_delete"
+  ON storage.objects FOR DELETE
+  TO authenticated
+  USING (
+    bucket_id IN ('productos', 'fichas', 'articulos')
+    AND is_admin(ARRAY['catalogo'])
+  );
