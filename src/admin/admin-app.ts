@@ -23,6 +23,7 @@ type View =
   | 'proveedores'
   | 'proveedor-productos'
   | 'fulfillments'
+  | 'usuarios'
   | 'conocimiento'
   | 'ingesta'
   | 'asesor';
@@ -218,6 +219,7 @@ function parseView(hash: string): View {
     raw === 'proveedores' ||
     raw === 'proveedor-productos' ||
     raw === 'fulfillments' ||
+    raw === 'usuarios' ||
     raw === 'conocimiento' ||
     raw === 'ingesta' ||
     raw === 'asesor'
@@ -435,6 +437,7 @@ async function routeView(): Promise<{ title: string; body: string }> {
     return { title: 'Productos del proveedor', body: await proveedorProductosView() };
   if (state.view === 'fulfillments')
     return { title: 'Fulfillments', body: await fulfillmentsView() };
+  if (state.view === 'usuarios') return { title: 'Usuarios CMS', body: await usuariosView() };
   if (state.view === 'conocimiento')
     return { title: 'Conocimiento', body: await conocimientoView() };
   if (state.view === 'ingesta') return { title: 'Ingesta PDF', body: await ingestaView() };
@@ -454,6 +457,7 @@ function shellHtml(title: string, body: string): string {
     ['cupones', 'Cupones'],
     ['proveedores', 'Proveedores'],
     ['fulfillments', 'Fulfillments'],
+    ['usuarios', 'Usuarios CMS'],
     ['reportes', 'Reportes'],
     ['conocimiento', 'Conocimiento'],
     ['asesor', 'Asesor'],
@@ -517,7 +521,67 @@ function bindView() {
   bindProviderFilters();
   bindProveedorProductos();
   bindFulfillments();
+  bindUsuarios();
   bindAsesorPanel();
+}
+
+function bindUsuarios() {
+  const form = app.querySelector<HTMLFormElement>('[data-admin-user-form]');
+  if (!form) return;
+  const status = form.querySelector<HTMLElement>('[data-admin-user-status]');
+  const submit = form.querySelector<HTMLButtonElement>('[data-admin-user-submit]');
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    const data = new FormData(form);
+    const email = String(data.get('email') ?? '').trim();
+    const password = String(data.get('password') ?? '').trim();
+    const rol = String(data.get('rol') ?? 'lectura');
+    const activo =
+      form.elements.namedItem('activo') instanceof HTMLInputElement &&
+      (form.elements.namedItem('activo') as HTMLInputElement).checked;
+    const sendInvite =
+      form.elements.namedItem('sendInvite') instanceof HTMLInputElement &&
+      (form.elements.namedItem('sendInvite') as HTMLInputElement).checked;
+
+    if (!email) {
+      toast('Email requerido');
+      return;
+    }
+
+    if (submit) {
+      submit.disabled = true;
+      submit.textContent = 'Sincronizando…';
+    }
+    if (status) status.textContent = 'Creando usuario Auth y perfil CMS...';
+
+    const { data: result, error } = await supabase!.functions.invoke('admin-users', {
+      body: {
+        action: 'upsert',
+        email,
+        rol,
+        activo,
+        password: password || undefined,
+        sendInvite,
+      },
+    });
+
+    if (submit) {
+      submit.disabled = false;
+      submit.textContent = 'Guardar acceso';
+    }
+
+    if (error) {
+      const message = error.message || 'No se pudo sincronizar el usuario.';
+      if (status) status.textContent = message;
+      toast(message);
+      return;
+    }
+
+    const createdEmail = text((result as Row | null)?.user && ((result as Row).user as Row).email);
+    toast(`Usuario sincronizado: ${createdEmail || email}`);
+    location.hash = '#/usuarios';
+    await render();
+  });
 }
 
 async function dashboardView(): Promise<string> {
@@ -592,8 +656,74 @@ async function dashboardView(): Promise<string> {
         <a class="admin-button admin-button--ghost" href="#/clientes">Clientes</a>
         <a class="admin-button admin-button--ghost" href="#/cupones">Cupones</a>
         <a class="admin-button admin-button--ghost" href="#/cotizaciones">Cotizaciones</a>
+        <a class="admin-button admin-button--ghost" href="#/usuarios">Usuarios CMS</a>
         <a class="admin-button admin-button--ghost" href="#/reportes">Reportes</a>
       </div>
+    </section>`;
+}
+
+type AdminUserRow = {
+  user_id: string;
+  email: string;
+  rol: string;
+  activo: boolean;
+  confirmed_at: string | null;
+  last_sign_in_at: string | null;
+  synced: boolean;
+};
+
+const ADMIN_ROLES: Array<[string, string]> = [
+  ['lectura', 'Lectura'],
+  ['ventas', 'Ventas'],
+  ['catalogo', 'Catálogo'],
+  ['operaciones', 'Operaciones'],
+  ['admin', 'Admin'],
+  ['owner', 'Owner'],
+];
+
+async function usuariosView(): Promise<string> {
+  const { data, error } = await supabase!.functions.invoke('admin-users', {
+    body: { action: 'list' },
+  });
+  if (error) toast(error.message);
+  const users = (((data as { users?: AdminUserRow[] } | null)?.users ?? []) as AdminUserRow[]).sort(
+    (a, b) => a.email.localeCompare(b.email)
+  );
+
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head">
+        <h2>Crear o sincronizar acceso CMS</h2>
+      </div>
+      <form class="admin-form" data-admin-user-form style="padding:16px">
+        <div class="admin-alert">Este formulario crea o actualiza el usuario en Supabase Auth y sincroniza su perfil en <code>admin_profiles</code>. Sin usuario Auth no puede iniciar sesión, aunque exista un perfil CMS.</div>
+        <div class="admin-editor__cols">
+          ${field('email', 'Email', '', true, 'email')}
+          ${selectStatic('rol', 'Rol', 'lectura', ADMIN_ROLES)}
+        </div>
+        <label class="admin-field">Contraseña inicial opcional
+          <input name="password" type="password" autocomplete="new-password" minlength="8" />
+          <small>Si la dejas vacía se enviará invitación por email cuando el proveedor SMTP de Supabase esté disponible.</small>
+        </label>
+        <label class="admin-field"><span><input name="sendInvite" type="checkbox" checked /> Enviar invitación si no escribo contraseña</span></label>
+        <label class="admin-field"><span><input name="activo" type="checkbox" checked /> Perfil activo</span></label>
+        <button class="admin-button" type="submit" data-admin-user-submit>Guardar acceso</button>
+        <p class="admin-help" data-admin-user-status></p>
+      </form>
+    </section>
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Usuarios sincronizados (${users.length})</h2></div>
+      ${table(
+        ['Email', 'Rol', 'Activo', 'Auth', 'Confirmado', 'Último acceso'],
+        users.map(user => [
+          user.email,
+          user.rol,
+          user.activo ? 'Sí' : 'No',
+          user.synced ? 'Sincronizado' : 'Falta Auth',
+          user.confirmed_at ? formatDate(user.confirmed_at) : 'Pendiente',
+          user.last_sign_in_at ? formatDate(user.last_sign_in_at) : '—',
+        ])
+      )}
     </section>`;
 }
 
@@ -659,7 +789,7 @@ const PRODUCT_SORT_FIELDS = new Set([
 ]);
 
 const PRODUCT_LIST_COLUMNS: ProductListColumn[] = [
-  { key: 'imagen_principal', label: 'Foto', type: 'image' },
+  { key: 'imagen_principal', label: 'Foto / acciones', type: 'image' },
   { key: 'galeria', label: 'Galería', type: 'gallery' },
   { key: 'nombre_es', label: 'Nombre ES', type: 'text', sortable: true },
   { key: 'nombre_en', label: 'Nombre EN', type: 'text', sortable: true },
@@ -893,24 +1023,15 @@ async function productosView(): Promise<string> {
         <p class="admin-help" data-products-import-status>Sin archivo seleccionado.</p>
       </form>
       ${table(
-        [
-          ...PRODUCT_LIST_COLUMNS.map(column =>
-            column.sortable
-              ? `<a class="admin-sort-link" href="${productSortLink(column.key, sort, dir)}">${escapeHtml(column.label)}${productSortIndicator(column.key, sort, dir)}</a>`
-              : escapeHtml(column.label)
-          ),
-          'Acciones',
-        ],
+        PRODUCT_LIST_COLUMNS.map(column =>
+          column.sortable
+            ? `<a class="admin-sort-link" href="${productSortLink(column.key, sort, dir)}">${escapeHtml(column.label)}${productSortIndicator(column.key, sort, dir)}</a>`
+            : escapeHtml(column.label)
+        ),
         rows.map(row => [
           ...PRODUCT_LIST_COLUMNS.map(column =>
             productListCell(row, column, familias, tiposParaSelect)
           ),
-          `<div class="admin-row-actions">
-            <button class="admin-button" data-product-row-save="${escapeHtml(text(row.id))}" type="button">Guardar</button>
-            <button class="admin-button admin-button--ghost" data-product-row-upload="${escapeHtml(text(row.id))}" type="button">Subir foto</button>
-            <button class="admin-button admin-button--ghost" data-product-row-gallery-upload="${escapeHtml(text(row.id))}" type="button">Subir galería</button>
-            <a class="admin-button admin-button--ghost" href="#/producto?id=${encodeURIComponent(text(row.id))}">Detalle</a>
-          </div>`,
         ]),
         'admin-products-table'
       )}
@@ -4941,11 +5062,19 @@ function productListCell(
     const imageUrl = text(value);
     return `
       <div class="admin-product-image-cell">
-        ${
-          imageUrl
-            ? `<img class="admin-thumb" src="${escapeHtml(imageUrl)}" alt="" width="48" height="48" loading="lazy" />`
-            : '<span class="admin-image-empty">Sin foto</span>'
-        }
+        <div class="admin-product-image-cell__media">
+          ${
+            imageUrl
+              ? `<img class="admin-thumb" src="${escapeHtml(imageUrl)}" alt="" width="48" height="48" loading="lazy" />`
+              : '<span class="admin-image-empty">Sin foto</span>'
+          }
+        </div>
+        <div class="admin-row-actions admin-row-actions--product-media">
+          <button class="admin-button" data-product-row-save="${escapeHtml(productId)}" type="button">Guardar</button>
+          <button class="admin-button admin-button--ghost" data-product-row-upload="${escapeHtml(productId)}" type="button">Subir foto</button>
+          <button class="admin-button admin-button--ghost" data-product-row-gallery-upload="${escapeHtml(productId)}" type="button">Subir galería</button>
+          <a class="admin-button admin-button--ghost" href="#/producto?id=${encodeURIComponent(productId)}">Detalle</a>
+        </div>
       </div>`;
   }
   if (column.type === 'gallery') {
@@ -6441,6 +6570,15 @@ function normalizeExcelKey(value: string): string {
 function normalizeUuid(value: string | null | undefined): string | null {
   const raw = String(value ?? '').trim();
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(raw) ? raw : null;
+}
+
+function formatDate(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat('es-CO', {
+    dateStyle: 'short',
+    timeStyle: 'short',
+  }).format(date);
 }
 
 function downloadWorkbook(workbook: XLSX.WorkBook, filename: string) {
