@@ -775,7 +775,7 @@ function mensajeDegradado(
   const consultaComparativa = esConsultaComparativa(textoConsulta);
   const biomedicalFallback = buildBiomedicalFallback(locale, textoConsulta, productos);
 
-  if (biomedicalFallback && (modo === 'sin_resultados' || productos.length === 0)) {
+  if (biomedicalFallback) {
     return biomedicalFallback;
   }
 
@@ -824,8 +824,8 @@ function mensajeDegradado(
     .join(', ');
 
   return locale === 'en'
-    ? `Based on your request, these catalog products might be relevant: ${nombres}. For more details, a formal comparison or a quote, contact us on WhatsApp.`
-    : `Según tu consulta, estos productos del catálogo podrían interesarte: ${nombres}. Para más detalle, una comparativa formal o una cotización, escríbenos por WhatsApp.`;
+    ? `Based on your request, these catalog products are a reasonable starting point: ${nombres}. To make a technical recommendation, I still need the clinical service, expected workload, required accessories or integrations, regulatory documentation needs and budget range.`
+    : `Según tu consulta, estos productos del catálogo son un buen punto de partida: ${nombres}. Para recomendar con criterio técnico todavía necesito servicio clínico, volumen de uso, accesorios o integraciones requeridas, documentación regulatoria necesaria y rango de presupuesto.`;
 }
 
 function buildBiomedicalFallback(
