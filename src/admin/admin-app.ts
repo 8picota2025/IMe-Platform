@@ -2970,6 +2970,11 @@ function bindReasignacion() {
         familia_id: emptyToNull(data.get('familia_id')),
         tipo_id: emptyToNull(data.get('tipo_id')),
       };
+      const errorValidacion = validarFamiliaYTipoProducto(payload);
+      if (errorValidacion) {
+        toast(errorValidacion);
+        return;
+      }
       const { error } = await supabase!.from('productos').update(payload).eq('id', productoId);
       if (error) {
         toast(error.message);
@@ -3093,22 +3098,27 @@ function bindTaxonomy() {
     button.addEventListener('click', async () => {
       const id = button.dataset['deleteFamilia'];
       if (!id) return;
-      const [tiposDependientes, productosDependientes] = await Promise.all([
-        selectRowsWhere('tipos', 'id', 'orden', { familia_id: id }, 1000),
-        selectRowsWhere('productos', 'id', 'nombre_es', { familia_id: id }, 1000),
-      ]);
-      const bloqueo = mensajeBloqueoEliminarFamilia(
-        tiposDependientes.length,
-        productosDependientes.length
-      );
-      if (bloqueo) {
-        toast(bloqueo);
-        return;
+      button.disabled = true;
+      try {
+        const [tiposDependientes, productosDependientes] = await Promise.all([
+          selectRowsWhere('tipos', 'id', 'orden', { familia_id: id }, 1000),
+          selectRowsWhere('productos', 'id', 'nombre_es', { familia_id: id }, 1000),
+        ]);
+        const bloqueo = mensajeBloqueoEliminarFamilia(
+          tiposDependientes.length,
+          productosDependientes.length
+        );
+        if (bloqueo) {
+          toast(bloqueo);
+          return;
+        }
+        if (!confirm('Eliminar familia?')) return;
+        const { error } = await supabase!.from('familias').delete().eq('id', id);
+        if (error) toast(error.message);
+        await render();
+      } finally {
+        button.disabled = false;
       }
-      if (!confirm('Eliminar familia?')) return;
-      const { error } = await supabase!.from('familias').delete().eq('id', id);
-      if (error) toast(error.message);
-      await render();
     });
   });
 
@@ -3116,22 +3126,27 @@ function bindTaxonomy() {
     button.addEventListener('click', async () => {
       const id = button.dataset['deleteTipo'];
       if (!id) return;
-      const productosDependientes = await selectRowsWhere(
-        'productos',
-        'id',
-        'nombre_es',
-        { tipo_id: id },
-        1000
-      );
-      const bloqueo = mensajeBloqueoEliminarTipo(productosDependientes.length);
-      if (bloqueo) {
-        toast(bloqueo);
-        return;
+      button.disabled = true;
+      try {
+        const productosDependientes = await selectRowsWhere(
+          'productos',
+          'id',
+          'nombre_es',
+          { tipo_id: id },
+          1000
+        );
+        const bloqueo = mensajeBloqueoEliminarTipo(productosDependientes.length);
+        if (bloqueo) {
+          toast(bloqueo);
+          return;
+        }
+        if (!confirm('Eliminar tipo?')) return;
+        const { error } = await supabase!.from('tipos').delete().eq('id', id);
+        if (error) toast(error.message);
+        await render();
+      } finally {
+        button.disabled = false;
       }
-      if (!confirm('Eliminar tipo?')) return;
-      const { error } = await supabase!.from('tipos').delete().eq('id', id);
-      if (error) toast(error.message);
-      await render();
     });
   });
 }
