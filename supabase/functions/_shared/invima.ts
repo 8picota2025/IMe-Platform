@@ -2,13 +2,11 @@
  * Clasificación de dispositivos médicos INVIMA (Colombia) — subset Deno-safe
  * de src/lib/invima.ts / src/data/invima-knowledge-base.json.
  *
- * Duplicado deliberado: src/lib/invima.ts importa su fuente como JSON
- * (`import invimaData from '../data/invima-knowledge-base.json'`), que
- * requiere un import attribute (`with { type: 'json' }`) para resolver en
- * el runtime Deno de las Edge Functions y no se puede verificar sin
- * desplegar (supabase/functions no corre en CI). Este archivo evita ese
- * riesgo usando un objeto TS plano, igual que el resto de imports
- * cross-runtime ya usados en asesor/index.ts (ej. asesor-knowledge.ts).
+ * Duplicado deliberado: la version browser de src/lib/invima.ts carga su fuente
+ * como JSON, lo que requiere import attributes para resolver en el runtime Deno
+ * de las Edge Functions y no se puede verificar sin desplegar. Este archivo evita
+ * ese riesgo usando un objeto TS plano, igual que el resto de imports cross-runtime
+ * ya usados en asesor/index.ts (ej. asesor-knowledge.ts).
  *
  * Fuente original: https://www.invima.gov.co/productos-vigilados/dispositivos-medicos/
  * (Decreto 4725 de 2005). Si se actualiza invima-knowledge-base.json, replicar
