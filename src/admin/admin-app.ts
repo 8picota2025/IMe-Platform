@@ -1,6 +1,12 @@
 import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase';
 import { renderMarkdown } from '../lib/markdown';
 import * as XLSX from 'xlsx';
+import {
+  planificarAutoasignacionTipos,
+  type FamiliaRow,
+  type TipoRow,
+  type ProductoTaxonomiaRow,
+} from './taxonomia-logic';
 
 const OLLAMA_URL = (import.meta.env['PUBLIC_OLLAMA_URL'] as string | undefined) ?? '';
 const OLLAMA_INGEST_MODEL = 'qwen3:1.7b';
@@ -1074,7 +1080,10 @@ async function taxonomiaView(): Promise<string> {
       </form>
     </section>
     <section class="admin-panel admin-taxonomy-unassigned">
-      <div class="admin-panel__head"><h2>Productos sin tipo asignado (${productosSinTipo.length})</h2></div>
+      <div class="admin-panel__head">
+        <h2>Productos sin tipo asignado (${productosSinTipo.length})</h2>
+        <button class="admin-button" type="button" data-autoasignar-tipos>Autoasignar tipos faltantes</button>
+      </div>
       ${
         productosSinTipo.length === 0
           ? '<p class="admin-help admin-taxonomy-empty">Todos los productos tienen tipo asignado.</p>'
@@ -2952,6 +2961,81 @@ function bindTaxonomy() {
       await render();
     });
   });
+
+  app
+    .querySelector<HTMLButtonElement>('[data-autoasignar-tipos]')
+    ?.addEventListener('click', async () => {
+      const [familiasRows, tiposRows, productosRows] = await Promise.all([
+        selectRows('familias', 'id,slug,nombre_es,nombre_en', 'orden', 200),
+        selectRows('tipos', 'id,familia_id,nombre_es', 'orden', 300),
+        selectRows('productos', 'id,familia_id,tipo_id', 'nombre_es', 500),
+      ]);
+      const familias: FamiliaRow[] = familiasRows.map(f => ({
+        id: text(f.id),
+        slug: text(f.slug),
+        nombre_es: text(f.nombre_es),
+        nombre_en: emptyStringToNull(text(f.nombre_en)),
+      }));
+      const tipos: TipoRow[] = tiposRows.map(t => ({
+        id: text(t.id),
+        familia_id: text(t.familia_id),
+        nombre_es: text(t.nombre_es),
+      }));
+      const productos: ProductoTaxonomiaRow[] = productosRows.map(p => ({
+        id: text(p.id),
+        familia_id: emptyStringToNull(text(p.familia_id)),
+        tipo_id: emptyStringToNull(text(p.tipo_id)),
+      }));
+      const plan = planificarAutoasignacionTipos(productos, tipos, familias);
+      if (plan.actualizacionesDirectas.length === 0 && plan.tiposACrear.length === 0) {
+        toast('No hay productos pendientes.');
+        return;
+      }
+
+      let productosActualizados = 0;
+      let tiposCreados = 0;
+
+      for (const entrada of plan.tiposACrear) {
+        const { data, error } = await supabase!
+          .from('tipos')
+          .insert(entrada.tipo)
+          .select('id')
+          .single();
+        if (error) {
+          toast(error.message);
+          await render();
+          return;
+        }
+        tiposCreados += 1;
+        const nuevoTipoId = text((data as Row).id);
+        const { error: updateError } = await supabase!
+          .from('productos')
+          .update({ tipo_id: nuevoTipoId })
+          .in('id', entrada.productoIds);
+        if (updateError) {
+          toast(updateError.message);
+          await render();
+          return;
+        }
+        productosActualizados += entrada.productoIds.length;
+      }
+
+      for (const entrada of plan.actualizacionesDirectas) {
+        const { error } = await supabase!
+          .from('productos')
+          .update({ tipo_id: entrada.tipoId })
+          .in('id', entrada.productoIds);
+        if (error) {
+          toast(error.message);
+          await render();
+          return;
+        }
+        productosActualizados += entrada.productoIds.length;
+      }
+
+      toast(`${productosActualizados} productos actualizados, ${tiposCreados} tipos creados.`);
+      await render();
+    });
 }
 
 function bindFulfillments() {
