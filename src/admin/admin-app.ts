@@ -789,7 +789,7 @@ const PRODUCT_SORT_FIELDS = new Set([
 ]);
 
 const PRODUCT_LIST_COLUMNS: ProductListColumn[] = [
-  { key: 'imagen_principal', label: 'Foto', type: 'image' },
+  { key: 'imagen_principal', label: 'Foto / acciones', type: 'image' },
   { key: 'galeria', label: 'Galería', type: 'gallery' },
   { key: 'nombre_es', label: 'Nombre ES', type: 'text', sortable: true },
   { key: 'nombre_en', label: 'Nombre EN', type: 'text', sortable: true },
@@ -1023,24 +1023,15 @@ async function productosView(): Promise<string> {
         <p class="admin-help" data-products-import-status>Sin archivo seleccionado.</p>
       </form>
       ${table(
-        [
-          ...PRODUCT_LIST_COLUMNS.map(column =>
-            column.sortable
-              ? `<a class="admin-sort-link" href="${productSortLink(column.key, sort, dir)}">${escapeHtml(column.label)}${productSortIndicator(column.key, sort, dir)}</a>`
-              : escapeHtml(column.label)
-          ),
-          'Acciones',
-        ],
+        PRODUCT_LIST_COLUMNS.map(column =>
+          column.sortable
+            ? `<a class="admin-sort-link" href="${productSortLink(column.key, sort, dir)}">${escapeHtml(column.label)}${productSortIndicator(column.key, sort, dir)}</a>`
+            : escapeHtml(column.label)
+        ),
         rows.map(row => [
           ...PRODUCT_LIST_COLUMNS.map(column =>
             productListCell(row, column, familias, tiposParaSelect)
           ),
-          `<div class="admin-row-actions">
-            <button class="admin-button" data-product-row-save="${escapeHtml(text(row.id))}" type="button">Guardar</button>
-            <button class="admin-button admin-button--ghost" data-product-row-upload="${escapeHtml(text(row.id))}" type="button">Subir foto</button>
-            <button class="admin-button admin-button--ghost" data-product-row-gallery-upload="${escapeHtml(text(row.id))}" type="button">Subir galería</button>
-            <a class="admin-button admin-button--ghost" href="#/producto?id=${encodeURIComponent(text(row.id))}">Detalle</a>
-          </div>`,
         ]),
         'admin-products-table'
       )}
@@ -5071,11 +5062,19 @@ function productListCell(
     const imageUrl = text(value);
     return `
       <div class="admin-product-image-cell">
-        ${
-          imageUrl
-            ? `<img class="admin-thumb" src="${escapeHtml(imageUrl)}" alt="" width="48" height="48" loading="lazy" />`
-            : '<span class="admin-image-empty">Sin foto</span>'
-        }
+        <div class="admin-product-image-cell__media">
+          ${
+            imageUrl
+              ? `<img class="admin-thumb" src="${escapeHtml(imageUrl)}" alt="" width="48" height="48" loading="lazy" />`
+              : '<span class="admin-image-empty">Sin foto</span>'
+          }
+        </div>
+        <div class="admin-row-actions admin-row-actions--product-media">
+          <button class="admin-button" data-product-row-save="${escapeHtml(productId)}" type="button">Guardar</button>
+          <button class="admin-button admin-button--ghost" data-product-row-upload="${escapeHtml(productId)}" type="button">Subir foto</button>
+          <button class="admin-button admin-button--ghost" data-product-row-gallery-upload="${escapeHtml(productId)}" type="button">Subir galería</button>
+          <a class="admin-button admin-button--ghost" href="#/producto?id=${encodeURIComponent(productId)}">Detalle</a>
+        </div>
       </div>`;
   }
   if (column.type === 'gallery') {

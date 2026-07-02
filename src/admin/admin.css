@@ -610,7 +610,7 @@
 }
 
 .admin-products-table {
-  min-width: 3600px;
+  min-width: 3750px;
 }
 
 .admin-products-table th {
@@ -685,9 +685,14 @@
 }
 
 .admin-product-image-cell {
-  display: grid;
-  gap: 6px;
-  min-width: 68px;
+  display: flex;
+  gap: 8px;
+  min-width: 230px;
+  align-items: flex-start;
+}
+
+.admin-product-image-cell__media {
+  flex: 0 0 48px;
 }
 
 .admin-gallery-cell {
@@ -737,6 +742,10 @@
   flex-wrap: wrap;
   gap: 6px;
   align-items: flex-start;
+}
+
+.admin-row-actions--product-media {
+  width: 170px;
 }
 
 .admin-inline-link-cell .admin-button,
