@@ -2962,9 +2962,10 @@ function bindTaxonomy() {
     });
   });
 
-  app
-    .querySelector<HTMLButtonElement>('[data-autoasignar-tipos]')
-    ?.addEventListener('click', async () => {
+  const autoasignarButton = app.querySelector<HTMLButtonElement>('[data-autoasignar-tipos]');
+  autoasignarButton?.addEventListener('click', async () => {
+    autoasignarButton.disabled = true;
+    try {
       const [familiasRows, tiposRows, productosRows] = await Promise.all([
         selectRows('familias', 'id,slug,nombre_es,nombre_en', 'orden', 200),
         selectRows('tipos', 'id,familia_id,nombre_es', 'orden', 300),
@@ -3035,7 +3036,10 @@ function bindTaxonomy() {
 
       toast(`${productosActualizados} productos actualizados, ${tiposCreados} tipos creados.`);
       await render();
-    });
+    } finally {
+      autoasignarButton.disabled = false;
+    }
+  });
 }
 
 function bindFulfillments() {
