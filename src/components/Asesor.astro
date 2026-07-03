@@ -402,6 +402,19 @@ const asesorConfig = {
   .asesor-bubble--rich p {
     margin: 0;
   }
+  /* Menciones de canal enlazadas: WhatsApp en verde, formulario en azul.
+     :global porque las burbujas se crean en runtime (sin cid de Astro). */
+  :global(.chat-bubble--asesor .asesor-link) {
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  :global(.chat-bubble--asesor .asesor-link--whatsapp) {
+    color: var(--green);
+  }
+  :global(.chat-bubble--asesor .asesor-link--formulario) {
+    color: var(--blue);
+  }
 
   /* Tarjetas de producto sugeridas */
   .asesor-productos {
@@ -638,26 +651,56 @@ const asesorConfig = {
         .replace(/'/g, '&#39;');
     }
 
+    // Menciones de canal en texto del asesor → enlaces (WhatsApp en verde,
+    // formulario de contacto en azul). Solo fuera de etiquetas y de <a> existentes.
+    function linkifyCanales(html: string): string {
+      const waHref = escapeHtml(config.whatsappUrl);
+      const formHref = escapeHtml(config.contactoHref);
+      const reFormulario =
+        config.locale === 'en' ? /contact form|\bform\b/gi : /formulario(?: de contacto)?/gi;
+      const partes = html.split(/(<[^>]+>)/);
+      let dentroDeEnlace = false;
+      return partes
+        .map(parte => {
+          if (parte.startsWith('<')) {
+            if (/^<a[\s>]/i.test(parte)) dentroDeEnlace = true;
+            else if (/^<\/a>/i.test(parte)) dentroDeEnlace = false;
+            return parte;
+          }
+          if (dentroDeEnlace || !parte) return parte;
+          return parte
+            .replace(
+              /whatsapp/gi,
+              m =>
+                `<a class="asesor-link asesor-link--whatsapp" href="${waHref}" target="_blank" rel="noopener noreferrer">${m}</a>`
+            )
+            .replace(
+              reFormulario,
+              m => `<a class="asesor-link asesor-link--formulario" href="${formHref}">${m}</a>`
+            );
+        })
+        .join('');
+    }
+
     function renderMessageHtml(value: string): string {
       const escaped = escapeHtml(value.trim());
       if (!escaped) return '';
-      return (
-        escaped
-          .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-          // Enlaces markdown [texto](https://...) — solo https, tras escape.
-          .replace(
-            /\[([^\]]+)\]\((https:\/\/[^\s)]+)\)/g,
-            '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
-          )
-          // URLs https sueltas, sin capturar puntuación final.
-          .replace(
-            /(^|[^"'>=\]])(https:\/\/[^\s<]+?)([.,;:!?]?)(?=\s|$|<)/g,
-            '$1<a href="$2" target="_blank" rel="noopener noreferrer">$2</a>$3'
-          )
-          .split(/\n{2,}/)
-          .map(block => `<p>${block.replace(/\n/g, '<br>')}</p>`)
-          .join('')
-      );
+      const conEnlaces = escaped
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        // Enlaces markdown [texto](https://...) — solo https, tras escape.
+        .replace(
+          /\[([^\]]+)\]\((https:\/\/[^\s)]+)\)/g,
+          '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
+        )
+        // URLs https sueltas, sin capturar puntuación final.
+        .replace(
+          /(^|[^"'>=\]])(https:\/\/[^\s<]+?)([.,;:!?]?)(?=\s|$|<)/g,
+          '$1<a href="$2" target="_blank" rel="noopener noreferrer">$2</a>$3'
+        );
+      return linkifyCanales(conEnlaces)
+        .split(/\n{2,}/)
+        .map(block => `<p>${block.replace(/\n/g, '<br>')}</p>`)
+        .join('');
     }
 
     function addBubble(text: string, role: 'user' | 'asesor' | 'loading'): HTMLElement | undefined {
