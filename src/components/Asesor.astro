@@ -754,7 +754,7 @@ const asesorConfig = {
         if (turnstileWidgetId === null) {
           turnstileWidgetId = window.turnstile.render(turnstileContainer, {
             sitekey: config.turnstileSiteKey,
-            size: 'invisible',
+            size: 'normal',
             appearance: 'execute',
             execution: 'execute',
             callback: (token: string) => resolveTurnstileToken?.(token),
