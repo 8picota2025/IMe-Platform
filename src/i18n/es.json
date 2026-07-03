@@ -113,17 +113,10 @@
     "moneda_cop": "COP"
   },
   "conocimiento": {
-    "titulo": "Conocimiento",
-    "descripcion": "Artículos, guías y notas editoriales del equipo I-ME para apoyar decisiones de compra y uso responsable de tecnología biomédica.",
-    "proximamente": "Centro editorial",
-    "cta_contacto": "Hablar con un asesor",
-    "vacio": "Aún no hay artículos publicados.",
-    "listado_titulo": "Artículos publicados",
-    "leer_mas": "Leer artículo",
-    "publicado": "Publicado",
-    "actualizado": "Actualizado",
-    "volver": "Volver al conocimiento",
-    "ninguno": "No hay contenido publicado todavía."
+    "titulo": "Centro de Conocimiento",
+    "proximamente": "Próximamente",
+    "descripcion": "Estamos preparando guías técnicas, artículos y recursos sobre equipamiento biomédico. Vuelve pronto.",
+    "cta_contacto": "¿Tienes una pregunta ahora? Contáctanos"
   },
   "contacto": {
     "titulo": "Contacto",
@@ -170,17 +163,17 @@
     "certif": "Equipos Biomédicos Certificados INVIMA"
   },
   "asesor": {
-    "titulo": "Asesor I-ME",
-    "abrir": "Abrir asesor virtual",
-    "cerrar": "Cerrar asesor",
+    "titulo": "IMEIA · Asesor biomédico",
+    "abrir": "Abrir IMEIA, asesor virtual",
+    "cerrar": "Cerrar IMEIA",
     "placeholder": "Pregunta por el sitio, servicios, normativa o un producto…",
     "enviar": "Enviar",
-    "bienvenida": "Hola, soy el asesor biomédico de I-ME. Puedo dialogar con médicos, personal sanitario, ingeniería biomédica o compras para orientar selección de equipos, normativa INVIMA, buenas prácticas, soporte, financiación y cotización. Cuéntame el servicio clínico, el uso previsto o la duda técnica que quieres resolver.",
-    "buscando": "Pensando en su respuesta…",
+    "bienvenida": "Hola, soy IMEIA, su asesor biomédico de I-ME. Puedo ayudarle a elegir equipos, resolver dudas técnicas, orientar mantenimiento, normativa, gestión biomédica y cotizaciones. ¿En qué puedo ayudarle?",
+    "buscando": "IMEIA está preparando su respuesta…",
     "limite": "Has alcanzado el límite de mensajes por ahora. Intenta de nuevo en unos minutos o escríbenos por WhatsApp.",
     "degradado": "Resultados por palabra clave (modo simplificado).",
     "error": "No pudimos procesar tu mensaje. Intenta de nuevo o contáctanos por WhatsApp.",
-    "no_disponible": "El asesor no está disponible en este momento. Contáctanos por WhatsApp.",
+    "no_disponible": "IMEIA no está disponible en este momento. Contáctanos por WhatsApp.",
     "ver_producto": "Ver producto",
     "handoff_whatsapp": "Continuar por WhatsApp",
     "handoff_cotizacion": "Solicitar cotización",
@@ -341,11 +334,5 @@
     "contacto_desc": "Nuestro equipo comercial te ayuda a elegir el equipo adecuado y a preparar tu cotización.",
     "volver_catalogo": "Volver al catálogo",
     "ver_familia": "Ver toda la categoría"
-  },
-  "conocimiento": {
-    "titulo": "Centro de Conocimiento",
-    "proximamente": "Próximamente",
-    "descripcion": "Estamos preparando guías técnicas, artículos y recursos sobre equipamiento biomédico. Vuelve pronto.",
-    "cta_contacto": "¿Tienes una pregunta ahora? Contáctanos"
   }
 }

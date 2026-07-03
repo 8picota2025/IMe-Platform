@@ -231,8 +231,8 @@ const asesorConfig = {
     bottom: 5rem;
     right: 1.5rem;
     z-index: 201;
-    width: min(380px, calc(100vw - 2rem));
-    max-height: calc(100vh - 8rem);
+    width: min(470px, calc(100vw - 2rem));
+    max-height: calc(100vh - 7rem);
     display: flex;
     flex-direction: column;
     border-radius: var(--radius-lg);
@@ -316,8 +316,8 @@ const asesorConfig = {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    min-height: 180px;
-    max-height: 300px;
+    min-height: 240px;
+    max-height: min(540px, calc(100vh - 17rem));
   }
   .asesor-turnstile {
     position: absolute;
@@ -476,7 +476,7 @@ const asesorConfig = {
     }
 
     .asesor-dialog__messages {
-      max-height: min(380px, calc(100vh - 14rem));
+      max-height: min(460px, calc(100vh - 13rem));
       padding: 0.875rem;
     }
 

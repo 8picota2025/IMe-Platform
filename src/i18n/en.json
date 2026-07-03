@@ -113,17 +113,10 @@
     "moneda_cop": "COP"
   },
   "conocimiento": {
-    "titulo": "Knowledge",
-    "descripcion": "Articles, guides, and editorial notes from the I-ME team to support biomedical technology purchasing decisions and responsible use.",
-    "proximamente": "Editorial hub",
-    "cta_contacto": "Talk to an advisor",
-    "vacio": "No articles have been published yet.",
-    "listado_titulo": "Published articles",
-    "leer_mas": "Read article",
-    "publicado": "Published",
-    "actualizado": "Updated",
-    "volver": "Back to knowledge",
-    "ninguno": "There is no published content yet."
+    "titulo": "Knowledge Center",
+    "proximamente": "Coming soon",
+    "descripcion": "We're preparing technical guides, articles and resources about biomedical equipment. Check back soon.",
+    "cta_contacto": "Have a question now? Contact us"
   },
   "contacto": {
     "titulo": "Contact",
@@ -170,17 +163,17 @@
     "certif": "INVIMA Certified Biomedical Equipment"
   },
   "asesor": {
-    "titulo": "I-ME Advisor",
-    "abrir": "Open virtual advisor",
-    "cerrar": "Close advisor",
+    "titulo": "IMEIA · Biomedical Advisor",
+    "abrir": "Open IMEIA, virtual advisor",
+    "cerrar": "Close IMEIA",
     "placeholder": "Ask about the site, services, regulations or a product…",
     "enviar": "Send",
-    "bienvenida": "Hello, I am I-ME's biomedical advisor. I can discuss equipment selection, INVIMA requirements, good healthcare practices, support, financing and quotations with physicians, healthcare staff, biomedical engineering or purchasing teams. Tell me the clinical service, intended use or technical question you want to resolve.",
-    "buscando": "Thinking through your answer…",
+    "bienvenida": "Hello, I'm IMEIA, I-ME's biomedical advisor. I can help you choose equipment, solve technical questions, and guide you on maintenance, regulations, biomedical management and quotations. How can I help you?",
+    "buscando": "IMEIA is preparing your answer…",
     "limite": "You've reached the message limit for now. Try again in a few minutes or message us on WhatsApp.",
     "degradado": "Keyword-based results (simplified mode).",
     "error": "We couldn't process your message. Try again or contact us on WhatsApp.",
-    "no_disponible": "The advisor is not available right now. Contact us on WhatsApp.",
+    "no_disponible": "IMEIA is not available right now. Contact us on WhatsApp.",
     "ver_producto": "View product",
     "handoff_whatsapp": "Continue on WhatsApp",
     "handoff_cotizacion": "Request a quote",
@@ -341,11 +334,5 @@
     "contacto_desc": "Our sales team can help you choose the right equipment and prepare your quote.",
     "volver_catalogo": "Back to catalog",
     "ver_familia": "View full category"
-  },
-  "conocimiento": {
-    "titulo": "Knowledge Center",
-    "proximamente": "Coming soon",
-    "descripcion": "We're preparing technical guides, articles and resources about biomedical equipment. Check back soon.",
-    "cta_contacto": "Have a question now? Contact us"
   }
 }
