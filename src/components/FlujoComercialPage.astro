@@ -14,7 +14,7 @@ interface Props {
 const { locale, flow, currentPath } = Astro.props;
 
 const isEn = locale === 'en';
-const catalogoHref = isEn ? '/en/catalog' : '/es/catalogo';
+const catalogoHref = isEn ? '/en/catalog/' : '/es/catalogo/';
 const copy = {
   cart: {
     title: isEn ? 'Shopping cart' : 'Carrito de compra',

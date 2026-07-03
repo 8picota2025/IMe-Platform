@@ -39,7 +39,11 @@ export function buildPageTitle(pageTitle: string): string {
 
 export function buildCanonical(path: string): string {
   const normalized = path.startsWith('/') ? path : `/${path}`;
-  return `${SITE}${normalized}`;
+  const [baseAndQuery, hash = ''] = normalized.split('#', 2);
+  const [base, query = ''] = baseAndQuery.split('?', 2);
+  const extensionless = !/\.[^/]+$/.test(base);
+  const finalBase = extensionless && !base.endsWith('/') ? `${base}/` : base;
+  return `${SITE}${finalBase}${query ? `?${query}` : ''}${hash ? `#${hash}` : ''}`;
 }
 
 export function buildHomeSeo(locale: Locale): SeoPageMeta {
@@ -191,7 +195,7 @@ export function buildOrganizationJsonLd(): Record<string, unknown> {
     hasOfferCatalog: {
       '@type': 'OfferCatalog',
       name: 'Catálogo de Equipos Biomédicos I-ME',
-      url: `${SITE}/es/catalogo`,
+      url: `${SITE}/es/catalogo/`,
       numberOfItems: 33,
     },
     founder: {
@@ -229,7 +233,7 @@ export function buildWebSiteJsonLd(): Record<string, unknown> {
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: `${SITE}/es/catalogo?q={search_term_string}`,
+        urlTemplate: `${SITE}/es/catalogo/?q={search_term_string}`,
       },
       'query-input': 'required name=search_term_string',
     },

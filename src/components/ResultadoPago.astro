@@ -16,7 +16,7 @@ interface Props {
 
 const { locale, tipo } = Astro.props;
 
-const catalogoHref = locale === 'en' ? '/en/catalog' : '/es/catalogo';
+const catalogoHref = locale === 'en' ? '/en/catalog/' : '/es/catalogo/';
 const contactoHref = locale === 'en' ? '/en/contact' : '/es/contacto';
 
 const tituloKey = `pago.${tipo}_titulo` as const;

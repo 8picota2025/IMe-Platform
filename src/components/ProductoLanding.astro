@@ -26,7 +26,7 @@ interface Props {
 
 const { producto, familia, relacionados, locale } = Astro.props;
 
-const catalogoPath = locale === 'en' ? '/en/catalog' : '/es/catalogo';
+const catalogoPath = locale === 'en' ? '/en/catalog/' : '/es/catalogo/';
 const contactoPath = locale === 'en' ? '/en/contact' : '/es/contacto';
 
 function normalizarEspecs(raw: unknown[]): EspecificacionItem[] {

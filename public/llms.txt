@@ -61,7 +61,7 @@ These are the highest-value queries this site should answer clearly:
 ## Catalog — categories and products
 
 ### Monitores de Signos Vitales / Patient Monitors
-https://i-me.com.co/es/catalogo?familia=monitores | https://i-me.com.co/en/catalog?familia=monitores
+https://i-me.com.co/es/catalogo/?familia=monitores | https://i-me.com.co/en/catalog/?familia=monitores
 
 - Monitor Multiparamétrico UCI Avanzado: https://i-me.com.co/es/productos/monitor-multiparametrico-uci-avanzado | https://i-me.com.co/en/products/monitor-multiparametrico-uci-avanzado
 - Monitor Multiparamétrico Básico: https://i-me.com.co/es/productos/monitor-multiparametrico-basico | https://i-me.com.co/en/products/monitor-multiparametrico-basico
@@ -69,7 +69,7 @@ https://i-me.com.co/es/catalogo?familia=monitores | https://i-me.com.co/en/catal
 - Monitor Central UCI Multicama: https://i-me.com.co/es/productos/monitor-central-uci-multicama | https://i-me.com.co/en/products/monitor-central-uci-multicama
 
 ### Cardiología / Cardiology
-https://i-me.com.co/es/catalogo?familia=cardiologia | https://i-me.com.co/en/catalog?familia=cardiologia
+https://i-me.com.co/es/catalogo/?familia=cardiologia | https://i-me.com.co/en/catalog/?familia=cardiologia
 
 - Electrocardiógrafo 12 Derivaciones Digital: https://i-me.com.co/es/productos/electrocardiografo-12-derivaciones-digital | https://i-me.com.co/en/products/electrocardiografo-12-derivaciones-digital
 - Desfibrilador Bifásico con Monitor: https://i-me.com.co/es/productos/desfibrilador-bifasico-con-monitor | https://i-me.com.co/en/products/desfibrilador-bifasico-con-monitor
@@ -77,14 +77,14 @@ https://i-me.com.co/es/catalogo?familia=cardiologia | https://i-me.com.co/en/cat
 - Electrocardiógrafo Inalámbrico Portátil: https://i-me.com.co/es/productos/electrocardiografo-inalambrico-portatil | https://i-me.com.co/en/products/electrocardiografo-inalambrico-portatil
 
 ### Sala de Cirugía / Operating Room
-https://i-me.com.co/es/catalogo?familia=sala-cirugia | https://i-me.com.co/en/catalog?familia=sala-cirugia
+https://i-me.com.co/es/catalogo/?familia=sala-cirugia | https://i-me.com.co/en/catalog/?familia=sala-cirugia
 
 - Mesa Quirúrgica Motorizada Multiposición: https://i-me.com.co/es/productos/mesa-quirurgica-motorizada-multiposicion | https://i-me.com.co/en/products/mesa-quirurgica-motorizada-multiposicion
 - Lámpara Cialítica LED Doble para Quirófano: https://i-me.com.co/es/productos/lampara-cialitica-led-doble-para-quirofano | https://i-me.com.co/en/products/lampara-cialitica-led-doble-para-quirofano
 - Mesa Quirúrgica Ortopédica Radiolúcida: https://i-me.com.co/es/productos/mesa-quirurgica-ortopedica-radiolucida | https://i-me.com.co/en/products/mesa-quirurgica-ortopedica-radiolucida
 
 ### Neonatología / Neonatology
-https://i-me.com.co/es/catalogo?familia=neonatologia | https://i-me.com.co/en/catalog?familia=neonatologia
+https://i-me.com.co/es/catalogo/?familia=neonatologia | https://i-me.com.co/en/catalog/?familia=neonatologia
 
 - Incubadora Neonatal de Transporte: https://i-me.com.co/es/productos/incubadora-neonatal-de-transporte | https://i-me.com.co/en/products/incubadora-neonatal-de-transporte
 - Cuna de Calor Radiante Neonatal Servo: https://i-me.com.co/es/productos/cuna-de-calor-radiante-neonatal-servo | https://i-me.com.co/en/products/cuna-de-calor-radiante-neonatal-servo
@@ -92,26 +92,26 @@ https://i-me.com.co/es/catalogo?familia=neonatologia | https://i-me.com.co/en/ca
 - Sistema CPAP Neonatal para UCI: https://i-me.com.co/es/productos/sistema-cpap-neonatal-para-uci | https://i-me.com.co/en/products/sistema-cpap-neonatal-para-uci
 
 ### Ultrasonido / Ultrasound
-https://i-me.com.co/es/catalogo?familia=ultrasonido | https://i-me.com.co/en/catalog?familia=ultrasonido
+https://i-me.com.co/es/catalogo/?familia=ultrasonido | https://i-me.com.co/en/catalog/?familia=ultrasonido
 
 - Ecógrafo Color Doppler Diagnóstico Vascular: https://i-me.com.co/es/productos/ecografo-color-doppler-diagnostico-vascular | https://i-me.com.co/en/products/ecografo-color-doppler-diagnostico-vascular
 - Ecógrafo Portátil con WiFi y DICOM: https://i-me.com.co/es/productos/ecografo-portatil-con-wifi-y-dicom | https://i-me.com.co/en/products/ecografo-portatil-con-wifi-y-dicom
 - Ultrasonido Point-of-Care Pocket: https://i-me.com.co/es/productos/ultrasonido-point-of-care-pocket | https://i-me.com.co/en/products/ultrasonido-point-of-care-pocket
 
 ### Soluciones IV / IV Solutions
-https://i-me.com.co/es/catalogo?familia=soluciones-iv | https://i-me.com.co/en/catalog?familia=soluciones-iv
+https://i-me.com.co/es/catalogo/?familia=soluciones-iv | https://i-me.com.co/en/catalog/?familia=soluciones-iv
 
 - Bomba de Infusión Volumétrica UCI: https://i-me.com.co/es/productos/bomba-de-infusion-volumetrica-uci | https://i-me.com.co/en/products/bomba-de-infusion-volumetrica-uci
 - Bomba de Jeringa Precisión Microdosis: https://i-me.com.co/es/productos/bomba-de-jeringa-precision-microdosis | https://i-me.com.co/en/products/bomba-de-jeringa-precision-microdosis
 
 ### Mobiliario Hospitalario / Hospital Furniture
-https://i-me.com.co/es/catalogo?familia=mobiliario | https://i-me.com.co/en/catalog?familia=mobiliario
+https://i-me.com.co/es/catalogo/?familia=mobiliario | https://i-me.com.co/en/catalog/?familia=mobiliario
 
 - Camilla Hospitalaria Eléctrica Articulable: https://i-me.com.co/es/productos/camilla-hospitalaria-electrica-articulable | https://i-me.com.co/en/products/camilla-hospitalaria-electrica-articulable
 - Carro de Paro para Reanimación: https://i-me.com.co/es/productos/carro-de-paro-para-reanimacion | https://i-me.com.co/en/products/carro-de-paro-para-reanimacion
 
 ### Anestesia y Ventilación / Anesthesia & Ventilation
-https://i-me.com.co/es/catalogo?familia=anestesia | https://i-me.com.co/en/catalog?familia=anestesia
+https://i-me.com.co/es/catalogo/?familia=anestesia | https://i-me.com.co/en/catalog/?familia=anestesia
 
 - Máquina de Anestesia con Ventilador: https://i-me.com.co/es/productos/maquina-de-anestesia-con-ventilador | https://i-me.com.co/en/products/maquina-de-anestesia-con-ventilador
 - Ventilador Mecánico UCI Adulto-Pediátrico: https://i-me.com.co/es/productos/ventilador-mecanico-uci-adulto-pediatrico | https://i-me.com.co/en/products/ventilador-mecanico-uci-adulto-pediatrico

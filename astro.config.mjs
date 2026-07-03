@@ -6,6 +6,7 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   site: 'https://i-me.com.co',
   output: 'static',
+  trailingSlash: 'always',
   integrations: [
     sitemap({
       filter: (page) => {

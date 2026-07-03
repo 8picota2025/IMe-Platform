@@ -10,20 +10,20 @@ RewriteRule ^77/?$ /es/ [R=301,L]
 RewriteRule ^77/index\.html$ /es/ [R=301,L]
 
 # Legacy catalog and category URLs. Query strings are preserved by default.
-RewriteRule ^77/catalogo\.html$ /es/catalogo [R=301,L]
-RewriteRule ^77/monitores\.html$ /es/catalogo?familia=monitores [R=301,L,QSA]
-RewriteRule ^77/cardiologia\.html$ /es/catalogo?familia=cardiologia [R=301,L,QSA]
-RewriteRule ^77/sala-cirugia\.html$ /es/catalogo?familia=sala-cirugia [R=301,L,QSA]
-RewriteRule ^77/neonatologia\.html$ /es/catalogo?familia=neonatologia [R=301,L,QSA]
-RewriteRule ^77/ultrasonido\.html$ /es/catalogo?familia=ultrasonido [R=301,L,QSA]
-RewriteRule ^77/soluciones-iv\.html$ /es/catalogo?familia=soluciones-iv [R=301,L,QSA]
-RewriteRule ^77/mobiliario\.html$ /es/catalogo?familia=mobiliario [R=301,L,QSA]
-RewriteRule ^77/anestesia\.html$ /es/catalogo?familia=anestesia [R=301,L,QSA]
+RewriteRule ^77/catalogo\.html$ /es/catalogo/ [R=301,L]
+RewriteRule ^77/monitores\.html$ /es/catalogo/?familia=monitores [R=301,L,QSA]
+RewriteRule ^77/cardiologia\.html$ /es/catalogo/?familia=cardiologia [R=301,L,QSA]
+RewriteRule ^77/sala-cirugia\.html$ /es/catalogo/?familia=sala-cirugia [R=301,L,QSA]
+RewriteRule ^77/neonatologia\.html$ /es/catalogo/?familia=neonatologia [R=301,L,QSA]
+RewriteRule ^77/ultrasonido\.html$ /es/catalogo/?familia=ultrasonido [R=301,L,QSA]
+RewriteRule ^77/soluciones-iv\.html$ /es/catalogo/?familia=soluciones-iv [R=301,L,QSA]
+RewriteRule ^77/mobiliario\.html$ /es/catalogo/?familia=mobiliario [R=301,L,QSA]
+RewriteRule ^77/anestesia\.html$ /es/catalogo/?familia=anestesia [R=301,L,QSA]
 
 # Legacy core pages
-RewriteRule ^77/servicios\.html$ /es/servicios [R=301,L]
-RewriteRule ^77/contacto\.html$ /es/contacto [R=301,L]
-RewriteRule ^77/financiacion\.html$ /es/financiacion [R=301,L]
+RewriteRule ^77/servicios\.html$ /es/servicios/ [R=301,L]
+RewriteRule ^77/contacto\.html$ /es/contacto/ [R=301,L]
+RewriteRule ^77/financiacion\.html$ /es/financiacion/ [R=301,L]
 
 # Old archive. Default to Spanish home unless a future audited mapping says otherwise.
 RewriteRule ^1old(/.*)?$ /es/ [R=301,L]

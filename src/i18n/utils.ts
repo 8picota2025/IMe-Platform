@@ -70,6 +70,13 @@ for (const pair of LEGAL_SLUG_PAIRS) {
   LEGAL_SLUG_LOOKUP.set(pair.en, pair);
 }
 
+function withTrailingSlash(path: string): string {
+  const [baseAndQuery, hash = ''] = path.split('#', 2);
+  const [base, query = ''] = baseAndQuery.split('?', 2);
+  const normalizedBase = base.endsWith('/') ? base : `${base}/`;
+  return `${normalizedBase}${query ? `?${query}` : ''}${hash ? `#${hash}` : ''}`;
+}
+
 /**
  * Returns the localized path for a given path + locale.
  * Strips the current locale prefix, translates the section segment
@@ -77,7 +84,7 @@ for (const pair of LEGAL_SLUG_PAIRS) {
  */
 export function getLocalizedPath(path: string, targetLocale: Locale): string {
   const stripped = path.replace(/^\/(es|en)/, '');
-  if (!stripped || stripped === '/') return `/${targetLocale}`;
+  if (!stripped || stripped === '/') return `/${targetLocale}/`;
 
   const segments = stripped.split('/').filter(Boolean);
   const first = segments[0];
@@ -88,7 +95,7 @@ export function getLocalizedPath(path: string, targetLocale: Locale): string {
     if (legalPair) segments[1] = legalPair[targetLocale];
   }
 
-  return `/${targetLocale}/${segments.join('/')}`;
+  return withTrailingSlash(`/${targetLocale}/${segments.join('/')}`);
 }
 
 /**
