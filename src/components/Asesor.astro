@@ -634,11 +634,23 @@ const asesorConfig = {
     function renderMessageHtml(value: string): string {
       const escaped = escapeHtml(value.trim());
       if (!escaped) return '';
-      return escaped
-        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-        .split(/\n{2,}/)
-        .map(block => `<p>${block.replace(/\n/g, '<br>')}</p>`)
-        .join('');
+      return (
+        escaped
+          .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+          // Enlaces markdown [texto](https://...) — solo https, tras escape.
+          .replace(
+            /\[([^\]]+)\]\((https:\/\/[^\s)]+)\)/g,
+            '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
+          )
+          // URLs https sueltas, sin capturar puntuación final.
+          .replace(
+            /(^|[^"'>=\]])(https:\/\/[^\s<]+?)([.,;:!?]?)(?=\s|$|<)/g,
+            '$1<a href="$2" target="_blank" rel="noopener noreferrer">$2</a>$3'
+          )
+          .split(/\n{2,}/)
+          .map(block => `<p>${block.replace(/\n/g, '<br>')}</p>`)
+          .join('')
+      );
     }
 
     function addBubble(text: string, role: 'user' | 'asesor' | 'loading'): HTMLElement | undefined {
