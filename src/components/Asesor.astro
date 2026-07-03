@@ -754,7 +754,7 @@ const asesorConfig = {
         if (turnstileWidgetId === null) {
           turnstileWidgetId = window.turnstile.render(turnstileContainer, {
             sitekey: config.turnstileSiteKey,
-            size: 'normal',
+            size: 'invisible',
             appearance: 'execute',
             execution: 'execute',
             callback: (token: string) => resolveTurnstileToken?.(token),
@@ -767,14 +767,12 @@ const asesorConfig = {
 
         return await new Promise<string | undefined>(resolve => {
           const timeout = setTimeout(() => resolve(undefined), 8000);
-          // Reset BEFORE setting the resolver so any expired/error callback
-          // fired synchronously by reset() finds resolveTurnstileToken null and is a no-op
-          window.turnstile?.reset(widgetId);
           resolveTurnstileToken = token => {
             clearTimeout(timeout);
             resolveTurnstileToken = null;
             resolve(token);
           };
+          window.turnstile?.reset(widgetId);
           window.turnstile?.execute(widgetId);
         });
       } catch {
