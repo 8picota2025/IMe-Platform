@@ -65,7 +65,7 @@ const asesorConfig = {
   >
     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
   </svg>
-  <span class="asesor-fab__label">{locale === 'es' ? 'Asesor' : 'Advisor'}</span>
+  <span class="asesor-fab__label">{locale === 'es' ? 'IMEIA Ayuda' : 'IMEIA Help'}</span>
 </button>
 
 <!-- Dialog del asesor -->
@@ -231,8 +231,8 @@ const asesorConfig = {
     bottom: 5rem;
     right: 1.5rem;
     z-index: 201;
-    width: min(470px, calc(100vw - 2rem));
-    max-height: calc(100vh - 7rem);
+    width: min(max(470px, 33.33vw), calc(100vw - 2rem));
+    max-height: calc(100vh - 6rem);
     display: flex;
     flex-direction: column;
     border-radius: var(--radius-lg);
