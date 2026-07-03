@@ -140,8 +140,8 @@ const asesorConfig = {
       <!-- Los mensajes se insertan dinámicamente -->
     </div>
 
-    <!-- Contenedor invisible para el widget Turnstile -->
-    <div id="asesor-turnstile" class="asesor-turnstile" aria-hidden="true"></div>
+    <!-- Contenedor para Turnstile cuando Cloudflare requiere interacción -->
+    <div id="asesor-turnstile" class="asesor-turnstile"></div>
 
     <!-- Input -->
     <form id="asesor-form" class="asesor-dialog__form" novalidate>
@@ -320,10 +320,17 @@ const asesorConfig = {
     max-height: min(540px, calc(100vh - 17rem));
   }
   .asesor-turnstile {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    padding: 0 0.75rem;
+    min-height: 0;
+    overflow: visible;
+  }
+  .asesor-turnstile:empty {
+    display: none;
+  }
+  .asesor-turnstile iframe {
+    max-width: 100%;
   }
   .asesor-dialog__form {
     display: flex;
@@ -736,7 +743,7 @@ const asesorConfig = {
       if (turnstileLoadPromise) return turnstileLoadPromise;
       turnstileLoadPromise = new Promise((resolve, reject) => {
         const script = document.createElement('script');
-        script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+        script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
         script.async = true;
         script.onload = () => resolve();
         script.onerror = () => reject(new Error('turnstile load error'));
@@ -755,7 +762,7 @@ const asesorConfig = {
           turnstileWidgetId = window.turnstile.render(turnstileContainer, {
             sitekey: config.turnstileSiteKey,
             size: 'normal',
-            appearance: 'execute',
+            appearance: 'interaction-only',
             execution: 'execute',
             callback: (token: string) => resolveTurnstileToken?.(token),
             'error-callback': () => resolveTurnstileToken?.(undefined),
@@ -766,7 +773,7 @@ const asesorConfig = {
         if (widgetId === null) return undefined;
 
         return await new Promise<string | undefined>(resolve => {
-          const timeout = setTimeout(() => resolve(undefined), 8000);
+          const timeout = setTimeout(() => resolve(undefined), 45000);
           resolveTurnstileToken = token => {
             clearTimeout(timeout);
             resolveTurnstileToken = null;
