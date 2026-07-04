@@ -58,7 +58,7 @@ function reducirEspecificaciones(especificaciones: unknown[]): Record<string, st
 
 export async function buildCatalogoIndex(locale: Locale): Promise<CatalogoIndexItem[]> {
   const familias = await getFamilias(locale);
-  const productos = await getProductos({ pageSize: 100 }, locale);
+  const productos = await getProductos({ pageSize: 1000 }, locale);
 
   const tiposPorFamilia = new Map<string, Map<string, { slug: string; nombre: string }>>();
   for (const familia of familias) {
