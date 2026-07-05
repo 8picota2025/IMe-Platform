@@ -27,6 +27,9 @@ jobs:
           version: latest
 
       - name: Push Edge Function secrets
+        # Solo se envian claves con valor: un GitHub secret ausente interpola a
+        # cadena vacia y `secrets set` PISARIA el valor real en produccion
+        # (incidentes 2026-07-03 y 2026-07-05).
         run: |
           cat > .secrets.env <<'EOF'
           SITE_URL=${{ secrets.SITE_URL }}
@@ -45,7 +48,12 @@ jobs:
           TURNSTILE_SECRET_KEY=${{ secrets.TURNSTILE_SECRET_KEY }}
           CO_DEFAULT_IVA_PCT=19
           EOF
-          supabase secrets set --env-file .secrets.env --project-ref "$SUPABASE_PROJECT_REF"
+          grep -vE '^[A-Z_]+=$' .secrets.env > .secrets.filtered.env
+          if [ -s .secrets.filtered.env ]; then
+            supabase secrets set --env-file .secrets.filtered.env --project-ref "$SUPABASE_PROJECT_REF"
+          else
+            echo "Sin secrets con valor; se omite secrets set."
+          fi
 
       - name: Deploy Edge Functions
         run: supabase functions deploy --project-ref "$SUPABASE_PROJECT_REF"

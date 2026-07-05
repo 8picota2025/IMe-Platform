@@ -71,8 +71,8 @@ export async function enviarEmailPlantilla(
   vars: Record<string, string>,
   referencia?: string
 ): Promise<EnvioResultado> {
-  const apiKey = Deno.env.get('RESEND_API_KEY');
-  if (!apiKey) return { ok: false, detalle: 'RESEND_API_KEY no configurada' };
+  const apiKey = Deno.env.get('MAILER_API_KEY') || Deno.env.get('RESEND_API_KEY');
+  if (!apiKey) return { ok: false, detalle: 'MAILER_API_KEY no configurada' };
 
   let asunto: string;
   let html: string;
