@@ -4,6 +4,7 @@
  */
 
 import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { enviarEmailPlantilla, DESTINATARIOS_INTERNOS, escapeHtml, itemsToHtml } from './email.ts';
 
 interface PedidoItem {
   producto_id: string;
@@ -136,5 +137,84 @@ export async function registrarPedidoPagado(
         console.error('registrarPedidoPagado: error invocando emitir-factura-dian', err);
       }
     }
+  }
+
+  await enviarEmailsPedidoPagado(supabase, pedidoId);
+  await marcarCarritoConvertido(supabase, pedidoId);
+}
+
+async function marcarCarritoConvertido(supabase: SupabaseClient, pedidoId: string): Promise<void> {
+  const { data } = await supabase
+    .from('pedidos')
+    .select('cliente')
+    .eq('id', pedidoId)
+    .maybeSingle();
+  const email = (data as { cliente?: { email?: string } } | null)?.cliente?.email
+    ?.trim()
+    .toLowerCase();
+  if (!email) return;
+  await supabase
+    .from('carritos_abandonados')
+    .update({ estado: 'convertido', updated_at: new Date().toISOString() })
+    .eq('email', email)
+    .in('estado', ['activo', 'recordado']);
+}
+
+/**
+ * Emails tras confirmar pago: aviso interno (root@ + ventas@) y confirmacion
+ * al cliente. Best-effort: nunca bloquea el flujo del webhook.
+ */
+async function enviarEmailsPedidoPagado(supabase: SupabaseClient, pedidoId: string): Promise<void> {
+  const { data, error } = await supabase
+    .from('pedidos')
+    .select('id, cliente, items, total, moneda, referencia_pasarela')
+    .eq('id', pedidoId)
+    .maybeSingle();
+  if (error || !data) {
+    console.error('enviarEmailsPedidoPagado: pedido no encontrado', error?.message);
+    return;
+  }
+  const pedido = data as {
+    id: string;
+    cliente: { nombre?: string; apellido?: string; email?: string } | null;
+    items: Array<{ nombre?: string; cantidad?: number }> | null;
+    total: number | string;
+    moneda: string;
+    referencia_pasarela: string | null;
+  };
+  const nombre = `${pedido.cliente?.nombre ?? ''} ${pedido.cliente?.apellido ?? ''}`.trim();
+  const emailCliente = pedido.cliente?.email ?? '';
+  const referencia = pedido.referencia_pasarela ?? pedido.id;
+  const vars = {
+    referencia: escapeHtml(referencia),
+    cliente_nombre: escapeHtml(nombre || 'Cliente'),
+    cliente_email: escapeHtml(emailCliente),
+    total: Number(pedido.total).toLocaleString('es-CO'),
+    moneda: escapeHtml(pedido.moneda ?? 'COP'),
+    items_html: itemsToHtml(pedido.items ?? []),
+    fecha: new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' }),
+  };
+
+  try {
+    const interno = await enviarEmailPlantilla(
+      supabase,
+      'venta_interna',
+      DESTINATARIOS_INTERNOS,
+      vars,
+      referencia
+    );
+    if (!interno.ok) console.error('enviarEmailsPedidoPagado: interno', interno.detalle);
+    if (emailCliente) {
+      const cliente = await enviarEmailPlantilla(
+        supabase,
+        'pedido_confirmacion_cliente',
+        [emailCliente],
+        vars,
+        referencia
+      );
+      if (!cliente.ok) console.error('enviarEmailsPedidoPagado: cliente', cliente.detalle);
+    }
+  } catch (err) {
+    console.error('enviarEmailsPedidoPagado: error inesperado', err);
   }
 }

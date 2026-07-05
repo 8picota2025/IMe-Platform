@@ -186,7 +186,32 @@ Deno.serve(async req => {
     return internalError(`error actualizando fulfillment: ${updateError.message}`, origin);
   }
 
-  // 5. Retornar resultado exitoso
+  // 5. Notificar al cliente por email en estados relevantes (best-effort)
+  if (['enviado', 'entregado'].includes(body.estado) && fulfillmentRow.pedido_id) {
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    if (supabaseUrl && serviceKey) {
+      try {
+        await fetch(`${supabaseUrl}/functions/v1/notificar-cliente`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${serviceKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            pedido_id: fulfillmentRow.pedido_id,
+            a_estado: body.estado,
+            tracking_number: body.tracking_number ?? fulfillmentRow.tracking_number ?? undefined,
+            tracking_url: body.tracking_url ?? fulfillmentRow.tracking_url ?? undefined,
+          }),
+        });
+      } catch (err) {
+        console.error('actualizar-fulfillment: error invocando notificar-cliente', err);
+      }
+    }
+  }
+
+  // 6. Retornar resultado exitoso
   return new Response(
     JSON.stringify({
       ok: true,

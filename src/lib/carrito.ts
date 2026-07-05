@@ -185,6 +185,35 @@ export function alAbrirCarrito(callback: () => void): () => void {
 }
 
 /**
+ * Guarda el carrito con email para recuperacion de carrito abandonado.
+ * Fire-and-forget: nunca bloquea ni rompe el flujo de checkout.
+ */
+export function guardarCarritoAbandonado(email: string, nombre: string): void {
+  const items = leer();
+  if (!email.includes('@') || items.length === 0) return;
+  void (async () => {
+    try {
+      const supabase = await loadSupabaseClient();
+      if (!supabase) return;
+      await supabase.functions.invoke('guardar-carrito', {
+        body: {
+          email: email.trim().toLowerCase(),
+          nombre: nombre.trim(),
+          items: items.map(i => ({
+            slug: i.slug,
+            nombre: i.nombre,
+            precio: i.precio,
+            cantidad: i.cantidad,
+          })),
+        },
+      });
+    } catch {
+      // best-effort
+    }
+  })();
+}
+
+/**
  * Llama a la Edge Function crear-pago. El servidor recalcula precios/stock
  * desde Supabase — items aquí solo aporta slug+cantidad.
  */

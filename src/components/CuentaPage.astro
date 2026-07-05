@@ -1,0 +1,343 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { buildCanonical, buildPageTitle } from '../lib/seo';
+import type { Locale } from '../i18n/utils';
+
+interface Props {
+  locale: Locale;
+  currentPath: string;
+}
+
+const { locale, currentPath } = Astro.props;
+const isEn = locale === 'en';
+const copy = {
+  title: isEn ? 'My account' : 'Mi cuenta',
+  description: isEn
+    ? 'Access your order history, quotes and saved addresses with your purchase email.'
+    : 'Accede a tu historial de pedidos, cotizaciones y direcciones guardadas con tu correo de compra.',
+  badge: isEn ? 'Customers' : 'Clientes',
+  emailLabel: isEn ? 'Purchase email' : 'Correo de compra',
+  send: isEn ? 'Send access link' : 'Enviar enlace de acceso',
+  sent: isEn
+    ? 'Check your inbox: we sent you a sign-in link.'
+    : 'Revisa tu correo: te enviamos un enlace de acceso.',
+  logout: isEn ? 'Sign out' : 'Cerrar sesion',
+  orders: isEn ? 'My orders' : 'Mis pedidos',
+  quotes: isEn ? 'My quotes' : 'Mis cotizaciones',
+  addresses: isEn ? 'Saved addresses' : 'Direcciones guardadas',
+  reorder: isEn ? 'Reorder' : 'Volver a pedir',
+  empty: isEn ? 'Nothing here yet.' : 'Aun no hay registros.',
+  loading: isEn ? 'Loading…' : 'Cargando…',
+  priceList: isEn ? 'Your B2B price agreement:' : 'Tu acuerdo de precios B2B:',
+};
+---
+
+<Layout
+  title={buildPageTitle(copy.title)}
+  description={copy.description}
+  canonical={buildCanonical(currentPath)}
+  locale={locale}
+  currentPath={currentPath}
+  noindex
+>
+  <section class="commerce-route container" data-cuenta data-locale={locale}>
+    <span class="section-tag">{copy.badge}</span>
+    <h1>{copy.title}</h1>
+    <p>{copy.description}</p>
+
+    <div data-cuenta-login hidden>
+      <form class="commerce-route__form" data-cuenta-login-form>
+        <label>
+          <span>{copy.emailLabel}</span>
+          <input name="email" type="email" autocomplete="email" required />
+        </label>
+        <button class="btn btn-primary" type="submit">{copy.send}</button>
+      </form>
+      <p class="commerce-route__helper" data-cuenta-login-status hidden>{copy.sent}</p>
+    </div>
+
+    <div data-cuenta-panel hidden>
+      <div class="cuenta-head">
+        <p class="commerce-route__helper" data-cuenta-email></p>
+        <button class="btn" type="button" data-cuenta-logout>{copy.logout}</button>
+      </div>
+      <p data-cuenta-lista hidden class="commerce-route__helper"></p>
+
+      <h2>{copy.orders}</h2>
+      <div data-cuenta-pedidos><p>{copy.loading}</p></div>
+
+      <h2>{copy.quotes}</h2>
+      <div data-cuenta-cotizaciones><p>{copy.loading}</p></div>
+
+      <h2>{copy.addresses}</h2>
+      <div data-cuenta-direcciones><p>{copy.loading}</p></div>
+    </div>
+  </section>
+
+  <script>
+    import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase';
+    import { agregarAlCarrito, vaciarCarrito } from '../lib/carrito';
+
+    interface PedidoItemRow {
+      slug?: string;
+      nombre?: string;
+      cantidad?: number;
+      precio_unitario?: number;
+    }
+
+    const root = document.querySelector<HTMLElement>('[data-cuenta]');
+    const isEn = root?.dataset.locale === 'en';
+    const loginBox = root?.querySelector<HTMLElement>('[data-cuenta-login]');
+    const panel = root?.querySelector<HTMLElement>('[data-cuenta-panel]');
+    const supabase = isSupabaseConfigured() ? getSupabaseClient() : null;
+
+    const esc = (v: unknown) =>
+      String(v ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+
+    const fecha = (v: unknown) => {
+      const d = new Date(String(v ?? ''));
+      return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString(isEn ? 'en' : 'es-CO');
+    };
+
+    function tabla(headers: string[], rows: string[][]): string {
+      if (rows.length === 0)
+        return `<p>${isEn ? 'Nothing here yet.' : 'Aun no hay registros.'}</p>`;
+      return `<div class="cuenta-table"><table><thead><tr>${headers
+        .map(h => `<th>${h}</th>`)
+        .join('')}</tr></thead><tbody>${rows
+        .map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`)
+        .join('')}</tbody></table></div>`;
+    }
+
+    async function cargarPanel(email: string) {
+      if (!supabase || !root) return;
+      const emailEl = root.querySelector<HTMLElement>('[data-cuenta-email]');
+      if (emailEl) emailEl.textContent = email;
+
+      const [pedidosRes, cotizacionesRes, clienteRes] = await Promise.all([
+        supabase
+          .from('pedidos')
+          .select('id, referencia_pasarela, created_at, estado, total, moneda, items')
+          .order('created_at', { ascending: false })
+          .limit(30),
+        supabase
+          .from('solicitudes_cotizacion')
+          .select('created_at, mensaje, productos')
+          .order('created_at', { ascending: false })
+          .limit(30),
+        supabase
+          .from('clientes')
+          .select('id, lista_precio_id, listas_precio(nombre, descuento_pct)')
+          .maybeSingle(),
+      ]);
+
+      const pedidos = (pedidosRes.data ?? []) as Array<Record<string, unknown>>;
+      const pedidosBox = root.querySelector<HTMLElement>('[data-cuenta-pedidos]');
+      if (pedidosBox) {
+        pedidosBox.innerHTML = tabla(
+          isEn
+            ? ['Date', 'Reference', 'Status', 'Total', '']
+            : ['Fecha', 'Referencia', 'Estado', 'Total', ''],
+          pedidos.map((p, idx) => [
+            fecha(p.created_at),
+            esc(p.referencia_pasarela ?? String(p.id).slice(0, 8)),
+            esc(p.estado),
+            `${Number(p.total).toLocaleString('es-CO')} ${esc(p.moneda)}`,
+            `<button class="btn" type="button" data-reorden="${idx}">${
+              isEn ? 'Reorder' : 'Volver a pedir'
+            }</button>`,
+          ])
+        );
+        pedidosBox.querySelectorAll<HTMLButtonElement>('[data-reorden]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const pedido = pedidos[Number(btn.dataset.reorden)];
+            const items = Array.isArray(pedido?.items) ? (pedido.items as PedidoItemRow[]) : [];
+            if (items.length === 0) return;
+            vaciarCarrito();
+            for (const item of items) {
+              agregarAlCarrito(
+                {
+                  slug: String(item.slug ?? ''),
+                  nombre: String(item.nombre ?? ''),
+                  precio: Number(item.precio_unitario ?? 0),
+                  moneda: String(pedido.moneda ?? 'COP'),
+                  stock: null,
+                },
+                Number(item.cantidad ?? 1)
+              );
+            }
+            location.href = isEn ? '/en/cart/' : '/es/carrito/';
+          });
+        });
+      }
+
+      const cotizaciones = (cotizacionesRes.data ?? []) as Array<Record<string, unknown>>;
+      const cotBox = root.querySelector<HTMLElement>('[data-cuenta-cotizaciones]');
+      if (cotBox) {
+        cotBox.innerHTML = tabla(
+          isEn ? ['Date', 'Products', 'Message'] : ['Fecha', 'Productos', 'Mensaje'],
+          cotizaciones.map(c => [
+            fecha(c.created_at),
+            esc(
+              (Array.isArray(c.productos) ? c.productos : [])
+                .map((p: PedidoItemRow) => `${p.cantidad ?? 1}x ${p.nombre ?? ''}`)
+                .join(', ') || '—'
+            ),
+            esc(String(c.mensaje ?? '').slice(0, 120)),
+          ])
+        );
+      }
+
+      const cliente = clienteRes.data as Record<string, unknown> | null;
+      const listaEl = root.querySelector<HTMLElement>('[data-cuenta-lista]');
+      const lista = cliente?.listas_precio as {
+        nombre?: string;
+        descuento_pct?: number;
+      } | null;
+      if (listaEl && lista?.nombre) {
+        listaEl.hidden = false;
+        listaEl.textContent = `${isEn ? 'Your B2B price agreement:' : 'Tu acuerdo de precios B2B:'} ${
+          lista.nombre
+        }${Number(lista.descuento_pct) > 0 ? ` (-${lista.descuento_pct}%)` : ''}`;
+      }
+
+      const dirBox = root.querySelector<HTMLElement>('[data-cuenta-direcciones]');
+      if (dirBox) {
+        let dirRows: string[][] = [];
+        if (cliente?.id) {
+          const { data } = await supabase
+            .from('cliente_direcciones')
+            .select('*')
+            .eq('cliente_id', String(cliente.id));
+          dirRows = ((data ?? []) as Array<Record<string, unknown>>).map(d => [
+            esc(d.direccion ?? d.linea1 ?? '—'),
+            esc(d.ciudad ?? '—'),
+            esc(d.departamento ?? d.region ?? '—'),
+          ]);
+        }
+        dirBox.innerHTML = tabla(
+          isEn ? ['Address', 'City', 'Region'] : ['Direccion', 'Ciudad', 'Departamento'],
+          dirRows
+        );
+      }
+    }
+
+    async function init() {
+      if (!supabase || !root || !loginBox || !panel) {
+        if (loginBox) loginBox.hidden = false;
+        return;
+      }
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session?.user?.email) {
+        panel.hidden = false;
+        await cargarPanel(session.user.email);
+      } else {
+        loginBox.hidden = false;
+      }
+
+      const form = loginBox.querySelector<HTMLFormElement>('[data-cuenta-login-form]');
+      form?.addEventListener('submit', async event => {
+        event.preventDefault();
+        const email = String(new FormData(form).get('email') ?? '').trim();
+        if (!email) return;
+        const { error } = await supabase.auth.signInWithOtp({
+          email,
+          options: { emailRedirectTo: location.origin + location.pathname },
+        });
+        const status = loginBox.querySelector<HTMLElement>('[data-cuenta-login-status]');
+        if (status) {
+          status.hidden = false;
+          if (error) status.textContent = error.message;
+        }
+      });
+
+      root.querySelector('[data-cuenta-logout]')?.addEventListener('click', async () => {
+        await supabase.auth.signOut();
+        location.reload();
+      });
+    }
+
+    void init();
+  </script>
+</Layout>
+
+<style>
+  .commerce-route {
+    padding-block: clamp(3rem, 8vw, 6rem);
+  }
+  .commerce-route h1 {
+    margin: 0.4rem 0 1rem;
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 5vw, 4rem);
+    line-height: 0.95;
+    color: var(--ink);
+  }
+  .commerce-route h2 {
+    margin: 2rem 0 0.75rem;
+    font-size: var(--step-1);
+    color: var(--ink);
+  }
+  .commerce-route p {
+    max-width: 720px;
+    color: var(--text-mid);
+    line-height: 1.7;
+  }
+  .commerce-route__form {
+    display: grid;
+    gap: 1rem;
+    max-width: 480px;
+    margin-block: 1.5rem;
+  }
+  .commerce-route__form label {
+    display: grid;
+    gap: 0.4rem;
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .commerce-route__form input {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.9rem 1rem;
+    color: var(--ink);
+    background: var(--white);
+  }
+  .commerce-route__helper {
+    max-width: 760px;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--off);
+  }
+  .cuenta-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-block: 1rem;
+  }
+  .cuenta-table {
+    overflow-x: auto;
+  }
+  .cuenta-table table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .cuenta-table th,
+  .cuenta-table td {
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    color: var(--text-mid);
+  }
+  .cuenta-table th {
+    color: var(--ink);
+  }
+</style>

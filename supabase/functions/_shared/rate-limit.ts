@@ -11,7 +11,7 @@
 
 import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-export type RateLimitAccion = 'asesor' | 'crear-pago';
+export type RateLimitAccion = 'asesor' | 'crear-pago' | 'cotizacion';
 
 export interface RateLimitResult {
   limited: boolean;
@@ -36,6 +36,11 @@ const THRESHOLDS: Record<RateLimitAccion, RateLimitThresholds> = {
     windowSeconds: Number(Deno.env.get('CREAR_PAGO_RATE_LIMIT_VENTANA_SEGUNDOS') ?? 3600),
     maxPerWindow: Number(Deno.env.get('CREAR_PAGO_RATE_LIMIT_MAX_VENTANA') ?? 10),
     maxPerDay: Number(Deno.env.get('CREAR_PAGO_RATE_LIMIT_MAX_DIA') ?? 30),
+  },
+  cotizacion: {
+    windowSeconds: Number(Deno.env.get('COTIZACION_RATE_LIMIT_VENTANA_SEGUNDOS') ?? 3600),
+    maxPerWindow: Number(Deno.env.get('COTIZACION_RATE_LIMIT_MAX_VENTANA') ?? 5),
+    maxPerDay: Number(Deno.env.get('COTIZACION_RATE_LIMIT_MAX_DIA') ?? 15),
   },
 };
 

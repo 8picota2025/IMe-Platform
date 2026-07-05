@@ -7,6 +7,7 @@
  */
 import { t, type Locale } from '../i18n/utils';
 import ProductoCard from './ProductoCard.astro';
+import Resenas from './Resenas.astro';
 import type { Producto, Familia } from '../lib/datos';
 import { formatMoneda } from '../lib/format';
 import { getAccionComercial } from '../lib/comercial';
@@ -359,6 +360,8 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
       </div>
     </div>
   </section>
+
+  <Resenas productoId={producto.id} productoSlug={producto.slug} locale={locale} />
 
   <!-- CTA sticky -->
   <div class="cta-sticky" id="cta-sticky" hidden>

@@ -1,0 +1,192 @@
+---
+/**
+ * Resenas de producto: muestra las aprobadas y permite enviar una nueva
+ * (queda pendiente de moderacion en el admin).
+ */
+import type { Locale } from '../i18n/utils';
+
+interface Props {
+  productoId: string;
+  productoSlug: string;
+  locale: Locale;
+}
+
+const { productoId, productoSlug, locale } = Astro.props;
+const isEn = locale === 'en';
+const copy = {
+  titulo: isEn ? 'Reviews' : 'Reseñas',
+  vacio: isEn ? 'No reviews yet. Be the first.' : 'Aún no hay reseñas. Sé el primero.',
+  nombre: isEn ? 'Name' : 'Nombre',
+  email: isEn ? 'Email (not published)' : 'Correo (no se publica)',
+  rating: isEn ? 'Rating' : 'Calificación',
+  comentario: isEn ? 'Your review' : 'Tu reseña',
+  enviar: isEn ? 'Submit review' : 'Enviar reseña',
+  gracias: isEn
+    ? 'Thank you! Your review will appear after moderation.'
+    : '¡Gracias! Tu reseña aparecerá tras la moderación.',
+  error: isEn ? 'Could not submit the review.' : 'No se pudo enviar la reseña.',
+};
+---
+
+<section
+  class="resenas section container"
+  data-resenas
+  data-producto-id={productoId}
+  data-producto-slug={productoSlug}
+  aria-labelledby="resenas-heading"
+>
+  <h2 id="resenas-heading" class="section-subtitle">{copy.titulo}</h2>
+  <div data-resenas-lista><p class="resenas__vacio">{copy.vacio}</p></div>
+
+  <form data-resenas-form class="resenas__form">
+    <div class="resenas__grid">
+      <label>
+        <span>{copy.nombre}</span>
+        <input name="nombre" type="text" required maxlength="120" />
+      </label>
+      <label>
+        <span>{copy.email}</span>
+        <input name="email" type="email" required maxlength="200" />
+      </label>
+      <label>
+        <span>{copy.rating}</span>
+        <select name="rating">
+          <option value="5">★★★★★</option>
+          <option value="4">★★★★</option>
+          <option value="3">★★★</option>
+          <option value="2">★★</option>
+          <option value="1">★</option>
+        </select>
+      </label>
+    </div>
+    <label>
+      <span>{copy.comentario}</span>
+      <textarea name="comentario" rows="4" required maxlength="2000"></textarea>
+    </label>
+    <button class="btn btn-primary" type="submit">{copy.enviar}</button>
+    <p data-resenas-status hidden></p>
+  </form>
+</section>
+
+<script>
+  import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase';
+
+  const root = document.querySelector<HTMLElement>('[data-resenas]');
+  const supabase = isSupabaseConfigured() ? getSupabaseClient() : null;
+
+  const esc = (v: unknown) =>
+    String(v ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+  async function cargar() {
+    if (!root || !supabase) return;
+    const { data } = await supabase
+      .from('resenas')
+      .select('nombre, rating, comentario, created_at')
+      .eq('producto_id', root.dataset.productoId ?? '')
+      .order('created_at', { ascending: false })
+      .limit(20);
+    const rows = (data ?? []) as Array<Record<string, unknown>>;
+    const lista = root.querySelector<HTMLElement>('[data-resenas-lista]');
+    if (!lista || rows.length === 0) return;
+    lista.innerHTML = rows
+      .map(
+        r => `
+        <article class="resenas__item">
+          <header>
+            <strong>${esc(r.nombre)}</strong>
+            <span aria-label="${Number(r.rating)}/5">${'★'.repeat(Number(r.rating) || 0)}</span>
+          </header>
+          <p>${esc(r.comentario)}</p>
+        </article>`
+      )
+      .join('');
+  }
+
+  function bindForm() {
+    if (!root) return;
+    const form = root.querySelector<HTMLFormElement>('[data-resenas-form]');
+    const status = root.querySelector<HTMLElement>('[data-resenas-status]');
+    form?.addEventListener('submit', async event => {
+      event.preventDefault();
+      if (!supabase) return;
+      const data = new FormData(form);
+      const { data: result, error } = await supabase.functions.invoke('crear-resena', {
+        body: {
+          producto_slug: root.dataset.productoSlug ?? '',
+          nombre: String(data.get('nombre') ?? ''),
+          email: String(data.get('email') ?? ''),
+          rating: Number(data.get('rating') ?? 5),
+          comentario: String(data.get('comentario') ?? ''),
+        },
+      });
+      const ok = !error && (result as { ok?: boolean } | null)?.ok;
+      if (status) {
+        status.hidden = false;
+        const isEn = document.documentElement.lang === 'en';
+        status.textContent = ok
+          ? isEn
+            ? 'Thank you! Your review will appear after moderation.'
+            : '¡Gracias! Tu reseña aparecerá tras la moderación.'
+          : isEn
+            ? 'Could not submit the review.'
+            : 'No se pudo enviar la reseña.';
+      }
+      if (ok) form.reset();
+    });
+  }
+
+  void cargar();
+  bindForm();
+</script>
+
+<style>
+  .resenas__vacio {
+    color: var(--text-mid);
+  }
+  .resenas__item {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .resenas__item header {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    color: var(--ink);
+  }
+  .resenas__item p {
+    margin: 0.4rem 0 0;
+    color: var(--text-mid);
+    line-height: 1.6;
+  }
+  .resenas__form {
+    display: grid;
+    gap: 1rem;
+    max-width: 640px;
+    margin-top: 1.5rem;
+  }
+  .resenas__grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+  .resenas__form label {
+    display: grid;
+    gap: 0.4rem;
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .resenas__form input,
+  .resenas__form select,
+  .resenas__form textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.8rem 1rem;
+    background: var(--white);
+    color: var(--ink);
+    font: inherit;
+  }
+</style>

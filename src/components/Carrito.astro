@@ -653,6 +653,7 @@ const config = {
     suscribirCarrito,
     alAbrirCarrito,
     iniciarCheckout,
+    guardarCarritoAbandonado,
     revalidarDisponibilidad,
     type CarritoItem,
     type Mercado,
@@ -756,6 +757,13 @@ const config = {
     const config: CarritoConfig = JSON.parse(drawer.dataset.carritoConfig ?? '{}') as CarritoConfig;
     const { i18n, locale } = config;
     let enviando = false;
+
+    // Captura para recuperacion de carrito abandonado (al salir del campo email)
+    const emailInput = document.getElementById('carrito-email') as HTMLInputElement | null;
+    emailInput?.addEventListener('blur', () => {
+      const nombreInput = document.getElementById('carrito-nombre') as HTMLInputElement | null;
+      guardarCarritoAbandonado(emailInput.value, nombreInput?.value ?? '');
+    });
 
     function escapeHtml(value: string): string {
       return value

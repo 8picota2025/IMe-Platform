@@ -547,18 +547,13 @@ export async function submitCotizacion(
 ): Promise<{ ok: boolean; error?: string }> {
   if (isSupabaseConfigured()) {
     const supabase = getSupabaseClient()!;
-    const { error } = await supabase.from('solicitudes_cotizacion').insert({
-      nombre: datos.nombre,
-      empresa: datos.institucion ?? '',
-      email: datos.email,
-      telefono: datos.telefono,
-      productos: datos.productos ?? [],
-      mensaje: `[${datos.interes ?? 'General'}] ${datos.mensaje}`,
-      consentimiento_datos: datos.consentimiento_datos,
-      consentimiento_timestamp: new Date().toISOString(),
-      leida: false,
+    // Edge Function: registra la solicitud y envia emails (interno + cliente)
+    const { data, error } = await supabase.functions.invoke('registrar-cotizacion', {
+      body: datos,
     });
     if (error) return { ok: false, error: error.message };
+    const result = data as { ok?: boolean; error?: string } | null;
+    if (!result?.ok) return { ok: false, error: result?.error ?? 'Error registrando solicitud' };
     return { ok: true };
   }
   // Mock: siempre OK en desarrollo sin Supabase

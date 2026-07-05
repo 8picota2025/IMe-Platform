@@ -33,6 +33,11 @@ type View =
   | 'proveedor-productos'
   | 'fulfillments'
   | 'usuarios'
+  | 'plantillas'
+  | 'listas'
+  | 'lista'
+  | 'envios'
+  | 'resenas'
   | 'conocimiento'
   | 'ingesta'
   | 'asesor';
@@ -122,7 +127,55 @@ const state = {
   view: parseView(location.hash),
   recordId: new URLSearchParams(location.hash.split('?')[1] ?? '').get('id'),
   email: '',
+  rol: '' as string,
 };
+
+/** Vistas visibles por rol (owner/admin ven todo; RLS es la barrera real en DB). */
+const VISTAS_POR_ROL: Record<string, Set<View>> = {
+  catalogo: new Set<View>([
+    'dashboard',
+    'productos',
+    'producto',
+    'taxonomia',
+    'ingesta',
+    'conocimiento',
+  ]),
+  ventas: new Set<View>([
+    'dashboard',
+    'clientes',
+    'cliente',
+    'cotizaciones',
+    'cotizacion',
+    'pedidos',
+    'pedido',
+    'cupones',
+    'cupon',
+    'listas',
+    'lista',
+    'resenas',
+    'plantillas',
+    'reportes',
+    'asesor',
+  ]),
+  operaciones: new Set<View>([
+    'dashboard',
+    'pedidos',
+    'pedido',
+    'proveedores',
+    'proveedor-productos',
+    'fulfillments',
+    'envios',
+    'plantillas',
+    'reportes',
+  ]),
+  lectura: new Set<View>(['dashboard', 'reportes']),
+};
+
+function vistaPermitida(view: View): boolean {
+  if (!state.rol || state.rol === 'owner' || state.rol === 'admin') return true;
+  const permitidas = VISTAS_POR_ROL[state.rol];
+  return permitidas ? permitidas.has(view) : true;
+}
 
 window.addEventListener('hashchange', () => {
   state.view = parseView(location.hash);
@@ -229,6 +282,11 @@ function parseView(hash: string): View {
     raw === 'proveedor-productos' ||
     raw === 'fulfillments' ||
     raw === 'usuarios' ||
+    raw === 'plantillas' ||
+    raw === 'listas' ||
+    raw === 'lista' ||
+    raw === 'envios' ||
+    raw === 'resenas' ||
     raw === 'conocimiento' ||
     raw === 'ingesta' ||
     raw === 'asesor'
@@ -269,6 +327,17 @@ async function render() {
     return;
   }
   state.email = session.user.email ?? 'admin';
+  if (!state.rol) {
+    const { data: perfil } = await supabase!
+      .from('admin_profiles')
+      .select('rol')
+      .eq('user_id', session.user.id)
+      .maybeSingle();
+    state.rol = String((perfil as Row | null)?.rol ?? '');
+  }
+  if (!vistaPermitida(state.view)) {
+    state.view = 'dashboard';
+  }
 
   const view = await routeView();
   app.innerHTML = shellHtml(view.title, view.body);
@@ -447,6 +516,12 @@ async function routeView(): Promise<{ title: string; body: string }> {
   if (state.view === 'fulfillments')
     return { title: 'Fulfillments', body: await fulfillmentsView() };
   if (state.view === 'usuarios') return { title: 'Usuarios CMS', body: await usuariosView() };
+  if (state.view === 'plantillas')
+    return { title: 'Plantillas de email', body: await plantillasView() };
+  if (state.view === 'listas') return { title: 'Listas de precio', body: await listasView() };
+  if (state.view === 'lista') return { title: 'Lista de precio', body: await listaDetailView() };
+  if (state.view === 'envios') return { title: 'Tarifas de envio', body: await enviosView() };
+  if (state.view === 'resenas') return { title: 'Resenas', body: await resenasView() };
   if (state.view === 'conocimiento')
     return { title: 'Conocimiento', body: await conocimientoView() };
   if (state.view === 'ingesta') return { title: 'Ingesta PDF', body: await ingestaView() };
@@ -464,9 +539,13 @@ function shellHtml(title: string, body: string): string {
     ['cotizaciones', 'Cotizaciones'],
     ['pedidos', 'Pedidos'],
     ['cupones', 'Cupones'],
+    ['listas', 'Listas de precio'],
+    ['resenas', 'Resenas'],
     ['proveedores', 'Proveedores'],
     ['fulfillments', 'Fulfillments'],
+    ['envios', 'Envios'],
     ['usuarios', 'Usuarios CMS'],
+    ['plantillas', 'Emails'],
     ['reportes', 'Reportes'],
     ['conocimiento', 'Conocimiento'],
     ['asesor', 'Asesor'],
@@ -477,6 +556,7 @@ function shellHtml(title: string, body: string): string {
         <div class="admin-brand"><strong>I-ME</strong><span>Biomedical commerce admin</span></div>
         <nav class="admin-nav" aria-label="Admin">
           ${links
+            .filter(([view]) => vistaPermitida(view as View))
             .map(
               ([view, label]) =>
                 `<a href="#/${view}" ${state.view === view ? 'aria-current="page"' : ''}>${escapeHtml(label)}</a>`
@@ -502,6 +582,7 @@ function shellHtml(title: string, body: string): string {
 
 function bindShell() {
   app.querySelector('[data-logout]')?.addEventListener('click', async () => {
+    state.rol = '';
     await supabase?.auth.signOut();
     location.hash = '#/dashboard';
     await render();
@@ -531,7 +612,494 @@ function bindView() {
   bindProveedorProductos();
   bindFulfillments();
   bindUsuarios();
+  bindPlantillas();
+  bindListasPrecio();
+  bindEnvios();
+  bindResenas();
   bindAsesorPanel();
+}
+
+async function plantillasView(): Promise<string> {
+  const { data, error } = await supabase!.from('email_templates').select('*').order('clave');
+  if (error)
+    return `<p class="admin-help">Error cargando plantillas: ${escapeHtml(error.message)}</p>`;
+  const rows = (data ?? []) as Row[];
+  if (rows.length === 0) {
+    return '<p class="admin-help">Sin plantillas. Aplica el schema.sql para crear las plantillas por defecto.</p>';
+  }
+  const cards = rows
+    .map(
+      row => `
+      <form class="admin-panel" data-plantilla-form data-clave="${escapeHtml(text(row.clave))}" style="margin-bottom:16px">
+        <div class="admin-panel__head">
+          <div>
+            <h3>${escapeHtml(text(row.clave))}</h3>
+            <p class="admin-meta">${escapeHtml(text(row.descripcion))}</p>
+          </div>
+          <label><input name="activo" type="checkbox" ${row.activo ? 'checked' : ''} /> Activa</label>
+        </div>
+        <div class="admin-panel__body" style="padding:16px;display:grid;gap:12px">
+          <label>Asunto
+            <input name="asunto" type="text" value="${escapeHtml(text(row.asunto))}" required />
+          </label>
+          <label>HTML
+            <textarea name="html" rows="8" required>${escapeHtml(text(row.html))}</textarea>
+          </label>
+          <button class="admin-button" type="submit">Guardar</button>
+        </div>
+      </form>`
+    )
+    .join('');
+  return `
+    <p class="admin-help">
+      Variables disponibles segun plantilla: {{referencia}}, {{cliente_nombre}}, {{cliente_email}},
+      {{empresa}}, {{telefono}}, {{mensaje}}, {{total}}, {{moneda}}, {{items_html}}, {{fecha}},
+      {{estado_label}}, {{tracking_html}}. Desactivar una plantilla suprime ese envio.
+    </p>
+    ${cards}`;
+}
+
+async function listasView(): Promise<string> {
+  const { data, error } = await supabase!
+    .from('listas_precio')
+    .select('*, lista_precio_items(count), clientes(count)')
+    .order('nombre');
+  if (error) return `<p class="admin-help">Error: ${escapeHtml(error.message)}</p>`;
+  const rows = (data ?? []) as Row[];
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Listas de precio B2B</h2></div>
+      <div class="admin-panel__body" style="padding:16px">
+        ${
+          rows.length === 0
+            ? '<p class="admin-help">Sin listas. Crea la primera abajo.</p>'
+            : table(
+                ['Nombre', 'Descuento %', 'Precios especificos', 'Clientes', 'Activa', ''],
+                rows.map(row => {
+                  const items = Array.isArray(row.lista_precio_items)
+                    ? (row.lista_precio_items as Row[])[0]
+                    : null;
+                  const clientesCount = Array.isArray(row.clientes)
+                    ? (row.clientes as Row[])[0]
+                    : null;
+                  return [
+                    escapeHtml(text(row.nombre)),
+                    escapeHtml(text(row.descuento_pct)),
+                    escapeHtml(text(items?.count ?? 0)),
+                    escapeHtml(text(clientesCount?.count ?? 0)),
+                    row.activo ? 'Si' : 'No',
+                    `<a class="admin-button admin-button--ghost" href="#/lista?id=${encodeURIComponent(text(row.id))}">Gestionar</a>`,
+                  ];
+                })
+              )
+        }
+        <form data-lista-create class="admin-form" style="margin-top:12px">
+          <div class="admin-form__grid">
+            <label>Nombre <input name="nombre" type="text" required /></label>
+            <label>Descuento % global <input name="descuento_pct" type="number" min="0" max="90" step="0.1" value="0" /></label>
+            <label>Descripcion <input name="descripcion" type="text" /></label>
+          </div>
+          <button class="admin-button" type="submit">Crear lista</button>
+          <p class="admin-help">El descuento global aplica a todo el catalogo; los precios especificos por producto (en Gestionar) tienen prioridad. Se aplica server-side en el checkout segun el email del cliente.</p>
+        </form>
+      </div>
+    </section>`;
+}
+
+async function listaDetailView(): Promise<string> {
+  const row = state.recordId ? await getRow('listas_precio', state.recordId) : null;
+  if (!row) return notFoundPanel('Lista no encontrada', '#/listas');
+  const [itemsRes, clientesRes] = await Promise.all([
+    supabase!
+      .from('lista_precio_items')
+      .select('*, productos(slug, nombre_es, precio)')
+      .eq('lista_id', text(row.id)),
+    supabase!
+      .from('clientes')
+      .select('id, email, institucion')
+      .eq('lista_precio_id', text(row.id))
+      .order('email'),
+  ]);
+  const items = (itemsRes.data ?? []) as Row[];
+  const clientesAsignados = (clientesRes.data ?? []) as Row[];
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head">
+        <div>
+          <h2>${escapeHtml(text(row.nombre))}</h2>
+          <p class="admin-meta">${escapeHtml(text(row.descripcion))}</p>
+        </div>
+        <a class="admin-button admin-button--ghost" href="#/listas">Volver</a>
+      </div>
+      <div class="admin-panel__body" style="padding:16px;display:grid;gap:20px">
+        <form data-lista-edit class="admin-form">
+          <input type="hidden" name="id" value="${escapeHtml(text(row.id))}" />
+          <div class="admin-form__grid">
+            <label>Nombre <input name="nombre" type="text" value="${escapeHtml(text(row.nombre))}" required /></label>
+            <label>Descuento % <input name="descuento_pct" type="number" min="0" max="90" step="0.1" value="${escapeHtml(text(row.descuento_pct))}" /></label>
+            <label><input name="activo" type="checkbox" ${row.activo ? 'checked' : ''} /> Activa</label>
+          </div>
+          <button class="admin-button" type="submit">Guardar</button>
+        </form>
+
+        <div>
+          <h3>Precios especificos por producto</h3>
+          ${
+            items.length === 0
+              ? '<p class="admin-help">Sin precios especificos; aplica solo el descuento global.</p>'
+              : table(
+                  ['Producto', 'Precio publico', 'Precio lista', ''],
+                  items.map(item => {
+                    const producto =
+                      item.productos && typeof item.productos === 'object'
+                        ? (item.productos as Row)
+                        : {};
+                    return [
+                      escapeHtml(text(producto.slug)),
+                      escapeHtml(text(producto.precio)) || '—',
+                      escapeHtml(text(item.precio)),
+                      `<button class="admin-button admin-button--danger" data-lista-item-del="${escapeHtml(text(item.id))}" type="button">Quitar</button>`,
+                    ];
+                  })
+                )
+          }
+          <form data-lista-item-add class="admin-form" style="margin-top:8px">
+            <div class="admin-form__grid">
+              <label>Slug del producto <input name="slug" type="text" required placeholder="ej: monitor-signos-x" /></label>
+              <label>Precio (COP) <input name="precio" type="number" min="1" step="0.01" required /></label>
+            </div>
+            <button class="admin-button" type="submit">Agregar precio</button>
+          </form>
+        </div>
+
+        <div>
+          <h3>Clientes asignados</h3>
+          ${
+            clientesAsignados.length === 0
+              ? '<p class="admin-help">Sin clientes asignados.</p>'
+              : table(
+                  ['Email', 'Institucion', ''],
+                  clientesAsignados.map(c => [
+                    escapeHtml(text(c.email)),
+                    escapeHtml(text(c.institucion)) || '—',
+                    `<button class="admin-button admin-button--danger" data-lista-cliente-del="${escapeHtml(text(c.id))}" type="button">Desasignar</button>`,
+                  ])
+                )
+          }
+          <form data-lista-cliente-add class="admin-form" style="margin-top:8px">
+            <label>Email del cliente <input name="email" type="email" required /></label>
+            <button class="admin-button" type="submit">Asignar cliente</button>
+            <p class="admin-help">El cliente debe existir (haber comprado o cotizado antes).</p>
+          </form>
+        </div>
+      </div>
+    </section>`;
+}
+
+async function enviosView(): Promise<string> {
+  const { data, error } = await supabase!.from('tarifas_envio').select('*').order('zona');
+  if (error) return `<p class="admin-help">Error: ${escapeHtml(error.message)}</p>`;
+  const rows = (data ?? []) as Row[];
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Tarifas de envio por zona (mercado CO)</h2></div>
+      <div class="admin-panel__body" style="padding:16px">
+        ${
+          rows.length === 0
+            ? '<p class="admin-help">Sin tarifas: el checkout cobra envio 0. Crea una zona con departamentos vacios como tarifa por defecto nacional.</p>'
+            : table(
+                ['Zona', 'Departamentos', 'Tarifa COP', 'Gratis desde', 'Activa', ''],
+                rows.map(row => [
+                  escapeHtml(text(row.zona)),
+                  escapeHtml(
+                    (Array.isArray(row.departamentos) ? row.departamentos : []).join(', ')
+                  ) || '<em>por defecto</em>',
+                  Number(row.tarifa ?? 0).toLocaleString('es-CO'),
+                  row.gratis_desde === null
+                    ? '—'
+                    : Number(row.gratis_desde).toLocaleString('es-CO'),
+                  row.activo ? 'Si' : 'No',
+                  `<button class="admin-button admin-button--ghost" data-envio-toggle="${escapeHtml(text(row.id))}" data-envio-activo="${row.activo ? '1' : ''}" type="button">${row.activo ? 'Desactivar' : 'Activar'}</button>
+                   <button class="admin-button admin-button--danger" data-envio-del="${escapeHtml(text(row.id))}" type="button">Eliminar</button>`,
+                ])
+              )
+        }
+        <form data-envio-create class="admin-form" style="margin-top:12px">
+          <div class="admin-form__grid">
+            <label>Zona <input name="zona" type="text" required placeholder="ej: Zona 1 - Andina" /></label>
+            <label>Departamentos (coma) <input name="departamentos" type="text" placeholder="Cundinamarca, Antioquia (vacio = por defecto)" /></label>
+            <label>Tarifa COP <input name="tarifa" type="number" min="0" step="1" required /></label>
+            <label>Gratis desde COP <input name="gratis_desde" type="number" min="0" step="1" placeholder="opcional" /></label>
+          </div>
+          <button class="admin-button" type="submit">Crear zona</button>
+          <p class="admin-help">El envio se calcula server-side en el checkout segun el departamento de la direccion. "Gratis desde" compara contra subtotal - descuento.</p>
+        </form>
+      </div>
+    </section>`;
+}
+
+async function resenasView(): Promise<string> {
+  const { data, error } = await supabase!
+    .from('resenas')
+    .select('*, productos(slug, nombre_es)')
+    .order('created_at', { ascending: false })
+    .limit(200);
+  if (error) return `<p class="admin-help">Error: ${escapeHtml(error.message)}</p>`;
+  const rows = (data ?? []) as Row[];
+  const pendientes = rows.filter(r => r.aprobada !== true);
+  const aprobadas = rows.filter(r => r.aprobada === true);
+  const fila = (r: Row) => {
+    const producto = r.productos && typeof r.productos === 'object' ? (r.productos as Row) : {};
+    return [
+      formatCell(r.created_at),
+      escapeHtml(text(producto.slug)) || '—',
+      escapeHtml(text(r.nombre)),
+      '★'.repeat(Number(r.rating) || 0),
+      escapeHtml(text(r.comentario)).slice(0, 200),
+      `${
+        r.aprobada === true
+          ? `<button class="admin-button admin-button--ghost" data-resena-toggle="${escapeHtml(text(r.id))}" data-resena-aprobada="1" type="button">Retirar</button>`
+          : `<button class="admin-button" data-resena-toggle="${escapeHtml(text(r.id))}" type="button">Aprobar</button>`
+      }
+       <button class="admin-button admin-button--danger" data-resena-del="${escapeHtml(text(r.id))}" type="button">Eliminar</button>`,
+    ];
+  };
+  const headers = ['Fecha', 'Producto', 'Autor', 'Rating', 'Comentario', 'Acciones'];
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Pendientes de moderacion (${pendientes.length})</h2></div>
+      ${
+        pendientes.length === 0
+          ? '<p class="admin-help" style="padding:16px">Sin resenas pendientes.</p>'
+          : table(headers, pendientes.map(fila))
+      }
+    </section>
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Publicadas (${aprobadas.length})</h2></div>
+      ${
+        aprobadas.length === 0
+          ? '<p class="admin-help" style="padding:16px">Sin resenas publicadas.</p>'
+          : table(headers, aprobadas.map(fila))
+      }
+    </section>`;
+}
+
+function bindResenas() {
+  app.querySelectorAll<HTMLButtonElement>('[data-resena-toggle]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const { error } = await supabase!
+        .from('resenas')
+        .update({ aprobada: !button.dataset['resenaAprobada'] })
+        .eq('id', button.dataset['resenaToggle'] ?? '');
+      if (error) toast(error.message);
+      else await render();
+    });
+  });
+  app.querySelectorAll<HTMLButtonElement>('[data-resena-del]').forEach(button => {
+    button.addEventListener('click', async () => {
+      if (!confirm('Eliminar esta resena definitivamente?')) return;
+      const { error } = await supabase!
+        .from('resenas')
+        .delete()
+        .eq('id', button.dataset['resenaDel'] ?? '');
+      if (error) toast(error.message);
+      else await render();
+    });
+  });
+}
+
+function bindEnvios() {
+  app
+    .querySelector<HTMLFormElement>('[data-envio-create]')
+    ?.addEventListener('submit', async event => {
+      event.preventDefault();
+      const form = event.currentTarget as HTMLFormElement;
+      const data = new FormData(form);
+      const gratisRaw = String(data.get('gratis_desde') ?? '').trim();
+      const { error } = await supabase!.from('tarifas_envio').insert({
+        zona: String(data.get('zona') ?? '').trim(),
+        departamentos: String(data.get('departamentos') ?? '')
+          .split(',')
+          .map(d => d.trim())
+          .filter(Boolean),
+        tarifa: Number(data.get('tarifa') ?? 0),
+        gratis_desde: gratisRaw ? Number(gratisRaw) : null,
+      });
+      if (error) toast(error.message);
+      else {
+        toast('Zona creada');
+        await render();
+      }
+    });
+
+  app.querySelectorAll<HTMLButtonElement>('[data-envio-toggle]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const { error } = await supabase!
+        .from('tarifas_envio')
+        .update({ activo: !button.dataset['envioActivo'] })
+        .eq('id', button.dataset['envioToggle'] ?? '');
+      if (error) toast(error.message);
+      else await render();
+    });
+  });
+
+  app.querySelectorAll<HTMLButtonElement>('[data-envio-del]').forEach(button => {
+    button.addEventListener('click', async () => {
+      if (!confirm('Eliminar esta zona de envio?')) return;
+      const { error } = await supabase!
+        .from('tarifas_envio')
+        .delete()
+        .eq('id', button.dataset['envioDel'] ?? '');
+      if (error) toast(error.message);
+      else await render();
+    });
+  });
+}
+
+function bindListasPrecio() {
+  app
+    .querySelector<HTMLFormElement>('[data-lista-create]')
+    ?.addEventListener('submit', async event => {
+      event.preventDefault();
+      const form = event.currentTarget as HTMLFormElement;
+      const data = new FormData(form);
+      const { error } = await supabase!.from('listas_precio').insert({
+        nombre: String(data.get('nombre') ?? '').trim(),
+        descripcion: String(data.get('descripcion') ?? '').trim(),
+        descuento_pct: Number(data.get('descuento_pct') ?? 0),
+      });
+      if (error) toast(error.message);
+      else {
+        toast('Lista creada');
+        await render();
+      }
+    });
+
+  app
+    .querySelector<HTMLFormElement>('[data-lista-edit]')
+    ?.addEventListener('submit', async event => {
+      event.preventDefault();
+      const form = event.currentTarget as HTMLFormElement;
+      const data = new FormData(form);
+      const activo =
+        form.elements.namedItem('activo') instanceof HTMLInputElement &&
+        (form.elements.namedItem('activo') as HTMLInputElement).checked;
+      const { error } = await supabase!
+        .from('listas_precio')
+        .update({
+          nombre: String(data.get('nombre') ?? '').trim(),
+          descuento_pct: Number(data.get('descuento_pct') ?? 0),
+          activo,
+        })
+        .eq('id', String(data.get('id') ?? ''));
+      if (error) toast(error.message);
+      else toast('Lista guardada');
+    });
+
+  app
+    .querySelector<HTMLFormElement>('[data-lista-item-add]')
+    ?.addEventListener('submit', async event => {
+      event.preventDefault();
+      const form = event.currentTarget as HTMLFormElement;
+      const data = new FormData(form);
+      const slug = String(data.get('slug') ?? '').trim();
+      const { data: producto } = await supabase!
+        .from('productos')
+        .select('id')
+        .eq('slug', slug)
+        .maybeSingle();
+      if (!producto) {
+        toast(`Producto no encontrado: ${slug}`);
+        return;
+      }
+      const { error } = await supabase!.from('lista_precio_items').upsert(
+        {
+          lista_id: state.recordId,
+          producto_id: (producto as Row).id,
+          precio: Number(data.get('precio') ?? 0),
+        },
+        { onConflict: 'lista_id,producto_id' }
+      );
+      if (error) toast(error.message);
+      else {
+        toast('Precio agregado');
+        await render();
+      }
+    });
+
+  app.querySelectorAll<HTMLButtonElement>('[data-lista-item-del]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const { error } = await supabase!
+        .from('lista_precio_items')
+        .delete()
+        .eq('id', button.dataset['listaItemDel'] ?? '');
+      if (error) toast(error.message);
+      else await render();
+    });
+  });
+
+  app
+    .querySelector<HTMLFormElement>('[data-lista-cliente-add]')
+    ?.addEventListener('submit', async event => {
+      event.preventDefault();
+      const form = event.currentTarget as HTMLFormElement;
+      const email = String(new FormData(form).get('email') ?? '')
+        .trim()
+        .toLowerCase();
+      const { data: clienteRow, error: findError } = await supabase!
+        .from('clientes')
+        .select('id')
+        .eq('email', email)
+        .maybeSingle();
+      if (findError || !clienteRow) {
+        toast(`Cliente no encontrado: ${email}`);
+        return;
+      }
+      const { error } = await supabase!
+        .from('clientes')
+        .update({ lista_precio_id: state.recordId })
+        .eq('id', (clienteRow as Row).id);
+      if (error) toast(error.message);
+      else {
+        toast('Cliente asignado');
+        await render();
+      }
+    });
+
+  app.querySelectorAll<HTMLButtonElement>('[data-lista-cliente-del]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const { error } = await supabase!
+        .from('clientes')
+        .update({ lista_precio_id: null })
+        .eq('id', button.dataset['listaClienteDel'] ?? '');
+      if (error) toast(error.message);
+      else await render();
+    });
+  });
+}
+
+function bindPlantillas() {
+  app.querySelectorAll<HTMLFormElement>('[data-plantilla-form]').forEach(form => {
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      const clave = form.dataset['clave'] ?? '';
+      const data = new FormData(form);
+      const activo =
+        form.elements.namedItem('activo') instanceof HTMLInputElement &&
+        (form.elements.namedItem('activo') as HTMLInputElement).checked;
+      const { error } = await supabase!
+        .from('email_templates')
+        .update({
+          asunto: String(data.get('asunto') ?? '').trim(),
+          html: String(data.get('html') ?? '').trim(),
+          activo,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('clave', clave);
+      if (error) toast(error.message);
+      else toast(`Plantilla ${clave} guardada`);
+    });
+  });
 }
 
 function bindUsuarios() {
@@ -1804,37 +2372,45 @@ async function pedidoDetailView(): Promise<string> {
   const resumenPedido = pedidoResumenTexto(row);
 
   const referencia = text(row.referencia_pasarela);
-  const [eventosResult, fulfillmentsResult, notasResult, timelineResult, facturaResult] =
-    await Promise.all([
-      referencia
-        ? supabase!
-            .from('eventos_pago')
-            .select('*')
-            .eq('referencia_pasarela', referencia)
-            .order('created_at', { ascending: false })
-        : Promise.resolve({ data: [] as Row[] }),
-      supabase!
-        .from('fulfillments')
-        .select('*, proveedores(nombre)')
-        .eq('pedido_id', text(row.id))
-        .order('created_at', { ascending: false }),
-      supabase!
-        .from('pedido_notas')
-        .select('*')
-        .eq('pedido_id', text(row.id))
-        .order('created_at', { ascending: false }),
-      supabase!
-        .from('pedido_eventos')
-        .select('*')
-        .eq('pedido_id', text(row.id))
-        .order('created_at', { ascending: false }),
-      supabase!
-        .from('facturas_electronicas')
-        .select('*')
-        .eq('pedido_id', text(row.id))
-        .maybeSingle(),
-    ]);
+  const [
+    eventosResult,
+    fulfillmentsResult,
+    notasResult,
+    timelineResult,
+    facturaResult,
+    reembolsosResult,
+  ] = await Promise.all([
+    referencia
+      ? supabase!
+          .from('eventos_pago')
+          .select('*')
+          .eq('referencia_pasarela', referencia)
+          .order('created_at', { ascending: false })
+      : Promise.resolve({ data: [] as Row[] }),
+    supabase!
+      .from('fulfillments')
+      .select('*, proveedores(nombre)')
+      .eq('pedido_id', text(row.id))
+      .order('created_at', { ascending: false }),
+    supabase!
+      .from('pedido_notas')
+      .select('*')
+      .eq('pedido_id', text(row.id))
+      .order('created_at', { ascending: false }),
+    supabase!
+      .from('pedido_eventos')
+      .select('*')
+      .eq('pedido_id', text(row.id))
+      .order('created_at', { ascending: false }),
+    supabase!.from('facturas_electronicas').select('*').eq('pedido_id', text(row.id)).maybeSingle(),
+    supabase!
+      .from('reembolsos')
+      .select('*')
+      .eq('pedido_id', text(row.id))
+      .order('created_at', { ascending: false }),
+  ]);
   const eventos = (eventosResult.data ?? []) as Row[];
+  const reembolsos = (reembolsosResult.data ?? []) as Row[];
   const fulfillments = (fulfillmentsResult.data ?? []) as Row[];
   const notas = (notasResult.data ?? []) as Row[];
   const timeline = (timelineResult.data ?? []) as Row[];
@@ -2021,6 +2597,58 @@ async function pedidoDetailView(): Promise<string> {
         }
       </div>
       <div style="padding:0 16px 16px">
+        <h3>Reembolsos</h3>
+        ${
+          reembolsos.length === 0
+            ? '<p class="admin-help">Sin reembolsos registrados.</p>'
+            : table(
+                [
+                  'Fecha',
+                  'Monto',
+                  'Motivo',
+                  'Metodo',
+                  'Estado',
+                  'Nota credito DIAN',
+                  'Ref. externa',
+                ],
+                reembolsos.map(r => [
+                  formatCell(r.created_at),
+                  escapeHtml(text(r.monto)),
+                  escapeHtml(text(r.motivo)),
+                  escapeHtml(text(r.metodo)),
+                  escapeHtml(text(r.estado)),
+                  r.nota_credito_dian ? 'Si' : 'No',
+                  escapeHtml(text(r.referencia_externa)) || '—',
+                ])
+              )
+        }
+        <form data-reembolso-form class="admin-form" style="margin-top:12px">
+          <input type="hidden" name="pedido_id" value="${escapeHtml(text(row.id))}" />
+          <div class="admin-form__grid">
+            <label>Monto (COP)
+              <input name="monto" type="number" min="1" step="0.01" max="${escapeHtml(text(row.total))}" required />
+            </label>
+            <label>Metodo
+              <select name="metodo">
+                <option value="pasarela">Pasarela</option>
+                <option value="transferencia">Transferencia</option>
+                <option value="nota_credito">Nota credito</option>
+                <option value="otro">Otro</option>
+              </select>
+            </label>
+            <label>Referencia externa
+              <input name="referencia_externa" type="text" placeholder="ID en Wompi/banco" />
+            </label>
+          </div>
+          <label>Motivo
+            <input name="motivo" type="text" required placeholder="Motivo del reembolso" />
+          </label>
+          <label><input name="nota_credito_dian" type="checkbox" /> Requiere nota credito DIAN</label>
+          <button class="admin-button" type="submit">Registrar reembolso</button>
+          <p class="admin-help">El reembolso en la pasarela se ejecuta desde su dashboard; aqui queda la trazabilidad. Si el monto cubre el total, se ofrecera marcar el pedido como reembolsado (envia email al cliente).</p>
+        </form>
+      </div>
+      <div style="padding:0 16px 16px">
         <div class="admin-panel__head" style="padding-left:0;padding-right:0;border-bottom:0">
           <h3>Timeline unificado</h3>
           <span class="admin-meta">Estado, notas y eventos de pago en una sola vista</span>
@@ -2171,7 +2799,7 @@ async function cuponFormView(): Promise<string> {
 }
 
 async function reportesView(): Promise<string> {
-  const [pedidos, cotizaciones, productos, fulfillments, cupones] = await Promise.all([
+  const [pedidos, cotizaciones, productos, fulfillments, cupones, carritos] = await Promise.all([
     selectRows('pedidos', '*', 'created_at', 500, false),
     selectRows('solicitudes_cotizacion', '*', 'created_at', 500, false),
     selectRows(
@@ -2182,23 +2810,96 @@ async function reportesView(): Promise<string> {
     ),
     selectRows('fulfillments', '*', 'created_at', 500, false),
     selectRows('cupones', '*', 'created_at', 200, false),
+    selectRows('carritos_abandonados', 'estado,subtotal,created_at', 'created_at', 500, false),
   ]);
-  const ventas = pedidos
-    .filter(p => ['pagado', 'procesando', 'enviado', 'entregado'].includes(text(p.estado)))
-    .reduce((acc, p) => acc + Number(p.total ?? 0), 0);
+  const ESTADOS_VENTA = ['pagado', 'procesando', 'enviado', 'entregado'];
+  const pedidosPagados = pedidos.filter(p => ESTADOS_VENTA.includes(text(p.estado)));
+  const ventas = pedidosPagados.reduce((acc, p) => acc + Number(p.total ?? 0), 0);
   const pedidosPorEstado = groupCount(pedidos, 'estado');
   const cotizacionesPorEstado = groupCount(cotizaciones, 'estado');
   const productosCriticos = productos.filter(
     p => p.disponible === false || text(p.stock_estado) !== 'instock'
   );
+
+  // Ventas por mes (ultimos 12)
+  const porMes = new Map<string, { total: number; pedidos: number }>();
+  for (const p of pedidosPagados) {
+    const mes = text(p.created_at).slice(0, 7);
+    if (!mes) continue;
+    const acc = porMes.get(mes) ?? { total: 0, pedidos: 0 };
+    acc.total += Number(p.total ?? 0);
+    acc.pedidos += 1;
+    porMes.set(mes, acc);
+  }
+  const meses = Array.from(porMes.entries())
+    .sort((a, b) => b[0].localeCompare(a[0]))
+    .slice(0, 12);
+  const maxMes = Math.max(1, ...meses.map(([, v]) => v.total));
+
+  // Top productos por unidades e ingresos (desde items de pedidos pagados)
+  const porProducto = new Map<string, { unidades: number; ingresos: number }>();
+  for (const p of pedidosPagados) {
+    for (const item of Array.isArray(p.items) ? (p.items as Row[]) : []) {
+      const nombre = text(item.nombre) || text(item.slug) || 'desconocido';
+      const acc = porProducto.get(nombre) ?? { unidades: 0, ingresos: 0 };
+      acc.unidades += Number(item.cantidad ?? 0);
+      acc.ingresos += Number(item.precio_unitario ?? 0) * Number(item.cantidad ?? 0);
+      porProducto.set(nombre, acc);
+    }
+  }
+  const topProductos = Array.from(porProducto.entries())
+    .sort((a, b) => b[1].ingresos - a[1].ingresos)
+    .slice(0, 10);
+
+  const ticketPromedio = pedidosPagados.length > 0 ? ventas / pedidosPagados.length : 0;
+  const conversionPct =
+    cotizaciones.length > 0 ? (pedidosPagados.length / cotizaciones.length) * 100 : 0;
+  const carritosActivos = carritos.filter(c => text(c.estado) === 'activo').length;
+  const carritosRecuperados = carritos.filter(c => text(c.estado) === 'convertido').length;
+
   return `
     <section class="admin-grid">
       ${metric('Ventas reconocidas COP', Math.round(ventas))}
-      ${metric('Pedidos', pedidos.length)}
+      ${metric('Ticket promedio COP', Math.round(ticketPromedio))}
+      ${metric('Pedidos pagados', pedidosPagados.length)}
       ${metric('Cotizaciones', cotizaciones.length)}
+      ${metric('Conversion cot./venta %', Math.round(conversionPct * 10) / 10)}
+      ${metric('Carritos abandonados', carritosActivos)}
+      ${metric('Carritos recuperados', carritosRecuperados)}
       ${metric('Productos criticos', productosCriticos.length)}
       ${metric('Fulfillments error', fulfillments.filter(f => text(f.estado) === 'error').length)}
       ${metric('Cupones activos', cupones.filter(c => c.activo === true).length)}
+    </section>
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Ventas por mes (ultimos 12)</h2></div>
+      ${
+        meses.length === 0
+          ? '<p class="admin-help" style="padding:16px">Sin ventas registradas.</p>'
+          : table(
+              ['Mes', 'Pedidos', 'Total COP', ''],
+              meses.map(([mes, v]) => [
+                mes,
+                String(v.pedidos),
+                Math.round(v.total).toLocaleString('es-CO'),
+                `<div style="background:var(--border);border-radius:4px;height:10px;min-width:120px"><div style="width:${Math.round((v.total / maxMes) * 100)}%;background:var(--ink,#333);height:10px;border-radius:4px"></div></div>`,
+              ])
+            )
+      }
+    </section>
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Top productos (por ingresos)</h2></div>
+      ${
+        topProductos.length === 0
+          ? '<p class="admin-help" style="padding:16px">Sin datos de items.</p>'
+          : table(
+              ['Producto', 'Unidades', 'Ingresos COP'],
+              topProductos.map(([nombre, v]) => [
+                escapeHtml(nombre),
+                String(v.unidades),
+                Math.round(v.ingresos).toLocaleString('es-CO'),
+              ])
+            )
+      }
     </section>
     <section class="admin-panel">
       <div class="admin-panel__head"><h2>Pedidos por estado</h2></div>
@@ -3495,7 +4196,35 @@ async function actualizarEstadoPedido(id: string, estado: string): Promise<boole
     a_estado: estado,
     metadata: { source: 'admin' },
   });
+  void notificarClienteEstado(id, estado);
   return true;
+}
+
+const ESTADOS_NOTIFICABLES = new Set([
+  'pagado',
+  'procesando',
+  'enviado',
+  'entregado',
+  'retrasado',
+  'cancelado',
+  'reembolsado',
+]);
+
+async function notificarClienteEstado(pedidoId: string, estado: string): Promise<void> {
+  if (!ESTADOS_NOTIFICABLES.has(estado)) return;
+  try {
+    const { data, error } = await supabase!.functions.invoke('notificar-cliente', {
+      body: { pedido_id: pedidoId, a_estado: estado },
+    });
+    const result = data as { ok?: boolean; detalle?: string } | null;
+    if (error || !result?.ok) {
+      toast(`Email al cliente no enviado: ${error?.message ?? result?.detalle ?? 'error'}`);
+    } else {
+      toast('Email de cambio de estado enviado al cliente');
+    }
+  } catch {
+    toast('Email al cliente no enviado (error de red)');
+  }
 }
 
 async function registrarEventoPedido(
@@ -3870,6 +4599,54 @@ function bindPedidoOperaciones() {
     button.addEventListener('click', async () => {
       await copyText(button.dataset['copyText'] ?? '');
     });
+  });
+
+  const reembolsoForm = app.querySelector<HTMLFormElement>('[data-reembolso-form]');
+  reembolsoForm?.addEventListener('submit', async event => {
+    event.preventDefault();
+    const data = new FormData(reembolsoForm);
+    const pedidoId = String(data.get('pedido_id') ?? '');
+    const monto = Number(data.get('monto') ?? 0);
+    const motivo = String(data.get('motivo') ?? '').trim();
+    if (!pedidoId || !(monto > 0) || !motivo) {
+      toast('Monto y motivo son obligatorios');
+      return;
+    }
+    const notaCredito =
+      reembolsoForm.elements.namedItem('nota_credito_dian') instanceof HTMLInputElement &&
+      (reembolsoForm.elements.namedItem('nota_credito_dian') as HTMLInputElement).checked;
+    const { error } = await supabase!.from('reembolsos').insert({
+      pedido_id: pedidoId,
+      monto,
+      motivo,
+      metodo: String(data.get('metodo') ?? 'pasarela'),
+      referencia_externa: String(data.get('referencia_externa') ?? '').trim() || null,
+      estado: 'procesado',
+      nota_credito_dian: notaCredito,
+      creado_por: state.email,
+      procesado_at: new Date().toISOString(),
+    });
+    if (error) {
+      toast(error.message);
+      return;
+    }
+    await registrarEventoPedido(pedidoId, {
+      tipo: 'reembolso_registrado',
+      metadata: { monto, motivo },
+    });
+    const pedido = await getRow('pedidos', pedidoId);
+    const total = Number(pedido?.total ?? 0);
+    if (
+      monto >= total &&
+      text(pedido?.estado) !== 'reembolsado' &&
+      confirm(
+        'El monto cubre el total del pedido. Marcar el pedido como reembolsado? (envia email al cliente)'
+      )
+    ) {
+      await actualizarEstadoPedido(pedidoId, 'reembolsado');
+    }
+    toast('Reembolso registrado');
+    await render();
   });
 
   const noteForm = app.querySelector<HTMLFormElement>('[data-pedido-nota-form]');

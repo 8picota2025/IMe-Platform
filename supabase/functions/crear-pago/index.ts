@@ -126,6 +126,91 @@ function obtenerIp(req: Request): string {
   );
 }
 
+interface ListaPrecioResuelta {
+  descuentoPct: number;
+  precios: Map<string, number>;
+}
+
+async function obtenerListaPrecio(
+  supabase: ReturnType<typeof getServerSupabase>,
+  email: string
+): Promise<ListaPrecioResuelta | null> {
+  const { data: clienteRow } = await supabase
+    .from('clientes')
+    .select('lista_precio_id')
+    .eq('email', email)
+    .maybeSingle();
+  const listaId = (clienteRow as { lista_precio_id?: string | null } | null)?.lista_precio_id;
+  if (!listaId) return null;
+
+  const [{ data: lista }, { data: items }] = await Promise.all([
+    supabase.from('listas_precio').select('descuento_pct, activo').eq('id', listaId).maybeSingle(),
+    supabase.from('lista_precio_items').select('producto_id, precio').eq('lista_id', listaId),
+  ]);
+  const listaRow = lista as { descuento_pct?: number | string; activo?: boolean } | null;
+  if (!listaRow?.activo) return null;
+
+  const precios = new Map<string, number>();
+  for (const item of (items ?? []) as Array<{ producto_id: string; precio: number | string }>) {
+    const valor = Number(item.precio);
+    if (valor > 0) precios.set(item.producto_id, valor);
+  }
+  return { descuentoPct: Number(listaRow.descuento_pct ?? 0), precios };
+}
+
+function normalizarDepto(valor: string): string {
+  return valor.normalize('NFD').replace(/[̀-ͯ]/g, '').trim().toLowerCase();
+}
+
+/**
+ * Envio por zona (tabla tarifas_envio, solo mercado CO). La zona se resuelve
+ * por departamento de la direccion de facturacion; una zona con departamentos
+ * vacios actua como tarifa por defecto. gratis_desde compara contra la base
+ * (subtotal - descuento). Sin tarifas configuradas: envio 0 (comportamiento previo).
+ */
+async function calcularEnvio(
+  supabase: ReturnType<typeof getServerSupabase>,
+  departamento: string | undefined,
+  base: number
+): Promise<number> {
+  const { data, error } = await supabase
+    .from('tarifas_envio')
+    .select('zona, departamentos, tarifa, gratis_desde')
+    .eq('activo', true);
+  if (error || !data || data.length === 0) return 0;
+
+  const tarifas = data as Array<{
+    departamentos: string[] | null;
+    tarifa: number | string;
+    gratis_desde: number | string | null;
+  }>;
+  const depto = departamento ? normalizarDepto(departamento) : '';
+  const especifica = depto
+    ? tarifas.find(t => (t.departamentos ?? []).some(d => normalizarDepto(d) === depto))
+    : undefined;
+  const porDefecto = tarifas.find(t => (t.departamentos ?? []).length === 0);
+  const zona = especifica ?? porDefecto;
+  if (!zona) return 0;
+  const gratisDesde = zona.gratis_desde === null ? null : Number(zona.gratis_desde);
+  if (gratisDesde !== null && base >= gratisDesde) return 0;
+  return Number(zona.tarifa) || 0;
+}
+
+/** Precio por producto de la lista tiene prioridad; si no, descuento % sobre el publico. */
+function aplicarListaPrecio(
+  lista: ListaPrecioResuelta | null,
+  productoId: string,
+  precioPublico: number
+): number {
+  if (!lista) return precioPublico;
+  const especifico = lista.precios.get(productoId);
+  if (especifico !== undefined) return especifico;
+  if (lista.descuentoPct > 0) {
+    return Math.round(precioPublico * (1 - lista.descuentoPct / 100) * 100) / 100;
+  }
+  return precioPublico;
+}
+
 function precioVigente(producto: ProductoRow): number | string | null {
   if (producto.precio_oferta === null) return producto.precio;
   const now = Date.now();
@@ -529,6 +614,9 @@ Deno.serve(async req => {
     );
   }
 
+  // Lista de precios B2B del cliente (server-side; el cliente nunca fija precios)
+  const listaPrecio = await obtenerListaPrecio(supabase, cliente.email.toLowerCase());
+
   const checkoutItems: CheckoutItem[] = [];
   const itemsSnapshot: Array<Record<string, unknown>> = [];
   const fiscalItems: Array<Record<string, unknown>> = [];
@@ -557,7 +645,9 @@ Deno.serve(async req => {
       );
     }
     const precioBase = precioVigente(producto);
-    const precio = precioBase === null ? null : Number(precioBase);
+    const precioPublico = precioBase === null ? null : Number(precioBase);
+    const precio =
+      precioPublico === null ? null : aplicarListaPrecio(listaPrecio, producto.id, precioPublico);
     if (precio === null || Number.isNaN(precio)) {
       return errorResponse(
         {
@@ -654,6 +744,16 @@ Deno.serve(async req => {
     : { ok: true as const, descuento: 0, cupon: null as CuponRow | null };
   if (!descuento.ok) return descuento.response;
 
+  // Envio por zona (solo CO; INTL se cotiza aparte)
+  const envioTotal =
+    mercado === 'CO'
+      ? await calcularEnvio(
+          supabase,
+          body.fiscal?.direccion_facturacion?.departamento,
+          subtotal - descuento.descuento
+        )
+      : 0;
+
   const fiscal = calculateFiscalSummary(
     fiscalItems as Array<{
       producto_id: string;
@@ -673,7 +773,7 @@ Deno.serve(async req => {
       moneda,
       mercado: mercado as Mercado,
       descuento_total: descuento.descuento,
-      envio_total: 0,
+      envio_total: envioTotal,
       default_iva_pct: parseEnvNumber('CO_DEFAULT_IVA_PCT', 0),
       default_retencion_fuente_pct: parseEnvNumber('CO_DEFAULT_RETEFUENTE_PCT', 0),
       default_retencion_iva_pct: parseEnvNumber('CO_DEFAULT_RETEIVA_PCT', 0),
@@ -685,7 +785,6 @@ Deno.serve(async req => {
   );
 
   const _impuestoTotal = fiscal.impuesto_total;
-  const _envioTotal = 0;
   const total = fiscal.total;
   const pedidoId = crypto.randomUUID();
   const dianDraft = buildDianInvoiceDraft({
@@ -710,6 +809,7 @@ Deno.serve(async req => {
     },
     items: itemsSnapshot,
     subtotal,
+    envio_total: envioTotal,
     total,
     moneda,
     mercado,
