@@ -39,7 +39,7 @@ jobs:
           WOMPI_PRIVATE_KEY=${{ secrets.WOMPI_PRIVATE_KEY }}
           WOMPI_INTEGRITY_SECRET=${{ secrets.WOMPI_INTEGRITY_SECRET }}
           WOMPI_EVENTS_SECRET=${{ secrets.WOMPI_EVENTS_SECRET }}
-          WOMPI_API_BASE=https://production.wompi.co/v1
+          WOMPI_API_BASE=${{ secrets.WOMPI_API_BASE }}
           STRIPE_PUBLIC_KEY=${{ secrets.STRIPE_PUBLIC_KEY }}
           STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}
           STRIPE_WEBHOOK_SECRET=${{ secrets.STRIPE_WEBHOOK_SECRET }}
