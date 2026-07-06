@@ -1796,14 +1796,86 @@
     "descripcion_corta_es": "La máquina de anestesia Prima 460 de PENLON integra una amplia gama de modos ventilatorios, junto con una pantalla intuitiva de gran tamaño, configuración de perfiles de paciente y visualización digit",
     "descripcion_corta_en": "La máquina de anestesia Prima 460 de PENLON integra una amplia gama de modos ventilatorios, junto con una pantalla intuitiva de gran tamaño, configuración de perfiles de paciente y visualización digit",
     "descripcion_larga_es": "La máquina de anestesia Prima 460 de PENLON integra una amplia gama de modos ventilatorios, junto con una pantalla intuitiva de gran tamaño, configuración de perfiles de paciente y visualización digital del suministro de gas fresco. Esto permite individualizar la administración de anestesia inhalada según las necesidades del especialista, la criticidad del caso y el tipo de paciente, ya sea adulto, pediátrico o neonatal.\nSu sistema respiratorio, compacto y calefaccionado, posibilita el suministro de agentes anestésicos a bajos flujos, lo que garantiza una reducción en el consumo de gases y anestésicos.",
-    "descripcion_larga_en": "",
-    "especificaciones": [],
+    "descripcion_larga_en": "The Penlon Prima 460 anesthesia machine integrates a wide range of ventilation modes, a large intuitive display, patient profile configuration and digital fresh gas flow display. This allows anesthesia delivery to be tailored to the specialist's needs, case criticality and patient type — adult, pediatric or neonatal.\nIts compact, heated breathing system enables low-flow delivery of anesthetic agents, reducing gas and anesthetic consumption. Designed and manufactured in the UK, the Prima 460 features a fully integrated AV-S ventilator and A200SP absorber, a Selectatec®-compatible backbar with interlock, HIS connectivity and six ventilation modes, and complies with ISO 80601-2-13 and RoHS.",
+    "especificaciones": [
+      {
+        "clave": "Origen",
+        "valor": "Diseñada y fabricada en el Reino Unido por Penlon",
+        "grupo": "Fabricación"
+      },
+      {
+        "clave": "Ventilador integrado",
+        "valor": "AV-S, multifunción, para perfiles de paciente adulto y pediátrico, con tres modos avanzados de soporte espontáneo",
+        "grupo": "Ventilación"
+      },
+      {
+        "clave": "Modos de ventilación",
+        "valor": "Seis modos de ventilación disponibles",
+        "grupo": "Ventilación"
+      },
+      {
+        "clave": "Absorbedor",
+        "valor": "A200SP totalmente integrado con el ventilador",
+        "grupo": "Ventilación"
+      },
+      {
+        "clave": "Fluómetro",
+        "valor": "Opciones de visualización de flujo electrónico y fluómetro convencional",
+        "grupo": "Suministro de gases"
+      },
+      {
+        "clave": "Backbar",
+        "valor": "Compatible Selectatec®, con interlock en configuración de tres estaciones; hasta 4 cilindros",
+        "grupo": "Suministro de gases"
+      },
+      {
+        "clave": "Ergonomía",
+        "valor": "Estante superior con montaje GCX™ para monitor de paciente, espacio de trabajo iluminado con superficie de escritura extraíble, cajones de gran capacidad",
+        "grupo": "Ergonomía"
+      },
+      {
+        "clave": "Conectividad",
+        "valor": "Conectividad HIS para integración hospitalaria",
+        "grupo": "Conectividad"
+      },
+      {
+        "clave": "Normativa",
+        "valor": "Cumple con la norma ISO 80601-2-13 y la directiva RoHS",
+        "grupo": "Normativa"
+      }
+    ],
+    "aplicaciones_es": [
+      "Quirófano de cirugía general",
+      "Anestesia en pacientes adultos, pediátricos y neonatales",
+      "Servicios con alta rotación de quirófano que requieren configuración flexible"
+    ],
+    "aplicaciones_en": [
+      "General surgery operating room",
+      "Anesthesia for adult, pediatric and neonatal patients",
+      "High-turnover surgical services requiring flexible configuration"
+    ],
+    "beneficios_es": [
+      "Diseñada y fabricada en el Reino Unido, con ventilador (AV-S) y absorbedor (A200SP) totalmente integrados de fábrica.",
+      "Seis modos de ventilación y perfiles de paciente adulto/pediátrico te permiten individualizar cada anestesia inhalada.",
+      "El sistema respiratorio calefaccionado a bajos flujos reduce el consumo de gases y anestésicos por procedimiento.",
+      "Estante GCX™ para tu monitor de paciente y espacio de trabajo iluminado, pensados para el flujo real de un quirófano.",
+      "Cumple ISO 80601-2-13 y RoHS, con conectividad HIS para integrarse a tu hospital."
+    ],
+    "beneficios_en": [
+      "Designed and manufactured in the UK, with a fully factory-integrated AV-S ventilator and A200SP absorber.",
+      "Six ventilation modes and adult/pediatric patient profiles let you tailor every inhaled anesthetic delivery.",
+      "The low-flow heated breathing system reduces gas and anesthetic consumption per procedure.",
+      "GCX™ shelf for your patient monitor and an illuminated workspace, built for the real pace of an operating room.",
+      "Complies with ISO 80601-2-13 and RoHS, with HIS connectivity to integrate with your hospital."
+    ],
+    "valor_es": "Un sistema de anestesia pensado para quirófanos con alta rotación, donde la configuración flexible y el bajo consumo de gases marcan la diferencia turno tras turno.",
+    "valor_en": "An anesthesia system built for high-turnover operating rooms, where flexible configuration and low gas consumption make a difference shift after shift.",
     "imagen_principal": "/assets/importados/equitronic/img/maquina-de-anestesia-prima-ref-460-penlon-1.jpg",
     "galeria": [
       "/assets/importados/equitronic/img/maquina-de-anestesia-prima-ref-460-penlon-2.jpg",
       "/assets/importados/equitronic/img/maquina-de-anestesia-prima-ref-460-penlon-3.jpg"
     ],
-    "ficha_pdf": null,
+    "ficha_pdf": "/assets/importados/equitronic/pdf/eq-maquina-de-anestesia-prima-ref-460-penlon.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
     "precio": null,
