@@ -90,7 +90,7 @@ async function cargarMapaFamilias(supabase: ReturnType<typeof getSupabaseClient>
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function mapProductoSupabase(raw: any, locale: Locale): Producto {
+export function mapProductoSupabase(raw: any, locale: Locale): Producto {
   return {
     id: raw.id,
     slug: raw.slug,
@@ -105,7 +105,7 @@ function mapProductoSupabase(raw: any, locale: Locale): Producto {
     beneficios:
       (locale === 'en' ? raw.atributos?.beneficios_en : raw.atributos?.beneficios_es) ?? [],
     valor: (locale === 'en' ? raw.atributos?.valor_en : raw.atributos?.valor_es) ?? null,
-    marca: raw.marca ?? null,
+    marca: raw.marca ?? raw.atributos?.marca ?? null,
     imagen_principal: publicImage(raw.imagen_principal) ?? localProductImage(raw.slug),
     galeria: Array.isArray(raw.galeria) ? raw.galeria.map(publicImage).filter(isString) : [],
     ficha_pdf: raw.ficha_pdf,
