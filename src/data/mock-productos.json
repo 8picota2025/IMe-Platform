@@ -2629,15 +2629,82 @@
     "descripcion_corta_es": "El Monitor de Paciente Biolight M12 combina tecnología confiable, diseño ergonómico y precisión clínica en un formato compacto, ideal para hospitales, clínicas y áreas de urgencias.",
     "descripcion_corta_en": "El Monitor de Paciente Biolight M12 combina tecnología confiable, diseño ergonómico y precisión clínica en un formato compacto, ideal para hospitales, clínicas y áreas de urgencias.",
     "descripcion_larga_es": "El Monitor de Paciente Biolight M12 combina tecnología confiable, diseño ergonómico y precisión clínica en un formato compacto, ideal para hospitales, clínicas y áreas de urgencias.\nSu pantalla táctil de 12.1 pulgadas ofrece una visualización clara y organizada de los parámetros vitales, permitiendo al personal médico actuar con rapidez y eficacia.\nDiseñado para pacientes adultos, pediátricos y neonatales, el M12 mide con precisión ECG, SpO₂, frecuencia respiratoria, presión arterial no invasiva (NIBP) y temperatura, con posibilidad de ampliar sus funciones con IBP, CO₂ y gasto cardíaco (C.O.).\nCuenta con ventilador interno sellado, que minimiza el riesgo de contaminación cruzada, y herramientas de evaluación clínica integradas como EWS, GCS y OxyCRG, que facilitan el monitoreo de estados críticos.\nGracias a su batería interna de larga duración, su interfaz intuitiva y su estructura compacta y robusta, el M12 garantiza rendimiento continuo, movilidad y seguridad del paciente en cualquier entorno clínico.",
-    "descripcion_larga_en": "",
-    "especificaciones": [],
+    "descripcion_larga_en": "The Biolight M12 Patient Monitor combines reliable technology, ergonomic design and clinical precision in a compact footprint, ideal for hospitals, clinics and emergency departments.\nIts 12.1-inch touchscreen delivers a clear, organized view of vital parameters, helping clinical staff act quickly and effectively.\nDesigned for adult, pediatric and neonatal patients, the M12 accurately measures ECG, SpO₂, respiratory rate, non-invasive blood pressure (NIBP) and temperature, with the option to expand its capabilities with IBP, CO₂ and cardiac output (C.O.).\nIt features a sealed internal ventilator that minimizes the risk of cross-contamination, along with built-in clinical assessment tools such as EWS, GCS and OxyCRG that support the monitoring of critical conditions.\nThanks to its long-lasting internal battery, intuitive interface and compact, rugged build, the M12 delivers continuous performance, mobility and patient safety in any clinical setting.",
+    "especificaciones": [
+      {
+        "clave": "Pantalla",
+        "valor": "Táctil de 12.1\", resolución 1280×800 px",
+        "grupo": "Pantalla y diseño"
+      },
+      {
+        "clave": "Parámetros estándar",
+        "valor": "ECG (3/5/6 derivaciones), SpO₂, frecuencia de pulso, NIBP, temperatura",
+        "grupo": "Parámetros monitoreados"
+      },
+      {
+        "clave": "Parámetros ampliables",
+        "valor": "IBP, CO₂ y gasto cardíaco (C.O.) como módulos opcionales",
+        "grupo": "Parámetros monitoreados"
+      },
+      {
+        "clave": "Frecuencia respiratoria por pletismografía (RRP)",
+        "valor": "Deriva la frecuencia respiratoria de la onda de SpO₂ mediante algoritmo propio de Biolight",
+        "grupo": "Tecnología clínica"
+      },
+      {
+        "clave": "Herramientas de evaluación clínica",
+        "valor": "EWS (Early Warning Score), GCS (Escala de Coma de Glasgow) y OxyCRG integrados",
+        "grupo": "Tecnología clínica"
+      },
+      {
+        "clave": "Ventilador interno",
+        "valor": "Sellado, para minimizar riesgo de contaminación cruzada entre pacientes",
+        "grupo": "Bioseguridad"
+      },
+      { "clave": "Batería", "valor": "Li-ion recargable de 2.5 Ah", "grupo": "Autonomía" },
+      {
+        "clave": "Accesorios opcionales",
+        "valor": "Impresora térmica, soporte rodante, montaje en pared",
+        "grupo": "Accesorios"
+      }
+    ],
     "imagen_principal": "/assets/importados/equitronic/img/monitor-de-paciente-m12-biolight-1.jpg",
     "galeria": [
       "/assets/importados/equitronic/img/monitor-de-paciente-m12-biolight-2.jpg",
       "/assets/importados/equitronic/img/monitor-de-paciente-m12-biolight-3.jpg",
       "/assets/importados/equitronic/img/monitor-de-paciente-m12-biolight-4.jpg"
     ],
-    "ficha_pdf": null,
+    "ficha_pdf": "/assets/importados/equitronic/pdf/eq-monitor-de-paciente-m12-biolight.pdf",
+    "aplicaciones_es": [
+      "Salas de observación y urgencias",
+      "Unidades de cuidado intensivo (UCI) adulto, pediátrico y neonatal",
+      "Recuperación post-anestésica (PACU)",
+      "Monitoreo pre y postoperatorio",
+      "Transporte intrahospitalario de pacientes"
+    ],
+    "aplicaciones_en": [
+      "Observation and emergency rooms",
+      "Adult, pediatric and neonatal intensive care units (ICU)",
+      "Post-anesthesia care unit (PACU)",
+      "Pre- and post-operative monitoring",
+      "In-hospital patient transport"
+    ],
+    "beneficios_es": [
+      "Visualiza con claridad hasta 7 parámetros a la vez en una pantalla táctil de 12.1″, para decisiones clínicas más rápidas.",
+      "La frecuencia respiratoria por pletismografía (RRP) te da un dato vital más sin sensores ni insumos adicionales.",
+      "El ventilador interno sellado reduce el riesgo de contaminación cruzada entre pacientes, cuidando la bioseguridad de tu servicio.",
+      "Evalúa el estado del paciente de un vistazo con EWS, GCS y OxyCRG integrados, sin depender de calculadoras externas.",
+      "Adapta el equipo a adultos, pediátricos y neonatos, y amplíalo con IBP, CO₂ o gasto cardíaco cuando tu servicio lo necesite."
+    ],
+    "beneficios_en": [
+      "Clearly view up to 7 parameters at once on a 12.1″ touchscreen, for faster clinical decisions.",
+      "Respiration rate from plethysmography (RRP) gives you one more vital sign with no extra sensors or consumables.",
+      "The sealed internal ventilator reduces the risk of cross-contamination between patients, protecting your unit's biosafety.",
+      "Assess patient status at a glance with built-in EWS, GCS and OxyCRG, with no need for external calculators.",
+      "Adapt the monitor to adults, pediatric and neonatal patients, and expand it with IBP, CO₂ or cardiac output as your service grows."
+    ],
+    "valor_es": "Un monitor pensado para servicios que necesitan moverse rápido: de la sala de observación a la UCI, sin perder precisión ni continuidad en el registro del paciente.",
+    "valor_en": "A monitor built for services that need to move fast — from the observation room to the ICU — without losing accuracy or continuity in patient records.",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
     "precio": null,
