@@ -2910,8 +2910,82 @@
     "descripcion_corta_es": "El ventilador convencional SLE 6000 es un equipo oscilatorio de cuarta generación con tecnología de válvulas de rápido movimiento bidireccional, que garantiza un desempeño potente, eficaz y confiable.",
     "descripcion_corta_en": "El ventilador convencional SLE 6000 es un equipo oscilatorio de cuarta generación con tecnología de válvulas de rápido movimiento bidireccional, que garantiza un desempeño potente, eficaz y confiable.",
     "descripcion_larga_es": "El ventilador convencional SLE 6000 es un equipo oscilatorio de cuarta generación con tecnología de válvulas de rápido movimiento bidireccional, que garantiza un desempeño potente, eficaz y confiable. Diseñado para pacientes desde 300 gramos hasta 30 kilogramos, su onda de presión cuadrada permite administrar volúmenes corrientes con menores presiones.\nOfrece ventilación invasiva y no invasiva, monitoreo pulmonar en tiempo real y terapias de oxígeno de alto flujo con compensación automática ante fugas. Su tecnología avanzada y funcionamiento silencioso lo hacen ideal para el soporte respiratorio en neonatos y pediátricos.",
-    "descripcion_larga_en": "",
-    "especificaciones": [],
+    "descripcion_larga_en": "The SLE6000 conventional ventilator is a fourth-generation oscillatory device with fast-response bidirectional valve technology, delivering powerful, effective and reliable performance. Designed for patients from 300 grams to 30 kilograms, its square pressure waveform allows tidal volumes to be delivered at lower pressures.\nIt offers invasive and non-invasive ventilation, real-time pulmonary monitoring and high-flow oxygen therapy with automatic leak compensation. Its advanced technology and quiet operation make it ideal for respiratory support in neonatal and pediatric patients.\nThe integrated OxyGenie® automated FiO₂ control helps keep SpO₂ within the physician-defined therapeutic range across ventilation modes, while built-in SpO₂ and CO₂ monitoring gives clinicians a continuous view of the outcome of the selected respiratory support settings. An RS232 output allows integration with hospital information systems (HIS).",
+    "especificaciones": [
+      {
+        "clave": "Tecnología de válvulas",
+        "valor": "Válvulas de rápido movimiento bidireccional, oscilatorio de cuarta generación",
+        "grupo": "Tecnología"
+      },
+      {
+        "clave": "Rango de paciente",
+        "valor": "Desde 300 gramos hasta 30 kilogramos",
+        "grupo": "Rango de uso"
+      },
+      {
+        "clave": "Modos de ventilación",
+        "valor": "Ventilación invasiva y no invasiva, con onda de presión cuadrada para menores presiones en volúmenes corrientes",
+        "grupo": "Modos de ventilación"
+      },
+      {
+        "clave": "Control de oxígeno",
+        "valor": "Integración OxyGenie® con control automático de FiO₂ para mantener la SpO₂ en el rango terapéutico definido",
+        "grupo": "Tecnología"
+      },
+      {
+        "clave": "Monitoreo integrado",
+        "valor": "SpO₂ y CO₂ en el mismo equipo, con evaluación continua del resultado del soporte ventilatorio",
+        "grupo": "Monitoreo"
+      },
+      {
+        "clave": "Pantalla",
+        "valor": "Pantalla táctil capacitiva de alta visibilidad, con modos de onda, tendencias y valores respiratorios",
+        "grupo": "Interfaz"
+      },
+      {
+        "clave": "Alto flujo",
+        "valor": "Terapia de oxígeno de alto flujo con compensación automática ante fugas",
+        "grupo": "Modos de ventilación"
+      },
+      {
+        "clave": "Conectividad",
+        "valor": "Salida RS232 para integración con sistemas de información hospitalaria (HIS)",
+        "grupo": "Conectividad"
+      },
+      {
+        "clave": "Operación",
+        "valor": "Funcionamiento silencioso, diseñado para continuidad entre UCIN, cuidados intermedios y step-down",
+        "grupo": "Diseño"
+      }
+    ],
+    "aplicaciones_es": [
+      "Unidad de cuidados intensivos neonatales (UCIN)",
+      "Soporte respiratorio pediátrico",
+      "Cuidados intermedios y step-down neonatal",
+      "Terapia de oxígeno de alto flujo neonatal/pediátrica"
+    ],
+    "aplicaciones_en": [
+      "Neonatal intensive care unit (NICU)",
+      "Pediatric respiratory support",
+      "Neonatal step-down and intermediate care",
+      "Neonatal/pediatric high-flow oxygen therapy"
+    ],
+    "beneficios_es": [
+      "Soporta pacientes desde 300 gramos hasta 30 kilogramos con la misma plataforma, de la UCIN al cuidado intermedio.",
+      "El control automático de FiO₂ (OxyGenie®) ayuda a mantener la SpO₂ en rango objetivo sin ajustes manuales constantes.",
+      "Monitorea SpO₂ y CO₂ en el mismo equipo, dándote una lectura continua del efecto real del soporte ventilatorio.",
+      "Funcionamiento silencioso y pantalla táctil de alta visibilidad, pensados para turnos largos en UCIN.",
+      "Salida RS232 para integrarlo con el sistema de información de tu hospital (HIS)."
+    ],
+    "beneficios_en": [
+      "Supports patients from 300 grams to 30 kilograms on the same platform, from the NICU to intermediate care.",
+      "Automated FiO₂ control (OxyGenie®) helps keep SpO₂ within target range without constant manual adjustment.",
+      "Monitors SpO₂ and CO₂ on the same device, giving you a continuous read on the real effect of respiratory support.",
+      "Quiet operation and a high-visibility touchscreen, built for long NICU shifts.",
+      "RS232 output to integrate with your hospital's information system (HIS)."
+    ],
+    "valor_es": "Un ventilador pensado para acompañar al neonato desde el momento más crítico hasta el alta, sin cambiar de plataforma.",
+    "valor_en": "A ventilator designed to support the newborn from the most critical moment through to discharge, without changing platforms.",
     "imagen_principal": "/assets/importados/equitronic/img/ventilador-neonatal-pedriatrico-convencional-ref-6000-sle-1.jpg",
     "galeria": [
       "/assets/importados/equitronic/img/ventilador-neonatal-pedriatrico-convencional-ref-6000-sle-2.jpg",
@@ -2920,7 +2994,7 @@
       "/assets/importados/equitronic/img/ventilador-neonatal-pedriatrico-convencional-ref-6000-sle-5.jpg",
       "/assets/importados/equitronic/img/ventilador-neonatal-pedriatrico-convencional-ref-6000-sle-6.jpg"
     ],
-    "ficha_pdf": null,
+    "ficha_pdf": "/assets/importados/equitronic/pdf/eq-ventilador-neonatal-pedriatrico-convencional-ref-6000-sle.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
     "precio": null,
