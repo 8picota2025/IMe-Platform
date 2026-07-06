@@ -1,9 +1,11 @@
 ---
 /**
  * ProductoLanding — landing estática de producto (ES/EN).
- * Estructura: breadcrumb, hero, galería (si hay datos reales),
- * especificaciones (o aviso de pendiente), relacionados, CTA sticky,
- * bloque de contacto/cotización.
+ * Estructura visual alineada al modelo de referencia (hero degradado con
+ * badge y stats, tarjetas de beneficios, tabla de specs con cabecera oscura,
+ * bloque de valor destacado, relacionados, CTA final): breadcrumb, hero,
+ * beneficios, galería, especificaciones, aplicaciones, relacionados, CTA de
+ * contacto, bloque de valor, reseñas reales, CTA sticky.
  */
 import { t, type Locale } from '../i18n/utils';
 import ProductoCard from './ProductoCard.astro';
@@ -79,6 +81,18 @@ const migas = [
 ];
 
 const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.nombre)}`;
+
+// Stats de la cabecera del hero: reutiliza datos ya verificados (modalidad,
+// disponibilidad, familia, precio) en vez de intentar extraer valores cortos
+// de las especificaciones en prosa, que no son fiables para un resumen.
+const heroStats: Array<{ valor: string; etiqueta: string }> = [
+  { valor: modalidadTexto, etiqueta: t(locale, 'producto.ficha_modalidad') },
+  { valor: disponibilidadTexto, etiqueta: t(locale, 'producto.ficha_stock') },
+  { valor: familia.nombre, etiqueta: t(locale, 'catalogo.migas_catalogo') },
+];
+if (precioFormateado) {
+  heroStats.push({ valor: precioFormateado, etiqueta: t(locale, 'producto.ficha_precio') });
+}
 ---
 
 <article class="producto-landing">
@@ -98,140 +112,116 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
   </nav>
 
   <!-- Hero -->
-  <section class="hero-producto container">
-    <div class="hero-producto__media">
-      <img
-        src={imagenes[0]}
-        alt={producto.nombre}
-        width="640"
-        height="480"
-        decoding="async"
-        fetchpriority="high"
-        class="hero-producto__img"
-        id="producto-imagen-principal"
-      />
-      {
-        (producto.destacado || producto.nuevo || noDisponible) && (
-          <div class="hero-producto__badges" aria-hidden="true">
-            {producto.nuevo && (
-              <span class="badge badge-green">{t(locale, 'producto.badge_nuevo')}</span>
-            )}
-            {producto.destacado && (
-              <span class="badge badge-teal">{t(locale, 'producto.badge_destacado')}</span>
-            )}
-            {noDisponible && (
-              <span class="badge badge-gris">{t(locale, 'producto.badge_no_disponible')}</span>
-            )}
-          </div>
-        )
-      }
-    </div>
-    <div class="hero-producto__info">
-      <a href={`${catalogoPath}?familia=${familia.slug}`} class="hero-producto__familia">
-        {familia.nombre}
-      </a>
-      <h1>{producto.nombre}</h1>
-      <p class="hero-producto__desc">{producto.descripcion_corta}</p>
-      {precioFormateado && <p class="hero-producto__precio">{precioFormateado}</p>}
+  <section class="hero-producto">
+    <div class="hero-producto__bg" aria-hidden="true"></div>
+    <div class="container hero-producto__inner">
+      <div class="hero-producto__content">
+        <span class="hero-producto__badge">{producto.marca || familia.nombre}</span>
+        <h1>{producto.nombre}</h1>
+        <p class="hero-producto__desc">{producto.descripcion_corta}</p>
 
-      <div class="hero-producto__cta-group" id="cta-principal">
+        <div class="hero-producto__cta-group" id="cta-principal">
+          {
+            accionComercial.tipo === 'consultar' ? (
+              <a
+                href={whatsappHref}
+                class="btn-hero-primary"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {accionComercial.label}
+              </a>
+            ) : accionComercial.tipo === 'carrito' ? (
+              <button
+                type="button"
+                class="btn-hero-primary"
+                aria-live="polite"
+                data-add-carrito={producto.slug}
+                data-nombre={producto.nombre}
+                data-precio={producto.precio}
+                data-moneda={producto.moneda ?? 'COP'}
+                data-stock={producto.stock ?? ''}
+                data-label-agregar={t(locale, 'carrito.agregar')}
+                data-label-agregado={t(locale, 'carrito.agregado')}
+              >
+                {accionComercial.label}
+              </button>
+            ) : (
+              <button
+                type="button"
+                class="btn-hero-primary"
+                aria-live="polite"
+                data-add-cotizacion={producto.slug}
+                data-nombre={producto.nombre}
+                data-imagen={imagenProducto}
+                data-label-agregar={t(locale, 'cotizacion_equipos.agregar')}
+                data-label-agregado={t(locale, 'cotizacion_equipos.agregado')}
+              >
+                {accionComercial.label}
+              </button>
+            )
+          }
+          <a href={ctaCotizarHref} class="btn-hero-secondary">
+            {t(locale, 'producto.cotizar_cta')}
+          </a>
+          {
+            producto.ficha_pdf && (
+              <a
+                href={producto.ficha_pdf}
+                class="btn-hero-secondary"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {t(locale, 'producto.ficha_pdf')}
+              </a>
+            )
+          }
+        </div>
+
+        <div class="hero-producto__stats">
+          {
+            heroStats.map(stat => (
+              <div class="hero-producto__stat">
+                <span class="hero-producto__stat-valor">{stat.valor}</span>
+                <span class="hero-producto__stat-etiqueta">{stat.etiqueta}</span>
+              </div>
+            ))
+          }
+        </div>
+
+        <label class="producto-landing__compare">
+          <input type="checkbox" id="comparador-toggle" data-compare-slug={producto.slug} />
+          <span>{t(locale, 'catalogo.comparar_anadir')}</span>
+        </label>
+      </div>
+
+      <div class="hero-producto__media">
+        <img
+          src={imagenes[0]}
+          alt={producto.nombre}
+          width="640"
+          height="480"
+          decoding="async"
+          fetchpriority="high"
+          class="hero-producto__img"
+          id="producto-imagen-principal"
+        />
         {
-          accionComercial.tipo === 'consultar' ? (
-            <a
-              href={whatsappHref}
-              class="btn btn-primary"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {accionComercial.label}
-            </a>
-          ) : accionComercial.tipo === 'carrito' ? (
-            <button
-              type="button"
-              class="btn btn-primary"
-              aria-live="polite"
-              data-add-carrito={producto.slug}
-              data-nombre={producto.nombre}
-              data-precio={producto.precio}
-              data-moneda={producto.moneda ?? 'COP'}
-              data-stock={producto.stock ?? ''}
-              data-label-agregar={t(locale, 'carrito.agregar')}
-              data-label-agregado={t(locale, 'carrito.agregado')}
-            >
-              {accionComercial.label}
-            </button>
-          ) : (
-            <button
-              type="button"
-              class="btn btn-primary"
-              aria-live="polite"
-              data-add-cotizacion={producto.slug}
-              data-nombre={producto.nombre}
-              data-imagen={imagenProducto}
-              data-label-agregar={t(locale, 'cotizacion_equipos.agregar')}
-              data-label-agregado={t(locale, 'cotizacion_equipos.agregado')}
-            >
-              {accionComercial.label}
-            </button>
-          )
-        }
-        <a href={ctaCotizarHref} class="btn btn-secondary">
-          {t(locale, 'producto.cotizar_cta')}
-        </a>
-        {
-          producto.ficha_pdf && (
-            <a
-              href={producto.ficha_pdf}
-              class="btn btn-secondary"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {t(locale, 'producto.ficha_pdf')}
-            </a>
+          (producto.destacado || producto.nuevo || noDisponible) && (
+            <div class="hero-producto__badges" aria-hidden="true">
+              {producto.nuevo && (
+                <span class="badge badge-green">{t(locale, 'producto.badge_nuevo')}</span>
+              )}
+              {producto.destacado && (
+                <span class="badge badge-teal">{t(locale, 'producto.badge_destacado')}</span>
+              )}
+              {noDisponible && (
+                <span class="badge badge-gris">{t(locale, 'producto.badge_no_disponible')}</span>
+              )}
+            </div>
           )
         }
       </div>
-
-      <section class="hero-producto__panel" aria-labelledby="ficha-resumen-titulo">
-        <div class="hero-producto__panel-head">
-          <h2 id="ficha-resumen-titulo">{t(locale, 'producto.ficha_resumen_titulo')}</h2>
-          <span class="hero-producto__panel-chip">{modalidadTexto}</span>
-        </div>
-        <dl class="hero-producto__facts">
-          <div>
-            <dt>{t(locale, 'producto.ficha_modalidad')}</dt>
-            <dd>
-              {
-                producto.fulfillment_mode === 'dropship'
-                  ? locale === 'en'
-                    ? 'Dropship'
-                    : 'Dropship'
-                  : producto.fulfillment_mode === 'individualizado'
-                    ? locale === 'en'
-                      ? 'Custom handling'
-                      : 'Atención a medida'
-                    : locale === 'en'
-                      ? 'Quotation'
-                      : 'Cotización'
-              }
-            </dd>
-          </div>
-          <div>
-            <dt>{t(locale, 'producto.ficha_stock')}</dt>
-            <dd>{disponibilidadTexto}</dd>
-          </div>
-          <div>
-            <dt>{t(locale, 'producto.ficha_precio')}</dt>
-            <dd>{precioFormateado ?? t(locale, 'producto.ficha_atencion_desc')}</dd>
-          </div>
-        </dl>
-        <p class="hero-producto__panel-copy">{t(locale, 'producto.ficha_atencion_desc')}</p>
-      </section>
-
-      <label class="producto-landing__compare">
-        <input type="checkbox" id="comparador-toggle" data-compare-slug={producto.slug} />
-        <span>{t(locale, 'catalogo.comparar_anadir')}</span>
-      </label>
     </div>
   </section>
 
@@ -239,12 +229,17 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
   {
     producto.beneficios.length > 0 && (
       <section class="section container" aria-labelledby="beneficios-heading">
-        <h2 id="beneficios-heading" class="section-subtitle">
+        <h2 id="beneficios-heading" class="section-title">
           {t(locale, 'producto.beneficios_titulo')}
         </h2>
         <ul class="beneficios__grid" role="list">
           {producto.beneficios.map(beneficio => (
-            <li class="beneficios__card">{beneficio}</li>
+            <li class="beneficios__card">
+              <span class="beneficios__icono" aria-hidden="true">
+                ✓
+              </span>
+              <p>{beneficio}</p>
+            </li>
           ))}
         </ul>
       </section>
@@ -255,7 +250,7 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
   {
     galeria.length > 0 && (
       <section class="section container" aria-labelledby="galeria-heading">
-        <h2 id="galeria-heading" class="section-subtitle">
+        <h2 id="galeria-heading" class="section-title">
           {t(locale, 'producto.galeria_titulo')}
         </h2>
         <ul class="galeria__grid" role="list">
@@ -296,14 +291,20 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
   }
 
   <!-- Especificaciones -->
-  <section class="section container" aria-labelledby="specs-heading">
-    <h2 id="specs-heading" class="section-subtitle">{t(locale, 'producto.specs_titulo')}</h2>
+  <section class="section section-off container" aria-labelledby="specs-heading">
+    <h2 id="specs-heading" class="section-title">{t(locale, 'producto.specs_titulo')}</h2>
     {
       especificaciones.length > 0 ? (
         [...grupos.entries()].map(([grupo, items]) => (
           <div class="specs-grupo">
             {grupo && <h3 class="specs-grupo__titulo">{grupo}</h3>}
             <table class="specs-table">
+              <thead>
+                <tr>
+                  <th scope="col">{t(locale, 'producto.specs_columna_parametro')}</th>
+                  <th scope="col">{t(locale, 'producto.specs_columna_detalle')}</th>
+                </tr>
+              </thead>
               <tbody>
                 {items.map(item => (
                   <tr>
@@ -324,15 +325,34 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
   <!-- Aplicaciones clínicas -->
   {
     producto.aplicaciones.length > 0 && (
-      <section class="section section-off container" aria-labelledby="aplicaciones-heading">
-        <h2 id="aplicaciones-heading" class="section-subtitle">
+      <section class="section container" aria-labelledby="aplicaciones-heading">
+        <h2 id="aplicaciones-heading" class="section-title">
           {t(locale, 'producto.aplicaciones_titulo')}
         </h2>
         <ul class="aplicaciones__grid" role="list">
           {producto.aplicaciones.map(item => (
-            <li class="aplicaciones__item">{item}</li>
+            <li class="aplicaciones__item">
+              <span class="aplicaciones__icono" aria-hidden="true">
+                ✓
+              </span>
+              {item}
+            </li>
           ))}
         </ul>
+      </section>
+    )
+  }
+
+  <!-- Bloque de valor (no es un testimonio atribuido a una persona) -->
+  {
+    producto.valor && (
+      <section class="section section-off container" aria-labelledby="valor-heading">
+        <h2 id="valor-heading" class="section-title">
+          {t(locale, 'producto.valor_titulo')}
+        </h2>
+        <div class="valor-card">
+          <p class="valor-card__texto">{producto.valor}</p>
+        </div>
       </section>
     )
   }
@@ -342,7 +362,7 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
     relacionados.length > 0 && (
       <section class="section container" aria-labelledby="relacionados-heading">
         <div class="section-header">
-          <h2 id="relacionados-heading" class="section-subtitle">
+          <h2 id="relacionados-heading" class="section-title">
             {t(locale, 'producto.relacionados_titulo')}
           </h2>
           <a href={`${catalogoPath}?familia=${familia.slug}`} class="ver-familia-link">
@@ -375,39 +395,27 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
     )
   }
 
-  <!-- Bloque contacto -->
-  <section class="section container">
-    <div class="contacto-cta">
-      <div>
-        <h2 class="section-subtitle">{t(locale, 'producto.contacto_titulo')}</h2>
-        <p>{t(locale, 'producto.contacto_desc')}</p>
-      </div>
-      <div class="contacto-cta__acciones">
-        <a href={ctaCotizarHref} class="btn btn-primary">
+  <Resenas productoId={producto.id} productoSlug={producto.slug} locale={locale} />
+
+  <!-- CTA final -->
+  <section class="cta-final">
+    <div class="cta-final__bg" aria-hidden="true"></div>
+    <div class="container cta-final__inner">
+      <h2>{t(locale, 'producto.contacto_titulo')}</h2>
+      <p>{t(locale, 'producto.contacto_desc')}</p>
+      <div class="cta-final__acciones">
+        <a href={ctaCotizarHref} class="btn-hero-primary">
           {t(locale, 'producto.cotizar_cta')}
         </a>
-        <a href={catalogoPath} class="btn btn-ghost">
+        <a href={whatsappHref} class="btn-hero-secondary" target="_blank" rel="noopener noreferrer">
+          <span aria-hidden="true">↗</span> WhatsApp
+        </a>
+        <a href={catalogoPath} class="btn-hero-secondary">
           {t(locale, 'producto.volver_catalogo')}
         </a>
       </div>
     </div>
   </section>
-
-  <!-- Bloque de valor (no es un testimonio atribuido a una persona) -->
-  {
-    producto.valor && (
-      <section class="section container" aria-labelledby="valor-heading">
-        <div class="valor-card">
-          <h2 id="valor-heading" class="section-subtitle">
-            {t(locale, 'producto.valor_titulo')}
-          </h2>
-          <p class="valor-card__texto">{producto.valor}</p>
-        </div>
-      </section>
-    )
-  }
-
-  <Resenas productoId={producto.id} productoSlug={producto.slug} locale={locale} />
 
   <!-- CTA sticky -->
   <div class="cta-sticky" id="cta-sticky" hidden>
@@ -453,24 +461,165 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
     font-weight: 600;
   }
 
+  /* Hero: degradado oscuro de ancho completo, como el modelo de referencia */
   .hero-producto {
+    position: relative;
+    overflow: hidden;
+    padding-block: var(--space-2xl) var(--space-xl);
+    color: var(--white);
+  }
+  .hero-producto__bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--t900) 0%, var(--t700) 100%);
+    z-index: -1;
+  }
+  .hero-producto__bg::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -15%;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+  }
+  .hero-producto__inner {
     display: grid;
     grid-template-columns: 1fr;
     gap: var(--space-lg);
-    padding-block-end: var(--space-xl);
+    align-items: center;
   }
   @media (min-width: 900px) {
-    .hero-producto {
-      grid-template-columns: 1.1fr 1fr;
-      align-items: start;
+    .hero-producto__inner {
+      grid-template-columns: 1.15fr 1fr;
     }
   }
+  .hero-producto__content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+  .hero-producto__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    align-self: flex-start;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .hero-producto__content h1 {
+    margin: 0;
+    color: var(--white);
+    font-size: clamp(1.9rem, 3.6vw, 2.7rem);
+    line-height: 1.15;
+  }
+  .hero-producto__desc {
+    margin: 0;
+    max-width: 46ch;
+    color: rgba(255, 255, 255, 0.88);
+    line-height: 1.6;
+  }
+  .hero-producto__cta-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-block-start: 0.4rem;
+  }
+  .btn-hero-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--green);
+    color: var(--ink);
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 0.85rem 1.6rem;
+    border-radius: var(--radius);
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
+  }
+  .btn-hero-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(126, 217, 87, 0.35);
+  }
+  .btn-hero-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1.5px solid rgba(255, 255, 255, 0.35);
+    color: var(--white);
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 0.8rem 1.5rem;
+    border-radius: var(--radius);
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+  .btn-hero-secondary:hover {
+    background: rgba(255, 255, 255, 0.22);
+  }
+  .hero-producto__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+    margin-block-start: 0.75rem;
+  }
+  .hero-producto__stat {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius);
+    padding: 0.6rem 1.1rem;
+    min-width: 110px;
+    text-align: center;
+  }
+  .hero-producto__stat-valor {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 700;
+  }
+  .hero-producto__stat-etiqueta {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.75;
+    margin-block-start: 0.15rem;
+  }
+  .producto-landing__compare {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.825rem;
+    color: rgba(255, 255, 255, 0.75);
+    cursor: pointer;
+    margin-block-start: 0.5rem;
+  }
+  .producto-landing__compare input {
+    width: 1rem;
+    height: 1rem;
+    accent-color: var(--green);
+  }
+
   .hero-producto__media {
     position: relative;
     border-radius: var(--radius-lg);
     overflow: hidden;
     background: var(--off2);
     aspect-ratio: 4/3;
+    box-shadow: var(--shadow-lg);
   }
   .hero-producto__img {
     width: 100%;
@@ -484,134 +633,19 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
     display: flex;
     gap: 0.5rem;
   }
-  .hero-producto__info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.85rem;
-  }
-  .hero-producto__familia {
-    font-family: var(--font-display);
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--t800);
-    text-decoration: none;
-  }
-  .hero-producto__familia:hover {
-    text-decoration: underline;
-  }
-  .hero-producto__info h1 {
-    margin: 0;
-  }
-  .hero-producto__desc {
-    color: var(--text-mid);
-    line-height: 1.6;
-    margin: 0;
-  }
-  .hero-producto__precio {
-    font-family: var(--font-display);
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--ink);
-    margin: 0;
-  }
-  .hero-producto__panel {
-    margin-block-start: 0.5rem;
-    padding: 1.1rem 1.15rem;
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border);
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(247, 249, 251, 0.9)), var(--white);
-    box-shadow: var(--shadow-sm);
-  }
-  .hero-producto__panel-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-block-end: 0.85rem;
-  }
-  .hero-producto__panel-head h2 {
-    margin: 0;
-    font-size: 1rem;
-  }
-  .hero-producto__panel-chip {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.25rem 0.65rem;
-    border-radius: 999px;
-    background: var(--t100);
-    color: var(--t900);
-    font-size: 0.75rem;
-    font-weight: 700;
-    font-family: var(--font-display);
-  }
-  .hero-producto__facts {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.75rem;
-    margin: 0;
-  }
-  .hero-producto__facts div {
-    min-width: 0;
-  }
-  .hero-producto__facts dt {
-    font-size: 0.68rem;
-    font-family: var(--font-display);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--text-muted);
-    margin-bottom: 0.25rem;
-  }
-  .hero-producto__facts dd {
-    margin: 0;
-    color: var(--ink);
-    font-size: 0.88rem;
-    line-height: 1.35;
-  }
-  .hero-producto__panel-copy {
-    margin: 0.9rem 0 0;
-    color: var(--text-mid);
-    font-size: 0.85rem;
-  }
-  .hero-producto__cta-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-block-start: 0.5rem;
-  }
-  .producto-landing__compare {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.825rem;
-    color: var(--text-mid);
-    cursor: pointer;
-    margin-block-start: 0.25rem;
-  }
-  .producto-landing__compare input {
-    width: 1rem;
-    height: 1rem;
-    accent-color: var(--t800);
-  }
-  @media (max-width: 700px) {
-    .hero-producto__facts {
-      grid-template-columns: 1fr;
-    }
-    .hero-producto__panel-head {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-  }
 
-  .section-subtitle {
+  .section {
+    padding-block: var(--space-xl);
+  }
+  .section-title {
     font-family: var(--font-display);
-    font-size: 1.5rem;
+    font-size: clamp(1.4rem, 2.6vw, 1.9rem);
     font-weight: 700;
     color: var(--ink);
     margin: 0 0 var(--space-md);
+  }
+  .section-off {
+    background: var(--off);
   }
   .section-header {
     display: flex;
@@ -621,7 +655,7 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
     gap: 1rem;
     margin-bottom: var(--space-md);
   }
-  .section-header .section-subtitle {
+  .section-header .section-title {
     margin: 0;
   }
   .ver-familia-link {
@@ -634,6 +668,48 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
   }
   .ver-familia-link:hover {
     text-decoration: underline;
+  }
+
+  /* Beneficios clave */
+  .beneficios__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--space-md);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .beneficios__card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.4rem 1.4rem 1.5rem;
+    box-shadow: var(--shadow-sm);
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
+  }
+  .beneficios__card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+  }
+  .beneficios__icono {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background: var(--t100);
+    color: var(--t900);
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+  .beneficios__card p {
+    margin: 0;
+    font-size: 0.94rem;
+    line-height: 1.55;
+    color: var(--text-mid);
   }
 
   /* Galería */
@@ -705,7 +781,7 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
     margin-block-start: 0.75rem;
   }
 
-  /* Especificaciones */
+  /* Especificaciones — tabla con cabecera oscura, como el modelo */
   .specs-grupo {
     margin-block-end: var(--space-md);
   }
@@ -719,37 +795,97 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
   .specs-table {
     width: 100%;
     border-collapse: collapse;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
+    border-radius: var(--radius-lg);
     overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    background: var(--white);
   }
-  .specs-table tr:nth-child(even) {
+  .specs-table thead th {
+    background: var(--t900);
+    color: var(--white);
+    text-align: left;
+    padding: 0.85rem 1.25rem;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+  }
+  .specs-table tbody tr:nth-child(even) {
     background: var(--off);
   }
   .specs-table th,
   .specs-table td {
     text-align: left;
-    padding: 0.65rem 1rem;
-    font-size: 0.875rem;
+    padding: 0.7rem 1.25rem;
+    font-size: 0.9rem;
     border-block-end: 1px solid var(--border);
   }
-  .specs-table th {
+  .specs-table tbody th {
     font-family: var(--font-display);
     font-weight: 600;
     color: var(--ink);
     width: 40%;
   }
-  .specs-table td {
+  .specs-table tbody td {
     color: var(--text-mid);
   }
+  .specs-table tbody tr:last-child th,
+  .specs-table tbody tr:last-child td {
+    border-block-end: none;
+  }
   .specs-pendiente {
-    background: var(--t100);
+    background: var(--white);
     border: 1px solid var(--border-mid);
     border-radius: var(--radius);
     padding: 1.25rem 1.5rem;
     color: var(--t900);
     font-size: 0.9rem;
     max-width: 640px;
+  }
+
+  /* Aplicaciones clínicas */
+  .aplicaciones__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 0.85rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .aplicaciones__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.9rem 1.1rem;
+    font-size: 0.92rem;
+    color: var(--ink);
+  }
+  .aplicaciones__icono {
+    color: var(--blue);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* Bloque de valor — destacado como el testimonio del modelo, sin cita */
+  .valor-card {
+    position: relative;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2rem 2.25rem;
+    box-shadow: var(--shadow-md);
+    max-width: 720px;
+  }
+  .valor-card__texto {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 600;
+    line-height: 1.55;
+    color: var(--t900);
+    margin: 0;
   }
 
   /* Relacionados */
@@ -762,26 +898,37 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
     padding: 0;
   }
 
-  /* Contacto CTA */
-  .contacto-cta {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-md);
-    background: var(--off);
-    border-radius: var(--radius-lg);
-    padding: var(--space-lg);
+  /* CTA final — degradado oscuro de ancho completo, como el modelo */
+  .cta-final {
+    position: relative;
+    overflow: hidden;
+    padding-block: var(--space-2xl);
+    color: var(--white);
+    text-align: center;
   }
-  .contacto-cta p {
-    color: var(--text-mid);
-    margin: 0.5rem 0 0;
+  .cta-final__bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--t900) 0%, var(--t700) 100%);
+    z-index: -1;
+  }
+  .cta-final__inner h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 2.8vw, 2.1rem);
+    font-weight: 800;
+    margin: 0 0 0.75rem;
+    color: var(--white);
+  }
+  .cta-final__inner p {
     max-width: 520px;
+    margin: 0 auto 1.75rem;
+    opacity: 0.88;
   }
-  .contacto-cta__acciones {
+  .cta-final__acciones {
     display: flex;
+    justify-content: center;
     flex-wrap: wrap;
-    gap: 0.75rem;
+    gap: 1rem;
   }
 
   /* CTA sticky */
@@ -827,63 +974,17 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
     border-width: 0;
   }
 
-  /* Beneficios clave */
-  .beneficios__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: var(--space-md);
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  .beneficios__card {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 1.1rem 1.25rem;
-    font-size: 0.92rem;
-    line-height: 1.55;
-    color: var(--text-mid);
-    box-shadow: var(--shadow-sm);
-  }
-
-  /* Aplicaciones clínicas */
-  .aplicaciones__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 0.85rem;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  .aplicaciones__item {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 0.85rem 1rem;
-    font-size: 0.9rem;
-    color: var(--ink);
-  }
-
-  /* Sección con fondo alterno */
-  .section-off {
-    background: var(--off);
-  }
-
-  /* Bloque de valor */
-  .valor-card {
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(247, 249, 251, 0.9)), var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 1.5rem 1.75rem;
-    box-shadow: var(--shadow-sm);
-  }
-  .valor-card__texto {
-    font-size: 1.02rem;
-    line-height: 1.65;
-    color: var(--text);
-    margin: 0;
+  @media (max-width: 700px) {
+    .hero-producto__stats {
+      justify-content: center;
+    }
+    .hero-producto__content {
+      text-align: center;
+      align-items: center;
+    }
+    .hero-producto__cta-group {
+      justify-content: center;
+    }
   }
 </style>
 
