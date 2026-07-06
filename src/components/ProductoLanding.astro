@@ -235,6 +235,22 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
     </div>
   </section>
 
+  <!-- Beneficios clave -->
+  {
+    producto.beneficios.length > 0 && (
+      <section class="section container" aria-labelledby="beneficios-heading">
+        <h2 id="beneficios-heading" class="section-subtitle">
+          {t(locale, 'producto.beneficios_titulo')}
+        </h2>
+        <ul class="beneficios__grid" role="list">
+          {producto.beneficios.map(beneficio => (
+            <li class="beneficios__card">{beneficio}</li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
   <!-- Galería -->
   {
     galeria.length > 0 && (
@@ -305,6 +321,22 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
     }
   </section>
 
+  <!-- Aplicaciones clínicas -->
+  {
+    producto.aplicaciones.length > 0 && (
+      <section class="section section-alt container" aria-labelledby="aplicaciones-heading">
+        <h2 id="aplicaciones-heading" class="section-subtitle">
+          {t(locale, 'producto.aplicaciones_titulo')}
+        </h2>
+        <ul class="aplicaciones__grid" role="list">
+          {producto.aplicaciones.map(item => (
+            <li class="aplicaciones__item">{item}</li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
   <!-- Relacionados -->
   {
     relacionados.length > 0 && (
@@ -360,6 +392,20 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
       </div>
     </div>
   </section>
+
+  <!-- Bloque de valor (no es un testimonio atribuido a una persona) -->
+  {
+    producto.valor && (
+      <section class="section container" aria-labelledby="valor-heading">
+        <div class="valor-card">
+          <h2 id="valor-heading" class="section-subtitle">
+            {t(locale, 'producto.valor_titulo')}
+          </h2>
+          <p class="valor-card__texto">{producto.valor}</p>
+        </div>
+      </section>
+    )
+  }
 
   <Resenas productoId={producto.id} productoSlug={producto.slug} locale={locale} />
 
@@ -779,6 +825,60 @@ const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.n
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border-width: 0;
+  }
+
+  /* Beneficios clave */
+  .beneficios__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--space-md);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .beneficios__card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.1rem 1.25rem;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--text-mid);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* Aplicaciones clínicas */
+  .aplicaciones__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 0.85rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .aplicaciones__item {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.85rem 1rem;
+    font-size: 0.9rem;
+    color: var(--ink);
+  }
+
+  /* Bloque de valor */
+  .valor-card {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(247, 249, 251, 0.9)), var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem 1.75rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .valor-card__texto {
+    font-size: 1.02rem;
+    line-height: 1.65;
+    color: var(--text);
+    margin: 0;
   }
 </style>
 
