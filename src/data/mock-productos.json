@@ -1063,12 +1063,62 @@
     "nombre_en": "Ten 20 Pasta Conductiva 8onz Ref Si1067 Natus",
     "descripcion_corta_es": "El Ten 20 o pasta conductiva, constituye un complemento imprescindible para garantizar la adhesión de los electrodos y la conductividad de las ondas eléctricas cerebrales.",
     "descripcion_corta_en": "El Ten 20 o pasta conductiva, constituye un complemento imprescindible para garantizar la adhesión de los electrodos y la conductividad de las ondas eléctricas cerebrales.",
-    "descripcion_larga_es": "El Ten 20 o pasta conductiva, constituye un complemento imprescindible para garantizar la adhesión de los electrodos y la conductividad de las ondas eléctricas cerebrales.",
-    "descripcion_larga_en": "",
-    "especificaciones": [],
+    "descripcion_larga_es": "El Ten 20 o pasta conductiva, constituye un complemento imprescindible para garantizar la adhesión de los electrodos y la conductividad de las ondas eléctricas cerebrales. Ten20® (Natus) está indicada para procedimientos de neuromonitoreo con electrodos neurodiagnósticos no gelificados, como estudios de EEG, potenciales evocados, polisomnografía (PSG) y test de latencias múltiples del sueño (MSLT). Se presenta en envase de 8 onzas (referencia SI1067) y se aplica sobre la piel previamente preparada, fijando el electrodo tipo copa y asegurando una señal estable durante todo el registro.",
+    "descripcion_larga_en": "Ten 20 Conductive Paste is an essential accessory to ensure electrode adhesion and reliable conductivity of brain electrical signals. Ten20® (Natus) is indicated for neuromonitoring procedures using non-gelled neurodiagnostic electrodes, such as EEG studies, evoked potential testing, polysomnography (PSG) and the Multiple Sleep Latency Test (MSLT). It comes in an 8-ounce container (reference SI1067) and is applied to prepared skin, holding the cup electrode in place and ensuring a stable signal throughout the recording.",
+    "especificaciones": [
+      {
+        "clave": "Presentación",
+        "valor": "Envase de 8 oz, referencia SI1067",
+        "grupo": "Presentación"
+      },
+      {
+        "clave": "Composición",
+        "valor": "Polioxietileno 20 Cetil Éter, agua, glicerina, carbonato de calcio, 1,2-propanodiol, cloruro de potasio, Gelwhite® (montmorillonita), cloruro de sodio, polioxietileno 20 sorbitol, metilparabeno, propilparabeno",
+        "grupo": "Composición"
+      },
+      {
+        "clave": "Indicaciones",
+        "valor": "Procedimientos de neuromonitoreo con electrodos neurodiagnósticos no gelificados: EEG, potenciales evocados, polisomnografía (PSG) y test de latencias múltiples del sueño (MSLT)",
+        "grupo": "Uso clínico"
+      },
+      {
+        "clave": "Modo de aplicación",
+        "valor": "Se aplica en el electrodo tipo copa tras preparar la piel (abrasión con producto como Nuprep®); su adherencia fija el electrodo y aporta conductividad",
+        "grupo": "Uso clínico"
+      },
+      {
+        "clave": "Precauciones",
+        "valor": "Uso tópico solo en piel intacta; evitar contacto con ojos; vigilar el sitio del electrodo ante enrojecimiento o irritación",
+        "grupo": "Seguridad"
+      }
+    ],
+    "aplicaciones_es": [
+      "Estudios de electroencefalografía (EEG)",
+      "Potenciales evocados",
+      "Polisomnografía (PSG)",
+      "Test de latencias múltiples del sueño (MSLT)"
+    ],
+    "aplicaciones_en": [
+      "Electroencephalography (EEG) studies",
+      "Evoked potential testing",
+      "Polysomnography (PSG)",
+      "Multiple Sleep Latency Test (MSLT)"
+    ],
+    "beneficios_es": [
+      "Fija el electrodo y conduce la señal en un solo paso, agilizando la preparación del estudio de EEG.",
+      "Formulado para procedimientos de neuromonitoreo exigentes: EEG, potenciales evocados, PSG y MSLT.",
+      "Su perfil de ingredientes está pensado para uso tópico controlado, con indicaciones claras de seguridad para el paciente."
+    ],
+    "beneficios_en": [
+      "Fixes the electrode and conducts the signal in a single step, speeding up EEG study preparation.",
+      "Formulated for demanding neuromonitoring procedures: EEG, evoked potentials, PSG and MSLT.",
+      "Its ingredient profile is designed for controlled topical use, with clear patient safety guidance."
+    ],
+    "valor_es": "Un insumo de confianza en cada estudio de neuromonitoreo, donde la calidad de la señal no da margen de error.",
+    "valor_en": "A trusted consumable for every neuromonitoring study, where signal quality leaves no room for error.",
     "imagen_principal": "/assets/importados/equitronic/img/ten-20-pasta-conductiva-8onz-ref-si1067-natus-1.jpg",
     "galeria": [],
-    "ficha_pdf": null,
+    "ficha_pdf": "/assets/importados/equitronic/pdf/eq-ten-20-pasta-conductiva-8onz-ref-si1067-natus.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
     "precio": null,
