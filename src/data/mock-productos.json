@@ -3752,8 +3752,39 @@
     "descripcion_corta_es": "El Criticool es un equipo diseñado para proporcionar terapia de hipotermia servocontrolada para pacientes adultos, pediátricos y neonatales, de forma no invasiva. El sistema está compuesto por dos ele",
     "descripcion_corta_en": "El Criticool es un equipo diseñado para proporcionar terapia de hipotermia servocontrolada para pacientes adultos, pediátricos y neonatales, de forma no invasiva. El sistema está compuesto por dos ele",
     "descripcion_larga_es": "El Criticool es un equipo diseñado para proporcionar terapia de hipotermia servocontrolada para pacientes adultos, pediátricos y neonatales, de forma no invasiva. El sistema está compuesto por dos elementos: la consola Criticool y la manta ThermoWrap™. La terapia de hipotermia se utiliza en situaciones críticas, como en casos de paro cardíaco, accidentes cerebrovasculares o lesiones traumáticas, con el fin de minimizar el daño neurológico y mejorar las probabilidades de recuperación.\nEl Criticool permite un control preciso de la temperatura corporal, ajustándose a las necesidades específicas de cada paciente. Su diseño fácil de usar y su capacidad de adaptación a diferentes edades y condiciones clínicas lo convierten en una herramienta esencial para la gestión de la terapia de hipotermia en entornos críticos.",
-    "descripcion_larga_en": "",
-    "especificaciones": [],
+    "descripcion_larga_en": "CritiCool is a device designed to provide non-invasive, servo-controlled hypothermia therapy for adult, pediatric and neonatal patients. The system is made up of two elements: the CritiCool control console and the single-use body wrap. Hypothermia therapy is used in critical situations such as cardiac arrest, stroke or traumatic injury, to help minimize neurological damage and improve the chances of recovery.\nCritiCool allows precise control of body temperature, adjusting to each patient's specific needs. Its easy-to-use design and adaptability to different ages and clinical conditions make it an essential tool for managing hypothermia therapy in critical care settings.",
+    "especificaciones": [
+      {
+        "clave": "Función",
+        "valor": "Sistema de gestión de temperatura corporal por control servo, con lectura de temperatura central del paciente y ajuste automático",
+        "grupo": "Función principal"
+      },
+      {
+        "clave": "Componentes",
+        "valor": "Consola de control CritiCool + envoltura de un solo uso que rodea al paciente para maximizar la superficie de contacto",
+        "grupo": "Función principal"
+      },
+      {
+        "clave": "Modos de terapia",
+        "valor": "Enfriamiento rápido (Cool), gestión de temperatura objetivo (Temperature Management) y recalentamiento controlado (Rewarming), incluido modo pediátrico/neonatal",
+        "grupo": "Modos de terapia"
+      },
+      {
+        "clave": "Pantalla",
+        "valor": "Pantalla táctil a color de fácil manejo, con monitoreo gráfico en tiempo real de la temperatura",
+        "grupo": "Interfaz"
+      },
+      {
+        "clave": "Registro de datos",
+        "valor": "Registro histórico de temperatura para trazabilidad clínica",
+        "grupo": "Interfaz"
+      },
+      {
+        "clave": "Envoltura de un solo uso",
+        "valor": "Disponible en distintos tamaños y diseños para adaptarse a la anatomía del paciente, incluida versión pediátrica",
+        "grupo": "Accesorios"
+      }
+    ],
     "imagen_principal": "/assets/importados/equitronic/img/sistema-de-hipotermia-criticool-belmont-1.jpg",
     "galeria": [
       "/assets/importados/equitronic/img/sistema-de-hipotermia-criticool-belmont-2.jpg",
@@ -3761,7 +3792,33 @@
       "/assets/importados/equitronic/img/sistema-de-hipotermia-criticool-belmont-4.jpg",
       "/assets/importados/equitronic/img/sistema-de-hipotermia-criticool-belmont-5.jpg"
     ],
-    "ficha_pdf": null,
+    "ficha_pdf": "/assets/importados/equitronic/pdf/eq-sistema-de-hipotermia-criticool-belmont.pdf",
+    "aplicaciones_es": [
+      "Manejo de temperatura post paro cardíaco",
+      "Soporte neurológico en accidente cerebrovascular (ACV)",
+      "Control de temperatura en lesiones traumáticas críticas",
+      "Cuidado intensivo adulto, pediátrico y neonatal"
+    ],
+    "aplicaciones_en": [
+      "Post-cardiac arrest temperature management",
+      "Neurological support after stroke",
+      "Temperature control in critical traumatic injury",
+      "Adult, pediatric and neonatal intensive care"
+    ],
+    "beneficios_es": [
+      "Controla la temperatura corporal del paciente con precisión servo-controlada, ajustando el enfriamiento o recalentamiento de forma automática.",
+      "Ayuda a minimizar el daño neurológico en las horas críticas tras un paro cardíaco o un ACV, cuando cada grado cuenta.",
+      "Pantalla táctil e interfaz simple que agiliza la puesta en marcha del protocolo de hipotermia terapéutica.",
+      "Se adapta a pacientes adultos, pediátricos y neonatales con envolturas de distintos tamaños."
+    ],
+    "beneficios_en": [
+      "Controls body temperature with servo-controlled precision, automatically adjusting cooling or rewarming.",
+      "Helps minimize neurological damage in the critical hours after cardiac arrest or stroke, when every degree matters.",
+      "Touchscreen and simple interface that speeds up starting the therapeutic hypothermia protocol.",
+      "Adapts to adult, pediatric and neonatal patients with wraps in different sizes."
+    ],
+    "valor_es": "Un aliado en los momentos donde el manejo preciso de la temperatura define el pronóstico neurológico del paciente.",
+    "valor_en": "A critical ally in the moments where precise temperature management shapes a patient's neurological outcome.",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
     "precio": null,
