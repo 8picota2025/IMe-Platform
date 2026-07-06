@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getProductoBySlug, mapProductoSupabase } from './datos';
-import type { Locale } from '../i18n/utils';
+import { getProductoBySlug, resolveMarcaSupabase } from './datos';
 
 describe('mapProducto — campos enriquecidos de landing', () => {
   it('resuelve aplicaciones, beneficios y valor en español', async () => {
@@ -34,127 +33,26 @@ describe('mapProducto — campos enriquecidos de landing', () => {
   });
 });
 
-describe('mapProductoSupabase — marca fallback desde atributos', () => {
+describe('resolveMarcaSupabase — marca fallback desde atributos', () => {
   it('usa top-level marca si está disponible', () => {
-    const rawRow = {
-      id: 'test-1',
-      slug: 'test-product',
-      familia_id: 'fam-test',
-      tipo_id: null,
-      nombre_es: 'Test Product ES',
-      nombre_en: 'Test Product EN',
-      descripcion_corta_es: 'Descripción corta ES',
-      descripcion_corta_en: 'Descripción corta EN',
-      descripcion_larga_es: '',
-      descripcion_larga_en: '',
-      especificaciones: [],
-      aplicaciones_es: [],
-      aplicaciones_en: [],
-      atributos: {
-        beneficios_es: [],
-        beneficios_en: [],
-        valor_es: null,
-        valor_en: null,
-        marca: 'Nested Brand',
-      },
-      imagen_principal: null,
-      galeria: [],
-      ficha_pdf: null,
-      tipo_comercial: 'equipo',
-      fulfillment_mode: 'cotizacion',
-      precio: null,
-      moneda: 'COP',
-      stock: null,
-      disponible: true,
-      destacado: false,
-      nuevo: false,
-      activo: true,
-      orden: 1,
+    const result = resolveMarcaSupabase({
       marca: 'Top Level Brand',
-    };
-
-    const producto = mapProductoSupabase(rawRow, 'es' as Locale);
-    expect(producto.marca).toBe('Top Level Brand');
+      atributos: { marca: 'Nested Brand' },
+    });
+    expect(result).toBe('Top Level Brand');
   });
 
   it('cae de vuelta a marca en atributos cuando no hay top-level marca', () => {
-    const rawRow = {
-      id: 'test-2',
-      slug: 'test-product-2',
-      familia_id: 'fam-test',
-      tipo_id: null,
-      nombre_es: 'Test Product 2 ES',
-      nombre_en: 'Test Product 2 EN',
-      descripcion_corta_es: 'Descripción corta ES',
-      descripcion_corta_en: 'Descripción corta EN',
-      descripcion_larga_es: '',
-      descripcion_larga_en: '',
-      especificaciones: [],
-      aplicaciones_es: [],
-      aplicaciones_en: [],
-      atributos: {
-        beneficios_es: [],
-        beneficios_en: [],
-        valor_es: null,
-        valor_en: null,
-        marca: 'Atributos Brand',
-      },
-      imagen_principal: null,
-      galeria: [],
-      ficha_pdf: null,
-      tipo_comercial: 'equipo',
-      fulfillment_mode: 'cotizacion',
-      precio: null,
-      moneda: 'COP',
-      stock: null,
-      disponible: true,
-      destacado: false,
-      nuevo: false,
-      activo: true,
-      orden: 1,
-    };
-
-    const producto = mapProductoSupabase(rawRow, 'es' as Locale);
-    expect(producto.marca).toBe('Atributos Brand');
+    const result = resolveMarcaSupabase({
+      atributos: { marca: 'Atributos Brand' },
+    });
+    expect(result).toBe('Atributos Brand');
   });
 
   it('devuelve null si marca no está en ningún lado', () => {
-    const rawRow = {
-      id: 'test-3',
-      slug: 'test-product-3',
-      familia_id: 'fam-test',
-      tipo_id: null,
-      nombre_es: 'Test Product 3 ES',
-      nombre_en: 'Test Product 3 EN',
-      descripcion_corta_es: 'Descripción corta ES',
-      descripcion_corta_en: 'Descripción corta EN',
-      descripcion_larga_es: '',
-      descripcion_larga_en: '',
-      especificaciones: [],
-      aplicaciones_es: [],
-      aplicaciones_en: [],
-      atributos: {
-        beneficios_es: [],
-        beneficios_en: [],
-        valor_es: null,
-        valor_en: null,
-      },
-      imagen_principal: null,
-      galeria: [],
-      ficha_pdf: null,
-      tipo_comercial: 'equipo',
-      fulfillment_mode: 'cotizacion',
-      precio: null,
-      moneda: 'COP',
-      stock: null,
-      disponible: true,
-      destacado: false,
-      nuevo: false,
-      activo: true,
-      orden: 1,
-    };
-
-    const producto = mapProductoSupabase(rawRow, 'es' as Locale);
-    expect(producto.marca).toBeNull();
+    const result = resolveMarcaSupabase({
+      atributos: {},
+    });
+    expect(result).toBeNull();
   });
 });

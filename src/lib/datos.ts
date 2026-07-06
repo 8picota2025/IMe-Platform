@@ -89,8 +89,21 @@ async function cargarMapaFamilias(supabase: ReturnType<typeof getSupabaseClient>
   }
 }
 
+/**
+ * Resuelve la marca de un producto desde Supabase, usando fallback desde atributos.
+ * Función pura sin dependencias en caché global.
+ */
+export function resolveMarcaSupabase(raw: {
+  marca?: unknown;
+  atributos?: { marca?: unknown };
+}): string | null {
+  const directa = typeof raw.marca === 'string' ? raw.marca : null;
+  const enAtributos = typeof raw.atributos?.marca === 'string' ? raw.atributos.marca : null;
+  return directa ?? enAtributos ?? null;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function mapProductoSupabase(raw: any, locale: Locale): Producto {
+function mapProductoSupabase(raw: any, locale: Locale): Producto {
   return {
     id: raw.id,
     slug: raw.slug,
@@ -105,7 +118,7 @@ export function mapProductoSupabase(raw: any, locale: Locale): Producto {
     beneficios:
       (locale === 'en' ? raw.atributos?.beneficios_en : raw.atributos?.beneficios_es) ?? [],
     valor: (locale === 'en' ? raw.atributos?.valor_en : raw.atributos?.valor_es) ?? null,
-    marca: raw.marca ?? raw.atributos?.marca ?? null,
+    marca: resolveMarcaSupabase(raw),
     imagen_principal: publicImage(raw.imagen_principal) ?? localProductImage(raw.slug),
     galeria: Array.isArray(raw.galeria) ? raw.galeria.map(publicImage).filter(isString) : [],
     ficha_pdf: raw.ficha_pdf,
