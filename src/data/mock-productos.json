@@ -1063,12 +1063,62 @@
     "nombre_en": "Ten 20 Pasta Conductiva 8onz Ref Si1067 Natus",
     "descripcion_corta_es": "El Ten 20 o pasta conductiva, constituye un complemento imprescindible para garantizar la adhesión de los electrodos y la conductividad de las ondas eléctricas cerebrales.",
     "descripcion_corta_en": "El Ten 20 o pasta conductiva, constituye un complemento imprescindible para garantizar la adhesión de los electrodos y la conductividad de las ondas eléctricas cerebrales.",
-    "descripcion_larga_es": "El Ten 20 o pasta conductiva, constituye un complemento imprescindible para garantizar la adhesión de los electrodos y la conductividad de las ondas eléctricas cerebrales.",
-    "descripcion_larga_en": "",
-    "especificaciones": [],
+    "descripcion_larga_es": "El Ten 20 o pasta conductiva, constituye un complemento imprescindible para garantizar la adhesión de los electrodos y la conductividad de las ondas eléctricas cerebrales. Ten20® (Natus) está indicada para procedimientos de neuromonitoreo con electrodos neurodiagnósticos no gelificados, como estudios de EEG, potenciales evocados, polisomnografía (PSG) y test de latencias múltiples del sueño (MSLT). Se presenta en envase de 8 onzas (referencia SI1067) y se aplica sobre la piel previamente preparada, fijando el electrodo tipo copa y asegurando una señal estable durante todo el registro.",
+    "descripcion_larga_en": "Ten 20 Conductive Paste is an essential accessory to ensure electrode adhesion and reliable conductivity of brain electrical signals. Ten20® (Natus) is indicated for neuromonitoring procedures using non-gelled neurodiagnostic electrodes, such as EEG studies, evoked potential testing, polysomnography (PSG) and the Multiple Sleep Latency Test (MSLT). It comes in an 8-ounce container (reference SI1067) and is applied to prepared skin, holding the cup electrode in place and ensuring a stable signal throughout the recording.",
+    "especificaciones": [
+      {
+        "clave": "Presentación",
+        "valor": "Envase de 8 oz, referencia SI1067",
+        "grupo": "Presentación"
+      },
+      {
+        "clave": "Composición",
+        "valor": "Polioxietileno 20 Cetil Éter, agua, glicerina, carbonato de calcio, 1,2-propanodiol, cloruro de potasio, Gelwhite® (montmorillonita), cloruro de sodio, polioxietileno 20 sorbitol, metilparabeno, propilparabeno",
+        "grupo": "Composición"
+      },
+      {
+        "clave": "Indicaciones",
+        "valor": "Procedimientos de neuromonitoreo con electrodos neurodiagnósticos no gelificados: EEG, potenciales evocados, polisomnografía (PSG) y test de latencias múltiples del sueño (MSLT)",
+        "grupo": "Uso clínico"
+      },
+      {
+        "clave": "Modo de aplicación",
+        "valor": "Se aplica en el electrodo tipo copa tras preparar la piel (abrasión con producto como Nuprep®); su adherencia fija el electrodo y aporta conductividad",
+        "grupo": "Uso clínico"
+      },
+      {
+        "clave": "Precauciones",
+        "valor": "Uso tópico solo en piel intacta; evitar contacto con ojos; vigilar el sitio del electrodo ante enrojecimiento o irritación",
+        "grupo": "Seguridad"
+      }
+    ],
+    "aplicaciones_es": [
+      "Estudios de electroencefalografía (EEG)",
+      "Potenciales evocados",
+      "Polisomnografía (PSG)",
+      "Test de latencias múltiples del sueño (MSLT)"
+    ],
+    "aplicaciones_en": [
+      "Electroencephalography (EEG) studies",
+      "Evoked potential testing",
+      "Polysomnography (PSG)",
+      "Multiple Sleep Latency Test (MSLT)"
+    ],
+    "beneficios_es": [
+      "Fija el electrodo y conduce la señal en un solo paso, agilizando la preparación del estudio de EEG.",
+      "Formulado para procedimientos de neuromonitoreo exigentes: EEG, potenciales evocados, PSG y MSLT.",
+      "Su perfil de ingredientes está pensado para uso tópico controlado, con indicaciones claras de seguridad para el paciente."
+    ],
+    "beneficios_en": [
+      "Fixes the electrode and conducts the signal in a single step, speeding up EEG study preparation.",
+      "Formulated for demanding neuromonitoring procedures: EEG, evoked potentials, PSG and MSLT.",
+      "Its ingredient profile is designed for controlled topical use, with clear patient safety guidance."
+    ],
+    "valor_es": "Un insumo de confianza en cada estudio de neuromonitoreo, donde la calidad de la señal no da margen de error.",
+    "valor_en": "A trusted consumable for every neuromonitoring study, where signal quality leaves no room for error.",
     "imagen_principal": "/assets/importados/equitronic/img/ten-20-pasta-conductiva-8onz-ref-si1067-natus-1.jpg",
     "galeria": [],
-    "ficha_pdf": null,
+    "ficha_pdf": "/assets/importados/equitronic/pdf/eq-ten-20-pasta-conductiva-8onz-ref-si1067-natus.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
     "precio": null,
@@ -1746,14 +1796,86 @@
     "descripcion_corta_es": "La máquina de anestesia Prima 460 de PENLON integra una amplia gama de modos ventilatorios, junto con una pantalla intuitiva de gran tamaño, configuración de perfiles de paciente y visualización digit",
     "descripcion_corta_en": "La máquina de anestesia Prima 460 de PENLON integra una amplia gama de modos ventilatorios, junto con una pantalla intuitiva de gran tamaño, configuración de perfiles de paciente y visualización digit",
     "descripcion_larga_es": "La máquina de anestesia Prima 460 de PENLON integra una amplia gama de modos ventilatorios, junto con una pantalla intuitiva de gran tamaño, configuración de perfiles de paciente y visualización digital del suministro de gas fresco. Esto permite individualizar la administración de anestesia inhalada según las necesidades del especialista, la criticidad del caso y el tipo de paciente, ya sea adulto, pediátrico o neonatal.\nSu sistema respiratorio, compacto y calefaccionado, posibilita el suministro de agentes anestésicos a bajos flujos, lo que garantiza una reducción en el consumo de gases y anestésicos.",
-    "descripcion_larga_en": "",
-    "especificaciones": [],
+    "descripcion_larga_en": "The Penlon Prima 460 anesthesia machine integrates a wide range of ventilation modes, a large intuitive display, patient profile configuration and digital fresh gas flow display. This allows anesthesia delivery to be tailored to the specialist's needs, case criticality and patient type — adult, pediatric or neonatal.\nIts compact, heated breathing system enables low-flow delivery of anesthetic agents, reducing gas and anesthetic consumption. Designed and manufactured in the UK, the Prima 460 features a fully integrated AV-S ventilator and A200SP absorber, a Selectatec®-compatible backbar with interlock, HIS connectivity and six ventilation modes, and complies with ISO 80601-2-13 and RoHS.",
+    "especificaciones": [
+      {
+        "clave": "Origen",
+        "valor": "Diseñada y fabricada en el Reino Unido por Penlon",
+        "grupo": "Fabricación"
+      },
+      {
+        "clave": "Ventilador integrado",
+        "valor": "AV-S, multifunción, para perfiles de paciente adulto y pediátrico, con tres modos avanzados de soporte espontáneo",
+        "grupo": "Ventilación"
+      },
+      {
+        "clave": "Modos de ventilación",
+        "valor": "Seis modos de ventilación disponibles",
+        "grupo": "Ventilación"
+      },
+      {
+        "clave": "Absorbedor",
+        "valor": "A200SP totalmente integrado con el ventilador",
+        "grupo": "Ventilación"
+      },
+      {
+        "clave": "Fluómetro",
+        "valor": "Opciones de visualización de flujo electrónico y fluómetro convencional",
+        "grupo": "Suministro de gases"
+      },
+      {
+        "clave": "Backbar",
+        "valor": "Compatible Selectatec®, con interlock en configuración de tres estaciones; hasta 4 cilindros",
+        "grupo": "Suministro de gases"
+      },
+      {
+        "clave": "Ergonomía",
+        "valor": "Estante superior con montaje GCX™ para monitor de paciente, espacio de trabajo iluminado con superficie de escritura extraíble, cajones de gran capacidad",
+        "grupo": "Ergonomía"
+      },
+      {
+        "clave": "Conectividad",
+        "valor": "Conectividad HIS para integración hospitalaria",
+        "grupo": "Conectividad"
+      },
+      {
+        "clave": "Normativa",
+        "valor": "Cumple con la norma ISO 80601-2-13 y la directiva RoHS",
+        "grupo": "Normativa"
+      }
+    ],
+    "aplicaciones_es": [
+      "Quirófano de cirugía general",
+      "Anestesia en pacientes adultos, pediátricos y neonatales",
+      "Servicios con alta rotación de quirófano que requieren configuración flexible"
+    ],
+    "aplicaciones_en": [
+      "General surgery operating room",
+      "Anesthesia for adult, pediatric and neonatal patients",
+      "High-turnover surgical services requiring flexible configuration"
+    ],
+    "beneficios_es": [
+      "Diseñada y fabricada en el Reino Unido, con ventilador (AV-S) y absorbedor (A200SP) totalmente integrados de fábrica.",
+      "Seis modos de ventilación y perfiles de paciente adulto/pediátrico te permiten individualizar cada anestesia inhalada.",
+      "El sistema respiratorio calefaccionado a bajos flujos reduce el consumo de gases y anestésicos por procedimiento.",
+      "Estante GCX™ para tu monitor de paciente y espacio de trabajo iluminado, pensados para el flujo real de un quirófano.",
+      "Cumple ISO 80601-2-13 y RoHS, con conectividad HIS para integrarse a tu hospital."
+    ],
+    "beneficios_en": [
+      "Designed and manufactured in the UK, with a fully factory-integrated AV-S ventilator and A200SP absorber.",
+      "Six ventilation modes and adult/pediatric patient profiles let you tailor every inhaled anesthetic delivery.",
+      "The low-flow heated breathing system reduces gas and anesthetic consumption per procedure.",
+      "GCX™ shelf for your patient monitor and an illuminated workspace, built for the real pace of an operating room.",
+      "Complies with ISO 80601-2-13 and RoHS, with HIS connectivity to integrate with your hospital."
+    ],
+    "valor_es": "Un sistema de anestesia pensado para quirófanos con alta rotación, donde la configuración flexible y el bajo consumo de gases marcan la diferencia turno tras turno.",
+    "valor_en": "An anesthesia system built for high-turnover operating rooms, where flexible configuration and low gas consumption make a difference shift after shift.",
     "imagen_principal": "/assets/importados/equitronic/img/maquina-de-anestesia-prima-ref-460-penlon-1.jpg",
     "galeria": [
       "/assets/importados/equitronic/img/maquina-de-anestesia-prima-ref-460-penlon-2.jpg",
       "/assets/importados/equitronic/img/maquina-de-anestesia-prima-ref-460-penlon-3.jpg"
     ],
-    "ficha_pdf": null,
+    "ficha_pdf": "/assets/importados/equitronic/pdf/eq-maquina-de-anestesia-prima-ref-460-penlon.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
     "precio": null,
@@ -2629,15 +2751,82 @@
     "descripcion_corta_es": "El Monitor de Paciente Biolight M12 combina tecnología confiable, diseño ergonómico y precisión clínica en un formato compacto, ideal para hospitales, clínicas y áreas de urgencias.",
     "descripcion_corta_en": "El Monitor de Paciente Biolight M12 combina tecnología confiable, diseño ergonómico y precisión clínica en un formato compacto, ideal para hospitales, clínicas y áreas de urgencias.",
     "descripcion_larga_es": "El Monitor de Paciente Biolight M12 combina tecnología confiable, diseño ergonómico y precisión clínica en un formato compacto, ideal para hospitales, clínicas y áreas de urgencias.\nSu pantalla táctil de 12.1 pulgadas ofrece una visualización clara y organizada de los parámetros vitales, permitiendo al personal médico actuar con rapidez y eficacia.\nDiseñado para pacientes adultos, pediátricos y neonatales, el M12 mide con precisión ECG, SpO₂, frecuencia respiratoria, presión arterial no invasiva (NIBP) y temperatura, con posibilidad de ampliar sus funciones con IBP, CO₂ y gasto cardíaco (C.O.).\nCuenta con ventilador interno sellado, que minimiza el riesgo de contaminación cruzada, y herramientas de evaluación clínica integradas como EWS, GCS y OxyCRG, que facilitan el monitoreo de estados críticos.\nGracias a su batería interna de larga duración, su interfaz intuitiva y su estructura compacta y robusta, el M12 garantiza rendimiento continuo, movilidad y seguridad del paciente en cualquier entorno clínico.",
-    "descripcion_larga_en": "",
-    "especificaciones": [],
+    "descripcion_larga_en": "The Biolight M12 Patient Monitor combines reliable technology, ergonomic design and clinical precision in a compact footprint, ideal for hospitals, clinics and emergency departments.\nIts 12.1-inch touchscreen delivers a clear, organized view of vital parameters, helping clinical staff act quickly and effectively.\nDesigned for adult, pediatric and neonatal patients, the M12 accurately measures ECG, SpO₂, respiratory rate, non-invasive blood pressure (NIBP) and temperature, with the option to expand its capabilities with IBP, CO₂ and cardiac output (C.O.).\nIt features a sealed internal ventilator that minimizes the risk of cross-contamination, along with built-in clinical assessment tools such as EWS, GCS and OxyCRG that support the monitoring of critical conditions.\nThanks to its long-lasting internal battery, intuitive interface and compact, rugged build, the M12 delivers continuous performance, mobility and patient safety in any clinical setting.",
+    "especificaciones": [
+      {
+        "clave": "Pantalla",
+        "valor": "Táctil de 12.1\", resolución 1280×800 px",
+        "grupo": "Pantalla y diseño"
+      },
+      {
+        "clave": "Parámetros estándar",
+        "valor": "ECG (3/5/6 derivaciones), SpO₂, frecuencia de pulso, NIBP, temperatura",
+        "grupo": "Parámetros monitoreados"
+      },
+      {
+        "clave": "Parámetros ampliables",
+        "valor": "IBP, CO₂ y gasto cardíaco (C.O.) como módulos opcionales",
+        "grupo": "Parámetros monitoreados"
+      },
+      {
+        "clave": "Frecuencia respiratoria por pletismografía (RRP)",
+        "valor": "Deriva la frecuencia respiratoria de la onda de SpO₂ mediante algoritmo propio de Biolight",
+        "grupo": "Tecnología clínica"
+      },
+      {
+        "clave": "Herramientas de evaluación clínica",
+        "valor": "EWS (Early Warning Score), GCS (Escala de Coma de Glasgow) y OxyCRG integrados",
+        "grupo": "Tecnología clínica"
+      },
+      {
+        "clave": "Ventilador interno",
+        "valor": "Sellado, para minimizar riesgo de contaminación cruzada entre pacientes",
+        "grupo": "Bioseguridad"
+      },
+      { "clave": "Batería", "valor": "Li-ion recargable de 2.5 Ah", "grupo": "Autonomía" },
+      {
+        "clave": "Accesorios opcionales",
+        "valor": "Impresora térmica, soporte rodante, montaje en pared",
+        "grupo": "Accesorios"
+      }
+    ],
     "imagen_principal": "/assets/importados/equitronic/img/monitor-de-paciente-m12-biolight-1.jpg",
     "galeria": [
       "/assets/importados/equitronic/img/monitor-de-paciente-m12-biolight-2.jpg",
       "/assets/importados/equitronic/img/monitor-de-paciente-m12-biolight-3.jpg",
       "/assets/importados/equitronic/img/monitor-de-paciente-m12-biolight-4.jpg"
     ],
-    "ficha_pdf": null,
+    "ficha_pdf": "/assets/importados/equitronic/pdf/eq-monitor-de-paciente-m12-biolight.pdf",
+    "aplicaciones_es": [
+      "Salas de observación y urgencias",
+      "Unidades de cuidado intensivo (UCI) adulto, pediátrico y neonatal",
+      "Recuperación post-anestésica (PACU)",
+      "Monitoreo pre y postoperatorio",
+      "Transporte intrahospitalario de pacientes"
+    ],
+    "aplicaciones_en": [
+      "Observation and emergency rooms",
+      "Adult, pediatric and neonatal intensive care units (ICU)",
+      "Post-anesthesia care unit (PACU)",
+      "Pre- and post-operative monitoring",
+      "In-hospital patient transport"
+    ],
+    "beneficios_es": [
+      "Visualiza con claridad hasta 7 parámetros a la vez en una pantalla táctil de 12.1″, para decisiones clínicas más rápidas.",
+      "La frecuencia respiratoria por pletismografía (RRP) te da un dato vital más sin sensores ni insumos adicionales.",
+      "El ventilador interno sellado reduce el riesgo de contaminación cruzada entre pacientes, cuidando la bioseguridad de tu servicio.",
+      "Evalúa el estado del paciente de un vistazo con EWS, GCS y OxyCRG integrados, sin depender de calculadoras externas.",
+      "Adapta el equipo a adultos, pediátricos y neonatos, y amplíalo con IBP, CO₂ o gasto cardíaco cuando tu servicio lo necesite."
+    ],
+    "beneficios_en": [
+      "Clearly view up to 7 parameters at once on a 12.1″ touchscreen, for faster clinical decisions.",
+      "Respiration rate from plethysmography (RRP) gives you one more vital sign with no extra sensors or consumables.",
+      "The sealed internal ventilator reduces the risk of cross-contamination between patients, protecting your unit's biosafety.",
+      "Assess patient status at a glance with built-in EWS, GCS and OxyCRG, with no need for external calculators.",
+      "Adapt the monitor to adults, pediatric and neonatal patients, and expand it with IBP, CO₂ or cardiac output as your service grows."
+    ],
+    "valor_es": "Un monitor pensado para servicios que necesitan moverse rápido: de la sala de observación a la UCI, sin perder precisión ni continuidad en el registro del paciente.",
+    "valor_en": "A monitor built for services that need to move fast — from the observation room to the ICU — without losing accuracy or continuity in patient records.",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
     "precio": null,
@@ -2793,8 +2982,82 @@
     "descripcion_corta_es": "El ventilador convencional SLE 6000 es un equipo oscilatorio de cuarta generación con tecnología de válvulas de rápido movimiento bidireccional, que garantiza un desempeño potente, eficaz y confiable.",
     "descripcion_corta_en": "El ventilador convencional SLE 6000 es un equipo oscilatorio de cuarta generación con tecnología de válvulas de rápido movimiento bidireccional, que garantiza un desempeño potente, eficaz y confiable.",
     "descripcion_larga_es": "El ventilador convencional SLE 6000 es un equipo oscilatorio de cuarta generación con tecnología de válvulas de rápido movimiento bidireccional, que garantiza un desempeño potente, eficaz y confiable. Diseñado para pacientes desde 300 gramos hasta 30 kilogramos, su onda de presión cuadrada permite administrar volúmenes corrientes con menores presiones.\nOfrece ventilación invasiva y no invasiva, monitoreo pulmonar en tiempo real y terapias de oxígeno de alto flujo con compensación automática ante fugas. Su tecnología avanzada y funcionamiento silencioso lo hacen ideal para el soporte respiratorio en neonatos y pediátricos.",
-    "descripcion_larga_en": "",
-    "especificaciones": [],
+    "descripcion_larga_en": "The SLE6000 conventional ventilator is a fourth-generation oscillatory device with fast-response bidirectional valve technology, delivering powerful, effective and reliable performance. Designed for patients from 300 grams to 30 kilograms, its square pressure waveform allows tidal volumes to be delivered at lower pressures.\nIt offers invasive and non-invasive ventilation, real-time pulmonary monitoring and high-flow oxygen therapy with automatic leak compensation. Its advanced technology and quiet operation make it ideal for respiratory support in neonatal and pediatric patients.\nThe integrated OxyGenie® automated FiO₂ control helps keep SpO₂ within the physician-defined therapeutic range across ventilation modes, while built-in SpO₂ and CO₂ monitoring gives clinicians a continuous view of the outcome of the selected respiratory support settings. An RS232 output allows integration with hospital information systems (HIS).",
+    "especificaciones": [
+      {
+        "clave": "Tecnología de válvulas",
+        "valor": "Válvulas de rápido movimiento bidireccional, oscilatorio de cuarta generación",
+        "grupo": "Tecnología"
+      },
+      {
+        "clave": "Rango de paciente",
+        "valor": "Desde 300 gramos hasta 30 kilogramos",
+        "grupo": "Rango de uso"
+      },
+      {
+        "clave": "Modos de ventilación",
+        "valor": "Ventilación invasiva y no invasiva, con onda de presión cuadrada para menores presiones en volúmenes corrientes",
+        "grupo": "Modos de ventilación"
+      },
+      {
+        "clave": "Control de oxígeno",
+        "valor": "Integración OxyGenie® con control automático de FiO₂ para mantener la SpO₂ en el rango terapéutico definido",
+        "grupo": "Tecnología"
+      },
+      {
+        "clave": "Monitoreo integrado",
+        "valor": "SpO₂ y CO₂ en el mismo equipo, con evaluación continua del resultado del soporte ventilatorio",
+        "grupo": "Monitoreo"
+      },
+      {
+        "clave": "Pantalla",
+        "valor": "Pantalla táctil capacitiva de alta visibilidad, con modos de onda, tendencias y valores respiratorios",
+        "grupo": "Interfaz"
+      },
+      {
+        "clave": "Alto flujo",
+        "valor": "Terapia de oxígeno de alto flujo con compensación automática ante fugas",
+        "grupo": "Modos de ventilación"
+      },
+      {
+        "clave": "Conectividad",
+        "valor": "Salida RS232 para integración con sistemas de información hospitalaria (HIS)",
+        "grupo": "Conectividad"
+      },
+      {
+        "clave": "Operación",
+        "valor": "Funcionamiento silencioso, diseñado para continuidad entre UCIN, cuidados intermedios y step-down",
+        "grupo": "Diseño"
+      }
+    ],
+    "aplicaciones_es": [
+      "Unidad de cuidados intensivos neonatales (UCIN)",
+      "Soporte respiratorio pediátrico",
+      "Cuidados intermedios y step-down neonatal",
+      "Terapia de oxígeno de alto flujo neonatal/pediátrica"
+    ],
+    "aplicaciones_en": [
+      "Neonatal intensive care unit (NICU)",
+      "Pediatric respiratory support",
+      "Neonatal step-down and intermediate care",
+      "Neonatal/pediatric high-flow oxygen therapy"
+    ],
+    "beneficios_es": [
+      "Soporta pacientes desde 300 gramos hasta 30 kilogramos con la misma plataforma, de la UCIN al cuidado intermedio.",
+      "El control automático de FiO₂ (OxyGenie®) ayuda a mantener la SpO₂ en rango objetivo sin ajustes manuales constantes.",
+      "Monitorea SpO₂ y CO₂ en el mismo equipo, dándote una lectura continua del efecto real del soporte ventilatorio.",
+      "Funcionamiento silencioso y pantalla táctil de alta visibilidad, pensados para turnos largos en UCIN.",
+      "Salida RS232 para integrarlo con el sistema de información de tu hospital (HIS)."
+    ],
+    "beneficios_en": [
+      "Supports patients from 300 grams to 30 kilograms on the same platform, from the NICU to intermediate care.",
+      "Automated FiO₂ control (OxyGenie®) helps keep SpO₂ within target range without constant manual adjustment.",
+      "Monitors SpO₂ and CO₂ on the same device, giving you a continuous read on the real effect of respiratory support.",
+      "Quiet operation and a high-visibility touchscreen, built for long NICU shifts.",
+      "RS232 output to integrate with your hospital's information system (HIS)."
+    ],
+    "valor_es": "Un ventilador pensado para acompañar al neonato desde el momento más crítico hasta el alta, sin cambiar de plataforma.",
+    "valor_en": "A ventilator designed to support the newborn from the most critical moment through to discharge, without changing platforms.",
     "imagen_principal": "/assets/importados/equitronic/img/ventilador-neonatal-pedriatrico-convencional-ref-6000-sle-1.jpg",
     "galeria": [
       "/assets/importados/equitronic/img/ventilador-neonatal-pedriatrico-convencional-ref-6000-sle-2.jpg",
@@ -2803,7 +3066,7 @@
       "/assets/importados/equitronic/img/ventilador-neonatal-pedriatrico-convencional-ref-6000-sle-5.jpg",
       "/assets/importados/equitronic/img/ventilador-neonatal-pedriatrico-convencional-ref-6000-sle-6.jpg"
     ],
-    "ficha_pdf": null,
+    "ficha_pdf": "/assets/importados/equitronic/pdf/eq-ventilador-neonatal-pedriatrico-convencional-ref-6000-sle.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
     "precio": null,
@@ -2812,7 +3075,7 @@
     "nuevo": false,
     "activo": true,
     "orden": 1055,
-    "marca": "",
+    "marca": "SLE",
     "proveedor_ref": "Equitronic",
     "tags": [
       "Cuidado intensivo Adulto - Pediátrico: Equipos",
@@ -3685,8 +3948,39 @@
     "descripcion_corta_es": "El Criticool es un equipo diseñado para proporcionar terapia de hipotermia servocontrolada para pacientes adultos, pediátricos y neonatales, de forma no invasiva. El sistema está compuesto por dos ele",
     "descripcion_corta_en": "El Criticool es un equipo diseñado para proporcionar terapia de hipotermia servocontrolada para pacientes adultos, pediátricos y neonatales, de forma no invasiva. El sistema está compuesto por dos ele",
     "descripcion_larga_es": "El Criticool es un equipo diseñado para proporcionar terapia de hipotermia servocontrolada para pacientes adultos, pediátricos y neonatales, de forma no invasiva. El sistema está compuesto por dos elementos: la consola Criticool y la manta ThermoWrap™. La terapia de hipotermia se utiliza en situaciones críticas, como en casos de paro cardíaco, accidentes cerebrovasculares o lesiones traumáticas, con el fin de minimizar el daño neurológico y mejorar las probabilidades de recuperación.\nEl Criticool permite un control preciso de la temperatura corporal, ajustándose a las necesidades específicas de cada paciente. Su diseño fácil de usar y su capacidad de adaptación a diferentes edades y condiciones clínicas lo convierten en una herramienta esencial para la gestión de la terapia de hipotermia en entornos críticos.",
-    "descripcion_larga_en": "",
-    "especificaciones": [],
+    "descripcion_larga_en": "CritiCool is a device designed to provide non-invasive, servo-controlled hypothermia therapy for adult, pediatric and neonatal patients. The system is made up of two elements: the CritiCool control console and the single-use body wrap. Hypothermia therapy is used in critical situations such as cardiac arrest, stroke or traumatic injury, to help minimize neurological damage and improve the chances of recovery.\nCritiCool allows precise control of body temperature, adjusting to each patient's specific needs. Its easy-to-use design and adaptability to different ages and clinical conditions make it an essential tool for managing hypothermia therapy in critical care settings.",
+    "especificaciones": [
+      {
+        "clave": "Función",
+        "valor": "Sistema de gestión de temperatura corporal por control servo, con lectura de temperatura central del paciente y ajuste automático",
+        "grupo": "Función principal"
+      },
+      {
+        "clave": "Componentes",
+        "valor": "Consola de control CritiCool + envoltura de un solo uso que rodea al paciente para maximizar la superficie de contacto",
+        "grupo": "Función principal"
+      },
+      {
+        "clave": "Modos de terapia",
+        "valor": "Enfriamiento rápido (Cool), gestión de temperatura objetivo (Temperature Management) y recalentamiento controlado (Rewarming), incluido modo pediátrico/neonatal",
+        "grupo": "Modos de terapia"
+      },
+      {
+        "clave": "Pantalla",
+        "valor": "Pantalla táctil a color de fácil manejo, con monitoreo gráfico en tiempo real de la temperatura",
+        "grupo": "Interfaz"
+      },
+      {
+        "clave": "Registro de datos",
+        "valor": "Registro histórico de temperatura para trazabilidad clínica",
+        "grupo": "Interfaz"
+      },
+      {
+        "clave": "Envoltura de un solo uso",
+        "valor": "Disponible en distintos tamaños y diseños para adaptarse a la anatomía del paciente, incluida versión pediátrica",
+        "grupo": "Accesorios"
+      }
+    ],
     "imagen_principal": "/assets/importados/equitronic/img/sistema-de-hipotermia-criticool-belmont-1.jpg",
     "galeria": [
       "/assets/importados/equitronic/img/sistema-de-hipotermia-criticool-belmont-2.jpg",
@@ -3694,7 +3988,33 @@
       "/assets/importados/equitronic/img/sistema-de-hipotermia-criticool-belmont-4.jpg",
       "/assets/importados/equitronic/img/sistema-de-hipotermia-criticool-belmont-5.jpg"
     ],
-    "ficha_pdf": null,
+    "ficha_pdf": "/assets/importados/equitronic/pdf/eq-sistema-de-hipotermia-criticool-belmont.pdf",
+    "aplicaciones_es": [
+      "Manejo de temperatura post paro cardíaco",
+      "Soporte neurológico en accidente cerebrovascular (ACV)",
+      "Control de temperatura en lesiones traumáticas críticas",
+      "Cuidado intensivo adulto, pediátrico y neonatal"
+    ],
+    "aplicaciones_en": [
+      "Post-cardiac arrest temperature management",
+      "Neurological support after stroke",
+      "Temperature control in critical traumatic injury",
+      "Adult, pediatric and neonatal intensive care"
+    ],
+    "beneficios_es": [
+      "Controla la temperatura corporal del paciente con precisión servo-controlada, ajustando el enfriamiento o recalentamiento de forma automática.",
+      "Ayuda a minimizar el daño neurológico en las horas críticas tras un paro cardíaco o un ACV, cuando cada grado cuenta.",
+      "Pantalla táctil e interfaz simple que agiliza la puesta en marcha del protocolo de hipotermia terapéutica.",
+      "Se adapta a pacientes adultos, pediátricos y neonatales con envolturas de distintos tamaños."
+    ],
+    "beneficios_en": [
+      "Controls body temperature with servo-controlled precision, automatically adjusting cooling or rewarming.",
+      "Helps minimize neurological damage in the critical hours after cardiac arrest or stroke, when every degree matters.",
+      "Touchscreen and simple interface that speeds up starting the therapeutic hypothermia protocol.",
+      "Adapts to adult, pediatric and neonatal patients with wraps in different sizes."
+    ],
+    "valor_es": "Un aliado en los momentos donde el manejo preciso de la temperatura define el pronóstico neurológico del paciente.",
+    "valor_en": "A critical ally in the moments where precise temperature management shapes a patient's neurological outcome.",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
     "precio": null,

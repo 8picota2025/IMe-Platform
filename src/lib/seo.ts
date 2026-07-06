@@ -251,7 +251,8 @@ export function buildProductJsonLd(
     slug: string;
   },
   locale: Locale,
-  categoria?: string
+  categoria?: string,
+  marca?: string | null
 ): Record<string, unknown> {
   const segment = locale === 'en' ? 'products' : 'productos';
   const canonicalUrl = `${SITE}/${locale}/${segment}/${producto.slug}`;
@@ -270,7 +271,7 @@ export function buildProductJsonLd(
     url: canonicalUrl,
     brand: {
       '@type': 'Brand',
-      name: 'I-ME International Medical Enterprise',
+      name: marca && marca.trim().length > 0 ? marca : 'I-ME International Medical Enterprise',
     },
     seller: { '@id': `${SITE}/#organization` },
     offers: {
