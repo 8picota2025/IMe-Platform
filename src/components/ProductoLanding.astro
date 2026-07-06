@@ -48,6 +48,10 @@ for (const espec of especificaciones) {
   grupos.get(grupo)!.push(espec);
 }
 
+// Sellos de certificación/normativa: se derivan de especificaciones reales
+// del propio producto (grupo "Normativa"), nunca de una lista inventada.
+const certificaciones = especificaciones.filter(item => /normativ/i.test(item.grupo ?? ''));
+
 const galeria = producto.galeria.filter(url => url && url !== producto.imagen_principal);
 const imagenes = [producto.imagen_principal ?? '/assets/img-placeholder.svg', ...galeria];
 const imagenProducto = producto.imagen_principal ?? '/assets/img-placeholder.svg';
@@ -353,6 +357,13 @@ if (precioFormateado) {
         <div class="valor-card">
           <p class="valor-card__texto">{producto.valor}</p>
         </div>
+        {certificaciones.length > 0 && (
+          <ul class="cert-badges" role="list">
+            {certificaciones.map(item => (
+              <li class="cert-badge">{item.valor}</li>
+            ))}
+          </ul>
+        )}
       </section>
     )
   }
@@ -878,6 +889,25 @@ if (precioFormateado) {
     padding: 2rem 2.25rem;
     box-shadow: var(--shadow-md);
     max-width: 720px;
+  }
+  .cert-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    list-style: none;
+    margin: 1.25rem 0 0;
+    padding: 0;
+  }
+  .cert-badge {
+    display: inline-flex;
+    align-items: center;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.4rem 1rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-mid);
   }
   .valor-card__texto {
     font-family: var(--font-display);
