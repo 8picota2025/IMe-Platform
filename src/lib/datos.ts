@@ -101,6 +101,11 @@ function mapProductoSupabase(raw: any, locale: Locale): Producto {
     descripcion_corta: locale === 'en' ? raw.descripcion_corta_en : raw.descripcion_corta_es,
     descripcion_larga: locale === 'en' ? raw.descripcion_larga_en : raw.descripcion_larga_es,
     especificaciones: raw.especificaciones ?? [],
+    aplicaciones: (locale === 'en' ? raw.aplicaciones_en : raw.aplicaciones_es) ?? [],
+    beneficios:
+      (locale === 'en' ? raw.atributos?.beneficios_en : raw.atributos?.beneficios_es) ?? [],
+    valor: (locale === 'en' ? raw.atributos?.valor_en : raw.atributos?.valor_es) ?? null,
+    marca: raw.marca ?? null,
     imagen_principal: publicImage(raw.imagen_principal) ?? localProductImage(raw.slug),
     galeria: Array.isArray(raw.galeria) ? raw.galeria.map(publicImage).filter(isString) : [],
     ficha_pdf: raw.ficha_pdf,
@@ -150,6 +155,10 @@ export interface Producto {
   descripcion_corta: string;
   descripcion_larga: string;
   especificaciones: unknown[];
+  aplicaciones: string[];
+  beneficios: string[];
+  valor: string | null;
+  marca: string | null;
   imagen_principal: string | null;
   galeria: string[];
   ficha_pdf: string | null;
@@ -231,6 +240,19 @@ function mapProducto(raw: (typeof mockProductos)[0], locale: Locale): Producto {
     descripcion_corta: locale === 'en' ? raw.descripcion_corta_en : raw.descripcion_corta_es,
     descripcion_larga: locale === 'en' ? raw.descripcion_larga_en : raw.descripcion_larga_es,
     especificaciones: raw.especificaciones,
+    aplicaciones:
+      (locale === 'en'
+        ? (raw as { aplicaciones_en?: string[] }).aplicaciones_en
+        : (raw as { aplicaciones_es?: string[] }).aplicaciones_es) ?? [],
+    beneficios:
+      (locale === 'en'
+        ? (raw as { beneficios_en?: string[] }).beneficios_en
+        : (raw as { beneficios_es?: string[] }).beneficios_es) ?? [],
+    valor:
+      (locale === 'en'
+        ? (raw as { valor_en?: string }).valor_en
+        : (raw as { valor_es?: string }).valor_es) ?? null,
+    marca: (raw as { marca?: string }).marca ?? null,
     imagen_principal: publicImage(raw.imagen_principal),
     galeria: raw.galeria.map(publicImage).filter(isString),
     ficha_pdf: raw.ficha_pdf,
