@@ -116,6 +116,8 @@ describe('fiscal', () => {
 
     expect(draft?.cliente.numero_documento).toBe('900123456');
     expect(draft?.lineas[0]?.codigo).toBe('42142500');
+    expect(draft?.lineas[0]?.slug).toBe('consumible-demo');
+    expect(draft?.lineas[0]?.tarifa_iva_pct).toBe(19);
     expect(draft?.totales.total).toBe(fiscal.total);
   });
 });

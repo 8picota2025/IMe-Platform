@@ -814,6 +814,10 @@ Deno.serve(
       proveedor_pago: proveedorPago,
       estado: 'pendiente',
       referencia_pasarela: pedidoId,
+      facturacion_electronica_solicitada: fiscalCliente.solicitar_factura_electronica,
+      facturacion_electronica_estado: fiscalCliente.solicitar_factura_electronica
+        ? 'pendiente_pago'
+        : 'no_solicitada',
       consentimiento_datos: true,
       consentimiento_timestamp: new Date().toISOString(),
       metadata: {
@@ -842,7 +846,7 @@ Deno.serve(
         {
           pedido_id: pedidoId,
           estado: 'pendiente_pago',
-          proveedor: Deno.env.get('DIAN_PROVIDER_NAME') ?? 'pendiente_configuracion',
+          proveedor: 'siigo',
           payload: dianDraft ?? {},
         },
         { onConflict: 'pedido_id' }

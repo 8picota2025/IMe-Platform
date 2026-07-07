@@ -2,8 +2,19 @@ import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { badRequest, internalError, unauthorized } from '../_shared/errors.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { withTelemetry, trackEvent } from '../_shared/telemetry.ts';
+import {
+  autenticar,
+  crearFactura,
+  getSiigoConfig,
+  resolverCliente,
+  resolverProducto,
+  type SiigoConfig,
+} from '../_shared/siigo-client.ts';
+import { mapDianDraftToSiigoInvoice } from '../_shared/siigo-mapper.ts';
+import type { DianInvoiceDraft } from '../../../src/lib/fiscal.ts';
 
 const FN_NAME = 'emitir-factura-dian';
+const PROVEEDOR = 'siigo';
 
 interface EmitirFacturaRequest {
   pedido_id?: string;
@@ -22,19 +33,62 @@ function isServiceRoleRequest(req: Request): boolean {
   return !!token && !!serviceRole && token === serviceRole;
 }
 
-function normalizeEstadoProveedor(raw: unknown): 'emitida' | 'rechazada' | 'error' {
+/** Mapea stamp.status de Siigo al estado interno de pedidos/facturas_electronicas. */
+function normalizeEstadoSiigo(raw: unknown): 'emitida' | 'rechazada' | 'error' {
   const status = String(raw ?? '').toLowerCase();
-  if (
-    status === 'emitida' ||
-    status === 'issued' ||
-    status === 'accepted' ||
-    status === 'success' ||
-    status === 'ok'
-  ) {
-    return 'emitida';
-  }
-  if (status === 'rechazada' || status === 'rejected') return 'rechazada';
+  if (status === 'accepted' || status === 'draft' || status === 'pending') return 'emitida';
+  if (status === 'rejected') return 'rechazada';
   return 'error';
+}
+
+async function emitirConSiigo(
+  supabase: ReturnType<typeof getServerSupabase>,
+  config: SiigoConfig,
+  draft: DianInvoiceDraft
+): Promise<{
+  ok: boolean;
+  estado: 'emitida' | 'rechazada' | 'error';
+  numeroFactura: string | null;
+  cufe: string | null;
+  payloadEnviado: unknown;
+  respuesta: unknown;
+  error: string | null;
+}> {
+  const token = await autenticar(config);
+
+  const { identification } = await resolverCliente(token, config, draft.cliente);
+
+  const codigosProducto: string[] = [];
+  for (const linea of draft.lineas) {
+    const { code } = await resolverProducto(token, config, supabase, {
+      productoId: linea.producto_id,
+      slug: linea.slug,
+      nombre: linea.descripcion,
+      tarifaIvaPct: linea.tarifa_iva_pct,
+    });
+    codigosProducto.push(code);
+  }
+
+  const payload = mapDianDraftToSiigoInvoice({
+    draft,
+    config,
+    clienteIdentification: identification,
+    codigosProducto,
+    fecha: new Date().toISOString().slice(0, 10),
+  });
+
+  const resultado = await crearFactura(token, config, payload);
+  const estado = resultado.ok ? normalizeEstadoSiigo(resultado.estadoStamp) : 'error';
+
+  return {
+    ok: resultado.ok,
+    estado,
+    numeroFactura: resultado.numeroFactura ?? null,
+    cufe: resultado.cufe ?? null,
+    payloadEnviado: payload,
+    respuesta: resultado.raw,
+    error: resultado.error ?? null,
+  };
 }
 
 Deno.serve(
@@ -73,13 +127,13 @@ Deno.serve(
     }
 
     const metadata = pedido.metadata ?? {};
-    const payload = metadata['dian_draft'];
-    if (!payload || typeof payload !== 'object') {
+    const draft = metadata['dian_draft'];
+    if (!draft || typeof draft !== 'object') {
       await supabase.from('facturas_electronicas').upsert(
         {
           pedido_id: pedido.id,
           estado: 'error',
-          proveedor: Deno.env.get('DIAN_PROVIDER_NAME') ?? 'pendiente_configuracion',
+          proveedor: PROVEEDOR,
           error: 'Borrador DIAN ausente en metadata.dian_draft',
         },
         { onConflict: 'pedido_id' }
@@ -91,18 +145,18 @@ Deno.serve(
       return badRequest('borrador DIAN ausente', origin);
     }
 
-    const providerUrl = Deno.env.get('DIAN_PROVIDER_API_URL');
-    const providerToken = Deno.env.get('DIAN_PROVIDER_API_TOKEN');
-    const providerName = Deno.env.get('DIAN_PROVIDER_NAME') ?? 'pendiente_configuracion';
-
-    if (!providerUrl || !providerToken) {
+    let config: SiigoConfig;
+    try {
+      config = getSiigoConfig();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Configuracion Siigo invalida';
       await supabase.from('facturas_electronicas').upsert(
         {
           pedido_id: pedido.id,
           estado: 'error',
-          proveedor: providerName,
-          payload,
-          error: 'DIAN_PROVIDER_API_URL o DIAN_PROVIDER_API_TOKEN no configurado',
+          proveedor: PROVEEDOR,
+          payload: draft,
+          error: message,
         },
         { onConflict: 'pedido_id' }
       );
@@ -118,58 +172,43 @@ Deno.serve(
     }
 
     try {
-      const providerRes = await fetch(providerUrl, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${providerToken}`,
-          'Content-Type': 'application/json',
-          'X-IME-Source': 'supabase-edge-function',
-        },
-        body: JSON.stringify(payload),
-      });
-      const providerJson = (await providerRes.json().catch(() => ({}))) as Record<string, unknown>;
-      const estado = providerRes.ok
-        ? normalizeEstadoProveedor(providerJson['status'] ?? 'emitida')
-        : normalizeEstadoProveedor(providerJson['status'] ?? 'error');
-      const numeroFactura = String(
-        providerJson['numero_factura'] ?? providerJson['invoice_number'] ?? ''
-      ).trim();
-      const cufe = String(providerJson['cufe'] ?? providerJson['uuid'] ?? '').trim();
-      const errorText = providerRes.ok
-        ? null
-        : String(providerJson['error'] ?? providerJson['message'] ?? `HTTP ${providerRes.status}`);
+      const resultado = await emitirConSiigo(supabase, config, draft as DianInvoiceDraft);
 
       await supabase.from('facturas_electronicas').upsert(
         {
           pedido_id: pedido.id,
-          estado,
-          proveedor: providerName,
-          numero_factura: numeroFactura || null,
-          cufe: cufe || null,
-          payload,
-          respuesta: providerJson,
-          error: errorText,
+          estado: resultado.estado,
+          proveedor: PROVEEDOR,
+          numero_factura: resultado.numeroFactura,
+          cufe: resultado.cufe,
+          payload: resultado.payloadEnviado,
+          respuesta: resultado.respuesta,
+          error: resultado.error,
         },
         { onConflict: 'pedido_id' }
       );
       await supabase
         .from('pedidos')
-        .update({ facturacion_electronica_estado: estado })
+        .update({ facturacion_electronica_estado: resultado.estado })
         .eq('id', pedido.id);
 
       void trackEvent(
         FN_NAME,
-        estado === 'emitida' ? 'factura_emitida' : 'factura_rechazada',
-        { pedido_id: pedido.id, estado, numero_factura: numeroFactura || null },
-        { nivel: estado === 'emitida' ? 'info' : 'warn' }
+        resultado.estado === 'emitida' ? 'factura_emitida' : 'factura_rechazada',
+        {
+          pedido_id: pedido.id,
+          estado: resultado.estado,
+          numero_factura: resultado.numeroFactura,
+        },
+        { nivel: resultado.estado === 'emitida' ? 'info' : 'warn' }
       );
 
       return new Response(
         JSON.stringify({
-          ok: providerRes.ok,
-          estado,
-          numero_factura: numeroFactura || null,
-          cufe: cufe || null,
+          ok: resultado.ok,
+          estado: resultado.estado,
+          numero_factura: resultado.numeroFactura,
+          cufe: resultado.cufe,
         }),
         {
           status: 200,
@@ -177,13 +216,14 @@ Deno.serve(
         }
       );
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Error desconocido al emitir factura';
+      const message =
+        err instanceof Error ? err.message : 'Error desconocido al emitir factura Siigo';
       await supabase.from('facturas_electronicas').upsert(
         {
           pedido_id: pedido.id,
           estado: 'error',
-          proveedor: providerName,
-          payload,
+          proveedor: PROVEEDOR,
+          payload: draft,
           error: message,
         },
         { onConflict: 'pedido_id' }

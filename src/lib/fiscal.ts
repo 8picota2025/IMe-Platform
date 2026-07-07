@@ -246,11 +246,14 @@ export interface DianInvoiceDraft {
     total: number;
   };
   lineas: Array<{
+    producto_id?: string | undefined;
+    slug?: string | undefined;
     codigo?: string | null;
     descripcion: string;
     cantidad: number;
     precio_unitario: number;
     base_neta: number;
+    tarifa_iva_pct: number;
     iva: number;
     retencion_fuente: number;
     retencion_iva: number;
@@ -298,11 +301,14 @@ export function buildDianInvoiceDraft(args: {
       total: fiscal.total,
     },
     lineas: fiscal.lineas.map(line => ({
+      producto_id: line.producto_id,
+      slug: line.slug,
       codigo: line.dian_codigo ?? null,
       descripcion: line.nombre ?? line.slug ?? 'Item',
       cantidad: line.cantidad,
       precio_unitario: line.precio_unitario,
       base_neta: line.base_neta,
+      tarifa_iva_pct: line.tarifa_iva_pct,
       iva: line.iva,
       retencion_fuente: line.retencion_fuente,
       retencion_iva: line.retencion_iva,
