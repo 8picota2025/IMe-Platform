@@ -136,7 +136,7 @@ BOOLEAN NOT NULL DEFAULT true` + `disponible_actualizado_at TIMESTAMPTZ` y
 - [x] Webhook Wompi `transaction.updated` — bug de firma corregido el 2026-06-20:
       `wompiEventoHash` omitía el campo `timestamp` del payload en el cálculo SHA256
       (`property_values + events_secret` en vez de `property_values + timestamp +
-  events_secret`), causando que toda validación fallara y retornara 401 sin
+events_secret`), causando que toda validación fallara y retornara 401 sin
       registrar nada en `eventos_pago`. Fix en `_shared/payment-gateway.ts` +
       `webhook-wompi` redeployada. NO_EJECUTADO_ENTORNO: reenviar evento sandbox
       en el dashboard de Wompi para confirmar persistencia en `eventos_pago`.
@@ -243,6 +243,17 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
 
 ## BLOQUEANTE_CONTENIDO — Falta contenido real
 
+- [ ] Fichas de producto sin enriquecer tras el lote de 29 productos del 2026-07-07
+      (`content(producto): enriquecer 29 fichas restantes...`) — 5 productos se
+      quedaron sin `especificaciones`/`beneficios_es/en`/`valor_es/en` reales: - `sk-cd1-v3k`, `skm-c-skb037b`, `sks025`: el `ficha_pdf` asignado es un
+      archivo placeholder de 233-254 bytes sin contenido real (probablemente
+      un PDF generado sin datos, pendiente de que el proveedor entregue la
+      ficha real). - `ot-300c`, `am-6000-plus`: el `ficha_pdf` apunta a `datasheet-01.pdf`,
+      que en realidad es un brochure de mamografía de Angell Technology
+      (usado correctamente para `dm156`) — no corresponde a una mesa de
+      operaciones ni a una máquina de anestesia. Error de asignación de
+      archivo en el origen de datos; hay que ubicar/cargar el PDF correcto
+      de cada producto antes de poder enriquecerlos sin inventar contenido.
 - [x] FAQ real (contenido centralizado en `src/data/contenido_ime.json` y consumido por Home ES/EN con `FAQPage` JSON-LD)
 - [x] Descripción real de las familias de equipos (`src/data/mock-familias.json` consolidado con copy ES/EN revisado para las 9 familias activas; el hueco original venía de `extraccion_ime.json`, no de la capa que consume el sitio)
 - [x] Logos/iconos específicos por familia en catálogo (`CatalogoExplorer.astro` ya renderiza iconografía por familia y `getFamilias()` preserva/resuelve `icono` tanto en mock como en Supabase)
