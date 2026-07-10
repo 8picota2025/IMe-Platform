@@ -56,7 +56,43 @@
     "descripcion_corta_en": "Neo-Tee, or T-piece resuscitator, is a device designed to provide positive pressure ventilation to patients up to 10 kg.",
     "descripcion_larga_es": "Neo-Tee, o reanimador de pieza en T, es un dispositivo diseñado para proporcionar ventilación con presión positiva a pacientes de hasta 10 kg. Permite controlar y asegurar tanto la presión inspiratoria máxima (PIP) como la presión positiva al final de la espiración (PEEP), mediante un manómetro de colores confiable y fácil de leer, que ofrece una visualización clara y permite limitar la presión según las necesidades del clínico.",
     "descripcion_larga_en": "Neo-Tee, or T-piece resuscitator, is a device designed to provide positive pressure ventilation to patients up to 10 kg. The reliable and easy-to-read color-coded manometer allows control and assurance of both maximum inspiratory pressure (PIP) and positive end-expiratory pressure (PEEP). It offers clear visualization and pressure limiting according to clinician needs, making it a reliable, safe and effective tool for neonatal resuscitation.",
-    "especificaciones": [],
+    "especificaciones": [
+      {
+        "clave": "Función principal",
+        "valor": "Resucitador de pieza en T desechable para ventilación con presión positiva en pacientes neonatales e infantiles",
+        "grupo": "Función principal"
+      },
+      {
+        "clave": "Rango de manómetro",
+        "valor": "0-60 cm H2O, con precisión de ±3 cm H2O hasta 15 cm H2O y ±5 cm H2O por encima de 15 cm H2O",
+        "grupo": "Presión y control"
+      },
+      {
+        "clave": "Control PIP",
+        "valor": "Controlador en línea con botón de anulación (override) que permite superar los 40 cm H2O cuando el clínico lo requiere",
+        "grupo": "Presión y control"
+      },
+      {
+        "clave": "Circuito PEEP",
+        "valor": "Circuito de PEEP más alto (perilla naranja) con válvula de alivio que limita la ventilación a un máximo de 60 cm H2O",
+        "grupo": "Presión y control"
+      },
+      {
+        "clave": "Configuración de referencia 10-50843",
+        "valor": "Circuito con controlador en línea y botón de anulación, manómetro 0-60 cm H2O, mascarilla de cojín infantil y mascarilla de cojín neonatal; caja de 10 unidades",
+        "grupo": "Presentación"
+      },
+      {
+        "clave": "Materiales",
+        "valor": "Libre de DEHP y compatible con entornos de resonancia magnética (MR Conditional)",
+        "grupo": "Materiales y seguridad"
+      },
+      {
+        "clave": "Uso",
+        "valor": "Dispositivo desechable de un solo uso, sin necesidad de limpieza ni equipo de capital",
+        "grupo": "Materiales y seguridad"
+      }
+    ],
     "imagen_principal": "/assets/productos/importados/resucitador-neo-tee-ref-10-50843-mercury/imagen-principal-resucitador-neo-tee-ref-10-50843-mercury.png",
     "galeria": [
       "/assets/productos/importados/resucitador-neo-tee-ref-10-50843-mercury/imagen-principal-resucitador-neo-tee-ref-10-50843-mercury.png"
@@ -82,8 +118,24 @@
       "Delivery room ventilatory support",
       "Neonatal transport"
     ],
-    "marca": "Resucitador Neo",
-    "proveedor_ref": "equitronic"
+    "marca": "Mercury Medical",
+    "proveedor_ref": "equitronic",
+    "beneficios_es": [
+      "Puede controlar con precisión tanto la PIP como la PEEP gracias a su manómetro codificado por colores, fácil de leer incluso a distancia.",
+      "Su botón de anulación en el controlador en línea le permite superar los 40 cm H2O cuando la condición del paciente lo exige, sin cambiar de dispositivo.",
+      "Al ser desechable, elimina los costos de limpieza y reprocesamiento, y reduce el riesgo de infección cruzada entre pacientes.",
+      "Es libre de DEHP y compatible con entornos de resonancia magnética, lo que le da flexibilidad para usarlo en sala de partos, UCIN y transporte.",
+      "Su circuito de PEEP más alto, con válvula de alivio a 60 cm H2O, le da un margen adicional de seguridad en los casos que requieren mayor soporte."
+    ],
+    "beneficios_en": [
+      "You can precisely control both PIP and PEEP thanks to its color-coded, easy-to-read manometer, legible even from a distance.",
+      "Its override button on the in-line controller lets you exceed 40 cm H2O when the patient's condition requires it, without switching devices.",
+      "Being disposable, it eliminates cleaning and reprocessing costs and reduces the risk of cross-infection between patients.",
+      "It is DEHP-free and MR Conditional, giving you flexibility to use it in labor and delivery, the NICU, and transport.",
+      "Its Higher PEEP circuit, with a pressure relief valve at 60 cm H2O, gives you an extra safety margin in cases that require greater support."
+    ],
+    "valor_es": "Un manómetro que se lee de un vistazo y un botón de anulación que responde cuando el recién nacido más lo necesita.",
+    "valor_en": "A manometer you can read at a glance, and an override button that responds when the newborn needs it most."
   },
   {
     "id": "df61a031-1a71-44c3-a816-bfe3c1c666b1",
@@ -195,7 +247,53 @@
     "descripcion_corta_en": "Biolight P18 modular patient monitor combines cutting-edge technology with ergonomic design awarded Red Dot: Product Design 2021, reflecting innovation and excellence in medical engineering.",
     "descripcion_larga_es": "El Monitor Modular de Paciente Biolight P18 combina tecnología de vanguardia con un diseño ergonómico galardonado con el premio Red Dot: Diseño de Producto 2021, reflejando su innovación y excelencia en ingeniería médica.\n\nSu pantalla Full HD de 18.5 pulgadas, amplia y multitáctil, ofrece una visualización nítida, a color y de alto contraste, que permite a los profesionales de la salud evaluar y gestionar datos clínicos con rapidez y precisión.\n\nDiseñado para entornos críticos, el P18 se adapta a pacientes adultos, pediátricos y neonatales, facilitando la monitorización integral en UCI, quirófanos o salas de recuperación.\n\nAdemás, cuenta con módulos hemodinámicos avanzados, una interfaz intuitiva, larga autonomía de batería y una amplia gama de configuraciones opcionales, garantizando monitoreo continuo, confiable y eficiente en cualquier escenario hospitalario.",
     "descripcion_larga_en": "Biolight P18 modular patient monitor combines cutting-edge technology with ergonomic design awarded Red Dot: Product Design 2021, reflecting innovation and excellence in medical engineering. Its 18.5-inch Full HD wide multitouch display offers sharp, high-contrast color visualization enabling healthcare professionals to evaluate and manage clinical data quickly and accurately. Designed for critical environments, P18 adapts to adult, pediatric and neonatal patients, facilitating comprehensive monitoring in ICUs, ORs or recovery rooms. Features advanced hemodynamic modules, intuitive interface, long battery autonomy and wide range of optional configurations, ensuring continuous, reliable and efficient monitoring in any hospital scenario.",
-    "especificaciones": [],
+    "especificaciones": [
+      {
+        "clave": "Pantalla",
+        "grupo": "Pantalla y diseño",
+        "valor": "Multitáctil Full HD de 18.5″, resolución 1920×1080 px"
+      },
+      {
+        "clave": "Peso",
+        "grupo": "Pantalla y diseño",
+        "valor": "Menor a 7 kg"
+      },
+      {
+        "clave": "Slots modulares",
+        "grupo": "Diseño modular",
+        "valor": "6 bahías para módulos de parámetros"
+      },
+      {
+        "clave": "Parámetros monitoreados",
+        "grupo": "Parámetros monitoreados",
+        "valor": "ECG de 12 derivaciones (ARR/ST, QT/QTc), SpO₂, transmisión neuromuscular (NMT/TOF), actividad cerebral (BIS, EEG, rSO₂) y gases diagnósticos (CO₂, O₂, AG)"
+      },
+      {
+        "clave": "Módulos hemodinámicos avanzados",
+        "grupo": "Parámetros monitoreados",
+        "valor": "IBP/PPV/PAWP, ICG y gasto cardíaco (C.O.)"
+      },
+      {
+        "clave": "Herramientas clínicas",
+        "grupo": "Herramientas clínicas",
+        "valor": "Sepsis View y BOA (Balance of Anesthesia) integrados"
+      },
+      {
+        "clave": "Autonomía",
+        "grupo": "Autonomía",
+        "valor": "Batería de larga duración"
+      },
+      {
+        "clave": "Compatibilidad de paciente",
+        "grupo": "Compatibilidad de paciente",
+        "valor": "Adultos, pediátricos y neonatales"
+      },
+      {
+        "clave": "Reconocimiento de diseño",
+        "grupo": "Reconocimientos",
+        "valor": "Red Dot: Diseño de Producto 2021"
+      }
+    ],
     "imagen_principal": "/assets/productos/importados/monitor-de-paciente-modular-serie-p-ref-p18-biolight/imagen-principal-monitor-de-paciente-modular-serie-p-ref-p18-biolight.jpg",
     "galeria": [
       "/assets/productos/importados/monitor-de-paciente-modular-serie-p-ref-p18-biolight/imagen-principal-monitor-de-paciente-modular-serie-p-ref-p18-biolight.jpg",
@@ -220,8 +318,24 @@
       "Salas de recuperación posanestésica"
     ],
     "aplicaciones_en": ["Adult intensive care", "Operating room", "Post-anesthesia recovery rooms"],
-    "marca": "Monitor Modular",
-    "proveedor_ref": "equitronic"
+    "marca": "Biolight",
+    "proveedor_ref": "equitronic",
+    "beneficios_es": [
+      "Evalúa hemodinamia avanzada con IBP, PPV/PAWP, ICG y gasto cardíaco (C.O.) directamente en tu monitor P18.",
+      "Su pantalla Full HD de 18.5″, amplia y multitáctil, facilita la lectura de datos clínicos en UCI, quirófano o recuperación.",
+      "6 bahías modulares te permiten adaptar el equipo a la complejidad de cada paciente, adulto, pediátrico o neonatal.",
+      "Sepsis View y BOA integrados apoyan decisiones clínicas basadas en las guías SSC más recientes.",
+      "Diseño premiado Red Dot 2021 y batería de larga duración para monitoreo confiable en cualquier escenario hospitalario."
+    ],
+    "beneficios_en": [
+      "Assess advanced hemodynamics with IBP, PPV/PAWP, ICG and cardiac output (C.O.) directly on your P18 monitor.",
+      "Its wide 18.5″ Full HD multitouch display makes clinical data easy to read in ICU, OR or recovery room.",
+      "6 modular bays let you adapt the equipment to each patient's complexity — adult, pediatric or neonatal.",
+      "Built-in Sepsis View and BOA support clinical decisions based on the latest SSC guidelines.",
+      "Red Dot 2021 award-winning design and long-lasting battery for reliable monitoring in any hospital scenario."
+    ],
+    "valor_es": "Un monitor que va más allá del signo vital básico: hemodinamia avanzada y guías clínicas integradas para las decisiones más críticas.",
+    "valor_en": "A monitor that goes beyond basic vital signs — advanced hemodynamics and built-in clinical guidance for the most critical decisions."
   },
   {
     "id": "9d066872-e5c3-4bfa-8214-85edea4d688f",
@@ -235,7 +349,48 @@
     "descripcion_corta_en": "Fourth-generation oscillator ventilator with bidirectional fast-moving valve technology for conventional and high-frequency ventilation from 300 g to 30 kg.",
     "descripcion_larga_es": "El ventilador convencional y de alta frecuencia SLE6000 es oscilatorio de cuarta generación, con tecnología de válvulas de rápido movimiento bidireccional, asegura un desempeño poderoso, efectivo y confiable durante la terapia. Permite la adaptación en pacientes prematuros e infantes desde 300g hasta 30 kg. La onda de presión cuadrada permite que se entreguen mejores volúmenes corrientes con el requerimiento de menores presiones.\n\nEste equipo está diseñado para ofrecer un monitoreo preciso y completo de la función pulmonar, brindando una visualización clara y en tiempo real de los parámetros ventilatorios. Su tecnología avanzada asegura un rendimiento eficiente, con opciones de ventilación tanto invasiva como no invasiva. Además, está optimizado para proporcionar un soporte respiratorio silencioso y potente para pacientes pequeños, mientras ofrece terapias de oxígeno de alto flujo con una compensación automática ante fugas.",
     "descripcion_larga_en": "The SLE6000 conventional and high-frequency ventilator is a fourth-generation oscillator with bidirectional fast-moving valve technology, ensuring powerful, effective and reliable performance during therapy. It adapts to premature and infant patients from 300 g to 30 kg. The square pressure wave enables better tidal volumes at lower pressures. This equipment is designed to offer precise and complete monitoring of lung function, providing clear, real-time visualization of ventilatory parameters. Its advanced technology ensures efficient performance with both invasive and non-invasive ventilation options. Additionally, it is optimized to provide silent, powerful respiratory support for small patients while offering high-flow oxygen therapies with automatic leak compensation.",
-    "especificaciones": [],
+    "especificaciones": [
+      {
+        "clave": "Función principal",
+        "valor": "Ventilador neonatal-pediátrico oscilatorio de alta frecuencia (HFOV) de cuarta generación, con modos convencionales y no invasivos integrados",
+        "grupo": "Función principal"
+      },
+      {
+        "clave": "Rango de pacientes",
+        "valor": "Diseñado para pacientes prematuros e infantes desde 300 g",
+        "grupo": "Capacidad"
+      },
+      {
+        "clave": "Tecnología de alta frecuencia oscilatoria",
+        "valor": "Sistema de entrega HFOV activo en inspiración y espiración, sin válvulas (valveless), que permite ajustar Frecuencia, MAP y dP para controlar el aclaramiento de CO2 y la entrega de O2",
+        "grupo": "Alta frecuencia oscilatoria"
+      },
+      {
+        "clave": "Ventilación con volumen objetivo",
+        "valor": "Volume Targeting Ventilation de serie para ventilación protectora pulmonar",
+        "grupo": "Modos de ventilación"
+      },
+      {
+        "clave": "Modos disponibles",
+        "valor": "HFOV, ventilación mecánica convencional (CMV), SIMV, SIMV+PS, PSV, PTV, VTV, nCPAP, NIPPV, NIPPV disparada, nHFOV y DuoPap",
+        "grupo": "Modos de ventilación"
+      },
+      {
+        "clave": "Control de oxígeno",
+        "valor": "OxyGenie® control automatizado de FiO2 (opcional) en todos los modos de ventilación, integrado con monitoreo continuo de SpO2 (Masimo SET) y CO2",
+        "grupo": "Monitoreo"
+      },
+      {
+        "clave": "Interfaz y conectividad",
+        "valor": "Pantalla táctil capacitiva de alta visibilidad con múltiples modos de visualización (curvas, tendencias, valores respiratorios) y salida RS232 para integración con sistemas de información hospitalaria",
+        "grupo": "Interfaz y conectividad"
+      },
+      {
+        "clave": "Fabricante",
+        "valor": "SLE Limited (Inspiration Healthcare Group), Croydon, Inglaterra",
+        "grupo": "Fabricante"
+      }
+    ],
     "imagen_principal": "/assets/productos/importados/ventilador-neonatal-pedriatrico-alta-frecuencia-convencional-ref-6000-sle/imagen-principal-ventilador-neonatal-pedriatrico-alta-frecuencia-convencional-ref-6000-sle.png",
     "galeria": [
       "/assets/productos/importados/ventilador-neonatal-pedriatrico-alta-frecuencia-convencional-ref-6000-sle/imagen-principal-ventilador-neonatal-pedriatrico-alta-frecuencia-convencional-ref-6000-sle.png",
@@ -267,8 +422,24 @@
       "Pediatric respiratory support",
       "Nasal high flow therapy"
     ],
-    "marca": "Ventilador Neonatal",
-    "proveedor_ref": "equitronic"
+    "marca": "SLE",
+    "proveedor_ref": "equitronic",
+    "beneficios_es": [
+      "Puede cubrir todo el espectro de soporte respiratorio neonatal —desde alta frecuencia oscilatoria hasta ventilación convencional y no invasiva— con un mismo equipo.",
+      "Su sistema HFOV valveless de entrega activa en inspiración y espiración le permite ajustar con precisión Frecuencia, MAP y dP para lograr el aclaramiento de CO2 que su paciente necesita, incluso desde 300 g.",
+      "Con OxyGenie® y el monitoreo continuo de SpO2 y CO2, puede mantener al paciente dentro del rango terapéutico de oxígeno sin ajustes manuales constantes.",
+      "La ventilación con volumen objetivo de serie le da una capa adicional de protección pulmonar en cada modo.",
+      "Su salida RS232 y pantalla táctil de alta visibilidad facilitan la integración con los sistemas de información de su unidad y el seguimiento clínico continuo."
+    ],
+    "beneficios_en": [
+      "You can cover the entire spectrum of neonatal respiratory support —from high-frequency oscillation to conventional and non-invasive ventilation— with a single device.",
+      "Its valveless HFOV delivery system, active on both inspiration and expiration, lets you precisely adjust Frequency, MAP and dP to achieve the CO2 clearance your patient needs, even from 300 g.",
+      "With OxyGenie® and continuous SpO2/CO2 monitoring, you can keep the patient within the therapeutic oxygen range without constant manual adjustments.",
+      "Standard Volume Targeting Ventilation gives you an added layer of lung protection in every mode.",
+      "Its RS232 output and high-visibility touchscreen make it easy to integrate with your unit's information systems and support continuous clinical follow-up."
+    ],
+    "valor_es": "Del oscilador de alta frecuencia a la ventilación convencional, un mismo equipo que acompaña al recién nacido más pequeño en cada etapa de su cuidado.",
+    "valor_en": "From high-frequency oscillation to conventional ventilation, a single device that supports the smallest newborn through every stage of care."
   },
   {
     "id": "59fc3861-269e-4aa2-b691-61061ddda528",
@@ -282,7 +453,48 @@
     "descripcion_corta_en": "The Biolight P12 Modular Patient Monitor combines clinical precision, compact design and advanced modular technology to offer reliable monitoring in all hospital areas.",
     "descripcion_larga_es": "El Monitor Modular de Paciente Biolight P12 combina precisión clínica, diseño compacto y tecnología modular avanzada para ofrecer un monitoreo confiable en todas las áreas hospitalarias. Galardonado con el premio Red Dot: Diseño de Producto 2021, destaca por su calidad, funcionalidad y facilidad de uso.\n\nSu pantalla Full HD de 12.1 pulgadas, multitáctil y de alta sensibilidad, proporciona una visualización nítida y clara de los parámetros vitales, facilitando la toma de decisiones rápidas en entornos críticos.\n\nDiseñado para pacientes adultos, pediátricos y neonatales, el P12 permite la lectura precisa de ECG, SpO₂, presión arterial no invasiva, frecuencia respiratoria y temperatura, con opciones modulares para añadir funciones avanzadas como CO₂, BIS o EEG.\n\nGracias a su interfaz intuitiva, diseño ergonómico y conectividad total (LAN/Wi-Fi), el P12 se integra fácilmente en redes hospitalarias y sistemas de monitoreo central. Su versatilidad lo convierte en una solución ideal para UCIN, UCI, quirófano y salas de recuperación, garantizando rendimiento continuo y seguridad del paciente en todo momento.",
     "descripcion_larga_en": "The Biolight P12 Modular Patient Monitor combines clinical precision, compact design and advanced modular technology for reliable monitoring across all hospital areas. Red Dot Product Design Prize 2021 winner, it features a 12.1-inch Full HD multitouch display for clear vital sign visualization. Suitable for adult, pediatric and neonatal patients, it measures ECG, SpO₂, non-invasive blood pressure, respiratory rate and temperature, with modular expansion options for CO₂, BIS or EEG. Its intuitive interface and LAN/Wi-Fi connectivity enable seamless integration into hospital networks and central monitoring systems, making it ideal for NICUs, ICUs, operating rooms and recovery rooms.",
-    "especificaciones": [],
+    "especificaciones": [
+      {
+        "clave": "Pantalla",
+        "grupo": "Pantalla y diseño",
+        "valor": "Multitáctil Full HD de 12.1″, resolución 1280×800 px"
+      },
+      {
+        "clave": "Peso",
+        "grupo": "Pantalla y diseño",
+        "valor": "Menor a 5 kg"
+      },
+      {
+        "clave": "Slots modulares",
+        "grupo": "Diseño modular",
+        "valor": "4 bahías para módulos de parámetros"
+      },
+      {
+        "clave": "Parámetros estándar",
+        "grupo": "Parámetros monitoreados",
+        "valor": "ECG, SpO₂, presión arterial no invasiva (NIBP), frecuencia respiratoria y temperatura"
+      },
+      {
+        "clave": "Parámetros avanzados opcionales",
+        "grupo": "Parámetros monitoreados",
+        "valor": "CO₂, BIS o EEG mediante módulos ampliables"
+      },
+      {
+        "clave": "Conectividad",
+        "grupo": "Conectividad",
+        "valor": "Red LAN/Wi-Fi para integración con sistemas de monitoreo central hospitalario"
+      },
+      {
+        "clave": "Compatibilidad de paciente",
+        "grupo": "Compatibilidad de paciente",
+        "valor": "Adultos, pediátricos y neonatales"
+      },
+      {
+        "clave": "Reconocimiento de diseño",
+        "grupo": "Reconocimientos",
+        "valor": "Red Dot: Diseño de Producto 2021"
+      }
+    ],
     "imagen_principal": "/assets/productos/importados/monitor-de-paciente-p12-biolight/imagen-principal-monitor-de-paciente-p12-biolight.jpg",
     "galeria": [
       "/assets/productos/importados/monitor-de-paciente-p12-biolight/imagen-principal-monitor-de-paciente-p12-biolight.jpg",
@@ -311,8 +523,24 @@
       "Operating room",
       "General ward network integration"
     ],
-    "marca": "Monitor Modular",
-    "proveedor_ref": "equitronic"
+    "marca": "Biolight",
+    "proveedor_ref": "equitronic",
+    "beneficios_es": [
+      "Visualiza los parámetros esenciales del paciente en una pantalla multitáctil Full HD de 12.1″, con opción de sumar hasta 4 módulos según las necesidades de tu servicio.",
+      "Integra CO₂, BIS o EEG cuando tu unidad lo requiera, sin cambiar de monitor: el P12 crece con tu servicio clínico.",
+      "Conecta el equipo a tu red hospitalaria por LAN/Wi-Fi e intégralo a tu sistema de monitoreo central sin fricciones.",
+      "Un mismo monitor para adultos, pediátricos y neonatales te da flexibilidad real en UCIN, UCI o quirófano.",
+      "Su diseño reconocido con el Red Dot: Diseño de Producto 2021 combina calidad clínica y facilidad de uso en el día a día."
+    ],
+    "beneficios_en": [
+      "View essential patient parameters on a 12.1″ Full HD multitouch screen, with the option to add up to 4 modules as your unit's needs grow.",
+      "Add CO₂, BIS or EEG whenever your unit needs them, without switching monitors — the P12 grows with your clinical service.",
+      "Connect the monitor to your hospital network via LAN/Wi-Fi and integrate it into your central monitoring system with no friction.",
+      "One monitor for adult, pediatric and neonatal patients gives you real flexibility across NICU, ICU or operating room.",
+      "Its Red Dot: Product Design 2021 award-winning design combines clinical quality and everyday ease of use."
+    ],
+    "valor_es": "Un monitor que crece con tu servicio: empieza con lo esencial y suma módulos avanzados a medida que la complejidad clínica lo exige.",
+    "valor_en": "A monitor that grows with your unit — start with the essentials and add advanced modules as clinical complexity demands."
   },
   {
     "id": "afdac94b-a18b-4549-bbc0-825b51bea6d5",
@@ -494,7 +722,38 @@
     "descripcion_corta_en": "The Biolight P1 Modular Patient Monitor combines advanced technology and compact design to provide continuous and reliable monitoring during transport and in demanding clinical environments.",
     "descripcion_larga_es": "El Monitor de Paciente Modular Biolight P1 combina tecnología avanzada y diseño compacto para ofrecer un monitoreo continuo y confiable durante el transporte y la atención en entornos clínicos exigentes.\n\nGalardonado con el premio Red Dot: Diseño de Producto 2021, este monitor integra una pantalla multitáctil de alta resolución, nítida y a color, que permite visualizar parámetros en tiempo real de manera clara y eficiente.\n\nDiseñado para pacientes adultos, pediátricos y neonatales, el P1 garantiza precisión diagnóstica y autonomía prolongada, con batería de larga duración y estructura resistente, ideal para ambulancias, quirófanos y unidades de cuidados intensivos.\n\nSu compatibilidad con toda la Serie P permite mantener la continuidad del monitoreo durante el transporte, optimizando la seguridad del paciente y la eficiencia operativa en hospitales y clínicas.",
     "descripcion_larga_en": "The Biolight P1 Modular Patient Monitor combines advanced technology and compact design to provide continuous and reliable monitoring during transport and in demanding clinical environments. Awarded the Red Dot Product Design Prize 2021, it features a high-resolution multitouch display for real-time parameter visualization. Designed for adult, pediatric and neonatal patients, it offers extended battery life and robust construction, making it suitable for ambulances, operating rooms and intensive care units. Compatibility with the entire P Series ensures monitoring continuity during patient transfers.",
-    "especificaciones": [],
+    "especificaciones": [
+      {
+        "clave": "Pantalla",
+        "grupo": "Pantalla y diseño",
+        "valor": "Multitáctil de alta resolución, a color, sin dimensión específica reportada en la ficha de la serie"
+      },
+      {
+        "clave": "Autonomía de batería",
+        "grupo": "Autonomía",
+        "valor": "Batería de larga duración para monitoreo continuo durante el traslado del paciente"
+      },
+      {
+        "clave": "Construcción",
+        "grupo": "Diseño y portabilidad",
+        "valor": "Diseño compacto y estructura resistente, orientado a transporte en ambulancias y traslados intrahospitalarios"
+      },
+      {
+        "clave": "Compatibilidad de paciente",
+        "grupo": "Compatibilidad de paciente",
+        "valor": "Adultos, pediátricos y neonatales"
+      },
+      {
+        "clave": "Compatibilidad de serie",
+        "grupo": "Conectividad",
+        "valor": "Compatible con el resto de la Serie P Biolight, para mantener la continuidad del monitoreo entre equipos durante el transporte"
+      },
+      {
+        "clave": "Reconocimiento de diseño",
+        "grupo": "Reconocimientos",
+        "valor": "Red Dot: Diseño de Producto 2021"
+      }
+    ],
     "imagen_principal": "/assets/productos/importados/monitor-de-paciente-p1-biolight/imagen-principal-monitor-de-paciente-p1-biolight.jpg",
     "galeria": [
       "/assets/productos/importados/monitor-de-paciente-p1-biolight/imagen-principal-monitor-de-paciente-p1-biolight.jpg",
@@ -523,8 +782,24 @@
       "Emergency mobile care",
       "Support in ICU and operating room"
     ],
-    "marca": "Monitor de",
-    "proveedor_ref": "equitronic"
+    "marca": "Biolight",
+    "proveedor_ref": "equitronic",
+    "beneficios_es": [
+      "Lleva el monitoreo continuo del paciente desde la ambulancia hasta la UCI, sin interrupciones, gracias a su compatibilidad con toda la Serie P Biolight.",
+      "Visualiza los parámetros vitales con claridad en su pantalla multitáctil de alta resolución, incluso en movimiento.",
+      "Su batería de larga duración y estructura resistente te dan autonomía real para traslados prolongados, sin comprometer la precisión diagnóstica.",
+      "Diseño compacto pensado para espacios reducidos: ambulancias, quirófanos y unidades de cuidados intensivos.",
+      "Monitorea con la misma confiabilidad a pacientes adultos, pediátricos y neonatales, sin cambiar de equipo."
+    ],
+    "beneficios_en": [
+      "Keep continuous patient monitoring from the ambulance to the ICU without interruption, thanks to full compatibility with the Biolight P Series.",
+      "View vital signs clearly on its high-resolution multitouch display, even on the move.",
+      "Long-lasting battery and rugged construction give you real autonomy for extended transfers, without compromising diagnostic accuracy.",
+      "Compact design built for tight spaces: ambulances, operating rooms and intensive care units.",
+      "Monitor adult, pediatric and neonatal patients with the same reliability, without switching equipment."
+    ],
+    "valor_es": "Un monitor de transporte diseñado para que el registro del paciente no se interrumpa entre la ambulancia, el quirófano y la UCI.",
+    "valor_en": "A transport monitor designed so patient records never break the chain — from ambulance to operating room to ICU."
   },
   {
     "id": "002cf180-39c2-43f1-9e47-dc5b75527942",
@@ -683,7 +958,38 @@
     "descripcion_corta_en": "The CritiCool Mini is equipment designed to provide servo-controlled hypothermia therapy for pediatric and neonatal patients in a non-invasive manner.",
     "descripcion_larga_es": "El CritiCool Mini es un equipo diseñado para proporcionar terapia de hipotermia servocontrolada en pacientes pediátricos y neonatales de forma no invasiva. El respaldo brindado por su batería, con una autonomía de 60 minutos, y su peso ligero permiten cumplir con las ventanas de tiempo establecidas para la terapia de hipotermia, mejorando las probabilidades de éxito en el tratamiento del paciente.\n\nLa terapia de hipotermia se utiliza en situaciones críticas. El CritiCool Mini mide con precisión la temperatura central del paciente a través de sondas de temperatura cada 133 milisegundos. El sistema ajusta automáticamente la temperatura en función de la temperatura de referencia programable, con una opción preestablecida de 33,5 °C, lo que lo hace seguro en escenarios de protección neurológica.",
     "descripcion_larga_en": "The CritiCool Mini is equipment designed to provide servo-controlled hypothermia therapy for pediatric and neonatal patients in a non-invasive manner. Its battery backup, with 60 minutes of autonomy, and its lightweight design allow compliance with established time windows for hypothermia therapy, improving the chances of success in patient treatment. Hypothermia therapy is used in critical situations. CritiCool Mini accurately measures the patient's core temperature through temperature probes every 133 milliseconds. The system automatically adjusts temperature based on a programmable reference temperature, with a preset option of 33.5 °C, making it safe in neurological protection scenarios.",
-    "especificaciones": [],
+    "especificaciones": [
+      {
+        "clave": "Función principal",
+        "valor": "Sistema de hipotermia servocontrolada: la bomba de calor Peltier ajusta la temperatura del agua circulante para enfriar o recalentar al paciente según el punto de ajuste definido por el médico.",
+        "grupo": "Función principal"
+      },
+      {
+        "clave": "Modos de terapia",
+        "valor": "Flujo guiado en 4 pasos: SET (definir temperatura objetivo), WRAP (aplicar la manta CureWrap™), COOL (enfriamiento rápido) y REWARM (recalentamiento controlado).",
+        "grupo": "Modos de terapia"
+      },
+      {
+        "clave": "Monitoreo y sensores",
+        "valor": "2 canales de temperatura del paciente (núcleo y superficie) con lectura cada 66 milisegundos; rango de sensor de 15°C a 44°C y precisión de ±0,3°C.",
+        "grupo": "Monitoreo y sensores"
+      },
+      {
+        "clave": "Interfaz",
+        "valor": "Pantalla táctil a color de 5,7\" (320x240) con monitoreo gráfico en tiempo real y registro de datos mediante CliniLogger™.",
+        "grupo": "Interfaz"
+      },
+      {
+        "clave": "Manta CureWrap™",
+        "valor": "Manta térmica de un solo uso en tallas Infant, Pediatric (S/M/L/XL) y Adult, con hasta 85% de cobertura de superficie corporal.",
+        "grupo": "Accesorios"
+      },
+      {
+        "clave": "Especificaciones técnicas",
+        "valor": "Tanque de agua de 6 litros; bomba de circulación de 1,2 L/min; temperatura de salida del agua entre 13°C y 40,8°C; peso neto de 34 kg.",
+        "grupo": "Especificaciones técnicas"
+      }
+    ],
     "imagen_principal": "/assets/productos/importados/sistema-de-hipotermia-criticool-mini-belmont/imagen-principal-sistema-de-hipotermia-criticool-mini-belmont.png",
     "galeria": [
       "/assets/productos/importados/sistema-de-hipotermia-criticool-mini-belmont/imagen-principal-sistema-de-hipotermia-criticool-mini-belmont.png",
@@ -713,8 +1019,24 @@
       "Neuroprotection in cardiac arrest",
       "Critical patient transport"
     ],
-    "marca": "Sistema de",
-    "proveedor_ref": "equitronic"
+    "marca": "Belmont",
+    "proveedor_ref": "equitronic",
+    "beneficios_es": [
+      "Controla la temperatura corporal del paciente pediátrico o neonatal con precisión servocontrolada, leyendo su temperatura núcleo cada 66 milisegundos y ajustando el enfriamiento o recalentamiento de forma automática.",
+      "Ayuda a cumplir las ventanas de tiempo críticas de la terapia de hipotermia gracias a su autonomía de batería de 60 minutos y su peso ligero, facilitando el traslado del paciente sin interrumpir el tratamiento.",
+      "Su manta CureWrap™ de un solo uso, disponible en tallas neonatales y pediátricas, cubre hasta el 85% de la superficie corporal para maximizar la transferencia de calor.",
+      "Permite un seguimiento continuo del proceso mediante pantalla táctil a color y gráficos en tiempo real, con registro de datos a través de CliniLogger™ para trazabilidad clínica.",
+      "El flujo guiado de set, wrap, cool y rewarm simplifica la aplicación de la terapia incluso en situaciones de urgencia neonatal."
+    ],
+    "beneficios_en": [
+      "Controls the pediatric or neonatal patient's core body temperature with servo-controlled precision, reading core temperature every 66 milliseconds and automatically adjusting cooling or rewarming.",
+      "Helps meet the critical time windows of hypothermia therapy thanks to its 60-minute battery autonomy and light weight, making it easier to move the patient without interrupting treatment.",
+      "Its single-use CureWrap™ garment, available in neonatal and pediatric sizes, covers up to 85% of body surface area to maximize heat transfer.",
+      "Enables continuous monitoring of the process through a full-color touch-screen display and real-time graphs, with data logging via CliniLogger™ for clinical traceability.",
+      "The guided set-wrap-cool-rewarm workflow simplifies applying the therapy even in neonatal emergency situations."
+    ],
+    "valor_es": "Un aliado en el manejo preciso y oportuno de la hipotermia terapéutica en los pacientes más vulnerables: los neonatos y niños.",
+    "valor_en": "An ally in the precise, timely management of therapeutic hypothermia for the most vulnerable patients: newborns and children."
   },
   {
     "id": "bc7bd033-1ecb-4b27-8a16-f556dd11fe36",
@@ -730,29 +1052,44 @@
     "descripcion_larga_en": "Compact steam autoclave with a 430-liter capacity designed to meet the highest hospital sterilization standards. Compliant with ASME and PED regulations, it offers multiple cycles and precise temperature control. Its optimized size fits sterilization centers with limited space.",
     "especificaciones": [
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Volumen: 430 L"
+        "clave": "Función principal",
+        "valor": "Autoclave hospitalario de vapor de la serie angosta T-Max, diseñado para CSSD, quirófano y centros médicos",
+        "grupo": "Función principal"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Dimensiones: 660×660×990 mm (T-Max 6)"
+        "clave": "Capacidad",
+        "valor": "430 litros de volumen de cámara, con capacidad para 6 STU (unidades de esterilización estándar)",
+        "grupo": "Capacidad"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Múltiples opciones de ciclo"
+        "clave": "Dimensiones de cámara",
+        "valor": "660 x 660 x 990 mm",
+        "grupo": "Dimensiones"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Rango completo de temperaturas"
+        "clave": "Dimensiones externas",
+        "valor": "Ancho 999 mm, alto 1980 mm, profundidad 1400 mm (una puerta) / 1310 mm (dos puertas)",
+        "grupo": "Dimensiones"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Cumple ASME y PED"
+        "clave": "Rango de temperatura",
+        "valor": "105°C a 138°C",
+        "grupo": "Ciclos y control"
+      },
+      {
+        "clave": "Panel de control",
+        "valor": "Pantalla táctil multicolor de 7 pulgadas con controlador Bacsoft, memoria para los últimos 200 ciclos y múltiples niveles de acceso con contraseña",
+        "grupo": "Ciclos y control"
+      },
+      {
+        "clave": "Programas de ciclo",
+        "valor": "8 programas preestablecidos (empacado y sin empacar a 134°C y 121°C, programas especiales para priones) más 20 ciclos personalizables",
+        "grupo": "Ciclos y control"
+      },
+      {
+        "clave": "Normativa",
+        "valor": "Recipientes a presión certificados ASME y PED; cumple ISO 13485:2016, Reglamento de Dispositivos Médicos 2017/745, ISO 9001:2015, ISO 14001:2015 y directiva RoHS",
+        "grupo": "Normativa"
       }
     ],
     "imagen_principal": "/assets/productos/importados/t-max-6/imagen-principal-t-max-6.png",
@@ -777,7 +1114,22 @@
       "Surgical instrument processing",
       "Medical material processing",
       "Nosocomial infection control"
-    ]
+    ],
+    "beneficios_es": [
+      "Su diseño angosto (menos de un metro de ancho) le permite instalar más autoclaves en el mismo espacio de su CSSD, dándole continuidad de esterilización aun si una unidad está en mantenimiento.",
+      "La cámara completamente enchaquetada le asegura una distribución uniforme del calor, sin puntos fríos que comprometan la esterilización.",
+      "Con 8 ciclos preestablecidos y 20 personalizables, puede adaptar el equipo tanto a quirófano (ciclos sin empacar) como a procesamiento central de instrumental y textiles.",
+      "Sus recipientes a presión certificados ASME y PED, junto con la trazabilidad opcional por código de barras, le dan respaldo normativo y control documental de cada carga esterilizada."
+    ],
+    "beneficios_en": [
+      "Its narrow design (under one meter wide) lets you fit more autoclaves into the same CSSD footprint, giving you sterilization continuity even when one unit is under maintenance.",
+      "The fully jacketed chamber ensures uniform heat distribution, with no cold spots that could compromise sterilization.",
+      "With 8 preset cycles and 20 customizable ones, you can adapt the unit to both the operating room (unwrapped cycles) and central instrument and textile reprocessing.",
+      "Its ASME- and PED-certified pressure vessels, together with optional barcode traceability, give you regulatory backing and documented control over every sterilized load."
+    ],
+    "valor_es": "Un autoclave angosto que multiplica la continuidad de esterilización de su central, sin sacrificar capacidad ni control.",
+    "valor_en": "A narrow-footprint autoclave that multiplies your CSSD's sterilization continuity without sacrificing capacity or control.",
+    "marca": "Tuttnauer"
   },
   {
     "id": "0016c354-917d-4bf5-980f-15463b0fbb3b",
@@ -793,39 +1145,44 @@
     "descripcion_larga_en": "3D weight-bearing radiographic system with CBCT for bone evaluation under functional conditions. It acquires images of the cervical spine, lumbar spine, knee, and hip in less than 3 minutes with low dose. It offers MIP, MPR, and VR reconstructions for clinical planning.",
     "especificaciones": [
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Imagen 3D en posición de carga"
+        "clave": "Función principal",
+        "valor": "Sistema radiográfico todo en uno: radiografía 2D, fluoroscopia 2D y reconstrucción 3D (CBCT/DVT) en posición de carga (bipedestación)",
+        "grupo": "Función principal"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "FOV 350 mm (mayor del sector)"
+        "clave": "Tecnología de adquisición",
+        "valor": "Tecnología cone-beam con tubo de rayos X y detector plano fijos; el paciente rota de pie sobre la plataforma a velocidad constante",
+        "grupo": "Tecnología"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Escaneo < 3 minutos"
+        "clave": "Campo de visión",
+        "valor": "350 mm de FOV, el más amplio de la industria según el fabricante, que permite escanear todo el tronco y partes de las extremidades inferiores",
+        "grupo": "Capacidad de escaneo"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Cone-beam CT"
+        "clave": "Tiempo de estudio",
+        "valor": "Escaneo y reconstrucción de una región corporal en aproximadamente 3 minutos, con cambio fluido entre 2D y 3D",
+        "grupo": "Capacidad de escaneo"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Reconstrucción MIP, MPR, VR"
+        "clave": "Dosis de radiación",
+        "valor": "Utiliza entre el 10% y el 20% de la radiación de una tomografía computarizada espiral convencional",
+        "grupo": "Seguridad radiológica"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Escaneo 3D cervical, lumbar, rodilla, cadera"
+        "clave": "Regiones anatómicas",
+        "valor": "Columna cervical, columna torácica, columna lumbar, pierna completa, pelvis y cadera, rodilla, tobillo y vía aérea",
+        "grupo": "Capacidad de escaneo"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Baja dosis"
+        "clave": "Herramientas de análisis",
+        "valor": "Reconstrucción MPR (planos coronal, sagital y transversal), proyección de máxima intensidad (MIP), renderizado de volumen (VR), medición automática de ángulo de Cobb 3D y detección automática de vértebras",
+        "grupo": "Software y análisis"
+      },
+      {
+        "clave": "Compatibilidad",
+        "valor": "Compatible con el software de planificación preoperatoria mediCAD®",
+        "grupo": "Software y análisis"
       }
     ],
     "imagen_principal": "/assets/productos/importados/wr-3d/imagen-principal-wr-3d.jpg",
@@ -853,7 +1210,24 @@
       "Cadera",
       "Vías respiratorias"
     ],
-    "aplicaciones_en": ["Cervical spine", "Lumbar spine", "Knee joint", "Hip", "Airway assessment"]
+    "aplicaciones_en": ["Cervical spine", "Lumbar spine", "Knee joint", "Hip", "Airway assessment"],
+    "beneficios_es": [
+      "Puede evaluar la columna, la pelvis, la cadera o la rodilla en condiciones funcionales de carga —de pie— en lugar de en decúbito, lo que revela alteraciones biomecánicas que un CT o una resonancia en posición acostada no muestran.",
+      "Con un campo de visión de 350 mm, el más amplio de su categoría, puede escanear todo el tronco o partes de las extremidades inferiores sin fragmentar el estudio.",
+      "El escaneo completo de una región toma cerca de 3 minutos, y puede alternar entre 2D y 3D sin tiempos de espera, lo que mejora el rendimiento de su sala.",
+      "Utiliza entre 10% y 20% de la dosis de un CT espiral convencional, reduciendo la exposición del paciente sin sacrificar el detalle 3D.",
+      "Su compatibilidad con mediCAD® y sus mediciones automáticas de ángulo de Cobb 3D agilizan la planificación prequirúrgica y el seguimiento postoperatorio de patologías de columna."
+    ],
+    "beneficios_en": [
+      "You can evaluate the spine, pelvis, hip or knee under functional weight-bearing conditions —standing— instead of lying down, revealing biomechanical changes that a supine CT or MRI won't show.",
+      "With a 350 mm field of view, the widest in its category, you can scan the entire trunk or parts of the lower limbs without fragmenting the study.",
+      "A full regional scan takes about 3 minutes, and you can switch between 2D and 3D with no waiting time, improving your room's throughput.",
+      "It uses 10% to 20% of the dose of a conventional spiral CT, reducing patient exposure without sacrificing 3D detail.",
+      "Its compatibility with mediCAD® and automatic 3D Cobb angle measurements speed up preoperative planning and postoperative follow-up of spinal conditions."
+    ],
+    "valor_es": "Una imagen 3D de columna y extremidades tomada de pie, en menos de tres minutos y con una fracción de la dosis de un CT convencional.",
+    "valor_en": "A 3D image of the spine and limbs taken standing up, in under three minutes, at a fraction of a conventional CT dose.",
+    "marca": "Angell Technology"
   },
   {
     "id": "314b540e-0b35-41d5-88d3-6d4f249a4c08",
@@ -2027,7 +2401,38 @@
     "descripcion_corta_en": "ThermoWrap blanket covers the patient like a suit, secured with adjustable hook-and-loop straps without compromising functionality.",
     "descripcion_larga_es": "La manta ThermoWrap cubre al paciente a modo de traje, asegurado con tiras de gancho y bucle que pueden ajustarse fácilmente sin comprometer su funcionalidad. Incorpora canales internos que permiten un flujo continuo de agua, lo cual facilita la transferencia de energía térmica al paciente. La temperatura del agua se regula automáticamente en función de la información proporcionada por sensores de temperatura central y superficial colocados en el paciente.",
     "descripcion_larga_en": "ThermoWrap blanket covers the patient like a suit, secured with adjustable hook-and-loop straps. Incorporates internal channels allowing continuous water flow for efficient heat transfer to the patient. Water temperature is automatically regulated based on information from central and superficial temperature sensors placed on the patient.",
-    "especificaciones": [],
+    "especificaciones": [
+      {
+        "clave": "Función principal",
+        "valor": "Manta térmica desechable de un solo uso que se conecta al equipo Allon® mediante conectores rápidos (QCC) y hace circular agua en circuito cerrado para transferir energía térmica al paciente.",
+        "grupo": "Función principal"
+      },
+      {
+        "clave": "Talla y presentación",
+        "valor": "Referencia 524-03118, talla Infant para pacientes de 2,5 a 4 kg; dimensiones de 0,660 m de largo por 0,465 m de ancho; caja con 24 unidades.",
+        "grupo": "Talla y presentación"
+      },
+      {
+        "clave": "Diseño",
+        "valor": "Manta de una pieza con forma corporal y malla suave con canales de alivio de presión integrados; hasta 85% de cobertura de superficie corporal.",
+        "grupo": "Diseño"
+      },
+      {
+        "clave": "Fijación",
+        "valor": "Se asegura con tiras de gancho y bucle que se adhieren a la manta, no al paciente.",
+        "grupo": "Fijación"
+      },
+      {
+        "clave": "Compatibilidad",
+        "valor": "Diseñada para uso con el sistema Allon® de normotermia perioperatoria.",
+        "grupo": "Compatibilidad"
+      },
+      {
+        "clave": "Duración de uso",
+        "valor": "Uso continuo de hasta 28 horas.",
+        "grupo": "Duración de uso"
+      }
+    ],
     "imagen_principal": "/assets/productos/importados/manta-thermowrap-ref-524/imagen-principal-manta-thermowrap-ref-524.png",
     "galeria": [
       "/assets/productos/importados/manta-thermowrap-ref-524/imagen-principal-manta-thermowrap-ref-524.png"
@@ -2053,8 +2458,24 @@
       "Support in medium-duration procedures",
       "Postoperative thermal regulation"
     ],
-    "marca": "Manta Thermowrap",
-    "proveedor_ref": "equitronic"
+    "marca": "Belmont",
+    "proveedor_ref": "equitronic",
+    "beneficios_es": [
+      "Envuelve al paciente neonatal de 2,5 a 4 kg como un traje ajustable, gracias a sus tiras de gancho y bucle que se adaptan sin comprometer la circulación de agua.",
+      "Sus canales internos permiten un flujo continuo de agua que transfiere la energía térmica de forma uniforme sobre hasta el 85% de la superficie corporal.",
+      "La temperatura del agua se ajusta automáticamente según los sensores de temperatura del paciente conectados al equipo Allon®, sin intervención manual constante.",
+      "Es de un solo uso, lo que garantiza higiene y evita el riesgo de contaminación cruzada entre pacientes.",
+      "Su malla suave con canales de alivio de presión protege la piel delicada del neonato durante el uso prolongado de la terapia."
+    ],
+    "beneficios_en": [
+      "Wraps the neonatal patient weighing 2.5 to 4 kg like an adjustable suit, thanks to hook-and-loop straps that adapt without compromising water circulation.",
+      "Its internal channels enable continuous water flow that transfers thermal energy evenly across up to 85% of body surface area.",
+      "Water temperature adjusts automatically based on the patient temperature sensors connected to the Allon® unit, without constant manual intervention.",
+      "It is single-use, ensuring hygiene and eliminating the risk of cross-contamination between patients.",
+      "Its soft mesh with built-in pressure-relief channels protects the newborn's delicate skin during prolonged therapy use."
+    ],
+    "valor_es": "Un aliado silencioso que envuelve al paciente más pequeño con el cuidado térmico preciso que su recuperación exige.",
+    "valor_en": "A quiet ally that wraps the smallest patients in the precise thermal care their recovery demands."
   },
   {
     "id": "c0ce059b-2205-4d71-bc1a-55ab15048baa",
@@ -5278,7 +5699,53 @@
     "descripcion_corta_en": "The Biolight P22 Modular Patient Monitor represents the highest innovation in advanced clinical monitoring.",
     "descripcion_larga_es": "El Monitor Modular de Paciente Biolight P22 representa la máxima innovación en monitoreo clínico avanzado. Galardonado con el premio Red Dot: Diseño de Producto 2021, este equipo combina tecnología de vanguardia y diseño ergonómico para ofrecer una experiencia de uso precisa, eficiente y segura.\n\nSu pantalla Full HD de 22 pulgadas, multitáctil y de alto brillo, proporciona una visualización nítida y detallada en cualquier entorno clínico, facilitando la interpretación de datos en tiempo real. Diseñado para pacientes adultos, pediátricos y neonatales, el P22 se adapta a los entornos más críticos, como quirófanos, unidades de cuidados intensivos y áreas de anestesia.\n\nIncluye módulos personalizables y funciones avanzadas como BIS, EEG, rSO₂, NMT y capnografía, garantizando un monitoreo integral, continuo y confiable en los niveles más altos de atención médica.",
     "descripcion_larga_en": "The Biolight P22 Modular Patient Monitor represents the highest innovation in advanced clinical monitoring. Awarded the Red Dot: Product Design 2021, this equipment combines cutting-edge technology and ergonomic design to deliver a precise, efficient, and safe user experience. Its 22-inch Full HD, multitouch, high-brightness display provides sharp, detailed visualization in any clinical environment, facilitating real-time data interpretation. Designed for adult, pediatric, and neonatal patients, the P22 adapts to the most critical settings such as operating rooms, intensive care units, and anesthesia areas. It includes customizable modules and advanced functions such as BIS, EEG, rSO₂, NMT, and capnography, ensuring comprehensive, continuous, and reliable monitoring at the highest levels of medical care.",
-    "especificaciones": [],
+    "especificaciones": [
+      {
+        "clave": "Pantalla",
+        "grupo": "Pantalla y diseño",
+        "valor": "Multitáctil Full HD de 22″, resolución 1920×1080 px, alto brillo"
+      },
+      {
+        "clave": "Peso",
+        "grupo": "Pantalla y diseño",
+        "valor": "Menor a 8 kg"
+      },
+      {
+        "clave": "Slots modulares",
+        "grupo": "Diseño modular",
+        "valor": "6 bahías para módulos de parámetros"
+      },
+      {
+        "clave": "Actividad cerebral y neuromuscular",
+        "grupo": "Parámetros monitoreados",
+        "valor": "BIS, EEG, rSO₂ (actividad del SNC) y NMT/TOF (transmisión neuromuscular)"
+      },
+      {
+        "clave": "Parámetros cardiorrespiratorios y gases",
+        "grupo": "Parámetros monitoreados",
+        "valor": "ECG de 12 derivaciones (ARR/ST, QT/QTc), SpO₂ y gases diagnósticos (CO₂, O₂, AG / capnografía)"
+      },
+      {
+        "clave": "Hemodinamia",
+        "grupo": "Parámetros monitoreados",
+        "valor": "IBP/PPV/PAWP, ICG y gasto cardíaco (C.O.)"
+      },
+      {
+        "clave": "Herramientas clínicas",
+        "grupo": "Herramientas clínicas",
+        "valor": "Sepsis View y BOA (Balance of Anesthesia) integrados"
+      },
+      {
+        "clave": "Compatibilidad de paciente",
+        "grupo": "Compatibilidad de paciente",
+        "valor": "Adultos, pediátricos y neonatales"
+      },
+      {
+        "clave": "Reconocimiento de diseño",
+        "grupo": "Reconocimientos",
+        "valor": "Red Dot: Diseño de Producto 2021"
+      }
+    ],
     "imagen_principal": "/assets/productos/importados/onitor-de-paciente-p22-biolight/imagen-principal-onitor-de-paciente-p22-biolight.jpg",
     "galeria": [
       "/assets/productos/importados/onitor-de-paciente-p22-biolight/imagen-principal-onitor-de-paciente-p22-biolight.jpg",
@@ -5299,8 +5766,24 @@
     "orden": 0,
     "aplicaciones_es": ["Quirófanos", "Unidades de cuidados intensivos", "Áreas de anestesia"],
     "aplicaciones_en": ["Operating rooms", "Intensive care units", "Anesthesia areas"],
-    "marca": "Monitor Modular",
-    "proveedor_ref": "equitronic"
+    "marca": "Biolight",
+    "proveedor_ref": "equitronic",
+    "beneficios_es": [
+      "Monitorea actividad cerebral con BIS, EEG y rSO₂ en la pantalla más grande de la Serie P: 22″ Full HD multitáctil.",
+      "Evalúa transmisión neuromuscular (NMT/TOF) y capnografía en un mismo equipo, sin sensores ni monitores adicionales.",
+      "6 bahías modulares y hemodinamia avanzada (IBP/PPV/PAWP, ICG, C.O.) lo hacen apto para los quirófanos y UCI más exigentes.",
+      "Apóyate en Sepsis View y BOA para guiar el tratamiento de sepsis y balancear la anestesia con datos objetivos.",
+      "Diseño Red Dot 2021 para monitoreo integral de alta complejidad en adultos, pediátricos y neonatales."
+    ],
+    "beneficios_en": [
+      "Monitor brain activity with BIS, EEG and rSO₂ on the largest screen in the P Series: a 22″ Full HD multitouch display.",
+      "Assess neuromuscular transmission (NMT/TOF) and capnography on the same device, with no extra sensors or monitors.",
+      "6 modular bays and advanced hemodynamics (IBP/PPV/PAWP, ICG, C.O.) make it fit for the most demanding ORs and ICUs.",
+      "Rely on Sepsis View and BOA to guide sepsis treatment and balance anesthesia with objective data.",
+      "Red Dot 2021 design for comprehensive, high-complexity monitoring in adult, pediatric and neonatal patients."
+    ],
+    "valor_es": "El monitor de mayor capacidad de la Serie P, pensado para los escenarios de más alta complejidad: neuromonitoreo, hemodinamia y anestesia en un solo equipo.",
+    "valor_en": "The highest-capacity monitor in the P Series, built for the most complex scenarios — neuromonitoring, hemodynamics and anesthesia in a single device."
   },
   {
     "id": "b477bd3c-c92d-4028-a1bf-78e7fb8555b2",
@@ -5752,7 +6235,38 @@
     "descripcion_corta_en": "The Allon is a high-technology servo-controlled device designed to provide non-invasive normothermia therapy for neonatal, pediatric, and adult patients.",
     "descripcion_larga_es": "El Allon es un equipo servocontrolado de última tecnología diseñado para brindar terapia de normotermia de forma no invasiva en pacientes neonatales, pediátricos y adultos. Consta de dos elementos: el equipo Allon y la manta ThermoWrap™, que permiten un control preciso y continuo de la temperatura corporal (36,5 °C – 37,5 °C). Utiliza algoritmos que imitan la función del hipotálamo, calentando o enfriando automáticamente el agua que circula en la manta para mantener la temperatura requerida.\n\nEste sistema ofrece una solución segura y eficiente para mantener la temperatura óptima durante procedimientos médicos, mejorando la estabilidad del paciente. Su diseño intuitivo y control preciso aseguran una terapia confiable y adaptable a las necesidades específicas en diversas situaciones clínicas.",
     "descripcion_larga_en": "The Allon is state-of-the-art servo-controlled equipment designed to provide non-invasive normothermia therapy for neonatal, pediatric and adult patients. It consists of two elements: the Allon equipment and the ThermoWrap™ blanket, which allow precise and continuous control of body temperature (36.5 °C – 37.5 °C). It uses algorithms that mimic the function of the hypothalamus, automatically heating or cooling the water circulating in the blanket to maintain the required temperature. This system offers a safe and efficient solution to maintain optimal temperature during medical procedures, improving patient stability. Its intuitive design and precise control ensure reliable and adaptable therapy for specific needs in various clinical situations.",
-    "especificaciones": [],
+    "especificaciones": [
+      {
+        "clave": "Función principal",
+        "valor": "Sistema de manejo de temperatura no invasivo que controla y mantiene la normotermia del paciente durante todo el continuo perioperatorio mediante una bomba de calor con algoritmos automáticos.",
+        "grupo": "Función principal"
+      },
+      {
+        "clave": "Etapas de uso",
+        "valor": "Pre-operatorio (calentamiento previo al procedimiento), intra-operatorio (control durante la cirugía) y post-operatorio (mantenimiento en la sala de recuperación).",
+        "grupo": "Etapas de uso"
+      },
+      {
+        "clave": "Monitoreo y sensores",
+        "valor": "2 canales de temperatura del paciente (núcleo y superficie); rango de sensor de 15°C a 44°C y precisión de ±0,3°C.",
+        "grupo": "Monitoreo y sensores"
+      },
+      {
+        "clave": "Interfaz",
+        "valor": "Pantalla táctil a color de 5,7\" (320x240) con monitoreo gráfico en tiempo real y registro de datos mediante CliniLogger™.",
+        "grupo": "Interfaz"
+      },
+      {
+        "clave": "Manta ThermoWrap®",
+        "valor": "Manta de un solo uso en tallas Cardiac, Adult/Universal, Pediatric e Infant, con hasta 85% de cobertura corporal y duración de uso de hasta 28 horas.",
+        "grupo": "Accesorios"
+      },
+      {
+        "clave": "Especificaciones técnicas",
+        "valor": "Tanque de agua de 6 litros; bomba de circulación de 0,2 a 1,25 L/min; temperatura de salida del agua entre 13°C y 40,8°C; peso neto de 34 kg.",
+        "grupo": "Especificaciones técnicas"
+      }
+    ],
     "imagen_principal": "/assets/productos/importados/sistema-de-normotermia-ref-allon-belmont/imagen-principal-sistema-de-normotermia-ref-allon-belmont.png",
     "galeria": [
       "/assets/productos/importados/sistema-de-normotermia-ref-allon-belmont/imagen-principal-sistema-de-normotermia-ref-allon-belmont.png",
@@ -5783,8 +6297,24 @@
       "Perioperative hypothermia prevention",
       "Thermal stabilization in critical procedures"
     ],
-    "marca": "Sistema de",
-    "proveedor_ref": "equitronic"
+    "marca": "Belmont",
+    "proveedor_ref": "equitronic",
+    "beneficios_es": [
+      "Controla y mantiene la normotermia del paciente de forma no invasiva durante todo el proceso perioperatorio: antes, durante y después de la cirugía.",
+      "Ajusta automáticamente la temperatura del agua circulante mediante algoritmos propios, respondiendo en tiempo real a los sensores de temperatura núcleo y superficie del paciente.",
+      "Su manta ThermoWrap®, disponible en versión Cardiac con acceso completo al tórax, permite mantener la temperatura sin interferir con el campo quirúrgico en procedimientos cardíacos.",
+      "Cubre hasta el 85% de la superficie corporal del paciente y puede usarse de forma continua hasta por 28 horas, acompañando procedimientos prolongados.",
+      "Facilita el seguimiento clínico mediante pantalla táctil a color, gráficos en tiempo real y registro de datos con CliniLogger™."
+    ],
+    "beneficios_en": [
+      "Controls and maintains the patient's normothermia non-invasively throughout the entire perioperative process: before, during, and after surgery.",
+      "Automatically adjusts the circulating water temperature using proprietary algorithms, responding in real time to the patient's core and surface temperature sensors.",
+      "Its ThermoWrap® garment, available in a Cardiac version with full access to the torso, helps maintain temperature without interfering with the surgical field during cardiac procedures.",
+      "Covers up to 85% of the patient's body surface area and can be used continuously for up to 28 hours, supporting long procedures.",
+      "Facilitates clinical monitoring through a full-color touch-screen display, real-time graphs, and data logging with CliniLogger™."
+    ],
+    "valor_es": "Un aliado para proteger al paciente de la hipotermia perioperatoria, cuidando su temperatura corporal desde el quirófano hasta la recuperación.",
+    "valor_en": "An ally in protecting patients from perioperative hypothermia, caring for their body temperature from the operating room through recovery."
   },
   {
     "id": "2c048ae7-4b72-4ea4-859d-afc877f054a3",
@@ -6165,7 +6695,43 @@
     "descripcion_corta_en": "The automated aHP system ensures environmental hygiene standards through the unique synergy of our potentiated hydrogen peroxide solution and our microparticle aerosolization process.",
     "descripcion_larga_es": "El sistema automatizado aHP garantiza el estándar de higiene ambiental mediante la sinergia única entre nuestra solución de peróxido de hidrógeno potenciado y nuestro proceso de aerosolización de micropartículas. La tecnología aHP, con su desinfección automática del aire, también se encarga de eliminar patógenos invisibles en superficies de difícil acceso, distribuyendo una niebla seca a través de espacios de hasta 350 m³. Este proceso asegura que tanto las áreas de alto contacto como las de difícil acceso sean desinfectadas de manera eficiente, logrando un cumplimiento óptimo de los estándares de higiene ambiental.",
     "descripcion_larga_en": "Automated high-level disinfection system based on aHP technology (aerosolization of potentiated hydrogen peroxide microparticles). Ensures elimination of pathogens on surfaces and air in spaces up to 350 m³, complying with hospital hygiene standards. Automated dry fog process reaching hard-to-access areas, reducing environmental microbial load.",
-    "especificaciones": [],
+    "especificaciones": [
+      {
+        "clave": "Función principal",
+        "valor": "Sistema automático de desinfección aérea por aerosolización de peróxido de hidrógeno potenciado (aHP), para higiene ambiental hospitalaria",
+        "grupo": "Función principal"
+      },
+      {
+        "clave": "Eficacia",
+        "valor": "Reducción logarítmica de hasta log-6 frente a virus, bacterias, levaduras, mohos, esporas y superbacterias multirresistentes; activo como sistema según NFT 72 281 (pr EN 17272), biocida TP2",
+        "grupo": "Eficacia"
+      },
+      {
+        "clave": "Soluciones",
+        "valor": "Dos formulaciones: biosanitizer aHP P al 6% de peróxido de hidrógeno potenciado (uso preventivo diario) y biosanitizer aHP C al 12% (uso curativo ante brotes)",
+        "grupo": "Consumibles"
+      },
+      {
+        "clave": "Ciclo de trabajo",
+        "valor": "Aerosolización de pocos minutos según el tamaño de la sala, seguida de 30 minutos de tiempo de contacto y ventilación final; ciclo completo de aproximadamente 45 minutos",
+        "grupo": "Operación"
+      },
+      {
+        "clave": "Cobertura",
+        "valor": "Hasta 350 m³ de volumen de sala por ciclo",
+        "grupo": "Capacidad"
+      },
+      {
+        "clave": "Datos técnicos",
+        "valor": "Potencia 1000 W, tensión 230 V, capacidad de tanque 1000 ml, consumo 3 ml/m³, velocidad de salida de aire 80 m/s, turbina a 22000 rpm, peso neto 9 kg",
+        "grupo": "Especificaciones técnicas"
+      },
+      {
+        "clave": "Normativa",
+        "valor": "Certificación CE según EN 60601-1 (2006) y compatibilidad electromagnética EN 60601-1-2 (2007)",
+        "grupo": "Normativa"
+      }
+    ],
     "imagen_principal": "/assets/productos/importados/automate-ref-ahpv1115v-saniswiss/imagen-principal-automate-ref-ahpv1115v-saniswiss.jpg",
     "galeria": [
       "/assets/productos/importados/automate-ref-ahpv1115v-saniswiss/imagen-principal-automate-ref-ahpv1115v-saniswiss.jpg",
@@ -6195,8 +6761,24 @@
       "Disinfection of spaces up to 350 m³",
       "Compliance with hygiene standards"
     ],
-    "marca": "Automate Ref",
-    "proveedor_ref": "equitronic"
+    "marca": "Saniswiss",
+    "proveedor_ref": "equitronic",
+    "beneficios_es": [
+      "Puede lograr una reducción de hasta log-6 de patógenos, incluidas esporas y superbacterias multirresistentes, sin depender de que el personal limpie manualmente cada superficie de difícil acceso.",
+      "Con dos formulaciones —preventiva al 6% y curativa al 12%— puede adaptar el nivel de desinfección a su rutina diaria o a un brote puntual.",
+      "Su niebla seca es compatible con equipos eléctricos y materiales sensibles a la humedad, por lo que no necesita retirar dispositivos antes de desinfectar la sala.",
+      "El ciclo completo —aerosolización, 30 minutos de contacto y ventilación— toma cerca de 45 minutos, permitiéndole recuperar la sala en el mismo turno.",
+      "Es portátil y cubre hasta 350 m³, por lo que puede movilizarlo entre quirófano, UCI, habitación de paciente y hasta la cocina hospitalaria."
+    ],
+    "beneficios_en": [
+      "You can achieve up to a log-6 reduction of pathogens, including spores and multidrug-resistant superbugs, without relying on staff manually cleaning every hard-to-reach surface.",
+      "With two formulations —a 6% preventive and a 12% curative— you can match the disinfection level to your daily routine or to a specific outbreak.",
+      "Its dry mist is compatible with electrical equipment and moisture-sensitive materials, so you don't need to remove devices before disinfecting the room.",
+      "The full cycle —aerosolization, 30 minutes of contact time, and ventilation— takes about 45 minutes, letting you recover the room within the same shift.",
+      "It's portable and covers up to 350 m³, so you can move it between the OR, ICU, patient room, and even the hospital kitchen."
+    ],
+    "valor_es": "Una niebla seca de peróxido de hidrógeno potenciado que llega a cada rincón que la limpieza manual suele dejar atrás.",
+    "valor_en": "A dry mist of boosted hydrogen peroxide that reaches every corner manual cleaning tends to miss."
   },
   {
     "id": "5c9db274-1ee0-4d04-aba9-18deaab8353c",
@@ -6426,7 +7008,103 @@
     "descripcion_corta_en": "Next-generation mechanical ventilator with advanced user interface, high-performance turbine and intelligent monitoring for adult, pediatric and infant critical care.",
     "descripcion_larga_es": "El Ventilador Mecánico Monnal TEO integra una interfaz de usuario de última generación, diseñada para ofrecer una experiencia operativa intuitiva y eficiente, facilitando una gestión clínica segura en pacientes adultos, pediátricos e infantes. Equipado con una turbina de alto rendimiento, proporciona una ventilación precisa, constante y adaptable a las exigencias de los entornos críticos más complejos.\n\nEste avanzado sistema incorpora una completa gama de modos ventilatorios y herramientas de monitoreo inteligente, que optimizan la toma de decisiones clínicas en tiempo real. Además, su sensor de flujo de alta sensibilidad asegura una detección inmediata del esfuerzo inspiratorio, potenciando significativamente la eficacia de la ventilación invasiva y no invasiva.",
     "descripcion_larga_en": "The Monnal TEO mechanical ventilator integrates a next-generation user interface designed for an intuitive and efficient operating experience, enabling safe clinical management in adult, pediatric and infant patients. Equipped with a high-performance turbine, it provides precise, constant ventilation adapted to the demands of the most complex critical care environments. This advanced system incorporates a complete range of ventilatory modes and intelligent monitoring tools that optimize real-time clinical decision-making. Additionally, its high-sensitivity flow sensor ensures immediate detection of inspiratory effort, significantly enhancing the effectiveness of invasive and non-invasive ventilation.",
-    "especificaciones": [],
+    "especificaciones": [
+      {
+        "clave": "Población de pacientes",
+        "valor": "Infantes desde 3 kg, niños y adultos",
+        "grupo": "Rango de uso"
+      },
+      {
+        "clave": "Tipo de equipo",
+        "valor": "Ventilador de cuidados intensivos accionado por turbina (blower-powered)",
+        "grupo": "Rango de uso"
+      },
+      {
+        "clave": "Turbina",
+        "valor": "Tecnología de turbina con subida rápida de presión de 200 cmH2O/s para responder a la demanda inspiratoria del paciente",
+        "grupo": "Tecnología"
+      },
+      {
+        "clave": "Autonomía de aire",
+        "valor": "Solo requiere suministro de oxígeno (alta o baja presión); la ventilación se mantiene incluso ante una falla en el suministro de oxígeno gracias a la turbina",
+        "grupo": "Tecnología"
+      },
+      {
+        "clave": "Uso fuera de UCI",
+        "valor": "La autonomía de aire de la turbina permite su uso también fuera de las unidades de cuidados intensivos",
+        "grupo": "Tecnología"
+      },
+      {
+        "clave": "Pantalla",
+        "valor": "Pantalla táctil capacitiva de 15 pulgadas",
+        "grupo": "Interfaz"
+      },
+      {
+        "clave": "Ayuda dinámica",
+        "valor": "Ventanas de ayuda dinámica con asistencia gráfica y digital instantánea ante cada modificación de la configuración de ventilación",
+        "grupo": "Interfaz"
+      },
+      {
+        "clave": "Personalización de curvas",
+        "valor": "Visualización configurable: 3 curvas, 4 curvas, 2 curvas y 2 loops, 2 curvas y 3 mini-tendencias, o 1 loop simple",
+        "grupo": "Interfaz"
+      },
+      {
+        "clave": "Parámetros en pantalla",
+        "valor": "10 parámetros de monitoreo siempre visibles durante la ventilación",
+        "grupo": "Interfaz"
+      },
+      {
+        "clave": "Exploración de mecánica respiratoria",
+        "valor": "Resistencia estática y distensibilidad estática automáticas para evaluar la mecánica respiratoria del paciente durante toda la terapia",
+        "grupo": "Exploración respiratoria"
+      },
+      {
+        "clave": "Maniobras de reclutamiento",
+        "valor": "Maniobras automáticas para evaluar la reclutabilidad del paciente, con barra lateral dedicada",
+        "grupo": "Exploración respiratoria"
+      },
+      {
+        "clave": "Maniobras de destete",
+        "valor": "Evaluación del esfuerzo respiratorio del paciente para apoyar el weaning: P0.1, NIF, RSBI, AOP y RI Ratio",
+        "grupo": "Exploración respiratoria"
+      },
+      {
+        "clave": "Ventilación protectora",
+        "valor": "Monitoreo alineado con recomendaciones internacionales: presión meseta (Pplat) < 30 cmH2O, Vt = 6 ml/kg de PBW, presión de conducción (driving pressure) < 14 cmH2O",
+        "grupo": "Monitoreo avanzado"
+      },
+      {
+        "clave": "Monitoreo transpulmonar",
+        "valor": "Monitoreo con presión esofágica dedicado a la mecánica transpulmonar (Peso, Plung, EL/ERS)",
+        "grupo": "Monitoreo avanzado"
+      },
+      {
+        "clave": "Distensibilidad y resistencia estática",
+        "valor": "Medición de Cstat y Rstat con un solo botón",
+        "grupo": "Monitoreo avanzado"
+      },
+      {
+        "clave": "Capnografía volumétrica",
+        "valor": "Capnografía volumétrica disponible como función de monitoreo",
+        "grupo": "Monitoreo avanzado"
+      },
+      {
+        "clave": "Clasificación",
+        "valor": "Dispositivo médico clase IIb - Evaluación de conformidad: GMED CE 0459",
+        "grupo": "Normativa y fabricación"
+      },
+      {
+        "clave": "Fabricación",
+        "valor": "Diseñado y fabricado íntegramente en Francia por Air Liquide Medical Systems",
+        "grupo": "Normativa y fabricación"
+      },
+      {
+        "clave": "Gestión ambiental",
+        "valor": "Fabricante certificado ISO 14001:2015 para su sistema de gestión ambiental en el sitio de Antony",
+        "grupo": "Normativa y fabricación"
+      }
+    ],
     "imagen_principal": "/assets/productos/importados/ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-teo-air-liquide/imagen-principal-ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-teo-air-liquide.jpg",
     "galeria": [
       "/assets/productos/importados/ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-teo-air-liquide/imagen-principal-ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-teo-air-liquide.jpg",
@@ -6457,8 +7135,24 @@
       "Adult intensive care",
       "Pediatric intensive care"
     ],
-    "marca": "Ventilador Cuidado",
-    "proveedor_ref": "equitronic"
+    "marca": "Air Liquide",
+    "proveedor_ref": "equitronic",
+    "beneficios_es": [
+      "Su pantalla táctil capacitiva de 15 pulgadas y las ventanas de ayuda dinámica te acompañan en cada ajuste de ventilación, priorizando la protección del paciente más crítico.",
+      "Con maniobras automáticas de resistencia y distensibilidad estática, evalúas la mecánica respiratoria de tus pacientes a lo largo de toda la terapia, sin pasos manuales adicionales.",
+      "Incluye herramientas de destete como P0.1, NIF, RSBI y AOP, que apoyan tus decisiones de weaning con datos objetivos del esfuerzo respiratorio del paciente.",
+      "Su tecnología de turbina le da autonomía de aire y una rápida subida de presión de 200 cmH2O/s, manteniendo la ventilación incluso ante una falla en el suministro de oxígeno.",
+      "Diseñado y fabricado en Francia para unidades de cuidados intensivos, ventila con seguridad a infantes desde 3 kg, niños y adultos."
+    ],
+    "beneficios_en": [
+      "Its 15-inch capacitive touchscreen and dynamic help windows guide you through every ventilation adjustment, prioritizing protection for the most critical patient.",
+      "With automatic static resistance and static compliance maneuvers, you evaluate your patients' respiratory mechanics throughout the entire therapy, with no extra manual steps.",
+      "It includes weaning tools such as P0.1, NIF, RSBI and AOP, supporting your weaning decisions with objective data on the patient's respiratory effort.",
+      "Its turbine technology gives it air autonomy and a rapid pressure rise of 200 cmH2O/s, keeping ventilation running even if the oxygen supply fails.",
+      "Designed and manufactured in France for intensive care units, it safely ventilates infants from 3 kg, children and adults."
+    ],
+    "valor_es": "Un ventilador de cuidados intensivos que traduce la mecánica respiratoria de cada paciente en decisiones clínicas rápidas y protegidas, sin salir de una sola pantalla.",
+    "valor_en": "An intensive care ventilator that turns each patient's respiratory mechanics into fast, protected clinical decisions, all from a single screen."
   },
   {
     "id": "554b665b-600e-4ce1-a275-d782455a7d47",
@@ -6590,7 +7284,53 @@
     "descripcion_corta_en": "Biolight P15 modular patient monitor integrates latest display technology and a Red Dot 2021 award-winning design, meeting highest international medical quality standards.",
     "descripcion_larga_es": "El Monitor Modular de Paciente P15 Biolight integra la última tecnología en pantallas y un diseño premiado Red Dot 2021, cumpliendo los más altos estándares internacionales de calidad en equipos médicos.\n\nSu pantalla multitáctil de alta definición, a todo color y de gran amplitud, permite visualizar la información de manera clara y eficiente. La interfaz intuitiva facilita el control del monitor y la revisión de datos clínicos en tiempo real, adaptándose a los entornos más exigentes con pacientes adultos, pediátricos y neonatales.\n\nDiseñado para el monitoreo clínico de precisión, el P15 ofrece una autonomía prolongada, módulos personalizables y conectividad avanzada, garantizando un rendimiento confiable en unidades de cuidados intensivos, quirófanos y transporte intrahospitalario.",
     "descripcion_larga_en": "Biolight P15 modular patient monitor integrates latest display technology and a Red Dot 2021 award-winning design, meeting highest international medical quality standards. High-definition wide full-color multitouch screen enables clear and efficient information visualization. Intuitive interface facilitates monitor control and real-time clinical data review, adapting to demanding environments with adult, pediatric and neonatal patients. Designed for precision clinical monitoring, P15 offers extended autonomy, customizable modules and advanced connectivity, guaranteeing reliable performance in ICUs, ORs and intrahospital transport.",
-    "especificaciones": [],
+    "especificaciones": [
+      {
+        "clave": "Pantalla",
+        "grupo": "Pantalla y diseño",
+        "valor": "Multitáctil Full HD de 15.6″, resolución 1920×1080 px"
+      },
+      {
+        "clave": "Peso",
+        "grupo": "Pantalla y diseño",
+        "valor": "Menor a 6 kg"
+      },
+      {
+        "clave": "Slots modulares",
+        "grupo": "Diseño modular",
+        "valor": "6 bahías para módulos de parámetros"
+      },
+      {
+        "clave": "Parámetros monitoreados",
+        "grupo": "Parámetros monitoreados",
+        "valor": "ECG de 12 derivaciones (ARR/ST, QT/QTc), SpO₂, transmisión neuromuscular (NMT/TOF), actividad cerebral (BIS, EEG, rSO₂) y gases diagnósticos (CO₂, O₂, AG)"
+      },
+      {
+        "clave": "Hemodinamia",
+        "grupo": "Parámetros monitoreados",
+        "valor": "IBP/PPV/PAWP, ICG y gasto cardíaco (C.O.) como módulos disponibles"
+      },
+      {
+        "clave": "Herramientas clínicas",
+        "grupo": "Herramientas clínicas",
+        "valor": "Sepsis View y BOA (Balance of Anesthesia) integrados"
+      },
+      {
+        "clave": "Autonomía",
+        "grupo": "Autonomía",
+        "valor": "Batería con autonomía prolongada"
+      },
+      {
+        "clave": "Compatibilidad de paciente",
+        "grupo": "Compatibilidad de paciente",
+        "valor": "Adultos, pediátricos y neonatales"
+      },
+      {
+        "clave": "Reconocimiento de diseño",
+        "grupo": "Reconocimientos",
+        "valor": "Red Dot: Diseño de Producto 2021"
+      }
+    ],
     "imagen_principal": "/assets/productos/importados/monitor-de-paciente-modular-serie-p-ref-p15-biolight/imagen-principal-monitor-de-paciente-modular-serie-p-ref-p15-biolight.jpg",
     "galeria": [
       "/assets/productos/importados/monitor-de-paciente-modular-serie-p-ref-p15-biolight/imagen-principal-monitor-de-paciente-modular-serie-p-ref-p15-biolight.jpg",
@@ -6611,8 +7351,24 @@
     "orden": 0,
     "aplicaciones_es": ["Monitoreo en UCI", "Soporte en quirófano", "Transporte intrahospitalario"],
     "aplicaciones_en": ["ICU monitoring", "Operating room support", "Intrahospital transport"],
-    "marca": "Monitor Modular",
-    "proveedor_ref": "equitronic"
+    "marca": "Biolight",
+    "proveedor_ref": "equitronic",
+    "beneficios_es": [
+      "Amplía tu capacidad de monitoreo con 6 bahías modulares en una pantalla Full HD de 15.6″, nítida incluso a distancia.",
+      "Suma parámetros avanzados como ECG de 12 derivaciones, BIS, EEG o rSO₂ según la complejidad de cada paciente.",
+      "Apóyate en Sepsis View y BOA para guiar decisiones clínicas en sepsis y anestesia con criterios estandarizados.",
+      "Su autonomía de batería prolongada mantiene la continuidad del monitoreo durante el transporte intrahospitalario.",
+      "Diseño Red Dot 2021 pensado para adultos, pediátricos y neonatales en UCI y quirófano."
+    ],
+    "beneficios_en": [
+      "Expand your monitoring capacity with 6 modular bays on a 15.6″ Full HD screen, sharp even from a distance.",
+      "Add advanced parameters like 12-lead ECG, BIS, EEG or rSO₂ depending on each patient's complexity.",
+      "Rely on Sepsis View and BOA to guide clinical decisions in sepsis and anesthesia with standardized criteria.",
+      "Its extended battery autonomy keeps monitoring continuous during intrahospital transport.",
+      "Red Dot 2021 design built for adult, pediatric and neonatal patients in ICU and operating room."
+    ],
+    "valor_es": "Pensado para servicios que necesitan visión clínica amplia y modular, sin sacrificar autonomía ni continuidad en el traslado del paciente.",
+    "valor_en": "Built for services that need broad, modular clinical visibility without sacrificing autonomy or continuity during patient transfer."
   },
   {
     "id": "41f2ed80-31ae-442b-bd7c-a9ca9db304dc",
@@ -7032,7 +7788,168 @@
     "descripcion_corta_en": "Transport ventilator with invasive and non-invasive modes, color touchscreen and adaptive ventilation for intra-hospital and inter-hospital patient transport.",
     "descripcion_larga_es": "El Ventilador mecánico de transporte Monnal T60 ha sido diseñado para facilitar la movilidad y brindar a los profesionales de la salud un equipo versátil con los más altos estándares de ventilación para pacientes críticos adultos, pediátricos y lactantes, su interface de usuario intuitiva soluciona y facilita el acceso rápido en los primeros momentos de atención al paciente, asegurando una ventilación adaptativa durante el transporte.\n\nCuenta con modos de ventilación invasivos y no invasivos. Además, su interfaz intuitiva, pantalla táctil a todo color y un amplio número de parámetros monitorizados.",
     "descripcion_larga_en": "The Monnal T60 transport ventilator is designed to facilitate mobility and provide healthcare professionals with a versatile unit meeting the highest ventilation standards for critically ill adult, pediatric and infant patients. Its intuitive user interface solves and facilitates rapid access during the initial moments of patient care, ensuring adaptive ventilation during transport. It features invasive and non-invasive ventilation modes. Additionally, its intuitive interface, full-color touchscreen and a wide range of monitored parameters provide comprehensive clinical support.",
-    "especificaciones": [],
+    "especificaciones": [
+      {
+        "clave": "Categorías de paciente",
+        "valor": "Adulto, niño e infante (desde 3 kg), con peso corporal predicho (PBW) ajustable",
+        "grupo": "Rango de uso"
+      },
+      {
+        "clave": "Entornos de uso",
+        "valor": "Cuidados intensivos, transporte intrahospitalario, servicios de urgencias y atención de trauma, unidades móviles terrestres y aéreas (helicópteros, aviones, transporte médico de larga distancia)",
+        "grupo": "Rango de uso"
+      },
+      {
+        "clave": "Tipos de ventilación",
+        "valor": "Controlada por volumen, controlada por presión, soporte de presión, espontánea",
+        "grupo": "Modos de ventilación"
+      },
+      {
+        "clave": "Modos",
+        "valor": "(A)VCV, (A)VCV-VNI, (A)PCV, (A)PCV-VNI, SIMV, PSV, PSV-VNI, CPAP, APRV; opcionales: PS-Pro, PSIMV, PRVC",
+        "grupo": "Modos de ventilación"
+      },
+      {
+        "clave": "Volumen corriente",
+        "valor": "20 a 2.000 mL",
+        "grupo": "Modos de ventilación"
+      },
+      {
+        "clave": "Frecuencia",
+        "valor": "1 a 80 rpm",
+        "grupo": "Modos de ventilación"
+      },
+      {
+        "clave": "PEEP",
+        "valor": "0 a 20 cmH2O",
+        "grupo": "Modos de ventilación"
+      },
+      {
+        "clave": "FiO2",
+        "valor": "21 a 100%",
+        "grupo": "Modos de ventilación"
+      },
+      {
+        "clave": "Relación I:E",
+        "valor": "1:1 a 1:9",
+        "grupo": "Modos de ventilación"
+      },
+      {
+        "clave": "Oxigenoterapia nasal de alto flujo",
+        "valor": "Adultos: 4 a 80 L/min; niños e infantes: 2 a 60 L/min; FiO2 21 a 100%, con circuito específico, cánula nasal y humidificador calentado",
+        "grupo": "Modos de ventilación"
+      },
+      {
+        "clave": "Turbina",
+        "valor": "Flujo pico de turbina de 230 L/min; suministro de aire autónomo mediante filtro HEPA",
+        "grupo": "Tecnología"
+      },
+      {
+        "clave": "Batería",
+        "valor": "Iones de litio; 5 horas de autonomía total (2h30 batería removible + 2h30 batería interna de seguridad); reemplazo cada 2 años",
+        "grupo": "Tecnología"
+      },
+      {
+        "clave": "Parámetros medidos",
+        "valor": "MVe y MVi (0-99 L/min), VTe y VTi (20-3.000 mL), RR (1-120 c/min), Ppeak/PEEP/Pmean/Pplat (0-100 cmH2O), índice de fuga (0-100%), Ti/Ttot (0-100%), relación I:E (1:0 a 1:99,9), FiO2 (21-100%), CO2 opcional (0-100 mmHg); todos con tendencia registrada salvo la relación I:E",
+        "grupo": "Monitoreo"
+      },
+      {
+        "clave": "Curvas",
+        "valor": "Presión, flujo, volumen y CO2 (opcional); loops presión/volumen, presión/flujo, flujo/volumen y volumen/CO2 (opcional)",
+        "grupo": "Monitoreo"
+      },
+      {
+        "clave": "Tendencias",
+        "valor": "80 horas de ventilación, 1 valor por minuto en todos los parámetros con tendencia",
+        "grupo": "Monitoreo"
+      },
+      {
+        "clave": "Ventilación de apnea",
+        "valor": "Ventilación de apnea en modo VCV, ajustable en Vt, RR y tiempo de apnea",
+        "grupo": "Monitoreo"
+      },
+      {
+        "clave": "Pantalla",
+        "valor": "LCD de 262k colores (18 bits), panel táctil resistivo de 8,4 pulgadas, resolución 640x480 px, luminosidad 800 cd/m2 con retroiluminación LED, ajuste de visualización día/noche",
+        "grupo": "Interfaz"
+      },
+      {
+        "clave": "Alarmas ajustables",
+        "valor": "Presión baja/alta, presión meseta alta, VTi/MVi/MVe/VTe baja/alta, RR baja/alta, FiO2 baja/alta, etCO2 baja/alta",
+        "grupo": "Alarmas y seguridad"
+      },
+      {
+        "clave": "Alarmas específicas",
+        "valor": "Desconexión del paciente, obstrucción espiratoria, sensor de flujo, suministro eléctrico/baterías, suministro de oxígeno, preoxigenación del paciente, cable de red desconectado",
+        "grupo": "Alarmas y seguridad"
+      },
+      {
+        "clave": "Volumen de alarma",
+        "valor": "Ajustable, con 5 niveles de criticidad",
+        "grupo": "Alarmas y seguridad"
+      },
+      {
+        "clave": "Dimensiones",
+        "valor": "29 x 25 x 11 cm (L x A x A)",
+        "grupo": "Especificaciones físicas"
+      },
+      {
+        "clave": "Peso",
+        "valor": "3,7 kg (4 kg con 2 baterías)",
+        "grupo": "Especificaciones físicas"
+      },
+      {
+        "clave": "Alimentación eléctrica",
+        "valor": "100-240 V AC (tolerancia ±10%), 50-60 Hz, consumo máximo de 120 VA (0,12 kW)",
+        "grupo": "Especificaciones físicas"
+      },
+      {
+        "clave": "Suministro neumático de O2",
+        "valor": "Alta presión: 2,8-6 bar / 280-600 kPa / 40-86 psi; baja presión: 0-1,5 bar / 0-150 kPa / 0-22 psi; conexiones NF, DISS, NIST",
+        "grupo": "Especificaciones físicas"
+      },
+      {
+        "clave": "Condiciones ambientales de operación",
+        "valor": "-10°C a +40°C; humedad relativa 0-95% sin condensación a 40°C máx.; presión atmosférica 600-1.150 hPa",
+        "grupo": "Especificaciones físicas"
+      },
+      {
+        "clave": "Condiciones de almacenamiento",
+        "valor": "-20°C a +50°C; humedad relativa 0-95% sin condensación a 40°C máx.; presión atmosférica 600-1.150 hPa",
+        "grupo": "Especificaciones físicas"
+      },
+      {
+        "clave": "Índice de protección",
+        "valor": "IP34",
+        "grupo": "Especificaciones físicas"
+      },
+      {
+        "clave": "Conectores de interfaz",
+        "valor": "VGA, USB-A, USB-B, CO2",
+        "grupo": "Conectividad"
+      },
+      {
+        "clave": "Accesorios de transporte",
+        "valor": "Bolso de transporte, batería removible, estación de carga mural, soporte universal intrahospitalario, carro rodante para humidificador, cilindro de oxígeno, brazo articulado y canasta autoclavable",
+        "grupo": "Accesorios"
+      },
+      {
+        "clave": "Estándares",
+        "valor": "ISO 14971, IEC 60601-1+A1, IEC 60601-1-2, IEC 60601-1-6, IEC 62366-1, IEC 60601-1-8+A1, ISO 80601-2-12, ISO 80601-2-55, EN 794-3+A1+A2, EN 1789+A1, EN 13718-1, IEC 62304, RTCA DO-160",
+        "grupo": "Normativa y fabricación"
+      },
+      {
+        "clave": "Clasificación",
+        "valor": "Dispositivo médico clase IIb de turbina de aire - CE 0459 - Evaluación de conformidad GMED",
+        "grupo": "Normativa y fabricación"
+      },
+      {
+        "clave": "Fabricación",
+        "valor": "Fabricado por Air Liquide Medical Systems; sistema de gestión ambiental certificado ISO 14001:2015",
+        "grupo": "Normativa y fabricación"
+      }
+    ],
     "imagen_principal": "/assets/productos/importados/ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide/imagen-principal-ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide.png",
     "galeria": [
       "/assets/productos/importados/ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide/imagen-principal-ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide.png",
@@ -7064,8 +7981,24 @@
       "Invasive and non-invasive ventilation",
       "Multi-parameter monitoring"
     ],
-    "marca": "Ventilador Mec",
-    "proveedor_ref": "equitronic"
+    "marca": "Air Liquide",
+    "proveedor_ref": "equitronic",
+    "beneficios_es": [
+      "Con solo 3,7 kg de peso y 29x25x11 cm, te acompaña en el traslado intrahospitalario, en ambulancias, helicópteros o aviones sin perder capacidad de ventilación crítica.",
+      "Su batería de iones de litio ofrece hasta 5 horas de autonomía combinada (batería removible más batería interna de seguridad), pensadas para trayectos largos.",
+      "Ventila adultos, niños e infantes desde 3 kg con modos VCV, PCV, PSV, SIMV, CPAP y APRV, además de las opciones PS-Pro, PSIMV y PRVC.",
+      "La oxigenoterapia nasal de alto flujo (4-80 L/min en adultos, 2-60 L/min en niños e infantes) amplía tus opciones de soporte respiratorio no invasivo.",
+      "Incluye accesorios pensados para el transporte: bolso de traslado, batería removible, estación de carga mural y soporte universal intrahospitalario."
+    ],
+    "beneficios_en": [
+      "Weighing just 3.7 kg and measuring 29x25x11 cm, it goes with you during intrahospital transfers, in ambulances, helicopters or airplanes without losing critical ventilation capacity.",
+      "Its lithium-ion battery delivers up to 5 hours of combined autonomy (removable battery plus internal safety battery), built for long transfers.",
+      "It ventilates adults, children and infants from 3 kg with VCV, PCV, PSV, SIMV, CPAP and APRV modes, plus PS-Pro, PSIMV and PRVC options.",
+      "Nasal high-flow oxygen therapy (4-80 L/min in adults, 2-60 L/min in children and infants) expands your non-invasive respiratory support options.",
+      "It includes accessories built for transport: carrying bag, removable battery, wall-mounted charging station and intrahospital universal support."
+    ],
+    "valor_es": "Un ventilador de transporte que sostiene la ventilación crítica desde la cabecera del paciente hasta cualquier punto del traslado, sin comprometer autonomía ni seguridad.",
+    "valor_en": "A transport ventilator that sustains critical ventilation from the patient's bedside to any point of the transfer, without compromising autonomy or safety."
   },
   {
     "id": "0b3f5ed1-4518-4a69-abc2-a7d176928347",
@@ -7764,7 +8697,38 @@
     "descripcion_corta_en": "KLORKLEEN is a high-level disinfectant and cleaner based on organic chlorine, presented as effervescent tablets packaged in polypropylene/polyethylene bottles.",
     "descripcion_larga_es": "KLORKLEEN es un desinfectante y limpiador de alto nivel a base de cloro orgánico, presentado en forma de tabletas efervescentes, las cuales se envasan en frascos de polipropileno/polietileno. Este producto penetra en la membrana celular de los microorganismos y destruye las células desde su interior, evitando que los microorganismos desarrollen procesos adaptativos al componente activo. De este modo, se asegura que no haya resistencia de los microorganismos frente al desinfectante.",
     "descripcion_larga_en": "KLORKLEEN is a high-level disinfectant and cleaner based on organic chlorine, presented as effervescent tablets packaged in polypropylene/polyethylene bottles. This product penetrates the cell membrane of microorganisms and destroys the cells from the inside, preventing microorganisms from developing adaptive processes to the active ingredient. This ensures no resistance of microorganisms to the disinfectant.",
-    "especificaciones": [],
+    "especificaciones": [
+      {
+        "clave": "Presentación",
+        "valor": "Tabletas efervescentes a base de NaDCC (dicloroisocianurato de sodio), envasadas en frascos de polipropileno/polietileno.",
+        "grupo": "Presentación"
+      },
+      {
+        "clave": "Composición",
+        "valor": "Principio activo: NaDCC (cloro orgánico). Cumple la norma EN 14476:2013+A1:2015 de actividad virucida en superficies (incluye SARS-CoV-2) a una concentración de 500 ppm de cloro disponible en condiciones limpias.",
+        "grupo": "Composición"
+      },
+      {
+        "clave": "Indicaciones",
+        "valor": "Limpieza y desinfección de superficies en hospitales, centros de salud e industria alimentaria; uso en áreas críticas (quirófanos, salas de autopsia) y sobre derrames de sangre u otros fluidos corporales.",
+        "grupo": "Indicaciones"
+      },
+      {
+        "clave": "Modo de uso",
+        "valor": "Diluir en agua según la concentración requerida (desde 1 tableta en 10L para 100 ppm hasta 1 tableta en 0,2L para 5000 ppm) y aplicar con trapeador, paño, esponja, cepillo o pulverizador de gota gruesa; dejar actuar de 5 a 15 minutos según el microorganismo objetivo.",
+        "grupo": "Modo de uso"
+      },
+      {
+        "clave": "Precauciones",
+        "valor": "Preparar solución nueva a diario si se usan recipientes abiertos o si la solución se diluye/contamina; en recipientes cerrados (spray) renovar cada 7 días. Usar equipo de protección personal completo si se aplica con pulverizadores mecánicos.",
+        "grupo": "Precauciones"
+      },
+      {
+        "clave": "Almacenamiento",
+        "valor": "Vida útil de 3 años en el envase original cerrado; almacenar en lugar fresco, seco y ventilado, y cerrar bien el envase tras cada uso.",
+        "grupo": "Almacenamiento"
+      }
+    ],
     "imagen_principal": "/assets/productos/importados/klorkleen-1-670mg-ref-411045-medentech/imagen-principal-klorkleen-1-670mg-ref-411045-medentech.png",
     "galeria": [
       "/assets/productos/importados/klorkleen-1-670mg-ref-411045-medentech/imagen-principal-klorkleen-1-670mg-ref-411045-medentech.png",
@@ -7792,8 +8756,22 @@
       "Cleaning in clinical environments",
       "Nosocomial infection control"
     ],
-    "marca": "Klorkleen",
-    "proveedor_ref": "equitronic"
+    "marca": "Medentech",
+    "proveedor_ref": "equitronic",
+    "beneficios_es": [
+      "Limpia y desinfecta en un solo paso gracias a su base de NaDCC, cumpliendo la norma EN 14476:2013+A1:2015 de actividad virucida en superficies frente a SARS-CoV-2 a 500 ppm.",
+      "Le permite ajustar la concentración exacta según el riesgo del área: desde 100 ppm para limpieza general hasta 5000 ppm para derrames de sangre u otros fluidos corporales.",
+      "Elimina esporas de C. difficile en apenas 4 minutos, incluso en condiciones sucias, según los datos del fabricante.",
+      "Su presentación en tabletas efervescentes le evita el manejo de líquidos concentrados y facilita la dosificación exacta cada vez."
+    ],
+    "beneficios_en": [
+      "Cleans and disinfects in a single step thanks to its NaDCC base, meeting the EN 14476:2013+A1:2015 standard for virucidal activity on surfaces against SARS-CoV-2 at 500 ppm.",
+      "Lets you match the exact concentration to the risk level of each area: from 100 ppm for general cleaning up to 5000 ppm for blood or other bodily fluid spillages.",
+      "Kills C. difficile spores in just 4 minutes, even under dirty conditions, according to manufacturer data.",
+      "Its effervescent tablet format spares you from handling concentrated liquids and ensures exact dosing every time."
+    ],
+    "valor_es": "Una solución de limpieza y desinfección en un solo paso, con dosificación exacta y respaldo normativo para cada área crítica de su institución.",
+    "valor_en": "A one-step cleaning and disinfection solution, with exact dosing and standards-backed performance for every critical area of your facility."
   },
   {
     "id": "95585844-dc56-4a07-9b3d-7d9797a8b850",
@@ -8672,7 +9650,38 @@
     "descripcion_corta_en": "KLORSEPT87 is a high-level organic chlorine-based disinfectant in the form of effervescent tablets packaged in polypropylene/polyethylene bottles.",
     "descripcion_larga_es": "KLORSEPT87 es un desinfectante de alto nivel a base de cloro orgánico en forma de tabletas efervescentes las cuales se envasan en frascos de polipropileno / polietileno. Este producto penetra en la membrana celular de cada microorganismo y destruye a las células desde el interior, impidiendo de esta manera procesos adaptativos al componente activo, con lo cual se asegura la nula resistencia de los microorganismos ante el desinfectante.",
     "descripcion_larga_en": "KLORSEPT87 is a high-level disinfectant based on organic chlorine in the form of effervescent tablets packaged in polypropylene/polyethylene bottles. This product penetrates the cell membrane of each microorganism and destroys the cells from the inside, preventing adaptive processes to the active ingredient, thereby ensuring no resistance of microorganisms to the disinfectant.",
-    "especificaciones": [],
+    "especificaciones": [
+      {
+        "clave": "Presentación",
+        "valor": "Tabletas efervescentes a base de cloro orgánico (NaDCC / Troclosene sódico), envasadas en frascos de polipropileno/polietileno.",
+        "grupo": "Presentación"
+      },
+      {
+        "clave": "Composición",
+        "valor": "Principio activo: Troclosene sódico (NaDCC). Excipientes típicos de la gama Klorsept: ácido adípico, bicarbonato de sodio y sulfato de sodio.",
+        "grupo": "Composición"
+      },
+      {
+        "clave": "Indicaciones",
+        "valor": "Desinfección de alto nivel de superficies en entornos clínicos: penetra la membrana celular de los microorganismos y los destruye desde el interior.",
+        "grupo": "Indicaciones"
+      },
+      {
+        "clave": "Modo de uso",
+        "valor": "Disolver la tableta en agua y aplicar la solución con trapeador, paño, esponja, cepillo o pulverizador; dejar actuar el tiempo de contacto indicado en la etiqueta antes de retirar.",
+        "grupo": "Modo de uso"
+      },
+      {
+        "clave": "Precauciones",
+        "valor": "Preparar solución nueva a diario en recipientes abiertos o si se diluye/contamina; seguir siempre las instrucciones de seguridad de la etiqueta y la ficha de datos de seguridad (SDS).",
+        "grupo": "Precauciones"
+      },
+      {
+        "clave": "Certificación",
+        "valor": "Fabricado por Medentech (Wexford, Irlanda) bajo normas de Buenas Prácticas de Manufactura (GMP) y certificación de calidad ISO 9001 e ISO 13485, con inspecciones periódicas de la autoridad reguladora irlandesa (HPRA).",
+        "grupo": "Certificación"
+      }
+    ],
     "imagen_principal": "/assets/productos/importados/klorsept87-8-670mg-ref-411017-medentech/imagen-principal-klorsept87-8-670mg-ref-411017-medentech.png",
     "galeria": [
       "/assets/productos/importados/klorsept87-8-670mg-ref-411017-medentech/imagen-principal-klorsept87-8-670mg-ref-411017-medentech.png",
@@ -8700,8 +9709,22 @@
       "Control of resistant microorganisms",
       "Sterilization of critical surfaces"
     ],
-    "marca": "Klorsept",
-    "proveedor_ref": "equitronic"
+    "marca": "Medentech",
+    "proveedor_ref": "equitronic",
+    "beneficios_es": [
+      "Penetra la membrana celular de cada microorganismo y lo destruye desde el interior, según describe el fabricante, reduciendo el riesgo de que desarrolle resistencia adaptativa al componente activo.",
+      "Se disuelve en agua para preparar una solución lista para aplicar con trapeador, paño, esponja o pulverizador, sin necesidad de manipular líquidos concentrados.",
+      "Proviene de una planta certificada bajo GMP, ISO 9001 e ISO 13485, con inspecciones periódicas de la autoridad reguladora de Irlanda (HPRA).",
+      "Su formato en tableta efervescente facilita una dosificación consistente cada vez que se prepara la solución."
+    ],
+    "beneficios_en": [
+      "Penetrates the cell membrane of each microorganism and destroys it from within, as described by the manufacturer, reducing the risk of adaptive resistance to the active component.",
+      "Dissolves in water to prepare a ready-to-use solution applied with a mop, cloth, sponge, or sprayer, without handling concentrated liquids.",
+      "Comes from a GMP, ISO 9001, and ISO 13485 certified facility, with regular inspections by Ireland's regulatory authority (HPRA).",
+      "Its effervescent tablet format ensures consistent dosing every time the solution is prepared."
+    ],
+    "valor_es": "Un desinfectante de alto nivel respaldado por certificación de calidad internacional, pensado para la exigencia diaria de los entornos clínicos.",
+    "valor_en": "A high-level disinfectant backed by international quality certification, built for the daily demands of clinical environments."
   },
   {
     "id": "49e07d69-42c7-41aa-95ec-878aa5310aeb",
@@ -9282,7 +10305,48 @@
     "descripcion_corta_en": "Servo-controlled thermal humidifier designed for optimal humidified gas delivery to neonatal, pediatric and adult patients.",
     "descripcion_larga_es": "El humidificador térmico MR850 es parte de un sistema completo, diseñado para entregar gas humidificado, con tecnología servocontrolada, de manera óptima a pacientes neonatales, pediátricos y adultos, incorporando algoritmos avanzados diseñados para alcanzar niveles de humedad óptimos. El humidificador MR850 puede ser usado con todos los circuitos destinados a la humidificación activa.\n\nEl MR850 está diseñado para facilitar su uso y operación, ofreciendo una experiencia eficiente y sin complicaciones. Con una interfaz intuitiva, controles simples y un sistema avanzado de alarmas que permite al usuario ajustarse fácilmente a sus necesidades sin dificultades",
     "descripcion_larga_en": "The MR850 thermal humidifier is part of a complete system designed to deliver humidified gas with servo-controlled technology optimally to neonatal, pediatric and adult patients, incorporating advanced algorithms to achieve optimal humidity levels. The MR850 humidifier can be used with all circuits intended for active humidification. It is designed to facilitate use and operation, offering an efficient and uncomplicated experience, with an intuitive interface, simple controls and an advanced alarm system.",
-    "especificaciones": [],
+    "especificaciones": [
+      {
+        "clave": "Dimensiones",
+        "valor": "140 x 173 x 135 mm (sin cámara)",
+        "grupo": "Dimensiones y peso"
+      },
+      {
+        "clave": "Peso",
+        "valor": "2.8 kg sin cámara / 3.1 kg con cámara llena de agua",
+        "grupo": "Dimensiones y peso"
+      },
+      {
+        "clave": "Alimentación eléctrica",
+        "valor": "230 V~, 50/60 Hz, 1.0 A máx.",
+        "grupo": "Alimentación"
+      },
+      {
+        "clave": "Potencia de la placa calefactora",
+        "valor": "150 W",
+        "grupo": "Alimentación"
+      },
+      {
+        "clave": "Rango de temperatura (modo invasivo)",
+        "valor": "Salida de cámara 35.5-42 °C, vía aérea 35-40 °C",
+        "grupo": "Temperatura"
+      },
+      {
+        "clave": "Rango de temperatura (modo no invasivo)",
+        "valor": "Salida de cámara 31-36 °C, vía aérea 28-34 °C",
+        "grupo": "Temperatura"
+      },
+      {
+        "clave": "Rendimiento de humedad",
+        "valor": "Modo invasivo >33 mg/L, modo no invasivo >10 mg/L",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Tiempo de calentamiento",
+        "valor": "Menos de 30 minutos",
+        "grupo": "Rendimiento"
+      }
+    ],
     "imagen_principal": "/assets/productos/importados/humidificador-o-base-calefactora-ref-mr850-fisher-paykel/imagen-principal-humidificador-o-base-calefactora-ref-mr850-fisher-paykel.jpg",
     "galeria": [
       "/assets/productos/importados/humidificador-o-base-calefactora-ref-mr850-fisher-paykel/imagen-principal-humidificador-o-base-calefactora-ref-mr850-fisher-paykel.jpg",
@@ -9311,8 +10375,24 @@
       "Neonatal and pediatric respiratory therapy",
       "Life support"
     ],
-    "marca": "Humidificador o",
-    "proveedor_ref": "equitronic"
+    "marca": "Fisher & Paykel",
+    "proveedor_ref": "equitronic",
+    "beneficios_es": [
+      "Con el MR850 usted cuenta con un control servoasistido de la temperatura que ajusta automáticamente el nivel de humedad según el modo invasivo o no invasivo que su paciente requiera.",
+      "Su pantalla LED de tres dígitos le permite verificar en todo momento la temperatura entregada al paciente, con una precisión de ±0.3 °C.",
+      "Gracias a sus alarmas audibles de alta y baja humedad, usted recibe alertas inmediatas ante desviaciones que podrían comprometer la vía aérea del paciente.",
+      "El tiempo de calentamiento inferior a 30 minutos le permite preparar el sistema con agilidad antes de iniciar la asistencia respiratoria.",
+      "Su compatibilidad con todos los circuitos de humidificación activa le brinda flexibilidad para adaptarse a distintos escenarios clínicos, desde neonatales hasta adultos."
+    ],
+    "beneficios_en": [
+      "With the MR850 you get servo-controlled temperature management that automatically adjusts the humidity level according to whether your patient needs invasive or non-invasive mode.",
+      "Its three-digit LED display lets you check the temperature delivered to the patient at all times, with an accuracy of ±0.3 °C.",
+      "Thanks to its audible high- and low-humidity alarms, you receive immediate alerts to deviations that could compromise the patient's airway.",
+      "A warm-up time of less than 30 minutes lets you prepare the system quickly before starting respiratory support.",
+      "Its compatibility with all active humidification circuits gives you flexibility to adapt to different clinical scenarios, from neonatal to adult patients."
+    ],
+    "valor_es": "Un aliado en los momentos donde el control preciso de la temperatura y la humedad define la seguridad respiratoria del paciente.",
+    "valor_en": "An ally in the moments where precise control of temperature and humidity defines the patient's respiratory safety."
   },
   {
     "id": "08017993-8f3f-4f85-a32c-5b0148b94fa1",
@@ -9529,29 +10609,24 @@
     "descripcion_larga_en": "Horizontal autoclave of 1010 liters with double swing doors and automatic locking, designed for hospital and industrial sterilization. Its stainless steel chamber with trays and 316L loading baskets ensures uniform steam distribution and reproducible sterilization. Chamber dimensions 610×910×1815 mm, ideal for high loading volumes.",
     "especificaciones": [
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Volumen cámara: 1010 L"
+        "clave": "Función principal",
+        "valor": "Autoclave horizontal de vapor con doble puerta batiente y cierre automático, para esterilización central de alto volumen",
+        "grupo": "Función principal"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Dimensiones cámara: 610×910×1815 mm"
+        "clave": "Capacidad",
+        "valor": "1010 litros de volumen de cámara",
+        "grupo": "Capacidad"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Dos puertas batiente con cierre automático"
+        "clave": "Dimensiones de cámara",
+        "valor": "610 x 910 x 1815 mm",
+        "grupo": "Dimensiones"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Bandejas acero inoxidable"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Canastas de carga 316L"
+        "clave": "Configuración de puertas",
+        "valor": "Doble puerta batiente con cierre automático, para separación de zona sucia y zona estéril",
+        "grupo": "Configuración"
       }
     ],
     "imagen_principal": "https://nnfbucwiasuggyfoyydo.supabase.co/storage/v1/object/public/productos/fc6d02da-6eac-4331-80da-207320b90ef5/1783210073775-1000012793-webp",
@@ -9570,7 +10645,20 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": ["Esterilización hospitalaria", "Esterilización industrial"],
-    "aplicaciones_en": ["Hospital sterilization", "Industrial sterilization"]
+    "aplicaciones_en": ["Hospital sterilization", "Industrial sterilization"],
+    "beneficios_es": [
+      "Puede procesar cargas de gran volumen en un solo ciclo gracias a sus 1010 litros de cámara.",
+      "Su doble puerta batiente con cierre automático le permite separar físicamente la zona sucia de la zona estéril, reforzando el flujo unidireccional de su central de esterilización.",
+      "Las dimensiones de cámara (610 x 910 x 1815 mm) le dan espacio suficiente para cargas voluminosas de instrumental y textiles en un solo ciclo."
+    ],
+    "beneficios_en": [
+      "You can process large-volume loads in a single cycle thanks to its 1,010-liter chamber.",
+      "Its double swing door with automatic closing lets you physically separate the dirty area from the sterile area, reinforcing the one-way flow of your sterilization unit.",
+      "The chamber dimensions (610 x 910 x 1,815 mm) give you enough room for bulky loads of instruments and textiles in a single cycle."
+    ],
+    "valor_es": "Una cámara de 1010 litros con doble puerta batiente, pensada para separar sin fisuras la zona sucia de la zona estéril.",
+    "valor_en": "A 1,010-liter chamber with a double swing door, built to keep the dirty side and the sterile side seamlessly apart.",
+    "marca": "Autoclave 5075"
   },
   {
     "id": "f78d1ee4-b92e-4673-bf31-6a80f34c7a22",
@@ -10131,59 +11219,44 @@
     "descripcion_larga_en": "Emergency cart sized 750×475×950 mm equipped with defibrillator shelf, IV pole, CPR board and oxygen support. Features sliding side shelf, power outlet, file box and two trash bins, plus sharps container and central lock. Designed for immediate response in hospitalization, emergency and intensive care units.",
     "especificaciones": [
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Tamaño: 750×475×950 mm"
+        "clave": "Función principal",
+        "valor": "Carro de emergencias hospitalario con repisas para desfibrilador y accesorios de reanimación",
+        "grupo": "Función principal"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Repisa desfibrilador"
+        "clave": "Dimensiones externas",
+        "valor": "750 x 475 x 940 mm (largo x ancho x alto)",
+        "grupo": "Dimensiones"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Repisa lateral deslizante"
+        "clave": "Configuración estándar",
+        "valor": "Repisa para desfibrilador (1), repisa lateral deslizante (1), contenedor de cortopunzantes (1), poste de suero IV (1), tabla de RCP (1), soporte de cilindro de oxígeno (1), tomacorriente (1), cerradura central (1 set), caja de archivos (1), basureros (2), ruedas giratorias (4)",
+        "grupo": "Configuración estándar"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Contenedor punzocortantes"
+        "clave": "Ergonomía",
+        "valor": "Cubierta superior de una sola pieza para mayor protección, agarradera totalmente cubierta y de fácil sujeción, y repisa lateral con forma de agarre elevada para una operación más cómoda",
+        "grupo": "Ergonomía"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Poste suero IV"
+        "clave": "Construcción",
+        "valor": "Ruedas alineadas con las cuatro columnas verticales para mayor estabilidad, incluso con los cajones abiertos y cargados",
+        "grupo": "Ergonomía"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Tabla RCP"
+        "clave": "Accesorios integrados",
+        "valor": "Tomacorriente móvil y desmontable ubicado sobre la tabla de RCP, soporte retráctil de cilindro de oxígeno insertado en el cuerpo del carro, y poste de suero insertado en la columna principal",
+        "grupo": "Accesorios"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Soporte oxígeno"
+        "clave": "Gestión de residuos",
+        "valor": "Basurero de clasificación en dos colores (verde y amarillo)",
+        "grupo": "Accesorios"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Toma corriente"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Cerradura central"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Caja archivos"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "2 basureros"
+        "clave": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd. (China)",
+        "grupo": "Fabricante"
       }
     ],
     "imagen_principal": "/assets/productos/importados/skm-b-skr054-et/imagen-principal-skr054-et.jpg",
@@ -10213,7 +11286,24 @@
       "Advanced support in resuscitation and emergencies",
       "Transport of defibrillator and oxygen in code blue",
       "Intra-hospital emergency care"
-    ]
+    ],
+    "beneficios_es": [
+      "Cuenta con repisa para desfibrilador, tabla de RCP, poste de suero y soporte de oxígeno integrados, todo lo que necesita para una respuesta de emergencia sin tener que buscar equipos sueltos.",
+      "Sus ruedas alineadas con las cuatro columnas le dan estabilidad incluso con los cajones abiertos y cargados de medicamentos o insumos.",
+      "El tomacorriente móvil ubicado sobre la tabla de RCP y el soporte retráctil de oxígeno le permiten conectar y desconectar equipos con rapidez en el momento crítico.",
+      "Los dos basureros de clasificación (verde y amarillo) facilitan el manejo diferenciado de residuos durante la atención.",
+      "Su cerradura central y caja de archivos le dan control sobre el acceso a medicamentos y trazabilidad documental del carro."
+    ],
+    "beneficios_en": [
+      "It comes with a built-in defibrillator shelf, CPR board, IV pole, and oxygen holder, everything you need for an emergency response without hunting for loose equipment.",
+      "Its casters, aligned with the four vertical columns, keep it stable even with the drawers open and loaded with medication or supplies.",
+      "The movable power outlet above the CPR board and the retractable oxygen holder let you connect and disconnect equipment quickly in the critical moment.",
+      "The two color-sorted trash cans (green and yellow) make waste segregation easier during patient care.",
+      "Its central lock and file box give you control over medication access and documentation traceability for the cart."
+    ],
+    "valor_es": "Un carro de emergencias donde cada repisa, cada soporte y cada rueda está pensado para no perder segundos cuando más importan.",
+    "valor_en": "An emergency cart where every shelf, holder, and wheel is built so you don't lose a second when it matters most.",
+    "marca": "Saikang Medical"
   },
   {
     "id": "22c3a49b-c6db-47fd-821f-fb2e9f344b44",
@@ -10774,7 +11864,33 @@
     "descripcion_corta_en": "Klorsept Granules is a non-effervescent composition designed for absorption and disinfection of contaminated liquid spills, especially body fluids, blood or blood products.",
     "descripcion_larga_es": "Klorsept Gránulos es una composición no efervescente diseñada para la absorción y desinfección de derrames líquidos contaminados, especialmente fluidos corporales, sangre o productos sanguíneos. La sangre, como principal fuente de VIH, VHB y otros patógenos transmitidos en el entorno clínico, requiere una desinfección eficaz y rápida. Cada 100g de Klorsept Gránulos tienen la capacidad de absorber entre 1 y 2 litros de derrame, liberando más de 50000mg de cloro disponible por litro. Esto garantiza una acción biocida rápida y completa, proporcionando una solución confiable y eficaz para el control de riesgos biológicos.",
     "descripcion_larga_en": "Klorsept Granules is a non-effervescent composition designed for absorption and disinfection of contaminated liquid spills, especially body fluids, blood or blood products. Blood, as the main source of HIV, HBV and other pathogens transmitted in the clinical environment, requires effective and rapid disinfection. Every 100g of Klorsept Granules can absorb between 1 and 2 liters of spill, releasing more than 50,000 mg of available chlorine per liter. This guarantees a rapid and complete biocidal action, providing a reliable and effective solution for biological risk control.",
-    "especificaciones": [],
+    "especificaciones": [
+      {
+        "clave": "Presentación",
+        "valor": "Gránulos no efervescentes en envase de 500 g, diseñados para absorber y desinfectar derrames líquidos, a diferencia de las tabletas Klorsept que se diluyen en agua.",
+        "grupo": "Presentación"
+      },
+      {
+        "clave": "Indicaciones",
+        "valor": "Absorción y desinfección de derrames de fluidos corporales, sangre o productos sanguíneos, fuentes principales de transmisión de VIH, VHB y otros patógenos en el entorno clínico.",
+        "grupo": "Indicaciones"
+      },
+      {
+        "clave": "Modo de uso",
+        "valor": "Aplicar directamente sobre el derrame para absorber el líquido y desinfectar la superficie; retirar el residuo solidificado según el procedimiento de bioseguridad de la institución.",
+        "grupo": "Modo de uso"
+      },
+      {
+        "clave": "Precauciones",
+        "valor": "Manipular con el equipo de protección personal indicado en la etiqueta y la ficha de datos de seguridad (SDS); desechar el residuo conforme a la normativa local de residuos biológico-infecciosos.",
+        "grupo": "Precauciones"
+      },
+      {
+        "clave": "Certificación",
+        "valor": "Fabricado por Medentech (Wexford, Irlanda) bajo normas de Buenas Prácticas de Manufactura (GMP) y certificación de calidad ISO 9001 e ISO 13485.",
+        "grupo": "Certificación"
+      }
+    ],
     "imagen_principal": "/assets/productos/importados/klorsept-granulos-500gr-ref-1013-medentech/imagen-principal-klorsept-granulos-500gr-ref-1013-medentech.png",
     "galeria": [
       "/assets/productos/importados/klorsept-granulos-500gr-ref-1013-medentech/imagen-principal-klorsept-granulos-500gr-ref-1013-medentech.png"
@@ -10800,8 +11916,22 @@
       "Disinfection of blood and blood products",
       "Biological risk control"
     ],
-    "marca": "Klorsept Gr",
-    "proveedor_ref": "equitronic"
+    "marca": "Medentech",
+    "proveedor_ref": "equitronic",
+    "beneficios_es": [
+      "Absorbe y desinfecta en un solo paso los derrames de sangre u otros fluidos corporales, una de las principales vías de transmisión de VIH, VHB y otros patógenos en el entorno clínico.",
+      "Su formato en gránulos, a diferencia de las tabletas Klorsept que requieren dilución, le permite actuar de inmediato sobre el derrame sin preparar antes una solución.",
+      "Simplifica el protocolo de limpieza ante emergencias biológicas, reduciendo el tiempo de exposición del personal al material contaminado.",
+      "Proviene de una planta certificada bajo GMP, ISO 9001 e ISO 13485, que respalda la consistencia de cada lote."
+    ],
+    "beneficios_en": [
+      "Absorbs and disinfects blood or other bodily fluid spills in a single step — one of the main transmission routes for HIV, HBV, and other pathogens in the clinical setting.",
+      "Its granule format, unlike Klorsept tablets that require dilution, lets you act immediately on a spill without preparing a solution first.",
+      "Simplifies the cleanup protocol during biological emergencies, reducing staff exposure time to contaminated material.",
+      "Comes from a GMP, ISO 9001, and ISO 13485 certified facility, backing the consistency of every batch."
+    ],
+    "valor_es": "Una respuesta inmediata y segura ante derrames biológicos, donde cada segundo de exposición cuenta.",
+    "valor_en": "An immediate, safe response to biological spills, where every second of exposure matters."
   },
   {
     "id": "c6381396-820a-41a8-8a2d-514afbe506ec",
@@ -10868,7 +11998,43 @@
     "descripcion_corta_en": "The Airvo 3 from Fisher & Paykel is a portable and compact high-flow therapy system designed for use in any hospital area without the need for centralized air.",
     "descripcion_larga_es": "El Airvo 3 de Fisher & Paykel es un sistema portátil y compacto para terapia de alto flujo, diseñado para usarse en cualquier área hospitalaria sin necesidad de aire centralizado. Ofrece hasta 60 L/min de flujo, incorpora humidificador y fuente de flujo integrados, y utiliza la interfaz nasal Optiflow. Permite ajustar con precisión el flujo y la FiO₂ según las necesidades del paciente, brindando una atención respiratoria personalizada, eficaz y fácil de usar.",
     "descripcion_larga_en": "The Airvo 3 from Fisher & Paykel is a portable and compact high-flow therapy system designed for use in any hospital area without the need for centralized air. It offers up to 60 L/min flow, incorporates an integrated humidifier and flow source, and uses the Optiflow nasal interface. It allows precise adjustment of flow and FiO2 according to patient needs, providing personalized, effective and easy-to-use respiratory care.",
-    "especificaciones": [],
+    "especificaciones": [
+      {
+        "clave": "Tipo de sistema",
+        "valor": "Humidificador con generador de flujo integrado para pacientes con respiración espontánea",
+        "grupo": "Diseño"
+      },
+      {
+        "clave": "Flujo máximo",
+        "valor": "Hasta 60 L/min",
+        "grupo": "Rendimiento"
+      },
+      {
+        "clave": "Interfaz de paciente",
+        "valor": "Interfaz nasal Optiflow",
+        "grupo": "Accesorios"
+      },
+      {
+        "clave": "Pantalla",
+        "valor": "Pantalla táctil con visualización de datos y gráficos",
+        "grupo": "Diseño"
+      },
+      {
+        "clave": "Alimentación",
+        "valor": "Batería integrada y cable de alimentación, para uso portátil",
+        "grupo": "Alimentación"
+      },
+      {
+        "clave": "Conectividad",
+        "valor": "2 puertos USB",
+        "grupo": "Conectividad"
+      },
+      {
+        "clave": "Suministro de oxígeno",
+        "valor": "Puertos de oxígeno de baja presión (LPO) y alta presión (HPO)",
+        "grupo": "Accesorios"
+      }
+    ],
     "imagen_principal": "/assets/productos/importados/sistema-de-alto-flujo-ref-airvo-3-fisher-paykel/imagen-principal-sistema-de-alto-flujo-ref-airvo-3-fisher-paykel.png",
     "galeria": [
       "/assets/productos/importados/sistema-de-alto-flujo-ref-airvo-3-fisher-paykel/imagen-principal-sistema-de-alto-flujo-ref-airvo-3-fisher-paykel.png",
@@ -10898,8 +12064,24 @@
       "Support in critical and non-critical areas",
       "Humidified oxygen therapy"
     ],
-    "marca": "Sistema de",
-    "proveedor_ref": "equitronic"
+    "marca": "Fisher & Paykel",
+    "proveedor_ref": "equitronic",
+    "beneficios_es": [
+      "Con el Airvo 3 usted puede administrar terapia de alto flujo en cualquier área hospitalaria, sin depender de una toma de aire centralizado.",
+      "Su humidificador y fuente de flujo integrados le permiten trasladar un único equipo compacto entre distintos servicios, apoyado además por su batería integrada.",
+      "La interfaz nasal Optiflow le ofrece una conexión cómoda y bien tolerada por el paciente durante la terapia de alto flujo.",
+      "Su pantalla táctil le facilita ajustar y visualizar los parámetros de flujo y oxígeno de forma intuitiva.",
+      "Con hasta 60 L/min de flujo y ajuste preciso de FiO₂, usted puede adaptar la terapia a las necesidades específicas de cada paciente."
+    ],
+    "beneficios_en": [
+      "With the Airvo 3 you can deliver high-flow therapy in any hospital area, without depending on a centralized air supply.",
+      "Its integrated humidifier and flow source let you move a single compact unit between different departments, supported also by its integrated battery.",
+      "The Optiflow nasal interface gives your patient a comfortable, well-tolerated connection during high-flow therapy.",
+      "Its touch screen makes it easy for you to adjust and view flow and oxygen parameters intuitively.",
+      "With up to 60 L/min of flow and precise FiO₂ adjustment, you can tailor therapy to each patient's specific needs."
+    ],
+    "valor_es": "Un aliado en los momentos donde la movilidad y la precisión del flujo definen la continuidad de la terapia respiratoria del paciente.",
+    "valor_en": "An ally in the moments where mobility and flow precision define the continuity of the patient's respiratory therapy."
   },
   {
     "id": "1ab4ff92-d11f-45fe-aa56-283e56c77dfe",
@@ -11075,7 +12257,48 @@
     "descripcion_corta_en": "Miniflow is a patient interface designed for CPAP mode or non-invasive ventilation in neonates and pediatric patients, used with a ventilator or bubble CPAP system.",
     "descripcion_larga_es": "SISTEMA MINIFLOW DESECHABLE REF 4000 MEDIN MEDICAL\n\n\n\n\n\n\n\n\n\n\n\n\nDESCRIPCIÓN\n\nMiniflow es una interfaz de paciente diseñada para usarse en modo CPAP o en ventilación no invasiva para neonatos y pacientes pediátricos, en conjunto con un ventilador o un sistema CPAP de burbujas. Esta interfaz se conecta fácilmente a los tubos de inspiración y espiración, permitiendo su integración directa con el respirador. Los parámetros de presión positiva continua (CPAP) se configuran y regulan directamente desde el ventilador, asegurando un control preciso durante la terapia respiratoria.",
     "descripcion_larga_en": "Miniflow is a patient interface designed for use in CPAP mode or non-invasive ventilation for neonates and pediatric patients, in conjunction with a ventilator or bubble CPAP system. This interface connects easily to inspiratory and expiratory tubes, allowing direct integration with the ventilator. Continuous positive airway pressure (CPAP) parameters are configured and regulated directly from the ventilator, ensuring precise control during respiratory therapy.",
-    "especificaciones": [],
+    "especificaciones": [
+      {
+        "clave": "Función principal",
+        "valor": "Interfaz de paciente nasal para modo CPAP, compatible con ventiladores y sistemas CPAP de burbujas",
+        "grupo": "Función principal"
+      },
+      {
+        "clave": "Funcionamiento",
+        "valor": "Se conecta a las ramas inspiratoria y espiratoria del circuito del ventilador; el ventilador ajusta y controla el parámetro CPAP y entrega el flujo de gas necesario",
+        "grupo": "Función principal"
+      },
+      {
+        "clave": "Ventajas técnicas",
+        "valor": "Espacio muerto mínimo, separación de los gases de inspiración y espiración, adaptador de prong flexible para mejor posicionamiento, funcionamiento silencioso y reducción del trabajo respiratorio",
+        "grupo": "Ventajas técnicas"
+      },
+      {
+        "clave": "Compatibilidad",
+        "valor": "Compatible con accesorios Medijet®",
+        "grupo": "Compatibilidad"
+      },
+      {
+        "clave": "Presentación",
+        "valor": "Producto de un solo uso, para un único paciente",
+        "grupo": "Presentación"
+      },
+      {
+        "clave": "Componentes y tallas",
+        "valor": "Prongs en tallas micro, small, medium, large, x-large y Asia1; mascarillas en tallas small, medium y large; gorros (bonnets) de un solo uso o reutilizables en tallas XS a XXXXL",
+        "grupo": "Componentes y tallas"
+      },
+      {
+        "clave": "Normativa",
+        "valor": "Certificado según DIN EN ISO 9001 y DIN EN ISO 13485, Anexo II sección 3 de la Directiva del Consejo 93/42/EEC (marcado CE 0483)",
+        "grupo": "Normativa"
+      },
+      {
+        "clave": "Fabricante",
+        "valor": "Medical Innovations GmbH (Medin), Puchheim, Alemania",
+        "grupo": "Fabricante"
+      }
+    ],
     "imagen_principal": "/assets/productos/importados/sistema-miniflow-desechable-ref-4000-medin-medical/imagen-principal-sistema-miniflow-desechable-ref-4000-medin-medical.jpg",
     "galeria": [
       "/assets/productos/importados/sistema-miniflow-desechable-ref-4000-medin-medical/imagen-principal-sistema-miniflow-desechable-ref-4000-medin-medical.jpg",
@@ -11103,8 +12326,24 @@
       "Use with bubble CPAP systems",
       "Pediatric outpatient respiratory support"
     ],
-    "marca": "Sistema Miniflow",
-    "proveedor_ref": "equitronic"
+    "marca": "Medin Medical",
+    "proveedor_ref": "equitronic",
+    "beneficios_es": [
+      "Puede conectarlo directamente a las ramas inspiratoria y espiratoria de su ventilador, dejando que sea el propio equipo quien ajuste y controle el parámetro de CPAP.",
+      "Su espacio muerto mínimo y la separación de los gases de inspiración y espiración le ayudan a reducir el trabajo respiratorio del neonato o paciente pediátrico.",
+      "El adaptador de prong flexible le permite ajustar la posición para lograr el mejor sello nasal en cada paciente.",
+      "Al ser de un solo uso y para un único paciente, reduce el riesgo de contaminación cruzada entre pacientes de UCIN.",
+      "Con tallas de prong, mascarilla y gorro que van desde micro/XS hasta XXXXL, puede adaptarlo tanto a prematuros extremos como a pacientes pediátricos de mayor tamaño."
+    ],
+    "beneficios_en": [
+      "You can connect it directly to your ventilator's inspiratory and expiratory limbs, letting the device itself adjust and control the CPAP parameter.",
+      "Its minimal dead space and separation of inspiratory and expiratory gases help reduce the newborn's or pediatric patient's work of breathing.",
+      "The flexible prong adapter lets you fine-tune positioning for the best nasal seal in each patient.",
+      "Being single-use and single-patient, it reduces the risk of cross-contamination between NICU patients.",
+      "With prong, mask, and bonnet sizes ranging from micro/XS to XXXXL, you can fit it to extremely premature infants as well as larger pediatric patients."
+    ],
+    "valor_es": "Una interfaz nasal silenciosa y de espacio muerto mínimo, ajustable prong a prong para el sello justo en cada paciente.",
+    "valor_en": "A quiet, minimal-dead-space nasal interface, adjustable prong by prong for the right seal in every patient."
   },
   {
     "id": "34db7295-e249-48f2-8893-1ccfa0906f4d",
@@ -11940,7 +13179,148 @@
     "descripcion_corta_en": "Mechanical ventilator with intuitive interface for safe adult and pediatric critical care ventilation, featuring high-efficiency turbine and comprehensive monitoring.",
     "descripcion_larga_es": "El ventilador mecánico Monnal T75 cuenta con una interfaz de usuario intuitiva y de fácil manejo que permite realizar una terapia segura a los pacientes adultos y pediátricos. Gracias a su turbina de alta eficiencia, garantiza una ventilación precisa y confiable en todos los escenarios de cuidado crítico. Dispone de una amplia gama de herramientas y modos ventilatorios que brindan la monitoría necesaria para la toma de decisiones en los pacientes que así lo requieren.\n\nEl sensor de flujo del ventilador Monnal T75 garantiza una rápida respuesta al esfuerzo inspiratorio, mejorando la terapia en ventilación invasiva y no invasiva.",
     "descripcion_larga_en": "The Monnal T75 mechanical ventilator features an intuitive user interface for safe therapy in adult and pediatric patients. Equipped with a high-efficiency turbine, it delivers precise and reliable ventilation in all critical care scenarios. It offers a comprehensive range of ventilatory modes and monitoring tools that provide the necessary oversight for decision-making in patients who require them. The Monnal T75 flow sensor ensures rapid response to inspiratory effort, enhancing both invasive and non-invasive ventilation treatment.",
-    "especificaciones": [],
+    "especificaciones": [
+      {
+        "clave": "Categoría de paciente",
+        "valor": "Adulto, niño e infante",
+        "grupo": "Rango de uso"
+      },
+      {
+        "clave": "Rango de presión y volumen",
+        "valor": "De 2 a 99 cmH2O; Vt de 20 a 2.000 ml",
+        "grupo": "Rango de uso"
+      },
+      {
+        "clave": "Ajustes principales",
+        "valor": "Vt (20 a 2.000 ml), RR (4 a 120 rpm), PI (2 a 99 cmH2O), PS (2 a 40 cmH2O)",
+        "grupo": "Rango de uso"
+      },
+      {
+        "clave": "Modos de ventilación invasiva",
+        "valor": "VCV, PCV, PRVC, SIMV, PSIMV, PSV, CPAP, PS-Pro, Duo-Levels",
+        "grupo": "Modos de ventilación"
+      },
+      {
+        "clave": "Modos de ventilación no invasiva",
+        "valor": "PSV, CPAP, Duo-Levels, APRV",
+        "grupo": "Modos de ventilación"
+      },
+      {
+        "clave": "Ventilación de seguridad",
+        "valor": "Ventilación de apnea, RRmini",
+        "grupo": "Modos de ventilación"
+      },
+      {
+        "clave": "Funciones especiales",
+        "valor": "Oxígeno de alto flujo, modo PS-Pro, compensación de tubo (TC), succión inteligente de O2, nebulización",
+        "grupo": "Modos de ventilación"
+      },
+      {
+        "clave": "Turbina y filtro",
+        "valor": "Tecnología de turbina con válvulas proporcionales integradas para alto flujo, gestión de fugas y funcionamiento silencioso",
+        "grupo": "Tecnología"
+      },
+      {
+        "clave": "Filtro HEPA Clean'In",
+        "valor": "Ubicado en la entrada de la turbina; bloquea el 99,97% de las partículas, protegiendo al ventilador y al paciente frente a infecciones",
+        "grupo": "Tecnología"
+      },
+      {
+        "clave": "Oxígenoterapia de alto flujo",
+        "valor": "Rango preciso de FiO2 conservando humedad y temperatura del pulmón similares a la respiración espontánea, con cánula nasal",
+        "grupo": "Tecnología"
+      },
+      {
+        "clave": "Volúmenes",
+        "valor": "MVe, Vte, Vti, Spont. MVe, Vpeak I, Vpeak E, flujo de fuga (en VNI)",
+        "grupo": "Monitoreo"
+      },
+      {
+        "clave": "Presiones",
+        "valor": "Ppeak, PEEP, Pplat, Pmean",
+        "grupo": "Monitoreo"
+      },
+      {
+        "clave": "Frecuencias respiratorias",
+        "valor": "RR, Spont. RR",
+        "grupo": "Monitoreo"
+      },
+      {
+        "clave": "Relaciones",
+        "valor": "Ti/Ttot, RR/Vte, índice espontáneo, índice de fuga, I/E",
+        "grupo": "Monitoreo"
+      },
+      {
+        "clave": "Curvas y loops",
+        "valor": "Formas de onda en tiempo real de presión, flujo, volumen y CO2 (opción); loops presión/volumen, volumen/flujo, flujo/presión, CO2/volumen",
+        "grupo": "Monitoreo"
+      },
+      {
+        "clave": "Mecánica respiratoria",
+        "valor": "Rstat, Cstat, Rdyn, Cdyn, Pplat, Auto-PEEP, RR/Vt",
+        "grupo": "Monitoreo"
+      },
+      {
+        "clave": "Capnografía volumétrica",
+        "valor": "Sensor de CO2 de tecnología mainstream: etCO2, VmCO2, Vmalv, Vdaw, Vdaw/Vt y pendiente de CO2, para monitorear producción de CO2, perfusión pulmonar y ventilación alveolar",
+        "grupo": "Monitoreo"
+      },
+      {
+        "clave": "Historial de eventos",
+        "valor": "Lista cronológica de las últimas 200 alarmas y eventos registrados",
+        "grupo": "Monitoreo"
+      },
+      {
+        "clave": "Tendencias",
+        "valor": "Valores de tendencia almacenados hasta por 80 horas",
+        "grupo": "Monitoreo"
+      },
+      {
+        "clave": "Pantalla",
+        "valor": "Pantalla táctil a color TFT-LCD de 10,4 pulgadas, con rueda de ajuste ergonómica",
+        "grupo": "Interfaz"
+      },
+      {
+        "clave": "Autonomía de batería",
+        "valor": "De 2,5 a 3 horas en ventilación estándar",
+        "grupo": "Especificaciones físicas"
+      },
+      {
+        "clave": "Dimensiones",
+        "valor": "(Alto) 35 x (Ancho) 30 x (Fondo) 40 cm",
+        "grupo": "Especificaciones físicas"
+      },
+      {
+        "clave": "Peso",
+        "valor": "16 kg",
+        "grupo": "Especificaciones físicas"
+      },
+      {
+        "clave": "Suministro neumático de O2",
+        "valor": "Alta presión: 2,8-6 bar / 280-600 kPa / 40-86 psi; Baja presión: 0-1,5 bar / 0-150 kPa / 0-21 psi",
+        "grupo": "Especificaciones físicas"
+      },
+      {
+        "clave": "Compatibilidad con sistemas informáticos",
+        "valor": "Protocolo OTP, interfaz BOW MEDICAL, interfaz DATACAPTOR, interfaz PHILIPS, Monnal Link, comunicación con hoja de anestesia DIANE, numerización CIS/HIS, conexión Vuelink/Intellibridge",
+        "grupo": "Conectividad"
+      },
+      {
+        "clave": "Estándares",
+        "valor": "ISO 14971, EN-CEI 61601-1, EN-CEI 60601-2-12",
+        "grupo": "Normativa y fabricación"
+      },
+      {
+        "clave": "Clasificación",
+        "valor": "Dispositivo médico clase IIb - CE 0459",
+        "grupo": "Normativa y fabricación"
+      },
+      {
+        "clave": "Fabricación",
+        "valor": "Fabricado por Air Liquide Medical Systems S.A.; sistema de gestión ambiental certificado ISO 14001:2015",
+        "grupo": "Normativa y fabricación"
+      }
+    ],
     "imagen_principal": "/assets/productos/importados/ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide/imagen-principal-ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide.jpg",
     "galeria": [
       "/assets/productos/importados/ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide/imagen-principal-ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide.jpg",
@@ -11971,8 +13351,24 @@
       "Adult intensive care",
       "Pediatric intensive care"
     ],
-    "marca": "Ventilador Cuidado",
-    "proveedor_ref": "equitronic"
+    "marca": "Air Liquide",
+    "proveedor_ref": "equitronic",
+    "beneficios_es": [
+      "Su pantalla táctil a color de 10,4 pulgadas y su rueda de ajuste ergonómica facilitan el control de la ventilación en pacientes adultos, pediátricos e infantes.",
+      "El filtro HEPA Clean'In, ubicado en la entrada de la turbina, bloquea el 99,97% de las partículas y protege tanto al paciente como al ventilador frente a infecciones.",
+      "Incorpora terapia de oxígeno de alto flujo con control preciso de FiO2 y conservación de humedad y temperatura, similar a la respiración espontánea.",
+      "La capnografía volumétrica monitorea etCO2, VmCO2, Vmalv y otros parámetros para evaluar la perfusión pulmonar y la ventilación alveolar en tiempo real.",
+      "Con más de 30 años de experiencia en ventilación artificial, ofrece modos invasivos y no invasivos —VCV, PCV, PRVC, SIMV, PSV, CPAP, PS-Pro, Duo-Levels, APRV— para adaptarse a cada etapa del paciente crítico."
+    ],
+    "beneficios_en": [
+      "Its 10.4-inch color touchscreen and ergonomic setting wheel make ventilation control easier for adult, pediatric and infant patients.",
+      "The Clean'In HEPA filter, located at the turbine inlet, blocks 99.97% of particles, protecting both patient and ventilator from infection.",
+      "It incorporates high-flow oxygen therapy with precise FiO2 control while preserving moisture and temperature conditions similar to spontaneous breathing.",
+      "Volumetric capnography monitors etCO2, VmCO2, Vmalv and other parameters to assess lung perfusion and alveolar ventilation in real time.",
+      "Backed by more than 30 years of experience in artificial ventilation, it offers invasive and non-invasive modes — VCV, PCV, PRVC, SIMV, PSV, CPAP, PS-Pro, Duo-Levels, APRV — to adapt to every stage of critical patient care."
+    ],
+    "valor_es": "Un ventilador que acompaña al paciente desde la intubación hasta la extubación, combinando ventilación invasiva y no invasiva en una misma plataforma tailor-made.",
+    "valor_en": "A ventilator that stays with the patient from intubation to extubation, combining invasive and non-invasive ventilation on a single tailor-made platform."
   },
   {
     "id": "1d7968f9-b767-4486-bc4e-acfa08d63bcb",
@@ -12033,7 +13429,188 @@
     "descripcion_corta_en": "Transport ventilator with adaptive ventilation, intuitive interface and integrated CPV software for cardiopulmonary resuscitation and intra-hospital patient transport.",
     "descripcion_larga_es": "El Ventilador mecánico de transporte Monnal T60 Advanced ha sido diseñado para facilitar la movilidad y brindar a los profesionales de la salud un equipo versátil con los más altos estándares de ventilación para pacientes críticos adultos, pediátricos y lactantes, su interface de usuario intuitiva soluciona y facilita el acceso rápido en los primeros momentos de atención al paciente asegurando una ventilación adaptativa durante el transporte.\n\nLa integración del software CPV optimiza los resultados en los procedimientos de reanimación cardio pulmonar, por medio de la monitorización completa de las compresiones, sincronía de la ventilación y los volúmenes entregados brindando seguridad al paciente y eficacia al personal clínico.",
     "descripcion_larga_en": "The Monnal T60 Advanced transport ventilator is designed to facilitate mobility and provide healthcare professionals with a versatile unit meeting the highest ventilation standards for critically ill adult, pediatric and infant patients. Its intuitive user interface enables rapid access during the initial moments of patient care, ensuring adaptive ventilation during transport. Integration of CPV software optimizes results in cardiopulmonary resuscitation procedures by fully monitoring compressions, ventilation synchrony and delivered volumes, providing patient safety and clinical staff effectiveness.",
-    "especificaciones": [],
+    "especificaciones": [
+      {
+        "clave": "Categorías de paciente",
+        "valor": "Adulto, niño e infante (desde 3 kg), con peso corporal predicho (PBW) ajustable",
+        "grupo": "Rango de uso"
+      },
+      {
+        "clave": "Entornos de uso",
+        "valor": "Cuidados intensivos, transporte intrahospitalario, servicios de urgencias y atención de trauma, unidades móviles terrestres y aéreas (helicópteros, aviones, transporte médico de larga distancia)",
+        "grupo": "Rango de uso"
+      },
+      {
+        "clave": "5 nuevos monitores",
+        "valor": "VMe espontáneo, frecuencia respiratoria espontánea, presión de conducción (Driving Pressure), VTe/PBW, y distensibilidad estática y dinámica",
+        "grupo": "Funciones avanzadas"
+      },
+      {
+        "clave": "Solución CPV (Cardio Pulmonary Ventilation)",
+        "valor": "Estándar en el equipo T60 Advanced; combina ventilación, monitoreo y funciones adaptadas a la reanimación cardiopulmonar en pacientes adultos con paro cardíaco",
+        "grupo": "Funciones avanzadas"
+      },
+      {
+        "clave": "Entorno ECLS",
+        "valor": "Entorno dedicado a la gestión de pacientes en soporte ECMO",
+        "grupo": "Funciones avanzadas"
+      },
+      {
+        "clave": "Identidad visual",
+        "valor": "Identidad visual simplificada que permite un uso más fluido en situaciones críticas",
+        "grupo": "Funciones avanzadas"
+      },
+      {
+        "clave": "Tipos de ventilación",
+        "valor": "Controlada por volumen, controlada por presión, soporte de presión, espontánea",
+        "grupo": "Modos de ventilación"
+      },
+      {
+        "clave": "Modos",
+        "valor": "(A)VCV, (A)VCV-VNI, (A)PCV, (A)PCV-VNI, SIMV, PSV, PSV-VNI, CPAP, APRV; opcionales: PS-Pro, PSIMV, PRVC",
+        "grupo": "Modos de ventilación"
+      },
+      {
+        "clave": "Volumen corriente",
+        "valor": "20 a 2.000 mL",
+        "grupo": "Modos de ventilación"
+      },
+      {
+        "clave": "Frecuencia",
+        "valor": "1 a 80 rpm",
+        "grupo": "Modos de ventilación"
+      },
+      {
+        "clave": "PEEP",
+        "valor": "0 a 20 cmH2O",
+        "grupo": "Modos de ventilación"
+      },
+      {
+        "clave": "FiO2",
+        "valor": "21 a 100%",
+        "grupo": "Modos de ventilación"
+      },
+      {
+        "clave": "Relación I:E",
+        "valor": "1:1 a 1:9",
+        "grupo": "Modos de ventilación"
+      },
+      {
+        "clave": "Oxigenoterapia nasal de alto flujo",
+        "valor": "Adultos: 4 a 80 L/min; niños e infantes: 2 a 60 L/min; FiO2 21 a 100%, con circuito específico, cánula nasal y humidificador calentado",
+        "grupo": "Modos de ventilación"
+      },
+      {
+        "clave": "Turbina",
+        "valor": "Flujo pico de turbina de 230 L/min; suministro de aire autónomo mediante filtro HEPA",
+        "grupo": "Tecnología"
+      },
+      {
+        "clave": "Batería",
+        "valor": "Iones de litio; 5 horas de autonomía total (2h30 batería removible + 2h30 batería interna de seguridad); reemplazo cada 2 años",
+        "grupo": "Tecnología"
+      },
+      {
+        "clave": "Parámetros medidos",
+        "valor": "MVe y MVi (0-99 L/min), VTe y VTi (20-3.000 mL), RR (1-120 c/min), Ppeak/PEEP/Pmean/Pplat (0-100 cmH2O), índice de fuga (0-100%), Ti/Ttot (0-100%), relación I:E (1:0 a 1:99,9), FiO2 (21-100%), CO2 opcional (0-100 mmHg); todos con tendencia registrada salvo la relación I:E",
+        "grupo": "Monitoreo"
+      },
+      {
+        "clave": "Curvas",
+        "valor": "Presión, flujo, volumen y CO2 (opcional); loops presión/volumen, presión/flujo, flujo/volumen y volumen/CO2 (opcional)",
+        "grupo": "Monitoreo"
+      },
+      {
+        "clave": "Tendencias",
+        "valor": "80 horas de ventilación, 1 valor por minuto en todos los parámetros con tendencia",
+        "grupo": "Monitoreo"
+      },
+      {
+        "clave": "Ventilación de apnea",
+        "valor": "Ventilación de apnea en modo VCV, ajustable en Vt, RR y tiempo de apnea",
+        "grupo": "Monitoreo"
+      },
+      {
+        "clave": "Pantalla",
+        "valor": "LCD de 262k colores (18 bits), panel táctil resistivo de 8,4 pulgadas, resolución 640x480 px, luminosidad 800 cd/m2 con retroiluminación LED, ajuste de visualización día/noche",
+        "grupo": "Interfaz"
+      },
+      {
+        "clave": "Alarmas ajustables",
+        "valor": "Presión baja/alta, presión meseta alta, VTi/MVi/MVe/VTe baja/alta, RR baja/alta, FiO2 baja/alta, etCO2 baja/alta",
+        "grupo": "Alarmas y seguridad"
+      },
+      {
+        "clave": "Alarmas específicas",
+        "valor": "Desconexión del paciente, obstrucción espiratoria, sensor de flujo, suministro eléctrico/baterías, suministro de oxígeno, preoxigenación del paciente, cable de red desconectado",
+        "grupo": "Alarmas y seguridad"
+      },
+      {
+        "clave": "Volumen de alarma",
+        "valor": "Ajustable, con 5 niveles de criticidad",
+        "grupo": "Alarmas y seguridad"
+      },
+      {
+        "clave": "Dimensiones",
+        "valor": "29 x 25 x 11 cm (L x A x A)",
+        "grupo": "Especificaciones físicas"
+      },
+      {
+        "clave": "Peso",
+        "valor": "3,7 kg (4 kg con 2 baterías)",
+        "grupo": "Especificaciones físicas"
+      },
+      {
+        "clave": "Alimentación eléctrica",
+        "valor": "100-240 V AC (tolerancia ±10%), 50-60 Hz, consumo máximo de 120 VA (0,12 kW)",
+        "grupo": "Especificaciones físicas"
+      },
+      {
+        "clave": "Suministro neumático de O2",
+        "valor": "Alta presión: 2,8-6 bar / 280-600 kPa / 40-86 psi; baja presión: 0-1,5 bar / 0-150 kPa / 0-22 psi; conexiones NF, DISS, NIST",
+        "grupo": "Especificaciones físicas"
+      },
+      {
+        "clave": "Condiciones ambientales de operación",
+        "valor": "-10°C a +40°C; humedad relativa 0-95% sin condensación a 40°C máx.; presión atmosférica 600-1.150 hPa",
+        "grupo": "Especificaciones físicas"
+      },
+      {
+        "clave": "Condiciones de almacenamiento",
+        "valor": "-20°C a +50°C; humedad relativa 0-95% sin condensación a 40°C máx.; presión atmosférica 600-1.150 hPa",
+        "grupo": "Especificaciones físicas"
+      },
+      {
+        "clave": "Índice de protección",
+        "valor": "IP34",
+        "grupo": "Especificaciones físicas"
+      },
+      {
+        "clave": "Conectores de interfaz",
+        "valor": "VGA, USB-A, USB-B, CO2",
+        "grupo": "Conectividad"
+      },
+      {
+        "clave": "Accesorios de transporte",
+        "valor": "Bolso de transporte, batería removible, estación de carga mural, soporte universal intrahospitalario, carro rodante para humidificador, cilindro de oxígeno, brazo articulado y canasta autoclavable",
+        "grupo": "Accesorios"
+      },
+      {
+        "clave": "Estándares",
+        "valor": "ISO 14971, IEC 60601-1+A1, IEC 60601-1-2, IEC 60601-1-6, IEC 62366-1, IEC 60601-1-8+A1, ISO 80601-2-12, ISO 80601-2-55, EN 794-3+A1+A2, EN 1789+A1, EN 13718-1, IEC 62304, RTCA DO-160",
+        "grupo": "Normativa y fabricación"
+      },
+      {
+        "clave": "Clasificación",
+        "valor": "Dispositivo médico clase IIb de turbina de aire - CE 0459 - Evaluación de conformidad GMED",
+        "grupo": "Normativa y fabricación"
+      },
+      {
+        "clave": "Fabricación",
+        "valor": "Fabricado por Air Liquide Medical Systems; sistema de gestión ambiental certificado ISO 14001:2015",
+        "grupo": "Normativa y fabricación"
+      }
+    ],
     "imagen_principal": "/assets/productos/importados/ventilador-mecanico-de-transporte-monnal-ref-t60-advanced-air-liquide/imagen-principal-ventilador-mecanico-de-transporte-monnal-ref-t60-advanced-air-liquide.png",
     "galeria": [
       "/assets/productos/importados/ventilador-mecanico-de-transporte-monnal-ref-t60-advanced-air-liquide/imagen-principal-ventilador-mecanico-de-transporte-monnal-ref-t60-advanced-air-liquide.png",
@@ -12063,8 +13640,24 @@
       "Adaptive ventilation",
       "Mobile respiratory support"
     ],
-    "marca": "Ventilador Mec",
-    "proveedor_ref": "equitronic"
+    "marca": "Air Liquide",
+    "proveedor_ref": "equitronic",
+    "beneficios_es": [
+      "Integra 5 nuevos monitores —VMe espontáneo, frecuencia respiratoria espontánea, presión de conducción (Driving Pressure), VTe/PBW y distensibilidad estática y dinámica— para un seguimiento más fino del paciente crítico.",
+      "Su solución CPV (Cardio Pulmonary Ventilation), estándar en el equipo, combina ventilación, monitoreo y funciones dedicadas a la reanimación cardiopulmonar en paro cardíaco del adulto.",
+      "Cuenta con un entorno ECLS dedicado al manejo de pacientes en soporte ECMO, ampliando su rango de uso en escenarios de máxima criticidad.",
+      "Con 3,7 kg de peso y batería de litio de hasta 5 horas, mantiene la misma portabilidad del T60 para traslados intrahospitalarios, terrestres y aéreos.",
+      "Su identidad visual simplificada agiliza el uso en situaciones críticas, sin renunciar a los modos VCV, PCV, PSV, SIMV, CPAP y APRV de la gama Monnal."
+    ],
+    "beneficios_en": [
+      "It integrates 5 new monitors — spontaneous VMe, spontaneous respiratory rate, Driving Pressure, VTe/PBW, and static and dynamic compliance — for finer tracking of the critical patient.",
+      "Its CPV (Cardio Pulmonary Ventilation) solution, standard on the device, combines ventilation, monitoring and functions dedicated to cardiopulmonary resuscitation in adult cardiac arrest.",
+      "It features an ECLS environment dedicated to managing patients on ECMO support, extending its use to the most critical scenarios.",
+      "At 3.7 kg with up to 5 hours of lithium battery life, it keeps the same portability as the T60 for intrahospital, ground and air transfers.",
+      "Its simplified visual identity speeds up use in critical situations, without giving up the VCV, PCV, PSV, SIMV, CPAP and APRV modes of the Monnal range."
+    ],
+    "valor_es": "La versión más completa del transporte crítico Monnal: reanimación cardiopulmonar, soporte ECMO y monitoreo avanzado en el mismo equipo portátil.",
+    "valor_en": "The most complete version of Monnal critical transport: cardiopulmonary resuscitation, ECMO support and advanced monitoring in the same portable device."
   },
   {
     "id": "c1433eff-b9c6-4ace-af53-50fa25157312",
@@ -12502,7 +14095,48 @@
     "descripcion_corta_en": "Cerebral function monitoring technology for newborns with early seizure detection via RecogniZe software.",
     "descripcion_larga_es": "El conocimiento de la salud cerebral de un recién nacido es una parte crítica para la toma de decisiones sobre el tratamiento, con la detección temprana de convulsiones mediante el software “RecogniZe”.\n\nEl Olympic Brainz Monitor es la última tecnología en monitoreo de función cerebral (CFM, por sus siglas en inglés), que le permite iniciar el monitoreo en tres sencillos pasos: conectar la unidad, colocar los electrodos e iniciar el registro. Proporciona configuraciones de aEEG, EEG en tiempo real y medición continua de impedancia. Su uso ha sido integrado como una herramienta esencial en muchas de las unidades de cuidado intensivo neonatal para conocer el estado neurológico del paciente.",
     "descripcion_larga_en": "The Olympic Brainz Monitor (OBM) is the latest technology in cerebral function monitoring (CFM) for newborns, allowing recording initiation in three steps: connect, place electrodes, and start. The \"RecogniZe\" software detects early seizures via aEEG, real-time EEG, and continuous impedance. It is an essential tool in neonatal intensive care units.",
-    "especificaciones": [],
+    "especificaciones": [
+      {
+        "clave": "Pantalla",
+        "valor": "LCD TFT color de 15\" con panel táctil resistivo, resolución 1024 x 768 px",
+        "grupo": "Monitor"
+      },
+      {
+        "clave": "Peso y dimensiones del monitor",
+        "valor": "10 kg (14.33 lbs); 418 x 342 x 115 mm",
+        "grupo": "Monitor"
+      },
+      {
+        "clave": "Canales de monitoreo",
+        "valor": "Hasta 3 canales de aEEG, EEG en tiempo real e impedancia",
+        "grupo": "Monitoreo"
+      },
+      {
+        "clave": "Caja de adquisición de datos (DAB)",
+        "valor": "3 canales diferenciales, muestreo a 2000 Hz, resolución de 16 bits",
+        "grupo": "Adquisición de datos"
+      },
+      {
+        "clave": "Peso y dimensiones del DAB",
+        "valor": "280 g; 75.7 x 146.1 x 31.2 mm",
+        "grupo": "Adquisición de datos"
+      },
+      {
+        "clave": "Sensibilidad EEG",
+        "valor": "50 μVpk de sensibilidad máxima (<1 μV/mm), rango dinámico 0.30-10000 μVpp",
+        "grupo": "Especificaciones EEG"
+      },
+      {
+        "clave": "Alimentación",
+        "valor": "100-240 VAC, 50/60 Hz",
+        "grupo": "Alimentación"
+      },
+      {
+        "clave": "Software de detección",
+        "valor": "Compatible con software RecogniZe para detección de convulsiones",
+        "grupo": "Software"
+      }
+    ],
     "imagen_principal": "/assets/productos/importados/electroencefalografia-ampliada-obm-eega/imagen-principal-electroencefalografia-ampliada-obm-eega.jpg",
     "galeria": [
       "/assets/productos/importados/electroencefalografia-ampliada-obm-eega/imagen-principal-electroencefalografia-ampliada-obm-eega.jpg",
@@ -12533,8 +14167,24 @@
       "Encephalopathy assessment",
       "NICU patient monitoring"
     ],
-    "marca": "Electroencefalograf",
-    "proveedor_ref": "equitronic"
+    "marca": "Natus Medical",
+    "proveedor_ref": "equitronic",
+    "beneficios_es": [
+      "Con el Olympic Brainz Monitor usted puede iniciar la monitorización cerebral de su paciente neonatal en solo tres pasos: conectar la unidad, aplicar los electrodos e iniciar el registro.",
+      "Su monitoreo continuo de hasta 3 canales de aEEG, EEG en tiempo real e impedancia le brinda información vital para anticipar el estado neurológico del recién nacido.",
+      "Gracias al software RecogniZe, usted cuenta con apoyo para la detección temprana de convulsiones.",
+      "Su pantalla táctil de 15 pulgadas le permite navegar de forma intuitiva y acceder rápidamente a la información cuando más la necesita.",
+      "La caja de adquisición de datos, con muestreo de 2000 Hz y resolución de 16 bits, le asegura una captura precisa de la señal cerebral del paciente."
+    ],
+    "beneficios_en": [
+      "With the Olympic Brainz Monitor you can begin cerebral monitoring of your neonatal patient in just three steps: plug in the unit, apply the electrodes and start recording.",
+      "Its continuous monitoring of up to 3 channels of aEEG, real-time EEG and impedance gives you vital information to anticipate the newborn's neurological status.",
+      "Thanks to the RecogniZe software, you get support for early seizure detection.",
+      "Its 15-inch touch screen lets you navigate intuitively and access information quickly when you need it most.",
+      "The data acquisition box, with 2000 Hz sampling and 16-bit resolution, ensures accurate capture of the patient's cerebral signal."
+    ],
+    "valor_es": "Un aliado en los momentos donde el conocimiento temprano de la salud cerebral del recién nacido define las decisiones de tratamiento.",
+    "valor_en": "An ally in the moments where early insight into the newborn's brain health defines treatment decisions."
   },
   {
     "id": "07744b15-ea76-4a89-998d-643db572ed75",
@@ -12704,7 +14354,43 @@
     "descripcion_corta_en": "The Biolight M10 Vital Signs Monitor is designed to deliver reliable performance and versatility in demanding clinical environments.",
     "descripcion_larga_es": "El Monitor de Signos Vitales Biolight M10 está diseñado para ofrecer rendimiento confiable y versatilidad en entornos clínicos exigentes. Su estructura compacta y ergonómica lo convierte en la opción ideal para áreas como urgencias, triaje, salas de recuperación y unidades de baja complejidad, donde el espacio y la agilidad operativa son esenciales.\n\nCompatible con pacientes adultos, pediátricos y neonatales, el M10 proporciona lecturas precisas de ECG, SpO₂, frecuencia respiratoria, presión arterial no invasiva (PANI) y temperatura. Su diseño portátil y de fácil manejo garantiza un monitoreo eficiente y continuo, optimizando la toma de decisiones clínicas en hospitales y clínicas.",
     "descripcion_larga_en": "The Biolight M10 Vital Signs Monitor is designed to deliver reliable performance and versatility in demanding clinical environments. Its compact, ergonomic structure makes it ideal for emergency departments, triage, recovery rooms, and low-complexity units where space and operational agility are essential. Compatible with adult, pediatric, and neonatal patients, the M10 provides accurate readings of ECG, SpO₂, respiratory rate, non-invasive blood pressure (NIBP), and temperature. Its portable, easy-to-use design ensures efficient, continuous monitoring, optimizing clinical decision-making in hospitals and clinics.",
-    "especificaciones": [],
+    "especificaciones": [
+      {
+        "clave": "Pantalla",
+        "valor": "10\" alta definición, resolución 1024×600",
+        "grupo": "Pantalla y diseño"
+      },
+      {
+        "clave": "Peso",
+        "valor": "3 kg, portátil y fácil de transportar en vehículo",
+        "grupo": "Pantalla y diseño"
+      },
+      {
+        "clave": "Configuración estándar",
+        "valor": "ECG 3/5/6 derivaciones, SpO₂, temperatura, frecuencia de pulso, respiración, PANI",
+        "grupo": "Parámetros monitoreados"
+      },
+      {
+        "clave": "Frecuencia respiratoria por pletismografía (RRP)",
+        "valor": "Algoritmo propio de Biolight que deriva la frecuencia respiratoria de la onda de SpO₂, facilitando la detección temprana de deterioro del paciente",
+        "grupo": "Tecnología clínica"
+      },
+      {
+        "clave": "Diseños de pantalla",
+        "valor": "Múltiples distribuciones configurables según necesidad clínica (7 derivaciones, fuente grande, otra cama, etc.)",
+        "grupo": "Interfaz"
+      },
+      {
+        "clave": "Batería",
+        "valor": "Li-ion recargable de 2.5 Ah, hasta 8 horas de autonomía continua",
+        "grupo": "Autonomía"
+      },
+      {
+        "clave": "Accesorios opcionales",
+        "valor": "Soporte rodante, montaje en pared",
+        "grupo": "Accesorios"
+      }
+    ],
     "imagen_principal": "/assets/productos/importados/monitor-de-signos-vitales-m10-biolight/imagen-principal-monitor-de-signos-vitales-m10-biolight.jpg",
     "galeria": [
       "/assets/productos/importados/monitor-de-signos-vitales-m10-biolight/imagen-principal-monitor-de-signos-vitales-m10-biolight.jpg",
@@ -12735,8 +14421,24 @@
       "Recovery rooms",
       "Low-complexity units"
     ],
-    "marca": "Monitor de",
-    "proveedor_ref": "equitronic"
+    "marca": "Biolight",
+    "proveedor_ref": "equitronic",
+    "beneficios_es": [
+      "Con solo 3 kg de peso y una pantalla de 10″, se mueve contigo entre urgencias, triaje y salas de recuperación sin perder claridad de lectura.",
+      "La frecuencia respiratoria por pletismografía (RRP) te da un dato vital más sin sensores ni insumos adicionales.",
+      "Hasta 8 horas de autonomía con una sola batería, pensadas para turnos largos en áreas de alta rotación de pacientes.",
+      "Distribuciones de pantalla configurables (7 derivaciones, fuente grande, otra cama) que adaptas a cada tipo de paciente sin cambiar de equipo.",
+      "Compatible con adultos, pediátricos y neonatales, para cubrir distintos servicios con una sola plataforma de monitoreo."
+    ],
+    "beneficios_en": [
+      "At just 3 kg with a 10″ display, it moves with you between emergency, triage and recovery areas without losing readability.",
+      "Respiration rate from plethysmography (RRP) gives you one more vital sign with no extra sensors or consumables.",
+      "Up to 8 hours of battery life on a single charge, built for long shifts in high patient-turnover areas.",
+      "Configurable screen layouts (7-lead, large font, other bed) that you adapt to each patient type without changing devices.",
+      "Compatible with adult, pediatric and neonatal patients, covering multiple services with a single monitoring platform."
+    ],
+    "valor_es": "Un monitor compacto pensado para las áreas donde el espacio y la agilidad operativa son tan críticos como la precisión del dato.",
+    "valor_en": "A compact monitor built for areas where space and operational speed matter as much as data accuracy."
   },
   {
     "id": "50d11d33-bdc3-4fae-a6b7-2c22230e4928",
@@ -12868,7 +14570,33 @@
     "descripcion_corta_en": "The hydrogel electrodes are designed for the Natus Medical Olympic Brainz Monitor (OBM), enabling non-invasive, precise, and reliable cerebral monitoring in neonatal patients.",
     "descripcion_larga_es": "Los electrodos de hidrogel están diseñados para el Olympic Brainz Monitor (OBM) de Natus Medical permiten una monitorización cerebral no invasiva, precisa y confiable en pacientes neonatales. Gracias a su tecnología de adhesión suave y segura, ofrecen una excelente conductividad desde el inicio hasta la finalización del monitoreo, sin comprometer la integridad de la piel del recién nacido.\n\nEstán diseñados para garantizar un contacto eficaz y libre de interferencias, e incorporan conectores estándar a prueba de contacto que aseguran una conexión estable y segura con el equipo.",
     "descripcion_larga_en": "The hydrogel electrodes are designed for the Natus Medical Olympic Brainz Monitor (OBM), enabling non-invasive, precise, and reliable cerebral monitoring in neonatal patients. Thanks to their soft, secure adhesion technology, they offer excellent conductivity from start to finish without compromising the newborn’s skin integrity. They are designed to ensure effective, interference-free contact and incorporate standard contact-proof connectors that guarantee a stable, secure connection to the equipment.",
-    "especificaciones": [],
+    "especificaciones": [
+      {
+        "clave": "Referencia",
+        "valor": "OBM00042",
+        "grupo": "Identificación"
+      },
+      {
+        "clave": "Presentación",
+        "valor": "12 sets por caja (1 set = 5 sensores), en bolsa resellable",
+        "grupo": "Presentación"
+      },
+      {
+        "clave": "Tipo de electrodo",
+        "valor": "Hidrogel (alternativa a los electrodos de aguja de baja impedancia OBM00046)",
+        "grupo": "Tecnología"
+      },
+      {
+        "clave": "Compatibilidad",
+        "valor": "Conectores touch-proof estándar del amplificador del Olympic Brainz Monitor (OBM)",
+        "grupo": "Compatibilidad"
+      },
+      {
+        "clave": "Fabricante",
+        "valor": "Natus Medical Incorporated",
+        "grupo": "Fabricante"
+      }
+    ],
     "imagen_principal": "/assets/productos/importados/obm-neonatal-hydrogel-sensors-ref-obm00042-natus-medical/imagen-principal-obm-neonatal-hydrogel-sensors-ref-obm00042-natus-medical.png",
     "galeria": [
       "/assets/productos/importados/obm-neonatal-hydrogel-sensors-ref-obm00042-natus-medical/imagen-principal-obm-neonatal-hydrogel-sensors-ref-obm00042-natus-medical.png"
@@ -12894,8 +14622,22 @@
       "Olympic Brainz Monitor (OBM)",
       "EEG assessment in newborns"
     ],
-    "marca": "OBM Neonatal",
-    "proveedor_ref": "equitronic"
+    "marca": "Natus Medical",
+    "proveedor_ref": "equitronic",
+    "beneficios_es": [
+      "Con los electrodos de hidrogel OBM00042 usted asegura una conexión segura y estable con el Olympic Brainz Monitor a través de sus conectores touch-proof estándar.",
+      "Su tecnología de hidrogel le ofrece una adhesión suave a la piel del recién nacido, cuidando su integridad durante todo el periodo de monitoreo.",
+      "La presentación en sets resellables de 5 sensores le facilita mantener un stock organizado y listo para cada paciente.",
+      "Al ser un consumible propio del sistema OBM, usted garantiza compatibilidad total sin comprometer la calidad de la señal registrada."
+    ],
+    "beneficios_en": [
+      "With the OBM00042 hydrogel electrodes you ensure a secure, stable connection to the Olympic Brainz Monitor through its standard touch-proof connectors.",
+      "Their hydrogel technology gives your newborn patient gentle skin adhesion, protecting skin integrity throughout the monitoring period.",
+      "The resealable packs of 5 sensors make it easy for you to keep an organized stock ready for each patient.",
+      "As a dedicated OBM system consumable, you get full compatibility without compromising the quality of the recorded signal."
+    ],
+    "valor_es": "Un aliado en los momentos donde la conductividad confiable y el cuidado de la piel del recién nacido definen la calidad del monitoreo cerebral.",
+    "valor_en": "An ally in the moments where reliable conductivity and care for the newborn's skin define the quality of cerebral monitoring."
   },
   {
     "id": "8bda2bcd-2ffb-4eaa-98da-4c29a13a1372",
@@ -13353,29 +15095,39 @@
     "descripcion_larga_en": "Digital mammography system with a 24×30 cm detector designed for diagnostic and breast cancer screening studies. Incorporates 2D/3D tomosynthesis that improves detection of lesions hidden in dense tissue. Its smart operation and isocentric design optimize workflow in high-demand environments.",
     "especificaciones": [
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Detector 24×30 cm"
+        "clave": "Detector",
+        "valor": "Panel digital de 24×30 cm para mamografía diagnóstica y de cribado",
+        "grupo": "Tecnología de imagen"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Resolución 4096×3072 pixels"
+        "clave": "Tomosíntesis",
+        "valor": "Adquisición 2D/3D que mejora la detección de lesiones ocultas en tejido denso",
+        "grupo": "Tecnología de imagen"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Operación inteligente"
+        "clave": "Diseño",
+        "valor": "Isocéntrico, orientado a optimizar el flujo de trabajo en servicios de alta demanda",
+        "grupo": "Diseño"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Diseño isocéntrico"
+        "clave": "Control de exposición",
+        "valor": "Tecnología AEC (control automático de exposición) propia del fabricante",
+        "grupo": "Tecnología de imagen"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "2D/3D (Tomosíntesis)"
+        "clave": "Dosis de radiación",
+        "valor": "Diseño orientado a baja dosis, incluso en pacientes con mama densa",
+        "grupo": "Seguridad"
+      },
+      {
+        "clave": "Compresor",
+        "valor": "Bordes redondeados y liberación automática tras la compresión, para reducir el tiempo de exposición del paciente",
+        "grupo": "Ergonomía"
+      },
+      {
+        "clave": "Posicionamiento",
+        "valor": "Rotación del brazo en múltiples ángulos para facilitar el estudio integral de la mama",
+        "grupo": "Ergonomía"
       }
     ],
     "imagen_principal": "/assets/productos/importados/dm156/manufacturer-01.png",
@@ -13392,7 +15144,22 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": ["Mamografía digital"],
-    "aplicaciones_en": ["Digital mammography"]
+    "aplicaciones_en": ["Digital mammography"],
+    "beneficios_es": [
+      "La adquisición 2D/3D por tomosíntesis ayuda a encontrar lesiones ocultas en tejido denso que un estudio 2D convencional podría pasar por alto.",
+      "El diseño isocéntrico agiliza el flujo de trabajo en servicios de mamografía con alta demanda de estudios.",
+      "El control automático de exposición (AEC) reduce el ajuste manual y ayuda a mantener la dosis de radiación baja para la paciente.",
+      "El compresor de bordes redondeados con liberación automática hace el examen más cómodo, un factor clave en un estudio que muchas pacientes viven con aprensión."
+    ],
+    "beneficios_en": [
+      "2D/3D tomosynthesis acquisition helps find lesions hidden in dense tissue that a conventional 2D study might miss.",
+      "The isocentric design speeds up workflow in high-demand mammography services.",
+      "Automatic exposure control (AEC) reduces manual adjustment and helps keep the patient's radiation dose low.",
+      "The rounded-edge compressor with automatic release makes the exam more comfortable, a key factor in a study many patients approach with apprehension."
+    ],
+    "valor_es": "Un mamógrafo pensado para detectar más, exponer menos y hacer del examen una experiencia menos incómoda para la paciente.",
+    "valor_en": "A mammography system built to detect more, expose less, and make the exam a less uncomfortable experience for the patient.",
+    "marca": "Angell Technology"
   },
   {
     "id": "41b1aec9-e5b6-44f4-8c9a-80da4b809ee2",
