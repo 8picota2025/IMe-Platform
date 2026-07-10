@@ -30,6 +30,7 @@ const asesorConfig = {
     limite: t(locale, 'asesor.limite'),
     degradado: t(locale, 'asesor.degradado'),
     error: t(locale, 'asesor.error'),
+    verificacion: t(locale, 'asesor.verificacion'),
     noDisponible: t(locale, 'asesor.no_disponible'),
     verProducto: t(locale, 'asesor.ver_producto'),
     handoffWhatsapp: t(locale, 'asesor.handoff_whatsapp'),
@@ -538,6 +539,7 @@ const asesorConfig = {
     limite: string;
     degradado: string;
     error: string;
+    verificacion: string;
     noDisponible: string;
     verProducto: string;
     handoffWhatsapp: string;
@@ -758,9 +760,15 @@ const asesorConfig = {
       if (respuesta.accionHandoff) addHtmlBubble(buildHandoffHtml(respuesta.accionHandoff));
     }
 
-    function renderError(error: ErrorAsesor) {
+    function renderError(error: ErrorAsesor | { tipo: 'verificacion' }) {
       if (error.tipo === 'rate_limited') {
         addBubble(config.i18n.limite, 'asesor');
+        return;
+      }
+      if (error.tipo === 'verificacion') {
+        addHtmlBubble(
+          `<p>${escapeHtml(config.i18n.verificacion)}</p><button type="button" class="asesor-cta asesor-cta--retry" data-asesor-retry>${escapeHtml(config.i18n.reintentar)}</button>`
+        );
         return;
       }
       if (error.tipo === 'no_disponible') {
@@ -801,6 +809,7 @@ const asesorConfig = {
         await loadTurnstileScript();
         if (!window.turnstile) return undefined;
 
+        let widgetRecienCreado = false;
         if (turnstileWidgetId === null) {
           turnstileWidgetId = window.turnstile.render(turnstileContainer, {
             sitekey: config.turnstileSiteKey,
@@ -808,9 +817,13 @@ const asesorConfig = {
             appearance: 'interaction-only',
             execution: 'execute',
             callback: (token: string) => resolveTurnstileToken?.(token),
-            'error-callback': () => resolveTurnstileToken?.(undefined),
+            'error-callback': (codigo: unknown) => {
+              console.error('[asesor] Turnstile error-callback:', codigo);
+              resolveTurnstileToken?.(undefined);
+            },
             'expired-callback': () => resolveTurnstileToken?.(undefined),
           });
+          widgetRecienCreado = true;
         }
         const widgetId = turnstileWidgetId;
         if (widgetId === null) return undefined;
@@ -822,7 +835,10 @@ const asesorConfig = {
             resolveTurnstileToken = null;
             resolve(token);
           };
-          window.turnstile?.reset(widgetId);
+          // reset() solo sobre un widget ya usado: resetear uno recién
+          // renderizado puede abortar su inicialización y dejar el challenge
+          // colgado hasta el timeout.
+          if (!widgetRecienCreado) window.turnstile?.reset(widgetId);
           window.turnstile?.execute(widgetId);
         });
       } catch {
@@ -837,7 +853,18 @@ const asesorConfig = {
       const loadingBubble = addBubble(config.i18n.buscando, 'loading');
       try {
         if (!asesorLib) asesorLib = await import('../lib/asesor');
-        const turnstileToken = await getTurnstileToken();
+        let turnstileToken = await getTurnstileToken();
+        // Un fallo del challenge suele ser transitorio: un reintento inmediato
+        // lo resuelve en la mayoría de casos sin molestar al usuario.
+        if (!turnstileToken && config.turnstileSiteKey) {
+          turnstileToken = await getTurnstileToken();
+        }
+        // Sin token el servidor responderá 403 seguro: no gastamos la petición
+        // y damos un mensaje accionable en su lugar.
+        if (!turnstileToken && config.turnstileSiteKey) {
+          renderError({ tipo: 'verificacion' });
+          return;
+        }
 
         const resultado = await asesorLib.preguntarAsesor({
           mensaje,
