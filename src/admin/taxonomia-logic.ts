@@ -103,3 +103,17 @@ export function validarFamiliaYTipoProducto(payload: {
   }
   return null;
 }
+
+export function validarTipoEditable(payload: {
+  familia_id?: unknown;
+  slug?: unknown;
+  nombre_es?: unknown;
+}): string | null {
+  const familiaId = typeof payload.familia_id === 'string' ? payload.familia_id : '';
+  const slug = typeof payload.slug === 'string' ? payload.slug.trim() : '';
+  const nombreEs = typeof payload.nombre_es === 'string' ? payload.nombre_es.trim() : '';
+  if (!familiaId) return 'La familia es obligatoria para guardar el tipo.';
+  if (!slug) return 'El slug del tipo es obligatorio.';
+  if (!nombreEs) return 'El nombre ES del tipo es obligatorio.';
+  return null;
+}

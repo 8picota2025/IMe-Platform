@@ -6,6 +6,7 @@ import {
   mensajeBloqueoEliminarFamilia,
   mensajeBloqueoEliminarTipo,
   validarFamiliaYTipoProducto,
+  validarTipoEditable,
   type FamiliaRow,
   type TipoRow,
   type ProductoTaxonomiaRow,
@@ -1767,6 +1768,7 @@ async function taxonomiaView(): Promise<string> {
     selectRows('productos', 'id,nombre_es,slug,familia_id,tipo_id', 'nombre_es', 500),
   ]);
   const familiasPorId = new Map(familias.map(f => [text(f.id), text(f.nombre_es)]));
+  const familiasSlugPorId = new Map(familias.map(f => [text(f.id), text(f.slug)]));
   const conteoPorTipo = new Map<string, number>();
   const productosSinTipo: Row[] = [];
   const productosSinFamilia: Row[] = [];
@@ -1781,6 +1783,7 @@ async function taxonomiaView(): Promise<string> {
       productosSinFamilia.push(producto);
     }
   }
+  const tiposSinProductos = tipos.filter(t => (conteoPorTipo.get(text(t.id)) ?? 0) === 0);
   const tiposParaSelect = tipos.map(t => ({
     ...t,
     nombre_es: `${familiasPorId.get(text(t.familia_id)) ?? 'Sin familia'} / ${text(t.nombre_es)}`,
@@ -1808,6 +1811,19 @@ async function taxonomiaView(): Promise<string> {
           ])
         )}
       </form>
+      <form class="admin-panel admin-form admin-taxonomy-panel" data-type-edit-form>
+        <div class="admin-panel__head"><h2>Editar tipo</h2><button class="admin-button" type="submit">Guardar cambios</button></div>
+        <div class="admin-taxonomy-list">
+          ${select('tipo_id', 'Tipo a editar', '', tipos, 'nombre_es', true)}
+          ${select('familia_id', 'Familia', '', familias, 'nombre_es', true)}
+          ${field('slug', 'Slug', '', true)}
+          ${field('nombre_es', 'Nombre ES', '', true)}
+          ${field('nombre_en', 'Nombre EN')}
+          ${field('orden', 'Orden', '0', false, 'number')}
+          ${checkbox('activo', 'Activo', true)}
+        </div>
+        <p class="admin-help">Selecciona un tipo, precarga sus campos y guarda los cambios.</p>
+      </form>
       <form class="admin-panel admin-form admin-taxonomy-panel" data-simple-form data-table="tipos" data-fields="familia_id,slug,nombre_es,nombre_en,orden,activo">
         <div class="admin-panel__head"><h2>Tipos</h2><button class="admin-button" type="submit">Crear tipo</button></div>
         <div class="admin-taxonomy-list">
@@ -1825,11 +1841,36 @@ async function taxonomiaView(): Promise<string> {
             text(r.nombre_es),
             String(conteoPorTipo.get(text(r.id)) ?? 0),
             status(r.activo),
-            `<button class="admin-button admin-button--danger" type="button" data-delete-tipo="${escapeHtml(text(r.id))}">Eliminar</button>`,
+            [
+              `<button class="admin-button admin-button--ghost" type="button" data-edit-tipo="${escapeHtml(text(r.id))}">Editar</button>`,
+              `<button class="admin-button admin-button--danger" type="button" data-delete-tipo="${escapeHtml(text(r.id))}">Eliminar</button>`,
+            ].join(' '),
           ])
         )}
       </form>
     </section>
+    ${
+      tiposSinProductos.length
+        ? `<section class="admin-panel">
+            <div class="admin-panel__head"><h2>Limpieza de tipos sin productos (${tiposSinProductos.length})</h2><button class="admin-button admin-button--danger" type="button" data-delete-empty-tipos>Eliminar todos</button></div>
+            <div style="padding:16px">
+              <p class="admin-help">Estos tipos no tienen productos asignados y se pueden eliminar en bloque sin afectar el catálogo.</p>
+              <ul class="admin-list">
+                ${tiposSinProductos
+                  .map(
+                    tipo =>
+                      `<li><strong>${escapeHtml(text(tipo.nombre_es))}</strong> <span class="admin-help">(${escapeHtml(
+                        familiasPorId.get(text(tipo.familia_id)) ??
+                          familiasSlugPorId.get(text(tipo.familia_id)) ??
+                          'Sin familia'
+                      )})</span></li>`
+                  )
+                  .join('')}
+              </ul>
+            </div>
+          </section>`
+        : ''
+    }
     <section class="admin-panel admin-taxonomy-unassigned">
       <div class="admin-panel__head">
         <h2>Productos sin tipo asignado (${productosSinTipo.length})</h2>
@@ -3993,6 +4034,61 @@ function bindTaxonomy() {
     }
   });
 
+  app.querySelectorAll<HTMLButtonElement>('[data-edit-tipo]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const id = button.dataset['editTipo'];
+      if (!id) return;
+      const tipo = await getRow('tipos', id);
+      if (!tipo) {
+        toast('Tipo no encontrado');
+        return;
+      }
+      const form = app.querySelector<HTMLFormElement>('[data-type-edit-form]');
+      if (!form) return;
+      setFormValue(form, 'tipo_id', text(tipo.id));
+      setFormValue(form, 'familia_id', text(tipo.familia_id));
+      setFormValue(form, 'slug', text(tipo.slug));
+      setFormValue(form, 'nombre_es', text(tipo.nombre_es));
+      setFormValue(form, 'nombre_en', text(tipo.nombre_en));
+      setFormValue(form, 'orden', text(tipo.orden));
+      setCheckboxValue(form, 'activo', tipo.activo !== false);
+      toast('Tipo cargado para edición');
+    });
+  });
+
+  app
+    .querySelector<HTMLFormElement>('[data-type-edit-form]')
+    ?.addEventListener('submit', async event => {
+      event.preventDefault();
+      const form = event.currentTarget as HTMLFormElement;
+      const data = new FormData(form);
+      const id = String(data.get('tipo_id') ?? '');
+      if (!id) {
+        toast('Selecciona un tipo para editar');
+        return;
+      }
+      const payload: Row = {
+        familia_id: emptyToNull(data.get('familia_id')),
+        slug: emptyToNull(data.get('slug')),
+        nombre_es: emptyToNull(data.get('nombre_es')),
+        nombre_en: emptyToNull(data.get('nombre_en')),
+        orden: numberOrZero(data.get('orden')),
+        activo: data.get('activo') === 'on',
+      };
+      const error = validarTipoEditable(payload);
+      if (error) {
+        toast(error);
+        return;
+      }
+      const { error: updateError } = await supabase!.from('tipos').update(payload).eq('id', id);
+      if (updateError) {
+        toast(updateError.message);
+        return;
+      }
+      toast('Tipo actualizado');
+      await render();
+    });
+
   app.querySelectorAll<HTMLButtonElement>('[data-delete-familia]').forEach(button => {
     button.addEventListener('click', async () => {
       const id = button.dataset['deleteFamilia'];
@@ -4048,6 +4144,40 @@ function bindTaxonomy() {
       }
     });
   });
+
+  app
+    .querySelector<HTMLButtonElement>('[data-delete-empty-tipos]')
+    ?.addEventListener('click', async () => {
+      const tiposRows = await selectRows('tipos', 'id,nombre_es', 'orden', 300);
+      const productosRows = await selectRows('productos', 'id,tipo_id', 'nombre_es', 500);
+      const conteo = new Map<string, number>();
+      for (const producto of productosRows) {
+        const tipoId = text(producto.tipo_id);
+        if (!tipoId) continue;
+        conteo.set(tipoId, (conteo.get(tipoId) ?? 0) + 1);
+      }
+      const tiposSinProductos = tiposRows.filter(tipo => (conteo.get(text(tipo.id)) ?? 0) === 0);
+      if (tiposSinProductos.length === 0) {
+        toast('No hay tipos sin productos');
+        return;
+      }
+      if (
+        !confirm(
+          `Eliminar ${tiposSinProductos.length} tipos sin productos? Esta acción no se puede deshacer.`
+        )
+      ) {
+        return;
+      }
+      for (const tipo of tiposSinProductos) {
+        const { error } = await supabase!.from('tipos').delete().eq('id', text(tipo.id));
+        if (error) {
+          toast(error.message);
+          return;
+        }
+      }
+      toast(`Eliminados ${tiposSinProductos.length} tipos sin productos`);
+      await render();
+    });
 }
 
 function bindFulfillments() {
@@ -6323,6 +6453,24 @@ function text(value: unknown): string {
   if (typeof value === 'number' || typeof value === 'boolean') return String(value);
   if (value instanceof Date) return value.toISOString();
   return '';
+}
+
+function setFormValue(form: HTMLFormElement, name: string, value: string): void {
+  const element = form.elements.namedItem(name);
+  if (
+    element instanceof HTMLInputElement ||
+    element instanceof HTMLSelectElement ||
+    element instanceof HTMLTextAreaElement
+  ) {
+    element.value = value;
+  }
+}
+
+function setCheckboxValue(form: HTMLFormElement, name: string, checked: boolean): void {
+  const element = form.elements.namedItem(name);
+  if (element instanceof HTMLInputElement && element.type === 'checkbox') {
+    element.checked = checked;
+  }
 }
 
 function formatCell(value: unknown): string {
