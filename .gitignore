@@ -12,3 +12,4 @@ test-results/
 .github/SECRETS.md
 .idea/
 supabase/.temp/
+.claude/worktrees/
