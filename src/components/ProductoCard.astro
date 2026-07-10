@@ -44,6 +44,16 @@ const noDisponible = producto.disponible === false;
 const precioFormateado = formatMoneda(producto.precio ?? null, producto.moneda ?? 'COP', locale);
 const accionComercial = getAccionComercial(producto, locale);
 const imagenProducto = producto.imagen_principal ?? '/assets/img-placeholder.svg';
+const imagenFallback =
+  'data:image/svg+xml;charset=UTF-8,' +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 280" role="img" aria-label="${producto.nombre}">
+      <rect width="400" height="280" fill="#f3f6f8"/>
+      <rect x="24" y="24" width="352" height="232" rx="18" fill="#ffffff" stroke="#d6e0e8"/>
+      <path d="M138 164h124" stroke="#c0ccd6" stroke-width="10" stroke-linecap="round"/>
+      <path d="M160 140l32 32 44-54 44 54" fill="none" stroke="#90a4b3" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`
+  );
 const whatsappHref = `https://wa.me/573138674059?text=${encodeURIComponent(
   `${t(locale, 'producto.cta_consultar_disponibilidad')}: ${producto.nombre}`
 )}`;
@@ -89,6 +99,7 @@ function modalidadLabel(modalidad?: string): string {
         loading="lazy"
         decoding="async"
         class="producto-card__img"
+        onerror={`this.onerror=null;this.src='${imagenFallback}'`}
       />
       {
         (producto.destacado || producto.nuevo || noDisponible) && (

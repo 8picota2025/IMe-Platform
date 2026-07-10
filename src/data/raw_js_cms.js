@@ -461,11 +461,14 @@ document.addEventListener('DOMContentLoaded', () => {
   renderCatalogFromCMS()
   initAdmin()
 
-  // Aplica filtro URL (?cat=) después de renderizar
+  // Aplica filtro URL (?familia=) después de renderizar, con compatibilidad
+  // temporal para enlaces antiguos (?cat=).
   const _p = new URLSearchParams(location.search)
-  const _cat = _p.get('cat')
-  if (_cat) {
-    const btn = document.querySelector(`.filter-btn[data-cat="${_cat}"]`)
+  const _familia = _p.get('familia') || _p.get('cat')
+  if (_familia) {
+    const btn =
+      document.querySelector(`.filter-btn[data-familia="${_familia}"]`) ||
+      document.querySelector(`.filter-btn[data-cat="${_familia}"]`)
     if (btn) setTimeout(() => btn.click(), 80)
   }
 })

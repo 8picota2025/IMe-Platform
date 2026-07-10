@@ -48,6 +48,14 @@ function publicPathFor(slug, filename) {
   return `/assets/productos/importados/${slug}/${filename}`
 }
 
+function publicPathFromAbsolute(fsPath) {
+  const normalized = fsPath.replaceAll(path.sep, '/')
+  const marker = '/public/'
+  const idx = normalized.lastIndexOf(marker)
+  if (idx === -1) return null
+  return normalized.slice(idx + marker.length - 1)
+}
+
 function specItems(entry) {
   const specs = Array.isArray(entry?.especificaciones) ? entry.especificaciones : []
   return specs

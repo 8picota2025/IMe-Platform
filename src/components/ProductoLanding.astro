@@ -55,6 +55,16 @@ const certificaciones = especificaciones.filter(item => /normativ/i.test(item.gr
 const galeria = producto.galeria.filter(url => url && url !== producto.imagen_principal);
 const imagenes = [producto.imagen_principal ?? '/assets/img-placeholder.svg', ...galeria];
 const imagenProducto = producto.imagen_principal ?? '/assets/img-placeholder.svg';
+const imagenFallback =
+  'data:image/svg+xml;charset=UTF-8,' +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" role="img" aria-label="${producto.nombre}">
+      <rect width="640" height="480" fill="#f3f6f8"/>
+      <rect x="32" y="32" width="576" height="416" rx="24" fill="#ffffff" stroke="#d6e0e8"/>
+      <path d="M220 286h200" stroke="#c0ccd6" stroke-width="12" stroke-linecap="round"/>
+      <path d="M260 254l52 52 70-88 70 88" fill="none" stroke="#90a4b3" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`
+  );
 
 const precioFormateado = formatMoneda(producto.precio, producto.moneda, locale);
 const noDisponible = producto.disponible === false;
@@ -209,6 +219,7 @@ if (precioFormateado) {
           fetchpriority="high"
           class="hero-producto__img"
           id="producto-imagen-principal"
+          onerror={`this.onerror=null;this.src='${imagenFallback}'`}
         />
         {
           (producto.destacado || producto.nuevo || noDisponible) && (

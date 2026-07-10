@@ -1185,11 +1185,31 @@ async function dashboardView(): Promise<string> {
     count('clientes'),
     count('cupones', { activo: true }),
     count('fulfillments', { estado: 'error' }),
-    selectRows('productos', 'id,tipo_id', 'nombre_es', 500),
+    selectRows(
+      'productos',
+      'id,tipo_id,imagen_principal,ficha_pdf,especificaciones',
+      'nombre_es',
+      500
+    ),
   ]);
   const withoutProvider = await productosDropshipSinProveedor();
   const productosSinTipo = productosRows.filter(row => !text(row.tipo_id)).length;
   const productosNoDisponibles = Math.max(0, productos - productosDisponibles);
+  const productosSinImagen = productosRows.filter(row => !text(row.imagen_principal)).length;
+  const productosSinPdf = productosRows.filter(row => !text(row.ficha_pdf)).length;
+  const productosSinSpecs = productosRows.filter(row => {
+    const specs = row.especificaciones;
+    return !Array.isArray(specs) || specs.length === 0;
+  }).length;
+  const productosConFaltantes = productosRows
+    .filter(
+      row =>
+        !text(row.imagen_principal) ||
+        !text(row.ficha_pdf) ||
+        !Array.isArray(row.especificaciones) ||
+        row.especificaciones.length === 0
+    )
+    .slice(0, 12);
   return `
     ${withoutProvider > 0 ? `<div class="admin-alert">${withoutProvider} productos dropship no tienen proveedor asignado.</div>` : ''}
     <section class="admin-grid">
@@ -1204,6 +1224,9 @@ async function dashboardView(): Promise<string> {
       ${metric('Disponibles', productosDisponibles)}
       ${metric('No disponibles', productosNoDisponibles)}
       ${metric('Sin tipo', productosSinTipo)}
+      ${metric('Sin imagen', productosSinImagen)}
+      ${metric('Sin PDF', productosSinPdf)}
+      ${metric('Sin specs', productosSinSpecs)}
       ${metric('Dropship sin proveedor', withoutProvider)}
       ${metric('Fulfillments con error', fulfillmentsError)}
     </section>
@@ -1216,7 +1239,7 @@ async function dashboardView(): Promise<string> {
         </div>
         <div class="admin-health__item">
           <strong>Catálogo</strong>
-          <p>${productosActivos} publicados y ${productosBorrador} borradores en revisión.</p>
+          <p>${productosActivos} publicados, ${productosBorrador} borradores y ${productosSinSpecs} productos sin especificaciones.</p>
         </div>
         <div class="admin-health__item">
           <strong>Fulfillment</strong>
@@ -1224,6 +1247,32 @@ async function dashboardView(): Promise<string> {
         </div>
       </div>
     </section>
+    ${
+      productosConFaltantes.length
+        ? `<section class="admin-panel">
+            <div class="admin-panel__head"><h2>Productos para completar</h2></div>
+            <div style="padding:16px">
+              <p class="admin-help">Prioriza estos productos para completar imagen, PDF o especificaciones.</p>
+              <ul class="admin-list">
+                ${productosConFaltantes
+                  .map(row => {
+                    const faltantes = [
+                      !text(row.imagen_principal) ? 'imagen' : null,
+                      !text(row.ficha_pdf) ? 'PDF' : null,
+                      !Array.isArray(row.especificaciones) || row.especificaciones.length === 0
+                        ? 'specs'
+                        : null,
+                    ]
+                      .filter(Boolean)
+                      .join(', ');
+                    return `<li><strong>${escapeHtml(text(row.nombre_es) || text(row.id))}</strong> <span class="admin-help">(${escapeHtml(faltantes)})</span></li>`;
+                  })
+                  .join('')}
+              </ul>
+            </div>
+          </section>`
+        : ''
+    }
     <section class="admin-panel">
       <div class="admin-panel__head"><h2>Accesos</h2></div>
       <div class="admin-grid" style="padding:16px">
@@ -1688,7 +1737,7 @@ async function productoFormView(): Promise<string> {
           ${textarea('descripcion_corta_en', 'Descripcion corta EN', draft.descripcion_corta_en)}
           ${textarea('descripcion_larga_es', 'Descripcion larga ES', draft.descripcion_larga_es)}
           ${textarea('descripcion_larga_en', 'Descripcion larga EN', draft.descripcion_larga_en)}
-          ${textarea('especificaciones', 'Especificaciones JSON', JSON.stringify(draft.especificaciones, null, 2))}
+          ${renderSpecEditor(draft.especificaciones)}
           ${textarea('aplicaciones_es', 'Aplicaciones ES (una por linea)', draft.aplicaciones_es.join('\n'))}
           ${textarea('aplicaciones_en', 'Aplicaciones EN (una por linea)', draft.aplicaciones_en.join('\n'))}
         </div>
@@ -3740,7 +3789,35 @@ function bindProductForm() {
     if (!(target instanceof HTMLInputElement) || target.name !== 'nombre_es') return;
     const slug = form.elements.namedItem('slug');
     if (slug instanceof HTMLInputElement && !slug.value) slug.value = slugify(target.value);
+    if (target.closest('[data-spec-row]')) syncSpecJson(form);
   });
+  form.querySelectorAll<HTMLButtonElement>('[data-add-spec]').forEach(button => {
+    button.addEventListener('click', () => {
+      form.querySelector('[data-spec-rows]')?.insertAdjacentHTML('beforeend', specEditorRow({}));
+      syncSpecJson(form);
+    });
+  });
+  form.querySelectorAll<HTMLButtonElement>('[data-spec-fill-sample]').forEach(button => {
+    button.addEventListener('click', () => {
+      const rows = form.querySelector<HTMLElement>('[data-spec-rows]');
+      if (!rows) return;
+      rows.innerHTML = specEditorRow({});
+      syncSpecJson(form);
+    });
+  });
+  form.addEventListener('click', event => {
+    const target = event.target;
+    const removeButton =
+      target instanceof HTMLElement ? target.closest<HTMLElement>('[data-remove-row]') : null;
+    if (removeButton) {
+      removeButton.closest('[data-spec-row]')?.remove();
+      if (!form.querySelector('[data-spec-row]')) {
+        form.querySelector('[data-spec-rows]')?.insertAdjacentHTML('beforeend', specEditorRow({}));
+      }
+      syncSpecJson(form);
+    }
+  });
+  syncSpecJson(form);
   form.addEventListener('submit', async event => {
     event.preventDefault();
     const payload = productPayload(form);
@@ -4899,6 +4976,49 @@ function especRevisableRow(espec: EspecRevisable): string {
     </div>`;
 }
 
+function specEditorRow(espec: Row): string {
+  return `
+    <div class="admin-campo-revisable" data-spec-row>
+      <div class="admin-campo-revisable__head">
+        <span>Especificacion</span>
+        <button class="admin-button admin-button--ghost" type="button" data-remove-row>Quitar</button>
+      </div>
+      <div class="admin-editor__cols">
+        ${field('spec_clave', 'Clave', text(espec.clave))}
+        ${field('spec_valor', 'Valor', text(espec.valor))}
+        ${field('spec_grupo', 'Grupo', text(espec.grupo))}
+      </div>
+    </div>`;
+}
+
+function renderSpecEditor(specs: unknown[]): string {
+  const rows =
+    Array.isArray(specs) && specs.length > 0 ? specs : [{ clave: '', valor: '', grupo: '' }];
+  return `
+    <div class="admin-spec-editor" data-spec-editor>
+      <div class="admin-spec-editor__actions">
+        <button class="admin-button admin-button--ghost" type="button" data-add-spec>Agregar especificacion</button>
+        <button class="admin-button admin-button--ghost" type="button" data-spec-fill-sample>Plantilla vacia</button>
+      </div>
+      <div class="admin-spec-editor__rows" data-spec-rows>
+        ${rows.map(row => specEditorRow(row as Row)).join('')}
+      </div>
+      <label class="admin-field">
+        Especificaciones JSON de respaldo
+        <textarea name="especificaciones" data-spec-json>${escapeHtml(JSON.stringify(rows, null, 2))}</textarea>
+      </label>
+      <p class="admin-help">Edita las filas para mantener la estructura. El JSON sirve como respaldo o importación masiva.</p>
+    </div>`;
+}
+
+function specRowPayload(row: HTMLElement): Row {
+  return {
+    clave: text(row.querySelector<HTMLInputElement>('input[name="spec_clave"]')?.value),
+    valor: text(row.querySelector<HTMLInputElement>('input[name="spec_valor"]')?.value),
+    grupo: text(row.querySelector<HTMLInputElement>('input[name="spec_grupo"]')?.value),
+  };
+}
+
 function aplicacionRevisableRow(item: CampoRevisable): string {
   return `
     <div class="admin-campo-revisable" data-aplicacion-row>
@@ -5070,11 +5190,26 @@ function bindIngestReview(container: HTMLElement) {
         ?.insertAdjacentHTML('beforeend', emptyAplicacionRow());
     });
   });
+  container.querySelectorAll<HTMLButtonElement>('[data-spec-fill-sample]').forEach(button => {
+    button.addEventListener('click', () => {
+      const rows = container.querySelector<HTMLElement>('[data-spec-rows]');
+      if (!rows) return;
+      rows.innerHTML = emptySpecRow();
+      syncSpecJson(container);
+    });
+  });
   container.addEventListener('click', event => {
     const target = event.target;
     const removeButton =
       target instanceof HTMLElement ? target.closest<HTMLElement>('[data-remove-row]') : null;
     removeButton?.closest('[data-spec-row], [data-aplicacion-row]')?.remove();
+    syncSpecJson(container);
+  });
+  container.addEventListener('input', event => {
+    const target = event.target;
+    if (target instanceof HTMLInputElement && target.closest('[data-spec-row]')) {
+      syncSpecJson(container);
+    }
   });
 
   const form = container.querySelector<HTMLFormElement>('[data-ingest-review-form]');
@@ -5153,6 +5288,21 @@ function bindIngestReview(container: HTMLElement) {
     location.hash = productId ? `#/producto?id=${encodeURIComponent(productId)}` : '#/productos';
     await render();
   });
+
+  syncSpecJson(container);
+}
+
+function syncSpecJson(container: HTMLElement) {
+  const rows = Array.from(container.querySelectorAll<HTMLElement>('[data-spec-row]')).map(
+    specRowPayload
+  );
+  const json = container.querySelector<HTMLTextAreaElement>('[data-spec-json]');
+  if (!json) return;
+  json.value = JSON.stringify(
+    rows.filter(row => row.clave || row.valor || row.grupo),
+    null,
+    2
+  );
 }
 
 function buildLocalIngestDraft(pdfText: string, pdfUrl: string, errorMessage?: string): Row {
@@ -5789,8 +5939,12 @@ function articleDraft(row: Row | null): ArticuloDraft {
 
 function productPayload(form: HTMLFormElement): Row {
   const data = new FormData(form);
-  const specsParsed = parseJson(data.get('especificaciones'), []);
-  const specs = Array.isArray(specsParsed) ? specsParsed : [];
+  const structuredSpecs = Array.from(form.querySelectorAll<HTMLElement>('[data-spec-row]'))
+    .map(specRowPayload)
+    .filter(item => item.clave || item.valor || item.grupo);
+  const fallbackSpecsParsed = parseJson(data.get('especificaciones'), []);
+  const fallbackSpecs = Array.isArray(fallbackSpecsParsed) ? fallbackSpecsParsed : [];
+  const specs = structuredSpecs.length > 0 ? structuredSpecs : fallbackSpecs;
   return {
     slug: String(data.get('slug') ?? ''),
     sku: emptyToNull(data.get('sku')),

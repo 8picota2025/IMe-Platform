@@ -1,0 +1,63 @@
+name: Sync Productos a Supabase
+
+on:
+  workflow_dispatch:
+    inputs:
+      slugs:
+        description: 'CSV de slugs a sincronizar (dejar vacío para sync todos)'
+        required: false
+        type: string
+      dry_run:
+        description: 'Ejecutar en modo dry-run (previsualizar sin guardar)'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  sync:
+    name: Sync Productos
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Sync productos a Supabase
+        run: |
+          SLUGS="${{ github.event.inputs.slugs }}"
+          DRY_RUN="${{ github.event.inputs.dry_run }}"
+
+          if [ -z "$SLUGS" ]; then
+            # Si no hay slugs, sincroniza todos del mock-productos.json
+            if [ "$DRY_RUN" = "true" ]; then
+              node scripts/sync-productos-supabase.mjs --dry-run
+            else
+              node scripts/sync-productos-supabase.mjs
+            fi
+          else
+            # Sincroniza los slugs especificados
+            if [ "$DRY_RUN" = "true" ]; then
+              node scripts/sync-productos-supabase.mjs --slugs="$SLUGS" --dry-run
+            else
+              node scripts/sync-productos-supabase.mjs --slugs="$SLUGS"
+            fi
+          fi
+        env:
+          PUBLIC_SUPABASE_URL: https://nnfbucwiasuggyfoyydo.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+      - name: Trigger rebuild producción (si no fue dry-run)
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          echo "📢 Sync completado. Triggereando rebuild de producción..."
+          curl -X POST https://api.github.com/repos/${{ github.repository }}/dispatches \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -d '{"event_type":"trigger-rebuild"}'

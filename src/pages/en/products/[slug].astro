@@ -53,7 +53,7 @@ const jsonLd = combineJsonLd(
   buildBreadcrumbJsonLd([
     { name: t(locale, 'catalogo.migas_inicio'), url: buildCanonical('/en/') },
     { name: t(locale, 'catalogo.migas_catalogo'), url: buildCanonical('/en/catalog') },
-    { name: familia.nombre, url: buildCanonical(`/en/catalog?familia=${familia.slug}`) },
+    { name: familia.nombre, url: buildCanonical(`/en/catalog/?familia=${familia.slug}`) },
     { name: producto.nombre, url: seo.canonical },
   ])
 );

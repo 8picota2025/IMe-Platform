@@ -5746,14 +5746,14 @@
         "valor": "Red Dot: Diseño de Producto 2021"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/monitor-de-paciente-p22-biolight/imagen-principal-onitor-de-paciente-p22-biolight.jpg",
+    "imagen_principal": "/assets/productos/importados/monitor-de-paciente-p22-biolight/imagen-principal-monitor-de-paciente-p22-biolight.jpg",
     "galeria": [
-      "/assets/productos/importados/monitor-de-paciente-p22-biolight/imagen-principal-onitor-de-paciente-p22-biolight.jpg",
-      "/assets/productos/importados/monitor-de-paciente-p22-biolight/galeria-onitor-de-paciente-p22-biolight-02.jpg",
-      "/assets/productos/importados/monitor-de-paciente-p22-biolight/galeria-onitor-de-paciente-p22-biolight-03.jpg",
-      "/assets/productos/importados/monitor-de-paciente-p22-biolight/galeria-onitor-de-paciente-p22-biolight-04.jpg"
+      "/assets/productos/importados/monitor-de-paciente-p22-biolight/imagen-principal-monitor-de-paciente-p22-biolight.jpg",
+      "/assets/productos/importados/monitor-de-paciente-p22-biolight/galeria-monitor-de-paciente-p22-biolight-02.jpg",
+      "/assets/productos/importados/monitor-de-paciente-p22-biolight/galeria-monitor-de-paciente-p22-biolight-03.jpg",
+      "/assets/productos/importados/monitor-de-paciente-p22-biolight/galeria-monitor-de-paciente-p22-biolight-04.jpg"
     ],
-    "ficha_pdf": "/assets/productos/importados/monitor-de-paciente-p22-biolight/ficha-onitor-de-paciente-p22-biolight.pdf",
+    "ficha_pdf": "/assets/productos/importados/monitor-de-paciente-p22-biolight/ficha-monitor-de-paciente-p22-biolight.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
     "precio": null,
@@ -12035,8 +12035,10 @@
         "grupo": "Accesorios"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/sistema-de-alto-flujo-ref-airvo-3-fisher-paykel/imagen-principal-sistema-de-alto-flujo-ref-airvo-3-fisher-paykel.png",
+    "imagen_principal": "/assets/productos/importados/sistema-de-alto-flujo-ref-airvo-3-fisher-paykel/airvo3-image-for-comparison-table.png",
     "galeria": [
+      "/assets/productos/importados/sistema-de-alto-flujo-ref-airvo-3-fisher-paykel/airvo3-image-for-comparison-table.png",
+      "/assets/productos/importados/sistema-de-alto-flujo-ref-airvo-3-fisher-paykel/airvo-3-logo.png",
       "/assets/productos/importados/sistema-de-alto-flujo-ref-airvo-3-fisher-paykel/imagen-principal-sistema-de-alto-flujo-ref-airvo-3-fisher-paykel.png",
       "/assets/productos/importados/sistema-de-alto-flujo-ref-airvo-3-fisher-paykel/galeria-sistema-de-alto-flujo-ref-airvo-3-fisher-paykel-02.png",
       "/assets/productos/importados/sistema-de-alto-flujo-ref-airvo-3-fisher-paykel/galeria-sistema-de-alto-flujo-ref-airvo-3-fisher-paykel-03.png",
