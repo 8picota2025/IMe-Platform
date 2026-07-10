@@ -13,7 +13,10 @@ on:
 
 concurrency:
   group: deploy-prod
-  cancel-in-progress: true
+  # No cancelar un deploy FTP a medias: una cancelación durante la subida deja
+  # el estado incremental (.ftp-deploy-sync-state) desincronizado con el servidor
+  # y provoca deploys parciales silenciosos. Mejor encolar y ejecutar en serie.
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -47,3 +50,10 @@ jobs:
           password: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
           local-dir: ./dist/
           server-dir: ${{ secrets.HOSTINGER_PROD_PATH }}
+          # El estado incremental anterior (.ftp-deploy-sync-state.json) quedó
+          # desincronizado con el servidor (deploys cancelados a medias), lo que
+          # provocó que se omitieran páginas de producto ya reconstruidas.
+          # Un state-name nuevo fuerza una subida completa (no destructiva: no
+          # borra archivos del servidor, solo sube/reemplaza) y deja una línea
+          # base correcta para los deploys incrementales futuros.
+          state-name: .ftp-deploy-sync-state-v2.json
