@@ -6313,6 +6313,7 @@ function productListCell(
   tipos: Row[]
 ): string {
   const productId = text(row.id);
+  const productSlug = text(row.slug) || productId;
   const name = column.key;
   const baseAttrs = `data-product-id="${escapeHtml(productId)}" data-product-field="${escapeHtml(name)}"`;
   const value = row[name];
@@ -6333,7 +6334,7 @@ function productListCell(
           <button class="admin-button admin-button--ghost" data-product-row-gallery-upload="${escapeHtml(productId)}" type="button">Subir galería</button>
           <a
             class="admin-button admin-button--ghost"
-            href="/es/productos/${encodeURIComponent(productId)}"
+            href="/es/productos/${encodeURIComponent(productSlug)}"
             target="_blank"
             rel="noopener noreferrer"
           >
