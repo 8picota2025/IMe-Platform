@@ -1,13 +1,26 @@
 // @ts-check
 import { defineConfig } from 'astro/config'
+import sentry from '@sentry/astro'
 import sitemap from '@astrojs/sitemap'
 import tailwindcss from '@tailwindcss/vite'
+
+const sentryDsn = process.env.PUBLIC_SENTRY_DSN
+const sentryEnabled = Boolean(sentryDsn)
 
 export default defineConfig({
   site: 'https://i-me.com.co',
   output: 'static',
   trailingSlash: 'always',
   integrations: [
+    sentry({
+      enabled: {
+        client: sentryEnabled,
+        server: false,
+      },
+      autoInstrumentation: {
+        requestHandler: false,
+      },
+    }),
     sitemap({
       filter: (page) => {
         const url = new URL(page)

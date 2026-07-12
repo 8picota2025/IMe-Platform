@@ -24,7 +24,9 @@ import {
   validateClienteFiscal,
   type ClienteFiscalProfile,
 } from '../../../src/lib/fiscal.ts';
+import { withTelemetry, trackEvent } from '../_shared/telemetry.ts';
 
+const FN_NAME = 'crear-pago';
 const MAX_ITEMS = 20;
 const MAX_CANTIDAD = 50;
 
@@ -481,7 +483,8 @@ async function calcularDescuentoCupon(args: {
   return { ok: true, descuento: Math.max(0, Math.round(descuento)), cupon };
 }
 
-Deno.serve(async req => {
+Deno.serve(
+  withTelemetry(FN_NAME, async req => {
   const origin = req.headers.get('origin');
   const corsRes = handleCors(req);
   if (corsRes) return corsRes;
@@ -904,6 +907,13 @@ Deno.serve(async req => {
     console.warn('crear-pago: no se pudo persistir checkout_url', updateCheckoutError.message);
   }
 
+  void trackEvent(FN_NAME, 'pedido_creado', {
+    pedido_id: pedidoId,
+    mercado,
+    proveedor_pago: proveedorPago,
+    items_count: checkoutItems.length,
+  });
+
   return new Response(
     JSON.stringify({ ok: true, checkout_url: resultado.checkout_url, referencia: pedidoId }),
     {
@@ -911,4 +921,5 @@ Deno.serve(async req => {
       headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
     }
   );
-});
+  })
+);

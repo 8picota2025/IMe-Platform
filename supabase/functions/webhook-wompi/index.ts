@@ -17,6 +17,9 @@ import { badRequest, internalError, unauthorized } from '../_shared/errors.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { getGatewayByProvider } from '../_shared/payment-gateway.ts';
 import { notificarFulfillmentDropship, registrarPedidoPagado } from '../_shared/post-pago.ts';
+import { withTelemetry, trackEvent } from '../_shared/telemetry.ts';
+
+const FN_NAME = 'webhook-wompi';
 
 interface PedidoRow {
   id: string;
@@ -25,93 +28,103 @@ interface PedidoRow {
   metadata: Record<string, unknown> | null;
 }
 
-Deno.serve(async req => {
-  const origin = req.headers.get('origin');
-  const corsRes = handleCors(req);
-  if (corsRes) return corsRes;
-  if (req.method !== 'POST') return badRequest('Metodo no soportado', origin);
+Deno.serve(
+  withTelemetry(FN_NAME, async req => {
+    const origin = req.headers.get('origin');
+    const corsRes = handleCors(req);
+    if (corsRes) return corsRes;
+    if (req.method !== 'POST') return badRequest('Metodo no soportado', origin);
 
-  const rawBody = await req.text();
+    const rawBody = await req.text();
 
-  const gateway = getGatewayByProvider('wompi');
-  const evento = await gateway.validarWebhook(rawBody, req);
-  if (!evento) return unauthorized(origin);
+    const gateway = getGatewayByProvider('wompi');
+    const evento = await gateway.validarWebhook(rawBody, req);
+    if (!evento) {
+      void trackEvent(FN_NAME, 'webhook_rechazado', { motivo: 'firma_invalida' }, { nivel: 'warn' });
+      return unauthorized(origin);
+    }
 
-  const supabase = getServerSupabase();
+    const supabase = getServerSupabase();
 
-  // ── Idempotencia: registrar evento (unique proveedor_pago+event_id) ──
-  const { error: insertEventoError } = await supabase.from('eventos_pago').insert({
-    proveedor_pago: 'wompi',
-    event_id: evento.event_id,
-    referencia_pasarela: evento.referencia_pasarela,
-    payload: evento.payload,
-    procesado: false,
-  });
+    // ── Idempotencia: registrar evento (unique proveedor_pago+event_id) ──
+    const { error: insertEventoError } = await supabase.from('eventos_pago').insert({
+      proveedor_pago: 'wompi',
+      event_id: evento.event_id,
+      referencia_pasarela: evento.referencia_pasarela,
+      payload: evento.payload,
+      procesado: false,
+    });
 
-  if (insertEventoError) {
-    if (insertEventoError.code === '23505') {
-      // Evento duplicado ya procesado anteriormente
-      return new Response(JSON.stringify({ ok: true, duplicate: true }), {
+    if (insertEventoError) {
+      if (insertEventoError.code === '23505') {
+        // Evento duplicado ya procesado anteriormente
+        return new Response(JSON.stringify({ ok: true, duplicate: true }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
+        });
+      }
+      return internalError(`error registrando evento: ${insertEventoError.message}`, origin);
+    }
+
+    // ── Buscar pedido ──────────────────────────────────────────
+    const { data: pedido, error: pedidoError } = await supabase
+      .from('pedidos')
+      .select('id, estado, items, metadata')
+      .eq('referencia_pasarela', evento.referencia_pasarela)
+      .maybeSingle();
+
+    if (pedidoError)
+      return internalError(`error consultando pedido: ${pedidoError.message}`, origin);
+
+    if (!pedido) {
+      await supabase
+        .from('eventos_pago')
+        .update({ procesado: true })
+        .eq('proveedor_pago', 'wompi')
+        .eq('event_id', evento.event_id);
+
+      return new Response(JSON.stringify({ ok: true, pedido: 'no encontrado' }), {
         status: 200,
         headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
       });
     }
-    return internalError(`error registrando evento: ${insertEventoError.message}`, origin);
-  }
 
-  // ── Buscar pedido ──────────────────────────────────────────
-  const { data: pedido, error: pedidoError } = await supabase
-    .from('pedidos')
-    .select('id, estado, items, metadata')
-    .eq('referencia_pasarela', evento.referencia_pasarela)
-    .maybeSingle();
+    const pedidoRow = pedido as unknown as PedidoRow;
 
-  if (pedidoError) return internalError(`error consultando pedido: ${pedidoError.message}`, origin);
+    // ── Verificación server-side del estado real (nunca confiar solo en el payload) ──
+    const verificacion = await gateway.verificarPago(evento.referencia_pasarela);
+    const nuevoEstado = verificacion.estado;
+    const eraPagado = pedidoRow.estado === 'pagado';
 
-  if (!pedido) {
+    // Nunca degradar un pedido ya marcado como pagado
+    if (!eraPagado && nuevoEstado !== pedidoRow.estado) {
+      await supabase
+        .from('pedidos')
+        .update({
+          estado: nuevoEstado,
+          metadata: { ...(pedidoRow.metadata ?? {}), ultimo_evento_wompi: evento.event_id },
+        })
+        .eq('id', pedidoRow.id);
+    }
+
     await supabase
       .from('eventos_pago')
       .update({ procesado: true })
       .eq('proveedor_pago', 'wompi')
       .eq('event_id', evento.event_id);
 
-    return new Response(JSON.stringify({ ok: true, pedido: 'no encontrado' }), {
+    if (!eraPagado && nuevoEstado === 'pagado') {
+      await registrarPedidoPagado(supabase, pedidoRow.id, 'wompi', evento.event_id);
+      await notificarFulfillmentDropship(supabase, pedidoRow.id, pedidoRow.items ?? []);
+      void trackEvent(FN_NAME, 'pago_confirmado', {
+        pedido_id: pedidoRow.id,
+        proveedor_pago: 'wompi',
+      });
+    }
+
+    return new Response(JSON.stringify({ ok: true }), {
       status: 200,
       headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
     });
-  }
-
-  const pedidoRow = pedido as unknown as PedidoRow;
-
-  // ── Verificación server-side del estado real (nunca confiar solo en el payload) ──
-  const verificacion = await gateway.verificarPago(evento.referencia_pasarela);
-  const nuevoEstado = verificacion.estado;
-  const eraPagado = pedidoRow.estado === 'pagado';
-
-  // Nunca degradar un pedido ya marcado como pagado
-  if (!eraPagado && nuevoEstado !== pedidoRow.estado) {
-    await supabase
-      .from('pedidos')
-      .update({
-        estado: nuevoEstado,
-        metadata: { ...(pedidoRow.metadata ?? {}), ultimo_evento_wompi: evento.event_id },
-      })
-      .eq('id', pedidoRow.id);
-  }
-
-  await supabase
-    .from('eventos_pago')
-    .update({ procesado: true })
-    .eq('proveedor_pago', 'wompi')
-    .eq('event_id', evento.event_id);
-
-  if (!eraPagado && nuevoEstado === 'pagado') {
-    await registrarPedidoPagado(supabase, pedidoRow.id, 'wompi', evento.event_id);
-    await notificarFulfillmentDropship(supabase, pedidoRow.id, pedidoRow.items ?? []);
-  }
-
-  return new Response(JSON.stringify({ ok: true }), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
-  });
-});
+  })
+);
