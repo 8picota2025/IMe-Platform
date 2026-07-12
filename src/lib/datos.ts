@@ -65,6 +65,8 @@ function localProductImage(slug: unknown): string | null {
   const aliases: Record<string, string> = {
     'sk-c1-v2k': 'sk-c1',
     'sk-c1-r00': 'sk-c1-r000w',
+    'led-rx18': 'led-rx18-100k',
+    'led-rx36-160k': 'led-rx36',
     ske001: 'ske001-19',
   };
   const manifest = productImageManifest as Record<string, string>;
