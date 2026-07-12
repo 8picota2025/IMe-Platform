@@ -6331,6 +6331,14 @@ function productListCell(
           <button class="admin-button" data-product-row-save="${escapeHtml(productId)}" type="button">Guardar</button>
           <button class="admin-button admin-button--ghost" data-product-row-upload="${escapeHtml(productId)}" type="button">Subir foto</button>
           <button class="admin-button admin-button--ghost" data-product-row-gallery-upload="${escapeHtml(productId)}" type="button">Subir galería</button>
+          <a
+            class="admin-button admin-button--ghost"
+            href="/es/productos/${encodeURIComponent(productId)}"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Ver producto online
+          </a>
           <a class="admin-button admin-button--ghost" href="#/producto?id=${encodeURIComponent(productId)}">Detalle</a>
         </div>
       </div>`;
