@@ -4,6 +4,7 @@ import {
   buildBiomedicalFallback,
   buildResilientFallbackResponse,
   parseStructuredAsesorResponse,
+  resetCatalogoPublicadoCache,
 } from './asesor';
 
 const contextoVacio: Parameters<typeof buildBiomedicalFallback>[0] = [];
@@ -104,6 +105,7 @@ describe('asesor biomedical fallback', () => {
       )) as typeof fetch;
 
     try {
+      resetCatalogoPublicadoCache();
       const respuesta = await buildResilientFallbackResponse({
         mensaje: 'Tienes alguna cama para uso en domicilio?',
         historial: [],
@@ -117,6 +119,132 @@ describe('asesor biomedical fallback', () => {
       expect(respuesta.productos[0]?.urlLanding).toBe(
         '/es/productos/cama-de-atencion-domiciliaria-hb421'
       );
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  it('filtra candidatos no equivalentes cuando la consulta es sobre bombas de infusion', async () => {
+    const originalFetch = globalThis.fetch;
+
+    globalThis.fetch = (async () =>
+      new Response(
+        JSON.stringify([
+          {
+            slug: 'bomba-de-infusion-volumetrica-uci',
+            nombre: 'Bomba de Infusión Volumétrica UCI',
+            familia: { slug: 'terapia-infusion', nombre: 'Terapia de infusión' },
+            tipo: { slug: 'bombas-infusion', nombre: 'Bombas de infusión' },
+            descripcion_corta: 'Bomba de infusión volumétrica para UCI con alarmas de seguridad.',
+            imagen_principal: 'https://example.com/bomba.jpg',
+            texto_busqueda: 'bomba infusion volumetrica uci terapia de infusion alarmas seguridad',
+          },
+          {
+            slug: 'skr-it625',
+            nombre: 'Carro de Infusión SKR-IT625',
+            familia: { slug: 'mobiliario', nombre: 'Mobiliario hospitalario' },
+            tipo: { slug: 'carros-infusion', nombre: 'Carros de infusión' },
+            descripcion_corta: 'Carro para transporte de bombas y suministros de infusión.',
+            imagen_principal: 'https://example.com/carro.jpg',
+            texto_busqueda: 'carro infusion bombas suministros infusion hospitalario',
+          },
+          {
+            slug: 'a4051',
+            nombre: 'Cuna de Calor Radiante A4051',
+            familia: { slug: 'neonatologia', nombre: 'Neonatología' },
+            tipo: { slug: 'calor-radiante', nombre: 'Cunas de calor radiante' },
+            descripcion_corta: 'Sistema con bomba de calor para manejo térmico neonatal.',
+            imagen_principal: 'https://example.com/cuna.jpg',
+            texto_busqueda: 'cuna calor radiante bomba de calor neonatal',
+          },
+        ]),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )) as typeof fetch;
+
+    try {
+      resetCatalogoPublicadoCache();
+      const respuesta = await buildResilientFallbackResponse({
+        mensaje: 'I need an infusion pump for ICU',
+        historial: [],
+        locale: 'en',
+      });
+
+      expect(respuesta.productos.map(producto => producto.slug)).toEqual([
+        'bomba-de-infusion-volumetrica-uci',
+      ]);
+      expect(respuesta.texto).toContain('Bomba de Infusión Volumétrica UCI');
+      expect(respuesta.texto).not.toContain('Carro de Infusión');
+      expect(respuesta.texto).not.toContain('Cuna de Calor');
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  it('descarta desinfeccion y calor radiante cuando el usuario pide bombas de infusion en produccion degradada', async () => {
+    const originalFetch = globalThis.fetch;
+
+    globalThis.fetch = (async () =>
+      new Response(
+        JSON.stringify([
+          {
+            slug: 'ip-200',
+            nombre: 'Bomba de Infusión IP-200',
+            familia: { slug: 'terapia-infusion', nombre: 'Terapia de infusión' },
+            tipo: { slug: 'bombas-infusion', nombre: 'Bombas de infusión' },
+            descripcion_corta: 'Bomba de infusión de volumen y goteo compacta.',
+            imagen_principal: 'https://example.com/ip200.jpg',
+            texto_busqueda: 'bomba infusion ip-200 volumen goteo terapia infusion',
+          },
+          {
+            slug: 'vp-50',
+            nombre: 'Bomba de Infusión VP-50',
+            familia: { slug: 'terapia-infusion', nombre: 'Terapia de infusión' },
+            tipo: { slug: 'bombas-infusion', nombre: 'Bombas de infusión' },
+            descripcion_corta: 'Bomba de infusión de un canal para UCI.',
+            imagen_principal: 'https://example.com/vp50.jpg',
+            texto_busqueda: 'bomba infusion vp-50 canal uci terapia infusion',
+          },
+          {
+            slug: 'esterilizador-xyz',
+            nombre: 'Sistema de Desinfección XYZ',
+            familia: { slug: 'control-infecciones', nombre: 'Control de infecciones' },
+            tipo: { slug: 'desinfeccion', nombre: 'Desinfección' },
+            descripcion_corta: 'Equipo para desinfección hospitalaria.',
+            imagen_principal: 'https://example.com/desinfeccion.jpg',
+            texto_busqueda: 'desinfeccion hospitalaria control infecciones esterilizacion',
+          },
+          {
+            slug: 'a4051',
+            nombre: 'Cuna de Calor Radiante A4051',
+            familia: { slug: 'neonatologia', nombre: 'Neonatología' },
+            tipo: { slug: 'calor-radiante', nombre: 'Cunas de calor radiante' },
+            descripcion_corta: 'Sistema neonatal con bomba de calor.',
+            imagen_principal: 'https://example.com/a4051.jpg',
+            texto_busqueda: 'cuna calor radiante bomba calor neonatal',
+          },
+        ]),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )) as typeof fetch;
+
+    try {
+      resetCatalogoPublicadoCache();
+      const respuesta = await buildResilientFallbackResponse({
+        mensaje: '¿Qué bombas de infusión tienen?',
+        historial: [],
+        locale: 'es',
+      });
+
+      expect(respuesta.productos.map(producto => producto.slug)).toEqual(['ip-200', 'vp-50']);
+      expect(respuesta.texto).toContain('Bomba de Infusión IP-200');
+      expect(respuesta.texto).toContain('Bomba de Infusión VP-50');
+      expect(respuesta.texto).not.toContain('Desinfección');
+      expect(respuesta.texto).not.toContain('Calor Radiante');
     } finally {
       globalThis.fetch = originalFetch;
     }

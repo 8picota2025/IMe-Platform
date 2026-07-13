@@ -300,6 +300,8 @@ PRIORIDADES:
 3. Habla con tono cercano, técnico y flexible. Cuando aplique, habla como parte de I-ME en primera persona del plural.
 4. Evita respuestas embotelladas, repetitivas o de cualificación rígida.
 5. Ofrece WhatsApp o cotización solo cuando el usuario pida precio, disponibilidad, compra, instalación, garantía, financiación o soporte documental.
+6. Si la consulta es sobre bombas de infusión, bombas volumétricas, bombas de jeringa, microdosis o infusión en UCI, cita solo productos reales de terapia de infusión. Nunca derives por coincidencia floja hacia bomba de calor, cuna de calor, carro de infusión, desinfección, esterilización o mobiliario.
+7. Si el usuario pregunta qué opciones tienen o la diferencia entre volumétrica y jeringa, responde primero con la explicación útil y los productos relevantes; no digas que falta información si el catálogo ya permite orientar.
 
 FORMATO DE RESPUESTA:
 Devuelve únicamente JSON válido:
@@ -374,6 +376,10 @@ export function resetHistorial(): void {
   } catch {
     // ignore
   }
+}
+
+export function resetCatalogoPublicadoCache(): void {
+  catalogoPublicadoCache.clear();
 }
 
 /**
@@ -534,10 +540,62 @@ function tokenizarConsulta(texto: string): string[] {
     .filter(token => token.length >= 2);
 }
 
+function detectarIntencionCatalogo(texto: string): {
+  infusion: boolean;
+  camaDomiciliaria: boolean;
+} {
+  const normalizado = normalizeSearchText(texto);
+  return {
+    infusion: /\b(infusion|bomba|bombas|jeringa|jeringas|volumetrica|microdosis|uci)\b/.test(
+      normalizado
+    ),
+    camaDomiciliaria: /\b(cama|camas|domicilio|domiciliaria|domiciliario|homecare|bed|beds)\b/.test(
+      normalizado
+    ),
+  };
+}
+
+function esProductoTerapiaInfusion(item: CatalogoPublicadoItem): boolean {
+  const nombre = normalizeSearchText(item.nombre);
+  const familia = normalizeSearchText(item.familia.nombre);
+  const tipo = normalizeSearchText(item.tipo?.nombre ?? '');
+  const descripcion = normalizeSearchText(item.descripcion_corta);
+
+  return (
+    familia.includes('terapia de infusion') ||
+    tipo.includes('bombas de infusion') ||
+    tipo.includes('bombas de jeringa') ||
+    nombre.includes('bomba de infusion') ||
+    nombre.includes('bomba de jeringa') ||
+    nombre.includes('volumetrica') ||
+    descripcion.includes('microdosis') ||
+    descripcion.includes('infusion')
+  );
+}
+
+function esFalsoPositivoInfusion(item: CatalogoPublicadoItem): boolean {
+  const searchable = normalizeSearchText(
+    [item.nombre, item.familia.nombre, item.tipo?.nombre ?? '', item.descripcion_corta].join(' ')
+  );
+
+  return (
+    searchable.includes('bomba de calor') ||
+    searchable.includes('cuna de calor') ||
+    searchable.includes('calor radiante') ||
+    searchable.includes('carro de infusion') ||
+    searchable.includes('carros de infusion') ||
+    searchable.includes('desinfeccion') ||
+    searchable.includes('esteriliz') ||
+    searchable.includes('control de infecciones') ||
+    searchable.includes('mobiliario')
+  );
+}
+
 function puntuarCatalogoPublicado(item: CatalogoPublicadoItem, consulta: string): number {
   const consultaNormalizada = normalizeSearchText(consulta);
   const tokens = tokenizarConsulta(consulta);
   if (!consultaNormalizada || tokens.length === 0) return 0;
+  const intencion = detectarIntencionCatalogo(consulta);
 
   const nombre = normalizeSearchText(item.nombre);
   const familia = normalizeSearchText(item.familia.nombre);
@@ -578,6 +636,29 @@ function puntuarCatalogoPublicado(item: CatalogoPublicadoItem, consulta: string)
     score += 160;
   }
 
+  if (intencion.infusion) {
+    const pareceTerapiaInfusion = esProductoTerapiaInfusion(item);
+    const candidatoNoEquivalente = esFalsoPositivoInfusion(item);
+
+    if (pareceTerapiaInfusion) score += 260;
+    if (tokens.some(token => token === 'bomba' || token === 'bombas') && nombre.includes('bomba')) {
+      score += 90;
+    }
+    if (consultaNormalizada.includes('infusion') && pareceTerapiaInfusion) score += 100;
+    if (consultaNormalizada.includes('jeringa') && tipo.includes('jeringa')) score += 140;
+    if (consultaNormalizada.includes('volumetrica') && nombre.includes('volumetrica')) score += 140;
+    if (consultaNormalizada.includes('uci') && descripcion.includes('uci')) score += 90;
+    if (candidatoNoEquivalente) score -= 600;
+    if (!pareceTerapiaInfusion) score -= 260;
+  }
+
+  if (intencion.camaDomiciliaria) {
+    const pareceCamaDomiciliaria =
+      nombre.includes('cama') &&
+      (nombre.includes('domicili') || tipo.includes('domicili') || descripcion.includes('casa'));
+    if (pareceCamaDomiciliaria) score += 180;
+  }
+
   return score;
 }
 
@@ -587,22 +668,30 @@ async function buscarCatalogoPublicado(
 ): Promise<CatalogoPublicadoMatch[]> {
   const items = await cargarCatalogoPublicado(locale);
   if (items.length === 0) return [];
+  const intencion = detectarIntencionCatalogo(mensaje);
 
-  return items
+  let matches = items
     .map(item => ({ item, score: puntuarCatalogoPublicado(item, mensaje) }))
     .filter(match => match.score >= 70)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 4)
-    .map(({ item, score }, index) => ({
-      slug: item.slug,
-      nombre: item.nombre,
-      imagen: item.imagen_principal,
-      urlLanding: locale === 'en' ? `/en/products/${item.slug}` : `/es/productos/${item.slug}`,
-      score: Math.min(1, Math.max(0.55, score / 300)) - index * 0.03,
-      descripcionCorta: item.descripcion_corta,
-      familiaNombre: item.familia.nombre,
-      tipoNombre: item.tipo?.nombre ?? null,
-    }));
+    .sort((a, b) => b.score - a.score);
+
+  if (intencion.infusion) {
+    matches = matches.filter(
+      ({ item, score }) =>
+        score >= 120 && esProductoTerapiaInfusion(item) && !esFalsoPositivoInfusion(item)
+    );
+  }
+
+  return matches.slice(0, 4).map(({ item, score }, index) => ({
+    slug: item.slug,
+    nombre: item.nombre,
+    imagen: item.imagen_principal,
+    urlLanding: locale === 'en' ? `/en/products/${item.slug}` : `/es/productos/${item.slug}`,
+    score: Math.min(1, Math.max(0.55, score / 300)) - index * 0.03,
+    descripcionCorta: item.descripcion_corta,
+    familiaNombre: item.familia.nombre,
+    tipoNombre: item.tipo?.nombre ?? null,
+  }));
 }
 
 function buildCatalogoPublicadoFollowUp(locale: Locale, mensaje: string): string {
