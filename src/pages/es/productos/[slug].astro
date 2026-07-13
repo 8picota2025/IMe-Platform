@@ -12,39 +12,51 @@ import {
   buildBreadcrumbJsonLd,
   combineJsonLd,
 } from '../../../lib/seo';
-import { getProductos, getFamilias, type Producto } from '../../../lib/datos';
+import { getProductos, getFamilias, type Familia, type Producto } from '../../../lib/datos';
 
 const locale = 'es';
 
 export async function getStaticPaths() {
-  const productos = await getProductos({ pageSize: 1000 }, 'es');
+  const [productos, familias] = await Promise.all([
+    getProductos({ pageSize: 1000 }, 'es'),
+    getFamilias('es'),
+  ]);
+  const familiasPorSlug = new Map(familias.map(familia => [familia.slug, familia] as const));
+  const productosPorFamilia = new Map<string, Producto[]>();
+
+  for (const producto of productos) {
+    const familiaProductos = productosPorFamilia.get(producto.familia_slug) ?? [];
+    familiaProductos.push(producto);
+    productosPorFamilia.set(producto.familia_slug, familiaProductos);
+  }
+
   return productos.map(producto => ({
     params: { slug: producto.slug },
-    props: { producto },
+    props: {
+      producto,
+      familia: familiasPorSlug.get(producto.familia_slug) ?? {
+        id: producto.familia_slug,
+        slug: producto.familia_slug,
+        nombre: producto.familia_slug,
+        descripcion: '',
+        orden: 0,
+        activo: true,
+      },
+      relacionados: (productosPorFamilia.get(producto.familia_slug) ?? [])
+        .filter(item => item.slug !== producto.slug)
+        .slice(0, 4),
+    },
   }));
 }
 
 interface Props {
   producto: Producto;
+  familia: Familia;
+  relacionados: Producto[];
 }
 
 const { producto } = Astro.props as Props;
-
-const familias = await getFamilias(locale);
-const familia = familias.find(f => f.slug === producto.familia_slug) ?? {
-  id: producto.familia_slug,
-  slug: producto.familia_slug,
-  nombre: producto.familia_slug,
-  descripcion: '',
-  orden: 0,
-  activo: true,
-};
-
-const todosProductos = await getProductos(
-  { familia: producto.familia_slug, pageSize: 100 },
-  locale
-);
-const relacionados = todosProductos.filter(p => p.slug !== producto.slug).slice(0, 4);
+const { familia, relacionados } = Astro.props as Props;
 
 const seo = buildProductoSeo(producto, locale);
 
