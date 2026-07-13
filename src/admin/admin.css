@@ -1145,3 +1145,12 @@
     grid-column: auto;
   }
 }
+
+.admin-turnstile {
+  min-height: 74px;
+  margin: 14px 0;
+}
+
+.admin-turnstile:empty {
+  min-height: 0;
+}

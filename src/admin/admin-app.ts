@@ -351,8 +351,65 @@ function renderLogin() {
   renderLoginPanel();
 }
 
+let adminTurnstileWidgetId: string | null = null;
+let adminTurnstileToken: string | undefined;
+
+async function loadAdminTurnstile(): Promise<void> {
+  const turnstile = (window as Window & { turnstile?: Record<string, unknown> }).turnstile;
+  if (turnstile) return Promise.resolve();
+
+  return new Promise<void>((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+    script.async = true;
+    script.defer = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('turnstile load error'));
+    document.head.appendChild(script);
+  });
+}
+
+async function ensureAdminTurnstile(siteKey: string): Promise<string | undefined> {
+  if (!siteKey) return undefined;
+
+  const container = document.getElementById('admin-turnstile');
+  if (!container) return undefined;
+
+  await loadAdminTurnstile();
+  const turnstile = (window as Window & { turnstile?: Record<string, unknown> }).turnstile as
+    | Record<string, unknown>
+    | undefined;
+  if (!turnstile) return undefined;
+
+  if (!adminTurnstileWidgetId) {
+    const render = turnstile.render as (
+      container: string | HTMLElement,
+      options: Record<string, unknown>
+    ) => string;
+    adminTurnstileWidgetId = render(container, {
+      sitekey: siteKey,
+      size: 'flexible',
+      callback: (token: string) => {
+        adminTurnstileToken = token;
+      },
+      'expired-callback': () => {
+        adminTurnstileToken = undefined;
+      },
+      'error-callback': () => {
+        adminTurnstileToken = undefined;
+      },
+    });
+  }
+
+  return adminTurnstileToken;
+}
+
 function renderLoginPanel(prefillEmail = '') {
   if (!isRecoveryFlow()) clearRecoveryState();
+  const turnstileSiteKey = (
+    (import.meta.env['PUBLIC_TURNSTILE_SITE_KEY'] as string | undefined) ?? ''
+  ).trim();
+
   app.innerHTML = `
     <section class="admin-login">
       <form class="admin-login__panel admin-form" data-login>
@@ -366,18 +423,42 @@ function renderLoginPanel(prefillEmail = '') {
         <label class="admin-field">Contrasena
           <input name="password" type="password" autocomplete="current-password" required />
         </label>
+        ${turnstileSiteKey ? `<div id="admin-turnstile" class="admin-turnstile"></div>` : ''}
+        <p id="admin-login-status" class="admin-help" role="status" aria-live="polite"></p>
         <button class="admin-button" type="submit">Entrar</button>
         <button class="admin-button admin-button--ghost" type="button" data-show-reset>¿Olvidaste tu contrasena?</button>
         <p class="admin-help">El usuario admin se crea manualmente en Supabase Auth. No hay registro publico.</p>
       </form>
     </section>`;
   const form = app.querySelector<HTMLFormElement>('[data-login]');
+  const statusEl = app.querySelector<HTMLElement>('#admin-login-status');
+
+  if (turnstileSiteKey) {
+    void ensureAdminTurnstile(turnstileSiteKey);
+  }
+
   form?.addEventListener('submit', async event => {
     event.preventDefault();
+
+    if (turnstileSiteKey && !adminTurnstileToken) {
+      if (statusEl) statusEl.textContent = 'Verifica que no eres robot.';
+      return;
+    }
+
     const data = new FormData(form);
     const email = String(data.get('email') ?? '');
     const password = String(data.get('password') ?? '');
     const { error } = await supabase!.auth.signInWithPassword({ email, password });
+
+    if (turnstileSiteKey && adminTurnstileWidgetId) {
+      const turnstile = (window as Window & { turnstile?: Record<string, unknown> }).turnstile as
+        | Record<string, unknown>
+        | undefined;
+      const reset = turnstile?.reset as (id?: string) => void;
+      if (reset) reset(adminTurnstileWidgetId);
+      adminTurnstileToken = undefined;
+    }
+
     if (error) {
       toast(error.message);
       return;
