@@ -352,7 +352,6 @@ function renderLogin() {
 }
 
 let adminTurnstileWidgetId: string | null = null;
-let adminTurnstileToken: string | undefined;
 
 async function loadAdminTurnstile(): Promise<void> {
   const turnstile = (window as Window & { turnstile?: Record<string, unknown> }).turnstile;
@@ -369,17 +368,17 @@ async function loadAdminTurnstile(): Promise<void> {
   });
 }
 
-async function ensureAdminTurnstile(siteKey: string): Promise<string | undefined> {
-  if (!siteKey) return undefined;
+async function ensureAdminTurnstile(siteKey: string): Promise<void> {
+  if (!siteKey) return;
 
   const container = document.getElementById('admin-turnstile');
-  if (!container) return undefined;
+  if (!container) return;
 
   await loadAdminTurnstile();
   const turnstile = (window as Window & { turnstile?: Record<string, unknown> }).turnstile as
     | Record<string, unknown>
     | undefined;
-  if (!turnstile) return undefined;
+  if (!turnstile) return;
 
   if (!adminTurnstileWidgetId) {
     const render = turnstile.render as (
@@ -389,19 +388,17 @@ async function ensureAdminTurnstile(siteKey: string): Promise<string | undefined
     adminTurnstileWidgetId = render(container, {
       sitekey: siteKey,
       size: 'flexible',
-      callback: (token: string) => {
-        adminTurnstileToken = token;
+      callback: () => {
+        // Token validated by Turnstile
       },
       'expired-callback': () => {
-        adminTurnstileToken = undefined;
+        // Token expired
       },
       'error-callback': () => {
-        adminTurnstileToken = undefined;
+        // Turnstile error
       },
     });
   }
-
-  return adminTurnstileToken;
 }
 
 function renderLoginPanel(prefillEmail = '') {
@@ -424,14 +421,12 @@ function renderLoginPanel(prefillEmail = '') {
           <input name="password" type="password" autocomplete="current-password" required />
         </label>
         ${turnstileSiteKey ? `<div id="admin-turnstile" class="admin-turnstile"></div>` : ''}
-        <p id="admin-login-status" class="admin-help" role="status" aria-live="polite"></p>
         <button class="admin-button" type="submit">Entrar</button>
         <button class="admin-button admin-button--ghost" type="button" data-show-reset>¿Olvidaste tu contrasena?</button>
         <p class="admin-help">El usuario admin se crea manualmente en Supabase Auth. No hay registro publico.</p>
       </form>
     </section>`;
   const form = app.querySelector<HTMLFormElement>('[data-login]');
-  const statusEl = app.querySelector<HTMLElement>('#admin-login-status');
 
   if (turnstileSiteKey) {
     void ensureAdminTurnstile(turnstileSiteKey);
@@ -439,12 +434,6 @@ function renderLoginPanel(prefillEmail = '') {
 
   form?.addEventListener('submit', async event => {
     event.preventDefault();
-
-    if (turnstileSiteKey && !adminTurnstileToken) {
-      if (statusEl) statusEl.textContent = 'Verifica que no eres robot.';
-      return;
-    }
-
     const data = new FormData(form);
     const email = String(data.get('email') ?? '');
     const password = String(data.get('password') ?? '');
@@ -456,7 +445,6 @@ function renderLoginPanel(prefillEmail = '') {
         | undefined;
       const reset = turnstile?.reset as (id?: string) => void;
       if (reset) reset(adminTurnstileWidgetId);
-      adminTurnstileToken = undefined;
     }
 
     if (error) {
