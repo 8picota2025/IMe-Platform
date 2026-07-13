@@ -8,6 +8,7 @@
  */
 
 import type { Locale } from '../i18n/utils';
+import { emitAnalyticsEvent } from './analytics';
 import type { ClienteFiscalProfile } from './fiscal';
 
 export interface CarritoItem {
@@ -102,6 +103,13 @@ export function agregarAlCarrito(item: Omit<CarritoItem, 'cantidad'>, cantidad =
   } else {
     items.push({ ...item, cantidad: Math.min(Math.max(cantidad, 1), limite) });
   }
+  emitAnalyticsEvent('add_to_cart', {
+    currency: item.moneda,
+    item_id: item.slug,
+    item_name: item.nombre,
+    quantity: cantidad,
+    value: item.precio * cantidad,
+  });
   return escribir(items);
 }
 
@@ -226,6 +234,14 @@ export async function iniciarCheckout(params: {
 }): Promise<ResultadoCheckout> {
   const items = leer();
   if (items.length === 0) return { ok: false, error: 'CARRITO_VACIO' };
+  const { total, moneda } = getCarritoTotal(items);
+  emitAnalyticsEvent('begin_checkout', {
+    currency: moneda,
+    item_count: items.reduce((acc, item) => acc + item.cantidad, 0),
+    items: items.map(item => `${item.slug}:${item.cantidad}`).join(','),
+    market: params.mercado,
+    value: total,
+  });
 
   const supabase = await loadSupabaseClient();
   if (!supabase) return { ok: false, error: 'NO_DISPONIBLE' };

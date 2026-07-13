@@ -153,6 +153,7 @@ const whatsappHref = `https://wa.me/573138674059?text=${encodeURIComponent(t(loc
 </style>
 
 <script>
+  import { emitAnalyticsEvent } from '../lib/analytics';
   import { consultarPedido, leerReferenciaDeUrl } from '../lib/pedido';
   import { formatMoneda } from '../lib/format';
 
@@ -200,6 +201,18 @@ const whatsappHref = `https://wa.me/573138674059?text=${encodeURIComponent(t(loc
       const key = ESTADO_KEYS[estado];
       estadoEl.textContent = key ? t(locale, key) : estado;
       estadoFila.hidden = false;
+    }
+    if (estado === 'pagado') {
+      const tracked = new Set(window.__imeAnalyticsPurchases ?? []);
+      if (!tracked.has(referencia)) {
+        tracked.add(referencia);
+        window.__imeAnalyticsPurchases = [...tracked];
+        emitAnalyticsEvent('purchase', {
+          currency: moneda ?? '',
+          reference: referencia,
+          value: total ?? undefined,
+        });
+      }
     }
     if (total !== undefined && moneda) {
       const formateado = formatMoneda(total, moneda, locale);

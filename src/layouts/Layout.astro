@@ -4,6 +4,8 @@
  */
 import { ClientRouter } from 'astro:transitions';
 import BaseHead from '../components/BaseHead.astro';
+import AnalyticsHead from '../components/AnalyticsHead.astro';
+import AnalyticsNoScript from '../components/AnalyticsNoScript.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import Asesor from '../components/Asesor.astro';
@@ -52,9 +54,11 @@ const {
       {...noindex !== undefined ? { noindex } : {}}
       {...fontAwesome !== undefined ? { fontAwesome } : {}}
     />
+    <AnalyticsHead />
     <ClientRouter />
   </head>
   <body>
+    <AnalyticsNoScript />
     <!-- Skip link de accesibilidad -->
     <a href="#main-content" class="skip-link">{t(locale, 'accesibilidad.saltar_contenido')}</a>
 
