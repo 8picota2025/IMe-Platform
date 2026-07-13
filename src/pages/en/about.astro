@@ -7,19 +7,13 @@ import {
   combineJsonLd,
   getInstitutionalOgImage,
 } from '../../lib/seo';
-import { getProductos } from '../../lib/datos';
+import '../../styles/site-faithful.css';
 
 const locale = 'en';
 const title = buildPageTitle('About');
 const description =
-  'Learn about I-ME International Medical Enterprise, its B2B value proposition, coverage and represented brands in Colombia.';
+  'Discover the story of I-ME International Medical Enterprise: over 15 years in healthcare, 24+ international brands and a portfolio of more than 427 products.';
 const canonical = buildCanonical('/en/about');
-
-const productos = await getProductos({ pageSize: 1000 }, locale);
-const marcas = [...new Set(productos.map(producto => producto.marca?.trim()).filter(Boolean))].slice(
-  0,
-  18
-);
 
 const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
   '@context': 'https://schema.org',
@@ -40,130 +34,237 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
   ogImage={getInstitutionalOgImage()}
   jsonLd={jsonLd}
 >
-  <section class="about-hero">
-    <div class="container">
-      <span class="section-tag">About us</span>
-      <h1>Medical technology for commercial teams that need to close with precision</h1>
-      <p>
-        I-ME International Medical Enterprise is a Colombian company with more than 15 years of
-        experience in distribution, installation and maintenance of biomedical equipment for the
-        healthcare sector.
-      </p>
-    </div>
-  </section>
-
-  <section class="section container about-grid">
-    <article class="about-card">
-      <h2>What we do</h2>
-      <p>
-        We combine consultative sales, technical support, maintenance and commercial follow-up for
-        hospitals, clinics, medical centers and practices that need biomedical equipment with real
-        operational backing.
-      </p>
-    </article>
-    <article class="about-card">
-      <h2>B2B value proposition</h2>
-      <ul>
-        <li>Technical catalog with real manufacturers and bilingual routes.</li>
-        <li>Technical support and installation in Colombia.</li>
-        <li>Commercial flow optimized for quote generation.</li>
-        <li>Fast response for institutional purchasing teams.</li>
-      </ul>
-    </article>
-    <article class="about-card">
-      <h2>Coverage</h2>
-      <ul>
-        <li>Colombia: nationwide coverage across the 32 departments.</li>
-        <li>Spain: COPY_CLIENTE_REVISAR.</li>
-        <li>Latam: COPY_CLIENTE_REVISAR.</li>
-      </ul>
-    </article>
-    <article class="about-card">
-      <h2>Real contact data</h2>
-      <ul>
-        <li>Phone: <a href="tel:+573138674059">+57 313 867 4059</a></li>
-        <li>Email: <a href="mailto:info@i-me.com.co">info@i-me.com.co</a></li>
-        <li>
-          WhatsApp:
-          <a href="https://wa.me/573138674059" target="_blank" rel="noopener noreferrer"
-            >+57 313 867 4059</a
-          >
-        </li>
-      </ul>
-    </article>
-  </section>
-
-  <section class="section section-off">
-    <div class="container">
-      <div class="about-section-head">
-        <span class="section-tag">Represented brands</span>
-        <h2>Manufacturers present in the current catalog</h2>
+  <div class="site-faithful">
+    <header class="page-hero" aria-labelledby="about-h1">
+      <div class="container">
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          <a href="/en/">Home</a><span class="sep">/</span><span aria-current="page">About</span>
+        </nav>
+        <h1 id="about-h1">Our story</h1>
+        <p class="ph-sub">
+          From large construction projects in Central America to becoming a trusted partner of the
+          healthcare sector, with over 15 years representing international medical equipment
+          manufacturers.
+        </p>
       </div>
-      <div class="brand-cloud">
-        {marcas.map(marca => <span>{marca}</span>)}
+    </header>
+
+    <!-- Story: origin -->
+    <section class="section" aria-labelledby="historia-h2">
+      <div class="container">
+        <div class="about-grid">
+          <div class="about-imgs fade-in">
+            <div class="about-img-main">
+              <img
+                src="/assets/img/hospital-uci-pasillo.webp"
+                alt="Hospital environment equipped with biomedical technology"
+                width="1400"
+                height="787"
+                loading="eager"
+                decoding="async"
+              />
+            </div>
+          </div>
+          <div class="about-text fade-in d2">
+            <div class="s-label">The origin</div>
+            <h2 id="historia-h2" class="s-title">A story that began inside a hospital</h2>
+            <p>
+              I-ME was born from the vision and experience of a group of entrepreneurs with a solid
+              track record in international business, who for more than 20 years successfully led
+              major construction companies in Central America, taking part in high-impact projects
+              for the region.
+            </p>
+            <p>
+              Our bond with the healthcare sector began precisely with the renovation of a hospital.
+              Thanks to the excellence of that project, the investment fund that owned the hospital
+              entrusted our founders with the management of the institution: an experience that gave
+              us deep knowledge of the hospital environment and built trusted relationships with
+              renowned international medical equipment manufacturers.
+            </p>
+          </div>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+
+    <!-- Story: growth -->
+    <section class="section section-off" aria-labelledby="crecimiento-h2">
+      <div class="container">
+        <div class="about-grid" style="direction:rtl">
+          <div class="about-imgs fade-in">
+            <div class="about-img-main">
+              <img
+                src="/assets/img/tienda-material-biomedico-opt.webp"
+                alt="I-ME biomedical equipment and supplies distribution"
+                width="1200"
+                height="800"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+          </div>
+          <div class="about-text fade-in d2" style="direction:ltr">
+            <div class="s-label">The growth</div>
+            <h2 id="crecimiento-h2" class="s-title">
+              From the trust of global manufacturers to a worldwide portfolio
+            </h2>
+            <p>
+              As a result of that commitment, professionalism and business ethics, several parent
+              companies granted us the representation and distribution of their brands, giving rise
+              to the growth of our company.
+            </p>
+            <p>
+              Today we have more than 15 years of experience in the healthcare sector, representing
+              over 24 international brands from Europe, the United States and Asia — from countries
+              such as Germany, Italy, the United Kingdom, Japan, South Korea, China, Hong Kong and
+              Hungary, among others — with a portfolio of more than 427 products backed by the
+              highest standards of quality and service.
+            </p>
+            <p>
+              We believe true success is built through solid, long-lasting relationships with our
+              strategic partners. That trust, together with our commitment to innovation, continuous
+              training and excellence, has allowed us to consolidate ourselves as a reliable ally
+              for the healthcare sector and to keep growing with a long-term vision.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Figures -->
+    <section class="section section-teal" aria-labelledby="cifras-h2">
+      <div class="container">
+        <div class="s-header s-header-center fade-in">
+          <div class="s-label s-label-white">I-ME in numbers</div>
+          <h2 id="cifras-h2" class="s-title s-title-white">
+            A consolidated partner for the healthcare sector
+          </h2>
+        </div>
+        <div class="cobertura-stats fade-in d2">
+          <div class="cobertura-stat">
+            <div class="stat-n">15+</div>
+            <div class="stat-l">Years in healthcare</div>
+          </div>
+          <div class="cobertura-stat">
+            <div class="stat-n">24+</div>
+            <div class="stat-l">International brands</div>
+          </div>
+          <div class="cobertura-stat">
+            <div class="stat-n">427+</div>
+            <div class="stat-l">Products in portfolio</div>
+          </div>
+          <div class="cobertura-stat">
+            <div class="stat-n">32</div>
+            <div class="stat-l">Departments covered</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Vision, mission and values -->
+    <section class="section" aria-labelledby="valores-h2">
+      <div class="container">
+        <div class="s-header s-header-center fade-in">
+          <div class="s-label">What guides us</div>
+          <h2 id="valores-h2" class="s-title">Vision, mission and commitment</h2>
+        </div>
+        <div class="values-grid">
+          <div class="val-card fade-in">
+            <div class="val-icon"><i class="fas fa-eye" aria-hidden="true"></i></div>
+            <h3>Vision</h3>
+            <p>
+              To be Colombia's leading company in the distribution of cutting-edge biomedical
+              technology.
+            </p>
+          </div>
+          <div class="val-card fade-in d1">
+            <div class="val-icon"><i class="fas fa-bullseye" aria-hidden="true"></i></div>
+            <h3>Mission</h3>
+            <p>
+              To equip healthcare institutions with certified technology that improves patient care.
+            </p>
+          </div>
+          <div class="val-card fade-in d2">
+            <div class="val-icon"><i class="fas fa-award" aria-hidden="true"></i></div>
+            <h3>Quality</h3>
+            <p>All our equipment carries valid CE, FDA and INVIMA certifications.</p>
+          </div>
+          <div class="val-card fade-in d3">
+            <div class="val-icon"><i class="fas fa-handshake" aria-hidden="true"></i></div>
+            <h3>Commitment</h3>
+            <p>Specialized technical support throughout the entire life of each device.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact CTA -->
+    <section class="section section-off" aria-label="Direct contact">
+      <div class="container">
+        <div class="cta-block fade-in">
+          <div class="s-label s-label-white">Let's talk</div>
+          <h2 class="cta-title">Ready to work with us?</h2>
+          <p class="cta-sub">
+            Write to us and get a direct commercial response: <a
+              href="tel:+573138674059"
+              style="color:inherit">+57 313 867 4059</a
+            > · <a href="mailto:info@i-me.com.co" style="color:inherit">info@i-me.com.co</a>
+          </p>
+          <div class="cta-btns">
+            <a
+              href="https://wa.me/573138674059?text=Hello%2C%20I%20would%20like%20to%20know%20more%20about%20I-ME"
+              target="_blank"
+              rel="noopener"
+              class="btn btn-green"
+            >
+              <i class="fab fa-whatsapp"></i> Chat on WhatsApp
+            </a>
+            <a href="/en/contact" class="btn btn-outline-white">Contact form</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
 </Layout>
 
 <style>
-  .about-hero {
-    padding: 140px 0 72px;
-    background:
-      radial-gradient(circle at top left, rgba(15, 76, 92, 0.14), transparent 40%),
-      linear-gradient(180deg, var(--off), transparent);
-  }
-  .about-hero h1 {
-    max-width: 860px;
-    margin: 0.6rem 0 1rem;
-    font-family: var(--font-display);
-    font-size: clamp(2.5rem, 5vw, 4.8rem);
-    line-height: 0.95;
-  }
-  .about-hero p {
-    max-width: 720px;
-    color: var(--text-mid);
-    font-size: 1rem;
-    line-height: 1.7;
-  }
-  .about-grid {
+  .site-faithful .cobertura-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 24px;
+    max-width: 900px;
+    margin: 48px auto 0;
+    text-align: center;
   }
-  .about-card {
-    padding: 1.4rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    background: var(--white);
-  }
-  .about-card h2 {
-    margin: 0 0 0.8rem;
-    font-size: 1.05rem;
-  }
-  .about-card p,
-  .about-card li {
-    color: var(--text-mid);
-    line-height: 1.7;
-  }
-  .about-card ul {
-    margin: 0;
-    padding-left: 1.1rem;
-  }
-  .about-section-head {
-    margin-bottom: 1.25rem;
-  }
-  .brand-cloud {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.85rem;
-  }
-  .brand-cloud span {
-    padding: 0.7rem 1rem;
-    border-radius: 999px;
-    background: var(--white);
-    border: 1px solid var(--border);
-    font-size: 0.9rem;
-    font-weight: 600;
+  .site-faithful .cobertura-stat .stat-n {
+    font-size: 2.6rem;
   }
 </style>
+
+<script>
+  function initAbout() {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const faders = document.querySelectorAll<HTMLElement>(
+      '.site-faithful .fade-in:not([data-ime-bound])'
+    );
+    faders.forEach(el => (el.dataset.imeBound = '1'));
+    if (reduce || !('IntersectionObserver' in window)) {
+      faders.forEach(el => el.classList.add('visible'));
+      return;
+    }
+    const io = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            io.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+    );
+    faders.forEach(el => io.observe(el));
+  }
+
+  initAbout();
+  document.addEventListener('astro:page-load', initAbout);
+</script>

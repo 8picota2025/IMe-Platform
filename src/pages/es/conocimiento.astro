@@ -9,7 +9,9 @@ import {
 } from '../../lib/seo';
 import { getArticulos } from '../../lib/datos';
 import { stripMarkdown } from '../../lib/markdown';
+import { imagenParaArticulo } from '../../lib/conocimiento-imagenes';
 import { t } from '../../i18n/utils';
+import '../../styles/site-faithful.css';
 
 const locale = 'es';
 const title = buildPageTitle(t(locale, 'conocimiento.titulo'));
@@ -19,6 +21,7 @@ const articulos = await getArticulos(locale);
 const articulosVista = articulos.map(articulo => ({
   ...articulo,
   resumen: stripMarkdown(articulo.cuerpo),
+  imagen: imagenParaArticulo(articulo.slug),
 }));
 
 const itemListJsonLd = {
@@ -51,130 +54,223 @@ const jsonLd = combineJsonLd(
   currentPath="/es/conocimiento"
   jsonLd={jsonLd}
 >
-  <section class="page-hero conocimiento-hero">
-    <div class="container conocimiento-layout">
-      <div>
-        <span class="section-tag">{t(locale, 'conocimiento.proximamente')}</span>
-        <h1>{t(locale, 'conocimiento.titulo')}</h1>
-        <p class="lead">{t(locale, 'conocimiento.descripcion')}</p>
+  <div class="site-faithful">
+    <header class="page-hero" aria-labelledby="conocimiento-h1">
+      <div class="container">
+        <nav class="breadcrumb" aria-label="Ruta">
+          <a href="/es/">Inicio</a><span class="sep">/</span><span aria-current="page"
+            >{t(locale, 'conocimiento.titulo')}</span
+          >
+        </nav>
+        <h1 id="conocimiento-h1">{t(locale, 'conocimiento.titulo')}</h1>
+        <p class="ph-sub">{t(locale, 'conocimiento.descripcion')}</p>
       </div>
-      <div class="knowledge-panel">
-        <strong>{t(locale, 'conocimiento.listado_titulo')}</strong>
-        <p>
-          {
-            articulos.length
-              ? `${articulos.length} artículos publicados`
-              : t(locale, 'conocimiento.vacio')
-          }
-        </p>
-        <a href="/es/contacto" class="btn btn-secondary">{t(locale, 'conocimiento.cta_contacto')}</a
-        >
-        <a href="/es/conocimiento/publicar" class="btn btn-primary">Proponer artículo</a>
-      </div>
-    </div>
-  </section>
+    </header>
 
-  <section class="container conocimiento-grid">
-    {
-      articulos.length ? (
-        articulosVista.map(articulo => (
-          <article class="knowledge-card">
-            <p class="knowledge-meta">
-              {t(locale, 'conocimiento.actualizado')}{' '}
-              {new Date(articulo.updated_at || articulo.created_at).toLocaleDateString('es-CO', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
-            </p>
-            <h2>{articulo.titulo}</h2>
-            <p>
-              {articulo.resumen.slice(0, 180)}
-              {articulo.resumen.length > 180 ? '…' : ''}
-            </p>
-            <a class="btn btn-primary" href={`/es/conocimiento/${articulo.slug}`}>
-              {t(locale, 'conocimiento.leer_mas')}
+    <section class="section" aria-label={t(locale, 'conocimiento.listado_titulo')}>
+      <div class="container">
+        <div class="s-header fade-in">
+          <div class="s-label">
+            {
+              articulos.length
+                ? `${articulos.length} artículos publicados`
+                : t(locale, 'conocimiento.proximamente')
+            }
+          </div>
+          <h2 class="s-title">{t(locale, 'conocimiento.listado_titulo')}</h2>
+        </div>
+
+        {
+          articulos.length ? (
+            <div class="knowledge-grid">
+              {articulosVista.map((articulo, index) => (
+                <article
+                  class={`knowledge-card fade-in ${index % 3 === 1 ? 'd1' : index % 3 === 2 ? 'd2' : ''}`}
+                >
+                  <a
+                    class="knowledge-card-img"
+                    href={`/es/conocimiento/${articulo.slug}`}
+                    tabindex="-1"
+                    aria-hidden="true"
+                  >
+                    <img
+                      src={articulo.imagen.src}
+                      alt=""
+                      width={articulo.imagen.width}
+                      height={articulo.imagen.height}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </a>
+                  <div class="knowledge-card-body">
+                    <p class="knowledge-meta">
+                      {t(locale, 'conocimiento.actualizado')}{' '}
+                      {new Date(articulo.updated_at || articulo.created_at).toLocaleDateString(
+                        'es-CO',
+                        { year: 'numeric', month: 'long', day: 'numeric' }
+                      )}
+                    </p>
+                    <h3>
+                      <a href={`/es/conocimiento/${articulo.slug}`}>{articulo.titulo}</a>
+                    </h3>
+                    <p class="knowledge-excerpt">
+                      {articulo.resumen.slice(0, 160)}
+                      {articulo.resumen.length > 160 ? '…' : ''}
+                    </p>
+                    <a class="knowledge-more" href={`/es/conocimiento/${articulo.slug}`}>
+                      {t(locale, 'conocimiento.leer_mas')}{' '}
+                      <i class="fas fa-arrow-right" aria-hidden="true" />
+                    </a>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div class="knowledge-empty fade-in">
+              <h3>{t(locale, 'conocimiento.ninguno')}</h3>
+              <p>{t(locale, 'conocimiento.vacio')}</p>
+            </div>
+          )
+        }
+      </div>
+    </section>
+
+    <section class="section section-off" aria-label="Proponer artículo">
+      <div class="container">
+        <div class="cta-block fade-in">
+          <div class="s-label s-label-white">Participa</div>
+          <h2 class="cta-title">¿Tiene un tema biomédico que aportar?</h2>
+          <p class="cta-sub">
+            Proponga un artículo para el centro de conocimiento o contáctenos para resolver dudas
+            técnicas sobre equipamiento biomédico.
+          </p>
+          <div class="cta-btns">
+            <a href="/es/conocimiento/publicar" class="btn btn-green">
+              <i class="fas fa-pen" aria-hidden="true"></i> Proponer artículo
             </a>
-          </article>
-        ))
-      ) : (
-        <article class="knowledge-empty">
-          <h2>{t(locale, 'conocimiento.ninguno')}</h2>
-          <p>{t(locale, 'conocimiento.vacio')}</p>
-          <a href="/es/contacto" class="btn btn-secondary">
-            {t(locale, 'conocimiento.cta_contacto')}
-          </a>
-        </article>
-      )
-    }
-  </section>
+            <a href="/es/contacto" class="btn btn-outline-white"
+              >{t(locale, 'conocimiento.cta_contacto')}</a
+            >
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
 </Layout>
 
 <style>
-  .section-tag {
-    display: inline-block;
-    font-family: var(--font-display);
-    font-size: 0.75rem;
-    font-weight: 700;
+  .site-faithful .knowledge-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 28px;
+  }
+  .site-faithful .knowledge-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--white, #fff);
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 16px;
+    overflow: hidden;
+    transition:
+      transform 0.25s ease,
+      box-shadow 0.25s ease;
+  }
+  .site-faithful .knowledge-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 40px rgba(15, 76, 92, 0.14);
+  }
+  .site-faithful .knowledge-card-img {
+    display: block;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+  }
+  .site-faithful .knowledge-card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.35s ease;
+  }
+  .site-faithful .knowledge-card:hover .knowledge-card-img img {
+    transform: scale(1.04);
+  }
+  .site-faithful .knowledge-card-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 22px 24px 24px;
+  }
+  .site-faithful .knowledge-meta {
+    margin: 0 0 8px;
+    font-size: 0.82rem;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--t900);
-    background: var(--t100);
-    padding: 0.3rem 0.875rem;
-    border-radius: 999px;
-    margin-block-end: 0.75rem;
+    color: var(--teal, #0f4c5c);
+    font-weight: 600;
   }
-  .conocimiento-hero {
-    padding-top: 130px;
-    padding-bottom: var(--space-2xl);
-    background: var(--off);
+  .site-faithful .knowledge-card h3 {
+    margin: 0 0 10px;
+    font-size: 1.15rem;
+    line-height: 1.35;
   }
-  .conocimiento-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
-    gap: 1.5rem;
-    align-items: end;
+  .site-faithful .knowledge-card h3 a {
+    color: inherit;
+    text-decoration: none;
   }
-  .lead {
-    color: var(--text-mid);
-    max-width: 620px;
-    margin: 0.75rem 0 0;
+  .site-faithful .knowledge-card h3 a:hover {
+    color: var(--teal, #0f4c5c);
   }
-  .knowledge-panel,
-  .knowledge-card,
-  .knowledge-empty {
-    background: var(--card);
-    border: 1px solid color-mix(in srgb, var(--line) 90%, transparent);
-    border-radius: 1.5rem;
-    padding: 1.5rem;
-    box-shadow: 0 16px 44px rgba(20, 38, 64, 0.08);
+  .site-faithful .knowledge-excerpt {
+    margin: 0 0 18px;
+    color: var(--text-mid, #4a5a66);
+    line-height: 1.65;
+    flex: 1;
   }
-  .knowledge-panel {
-    display: grid;
-    gap: 0.75rem;
-    align-content: start;
+  .site-faithful .knowledge-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--teal, #0f4c5c);
+    text-decoration: none;
   }
-  .conocimiento-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 1rem;
-    padding-bottom: var(--space-3xl);
+  .site-faithful .knowledge-more:hover {
+    text-decoration: underline;
   }
-  .knowledge-card h2,
-  .knowledge-empty h2 {
-    margin: 0.4rem 0 0.6rem;
-  }
-  .knowledge-meta {
-    margin: 0;
-    color: var(--text-mid);
-    font-size: 0.9rem;
-  }
-  .knowledge-card p {
-    color: var(--text-mid);
-  }
-  @media (max-width: 840px) {
-    .conocimiento-layout {
-      grid-template-columns: 1fr;
-    }
+  .site-faithful .knowledge-empty {
+    padding: 40px;
+    border: 1px dashed var(--border, #e2e8f0);
+    border-radius: 16px;
+    text-align: center;
+    color: var(--text-mid, #4a5a66);
   }
 </style>
+
+<script>
+  function initConocimiento() {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const faders = document.querySelectorAll<HTMLElement>(
+      '.site-faithful .fade-in:not([data-ime-bound])'
+    );
+    faders.forEach(el => (el.dataset.imeBound = '1'));
+    if (reduce || !('IntersectionObserver' in window)) {
+      faders.forEach(el => el.classList.add('visible'));
+      return;
+    }
+    const io = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            io.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+    );
+    faders.forEach(el => io.observe(el));
+  }
+
+  initConocimiento();
+  document.addEventListener('astro:page-load', initConocimiento);
+</script>

@@ -9,7 +9,9 @@ import {
 } from '../../../lib/seo';
 import { getArticulos, type Articulo } from '../../../lib/datos';
 import { renderMarkdown, stripMarkdown } from '../../../lib/markdown';
+import { imagenParaArticulo } from '../../../lib/conocimiento-imagenes';
 import { t } from '../../../i18n/utils';
+import '../../../styles/site-faithful.css';
 
 const locale = 'en';
 
@@ -29,6 +31,7 @@ const { articulo } = Astro.props as Props;
 const canonical = buildCanonical(`/en/knowledge/${articulo.slug}`);
 const title = buildPageTitle(articulo.titulo);
 const description = stripMarkdown(articulo.cuerpo || articulo.titulo).slice(0, 155);
+const imagen = imagenParaArticulo(articulo.slug);
 
 const jsonLd = combineJsonLd(
   buildOrganizationJsonLd(),
@@ -42,6 +45,7 @@ const jsonLd = combineJsonLd(
     '@type': 'Article',
     headline: articulo.titulo,
     description,
+    image: `https://i-me.com.co${imagen.src}`,
     datePublished: articulo.created_at,
     dateModified: articulo.updated_at,
     author: {
@@ -61,11 +65,16 @@ const jsonLd = combineJsonLd(
   currentPath={`/en/knowledge/${articulo.slug}`}
   jsonLd={jsonLd}
 >
-  <article class="article-page">
-    <div class="container article-shell">
-      <div class="article-hero">
-        <a class="article-back" href="/en/knowledge">← {t(locale, 'conocimiento.volver')}</a>
-        <p class="article-meta">
+  <div class="site-faithful">
+    <header class="page-hero" aria-labelledby="article-h1">
+      <div class="container">
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          <a href="/en/">Home</a><span class="sep">/</span>
+          <a href="/en/knowledge">{t(locale, 'conocimiento.titulo')}</a><span class="sep">/</span
+          ><span aria-current="page">{articulo.titulo}</span>
+        </nav>
+        <h1 id="article-h1">{articulo.titulo}</h1>
+        <p class="ph-sub article-meta">
           {t(locale, 'conocimiento.publicado')}
           {
             new Date(articulo.created_at).toLocaleDateString('en-US', {
@@ -84,58 +93,72 @@ const jsonLd = combineJsonLd(
             })
           }
         </p>
-        <h1>{articulo.titulo}</h1>
       </div>
-      <div
-        class="article-body"
-        set:html={renderMarkdown(articulo.cuerpo || t(locale, 'conocimiento.vacio'))}
-      />
-      <div class="article-footer">
-        <a href="/en/contact" class="btn btn-primary">{t(locale, 'conocimiento.cta_contacto')}</a>
+    </header>
+
+    <article class="section article-page">
+      <div class="container article-shell">
+        <figure class="article-cover">
+          <img
+            src={imagen.src}
+            alt=""
+            width={imagen.width}
+            height={imagen.height}
+            loading="eager"
+            decoding="async"
+          />
+        </figure>
+        <div
+          class="article-body"
+          set:html={renderMarkdown(articulo.cuerpo || t(locale, 'conocimiento.vacio'))}
+        />
+        <div class="article-footer">
+          <a href="/en/knowledge" class="btn btn-outline">← {t(locale, 'conocimiento.volver')}</a>
+          <a href="/en/contact" class="btn btn-primary">{t(locale, 'conocimiento.cta_contacto')}</a>
+        </div>
       </div>
-    </div>
-  </article>
+    </article>
+  </div>
 </Layout>
 
 <style>
-  .article-page {
-    padding: 128px 0 var(--space-3xl);
-    background: linear-gradient(180deg, var(--off), transparent 32%);
+  .site-faithful .article-shell {
+    max-width: 860px;
   }
-  .article-shell {
-    max-width: 900px;
+  .site-faithful .article-meta {
+    font-size: 0.95rem;
   }
-  .article-hero,
-  .article-body,
-  .article-footer {
-    background: var(--card);
-    border: 1px solid color-mix(in srgb, var(--line) 90%, transparent);
-    border-radius: 1.5rem;
-    box-shadow: 0 16px 44px rgba(20, 38, 64, 0.08);
+  .site-faithful .article-cover {
+    margin: 0 0 32px;
+    border-radius: 16px;
+    overflow: hidden;
+    aspect-ratio: 21 / 9;
+    box-shadow: 0 18px 40px rgba(15, 76, 92, 0.14);
   }
-  .article-hero {
-    padding: 1.5rem;
+  .site-faithful .article-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
-  .article-back {
-    display: inline-block;
-    margin-bottom: 1rem;
+  .site-faithful .article-body {
+    color: var(--text-mid, #3c4a55);
+    line-height: 1.75;
+    font-size: 1.02rem;
   }
-  .article-meta {
-    margin: 0 0 0.75rem;
-    color: var(--text-mid);
+  .site-faithful .article-body :global(h2),
+  .site-faithful .article-body :global(h3) {
+    color: var(--ink, #131b22);
+    margin-top: 1.8em;
   }
-  .article-hero h1 {
-    margin: 0;
+  .site-faithful .article-body :global(a) {
+    color: var(--teal, #0f4c5c);
   }
-  .article-body {
-    margin-top: 1rem;
-    padding: 1.5rem;
-    white-space: pre-wrap;
-    color: var(--text-high);
-    line-height: 1.7;
-  }
-  .article-footer {
-    margin-top: 1rem;
-    padding: 1.25rem 1.5rem;
+  .site-faithful .article-footer {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 40px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border, #e2e8f0);
   }
 </style>

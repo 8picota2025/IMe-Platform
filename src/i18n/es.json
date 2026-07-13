@@ -116,8 +116,15 @@
   "conocimiento": {
     "titulo": "Centro de Conocimiento",
     "proximamente": "Próximamente",
-    "descripcion": "Estamos preparando guías técnicas, artículos y recursos sobre equipamiento biomédico. Vuelve pronto.",
-    "cta_contacto": "¿Tienes una pregunta ahora? Contáctanos"
+    "descripcion": "Guías técnicas, artículos y recursos sobre equipamiento biomédico para instituciones de salud.",
+    "cta_contacto": "¿Tienes una pregunta ahora? Contáctanos",
+    "listado_titulo": "Artículos y guías técnicas",
+    "actualizado": "Actualizado el",
+    "publicado": "Publicado el",
+    "leer_mas": "Leer artículo",
+    "volver": "Volver al Centro de Conocimiento",
+    "vacio": "Aún no hay artículos publicados. Vuelve pronto.",
+    "ninguno": "Sin artículos todavía"
   },
   "contacto": {
     "titulo": "Contacto",

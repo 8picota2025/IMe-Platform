@@ -116,8 +116,15 @@
   "conocimiento": {
     "titulo": "Knowledge Center",
     "proximamente": "Coming soon",
-    "descripcion": "We're preparing technical guides, articles and resources about biomedical equipment. Check back soon.",
-    "cta_contacto": "Have a question now? Contact us"
+    "descripcion": "Technical guides, articles and resources about biomedical equipment for healthcare institutions.",
+    "cta_contacto": "Have a question now? Contact us",
+    "listado_titulo": "Articles and technical guides",
+    "actualizado": "Updated on",
+    "publicado": "Published on",
+    "leer_mas": "Read article",
+    "volver": "Back to Knowledge Center",
+    "vacio": "No articles published yet. Check back soon.",
+    "ninguno": "No articles yet"
   },
   "contacto": {
     "titulo": "Contact",
