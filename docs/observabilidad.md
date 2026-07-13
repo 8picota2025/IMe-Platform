@@ -46,8 +46,19 @@ group by evento;
 - `https://i-me.com.co/sitemap-index.xml`
 - `https://<project-ref>.supabase.co/functions/v1/health`
 
+### Estado actual
+
+- Quedo operativo un smoke monitor programado en GitHub Actions cada 5 minutos:
+  [`/.github/workflows/observabilidad-smoke.yml`](../.github/workflows/observabilidad-smoke.yml)
+- Checks incluidos:
+  - home publica con keyword `I-ME`
+  - `sitemap-index.xml`
+  - `health` de Supabase
+- Si se desean alertas por correo/SMS fuera de GitHub, queda pendiente configurar UptimeRobot o BetterStack con credenciales del cliente.
+
 ## Verificaciones
 
 - `npm run validate`
 - `curl https://<project-ref>.supabase.co/functions/v1/health`
 - consulta SQL sobre `eventos_sistema` para confirmar filas nuevas
+- `gh workflow run observabilidad-smoke.yml`

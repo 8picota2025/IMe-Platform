@@ -1,0 +1,27 @@
+name: Observabilidad Smoke
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    name: Home · Sitemap · Health
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check home keyword
+        run: |
+          set -euo pipefail
+          curl -Ls --max-time 30 https://i-me.com.co/ | grep -q 'I-ME'
+
+      - name: Check sitemap
+        run: |
+          set -euo pipefail
+          curl -Ls --max-time 30 https://i-me.com.co/sitemap-index.xml | grep -q '<sitemapindex'
+
+      - name: Check health function
+        run: |
+          set -euo pipefail
+          curl -Ls --max-time 30 https://nnfbucwiasuggyfoyydo.supabase.co/functions/v1/health | grep -q '"ok":true'
