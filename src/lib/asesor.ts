@@ -21,7 +21,9 @@ const OLLAMA_CHAT_MODEL =
 const OLLAMA_EMBED_MODEL =
   (import.meta.env['PUBLIC_OLLAMA_EMBED_MODEL'] as string | undefined) ?? 'mxbai-embed-large';
 const IMEIA_API_URL = (import.meta.env['PUBLIC_IMEIA_API_URL'] as string | undefined) ?? '';
-export const ASESOR_CLIENT_VERSION = '2026-07-13-imeia-nginx-v1';
+const FORCE_DIRECT_IMEIA_IN_BROWSER =
+  ((import.meta.env['PUBLIC_FORCE_DIRECT_IMEIA_IN_BROWSER'] as string | undefined) ?? '') === '1';
+export const ASESOR_CLIENT_VERSION = '2026-07-13-imeia-supabase-primary-v1';
 const MAX_HANDOFF_SUMMARY_CHARS = 400;
 const CATALOGO_INDEX_URL: Record<Locale, string> = {
   es: '/data/catalogo-index.es.json',
@@ -82,6 +84,8 @@ export type ResultadoAsesor =
   | { ok: true; respuesta: RespuestaAsesor }
   | { ok: false; error: ErrorAsesor };
 
+export type AsesorTransport = 'local_ollama' | 'imeia_direct' | 'supabase';
+
 interface AsesorApiResponse {
   texto: string;
   productos: Array<{
@@ -141,7 +145,9 @@ export async function preguntarAsesor(params: {
     };
   }
 
-  if (shouldUseLocalOllama()) {
+  const transport = resolveAsesorTransport();
+
+  if (transport === 'local_ollama') {
     try {
       const respuesta = await preguntarAsesorLocal(params);
       return { ok: true, respuesta };
@@ -150,8 +156,7 @@ export async function preguntarAsesor(params: {
     }
   }
 
-  // Usar endpoint IMEIA vía Nginx (producción sin Turnstile)
-  if (IMEIA_API_URL) {
+  if (transport === 'imeia_direct') {
     try {
       const respuesta = await preguntarAsesorImeia(params);
       return { ok: true, respuesta };
@@ -215,10 +220,54 @@ export async function preguntarAsesor(params: {
   };
 }
 
-function shouldUseLocalOllama(): boolean {
-  if (!OLLAMA_URL) return false;
-  if (typeof window === 'undefined') return false;
-  return ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
+export function resolveAsesorTransport(
+  hostname?: string,
+  options?: {
+    hasLocalOllamaUrl?: boolean;
+    hasDirectImeiaUrl?: boolean;
+    forceDirectImeiaInBrowser?: boolean;
+  }
+): AsesorTransport {
+  if (shouldUseLocalOllama(hostname, options?.hasLocalOllamaUrl)) return 'local_ollama';
+  if (
+    shouldUseDirectImeiaInBrowser(
+      hostname,
+      options?.hasDirectImeiaUrl,
+      options?.forceDirectImeiaInBrowser
+    )
+  ) {
+    return 'imeia_direct';
+  }
+  return 'supabase';
+}
+
+function getBrowserHostname(hostname?: string): string | null {
+  if (hostname) return hostname.toLowerCase();
+  if (typeof window === 'undefined') return null;
+  return window.location.hostname.toLowerCase();
+}
+
+function shouldUseLocalOllama(hostname?: string, hasLocalOllamaUrl = Boolean(OLLAMA_URL)): boolean {
+  if (!hasLocalOllamaUrl) return false;
+  const browserHostname = getBrowserHostname(hostname);
+  if (!browserHostname) return false;
+  return ['localhost', '127.0.0.1', '::1'].includes(browserHostname);
+}
+
+function isImeProductionHostname(hostname?: string): boolean {
+  const browserHostname = getBrowserHostname(hostname);
+  if (!browserHostname) return false;
+  return browserHostname === 'i-me.com.co' || browserHostname === 'www.i-me.com.co';
+}
+
+function shouldUseDirectImeiaInBrowser(
+  hostname?: string,
+  hasDirectImeiaUrl = Boolean(IMEIA_API_URL),
+  forceDirectImeiaInBrowser = FORCE_DIRECT_IMEIA_IN_BROWSER
+): boolean {
+  if (!hasDirectImeiaUrl) return false;
+  if (isImeProductionHostname(hostname) && !forceDirectImeiaInBrowser) return false;
+  return true;
 }
 
 /** Llama al endpoint IMEIA vía Nginx (producción sin Turnstile) */
