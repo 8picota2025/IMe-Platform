@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { buildCanonical } from '../lib/seo';
+import { t } from '../i18n/utils';
 
 interface Props {
   locale: 'es' | 'en';
@@ -11,13 +12,11 @@ const { locale, currentPath } = Astro.props as Props;
 const isEn = locale === 'en';
 const canonical = buildCanonical(currentPath);
 const turnstileSiteKey = (
-  (import.meta.env['PUBLIC_TURNSTILE_SITE_KEY'] as string | undefined) ??
-  ''
+  (import.meta.env['PUBLIC_TURNSTILE_SITE_KEY'] as string | undefined) ?? ''
 ).trim();
 const supabaseUrl = ((import.meta.env['PUBLIC_SUPABASE_URL'] as string | undefined) ?? '').trim();
 const supabaseAnonKey = (
-  (import.meta.env['PUBLIC_SUPABASE_ANON_KEY'] as string | undefined) ??
-  ''
+  (import.meta.env['PUBLIC_SUPABASE_ANON_KEY'] as string | undefined) ?? ''
 ).trim();
 
 const copy = isEn
@@ -26,8 +25,7 @@ const copy = isEn
       description:
         'Manufacturers and clients can propose editorial content for I-ME Knowledge. Every submission is reviewed before publication.',
       kicker: 'Editorial contributions',
-      lead:
-        'We accept technical buying guides, use cases, maintenance lessons and manufacturer-backed educational content. We do not publish direct clinical diagnosis, unsafe claims or unverified marketing copy.',
+      lead: 'We accept technical buying guides, use cases, maintenance lessons and manufacturer-backed educational content. We do not publish direct clinical diagnosis, unsafe claims or unverified marketing copy.',
       policyTitle: 'Editorial policy',
       policyItems: [
         'Content is reviewed by the I-ME team before publication.',
@@ -66,8 +64,7 @@ const copy = isEn
       description:
         'Fabricantes y clientes pueden proponer contenido editorial para Conocimiento de I-ME. Toda propuesta pasa por revisión antes de publicarse.',
       kicker: 'Contribuciones editoriales',
-      lead:
-        'Aceptamos guías de compra técnica, casos de uso, aprendizajes de mantenimiento y contenido educativo respaldado por fabricante. No publicamos diagnóstico clínico, promesas inseguras ni marketing no verificable.',
+      lead: 'Aceptamos guías de compra técnica, casos de uso, aprendizajes de mantenimiento y contenido educativo respaldado por fabricante. No publicamos diagnóstico clínico, promesas inseguras ni marketing no verificable.',
       policyTitle: 'Política editorial',
       policyItems: [
         'Todo contenido pasa por revisión del equipo I-ME antes de publicarse.',
@@ -132,10 +129,10 @@ const clientConfig = JSON.stringify({
           </ul>
           <div class="proposal-copy__actions">
             <a class="btn btn-secondary" href={copy.knowledgeHref}>
-              {isEn ? 'Back to knowledge' : 'Volver a conocimiento'}
+              {t(locale, 'conocimiento.volver_listado')}
             </a>
             <a class="btn btn-secondary" href={copy.contactHref}>
-              {isEn ? 'Contact editorial team' : 'Contactar al equipo editorial'}
+              {t(locale, 'conocimiento.contactar_editorial')}
             </a>
           </div>
         </div>
@@ -150,7 +147,14 @@ const clientConfig = JSON.stringify({
         >
           <div class="proposal-field">
             <label for="proposal-title">{copy.fields.title}</label>
-            <input id="proposal-title" name="titulo" type="text" minlength="12" maxlength="180" required />
+            <input
+              id="proposal-title"
+              name="titulo"
+              type="text"
+              minlength="12"
+              maxlength="180"
+              required
+            />
           </div>
 
           <div class="proposal-field">
@@ -161,8 +165,7 @@ const clientConfig = JSON.stringify({
               rows="4"
               minlength="40"
               maxlength="600"
-              required
-            ></textarea>
+              required></textarea>
           </div>
 
           <div class="proposal-field">
@@ -173,8 +176,7 @@ const clientConfig = JSON.stringify({
               rows="12"
               minlength="300"
               maxlength="16000"
-              required
-            ></textarea>
+              required></textarea>
           </div>
 
           <div class="proposal-preview">
@@ -185,11 +187,23 @@ const clientConfig = JSON.stringify({
           <div class="proposal-grid-fields">
             <div class="proposal-field">
               <label for="proposal-author-name">{copy.fields.authorName}</label>
-              <input id="proposal-author-name" name="autor_nombre" type="text" maxlength="160" required />
+              <input
+                id="proposal-author-name"
+                name="autor_nombre"
+                type="text"
+                maxlength="160"
+                required
+              />
             </div>
             <div class="proposal-field">
               <label for="proposal-author-email">{copy.fields.authorEmail}</label>
-              <input id="proposal-author-email" name="autor_email" type="email" maxlength="200" required />
+              <input
+                id="proposal-author-email"
+                name="autor_email"
+                type="email"
+                maxlength="200"
+                required
+              />
             </div>
           </div>
 
@@ -203,7 +217,12 @@ const clientConfig = JSON.stringify({
             </div>
             <div class="proposal-field">
               <label for="proposal-author-company">{copy.fields.authorCompany}</label>
-              <input id="proposal-author-company" name="autor_empresa" type="text" maxlength="180" />
+              <input
+                id="proposal-author-company"
+                name="autor_empresa"
+                type="text"
+                maxlength="180"
+              />
             </div>
           </div>
 
@@ -222,7 +241,8 @@ const clientConfig = JSON.stringify({
             </span>
           </label>
 
-          <div id="proposal-turnstile" class="proposal-turnstile" data-sitekey={turnstileSiteKey}></div>
+          <div id="proposal-turnstile" class="proposal-turnstile" data-sitekey={turnstileSiteKey}>
+          </div>
           <p id="proposal-status" class="proposal-status" role="status" aria-live="polite"></p>
 
           <button id="proposal-submit" class="btn btn-primary" type="submit">
@@ -376,9 +396,10 @@ const clientConfig = JSON.stringify({
             body: JSON.stringify(payload),
           });
 
-          const json = (await response.json().catch(() => null)) as
-            | { ok?: boolean; error?: string }
-            | null;
+          const json = (await response.json().catch(() => null)) as {
+            ok?: boolean;
+            error?: string;
+          } | null;
 
           if (!response.ok || !json?.ok) {
             status.textContent = json?.error || config.copy.error;

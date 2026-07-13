@@ -124,7 +124,9 @@
     "leer_mas": "Leer artículo",
     "volver": "Volver al Centro de Conocimiento",
     "vacio": "Aún no hay artículos publicados. Vuelve pronto.",
-    "ninguno": "Sin artículos todavía"
+    "ninguno": "Sin artículos todavía",
+    "volver_listado": "Volver a conocimiento",
+    "contactar_editorial": "Contactar al equipo editorial"
   },
   "contacto": {
     "titulo": "Contacto",

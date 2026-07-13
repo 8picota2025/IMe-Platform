@@ -124,7 +124,9 @@
     "leer_mas": "Read article",
     "volver": "Back to Knowledge Center",
     "vacio": "No articles published yet. Check back soon.",
-    "ninguno": "No articles yet"
+    "ninguno": "No articles yet",
+    "volver_listado": "Back to knowledge",
+    "contactar_editorial": "Contact editorial team"
   },
   "contacto": {
     "titulo": "Contact",
