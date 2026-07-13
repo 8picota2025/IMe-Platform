@@ -109,27 +109,9 @@ const config = {
 
     <form id="cotizacion-form" class="cotizacion-form" novalidate hidden>
       <h3>{config.i18n.formTitulo}</h3>
-      <div class="cotizacion-grid">
-        <div class="cotizacion-field">
-          <label for="cotizacion-nombre">{config.i18n.nombre}</label>
-          <input
-            id="cotizacion-nombre"
-            name="nombre"
-            type="text"
-            required
-            autocomplete="given-name"
-          />
-        </div>
-        <div class="cotizacion-field">
-          <label for="cotizacion-apellido">{config.i18n.apellido}</label>
-          <input
-            id="cotizacion-apellido"
-            name="apellido"
-            type="text"
-            required
-            autocomplete="family-name"
-          />
-        </div>
+      <div class="cotizacion-field">
+        <label for="cotizacion-nombre">{config.i18n.nombre}</label>
+        <input id="cotizacion-nombre" name="nombre" type="text" required autocomplete="name" />
       </div>
       <div class="cotizacion-field">
         <label for="cotizacion-email">{config.i18n.email}</label>
@@ -138,15 +120,6 @@ const config = {
       <div class="cotizacion-field">
         <label for="cotizacion-telefono">{config.i18n.telefono}</label>
         <input id="cotizacion-telefono" name="telefono" type="tel" required autocomplete="tel" />
-      </div>
-      <div class="cotizacion-field">
-        <label for="cotizacion-institucion">{config.i18n.institucion}</label>
-        <input
-          id="cotizacion-institucion"
-          name="institucion"
-          type="text"
-          autocomplete="organization"
-        />
       </div>
       <div class="cotizacion-field">
         <label for="cotizacion-mensaje">{config.i18n.mensaje}</label>
@@ -650,15 +623,12 @@ const config = {
 
         const payload = {
           nombre: String(data.get('nombre') ?? ''),
-          apellido: String(data.get('apellido') ?? ''),
           email: String(data.get('email') ?? ''),
           telefono: String(data.get('telefono') ?? ''),
           mensaje: String(data.get('mensaje') ?? ''),
           consentimiento_datos: data.get('consentimiento') === 'on',
           productos: items.map(i => ({ slug: i.slug, nombre: i.nombre, cantidad: i.cantidad })),
         };
-        const institucion = String(data.get('institucion') ?? '').trim();
-        if (institucion) Object.assign(payload, { institucion });
 
         const resultado = await submitCotizacion(payload);
 

@@ -12,17 +12,6 @@ const description =
   'Contáctanos para solicitar cotización de equipos biomédicos. Respondemos en menos de 24 horas. Tel: +57 313 867 4059 | info@i-me.com.co';
 const canonical = buildCanonical('/es/contacto');
 
-const opciones = [
-  'Monitores de signos vitales',
-  'Cardiología',
-  'Sala de cirugía',
-  'Neonatología',
-  'Ultrasonido',
-  'Soluciones IV',
-  'Mobiliario hospitalario',
-  'Anestesia y ventilación',
-  'Otro',
-];
 ---
 
 <Layout
@@ -57,39 +46,21 @@ const opciones = [
           novalidate
           aria-label="Formulario de contacto y cotización"
         >
-          <div class="form-row">
-            <div class="form-field">
-              <label for="nombre" class="form-label"
-                >{t(locale, 'contacto.nombre')}
-                <span aria-hidden="true" class="required">*</span></label
-              >
-              <input
-                type="text"
-                id="nombre"
-                name="nombre"
-                class="form-input"
-                autocomplete="given-name"
-                required
-                aria-required="true"
-                placeholder="Tu nombre"
-              />
-            </div>
-            <div class="form-field">
-              <label for="apellido" class="form-label"
-                >{t(locale, 'contacto.apellido')}
-                <span aria-hidden="true" class="required">*</span></label
-              >
-              <input
-                type="text"
-                id="apellido"
-                name="apellido"
-                class="form-input"
-                autocomplete="family-name"
-                required
-                aria-required="true"
-                placeholder="Tu apellido"
-              />
-            </div>
+          <div class="form-field">
+            <label for="nombre" class="form-label"
+              >{t(locale, 'contacto.nombre')}
+              <span aria-hidden="true" class="required">*</span></label
+            >
+            <input
+              type="text"
+              id="nombre"
+              name="nombre"
+              class="form-input"
+              autocomplete="name"
+              required
+              aria-required="true"
+              placeholder="Nombre y apellido"
+            />
           </div>
           <div class="form-field">
             <label for="email" class="form-label"
@@ -124,31 +95,14 @@ const opciones = [
             />
           </div>
           <div class="form-field">
-            <label for="institucion" class="form-label">{t(locale, 'contacto.institucion')}</label>
-            <input
-              type="text"
-              id="institucion"
-              name="institucion"
-              class="form-input"
-              autocomplete="organization"
-              placeholder="Hospital, clínica, consultorio…"
-            />
-          </div>
-          <div class="form-field">
-            <label for="interes" class="form-label"
-              >{t(locale, 'contacto.interes')}
-              <span aria-hidden="true" class="required">*</span></label
-            >
-            <select
-              id="interes"
-              name="interes"
-              class="form-input form-select"
-              required
-              aria-required="true"
-            >
-              <option value="">Selecciona una categoría</option>
-              {opciones.map(op => <option value={op}>{op}</option>)}
-            </select>
+            <label for="productos" class="form-label">Productos de interés</label>
+            <textarea
+              id="productos"
+              name="productos"
+              class="form-input form-textarea"
+              rows={3}
+              placeholder="Un producto por línea o separados por coma"
+            ></textarea>
           </div>
           <div class="form-field">
             <label for="mensaje" class="form-label"
@@ -421,6 +375,22 @@ const opciones = [
   const form = document.getElementById('contacto-form') as HTMLFormElement | null;
   const status = document.getElementById('form-status');
   const submitBtn = document.getElementById('form-submit-btn') as HTMLButtonElement | null;
+  const productosField = document.getElementById('productos') as HTMLTextAreaElement | null;
+
+  function parseProductos(raw: string): Array<{ slug: string; nombre: string; cantidad: number }> {
+    return raw
+      .split(/\n|,/)
+      .map(value => value.trim())
+      .filter(Boolean)
+      .slice(0, 20)
+      .map(nombre => ({ slug: '', nombre, cantidad: 1 }));
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const prefill = params.getAll('producto').map(value => value.trim()).filter(Boolean);
+  if (productosField && prefill.length > 0 && !productosField.value.trim()) {
+    productosField.value = prefill.join('\n');
+  }
 
   form?.addEventListener('submit', async e => {
     e.preventDefault();
@@ -441,13 +411,11 @@ const opciones = [
     const data = new FormData(form);
     const result = await submitCotizacion({
       nombre: (data.get('nombre') as string) ?? '',
-      apellido: (data.get('apellido') as string) ?? '',
       email: (data.get('email') as string) ?? '',
       telefono: (data.get('telefono') as string) ?? '',
-      institucion: (data.get('institucion') as string) ?? '',
-      interes: (data.get('interes') as string) ?? '',
       mensaje: (data.get('mensaje') as string) ?? '',
       consentimiento_datos: data.get('consentimiento') === 'on',
+      productos: parseProductos((data.get('productos') as string) ?? ''),
     });
 
     if (result.ok) {

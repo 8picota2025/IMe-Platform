@@ -12,17 +12,6 @@ const description =
   'Contact us to request a biomedical equipment quote. We reply within 24 hours. Tel: +57 313 867 4059';
 const canonical = buildCanonical('/en/contact');
 
-const options = [
-  'Patient Monitors',
-  'Cardiology',
-  'Operating Room',
-  'Neonatology',
-  'Ultrasound',
-  'IV Solutions',
-  'Hospital Furniture',
-  'Anesthesia & Ventilation',
-  'Other',
-];
 ---
 
 <Layout
@@ -55,39 +44,21 @@ const options = [
           novalidate
           aria-label="Contact and quote form"
         >
-          <div class="form-row">
-            <div class="form-field">
-              <label for="nombre" class="form-label"
-                >{t(locale, 'contacto.nombre')}
-                <span aria-hidden="true" class="required">*</span></label
-              >
-              <input
-                type="text"
-                id="nombre"
-                name="nombre"
-                class="form-input"
-                autocomplete="given-name"
-                required
-                aria-required="true"
-                placeholder="First name"
-              />
-            </div>
-            <div class="form-field">
-              <label for="apellido" class="form-label"
-                >{t(locale, 'contacto.apellido')}
-                <span aria-hidden="true" class="required">*</span></label
-              >
-              <input
-                type="text"
-                id="apellido"
-                name="apellido"
-                class="form-input"
-                autocomplete="family-name"
-                required
-                aria-required="true"
-                placeholder="Last name"
-              />
-            </div>
+          <div class="form-field">
+            <label for="nombre" class="form-label"
+              >{t(locale, 'contacto.nombre')}
+              <span aria-hidden="true" class="required">*</span></label
+            >
+            <input
+              type="text"
+              id="nombre"
+              name="nombre"
+              class="form-input"
+              autocomplete="name"
+              required
+              aria-required="true"
+              placeholder="Full name"
+            />
           </div>
           <div class="form-field">
             <label for="email" class="form-label"
@@ -122,31 +93,14 @@ const options = [
             />
           </div>
           <div class="form-field">
-            <label for="institucion" class="form-label">{t(locale, 'contacto.institucion')}</label>
-            <input
-              type="text"
-              id="institucion"
-              name="institucion"
-              class="form-input"
-              autocomplete="organization"
-              placeholder="Hospital, clinic, practice…"
-            />
-          </div>
-          <div class="form-field">
-            <label for="interes" class="form-label"
-              >{t(locale, 'contacto.interes')}
-              <span aria-hidden="true" class="required">*</span></label
-            >
-            <select
-              id="interes"
-              name="interes"
-              class="form-input form-select"
-              required
-              aria-required="true"
-            >
-              <option value="">Select a category</option>
-              {options.map(op => <option value={op}>{op}</option>)}
-            </select>
+            <label for="productos" class="form-label">Products of interest</label>
+            <textarea
+              id="productos"
+              name="productos"
+              class="form-input form-textarea"
+              rows={3}
+              placeholder="One product per line or separated by commas"
+            ></textarea>
           </div>
           <div class="form-field">
             <label for="mensaje" class="form-label"
@@ -408,6 +362,23 @@ const options = [
   const form = document.getElementById('contacto-form') as HTMLFormElement | null;
   const status = document.getElementById('form-status');
   const submitBtn = document.getElementById('form-submit-btn') as HTMLButtonElement | null;
+  const productosField = document.getElementById('productos') as HTMLTextAreaElement | null;
+
+  function parseProductos(raw: string): Array<{ slug: string; nombre: string; cantidad: number }> {
+    return raw
+      .split(/\n|,/)
+      .map(value => value.trim())
+      .filter(Boolean)
+      .slice(0, 20)
+      .map(nombre => ({ slug: '', nombre, cantidad: 1 }));
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const prefill = params.getAll('producto').map(value => value.trim()).filter(Boolean);
+  if (productosField && prefill.length > 0 && !productosField.value.trim()) {
+    productosField.value = prefill.join('\n');
+  }
+
   form?.addEventListener('submit', async e => {
     e.preventDefault();
     if (!form.checkValidity()) {
@@ -425,13 +396,11 @@ const options = [
     const data = new FormData(form);
     const result = await submitCotizacion({
       nombre: (data.get('nombre') as string) ?? '',
-      apellido: (data.get('apellido') as string) ?? '',
       email: (data.get('email') as string) ?? '',
       telefono: (data.get('telefono') as string) ?? '',
-      institucion: (data.get('institucion') as string) ?? '',
-      interes: (data.get('interes') as string) ?? '',
       mensaje: (data.get('mensaje') as string) ?? '',
       consentimiento_datos: data.get('consentimiento') === 'on',
+      productos: parseProductos((data.get('productos') as string) ?? ''),
     });
     if (result.ok) {
       if (status) {

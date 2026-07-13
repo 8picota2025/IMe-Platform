@@ -21,11 +21,8 @@ const FN_NAME = 'registrar-cotizacion';
 
 interface CotizacionBody {
   nombre?: string;
-  apellido?: string;
   email?: string;
   telefono?: string;
-  institucion?: string;
-  interes?: string;
   mensaje?: string;
   consentimiento_datos?: boolean;
   productos?: Array<{ slug?: string; nombre?: string; cantidad?: number }>;
@@ -59,7 +56,6 @@ Deno.serve(
 
     const body = (await req.json().catch(() => ({}))) as CotizacionBody;
     const nombre = (body.nombre ?? '').trim().slice(0, 120);
-    const apellido = (body.apellido ?? '').trim().slice(0, 120);
     const email = (body.email ?? '').trim().slice(0, 200);
     const telefono = (body.telefono ?? '').trim().slice(0, 40);
     const mensaje = (body.mensaje ?? '').trim().slice(0, 2000);
@@ -79,12 +75,12 @@ Deno.serve(
       }));
 
     const { error } = await supabase.from('solicitudes_cotizacion').insert({
-      nombre: `${nombre} ${apellido}`.trim(),
-      empresa: (body.institucion ?? '').trim().slice(0, 200),
+      nombre,
+      empresa: '',
       email,
       telefono,
       productos,
-      mensaje: `[${(body.interes ?? 'General').slice(0, 100)}] ${mensaje}`,
+      mensaje,
       consentimiento_datos: true,
       consentimiento_timestamp: new Date().toISOString(),
       leida: false,
@@ -99,9 +95,9 @@ Deno.serve(
     void trackEvent(FN_NAME, 'cotizacion_registrada', { productos_count: productos.length });
 
     const vars = {
-      cliente_nombre: escapeHtml(`${nombre} ${apellido}`.trim()),
+      cliente_nombre: escapeHtml(nombre),
       cliente_email: escapeHtml(email),
-      empresa: escapeHtml(body.institucion ?? ''),
+      empresa: '',
       telefono: escapeHtml(telefono),
       mensaje: escapeHtml(mensaje),
       items_html: productos.length

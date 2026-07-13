@@ -209,11 +209,8 @@ export interface CotizacionProducto {
 
 export interface CotizacionPayload {
   nombre: string;
-  apellido: string;
   email: string;
   telefono: string;
-  institucion?: string;
-  interes?: string;
   mensaje: string;
   consentimiento_datos: boolean;
   productos?: CotizacionProducto[];
