@@ -69,18 +69,25 @@ const analyticsDomain =
   )
 }
 
-<script
-  type="module"
-  data-domain={analyticsDomain}
-  define:vars={{ analyticsDomain, gaEnabled: Boolean(gaId), gtmEnabled: Boolean(gtmId), clarityEnabled: Boolean(clarityId) }}
->
+<meta
+  name="ime-analytics"
+  content={analyticsDomain}
+  data-ga={gaId ? '1' : '0'}
+  data-gtm={gtmId ? '1' : '0'}
+  data-clarity={clarityId ? '1' : '0'}
+/>
+
+<script>
+  // define:vars forzaba is:inline y el import relativo llegaba crudo al
+  // navegador (404 /es/lib/analytics); la config viaja en el meta de arriba.
   import { installAnalytics, trackPageView } from '../lib/analytics';
 
+  const meta = document.querySelector<HTMLMetaElement>('meta[name="ime-analytics"]');
   installAnalytics({
-    dataDomain: analyticsDomain,
-    gaEnabled,
-    gtmEnabled,
-    clarityEnabled,
+    dataDomain: meta?.content || 'i-me.com.co',
+    gaEnabled: meta?.dataset.ga === '1',
+    gtmEnabled: meta?.dataset.gtm === '1',
+    clarityEnabled: meta?.dataset.clarity === '1',
   });
 
   trackPageView();

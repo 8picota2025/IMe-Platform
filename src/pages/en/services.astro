@@ -307,11 +307,16 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildServiciosJsonLd(loc
 </Layout>
 
 <script>
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const faders = document.querySelectorAll<HTMLElement>('.site-faithful .fade-in');
-  if (reduce || !('IntersectionObserver' in window)) {
-    faders.forEach(el => el.classList.add('visible'));
-  } else {
+  function initServices() {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const faders = document.querySelectorAll<HTMLElement>(
+      '.site-faithful .fade-in:not([data-ime-bound])'
+    );
+    faders.forEach(el => (el.dataset.imeBound = '1'));
+    if (reduce || !('IntersectionObserver' in window)) {
+      faders.forEach(el => el.classList.add('visible'));
+      return;
+    }
     const io = new IntersectionObserver(
       entries => {
         entries.forEach(entry => {
@@ -325,4 +330,7 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildServiciosJsonLd(loc
     );
     faders.forEach(el => io.observe(el));
   }
+
+  initServices();
+  document.addEventListener('astro:page-load', initServices);
 </script>

@@ -676,83 +676,104 @@ const servicios = [
 </Layout>
 
 <script>
-  // ── Reveal on scroll (.fade-in ↔ .visible, fades back out when a section leaves view) ──
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const faders = document.querySelectorAll<HTMLElement>('.site-faithful .fade-in');
-  if (reduce) {
-    faders.forEach(el => el.classList.add('visible'));
-  } else if ('IntersectionObserver' in window) {
-    const io = new IntersectionObserver(
-      entries => {
-        entries.forEach(entry => {
-          entry.target.classList.toggle('visible', entry.isIntersecting);
-        });
-      },
-      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+  // Con ClientRouter (View Transitions) los scripts solo se ejecutan una vez por
+  // sesión: toda la inicialización debe re-correr en cada astro:page-load, con
+  // guardas data-ime-bound para no duplicar listeners.
+  function initHome() {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // ── Reveal on scroll (.fade-in ↔ .visible, fades back out when a section leaves view) ──
+    const faders = document.querySelectorAll<HTMLElement>(
+      '.site-faithful .fade-in:not([data-ime-bound])'
     );
-    faders.forEach(el => io.observe(el));
-  } else {
-    faders.forEach(el => el.classList.add('visible'));
-  }
+    faders.forEach(el => (el.dataset.imeBound = '1'));
+    if (reduce) {
+      faders.forEach(el => el.classList.add('visible'));
+    } else if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver(
+        entries => {
+          entries.forEach(entry => {
+            entry.target.classList.toggle('visible', entry.isIntersecting);
+          });
+        },
+        { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+      );
+      faders.forEach(el => io.observe(el));
+    } else {
+      faders.forEach(el => el.classList.add('visible'));
+    }
 
-  // ── Contadores de estadísticas (hero-stats) ──
-  const counters = document.querySelectorAll<HTMLElement>('.site-faithful .stat-n[data-count]');
-  function animateCounter(el: HTMLElement) {
-    const target = Number(el.dataset.count ?? '0');
-    const suffix = el.dataset.suffix ?? '';
-    if (reduce || !Number.isFinite(target)) {
-      el.textContent = `${target}${suffix}`;
-      return;
-    }
-    const duration = 1400;
-    const start = performance.now();
-    function tick(now: number) {
-      const p = Math.min((now - start) / duration, 1);
-      const eased = 1 - Math.pow(1 - p, 3);
-      el.textContent = `${Math.round(target * eased)}${suffix}`;
-      if (p < 1) requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
-  }
-  if ('IntersectionObserver' in window && !reduce) {
-    const cio = new IntersectionObserver(
-      entries => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            animateCounter(entry.target as HTMLElement);
-            cio.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.5 }
+    // ── Contadores de estadísticas (hero-stats) ──
+    const counters = document.querySelectorAll<HTMLElement>(
+      '.site-faithful .stat-n[data-count]:not([data-ime-bound])'
     );
-    counters.forEach(el => cio.observe(el));
-  } else {
-    counters.forEach(el => animateCounter(el));
-  }
+    counters.forEach(el => (el.dataset.imeBound = '1'));
+    function animateCounter(el: HTMLElement) {
+      const target = Number(el.dataset.count ?? '0');
+      const suffix = el.dataset.suffix ?? '';
+      if (reduce || !Number.isFinite(target)) {
+        el.textContent = `${target}${suffix}`;
+        return;
+      }
+      const duration = 1400;
+      const start = performance.now();
+      function tick(now: number) {
+        const p = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = `${Math.round(target * eased)}${suffix}`;
+        if (p < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+    if ('IntersectionObserver' in window && !reduce) {
+      const cio = new IntersectionObserver(
+        entries => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              animateCounter(entry.target as HTMLElement);
+              cio.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.5 }
+      );
+      counters.forEach(el => cio.observe(el));
+    } else {
+      counters.forEach(el => animateCounter(el));
+    }
 
-  // ── FAQ acordeón ──
-  document.querySelectorAll<HTMLButtonElement>('.site-faithful .faq-q').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const item = btn.closest('.faq-item');
-      if (!item) return;
-      const open = item.classList.toggle('open');
-      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-    });
-  });
-
-  // ── "Cotizar" → añade a cotización y abre el drawer nuevo ──
-  document
-    .querySelectorAll<HTMLButtonElement>('.site-faithful [data-add-cotizacion]')
-    .forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const slug = btn.dataset.addCotizacion;
-        const nombre = btn.dataset.nombre;
-        const imagen = btn.dataset.imagen;
-        if (!slug || !nombre) return;
-        const mod = await import('../../lib/cotizacion-equipos');
-        mod.agregarACotizacion({ slug, nombre, imagen: imagen ?? '' });
-        mod.abrirCotizacion();
+    // ── FAQ acordeón ──
+    document
+      .querySelectorAll<HTMLButtonElement>('.site-faithful .faq-q:not([data-ime-bound])')
+      .forEach(btn => {
+        btn.dataset.imeBound = '1';
+        btn.addEventListener('click', () => {
+          const item = btn.closest('.faq-item');
+          if (!item) return;
+          const open = item.classList.toggle('open');
+          btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
       });
-    });
+
+    // ── "Cotizar" → añade a cotización y abre el drawer nuevo ──
+    document
+      .querySelectorAll<HTMLButtonElement>(
+        '.site-faithful [data-add-cotizacion]:not([data-ime-bound])'
+      )
+      .forEach(btn => {
+        btn.dataset.imeBound = '1';
+        btn.addEventListener('click', async () => {
+          const slug = btn.dataset.addCotizacion;
+          const nombre = btn.dataset.nombre;
+          const imagen = btn.dataset.imagen;
+          if (!slug || !nombre) return;
+          const mod = await import('../../lib/cotizacion-equipos');
+          mod.agregarACotizacion({ slug, nombre, imagen: imagen ?? '' });
+          mod.abrirCotizacion();
+        });
+      });
+  }
+
+  initHome();
+  document.addEventListener('astro:page-load', initHome);
 </script>
