@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildBiomedicalFallback, parseStructuredAsesorResponse } from './asesor';
+import {
+  buildBiomedicalFallback,
+  buildResilientFallbackResponse,
+  parseStructuredAsesorResponse,
+} from './asesor';
 
 const contextoVacio: Parameters<typeof buildBiomedicalFallback>[0] = [];
 
@@ -73,5 +77,48 @@ describe('asesor biomedical fallback', () => {
       tipo: 'cotizacion',
       resumen: 'IPS nivel 2, monitor para triage y observación.',
     });
+  });
+
+  it('usa el indice publicado del catalogo para responder con productos reales si falla la capa principal', async () => {
+    const originalFetch = globalThis.fetch;
+
+    globalThis.fetch = (async () =>
+      new Response(
+        JSON.stringify([
+          {
+            slug: 'cama-de-atencion-domiciliaria-hb421',
+            nombre: 'Cama de Atención Domiciliaria HB421',
+            familia: { slug: 'mobiliario', nombre: 'Mobiliario Hospitalario' },
+            tipo: { slug: 'camas-domiciliarias', nombre: 'Camas de Atención Domiciliaria' },
+            descripcion_corta:
+              'Cama hospitalaria para cuidado en casa con ajuste de posición y soporte a movilidad.',
+            imagen_principal: 'https://example.com/hb421.jpg',
+            texto_busqueda:
+              'cama atencion domiciliaria hb421 mobiliario hospitalario cuidado en casa movilidad',
+          },
+        ]),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )) as typeof fetch;
+
+    try {
+      const respuesta = await buildResilientFallbackResponse({
+        mensaje: 'Tienes alguna cama para uso en domicilio?',
+        historial: [],
+        locale: 'es',
+      });
+
+      expect(respuesta.texto).toContain('Sí, en nuestro catálogo tenemos');
+      expect(respuesta.texto).toContain('Cama de Atención Domiciliaria HB421');
+      expect(respuesta.texto).not.toContain('cualificación');
+      expect(respuesta.productos).toHaveLength(1);
+      expect(respuesta.productos[0]?.urlLanding).toBe(
+        '/es/productos/cama-de-atencion-domiciliaria-hb421'
+      );
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
   });
 });
