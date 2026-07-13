@@ -22,6 +22,7 @@ const OLLAMA_EMBED_MODEL =
   (import.meta.env['PUBLIC_OLLAMA_EMBED_MODEL'] as string | undefined) ?? 'mxbai-embed-large';
 const IMEIA_API_URL = (import.meta.env['PUBLIC_IMEIA_API_URL'] as string | undefined) ?? '';
 export const ASESOR_CLIENT_VERSION = '2026-07-13-imeia-nginx-v1';
+const MAX_HANDOFF_SUMMARY_CHARS = 400;
 
 export interface MensajeAsesor {
   rol: 'usuario' | 'asesor';
@@ -124,7 +125,7 @@ export async function preguntarAsesor(params: {
       const respuesta = await preguntarAsesorLocal(params);
       return { ok: true, respuesta };
     } catch {
-      return { ok: false, error: { tipo: 'error' } };
+      return { ok: true, respuesta: buildResilientFallbackResponse(params) };
     }
   }
 
@@ -134,12 +135,12 @@ export async function preguntarAsesor(params: {
       const respuesta = await preguntarAsesorImeia(params);
       return { ok: true, respuesta };
     } catch {
-      return { ok: false, error: { tipo: 'error' } };
+      // continua con Edge Functions / fallback resiliente
     }
   }
 
   const supabase = getSupabaseClient();
-  if (!supabase) return { ok: false, error: { tipo: 'no_disponible' } };
+  if (!supabase) return { ok: true, respuesta: buildResilientFallbackResponse(params) };
 
   const historial = params.historial.slice(-8).map(m => ({ rol: m.rol, contenido: m.contenido }));
 
@@ -166,12 +167,14 @@ export async function preguntarAsesor(params: {
           },
         };
       }
-      if (context.status === 503) return { ok: false, error: { tipo: 'no_disponible' } };
+      if (context.status === 403 || context.status === 503) {
+        return { ok: true, respuesta: buildResilientFallbackResponse(params) };
+      }
     }
-    return { ok: false, error: { tipo: 'error' } };
+    return { ok: true, respuesta: buildResilientFallbackResponse(params) };
   }
 
-  if (!data) return { ok: false, error: { tipo: 'error' } };
+  if (!data) return { ok: true, respuesta: buildResilientFallbackResponse(params) };
   const json = data as AsesorApiResponse;
 
   return {
@@ -227,13 +230,12 @@ async function preguntarAsesorImeia(params: {
 
   const data = await res.json();
   const content = data.choices?.[0]?.message?.content ?? '';
-  const texto = content.trim();
-
-  // Parsear respuesta del formato IMEIA (texto plano con productos citados)
-  const { productos, accionHandoff } = parseImeiaResponse(texto, params.locale);
+  const parsed = parseStructuredAsesorResponse(content, params.locale);
+  const productos = await cargarProductosSugeridos(parsed.productosCitados, params.locale);
+  const accionHandoff = normalizarAccionHandoff(parsed.accionHandoff, params, parsed.texto);
 
   return {
-    texto,
+    texto: parsed.texto,
     productos,
     accionHandoff,
     modo: 'rag',
@@ -265,43 +267,67 @@ ${params.mensaje}
 
 Responde SOLO en JSON válido con:
 {
-  "texto": "respuesta en español",
+  "texto": "respuesta útil en el idioma del usuario",
   "productos_citados": ["slug-1"],
   "accion_handoff": {"tipo": "whatsapp"|"cotizacion", "resumen": "..."} | null
 }`;
 }
 
-function parseImeiaResponse(
+export function parseStructuredAsesorResponse(
   texto: string,
-  locale: Locale
-): { productos: ProductoSugerido[]; accionHandoff: AccionHandoff | null } {
-  // Buscar enlaces a productos en el texto (formato: [nombre](/es/productos/slug))
-  const productos: ProductoSugerido[] = [];
-  const urlRegex = /\[([^\]]+)\]\((\/es\/productos\/[^)]+)\)/g;
-  let match;
-  while ((match = urlRegex.exec(texto)) !== null) {
-    const slug = match[2].replace('/es/productos/', '').replace('/en/products/', '');
-    productos.push({
-      slug,
-      nombre: match[1],
-      imagen: null,
-      urlLanding: locale === 'en' ? match[2].replace('/es/', '/en/') : match[2],
-      score: 1,
-    });
-  }
+  _locale: Locale
+) {
+  try {
+    const parsed = JSON.parse(extraerJsonOllama(texto)) as {
+      texto?: unknown;
+      productos_citados?: unknown;
+      accion_handoff?: unknown;
+    };
+    const contenido =
+      typeof parsed.texto === 'string' && parsed.texto.trim() ? parsed.texto.trim() : texto.trim();
+    const productosCitados = Array.isArray(parsed.productos_citados)
+      ? parsed.productos_citados.filter((slug): slug is string => typeof slug === 'string')
+      : [];
+    const handoff = parsed.accion_handoff;
+    const accionHandoff =
+      handoff &&
+      typeof handoff === 'object' &&
+      (((handoff as { tipo?: unknown }).tipo === 'whatsapp' &&
+        typeof (handoff as { resumen?: unknown }).resumen === 'string') ||
+        ((handoff as { tipo?: unknown }).tipo === 'cotizacion' &&
+          typeof (handoff as { resumen?: unknown }).resumen === 'string'))
+        ? {
+            tipo: (handoff as { tipo: TipoHandoff }).tipo,
+            resumen: String((handoff as { resumen: string }).resumen)
+              .trim()
+              .slice(0, MAX_HANDOFF_SUMMARY_CHARS),
+          }
+        : null;
 
-  // Detectar handoff a WhatsApp o cotización
-  let accionHandoff: AccionHandoff | null = null;
-  if (
-    texto.includes('WhatsApp') ||
-    texto.includes('whatsapp') ||
-    texto.includes('cotización') ||
-    texto.includes('cotizacion')
-  ) {
-    accionHandoff = { tipo: 'whatsapp', resumen: texto.slice(0, 280) };
-  }
+    return {
+      texto: contenido,
+      productosCitados,
+      accionHandoff,
+    };
+  } catch {
+    const productosCitados = Array.from(
+      texto.matchAll(/\[[^\]]+\]\((\/(?:es\/productos|en\/products)\/([a-z0-9-]+))\)/g),
+      match => match[2]!
+    );
+    const tipo = inferHandoffType(texto);
+    const accionHandoff = tipo
+      ? {
+          tipo,
+          resumen: texto.trim().slice(0, MAX_HANDOFF_SUMMARY_CHARS),
+        }
+      : null;
 
-  return { productos, accionHandoff };
+    return {
+      texto: texto.trim(),
+      productosCitados,
+      accionHandoff,
+    };
+  }
 }
 
 /** Limpia el contenido de la conversación persistida (no la sessionId de rate-limit/métricas). */
@@ -353,6 +379,118 @@ export function obtenerHistorial(): MensajeAsesor[] {
   } catch {
     return [];
   }
+}
+
+function inferHandoffType(texto: string): TipoHandoff | null {
+  if (
+    /\b(cotizaci[oó]n|cotizar|quote|pricing|precio|availability|disponibilidad|formulario|contact form)\b/i.test(
+      texto
+    )
+  ) {
+    return 'cotizacion';
+  }
+  if (/\b(whats?app|asesor comercial|sales team|hablar con|contactar)\b/i.test(texto)) {
+    return 'whatsapp';
+  }
+  return null;
+}
+
+function buildHandoffSummary(params: {
+  mensaje: string;
+  historial: MensajeAsesor[];
+}): string {
+  const turns = [...params.historial, { rol: 'usuario' as const, contenido: params.mensaje }]
+    .filter(turno => turno.rol === 'usuario')
+    .slice(-4)
+    .map(turno => turno.contenido.trim())
+    .filter(Boolean);
+  return turns.join(' | ').slice(0, MAX_HANDOFF_SUMMARY_CHARS);
+}
+
+function normalizarAccionHandoff(
+  accionHandoff: AccionHandoff | null,
+  params: { mensaje: string; historial: MensajeAsesor[] },
+  texto: string
+): AccionHandoff | null {
+  const tipo = accionHandoff?.tipo ?? inferHandoffType(`${params.mensaje}\n${texto}`);
+  if (!tipo) return null;
+  const resumen =
+    accionHandoff?.resumen?.trim().slice(0, MAX_HANDOFF_SUMMARY_CHARS) ||
+    buildHandoffSummary(params);
+  return { tipo, resumen };
+}
+
+async function cargarProductosSugeridos(
+  slugs: string[],
+  locale: Locale
+): Promise<ProductoSugerido[]> {
+  const unicos = [...new Set(slugs.map(slug => slug.trim()).filter(Boolean))].slice(0, 4);
+  if (unicos.length === 0) return [];
+
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    return unicos.map((slug, index) => ({
+      slug,
+      nombre: slug,
+      imagen: null,
+      urlLanding: locale === 'en' ? `/en/products/${slug}` : `/es/productos/${slug}`,
+      score: 1 - index * 0.05,
+    }));
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('productos')
+      .select('slug, nombre_es, nombre_en, imagen_principal')
+      .in('slug', unicos);
+    if (error || !data) return [];
+
+    const porSlug = new Map(data.map(producto => [String(producto.slug), producto]));
+    return unicos
+      .filter(slug => porSlug.has(slug))
+      .map((slug, index) => {
+        const producto = porSlug.get(slug)!;
+        return {
+          slug,
+          nombre:
+            locale === 'en'
+              ? String(producto.nombre_en ?? producto.nombre_es ?? slug)
+              : String(producto.nombre_es ?? slug),
+          imagen: typeof producto.imagen_principal === 'string' ? producto.imagen_principal : null,
+          urlLanding: locale === 'en' ? `/en/products/${slug}` : `/es/productos/${slug}`,
+          score: 1 - index * 0.05,
+        };
+      });
+  } catch {
+    return [];
+  }
+}
+
+function buildResilientFallbackResponse(params: {
+  mensaje: string;
+  historial: MensajeAsesor[];
+  locale: Locale;
+}): RespuestaAsesor {
+  const esConsultaSitio = esConsultaSitioOLegal(params.mensaje);
+  const texto =
+    buildAsesorStaticFallback(params.locale, params.mensaje) ??
+    buildBiomedicalFallback([], params.locale, params.mensaje) ??
+    (params.locale === 'en'
+      ? 'I can keep helping at a qualification level. Tell me the clinical service, intended use, expected volume and whether you need a formal quote, regulatory support or installation.'
+      : 'Puedo seguir ayudándote a nivel de cualificación. Indícame servicio clínico, uso previsto, volumen estimado y si necesitas cotización formal, soporte regulatorio o instalación.');
+
+  return {
+    texto,
+    productos: [],
+    accionHandoff: esConsultaSitio
+      ? null
+      : normalizarAccionHandoff(
+          { tipo: 'whatsapp', resumen: buildHandoffSummary(params) },
+          params,
+          texto
+        ),
+    modo: 'keyword_degradado',
+  };
 }
 
 // ── Modo local Ollama (dev sin Edge Functions) ────────────────────────────────

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildBiomedicalFallback } from './asesor';
+import { buildBiomedicalFallback, parseStructuredAsesorResponse } from './asesor';
 
 const contextoVacio: Parameters<typeof buildBiomedicalFallback>[0] = [];
 
@@ -52,5 +52,26 @@ describe('asesor biomedical fallback', () => {
     expect(respuesta).toContain('ecógrafo portátil con DICOM');
     expect(respuesta).toContain('servicio clínico');
     expect(respuesta).toContain('transductores');
+  });
+
+  it('parsea respuesta estructurada de IMEIA con handoff y slugs', () => {
+    const respuesta = parseStructuredAsesorResponse(
+      JSON.stringify({
+        texto: 'Puedo ayudarte con un monitor para triage.',
+        productos_citados: ['monitor-de-paciente-p1-biolight'],
+        accion_handoff: {
+          tipo: 'cotizacion',
+          resumen: 'IPS nivel 2, monitor para triage y observación.',
+        },
+      }),
+      'es'
+    );
+
+    expect(respuesta.texto).toContain('monitor para triage');
+    expect(respuesta.productosCitados).toEqual(['monitor-de-paciente-p1-biolight']);
+    expect(respuesta.accionHandoff).toEqual({
+      tipo: 'cotizacion',
+      resumen: 'IPS nivel 2, monitor para triage y observación.',
+    });
   });
 });

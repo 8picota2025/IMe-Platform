@@ -609,6 +609,8 @@ const asesorConfig = {
   let turnstileLoadPromise: Promise<void> | null = null;
   let resolveTurnstileToken: ((token: string | undefined) => void) | null = null;
   const historial: MensajeAsesor[] = [];
+  let ultimoHandoff: AccionHandoff | null = null;
+  let ultimosProductos: ProductoSugerido[] = [];
 
   let abortController: AbortController | null = null;
   let asesorTurnstileContainer: HTMLElement | null = null;
@@ -631,6 +633,8 @@ const asesorConfig = {
       resolveTurnstileToken = null;
       asesorTurnstileContainer = newTurnstileContainer;
       historial.length = 0;
+      ultimoHandoff = null;
+      ultimosProductos = [];
     }
 
     const closeBtn = document.getElementById('asesor-close');
@@ -656,8 +660,14 @@ const asesorConfig = {
     // Menciones de canal en texto del asesor → enlaces (WhatsApp en verde,
     // formulario de contacto en azul). Solo fuera de etiquetas y de <a> existentes.
     function linkifyCanales(html: string): string {
-      const waHref = escapeHtml(config.whatsappUrl);
-      const formHref = escapeHtml(config.contactoHref);
+      const waHref = escapeHtml(
+        ultimoHandoff?.tipo === 'whatsapp'
+          ? `${config.whatsappUrl}?text=${encodeURIComponent(
+              buildWhatsappSummary(ultimoHandoff, ultimosProductos)
+            )}`
+          : config.whatsappUrl
+      );
+      const formHref = escapeHtml(buildContactHref(ultimoHandoff, ultimosProductos));
       const reFormulario =
         config.locale === 'en' ? /contact form|\bform\b/gi : /formulario(?: de contacto)?/gi;
       const partes = html.split(/(<[^>]+>)/);
@@ -741,23 +751,50 @@ const asesorConfig = {
       return `<div class="asesor-productos">${items}</div>`;
     }
 
-    function buildHandoffHtml(handoff: AccionHandoff): string {
+    function buildContactHref(
+      handoff: AccionHandoff | null,
+      productos: ProductoSugerido[] = []
+    ): string {
+      const url = new URL(config.contactoHref, window.location.origin);
+      if (handoff?.resumen) url.searchParams.set('asesor_resumen', handoff.resumen);
+      url.searchParams.set('origen', 'asesor');
+      for (const producto of productos.slice(0, 6)) {
+        url.searchParams.append('producto', producto.nombre);
+      }
+      return `${url.pathname}${url.search}`;
+    }
+
+    function buildWhatsappSummary(handoff: AccionHandoff, productos: ProductoSugerido[]): string {
+      const productosTexto = productos.length
+        ? `${
+            config.locale === 'en' ? 'Products reviewed' : 'Productos revisados'
+          }: ${productos.map(producto => producto.nombre).join(', ')}`
+        : '';
+      return [handoff.resumen.trim(), productosTexto].filter(Boolean).join('\n\n');
+    }
+
+    function buildHandoffHtml(handoff: AccionHandoff, productos: ProductoSugerido[] = []): string {
       if (handoff.tipo === 'whatsapp') {
-        const url = handoff.resumen
-          ? `${config.whatsappUrl}?text=${encodeURIComponent(handoff.resumen)}`
+        const resumenWhatsapp = buildWhatsappSummary(handoff, productos);
+        const url = resumenWhatsapp
+          ? `${config.whatsappUrl}?text=${encodeURIComponent(resumenWhatsapp)}`
           : config.whatsappUrl;
         return `<a class="asesor-cta" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(config.i18n.handoffWhatsapp)} <span class="sr-only">${escapeHtml(config.i18n.nuevaVentana)}</span></a>`;
       }
-      return `<a class="asesor-cta" href="${escapeHtml(config.contactoHref)}">${escapeHtml(config.i18n.handoffCotizacion)}</a>`;
+      return `<a class="asesor-cta" href="${escapeHtml(buildContactHref(handoff, productos))}">${escapeHtml(config.i18n.handoffCotizacion)}</a>`;
     }
 
     function renderRespuesta(respuesta: RespuestaAsesor) {
       addBubble(respuesta.texto, 'asesor');
+      ultimosProductos = respuesta.productos;
+      ultimoHandoff = respuesta.accionHandoff;
       if (respuesta.modo === 'keyword_degradado' && respuesta.productos.length > 0) {
         addBubble(config.i18n.degradado, 'loading');
       }
       if (respuesta.productos.length > 0) addHtmlBubble(buildProductosHtml(respuesta.productos));
-      if (respuesta.accionHandoff) addHtmlBubble(buildHandoffHtml(respuesta.accionHandoff));
+      if (respuesta.accionHandoff) {
+        addHtmlBubble(buildHandoffHtml(respuesta.accionHandoff, respuesta.productos));
+      }
     }
 
     function renderError(error: ErrorAsesor | { tipo: 'verificacion' }) {
@@ -858,12 +895,6 @@ const asesorConfig = {
         // lo resuelve en la mayoría de casos sin molestar al usuario.
         if (!turnstileToken && config.turnstileSiteKey) {
           turnstileToken = await getTurnstileToken();
-        }
-        // Sin token el servidor responderá 403 seguro: no gastamos la petición
-        // y damos un mensaje accionable en su lugar.
-        if (!turnstileToken && config.turnstileSiteKey) {
-          renderError({ tipo: 'verificacion' });
-          return;
         }
 
         const resultado = await asesorLib.preguntarAsesor({

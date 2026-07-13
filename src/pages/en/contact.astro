@@ -363,6 +363,7 @@ const canonical = buildCanonical('/en/contact');
   const status = document.getElementById('form-status');
   const submitBtn = document.getElementById('form-submit-btn') as HTMLButtonElement | null;
   const productosField = document.getElementById('productos') as HTMLTextAreaElement | null;
+  const mensajeField = document.getElementById('mensaje') as HTMLTextAreaElement | null;
 
   function parseProductos(raw: string): Array<{ slug: string; nombre: string; cantidad: number }> {
     return raw
@@ -375,8 +376,12 @@ const canonical = buildCanonical('/en/contact');
 
   const params = new URLSearchParams(window.location.search);
   const prefill = params.getAll('producto').map(value => value.trim()).filter(Boolean);
+  const asesorResumen = params.get('asesor_resumen')?.trim() ?? '';
   if (productosField && prefill.length > 0 && !productosField.value.trim()) {
     productosField.value = prefill.join('\n');
+  }
+  if (mensajeField && asesorResumen && !mensajeField.value.trim()) {
+    mensajeField.value = `IMEIA conversation summary:\n${asesorResumen}`;
   }
 
   form?.addEventListener('submit', async e => {
