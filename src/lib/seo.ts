@@ -67,15 +67,15 @@ export function buildProductoSeo(
     imagen_principal: string | null;
     slug: string;
   },
-  locale: Locale
+  locale: Locale,
+  categoria?: string,
+  marca?: string | null
 ): SeoPageMeta {
   const segment = locale === 'en' ? 'products' : 'productos';
-  const description =
-    typeof producto.descripcion_corta === 'string' && producto.descripcion_corta.trim().length > 0
-      ? producto.descripcion_corta
-      : locale === 'es'
-        ? 'Consulta la ficha técnica y la disponibilidad de este equipo con el equipo comercial de I-ME.'
-        : 'Contact the I-ME team for the full technical sheet and current availability of this equipment.';
+  const description = [producto.nombre.trim(), (marca ?? '').trim(), categoria?.trim() ?? '']
+    .filter(Boolean)
+    .join(' - ')
+    .concat(locale === 'en' ? ' in Colombia' : ' en Colombia');
   const ogImage = producto.imagen_principal
     ? producto.imagen_principal.startsWith('http')
       ? producto.imagen_principal
@@ -249,6 +249,9 @@ export function buildProductJsonLd(
     descripcion_corta: string;
     imagen_principal: string | null;
     slug: string;
+    precio?: number | null;
+    moneda?: string | null;
+    disponible?: boolean;
   },
   locale: Locale,
   categoria?: string,
@@ -277,13 +280,18 @@ export function buildProductJsonLd(
     offers: {
       '@type': 'Offer',
       url: canonicalUrl,
-      availability: 'https://schema.org/InStock',
+      availability:
+        producto.disponible === false ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
       seller: { '@id': `${SITE}/#organization` },
       areaServed: { '@type': 'Country', name: 'Colombia' },
       businessFunction: 'http://purl.org/goodrelations/v1#Sell',
     },
   };
   if (categoria) jsonLd.category = categoria;
+  if (typeof producto.precio === 'number' && producto.precio > 0) {
+    (jsonLd.offers as Record<string, unknown>).price = producto.precio;
+    (jsonLd.offers as Record<string, unknown>).priceCurrency = producto.moneda ?? 'COP';
+  }
   return jsonLd;
 }
 

@@ -58,7 +58,7 @@ interface Props {
 const { producto } = Astro.props as Props;
 const { familia, relacionados } = Astro.props as Props;
 
-const seo = buildProductoSeo(producto, locale);
+const seo = buildProductoSeo(producto, locale, familia.nombre, producto.marca);
 
 const jsonLd = combineJsonLd(
   buildProductJsonLd(producto, locale, familia.nombre, producto.marca),
