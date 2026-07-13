@@ -38,6 +38,7 @@ export function t(locale: Locale, key: string): string {
  * entidades (productos, etc.) se mantienen igual en ambos idiomas.
  */
 const PATH_SEGMENT_PAIRS: Array<{ es: string; en: string }> = [
+  { es: 'nosotros', en: 'about' },
   { es: 'catalogo', en: 'catalog' },
   { es: 'contacto', en: 'contact' },
   { es: 'servicios', en: 'services' },

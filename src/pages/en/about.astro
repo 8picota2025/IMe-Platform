@@ -1,0 +1,169 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import {
+  buildCanonical,
+  buildPageTitle,
+  buildOrganizationJsonLd,
+  combineJsonLd,
+  getInstitutionalOgImage,
+} from '../../lib/seo';
+import { getProductos } from '../../lib/datos';
+
+const locale = 'en';
+const title = buildPageTitle('About');
+const description =
+  'Learn about I-ME International Medical Enterprise, its B2B value proposition, coverage and represented brands in Colombia.';
+const canonical = buildCanonical('/en/about');
+
+const productos = await getProductos({ pageSize: 1000 }, locale);
+const marcas = [...new Set(productos.map(producto => producto.marca?.trim()).filter(Boolean))].slice(
+  0,
+  18
+);
+
+const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
+  '@context': 'https://schema.org',
+  '@type': 'AboutPage',
+  url: canonical,
+  name: 'About | I-ME',
+  about: { '@id': 'https://i-me.com.co/#organization' },
+  inLanguage: 'en',
+});
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  locale={locale}
+  currentPath="/en/about"
+  ogImage={getInstitutionalOgImage()}
+  jsonLd={jsonLd}
+>
+  <section class="about-hero">
+    <div class="container">
+      <span class="section-tag">About us</span>
+      <h1>Medical technology for commercial teams that need to close with precision</h1>
+      <p>
+        I-ME International Medical Enterprise is a Colombian company with more than 15 years of
+        experience in distribution, installation and maintenance of biomedical equipment for the
+        healthcare sector.
+      </p>
+    </div>
+  </section>
+
+  <section class="section container about-grid">
+    <article class="about-card">
+      <h2>What we do</h2>
+      <p>
+        We combine consultative sales, technical support, maintenance and commercial follow-up for
+        hospitals, clinics, medical centers and practices that need biomedical equipment with real
+        operational backing.
+      </p>
+    </article>
+    <article class="about-card">
+      <h2>B2B value proposition</h2>
+      <ul>
+        <li>Technical catalog with real manufacturers and bilingual routes.</li>
+        <li>Technical support and installation in Colombia.</li>
+        <li>Commercial flow optimized for quote generation.</li>
+        <li>Fast response for institutional purchasing teams.</li>
+      </ul>
+    </article>
+    <article class="about-card">
+      <h2>Coverage</h2>
+      <ul>
+        <li>Colombia: nationwide coverage across the 32 departments.</li>
+        <li>Spain: COPY_CLIENTE_REVISAR.</li>
+        <li>Latam: COPY_CLIENTE_REVISAR.</li>
+      </ul>
+    </article>
+    <article class="about-card">
+      <h2>Real contact data</h2>
+      <ul>
+        <li>Phone: <a href="tel:+573138674059">+57 313 867 4059</a></li>
+        <li>Email: <a href="mailto:info@i-me.com.co">info@i-me.com.co</a></li>
+        <li>
+          WhatsApp:
+          <a href="https://wa.me/573138674059" target="_blank" rel="noopener noreferrer"
+            >+57 313 867 4059</a
+          >
+        </li>
+      </ul>
+    </article>
+  </section>
+
+  <section class="section section-off">
+    <div class="container">
+      <div class="about-section-head">
+        <span class="section-tag">Represented brands</span>
+        <h2>Manufacturers present in the current catalog</h2>
+      </div>
+      <div class="brand-cloud">
+        {marcas.map(marca => <span>{marca}</span>)}
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .about-hero {
+    padding: 140px 0 72px;
+    background:
+      radial-gradient(circle at top left, rgba(15, 76, 92, 0.14), transparent 40%),
+      linear-gradient(180deg, var(--off), transparent);
+  }
+  .about-hero h1 {
+    max-width: 860px;
+    margin: 0.6rem 0 1rem;
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 5vw, 4.8rem);
+    line-height: 0.95;
+  }
+  .about-hero p {
+    max-width: 720px;
+    color: var(--text-mid);
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+  .about-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.25rem;
+  }
+  .about-card {
+    padding: 1.4rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--white);
+  }
+  .about-card h2 {
+    margin: 0 0 0.8rem;
+    font-size: 1.05rem;
+  }
+  .about-card p,
+  .about-card li {
+    color: var(--text-mid);
+    line-height: 1.7;
+  }
+  .about-card ul {
+    margin: 0;
+    padding-left: 1.1rem;
+  }
+  .about-section-head {
+    margin-bottom: 1.25rem;
+  }
+  .brand-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+  }
+  .brand-cloud span {
+    padding: 0.7rem 1rem;
+    border-radius: 999px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+</style>
