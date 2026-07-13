@@ -20,7 +20,8 @@ const OLLAMA_CHAT_MODEL =
   (import.meta.env['PUBLIC_OLLAMA_CHAT_MODEL'] as string | undefined) ?? 'gemma4:12b';
 const OLLAMA_EMBED_MODEL =
   (import.meta.env['PUBLIC_OLLAMA_EMBED_MODEL'] as string | undefined) ?? 'mxbai-embed-large';
-export const ASESOR_CLIENT_VERSION = '2026-06-19-prod-edge-v2';
+const IMEIA_API_URL = (import.meta.env['PUBLIC_IMEIA_API_URL'] as string | undefined) ?? '';
+export const ASESOR_CLIENT_VERSION = '2026-07-13-imeia-nginx-v1';
 
 export interface MensajeAsesor {
   rol: 'usuario' | 'asesor';
@@ -127,6 +128,16 @@ export async function preguntarAsesor(params: {
     }
   }
 
+  // Usar endpoint IMEIA vía Nginx (producción sin Turnstile)
+  if (IMEIA_API_URL) {
+    try {
+      const respuesta = await preguntarAsesorImeia(params);
+      return { ok: true, respuesta };
+    } catch {
+      return { ok: false, error: { tipo: 'error' } };
+    }
+  }
+
   const supabase = getSupabaseClient();
   if (!supabase) return { ok: false, error: { tipo: 'no_disponible' } };
 
@@ -184,6 +195,113 @@ function shouldUseLocalOllama(): boolean {
   if (!OLLAMA_URL) return false;
   if (typeof window === 'undefined') return false;
   return ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
+}
+
+/** Llama al endpoint IMEIA vía Nginx (producción sin Turnstile) */
+async function preguntarAsesorImeia(params: {
+  mensaje: string;
+  historial: MensajeAsesor[];
+  locale: Locale;
+  turnstileToken?: string | undefined;
+}): Promise<RespuestaAsesor> {
+  const historial = params.historial.slice(-8).map(m => ({ rol: m.rol, contenido: m.contenido }));
+
+  const res = await fetch(`${IMEIA_API_URL}/v1/chat/completions`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'imeia',
+      messages: [
+        { role: 'system', content: buildAsesorSystemPrompt() },
+        { role: 'user', content: buildAsesorUserPromptForImeia(params, historial) },
+      ],
+      stream: false,
+      temperature: 0.3,
+      max_tokens: 1200,
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`IMEIA API error: ${res.status}`);
+  }
+
+  const data = await res.json();
+  const content = data.choices?.[0]?.message?.content ?? '';
+  const texto = content.trim();
+
+  // Parsear respuesta del formato IMEIA (texto plano con productos citados)
+  const { productos, accionHandoff } = parseImeiaResponse(texto, params.locale);
+
+  return {
+    texto,
+    productos,
+    accionHandoff,
+    modo: 'rag',
+  };
+}
+
+function buildAsesorUserPromptForImeia(
+  params: {
+    mensaje: string;
+    historial: MensajeAsesor[];
+    locale: Locale;
+  },
+  historial: { rol: 'usuario' | 'asesor'; contenido: string }[]
+): string {
+  const historialTexto = historial.length
+    ? historial.map(m => `${m.rol}: ${m.contenido}`).join('\n')
+    : '(sin historial previo)';
+
+  return `IDIOMA DEL USUARIO: ${params.locale}
+
+BASE DE CONOCIMIENTO DEL SITIO:
+${getAsesorKnowledgeBase(params.locale)}
+
+HISTORIAL RECIENTE:
+${historialTexto}
+
+MENSAJE DEL USUARIO:
+${params.mensaje}
+
+Responde SOLO en JSON válido con:
+{
+  "texto": "respuesta en español",
+  "productos_citados": ["slug-1"],
+  "accion_handoff": {"tipo": "whatsapp"|"cotizacion", "resumen": "..."} | null
+}`;
+}
+
+function parseImeiaResponse(
+  texto: string,
+  locale: Locale
+): { productos: ProductoSugerido[]; accionHandoff: AccionHandoff | null } {
+  // Buscar enlaces a productos en el texto (formato: [nombre](/es/productos/slug))
+  const productos: ProductoSugerido[] = [];
+  const urlRegex = /\[([^\]]+)\]\((\/es\/productos\/[^)]+)\)/g;
+  let match;
+  while ((match = urlRegex.exec(texto)) !== null) {
+    const slug = match[2].replace('/es/productos/', '').replace('/en/products/', '');
+    productos.push({
+      slug,
+      nombre: match[1],
+      imagen: null,
+      urlLanding: locale === 'en' ? match[2].replace('/es/', '/en/') : match[2],
+      score: 1,
+    });
+  }
+
+  // Detectar handoff a WhatsApp o cotización
+  let accionHandoff: AccionHandoff | null = null;
+  if (
+    texto.includes('WhatsApp') ||
+    texto.includes('whatsapp') ||
+    texto.includes('cotización') ||
+    texto.includes('cotizacion')
+  ) {
+    accionHandoff = { tipo: 'whatsapp', resumen: texto.slice(0, 280) };
+  }
+
+  return { productos, accionHandoff };
 }
 
 /** Limpia el contenido de la conversación persistida (no la sessionId de rate-limit/métricas). */
