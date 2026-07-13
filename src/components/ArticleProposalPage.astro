@@ -1,0 +1,531 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { buildCanonical } from '../lib/seo';
+
+interface Props {
+  locale: 'es' | 'en';
+  currentPath: string;
+}
+
+const { locale, currentPath } = Astro.props as Props;
+const isEn = locale === 'en';
+const canonical = buildCanonical(currentPath);
+const turnstileSiteKey = (
+  (import.meta.env['PUBLIC_TURNSTILE_SITE_KEY'] as string | undefined) ??
+  ''
+).trim();
+const supabaseUrl = ((import.meta.env['PUBLIC_SUPABASE_URL'] as string | undefined) ?? '').trim();
+const supabaseAnonKey = (
+  (import.meta.env['PUBLIC_SUPABASE_ANON_KEY'] as string | undefined) ??
+  ''
+).trim();
+
+const copy = isEn
+  ? {
+      title: 'Submit an article proposal',
+      description:
+        'Manufacturers and clients can propose editorial content for I-ME Knowledge. Every submission is reviewed before publication.',
+      kicker: 'Editorial contributions',
+      lead:
+        'We accept technical buying guides, use cases, maintenance lessons and manufacturer-backed educational content. We do not publish direct clinical diagnosis, unsafe claims or unverified marketing copy.',
+      policyTitle: 'Editorial policy',
+      policyItems: [
+        'Content is reviewed by the I-ME team before publication.',
+        'Only technical, educational and commercially responsible content is accepted.',
+        'No clinical diagnosis, prescriptions or misleading claims.',
+        'If approved, the content may be edited for clarity, style and SEO.',
+      ],
+      previewTitle: 'Simple preview',
+      submitLabel: 'Send proposal',
+      sendingLabel: 'Sending…',
+      success: 'Proposal received. It is now pending editorial review.',
+      error: 'We could not send the proposal. Please review the form and try again.',
+      securityError: 'Security verification is required before sending.',
+      fields: {
+        title: 'Proposed title',
+        summary: 'Summary',
+        body: 'Article body in Markdown',
+        authorName: 'Author name',
+        authorEmail: 'Author email',
+        authorType: 'Author type',
+        authorCompany: 'Company',
+        authorNit: 'Tax ID / NIT (optional)',
+        consent:
+          'I authorize the processing of my personal data according to the privacy policy and I confirm that this content can be reviewed editorially by I-ME.',
+      },
+      authorTypes: {
+        client: 'Client',
+        manufacturer: 'Manufacturer',
+      },
+      contactHref: '/en/contact',
+      policyHref: '/en/legal/privacy',
+      knowledgeHref: '/en/knowledge',
+    }
+  : {
+      title: 'Proponer un artículo',
+      description:
+        'Fabricantes y clientes pueden proponer contenido editorial para Conocimiento de I-ME. Toda propuesta pasa por revisión antes de publicarse.',
+      kicker: 'Contribuciones editoriales',
+      lead:
+        'Aceptamos guías de compra técnica, casos de uso, aprendizajes de mantenimiento y contenido educativo respaldado por fabricante. No publicamos diagnóstico clínico, promesas inseguras ni marketing no verificable.',
+      policyTitle: 'Política editorial',
+      policyItems: [
+        'Todo contenido pasa por revisión del equipo I-ME antes de publicarse.',
+        'Solo se acepta contenido técnico, educativo y comercialmente responsable.',
+        'No se admite diagnóstico clínico, prescripción ni claims engañosos.',
+        'Si se aprueba, el contenido puede editarse por claridad, estilo y SEO.',
+      ],
+      previewTitle: 'Vista previa simple',
+      submitLabel: 'Enviar propuesta',
+      sendingLabel: 'Enviando…',
+      success: 'Propuesta recibida. Queda pendiente de revisión editorial.',
+      error: 'No se pudo enviar la propuesta. Revisa el formulario e inténtalo de nuevo.',
+      securityError: 'La verificación de seguridad es obligatoria antes del envío.',
+      fields: {
+        title: 'Título propuesto',
+        summary: 'Resumen',
+        body: 'Cuerpo del artículo en Markdown',
+        authorName: 'Nombre del autor',
+        authorEmail: 'Correo del autor',
+        authorType: 'Tipo de autor',
+        authorCompany: 'Empresa',
+        authorNit: 'NIT (opcional)',
+        consent:
+          'Autorizo el tratamiento de mis datos personales según la política de privacidad y confirmo que este contenido puede ser revisado editorialmente por I-ME.',
+      },
+      authorTypes: {
+        client: 'Cliente',
+        manufacturer: 'Fabricante',
+      },
+      contactHref: '/es/contacto',
+      policyHref: '/es/legal/privacidad',
+      knowledgeHref: '/es/conocimiento',
+    };
+
+const title = `${copy.title} | I-ME`;
+const clientConfig = JSON.stringify({
+  copy,
+  supabaseUrl,
+  supabaseAnonKey,
+  turnstileSiteKey,
+});
+---
+
+<Layout
+  title={title}
+  description={copy.description}
+  canonical={canonical}
+  locale={locale}
+  currentPath={currentPath}
+>
+  <section class="proposal-page">
+    <div class="container proposal-grid">
+      <div class="proposal-copy">
+        <span class="section-tag">{copy.kicker}</span>
+        <h1>{copy.title}</h1>
+        <p class="proposal-lead">{copy.lead}</p>
+
+        <div class="proposal-panel">
+          <h2>{copy.policyTitle}</h2>
+          <ul>
+            {copy.policyItems.map(item => <li>{item}</li>)}
+          </ul>
+          <div class="proposal-copy__actions">
+            <a class="btn btn-secondary" href={copy.knowledgeHref}>
+              {isEn ? 'Back to knowledge' : 'Volver a conocimiento'}
+            </a>
+            <a class="btn btn-secondary" href={copy.contactHref}>
+              {isEn ? 'Contact editorial team' : 'Contactar al equipo editorial'}
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="proposal-panel">
+        <form
+          id="article-proposal-form"
+          class="proposal-form"
+          novalidate
+          data-proposal-config={clientConfig}
+        >
+          <div class="proposal-field">
+            <label for="proposal-title">{copy.fields.title}</label>
+            <input id="proposal-title" name="titulo" type="text" minlength="12" maxlength="180" required />
+          </div>
+
+          <div class="proposal-field">
+            <label for="proposal-summary">{copy.fields.summary}</label>
+            <textarea
+              id="proposal-summary"
+              name="resumen"
+              rows="4"
+              minlength="40"
+              maxlength="600"
+              required
+            ></textarea>
+          </div>
+
+          <div class="proposal-field">
+            <label for="proposal-body">{copy.fields.body}</label>
+            <textarea
+              id="proposal-body"
+              name="cuerpo_md"
+              rows="12"
+              minlength="300"
+              maxlength="16000"
+              required
+            ></textarea>
+          </div>
+
+          <div class="proposal-preview">
+            <strong>{copy.previewTitle}</strong>
+            <div id="proposal-preview-body" class="proposal-preview__body"></div>
+          </div>
+
+          <div class="proposal-grid-fields">
+            <div class="proposal-field">
+              <label for="proposal-author-name">{copy.fields.authorName}</label>
+              <input id="proposal-author-name" name="autor_nombre" type="text" maxlength="160" required />
+            </div>
+            <div class="proposal-field">
+              <label for="proposal-author-email">{copy.fields.authorEmail}</label>
+              <input id="proposal-author-email" name="autor_email" type="email" maxlength="200" required />
+            </div>
+          </div>
+
+          <div class="proposal-grid-fields">
+            <div class="proposal-field">
+              <label for="proposal-author-type">{copy.fields.authorType}</label>
+              <select id="proposal-author-type" name="autor_tipo" required>
+                <option value="cliente">{copy.authorTypes.client}</option>
+                <option value="fabricante">{copy.authorTypes.manufacturer}</option>
+              </select>
+            </div>
+            <div class="proposal-field">
+              <label for="proposal-author-company">{copy.fields.authorCompany}</label>
+              <input id="proposal-author-company" name="autor_empresa" type="text" maxlength="180" />
+            </div>
+          </div>
+
+          <div class="proposal-field">
+            <label for="proposal-author-nit">{copy.fields.authorNit}</label>
+            <input id="proposal-author-nit" name="autor_nit" type="text" maxlength="40" />
+          </div>
+
+          <label class="proposal-checkbox">
+            <input id="proposal-consent" name="consentimiento_datos" type="checkbox" required />
+            <span>
+              {copy.fields.consent}
+              <a href={copy.policyHref} target="_blank" rel="noreferrer noopener">
+                {isEn ? 'Privacy policy' : 'Política de privacidad'}
+              </a>
+            </span>
+          </label>
+
+          <div id="proposal-turnstile" class="proposal-turnstile" data-sitekey={turnstileSiteKey}></div>
+          <p id="proposal-status" class="proposal-status" role="status" aria-live="polite"></p>
+
+          <button id="proposal-submit" class="btn btn-primary" type="submit">
+            {copy.submitLabel}
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    import { renderMarkdown } from '../lib/markdown';
+
+    interface ProposalCopy {
+      submitLabel: string;
+      sendingLabel: string;
+      success: string;
+      error: string;
+      securityError: string;
+    }
+
+    interface TurnstileApi {
+      render: (container: string | HTMLElement, options: Record<string, unknown>) => string;
+      reset: (id?: string) => void;
+    }
+
+    interface ProposalConfig {
+      copy: ProposalCopy;
+      supabaseUrl: string;
+      supabaseAnonKey: string;
+      turnstileSiteKey: string;
+    }
+
+    let turnstileWidgetId: string | null = null;
+    let turnstileToken: string | undefined;
+    let turnstileLoaded: Promise<void> | null = null;
+
+    function getConfig(form: HTMLFormElement): ProposalConfig {
+      const raw = form.dataset['proposalConfig'] ?? '{}';
+      return JSON.parse(raw) as ProposalConfig;
+    }
+
+    function loadTurnstile(turnstileSiteKey: string): Promise<void> {
+      if (!turnstileSiteKey) return Promise.resolve();
+      const turnstile = (window as Window & { turnstile?: TurnstileApi }).turnstile;
+      if (turnstile) return Promise.resolve();
+      if (turnstileLoaded) return turnstileLoaded;
+
+      turnstileLoaded = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+        script.async = true;
+        script.defer = true;
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error('turnstile load error'));
+        document.head.appendChild(script);
+      });
+
+      return turnstileLoaded;
+    }
+
+    async function ensureTurnstile(turnstileSiteKey: string): Promise<string | undefined> {
+      if (!turnstileSiteKey) return undefined;
+      const container = document.getElementById('proposal-turnstile');
+      if (!container) return undefined;
+
+      await loadTurnstile(turnstileSiteKey);
+      const turnstile = (window as Window & { turnstile?: TurnstileApi }).turnstile;
+      if (!turnstile) return undefined;
+
+      if (!turnstileWidgetId) {
+        turnstileWidgetId = turnstile.render(container, {
+          sitekey: turnstileSiteKey,
+          size: 'flexible',
+          callback: (token: string) => {
+            turnstileToken = token;
+          },
+          'expired-callback': () => {
+            turnstileToken = undefined;
+          },
+          'error-callback': () => {
+            turnstileToken = undefined;
+          },
+        });
+      }
+
+      return turnstileToken;
+    }
+
+    function initArticleProposalPage() {
+      const form = document.getElementById('article-proposal-form') as HTMLFormElement | null;
+      const body = document.getElementById('proposal-body') as HTMLTextAreaElement | null;
+      const preview = document.getElementById('proposal-preview-body');
+      const status = document.getElementById('proposal-status');
+      const submit = document.getElementById('proposal-submit') as HTMLButtonElement | null;
+
+      if (!form || !body || !preview || !status || !submit) return;
+      const config = getConfig(form);
+
+      const renderPreview = () => {
+        preview.innerHTML = renderMarkdown(body.value || '');
+      };
+
+      body.addEventListener('input', renderPreview);
+      renderPreview();
+
+      void ensureTurnstile(config.turnstileSiteKey);
+
+      form.addEventListener('submit', async event => {
+        event.preventDefault();
+        status.textContent = '';
+
+        if (!config.supabaseUrl || !config.supabaseAnonKey) {
+          status.textContent = config.copy.error;
+          return;
+        }
+
+        if (!form.reportValidity()) return;
+
+        submit.disabled = true;
+        submit.textContent = config.copy.sendingLabel;
+
+        try {
+          const token = await ensureTurnstile(config.turnstileSiteKey);
+          if (config.turnstileSiteKey && !token) {
+            status.textContent = config.copy.securityError;
+            return;
+          }
+
+          const data = new FormData(form);
+          const payload = {
+            titulo: String(data.get('titulo') ?? ''),
+            resumen: String(data.get('resumen') ?? ''),
+            cuerpo_md: String(data.get('cuerpo_md') ?? ''),
+            autor_nombre: String(data.get('autor_nombre') ?? ''),
+            autor_email: String(data.get('autor_email') ?? ''),
+            autor_tipo: String(data.get('autor_tipo') ?? ''),
+            autor_empresa: String(data.get('autor_empresa') ?? ''),
+            autor_nit: String(data.get('autor_nit') ?? ''),
+            consentimiento_datos: data.get('consentimiento_datos') === 'on',
+            turnstileToken: token,
+          };
+
+          const response = await fetch(`${config.supabaseUrl}/functions/v1/proponer-articulo`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              apikey: config.supabaseAnonKey,
+              Authorization: `Bearer ${config.supabaseAnonKey}`,
+            },
+            body: JSON.stringify(payload),
+          });
+
+          const json = (await response.json().catch(() => null)) as
+            | { ok?: boolean; error?: string }
+            | null;
+
+          if (!response.ok || !json?.ok) {
+            status.textContent = json?.error || config.copy.error;
+            if (turnstileWidgetId) {
+              (window as Window & { turnstile?: TurnstileApi }).turnstile?.reset(turnstileWidgetId);
+              turnstileToken = undefined;
+            }
+            return;
+          }
+
+          form.reset();
+          renderPreview();
+          status.textContent = config.copy.success;
+          if (turnstileWidgetId) {
+            (window as Window & { turnstile?: TurnstileApi }).turnstile?.reset(turnstileWidgetId);
+            turnstileToken = undefined;
+          }
+        } catch (error) {
+          console.error('[proposal] submit error', error);
+          status.textContent = config.copy.error;
+        } finally {
+          submit.disabled = false;
+          submit.textContent = config.copy.submitLabel;
+        }
+      });
+    }
+
+    document.addEventListener('astro:page-load', initArticleProposalPage);
+    initArticleProposalPage();
+  </script>
+</Layout>
+
+<style>
+  .proposal-page {
+    padding: 128px 0 var(--space-3xl);
+    background: linear-gradient(180deg, var(--off), transparent 32%);
+  }
+  .proposal-grid {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .proposal-copy h1 {
+    margin: 0.5rem 0 1rem;
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 5vw, 4rem);
+    line-height: 0.95;
+    color: var(--ink);
+  }
+  .proposal-lead {
+    max-width: 64ch;
+    color: var(--text-mid);
+    line-height: 1.75;
+  }
+  .proposal-panel {
+    background: var(--card);
+    border: 1px solid color-mix(in srgb, var(--line) 90%, transparent);
+    border-radius: 1.5rem;
+    box-shadow: 0 16px 44px rgba(20, 38, 64, 0.08);
+    padding: 1.25rem;
+  }
+  .proposal-panel h2 {
+    margin-top: 0;
+  }
+  .proposal-panel ul {
+    margin: 0;
+    padding-left: 1.15rem;
+    color: var(--text-mid);
+    line-height: 1.7;
+  }
+  .proposal-copy__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+  }
+  .proposal-form {
+    display: grid;
+    gap: 1rem;
+  }
+  .proposal-grid-fields {
+    display: grid;
+    gap: 1rem;
+  }
+  .proposal-field {
+    display: grid;
+    gap: 0.45rem;
+  }
+  .proposal-field label,
+  .proposal-preview strong {
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .proposal-field input,
+  .proposal-field textarea,
+  .proposal-field select {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    background: var(--paper);
+    color: var(--ink);
+    padding: 0.85rem 1rem;
+    font: inherit;
+  }
+  .proposal-field textarea {
+    resize: vertical;
+    min-height: 9rem;
+  }
+  .proposal-checkbox {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.75rem;
+    align-items: start;
+    color: var(--text-mid);
+    line-height: 1.6;
+  }
+  .proposal-checkbox input {
+    margin-top: 0.25rem;
+  }
+  .proposal-preview {
+    display: grid;
+    gap: 0.6rem;
+  }
+  .proposal-preview__body {
+    min-height: 10rem;
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    background: color-mix(in srgb, var(--off) 72%, white);
+    padding: 1rem;
+  }
+  .proposal-turnstile {
+    min-height: 74px;
+  }
+  .proposal-turnstile:empty {
+    min-height: 0;
+  }
+  .proposal-status {
+    min-height: 1.5rem;
+    margin: 0;
+    color: var(--text-mid);
+  }
+  @media (min-width: 900px) {
+    .proposal-grid {
+      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+      align-items: start;
+    }
+    .proposal-grid-fields {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>
