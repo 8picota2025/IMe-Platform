@@ -26,6 +26,12 @@ export default defineConfig({
         const url = new URL(page)
         return !(
           url.pathname === '/admin/' ||
+          url.pathname === '/es/carrito/' ||
+          url.pathname === '/es/checkout/' ||
+          url.pathname === '/es/cuenta/' ||
+          url.pathname === '/en/cart/' ||
+          url.pathname === '/en/checkout/' ||
+          url.pathname === '/en/account/' ||
           /^\/(es\/pago|en\/payment)\//.test(url.pathname)
         )
       },

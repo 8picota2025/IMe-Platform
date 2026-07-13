@@ -1,0 +1,86 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { buildCanonical, buildPageTitle } from '../../../lib/seo';
+import { getLegalPages } from '../../../lib/legal';
+
+const locale = 'en';
+const currentPath = '/en/legal/';
+const pages = getLegalPages(locale);
+---
+
+<Layout
+  title={buildPageTitle('Legal documents')}
+  description="Public legal documents and policies of I-ME covering privacy, data authorization, terms, cookies, warranties, shipping and returns."
+  canonical={buildCanonical(currentPath)}
+  locale={locale}
+  currentPath={currentPath}
+>
+  <section class="legal-hub">
+    <div class="container legal-hub__inner">
+      <span class="legal-hub__badge">Legal</span>
+      <h1>Legal documents</h1>
+      <p class="legal-hub__lead">
+        Access the published policies and conditions of I-ME. Each document keeps its own version
+        and update date.
+      </p>
+
+      <div class="legal-hub__grid">
+        {
+          pages.map(page => (
+            <a class="legal-hub__card" href={`/en/legal/${page.slug}/`}>
+              <strong>{page.title}</strong>
+              <span>{page.description}</span>
+              <small>Updated: {page.updated}</small>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .legal-hub {
+    padding-block: 130px var(--space-2xl);
+    background: var(--white);
+  }
+  .legal-hub__inner {
+    display: grid;
+    gap: 1rem;
+  }
+  .legal-hub__badge {
+    display: inline-block;
+    width: fit-content;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--off);
+    color: var(--t900);
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+  .legal-hub__lead {
+    max-width: 760px;
+    color: var(--text-mid);
+  }
+  .legal-hub__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+  .legal-hub__card {
+    display: grid;
+    gap: 0.6rem;
+    padding: 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    background: var(--card);
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 12px 32px rgba(20, 38, 64, 0.08);
+  }
+  .legal-hub__card span,
+  .legal-hub__card small {
+    color: var(--text-mid);
+  }
+</style>

@@ -30,7 +30,7 @@ async function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit): P
     });
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
-      throw new Error(`Supabase request timed out after ${timeoutMs}ms`);
+      throw new Error(`Supabase request timed out after ${timeoutMs}ms`, { cause: error });
     }
     throw error;
   } finally {
