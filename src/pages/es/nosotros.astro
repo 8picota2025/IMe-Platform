@@ -58,23 +58,23 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
     <section class="section section-origin" aria-labelledby="historia-h2">
       <div class="container">
         <div class="story-layout">
-          <div class="story-image fade-in">
-            <div class="image-wrapper">
-              <img
-                src="/assets/img/proyectos-inicio-a-fin-biomedicos.webp"
-                alt="Proyectos biomédicos de inicio a fin - I-ME construcción healthcare"
-                width="1400"
-                height="787"
-                loading="eager"
-                decoding="async"
-              />
-            </div>
-          </div>
           <div class="story-text fade-in">
             <div class="story-badge">El origen</div>
             <h2 id="historia-h2" class="story-title">
               Una historia que comenzó dentro de un hospital
             </h2>
+            <div class="story-image fade-in d1">
+              <div class="image-wrapper">
+                <img
+                  src="/assets/img/proyectos-inicio-a-fin-biomedicos.webp"
+                  alt="Proyectos biomédicos de inicio a fin - I-ME construcción healthcare"
+                  width="1400"
+                  height="787"
+                  loading="eager"
+                  decoding="async"
+                />
+              </div>
+            </div>
             <div class="story-body">
               <p>
                 I-ME nació de la visión y experiencia de un grupo de empresarios con una sólida
@@ -100,23 +100,23 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
     <section class="section section-growth" aria-labelledby="crecimiento-h2">
       <div class="container">
         <div class="story-layout story-layout-reverse">
-          <div class="story-image fade-in">
-            <div class="image-wrapper">
-              <img
-                src="/assets/img/atendemos-cadena-valor-distribucion.webp"
-                alt="Atendemos cadena valor - Distribución equipos biomédicos Colombia"
-                width="1200"
-                height="800"
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-          </div>
           <div class="story-text fade-in">
             <div class="story-badge story-badge-green">El crecimiento</div>
             <h2 id="crecimiento-h2" class="story-title">
               De la confianza de casas matrices a un portafolio global
             </h2>
+            <div class="story-image fade-in d1">
+              <div class="image-wrapper">
+                <img
+                  src="/assets/img/atendemos-cadena-valor-distribucion.webp"
+                  alt="Atendemos cadena valor - Distribución equipos biomédicos Colombia"
+                  width="1200"
+                  height="800"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+            </div>
             <div class="story-body">
               <p>
                 Derivado de ese compromiso, profesionalismo y ética empresarial, diversas casas
@@ -328,27 +328,39 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
     margin: 0;
   }
 
-  /* ===== STORY SECTIONS ===== */
+  /* ===== STORY SECTIONS (Periódico/Magazine) ===== */
   .story-layout {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-lg);
-    align-items: center;
+    display: block;
+  }
+
+  .story-text {
+    display: flow-root;
+  }
+
+  .story-image {
+    float: right;
+    width: 100%;
+    margin-bottom: var(--space-lg);
   }
 
   @media (min-width: 768px) {
-    .story-layout {
-      grid-template-columns: 1fr 1fr;
-      gap: var(--space-2xl);
+    .story-image {
+      width: 380px;
+      margin-left: var(--space-lg);
+      margin-bottom: var(--space-md);
     }
   }
 
-  .story-layout-reverse {
-    direction: rtl;
+  .story-layout-reverse .story-image {
+    float: left;
+    margin-left: 0;
+    margin-right: var(--space-lg);
   }
 
-  .story-layout-reverse .story-text {
-    direction: ltr;
+  @media (max-width: 767px) {
+    .story-layout-reverse .story-image {
+      margin-right: 0;
+    }
   }
 
   .image-wrapper {
