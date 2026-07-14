@@ -96,7 +96,7 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildServiciosJsonLd(loc
     <!-- Servicio 02 — Soporte -->
     <section class="section section-off" id="soporte" aria-labelledby="svc2-h2">
       <div class="container">
-        <div class="about-grid" style="direction:rtl">
+        <div class="about-grid about-grid--reverse">
           <div class="about-imgs fade-in">
             <div class="about-img-main">
               <img
@@ -109,7 +109,7 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildServiciosJsonLd(loc
               />
             </div>
           </div>
-          <div class="about-text fade-in d2" style="direction:ltr">
+          <div class="about-text fade-in d2">
             <div class="s-label">Servicio 02</div>
             <h2 id="svc2-h2" class="s-title">Soporte técnico certificado</h2>
             <p>
@@ -188,7 +188,7 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildServiciosJsonLd(loc
     <!-- Servicio 04 — Asesoría -->
     <section class="section section-off" id="asesoria" aria-labelledby="svc4-h2">
       <div class="container">
-        <div class="about-grid" style="direction:rtl">
+        <div class="about-grid about-grid--reverse">
           <div class="about-imgs fade-in">
             <div class="about-img-main">
               <img
@@ -201,7 +201,7 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildServiciosJsonLd(loc
               />
             </div>
           </div>
-          <div class="about-text fade-in d2" style="direction:ltr">
+          <div class="about-text fade-in d2">
             <div class="s-label">Servicio 04</div>
             <h2 id="svc4-h2" class="s-title">Asesoría biomédica integral</h2>
             <p>
@@ -309,6 +309,50 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildServiciosJsonLd(loc
     </section>
   </div>
 </Layout>
+
+<style>
+  /* Layout tipo prensa: la imagen flota junto al texto en vez del grid
+     2 columnas anterior (que usaba un hack de direction:rtl para
+     alternar). Scoped a esta página: no afecta a #quienes-somos en
+     index.astro, que reutiliza .about-grid con un diseño distinto
+     (imagen de fondo + tarjeta de cristal). */
+  .site-faithful .about-grid {
+    display: block;
+  }
+
+  .site-faithful .about-imgs {
+    width: 100%;
+    margin: 0 0 24px;
+  }
+
+  @media (min-width: 700px) {
+    .site-faithful .about-imgs {
+      float: right;
+      width: 380px;
+      margin: 4px 0 20px 32px;
+    }
+
+    .site-faithful .about-grid--reverse .about-imgs {
+      float: left;
+      margin: 4px 32px 20px 0;
+    }
+  }
+
+  .site-faithful .about-img-main {
+    height: auto;
+    aspect-ratio: 16 / 10;
+  }
+
+  @media (min-width: 700px) {
+    .site-faithful .about-img-main {
+      aspect-ratio: 4 / 3;
+    }
+  }
+
+  .site-faithful .svc-features {
+    clear: both;
+  }
+</style>
 
 <script>
   function initServicios() {

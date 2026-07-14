@@ -94,7 +94,7 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildServiciosJsonLd(loc
     <!-- Service 02 — Support -->
     <section class="section section-off" id="soporte" aria-labelledby="svc2-h2">
       <div class="container">
-        <div class="about-grid" style="direction:rtl">
+        <div class="about-grid about-grid--reverse">
           <div class="about-imgs fade-in">
             <div class="about-img-main">
               <img
@@ -107,7 +107,7 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildServiciosJsonLd(loc
               />
             </div>
           </div>
-          <div class="about-text fade-in d2" style="direction:ltr">
+          <div class="about-text fade-in d2">
             <div class="s-label">Service 02</div>
             <h2 id="svc2-h2" class="s-title">Certified technical support</h2>
             <p>
@@ -184,7 +184,7 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildServiciosJsonLd(loc
     <!-- Service 04 — Advisory -->
     <section class="section section-off" id="asesoria" aria-labelledby="svc4-h2">
       <div class="container">
-        <div class="about-grid" style="direction:rtl">
+        <div class="about-grid about-grid--reverse">
           <div class="about-imgs fade-in">
             <div class="about-img-main">
               <img
@@ -197,7 +197,7 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildServiciosJsonLd(loc
               />
             </div>
           </div>
-          <div class="about-text fade-in d2" style="direction:ltr">
+          <div class="about-text fade-in d2">
             <div class="s-label">Service 04</div>
             <h2 id="svc4-h2" class="s-title">Integral biomedical advisory</h2>
             <p>
@@ -305,6 +305,50 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildServiciosJsonLd(loc
     </section>
   </div>
 </Layout>
+
+<style>
+  /* Press-style layout: image floats next to the text instead of the
+     previous 2-column grid (which used a direction:rtl hack to
+     alternate). Scoped to this page: does not affect #quienes-somos on
+     index.astro, which reuses .about-grid with a different design
+     (background image + glass card). */
+  .site-faithful .about-grid {
+    display: block;
+  }
+
+  .site-faithful .about-imgs {
+    width: 100%;
+    margin: 0 0 24px;
+  }
+
+  @media (min-width: 700px) {
+    .site-faithful .about-imgs {
+      float: right;
+      width: 380px;
+      margin: 4px 0 20px 32px;
+    }
+
+    .site-faithful .about-grid--reverse .about-imgs {
+      float: left;
+      margin: 4px 32px 20px 0;
+    }
+  }
+
+  .site-faithful .about-img-main {
+    height: auto;
+    aspect-ratio: 16 / 10;
+  }
+
+  @media (min-width: 700px) {
+    .site-faithful .about-img-main {
+      aspect-ratio: 4 / 3;
+    }
+  }
+
+  .site-faithful .svc-features {
+    clear: both;
+  }
+</style>
 
 <script>
   function initServices() {

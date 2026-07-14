@@ -89,7 +89,7 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
     <!-- Story: growth -->
     <section class="section section-off" aria-labelledby="crecimiento-h2">
       <div class="container">
-        <div class="about-grid" style="direction:rtl">
+        <div class="about-grid about-grid--reverse">
           <div class="about-imgs fade-in">
             <div class="about-img-main">
               <img
@@ -102,7 +102,7 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
               />
             </div>
           </div>
-          <div class="about-text fade-in d2" style="direction:ltr">
+          <div class="about-text fade-in d2">
             <div class="s-label">The growth</div>
             <h2 id="crecimiento-h2" class="s-title">
               From the trust of global manufacturers to a worldwide portfolio
@@ -227,6 +227,44 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
 </Layout>
 
 <style>
+  /* Press-style layout: image floats next to the text instead of the
+     previous 2-column grid (which used a direction:rtl hack to
+     alternate). Scoped to this page: does not affect #quienes-somos on
+     index.astro, which reuses .about-grid with a different design
+     (background image + glass card). */
+  .site-faithful .about-grid {
+    display: block;
+  }
+
+  .site-faithful .about-imgs {
+    width: 100%;
+    margin: 0 0 24px;
+  }
+
+  @media (min-width: 700px) {
+    .site-faithful .about-imgs {
+      float: right;
+      width: 380px;
+      margin: 4px 0 20px 32px;
+    }
+
+    .site-faithful .about-grid--reverse .about-imgs {
+      float: left;
+      margin: 4px 32px 20px 0;
+    }
+  }
+
+  .site-faithful .about-img-main {
+    height: auto;
+    aspect-ratio: 16 / 10;
+  }
+
+  @media (min-width: 700px) {
+    .site-faithful .about-img-main {
+      aspect-ratio: 4 / 3;
+    }
+  }
+
   .site-faithful .cobertura-stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
