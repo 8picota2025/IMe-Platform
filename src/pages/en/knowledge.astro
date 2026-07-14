@@ -137,20 +137,26 @@ const jsonLd = combineJsonLd(
 
     <section class="section section-off" aria-label="Submit article">
       <div class="container">
-        <div class="cta-block fade-in">
-          <div class="s-label s-label-white">Get involved</div>
-          <h2 class="cta-title">Do you have a biomedical topic to share?</h2>
-          <p class="cta-sub">
-            Submit an article for the knowledge center or contact us to resolve technical questions
-            about biomedical equipment.
-          </p>
-          <div class="cta-btns">
-            <a href="/en/knowledge/publish" class="btn btn-green">
-              <i class="fas fa-pen" aria-hidden="true"></i> Submit article
-            </a>
-            <a href="/en/contact" class="btn btn-outline-white"
-              >{t(locale, 'conocimiento.cta_contacto')}</a
-            >
+        <div
+          class="cta-block fade-in"
+          style="background-image: url('/assets/img/asesoramiento-integral-biomedico.webp'); background-size: cover; background-position: center; position: relative;"
+        >
+          <div style="position: absolute; inset: 0; background: rgba(15, 76, 92, 0.75);"></div>
+          <div style="position: relative; z-index: 1;">
+            <div class="s-label s-label-white">Get involved</div>
+            <h2 class="cta-title">Do you have a biomedical topic to share?</h2>
+            <p class="cta-sub">
+              Submit an article for the knowledge center or contact us to resolve technical
+              questions about biomedical equipment.
+            </p>
+            <div class="cta-btns">
+              <a href="/en/knowledge/publish" class="btn btn-green">
+                <i class="fas fa-pen" aria-hidden="true"></i> Submit article
+              </a>
+              <a href="/en/contact" class="btn btn-outline-white"
+                >{t(locale, 'conocimiento.cta_contacto')}</a
+              >
+            </div>
           </div>
         </div>
       </div>

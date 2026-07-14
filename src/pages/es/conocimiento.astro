@@ -137,20 +137,26 @@ const jsonLd = combineJsonLd(
 
     <section class="section section-off" aria-label="Proponer artículo">
       <div class="container">
-        <div class="cta-block fade-in">
-          <div class="s-label s-label-white">Participa</div>
-          <h2 class="cta-title">¿Tiene un tema biomédico que aportar?</h2>
-          <p class="cta-sub">
-            Proponga un artículo para el centro de conocimiento o contáctenos para resolver dudas
-            técnicas sobre equipamiento biomédico.
-          </p>
-          <div class="cta-btns">
-            <a href="/es/conocimiento/publicar" class="btn btn-green">
-              <i class="fas fa-pen" aria-hidden="true"></i> Proponer artículo
-            </a>
-            <a href="/es/contacto" class="btn btn-outline-white"
-              >{t(locale, 'conocimiento.cta_contacto')}</a
-            >
+        <div
+          class="cta-block fade-in"
+          style="background-image: url('/assets/img/asesoramiento-integral-biomedico.webp'); background-size: cover; background-position: center; position: relative;"
+        >
+          <div style="position: absolute; inset: 0; background: rgba(15, 76, 92, 0.75);"></div>
+          <div style="position: relative; z-index: 1;">
+            <div class="s-label s-label-white">Participa</div>
+            <h2 class="cta-title">¿Tiene un tema biomédico que aportar?</h2>
+            <p class="cta-sub">
+              Proponga un artículo para el centro de conocimiento o contáctenos para resolver dudas
+              técnicas sobre equipamiento biomédico.
+            </p>
+            <div class="cta-btns">
+              <a href="/es/conocimiento/publicar" class="btn btn-green">
+                <i class="fas fa-pen" aria-hidden="true"></i> Proponer artículo
+              </a>
+              <a href="/es/contacto" class="btn btn-outline-white"
+                >{t(locale, 'conocimiento.cta_contacto')}</a
+              >
+            </div>
           </div>
         </div>
       </div>
