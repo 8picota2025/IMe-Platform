@@ -22,6 +22,7 @@ jobs:
   deploy:
     name: Build · Deploy Producción
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -54,6 +55,7 @@ jobs:
           password: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
           local-dir: ./dist/
           server-dir: ${{ secrets.HOSTINGER_PROD_PATH }}
+          timeout: 120000
           # El estado incremental anterior (.ftp-deploy-sync-state.json) quedó
           # desincronizado con el servidor (deploys cancelados a medias), lo que
           # provocó que se omitieran páginas de producto ya reconstruidas.
