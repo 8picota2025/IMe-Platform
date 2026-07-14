@@ -35,28 +35,31 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
   jsonLd={jsonLd}
 >
   <div class="site-faithful">
-    <header class="page-hero" aria-labelledby="about-h1">
+    <!-- Hero mejorado -->
+    <header class="hero-nosotros" aria-labelledby="about-h1">
       <div class="container">
         <nav class="breadcrumb" aria-label="Ruta">
           <a href="/es/">Inicio</a><span class="sep">/</span><span aria-current="page"
             >Nosotros</span
           >
         </nav>
-        <h1 id="about-h1">Nuestra historia</h1>
-        <p class="ph-sub">
-          De los grandes proyectos de construcción en Centroamérica a convertirnos en un aliado
-          confiable del sector salud, con más de 15 años representando fabricantes internacionales
-          de equipos médicos.
-        </p>
+        <div class="hero-content">
+          <h1 id="about-h1" class="hero-title">Nuestra historia</h1>
+          <p class="hero-subtitle">
+            De grandes proyectos de construcción en Centroamérica a ser un aliado confiable del
+            sector salud: más de 15 años representando los mejores fabricantes internacionales de
+            equipos médicos.
+          </p>
+        </div>
       </div>
     </header>
 
-    <!-- Historia: origen -->
-    <section class="section" aria-labelledby="historia-h2">
+    <!-- Sección: El Origen -->
+    <section class="section section-origin" aria-labelledby="historia-h2">
       <div class="container">
-        <div class="about-grid">
-          <div class="about-imgs fade-in">
-            <div class="about-img-main">
+        <div class="story-layout">
+          <div class="story-image fade-in">
+            <div class="image-wrapper">
               <img
                 src="/assets/img/proyectos-inicio-a-fin-biomedicos.webp"
                 alt="Proyectos biomédicos de inicio a fin - I-ME construcción healthcare"
@@ -67,34 +70,38 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
               />
             </div>
           </div>
-          <div class="about-text fade-in d2">
-            <div class="s-label">El origen</div>
-            <h2 id="historia-h2" class="s-title">Una historia que comenzó dentro de un hospital</h2>
-            <p>
-              I-ME nació de la visión y experiencia de un grupo de empresarios con una sólida
-              trayectoria en negocios internacionales, que durante más de 20 años lideraron
-              importantes empresas constructoras en Centroamérica, participando en proyectos de gran
-              impacto para la región.
-            </p>
-            <p>
-              Nuestro vínculo con el sector salud comenzó precisamente con la remodelación de un
-              hospital. Gracias a la excelencia en la ejecución del proyecto, el fondo de inversión
-              propietario confió a nuestros fundadores la administración de la institución: una
-              experiencia que nos permitió desarrollar un profundo conocimiento del entorno
-              hospitalario y construir relaciones de confianza con reconocidos fabricantes
-              internacionales de equipos médicos.
-            </p>
+          <div class="story-text fade-in">
+            <div class="story-badge">El origen</div>
+            <h2 id="historia-h2" class="story-title">
+              Una historia que comenzó dentro de un hospital
+            </h2>
+            <div class="story-body">
+              <p>
+                I-ME nació de la visión y experiencia de un grupo de empresarios con una sólida
+                trayectoria en negocios internacionales, que durante más de 20 años lideraron
+                importantes empresas constructoras en Centroamérica, participando en proyectos de
+                gran impacto para la región.
+              </p>
+              <p>
+                Nuestro vínculo con el sector salud comenzó precisamente con la remodelación de un
+                hospital. Gracias a la excelencia en la ejecución del proyecto, el fondo de
+                inversión propietario confió a nuestros fundadores la administración de la
+                institución: una experiencia que nos permitió desarrollar un profundo conocimiento
+                del entorno hospitalario y construir relaciones de confianza con reconocidos
+                fabricantes internacionales de equipos médicos.
+              </p>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Historia: crecimiento -->
-    <section class="section section-off" aria-labelledby="crecimiento-h2">
+    <!-- Sección: El Crecimiento -->
+    <section class="section section-growth" aria-labelledby="crecimiento-h2">
       <div class="container">
-        <div class="about-grid" style="direction:rtl">
-          <div class="about-imgs fade-in">
-            <div class="about-img-main">
+        <div class="story-layout story-layout-reverse">
+          <div class="story-image fade-in">
+            <div class="image-wrapper">
               <img
                 src="/assets/img/atendemos-cadena-valor-distribucion.webp"
                 alt="Atendemos cadena valor - Distribución equipos biomédicos Colombia"
@@ -105,96 +112,142 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
               />
             </div>
           </div>
-          <div class="about-text fade-in d2" style="direction:ltr">
-            <div class="s-label">El crecimiento</div>
-            <h2 id="crecimiento-h2" class="s-title">
-              De la confianza de las casas matrices a un portafolio global
+          <div class="story-text fade-in">
+            <div class="story-badge story-badge-green">El crecimiento</div>
+            <h2 id="crecimiento-h2" class="story-title">
+              De la confianza de casas matrices a un portafolio global
             </h2>
-            <p>
-              Derivado de ese compromiso, profesionalismo y ética empresarial, diversas casas
-              matrices nos otorgaron la representación y distribución de sus marcas, dando origen al
-              crecimiento de nuestra compañía.
-            </p>
-            <p>
-              Hoy contamos con más de 15 años de experiencia en el sector salud, representando más
-              de 24 marcas internacionales provenientes de Europa, Estados Unidos y Asia —de países
-              como Alemania, Italia, Reino Unido, Japón, Corea del Sur, China, Hong Kong y Hungría,
-              entre otros— con un portafolio que supera los 427 productos, respaldados por altos
-              estándares de calidad y servicio.
-            </p>
-            <p>
-              Creemos que el verdadero éxito se construye mediante relaciones sólidas y duraderas
-              con nuestros socios estratégicos. Esa confianza, unida a nuestro compromiso con la
-              innovación, la capacitación continua y la excelencia, nos ha permitido consolidarnos
-              como un aliado confiable para el sector salud y seguir creciendo con una visión de
-              largo plazo.
-            </p>
+            <div class="story-body">
+              <p>
+                Derivado de ese compromiso, profesionalismo y ética empresarial, diversas casas
+                matrices nos otorgaron la representación y distribución de sus marcas, dando origen
+                al crecimiento de nuestra compañía.
+              </p>
+              <p>
+                Hoy contamos con más de 15 años de experiencia en el sector salud, representando más
+                de 24 marcas internacionales provenientes de Europa, Estados Unidos y Asia —de
+                países como Alemania, Italia, Reino Unido, Japón, Corea del Sur, China, Hong Kong y
+                Hungría, entre otros— con un portafolio que supera los 427 productos, respaldados
+                por altos estándares de calidad y servicio.
+              </p>
+              <p>
+                Creemos que el verdadero éxito se construye mediante relaciones sólidas y duraderas
+                con nuestros socios estratégicos. Esa confianza, unida a nuestro compromiso con la
+                innovación, la capacitación continua y la excelencia, nos ha permitido consolidarnos
+                como un aliado confiable para el sector salud.
+              </p>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Cifras -->
-    <section class="section section-teal" aria-labelledby="cifras-h2">
+    <!-- Cifras: I-ME en números -->
+    <section class="section section-stats" aria-labelledby="cifras-h2">
       <div class="container">
-        <div class="s-header s-header-center fade-in">
-          <div class="s-label s-label-white">I-ME en cifras</div>
-          <h2 id="cifras-h2" class="s-title s-title-white">
-            Un aliado consolidado para el sector salud
-          </h2>
+        <div class="stats-header fade-in">
+          <div class="stats-badge">I-ME en cifras</div>
+          <h2 id="cifras-h2" class="stats-title">Un aliado consolidado para el sector salud</h2>
         </div>
-        <div class="cobertura-stats fade-in d2">
-          <div class="cobertura-stat">
-            <div class="stat-n">15+</div>
-            <div class="stat-l">Años en el sector salud</div>
+        <div class="stats-grid fade-in">
+          <div class="stat-card">
+            <div class="stat-number">15+</div>
+            <div class="stat-label">Años en el sector salud</div>
           </div>
-          <div class="cobertura-stat">
-            <div class="stat-n">24+</div>
-            <div class="stat-l">Marcas internacionales</div>
+          <div class="stat-card">
+            <div class="stat-number">24+</div>
+            <div class="stat-label">Marcas internacionales</div>
           </div>
-          <div class="cobertura-stat">
-            <div class="stat-n">427+</div>
-            <div class="stat-l">Productos en portafolio</div>
+          <div class="stat-card">
+            <div class="stat-number">427+</div>
+            <div class="stat-label">Productos en portafolio</div>
           </div>
-          <div class="cobertura-stat">
-            <div class="stat-n">32</div>
-            <div class="stat-l">Departamentos cubiertos</div>
+          <div class="stat-card">
+            <div class="stat-number">32</div>
+            <div class="stat-label">Departamentos cubiertos</div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Visión, misión y valores -->
-    <section class="section" aria-labelledby="valores-h2">
+    <!-- Valores: Visión, Misión, Compromiso -->
+    <section class="section section-values" aria-labelledby="valores-h2">
       <div class="container">
-        <div class="s-header s-header-center fade-in">
-          <div class="s-label">Lo que nos guía</div>
-          <h2 id="valores-h2" class="s-title">Visión, misión y compromiso</h2>
+        <div class="values-header fade-in">
+          <div class="values-badge">Lo que nos guía</div>
+          <h2 id="valores-h2" class="values-title">Visión, misión y compromiso</h2>
         </div>
-        <div class="values-grid">
-          <div class="val-card fade-in">
-            <div class="val-icon"><i class="fas fa-eye" aria-hidden="true"></i></div>
+        <div class="values-grid fade-in">
+          <div class="value-item">
+            <div class="value-icon-box vision-icon">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <path
+                  d="M12 5C7 5 2.73 7.61 1 11.5c1.73 3.89 6 6.5 11 6.5s9.27-2.61 11-6.5c-1.73-3.89-6-6.5-11-6.5zm0 9c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"
+                ></path>
+              </svg>
+            </div>
             <h3>Visión</h3>
             <p>
               Ser la empresa líder en Colombia en distribución de tecnología biomédica de
               vanguardia.
             </p>
           </div>
-          <div class="val-card fade-in d1">
-            <div class="val-icon"><i class="fas fa-bullseye" aria-hidden="true"></i></div>
+
+          <div class="value-item">
+            <div class="value-icon-box mission-icon">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
             <h3>Misión</h3>
             <p>
-              Equipar las instituciones de salud con tecnología certificada que mejore la atención
-              al paciente.
+              Equipar instituciones de salud con tecnología certificada que mejore la atención al
+              paciente.
             </p>
           </div>
-          <div class="val-card fade-in d2">
-            <div class="val-icon"><i class="fas fa-award" aria-hidden="true"></i></div>
+
+          <div class="value-item">
+            <div class="value-icon-box quality-icon">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <path
+                  d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+                ></path>
+              </svg>
+            </div>
             <h3>Calidad</h3>
             <p>Todos nuestros equipos cuentan con certificaciones CE, FDA e INVIMA vigentes.</p>
           </div>
-          <div class="val-card fade-in d3">
-            <div class="val-icon"><i class="fas fa-handshake" aria-hidden="true"></i></div>
+
+          <div class="value-item">
+            <div class="value-icon-box commitment-icon">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path>
+              </svg>
+            </div>
             <h3>Compromiso</h3>
             <p>Soporte técnico especializado durante toda la vida útil de cada equipo.</p>
           </div>
@@ -202,28 +255,38 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
       </div>
     </section>
 
-    <!-- CTA contacto -->
-    <section class="section section-off" aria-label="Contacto directo">
+    <!-- CTA: Contacto -->
+    <section class="section section-cta" aria-label="Contacto directo">
       <div class="container">
-        <div class="cta-block fade-in">
-          <div class="s-label s-label-white">Hablemos</div>
+        <div class="cta-wrapper fade-in">
+          <div class="cta-badge">Hablemos</div>
           <h2 class="cta-title">¿Listo para trabajar con nosotros?</h2>
-          <p class="cta-sub">
-            Escríbanos y reciba respuesta comercial directa: <a
-              href="tel:+573138674059"
-              style="color:inherit">+57 313 867 4059</a
-            > · <a href="mailto:info@i-me.com.co" style="color:inherit">info@i-me.com.co</a>
+          <p class="cta-subtitle">
+            Escríbanos y reciba respuesta comercial directa:
+            <a href="tel:+573138674059">+57 313 867 4059</a> ·
+            <a href="mailto:info@i-me.com.co">info@i-me.com.co</a>
           </p>
-          <div class="cta-btns">
+          <div class="cta-buttons">
             <a
               href="https://wa.me/573138674059?text=Hola%2C%20me%20interesa%20conocer%20m%C3%A1s%20sobre%20I-ME"
               target="_blank"
               rel="noopener"
-              class="btn btn-green"
+              class="btn btn-primary"
             >
-              <i class="fab fa-whatsapp"></i> Escribir por WhatsApp
+              <svg
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                width="20"
+                height="20"
+                aria-hidden="true"
+              >
+                <path
+                  d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.403h-.004a9.87 9.87 0 00-9.746 9.748c0 2.718.738 5.33 2.14 7.617l-2.271 6.77c-.256.767.155 1.61.934 1.859l.06.02c.505.168 1.009-.338 1.225-.668l6.924-11.176a9.87 9.87 0 009.669-4.61c.556-1.016.902-2.189.902-3.427a9.865 9.865 0 00-9.833-9.873zm-8.67.012c0-.48.384-.866.864-.866.477 0 .862.386.862.866a.862.862 0 01-.862.862.863.863 0 01-.864-.862z"
+                ></path>
+              </svg>
+              Escribir por WhatsApp
             </a>
-            <a href="/es/contacto" class="btn btn-outline-white">Formulario de contacto</a>
+            <a href="/es/contacto" class="btn btn-secondary">Formulario de contacto</a>
           </div>
         </div>
       </div>
@@ -232,18 +295,452 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
 </Layout>
 
 <style>
-  .site-faithful .cobertura-stats {
+  /* ===== HERO ===== */
+  .hero-nosotros {
+    background: linear-gradient(135deg, var(--t900) 0%, var(--t800) 100%);
+    color: var(--white);
+    padding: var(--space-lg) 0 var(--space-3xl);
+    position: relative;
+  }
+
+  .hero-nosotros .breadcrumb {
+    font-size: 0.875rem;
+    margin-bottom: var(--space-lg);
+    opacity: 0.85;
+  }
+
+  .hero-content {
+    max-width: 800px;
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: var(--step-5);
+    font-weight: 700;
+    margin: 0 0 var(--space-md) 0;
+    line-height: 1.1;
+  }
+
+  .hero-subtitle {
+    font-size: var(--step-1);
+    line-height: 1.7;
+    opacity: 0.95;
+    margin: 0;
+  }
+
+  /* ===== STORY SECTIONS ===== */
+  .story-layout {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 24px;
-    max-width: 900px;
-    margin: 48px auto 0;
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+    align-items: center;
+  }
+
+  @media (min-width: 768px) {
+    .story-layout {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-2xl);
+    }
+  }
+
+  .story-layout-reverse {
+    direction: rtl;
+  }
+
+  .story-layout-reverse .story-text {
+    direction: ltr;
+  }
+
+  .image-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    aspect-ratio: 16 / 10;
+    box-shadow: var(--shadow-md);
+  }
+
+  @media (max-width: 767px) {
+    .image-wrapper {
+      aspect-ratio: 4 / 3;
+    }
+  }
+
+  .image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .story-badge {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--t900);
+    margin-bottom: var(--space-md);
+    padding: 0.5rem 1rem;
+    background: var(--t50);
+    border-radius: 24px;
+  }
+
+  .story-badge-green {
+    background: rgba(126, 217, 87, 0.15);
+    color: var(--t900);
+  }
+
+  .story-title {
+    font-family: var(--font-display);
+    font-size: var(--step-4);
+    font-weight: 700;
+    margin: 0 0 var(--space-lg) 0;
+    line-height: 1.2;
+    color: var(--ink);
+  }
+
+  .story-body p {
+    font-size: var(--step-0);
+    line-height: 1.8;
+    color: var(--text-mid);
+    margin-bottom: var(--space-md);
+  }
+
+  .story-body p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* ===== STATS SECTION ===== */
+  .section-stats {
+    background: linear-gradient(135deg, var(--t900) 0%, var(--t800) 100%);
+    color: var(--white);
+    padding: var(--space-2xl) 0;
+  }
+
+  .stats-header {
+    text-align: center;
+    margin-bottom: var(--space-2xl);
+  }
+
+  .stats-badge {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+    padding: 0.5rem 1rem;
+    border-radius: 24px;
+    margin-bottom: var(--space-md);
+  }
+
+  .stats-title {
+    font-family: var(--font-display);
+    font-size: var(--step-4);
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-xl);
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 640px) {
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-lg);
+    }
+  }
+
+  .stat-card {
+    text-align: center;
+    padding: var(--space-lg);
+  }
+
+  .stat-number {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    margin-bottom: var(--space-sm);
+  }
+
+  .stat-label {
+    font-size: var(--step-0);
+    line-height: 1.5;
+    opacity: 0.95;
+  }
+
+  /* ===== VALUES SECTION ===== */
+  .section-values {
+    background: var(--off);
+    padding: var(--space-2xl) 0;
+  }
+
+  .values-header {
+    text-align: center;
+    margin-bottom: var(--space-2xl);
+  }
+
+  .values-badge {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--t900);
+    background: var(--t50);
+    padding: 0.5rem 1rem;
+    border-radius: 24px;
+    margin-bottom: var(--space-md);
+  }
+
+  .values-title {
+    font-family: var(--font-display);
+    font-size: var(--step-4);
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.2;
+    color: var(--ink);
+  }
+
+  .values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--space-lg);
+  }
+
+  @media (max-width: 640px) {
+    .values-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .value-item {
+    background: var(--white);
+    padding: var(--space-lg);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    text-align: center;
+    transition: all 200ms var(--ease);
+  }
+
+  .value-item:hover {
+    border-color: var(--t700);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-4px);
+  }
+
+  .value-icon-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    margin: 0 auto var(--space-md);
+    border-radius: 50%;
+    color: var(--white);
+    font-size: 2rem;
+  }
+
+  .vision-icon {
+    background: linear-gradient(135deg, var(--t900), var(--t800));
+  }
+
+  .mission-icon {
+    background: linear-gradient(135deg, var(--blue), rgba(74, 144, 226, 0.8));
+  }
+
+  .quality-icon {
+    background: linear-gradient(135deg, var(--green), rgba(126, 217, 87, 0.8));
+  }
+
+  .commitment-icon {
+    background: linear-gradient(135deg, rgba(126, 217, 87, 0.9), var(--green));
+  }
+
+  .value-icon-box svg {
+    width: 40px;
+    height: 40px;
+  }
+
+  .value-item h3 {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    font-weight: 600;
+    margin: 0 0 var(--space-sm) 0;
+    color: var(--ink);
+  }
+
+  .value-item p {
+    font-size: var(--step-0);
+    line-height: 1.6;
+    color: var(--text-mid);
+    margin: 0;
+  }
+
+  /* ===== CTA SECTION ===== */
+  .section-cta {
+    background: linear-gradient(135deg, var(--t900) 0%, var(--t800) 100%);
+    padding: var(--space-2xl) 0;
+    color: var(--white);
+  }
+
+  .cta-wrapper {
+    max-width: 700px;
+    margin: 0 auto;
     text-align: center;
   }
-  .site-faithful .cobertura-stat .stat-n {
-    font-size: 2.6rem;
+
+  .cta-badge {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+    padding: 0.5rem 1rem;
+    border-radius: 24px;
+    margin-bottom: var(--space-md);
+  }
+
+  .cta-title {
+    font-family: var(--font-display);
+    font-size: var(--step-4);
+    font-weight: 700;
+    margin: 0 0 var(--space-md) 0;
+    line-height: 1.2;
+  }
+
+  .cta-subtitle {
+    font-size: var(--step-1);
+    line-height: 1.6;
+    opacity: 0.95;
+    margin-bottom: var(--space-lg);
+  }
+
+  .cta-subtitle a {
+    color: inherit;
+    text-decoration: underline;
+    transition: opacity 200ms var(--ease);
+  }
+
+  .cta-subtitle a:hover {
+    opacity: 0.8;
+  }
+
+  .cta-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    justify-content: center;
+  }
+
+  @media (min-width: 640px) {
+    .cta-buttons {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.875rem 2rem;
+    font-family: var(--font-display);
+    font-size: var(--step-0);
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: var(--radius);
+    transition: all 200ms var(--ease);
+    cursor: pointer;
+    border: none;
+  }
+
+  .btn-primary {
+    background: var(--green);
+    color: var(--ink);
+  }
+
+  .btn-primary:hover {
+    background: rgba(126, 217, 87, 0.9);
+    transform: translateY(-2px);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--white);
+    border: 2px solid var(--white);
+  }
+
+  .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  /* ===== FADE IN ANIMATION ===== */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+      opacity 600ms var(--ease),
+      transform 600ms var(--ease);
+  }
+
+  .fade-in.d1.visible {
+    transition-delay: 100ms;
+  }
+  .fade-in.d2.visible {
+    transition-delay: 200ms;
+  }
+  .fade-in.d3.visible {
+    transition-delay: 300ms;
   }
 </style>
+
+<script>
+  function initNosotros() {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const faders = document.querySelectorAll<HTMLElement>(
+      '.site-faithful .fade-in:not([data-ime-bound])'
+    );
+    faders.forEach(el => (el.dataset.imeBound = '1'));
+    if (reduce || !('IntersectionObserver' in window)) {
+      faders.forEach(el => el.classList.add('visible'));
+      return;
+    }
+    const io = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            io.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+    );
+    faders.forEach(el => io.observe(el));
+  }
+
+  initNosotros();
+  document.addEventListener('astro:page-load', initNosotros);
+</script>
 
 <script>
   function initNosotros() {
