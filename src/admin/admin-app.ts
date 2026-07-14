@@ -3406,7 +3406,7 @@ async function conocimientoView(): Promise<string> {
           <button class="admin-button" type="submit">Guardar articulo</button>
           ${draft.id ? '<button class="admin-button admin-button--danger" data-article-delete type="button">Eliminar articulo</button>' : ''}
         </div>
-        <div class="admin-alert">El contenido del CMS vive en "articulos". Las páginas publicas solo muestran registros publicados.</div>
+        <div class="admin-alert">El contenido del CMS vive en "articulos". Las páginas publicas solo muestran registros publicados. Al publicar, la imagen se traslada y optimiza en el sitio de producción durante el rebuild (deja de depender de Supabase para servirla).</div>
       </form>
     </section>`;
 }

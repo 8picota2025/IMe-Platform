@@ -13,3 +13,5 @@ test-results/
 .idea/
 supabase/.temp/
 .claude/worktrees/
+public/assets/img/conocimiento/
+src/data/generated/

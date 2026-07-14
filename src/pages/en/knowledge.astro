@@ -10,6 +10,7 @@ import {
 import { getArticulos } from '../../lib/datos';
 import { stripMarkdown } from '../../lib/markdown';
 import { imagenParaArticulo } from '../../lib/conocimiento-imagenes';
+import { imagenMirrorParaArticulo } from '../../lib/conocimiento-imagen-manifest';
 import { t } from '../../i18n/utils';
 import '../../styles/site-faithful.css';
 
@@ -21,7 +22,11 @@ const articulos = await getArticulos(locale);
 const articulosVista = articulos.map(articulo => ({
   ...articulo,
   resumen: stripMarkdown(articulo.cuerpo),
-  imagen: imagenParaArticulo(articulo.slug),
+  imagen:
+    imagenMirrorParaArticulo(articulo.slug) ??
+    (articulo.imagen
+      ? { src: articulo.imagen, width: 800, height: 450 }
+      : imagenParaArticulo(articulo.slug)),
 }));
 
 const itemListJsonLd = {

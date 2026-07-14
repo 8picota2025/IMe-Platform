@@ -506,22 +506,25 @@ export async function getArticulos(locale: Locale): Promise<Articulo[]> {
     if (error) {
       registrarErrorSupabase('getArticulos', error);
     } else if (data) {
-      return (data as RawRow[]).map(raw => ({
-        id: stringValue(raw.id),
-        slug: stringValue(raw.slug),
-        titulo:
-          locale === 'en'
-            ? stringValue(raw.titulo_en) || stringValue(raw.titulo_es)
-            : stringValue(raw.titulo_es),
-        cuerpo:
-          locale === 'en'
-            ? stringValue(raw.cuerpo_en) || stringValue(raw.cuerpo_es)
-            : stringValue(raw.cuerpo_es),
-        imagen: stringValue(raw.imagen) || undefined,
-        publicado: Boolean(raw.publicado),
-        created_at: stringValue(raw.created_at),
-        updated_at: stringValue(raw.updated_at),
-      }));
+      return (data as RawRow[]).map(raw => {
+        const imagen = stringValue(raw.imagen);
+        return {
+          id: stringValue(raw.id),
+          slug: stringValue(raw.slug),
+          titulo:
+            locale === 'en'
+              ? stringValue(raw.titulo_en) || stringValue(raw.titulo_es)
+              : stringValue(raw.titulo_es),
+          cuerpo:
+            locale === 'en'
+              ? stringValue(raw.cuerpo_en) || stringValue(raw.cuerpo_es)
+              : stringValue(raw.cuerpo_es),
+          ...(imagen ? { imagen } : {}),
+          publicado: Boolean(raw.publicado),
+          created_at: stringValue(raw.created_at),
+          updated_at: stringValue(raw.updated_at),
+        };
+      });
     }
   }
   return mockArticulos

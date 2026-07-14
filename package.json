@@ -3,21 +3,20 @@
   "type": "module",
   "version": "0.1.0",
   "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": ["packages/*"],
   "engines": {
     "node": ">=22.12.0"
   },
   "scripts": {
     "dev": "astro dev --host 0.0.0.0 --port 44334",
-    "build": "astro build",
+    "build": "node --env-file-if-exists=.env scripts/mirror-cms-images.mjs && astro build",
     "preview": "astro preview --host 0.0.0.0 --port 44334",
     "check": "astro check",
     "lint": "eslint src packages --max-warnings 0",
     "format": "prettier --write src packages",
     "test": "vitest run",
     "test:watch": "vitest",
+    "mirror:images": "node --env-file=.env scripts/mirror-cms-images.mjs",
     "import:gmd": "node --env-file=.env scripts/import-gmd-catalog.mjs",
     "import:gmd-images": "node --env-file=.env scripts/persist-gmd-images.mjs",
     "reindex:voyage": "node --env-file=.env scripts/reindex-voyage-embeddings.mjs products",
@@ -28,12 +27,8 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.{ts,tsx,astro}": [
-      "eslint --fix --max-warnings 0"
-    ],
-    "*.{ts,tsx,astro,css,md,json}": [
-      "prettier --write"
-    ]
+    "*.{ts,tsx,astro}": ["eslint --fix --max-warnings 0"],
+    "*.{ts,tsx,astro,css,md,json}": ["prettier --write"]
   },
   "dependencies": {
     "@astrojs/check": "^0.9.9",
@@ -57,6 +52,7 @@
     "playwright": "^1.60.0",
     "prettier": "^3.8.3",
     "prettier-plugin-astro": "^0.14.1",
+    "sharp": "^0.34.5",
     "tailwindcss": "^4.3.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.61.0",
