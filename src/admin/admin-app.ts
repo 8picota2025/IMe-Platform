@@ -1192,7 +1192,7 @@ async function dashboardView(): Promise<string> {
     count('fulfillments', { estado: 'error' }),
     selectRows(
       'productos',
-      'id,tipo_id,imagen_principal,ficha_pdf,especificaciones',
+      'id,nombre_es,tipo_id,imagen_principal,ficha_pdf,especificaciones',
       'nombre_es',
       500
     ),
