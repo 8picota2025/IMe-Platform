@@ -3378,7 +3378,8 @@ async function conocimientoView(): Promise<string> {
           ${field('slug', 'Slug', draft.slug, true)}
           <div class="admin-upload-box">
             <div class="admin-help">Imagen principal del artículo</div>
-            ${field('imagen', 'URL imagen', draft.imagen)}
+            <input type="hidden" name="imagen" value="${escapeHtml(draft.imagen ?? '')}" />
+            ${draft.imagen ? `<div class="admin-preview-box"><img src="${escapeHtml(draft.imagen)}" alt="Preview" style="max-width:100%; max-height:150px; border-radius:8px; margin-bottom:12px;" /></div>` : ''}
             ${upload('articulos', 'imagen', 'Subir imagen')}
           </div>
           ${field('titulo_es', 'Titulo ES', draft.titulo_es, true)}
