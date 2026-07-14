@@ -38,12 +38,14 @@ const legalLinks: Array<{ kind: LegalKind; label: string }> = [
 ---
 
 <footer class="footer" role="contentinfo">
-  <div class="footer__inner container">
-    <!-- Columna 1: Marca -->
-    <div class="footer__brand">
+  <!-- Main footer content -->
+  <div class="footer__main container">
+    <!-- Columna 1: Marca + Descripción -->
+    <div class="footer__section footer__brand-section">
       <a
         href={getLocalizedPath('/', locale)}
         aria-label={t(locale, 'accesibilidad.logo')}
+        class="footer__logo"
         onclick={`window.location.assign('${getLocalizedPath('/', locale)}'); return false;`}
       >
         <img
@@ -56,14 +58,20 @@ const legalLinks: Array<{ kind: LegalKind; label: string }> = [
         />
       </a>
       <p class="footer__desc">{t(locale, 'footer.descripcion')}</p>
-      <!-- Slogan real de contenido_ime.json -->
       <p class="footer__slogan">"Equipamos tu misión de salvar vidas."</p>
     </div>
 
-    <!-- Columna 2: Navegación -->
-    <nav class="footer__col" aria-label={t(locale, 'footer.navegacion')}>
-      <h3 class="footer__heading">{t(locale, 'footer.navegacion')}</h3>
-      <ul role="list">
+    <!-- Columna 2: Navegación principal -->
+    <nav class="footer__section" aria-label={t(locale, 'footer.navegacion')}>
+      <h3 class="footer__heading">
+        <span class="footer__heading-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </span>
+        {t(locale, 'footer.navegacion')}
+      </h3>
+      <ul class="footer__list" role="list">
         <li><a href={getLocalizedPath('/', locale)}>{t(locale, 'nav.inicio')}</a></li>
         <li><a href={getLocalizedPath('/nosotros', locale)}>{t(locale, 'nav.nosotros')}</a></li>
         <li><a href={getLocalizedPath('/catalogo', locale)}>{t(locale, 'nav.catalogo')}</a></li>
@@ -83,10 +91,20 @@ const legalLinks: Array<{ kind: LegalKind; label: string }> = [
       </ul>
     </nav>
 
-    <!-- Columna 3: Categorías (8 familias reales) -->
-    <nav class="footer__col" aria-label={t(locale, 'catalogo.familias_titulo')}>
-      <h3 class="footer__heading">{t(locale, 'footer.categorias')}</h3>
-      <ul role="list">
+    <!-- Columna 3: Categorías de productos -->
+    <nav class="footer__section" aria-label={t(locale, 'catalogo.familias_titulo')}>
+      <h3 class="footer__heading">
+        <span class="footer__heading-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+        </span>
+        {t(locale, 'footer.categorias')}
+      </h3>
+      <ul class="footer__list" role="list">
         {
           familias.map(f => (
             <li>
@@ -99,35 +117,68 @@ const legalLinks: Array<{ kind: LegalKind; label: string }> = [
       </ul>
     </nav>
 
-    <!-- Columna 4: Contacto real -->
-    <div class="footer__col footer__contact">
-      <h3 class="footer__heading">{locale === 'es' ? 'Contacto' : 'Contact'}</h3>
-      <ul role="list">
-        <li>
-          <a href="tel:+573138674059" aria-label="+57 313 867 4059">+57 313 867 4059</a>
-        </li>
-        <li>
-          <a href="https://wa.me/573138674059" target="_blank" rel="noopener noreferrer">
-            WhatsApp
-            <span class="sr-only">{t(locale, 'accesibilidad.nueva_ventana')}</span>
-          </a>
-        </li>
-        <li>
-          <a href="mailto:info@i-me.com.co">info@i-me.com.co</a>
-        </li>
-      </ul>
+    <!-- Columna 4: Contacto directo -->
+    <div class="footer__section footer__contact-section">
+      <h3 class="footer__heading">
+        <span class="footer__heading-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path
+              d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+            ></path>
+          </svg>
+        </span>
+        {locale === 'es' ? 'Contacto' : 'Contact'}
+      </h3>
+      <div class="footer__contact-items">
+        <a href="tel:+573138674059" class="footer__contact-item">
+          <span class="contact-icon phone-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"
+              ></path>
+            </svg>
+          </span>
+          <span>+57 313 867 4059</span>
+        </a>
+        <a
+          href="https://wa.me/573138674059"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="footer__contact-item"
+        >
+          <span class="contact-icon whatsapp-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.403h-.004a9.87 9.87 0 00-9.746 9.748c0 2.718.738 5.33 2.14 7.617l-2.271 6.77c-.256.767.155 1.61.934 1.859l.06.02c.505.168 1.009-.338 1.225-.668l6.924-11.176a9.87 9.87 0 009.669-4.61c.556-1.016.902-2.189.902-3.427a9.865 9.865 0 00-9.833-9.873z"
+              ></path>
+            </svg>
+          </span>
+          <span>WhatsApp</span>
+        </a>
+        <a href="mailto:info@i-me.com.co" class="footer__contact-item">
+          <span class="contact-icon email-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+            </svg>
+          </span>
+          <span>info@i-me.com.co</span>
+        </a>
+      </div>
     </div>
   </div>
 
-  <!-- Bottom bar -->
+  <!-- Bottom bar: copyright + legal -->
   <div class="footer__bottom">
     <div class="container footer__bottom-inner">
-      <p class="footer__copy">
-        &copy; {year} I-ME International Medical Enterprise. {t(locale, 'footer.derechos')}.
-      </p>
-      <p class="footer__certif">
-        {t(locale, 'footer.pais')} &middot; {t(locale, 'footer.certif')}
-      </p>
+      <div class="footer__bottom-left">
+        <p class="footer__copy">
+          &copy; {year} I-ME International Medical Enterprise. {t(locale, 'footer.derechos')}.
+        </p>
+        <p class="footer__certif">
+          {t(locale, 'footer.pais')} &middot; {t(locale, 'footer.certif')}
+        </p>
+      </div>
       <nav class="footer__legal" aria-label={t(locale, 'footer.legal')}>
         {
           legalLinks.map(link => (
@@ -142,107 +193,265 @@ const legalLinks: Array<{ kind: LegalKind; label: string }> = [
 <style>
   .footer {
     background: var(--footer-bg);
-    color: var(--footer-text-muted);
+    color: rgba(255, 255, 255, 0.8);
     margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
   }
-  .footer__inner {
+
+  /* ===== MAIN FOOTER CONTENT ===== */
+  .footer__main {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 2.5rem;
+    gap: var(--space-lg);
     padding-block: var(--space-2xl);
   }
+
   @media (min-width: 640px) {
-    .footer__inner {
+    .footer__main {
       grid-template-columns: 1fr 1fr;
+      gap: var(--space-xl);
     }
   }
+
   @media (min-width: 1024px) {
-    .footer__inner {
-      grid-template-columns: 2fr 1fr 1.5fr 1fr;
+    .footer__main {
+      grid-template-columns: 1.5fr 1fr 1.2fr 1.3fr;
+      gap: var(--space-2xl);
     }
   }
-  .footer__brand {
+
+  /* ===== FOOTER SECTIONS ===== */
+  .footer__section {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: var(--space-md);
   }
-  .footer__brand img {
-    opacity: 0.96;
+
+  .footer__brand-section {
+    gap: var(--space-lg);
   }
+
+  .footer__logo {
+    display: inline-block;
+    transition: opacity 200ms var(--ease);
+  }
+
+  .footer__logo:hover {
+    opacity: 0.8;
+  }
+
+  .footer__logo img {
+    width: auto;
+    height: auto;
+    display: block;
+  }
+
   .footer__desc {
-    font-size: 0.875rem;
-    line-height: 1.6;
-    color: rgba(255, 255, 255, 0.55);
+    font-size: var(--step--1);
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.7);
     margin: 0;
   }
+
   .footer__slogan {
     font-family: var(--font-display);
-    font-size: 0.85rem;
+    font-size: var(--step--1);
     font-weight: 600;
     font-style: italic;
     color: var(--green);
     margin: 0;
   }
-  .footer__col {
-  }
+
+  /* ===== FOOTER HEADINGS ===== */
   .footer__heading {
     font-family: var(--font-display);
-    font-size: 0.75rem;
+    font-size: var(--step--1);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: rgba(255, 255, 255, 0.5);
-    margin-block-end: 1rem;
-    margin-block-start: 0;
+    color: rgba(255, 255, 255, 0.95);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
-  .footer__col ul {
+
+  .footer__heading-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    color: var(--green);
+  }
+
+  .footer__heading-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ===== FOOTER LISTS ===== */
+  .footer__list {
     list-style: none;
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.6rem;
+    gap: 0.75rem;
   }
-  .footer__col a {
-    font-size: 0.875rem;
-    color: rgba(255, 255, 255, 0.65);
+
+  .footer__list a {
+    font-size: var(--step--1);
+    color: rgba(255, 255, 255, 0.75);
     text-decoration: none;
-    transition: color 180ms var(--ease);
+    transition: all 200ms var(--ease);
+    position: relative;
+    padding-left: 0.5rem;
   }
-  .footer__col a:hover {
+
+  .footer__list a::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 3px;
+    background: var(--green);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 200ms var(--ease);
+  }
+
+  .footer__list a:hover {
+    color: var(--white);
+    padding-left: 1rem;
+  }
+
+  .footer__list a:hover::before {
+    opacity: 1;
+  }
+
+  /* ===== CONTACT SECTION ===== */
+  .footer__contact-section {
+    gap: var(--space-md);
+  }
+
+  .footer__contact-items {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .footer__contact-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: var(--step--1);
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: none;
+    transition: all 200ms var(--ease);
+    padding: 0.75rem;
+    border-radius: var(--radius);
+  }
+
+  .footer__contact-item:hover {
+    background: rgba(255, 255, 255, 0.08);
     color: var(--white);
   }
-  .footer__bottom {
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    padding-block: 1.25rem;
+
+  .contact-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
   }
+
+  .contact-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .phone-icon {
+    color: rgba(126, 217, 87, 0.8);
+  }
+
+  .whatsapp-icon {
+    color: rgba(37, 211, 102, 0.8);
+  }
+
+  .email-icon {
+    color: rgba(74, 144, 226, 0.8);
+  }
+
+  /* ===== FOOTER BOTTOM ===== */
+  .footer__bottom {
+    background: rgba(0, 0, 0, 0.3);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-block: var(--space-lg);
+  }
+
   .footer__bottom-inner {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 1rem;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: var(--space-md);
+    align-items: flex-start;
   }
+
+  @media (min-width: 768px) {
+    .footer__bottom-inner {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-lg);
+    }
+  }
+
+  .footer__bottom-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
   .footer__copy,
   .footer__certif {
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.5);
+    font-size: var(--step--1);
+    color: rgba(255, 255, 255, 0.65);
     margin: 0;
   }
+
+  .footer__certif {
+    color: rgba(255, 255, 255, 0.55);
+  }
+
   .footer__legal {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: 1.5rem;
+    width: 100%;
   }
+
+  @media (min-width: 768px) {
+    .footer__legal {
+      width: auto;
+      gap: 1rem;
+    }
+  }
+
   .footer__legal a {
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.5);
+    font-size: var(--step--1);
+    color: rgba(255, 255, 255, 0.65);
     text-decoration: none;
-    transition: color 180ms var(--ease);
+    transition: color 200ms var(--ease);
   }
+
   .footer__legal a:hover {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.95);
   }
+
+  /* ===== ACCESSIBILITY ===== */
   .sr-only {
     position: absolute;
     width: 1px;
