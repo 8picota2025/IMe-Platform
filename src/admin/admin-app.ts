@@ -3379,7 +3379,9 @@ async function conocimientoView(): Promise<string> {
           <div class="admin-upload-box">
             <div class="admin-help">Imagen principal del artículo</div>
             <input type="hidden" name="imagen" value="${escapeHtml(draft.imagen ?? '')}" />
-            ${draft.imagen ? `<div class="admin-preview-box"><img src="${escapeHtml(draft.imagen)}" alt="Preview" style="max-width:100%; max-height:150px; border-radius:8px; margin-bottom:12px;" /></div>` : ''}
+            <div class="admin-preview-box" data-image-preview style="${draft.imagen ? '' : 'display:none;'} margin-bottom:12px;">
+              ${draft.imagen ? `<img src="${escapeHtml(draft.imagen)}" alt="Preview" style="max-width:100%; max-height:150px; border-radius:8px;" />` : ''}
+            </div>
             ${upload('articulos', 'imagen', 'Subir imagen')}
           </div>
           ${field('titulo_es', 'Titulo ES', draft.titulo_es, true)}
@@ -6169,6 +6171,14 @@ async function uploadFile(button: HTMLButtonElement, form: HTMLFormElement) {
     const publicUrl = supabase!.storage.from(bucket).getPublicUrl(path).data.publicUrl;
     const target = form.elements.namedItem(targetName);
     if (target instanceof HTMLInputElement) target.value = publicUrl;
+    const previewBox = button
+      .closest('.admin-upload-box')
+      ?.querySelector<HTMLElement>('[data-image-preview]');
+    if (previewBox) {
+      previewBox.innerHTML = `<img src="${escapeHtml(publicUrl)}" alt="Preview" style="max-width:100%; max-height:150px; border-radius:8px;" />`;
+      previewBox.style.display = '';
+    }
+    toast('Imagen subida correctamente');
   });
   input.click();
 }
