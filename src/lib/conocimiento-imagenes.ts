@@ -64,9 +64,9 @@ const POR_PALABRA: Array<{ patron: RegExp; imagen: ImagenArticulo }> = [
 ];
 
 const POR_DEFECTO: ImagenArticulo = {
-  src: '/assets/img/soluciones-biomedicas-opt.webp',
-  width: 900,
-  height: 506,
+  src: '/assets/img/soluciones-biomedicas-opt.jpg',
+  width: 800,
+  height: 479,
 };
 
 export function imagenParaArticulo(slug: string): ImagenArticulo {
