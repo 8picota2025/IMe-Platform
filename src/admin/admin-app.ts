@@ -3338,21 +3338,20 @@ async function conocimientoView(): Promise<string> {
   const draft = articleDraft(articulo);
 
   return `
-    <section class="admin-grid">
-      <section class="admin-panel">
-        <div class="admin-panel__head">
-          <h2>Articulos</h2>
-          <a class="admin-button admin-button--ghost" href="#/conocimiento">Nuevo articulo</a>
-        </div>
-        <div class="admin-help" style="padding:0 16px 12px">
-          CMS basico de articulos editorial: crea, edita y publica contenido para la seccion de Conocimiento.
-        </div>
-        ${
-          articulos.length
-            ? `<div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Estado</th><th>Slug</th><th>Titulo ES</th><th>Titulo EN</th><th>Actualizado</th><th>Acciones</th></tr></thead><tbody>${articulos
-                .map(row => {
-                  const published = Boolean(row.publicado);
-                  return `<tr>
+    <section class="admin-panel admin-panel--conocimiento-list">
+      <div class="admin-panel__head">
+        <h2>Articulos</h2>
+        <a class="admin-button admin-button--ghost" href="#/conocimiento">Nuevo articulo</a>
+      </div>
+      <div class="admin-help" style="padding:0 16px 12px">
+        CMS basico de articulos editorial: crea, edita y publica contenido para la seccion de Conocimiento.
+      </div>
+      ${
+        articulos.length
+          ? `<div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Estado</th><th>Slug</th><th>Titulo ES</th><th>Titulo EN</th><th>Actualizado</th><th>Acciones</th></tr></thead><tbody>${articulos
+              .map(row => {
+                const published = Boolean(row.publicado);
+                return `<tr>
                     <td>${published ? '<span class="admin-badge admin-badge--ok">Publicado</span>' : '<span class="admin-badge admin-badge--warn">Borrador</span>'}</td>
                     <td>${escapeHtml(text(row.slug))}</td>
                     <td>${escapeHtml(text(row.titulo_es))}</td>
@@ -3363,49 +3362,52 @@ async function conocimientoView(): Promise<string> {
                       <a class="admin-button admin-button--ghost" href="/es/conocimiento/${encodeURIComponent(text(row.slug))}" target="_blank" rel="noreferrer noopener">Ver</a>
                     </td>
                   </tr>`;
-                })
-                .join('')}</tbody></table></div>`
-            : '<div style="padding:16px"><div class="admin-alert">Aún no hay artículos. Crea el primero con el formulario de la derecha.</div></div>'
-        }
-      </section>
-      <section class="admin-panel">
-        <div class="admin-panel__head">
-          <h2>${draft.id ? 'Editar articulo' : 'Nuevo articulo'}</h2>
-          ${draft.id ? `<a class="admin-button admin-button--ghost" href="#/conocimiento">Limpiar</a>` : ''}
-        </div>
-        <form class="admin-form" data-article-form style="padding:16px">
-          <input type="hidden" name="id" value="${escapeHtml(draft.id ?? '')}" />
+              })
+              .join('')}</tbody></table></div>`
+          : '<div style="padding:16px"><div class="admin-alert">Aún no hay artículos. Crea el primero con el formulario de abajo.</div></div>'
+      }
+    </section>
+    <section class="admin-panel admin-panel--conocimiento-form">
+      <div class="admin-panel__head">
+        <h2>${draft.id ? 'Editar articulo' : 'Nuevo articulo'}</h2>
+        ${draft.id ? `<a class="admin-button admin-button--ghost" href="#/conocimiento">Limpiar</a>` : ''}
+      </div>
+      <form class="admin-form" data-article-form style="padding:16px">
+        <input type="hidden" name="id" value="${escapeHtml(draft.id ?? '')}" />
+        <div class="admin-article-toprow">
           ${field('slug', 'Slug', draft.slug, true)}
-          <div class="admin-upload-box">
-            <div class="admin-help">Imagen principal del artículo</div>
-            <input type="hidden" name="imagen" value="${escapeHtml(draft.imagen ?? '')}" />
-            <div class="admin-preview-box" data-image-preview style="${draft.imagen ? '' : 'display:none;'} margin-bottom:12px;">
-              ${draft.imagen ? `<img src="${escapeHtml(draft.imagen)}" alt="Preview" style="max-width:100%; max-height:150px; border-radius:8px;" />` : ''}
-            </div>
-            ${upload('articulos', 'imagen', 'Subir imagen')}
-          </div>
           ${field('titulo_es', 'Titulo ES', draft.titulo_es, true)}
           ${field('titulo_en', 'Titulo EN', draft.titulo_en)}
-          <div class="admin-markdown-grid">
-            <div>
-              ${textarea('cuerpo_es', 'Cuerpo ES', draft.cuerpo_es)}
-              <div class="admin-help" style="margin-top:8px">Vista previa ES</div>
-              <div class="admin-markdown-preview" data-article-preview-es>${renderMarkdown(draft.cuerpo_es || '')}</div>
-            </div>
-            <div>
-              ${textarea('cuerpo_en', 'Cuerpo EN', draft.cuerpo_en)}
-              <div class="admin-help" style="margin-top:8px">Vista previa EN</div>
-              <div class="admin-markdown-preview" data-article-preview-en>${renderMarkdown(draft.cuerpo_en || '')}</div>
+        </div>
+        <div class="admin-upload-box">
+          <div class="admin-upload-box__info">
+            <div class="admin-help">Imagen principal del artículo</div>
+            <input type="hidden" name="imagen" value="${escapeHtml(draft.imagen ?? '')}" />
+            <div class="admin-preview-box" data-image-preview style="${draft.imagen ? '' : 'display:none;'}">
+              ${draft.imagen ? `<img src="${escapeHtml(draft.imagen)}" alt="Preview" style="max-width:100%; max-height:150px; border-radius:8px;" />` : ''}
             </div>
           </div>
-          ${checkbox('publicado', 'Publicado', draft.publicado)}
-          <div class="admin-toolbar">
-            <button class="admin-button" type="submit">Guardar articulo</button>
-            ${draft.id ? '<button class="admin-button admin-button--danger" data-article-delete type="button">Eliminar articulo</button>' : ''}
+          ${upload('articulos', 'imagen', 'Subir imagen')}
+        </div>
+        <div class="admin-markdown-grid">
+          <div>
+            ${textarea('cuerpo_es', 'Cuerpo ES', draft.cuerpo_es)}
+            <div class="admin-help" style="margin-top:8px">Vista previa ES</div>
+            <div class="admin-markdown-preview" data-article-preview-es>${renderMarkdown(draft.cuerpo_es || '')}</div>
           </div>
-          <div class="admin-alert">El contenido del CMS vive en "articulos". Las páginas publicas solo muestran registros publicados.</div>
-        </form>
-      </section>
+          <div>
+            ${textarea('cuerpo_en', 'Cuerpo EN', draft.cuerpo_en)}
+            <div class="admin-help" style="margin-top:8px">Vista previa EN</div>
+            <div class="admin-markdown-preview" data-article-preview-en>${renderMarkdown(draft.cuerpo_en || '')}</div>
+          </div>
+        </div>
+        ${checkbox('publicado', 'Publicado', draft.publicado)}
+        <div class="admin-toolbar">
+          <button class="admin-button" type="submit">Guardar articulo</button>
+          ${draft.id ? '<button class="admin-button admin-button--danger" data-article-delete type="button">Eliminar articulo</button>' : ''}
+        </div>
+        <div class="admin-alert">El contenido del CMS vive en "articulos". Las páginas publicas solo muestran registros publicados.</div>
+      </form>
     </section>`;
 }
 

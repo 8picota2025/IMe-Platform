@@ -199,6 +199,7 @@
 
 .admin-upload-box {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
@@ -213,6 +214,34 @@
     BlinkMacSystemFont,
     'Segoe UI',
     sans-serif;
+}
+
+.admin-upload-box__info {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  flex: 1 1 220px;
+}
+
+.admin-preview-box img {
+  display: block;
+}
+
+.admin-article-toprow {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+}
+
+@media (max-width: 960px) {
+  .admin-article-toprow {
+    grid-template-columns: 1fr;
+  }
+}
+
+.admin-panel--conocimiento-list .admin-table-wrap {
+  max-height: 52vh;
+  overflow-y: auto;
 }
 
 .admin-upload-box p {
