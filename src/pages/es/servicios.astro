@@ -49,44 +49,49 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildServiciosJsonLd(loc
     <!-- Servicio 01 — Venta -->
     <section class="section" id="venta" aria-labelledby="svc1-h2">
       <div class="container">
-        <div class="about-grid">
-          <div class="about-imgs fade-in">
-            <div class="about-img-main">
-              <img
-                src="/assets/img/tienda-material-biomedico.webp"
-                alt="Tienda y distribución de material biomédico — I-ME Colombia"
-                width="700"
-                height="480"
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-          </div>
-          <div class="about-text fade-in d2">
+        <div class="service-story">
+          <div class="service-copy fade-in">
             <div class="s-label">Servicio 01</div>
             <h2 id="svc1-h2" class="s-title">Venta y distribución de equipos biomédicos</h2>
-            <p>
-              Distribuimos equipos médicos de alta tecnología con las principales marcas del mundo,
-              garantizando certificaciones CE, FDA e INVIMA vigentes para la operación legal y
-              segura en Colombia.
-            </p>
-            <p>
-              Cada venta incluye instalación, puesta en marcha y capacitación al personal clínico,
-              para garantizar el correcto uso del equipo desde el primer día.
-            </p>
-            <ul class="svc-features" style="margin-top:24px">
-              <li>Equipos con registro INVIMA y certificación CE/FDA</li>
-              <li>Asesoría técnica precompra sin compromiso</li>
-              <li>Instalación y configuración en sitio</li>
-              <li>Capacitación al personal médico y de enfermería</li>
-              <li>Garantía del fabricante + garantía I-ME</li>
-              <li>Cobertura en los 32 departamentos de Colombia</li>
-            </ul>
-            <div style="margin-top:36px;display:flex;gap:14px;flex-wrap:wrap">
-              <a href="/es/catalogo/" class="btn btn-primary"
-                ><i class="fas fa-microscope"></i> Ver catálogo</a
+            <div class="service-image fade-in d1">
+              <div class="service-image-frame">
+                <img
+                  src="/assets/img/tienda-material-biomedico.webp"
+                  alt="Tienda y distribución de material biomédico — I-ME Colombia"
+                  width="700"
+                  height="480"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+            </div>
+            <div class="service-copy-body">
+              <p>
+                Distribuimos equipos médicos de alta tecnología con las principales marcas del
+                mundo, garantizando certificaciones CE, FDA e INVIMA vigentes para la operación
+                legal y segura en Colombia.
+              </p>
+              <p>
+                Cada venta incluye instalación, puesta en marcha y capacitación al personal clínico,
+                para garantizar el correcto uso del equipo desde el primer día.
+              </p>
+              <ul class="svc-features" style="margin-top:24px">
+                <li>Equipos con registro INVIMA y certificación CE/FDA</li>
+                <li>Asesoría técnica precompra sin compromiso</li>
+                <li>Instalación y configuración en sitio</li>
+                <li>Capacitación al personal médico y de enfermería</li>
+                <li>Garantía del fabricante + garantía I-ME</li>
+                <li>Cobertura en los 32 departamentos de Colombia</li>
+              </ul>
+              <div
+                class="service-actions"
+                style="margin-top:36px;display:flex;gap:14px;flex-wrap:wrap"
               >
-              <a href="/es/contacto" class="btn btn-outline">Solicitar cotización</a>
+                <a href="/es/catalogo/" class="btn btn-primary"
+                  ><i class="fas fa-microscope"></i> Ver catálogo</a
+                >
+                <a href="/es/contacto" class="btn btn-outline">Solicitar cotización</a>
+              </div>
             </div>
           </div>
         </div>
@@ -96,43 +101,45 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildServiciosJsonLd(loc
     <!-- Servicio 02 — Soporte -->
     <section class="section section-off" id="soporte" aria-labelledby="svc2-h2">
       <div class="container">
-        <div class="about-grid about-grid--reverse">
-          <div class="about-imgs fade-in">
-            <div class="about-img-main">
-              <img
-                src="/assets/img/soporte-tecnico-especializado-opt.webp?v=20260714b"
-                alt="Soporte técnico especializado de equipos biomédicos — I-ME Colombia"
-                width="700"
-                height="480"
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-          </div>
-          <div class="about-text fade-in d2">
+        <div class="service-story service-story--reverse">
+          <div class="service-copy fade-in">
             <div class="s-label">Servicio 02</div>
             <h2 id="svc2-h2" class="s-title">Soporte técnico certificado</h2>
-            <p>
-              Contamos con un equipo de ingenieros biomédicos certificados y especializados en
-              mantenimiento preventivo, correctivo, calibración y verificación metrológica de
-              equipos médicos.
-            </p>
-            <p>
-              Respondemos a solicitudes de servicio en menos de 48 horas con técnicos en campo,
-              minimizando el tiempo de inactividad de sus equipos críticos.
-            </p>
-            <ul class="svc-features" style="margin-top:24px">
-              <li>Mantenimiento preventivo programado</li>
-              <li>Mantenimiento correctivo de emergencia</li>
-              <li>Calibración y verificación metrológica</li>
-              <li>Repuestos y consumibles originales</li>
-              <li>Contratos de mantenimiento anuales</li>
-              <li>Respuesta en campo &lt;48 horas</li>
-            </ul>
-            <div style="margin-top:36px">
-              <a href="/es/contacto" class="btn btn-primary"
-                ><i class="fas fa-headset"></i> Solicitar soporte técnico</a
-              >
+            <div class="service-image fade-in d1">
+              <div class="service-image-frame">
+                <img
+                  src="/assets/img/soporte-tecnico-especializado-opt.webp?v=20260714b"
+                  alt="Soporte técnico especializado de equipos biomédicos — I-ME Colombia"
+                  width="700"
+                  height="480"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+            </div>
+            <div class="service-copy-body">
+              <p>
+                Contamos con un equipo de ingenieros biomédicos certificados y especializados en
+                mantenimiento preventivo, correctivo, calibración y verificación metrológica de
+                equipos médicos.
+              </p>
+              <p>
+                Respondemos a solicitudes de servicio en menos de 48 horas con técnicos en campo,
+                minimizando el tiempo de inactividad de sus equipos críticos.
+              </p>
+              <ul class="svc-features" style="margin-top:24px">
+                <li>Mantenimiento preventivo programado</li>
+                <li>Mantenimiento correctivo de emergencia</li>
+                <li>Calibración y verificación metrológica</li>
+                <li>Repuestos y consumibles originales</li>
+                <li>Contratos de mantenimiento anuales</li>
+                <li>Respuesta en campo &lt;48 horas</li>
+              </ul>
+              <div class="service-actions" style="margin-top:36px">
+                <a href="/es/contacto" class="btn btn-primary"
+                  ><i class="fas fa-headset"></i> Solicitar soporte técnico</a
+                >
+              </div>
             </div>
           </div>
         </div>
@@ -142,43 +149,45 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildServiciosJsonLd(loc
     <!-- Servicio 03 — Financiamiento -->
     <section class="section" id="financiamiento" aria-labelledby="svc3-h2">
       <div class="container">
-        <div class="about-grid">
-          <div class="about-imgs fade-in">
-            <div class="about-img-main">
-              <img
-                src="/assets/img/venta-distribucion-equipos-biomedicos-opt.webp"
-                alt="Venta y distribución de equipos biomédicos para instituciones de salud — I-ME Colombia"
-                width="700"
-                height="480"
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-          </div>
-          <div class="about-text fade-in d2">
+        <div class="service-story">
+          <div class="service-copy fade-in">
             <div class="s-label">Servicio 03</div>
             <h2 id="svc3-h2" class="s-title">Financiamiento médico flexible</h2>
-            <p>
-              Diseñamos planes de financiamiento a medida para que instituciones de salud de todos
-              los tamaños puedan acceder a tecnología biomédica de primera línea sin comprometer su
-              flujo de caja.
-            </p>
-            <p>
-              Trabajamos con entidades financieras especializadas en el sector salud para ofrecerle
-              las mejores condiciones del mercado colombiano.
-            </p>
-            <ul class="svc-features" style="margin-top:24px">
-              <li>Cuotas mensuales fijas sin sorpresas</li>
-              <li>Plazos de 12 a 60 meses</li>
-              <li>Sin codeudor para instituciones de salud</li>
-              <li>Aprobación rápida en 48 horas hábiles</li>
-              <li>Tasa preferencial para hospitales públicos</li>
-              <li>Posibilidad de leasing operativo</li>
-            </ul>
-            <div style="margin-top:36px">
-              <a href="/es/financiacion" class="btn btn-primary"
-                ><i class="fas fa-coins"></i> Consultar financiamiento</a
-              >
+            <div class="service-image fade-in d1">
+              <div class="service-image-frame">
+                <img
+                  src="/assets/img/venta-distribucion-equipos-biomedicos-opt.webp"
+                  alt="Venta y distribución de equipos biomédicos para instituciones de salud — I-ME Colombia"
+                  width="700"
+                  height="480"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+            </div>
+            <div class="service-copy-body">
+              <p>
+                Diseñamos planes de financiamiento a medida para que instituciones de salud de todos
+                los tamaños puedan acceder a tecnología biomédica de primera línea sin comprometer
+                su flujo de caja.
+              </p>
+              <p>
+                Trabajamos con entidades financieras especializadas en el sector salud para
+                ofrecerle las mejores condiciones del mercado colombiano.
+              </p>
+              <ul class="svc-features" style="margin-top:24px">
+                <li>Cuotas mensuales fijas sin sorpresas</li>
+                <li>Plazos de 12 a 60 meses</li>
+                <li>Sin codeudor para instituciones de salud</li>
+                <li>Aprobación rápida en 48 horas hábiles</li>
+                <li>Tasa preferencial para hospitales públicos</li>
+                <li>Posibilidad de leasing operativo</li>
+              </ul>
+              <div class="service-actions" style="margin-top:36px">
+                <a href="/es/financiacion" class="btn btn-primary"
+                  ><i class="fas fa-coins"></i> Consultar financiamiento</a
+                >
+              </div>
             </div>
           </div>
         </div>
@@ -188,44 +197,46 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildServiciosJsonLd(loc
     <!-- Servicio 04 — Asesoría -->
     <section class="section section-off" id="asesoria" aria-labelledby="svc4-h2">
       <div class="container">
-        <div class="about-grid about-grid--reverse">
-          <div class="about-imgs fade-in">
-            <div class="about-img-main">
-              <img
-                src="/assets/img/asesoramiento-tecnico-especializado-opt.webp"
-                alt="Asesoramiento técnico especializado para selección de equipos biomédicos — I-ME Colombia"
-                width="700"
-                height="480"
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-          </div>
-          <div class="about-text fade-in d2">
+        <div class="service-story service-story--reverse">
+          <div class="service-copy fade-in">
             <div class="s-label">Servicio 04</div>
             <h2 id="svc4-h2" class="s-title">Asesoría biomédica integral</h2>
-            <p>
-              Nuestro equipo de consultores biomédicos acompaña a su institución desde el
-              diagnóstico inicial del parque tecnológico hasta la implementación de un plan de
-              renovación o adquisición estratégica.
-            </p>
-            <p>
-              Más de 15 años de experiencia en el sector salud colombiano nos permiten ofrecer
-              asesoría objetiva, sin conflicto de interés, orientada a los mejores resultados para
-              su institución.
-            </p>
-            <ul class="svc-features" style="margin-top:24px">
-              <li>Diagnóstico del parque tecnológico actual</li>
-              <li>Plan de adquisición y renovación estratégica</li>
-              <li>Especificaciones técnicas para licitaciones</li>
-              <li>Evaluación comparativa de equipos</li>
-              <li>Capacitación al personal técnico y clínico</li>
-              <li>Acompañamiento en la gestión INVIMA</li>
-            </ul>
-            <div style="margin-top:36px">
-              <a href="/es/contacto" class="btn btn-primary"
-                ><i class="fas fa-user-tie"></i> Solicitar asesoría</a
-              >
+            <div class="service-image fade-in d1">
+              <div class="service-image-frame">
+                <img
+                  src="/assets/img/asesoramiento-tecnico-especializado-opt.webp"
+                  alt="Asesoramiento técnico especializado para selección de equipos biomédicos — I-ME Colombia"
+                  width="700"
+                  height="480"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+            </div>
+            <div class="service-copy-body">
+              <p>
+                Nuestro equipo de consultores biomédicos acompaña a su institución desde el
+                diagnóstico inicial del parque tecnológico hasta la implementación de un plan de
+                renovación o adquisición estratégica.
+              </p>
+              <p>
+                Más de 15 años de experiencia en el sector salud colombiano nos permiten ofrecer
+                asesoría objetiva, sin conflicto de interés, orientada a los mejores resultados para
+                su institución.
+              </p>
+              <ul class="svc-features" style="margin-top:24px">
+                <li>Diagnóstico del parque tecnológico actual</li>
+                <li>Plan de adquisición y renovación estratégica</li>
+                <li>Especificaciones técnicas para licitaciones</li>
+                <li>Evaluación comparativa de equipos</li>
+                <li>Capacitación al personal técnico y clínico</li>
+                <li>Acompañamiento en la gestión INVIMA</li>
+              </ul>
+              <div class="service-actions" style="margin-top:36px">
+                <a href="/es/contacto" class="btn btn-primary"
+                  ><i class="fas fa-user-tie"></i> Solicitar asesoría</a
+                >
+              </div>
             </div>
           </div>
         </div>
@@ -311,45 +322,58 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildServiciosJsonLd(loc
 </Layout>
 
 <style>
-  /* Layout tipo prensa: la imagen flota junto al texto en vez del grid
-     2 columnas anterior (que usaba un hack de direction:rtl para
-     alternar). Scoped a esta página: no afecta a #quienes-somos en
-     index.astro, que reutiliza .about-grid con un diseño distinto
-     (imagen de fondo + tarjeta de cristal). */
-  .site-faithful .about-grid {
+  .site-faithful .service-story {
     display: block;
   }
 
-  .site-faithful .about-imgs {
+  .site-faithful .service-copy {
+    display: flow-root;
+  }
+
+  .site-faithful .service-image {
     width: 100%;
     margin: 0 0 24px;
   }
 
   @media (min-width: 700px) {
-    .site-faithful .about-imgs {
+    .site-faithful .service-image {
       float: right;
       width: 380px;
       margin: 4px 0 20px 32px;
     }
 
-    .site-faithful .about-grid--reverse .about-imgs {
+    .site-faithful .service-story--reverse .service-image {
       float: left;
       margin: 4px 32px 20px 0;
     }
   }
 
-  .site-faithful .about-img-main {
-    height: auto;
+  .site-faithful .service-image-frame {
+    overflow: hidden;
+    border-radius: var(--radius-xl);
     aspect-ratio: 16 / 10;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .site-faithful .service-image-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   @media (min-width: 700px) {
-    .site-faithful .about-img-main {
+    .site-faithful .service-image-frame {
       aspect-ratio: 4 / 3;
     }
   }
 
-  .site-faithful .svc-features {
+  .site-faithful .service-copy-body p,
+  .site-faithful .service-copy-body li {
+    text-align: justify;
+    text-wrap: pretty;
+  }
+
+  .site-faithful .service-actions {
     clear: both;
   }
 </style>

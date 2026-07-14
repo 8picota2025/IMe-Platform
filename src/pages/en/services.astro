@@ -47,44 +47,49 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildServiciosJsonLd(loc
     <!-- Service 01 — Sales -->
     <section class="section" id="venta" aria-labelledby="svc1-h2">
       <div class="container">
-        <div class="about-grid">
-          <div class="about-imgs fade-in">
-            <div class="about-img-main">
-              <img
-                src="/assets/img/tienda-material-biomedico.webp"
-                alt="Biomedical material store and distribution — I-ME Colombia"
-                width="700"
-                height="480"
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-          </div>
-          <div class="about-text fade-in d2">
+        <div class="service-story">
+          <div class="service-copy fade-in">
             <div class="s-label">Service 01</div>
             <h2 id="svc1-h2" class="s-title">Sales and distribution of biomedical equipment</h2>
-            <p>
-              We distribute high-technology medical equipment from the world’s leading brands,
-              guaranteeing valid CE, FDA and INVIMA certifications for legal and safe operation in
-              Colombia.
-            </p>
-            <p>
-              Every sale includes installation, commissioning and clinical staff training, to ensure
-              correct use of the equipment from day one.
-            </p>
-            <ul class="svc-features" style="margin-top:24px">
-              <li>Equipment with INVIMA registration and CE/FDA certification</li>
-              <li>Pre-purchase technical advice with no obligation</li>
-              <li>On-site installation and configuration</li>
-              <li>Training for medical and nursing staff</li>
-              <li>Manufacturer warranty + I-ME warranty</li>
-              <li>Coverage across the 32 departments of Colombia</li>
-            </ul>
-            <div style="margin-top:36px;display:flex;gap:14px;flex-wrap:wrap">
-              <a href="/en/catalog/" class="btn btn-primary"
-                ><i class="fas fa-microscope"></i> View catalog</a
+            <div class="service-image fade-in d1">
+              <div class="service-image-frame">
+                <img
+                  src="/assets/img/tienda-material-biomedico.webp"
+                  alt="Biomedical material store and distribution — I-ME Colombia"
+                  width="700"
+                  height="480"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+            </div>
+            <div class="service-copy-body">
+              <p>
+                We distribute high-technology medical equipment from the world’s leading brands,
+                guaranteeing valid CE, FDA and INVIMA certifications for legal and safe operation in
+                Colombia.
+              </p>
+              <p>
+                Every sale includes installation, commissioning and clinical staff training, to
+                ensure correct use of the equipment from day one.
+              </p>
+              <ul class="svc-features" style="margin-top:24px">
+                <li>Equipment with INVIMA registration and CE/FDA certification</li>
+                <li>Pre-purchase technical advice with no obligation</li>
+                <li>On-site installation and configuration</li>
+                <li>Training for medical and nursing staff</li>
+                <li>Manufacturer warranty + I-ME warranty</li>
+                <li>Coverage across the 32 departments of Colombia</li>
+              </ul>
+              <div
+                class="service-actions"
+                style="margin-top:36px;display:flex;gap:14px;flex-wrap:wrap"
               >
-              <a href="/en/contact" class="btn btn-outline">Request a quote</a>
+                <a href="/en/catalog/" class="btn btn-primary"
+                  ><i class="fas fa-microscope"></i> View catalog</a
+                >
+                <a href="/en/contact" class="btn btn-outline">Request a quote</a>
+              </div>
             </div>
           </div>
         </div>
@@ -94,42 +99,45 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildServiciosJsonLd(loc
     <!-- Service 02 — Support -->
     <section class="section section-off" id="soporte" aria-labelledby="svc2-h2">
       <div class="container">
-        <div class="about-grid about-grid--reverse">
-          <div class="about-imgs fade-in">
-            <div class="about-img-main">
-              <img
-                src="/assets/img/soporte-tecnico-especializado-opt.webp?v=20260714b"
-                alt="Specialized technical support for biomedical equipment — I-ME Colombia"
-                width="700"
-                height="480"
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-          </div>
-          <div class="about-text fade-in d2">
+        <div class="service-story service-story--reverse">
+          <div class="service-copy fade-in">
             <div class="s-label">Service 02</div>
             <h2 id="svc2-h2" class="s-title">Certified technical support</h2>
-            <p>
-              We have a team of certified biomedical engineers specialized in preventive, corrective
-              maintenance, calibration and metrological verification of medical equipment.
-            </p>
-            <p>
-              We respond to service requests in less than 48 hours with field technicians,
-              minimizing the downtime of your critical equipment.
-            </p>
-            <ul class="svc-features" style="margin-top:24px">
-              <li>Scheduled preventive maintenance</li>
-              <li>Emergency corrective maintenance</li>
-              <li>Calibration and metrological verification</li>
-              <li>Original spare parts and consumables</li>
-              <li>Annual maintenance contracts</li>
-              <li>Field response &lt;48 hours</li>
-            </ul>
-            <div style="margin-top:36px">
-              <a href="/en/contact" class="btn btn-primary"
-                ><i class="fas fa-headset"></i> Request technical support</a
-              >
+            <div class="service-image fade-in d1">
+              <div class="service-image-frame">
+                <img
+                  src="/assets/img/soporte-tecnico-especializado-opt.webp?v=20260714b"
+                  alt="Specialized technical support for biomedical equipment — I-ME Colombia"
+                  width="700"
+                  height="480"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+            </div>
+            <div class="service-copy-body">
+              <p>
+                We have a team of certified biomedical engineers specialized in preventive,
+                corrective maintenance, calibration and metrological verification of medical
+                equipment.
+              </p>
+              <p>
+                We respond to service requests in less than 48 hours with field technicians,
+                minimizing the downtime of your critical equipment.
+              </p>
+              <ul class="svc-features" style="margin-top:24px">
+                <li>Scheduled preventive maintenance</li>
+                <li>Emergency corrective maintenance</li>
+                <li>Calibration and metrological verification</li>
+                <li>Original spare parts and consumables</li>
+                <li>Annual maintenance contracts</li>
+                <li>Field response &lt;48 hours</li>
+              </ul>
+              <div class="service-actions" style="margin-top:36px">
+                <a href="/en/contact" class="btn btn-primary"
+                  ><i class="fas fa-headset"></i> Request technical support</a
+                >
+              </div>
             </div>
           </div>
         </div>
@@ -139,42 +147,44 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildServiciosJsonLd(loc
     <!-- Service 03 — Financing -->
     <section class="section" id="financiamiento" aria-labelledby="svc3-h2">
       <div class="container">
-        <div class="about-grid">
-          <div class="about-imgs fade-in">
-            <div class="about-img-main">
-              <img
-                src="/assets/img/venta-distribucion-equipos-biomedicos-opt.webp"
-                alt="Sales and distribution of biomedical equipment for health institutions — I-ME Colombia"
-                width="700"
-                height="480"
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-          </div>
-          <div class="about-text fade-in d2">
+        <div class="service-story">
+          <div class="service-copy fade-in">
             <div class="s-label">Service 03</div>
             <h2 id="svc3-h2" class="s-title">Flexible medical financing</h2>
-            <p>
-              We design tailored financing plans so that health institutions of all sizes can access
-              first-line biomedical technology without compromising their cash flow.
-            </p>
-            <p>
-              We work with financial institutions specialized in the health sector to offer you the
-              best conditions in the Colombian market.
-            </p>
-            <ul class="svc-features" style="margin-top:24px">
-              <li>Fixed monthly installments with no surprises</li>
-              <li>Terms from 12 to 60 months</li>
-              <li>No co-signer for health institutions</li>
-              <li>Fast approval in 48 business hours</li>
-              <li>Preferential rate for public hospitals</li>
-              <li>Operating lease option</li>
-            </ul>
-            <div style="margin-top:36px">
-              <a href="/en/financing" class="btn btn-primary"
-                ><i class="fas fa-coins"></i> Consult financing</a
-              >
+            <div class="service-image fade-in d1">
+              <div class="service-image-frame">
+                <img
+                  src="/assets/img/venta-distribucion-equipos-biomedicos-opt.webp"
+                  alt="Sales and distribution of biomedical equipment for health institutions — I-ME Colombia"
+                  width="700"
+                  height="480"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+            </div>
+            <div class="service-copy-body">
+              <p>
+                We design tailored financing plans so that health institutions of all sizes can
+                access first-line biomedical technology without compromising their cash flow.
+              </p>
+              <p>
+                We work with financial institutions specialized in the health sector to offer you
+                the best conditions in the Colombian market.
+              </p>
+              <ul class="svc-features" style="margin-top:24px">
+                <li>Fixed monthly installments with no surprises</li>
+                <li>Terms from 12 to 60 months</li>
+                <li>No co-signer for health institutions</li>
+                <li>Fast approval in 48 business hours</li>
+                <li>Preferential rate for public hospitals</li>
+                <li>Operating lease option</li>
+              </ul>
+              <div class="service-actions" style="margin-top:36px">
+                <a href="/en/financing" class="btn btn-primary"
+                  ><i class="fas fa-coins"></i> Consult financing</a
+                >
+              </div>
             </div>
           </div>
         </div>
@@ -184,44 +194,46 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildServiciosJsonLd(loc
     <!-- Service 04 — Advisory -->
     <section class="section section-off" id="asesoria" aria-labelledby="svc4-h2">
       <div class="container">
-        <div class="about-grid about-grid--reverse">
-          <div class="about-imgs fade-in">
-            <div class="about-img-main">
-              <img
-                src="/assets/img/asesoramiento-tecnico-especializado-opt.webp"
-                alt="Specialized technical advisory for biomedical equipment selection — I-ME Colombia"
-                width="700"
-                height="480"
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-          </div>
-          <div class="about-text fade-in d2">
+        <div class="service-story service-story--reverse">
+          <div class="service-copy fade-in">
             <div class="s-label">Service 04</div>
             <h2 id="svc4-h2" class="s-title">Integral biomedical advisory</h2>
-            <p>
-              Our team of biomedical consultants accompanies your institution from the initial
-              assessment of the technology portfolio through to the implementation of a renewal or
-              strategic acquisition plan.
-            </p>
-            <p>
-              Over 15 years of experience in the Colombian health sector allow us to offer objective
-              advice, free of conflicts of interest, geared toward the best results for your
-              institution.
-            </p>
-            <ul class="svc-features" style="margin-top:24px">
-              <li>Assessment of the current technology portfolio</li>
-              <li>Strategic acquisition and renewal plan</li>
-              <li>Technical specifications for tenders</li>
-              <li>Comparative equipment evaluation</li>
-              <li>Training for technical and clinical staff</li>
-              <li>Support with INVIMA management</li>
-            </ul>
-            <div style="margin-top:36px">
-              <a href="/en/contact" class="btn btn-primary"
-                ><i class="fas fa-user-tie"></i> Request advisory</a
-              >
+            <div class="service-image fade-in d1">
+              <div class="service-image-frame">
+                <img
+                  src="/assets/img/asesoramiento-tecnico-especializado-opt.webp"
+                  alt="Specialized technical advisory for biomedical equipment selection — I-ME Colombia"
+                  width="700"
+                  height="480"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+            </div>
+            <div class="service-copy-body">
+              <p>
+                Our team of biomedical consultants accompanies your institution from the initial
+                assessment of the technology portfolio through to the implementation of a renewal or
+                strategic acquisition plan.
+              </p>
+              <p>
+                Over 15 years of experience in the Colombian health sector allow us to offer
+                objective advice, free of conflicts of interest, geared toward the best results for
+                your institution.
+              </p>
+              <ul class="svc-features" style="margin-top:24px">
+                <li>Assessment of the current technology portfolio</li>
+                <li>Strategic acquisition and renewal plan</li>
+                <li>Technical specifications for tenders</li>
+                <li>Comparative equipment evaluation</li>
+                <li>Training for technical and clinical staff</li>
+                <li>Support with INVIMA management</li>
+              </ul>
+              <div class="service-actions" style="margin-top:36px">
+                <a href="/en/contact" class="btn btn-primary"
+                  ><i class="fas fa-user-tie"></i> Request advisory</a
+                >
+              </div>
             </div>
           </div>
         </div>
@@ -307,45 +319,58 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildServiciosJsonLd(loc
 </Layout>
 
 <style>
-  /* Press-style layout: image floats next to the text instead of the
-     previous 2-column grid (which used a direction:rtl hack to
-     alternate). Scoped to this page: does not affect #quienes-somos on
-     index.astro, which reuses .about-grid with a different design
-     (background image + glass card). */
-  .site-faithful .about-grid {
+  .site-faithful .service-story {
     display: block;
   }
 
-  .site-faithful .about-imgs {
+  .site-faithful .service-copy {
+    display: flow-root;
+  }
+
+  .site-faithful .service-image {
     width: 100%;
     margin: 0 0 24px;
   }
 
   @media (min-width: 700px) {
-    .site-faithful .about-imgs {
+    .site-faithful .service-image {
       float: right;
       width: 380px;
       margin: 4px 0 20px 32px;
     }
 
-    .site-faithful .about-grid--reverse .about-imgs {
+    .site-faithful .service-story--reverse .service-image {
       float: left;
       margin: 4px 32px 20px 0;
     }
   }
 
-  .site-faithful .about-img-main {
-    height: auto;
+  .site-faithful .service-image-frame {
+    overflow: hidden;
+    border-radius: var(--radius-xl);
     aspect-ratio: 16 / 10;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .site-faithful .service-image-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   @media (min-width: 700px) {
-    .site-faithful .about-img-main {
+    .site-faithful .service-image-frame {
       aspect-ratio: 4 / 3;
     }
   }
 
-  .site-faithful .svc-features {
+  .site-faithful .service-copy-body p,
+  .site-faithful .service-copy-body li {
+    text-align: justify;
+    text-wrap: pretty;
+  }
+
+  .site-faithful .service-actions {
     clear: both;
   }
 </style>
