@@ -11,6 +11,11 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env['PUBLIC_SUPABASE_URL'] as string | undefined;
 const supabaseAnonKey = import.meta.env['PUBLIC_SUPABASE_ANON_KEY'] as string | undefined;
 const DEFAULT_SUPABASE_TIMEOUT_MS = import.meta.env.SSR ? 8000 : 15000;
+/** Subir fotos (móvil/cámara sin comprimir) puede tardar mucho más que una
+ * consulta de datos normal, sobre todo en redes lentas. El timeout general
+ * (PUBLIC_SUPABASE_TIMEOUT_MS, fijado corto para fallar rápido en build/API)
+ * no debe aplicar aquí. */
+const STORAGE_UPLOAD_TIMEOUT_MS = 60_000;
 
 function resolveSupabaseTimeoutMs(): number {
   const raw = import.meta.env['PUBLIC_SUPABASE_TIMEOUT_MS'] as string | undefined;
@@ -19,9 +24,16 @@ function resolveSupabaseTimeoutMs(): number {
   return DEFAULT_SUPABASE_TIMEOUT_MS;
 }
 
+function requestUrl(input: RequestInfo | URL): string {
+  if (typeof input === 'string') return input;
+  if (input instanceof URL) return input.href;
+  return input.url;
+}
+
 async function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
   const controller = new AbortController();
-  const timeoutMs = resolveSupabaseTimeoutMs();
+  const isStorageObjectRequest = requestUrl(input).includes('/storage/v1/object');
+  const timeoutMs = isStorageObjectRequest ? STORAGE_UPLOAD_TIMEOUT_MS : resolveSupabaseTimeoutMs();
   const timeoutId = globalThis.setTimeout(() => controller.abort(), timeoutMs);
   try {
     return await fetch(input, {

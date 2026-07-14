@@ -6174,8 +6174,13 @@ async function uploadFile(button: HTMLButtonElement, form: HTMLFormElement) {
   input.addEventListener('change', async () => {
     const file = input.files?.[0];
     if (!file) return;
+    const originalLabel = button.textContent;
+    button.disabled = true;
+    button.textContent = 'Subiendo...';
     const path = `${Date.now()}-${slugify(file.name)}`;
     const { error } = await supabase!.storage.from(bucket).upload(path, file, { upsert: false });
+    button.disabled = false;
+    button.textContent = originalLabel;
     if (error) {
       toast(error.message);
       return;
