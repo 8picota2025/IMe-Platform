@@ -31,7 +31,9 @@ const { articulo } = Astro.props as Props;
 const canonical = buildCanonical(`/es/conocimiento/${articulo.slug}`);
 const title = buildPageTitle(articulo.titulo);
 const description = stripMarkdown(articulo.cuerpo || articulo.titulo).slice(0, 155);
-const imagen = imagenParaArticulo(articulo.slug);
+const imagen = articulo.imagen
+  ? { src: articulo.imagen, width: 800, height: 450 }
+  : imagenParaArticulo(articulo.slug);
 
 const jsonLd = combineJsonLd(
   buildOrganizationJsonLd(),

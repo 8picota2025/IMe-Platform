@@ -21,7 +21,9 @@ const articulos = await getArticulos(locale);
 const articulosVista = articulos.map(articulo => ({
   ...articulo,
   resumen: stripMarkdown(articulo.cuerpo),
-  imagen: imagenParaArticulo(articulo.slug),
+  imagen: articulo.imagen
+    ? { src: articulo.imagen, width: 800, height: 450 }
+    : imagenParaArticulo(articulo.slug),
 }));
 
 const itemListJsonLd = {

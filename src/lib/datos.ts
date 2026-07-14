@@ -221,6 +221,7 @@ export interface Articulo {
   slug: string;
   titulo: string;
   cuerpo: string;
+  imagen?: string;
   publicado: boolean;
   created_at: string;
   updated_at: string;
@@ -516,6 +517,7 @@ export async function getArticulos(locale: Locale): Promise<Articulo[]> {
           locale === 'en'
             ? stringValue(raw.cuerpo_en) || stringValue(raw.cuerpo_es)
             : stringValue(raw.cuerpo_es),
+        imagen: stringValue(raw.imagen) || undefined,
         publicado: Boolean(raw.publicado),
         created_at: stringValue(raw.created_at),
         updated_at: stringValue(raw.updated_at),

@@ -519,6 +519,7 @@ CREATE TABLE IF NOT EXISTS articulos (
   titulo_en  TEXT,
   cuerpo_es  TEXT,
   cuerpo_en  TEXT,
+  imagen     TEXT,
   publicado  BOOLEAN NOT NULL DEFAULT false,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()

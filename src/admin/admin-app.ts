@@ -98,6 +98,7 @@ type ArticuloDraft = {
   titulo_en: string;
   cuerpo_es: string;
   cuerpo_en: string;
+  imagen: string;
   publicado: boolean;
 };
 
@@ -3375,6 +3376,11 @@ async function conocimientoView(): Promise<string> {
         <form class="admin-form" data-article-form style="padding:16px">
           <input type="hidden" name="id" value="${escapeHtml(draft.id ?? '')}" />
           ${field('slug', 'Slug', draft.slug, true)}
+          <div class="admin-upload-box">
+            <div class="admin-help">Imagen principal del artículo</div>
+            ${field('imagen', 'URL imagen', draft.imagen)}
+            ${upload('articulos', 'imagen', 'Subir imagen')}
+          </div>
           ${field('titulo_es', 'Titulo ES', draft.titulo_es, true)}
           ${field('titulo_en', 'Titulo EN', draft.titulo_en)}
           <div class="admin-markdown-grid">
@@ -4274,6 +4280,10 @@ function bindArticulos() {
     if (slug instanceof HTMLInputElement && !slug.value) slug.value = slugify(target.value);
   });
 
+  form.querySelectorAll<HTMLButtonElement>('[data-upload]').forEach(button => {
+    button.addEventListener('click', async () => uploadFile(button, form));
+  });
+
   const previewEs = form.querySelector<HTMLElement>('[data-article-preview-es]');
   const previewEn = form.querySelector<HTMLElement>('[data-article-preview-en]');
   const syncPreview = () => {
@@ -4300,6 +4310,7 @@ function bindArticulos() {
       titulo_en: emptyToNull(data.get('titulo_en')),
       cuerpo_es: emptyToNull(data.get('cuerpo_es')),
       cuerpo_en: emptyToNull(data.get('cuerpo_en')),
+      imagen: emptyToNull(data.get('imagen')),
       publicado:
         form.elements.namedItem('publicado') instanceof HTMLInputElement &&
         (form.elements.namedItem('publicado') as HTMLInputElement).checked,
@@ -6066,6 +6077,7 @@ function articleDraft(row: Row | null): ArticuloDraft {
     titulo_en: text(row?.titulo_en),
     cuerpo_es: text(row?.cuerpo_es),
     cuerpo_en: text(row?.cuerpo_en),
+    imagen: text(row?.imagen),
     publicado: row ? Boolean(row.publicado) : false,
   };
 }
