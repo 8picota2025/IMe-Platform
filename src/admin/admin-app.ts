@@ -4330,7 +4330,12 @@ function bindArticulos() {
         toast(error.message);
         return;
       }
-      toast('Articulo guardado');
+      if (payload['publicado'] === true) await triggerRebuild();
+      toast(
+        payload['publicado'] === true
+          ? 'Articulo guardado y publicacion solicitada'
+          : 'Articulo guardado como borrador'
+      );
       location.hash = `#/conocimiento?id=${encodeURIComponent(id)}`;
       await render();
       return;
@@ -4347,7 +4352,12 @@ function bindArticulos() {
       return;
     }
     const insertedId = text(inserted?.id);
-    toast('Articulo guardado');
+    if (payload['publicado'] === true) await triggerRebuild();
+    toast(
+      payload['publicado'] === true
+        ? 'Articulo creado y publicacion solicitada'
+        : 'Articulo creado como borrador'
+    );
     location.hash = `#/conocimiento?id=${encodeURIComponent(insertedId)}`;
     await render();
   });
