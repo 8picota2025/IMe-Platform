@@ -99,8 +99,14 @@ COLOMBIAN LEGAL AND REGULATORY FRAMEWORK AVAILABLE ON THE SITE
 - Institutional users must validate suitability for intended use, service authorization, infrastructure, internal protocols and sanitary obligations.
 - The virtual advisor may provide commercial, technical and general regulatory guidance based on the site, but it does not replace formal legal advice, a binding regulatory opinion or clinical judgment.`;
 
+// Acotado 2026-07-15: el intercepto estático solo debe capturar consultas de
+// contacto y de páginas legales del sitio. Todo lo técnico, regulatorio
+// (INVIMA, normativa, certificaciones), comercial (cotización, garantía,
+// financiación) y de catálogo debe llegar a IMEIA, que dialoga con su base
+// documental — el intercepto amplio anterior lo respondía con párrafos
+// enlatados y degradaba la calidad percibida del asesor.
 const SITE_OR_LEGAL_QUERY_REGEX =
-  /\b(whats?app|correo(?:s)?|email|contact(?:o|os|ar|arme|arlos)?|telefono(?:s)?|phone(?:s)?|empresa|compania|company|sitio|site|pagina(?:s)?|page(?:s)?|catalogo(?:s)?|catalog(?:s)?|servici(?:o|os)|service(?:s)?|financi(?:acion|amiento|ar|ado|ados)?|credito(?:s)?|cuota(?:s)?|plazo(?:s)?|tasa(?:s)?|garanti(?:a|as)|warrant(?:y|ies)|entreg(?:a|as)|delivery|instal(?:acion|aciones|ar)?|calibr(?:acion|aciones)?|mantenim(?:iento|ientos)|support|soporte|legal(?:es)?|ley(?:es)?|law(?:s)?|decreto(?:s)?|decree(?:s)?|resoluci(?:on|ones)|resolution(?:s)?|invima|fda|ce\b|iso|bpm|certific(?:ado|ada|ados|adas|acion|aciones)|certificate(?:s)?|certification(?:s)?|calidad|quality|registro(?:s)? sanitario(?:s)?|sanitary registration(?:s)?|tecnovigil(?:ancia|ance)?|normativ(?:a|as)|regulator(?:io|ios|y)?|cookies?|privacidad|privacy|habeas|terminos|terms|consumidor(?:es)?|consumer(?:s)?|canal(?:es)?|cotizaci(?:on|ones)|quote(?:s)?)\b/i;
+  /\b(whats?app|correo(?:s)? electr[oó]nico(?:s)?|email|tel[eé]fono(?:s)?|phone(?:s)?|canal(?:es)? de (?:contacto|atenci[oó]n)|datos de contacto|contact (?:info|details|channels)|cookies?|privacidad|privacy|habeas|t[eé]rminos y condiciones|terms and conditions|pol[ií]tica(?:s)? de (?:datos|privacidad|cookies))\b/i;
 
 export function getAsesorKnowledgeBase(locale: AsesorKnowledgeLocale): string {
   return locale === 'en'

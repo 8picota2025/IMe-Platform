@@ -3,39 +3,38 @@ import { describe, expect, it } from 'vitest';
 import { buildAsesorStaticFallback, esConsultaSitioOLegal } from './asesor-knowledge';
 
 describe('asesor knowledge', () => {
-  it('detecta certificaciones como consulta de sitio o regulatoria', () => {
-    expect(esConsultaSitioOLegal('Certificaciones')).toBe(true);
-    expect(esConsultaSitioOLegal('tienen registro INVIMA y CE?')).toBe(true);
+  // 2026-07-15: el intercepto estático se acotó a contacto y páginas legales
+  // del sitio. Lo regulatorio (INVIMA, certificaciones), comercial (cotización,
+  // garantía, financiación) y de catálogo debe llegar a IMEIA, no al enlatado.
+  it('deja pasar a IMEIA las consultas regulatorias, comerciales y de catálogo', () => {
+    expect(esConsultaSitioOLegal('Certificaciones')).toBe(false);
+    expect(esConsultaSitioOLegal('tienen registro INVIMA y CE?')).toBe(false);
+    expect(esConsultaSitioOLegal('Resume invima')).toBe(false);
+    expect(esConsultaSitioOLegal('garantia y mantenimiento del monitor')).toBe(false);
+    expect(esConsultaSitioOLegal('quiero una cotización de 3 bombas de infusión')).toBe(false);
+    expect(esConsultaSitioOLegal('qué financiación ofrecen')).toBe(false);
+    expect(esConsultaSitioOLegal('cuáles son sus productos destacados')).toBe(false);
   });
 
-  it('responde con contexto util sobre certificaciones aunque no haya producto', () => {
-    const respuesta = buildAsesorStaticFallback('es', 'Certificaciones');
-
-    expect(respuesta).toContain('registros INVIMA');
-    expect(respuesta).toContain('CE/FDA');
-    expect(respuesta).toContain('producto específico');
+  it('intercepta solo contacto y páginas legales del sitio', () => {
+    expect(esConsultaSitioOLegal('¿Cuál es su WhatsApp?')).toBe(true);
+    expect(esConsultaSitioOLegal('dame el teléfono')).toBe(true);
+    expect(esConsultaSitioOLegal('what is your email')).toBe(true);
+    expect(esConsultaSitioOLegal('política de privacidad')).toBe(true);
+    expect(esConsultaSitioOLegal('uso de cookies')).toBe(true);
+    expect(esConsultaSitioOLegal('términos y condiciones')).toBe(true);
   });
 
-  it('responde con limites claros para financiacion y garantia', () => {
-    const financiacion = buildAsesorStaticFallback('es', 'financiacion y tasas');
-    const garantia = buildAsesorStaticFallback('es', 'garantia y mantenimiento');
-    const sitio = buildAsesorStaticFallback('es', 'inicio y artículos del sitio');
+  it('responde contacto con los canales oficiales', () => {
+    const respuesta = buildAsesorStaticFallback('es', '¿Cuál es su WhatsApp?');
 
-    expect(financiacion).toContain('propuesta formal');
-    expect(garantia).toContain('cotización formal');
-    expect(sitio).toContain('página de inicio');
-    expect(sitio).toContain('artículos');
+    expect(respuesta).toContain('313 867 4059');
+    expect(respuesta).toContain('info@i-me.com.co');
   });
 
-  it('prioriza INVIMA como orientacion regulatoria de dispositivos medicos', () => {
-    const respuesta = buildAsesorStaticFallback(
-      'es',
-      'Que dice INVIMA sobre dispositivos medicos?'
-    );
+  it('responde privacidad con el marco legal aplicable', () => {
+    const respuesta = buildAsesorStaticFallback('es', 'política de privacidad y habeas data');
 
-    expect(respuesta).toContain('autoridad sanitaria');
-    expect(respuesta).toContain('dispositivos médicos');
-    expect(respuesta).toContain('documentación vigente');
-    expect(respuesta).not.toContain('Ley 1581');
+    expect(respuesta).toContain('Ley 1581');
   });
 });
