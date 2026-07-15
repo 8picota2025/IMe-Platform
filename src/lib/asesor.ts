@@ -52,6 +52,35 @@ export interface AccionHandoff {
   resumen: string;
 }
 
+export type AsesorPageType =
+  | 'home'
+  | 'catalog'
+  | 'product'
+  | 'service'
+  | 'knowledge'
+  | 'legal'
+  | 'contact'
+  | 'other';
+
+export interface AsesorNavigationContext {
+  locale: Locale;
+  current_url: string;
+  page_type: AsesorPageType;
+  page_title: string;
+  product_id: string | null;
+  product_slug: string | null;
+  product_name: string | null;
+  category_id: string | null;
+  category_name: string | null;
+  visible_product_ids: string[];
+  comparison_product_ids: string[];
+  quote_list_product_ids: string[];
+  cart_product_ids: string[];
+  referrer: string;
+  session_id: string;
+  conversation_id: string;
+}
+
 export interface RespuestaAsesor {
   texto: string;
   productos: ProductoSugerido[];
@@ -129,6 +158,7 @@ export async function preguntarAsesor(params: {
   historial: MensajeAsesor[];
   locale: Locale;
   turnstileToken?: string | undefined;
+  navigationContext?: AsesorNavigationContext | undefined;
 }): Promise<ResultadoAsesor> {
   const fallbackSitio = esConsultaSitioOLegal(params.mensaje)
     ? buildAsesorStaticFallback(params.locale, params.mensaje)
@@ -177,6 +207,7 @@ export async function preguntarAsesor(params: {
       locale: params.locale,
       turnstileToken: params.turnstileToken,
       sessionId: getSessionId(),
+      navigationContext: params.navigationContext,
     },
   });
 
@@ -276,6 +307,7 @@ async function preguntarAsesorImeia(params: {
   historial: MensajeAsesor[];
   locale: Locale;
   turnstileToken?: string | undefined;
+  navigationContext?: AsesorNavigationContext | undefined;
 }): Promise<RespuestaAsesor> {
   const historial = params.historial.slice(-8).map(m => ({ rol: m.rol, contenido: m.contenido }));
 
@@ -317,6 +349,7 @@ function buildAsesorUserPromptForImeia(
     mensaje: string;
     historial: MensajeAsesor[];
     locale: Locale;
+    navigationContext?: AsesorNavigationContext | undefined;
   },
   historial: { rol: 'usuario' | 'asesor'; contenido: string }[]
 ): string {
@@ -325,6 +358,9 @@ function buildAsesorUserPromptForImeia(
     : '(sin historial previo)';
 
   return `IDIOMA DEL USUARIO: ${params.locale}
+
+CONTEXTO DE NAVEGACION VALIDABLE:
+${JSON.stringify(params.navigationContext ?? null)}
 
 HISTORIAL RECIENTE:
 ${historialTexto}

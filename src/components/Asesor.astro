@@ -531,6 +531,8 @@ const asesorConfig = {
     AccionHandoff,
     ErrorAsesor,
     ProductoSugerido,
+    AsesorNavigationContext,
+    AsesorPageType,
   } from '../lib/asesor';
 
   interface AsesorI18n {
@@ -573,6 +575,7 @@ const asesorConfig = {
       historial: { rol: 'usuario' | 'asesor'; contenido: string; timestamp: Date }[];
       locale: 'es' | 'en';
       turnstileToken?: string | undefined;
+      navigationContext?: AsesorNavigationContext | undefined;
     }) => Promise<
       | {
           ok: true;
@@ -598,6 +601,7 @@ const asesorConfig = {
         }
     >;
     resetHistorial: () => void;
+    getSessionId: () => string;
     obtenerHistorial: () => { rol: 'usuario' | 'asesor'; contenido: string; timestamp: Date }[];
     guardarHistorial: (
       historial: { rol: 'usuario' | 'asesor'; contenido: string; timestamp: Date }[]
@@ -773,6 +777,84 @@ const asesorConfig = {
       return [handoff.resumen.trim(), productosTexto].filter(Boolean).join('\n\n');
     }
 
+    function resolvePageType(pathname: string): AsesorPageType {
+      if (/^\/(es|en)\/?$/.test(pathname)) return 'home';
+      if (/^\/es\/catalogo|^\/en\/catalog/.test(pathname)) return 'catalog';
+      if (/^\/es\/productos\/|^\/en\/products\//.test(pathname)) return 'product';
+      if (/^\/es\/servicios|^\/en\/services/.test(pathname)) return 'service';
+      if (/^\/es\/conocimiento|^\/en\/knowledge/.test(pathname)) return 'knowledge';
+      if (/^\/es\/legal|^\/en\/legal/.test(pathname)) return 'legal';
+      if (/^\/es\/contacto|^\/en\/contact/.test(pathname)) return 'contact';
+      return 'other';
+    }
+
+    function uniqueSlugs(values: string[]): string[] {
+      return [...new Set(values.map(value => value.trim()).filter(Boolean))].slice(0, 12);
+    }
+
+    function getVisibleProductSlugs(): string[] {
+      const pattern =
+        config.locale === 'en' ? /\/en\/products\/([a-z0-9-]+)/ : /\/es\/productos\/([a-z0-9-]+)/;
+      return uniqueSlugs(
+        Array.from(document.querySelectorAll<HTMLAnchorElement>('a[href]'))
+          .map(anchor => anchor.getAttribute('href') ?? '')
+          .map(href => href.match(pattern)?.[1] ?? '')
+      );
+    }
+
+    function readStoredProductSlugs(keys: string[]): string[] {
+      const found: string[] = [];
+      for (const storage of [localStorage, sessionStorage]) {
+        for (const key of keys) {
+          try {
+            const raw = storage.getItem(key);
+            if (!raw) continue;
+            for (const match of raw.matchAll(/"slug"\s*:\s*"([a-z0-9-]+)"/g)) {
+              found.push(match[1] ?? '');
+            }
+          } catch {
+            // ignore storage access failures
+          }
+        }
+      }
+      return uniqueSlugs(found);
+    }
+
+    function buildNavigationContext(): AsesorNavigationContext {
+      const url = new URL(window.location.href);
+      const pageType = resolvePageType(url.pathname);
+      const productMatch =
+        url.pathname.match(/^\/es\/productos\/([a-z0-9-]+)/) ??
+        url.pathname.match(/^\/en\/products\/([a-z0-9-]+)/);
+      const sessionId = asesorLib?.getSessionId?.() ?? crypto.randomUUID();
+
+      return {
+        locale: config.locale,
+        current_url: url.href,
+        page_type: pageType,
+        page_title: document.title,
+        product_id: null,
+        product_slug: productMatch?.[1] ?? null,
+        product_name:
+          pageType === 'product'
+            ? (document.querySelector('h1')?.textContent?.trim() ?? null)
+            : null,
+        category_id: null,
+        category_name: document.querySelector('[data-familia-nombre]')?.textContent?.trim() ?? null,
+        visible_product_ids: getVisibleProductSlugs(),
+        comparison_product_ids: [],
+        quote_list_product_ids: readStoredProductSlugs([
+          'ime_cotizacion',
+          'ime_cotizacion_productos',
+          'ime_quote',
+        ]),
+        cart_product_ids: readStoredProductSlugs(['ime_carrito', 'ime_cart']),
+        referrer: document.referrer,
+        session_id: sessionId,
+        conversation_id: sessionId,
+      };
+    }
+
     function buildHandoffHtml(handoff: AccionHandoff, productos: ProductoSugerido[] = []): string {
       if (handoff.tipo === 'whatsapp') {
         const resumenWhatsapp = buildWhatsappSummary(handoff, productos);
@@ -902,6 +984,7 @@ const asesorConfig = {
           historial,
           locale: config.locale,
           turnstileToken,
+          navigationContext: buildNavigationContext(),
         });
 
         if (!resultado.ok) {
