@@ -131,6 +131,39 @@ interface AsesorApiResponse {
 const SESSION_STORAGE_KEY = 'ime_asesor_session';
 const HISTORIAL_STORAGE_KEY = 'ime_asesor_historial';
 const catalogoPublicadoCache = new Map<Locale, Promise<CatalogoPublicadoItem[]>>();
+const QUERY_STOPWORDS = new Set([
+  'al',
+  'con',
+  'de',
+  'del',
+  'el',
+  'en',
+  'es',
+  'la',
+  'las',
+  'le',
+  'lo',
+  'los',
+  'me',
+  'mi',
+  'otros',
+  'para',
+  'por',
+  'que',
+  'se',
+  'su',
+  'sus',
+  'un',
+  'una',
+  'y',
+  'and',
+  'are',
+  'for',
+  'of',
+  'the',
+  'to',
+  'with',
+]);
 /** Tope de mensajes persistidos (8 turnos usuario+asesor = 16 mensajes), acorde
  * al MAX_HISTORIAL_TURNOS del Edge Function asesor. */
 const MAX_HISTORIAL_MENSAJES = 16;
@@ -622,7 +655,7 @@ function tokenizarConsulta(texto: string): string[] {
   return normalizeSearchText(texto)
     .split(' ')
     .map(token => token.trim())
-    .filter(token => token.length >= 2);
+    .filter(token => token.length >= 2 && !QUERY_STOPWORDS.has(token));
 }
 
 function detectarIntencionCatalogo(texto: string): {
@@ -747,6 +780,49 @@ function puntuarCatalogoPublicado(item: CatalogoPublicadoItem, consulta: string)
   return score;
 }
 
+function buscarProductosMencionadosExplicitamente(
+  items: CatalogoPublicadoItem[],
+  mensaje: string
+): CatalogoPublicadoItem[] {
+  const consultaNormalizada = ` ${normalizeSearchText(mensaje)} `;
+  if (!consultaNormalizada.trim()) return [];
+
+  return items.filter(item => {
+    const slug = normalizeSearchText(item.slug);
+    const nombre = normalizeSearchText(item.nombre);
+    const nombreTokens = nombre.split(' ').filter(token => token.length >= 3);
+    const codigos = nombreTokens.filter(token => /^(?=.*\d)[a-z0-9]{2,}$/.test(token));
+    const frasesCodigo = [slug, nombre]
+      .flatMap(texto => {
+        const tokens = texto.split(' ').filter(Boolean);
+        return tokens.slice(0, -1).map((token, index) => `${token} ${tokens[index + 1]}`);
+      })
+      .filter(
+        frase => /[a-z]/.test(frase) && /\d/.test(frase) && frase.replace(/\s+/g, '').length >= 4
+      );
+
+    if (slug && consultaNormalizada.includes(` ${slug} `)) return true;
+    if (nombre && nombre.length >= 8 && consultaNormalizada.includes(` ${nombre} `)) return true;
+
+    return (
+      codigos.some(codigo => consultaNormalizada.includes(` ${codigo} `)) ||
+      frasesCodigo.some(frase => consultaNormalizada.includes(` ${frase} `))
+    );
+  });
+}
+
+function perteneceAlMismoGrupoCatalogo(
+  item: CatalogoPublicadoItem,
+  productosBase: CatalogoPublicadoItem[]
+): boolean {
+  return productosBase.some(
+    base =>
+      item.slug === base.slug ||
+      item.tipo?.slug === base.tipo?.slug ||
+      item.familia.slug === base.familia.slug
+  );
+}
+
 async function buscarCatalogoPublicado(
   mensaje: string,
   locale: Locale
@@ -754,11 +830,24 @@ async function buscarCatalogoPublicado(
   const items = await cargarCatalogoPublicado(locale);
   if (items.length === 0) return [];
   const intencion = detectarIntencionCatalogo(mensaje);
+  const productosExplicitos = buscarProductosMencionadosExplicitamente(items, mensaje);
 
   let matches = items
     .map(item => ({ item, score: puntuarCatalogoPublicado(item, mensaje) }))
+    .map(match => ({
+      ...match,
+      score: productosExplicitos.some(producto => producto.slug === match.item.slug)
+        ? match.score + 500
+        : match.score,
+    }))
     .filter(match => match.score >= 70)
     .sort((a, b) => b.score - a.score);
+
+  if (productosExplicitos.length > 0) {
+    matches = matches.filter(
+      ({ item, score }) => score >= 110 && perteneceAlMismoGrupoCatalogo(item, productosExplicitos)
+    );
+  }
 
   if (intencion.infusion) {
     matches = matches.filter(

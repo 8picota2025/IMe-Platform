@@ -261,4 +261,78 @@ describe('asesor biomedical fallback', () => {
       globalThis.fetch = originalFetch;
     }
   });
+
+  it('no mezcla productos no relacionados cuando el usuario menciona explicitamente WR-3D', async () => {
+    const originalFetch = globalThis.fetch;
+
+    globalThis.fetch = (async () =>
+      new Response(
+        JSON.stringify([
+          {
+            slug: 'sistema-radiografico-3d-wr-3d',
+            nombre: 'Sistema Radiográfico 3D WR-3D',
+            familia: { slug: 'imagenologia-y-radiologia', nombre: 'Imagenología y Radiología' },
+            tipo: { slug: 'radiografia-digital-dr', nombre: 'Radiografía Digital DR' },
+            descripcion_corta: 'Sistema radiográfico 3D en posición de carga con CBCT.',
+            imagen_principal: 'https://example.com/wr3d.jpg',
+            texto_busqueda:
+              'sistema radiografico 3d wr 3d posicion carga cbct imagenologia radiologia',
+          },
+          {
+            slug: 'sistema-radiografico-3d-en-carga-wr-3d',
+            nombre: 'Sistema Radiográfico 3D en Carga WR-3D',
+            familia: { slug: 'imagenologia-y-radiologia', nombre: 'Imagenología y Radiología' },
+            tipo: { slug: 'radiografia-digital-dr', nombre: 'Radiografía Digital DR' },
+            descripcion_corta:
+              'Sistema de radiografía digital con reconstrucción volumétrica 3D para columna completa y miembros inferiores en posición de carga.',
+            imagen_principal: 'https://example.com/wr3d-carga.jpg',
+            texto_busqueda:
+              'sistema radiografico 3d carga wr 3d reconstruccion volumetrica columna miembros inferiores',
+          },
+          {
+            slug: 'klorsept-granulos-500gr-ref-1013-medentech',
+            nombre: 'Klorsept Gránulos 500gr Ref 1013 Medentech',
+            familia: { slug: 'control-infecciones', nombre: 'Control de infecciones' },
+            tipo: { slug: 'desinfeccion', nombre: 'Desinfección' },
+            descripcion_corta: 'Absorción y desinfección de derrames líquidos contaminados.',
+            imagen_principal: 'https://example.com/klorsept.jpg',
+            texto_busqueda: 'klorsept granulos desinfeccion derrames fluidos sangre',
+          },
+          {
+            slug: 'sistema-resusa-tee-ref-10-51504-mercury',
+            nombre: 'Sistema Resusa-Tee Ref 10-51504 Mercury',
+            familia: { slug: 'neonatologia', nombre: 'Neonatología' },
+            tipo: { slug: 'reanimacion-neonatal', nombre: 'Reanimación Neonatal' },
+            descripcion_corta: 'Circuito reanimador neonatal de pieza en T.',
+            imagen_principal: 'https://example.com/resusa.jpg',
+            texto_busqueda: 'resusa tee circuito reanimador neonatal pip peep',
+          },
+        ]),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )) as typeof fetch;
+
+    try {
+      resetCatalogoPublicadoCache();
+      const respuesta = await buildResilientFallbackResponse({
+        mensaje:
+          'Hablame del wr-3d, cómpralo con otros productos similares indicando sus ventajas.',
+        historial: [],
+        locale: 'es',
+      });
+
+      expect(respuesta.productos.map(producto => producto.slug)).toEqual([
+        'sistema-radiografico-3d-wr-3d',
+        'sistema-radiografico-3d-en-carga-wr-3d',
+      ]);
+      expect(respuesta.texto).toContain('Sistema Radiográfico 3D WR-3D');
+      expect(respuesta.texto).toContain('Sistema Radiográfico 3D en Carga WR-3D');
+      expect(respuesta.texto).not.toContain('Klorsept');
+      expect(respuesta.texto).not.toContain('Resusa-Tee');
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
 });
