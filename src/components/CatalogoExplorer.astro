@@ -1,9 +1,9 @@
 ---
 /**
  * CatalogoExplorer — explorador de catálogo compartido ES/EN.
- * Jerarquía Familia → Producto (sin nivel Tipo, no hay datos),
- * con búsqueda, filtros, facetas dinámicas, paginación, comparador
- * y sincronización de estado vía query params. Progressive enhancement:
+ * Jerarquía Familia → Tipo → Producto, con búsqueda, filtros,
+ * facetas dinámicas, paginación, comparador y sincronización de estado
+ * vía query params (`?familia=&tipo=`). Progressive enhancement:
  * todo el contenido está en el HTML; el script solo filtra/oculta.
  */
 import { t, type Locale } from '../i18n/utils';
@@ -46,7 +46,7 @@ const hayNuevos = items.some(item => item.nuevo);
     />
   </div>
 
-  <!-- Familia actual (navegación dentro de una categoría) -->
+  <!-- Familia/tipo actual (navegación dentro de una categoría) -->
   <div id="catalogo-familia-actual" class="catalogo__familia-actual" hidden>
     <div class="catalogo__familia-actual-meta">
       <div
@@ -55,11 +55,24 @@ const hayNuevos = items.some(item => item.nuevo);
         aria-hidden="true"
       >
       </div>
-      <h2 id="catalogo-familia-actual-nombre" class="section-subtitle"></h2>
+      <div class="catalogo__familia-actual-textos">
+        <h2 id="catalogo-familia-actual-nombre" class="section-subtitle"></h2>
+        <p id="catalogo-familia-actual-tipo" class="catalogo__familia-actual-tipo" hidden></p>
+      </div>
     </div>
     <button type="button" id="catalogo-familia-actual-quitar" class="btn btn-ghost">
       {t(locale, 'catalogo.mostrar_todos')}
     </button>
+  </div>
+
+  <!-- Chips de tipo (visibles cuando hay familia seleccionada) -->
+  <div
+    id="catalogo-tipo-chips"
+    class="catalogo-tipo-chips"
+    role="group"
+    aria-label={t(locale, 'catalogo.tipo_titulo')}
+    hidden
+  >
   </div>
 
   <!-- Vista familias (overview) -->
@@ -168,6 +181,15 @@ const hayNuevos = items.some(item => item.nuevo);
               </>
             ))
           }
+        </div>
+      </div>
+
+      <div id="catalogo-tipo-bloque" class="catalogo-filtros__grupo-bloque" hidden>
+        <p class="catalogo-filtros__heading">{t(locale, 'catalogo.tipo_titulo')}</p>
+        <div
+          id="catalogo-tipo-lista"
+          class="catalogo-filtros__lista catalogo-filtros__lista--tipos"
+        >
         </div>
       </div>
 
@@ -449,6 +471,56 @@ const hayNuevos = items.some(item => item.nuevo);
     align-items: center;
     gap: 0.85rem;
   }
+  .catalogo__familia-actual-textos {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+  .catalogo__familia-actual-tipo {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--text-mid, #5b6b76);
+  }
+  .catalogo__familia-actual-tipo[hidden] {
+    display: none;
+  }
+  .catalogo-tipo-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0 0 var(--space-md);
+  }
+  .catalogo-tipo-chips[hidden] {
+    display: none;
+  }
+  .catalogo-tipo-chip {
+    appearance: none;
+    border: 1px solid var(--border, #d6e0e8);
+    background: var(--surface, #fff);
+    color: var(--ink, #12202a);
+    border-radius: 999px;
+    padding: 0.35rem 0.85rem;
+    font: inherit;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition:
+      background 0.15s ease,
+      border-color 0.15s ease,
+      color 0.15s ease;
+  }
+  .catalogo-tipo-chip:hover {
+    border-color: var(--t800, #0b6e4f);
+  }
+  .catalogo-tipo-chip--activa {
+    background: var(--t800, #0b6e4f);
+    border-color: var(--t800, #0b6e4f);
+    color: #fff;
+  }
+  .catalogo-tipo-chip:focus-visible {
+    outline: 2px solid var(--t800, #0b6e4f);
+    outline-offset: 2px;
+  }
   .catalogo__familia-actual-icono {
     width: 46px;
     height: 46px;
@@ -673,6 +745,34 @@ const hayNuevos = items.some(item => item.nuevo);
   .catalogo-filtros__familia--subfamilia {
     padding-inline-start: 1.45rem;
     font-size: 0.8rem;
+  }
+  .catalogo-filtros__lista--tipos {
+    gap: 0.35rem;
+  }
+  .catalogo-filtros__tipo {
+    display: flex;
+    width: 100%;
+    text-align: start;
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    padding: 0.4rem 0.55rem;
+    border-radius: 0.45rem;
+    cursor: pointer;
+  }
+  .catalogo-filtros__tipo:hover {
+    background: var(--t100);
+  }
+  .catalogo-filtros__tipo--activa {
+    background: var(--t100);
+    color: var(--t900);
+    font-weight: 700;
+  }
+  .catalogo-filtros__tipo:focus-visible {
+    outline: 2px solid var(--t800);
+    outline-offset: 2px;
   }
   .catalogo-filtros__opcion {
     display: flex;
@@ -1074,22 +1174,6 @@ const hayNuevos = items.some(item => item.nuevo);
   const catalogoWindow = window as Window & { __imeCatalogoCleanup?: (() => void) | null };
 
   catalogoWindow.__imeCatalogoCleanup?.();
-
-  // Captura el deep-link de categoría antes de inicializar el
-  // catálogo, ya que initCatalogo puede limpiar la query de la URL.
-  const searchParams = new URLSearchParams(window.location.search);
-  const familia = searchParams.get('familia') ?? searchParams.get('cat');
-
+  // initCatalogo lee familia/tipo desde ?familia=&tipo= (también acepta ?cat=).
   catalogoWindow.__imeCatalogoCleanup = initCatalogo(locale);
-
-  // Replica el comportamiento de las cat-card de producción: abre el catálogo
-  // ya filtrado por familia activando el botón de filtro correspondiente.
-  if (familia) {
-    requestAnimationFrame(() => {
-      const btn = document.querySelector<HTMLButtonElement>(
-        `[data-familia-filter="${CSS.escape(familia)}"]`
-      );
-      if (btn) btn.click();
-    });
-  }
 </script>

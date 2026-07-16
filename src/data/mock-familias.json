@@ -1,236 +1,5 @@
 [
   {
-    "id": "845f584f-c74b-4006-9c7b-6ad19f0d4cd9",
-    "slug": "cirugia",
-    "nombre_es": "Cirugía",
-    "nombre_en": "Cirugía",
-    "descripcion_es": "",
-    "descripcion_en": "",
-    "icono": "",
-    "orden": 0,
-    "activo": false
-  },
-  {
-    "id": "ed4c06d8-7c3b-4110-b887-c280ad45b0be",
-    "slug": "control-y-prevenci-n",
-    "nombre_es": "Control y prevención",
-    "nombre_en": "Control y prevención",
-    "descripcion_es": "",
-    "descripcion_en": "",
-    "icono": "",
-    "orden": 0,
-    "activo": false
-  },
-  {
-    "id": "686091fd-1dc2-4879-b213-f38afc4d2eb1",
-    "slug": "radiolog-a-y-diagn-stico-por-imagen",
-    "nombre_es": "Radiología y Diagnóstico por Imagen",
-    "nombre_en": "Radiología y Diagnóstico por Imagen",
-    "descripcion_es": "",
-    "descripcion_en": "",
-    "icono": "",
-    "orden": 0,
-    "activo": false
-  },
-  {
-    "id": "494c976a-b069-47b8-ba75-b95af11615e3",
-    "slug": "cardiolog-a",
-    "nombre_es": "Cardiología",
-    "nombre_en": "Cardiología",
-    "descripcion_es": "",
-    "descripcion_en": "",
-    "icono": "",
-    "orden": 0,
-    "activo": false
-  },
-  {
-    "id": "495b85f3-a41e-4edb-ac0c-c8a539ebcc01",
-    "slug": "oxigenoterapia",
-    "nombre_es": "Oxigenoterapia",
-    "nombre_en": "Oxigenoterapia",
-    "descripcion_es": "",
-    "descripcion_en": "",
-    "icono": "",
-    "orden": 0,
-    "activo": false
-  },
-  {
-    "id": "9349afdf-7c9f-4997-813d-7cb56907b63d",
-    "slug": "control-prevencion",
-    "nombre_es": "Control y prevención",
-    "nombre_en": "Control y prevención",
-    "descripcion_es": "",
-    "descripcion_en": "",
-    "icono": "",
-    "orden": 0,
-    "activo": false
-  },
-  {
-    "id": "81fa6915-7389-4017-ba84-a73540593d7c",
-    "slug": "nebulizacion-oxigenoterapia",
-    "nombre_es": "Nebulización y oxigenoterapia",
-    "nombre_en": "Nebulización y oxigenoterapia",
-    "descripcion_es": "",
-    "descripcion_en": "",
-    "icono": "",
-    "orden": 0,
-    "activo": false
-  },
-  {
-    "id": "548cacd2-53c2-484a-954e-05d79007a904",
-    "slug": "terapia-infusion",
-    "nombre_es": "Terapia de infusión",
-    "nombre_en": "Terapia de infusión",
-    "descripcion_es": "",
-    "descripcion_en": "",
-    "icono": "",
-    "orden": 0,
-    "activo": false
-  },
-  {
-    "id": "e906a530-682a-47c4-8b91-5540829986f7",
-    "slug": "ecg",
-    "nombre_es": "ECG",
-    "nombre_en": "ECG",
-    "descripcion_es": "",
-    "descripcion_en": "",
-    "icono": "",
-    "orden": 0,
-    "activo": false
-  },
-  {
-    "id": "cd62980b-31c1-402f-9d7c-8fc89e0d8d95",
-    "slug": "imaginologia",
-    "nombre_es": "Imaginología",
-    "nombre_en": "Imaginología",
-    "descripcion_es": "",
-    "descripcion_en": "",
-    "icono": "",
-    "orden": 0,
-    "activo": false
-  },
-  {
-    "id": "0c3b1937-ede2-4345-aaee-9caa7cfd7556",
-    "slug": "anestesia-y-ventilaci-n",
-    "nombre_es": "Anestesia y Ventilación",
-    "nombre_en": "Anestesia y Ventilación",
-    "descripcion_es": "",
-    "descripcion_en": "",
-    "icono": "",
-    "orden": 0,
-    "activo": false
-  },
-  {
-    "id": "d15700c5-b327-407a-b6b7-1b994ef0fe8a",
-    "slug": "sala-de-cirug-a",
-    "nombre_es": "Sala de Cirugía",
-    "nombre_en": "Sala de Cirugía",
-    "descripcion_es": "",
-    "descripcion_en": "",
-    "icono": "",
-    "orden": 0,
-    "activo": false
-  },
-  {
-    "id": "69fdc4ce-3193-4d6e-ba21-f33fe7cdaff8",
-    "slug": "neonatolog-a",
-    "nombre_es": "Neonatología",
-    "nombre_en": "Neonatología",
-    "descripcion_es": "",
-    "descripcion_en": "",
-    "icono": "",
-    "orden": 0,
-    "activo": false
-  },
-  {
-    "id": "e07202a1-045d-4b91-aca0-702536cf03b3",
-    "slug": "esterilizacion",
-    "nombre_es": "Esterilización",
-    "nombre_en": "Esterilización",
-    "descripcion_es": "",
-    "descripcion_en": "",
-    "icono": "",
-    "orden": 0,
-    "activo": false
-  },
-  {
-    "id": "8f989a5f-a308-43ac-ac3b-e1d8c1026995",
-    "slug": "equipamiento-clinico-general",
-    "nombre_es": "Equipamiento clínico general",
-    "nombre_en": "Equipamiento clínico general",
-    "descripcion_es": "",
-    "descripcion_en": "",
-    "icono": "",
-    "orden": 0,
-    "activo": false
-  },
-  {
-    "id": "e4e48274-bcbc-4a00-a89d-86c274b95602",
-    "slug": "neonatologia-ginecologia",
-    "nombre_es": "Neonatología y ginecología",
-    "nombre_en": "Neonatología y ginecología",
-    "descripcion_es": "",
-    "descripcion_en": "",
-    "icono": "",
-    "orden": 0,
-    "activo": false
-  },
-  {
-    "id": "70cbab0b-8704-4792-b468-865ca5ac3bd5",
-    "slug": "quirofano-anestesia",
-    "nombre_es": "Quirófano y anestesia",
-    "nombre_en": "Quirófano y anestesia",
-    "descripcion_es": "",
-    "descripcion_en": "",
-    "icono": "",
-    "orden": 0,
-    "activo": false
-  },
-  {
-    "id": "65defba5-380a-45b2-a53c-a7e6ae2f8d41",
-    "slug": "mobiliario-clinico",
-    "nombre_es": "Mobiliario clínico",
-    "nombre_en": "Mobiliario clínico",
-    "descripcion_es": "",
-    "descripcion_en": "",
-    "icono": "",
-    "orden": 0,
-    "activo": false
-  },
-  {
-    "id": "d1db8709-1752-4d67-a8dd-75a25f6ba259",
-    "slug": "imagenologia",
-    "nombre_es": "Imagenología",
-    "nombre_en": "Imagenología",
-    "descripcion_es": "",
-    "descripcion_en": "",
-    "icono": "",
-    "orden": 0,
-    "activo": false
-  },
-  {
-    "id": "d0f5f401-5185-48ef-af65-71c0b4ff7f74",
-    "slug": "monitorizacion-diagnostico",
-    "nombre_es": "Monitorización y diagnóstico",
-    "nombre_en": "Monitorización y diagnóstico",
-    "descripcion_es": "",
-    "descripcion_en": "",
-    "icono": "",
-    "orden": 0,
-    "activo": false
-  },
-  {
-    "id": "c280f9c8-af27-4d07-b98a-d0f8c09a3131",
-    "slug": "bombas-infusion",
-    "nombre_es": "Bombas de Infusión",
-    "nombre_en": "Bombas de Infusión",
-    "descripcion_es": "",
-    "descripcion_en": "",
-    "icono": "",
-    "orden": 0,
-    "activo": false
-  },
-  {
     "id": "61d5c2d6-acdc-4de3-896d-044269702899",
     "slug": "ventiladores",
     "nombre_es": "Ventiladores",
@@ -239,28 +8,6 @@
     "descripcion_en": "",
     "icono": "",
     "orden": 0,
-    "activo": false
-  },
-  {
-    "id": "840ba70e-f16f-4b9f-80c8-2f799c3f0278",
-    "slug": "ginecologia-neonatologia",
-    "nombre_es": "Ginecología/Neonatología",
-    "nombre_en": "Ginecología/Neonatología",
-    "descripcion_es": "",
-    "descripcion_en": "",
-    "icono": "",
-    "orden": 0,
-    "activo": false
-  },
-  {
-    "id": "b57e2a28-efbd-4c65-975e-31c5a43d13a2",
-    "slug": "gmd-movilidad",
-    "nombre_es": "Movilidad",
-    "nombre_en": "Movilidad",
-    "descripcion_es": "Cuidado en casa",
-    "descripcion_en": "",
-    "icono": "",
-    "orden": 1,
     "activo": false
   },
   {
@@ -275,17 +22,6 @@
     "activo": true
   },
   {
-    "id": "a7aa769d-85dd-441a-9e12-ac13c5f5025b",
-    "slug": "gmd-terapia-respiratoria",
-    "nombre_es": "Terapia respiratoria",
-    "nombre_en": "Terapia respiratoria",
-    "descripcion_es": "Cuidado en casa",
-    "descripcion_en": "",
-    "icono": "",
-    "orden": 18,
-    "activo": false
-  },
-  {
     "id": "377aff8d-bf3e-494a-a616-b53555b8b24c",
     "slug": "anestesia",
     "nombre_es": "Anestesia y soporte ventilatorio",
@@ -297,17 +33,6 @@
     "activo": true
   },
   {
-    "id": "8df5b1c3-5139-422e-8112-5f8ee5c59929",
-    "slug": "gmd-control-y-prevencion",
-    "nombre_es": "Control y prevención",
-    "nombre_en": "Control y prevención",
-    "descripcion_es": "Cuidado en casa",
-    "descripcion_en": "",
-    "icono": "",
-    "orden": 20,
-    "activo": false
-  },
-  {
     "id": "d0c65bfa-4208-40dc-a021-8e98909456ad",
     "slug": "cardiologia",
     "nombre_es": "Cardiología diagnóstica",
@@ -317,17 +42,6 @@
     "icono": "",
     "orden": 30,
     "activo": true
-  },
-  {
-    "id": "737aade8-ebe8-4df4-a447-546aa0b44bea",
-    "slug": "gmd-confort",
-    "nombre_es": "Confort",
-    "nombre_en": "Confort",
-    "descripcion_es": "Cuidado en casa",
-    "descripcion_en": "",
-    "icono": "",
-    "orden": 33,
-    "activo": false
   },
   {
     "id": "abc954b1-dea0-4911-a96d-678c5a0ecb52",
@@ -385,17 +99,6 @@
     "activo": true
   },
   {
-    "id": "3d631fe7-2f3b-4b43-a07c-861844755476",
-    "slug": "mobiliario",
-    "nombre_es": "Mobiliario hospitalario e infraestructura clínica",
-    "nombre_en": "Mobiliario hospitalario e infraestructura clínica",
-    "descripcion_es": "",
-    "descripcion_en": "",
-    "icono": "",
-    "orden": 90,
-    "activo": true
-  },
-  {
     "id": "f174f837-09ad-4f7b-b425-f26edc168530",
     "slug": "insumos-accesorios",
     "nombre_es": "Insumos y accesorios",
@@ -407,15 +110,15 @@
     "activo": true
   },
   {
-    "id": "ecb3b264-033f-4718-b86d-2ae98214529e",
-    "slug": "gmd-actividades-de-la-vida-diaria",
-    "nombre_es": "Actividades de la vida diaria",
-    "nombre_en": "Actividades de la vida diaria",
-    "descripcion_es": "Cuidado en casa",
+    "id": "3d631fe7-2f3b-4b43-a07c-861844755476",
+    "slug": "mobiliario",
+    "nombre_es": "Mobiliario hospitalario e infraestructura clínica",
+    "nombre_en": "Mobiliario hospitalario e infraestructura clínica",
+    "descripcion_es": "",
     "descripcion_en": "",
     "icono": "",
-    "orden": 92,
-    "activo": false
+    "orden": 90,
+    "activo": true
   },
   {
     "id": "82aa3109-df88-468b-aed8-5ff953f2749a",
@@ -504,16 +207,5 @@
     "icono": "",
     "orden": 170,
     "activo": true
-  },
-  {
-    "id": "95bf8c2e-e0b4-4c9f-9048-6f4e005fec9a",
-    "slug": "gmd-instrumentos",
-    "nombre_es": "Instrumentos",
-    "nombre_en": "Instrumentos",
-    "descripcion_es": "Dispositivos para profesionales de la salud",
-    "descripcion_en": "",
-    "icono": "",
-    "orden": 406,
-    "activo": false
   }
 ]

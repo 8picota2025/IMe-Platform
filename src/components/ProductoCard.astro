@@ -17,6 +17,8 @@ interface ProductoCardData {
   nuevo: boolean;
   familia: { slug: string; nombre: string };
   familias_filtro?: string[];
+  /** Subcategoría (tipo) dentro de la familia — filtro `?tipo=` del catálogo. */
+  tipo?: { slug: string; nombre: string } | null;
   /** Campos adicionales para filtrado en cliente (catálogo). */
   tipo_comercial?: string;
   texto_busqueda?: string;
@@ -73,6 +75,8 @@ function modalidadLabel(modalidad?: string): string {
   data-familia={producto.familia.slug}
   data-familias={(producto.familias_filtro ?? [producto.familia.slug]).join(' ')}
   data-familia-nombre={producto.familia.nombre}
+  data-tipo={producto.tipo?.slug ?? ''}
+  data-tipo-nombre={producto.tipo?.nombre ?? ''}
   data-comercial={producto.tipo_comercial ?? ''}
   data-fulfillment={producto.fulfillment_mode ?? ''}
   data-disponible={producto.disponible === false ? '0' : '1'}
@@ -118,7 +122,13 @@ function modalidadLabel(modalidad?: string): string {
       }
     </div>
     <div class="producto-card__body">
-      <p class="producto-card__familia">{producto.familia.nombre}</p>
+      <p class="producto-card__familia">
+        {
+          producto.tipo?.nombre
+            ? `${producto.familia.nombre} · ${producto.tipo.nombre}`
+            : producto.familia.nombre
+        }
+      </p>
       <h3 class="producto-card__nombre">{producto.nombre}</h3>
       <p class="producto-card__desc">{producto.descripcion_corta}</p>
       <div class="producto-card__meta" aria-label={t(locale, 'producto.ficha_resumen_titulo')}>

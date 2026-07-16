@@ -64,13 +64,14 @@ function canonicalFamiliaSlug(slug: string): string {
     'cardiolog-a': 'cardiologia',
     'neonatolog-a': 'neonatologia',
     'radiolog-a-y-diagn-stico-por-imagen': 'radiologia',
-    'mobiliario-clinico': 'mobiliario',
+    // Familias alias eliminadas en cleanup 2026-07-15 → canónicas
+    'mobiliario-clinico': 'sala-cirugia',
+    cirugia: 'sala-cirugia',
+    'quirofano-anestesia': 'sala-cirugia',
     'monitorizacion-diagnostico': 'monitores',
     'control-y-prevenci-n': 'monitores',
     'equipamiento-clinico-general': 'mobiliario',
     'terapia-infusion': 'soluciones-iv',
-    'terapia-respiratoria-soporte-vital': 'anestesia',
-    'quirofano-anestesia': 'sala-cirugia',
     'nebulizacion-oxigenoterapia': 'anestesia',
   };
   return aliases[slug] ?? slug;

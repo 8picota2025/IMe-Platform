@@ -29,6 +29,8 @@ const SEARCH_SYNONYMS: Record<string, string[]> = {
 
 interface CatalogoState {
   familia: string;
+  /** Subcategoría (slug de tipo) dentro de la familia seleccionada. */
+  tipo: string;
   q: string;
   comercial: Set<string>;
   destacado: boolean;
@@ -41,8 +43,11 @@ interface CatalogoState {
   orden: string;
 }
 
-function parseStateFromUrl(): CatalogoState {
-  const params = new URLSearchParams(window.location.search);
+/** @internal exported for unit tests */
+export function parseStateFromUrl(
+  search = typeof window !== 'undefined' ? window.location.search : ''
+): CatalogoState {
+  const params = new URLSearchParams(search);
   const facetas = new Map<string, Set<string>>();
   const filtrosParam = params.get('filtros');
   if (filtrosParam) {
@@ -56,7 +61,8 @@ function parseStateFromUrl(): CatalogoState {
   }
   const paginaRaw = Number.parseInt(params.get('pagina') ?? '1', 10);
   return {
-    familia: params.get('familia') ?? '',
+    familia: params.get('familia') ?? params.get('cat') ?? '',
+    tipo: params.get('tipo') ?? '',
     q: params.get('q') ?? '',
     comercial: new Set((params.get('comercial') ?? '').split(',').filter(Boolean)),
     destacado: params.get('destacado') === '1',
@@ -70,9 +76,11 @@ function parseStateFromUrl(): CatalogoState {
   };
 }
 
-function serializeState(state: CatalogoState): string {
+/** @internal exported for unit tests */
+export function serializeState(state: CatalogoState): string {
   const params = new URLSearchParams();
   if (state.familia) params.set('familia', state.familia);
+  if (state.tipo) params.set('tipo', state.tipo);
   if (state.q) params.set('q', state.q);
   if (state.comercial.size > 0) params.set('comercial', [...state.comercial].join(','));
   if (state.destacado) params.set('destacado', '1');
@@ -90,6 +98,7 @@ function serializeState(state: CatalogoState): string {
   if (state.pagina > 1) params.set('pagina', String(state.pagina));
   const sinOtrosFiltros =
     !state.familia &&
+    !state.tipo &&
     !state.q &&
     state.comercial.size === 0 &&
     !state.destacado &&
@@ -103,6 +112,7 @@ function shouldShowGrid(state: CatalogoState): boolean {
   return (
     state.todos ||
     state.familia !== '' ||
+    state.tipo !== '' ||
     state.q !== '' ||
     state.comercial.size > 0 ||
     state.destacado ||
@@ -166,14 +176,24 @@ function relevanceScore(
   if (state.familia && (card.dataset['familias'] ?? '').split(/\s+/).includes(state.familia)) {
     score += 60;
   }
+  if (state.tipo && card.dataset['tipo'] === state.tipo) score += 40;
   if (card.dataset['destacado'] === '1') score += 15;
   return score * 10000 - (order.get(card) ?? 0);
 }
 
-function matchesBase(card: HTMLElement, state: CatalogoState): boolean {
+/** @internal exported for unit tests */
+export function matchesBase(card: HTMLElement, state: CatalogoState): boolean {
   if (state.familia) {
     const familias = (card.dataset['familias'] ?? card.dataset['familia'] ?? '').split(/\s+/);
     if (!familias.includes(state.familia)) return false;
+  }
+  if (state.tipo) {
+    const tipoSlug = card.dataset['tipo'] ?? '';
+    if (state.tipo === '__general__') {
+      if (tipoSlug) return false;
+    } else if (tipoSlug !== state.tipo) {
+      return false;
+    }
   }
   if (state.comercial.size > 0 && !state.comercial.has(card.dataset['comercial'] ?? '')) {
     return false;
@@ -191,6 +211,32 @@ function matchesBase(card: HTMLElement, state: CatalogoState): boolean {
     if (needle && !texto.includes(needle)) return false;
   }
   return true;
+}
+
+/** Tipos presentes en un conjunto de cards (para facetas de tipo). */
+export function collectTiposFromCards(
+  cards: HTMLElement[]
+): Array<{ slug: string; nombre: string; count: number }> {
+  const map = new Map<string, { nombre: string; count: number }>();
+  let generalCount = 0;
+  for (const card of cards) {
+    const slug = card.dataset['tipo'] ?? '';
+    if (!slug) {
+      generalCount += 1;
+      continue;
+    }
+    const nombre = card.dataset['tipoNombre'] ?? slug;
+    const prev = map.get(slug);
+    if (prev) prev.count += 1;
+    else map.set(slug, { nombre, count: 1 });
+  }
+  const list = [...map.entries()]
+    .map(([slug, meta]) => ({ slug, nombre: meta.nombre, count: meta.count }))
+    .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' }));
+  if (generalCount > 0) {
+    list.push({ slug: '__general__', nombre: '', count: generalCount });
+  }
+  return list;
 }
 
 function computeFacetas(cards: HTMLElement[]): Map<string, string[]> {
@@ -255,6 +301,8 @@ export function initCatalogo(locale: Locale): () => void {
   const anuncios = document.getElementById('catalogo-anuncios');
   const sinResultados = document.getElementById('catalogo-sin-resultados');
   const familiaLista = document.getElementById('catalogo-familia-lista');
+  const tipoLista = document.getElementById('catalogo-tipo-lista');
+  const tipoBloque = document.getElementById('catalogo-tipo-bloque');
   const comercialContenedor = document.getElementById('catalogo-comercial');
   const destacadoInput = document.getElementById(
     'catalogo-filtro-destacado'
@@ -273,8 +321,10 @@ export function initCatalogo(locale: Locale): () => void {
   const paginacion = document.getElementById('catalogo-paginacion');
   const familiaActualEl = document.getElementById('catalogo-familia-actual');
   const familiaActualNombre = document.getElementById('catalogo-familia-actual-nombre');
+  const familiaActualTipo = document.getElementById('catalogo-familia-actual-tipo');
   const familiaActualIcono = document.getElementById('catalogo-familia-actual-icono');
   const familiaActualQuitar = document.getElementById('catalogo-familia-actual-quitar');
+  const tipoChips = document.getElementById('catalogo-tipo-chips');
   const resultadosEl = document.getElementById('catalogo-resultados');
   const filtrosToggle = document.getElementById('catalogo-filtros-toggle');
   const filtrosPanel = document.getElementById('catalogo-filtros');
@@ -329,6 +379,20 @@ export function initCatalogo(locale: Locale): () => void {
       if (activo) btn.setAttribute('aria-current', 'true');
       else btn.removeAttribute('aria-current');
     });
+    tipoLista?.querySelectorAll<HTMLButtonElement>('[data-tipo-filter]').forEach(btn => {
+      const valor = btn.dataset['tipoFilter'] ?? '';
+      const activo = valor === state.tipo;
+      btn.classList.toggle('catalogo-filtros__tipo--activa', activo);
+      if (activo) btn.setAttribute('aria-current', 'true');
+      else btn.removeAttribute('aria-current');
+    });
+    tipoChips?.querySelectorAll<HTMLButtonElement>('[data-tipo-filter]').forEach(btn => {
+      const valor = btn.dataset['tipoFilter'] ?? '';
+      const activo = valor === state.tipo;
+      btn.classList.toggle('catalogo-tipo-chip--activa', activo);
+      if (activo) btn.setAttribute('aria-pressed', 'true');
+      else btn.setAttribute('aria-pressed', 'false');
+    });
     comercialContenedor
       ?.querySelectorAll<HTMLInputElement>('[data-filtro-comercial]')
       .forEach(input => {
@@ -342,6 +406,63 @@ export function initCatalogo(locale: Locale): () => void {
     modalidadInputs.forEach(input => {
       input.checked = state.modalidades.has(input.dataset['filtroModalidad'] ?? '');
     });
+  }
+
+  function bindTipoFilterButtons(container: HTMLElement | null): void {
+    container?.querySelectorAll<HTMLButtonElement>('[data-tipo-filter]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const valor = btn.dataset['tipoFilter'] ?? '';
+        state.tipo = state.tipo === valor ? '' : valor;
+        state.pagina = 1;
+        syncFiltrosUI();
+        applyFiltros();
+      });
+    });
+  }
+
+  function renderTipoFacetas(cardsAmbito: HTMLElement[]): void {
+    const tipos = state.familia ? collectTiposFromCards(cardsAmbito) : [];
+    const show = state.familia !== '' && tipos.length >= 1;
+
+    // Si el tipo activo ya no aplica al ámbito, limpialo.
+    if (state.tipo && !tipos.some(t => t.slug === state.tipo)) {
+      state.tipo = '';
+    }
+
+    if (tipoBloque) tipoBloque.hidden = !show;
+    if (tipoChips) tipoChips.hidden = !show;
+
+    if (!show) {
+      if (tipoLista) tipoLista.innerHTML = '';
+      if (tipoChips) tipoChips.innerHTML = '';
+      return;
+    }
+
+    const renderButtons = (target: HTMLElement, variant: 'sidebar' | 'chips') => {
+      target.innerHTML = '';
+      const allBtn = document.createElement('button');
+      allBtn.type = 'button';
+      allBtn.dataset['tipoFilter'] = '';
+      allBtn.className = variant === 'chips' ? 'catalogo-tipo-chip' : 'catalogo-filtros__tipo';
+      allBtn.textContent = t(locale, 'catalogo.todos_tipos');
+      target.appendChild(allBtn);
+
+      for (const tipo of tipos) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.dataset['tipoFilter'] = tipo.slug;
+        btn.className = variant === 'chips' ? 'catalogo-tipo-chip' : 'catalogo-filtros__tipo';
+        const label =
+          tipo.slug === '__general__' ? t(locale, 'catalogo.tipo_general') : tipo.nombre;
+        btn.textContent = variant === 'chips' ? `${label} (${tipo.count})` : label;
+        btn.title = `${label} (${tipo.count})`;
+        target.appendChild(btn);
+      }
+      bindTipoFilterButtons(target);
+    };
+
+    if (tipoLista) renderButtons(tipoLista, 'sidebar');
+    if (tipoChips) renderButtons(tipoChips, 'chips');
   }
 
   function renderFacetas(facetas: Map<string, string[]>): void {
@@ -447,6 +568,10 @@ export function initCatalogo(locale: Locale): () => void {
     if (!familiaActualEl || !familiaActualNombre) return;
     if (!state.familia) {
       familiaActualEl.hidden = true;
+      if (familiaActualTipo) {
+        familiaActualTipo.textContent = '';
+        familiaActualTipo.hidden = true;
+      }
       if (familiaActualIcono) {
         familiaActualIcono.replaceChildren();
         familiaActualIcono.style.display = 'none';
@@ -455,9 +580,23 @@ export function initCatalogo(locale: Locale): () => void {
     }
     familiaActualEl.hidden = false;
     familiaActualNombre.textContent = familiasMap.get(state.familia) ?? state.familia;
+    if (familiaActualTipo) {
+      if (state.tipo) {
+        const tipoLabel =
+          state.tipo === '__general__'
+            ? t(locale, 'catalogo.tipo_general')
+            : (cards.find(c => c.dataset['tipo'] === state.tipo)?.dataset['tipoNombre'] ??
+              state.tipo);
+        familiaActualTipo.textContent = tipoLabel;
+        familiaActualTipo.hidden = false;
+      } else {
+        familiaActualTipo.textContent = '';
+        familiaActualTipo.hidden = true;
+      }
+    }
     if (familiaActualIcono) {
       const iconoOrigen = familiasView?.querySelector<SVGElement>(
-        `[data-familia-link="${state.familia}"] .categoria-card__icon svg`
+        `[data-familia-link="${CSS.escape(state.familia)}"] .categoria-card__icon svg`
       );
       familiaActualIcono.replaceChildren();
       if (iconoOrigen) {
@@ -508,6 +647,12 @@ export function initCatalogo(locale: Locale): () => void {
       if (sinResultados) sinResultados.hidden = true;
       if (facetasContenedor) facetasContenedor.hidden = true;
       if (familiaActualEl) familiaActualEl.hidden = true;
+      if (tipoBloque) tipoBloque.hidden = true;
+      if (tipoChips) {
+        tipoChips.hidden = true;
+        tipoChips.innerHTML = '';
+      }
+      if (tipoLista) tipoLista.innerHTML = '';
       if (contador) {
         const etiqueta =
           visibles.length === 1
@@ -520,7 +665,22 @@ export function initCatalogo(locale: Locale): () => void {
       return;
     }
 
+    // Primero resuelve tipos del ámbito familia (puede limpiar state.tipo inválido),
+    // luego aplica el filtro completo incluyendo tipo.
+    const ambitoFamilia = state.familia
+      ? cards.filter(card =>
+          matchesBase(card, {
+            ...state,
+            tipo: '',
+            facetas: new Map(),
+          })
+        )
+      : [];
+    renderTipoFacetas(ambitoFamilia);
+
     const baseCoincide = cards.filter(card => matchesBase(card, state));
+    syncFiltrosUI();
+
     const facetas = computeFacetas(baseCoincide);
     renderFacetas(facetas);
 
@@ -597,6 +757,7 @@ export function initCatalogo(locale: Locale): () => void {
 
   function resetFiltros(): void {
     state.familia = '';
+    state.tipo = '';
     state.q = '';
     state.comercial = new Set();
     state.destacado = false;
@@ -620,9 +781,11 @@ export function initCatalogo(locale: Locale): () => void {
       const newQ = buscarInput?.value.trim() ?? '';
       if (newQ && state.familia) {
         state.familia = '';
+        state.tipo = '';
         state.todos = true;
       } else if (!newQ && state.todos && !state.familia) {
         const noOtherFilters =
+          !state.tipo &&
           state.comercial.size === 0 &&
           !state.destacado &&
           !state.nuevo &&
@@ -651,6 +814,7 @@ export function initCatalogo(locale: Locale): () => void {
     const onClick = (evento: Event) => {
       evento.preventDefault();
       state.familia = enlace.dataset['familiaLink'] ?? '';
+      state.tipo = '';
       state.todos = false;
       state.pagina = 1;
       syncFiltrosUI();
@@ -663,7 +827,9 @@ export function initCatalogo(locale: Locale): () => void {
   // Filtro por familia (sidebar)
   familiaLista?.querySelectorAll<HTMLButtonElement>('[data-familia-filter]').forEach(btn => {
     const onClick = () => {
-      state.familia = btn.dataset['familiaFilter'] ?? '';
+      const next = btn.dataset['familiaFilter'] ?? '';
+      state.familia = next;
+      state.tipo = '';
       state.pagina = 1;
       syncFiltrosUI();
       applyFiltros();
@@ -673,6 +839,7 @@ export function initCatalogo(locale: Locale): () => void {
 
   const onFamiliaActualQuitar = () => {
     state.familia = '';
+    state.tipo = '';
     state.pagina = 1;
     syncFiltrosUI();
     applyFiltros();
@@ -737,6 +904,7 @@ export function initCatalogo(locale: Locale): () => void {
     const onClick = () => {
       state.todos = true;
       state.familia = '';
+      state.tipo = '';
       state.pagina = 1;
       state.orden = 'relevancia';
       syncFiltrosUI();
@@ -968,6 +1136,13 @@ export function initCatalogo(locale: Locale): () => void {
         t(locale, 'catalogo.comparar_familia'),
         productos.map(el => el.dataset['familiaNombre'] ?? '')
       );
+
+      if (productos.some(el => el.dataset['tipoNombre'])) {
+        addRow(
+          t(locale, 'catalogo.tipo_titulo'),
+          productos.map(el => el.dataset['tipoNombre'] || '—')
+        );
+      }
 
       if (productos.some(el => el.dataset['comercial'])) {
         addRow(
