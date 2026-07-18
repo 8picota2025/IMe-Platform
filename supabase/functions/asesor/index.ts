@@ -370,10 +370,12 @@ Deno.serve(async req => {
           discoveryProfile
         ),
       },
-      ...historial.map(h => ({
-        role: h.rol === 'usuario' ? 'user' : 'assistant',
-        content: h.contenido,
-      })),
+      ...historial.map(
+        (h): ImeiaMessage => ({
+          role: h.rol === 'usuario' ? 'user' : 'assistant',
+          content: h.contenido,
+        })
+      ),
       { role: 'user', content: mensaje },
     ];
 
