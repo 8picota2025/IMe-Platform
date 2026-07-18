@@ -424,8 +424,8 @@ const canonical = buildCanonical('/en/contact');
       consentimiento_datos: data.get('consentimiento') === 'on',
       productos:
         storedHandoff?.productos ?? parseProductos((data.get('productos') as string) ?? ''),
-      asesor_session_id: storedHandoff?.sessionId,
       origen: storedHandoff ? 'asesor' : 'formulario',
+      ...(storedHandoff ? { asesor_session_id: storedHandoff.sessionId } : {}),
     });
     if (result.ok) {
       if (status) {

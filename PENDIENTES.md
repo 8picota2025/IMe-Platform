@@ -48,6 +48,9 @@ Asesor puede recuperarlos.
 - [ ] Credenciales Wompi producción (sandbox validado el 2026-06-18; faltan llaves `prod` para salida real) — F4
 - [ ] Credenciales Stripe (bloquea pagos INTL) — F4
 - [ ] Credenciales LLM (`LLM_PROVIDER`, `ANTHROPIC_API_KEY` u `OPENAI_API_KEY`, `LLM_INGEST_MODEL`) — bloquea ingesta PDF real y Asesor RAG
+- [ ] `IMEIA_API_URL` / `IMEIA_API_KEY` en Supabase Secrets — bloquea la nueva
+      conversación experta estructurada de IMEIA en producción; no sustituir por
+      claves públicas en cliente.
 - [ ] Credenciales embeddings (`EMBEDDING_PROVIDER`, `VOYAGE_API_KEY` u `OPENAI_API_KEY`) — bloquea `generar-embeddings` y la búsqueda vectorial del Asesor (sin esto, el Asesor degrada a búsqueda por palabra clave)
 - [x] Vía de prueba local sin credenciales: `LLM_PROVIDER=ollama` — verificado
       con `qwen3:1.7b` (modelo chat, CPU-only, fallback ~15 s) y `mxbai-embed-large`
@@ -211,6 +214,9 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
 - [x] Política de privacidad (borrador enlazado) — F5; BLOQUEANTE_LEGAL hasta revisión jurídica
 - [x] Términos y condiciones (borrador enlazado) — F5; BLOQUEANTE_LEGAL hasta revisión jurídica
 - [x] Autorización tratamiento de datos / Habeas Data (borrador enlazado) — F5; BLOQUEANTE_LEGAL hasta revisión jurídica
+- [ ] BLOQUEANTE_LEGAL: revisar y aprobar el consentimiento específico
+      `imeia-quote-followup-2026-07-18-v1` mostrado en la captura de lead antes de
+      desplegar el nuevo flujo CRM.
 - [x] Política de cookies (borrador enlazado) — F5; BLOQUEANTE_LEGAL hasta revisión jurídica
 - [x] Aviso de copyright (borrador enlazado) — F5; COPY_CLIENTE_REVISAR
 - [x] NIT, razón social y domicilio legal de I-ME incorporados en documentos legales
@@ -302,9 +308,15 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
       `buildFallbackTexto()` que genera respuesta descriptiva real sin LLM.
       — Flujo verificado en navegador: embed → match_productos (semántico) → detalles
       completos → fallback con tarjetas y texto estructurado en ~20 s.
-- [ ] Prueba real del Asesor RAG en producción (Edge Function): pendiente credenciales
-      `ANTHROPIC_API_KEY`/`VOYAGE_API_KEY`/`TURNSTILE_SECRET_KEY`; validar modo `rag`,
-      `keyword_degradado`, `sin_resultados`, rate-limit (429) y degradación por presupuesto
+- [ ] NO_EJECUTADO_ENTORNO: aplicar
+      `20260718000000_imeia_conversational_crm.sql`, desplegar `asesor`,
+      `registrar-imeia-lead` y `registrar-cotizacion`, y ejecutar el smoke chat →
+      lead consentido → cotización vinculada. Requiere
+      `IMEIA_API_URL`/`IMEIA_API_KEY`/`TURNSTILE_SECRET_KEY`; validar contrato JSON,
+      grounding, rate-limit (429), upsert por sesión y RLS.
+- [ ] NO_EJECUTADO_ENTORNO: `deno check` de las Edge Functions reconstruidas no se
+      ejecutó en el agente porque Deno no está instalado. ESLint, Astro check,
+      Vitest y build sí se ejecutan con Node.
 - [x] Widget Asesor probado en navegador (es): abre, muestra bienvenida, envía mensaje y
       degrada correctamente al estado de error con CTA de WhatsApp/reintentar cuando la
       Edge Function no responde (404 por no estar desplegada aún)
