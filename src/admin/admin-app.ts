@@ -3462,15 +3462,21 @@ function sumField(rows: Row[], key: string): number {
 
 async function asesorView(): Promise<string> {
   const periodo = periodoActualCliente();
-  const [{ data: llmData, error: llmError }, { data: asesorData, error: asesorError }] =
-    await Promise.all([
-      supabase!.from('llm_uso').select('*').eq('periodo_yyyy_mm', periodo),
-      supabase!.from('asesor_uso').select('*').eq('periodo_yyyy_mm', periodo),
-    ]);
+  const [
+    { data: llmData, error: llmError },
+    { data: asesorData, error: asesorError },
+    { data: leadsData, error: leadsError },
+  ] = await Promise.all([
+    supabase!.from('llm_uso').select('*').eq('periodo_yyyy_mm', periodo),
+    supabase!.from('asesor_uso').select('*').eq('periodo_yyyy_mm', periodo),
+    supabase!.from('imeia_leads').select('*').order('created_at', { ascending: false }).limit(100),
+  ]);
   if (llmError) toast(llmError.message);
   if (asesorError) toast(asesorError.message);
+  if (leadsError) toast(leadsError.message);
   const llmRows = (llmData ?? []) as unknown as Row[];
   const asesorRows = (asesorData ?? []) as unknown as Row[];
+  const leadsRows = (leadsData ?? []) as unknown as Row[];
 
   const costeTotal = sumField(llmRows, 'coste_estimado');
   const conversaciones = asesorRows.length;
@@ -3487,8 +3493,24 @@ async function asesorView(): Promise<string> {
     <section class="admin-grid">
       ${metric('Conversaciones', conversaciones)}
       ${metric('Con handoff', handoffs)}
+      ${metric('Leads consentidos', leadsRows.length)}
       ${metric('Latencia media (ms)', latenciaPromedio)}
       ${metric('Gasto LLM ($ est.)', Number(costeTotal.toFixed(4)))}
+    </section>
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Leads consentidos desde IMEIA</h2></div>
+      ${table(
+        ['Fecha', 'Nombre', 'Institucion', 'Contacto', 'Canal', 'Estado', 'Resumen'],
+        leadsRows.map(lead => [
+          text(lead.created_at),
+          text(lead.nombre),
+          text(lead.institucion) || '—',
+          text(lead.email) || text(lead.telefono),
+          text(lead.canal_preferido),
+          text(lead.estado),
+          text(lead.resumen),
+        ])
+      )}
     </section>
     <section class="admin-panel">
       <div class="admin-panel__head"><h2>Uso LLM por tipo (${escapeHtml(periodo)})</h2></div>

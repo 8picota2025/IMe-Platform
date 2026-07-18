@@ -1039,7 +1039,9 @@ const asesorConfig = {
         </div>
         <label class="asesor-lead__consent">
           <input name="consentimiento" type="checkbox" required />
-          <span>${escapeHtml(config.i18n.leadConsentimiento)}</span>
+          <span>${escapeHtml(config.i18n.leadConsentimiento)}
+            <a href="${config.locale === 'en' ? '/en/legal/privacy' : '/es/legal/privacidad'}" target="_blank" rel="noopener noreferrer">${config.locale === 'en' ? 'Privacy policy' : 'Política de privacidad'} <span class="sr-only">${escapeHtml(config.i18n.nuevaVentana)}</span></a>
+          </span>
         </label>
         <button class="asesor-cta" type="submit">${escapeHtml(config.i18n.leadEnviar)}</button>
         <p class="asesor-lead__status" role="status" aria-live="polite"></p>
