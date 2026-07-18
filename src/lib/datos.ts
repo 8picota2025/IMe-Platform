@@ -214,6 +214,10 @@ export interface CotizacionPayload {
   mensaje: string;
   consentimiento_datos: boolean;
   productos?: CotizacionProducto[];
+  empresa?: string;
+  origen?: string;
+  session_id?: string;
+  asesor_fase?: string;
 }
 
 export interface Articulo {

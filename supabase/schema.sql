@@ -235,12 +235,26 @@ CREATE TABLE IF NOT EXISTS solicitudes_cotizacion (
   estado                   TEXT NOT NULL DEFAULT 'nueva'
                            CHECK (estado IN ('nueva', 'en_revision', 'respondida')),
   notas_internas           TEXT,
+  -- Origen IMEIA / CRM-lite (rebuild asesor 2026-07)
+  origen                   TEXT,
+  session_id               TEXT,
+  asesor_fase              TEXT,
   created_at               TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- Columnas F4.1 (Escenario A) — seguimiento comercial de cotizaciones.
 ALTER TABLE solicitudes_cotizacion ADD COLUMN IF NOT EXISTS estado TEXT NOT NULL DEFAULT 'nueva';
 ALTER TABLE solicitudes_cotizacion ADD COLUMN IF NOT EXISTS notas_internas TEXT;
+-- Origen IMEIA / CRM-lite
+ALTER TABLE solicitudes_cotizacion ADD COLUMN IF NOT EXISTS origen TEXT;
+ALTER TABLE solicitudes_cotizacion ADD COLUMN IF NOT EXISTS session_id TEXT;
+ALTER TABLE solicitudes_cotizacion ADD COLUMN IF NOT EXISTS asesor_fase TEXT;
+CREATE INDEX IF NOT EXISTS idx_solicitudes_cotizacion_origen
+  ON solicitudes_cotizacion (origen)
+  WHERE origen IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_solicitudes_cotizacion_session
+  ON solicitudes_cotizacion (session_id)
+  WHERE session_id IS NOT NULL;
 
 DO $$
 BEGIN

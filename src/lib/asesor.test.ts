@@ -71,7 +71,7 @@ describe('asesor biomedical fallback', () => {
     expect(respuesta).toContain('transductores');
   });
 
-  it('parsea respuesta estructurada de IMEIA con handoff y slugs', () => {
+  it('parsea respuesta estructurada de IMEIA con handoff, slugs y lead', () => {
     const respuesta = parseStructuredAsesorResponse(
       JSON.stringify({
         texto: 'Puedo ayudarte con un monitor para triage.',
@@ -80,6 +80,19 @@ describe('asesor biomedical fallback', () => {
           tipo: 'cotizacion',
           resumen: 'IPS nivel 2, monitor para triage y observación.',
         },
+        lead: {
+          nombre: 'Ana Pérez',
+          email: 'ana@ips.example',
+          telefono: '3001234567',
+          empresa: 'IPS Nivel 2',
+          ciudad: 'Bogotá',
+          cargo: 'Compras',
+          necesidad: 'Monitor para triage y observación',
+          servicio_clinico: 'Urgencias',
+          urgencia: 'esta semana',
+          listo_para_captura: true,
+        },
+        fase: 'cierre',
       }),
       'es'
     );
@@ -90,6 +103,9 @@ describe('asesor biomedical fallback', () => {
       tipo: 'cotizacion',
       resumen: 'IPS nivel 2, monitor para triage y observación.',
     });
+    expect(respuesta.lead.email).toBe('ana@ips.example');
+    expect(respuesta.lead.listo_para_captura).toBe(true);
+    expect(respuesta.fase).toBe('cierre');
   });
 
   it('usa el indice publicado del catalogo para responder con productos reales si falla la capa principal', async () => {
@@ -124,10 +140,11 @@ describe('asesor biomedical fallback', () => {
         locale: 'es',
       });
 
-      expect(respuesta.texto).toContain('Sí, en nuestro catálogo tenemos');
+      expect(respuesta.texto).toMatch(/Sí — en nuestro catálogo|estas son las opciones/i);
       expect(respuesta.texto).toContain('Cama de Atención Domiciliaria HB421');
       expect(respuesta.texto).not.toContain('cualificación');
       expect(respuesta.productos).toHaveLength(1);
+      expect(respuesta.lead.necesidad).toBeTruthy();
       expect(respuesta.productos[0]?.urlLanding).toBe(
         '/es/productos/cama-de-atencion-domiciliaria-hb421'
       );

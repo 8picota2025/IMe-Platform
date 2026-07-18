@@ -1,7 +1,7 @@
 ---
 /**
- * Asesor comercial RAG — widget de chat.
- * Lógica real: Edge Function `asesor` (Fase Asesor), vía src/lib/asesor.ts.
+ * IMEIA — widget conversacional (ingeniera biomédica senior + perfil comercial).
+ * Edge Function `asesor` + captura de lead CRM vía registrar-cotizacion.
  * Regla: solo asesoría comercial — prohibido diagnóstico clínico o precio comprometido.
  */
 import type { Locale } from '../i18n/utils';
@@ -35,6 +35,16 @@ const asesorConfig = {
     verProducto: t(locale, 'asesor.ver_producto'),
     handoffWhatsapp: t(locale, 'asesor.handoff_whatsapp'),
     handoffCotizacion: t(locale, 'asesor.handoff_cotizacion'),
+    leadTitulo: t(locale, 'asesor.lead_titulo'),
+    leadNombre: t(locale, 'asesor.lead_nombre'),
+    leadEmail: t(locale, 'asesor.lead_email'),
+    leadTelefono: t(locale, 'asesor.lead_telefono'),
+    leadEmpresa: t(locale, 'asesor.lead_empresa'),
+    leadMensaje: t(locale, 'asesor.lead_mensaje'),
+    leadConsentimiento: t(locale, 'asesor.lead_consentimiento'),
+    leadEnviar: t(locale, 'asesor.lead_enviar'),
+    leadExito: t(locale, 'asesor.lead_exito'),
+    leadError: t(locale, 'asesor.lead_error'),
     reintentar: t(locale, 'asesor.reintentar'),
     nuevaVentana: t(locale, 'accesibilidad.nueva_ventana'),
   },
@@ -66,7 +76,7 @@ const asesorConfig = {
   >
     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
   </svg>
-  <span class="asesor-fab__label">{locale === 'es' ? 'IMEIA Ayuda' : 'IMEIA Help'}</span>
+  <span class="asesor-fab__label">IMEIA</span>
 </button>
 
 <!-- Dialog del asesor -->
@@ -104,7 +114,7 @@ const asesorConfig = {
           <p class="asesor-dialog__name">{t(locale, 'asesor.titulo')}</p>
           <p class="asesor-dialog__status">
             <span class="asesor-dialog__dot" aria-hidden="true"></span>
-            {locale === 'es' ? 'En línea' : 'Online'}
+            {t(locale, 'asesor.subtitulo')}
           </p>
         </div>
       </div>
@@ -484,6 +494,69 @@ const asesorConfig = {
     background: var(--t800);
   }
 
+  :global(.asesor-lead) {
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--off2);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  :global(.asesor-lead__title) {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  :global(.asesor-lead__field) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  :global(.asesor-lead__field label) {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+  :global(.asesor-lead__field input),
+  :global(.asesor-lead__field textarea) {
+    border: 1px solid var(--border-mid);
+    border-radius: var(--radius);
+    padding: 0.45rem 0.6rem;
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    color: var(--text);
+    background: var(--white);
+  }
+  :global(.asesor-lead__field input:focus),
+  :global(.asesor-lead__field textarea:focus) {
+    outline: 2px solid var(--t800);
+    outline-offset: 1px;
+  }
+  :global(.asesor-lead__consent) {
+    display: flex;
+    gap: 0.45rem;
+    align-items: flex-start;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    line-height: 1.35;
+  }
+  :global(.asesor-lead__consent input) {
+    margin-top: 0.15rem;
+  }
+  :global(.asesor-lead__actions) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  :global(.asesor-lead__status) {
+    margin: 0;
+    font-size: 0.78rem;
+    color: var(--text);
+  }
+
   @media (max-width: 479px) {
     .asesor-dialog {
       right: 0.75rem;
@@ -533,6 +606,8 @@ const asesorConfig = {
     ProductoSugerido,
     AsesorNavigationContext,
     AsesorPageType,
+    ImeiaLeadSlots,
+    ImeiaFase,
   } from '../lib/asesor';
 
   interface AsesorI18n {
@@ -546,6 +621,16 @@ const asesorConfig = {
     verProducto: string;
     handoffWhatsapp: string;
     handoffCotizacion: string;
+    leadTitulo: string;
+    leadNombre: string;
+    leadEmail: string;
+    leadTelefono: string;
+    leadEmpresa: string;
+    leadMensaje: string;
+    leadConsentimiento: string;
+    leadEnviar: string;
+    leadExito: string;
+    leadError: string;
     reintentar: string;
     nuevaVentana: string;
   }
@@ -579,18 +664,7 @@ const asesorConfig = {
     }) => Promise<
       | {
           ok: true;
-          respuesta: {
-            texto: string;
-            productos: Array<{
-              slug: string;
-              nombre: string;
-              imagen: string | null;
-              urlLanding: string;
-              score: number;
-            }>;
-            accionHandoff: { tipo: 'whatsapp' | 'cotizacion'; resumen: string } | null;
-            modo: 'rag' | 'keyword_degradado' | 'sin_resultados';
-          };
+          respuesta: RespuestaAsesor;
         }
       | {
           ok: false;
@@ -606,6 +680,8 @@ const asesorConfig = {
     guardarHistorial: (
       historial: { rol: 'usuario' | 'asesor'; contenido: string; timestamp: Date }[]
     ) => void;
+    obtenerLeadParcial: () => ImeiaLeadSlots;
+    guardarLeadParcial: (lead: Partial<ImeiaLeadSlots>) => void;
   } | null = null;
   let enviando = false;
   let ultimoMensaje: string | null = null;
@@ -615,6 +691,8 @@ const asesorConfig = {
   const historial: MensajeAsesor[] = [];
   let ultimoHandoff: AccionHandoff | null = null;
   let ultimosProductos: ProductoSugerido[] = [];
+  let ultimaFase: ImeiaFase = 'apertura';
+  let leadFormVisible = false;
 
   let abortController: AbortController | null = null;
   let asesorTurnstileContainer: HTMLElement | null = null;
@@ -866,15 +944,141 @@ const asesorConfig = {
       return `<a class="asesor-cta" href="${escapeHtml(buildContactHref(handoff, productos))}">${escapeHtml(config.i18n.handoffCotizacion)}</a>`;
     }
 
+    function buildLeadFormHtml(lead: ImeiaLeadSlots, handoff: AccionHandoff | null): string {
+      const necesidad =
+        lead.necesidad ||
+        handoff?.resumen ||
+        (config.locale === 'en' ? 'Catalog advisory request via IMEIA' : 'Solicitud vía IMEIA');
+      return `<form class="asesor-lead" data-asesor-lead-form novalidate>
+        <p class="asesor-lead__title">${escapeHtml(config.i18n.leadTitulo)}</p>
+        <div class="asesor-lead__field">
+          <label for="asesor-lead-nombre">${escapeHtml(config.i18n.leadNombre)}</label>
+          <input id="asesor-lead-nombre" name="nombre" autocomplete="name" required value="${escapeHtml(lead.nombre ?? '')}" />
+        </div>
+        <div class="asesor-lead__field">
+          <label for="asesor-lead-email">${escapeHtml(config.i18n.leadEmail)}</label>
+          <input id="asesor-lead-email" name="email" type="email" autocomplete="email" required value="${escapeHtml(lead.email ?? '')}" />
+        </div>
+        <div class="asesor-lead__field">
+          <label for="asesor-lead-telefono">${escapeHtml(config.i18n.leadTelefono)}</label>
+          <input id="asesor-lead-telefono" name="telefono" type="tel" autocomplete="tel" value="${escapeHtml(lead.telefono ?? '')}" />
+        </div>
+        <div class="asesor-lead__field">
+          <label for="asesor-lead-empresa">${escapeHtml(config.i18n.leadEmpresa)}</label>
+          <input id="asesor-lead-empresa" name="empresa" autocomplete="organization" value="${escapeHtml(lead.empresa ?? '')}" />
+        </div>
+        <div class="asesor-lead__field">
+          <label for="asesor-lead-mensaje">${escapeHtml(config.i18n.leadMensaje)}</label>
+          <textarea id="asesor-lead-mensaje" name="mensaje" rows="3" required>${escapeHtml(necesidad)}</textarea>
+        </div>
+        <label class="asesor-lead__consent">
+          <input type="checkbox" name="consentimiento" required />
+          <span>${escapeHtml(config.i18n.leadConsentimiento)}</span>
+        </label>
+        <div class="asesor-lead__actions">
+          <button type="submit" class="asesor-cta">${escapeHtml(config.i18n.leadEnviar)}</button>
+          ${
+            handoff
+              ? buildHandoffHtml(handoff, ultimosProductos)
+              : `<a class="asesor-cta" href="${escapeHtml(buildContactHref(handoff, ultimosProductos))}">${escapeHtml(config.i18n.handoffCotizacion)}</a>`
+          }
+        </div>
+        <p class="asesor-lead__status" data-asesor-lead-status hidden></p>
+      </form>`;
+    }
+
+    async function handleLeadSubmit(form: HTMLFormElement) {
+      const statusEl = form.querySelector<HTMLElement>('[data-asesor-lead-status]');
+      const fd = new FormData(form);
+      const nombre = String(fd.get('nombre') ?? '').trim();
+      const email = String(fd.get('email') ?? '').trim();
+      const telefono = String(fd.get('telefono') ?? '').trim();
+      const empresa = String(fd.get('empresa') ?? '').trim();
+      const mensaje = String(fd.get('mensaje') ?? '').trim();
+      const consentimiento = fd.get('consentimiento') === 'on';
+      if (!nombre || !email || !mensaje || !consentimiento) {
+        if (statusEl) {
+          statusEl.hidden = false;
+          statusEl.textContent = config.i18n.leadError;
+        }
+        return;
+      }
+      const submitBtn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+      if (submitBtn) submitBtn.disabled = true;
+      try {
+        const { submitCotizacion } = await import('../lib/datos');
+        const result = await submitCotizacion({
+          nombre,
+          email,
+          telefono: telefono || '—',
+          empresa,
+          mensaje,
+          consentimiento_datos: true,
+          origen: 'imeia',
+          session_id: asesorLib?.getSessionId?.() ?? '',
+          asesor_fase: ultimaFase,
+          productos: ultimosProductos.slice(0, 8).map(p => ({
+            slug: p.slug,
+            nombre: p.nombre,
+            cantidad: 1,
+          })),
+        });
+        if (statusEl) {
+          statusEl.hidden = false;
+          statusEl.textContent = result.ok ? config.i18n.leadExito : config.i18n.leadError;
+        }
+        if (result.ok) {
+          asesorLib?.guardarLeadParcial?.({
+            nombre,
+            email,
+            telefono,
+            empresa,
+            necesidad: mensaje,
+            listo_para_captura: false,
+          });
+          leadFormVisible = false;
+          form.querySelectorAll('input, textarea, button').forEach(el => {
+            (el as HTMLInputElement).disabled = true;
+          });
+        } else if (submitBtn) {
+          submitBtn.disabled = false;
+        }
+      } catch {
+        if (statusEl) {
+          statusEl.hidden = false;
+          statusEl.textContent = config.i18n.leadError;
+        }
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    }
+
     function renderRespuesta(respuesta: RespuestaAsesor) {
       addBubble(respuesta.texto, 'asesor');
       ultimosProductos = respuesta.productos;
       ultimoHandoff = respuesta.accionHandoff;
+      ultimaFase = respuesta.fase;
       if (respuesta.modo === 'keyword_degradado' && respuesta.productos.length > 0) {
         addBubble(config.i18n.degradado, 'loading');
       }
       if (respuesta.productos.length > 0) addHtmlBubble(buildProductosHtml(respuesta.productos));
-      if (respuesta.accionHandoff) {
+
+      const debeMostrarLead =
+        respuesta.mostrarCapturaLead ||
+        respuesta.lead.listo_para_captura ||
+        respuesta.accionHandoff?.tipo === 'cotizacion';
+
+      if (debeMostrarLead && !leadFormVisible) {
+        leadFormVisible = true;
+        addHtmlBubble(
+          buildLeadFormHtml(
+            respuesta.lead,
+            respuesta.accionHandoff ?? {
+              tipo: 'cotizacion',
+              resumen: respuesta.lead.necesidad ?? '',
+            }
+          )
+        );
+      } else if (respuesta.accionHandoff && !debeMostrarLead) {
         addHtmlBubble(buildHandoffHtml(respuesta.accionHandoff, respuesta.productos));
       }
     }
@@ -1057,7 +1261,7 @@ const asesorConfig = {
         if (e.key !== 'Tab') return;
         const focusable = Array.from(
           dialog.querySelectorAll<HTMLElement>(
-            'button, textarea, a[href], [tabindex]:not([tabindex="-1"])'
+            'button, textarea, input, a[href], [tabindex]:not([tabindex="-1"])'
           )
         );
         const first = focusable[0];
@@ -1097,6 +1301,19 @@ const asesorConfig = {
           target.closest('.chat-bubble')?.remove();
           void enviarMensaje(ultimoMensaje);
         }
+      },
+      { signal }
+    );
+
+    messagesEl?.addEventListener(
+      'submit',
+      e => {
+        const target = e.target as HTMLElement | null;
+        const leadForm = target?.closest?.('form[data-asesor-lead-form]') as HTMLFormElement | null;
+        if (!leadForm) return;
+        e.preventDefault();
+        e.stopPropagation();
+        void handleLeadSubmit(leadForm);
       },
       { signal }
     );
