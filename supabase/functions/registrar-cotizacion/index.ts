@@ -26,6 +26,8 @@ interface CotizacionBody {
   mensaje?: string;
   consentimiento_datos?: boolean;
   productos?: Array<{ slug?: string; nombre?: string; cantidad?: number }>;
+  asesor_session_id?: string;
+  origen?: 'formulario' | 'asesor' | 'carrito';
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -66,13 +68,24 @@ Deno.serve(
       return badRequest('consentimiento_datos es obligatorio', origin);
     }
 
-    const productos = (Array.isArray(body.productos) ? body.productos : [])
-      .slice(0, 50)
-      .map(p => ({
-        slug: String(p.slug ?? '').slice(0, 200),
-        nombre: String(p.nombre ?? '').slice(0, 300),
-        cantidad: Math.max(1, Math.min(9999, Number(p.cantidad) || 1)),
-      }));
+    const productos = (Array.isArray(body.productos) ? body.productos : []).slice(0, 50).map(p => ({
+      slug: String(p.slug ?? '').slice(0, 200),
+      nombre: String(p.nombre ?? '').slice(0, 300),
+      cantidad: Math.max(1, Math.min(9999, Number(p.cantidad) || 1)),
+    }));
+
+    const asesorSessionId = /^[a-zA-Z0-9_-]{8,128}$/.test(body.asesor_session_id ?? '')
+      ? body.asesor_session_id!
+      : null;
+    let imeiaLeadId: string | null = null;
+    if (asesorSessionId) {
+      const { data: lead } = await supabase
+        .from('imeia_leads')
+        .select('id')
+        .eq('session_id', asesorSessionId)
+        .maybeSingle();
+      imeiaLeadId = typeof lead?.id === 'string' ? lead.id : null;
+    }
 
     const { error } = await supabase.from('solicitudes_cotizacion').insert({
       nombre,
@@ -84,10 +97,22 @@ Deno.serve(
       consentimiento_datos: true,
       consentimiento_timestamp: new Date().toISOString(),
       leida: false,
+      imeia_lead_id: imeiaLeadId,
+      asesor_session_id: asesorSessionId,
+      origen: asesorSessionId ? 'asesor' : body.origen === 'carrito' ? 'carrito' : 'formulario',
     });
     if (error) {
       console.error('registrar-cotizacion: error insertando', error.message);
       return internalError('No se pudo registrar la solicitud', origin);
+    }
+    if (imeiaLeadId) {
+      const { error: leadError } = await supabase
+        .from('imeia_leads')
+        .update({ estado: 'cotizacion' })
+        .eq('id', imeiaLeadId);
+      if (leadError) {
+        console.error('registrar-cotizacion: no se actualizo lead IMEIA', leadError.message);
+      }
     }
 
     // Evento de negocio para el funnel semanal (docs/observabilidad.md).

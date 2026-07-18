@@ -214,6 +214,8 @@ export interface CotizacionPayload {
   mensaje: string;
   consentimiento_datos: boolean;
   productos?: CotizacionProducto[];
+  asesor_session_id?: string;
+  origen?: 'formulario' | 'asesor' | 'carrito';
 }
 
 export interface Articulo {
@@ -595,18 +597,18 @@ export async function submitCotizacion(
     const result = data as { ok?: boolean; error?: string } | null;
     if (!result?.ok) return { ok: false, error: result?.error ?? 'Error registrando solicitud' };
     emitAnalyticsEvent('quote_submit', {
-      email: datos.email,
       has_products: Array.isArray(datos.productos) && datos.productos.length > 0,
       products: datos.productos?.map(producto => `${producto.slug}:${producto.cantidad}`).join(','),
+      origin: datos.origen ?? 'formulario',
     });
     return { ok: true };
   }
   // Mock: siempre OK en desarrollo sin Supabase
   console.warn('[datos] submitCotizacion mock (sin Supabase):', datos.email);
   emitAnalyticsEvent('quote_submit', {
-    email: datos.email,
     has_products: Array.isArray(datos.productos) && datos.productos.length > 0,
     products: datos.productos?.map(producto => `${producto.slug}:${producto.cantidad}`).join(','),
+    origin: datos.origen ?? 'formulario',
   });
   return { ok: true };
 }
