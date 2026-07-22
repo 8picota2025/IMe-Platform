@@ -595,8 +595,8 @@ export async function submitCotizacion(
     const result = data as { ok?: boolean; error?: string } | null;
     if (!result?.ok) return { ok: false, error: result?.error ?? 'Error registrando solicitud' };
     emitAnalyticsEvent('quote_submit', {
-      email: datos.email,
       has_products: Array.isArray(datos.productos) && datos.productos.length > 0,
+      item_count: datos.productos?.reduce((acc, producto) => acc + producto.cantidad, 0) ?? 0,
       products: datos.productos?.map(producto => `${producto.slug}:${producto.cantidad}`).join(','),
     });
     return { ok: true };
@@ -604,8 +604,8 @@ export async function submitCotizacion(
   // Mock: siempre OK en desarrollo sin Supabase
   console.warn('[datos] submitCotizacion mock (sin Supabase):', datos.email);
   emitAnalyticsEvent('quote_submit', {
-    email: datos.email,
     has_products: Array.isArray(datos.productos) && datos.productos.length > 0,
+    item_count: datos.productos?.reduce((acc, producto) => acc + producto.cantidad, 0) ?? 0,
     products: datos.productos?.map(producto => `${producto.slug}:${producto.cantidad}`).join(','),
   });
   return { ok: true };

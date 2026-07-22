@@ -1693,6 +1693,49 @@ CREATE POLICY "resenas_admin_all"
   USING (is_admin(ARRAY['ventas', 'operaciones']))
   WITH CHECK (is_admin(ARRAY['ventas', 'operaciones']));
 
+-- Analitica marketing first-party (sin PII; insert solo via Edge Function)
+CREATE TABLE IF NOT EXISTS analytics_eventos (
+  id bigint generated always as identity primary key,
+  ts timestamptz not null default now(),
+  event_name text not null check (char_length(event_name) between 2 and 80),
+  session_id text not null check (char_length(session_id) between 8 and 80),
+  page_path text,
+  page_title text,
+  referrer text,
+  locale text,
+  device_type text,
+  utm_source text,
+  utm_medium text,
+  utm_campaign text,
+  utm_content text,
+  utm_term text,
+  duration_seconds integer check (duration_seconds is null or duration_seconds >= 0),
+  scroll_depth integer check (scroll_depth is null or scroll_depth between 0 and 100),
+  value numeric,
+  item_count integer check (item_count is null or item_count >= 0),
+  product_slug text,
+  search_term text,
+  properties jsonb not null default '{}'
+);
+
+CREATE INDEX IF NOT EXISTS analytics_eventos_ts_idx
+  ON analytics_eventos (ts desc);
+CREATE INDEX IF NOT EXISTS analytics_eventos_event_ts_idx
+  ON analytics_eventos (event_name, ts desc);
+CREATE INDEX IF NOT EXISTS analytics_eventos_page_ts_idx
+  ON analytics_eventos (page_path, ts desc);
+CREATE INDEX IF NOT EXISTS analytics_eventos_session_ts_idx
+  ON analytics_eventos (session_id, ts desc);
+
+ALTER TABLE analytics_eventos ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "analytics_eventos_admin_select" ON analytics_eventos;
+CREATE POLICY "analytics_eventos_admin_select"
+  ON analytics_eventos FOR SELECT
+  TO authenticated
+  USING (is_admin(ARRAY['ventas', 'lectura']));
+
+GRANT SELECT ON analytics_eventos TO authenticated;
+
 -- Plantilla de email para carrito abandonado
 INSERT INTO email_templates (clave, descripcion, asunto, html) VALUES
 ('carrito_abandonado_cliente', 'Recordatorio de carrito abandonado (24h)',

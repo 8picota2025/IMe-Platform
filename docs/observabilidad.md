@@ -39,6 +39,53 @@ group by evento;
 - `PUBLIC_SENTRY_DSN`: habilita Sentry en el cliente Astro.
 - `SENTRY_DSN`: habilita captura de excepciones en Edge Functions.
 - `SENTRY_AUTH_TOKEN`: opcional; necesario solo si se habilita subida de source maps en CI.
+- `PUBLIC_GA_ID`: habilita Google Analytics 4 (`G-...`) para pageviews, eventos y conversiones.
+- `PUBLIC_GTM_ID`: opcional; habilita Google Tag Manager y `dataLayer`.
+- `PUBLIC_CLARITY_ID`: habilita Microsoft Clarity para heatmaps y session replay.
+- `PUBLIC_SUPABASE_URL` + `PUBLIC_SUPABASE_ANON_KEY`: habilitan analitica first-party hacia `track-analytics`.
+
+## Analitica marketing
+
+La web emite eventos sin PII hacia cuatro destinos cuando estan configurados:
+
+- GA4: `page_view`, `cta_clicked`, `quote_submit`, `whatsapp_click`, `begin_checkout`, `purchase`, etc.
+- GTM: mismos eventos en `dataLayer`.
+- Clarity: heatmaps y grabaciones de sesion.
+- Supabase: copia first-party en `analytics_eventos` para el CMS.
+
+Eventos principales:
+
+```text
+page_view
+session_engaged
+scroll_depth
+product_view
+quick_view
+cta_clicked
+quote_open
+quote_submit
+whatsapp_click
+add_to_cart
+begin_checkout
+purchase
+pdf_download
+```
+
+Conversiones recomendadas en GA4:
+
+```text
+quote_submit
+whatsapp_click
+begin_checkout
+purchase
+```
+
+Dashboard CMS:
+
+- `/admin#/marketing`
+- Periodo: ultimos 30 dias
+- KPIs: visitas, sesiones, permanencia, scroll, conversiones, funnel, fuentes UTM, paginas top, productos top y CTAs.
+- Heatmaps/session replay: se consultan en Clarity; CMS muestra estado de configuracion y resumen first-party.
 
 ## Monitores externos recomendados
 

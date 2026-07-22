@@ -15,6 +15,10 @@ import {
 const OLLAMA_URL = (import.meta.env['PUBLIC_OLLAMA_URL'] as string | undefined) ?? '';
 const OLLAMA_INGEST_MODEL = 'qwen3:1.7b';
 const OLLAMA_EMBED_MODEL = 'mxbai-embed-large';
+const PUBLIC_GA_ID = (import.meta.env['PUBLIC_GA_ID'] as string | undefined)?.trim() ?? '';
+const PUBLIC_GTM_ID = (import.meta.env['PUBLIC_GTM_ID'] as string | undefined)?.trim() ?? '';
+const PUBLIC_CLARITY_ID =
+  (import.meta.env['PUBLIC_CLARITY_ID'] as string | undefined)?.trim() ?? '';
 
 type View =
   | 'dashboard'
@@ -30,6 +34,7 @@ type View =
   | 'cupones'
   | 'cupon'
   | 'reportes'
+  | 'marketing'
   | 'proveedores'
   | 'proveedor-productos'
   | 'fulfillments'
@@ -157,6 +162,7 @@ const VISTAS_POR_ROL: Record<string, Set<View>> = {
     'resenas',
     'plantillas',
     'reportes',
+    'marketing',
     'asesor',
   ]),
   operaciones: new Set<View>([
@@ -170,7 +176,7 @@ const VISTAS_POR_ROL: Record<string, Set<View>> = {
     'plantillas',
     'reportes',
   ]),
-  lectura: new Set<View>(['dashboard', 'reportes']),
+  lectura: new Set<View>(['dashboard', 'reportes', 'marketing']),
 };
 
 function vistaPermitida(view: View): boolean {
@@ -280,6 +286,7 @@ function parseView(hash: string): View {
     raw === 'cupones' ||
     raw === 'cupon' ||
     raw === 'reportes' ||
+    raw === 'marketing' ||
     raw === 'proveedores' ||
     raw === 'proveedor-productos' ||
     raw === 'fulfillments' ||
@@ -515,6 +522,7 @@ async function routeView(): Promise<{ title: string; body: string }> {
   if (state.view === 'cupones') return { title: 'Cupones', body: await cuponesView() };
   if (state.view === 'cupon') return { title: 'Cupon', body: await cuponFormView() };
   if (state.view === 'reportes') return { title: 'Reportes', body: await reportesView() };
+  if (state.view === 'marketing') return { title: 'Marketing', body: await marketingView() };
   if (state.view === 'proveedores') return { title: 'Proveedores', body: await proveedoresView() };
   if (state.view === 'proveedor-productos')
     return { title: 'Productos del proveedor', body: await proveedorProductosView() };
@@ -552,6 +560,7 @@ function shellHtml(title: string, body: string): string {
     ['usuarios', 'Usuarios CMS'],
     ['plantillas', 'Emails'],
     ['reportes', 'Reportes'],
+    ['marketing', 'Marketing'],
     ['conocimiento', 'Conocimiento'],
     ['asesor', 'Asesor'],
   ];
@@ -1289,6 +1298,7 @@ async function dashboardView(): Promise<string> {
         <a class="admin-button admin-button--ghost" href="#/cotizaciones">Cotizaciones</a>
         <a class="admin-button admin-button--ghost" href="#/usuarios">Usuarios CMS</a>
         <a class="admin-button admin-button--ghost" href="#/reportes">Reportes</a>
+        <a class="admin-button admin-button--ghost" href="#/marketing">Marketing</a>
       </div>
     </section>`;
 }
@@ -1360,6 +1370,18 @@ async function usuariosView(): Promise<string> {
 
 function metric(label: string, value: number): string {
   return `<article class="admin-card"><strong>${escapeHtml(label)}</strong><span>${value}</span></article>`;
+}
+
+function marketingMetric(label: string, value: string): string {
+  return `<article class="admin-card admin-card--marketing"><strong>${escapeHtml(label)}</strong><span>${escapeHtml(value)}</span></article>`;
+}
+
+function formatDuration(seconds: number): string {
+  const safe = Math.max(0, Math.round(seconds));
+  if (safe < 60) return `${safe}s`;
+  const minutes = Math.floor(safe / 60);
+  const rest = safe % 60;
+  return `${minutes}m ${rest}s`;
 }
 
 const PRODUCTOS_PAGE_SIZE = 20;
@@ -3021,6 +3043,174 @@ async function reportesView(): Promise<string> {
           text(p.stock_estado),
           formatCell(p.disponible),
         ])
+      )}
+    </section>`;
+}
+
+async function marketingView(): Promise<string> {
+  const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  const { data, error } = await supabase!
+    .from('analytics_eventos')
+    .select('*')
+    .gte('ts', since)
+    .order('ts', { ascending: false })
+    .limit(5000);
+  if (error) {
+    return `
+      <section class="admin-panel">
+        <div class="admin-panel__head"><h2>Analitica no disponible</h2></div>
+        <div class="admin-panel__body" style="padding:16px">
+          <div class="admin-alert">Aplica la migracion <code>marketing_analytics</code> para crear <code>analytics_eventos</code>. Error: ${escapeHtml(error.message)}</div>
+        </div>
+      </section>`;
+  }
+
+  const eventos = ((data ?? []) as Row[]).filter(row => text(row.ts) >= since);
+  const sesiones = new Set(eventos.map(row => text(row.session_id)).filter(Boolean));
+  const pageViews = eventos.filter(row => text(row.event_name) === 'page_view');
+  const engaged = eventos.filter(row => text(row.event_name) === 'session_engaged');
+  const conversions = eventos.filter(row =>
+    ['quote_submit', 'whatsapp_click', 'begin_checkout', 'purchase'].includes(text(row.event_name))
+  );
+  const avgDuration =
+    engaged.length > 0
+      ? engaged.reduce((acc, row) => acc + Number(row.duration_seconds ?? 0), 0) / engaged.length
+      : 0;
+  const avgScroll =
+    engaged.length > 0
+      ? engaged.reduce((acc, row) => acc + Number(row.scroll_depth ?? 0), 0) / engaged.length
+      : 0;
+  const conversionRate = sesiones.size > 0 ? (conversions.length / sesiones.size) * 100 : 0;
+
+  const funnelEvents = [
+    'page_view',
+    'product_view',
+    'quick_view',
+    'quote_open',
+    'quote_submit',
+    'whatsapp_click',
+    'add_to_cart',
+    'begin_checkout',
+    'purchase',
+  ];
+  const funnel = funnelEvents.map(name => {
+    const total = eventos.filter(row => text(row.event_name) === name).length;
+    const pct = pageViews.length > 0 ? (total / pageViews.length) * 100 : 0;
+    return [name, String(total), `${pct.toFixed(1)}%`];
+  });
+
+  const pages = new Map<string, { views: number; sessions: Set<string> }>();
+  for (const row of pageViews) {
+    const path = text(row.page_path) || '(sin ruta)';
+    const acc = pages.get(path) ?? { views: 0, sessions: new Set<string>() };
+    acc.views += 1;
+    const sessionId = text(row.session_id);
+    if (sessionId) acc.sessions.add(sessionId);
+    pages.set(path, acc);
+  }
+  const topPages = Array.from(pages.entries())
+    .sort((a, b) => b[1].views - a[1].views)
+    .slice(0, 12);
+
+  const sources = new Map<string, { sessions: Set<string>; events: number }>();
+  for (const row of eventos) {
+    const source = text(row.utm_source) || 'directo';
+    const medium = text(row.utm_medium) || 'none';
+    const key = `${source} / ${medium}`;
+    const acc = sources.get(key) ?? { sessions: new Set<string>(), events: 0 };
+    acc.events += 1;
+    const sessionId = text(row.session_id);
+    if (sessionId) acc.sessions.add(sessionId);
+    sources.set(key, acc);
+  }
+  const sourceRows = Array.from(sources.entries())
+    .sort((a, b) => b[1].sessions.size - a[1].sessions.size)
+    .slice(0, 12);
+
+  const productViews = new Map<string, number>();
+  for (const row of eventos.filter(item => text(item.event_name) === 'product_view')) {
+    const slug = text(row.product_slug) || '(sin slug)';
+    productViews.set(slug, (productViews.get(slug) ?? 0) + 1);
+  }
+  const topProducts = Array.from(productViews.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 12);
+
+  const ctas = new Map<string, number>();
+  for (const row of eventos.filter(item => text(item.event_name) === 'cta_clicked')) {
+    const props =
+      row.properties && typeof row.properties === 'object' ? (row.properties as Row) : {};
+    const label = text(props.text) || text(props.href) || '(sin etiqueta)';
+    ctas.set(label, (ctas.get(label) ?? 0) + 1);
+  }
+  const topCtas = Array.from(ctas.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 12);
+
+  return `
+    <section class="admin-grid">
+      ${marketingMetric('Visitas pagina', pageViews.length.toLocaleString('es-CO'))}
+      ${marketingMetric('Sesiones', sesiones.size.toLocaleString('es-CO'))}
+      ${marketingMetric('Permanencia media', formatDuration(avgDuration))}
+      ${marketingMetric('Scroll medio', `${avgScroll.toFixed(0)}%`)}
+      ${marketingMetric('Conversiones', conversions.length.toLocaleString('es-CO'))}
+      ${marketingMetric('Conv. por sesion', `${conversionRate.toFixed(1)}%`)}
+    </section>
+    <section class="admin-panel admin-analytics-status">
+      <div class="admin-panel__head"><h2>Stack de medicion</h2></div>
+      <div class="admin-health">
+        <div class="admin-health__item">
+          <strong>Google Analytics 4</strong>
+          <p>${PUBLIC_GA_ID ? 'Activo por PUBLIC_GA_ID. Eventos y pageviews se envian con gtag.' : 'Pendiente: definir PUBLIC_GA_ID.'}</p>
+        </div>
+        <div class="admin-health__item">
+          <strong>Google Tag Manager</strong>
+          <p>${PUBLIC_GTM_ID ? 'Activo por PUBLIC_GTM_ID. dataLayer recibe todos los eventos.' : 'Pendiente: definir PUBLIC_GTM_ID si se usara contenedor.'}</p>
+        </div>
+        <div class="admin-health__item">
+          <strong>Heatmap / grabaciones</strong>
+          <p>${PUBLIC_CLARITY_ID ? 'Microsoft Clarity activo. Heatmaps y session replay se revisan en Clarity; aqui se resume permanencia y scroll first-party.' : 'Pendiente: definir PUBLIC_CLARITY_ID para heatmaps y session replay.'}</p>
+        </div>
+      </div>
+    </section>
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Funnel marketing 30 dias</h2></div>
+      ${table(['Evento', 'Total', '% sobre pageviews'], funnel)}
+    </section>
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Paginas con mas visitas</h2></div>
+      ${table(
+        ['Pagina', 'Vistas', 'Sesiones'],
+        topPages.map(([path, stats]) => [
+          escapeHtml(path),
+          String(stats.views),
+          String(stats.sessions.size),
+        ])
+      )}
+    </section>
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Fuentes UTM</h2></div>
+      ${table(
+        ['Fuente / medio', 'Sesiones', 'Eventos'],
+        sourceRows.map(([source, stats]) => [
+          escapeHtml(source),
+          String(stats.sessions.size),
+          String(stats.events),
+        ])
+      )}
+    </section>
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Productos mas vistos</h2></div>
+      ${table(
+        ['Producto', 'Vistas'],
+        topProducts.map(([slug, total]) => [escapeHtml(slug), String(total)])
+      )}
+    </section>
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>CTAs mas pulsados</h2></div>
+      ${table(
+        ['CTA', 'Clicks'],
+        topCtas.map(([label, total]) => [escapeHtml(label), String(total)])
       )}
     </section>`;
 }
