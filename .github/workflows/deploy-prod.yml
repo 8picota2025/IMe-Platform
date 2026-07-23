@@ -43,7 +43,7 @@ jobs:
           PUBLIC_SUPABASE_ANON_KEY: sb_publishable_5nGmPS2W7yzG3B1NC7piCQ_Imt5f9b2
           PUBLIC_SUPABASE_TIMEOUT_MS: 8000
           PUBLIC_GA_ID: G-YKKFCZHE2N
-          PUBLIC_CLARITY_ID: ${{ secrets.PUBLIC_CLARITY_ID }}
+          PUBLIC_CLARITY_ID: xqoetpnsk8
           PUBLIC_SENTRY_DSN: ${{ secrets.PUBLIC_SENTRY_DSN }}
           PUBLIC_IMEIA_API_URL: ${{ secrets.PUBLIC_IMEIA_API_URL }}
           TURNSTILE_SITE_KEY: ${{ secrets.TURNSTILE_SITE_KEY }}
