@@ -31,6 +31,7 @@ CREATE OR REPLACE FUNCTION crm_normalize_email(value TEXT)
 RETURNS TEXT
 LANGUAGE SQL
 IMMUTABLE
+SET search_path = public
 AS $$
   SELECT NULLIF(lower(trim(value)), '');
 $$;
@@ -39,6 +40,7 @@ CREATE OR REPLACE FUNCTION crm_normalize_key(value TEXT)
 RETURNS TEXT
 LANGUAGE SQL
 IMMUTABLE
+SET search_path = public
 AS $$
   SELECT NULLIF(regexp_replace(lower(trim(value)), '\s+', ' ', 'g'), '');
 $$;
@@ -47,6 +49,7 @@ CREATE OR REPLACE FUNCTION crm_normalize_phone(value TEXT)
 RETURNS TEXT
 LANGUAGE SQL
 IMMUTABLE
+SET search_path = public
 AS $$
   WITH raw AS (
     SELECT regexp_replace(coalesce(value, ''), '[^0-9]', '', 'g') AS digits
@@ -63,6 +66,7 @@ CREATE OR REPLACE FUNCTION crm_extract_products_total(products JSONB)
 RETURNS NUMERIC
 LANGUAGE SQL
 IMMUTABLE
+SET search_path = public
 AS $$
   SELECT coalesce(sum(
     CASE
@@ -89,6 +93,7 @@ CREATE OR REPLACE FUNCTION crm_stage_from_cotizacion(value TEXT)
 RETURNS TEXT
 LANGUAGE SQL
 IMMUTABLE
+SET search_path = public
 AS $$
   SELECT CASE value
     WHEN 'respondida' THEN 'cotizando'
@@ -101,6 +106,7 @@ CREATE OR REPLACE FUNCTION crm_stage_from_pedido(value TEXT)
 RETURNS TEXT
 LANGUAGE SQL
 IMMUTABLE
+SET search_path = public
 AS $$
   SELECT CASE
     WHEN value IN ('pagado', 'procesando', 'enviado') THEN 'ganado'

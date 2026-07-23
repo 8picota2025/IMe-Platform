@@ -43,8 +43,8 @@ export function itemsToHtml(
   items: Array<{
     nombre?: string;
     cantidad?: number;
-    precio_unitario?: number;
-    subtotal?: number;
+    precio_unitario?: number | null;
+    subtotal?: number | null;
     moneda?: string;
   }>,
   locale: EmailLocale = 'es'

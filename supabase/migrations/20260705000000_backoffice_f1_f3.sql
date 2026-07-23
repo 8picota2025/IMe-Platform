@@ -91,19 +91,19 @@ DROP POLICY IF EXISTS "pedidos_cliente_select" ON pedidos;
 CREATE POLICY "pedidos_cliente_select"
   ON pedidos FOR SELECT
   TO authenticated
-  USING ((cliente->>'email') = auth.email());
+  USING ((cliente->>'email') = (select auth.email()));
 
 DROP POLICY IF EXISTS "cotizaciones_cliente_select" ON solicitudes_cotizacion;
 CREATE POLICY "cotizaciones_cliente_select"
   ON solicitudes_cotizacion FOR SELECT
   TO authenticated
-  USING (email = auth.email());
+  USING (email = (select auth.email()));
 
 DROP POLICY IF EXISTS "clientes_self_select" ON clientes;
 CREATE POLICY "clientes_self_select"
   ON clientes FOR SELECT
   TO authenticated
-  USING (email = auth.email());
+  USING (email = (select auth.email()));
 
 DROP POLICY IF EXISTS "direcciones_self_select" ON cliente_direcciones;
 CREATE POLICY "direcciones_self_select"
@@ -112,7 +112,7 @@ CREATE POLICY "direcciones_self_select"
   USING (
     EXISTS (
       SELECT 1 FROM clientes c
-      WHERE c.id = cliente_direcciones.cliente_id AND c.email = auth.email()
+      WHERE c.id = cliente_direcciones.cliente_id AND c.email = (select auth.email())
     )
   );
 
@@ -151,7 +151,7 @@ CREATE POLICY "listas_precio_cliente_select"
   USING (
     EXISTS (
       SELECT 1 FROM clientes c
-      WHERE c.lista_precio_id = listas_precio.id AND c.email = auth.email()
+      WHERE c.lista_precio_id = listas_precio.id AND c.email = (select auth.email())
     )
   );
 DROP POLICY IF EXISTS "lista_precio_items_admin_all" ON lista_precio_items;
