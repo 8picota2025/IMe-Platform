@@ -8,6 +8,7 @@ const ICONOS_POR_SLUG: Record<string, string> = {
   mobiliario: 'bed',
   anestesia: 'wind',
   radiologia: 'scan',
+  robots: 'bot',
 };
 
 export function resolveFamiliaIcono(slug: string, icono?: string | null): string {

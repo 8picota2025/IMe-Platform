@@ -68,8 +68,9 @@ export function resetTransientUiState(): void {
   const closeDialog = (selector: string) => {
     const el = document.querySelector<HTMLElement>(selector);
     if (!el) return;
-    if (el instanceof HTMLDialogElement && el.open) {
-      el.close();
+    if (el instanceof HTMLDialogElement) {
+      if (el.open) el.close();
+      el.removeAttribute('hidden');
       return;
     }
     el.setAttribute('hidden', '');

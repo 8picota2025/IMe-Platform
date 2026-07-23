@@ -41,7 +41,7 @@ interface Props {
 
 const { producto, locale, comparable = false } = Astro.props;
 const segment = locale === 'en' ? 'products' : 'productos';
-const href = `/${locale}/${segment}/${producto.slug}`;
+const href = `/${locale}/${segment}/${producto.slug}/`;
 const noDisponible = producto.disponible === false;
 const precioFormateado = formatMoneda(producto.precio ?? null, producto.moneda ?? 'COP', locale);
 const accionComercial = getAccionComercial(producto, locale);

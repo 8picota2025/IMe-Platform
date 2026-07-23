@@ -129,7 +129,7 @@ describe('asesor biomedical fallback', () => {
       expect(respuesta.texto).not.toContain('cualificación');
       expect(respuesta.productos).toHaveLength(1);
       expect(respuesta.productos[0]?.urlLanding).toBe(
-        '/es/productos/cama-de-atencion-domiciliaria-hb421'
+        '/es/productos/cama-de-atencion-domiciliaria-hb421/'
       );
     } finally {
       globalThis.fetch = originalFetch;

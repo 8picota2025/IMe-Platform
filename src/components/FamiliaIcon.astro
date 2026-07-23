@@ -79,6 +79,20 @@ const iconKey = resolveFamiliaIcono(slug, icono);
         <path d="M3 16v2a3 3 0 0 0 3 3h2" />
         <circle cx="12" cy="12" r="3.5" />
       </>
+    ) : iconKey === 'bot' ? (
+      <>
+        <rect x="6" y="7" width="12" height="10" rx="3" />
+        <path d="M12 7V4" />
+        <circle cx="12" cy="3" r="1" />
+        <path d="M8.5 11h.01" />
+        <path d="M15.5 11h.01" />
+        <path d="M9.5 15h5" />
+        <path d="M4 12h2" />
+        <path d="M18 12h2" />
+        <path d="M9 20h6" />
+        <path d="M10 17v3" />
+        <path d="M14 17v3" />
+      </>
     ) : (
       <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
     )

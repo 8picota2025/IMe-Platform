@@ -1,131 +1,11 @@
 [
   {
-    "id": "fd3f59cb-27cf-4fde-8422-ec71f2893cf4",
-    "familia_id": "3d631fe7-2f3b-4b43-a07c-861844755476",
-    "familia_slug": "mobiliario",
-    "slug": "camillas-hospitalarias",
-    "nombre_es": "Camillas hospitalarias",
-    "nombre_en": "Camillas hospitalarias",
-    "orden": 0,
-    "activo": true
-  },
-  {
-    "id": "520328f7-d477-4415-8cb2-d2e8babe0a04",
-    "familia_id": "3d631fe7-2f3b-4b43-a07c-861844755476",
-    "familia_slug": "mobiliario",
-    "slug": "camas-de-atencion-domiciliaria",
-    "nombre_es": "Camas de atención domiciliaria",
-    "nombre_en": "Camas de atención domiciliaria",
-    "orden": 0,
-    "activo": true
-  },
-  {
-    "id": "1e55f2c4-7408-4ed2-a885-cbc12a26cce2",
-    "familia_id": "3d631fe7-2f3b-4b43-a07c-861844755476",
-    "familia_slug": "mobiliario",
-    "slug": "mesas-auxiliares-hospitalarias",
-    "nombre_es": "Mesas auxiliares hospitalarias",
-    "nombre_en": "Mesas auxiliares hospitalarias",
-    "orden": 0,
-    "activo": true
-  },
-  {
-    "id": "1990047e-4352-4ae5-965f-cd11689e20b8",
-    "familia_id": "3d631fe7-2f3b-4b43-a07c-861844755476",
-    "familia_slug": "mobiliario",
-    "slug": "carros-clinicos-abs",
-    "nombre_es": "Carros clínicos ABS",
-    "nombre_en": "Carros clínicos ABS",
-    "orden": 0,
-    "activo": true
-  },
-  {
-    "id": "c8b40c5e-b07a-4e3e-a512-e7d4aea5a9b0",
-    "familia_id": "61d5c2d6-acdc-4de3-896d-044269702899",
-    "familia_slug": "ventiladores",
-    "slug": "ventiladores",
-    "nombre_es": "Ventiladores",
-    "nombre_en": "Ventiladores",
-    "orden": 0,
-    "activo": true
-  },
-  {
     "id": "9301b9a7-f519-4d45-b925-7d84399554fa",
     "familia_id": "377aff8d-bf3e-494a-a616-b53555b8b24c",
     "familia_slug": "anestesia",
     "slug": "anestesia",
     "nombre_es": "Anestesia y soporte ventilatorio",
     "nombre_en": "Anestesia y soporte ventilatorio",
-    "orden": 0,
-    "activo": true
-  },
-  {
-    "id": "ee580a4e-119b-49c5-a53e-bf99cd469a4b",
-    "familia_id": "de5498d0-4a86-43d8-a7a8-34cdf21e76ab",
-    "familia_slug": "actividades-vida-diaria",
-    "slug": "repuestos-avd",
-    "nombre_es": "Repuestos AVD",
-    "nombre_en": "Repuestos AVD",
-    "orden": 0,
-    "activo": true
-  },
-  {
-    "id": "c02e61f8-edb9-48e3-97a8-337787a5ed15",
-    "familia_id": "de5498d0-4a86-43d8-a7a8-34cdf21e76ab",
-    "familia_slug": "actividades-vida-diaria",
-    "slug": "gruas-de-traslado",
-    "nombre_es": "Grúas de traslado",
-    "nombre_en": "Grúas de traslado",
-    "orden": 0,
-    "activo": true
-  },
-  {
-    "id": "e01b746c-9916-4c17-8c1d-2b8fd4d8f269",
-    "familia_id": "2f70b322-e498-4924-8630-3a1ee268c01f",
-    "familia_slug": "neonatologia",
-    "slug": "neonatologia",
-    "nombre_es": "Neonatología y gineco-obstetricia",
-    "nombre_en": "Neonatología y gineco-obstetricia",
-    "orden": 0,
-    "activo": true
-  },
-  {
-    "id": "4478f7f7-b567-4eab-ad35-b3e1a691f9ef",
-    "familia_id": "82aa3109-df88-468b-aed8-5ff953f2749a",
-    "familia_slug": "monitores",
-    "slug": "monitores",
-    "nombre_es": "Monitorización y signos vitales",
-    "nombre_en": "Monitorización y signos vitales",
-    "orden": 0,
-    "activo": true
-  },
-  {
-    "id": "b904c899-93f4-4792-8d0d-b4a3f67073e7",
-    "familia_id": "7cbfd53b-91c4-4cd1-9c6c-7d4fd812520b",
-    "familia_slug": "terapia-respiratoria-soporte-vital",
-    "slug": "terapia-respiratoria-soporte-vital",
-    "nombre_es": "Terapia respiratoria y soporte vital",
-    "nombre_en": "Terapia respiratoria y soporte vital",
-    "orden": 0,
-    "activo": true
-  },
-  {
-    "id": "827bb703-23f0-48c9-94af-4f00de1eb8e6",
-    "familia_id": "01a7591f-3603-4342-a698-d626fb8756e9",
-    "familia_slug": "movilidad-rehabilitacion",
-    "slug": "repuestos-de-movilidad",
-    "nombre_es": "Repuestos de movilidad",
-    "nombre_en": "Repuestos de movilidad",
-    "orden": 0,
-    "activo": true
-  },
-  {
-    "id": "c021f48c-741a-4cfb-8b25-67ffefd6b26e",
-    "familia_id": "12af966b-90d0-460c-a51a-a51b18b3f17d",
-    "familia_slug": "esterilizacion-control-infecciones",
-    "slug": "esterilizacion-control-infecciones",
-    "nombre_es": "Esterilización y control de infecciones",
-    "nombre_en": "Esterilización y control de infecciones",
     "orden": 0,
     "activo": true
   },
@@ -140,22 +20,12 @@
     "activo": true
   },
   {
-    "id": "ca4cf3be-2041-478e-86a2-69a7435eeabf",
-    "familia_id": "f174f837-09ad-4f7b-b425-f26edc168530",
-    "familia_slug": "insumos-accesorios",
-    "slug": "insumos-accesorios",
-    "nombre_es": "Insumos y accesorios",
-    "nombre_en": "Consumables & Accessories",
-    "orden": 0,
-    "activo": true
-  },
-  {
-    "id": "ee41c2ad-7e70-4884-91d9-57e5d4b5374a",
+    "id": "520328f7-d477-4415-8cb2-d2e8babe0a04",
     "familia_id": "3d631fe7-2f3b-4b43-a07c-861844755476",
     "familia_slug": "mobiliario",
-    "slug": "carros-de-infusion",
-    "nombre_es": "Carros de infusión",
-    "nombre_en": "Carros de infusión",
+    "slug": "camas-de-atencion-domiciliaria",
+    "nombre_es": "Camas de atención domiciliaria",
+    "nombre_en": "Camas de atención domiciliaria",
     "orden": 0,
     "activo": true
   },
@@ -170,12 +40,132 @@
     "activo": true
   },
   {
+    "id": "1e60090a-870e-484b-973b-588406ff8516",
+    "familia_id": "3d631fe7-2f3b-4b43-a07c-861844755476",
+    "familia_slug": "mobiliario",
+    "slug": "camas-pediatricas",
+    "nombre_es": "Camas pediátricas",
+    "nombre_en": "Camas pediátricas",
+    "orden": 0,
+    "activo": true
+  },
+  {
+    "id": "fd3f59cb-27cf-4fde-8422-ec71f2893cf4",
+    "familia_id": "3d631fe7-2f3b-4b43-a07c-861844755476",
+    "familia_slug": "mobiliario",
+    "slug": "camillas-hospitalarias",
+    "nombre_es": "Camillas hospitalarias",
+    "nombre_en": "Camillas hospitalarias",
+    "orden": 0,
+    "activo": true
+  },
+  {
     "id": "87abc6ee-ca54-49e5-9eaa-e4b79c01b0e4",
     "familia_id": "abc954b1-dea0-4911-a96d-678c5a0ecb52",
     "familia_slug": "cardiologia-reanimacion",
     "slug": "cardiologia-reanimacion",
     "nombre_es": "Cardiología y reanimación",
     "nombre_en": "Cardiología y reanimación",
+    "orden": 0,
+    "activo": true
+  },
+  {
+    "id": "1990047e-4352-4ae5-965f-cd11689e20b8",
+    "familia_id": "3d631fe7-2f3b-4b43-a07c-861844755476",
+    "familia_slug": "mobiliario",
+    "slug": "carros-clinicos-abs",
+    "nombre_es": "Carros clínicos ABS",
+    "nombre_en": "Carros clínicos ABS",
+    "orden": 0,
+    "activo": true
+  },
+  {
+    "id": "ee41c2ad-7e70-4884-91d9-57e5d4b5374a",
+    "familia_id": "3d631fe7-2f3b-4b43-a07c-861844755476",
+    "familia_slug": "mobiliario",
+    "slug": "carros-de-infusion",
+    "nombre_es": "Carros de infusión",
+    "nombre_en": "Carros de infusión",
+    "orden": 0,
+    "activo": true
+  },
+  {
+    "id": "c021f48c-741a-4cfb-8b25-67ffefd6b26e",
+    "familia_id": "12af966b-90d0-460c-a51a-a51b18b3f17d",
+    "familia_slug": "esterilizacion-control-infecciones",
+    "slug": "esterilizacion-control-infecciones",
+    "nombre_es": "Esterilización y control de infecciones",
+    "nombre_en": "Esterilización y control de infecciones",
+    "orden": 0,
+    "activo": true
+  },
+  {
+    "id": "c02e61f8-edb9-48e3-97a8-337787a5ed15",
+    "familia_id": "de5498d0-4a86-43d8-a7a8-34cdf21e76ab",
+    "familia_slug": "actividades-vida-diaria",
+    "slug": "gruas-de-traslado",
+    "nombre_es": "Grúas de traslado",
+    "nombre_en": "Grúas de traslado",
+    "orden": 0,
+    "activo": true
+  },
+  {
+    "id": "ca4cf3be-2041-478e-86a2-69a7435eeabf",
+    "familia_id": "f174f837-09ad-4f7b-b425-f26edc168530",
+    "familia_slug": "insumos-accesorios",
+    "slug": "insumos-accesorios",
+    "nombre_es": "Insumos y accesorios",
+    "nombre_en": "Consumables & Accessories",
+    "orden": 0,
+    "activo": true
+  },
+  {
+    "id": "1e55f2c4-7408-4ed2-a885-cbc12a26cce2",
+    "familia_id": "3d631fe7-2f3b-4b43-a07c-861844755476",
+    "familia_slug": "mobiliario",
+    "slug": "mesas-auxiliares-hospitalarias",
+    "nombre_es": "Mesas auxiliares hospitalarias",
+    "nombre_en": "Mesas auxiliares hospitalarias",
+    "orden": 0,
+    "activo": true
+  },
+  {
+    "id": "4478f7f7-b567-4eab-ad35-b3e1a691f9ef",
+    "familia_id": "82aa3109-df88-468b-aed8-5ff953f2749a",
+    "familia_slug": "monitores",
+    "slug": "monitores",
+    "nombre_es": "Monitorización y signos vitales",
+    "nombre_en": "Monitorización y signos vitales",
+    "orden": 0,
+    "activo": true
+  },
+  {
+    "id": "e01b746c-9916-4c17-8c1d-2b8fd4d8f269",
+    "familia_id": "2f70b322-e498-4924-8630-3a1ee268c01f",
+    "familia_slug": "neonatologia",
+    "slug": "neonatologia",
+    "nombre_es": "Neonatología y gineco-obstetricia",
+    "nombre_en": "Neonatología y gineco-obstetricia",
+    "orden": 0,
+    "activo": true
+  },
+  {
+    "id": "ee580a4e-119b-49c5-a53e-bf99cd469a4b",
+    "familia_id": "de5498d0-4a86-43d8-a7a8-34cdf21e76ab",
+    "familia_slug": "actividades-vida-diaria",
+    "slug": "repuestos-avd",
+    "nombre_es": "Repuestos AVD",
+    "nombre_en": "Repuestos AVD",
+    "orden": 0,
+    "activo": true
+  },
+  {
+    "id": "827bb703-23f0-48c9-94af-4f00de1eb8e6",
+    "familia_id": "01a7591f-3603-4342-a698-d626fb8756e9",
+    "familia_slug": "movilidad-rehabilitacion",
+    "slug": "repuestos-de-movilidad",
+    "nombre_es": "Repuestos de movilidad",
+    "nombre_en": "Repuestos de movilidad",
     "orden": 0,
     "activo": true
   },
@@ -190,42 +180,32 @@
     "activo": true
   },
   {
-    "id": "1e60090a-870e-484b-973b-588406ff8516",
-    "familia_id": "3d631fe7-2f3b-4b43-a07c-861844755476",
-    "familia_slug": "mobiliario",
-    "slug": "camas-pediatricas",
-    "nombre_es": "Camas pediátricas",
-    "nombre_en": "Camas pediátricas",
+    "id": "b904c899-93f4-4792-8d0d-b4a3f67073e7",
+    "familia_id": "7cbfd53b-91c4-4cd1-9c6c-7d4fd812520b",
+    "familia_slug": "terapia-respiratoria-soporte-vital",
+    "slug": "terapia-respiratoria-soporte-vital",
+    "nombre_es": "Terapia respiratoria y soporte vital",
+    "nombre_en": "Terapia respiratoria y soporte vital",
     "orden": 0,
     "activo": true
   },
   {
-    "id": "80f0563e-c2a6-4c36-ba98-53eeb5fa3510",
-    "familia_id": "7a54551b-46c8-4afb-9b57-eb2922795e83",
-    "familia_slug": "soluciones-iv",
-    "slug": "bombas-de-infusion",
-    "nombre_es": "Bombas de infusión",
-    "nombre_en": "Bombas de infusión",
-    "orden": 10,
+    "id": "c8b40c5e-b07a-4e3e-a512-e7d4aea5a9b0",
+    "familia_id": "61d5c2d6-acdc-4de3-896d-044269702899",
+    "familia_slug": "ventiladores",
+    "slug": "ventiladores",
+    "nombre_es": "Ventiladores",
+    "nombre_en": "Ventiladores",
+    "orden": 0,
     "activo": true
   },
   {
-    "id": "b84999b3-8b99-4167-a2fb-54ac9f6c9646",
-    "familia_id": "fd68b89f-6918-4026-8dbc-4afad02459de",
-    "familia_slug": "ortopedia-confort",
-    "slug": "ortesis-e-inmovilizadores",
-    "nombre_es": "Órtesis e inmovilizadores",
-    "nombre_en": "Órtesis e inmovilizadores",
-    "orden": 10,
-    "activo": true
-  },
-  {
-    "id": "2c659346-3e83-4810-9050-659445b69e8a",
-    "familia_id": "01a7591f-3603-4342-a698-d626fb8756e9",
-    "familia_slug": "movilidad-rehabilitacion",
-    "slug": "sillas-de-ruedas",
-    "nombre_es": "Sillas de ruedas",
-    "nombre_en": "Sillas de ruedas",
+    "id": "efce83ff-2266-4c66-8d97-ae48b04b9825",
+    "familia_id": "89e60199-5ba3-4b93-8ce9-aee2f59040fd",
+    "familia_slug": "radiologia",
+    "slug": "arcos-en-c",
+    "nombre_es": "Arcos en C",
+    "nombre_en": "Arcos en C",
     "orden": 10,
     "activo": true
   },
@@ -250,26 +230,6 @@
     "activo": true
   },
   {
-    "id": "bf3c2496-3291-47d4-b489-ae8bd0095a84",
-    "familia_id": "2f70b322-e498-4924-8630-3a1ee268c01f",
-    "familia_slug": "neonatologia",
-    "slug": "incubadoras-neonatales",
-    "nombre_es": "Incubadoras neonatales",
-    "nombre_en": "Incubadoras neonatales",
-    "orden": 10,
-    "activo": true
-  },
-  {
-    "id": "981d6cc2-2445-48eb-956c-1337ae4125d3",
-    "familia_id": "42daf82e-4b05-479c-9557-74214a9e655b",
-    "familia_slug": "sala-cirugia",
-    "slug": "lamparas-quirurgicas",
-    "nombre_es": "Lámparas quirúrgicas",
-    "nombre_en": "Lámparas quirúrgicas",
-    "orden": 10,
-    "activo": true
-  },
-  {
     "id": "8198b5cb-29b9-43ab-b8ca-d39ca63d7137",
     "familia_id": "4d9a59cd-2c1e-4755-9584-28d6e9024d3c",
     "familia_slug": "diagnostico-clinico-basico",
@@ -280,52 +240,12 @@
     "activo": true
   },
   {
-    "id": "178735ae-ee5c-44ee-b9a9-d77c6d716d12",
-    "familia_id": "d0c65bfa-4208-40dc-a021-8e98909456ad",
-    "familia_slug": "cardiologia",
-    "slug": "electrocardiografos",
-    "nombre_es": "Electrocardiógrafos",
-    "nombre_en": "Electrocardiógrafos",
-    "orden": 10,
-    "activo": true
-  },
-  {
-    "id": "efce83ff-2266-4c66-8d97-ae48b04b9825",
-    "familia_id": "89e60199-5ba3-4b93-8ce9-aee2f59040fd",
-    "familia_slug": "radiologia",
-    "slug": "arcos-en-c",
-    "nombre_es": "Arcos en C",
-    "nombre_en": "Arcos en C",
-    "orden": 10,
-    "activo": true
-  },
-  {
-    "id": "fa5c6802-1910-414a-bb41-2d86a64fc548",
-    "familia_id": "82aa3109-df88-468b-aed8-5ff953f2749a",
-    "familia_slug": "monitores",
-    "slug": "monitores-de-paciente-multiparametro",
-    "nombre_es": "Monitores de paciente multiparámetro",
-    "nombre_en": "Monitores de paciente multiparámetro",
-    "orden": 10,
-    "activo": true
-  },
-  {
-    "id": "8a870345-e18a-45a9-af31-0be9f7b10cf2",
-    "familia_id": "7cbfd53b-91c4-4cd1-9c6c-7d4fd812520b",
-    "familia_slug": "terapia-respiratoria-soporte-vital",
-    "slug": "oxigenoterapia",
-    "nombre_es": "Oxigenoterapia",
-    "nombre_en": "Oxigenoterapia",
-    "orden": 10,
-    "activo": true
-  },
-  {
-    "id": "9bbecfdc-4514-48cf-9cf7-1bd566b7b0b1",
-    "familia_id": "377aff8d-bf3e-494a-a616-b53555b8b24c",
-    "familia_slug": "anestesia",
-    "slug": "maquinas-de-anestesia",
-    "nombre_es": "Máquinas de anestesia",
-    "nombre_en": "Máquinas de anestesia",
+    "id": "80f0563e-c2a6-4c36-ba98-53eeb5fa3510",
+    "familia_id": "7a54551b-46c8-4afb-9b57-eb2922795e83",
+    "familia_slug": "soluciones-iv",
+    "slug": "bombas-de-infusion",
+    "nombre_es": "Bombas de infusión",
+    "nombre_en": "Bombas de infusión",
     "orden": 10,
     "activo": true
   },
@@ -350,6 +270,96 @@
     "activo": true
   },
   {
+    "id": "178735ae-ee5c-44ee-b9a9-d77c6d716d12",
+    "familia_id": "d0c65bfa-4208-40dc-a021-8e98909456ad",
+    "familia_slug": "cardiologia",
+    "slug": "electrocardiografos",
+    "nombre_es": "Electrocardiógrafos",
+    "nombre_en": "Electrocardiógrafos",
+    "orden": 10,
+    "activo": true
+  },
+  {
+    "id": "bf3c2496-3291-47d4-b489-ae8bd0095a84",
+    "familia_id": "2f70b322-e498-4924-8630-3a1ee268c01f",
+    "familia_slug": "neonatologia",
+    "slug": "incubadoras-neonatales",
+    "nombre_es": "Incubadoras neonatales",
+    "nombre_en": "Incubadoras neonatales",
+    "orden": 10,
+    "activo": true
+  },
+  {
+    "id": "981d6cc2-2445-48eb-956c-1337ae4125d3",
+    "familia_id": "42daf82e-4b05-479c-9557-74214a9e655b",
+    "familia_slug": "sala-cirugia",
+    "slug": "lamparas-quirurgicas",
+    "nombre_es": "Lámparas quirúrgicas",
+    "nombre_en": "Lámparas quirúrgicas",
+    "orden": 10,
+    "activo": true
+  },
+  {
+    "id": "9bbecfdc-4514-48cf-9cf7-1bd566b7b0b1",
+    "familia_id": "377aff8d-bf3e-494a-a616-b53555b8b24c",
+    "familia_slug": "anestesia",
+    "slug": "maquinas-de-anestesia",
+    "nombre_es": "Máquinas de anestesia",
+    "nombre_en": "Máquinas de anestesia",
+    "orden": 10,
+    "activo": true
+  },
+  {
+    "id": "fa5c6802-1910-414a-bb41-2d86a64fc548",
+    "familia_id": "82aa3109-df88-468b-aed8-5ff953f2749a",
+    "familia_slug": "monitores",
+    "slug": "monitores-de-paciente-multiparametro",
+    "nombre_es": "Monitores de paciente multiparámetro",
+    "nombre_en": "Monitores de paciente multiparámetro",
+    "orden": 10,
+    "activo": true
+  },
+  {
+    "id": "b84999b3-8b99-4167-a2fb-54ac9f6c9646",
+    "familia_id": "fd68b89f-6918-4026-8dbc-4afad02459de",
+    "familia_slug": "ortopedia-confort",
+    "slug": "ortesis-e-inmovilizadores",
+    "nombre_es": "Órtesis e inmovilizadores",
+    "nombre_en": "Órtesis e inmovilizadores",
+    "orden": 10,
+    "activo": true
+  },
+  {
+    "id": "8a870345-e18a-45a9-af31-0be9f7b10cf2",
+    "familia_id": "7cbfd53b-91c4-4cd1-9c6c-7d4fd812520b",
+    "familia_slug": "terapia-respiratoria-soporte-vital",
+    "slug": "oxigenoterapia",
+    "nombre_es": "Oxigenoterapia",
+    "nombre_en": "Oxigenoterapia",
+    "orden": 10,
+    "activo": true
+  },
+  {
+    "id": "0a894f87-2fc5-435d-b17e-f5ccf3ef7c41",
+    "familia_id": "d026ac8a-6d63-4fb7-8953-a7aa7a32e627",
+    "familia_slug": "robots",
+    "slug": "robots-recepcion-atencion",
+    "nombre_es": "Robots de recepción y atención",
+    "nombre_en": "Reception and customer service robots",
+    "orden": 10,
+    "activo": true
+  },
+  {
+    "id": "2c659346-3e83-4810-9050-659445b69e8a",
+    "familia_id": "01a7591f-3603-4342-a698-d626fb8756e9",
+    "familia_slug": "movilidad-rehabilitacion",
+    "slug": "sillas-de-ruedas",
+    "nombre_es": "Sillas de ruedas",
+    "nombre_en": "Sillas de ruedas",
+    "orden": 10,
+    "activo": true
+  },
+  {
     "id": "909ab976-4e78-4756-bfbe-00640c63b2b7",
     "familia_id": "ea906865-5620-43a3-80ba-98fdcf9ab63a",
     "familia_slug": "ultrasonido",
@@ -360,42 +370,12 @@
     "activo": true
   },
   {
-    "id": "dc8b05ad-5772-4d01-9fad-6e40d96e65a8",
-    "familia_id": "2f70b322-e498-4924-8630-3a1ee268c01f",
-    "familia_slug": "neonatologia",
-    "slug": "cunas-de-calor-radiante",
-    "nombre_es": "Cunas de calor radiante",
-    "nombre_en": "Cunas de calor radiante",
-    "orden": 20,
-    "activo": true
-  },
-  {
-    "id": "00574863-f544-440a-9a61-cceed009774d",
-    "familia_id": "82aa3109-df88-468b-aed8-5ff953f2749a",
-    "familia_slug": "monitores",
-    "slug": "oximetros-de-pulso",
-    "nombre_es": "Oxímetros de pulso",
-    "nombre_en": "Oxímetros de pulso",
-    "orden": 20,
-    "activo": true
-  },
-  {
-    "id": "2effbcdd-fcbc-4184-90f3-f3636b4662a7",
-    "familia_id": "42daf82e-4b05-479c-9557-74214a9e655b",
-    "familia_slug": "sala-cirugia",
-    "slug": "mesas-quirurgicas",
-    "nombre_es": "Mesas quirúrgicas",
-    "nombre_en": "Mesas quirúrgicas",
-    "orden": 20,
-    "activo": true
-  },
-  {
-    "id": "c1b7fd12-38f1-45df-b41a-853342a8e11c",
-    "familia_id": "01a7591f-3603-4342-a698-d626fb8756e9",
-    "familia_slug": "movilidad-rehabilitacion",
-    "slug": "caminadores-y-andadores",
-    "nombre_es": "Caminadores y andadores",
-    "nombre_en": "Caminadores y andadores",
+    "id": "6b7b446a-f8a0-4f32-b61c-08ca3cbfb3c4",
+    "familia_id": "7a54551b-46c8-4afb-9b57-eb2922795e83",
+    "familia_slug": "soluciones-iv",
+    "slug": "bombas-de-jeringa",
+    "nombre_es": "Bombas de jeringa",
+    "nombre_en": "Bombas de jeringa",
     "orden": 20,
     "activo": true
   },
@@ -410,32 +390,22 @@
     "activo": true
   },
   {
-    "id": "6b7b446a-f8a0-4f32-b61c-08ca3cbfb3c4",
-    "familia_id": "7a54551b-46c8-4afb-9b57-eb2922795e83",
-    "familia_slug": "soluciones-iv",
-    "slug": "bombas-de-jeringa",
-    "nombre_es": "Bombas de jeringa",
-    "nombre_en": "Bombas de jeringa",
+    "id": "c1b7fd12-38f1-45df-b41a-853342a8e11c",
+    "familia_id": "01a7591f-3603-4342-a698-d626fb8756e9",
+    "familia_slug": "movilidad-rehabilitacion",
+    "slug": "caminadores-y-andadores",
+    "nombre_es": "Caminadores y andadores",
+    "nombre_en": "Caminadores y andadores",
     "orden": 20,
     "activo": true
   },
   {
-    "id": "f3909b95-164b-47dc-bb86-56da2e3bfe29",
-    "familia_id": "7cbfd53b-91c4-4cd1-9c6c-7d4fd812520b",
-    "familia_slug": "terapia-respiratoria-soporte-vital",
-    "slug": "nebulizadores",
-    "nombre_es": "Nebulizadores",
-    "nombre_en": "Nebulizadores",
-    "orden": 20,
-    "activo": true
-  },
-  {
-    "id": "1d0f18ea-cfaa-4396-9cf5-0878852081f3",
-    "familia_id": "89e60199-5ba3-4b93-8ce9-aee2f59040fd",
-    "familia_slug": "radiologia",
-    "slug": "mamografia-digital",
-    "nombre_es": "Mamografía digital",
-    "nombre_en": "Mamografía digital",
+    "id": "dc8b05ad-5772-4d01-9fad-6e40d96e65a8",
+    "familia_id": "2f70b322-e498-4924-8630-3a1ee268c01f",
+    "familia_slug": "neonatologia",
+    "slug": "cunas-de-calor-radiante",
+    "nombre_es": "Cunas de calor radiante",
+    "nombre_en": "Cunas de calor radiante",
     "orden": 20,
     "activo": true
   },
@@ -460,6 +430,56 @@
     "activo": true
   },
   {
+    "id": "1d0f18ea-cfaa-4396-9cf5-0878852081f3",
+    "familia_id": "89e60199-5ba3-4b93-8ce9-aee2f59040fd",
+    "familia_slug": "radiologia",
+    "slug": "mamografia-digital",
+    "nombre_es": "Mamografía digital",
+    "nombre_en": "Mamografía digital",
+    "orden": 20,
+    "activo": true
+  },
+  {
+    "id": "2effbcdd-fcbc-4184-90f3-f3636b4662a7",
+    "familia_id": "42daf82e-4b05-479c-9557-74214a9e655b",
+    "familia_slug": "sala-cirugia",
+    "slug": "mesas-quirurgicas",
+    "nombre_es": "Mesas quirúrgicas",
+    "nombre_en": "Mesas quirúrgicas",
+    "orden": 20,
+    "activo": true
+  },
+  {
+    "id": "f3909b95-164b-47dc-bb86-56da2e3bfe29",
+    "familia_id": "7cbfd53b-91c4-4cd1-9c6c-7d4fd812520b",
+    "familia_slug": "terapia-respiratoria-soporte-vital",
+    "slug": "nebulizadores",
+    "nombre_es": "Nebulizadores",
+    "nombre_en": "Nebulizadores",
+    "orden": 20,
+    "activo": true
+  },
+  {
+    "id": "00574863-f544-440a-9a61-cceed009774d",
+    "familia_id": "82aa3109-df88-468b-aed8-5ff953f2749a",
+    "familia_slug": "monitores",
+    "slug": "oximetros-de-pulso",
+    "nombre_es": "Oxímetros de pulso",
+    "nombre_en": "Oxímetros de pulso",
+    "orden": 20,
+    "activo": true
+  },
+  {
+    "id": "e8116b0e-c6e0-4b4c-be0e-9090f2f69513",
+    "familia_id": "d026ac8a-6d63-4fb7-8953-a7aa7a32e627",
+    "familia_slug": "robots",
+    "slug": "robots-telepresencia",
+    "nombre_es": "Robots de telepresencia",
+    "nombre_en": "Telepresence robots",
+    "orden": 20,
+    "activo": true
+  },
+  {
     "id": "3f9e9424-0392-46ad-a01c-0c0c12d43aca",
     "familia_id": "4d9a59cd-2c1e-4755-9584-28d6e9024d3c",
     "familia_slug": "diagnostico-clinico-basico",
@@ -470,22 +490,12 @@
     "activo": true
   },
   {
-    "id": "88b110a4-0b46-40b5-8bad-51959ef1e39f",
-    "familia_id": "2f70b322-e498-4924-8630-3a1ee268c01f",
-    "familia_slug": "neonatologia",
-    "slug": "fototerapia-neonatal",
-    "nombre_es": "Fototerapia neonatal",
-    "nombre_en": "Fototerapia neonatal",
-    "orden": 30,
-    "activo": true
-  },
-  {
-    "id": "9a87c70f-b873-45e7-9746-ed4f1774e6d7",
-    "familia_id": "89e60199-5ba3-4b93-8ce9-aee2f59040fd",
-    "familia_slug": "radiologia",
-    "slug": "radiografia-digital-dr",
-    "nombre_es": "Radiografía digital DR",
-    "nombre_en": "Radiografía digital DR",
+    "id": "0b85498c-effa-43c7-87a1-c2565f06b9a9",
+    "familia_id": "5c8c5719-4488-4723-99e6-77b7342c1a40",
+    "familia_slug": "emergencias-traslado-inmovilizacion",
+    "slug": "camillas-de-ambulancia",
+    "nombre_es": "Camillas de ambulancia",
+    "nombre_en": "Camillas de ambulancia",
     "orden": 30,
     "activo": true
   },
@@ -500,12 +510,12 @@
     "activo": true
   },
   {
-    "id": "0b85498c-effa-43c7-87a1-c2565f06b9a9",
-    "familia_id": "5c8c5719-4488-4723-99e6-77b7342c1a40",
-    "familia_slug": "emergencias-traslado-inmovilizacion",
-    "slug": "camillas-de-ambulancia",
-    "nombre_es": "Camillas de ambulancia",
-    "nombre_en": "Camillas de ambulancia",
+    "id": "88b110a4-0b46-40b5-8bad-51959ef1e39f",
+    "familia_id": "2f70b322-e498-4924-8630-3a1ee268c01f",
+    "familia_slug": "neonatologia",
+    "slug": "fototerapia-neonatal",
+    "nombre_es": "Fototerapia neonatal",
+    "nombre_en": "Fototerapia neonatal",
     "orden": 30,
     "activo": true
   },
@@ -520,13 +530,23 @@
     "activo": true
   },
   {
-    "id": "543a282e-5343-4e71-8e7d-fe98333f2bb7",
-    "familia_id": "7cbfd53b-91c4-4cd1-9c6c-7d4fd812520b",
-    "familia_slug": "terapia-respiratoria-soporte-vital",
-    "slug": "aspiracion-y-succion",
-    "nombre_es": "Aspiración y succión",
-    "nombre_en": "Aspiración y succión",
-    "orden": 40,
+    "id": "9a87c70f-b873-45e7-9746-ed4f1774e6d7",
+    "familia_id": "89e60199-5ba3-4b93-8ce9-aee2f59040fd",
+    "familia_slug": "radiologia",
+    "slug": "radiografia-digital-dr",
+    "nombre_es": "Radiografía digital DR",
+    "nombre_en": "Radiografía digital DR",
+    "orden": 30,
+    "activo": true
+  },
+  {
+    "id": "4eef3605-08fa-4f89-b899-0a469a94d5c6",
+    "familia_id": "d026ac8a-6d63-4fb7-8953-a7aa7a32e627",
+    "familia_slug": "robots",
+    "slug": "robots-delivery-institucional",
+    "nombre_es": "Robots de delivery institucional",
+    "nombre_en": "Institutional delivery robots",
+    "orden": 30,
     "activo": true
   },
   {
@@ -540,22 +560,12 @@
     "activo": true
   },
   {
-    "id": "518160f2-2ebe-4d86-bb6b-6326ca88c4c1",
-    "familia_id": "2f70b322-e498-4924-8630-3a1ee268c01f",
-    "familia_slug": "neonatologia",
-    "slug": "equipos-neonatales",
-    "nombre_es": "Equipos neonatales",
-    "nombre_en": "Equipos neonatales",
-    "orden": 40,
-    "activo": true
-  },
-  {
-    "id": "90a95d4b-0640-4613-81c6-70735845d8f4",
-    "familia_id": "4d9a59cd-2c1e-4755-9584-28d6e9024d3c",
-    "familia_slug": "diagnostico-clinico-basico",
-    "slug": "termometros-clinicos",
-    "nombre_es": "Termómetros clínicos",
-    "nombre_en": "Termómetros clínicos",
+    "id": "543a282e-5343-4e71-8e7d-fe98333f2bb7",
+    "familia_id": "7cbfd53b-91c4-4cd1-9c6c-7d4fd812520b",
+    "familia_slug": "terapia-respiratoria-soporte-vital",
+    "slug": "aspiracion-y-succion",
+    "nombre_es": "Aspiración y succión",
+    "nombre_en": "Aspiración y succión",
     "orden": 40,
     "activo": true
   },
@@ -570,13 +580,33 @@
     "activo": true
   },
   {
-    "id": "21629654-7f4f-4236-9f10-e4a4dec71b0f",
-    "familia_id": "7cbfd53b-91c4-4cd1-9c6c-7d4fd812520b",
-    "familia_slug": "terapia-respiratoria-soporte-vital",
-    "slug": "reguladores-de-oxigeno",
-    "nombre_es": "Reguladores de oxígeno",
-    "nombre_en": "Reguladores de oxígeno",
-    "orden": 50,
+    "id": "518160f2-2ebe-4d86-bb6b-6326ca88c4c1",
+    "familia_id": "2f70b322-e498-4924-8630-3a1ee268c01f",
+    "familia_slug": "neonatologia",
+    "slug": "equipos-neonatales",
+    "nombre_es": "Equipos neonatales",
+    "nombre_en": "Equipos neonatales",
+    "orden": 40,
+    "activo": true
+  },
+  {
+    "id": "d575af50-27d6-4a40-b270-e4dc6c6f5835",
+    "familia_id": "d026ac8a-6d63-4fb7-8953-a7aa7a32e627",
+    "familia_slug": "robots",
+    "slug": "robots-delivery-alimentos",
+    "nombre_es": "Robots de delivery de alimentos",
+    "nombre_en": "Food delivery robots",
+    "orden": 40,
+    "activo": true
+  },
+  {
+    "id": "90a95d4b-0640-4613-81c6-70735845d8f4",
+    "familia_id": "4d9a59cd-2c1e-4755-9584-28d6e9024d3c",
+    "familia_slug": "diagnostico-clinico-basico",
+    "slug": "termometros-clinicos",
+    "nombre_es": "Termómetros clínicos",
+    "nombre_en": "Termómetros clínicos",
+    "orden": 40,
     "activo": true
   },
   {
@@ -590,12 +620,42 @@
     "activo": true
   },
   {
+    "id": "21629654-7f4f-4236-9f10-e4a4dec71b0f",
+    "familia_id": "7cbfd53b-91c4-4cd1-9c6c-7d4fd812520b",
+    "familia_slug": "terapia-respiratoria-soporte-vital",
+    "slug": "reguladores-de-oxigeno",
+    "nombre_es": "Reguladores de oxígeno",
+    "nombre_en": "Reguladores de oxígeno",
+    "orden": 50,
+    "activo": true
+  },
+  {
+    "id": "3e2982dc-eebb-4eb4-912e-087e2b08f3c7",
+    "familia_id": "d026ac8a-6d63-4fb7-8953-a7aa7a32e627",
+    "familia_slug": "robots",
+    "slug": "robots-limpieza-autonoma",
+    "nombre_es": "Robots de limpieza autónoma",
+    "nombre_en": "Autonomous cleaning robots",
+    "orden": 50,
+    "activo": true
+  },
+  {
     "id": "1a03b653-4507-4e4c-aee6-1cb800c3177f",
     "familia_id": "7cbfd53b-91c4-4cd1-9c6c-7d4fd812520b",
     "familia_slug": "terapia-respiratoria-soporte-vital",
     "slug": "carros-y-soportes-para-cilindros-de-oxigeno",
     "nombre_es": "Carros y soportes para cilindros de oxígeno",
     "nombre_en": "Carros y soportes para cilindros de oxígeno",
+    "orden": 60,
+    "activo": true
+  },
+  {
+    "id": "b13c392a-83a8-4315-bc6e-db7c12d8c577",
+    "familia_id": "d026ac8a-6d63-4fb7-8953-a7aa7a32e627",
+    "familia_slug": "robots",
+    "slug": "robots-educativos-sociales",
+    "nombre_es": "Robots educativos y sociales",
+    "nombre_en": "Educational and social robots",
     "orden": 60,
     "activo": true
   },

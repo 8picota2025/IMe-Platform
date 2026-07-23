@@ -63,7 +63,9 @@ export function agregarACotizacion(
   } else {
     items.push({ ...item, cantidad: Math.max(cantidad, 1) });
   }
-  return escribir(items);
+  const actualizados = escribir(items);
+  abrirCotizacion();
+  return actualizados;
 }
 
 export function actualizarCantidadCotizacion(slug: string, cantidad: number): CotizacionItem[] {
