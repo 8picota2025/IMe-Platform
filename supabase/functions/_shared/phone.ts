@@ -70,3 +70,30 @@ export function maskPhone(phone: string | null | undefined): string {
   const tail = digits.slice(-2);
   return `+${head}${'*'.repeat(Math.max(0, digits.length - head.length - tail.length))}${tail}`;
 }
+
+/**
+ * Separa E.164 en codigo de llamada y numero nacional para Twenty
+ * (`primaryPhoneCallingCode` + `primaryPhoneNumber`).
+ * Si `preferredCountryCode` coincide como prefijo, se usa; si no, heuristica
+ * 1-3 digitos (prioriza 57 para CO cuando aplica).
+ */
+export function splitE164(
+  e164: string,
+  preferredCountryCode: string = DEFAULT_COUNTRY_CODE
+): { callingCode: string; nationalNumber: string } | null {
+  const digits = onlyDigits(e164);
+  if (digits.length < 8) return null;
+  const preferred = onlyDigits(preferredCountryCode) || DEFAULT_COUNTRY_CODE;
+  if (digits.startsWith(preferred) && digits.length > preferred.length + 5) {
+    return {
+      callingCode: `+${preferred}`,
+      nationalNumber: digits.slice(preferred.length),
+    };
+  }
+  // Fallback: asumir 2 digitos de pais (cubre CO/US-NANP mal; preferir preferred).
+  const ccLen = digits.startsWith('1') && digits.length === 11 ? 1 : 2;
+  return {
+    callingCode: `+${digits.slice(0, ccLen)}`,
+    nationalNumber: digits.slice(ccLen),
+  };
+}

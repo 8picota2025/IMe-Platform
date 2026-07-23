@@ -48,6 +48,27 @@ function isTwentyRecord(value: unknown): value is TwentyRecord {
   );
 }
 
+/**
+ * Twenty REST a veces responde `{ id, ... }`, a veces `{ data: { id, ... } }`
+ * y en creates `{ data: { createPerson: { id, ... } } }` (idem createCompany,
+ * createNote, createNoteTarget). Extraemos el primer registro con `id`.
+ */
+function extractTwentyRecord(raw: unknown): TwentyRecord | null {
+  if (isTwentyRecord(raw)) return raw;
+  if (!raw || typeof raw !== 'object') return null;
+  const obj = raw as Record<string, unknown>;
+  if (isTwentyRecord(obj.data)) return obj.data;
+  if (obj.data && typeof obj.data === 'object') {
+    for (const value of Object.values(obj.data as Record<string, unknown>)) {
+      if (isTwentyRecord(value)) return value;
+    }
+  }
+  for (const [key, value] of Object.entries(obj)) {
+    if (/^create/i.test(key) && isTwentyRecord(value)) return value;
+  }
+  return null;
+}
+
 function getTwentyConfig(): TwentyConfig | null {
   const baseUrl = Deno.env.get('TWENTY_BASE_URL')?.trim().replace(/\/+$/, '');
   const apiKey = Deno.env.get('TWENTY_API_KEY')?.trim();
@@ -116,12 +137,7 @@ export class TwentyClient {
   ): Promise<TwentyResult<TwentyRecord>> {
     const res = await this.requestRaw(method, path, body);
     if (!res.ok) return { ok: false, error: res.error };
-    const raw = res.data;
-    const record = isTwentyRecord(raw)
-      ? raw
-      : isTwentyRecord((raw as Record<string, unknown> | null)?.data)
-        ? ((raw as Record<string, unknown>).data as TwentyRecord)
-        : null;
+    const record = extractTwentyRecord(res.data);
     if (!record) {
       return { ok: false, error: `Twenty ${method} ${path}: respuesta sin registro valido` };
     }
@@ -246,6 +262,7 @@ export class TwentyClient {
       medicalCenterName?: string | null;
       recipientEmail?: string | null;
       recipientPhoneE164?: string | null;
+      phoneCountryCode?: string | null;
       message?: string | null;
     },
     products: Array<{ name: string; sku?: string | null; url?: string | null }>
@@ -258,11 +275,26 @@ export class TwentyClient {
     }
 
     const [firstName, ...restName] = share.recipientName.trim().split(/\s+/);
+    let phoneNumber: string | undefined;
+    let phoneCallingCode: string | undefined;
+    if (share.recipientPhoneE164) {
+      const digits = share.recipientPhoneE164.replace(/[^\d]/g, '');
+      const preferred = (share.phoneCountryCode || '57').replace(/[^\d]/g, '') || '57';
+      if (digits.startsWith(preferred) && digits.length > preferred.length + 5) {
+        phoneCallingCode = `+${preferred}`;
+        phoneNumber = digits.slice(preferred.length);
+      } else if (digits.length >= 8) {
+        phoneCallingCode = `+${digits.slice(0, 2)}`;
+        phoneNumber = digits.slice(2);
+      }
+    }
+
     const person = await this.upsertPerson({
       firstName: firstName || share.recipientName.trim() || 'Contacto',
       lastName: restName.join(' ') || undefined,
       email: share.recipientEmail ?? undefined,
-      phoneNumber: share.recipientPhoneE164 ?? undefined,
+      phoneNumber,
+      phoneCallingCode,
       companyId,
     });
     if (!person.ok || !person.data)
@@ -309,6 +341,7 @@ export async function syncShareWithTwenty(
     medicalCenterName?: string | null;
     recipientEmail?: string | null;
     recipientPhoneE164?: string | null;
+    phoneCountryCode?: string | null;
     message?: string | null;
   },
   products: Array<{ name: string; sku?: string | null; url?: string | null }>

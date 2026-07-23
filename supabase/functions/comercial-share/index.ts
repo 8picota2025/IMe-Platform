@@ -106,6 +106,7 @@ interface ShareRow {
   medical_center_name: string | null;
   recipient_email: string | null;
   recipient_phone: string | null;
+  phone_country_code: string | null;
   channel: 'email' | 'whatsapp';
   message: string | null;
   status: string;
@@ -417,6 +418,7 @@ async function handleCreate(
       medicalCenterName,
       recipientEmail,
       recipientPhoneE164,
+      phoneCountryCode,
       message,
     },
     snapshots.map(s => ({
@@ -427,6 +429,12 @@ async function handleCreate(
   );
 
   const crmSyncStatus = twenty.skipped ? 'skipped' : twenty.ok ? 'synced' : 'failed';
+  // Si el canal principal (email) no fallo, pero CRM si, dejar rastro en
+  // error_* sin pisar un EMAIL_SEND_FAILED ya registrado.
+  if (!twenty.ok && !twenty.skipped && !errorCode) {
+    errorCode = 'CRM_SYNC_FAILED';
+    errorMessage = twenty.error?.slice(0, 500) ?? 'Fallo la sincronizacion con Twenty CRM';
+  }
 
   const { error: updateError } = await supabase
     .from('commercial_shares')
@@ -587,6 +595,7 @@ async function handleRetry(
       medicalCenterName: share.medical_center_name,
       recipientEmail: share.recipient_email,
       recipientPhoneE164: share.recipient_phone,
+      phoneCountryCode: share.phone_country_code,
       message: share.message,
     },
     productos.map(p => ({
