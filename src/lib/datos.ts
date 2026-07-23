@@ -208,6 +208,7 @@ export interface CotizacionProducto {
 }
 
 export interface CotizacionPayload {
+  locale?: 'es' | 'en';
   nombre: string;
   email: string;
   telefono: string;

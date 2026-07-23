@@ -11,7 +11,6 @@ const title = buildPageTitle('Contact — Request a Quote');
 const description =
   'Contact us to request a biomedical equipment quote. We reply within 24 hours. Tel: +57 313 867 4059';
 const canonical = buildCanonical('/en/contact');
-
 ---
 
 <Layout
@@ -99,8 +98,7 @@ const canonical = buildCanonical('/en/contact');
               name="productos"
               class="form-input form-textarea"
               rows={3}
-              placeholder="One product per line or separated by commas"
-            ></textarea>
+              placeholder="One product per line or separated by commas"></textarea>
           </div>
           <div class="form-field">
             <label for="mensaje" class="form-label"
@@ -375,7 +373,10 @@ const canonical = buildCanonical('/en/contact');
   }
 
   const params = new URLSearchParams(window.location.search);
-  const prefill = params.getAll('producto').map(value => value.trim()).filter(Boolean);
+  const prefill = params
+    .getAll('producto')
+    .map(value => value.trim())
+    .filter(Boolean);
   const asesorResumen = params.get('asesor_resumen')?.trim() ?? '';
   if (productosField && prefill.length > 0 && !productosField.value.trim()) {
     productosField.value = prefill.join('\n');
@@ -400,6 +401,7 @@ const canonical = buildCanonical('/en/contact');
     }
     const data = new FormData(form);
     const result = await submitCotizacion({
+      locale: 'en',
       nombre: (data.get('nombre') as string) ?? '',
       email: (data.get('email') as string) ?? '',
       telefono: (data.get('telefono') as string) ?? '',

@@ -19,22 +19,22 @@ const copy = {
   cart: {
     title: isEn ? 'Shopping cart' : 'Carrito de compra',
     description: isEn
-      ? 'Review purchasable products with a valid price before checkout.'
-      : 'Revise productos comprables con precio válido antes del pago.',
+      ? 'Online payment is temporarily unavailable. Send your selected products for purchase valuation.'
+      : 'El pago online no está disponible temporalmente. Envíe sus productos seleccionados para valoración de compra.',
     cta: isEn ? 'Open cart' : 'Abrir carrito',
     helper: isEn
-      ? 'Only products with price and availability can enter the cart.'
-      : 'Solo productos con precio y disponibilidad pueden entrar al carrito.',
+      ? 'Purchasing will validate unit price, availability, taxes, shipping and final total before confirming.'
+      : 'Compras validará precio unitario, disponibilidad, impuestos, envío y total final antes de confirmar.',
   },
   checkout: {
     title: isEn ? 'Checkout' : 'Checkout',
     description: isEn
-      ? 'Complete customer and billing information before secure payment.'
-      : 'Complete datos de cliente y facturación antes del pago seguro.',
-    cta: isEn ? 'Continue checkout' : 'Continuar checkout',
+      ? 'Checkout is paused temporarily. Use the cart to request a formal valuation for the selected products.'
+      : 'El checkout está pausado temporalmente. Use el carrito para solicitar valoración formal de los productos seleccionados.',
+    cta: isEn ? 'Open cart' : 'Abrir carrito',
     helper: isEn
-      ? 'The server recalculates price, stock and availability before opening payment.'
-      : 'El servidor recalcula precio, stock y disponibilidad antes de abrir el pago.',
+      ? 'No online payment will be opened. The request is sent to purchasing and a confirmation email is sent to the client.'
+      : 'No se abrirá pago online. La solicitud se envía a compras y el cliente recibe confirmación por correo.',
   },
   quote: {
     title: isEn ? 'Quote request' : 'Solicitud de cotización',

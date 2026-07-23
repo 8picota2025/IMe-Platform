@@ -11,7 +11,6 @@ const title = buildPageTitle('Contacto — Solicitar Cotización');
 const description =
   'Contáctanos para solicitar cotización de equipos biomédicos. Respondemos en menos de 24 horas. Tel: +57 313 867 4059 | info@i-me.com.co';
 const canonical = buildCanonical('/es/contacto');
-
 ---
 
 <Layout
@@ -101,8 +100,7 @@ const canonical = buildCanonical('/es/contacto');
               name="productos"
               class="form-input form-textarea"
               rows={3}
-              placeholder="Un producto por línea o separados por coma"
-            ></textarea>
+              placeholder="Un producto por línea o separados por coma"></textarea>
           </div>
           <div class="form-field">
             <label for="mensaje" class="form-label"
@@ -388,7 +386,10 @@ const canonical = buildCanonical('/es/contacto');
   }
 
   const params = new URLSearchParams(window.location.search);
-  const prefill = params.getAll('producto').map(value => value.trim()).filter(Boolean);
+  const prefill = params
+    .getAll('producto')
+    .map(value => value.trim())
+    .filter(Boolean);
   const asesorResumen = params.get('asesor_resumen')?.trim() ?? '';
   if (productosField && prefill.length > 0 && !productosField.value.trim()) {
     productosField.value = prefill.join('\n');
@@ -415,6 +416,7 @@ const canonical = buildCanonical('/es/contacto');
 
     const data = new FormData(form);
     const result = await submitCotizacion({
+      locale: 'es',
       nombre: (data.get('nombre') as string) ?? '',
       email: (data.get('email') as string) ?? '',
       telefono: (data.get('telefono') as string) ?? '',

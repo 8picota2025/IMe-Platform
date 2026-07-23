@@ -41,6 +41,11 @@ export interface ResultadoCheckout {
   detalles?: unknown;
 }
 
+export interface ResultadoSolicitudCompra {
+  ok: boolean;
+  error?: string;
+}
+
 const STORAGE_KEY = 'ime_carrito';
 export const EVENTO_CAMBIO = 'ime:carrito:cambio';
 export const EVENTO_ABRIR = 'ime:carrito:abrir';
@@ -292,4 +297,102 @@ export async function iniciarCheckout(params: {
     checkoutUrl: json.checkout_url,
     ...(json.referencia ? { referencia: json.referencia } : {}),
   };
+}
+
+function buildCompraValorarMensaje(params: {
+  cliente: CarritoCliente;
+  mercado: Mercado;
+  cuponCodigo?: string | undefined;
+  total: number;
+  moneda: string;
+}): string {
+  const lines = [
+    'COMPRA A VALORAR - Pago online temporalmente no disponible.',
+    `Mercado: ${params.mercado}`,
+    `Total estimado mostrado en carrito: ${params.total} ${params.moneda}`,
+  ];
+  if (params.cliente.institucion) lines.push(`Institucion: ${params.cliente.institucion}`);
+  if (params.cuponCodigo) lines.push(`Cupon indicado: ${params.cuponCodigo}`);
+  if (params.cliente.fiscal) {
+    lines.push('Cliente solicito datos de facturacion electronica para validacion comercial.');
+  }
+  lines.push(
+    'Solicitar a compras validacion de disponibilidad, valor unitario final, impuestos, envio y total.'
+  );
+  return lines.join('\n');
+}
+
+/**
+ * Contingencia ecommerce: mientras pago online esta pausado, convierte el
+ * carrito en solicitud de cotizacion identificada como compra a valorar.
+ */
+export async function solicitarCotizacionCompra(params: {
+  cliente: CarritoCliente;
+  mercado: Mercado;
+  cuponCodigo?: string;
+  consentimientoDatos: boolean;
+  locale: Locale;
+}): Promise<ResultadoSolicitudCompra> {
+  const items = leer();
+  if (items.length === 0) return { ok: false, error: 'CARRITO_VACIO' };
+
+  const { total, moneda } = getCarritoTotal(items);
+  emitAnalyticsEvent('begin_checkout', {
+    currency: moneda,
+    item_count: items.reduce((acc, item) => acc + item.cantidad, 0),
+    items: items.map(item => `${item.slug}:${item.cantidad}`).join(','),
+    market: params.mercado,
+    quote_type: 'compra_a_valorar',
+    value: total,
+  });
+
+  const supabase = await loadSupabaseClient();
+  if (!supabase) return { ok: false, error: 'NO_DISPONIBLE' };
+
+  const nombre = `${params.cliente.nombre} ${params.cliente.apellido}`.trim();
+  const { data, error } = await supabase.functions.invoke('registrar-cotizacion', {
+    body: {
+      tipo_solicitud: 'compra_a_valorar',
+      origen: 'carrito',
+      locale: params.locale,
+      nombre,
+      empresa: params.cliente.institucion ?? '',
+      email: params.cliente.email,
+      telefono: params.cliente.telefono,
+      mensaje: buildCompraValorarMensaje({
+        cliente: params.cliente,
+        mercado: params.mercado,
+        cuponCodigo: params.cuponCodigo,
+        total,
+        moneda,
+      }),
+      consentimiento_datos: params.consentimientoDatos,
+      mercado: params.mercado,
+      moneda,
+      total_estimado: total,
+      cupon_codigo: params.cuponCodigo || undefined,
+      fiscal: params.cliente.fiscal,
+      productos: items.map(item => ({
+        slug: item.slug,
+        nombre: item.nombre,
+        cantidad: item.cantidad,
+        precio_unitario: item.precio,
+        subtotal: item.precio * item.cantidad,
+        moneda: item.moneda,
+      })),
+    },
+  });
+
+  if (error) return { ok: false, error: error.message };
+  const result = data as { ok?: boolean; error?: string } | null;
+  if (!result?.ok) return { ok: false, error: result?.error ?? 'Error registrando solicitud' };
+
+  emitAnalyticsEvent('quote_submit', {
+    has_products: true,
+    item_count: items.reduce((acc, item) => acc + item.cantidad, 0),
+    products: items.map(item => `${item.slug}:${item.cantidad}`).join(','),
+    quote_type: 'compra_a_valorar',
+    value: total,
+  });
+  return { ok: true };
 }

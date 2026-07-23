@@ -13,6 +13,11 @@ export const DESTINATARIOS_INTERNOS = (
   .map(s => s.trim())
   .filter(Boolean);
 
+export const DESTINATARIOS_COMPRAS = (Deno.env.get('MAILER_COMPRAS') ?? 'compras@i-me.com.co')
+  .split(',')
+  .map(s => s.trim())
+  .filter(Boolean);
+
 export function escapeHtml(str: string): string {
   return str
     .replace(/&/g, '&amp;')
@@ -21,9 +26,46 @@ export function escapeHtml(str: string): string {
     .replace(/"/g, '&quot;');
 }
 
-export function itemsToHtml(items: Array<{ nombre?: string; cantidad?: number }>): string {
+type EmailLocale = 'es' | 'en';
+
+function formatMoney(value: unknown, moneda: unknown, locale: EmailLocale = 'es'): string {
+  const amount = Number(value);
+  if (!Number.isFinite(amount)) return '';
+  const currency = typeof moneda === 'string' && moneda ? moneda : 'COP';
+  return new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'es-CO', {
+    style: 'currency',
+    currency,
+    maximumFractionDigits: currency === 'COP' ? 0 : 2,
+  }).format(amount);
+}
+
+export function itemsToHtml(
+  items: Array<{
+    nombre?: string;
+    cantidad?: number;
+    precio_unitario?: number;
+    subtotal?: number;
+    moneda?: string;
+  }>,
+  locale: EmailLocale = 'es'
+): string {
+  const fallbackName = locale === 'en' ? 'Product' : 'Producto';
+  const unitLabel = locale === 'en' ? 'Unit' : 'Unitario';
+  const totalLabel = locale === 'en' ? 'Line total' : 'Total';
+  const pendingLabel = locale === 'en' ? 'to be validated' : 'por validar';
+
   return items
-    .map(i => `<li>${Number(i.cantidad ?? 1)} x ${escapeHtml(String(i.nombre ?? 'Producto'))}</li>`)
+    .map(i => {
+      const cantidad = Number(i.cantidad ?? 1);
+      const nombre = escapeHtml(String(i.nombre ?? fallbackName));
+      const precio = formatMoney(i.precio_unitario, i.moneda, locale);
+      const subtotal = formatMoney(i.subtotal, i.moneda, locale);
+      const valores =
+        precio || subtotal
+          ? ` - ${unitLabel}: ${precio || pendingLabel} · ${totalLabel}: ${subtotal || pendingLabel}`
+          : '';
+      return `<li>${cantidad} x ${nombre}${valores}</li>`;
+    })
     .join('');
 }
 
@@ -42,7 +84,31 @@ const DEFAULTS: Record<string, { asunto: string; html: string }> = {
   },
   cotizacion_confirmacion_cliente: {
     asunto: 'Hemos recibido tu solicitud de cotizacion - I-ME',
-    html: '<h2>Hola {{cliente_nombre}}</h2><p>Recibimos tu solicitud y te contactaremos en breve.</p><ul>{{items_html}}</ul><p>Equipo I-ME</p>',
+    html: '<h2>Hola {{cliente_nombre}}</h2><p>Recibimos tu solicitud de presupuesto y te contactaremos en breve.</p><p><strong>Referencia:</strong> {{referencia}}</p><p><strong>Resumen solicitado:</strong></p><ul>{{items_html}}</ul><p><strong>Mensaje recibido:</strong></p><pre>{{mensaje}}</pre><p>Equipo I-ME<br>ventas@i-me.com.co</p>',
+  },
+  cotizacion_confirmacion_cliente_es: {
+    asunto: 'Hemos recibido tu solicitud de presupuesto - I-ME',
+    html: '<h2>Hola {{cliente_nombre}}</h2><p>Recibimos tu solicitud de presupuesto y te contactaremos en breve.</p><p><strong>Referencia:</strong> {{referencia}}</p><p><strong>Resumen solicitado:</strong></p><ul>{{items_html}}</ul><p><strong>Mensaje recibido:</strong></p><pre>{{mensaje}}</pre><p>Equipo I-ME<br>ventas@i-me.com.co</p>',
+  },
+  cotizacion_confirmacion_cliente_en: {
+    asunto: 'We received your quote request - I-ME',
+    html: '<h2>Hello {{cliente_nombre}}</h2><p>We received your quote request and our commercial team will contact you shortly.</p><p><strong>Reference:</strong> {{referencia}}</p><p><strong>Request summary:</strong></p><ul>{{items_html}}</ul><p><strong>Message received:</strong></p><pre>{{mensaje}}</pre><p>I-ME Team<br>ventas@i-me.com.co</p>',
+  },
+  compra_valorar_interna: {
+    asunto: 'Compra a valorar {{referencia}} - {{total}} {{moneda}}',
+    html: '<h2>Compra a valorar desde carrito</h2><p><strong>Accion requerida:</strong> validar precio unitario, disponibilidad, impuestos, envio y total final.</p><p>Referencia: <strong>{{referencia}}</strong></p><p>Cliente: {{cliente_nombre}} ({{cliente_email}})</p><p>Empresa: {{empresa}}</p><p>Telefono: {{telefono}}</p><p>Total orientativo: <strong>{{total}} {{moneda}}</strong></p><p>Productos:</p><ul>{{items_html}}</ul><p>Mensaje:</p><pre>{{mensaje}}</pre><p>Fecha: {{fecha}}</p>',
+  },
+  compra_valorar_confirmacion_cliente: {
+    asunto: 'Recibimos tu solicitud de compra a valorar - I-ME',
+    html: '<h2>Hola {{cliente_nombre}}</h2><p>Recibimos tu carrito. El pago online esta temporalmente no disponible, por eso nuestro equipo validara precio unitario, disponibilidad, impuestos, envio y total final antes de confirmar.</p><p><strong>Referencia:</strong> {{referencia}}</p><p>Total orientativo: <strong>{{total}} {{moneda}}</strong></p><p>Resumen solicitado:</p><ul>{{items_html}}</ul><p>Te contactaremos con la valoracion final.</p><p>Equipo I-ME</p>',
+  },
+  compra_valorar_confirmacion_cliente_es: {
+    asunto: 'Recibimos tu solicitud de compra a valorar - I-ME',
+    html: '<h2>Hola {{cliente_nombre}}</h2><p>Recibimos tu carrito. El pago online esta temporalmente no disponible, por eso nuestro equipo validara precio unitario, disponibilidad, impuestos, envio y total final antes de confirmar.</p><p><strong>Referencia:</strong> {{referencia}}</p><p>Total orientativo: <strong>{{total}} {{moneda}}</strong></p><p>Resumen solicitado:</p><ul>{{items_html}}</ul><p>Te contactaremos con la valoracion final.</p><p>Equipo I-ME</p>',
+  },
+  compra_valorar_confirmacion_cliente_en: {
+    asunto: 'We received your purchase valuation request - I-ME',
+    html: '<h2>Hello {{cliente_nombre}}</h2><p>We received your cart. Online payment is temporarily unavailable, so our team will validate unit prices, availability, taxes, shipping and final total before confirmation.</p><p><strong>Reference:</strong> {{referencia}}</p><p>Estimated total: <strong>{{total}} {{moneda}}</strong></p><p>Request summary:</p><ul>{{items_html}}</ul><p>We will contact you with the final valuation.</p><p>I-ME Team</p>',
   },
   pedido_estado_cliente: {
     asunto: 'Tu pedido {{referencia}} esta {{estado_label}} - I-ME',

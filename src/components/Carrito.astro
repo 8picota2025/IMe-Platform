@@ -57,11 +57,14 @@ const config = {
     soloColombia: t(locale, 'carrito.solo_colombia'),
     consentimiento: t(locale, 'carrito.consentimiento'),
     irPagar: t(locale, 'carrito.ir_pagar'),
+    avisoNoDisponible: t(locale, 'carrito.aviso_no_disponible'),
+    solicitudEnviada: t(locale, 'carrito.solicitud_enviada'),
     procesando: t(locale, 'carrito.procesando'),
     stockLimitado: t(locale, 'carrito.stock_limitado'),
     errorGenerico: t(locale, 'carrito.error_generico'),
     errorCarritoVacio: t(locale, 'carrito.error_carrito_vacio'),
     errorNoDisponible: t(locale, 'carrito.error_no_disponible'),
+    errorCotizacion: t(locale, 'carrito.error_cotizacion'),
     errorValidacion: t(locale, 'carrito.error_validacion'),
     requerido: t(locale, 'carrito.requerido'),
     avisoRecalculo: t(locale, 'carrito.aviso_recalculo'),
@@ -134,6 +137,7 @@ const config = {
         <span id="carrito-total">—</span>
       </div>
       <p class="carrito-aviso">{config.i18n.avisoRecalculo}</p>
+      <p class="carrito-aviso carrito-aviso--contingencia">{config.i18n.avisoNoDisponible}</p>
     </div>
   </div>
 
@@ -325,6 +329,7 @@ const config = {
     </fieldset>
 
     <p id="carrito-error" class="carrito-error" role="alert" aria-live="assertive" hidden></p>
+    <p id="carrito-exito" class="carrito-exito" role="status" aria-live="polite" hidden></p>
 
     <div class="carrito-actions">
       <button id="carrito-vaciar" class="btn btn-secondary" type="button"
@@ -519,6 +524,15 @@ const config = {
     font-size: 0.7rem;
     color: var(--text-mid);
   }
+  .carrito-aviso--contingencia {
+    border: 1px solid color-mix(in srgb, var(--t900) 18%, transparent);
+    border-radius: 10px;
+    background: var(--t50);
+    color: var(--t900);
+    font-size: 0.76rem;
+    line-height: 1.45;
+    padding: 0.75rem 0.85rem;
+  }
 
   .carrito-form {
     border-top: 1px solid var(--border);
@@ -622,6 +636,17 @@ const config = {
   .carrito-error[hidden] {
     display: none;
   }
+  .carrito-exito {
+    background: #eef9f2;
+    border: 1px solid #9fd7b4;
+    color: #176334;
+    border-radius: 8px;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.8rem;
+  }
+  .carrito-exito[hidden] {
+    display: none;
+  }
   .carrito-actions {
     display: flex;
     gap: 0.75rem;
@@ -652,7 +677,7 @@ const config = {
     vaciarCarrito,
     suscribirCarrito,
     alAbrirCarrito,
-    iniciarCheckout,
+    solicitarCotizacionCompra,
     guardarCarritoAbandonado,
     revalidarDisponibilidad,
     type CarritoItem,
@@ -707,9 +732,12 @@ const config = {
     errorGenerico: string;
     errorCarritoVacio: string;
     errorNoDisponible: string;
+    errorCotizacion: string;
     errorValidacion: string;
     requerido: string;
     avisoRecalculo: string;
+    avisoNoDisponible: string;
+    solicitudEnviada: string;
     itemNoDisponible: string;
     cupon: string;
   }
@@ -749,6 +777,7 @@ const config = {
     const vaciarBtn = document.getElementById('carrito-vaciar');
     const submitBtn = document.getElementById('carrito-submit') as HTMLButtonElement | null;
     const errorEl = document.getElementById('carrito-error');
+    const exitoEl = document.getElementById('carrito-exito');
     const solicitarFacturaEl = document.getElementById(
       'carrito-solicitar-factura'
     ) as HTMLInputElement | null;
@@ -841,6 +870,17 @@ const config = {
       } else {
         errorEl.hidden = true;
         errorEl.textContent = '';
+      }
+    }
+
+    function showSuccess(message: string | null) {
+      if (!exitoEl) return;
+      if (message) {
+        exitoEl.textContent = message;
+        exitoEl.hidden = false;
+      } else {
+        exitoEl.hidden = true;
+        exitoEl.textContent = '';
       }
     }
 
@@ -961,6 +1001,7 @@ const config = {
         event.preventDefault();
         if (enviando || !formEl || !submitBtn) return;
         showError(null);
+        showSuccess(null);
 
         if (!formEl.checkValidity()) {
           formEl.reportValidity();
@@ -1007,7 +1048,7 @@ const config = {
         submitBtn.disabled = true;
         submitBtn.textContent = i18n.procesando;
 
-        const resultado = await iniciarCheckout({
+        const resultado = await solicitarCotizacionCompra({
           cliente,
           mercado,
           cuponCodigo,
@@ -1019,21 +1060,14 @@ const config = {
         submitBtn.disabled = false;
         submitBtn.textContent = i18n.irPagar;
 
-        if (!resultado.ok || !resultado.checkoutUrl) {
+        if (!resultado.ok) {
           if (resultado.error === 'CARRITO_VACIO') showError(i18n.errorCarritoVacio);
           else if (resultado.error === 'NO_DISPONIBLE') showError(i18n.errorNoDisponible);
-          else if (resultado.codigo === 'PRODUCTO_NO_DISPONIBLE_TEMPORAL') {
-            const detalles = resultado.detalles as { slugs?: string[] } | undefined;
-            const slugsAfectados = new Set(detalles?.slugs ?? []);
-            const eliminados = getCarrito().filter(i => slugsAfectados.has(i.slug));
-            for (const item of eliminados) quitarDelCarrito(item.slug);
-            showAvisos(eliminados);
-            showError(i18n.errorGenerico);
-          } else showError(i18n.errorGenerico);
+          else showError(i18n.errorCotizacion || i18n.errorGenerico);
           return;
         }
 
-        window.location.href = resultado.checkoutUrl;
+        showSuccess(i18n.solicitudEnviada);
       },
       { signal }
     );
