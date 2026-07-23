@@ -114,6 +114,24 @@ const DEFAULTS: Record<string, { asunto: string; html: string }> = {
     asunto: 'Tu pedido {{referencia}} esta {{estado_label}} - I-ME',
     html: '<h2>Hola {{cliente_nombre}}</h2><p>Tu pedido <strong>{{referencia}}</strong> cambio de estado: <strong>{{estado_label}}</strong>.</p>{{tracking_html}}<p>Equipo I-ME</p>',
   },
+  // CMS comercial: envio de catalogo/productos desde un comercial (rol
+  // `ventas`) a un contacto externo. Vars: nombre_destinatario,
+  // nombre_comercial, centro_medico, mensaje, lista_productos_html,
+  // correo_comercial, telefono_comercial. `mensaje` y `lista_productos_html`
+  // deben venir pre-escapados por el llamador (ver comercial-templates.ts).
+  comercial_catalogo: {
+    asunto: 'Catalogo I-ME para {{centro_medico}}',
+    html:
+      '<h2>Hola {{nombre_destinatario}}</h2>' +
+      '<p>Soy <strong>{{nombre_comercial}}</strong>, asesor(a) comercial de I-ME International Medical Enterprise' +
+      ' para {{centro_medico}}.</p>' +
+      '<p>{{mensaje}}</p>' +
+      '<p><strong>Productos compartidos:</strong></p>' +
+      '<ul>{{lista_productos_html}}</ul>' +
+      '<p>Quedo atento(a) a tus comentarios para coordinar una cotizacion o demostracion.</p>' +
+      '<p>Saludos,<br>{{nombre_comercial}}<br>I-ME International Medical Enterprise<br>' +
+      '{{correo_comercial}} · {{telefono_comercial}}</p>',
+  },
 };
 
 function render(tpl: string, vars: Record<string, string>): string {

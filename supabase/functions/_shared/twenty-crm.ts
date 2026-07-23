@@ -1,0 +1,320 @@
+/**
+ * Cliente minimo para Twenty CRM (self-hosted o cloud), usado SOLO desde
+ * Edge Functions (nunca desde el navegador). Sincroniza el flujo comercial
+ * (compartir catalogo) con los objetos estandar de Twenty: `people`,
+ * `companies`, `notes` y `noteTargets`. No se inventan objetos nuevos.
+ *
+ * API de referencia (Core REST, `{TWENTY_BASE_URL}/rest`):
+ *   https://docs.twenty.com/developers/api/rest-api
+ *   - Filtro: `?filter=<campo>[<operador>]:<valor>` (ej. `emails.primaryEmail[eq]:"a@b.com"`)
+ *   - Person:  campos compuestos `name` ({firstName,lastName}), `emails`
+ *     ({primaryEmail}), `phones` ({primaryPhoneNumber, primaryPhoneCallingCode}),
+ *     relacion `companyId`.
+ *   - Company: `name` (texto simple).
+ *   - Note:    `title`, `bodyV2` ({markdown}).
+ *   - NoteTarget: join polimorfico nota↔registro via `noteId` +
+ *     `targetPersonId` / `targetCompanyId` (nomenclatura post-migracion a
+ *     "morph relations"; instancias muy antiguas pueden usar `personId`/
+ *     `companyId` planos — si el self-host del cliente es anterior a esa
+ *     migracion, ajustar aqui).
+ *
+ * Nunca lanza excepciones con secretos ni con el body crudo de errores de
+ * Twenty: todo fallo se traduce a `{ ok: false, error }` best-effort.
+ */
+
+export interface TwentyConfig {
+  baseUrl: string;
+  apiKey: string;
+}
+
+export interface TwentyResult<T> {
+  ok: boolean;
+  pending?: boolean;
+  skipped?: boolean;
+  error?: string;
+  data?: T;
+}
+
+export interface TwentyRecord {
+  id: string;
+  [key: string]: unknown;
+}
+
+function isTwentyRecord(value: unknown): value is TwentyRecord {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    typeof (value as Record<string, unknown>).id === 'string'
+  );
+}
+
+function getTwentyConfig(): TwentyConfig | null {
+  const baseUrl = Deno.env.get('TWENTY_BASE_URL')?.trim().replace(/\/+$/, '');
+  const apiKey = Deno.env.get('TWENTY_API_KEY')?.trim();
+  if (!baseUrl || !apiKey) return null;
+  return { baseUrl, apiKey };
+}
+
+/** Escapa comillas dobles para valores de `filter=campo[eq]:"valor"`. */
+function filterValue(value: string): string {
+  return `"${value.replace(/"/g, '\\"')}"`;
+}
+
+export class TwentyClient {
+  private readonly baseUrl: string;
+  private readonly apiKey: string;
+
+  constructor(config: TwentyConfig) {
+    this.baseUrl = `${config.baseUrl}/rest`;
+    this.apiKey = config.apiKey;
+  }
+
+  /** Fabrica que devuelve `null` si TWENTY_BASE_URL/TWENTY_API_KEY no estan configurados. */
+  static fromEnv(): TwentyClient | null {
+    const config = getTwentyConfig();
+    return config ? new TwentyClient(config) : null;
+  }
+
+  /** Request crudo: nunca lanza, siempre resuelve a `{ ok, data, error }`. */
+  private async requestRaw(
+    method: 'GET' | 'POST' | 'PATCH',
+    path: string,
+    body?: unknown
+  ): Promise<TwentyResult<unknown>> {
+    try {
+      const res = await fetch(`${this.baseUrl}${path}`, {
+        method,
+        headers: {
+          Authorization: `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: body !== undefined ? JSON.stringify(body) : undefined,
+      });
+
+      if (!res.ok) {
+        // No propagar el body crudo (puede incluir detalles internos del
+        // workspace de Twenty); solo status + mensaje corto.
+        const snippet = (await res.text().catch(() => '')).slice(0, 200);
+        return { ok: false, error: `Twenty ${method} ${path}: HTTP ${res.status} ${snippet}` };
+      }
+
+      const json = await res.json().catch(() => ({}));
+      return { ok: true, data: json };
+    } catch (err) {
+      return {
+        ok: false,
+        error: `Twenty ${method} ${path}: ${err instanceof Error ? err.message : 'error desconocido'}`,
+      };
+    }
+  }
+
+  /** Igual que `requestRaw`, pero valida y devuelve un unico `TwentyRecord` (create/update). */
+  private async requestRecord(
+    method: 'GET' | 'POST' | 'PATCH',
+    path: string,
+    body?: unknown
+  ): Promise<TwentyResult<TwentyRecord>> {
+    const res = await this.requestRaw(method, path, body);
+    if (!res.ok) return { ok: false, error: res.error };
+    const raw = res.data;
+    const record = isTwentyRecord(raw)
+      ? raw
+      : isTwentyRecord((raw as Record<string, unknown> | null)?.data)
+        ? ((raw as Record<string, unknown>).data as TwentyRecord)
+        : null;
+    if (!record) {
+      return { ok: false, error: `Twenty ${method} ${path}: respuesta sin registro valido` };
+    }
+    return { ok: true, data: record };
+  }
+
+  /** Busca en una coleccion (`GET /rest/{collection}?filter=...`) y devuelve el primer resultado o null. */
+  private async requestFirst(
+    path: string,
+    collectionKey: string
+  ): Promise<TwentyResult<TwentyRecord | null>> {
+    const res = await this.requestRaw('GET', path);
+    if (!res.ok) return { ok: false, error: res.error };
+    const raw = res.data;
+    const list: unknown[] = Array.isArray(raw)
+      ? raw
+      : Array.isArray((raw as Record<string, unknown> | null)?.[collectionKey])
+        ? ((raw as Record<string, unknown>)[collectionKey] as unknown[])
+        : [];
+    const first = list[0];
+    return { ok: true, data: isTwentyRecord(first) ? first : null };
+  }
+
+  async findPersonByEmail(email: string): Promise<TwentyResult<TwentyRecord | null>> {
+    return this.requestFirst(
+      `/people?filter=emails.primaryEmail[eq]:${filterValue(email)}&limit=1`,
+      'people'
+    );
+  }
+
+  async findPersonByPhone(phoneDigits: string): Promise<TwentyResult<TwentyRecord | null>> {
+    return this.requestFirst(
+      `/people?filter=phones.primaryPhoneNumber[eq]:${filterValue(phoneDigits)}&limit=1`,
+      'people'
+    );
+  }
+
+  async findCompanyByName(name: string): Promise<TwentyResult<TwentyRecord | null>> {
+    return this.requestFirst(
+      `/companies?filter=name[eq]:${filterValue(name)}&limit=1`,
+      'companies'
+    );
+  }
+
+  async upsertPerson(input: {
+    firstName: string;
+    lastName?: string;
+    email?: string;
+    phoneNumber?: string;
+    phoneCallingCode?: string;
+    jobTitle?: string;
+    companyId?: string;
+  }): Promise<TwentyResult<TwentyRecord>> {
+    let existing: TwentyResult<TwentyRecord | null> = { ok: true, data: null };
+    if (input.email) {
+      existing = await this.findPersonByEmail(input.email);
+    } else if (input.phoneNumber) {
+      existing = await this.findPersonByPhone(input.phoneNumber);
+    }
+    if (!existing.ok) return { ok: false, error: existing.error };
+
+    const payload: Record<string, unknown> = {
+      name: { firstName: input.firstName, lastName: input.lastName ?? '' },
+    };
+    if (input.email) payload.emails = { primaryEmail: input.email };
+    if (input.phoneNumber) {
+      payload.phones = {
+        primaryPhoneNumber: input.phoneNumber,
+        ...(input.phoneCallingCode ? { primaryPhoneCallingCode: input.phoneCallingCode } : {}),
+      };
+    }
+    if (input.jobTitle) payload.jobTitle = input.jobTitle;
+    if (input.companyId) payload.companyId = input.companyId;
+
+    const existingId = existing.data?.id;
+    if (existingId) {
+      return this.requestRecord('PATCH', `/people/${existingId}`, payload);
+    }
+    return this.requestRecord('POST', '/people', payload);
+  }
+
+  async upsertCompany(input: { name: string }): Promise<TwentyResult<TwentyRecord>> {
+    const existing = await this.findCompanyByName(input.name);
+    if (!existing.ok) return { ok: false, error: existing.error };
+    if (existing.data) return { ok: true, data: existing.data };
+    return this.requestRecord('POST', '/companies', { name: input.name });
+  }
+
+  async createNote(input: {
+    title: string;
+    bodyMarkdown: string;
+  }): Promise<TwentyResult<TwentyRecord>> {
+    return this.requestRecord('POST', '/notes', {
+      title: input.title,
+      bodyV2: { markdown: input.bodyMarkdown },
+    });
+  }
+
+  async linkNoteTarget(input: {
+    noteId: string;
+    targetPersonId?: string;
+    targetCompanyId?: string;
+  }): Promise<TwentyResult<TwentyRecord>> {
+    const payload: Record<string, unknown> = { noteId: input.noteId };
+    if (input.targetPersonId) payload.targetPersonId = input.targetPersonId;
+    if (input.targetCompanyId) payload.targetCompanyId = input.targetCompanyId;
+    return this.requestRecord('POST', '/noteTargets', payload);
+  }
+
+  /**
+   * Orquesta la sincronizacion de un `commercial_share`: upsert de
+   * compania (si hay `medicalCenterName`), upsert de persona (dedup por
+   * email o telefono), nota con el mensaje + lista de productos, y su
+   * `noteTarget` hacia la persona (y la compania si existe).
+   *
+   * Nunca lanza: cualquier fallo se refleja en `ok:false` + `error`, para
+   * que el llamador marque `crm_sync_status = 'failed'` y reintente luego.
+   */
+  async syncCommercialShare(
+    share: {
+      recipientName: string;
+      medicalCenterName?: string | null;
+      recipientEmail?: string | null;
+      recipientPhoneE164?: string | null;
+      message?: string | null;
+    },
+    products: Array<{ name: string; sku?: string | null; url?: string | null }>
+  ): Promise<TwentyResult<{ personId: string; companyId?: string; noteId: string }>> {
+    let companyId: string | undefined;
+    if (share.medicalCenterName?.trim()) {
+      const company = await this.upsertCompany({ name: share.medicalCenterName.trim() });
+      if (!company.ok) return { ok: false, error: company.error };
+      companyId = company.data?.id;
+    }
+
+    const [firstName, ...restName] = share.recipientName.trim().split(/\s+/);
+    const person = await this.upsertPerson({
+      firstName: firstName || share.recipientName.trim() || 'Contacto',
+      lastName: restName.join(' ') || undefined,
+      email: share.recipientEmail ?? undefined,
+      phoneNumber: share.recipientPhoneE164 ?? undefined,
+      companyId,
+    });
+    if (!person.ok || !person.data)
+      return { ok: false, error: person.error ?? 'Persona no creada' };
+
+    const productList = products.length
+      ? products
+          .map(p => `- ${p.name}${p.sku ? ` (ref. ${p.sku})` : ''}${p.url ? ` — ${p.url}` : ''}`)
+          .join('\n')
+      : '- (sin productos)';
+    const note = await this.createNote({
+      title: `Catalogo compartido — ${share.recipientName}`,
+      bodyMarkdown: `${share.message ?? ''}\n\nProductos:\n${productList}`.trim(),
+    });
+    if (!note.ok || !note.data) return { ok: false, error: note.error ?? 'Nota no creada' };
+
+    const link = await this.linkNoteTarget({
+      noteId: note.data.id,
+      targetPersonId: person.data.id,
+      targetCompanyId: companyId,
+    });
+    if (!link.ok) {
+      // La persona y la nota ya existen: no perdemos el trabajo hecho,
+      // solo reportamos que el link quedo pendiente.
+      return {
+        ok: false,
+        error: link.error,
+        data: { personId: person.data.id, companyId, noteId: note.data.id },
+      };
+    }
+
+    return { ok: true, data: { personId: person.data.id, companyId, noteId: note.data.id } };
+  }
+}
+
+/**
+ * Punto de entrada usado por `comercial-share`: si Twenty no esta
+ * configurado (`TWENTY_BASE_URL`/`TWENTY_API_KEY` ausentes), devuelve
+ * `skipped: true` en vez de fallar la peticion.
+ */
+export async function syncShareWithTwenty(
+  share: {
+    recipientName: string;
+    medicalCenterName?: string | null;
+    recipientEmail?: string | null;
+    recipientPhoneE164?: string | null;
+    message?: string | null;
+  },
+  products: Array<{ name: string; sku?: string | null; url?: string | null }>
+): Promise<TwentyResult<{ personId: string; companyId?: string; noteId: string }>> {
+  const client = TwentyClient.fromEnv();
+  if (!client)
+    return { ok: false, skipped: true, error: 'TWENTY_BASE_URL/TWENTY_API_KEY no configurados' };
+  return client.syncCommercialShare(share, products);
+}

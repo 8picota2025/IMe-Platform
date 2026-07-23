@@ -2,7 +2,8 @@
  * Rate-limit por identificador ('ip:<ip>' o 'session:<id>') contra la tabla
  * asesor_rate_limit: ventana corta (anti-burst) + tope diario.
  *
- * Tabla compartida entre acciones ('asesor' | 'crear-pago'): cada accion tiene
+ * Tabla compartida entre acciones ('asesor' | 'crear-pago' | 'cotizacion' |
+ * 'comercial-share'): cada accion tiene
  * sus propios umbrales (env vars) pero el `identificador` (con su prefijo,
  * ej. 'pago:ip:<ip>' vs 'asesor:...') ya evita que se mezclen los contadores.
  * No se crea una tabla `rate_limits` separada — el esquema actual admite una
@@ -11,7 +12,7 @@
 
 import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-export type RateLimitAccion = 'asesor' | 'crear-pago' | 'cotizacion';
+export type RateLimitAccion = 'asesor' | 'crear-pago' | 'cotizacion' | 'comercial-share';
 
 export interface RateLimitResult {
   limited: boolean;
@@ -41,6 +42,14 @@ const THRESHOLDS: Record<RateLimitAccion, RateLimitThresholds> = {
     windowSeconds: Number(Deno.env.get('COTIZACION_RATE_LIMIT_VENTANA_SEGUNDOS') ?? 3600),
     maxPerWindow: Number(Deno.env.get('COTIZACION_RATE_LIMIT_MAX_VENTANA') ?? 5),
     maxPerDay: Number(Deno.env.get('COTIZACION_RATE_LIMIT_MAX_DIA') ?? 15),
+  },
+  // CMS comercial: por usuario autenticado (identificador
+  // `comercial-share:user:<uuid>`), no por IP — evita que un solo
+  // comercial sature Resend/Twenty.
+  'comercial-share': {
+    windowSeconds: Number(Deno.env.get('COMERCIAL_SHARE_RATE_LIMIT_VENTANA_SEGUNDOS') ?? 3600),
+    maxPerWindow: Number(Deno.env.get('COMERCIAL_SHARE_RATE_LIMIT_MAX_VENTANA') ?? 30),
+    maxPerDay: Number(Deno.env.get('COMERCIAL_SHARE_RATE_LIMIT_MAX_DIA') ?? 100),
   },
 };
 

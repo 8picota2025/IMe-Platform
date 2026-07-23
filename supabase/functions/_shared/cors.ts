@@ -4,7 +4,14 @@
  */
 
 // TODO_CLIENTE: Restringir a dominio real en producción
-const ALLOWED_ORIGINS = ['https://i-me.com.co', 'http://localhost:44334', 'http://localhost:4321'];
+const ALLOWED_ORIGINS = [
+  'https://i-me.com.co',
+  'http://localhost:44334',
+  'http://localhost:4321',
+  'http://localhost:3000',
+  'http://127.0.0.1:44334',
+  'http://127.0.0.1:4321',
+];
 
 export function getCorsHeaders(requestOrigin: string | null): HeadersInit {
   const origin =
