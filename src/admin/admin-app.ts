@@ -22,6 +22,7 @@ const PUBLIC_CLARITY_ID =
 
 type View =
   | 'dashboard'
+  | 'crm'
   | 'productos'
   | 'producto'
   | 'taxonomia'
@@ -149,6 +150,7 @@ const VISTAS_POR_ROL: Record<string, Set<View>> = {
   ]),
   ventas: new Set<View>([
     'dashboard',
+    'crm',
     'clientes',
     'cliente',
     'cotizaciones',
@@ -167,6 +169,7 @@ const VISTAS_POR_ROL: Record<string, Set<View>> = {
   ]),
   operaciones: new Set<View>([
     'dashboard',
+    'crm',
     'pedidos',
     'pedido',
     'proveedores',
@@ -275,6 +278,7 @@ function parseView(hash: string): View {
   const raw = hash.replace(/^#\/?/, '').split('?')[0];
   if (
     raw === 'productos' ||
+    raw === 'crm' ||
     raw === 'producto' ||
     raw === 'taxonomia' ||
     raw === 'cotizaciones' ||
@@ -508,6 +512,7 @@ function renderNewPassword() {
 }
 
 async function routeView(): Promise<{ title: string; body: string }> {
+  if (state.view === 'crm') return { title: 'CRM', body: await crmView() };
   if (state.view === 'productos') return { title: 'Productos', body: await productosView() };
   if (state.view === 'producto') return { title: 'Producto', body: await productoFormView() };
   if (state.view === 'taxonomia') return { title: 'Taxonomia', body: await taxonomiaView() };
@@ -545,6 +550,7 @@ async function routeView(): Promise<{ title: string; body: string }> {
 function shellHtml(title: string, body: string): string {
   const links: Array<[View, string]> = [
     ['dashboard', 'Dashboard'],
+    ['crm', 'CRM'],
     ['productos', 'Productos'],
     ['taxonomia', 'Taxonomia'],
     ['ingesta', 'Ingesta PDF'],
@@ -616,6 +622,7 @@ function bindView() {
   bindReasignacion();
   bindSimpleTables();
   bindCotizaciones();
+  bindCrm();
   bindClientes();
   bindCupones();
   bindPedidoOperaciones();
@@ -1116,6 +1123,362 @@ function bindPlantillas() {
   });
 }
 
+const CRM_ETAPAS: Array<[string, string]> = [
+  ['nuevo', 'Nuevo'],
+  ['calificacion', 'Calificacion'],
+  ['cotizando', 'Cotizando'],
+  ['checkout_pendiente', 'Checkout pendiente'],
+  ['ganado', 'Ganado'],
+  ['perdido', 'Perdido'],
+  ['posventa', 'Posventa'],
+];
+
+const CRM_STAGE_VALUES = new Set(CRM_ETAPAS.map(([id]) => id));
+const CRM_CLOSED_STAGES = new Set(['ganado', 'perdido', 'posventa']);
+
+async function crmView(): Promise<string> {
+  const params = hashParams();
+  const etapa = params.get('etapa') ?? '';
+  const q = (params.get('q') ?? '').trim().toLowerCase();
+  const [opportunitiesRes, contactsRes, accountsRes, activitiesRes] = await Promise.all([
+    supabase!
+      .from('crm_opportunities')
+      .select('*')
+      .order('updated_at', { ascending: false })
+      .limit(250),
+    supabase!.from('crm_contacts').select('*').order('updated_at', { ascending: false }).limit(250),
+    supabase!.from('crm_accounts').select('*').order('updated_at', { ascending: false }).limit(250),
+    supabase!
+      .from('crm_activities')
+      .select('*')
+      .order('occurred_at', { ascending: false })
+      .limit(120),
+  ]);
+
+  if (opportunitiesRes.error) {
+    return `
+      <section class="admin-panel">
+        <div class="admin-panel__head"><h2>CRM no inicializado</h2></div>
+        <div class="admin-panel__body">
+          <div class="admin-alert">Aplica la migracion <code>20260723040818_crm_normalizado_flujos.sql</code>. Error: ${escapeHtml(opportunitiesRes.error.message)}</div>
+        </div>
+      </section>`;
+  }
+  if (contactsRes.error) toast(contactsRes.error.message);
+  if (accountsRes.error) toast(accountsRes.error.message);
+  if (activitiesRes.error) toast(activitiesRes.error.message);
+
+  const contacts = ((contactsRes.data ?? []) as Row[]).reduce<Map<string, Row>>((acc, row) => {
+    acc.set(text(row.id), row);
+    return acc;
+  }, new Map());
+  const accounts = ((accountsRes.data ?? []) as Row[]).reduce<Map<string, Row>>((acc, row) => {
+    acc.set(text(row.id), row);
+    return acc;
+  }, new Map());
+
+  const allOpportunities = ((opportunitiesRes.data ?? []) as Row[]).filter(row => {
+    if (etapa && text(row.etapa) !== etapa) return false;
+    if (!q) return true;
+    const contact = contacts.get(text(row.contact_id));
+    const account = accounts.get(text(row.account_id));
+    const haystack = [
+      row.titulo,
+      row.origen,
+      row.source_table,
+      contact?.nombre,
+      contact?.email_norm,
+      contact?.telefono_e164,
+      account?.nombre,
+      account?.tax_id,
+    ]
+      .map(value => text(value).toLowerCase())
+      .join(' ');
+    return haystack.includes(q);
+  });
+
+  const openOpportunities = allOpportunities.filter(row => !CRM_CLOSED_STAGES.has(text(row.etapa)));
+  const totalOpen = openOpportunities.reduce(
+    (acc, row) => acc + Number(row.valor_estimado ?? 0),
+    0
+  );
+  const weightedOpen = openOpportunities.reduce(
+    (acc, row) => acc + Number(row.valor_estimado ?? 0) * (Number(row.probabilidad ?? 0) / 100),
+    0
+  );
+  const dueNow = openOpportunities.filter(row => {
+    const next = text(row.next_action_at);
+    return next ? new Date(next).getTime() <= Date.now() : false;
+  });
+  const won = allOpportunities.filter(row => text(row.etapa) === 'ganado');
+
+  const stages = CRM_ETAPAS.map(([stage, label]) => {
+    const stageRows = allOpportunities.filter(row => text(row.etapa) === stage);
+    const stageValue = stageRows.reduce((acc, row) => acc + Number(row.valor_estimado ?? 0), 0);
+    return `
+      <section class="crm-stage">
+        <div class="crm-stage__head">
+          <strong>${escapeHtml(label)}</strong>
+          <span>${stageRows.length} · ${escapeHtml(crmMoney(stageValue))}</span>
+        </div>
+        <div class="crm-stage__body">
+          ${
+            stageRows.length
+              ? stageRows.map(row => crmOpportunityCard(row, contacts, accounts)).join('')
+              : '<p class="admin-help">Sin oportunidades.</p>'
+          }
+        </div>
+      </section>`;
+  }).join('');
+
+  const visibleContactIds = new Set(allOpportunities.map(row => text(row.contact_id)));
+  const contactRows = Array.from(contacts.values())
+    .filter(row => visibleContactIds.has(text(row.id)) || !q)
+    .slice(0, 80);
+  const activities = ((activitiesRes.data ?? []) as Row[]).filter(row => {
+    if (!q) return true;
+    const opportunity = allOpportunities.find(opp => text(opp.id) === text(row.opportunity_id));
+    const contact = contacts.get(text(row.contact_id));
+    return Boolean(
+      opportunity ||
+      text(row.summary).toLowerCase().includes(q) ||
+      text(contact?.email_norm).toLowerCase().includes(q)
+    );
+  });
+
+  return `
+    <form class="admin-filters" data-crm-filter>
+      ${field('q', 'Buscar', q, false, 'search')}
+      ${selectStatic('etapa', 'Etapa', etapa, [['', 'Todas'], ...CRM_ETAPAS])}
+      <button class="admin-button" type="submit">Filtrar</button>
+      <a class="admin-button admin-button--ghost" href="#/crm">Limpiar</a>
+    </form>
+    <section class="admin-grid">
+      ${metric('Oportunidades', allOpportunities.length)}
+      ${metric('Abiertas', openOpportunities.length)}
+      ${metric('Seguimiento vencido', dueNow.length)}
+      ${metric('Ganadas', won.length)}
+      ${marketingMetric('Pipeline abierto', crmMoney(totalOpen))}
+      ${marketingMetric('Pipeline ponderado', crmMoney(weightedOpen))}
+    </section>
+    <section class="admin-panel">
+      <div class="admin-panel__head">
+        <div>
+          <h2>Pipeline normalizado</h2>
+          <p class="admin-meta">Formularios, cotizaciones y ventas ecommerce alimentan estas oportunidades.</p>
+        </div>
+        <div class="admin-toolbar">
+          <a class="admin-button admin-button--ghost" href="#/cotizaciones">Cotizaciones</a>
+          <a class="admin-button admin-button--ghost" href="#/pedidos">Pedidos</a>
+        </div>
+      </div>
+      <div class="crm-board">${stages}</div>
+    </section>
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Contactos explotables (${contactRows.length})</h2></div>
+      ${table(
+        ['Nombre', 'Email normalizado', 'Telefono', 'Cuenta', 'Ultima actividad', 'Fuente'],
+        contactRows.map(row => {
+          const account = accounts.get(text(row.account_id));
+          return [
+            escapeHtml(text(row.nombre)) || '—',
+            escapeHtml(text(row.email_norm)) || '—',
+            escapeHtml(text(row.telefono_e164)) || '—',
+            escapeHtml(text(account?.nombre)) || '—',
+            text(row.last_activity_at) ? formatDate(text(row.last_activity_at)) : '—',
+            escapeHtml(text(row.first_source)) || '—',
+          ];
+        })
+      )}
+    </section>
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Actividad CRM</h2></div>
+      ${table(
+        ['Fecha', 'Evento', 'Canal', 'Resumen', 'Origen'],
+        activities
+          .slice(0, 80)
+          .map(row => [
+            text(row.occurred_at) ? formatDate(text(row.occurred_at)) : '—',
+            escapeHtml(text(row.event_type)),
+            escapeHtml(text(row.channel)) || '—',
+            escapeHtml(text(row.summary)) || '—',
+            crmSourceLink(row),
+          ])
+      )}
+    </section>`;
+}
+
+function crmOpportunityCard(
+  row: Row,
+  contacts: Map<string, Row>,
+  accounts: Map<string, Row>
+): string {
+  const id = text(row.id);
+  const contact = contacts.get(text(row.contact_id));
+  const account = accounts.get(text(row.account_id));
+  const etapa = text(row.etapa) || 'nuevo';
+  const nextAction = text(row.next_action_at);
+  const due = nextAction ? new Date(nextAction).getTime() <= Date.now() : false;
+  const title =
+    text(row.titulo) || text(account?.nombre) || text(contact?.email_norm) || id.slice(0, 8);
+  return `
+    <article class="crm-card">
+      <div class="crm-card__top">
+        <strong>${escapeHtml(title)}</strong>
+        <span class="admin-badge ${due ? 'admin-badge--warn' : 'admin-badge--info'}">${escapeHtml(crmStageLabel(etapa))}</span>
+      </div>
+      <p class="admin-meta">${escapeHtml(text(account?.nombre) || 'Sin cuenta')} · ${escapeHtml(text(contact?.email_norm) || text(contact?.telefono_e164) || 'Sin contacto')}</p>
+      <div class="crm-card__numbers">
+        <span>${escapeHtml(crmMoney(Number(row.valor_estimado ?? 0), text(row.moneda) || 'COP'))}</span>
+        <span>${Number(row.probabilidad ?? 0)}%</span>
+        <span>${text(row.updated_at) ? formatDate(text(row.updated_at)) : '—'}</span>
+      </div>
+      <label class="admin-field">Etapa
+        <select data-crm-stage data-crm-opportunity="${escapeHtml(id)}" data-crm-account="${escapeHtml(text(row.account_id))}" data-crm-contact="${escapeHtml(text(row.contact_id))}">
+          ${CRM_ETAPAS.map(
+            ([stage, label]) =>
+              `<option value="${escapeHtml(stage)}" ${stage === etapa ? 'selected' : ''}>${escapeHtml(label)}</option>`
+          ).join('')}
+        </select>
+      </label>
+      <div class="crm-followup">
+        <input type="datetime-local" data-crm-next-input="${escapeHtml(id)}" value="${escapeHtml(crmDatetimeLocal(nextAction))}" aria-label="Proxima accion CRM" />
+        <button class="admin-button admin-button--ghost" type="button" data-crm-next-save="${escapeHtml(id)}" data-crm-account="${escapeHtml(text(row.account_id))}" data-crm-contact="${escapeHtml(text(row.contact_id))}">Guardar</button>
+      </div>
+      <div class="admin-toolbar crm-card__actions">
+        ${crmSourceLink(row)}
+        ${text(contact?.email_norm) ? `<a class="admin-button admin-button--ghost" href="mailto:${escapeHtml(text(contact?.email_norm))}">Email</a>` : ''}
+        ${text(contact?.telefono_e164) ? `<a class="admin-button admin-button--ghost" href="https://wa.me/${escapeHtml(text(contact?.telefono_e164).replace(/\\D/g, ''))}" target="_blank" rel="noopener noreferrer">WhatsApp</a>` : ''}
+      </div>
+    </article>`;
+}
+
+function bindCrm() {
+  app.querySelector<HTMLFormElement>('[data-crm-filter]')?.addEventListener('submit', event => {
+    event.preventDefault();
+    const form = event.currentTarget as HTMLFormElement;
+    const data = new FormData(form);
+    const params = new URLSearchParams();
+    const q = String(data.get('q') ?? '').trim();
+    const etapa = String(data.get('etapa') ?? '').trim();
+    if (q) params.set('q', q);
+    if (etapa) params.set('etapa', etapa);
+    location.hash = `#/crm${params.toString() ? `?${params.toString()}` : ''}`;
+  });
+
+  app.querySelectorAll<HTMLSelectElement>('[data-crm-stage]').forEach(selectEl => {
+    selectEl.addEventListener('change', async () => {
+      const id = selectEl.dataset['crmOpportunity'] ?? '';
+      const etapa = selectEl.value;
+      if (!id || !CRM_STAGE_VALUES.has(etapa)) return;
+      selectEl.disabled = true;
+      const now = new Date().toISOString();
+      const { error } = await supabase!
+        .from('crm_opportunities')
+        .update({
+          etapa,
+          probabilidad: crmProbabilityForStage(etapa),
+          closed_at: CRM_CLOSED_STAGES.has(etapa) ? now : null,
+          updated_at: now,
+        })
+        .eq('id', id);
+      if (error) {
+        toast(error.message);
+        selectEl.disabled = false;
+        return;
+      }
+      await supabase!.from('crm_activities').insert({
+        event_type: `etapa_${etapa}`,
+        channel: 'admin',
+        source_table: 'crm_opportunities',
+        source_id: id,
+        account_id: selectEl.dataset['crmAccount'] || null,
+        contact_id: selectEl.dataset['crmContact'] || null,
+        opportunity_id: id,
+        summary: `Etapa actualizada a ${crmStageLabel(etapa)}`,
+        metadata: { etapa },
+      });
+      toast('Etapa CRM actualizada');
+      await render();
+    });
+  });
+
+  app.querySelectorAll<HTMLButtonElement>('[data-crm-next-save]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const id = button.dataset['crmNextSave'] ?? '';
+      const input = Array.from(
+        app.querySelectorAll<HTMLInputElement>('[data-crm-next-input]')
+      ).find(item => item.dataset['crmNextInput'] === id);
+      if (!id || !input) return;
+      const nextActionAt = input.value ? new Date(input.value).toISOString() : null;
+      button.disabled = true;
+      const { error } = await supabase!
+        .from('crm_opportunities')
+        .update({ next_action_at: nextActionAt, updated_at: new Date().toISOString() })
+        .eq('id', id);
+      if (error) {
+        toast(error.message);
+        button.disabled = false;
+        return;
+      }
+      await supabase!.from('crm_activities').insert({
+        event_type: nextActionAt ? 'seguimiento_programado' : 'seguimiento_limpiado',
+        channel: 'admin',
+        source_table: 'crm_opportunities',
+        source_id: id,
+        account_id: button.dataset['crmAccount'] || null,
+        contact_id: button.dataset['crmContact'] || null,
+        opportunity_id: id,
+        summary: nextActionAt
+          ? `Proxima accion: ${formatDate(nextActionAt)}`
+          : 'Seguimiento sin fecha',
+        metadata: { next_action_at: nextActionAt },
+      });
+      toast('Seguimiento CRM guardado');
+      await render();
+    });
+  });
+}
+
+function crmStageLabel(value: string): string {
+  return CRM_ETAPAS.find(([id]) => id === value)?.[1] ?? value;
+}
+
+function crmProbabilityForStage(value: string): number {
+  if (value === 'ganado' || value === 'posventa') return 100;
+  if (value === 'checkout_pendiente') return 80;
+  if (value === 'cotizando') return 55;
+  if (value === 'calificacion') return 30;
+  if (value === 'perdido') return 0;
+  return 10;
+}
+
+function crmMoney(value: number, currency = 'COP'): string {
+  const safe = Number.isFinite(value) ? Math.round(value) : 0;
+  return `${safe.toLocaleString('es-CO')} ${currency || 'COP'}`;
+}
+
+function crmDatetimeLocal(value: string): string {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  const pad = (num: number) => String(num).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function crmSourceLink(row: Row): string {
+  const sourceTable = text(row.source_table);
+  const sourceId = text(row.source_id);
+  if (!sourceId) return escapeHtml(sourceTable) || '—';
+  if (sourceTable === 'solicitudes_cotizacion') {
+    return `<a class="admin-button admin-button--ghost" href="#/cotizacion?id=${encodeURIComponent(sourceId)}">Cotizacion</a>`;
+  }
+  if (sourceTable === 'pedidos') {
+    return `<a class="admin-button admin-button--ghost" href="#/pedido?id=${encodeURIComponent(sourceId)}">Pedido</a>`;
+  }
+  return escapeHtml(sourceTable || sourceId);
+}
+
 function bindUsuarios() {
   const form = app.querySelector<HTMLFormElement>('[data-admin-user-form]');
   if (!form) return;
@@ -1183,6 +1546,9 @@ async function dashboardView(): Promise<string> {
     productosDropship,
     productosDisponibles,
     cotizaciones,
+    oportunidades,
+    oportunidadesNuevas,
+    oportunidadesCotizando,
     pedidos,
     clientes,
     cupones,
@@ -1195,6 +1561,9 @@ async function dashboardView(): Promise<string> {
     count('productos', { fulfillment_mode: 'dropship' }),
     count('productos', { disponible: true }),
     count('solicitudes_cotizacion', { leida: false }),
+    count('crm_opportunities'),
+    count('crm_opportunities', { etapa: 'nuevo' }),
+    count('crm_opportunities', { etapa: 'cotizando' }),
     count('pedidos', { leida: false }),
     count('clientes'),
     count('cupones', { activo: true }),
@@ -1231,6 +1600,9 @@ async function dashboardView(): Promise<string> {
       ${metric('Productos activos', productosActivos)}
       ${metric('Borradores', productosBorrador)}
       ${metric('Clientes', clientes)}
+      ${metric('Oportunidades CRM', oportunidades)}
+      ${metric('CRM nuevos', oportunidadesNuevas)}
+      ${metric('CRM cotizando', oportunidadesCotizando)}
       ${metric('Cotizaciones sin leer', cotizaciones)}
       ${metric('Pedidos sin leer', pedidos)}
       ${metric('Cupones activos', cupones)}
@@ -1294,6 +1666,7 @@ async function dashboardView(): Promise<string> {
         <a class="admin-button" href="#/ingesta">Ingesta PDF</a>
         <a class="admin-button admin-button--ghost" href="#/taxonomia">Taxonomia</a>
         <a class="admin-button admin-button--ghost" href="#/clientes">Clientes</a>
+        <a class="admin-button admin-button--ghost" href="#/crm">CRM</a>
         <a class="admin-button admin-button--ghost" href="#/cupones">Cupones</a>
         <a class="admin-button admin-button--ghost" href="#/cotizaciones">Cotizaciones</a>
         <a class="admin-button admin-button--ghost" href="#/usuarios">Usuarios CMS</a>

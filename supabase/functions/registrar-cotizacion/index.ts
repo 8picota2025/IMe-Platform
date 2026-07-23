@@ -97,6 +97,9 @@ Deno.serve(
     const empresa = (body.empresa ?? '').trim().slice(0, 160);
     const mensaje = (body.mensaje ?? '').trim().slice(0, 2000);
     const moneda = (body.moneda ?? 'COP').trim().slice(0, 8) || 'COP';
+    const mercado = (body.mercado ?? 'CO').trim().slice(0, 8) || 'CO';
+    const origen = (body.origen ?? 'web').trim().slice(0, 80) || 'web';
+    const cuponCodigo = body.cupon_codigo?.trim().slice(0, 80) || null;
     const totalEstimado = cleanNumber(body.total_estimado);
 
     if (!nombre || !mensaje) return badRequest('nombre y mensaje son obligatorios', origin);
@@ -119,6 +122,16 @@ Deno.serve(
       empresa,
       email,
       telefono,
+      tipo_solicitud: tipoSolicitud,
+      origen,
+      locale,
+      mercado,
+      moneda,
+      total_estimado: totalEstimado,
+      cupon_codigo: cuponCodigo,
+      metadata: {
+        fiscal: body.fiscal ?? null,
+      },
       productos,
       mensaje:
         tipoSolicitud === 'compra_a_valorar'

@@ -980,6 +980,89 @@
   line-height: 1.5;
 }
 
+.crm-board {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(240px, 1fr));
+  gap: 12px;
+  padding: 16px;
+  overflow-x: auto;
+}
+
+.crm-stage {
+  min-width: 240px;
+  border: 1px solid var(--admin-line);
+  border-radius: var(--admin-radius);
+  background: rgba(255, 255, 255, 0.74);
+}
+
+.crm-stage__head {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border-bottom: 1px solid var(--admin-line);
+}
+
+.crm-stage__head strong {
+  color: var(--admin-ink);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+}
+
+.crm-stage__head span {
+  color: var(--admin-muted);
+  font-size: 0.8rem;
+}
+
+.crm-stage__body {
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+}
+
+.crm-card {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(0, 94, 96, 0.16);
+  border-radius: var(--admin-radius);
+  background: var(--admin-panel);
+}
+
+.crm-card__top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 8px;
+}
+
+.crm-card__top strong {
+  overflow-wrap: anywhere;
+  color: var(--admin-ink);
+  line-height: 1.25;
+}
+
+.crm-card__numbers {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  color: var(--admin-muted);
+  font-size: 0.78rem;
+}
+
+.crm-followup {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.crm-followup input {
+  min-width: 0;
+}
+
+.crm-card__actions {
+  gap: 6px;
+}
+
 .pedido-workflow {
   margin: 16px 16px 0;
   padding: 16px;
