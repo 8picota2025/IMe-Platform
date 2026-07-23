@@ -1,0 +1,16 @@
+{
+  "name": "I-ME Comercial",
+  "short_name": "I-ME Comercial",
+  "description": "Catálogo biomédico y envío de propuestas para el equipo comercial de I-ME.",
+  "scope": "/comercial/",
+  "start_url": "/comercial/",
+  "id": "/comercial/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f4f7f7",
+  "theme_color": "#005e60",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

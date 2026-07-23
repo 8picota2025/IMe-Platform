@@ -1,6 +1,8 @@
 User-agent: *
 Disallow: /admin/
 Disallow: /admin
+Disallow: /comercial/
+Disallow: /comercial
 Disallow: /_astro/
 
 Sitemap: https://i-me.com.co/sitemap-index.xml

@@ -1,24 +1,18 @@
 /**
- * Service worker del sitio público I-ME.
- * Solo gestiona GET same-origin de rutas de catálogo/home.
- * Nunca intercepta APIs externas (Supabase, analytics, etc.) —
- * un SW que hace respondWith de cross-origin provoca "Failed to fetch"
- * en el cliente cuando el fetch interno falla o la respuesta CORS se corrompe.
+ * Service worker mínimo para el shell offline de /comercial/.
+ * Solo same-origin bajo /comercial y assets estáticos propios.
+ * Nunca intercepta Supabase ni otras APIs cross-origin.
  */
-const CACHE = 'ime-v4';
-const SHELL_URLS = ['/es/', '/es/catalogo/'];
+const CACHE = 'ime-comercial-v2';
+const SHELL_URLS = ['/comercial/', '/manifest-comercial.json'];
 
-function isCacheableGet(request, url) {
+function shouldHandle(request, url) {
   if (request.method !== 'GET') return false;
   if (url.origin !== self.location.origin) return false;
-  if (url.pathname.startsWith('/comercial')) return false;
-  if (url.pathname.startsWith('/admin')) return false;
   return (
-    url.pathname === '/' ||
-    url.pathname.startsWith('/es/') ||
-    url.pathname.startsWith('/en/') ||
-    url.pathname.startsWith('/_astro/') ||
-    url.pathname.startsWith('/assets/')
+    url.pathname.startsWith('/comercial') ||
+    url.pathname === '/manifest-comercial.json' ||
+    url.pathname === '/comercial-sw.js'
   );
 }
 
@@ -42,7 +36,7 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
-  if (!isCacheableGet(event.request, url)) return;
+  if (!shouldHandle(event.request, url)) return;
 
   event.respondWith(
     fetch(event.request)
@@ -55,7 +49,7 @@ self.addEventListener('fetch', event => {
       })
       .catch(async () => {
         const cached = await caches.match(event.request);
-        return cached || Response.error();
+        return cached || caches.match('/comercial/') || Response.error();
       })
   );
 });

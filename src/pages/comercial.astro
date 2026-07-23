@@ -1,0 +1,69 @@
+---
+import '../comercial/comercial.css';
+
+// Rutas fuera de /es|/en reciben 404 del middleware i18n aunque sirvan HTML.
+// Forzamos 200 para que Auth/PWA no vean status de error en network.
+Astro.response.status = 200;
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>I-ME Comercial</title>
+    <link rel="manifest" href="/manifest-comercial.json" />
+    <meta name="theme-color" content="#005e60" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="I-ME Comercial" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!-- Limpia SW/caché rotos ANTES del bundle (causa típica de "Failed to fetch" a Supabase). -->
+    <script is:inline>
+      (function () {
+        try {
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function (regs) {
+              regs.forEach(function (r) {
+                r.unregister();
+              });
+            });
+          }
+          if (window.caches && caches.keys) {
+            caches.keys().then(function (keys) {
+              keys.forEach(function (k) {
+                caches.delete(k);
+              });
+            });
+          }
+        } catch {
+          /* ignore SW cleanup errors */
+        }
+      })();
+    </script>
+  </head>
+  <body class="comercial-body">
+    <main id="comercial-app" class="comercial-root">
+      <section class="comercial-loading" aria-live="polite">
+        <span class="comercial-loading__mark"></span>
+        Cargando portal comercial
+      </section>
+    </main>
+    <div id="comercial-pwa-banner" class="comercial-pwa-banner" hidden>
+      <span>Instala el portal comercial de I-ME para acceso rápido, incluso sin conexión.</span>
+      <div class="comercial-pwa-banner__actions">
+        <button type="button" data-pwa-install class="comercial-button comercial-button--primary">
+          Instalar
+        </button>
+        <button type="button" data-pwa-dismiss class="comercial-button comercial-button--ghost">
+          Cerrar
+        </button>
+      </div>
+    </div>
+    <script>
+      import '../comercial/comercial-app';
+    </script>
+  </body>
+</html>
