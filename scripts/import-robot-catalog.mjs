@@ -1,9 +1,10 @@
 #!/usr/bin/env node
-import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { createCanvas } from '@napi-rs/canvas';
 import { createClient } from '@supabase/supabase-js';
 import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
+import sharp from 'sharp';
 
 const ROOT = process.cwd();
 const SOURCE_DIR = '/home/shoky/0 IME/robots';
@@ -13,6 +14,32 @@ const PUBLIC_ROOT = path.join(ROOT, 'public/assets/productos/importados');
 const DATA_DIR = path.join(ROOT, 'src/data');
 
 const SYNC_SUPABASE = process.argv.includes('--supabase');
+const ROBOT_IMAGE_MAX_WIDTH = 1200;
+const ROBOT_IMAGE_WEBP_QUALITY = 82;
+
+const robotMediaSeoSlugByProductSlug = {
+  'cruzr-robot-comercial-inteligente-ahuman-future':
+    'robot-asistencial-recepcion-hospitalaria-cruzr-ahuman-future',
+  'padbot-x3-robot-recepcion': 'robot-asistencial-recepcion-clinicas-hospitales-padbot-x3',
+  'padbot-x2-robot-servicio-interactivo':
+    'robot-asistencial-servicio-interactivo-clinicas-hospitales-padbot-x2',
+  'padbot-p2-robot-telepresencia': 'robot-telepresencia-telemedicina-tercera-edad-padbot-p2',
+  'padbot-w2-robot-delivery-institucional':
+    'robot-delivery-hospitalario-industrial-logistica-padbot-w2',
+  'padbot-w3s-robot-delivery-alimentos':
+    'robot-delivery-alimentos-restaurantes-hospitales-padbot-w3s',
+  'c3-robot-limpieza-autonoma': 'robot-limpieza-industrial-hospitalaria-autonoma-c3',
+  'padbot-t2-robot-educativo-social': 'robot-educativo-social-tercera-edad-padbot-t2',
+};
+
+function mediaSeoSlug(productSlug) {
+  return robotMediaSeoSlugByProductSlug[productSlug] ?? productSlug;
+}
+
+function mediaFilename(productSlug, role, index = null) {
+  const suffix = index === null ? '' : `-${String(index).padStart(2, '0')}`;
+  return `${role}-${mediaSeoSlug(productSlug)}${suffix}.webp`;
+}
 
 const family = {
   id: 'd026ac8a-6d63-4fb7-8953-a7aa7a32e627',
@@ -1016,6 +1043,19 @@ async function renderPdfPage(sourcePdf, pageNumber, targetPng) {
   writeFileSync(targetPng, canvas.toBuffer('image/png'));
 }
 
+async function optimizeRobotImage(sourcePng, targetWebp) {
+  await sharp(sourcePng)
+    .resize({
+      width: ROBOT_IMAGE_MAX_WIDTH,
+      withoutEnlargement: true,
+    })
+    .webp({
+      quality: ROBOT_IMAGE_WEBP_QUALITY,
+      effort: 5,
+    })
+    .toFile(targetWebp);
+}
+
 async function prepareAssets(product) {
   const sourcePdf = path.join(SOURCE_DIR, product.pdf);
   if (!existsSync(sourcePdf)) throw new Error(`No existe PDF fuente: ${sourcePdf}`);
@@ -1026,17 +1066,26 @@ async function prepareAssets(product) {
 
   const imageTarget = path.join(productDir, `imagen-principal-${product.slug}.png`);
   await renderPdfPage(sourcePdf, product.imagePage, imageTarget);
+  const optimizedImageTarget = path.join(productDir, mediaFilename(product.slug, 'robot-producto'));
+  await optimizeRobotImage(imageTarget, optimizedImageTarget);
+  unlinkSync(imageTarget);
   const galleryTargets = [];
   for (const [index, pageNumber] of product.galleryPages.entries()) {
     const galleryTarget = path.join(productDir, `galeria-${product.slug}-${String(index + 2).padStart(2, '0')}.png`);
     await renderPdfPage(sourcePdf, pageNumber, galleryTarget);
-    galleryTargets.push(`/assets/productos/importados/${product.slug}/${path.basename(galleryTarget)}`);
+    const optimizedGalleryTarget = path.join(
+      productDir,
+      mediaFilename(product.slug, 'robot-galeria', index + 2)
+    );
+    await optimizeRobotImage(galleryTarget, optimizedGalleryTarget);
+    unlinkSync(galleryTarget);
+    galleryTargets.push(`/assets/productos/importados/${product.slug}/${path.basename(optimizedGalleryTarget)}`);
   }
 
   return {
-    imagen_principal: `/assets/productos/importados/${product.slug}/${path.basename(imageTarget)}`,
+    imagen_principal: `/assets/productos/importados/${product.slug}/${path.basename(optimizedImageTarget)}`,
     galeria: [
-      `/assets/productos/importados/${product.slug}/${path.basename(imageTarget)}`,
+      `/assets/productos/importados/${product.slug}/${path.basename(optimizedImageTarget)}`,
       ...galleryTargets,
     ],
     ficha_pdf: `/assets/productos/importados/${product.slug}/${product.pdfName}`,

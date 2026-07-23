@@ -37,7 +37,9 @@ const ogImageType = ogImagePath.endsWith('.svg')
   ? 'image/svg+xml'
   : ogImagePath.endsWith('.png')
     ? 'image/png'
-    : 'image/jpeg';
+    : ogImagePath.endsWith('.webp')
+      ? 'image/webp'
+      : 'image/jpeg';
 const robotsContent = noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large';
 ---
 

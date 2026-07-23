@@ -85,14 +85,39 @@ const ROBOT_IMPORT_GALLERY_COUNT: Record<string, number> = {
   'cruzr-robot-comercial-inteligente-ahuman-future': 1,
 };
 
+const ROBOT_MEDIA_SEO_SLUG: Record<string, string> = {
+  'cruzr-robot-comercial-inteligente-ahuman-future':
+    'robot-asistencial-recepcion-hospitalaria-cruzr-ahuman-future',
+  'padbot-x3-robot-recepcion': 'robot-asistencial-recepcion-clinicas-hospitales-padbot-x3',
+  'padbot-x2-robot-servicio-interactivo':
+    'robot-asistencial-servicio-interactivo-clinicas-hospitales-padbot-x2',
+  'padbot-p2-robot-telepresencia': 'robot-telepresencia-telemedicina-tercera-edad-padbot-p2',
+  'padbot-w2-robot-delivery-institucional':
+    'robot-delivery-hospitalario-industrial-logistica-padbot-w2',
+  'padbot-w3s-robot-delivery-alimentos':
+    'robot-delivery-alimentos-restaurantes-hospitales-padbot-w3s',
+  'c3-robot-limpieza-autonoma': 'robot-limpieza-industrial-hospitalaria-autonoma-c3',
+  'padbot-t2-robot-educativo-social': 'robot-educativo-social-tercera-edad-padbot-t2',
+};
+
 function robotImportedAssetPath(slug: unknown, filename: string): string | null {
   if (typeof slug !== 'string' || !(slug in ROBOT_IMPORT_GALLERY_COUNT)) return null;
   return `/assets/productos/importados/${slug}/${filename}`;
 }
 
+function robotMediaFilename(
+  slug: string,
+  role: 'robot-producto' | 'robot-galeria',
+  index?: number
+): string {
+  const seoSlug = ROBOT_MEDIA_SEO_SLUG[slug] ?? slug;
+  const suffix = typeof index === 'number' ? `-${String(index).padStart(2, '0')}` : '';
+  return `${role}-${seoSlug}${suffix}.webp`;
+}
+
 function robotImportedMainImage(slug: unknown): string | null {
-  if (typeof slug !== 'string') return null;
-  return robotImportedAssetPath(slug, `imagen-principal-${slug}.png`);
+  if (typeof slug !== 'string' || !(slug in ROBOT_IMPORT_GALLERY_COUNT)) return null;
+  return robotImportedAssetPath(slug, robotMediaFilename(slug, 'robot-producto'));
 }
 
 function robotImportedGallery(slug: unknown): string[] | null {
@@ -105,7 +130,7 @@ function robotImportedGallery(slug: unknown): string[] | null {
     ...Array.from(
       { length: count },
       (_, index) =>
-        `/assets/productos/importados/${slug}/galeria-${slug}-${String(index + 2).padStart(2, '0')}.png`
+        `/assets/productos/importados/${slug}/${robotMediaFilename(slug, 'robot-galeria', index + 2)}`
     ),
   ];
 }
