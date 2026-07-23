@@ -20,6 +20,7 @@ const { data, error } = await supabase
     especificaciones,aplicaciones_es,aplicaciones_en,
     imagen_principal,galeria,ficha_pdf,tipo_comercial,fulfillment_mode,
     moneda,stock,disponible,destacado,nuevo,activo,orden,peso_kg,dimensiones_cm,
+    atributos,
     familias(slug,nombre_es,nombre_en),
     tipos(slug,nombre_es,nombre_en)
   `)
@@ -48,6 +49,8 @@ const rows = (data ?? []).map((p) => ({
   especificaciones: p.especificaciones || [],
   aplicaciones_es: p.aplicaciones_es || [],
   aplicaciones_en: p.aplicaciones_en || [],
+  seo_keywords_es: p.atributos?.seo_keywords_es || [],
+  seo_keywords_en: p.atributos?.seo_keywords_en || [],
   imagen_principal: p.imagen_principal,
   galeria: p.galeria || [],
   ficha_pdf: p.ficha_pdf,

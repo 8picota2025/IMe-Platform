@@ -21,6 +21,13 @@ function buildVersionedOgImage(path: string): string {
   return `${SITE}${path}?v=${OG_IMAGE_VERSION}`;
 }
 
+function truncateMetaDescription(value: string, maxLength = 155): string {
+  const clean = value.replace(/\s+/g, ' ').trim();
+  if (clean.length <= maxLength) return clean;
+  const boundary = clean.lastIndexOf(' ', maxLength - 1);
+  return clean.slice(0, boundary > 120 ? boundary : maxLength).trim();
+}
+
 const DEFAULT_OG_IMAGE = buildVersionedOgImage('/assets/img/og-default-ime.png');
 const INSTITUTIONAL_OG_IMAGE = buildVersionedOgImage('/assets/img/og-institutional-ime.png');
 
@@ -66,16 +73,29 @@ export function buildProductoSeo(
     descripcion_corta: string | null;
     imagen_principal: string | null;
     slug: string;
+    seo_keywords?: string[];
   },
   locale: Locale,
   categoria?: string,
   marca?: string | null
 ): SeoPageMeta {
   const segment = locale === 'en' ? 'products' : 'productos';
-  const description = [producto.nombre.trim(), (marca ?? '').trim(), categoria?.trim() ?? '']
-    .filter(Boolean)
-    .join(' - ')
-    .concat(locale === 'en' ? ' in Colombia' : ' en Colombia');
+  const normalizedExclusions = [producto.nombre, marca, categoria]
+    .filter((value): value is string => Boolean(value))
+    .map(value => value.trim().toLocaleLowerCase(locale));
+  const primaryIntent = (producto.seo_keywords ?? [])
+    .filter(keyword => !normalizedExclusions.includes(keyword.trim().toLocaleLowerCase(locale)))
+    .at(0);
+  const market =
+    locale === 'en'
+      ? 'For Colombia, Latin America and Spain.'
+      : 'Para Colombia, Latinoamérica y España.';
+  const baseDescription = producto.descripcion_corta?.trim() || producto.nombre.trim();
+  const seoTail = [primaryIntent ? `${primaryIntent}.` : '', market].filter(Boolean).join(' ');
+  const baseBudget = seoTail ? 154 - seoTail.length : 155;
+  const description = seoTail
+    ? `${truncateMetaDescription(baseDescription, Math.max(72, baseBudget))} ${seoTail}`
+    : baseDescription;
   const ogImage = producto.imagen_principal
     ? producto.imagen_principal.startsWith('http')
       ? producto.imagen_principal
@@ -83,7 +103,7 @@ export function buildProductoSeo(
     : DEFAULT_OG_IMAGE;
   return {
     title: buildPageTitle(producto.nombre),
-    description: description.slice(0, 155),
+    description: truncateMetaDescription(description),
     canonical: buildCanonical(`/${locale}/${segment}/${producto.slug}`),
     ogImage,
   };
@@ -249,6 +269,7 @@ export function buildProductJsonLd(
     descripcion_corta: string;
     imagen_principal: string | null;
     slug: string;
+    seo_keywords?: string[];
     precio?: number | null;
     moneda?: string | null;
     disponible?: boolean;
@@ -258,7 +279,7 @@ export function buildProductJsonLd(
   marca?: string | null
 ): Record<string, unknown> {
   const segment = locale === 'en' ? 'products' : 'productos';
-  const canonicalUrl = `${SITE}/${locale}/${segment}/${producto.slug}`;
+  const canonicalUrl = buildCanonical(`/${locale}/${segment}/${producto.slug}`);
   const imageUrl = producto.imagen_principal
     ? producto.imagen_principal.startsWith('http')
       ? producto.imagen_principal
@@ -281,13 +302,24 @@ export function buildProductJsonLd(
       '@type': 'Offer',
       url: canonicalUrl,
       availability:
-        producto.disponible === false ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
+        producto.disponible === false
+          ? 'https://schema.org/OutOfStock'
+          : 'https://schema.org/InStock',
       seller: { '@id': `${SITE}/#organization` },
       areaServed: { '@type': 'Country', name: 'Colombia' },
       businessFunction: 'http://purl.org/goodrelations/v1#Sell',
     },
   };
   if (categoria) jsonLd.category = categoria;
+  if (producto.seo_keywords && producto.seo_keywords.length > 0) {
+    jsonLd.additionalProperty = [
+      {
+        '@type': 'PropertyValue',
+        name: locale === 'en' ? 'Search use cases' : 'Casos de uso de búsqueda',
+        value: producto.seo_keywords.slice(0, 18).join(', '),
+      },
+    ];
+  }
   if (typeof producto.precio === 'number' && producto.precio > 0) {
     (jsonLd.offers as Record<string, unknown>).price = producto.precio;
     (jsonLd.offers as Record<string, unknown>).priceCurrency = producto.moneda ?? 'COP';

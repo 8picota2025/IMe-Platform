@@ -97,6 +97,339 @@ function spec(clave, valor, grupo = 'Ficha tecnica') {
   return { clave, valor, grupo };
 }
 
+const marketKeywords = {
+  es: [
+    'robots asistenciales',
+    'robots de servicio',
+    'robots hospitalarios',
+    'robots para clínicas',
+    'robots para hospitales',
+    'robots para centros médicos',
+    'robots para residencias de mayores',
+    'robots para hogares geriátricos',
+    'robots para adultos mayores',
+    'robots para tercera edad',
+    'automatización hospitalaria',
+    'automatización institucional',
+    'hospital 4.0',
+    'hospital digital',
+    'tecnología asistencial',
+    'robótica asistencial',
+    'robótica de servicio',
+    'robots industriales de servicio',
+    'robots para logística interna',
+    'robots comerciales para empresas',
+    'robots en Colombia',
+    'robots asistenciales Colombia',
+    'robots hospitalarios Colombia',
+    'robots de servicio Latinoamérica',
+    'robots para hospitales Latinoamérica',
+    'robots asistenciales España',
+    'robots para hospitales España',
+  ],
+  en: [
+    'assistive robots',
+    'service robots',
+    'healthcare robots',
+    'hospital robots',
+    'clinic robots',
+    'robots for medical centers',
+    'robots for senior living',
+    'robots for elderly care',
+    'robots for older adults',
+    'nursing home robots',
+    'hospital automation',
+    'institutional automation',
+    'hospital 4.0',
+    'digital hospital',
+    'assistive technology',
+    'assistive robotics',
+    'service robotics',
+    'industrial service robots',
+    'internal logistics robots',
+    'commercial robots for companies',
+    'robots in Colombia',
+    'healthcare robots Colombia',
+    'hospital robots Colombia',
+    'service robots Latin America',
+    'hospital robots Latin America',
+    'assistive robots Spain',
+    'hospital robots Spain',
+  ],
+};
+
+const typeKeywords = {
+  'robots-recepcion-atencion': {
+    es: [
+      'robot de recepción',
+      'robot recepcionista',
+      'robot de atención al cliente',
+      'robot de orientación hospitalaria',
+      'robot para admisiones hospitalarias',
+      'robot guía para visitantes',
+      'robot humanoide de servicio',
+      'robot con reconocimiento facial',
+      'robot con interacción por voz',
+      'robot con pantalla publicitaria',
+      'kiosco robótico móvil',
+      'automatización de recepción',
+      'orientación de pacientes',
+      'atención en lobby hospitalario',
+      'robots para IPS',
+      'robots para EPS',
+      'robots para hoteles y clínicas',
+    ],
+    en: [
+      'reception robot',
+      'front desk robot',
+      'customer service robot',
+      'hospital wayfinding robot',
+      'hospital admissions robot',
+      'visitor guidance robot',
+      'humanoid service robot',
+      'face recognition robot',
+      'voice interaction robot',
+      'advertising screen robot',
+      'mobile robotic kiosk',
+      'reception automation',
+      'patient wayfinding',
+      'hospital lobby assistance',
+      'robots for healthcare providers',
+      'robots for hotels and clinics',
+    ],
+  },
+  'robots-telepresencia': {
+    es: [
+      'robot de telepresencia',
+      'robot para telemedicina',
+      'robot de teleconsulta',
+      'robot de teleasistencia',
+      'robot para visitas remotas',
+      'robot para rondas médicas remotas',
+      'robot de videoatención',
+      'robot para acompañamiento virtual',
+      'robot para cuidado remoto',
+      'robot para adultos mayores a distancia',
+      'robot para especialistas remotos',
+      'telepresencia en hospitales',
+      'telepresencia en residencias de mayores',
+    ],
+    en: [
+      'telepresence robot',
+      'telemedicine robot',
+      'teleconsultation robot',
+      'teleassistance robot',
+      'remote visit robot',
+      'remote medical rounds robot',
+      'video assistance robot',
+      'virtual accompaniment robot',
+      'remote care robot',
+      'robot for remote elderly care',
+      'robot for remote specialists',
+      'hospital telepresence',
+      'telepresence for senior care facilities',
+    ],
+  },
+  'robots-delivery-institucional': {
+    es: [
+      'robot de delivery institucional',
+      'robot de logística hospitalaria',
+      'robot de transporte interno',
+      'robot para entrega de insumos',
+      'robot para documentos hospitalarios',
+      'robot para muestras no críticas',
+      'robot con locker',
+      'robot de reparto en hospitales',
+      'robot para rutas internas',
+      'automatización logística hospitalaria',
+      'logística interna en clínicas',
+      'delivery autónomo institucional',
+    ],
+    en: [
+      'institutional delivery robot',
+      'hospital logistics robot',
+      'internal transport robot',
+      'supply delivery robot',
+      'hospital document delivery robot',
+      'non-critical sample delivery robot',
+      'locker robot',
+      'hospital delivery robot',
+      'internal route robot',
+      'hospital logistics automation',
+      'clinic internal logistics',
+      'autonomous institutional delivery',
+    ],
+  },
+  'robots-delivery-alimentos': {
+    es: [
+      'robot de delivery de alimentos',
+      'robot camarero',
+      'robot para restaurantes',
+      'robot para cafeterías hospitalarias',
+      'robot para comedores institucionales',
+      'robot para hoteles',
+      'robot con bandeja',
+      'robot de servicio de mesa',
+      'robot para hospitalidad',
+      'automatización de servicio de alimentos',
+      'delivery autónomo de alimentos',
+    ],
+    en: [
+      'food delivery robot',
+      'robot waiter',
+      'restaurant robot',
+      'hospital cafeteria robot',
+      'institutional dining robot',
+      'hotel service robot',
+      'tray robot',
+      'table service robot',
+      'hospitality robot',
+      'food service automation',
+      'autonomous food delivery',
+    ],
+  },
+  'robots-limpieza-autonoma': {
+    es: [
+      'robot de limpieza autónoma',
+      'robot limpiador industrial',
+      'robot de limpieza institucional',
+      'robot para limpieza hospitalaria no crítica',
+      'robot para pisos duros',
+      'robot trapeador industrial',
+      'robot aspirador industrial',
+      'robot para pasillos hospitalarios',
+      'robot para hoteles y universidades',
+      'automatización de limpieza',
+      'limpieza autónoma de grandes superficies',
+      'mantenimiento automatizado de pisos',
+    ],
+    en: [
+      'autonomous cleaning robot',
+      'industrial cleaning robot',
+      'institutional cleaning robot',
+      'robot for non-critical hospital cleaning',
+      'hard floor cleaning robot',
+      'industrial mopping robot',
+      'industrial vacuum robot',
+      'hospital corridor cleaning robot',
+      'robot for hotels and universities',
+      'cleaning automation',
+      'autonomous large-surface cleaning',
+      'automated floor maintenance',
+    ],
+  },
+  'robots-educativos-sociales': {
+    es: [
+      'robot educativo',
+      'robot social',
+      'robot de acompañamiento',
+      'robot para educación STEAM',
+      'robot para universidades',
+      'robot para colegios',
+      'robot para pediatría no clínica',
+      'robot interactivo para adultos mayores',
+      'robot para activaciones institucionales',
+      'robot para ferias de salud',
+      'robot de entretenimiento educativo',
+      'robótica social',
+    ],
+    en: [
+      'educational robot',
+      'social robot',
+      'companion robot',
+      'STEAM education robot',
+      'robot for universities',
+      'robot for schools',
+      'robot for non-clinical pediatric spaces',
+      'interactive robot for older adults',
+      'robot for institutional activations',
+      'robot for healthcare fairs',
+      'educational entertainment robot',
+      'social robotics',
+    ],
+  },
+};
+
+const marketParagraphs = {
+  'robots-recepcion-atencion': {
+    es:
+      'Para proyectos en Colombia, Latinoamérica y España, esta categoría responde a búsquedas de robots asistenciales, robots de recepción, robots hospitalarios, orientación de pacientes, admisiones automatizadas, atención a visitantes, hospitales 4.0 y automatización de servicios en clínicas, IPS, hoteles, universidades y edificios corporativos.',
+    en:
+      'For projects in Colombia, Latin America and Spain, this category matches searches for assistive robots, reception robots, hospital robots, patient wayfinding, automated admissions, visitor assistance, hospital 4.0 and service automation in clinics, healthcare providers, hotels, universities and corporate buildings.',
+  },
+  'robots-telepresencia': {
+    es:
+      'Para servicios médicos, tercera edad y atención remota en Colombia, Latinoamérica y España, este modelo cubre búsquedas de robot de telepresencia, telemedicina, teleconsulta, teleasistencia, acompañamiento virtual, rondas remotas, especialistas a distancia y soporte para adultos mayores o residencias de cuidado.',
+    en:
+      'For medical services, senior care and remote assistance in Colombia, Latin America and Spain, this model covers searches for telepresence robots, telemedicine, teleconsultation, teleassistance, virtual accompaniment, remote rounds, remote specialists and support for older adults or care residences.',
+  },
+  'robots-delivery-institucional': {
+    es:
+      'Para logística institucional y salud en Colombia, Latinoamérica y España, esta solución se alinea con búsquedas de robots industriales de servicio, robot de delivery hospitalario, logística interna en clínicas, transporte de documentos, insumos no estériles, muestras no críticas y automatización de rutas repetitivas.',
+    en:
+      'For institutional logistics and healthcare in Colombia, Latin America and Spain, this solution aligns with searches for industrial service robots, hospital delivery robots, clinic internal logistics, document transport, non-sterile supplies, non-critical samples and repetitive route automation.',
+  },
+  'robots-delivery-alimentos': {
+    es:
+      'Para hospitality, alimentación institucional y servicios complementarios de salud en Colombia, Latinoamérica y España, este robot responde a búsquedas de robot camarero, robot de delivery de alimentos, robot para cafeterías hospitalarias, robot para hoteles, comedores institucionales y automatización de servicio de mesa.',
+    en:
+      'For hospitality, institutional dining and complementary healthcare services in Colombia, Latin America and Spain, this robot targets searches for robot waiter, food delivery robot, hospital cafeteria robot, hotel robot, institutional dining robot and table service automation.',
+  },
+  'robots-limpieza-autonoma': {
+    es:
+      'Para operación industrial, edificios de salud y mantenimiento institucional en Colombia, Latinoamérica y España, este equipo cubre búsquedas de robot de limpieza autónoma, robot limpiador industrial, limpieza hospitalaria no crítica, limpieza de pasillos, pisos duros, universidades, hoteles y grandes superficies.',
+    en:
+      'For industrial operations, healthcare buildings and institutional maintenance in Colombia, Latin America and Spain, this device covers searches for autonomous cleaning robot, industrial cleaning robot, non-critical hospital cleaning, corridor cleaning, hard floors, universities, hotels and large surfaces.',
+  },
+  'robots-educativos-sociales': {
+    es:
+      'Para educación, tercera edad y experiencias institucionales en Colombia, Latinoamérica y España, esta categoría responde a búsquedas de robot educativo, robot social, robot de acompañamiento, robótica STEAM, interacción con adultos mayores, ferias de salud y activaciones tecnológicas.',
+    en:
+      'For education, senior care and institutional experiences in Colombia, Latin America and Spain, this category matches searches for educational robot, social robot, companion robot, STEAM robotics, interaction with older adults, healthcare fairs and technology activations.',
+  },
+};
+
+function uniqueStrings(values) {
+  return [...new Set(values.filter(value => typeof value === 'string' && value.trim()).map(value => value.trim()))];
+}
+
+function buildSeoKeywords(product, locale) {
+  const lang = locale === 'en' ? 'en' : 'es';
+  const type = typeBySlug.get(product.tipo_slug);
+  return uniqueStrings([
+    locale === 'en' ? product.nombre_en : product.nombre_es,
+    product.marca,
+    type?.[locale === 'en' ? 'nombre_en' : 'nombre_es'],
+    ...marketKeywords[lang],
+    ...(typeKeywords[product.tipo_slug]?.[lang] ?? []),
+  ]);
+}
+
+function enrichDescription(product, locale) {
+  const paragraph = marketParagraphs[product.tipo_slug]?.[locale === 'en' ? 'en' : 'es'];
+  const base = locale === 'en' ? product.descripcion_larga_en : product.descripcion_larga_es;
+  return paragraph ? `${base}\n\n${paragraph}` : base;
+}
+
+function enrichApplications(product, locale) {
+  const base = locale === 'en' ? product.aplicaciones_en : product.aplicaciones_es;
+  const additions =
+    locale === 'en'
+      ? [
+          'Healthcare institutions in Colombia, Latin America and Spain',
+          'Senior care, service and assisted-living environments when validated by workflow',
+          'Hospital 4.0 and institutional automation projects',
+          'Commercial and industrial service automation',
+        ]
+      : [
+          'Instituciones de salud en Colombia, Latinoamérica y España',
+          'Entornos de tercera edad, cuidado y vida asistida cuando el flujo lo valide',
+          'Proyectos de hospital 4.0 y automatización institucional',
+          'Automatización comercial e industrial de servicios',
+        ];
+  return uniqueStrings([...base, ...additions]);
+}
+
 const products = [
   {
     id: 'b0e856bd-b2c9-4dd1-b53e-6e60831df04d',
@@ -713,6 +1046,8 @@ async function prepareAssets(product) {
 function toMockProduct(product, assets) {
   const type = typeBySlug.get(product.tipo_slug);
   if (!type) throw new Error(`Tipo no encontrado: ${product.tipo_slug}`);
+  const seoKeywordsEs = buildSeoKeywords(product, 'es');
+  const seoKeywordsEn = buildSeoKeywords(product, 'en');
   return {
     id: product.id,
     slug: product.slug,
@@ -724,8 +1059,8 @@ function toMockProduct(product, assets) {
     nombre_en: product.nombre_en,
     descripcion_corta_es: product.descripcion_corta_es,
     descripcion_corta_en: product.descripcion_corta_en,
-    descripcion_larga_es: product.descripcion_larga_es,
-    descripcion_larga_en: product.descripcion_larga_en,
+    descripcion_larga_es: enrichDescription(product, 'es'),
+    descripcion_larga_en: enrichDescription(product, 'en'),
     especificaciones: product.especificaciones,
     imagen_principal: assets.imagen_principal,
     galeria: assets.galeria,
@@ -740,12 +1075,14 @@ function toMockProduct(product, assets) {
     nuevo: true,
     activo: true,
     orden: product.orden,
-    aplicaciones_es: product.aplicaciones_es,
-    aplicaciones_en: product.aplicaciones_en,
+    aplicaciones_es: enrichApplications(product, 'es'),
+    aplicaciones_en: enrichApplications(product, 'en'),
     beneficios_es: product.beneficios_es,
     beneficios_en: product.beneficios_en,
     valor_es: product.valor_es,
     valor_en: product.valor_en,
+    seo_keywords_es: seoKeywordsEs,
+    seo_keywords_en: seoKeywordsEn,
     marca: product.marca,
     proveedor_ref: 'ahuman-future-padbot-robots',
   };
@@ -775,6 +1112,8 @@ function toSupabaseProduct(mockProduct, product) {
       beneficios_en: mockProduct.beneficios_en,
       valor_es: mockProduct.valor_es,
       valor_en: mockProduct.valor_en,
+      seo_keywords_es: mockProduct.seo_keywords_es,
+      seo_keywords_en: mockProduct.seo_keywords_en,
       marca: mockProduct.marca,
       origen: mockProduct.proveedor_ref,
       source_pdf: product.pdf,

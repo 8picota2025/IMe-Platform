@@ -121,6 +121,8 @@ function mapProductoSupabase(raw: any, locale: Locale): Producto {
     beneficios:
       (locale === 'en' ? raw.atributos?.beneficios_en : raw.atributos?.beneficios_es) ?? [],
     valor: (locale === 'en' ? raw.atributos?.valor_en : raw.atributos?.valor_es) ?? null,
+    seo_keywords:
+      (locale === 'en' ? raw.atributos?.seo_keywords_en : raw.atributos?.seo_keywords_es) ?? [],
     marca: resolveMarcaSupabase(raw),
     imagen_principal: publicImage(raw.imagen_principal) ?? localProductImage(raw.slug),
     galeria: Array.isArray(raw.galeria) ? raw.galeria.map(publicImage).filter(isString) : [],
@@ -174,6 +176,7 @@ export interface Producto {
   aplicaciones: string[];
   beneficios: string[];
   valor: string | null;
+  seo_keywords: string[];
   marca: string | null;
   imagen_principal: string | null;
   galeria: string[];
@@ -267,6 +270,10 @@ function mapProducto(raw: (typeof mockProductos)[0], locale: Locale): Producto {
       (locale === 'en'
         ? (raw as { valor_en?: string }).valor_en
         : (raw as { valor_es?: string }).valor_es) ?? null,
+    seo_keywords:
+      (locale === 'en'
+        ? (raw as { seo_keywords_en?: string[] }).seo_keywords_en
+        : (raw as { seo_keywords_es?: string[] }).seo_keywords_es) ?? [],
     marca: (raw as { marca?: string }).marca ?? null,
     imagen_principal: publicImage(raw.imagen_principal),
     galeria: raw.galeria.map(publicImage).filter(isString),
