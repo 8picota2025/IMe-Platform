@@ -28,6 +28,17 @@ function truncateMetaDescription(value: string, maxLength = 155): string {
   return clean.slice(0, boundary > 120 ? boundary : maxLength).trim();
 }
 
+function compactMetaLead(value: string, maxLength: number): string {
+  const clean = value.replace(/\s+/g, ' ').trim();
+  if (clean.length <= maxLength) return clean;
+  const punctuationBoundaries = ['.', ';', ':', ','].map(char =>
+    clean.lastIndexOf(char, maxLength)
+  );
+  const boundary = Math.max(...punctuationBoundaries);
+  if (boundary > 56) return clean.slice(0, boundary).trim();
+  return truncateMetaDescription(clean, maxLength);
+}
+
 const DEFAULT_OG_IMAGE = buildVersionedOgImage('/assets/img/og-default-ime.png');
 const INSTITUTIONAL_OG_IMAGE = buildVersionedOgImage('/assets/img/og-institutional-ime.png');
 
@@ -93,9 +104,9 @@ export function buildProductoSeo(
   const baseDescription = producto.descripcion_corta?.trim() || producto.nombre.trim();
   const seoTail = [primaryIntent ? `${primaryIntent}.` : '', market].filter(Boolean).join(' ');
   const baseBudget = seoTail ? 154 - seoTail.length : 155;
-  const description = seoTail
-    ? `${truncateMetaDescription(baseDescription, Math.max(72, baseBudget))} ${seoTail}`
-    : baseDescription;
+  const lead = compactMetaLead(baseDescription, Math.max(72, baseBudget));
+  const leadWithStop = /[.!?]$/.test(lead) ? lead : `${lead}.`;
+  const description = seoTail ? `${leadWithStop} ${seoTail}` : baseDescription;
   const ogImage = producto.imagen_principal
     ? producto.imagen_principal.startsWith('http')
       ? producto.imagen_principal

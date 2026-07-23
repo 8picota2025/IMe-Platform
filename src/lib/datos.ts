@@ -74,6 +74,51 @@ function localProductImage(slug: unknown): string | null {
   return manifest[slug] ?? manifest[aliases[slug]] ?? null;
 }
 
+const ROBOT_IMPORT_GALLERY_COUNT: Record<string, number> = {
+  'padbot-x3-robot-recepcion': 2,
+  'padbot-x2-robot-servicio-interactivo': 2,
+  'padbot-p2-robot-telepresencia': 2,
+  'padbot-w2-robot-delivery-institucional': 2,
+  'padbot-w3s-robot-delivery-alimentos': 2,
+  'c3-robot-limpieza-autonoma': 2,
+  'padbot-t2-robot-educativo-social': 2,
+  'cruzr-robot-comercial-inteligente-ahuman-future': 1,
+};
+
+function robotImportedAssetPath(slug: unknown, filename: string): string | null {
+  if (typeof slug !== 'string' || !(slug in ROBOT_IMPORT_GALLERY_COUNT)) return null;
+  return `/assets/productos/importados/${slug}/${filename}`;
+}
+
+function robotImportedMainImage(slug: unknown): string | null {
+  if (typeof slug !== 'string') return null;
+  return robotImportedAssetPath(slug, `imagen-principal-${slug}.png`);
+}
+
+function robotImportedGallery(slug: unknown): string[] | null {
+  if (typeof slug !== 'string' || !(slug in ROBOT_IMPORT_GALLERY_COUNT)) return null;
+  const main = robotImportedMainImage(slug);
+  if (!main) return null;
+  const count = ROBOT_IMPORT_GALLERY_COUNT[slug];
+  return [
+    main,
+    ...Array.from(
+      { length: count },
+      (_, index) =>
+        `/assets/productos/importados/${slug}/galeria-${slug}-${String(index + 2).padStart(2, '0')}.png`
+    ),
+  ];
+}
+
+function robotImportedPdf(slug: unknown, value: unknown): string | null {
+  if (typeof slug !== 'string' || !(slug in ROBOT_IMPORT_GALLERY_COUNT)) return publicImage(value);
+  if (typeof value === 'string' && value.trim()) {
+    const filename = value.split('/').pop();
+    if (filename) return `/assets/productos/importados/${slug}/${filename}`;
+  }
+  return null;
+}
+
 // Cache de mapeo familia_id <-> familia_slug, resuelto vía Supabase (productos.familia_id
 // es FK a familias.id; no existe columna familia_slug en la tabla productos).
 let familiaIdPorSlug: Record<string, string> | null = null;
@@ -124,9 +169,14 @@ function mapProductoSupabase(raw: any, locale: Locale): Producto {
     seo_keywords:
       (locale === 'en' ? raw.atributos?.seo_keywords_en : raw.atributos?.seo_keywords_es) ?? [],
     marca: resolveMarcaSupabase(raw),
-    imagen_principal: publicImage(raw.imagen_principal) ?? localProductImage(raw.slug),
-    galeria: Array.isArray(raw.galeria) ? raw.galeria.map(publicImage).filter(isString) : [],
-    ficha_pdf: raw.ficha_pdf,
+    imagen_principal:
+      robotImportedMainImage(raw.slug) ??
+      localProductImage(raw.slug) ??
+      publicImage(raw.imagen_principal),
+    galeria:
+      robotImportedGallery(raw.slug) ??
+      (Array.isArray(raw.galeria) ? raw.galeria.map(publicImage).filter(isString) : []),
+    ficha_pdf: robotImportedPdf(raw.slug, raw.ficha_pdf),
     tipo_comercial: raw.tipo_comercial,
     fulfillment_mode: raw.fulfillment_mode,
     precio: raw.precio,
