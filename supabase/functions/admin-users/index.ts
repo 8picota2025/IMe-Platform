@@ -5,7 +5,8 @@ import { getServerSupabase } from '../_shared/supabase-server.ts';
 type AdminRole = 'owner' | 'admin' | 'catalogo' | 'ventas' | 'operaciones' | 'lectura';
 
 interface AdminUsersRequest {
-  action?: 'list' | 'upsert';
+  action?: 'list' | 'upsert' | 'delete';
+  user_id?: string;
   email?: string;
   rol?: AdminRole;
   activo?: boolean;
@@ -25,6 +26,16 @@ const VALID_ROLES = new Set<AdminRole>([
   'operaciones',
   'lectura',
 ]);
+
+class AdminUsersInputError extends Error {
+  constructor(
+    message: string,
+    public status = 400
+  ) {
+    super(message);
+    this.name = 'AdminUsersInputError';
+  }
+}
 
 Deno.serve(async req => {
   const origin = req.headers.get('origin');
@@ -59,6 +70,15 @@ Deno.serve(async req => {
 
     const body = (await req.json().catch(() => ({}))) as AdminUsersRequest;
     if (body.action === 'list') return jsonResponse(await listAdminUsers(supabase), origin);
+    if (body.action === 'delete') {
+      const userId = typeof body.user_id === 'string' ? body.user_id.trim() : '';
+      const email = normalizeEmail(body.email);
+      if (!userId && !email) return badRequest('Usuario requerido', origin);
+      return jsonResponse(
+        await deleteAdminUser(supabase, { userId, email, actorUserId: user.id }),
+        origin
+      );
+    }
     if (body.action !== 'upsert') return badRequest('Accion no soportada', origin);
 
     const email = normalizeEmail(body.email);
@@ -105,6 +125,9 @@ Deno.serve(async req => {
       origin
     );
   } catch (err) {
+    if (err instanceof AdminUsersInputError) {
+      return errorResponse({ code: 'ADMIN_USERS_INPUT', message: err.message }, err.status, origin);
+    }
     return internalError(err instanceof Error ? err.message : 'admin-users error', origin);
   }
 });
@@ -197,6 +220,83 @@ async function ensureAuthUser(
   }
 
   throw new Error('Debe enviarse una contrasena o activar invitacion por email');
+}
+
+async function deleteAdminUser(
+  supabase: ReturnType<typeof getServerSupabase>,
+  params: { userId: string; email: string; actorUserId: string }
+) {
+  const authUsers = await listAllAuthUsers(supabase);
+  const authUser =
+    authUsers.find(user => user.id === params.userId) ??
+    authUsers.find(user => normalizeEmail(user.email) === params.email) ??
+    null;
+  const targetUserId = authUser?.id ?? params.userId;
+  const targetEmail = normalizeEmail(authUser?.email) || params.email;
+
+  if (targetUserId && targetUserId === params.actorUserId) {
+    throw new AdminUsersInputError('No puedes eliminar tu propio usuario activo.');
+  }
+
+  const profile = await findProfile(supabase, targetUserId, targetEmail);
+  if (profile?.rol === 'owner' && profile.activo === true) {
+    const { count, error } = await supabase
+      .from('admin_profiles')
+      .select('user_id', { count: 'exact', head: true })
+      .eq('rol', 'owner')
+      .eq('activo', true)
+      .neq('user_id', targetUserId);
+    if (error) throw error;
+    if (!count)
+      throw new AdminUsersInputError('No puedes eliminar el ultimo owner activo del CMS.');
+  }
+
+  if (authUser) {
+    const { error } = await supabase.auth.admin.deleteUser(authUser.id);
+    if (error) throw error;
+  }
+
+  if (targetUserId) {
+    const { error } = await supabase.from('admin_profiles').delete().eq('user_id', targetUserId);
+    if (error) throw error;
+  }
+  if (targetEmail) {
+    const { error } = await supabase.from('admin_profiles').delete().eq('email', targetEmail);
+    if (error) throw error;
+  }
+
+  return {
+    ok: true,
+    user: {
+      user_id: targetUserId || null,
+      email: targetEmail || null,
+      authDeleted: Boolean(authUser),
+    },
+  };
+}
+
+async function findProfile(
+  supabase: ReturnType<typeof getServerSupabase>,
+  userId: string,
+  email: string
+) {
+  if (userId) {
+    const { data, error } = await supabase
+      .from('admin_profiles')
+      .select('user_id, email, rol, activo')
+      .eq('user_id', userId)
+      .maybeSingle();
+    if (error) throw error;
+    if (data) return data as Row;
+  }
+  if (!email) return null;
+  const { data, error } = await supabase
+    .from('admin_profiles')
+    .select('user_id, email, rol, activo')
+    .eq('email', email)
+    .maybeSingle();
+  if (error) throw error;
+  return (data as Row | null) ?? null;
 }
 
 async function findUserByEmail(supabase: ReturnType<typeof getServerSupabase>, email: string) {

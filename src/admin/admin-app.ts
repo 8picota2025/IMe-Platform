@@ -1484,11 +1484,52 @@ function bindUsuarios() {
   if (!form) return;
   const status = form.querySelector<HTMLElement>('[data-admin-user-status]');
   const submit = form.querySelector<HTMLButtonElement>('[data-admin-user-submit]');
+  const resetButton = form.querySelector<HTMLButtonElement>('[data-admin-user-reset-form]');
+
+  const setUserForm = (params: {
+    email: string;
+    rol: string;
+    activo: boolean;
+    focusPassword?: boolean;
+  }) => {
+    const emailInput = form.elements.namedItem('email') as HTMLInputElement | null;
+    const roleSelect = form.elements.namedItem('rol') as HTMLSelectElement | null;
+    const passwordInput = form.elements.namedItem('password') as HTMLInputElement | null;
+    const passwordConfirmInput = form.elements.namedItem(
+      'passwordConfirm'
+    ) as HTMLInputElement | null;
+    const activoInput = form.elements.namedItem('activo') as HTMLInputElement | null;
+    const sendInviteInput = form.elements.namedItem('sendInvite') as HTMLInputElement | null;
+    if (emailInput) emailInput.value = params.email;
+    if (roleSelect) roleSelect.value = params.rol || 'lectura';
+    if (passwordInput) passwordInput.value = '';
+    if (passwordConfirmInput) passwordConfirmInput.value = '';
+    if (activoInput) activoInput.checked = params.activo;
+    if (sendInviteInput) sendInviteInput.checked = false;
+    if (status) {
+      status.textContent = params.focusPassword
+        ? `Escribe nueva contraseña para ${params.email} y guarda para cambiarla.`
+        : `Editando ${params.email}. Guarda para aplicar cambios.`;
+    }
+    if (params.focusPassword) passwordInput?.focus();
+    else emailInput?.focus();
+  };
+
+  resetButton?.addEventListener('click', () => {
+    form.reset();
+    const activoInput = form.elements.namedItem('activo') as HTMLInputElement | null;
+    const sendInviteInput = form.elements.namedItem('sendInvite') as HTMLInputElement | null;
+    if (activoInput) activoInput.checked = true;
+    if (sendInviteInput) sendInviteInput.checked = true;
+    if (status) status.textContent = '';
+  });
+
   form.addEventListener('submit', async event => {
     event.preventDefault();
     const data = new FormData(form);
     const email = String(data.get('email') ?? '').trim();
     const password = String(data.get('password') ?? '').trim();
+    const passwordConfirm = String(data.get('passwordConfirm') ?? '').trim();
     const rol = String(data.get('rol') ?? 'lectura');
     const activo =
       form.elements.namedItem('activo') instanceof HTMLInputElement &&
@@ -1499,6 +1540,10 @@ function bindUsuarios() {
 
     if (!email) {
       toast('Email requerido');
+      return;
+    }
+    if (password && password !== passwordConfirm) {
+      toast('Las contraseñas no coinciden.');
       return;
     }
 
@@ -1535,6 +1580,85 @@ function bindUsuarios() {
     toast(`Usuario sincronizado: ${createdEmail || email}`);
     location.hash = '#/usuarios';
     await render();
+  });
+
+  app.querySelectorAll<HTMLButtonElement>('[data-admin-user-edit]').forEach(button => {
+    button.addEventListener('click', () => {
+      setUserForm({
+        email: button.getAttribute('data-admin-user-edit') ?? '',
+        rol: button.getAttribute('data-admin-user-rol') ?? 'lectura',
+        activo: button.getAttribute('data-admin-user-activo') === '1',
+      });
+    });
+  });
+
+  app.querySelectorAll<HTMLButtonElement>('[data-admin-user-password]').forEach(button => {
+    button.addEventListener('click', () => {
+      setUserForm({
+        email: button.getAttribute('data-admin-user-password') ?? '',
+        rol: button.getAttribute('data-admin-user-rol') ?? 'lectura',
+        activo: button.getAttribute('data-admin-user-activo') === '1',
+        focusPassword: true,
+      });
+    });
+  });
+
+  app.querySelectorAll<HTMLButtonElement>('[data-admin-user-toggle]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const email = button.getAttribute('data-admin-user-toggle') ?? '';
+      const rol = button.getAttribute('data-admin-user-rol') ?? 'lectura';
+      const activo = button.getAttribute('data-admin-user-activo') !== '1';
+      button.disabled = true;
+      button.textContent = activo ? 'Activando…' : 'Desactivando…';
+      const { error } = await supabase!.functions.invoke('admin-users', {
+        body: {
+          action: 'upsert',
+          email,
+          rol,
+          activo,
+          sendInvite: false,
+        },
+      });
+      if (error) {
+        button.disabled = false;
+        button.textContent = activo ? 'Activar' : 'Desactivar';
+        toast(error.message || 'No se pudo actualizar el usuario.');
+        return;
+      }
+      toast(`${activo ? 'Activado' : 'Desactivado'}: ${email}`);
+      await render();
+    });
+  });
+
+  app.querySelectorAll<HTMLButtonElement>('[data-admin-user-delete]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const email = button.getAttribute('data-admin-user-delete') ?? '';
+      const userId = button.getAttribute('data-admin-user-id') ?? '';
+      if (
+        !window.confirm(
+          `Eliminar ${email} del CMS y de Supabase Auth? Esta acción no cierra JWT ya emitidos hasta que expiren.`
+        )
+      ) {
+        return;
+      }
+      button.disabled = true;
+      button.textContent = 'Eliminando…';
+      const { error } = await supabase!.functions.invoke('admin-users', {
+        body: {
+          action: 'delete',
+          user_id: userId,
+          email,
+        },
+      });
+      if (error) {
+        button.disabled = false;
+        button.textContent = 'Eliminar';
+        toast(error.message || 'No se pudo eliminar el usuario.');
+        return;
+      }
+      toast(`Usuario eliminado: ${email}`);
+      await render();
+    });
   });
 }
 
@@ -1719,16 +1843,20 @@ async function usuariosView(): Promise<string> {
           <input name="password" type="password" autocomplete="new-password" minlength="8" />
           <small>Si la dejas vacía se enviará invitación por email cuando el proveedor SMTP de Supabase esté disponible.</small>
         </label>
+        <label class="admin-field">Confirmar contraseña
+          <input name="passwordConfirm" type="password" autocomplete="new-password" minlength="8" />
+        </label>
         <label class="admin-field"><span><input name="sendInvite" type="checkbox" checked /> Enviar invitación si no escribo contraseña</span></label>
         <label class="admin-field"><span><input name="activo" type="checkbox" checked /> Perfil activo</span></label>
         <button class="admin-button" type="submit" data-admin-user-submit>Guardar acceso</button>
+        <button class="admin-button admin-button--ghost" type="button" data-admin-user-reset-form>Limpiar formulario</button>
         <p class="admin-help" data-admin-user-status></p>
       </form>
     </section>
     <section class="admin-panel">
       <div class="admin-panel__head"><h2>Usuarios sincronizados (${users.length})</h2></div>
       ${table(
-        ['Email', 'Rol', 'Activo', 'Auth', 'Confirmado', 'Último acceso'],
+        ['Email', 'Rol', 'Activo', 'Auth', 'Confirmado', 'Último acceso', 'Acciones'],
         users.map(user => [
           user.email,
           user.rol,
@@ -1736,9 +1864,24 @@ async function usuariosView(): Promise<string> {
           user.synced ? 'Sincronizado' : 'Falta Auth',
           user.confirmed_at ? formatDate(user.confirmed_at) : 'Pendiente',
           user.last_sign_in_at ? formatDate(user.last_sign_in_at) : '—',
+          adminUserActions(user),
         ])
       )}
     </section>`;
+}
+
+function adminUserActions(user: AdminUserRow): string {
+  const email = escapeHtml(user.email);
+  const userId = escapeHtml(user.user_id);
+  const role = escapeHtml(user.rol);
+  const active = user.activo ? '1' : '0';
+  return `
+    <div class="admin-row-actions">
+      <button class="admin-button admin-button--ghost" type="button" data-admin-user-edit="${email}" data-admin-user-id="${userId}" data-admin-user-rol="${role}" data-admin-user-activo="${active}">Editar</button>
+      <button class="admin-button admin-button--ghost" type="button" data-admin-user-password="${email}" data-admin-user-rol="${role}" data-admin-user-activo="${active}">Cambiar contraseña</button>
+      <button class="admin-button admin-button--ghost" type="button" data-admin-user-toggle="${email}" data-admin-user-rol="${role}" data-admin-user-activo="${active}">${user.activo ? 'Desactivar' : 'Activar'}</button>
+      <button class="admin-button admin-button--danger" type="button" data-admin-user-delete="${email}" data-admin-user-id="${userId}">Eliminar</button>
+    </div>`;
 }
 
 function metric(label: string, value: number): string {
