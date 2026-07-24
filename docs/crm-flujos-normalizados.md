@@ -86,3 +86,17 @@ Decision semanal:
 - Cero oportunidad sin `source_table + source_id`.
 - Cero venta pagada sin contacto en stage `cliente`.
 - RLS: CRM solo backoffice `ventas`, `operaciones`, `admin`, `owner`.
+
+## Aplicacion en Supabase
+
+Migracion: `supabase/migrations/20260723040818_crm_normalizado_flujos.sql`
+
+```bash
+# Con access token de supabase.com (Account → Access Tokens)
+export SUPABASE_ACCESS_TOKEN=sbp_...
+export SUPABASE_PROJECT_REF=nnfbucwiasuggyfoyydo
+node scripts/apply-supabase-sql.mjs supabase/migrations/20260723040818_crm_normalizado_flujos.sql
+```
+
+CI: workflow `Apply CRM Migration` (`.github/workflows/apply-crm-migration.yml`) usa el secret
+`SUPABASE_ACCESS_TOKEN` y verifica que PostgREST exponga `crm_opportunities` (sin PGRST205).

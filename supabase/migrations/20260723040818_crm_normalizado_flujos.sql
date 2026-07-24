@@ -224,6 +224,17 @@ CREATE INDEX IF NOT EXISTS idx_crm_activities_opportunity_time ON crm_activities
 CREATE INDEX IF NOT EXISTS idx_crm_activities_source ON crm_activities(source_table, source_id);
 
 -- ── 3. Vinculos desde tablas operativas ─────────────────────
+-- Columnas fiscales de clientes (en schema.sql pero pueden faltar en BD real).
+ALTER TABLE clientes ADD COLUMN IF NOT EXISTS razon_social TEXT;
+ALTER TABLE clientes ADD COLUMN IF NOT EXISTS tipo_documento TEXT;
+ALTER TABLE clientes ADD COLUMN IF NOT EXISTS numero_documento TEXT;
+ALTER TABLE clientes ADD COLUMN IF NOT EXISTS tipo_persona TEXT;
+ALTER TABLE clientes ADD COLUMN IF NOT EXISTS responsable_iva BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE clientes ADD COLUMN IF NOT EXISTS agente_retencion BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE clientes ADD COLUMN IF NOT EXISTS agente_reteica BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE clientes ADD COLUMN IF NOT EXISTS email_facturacion TEXT;
+ALTER TABLE clientes ADD COLUMN IF NOT EXISTS direccion_facturacion JSONB;
+
 ALTER TABLE solicitudes_cotizacion ADD COLUMN IF NOT EXISTS cliente_id UUID REFERENCES clientes(id) ON DELETE SET NULL;
 ALTER TABLE solicitudes_cotizacion ADD COLUMN IF NOT EXISTS tipo_solicitud TEXT NOT NULL DEFAULT 'cotizacion';
 ALTER TABLE solicitudes_cotizacion ADD COLUMN IF NOT EXISTS origen TEXT NOT NULL DEFAULT 'web';
@@ -316,26 +327,38 @@ BEGIN
   END IF;
 
   IF v_email IS NOT NULL OR v_phone IS NOT NULL THEN
-    INSERT INTO crm_contacts (
-      cliente_id, account_id, email_norm, telefono_e164, nombre,
-      lifecycle_stage, consentimiento_datos, consentimiento_timestamp,
-      origen_primario, last_activity_at
-    )
-    VALUES (
-      v_cliente_id, v_account_id, v_email, v_phone, NULLIF(trim(NEW.nombre), ''),
-      'lead', NEW.consentimiento_datos, coalesce(NEW.consentimiento_timestamp, NOW()),
-      'cotizacion', NOW()
-    )
-    ON CONFLICT (email_norm) DO UPDATE
-      SET cliente_id = coalesce(EXCLUDED.cliente_id, crm_contacts.cliente_id),
-          account_id = coalesce(EXCLUDED.account_id, crm_contacts.account_id),
-          telefono_e164 = coalesce(EXCLUDED.telefono_e164, crm_contacts.telefono_e164),
-          nombre = coalesce(EXCLUDED.nombre, crm_contacts.nombre),
-          consentimiento_datos = crm_contacts.consentimiento_datos OR EXCLUDED.consentimiento_datos,
-          consentimiento_timestamp = coalesce(EXCLUDED.consentimiento_timestamp, crm_contacts.consentimiento_timestamp),
-          last_activity_at = NOW(),
-          updated_at = NOW()
-    RETURNING id INTO v_contact_id;
+    IF v_email IS NOT NULL THEN
+      SELECT id INTO v_contact_id FROM crm_contacts WHERE email_norm = v_email;
+    END IF;
+    IF v_contact_id IS NULL AND v_phone IS NOT NULL THEN
+      SELECT id INTO v_contact_id FROM crm_contacts WHERE telefono_e164 = v_phone;
+    END IF;
+
+    IF v_contact_id IS NULL THEN
+      INSERT INTO crm_contacts (
+        cliente_id, account_id, email_norm, telefono_e164, nombre,
+        lifecycle_stage, consentimiento_datos, consentimiento_timestamp,
+        origen_primario, last_activity_at
+      )
+      VALUES (
+        v_cliente_id, v_account_id, v_email, v_phone, NULLIF(trim(NEW.nombre), ''),
+        'lead', NEW.consentimiento_datos, coalesce(NEW.consentimiento_timestamp, NOW()),
+        'cotizacion', NOW()
+      )
+      RETURNING id INTO v_contact_id;
+    ELSE
+      UPDATE crm_contacts SET
+        cliente_id = coalesce(v_cliente_id, cliente_id),
+        account_id = coalesce(v_account_id, account_id),
+        email_norm = coalesce(v_email, email_norm),
+        telefono_e164 = coalesce(v_phone, telefono_e164),
+        nombre = coalesce(NULLIF(trim(NEW.nombre), ''), nombre),
+        consentimiento_datos = consentimiento_datos OR NEW.consentimiento_datos,
+        consentimiento_timestamp = coalesce(NEW.consentimiento_timestamp, consentimiento_timestamp, NOW()),
+        last_activity_at = NOW(),
+        updated_at = NOW()
+      WHERE id = v_contact_id;
+    END IF;
   END IF;
 
   INSERT INTO crm_opportunities (
@@ -511,32 +534,44 @@ BEGIN
   END IF;
 
   IF v_email IS NOT NULL OR v_phone IS NOT NULL THEN
-    INSERT INTO crm_contacts (
-      cliente_id, account_id, email_norm, telefono_e164, nombre, apellido,
-      lifecycle_stage, consentimiento_datos, consentimiento_timestamp,
-      origen_primario, last_activity_at
-    )
-    VALUES (
-      coalesce(v_cliente_id, NEW.cliente_id), v_account_id, v_email, v_phone, v_nombre, v_apellido,
-      CASE WHEN v_stage IN ('ganado', 'posventa') THEN 'cliente' ELSE 'lead' END,
-      NEW.consentimiento_datos, coalesce(NEW.consentimiento_timestamp, NOW()),
-      'venta_ecommerce', NOW()
-    )
-    ON CONFLICT (email_norm) DO UPDATE
-      SET cliente_id = coalesce(EXCLUDED.cliente_id, crm_contacts.cliente_id),
-          account_id = coalesce(EXCLUDED.account_id, crm_contacts.account_id),
-          telefono_e164 = coalesce(EXCLUDED.telefono_e164, crm_contacts.telefono_e164),
-          nombre = coalesce(EXCLUDED.nombre, crm_contacts.nombre),
-          apellido = coalesce(EXCLUDED.apellido, crm_contacts.apellido),
-          lifecycle_stage = CASE
-            WHEN EXCLUDED.lifecycle_stage = 'cliente' THEN 'cliente'
-            ELSE crm_contacts.lifecycle_stage
-          END,
-          consentimiento_datos = crm_contacts.consentimiento_datos OR EXCLUDED.consentimiento_datos,
-          consentimiento_timestamp = coalesce(EXCLUDED.consentimiento_timestamp, crm_contacts.consentimiento_timestamp),
-          last_activity_at = NOW(),
-          updated_at = NOW()
-    RETURNING id INTO v_contact_id;
+    IF v_email IS NOT NULL THEN
+      SELECT id INTO v_contact_id FROM crm_contacts WHERE email_norm = v_email;
+    END IF;
+    IF v_contact_id IS NULL AND v_phone IS NOT NULL THEN
+      SELECT id INTO v_contact_id FROM crm_contacts WHERE telefono_e164 = v_phone;
+    END IF;
+
+    IF v_contact_id IS NULL THEN
+      INSERT INTO crm_contacts (
+        cliente_id, account_id, email_norm, telefono_e164, nombre, apellido,
+        lifecycle_stage, consentimiento_datos, consentimiento_timestamp,
+        origen_primario, last_activity_at
+      )
+      VALUES (
+        coalesce(v_cliente_id, NEW.cliente_id), v_account_id, v_email, v_phone, v_nombre, v_apellido,
+        CASE WHEN v_stage IN ('ganado', 'posventa') THEN 'cliente' ELSE 'lead' END,
+        NEW.consentimiento_datos, coalesce(NEW.consentimiento_timestamp, NOW()),
+        'venta_ecommerce', NOW()
+      )
+      RETURNING id INTO v_contact_id;
+    ELSE
+      UPDATE crm_contacts SET
+        cliente_id = coalesce(v_cliente_id, NEW.cliente_id, cliente_id),
+        account_id = coalesce(v_account_id, account_id),
+        email_norm = coalesce(v_email, email_norm),
+        telefono_e164 = coalesce(v_phone, telefono_e164),
+        nombre = coalesce(v_nombre, nombre),
+        apellido = coalesce(v_apellido, apellido),
+        lifecycle_stage = CASE
+          WHEN v_stage IN ('ganado', 'posventa') THEN 'cliente'
+          ELSE lifecycle_stage
+        END,
+        consentimiento_datos = consentimiento_datos OR NEW.consentimiento_datos,
+        consentimiento_timestamp = coalesce(NEW.consentimiento_timestamp, consentimiento_timestamp, NOW()),
+        last_activity_at = NOW(),
+        updated_at = NOW()
+      WHERE id = v_contact_id;
+    END IF;
   END IF;
 
   INSERT INTO crm_opportunities (
@@ -656,3 +691,20 @@ GRANT SELECT, INSERT, UPDATE ON crm_accounts TO authenticated;
 GRANT SELECT, INSERT, UPDATE ON crm_contacts TO authenticated;
 GRANT SELECT, INSERT, UPDATE ON crm_opportunities TO authenticated;
 GRANT SELECT, INSERT, UPDATE ON crm_activities TO authenticated;
+
+GRANT ALL ON crm_accounts TO service_role;
+GRANT ALL ON crm_contacts TO service_role;
+GRANT ALL ON crm_opportunities TO service_role;
+GRANT ALL ON crm_activities TO service_role;
+
+-- Backfill: dispara sync CRM sobre filas operativas existentes.
+UPDATE solicitudes_cotizacion
+SET metadata = coalesce(metadata, '{}'::jsonb)
+WHERE crm_opportunity_id IS NULL;
+
+UPDATE pedidos
+SET metadata = coalesce(metadata, '{}'::jsonb)
+WHERE crm_opportunity_id IS NULL;
+
+-- Fuerza recarga del schema cache de PostgREST (evita PGRST205 tras DDL).
+NOTIFY pgrst, 'reload schema';

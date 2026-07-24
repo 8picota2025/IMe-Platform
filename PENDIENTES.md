@@ -23,6 +23,14 @@ Asesor puede recuperarlos.
 
 - [ ] Se puede avanzar con QA, performance, contenido aprobado, Supabase/Asesor y deploy técnico sin cerrar aprobación jurídica ni pruebas reales de medios de pago. Jurídica queda bajo `BLOQUEANTE_LEGAL`; Wompi/Stripe quedan bajo `BLOQUEANTE_BACKEND`/`NO_EJECUTADO_ENTORNO` hasta recibir credenciales y ejecutar sandbox real.
 
+## CRM normalizado (CMS `/admin#crm`)
+
+- [ ] Migración `20260723040818_crm_normalizado_flujos.sql` pendiente en BD real
+      (`crm_accounts`/`crm_contacts`/`crm_opportunities`/`crm_activities` ausentes →
+      error PostgREST `PGRST205` / "schema cache" en el CMS). Aplicar con
+      `node scripts/apply-supabase-sql.mjs …` o workflow `Apply CRM Migration`
+      (secret `SUPABASE_ACCESS_TOKEN`). Ver `docs/crm-flujos-normalizados.md`.
+
 ## TODO_CLIENTE — Datos o credenciales que entrega el cliente
 
 - [ ] `SUPABASE_URL` y `SUPABASE_ANON_KEY`: crear proyecto en supabase.com
