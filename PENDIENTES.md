@@ -25,11 +25,11 @@ Asesor puede recuperarlos.
 
 ## CRM normalizado (CMS `/admin#crm`)
 
-- [ ] Migración `20260723040818_crm_normalizado_flujos.sql` pendiente en BD real
-      (`crm_accounts`/`crm_contacts`/`crm_opportunities`/`crm_activities` ausentes →
-      error PostgREST `PGRST205` / "schema cache" en el CMS). Aplicar con
-      `node scripts/apply-supabase-sql.mjs …` o workflow `Apply CRM Migration`
-      (secret `SUPABASE_ACCESS_TOKEN`). Ver `docs/crm-flujos-normalizados.md`.
+- [x] Migración `20260723040818_crm_normalizado_flujos.sql` aplicada en BD real
+      el 2026-07-24 vía Management API (workflow `Apply CRM Migration` /
+      `scripts/apply-supabase-sql.mjs`). Tablas `crm_accounts`/`crm_contacts`/
+      `crm_opportunities`/`crm_activities` expuestas en PostgREST (sin `PGRST205`).
+      Ver `docs/crm-flujos-normalizados.md`.
 
 ## TODO_CLIENTE — Datos o credenciales que entrega el cliente
 
