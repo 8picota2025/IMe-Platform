@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Limpiar cache I-ME</title>
+  </head>
+  <body>
+    Limpiando service workers...
+    <script>
+      (async () => {
+        const regs = 'serviceWorker' in navigator
+          ? await navigator.serviceWorker.getRegistrations()
+          : [];
+        for (const registration of regs) await registration.unregister();
+        const keys = 'caches' in window ? await caches.keys() : [];
+        for (const key of keys) await caches.delete(key);
+        document.body.textContent =
+          'OK: limpiados ' + regs.length + ' service workers y ' + keys.length + ' caches. Redirigiendo...';
+        setTimeout(() => {
+          location.href = '/comercial/?sandbox=1';
+        }, 600);
+      })();
+    </script>
+  </body>
+</html>

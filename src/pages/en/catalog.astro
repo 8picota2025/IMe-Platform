@@ -28,7 +28,7 @@ const itemListJsonLd = {
   itemListElement: items.map((item, index) => ({
     '@type': 'ListItem',
     position: index + 1,
-    url: buildCanonical(`/en/products/${item.slug}`),
+    url: buildCanonical(`/en/products/${item.slug}/`),
     name: item.nombre,
   })),
 };

@@ -6965,12 +6965,40 @@ async function uploadIngestPdf(form: HTMLFormElement) {
   input.click();
 }
 
+/** Cached blob: URL for pdf.js worker (avoids Hostinger serving .mjs as text/plain). */
+let pdfWorkerSrcPromise: Promise<string> | null = null;
+
+/**
+ * Resolve pdf.js workerSrc as a blob URL with a JS MIME type.
+ * Hostinger/LiteSpeed often serves hashed `.mjs` assets as `text/plain`; with
+ * `X-Content-Type-Options: nosniff` the browser refuses to run them as module
+ * workers, which breaks PDF text extraction in admin ingesta.
+ */
+async function resolvePdfWorkerSrc(): Promise<string> {
+  if (!pdfWorkerSrcPromise) {
+    pdfWorkerSrcPromise = (async () => {
+      const builtWorkerUrl = new URL(
+        'pdfjs-dist/legacy/build/pdf.worker.mjs',
+        import.meta.url
+      ).toString();
+      try {
+        const response = await fetch(builtWorkerUrl);
+        if (!response.ok) {
+          throw new Error(`Worker HTTP ${response.status}`);
+        }
+        const code = await response.text();
+        return URL.createObjectURL(new Blob([code], { type: 'text/javascript' }));
+      } catch {
+        return builtWorkerUrl;
+      }
+    })();
+  }
+  return pdfWorkerSrcPromise;
+}
+
 async function extractPdfText(file: File): Promise<string> {
   const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
-  pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-    'pdfjs-dist/legacy/build/pdf.worker.mjs',
-    import.meta.url
-  ).toString();
+  pdfjs.GlobalWorkerOptions.workerSrc = await resolvePdfWorkerSrc();
   const bytes = new Uint8Array(await file.arrayBuffer());
   const pdf = await pdfjs.getDocument({ data: bytes }).promise;
   const pages: string[] = [];
@@ -7083,7 +7111,7 @@ function productListCell(
           <button class="admin-button admin-button--ghost" data-product-row-gallery-upload="${escapeHtml(productId)}" type="button">Subir galería</button>
           <a
             class="admin-button admin-button--ghost"
-            href="/es/productos/${encodeURIComponent(productSlug)}"
+            href="/es/productos/${encodeURIComponent(productSlug)}/"
             target="_blank"
             rel="noopener noreferrer"
           >

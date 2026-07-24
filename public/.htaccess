@@ -10,6 +10,7 @@ RewriteRule ^ https://i-me.com.co%{REQUEST_URI} [R=301,L]
 # Canonical entry points
 RewriteRule ^index\.html$ /es/ [R=301,L]
 RewriteRule ^pagoswompi$ /pagoswompi/ [R=301,L]
+RewriteRule ^clear-sw/?$ /clear-sw.html [L]
 RewriteRule ^77/?$ /es/ [R=301,L]
 RewriteRule ^77/index\.html$ /es/ [R=301,L]
 RewriteRule ^es/productos/?$ /es/catalogo/ [R=301,L]
@@ -33,6 +34,13 @@ RewriteRule ^77/financiacion\.html$ /es/financiacion/ [R=301,L]
 
 # Old archive. Default to Spanish home unless a future audited mapping says otherwise.
 RewriteRule ^1old(/.*)?$ /es/ [R=301,L]
+
+# MIME types: Hostinger/LiteSpeed serves .mjs as text/plain by default.
+# With X-Content-Type-Options: nosniff that breaks ES module workers (pdf.js).
+<IfModule mod_mime.c>
+  AddType text/javascript .mjs
+  AddType application/wasm .wasm
+</IfModule>
 
 # Security headers for static hosting.
 <IfModule mod_headers.c>

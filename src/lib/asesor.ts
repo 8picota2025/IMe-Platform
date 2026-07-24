@@ -30,6 +30,17 @@ const CATALOGO_INDEX_URL: Record<Locale, string> = {
   en: '/data/catalogo-index.en.json',
 };
 
+function buildProductPath(locale: Locale, slug: string): string {
+  return locale === 'en' ? `/en/products/${slug}/` : `/es/productos/${slug}/`;
+}
+
+function normalizeProductLandingPath(locale: Locale, slug: string, url: string): string {
+  const fallback = buildProductPath(locale, slug);
+  if (!url) return fallback;
+  if (url === fallback.slice(0, -1)) return fallback;
+  return url;
+}
+
 export interface MensajeAsesor {
   rol: 'usuario' | 'asesor';
   contenido: string;
@@ -275,7 +286,7 @@ export async function preguntarAsesor(params: {
         slug: p.slug,
         nombre: p.nombre,
         imagen: p.imagen,
-        urlLanding: p.url_landing,
+        urlLanding: normalizeProductLandingPath(params.locale, p.slug, p.url_landing),
         score: p.score,
       })),
       accionHandoff: json.accion_handoff,
@@ -591,7 +602,7 @@ async function cargarProductosSugeridos(
       slug,
       nombre: slug,
       imagen: null,
-      urlLanding: locale === 'en' ? `/en/products/${slug}` : `/es/productos/${slug}`,
+      urlLanding: buildProductPath(locale, slug),
       score: 1 - index * 0.05,
     }));
   }
@@ -615,7 +626,7 @@ async function cargarProductosSugeridos(
               ? String(producto.nombre_en ?? producto.nombre_es ?? slug)
               : String(producto.nombre_es ?? slug),
           imagen: typeof producto.imagen_principal === 'string' ? producto.imagen_principal : null,
-          urlLanding: locale === 'en' ? `/en/products/${slug}` : `/es/productos/${slug}`,
+          urlLanding: buildProductPath(locale, slug),
           score: 1 - index * 0.05,
         };
       });
@@ -860,7 +871,7 @@ async function buscarCatalogoPublicado(
     slug: item.slug,
     nombre: item.nombre,
     imagen: item.imagen_principal,
-    urlLanding: locale === 'en' ? `/en/products/${item.slug}` : `/es/productos/${item.slug}`,
+    urlLanding: buildProductPath(locale, item.slug),
     score: Math.min(1, Math.max(0.55, score / 300)) - index * 0.03,
     descripcionCorta: item.descripcion_corta,
     familiaNombre: item.familia.nombre,
@@ -1531,7 +1542,7 @@ async function preguntarAsesorLocal(params: {
     slug: p.slug,
     nombre: params.locale === 'en' ? p.nombre_en || p.nombre_es : p.nombre_es,
     imagen: p.imagen_principal,
-    urlLanding: params.locale === 'en' ? `/en/products/${p.slug}` : `/es/productos/${p.slug}`,
+    urlLanding: buildProductPath(params.locale, p.slug),
     score: p.score,
   });
 
