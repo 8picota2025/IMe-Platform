@@ -428,10 +428,10 @@ const canonical = buildCanonical('/es/contacto');
       consentimiento_datos: data.get('consentimiento') === 'on',
       productos: parseProductos((data.get('productos') as string) ?? ''),
       origen: desdeImeia ? 'asesor' : 'web',
-      resumen_imeia: desdeImeia ? asesorResumen : undefined,
-      conversacion_imeia: historialImeia.length
-        ? buildConversationTranscript(historialImeia, 'es')
-        : undefined,
+      ...(desdeImeia && asesorResumen ? { resumen_imeia: asesorResumen } : {}),
+      ...(historialImeia.length
+        ? { conversacion_imeia: buildConversationTranscript(historialImeia, 'es') }
+        : {}),
     });
 
     if (result.ok) {
