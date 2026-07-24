@@ -357,6 +357,8 @@ const canonical = buildCanonical('/en/contact');
 
 <script>
   import { submitCotizacion } from '../../lib/datos';
+  import { obtenerHistorial } from '../../lib/asesor';
+  import { buildConversationTranscript } from '../../lib/asesor-handoff';
   const form = document.getElementById('contacto-form') as HTMLFormElement | null;
   const status = document.getElementById('form-status');
   const submitBtn = document.getElementById('form-submit-btn') as HTMLButtonElement | null;
@@ -378,6 +380,7 @@ const canonical = buildCanonical('/en/contact');
     .map(value => value.trim())
     .filter(Boolean);
   const asesorResumen = params.get('asesor_resumen')?.trim() ?? '';
+  const fromImeia = params.get('origen') === 'asesor';
   if (productosField && prefill.length > 0 && !productosField.value.trim()) {
     productosField.value = prefill.join('\n');
   }
@@ -400,6 +403,7 @@ const canonical = buildCanonical('/en/contact');
       status.textContent = '';
     }
     const data = new FormData(form);
+    const imeiaHistory = fromImeia ? obtenerHistorial() : [];
     const result = await submitCotizacion({
       locale: 'en',
       nombre: (data.get('nombre') as string) ?? '',
@@ -408,6 +412,11 @@ const canonical = buildCanonical('/en/contact');
       mensaje: (data.get('mensaje') as string) ?? '',
       consentimiento_datos: data.get('consentimiento') === 'on',
       productos: parseProductos((data.get('productos') as string) ?? ''),
+      origen: fromImeia ? 'asesor' : 'web',
+      resumen_imeia: fromImeia ? asesorResumen : undefined,
+      conversacion_imeia: imeiaHistory.length
+        ? buildConversationTranscript(imeiaHistory, 'en')
+        : undefined,
     });
     if (result.ok) {
       if (status) {

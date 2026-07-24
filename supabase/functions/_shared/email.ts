@@ -143,6 +143,22 @@ export interface EnvioResultado {
   detalle?: string;
 }
 
+export interface EmailAttachment {
+  filename: string;
+  content: string;
+  contentType?: string;
+}
+
+function utf8ToBase64(value: string): string {
+  const bytes = new TextEncoder().encode(value);
+  let binary = '';
+  const chunkSize = 0x8000;
+  for (let offset = 0; offset < bytes.length; offset += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(offset, offset + chunkSize));
+  }
+  return btoa(binary);
+}
+
 /**
  * Renderiza la plantilla `clave` (DB con fallback a defaults) y la envia a
  * cada destinatario. `vars` deben venir ya escapadas si contienen input de
@@ -153,7 +169,8 @@ export async function enviarEmailPlantilla(
   clave: string,
   destinatarios: string[],
   vars: Record<string, string>,
-  referencia?: string
+  referencia?: string,
+  attachments: EmailAttachment[] = []
 ): Promise<EnvioResultado> {
   const apiKey = Deno.env.get('MAILER_API_KEY') || Deno.env.get('RESEND_API_KEY');
   if (!apiKey) return { ok: false, detalle: 'MAILER_API_KEY no configurada' };
@@ -187,10 +204,18 @@ export async function enviarEmailPlantilla(
     let status: 'enviado' | 'fallido' = 'enviado';
     let errorTxt: string | null = null;
     try {
+      const payload: Record<string, unknown> = { from, to, subject, html: body };
+      if (attachments.length > 0) {
+        payload.attachments = attachments.map(attachment => ({
+          filename: attachment.filename,
+          content: utf8ToBase64(attachment.content),
+          content_type: attachment.contentType ?? 'text/plain; charset=utf-8',
+        }));
+      }
       const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ from, to, subject, html: body }),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) {
         status = 'fallido';

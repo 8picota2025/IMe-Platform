@@ -29,6 +29,8 @@ interface CotizacionBody {
   email?: string;
   telefono?: string;
   mensaje?: string;
+  resumen_imeia?: string;
+  conversacion_imeia?: string;
   consentimiento_datos?: boolean;
   productos?: Array<{
     slug?: string;
@@ -115,6 +117,10 @@ Deno.serve(
     const moneda = (body.moneda ?? 'COP').trim().slice(0, 8) || 'COP';
     const mercado = (body.mercado ?? 'CO').trim().slice(0, 8) || 'CO';
     const origen = (body.origen ?? 'web').trim().slice(0, 80) || 'web';
+    const resumenImeia =
+      origen === 'asesor' ? (body.resumen_imeia ?? '').trim().slice(0, 4000) : '';
+    const conversacionImeia =
+      origen === 'asesor' ? (body.conversacion_imeia ?? '').trim().slice(0, 40_000) : '';
     const cuponCodigo = body.cupon_codigo?.trim().slice(0, 80) || null;
     const totalEstimado = cleanNumber(body.total_estimado);
 
@@ -159,6 +165,13 @@ Deno.serve(
       cupon_codigo: cuponCodigo,
       metadata: {
         fiscal: body.fiscal ?? null,
+        imeia:
+          conversacionImeia || resumenImeia
+            ? {
+                resumen: resumenImeia || null,
+                conversacion: conversacionImeia || null,
+              }
+            : null,
       },
     };
 
@@ -211,10 +224,26 @@ Deno.serve(
           : 'cotizacion_confirmacion_cliente_es';
     const destinatariosInternos =
       tipoSolicitud === 'compra_a_valorar' ? DESTINATARIOS_COMPRAS : DESTINATARIOS_INTERNOS;
+    const attachments = conversacionImeia
+      ? [
+          {
+            filename: `conversacion-imeia-${referencia}.txt`,
+            content: conversacionImeia,
+            contentType: 'text/plain; charset=utf-8',
+          },
+        ]
+      : [];
 
     const [interno, cliente] = await Promise.all([
-      enviarEmailPlantilla(supabase, plantillaInterna, destinatariosInternos, vars, referencia),
-      enviarEmailPlantilla(supabase, plantillaCliente, [email], vars, referencia),
+      enviarEmailPlantilla(
+        supabase,
+        plantillaInterna,
+        destinatariosInternos,
+        vars,
+        referencia,
+        attachments
+      ),
+      enviarEmailPlantilla(supabase, plantillaCliente, [email], vars, referencia, attachments),
     ]);
     if (!interno.ok) console.error('registrar-cotizacion: email interno', interno.detalle);
     if (!cliente.ok) console.error('registrar-cotizacion: email cliente', cliente.detalle);

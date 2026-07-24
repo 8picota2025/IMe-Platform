@@ -525,6 +525,11 @@ const asesorConfig = {
 
 <script>
   import { resetTransientUiState } from '../lib/motion';
+  import {
+    buildConversationFilename,
+    buildConversationTranscript,
+    buildDetailedHandoffSummary,
+  } from '../lib/asesor-handoff';
   import type {
     MensajeAsesor,
     RespuestaAsesor,
@@ -664,11 +669,10 @@ const asesorConfig = {
     // Menciones de canal en texto del asesor → enlaces (WhatsApp en verde,
     // formulario de contacto en azul). Solo fuera de etiquetas y de <a> existentes.
     function linkifyCanales(html: string): string {
+      const whatsappSummary = buildWhatsappSummary(ultimoHandoff, ultimosProductos);
       const waHref = escapeHtml(
-        ultimoHandoff?.tipo === 'whatsapp'
-          ? `${config.whatsappUrl}?text=${encodeURIComponent(
-              buildWhatsappSummary(ultimoHandoff, ultimosProductos)
-            )}`
+        whatsappSummary
+          ? `${config.whatsappUrl}?text=${encodeURIComponent(whatsappSummary)}`
           : config.whatsappUrl
       );
       const formHref = escapeHtml(buildContactHref(ultimoHandoff, ultimosProductos));
@@ -688,7 +692,7 @@ const asesorConfig = {
             .replace(
               /whatsapp/gi,
               m =>
-                `<a class="asesor-link asesor-link--whatsapp" href="${waHref}" target="_blank" rel="noopener noreferrer">${m}</a>`
+                `<a class="asesor-link asesor-link--whatsapp" href="${waHref}" target="_blank" rel="noopener noreferrer" data-asesor-whatsapp>${m}</a>`
             )
             .replace(
               reFormulario,
@@ -760,7 +764,13 @@ const asesorConfig = {
       productos: ProductoSugerido[] = []
     ): string {
       const url = new URL(config.contactoHref, window.location.origin);
-      if (handoff?.resumen) url.searchParams.set('asesor_resumen', handoff.resumen);
+      const resumen = buildDetailedHandoffSummary({
+        handoff,
+        historial,
+        productos,
+        locale: config.locale,
+      });
+      if (resumen) url.searchParams.set('asesor_resumen', resumen);
       url.searchParams.set('origen', 'asesor');
       for (const producto of productos.slice(0, 6)) {
         url.searchParams.append('producto', producto.nombre);
@@ -768,13 +778,63 @@ const asesorConfig = {
       return `${url.pathname}${url.search}`;
     }
 
-    function buildWhatsappSummary(handoff: AccionHandoff, productos: ProductoSugerido[]): string {
-      const productosTexto = productos.length
-        ? `${
-            config.locale === 'en' ? 'Products reviewed' : 'Productos revisados'
-          }: ${productos.map(producto => producto.nombre).join(', ')}`
-        : '';
-      return [handoff.resumen.trim(), productosTexto].filter(Boolean).join('\n\n');
+    function buildWhatsappSummary(
+      handoff: AccionHandoff | null,
+      productos: ProductoSugerido[]
+    ): string {
+      return buildDetailedHandoffSummary({
+        handoff,
+        historial,
+        productos,
+        locale: config.locale,
+      });
+    }
+
+    function downloadConversation(transcript: string, filename: string): void {
+      const url = URL.createObjectURL(new Blob([transcript], { type: 'text/plain;charset=utf-8' }));
+      const download = document.createElement('a');
+      download.href = url;
+      download.download = filename;
+      download.hidden = true;
+      document.body.appendChild(download);
+      download.click();
+      download.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    async function shareConversationOnWhatsapp(link: HTMLAnchorElement): Promise<void> {
+      if (historial.length === 0) {
+        window.open(link.href, '_blank', 'noopener,noreferrer');
+        return;
+      }
+
+      const transcript = buildConversationTranscript(historial, config.locale);
+      const filename = buildConversationFilename(config.locale);
+      const file = new File([transcript], filename, { type: 'text/plain;charset=utf-8' });
+      const summary = buildWhatsappSummary(ultimoHandoff, ultimosProductos);
+      const shareData: ShareData = {
+        title: config.locale === 'en' ? 'IMEIA conversation' : 'Conversación con IMEIA',
+        text: summary,
+        files: [file],
+      };
+
+      if (navigator.share && navigator.canShare?.(shareData)) {
+        try {
+          await navigator.share(shareData);
+          return;
+        } catch (error) {
+          if (error instanceof DOMException && error.name === 'AbortError') return;
+        }
+      }
+
+      downloadConversation(transcript, filename);
+      addBubble(
+        config.locale === 'en'
+          ? `WhatsApp Web cannot attach a file from a link automatically. We downloaded ${filename}; attach it in the chat that is opening.`
+          : `WhatsApp Web no permite adjuntar un archivo automáticamente desde un enlace. Descargamos ${filename}; adjúntalo en el chat que se abrirá.`,
+        'asesor'
+      );
+      window.open(link.href, '_blank', 'noopener,noreferrer');
     }
 
     function resolvePageType(pathname: string): AsesorPageType {
@@ -861,15 +921,15 @@ const asesorConfig = {
         const url = resumenWhatsapp
           ? `${config.whatsappUrl}?text=${encodeURIComponent(resumenWhatsapp)}`
           : config.whatsappUrl;
-        return `<a class="asesor-cta" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(config.i18n.handoffWhatsapp)} <span class="sr-only">${escapeHtml(config.i18n.nuevaVentana)}</span></a>`;
+        return `<a class="asesor-cta" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" data-asesor-whatsapp>${escapeHtml(config.i18n.handoffWhatsapp)} <span class="sr-only">${escapeHtml(config.i18n.nuevaVentana)}</span></a>`;
       }
       return `<a class="asesor-cta" href="${escapeHtml(buildContactHref(handoff, productos))}">${escapeHtml(config.i18n.handoffCotizacion)}</a>`;
     }
 
     function renderRespuesta(respuesta: RespuestaAsesor) {
-      addBubble(respuesta.texto, 'asesor');
       ultimosProductos = respuesta.productos;
       ultimoHandoff = respuesta.accionHandoff;
+      addBubble(respuesta.texto, 'asesor');
       if (respuesta.modo === 'keyword_degradado' && respuesta.productos.length > 0) {
         addBubble(config.i18n.degradado, 'loading');
       }
@@ -1093,6 +1153,12 @@ const asesorConfig = {
       'click',
       e => {
         const target = e.target as HTMLElement;
+        const whatsappLink = target.closest<HTMLAnchorElement>('[data-asesor-whatsapp]');
+        if (whatsappLink) {
+          e.preventDefault();
+          void shareConversationOnWhatsapp(whatsappLink);
+          return;
+        }
         if (target.closest('[data-asesor-retry]') && ultimoMensaje) {
           target.closest('.chat-bubble')?.remove();
           void enviarMensaje(ultimoMensaje);

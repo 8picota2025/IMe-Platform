@@ -303,7 +303,7 @@ Deno.serve(async req => {
     if (!texto) throw new Error('IMEIA sin contenido');
 
     const productos = await construirTarjetas(supabase, texto, locale);
-    const accionHandoff = detectarHandoff(texto, mensaje);
+    const accionHandoff = detectarHandoff(texto, mensaje, historial, productos, locale);
     const tokens = data.usage?.total_tokens ?? 0;
 
     await registrarUso(supabase, {
@@ -756,9 +756,55 @@ async function construirTarjetas(
   }
 }
 
+function construirResumenHandoff(
+  historial: HistorialItem[],
+  mensaje: string,
+  productos: ProductoTarjeta[],
+  locale: Locale
+): string {
+  const seen = new Set<string>();
+  const necesidades = [...historial, { rol: 'usuario' as const, contenido: mensaje }]
+    .filter(item => item.rol === 'usuario')
+    .map(item => item.contenido.replace(/\s+/g, ' ').trim())
+    .filter(item => {
+      const normalized = item.toLocaleLowerCase();
+      if (!normalized || seen.has(normalized)) return false;
+      seen.add(normalized);
+      return true;
+    })
+    .slice(-6)
+    .map(item => (item.length > 320 ? `${item.slice(0, 319).trimEnd()}…` : item));
+  const nombresProductos = [...new Set(productos.map(producto => producto.nombre.trim()))].filter(
+    Boolean
+  );
+  const lineas =
+    locale === 'en'
+      ? [
+          'Needs and context provided by the customer:',
+          ...necesidades.map(item => `- ${item}`),
+          ...(nombresProductos.length
+            ? [`Products reviewed: ${nombresProductos.slice(0, 6).join(', ')}`]
+            : []),
+        ]
+      : [
+          'Necesidad y contexto aportados por el cliente:',
+          ...necesidades.map(item => `- ${item}`),
+          ...(nombresProductos.length
+            ? [`Productos revisados: ${nombresProductos.slice(0, 6).join(', ')}`]
+            : []),
+        ];
+  return lineas.join('\n').slice(0, 1800).trim();
+}
+
 /** Heurística de handoff sobre el texto de IMEIA (su SOUL ofrece WhatsApp/cotización). */
-function detectarHandoff(texto: string, mensaje: string): AccionHandoff | null {
-  const resumen = mensaje.slice(0, 200);
+function detectarHandoff(
+  texto: string,
+  mensaje: string,
+  historial: HistorialItem[],
+  productos: ProductoTarjeta[],
+  locale: Locale
+): AccionHandoff | null {
+  const resumen = construirResumenHandoff(historial, mensaje, productos, locale);
   if (/whatsapp/i.test(texto)) return { tipo: 'whatsapp', resumen };
   if (/cotizaci[oó]n|cotizarle|solicitud de cotizaci/i.test(texto)) {
     return { tipo: 'cotizacion', resumen };

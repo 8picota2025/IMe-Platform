@@ -287,12 +287,15 @@ export interface CotizacionProducto {
 
 export interface CotizacionPayload {
   locale?: 'es' | 'en';
+  origen?: 'web' | 'asesor';
   nombre: string;
   email: string;
   telefono: string;
   mensaje: string;
   consentimiento_datos: boolean;
   productos?: CotizacionProducto[];
+  resumen_imeia?: string;
+  conversacion_imeia?: string;
 }
 
 export interface Articulo {

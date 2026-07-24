@@ -24,7 +24,7 @@ const IMEIA_API_URL = (import.meta.env['PUBLIC_IMEIA_API_URL'] as string | undef
 const FORCE_DIRECT_IMEIA_IN_BROWSER =
   ((import.meta.env['PUBLIC_FORCE_DIRECT_IMEIA_IN_BROWSER'] as string | undefined) ?? '') === '1';
 export const ASESOR_CLIENT_VERSION = '2026-07-13-imeia-supabase-primary-v1';
-const MAX_HANDOFF_SUMMARY_CHARS = 400;
+const MAX_HANDOFF_SUMMARY_CHARS = 1800;
 const CATALOGO_INDEX_URL: Record<Locale, string> = {
   es: '/data/catalogo-index.es.json',
   en: '/data/catalogo-index.en.json',
@@ -175,9 +175,9 @@ const QUERY_STOPWORDS = new Set([
   'to',
   'with',
 ]);
-/** Tope de mensajes persistidos (8 turnos usuario+asesor = 16 mensajes), acorde
- * al MAX_HISTORIAL_TURNOS del Edge Function asesor. */
-const MAX_HISTORIAL_MENSAJES = 16;
+/** Conserva hasta 50 turnos para poder exportar el historial completo del
+ * handoff. Cada transporte sigue enviando al modelo solo su ventana reciente. */
+const MAX_HISTORIAL_MENSAJES = 100;
 
 /** Identificador de sesión persistido en localStorage, usado para rate-limit y métricas. */
 export function getSessionId(): string {
@@ -437,7 +437,7 @@ Devuelve únicamente JSON válido:
 {
   "texto": "respuesta útil y natural en el idioma del usuario",
   "productos_citados": ["slug-1"],
-  "accion_handoff": {"tipo": "whatsapp"|"cotizacion", "resumen": "breve resumen útil"} | null
+  "accion_handoff": {"tipo": "whatsapp"|"cotizacion", "resumen": "resumen detallado de toda la necesidad conversada"} | null
 }
 - "productos_citados": solo slugs reales del catálogo cuando correspondan.
 - "accion_handoff": null si no hace falta derivación.
@@ -570,10 +570,12 @@ function inferHandoffType(texto: string): TipoHandoff | null {
 function buildHandoffSummary(params: { mensaje: string; historial: MensajeAsesor[] }): string {
   const turns = [...params.historial, { rol: 'usuario' as const, contenido: params.mensaje }]
     .filter(turno => turno.rol === 'usuario')
-    .slice(-4)
+    .slice(-6)
     .map(turno => turno.contenido.trim())
     .filter(Boolean);
-  return turns.join(' | ').slice(0, MAX_HANDOFF_SUMMARY_CHARS);
+  return ['Necesidad y contexto aportados por el cliente:', ...turns.map(turn => `- ${turn}`)]
+    .join('\n')
+    .slice(0, MAX_HANDOFF_SUMMARY_CHARS);
 }
 
 function normalizarAccionHandoff(
@@ -1113,7 +1115,7 @@ Responde UNICAMENTE con JSON valido, sin texto adicional antes ni despues:
 {
   "texto": "respuesta util y concreta en el idioma del usuario",
   "productos_citados": ["slug-1"],
-  "accion_handoff": {"tipo": "whatsapp"|"cotizacion", "resumen": "breve resumen de la necesidad"} | null
+  "accion_handoff": {"tipo": "whatsapp"|"cotizacion", "resumen": "resumen detallado de toda la necesidad conversada"} | null
 }
 - "productos_citados": solo slugs del CONTEXTO RECUPERADO, [] si no aplica.
 - "accion_handoff": usa "whatsapp" o "cotizacion" cuando el usuario pida precio, compra, disponibilidad, certificacion por producto, garantia, instalacion, financiacion o validacion documental. El resumen debe servir al equipo comercial: tipo de institución, servicio, uso previsto, productos evaluados, restricciones y documentación pendiente.
@@ -1184,7 +1186,10 @@ function parsearRespuestaAsesor(
       const tipo = (h as { tipo?: unknown }).tipo;
       const resumen = (h as { resumen?: unknown }).resumen;
       if ((tipo === 'whatsapp' || tipo === 'cotizacion') && typeof resumen === 'string') {
-        accionHandoff = { tipo, resumen: resumen.trim().slice(0, 400) };
+        accionHandoff = {
+          tipo,
+          resumen: resumen.trim().slice(0, MAX_HANDOFF_SUMMARY_CHARS),
+        };
       }
     }
     return { texto, productosCitados, accionHandoff };
