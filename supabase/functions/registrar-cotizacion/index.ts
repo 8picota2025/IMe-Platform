@@ -45,6 +45,11 @@ interface CotizacionBody {
   fiscal?: unknown;
 }
 
+interface DbErrorLike {
+  code?: string;
+  message?: string;
+}
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 type EmailLocale = 'es' | 'en';
 
@@ -60,6 +65,17 @@ function formatTotal(value: number | null): string {
 
 function normalizeLocale(locale: unknown): EmailLocale {
   return locale === 'en' ? 'en' : 'es';
+}
+
+function shouldRetryLegacyInsert(error: DbErrorLike | null): boolean {
+  if (!error) return false;
+  const message = (error.message ?? '').toLowerCase();
+  return (
+    error.code === '42703' ||
+    error.code === 'PGRST204' ||
+    (message.includes('column') && message.includes('solicitudes_cotizacion')) ||
+    message.includes('schema cache')
+  );
 }
 
 Deno.serve(
@@ -117,11 +133,23 @@ Deno.serve(
       moneda: String(p.moneda ?? moneda).slice(0, 8),
     }));
 
-    const { error } = await supabase.from('solicitudes_cotizacion').insert({
+    const solicitudBase = {
       nombre,
       empresa,
       email,
       telefono,
+      productos,
+      mensaje:
+        tipoSolicitud === 'compra_a_valorar'
+          ? `[COMPRA_A_VALORAR ${referencia}]\n${mensaje}`
+          : mensaje,
+      consentimiento_datos: true,
+      consentimiento_timestamp: new Date().toISOString(),
+      leida: false,
+    };
+
+    const solicitudEnriquecida = {
+      ...solicitudBase,
       tipo_solicitud: tipoSolicitud,
       origen,
       locale,
@@ -132,15 +160,16 @@ Deno.serve(
       metadata: {
         fiscal: body.fiscal ?? null,
       },
-      productos,
-      mensaje:
-        tipoSolicitud === 'compra_a_valorar'
-          ? `[COMPRA_A_VALORAR ${referencia}]\n${mensaje}`
-          : mensaje,
-      consentimiento_datos: true,
-      consentimiento_timestamp: new Date().toISOString(),
-      leida: false,
-    });
+    };
+
+    let { error } = await supabase.from('solicitudes_cotizacion').insert(solicitudEnriquecida);
+    if (shouldRetryLegacyInsert(error)) {
+      console.warn(
+        'registrar-cotizacion: esquema legacy detectado, reintentando insert compatible',
+        error.message
+      );
+      ({ error } = await supabase.from('solicitudes_cotizacion').insert(solicitudBase));
+    }
     if (error) {
       console.error('registrar-cotizacion: error insertando', error.message);
       return internalError('No se pudo registrar la solicitud', origin);
