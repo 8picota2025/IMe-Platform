@@ -606,6 +606,22 @@ const asesorConfig = {
     guardarHistorial: (
       historial: { rol: 'usuario' | 'asesor'; contenido: string; timestamp: Date }[]
     ) => void;
+    prepararHandoffConversacion: (params: {
+      locale: 'es' | 'en';
+      historial: { rol: 'usuario' | 'asesor'; contenido: string; timestamp: Date }[];
+      resumen?: string | null;
+      productos?: Array<{ nombre: string }>;
+      sessionId?: string | null;
+      descargarTxt?: boolean;
+    }) => { resumen: string; transcript: string; filename: string };
+    buildHandoffShareSummary: (params: {
+      locale: 'es' | 'en';
+      resumen?: string | null;
+      historial: { rol: 'usuario' | 'asesor'; contenido: string; timestamp: Date }[];
+      productos?: Array<{ nombre: string }>;
+      filename?: string | null;
+      maxChars?: number;
+    }) => string;
   } | null = null;
   let enviando = false;
   let ultimoMensaje: string | null = null;
@@ -664,14 +680,13 @@ const asesorConfig = {
     // Menciones de canal en texto del asesor → enlaces (WhatsApp en verde,
     // formulario de contacto en azul). Solo fuera de etiquetas y de <a> existentes.
     function linkifyCanales(html: string): string {
+      const sharePreview = buildShareSummary(ultimoHandoff, ultimosProductos);
       const waHref = escapeHtml(
-        ultimoHandoff?.tipo === 'whatsapp'
-          ? `${config.whatsappUrl}?text=${encodeURIComponent(
-              buildWhatsappSummary(ultimoHandoff, ultimosProductos)
-            )}`
+        sharePreview
+          ? `${config.whatsappUrl}?text=${encodeURIComponent(sharePreview)}`
           : config.whatsappUrl
       );
-      const formHref = escapeHtml(buildContactHref(ultimoHandoff, ultimosProductos));
+      const formHref = escapeHtml(buildContactHref(ultimoHandoff, ultimosProductos, sharePreview));
       const reFormulario =
         config.locale === 'en' ? /contact form|\bform\b/gi : /formulario(?: de contacto)?/gi;
       const partes = html.split(/(<[^>]+>)/);
@@ -688,11 +703,12 @@ const asesorConfig = {
             .replace(
               /whatsapp/gi,
               m =>
-                `<a class="asesor-link asesor-link--whatsapp" href="${waHref}" target="_blank" rel="noopener noreferrer">${m}</a>`
+                `<a class="asesor-link asesor-link--whatsapp" href="${waHref}" data-asesor-handoff="whatsapp" target="_blank" rel="noopener noreferrer">${m}</a>`
             )
             .replace(
               reFormulario,
-              m => `<a class="asesor-link asesor-link--formulario" href="${formHref}">${m}</a>`
+              m =>
+                `<a class="asesor-link asesor-link--formulario" href="${formHref}" data-asesor-handoff="cotizacion">${m}</a>`
             );
         })
         .join('');
@@ -757,10 +773,12 @@ const asesorConfig = {
 
     function buildContactHref(
       handoff: AccionHandoff | null,
-      productos: ProductoSugerido[] = []
+      productos: ProductoSugerido[] = [],
+      resumenAmplio?: string
     ): string {
       const url = new URL(config.contactoHref, window.location.origin);
-      if (handoff?.resumen) url.searchParams.set('asesor_resumen', handoff.resumen);
+      const resumen = (resumenAmplio ?? handoff?.resumen ?? '').trim();
+      if (resumen) url.searchParams.set('asesor_resumen', resumen.slice(0, 800));
       url.searchParams.set('origen', 'asesor');
       for (const producto of productos.slice(0, 6)) {
         url.searchParams.append('producto', producto.nombre);
@@ -768,13 +786,55 @@ const asesorConfig = {
       return `${url.pathname}${url.search}`;
     }
 
-    function buildWhatsappSummary(handoff: AccionHandoff, productos: ProductoSugerido[]): string {
+    function buildShareSummary(
+      handoff: AccionHandoff | null,
+      productos: ProductoSugerido[] = [],
+      filename?: string | null
+    ): string {
+      if (asesorLib?.buildHandoffShareSummary) {
+        return asesorLib.buildHandoffShareSummary({
+          locale: config.locale,
+          resumen: handoff?.resumen ?? '',
+          historial,
+          productos,
+          filename: filename ?? null,
+        });
+      }
       const productosTexto = productos.length
         ? `${
             config.locale === 'en' ? 'Products reviewed' : 'Productos revisados'
           }: ${productos.map(producto => producto.nombre).join(', ')}`
         : '';
-      return [handoff.resumen.trim(), productosTexto].filter(Boolean).join('\n\n');
+      return [handoff?.resumen?.trim() ?? '', productosTexto].filter(Boolean).join('\n\n');
+    }
+
+    function buildWhatsappSummary(
+      handoff: AccionHandoff,
+      productos: ProductoSugerido[],
+      filename?: string | null
+    ): string {
+      return buildShareSummary(handoff, productos, filename);
+    }
+
+    async function ensureAsesorLib() {
+      if (!asesorLib) asesorLib = await import('../lib/asesor');
+      return asesorLib;
+    }
+
+    async function prepareHandoffAndGetShare(
+      handoff: AccionHandoff | null,
+      productos: ProductoSugerido[]
+    ): Promise<string> {
+      const lib = await ensureAsesorLib();
+      const prepared = lib.prepararHandoffConversacion({
+        locale: config.locale,
+        historial,
+        resumen: handoff?.resumen ?? '',
+        productos,
+        sessionId: lib.getSessionId?.() ?? null,
+        descargarTxt: true,
+      });
+      return prepared.resumen;
     }
 
     function resolvePageType(pathname: string): AsesorPageType {
@@ -861,9 +921,9 @@ const asesorConfig = {
         const url = resumenWhatsapp
           ? `${config.whatsappUrl}?text=${encodeURIComponent(resumenWhatsapp)}`
           : config.whatsappUrl;
-        return `<a class="asesor-cta" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(config.i18n.handoffWhatsapp)} <span class="sr-only">${escapeHtml(config.i18n.nuevaVentana)}</span></a>`;
+        return `<a class="asesor-cta asesor-cta--whatsapp" href="${escapeHtml(url)}" data-asesor-handoff="whatsapp" target="_blank" rel="noopener noreferrer">${escapeHtml(config.i18n.handoffWhatsapp)} <span class="sr-only">${escapeHtml(config.i18n.nuevaVentana)}</span></a>`;
       }
-      return `<a class="asesor-cta" href="${escapeHtml(buildContactHref(handoff, productos))}">${escapeHtml(config.i18n.handoffCotizacion)}</a>`;
+      return `<a class="asesor-cta asesor-cta--cotizacion" href="${escapeHtml(buildContactHref(handoff, productos, buildShareSummary(handoff, productos)))}" data-asesor-handoff="cotizacion">${escapeHtml(config.i18n.handoffCotizacion)}</a>`;
     }
 
     function renderRespuesta(respuesta: RespuestaAsesor) {
@@ -1096,7 +1156,30 @@ const asesorConfig = {
         if (target.closest('[data-asesor-retry]') && ultimoMensaje) {
           target.closest('.chat-bubble')?.remove();
           void enviarMensaje(ultimoMensaje);
+          return;
         }
+
+        const handoffLink = target.closest<HTMLAnchorElement>('a[data-asesor-handoff]');
+        if (!handoffLink) return;
+        e.preventDefault();
+        const tipo = handoffLink.dataset.asesorHandoff === 'cotizacion' ? 'cotizacion' : 'whatsapp';
+        const handoff: AccionHandoff =
+          ultimoHandoff ??
+          ({
+            tipo,
+            resumen: '',
+          } as AccionHandoff);
+        void (async () => {
+          const resumenAmplio = await prepareHandoffAndGetShare(handoff, ultimosProductos);
+          if (tipo === 'whatsapp') {
+            const url = resumenAmplio
+              ? `${config.whatsappUrl}?text=${encodeURIComponent(resumenAmplio)}`
+              : config.whatsappUrl;
+            window.open(url, '_blank', 'noopener,noreferrer');
+            return;
+          }
+          window.location.href = buildContactHref(handoff, ultimosProductos, resumenAmplio);
+        })();
       },
       { signal }
     );

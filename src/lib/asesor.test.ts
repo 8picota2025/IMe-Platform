@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 
 import {
   buildBiomedicalFallback,
+  buildConversacionTranscript,
+  buildHandoffShareSummary,
   buildResilientFallbackResponse,
   parseStructuredAsesorResponse,
   resetCatalogoPublicadoCache,
@@ -334,5 +336,68 @@ describe('asesor biomedical fallback', () => {
     } finally {
       globalThis.fetch = originalFetch;
     }
+  });
+});
+
+describe('asesor handoff transcript y resumen amplio', () => {
+  const historial = [
+    {
+      rol: 'usuario' as const,
+      contenido: 'Necesito un monitor multiparamétrico para urgencias en una IPS nivel 2.',
+      timestamp: new Date('2026-07-24T10:00:00Z'),
+    },
+    {
+      rol: 'asesor' as const,
+      contenido:
+        'Para triage y observación conviene priorizar ECG, SpO2 y NIBP con robustez operativa.',
+      timestamp: new Date('2026-07-24T10:00:05Z'),
+    },
+    {
+      rol: 'usuario' as const,
+      contenido: 'También necesitamos cotización con DICOM y capacitación.',
+      timestamp: new Date('2026-07-24T10:01:00Z'),
+    },
+    {
+      rol: 'asesor' as const,
+      contenido: 'Puedo derivarte a cotización o WhatsApp con el resumen para el equipo comercial.',
+      timestamp: new Date('2026-07-24T10:01:05Z'),
+    },
+  ];
+
+  it('genera transcript con toda la conversacion', () => {
+    const transcript = buildConversacionTranscript({
+      historial,
+      locale: 'es',
+      resumen: 'IPS nivel 2, monitor urgencias con DICOM y capacitación.',
+      productos: [{ nombre: 'Monitor P1 Biolight' }],
+      sessionId: 'sess-test',
+    });
+
+    expect(transcript).toContain('Conversación completa');
+    expect(transcript).toContain('Necesito un monitor multiparamétrico');
+    expect(transcript).toContain('También necesitamos cotización');
+    expect(transcript).toContain('[Usuario');
+    expect(transcript).toContain('[IMEIA');
+    expect(transcript).toContain('Monitor P1 Biolight');
+    expect(transcript).toContain('sess-test');
+  });
+
+  it('arma un resumen de handoff mas amplio que la ultima pregunta', () => {
+    const resumen = buildHandoffShareSummary({
+      locale: 'es',
+      resumen: 'IPS nivel 2 busca monitor de urgencias con DICOM y capacitación.',
+      historial,
+      productos: [{ nombre: 'Monitor P1 Biolight' }],
+      filename: 'imeia-conversacion-test.txt',
+    });
+
+    expect(resumen).toContain('IPS nivel 2');
+    expect(resumen).toContain('Temas consultados');
+    expect(resumen).toContain('monitor multiparamétrico');
+    expect(resumen).toContain('cotización con DICOM');
+    expect(resumen).toContain('Puntos de IMEIA');
+    expect(resumen).toContain('Monitor P1 Biolight');
+    expect(resumen).toContain('imeia-conversacion-test.txt');
+    expect(resumen).not.toMatch(/^También necesitamos cotización/);
   });
 });

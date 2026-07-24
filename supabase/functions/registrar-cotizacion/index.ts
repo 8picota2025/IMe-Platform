@@ -43,6 +43,9 @@ interface CotizacionBody {
   total_estimado?: number;
   cupon_codigo?: string;
   fiscal?: unknown;
+  /** Transcript plano de IMEIA para adjuntar al email interno. */
+  conversacion_asesor?: string;
+  conversacion_filename?: string;
 }
 
 interface DbErrorLike {
@@ -111,12 +114,18 @@ Deno.serve(
     const email = (body.email ?? '').trim().slice(0, 200);
     const telefono = (body.telefono ?? '').trim().slice(0, 40);
     const empresa = (body.empresa ?? '').trim().slice(0, 160);
-    const mensaje = (body.mensaje ?? '').trim().slice(0, 2000);
+    const mensaje = (body.mensaje ?? '').trim().slice(0, 4000);
     const moneda = (body.moneda ?? 'COP').trim().slice(0, 8) || 'COP';
     const mercado = (body.mercado ?? 'CO').trim().slice(0, 8) || 'CO';
     const origen = (body.origen ?? 'web').trim().slice(0, 80) || 'web';
     const cuponCodigo = body.cupon_codigo?.trim().slice(0, 80) || null;
     const totalEstimado = cleanNumber(body.total_estimado);
+    const conversacionAsesor = (body.conversacion_asesor ?? '').trim().slice(0, 40_000);
+    const conversacionFilename =
+      (body.conversacion_filename ?? 'imeia-conversacion.txt')
+        .trim()
+        .replace(/[^\w.-]+/g, '_')
+        .slice(0, 120) || 'imeia-conversacion.txt';
 
     if (!nombre || !mensaje) return badRequest('nombre y mensaje son obligatorios', origin);
     if (!EMAIL_RE.test(email)) return badRequest('email invalido', origin);
@@ -159,6 +168,12 @@ Deno.serve(
       cupon_codigo: cuponCodigo,
       metadata: {
         fiscal: body.fiscal ?? null,
+        conversacion_asesor: conversacionAsesor
+          ? {
+              filename: conversacionFilename,
+              chars: conversacionAsesor.length,
+            }
+          : null,
       },
     };
 
@@ -212,8 +227,19 @@ Deno.serve(
     const destinatariosInternos =
       tipoSolicitud === 'compra_a_valorar' ? DESTINATARIOS_COMPRAS : DESTINATARIOS_INTERNOS;
 
+    const adjuntoImeia = conversacionAsesor
+      ? [{ filename: conversacionFilename, content: conversacionAsesor }]
+      : undefined;
+
     const [interno, cliente] = await Promise.all([
-      enviarEmailPlantilla(supabase, plantillaInterna, destinatariosInternos, vars, referencia),
+      enviarEmailPlantilla(
+        supabase,
+        plantillaInterna,
+        destinatariosInternos,
+        vars,
+        referencia,
+        adjuntoImeia
+      ),
       enviarEmailPlantilla(supabase, plantillaCliente, [email], vars, referencia),
     ]);
     if (!interno.ok) console.error('registrar-cotizacion: email interno', interno.detalle);

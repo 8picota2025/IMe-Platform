@@ -293,6 +293,10 @@ export interface CotizacionPayload {
   mensaje: string;
   consentimiento_datos: boolean;
   productos?: CotizacionProducto[];
+  /** Transcript IMEIA (.txt) para adjuntar al email interno. */
+  conversacion_asesor?: string;
+  conversacion_filename?: string;
+  origen?: string;
 }
 
 export interface Articulo {

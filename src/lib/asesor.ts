@@ -24,7 +24,13 @@ const IMEIA_API_URL = (import.meta.env['PUBLIC_IMEIA_API_URL'] as string | undef
 const FORCE_DIRECT_IMEIA_IN_BROWSER =
   ((import.meta.env['PUBLIC_FORCE_DIRECT_IMEIA_IN_BROWSER'] as string | undefined) ?? '') === '1';
 export const ASESOR_CLIENT_VERSION = '2026-07-13-imeia-supabase-primary-v1';
-const MAX_HANDOFF_SUMMARY_CHARS = 400;
+/** Resumen corto que viaja en `accion_handoff` / query params. */
+const MAX_HANDOFF_SUMMARY_CHARS = 800;
+/** Texto precargado en WhatsApp (límite práctico de URL). */
+export const MAX_HANDOFF_SHARE_CHARS = 1400;
+/** Tope del transcript adjunto / persistido para handoff. */
+export const MAX_HANDOFF_TRANSCRIPT_CHARS = 40_000;
+export const HANDOFF_CONVERSACION_STORAGE_KEY = 'ime_asesor_handoff_conversacion';
 const CATALOGO_INDEX_URL: Record<Locale, string> = {
   es: '/data/catalogo-index.es.json',
   en: '/data/catalogo-index.en.json',
@@ -553,6 +559,286 @@ export function obtenerHistorial(): MensajeAsesor[] {
   }
 }
 
+export interface HandoffConversacionPayload {
+  resumen: string;
+  transcript: string;
+  productos: string[];
+  filename: string;
+  locale: Locale;
+  createdAt: string;
+}
+
+/** Persiste resumen + transcript para precargar el formulario de contacto. */
+export function guardarHandoffConversacion(payload: HandoffConversacionPayload): void {
+  try {
+    sessionStorage.setItem(HANDOFF_CONVERSACION_STORAGE_KEY, JSON.stringify(payload));
+  } catch {
+    // ignore (modo privado, cuota excedida, etc.)
+  }
+}
+
+export function obtenerHandoffConversacion(): HandoffConversacionPayload | null {
+  try {
+    const raw = sessionStorage.getItem(HANDOFF_CONVERSACION_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<HandoffConversacionPayload>;
+    if (
+      typeof parsed.resumen !== 'string' ||
+      typeof parsed.transcript !== 'string' ||
+      typeof parsed.filename !== 'string'
+    ) {
+      return null;
+    }
+    return {
+      resumen: parsed.resumen,
+      transcript: parsed.transcript.slice(0, MAX_HANDOFF_TRANSCRIPT_CHARS),
+      productos: Array.isArray(parsed.productos)
+        ? parsed.productos.filter((p): p is string => typeof p === 'string').slice(0, 12)
+        : [],
+      filename: parsed.filename.slice(0, 120),
+      locale: parsed.locale === 'en' ? 'en' : 'es',
+      createdAt: typeof parsed.createdAt === 'string' ? parsed.createdAt : new Date().toISOString(),
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function limpiarHandoffConversacion(): void {
+  try {
+    sessionStorage.removeItem(HANDOFF_CONVERSACION_STORAGE_KEY);
+  } catch {
+    // ignore
+  }
+}
+
+function labelRolTranscript(rol: MensajeAsesor['rol'], locale: Locale): string {
+  if (rol === 'usuario') return locale === 'en' ? 'User' : 'Usuario';
+  return 'IMEIA';
+}
+
+function formatTimestampTranscript(value: Date, locale: Locale): string {
+  const date = value instanceof Date && !Number.isNaN(value.getTime()) ? value : new Date();
+  try {
+    return date.toLocaleString(locale === 'en' ? 'en-US' : 'es-CO', {
+      dateStyle: 'short',
+      timeStyle: 'short',
+    });
+  } catch {
+    return date.toISOString();
+  }
+}
+
+function buildTranscriptFilename(date = new Date()): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `imeia-conversacion-${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}-${pad(date.getHours())}${pad(date.getMinutes())}.txt`;
+}
+
+/**
+ * Transcript plano de toda la conversación para adjuntar / descargar como .txt.
+ */
+export function buildConversacionTranscript(params: {
+  historial: MensajeAsesor[];
+  locale: Locale;
+  resumen?: string | null;
+  productos?: Array<Pick<ProductoSugerido, 'nombre'>>;
+  sessionId?: string | null;
+}): string {
+  const { historial, locale, resumen, productos = [], sessionId } = params;
+  const now = new Date();
+  const lineas: string[] = [
+    locale === 'en'
+      ? 'IMEIA conversation transcript — I-ME International Medical Enterprise'
+      : 'Transcripción de conversación IMEIA — I-ME International Medical Enterprise',
+    `${locale === 'en' ? 'Generated' : 'Generado'}: ${formatTimestampTranscript(now, locale)}`,
+  ];
+  if (sessionId) {
+    lineas.push(`${locale === 'en' ? 'Session' : 'Sesión'}: ${sessionId}`);
+  }
+  if (resumen?.trim()) {
+    lineas.push('');
+    lineas.push(locale === 'en' ? 'Commercial summary:' : 'Resumen comercial:');
+    lineas.push(resumen.trim());
+  }
+  if (productos.length > 0) {
+    lineas.push('');
+    lineas.push(
+      `${locale === 'en' ? 'Products reviewed' : 'Productos revisados'}: ${productos
+        .map(p => p.nombre.trim())
+        .filter(Boolean)
+        .join(', ')}`
+    );
+  }
+  lineas.push('');
+  lineas.push(locale === 'en' ? 'Full conversation:' : 'Conversación completa:');
+  lineas.push('---');
+
+  for (const mensaje of historial) {
+    const contenido = mensaje.contenido.trim();
+    if (!contenido) continue;
+    lineas.push('');
+    lineas.push(
+      `[${labelRolTranscript(mensaje.rol, locale)} · ${formatTimestampTranscript(mensaje.timestamp, locale)}]`
+    );
+    lineas.push(contenido);
+  }
+
+  const texto = lineas.join('\n').trim();
+  return texto.slice(0, MAX_HANDOFF_TRANSCRIPT_CHARS);
+}
+
+/**
+ * Descarga un .txt en el navegador. Devuelve el nombre de archivo usado.
+ * WhatsApp (wa.me) no admite adjuntos: el usuario puede adjuntar este archivo.
+ */
+export function descargarConversacionTxt(contenido: string, filename?: string): string {
+  const safeName = (filename?.trim() || buildTranscriptFilename()).replace(/[^\w.-]+/g, '_');
+  const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = safeName;
+  anchor.rel = 'noopener';
+  anchor.style.display = 'none';
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  // Revocar tras un tick para no cortar la descarga en navegadores lentos.
+  window.setTimeout(() => URL.revokeObjectURL(url), 2_000);
+  return safeName;
+}
+
+function compactText(value: string, maxChars: number): string {
+  const normalized = value.replace(/\s+/g, ' ').trim();
+  if (normalized.length <= maxChars) return normalized;
+  return `${normalized.slice(0, Math.max(0, maxChars - 1)).trimEnd()}…`;
+}
+
+/**
+ * Resumen amplio para WhatsApp / formulario: no se limita a la última pregunta.
+ * Incluye resumen comercial (si existe), preguntas del usuario y puntos de IMEIA.
+ */
+export function buildHandoffShareSummary(params: {
+  locale: Locale;
+  resumen?: string | null;
+  historial: MensajeAsesor[];
+  productos?: Array<Pick<ProductoSugerido, 'nombre'>>;
+  filename?: string | null;
+  maxChars?: number;
+}): string {
+  const {
+    locale,
+    resumen,
+    historial,
+    productos = [],
+    filename,
+    maxChars = MAX_HANDOFF_SHARE_CHARS,
+  } = params;
+  const es = locale !== 'en';
+  const bloques: string[] = [
+    es
+      ? 'Hola, conversé con IMEIA (asesor biomédico de I-ME).'
+      : 'Hello, I spoke with IMEIA (I-ME biomedical advisor).',
+  ];
+
+  const resumenComercial =
+    resumen?.trim() ||
+    buildHandoffSummaryFromHistorial(historial).trim() ||
+    (es ? 'Solicito seguimiento comercial.' : 'I need commercial follow-up.');
+  bloques.push('');
+  bloques.push(es ? 'Resumen:' : 'Summary:');
+  bloques.push(compactText(resumenComercial, 420));
+
+  const preguntas = historial
+    .filter(m => m.rol === 'usuario')
+    .map(m => m.contenido.trim())
+    .filter(Boolean)
+    .slice(-6);
+  if (preguntas.length > 0) {
+    bloques.push('');
+    bloques.push(es ? 'Temas consultados:' : 'Topics discussed:');
+    for (const pregunta of preguntas) {
+      bloques.push(`- ${compactText(pregunta, 160)}`);
+    }
+  }
+
+  const respuestas = historial
+    .filter(m => m.rol === 'asesor')
+    .map(m => m.contenido.trim())
+    .filter(Boolean)
+    .slice(-3);
+  if (respuestas.length > 0) {
+    bloques.push('');
+    bloques.push(es ? 'Puntos de IMEIA:' : 'IMEIA highlights:');
+    for (const respuesta of respuestas) {
+      bloques.push(`- ${compactText(respuesta, 180)}`);
+    }
+  }
+
+  const nombresProductos = productos.map(p => p.nombre.trim()).filter(Boolean);
+  if (nombresProductos.length > 0) {
+    bloques.push('');
+    bloques.push(
+      `${es ? 'Productos revisados' : 'Products reviewed'}: ${nombresProductos.join(', ')}`
+    );
+  }
+
+  if (filename) {
+    bloques.push('');
+    bloques.push(
+      es
+        ? `Adjunto el archivo de la conversación completa descargado como ${filename}.`
+        : `I am attaching the full conversation file downloaded as ${filename}.`
+    );
+  }
+
+  const texto = bloques.join('\n').trim();
+  if (texto.length <= maxChars) return texto;
+  return `${texto.slice(0, Math.max(0, maxChars - 1)).trimEnd()}…`;
+}
+
+/**
+ * Prepara handoff: genera transcript, descarga .txt, guarda payload para el formulario
+ * y devuelve el texto amplio a precargar en WhatsApp / contacto.
+ */
+export function prepararHandoffConversacion(params: {
+  locale: Locale;
+  historial: MensajeAsesor[];
+  resumen?: string | null;
+  productos?: Array<Pick<ProductoSugerido, 'nombre'>>;
+  sessionId?: string | null;
+  descargarTxt?: boolean;
+}): { resumen: string; transcript: string; filename: string } {
+  const { locale, historial, resumen, productos = [], sessionId, descargarTxt = true } = params;
+  const transcript = buildConversacionTranscript({
+    historial,
+    locale,
+    resumen: resumen ?? null,
+    productos,
+    sessionId: sessionId ?? null,
+  });
+  const filename = buildTranscriptFilename();
+  if (descargarTxt && transcript) {
+    descargarConversacionTxt(transcript, filename);
+  }
+  const share = buildHandoffShareSummary({
+    locale,
+    resumen: resumen ?? null,
+    historial,
+    productos,
+    filename: transcript ? filename : null,
+  });
+  guardarHandoffConversacion({
+    resumen: share,
+    transcript,
+    productos: productos.map(p => p.nombre).filter(Boolean),
+    filename,
+    locale,
+    createdAt: new Date().toISOString(),
+  });
+  return { resumen: share, transcript, filename };
+}
+
 function inferHandoffType(texto: string): TipoHandoff | null {
   if (
     /\b(cotizaci[oó]n|cotizar|quote|pricing|precio|availability|disponibilidad|formulario|contact form)\b/i.test(
@@ -567,13 +853,26 @@ function inferHandoffType(texto: string): TipoHandoff | null {
   return null;
 }
 
-function buildHandoffSummary(params: { mensaje: string; historial: MensajeAsesor[] }): string {
-  const turns = [...params.historial, { rol: 'usuario' as const, contenido: params.mensaje }]
+function buildHandoffSummaryFromHistorial(historial: MensajeAsesor[]): string {
+  const turns = historial
     .filter(turno => turno.rol === 'usuario')
-    .slice(-4)
+    .slice(-6)
     .map(turno => turno.contenido.trim())
     .filter(Boolean);
-  return turns.join(' | ').slice(0, MAX_HANDOFF_SUMMARY_CHARS);
+  if (turns.length === 0) return '';
+  if (turns.length === 1) return turns[0]!.slice(0, MAX_HANDOFF_SUMMARY_CHARS);
+  return turns
+    .map((t, i) => `${i + 1}) ${compactText(t, 140)}`)
+    .join(' · ')
+    .slice(0, MAX_HANDOFF_SUMMARY_CHARS);
+}
+
+function buildHandoffSummary(params: { mensaje: string; historial: MensajeAsesor[] }): string {
+  const turns: MensajeAsesor[] = [
+    ...params.historial,
+    { rol: 'usuario', contenido: params.mensaje, timestamp: new Date() },
+  ];
+  return buildHandoffSummaryFromHistorial(turns);
 }
 
 function normalizarAccionHandoff(
@@ -1116,7 +1415,7 @@ Responde UNICAMENTE con JSON valido, sin texto adicional antes ni despues:
   "accion_handoff": {"tipo": "whatsapp"|"cotizacion", "resumen": "breve resumen de la necesidad"} | null
 }
 - "productos_citados": solo slugs del CONTEXTO RECUPERADO, [] si no aplica.
-- "accion_handoff": usa "whatsapp" o "cotizacion" cuando el usuario pida precio, compra, disponibilidad, certificacion por producto, garantia, instalacion, financiacion o validacion documental. El resumen debe servir al equipo comercial: tipo de institución, servicio, uso previsto, productos evaluados, restricciones y documentación pendiente.
+- "accion_handoff": usa "whatsapp" o "cotizacion" cuando el usuario pida precio, compra, disponibilidad, certificacion por producto, garantia, instalacion, financiacion o validacion documental. El resumen debe servir al equipo comercial y cubrir toda la conversación relevante (no solo la última pregunta): tipo de institución, servicio, uso previsto, productos evaluados, restricciones y documentación pendiente.
 /no_think`;
 }
 
@@ -1184,7 +1483,10 @@ function parsearRespuestaAsesor(
       const tipo = (h as { tipo?: unknown }).tipo;
       const resumen = (h as { resumen?: unknown }).resumen;
       if ((tipo === 'whatsapp' || tipo === 'cotizacion') && typeof resumen === 'string') {
-        accionHandoff = { tipo, resumen: resumen.trim().slice(0, 400) };
+        accionHandoff = {
+          tipo,
+          resumen: resumen.trim().slice(0, MAX_HANDOFF_SUMMARY_CHARS),
+        };
       }
     }
     return { texto, productosCitados, accionHandoff };
@@ -1606,7 +1908,13 @@ async function preguntarAsesorLocal(params: {
     accionHandoff:
       consultaSitioOLegal && productos.length === 0
         ? null
-        : { tipo: 'whatsapp', resumen: params.mensaje.slice(0, 280) },
+        : {
+            tipo: 'whatsapp',
+            resumen: buildHandoffSummary({
+              mensaje: params.mensaje,
+              historial: params.historial,
+            }),
+          },
     modo:
       consultaSitioOLegal && productos.length === 0
         ? 'rag'

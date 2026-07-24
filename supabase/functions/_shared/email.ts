@@ -76,7 +76,7 @@ const DEFAULTS: Record<string, { asunto: string; html: string }> = {
   },
   cotizacion_interna: {
     asunto: 'Nueva cotizacion de {{cliente_nombre}} - I-ME',
-    html: '<h2>Nueva solicitud de cotizacion</h2><p>Nombre: {{cliente_nombre}}</p><p>Empresa: {{empresa}}</p><p>Email: {{cliente_email}}</p><p>Telefono: {{telefono}}</p><ul>{{items_html}}</ul><p>Mensaje: {{mensaje}}</p>',
+    html: '<h2>Nueva solicitud de cotizacion</h2><p>Nombre: {{cliente_nombre}}</p><p>Empresa: {{empresa}}</p><p>Email: {{cliente_email}}</p><p>Telefono: {{telefono}}</p><ul>{{items_html}}</ul><p>Mensaje: {{mensaje}}</p><p><em>Si la solicitud viene de IMEIA, la conversacion completa va adjunta como .txt.</em></p>',
   },
   pedido_confirmacion_cliente: {
     asunto: 'Confirmacion de tu pedido {{referencia}} - I-ME',
@@ -138,6 +138,17 @@ function render(tpl: string, vars: Record<string, string>): string {
   return tpl.replace(/\{\{(\w+)\}\}/g, (_, k: string) => vars[k] ?? '');
 }
 
+/** Codifica UTF-8 a Base64 para adjuntos Resend (Deno / Edge). */
+function toBase64Utf8(text: string): string {
+  const bytes = new TextEncoder().encode(text);
+  let binary = '';
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+  }
+  return btoa(binary);
+}
+
 export interface EnvioResultado {
   ok: boolean;
   detalle?: string;
@@ -153,7 +164,8 @@ export async function enviarEmailPlantilla(
   clave: string,
   destinatarios: string[],
   vars: Record<string, string>,
-  referencia?: string
+  referencia?: string,
+  attachments?: Array<{ filename: string; content: string }>
 ): Promise<EnvioResultado> {
   const apiKey = Deno.env.get('MAILER_API_KEY') || Deno.env.get('RESEND_API_KEY');
   if (!apiKey) return { ok: false, detalle: 'MAILER_API_KEY no configurada' };
@@ -182,15 +194,27 @@ export async function enviarEmailPlantilla(
   const body = render(html, vars);
   const resultados: string[] = [];
   let todosOk = true;
+  const resendAttachments =
+    attachments && attachments.length > 0
+      ? attachments
+          .filter(a => a.filename.trim() && a.content.trim())
+          .slice(0, 3)
+          .map(a => ({
+            filename: a.filename.trim().slice(0, 120),
+            content: toBase64Utf8(a.content.slice(0, 80_000)),
+          }))
+      : undefined;
 
   for (const to of destinatarios) {
     let status: 'enviado' | 'fallido' = 'enviado';
     let errorTxt: string | null = null;
     try {
+      const payload: Record<string, unknown> = { from, to, subject, html: body };
+      if (resendAttachments?.length) payload.attachments = resendAttachments;
       const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ from, to, subject, html: body }),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) {
         status = 'fallido';

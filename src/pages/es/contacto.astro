@@ -369,6 +369,7 @@ const canonical = buildCanonical('/es/contacto');
 
 <script>
   import { submitCotizacion } from '../../lib/datos';
+  import { obtenerHandoffConversacion, limpiarHandoffConversacion } from '../../lib/asesor';
 
   const form = document.getElementById('contacto-form') as HTMLFormElement | null;
   const status = document.getElementById('form-status');
@@ -390,9 +391,13 @@ const canonical = buildCanonical('/es/contacto');
     .getAll('producto')
     .map(value => value.trim())
     .filter(Boolean);
-  const asesorResumen = params.get('asesor_resumen')?.trim() ?? '';
+  const asesorResumenParam = params.get('asesor_resumen')?.trim() ?? '';
+  const handoffImeia = params.get('origen') === 'asesor' ? obtenerHandoffConversacion() : null;
+  const asesorResumen = (handoffImeia?.resumen || asesorResumenParam).trim();
   if (productosField && prefill.length > 0 && !productosField.value.trim()) {
     productosField.value = prefill.join('\n');
+  } else if (productosField && handoffImeia?.productos.length && !productosField.value.trim()) {
+    productosField.value = handoffImeia.productos.join('\n');
   }
   if (mensajeField && asesorResumen && !mensajeField.value.trim()) {
     mensajeField.value = `Resumen de la conversación con IMEIA:\n${asesorResumen}`;
@@ -415,14 +420,22 @@ const canonical = buildCanonical('/es/contacto');
     }
 
     const data = new FormData(form);
+    const conversacion = handoffImeia?.transcript?.trim() || '';
     const result = await submitCotizacion({
       locale: 'es',
+      origen: params.get('origen') === 'asesor' ? 'asesor' : 'web',
       nombre: (data.get('nombre') as string) ?? '',
       email: (data.get('email') as string) ?? '',
       telefono: (data.get('telefono') as string) ?? '',
       mensaje: (data.get('mensaje') as string) ?? '',
       consentimiento_datos: data.get('consentimiento') === 'on',
       productos: parseProductos((data.get('productos') as string) ?? ''),
+      ...(conversacion
+        ? {
+            conversacion_asesor: conversacion,
+            conversacion_filename: handoffImeia?.filename || 'imeia-conversacion.txt',
+          }
+        : {}),
     });
 
     if (result.ok) {
@@ -431,6 +444,7 @@ const canonical = buildCanonical('/es/contacto');
         status.textContent = '¡Solicitud enviada! Te contactaremos pronto.';
       }
       form.reset();
+      if (conversacion) limpiarHandoffConversacion();
     } else {
       if (status) {
         status.className = 'form-status error';
