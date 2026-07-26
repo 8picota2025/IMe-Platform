@@ -943,6 +943,9 @@ const config = {
       drawer.removeAttribute('hidden');
       backdrop.removeAttribute('hidden');
       document.body.style.overflow = 'hidden';
+      (
+        window as Window & { __imeSetCarritoExpanded?: (v: boolean) => void }
+      ).__imeSetCarritoExpanded?.(true);
       void abrirDrawer(drawer, backdrop);
       const firstFocusable = drawer.querySelector<HTMLElement>(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -957,6 +960,9 @@ const config = {
         drawer.setAttribute('hidden', '');
         backdrop.setAttribute('hidden', '');
         document.body.style.overflow = '';
+        (
+          window as Window & { __imeSetCarritoExpanded?: (v: boolean) => void }
+        ).__imeSetCarritoExpanded?.(false);
       });
     }
 

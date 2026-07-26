@@ -543,6 +543,9 @@ const config = {
       drawer.removeAttribute('hidden');
       backdrop.removeAttribute('hidden');
       document.body.style.overflow = 'hidden';
+      (
+        window as Window & { __imeSetCotizacionExpanded?: (v: boolean) => void }
+      ).__imeSetCotizacionExpanded?.(true);
       void abrirDrawer(drawer, backdrop);
       const firstFocusable = drawer.querySelector<HTMLElement>(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -556,6 +559,9 @@ const config = {
         drawer.setAttribute('hidden', '');
         backdrop.setAttribute('hidden', '');
         document.body.style.overflow = '';
+        (
+          window as Window & { __imeSetCotizacionExpanded?: (v: boolean) => void }
+        ).__imeSetCotizacionExpanded?.(false);
       });
     }
 
