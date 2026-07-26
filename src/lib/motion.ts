@@ -90,6 +90,9 @@ export function resetTransientUiState(): void {
   document.getElementById('cotizacion-drawer')?.setAttribute('hidden', '');
   document.getElementById('asesor-dialog')?.setAttribute('hidden', '');
   document.getElementById('mobile-menu')?.setAttribute('hidden', '');
+  document.getElementById('nav-cotizacion-btn')?.setAttribute('aria-expanded', 'false');
+  document.getElementById('nav-carrito-btn')?.setAttribute('aria-expanded', 'false');
+  document.getElementById('menu-toggle')?.setAttribute('aria-expanded', 'false');
   document.getElementById('navbar')?.classList.remove('scrolled');
   document
     .querySelector<HTMLElement>('#catalogo-filtros')
