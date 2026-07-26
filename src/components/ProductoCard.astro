@@ -373,6 +373,12 @@ function modalidadLabel(modalidad?: string): string {
       }, 1800);
     };
 
+    // Hero CTAs on product landing bind their own listeners in ProductoLanding.
+    // Skip them here to avoid double-add (qty += 2 on one click).
+    if (cotizacionBtn?.closest('#cta-principal') || carritoBtn?.closest('#cta-principal')) {
+      return;
+    }
+
     if (cotizacionBtn) {
       const slug = cotizacionBtn.dataset['addCotizacion'];
       const nombre = cotizacionBtn.dataset['nombre'];
