@@ -13,12 +13,7 @@ import Resenas from './Resenas.astro';
 import type { Producto, Familia } from '../lib/datos';
 import { formatMoneda } from '../lib/format';
 import { getAccionComercial } from '../lib/comercial';
-
-interface EspecificacionItem {
-  clave: string;
-  valor: string;
-  grupo?: string;
-}
+import { normalizarEspecificaciones } from '../lib/especificaciones';
 
 interface Props {
   producto: Producto;
@@ -32,34 +27,8 @@ const { producto, familia, relacionados, locale } = Astro.props;
 const catalogoPath = locale === 'en' ? '/en/catalog/' : '/es/catalogo/';
 const contactoPath = locale === 'en' ? '/en/contact/' : '/es/contacto/';
 
-const CLAVE_GENERICA = /^(caracter[ií]stica|feature|spec|specification)$/i;
-
-function normalizarEspecs(raw: unknown[]): EspecificacionItem[] {
-  return raw.flatMap((item): EspecificacionItem[] => {
-    if (!item || typeof item !== 'object') return [];
-    const obj = item as Record<string, unknown>;
-    if (typeof obj.clave !== 'string' || typeof obj.valor !== 'string') return [];
-
-    let clave = obj.clave.trim();
-    let valor = obj.valor.trim();
-    const grupo = typeof obj.grupo === 'string' ? obj.grupo : undefined;
-
-    // Legacy catalog rows use clave="Característica" and "Param: value" in valor.
-    // Split so the Parámetro column is usable for sighted users and screen readers.
-    if (CLAVE_GENERICA.test(clave)) {
-      const match = valor.match(/^([^:]{1,80}):\s+(.+)$/s);
-      if (match) {
-        clave = match[1]!.trim();
-        valor = match[2]!.trim();
-      }
-    }
-
-    return [{ clave, valor, ...(grupo ? { grupo } : {}) }];
-  });
-}
-
-const especificaciones = normalizarEspecs(producto.especificaciones);
-const grupos = new Map<string, EspecificacionItem[]>();
+const especificaciones = normalizarEspecificaciones(producto.especificaciones);
+const grupos = new Map<string, typeof especificaciones>();
 for (const espec of especificaciones) {
   const grupo = espec.grupo ?? '';
   if (!grupos.has(grupo)) grupos.set(grupo, []);
