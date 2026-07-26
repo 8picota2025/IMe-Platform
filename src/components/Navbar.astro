@@ -144,6 +144,9 @@ const altHref = getLocalizedPath(currentPath, altLocale);
         id="nav-cotizacion-btn"
         class="navbar__icon-btn navbar__cart-btn"
         aria-label={t(locale, 'nav.cotizacion')}
+        aria-haspopup="dialog"
+        aria-expanded="false"
+        aria-controls="cotizacion-drawer"
         type="button"
       >
         <svg
@@ -168,11 +171,15 @@ const altHref = getLocalizedPath(currentPath, altLocale);
         <span
           id="nav-cotizacion-badge"
           class="navbar__cart-badge"
-          aria-live="polite"
-          aria-atomic="true"
+          aria-hidden="true"
           style="display:none">0</span
         >
-        <span class="sr-only" data-cotizacion-suffix>{t(locale, 'nav.items_cotizacion')}</span>
+        <span
+          class="sr-only"
+          data-cotizacion-suffix
+          data-label-base={t(locale, 'nav.items_cotizacion')}
+          >0 {t(locale, 'nav.items_cotizacion')}</span
+        >
       </button>
 
       <!-- Carrito de consumibles -->
@@ -180,6 +187,9 @@ const altHref = getLocalizedPath(currentPath, altLocale);
         id="nav-carrito-btn"
         class="navbar__icon-btn navbar__cart-btn"
         aria-label={t(locale, 'nav.carrito')}
+        aria-haspopup="dialog"
+        aria-expanded="false"
+        aria-controls="carrito-drawer"
         type="button"
       >
         <svg
@@ -200,11 +210,12 @@ const altHref = getLocalizedPath(currentPath, altLocale);
         <span
           id="nav-carrito-badge"
           class="navbar__cart-badge"
-          aria-live="polite"
-          aria-atomic="true"
+          aria-hidden="true"
           style="display:none">0</span
         >
-        <span class="sr-only" data-carrito-suffix>{t(locale, 'nav.items_carrito')}</span>
+        <span class="sr-only" data-carrito-suffix data-label-base={t(locale, 'nav.items_carrito')}
+          >0 {t(locale, 'nav.items_carrito')}</span
+        >
       </button>
 
       <!-- CTA -->
@@ -522,6 +533,8 @@ const altHref = getLocalizedPath(currentPath, altLocale);
     __imeNavbarAbrirCotizacion?: () => void;
     __imeNavbarGetCarritoCantidad?: () => number;
     __imeNavbarGetCotizacionCantidad?: () => number;
+    __imeSetCotizacionExpanded?: (expanded: boolean) => void;
+    __imeSetCarritoExpanded?: (expanded: boolean) => void;
   };
 
   const win = window as NavbarWindow;
@@ -545,18 +558,43 @@ const altHref = getLocalizedPath(currentPath, altLocale);
   }
 
   function renderCarritoBadge(cantidad: number) {
-    const { carritoBadge } = getNavbarElements();
+    const { carritoBadge, carritoBtn } = getNavbarElements();
     if (!carritoBadge) return;
     carritoBadge.textContent = String(cantidad);
     carritoBadge.style.display = cantidad > 0 ? 'flex' : 'none';
+    const suffix = carritoBtn?.querySelector<HTMLElement>('[data-carrito-suffix]');
+    if (suffix) {
+      const base =
+        suffix.dataset['labelBase'] ?? suffix.textContent?.replace(/^\d+\s*/, '').trim() ?? '';
+      if (base) suffix.dataset['labelBase'] = base;
+      suffix.textContent = `${cantidad} ${suffix.dataset['labelBase'] ?? base}`;
+    }
   }
 
   function renderCotizacionBadge(cantidad: number) {
-    const { cotizacionBadge } = getNavbarElements();
+    const { cotizacionBadge, cotizacionBtn } = getNavbarElements();
     if (!cotizacionBadge) return;
     cotizacionBadge.textContent = String(cantidad);
     cotizacionBadge.style.display = cantidad > 0 ? 'flex' : 'none';
+    const suffix = cotizacionBtn?.querySelector<HTMLElement>('[data-cotizacion-suffix]');
+    if (suffix) {
+      const base =
+        suffix.dataset['labelBase'] ?? suffix.textContent?.replace(/^\d+\s*/, '').trim() ?? '';
+      if (base) suffix.dataset['labelBase'] = base;
+      suffix.textContent = `${cantidad} ${suffix.dataset['labelBase'] ?? base}`;
+    }
   }
+
+  function setDrawerTriggerExpanded(btnId: string, expanded: boolean) {
+    const btn = document.getElementById(btnId);
+    if (btn) btn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+  }
+
+  // Expose for CotizacionDrawer / Carrito open+close sync (ISSUE-004).
+  win.__imeSetCotizacionExpanded = (expanded: boolean) =>
+    setDrawerTriggerExpanded('nav-cotizacion-btn', expanded);
+  win.__imeSetCarritoExpanded = (expanded: boolean) =>
+    setDrawerTriggerExpanded('nav-carrito-btn', expanded);
 
   function closeMenu(options?: { restoreFocus?: boolean }) {
     const { mobileMenu, menuToggle } = getNavbarElements();
