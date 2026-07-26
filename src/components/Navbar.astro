@@ -143,7 +143,7 @@ const altHref = getLocalizedPath(currentPath, altLocale);
       <button
         id="nav-cotizacion-btn"
         class="navbar__icon-btn navbar__cart-btn"
-        aria-label={t(locale, 'nav.cotizacion')}
+        aria-label={`${t(locale, 'nav.cotizacion')}, 0 ${t(locale, 'nav.items_cotizacion')}`}
         aria-haspopup="dialog"
         aria-expanded="false"
         aria-controls="cotizacion-drawer"
@@ -176,8 +176,11 @@ const altHref = getLocalizedPath(currentPath, altLocale);
         >
         <span
           class="sr-only"
+          aria-live="polite"
+          aria-atomic="true"
           data-cotizacion-suffix
           data-label-base={t(locale, 'nav.items_cotizacion')}
+          data-action-label={t(locale, 'nav.cotizacion')}
           >0 {t(locale, 'nav.items_cotizacion')}</span
         >
       </button>
@@ -186,7 +189,7 @@ const altHref = getLocalizedPath(currentPath, altLocale);
       <button
         id="nav-carrito-btn"
         class="navbar__icon-btn navbar__cart-btn"
-        aria-label={t(locale, 'nav.carrito')}
+        aria-label={`${t(locale, 'nav.carrito')}, 0 ${t(locale, 'nav.items_carrito')}`}
         aria-haspopup="dialog"
         aria-expanded="false"
         aria-controls="carrito-drawer"
@@ -213,8 +216,13 @@ const altHref = getLocalizedPath(currentPath, altLocale);
           aria-hidden="true"
           style="display:none">0</span
         >
-        <span class="sr-only" data-carrito-suffix data-label-base={t(locale, 'nav.items_carrito')}
-          >0 {t(locale, 'nav.items_carrito')}</span
+        <span
+          class="sr-only"
+          aria-live="polite"
+          aria-atomic="true"
+          data-carrito-suffix
+          data-label-base={t(locale, 'nav.items_carrito')}
+          data-action-label={t(locale, 'nav.carrito')}>0 {t(locale, 'nav.items_carrito')}</span
         >
       </button>
 
@@ -559,30 +567,52 @@ const altHref = getLocalizedPath(currentPath, altLocale);
 
   function renderCarritoBadge(cantidad: number) {
     const { carritoBadge, carritoBtn } = getNavbarElements();
-    if (!carritoBadge) return;
+    if (!carritoBadge || !carritoBtn) return;
     carritoBadge.textContent = String(cantidad);
     carritoBadge.style.display = cantidad > 0 ? 'flex' : 'none';
-    const suffix = carritoBtn?.querySelector<HTMLElement>('[data-carrito-suffix]');
+    const suffix = carritoBtn.querySelector<HTMLElement>('[data-carrito-suffix]');
+    const base =
+      suffix?.dataset['labelBase'] ??
+      suffix?.textContent?.replace(/^\d+\s*/, '').trim() ??
+      'productos en el carrito';
+    const action =
+      suffix?.dataset['actionLabel'] ??
+      carritoBtn.dataset['actionLabel'] ??
+      carritoBtn.getAttribute('aria-label')?.replace(/,\s*\d+[\s\S]*$/, '') ??
+      'Ver carrito de compra';
     if (suffix) {
-      const base =
-        suffix.dataset['labelBase'] ?? suffix.textContent?.replace(/^\d+\s*/, '').trim() ?? '';
-      if (base) suffix.dataset['labelBase'] = base;
-      suffix.textContent = `${cantidad} ${suffix.dataset['labelBase'] ?? base}`;
+      suffix.dataset['labelBase'] = base;
+      suffix.dataset['actionLabel'] = action;
+      suffix.textContent = `${cantidad} ${base}`;
     }
+    carritoBtn.dataset['actionLabel'] = action;
+    // aria-label overrides contents — must include count for AT
+    carritoBtn.setAttribute('aria-label', `${action}, ${cantidad} ${base}`);
   }
 
   function renderCotizacionBadge(cantidad: number) {
     const { cotizacionBadge, cotizacionBtn } = getNavbarElements();
-    if (!cotizacionBadge) return;
+    if (!cotizacionBadge || !cotizacionBtn) return;
     cotizacionBadge.textContent = String(cantidad);
     cotizacionBadge.style.display = cantidad > 0 ? 'flex' : 'none';
-    const suffix = cotizacionBtn?.querySelector<HTMLElement>('[data-cotizacion-suffix]');
+    const suffix = cotizacionBtn.querySelector<HTMLElement>('[data-cotizacion-suffix]');
+    const base =
+      suffix?.dataset['labelBase'] ??
+      suffix?.textContent?.replace(/^\d+\s*/, '').trim() ??
+      'equipos en la lista de cotización';
+    const action =
+      suffix?.dataset['actionLabel'] ??
+      cotizacionBtn.dataset['actionLabel'] ??
+      cotizacionBtn.getAttribute('aria-label')?.replace(/,\s*\d+[\s\S]*$/, '') ??
+      'Ver lista de cotización';
     if (suffix) {
-      const base =
-        suffix.dataset['labelBase'] ?? suffix.textContent?.replace(/^\d+\s*/, '').trim() ?? '';
-      if (base) suffix.dataset['labelBase'] = base;
-      suffix.textContent = `${cantidad} ${suffix.dataset['labelBase'] ?? base}`;
+      suffix.dataset['labelBase'] = base;
+      suffix.dataset['actionLabel'] = action;
+      suffix.textContent = `${cantidad} ${base}`;
     }
+    cotizacionBtn.dataset['actionLabel'] = action;
+    // aria-label overrides contents — must include count for AT
+    cotizacionBtn.setAttribute('aria-label', `${action}, ${cantidad} ${base}`);
   }
 
   function setDrawerTriggerExpanded(btnId: string, expanded: boolean) {
