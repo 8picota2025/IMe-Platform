@@ -196,14 +196,14 @@ export function buildOrganizationJsonLd(): Record<string, unknown> {
     contactPoint: [
       {
         '@type': 'ContactPoint',
-        telephone: '+57-313-867-4059',
+        telephone: '+57-310-333-2607',
         contactType: 'sales',
         availableLanguage: ['Spanish', 'English'],
         areaServed: 'CO',
         contactOption: 'TollFree',
       },
     ],
-    sameAs: ['https://wa.me/573138674059'],
+    sameAs: ['https://wa.me/573103332607'],
     areaServed: {
       '@type': 'Country',
       name: 'Colombia',

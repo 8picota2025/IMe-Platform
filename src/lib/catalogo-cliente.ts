@@ -981,7 +981,7 @@ export function initCatalogo(locale: Locale): () => void {
     const precio = card.dataset['precio'] ?? '';
     const href = card.dataset['href'] ?? '#';
     const tipo = card.dataset['comercial'] ?? '';
-    const whatsappHref = `https://wa.me/573138674059?text=${encodeURIComponent(
+    const whatsappHref = `https://wa.me/573103332607?text=${encodeURIComponent(
       `${t(locale, 'producto.cta_consultar_disponibilidad')}: ${nombre}`
     )}`;
 
