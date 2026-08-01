@@ -28,7 +28,7 @@ import { enviarEmailPlantilla, escapeHtml } from '../_shared/email.ts';
 import { withTelemetry, trackEvent } from '../_shared/telemetry.ts';
 import { normalizeE164, maskPhone } from '../_shared/phone.ts';
 import { buildProductListHtml, buildProductListText } from '../_shared/comercial-templates.ts';
-import { TwentyClient, syncShareWithTwenty } from '../_shared/twenty-crm.ts';
+import { TwentyClient, retryShareWithTwenty, syncShareWithTwenty } from '../_shared/twenty-crm.ts';
 
 const FN_NAME = 'comercial-share';
 
@@ -589,7 +589,7 @@ async function handleRetry(
     product_url_snapshot: string | null;
   }>;
 
-  const twenty = await syncShareWithTwenty(
+  const twenty = await retryShareWithTwenty(
     {
       recipientName: share.recipient_name,
       medicalCenterName: share.medical_center_name,
@@ -602,7 +602,12 @@ async function handleRetry(
       name: p.product_name_snapshot,
       sku: p.product_sku_snapshot,
       url: p.product_url_snapshot,
-    }))
+    })),
+    {
+      personId: share.crm_person_id,
+      companyId: share.crm_company_id,
+      noteId: share.crm_record_id,
+    }
   );
 
   const crmSyncStatus = twenty.skipped ? 'skipped' : twenty.ok ? 'synced' : 'failed';
