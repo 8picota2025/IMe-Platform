@@ -9,6 +9,7 @@ export interface DatosBancariosTransferencia {
   nit: string;
   tipo_cuenta: string;
   numero_cuenta: string;
+  swift: string;
   instrucciones: string;
 }
 
@@ -21,6 +22,7 @@ export function getDatosBancariosTransferencia(): DatosBancariosTransferencia {
     nit: Deno.env.get('TRANSFERENCIA_NIT')?.trim() || 'Pendiente configurar NIT',
     tipo_cuenta: Deno.env.get('TRANSFERENCIA_TIPO_CUENTA')?.trim() || 'Ahorros',
     numero_cuenta: Deno.env.get('TRANSFERENCIA_NUMERO')?.trim() || 'Pendiente configurar cuenta',
+    swift: Deno.env.get('TRANSFERENCIA_SWIFT')?.trim() || '',
     instrucciones:
       Deno.env.get('TRANSFERENCIA_INSTRUCCIONES')?.trim() ||
       'Transfiere el valor exacto de la cotizacion e indica la referencia en el concepto. Luego sube el comprobante en el enlace del correo.',
@@ -30,14 +32,16 @@ export function getDatosBancariosTransferencia(): DatosBancariosTransferencia {
 export function datosBancariosTexto(
   d: DatosBancariosTransferencia = getDatosBancariosTransferencia()
 ): string {
-  return [
+  const lines = [
     `Banco: ${d.banco}`,
     `Titular: ${d.titular}`,
     `NIT: ${d.nit}`,
     `Tipo de cuenta: ${d.tipo_cuenta}`,
     `Numero de cuenta: ${d.numero_cuenta}`,
-    d.instrucciones,
-  ].join('\n');
+  ];
+  if (d.swift) lines.push(`SWIFT: ${d.swift}`);
+  lines.push(d.instrucciones);
+  return lines.join('\n');
 }
 
 export function datosBancariosHtml(
