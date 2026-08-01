@@ -14,6 +14,7 @@ import type { Producto, Familia } from '../lib/datos';
 import { formatMoneda } from '../lib/format';
 import { getAccionComercial } from '../lib/comercial';
 import { normalizarEspecificaciones } from '../lib/especificaciones';
+import { getOptimizedImageUrl, isSupabaseStorageImage } from '../lib/image';
 
 interface Props {
   producto: Producto;
@@ -43,6 +44,9 @@ const certificaciones = especificaciones.filter(item => /normativ/i.test(item.gr
 const galeria = producto.galeria.filter(url => url && url !== producto.imagen_principal);
 const imagenes = [producto.imagen_principal ?? '/assets/img-placeholder.svg', ...galeria];
 const imagenProducto = producto.imagen_principal ?? '/assets/img-placeholder.svg';
+const heroImageAvif = getOptimizedImageUrl(imagenes[0], 960, 'avif', 80);
+const heroImageWebp = getOptimizedImageUrl(imagenes[0], 960, 'webp', 80);
+const heroImageTransformable = isSupabaseStorageImage(imagenes[0]);
 const imagenFallback =
   'data:image/svg+xml;charset=UTF-8,' +
   encodeURIComponent(
@@ -211,17 +215,39 @@ if (precioFormateado) {
       </div>
 
       <div class="hero-producto__media">
-        <img
-          src={imagenes[0]}
-          alt={producto.nombre}
-          width="640"
-          height="480"
-          decoding="async"
-          fetchpriority="high"
-          class="hero-producto__img"
-          id="producto-imagen-principal"
-          onerror={`this.onerror=null;this.src='${imagenFallback}'`}
-        />
+        {
+          heroImageTransformable ? (
+            <picture>
+              <source srcset={heroImageAvif} type="image/avif" />
+              <source srcset={heroImageWebp} type="image/webp" />
+              <img
+                src={imagenes[0]}
+                alt={producto.nombre}
+                width="640"
+                height="480"
+                decoding="async"
+                fetchpriority="high"
+                sizes="(max-width: 768px) 100vw, 50vw"
+                class="hero-producto__img"
+                id="producto-imagen-principal"
+                onerror={`this.onerror=null;this.src='${imagenFallback}'`}
+              />
+            </picture>
+          ) : (
+            <img
+              src={imagenes[0]}
+              alt={producto.nombre}
+              width="640"
+              height="480"
+              decoding="async"
+              fetchpriority="high"
+              sizes="(max-width: 768px) 100vw, 50vw"
+              class="hero-producto__img"
+              id="producto-imagen-principal"
+              onerror={`this.onerror=null;this.src='${imagenFallback}'`}
+            />
+          )
+        }
         {
           (producto.destacado || producto.nuevo || noDisponible) && (
             <div class="hero-producto__badges" aria-hidden="true">
@@ -278,7 +304,14 @@ if (precioFormateado) {
                 data-galeria-index={index}
                 aria-label={`${t(locale, 'producto.galeria_abrir')}: ${producto.nombre} ${index + 1}/${imagenes.length}`}
               >
-                <img src={src} alt="" width="200" height="150" loading="lazy" decoding="async" />
+                <img
+                  src={getOptimizedImageUrl(src, 320, 'webp')}
+                  alt=""
+                  width="200"
+                  height="150"
+                  loading="lazy"
+                  decoding="async"
+                />
               </button>
             </li>
           ))}

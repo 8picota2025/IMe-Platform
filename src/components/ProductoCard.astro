@@ -7,6 +7,7 @@
 import { t, type Locale } from '../i18n/utils';
 import { formatMoneda } from '../lib/format';
 import { getAccionComercial } from '../lib/comercial';
+import { getOptimizedImageUrl, isSupabaseStorageImage } from '../lib/image';
 
 interface ProductoCardData {
   slug: string;
@@ -46,6 +47,9 @@ const noDisponible = producto.disponible === false;
 const precioFormateado = formatMoneda(producto.precio ?? null, producto.moneda ?? 'COP', locale);
 const accionComercial = getAccionComercial(producto, locale);
 const imagenProducto = producto.imagen_principal ?? '/assets/img-placeholder.svg';
+const imagenProductoAvif = getOptimizedImageUrl(imagenProducto, 400, 'avif');
+const imagenProductoWebp = getOptimizedImageUrl(imagenProducto, 400, 'webp');
+const imagenProductoTransformable = isSupabaseStorageImage(imagenProducto);
 const imagenFallback =
   'data:image/svg+xml;charset=UTF-8,' +
   encodeURIComponent(
@@ -95,16 +99,37 @@ function modalidadLabel(modalidad?: string): string {
     aria-label={`${t(locale, 'catalogo.ver_detalle')}: ${producto.nombre}`}
   >
     <div class="producto-card__img-wrapper">
-      <img
-        src={imagenProducto}
-        alt={producto.nombre}
-        width="400"
-        height="280"
-        loading="lazy"
-        decoding="async"
-        class="producto-card__img"
-        onerror={`this.onerror=null;this.src='${imagenFallback}'`}
-      />
+      {
+        imagenProductoTransformable ? (
+          <picture>
+            <source srcset={imagenProductoAvif} type="image/avif" />
+            <source srcset={imagenProductoWebp} type="image/webp" />
+            <img
+              src={imagenProducto}
+              alt={producto.nombre}
+              width="400"
+              height="280"
+              loading="lazy"
+              decoding="async"
+              sizes="(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 400px"
+              class="producto-card__img"
+              onerror={`this.onerror=null;this.src='${imagenFallback}'`}
+            />
+          </picture>
+        ) : (
+          <img
+            src={imagenProducto}
+            alt={producto.nombre}
+            width="400"
+            height="280"
+            loading="lazy"
+            decoding="async"
+            sizes="(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 400px"
+            class="producto-card__img"
+            onerror={`this.onerror=null;this.src='${imagenFallback}'`}
+          />
+        )
+      }
       {
         (producto.destacado || producto.nuevo || noDisponible) && (
           <div class="producto-card__badges" aria-hidden="true">
