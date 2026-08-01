@@ -71,4 +71,20 @@ jobs:
           fi
 
       - name: Deploy Edge Functions
-        run: supabase functions deploy --project-ref "$SUPABASE_PROJECT_REF"
+        run: |
+          set -euo pipefail
+          # esm.sh a veces responde 522 al bundlear; reintentar evita deploys atascados.
+          ATTEMPTS=3
+          for i in $(seq 1 "$ATTEMPTS"); do
+            echo "Deploy attempt $i/$ATTEMPTS"
+            if supabase functions deploy --project-ref "$SUPABASE_PROJECT_REF"; then
+              echo "Deploy OK"
+              exit 0
+            fi
+            if [ "$i" -lt "$ATTEMPTS" ]; then
+              echo "Deploy fallo; reintento en 20s…"
+              sleep 20
+            fi
+          done
+          echo "Deploy falló tras $ATTEMPTS intentos"
+          exit 1
