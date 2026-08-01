@@ -163,17 +163,34 @@ Deno.serve(
       },
     };
 
-    let { error } = await supabase.from('solicitudes_cotizacion').insert(solicitudEnriquecida);
-    if (shouldRetryLegacyInsert(error)) {
-      console.warn(
-        'registrar-cotizacion: esquema legacy detectado, reintentando insert compatible',
-        error.message
-      );
-      ({ error } = await supabase.from('solicitudes_cotizacion').insert(solicitudBase));
-    }
-    if (error) {
-      console.error('registrar-cotizacion: error insertando', error.message);
-      return internalError('No se pudo registrar la solicitud', origin);
+    let solicitudId: string | null;
+    {
+      const inserted = await supabase
+        .from('solicitudes_cotizacion')
+        .insert(solicitudEnriquecida)
+        .select('id')
+        .maybeSingle();
+      if (shouldRetryLegacyInsert(inserted.error)) {
+        console.warn(
+          'registrar-cotizacion: esquema legacy detectado, reintentando insert compatible',
+          inserted.error?.message
+        );
+        const legacy = await supabase
+          .from('solicitudes_cotizacion')
+          .insert(solicitudBase)
+          .select('id')
+          .maybeSingle();
+        if (legacy.error) {
+          console.error('registrar-cotizacion: error insertando', legacy.error.message);
+          return internalError('No se pudo registrar la solicitud', origin);
+        }
+        solicitudId = (legacy.data as { id?: string } | null)?.id ?? null;
+      } else if (inserted.error) {
+        console.error('registrar-cotizacion: error insertando', inserted.error.message);
+        return internalError('No se pudo registrar la solicitud', origin);
+      } else {
+        solicitudId = (inserted.data as { id?: string } | null)?.id ?? null;
+      }
     }
 
     // Evento de negocio para el funnel semanal (docs/observabilidad.md).
@@ -249,6 +266,16 @@ Deno.serve(
         tipo_solicitud: tipoSolicitud,
         productos_count: productos.length,
       });
+      if (solicitudId && twenty.data) {
+        await supabase
+          .from('solicitudes_cotizacion')
+          .update({
+            twenty_person_id: twenty.data.personId,
+            twenty_company_id: twenty.data.companyId ?? null,
+            twenty_opportunity_id: twenty.data.opportunityId,
+          })
+          .eq('id', solicitudId);
+      }
     }
 
     return new Response(

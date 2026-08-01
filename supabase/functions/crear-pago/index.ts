@@ -27,6 +27,7 @@ import {
 } from '../../../src/lib/fiscal.ts';
 import { withTelemetry, trackEvent } from '../_shared/telemetry.ts';
 import { notificarEstadoPedido } from '../_shared/post-pago.ts';
+import { pushClienteToTwenty } from '../_shared/twenty-commerce-sync.ts';
 import {
   calcularTotalOfertado,
   hashTokenSha256,
@@ -899,6 +900,9 @@ Deno.serve(
 
     const proveedorPago = mercado === 'CO' ? 'wompi' : 'stripe';
     const clienteId = await upsertCliente(supabase, cliente, fiscalCliente);
+    if (clienteId) {
+      void pushClienteToTwenty(supabase, clienteId);
+    }
 
     const { error: insertError } = await supabase.from('pedidos').insert({
       id: pedidoId,

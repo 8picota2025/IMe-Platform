@@ -12,6 +12,7 @@ import {
 } from '../_shared/siigo-client.ts';
 import { mapDianDraftToSiigoInvoice } from '../_shared/siigo-mapper.ts';
 import type { DianInvoiceDraft } from '../../../src/lib/fiscal.ts';
+import { pushFacturaToTwenty } from '../_shared/twenty-commerce-sync.ts';
 
 const FN_NAME = 'emitir-factura-dian';
 const PROVEEDOR = 'siigo';
@@ -301,6 +302,12 @@ Deno.serve(
         },
         { nivel: resultado.estado === 'emitida' ? 'info' : 'warn' }
       );
+
+      void pushFacturaToTwenty(supabase, pedido.id, {
+        numeroFactura: resultado.numeroFactura,
+        cufe: resultado.cufe,
+        estado: resultado.estado,
+      });
 
       return new Response(
         JSON.stringify({

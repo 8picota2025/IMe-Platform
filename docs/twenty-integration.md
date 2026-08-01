@@ -97,3 +97,34 @@ supabase functions deploy registrar-cotizacion
 ```
 
 Auto-CRM local: webhook dual-write vía `scripts/twenty-inbound-cotizacion.py` si `TWENTY_*` en `.env.local`.
+
+## Flujo comercio → Twenty (cliente / pago / factura) — 2026-08-01
+
+Todo cliente nuevo + importe pagado + factura DIAN sincroniza a Twenty (best-effort).
+
+### Tipología de clientes (sin custom fields admin)
+
+API key sin permiso `create_field_metadata`. Tipología vive en campos estándar + notas:
+
+| Concepto               | Dónde en Twenty                                                                                   |
+| ---------------------- | ------------------------------------------------------------------------------------------------- |
+| Tipo B2B / B2C / MIXTO | `people.jobTitle` = `Cliente B2B · NIT …` + nota **Perfil fiscal I-ME**                           |
+| Empresa / razón social | `companies.name`                                                                                  |
+| Total pagado acumulado | `companies.annualRevenue` (COP/USD)                                                               |
+| Pedido pagado          | `opportunities` stage `CUSTOMER` + `amount`                                                       |
+| Factura DIAN / CUFE    | Nota **Factura DIAN …** enlazada a opp/person/company                                             |
+| IDs sync               | Supabase: `clientes.twenty_*`, `pedidos.twenty_opportunity_id`, `solicitudes_cotizacion.twenty_*` |
+
+Campos custom opcionales (Settings → Data Model, admin): `tipoCliente` (SELECT), `nitDocumento`, `emailFacturacion`, `estadoFacturacion`, `ultimaFactura`, `pedidoId`, `proveedorPago`, `numeroFactura`, `cufe`. Sync intenta PATCH; si fallan, reintenta solo estándar.
+
+### Hooks Edge
+
+| Momento                  | Función                                               | Acción Twenty                               |
+| ------------------------ | ----------------------------------------------------- | ------------------------------------------- |
+| Cotización web           | `registrar-cotizacion`                                | Lead + Opp NEW + guarda IDs                 |
+| Checkout / transferencia | `crear-pago`, `formalizar-cotizacion`                 | `pushClienteToTwenty`                       |
+| Pago confirmado          | `post-pago` → wompi/stripe/bold/validar-transferencia | `pushPagoToTwenty` (Opp CUSTOMER + importe) |
+| Factura DIAN             | `emitir-factura-dian`                                 | `pushFacturaToTwenty` (nota + patch)        |
+
+Código: `_shared/twenty-crm.ts`, `_shared/twenty-commerce-sync.ts`.
+Migración: `20260801230000_twenty_crm_ids.sql`.

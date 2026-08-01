@@ -30,6 +30,7 @@ import {
   validateClienteFiscal,
   type ClienteFiscalProfile,
 } from '../../../src/lib/fiscal.ts';
+import { pushClienteToTwenty } from '../_shared/twenty-commerce-sync.ts';
 
 interface Body {
   action?: 'preview' | 'registrar_transferencia';
@@ -353,6 +354,9 @@ Deno.serve(async req => {
     .single();
 
   const clienteId = (clienteRow as { id?: string } | null)?.id ?? null;
+  if (clienteId) {
+    void pushClienteToTwenty(supabase, clienteId);
+  }
   const refTransferencia = (body.referencia_transferencia ?? '').trim().slice(0, 120);
 
   // Claim atomico antes de crear pedido: evita doble formalizacion concurrente.

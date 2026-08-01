@@ -46,27 +46,38 @@ class VoyageEmbedder implements Embedder {
     const apiKey = Deno.env.get('VOYAGE_API_KEY');
     if (!apiKey) throw new Error('VOYAGE_API_KEY requerido');
 
-    const res = await fetch('https://api.voyageai.com/v1/embeddings', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        input: texts,
-        model: this.model,
-        input_type: 'document',
-      }),
-    });
-    if (!res.ok) throw new Error(`Voyage error ${res.status}`);
-
-    const json = (await res.json()) as VoyageResponse;
-    return {
-      vectors: (json.data ?? []).map(item => item.embedding ?? []),
-      inputTokens: json.usage?.total_tokens ?? 0,
-      model: json.model ?? this.model,
-      provider: this.provider,
-    };
+    let lastStatus = 0;
+    for (let attempt = 0; attempt < 6; attempt++) {
+      const res = await fetch('https://api.voyageai.com/v1/embeddings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          input: texts,
+          model: this.model,
+          input_type: 'document',
+        }),
+      });
+      if (res.ok) {
+        const json = (await res.json()) as VoyageResponse;
+        return {
+          vectors: (json.data ?? []).map(item => item.embedding ?? []),
+          inputTokens: json.usage?.total_tokens ?? 0,
+          model: json.model ?? this.model,
+          provider: this.provider,
+        };
+      }
+      lastStatus = res.status;
+      if (res.status !== 429 && res.status < 500) {
+        throw new Error(`Voyage error ${res.status}`);
+      }
+      const retryAfter = Number(res.headers.get('retry-after') ?? 0);
+      const waitMs = Math.max(retryAfter * 1000, 15_000 * (attempt + 1));
+      await new Promise(r => setTimeout(r, waitMs));
+    }
+    throw new Error(`Voyage error ${lastStatus}`);
   }
 }
 

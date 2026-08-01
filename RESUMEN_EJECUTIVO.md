@@ -2,6 +2,10 @@
 
 ## Estado
 
+I-ME Platform está en F5 (auditoría, legales, seguridad y despliegue), con sitio estático publicado en producción. Auditoría pública 2026-08-01 confirmó Home, catálogo, inglés, contacto, financiación, legales, seguimiento y rutas legacy accesibles; página pública muestra 476 equipos en 19 categorías, mientras JSON-LD enumera posiciones hasta 475. Snapshot local contiene 478 productos en 21 familias: cifra canónica y paridad siguen pendientes.
+
+Actualización histórica 2026-06-12:
+
 I-ME Platform está en F5 (auditoría, legales, seguridad y despliegue), en curso. Actualización 2026-06-12:
 se cerró un bug bloqueante que dejaba el catálogo vacío en producción y se completó una primera pasada de
 QA/SEO/seguridad/a11y/performance sobre el build estático con evidencia.
@@ -31,7 +35,7 @@ QA/SEO/seguridad/a11y/performance sobre el build estático con evidencia.
 - Performance Lighthouse (`dist/`, preset móvil simulado) en 0.66-0.79, por debajo del objetivo ≥90 — pendiente
   optimización de peso de imágenes/JS.
 - Tabla `tipos` (subcategorías) sigue vacía — catálogo no agrupa por tipo dentro de cada familia.
-- `.htaccess` no define HSTS ni CSP — pendiente de añadir tras confirmar despliegue HTTPS en Hostinger.
+- Producción ya expone HSTS y CSP (`upgrade-insecure-requests`); pendiente solo validar reglas 301 con código HTTP sin seguir redirecciones.
 
 ## Bloqueantes antes de producción
 

@@ -238,11 +238,297 @@ export class TwentyClient {
     return this.requestRecord('POST', '/people', payload);
   }
 
-  async upsertCompany(input: { name: string }): Promise<TwentyResult<TwentyRecord>> {
+  async upsertCompany(input: {
+    name: string;
+    /** Total pagado acumulado → annualRevenue (campo estándar). */
+    totalPagado?: number | null;
+    moneda?: string;
+    /** Campos custom tipología/facturación (best-effort si existen en workspace). */
+    extras?: Record<string, unknown>;
+  }): Promise<TwentyResult<TwentyRecord>> {
     const existing = await this.findCompanyByName(input.name);
     if (!existing.ok) return { ok: false, error: existing.error };
-    if (existing.data) return { ok: true, data: existing.data };
-    return this.requestRecord('POST', '/companies', { name: input.name });
+
+    const payload: Record<string, unknown> = { name: input.name };
+    if (input.totalPagado != null && Number.isFinite(input.totalPagado)) {
+      payload.annualRevenue = {
+        amountMicros: Math.round(Number(input.totalPagado) * 1_000_000),
+        currencyCode: (input.moneda || 'COP').slice(0, 8),
+      };
+    }
+    if (input.extras) {
+      for (const [k, v] of Object.entries(input.extras)) {
+        if (v !== undefined && v !== null && v !== '') payload[k] = v;
+      }
+    }
+
+    if (existing.data?.id) {
+      const patched = await this.requestRecord('PATCH', `/companies/${existing.data.id}`, payload);
+      // Si fallan extras custom, reintenta solo campos estándar.
+      if (!patched.ok && input.extras) {
+        const { extras: _e, ...rest } = input;
+        return this.upsertCompany(rest);
+      }
+      return patched.ok ? patched : { ok: true, data: existing.data };
+    }
+    const created = await this.requestRecord('POST', '/companies', payload);
+    if (!created.ok && input.extras) {
+      return this.requestRecord('POST', '/companies', {
+        name: input.name,
+        ...(payload.annualRevenue ? { annualRevenue: payload.annualRevenue } : {}),
+      });
+    }
+    return created;
+  }
+
+  /**
+   * Cliente nuevo/actualizado (pago o formalización) → Company + Person + nota fiscal.
+   * Tipología sin metadata write: jobTitle + extras SELECT si el workspace ya los tiene.
+   */
+  async syncClienteFacturacion(input: {
+    nombre: string;
+    apellido?: string | null;
+    email: string;
+    telefono?: string | null;
+    institucion?: string | null;
+    tipoCliente: 'b2b' | 'b2c' | 'mixto';
+    razonSocial?: string | null;
+    tipoDocumento?: string | null;
+    numeroDocumento?: string | null;
+    emailFacturacion?: string | null;
+    totalGastado?: number | null;
+    moneda?: string;
+  }): Promise<TwentyResult<{ personId: string; companyId: string; noteId?: string }>> {
+    const tipoLabel = input.tipoCliente.toUpperCase() as 'B2B' | 'B2C' | 'MIXTO';
+    const companyName =
+      (input.razonSocial || input.institucion || '').trim() ||
+      `${input.nombre} ${input.apellido || ''}`.trim() ||
+      input.email;
+
+    const company = await this.upsertCompany({
+      name: companyName.slice(0, 120),
+      totalPagado: input.totalGastado,
+      moneda: input.moneda || 'COP',
+      extras: {
+        tipoCliente: tipoLabel,
+        nitDocumento: input.numeroDocumento || undefined,
+        emailFacturacion: input.emailFacturacion || input.email,
+        estadoFacturacion: 'SIN_FACTURA',
+      },
+    });
+    if (!company.ok || !company.data) return { ok: false, error: company.error };
+
+    let phoneNumber: string | undefined;
+    let phoneCallingCode: string | undefined;
+    if (input.telefono) {
+      const digits = input.telefono.replace(/[^\d]/g, '');
+      if (digits.length >= 8) {
+        if (digits.startsWith('57') && digits.length > 10) {
+          phoneCallingCode = '+57';
+          phoneNumber = digits.slice(2);
+        } else {
+          phoneCallingCode = '+57';
+          phoneNumber = digits;
+        }
+      }
+    }
+
+    const person = await this.upsertPerson({
+      firstName: input.nombre.trim() || 'Cliente',
+      lastName: (input.apellido || '').trim() || 'I-ME',
+      email: input.email,
+      phoneNumber,
+      phoneCallingCode,
+      jobTitle: `Cliente ${tipoLabel}${input.numeroDocumento ? ` · ${input.tipoDocumento || 'DOC'} ${input.numeroDocumento}` : ''}`,
+      companyId: company.data.id,
+    });
+    if (!person.ok || !person.data) return { ok: false, error: person.error };
+
+    // Best-effort tipología en Person si el campo custom existe.
+    await this.requestRaw('PATCH', `/people/${person.data.id}`, { tipoCliente: tipoLabel });
+
+    const note = await this.createNote({
+      title: `Perfil fiscal I-ME — ${companyName}`.slice(0, 120),
+      bodyMarkdown: [
+        `**Tipo cliente:** ${tipoLabel}`,
+        `**Razón social:** ${input.razonSocial || companyName}`,
+        `**Documento:** ${input.tipoDocumento || '—'} ${input.numeroDocumento || '—'}`,
+        `**Email facturación:** ${input.emailFacturacion || input.email}`,
+        `**Total pagado (Supabase):** ${input.totalGastado ?? 0} ${input.moneda || 'COP'}`,
+      ].join('\n'),
+    });
+    if (note.ok && note.data) {
+      await this.linkNoteTarget({
+        noteId: note.data.id,
+        targetPersonId: person.data.id,
+        targetCompanyId: company.data.id,
+      });
+    }
+
+    return {
+      ok: true,
+      data: {
+        personId: person.data.id,
+        companyId: company.data.id,
+        noteId: note.data?.id,
+      },
+    };
+  }
+
+  /** Pago confirmado → oportunidad CUSTOMER + importe + nota. */
+  async syncPagoConfirmado(input: {
+    companyId?: string;
+    personId?: string;
+    opportunityId?: string;
+    pedidoId: string;
+    nombreOportunidad: string;
+    total: number;
+    moneda?: string;
+    proveedorPago: 'wompi' | 'stripe' | 'bold' | 'transferencia';
+    ownerId?: string;
+  }): Promise<TwentyResult<{ opportunityId: string; noteId?: string }>> {
+    const ownerId =
+      input.ownerId?.trim() ||
+      Deno.env.get('TWENTY_OWNER_ID')?.trim() ||
+      '8c9ca697-bc48-45d1-aba4-9a51a68d19e9';
+    const amount = {
+      amountMicros: Math.round(Number(input.total) * 1_000_000),
+      currencyCode: (input.moneda || 'COP').slice(0, 8),
+    };
+    const proveedor = input.proveedorPago.toUpperCase();
+
+    let opportunityId = input.opportunityId;
+    const standardPayload: Record<string, unknown> = {
+      name: input.nombreOportunidad.slice(0, 120),
+      stage: 'CUSTOMER',
+      amount,
+      closeDate: new Date().toISOString(),
+      ownerId,
+      position: 'first',
+      ...(input.companyId ? { companyId: input.companyId } : {}),
+      ...(input.personId ? { pointOfContactId: input.personId } : {}),
+    };
+    const fullPayload: Record<string, unknown> = {
+      ...standardPayload,
+      pedidoId: input.pedidoId,
+      proveedorPago: proveedor,
+      estadoFacturacion: 'PENDIENTE',
+    };
+
+    if (opportunityId) {
+      const patched = await this.requestRecord(
+        'PATCH',
+        `/opportunities/${opportunityId}`,
+        fullPayload
+      );
+      if (!patched.ok) {
+        const retry = await this.requestRecord(
+          'PATCH',
+          `/opportunities/${opportunityId}`,
+          standardPayload
+        );
+        if (!retry.ok) return { ok: false, error: retry.error };
+      }
+    } else {
+      let created = await this.requestRecord('POST', '/opportunities', fullPayload);
+      if (!created.ok) {
+        created = await this.requestRecord('POST', '/opportunities', standardPayload);
+      }
+      if (!created.ok || !created.data) return { ok: false, error: created.error };
+      opportunityId = created.data.id;
+    }
+
+    const note = await this.createNote({
+      title: `Pago confirmado — ${input.pedidoId.slice(0, 8)}`,
+      bodyMarkdown: [
+        `**Pedido:** ${input.pedidoId}`,
+        `**Importe:** ${input.total} ${input.moneda || 'COP'}`,
+        `**Proveedor pago:** ${proveedor}`,
+        `**Estado oportunidad:** CUSTOMER`,
+      ].join('\n'),
+    });
+    if (note.ok && note.data) {
+      await this.linkNoteTarget({
+        noteId: note.data.id,
+        targetOpportunityId: opportunityId,
+        targetPersonId: input.personId,
+        targetCompanyId: input.companyId,
+      });
+    }
+
+    return { ok: true, data: { opportunityId, noteId: note.data?.id } };
+  }
+
+  /** Factura DIAN emitida → nota + patch oportunidad/compañía. */
+  async syncFacturaEmitida(input: {
+    companyId?: string;
+    personId?: string;
+    opportunityId?: string;
+    pedidoId: string;
+    numeroFactura?: string | null;
+    cufe?: string | null;
+    estado: string;
+    total?: number | null;
+    moneda?: string;
+  }): Promise<TwentyResult<{ noteId?: string }>> {
+    const estadoMap: Record<string, string> = {
+      emitida: 'EMITIDA',
+      pendiente_envio: 'PENDIENTE',
+      rechazada: 'ANULADA',
+      anulada: 'ANULADA',
+      error: 'PENDIENTE',
+    };
+    const estadoFacturacion = estadoMap[input.estado] || 'PENDIENTE';
+
+    if (input.opportunityId) {
+      const patch: Record<string, unknown> = {
+        numeroFactura: input.numeroFactura || undefined,
+        cufe: input.cufe || undefined,
+        estadoFacturacion,
+        pedidoId: input.pedidoId,
+      };
+      const res = await this.requestRaw('PATCH', `/opportunities/${input.opportunityId}`, patch);
+      if (!res.ok) {
+        // sin campos custom: no bloquea
+      }
+    }
+
+    if (input.companyId) {
+      await this.requestRaw('PATCH', `/companies/${input.companyId}`, {
+        ultimaFactura: input.numeroFactura || undefined,
+        estadoFacturacion,
+        ...(input.total != null
+          ? {
+              annualRevenue: {
+                amountMicros: Math.round(Number(input.total) * 1_000_000),
+                currencyCode: (input.moneda || 'COP').slice(0, 8),
+              },
+            }
+          : {}),
+      });
+    }
+
+    const note = await this.createNote({
+      title: `Factura DIAN ${input.numeroFactura || input.pedidoId.slice(0, 8)}`.slice(0, 120),
+      bodyMarkdown: [
+        `**Pedido:** ${input.pedidoId}`,
+        `**Número:** ${input.numeroFactura || '—'}`,
+        `**CUFE:** ${input.cufe || '—'}`,
+        `**Estado:** ${input.estado}`,
+        input.total != null ? `**Total:** ${input.total} ${input.moneda || 'COP'}` : '',
+      ]
+        .filter(Boolean)
+        .join('\n'),
+    });
+    if (note.ok && note.data) {
+      await this.linkNoteTarget({
+        noteId: note.data.id,
+        targetOpportunityId: input.opportunityId,
+        targetPersonId: input.personId,
+        targetCompanyId: input.companyId,
+      });
+    }
+    return { ok: true, data: { noteId: note.data?.id } };
   }
 
   async createNote(input: {
@@ -259,10 +545,12 @@ export class TwentyClient {
     noteId: string;
     targetPersonId?: string;
     targetCompanyId?: string;
+    targetOpportunityId?: string;
   }): Promise<TwentyResult<TwentyRecord>> {
-    const payload: Record<string, unknown> = { noteId: input.noteId };
+    const payload: Record<string, unknown> = { noteId: input.noteId, position: 'first' };
     if (input.targetPersonId) payload.targetPersonId = input.targetPersonId;
     if (input.targetCompanyId) payload.targetCompanyId = input.targetCompanyId;
+    if (input.targetOpportunityId) payload.targetOpportunityId = input.targetOpportunityId;
     return this.requestRecord('POST', '/noteTargets', payload);
   }
 
@@ -578,4 +866,64 @@ export async function retryShareWithTwenty(
   }
 
   return client.syncCommercialShare(share, products);
+}
+
+/** Cliente nuevo (pago/formalizar) → Company + Person + tipología/factura. */
+export async function syncClienteWithTwenty(input: {
+  nombre: string;
+  apellido?: string | null;
+  email: string;
+  telefono?: string | null;
+  institucion?: string | null;
+  tipoCliente: 'b2b' | 'b2c' | 'mixto';
+  razonSocial?: string | null;
+  tipoDocumento?: string | null;
+  numeroDocumento?: string | null;
+  emailFacturacion?: string | null;
+  totalGastado?: number | null;
+  moneda?: string;
+}): Promise<TwentyResult<{ personId: string; companyId: string; noteId?: string }>> {
+  const client = TwentyClient.fromEnv();
+  if (!client) {
+    return { ok: false, skipped: true, error: 'TWENTY_BASE_URL/TWENTY_API_KEY no configurados' };
+  }
+  return client.syncClienteFacturacion(input);
+}
+
+/** Pago confirmado → Opportunity CUSTOMER + importe. */
+export async function syncPagoWithTwenty(input: {
+  companyId?: string;
+  personId?: string;
+  opportunityId?: string;
+  pedidoId: string;
+  nombreOportunidad: string;
+  total: number;
+  moneda?: string;
+  proveedorPago: 'wompi' | 'stripe' | 'bold' | 'transferencia';
+  ownerId?: string;
+}): Promise<TwentyResult<{ opportunityId: string; noteId?: string }>> {
+  const client = TwentyClient.fromEnv();
+  if (!client) {
+    return { ok: false, skipped: true, error: 'TWENTY_BASE_URL/TWENTY_API_KEY no configurados' };
+  }
+  return client.syncPagoConfirmado(input);
+}
+
+/** Factura DIAN → nota + patch oportunidad/compañía. */
+export async function syncFacturaWithTwenty(input: {
+  companyId?: string;
+  personId?: string;
+  opportunityId?: string;
+  pedidoId: string;
+  numeroFactura?: string | null;
+  cufe?: string | null;
+  estado: string;
+  total?: number | null;
+  moneda?: string;
+}): Promise<TwentyResult<{ noteId?: string }>> {
+  const client = TwentyClient.fromEnv();
+  if (!client) {
+    return { ok: false, skipped: true, error: 'TWENTY_BASE_URL/TWENTY_API_KEY no configurados' };
+  }
+  return client.syncFacturaEmitida(input);
 }

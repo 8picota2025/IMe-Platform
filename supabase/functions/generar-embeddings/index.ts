@@ -13,6 +13,7 @@
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { badRequest, internalError, unauthorized } from '../_shared/errors.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
+import { requireAdmin } from '../_shared/admin-auth.ts';
 import {
   createEmbedder,
   normalizeEmbeddingInput,
@@ -26,6 +27,8 @@ interface GenerarEmbeddingsRequest {
   producto_id?: string;
   producto_ids?: string[];
   todos?: boolean;
+  /** Solo productos activos sin embedding (paridad RAG). */
+  solo_faltantes?: boolean;
   estimar?: boolean;
 }
 
@@ -50,7 +53,7 @@ interface ProductoRawRow {
   tipos: { nombre_es: string | null; nombre_en: string | null } | null;
 }
 
-const BATCH_SIZE = 20;
+const BATCH_SIZE = 5;
 
 Deno.serve(async req => {
   const origin = req.headers.get('origin');
@@ -58,20 +61,17 @@ Deno.serve(async req => {
   if (corsRes) return corsRes;
   if (req.method !== 'POST') return badRequest('Metodo no soportado', origin);
 
-  const token = req.headers.get('Authorization')?.replace(/^Bearer\s+/i, '');
-  if (!token) return unauthorized(origin);
-
   try {
     const supabase = getServerSupabase();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser(token);
-    if (authError || !user) return unauthorized(origin);
+    const admin = await requireAdmin(supabase, req.headers.get('Authorization'));
+    if (!admin.ok) return unauthorized(origin);
 
     const body = (await req.json().catch(() => ({}))) as GenerarEmbeddingsRequest;
-    if (!body.producto_id && !body.producto_ids?.length && !body.todos) {
-      return badRequest('Especificar producto_id, producto_ids o todos=true', origin);
+    if (!body.producto_id && !body.producto_ids?.length && !body.todos && !body.solo_faltantes) {
+      return badRequest(
+        'Especificar producto_id, producto_ids, todos=true o solo_faltantes=true',
+        origin
+      );
     }
 
     const productos = await cargarProductos(supabase, body);
@@ -185,6 +185,8 @@ async function cargarProductos(
     query = query.eq('id', body.producto_id);
   } else if (body.producto_ids?.length) {
     query = query.in('id', body.producto_ids);
+  } else if (body.solo_faltantes) {
+    query = query.eq('activo', true).is('embedding', null);
   } else {
     query = query.eq('activo', true);
   }

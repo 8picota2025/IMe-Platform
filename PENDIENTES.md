@@ -2,6 +2,33 @@
 
 > Actualizar en cada fase. Usar exactamente las etiquetas definidas.
 
+## Estado contrastado con producción (2026-08-01)
+
+La web pública sí está desplegada y responde en producción sobre Hostinger.
+Verificado: Home, catálogo, inglés, contacto, financiación, legales,
+seguimiento y rutas legacy `/77/` y `/1old/` responden correctamente al seguir
+redirecciones. La página pública muestra **476 equipos en 19 categorías** y su
+JSON-LD enumera posiciones hasta 475; la discrepancia de uno debe resolverse
+antes de declarar cifra canónica. El snapshot local
+`src/data/mock-productos.json` contiene **478 productos en 21 familias**. No son
+cifras equivalentes: queda pendiente sincronizar fuente canónica, producción y
+embeddings.
+
+Headers de seguridad verificados en producción: HSTS, CSP
+(`upgrade-insecure-requests`), `X-Content-Type-Options`, `Referrer-Policy`,
+`Permissions-Policy` y `X-Frame-Options`. Por tanto HSTS/CSP ya no deben figurar
+como pendientes de deploy técnico. Catálogo carga imágenes desde Hostinger y
+Supabase Storage; consola sin errores en `/es/catalogo/`.
+
+Pendientes reales aún no certificados por visita pública: pagos reales,
+Asesor RAG productivo, formularios con persistencia, navegación completa por
+teclado/dispositivo, redirecciones verificadas con código `301` sin seguirlas,
+y paridad catálogo/embeddings.
+
+- [x] Sitio estático publicado y accesible en producción.
+- [x] Fuente canónica registrada (2026-08-01): **Supabase `productos` activos = 476**. Local `mock-productos.json` = 478 (= 476 + 2 inactivos de prueba: `ejemplo-producto`, `sandbox-wompi-consumible-20260618`). Familias activas prod = 19; local tiene además `ventiladores` inactiva.
+- [ ] Embeddings: 90 activos sin `embedding` (386/476 con vector). Reindex `solo_faltantes` en curso (Voyage 429 — retry con backoff).
+
 ## Nota de estado del catálogo (2026-07-01)
 
 Las cifras de catálogo citadas más abajo (24/33 productos, 8/9 familias) son
@@ -30,7 +57,7 @@ Asesor puede recuperarlos.
 - [ ] `ANTHROPIC_API_KEY`: cuenta en console.anthropic.com
 - [ ] `OPENAI_API_KEY` (opcional, gateway alternativo)
 - [ ] `VOYAGE_API_KEY`: cuenta en voyageai.com
-- [ ] `WOMPI_PUBLIC_KEY` / `WOMPI_PRIVATE_KEY` / `WOMPI_EVENTS_SECRET`: cuenta en wompi.co
+- [x] `WOMPI_PUBLIC_KEY` / `WOMPI_PRIVATE_KEY` / `WOMPI_EVENTS_SECRET`: en producción (2026-08-01)
 - [ ] `STRIPE_PUBLIC_KEY` / `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET`: cuenta en stripe.com
 - [ ] `TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY` / `PUBLIC_TURNSTILE_SITE_KEY` (mismo valor que `TURNSTILE_SITE_KEY`): crear en Cloudflare Dashboard — sin esto el Asesor responde 503 (modo "no disponible")
 - [ ] `HOSTINGER_FTP_HOST` / `HOSTINGER_FTP_USER` / `HOSTINGER_FTP_PASSWORD`: panel Hostinger
@@ -45,7 +72,7 @@ Asesor puede recuperarlos.
 
 - [x] Credenciales Supabase de lectura/escritura básica (`.env` ya tiene `PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` reales); tablas `familias` (8) y `productos` (24) sembradas el 2026-06-12 con datos reales de F0 vía `scripts/seed-catalogo.mjs` (idempotente, upsert por slug). RLS verificada: anon lee catálogo y escribe `solicitudes_cotizacion`, no puede escribir `productos`. Migraciones pgvector/Asesor aplicadas y Edge Functions desplegadas el 2026-06-14 (ver ítems siguientes).
 - [x] Nueva familia "Radiología y Diagnóstico por Imagen" (`radiologia`, orden 9) y 9 productos (prod-25..prod-33) sembrados el 2026-06-14 vía `scripts/seed-catalogo.mjs` (total ahora 9 familias / 33 productos). Origen: catálogo de Szangell (proveedor/fabricante de I-ME en dropshipping, confirmado por el cliente); descripciones y especificaciones ES/EN redactadas de forma original a partir de las características publicadas (no copiadas literalmente), `especificaciones` solo incluye datos verificados (algunos productos tienen pocas specs por falta de datos numéricos en la fuente — "cero invención"). Imágenes descargadas y servidas localmente desde `public/assets/productos/radiologia/*.jpg` (mismo patrón que el resto del catálogo, no Supabase Storage). Verificado en `/es/catalogo` (33 equipos / 9 categorías) y `/es/productos/sistema-radiografico-3d-wr-3d`; `npm run validate` OK (96 páginas).
-- [ ] Credenciales Wompi producción (sandbox validado el 2026-06-18; faltan llaves `prod` para salida real) — F4
+- [x] Credenciales Wompi producción — en producción (2026-08-01); sandbox validado 2026-06-18
 - [ ] Credenciales Stripe (bloquea pagos INTL) — F4
 - [ ] Credenciales LLM (`LLM_PROVIDER`, `ANTHROPIC_API_KEY` u `OPENAI_API_KEY`, `LLM_INGEST_MODEL`) — bloquea ingesta PDF real y Asesor RAG
 - [ ] Credenciales embeddings (`EMBEDDING_PROVIDER`, `VOYAGE_API_KEY` u `OPENAI_API_KEY`) — bloquea `generar-embeddings` y la búsqueda vectorial del Asesor (sin esto, el Asesor degrada a búsqueda por palabra clave)
@@ -264,8 +291,9 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
 - [ ] Test de navegación por teclado en dispositivo real (solo se probó interacción con click/Playwright; falta recorrido Tab/Enter/Esc completo en dispositivo)
 - [x] Verificación de contraste AA en tema oscuro: encontrado y corregido el 2026-06-12 — el footer quedaba casi blanco-sobre-blanco en `data-theme="dark"` (fondo `var(--ink)` invertido + texto `rgba(255,255,255,X)`); ahora usa tokens fijos `--footer-bg`/`--footer-text-muted` independientes del tema (ver REMEDIACION.md)
 - [ ] Test de video autoplay en mobile (Chrome/Safari iOS)
-- [ ] Deploy a preprod en Hostinger
-- [ ] Verificación 301 `/77/` y `/1old` en Hostinger tras deploy
+- [x] Deploy estático en producción Hostinger verificado el 2026-08-01 (Home, catálogo, inglés, contacto, financiación, legales y seguimiento responden)
+- [ ] Verificar código HTTP `301` de `/77/` y `/1old/` sin seguir redirecciones; visita pública solo confirmó destino final `200`
+- [ ] Deploy a preprod en Hostinger (entorno separado no identificado durante auditoría)
 - [x] Migración SQL de `supabase/schema.sql` (F4.1 — `productos.disponible` +
       `disponible_actualizado_at` + `solicitudes_cotizacion.estado`/`notas_internas` —
       y paridad B2B/B2C de PR #7 — `producto_variantes`, `clientes`,

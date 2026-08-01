@@ -5,6 +5,7 @@
 
 import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { enviarEmailPlantilla, DESTINATARIOS_INTERNOS, escapeHtml, itemsToHtml } from './email.ts';
+import { pushPagoToTwenty } from './twenty-commerce-sync.ts';
 
 interface PedidoItem {
   producto_id: string;
@@ -181,6 +182,7 @@ export async function registrarPedidoPagado(
     skipClienteEmail: options?.skipClienteEmail,
   });
   await marcarCarritoConvertido(supabase, pedidoId);
+  void pushPagoToTwenty(supabase, pedidoId, provider);
 }
 
 async function marcarCarritoConvertido(supabase: SupabaseClient, pedidoId: string): Promise<void> {
