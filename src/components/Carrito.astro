@@ -57,14 +57,11 @@ const config = {
     soloColombia: t(locale, 'carrito.solo_colombia'),
     consentimiento: t(locale, 'carrito.consentimiento'),
     irPagar: t(locale, 'carrito.ir_pagar'),
-    avisoNoDisponible: t(locale, 'carrito.aviso_no_disponible'),
-    solicitudEnviada: t(locale, 'carrito.solicitud_enviada'),
     procesando: t(locale, 'carrito.procesando'),
     stockLimitado: t(locale, 'carrito.stock_limitado'),
     errorGenerico: t(locale, 'carrito.error_generico'),
     errorCarritoVacio: t(locale, 'carrito.error_carrito_vacio'),
     errorNoDisponible: t(locale, 'carrito.error_no_disponible'),
-    errorCotizacion: t(locale, 'carrito.error_cotizacion'),
     errorValidacion: t(locale, 'carrito.error_validacion'),
     requerido: t(locale, 'carrito.requerido'),
     avisoRecalculo: t(locale, 'carrito.aviso_recalculo'),
@@ -137,7 +134,6 @@ const config = {
         <span id="carrito-total">—</span>
       </div>
       <p class="carrito-aviso">{config.i18n.avisoRecalculo}</p>
-      <p class="carrito-aviso carrito-aviso--contingencia">{config.i18n.avisoNoDisponible}</p>
     </div>
   </div>
 
@@ -732,12 +728,9 @@ const config = {
     errorGenerico: string;
     errorCarritoVacio: string;
     errorNoDisponible: string;
-    errorCotizacion: string;
     errorValidacion: string;
     requerido: string;
     avisoRecalculo: string;
-    avisoNoDisponible: string;
-    solicitudEnviada: string;
     itemNoDisponible: string;
     cupon: string;
   }

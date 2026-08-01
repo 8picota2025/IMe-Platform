@@ -26,6 +26,7 @@ const { producto, familia, relacionados, locale } = Astro.props;
 
 const catalogoPath = locale === 'en' ? '/en/catalog/' : '/es/catalogo/';
 const contactoPath = locale === 'en' ? '/en/contact/' : '/es/contacto/';
+const carritoPath = locale === 'en' ? '/en/cart/' : '/es/carrito/';
 
 const especificaciones = normalizarEspecificaciones(producto.especificaciones);
 const grupos = new Map<string, typeof especificaciones>();
@@ -162,9 +163,22 @@ if (precioFormateado) {
               </button>
             )
           }
-          <a href={ctaCotizarHref} class="btn-hero-secondary">
-            {t(locale, 'producto.cotizar_cta')}
-          </a>
+          {
+            accionComercial.tipo === 'carrito' ? (
+              <a
+                href={whatsappHref}
+                class="btn-hero-secondary"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {t(locale, 'producto.asesor_cta')}
+              </a>
+            ) : (
+              <a href={ctaCotizarHref} class="btn-hero-secondary">
+                {t(locale, 'producto.cotizar_cta')}
+              </a>
+            )
+          }
           {
             producto.ficha_pdf && (
               <a
@@ -413,9 +427,17 @@ if (precioFormateado) {
       <h2>{t(locale, 'producto.contacto_titulo')}</h2>
       <p>{t(locale, 'producto.contacto_desc')}</p>
       <div class="cta-final__acciones">
-        <a href={ctaCotizarHref} class="btn-hero-primary">
-          {t(locale, 'producto.cotizar_cta')}
-        </a>
+        {
+          accionComercial.tipo === 'carrito' ? (
+            <a href={carritoPath} class="btn-hero-primary">
+              {t(locale, 'carrito.ir_pagar')}
+            </a>
+          ) : (
+            <a href={ctaCotizarHref} class="btn-hero-primary">
+              {t(locale, 'producto.cotizar_cta')}
+            </a>
+          )
+        }
         <a href={whatsappHref} class="btn-hero-secondary" target="_blank" rel="noopener noreferrer">
           <span aria-hidden="true">↗</span> WhatsApp
         </a>

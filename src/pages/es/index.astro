@@ -11,6 +11,7 @@
  */
 import Layout from '../../layouts/Layout.astro';
 import { getProductosDestacados } from '../../lib/datos';
+import { getAccionComercial } from '../../lib/comercial';
 import {
   buildFaqJsonLd,
   buildHomeSeo,
@@ -476,15 +477,31 @@ const servicios = [
                     <a class="btn btn-primary btn-sm" href={`/es/productos/${p.slug}/`}>
                       Ver detalles
                     </a>
-                    <button
-                      type="button"
-                      class="btn btn-outline btn-sm"
-                      data-add-cotizacion={p.slug}
-                      data-nombre={p.nombre}
-                      data-imagen={p.imagen_principal}
-                    >
-                      <i class="fab fa-whatsapp" /> Cotizar
-                    </button>
+                    {getAccionComercial(p, locale).tipo === 'carrito' ? (
+                      <button
+                        type="button"
+                        class="btn btn-outline btn-sm"
+                        data-add-carrito={p.slug}
+                        data-nombre={p.nombre}
+                        data-precio={p.precio}
+                        data-moneda={p.moneda ?? 'COP'}
+                        data-stock={p.stock ?? ''}
+                        data-label-agregar="Añadir al carrito"
+                        data-label-agregado="Producto añadido al carrito"
+                      >
+                        Añadir al carrito
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        class="btn btn-outline btn-sm"
+                        data-add-cotizacion={p.slug}
+                        data-nombre={p.nombre}
+                        data-imagen={p.imagen_principal}
+                      >
+                        <i class="fab fa-whatsapp" /> Cotizar
+                      </button>
+                    )}
                   </div>
                 </div>
               </article>
@@ -770,6 +787,27 @@ const servicios = [
           const mod = await import('../../lib/cotizacion-equipos');
           mod.agregarACotizacion({ slug, nombre, imagen: imagen ?? '' });
           mod.abrirCotizacion();
+        });
+      });
+
+    // ── "Añadir al carrito" → carrito de compra y abre el drawer ──
+    document
+      .querySelectorAll<HTMLButtonElement>(
+        '.site-faithful [data-add-carrito]:not([data-ime-bound])'
+      )
+      .forEach(btn => {
+        btn.dataset.imeBound = '1';
+        btn.addEventListener('click', async () => {
+          const slug = btn.dataset.addCarrito;
+          const nombre = btn.dataset.nombre;
+          const precio = Number(btn.dataset.precio);
+          const moneda = btn.dataset.moneda ?? 'COP';
+          const stockRaw = btn.dataset.stock;
+          const stock = stockRaw ? Number(stockRaw) : null;
+          if (!slug || !nombre || Number.isNaN(precio)) return;
+          const mod = await import('../../lib/carrito');
+          mod.agregarAlCarrito({ slug, nombre, precio, moneda, stock });
+          mod.abrirCarrito();
         });
       });
   }
