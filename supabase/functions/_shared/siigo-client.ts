@@ -355,3 +355,108 @@ export async function crearFactura(
     error: body.stamp?.errors,
   };
 }
+
+export interface SiigoCreditNotePayload {
+  document: { id: number };
+  date: string;
+  invoice: string;
+  reason: number;
+  seller?: number;
+  observations?: string;
+  items: Array<{
+    code: string;
+    description?: string;
+    quantity: number;
+    price: number;
+    taxes?: Array<{ id: number }>;
+  }>;
+  payments: Array<{ id: number; value: number }>;
+  stamp?: { send: boolean };
+  mail?: { send: boolean };
+}
+
+export interface SiigoCreditNoteResult {
+  ok: boolean;
+  raw: unknown;
+  estadoStamp: string;
+  numeroNota?: string;
+  cude?: string;
+  error?: string;
+}
+
+/** Lista tipos de documento Siigo (FV, NC, …). */
+export async function listarTiposDocumento(
+  token: string,
+  config: SiigoConfig,
+  type: string
+): Promise<Array<{ id: number; name?: string; type?: string; electronic?: boolean }>> {
+  const headers = siigoHeaders(token, config.partnerId);
+  const res = await fetchWithTimeout(
+    `${SIIGO_BASE_URL}/v1/document-types?type=${encodeURIComponent(type)}`,
+    { method: 'GET', headers }
+  );
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(`document-types fallo: ${extraerMensajeError(body, res.status)}`);
+  }
+  return extraerLista(body) as Array<{
+    id: number;
+    name?: string;
+    type?: string;
+    electronic?: boolean;
+  }>;
+}
+
+/** Lista medios de pago para un tipo de documento. */
+export async function listarMediosPago(
+  token: string,
+  config: SiigoConfig,
+  documentType: string
+): Promise<Array<{ id: number; name?: string }>> {
+  const headers = siigoHeaders(token, config.partnerId);
+  const res = await fetchWithTimeout(
+    `${SIIGO_BASE_URL}/v1/payment-types?document_type=${encodeURIComponent(documentType)}`,
+    { method: 'GET', headers }
+  );
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(`payment-types fallo: ${extraerMensajeError(body, res.status)}`);
+  }
+  return extraerLista(body) as Array<{ id: number; name?: string }>;
+}
+
+/** POST /v1/credit-notes — anulación / devolución de factura. */
+export async function crearNotaCredito(
+  token: string,
+  config: SiigoConfig,
+  payload: SiigoCreditNotePayload
+): Promise<SiigoCreditNoteResult> {
+  const headers = siigoHeaders(token, config.partnerId);
+  const res = await fetchWithTimeout(`${SIIGO_BASE_URL}/v1/credit-notes`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(payload),
+  });
+  const body = (await res.json().catch(() => ({}))) as {
+    name?: string;
+    stamp?: { status?: string; cude?: string; cufe?: string; errors?: string };
+  };
+
+  if (!res.ok) {
+    return {
+      ok: false,
+      raw: body,
+      estadoStamp: 'error',
+      error: extraerMensajeError(body, res.status),
+    };
+  }
+
+  return {
+    ok: true,
+    raw: body,
+    estadoStamp: body.stamp?.status ?? 'Accepted',
+    numeroNota: body.name,
+    cude: body.stamp?.cude ?? body.stamp?.cufe,
+    error: body.stamp?.errors,
+  };
+}
