@@ -46,7 +46,7 @@ jobs:
           username: ${{ secrets.HOSTINGER_FTP_USER }}
           password: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
           local-dir: ./dist/
-          server-dir: ${{ secrets.HOSTINGER_PREVIEW_PATH }}/${{ github.event.pull_request.number }}
+          server-dir: ${{ secrets.HOSTINGER_PREVIEW_PATH }}/${{ github.event.pull_request.number }}/
           dangerous-clean-slate: false
 
       - name: Comment PR with preview URL

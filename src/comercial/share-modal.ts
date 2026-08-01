@@ -166,13 +166,13 @@ function channelFieldsHtml(canal: Canal): string {
 export function openShareModal(
   productos: ProductoComercial[],
   prefill?: {
-    recipientName?: string;
-    medicalCenterName?: string;
-    channel?: Canal;
-    recipientEmail?: string;
-    recipientPhone?: string;
-    phoneCountryCode?: string;
-    message?: string;
+    recipientName?: string | undefined;
+    medicalCenterName?: string | undefined;
+    channel?: Canal | undefined;
+    recipientEmail?: string | undefined;
+    recipientPhone?: string | undefined;
+    phoneCountryCode?: string | undefined;
+    message?: string | undefined;
   }
 ): void {
   if (productos.length === 0) {

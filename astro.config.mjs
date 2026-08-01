@@ -1,15 +1,15 @@
 // @ts-check
-import { defineConfig } from 'astro/config'
-import sentry from '@sentry/astro'
-import sitemap from '@astrojs/sitemap'
-import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from 'astro/config';
+import sentry from '@sentry/astro';
+import sitemap from '@astrojs/sitemap';
+import tailwindcss from '@tailwindcss/vite';
 
-const sentryDsn = process.env.PUBLIC_SENTRY_DSN
-const sentryEnabled = Boolean(sentryDsn)
+const sentryDsn = process.env.PUBLIC_SENTRY_DSN;
+const sentryEnabled = Boolean(sentryDsn);
 
 // astro dev con i18n.prefixDefaultLocale devuelve 404 en rutas raiz sin locale
 // (/admin/, /comercial/). En produccion el host sirve el estatico y funcionan.
-const i18nDisabled = process.env.ASTRO_NO_I18N === '1'
+const i18nDisabled = process.env.ASTRO_NO_I18N === '1';
 
 export default defineConfig({
   site: 'https://i-me.com.co',
@@ -26,8 +26,8 @@ export default defineConfig({
       },
     }),
     sitemap({
-      filter: (page) => {
-        const url = new URL(page)
+      filter: page => {
+        const url = new URL(page);
         return !(
           url.pathname === '/admin/' ||
           url.pathname === '/comercial/' ||
@@ -37,8 +37,14 @@ export default defineConfig({
           url.pathname === '/en/cart/' ||
           url.pathname === '/en/checkout/' ||
           url.pathname === '/en/account/' ||
+          url.pathname === '/en/knowledge/publish/' ||
+          url.pathname === '/en/order-status/' ||
+          url.pathname === '/en/products/test/' ||
+          url.pathname === '/es/seguimiento/' ||
+          url.pathname === '/es/productos/test/' ||
+          url.pathname === '/pagoswompi/' ||
           /^\/(es\/pago|en\/payment)\//.test(url.pathname)
-        )
+        );
       },
     }),
   ],
@@ -66,4 +72,4 @@ export default defineConfig({
   devToolbar: {
     enabled: false,
   },
-})
+});
