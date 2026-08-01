@@ -7,6 +7,7 @@ import {
   mensajeBloqueoEliminarTipo,
   validarFamiliaYTipoProducto,
   validarTipoEditable,
+  validarFamiliaEditable,
   type FamiliaRow,
   type TipoRow,
   type ProductoTaxonomiaRow,
@@ -46,6 +47,7 @@ type View =
   | 'envios'
   | 'resenas'
   | 'conocimiento'
+  | 'propuestas'
   | 'ingesta'
   | 'asesor';
 
@@ -147,6 +149,7 @@ const VISTAS_POR_ROL: Record<string, Set<View>> = {
     'taxonomia',
     'ingesta',
     'conocimiento',
+    'propuestas',
   ]),
   ventas: new Set<View>([
     'dashboard',
@@ -301,6 +304,7 @@ function parseView(hash: string): View {
     raw === 'envios' ||
     raw === 'resenas' ||
     raw === 'conocimiento' ||
+    raw === 'propuestas' ||
     raw === 'ingesta' ||
     raw === 'asesor'
   ) {
@@ -542,6 +546,8 @@ async function routeView(): Promise<{ title: string; body: string }> {
   if (state.view === 'resenas') return { title: 'Resenas', body: await resenasView() };
   if (state.view === 'conocimiento')
     return { title: 'Conocimiento', body: await conocimientoView() };
+  if (state.view === 'propuestas')
+    return { title: 'Propuestas de articulos', body: await propuestasView() };
   if (state.view === 'ingesta') return { title: 'Ingesta PDF', body: await ingestaView() };
   if (state.view === 'asesor') return { title: 'Asesor', body: await asesorView() };
   return { title: 'Dashboard', body: await dashboardView() };
@@ -568,6 +574,7 @@ function shellHtml(title: string, body: string): string {
     ['reportes', 'Reportes'],
     ['marketing', 'Marketing'],
     ['conocimiento', 'Conocimiento'],
+    ['propuestas', 'Propuestas'],
     ['asesor', 'Asesor'],
   ];
   return `
@@ -637,6 +644,7 @@ function bindView() {
   bindListasPrecio();
   bindEnvios();
   bindResenas();
+  bindPropuestas();
   bindAsesorPanel();
 }
 
@@ -925,6 +933,117 @@ function bindResenas() {
         .eq('id', button.dataset['resenaDel'] ?? '');
       if (error) toast(error.message);
       else await render();
+    });
+  });
+}
+
+async function propuestasView(): Promise<string> {
+  const { data, error } = await supabase!
+    .from('articulos_propuestos')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(200);
+  if (error) {
+    return `<p class="admin-help" style="padding:16px">Error: ${escapeHtml(error.message)}. Si la tabla no tiene políticas RLS de admin, aplica migración 20260801240000.</p>`;
+  }
+  const rows = (data ?? []) as Row[];
+  const pendientes = rows.filter(r => text(r.estado) === 'pendiente');
+  const resueltas = rows.filter(r => text(r.estado) !== 'pendiente');
+  const fila = (r: Row) => [
+    formatCell(r.created_at),
+    escapeHtml(text(r.autor_tipo)),
+    escapeHtml(text(r.autor_nombre)),
+    escapeHtml(text(r.autor_email)),
+    escapeHtml(text(r.titulo)).slice(0, 80),
+    escapeHtml(text(r.resumen) || text(r.cuerpo_md)).slice(0, 160),
+    escapeHtml(text(r.estado)),
+    text(r.estado) === 'pendiente'
+      ? `<button class="admin-button" type="button" data-propuesta-aprobar="${escapeHtml(text(r.id))}">Aprobar→artículo</button>
+         <button class="admin-button admin-button--danger" type="button" data-propuesta-rechazar="${escapeHtml(text(r.id))}">Rechazar</button>`
+      : escapeHtml(text(r.motivo_rechazo) || '—'),
+  ];
+  const headers = ['Fecha', 'Tipo', 'Autor', 'Email', 'Título', 'Resumen', 'Estado', 'Acciones'];
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Pendientes (${pendientes.length})</h2></div>
+      <div class="admin-help" style="padding:0 16px 12px">Propuestas públicas de /es/conocimiento/publicar/. Aprobar crea borrador en Conocimiento.</div>
+      ${
+        pendientes.length === 0
+          ? '<p class="admin-help" style="padding:16px">Sin propuestas pendientes.</p>'
+          : table(headers, pendientes.map(fila))
+      }
+    </section>
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Historial (${resueltas.length})</h2></div>
+      ${
+        resueltas.length === 0
+          ? '<p class="admin-help" style="padding:16px">Sin historial.</p>'
+          : table(headers, resueltas.map(fila))
+      }
+    </section>`;
+}
+
+function bindPropuestas() {
+  app.querySelectorAll<HTMLButtonElement>('[data-propuesta-aprobar]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const id = button.dataset['propuestaAprobar'];
+      if (!id) return;
+      button.disabled = true;
+      const propuesta = await getRow('articulos_propuestos', id);
+      if (!propuesta) {
+        toast('Propuesta no encontrada');
+        button.disabled = false;
+        return;
+      }
+      const titulo = text(propuesta.titulo);
+      const slug = await uniqueArticuloSlug(slugify(titulo));
+      const autorTipo = text(propuesta.autor_tipo) === 'fabricante' ? 'fabricante' : 'cliente';
+      const { data: inserted, error: insertError } = await supabase!
+        .from('articulos')
+        .insert({
+          slug,
+          titulo_es: titulo,
+          cuerpo_es: text(propuesta.cuerpo_md) || text(propuesta.resumen),
+          publicado: false,
+          autor_tipo: autorTipo,
+          autor_nombre: text(propuesta.autor_nombre),
+          autor_empresa: text(propuesta.autor_empresa) || null,
+        })
+        .select('id')
+        .single();
+      if (insertError) {
+        toast(insertError.message);
+        button.disabled = false;
+        return;
+      }
+      const { error: updateError } = await supabase!
+        .from('articulos_propuestos')
+        .update({ estado: 'aprobado', motivo_rechazo: null })
+        .eq('id', id);
+      if (updateError) {
+        toast(updateError.message);
+        button.disabled = false;
+        return;
+      }
+      toast('Propuesta aprobada: borrador creado en Conocimiento');
+      location.hash = `#/conocimiento?id=${encodeURIComponent(text(inserted?.id))}`;
+      await render();
+    });
+  });
+  app.querySelectorAll<HTMLButtonElement>('[data-propuesta-rechazar]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const id = button.dataset['propuestaRechazar'];
+      if (!id) return;
+      const motivo = prompt('Motivo del rechazo (opcional):') ?? '';
+      const { error } = await supabase!
+        .from('articulos_propuestos')
+        .update({ estado: 'rechazado', motivo_rechazo: motivo.trim().slice(0, 500) || null })
+        .eq('id', id);
+      if (error) toast(error.message);
+      else {
+        toast('Propuesta rechazada');
+        await render();
+      }
     });
   });
 }
@@ -2349,9 +2468,26 @@ async function taxonomiaView(): Promise<string> {
             text(r.slug),
             text(r.nombre_es),
             status(r.activo),
-            `<button class="admin-button admin-button--danger" type="button" data-delete-familia="${escapeHtml(text(r.id))}">Eliminar</button>`,
+            [
+              `<button class="admin-button admin-button--ghost" type="button" data-edit-familia="${escapeHtml(text(r.id))}">Editar</button>`,
+              `<button class="admin-button admin-button--danger" type="button" data-delete-familia="${escapeHtml(text(r.id))}">Eliminar</button>`,
+            ].join(' '),
           ])
         )}
+      </form>
+      <form class="admin-panel admin-form admin-taxonomy-panel" data-familia-edit-form>
+        <div class="admin-panel__head"><h2>Editar familia</h2><button class="admin-button" type="submit">Guardar cambios</button></div>
+        <div class="admin-taxonomy-list">
+          ${select('familia_id', 'Familia a editar', '', familias, 'nombre_es', true)}
+          ${field('slug', 'Slug', '', true)}
+          ${field('nombre_es', 'Nombre ES', '', true)}
+          ${field('nombre_en', 'Nombre EN')}
+          ${textarea('descripcion_es', 'Descripcion ES')}
+          ${textarea('descripcion_en', 'Descripcion EN')}
+          ${field('orden', 'Orden', '0', false, 'number')}
+          ${checkbox('activo', 'Activa', true)}
+        </div>
+        <p class="admin-help">Selecciona una familia, precarga sus campos y guarda los cambios.</p>
       </form>
       <form class="admin-panel admin-form admin-taxonomy-panel" data-type-edit-form>
         <div class="admin-panel__head"><h2>Editar tipo</h2><button class="admin-button" type="submit">Guardar cambios</button></div>
@@ -3582,7 +3718,7 @@ async function cuponFormView(): Promise<string> {
         <div class="admin-editor__cols">
           ${field('codigo', 'Codigo', text(row?.codigo), true)}
           ${selectStatic('tipo_descuento', 'Tipo descuento', text(row?.tipo_descuento) || 'porcentaje', CUPON_TIPOS)}
-          ${field('valor', 'Valor', text(row?.valor), true, 'number')}
+          ${field('valor', 'Valor (% max 100 si porcentaje)', text(row?.valor), true, 'number', 'min="0" step="0.01"')}
           ${field('moneda', 'Moneda', text(row?.moneda) || 'COP', true)}
           ${field('monto_minimo', 'Monto minimo', text(row?.monto_minimo), false, 'number')}
           ${field('monto_maximo', 'Monto maximo', text(row?.monto_maximo), false, 'number')}
@@ -4243,7 +4379,11 @@ async function conocimientoView(): Promise<string> {
                     <td>${escapeHtml(text(row.updated_at) || text(row.created_at))}</td>
                     <td>
                       <a class="admin-button admin-button--ghost" href="#/conocimiento?id=${encodeURIComponent(text(row.id))}">Editar</a>
-                      <a class="admin-button admin-button--ghost" href="/es/conocimiento/${encodeURIComponent(text(row.slug))}" target="_blank" rel="noreferrer noopener">Ver</a>
+                      ${
+                        published
+                          ? `<a class="admin-button admin-button--ghost" href="/es/conocimiento/${encodeURIComponent(text(row.slug))}" target="_blank" rel="noreferrer noopener">Ver</a>`
+                          : `<span class="admin-help" title="Publica el articulo para verlo en el sitio">Borrador</span>`
+                      }
                     </td>
                   </tr>`;
               })
@@ -4954,6 +5094,63 @@ function bindTaxonomy() {
     });
   });
 
+  app.querySelectorAll<HTMLButtonElement>('[data-edit-familia]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const id = button.dataset['editFamilia'];
+      if (!id) return;
+      const familia = await getRow('familias', id);
+      if (!familia) {
+        toast('Familia no encontrada');
+        return;
+      }
+      const form = app.querySelector<HTMLFormElement>('[data-familia-edit-form]');
+      if (!form) return;
+      setFormValue(form, 'familia_id', text(familia.id));
+      setFormValue(form, 'slug', text(familia.slug));
+      setFormValue(form, 'nombre_es', text(familia.nombre_es));
+      setFormValue(form, 'nombre_en', text(familia.nombre_en));
+      setFormValue(form, 'descripcion_es', text(familia.descripcion_es));
+      setFormValue(form, 'descripcion_en', text(familia.descripcion_en));
+      setFormValue(form, 'orden', text(familia.orden));
+      setCheckboxValue(form, 'activo', familia.activo !== false);
+      toast('Familia cargada para edición');
+    });
+  });
+
+  app
+    .querySelector<HTMLFormElement>('[data-familia-edit-form]')
+    ?.addEventListener('submit', async event => {
+      event.preventDefault();
+      const form = event.currentTarget as HTMLFormElement;
+      const data = new FormData(form);
+      const id = String(data.get('familia_id') ?? '');
+      if (!id) {
+        toast('Selecciona una familia para editar');
+        return;
+      }
+      const payload: Row = {
+        slug: emptyToNull(data.get('slug')),
+        nombre_es: emptyToNull(data.get('nombre_es')),
+        nombre_en: emptyToNull(data.get('nombre_en')),
+        descripcion_es: emptyToNull(data.get('descripcion_es')),
+        descripcion_en: emptyToNull(data.get('descripcion_en')),
+        orden: numberOrZero(data.get('orden')),
+        activo: data.get('activo') === 'on',
+      };
+      const error = validarFamiliaEditable(payload);
+      if (error) {
+        toast(error);
+        return;
+      }
+      const { error: updateError } = await supabase!.from('familias').update(payload).eq('id', id);
+      if (updateError) {
+        toast(updateError.message);
+        return;
+      }
+      toast('Familia actualizada');
+      await render();
+    });
+
   app
     .querySelector<HTMLFormElement>('[data-type-edit-form]')
     ?.addEventListener('submit', async event => {
@@ -5211,6 +5408,7 @@ function bindArticulos() {
     }
 
     if (id) {
+      payload.slug = await uniqueArticuloSlug(slug, id);
       const { error } = await supabase!.from('articulos').update(payload).eq('id', id);
       if (error) {
         toast(error.message);
@@ -5912,7 +6110,11 @@ function bindCupones() {
         .trim()
         .toUpperCase(),
       tipo_descuento: String(data.get('tipo_descuento') ?? 'porcentaje'),
-      valor: numberOrZero(data.get('valor')),
+      valor: (() => {
+        const tipo = String(data.get('tipo_descuento') ?? 'porcentaje');
+        const raw = numberOrZero(data.get('valor'));
+        return tipo === 'porcentaje' ? Math.min(100, Math.max(0, raw)) : Math.max(0, raw);
+      })(),
       moneda: String(data.get('moneda') ?? 'COP'),
       monto_minimo: numberOrNull(data.get('monto_minimo')),
       monto_maximo: numberOrNull(data.get('monto_maximo')),
@@ -7141,7 +7343,7 @@ async function uniqueProductSlug(baseSlug: string): Promise<string> {
   return `${base}-${Date.now()}`;
 }
 
-async function uniqueArticuloSlug(baseSlug: string): Promise<string> {
+async function uniqueArticuloSlug(baseSlug: string, excludeId?: string): Promise<string> {
   const base = baseSlug || 'articulo';
   let candidate = base;
   for (let i = 2; i <= 100; i += 1) {
@@ -7151,7 +7353,8 @@ async function uniqueArticuloSlug(baseSlug: string): Promise<string> {
       .eq('slug', candidate)
       .maybeSingle();
     if (error) return `${base}-${Date.now()}`;
-    if (!data) return candidate;
+    const existingId = data ? text((data as Row).id) : '';
+    if (!existingId || (excludeId && existingId === excludeId)) return candidate;
     candidate = `${base}-${i}`;
   }
   return `${base}-${Date.now()}`;
@@ -7776,8 +7979,15 @@ function productListCell(
   return `<input class="admin-inline-input" ${baseAttrs} type="${column.type === 'number' ? 'number' : 'text'}" value="${escapeHtml(text(value))}" />`;
 }
 
-function field(name: string, label: string, value = '', required = false, type = 'text'): string {
-  return `<label class="admin-field">${escapeHtml(label)}<input name="${escapeHtml(name)}" type="${type}" value="${escapeHtml(value)}" ${required ? 'required' : ''} /></label>`;
+function field(
+  name: string,
+  label: string,
+  value = '',
+  required = false,
+  type = 'text',
+  extraAttrs = ''
+): string {
+  return `<label class="admin-field">${escapeHtml(label)}<input name="${escapeHtml(name)}" type="${type}" value="${escapeHtml(value)}" ${required ? 'required' : ''} ${extraAttrs} /></label>`;
 }
 
 function textarea(name: string, label: string, value = ''): string {

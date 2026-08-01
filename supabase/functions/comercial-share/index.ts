@@ -202,8 +202,8 @@ async function handleCreate(
       ? body.idempotencyKey.trim().slice(0, 200)
       : null;
 
-  // Idempotencia: si ya existe un envio con esta clave, devolverlo tal cual
-  // (evita reenvios duplicados por reintentos de red del cliente).
+  // Idempotencia: mismo key + envío exitoso → devolver tal cual.
+  // Si falló/draft → liberar clave y permitir reintento comercial real.
   if (idempotencyKey) {
     const { data: existente } = await supabase
       .from('commercial_shares')
@@ -212,16 +212,21 @@ async function handleCreate(
       .maybeSingle();
     if (existente) {
       const row = existente as Pick<ShareRow, 'id' | 'status' | 'whatsapp_url' | 'crm_sync_status'>;
-      return jsonResponse(
-        {
-          shareId: row.id,
-          status: row.status,
-          whatsappUrl: row.whatsapp_url ?? undefined,
-          crmSyncStatus: row.crm_sync_status,
-          idempotent: true,
-        },
-        origin
-      );
+      const terminalOk = new Set(['sent', 'prepared', 'queued', 'opened', 'delivered', 'read']);
+      if (terminalOk.has(row.status)) {
+        return jsonResponse(
+          {
+            shareId: row.id,
+            status: row.status,
+            whatsappUrl: row.whatsapp_url ?? undefined,
+            crmSyncStatus: row.crm_sync_status,
+            idempotent: true,
+          },
+          origin
+        );
+      }
+      // Liberar UNIQUE para reintento (failed/draft/otros).
+      await supabase.from('commercial_shares').update({ idempotency_key: null }).eq('id', row.id);
     }
   }
 
@@ -325,6 +330,27 @@ async function handleCreate(
     .select('id')
     .single();
   if (insertError || !inserted) {
+    // Carrera: dos requests pasan el check y chocan UNIQUE → devolver existente.
+    if (idempotencyKey && /duplicate|unique/i.test(insertError?.message ?? '')) {
+      const { data: raced } = await supabase
+        .from('commercial_shares')
+        .select('id, status, whatsapp_url, crm_sync_status')
+        .eq('idempotency_key', idempotencyKey)
+        .maybeSingle();
+      if (raced) {
+        const row = raced as Pick<ShareRow, 'id' | 'status' | 'whatsapp_url' | 'crm_sync_status'>;
+        return jsonResponse(
+          {
+            shareId: row.id,
+            status: row.status,
+            whatsappUrl: row.whatsapp_url ?? undefined,
+            crmSyncStatus: row.crm_sync_status,
+            idempotent: true,
+          },
+          origin
+        );
+      }
+    }
     return internalError(insertError?.message ?? 'No se pudo crear el envio', origin);
   }
   const shareId = (inserted as { id: string }).id;
@@ -619,8 +645,8 @@ async function handleRetry(
       crm_person_id: twenty.data?.personId ?? share.crm_person_id,
       crm_company_id: twenty.data?.companyId ?? share.crm_company_id,
       crm_record_id: twenty.data?.noteId ?? share.crm_record_id,
-      error_code: twenty.ok ? null : 'CRM_SYNC_FAILED',
-      error_message: twenty.ok ? null : (twenty.error ?? null),
+      error_code: twenty.ok || twenty.skipped ? null : 'CRM_SYNC_FAILED',
+      error_message: twenty.ok || twenty.skipped ? null : (twenty.error ?? null),
     })
     .eq('id', id);
   if (updateError) return internalError(updateError.message, origin);

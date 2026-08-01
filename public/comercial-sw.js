@@ -3,12 +3,13 @@
  * Solo same-origin bajo /comercial y assets estáticos propios.
  * Nunca intercepta Supabase ni otras APIs cross-origin.
  */
-const CACHE = 'ime-comercial-v2';
+const CACHE = 'ime-comercial-v3';
 const SHELL_URLS = ['/comercial/', '/manifest-comercial.json'];
 
 function shouldHandle(request, url) {
   if (request.method !== 'GET') return false;
   if (url.origin !== self.location.origin) return false;
+  // Scope de registro = /comercial/ — solo rutas bajo ese prefijo + manifest/SW.
   return (
     url.pathname.startsWith('/comercial') ||
     url.pathname === '/manifest-comercial.json' ||

@@ -123,7 +123,19 @@ describe('SPECIALTY_GROUPS / specialtyForFamiliaSlug', () => {
 
   it('resuelve la especialidad de una familia conocida', () => {
     expect(specialtyForFamiliaSlug('monitores')).toBe('Diagnóstico y monitoreo');
+    expect(specialtyForFamiliaSlug('anestesia')).toBe('Terapia y soporte vital');
+    expect(specialtyForFamiliaSlug('sala-cirugia')).toBe('Quirófano y cuidado crítico');
     expect(specialtyForFamiliaSlug('mobiliario')).toBe('Infraestructura clínica');
+  });
+
+  it('no solapa familias entre especialidades', () => {
+    const seen = new Set<string>();
+    for (const grupo of SPECIALTY_GROUPS) {
+      for (const familia of grupo.familias) {
+        expect(seen.has(familia)).toBe(false);
+        seen.add(familia);
+      }
+    }
   });
 
   it('devuelve null para una familia que no pertenece a ningun grupo', () => {

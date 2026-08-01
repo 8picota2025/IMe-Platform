@@ -20,29 +20,6 @@ Astro.response.status = 200;
     <meta name="apple-mobile-web-app-title" content="I-ME Comercial" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <!-- Limpia SW/caché rotos ANTES del bundle (causa típica de "Failed to fetch" a Supabase). -->
-    <script is:inline>
-      (function () {
-        try {
-          if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function (regs) {
-              regs.forEach(function (r) {
-                r.unregister();
-              });
-            });
-          }
-          if (window.caches && caches.keys) {
-            caches.keys().then(function (keys) {
-              keys.forEach(function (k) {
-                caches.delete(k);
-              });
-            });
-          }
-        } catch {
-          /* ignore SW cleanup errors */
-        }
-      })();
-    </script>
   </head>
   <body class="comercial-body">
     <main id="comercial-app" class="comercial-root">

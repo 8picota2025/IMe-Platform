@@ -6,10 +6,13 @@
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { badRequest, internalError, unauthorized } from '../_shared/errors.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
+import { requireAdmin } from '../_shared/admin-auth.ts';
 
 interface RebuildRequest {
   reason?: string;
 }
+
+const REBUILD_ROLES = new Set(['owner', 'admin', 'catalogo']);
 
 Deno.serve(async req => {
   const origin = req.headers.get('origin');
@@ -17,16 +20,10 @@ Deno.serve(async req => {
   if (corsRes) return corsRes;
   if (req.method !== 'POST') return badRequest('Metodo no soportado', origin);
 
-  const token = req.headers.get('Authorization')?.replace(/^Bearer\s+/i, '');
-  if (!token) return unauthorized(origin);
-
   try {
     const supabase = getServerSupabase();
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser(token);
-    if (error || !user) return unauthorized(origin);
+    const auth = await requireAdmin(supabase, req.headers.get('Authorization'), REBUILD_ROLES);
+    if (!auth.ok) return unauthorized(origin);
 
     const body = (await req.json().catch(() => ({}))) as RebuildRequest;
     const hook = Deno.env.get('CI_DEPLOY_HOOK');
@@ -55,7 +52,7 @@ Deno.serve(async req => {
         event_type: eventType,
         client_payload: {
           reason: body.reason ?? 'admin_publish_batch',
-          requested_by: user.email ?? user.id,
+          requested_by: auth.email ?? auth.userId ?? 'unknown',
           requested_at: new Date().toISOString(),
         },
       }),

@@ -163,13 +163,26 @@ function channelFieldsHtml(canal: Canal): string {
     </div>`;
 }
 
-export function openShareModal(productos: ProductoComercial[]): void {
+export function openShareModal(
+  productos: ProductoComercial[],
+  prefill?: {
+    recipientName?: string;
+    medicalCenterName?: string;
+    channel?: Canal;
+    recipientEmail?: string;
+    recipientPhone?: string;
+    phoneCountryCode?: string;
+    message?: string;
+  }
+): void {
   if (productos.length === 0) {
     toast('Selecciona al menos un producto para enviar.', 'error');
     return;
   }
   closeModal();
   previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+
+  const initialCanal: Canal = prefill?.channel === 'whatsapp' ? 'whatsapp' : 'email';
 
   const overlay = document.createElement('div');
   overlay.className = 'comercial-modal-overlay';
@@ -191,29 +204,29 @@ export function openShareModal(productos: ProductoComercial[]): void {
         <div class="comercial-field-row">
           <label class="comercial-field">
             <span>Nombre del destinatario</span>
-            <input name="nombre" type="text" required autocomplete="name" data-recipient-name />
+            <input name="nombre" type="text" required autocomplete="name" data-recipient-name value="${escapeHtml(prefill?.recipientName ?? '')}" />
           </label>
           <label class="comercial-field">
             <span>Centro médico / institución</span>
-            <input name="centroMedico" type="text" autocomplete="organization" data-medical-center />
+            <input name="centroMedico" type="text" autocomplete="organization" data-medical-center value="${escapeHtml(prefill?.medicalCenterName ?? '')}" />
           </label>
         </div>
         <fieldset class="comercial-field comercial-channel-fieldset">
           <legend>Canal de envío</legend>
           <label class="comercial-radio">
-            <input type="radio" name="canal" value="email" checked /> Email
+            <input type="radio" name="canal" value="email" ${initialCanal === 'email' ? 'checked' : ''} /> Email
           </label>
           <label class="comercial-radio">
-            <input type="radio" name="canal" value="whatsapp" /> WhatsApp
+            <input type="radio" name="canal" value="whatsapp" ${initialCanal === 'whatsapp' ? 'checked' : ''} /> WhatsApp
           </label>
         </fieldset>
-        <div data-channel-fields>${channelFieldsHtml('email')}</div>
+        <div data-channel-fields>${channelFieldsHtml(initialCanal)}</div>
         <label class="comercial-field">
           <span>Mensaje</span>
           <textarea name="mensaje" rows="8" data-message required></textarea>
         </label>
         <label class="comercial-field comercial-field--consent">
-          <input type="checkbox" name="consentimiento" required data-consent />
+          <input type="checkbox" name="consentimiento" required data-consent ${prefill ? 'checked' : ''} />
           <span>Confirmo que cuento con autorización del destinatario para recibir esta comunicación comercial (tratamiento de datos personales).</span>
         </label>
         <p class="comercial-modal__error" role="alert" data-modal-error hidden></p>
@@ -234,9 +247,21 @@ export function openShareModal(productos: ProductoComercial[]): void {
   const errorSlot = overlay.querySelector<HTMLElement>('[data-modal-error]');
   const nombreInput = overlay.querySelector<HTMLInputElement>('[data-recipient-name]');
   const centroInput = overlay.querySelector<HTMLInputElement>('[data-medical-center]');
-  let messageEditedByUser = false;
-  let currentCanal: Canal = 'email';
+  let messageEditedByUser = Boolean(prefill?.message);
+  let currentCanal: Canal = initialCanal;
 
+  // Prefill canal-specific fields after channelFieldsHtml render
+  const emailInput = overlay.querySelector<HTMLInputElement>('input[name="email"]');
+  const phoneInput = overlay.querySelector<HTMLInputElement>('input[name="telefono"]');
+  const paisSelect = overlay.querySelector<HTMLSelectElement>('select[name="paisCodigo"]');
+  if (emailInput && prefill?.recipientEmail) emailInput.value = prefill.recipientEmail;
+  if (phoneInput && prefill?.recipientPhone) {
+    const digits = prefill.recipientPhone.replace(/\D/g, '');
+    const cc = (prefill.phoneCountryCode ?? '57').replace(/\D/g, '');
+    phoneInput.value =
+      cc && digits.startsWith(cc) && digits.length > cc.length ? digits.slice(cc.length) : digits;
+  }
+  if (paisSelect && prefill?.phoneCountryCode) paisSelect.value = prefill.phoneCountryCode;
   const destinatarioActual = () => ({
     nombre: nombreInput?.value.trim() ?? '',
     centroMedico: centroInput?.value.trim() ?? '',
@@ -251,13 +276,12 @@ export function openShareModal(productos: ProductoComercial[]): void {
   }
 
   if (messageField) {
-    messageField.value = buildFallbackMessage(productos);
+    messageField.value = prefill?.message?.trim() || buildFallbackMessage(productos);
     messageField.addEventListener('input', () => {
       messageEditedByUser = true;
     });
   }
-  void refreshDraftMessage();
-
+  if (!prefill?.message) void refreshDraftMessage();
   // Si el usuario completa nombre/centro médico ANTES de editar el mensaje
   // manualmente, se re-renderiza la plantilla con esos datos ya sustituidos.
   [nombreInput, centroInput].forEach(input => {

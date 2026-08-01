@@ -117,3 +117,14 @@ export function validarTipoEditable(payload: {
   if (!nombreEs) return 'El nombre ES del tipo es obligatorio.';
   return null;
 }
+
+export function validarFamiliaEditable(payload: {
+  slug?: unknown;
+  nombre_es?: unknown;
+}): string | null {
+  const slug = typeof payload.slug === 'string' ? payload.slug.trim() : '';
+  const nombreEs = typeof payload.nombre_es === 'string' ? payload.nombre_es.trim() : '';
+  if (!slug) return 'El slug de la familia es obligatorio.';
+  if (!nombreEs) return 'El nombre ES de la familia es obligatorio.';
+  return null;
+}

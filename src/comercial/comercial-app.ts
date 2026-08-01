@@ -28,7 +28,12 @@ import {
   clearRecoveryFlag,
   type IdleWatcher,
 } from './auth';
-import { renderCatalogoView, bindCatalogoView, clearSelection } from './catalog-view';
+import {
+  renderCatalogoView,
+  bindCatalogoView,
+  clearSelection,
+  type ProductoComercial,
+} from './catalog-view';
 import { openShareModal } from './share-modal';
 
 const appElement = document.getElementById('comercial-app');
@@ -208,14 +213,16 @@ async function bootAfterLogin(): Promise<void> {
 
 async function updateLastLogin(userId: string): Promise<void> {
   if (!supabase) return;
-  const { error } = await supabase
-    .from('admin_profiles')
-    .update({ last_login_at: new Date().toISOString() })
-    .eq('user_id', userId);
+  const { error } = await supabase.rpc('touch_admin_last_login');
   if (error) {
-    // La columna last_login_at puede no existir todavía (migración pendiente)
-    // — no debe bloquear el inicio de sesión.
-    console.debug('[comercial] last_login_at no actualizado:', error.message);
+    // Fallback legacy: columna/RPC pueden no existir aún.
+    const legacy = await supabase
+      .from('admin_profiles')
+      .update({ last_login_at: new Date().toISOString() })
+      .eq('user_id', userId);
+    if (legacy.error) {
+      console.debug('[comercial] last_login_at no actualizado:', error.message);
+    }
   }
 }
 
@@ -255,6 +262,9 @@ async function render(): Promise<void> {
   app.querySelectorAll<HTMLButtonElement>('[data-retry-crm]').forEach(btn => {
     btn.addEventListener('click', () => void retryCrmSync(btn));
   });
+  app.querySelectorAll<HTMLButtonElement>('[data-resend-share]').forEach(btn => {
+    btn.addEventListener('click', () => void resendFailedShare(btn));
+  });
 }
 
 async function retryCrmSync(btn: HTMLButtonElement): Promise<void> {
@@ -274,6 +284,78 @@ async function retryCrmSync(btn: HTMLButtonElement): Promise<void> {
   }
   toast('Sincronización con Twenty reintentada.', 'success');
   await render();
+}
+
+/**
+ * Reenvío real tras fallo: abre modal con productos + datos del envío fallido.
+ * Backend libera idempotency_key de filas failed al crear de nuevo.
+ */
+async function resendFailedShare(btn: HTMLButtonElement): Promise<void> {
+  const id = btn.getAttribute('data-id');
+  if (!id || !supabase) return;
+  btn.disabled = true;
+  btn.textContent = 'Preparando…';
+  const { data, error } = await supabase
+    .from('commercial_shares')
+    .select(
+      'id,recipient_name,medical_center_name,recipient_email,recipient_phone,phone_country_code,channel,message,status'
+    )
+    .eq('id', id)
+    .maybeSingle();
+  if (error || !data) {
+    toast(error?.message ?? 'Envío no encontrado', 'error');
+    btn.disabled = false;
+    btn.textContent = 'Reenviar';
+    return;
+  }
+  const share = data as {
+    recipient_name: string;
+    medical_center_name: string | null;
+    recipient_email: string | null;
+    recipient_phone: string | null;
+    phone_country_code: string | null;
+    channel: 'email' | 'whatsapp';
+    message: string | null;
+  };
+  const { data: products } = await supabase
+    .from('commercial_share_products')
+    .select('product_id, product_name_snapshot, product_slug_snapshot, product_sku_snapshot')
+    .eq('commercial_share_id', id);
+  const productRows = (products ?? []) as Array<{
+    product_id: string;
+    product_name_snapshot: string;
+    product_slug_snapshot: string | null;
+    product_sku_snapshot: string | null;
+  }>;
+  if (productRows.length === 0) {
+    toast('El envío no tiene productos asociados.', 'error');
+    btn.disabled = false;
+    btn.textContent = 'Reenviar';
+    return;
+  }
+  const productos: ProductoComercial[] = productRows.map(p => ({
+    id: p.product_id,
+    slug: p.product_slug_snapshot ?? p.product_id,
+    sku: p.product_sku_snapshot,
+    nombre_es: p.product_name_snapshot,
+    descripcion_corta_es: null,
+    imagen_principal: null,
+    familia_id: null,
+    tipo_id: null,
+    tipo_comercial: 'equipo',
+    disponible: true,
+  }));
+  btn.disabled = false;
+  btn.textContent = 'Reenviar';
+  openShareModal(productos, {
+    recipientName: share.recipient_name,
+    medicalCenterName: share.medical_center_name ?? undefined,
+    channel: share.channel,
+    recipientEmail: share.recipient_email ?? undefined,
+    recipientPhone: share.recipient_phone ?? undefined,
+    phoneCountryCode: share.phone_country_code ?? undefined,
+    message: share.message ?? undefined,
+  });
 }
 
 async function routeView(): Promise<{ title: string; body: string }> {
@@ -451,6 +533,11 @@ function sharesTable(rows: ShareRowView[], showUser: boolean): string {
               <td>${escapeHtml(formatDate(row.created_at))}</td>
               ${showUser ? `<td>${escapeHtml(row.user_id.slice(0, 8))}…</td>` : ''}
               <td>
+                ${
+                  row.status === 'failed'
+                    ? `<button class="comercial-button comercial-button--primary comercial-button--sm" type="button" data-resend-share data-id="${escapeHtml(row.id)}">Reenviar</button>`
+                    : ''
+                }
                 ${
                   row.crm_sync_status === 'failed'
                     ? `<button class="comercial-button comercial-button--ghost comercial-button--sm" type="button" data-retry-crm data-id="${escapeHtml(row.id)}">Reintentar CRM</button>`

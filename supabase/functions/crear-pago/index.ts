@@ -485,7 +485,11 @@ async function calcularDescuentoCupon(args: {
     (acc, item) => acc + Number(item.precio_unitario ?? 0) * Number(item.cantidad ?? 0),
     0
   );
-  const valor = Number(cupon.valor);
+  const valorRaw = Number(cupon.valor);
+  const valor =
+    cupon.tipo_descuento === 'porcentaje'
+      ? Math.min(100, Math.max(0, Number.isFinite(valorRaw) ? valorRaw : 0))
+      : Math.max(0, Number.isFinite(valorRaw) ? valorRaw : 0);
   const descuento =
     cupon.tipo_descuento === 'porcentaje'
       ? baseElegible * (valor / 100)

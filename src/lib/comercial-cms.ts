@@ -163,6 +163,7 @@ export interface SpecialtyGroup {
   familias: string[];
 }
 
+/** Familias exclusivas por especialidad (sin solapes — eyebrow comercial). */
 export const SPECIALTY_GROUPS: SpecialtyGroup[] = [
   {
     slug: 'diagnostico-monitoreo',
@@ -177,7 +178,7 @@ export const SPECIALTY_GROUPS: SpecialtyGroup[] = [
   {
     slug: 'quirofano-cuidado-critico',
     nombre: 'Quirófano y cuidado crítico',
-    familias: ['sala-cirugia', 'anestesia', 'monitores', 'neonatologia'],
+    familias: ['sala-cirugia'],
   },
   {
     slug: 'infraestructura-clinica',
