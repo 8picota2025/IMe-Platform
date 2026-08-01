@@ -55,7 +55,10 @@ function isServiceRoleRequest(req: Request): boolean {
 /** Mapea stamp.status de Siigo al estado interno de pedidos/facturas_electronicas. */
 function normalizeEstadoSiigo(raw: unknown): 'emitida' | 'rechazada' | 'error' {
   const status = String(raw ?? '').toLowerCase();
-  if (status === 'accepted' || status === 'draft' || status === 'pending') return 'emitida';
+  // Accepted = DIAN OK. Draft/Pending/Sending = creada en Siigo, sello en curso.
+  if (status === 'accepted' || status === 'draft' || status === 'pending' || status === 'sending') {
+    return 'emitida';
+  }
   if (status === 'rejected') return 'rechazada';
   return 'error';
 }

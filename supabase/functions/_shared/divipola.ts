@@ -61,11 +61,18 @@ export function resolverDivipola(
 
   const dptoConocido = INDEX.some(entry => entry.dptoNorm === departamentoNorm);
 
-  const candidatos = INDEX.filter(entry => {
+  let candidatos = INDEX.filter(entry => {
     if (entry.mpioNorm !== ciudadNorm) return false;
     if (dptoConocido) return entry.dptoNorm === departamentoNorm;
     return true;
   });
+
+  // Checkout libre: mucha gente pone "Cundinamarca" + "Bogotá". El dpto es
+  // conocido pero no coincide con "BOGOTÁ, D.C.". Si la ciudad es única en
+  // todo el catálogo, usar ese match (nunca inventa código).
+  if (candidatos.length === 0 && dptoConocido) {
+    candidatos = INDEX.filter(entry => entry.mpioNorm === ciudadNorm);
+  }
 
   if (candidatos.length !== 1) return null;
 

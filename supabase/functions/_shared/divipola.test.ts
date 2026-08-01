@@ -33,3 +33,9 @@ Deno.test('resolverDivipola: "Bogota" a secas resuelve al Distrito Capital', () 
   assertEquals(match?.stateCode, '11');
   assertEquals(match?.cityCode, '11001');
 });
+
+Deno.test('resolverDivipola: Cundinamarca + Bogota cae al Distrito Capital unico', () => {
+  const match = resolverDivipola('Cundinamarca', 'Bogotá');
+  assertEquals(match?.stateCode, '11');
+  assertEquals(match?.cityCode, '11001');
+});
