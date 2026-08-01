@@ -51,6 +51,8 @@ jobs:
           TWENTY_BASE_URL=${{ secrets.TWENTY_BASE_URL }}
           TWENTY_API_KEY=${{ secrets.TWENTY_API_KEY }}
           TWENTY_OWNER_ID=${{ secrets.TWENTY_OWNER_ID }}
+          CRM_DIGEST_TO=${{ secrets.CRM_DIGEST_TO }}
+          CRM_DIGEST_SECRET=${{ secrets.CRM_DIGEST_SECRET }}
           WHATSAPP_MODE=${{ secrets.WHATSAPP_MODE }}
           CO_DEFAULT_IVA_PCT=19
           EOF
