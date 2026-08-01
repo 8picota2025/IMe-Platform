@@ -1,25 +1,42 @@
 /**
- * Preview público de cotización para Formalizar (token en body).
- * No crea pedido — eso lo hace crear-pago con precios locked.
+ * Formalizar cotización por transferencia bancaria manual.
+ * Actions:
+ *  - preview (default): resumen + datos bancarios
+ *  - registrar_transferencia: crea pedido pendiente_validacion + sube comprobante
  */
 
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { badRequest, errorResponse, notFound, internalError } from '../_shared/errors.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { checkRateLimit } from '../_shared/rate-limit.ts';
+import { enviarEmailPlantilla, escapeHtml, DESTINATARIOS_INTERNOS } from '../_shared/email.ts';
+import {
+  datosBancariosTexto,
+  getDatosBancariosTransferencia,
+} from '../_shared/transferencia-bancaria.ts';
 import {
   calcularTotalOfertado,
   hashTokenSha256,
   ofertaCompleta,
   parseLineasOferta,
+  splitNombreApellido,
   tokenExpirado,
   type CotizacionOfertaRow,
 } from '../../../src/lib/cotizacion-oferta.ts';
 
 interface Body {
+  action?: 'preview' | 'registrar_transferencia';
   cotizacion_id?: string;
   token?: string;
+  referencia_transferencia?: string;
+  comprobante_base64?: string;
+  comprobante_nombre?: string;
+  comprobante_mime?: string;
+  consentimiento_datos?: boolean;
 }
+
+const MAX_COMPROBANTE_BYTES = 5 * 1024 * 1024;
+const MIME_OK = new Set(['image/jpeg', 'image/png', 'image/webp', 'application/pdf']);
 
 function obtenerIp(req: Request): string {
   return (
@@ -27,6 +44,102 @@ function obtenerIp(req: Request): string {
     req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
     '0.0.0.0'
   );
+}
+
+async function loadCotizacionValidada(
+  supabase: ReturnType<typeof getServerSupabase>,
+  id: string,
+  token: string,
+  origin: string | null
+): Promise<{ ok: true; row: CotizacionOfertaRow } | { ok: false; response: Response }> {
+  const { data, error } = await supabase
+    .from('solicitudes_cotizacion')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+  if (error) return { ok: false, response: internalError(error.message, origin) };
+  if (!data) return { ok: false, response: notFound(origin) };
+
+  const row = data as CotizacionOfertaRow;
+  if (row.pedido_id || row.estado === 'convertida') {
+    return {
+      ok: false,
+      response: errorResponse(
+        { code: 'COTIZACION_YA_CONVERTIDA', message: 'Esta cotizacion ya fue formalizada' },
+        409,
+        origin
+      ),
+    };
+  }
+  if (row.estado !== 'enviada' && row.estado !== 'respondida') {
+    return {
+      ok: false,
+      response: errorResponse(
+        {
+          code: 'COTIZACION_NO_ENVIADA',
+          message: 'La cotizacion no esta disponible para formalizar',
+        },
+        409,
+        origin
+      ),
+    };
+  }
+  if (tokenExpirado(row.formalizacion_token_expira_at)) {
+    return {
+      ok: false,
+      response: errorResponse(
+        { code: 'TOKEN_EXPIRADO', message: 'El enlace de formalizacion expiro' },
+        410,
+        origin
+      ),
+    };
+  }
+  if (!row.formalizacion_token_hash) {
+    return {
+      ok: false,
+      response: errorResponse({ code: 'TOKEN_INVALIDO', message: 'Token invalido' }, 401, origin),
+    };
+  }
+  const hash = await hashTokenSha256(token);
+  if (hash !== row.formalizacion_token_hash) {
+    return {
+      ok: false,
+      response: errorResponse({ code: 'TOKEN_INVALIDO', message: 'Token invalido' }, 401, origin),
+    };
+  }
+
+  const lineas = parseLineasOferta(row.productos);
+  const check = ofertaCompleta(lineas, row.condiciones);
+  if (!check.ok) {
+    return {
+      ok: false,
+      response: errorResponse({ code: check.error, message: 'Oferta incompleta' }, 422, origin),
+    };
+  }
+
+  return { ok: true, row };
+}
+
+function decodeComprobante(
+  base64: string,
+  mime: string
+): { ok: true; bytes: Uint8Array } | { ok: false; error: string } {
+  const clean = base64.includes(',') ? base64.split(',').pop()! : base64;
+  let binary: string;
+  try {
+    binary = atob(clean);
+  } catch {
+    return { ok: false, error: 'Comprobante base64 invalido' };
+  }
+  if (binary.length > MAX_COMPROBANTE_BYTES) {
+    return { ok: false, error: 'Comprobante supera 5 MB' };
+  }
+  if (!MIME_OK.has(mime)) {
+    return { ok: false, error: 'Formato no permitido (PDF/JPG/PNG/WEBP)' };
+  }
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return { ok: true, bytes };
 }
 
 Deno.serve(async req => {
@@ -38,6 +151,7 @@ Deno.serve(async req => {
   const body = (await req.json().catch(() => ({}))) as Body;
   const id = (body.cotizacion_id ?? '').trim();
   const token = (body.token ?? '').trim();
+  const action = body.action === 'registrar_transferencia' ? 'registrar_transferencia' : 'preview';
   if (!id || !token) return badRequest('cotizacion_id y token requeridos', origin);
 
   const supabase = getServerSupabase();
@@ -46,82 +160,231 @@ Deno.serve(async req => {
     return errorResponse({ code: 'RATE_LIMITED', message: 'Demasiadas solicitudes' }, 429, origin);
   }
 
-  const { data, error } = await supabase
-    .from('solicitudes_cotizacion')
-    .select(
-      'id, nombre, empresa, email, productos, condiciones, validez_hasta, precio_total_ofertado, estado, formalizacion_token_hash, formalizacion_token_expira_at, pedido_id, locale, mercado, moneda'
-    )
-    .eq('id', id)
-    .maybeSingle();
-  if (error) return internalError(error.message, origin);
-  if (!data) return notFound(origin);
-
-  const row = data as CotizacionOfertaRow;
-  if (row.pedido_id || row.estado === 'convertida') {
-    return errorResponse(
-      { code: 'COTIZACION_YA_CONVERTIDA', message: 'Esta cotizacion ya fue formalizada' },
-      409,
-      origin
-    );
-  }
-  if (row.estado !== 'enviada' && row.estado !== 'respondida') {
-    return errorResponse(
-      {
-        code: 'COTIZACION_NO_ENVIADA',
-        message: 'La cotizacion no esta disponible para formalizar',
-      },
-      409,
-      origin
-    );
-  }
-  if (tokenExpirado(row.formalizacion_token_expira_at)) {
-    return errorResponse(
-      { code: 'TOKEN_EXPIRADO', message: 'El enlace de formalizacion expiro' },
-      410,
-      origin
-    );
-  }
-  if (!row.formalizacion_token_hash) {
-    return errorResponse({ code: 'TOKEN_INVALIDO', message: 'Token invalido' }, 401, origin);
-  }
-  const hash = await hashTokenSha256(token);
-  if (hash !== row.formalizacion_token_hash) {
-    return errorResponse({ code: 'TOKEN_INVALIDO', message: 'Token invalido' }, 401, origin);
-  }
-
+  const loaded = await loadCotizacionValidada(supabase, id, token, origin);
+  if (!loaded.ok) return loaded.response;
+  const row = loaded.row;
   const lineas = parseLineasOferta(row.productos);
-  const check = ofertaCompleta(lineas, row.condiciones);
-  if (!check.ok) {
-    return errorResponse({ code: check.error, message: 'Oferta incompleta' }, 422, origin);
-  }
-
   const total = Number(row.precio_total_ofertado) || calcularTotalOfertado(lineas);
   const moneda = lineas[0]?.moneda || String(row.moneda ?? 'COP');
+  const bancarios = getDatosBancariosTransferencia();
+
+  if (action === 'preview') {
+    return new Response(
+      JSON.stringify({
+        ok: true,
+        cotizacion: {
+          id: row.id,
+          nombre: row.nombre,
+          empresa: row.empresa,
+          email: row.email,
+          telefono: (row as { telefono?: string }).telefono ?? null,
+          condiciones: row.condiciones,
+          validez_hasta: row.validez_hasta,
+          estado: row.estado,
+          locale: row.locale === 'en' ? 'en' : 'es',
+          mercado: row.mercado === 'INTL' ? 'INTL' : 'CO',
+          moneda,
+          total,
+          lineas: lineas.map(l => ({
+            slug: l.slug,
+            nombre: l.nombre,
+            cantidad: l.cantidad,
+            precio_unitario: l.precio_unitario,
+            subtotal: l.subtotal,
+            moneda: l.moneda,
+          })),
+        },
+        transferencia: {
+          ...bancarios,
+          texto: datosBancariosTexto(bancarios),
+        },
+      }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
+      }
+    );
+  }
+
+  // ── registrar_transferencia ────────────────────────────────
+  if (body.consentimiento_datos !== true) {
+    return badRequest('consentimiento_datos requerido', origin);
+  }
+  const mime = (body.comprobante_mime ?? '').trim().toLowerCase();
+  const nombreArchivo = (body.comprobante_nombre ?? 'comprobante.pdf').trim().slice(0, 120);
+  const decoded = decodeComprobante(body.comprobante_base64 ?? '', mime);
+  if (!decoded.ok) {
+    return errorResponse({ code: 'COMPROBANTE_INVALIDO', message: decoded.error }, 422, origin);
+  }
+
+  const email = String(row.email ?? '')
+    .trim()
+    .toLowerCase();
+  const telefono = String((row as { telefono?: string }).telefono ?? '').trim() || '0000000000';
+  if (!email.includes('@')) {
+    return errorResponse(
+      { code: 'SIN_EMAIL', message: 'Cotizacion sin email de cliente' },
+      422,
+      origin
+    );
+  }
+
+  const { nombre, apellido } = splitNombreApellido(String(row.nombre ?? 'Cliente'));
+  const mercado = row.mercado === 'INTL' ? 'INTL' : 'CO';
+  const pedidoId = crypto.randomUUID();
+  const ext =
+    mime === 'application/pdf'
+      ? 'pdf'
+      : mime === 'image/png'
+        ? 'png'
+        : mime === 'image/webp'
+          ? 'webp'
+          : 'jpg';
+  const storagePath = `${pedidoId}/${Date.now()}.${ext}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from('comprobantes-pago')
+    .upload(storagePath, decoded.bytes, { contentType: mime, upsert: false });
+  if (uploadError) {
+    return internalError(`error subiendo comprobante: ${uploadError.message}`, origin);
+  }
+
+  const slugs = lineas.map(l => l.slug);
+  const { data: productos } = await supabase
+    .from('productos')
+    .select('id, slug, nombre_es, familia_id')
+    .in('slug', slugs);
+  const porSlug = new Map(
+    ((productos ?? []) as Array<Record<string, unknown>>).map(p => [String(p.slug), p])
+  );
+
+  const itemsSnapshot = lineas.map(linea => {
+    const producto = porSlug.get(linea.slug);
+    return {
+      producto_id: producto?.id ?? null,
+      slug: linea.slug,
+      familia_id: producto?.familia_id ?? null,
+      nombre: linea.nombre || String(producto?.nombre_es ?? linea.slug),
+      cantidad: linea.cantidad,
+      precio_unitario: linea.precio_unitario,
+      moneda,
+      precio_locked_cotizacion: true,
+    };
+  });
+
+  const { data: clienteRow } = await supabase
+    .from('clientes')
+    .upsert(
+      {
+        email,
+        nombre,
+        apellido,
+        telefono,
+        institucion: row.empresa ?? null,
+        tipo_cliente: row.empresa ? 'b2b' : 'b2c',
+        consentimiento_datos: true,
+        consentimiento_timestamp: new Date().toISOString(),
+      },
+      { onConflict: 'email' }
+    )
+    .select('id')
+    .single();
+
+  const clienteId = (clienteRow as { id?: string } | null)?.id ?? null;
+  const refTransferencia = (body.referencia_transferencia ?? '').trim().slice(0, 120);
+
+  const { error: insertError } = await supabase.from('pedidos').insert({
+    id: pedidoId,
+    cliente_id: clienteId,
+    cliente: {
+      nombre,
+      apellido,
+      email,
+      telefono,
+      institucion: row.empresa ?? null,
+    },
+    items: itemsSnapshot,
+    subtotal: total,
+    envio_total: 0,
+    total,
+    moneda,
+    mercado,
+    proveedor_pago: 'transferencia',
+    estado: 'pendiente_validacion',
+    referencia_pasarela: pedidoId,
+    comprobante_pago_path: storagePath,
+    comprobante_pago_nombre: nombreArchivo,
+    comprobante_subido_at: new Date().toISOString(),
+    facturacion_electronica_solicitada: false,
+    facturacion_electronica_estado: 'no_solicitada',
+    consentimiento_datos: true,
+    consentimiento_timestamp: new Date().toISOString(),
+    metadata: {
+      solicitud_cotizacion_id: id,
+      origen: 'cotizacion',
+      precios_locked: true,
+      metodo_pago: 'transferencia',
+      condiciones: row.condiciones,
+      referencia_transferencia: refTransferencia || null,
+      datos_bancarios: bancarios,
+    },
+  });
+
+  if (insertError) {
+    await supabase.storage.from('comprobantes-pago').remove([storagePath]);
+    return internalError(`error creando pedido: ${insertError.message}`, origin);
+  }
+
+  const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 16);
+  const notasPrevias = String((row as { notas_internas?: string }).notas_internas ?? '').trim();
+  const nota = `[${timestamp}] Cliente cargo comprobante. Pedido ${pedidoId.slice(0, 8)} pendiente de validacion.`;
+
+  await supabase
+    .from('solicitudes_cotizacion')
+    .update({
+      estado: 'convertida',
+      pedido_id: pedidoId,
+      precio_total_ofertado: total,
+      leida: true,
+      notas_internas: notasPrevias ? `${notasPrevias}\n${nota}` : nota,
+    })
+    .eq('id', id);
+
+  const refCorta = pedidoId.slice(0, 8).toUpperCase();
+  await enviarEmailPlantilla(
+    supabase,
+    'transferencia_recibida_interna',
+    DESTINATARIOS_INTERNOS,
+    {
+      referencia: escapeHtml(refCorta),
+      cliente_nombre: escapeHtml(`${nombre} ${apellido}`.trim()),
+      cliente_email: escapeHtml(email),
+      total: escapeHtml(String(total)),
+      moneda: escapeHtml(moneda),
+    },
+    pedidoId
+  );
+  await enviarEmailPlantilla(
+    supabase,
+    'transferencia_recibida_cliente',
+    [email],
+    {
+      referencia: escapeHtml(refCorta),
+      cliente_nombre: escapeHtml(nombre),
+      total: escapeHtml(String(total)),
+      moneda: escapeHtml(moneda),
+    },
+    pedidoId
+  );
 
   return new Response(
     JSON.stringify({
       ok: true,
-      cotizacion: {
-        id: row.id,
-        nombre: row.nombre,
-        empresa: row.empresa,
-        email: row.email,
-        condiciones: row.condiciones,
-        validez_hasta: row.validez_hasta,
-        estado: row.estado,
-        locale: row.locale === 'en' ? 'en' : 'es',
-        mercado: row.mercado === 'INTL' ? 'INTL' : 'CO',
-        moneda,
-        total,
-        lineas: lineas.map(l => ({
-          slug: l.slug,
-          nombre: l.nombre,
-          cantidad: l.cantidad,
-          precio_unitario: l.precio_unitario,
-          subtotal: l.subtotal,
-          moneda: l.moneda,
-        })),
-      },
+      pedido_id: pedidoId,
+      referencia: refCorta,
+      estado: 'pendiente_validacion',
+      total,
+      moneda,
     }),
     {
       status: 200,

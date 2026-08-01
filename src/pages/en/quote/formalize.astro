@@ -6,8 +6,8 @@ const currentPath = '/en/quote/formalize';
 ---
 
 <Layout
-  title={buildPageTitle('Formalize quote')}
-  description="Review your I-ME quote and formalize the order to proceed to payment."
+  title={buildPageTitle('Pay quote by bank transfer')}
+  description="Review your I-ME quote, transfer the amount and upload the payment receipt."
   canonical={buildCanonical(currentPath)}
   locale="en"
   currentPath={currentPath}
@@ -15,13 +15,34 @@ const currentPath = '/en/quote/formalize';
 >
   <main class="formalizar container">
     <section class="formalizar__panel" data-formalizar-root>
-      <h1>Formalize quote</h1>
+      <h1>Pay by bank transfer</h1>
       <p class="formalizar__status" data-formalizar-status>Validating link…</p>
       <div data-formalizar-content hidden></div>
-      <div class="formalizar__actions" data-formalizar-actions hidden>
-        <button type="button" class="btn btn-primary" data-formalizar-cta>Formalize order</button>
-        <a class="formalizar__secondary" href="/en/cart/">Go to cart</a>
-      </div>
+      <form class="formalizar__form" data-formalizar-form hidden>
+        <h2>Bank details</h2>
+        <pre class="formalizar__bank" data-formalizar-bank></pre>
+        <label class="formalizar__field">
+          <span>Transfer reference / concept (optional)</span>
+          <input name="referencia_transferencia" type="text" maxlength="120" autocomplete="off" />
+        </label>
+        <label class="formalizar__field">
+          <span>Payment receipt (PDF, JPG, PNG — max 5 MB)</span>
+          <input
+            name="comprobante"
+            type="file"
+            accept=".pdf,image/jpeg,image/png,image/webp"
+            required
+          />
+        </label>
+        <label class="formalizar__check">
+          <input name="consentimiento" type="checkbox" required />
+          <span>I authorize processing of my data to validate payment and manage the order.</span>
+        </label>
+        <button type="submit" class="btn btn-primary" data-formalizar-submit>
+          Submit receipt and formalize order
+        </button>
+        <p class="formalizar__help" data-formalizar-form-status></p>
+      </form>
     </section>
   </main>
 </Layout>
@@ -40,6 +61,9 @@ const currentPath = '/en/quote/formalize';
   .formalizar__error {
     color: #8b1e1e;
   }
+  .formalizar__ok {
+    color: #0b5c3b;
+  }
   .formalizar__table {
     width: 100%;
     border-collapse: collapse;
@@ -51,30 +75,40 @@ const currentPath = '/en/quote/formalize';
     padding: 0.65rem 0.5rem;
     border-bottom: 1px solid var(--border-color, #c9d6db);
   }
-  .formalizar__condiciones {
+  .formalizar__condiciones,
+  .formalizar__bank {
     white-space: pre-wrap;
     padding: 1rem;
     margin: 0 0 1.5rem;
     border: 1px solid var(--border-color, #c9d6db);
-  }
-  .formalizar__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    align-items: center;
-  }
-  .formalizar__secondary {
-    text-decoration: underline;
+    background: rgba(255, 255, 255, 0.65);
   }
   .formalizar__total {
     font-size: 1.15rem;
     font-weight: 700;
     margin: 0 0 1rem;
   }
+  .formalizar__form {
+    display: grid;
+    gap: 1rem;
+    max-width: 560px;
+  }
+  .formalizar__field {
+    display: grid;
+    gap: 0.35rem;
+  }
+  .formalizar__check {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+  .formalizar__help {
+    margin: 0;
+    color: #3d5a63;
+  }
 </style>
 
 <script>
-  import { cargarCarritoDesdeCotizacion, abrirCarrito } from '../../../lib/carrito';
   import { getSupabaseClient } from '../../../lib/supabase';
 
   type Linea = {
@@ -102,8 +136,10 @@ const currentPath = '/en/quote/formalize';
   const token = (params.get('t') ?? '').trim();
   const statusEl = document.querySelector<HTMLElement>('[data-formalizar-status]');
   const contentEl = document.querySelector<HTMLElement>('[data-formalizar-content]');
-  const actionsEl = document.querySelector<HTMLElement>('[data-formalizar-actions]');
-  const cta = document.querySelector<HTMLButtonElement>('[data-formalizar-cta]');
+  const form = document.querySelector<HTMLFormElement>('[data-formalizar-form]');
+  const bankEl = document.querySelector<HTMLElement>('[data-formalizar-bank]');
+  const formStatus = document.querySelector<HTMLElement>('[data-formalizar-form-status]');
+  const submitBtn = document.querySelector<HTMLButtonElement>('[data-formalizar-submit]');
 
   function money(value: number, moneda: string): string {
     return new Intl.NumberFormat('en-US', {
@@ -128,8 +164,17 @@ const currentPath = '/en/quote/formalize';
     }
   }
 
+  function fileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result ?? ''));
+      reader.onerror = () => reject(new Error('Could not read file'));
+      reader.readAsDataURL(file);
+    });
+  }
+
   async function load() {
-    if (!statusEl || !contentEl || !actionsEl || !cta) return;
+    if (!statusEl || !contentEl || !form || !bankEl) return;
     if (!id || !token) {
       showError('Incomplete link. Use the link from your quote email.');
       return;
@@ -140,7 +185,7 @@ const currentPath = '/en/quote/formalize';
       return;
     }
     const { data, error } = await supabase.functions.invoke('formalizar-cotizacion', {
-      body: { cotizacion_id: id, token },
+      body: { action: 'preview', cotizacion_id: id, token },
     });
     if (error) {
       showError(error.message || 'Could not validate the quote.');
@@ -150,6 +195,7 @@ const currentPath = '/en/quote/formalize';
       ok?: boolean;
       error?: { message?: string };
       cotizacion?: Preview;
+      transferencia?: { texto?: string };
     };
     if (!json?.ok || !json.cotizacion) {
       showError(json?.error?.message || 'Quote not available to formalize.');
@@ -157,7 +203,7 @@ const currentPath = '/en/quote/formalize';
     }
 
     const cotizacion = json.cotizacion;
-    statusEl.textContent = `Hello ${cotizacion.nombre ?? 'customer'}. Review your offer and formalize the order.`;
+    statusEl.textContent = `Hello ${cotizacion.nombre ?? 'customer'}. Review the offer, transfer the total and upload the receipt.`;
     statusEl.classList.remove('formalizar__error');
     contentEl.hidden = false;
     contentEl.innerHTML = `
@@ -178,16 +224,72 @@ const currentPath = '/en/quote/formalize';
             .join('')}
         </tbody>
       </table>
-      <p class="formalizar__total">Total: ${money(cotizacion.total, cotizacion.moneda)}</p>
-      <h2>Terms</h2>
+      <p class="formalizar__total">Amount to transfer: ${money(cotizacion.total, cotizacion.moneda)}</p>
+      <h2>Notes / configuration</h2>
       <pre class="formalizar__condiciones">${escape(cotizacion.condiciones ?? '')}</pre>
     `;
-    actionsEl.hidden = false;
+    bankEl.textContent = json.transferencia?.texto ?? '';
+    form.hidden = false;
 
-    cta.addEventListener('click', () => {
-      cargarCarritoDesdeCotizacion(cotizacion.lineas, { cotizacionId: id, token });
-      abrirCarrito();
-      location.href = '/en/cart/';
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      if (!submitBtn || !formStatus) return;
+      const fd = new FormData(form);
+      const file = fd.get('comprobante');
+      if (!(file instanceof File) || file.size === 0) {
+        formStatus.textContent = 'Please attach the transfer receipt.';
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        formStatus.textContent = 'File exceeds 5 MB.';
+        return;
+      }
+      submitBtn.disabled = true;
+      formStatus.textContent = 'Submitting receipt…';
+      try {
+        const dataUrl = await fileToBase64(file);
+        const { data: result, error: submitError } = await supabase.functions.invoke(
+          'formalizar-cotizacion',
+          {
+            body: {
+              action: 'registrar_transferencia',
+              cotizacion_id: id,
+              token,
+              referencia_transferencia: String(fd.get('referencia_transferencia') ?? ''),
+              comprobante_base64: dataUrl,
+              comprobante_nombre: file.name,
+              comprobante_mime: file.type || 'application/pdf',
+              consentimiento_datos: true,
+            },
+          }
+        );
+        if (submitError) {
+          formStatus.textContent = submitError.message || 'Could not register payment.';
+          submitBtn.disabled = false;
+          return;
+        }
+        const jsonResult = result as {
+          ok?: boolean;
+          error?: { message?: string };
+          referencia?: string;
+        };
+        if (!jsonResult?.ok) {
+          formStatus.textContent = jsonResult?.error?.message || 'Could not register payment.';
+          submitBtn.disabled = false;
+          return;
+        }
+        form.hidden = true;
+        statusEl.classList.remove('formalizar__error');
+        statusEl.classList.add('formalizar__ok');
+        statusEl.textContent = `Receipt received. Order ${jsonResult.referencia ?? ''} pending validation. We will confirm by email.`;
+        contentEl.insertAdjacentHTML(
+          'beforeend',
+          '<p class="formalizar__ok">Thank you. Our team will validate the transfer.</p>'
+        );
+      } catch {
+        formStatus.textContent = 'Network error while submitting the receipt.';
+        submitBtn.disabled = false;
+      }
     });
   }
 

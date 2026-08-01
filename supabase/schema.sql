@@ -363,8 +363,8 @@ CREATE TABLE IF NOT EXISTS pedidos (
   mercado                  TEXT NOT NULL DEFAULT 'CO'
                            CHECK (mercado IN ('CO', 'INTL')),
   proveedor_pago           TEXT NOT NULL
-                           CHECK (proveedor_pago IN ('bold', 'stripe', 'wompi')),
-  -- valores: pendiente|pagado|rechazado|expirado|cancelado|reembolsado|error_verificacion
+                           CHECK (proveedor_pago IN ('bold', 'stripe', 'wompi', 'transferencia')),
+  -- valores: pendiente|pendiente_validacion|pagado|rechazado|expirado|cancelado|reembolsado|error_verificacion
   --          |procesando|enviado|entregado|retrasado
   -- (retrasado = rotura de stock post-pago, Escenario A; corresponde al ENUM
   --  estado_pedido de plataforma/prompts/IME_F4_Commerce_Pasarelas_v1.1.md)
@@ -378,6 +378,11 @@ CREATE TABLE IF NOT EXISTS pedidos (
   facturacion_electronica_estado TEXT NOT NULL DEFAULT 'no_solicitada',
   fulfillment_id           UUID,  -- FK a fulfillments (ver tabla 11)
   metadata                 JSONB NOT NULL DEFAULT '{}',
+  comprobante_pago_path    TEXT,
+  comprobante_pago_nombre  TEXT,
+  comprobante_subido_at    TIMESTAMPTZ,
+  pago_validado_at         TIMESTAMPTZ,
+  pago_validado_por        TEXT,
   consentimiento_datos     BOOLEAN NOT NULL DEFAULT false,
   consentimiento_timestamp TIMESTAMPTZ,
   leida                    BOOLEAN NOT NULL DEFAULT false,
@@ -405,7 +410,13 @@ ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS facturacion_electronica_estado TEXT
 ALTER TABLE pedidos DROP CONSTRAINT IF EXISTS pedidos_proveedor_pago_check;
 ALTER TABLE pedidos
   ADD CONSTRAINT pedidos_proveedor_pago_check
-  CHECK (proveedor_pago IN ('bold', 'stripe', 'wompi'));
+  CHECK (proveedor_pago IN ('bold', 'stripe', 'wompi', 'transferencia'));
+
+ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS comprobante_pago_path TEXT;
+ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS comprobante_pago_nombre TEXT;
+ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS comprobante_subido_at TIMESTAMPTZ;
+ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS pago_validado_at TIMESTAMPTZ;
+ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS pago_validado_por TEXT;
 ALTER TABLE pedidos DROP CONSTRAINT IF EXISTS pedidos_facturacion_electronica_estado_check;
 ALTER TABLE pedidos
   ADD CONSTRAINT pedidos_facturacion_electronica_estado_check
@@ -462,7 +473,7 @@ CREATE TABLE IF NOT EXISTS eventos_pago (
 ALTER TABLE eventos_pago DROP CONSTRAINT IF EXISTS eventos_pago_proveedor_pago_check;
 ALTER TABLE eventos_pago
   ADD CONSTRAINT eventos_pago_proveedor_pago_check
-  CHECK (proveedor_pago IN ('bold', 'stripe', 'wompi'));
+  CHECK (proveedor_pago IN ('bold', 'stripe', 'wompi', 'transferencia'));
 
 -- ── 6b. cupones y uso ───────────────────────────────────────
 CREATE TABLE IF NOT EXISTS cupones (
@@ -1019,6 +1030,10 @@ INSERT INTO storage.buckets (id, name, public)
 
 INSERT INTO storage.buckets (id, name, public)
   VALUES ('articulos', 'articulos', true)
+  ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO storage.buckets (id, name, public)
+  VALUES ('comprobantes-pago', 'comprobantes-pago', false)
   ON CONFLICT (id) DO NOTHING;
 
 -- ── RLS ─────────────────────────────────────────────────────

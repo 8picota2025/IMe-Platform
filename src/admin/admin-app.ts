@@ -2710,7 +2710,6 @@ async function cotizacionDetailView(): Promise<string> {
           <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="en_revision" ${convertida ? 'disabled' : ''}>Enviar a revision</button>
           <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="respondida" ${convertida ? 'disabled' : ''}>Marcar respondida</button>
           <button class="admin-button" type="button" data-cotizacion-enviar ${convertida ? 'disabled' : ''}>Enviar al cliente</button>
-          <button class="admin-button" type="button" data-cotizacion-convertir ${convertida ? 'disabled' : ''}>Convertir a pedido</button>
         </div>
       </div>
       <div style="padding:16px">
@@ -2970,6 +2969,7 @@ async function clienteDetailView(): Promise<string> {
 
 const PEDIDO_ESTADOS: Array<[string, string]> = [
   ['pendiente', 'Pendiente'],
+  ['pendiente_validacion', 'Pendiente validacion transferencia'],
   ['pagado', 'Pagado'],
   ['procesando', 'Procesando'],
   ['enviado', 'Enviado'],
@@ -3241,6 +3241,13 @@ async function pedidoDetailView(): Promise<string> {
             }</span>
           </div>
           <div class="admin-toolbar pedido-workflow__actions">
+            ${
+              text(row.proveedor_pago) === 'transferencia' &&
+              text(row.estado) === 'pendiente_validacion'
+                ? `<button class="admin-button" type="button" data-pedido-validar-transferencia="${escapeHtml(text(row.id))}">Validar transferencia</button>
+                   <button class="admin-button admin-button--danger" type="button" data-pedido-rechazar-transferencia="${escapeHtml(text(row.id))}">Rechazar comprobante</button>`
+                : ''
+            }
             <button class="admin-button admin-button--ghost" type="button" data-pedido-quick-estado="procesando">Procesar</button>
             <button class="admin-button admin-button--ghost" type="button" data-pedido-quick-estado="enviado">Enviar</button>
             <button class="admin-button admin-button--ghost" type="button" data-pedido-quick-estado="entregado">Entregar</button>
@@ -3272,9 +3279,27 @@ async function pedidoDetailView(): Promise<string> {
             ['Pasarela', escapeHtml(text(row.proveedor_pago))],
             ['Referencia', escapeHtml(text(row.referencia_pasarela)) || '—'],
             ['Checkout URL', escapeHtml(text(row.checkout_url)) || '—'],
+            [
+              'Comprobante',
+              text(row.comprobante_pago_path)
+                ? `${escapeHtml(text(row.comprobante_pago_nombre) || 'archivo')} · ${formatCell(row.comprobante_subido_at)}`
+                : '—',
+            ],
+            ['Pago validado', formatCell(row.pago_validado_at) || '—'],
           ]
         )}
       </div>
+      ${
+        text(row.comprobante_pago_path)
+          ? `<div style="padding:0 16px 16px">
+        <h3>Comprobante de transferencia</h3>
+        <p class="admin-help">Archivo: ${escapeHtml(text(row.comprobante_pago_nombre) || text(row.comprobante_pago_path))}</p>
+        <div class="admin-toolbar">
+          <button class="admin-button" type="button" data-pedido-ver-comprobante="${escapeHtml(text(row.comprobante_pago_path))}">Ver / descargar comprobante</button>
+        </div>
+      </div>`
+          : ''
+      }
       </div>
       <div style="padding:0 16px 16px">
         <h3>Cliente</h3>
@@ -5614,39 +5639,6 @@ function bindCotizaciones() {
       await render();
     });
 
-  app
-    .querySelector<HTMLButtonElement>('[data-cotizacion-convertir]')
-    ?.addEventListener('click', async () => {
-      const id = state.recordId;
-      if (!id) return;
-      if (
-        !confirm(
-          'Convertir esta cotizacion en pedido pendiente y generar link de pago? El cliente saltara el carrito.'
-        )
-      ) {
-        return;
-      }
-      const button = app.querySelector<HTMLButtonElement>('[data-cotizacion-convertir]');
-      if (button) button.disabled = true;
-      const result = await invokeCotizacionFn('convertir-cotizacion-pedido', { cotizacion_id: id });
-      if (button) button.disabled = false;
-      if (!result.ok) {
-        toast(result.message);
-        return;
-      }
-      const pedidoId = String(result.data.pedido_id ?? '');
-      const checkoutUrl = String(result.data.checkout_url ?? '');
-      if (!pedidoId) {
-        toast('No se pudo convertir la cotizacion.');
-        return;
-      }
-      toast('Pedido creado. Abriendo checkout...');
-      if (checkoutUrl) {
-        window.open(checkoutUrl, '_blank', 'noopener,noreferrer');
-      }
-      location.hash = `#/pedido?id=${pedidoId}`;
-    });
-
   const selectedCountEl = app.querySelector<HTMLElement>('[data-cotizaciones-selected-count]');
   const selectAllBtn = app.querySelector<HTMLButtonElement>('[data-cotizaciones-select-all]');
   const bulkDeleteBtn = app.querySelector<HTMLButtonElement>('[data-bulk-cotizacion-delete]');
@@ -5834,6 +5826,76 @@ function bindPedidoOperaciones() {
       toast('No se pudo copiar el texto.');
     }
   };
+
+  app.querySelectorAll<HTMLButtonElement>('[data-pedido-ver-comprobante]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const path = button.dataset['pedidoVerComprobante'] ?? '';
+      if (!path) return;
+      const { data, error } = await supabase!.storage
+        .from('comprobantes-pago')
+        .createSignedUrl(path, 120);
+      if (error || !data?.signedUrl) {
+        toast(error?.message || 'No se pudo abrir el comprobante.');
+        return;
+      }
+      window.open(data.signedUrl, '_blank', 'noopener,noreferrer');
+    });
+  });
+
+  app.querySelectorAll<HTMLButtonElement>('[data-pedido-validar-transferencia]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const id = button.dataset['pedidoValidarTransferencia'] ?? state.recordId ?? '';
+      if (!id) return;
+      if (!confirm('Confirmar que el comprobante es valido y marcar el pedido como pagado?')) {
+        return;
+      }
+      const {
+        data: { user },
+      } = await supabase!.auth.getUser();
+      const before = await getRow('pedidos', id);
+      const { error } = await supabase!
+        .from('pedidos')
+        .update({
+          estado: 'pagado',
+          pago_validado_at: new Date().toISOString(),
+          pago_validado_por: user?.email ?? state.email,
+          leida: true,
+        })
+        .eq('id', id);
+      if (error) {
+        toast(error.message);
+        return;
+      }
+      await registrarEventoPedido(id, {
+        tipo: 'transferencia_validada',
+        de_estado: text(before?.estado) || null,
+        a_estado: 'pagado',
+        metadata: { source: 'admin', metodo: 'transferencia' },
+      });
+      void notificarClienteEstado(id, 'pagado');
+      toast('Transferencia validada. Pedido marcado como pagado.');
+      await render();
+    });
+  });
+
+  app
+    .querySelectorAll<HTMLButtonElement>('[data-pedido-rechazar-transferencia]')
+    .forEach(button => {
+      button.addEventListener('click', async () => {
+        const id = button.dataset['pedidoRechazarTransferencia'] ?? state.recordId ?? '';
+        if (!id) return;
+        if (
+          !confirm(
+            'Rechazar el comprobante? El pedido pasara a rechazado y deberas contactar al cliente.'
+          )
+        ) {
+          return;
+        }
+        const ok = await actualizarEstadoPedido(id, 'rechazado');
+        if (ok) toast('Comprobante rechazado.');
+        await render();
+      });
+    });
 
   app.querySelectorAll<HTMLButtonElement>('[data-pedido-quick-estado]').forEach(button => {
     button.addEventListener('click', async () => {
@@ -8284,7 +8346,9 @@ function normalizePedidoImportRow(row: Row): Row | null {
     total: parseExcelNumber(row.total) ?? 0,
     moneda: text(row.moneda) || 'COP',
     mercado: mercado === 'INTL' ? 'INTL' : 'CO',
-    proveedor_pago: ['bold', 'stripe', 'wompi'].includes(proveedorPago) ? proveedorPago : 'wompi',
+    proveedor_pago: ['bold', 'stripe', 'wompi', 'transferencia'].includes(proveedorPago)
+      ? proveedorPago
+      : 'wompi',
     estado: PEDIDO_ESTADOS.some(([value]) => value === estado) ? estado : 'pendiente',
     referencia_pasarela: referencia,
     checkout_url: emptyStringToNull(text(row.checkout_url)),

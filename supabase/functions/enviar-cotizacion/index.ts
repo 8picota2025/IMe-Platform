@@ -15,6 +15,10 @@ import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { requireAdmin } from '../_shared/admin-auth.ts';
 import { enviarEmailPlantilla, escapeHtml, itemsToHtml } from '../_shared/email.ts';
 import {
+  datosBancariosTexto,
+  getDatosBancariosTransferencia,
+} from '../_shared/transferencia-bancaria.ts';
+import {
   calcularTotalOfertado,
   expiryFromValidez,
   formalizarPath,
@@ -137,6 +141,7 @@ Deno.serve(async req => {
       validez: validezLabel,
       items_html: itemsToHtml(lineas, locale),
       condiciones: escapeHtml(String(row.condiciones ?? '')),
+      datos_bancarios: escapeHtml(datosBancariosTexto(getDatosBancariosTransferencia())),
       formalizar_url: escapeHtml(formalizarUrl),
     },
     id
