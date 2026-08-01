@@ -2472,6 +2472,9 @@ const COTIZACION_ESTADOS: Array<[string, string]> = [
   ['nueva', 'Nueva'],
   ['en_revision', 'En revision'],
   ['respondida', 'Respondida'],
+  ['enviada', 'Enviada'],
+  ['convertida', 'Convertida'],
+  ['expirada', 'Expirada'],
 ];
 
 function cotizacionEstadoLabel(estado: string): string {
@@ -2570,12 +2573,90 @@ async function actualizarSeguimientoFulfillment(
 
 async function cotizacionesView(): Promise<string> {
   const rows = await selectRows('solicitudes_cotizacion', '*', 'created_at', 100, false);
-  return listWithCsv(
-    'solicitudes_cotizacion',
-    rows,
-    ['created_at', 'nombre', 'empresa', 'email', 'telefono', 'estado', 'leida'],
-    'cotizacion'
-  );
+  const csvPayload = escapeHtml(JSON.stringify(rows));
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head">
+        <h2>Cotizaciones (${rows.length})</h2>
+        <div class="admin-toolbar">
+          <button class="admin-button admin-button--ghost" type="button" data-cotizaciones-select-all>Seleccionar todo</button>
+          <button class="admin-button admin-button--ghost" type="button" data-csv="${csvPayload}" data-filename="cotizaciones.csv">Exportar CSV</button>
+          <span class="admin-meta">Seleccionadas: <strong data-cotizaciones-selected-count>0</strong></span>
+          <button class="admin-button admin-button--danger" type="button" data-bulk-cotizacion-delete>Eliminar seleccionadas</button>
+        </div>
+      </div>
+      ${table(
+        [
+          '',
+          'Fecha',
+          'Nombre',
+          'Empresa',
+          'Email',
+          'Estado',
+          'Total ofertado',
+          'Enviada',
+          'Acciones',
+        ],
+        rows.map(row => {
+          const total =
+            row.precio_total_ofertado != null && row.precio_total_ofertado !== ''
+              ? crmMoney(Number(row.precio_total_ofertado), text(row.moneda) || 'COP')
+              : '—';
+          return [
+            `<input type="checkbox" data-cotizacion-select value="${escapeHtml(text(row.id))}" aria-label="Seleccionar cotizacion" />`,
+            formatCell(row.created_at),
+            escapeHtml(text(row.nombre)),
+            escapeHtml(text(row.empresa)) || '—',
+            escapeHtml(text(row.email)),
+            escapeHtml(cotizacionEstadoLabel(text(row.estado) || 'nueva')),
+            escapeHtml(total),
+            row.oferta_enviada_at ? formatCell(row.oferta_enviada_at) : '—',
+            [
+              `<a class="admin-button admin-button--ghost" href="#/cotizacion?id=${escapeHtml(text(row.id))}">Ver</a>`,
+              row.leida === false
+                ? `<button class="admin-button admin-button--ghost" data-table="solicitudes_cotizacion" data-mark-read="${escapeHtml(text(row.id))}" type="button">Marcar leida</button>`
+                : '',
+            ]
+              .filter(Boolean)
+              .join(' '),
+          ];
+        })
+      )}
+    </section>`;
+}
+
+function cotizacionLineasEditorHtml(productos: unknown[], monedaDefault = 'COP'): string {
+  const lineas = Array.isArray(productos) ? productos : [];
+  if (lineas.length === 0) {
+    return '<p class="admin-help">Sin productos en la solicitud.</p>';
+  }
+  const rows = lineas.map((raw, index) => {
+    const item = raw && typeof raw === 'object' ? (raw as Row) : {};
+    const slug = text(item.slug);
+    const nombre = text(item.nombre) || slug;
+    const cantidad = Number(item.cantidad ?? 1) || 1;
+    const precio = Number(item.precio_unitario ?? 0) || 0;
+    const moneda = text(item.moneda) || monedaDefault;
+    return `
+      <tr data-cotizacion-linea data-index="${index}">
+        <td>${escapeHtml(nombre)}<br><span class="admin-meta">${escapeHtml(slug)}</span>
+          <input type="hidden" data-linea-slug value="${escapeHtml(slug)}" />
+          <input type="hidden" data-linea-nombre value="${escapeHtml(nombre)}" />
+          <input type="hidden" data-linea-moneda value="${escapeHtml(moneda)}" />
+        </td>
+        <td><input class="admin-inline-input" type="number" min="1" step="1" data-linea-cantidad value="${cantidad}" /></td>
+        <td><input class="admin-inline-input" type="number" min="0" step="1" data-linea-precio value="${precio}" /></td>
+        <td data-linea-subtotal>${crmMoney(precio * cantidad, moneda)}</td>
+      </tr>`;
+  });
+  return `
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead><tr><th>Producto</th><th>Cantidad</th><th>Precio unitario</th><th>Subtotal</th></tr></thead>
+        <tbody>${rows.join('')}</tbody>
+      </table>
+    </div>
+    <p class="admin-meta" style="margin-top:8px">Total ofertado: <strong data-cotizacion-total-ofertado>—</strong></p>`;
 }
 
 async function cotizacionDetailView(): Promise<string> {
@@ -2584,6 +2665,9 @@ async function cotizacionDetailView(): Promise<string> {
   const productos = Array.isArray(row.productos) ? row.productos : [];
   const notasInternas = parseNotasInternas(text(row.notas_internas));
   const resumen = cotizacionResumenTexto(row);
+  const estado = text(row.estado) || 'nueva';
+  const convertida = estado === 'convertida' || Boolean(row.pedido_id);
+  const moneda = text(row.moneda) || 'COP';
   return `
     <section class="admin-panel">
       <div class="admin-panel__head">
@@ -2591,7 +2675,7 @@ async function cotizacionDetailView(): Promise<string> {
           <h2>Cotizacion de ${escapeHtml(text(row.nombre))}</h2>
           <p class="admin-meta">${escapeHtml(text(row.empresa) || 'Sin empresa')} · ${escapeHtml(
             text(row.email)
-          )} · ${escapeHtml(cotizacionEstadoLabel(text(row.estado) || 'nueva'))}</p>
+          )} · ${escapeHtml(cotizacionEstadoLabel(estado))}</p>
         </div>
         <div class="admin-toolbar">
           ${
@@ -2610,11 +2694,23 @@ async function cotizacionDetailView(): Promise<string> {
           <span class="admin-badge admin-badge--info">${escapeHtml(text(row.empresa) || 'Sin empresa')}</span>
           <span class="admin-badge">${escapeHtml(text(row.created_at))}</span>
           <span class="admin-badge ${row.leida ? 'admin-badge--ok' : 'admin-badge--warn'}">${row.leida ? 'Leida' : 'Sin leer'}</span>
+          ${
+            row.oferta_enviada_at
+              ? `<span class="admin-badge admin-badge--ok">Enviada ${escapeHtml(formatCell(row.oferta_enviada_at))}</span>`
+              : ''
+          }
+          ${
+            row.pedido_id
+              ? `<a class="admin-badge admin-badge--ok" href="#/pedido?id=${escapeHtml(text(row.pedido_id))}">Pedido vinculado</a>`
+              : ''
+          }
         </div>
         <div class="admin-toolbar cotizacion-workflow__actions">
-          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="nueva">Volver a nueva</button>
-          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="en_revision">Enviar a revision</button>
-          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="respondida">Marcar respondida</button>
+          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="nueva" ${convertida ? 'disabled' : ''}>Volver a nueva</button>
+          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="en_revision" ${convertida ? 'disabled' : ''}>Enviar a revision</button>
+          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="respondida" ${convertida ? 'disabled' : ''}>Marcar respondida</button>
+          <button class="admin-button" type="button" data-cotizacion-enviar ${convertida ? 'disabled' : ''}>Enviar al cliente</button>
+          <button class="admin-button" type="button" data-cotizacion-convertir ${convertida ? 'disabled' : ''}>Convertir a pedido</button>
         </div>
       </div>
       <div style="padding:16px">
@@ -2625,15 +2721,36 @@ async function cotizacionDetailView(): Promise<string> {
             ['Email', escapeHtml(text(row.email))],
             ['Telefono', escapeHtml(text(row.telefono))],
             ['Fecha', formatCell(row.created_at)],
+            [
+              'Total ofertado',
+              row.precio_total_ofertado != null
+                ? escapeHtml(crmMoney(Number(row.precio_total_ofertado), moneda))
+                : '—',
+            ],
           ]
         )}
       </div>
       <div style="padding:0 16px 16px">
-        <h3>Productos solicitados</h3>
-        ${jsonRowsTable(productos)}
+        <h3>Oferta comercial</h3>
+        <p class="admin-help">Completa precios y condiciones. Luego envia al cliente o convierte a pedido con checkout.</p>
+        <form class="admin-form" data-cotizacion-oferta-form>
+          <input type="hidden" name="id" value="${escapeHtml(text(row.id))}" />
+          ${cotizacionLineasEditorHtml(productos, moneda)}
+          <div class="admin-editor__cols" style="margin-top:12px">
+            <label class="admin-field"><span>Validez hasta</span>
+              <input name="validez_hasta" type="date" value="${escapeHtml(text(row.validez_hasta).slice(0, 10))}" ${convertida ? 'disabled' : ''} />
+            </label>
+          </div>
+          <label class="admin-field"><span>Condiciones de la cotizacion</span>
+            <textarea name="condiciones" rows="5" placeholder="Plazo de entrega, forma de pago, validez, exclusiones..." ${convertida ? 'disabled' : ''}>${escapeHtml(
+              text(row.condiciones)
+            )}</textarea>
+          </label>
+          ${convertida ? '' : '<button class="admin-button" type="submit">Guardar oferta</button>'}
+        </form>
       </div>
       <div style="padding:0 16px 16px">
-        <h3>Mensaje</h3>
+        <h3>Mensaje del solicitante</h3>
         <p class="admin-help">${escapeHtml(text(row.mensaje)) || 'Sin mensaje.'}</p>
       </div>
       <div style="padding:0 16px 16px">
@@ -2661,7 +2778,7 @@ async function cotizacionDetailView(): Promise<string> {
         <form class="admin-form" data-cotizacion-estado-form style="margin-top:12px">
           <input type="hidden" name="id" value="${escapeHtml(text(row.id))}" />
           <div class="admin-editor__cols">
-            ${selectStatic('estado', 'Estado', text(row.estado) || 'nueva', COTIZACION_ESTADOS)}
+            ${selectStatic('estado', 'Estado', estado, COTIZACION_ESTADOS)}
           </div>
           <textarea name="notas_internas" rows="4" placeholder="Notas internas" data-cotizacion-nota-input>${escapeHtml(
             text(row.notas_internas)
@@ -5306,6 +5423,53 @@ function bindEntityExcelTools() {
   });
 }
 
+function leerLineasOfertaDesdeDom(): Array<{
+  slug: string;
+  nombre: string;
+  cantidad: number;
+  precio_unitario: number;
+  subtotal: number;
+  moneda: string;
+}> {
+  return Array.from(app.querySelectorAll<HTMLElement>('[data-cotizacion-linea]')).map(row => {
+    const slug = row.querySelector<HTMLInputElement>('[data-linea-slug]')?.value ?? '';
+    const nombre = row.querySelector<HTMLInputElement>('[data-linea-nombre]')?.value ?? slug;
+    const moneda = row.querySelector<HTMLInputElement>('[data-linea-moneda]')?.value || 'COP';
+    const cantidad = Math.max(
+      1,
+      Math.floor(Number(row.querySelector<HTMLInputElement>('[data-linea-cantidad]')?.value ?? 1))
+    );
+    const precio = Math.max(
+      0,
+      Number(row.querySelector<HTMLInputElement>('[data-linea-precio]')?.value ?? 0)
+    );
+    return {
+      slug,
+      nombre,
+      cantidad,
+      precio_unitario: precio,
+      subtotal: Math.round(precio * cantidad * 100) / 100,
+      moneda,
+    };
+  });
+}
+
+function syncCotizacionTotalesDom() {
+  const lineas = leerLineasOfertaDesdeDom();
+  let total = 0;
+  let moneda = 'COP';
+  app.querySelectorAll<HTMLElement>('[data-cotizacion-linea]').forEach((row, index) => {
+    const linea = lineas[index];
+    if (!linea) return;
+    total += linea.subtotal;
+    moneda = linea.moneda || moneda;
+    const cell = row.querySelector<HTMLElement>('[data-linea-subtotal]');
+    if (cell) cell.textContent = crmMoney(linea.subtotal, moneda);
+  });
+  const totalEl = app.querySelector<HTMLElement>('[data-cotizacion-total-ofertado]');
+  if (totalEl) totalEl.textContent = crmMoney(total, moneda);
+}
+
 function bindCotizaciones() {
   app.querySelectorAll<HTMLButtonElement>('[data-cotizacion-quick-estado]').forEach(button => {
     button.addEventListener('click', async () => {
@@ -5355,6 +5519,178 @@ function bindCotizaciones() {
     if (!id || !estado) return;
     const ok = await actualizarSeguimientoCotizacion(id, estado, { notas });
     if (ok) toast('Seguimiento actualizado.');
+    await render();
+  });
+
+  app
+    .querySelectorAll<HTMLInputElement>('[data-linea-cantidad], [data-linea-precio]')
+    .forEach(input => {
+      input.addEventListener('input', syncCotizacionTotalesDom);
+    });
+  syncCotizacionTotalesDom();
+
+  const ofertaForm = app.querySelector<HTMLFormElement>('[data-cotizacion-oferta-form]');
+  ofertaForm?.addEventListener('submit', async event => {
+    event.preventDefault();
+    const data = new FormData(ofertaForm);
+    const id = String(data.get('id') ?? '');
+    if (!id) return;
+    const lineas = leerLineasOfertaDesdeDom().filter(l => l.slug);
+    if (lineas.length === 0) {
+      toast('No hay lineas de producto.');
+      return;
+    }
+    if (lineas.some(l => !(l.precio_unitario > 0))) {
+      toast('Todas las lineas necesitan precio unitario > 0.');
+      return;
+    }
+    const condiciones = String(data.get('condiciones') ?? '').trim();
+    if (!condiciones) {
+      toast('Completa las condiciones de la cotizacion.');
+      return;
+    }
+    const validez = String(data.get('validez_hasta') ?? '').trim() || null;
+    const total = lineas.reduce((acc, l) => acc + l.subtotal, 0);
+    const { error } = await supabase!
+      .from('solicitudes_cotizacion')
+      .update({
+        productos: lineas,
+        condiciones,
+        validez_hasta: validez,
+        precio_total_ofertado: total,
+        leida: true,
+      })
+      .eq('id', id);
+    if (error) {
+      toast(error.message);
+      return;
+    }
+    toast('Oferta guardada.');
+    await render();
+  });
+
+  async function invokeCotizacionFn(
+    name: string,
+    body: Record<string, unknown>
+  ): Promise<{ ok: true; data: Record<string, unknown> } | { ok: false; message: string }> {
+    const { data, error } = await supabase!.functions.invoke(name, { body });
+    if (error) {
+      const context = (error as { context?: unknown }).context;
+      if (context instanceof Response) {
+        try {
+          const json = (await context.json()) as { error?: { message?: string } };
+          if (json?.error?.message) return { ok: false, message: json.error.message };
+        } catch {
+          /* ignore */
+        }
+      }
+      return { ok: false, message: error.message };
+    }
+    const json = (data ?? {}) as Record<string, unknown>;
+    if (json.ok === false || (json.error && !json.ok)) {
+      const err = json.error as { message?: string } | string | undefined;
+      const message =
+        typeof err === 'string' ? err : err?.message || 'La operacion no se pudo completar.';
+      return { ok: false, message };
+    }
+    return { ok: true, data: json };
+  }
+
+  app
+    .querySelector<HTMLButtonElement>('[data-cotizacion-enviar]')
+    ?.addEventListener('click', async () => {
+      const id = state.recordId;
+      if (!id) return;
+      if (!confirm('Enviar oferta formal al email del solicitante?')) return;
+      const button = app.querySelector<HTMLButtonElement>('[data-cotizacion-enviar]');
+      if (button) button.disabled = true;
+      const result = await invokeCotizacionFn('enviar-cotizacion', { cotizacion_id: id });
+      if (button) button.disabled = false;
+      if (!result.ok) {
+        toast(result.message);
+        return;
+      }
+      toast('Cotizacion enviada al cliente.');
+      await render();
+    });
+
+  app
+    .querySelector<HTMLButtonElement>('[data-cotizacion-convertir]')
+    ?.addEventListener('click', async () => {
+      const id = state.recordId;
+      if (!id) return;
+      if (
+        !confirm(
+          'Convertir esta cotizacion en pedido pendiente y generar link de pago? El cliente saltara el carrito.'
+        )
+      ) {
+        return;
+      }
+      const button = app.querySelector<HTMLButtonElement>('[data-cotizacion-convertir]');
+      if (button) button.disabled = true;
+      const result = await invokeCotizacionFn('convertir-cotizacion-pedido', { cotizacion_id: id });
+      if (button) button.disabled = false;
+      if (!result.ok) {
+        toast(result.message);
+        return;
+      }
+      const pedidoId = String(result.data.pedido_id ?? '');
+      const checkoutUrl = String(result.data.checkout_url ?? '');
+      if (!pedidoId) {
+        toast('No se pudo convertir la cotizacion.');
+        return;
+      }
+      toast('Pedido creado. Abriendo checkout...');
+      if (checkoutUrl) {
+        window.open(checkoutUrl, '_blank', 'noopener,noreferrer');
+      }
+      location.hash = `#/pedido?id=${pedidoId}`;
+    });
+
+  const selectedCountEl = app.querySelector<HTMLElement>('[data-cotizaciones-selected-count]');
+  const selectAllBtn = app.querySelector<HTMLButtonElement>('[data-cotizaciones-select-all]');
+  const bulkDeleteBtn = app.querySelector<HTMLButtonElement>('[data-bulk-cotizacion-delete]');
+
+  const getSelectedIds = () =>
+    Array.from(app.querySelectorAll<HTMLInputElement>('[data-cotizacion-select]:checked')).map(
+      input => input.value
+    );
+
+  const syncSelectedCount = () => {
+    if (selectedCountEl) selectedCountEl.textContent = String(getSelectedIds().length);
+  };
+
+  app.querySelectorAll<HTMLInputElement>('[data-cotizacion-select]').forEach(input => {
+    input.addEventListener('change', syncSelectedCount);
+  });
+  syncSelectedCount();
+
+  selectAllBtn?.addEventListener('click', () => {
+    const checkboxes = Array.from(
+      app.querySelectorAll<HTMLInputElement>('[data-cotizacion-select]')
+    );
+    const allChecked = checkboxes.length > 0 && checkboxes.every(input => input.checked);
+    checkboxes.forEach(input => {
+      input.checked = !allChecked;
+    });
+    syncSelectedCount();
+  });
+
+  bulkDeleteBtn?.addEventListener('click', async () => {
+    const ids = getSelectedIds();
+    if (ids.length === 0) {
+      toast('Selecciona al menos una cotizacion.');
+      return;
+    }
+    if (!confirm(`Eliminar ${ids.length} cotizacion(es)? Esta accion no se puede deshacer.`)) {
+      return;
+    }
+    const { error } = await supabase!.from('solicitudes_cotizacion').delete().in('id', ids);
+    if (error) {
+      toast(error.message);
+      return;
+    }
+    toast(`${ids.length} cotizacion(es) eliminadas.`);
     await render();
   });
 }
@@ -7025,7 +7361,12 @@ async function extractPdfText(file: File): Promise<string> {
   return pages.join('\n\n').slice(0, INGEST_PDF_MAX_CHARS);
 }
 
-function listWithCsv(tableName: string, rows: Row[], keys: string[], detailRoute?: string): string {
+function _listWithCsv(
+  tableName: string,
+  rows: Row[],
+  keys: string[],
+  detailRoute?: string
+): string {
   const csvPayload = escapeHtml(JSON.stringify(rows));
   return `
     <section class="admin-panel">

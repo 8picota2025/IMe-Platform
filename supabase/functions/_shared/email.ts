@@ -94,6 +94,18 @@ const DEFAULTS: Record<string, { asunto: string; html: string }> = {
     asunto: 'We received your quote request - I-ME',
     html: '<h2>Hello {{cliente_nombre}}</h2><p>We received your quote request and our commercial team will contact you shortly.</p><p><strong>Reference:</strong> {{referencia}}</p><p><strong>Request summary:</strong></p><ul>{{items_html}}</ul><p><strong>Message received:</strong></p><pre>{{mensaje}}</pre><p>I-ME Team<br>ventas@i-me.com.co</p>',
   },
+  cotizacion_oferta_cliente: {
+    asunto: 'Tu cotizacion I-ME lista para formalizar — {{referencia}}',
+    html: '<h2>Hola {{cliente_nombre}}</h2><p>Hemos preparado tu cotizacion. Revisa el detalle y formaliza el pedido cuando estes listo.</p><p><strong>Referencia:</strong> {{referencia}}</p><p><strong>Total ofertado:</strong> {{total}} {{moneda}}</p><p><strong>Validez:</strong> {{validez}}</p><p><strong>Productos:</strong></p><ul>{{items_html}}</ul><p><strong>Condiciones:</strong></p><pre>{{condiciones}}</pre><p><a href="{{formalizar_url}}" style="display:inline-block;padding:12px 20px;background:#0b3d4a;color:#fff;text-decoration:none;border-radius:4px">Formalizar pedido</a></p><p>Si el boton no funciona, copia este enlace:<br>{{formalizar_url}}</p><p>Equipo I-ME<br>ventas@i-me.com.co</p>',
+  },
+  cotizacion_oferta_cliente_es: {
+    asunto: 'Tu cotizacion I-ME lista para formalizar — {{referencia}}',
+    html: '<h2>Hola {{cliente_nombre}}</h2><p>Hemos preparado tu cotizacion. Revisa el detalle y formaliza el pedido cuando estes listo.</p><p><strong>Referencia:</strong> {{referencia}}</p><p><strong>Total ofertado:</strong> {{total}} {{moneda}}</p><p><strong>Validez:</strong> {{validez}}</p><p><strong>Productos:</strong></p><ul>{{items_html}}</ul><p><strong>Condiciones:</strong></p><pre>{{condiciones}}</pre><p><a href="{{formalizar_url}}" style="display:inline-block;padding:12px 20px;background:#0b3d4a;color:#fff;text-decoration:none;border-radius:4px">Formalizar pedido</a></p><p>Si el boton no funciona, copia este enlace:<br>{{formalizar_url}}</p><p>Equipo I-ME<br>ventas@i-me.com.co</p>',
+  },
+  cotizacion_oferta_cliente_en: {
+    asunto: 'Your I-ME quote is ready to formalize — {{referencia}}',
+    html: '<h2>Hello {{cliente_nombre}}</h2><p>We prepared your quote. Review the details and formalize the order when ready.</p><p><strong>Reference:</strong> {{referencia}}</p><p><strong>Quoted total:</strong> {{total}} {{moneda}}</p><p><strong>Valid until:</strong> {{validez}}</p><p><strong>Products:</strong></p><ul>{{items_html}}</ul><p><strong>Terms:</strong></p><pre>{{condiciones}}</pre><p><a href="{{formalizar_url}}" style="display:inline-block;padding:12px 20px;background:#0b3d4a;color:#fff;text-decoration:none;border-radius:4px">Formalize order</a></p><p>If the button does not work, copy this link:<br>{{formalizar_url}}</p><p>I-ME Team<br>ventas@i-me.com.co</p>',
+  },
   compra_valorar_interna: {
     asunto: 'Compra a valorar {{referencia}} - {{total}} {{moneda}}',
     html: '<h2>Compra a valorar desde carrito</h2><p><strong>Accion requerida:</strong> validar precio unitario, disponibilidad, impuestos, envio y total final.</p><p>Referencia: <strong>{{referencia}}</strong></p><p>Cliente: {{cliente_nombre}} ({{cliente_email}})</p><p>Empresa: {{empresa}}</p><p>Telefono: {{telefono}}</p><p>Total orientativo: <strong>{{total}} {{moneda}}</strong></p><p>Productos:</p><ul>{{items_html}}</ul><p>Mensaje:</p><pre>{{mensaje}}</pre><p>Fecha: {{fecha}}</p>',

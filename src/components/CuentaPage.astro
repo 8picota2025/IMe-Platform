@@ -126,7 +126,9 @@ const copy = {
           .limit(30),
         supabase
           .from('solicitudes_cotizacion')
-          .select('created_at, mensaje, productos')
+          .select(
+            'created_at, mensaje, productos, estado, precio_total_ofertado, moneda, oferta_enviada_at'
+          )
           .order('created_at', { ascending: false })
           .limit(30),
         supabase
@@ -179,16 +181,33 @@ const copy = {
       const cotBox = root.querySelector<HTMLElement>('[data-cuenta-cotizaciones]');
       if (cotBox) {
         cotBox.innerHTML = tabla(
-          isEn ? ['Date', 'Products', 'Message'] : ['Fecha', 'Productos', 'Mensaje'],
-          cotizaciones.map(c => [
-            fecha(c.created_at),
-            esc(
-              (Array.isArray(c.productos) ? c.productos : [])
-                .map((p: PedidoItemRow) => `${p.cantidad ?? 1}x ${p.nombre ?? ''}`)
-                .join(', ') || '—'
-            ),
-            esc(String(c.mensaje ?? '').slice(0, 120)),
-          ])
+          isEn
+            ? ['Date', 'Status', 'Total', 'Products', 'Note']
+            : ['Fecha', 'Estado', 'Total', 'Productos', 'Nota'],
+          cotizaciones.map(c => {
+            const total =
+              c.precio_total_ofertado != null
+                ? `${Number(c.precio_total_ofertado).toLocaleString(isEn ? 'en-US' : 'es-CO')} ${String(c.moneda ?? 'COP')}`
+                : '—';
+            const estado = String(c.estado ?? 'nueva');
+            const nota =
+              estado === 'enviada'
+                ? isEn
+                  ? 'Check your email to formalize'
+                  : 'Revisa tu email para formalizar'
+                : esc(String(c.mensaje ?? '').slice(0, 80));
+            return [
+              fecha(c.created_at),
+              esc(estado),
+              esc(total),
+              esc(
+                (Array.isArray(c.productos) ? c.productos : [])
+                  .map((p: PedidoItemRow) => `${p.cantidad ?? 1}x ${p.nombre ?? ''}`)
+                  .join(', ') || '—'
+              ),
+              nota,
+            ];
+          })
         );
       }
 

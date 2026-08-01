@@ -26,6 +26,15 @@ import {
   type ClienteFiscalProfile,
 } from '../../../src/lib/fiscal.ts';
 import { withTelemetry, trackEvent } from '../_shared/telemetry.ts';
+import {
+  calcularTotalOfertado,
+  hashTokenSha256,
+  ofertaCompleta,
+  parseLineasOferta,
+  tokenExpirado,
+  type CotizacionOfertaRow,
+  type CotizacionLineaOferta,
+} from '../../../src/lib/cotizacion-oferta.ts';
 
 const FN_NAME = 'crear-pago';
 const MAX_ITEMS = 20;
@@ -73,6 +82,9 @@ interface CrearPagoRequest {
   consentimiento_datos?: boolean;
   locale?: string;
   fiscal?: FiscalRequest;
+  /** Formalizar desde cotización ofertada: precios locked en la oferta. */
+  cotizacion_id?: string;
+  formalizacion_token?: string;
 }
 
 interface ProductoRow {
@@ -499,25 +511,34 @@ Deno.serve(
     }
 
     // ── Validación de input ──────────────────────────────────
-    const items = body.items;
-    if (!Array.isArray(items) || items.length === 0) {
-      return badRequest('items requerido (array no vacio)', origin);
-    }
-    if (items.length > MAX_ITEMS) {
+    const cotizacionId = typeof body.cotizacion_id === 'string' ? body.cotizacion_id.trim() : '';
+    const formalizacionToken =
+      typeof body.formalizacion_token === 'string' ? body.formalizacion_token.trim() : '';
+    const usaCotizacionLocked = Boolean(cotizacionId && formalizacionToken);
+
+    let items = body.items;
+    if (!usaCotizacionLocked) {
+      if (!Array.isArray(items) || items.length === 0) {
+        return badRequest('items requerido (array no vacio)', origin);
+      }
+      if (items.length > MAX_ITEMS) {
+        return badRequest(`maximo ${MAX_ITEMS} items por pedido`, origin);
+      }
+      for (const item of items) {
+        if (typeof item.slug !== 'string' || !item.slug) {
+          return badRequest('cada item requiere slug', origin);
+        }
+        if (
+          typeof item.cantidad !== 'number' ||
+          !Number.isInteger(item.cantidad) ||
+          item.cantidad < 1 ||
+          item.cantidad > MAX_CANTIDAD
+        ) {
+          return badRequest(`cantidad invalida para ${item.slug}`, origin);
+        }
+      }
+    } else if (Array.isArray(items) && items.length > MAX_ITEMS) {
       return badRequest(`maximo ${MAX_ITEMS} items por pedido`, origin);
-    }
-    for (const item of items) {
-      if (typeof item.slug !== 'string' || !item.slug) {
-        return badRequest('cada item requiere slug', origin);
-      }
-      if (
-        typeof item.cantidad !== 'number' ||
-        !Number.isInteger(item.cantidad) ||
-        item.cantidad < 1 ||
-        item.cantidad > MAX_CANTIDAD
-      ) {
-        return badRequest(`cantidad invalida para ${item.slug}`, origin);
-      }
     }
 
     const cliente = body.cliente;
@@ -589,7 +610,70 @@ Deno.serve(
       );
     }
 
+    // ── Cotización formalizada: precios locked (admin), no recalc catálogo ──
+    let lineasCotizacion: CotizacionLineaOferta[] | null = null;
+    if (usaCotizacionLocked) {
+      const { data: cotizacionData, error: cotizacionError } = await supabase
+        .from('solicitudes_cotizacion')
+        .select('*')
+        .eq('id', cotizacionId)
+        .maybeSingle();
+      if (cotizacionError) {
+        return internalError(`error consultando cotizacion: ${cotizacionError.message}`, origin);
+      }
+      if (!cotizacionData) {
+        return errorResponse(
+          { code: 'COTIZACION_NO_ENCONTRADA', message: 'Cotizacion no encontrada' },
+          404,
+          origin
+        );
+      }
+      const cotizacion = cotizacionData as CotizacionOfertaRow;
+      if (cotizacion.pedido_id || cotizacion.estado === 'convertida') {
+        return errorResponse(
+          { code: 'COTIZACION_YA_CONVERTIDA', message: 'Esta cotizacion ya fue formalizada' },
+          409,
+          origin
+        );
+      }
+      if (cotizacion.estado !== 'enviada' && cotizacion.estado !== 'respondida') {
+        return errorResponse(
+          { code: 'COTIZACION_NO_ENVIADA', message: 'Cotizacion no disponible para formalizar' },
+          409,
+          origin
+        );
+      }
+      if (tokenExpirado(cotizacion.formalizacion_token_expira_at)) {
+        return errorResponse(
+          { code: 'TOKEN_EXPIRADO', message: 'El enlace de formalizacion expiro' },
+          410,
+          origin
+        );
+      }
+      if (!cotizacion.formalizacion_token_hash) {
+        return errorResponse({ code: 'TOKEN_INVALIDO', message: 'Token invalido' }, 401, origin);
+      }
+      const tokenHash = await hashTokenSha256(formalizacionToken);
+      if (tokenHash !== cotizacion.formalizacion_token_hash) {
+        return errorResponse({ code: 'TOKEN_INVALIDO', message: 'Token invalido' }, 401, origin);
+      }
+      lineasCotizacion = parseLineasOferta(cotizacion.productos);
+      const ofertaCheck = ofertaCompleta(lineasCotizacion, cotizacion.condiciones);
+      if (!ofertaCheck.ok) {
+        return errorResponse(
+          { code: ofertaCheck.error, message: 'Oferta incompleta' },
+          422,
+          origin
+        );
+      }
+      items = lineasCotizacion.map(l => ({ slug: l.slug, cantidad: l.cantidad }));
+    }
+
     // ── Recalcular desde Supabase (NUNCA confiar en el cliente) ──
+    // Excepción: cotización formalizada → precio de la oferta (locked).
+    if (!Array.isArray(items) || items.length === 0) {
+      return badRequest('items requerido (array no vacio)', origin);
+    }
     const slugs = items.map(i => i.slug as string);
     const { data: productos, error: productosError } = await supabase
       .from('productos')
@@ -623,7 +707,13 @@ Deno.serve(
     }
 
     // Lista de precios B2B del cliente (server-side; el cliente nunca fija precios)
-    const listaPrecio = await obtenerListaPrecio(supabase, cliente.email.toLowerCase());
+    // En cotización locked se ignora: manda el precio ofertado.
+    const listaPrecio = lineasCotizacion
+      ? null
+      : await obtenerListaPrecio(supabase, cliente.email.toLowerCase());
+    const preciosLockedPorSlug = lineasCotizacion
+      ? new Map(lineasCotizacion.map(l => [l.slug, l]))
+      : null;
 
     const checkoutItems: CheckoutItem[] = [];
     const itemsSnapshot: Array<Record<string, unknown>> = [];
@@ -642,12 +732,21 @@ Deno.serve(
           origin
         );
       }
-      // Regla comercial: cualquier producto con precio vigente > 0 es comprable
-      // vía carrito (equipo o consumible). Sin precio → cotización, no checkout.
-      const precioBase = precioVigente(producto);
-      const precioPublico = precioBase === null ? null : Number(precioBase);
-      const precio =
-        precioPublico === null ? null : aplicarListaPrecio(listaPrecio, producto.id, precioPublico);
+
+      const locked = preciosLockedPorSlug?.get(slug);
+      let precio: number | null;
+      if (locked) {
+        precio = locked.precio_unitario;
+      } else {
+        // Regla comercial: cualquier producto con precio vigente > 0 es comprable
+        // vía carrito (equipo o consumible). Sin precio → cotización, no checkout.
+        const precioBase = precioVigente(producto);
+        const precioPublico = precioBase === null ? null : Number(precioBase);
+        precio =
+          precioPublico === null
+            ? null
+            : aplicarListaPrecio(listaPrecio, producto.id, precioPublico);
+      }
       if (precio === null || Number.isNaN(precio) || precio <= 0) {
         return errorResponse(
           {
@@ -658,7 +757,7 @@ Deno.serve(
           origin
         );
       }
-      if (producto.stock !== null && cantidad > producto.stock) {
+      if (!lineasCotizacion && producto.stock !== null && cantidad > producto.stock) {
         return errorResponse(
           { code: 'STOCK_INSUFICIENTE', message: `Stock insuficiente para ${slug}` },
           409,
@@ -684,8 +783,9 @@ Deno.serve(
         }
       }
 
-      if (monedaComun === null) monedaComun = producto.moneda;
-      if (monedaComun !== producto.moneda) {
+      const monedaItem = locked?.moneda || producto.moneda;
+      if (monedaComun === null) monedaComun = monedaItem;
+      if (monedaComun !== monedaItem) {
         return badRequest('todos los items deben tener la misma moneda', origin);
       }
 
@@ -696,7 +796,7 @@ Deno.serve(
         nombre,
         cantidad,
         precio_unitario: precio,
-        moneda: producto.moneda,
+        moneda: monedaItem,
       });
       itemsSnapshot.push({
         producto_id: producto.id,
@@ -705,7 +805,8 @@ Deno.serve(
         nombre,
         cantidad,
         precio_unitario: precio,
-        moneda: producto.moneda,
+        moneda: monedaItem,
+        ...(locked ? { precio_locked_cotizacion: true } : {}),
       });
       fiscalItems.push({
         producto_id: producto.id,
@@ -727,8 +828,11 @@ Deno.serve(
 
     const moneda = monedaComun ?? 'COP';
     const subtotal = checkoutItems.reduce((acc, it) => acc + it.precio_unitario * it.cantidad, 0);
+    // Cotización locked: no cupones (precio ya negociado en la oferta).
     const cuponCodigo =
-      typeof body.cupon_codigo === 'string' ? body.cupon_codigo.trim().toUpperCase() : '';
+      !lineasCotizacion && typeof body.cupon_codigo === 'string'
+        ? body.cupon_codigo.trim().toUpperCase()
+        : '';
     const descuento = cuponCodigo
       ? await calcularDescuentoCupon({
           supabase,
@@ -834,11 +938,31 @@ Deno.serve(
         },
         fiscal_resumen: fiscal,
         dian_draft: dianDraft,
+        ...(lineasCotizacion
+          ? {
+              solicitud_cotizacion_id: cotizacionId,
+              origen: 'cotizacion',
+              precios_locked: true,
+              total_ofertado: calcularTotalOfertado(lineasCotizacion),
+            }
+          : {}),
       },
     });
 
     if (insertError) {
       return internalError(`error creando pedido: ${insertError.message}`, origin);
+    }
+
+    if (lineasCotizacion && cotizacionId) {
+      await supabase
+        .from('solicitudes_cotizacion')
+        .update({
+          estado: 'convertida',
+          pedido_id: pedidoId,
+          precio_total_ofertado: calcularTotalOfertado(lineasCotizacion),
+          leida: true,
+        })
+        .eq('id', cotizacionId);
     }
 
     if (fiscalCliente.solicitar_factura_electronica) {

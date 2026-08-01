@@ -1,0 +1,195 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { buildCanonical, buildPageTitle } from '../../../lib/seo';
+
+const currentPath = '/en/quote/formalize';
+---
+
+<Layout
+  title={buildPageTitle('Formalize quote')}
+  description="Review your I-ME quote and formalize the order to proceed to payment."
+  canonical={buildCanonical(currentPath)}
+  locale="en"
+  currentPath={currentPath}
+  noindex={true}
+>
+  <main class="formalizar container">
+    <section class="formalizar__panel" data-formalizar-root>
+      <h1>Formalize quote</h1>
+      <p class="formalizar__status" data-formalizar-status>Validating link…</p>
+      <div data-formalizar-content hidden></div>
+      <div class="formalizar__actions" data-formalizar-actions hidden>
+        <button type="button" class="btn btn-primary" data-formalizar-cta>Formalize order</button>
+        <a class="formalizar__secondary" href="/en/cart/">Go to cart</a>
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  .formalizar {
+    min-height: 60vh;
+    padding: 3rem 0 4rem;
+  }
+  .formalizar__panel h1 {
+    margin: 0 0 0.75rem;
+  }
+  .formalizar__status {
+    margin: 0 0 1.5rem;
+  }
+  .formalizar__error {
+    color: #8b1e1e;
+  }
+  .formalizar__table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0 1.25rem;
+  }
+  .formalizar__table th,
+  .formalizar__table td {
+    text-align: left;
+    padding: 0.65rem 0.5rem;
+    border-bottom: 1px solid var(--border-color, #c9d6db);
+  }
+  .formalizar__condiciones {
+    white-space: pre-wrap;
+    padding: 1rem;
+    margin: 0 0 1.5rem;
+    border: 1px solid var(--border-color, #c9d6db);
+  }
+  .formalizar__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+  }
+  .formalizar__secondary {
+    text-decoration: underline;
+  }
+  .formalizar__total {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 0 0 1rem;
+  }
+</style>
+
+<script>
+  import { cargarCarritoDesdeCotizacion, abrirCarrito } from '../../../lib/carrito';
+  import { getSupabaseClient } from '../../../lib/supabase';
+
+  type Linea = {
+    slug: string;
+    nombre: string;
+    cantidad: number;
+    precio_unitario: number;
+    subtotal: number;
+    moneda: string;
+  };
+
+  type Preview = {
+    id: string;
+    nombre?: string;
+    empresa?: string;
+    condiciones?: string;
+    validez_hasta?: string;
+    moneda: string;
+    total: number;
+    lineas: Linea[];
+  };
+
+  const params = new URLSearchParams(location.search);
+  const id = (params.get('id') ?? '').trim();
+  const token = (params.get('t') ?? '').trim();
+  const statusEl = document.querySelector<HTMLElement>('[data-formalizar-status]');
+  const contentEl = document.querySelector<HTMLElement>('[data-formalizar-content]');
+  const actionsEl = document.querySelector<HTMLElement>('[data-formalizar-actions]');
+  const cta = document.querySelector<HTMLButtonElement>('[data-formalizar-cta]');
+
+  function money(value: number, moneda: string): string {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: moneda || 'USD',
+      maximumFractionDigits: moneda === 'COP' ? 0 : 2,
+    }).format(value);
+  }
+
+  function escape(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function showError(msg: string) {
+    if (statusEl) {
+      statusEl.textContent = msg;
+      statusEl.classList.add('formalizar__error');
+    }
+  }
+
+  async function load() {
+    if (!statusEl || !contentEl || !actionsEl || !cta) return;
+    if (!id || !token) {
+      showError('Incomplete link. Use the link from your quote email.');
+      return;
+    }
+    const supabase = getSupabaseClient();
+    if (!supabase) {
+      showError('Could not connect. Please try again later.');
+      return;
+    }
+    const { data, error } = await supabase.functions.invoke('formalizar-cotizacion', {
+      body: { cotizacion_id: id, token },
+    });
+    if (error) {
+      showError(error.message || 'Could not validate the quote.');
+      return;
+    }
+    const json = data as {
+      ok?: boolean;
+      error?: { message?: string };
+      cotizacion?: Preview;
+    };
+    if (!json?.ok || !json.cotizacion) {
+      showError(json?.error?.message || 'Quote not available to formalize.');
+      return;
+    }
+
+    const cotizacion = json.cotizacion;
+    statusEl.textContent = `Hello ${cotizacion.nombre ?? 'customer'}. Review your offer and formalize the order.`;
+    statusEl.classList.remove('formalizar__error');
+    contentEl.hidden = false;
+    contentEl.innerHTML = `
+      ${cotizacion.empresa ? `<p><strong>Company:</strong> ${escape(cotizacion.empresa)}</p>` : ''}
+      ${cotizacion.validez_hasta ? `<p><strong>Valid until:</strong> ${escape(cotizacion.validez_hasta)}</p>` : ''}
+      <table class="formalizar__table">
+        <thead><tr><th>Product</th><th>Qty</th><th>Unit</th><th>Line total</th></tr></thead>
+        <tbody>
+          ${cotizacion.lineas
+            .map(
+              l => `<tr>
+                <td>${escape(l.nombre)}</td>
+                <td>${l.cantidad}</td>
+                <td>${money(l.precio_unitario, l.moneda)}</td>
+                <td>${money(l.subtotal, l.moneda)}</td>
+              </tr>`
+            )
+            .join('')}
+        </tbody>
+      </table>
+      <p class="formalizar__total">Total: ${money(cotizacion.total, cotizacion.moneda)}</p>
+      <h2>Terms</h2>
+      <pre class="formalizar__condiciones">${escape(cotizacion.condiciones ?? '')}</pre>
+    `;
+    actionsEl.hidden = false;
+
+    cta.addEventListener('click', () => {
+      cargarCarritoDesdeCotizacion(cotizacion.lineas, { cotizacionId: id, token });
+      abrirCarrito();
+      location.href = '/en/cart/';
+    });
+  }
+
+  void load();
+</script>

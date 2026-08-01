@@ -47,8 +47,65 @@ export interface ResultadoSolicitudCompra {
 }
 
 const STORAGE_KEY = 'ime_carrito';
+const COTIZACION_CHECKOUT_KEY = 'ime_cotizacion_checkout';
 export const EVENTO_CAMBIO = 'ime:carrito:cambio';
 export const EVENTO_ABRIR = 'ime:carrito:abrir';
+
+export interface CotizacionCheckoutRef {
+  cotizacionId: string;
+  token: string;
+}
+
+export function getCotizacionCheckout(): CotizacionCheckoutRef | null {
+  if (typeof sessionStorage === 'undefined') return null;
+  try {
+    const raw = sessionStorage.getItem(COTIZACION_CHECKOUT_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw) as CotizacionCheckoutRef;
+    if (!data?.cotizacionId || !data?.token) return null;
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+export function setCotizacionCheckout(ref: CotizacionCheckoutRef | null): void {
+  if (typeof sessionStorage === 'undefined') return;
+  if (!ref) {
+    sessionStorage.removeItem(COTIZACION_CHECKOUT_KEY);
+    return;
+  }
+  sessionStorage.setItem(COTIZACION_CHECKOUT_KEY, JSON.stringify(ref));
+}
+
+export function clearCotizacionCheckout(): void {
+  setCotizacionCheckout(null);
+}
+
+/** Carga líneas de una cotización ofertada (precios locked en servidor al pagar). */
+export function cargarCarritoDesdeCotizacion(
+  lineas: Array<{
+    slug: string;
+    nombre: string;
+    cantidad: number;
+    precio_unitario: number;
+    moneda: string;
+  }>,
+  ref: CotizacionCheckoutRef
+): CarritoItem[] {
+  const items: CarritoItem[] = lineas
+    .filter(l => l.slug && l.cantidad > 0 && l.precio_unitario > 0)
+    .map(l => ({
+      slug: l.slug,
+      nombre: l.nombre || l.slug,
+      precio: l.precio_unitario,
+      moneda: l.moneda || 'COP',
+      stock: null,
+      cantidad: Math.floor(l.cantidad),
+    }));
+  setCotizacionCheckout(ref);
+  return escribir(items);
+}
 
 async function loadSupabaseClient() {
   const { getSupabaseClient } = await import('./supabase');
@@ -137,6 +194,7 @@ export function quitarDelCarrito(slug: string): CarritoItem[] {
 }
 
 export function vaciarCarrito(): CarritoItem[] {
+  clearCotizacionCheckout();
   return escribir([]);
 }
 
@@ -251,15 +309,22 @@ export async function iniciarCheckout(params: {
   const supabase = await loadSupabaseClient();
   if (!supabase) return { ok: false, error: 'NO_DISPONIBLE' };
 
+  const cotizacionRef = getCotizacionCheckout();
   const { data, error } = await supabase.functions.invoke('crear-pago', {
     body: {
       items: items.map(i => ({ slug: i.slug, cantidad: i.cantidad })),
       cliente: params.cliente,
       mercado: params.mercado,
-      cupon_codigo: params.cuponCodigo || undefined,
+      cupon_codigo: cotizacionRef ? undefined : params.cuponCodigo || undefined,
       consentimiento_datos: params.consentimientoDatos,
       locale: params.locale,
       fiscal: params.cliente.fiscal,
+      ...(cotizacionRef
+        ? {
+            cotizacion_id: cotizacionRef.cotizacionId,
+            formalizacion_token: cotizacionRef.token,
+          }
+        : {}),
     },
   });
 
@@ -292,6 +357,7 @@ export async function iniciarCheckout(params: {
   if (!json?.ok || !json.checkout_url) {
     return { ok: false, error: 'GATEWAY_ERROR' };
   }
+  clearCotizacionCheckout();
   return {
     ok: true,
     checkoutUrl: json.checkout_url,
