@@ -18,8 +18,8 @@
  *     `companyId` planos — si el self-host del cliente es anterior a esa
  *     migracion, ajustar aqui).
  *
- * Nunca lanza excepciones con secretos ni con el body crudo de errores de
- * Twenty: todo fallo se traduce a `{ ok: false, error }` best-effort.
+ * Nunca lanza excepciones con secretos, PII ni con el body crudo de errores
+ * de Twenty: todo fallo se traduce a `{ ok: false, error }` best-effort.
  */
 
 export interface TwentyConfig {
@@ -78,7 +78,16 @@ function getTwentyConfig(): TwentyConfig | null {
 
 /** Escapa comillas dobles para valores de `filter=campo[eq]:"valor"`. */
 function filterValue(value: string): string {
-  return `"${value.replace(/"/g, '\\"')}"`;
+  return `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
+}
+
+/** Construye un filtro sin dejar que `+`, `&` o espacios corrompan el query string. */
+function collectionFilterPath(collection: string, field: string, value: string): string {
+  const params = new URLSearchParams({
+    filter: `${field}[eq]:${filterValue(value)}`,
+    limit: '1',
+  });
+  return `/${collection}?${params.toString()}`;
 }
 
 export class TwentyClient {
@@ -102,6 +111,8 @@ export class TwentyClient {
     path: string,
     body?: unknown
   ): Promise<TwentyResult<unknown>> {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10_000);
     try {
       const res = await fetch(`${this.baseUrl}${path}`, {
         method,
@@ -110,22 +121,26 @@ export class TwentyClient {
           'Content-Type': 'application/json',
         },
         body: body !== undefined ? JSON.stringify(body) : undefined,
+        signal: controller.signal,
       });
 
       if (!res.ok) {
-        // No propagar el body crudo (puede incluir detalles internos del
-        // workspace de Twenty); solo status + mensaje corto.
-        const snippet = (await res.text().catch(() => '')).slice(0, 200);
-        return { ok: false, error: `Twenty ${method} ${path}: HTTP ${res.status} ${snippet}` };
+        // `path` puede llevar email/teléfono en el filtro y el body puede
+        // contener datos internos: no persistir ninguno en logs ni en BD.
+        return { ok: false, error: `Twenty CRM: HTTP ${res.status}` };
       }
 
       const json = await res.json().catch(() => ({}));
       return { ok: true, data: json };
-    } catch (err) {
+    } catch {
       return {
         ok: false,
-        error: `Twenty ${method} ${path}: ${err instanceof Error ? err.message : 'error desconocido'}`,
+        error: controller.signal.aborted
+          ? 'Twenty CRM: timeout de conexion'
+          : 'Twenty CRM: error de conexion',
       };
+    } finally {
+      clearTimeout(timeout);
     }
   }
 
@@ -152,34 +167,38 @@ export class TwentyClient {
     const res = await this.requestRaw('GET', path);
     if (!res.ok) return { ok: false, error: res.error };
     const raw = res.data;
+    // Twenty REST responde colecciones como `{ data: { people: [...] },
+    // pageInfo, totalCount }`. Conservamos formas planas para compatibilidad
+    // con instalaciones antiguas.
+    const root = raw as Record<string, unknown> | null;
+    const nested = root?.data as Record<string, unknown> | null;
     const list: unknown[] = Array.isArray(raw)
       ? raw
-      : Array.isArray((raw as Record<string, unknown> | null)?.[collectionKey])
-        ? ((raw as Record<string, unknown>)[collectionKey] as unknown[])
-        : [];
+      : Array.isArray(root?.[collectionKey])
+        ? (root?.[collectionKey] as unknown[])
+        : Array.isArray(nested?.[collectionKey])
+          ? (nested?.[collectionKey] as unknown[])
+          : [];
     const first = list[0];
     return { ok: true, data: isTwentyRecord(first) ? first : null };
   }
 
   async findPersonByEmail(email: string): Promise<TwentyResult<TwentyRecord | null>> {
     return this.requestFirst(
-      `/people?filter=emails.primaryEmail[eq]:${filterValue(email)}&limit=1`,
+      collectionFilterPath('people', 'emails.primaryEmail', email),
       'people'
     );
   }
 
   async findPersonByPhone(phoneDigits: string): Promise<TwentyResult<TwentyRecord | null>> {
     return this.requestFirst(
-      `/people?filter=phones.primaryPhoneNumber[eq]:${filterValue(phoneDigits)}&limit=1`,
+      collectionFilterPath('people', 'phones.primaryPhoneNumber', phoneDigits),
       'people'
     );
   }
 
   async findCompanyByName(name: string): Promise<TwentyResult<TwentyRecord | null>> {
-    return this.requestFirst(
-      `/companies?filter=name[eq]:${filterValue(name)}&limit=1`,
-      'companies'
-    );
+    return this.requestFirst(collectionFilterPath('companies', 'name', name), 'companies');
   }
 
   async upsertPerson(input: {
@@ -328,6 +347,175 @@ export class TwentyClient {
 
     return { ok: true, data: { personId: person.data.id, companyId, noteId: note.data.id } };
   }
+
+  /**
+   * Sync de solicitud de cotizacion web → Company + Person + Opportunity NEW
+   * + Task SLA (owner comercial). Best-effort; no lanza.
+   */
+  async syncCotizacionLead(input: {
+    nombre: string;
+    email?: string;
+    telefono?: string;
+    empresa?: string;
+    mensaje?: string;
+    origen?: string;
+    tipoSolicitud?: string;
+    productos?: Array<{ nombre?: string; slug?: string; cantidad?: number }>;
+    totalEstimado?: number | null;
+    moneda?: string;
+    ownerId?: string;
+  }): Promise<
+    TwentyResult<{
+      personId: string;
+      companyId?: string;
+      opportunityId: string;
+      taskId?: string;
+    }>
+  > {
+    const ownerId =
+      input.ownerId?.trim() ||
+      Deno.env.get('TWENTY_OWNER_ID')?.trim() ||
+      '8c9ca697-bc48-45d1-aba4-9a51a68d19e9';
+
+    const companyName = (input.empresa || '').trim() || `Lead web — ${input.nombre}`.slice(0, 120);
+    const company = await this.upsertCompany({ name: companyName });
+    if (!company.ok) return { ok: false, error: company.error };
+    const companyId = company.data?.id;
+    if (companyId) {
+      await this.requestRaw('PATCH', `/companies/${companyId}`, { accountOwnerId: ownerId });
+    }
+
+    let phoneNumber: string | undefined;
+    let phoneCallingCode: string | undefined;
+    if (input.telefono) {
+      const digits = input.telefono.replace(/[^\d]/g, '');
+      if (digits.length >= 8) {
+        if (digits.startsWith('57') && digits.length > 10) {
+          phoneCallingCode = '+57';
+          phoneNumber = digits.slice(2);
+        } else {
+          phoneCallingCode = '+57';
+          phoneNumber = digits;
+        }
+      }
+    }
+
+    const [firstName, ...restName] = input.nombre.trim().split(/\s+/);
+    const person = await this.upsertPerson({
+      firstName: firstName || 'Contacto',
+      lastName: restName.join(' ') || 'Web',
+      email: input.email,
+      phoneNumber,
+      phoneCallingCode,
+      jobTitle: `Lead ${input.origen || 'web'}`,
+      companyId,
+    });
+    if (!person.ok || !person.data) {
+      return { ok: false, error: person.error ?? 'Persona no creada' };
+    }
+
+    const productLabel = (input.productos || [])
+      .map(p => p.nombre || p.slug)
+      .filter(Boolean)
+      .slice(0, 3)
+      .join(', ');
+    const oppName = productLabel
+      ? `${companyName} — ${productLabel}`.slice(0, 120)
+      : companyName.slice(0, 120);
+
+    const amountMicros =
+      input.totalEstimado != null && Number.isFinite(input.totalEstimado)
+        ? Math.round(input.totalEstimado * 1_000_000)
+        : 0;
+
+    const oppPayload: Record<string, unknown> = {
+      name: oppName,
+      stage: 'NEW',
+      position: 'first',
+      companyId,
+      pointOfContactId: person.data.id,
+      ownerId,
+      amount: {
+        amountMicros,
+        currencyCode: (input.moneda || 'COP').slice(0, 8),
+      },
+    };
+    const opp = await this.requestRecord('POST', '/opportunities', oppPayload);
+    if (!opp.ok || !opp.data) {
+      return { ok: false, error: opp.error ?? 'Oportunidad no creada' };
+    }
+
+    const productList = (input.productos || []).length
+      ? (input.productos || [])
+          .map(p => `- ${p.nombre || p.slug || 'producto'}${p.cantidad ? ` x${p.cantidad}` : ''}`)
+          .join('\n')
+      : '- (sin productos)';
+    const due = new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString();
+    const task = await this.requestRecord('POST', '/tasks', {
+      title: `SLA cotización: ${oppName}`.slice(0, 120),
+      status: 'TODO',
+      dueAt: due,
+      assigneeId: ownerId,
+      position: 'first',
+      bodyV2: {
+        markdown: [
+          `**Canal:** ${input.origen || 'web'}`,
+          `**Tipo:** ${input.tipoSolicitud || 'cotizacion'}`,
+          `**Mensaje:** ${input.mensaje || '—'}`,
+          `**Productos:**\n${productList}`,
+        ].join('\n'),
+      },
+    });
+
+    const taskId: string | undefined = task.data?.id;
+    if (task.ok && taskId) {
+      await this.requestRaw('POST', '/taskTargets', {
+        taskId,
+        targetOpportunityId: opp.data.id,
+        position: 'first',
+      });
+    }
+
+    return {
+      ok: true,
+      data: {
+        personId: person.data.id,
+        companyId,
+        opportunityId: opp.data.id,
+        taskId,
+      },
+    };
+  }
+}
+
+/**
+ * Punto de entrada usado por `registrar-cotizacion`: sync lead → Twenty.
+ * Si no hay secrets TWENTY_*, `skipped: true`.
+ */
+export async function syncCotizacionWithTwenty(input: {
+  nombre: string;
+  email?: string;
+  telefono?: string;
+  empresa?: string;
+  mensaje?: string;
+  origen?: string;
+  tipoSolicitud?: string;
+  productos?: Array<{ nombre?: string; slug?: string; cantidad?: number }>;
+  totalEstimado?: number | null;
+  moneda?: string;
+}): Promise<
+  TwentyResult<{
+    personId: string;
+    companyId?: string;
+    opportunityId: string;
+    taskId?: string;
+  }>
+> {
+  const client = TwentyClient.fromEnv();
+  if (!client) {
+    return { ok: false, skipped: true, error: 'TWENTY_BASE_URL/TWENTY_API_KEY no configurados' };
+  }
+  return client.syncCotizacionLead(input);
 }
 
 /**
@@ -349,5 +537,45 @@ export async function syncShareWithTwenty(
   const client = TwentyClient.fromEnv();
   if (!client)
     return { ok: false, skipped: true, error: 'TWENTY_BASE_URL/TWENTY_API_KEY no configurados' };
+  return client.syncCommercialShare(share, products);
+}
+
+/**
+ * Reintento seguro: si un intento previo creó persona y nota pero falló al
+ * enlazarlas, solo repara el enlace. Evita notas duplicadas en Twenty.
+ */
+export async function retryShareWithTwenty(
+  share: {
+    recipientName: string;
+    medicalCenterName?: string | null;
+    recipientEmail?: string | null;
+    recipientPhoneE164?: string | null;
+    phoneCountryCode?: string | null;
+    message?: string | null;
+  },
+  products: Array<{ name: string; sku?: string | null; url?: string | null }>,
+  previous: { personId?: string | null; companyId?: string | null; noteId?: string | null }
+): Promise<TwentyResult<{ personId: string; companyId?: string; noteId: string }>> {
+  const client = TwentyClient.fromEnv();
+  if (!client)
+    return { ok: false, skipped: true, error: 'TWENTY_BASE_URL/TWENTY_API_KEY no configurados' };
+
+  if (previous.personId && previous.noteId) {
+    const link = await client.linkNoteTarget({
+      noteId: previous.noteId,
+      targetPersonId: previous.personId,
+      targetCompanyId: previous.companyId ?? undefined,
+    });
+    if (!link.ok) return { ok: false, error: link.error };
+    return {
+      ok: true,
+      data: {
+        personId: previous.personId,
+        ...(previous.companyId ? { companyId: previous.companyId } : {}),
+        noteId: previous.noteId,
+      },
+    };
+  }
+
   return client.syncCommercialShare(share, products);
 }

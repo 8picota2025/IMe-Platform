@@ -17,6 +17,7 @@ import {
   itemsToHtml,
 } from '../_shared/email.ts';
 import { withTelemetry, trackEvent } from '../_shared/telemetry.ts';
+import { syncCotizacionWithTwenty } from '../_shared/twenty-crm.ts';
 
 const FN_NAME = 'registrar-cotizacion';
 
@@ -219,9 +220,55 @@ Deno.serve(
     if (!interno.ok) console.error('registrar-cotizacion: email interno', interno.detalle);
     if (!cliente.ok) console.error('registrar-cotizacion: email cliente', cliente.detalle);
 
-    return new Response(JSON.stringify({ ok: true }), {
-      status: 200,
-      headers: { ...getCorsHeaders(origin), 'Content-Type': 'application/json' },
+    // Twenty CRM: best-effort. No bloquea respuesta al cliente.
+    const twenty = await syncCotizacionWithTwenty({
+      nombre,
+      email,
+      telefono,
+      empresa,
+      mensaje,
+      origen,
+      tipoSolicitud,
+      productos: productos.map(p => ({
+        nombre: p.nombre,
+        slug: p.slug,
+        cantidad: p.cantidad,
+      })),
+      totalEstimado,
+      moneda,
     });
+    if (twenty.skipped) {
+      console.warn('registrar-cotizacion: Twenty skipped (secrets ausentes)');
+    } else if (!twenty.ok) {
+      console.error('registrar-cotizacion: Twenty sync failed', twenty.error);
+      void trackEvent(FN_NAME, 'cotizacion_twenty_failed', {
+        tipo_solicitud: tipoSolicitud,
+      });
+    } else {
+      void trackEvent(FN_NAME, 'cotizacion_twenty_synced', {
+        tipo_solicitud: tipoSolicitud,
+        productos_count: productos.length,
+      });
+    }
+
+    return new Response(
+      JSON.stringify({
+        ok: true,
+        twenty: twenty.skipped
+          ? { status: 'skipped' }
+          : twenty.ok
+            ? {
+                status: 'synced',
+                opportunityId: twenty.data?.opportunityId,
+                personId: twenty.data?.personId,
+                companyId: twenty.data?.companyId,
+              }
+            : { status: 'failed' },
+      }),
+      {
+        status: 200,
+        headers: { ...getCorsHeaders(origin), 'Content-Type': 'application/json' },
+      }
+    );
   })
 );
