@@ -7,6 +7,10 @@ import tailwindcss from '@tailwindcss/vite'
 const sentryDsn = process.env.PUBLIC_SENTRY_DSN
 const sentryEnabled = Boolean(sentryDsn)
 
+// astro dev con i18n.prefixDefaultLocale devuelve 404 en rutas raiz sin locale
+// (/admin/, /comercial/). En produccion el host sirve el estatico y funcionan.
+const i18nDisabled = process.env.ASTRO_NO_I18N === '1'
+
 export default defineConfig({
   site: 'https://i-me.com.co',
   output: 'static',
@@ -44,13 +48,17 @@ export default defineConfig({
     },
     plugins: [tailwindcss()],
   },
-  i18n: {
-    defaultLocale: 'es',
-    locales: ['es', 'en'],
-    routing: {
-      prefixDefaultLocale: true,
-    },
-  },
+  ...(i18nDisabled
+    ? {}
+    : {
+        i18n: {
+          defaultLocale: 'es',
+          locales: ['es', 'en'],
+          routing: {
+            prefixDefaultLocale: true,
+          },
+        },
+      }),
   server: {
     port: 44334,
     host: '0.0.0.0',

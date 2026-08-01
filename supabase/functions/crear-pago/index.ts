@@ -26,6 +26,7 @@ import {
   type ClienteFiscalProfile,
 } from '../../../src/lib/fiscal.ts';
 import { withTelemetry, trackEvent } from '../_shared/telemetry.ts';
+import { notificarEstadoPedido } from '../_shared/post-pago.ts';
 import {
   calcularTotalOfertado,
   hashTokenSha256,
@@ -925,6 +926,7 @@ Deno.serve(
       consentimiento_datos: true,
       consentimiento_timestamp: new Date().toISOString(),
       metadata: {
+        locale,
         fiscal: {
           solicitar_factura_electronica: fiscalCliente.solicitar_factura_electronica,
           tipo_documento: fiscalCliente.tipo_documento,
@@ -1009,10 +1011,8 @@ Deno.serve(
     });
 
     if (!resultado.ok) {
-      await supabase
-        .from('pedidos')
-        .update({ estado: 'error_verificacion', metadata: { error: resultado.error } })
-        .eq('id', pedidoId);
+      await supabase.from('pedidos').update({ estado: 'error_verificacion' }).eq('id', pedidoId);
+      await notificarEstadoPedido(pedidoId, 'error_verificacion', 'pendiente');
 
       return errorResponse(
         {
@@ -1033,6 +1033,7 @@ Deno.serve(
     if (updateCheckoutError) {
       console.warn('crear-pago: no se pudo persistir checkout_url', updateCheckoutError.message);
     }
+    await notificarEstadoPedido(pedidoId, 'pendiente');
 
     void trackEvent(FN_NAME, 'pedido_creado', {
       pedido_id: pedidoId,

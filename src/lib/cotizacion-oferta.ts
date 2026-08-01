@@ -50,11 +50,13 @@ export function parseLineasOferta(productos: unknown): CotizacionLineaOferta[] {
     if (!raw || typeof raw !== 'object') continue;
     const row = raw as Record<string, unknown>;
     const slug = String(row.slug ?? '').trim();
-    const nombre = String(row.nombre ?? (slug || 'Producto')).trim();
+    const nombreRaw = String(row.nombre ?? '').trim();
+    const nombre = nombreRaw || slug;
     const cantidad = Number(row.cantidad ?? 0);
     const precio = Number(row.precio_unitario ?? 0);
     const moneda = String(row.moneda ?? 'COP').trim() || 'COP';
-    if (!slug || !Number.isFinite(cantidad) || cantidad < 1) continue;
+    // Solicitudes libres (chat, formulario abierto) llegan sin slug de catalogo.
+    if (!nombre || !Number.isFinite(cantidad) || cantidad < 1) continue;
     const precioOk = Number.isFinite(precio) && precio > 0 ? precio : 0;
     const subtotalRaw = Number(row.subtotal);
     const subtotal =

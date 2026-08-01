@@ -16,7 +16,11 @@ import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { badRequest, internalError, unauthorized } from '../_shared/errors.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { getGatewayByProvider } from '../_shared/payment-gateway.ts';
-import { notificarFulfillmentDropship, registrarPedidoPagado } from '../_shared/post-pago.ts';
+import {
+  notificarEstadoPedido,
+  notificarFulfillmentDropship,
+  registrarPedidoPagado,
+} from '../_shared/post-pago.ts';
 import { withTelemetry, trackEvent } from '../_shared/telemetry.ts';
 
 const FN_NAME = 'webhook-stripe';
@@ -40,7 +44,12 @@ Deno.serve(
     const gateway = getGatewayByProvider('stripe');
     const evento = await gateway.validarWebhook(rawBody, req);
     if (!evento) {
-      void trackEvent(FN_NAME, 'webhook_rechazado', { motivo: 'firma_invalida' }, { nivel: 'warn' });
+      void trackEvent(
+        FN_NAME,
+        'webhook_rechazado',
+        { motivo: 'firma_invalida' },
+        { nivel: 'warn' }
+      );
       return unauthorized(origin);
     }
 
@@ -125,6 +134,8 @@ Deno.serve(
         pedido_id: pedidoRow.id,
         proveedor_pago: 'stripe',
       });
+    } else if (!eraPagado && nuevoEstado !== pedidoRow.estado) {
+      await notificarEstadoPedido(pedidoRow.id, nuevoEstado, pedidoRow.estado);
     }
 
     return new Response(JSON.stringify({ ok: true }), {

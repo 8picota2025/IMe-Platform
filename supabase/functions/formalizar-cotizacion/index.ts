@@ -23,6 +23,13 @@ import {
   tokenExpirado,
   type CotizacionOfertaRow,
 } from '../../../src/lib/cotizacion-oferta.ts';
+import {
+  buildDianInvoiceDraft,
+  calculateFiscalSummary,
+  normalizeClienteFiscalInput,
+  validateClienteFiscal,
+  type ClienteFiscalProfile,
+} from '../../../src/lib/fiscal.ts';
 
 interface Body {
   action?: 'preview' | 'registrar_transferencia';
@@ -33,6 +40,16 @@ interface Body {
   comprobante_nombre?: string;
   comprobante_mime?: string;
   consentimiento_datos?: boolean;
+  /** Datos fiscales opcionales para factura electronica DIAN (solo CO/COP). */
+  fiscal?: Partial<ClienteFiscalProfile> & {
+    direccion_facturacion?: {
+      direccion?: string;
+      ciudad?: string;
+      departamento?: string;
+      codigo_postal?: string;
+      pais?: string;
+    };
+  };
 }
 
 const MAX_COMPROBANTE_BYTES = 5 * 1024 * 1024;
@@ -185,6 +202,7 @@ Deno.serve(async req => {
           mercado: row.mercado === 'INTL' ? 'INTL' : 'CO',
           moneda,
           total,
+          permite_factura_electronica: row.mercado !== 'INTL' && moneda.toUpperCase() === 'COP',
           lineas: lineas.map(l => ({
             slug: l.slug,
             nombre: l.nombre,
@@ -231,7 +249,51 @@ Deno.serve(async req => {
 
   const { nombre, apellido } = splitNombreApellido(String(row.nombre ?? 'Cliente'));
   const mercado = row.mercado === 'INTL' ? 'INTL' : 'CO';
+
+  // Factura electronica: precios ofertados se tratan como total final (IVA 0 en draft)
+  // para no alterar el importe transferido. IVA debe ir reflejado en la oferta si aplica.
+  const fiscalCliente = normalizeClienteFiscalInput(body.fiscal, {
+    mercado,
+    moneda,
+    email,
+    razonSocialFallback: row.empresa ?? `${nombre} ${apellido}`.trim(),
+  });
+  const fiscalErrors = validateClienteFiscal(fiscalCliente, { moneda, mercado });
+  if (fiscalErrors.length > 0) {
+    return errorResponse(
+      {
+        code: 'DATOS_FISCALES_INVALIDOS',
+        message: 'Faltan datos fiscales para factura electronica',
+        details: fiscalErrors,
+      },
+      422,
+      origin
+    );
+  }
+
   const pedidoId = crypto.randomUUID();
+  const fiscalSummary = calculateFiscalSummary(
+    lineas.map(l => ({
+      slug: l.slug,
+      nombre: l.nombre,
+      cantidad: l.cantidad,
+      precio_unitario: l.precio_unitario,
+      excluido_iva: true,
+    })),
+    fiscalCliente,
+    {
+      moneda,
+      mercado,
+      envio_total: 0,
+      default_iva_pct: 0,
+    }
+  );
+  const dianDraft = buildDianInvoiceDraft({
+    referencia: pedidoId,
+    fiscal: fiscalSummary,
+    clienteFiscal: fiscalCliente,
+    moneda,
+  });
   const ext =
     mime === 'application/pdf'
       ? 'pdf'
@@ -293,6 +355,42 @@ Deno.serve(async req => {
   const clienteId = (clienteRow as { id?: string } | null)?.id ?? null;
   const refTransferencia = (body.referencia_transferencia ?? '').trim().slice(0, 120);
 
+  // Claim atomico antes de crear pedido: evita doble formalizacion concurrente.
+  const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 16);
+  const notasPrevias = String((row as { notas_internas?: string }).notas_internas ?? '').trim();
+  const nota = `[${timestamp}] Cliente cargo comprobante. Pedido ${pedidoId.slice(0, 8)} pendiente de validacion.`;
+
+  const { data: claimed, error: claimError } = await supabase
+    .from('solicitudes_cotizacion')
+    .update({
+      estado: 'convertida',
+      pedido_id: pedidoId,
+      precio_total_ofertado: total,
+      leida: true,
+      notas_internas: notasPrevias ? `${notasPrevias}\n${nota}` : nota,
+    })
+    .eq('id', id)
+    .in('estado', ['enviada', 'respondida'])
+    .is('pedido_id', null)
+    .select('id')
+    .maybeSingle();
+
+  if (claimError) {
+    await supabase.storage.from('comprobantes-pago').remove([storagePath]);
+    return internalError(`error reservando cotizacion: ${claimError.message}`, origin);
+  }
+  if (!claimed) {
+    await supabase.storage.from('comprobantes-pago').remove([storagePath]);
+    return errorResponse(
+      {
+        code: 'COTIZACION_YA_CONVERTIDA',
+        message: 'Esta cotizacion ya fue formalizada',
+      },
+      409,
+      origin
+    );
+  }
+
   const { error: insertError } = await supabase.from('pedidos').insert({
     id: pedidoId,
     cliente_id: clienteId,
@@ -315,43 +413,65 @@ Deno.serve(async req => {
     comprobante_pago_path: storagePath,
     comprobante_pago_nombre: nombreArchivo,
     comprobante_subido_at: new Date().toISOString(),
-    facturacion_electronica_solicitada: false,
-    facturacion_electronica_estado: 'no_solicitada',
+    facturacion_electronica_solicitada: fiscalCliente.solicitar_factura_electronica,
+    facturacion_electronica_estado: fiscalCliente.solicitar_factura_electronica
+      ? 'pendiente_pago'
+      : 'no_solicitada',
     consentimiento_datos: true,
     consentimiento_timestamp: new Date().toISOString(),
     metadata: {
       solicitud_cotizacion_id: id,
       origen: 'cotizacion',
+      locale: row.locale === 'en' ? 'en' : 'es',
       precios_locked: true,
       metodo_pago: 'transferencia',
       condiciones: row.condiciones,
       referencia_transferencia: refTransferencia || null,
       datos_bancarios: bancarios,
+      fiscal: {
+        solicitar_factura_electronica: fiscalCliente.solicitar_factura_electronica,
+        tipo_documento: fiscalCliente.tipo_documento,
+        numero_documento: fiscalCliente.numero_documento,
+        tipo_persona: fiscalCliente.tipo_persona,
+        razon_social: fiscalCliente.razon_social,
+        responsable_iva: fiscalCliente.responsable_iva === true,
+        agente_retencion: fiscalCliente.agente_retencion === true,
+        agente_reteica: fiscalCliente.agente_reteica === true,
+        email_facturacion: fiscalCliente.email_facturacion,
+      },
+      fiscal_resumen: fiscalSummary,
+      dian_draft: dianDraft,
     },
   });
 
   if (insertError) {
+    await supabase
+      .from('solicitudes_cotizacion')
+      .update({
+        estado: 'enviada',
+        pedido_id: null,
+        notas_internas: notasPrevias ? `${notasPrevias}\n${nota} [ROLLBACK]` : `${nota} [ROLLBACK]`,
+      })
+      .eq('id', id)
+      .eq('pedido_id', pedidoId);
     await supabase.storage.from('comprobantes-pago').remove([storagePath]);
     return internalError(`error creando pedido: ${insertError.message}`, origin);
   }
 
-  const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 16);
-  const notasPrevias = String((row as { notas_internas?: string }).notas_internas ?? '').trim();
-  const nota = `[${timestamp}] Cliente cargo comprobante. Pedido ${pedidoId.slice(0, 8)} pendiente de validacion.`;
-
-  await supabase
-    .from('solicitudes_cotizacion')
-    .update({
-      estado: 'convertida',
-      pedido_id: pedidoId,
-      precio_total_ofertado: total,
-      leida: true,
-      notas_internas: notasPrevias ? `${notasPrevias}\n${nota}` : nota,
-    })
-    .eq('id', id);
+  if (fiscalCliente.solicitar_factura_electronica) {
+    await supabase.from('facturas_electronicas').upsert(
+      {
+        pedido_id: pedidoId,
+        estado: 'pendiente_pago',
+        proveedor: 'siigo',
+        payload: dianDraft ?? {},
+      },
+      { onConflict: 'pedido_id' }
+    );
+  }
 
   const refCorta = pedidoId.slice(0, 8).toUpperCase();
-  await enviarEmailPlantilla(
+  const emailInterno = await enviarEmailPlantilla(
     supabase,
     'transferencia_recibida_interna',
     DESTINATARIOS_INTERNOS,
@@ -364,7 +484,7 @@ Deno.serve(async req => {
     },
     pedidoId
   );
-  await enviarEmailPlantilla(
+  const emailCliente = await enviarEmailPlantilla(
     supabase,
     'transferencia_recibida_cliente',
     [email],
@@ -376,6 +496,12 @@ Deno.serve(async req => {
     },
     pedidoId
   );
+  if (!emailInterno.ok) {
+    console.error('formalizar: email interno fallido', emailInterno.detalle);
+  }
+  if (!emailCliente.ok) {
+    console.error('formalizar: email cliente fallido', emailCliente.detalle);
+  }
 
   return new Response(
     JSON.stringify({
@@ -385,6 +511,8 @@ Deno.serve(async req => {
       estado: 'pendiente_validacion',
       total,
       moneda,
+      email_cliente_enviado: emailCliente.ok,
+      facturacion_solicitada: fiscalCliente.solicitar_factura_electronica,
     }),
     {
       status: 200,

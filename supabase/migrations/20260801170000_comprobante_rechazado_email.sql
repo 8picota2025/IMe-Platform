@@ -1,0 +1,25 @@
+-- Plantillas: comprobante de transferencia rechazado + CTA para reintentar formalizacion
+
+INSERT INTO email_templates (clave, descripcion, asunto, html) VALUES
+(
+  'transferencia_comprobante_rechazado',
+  'Aviso al cliente: comprobante invalido, reintentar validacion del presupuesto',
+  'Comprobante no valido — reintenta la formalizacion {{referencia}}',
+  '<h2>Hola {{cliente_nombre}}</h2><p>Revisamos el comprobante de transferencia asociado a tu presupuesto <strong>{{referencia}}</strong> y <strong>no pudo ser validado</strong>.</p><p>Por favor vuelve a realizar el pago (si aplica) y carga un comprobante valido para completar la formalizacion.</p><p><strong>Total ofertado:</strong> {{total}} {{moneda}}</p><p><a href="{{formalizar_url}}" style="display:inline-block;padding:12px 20px;background:#0b3d4a;color:#fff;text-decoration:none;border-radius:4px">Reintentar validacion del presupuesto</a></p><p>Si el boton no funciona, copia este enlace:<br>{{formalizar_url}}</p><p>Si tienes dudas, responde a este correo o escribenos a ventas@i-me.com.co.</p><p>Equipo I-ME</p>'
+),
+(
+  'transferencia_comprobante_rechazado_es',
+  'Aviso al cliente (ES): comprobante invalido, reintentar validacion del presupuesto',
+  'Comprobante no valido — reintenta la formalizacion {{referencia}}',
+  '<h2>Hola {{cliente_nombre}}</h2><p>Revisamos el comprobante de transferencia asociado a tu presupuesto <strong>{{referencia}}</strong> y <strong>no pudo ser validado</strong>.</p><p>Por favor vuelve a realizar el pago (si aplica) y carga un comprobante valido para completar la formalizacion.</p><p><strong>Total ofertado:</strong> {{total}} {{moneda}}</p><p><a href="{{formalizar_url}}" style="display:inline-block;padding:12px 20px;background:#0b3d4a;color:#fff;text-decoration:none;border-radius:4px">Reintentar validacion del presupuesto</a></p><p>Si el boton no funciona, copia este enlace:<br>{{formalizar_url}}</p><p>Si tienes dudas, responde a este correo o escribenos a ventas@i-me.com.co.</p><p>Equipo I-ME</p>'
+),
+(
+  'transferencia_comprobante_rechazado_en',
+  'Client notice (EN): invalid receipt, retry quote validation',
+  'Payment receipt not valid — retry formalization {{referencia}}',
+  '<h2>Hello {{cliente_nombre}}</h2><p>We reviewed the bank transfer receipt for your quote <strong>{{referencia}}</strong> and it <strong>could not be validated</strong>.</p><p>Please transfer again if needed and upload a valid receipt to complete formalization.</p><p><strong>Quoted total:</strong> {{total}} {{moneda}}</p><p><a href="{{formalizar_url}}" style="display:inline-block;padding:12px 20px;background:#0b3d4a;color:#fff;text-decoration:none;border-radius:4px">Retry quote validation</a></p><p>If the button does not work, copy this link:<br>{{formalizar_url}}</p><p>Questions? Reply to this email or write to ventas@i-me.com.co.</p><p>I-ME Team</p>'
+)
+ON CONFLICT (clave) DO UPDATE
+SET descripcion = EXCLUDED.descripcion,
+    asunto = EXCLUDED.asunto,
+    html = EXCLUDED.html;

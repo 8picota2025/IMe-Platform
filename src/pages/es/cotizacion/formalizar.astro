@@ -34,6 +34,69 @@ const currentPath = '/es/cotizacion/formalizar';
             required
           />
         </label>
+        <fieldset class="formalizar__fiscal" data-formalizar-fiscal hidden>
+          <legend>Factura electrónica (DIAN)</legend>
+          <p class="formalizar__help">
+            Opcional. Solo Colombia (COP). El total transferido no cambia.
+          </p>
+          <label class="formalizar__check">
+            <input name="solicitar_factura_electronica" type="checkbox" data-fiscal-toggle />
+            <span>Solicito factura electrónica</span>
+          </label>
+          <div data-fiscal-fields hidden>
+            <label class="formalizar__field">
+              <span>Tipo documento</span>
+              <select name="tipo_documento" data-fiscal-required>
+                <option value="">—</option>
+                <option value="NIT">NIT</option>
+                <option value="CC">CC</option>
+                <option value="CE">CE</option>
+                <option value="PP">Pasaporte</option>
+              </select>
+            </label>
+            <label class="formalizar__field">
+              <span>Número documento</span>
+              <input name="numero_documento" type="text" maxlength="32" data-fiscal-required />
+            </label>
+            <label class="formalizar__field">
+              <span>Tipo persona</span>
+              <select name="tipo_persona" data-fiscal-required>
+                <option value="">—</option>
+                <option value="natural">Natural</option>
+                <option value="juridica">Jurídica</option>
+              </select>
+            </label>
+            <label class="formalizar__field">
+              <span>Razón social / nombre fiscal</span>
+              <input name="razon_social" type="text" maxlength="180" data-fiscal-required />
+            </label>
+            <label class="formalizar__field">
+              <span>Email facturación</span>
+              <input name="email_facturacion" type="email" data-fiscal-required />
+            </label>
+            <label class="formalizar__field">
+              <span>Dirección</span>
+              <input
+                name="direccion_facturacion"
+                type="text"
+                maxlength="200"
+                data-fiscal-required
+              />
+            </label>
+            <label class="formalizar__field">
+              <span>Ciudad</span>
+              <input name="ciudad_facturacion" type="text" maxlength="80" data-fiscal-required />
+            </label>
+            <label class="formalizar__field">
+              <span>Departamento (opcional)</span>
+              <input name="departamento_facturacion" type="text" maxlength="80" />
+            </label>
+            <label class="formalizar__check">
+              <input name="responsable_iva" type="checkbox" />
+              <span>Responsable de IVA</span>
+            </label>
+          </div>
+        </fieldset>
         <label class="formalizar__check">
           <input name="consentimiento" type="checkbox" required />
           <span
@@ -104,6 +167,16 @@ const currentPath = '/es/cotizacion/formalizar';
     gap: 0.5rem;
     align-items: flex-start;
   }
+  .formalizar__fiscal {
+    display: grid;
+    gap: 0.75rem;
+    padding: 1rem;
+    border: 1px solid var(--border-color, #c9d6db);
+  }
+  .formalizar__fiscal legend {
+    padding: 0 0.35rem;
+    font-weight: 600;
+  }
   .formalizar__help {
     margin: 0;
     color: #3d5a63;
@@ -126,10 +199,12 @@ const currentPath = '/es/cotizacion/formalizar';
     id: string;
     nombre?: string;
     empresa?: string;
+    email?: string;
     condiciones?: string;
     validez_hasta?: string;
     moneda: string;
     total: number;
+    permite_factura_electronica?: boolean;
     lineas: Linea[];
   };
 
@@ -142,6 +217,9 @@ const currentPath = '/es/cotizacion/formalizar';
   const bankEl = document.querySelector<HTMLElement>('[data-formalizar-bank]');
   const formStatus = document.querySelector<HTMLElement>('[data-formalizar-form-status]');
   const submitBtn = document.querySelector<HTMLButtonElement>('[data-formalizar-submit]');
+  const fiscalBox = document.querySelector<HTMLElement>('[data-formalizar-fiscal]');
+  const fiscalToggle = document.querySelector<HTMLInputElement>('[data-fiscal-toggle]');
+  const fiscalFields = document.querySelector<HTMLElement>('[data-fiscal-fields]');
 
   function money(value: number, moneda: string): string {
     return new Intl.NumberFormat('es-CO', {
@@ -174,6 +252,18 @@ const currentPath = '/es/cotizacion/formalizar';
       reader.readAsDataURL(file);
     });
   }
+
+  function syncFiscalRequired() {
+    const enabled = Boolean(fiscalToggle?.checked);
+    if (fiscalFields) fiscalFields.hidden = !enabled;
+    form
+      ?.querySelectorAll<HTMLInputElement | HTMLSelectElement>('[data-fiscal-required]')
+      .forEach(el => {
+        el.required = enabled;
+      });
+  }
+
+  fiscalToggle?.addEventListener('change', syncFiscalRequired);
 
   async function load() {
     if (!statusEl || !contentEl || !form || !bankEl) return;
@@ -232,6 +322,14 @@ const currentPath = '/es/cotizacion/formalizar';
     `;
     bankEl.textContent = json.transferencia?.texto ?? '';
     form.hidden = false;
+    if (fiscalBox && cotizacion.permite_factura_electronica) {
+      fiscalBox.hidden = false;
+      const emailInput = form.querySelector<HTMLInputElement>('[name="email_facturacion"]');
+      const razonInput = form.querySelector<HTMLInputElement>('[name="razon_social"]');
+      if (emailInput && cotizacion.email) emailInput.value = cotizacion.email;
+      if (razonInput && cotizacion.empresa) razonInput.value = cotizacion.empresa;
+    }
+    syncFiscalRequired();
 
     form.addEventListener('submit', async event => {
       event.preventDefault();
@@ -250,6 +348,24 @@ const currentPath = '/es/cotizacion/formalizar';
       formStatus.textContent = 'Enviando comprobante…';
       try {
         const dataUrl = await fileToBase64(file);
+        const solicitarFactura = fd.get('solicitar_factura_electronica') === 'on';
+        const fiscal = solicitarFactura
+          ? {
+              solicitar_factura_electronica: true,
+              tipo_documento: String(fd.get('tipo_documento') ?? ''),
+              numero_documento: String(fd.get('numero_documento') ?? ''),
+              tipo_persona: String(fd.get('tipo_persona') ?? ''),
+              razon_social: String(fd.get('razon_social') ?? ''),
+              email_facturacion: String(fd.get('email_facturacion') ?? ''),
+              responsable_iva: fd.get('responsable_iva') === 'on',
+              direccion_facturacion: {
+                direccion: String(fd.get('direccion_facturacion') ?? ''),
+                ciudad: String(fd.get('ciudad_facturacion') ?? ''),
+                departamento: String(fd.get('departamento_facturacion') ?? '') || null,
+                pais: 'CO',
+              },
+            }
+          : { solicitar_factura_electronica: false };
         const { data: result, error: submitError } = await supabase.functions.invoke(
           'formalizar-cotizacion',
           {
@@ -262,6 +378,7 @@ const currentPath = '/es/cotizacion/formalizar';
               comprobante_nombre: file.name,
               comprobante_mime: file.type || 'application/pdf',
               consentimiento_datos: true,
+              fiscal,
             },
           }
         );
@@ -274,6 +391,7 @@ const currentPath = '/es/cotizacion/formalizar';
           ok?: boolean;
           error?: { message?: string };
           referencia?: string;
+          facturacion_solicitada?: boolean;
         };
         if (!jsonResult?.ok) {
           formStatus.textContent = jsonResult?.error?.message || 'No se pudo registrar el pago.';
@@ -286,7 +404,11 @@ const currentPath = '/es/cotizacion/formalizar';
         statusEl.textContent = `Comprobante recibido. Pedido ${jsonResult.referencia ?? ''} pendiente de validación. Te confirmaremos por correo.`;
         contentEl.insertAdjacentHTML(
           'beforeend',
-          '<p class="formalizar__ok">Gracias. Nuestro equipo validará la transferencia.</p>'
+          `<p class="formalizar__ok">Gracias. Nuestro equipo validará la transferencia.${
+            jsonResult.facturacion_solicitada
+              ? ' La factura electrónica se emitirá al confirmar el pago.'
+              : ''
+          }</p>`
         );
       } catch {
         formStatus.textContent = 'Error de red al enviar el comprobante.';

@@ -186,8 +186,29 @@ Deno.serve(async req => {
     return internalError(`error actualizando fulfillment: ${updateError.message}`, origin);
   }
 
-  // 5. Notificar al cliente por email en estados relevantes (best-effort)
-  if (['enviado', 'entregado'].includes(body.estado) && fulfillmentRow.pedido_id) {
+  // 5. Sincronizar estado del pedido + comunicar al cliente (best-effort).
+  if (fulfillmentRow.pedido_id && body.estado !== fulfillmentRow.estado) {
+    const pedidoEstadoMap: Record<string, string> = {
+      preparando: 'preparando',
+      enviado: 'enviado',
+      entregado: 'entregado',
+      retrasado: 'retrasado',
+      cancelado: 'cancelado',
+    };
+    const pedidoEstado = pedidoEstadoMap[String(body.estado ?? '')];
+    if (pedidoEstado) {
+      const { error: syncError } = await supabase
+        .from('pedidos')
+        .update({ estado: pedidoEstado })
+        .eq('id', fulfillmentRow.pedido_id);
+      if (syncError) {
+        console.error(
+          'actualizar-fulfillment: no se pudo sincronizar pedidos.estado',
+          syncError.message
+        );
+      }
+    }
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     if (supabaseUrl && serviceKey) {
@@ -200,7 +221,8 @@ Deno.serve(async req => {
           },
           body: JSON.stringify({
             pedido_id: fulfillmentRow.pedido_id,
-            a_estado: body.estado,
+            a_estado: pedidoEstado ?? body.estado,
+            de_estado: fulfillmentRow.estado,
             tracking_number: body.tracking_number ?? fulfillmentRow.tracking_number ?? undefined,
             tracking_url: body.tracking_url ?? fulfillmentRow.tracking_url ?? undefined,
           }),

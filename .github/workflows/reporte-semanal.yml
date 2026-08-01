@@ -1,0 +1,50 @@
+name: Reporte semanal I-ME
+
+# Domingo 23:59 America/Bogota = lunes 04:59 UTC
+on:
+  schedule:
+    - cron: '59 4 * * 1'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Solo calcular metricas (no enviar email)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+
+jobs:
+  reporte:
+    name: Enviar cuadro de resultados
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Invocar reporte-semanal
+        env:
+          SUPABASE_URL: https://nnfbucwiasuggyfoyydo.supabase.co
+          SUPABASE_ANON_KEY: ${{ secrets.PUBLIC_SUPABASE_ANON_KEY }}
+          REPORTE_SEMANAL_SECRET: ${{ secrets.REPORTE_SEMANAL_SECRET }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        run: |
+          set -euo pipefail
+          BODY='{"dry_run":false}'
+          if [ "$DRY_RUN" = "true" ]; then
+            BODY='{"dry_run":true}'
+          fi
+          AUTH_HEADER="Bearer ${SUPABASE_SERVICE_ROLE_KEY}"
+          EXTRA_HEADER=()
+          if [ -n "${REPORTE_SEMANAL_SECRET:-}" ]; then
+            EXTRA_HEADER=(-H "x-reporte-semanal-secret: ${REPORTE_SEMANAL_SECRET}")
+            AUTH_HEADER="Bearer ${SUPABASE_ANON_KEY:-$SUPABASE_SERVICE_ROLE_KEY}"
+          fi
+          RESP=$(curl -sS -X POST "$SUPABASE_URL/functions/v1/reporte-semanal" \
+            -H "Authorization: ${AUTH_HEADER}" \
+            -H "apikey: ${SUPABASE_ANON_KEY:-$SUPABASE_SERVICE_ROLE_KEY}" \
+            -H "Content-Type: application/json" \
+            "${EXTRA_HEADER[@]}" \
+            -d "$BODY")
+          echo "$RESP" | tee /tmp/reporte.json
+          echo "$RESP" | grep -q '"ok":true'

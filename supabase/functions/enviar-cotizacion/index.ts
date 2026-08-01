@@ -34,6 +34,10 @@ const ROLES = new Set(['owner', 'admin', 'ventas']);
 
 interface Body {
   cotizacion_id?: string;
+  /** Opcional: persistir oferta del CMS justo antes de enviar (evita DOM vs DB). */
+  productos?: unknown;
+  condiciones?: string;
+  validez_hasta?: string | null;
 }
 
 Deno.serve(async req => {
@@ -49,6 +53,42 @@ Deno.serve(async req => {
   const body = (await req.json().catch(() => ({}))) as Body;
   const id = (body.cotizacion_id ?? '').trim();
   if (!id) return badRequest('cotizacion_id requerido', origin);
+
+  // Si el CMS manda la oferta actual, persistirla antes de validar/enviar.
+  if (body.productos !== undefined || body.condiciones !== undefined) {
+    const lineasPayload = parseLineasOferta(body.productos);
+    const condicionesPayload =
+      body.condiciones !== undefined ? String(body.condiciones).trim() : undefined;
+    const checkPayload =
+      condicionesPayload !== undefined
+        ? ofertaCompleta(lineasPayload, condicionesPayload)
+        : lineasPayload.length > 0
+          ? ({ ok: true } as const)
+          : { ok: false, error: 'OFERTA_SIN_LINEAS' as const };
+    if (!checkPayload.ok) {
+      return errorResponse(
+        { code: checkPayload.error, message: 'Completa precios y condiciones antes de enviar' },
+        422,
+        origin
+      );
+    }
+    const patch: Record<string, unknown> = {
+      leida: true,
+    };
+    if (body.productos !== undefined) {
+      patch.productos = lineasPayload;
+      patch.precio_total_ofertado = calcularTotalOfertado(lineasPayload);
+    }
+    if (condicionesPayload !== undefined) patch.condiciones = condicionesPayload;
+    if (body.validez_hasta !== undefined) {
+      patch.validez_hasta = body.validez_hasta ? String(body.validez_hasta).trim() || null : null;
+    }
+    const { error: saveError } = await supabase
+      .from('solicitudes_cotizacion')
+      .update(patch)
+      .eq('id', id);
+    if (saveError) return internalError(saveError.message, origin);
+  }
 
   const { data, error } = await supabase
     .from('solicitudes_cotizacion')

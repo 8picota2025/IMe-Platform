@@ -10,6 +10,39 @@ interface PedidoItem {
   producto_id: string;
 }
 
+/** Notificacion centralizada de estado. Best-effort; no bloquea pagos/webhooks. */
+export async function notificarEstadoPedido(
+  pedidoId: string,
+  aEstado: string,
+  deEstado?: string,
+  tracking?: { number?: string; url?: string }
+): Promise<void> {
+  const supabaseUrl = Deno.env.get('SUPABASE_URL');
+  const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  if (!supabaseUrl || !serviceKey) return;
+  try {
+    const response = await fetch(`${supabaseUrl}/functions/v1/notificar-cliente`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${serviceKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        pedido_id: pedidoId,
+        a_estado: aEstado,
+        de_estado: deEstado,
+        tracking_number: tracking?.number,
+        tracking_url: tracking?.url,
+      }),
+    });
+    if (!response.ok) {
+      console.error('notificarEstadoPedido:', await response.text());
+    }
+  } catch (error) {
+    console.error('notificarEstadoPedido: no se pudo invocar notificar-cliente', error);
+  }
+}
+
 /**
  * Para los items del pedido cuyo producto tenga fulfillment_mode='dropship',
  * invoca notificar-proveedor (server-to-server, con service_role).
@@ -60,12 +93,16 @@ export async function notificarFulfillmentDropship(
   }
 }
 
+export type ProveedorPagoConfirmado = 'wompi' | 'stripe' | 'bold' | 'transferencia';
+
 export async function registrarPedidoPagado(
   supabase: SupabaseClient,
   pedidoId: string,
-  provider: 'wompi' | 'stripe',
-  eventId: string
+  provider: ProveedorPagoConfirmado,
+  eventId: string,
+  options?: { deEstado?: string; skipClienteEmail?: boolean }
 ): Promise<void> {
+  const deEstado = options?.deEstado ?? 'pendiente';
   const { data: pedido, error } = await supabase
     .from('pedidos')
     .select('id, cliente_id, total')
@@ -100,8 +137,8 @@ export async function registrarPedidoPagado(
 
   await supabase.from('pedido_eventos').insert({
     pedido_id: pedidoId,
-    tipo: 'pago_confirmado',
-    de_estado: 'pendiente',
+    tipo: provider === 'transferencia' ? 'transferencia_validada' : 'pago_confirmado',
+    de_estado: deEstado,
     a_estado: 'pagado',
     metadata: { provider, event_id: eventId },
   });
@@ -131,7 +168,7 @@ export async function registrarPedidoPagado(
             Authorization: `Bearer ${serviceKey}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ pedido_id: pedidoId }),
+          body: JSON.stringify({ pedido_id: pedidoId, force_live: true }),
         });
       } catch (err) {
         console.error('registrarPedidoPagado: error invocando emitir-factura-dian', err);
@@ -139,7 +176,10 @@ export async function registrarPedidoPagado(
     }
   }
 
-  await enviarEmailsPedidoPagado(supabase, pedidoId);
+  await enviarEmailsPedidoPagado(supabase, pedidoId, {
+    deEstado,
+    skipClienteEmail: options?.skipClienteEmail,
+  });
   await marcarCarritoConvertido(supabase, pedidoId);
 }
 
@@ -164,7 +204,11 @@ async function marcarCarritoConvertido(supabase: SupabaseClient, pedidoId: strin
  * Emails tras confirmar pago: aviso interno (root@ + ventas@) y confirmacion
  * al cliente. Best-effort: nunca bloquea el flujo del webhook.
  */
-async function enviarEmailsPedidoPagado(supabase: SupabaseClient, pedidoId: string): Promise<void> {
+async function enviarEmailsPedidoPagado(
+  supabase: SupabaseClient,
+  pedidoId: string,
+  options?: { deEstado?: string; skipClienteEmail?: boolean }
+): Promise<void> {
   const { data, error } = await supabase
     .from('pedidos')
     .select('id, cliente, items, total, moneda, referencia_pasarela')
@@ -204,15 +248,8 @@ async function enviarEmailsPedidoPagado(supabase: SupabaseClient, pedidoId: stri
       referencia
     );
     if (!interno.ok) console.error('enviarEmailsPedidoPagado: interno', interno.detalle);
-    if (emailCliente) {
-      const cliente = await enviarEmailPlantilla(
-        supabase,
-        'pedido_confirmacion_cliente',
-        [emailCliente],
-        vars,
-        referencia
-      );
-      if (!cliente.ok) console.error('enviarEmailsPedidoPagado: cliente', cliente.detalle);
+    if (emailCliente && !options?.skipClienteEmail) {
+      await notificarEstadoPedido(pedidoId, 'pagado', options?.deEstado ?? 'pendiente');
     }
   } catch (err) {
     console.error('enviarEmailsPedidoPagado: error inesperado', err);

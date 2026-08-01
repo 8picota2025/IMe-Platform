@@ -2740,8 +2740,8 @@ async function cotizacionDetailView(): Promise<string> {
               <input name="validez_hasta" type="date" value="${escapeHtml(text(row.validez_hasta).slice(0, 10))}" ${convertida ? 'disabled' : ''} />
             </label>
           </div>
-          <label class="admin-field"><span>Condiciones de la cotizacion</span>
-            <textarea name="condiciones" rows="5" placeholder="Plazo de entrega, forma de pago, validez, exclusiones..." ${convertida ? 'disabled' : ''}>${escapeHtml(
+          <label class="admin-field"><span>Observaciones / condiciones de configuracion</span>
+            <textarea name="condiciones" rows="5" placeholder="Configuracion especifica, plazo de entrega, forma de pago, validez, exclusiones..." ${convertida ? 'disabled' : ''}>${escapeHtml(
               text(row.condiciones)
             )}</textarea>
           </label>
@@ -2972,6 +2972,7 @@ const PEDIDO_ESTADOS: Array<[string, string]> = [
   ['pendiente_validacion', 'Pendiente validacion transferencia'],
   ['pagado', 'Pagado'],
   ['procesando', 'Procesando'],
+  ['preparando', 'Preparando'],
   ['enviado', 'Enviado'],
   ['entregado', 'Entregado'],
   ['retrasado', 'Retrasado (rotura de stock post-pago)'],
@@ -3249,6 +3250,7 @@ async function pedidoDetailView(): Promise<string> {
                 : ''
             }
             <button class="admin-button admin-button--ghost" type="button" data-pedido-quick-estado="procesando">Procesar</button>
+            <button class="admin-button admin-button--ghost" type="button" data-pedido-quick-estado="preparando">Preparar</button>
             <button class="admin-button admin-button--ghost" type="button" data-pedido-quick-estado="enviado">Enviar</button>
             <button class="admin-button admin-button--ghost" type="button" data-pedido-quick-estado="entregado">Entregar</button>
             <button class="admin-button admin-button--ghost" type="button" data-pedido-quick-estado="retrasado">Marcar retrasado</button>
@@ -5269,6 +5271,10 @@ function bindProveedorProductos() {
 async function actualizarEstadoPedido(id: string, estado: string): Promise<boolean> {
   const before = await getRow('pedidos', id);
   const estadoAnterior = text(before?.estado);
+  if (estadoAnterior === estado) {
+    toast(`El pedido ya esta ${pedidoEstadoLabel(estado)}.`);
+    return true;
+  }
   const { error } = await supabase!.from('pedidos').update({ estado }).eq('id', id);
   if (error) {
     toast(error.message);
@@ -5280,25 +5286,35 @@ async function actualizarEstadoPedido(id: string, estado: string): Promise<boole
     a_estado: estado,
     metadata: { source: 'admin' },
   });
-  void notificarClienteEstado(id, estado);
+  void notificarClienteEstado(id, estado, estadoAnterior || undefined);
   return true;
 }
 
 const ESTADOS_NOTIFICABLES = new Set([
+  'pendiente',
+  'pendiente_validacion',
   'pagado',
   'procesando',
+  'preparando',
   'enviado',
   'entregado',
   'retrasado',
+  'rechazado',
+  'expirado',
   'cancelado',
   'reembolsado',
+  'error_verificacion',
 ]);
 
-async function notificarClienteEstado(pedidoId: string, estado: string): Promise<void> {
+async function notificarClienteEstado(
+  pedidoId: string,
+  estado: string,
+  estadoAnterior?: string
+): Promise<void> {
   if (!ESTADOS_NOTIFICABLES.has(estado)) return;
   try {
     const { data, error } = await supabase!.functions.invoke('notificar-cliente', {
-      body: { pedido_id: pedidoId, a_estado: estado },
+      body: { pedido_id: pedidoId, a_estado: estado, de_estado: estadoAnterior },
     });
     const result = data as { ok?: boolean; detalle?: string } | null;
     if (error || !result?.ok) {
@@ -5560,7 +5576,7 @@ function bindCotizaciones() {
     const data = new FormData(ofertaForm);
     const id = String(data.get('id') ?? '');
     if (!id) return;
-    const lineas = leerLineasOfertaDesdeDom().filter(l => l.slug);
+    const lineas = leerLineasOfertaDesdeDom().filter(l => l.slug || l.nombre);
     if (lineas.length === 0) {
       toast('No hay lineas de producto.');
       return;
@@ -5594,6 +5610,19 @@ function bindCotizaciones() {
     await render();
   });
 
+  const COTIZACION_ERROR_MENSAJES: Record<string, string> = {
+    OFERTA_SIN_LINEAS: 'La cotizacion no tiene lineas de producto validas. Revisa el detalle.',
+    OFERTA_SIN_PRECIO:
+      'Falta el precio unitario en alguna linea. Completalo y pulsa "Guardar oferta" antes de enviar.',
+    OFERTA_SIN_CONDICIONES:
+      'Faltan las observaciones/condiciones. Completalas y pulsa "Guardar oferta" antes de enviar.',
+    SIN_EMAIL: 'La cotizacion no tiene email de cliente.',
+    COTIZACION_YA_CONVERTIDA: 'Esta cotizacion ya se convirtio en pedido.',
+    EMAIL_FALLIDO:
+      'Oferta guardada, pero el email no se pudo enviar. Revisa el proveedor de correo.',
+    UNAUTHORIZED: 'Tu sesion no tiene permisos para esta accion. Vuelve a iniciar sesion.',
+  };
+
   async function invokeCotizacionFn(
     name: string,
     body: Record<string, unknown>
@@ -5603,7 +5632,13 @@ function bindCotizaciones() {
       const context = (error as { context?: unknown }).context;
       if (context instanceof Response) {
         try {
-          const json = (await context.json()) as { error?: { message?: string } };
+          const json = (await context.json()) as {
+            error?: { message?: string; code?: string };
+          };
+          const code = json?.error?.code ?? '';
+          if (code && COTIZACION_ERROR_MENSAJES[code]) {
+            return { ok: false, message: COTIZACION_ERROR_MENSAJES[code]! };
+          }
           if (json?.error?.message) return { ok: false, message: json.error.message };
         } catch {
           /* ignore */
@@ -5626,10 +5661,51 @@ function bindCotizaciones() {
     ?.addEventListener('click', async () => {
       const id = state.recordId;
       if (!id) return;
+      const lineasDom = leerLineasOfertaDesdeDom().filter(l => l.slug || l.nombre);
+      const condicionesDom =
+        app.querySelector<HTMLTextAreaElement>('[data-cotizacion-oferta-form] [name="condiciones"]')
+          ?.value ?? '';
+      if (lineasDom.length === 0) {
+        toast(COTIZACION_ERROR_MENSAJES['OFERTA_SIN_LINEAS']!);
+        return;
+      }
+      if (lineasDom.some(l => !(l.precio_unitario > 0))) {
+        toast(COTIZACION_ERROR_MENSAJES['OFERTA_SIN_PRECIO']!);
+        return;
+      }
+      if (!condicionesDom.trim()) {
+        toast(COTIZACION_ERROR_MENSAJES['OFERTA_SIN_CONDICIONES']!);
+        return;
+      }
       if (!confirm('Enviar oferta formal al email del solicitante?')) return;
       const button = app.querySelector<HTMLButtonElement>('[data-cotizacion-enviar]');
       if (button) button.disabled = true;
-      const result = await invokeCotizacionFn('enviar-cotizacion', { cotizacion_id: id });
+      // Persistir DOM antes de enviar: evita que edge lea precios/condiciones viejos.
+      const validezDom =
+        app.querySelector<HTMLInputElement>('[data-cotizacion-oferta-form] [name="validez_hasta"]')
+          ?.value ?? '';
+      const totalDom = lineasDom.reduce((acc, l) => acc + l.subtotal, 0);
+      const { error: saveError } = await supabase!
+        .from('solicitudes_cotizacion')
+        .update({
+          productos: lineasDom,
+          condiciones: condicionesDom.trim(),
+          validez_hasta: validezDom.trim() || null,
+          precio_total_ofertado: totalDom,
+          leida: true,
+        })
+        .eq('id', id);
+      if (saveError) {
+        if (button) button.disabled = false;
+        toast(`No se pudo guardar la oferta antes de enviar: ${saveError.message}`);
+        return;
+      }
+      const result = await invokeCotizacionFn('enviar-cotizacion', {
+        cotizacion_id: id,
+        productos: lineasDom,
+        condiciones: condicionesDom.trim(),
+        validez_hasta: validezDom.trim() || null,
+      });
       if (button) button.disabled = false;
       if (!result.ok) {
         toast(result.message);
@@ -5849,31 +5925,39 @@ function bindPedidoOperaciones() {
       if (!confirm('Confirmar que el comprobante es valido y marcar el pedido como pagado?')) {
         return;
       }
-      const {
-        data: { user },
-      } = await supabase!.auth.getUser();
-      const before = await getRow('pedidos', id);
-      const { error } = await supabase!
-        .from('pedidos')
-        .update({
-          estado: 'pagado',
-          pago_validado_at: new Date().toISOString(),
-          pago_validado_por: user?.email ?? state.email,
-          leida: true,
-        })
-        .eq('id', id);
+      button.disabled = true;
+      const { data, error } = await supabase!.functions.invoke('validar-transferencia', {
+        body: { pedido_id: id },
+      });
+      button.disabled = false;
       if (error) {
-        toast(error.message);
+        const context = (error as { context?: unknown }).context;
+        let message = error.message;
+        if (context instanceof Response) {
+          try {
+            const json = (await context.json()) as { error?: { message?: string } };
+            if (json?.error?.message) message = json.error.message;
+          } catch {
+            /* ignore */
+          }
+        }
+        toast(message);
         return;
       }
-      await registrarEventoPedido(id, {
-        tipo: 'transferencia_validada',
-        de_estado: text(before?.estado) || null,
-        a_estado: 'pagado',
-        metadata: { source: 'admin', metodo: 'transferencia' },
-      });
-      void notificarClienteEstado(id, 'pagado');
-      toast('Transferencia validada. Pedido marcado como pagado.');
+      const json = (data ?? {}) as {
+        ok?: boolean;
+        error?: { message?: string };
+        facturacion_solicitada?: boolean;
+      };
+      if (!json.ok) {
+        toast(json.error?.message || 'No se pudo validar la transferencia.');
+        return;
+      }
+      toast(
+        json.facturacion_solicitada
+          ? 'Transferencia validada. Pedido pagado y factura DIAN en proceso.'
+          : 'Transferencia validada. Pedido marcado como pagado. Cliente notificado.'
+      );
       await render();
     });
   });
@@ -5886,13 +5970,61 @@ function bindPedidoOperaciones() {
         if (!id) return;
         if (
           !confirm(
-            'Rechazar el comprobante? El pedido pasara a rechazado y deberas contactar al cliente.'
+            'Rechazar el comprobante? Se marcara el pedido como rechazado, se reabrira la cotizacion y se enviara un email al cliente para reintentar la validacion.'
           )
         ) {
           return;
         }
-        const ok = await actualizarEstadoPedido(id, 'rechazado');
-        if (ok) toast('Comprobante rechazado.');
+        const motivo =
+          window.prompt(
+            'Motivo opcional para el cliente (deja vacio si no aplica):',
+            'Comprobante no valido'
+          ) ?? '';
+        button.disabled = true;
+        const before = await getRow('pedidos', id);
+        const { data, error } = await supabase!.functions.invoke('rechazar-comprobante', {
+          body: { pedido_id: id, motivo: motivo.trim() || undefined },
+        });
+        button.disabled = false;
+        if (error) {
+          const context = (error as { context?: unknown }).context;
+          let message = error.message;
+          if (context instanceof Response) {
+            try {
+              const json = (await context.json()) as { error?: { message?: string } };
+              if (json?.error?.message) message = json.error.message;
+            } catch {
+              /* ignore */
+            }
+          }
+          toast(message);
+          return;
+        }
+        const json = (data ?? {}) as {
+          ok?: boolean;
+          email_enviado?: boolean;
+          error?: { message?: string };
+        };
+        if (!json.ok) {
+          toast(json.error?.message || 'No se pudo rechazar el comprobante.');
+          return;
+        }
+        await registrarEventoPedido(id, {
+          tipo: 'comprobante_rechazado',
+          de_estado: text(before?.estado) || null,
+          a_estado: 'rechazado',
+          metadata: {
+            source: 'admin',
+            metodo: 'transferencia',
+            motivo: motivo.trim() || null,
+            email_enviado: Boolean(json.email_enviado),
+          },
+        });
+        toast(
+          json.email_enviado
+            ? 'Comprobante rechazado. Email enviado al cliente para reintentar.'
+            : 'Comprobante rechazado.'
+        );
         await render();
       });
     });

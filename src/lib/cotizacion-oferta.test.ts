@@ -17,10 +17,21 @@ describe('cotizacion-oferta', () => {
       { slug: 'a', nombre: 'A', cantidad: 2, precio_unitario: 1000, moneda: 'COP' },
       { slug: '', cantidad: 1, precio_unitario: 10 },
       { slug: 'b', cantidad: 1 },
+      { slug: 'c', cantidad: 0, precio_unitario: 10 },
     ]);
     expect(lineas).toHaveLength(2);
     expect(lineas[0]!.subtotal).toBe(2000);
     expect(lineas[1]!.precio_unitario).toBe(0);
+  });
+
+  it('parseLineasOferta acepta lineas sin slug si tienen nombre', () => {
+    const lineas = parseLineasOferta([
+      { slug: '', nombre: 'Estetoscopio IA', cantidad: 2, precio_unitario: 500, moneda: 'COP' },
+    ]);
+    expect(lineas).toHaveLength(1);
+    expect(lineas[0]!.slug).toBe('');
+    expect(lineas[0]!.subtotal).toBe(1000);
+    expect(ofertaCompleta(lineas, 'Entrega 30 dias').ok).toBe(true);
   });
 
   it('ofertaCompleta exige precios y condiciones', () => {

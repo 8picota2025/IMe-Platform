@@ -14,7 +14,11 @@
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { badRequest, internalError } from '../_shared/errors.ts';
 import { getGatewayByProvider } from '../_shared/payment-gateway.ts';
-import { notificarFulfillmentDropship, registrarPedidoPagado } from '../_shared/post-pago.ts';
+import {
+  notificarEstadoPedido,
+  notificarFulfillmentDropship,
+  registrarPedidoPagado,
+} from '../_shared/post-pago.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { checkRateLimit } from '../_shared/rate-limit.ts';
 
@@ -115,6 +119,8 @@ Deno.serve(async req => {
       if (nuevoEstado === 'pagado') {
         await registrarPedidoPagado(supabase, pedido.id, 'wompi', syntheticEventId);
         await notificarFulfillmentDropship(supabase, pedido.id, pedido.items ?? []);
+      } else {
+        await notificarEstadoPedido(pedido.id, nuevoEstado, pedido.estado);
       }
 
       estado = nuevoEstado;

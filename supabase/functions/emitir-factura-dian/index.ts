@@ -1,5 +1,5 @@
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
-import { badRequest, internalError, unauthorized } from '../_shared/errors.ts';
+import { badRequest, internalError, unauthorized, errorResponse } from '../_shared/errors.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { withTelemetry, trackEvent } from '../_shared/telemetry.ts';
 import {
@@ -18,13 +18,24 @@ const PROVEEDOR = 'siigo';
 
 interface EmitirFacturaRequest {
   pedido_id?: string;
+  /** Si true: autentica Siigo + mapea payload, NO crea factura. */
+  dry_run?: boolean;
+  /**
+   * Emision live solo si total <= tope (default 5000 COP) o force_live=true.
+   * Protege pruebas controladas de importes minimos.
+   */
+  force_live?: boolean;
 }
 
 interface PedidoRow {
   id: string;
   facturacion_electronica_solicitada: boolean;
+  total?: number | string | null;
+  moneda?: string | null;
   metadata: Record<string, unknown> | null;
 }
+
+const DIAN_TEST_MAX_COP = Number(Deno.env.get('DIAN_TEST_MAX_COP') ?? 5000);
 
 function isServiceRoleRequest(req: Request): boolean {
   const auth = req.headers.get('authorization') ?? '';
@@ -130,10 +141,13 @@ Deno.serve(
 
     if (!body.pedido_id) return badRequest('pedido_id requerido', origin);
 
+    const dryRun = body.dry_run === true;
+    const forceLive = body.force_live === true;
+
     const supabase = getServerSupabase();
     const { data, error } = await supabase
       .from('pedidos')
-      .select('id, facturacion_electronica_solicitada, metadata')
+      .select('id, facturacion_electronica_solicitada, total, moneda, metadata')
       .eq('id', body.pedido_id)
       .maybeSingle();
 
@@ -151,20 +165,35 @@ Deno.serve(
     const metadata = pedido.metadata ?? {};
     const draft = metadata['dian_draft'];
     if (!draft || typeof draft !== 'object') {
-      await supabase.from('facturas_electronicas').upsert(
-        {
-          pedido_id: pedido.id,
-          estado: 'error',
-          proveedor: PROVEEDOR,
-          error: 'Borrador DIAN ausente en metadata.dian_draft',
-        },
-        { onConflict: 'pedido_id' }
-      );
-      await supabase
-        .from('pedidos')
-        .update({ facturacion_electronica_estado: 'error' })
-        .eq('id', pedido.id);
+      if (!dryRun) {
+        await supabase.from('facturas_electronicas').upsert(
+          {
+            pedido_id: pedido.id,
+            estado: 'error',
+            proveedor: PROVEEDOR,
+            error: 'Borrador DIAN ausente en metadata.dian_draft',
+          },
+          { onConflict: 'pedido_id' }
+        );
+        await supabase
+          .from('pedidos')
+          .update({ facturacion_electronica_estado: 'error' })
+          .eq('id', pedido.id);
+      }
       return badRequest('borrador DIAN ausente', origin);
+    }
+
+    const totalPedido = Number(pedido.total ?? 0);
+    const monedaPedido = String(pedido.moneda ?? 'COP').toUpperCase();
+    if (!dryRun && !forceLive && monedaPedido === 'COP' && totalPedido > DIAN_TEST_MAX_COP) {
+      return errorResponse(
+        {
+          code: 'DIAN_IMPORTE_SOBRE_TOPE',
+          message: `Emision live bloqueada: total ${totalPedido} COP > tope prueba ${DIAN_TEST_MAX_COP}. Usa dry_run o force_live.`,
+        },
+        422,
+        origin
+      );
     }
 
     let config: SiigoConfig;
@@ -172,25 +201,73 @@ Deno.serve(
       config = getSiigoConfig();
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Configuracion Siigo invalida';
-      await supabase.from('facturas_electronicas').upsert(
-        {
-          pedido_id: pedido.id,
-          estado: 'error',
-          proveedor: PROVEEDOR,
-          payload: draft,
-          error: message,
-        },
-        { onConflict: 'pedido_id' }
-      );
-      await supabase
-        .from('pedidos')
-        .update({ facturacion_electronica_estado: 'error' })
-        .eq('id', pedido.id);
+      if (!dryRun) {
+        await supabase.from('facturas_electronicas').upsert(
+          {
+            pedido_id: pedido.id,
+            estado: 'error',
+            proveedor: PROVEEDOR,
+            payload: draft,
+            error: message,
+          },
+          { onConflict: 'pedido_id' }
+        );
+        await supabase
+          .from('pedidos')
+          .update({ facturacion_electronica_estado: 'error' })
+          .eq('id', pedido.id);
+      }
 
-      return new Response(JSON.stringify({ ok: false, error: 'PROVIDER_NOT_CONFIGURED' }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
-      });
+      return new Response(
+        JSON.stringify({ ok: false, error: 'PROVIDER_NOT_CONFIGURED', details: message }),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
+        }
+      );
+    }
+
+    if (dryRun) {
+      try {
+        const typedDraft = draft as DianInvoiceDraft;
+        await autenticar(config);
+        const tarifas = typedDraft.lineas.map(l => l.tarifa_iva_pct);
+        const tarifasSinMapa = tarifas.filter(t => config.taxMap[String(t)] === undefined);
+        if (tarifasSinMapa.length > 0) {
+          throw new Error(
+            `SIIGO_TAX_MAP sin tarifa(s): ${[...new Set(tarifasSinMapa)].join(', ')}`
+          );
+        }
+        return new Response(
+          JSON.stringify({
+            ok: true,
+            dry_run: true,
+            pedido_id: pedido.id,
+            total: totalPedido,
+            moneda: monedaPedido,
+            tope_prueba_cop: DIAN_TEST_MAX_COP,
+            siigo_auth: 'ok',
+            lineas: typedDraft.lineas.length,
+            tarifas_iva: [...new Set(tarifas)],
+            cliente: {
+              tipo_documento: typedDraft.cliente.tipo_documento,
+              numero_documento: typedDraft.cliente.numero_documento,
+              razon_social: typedDraft.cliente.razon_social,
+            },
+            totales: typedDraft.totales,
+          }),
+          {
+            status: 200,
+            headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
+          }
+        );
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        return new Response(JSON.stringify({ ok: false, dry_run: true, error: message }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
+        });
+      }
     }
 
     try {

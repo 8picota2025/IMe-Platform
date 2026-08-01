@@ -10,13 +10,13 @@ export async function requireAdmin(
   supabase: SupabaseClient,
   authHeader: string | null,
   roles: Set<string> = DEFAULT_ROLES
-): Promise<{ ok: true; userId: string | null } | { ok: false }> {
+): Promise<{ ok: true; userId: string | null; email: string | null } | { ok: false }> {
   const token = (authHeader ?? '').replace(/^Bearer\s+/i, '').trim();
   if (!token) return { ok: false };
 
   const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
   if (serviceKey && token === serviceKey) {
-    return { ok: true, userId: null };
+    return { ok: true, userId: null, email: null };
   }
 
   const {
@@ -32,5 +32,5 @@ export async function requireAdmin(
     .maybeSingle();
   const p = profile as { rol?: string; activo?: boolean } | null;
   if (!p?.activo || !roles.has(p.rol ?? '')) return { ok: false };
-  return { ok: true, userId: user.id };
+  return { ok: true, userId: user.id, email: user.email ?? null };
 }

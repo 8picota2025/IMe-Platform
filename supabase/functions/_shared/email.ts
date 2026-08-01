@@ -114,6 +114,18 @@ const DEFAULTS: Record<string, { asunto: string; html: string }> = {
     asunto: 'Recibimos tu comprobante — pedido {{referencia}}',
     html: '<h2>Hola {{cliente_nombre}}</h2><p>Recibimos tu comprobante de transferencia para el pedido <strong>{{referencia}}</strong> por <strong>{{total}} {{moneda}}</strong>.</p><p>Nuestro equipo validara el pago y te confirmara por este correo.</p><p>Equipo I-ME</p>',
   },
+  transferencia_comprobante_rechazado: {
+    asunto: 'Comprobante no valido — reintenta la formalizacion {{referencia}}',
+    html: '<h2>Hola {{cliente_nombre}}</h2><p>Revisamos el comprobante de transferencia asociado a tu presupuesto <strong>{{referencia}}</strong> y <strong>no pudo ser validado</strong>.</p><p><strong>Motivo:</strong> {{motivo}}</p><p>Por favor vuelve a realizar el pago (si aplica) y carga un comprobante valido para completar la formalizacion.</p><p><strong>Total ofertado:</strong> {{total}} {{moneda}}</p><p><a href="{{formalizar_url}}" style="display:inline-block;padding:12px 20px;background:#0b3d4a;color:#fff;text-decoration:none;border-radius:4px">Reintentar validacion del presupuesto</a></p><p>Si el boton no funciona, copia este enlace:<br>{{formalizar_url}}</p><p>Si tienes dudas, responde a este correo o escribenos a ventas@i-me.com.co.</p><p>Equipo I-ME</p>',
+  },
+  transferencia_comprobante_rechazado_es: {
+    asunto: 'Comprobante no valido — reintenta la formalizacion {{referencia}}',
+    html: '<h2>Hola {{cliente_nombre}}</h2><p>Revisamos el comprobante de transferencia asociado a tu presupuesto <strong>{{referencia}}</strong> y <strong>no pudo ser validado</strong>.</p><p><strong>Motivo:</strong> {{motivo}}</p><p>Por favor vuelve a realizar el pago (si aplica) y carga un comprobante valido para completar la formalizacion.</p><p><strong>Total ofertado:</strong> {{total}} {{moneda}}</p><p><a href="{{formalizar_url}}" style="display:inline-block;padding:12px 20px;background:#0b3d4a;color:#fff;text-decoration:none;border-radius:4px">Reintentar validacion del presupuesto</a></p><p>Si el boton no funciona, copia este enlace:<br>{{formalizar_url}}</p><p>Si tienes dudas, responde a este correo o escribenos a ventas@i-me.com.co.</p><p>Equipo I-ME</p>',
+  },
+  transferencia_comprobante_rechazado_en: {
+    asunto: 'Payment receipt not valid — retry formalization {{referencia}}',
+    html: '<h2>Hello {{cliente_nombre}}</h2><p>We reviewed the bank transfer receipt for your quote <strong>{{referencia}}</strong> and it <strong>could not be validated</strong>.</p><p><strong>Reason:</strong> {{motivo}}</p><p>Please transfer again if needed and upload a valid receipt to complete formalization.</p><p><strong>Quoted total:</strong> {{total}} {{moneda}}</p><p><a href="{{formalizar_url}}" style="display:inline-block;padding:12px 20px;background:#0b3d4a;color:#fff;text-decoration:none;border-radius:4px">Retry quote validation</a></p><p>If the button does not work, copy this link:<br>{{formalizar_url}}</p><p>Questions? Reply to this email or write to ventas@i-me.com.co.</p><p>I-ME Team</p>',
+  },
   compra_valorar_interna: {
     asunto: 'Compra a valorar {{referencia}} - {{total}} {{moneda}}',
     html: '<h2>Compra a valorar desde carrito</h2><p><strong>Accion requerida:</strong> validar precio unitario, disponibilidad, impuestos, envio y total final.</p><p>Referencia: <strong>{{referencia}}</strong></p><p>Cliente: {{cliente_nombre}} ({{cliente_email}})</p><p>Empresa: {{empresa}}</p><p>Telefono: {{telefono}}</p><p>Total orientativo: <strong>{{total}} {{moneda}}</strong></p><p>Productos:</p><ul>{{items_html}}</ul><p>Mensaje:</p><pre>{{mensaje}}</pre><p>Fecha: {{fecha}}</p>',
@@ -153,6 +165,32 @@ const DEFAULTS: Record<string, { asunto: string; html: string }> = {
       '{{correo_comercial}} · {{telefono_comercial}}</p>',
   },
 };
+
+// Respaldo para nuevas plantillas de estado si una migracion aun no fue aplicada.
+for (const estado of [
+  'pendiente',
+  'pendiente_validacion',
+  'pagado',
+  'procesando',
+  'preparando',
+  'enviado',
+  'entregado',
+  'retrasado',
+  'rechazado',
+  'expirado',
+  'cancelado',
+  'reembolsado',
+  'error_verificacion',
+]) {
+  DEFAULTS[`pedido_estado_${estado}_es`] = {
+    asunto: 'Actualizacion de tu pedido {{referencia}} — {{estado_label}}',
+    html: '<h2>Hola {{cliente_nombre}}</h2><p>{{mensaje_estado}}</p><p><strong>Pedido:</strong> {{referencia}}</p>{{tracking_html}}{{action_html}}<p>Equipo I-ME</p>',
+  };
+  DEFAULTS[`pedido_estado_${estado}_en`] = {
+    asunto: 'Order {{referencia}} update — {{estado_label}}',
+    html: '<h2>Hello {{cliente_nombre}}</h2><p>{{mensaje_estado}}</p><p><strong>Order:</strong> {{referencia}}</p>{{tracking_html}}{{action_html}}<p>I-ME Team</p>',
+  };
+}
 
 function render(tpl: string, vars: Record<string, string>): string {
   return tpl.replace(/\{\{(\w+)\}\}/g, (_, k: string) => vars[k] ?? '');

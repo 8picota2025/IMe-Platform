@@ -317,3 +317,40 @@ export function buildDianInvoiceDraft(args: {
     })),
   };
 }
+
+/** Normaliza payload fiscal del cliente (CO/COP). Fuera de CO → no solicita factura. */
+export function normalizeClienteFiscalInput(
+  fiscal: Partial<ClienteFiscalProfile> | null | undefined,
+  defaults: {
+    mercado: 'CO' | 'INTL';
+    moneda: string;
+    email?: string | null;
+    razonSocialFallback?: string | null;
+  }
+): ClienteFiscalProfile {
+  const mercadoOk = defaults.mercado === 'CO' && defaults.moneda.toUpperCase() === 'COP';
+  const solicitar = mercadoOk && fiscal?.solicitar_factura_electronica === true;
+  const direccion = fiscal?.direccion_facturacion?.direccion?.trim();
+  const ciudad = fiscal?.direccion_facturacion?.ciudad?.trim();
+  return {
+    solicitar_factura_electronica: solicitar,
+    tipo_documento: fiscal?.tipo_documento ?? null,
+    numero_documento: fiscal?.numero_documento?.trim() ?? null,
+    tipo_persona: fiscal?.tipo_persona ?? null,
+    razon_social: fiscal?.razon_social?.trim() || defaults.razonSocialFallback?.trim() || null,
+    responsable_iva: fiscal?.responsable_iva === true,
+    agente_retencion: fiscal?.agente_retencion === true,
+    agente_reteica: fiscal?.agente_reteica === true,
+    email_facturacion: fiscal?.email_facturacion?.trim() || defaults.email?.trim() || null,
+    direccion_facturacion:
+      direccion && ciudad
+        ? {
+            direccion,
+            ciudad,
+            departamento: fiscal?.direccion_facturacion?.departamento?.trim() || null,
+            codigo_postal: fiscal?.direccion_facturacion?.codigo_postal?.trim() || null,
+            pais: fiscal?.direccion_facturacion?.pais?.trim() || 'CO',
+          }
+        : null,
+  };
+}
