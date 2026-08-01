@@ -14,6 +14,10 @@ interface Props {
 const { locale } = Astro.props;
 const privacidadHref = locale === 'en' ? '/en/legal/privacy' : '/es/legal/privacidad';
 
+// Sin cupones activos en BD el campo solo genera errores en checkout.
+// Poner PUBLIC_CUPONES_HABILITADOS=true cuando existan cupones reales.
+const cuponesHabilitados = import.meta.env.PUBLIC_CUPONES_HABILITADOS === 'true';
+
 const config = {
   locale,
   i18n: {
@@ -187,10 +191,14 @@ const config = {
           autocomplete="organization"
         />
       </div>
-      <div class="carrito-field">
-        <label for="carrito-cupon">{config.i18n.cupon}</label>
-        <input id="carrito-cupon" name="cupon" type="text" autocomplete="off" />
-      </div>
+      {
+        cuponesHabilitados && (
+          <div class="carrito-field">
+            <label for="carrito-cupon">{config.i18n.cupon}</label>
+            <input id="carrito-cupon" name="cupon" type="text" autocomplete="off" />
+          </div>
+        )
+      }
       <fieldset class="carrito-fieldset carrito-fieldset--fiscal">
         <legend>{config.i18n.facturacionTitulo}</legend>
         <p class="carrito-aviso">{config.i18n.soloColombia}</p>
