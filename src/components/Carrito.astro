@@ -62,6 +62,8 @@ const config = {
     errorGenerico: t(locale, 'carrito.error_generico'),
     errorCarritoVacio: t(locale, 'carrito.error_carrito_vacio'),
     errorNoDisponible: t(locale, 'carrito.error_no_disponible'),
+    errorCuponInvalido: t(locale, 'carrito.error_cupon_invalido'),
+    cuponAccion: t(locale, 'carrito.cupon_accion'),
     errorValidacion: t(locale, 'carrito.error_validacion'),
     requerido: t(locale, 'carrito.requerido'),
     avisoRecalculo: t(locale, 'carrito.aviso_recalculo'),
@@ -632,6 +634,10 @@ const config = {
   .carrito-error[hidden] {
     display: none;
   }
+  .carrito-input--error {
+    border-color: #c0392b;
+    box-shadow: 0 0 0 2px rgb(192 57 43 / 18%);
+  }
   .carrito-exito {
     background: #eef9f2;
     border: 1px solid #9fd7b4;
@@ -728,6 +734,8 @@ const config = {
     errorGenerico: string;
     errorCarritoVacio: string;
     errorNoDisponible: string;
+    errorCuponInvalido: string;
+    cuponAccion: string;
     errorValidacion: string;
     requerido: string;
     avisoRecalculo: string;
@@ -770,6 +778,7 @@ const config = {
     const vaciarBtn = document.getElementById('carrito-vaciar');
     const submitBtn = document.getElementById('carrito-submit') as HTMLButtonElement | null;
     const errorEl = document.getElementById('carrito-error');
+    const cuponEl = document.getElementById('carrito-cupon') as HTMLInputElement | null;
     const exitoEl = document.getElementById('carrito-exito');
     const solicitarFacturaEl = document.getElementById(
       'carrito-solicitar-factura'
@@ -864,6 +873,25 @@ const config = {
         errorEl.hidden = true;
         errorEl.textContent = '';
       }
+    }
+
+    function limpiarEstadoCupon() {
+      if (!cuponEl) return;
+      cuponEl.removeAttribute('aria-invalid');
+      cuponEl.classList.remove('carrito-input--error');
+    }
+
+    /**
+     * El cupon nunca debe costar la venta: se marca el campo y se deja listo
+     * para corregirlo o borrarlo sin perder el resto del formulario.
+     */
+    function marcarCuponInvalido(mensaje?: string) {
+      showError(`${mensaje ?? i18n.errorCuponInvalido} ${i18n.cuponAccion}`);
+      if (!cuponEl) return;
+      cuponEl.setAttribute('aria-invalid', 'true');
+      cuponEl.classList.add('carrito-input--error');
+      cuponEl.focus();
+      cuponEl.select();
     }
 
     function showSuccess(message: string | null) {
@@ -1061,9 +1089,12 @@ const config = {
           submitBtn.textContent = i18n.irPagar;
           if (resultado.error === 'CARRITO_VACIO') showError(i18n.errorCarritoVacio);
           else if (resultado.error === 'NO_DISPONIBLE') showError(i18n.errorNoDisponible);
+          else if (resultado.codigo?.startsWith('CUPON_')) marcarCuponInvalido(resultado.error);
           else showError(resultado.error || i18n.errorGenerico);
           return;
         }
+
+        limpiarEstadoCupon();
 
         window.location.href = resultado.checkoutUrl;
       },

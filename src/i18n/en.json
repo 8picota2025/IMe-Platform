@@ -246,6 +246,8 @@
     "error_generico": "We couldn't start the payment. Try again or contact us.",
     "error_carrito_vacio": "Your cart is empty.",
     "error_no_disponible": "The cart isn't available right now.",
+    "error_cupon_invalido": "Invalid or inactive coupon.",
+    "cupon_accion": "Clear or correct it to continue with payment.",
     "error_validacion": "Please check the form fields.",
     "agregar": "Add to cart",
     "agregado": "Product added to cart",

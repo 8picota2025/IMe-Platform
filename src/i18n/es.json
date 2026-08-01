@@ -246,6 +246,8 @@
     "error_generico": "No pudimos iniciar el pago. Intenta de nuevo o contáctanos.",
     "error_carrito_vacio": "Tu carrito está vacío.",
     "error_no_disponible": "El carrito no está disponible en este momento.",
+    "error_cupon_invalido": "Cupón no válido o inactivo.",
+    "cupon_accion": "Bórralo o corrígelo para continuar con el pago.",
     "error_validacion": "Revisa los campos del formulario.",
     "agregar": "Añadir al carrito",
     "agregado": "Producto añadido al carrito",
