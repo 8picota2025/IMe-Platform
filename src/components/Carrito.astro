@@ -677,7 +677,7 @@ const config = {
     vaciarCarrito,
     suscribirCarrito,
     alAbrirCarrito,
-    solicitarCotizacionCompra,
+    iniciarCheckout,
     guardarCarritoAbandonado,
     revalidarDisponibilidad,
     type CarritoItem,
@@ -1054,7 +1054,7 @@ const config = {
         submitBtn.disabled = true;
         submitBtn.textContent = i18n.procesando;
 
-        const resultado = await solicitarCotizacionCompra({
+        const resultado = await iniciarCheckout({
           cliente,
           mercado,
           cuponCodigo,
@@ -1062,18 +1062,17 @@ const config = {
           locale,
         });
 
-        enviando = false;
-        submitBtn.disabled = false;
-        submitBtn.textContent = i18n.irPagar;
-
-        if (!resultado.ok) {
+        if (!resultado.ok || !resultado.checkoutUrl) {
+          enviando = false;
+          submitBtn.disabled = false;
+          submitBtn.textContent = i18n.irPagar;
           if (resultado.error === 'CARRITO_VACIO') showError(i18n.errorCarritoVacio);
           else if (resultado.error === 'NO_DISPONIBLE') showError(i18n.errorNoDisponible);
-          else showError(i18n.errorCotizacion || i18n.errorGenerico);
+          else showError(resultado.error || i18n.errorGenerico);
           return;
         }
 
-        showSuccess(i18n.solicitudEnviada);
+        window.location.href = resultado.checkoutUrl;
       },
       { signal }
     );

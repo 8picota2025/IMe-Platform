@@ -135,7 +135,7 @@ function modalidadLabel(modalidad?: string): string {
         <div class="producto-card__meta-item">
           <span class="producto-card__meta-label">
             {
-              producto.tipo_comercial === 'consumible' && precioFormateado
+              precioFormateado
                 ? locale === 'en'
                   ? 'From'
                   : 'Desde'
@@ -143,11 +143,7 @@ function modalidadLabel(modalidad?: string): string {
             }
           </span>
           <strong class="producto-card__meta-value">
-            {
-              producto.tipo_comercial === 'consumible' && precioFormateado
-                ? precioFormateado
-                : modalidadLabel(producto.fulfillment_mode)
-            }
+            {precioFormateado ? precioFormateado : modalidadLabel(producto.fulfillment_mode)}
           </strong>
         </div>
         <div class="producto-card__meta-item">
