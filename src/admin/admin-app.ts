@@ -2593,14 +2593,16 @@ async function cotizacionesView(): Promise<string> {
           'Empresa',
           'Email',
           'Estado',
+          'Moneda',
           'Total ofertado',
           'Enviada',
           'Acciones',
         ],
         rows.map(row => {
+          const moneda = normalizarMonedaCotizacion(row.moneda);
           const total =
             row.precio_total_ofertado != null && row.precio_total_ofertado !== ''
-              ? crmMoney(Number(row.precio_total_ofertado), text(row.moneda) || 'COP')
+              ? crmMoney(Number(row.precio_total_ofertado), moneda)
               : '—';
           return [
             `<input type="checkbox" data-cotizacion-select value="${escapeHtml(text(row.id))}" aria-label="Seleccionar cotizacion" />`,
@@ -2609,6 +2611,7 @@ async function cotizacionesView(): Promise<string> {
             escapeHtml(text(row.empresa)) || '—',
             escapeHtml(text(row.email)),
             escapeHtml(cotizacionEstadoLabel(text(row.estado) || 'nueva')),
+            escapeHtml(moneda),
             escapeHtml(total),
             row.oferta_enviada_at ? formatCell(row.oferta_enviada_at) : '—',
             [
@@ -2630,13 +2633,15 @@ function cotizacionLineasEditorHtml(productos: unknown[], monedaDefault = 'COP')
   if (lineas.length === 0) {
     return '<p class="admin-help">Sin productos en la solicitud.</p>';
   }
+  const monedaCabecera = monedaDefault === 'USD' ? 'USD' : 'COP';
+  const priceStep = monedaCabecera === 'USD' ? '0.01' : '1';
   const rows = lineas.map((raw, index) => {
     const item = raw && typeof raw === 'object' ? (raw as Row) : {};
     const slug = text(item.slug);
     const nombre = text(item.nombre) || slug;
     const cantidad = Number(item.cantidad ?? 1) || 1;
     const precio = Number(item.precio_unitario ?? 0) || 0;
-    const moneda = text(item.moneda) || monedaDefault;
+    const moneda = monedaCabecera;
     return `
       <tr data-cotizacion-linea data-index="${index}">
         <td>${escapeHtml(nombre)}<br><span class="admin-meta">${escapeHtml(slug)}</span>
@@ -2645,18 +2650,39 @@ function cotizacionLineasEditorHtml(productos: unknown[], monedaDefault = 'COP')
           <input type="hidden" data-linea-moneda value="${escapeHtml(moneda)}" />
         </td>
         <td><input class="admin-inline-input" type="number" min="1" step="1" data-linea-cantidad value="${cantidad}" /></td>
-        <td><input class="admin-inline-input" type="number" min="0" step="1" data-linea-precio value="${precio}" /></td>
+        <td><input class="admin-inline-input" type="number" min="0" step="${priceStep}" data-linea-precio value="${precio}" /></td>
         <td data-linea-subtotal>${crmMoney(precio * cantidad, moneda)}</td>
       </tr>`;
   });
   return `
     <div class="admin-table-wrap">
       <table class="admin-table">
-        <thead><tr><th>Producto</th><th>Cantidad</th><th>Precio unitario</th><th>Subtotal</th></tr></thead>
+        <thead><tr><th>Producto</th><th>Cantidad</th><th>Precio unitario (${escapeHtml(monedaCabecera)})</th><th>Subtotal</th></tr></thead>
         <tbody>${rows.join('')}</tbody>
       </table>
     </div>
     <p class="admin-meta" style="margin-top:8px">Total ofertado: <strong data-cotizacion-total-ofertado>—</strong></p>`;
+}
+
+function normalizarMonedaCotizacion(value: unknown): 'COP' | 'USD' {
+  return String(value ?? 'COP')
+    .trim()
+    .toUpperCase() === 'USD'
+    ? 'USD'
+    : 'COP';
+}
+
+function aplicarMonedaOfertaDom(moneda: 'COP' | 'USD') {
+  const step = moneda === 'USD' ? '0.01' : '1';
+  app.querySelectorAll<HTMLInputElement>('[data-linea-moneda]').forEach(input => {
+    input.value = moneda;
+  });
+  app.querySelectorAll<HTMLInputElement>('[data-linea-precio]').forEach(input => {
+    input.step = step;
+  });
+  const head = app.querySelector('.admin-table thead th:nth-child(3)');
+  if (head) head.textContent = `Precio unitario (${moneda})`;
+  syncCotizacionTotalesDom();
 }
 
 async function cotizacionDetailView(): Promise<string> {
@@ -2667,7 +2693,7 @@ async function cotizacionDetailView(): Promise<string> {
   const resumen = cotizacionResumenTexto(row);
   const estado = text(row.estado) || 'nueva';
   const convertida = estado === 'convertida' || Boolean(row.pedido_id);
-  const moneda = text(row.moneda) || 'COP';
+  const moneda = normalizarMonedaCotizacion(row.moneda);
   return `
     <section class="admin-panel">
       <div class="admin-panel__head">
@@ -2675,7 +2701,7 @@ async function cotizacionDetailView(): Promise<string> {
           <h2>Cotizacion de ${escapeHtml(text(row.nombre))}</h2>
           <p class="admin-meta">${escapeHtml(text(row.empresa) || 'Sin empresa')} · ${escapeHtml(
             text(row.email)
-          )} · ${escapeHtml(cotizacionEstadoLabel(estado))}</p>
+          )} · ${escapeHtml(cotizacionEstadoLabel(estado))} · ${escapeHtml(moneda)}</p>
         </div>
         <div class="admin-toolbar">
           ${
@@ -2726,21 +2752,29 @@ async function cotizacionDetailView(): Promise<string> {
                 ? escapeHtml(crmMoney(Number(row.precio_total_ofertado), moneda))
                 : '—',
             ],
+            ['Moneda', escapeHtml(moneda)],
+            ['Mercado', escapeHtml(text(row.mercado) || (moneda === 'USD' ? 'INTL' : 'CO'))],
           ]
         )}
       </div>
       <div style="padding:0 16px 16px">
         <h3>Oferta comercial</h3>
-        <p class="admin-help">Completa precios y condiciones. Luego envia al cliente o convierte a pedido con checkout.</p>
+        <p class="admin-help">Completa precios y condiciones. Elige COP o USD. Luego envia al cliente.</p>
         <form class="admin-form" data-cotizacion-oferta-form>
           <input type="hidden" name="id" value="${escapeHtml(text(row.id))}" />
-          ${cotizacionLineasEditorHtml(productos, moneda)}
-          <div class="admin-editor__cols" style="margin-top:12px">
+          <div class="admin-editor__cols">
+            <label class="admin-field"><span>Moneda de la oferta</span>
+              <select name="moneda" data-cotizacion-moneda ${convertida ? 'disabled' : ''}>
+                <option value="COP" ${moneda === 'COP' ? 'selected' : ''}>COP — Pesos colombianos</option>
+                <option value="USD" ${moneda === 'USD' ? 'selected' : ''}>USD — Dolares</option>
+              </select>
+            </label>
             <label class="admin-field"><span>Validez hasta</span>
               <input name="validez_hasta" type="date" value="${escapeHtml(text(row.validez_hasta).slice(0, 10))}" ${convertida ? 'disabled' : ''} />
             </label>
           </div>
-          <label class="admin-field"><span>Observaciones / condiciones de configuracion</span>
+          ${cotizacionLineasEditorHtml(productos, moneda)}
+          <label class="admin-field" style="margin-top:12px"><span>Observaciones / condiciones de configuracion</span>
             <textarea name="condiciones" rows="5" placeholder="Configuracion especifica, plazo de entrega, forma de pago, validez, exclusiones..." ${convertida ? 'disabled' : ''}>${escapeHtml(
               text(row.condiciones)
             )}</textarea>
@@ -5496,19 +5530,21 @@ function leerLineasOfertaDesdeDom(): Array<{
 }
 
 function syncCotizacionTotalesDom() {
-  const lineas = leerLineasOfertaDesdeDom();
+  const monedaSelect = app.querySelector<HTMLSelectElement>('[data-cotizacion-moneda]');
+  const monedaCabecera = normalizarMonedaCotizacion(monedaSelect?.value);
+  const lineas = leerLineasOfertaDesdeDom().map(l => ({ ...l, moneda: monedaCabecera }));
   let total = 0;
-  let moneda = 'COP';
   app.querySelectorAll<HTMLElement>('[data-cotizacion-linea]').forEach((row, index) => {
     const linea = lineas[index];
     if (!linea) return;
+    const monedaInput = row.querySelector<HTMLInputElement>('[data-linea-moneda]');
+    if (monedaInput) monedaInput.value = monedaCabecera;
     total += linea.subtotal;
-    moneda = linea.moneda || moneda;
     const cell = row.querySelector<HTMLElement>('[data-linea-subtotal]');
-    if (cell) cell.textContent = crmMoney(linea.subtotal, moneda);
+    if (cell) cell.textContent = crmMoney(linea.subtotal, monedaCabecera);
   });
   const totalEl = app.querySelector<HTMLElement>('[data-cotizacion-total-ofertado]');
-  if (totalEl) totalEl.textContent = crmMoney(total, moneda);
+  if (totalEl) totalEl.textContent = crmMoney(total, monedaCabecera);
 }
 
 function bindCotizaciones() {
@@ -5568,6 +5604,12 @@ function bindCotizaciones() {
     .forEach(input => {
       input.addEventListener('input', syncCotizacionTotalesDom);
     });
+  app
+    .querySelector<HTMLSelectElement>('[data-cotizacion-moneda]')
+    ?.addEventListener('change', event => {
+      const moneda = normalizarMonedaCotizacion((event.target as HTMLSelectElement).value);
+      aplicarMonedaOfertaDom(moneda);
+    });
   syncCotizacionTotalesDom();
 
   const ofertaForm = app.querySelector<HTMLFormElement>('[data-cotizacion-oferta-form]');
@@ -5576,7 +5618,11 @@ function bindCotizaciones() {
     const data = new FormData(ofertaForm);
     const id = String(data.get('id') ?? '');
     if (!id) return;
-    const lineas = leerLineasOfertaDesdeDom().filter(l => l.slug || l.nombre);
+    const moneda = normalizarMonedaCotizacion(data.get('moneda'));
+    aplicarMonedaOfertaDom(moneda);
+    const lineas = leerLineasOfertaDesdeDom()
+      .filter(l => l.slug || l.nombre)
+      .map(l => ({ ...l, moneda }));
     if (lineas.length === 0) {
       toast('No hay lineas de producto.');
       return;
@@ -5592,6 +5638,7 @@ function bindCotizaciones() {
     }
     const validez = String(data.get('validez_hasta') ?? '').trim() || null;
     const total = lineas.reduce((acc, l) => acc + l.subtotal, 0);
+    const mercado = moneda === 'USD' ? 'INTL' : 'CO';
     const { error } = await supabase!
       .from('solicitudes_cotizacion')
       .update({
@@ -5599,6 +5646,8 @@ function bindCotizaciones() {
         condiciones,
         validez_hasta: validez,
         precio_total_ofertado: total,
+        moneda,
+        mercado,
         leida: true,
       })
       .eq('id', id);
@@ -5606,7 +5655,7 @@ function bindCotizaciones() {
       toast(error.message);
       return;
     }
-    toast('Oferta guardada.');
+    toast(`Oferta guardada en ${moneda}.`);
     await render();
   });
 
@@ -5684,14 +5733,22 @@ function bindCotizaciones() {
       const validezDom =
         app.querySelector<HTMLInputElement>('[data-cotizacion-oferta-form] [name="validez_hasta"]')
           ?.value ?? '';
-      const totalDom = lineasDom.reduce((acc, l) => acc + l.subtotal, 0);
+      const moneda = normalizarMonedaCotizacion(
+        app.querySelector<HTMLSelectElement>('[data-cotizacion-moneda]')?.value
+      );
+      aplicarMonedaOfertaDom(moneda);
+      const lineasConMoneda = lineasDom.map(l => ({ ...l, moneda }));
+      const totalDom = lineasConMoneda.reduce((acc, l) => acc + l.subtotal, 0);
+      const mercado = moneda === 'USD' ? 'INTL' : 'CO';
       const { error: saveError } = await supabase!
         .from('solicitudes_cotizacion')
         .update({
-          productos: lineasDom,
+          productos: lineasConMoneda,
           condiciones: condicionesDom.trim(),
           validez_hasta: validezDom.trim() || null,
           precio_total_ofertado: totalDom,
+          moneda,
+          mercado,
           leida: true,
         })
         .eq('id', id);
@@ -5702,9 +5759,11 @@ function bindCotizaciones() {
       }
       const result = await invokeCotizacionFn('enviar-cotizacion', {
         cotizacion_id: id,
-        productos: lineasDom,
+        productos: lineasConMoneda,
         condiciones: condicionesDom.trim(),
         validez_hasta: validezDom.trim() || null,
+        moneda,
+        mercado,
       });
       if (button) button.disabled = false;
       if (!result.ok) {

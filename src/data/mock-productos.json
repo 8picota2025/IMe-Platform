@@ -419,7 +419,19 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": ["Anestesia general", "Cirugía"],
-    "aplicaciones_en": ["General anesthesia", "Surgery"]
+    "aplicaciones_en": ["General anesthesia", "Surgery"],
+    "beneficios_es": [
+      "Absorbedor de CO₂ calefaccionado y ventilador electrónico adulto/pediátrico.",
+      "Modos CMV, PCV, SIMV y PS con PEEP electrónica y protección hipóxica.",
+      "Sistema Selectatec para 2 vaporizadores y pantalla LCD de monitoreo."
+    ],
+    "beneficios_en": [
+      "Heated CO₂ absorber and electronic ventilator for adult/pediatric patients.",
+      "CMV, PCV, SIMV and PS modes with electronic PEEP and hypoxic protection.",
+      "Selectatec system for 2 vaporizers and LCD monitoring display."
+    ],
+    "valor_es": "Máquina de anestesia AM-6000+ con ventilación avanzada y seguridad hipóxica para quirófano.",
+    "valor_en": "AM-6000+ anesthesia machine with advanced ventilation and hypoxic safety for the OR."
   },
   {
     "id": "59628877-e1bf-4770-bef9-64ab6fb08f6a",
@@ -6284,7 +6296,19 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": ["Cirugía general", "Ginecología", "Urología", "Ortopedia"],
-    "aplicaciones_en": ["General surgery", "Gynecology", "Urology", "Orthopedics"]
+    "aplicaciones_en": ["General surgery", "Gynecology", "Urology", "Orthopedics"],
+    "beneficios_es": [
+      "Accionamiento eléctrico para ajustes precisos en cirugía general.",
+      "Cubre tórax, abdomen, otorrino, ginecología, urología y ortopedia.",
+      "Diseñada para procedimientos que requieren posicionamiento eficiente en quirófano."
+    ],
+    "beneficios_en": [
+      "Electric drive for precise adjustments in general surgery.",
+      "Covers thorax, abdomen, ENT, gynecology, urology and orthopedics.",
+      "Built for procedures that need efficient OR positioning."
+    ],
+    "valor_es": "Mesa de operaciones eléctrica OT-300C para cirugía general con posicionamiento preciso.",
+    "valor_en": "OT-300C electric operating table for general surgery with precise positioning."
   },
   {
     "id": "cbbe79c6-bb13-4090-9cf8-9e3311decf84",
@@ -8301,7 +8325,7 @@
       "/assets/productos/importados/sk-cd1-v3k/imagen-principal-v3k.webp",
       "imagen_principal_V3k.webp"
     ],
-    "ficha_pdf": "/assets/productos/importados/sk-cd1-v3k/ficha-sk-cd1-v3k-spec-sheet.pdf",
+    "ficha_pdf": null,
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
     "precio": null,
@@ -8318,7 +8342,19 @@
       "Post-surgical care",
       "Internal medicine",
       "Palliative care"
-    ]
+    ],
+    "beneficios_es": [
+      "Plataforma de polipropileno con retención de colchón para hospitalización.",
+      "Cabecero y piecero de PP con cerradura; ruedas parachoques de 65 mm.",
+      "Opciones configurables: retroceso automático, estante portaobjetos y trapecio."
+    ],
+    "beneficios_en": [
+      "Polypropylene platform with mattress retention for inpatient wards.",
+      "PP head/foot boards with lock; 65 mm bumper casters.",
+      "Configurable options: auto-regression, utility shelf and trapeze."
+    ],
+    "valor_es": "Cama hospitalaria manual con plataforma PP y opciones configurables para servicios de hospitalización.",
+    "valor_en": "Manual hospital bed with PP platform and configurable options for inpatient services."
   },
   {
     "id": "3b09d51f-8a48-4774-9dcc-abd65ffbd08c",
@@ -11768,7 +11804,7 @@
       "/assets/productos/importados/skm-c-skb037b/imagen-principal-skb037b.jpg",
       "imagen_principal_SKB037B.jpg"
     ],
-    "ficha_pdf": "/assets/productos/importados/skm-c-skb037b/ficha-skm-c-skb037b-spec-sheet.pdf",
+    "ficha_pdf": null,
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
     "precio": null,
@@ -11780,7 +11816,19 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": ["Transporte hospitalario"],
-    "aplicaciones_en": ["Hospital transportation"]
+    "aplicaciones_en": ["Hospital transportation"],
+    "beneficios_es": [
+      "Capacidad máxima de 200 kg para uso institucional intensivo.",
+      "Colchón ignífugo de 4 cm con espuma de alta densidad 30 kg/m³.",
+      "Soldadura robótica Panasonic 360° y estructura en acero inoxidable."
+    ],
+    "beneficios_en": [
+      "Maximum load capacity of 200 kg for intensive institutional use.",
+      "4 cm flame-retardant mattress with 30 kg/m³ high-density foam.",
+      "360° Panasonic robotic welding and stainless-steel structure."
+    ],
+    "valor_es": "Camilla hospitalaria de 200 kg con soldadura robótica y colchón ignífugo para uso intensivo.",
+    "valor_en": "200 kg hospital stretcher with robotic welding and flame-retardant mattress for intensive use."
   },
   {
     "id": "586710cb-654e-45b7-b0ac-2cd0a5e011cd",
@@ -12413,7 +12461,7 @@
       "/assets/productos/importados/sks025/imagen-principal-sks025.jpg",
       "imagen_principal_SKS025.jpg"
     ],
-    "ficha_pdf": "/assets/productos/importados/sks025/ficha-sks025-spec-sheet.pdf",
+    "ficha_pdf": null,
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
     "precio": null,
@@ -12425,7 +12473,19 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": ["Hospitalización"],
-    "aplicaciones_en": ["Hospitalization", "Clinical rooms", "Demanding environments"]
+    "aplicaciones_en": ["Hospitalization", "Clinical rooms", "Demanding environments"],
+    "beneficios_es": [
+      "Marco de aleación de aluminio de cuatro columnas para alta durabilidad.",
+      "Lados de acero con recubrimiento en polvo y tablero compacto fenólico.",
+      "Resistente a ácidos y álcalis, con retardante al fuego de 4 horas."
+    ],
+    "beneficios_en": [
+      "Four-column aluminum-alloy frame for high durability.",
+      "Powder-coated steel sides and compact phenolic top.",
+      "Acid/alkali resistant with 4-hour fire retardancy."
+    ],
+    "valor_es": "Mesita de noche hospitalaria resistente a químicos y fuego para habitaciones de hospitalización.",
+    "valor_en": "Chemical- and fire-resistant hospital bedside table for inpatient rooms."
   },
   {
     "id": "c47da595-1ddd-4fa1-8fdd-25f014446214",

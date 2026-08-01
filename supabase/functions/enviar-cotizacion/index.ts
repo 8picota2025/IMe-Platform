@@ -38,6 +38,16 @@ interface Body {
   productos?: unknown;
   condiciones?: string;
   validez_hasta?: string | null;
+  moneda?: string;
+  mercado?: string;
+}
+
+function normalizarMoneda(value: unknown): 'COP' | 'USD' {
+  return String(value ?? 'COP')
+    .trim()
+    .toUpperCase() === 'USD'
+    ? 'USD'
+    : 'COP';
 }
 
 Deno.serve(async req => {
@@ -55,14 +65,22 @@ Deno.serve(async req => {
   if (!id) return badRequest('cotizacion_id requerido', origin);
 
   // Si el CMS manda la oferta actual, persistirla antes de validar/enviar.
-  if (body.productos !== undefined || body.condiciones !== undefined) {
-    const lineasPayload = parseLineasOferta(body.productos);
+  if (
+    body.productos !== undefined ||
+    body.condiciones !== undefined ||
+    body.moneda !== undefined ||
+    body.mercado !== undefined
+  ) {
+    const monedaPayload = body.moneda !== undefined ? normalizarMoneda(body.moneda) : undefined;
+    const lineasPayload = parseLineasOferta(body.productos).map(l =>
+      monedaPayload ? { ...l, moneda: monedaPayload } : l
+    );
     const condicionesPayload =
       body.condiciones !== undefined ? String(body.condiciones).trim() : undefined;
     const checkPayload =
       condicionesPayload !== undefined
         ? ofertaCompleta(lineasPayload, condicionesPayload)
-        : lineasPayload.length > 0
+        : lineasPayload.length > 0 || body.productos === undefined
           ? ({ ok: true } as const)
           : { ok: false, error: 'OFERTA_SIN_LINEAS' as const };
     if (!checkPayload.ok) {
@@ -82,6 +100,17 @@ Deno.serve(async req => {
     if (condicionesPayload !== undefined) patch.condiciones = condicionesPayload;
     if (body.validez_hasta !== undefined) {
       patch.validez_hasta = body.validez_hasta ? String(body.validez_hasta).trim() || null : null;
+    }
+    if (monedaPayload) {
+      patch.moneda = monedaPayload;
+      patch.mercado =
+        body.mercado === 'INTL' || body.mercado === 'CO'
+          ? body.mercado
+          : monedaPayload === 'USD'
+            ? 'INTL'
+            : 'CO';
+    } else if (body.mercado === 'INTL' || body.mercado === 'CO') {
+      patch.mercado = body.mercado;
     }
     const { error: saveError } = await supabase
       .from('solicitudes_cotizacion')
@@ -136,7 +165,7 @@ Deno.serve(async req => {
   const tokenHash = await hashTokenSha256(token);
   const expiraAt = expiryFromValidez(row.validez_hasta);
   const total = calcularTotalOfertado(lineas);
-  const moneda = lineas[0]?.moneda || String(row.moneda ?? 'COP');
+  const moneda = normalizarMoneda(row.moneda || lineas[0]?.moneda || 'COP');
   const locale = row.locale === 'en' ? 'en' : 'es';
   const siteUrl = (Deno.env.get('SITE_URL') ?? DEFAULT_SITE_URL).replace(/\/+$/, '');
   const formalizarUrl = `${siteUrl}${formalizarPath(locale, id, token)}`;
