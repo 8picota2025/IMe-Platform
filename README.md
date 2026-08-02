@@ -50,15 +50,25 @@ cp .env.example .env
 3. Crear usuario admin manualmente (ver `ADMIN_GUIDE.md`)
 4. Desplegar Edge Functions desde `supabase/functions/`
 
-## Pagos y asesor
+## Pagos, cotizaciones y facturación
 
 - Consumibles: checkout online con Wompi (CO) o Stripe (INTL) desde Edge Function `crear-pago`.
-- Equipos: cotización o atención personalizada según `tipo_comercial` y `fulfillment_mode`.
+- Equipos: cotización con oferta formal → formalizar (transferencia o Wompi) según `tipo_comercial` y `fulfillment_mode`.
+- Transferencia bancaria: comprobante manual + validación admin (`pendiente_validacion` → `pagado`).
+- Facturación DIAN: Siigo vía `emitir-factura-dian` tras pago confirmado si el cliente la solicitó.
 - Webhooks: `webhook-wompi` y `webhook-stripe` verifican firma y estado server-side.
+- Guía operativa completa: `COMMERCE_GUIDE.md` (pasarelas, cotizaciones, Siigo, post-pago).
 - Asesor IA: Edge Function `asesor` con Turnstile, rate-limit, presupuesto y fallback por palabra clave.
 - Las pruebas reales requieren secretos en Supabase/CI; ver `PENDIENTES.md`.
 - Desarrollo local sin credenciales: `LLM_PROVIDER=ollama` / `EMBEDDING_PROVIDER=ollama` (Ollama autoalojado, coste $0) — ver `docs/decisions/0005-ollama-asesor-local.md`.
 - Reindexado Voyage: usa `npm run reindex:voyage[:articles|:all]` tras cambiar `VOYAGE_API_KEY` o parámetros de embeddings.
+
+## Imágenes de producto
+
+Las URLs de Supabase Storage se optimizan en build con `src/lib/image.ts`:
+transformación `/storage/v1/render/image/public/` (width, quality, AVIF/WebP).
+Imágenes locales o de terceros se sirven sin alterar. Usado en `ProductoCard`,
+`ProductoLanding` y landings de producto.
 
 ## Legales y F5
 
@@ -88,6 +98,8 @@ cada sesión. Estado de fases en AGENTS.md sección "Estado de fases".
 - `CONTRIBUTING.md` — flujo de ramas y git
 - `AGENTS_GUIDE.md` — división de trabajo entre agentes
 - `ADMIN_GUIDE.md` — uso operativo del back-office `/admin`
+- `COMMERCE_GUIDE.md` — pasarelas, cotizaciones, transferencia, facturación Siigo/DIAN
+- `docs/twenty-integration.md` — sync CRM Twenty (comercial + comercio)
 - `VALIDACION.md` — evidencia y pipeline F5
 - `QA.md` — matriz de pruebas F5
 - `REMEDIACION.md` — hallazgos abiertos/cerrados

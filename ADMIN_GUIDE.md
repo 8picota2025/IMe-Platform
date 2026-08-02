@@ -104,6 +104,54 @@ La IA no publica, no autoguarda y no debe completar datos ausentes.
   pasarela. Las notificaciones automáticas al proveedor se disparan desde los
   webhooks/post-pago cuando el pedido queda pagado.
 
+### Flujo de cotizacion con oferta formal
+
+Para equipos que requieren precio acordado antes del pago (ver `COMMERCE_GUIDE.md`):
+
+1. **Revisar solicitud** — Abrir detalle en `/admin#cotizaciones`. Estados de
+   seguimiento: `nueva`, `en_revision`, `respondida`, `cerrada`, `convertida`
+   (ver `docs/decisions/0004-cotizaciones-estado-seguimiento.md`).
+2. **Armar oferta** — En el formulario "Oferta":
+   - Lineas de producto con precio unitario (obligatorio antes de enviar).
+   - Condiciones/observaciones (obligatorio).
+   - Moneda `COP` o `USD` y validez opcional.
+   - Pulsar **Guardar oferta** (persiste en `solicitudes_cotizacion`).
+3. **Enviar al cliente** — **Enviar oferta** invoca `enviar-cotizacion`:
+   - Genera token de formalizacion (hash SHA-256 en BD).
+   - Email con enlace `/es/cotizacion/formalizar?id=…&token=…` (EN: `/en/quote/formalize`).
+   - Marca `oferta_enviada_at`.
+4. **Formalizacion del cliente** — Dos caminos:
+   - **Transferencia bancaria:** el cliente registra referencia + comprobante;
+     se crea pedido `pendiente_validacion` con `proveedor_pago=transferencia`.
+   - **Pago online:** desde admin, **Convertir a pedido** (`convertir-cotizacion-pedido`)
+     genera checkout Wompi con precios bloqueados de la oferta.
+5. **Validar transferencia** — En detalle de pedido con estado
+   `pendiente_validacion`:
+   - **Ver / descargar comprobante** (bucket privado `comprobantes-pago`).
+   - **Validar transferencia** → `validar-transferencia` → `pagado` + post-pago
+     (emails, dropship, factura DIAN si aplica, sync Twenty).
+   - **Rechazar comprobante** → pedido `rechazado`, cotizacion reabierta con
+     nuevo token; el cliente recibe email para reintentar.
+
+Errores frecuentes del panel (codigos de `enviar-cotizacion`):
+
+| Codigo                  | Accion                                              |
+| ----------------------- | --------------------------------------------------- |
+| `OFERTA_SIN_PRECIO`     | Completar precios y guardar oferta antes de enviar  |
+| `OFERTA_SIN_CONDICIONES`| Completar condiciones y guardar oferta              |
+| `SIN_EMAIL`             | La solicitud no tiene email de contacto             |
+| `COTIZACION_YA_CONVERTIDA` | Ya existe pedido vinculado                       |
+
+### Facturacion electronica en pedidos
+
+- El checkout y la formalizacion pueden solicitar factura DIAN (`facturacion_electronica_solicitada`).
+- Tras pago confirmado, `emitir-factura-dian` se dispara automaticamente (Siigo).
+- Revisar en detalle de pedido: `facturacion_electronica_estado`
+  (`pendiente_envio`, `emitida`, `rechazada`, `error`).
+- Registro completo en tabla `facturas_electronicas` (solo visible vía admin/BD).
+- Anulacion: Edge Function `anular-factura-dian` (roles `owner|admin`); aun sin
+  boton en UI — ver `COMMERCE_GUIDE.md`.
+
 ## Legales y auditoría F5
 
 - Las páginas legales viven en `/es/legal/*` y `/en/legal/*`.
