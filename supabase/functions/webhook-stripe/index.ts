@@ -21,6 +21,11 @@ import {
   notificarFulfillmentDropship,
   registrarPedidoPagado,
 } from '../_shared/post-pago.ts';
+import {
+  claimPedidoPagado,
+  esVerificacionReintentable,
+  resolverEventoDuplicado,
+} from '../_shared/webhook-pago.ts';
 import { withTelemetry, trackEvent } from '../_shared/telemetry.ts';
 
 const FN_NAME = 'webhook-stripe';
@@ -66,13 +71,19 @@ Deno.serve(
 
     if (insertEventoError) {
       if (insertEventoError.code === '23505') {
-        // Evento duplicado ya procesado anteriormente
-        return new Response(JSON.stringify({ ok: true, duplicate: true }), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
-        });
+        const dup = await resolverEventoDuplicado(supabase, 'stripe', evento.event_id);
+        if (dup === 'error') {
+          return internalError('error consultando evento duplicado', origin);
+        }
+        if (dup === 'skip') {
+          return new Response(JSON.stringify({ ok: true, duplicate: true }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
+          });
+        }
+      } else {
+        return internalError(`error registrando evento: ${insertEventoError.message}`, origin);
       }
-      return internalError(`error registrando evento: ${insertEventoError.message}`, origin);
     }
 
     // ── Buscar pedido (referencia_pasarela = pedidos.id, ver crear-pago) ──
@@ -100,7 +111,6 @@ Deno.serve(
 
     const pedidoRow = pedido as unknown as PedidoRow;
 
-    // ── Verificación server-side del estado real (recupera la Checkout Session) ──
     // Stripe usa el id de la sesión de checkout para consultar /checkout/sessions/{id},
     // pero validarWebhook ya resuelve referencia_pasarela = client_reference_id (= pedido.id)
     // cuando está presente. Para verificar contra Stripe usamos el id de sesión del payload.
@@ -111,14 +121,69 @@ Deno.serve(
     const nuevoEstado = verificacion.estado;
     const eraPagado = pedidoRow.estado === 'pagado';
 
-    if (!eraPagado && nuevoEstado !== pedidoRow.estado) {
+    if (!eraPagado && esVerificacionReintentable(nuevoEstado)) {
+      void trackEvent(
+        FN_NAME,
+        'verificacion_reintentable',
+        { pedido_id: pedidoRow.id, event_id: evento.event_id },
+        { nivel: 'warn' }
+      );
+      return internalError('verificacion Stripe temporalmente no disponible', origin);
+    }
+
+    if (eraPagado) {
+      await supabase
+        .from('eventos_pago')
+        .update({ procesado: true })
+        .eq('proveedor_pago', 'stripe')
+        .eq('event_id', evento.event_id);
+
+      return new Response(JSON.stringify({ ok: true, already_paid: true }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
+      });
+    }
+
+    if (nuevoEstado === 'pagado') {
+      const claim = await claimPedidoPagado(
+        supabase,
+        pedidoRow.id,
+        { ultimo_evento_stripe: evento.event_id },
+        pedidoRow.metadata
+      );
+
+      await supabase
+        .from('eventos_pago')
+        .update({ procesado: true })
+        .eq('proveedor_pago', 'stripe')
+        .eq('event_id', evento.event_id);
+
+      if (claim.claimed) {
+        await registrarPedidoPagado(supabase, pedidoRow.id, 'stripe', evento.event_id);
+        await notificarFulfillmentDropship(supabase, pedidoRow.id, pedidoRow.items ?? []);
+        void trackEvent(FN_NAME, 'pago_confirmado', {
+          pedido_id: pedidoRow.id,
+          proveedor_pago: 'stripe',
+        });
+      }
+
+      return new Response(JSON.stringify({ ok: true }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
+      });
+    }
+
+    if (nuevoEstado !== pedidoRow.estado) {
       await supabase
         .from('pedidos')
         .update({
           estado: nuevoEstado,
           metadata: { ...(pedidoRow.metadata ?? {}), ultimo_evento_stripe: evento.event_id },
         })
-        .eq('id', pedidoRow.id);
+        .eq('id', pedidoRow.id)
+        .neq('estado', 'pagado');
+
+      await notificarEstadoPedido(pedidoRow.id, nuevoEstado, pedidoRow.estado);
     }
 
     await supabase
@@ -126,17 +191,6 @@ Deno.serve(
       .update({ procesado: true })
       .eq('proveedor_pago', 'stripe')
       .eq('event_id', evento.event_id);
-
-    if (!eraPagado && nuevoEstado === 'pagado') {
-      await registrarPedidoPagado(supabase, pedidoRow.id, 'stripe', evento.event_id);
-      await notificarFulfillmentDropship(supabase, pedidoRow.id, pedidoRow.items ?? []);
-      void trackEvent(FN_NAME, 'pago_confirmado', {
-        pedido_id: pedidoRow.id,
-        proveedor_pago: 'stripe',
-      });
-    } else if (!eraPagado && nuevoEstado !== pedidoRow.estado) {
-      await notificarEstadoPedido(pedidoRow.id, nuevoEstado, pedidoRow.estado);
-    }
 
     return new Response(JSON.stringify({ ok: true }), {
       status: 200,

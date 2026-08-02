@@ -15,6 +15,8 @@
  * - SITE_URL (origen público del sitio, p.ej. https://i-me.com.co) — usado para redirect URLs
  */
 
+import { buildWompiEventId } from './webhook-pago.ts';
+
 export type PaymentProvider = 'wompi' | 'stripe';
 export type Mercado = 'CO' | 'INTL';
 
@@ -316,7 +318,7 @@ export class WompiGateway implements PaymentGateway {
     if (!eventId || !transaction?.reference) return null;
 
     return {
-      event_id: `${eventId}:${transaction.id ?? transaction.reference}`,
+      event_id: buildWompiEventId(eventId, transaction, payload['timestamp']),
       referencia_pasarela: String(transaction.reference),
       payload,
     };

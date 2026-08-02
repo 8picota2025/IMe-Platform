@@ -21,6 +21,7 @@ import {
 } from '../_shared/post-pago.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { checkRateLimit } from '../_shared/rate-limit.ts';
+import { claimPedidoPagado, esEstadoReconciliable } from '../_shared/webhook-pago.ts';
 
 const REFERENCIA_REGEX = /^[a-zA-Z0-9-]{8,64}$/;
 
@@ -101,12 +102,32 @@ Deno.serve(async req => {
   const pedido = data as unknown as PedidoRow;
   let estado = pedido.estado;
 
-  if (pedido.proveedor_pago === 'wompi' && pedido.estado === 'pendiente') {
+  // Reconcile pendiente AND error_verificacion (the latter used to be a dead-end:
+  // webhooks marked events processed after API blips and this endpoint ignored them).
+  if (pedido.proveedor_pago === 'wompi' && esEstadoReconciliable(pedido.estado)) {
     const gateway = getGatewayByProvider('wompi');
     const verificacion = await gateway.verificarPago(referencia);
     const nuevoEstado = verificacion.estado;
 
-    if (nuevoEstado !== 'pendiente' && nuevoEstado !== pedido.estado) {
+    if (nuevoEstado === 'error_verificacion') {
+      // Keep current estado; client can retry. Do not overwrite with error_verificacion.
+      estado = pedido.estado;
+    } else if (nuevoEstado === 'pagado') {
+      const syntheticEventId = `reconcile:${referencia}:${Date.now()}`;
+      const claim = await claimPedidoPagado(
+        supabase,
+        pedido.id,
+        { ultima_reconciliacion_wompi: syntheticEventId },
+        pedido.metadata ?? null
+      );
+      if (claim.claimed) {
+        await registrarPedidoPagado(supabase, pedido.id, 'wompi', syntheticEventId, {
+          deEstado: pedido.estado,
+        });
+        await notificarFulfillmentDropship(supabase, pedido.id, pedido.items ?? []);
+      }
+      estado = 'pagado';
+    } else if (nuevoEstado !== pedido.estado && nuevoEstado !== 'pendiente') {
       const syntheticEventId = `reconcile:${referencia}:${Date.now()}`;
       await supabase
         .from('pedidos')
@@ -114,15 +135,10 @@ Deno.serve(async req => {
           estado: nuevoEstado,
           metadata: { ...(pedido.metadata ?? {}), ultima_reconciliacion_wompi: syntheticEventId },
         })
-        .eq('id', pedido.id);
+        .eq('id', pedido.id)
+        .neq('estado', 'pagado');
 
-      if (nuevoEstado === 'pagado') {
-        await registrarPedidoPagado(supabase, pedido.id, 'wompi', syntheticEventId);
-        await notificarFulfillmentDropship(supabase, pedido.id, pedido.items ?? []);
-      } else {
-        await notificarEstadoPedido(pedido.id, nuevoEstado, pedido.estado);
-      }
-
+      await notificarEstadoPedido(pedido.id, nuevoEstado, pedido.estado);
       estado = nuevoEstado;
     }
   }
