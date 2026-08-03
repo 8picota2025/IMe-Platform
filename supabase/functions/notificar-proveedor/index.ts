@@ -5,6 +5,9 @@
  * y notifica al proveedor según su canal (email, whatsapp, webhook, api, manual).
  * Nunca expone precio_costo ni precios de venta al proveedor.
  *
+ * Auth: JWT admin (ventas|operaciones+) o service_role. Nunca público.
+ * Además exige pedido.estado en post-pago (pagado|procesando|enviado|entregado|retrasado).
+ *
  * Dos formas de invocación:
  * - { pedido_id, producto_ids } — llamada automática desde webhook-bold/webhook-stripe
  *   tras marcar un pedido como pagado. Agrupa producto_ids por proveedor (vía
@@ -26,11 +29,22 @@
  */
 
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
-import { badRequest, internalError, notFound } from '../_shared/errors.ts';
+import {
+  badRequest,
+  errorResponse,
+  internalError,
+  notFound,
+  unauthorized,
+} from '../_shared/errors.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
+import { requireAdmin } from '../_shared/admin-auth.ts';
+import { pedidoPermiteNotificarProveedor } from '../_shared/fulfillment-guard.ts';
 import { createLogger, generateRequestId } from '../_shared/logging.ts';
 import { postWithRetry } from '../_shared/retry-strategy.ts';
 import { checkProviderRateLimit, logNotificationAttempt } from '../_shared/provider-rate-limit.ts';
+
+/** Admin reenvío + service_role (webhooks vía post-pago). */
+const ROLES_NOTIFICAR = new Set(['owner', 'admin', 'ventas', 'operaciones']);
 
 interface NotificarRequest {
   pedido_id?: string;
@@ -57,10 +71,22 @@ interface PedidoCliente {
 
 interface PedidoRow {
   id: string;
+  estado: string;
   cliente: PedidoCliente;
   items: PedidoItem[];
   referencia_pasarela: string | null;
   mercado: string;
+}
+
+function pedidoNoPagadoResponse(estado: string, origin: string | null): Response {
+  return errorResponse(
+    {
+      code: 'PEDIDO_NO_PAGADO',
+      message: `Solo se notifica al proveedor tras pago confirmado (estado actual: ${estado})`,
+    },
+    409,
+    origin
+  );
 }
 
 interface ProveedorRow {
@@ -281,7 +307,7 @@ async function procesarPedido(
 ): Promise<Response> {
   const { data: pedido, error: pedidoError } = await supabase
     .from('pedidos')
-    .select('id, cliente, items, referencia_pasarela, mercado')
+    .select('id, estado, cliente, items, referencia_pasarela, mercado')
     .eq('id', pedidoId)
     .maybeSingle();
 
@@ -289,6 +315,14 @@ async function procesarPedido(
   if (!pedido) return notFound(origin);
 
   const pedidoRow = pedido as unknown as PedidoRow;
+  if (!pedidoPermiteNotificarProveedor(pedidoRow.estado)) {
+    logger.warn('Bloqueado: pedido sin pago confirmado', {
+      pedido_id: pedidoId,
+      estado: pedidoRow.estado,
+    });
+    return pedidoNoPagadoResponse(pedidoRow.estado, origin);
+  }
+
   const items = Array.isArray(pedidoRow.items) ? pedidoRow.items : [];
   const idsValidos = new Set(productoIds.filter(id => typeof id === 'string' && id));
 
@@ -395,10 +429,20 @@ async function reenviarFulfillment(
 
   const { data: pedido } = await supabase
     .from('pedidos')
-    .select('id, cliente, items, referencia_pasarela, mercado')
+    .select('id, estado, cliente, items, referencia_pasarela, mercado')
     .eq('id', fulfillment.pedido_id)
     .maybeSingle();
   if (!pedido) return notFound(origin);
+
+  const pedidoRow = pedido as unknown as PedidoRow;
+  if (!pedidoPermiteNotificarProveedor(pedidoRow.estado)) {
+    logger.warn('Bloqueado reenvío: pedido sin pago confirmado', {
+      fulfillment_id: fulfillmentId,
+      pedido_id: fulfillment.pedido_id,
+      estado: pedidoRow.estado,
+    });
+    return pedidoNoPagadoResponse(pedidoRow.estado, origin);
+  }
 
   const { data: proveedor } = await supabase
     .from('proveedores')
@@ -407,7 +451,6 @@ async function reenviarFulfillment(
     .maybeSingle();
   if (!proveedor) return notFound(origin);
 
-  const pedidoRow = pedido as unknown as PedidoRow;
   const proveedorRow = proveedor as unknown as ProveedorRow;
   const items = Array.isArray(pedidoRow.items) ? pedidoRow.items : [];
 
@@ -454,14 +497,19 @@ Deno.serve(async req => {
   if (corsRes) return corsRes;
   if (req.method !== 'POST') return badRequest('Metodo no soportado', origin);
 
+  const supabase = getServerSupabase();
+  const auth = await requireAdmin(supabase, req.headers.get('authorization'), ROLES_NOTIFICAR);
+  if (!auth.ok) {
+    logger.warn('Unauthorized invoke de notificar-proveedor');
+    return unauthorized(origin);
+  }
+
   let body: NotificarRequest;
   try {
     body = (await req.json()) as NotificarRequest;
   } catch {
     return badRequest('JSON invalido', origin);
   }
-
-  const supabase = getServerSupabase();
 
   if (typeof body.fulfillment_id === 'string' && body.fulfillment_id) {
     logger.info('Reenviar fulfillment', { fulfillment_id: body.fulfillment_id });
