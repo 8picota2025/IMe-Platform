@@ -126,6 +126,8 @@ let ingestFamilias: Row[] = [];
 let ingestTipos: Row[] = [];
 const INGEST_PDF_MAX_BYTES = 25 * 1024 * 1024;
 const INGEST_PDF_MAX_CHARS = 60_000;
+/** Tope imágenes producto (LCP / storage). PDFs usan INGEST_PDF_MAX_BYTES. */
+const PRODUCT_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
 
 const appElement = document.getElementById('admin-app');
 const supabase = getSupabaseClient();
@@ -879,12 +881,18 @@ async function resenasView(): Promise<string> {
   const aprobadas = rows.filter(r => r.aprobada === true);
   const fila = (r: Row) => {
     const producto = r.productos && typeof r.productos === 'object' ? (r.productos as Row) : {};
+    const comentario = text(r.comentario);
+    const comentarioCorto = comentario.length > 200 ? `${comentario.slice(0, 200)}…` : comentario;
+    const comentarioCell =
+      comentario.length > 200
+        ? `<details><summary title="${escapeHtml(comentario)}">${escapeHtml(comentarioCorto)}</summary><p style="white-space:pre-wrap;max-width:36rem">${escapeHtml(comentario)}</p></details>`
+        : escapeHtml(comentario) || '—';
     return [
       formatCell(r.created_at),
       escapeHtml(text(producto.slug)) || '—',
       escapeHtml(text(r.nombre)),
       '★'.repeat(Number(r.rating) || 0),
-      escapeHtml(text(r.comentario)).slice(0, 200),
+      comentarioCell,
       `${
         r.aprobada === true
           ? `<button class="admin-button admin-button--ghost" data-resena-toggle="${escapeHtml(text(r.id))}" data-resena-aprobada="1" type="button">Retirar</button>`
@@ -1836,6 +1844,7 @@ async function dashboardView(): Promise<string> {
         row.especificaciones.length === 0
     )
     .slice(0, 12);
+  const publishHistory = await publishLogPanel();
   return `
     ${withoutProvider > 0 ? `<div class="admin-alert">${withoutProvider} productos dropship no tienen proveedor asignado.</div>` : ''}
     <section class="admin-grid">
@@ -1902,6 +1911,7 @@ async function dashboardView(): Promise<string> {
           </section>`
         : ''
     }
+    ${publishHistory}
     <section class="admin-panel">
       <div class="admin-panel__head"><h2>Accesos</h2></div>
       <div class="admin-grid" style="padding:16px">
@@ -3707,6 +3717,9 @@ async function cuponesView(): Promise<string> {
 
 async function cuponFormView(): Promise<string> {
   const row = state.recordId ? await getRow('cupones', state.recordId) : null;
+  const tipo = text(row?.tipo_descuento) || 'porcentaje';
+  const valorAttrs =
+    tipo === 'porcentaje' ? 'min="0" max="100" step="0.01"' : 'min="0" step="0.01"';
   return `
     <section class="admin-panel">
       <div class="admin-panel__head">
@@ -3717,8 +3730,8 @@ async function cuponFormView(): Promise<string> {
         <input type="hidden" name="id" value="${escapeHtml(text(row?.id))}" />
         <div class="admin-editor__cols">
           ${field('codigo', 'Codigo', text(row?.codigo), true)}
-          ${selectStatic('tipo_descuento', 'Tipo descuento', text(row?.tipo_descuento) || 'porcentaje', CUPON_TIPOS)}
-          ${field('valor', 'Valor (% max 100 si porcentaje)', text(row?.valor), true, 'number', 'min="0" step="0.01"')}
+          ${selectStatic('tipo_descuento', 'Tipo descuento', tipo, CUPON_TIPOS)}
+          ${field('valor', 'Valor (% max 100 si porcentaje)', text(row?.valor), true, 'number', valorAttrs)}
           ${field('moneda', 'Moneda', text(row?.moneda) || 'COP', true)}
           ${field('monto_minimo', 'Monto minimo', text(row?.monto_minimo), false, 'number')}
           ${field('monto_maximo', 'Monto maximo', text(row?.monto_maximo), false, 'number')}
@@ -4681,7 +4694,8 @@ function bindProductList() {
         button.disabled = true;
         button.textContent = 'Guardando...';
         const payload = productInlinePayload(id);
-        const errorValidacion = validarFamiliaYTipoProducto(payload);
+        const errorValidacion =
+          validarFamiliaYTipoProducto(payload) ?? validarPreciosProducto(payload);
         if (errorValidacion) {
           toast(errorValidacion);
           return;
@@ -4799,6 +4813,10 @@ async function uploadProductRowImage(productId: string) {
   input.addEventListener('change', async () => {
     const file = input.files?.[0];
     if (!file) return;
+    if (file.size > PRODUCT_IMAGE_MAX_BYTES) {
+      toast('Imagen supera 2 MB. Comprime antes de subir.');
+      return;
+    }
     const path = `${productId}/${Date.now()}-${slugify(file.name)}`;
     const options = file.type ? { contentType: file.type, upsert: false } : { upsert: false };
     const { error } = await supabase!.storage.from('productos').upload(path, file, options);
@@ -4829,6 +4847,11 @@ async function uploadProductRowGallery(productId: string) {
   input.addEventListener('change', async () => {
     const files = Array.from(input.files ?? []);
     if (!files.length) return;
+    const oversized = files.find(f => f.size > PRODUCT_IMAGE_MAX_BYTES);
+    if (oversized) {
+      toast(`"${oversized.name}" supera 2 MB. Comprime antes de subir.`);
+      return;
+    }
     const current = await getRow('productos', productId);
     const existingGallery = stringArray(current?.galeria);
     const uploadedUrls: string[] = [];
@@ -4900,7 +4923,7 @@ function bindProductForm() {
   form.addEventListener('submit', async event => {
     event.preventDefault();
     const payload = productPayload(form);
-    const errorValidacion = validarFamiliaYTipoProducto(payload);
+    const errorValidacion = validarFamiliaYTipoProducto(payload) ?? validarPreciosProducto(payload);
     if (errorValidacion) {
       toast(errorValidacion);
       return;
@@ -6101,6 +6124,22 @@ function bindClientes() {
 
 function bindCupones() {
   const form = app.querySelector<HTMLFormElement>('[data-cupon-form]');
+  const tipoSelect = form?.elements.namedItem('tipo_descuento');
+  const valorInput = form?.elements.namedItem('valor');
+  const syncValorMax = () => {
+    if (!(tipoSelect instanceof HTMLSelectElement) || !(valorInput instanceof HTMLInputElement))
+      return;
+    if (tipoSelect.value === 'porcentaje') {
+      valorInput.max = '100';
+      if (Number(valorInput.value) > 100) valorInput.value = '100';
+    } else {
+      valorInput.removeAttribute('max');
+    }
+  };
+  if (tipoSelect instanceof HTMLSelectElement) {
+    tipoSelect.addEventListener('change', syncValorMax);
+    syncValorMax();
+  }
   form?.addEventListener('submit', async event => {
     event.preventDefault();
     const data = new FormData(form);
@@ -7399,16 +7438,80 @@ function ingestPayload(form: HTMLFormElement): Row {
   };
 }
 
+/** Valida precios/ofertas/stock básicos antes de guardar producto. */
+function validarPreciosProducto(payload: Row): string | null {
+  const precio = typeof payload.precio === 'number' ? payload.precio : null;
+  const regular = typeof payload.precio_regular === 'number' ? payload.precio_regular : null;
+  const oferta = typeof payload.precio_oferta === 'number' ? payload.precio_oferta : null;
+  const stock = typeof payload.stock === 'number' ? payload.stock : null;
+
+  for (const [label, value] of [
+    ['Precio', precio],
+    ['Precio regular', regular],
+    ['Precio oferta', oferta],
+    ['Stock', stock],
+  ] as const) {
+    if (value !== null && value < 0) return `${label} no puede ser negativo.`;
+  }
+
+  if (oferta !== null && regular !== null && oferta > regular) {
+    return 'Precio oferta no puede ser mayor que precio regular.';
+  }
+  if (oferta !== null && precio !== null && regular === null && oferta > precio) {
+    return 'Precio oferta no puede ser mayor que precio actual.';
+  }
+
+  const inicio = typeof payload.oferta_inicio === 'string' ? payload.oferta_inicio : null;
+  const fin = typeof payload.oferta_fin === 'string' ? payload.oferta_fin : null;
+  if (inicio && fin && new Date(inicio).getTime() > new Date(fin).getTime()) {
+    return 'Inicio de oferta no puede ser posterior al fin.';
+  }
+  return null;
+}
+
 async function triggerRebuild() {
   const { data, error } = await supabase!.functions.invoke('trigger-rebuild', {
     body: { reason: 'admin_publish_batch' },
   });
-  const json = data as { ok?: boolean; error?: { message?: string } } | null;
-  toast(
-    json?.ok
-      ? 'Rebuild solicitado'
-      : (error?.message ?? json?.error?.message ?? 'No se pudo solicitar rebuild')
-  );
+  const json = data as { ok?: boolean; mode?: string; error?: { message?: string } } | null;
+  if (json?.ok) {
+    toast(`Rebuild solicitado (${json.mode ?? 'ok'})`);
+  } else {
+    toast(error?.message ?? json?.error?.message ?? 'No se pudo solicitar rebuild');
+  }
+  // Refresca dashboard si estamos ahí para ver historial; no fuerza navegación.
+  if (state.view === 'dashboard') await render();
+}
+
+async function publishLogPanel(): Promise<string> {
+  const { data, error } = await supabase!
+    .from('cms_publish_log')
+    .select('id,requested_email,reason,mode,ok,error_message,created_at')
+    .order('created_at', { ascending: false })
+    .limit(15);
+  if (error) {
+    return `<section class="admin-panel"><div class="admin-panel__head"><h2>Historial de publicaciones</h2></div><p class="admin-help" style="padding:16px">No disponible aún (${escapeHtml(error.message)}). Aplica migración 20260804200000.</p></section>`;
+  }
+  const rows = (data ?? []) as Row[];
+  if (!rows.length) {
+    return `<section class="admin-panel"><div class="admin-panel__head"><h2>Historial de publicaciones</h2></div><p class="admin-help" style="padding:16px">Sin publicaciones registradas. Usa "Publicar cambios".</p></section>`;
+  }
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Historial de publicaciones</h2></div>
+      ${table(
+        ['Fecha', 'Usuario', 'Modo', 'Resultado', 'Detalle'],
+        rows.map(row => [
+          formatCell(row.created_at),
+          escapeHtml(text(row.requested_email)) || '—',
+          escapeHtml(text(row.mode)) || '—',
+          row.ok === true
+            ? '<span class="admin-badge admin-badge--ok">OK</span>'
+            : '<span class="admin-badge admin-badge--warn">Error</span>',
+          escapeHtml(text(row.error_message) || text(row.reason)) || '—',
+        ])
+      )}
+    </section>`;
 }
 
 /** Genera/actualiza el embedding del producto al activarlo (Asesor RAG). No bloquea el guardado si falla. */
@@ -7672,6 +7775,14 @@ async function uploadFile(button: HTMLButtonElement, form: HTMLFormElement) {
   input.addEventListener('change', async () => {
     const file = input.files?.[0];
     if (!file) return;
+    if (bucket !== 'fichas' && file.size > PRODUCT_IMAGE_MAX_BYTES) {
+      toast('Imagen supera 2 MB. Comprime antes de subir.');
+      return;
+    }
+    if (bucket === 'fichas' && file.size > INGEST_PDF_MAX_BYTES) {
+      toast('El PDF supera 25 MB. Reduce el archivo antes de subirlo.');
+      return;
+    }
     const originalLabel = button.textContent;
     button.disabled = true;
     button.textContent = 'Subiendo...';

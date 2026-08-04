@@ -356,15 +356,14 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
 - [x] Admin productos: importación y exportación masiva via Excel (.xlsx) con
       plantilla descargable, upsert por `slug`, y creación automática de taxonomía
       faltante al importar.
-- [ ] Subida múltiple de imágenes para `productos.galeria` (la columna `galeria TEXT[]`
-      no se edita desde el admin; `imagen_principal` ya se puede subir en ingesta y en
-      el formulario de producto)
-- [ ] Editar/eliminar familias y tipos desde Taxonomía (hoy solo se pueden crear);
-      validar que no queden productos huérfanos al eliminar
+- [x] Subida múltiple de imágenes para `productos.galeria` (admin listado + formulario;
+      tope 2 MB por imagen desde 2026-08-04)
+- [x] Editar/eliminar familias y tipos desde Taxonomía (con validación de huérfanos);
+      ver `taxonomia-logic.ts` + formularios en admin
 - [ ] Dashboard: cards adicionales (p.ej. fulfillments con error, solicitudes de
       cotización del último mes) más allá de las 5 métricas actuales
-- [ ] Estado/historial de publicaciones: registrar y mostrar el resultado de cada
-      `trigger-rebuild` (hoy solo se muestra un toast puntual, sin persistencia)
+- [x] Estado/historial de publicaciones: tabla `cms_publish_log` + panel en dashboard
+      (migración `20260804200000`; Edge `trigger-rebuild` escribe cada intento)
 
 ## BACKLOG_V2
 

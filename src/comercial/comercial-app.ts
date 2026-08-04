@@ -265,6 +265,12 @@ async function render(): Promise<void> {
   app.querySelectorAll<HTMLButtonElement>('[data-resend-share]').forEach(btn => {
     btn.addEventListener('click', () => void resendFailedShare(btn));
   });
+  app.querySelector<HTMLFormElement>('[data-envios-search]')?.addEventListener('submit', event => {
+    event.preventDefault();
+    const form = event.currentTarget as HTMLFormElement;
+    const q = String(new FormData(form).get('q') ?? '').trim();
+    location.hash = enviosHash(1, q);
+  });
 }
 
 async function retryCrmSync(btn: HTMLButtonElement): Promise<void> {
@@ -452,25 +458,26 @@ function fallbackState(message: string, detail?: string): string {
  * modificador `--status-*` en vez de `--ok`/`--warn` "a secas" porque esos
  * últimos están posicionados en absoluto para las tarjetas de producto
  * (ver `.comercial-card__media .comercial-badge--warn` en comercial.css).
+ * Solo estados que el backend escribe hoy; opened/delivered/read no tienen
+ * webhooks — se muestran como Enviado si aparecen filas legacy.
  */
 function statusBadge(status: string): string {
+  const normalized =
+    status === 'opened' || status === 'delivered' || status === 'read' ? 'sent' : status;
   const kind: 'ok' | 'error' | 'warn' =
-    status === 'sent' || status === 'delivered' || status === 'read' || status === 'prepared'
+    normalized === 'sent' || normalized === 'prepared' || normalized === 'queued'
       ? 'ok'
-      : status === 'failed'
+      : normalized === 'failed'
         ? 'error'
         : 'warn';
   const labels: Record<string, string> = {
     draft: 'Borrador',
     prepared: 'Preparado (WhatsApp)',
-    opened: 'Abierto',
     queued: 'En cola',
     sent: 'Enviado',
-    delivered: 'Entregado',
-    read: 'Leído',
     failed: 'Fallido',
   };
-  return `<span class="comercial-badge comercial-badge--status-${kind}">${escapeHtml(labels[status] ?? status)}</span>`;
+  return `<span class="comercial-badge comercial-badge--status-${kind}">${escapeHtml(labels[normalized] ?? normalized)}</span>`;
 }
 
 function crmBadge(status: string): string {
@@ -553,36 +560,73 @@ function sharesTable(rows: ShareRowView[], showUser: boolean): string {
 }
 
 async function enviosView(): Promise<string> {
-  if (!supabase) return panel('Envíos', fallbackState('Supabase no configurado.'));
+  const params = hashQuery();
+  const page = Math.max(1, Number.parseInt(params.get('page') ?? '1', 10) || 1);
+  const pageSize = 20;
+  const q = (params.get('q') ?? '').trim();
   const isAdmin = esRolAdmin(state.rol);
-  let query = supabase
-    .from('commercial_shares')
-    .select(
-      'id,user_id,recipient_name,medical_center_name,channel,status,crm_sync_status,created_at,sent_at'
-    )
-    .order('created_at', { ascending: false })
-    .limit(100);
-  if (!isAdmin) {
-    query = query.eq('user_id', state.userId);
-  }
-  const { data, error } = await query;
+
+  const query: Record<string, string> = {
+    page: String(page),
+    pageSize: String(pageSize),
+  };
+  if (q) query['q'] = q;
+
+  const { data, error } = await callEdgeFunction<{
+    shares: ShareRowView[];
+    page: number;
+    pageSize: number;
+    total: number;
+  }>('comercial-share', { method: 'GET', query });
+
   if (error) {
-    return panel(
-      'Envíos',
-      fallbackState('No fue posible cargar el historial de envíos.', error.message)
-    );
+    return panel('Envíos', fallbackState('No fue posible cargar el historial de envíos.', error));
   }
-  const rows = (data ?? []) as ShareRowView[];
+
+  const rows = data?.shares ?? [];
+  const total = data?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const title = isAdmin ? `Envíos del equipo (${total})` : `Mis envíos (${total})`;
+
+  const searchForm = `
+    <form class="comercial-toolbar" data-envios-search style="display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;align-items:center">
+      <input class="comercial-input" type="search" name="q" value="${escapeHtml(q)}" placeholder="Buscar destinatario, centro, email o teléfono" style="flex:1;min-width:200px" />
+      <button class="comercial-button" type="submit">Buscar</button>
+      ${q ? `<a class="comercial-button comercial-button--ghost" href="#/envios">Limpiar</a>` : ''}
+    </form>`;
+
   if (rows.length === 0) {
     return panel(
-      'Envíos',
-      `<div class="comercial-state comercial-state--empty"><p>Todavía no se han enviado catálogos.</p></div>`
+      title,
+      `${searchForm}<div class="comercial-state comercial-state--empty"><p>${q ? 'Sin resultados para esa búsqueda.' : 'Todavía no se han enviado catálogos.'}</p></div>`
     );
   }
-  return panel(
-    isAdmin ? `Envíos del equipo (${rows.length})` : `Mis envíos (${rows.length})`,
-    sharesTable(rows, isAdmin)
-  );
+
+  const pager =
+    totalPages > 1
+      ? `<nav class="comercial-pager" style="display:flex;gap:8px;padding:12px 16px;align-items:center" aria-label="Paginación envíos">
+          ${page > 1 ? `<a class="comercial-button comercial-button--ghost" href="${escapeHtml(enviosHash(page - 1, q))}">Anterior</a>` : ''}
+          <span class="comercial-help">Página ${page} / ${totalPages}</span>
+          ${page < totalPages ? `<a class="comercial-button comercial-button--ghost" href="${escapeHtml(enviosHash(page + 1, q))}">Siguiente</a>` : ''}
+        </nav>`
+      : '';
+
+  return panel(title, `${searchForm}${sharesTable(rows, isAdmin)}${pager}`);
+}
+
+function hashQuery(): URLSearchParams {
+  const raw = location.hash.includes('?')
+    ? location.hash.slice(location.hash.indexOf('?') + 1)
+    : '';
+  return new URLSearchParams(raw);
+}
+
+function enviosHash(page: number, q: string): string {
+  const params = new URLSearchParams();
+  if (page > 1) params.set('page', String(page));
+  if (q) params.set('q', q);
+  const qs = params.toString();
+  return qs ? `#/envios?${qs}` : '#/envios';
 }
 
 interface PlantillaRow {

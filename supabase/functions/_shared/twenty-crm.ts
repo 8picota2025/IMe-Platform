@@ -35,6 +35,16 @@ export interface TwentyResult<T> {
   data?: T;
 }
 
+/** Owner Twenty desde env; sin hardcode UUID (evita opp huérfanas si user borrado). */
+function resolveTwentyOwnerId(explicit?: string): string | undefined {
+  const fromInput = explicit?.trim();
+  if (fromInput) return fromInput;
+  const fromEnv = Deno.env.get('TWENTY_OWNER_ID')?.trim();
+  if (fromEnv) return fromEnv;
+  console.warn('[twenty-crm] TWENTY_OWNER_ID no configurado; se omite ownerId');
+  return undefined;
+}
+
 export interface TwentyRecord {
   id: string;
   [key: string]: unknown;
@@ -387,10 +397,7 @@ export class TwentyClient {
     proveedorPago: 'wompi' | 'stripe' | 'bold' | 'transferencia';
     ownerId?: string;
   }): Promise<TwentyResult<{ opportunityId: string; noteId?: string }>> {
-    const ownerId =
-      input.ownerId?.trim() ||
-      Deno.env.get('TWENTY_OWNER_ID')?.trim() ||
-      '8c9ca697-bc48-45d1-aba4-9a51a68d19e9';
+    const ownerId = resolveTwentyOwnerId(input.ownerId);
     const amount = {
       amountMicros: Math.round(Number(input.total) * 1_000_000),
       currencyCode: (input.moneda || 'COP').slice(0, 8),
@@ -403,8 +410,8 @@ export class TwentyClient {
       stage: 'CUSTOMER',
       amount,
       closeDate: new Date().toISOString(),
-      ownerId,
       position: 'first',
+      ...(ownerId ? { ownerId } : {}),
       ...(input.companyId ? { companyId: input.companyId } : {}),
       ...(input.personId ? { pointOfContactId: input.personId } : {}),
     };
@@ -660,16 +667,13 @@ export class TwentyClient {
       taskId?: string;
     }>
   > {
-    const ownerId =
-      input.ownerId?.trim() ||
-      Deno.env.get('TWENTY_OWNER_ID')?.trim() ||
-      '8c9ca697-bc48-45d1-aba4-9a51a68d19e9';
+    const ownerId = resolveTwentyOwnerId(input.ownerId);
 
     const companyName = (input.empresa || '').trim() || `Lead web — ${input.nombre}`.slice(0, 120);
     const company = await this.upsertCompany({ name: companyName });
     if (!company.ok) return { ok: false, error: company.error };
     const companyId = company.data?.id;
-    if (companyId) {
+    if (companyId && ownerId) {
       await this.requestRaw('PATCH', `/companies/${companyId}`, { accountOwnerId: ownerId });
     }
 
@@ -722,7 +726,7 @@ export class TwentyClient {
       position: 'first',
       companyId,
       pointOfContactId: person.data.id,
-      ownerId,
+      ...(ownerId ? { ownerId } : {}),
       amount: {
         amountMicros,
         currencyCode: (input.moneda || 'COP').slice(0, 8),
@@ -743,7 +747,7 @@ export class TwentyClient {
       title: `SLA cotización: ${oppName}`.slice(0, 120),
       status: 'TODO',
       dueAt: due,
-      assigneeId: ownerId,
+      ...(ownerId ? { assigneeId: ownerId } : {}),
       position: 'first',
       bodyV2: {
         markdown: [

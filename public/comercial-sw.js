@@ -1,17 +1,18 @@
 /**
  * Service worker mínimo para el shell offline de /comercial/.
- * Solo same-origin bajo /comercial y assets estáticos propios.
- * Nunca intercepta Supabase ni otras APIs cross-origin.
+ * Cachea shell + bundles Astro same-origin. Nunca intercepta Supabase
+ * ni otras APIs cross-origin.
  */
-const CACHE = 'ime-comercial-v3';
+const CACHE = 'ime-comercial-v4';
 const SHELL_URLS = ['/comercial/', '/manifest-comercial.json'];
 
 function shouldHandle(request, url) {
   if (request.method !== 'GET') return false;
   if (url.origin !== self.location.origin) return false;
-  // Scope de registro = /comercial/ — solo rutas bajo ese prefijo + manifest/SW.
+  // Scope de registro = /comercial/ — rutas bajo ese prefijo + assets del bundle.
   return (
     url.pathname.startsWith('/comercial') ||
+    url.pathname.startsWith('/_astro/') ||
     url.pathname === '/manifest-comercial.json' ||
     url.pathname === '/comercial-sw.js'
   );

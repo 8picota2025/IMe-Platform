@@ -557,11 +557,24 @@ async function handleGetList(
   );
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
+  const q = (url.searchParams.get('q') ?? '').trim().slice(0, 120);
 
   const isAdminOrOwner = profile.rol === 'admin' || profile.rol === 'owner';
 
-  const baseQuery = supabase.from('commercial_shares').select('*', { count: 'exact' });
-  const scopedQuery = isAdminOrOwner ? baseQuery : baseQuery.eq('user_id', profile.user_id);
+  let scopedQuery = supabase.from('commercial_shares').select('*', { count: 'exact' });
+  if (!isAdminOrOwner) scopedQuery = scopedQuery.eq('user_id', profile.user_id);
+  if (q) {
+    const safe = q
+      .replace(/[%_,.()"]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (safe) {
+      const like = `"%${safe}%"`;
+      scopedQuery = scopedQuery.or(
+        `recipient_name.ilike.${like},medical_center_name.ilike.${like},recipient_email.ilike.${like},recipient_phone.ilike.${like}`
+      );
+    }
+  }
 
   const { data, error, count } = await scopedQuery
     .order('created_at', { ascending: false })
@@ -574,6 +587,7 @@ async function handleGetList(
       page,
       pageSize,
       total: count ?? 0,
+      q: q || undefined,
     },
     origin
   );

@@ -1,17 +1,28 @@
 /**
  * CORS headers para Edge Functions.
- * Restringir ALLOWED_ORIGINS en producción.
+ * Localhost solo en entornos no productivos.
  */
 
-// TODO_CLIENTE: Restringir a dominio real en producción
-const ALLOWED_ORIGINS = [
-  'https://i-me.com.co',
+const PROD_ORIGINS = ['https://i-me.com.co', 'https://www.i-me.com.co'];
+
+const DEV_ORIGINS = [
   'http://localhost:44334',
   'http://localhost:4321',
   'http://localhost:3000',
   'http://127.0.0.1:44334',
   'http://127.0.0.1:4321',
 ];
+
+const envHint = (
+  Deno.env.get('ENVIRONMENT') ??
+  Deno.env.get('DENO_ENV') ??
+  Deno.env.get('NODE_ENV') ??
+  ''
+).toLowerCase();
+const allowDevOrigins =
+  envHint === 'development' || envHint === 'dev' || envHint === 'local' || envHint === 'test';
+
+const ALLOWED_ORIGINS = allowDevOrigins ? [...PROD_ORIGINS, ...DEV_ORIGINS] : PROD_ORIGINS;
 
 export function getCorsHeaders(requestOrigin: string | null): HeadersInit {
   const origin =
