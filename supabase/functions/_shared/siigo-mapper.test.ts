@@ -82,9 +82,59 @@ Deno.test('mapDianDraftToSiigoInvoice: arma el payload exacto de Siigo', () => {
   // base_neta (200000, sin descuento) / cantidad(2) = 100000 por unidad
   assertEquals(payload.items[0]?.price, 100000);
   assertEquals(payload.items[0]?.taxes, [{ id: 6331 }]);
-  assertEquals(payload.payments, [{ id: 12939, value: draft.totales.total }]);
+  // Sin retenciones: payments = base+IVA = draft.totales.total
+  assertEquals(payload.payments, [{ id: 12939, value: 238000 }]);
+  assertEquals(payload.payments[0]?.value, draft.totales.total);
   assertEquals(payload.stamp, { send: true });
   assertEquals(payload.mail, { send: true });
+});
+
+Deno.test('mapDianDraftToSiigoInvoice: payments.value usa base+IVA aunque haya retenciones', () => {
+  const clienteRetencion: ClienteFiscalProfile = {
+    ...CLIENTE_FISCAL,
+    agente_retencion: true,
+    agente_reteica: true,
+  };
+  const fiscal = calculateFiscalSummary(
+    [
+      {
+        producto_id: 'prod-1',
+        slug: 'consumible-demo',
+        nombre: 'Consumible Demo',
+        cantidad: 2,
+        precio_unitario: 100000,
+        tarifa_iva_pct: 19,
+        retencion_fuente_pct: 2.5,
+        retencion_iva_pct: 15,
+        retencion_ica_pct: 0.966,
+        dian_codigo: '42142500',
+      },
+    ],
+    clienteRetencion,
+    { moneda: 'COP', mercado: 'CO' }
+  );
+  const draft = buildDianInvoiceDraft({
+    referencia: 'pedido-retencion',
+    fiscal,
+    clienteFiscal: clienteRetencion,
+    moneda: 'COP',
+  });
+  if (!draft) throw new Error('draft nulo en fixture de test');
+
+  // Cobro al cliente neto de retenciones ≠ total Siigo de líneas.
+  assertEquals(draft.totales.total, 225368);
+  assertEquals(draft.totales.retencion_total, 12632);
+
+  const payload = mapDianDraftToSiigoInvoice({
+    draft,
+    config: CONFIG,
+    clienteIdentification: '900123456',
+    codigosProducto: ['consumible-demo'],
+    fecha: '2026-07-07',
+  });
+
+  assertEquals(payload.payments, [{ id: 12939, value: 238000 }]);
+  assertEquals(payload.payments[0]?.value === draft.totales.total, false);
 });
 
 Deno.test('mapDianDraftToSiigoInvoice: error si codigosProducto no coincide en longitud', () => {

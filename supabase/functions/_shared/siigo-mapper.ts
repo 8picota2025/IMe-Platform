@@ -7,7 +7,8 @@
  * campo de retención por línea (la retención en Colombia la practica el
  * comprador al pagar, no el vendedor al facturar) — por eso `dian_draft`
  * calcula retenciones para el desglose interno (`pedidos`) pero no viajan al
- * payload de Siigo.
+ * payload de Siigo. `payments.value` usa base+IVA de las líneas (no
+ * `totales.total`, que ya descuenta retenciones).
  *
  * Nota descuento: para que el total que calcula Siigo (price * quantity)
  * cuadre con `base_neta` (ya neta de descuento en fiscal.ts) sin duplicar el
@@ -16,6 +17,7 @@
  */
 
 import type { DianInvoiceDraft } from '../../../src/lib/fiscal.ts';
+import { computeSiigoInvoicePaymentValue } from '../../../src/lib/siigo-payment.ts';
 import type { SiigoConfig, SiigoInvoicePayload } from './siigo-client.ts';
 
 export function mapDianDraftToSiigoInvoice(args: {
@@ -52,13 +54,17 @@ export function mapDianDraftToSiigoInvoice(args: {
     };
   });
 
+  // payments.value debe cuadrar con lo que Siigo totaliza desde items (base+IVA).
+  // draft.totales.total descuenta retenciones (y puede incluir envío) → mismatch.
+  const paymentValue = computeSiigoInvoicePaymentValue(draft);
+
   return {
     document: { id: config.documentTypeId },
     date: fecha,
     customer: { identification: clienteIdentification, branch_office: 0 },
     seller: config.sellerId,
     items,
-    payments: [{ id: config.paymentTypeId, value: draft.totales.total }],
+    payments: [{ id: config.paymentTypeId, value: paymentValue }],
     observations: `Pedido I-ME ${draft.referencia}`,
     stamp: { send: true },
     mail: { send: true },
