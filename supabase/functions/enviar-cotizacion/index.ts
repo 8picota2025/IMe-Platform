@@ -29,6 +29,46 @@ import {
   type CotizacionOfertaRow,
 } from '../../../src/lib/cotizacion-oferta.ts';
 
+type AdjuntoCotizacion = { path?: unknown; nombre?: unknown; size?: unknown };
+const MAX_ADJUNTOS_BYTES = 25 * 1024 * 1024;
+
+function base64(bytes: Uint8Array): string {
+  let binary = '';
+  for (let offset = 0; offset < bytes.length; offset += 0x8000) {
+    binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
+  }
+  return btoa(binary);
+}
+
+async function cargarAdjuntosCliente(
+  supabase: ReturnType<typeof getServerSupabase>,
+  value: unknown
+): Promise<
+  | { ok: true; archivos: Array<{ filename: string; content: string }> }
+  | { ok: false; error: string }
+> {
+  if (!Array.isArray(value)) return { ok: true, archivos: [] };
+  const archivos: Array<{ filename: string; content: string }> = [];
+  let total = 0;
+  for (const raw of value) {
+    const item = raw as AdjuntoCotizacion;
+    const path = String(item?.path ?? '').trim();
+    const filename = String(item?.nombre ?? '')
+      .trim()
+      .slice(0, 160);
+    if (!path || !filename || path.includes('..')) continue;
+    const { data, error } = await supabase.storage.from('cotizaciones-adjuntos').download(path);
+    if (error || !data) return { ok: false, error: `No se pudo leer el adjunto ${filename}` };
+    const bytes = new Uint8Array(await data.arrayBuffer());
+    total += bytes.byteLength;
+    if (total > MAX_ADJUNTOS_BYTES) {
+      return { ok: false, error: 'Los adjuntos superan el límite de 25 MB' };
+    }
+    archivos.push({ filename, content: base64(bytes) });
+  }
+  return { ok: true, archivos };
+}
+
 const DEFAULT_SITE_URL = 'https://i-me.com.co';
 const ROLES = new Set(['owner', 'admin', 'ventas']);
 
@@ -197,6 +237,10 @@ Deno.serve(async req => {
     : locale === 'en'
       ? 'See terms'
       : 'Ver condiciones';
+  const adjuntos = await cargarAdjuntosCliente(supabase, (row as { adjuntos?: unknown }).adjuntos);
+  if (!adjuntos.ok) {
+    return errorResponse({ code: 'ADJUNTOS_INVALIDOS', message: adjuntos.error }, 422, origin);
+  }
 
   const envio = await enviarEmailPlantilla(
     supabase,
@@ -213,7 +257,8 @@ Deno.serve(async req => {
       datos_bancarios: escapeHtml(datosBancariosTexto(getDatosBancariosTransferencia())),
       formalizar_url: escapeHtml(formalizarUrl),
     },
-    id
+    id,
+    adjuntos.archivos
   );
 
   if (!envio.ok) {

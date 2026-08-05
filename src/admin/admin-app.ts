@@ -2854,6 +2854,7 @@ async function cotizacionDetailView(): Promise<string> {
   const row = state.recordId ? await getRow('solicitudes_cotizacion', state.recordId) : null;
   if (!row) return notFoundPanel('Cotizacion no encontrada', '#/cotizaciones');
   const productos = Array.isArray(row.productos) ? row.productos : [];
+  const adjuntos = Array.isArray(row.adjuntos) ? row.adjuntos : [];
   const notasInternas = parseNotasInternas(text(row.notas_internas));
   const resumen = cotizacionResumenTexto(row);
   const estado = text(row.estado) || 'nueva';
@@ -2921,6 +2922,12 @@ async function cotizacionDetailView(): Promise<string> {
             <label class="admin-field"><span>Teléfono</span>
               <input name="telefono" type="tel" value="${escapeHtml(text(row.telefono))}" autocomplete="tel" ${convertida ? 'disabled' : ''} />
             </label>
+            <label class="admin-field"><span>NIT / identificación fiscal</span>
+              <input name="nit" type="text" value="${escapeHtml(text(row.nit))}" ${convertida ? 'disabled' : ''} />
+            </label>
+            <label class="admin-field"><span>IVA</span>
+              <label class="admin-check"><input name="responsable_iva" type="checkbox" ${row.responsable_iva ? 'checked' : ''} ${convertida ? 'disabled' : ''} /> Responsable de IVA</label>
+            </label>
             <label class="admin-field"><span>Moneda de la oferta</span>
               <select name="moneda" data-cotizacion-moneda ${convertida ? 'disabled' : ''}>
                 <option value="COP" ${moneda === 'COP' ? 'selected' : ''}>COP — Pesos colombianos</option>
@@ -2934,6 +2941,28 @@ async function cotizacionDetailView(): Promise<string> {
           ${cotizacionLineasEditorHtml(productos, moneda, convertida)}
           <label class="admin-field" style="margin-top:12px"><span>Mensaje o necesidad del solicitante</span>
             <textarea name="mensaje" rows="4" placeholder="Necesidad, especificaciones o contexto" ${convertida ? 'disabled' : ''}>${escapeHtml(text(row.mensaje))}</textarea>
+          </label>
+          <div class="admin-editor__cols">
+            <label class="admin-field"><span>Dirección postal de envío</span>
+              <textarea name="direccion_envio" rows="3" ${convertida ? 'disabled' : ''}>${escapeHtml(text(row.direccion_envio))}</textarea>
+            </label>
+            <label class="admin-field"><span>Dirección de facturación</span>
+              <textarea name="direccion_facturacion" rows="3" ${convertida ? 'disabled' : ''}>${escapeHtml(text(row.direccion_facturacion))}</textarea>
+            </label>
+          </div>
+          <label class="admin-field" style="margin-top:12px"><span>Adjuntos para el correo al cliente (PDF, Office o imagen; máx. 25 MB en total)</span>
+            <input type="file" data-cotizacion-adjuntos multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.webp" ${convertida ? 'disabled' : ''} />
+            <span class="admin-help" data-cotizacion-adjuntos-estado>${
+              adjuntos.length
+                ? `Adjuntos guardados: ${escapeHtml(
+                    adjuntos
+                      .map(item => text((item as Row).nombre))
+                      .filter(Boolean)
+                      .join(', ')
+                  )}`
+                : 'Sin adjuntos.'
+            }</span>
+            <input type="hidden" data-cotizacion-adjuntos-actuales value="${escapeHtml(JSON.stringify(adjuntos))}" />
           </label>
           <label class="admin-field" style="margin-top:12px"><span>Observaciones / condiciones de configuracion</span>
             <textarea name="condiciones" rows="5" placeholder="Configuracion especifica, plazo de entrega, forma de pago, validez, exclusiones..." ${convertida ? 'disabled' : ''}>${escapeHtml(
@@ -5783,6 +5812,75 @@ function syncCotizacionTotalesDom() {
   if (totalEl) totalEl.textContent = crmMoney(total, monedaCabecera);
 }
 
+type CotizacionAdjunto = { path: string; nombre: string; tipo: string; size: number };
+const COTIZACION_ADJUNTO_MAX_BYTES = 25 * 1024 * 1024;
+const COTIZACION_ADJUNTO_EXTENSIONS = new Set([
+  'pdf',
+  'doc',
+  'docx',
+  'xls',
+  'xlsx',
+  'ppt',
+  'pptx',
+  'jpg',
+  'jpeg',
+  'png',
+  'webp',
+]);
+
+function adjuntosCotizacionActuales(): CotizacionAdjunto[] {
+  const raw = app.querySelector<HTMLInputElement>('[data-cotizacion-adjuntos-actuales]')?.value;
+  try {
+    const parsed = JSON.parse(raw ?? '[]');
+    return Array.isArray(parsed)
+      ? parsed.filter(
+          item => item && typeof item.path === 'string' && typeof item.nombre === 'string'
+        )
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+async function guardarAdjuntosCotizacion(id: string): Promise<CotizacionAdjunto[] | null> {
+  const input = app.querySelector<HTMLInputElement>('[data-cotizacion-adjuntos]');
+  const status = app.querySelector<HTMLElement>('[data-cotizacion-adjuntos-estado]');
+  const actuales = adjuntosCotizacionActuales();
+  const files = Array.from(input?.files ?? []);
+  if (!files.length) return actuales;
+  const total =
+    actuales.reduce((sum, item) => sum + Number(item.size || 0), 0) +
+    files.reduce((sum, file) => sum + file.size, 0);
+  if (total > COTIZACION_ADJUNTO_MAX_BYTES) {
+    toast('Los adjuntos no pueden superar 25 MB en total.');
+    return null;
+  }
+  const nuevos: CotizacionAdjunto[] = [];
+  for (const file of files) {
+    const extension = file.name.split('.').pop()?.toLowerCase() ?? '';
+    if (!COTIZACION_ADJUNTO_EXTENSIONS.has(extension)) {
+      toast(`Formato no permitido: ${file.name}`);
+      return null;
+    }
+    const nombre = file.name.replace(/[\\/]/g, '_').slice(0, 160);
+    const path = `${id}/${crypto.randomUUID()}-${nombre}`;
+    if (status) status.textContent = `Subiendo ${nombre}...`;
+    const { error } = await supabase!.storage.from('cotizaciones-adjuntos').upload(path, file, {
+      upsert: false,
+      ...(file.type ? { contentType: file.type } : {}),
+    });
+    if (error) {
+      toast(`No se pudo subir ${nombre}: ${error.message}`);
+      return null;
+    }
+    nuevos.push({ path, nombre, tipo: file.type, size: file.size });
+  }
+  const resultado = [...actuales, ...nuevos];
+  if (status)
+    status.textContent = `Adjuntos guardados: ${resultado.map(item => item.nombre).join(', ')}`;
+  return resultado;
+}
+
 function bindCotizaciones() {
   app.querySelectorAll<HTMLButtonElement>('[data-cotizacion-quick-estado]').forEach(button => {
     button.addEventListener('click', async () => {
@@ -5895,6 +5993,8 @@ function bindCotizaciones() {
     const validez = String(data.get('validez_hasta') ?? '').trim() || null;
     const total = lineas.reduce((acc, l) => acc + l.subtotal, 0);
     const mercado = moneda === 'USD' ? 'INTL' : 'CO';
+    const adjuntos = await guardarAdjuntosCotizacion(id);
+    if (!adjuntos) return;
     const { error } = await supabase!
       .from('solicitudes_cotizacion')
       .update({
@@ -5903,6 +6003,11 @@ function bindCotizaciones() {
         email: emptyToNull(data.get('email')),
         telefono: emptyToNull(data.get('telefono')),
         mensaje: emptyToNull(data.get('mensaje')),
+        nit: emptyToNull(data.get('nit')),
+        responsable_iva: data.get('responsable_iva') === 'on',
+        direccion_envio: emptyToNull(data.get('direccion_envio')),
+        direccion_facturacion: emptyToNull(data.get('direccion_facturacion')),
+        adjuntos,
         productos: lineas,
         condiciones,
         validez_hasta: validez,
@@ -6002,6 +6107,11 @@ function bindCotizaciones() {
       const lineasConMoneda = lineasDom.map(l => ({ ...l, moneda }));
       const totalDom = lineasConMoneda.reduce((acc, l) => acc + l.subtotal, 0);
       const mercado = moneda === 'USD' ? 'INTL' : 'CO';
+      const adjuntos = await guardarAdjuntosCotizacion(id);
+      if (!adjuntos) {
+        if (button) button.disabled = false;
+        return;
+      }
       const { error: saveError } = await supabase!
         .from('solicitudes_cotizacion')
         .update({
@@ -6010,6 +6120,11 @@ function bindCotizaciones() {
           email: emptyToNull(datosOferta.get('email')),
           telefono: emptyToNull(datosOferta.get('telefono')),
           mensaje: emptyToNull(datosOferta.get('mensaje')),
+          nit: emptyToNull(datosOferta.get('nit')),
+          responsable_iva: datosOferta.get('responsable_iva') === 'on',
+          direccion_envio: emptyToNull(datosOferta.get('direccion_envio')),
+          direccion_facturacion: emptyToNull(datosOferta.get('direccion_facturacion')),
+          adjuntos,
           productos: lineasConMoneda,
           condiciones: condicionesDom.trim(),
           validez_hasta: validezDom.trim() || null,

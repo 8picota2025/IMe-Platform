@@ -201,6 +201,11 @@ export interface EnvioResultado {
   detalle?: string;
 }
 
+export interface EmailAdjunto {
+  filename: string;
+  content: string;
+}
+
 /**
  * Renderiza la plantilla `clave` (DB con fallback a defaults) y la envia a
  * cada destinatario. `vars` deben venir ya escapadas si contienen input de
@@ -211,7 +216,8 @@ export async function enviarEmailPlantilla(
   clave: string,
   destinatarios: string[],
   vars: Record<string, string>,
-  referencia?: string
+  referencia?: string,
+  adjuntos: EmailAdjunto[] = []
 ): Promise<EnvioResultado> {
   const apiKey = Deno.env.get('MAILER_API_KEY') || Deno.env.get('RESEND_API_KEY');
   if (!apiKey) return { ok: false, detalle: 'MAILER_API_KEY no configurada' };
@@ -248,7 +254,13 @@ export async function enviarEmailPlantilla(
       const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ from, to, subject, html: body }),
+        body: JSON.stringify({
+          from,
+          to,
+          subject,
+          html: body,
+          ...(adjuntos.length > 0 ? { attachments: adjuntos } : {}),
+        }),
       });
       if (!res.ok) {
         status = 'fallido';
