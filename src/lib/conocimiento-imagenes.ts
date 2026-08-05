@@ -50,6 +50,16 @@ const POR_SLUG: Record<string, ImagenArticulo> = {
     width: 900,
     height: 506,
   },
+  'avances-tecnologicos-diagnostico-tratamiento-institucional': {
+    src: '/assets/img/equipamiento-biomedico-vanguardia.webp',
+    width: 1200,
+    height: 1200,
+  },
+  'robots-asistenciales-atencion-reduccion-carga-personal': {
+    src: '/assets/img/sala-cirugia-robotica.webp',
+    width: 1400,
+    height: 788,
+  },
 };
 
 const POR_PALABRA: Array<{ patron: RegExp; imagen: ImagenArticulo }> = [
@@ -61,6 +71,14 @@ const POR_PALABRA: Array<{ patron: RegExp; imagen: ImagenArticulo }> = [
   { patron: /financia/, imagen: POR_SLUG['ime-financiamiento']! },
   { patron: /compra|cotizacion|proceso/, imagen: POR_SLUG['ime-proceso-compra']! },
   { patron: /monitor|uci/, imagen: POR_SLUG['como-elegir-un-monitor-biomedico']! },
+  {
+    patron: /avance|tecnolog|diagnost|tratamiento/,
+    imagen: POR_SLUG['avances-tecnologicos-diagnostico-tratamiento-institucional']!,
+  },
+  {
+    patron: /robot|asistencial|padbot/,
+    imagen: POR_SLUG['robots-asistenciales-atencion-reduccion-carga-personal']!,
+  },
 ];
 
 const POR_DEFECTO: ImagenArticulo = {
