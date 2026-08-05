@@ -2774,14 +2774,16 @@ async function cotizacionesView(): Promise<string> {
     </section>`;
 }
 
-function cotizacionLineasEditorHtml(productos: unknown[], monedaDefault = 'COP'): string {
+function cotizacionLineasEditorHtml(
+  productos: unknown[],
+  monedaDefault = 'COP',
+  readOnly = false
+): string {
   const lineas = Array.isArray(productos) ? productos : [];
-  if (lineas.length === 0) {
-    return '<p class="admin-help">Sin productos en la solicitud.</p>';
-  }
   const monedaCabecera = monedaDefault === 'USD' ? 'USD' : 'COP';
   const priceStep = monedaCabecera === 'USD' ? '0.01' : '1';
-  const rows = lineas.map((raw, index) => {
+  const disabled = readOnly ? 'disabled' : '';
+  const rows = lineas.map(raw => {
     const item = raw && typeof raw === 'object' ? (raw as Row) : {};
     const slug = text(item.slug);
     const nombre = text(item.nombre) || slug;
@@ -2789,25 +2791,42 @@ function cotizacionLineasEditorHtml(productos: unknown[], monedaDefault = 'COP')
     const precio = Number(item.precio_unitario ?? 0) || 0;
     const moneda = monedaCabecera;
     return `
-      <tr data-cotizacion-linea data-index="${index}">
-        <td>${escapeHtml(nombre)}<br><span class="admin-meta">${escapeHtml(slug)}</span>
-          <input type="hidden" data-linea-slug value="${escapeHtml(slug)}" />
-          <input type="hidden" data-linea-nombre value="${escapeHtml(nombre)}" />
+      <tr data-cotizacion-linea>
+        <td>
+          <input class="admin-inline-input" type="text" data-linea-nombre value="${escapeHtml(nombre)}" placeholder="Nombre del producto" aria-label="Nombre del producto" required ${disabled} />
+          <input class="admin-inline-input" type="text" data-linea-slug value="${escapeHtml(slug)}" placeholder="SKU o referencia (opcional)" aria-label="SKU o referencia" ${disabled} />
           <input type="hidden" data-linea-moneda value="${escapeHtml(moneda)}" />
         </td>
-        <td><input class="admin-inline-input" type="number" min="1" step="1" data-linea-cantidad value="${cantidad}" /></td>
-        <td><input class="admin-inline-input" type="number" min="0" step="${priceStep}" data-linea-precio value="${precio}" /></td>
+        <td><input class="admin-inline-input" type="number" min="1" step="1" data-linea-cantidad value="${cantidad}" ${disabled} /></td>
+        <td><input class="admin-inline-input" type="number" min="0" step="${priceStep}" data-linea-precio value="${precio}" ${disabled} /></td>
         <td data-linea-subtotal>${crmMoney(precio * cantidad, moneda)}</td>
+        <td><button class="admin-button admin-button--ghost" type="button" data-linea-eliminar aria-label="Eliminar ${escapeHtml(nombre || 'producto')}" ${disabled}>Eliminar</button></td>
       </tr>`;
   });
   return `
     <div class="admin-table-wrap">
       <table class="admin-table">
-        <thead><tr><th>Producto</th><th>Cantidad</th><th>Precio unitario (${escapeHtml(monedaCabecera)})</th><th>Subtotal</th></tr></thead>
+        <thead><tr><th>Producto / referencia</th><th>Cantidad</th><th>Precio unitario (${escapeHtml(monedaCabecera)})</th><th>Subtotal</th><th>Acciones</th></tr></thead>
         <tbody>${rows.join('')}</tbody>
       </table>
     </div>
+    <button class="admin-button admin-button--ghost" type="button" data-cotizacion-linea-agregar ${disabled}>Añadir producto</button>
     <p class="admin-meta" style="margin-top:8px">Total ofertado: <strong data-cotizacion-total-ofertado>—</strong></p>`;
+}
+
+function cotizacionLineaNuevaHtml(moneda: 'COP' | 'USD'): string {
+  const step = moneda === 'USD' ? '0.01' : '1';
+  return `<tr data-cotizacion-linea>
+    <td>
+      <input class="admin-inline-input" type="text" data-linea-nombre value="" placeholder="Nombre del producto" aria-label="Nombre del producto" required />
+      <input class="admin-inline-input" type="text" data-linea-slug value="" placeholder="SKU o referencia (opcional)" aria-label="SKU o referencia" />
+      <input type="hidden" data-linea-moneda value="${moneda}" />
+    </td>
+    <td><input class="admin-inline-input" type="number" min="1" step="1" data-linea-cantidad value="1" aria-label="Cantidad" /></td>
+    <td><input class="admin-inline-input" type="number" min="0" step="${step}" data-linea-precio value="0" aria-label="Precio unitario" /></td>
+    <td data-linea-subtotal>${crmMoney(0, moneda)}</td>
+    <td><button class="admin-button admin-button--ghost" type="button" data-linea-eliminar aria-label="Eliminar producto">Eliminar</button></td>
+  </tr>`;
 }
 
 function normalizarMonedaCotizacion(value: unknown): 'COP' | 'USD' {
@@ -2884,31 +2903,24 @@ async function cotizacionDetailView(): Promise<string> {
           <button class="admin-button" type="button" data-cotizacion-enviar ${convertida ? 'disabled' : ''}>Enviar al cliente</button>
         </div>
       </div>
-      <div style="padding:16px">
-        ${table(
-          ['Campo', 'Valor'],
-          [
-            ['Empresa', escapeHtml(text(row.empresa)) || '—'],
-            ['Email', escapeHtml(text(row.email))],
-            ['Telefono', escapeHtml(text(row.telefono))],
-            ['Fecha', formatCell(row.created_at)],
-            [
-              'Total ofertado',
-              row.precio_total_ofertado != null
-                ? escapeHtml(crmMoney(Number(row.precio_total_ofertado), moneda))
-                : '—',
-            ],
-            ['Moneda', escapeHtml(moneda)],
-            ['Mercado', escapeHtml(text(row.mercado) || (moneda === 'USD' ? 'INTL' : 'CO'))],
-          ]
-        )}
-      </div>
       <div style="padding:0 16px 16px">
         <h3>Oferta comercial</h3>
-        <p class="admin-help">Completa precios y condiciones. Elige COP o USD. Luego envia al cliente.</p>
+        <p class="admin-help">Edita los datos de la solicitud, los productos, precios y condiciones. La oferta guardada es la que recibirá el cliente al formalizar.</p>
         <form class="admin-form" data-cotizacion-oferta-form>
           <input type="hidden" name="id" value="${escapeHtml(text(row.id))}" />
           <div class="admin-editor__cols">
+            <label class="admin-field"><span>Nombre del contacto</span>
+              <input name="nombre" type="text" value="${escapeHtml(text(row.nombre))}" autocomplete="name" ${convertida ? 'disabled' : ''} />
+            </label>
+            <label class="admin-field"><span>Empresa</span>
+              <input name="empresa" type="text" value="${escapeHtml(text(row.empresa))}" autocomplete="organization" ${convertida ? 'disabled' : ''} />
+            </label>
+            <label class="admin-field"><span>Email</span>
+              <input name="email" type="email" value="${escapeHtml(text(row.email))}" autocomplete="email" ${convertida ? 'disabled' : ''} />
+            </label>
+            <label class="admin-field"><span>Teléfono</span>
+              <input name="telefono" type="tel" value="${escapeHtml(text(row.telefono))}" autocomplete="tel" ${convertida ? 'disabled' : ''} />
+            </label>
             <label class="admin-field"><span>Moneda de la oferta</span>
               <select name="moneda" data-cotizacion-moneda ${convertida ? 'disabled' : ''}>
                 <option value="COP" ${moneda === 'COP' ? 'selected' : ''}>COP — Pesos colombianos</option>
@@ -2919,7 +2931,10 @@ async function cotizacionDetailView(): Promise<string> {
               <input name="validez_hasta" type="date" value="${escapeHtml(text(row.validez_hasta).slice(0, 10))}" ${convertida ? 'disabled' : ''} />
             </label>
           </div>
-          ${cotizacionLineasEditorHtml(productos, moneda)}
+          ${cotizacionLineasEditorHtml(productos, moneda, convertida)}
+          <label class="admin-field" style="margin-top:12px"><span>Mensaje o necesidad del solicitante</span>
+            <textarea name="mensaje" rows="4" placeholder="Necesidad, especificaciones o contexto" ${convertida ? 'disabled' : ''}>${escapeHtml(text(row.mensaje))}</textarea>
+          </label>
           <label class="admin-field" style="margin-top:12px"><span>Observaciones / condiciones de configuracion</span>
             <textarea name="condiciones" rows="5" placeholder="Configuracion especifica, plazo de entrega, forma de pago, validez, exclusiones..." ${convertida ? 'disabled' : ''}>${escapeHtml(
               text(row.condiciones)
@@ -5820,10 +5835,30 @@ function bindCotizaciones() {
     await render();
   });
 
+  const bindLineaOferta = (row: HTMLElement) => {
+    row
+      .querySelectorAll<HTMLInputElement>('[data-linea-cantidad], [data-linea-precio]')
+      .forEach(input => input.addEventListener('input', syncCotizacionTotalesDom));
+    row.querySelector<HTMLButtonElement>('[data-linea-eliminar]')?.addEventListener('click', () => {
+      row.remove();
+      syncCotizacionTotalesDom();
+    });
+  };
+  app.querySelectorAll<HTMLElement>('[data-cotizacion-linea]').forEach(bindLineaOferta);
   app
-    .querySelectorAll<HTMLInputElement>('[data-linea-cantidad], [data-linea-precio]')
-    .forEach(input => {
-      input.addEventListener('input', syncCotizacionTotalesDom);
+    .querySelector<HTMLButtonElement>('[data-cotizacion-linea-agregar]')
+    ?.addEventListener('click', () => {
+      const moneda = normalizarMonedaCotizacion(
+        app.querySelector<HTMLSelectElement>('[data-cotizacion-moneda]')?.value
+      );
+      const body = app.querySelector<HTMLTableSectionElement>('.admin-table tbody');
+      if (!body) return;
+      body.insertAdjacentHTML('beforeend', cotizacionLineaNuevaHtml(moneda));
+      const lineaNueva = body.lastElementChild;
+      if (!(lineaNueva instanceof HTMLElement)) return;
+      bindLineaOferta(lineaNueva);
+      lineaNueva.querySelector<HTMLInputElement>('[data-linea-nombre]')?.focus();
+      syncCotizacionTotalesDom();
     });
   app
     .querySelector<HTMLSelectElement>('[data-cotizacion-moneda]')
@@ -5863,6 +5898,11 @@ function bindCotizaciones() {
     const { error } = await supabase!
       .from('solicitudes_cotizacion')
       .update({
+        nombre: emptyToNull(data.get('nombre')),
+        empresa: emptyToNull(data.get('empresa')),
+        email: emptyToNull(data.get('email')),
+        telefono: emptyToNull(data.get('telefono')),
+        mensaje: emptyToNull(data.get('mensaje')),
         productos: lineas,
         condiciones,
         validez_hasta: validez,
@@ -5930,7 +5970,8 @@ function bindCotizaciones() {
     .querySelector<HTMLButtonElement>('[data-cotizacion-enviar]')
     ?.addEventListener('click', async () => {
       const id = state.recordId;
-      if (!id) return;
+      if (!id || !ofertaForm) return;
+      const datosOferta = new FormData(ofertaForm);
       const lineasDom = leerLineasOfertaDesdeDom().filter(l => l.slug || l.nombre);
       const condicionesDom =
         app.querySelector<HTMLTextAreaElement>('[data-cotizacion-oferta-form] [name="condiciones"]')
@@ -5964,6 +6005,11 @@ function bindCotizaciones() {
       const { error: saveError } = await supabase!
         .from('solicitudes_cotizacion')
         .update({
+          nombre: emptyToNull(datosOferta.get('nombre')),
+          empresa: emptyToNull(datosOferta.get('empresa')),
+          email: emptyToNull(datosOferta.get('email')),
+          telefono: emptyToNull(datosOferta.get('telefono')),
+          mensaje: emptyToNull(datosOferta.get('mensaje')),
           productos: lineasConMoneda,
           condiciones: condicionesDom.trim(),
           validez_hasta: validezDom.trim() || null,
