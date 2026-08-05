@@ -122,6 +122,10 @@ const config = {
         <input id="cotizacion-telefono" name="telefono" type="tel" required autocomplete="tel" />
       </div>
       <div class="cotizacion-field">
+        <label for="cotizacion-institucion">{config.i18n.institucion}</label>
+        <input id="cotizacion-institucion" name="empresa" type="text" autocomplete="organization" />
+      </div>
+      <div class="cotizacion-field">
         <label for="cotizacion-mensaje">{config.i18n.mensaje}</label>
         <textarea id="cotizacion-mensaje" name="mensaje" rows={3}></textarea>
       </div>
@@ -631,6 +635,7 @@ const config = {
           nombre: String(data.get('nombre') ?? ''),
           email: String(data.get('email') ?? ''),
           telefono: String(data.get('telefono') ?? ''),
+          empresa: String(data.get('empresa') ?? ''),
           mensaje: String(data.get('mensaje') ?? ''),
           consentimiento_datos: data.get('consentimiento') === 'on',
           productos: items.map(i => ({ slug: i.slug, nombre: i.nombre, cantidad: i.cantidad })),

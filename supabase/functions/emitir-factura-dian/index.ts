@@ -13,6 +13,7 @@ import {
 import { mapDianDraftToSiigoInvoice } from '../_shared/siigo-mapper.ts';
 import type { DianInvoiceDraft } from '../../../src/lib/fiscal.ts';
 import { pushFacturaToTwenty } from '../_shared/twenty-commerce-sync.ts';
+import { DESTINATARIOS_INTERNOS, enviarEmailPlantilla, escapeHtml } from '../_shared/email.ts';
 
 const FN_NAME = 'emitir-factura-dian';
 const PROVEEDOR = 'siigo';
@@ -309,6 +310,34 @@ Deno.serve(
         estado: resultado.estado,
       });
 
+      const draftCliente = (draft as DianInvoiceDraft).cliente;
+      if (resultado.estado === 'emitida') {
+        await enviarEmailPlantilla(
+          supabase,
+          'factura_emitida_cliente',
+          [draftCliente.email],
+          {
+            referencia: escapeHtml(pedido.id.slice(0, 8).toUpperCase()),
+            cliente_nombre: escapeHtml(draftCliente.razon_social),
+            numero_factura: escapeHtml(resultado.numeroFactura ?? 'En proceso de numeracion'),
+            cufe: escapeHtml(resultado.cufe ?? 'En proceso de validacion DIAN'),
+          },
+          pedido.id
+        );
+      } else {
+        await enviarEmailPlantilla(
+          supabase,
+          'factura_error_interna',
+          DESTINATARIOS_INTERNOS,
+          {
+            referencia: escapeHtml(pedido.id.slice(0, 8).toUpperCase()),
+            cliente_email: escapeHtml(draftCliente.email),
+            error_factura: escapeHtml(resultado.error ?? resultado.estado),
+          },
+          pedido.id
+        );
+      }
+
       return new Response(
         JSON.stringify({
           ok: resultado.ok,
@@ -338,6 +367,18 @@ Deno.serve(
         .from('pedidos')
         .update({ facturacion_electronica_estado: 'error' })
         .eq('id', pedido.id);
+      const draftCliente = (draft as DianInvoiceDraft).cliente;
+      await enviarEmailPlantilla(
+        supabase,
+        'factura_error_interna',
+        DESTINATARIOS_INTERNOS,
+        {
+          referencia: escapeHtml(pedido.id.slice(0, 8).toUpperCase()),
+          cliente_email: escapeHtml(draftCliente.email),
+          error_factura: escapeHtml(message),
+        },
+        pedido.id
+      );
       return internalError(message, origin);
     }
   })

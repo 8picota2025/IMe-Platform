@@ -3,7 +3,7 @@
  * de profesionales (quirófano, central, imagen, robótica).
  * Solo productos/slugs verificados en catálogo. Sin claims clínicos inventados.
  */
-import type { CampaignLandingId } from '../lib/comercial-leads';
+import type { CampaignLandingId, FabricanteLandingId } from '../lib/comercial-leads';
 import type { Locale } from '../i18n/utils';
 
 export interface CampaignFaq {
@@ -981,8 +981,10 @@ const ROBOTICA: ContentMap = {
   },
 };
 
+type StandardCampaignLandingId = Exclude<CampaignLandingId, 'proyectos' | FabricanteLandingId>;
+
 const META: Record<
-  Exclude<CampaignLandingId, 'proyectos'>,
+  StandardCampaignLandingId,
   { familia_slug: string; tipo_slug?: string; path: string; pathEn: string }
 > = {
   torres_laparoscopia: {
@@ -1008,7 +1010,7 @@ const META: Record<
   },
 };
 
-const BY_ID: Record<Exclude<CampaignLandingId, 'proyectos'>, ContentMap> = {
+const BY_ID: Record<StandardCampaignLandingId, ContentMap> = {
   torres_laparoscopia: TORRES,
   esterilizacion: ESTERILIZACION,
   imagenologia: IMAGENOLOGIA,
@@ -1016,7 +1018,7 @@ const BY_ID: Record<Exclude<CampaignLandingId, 'proyectos'>, ContentMap> = {
 };
 
 export function getCampaignLanding(
-  id: Exclude<CampaignLandingId, 'proyectos'>,
+  id: StandardCampaignLandingId,
   locale: Locale
 ): CampaignLandingContent {
   const meta = META[id];
@@ -1029,7 +1031,7 @@ export function getCampaignLanding(
 }
 
 export function listCampaignLandings(locale: Locale): CampaignLandingContent[] {
-  return (Object.keys(BY_ID) as Array<Exclude<CampaignLandingId, 'proyectos'>>).map(id =>
+  return (Object.keys(BY_ID) as StandardCampaignLandingId[]).map(id =>
     getCampaignLanding(id, locale)
   );
 }

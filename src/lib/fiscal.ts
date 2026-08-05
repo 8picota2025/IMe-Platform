@@ -92,6 +92,17 @@ function toPct(value: number | null | undefined, fallback = 0): number {
   return Number.isFinite(value) ? Number(value) : fallback;
 }
 
+/**
+ * Convierte un precio comercial que ya incluye IVA a su base gravable.
+ * Las cotizaciones se facturan solo cuando el comercial confirmó esta
+ * condición; nunca se infiere desde texto libre.
+ */
+export function baseNetaDesdePrecioConIva(precioConIva: number, tarifaIvaPct: number): number {
+  if (!Number.isFinite(precioConIva) || precioConIva < 0) return 0;
+  if (!Number.isFinite(tarifaIvaPct) || tarifaIvaPct < 0) return 0;
+  return Math.round((precioConIva / (1 + tarifaIvaPct / 100)) * 100) / 100;
+}
+
 function isFacturacionColombia(config: FiscalConfig): boolean {
   return config.mercado === 'CO' && config.moneda.toUpperCase() === 'COP';
 }

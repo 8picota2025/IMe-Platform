@@ -290,6 +290,7 @@ export interface CotizacionPayload {
   nombre: string;
   email: string;
   telefono: string;
+  empresa?: string;
   mensaje: string;
   consentimiento_datos: boolean;
   productos?: CotizacionProducto[];

@@ -25,6 +25,7 @@ import {
 } from '../../../src/lib/cotizacion-oferta.ts';
 import {
   buildDianInvoiceDraft,
+  baseNetaDesdePrecioConIva,
   calculateFiscalSummary,
   normalizeClienteFiscalInput,
   validateClienteFiscal,
@@ -272,23 +273,116 @@ Deno.serve(async req => {
     );
   }
 
-  const pedidoId = crypto.randomUUID();
-  const fiscalSummary = calculateFiscalSummary(
-    lineas.map(l => ({
-      slug: l.slug,
-      nombre: l.nombre,
-      cantidad: l.cantidad,
-      precio_unitario: l.precio_unitario,
-      excluido_iva: true,
-    })),
-    fiscalCliente,
+  const impuestosIncluidos =
+    (row as { impuestos_incluidos?: unknown }).impuestos_incluidos === true;
+  if (fiscalCliente.solicitar_factura_electronica && !impuestosIncluidos) {
+    return errorResponse(
+      {
+        code: 'TRATAMIENTO_TRIBUTARIO_OFERTA_REQUERIDO',
+        message:
+          'La oferta no declara que sus precios incluyen impuestos. Solicita a I-ME una cotizacion revisada antes de emitir factura electronica.',
+      },
+      422,
+      origin
+    );
+  }
+
+  const productosFiscales = new Map<
+    string,
     {
+      tarifa_iva_pct: number | string | null;
+      retencion_fuente_pct: number | string | null;
+      retencion_iva_pct: number | string | null;
+      retencion_ica_pct: number | string | null;
+      dian_codigo: string | null;
+      excluido_iva: boolean | null;
+    }
+  >();
+  if (fiscalCliente.solicitar_factura_electronica) {
+    const { data: productos, error: productosError } = await supabase
+      .from('productos')
+      .select(
+        'slug, tarifa_iva_pct, retencion_fuente_pct, retencion_iva_pct, retencion_ica_pct, dian_codigo, excluido_iva'
+      )
+      .in(
+        'slug',
+        lineas.map(linea => linea.slug)
+      );
+    if (productosError)
+      return internalError(
+        `error consultando impuestos de productos: ${productosError.message}`,
+        origin
+      );
+    for (const producto of (productos ?? []) as Array<Record<string, unknown>>) {
+      productosFiscales.set(
+        String(producto.slug),
+        producto as typeof productosFiscales extends Map<string, infer T> ? T : never
+      );
+    }
+  }
+
+  const pedidoId = crypto.randomUUID();
+  let fiscalSummary;
+  try {
+    const lineasFiscales = lineas.map(l => {
+      const producto = productosFiscales.get(l.slug);
+      if (!fiscalCliente.solicitar_factura_electronica) {
+        return {
+          slug: l.slug,
+          nombre: l.nombre,
+          cantidad: l.cantidad,
+          precio_unitario: l.precio_unitario,
+          excluido_iva: true,
+        };
+      }
+      if (!producto) throw new Error(`Producto sin configuracion fiscal: ${l.slug}`);
+      const tarifaIva = producto.excluido_iva ? 0 : Number(producto.tarifa_iva_pct);
+      if (!producto.excluido_iva && (!Number.isFinite(tarifaIva) || tarifaIva < 0)) {
+        throw new Error(`Tarifa IVA invalida para producto: ${l.slug}`);
+      }
+      return {
+        slug: l.slug,
+        nombre: l.nombre,
+        cantidad: l.cantidad,
+        precio_unitario: baseNetaDesdePrecioConIva(l.precio_unitario, tarifaIva),
+        tarifa_iva_pct: tarifaIva,
+        retencion_fuente_pct:
+          producto.retencion_fuente_pct === null ? null : Number(producto.retencion_fuente_pct),
+        retencion_iva_pct:
+          producto.retencion_iva_pct === null ? null : Number(producto.retencion_iva_pct),
+        retencion_ica_pct:
+          producto.retencion_ica_pct === null ? null : Number(producto.retencion_ica_pct),
+        dian_codigo: producto.dian_codigo,
+        excluido_iva: producto.excluido_iva === true,
+      };
+    });
+    fiscalSummary = calculateFiscalSummary(lineasFiscales, fiscalCliente, {
       moneda,
       mercado,
       envio_total: 0,
       default_iva_pct: 0,
-    }
-  );
+    });
+  } catch (error) {
+    return errorResponse(
+      {
+        code: 'CONFIGURACION_FISCAL_PRODUCTO_INVALIDA',
+        message: error instanceof Error ? error.message : 'Configuracion fiscal invalida',
+      },
+      422,
+      origin
+    );
+  }
+  if (fiscalCliente.solicitar_factura_electronica && Math.abs(fiscalSummary.total - total) > 1) {
+    return errorResponse(
+      {
+        code: 'TOTAL_FISCAL_NO_CUADRA',
+        message:
+          'El total fiscal no coincide con el total ofrecido. Solicita una cotizacion revisada.',
+      },
+      422,
+      origin
+    );
+  }
   const dianDraft = buildDianInvoiceDraft({
     referencia: pedidoId,
     fiscal: fiscalSummary,

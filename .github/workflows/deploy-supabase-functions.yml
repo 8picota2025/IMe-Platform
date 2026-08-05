@@ -60,6 +60,14 @@ jobs:
           TWENTY_OWNER_ID=${{ secrets.TWENTY_OWNER_ID }}
           CRM_DIGEST_TO=${{ secrets.CRM_DIGEST_TO }}
           CRM_DIGEST_SECRET=${{ secrets.CRM_DIGEST_SECRET }}
+          SIIGO_USERNAME=${{ secrets.SIIGO_USERNAME }}
+          SIIGO_ACCESS_KEY=${{ secrets.SIIGO_ACCESS_KEY }}
+          SIIGO_PARTNER_ID=${{ secrets.SIIGO_PARTNER_ID }}
+          SIIGO_DOCUMENT_TYPE_ID=${{ secrets.SIIGO_DOCUMENT_TYPE_ID }}
+          SIIGO_SELLER_ID=${{ secrets.SIIGO_SELLER_ID }}
+          SIIGO_PAYMENT_TYPE_ID=${{ secrets.SIIGO_PAYMENT_TYPE_ID }}
+          SIIGO_ACCOUNT_GROUP_ID=${{ secrets.SIIGO_ACCOUNT_GROUP_ID }}
+          SIIGO_TAX_MAP=${{ secrets.SIIGO_TAX_MAP }}
           WHATSAPP_MODE=${{ secrets.WHATSAPP_MODE }}
           CO_DEFAULT_IVA_PCT=19
           EOF

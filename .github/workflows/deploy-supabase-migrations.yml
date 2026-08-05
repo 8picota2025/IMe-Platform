@@ -1,0 +1,33 @@
+name: Deploy Supabase Migrations
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-supabase-migrations
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Apply reviewed database migrations
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Validate migration target
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_DB_URL" || {
+            echo "Falta configurar el secret SUPABASE_DB_URL."
+            exit 1
+          }
+
+      - name: Apply reviewed migrations
+        run: supabase db push --db-url "$SUPABASE_DB_URL" --include-all --yes

@@ -2928,6 +2928,9 @@ async function cotizacionDetailView(): Promise<string> {
             <label class="admin-field"><span>IVA</span>
               <label class="admin-check"><input name="responsable_iva" type="checkbox" ${row.responsable_iva ? 'checked' : ''} ${convertida ? 'disabled' : ''} /> Responsable de IVA</label>
             </label>
+            <label class="admin-field"><span>Tratamiento tributario de la oferta</span>
+              <label class="admin-check"><input name="impuestos_incluidos" type="checkbox" ${row.impuestos_incluidos ? 'checked' : ''} ${convertida ? 'disabled' : ''} /> Los precios ofrecidos ya incluyen IVA cuando aplica</label>
+            </label>
             <label class="admin-field"><span>Moneda de la oferta</span>
               <select name="moneda" data-cotizacion-moneda ${convertida ? 'disabled' : ''}>
                 <option value="COP" ${moneda === 'COP' ? 'selected' : ''}>COP — Pesos colombianos</option>
@@ -6005,6 +6008,7 @@ function bindCotizaciones() {
         mensaje: emptyToNull(data.get('mensaje')),
         nit: emptyToNull(data.get('nit')),
         responsable_iva: data.get('responsable_iva') === 'on',
+        impuestos_incluidos: data.get('impuestos_incluidos') === 'on',
         direccion_envio: emptyToNull(data.get('direccion_envio')),
         direccion_facturacion: emptyToNull(data.get('direccion_facturacion')),
         adjuntos,
@@ -6122,6 +6126,7 @@ function bindCotizaciones() {
           mensaje: emptyToNull(datosOferta.get('mensaje')),
           nit: emptyToNull(datosOferta.get('nit')),
           responsable_iva: datosOferta.get('responsable_iva') === 'on',
+          impuestos_incluidos: datosOferta.get('impuestos_incluidos') === 'on',
           direccion_envio: emptyToNull(datosOferta.get('direccion_envio')),
           direccion_facturacion: emptyToNull(datosOferta.get('direccion_facturacion')),
           adjuntos,

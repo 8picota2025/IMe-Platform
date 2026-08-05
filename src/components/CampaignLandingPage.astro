@@ -55,7 +55,7 @@ const seedWa = buildWhatsAppUrl({
   institucion: isEn ? '[Institution]' : '[Institución]',
   ciudad: isEn ? '[City]' : '[Ciudad]',
   familia_slug: content.familia_slug,
-  tipo_slug: content.tipo_slug,
+  tipo_slug: content.tipo_slug ?? '',
   tipo_proyecto: content.projectOptions[0]?.value ?? 'orientacion',
   horizonte: 'exploracion',
   necesidad: isEn ? '[Need]' : '[Necesidad]',
@@ -339,7 +339,7 @@ const sitTitle = isEn ? 'Common project moments' : 'Momentos típicos del proyec
           locale={locale}
           campaign={content.id}
           familiaSlug={content.familia_slug}
-          tipoSlug={content.tipo_slug}
+          tipoSlug={content.tipo_slug ?? ''}
           primaryCta={content.primaryCta}
           projectOptions={content.projectOptions}
         />

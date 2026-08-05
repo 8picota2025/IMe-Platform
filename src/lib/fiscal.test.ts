@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   buildDianInvoiceDraft,
+  baseNetaDesdePrecioConIva,
   calculateFiscalSummary,
   validateClienteFiscal,
   type ClienteFiscalProfile,
@@ -25,6 +26,11 @@ describe('fiscal', () => {
       pais: 'CO',
     },
   };
+
+  it('deriva la base gravable desde un precio de oferta con IVA incluido', () => {
+    expect(baseNetaDesdePrecioConIva(119000, 19)).toBe(100000);
+    expect(baseNetaDesdePrecioConIva(100000, 0)).toBe(100000);
+  });
 
   it('calcula iva y retenciones por linea', () => {
     const fiscal = calculateFiscalSummary(

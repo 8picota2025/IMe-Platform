@@ -82,6 +82,14 @@ const DEFAULTS: Record<string, { asunto: string; html: string }> = {
     asunto: 'Confirmacion de tu pedido {{referencia}} - I-ME',
     html: '<h2>Gracias por tu compra, {{cliente_nombre}}</h2><p>Hemos recibido el pago de tu pedido <strong>{{referencia}}</strong>.</p><p>Total: <strong>{{total}} {{moneda}}</strong></p><ul>{{items_html}}</ul><p>Equipo I-ME</p>',
   },
+  factura_emitida_cliente: {
+    asunto: 'Factura electronica emitida para tu pedido {{referencia}} - I-ME',
+    html: '<h2>Hola {{cliente_nombre}}</h2><p>Tu factura electronica fue emitida para el pedido <strong>{{referencia}}</strong>.</p><p><strong>Factura:</strong> {{numero_factura}}<br><strong>CUFE:</strong> {{cufe}}</p><p>Siigo tambien enviara el documento al correo de facturacion registrado.</p><p>Equipo I-ME</p>',
+  },
+  factura_error_interna: {
+    asunto: 'Accion requerida: factura electronica {{referencia}} no emitida',
+    html: '<h2>Factura electronica no emitida</h2><p>Pedido: <strong>{{referencia}}</strong></p><p>Cliente: {{cliente_email}}</p><p>Error: {{error_factura}}</p><p>Revisa la factura en el CMS y reintenta solo despues de corregir los datos fiscales.</p>',
+  },
   cotizacion_confirmacion_cliente: {
     asunto: 'Hemos recibido tu solicitud de cotizacion - I-ME',
     html: '<h2>Hola {{cliente_nombre}}</h2><p>Recibimos tu solicitud de presupuesto y te contactaremos en breve.</p><p><strong>Referencia:</strong> {{referencia}}</p><p><strong>Resumen solicitado:</strong></p><ul>{{items_html}}</ul><p><strong>Mensaje recibido:</strong></p><pre>{{mensaje}}</pre><p>Equipo I-ME<br>ventas@i-me.com.co</p>',
