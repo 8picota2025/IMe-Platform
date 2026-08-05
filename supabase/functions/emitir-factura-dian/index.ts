@@ -1,6 +1,7 @@
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { badRequest, internalError, unauthorized, errorResponse } from '../_shared/errors.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
+import { extractBearerToken, isExactServiceRoleToken } from '../_shared/service-role-auth.ts';
 import { withTelemetry, trackEvent } from '../_shared/telemetry.ts';
 import {
   autenticar,
@@ -39,29 +40,8 @@ interface PedidoRow {
 const DIAN_TEST_MAX_COP = Number(Deno.env.get('DIAN_TEST_MAX_COP') ?? 5000);
 
 function isServiceRoleRequest(req: Request): boolean {
-  const auth = req.headers.get('authorization') ?? '';
-  const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
-  if (!token) return false;
-
-  const serviceRole = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
-  if (serviceRole && token === serviceRole) return true;
-
-  // El gateway de Supabase ya verificó la firma JWT (función con verify_jwt).
-  // Acepta también el JWT legacy service_role cuando el secret inyectado
-  // usa el formato nuevo (sb_secret_*) y no coincide byte-a-byte.
-  try {
-    const payloadPart = token.split('.')[1];
-    if (!payloadPart) return false;
-    const padded = payloadPart + '='.repeat((4 - (payloadPart.length % 4)) % 4);
-    const payload = JSON.parse(atob(padded.replace(/-/g, '+').replace(/_/g, '/'))) as {
-      role?: string;
-      ref?: string;
-    };
-    const projectRef = Deno.env.get('SUPABASE_URL')?.match(/https:\/\/([^.]+)\./)?.[1];
-    return payload.role === 'service_role' && (!projectRef || payload.ref === projectRef);
-  } catch {
-    return false;
-  }
+  const token = extractBearerToken(req.headers.get('authorization'));
+  return isExactServiceRoleToken(token);
 }
 
 /** Mapea stamp.status de Siigo al estado interno de pedidos/facturas_electronicas. */
