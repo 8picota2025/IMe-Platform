@@ -18,8 +18,9 @@ jobs:
           UA='IME-Observability-Smoke/1.0 (+https://github.com/8picota2025/IMe-Platform)'
           MAX_ATTEMPTS=4
 
-          # Retries absorb intermittent Hostinger/GHA edge timeouts that previously
-          # failed the bare `curl | grep` check after ~30s with exit 1.
+          # Hostinger publishes a broken/unreachable AAAA for i-me.com.co. GHA runners
+          # often prefer IPv6 and hang until max-time (~30s), which made the old
+          # `curl | grep` home check fail with exit 1. Force IPv4 and retry.
           smoke_check() {
             local name="$1"
             local url="$2"
@@ -29,7 +30,7 @@ jobs:
 
             while [ "$attempt" -le "$MAX_ATTEMPTS" ]; do
               echo "::group::${name} attempt ${attempt}/${MAX_ATTEMPTS}"
-              if curl -fsSL \
+              if curl -4 -fsSL \
                 --connect-timeout 10 \
                 --max-time 30 \
                 --retry 2 \

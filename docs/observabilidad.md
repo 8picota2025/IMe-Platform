@@ -101,7 +101,7 @@ Dashboard CMS:
   - home publica con keyword `I-ME`
   - `sitemap-index.xml`
   - `health` de Supabase
-- Cada check reintenta hasta 4 veces (con backoff y `curl --retry`) para absorber timeouts intermitentes GHA → Hostinger; falla solo si todos los intentos fallan.
+- Cada check fuerza IPv4 (`curl -4`) porque el AAAA de Hostinger es inalcanzable y los runners de GHA colgaban ~30s en IPv6; además reintenta hasta 4 veces con backoff.
 - Si se desean alertas por correo/SMS fuera de GitHub, queda pendiente configurar UptimeRobot o BetterStack con credenciales del cliente.
 
 ## Verificaciones
