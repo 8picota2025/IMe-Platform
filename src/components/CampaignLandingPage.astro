@@ -46,6 +46,9 @@ const financiacionHref = isEn ? '/en/financing/' : '/es/financiacion/';
 const proyectosHref = isEn ? '/en/projects/' : '/es/proyectos/';
 const homeHref = isEn ? '/en/' : '/es/';
 const productBase = isEn ? '/en/products/' : '/es/productos/';
+const hubHref = content.hubPath ?? proyectosHref;
+const hubLabel = content.hubLabel ?? (isEn ? 'Projects' : 'Proyectos');
+const typologies = content.typologies ?? [];
 
 const seedWa = buildWhatsAppUrl({
   nombre: isEn ? '[Name]' : '[Nombre]',
@@ -62,7 +65,7 @@ const seedWa = buildWhatsAppUrl({
 
 const crumbs = [
   { name: isEn ? 'Home' : 'Inicio', url: `https://i-me.com.co${homeHref}` },
-  { name: isEn ? 'Projects' : 'Proyectos', url: `https://i-me.com.co${proyectosHref}` },
+  { name: hubLabel, url: `https://i-me.com.co${hubHref}` },
   { name: content.tag, url: `https://i-me.com.co${path}` },
 ];
 
@@ -103,7 +106,7 @@ const sitTitle = isEn ? 'Common project moments' : 'Momentos típicos del proyec
           <nav class="breadcrumb" aria-label={isEn ? 'Breadcrumb' : 'Ruta'}>
             <a href={homeHref}>{isEn ? 'Home' : 'Inicio'}</a>
             <span class="sep" aria-hidden="true">/</span>
-            <a href={proyectosHref}>{isEn ? 'Projects' : 'Proyectos'}</a>
+            <a href={hubHref}>{hubLabel}</a>
             <span class="sep" aria-hidden="true">/</span>
             <span aria-current="page">{content.tag}</span>
           </nav>
@@ -139,6 +142,48 @@ const sitTitle = isEn ? 'Common project moments' : 'Momentos típicos del proyec
         <p class="clp-lede">{content.problemBody}</p>
       </div>
     </section>
+
+    {
+      content.brandName && content.brandProfileBody ? (
+        <section class="clp-section clp-section--tint" aria-labelledby="clp-brand">
+          <div class="container clp-measure">
+            <header class="clp-section__head">
+              <p class="s-label">{isEn ? 'Brand context' : 'Contexto de marca'}</p>
+              <h2 id="clp-brand">{content.brandProfileTitle ?? content.brandName}</h2>
+            </header>
+            <p class="clp-lede">{content.brandProfileBody}</p>
+          </div>
+        </section>
+      ) : null
+    }
+
+    {
+      typologies.length > 0 ? (
+        <section class="clp-section" aria-labelledby="clp-typo">
+          <div class="container">
+            <header class="clp-section__head clp-section__head--wide">
+              <p class="s-label">{isEn ? 'Product typologies' : 'Tipologías de producto'}</p>
+              <h2 id="clp-typo">{content.typologiesTitle}</h2>
+              {content.typologiesIntro ? <p class="clp-lede">{content.typologiesIntro}</p> : null}
+            </header>
+            <div class="clp-typo">
+              {typologies.map(t => (
+                <article class="clp-typo__card">
+                  <h3>{t.name}</h3>
+                  <p>{t.body}</p>
+                  <h4>{isEn ? 'Questions institutions ask' : 'Lo que pregunta la institución'}</h4>
+                  <ul class="clp-list">
+                    {t.problems.map(p => (
+                      <li>{p}</li>
+                    ))}
+                  </ul>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null
+    }
 
     <section class="clp-section clp-section--tint" aria-labelledby="clp-solutions">
       <div class="container">
@@ -581,6 +626,50 @@ const sitTitle = isEn ? 'Common project moments' : 'Momentos típicos del proyec
       grid-template-columns: repeat(3, 1fr);
       align-items: stretch;
     }
+  }
+
+  .clp-typo {
+    display: grid;
+    gap: var(--clp-gap);
+  }
+
+  @media (min-width: 900px) {
+    .clp-typo {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .clp-typo__card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .clp-typo__card h3 {
+    margin: 0;
+    font-family: var(--font-display), 'Sora', sans-serif;
+    font-size: 1.15rem;
+    color: var(--t900);
+  }
+
+  .clp-typo__card h4 {
+    margin: 0.35rem 0 0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--t800);
+  }
+
+  .clp-typo__card > p {
+    margin: 0;
+    color: var(--text-mid);
+    line-height: 1.6;
+    font-size: 0.98rem;
   }
 
   .clp-sol {

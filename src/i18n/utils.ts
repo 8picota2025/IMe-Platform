@@ -51,6 +51,7 @@ const PATH_SEGMENT_PAIRS: Array<{ es: string; en: string }> = [
   { es: 'esterilizacion', en: 'sterilization' },
   { es: 'imagenologia', en: 'imaging' },
   { es: 'robotica-rehabilitacion', en: 'robotics-rehabilitation' },
+  { es: 'fabricantes', en: 'manufacturers' },
 ];
 
 const LEGAL_SLUG_PAIRS: Array<{ es: string; en: string }> = [

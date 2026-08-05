@@ -21,12 +21,29 @@ export interface PainSolution {
   help: string;
 }
 
+/** Tipología de producto (SEO consultivo) — sin ficha ni foto de catálogo */
+export interface TypologyItem {
+  name: string;
+  body: string;
+  problems: string[];
+}
+
 export interface CampaignLandingContent {
   id: CampaignLandingId;
   familia_slug: string;
   tipo_slug?: string;
   path: string;
   pathEn: string;
+  /** Breadcrumb hub override (p. ej. /es/fabricantes/) */
+  hubPath?: string;
+  hubLabel?: string;
+  /** Perfil de marca en texto — sin logo ni contacto del fabricante */
+  brandName?: string;
+  brandProfileTitle?: string;
+  brandProfileBody?: string;
+  typologiesTitle?: string;
+  typologiesIntro?: string;
+  typologies?: TypologyItem[];
   /** Visible eyebrow */
   tag: string;
   /** <title> + OG */
