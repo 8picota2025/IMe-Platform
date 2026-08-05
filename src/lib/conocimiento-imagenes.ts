@@ -51,14 +51,14 @@ const POR_SLUG: Record<string, ImagenArticulo> = {
     height: 506,
   },
   'avances-tecnologicos-diagnostico-tratamiento-institucional': {
-    src: '/assets/img/equipamiento-biomedico-vanguardia.webp',
-    width: 1200,
-    height: 1200,
+    src: '/assets/img/avances-tecnologicos-diagnostico-tratamiento-colombia.webp',
+    width: 1168,
+    height: 784,
   },
   'robots-asistenciales-atencion-reduccion-carga-personal': {
-    src: '/assets/img/sala-cirugia-robotica.webp',
-    width: 1400,
-    height: 788,
+    src: '/assets/img/robots-asistenciales-atencion-institucional-colombia.webp',
+    width: 1168,
+    height: 784,
   },
 };
 
