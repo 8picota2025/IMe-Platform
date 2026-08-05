@@ -5,12 +5,24 @@
 
 export type LeadPriority = 'P1' | 'P2' | 'P3';
 
+export type FabricanteLandingId =
+  | 'fab_tuttnauer'
+  | 'fab_saikang'
+  | 'fab_angell'
+  | 'fab_northern'
+  | 'fab_ilumitec'
+  | 'fab_perlong'
+  | 'fab_bm'
+  | 'fab_advanced'
+  | 'fab_m';
+
 export type CampaignLandingId =
   | 'torres_laparoscopia'
   | 'esterilizacion'
   | 'imagenologia'
   | 'robotica_rehabilitacion'
-  | 'proyectos';
+  | 'proyectos'
+  | FabricanteLandingId;
 
 export type HorizonteCompra = '0-3' | '4-12' | 'exploracion';
 
@@ -79,6 +91,7 @@ export function buildWhatsAppMessage(input: CommercialLeadInput): string {
     `Hola, soy ${input.nombre.trim()}${input.cargo?.trim() ? ` (${input.cargo.trim()})` : ''} de ${input.institucion.trim()} en ${input.ciudad.trim()}.`,
     `Familia: ${input.familia_slug}.`,
     input.tipo_slug ? `Tipo: ${input.tipo_slug}.` : null,
+    input.campaign.startsWith('fab_') ? `Campaña fabricante: ${input.campaign}.` : null,
     `Proyecto: ${input.tipo_proyecto}.`,
     `Horizonte: ${input.horizonte}.`,
     input.presupuesto_estado ? `Presupuesto/financiación: ${input.presupuesto_estado}.` : null,

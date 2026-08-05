@@ -1,0 +1,184 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { listFabricanteLandings } from '../../../data/fabricante-landings';
+import { buildPageTitle, buildCanonical, getInstitutionalOgImage } from '../../../lib/seo';
+import '../../../styles/site-faithful.css';
+
+const locale = 'en' as const;
+const landings = listFabricanteLandings(locale);
+const title = buildPageTitle('Biomedical manufacturers — advantages & projects with I-ME');
+const description =
+  'Manufacturer landings: Tuttnauer, Saikang, Angell, Northern Meditec, Ilumitec, Perlong, BM, Advanced and M. Real institutional problems, product advantages and I-ME advisory in Colombia.';
+const canonical = buildCanonical('/en/manufacturers');
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  locale={locale}
+  currentPath="/en/manufacturers"
+  ogImage={getInstitutionalOgImage()}
+>
+  <div class="site-faithful fab-hub">
+    <header class="page-hero">
+      <div class="container">
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          <a href="/en/">Home</a><span class="sep">/</span><span aria-current="page"
+            >Manufacturers</span
+          >
+        </nav>
+        <p class="fab-eyebrow">Catalog partners</p>
+        <h1>Manufacturers explained in institutional language</h1>
+        <p class="ph-sub">
+          Each brand with logo, product profile and the problems it solves in OR, CSSD, imaging,
+          wards or IV therapy. Contact I-ME only — no manufacturer contact data.
+        </p>
+        <p class="fab-link-proy">
+          Prefer project type? <a href="/en/projects/">See projects hub →</a>
+        </p>
+      </div>
+    </header>
+
+    <section class="fab-grid-wrap">
+      <div class="container">
+        <div class="fab-grid">
+          {
+            landings.map(l => (
+              <a class="fab-card" href={l.pathEn}>
+                <div class="fab-card__logo">
+                  {l.manufacturer ? (
+                    <img
+                      src={l.manufacturer.logo}
+                      alt={l.manufacturer.logoAlt}
+                      width="180"
+                      height="72"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : null}
+                </div>
+                <p class="fab-card__tag">{l.tag}</p>
+                <h2>{l.manufacturer?.name ?? l.h1}</h2>
+                <p>{l.lead}</p>
+                <span class="fab-card__cta">{l.primaryCta} →</span>
+              </a>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+  </div>
+</Layout>
+
+<style>
+  .fab-hub .page-hero {
+    padding: calc(5.5rem + 20px) 0 3.25rem;
+  }
+  .fab-hub .page-hero h1 {
+    max-width: 18ch;
+    margin-bottom: 1.15rem;
+  }
+  .fab-hub .ph-sub {
+    max-width: 42ch;
+    margin: 0;
+  }
+  .fab-eyebrow {
+    display: inline-block;
+    font-family: var(--font-display), 'Sora', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--t900);
+    background: var(--t100);
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    margin: 0 0 1.15rem;
+  }
+  .fab-link-proy {
+    margin: 1.25rem 0 0;
+    font-size: 0.95rem;
+  }
+  .fab-link-proy a {
+    color: var(--t800);
+    font-weight: 600;
+  }
+  .fab-grid-wrap {
+    padding-block: clamp(3rem, 5vw, 5rem);
+  }
+  .fab-grid {
+    display: grid;
+    gap: 1.35rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 700px) {
+    .fab-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 1100px) {
+    .fab-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .fab-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    padding: 1.35rem 1.4rem 1.5rem;
+    border: 1px solid color-mix(in srgb, var(--t300) 70%, transparent);
+    background: #fff;
+    text-decoration: none;
+    color: inherit;
+    transition:
+      border-color 0.2s ease,
+      transform 0.2s ease;
+  }
+  .fab-card:hover {
+    border-color: var(--t600);
+    transform: translateY(-2px);
+  }
+  .fab-card__logo {
+    min-height: 3.5rem;
+    display: flex;
+    align-items: center;
+  }
+  .fab-card__logo img {
+    max-height: 2.75rem;
+    width: auto;
+    max-width: 10rem;
+    object-fit: contain;
+  }
+  .fab-card__tag {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--t800);
+  }
+  .fab-card h2 {
+    margin: 0;
+    font-family: var(--font-display), 'Sora', sans-serif;
+    font-size: 1.25rem;
+    color: var(--t900);
+  }
+  .fab-card p {
+    margin: 0;
+    color: var(--text-mid);
+    line-height: 1.55;
+    font-size: 0.95rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .fab-card__cta {
+    margin-top: auto;
+    padding-top: 0.5rem;
+    font-weight: 700;
+    color: var(--t800);
+    font-size: 0.9rem;
+  }
+</style>

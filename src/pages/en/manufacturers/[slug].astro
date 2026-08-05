@@ -1,0 +1,24 @@
+---
+import CampaignLandingPage from '../../../components/CampaignLandingPage.astro';
+import {
+  getFabricanteLanding,
+  getFabricanteLandingIdBySlug,
+  listFabricanteSlugs,
+} from '../../../data/fabricante-landings';
+import { getProductosBySlugs } from '../../../lib/datos';
+
+export function getStaticPaths() {
+  return listFabricanteSlugs().map(slug => ({ params: { slug } }));
+}
+
+const locale = 'en' as const;
+const slug = Astro.params.slug!;
+const id = getFabricanteLandingIdBySlug(slug);
+if (!id) {
+  return Astro.redirect('/en/manufacturers/');
+}
+const content = getFabricanteLanding(id, locale);
+const productos = await getProductosBySlugs(content.productSlugs, locale);
+---
+
+<CampaignLandingPage locale={locale} content={content} productos={productos} />
