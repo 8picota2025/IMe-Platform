@@ -1,0 +1,919 @@
+---
+/**
+ * Landing consultiva B2B — visual alineado a servicios/home I-ME (site-faithful).
+ * Problema → solución, SEO on-page, FAQ JSON-LD, tono de asesor biomédico.
+ */
+import Layout from '../layouts/Layout.astro';
+import LeadQualificationForm from './LeadQualificationForm.astro';
+import type { Locale } from '../i18n/utils';
+import type { CampaignLandingContent } from '../data/comercial-landings';
+import type { Producto } from '../lib/datos';
+import {
+  buildPageTitle,
+  buildCanonical,
+  getInstitutionalOgImage,
+  buildFaqJsonLd,
+  buildBreadcrumbJsonLd,
+  buildOrganizationJsonLd,
+  combineJsonLd,
+} from '../lib/seo';
+import { buildWhatsAppUrl } from '../lib/comercial-leads';
+import '../styles/site-faithful.css';
+
+interface Props {
+  locale: Locale;
+  content: CampaignLandingContent;
+  productos: Producto[];
+}
+
+const { locale, content, productos } = Astro.props;
+const isEn = locale === 'en';
+const title = buildPageTitle(
+  content.title
+    .replace(/\s*\|\s*Asesoría I-ME.*$/i, '')
+    .replace(/\s*\|\s*I-ME.*$/i, '')
+    .replace(/\s*\|\s*I-ME advisory.*$/i, '')
+    .trim()
+);
+const path = locale === 'en' ? content.pathEn : content.path;
+const canonical = buildCanonical(path);
+const currentPath = path.replace(/\/$/, '');
+const catalogBase = isEn ? '/en/catalog/' : '/es/catalogo/';
+const catalogHref = content.catalogFilter
+  ? `${catalogBase}?familia=${encodeURIComponent(content.catalogFilter)}`
+  : catalogBase;
+const financiacionHref = isEn ? '/en/financing/' : '/es/financiacion/';
+const proyectosHref = isEn ? '/en/projects/' : '/es/proyectos/';
+const homeHref = isEn ? '/en/' : '/es/';
+const productBase = isEn ? '/en/products/' : '/es/productos/';
+
+const seedWa = buildWhatsAppUrl({
+  nombre: isEn ? '[Name]' : '[Nombre]',
+  institucion: isEn ? '[Institution]' : '[Institución]',
+  ciudad: isEn ? '[City]' : '[Ciudad]',
+  familia_slug: content.familia_slug,
+  tipo_slug: content.tipo_slug,
+  tipo_proyecto: content.projectOptions[0]?.value ?? 'orientacion',
+  horizonte: 'exploracion',
+  necesidad: isEn ? '[Need]' : '[Necesidad]',
+  consentimiento: true,
+  campaign: content.id,
+});
+
+const crumbs = [
+  { name: isEn ? 'Home' : 'Inicio', url: `https://i-me.com.co${homeHref}` },
+  { name: isEn ? 'Projects' : 'Proyectos', url: `https://i-me.com.co${proyectosHref}` },
+  { name: content.tag, url: `https://i-me.com.co${path}` },
+];
+
+const jsonLd = combineJsonLd(
+  buildOrganizationJsonLd(),
+  buildBreadcrumbJsonLd(crumbs),
+  buildFaqJsonLd(content.faqs),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: content.h1,
+    description: content.description,
+    provider: { '@type': 'Organization', name: 'I-ME International Medical Enterprise' },
+    areaServed: 'CO',
+    url: `https://i-me.com.co${path}`,
+    serviceType: content.tag,
+  }
+);
+
+const yesTitle = isEn ? 'This page is for you if…' : 'Esta página es para usted si…';
+const noTitle = isEn ? 'Probably not if…' : 'Tal vez no es para usted si…';
+const sitTitle = isEn ? 'Common project moments' : 'Momentos típicos del proyecto';
+---
+
+<Layout
+  title={title}
+  description={content.description}
+  canonical={canonical}
+  locale={locale}
+  currentPath={currentPath}
+  ogImage={getInstitutionalOgImage()}
+  jsonLd={jsonLd}
+>
+  <div class="site-faithful clp">
+    <header class="clp-hero" aria-labelledby="clp-h1">
+      <div class="container clp-hero__grid">
+        <div class="clp-hero__copy">
+          <nav class="breadcrumb" aria-label={isEn ? 'Breadcrumb' : 'Ruta'}>
+            <a href={homeHref}>{isEn ? 'Home' : 'Inicio'}</a>
+            <span class="sep" aria-hidden="true">/</span>
+            <a href={proyectosHref}>{isEn ? 'Projects' : 'Proyectos'}</a>
+            <span class="sep" aria-hidden="true">/</span>
+            <span aria-current="page">{content.tag}</span>
+          </nav>
+          <p class="clp-eyebrow">{content.tag}</p>
+          <h1 id="clp-h1">{content.h1}</h1>
+          <p class="clp-lead">{content.lead}</p>
+          <div class="clp-hero-actions">
+            <a class="btn btn-primary" href={`#${content.id}-form`}>{content.primaryCta}</a>
+            <a class="btn btn-secondary" href={seedWa} target="_blank" rel="noopener noreferrer">
+              {content.secondaryCta}
+            </a>
+          </div>
+        </div>
+        <figure class="clp-hero__media">
+          <img
+            src={content.heroImage}
+            alt={content.heroImageAlt}
+            width="960"
+            height="720"
+            fetchpriority="high"
+            decoding="async"
+          />
+        </figure>
+      </div>
+    </header>
+
+    <section class="clp-section" aria-labelledby="clp-problem">
+      <div class="container clp-measure">
+        <header class="clp-section__head">
+          <p class="s-label">{isEn ? 'The real problem' : 'El problema real'}</p>
+          <h2 id="clp-problem">{content.problemTitle}</h2>
+        </header>
+        <p class="clp-lede">{content.problemBody}</p>
+      </div>
+    </section>
+
+    <section class="clp-section clp-section--tint" aria-labelledby="clp-solutions">
+      <div class="container">
+        <header class="clp-section__head clp-section__head--wide">
+          <p class="s-label">{isEn ? 'Practical help' : 'Ayuda práctica'}</p>
+          <h2 id="clp-solutions">{content.solutionsTitle}</h2>
+        </header>
+        <div class="clp-solutions">
+          {
+            content.solutions.map((s, i) => (
+              <article class="clp-sol">
+                <span class="clp-sol__n" aria-hidden="true">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <h3>{s.pain}</h3>
+                <p>{s.help}</p>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="clp-section" aria-labelledby="clp-aud">
+      <div class="container clp-split">
+        <div class="clp-split__col">
+          <h2 id="clp-aud">{yesTitle}</h2>
+          <ul class="clp-list">
+            {content.audienceYes.map(item => <li>{item}</li>)}
+          </ul>
+        </div>
+        <div class="clp-split__col clp-split__col--muted">
+          <h2>{noTitle}</h2>
+          <ul class="clp-list">
+            {content.audienceNo.map(item => <li>{item}</li>)}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="clp-section clp-section--tint" aria-labelledby="clp-sit">
+      <div class="container">
+        <header class="clp-section__head clp-section__head--wide">
+          <h2 id="clp-sit">{sitTitle}</h2>
+        </header>
+        <div class="clp-moments">
+          {
+            content.situations.map(s => (
+              <article>
+                <h3>{s.title}</h3>
+                <p>{s.body}</p>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    {
+      productos.length > 0 && (
+        <section class="clp-section" aria-labelledby="clp-apps">
+          <div class="container">
+            <header class="clp-section__head clp-section__head--wide">
+              <p class="s-label">{isEn ? 'Catalog' : 'Catálogo'}</p>
+              <h2 id="clp-apps">{content.productsTitle}</h2>
+              <p class="clp-lede">{content.productsNote}</p>
+            </header>
+            <div class="clp-products">
+              {productos.map(p => (
+                <a class="clp-product" href={`${productBase}${p.slug}/`}>
+                  <div class="clp-product__media">
+                    {p.imagen_principal ? (
+                      <img
+                        src={p.imagen_principal}
+                        alt=""
+                        width="480"
+                        height="360"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : null}
+                  </div>
+                  <div class="clp-product__body">
+                    <h3>{p.nombre}</h3>
+                    <p>{p.descripcion_corta}</p>
+                    <span class="clp-product__link">
+                      {isEn ? 'Open product sheet' : 'Ver ficha del producto'}
+                    </span>
+                  </div>
+                </a>
+              ))}
+            </div>
+            <p class="clp-catalog-link">
+              <a href={catalogHref}>{content.tertiaryCta}</a>
+            </p>
+          </div>
+        </section>
+      )
+    }
+
+    <section class="clp-section clp-section--tint" aria-labelledby="clp-scope">
+      <div class="container clp-split">
+        <div class="clp-split__col">
+          <h2 id="clp-scope">{content.scopeTitle}</h2>
+          <ul class="clp-list">
+            {content.scope.map(item => <li>{item}</li>)}
+          </ul>
+        </div>
+        <div class="clp-split__col">
+          <h2 id="clp-req">{content.requirementsTitle}</h2>
+          <ul class="clp-list">
+            {content.requirements.map(item => <li>{item}</li>)}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="clp-section" aria-labelledby="clp-fin">
+      <div class="container clp-soft-grid">
+        <div class="clp-soft">
+          <h2 id="clp-fin">{isEn ? 'Financing' : 'Financiación'}</h2>
+          <p>{content.financingNote}</p>
+          <a class="btn btn-secondary" href={financiacionHref}
+            >{isEn ? 'See financing options' : 'Ver opciones de financiación'}</a
+          >
+        </div>
+        <div class="clp-soft clp-soft--quiet">
+          <h2>{isEn ? 'What we can (and cannot) claim' : 'Qué sí podemos decir — y qué no'}</h2>
+          <p>{content.evidenceNote}</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="clp-section clp-section--tint" aria-labelledby="clp-proc">
+      <div class="container clp-measure">
+        <header class="clp-section__head">
+          <h2 id="clp-proc">{content.processTitle}</h2>
+        </header>
+        <ol class="clp-steps">
+          {content.processSteps.map(step => <li>{step}</li>)}
+        </ol>
+      </div>
+    </section>
+
+    <section class="clp-section" aria-labelledby="clp-form-title" id={`${content.id}-form`}>
+      <div class="container clp-form-wrap">
+        <header class="clp-section__head">
+          <p class="s-label">{isEn ? 'Next step' : 'Siguiente paso'}</p>
+          <h2 id="clp-form-title">{content.primaryCta}</h2>
+          <p class="clp-lede">{content.formIntro}</p>
+        </header>
+        <LeadQualificationForm
+          locale={locale}
+          campaign={content.id}
+          familiaSlug={content.familia_slug}
+          tipoSlug={content.tipo_slug}
+          primaryCta={content.primaryCta}
+          projectOptions={content.projectOptions}
+        />
+      </div>
+    </section>
+
+    <section class="clp-section clp-section--tint" aria-labelledby="clp-faq">
+      <div class="container clp-measure">
+        <header class="clp-section__head">
+          <h2 id="clp-faq">
+            {isEn ? 'Questions we hear every week' : 'Preguntas que escuchamos cada semana'}
+          </h2>
+        </header>
+        <div class="clp-faq">
+          {
+            content.faqs.map(f => (
+              <details>
+                <summary>{f.q}</summary>
+                <p>{f.a}</p>
+              </details>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="clp-bottom-cta" aria-label={isEn ? 'Contact' : 'Contacto'}>
+      <div class="container clp-bottom-cta__inner">
+        <h2>
+          {
+            isEn
+              ? 'Still unsure? Write us in your own words.'
+              : '¿Aún con dudas? Escríbanos con sus propias palabras.'
+          }
+        </h2>
+        <p>
+          {
+            isEn
+              ? 'WhatsApp +57 310 333 2607 · info@i-me.com.co'
+              : 'WhatsApp +57 310 333 2607 · info@i-me.com.co'
+          }
+        </p>
+        <a class="btn btn-primary" href={seedWa} target="_blank" rel="noopener noreferrer"
+          >{content.secondaryCta}</a
+        >
+      </div>
+    </section>
+  </div>
+</Layout>
+
+<style>
+  /* —— Layout rhythm (UI/UX Pro Max: whitespace, hierarchy, touch gaps) —— */
+  .clp {
+    --clp-space-xs: 0.5rem;
+    --clp-space-sm: 1rem;
+    --clp-space-md: 1.5rem;
+    --clp-space-lg: 2.5rem;
+    --clp-space-xl: 4rem;
+    --clp-space-2xl: clamp(4.5rem, 8vw, 7rem);
+    --clp-measure: 38rem;
+    --clp-gap: 1.75rem;
+  }
+
+  .clp .container {
+    max-width: 1120px;
+  }
+
+  /* Hero: copy | media — foto de cabecera dominante */
+  .clp-hero {
+    padding: calc(4.75rem + 32px) 0 clamp(2.75rem, 5vw, 4rem);
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .clp-hero__grid {
+    display: grid;
+    gap: clamp(1.75rem, 3.5vw, 3rem);
+    align-items: center;
+  }
+
+  @media (min-width: 960px) {
+    .clp-hero__grid {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: clamp(2rem, 4vw, 3.25rem);
+      min-height: clamp(26rem, 52vh, 34rem);
+    }
+  }
+
+  .clp-hero__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    max-width: 36rem;
+    padding-block: 0.5rem;
+  }
+
+  .clp-hero__copy .breadcrumb {
+    margin: 0 0 1rem;
+  }
+
+  .clp-eyebrow {
+    display: inline-block;
+    font-family: var(--font-display), 'Sora', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--t900);
+    background: var(--t100);
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    margin: 0 0 1.1rem;
+  }
+
+  .clp-hero h1 {
+    font-family: var(--font-display), 'Sora', sans-serif;
+    font-size: clamp(1.85rem, 3.6vw, 2.65rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.14;
+    color: var(--ink);
+    margin: 0 0 1.25rem;
+    max-width: 15ch;
+  }
+
+  .clp-lead {
+    margin: 0;
+    font-size: 1.0625rem;
+    line-height: 1.75;
+    color: var(--text-mid);
+    max-width: 38ch;
+  }
+
+  .clp-hero-actions {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1.85rem;
+    width: 100%;
+  }
+
+  .clp-hero-actions .btn {
+    min-height: 48px;
+    padding-inline: 1.1rem;
+    width: auto;
+    flex: 0 1 auto;
+    white-space: nowrap;
+    text-align: center;
+    line-height: 1.2;
+    font-size: 0.92rem;
+  }
+
+  @media (max-width: 1100px) and (min-width: 960px) {
+    .clp-hero-actions {
+      flex-wrap: wrap;
+    }
+  }
+
+  .clp-hero__media {
+    margin: 0;
+    border-radius: clamp(1rem, 2vw, 1.75rem);
+    overflow: hidden;
+    background: var(--off2);
+    width: 100%;
+    height: 100%;
+    min-height: clamp(22rem, 50vh, 34rem);
+    box-shadow: var(--shadow-md);
+    align-self: stretch;
+  }
+
+  .clp-hero__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+  }
+
+  @media (max-width: 959px) {
+    .clp-hero {
+      padding-top: calc(4.5rem + 12px);
+      padding-bottom: 2rem;
+    }
+    .clp-hero__grid {
+      gap: 1.5rem;
+    }
+    .clp-hero__media {
+      order: 2;
+      min-height: clamp(15rem, 48vw, 22rem);
+      height: clamp(15rem, 48vw, 22rem);
+      align-self: stretch;
+    }
+    .clp-hero__copy {
+      order: 1;
+      max-width: none;
+      padding-block: 0;
+    }
+    .clp-hero h1 {
+      max-width: none;
+      margin-bottom: 1.1rem;
+    }
+    .clp-lead {
+      max-width: 42ch;
+    }
+    .clp-hero-actions {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+    .clp-hero-actions .btn {
+      width: 100%;
+      white-space: normal;
+    }
+  }
+
+  /* Sections */
+  .clp-section {
+    padding-block: clamp(3.5rem, 6vw, 5.5rem);
+  }
+
+  .clp-section--tint {
+    background: var(--off);
+  }
+
+  .clp-measure {
+    max-width: var(--clp-measure);
+  }
+
+  .clp-section__head {
+    margin-bottom: var(--clp-space-md);
+  }
+
+  .clp-section__head--wide {
+    max-width: 40rem;
+    margin-bottom: var(--clp-space-lg);
+  }
+
+  .clp-section__head .s-label {
+    margin: 0 0 0.75rem;
+  }
+
+  .clp-section__head h2,
+  .clp-split__col h2,
+  .clp-soft h2 {
+    font-family: var(--font-display), 'Sora', sans-serif;
+    color: var(--ink);
+    margin: 0;
+    font-size: clamp(1.4rem, 2.2vw, 1.85rem);
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+
+  .clp-section__head .clp-lede {
+    margin-top: var(--clp-space-sm);
+  }
+
+  .clp-lede {
+    font-size: 1.0625rem;
+    line-height: 1.75;
+    color: var(--text-mid);
+    margin: 0;
+  }
+
+  .s-label {
+    font-family: var(--font-display), 'Sora', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--t900);
+  }
+
+  /* Solutions */
+  .clp-solutions {
+    display: grid;
+    gap: var(--clp-gap);
+  }
+
+  @media (min-width: 900px) {
+    .clp-solutions {
+      grid-template-columns: repeat(3, 1fr);
+      align-items: stretch;
+    }
+  }
+
+  .clp-sol {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    min-height: 100%;
+  }
+
+  .clp-sol__n {
+    font-family: var(--font-display), 'Sora', sans-serif;
+    font-weight: 800;
+    color: var(--blue);
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+  }
+
+  .clp-sol h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    color: var(--ink);
+    line-height: 1.35;
+  }
+
+  .clp-sol p {
+    margin: 0;
+    color: var(--text-mid);
+    line-height: 1.65;
+    font-size: 0.95rem;
+    flex: 1;
+  }
+
+  /* Split columns — aligned tops */
+  .clp-split {
+    display: grid;
+    gap: var(--clp-space-xl);
+  }
+
+  @media (min-width: 860px) {
+    .clp-split {
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(2.5rem, 5vw, 4rem);
+      align-items: start;
+    }
+  }
+
+  .clp-split__col--muted h2 {
+    font-size: clamp(1.25rem, 2vw, 1.55rem);
+  }
+
+  .clp-list {
+    margin: var(--clp-space-md) 0 0;
+    padding-left: 1.2rem;
+    display: grid;
+    gap: 0.75rem;
+    color: var(--text);
+    line-height: 1.55;
+  }
+
+  /* Moments */
+  .clp-moments {
+    display: grid;
+    gap: var(--clp-gap);
+  }
+
+  @media (min-width: 860px) {
+    .clp-moments {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .clp-moments article {
+    padding: 1.5rem 1.4rem 1.5rem 1.25rem;
+    border-left: 3px solid var(--t900);
+    background: var(--white);
+    border-radius: 0 var(--radius) var(--radius) 0;
+  }
+
+  .clp-moments h3 {
+    margin: 0 0 0.6rem;
+    font-size: 1.05rem;
+    color: var(--ink);
+  }
+
+  .clp-moments p {
+    margin: 0;
+    color: var(--text-mid);
+    line-height: 1.6;
+  }
+
+  /* Products */
+  .clp-products {
+    display: grid;
+    gap: var(--clp-gap);
+  }
+
+  @media (min-width: 800px) {
+    .clp-products {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .clp-product {
+    display: grid;
+    grid-template-rows: 11.5rem auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--white);
+    text-decoration: none;
+    color: inherit;
+    box-shadow: var(--shadow-sm);
+    transition:
+      transform 220ms var(--ease),
+      box-shadow 220ms var(--ease);
+  }
+
+  .clp-product:hover,
+  .clp-product:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    outline: none;
+  }
+
+  .clp-product__media {
+    background: var(--off2);
+    display: grid;
+    place-items: center;
+    padding: 1.25rem;
+  }
+
+  .clp-product__media img {
+    max-height: 8.5rem;
+    width: auto;
+    object-fit: contain;
+  }
+
+  .clp-product__body {
+    padding: 1.35rem 1.4rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+
+  .clp-product h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    color: var(--t900);
+    line-height: 1.3;
+  }
+
+  .clp-product p {
+    margin: 0;
+    color: var(--text-mid);
+    font-size: 0.9rem;
+    line-height: 1.55;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .clp-product__link {
+    font-family: var(--font-display), 'Sora', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--t900);
+    margin-top: 0.35rem;
+  }
+
+  .clp-catalog-link {
+    margin: var(--clp-space-lg) 0 0;
+  }
+
+  .clp-catalog-link a {
+    color: var(--t900);
+    font-weight: 600;
+  }
+
+  .clp-soft-grid {
+    display: grid;
+    gap: var(--clp-gap);
+  }
+
+  @media (min-width: 860px) {
+    .clp-soft-grid {
+      grid-template-columns: 1fr 1fr;
+      align-items: stretch;
+    }
+  }
+
+  .clp-soft {
+    padding: 2rem 1.75rem;
+    border-radius: var(--radius-lg);
+    background: var(--t50);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: var(--clp-space-md);
+  }
+
+  .clp-soft--quiet {
+    background: var(--off);
+  }
+
+  .clp-soft p {
+    color: var(--text-mid);
+    line-height: 1.7;
+    margin: 0;
+    flex: 1;
+  }
+
+  .clp-soft .btn {
+    align-self: flex-start;
+    min-height: 44px;
+  }
+
+  .clp-steps {
+    margin: 0;
+    padding-left: 1.25rem;
+    display: grid;
+    gap: 0.85rem;
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  .clp-form-wrap {
+    max-width: 40rem;
+  }
+
+  .clp-form-wrap .clp-section__head {
+    margin-bottom: var(--clp-space-lg);
+  }
+
+  .clp-faq {
+    display: grid;
+    gap: 0;
+    margin-top: var(--clp-space-sm);
+  }
+
+  .clp-faq details {
+    border-bottom: 1px solid var(--border);
+    padding: 1.15rem 0;
+  }
+
+  .clp-faq summary {
+    cursor: pointer;
+    font-family: var(--font-display), 'Sora', sans-serif;
+    font-weight: 600;
+    color: var(--ink);
+    list-style: none;
+    line-height: 1.4;
+    padding-right: 2rem;
+    position: relative;
+  }
+
+  .clp-faq summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .clp-faq summary::after {
+    content: '+';
+    position: absolute;
+    right: 0;
+    top: 0;
+    color: var(--t900);
+    font-weight: 700;
+  }
+
+  .clp-faq details[open] summary::after {
+    content: '–';
+  }
+
+  .clp-faq p {
+    margin: 0.85rem 0 0.15rem;
+    color: var(--text-mid);
+    line-height: 1.65;
+    max-width: 58ch;
+  }
+
+  .clp-bottom-cta {
+    background: linear-gradient(145deg, var(--t900), var(--t700));
+    color: #fff;
+    padding-block: var(--clp-space-2xl);
+    text-align: center;
+  }
+
+  .clp-bottom-cta__inner {
+    max-width: 36rem;
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--clp-space-md);
+  }
+
+  .clp-bottom-cta h2 {
+    color: #fff;
+    font-family: var(--font-display), 'Sora', sans-serif;
+    font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+    line-height: 1.25;
+    margin: 0;
+    max-width: 22ch;
+  }
+
+  .clp-bottom-cta p {
+    color: rgba(255, 255, 255, 0.88);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .clp-bottom-cta .btn-primary {
+    background: #fff;
+    color: var(--t900);
+    min-height: 48px;
+    margin-top: var(--clp-space-xs);
+  }
+
+  .clp-bottom-cta .btn-primary:hover {
+    background: var(--t50);
+    color: var(--t900);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .clp-product {
+      transition: none;
+    }
+    .clp-product:hover {
+      transform: none;
+    }
+  }
+</style>

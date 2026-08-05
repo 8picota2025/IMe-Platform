@@ -1,0 +1,186 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { listCampaignLandings } from '../../../data/comercial-landings';
+import { buildPageTitle, buildCanonical, getInstitutionalOgImage } from '../../../lib/seo';
+import '../../../styles/site-faithful.css';
+
+const locale = 'es' as const;
+const landings = listCampaignLandings(locale);
+const title = buildPageTitle('Proyectos biomédicos para su institución');
+const description =
+  'Torres de laparoscopia, esterilización, imagenología y robótica: elija el proyecto y reciba orientación de un asesor I-ME — sin catálogo genérico.';
+const canonical = buildCanonical('/es/proyectos');
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  locale={locale}
+  currentPath="/es/proyectos"
+  ogImage={getInstitutionalOgImage()}
+>
+  <div class="site-faithful proy-page">
+    <header class="page-hero">
+      <div class="container">
+        <nav class="breadcrumb" aria-label="Ruta">
+          <a href="/es/">Inicio</a><span class="sep">/</span><span aria-current="page"
+            >Proyectos</span
+          >
+        </nav>
+        <p class="proy-eyebrow">Asesoría biomédica</p>
+        <h1>¿Qué le está costando sueño en su institución?</h1>
+        <p class="ph-sub">
+          Elija el hilo que más se parece a su realidad. Cada página habla el idioma del quirófano,
+          la central o el servicio de imagen — no el de un catálogo infinito.
+        </p>
+      </div>
+    </header>
+
+    <section class="proy-grid-wrap">
+      <div class="container">
+        <div class="proy-grid">
+          {
+            landings.map(l => (
+              <a class="proy-card" href={l.path}>
+                <div class="proy-card__media">
+                  <img
+                    src={l.heroImage}
+                    alt=""
+                    width="640"
+                    height="360"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+                <div class="proy-card__body">
+                  <p class="proy-card__tag">{l.tag}</p>
+                  <h2>{l.h1}</h2>
+                  <p>{l.lead}</p>
+                  <span class="proy-card__cta">{l.primaryCta} →</span>
+                </div>
+              </a>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+  </div>
+</Layout>
+
+<style>
+  .proy-page .page-hero {
+    padding: calc(5.5rem + 20px) 0 3.25rem;
+  }
+  .proy-page .page-hero h1 {
+    max-width: 16ch;
+    margin-bottom: 1.15rem;
+  }
+  .proy-page .ph-sub {
+    max-width: 40ch;
+    margin: 0;
+  }
+  .proy-eyebrow {
+    display: inline-block;
+    font-family: var(--font-display), 'Sora', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--t900);
+    background: var(--t100);
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    margin: 0 0 1.15rem;
+  }
+  .proy-grid-wrap {
+    padding-block: clamp(3.5rem, 6vw, 5.5rem);
+  }
+  .proy-grid {
+    display: grid;
+    gap: 1.75rem;
+  }
+  @media (min-width: 900px) {
+    .proy-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+  }
+  .proy-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--white);
+    text-decoration: none;
+    color: inherit;
+    box-shadow: var(--shadow-sm);
+    transition:
+      transform 220ms var(--ease),
+      box-shadow 220ms var(--ease);
+    min-height: 100%;
+  }
+  .proy-card:hover,
+  .proy-card:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    outline: none;
+  }
+  .proy-card__media {
+    height: 11rem;
+    overflow: hidden;
+    background: var(--t900);
+    flex-shrink: 0;
+  }
+  .proy-card__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .proy-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1.5rem 1.5rem 1.65rem;
+    flex: 1;
+  }
+  .proy-card__tag {
+    margin: 0;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--t900);
+    font-family: var(--font-display), 'Sora', sans-serif;
+  }
+  .proy-card h2 {
+    margin: 0;
+    font-size: 1.15rem;
+    line-height: 1.3;
+    color: var(--ink);
+    font-family: var(--font-display), 'Sora', sans-serif;
+  }
+  .proy-card p {
+    margin: 0;
+    color: var(--text-mid);
+    line-height: 1.6;
+    flex: 1;
+    font-size: 0.95rem;
+  }
+  .proy-card__cta {
+    font-weight: 700;
+    color: var(--t900);
+    font-family: var(--font-display), 'Sora', sans-serif;
+    font-size: 0.9rem;
+    margin-top: 0.35rem;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .proy-card {
+      transition: none;
+    }
+    .proy-card:hover {
+      transform: none;
+    }
+  }
+</style>

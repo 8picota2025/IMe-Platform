@@ -1,0 +1,472 @@
+---
+/**
+ * Formulario progresivo B2B para landings consultivas.
+ * Sandbox: valida, clasifica P1/P2/P3 y abre WhatsApp contextual.
+ * Persistencia Edge Function: siguiente iteración post-visto-bueno.
+ */
+import type { Locale } from '../i18n/utils';
+import type { CampaignLandingId } from '../lib/comercial-leads';
+import type { CampaignOption } from '../data/comercial-landings';
+
+interface Props {
+  locale: Locale;
+  campaign: CampaignLandingId;
+  familiaSlug: string;
+  tipoSlug?: string;
+  primaryCta: string;
+  projectOptions: CampaignOption[];
+  formId?: string;
+}
+
+const {
+  locale,
+  campaign,
+  familiaSlug,
+  tipoSlug = '',
+  primaryCta,
+  projectOptions,
+  formId = 'lead-qualification-form',
+} = Astro.props;
+
+const isEn = locale === 'en';
+const privacyHref = isEn ? '/en/legal/privacy/' : '/es/legal/privacidad/';
+const habeasHref = isEn ? '/en/legal/data-authorization/' : '/es/legal/habeas-data/';
+---
+
+<form
+  id={formId}
+  class="lqf"
+  novalidate
+  data-locale={locale}
+  data-campaign={campaign}
+  data-familia={familiaSlug}
+  data-tipo={tipoSlug}
+  aria-label={isEn ? 'Project evaluation form' : 'Formulario de evaluación de proyecto'}
+>
+  <input type="hidden" name="familia_slug" value={familiaSlug} />
+  <input type="hidden" name="tipo_slug" value={tipoSlug} />
+  <input type="hidden" name="campaign" value={campaign} />
+
+  <fieldset class="lqf-step" data-step="1">
+    <legend class="lqf-legend"
+      >{isEn ? '1 · Who is writing to us?' : '1 · ¿Quién nos escribe?'}</legend
+    >
+
+    <div class="lqf-grid">
+      <div class="lqf-field">
+        <label for={`${formId}-nombre`}
+          >{isEn ? 'Name' : 'Nombre'} <span class="req" aria-hidden="true">*</span></label
+        >
+        <input id={`${formId}-nombre`} name="nombre" type="text" autocomplete="name" required />
+      </div>
+      <div class="lqf-field">
+        <label for={`${formId}-cargo`}>{isEn ? 'Role' : 'Cargo'}</label>
+        <input
+          id={`${formId}-cargo`}
+          name="cargo"
+          type="text"
+          autocomplete="organization-title"
+          placeholder={isEn ? 'Procurement, biomedical…' : 'Compras, biomédica…'}
+        />
+      </div>
+      <div class="lqf-field">
+        <label for={`${formId}-institucion`}
+          >{isEn ? 'Institution' : 'Institución'}
+          <span class="req" aria-hidden="true">*</span></label
+        >
+        <input
+          id={`${formId}-institucion`}
+          name="institucion"
+          type="text"
+          autocomplete="organization"
+          required
+        />
+      </div>
+      <div class="lqf-field">
+        <label for={`${formId}-ciudad`}
+          >{isEn ? 'City' : 'Ciudad'} <span class="req" aria-hidden="true">*</span></label
+        >
+        <input
+          id={`${formId}-ciudad`}
+          name="ciudad"
+          type="text"
+          autocomplete="address-level2"
+          required
+        />
+      </div>
+      <div class="lqf-field">
+        <label for={`${formId}-telefono`}>{isEn ? 'Phone' : 'Teléfono'}</label>
+        <input
+          id={`${formId}-telefono`}
+          name="telefono"
+          type="tel"
+          autocomplete="tel"
+          placeholder="+57 …"
+        />
+      </div>
+      <div class="lqf-field">
+        <label for={`${formId}-email`}>{isEn ? 'Email' : 'Correo'}</label>
+        <input id={`${formId}-email`} name="email" type="email" autocomplete="email" />
+      </div>
+    </div>
+    <p class="lqf-hint">
+      {isEn ? 'Provide at least phone or email.' : 'Indica al menos teléfono o correo.'}
+    </p>
+    <button type="button" class="btn btn-primary lqf-next" data-next>
+      {isEn ? 'Continue' : 'Continuar'}
+    </button>
+  </fieldset>
+
+  <fieldset class="lqf-step is-hidden" data-step="2" hidden>
+    <legend class="lqf-legend"
+      >{isEn ? '2 · Tell us about the project' : '2 · Cuéntenos del proyecto'}</legend
+    >
+
+    <div class="lqf-grid">
+      <div class="lqf-field lqf-field--full">
+        <label for={`${formId}-tipo_proyecto`}
+          >{isEn ? 'Project type' : 'Tipo de proyecto'}
+          <span class="req" aria-hidden="true">*</span></label
+        >
+        <select id={`${formId}-tipo_proyecto`} name="tipo_proyecto" required class="lqf-select">
+          <option value="">{isEn ? 'Select…' : 'Selecciona…'}</option>
+          {projectOptions.map(opt => <option value={opt.value}>{opt.label}</option>)}
+        </select>
+      </div>
+      <div class="lqf-field">
+        <label for={`${formId}-horizonte`}
+          >{isEn ? 'Purchase horizon' : 'Horizonte de compra'}
+          <span class="req" aria-hidden="true">*</span></label
+        >
+        <select id={`${formId}-horizonte`} name="horizonte" required class="lqf-select">
+          <option value="">{isEn ? 'Select…' : 'Selecciona…'}</option>
+          <option value="0-3">{isEn ? '0–3 months' : '0–3 meses'}</option>
+          <option value="4-12">{isEn ? '4–12 months' : '4–12 meses'}</option>
+          <option value="exploracion">{isEn ? 'Early exploration' : 'Exploración temprana'}</option>
+        </select>
+      </div>
+      <div class="lqf-field">
+        <label for={`${formId}-presupuesto`}
+          >{isEn ? 'Budget / financing' : 'Presupuesto / financiación'}</label
+        >
+        <select id={`${formId}-presupuesto`} name="presupuesto_estado" class="lqf-select">
+          <option value="">{isEn ? 'Select…' : 'Selecciona…'}</option>
+          <option value="definido">{isEn ? 'Budget defined' : 'Presupuesto definido'}</option>
+          <option value="financiacion"
+            >{isEn ? 'Exploring financing' : 'Buscando financiación'}</option
+          >
+          <option value="no_definido">{isEn ? 'Not defined yet' : 'Aún no definido'}</option>
+        </select>
+      </div>
+      <div class="lqf-field lqf-field--full">
+        <label for={`${formId}-necesidad`}
+          >{isEn ? 'Concrete need' : 'Necesidad concreta'}
+          <span class="req" aria-hidden="true">*</span></label
+        >
+        <textarea
+          id={`${formId}-necesidad`}
+          name="necesidad"
+          rows="3"
+          required
+          placeholder={isEn
+            ? 'E.g. second OR tower upgrade to 4K…'
+            : 'Ej. segunda sala, upgrade a 4K, autoclave 400 L…'}></textarea>
+      </div>
+    </div>
+
+    <div class="lqf-consent">
+      <label>
+        <input type="checkbox" name="consentimiento" value="1" required />
+        <span>
+          {
+            isEn ? (
+              <>
+                I authorize contact regarding this project, per the{' '}
+                <a href={privacyHref} target="_blank" rel="noopener noreferrer">
+                  privacy policy
+                </a>{' '}
+                and{' '}
+                <a href={habeasHref} target="_blank" rel="noopener noreferrer">
+                  habeas data authorization
+                </a>
+                .
+              </>
+            ) : (
+              <>
+                Autorizo el contacto sobre este proyecto, conforme a la{' '}
+                <a href={privacyHref} target="_blank" rel="noopener noreferrer">
+                  política de privacidad
+                </a>{' '}
+                y la{' '}
+                <a href={habeasHref} target="_blank" rel="noopener noreferrer">
+                  autorización de habeas data
+                </a>
+                .
+              </>
+            )
+          }
+        </span>
+      </label>
+    </div>
+
+    <div class="lqf-actions">
+      <button type="button" class="btn btn-secondary lqf-back" data-back>
+        {isEn ? 'Back' : 'Volver'}
+      </button>
+      <button type="submit" class="btn btn-primary" data-submit>
+        {primaryCta}
+      </button>
+    </div>
+  </fieldset>
+
+  <div class="lqf-status" role="status" aria-live="polite" data-status></div>
+</form>
+
+<style>
+  .lqf {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .lqf-step {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem 1.6rem 1.85rem;
+    background: var(--white);
+    margin: 0;
+  }
+  .lqf-step.is-hidden {
+    display: none;
+  }
+  .lqf-legend {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--t900);
+    padding: 0 0.35rem;
+  }
+  .lqf-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.15rem;
+    margin-block: 1.35rem;
+  }
+  @media (min-width: 720px) {
+    .lqf-grid {
+      grid-template-columns: 1fr 1fr;
+      column-gap: 1.25rem;
+      row-gap: 1.15rem;
+    }
+    .lqf-field--full {
+      grid-column: 1 / -1;
+    }
+  }
+  .lqf-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+  .lqf-field label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-family: var(--font-display);
+    color: var(--ink);
+  }
+  .req {
+    color: #c0392b;
+  }
+  .lqf-field input,
+  .lqf-field textarea,
+  .lqf-select {
+    border: 1px solid var(--border-mid);
+    border-radius: var(--radius);
+    padding: 0.8rem 1rem;
+    font: inherit;
+    color: var(--text);
+    background: var(--white);
+    width: 100%;
+    min-height: 48px;
+  }
+  .lqf-field textarea {
+    min-height: 6.5rem;
+  }
+  .lqf-field input:focus,
+  .lqf-field textarea:focus,
+  .lqf-select:focus {
+    outline: 2px solid var(--t800);
+    outline-offset: 2px;
+  }
+  .lqf-hint {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin: 0 0 1rem;
+  }
+  .lqf-consent {
+    margin: 0.25rem 0 1.25rem;
+  }
+  .lqf-consent label {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    font-size: 0.82rem;
+    color: var(--text-mid);
+    line-height: 1.5;
+    cursor: pointer;
+  }
+  .lqf-consent input {
+    margin-top: 0.2rem;
+    accent-color: var(--t900);
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+  .lqf-consent a {
+    color: var(--t900);
+    text-decoration: underline;
+  }
+  .lqf-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+  }
+  .lqf-actions .btn {
+    min-height: 48px;
+  }
+  .lqf-status {
+    min-height: 1.4rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  .lqf-status.is-ok {
+    color: #2a7d1e;
+  }
+  .lqf-status.is-err {
+    color: #c0392b;
+  }
+  .lqf-field.is-invalid input,
+  .lqf-field.is-invalid textarea,
+  .lqf-field.is-invalid select {
+    border-color: #c0392b;
+  }
+</style>
+
+<script>
+  import {
+    buildWhatsAppUrl,
+    classifyLead,
+    slaForPriority,
+    validateCommercialLead,
+    type CommercialLeadInput,
+    type HorizonteCompra,
+  } from '../lib/comercial-leads';
+
+  function initForm(form: HTMLFormElement) {
+    if (form.dataset.bound === '1') return;
+    form.dataset.bound = '1';
+
+    const locale = (form.dataset.locale === 'en' ? 'en' : 'es') as 'es' | 'en';
+    const step1 = form.querySelector<HTMLElement>('[data-step="1"]');
+    const step2 = form.querySelector<HTMLElement>('[data-step="2"]');
+    const status = form.querySelector<HTMLElement>('[data-status]');
+    const nextBtn = form.querySelector<HTMLButtonElement>('[data-next]');
+    const backBtn = form.querySelector<HTMLButtonElement>('[data-back]');
+    const submitBtn = form.querySelector<HTMLButtonElement>('[data-submit]');
+
+    function showStep(n: 1 | 2) {
+      if (!step1 || !step2) return;
+      const first = n === 1;
+      step1.hidden = !first;
+      step2.hidden = first;
+      step1.classList.toggle('is-hidden', !first);
+      step2.classList.toggle('is-hidden', first);
+    }
+
+    function read(): Partial<CommercialLeadInput> {
+      const fd = new FormData(form);
+      return {
+        nombre: String(fd.get('nombre') ?? ''),
+        cargo: String(fd.get('cargo') ?? ''),
+        institucion: String(fd.get('institucion') ?? ''),
+        ciudad: String(fd.get('ciudad') ?? ''),
+        telefono: String(fd.get('telefono') ?? ''),
+        email: String(fd.get('email') ?? ''),
+        familia_slug: String(fd.get('familia_slug') ?? form.dataset.familia ?? ''),
+        tipo_slug: String(fd.get('tipo_slug') ?? form.dataset.tipo ?? ''),
+        tipo_proyecto: String(fd.get('tipo_proyecto') ?? ''),
+        horizonte: String(fd.get('horizonte') ?? '') as HorizonteCompra,
+        presupuesto_estado: String(fd.get('presupuesto_estado') ?? ''),
+        necesidad: String(fd.get('necesidad') ?? ''),
+        consentimiento: fd.get('consentimiento') === '1',
+        campaign: (form.dataset.campaign ?? 'proyectos') as CommercialLeadInput['campaign'],
+        locale,
+      };
+    }
+
+    nextBtn?.addEventListener('click', () => {
+      const data = read();
+      const step1Check = validateCommercialLead({
+        ...data,
+        tipo_proyecto: 'pending',
+        horizonte: 'exploracion',
+        necesidad: 'pending',
+        consentimiento: true,
+      });
+      const keys = ['nombre', 'institucion', 'ciudad', 'contacto'] as const;
+      const blocked = keys.some(k => step1Check.errors[k]);
+      if (status) {
+        status.className = 'lqf-status';
+        status.textContent = '';
+      }
+      if (blocked) {
+        if (status) {
+          status.classList.add('is-err');
+          status.textContent =
+            step1Check.errors.contacto ||
+            step1Check.errors.institucion ||
+            step1Check.errors.nombre ||
+            step1Check.errors.ciudad ||
+            (locale === 'en' ? 'Complete step 1.' : 'Completa el paso 1.');
+        }
+        return;
+      }
+      showStep(2);
+    });
+
+    backBtn?.addEventListener('click', () => showStep(1));
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const data = read();
+      const result = validateCommercialLead(data);
+      if (!result.valid || !data.horizonte || !data.nombre || !data.institucion) {
+        if (status) {
+          status.className = 'lqf-status is-err';
+          status.textContent = Object.values(result.errors)[0] ?? 'Error';
+        }
+        return;
+      }
+
+      const lead = data as CommercialLeadInput;
+      const priority = classifyLead(lead.horizonte);
+      const url = buildWhatsAppUrl(lead);
+      if (status) {
+        status.className = 'lqf-status is-ok';
+        status.textContent = slaForPriority(priority, locale);
+      }
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        window.setTimeout(() => {
+          submitBtn.disabled = false;
+        }, 2500);
+      }
+      window.open(url, '_blank', 'noopener,noreferrer');
+    });
+  }
+
+  function boot() {
+    document.querySelectorAll<HTMLFormElement>('form.lqf').forEach(initForm);
+  }
+
+  boot();
+  document.addEventListener('astro:page-load', boot);
+</script>

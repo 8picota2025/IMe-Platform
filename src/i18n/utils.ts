@@ -46,6 +46,11 @@ const PATH_SEGMENT_PAIRS: Array<{ es: string; en: string }> = [
   { es: 'productos', en: 'products' },
   { es: 'conocimiento', en: 'knowledge' },
   { es: 'seguimiento', en: 'order-status' },
+  { es: 'proyectos', en: 'projects' },
+  { es: 'torres-laparoscopia', en: 'laparoscopy-towers' },
+  { es: 'esterilizacion', en: 'sterilization' },
+  { es: 'imagenologia', en: 'imaging' },
+  { es: 'robotica-rehabilitacion', en: 'robotics-rehabilitation' },
 ];
 
 const LEGAL_SLUG_PAIRS: Array<{ es: string; en: string }> = [
