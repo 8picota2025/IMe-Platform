@@ -11,17 +11,71 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Check home keyword
+      - name: Smoke checks with retries
         run: |
           set -euo pipefail
-          curl -Ls --max-time 30 https://i-me.com.co/ | grep -q 'I-ME'
 
-      - name: Check sitemap
-        run: |
-          set -euo pipefail
-          curl -Ls --max-time 30 https://i-me.com.co/sitemap-index.xml | grep -q '<sitemapindex'
+          UA='IME-Observability-Smoke/1.0 (+https://github.com/8picota2025/IMe-Platform)'
+          MAX_ATTEMPTS=4
 
-      - name: Check health function
-        run: |
-          set -euo pipefail
-          curl -Ls --max-time 30 https://nnfbucwiasuggyfoyydo.supabase.co/functions/v1/health | grep -q '"ok":true'
+          # Retries absorb intermittent Hostinger/GHA edge timeouts that previously
+          # failed the bare `curl | grep` check after ~30s with exit 1.
+          smoke_check() {
+            local name="$1"
+            local url="$2"
+            local pattern="$3"
+            local outfile="$4"
+            local attempt=1
+
+            while [ "$attempt" -le "$MAX_ATTEMPTS" ]; do
+              echo "::group::${name} attempt ${attempt}/${MAX_ATTEMPTS}"
+              if curl -fsSL \
+                --connect-timeout 10 \
+                --max-time 30 \
+                --retry 2 \
+                --retry-delay 2 \
+                --retry-all-errors \
+                -A "$UA" \
+                -o "$outfile" \
+                -w "http_code=%{http_code} time=%{time_total} size=%{size_download}\n" \
+                "$url"; then
+                if grep -q "$pattern" "$outfile"; then
+                  echo "${name} OK"
+                  echo "::endgroup::"
+                  return 0
+                fi
+                echo "${name} response missing pattern: ${pattern}"
+                head -c 800 "$outfile" || true
+                echo
+              else
+                echo "${name} request failed"
+              fi
+              echo "::endgroup::"
+              if [ "$attempt" -lt "$MAX_ATTEMPTS" ]; then
+                sleep $((attempt * 3))
+              fi
+              attempt=$((attempt + 1))
+            done
+
+            echo "::error::${name} check failed after ${MAX_ATTEMPTS} attempts (${url})"
+            return 1
+          }
+
+          smoke_check "Home" \
+            "https://i-me.com.co/" \
+            "I-ME" \
+            /tmp/home.html
+
+          smoke_check "Sitemap" \
+            "https://i-me.com.co/sitemap-index.xml" \
+            "<sitemapindex" \
+            /tmp/sitemap.xml
+
+          smoke_check "Health" \
+            "https://nnfbucwiasuggyfoyydo.supabase.co/functions/v1/health" \
+            '"ok":true' \
+            /tmp/health.json
+
+          echo "Health body:"
+          cat /tmp/health.json
+          echo
