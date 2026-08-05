@@ -46,9 +46,6 @@ const financiacionHref = isEn ? '/en/financing/' : '/es/financiacion/';
 const proyectosHref = isEn ? '/en/projects/' : '/es/proyectos/';
 const homeHref = isEn ? '/en/' : '/es/';
 const productBase = isEn ? '/en/products/' : '/es/productos/';
-const hubHref = content.hubPath ?? proyectosHref;
-const hubLabel = content.hubLabel ?? (isEn ? 'Projects' : 'Proyectos');
-const mfr = content.manufacturer;
 
 const seedWa = buildWhatsAppUrl({
   nombre: isEn ? '[Name]' : '[Nombre]',
@@ -65,8 +62,8 @@ const seedWa = buildWhatsAppUrl({
 
 const crumbs = [
   { name: isEn ? 'Home' : 'Inicio', url: `https://i-me.com.co${homeHref}` },
-  { name: hubLabel, url: `https://i-me.com.co${hubHref}` },
-  { name: mfr?.name ?? content.tag, url: `https://i-me.com.co${path}` },
+  { name: isEn ? 'Projects' : 'Proyectos', url: `https://i-me.com.co${proyectosHref}` },
+  { name: content.tag, url: `https://i-me.com.co${path}` },
 ];
 
 const jsonLd = combineJsonLd(
@@ -106,17 +103,10 @@ const sitTitle = isEn ? 'Common project moments' : 'Momentos típicos del proyec
           <nav class="breadcrumb" aria-label={isEn ? 'Breadcrumb' : 'Ruta'}>
             <a href={homeHref}>{isEn ? 'Home' : 'Inicio'}</a>
             <span class="sep" aria-hidden="true">/</span>
-            <a href={hubHref}>{hubLabel}</a>
+            <a href={proyectosHref}>{isEn ? 'Projects' : 'Proyectos'}</a>
             <span class="sep" aria-hidden="true">/</span>
-            <span aria-current="page">{mfr?.name ?? content.tag}</span>
+            <span aria-current="page">{content.tag}</span>
           </nav>
-          {
-            mfr ? (
-              <div class="clp-mfr-mark">
-                <img src={mfr.logo} alt={mfr.logoAlt} width="160" height="64" decoding="async" />
-              </div>
-            ) : null
-          }
           <p class="clp-eyebrow">{content.tag}</p>
           <h1 id="clp-h1">{content.h1}</h1>
           <p class="clp-lead">{content.lead}</p>
@@ -139,30 +129,6 @@ const sitTitle = isEn ? 'Common project moments' : 'Momentos típicos del proyec
         </figure>
       </div>
     </header>
-
-    {
-      mfr ? (
-        <section class="clp-section clp-section--tint" aria-labelledby="clp-corp">
-          <div class="container clp-mfr-grid">
-            <div class="clp-mfr-corp">
-              <header class="clp-section__head">
-                <p class="s-label">{isEn ? 'Manufacturer' : 'Fabricante'}</p>
-                <h2 id="clp-corp">{mfr.corpTitle}</h2>
-              </header>
-              <p class="clp-lede">{mfr.corpBody}</p>
-            </div>
-            <div class="clp-mfr-adv">
-              <h3>{mfr.advantagesTitle}</h3>
-              <ul class="clp-list">
-                {mfr.advantages.map(a => (
-                  <li>{a}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </section>
-      ) : null
-    }
 
     <section class="clp-section" aria-labelledby="clp-problem">
       <div class="container clp-measure">
@@ -949,39 +915,5 @@ const sitTitle = isEn ? 'Common project moments' : 'Momentos típicos del proyec
     .clp-product:hover {
       transform: none;
     }
-  }
-
-  .clp-mfr-mark {
-    margin: 0 0 1rem;
-    display: flex;
-    align-items: center;
-    min-height: 3rem;
-  }
-
-  .clp-mfr-mark img {
-    max-height: 3.25rem;
-    width: auto;
-    max-width: 11rem;
-    object-fit: contain;
-  }
-
-  .clp-mfr-grid {
-    display: grid;
-    gap: clamp(2rem, 4vw, 3.25rem);
-  }
-
-  @media (min-width: 900px) {
-    .clp-mfr-grid {
-      grid-template-columns: 1.15fr 0.85fr;
-      align-items: start;
-    }
-  }
-
-  .clp-mfr-adv h3 {
-    font-family: var(--font-display), 'Sora', sans-serif;
-    font-size: clamp(1.15rem, 2vw, 1.35rem);
-    margin: 0 0 1rem;
-    color: var(--t900);
-    line-height: 1.3;
   }
 </style>

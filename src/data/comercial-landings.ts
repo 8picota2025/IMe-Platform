@@ -21,27 +21,12 @@ export interface PainSolution {
   help: string;
 }
 
-/** Bloque fabricante — logo + corporativo + ventajas. Sin datos de contacto. */
-export interface ManufacturerBlock {
-  name: string;
-  logo: string;
-  logoAlt: string;
-  corpTitle: string;
-  corpBody: string;
-  advantagesTitle: string;
-  advantages: string[];
-}
-
 export interface CampaignLandingContent {
   id: CampaignLandingId;
   familia_slug: string;
   tipo_slug?: string;
   path: string;
   pathEn: string;
-  /** Breadcrumb parent when not Proyectos */
-  hubPath?: string;
-  hubLabel?: string;
-  manufacturer?: ManufacturerBlock;
   /** Visible eyebrow */
   tag: string;
   /** <title> + OG */
