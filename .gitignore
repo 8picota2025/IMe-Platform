@@ -16,3 +16,10 @@ supabase/.temp/
 public/assets/img/conocimiento/
 src/data/generated/
 .dropship-tokens.json
+.gstack/
+
+# hyperresearch (not part of IMe-Platform)
+.hyperresearch/
+.claude/skills/hyperresearch/
+.claude/skills/hyperresearch-*/
+.claude/agents/hyperresearch-*.md
