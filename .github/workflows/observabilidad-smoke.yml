@@ -2,8 +2,13 @@ name: Observabilidad Smoke
 
 on:
   schedule:
-    - cron: '*/5 * * * *'
+    # Cada 15 min: */5 saturaba la cola de runners (jobs queued ~15m → cancelled).
+    - cron: '*/15 * * * *'
   workflow_dispatch:
+
+concurrency:
+  group: observabilidad-smoke
+  cancel-in-progress: true
 
 jobs:
   smoke:
