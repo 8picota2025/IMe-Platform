@@ -3,7 +3,7 @@
  * Claves solo en Edge Functions.
  */
 
-import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 import { createEmbedder, type EmbedResult } from './embeddings.ts';
 
 export type LlmProvider = 'anthropic' | 'openai' | 'ollama';

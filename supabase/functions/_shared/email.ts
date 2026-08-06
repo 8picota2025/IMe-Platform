@@ -4,7 +4,7 @@
  * Todos los envios se registran en email_log (best-effort).
  */
 
-import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 
 export const DESTINATARIOS_INTERNOS = (
   Deno.env.get('MAILER_INTERNAL') ?? 'root@i-me.com.co,ventas@i-me.com.co'

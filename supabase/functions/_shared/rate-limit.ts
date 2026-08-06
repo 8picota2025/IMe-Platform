@@ -10,7 +10,7 @@
  * clave por accion sin migracion.
  */
 
-import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 
 export type RateLimitAccion = 'asesor' | 'crear-pago' | 'cotizacion' | 'comercial-share';
 

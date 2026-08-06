@@ -2,7 +2,7 @@
  * Auth admin para Edge Functions invocadas desde /admin (JWT) o service_role.
  */
 
-import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 
 const DEFAULT_ROLES = new Set(['owner', 'admin', 'ventas', 'operaciones']);
 

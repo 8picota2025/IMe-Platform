@@ -7,7 +7,7 @@
  * infraestructura de caché.
  */
 
-import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 import { resolverDivipola } from './divipola.ts';
 
 const SIIGO_BASE_URL = 'https://api.siigo.com';

@@ -5,7 +5,7 @@
  * Usa tabla `provider_rate_limits` en Supabase.
  */
 
-import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 
 export interface RateLimitConfig {
   notificaciones_por_minuto: number; // max notifications per minute

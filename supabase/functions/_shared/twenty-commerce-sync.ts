@@ -3,7 +3,7 @@
  * Usado desde crear-pago, formalizar-cotizacion, post-pago, emitir-factura-dian.
  */
 
-import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 import { syncClienteWithTwenty, syncFacturaWithTwenty, syncPagoWithTwenty } from './twenty-crm.ts';
 
 type TipoCliente = 'b2b' | 'b2c' | 'mixto';

@@ -3,7 +3,7 @@
  * resolver items dropship del pedido y disparar notificar-proveedor.
  */
 
-import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 import { enviarEmailPlantilla, DESTINATARIOS_INTERNOS, escapeHtml, itemsToHtml } from './email.ts';
 import { pushPagoToTwenty } from './twenty-commerce-sync.ts';
 
