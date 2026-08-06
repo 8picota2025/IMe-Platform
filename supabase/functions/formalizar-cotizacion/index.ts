@@ -453,41 +453,11 @@ Deno.serve(async req => {
   }
   const refTransferencia = (body.referencia_transferencia ?? '').trim().slice(0, 120);
 
-  // Claim atomico antes de crear pedido: evita doble formalizacion concurrente.
+  // Insertar pedido primero: solicitudes_cotizacion.pedido_id tiene FK a pedidos(id).
+  // Luego claim atomico de la cotizacion. Si el claim pierde la carrera, limpia el pedido.
   const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 16);
   const notasPrevias = String((row as { notas_internas?: string }).notas_internas ?? '').trim();
   const nota = `[${timestamp}] Cliente cargo comprobante. Pedido ${pedidoId.slice(0, 8)} pendiente de validacion.`;
-
-  const { data: claimed, error: claimError } = await supabase
-    .from('solicitudes_cotizacion')
-    .update({
-      estado: 'convertida',
-      pedido_id: pedidoId,
-      precio_total_ofertado: total,
-      leida: true,
-      notas_internas: notasPrevias ? `${notasPrevias}\n${nota}` : nota,
-    })
-    .eq('id', id)
-    .in('estado', ['enviada', 'respondida'])
-    .is('pedido_id', null)
-    .select('id')
-    .maybeSingle();
-
-  if (claimError) {
-    await supabase.storage.from('comprobantes-pago').remove([storagePath]);
-    return internalError(`error reservando cotizacion: ${claimError.message}`, origin);
-  }
-  if (!claimed) {
-    await supabase.storage.from('comprobantes-pago').remove([storagePath]);
-    return errorResponse(
-      {
-        code: 'COTIZACION_YA_CONVERTIDA',
-        message: 'Esta cotizacion ya fue formalizada',
-      },
-      409,
-      origin
-    );
-  }
 
   const { error: insertError } = await supabase.from('pedidos').insert({
     id: pedidoId,
@@ -543,17 +513,39 @@ Deno.serve(async req => {
   });
 
   if (insertError) {
-    await supabase
-      .from('solicitudes_cotizacion')
-      .update({
-        estado: 'enviada',
-        pedido_id: null,
-        notas_internas: notasPrevias ? `${notasPrevias}\n${nota} [ROLLBACK]` : `${nota} [ROLLBACK]`,
-      })
-      .eq('id', id)
-      .eq('pedido_id', pedidoId);
     await supabase.storage.from('comprobantes-pago').remove([storagePath]);
     return internalError(`error creando pedido: ${insertError.message}`, origin);
+  }
+
+  const { data: claimed, error: claimError } = await supabase
+    .from('solicitudes_cotizacion')
+    .update({
+      estado: 'convertida',
+      pedido_id: pedidoId,
+      precio_total_ofertado: total,
+      leida: true,
+      notas_internas: notasPrevias ? `${notasPrevias}\n${nota}` : nota,
+    })
+    .eq('id', id)
+    .in('estado', ['enviada', 'respondida'])
+    .is('pedido_id', null)
+    .select('id')
+    .maybeSingle();
+
+  if (claimError || !claimed) {
+    await supabase.from('pedidos').delete().eq('id', pedidoId);
+    await supabase.storage.from('comprobantes-pago').remove([storagePath]);
+    if (claimError) {
+      return internalError(`error reservando cotizacion: ${claimError.message}`, origin);
+    }
+    return errorResponse(
+      {
+        code: 'COTIZACION_YA_CONVERTIDA',
+        message: 'Esta cotizacion ya fue formalizada',
+      },
+      409,
+      origin
+    );
   }
 
   if (fiscalCliente.solicitar_factura_electronica) {

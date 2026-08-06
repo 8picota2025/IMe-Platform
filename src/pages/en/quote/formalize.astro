@@ -263,6 +263,24 @@ const currentPath = '/en/quote/formalize';
 
   fiscalToggle?.addEventListener('change', syncFiscalRequired);
 
+  async function messageFromInvokeError(
+    error: { message?: string; context?: unknown },
+    fallback: string
+  ): Promise<string> {
+    const context = error.context;
+    if (context instanceof Response) {
+      try {
+        const json = (await context.clone().json()) as {
+          error?: { message?: string; code?: string };
+        };
+        if (json?.error?.message) return json.error.message;
+      } catch {
+        /* ignore */
+      }
+    }
+    return error.message || fallback;
+  }
+
   async function load() {
     if (!statusEl || !contentEl || !form || !bankEl) return;
     if (!id || !token) {
@@ -278,7 +296,7 @@ const currentPath = '/en/quote/formalize';
       body: { action: 'preview', cotizacion_id: id, token },
     });
     if (error) {
-      showError(error.message || 'Could not validate the quote.');
+      showError(await messageFromInvokeError(error, 'Could not validate the quote.'));
       return;
     }
     const json = data as {
@@ -381,7 +399,10 @@ const currentPath = '/en/quote/formalize';
           }
         );
         if (submitError) {
-          formStatus.textContent = submitError.message || 'Could not register payment.';
+          formStatus.textContent = await messageFromInvokeError(
+            submitError,
+            'Could not register payment.'
+          );
           submitBtn.disabled = false;
           return;
         }

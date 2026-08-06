@@ -265,6 +265,24 @@ const currentPath = '/es/cotizacion/formalizar';
 
   fiscalToggle?.addEventListener('change', syncFiscalRequired);
 
+  async function messageFromInvokeError(
+    error: { message?: string; context?: unknown },
+    fallback: string
+  ): Promise<string> {
+    const context = error.context;
+    if (context instanceof Response) {
+      try {
+        const json = (await context.clone().json()) as {
+          error?: { message?: string; code?: string };
+        };
+        if (json?.error?.message) return json.error.message;
+      } catch {
+        /* ignore */
+      }
+    }
+    return error.message || fallback;
+  }
+
   async function load() {
     if (!statusEl || !contentEl || !form || !bankEl) return;
     if (!id || !token) {
@@ -280,7 +298,7 @@ const currentPath = '/es/cotizacion/formalizar';
       body: { action: 'preview', cotizacion_id: id, token },
     });
     if (error) {
-      showError(error.message || 'No se pudo validar la cotización.');
+      showError(await messageFromInvokeError(error, 'No se pudo validar la cotización.'));
       return;
     }
     const json = data as {
@@ -383,7 +401,10 @@ const currentPath = '/es/cotizacion/formalizar';
           }
         );
         if (submitError) {
-          formStatus.textContent = submitError.message || 'No se pudo registrar el pago.';
+          formStatus.textContent = await messageFromInvokeError(
+            submitError,
+            'No se pudo registrar el pago.'
+          );
           submitBtn.disabled = false;
           return;
         }
