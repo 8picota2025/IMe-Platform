@@ -56,7 +56,14 @@ const currentPath = '/en/quote/formalize';
             </label>
             <label class="formalizar__field">
               <span>Document number</span>
-              <input name="numero_documento" type="text" maxlength="32" data-fiscal-required data-nit-input placeholder="e.g. 901441908-2" />
+              <input
+                name="numero_documento"
+                type="text"
+                maxlength="32"
+                data-fiscal-required
+                data-nit-input
+                placeholder="e.g. 901441908-2"
+              />
               <small class="formalizar__help" data-nit-hint></small>
             </label>
             <label class="formalizar__field">
@@ -266,17 +273,21 @@ const currentPath = '/en/quote/formalize';
 
   fiscalToggle?.addEventListener('change', syncFiscalRequired);
 
-  const nitInput = form?.querySelector('[data-nit-input]');
-  const nitHint = form?.querySelector('[data-nit-hint]');
-  const tipoDocSelect = form?.querySelector('[name="tipo_documento"]');
+  const nitInput = form?.querySelector<HTMLInputElement>('[data-nit-input]');
+  const nitHint = form?.querySelector<HTMLElement>('[data-nit-hint]');
+  const tipoDocSelect = form?.querySelector<HTMLSelectElement>('[name="tipo_documento"]');
   function syncNitHint() {
     if (!nitInput || !nitHint) return;
-    const tipo = (tipoDocSelect?.value || 'NIT');
-    if (!nitInput.value.trim()) { nitHint.textContent = ''; return; }
+    const tipo = (tipoDocSelect?.value || 'NIT') as 'NIT' | 'CC' | 'CE' | 'PP' | 'OTRO';
+    if (!nitInput.value.trim()) {
+      nitHint.textContent = '';
+      return;
+    }
     const r = verificarNitCampo(nitInput.value, tipo);
     if (r.ok && r.numero) {
       nitInput.value = r.numero;
-      nitHint.textContent = tipo === 'NIT' ? `Valid NIT: ${r.numero_formateado}` : 'Valid document format';
+      nitHint.textContent =
+        tipo === 'NIT' ? `Valid NIT: ${r.numero_formateado}` : 'Valid document format';
       nitHint.style.color = '#0b5c3b';
     } else {
       nitHint.textContent = r.errores[0] ?? 'Invalid document';
