@@ -152,13 +152,15 @@ export async function resolverCliente(
 ): Promise<{ identification: string }> {
   const headers = siigoHeaders(token, config.partnerId);
 
+  const identification = cliente.numero_documento.replace(/\D/g, '') || cliente.numero_documento;
+
   const buscarRes = await fetchWithTimeout(
-    `${SIIGO_BASE_URL}/v1/customers?identification=${encodeURIComponent(cliente.numero_documento)}`,
+    `${SIIGO_BASE_URL}/v1/customers?identification=${encodeURIComponent(identification)}`,
     { headers }
   );
   if (buscarRes.ok) {
     const buscarBody = await buscarRes.json().catch(() => null);
-    if (extraerLista(buscarBody).length > 0) return { identification: cliente.numero_documento };
+    if (extraerLista(buscarBody).length > 0) return { identification };
   }
 
   const idType = ID_TYPE_POR_TIPO_DOCUMENTO[cliente.tipo_documento];
@@ -183,7 +185,7 @@ export async function resolverCliente(
     type: 'Customer',
     person_type: esJuridica ? 'Company' : 'Person',
     id_type: idType,
-    identification: cliente.numero_documento,
+    identification,
     name: esJuridica ? [cliente.razon_social] : [nombre, apellido],
     vat_responsible: cliente.responsable_iva,
     fiscal_responsibilities: [{ code: 'R-99-PN', name: 'No responsable' }],
@@ -216,7 +218,7 @@ export async function resolverCliente(
     );
   }
 
-  return { identification: cliente.numero_documento };
+  return { identification };
 }
 
 export interface SiigoProductoInput {

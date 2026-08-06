@@ -12,7 +12,12 @@
 
 import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 
-export type RateLimitAccion = 'asesor' | 'crear-pago' | 'cotizacion' | 'comercial-share';
+export type RateLimitAccion =
+  | 'asesor'
+  | 'crear-pago'
+  | 'cotizacion'
+  | 'comercial-share'
+  | 'formalizar-preview';
 
 export interface RateLimitResult {
   limited: boolean;
@@ -37,6 +42,12 @@ const THRESHOLDS: Record<RateLimitAccion, RateLimitThresholds> = {
     windowSeconds: Number(Deno.env.get('CREAR_PAGO_RATE_LIMIT_VENTANA_SEGUNDOS') ?? 3600),
     maxPerWindow: Number(Deno.env.get('CREAR_PAGO_RATE_LIMIT_MAX_VENTANA') ?? 10),
     maxPerDay: Number(Deno.env.get('CREAR_PAGO_RATE_LIMIT_MAX_DIA') ?? 30),
+  },
+  // Preview del enlace de formalización: más permisivo (reloads / reintentos UI).
+  'formalizar-preview': {
+    windowSeconds: Number(Deno.env.get('FORMALIZAR_PREVIEW_RATE_LIMIT_VENTANA_SEGUNDOS') ?? 3600),
+    maxPerWindow: Number(Deno.env.get('FORMALIZAR_PREVIEW_RATE_LIMIT_MAX_VENTANA') ?? 60),
+    maxPerDay: Number(Deno.env.get('FORMALIZAR_PREVIEW_RATE_LIMIT_MAX_DIA') ?? 200),
   },
   cotizacion: {
     windowSeconds: Number(Deno.env.get('COTIZACION_RATE_LIMIT_VENTANA_SEGUNDOS') ?? 3600),

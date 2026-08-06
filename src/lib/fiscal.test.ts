@@ -4,6 +4,8 @@ import {
   buildDianInvoiceDraft,
   baseNetaDesdePrecioConIva,
   calculateFiscalSummary,
+  digitoVerificacionNit,
+  normalizeNumeroDocumento,
   validateClienteFiscal,
   type ClienteFiscalProfile,
 } from './fiscal';
@@ -95,6 +97,29 @@ describe('fiscal', () => {
 
     expect(errors).toContain('tipo_documento requerido para facturacion electronica');
     expect(errors).toContain('direccion_facturacion.ciudad requerida para facturacion electronica');
+  });
+
+  it('normaliza NIT con espacios y rechaza NIT pegado en direccion', () => {
+    expect(normalizeNumeroDocumento('NIT', '9 0 1 4 4 1 9 0 8 2')).toBe('9014419082');
+    expect(normalizeNumeroDocumento('NIT', '901441908-2')).toBe('9014419082');
+    expect(digitoVerificacionNit('901441908')).toBe(2);
+
+    const errors = validateClienteFiscal(
+      {
+        solicitar_factura_electronica: true,
+        tipo_documento: 'NIT',
+        numero_documento: '9 0 1 4 4 1 9 0 8 2',
+        tipo_persona: 'juridica',
+        razon_social: 'JHBM',
+        email_facturacion: 'a@b.co',
+        direccion_facturacion: {
+          direccion: '9 0 1 4 4 1 9 0 8-2',
+          ciudad: 'Libano',
+        },
+      },
+      { moneda: 'COP', mercado: 'CO' }
+    );
+    expect(errors.some(e => e.includes('direccion'))).toBe(true);
   });
 
   it('genera borrador DIAN con el desglose fiscal', () => {

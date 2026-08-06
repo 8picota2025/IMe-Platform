@@ -26,6 +26,7 @@ import {
   hashTokenSha256,
   ofertaCompleta,
   parseLineasOferta,
+  tokenExpirado,
   type CotizacionOfertaRow,
 } from '../../../src/lib/cotizacion-oferta.ts';
 
@@ -80,6 +81,8 @@ interface Body {
   validez_hasta?: string | null;
   moneda?: string;
   mercado?: string;
+  /** Si true, invalida el enlace anterior y genera uno nuevo. Default: reutilizar si sigue vigente. */
+  rotar_token?: boolean;
 }
 
 function normalizarMoneda(value: unknown): 'COP' | 'USD' {
@@ -201,31 +204,62 @@ Deno.serve(async req => {
     );
   }
 
-  const token = generarTokenFormalizacion();
-  const tokenHash = await hashTokenSha256(token);
-  const expiraAt = expiryFromValidez(row.validez_hasta);
   const total = calcularTotalOfertado(lineas);
   const moneda = normalizarMoneda(row.moneda || lineas[0]?.moneda || 'COP');
   const locale = row.locale === 'en' ? 'en' : 'es';
   const siteUrl = (Deno.env.get('SITE_URL') ?? DEFAULT_SITE_URL).replace(/\/+$/, '');
-  const formalizarUrl = `${siteUrl}${formalizarPath(locale, id, token)}`;
+  const expiraAt = expiryFromValidez(row.validez_hasta);
+  const forceRotate = body.rotar_token === true;
+  const meta =
+    row.metadata && typeof row.metadata === 'object' && !Array.isArray(row.metadata)
+      ? { ...(row.metadata as Record<string, unknown>) }
+      : {};
+  const existingUrl = String(meta.formalizacion_url ?? '').trim();
+  const canReuse =
+    !forceRotate &&
+    Boolean(row.formalizacion_token_hash) &&
+    Boolean(existingUrl) &&
+    existingUrl.includes(`id=${id}`) &&
+    !tokenExpirado(row.formalizacion_token_expira_at);
+
+  let formalizarUrl: string;
+  let tokenHash: string | null = row.formalizacion_token_hash ?? null;
+  let tokenRotated = false;
+
+  if (canReuse) {
+    formalizarUrl = existingUrl;
+  } else {
+    const token = generarTokenFormalizacion();
+    tokenHash = await hashTokenSha256(token);
+    formalizarUrl = `${siteUrl}${formalizarPath(locale, id, token)}`;
+    tokenRotated = true;
+  }
+
+  meta.formalizacion_url = formalizarUrl;
 
   const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 16);
-  const nota = `[${timestamp}] Oferta enviada al cliente (${email}).`;
+  const nota = tokenRotated
+    ? `[${timestamp}] Oferta enviada al cliente (${email}). Nuevo enlace de formalizacion.`
+    : `[${timestamp}] Oferta reenviada al cliente (${email}). Mismo enlace vigente.`;
   const notasPrevias = String(row.notas_internas ?? '').trim();
   const notas = notasPrevias ? `${notasPrevias}\n${nota}` : nota;
 
+  const updatePayload: Record<string, unknown> = {
+    estado: 'enviada',
+    oferta_enviada_at: new Date().toISOString(),
+    formalizacion_token_expira_at: expiraAt,
+    metadata: meta,
+    precio_total_ofertado: total,
+    leida: true,
+    notas_internas: notas,
+  };
+  if (tokenRotated && tokenHash) {
+    updatePayload.formalizacion_token_hash = tokenHash;
+  }
+
   const { error: updateError } = await supabase
     .from('solicitudes_cotizacion')
-    .update({
-      estado: 'enviada',
-      oferta_enviada_at: new Date().toISOString(),
-      formalizacion_token_hash: tokenHash,
-      formalizacion_token_expira_at: expiraAt,
-      precio_total_ofertado: total,
-      leida: true,
-      notas_internas: notas,
-    })
+    .update(updatePayload)
     .eq('id', id);
 
   if (updateError) return internalError(updateError.message, origin);
@@ -242,6 +276,8 @@ Deno.serve(async req => {
     return errorResponse({ code: 'ADJUNTOS_INVALIDOS', message: adjuntos.error }, 422, origin);
   }
 
+  // formalizar_url MUST stay raw (& not &amp;) — used in href and copy-paste text.
+  // formalizar_url_href is for templates that explicitly want an escaped attribute.
   const envio = await enviarEmailPlantilla(
     supabase,
     plantilla,
@@ -255,7 +291,8 @@ Deno.serve(async req => {
       items_html: itemsToHtml(lineas, locale),
       condiciones: escapeHtml(String(row.condiciones ?? '')),
       datos_bancarios: escapeHtml(datosBancariosTexto(getDatosBancariosTransferencia())),
-      formalizar_url: escapeHtml(formalizarUrl),
+      formalizar_url: formalizarUrl,
+      formalizar_url_href: escapeHtml(formalizarUrl),
     },
     id,
     adjuntos.archivos
@@ -279,6 +316,7 @@ Deno.serve(async req => {
       cotizacion_id: id,
       estado: 'enviada',
       formalizar_url: formalizarUrl,
+      token_rotado: tokenRotated,
       total,
       moneda,
     }),

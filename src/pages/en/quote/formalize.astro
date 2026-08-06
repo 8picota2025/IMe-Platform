@@ -56,7 +56,8 @@ const currentPath = '/en/quote/formalize';
             </label>
             <label class="formalizar__field">
               <span>Document number</span>
-              <input name="numero_documento" type="text" maxlength="32" data-fiscal-required />
+              <input name="numero_documento" type="text" maxlength="32" data-fiscal-required data-nit-input placeholder="e.g. 901441908-2" />
+              <small class="formalizar__help" data-nit-hint></small>
             </label>
             <label class="formalizar__field">
               <span>Person type</span>
@@ -183,6 +184,7 @@ const currentPath = '/en/quote/formalize';
 
 <script>
   import { getSupabaseClient } from '../../../lib/supabase';
+  import { verificarNitCampo } from '../../../lib/nit-dian';
 
   type Linea = {
     slug: string;
@@ -208,7 +210,8 @@ const currentPath = '/en/quote/formalize';
 
   const params = new URLSearchParams(location.search);
   const id = (params.get('id') ?? '').trim();
-  const token = (params.get('t') ?? '').trim();
+  // Email copy-paste may keep HTML entity as query key "amp;t"
+  const token = (params.get('t') ?? params.get('amp;t') ?? '').trim();
   const statusEl = document.querySelector<HTMLElement>('[data-formalizar-status]');
   const contentEl = document.querySelector<HTMLElement>('[data-formalizar-content]');
   const form = document.querySelector<HTMLFormElement>('[data-formalizar-form]');
@@ -262,6 +265,26 @@ const currentPath = '/en/quote/formalize';
   }
 
   fiscalToggle?.addEventListener('change', syncFiscalRequired);
+
+  const nitInput = form?.querySelector('[data-nit-input]');
+  const nitHint = form?.querySelector('[data-nit-hint]');
+  const tipoDocSelect = form?.querySelector('[name="tipo_documento"]');
+  function syncNitHint() {
+    if (!nitInput || !nitHint) return;
+    const tipo = (tipoDocSelect?.value || 'NIT');
+    if (!nitInput.value.trim()) { nitHint.textContent = ''; return; }
+    const r = verificarNitCampo(nitInput.value, tipo);
+    if (r.ok && r.numero) {
+      nitInput.value = r.numero;
+      nitHint.textContent = tipo === 'NIT' ? `Valid NIT: ${r.numero_formateado}` : 'Valid document format';
+      nitHint.style.color = '#0b5c3b';
+    } else {
+      nitHint.textContent = r.errores[0] ?? 'Invalid document';
+      nitHint.style.color = '#8b1e1e';
+    }
+  }
+  nitInput?.addEventListener('blur', syncNitHint);
+  tipoDocSelect?.addEventListener('change', syncNitHint);
 
   async function messageFromInvokeError(
     error: { message?: string; context?: unknown },
@@ -365,11 +388,23 @@ const currentPath = '/en/quote/formalize';
       try {
         const dataUrl = await fileToBase64(file);
         const solicitarFactura = fd.get('solicitar_factura_electronica') === 'on';
+        const tipoDocumento = String(fd.get('tipo_documento') ?? '');
+        let numeroDocumento = String(fd.get('numero_documento') ?? '');
+        if (solicitarFactura && (tipoDocumento === 'NIT' || tipoDocumento === 'CC')) {
+          const check = verificarNitCampo(numeroDocumento, tipoDocumento);
+          if (!check.ok || !check.numero) {
+            formStatus.textContent = check.errores[0] ?? 'Invalid tax ID';
+            submitBtn.disabled = false;
+            return;
+          }
+          numeroDocumento = check.numero;
+          if (nitInput) nitInput.value = check.numero;
+        }
         const fiscal = solicitarFactura
           ? {
               solicitar_factura_electronica: true,
-              tipo_documento: String(fd.get('tipo_documento') ?? ''),
-              numero_documento: String(fd.get('numero_documento') ?? ''),
+              tipo_documento: tipoDocumento,
+              numero_documento: numeroDocumento,
               tipo_persona: String(fd.get('tipo_persona') ?? ''),
               razon_social: String(fd.get('razon_social') ?? ''),
               email_facturacion: String(fd.get('email_facturacion') ?? ''),

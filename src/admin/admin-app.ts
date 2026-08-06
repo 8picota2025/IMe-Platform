@@ -2,6 +2,14 @@ import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase';
 import { renderMarkdown } from '../lib/markdown';
 import * as XLSX from 'xlsx';
 import {
+  normalizeNumeroDocumento,
+  validateClienteFiscal,
+  type ClienteFiscalProfile,
+  type TipoDocumentoFiscal,
+  type TipoPersonaFiscal,
+} from '../lib/fiscal';
+import { verificarNitCampo } from '../lib/nit-dian';
+import {
   planificarAutoasignacionTipos,
   mensajeBloqueoEliminarFamilia,
   mensajeBloqueoEliminarTipo,
@@ -33,6 +41,8 @@ type View =
   | 'cliente'
   | 'pedidos'
   | 'pedido'
+  | 'facturas'
+  | 'factura'
   | 'cupones'
   | 'cupon'
   | 'reportes'
@@ -162,6 +172,8 @@ const VISTAS_POR_ROL: Record<string, Set<View>> = {
     'cotizacion',
     'pedidos',
     'pedido',
+    'facturas',
+    'factura',
     'cupones',
     'cupon',
     'listas',
@@ -177,6 +189,8 @@ const VISTAS_POR_ROL: Record<string, Set<View>> = {
     'crm',
     'pedidos',
     'pedido',
+    'facturas',
+    'factura',
     'proveedores',
     'proveedor-productos',
     'fulfillments',
@@ -292,6 +306,8 @@ function parseView(hash: string): View {
     raw === 'cliente' ||
     raw === 'pedidos' ||
     raw === 'pedido' ||
+    raw === 'facturas' ||
+    raw === 'factura' ||
     raw === 'cupones' ||
     raw === 'cupon' ||
     raw === 'reportes' ||
@@ -530,6 +546,8 @@ async function routeView(): Promise<{ title: string; body: string }> {
   if (state.view === 'cliente') return { title: 'Cliente', body: await clienteDetailView() };
   if (state.view === 'pedidos') return { title: 'Pedidos', body: await pedidosView() };
   if (state.view === 'pedido') return { title: 'Pedido', body: await pedidoDetailView() };
+  if (state.view === 'facturas') return { title: 'Facturas', body: await facturasView() };
+  if (state.view === 'factura') return { title: 'Factura', body: await facturaDetailView() };
   if (state.view === 'cupones') return { title: 'Cupones', body: await cuponesView() };
   if (state.view === 'cupon') return { title: 'Cupon', body: await cuponFormView() };
   if (state.view === 'reportes') return { title: 'Reportes', body: await reportesView() };
@@ -565,6 +583,7 @@ function shellHtml(title: string, body: string): string {
     ['clientes', 'Clientes'],
     ['cotizaciones', 'Cotizaciones'],
     ['pedidos', 'Pedidos'],
+    ['facturas', 'Facturas'],
     ['cupones', 'Cupones'],
     ['listas', 'Listas de precio'],
     ['resenas', 'Resenas'],
@@ -636,6 +655,8 @@ function bindView() {
   bindCupones();
   bindPedidoOperaciones();
   bindPedidoMasivo();
+  bindFacturas();
+  bindNitDian();
   bindIngest();
   bindArticulos();
   bindProviderFilters();
@@ -3125,9 +3146,51 @@ async function clienteDetailView(): Promise<string> {
           ${field('apellido', 'Apellido', text(cliente?.apellido))}
           ${field('telefono', 'Telefono', text(cliente?.telefono))}
           ${field('institucion', 'Institucion / empresa', text(cliente?.institucion))}
-          ${field('documento_tipo', 'Tipo documento', text(cliente?.documento_tipo))}
-          ${field('documento_numero', 'Numero documento', text(cliente?.documento_numero))}
+          ${field('documento_tipo', 'Tipo documento (legado)', text(cliente?.documento_tipo))}
+          ${field('documento_numero', 'Numero documento (legado)', text(cliente?.documento_numero))}
         </div>
+        <h3 style="margin:16px 0 8px">Datos fiscales DIAN</h3>
+        <p class="admin-help">Estos campos alimentan Siigo/DIAN. NIT sin espacios (ej. 9014419082).</p>
+        <div class="admin-editor__cols">
+          ${selectStatic(
+            'tipo_documento',
+            'Tipo documento FE',
+            text(cliente?.tipo_documento) || '',
+            [
+              ['', '—'],
+              ['NIT', 'NIT'],
+              ['CC', 'CC'],
+              ['CE', 'CE'],
+              ['PP', 'Pasaporte'],
+              ['OTRO', 'Otro'],
+            ]
+          )}
+          ${field('numero_documento', 'Numero documento FE', text(cliente?.numero_documento))}
+        </div>
+        <div class="admin-toolbar" style="margin:0 0 12px">
+          <button class="admin-button admin-button--ghost" type="button" data-nit-verificar="cliente">
+            Verificar NIT
+          </button>
+          <button class="admin-button admin-button--ghost" type="button" data-nit-importar-dian="cliente">
+            Importar datos DIAN
+          </button>
+          <span class="admin-meta" data-nit-status="cliente"></span>
+        </div>
+        <div class="admin-editor__cols">
+          ${selectStatic('tipo_persona', 'Tipo persona', text(cliente?.tipo_persona) || '', [
+            ['', '—'],
+            ['natural', 'Natural'],
+            ['juridica', 'Juridica'],
+          ])}
+          ${field('razon_social', 'Razon social', text(cliente?.razon_social))}
+          ${field('email_facturacion', 'Email facturacion', text(cliente?.email_facturacion), false, 'email')}
+          ${field('dir_fact_direccion', 'Direccion facturacion', text((cliente?.direccion_facturacion as Row | null)?.direccion))}
+          ${field('dir_fact_ciudad', 'Ciudad', text((cliente?.direccion_facturacion as Row | null)?.ciudad))}
+          ${field('dir_fact_departamento', 'Departamento', text((cliente?.direccion_facturacion as Row | null)?.departamento))}
+        </div>
+        ${checkbox('responsable_iva', 'Responsable de IVA', Boolean(cliente?.responsable_iva))}
+        ${checkbox('agente_retencion', 'Agente de retencion', Boolean(cliente?.agente_retencion))}
+        ${checkbox('agente_reteica', 'Agente reteICA', Boolean(cliente?.agente_reteica))}
         ${textarea('notas', 'Notas internas', text(cliente?.notas))}
         ${checkbox('consentimiento_datos', 'Consentimiento datos registrado', Boolean(cliente?.consentimiento_datos))}
         <button class="admin-button" type="submit">Guardar cliente</button>
@@ -3230,6 +3293,145 @@ function pedidoResumenTexto(row: Row): string {
     `Cliente: ${clienteLabel}`,
     `Mercado: ${text(row.mercado)}`,
   ].join(' | ');
+}
+
+const FACTURA_ESTADOS: Array<[string, string]> = [
+  ['', 'Todos'],
+  ['pendiente_pago', 'Pendiente pago'],
+  ['pendiente_envio', 'Pendiente envio'],
+  ['emitida', 'Emitida'],
+  ['rechazada', 'Rechazada'],
+  ['error', 'Error'],
+  ['anulada', 'Anulada'],
+];
+
+async function facturasView(): Promise<string> {
+  const params = hashParams();
+  const q = (params.get('q') ?? '').trim();
+  const estado = params.get('estado') ?? '';
+  let query = supabase!
+    .from('facturas_electronicas')
+    .select(
+      'id,pedido_id,estado,numero_factura,cufe,error,proveedor,created_at,updated_at,pedidos(id,referencia_pasarela,total,moneda,facturacion_electronica_estado,cliente,estado)',
+      { count: 'exact' }
+    )
+    .order('created_at', { ascending: false })
+    .limit(200);
+  if (estado) query = query.eq('estado', estado);
+  if (q) {
+    const safeQ = q.replace(/[,()%]/g, '');
+    if (safeQ) {
+      query = query.or(
+        `numero_factura.ilike.%${safeQ}%,cufe.ilike.%${safeQ}%,error.ilike.%${safeQ}%`
+      );
+    }
+  }
+  const { data, error, count } = await query;
+  if (error) toast(error.message);
+  const rows = (data ?? []) as Row[];
+  const total = count ?? rows.length;
+
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head">
+        <h2>Facturas electronicas (${total})</h2>
+        <p class="admin-meta">Siigo / DIAN — corrige NIT en el pedido y reemite</p>
+      </div>
+      <form class="admin-filters" data-facturas-filter>
+        ${field('q', 'Buscar numero / CUFE / error', q, false, 'search')}
+        ${selectStatic('estado', 'Estado', estado, FACTURA_ESTADOS)}
+        <button class="admin-button" type="submit">Filtrar</button>
+      </form>
+      ${table(
+        ['Fecha', 'Pedido', 'Cliente', 'Estado', 'Numero', 'Error', 'Acciones'],
+        rows.map(row => {
+          const pedido = row.pedidos && typeof row.pedidos === 'object' ? (row.pedidos as Row) : {};
+          const cliente =
+            pedido.cliente && typeof pedido.cliente === 'object' ? (pedido.cliente as Row) : {};
+          const clienteLabel =
+            [text(cliente.nombre), text(cliente.apellido)].filter(Boolean).join(' ') ||
+            text(cliente.institucion) ||
+            text(cliente.email) ||
+            '—';
+          const ref = text(pedido.referencia_pasarela) || text(row.pedido_id).slice(0, 8);
+          return [
+            formatCell(row.created_at),
+            escapeHtml(ref),
+            escapeHtml(clienteLabel),
+            escapeHtml(text(row.estado)),
+            escapeHtml(text(row.numero_factura)) || '—',
+            escapeHtml(text(row.error)).slice(0, 80) || '—',
+            `<a class="admin-button admin-button--ghost" href="#/factura?id=${encodeURIComponent(text(row.id))}">Ver</a>
+             <a class="admin-button admin-button--ghost" href="#/pedido?id=${encodeURIComponent(text(row.pedido_id))}">Pedido</a>`,
+          ];
+        })
+      )}
+    </section>`;
+}
+
+async function facturaDetailView(): Promise<string> {
+  const id = state.recordId;
+  if (!id) return notFoundPanel('Factura no encontrada', '#/facturas');
+  const { data, error } = await supabase!
+    .from('facturas_electronicas')
+    .select(
+      '*, pedidos(id,referencia_pasarela,total,moneda,estado,facturacion_electronica_estado,facturacion_electronica_solicitada,cliente,metadata,cliente_id)'
+    )
+    .eq('id', id)
+    .maybeSingle();
+  if (error) return `<p class="admin-help">Error: ${escapeHtml(error.message)}</p>`;
+  if (!data) return notFoundPanel('Factura no encontrada', '#/facturas');
+  const row = data as Row;
+  const pedido = row.pedidos && typeof row.pedidos === 'object' ? (row.pedidos as Row) : {};
+  const meta =
+    pedido.metadata && typeof pedido.metadata === 'object' ? (pedido.metadata as Row) : {};
+  const draft =
+    meta.dian_draft && typeof meta.dian_draft === 'object' ? (meta.dian_draft as Row) : {};
+  const draftCliente =
+    draft.cliente && typeof draft.cliente === 'object' ? (draft.cliente as Row) : {};
+
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head">
+        <div>
+          <h2>Factura ${escapeHtml(text(row.numero_factura) || text(row.id).slice(0, 8))}</h2>
+          <p class="admin-meta">${escapeHtml(text(row.estado))} · ${escapeHtml(text(row.proveedor))}</p>
+        </div>
+        <div class="admin-toolbar">
+          <a class="admin-button admin-button--ghost" href="#/facturas">Volver</a>
+          <a class="admin-button" href="#/pedido?id=${encodeURIComponent(text(row.pedido_id))}">Abrir pedido / editar NIT</a>
+          <button class="admin-button admin-button--ghost" type="button" data-factura-reemitir="${escapeHtml(text(row.pedido_id))}">
+            Reemitir DIAN
+          </button>
+        </div>
+      </div>
+      <div style="padding:16px">
+        ${table(
+          ['Campo', 'Valor'],
+          [
+            ['Estado', escapeHtml(text(row.estado))],
+            ['Numero', escapeHtml(text(row.numero_factura)) || '—'],
+            ['CUFE', escapeHtml(text(row.cufe)) || '—'],
+            ['Error', escapeHtml(text(row.error)) || '—'],
+            [
+              'Pedido total',
+              `${escapeHtml(text(pedido.total))} ${escapeHtml(text(pedido.moneda))}`,
+            ],
+            ['Pedido estado', escapeHtml(text(pedido.estado))],
+            ['NIT en borrador', escapeHtml(text(draftCliente.numero_documento)) || '—'],
+            ['Razon social', escapeHtml(text(draftCliente.razon_social)) || '—'],
+            ['Creada', formatCell(row.created_at)],
+            ['Actualizada', formatCell(row.updated_at)],
+          ]
+        )}
+      </div>
+      <div style="padding:0 16px 16px">
+        <h3>Payload / respuesta</h3>
+        <pre class="admin-help" style="white-space:pre-wrap;max-height:320px;overflow:auto">${escapeHtml(
+          JSON.stringify({ payload: row.payload, respuesta: row.respuesta }, null, 2)
+        )}</pre>
+      </div>
+    </section>`;
 }
 
 async function pedidosView(): Promise<string> {
@@ -3392,6 +3594,44 @@ async function pedidoDetailView(): Promise<string> {
   const notas = (notasResult.data ?? []) as Row[];
   const timeline = (timelineResult.data ?? []) as Row[];
   const factura = (facturaResult.data ?? null) as Row | null;
+  const metadata =
+    row.metadata && typeof row.metadata === 'object' && !Array.isArray(row.metadata)
+      ? (row.metadata as Row)
+      : {};
+  const fiscalMeta =
+    metadata.fiscal && typeof metadata.fiscal === 'object' ? (metadata.fiscal as Row) : {};
+  const draftMeta =
+    metadata.dian_draft && typeof metadata.dian_draft === 'object'
+      ? (metadata.dian_draft as Row)
+      : {};
+  const draftCliente =
+    draftMeta.cliente && typeof draftMeta.cliente === 'object' ? (draftMeta.cliente as Row) : {};
+  const draftDir =
+    draftCliente.direccion && typeof draftCliente.direccion === 'object'
+      ? (draftCliente.direccion as Row)
+      : {};
+  const fiscalDir =
+    fiscalMeta.direccion_facturacion && typeof fiscalMeta.direccion_facturacion === 'object'
+      ? (fiscalMeta.direccion_facturacion as Row)
+      : {};
+  const fiscalTipoDoc =
+    text(fiscalMeta.tipo_documento) || text(draftCliente.tipo_documento) || 'NIT';
+  const fiscalNumero =
+    text(fiscalMeta.numero_documento) || text(draftCliente.numero_documento) || '';
+  const fiscalPersona =
+    text(fiscalMeta.tipo_persona) || text(draftCliente.tipo_persona) || 'juridica';
+  const fiscalRazon =
+    text(fiscalMeta.razon_social) ||
+    text(draftCliente.razon_social) ||
+    text(cliente.institucion) ||
+    '';
+  const fiscalEmail =
+    text(fiscalMeta.email_facturacion) || text(draftCliente.email) || text(cliente.email) || '';
+  const fiscalDireccion = text(fiscalDir.direccion) || text(draftDir.direccion) || '';
+  const fiscalCiudad = text(fiscalDir.ciudad) || text(draftDir.ciudad) || '';
+  const fiscalDepto = text(fiscalDir.departamento) || text(draftDir.departamento) || '';
+  const fiscalResponsableIva =
+    fiscalMeta.responsable_iva === true || draftCliente.responsable_iva === true;
   const feed = [
     ...timeline.map(evento => ({
       kind: 'timeline',
@@ -3504,6 +3744,12 @@ async function pedidoDetailView(): Promise<string> {
             ['Factura electronica', escapeHtml(text(row.facturacion_electronica_estado)) || '—'],
             ['Numero factura', factura ? escapeHtml(text(factura.numero_factura)) || '—' : '—'],
             ['CUFE', factura ? escapeHtml(text(factura.cufe)) || '—' : '—'],
+            [
+              'Error factura',
+              factura && text(factura.error)
+                ? `<span class="admin-badge admin-badge--danger">${escapeHtml(text(factura.error))}</span>`
+                : '—',
+            ],
             ['Mercado', escapeHtml(text(row.mercado))],
             ['Pasarela', escapeHtml(text(row.proveedor_pago))],
             ['Referencia', escapeHtml(text(row.referencia_pasarela)) || '—'],
@@ -3529,6 +3775,62 @@ async function pedidoDetailView(): Promise<string> {
       </div>`
           : ''
       }
+      </div>
+      <div style="padding:0 16px 16px">
+        <h3>Facturacion electronica (DIAN)</h3>
+        <p class="admin-help">
+          Corrige NIT/direccion aqui si Siigo rechazo el formato. Guarda y reemite.
+          NIT sin espacios (ej. <code>9014419082</code>).
+        </p>
+        <form class="admin-form" data-pedido-fiscal-form>
+          <input type="hidden" name="pedido_id" value="${escapeHtml(text(row.id))}" />
+          <div class="admin-editor__cols">
+            ${selectStatic('tipo_documento', 'Tipo documento', fiscalTipoDoc, [
+              ['NIT', 'NIT'],
+              ['CC', 'CC'],
+              ['CE', 'CE'],
+              ['PP', 'Pasaporte'],
+            ])}
+            ${field('numero_documento', 'Numero documento', fiscalNumero, true)}
+          </div>
+          <div class="admin-toolbar" style="margin:0 0 12px">
+            <button class="admin-button admin-button--ghost" type="button" data-nit-verificar="pedido">
+              Verificar NIT
+            </button>
+            <button class="admin-button admin-button--ghost" type="button" data-nit-importar-dian="pedido">
+              Importar datos DIAN
+            </button>
+            <span class="admin-meta" data-nit-status="pedido"></span>
+          </div>
+          <div class="admin-editor__cols">
+            ${selectStatic('tipo_persona', 'Tipo persona', fiscalPersona, [
+              ['juridica', 'Juridica'],
+              ['natural', 'Natural'],
+            ])}
+            ${field('razon_social', 'Razon social', fiscalRazon, true)}
+            ${field('email_facturacion', 'Email facturacion', fiscalEmail, true, 'email')}
+            ${field('direccion', 'Direccion fisica', fiscalDireccion, true)}
+            ${field('ciudad', 'Ciudad', fiscalCiudad, true)}
+            ${field('departamento', 'Departamento', fiscalDepto)}
+          </div>
+          ${checkbox('responsable_iva', 'Responsable de IVA', fiscalResponsableIva)}
+          ${checkbox(
+            'solicitar_factura_electronica',
+            'Factura electronica solicitada',
+            row.facturacion_electronica_solicitada !== false
+          )}
+          <div class="admin-toolbar" style="margin-top:12px">
+            <button class="admin-button" type="submit">Guardar datos fiscales</button>
+            <button class="admin-button admin-button--ghost" type="button" data-pedido-reemitir-dian>
+              Reemitir factura DIAN
+            </button>
+            ${
+              factura
+                ? `<a class="admin-button admin-button--ghost" href="#/factura?id=${encodeURIComponent(text(factura.id) || text(row.id))}">Ver ficha factura</a>`
+                : ''
+            }
+          </div>
+        </form>
       </div>
       <div style="padding:0 16px 16px">
         <h3>Cliente</h3>
@@ -6241,6 +6543,34 @@ function bindClientes() {
       institucion: emptyToNull(data.get('institucion')),
       documento_tipo: emptyToNull(data.get('documento_tipo')),
       documento_numero: emptyToNull(data.get('documento_numero')),
+      tipo_documento: emptyToNull(data.get('tipo_documento')),
+      numero_documento: (() => {
+        const tipo = String(data.get('tipo_documento') ?? '') as TipoDocumentoFiscal | '';
+        return normalizeNumeroDocumento(tipo || null, String(data.get('numero_documento') ?? ''));
+      })(),
+      tipo_persona: emptyToNull(data.get('tipo_persona')),
+      razon_social: emptyToNull(data.get('razon_social')),
+      email_facturacion: emptyToNull(data.get('email_facturacion')),
+      responsable_iva:
+        form.elements.namedItem('responsable_iva') instanceof HTMLInputElement &&
+        (form.elements.namedItem('responsable_iva') as HTMLInputElement).checked,
+      agente_retencion:
+        form.elements.namedItem('agente_retencion') instanceof HTMLInputElement &&
+        (form.elements.namedItem('agente_retencion') as HTMLInputElement).checked,
+      agente_reteica:
+        form.elements.namedItem('agente_reteica') instanceof HTMLInputElement &&
+        (form.elements.namedItem('agente_reteica') as HTMLInputElement).checked,
+      direccion_facturacion: (() => {
+        const direccion = String(data.get('dir_fact_direccion') ?? '').trim();
+        const ciudad = String(data.get('dir_fact_ciudad') ?? '').trim();
+        if (!direccion && !ciudad) return null;
+        return {
+          direccion: direccion || null,
+          ciudad: ciudad || null,
+          departamento: String(data.get('dir_fact_departamento') ?? '').trim() || null,
+          pais: 'CO',
+        };
+      })(),
       notas: emptyToNull(data.get('notas')),
       consentimiento_datos:
         form.elements.namedItem('consentimiento_datos') instanceof HTMLInputElement &&
@@ -6618,6 +6948,378 @@ function bindPedidoOperaciones() {
       noteForm.reset();
     }
     await render();
+  });
+
+  const fiscalForm = app.querySelector<HTMLFormElement>('[data-pedido-fiscal-form]');
+  fiscalForm?.addEventListener('submit', async event => {
+    event.preventDefault();
+    const data = new FormData(fiscalForm);
+    const pedidoId = String(data.get('pedido_id') ?? state.recordId ?? '').trim();
+    if (!pedidoId) return;
+
+    const tipoDocumento = String(data.get('tipo_documento') ?? 'NIT') as TipoDocumentoFiscal;
+    const numeroDocumento = normalizeNumeroDocumento(
+      tipoDocumento,
+      String(data.get('numero_documento') ?? '')
+    );
+    const tipoPersona = String(data.get('tipo_persona') ?? 'juridica') as TipoPersonaFiscal;
+    const solicitar =
+      fiscalForm.elements.namedItem('solicitar_factura_electronica') instanceof HTMLInputElement &&
+      (fiscalForm.elements.namedItem('solicitar_factura_electronica') as HTMLInputElement).checked;
+
+    const profile: ClienteFiscalProfile = {
+      solicitar_factura_electronica: solicitar,
+      tipo_documento: tipoDocumento,
+      numero_documento: numeroDocumento,
+      tipo_persona: tipoPersona,
+      razon_social: String(data.get('razon_social') ?? '').trim(),
+      email_facturacion: String(data.get('email_facturacion') ?? '').trim(),
+      responsable_iva:
+        fiscalForm.elements.namedItem('responsable_iva') instanceof HTMLInputElement &&
+        (fiscalForm.elements.namedItem('responsable_iva') as HTMLInputElement).checked,
+      direccion_facturacion: {
+        direccion: String(data.get('direccion') ?? '').trim(),
+        ciudad: String(data.get('ciudad') ?? '').trim(),
+        departamento: String(data.get('departamento') ?? '').trim() || null,
+        pais: 'CO',
+      },
+    };
+
+    const errors = validateClienteFiscal(profile, { moneda: 'COP', mercado: 'CO' });
+    if (solicitar && errors.length) {
+      toast(errors[0] ?? 'Datos fiscales invalidos');
+      return;
+    }
+
+    const { data: pedidoRow, error: loadError } = await supabase!
+      .from('pedidos')
+      .select('id,cliente_id,metadata,facturacion_electronica_solicitada')
+      .eq('id', pedidoId)
+      .maybeSingle();
+    if (loadError || !pedidoRow) {
+      toast(loadError?.message || 'Pedido no encontrado');
+      return;
+    }
+
+    const existingMeta =
+      pedidoRow.metadata &&
+      typeof pedidoRow.metadata === 'object' &&
+      !Array.isArray(pedidoRow.metadata)
+        ? { ...(pedidoRow.metadata as Row) }
+        : {};
+    const existingDraft =
+      existingMeta.dian_draft && typeof existingMeta.dian_draft === 'object'
+        ? { ...(existingMeta.dian_draft as Row) }
+        : {};
+    const existingDraftCliente =
+      existingDraft.cliente && typeof existingDraft.cliente === 'object'
+        ? { ...(existingDraft.cliente as Row) }
+        : {};
+
+    existingMeta.fiscal = {
+      ...((existingMeta.fiscal as Row) ?? {}),
+      solicitar_factura_electronica: solicitar,
+      tipo_documento: profile.tipo_documento,
+      numero_documento: profile.numero_documento,
+      tipo_persona: profile.tipo_persona,
+      razon_social: profile.razon_social,
+      email_facturacion: profile.email_facturacion,
+      responsable_iva: profile.responsable_iva === true,
+      direccion_facturacion: profile.direccion_facturacion,
+    };
+
+    if (solicitar) {
+      existingDraft.cliente = {
+        ...existingDraftCliente,
+        tipo_documento: profile.tipo_documento,
+        numero_documento: profile.numero_documento,
+        tipo_persona: profile.tipo_persona,
+        razon_social: profile.razon_social,
+        email: profile.email_facturacion,
+        responsable_iva: profile.responsable_iva === true,
+        direccion: {
+          direccion: profile.direccion_facturacion?.direccion ?? '',
+          ciudad: profile.direccion_facturacion?.ciudad ?? '',
+          departamento: profile.direccion_facturacion?.departamento ?? null,
+          pais: 'CO',
+        },
+      };
+      existingMeta.dian_draft = existingDraft;
+    }
+
+    const { error: updateError } = await supabase!
+      .from('pedidos')
+      .update({
+        metadata: existingMeta,
+        facturacion_electronica_solicitada: solicitar,
+        facturacion_electronica_estado: solicitar ? 'pendiente_envio' : 'no_solicitada',
+        direccion_facturacion: profile.direccion_facturacion,
+      })
+      .eq('id', pedidoId);
+    if (updateError) {
+      toast(updateError.message);
+      return;
+    }
+
+    const clienteId = text((pedidoRow as Row).cliente_id);
+    if (clienteId) {
+      await supabase!
+        .from('clientes')
+        .update({
+          tipo_documento: profile.tipo_documento,
+          numero_documento: profile.numero_documento,
+          tipo_persona: profile.tipo_persona,
+          razon_social: profile.razon_social,
+          email_facturacion: profile.email_facturacion,
+          responsable_iva: profile.responsable_iva === true,
+          direccion_facturacion: profile.direccion_facturacion,
+          documento_tipo: profile.tipo_documento,
+          documento_numero: profile.numero_documento,
+        })
+        .eq('id', clienteId);
+    }
+
+    toast('Datos fiscales guardados (NIT normalizado)');
+    await render();
+  });
+
+  app.querySelectorAll<HTMLButtonElement>('[data-pedido-reemitir-dian]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const pedidoId = state.recordId ?? '';
+      if (!pedidoId) return;
+      if (
+        !confirm('Reemitir factura electronica a DIAN/Siigo con los datos actuales del pedido?')
+      ) {
+        return;
+      }
+      button.disabled = true;
+      const { data, error } = await supabase!.functions.invoke('emitir-factura-dian', {
+        body: { pedido_id: pedidoId, force_live: true },
+      });
+      button.disabled = false;
+      if (error) {
+        const context = (error as { context?: unknown }).context;
+        let message = error.message;
+        if (context instanceof Response) {
+          try {
+            const json = (await context.json()) as { error?: { message?: string } };
+            if (json?.error?.message) message = json.error.message;
+          } catch {
+            /* ignore */
+          }
+        }
+        toast(message);
+        return;
+      }
+      const json = data as { ok?: boolean; estado?: string; error?: string; skipped?: string };
+      if (json?.skipped) {
+        toast(`Omitido: ${json.skipped}`);
+      } else if (json?.ok) {
+        toast(`Factura ${json.estado ?? 'procesada'}`);
+      } else {
+        toast(json?.error || 'Emision fallida');
+      }
+      await render();
+    });
+  });
+}
+
+function bindFacturas() {
+  const filterForm = app.querySelector<HTMLFormElement>('[data-facturas-filter]');
+  filterForm?.addEventListener('submit', event => {
+    event.preventDefault();
+    const data = new FormData(filterForm);
+    const params = new URLSearchParams();
+    for (const key of ['q', 'estado']) {
+      const value = String(data.get(key) ?? '').trim();
+      if (value) params.set(key, value);
+    }
+    location.hash = `#/facturas${params.toString() ? `?${params.toString()}` : ''}`;
+  });
+
+  app.querySelectorAll<HTMLButtonElement>('[data-factura-reemitir]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const pedidoId = button.dataset['facturaReemitir'] ?? '';
+      if (!pedidoId) return;
+      if (!confirm('Reemitir factura DIAN con el borrador actual del pedido?')) return;
+      button.disabled = true;
+      const { data, error } = await supabase!.functions.invoke('emitir-factura-dian', {
+        body: { pedido_id: pedidoId, force_live: true },
+      });
+      button.disabled = false;
+      if (error) {
+        toast(error.message);
+        return;
+      }
+      const json = data as { ok?: boolean; estado?: string; error?: string };
+      toast(json?.ok ? `Factura ${json.estado ?? 'ok'}` : json?.error || 'Error');
+      await render();
+    });
+  });
+}
+
+type NitScope = 'cliente' | 'pedido';
+
+function nitFormForScope(scope: NitScope): HTMLFormElement | null {
+  if (scope === 'cliente') return app.querySelector<HTMLFormElement>('[data-cliente-form]');
+  return app.querySelector<HTMLFormElement>('[data-pedido-fiscal-form]');
+}
+
+function setNitStatus(scope: NitScope, message: string, ok?: boolean) {
+  const el = app.querySelector<HTMLElement>(`[data-nit-status="${scope}"]`);
+  if (!el) return;
+  el.textContent = message;
+  el.style.color = ok === false ? '#8b1e1e' : ok === true ? '#0b5c3b' : '';
+}
+
+function readNitFromForm(form: HTMLFormElement): { tipo: TipoDocumentoFiscal; nit: string } {
+  const tipo = (String(
+    form.elements.namedItem('tipo_documento') instanceof HTMLSelectElement
+      ? (form.elements.namedItem('tipo_documento') as HTMLSelectElement).value
+      : 'NIT'
+  ) || 'NIT') as TipoDocumentoFiscal;
+  const nitInput = form.elements.namedItem('numero_documento');
+  const nit = nitInput instanceof HTMLInputElement ? nitInput.value : '';
+  return { tipo: tipo || 'NIT', nit };
+}
+
+function applyContribuyenteToForm(
+  form: HTMLFormElement,
+  contribuyente: {
+    nit?: string;
+    razon_social?: string;
+    tipo_persona?: string | null;
+    email?: string | null;
+    direccion?: string | null;
+    ciudad?: string | null;
+    departamento?: string | null;
+    responsable_iva?: boolean | null;
+  },
+  scope: NitScope
+) {
+  const setVal = (name: string, value: string) => {
+    const el = form.elements.namedItem(name);
+    if (el instanceof HTMLInputElement || el instanceof HTMLSelectElement) el.value = value;
+  };
+  if (contribuyente.nit) setVal('numero_documento', contribuyente.nit);
+  if (contribuyente.razon_social) setVal('razon_social', contribuyente.razon_social);
+  if (contribuyente.tipo_persona) setVal('tipo_persona', contribuyente.tipo_persona);
+  if (contribuyente.email) setVal('email_facturacion', contribuyente.email);
+  if (scope === 'pedido') {
+    if (contribuyente.direccion) setVal('direccion', contribuyente.direccion);
+    if (contribuyente.ciudad) setVal('ciudad', contribuyente.ciudad);
+    if (contribuyente.departamento) setVal('departamento', contribuyente.departamento);
+  } else {
+    if (contribuyente.direccion) setVal('dir_fact_direccion', contribuyente.direccion);
+    if (contribuyente.ciudad) setVal('dir_fact_ciudad', contribuyente.ciudad);
+    if (contribuyente.departamento) setVal('dir_fact_departamento', contribuyente.departamento);
+  }
+  if (typeof contribuyente.responsable_iva === 'boolean') {
+    const el = form.elements.namedItem('responsable_iva');
+    if (el instanceof HTMLInputElement) el.checked = contribuyente.responsable_iva;
+  }
+}
+
+function bindNitDian() {
+  app.querySelectorAll<HTMLButtonElement>('[data-nit-verificar]').forEach(button => {
+    button.addEventListener('click', () => {
+      const scope = (button.dataset['nitVerificar'] ?? 'pedido') as NitScope;
+      const form = nitFormForScope(scope);
+      if (!form) return;
+      const { tipo, nit } = readNitFromForm(form);
+      const result = verificarNitCampo(nit, tipo || 'NIT');
+      const nitInput = form.elements.namedItem('numero_documento');
+      if (result.ok && result.numero && nitInput instanceof HTMLInputElement) {
+        nitInput.value = result.numero;
+      }
+      if (!result.ok) {
+        setNitStatus(scope, result.errores[0] ?? 'NIT invalido', false);
+        toast(result.errores[0] ?? 'NIT invalido');
+        return;
+      }
+      const msg = `NIT OK ${result.numero_formateado}${
+        result.avisos[0] ? ` · ${result.avisos[0]}` : ''
+      }`;
+      setNitStatus(scope, msg, true);
+      toast(msg);
+    });
+  });
+
+  app.querySelectorAll<HTMLButtonElement>('[data-nit-importar-dian]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const scope = (button.dataset['nitImportarDian'] ?? 'pedido') as NitScope;
+      const form = nitFormForScope(scope);
+      if (!form) return;
+      const { tipo, nit } = readNitFromForm(form);
+      const local = verificarNitCampo(nit, tipo || 'NIT');
+      if (!local.ok || !local.numero) {
+        setNitStatus(scope, local.errores[0] ?? 'NIT invalido', false);
+        toast(local.errores[0] ?? 'Corrige el NIT antes de importar');
+        return;
+      }
+      const nitInput = form.elements.namedItem('numero_documento');
+      if (nitInput instanceof HTMLInputElement) nitInput.value = local.numero;
+
+      button.disabled = true;
+      setNitStatus(scope, 'Consultando DIAN…');
+      const { data, error } = await supabase!.functions.invoke('consultar-nit-dian', {
+        body: { nit: local.numero, tipo_documento: tipo || 'NIT' },
+      });
+      button.disabled = false;
+
+      if (error) {
+        const context = (error as { context?: unknown }).context;
+        let message = error.message;
+        if (context instanceof Response) {
+          try {
+            const json = (await context.json()) as {
+              mensaje?: string;
+              verificacion?: { errores?: string[] };
+            };
+            message = json?.mensaje || json?.verificacion?.errores?.[0] || message;
+          } catch {
+            /* ignore */
+          }
+        }
+        setNitStatus(scope, message, false);
+        toast(message);
+        return;
+      }
+
+      const json = data as {
+        ok?: boolean;
+        mensaje?: string;
+        verificacion?: { numero?: string; numero_formateado?: string; ok?: boolean };
+        contribuyente?: {
+          nit?: string;
+          razon_social?: string;
+          tipo_persona?: string | null;
+          email?: string | null;
+          direccion?: string | null;
+          ciudad?: string | null;
+          departamento?: string | null;
+          responsable_iva?: boolean | null;
+          fuente?: string;
+          estado?: string | null;
+        } | null;
+      };
+
+      if (json?.verificacion?.numero && nitInput instanceof HTMLInputElement) {
+        nitInput.value = json.verificacion.numero;
+      }
+
+      if (json?.contribuyente?.razon_social) {
+        applyContribuyenteToForm(form, json.contribuyente, scope);
+        const estado = json.contribuyente.estado ? ` · ${json.contribuyente.estado}` : '';
+        const msg = `Importado desde ${json.contribuyente.fuente ?? 'DIAN'}: ${json.contribuyente.razon_social}${estado}`;
+        setNitStatus(scope, msg, true);
+        toast(msg);
+        return;
+      }
+
+      setNitStatus(scope, json?.mensaje || 'NIT valido sin datos DIAN', json?.ok !== false);
+      toast(json?.mensaje || 'NIT valido. Sin datos DIAN para importar.');
+    });
   });
 }
 

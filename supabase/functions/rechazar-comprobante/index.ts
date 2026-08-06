@@ -161,6 +161,11 @@ Deno.serve(async req => {
       const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 16);
       const nota = `[${timestamp}] Comprobante rechazado (pedido ${pedidoId.slice(0, 8)}). Cotizacion reabierta para reintento.${motivo ? ` Motivo: ${motivo}` : ''}`;
       const notasPrevias = String(row.notas_internas ?? '').trim();
+      const meta =
+        row.metadata && typeof row.metadata === 'object' && !Array.isArray(row.metadata)
+          ? { ...(row.metadata as Record<string, unknown>) }
+          : {};
+      meta.formalizacion_url = formalizarUrl;
 
       const { error: reopenError } = await supabase
         .from('solicitudes_cotizacion')
@@ -169,6 +174,7 @@ Deno.serve(async req => {
           pedido_id: null,
           formalizacion_token_hash: tokenHash,
           formalizacion_token_expira_at: expiraAt,
+          metadata: meta,
           leida: true,
           notas_internas: notasPrevias ? `${notasPrevias}\n${nota}` : nota,
         })
@@ -207,7 +213,8 @@ Deno.serve(async req => {
       referencia: escapeHtml(cotizacionRef),
       total: escapeHtml(total),
       moneda: escapeHtml(moneda),
-      formalizar_url: escapeHtml(formalizarUrl),
+      formalizar_url: formalizarUrl,
+      formalizar_url_href: escapeHtml(formalizarUrl),
       motivo: escapeHtml(
         motivo || (locale === 'en' ? 'Receipt not valid' : 'Comprobante no valido')
       ),

@@ -107,6 +107,90 @@ function isFacturacionColombia(config: FiscalConfig): boolean {
   return config.mercado === 'CO' && config.moneda.toUpperCase() === 'COP';
 }
 
+/** Solo dígitos (quita espacios, puntos, guiones). */
+export function soloDigitosDocumento(value: string): string {
+  return value.replace(/\D/g, '');
+}
+
+/**
+ * Normaliza número de documento para DIAN/Siigo.
+ * NIT/CC → solo dígitos (901441908-2 → 9014419082; "9 0 1 …" → limpio).
+ * CE/PP/OTRO → sin espacios, mayúsculas.
+ */
+export function normalizeNumeroDocumento(
+  tipo: TipoDocumentoFiscal | null | undefined,
+  raw: string | null | undefined
+): string | null {
+  if (raw == null) return null;
+  const trimmed = String(raw).trim();
+  if (!trimmed) return null;
+  if (tipo === 'NIT' || tipo === 'CC' || !tipo) {
+    const digits = soloDigitosDocumento(trimmed);
+    return digits || null;
+  }
+  const cleaned = trimmed.replace(/\s+/g, '').toUpperCase();
+  return cleaned || null;
+}
+
+/** Dígito de verificación NIT Colombia (módulo 11). */
+export function digitoVerificacionNit(nitSinDv: string): number | null {
+  const digits = soloDigitosDocumento(nitSinDv);
+  if (!digits || digits.length < 5 || digits.length > 15) return null;
+  const primes = [3, 7, 13, 17, 19, 23, 29, 37, 41, 43, 47, 53, 59, 67, 71];
+  let sum = 0;
+  for (let i = 0; i < digits.length; i++) {
+    const d = Number(digits[digits.length - 1 - i]);
+    const p = primes[i];
+    if (!Number.isFinite(d) || p == null) return null;
+    sum += d * p;
+  }
+  const mod = sum % 11;
+  return mod > 1 ? 11 - mod : mod;
+}
+
+/**
+ * Valida formato del documento. Devuelve mensaje de error o null si OK.
+ * NIT: 9–10 dígitos; si 10, verifica dígito de chequeo.
+ */
+export function validateNumeroDocumentoFormat(
+  tipo: TipoDocumentoFiscal | null | undefined,
+  numero: string | null | undefined
+): string | null {
+  const normalized = normalizeNumeroDocumento(tipo, numero);
+  if (!normalized) return 'numero_documento requerido para facturacion electronica';
+
+  if (tipo === 'NIT') {
+    if (!/^\d{9,10}$/.test(normalized)) {
+      return 'NIT invalido: use 9 o 10 digitos sin espacios (ej. 9014419082)';
+    }
+    if (normalized.length === 10) {
+      const base = normalized.slice(0, -1);
+      const dv = Number(normalized.slice(-1));
+      const expected = digitoVerificacionNit(base);
+      if (expected != null && dv !== expected) {
+        return `NIT invalido: digito de verificacion incorrecto (esperado ${expected})`;
+      }
+    }
+    return null;
+  }
+
+  if (tipo === 'CC') {
+    if (!/^\d{5,12}$/.test(normalized)) {
+      return 'CC invalida: use solo digitos (5-12)';
+    }
+    return null;
+  }
+
+  if (tipo === 'CE' || tipo === 'PP') {
+    if (!/^[A-Z0-9-]{4,20}$/.test(normalized)) {
+      return `${tipo} invalido: 4-20 caracteres alfanumericos`;
+    }
+    return null;
+  }
+
+  return null;
+}
+
 export function validateClienteFiscal(
   profile: ClienteFiscalProfile,
   config: FiscalConfig
@@ -115,9 +199,8 @@ export function validateClienteFiscal(
   if (!profile.solicitar_factura_electronica || !isFacturacionColombia(config)) return errors;
 
   if (!profile.tipo_documento) errors.push('tipo_documento requerido para facturacion electronica');
-  if (!profile.numero_documento?.trim()) {
-    errors.push('numero_documento requerido para facturacion electronica');
-  }
+  const docError = validateNumeroDocumentoFormat(profile.tipo_documento, profile.numero_documento);
+  if (docError) errors.push(docError);
   if (!profile.tipo_persona) errors.push('tipo_persona requerida para facturacion electronica');
   if (!profile.razon_social?.trim()) {
     errors.push('razon_social requerida para facturacion electronica');
@@ -127,6 +210,14 @@ export function validateClienteFiscal(
   }
   if (!profile.direccion_facturacion?.direccion?.trim()) {
     errors.push('direccion_facturacion.direccion requerida para facturacion electronica');
+  } else {
+    const dir = profile.direccion_facturacion.direccion.trim();
+    // Evita el error tipico: pegar el NIT en la casilla de direccion.
+    if (/^[\d\s.-]{8,}$/.test(dir) && soloDigitosDocumento(dir).length >= 8) {
+      errors.push(
+        'direccion_facturacion.direccion parece un numero de documento; indique una direccion fisica'
+      );
+    }
   }
   if (!profile.direccion_facturacion?.ciudad?.trim()) {
     errors.push('direccion_facturacion.ciudad requerida para facturacion electronica');
@@ -297,7 +388,9 @@ export function buildDianInvoiceDraft(args: {
     moneda,
     cliente: {
       tipo_documento: clienteFiscal.tipo_documento,
-      numero_documento: clienteFiscal.numero_documento,
+      numero_documento:
+        normalizeNumeroDocumento(clienteFiscal.tipo_documento, clienteFiscal.numero_documento) ??
+        clienteFiscal.numero_documento,
       tipo_persona: clienteFiscal.tipo_persona,
       razon_social: clienteFiscal.razon_social,
       email: clienteFiscal.email_facturacion,
@@ -341,12 +434,13 @@ export function normalizeClienteFiscalInput(
 ): ClienteFiscalProfile {
   const mercadoOk = defaults.mercado === 'CO' && defaults.moneda.toUpperCase() === 'COP';
   const solicitar = mercadoOk && fiscal?.solicitar_factura_electronica === true;
+  const tipoDocumento = fiscal?.tipo_documento ?? null;
   const direccion = fiscal?.direccion_facturacion?.direccion?.trim();
   const ciudad = fiscal?.direccion_facturacion?.ciudad?.trim();
   return {
     solicitar_factura_electronica: solicitar,
-    tipo_documento: fiscal?.tipo_documento ?? null,
-    numero_documento: fiscal?.numero_documento?.trim() ?? null,
+    tipo_documento: tipoDocumento,
+    numero_documento: normalizeNumeroDocumento(tipoDocumento, fiscal?.numero_documento),
     tipo_persona: fiscal?.tipo_persona ?? null,
     razon_social: fiscal?.razon_social?.trim() || defaults.razonSocialFallback?.trim() || null,
     responsable_iva: fiscal?.responsable_iva === true,

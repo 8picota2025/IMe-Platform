@@ -52,13 +52,25 @@ export function mapDianDraftToSiigoInvoice(args: {
     };
   });
 
+  // Siigo recalcula IVA con 2 decimales (price * qty * tarifa). El payment
+  // debe cuadrar con ESE total, no con el entero COP de fiscal.ts.
+  const round2 = (n: number) => Math.round(n * 100) / 100;
+  const totalSiigo = round2(
+    items.reduce((acc, item, index) => {
+      const base = round2(item.price * item.quantity);
+      const ivaPct = draft.lineas[index]?.tarifa_iva_pct ?? 0;
+      const iva = round2(base * (ivaPct / 100));
+      return acc + base + iva;
+    }, 0)
+  );
+
   return {
     document: { id: config.documentTypeId },
     date: fecha,
     customer: { identification: clienteIdentification, branch_office: 0 },
     seller: config.sellerId,
     items,
-    payments: [{ id: config.paymentTypeId, value: draft.totales.total }],
+    payments: [{ id: config.paymentTypeId, value: totalSiigo }],
     observations: `Pedido I-ME ${draft.referencia}`,
     stamp: { send: true },
     mail: { send: true },

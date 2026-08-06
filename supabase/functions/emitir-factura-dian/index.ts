@@ -1,6 +1,7 @@
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { badRequest, internalError, unauthorized, errorResponse } from '../_shared/errors.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
+import { requireAdmin } from '../_shared/admin-auth.ts';
 import { withTelemetry, trackEvent } from '../_shared/telemetry.ts';
 import {
   autenticar,
@@ -17,6 +18,7 @@ import { DESTINATARIOS_INTERNOS, enviarEmailPlantilla, escapeHtml } from '../_sh
 
 const FN_NAME = 'emitir-factura-dian';
 const PROVEEDOR = 'siigo';
+const ADMIN_ROLES = new Set(['owner', 'admin', 'ventas', 'operaciones']);
 
 interface EmitirFacturaRequest {
   pedido_id?: string;
@@ -132,7 +134,11 @@ Deno.serve(
     const corsRes = handleCors(req);
     if (corsRes) return corsRes;
     if (req.method !== 'POST') return badRequest('Metodo no soportado', origin);
-    if (!isServiceRoleRequest(req)) return unauthorized(origin);
+    const supabase = getServerSupabase();
+    if (!isServiceRoleRequest(req)) {
+      const auth = await requireAdmin(supabase, req.headers.get('authorization'), ADMIN_ROLES);
+      if (!auth.ok) return unauthorized(origin);
+    }
 
     let body: EmitirFacturaRequest;
     try {
@@ -145,8 +151,6 @@ Deno.serve(
 
     const dryRun = body.dry_run === true;
     const forceLive = body.force_live === true;
-
-    const supabase = getServerSupabase();
     const { data, error } = await supabase
       .from('pedidos')
       .select('id, facturacion_electronica_solicitada, total, moneda, metadata')

@@ -116,14 +116,30 @@ async function loadCotizacionValidada(
   if (!row.formalizacion_token_hash) {
     return {
       ok: false,
-      response: errorResponse({ code: 'TOKEN_INVALIDO', message: 'Token invalido' }, 401, origin),
+      response: errorResponse(
+        {
+          code: 'TOKEN_INVALIDO',
+          message:
+            'Token invalido. Usa el enlace del correo mas reciente (los envios anteriores quedan sin efecto).',
+        },
+        401,
+        origin
+      ),
     };
   }
   const hash = await hashTokenSha256(token);
   if (hash !== row.formalizacion_token_hash) {
     return {
       ok: false,
-      response: errorResponse({ code: 'TOKEN_INVALIDO', message: 'Token invalido' }, 401, origin),
+      response: errorResponse(
+        {
+          code: 'TOKEN_INVALIDO',
+          message:
+            'Token invalido. Usa el enlace del correo mas reciente (los envios anteriores quedan sin efecto).',
+        },
+        401,
+        origin
+      ),
     };
   }
 
@@ -174,9 +190,25 @@ Deno.serve(async req => {
   if (!id || !token) return badRequest('cotizacion_id y token requeridos', origin);
 
   const supabase = getServerSupabase();
-  const limite = await checkRateLimit(supabase, `formalizar:ip:${obtenerIp(req)}`, 'crear-pago');
+  const ip = obtenerIp(req);
+  const rateAction = action === 'registrar_transferencia' ? 'crear-pago' : 'formalizar-preview';
+  const rateKey =
+    action === 'registrar_transferencia'
+      ? `formalizar:submit:ip:${ip}`
+      : `formalizar:preview:ip:${ip}`;
+  const limite = await checkRateLimit(supabase, rateKey, rateAction);
   if (limite.limited) {
-    return errorResponse({ code: 'RATE_LIMITED', message: 'Demasiadas solicitudes' }, 429, origin);
+    return errorResponse(
+      {
+        code: 'RATE_LIMITED',
+        message:
+          action === 'registrar_transferencia'
+            ? 'Demasiados intentos de registro. Espera unos minutos e intenta de nuevo.'
+            : 'Demasiadas consultas del enlace. Espera unos minutos e intenta de nuevo.',
+      },
+      429,
+      origin
+    );
   }
 
   const loaded = await loadCotizacionValidada(supabase, id, token, origin);
