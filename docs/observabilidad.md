@@ -95,7 +95,7 @@ Dashboard CMS:
 
 ### Estado actual
 
-- Quedo operativo un smoke monitor programado en GitHub Actions cada 5 minutos:
+- Quedo operativo un smoke monitor programado en GitHub Actions cada 15 minutos:
   [`/.github/workflows/observabilidad-smoke.yml`](../.github/workflows/observabilidad-smoke.yml)
 - Checks incluidos:
   - home publica con keyword `I-ME`
