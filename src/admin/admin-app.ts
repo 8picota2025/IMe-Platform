@@ -8,6 +8,7 @@ import {
   type TipoDocumentoFiscal,
   type TipoPersonaFiscal,
 } from '../lib/fiscal';
+import { estadoFacturacionTrasEdicionFiscal } from '../lib/dian-emit-guard';
 import { verificarNitCampo } from '../lib/nit-dian';
 import {
   planificarAutoasignacionTipos,
@@ -6993,7 +6994,9 @@ function bindPedidoOperaciones() {
 
     const { data: pedidoRow, error: loadError } = await supabase!
       .from('pedidos')
-      .select('id,cliente_id,metadata,facturacion_electronica_solicitada')
+      .select(
+        'id,cliente_id,estado,metadata,facturacion_electronica_solicitada,facturacion_electronica_estado'
+      )
       .eq('id', pedidoId)
       .maybeSingle();
     if (loadError || !pedidoRow) {
@@ -7047,12 +7050,18 @@ function bindPedidoOperaciones() {
       existingMeta.dian_draft = existingDraft;
     }
 
+    const estadoFactura = estadoFacturacionTrasEdicionFiscal({
+      solicitar,
+      pedidoEstado: text((pedidoRow as Row).estado),
+      estadoActual: text((pedidoRow as Row).facturacion_electronica_estado) || null,
+    });
+
     const { error: updateError } = await supabase!
       .from('pedidos')
       .update({
         metadata: existingMeta,
         facturacion_electronica_solicitada: solicitar,
-        facturacion_electronica_estado: solicitar ? 'pendiente_envio' : 'no_solicitada',
+        facturacion_electronica_estado: estadoFactura,
         direccion_facturacion: profile.direccion_facturacion,
       })
       .eq('id', pedidoId);
