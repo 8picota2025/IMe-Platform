@@ -37,6 +37,7 @@ import {
   type CotizacionOfertaRow,
   type CotizacionLineaOferta,
 } from '../../../src/lib/cotizacion-oferta.ts';
+import { decideCuponBurn } from '../../../src/lib/cupon-burn.ts';
 
 const FN_NAME = 'crear-pago';
 const MAX_ITEMS = 20;
@@ -987,20 +988,6 @@ Deno.serve(
       );
     }
 
-    if (descuento.cupon) {
-      await supabase.from('cupon_usos').insert({
-        cupon_id: descuento.cupon.id,
-        pedido_id: pedidoId,
-        cliente_id: clienteId,
-        email: cliente.email.toLowerCase(),
-        descuento: descuento.descuento,
-      });
-      await supabase
-        .from('cupones')
-        .update({ usos: descuento.cupon.usos + 1 })
-        .eq('id', descuento.cupon.id);
-    }
-
     const gateway = getPaymentGateway(mercado as Mercado);
     const resultado = await gateway.crearCheckout({
       items: checkoutItems,
@@ -1031,6 +1018,25 @@ Deno.serve(
         502,
         origin
       );
+    }
+
+    // Burn only after checkout exists — otherwise single-use coupons are lost on GATEWAY_ERROR.
+    if (
+      decideCuponBurn({ hasCupon: Boolean(descuento.cupon), checkoutOk: resultado.ok }) ===
+        'burn' &&
+      descuento.cupon
+    ) {
+      await supabase.from('cupon_usos').insert({
+        cupon_id: descuento.cupon.id,
+        pedido_id: pedidoId,
+        cliente_id: clienteId,
+        email: cliente.email.toLowerCase(),
+        descuento: descuento.descuento,
+      });
+      await supabase
+        .from('cupones')
+        .update({ usos: descuento.cupon.usos + 1 })
+        .eq('id', descuento.cupon.id);
     }
 
     const { error: updateCheckoutError } = await supabase
