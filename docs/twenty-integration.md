@@ -94,7 +94,18 @@ Redeploy:
 
 ```bash
 supabase functions deploy registrar-cotizacion
+supabase functions deploy registrar-lead-comercial
 ```
+
+## Lead consultivo → Twenty (2026-08-09)
+
+`registrar-lead-comercial` persiste primero en Supabase y sincroniza después:
+
+1. Lead operativo con consentimiento, campaña, UTM, landing e idempotencia.
+2. Cuenta/contacto/oportunidad en CRM interno mediante trigger transaccional.
+3. Opportunity + Task en Twenty con SLA P1/P2/P3.
+4. Fallo Twenty queda en `crm_sync_status = failed`; no pierde lead ni muestra falso error.
+5. Cotización y pedido posteriores reutilizan misma oportunidad CRM mediante FKs explícitas.
 
 Auto-CRM local: webhook dual-write vía `scripts/twenty-inbound-cotizacion.py` si `TWENTY_*` en `.env.local`.
 

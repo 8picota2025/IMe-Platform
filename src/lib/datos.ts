@@ -8,6 +8,7 @@
 
 import type { Locale } from '../i18n/utils';
 import { emitAnalyticsEvent } from './analytics';
+import { captureCommercialAttribution, type CommercialAttribution } from './commercial-attribution';
 import { isSupabaseConfigured, getSupabaseClient } from './supabase';
 import { resolveFamiliaIcono } from './familias';
 
@@ -285,7 +286,7 @@ export interface CotizacionProducto {
   cantidad: number;
 }
 
-export interface CotizacionPayload {
+export interface CotizacionPayload extends CommercialAttribution {
   locale?: 'es' | 'en';
   /** Punto del embudo que originó la solicitud; sin PII. */
   origen?: string;
@@ -673,9 +674,10 @@ export async function submitCotizacion(
 ): Promise<{ ok: boolean; error?: string }> {
   if (isSupabaseConfigured()) {
     const supabase = getSupabaseClient()!;
+    const payload = { ...captureCommercialAttribution(datos.campaign), ...datos };
     // Edge Function: registra la solicitud y envia emails (interno + cliente)
     const { data, error } = await supabase.functions.invoke('registrar-cotizacion', {
-      body: datos,
+      body: payload,
     });
     if (error) return { ok: false, error: error.message };
     const result = data as { ok?: boolean; error?: string } | null;

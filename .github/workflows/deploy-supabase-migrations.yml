@@ -14,6 +14,7 @@ jobs:
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      SUPABASE_PROJECT_REF: nnfbucwiasuggyfoyydo
     steps:
       - uses: actions/checkout@v4
 
@@ -28,6 +29,83 @@ jobs:
             echo "Falta configurar el secret SUPABASE_DB_URL."
             exit 1
           }
+          test -n "$SUPABASE_ACCESS_TOKEN" || {
+            echo "Falta configurar el secret SUPABASE_ACCESS_TOKEN."
+            exit 1
+          }
 
       - name: Apply reviewed migrations
-        run: supabase db push --db-url "$SUPABASE_DB_URL" --include-all --yes
+        run: |
+          set -euo pipefail
+          # El host directo del proyecto es IPv6-only. GitHub-hosted runners no
+          # tienen ruta IPv6 estable. Management API devuelve el Supavisor exacto
+          # asignado al proyecto; la respuesta y la URL nunca se imprimen.
+          command -v psql >/dev/null || {
+            echo "psql no está disponible en el runner."
+            exit 1
+          }
+          pooler_config="$(curl --fail --silent --show-error \
+            -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+            "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/config/database/pooler")"
+          pooler_host="$(jq -r '[.[] | select(.database_type == "PRIMARY")][0].db_host // empty' <<<"$pooler_config")"
+          pooler_user="$(jq -r '[.[] | select(.database_type == "PRIMARY")][0].db_user // empty' <<<"$pooler_config")"
+          test -n "$pooler_host" || {
+            echo "Management API no devolvió host Session Pooler."
+            exit 1
+          }
+          if [ -z "$pooler_user" ] || [ "$pooler_user" = "postgres" ]; then
+            pooler_user="postgres.$SUPABASE_PROJECT_REF"
+          fi
+          POOLER_DB_URL="$(POOLER_HOST="$pooler_host" POOLER_USER="$pooler_user" node -e '
+            const url = new URL(process.env.SUPABASE_DB_URL);
+            url.hostname = process.env.POOLER_HOST;
+            url.port = "5432";
+            url.username = process.env.POOLER_USER;
+            url.searchParams.set("sslmode", "require");
+            url.searchParams.set("connect_timeout", "10");
+            process.stdout.write(url.toString());
+          ')"
+          if psql "$POOLER_DB_URL" -X -v ON_ERROR_STOP=1 -Atqc 'SELECT 1' >/dev/null 2>&1; then
+            echo "Session Pooler conectado."
+            supabase db push --db-url "$POOLER_DB_URL" --include-all --yes
+            exit 0
+          fi
+
+          # Fallback mientras SUPABASE_DB_URL conserve una contraseña antigua.
+          # Management API ejecuta la misma migración en una transacción y el
+          # historial evita reaplicarla en futuras ejecuciones.
+          migration_file="supabase/migrations/20260809090000_commercial_leads_attribution_crm.sql"
+          migration_version="20260809090000"
+          migration_name="commercial_leads_attribution_crm"
+          test -f "$migration_file"
+
+          history_response="$(MIGRATION_VERSION="$migration_version" node -e '
+            process.stdout.write(JSON.stringify({
+              query: "SELECT version FROM supabase_migrations.schema_migrations WHERE version = $1",
+              parameters: [process.env.MIGRATION_VERSION],
+            }));
+          ' | curl --fail --silent --show-error \
+            -X POST \
+            -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data-binary @- \
+            "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/database/query")"
+          if jq -e --arg version "$migration_version" '.. | objects | select(.version? == $version)' <<<"$history_response" >/dev/null; then
+            echo "Migración $migration_version ya registrada."
+            exit 0
+          fi
+
+          MIGRATION_FILE="$migration_file" MIGRATION_VERSION="$migration_version" MIGRATION_NAME="$migration_name" node -e '
+            const fs = require("node:fs");
+            const sql = fs.readFileSync(process.env.MIGRATION_FILE, "utf8");
+            const version = process.env.MIGRATION_VERSION.replace(/[^0-9]/g, "");
+            const name = process.env.MIGRATION_NAME.replace(/[^a-z0-9_]/g, "");
+            const history = `INSERT INTO supabase_migrations.schema_migrations (version, name, statements) VALUES ($migration$${version}$migration$, $migration$${name}$migration$, NULL);`;
+            process.stdout.write(JSON.stringify({ query: `BEGIN;\n${sql}\n${history}\nCOMMIT;` }));
+          ' | curl --fail-with-body --silent --show-error \
+            -X POST \
+            -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data-binary @- \
+            "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/database/query" >/dev/null
+          echo "Migración $migration_version aplicada mediante Management API."

@@ -56,6 +56,16 @@ Deno.serve(async req => {
     notas_internas?: string | null;
     telefono?: string | null;
     cliente_id?: string | null;
+    lead_comercial_id?: string | null;
+    campaign?: string | null;
+    landing_path?: string | null;
+    referrer?: string | null;
+    analytics_session_id?: string | null;
+    utm_source?: string | null;
+    utm_medium?: string | null;
+    utm_campaign?: string | null;
+    utm_content?: string | null;
+    utm_term?: string | null;
   };
 
   if (row.pedido_id || row.estado === 'convertida') {
@@ -201,6 +211,8 @@ Deno.serve(async req => {
   const { error: insertError } = await supabase.from('pedidos').insert({
     id: pedidoId,
     cliente_id: clienteId,
+    solicitud_cotizacion_id: id,
+    lead_comercial_id: row.lead_comercial_id ?? null,
     cliente: {
       nombre,
       apellido,
@@ -223,9 +235,21 @@ Deno.serve(async req => {
     consentimiento_timestamp: new Date().toISOString(),
     metadata: {
       solicitud_cotizacion_id: id,
+      lead_comercial_id: row.lead_comercial_id ?? null,
       origen: 'cotizacion_convertida',
       precios_locked: true,
       condiciones: row.condiciones,
+      attribution: {
+        campaign: row.campaign ?? null,
+        landing_path: row.landing_path ?? null,
+        referrer: row.referrer ?? null,
+        analytics_session_id: row.analytics_session_id ?? null,
+        utm_source: row.utm_source ?? null,
+        utm_medium: row.utm_medium ?? null,
+        utm_campaign: row.utm_campaign ?? null,
+        utm_content: row.utm_content ?? null,
+        utm_term: row.utm_term ?? null,
+      },
     },
   });
 
