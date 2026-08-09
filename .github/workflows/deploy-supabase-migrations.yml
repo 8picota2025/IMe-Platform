@@ -14,6 +14,8 @@ jobs:
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      SUPABASE_PROJECT_REF: nnfbucwiasuggyfoyydo
+      SUPABASE_DB_POOLER_HOST: aws-0-us-east-1.pooler.supabase.com
     steps:
       - uses: actions/checkout@v4
 
@@ -30,4 +32,14 @@ jobs:
           }
 
       - name: Apply reviewed migrations
-        run: supabase db push --db-url "$SUPABASE_DB_URL" --include-all --yes
+        run: |
+          set -euo pipefail
+          # El host directo del proyecto es IPv6-only. GitHub-hosted runners no
+          # tienen ruta IPv6 estable; Session Pooler conserva TLS y usa IPv4.
+          POOLER_DB_URL="$(node -e '
+            const url = new URL(process.env.SUPABASE_DB_URL);
+            url.hostname = process.env.SUPABASE_DB_POOLER_HOST;
+            url.username = `postgres.${process.env.SUPABASE_PROJECT_REF}`;
+            process.stdout.write(url.toString());
+          ')"
+          supabase db push --db-url "$POOLER_DB_URL" --include-all --yes
