@@ -5,6 +5,7 @@
 import Layout from '../../layouts/Layout.astro';
 import { buildPageTitle, buildCanonical, getInstitutionalOgImage } from '../../lib/seo';
 import { t } from '../../i18n/utils';
+import '../../styles/contact-spacing.css';
 
 const locale = 'en';
 const title = buildPageTitle('Contact — Request a Quote');
@@ -21,10 +22,7 @@ const canonical = buildCanonical('/en/contact');
   currentPath="/en/contact"
   ogImage={getInstitutionalOgImage()}
 >
-  <div
-    class="page-hero"
-    style="padding-top:130px;padding-bottom:var(--space-2xl);background:var(--off)"
-  >
+  <div class="page-hero contacto-hero">
     <div class="container">
       <span class="section-tag">Contact</span>
       <h1>{t(locale, 'contacto.titulo')}</h1>
@@ -34,7 +32,7 @@ const canonical = buildCanonical('/en/contact');
     </div>
   </div>
 
-  <section class="section container">
+  <section class="section container contacto-section">
     <div class="contacto-grid">
       <div class="contacto-form-wrapper">
         <form

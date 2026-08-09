@@ -1,0 +1,40 @@
+/* Contact pages: compact commercial flow shared by ES and EN. */
+.contacto-hero.page-hero {
+  padding-block: clamp(6.5rem, 9vw, 7.5rem) clamp(2rem, 3vw, 2.75rem);
+  background: var(--off);
+}
+
+.contacto-section.section {
+  padding-block: clamp(2.25rem, 4vw, 3.5rem);
+}
+
+.contacto-section.section .contacto-grid {
+  gap: clamp(2rem, 4vw, 3rem);
+}
+
+.contacto-section.section .contacto-form {
+  gap: 1rem;
+}
+
+.contacto-section.section .contacto-info {
+  align-self: start;
+  gap: 0.875rem;
+}
+
+.contacto-section.section .contacto-info__heading {
+  margin-bottom: 0.25rem;
+}
+
+@media (max-width: 768px) {
+  .contacto-hero.page-hero {
+    padding-block: 6rem 2rem;
+  }
+
+  .contacto-section.section {
+    padding-block: 2rem 2.5rem;
+  }
+
+  .contacto-section.section .contacto-grid {
+    gap: 2rem;
+  }
+}
