@@ -8,6 +8,7 @@ RewriteCond %{HTTP_HOST} ^www\.i-me\.com\.co$ [NC]
 RewriteRule ^ https://i-me.com.co%{REQUEST_URI} [R=301,L]
 
 # Canonical entry points
+RewriteRule ^$ /es/ [R=301,L]
 RewriteRule ^index\.html$ /es/ [R=301,L]
 RewriteRule ^pagoswompi$ /pagoswompi/ [R=301,L]
 RewriteRule ^clear-sw/?$ /clear-sw.html [L]

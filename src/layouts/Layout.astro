@@ -11,6 +11,7 @@ import Footer from '../components/Footer.astro';
 import Asesor from '../components/Asesor.astro';
 import Carrito from '../components/Carrito.astro';
 import CotizacionDrawer from '../components/CotizacionDrawer.astro';
+import MobileCommercialBar from '../components/MobileCommercialBar.astro';
 import PWABanner from '../components/PWABanner.astro';
 import type { Locale } from '../i18n/utils';
 import { t } from '../i18n/utils';
@@ -38,6 +39,11 @@ const {
   noindex,
   fontAwesome,
 } = Astro.props;
+
+const commercialBarBlocked =
+  /\/(?:admin|comercial|carrito|cart|checkout|cuenta|account|pago|payment)(?:\/|$)/.test(
+    currentPath
+  );
 ---
 
 <!doctype html>
@@ -57,7 +63,7 @@ const {
     <AnalyticsHead />
     <ClientRouter />
   </head>
-  <body>
+  <body class:list={{ 'has-mobile-commercial-bar': !commercialBarBlocked }}>
     <AnalyticsNoScript />
     <!-- Skip link de accesibilidad -->
     <a href="#main-content" class="skip-link">{t(locale, 'accesibilidad.saltar_contenido')}</a>
@@ -72,6 +78,7 @@ const {
     <Asesor locale={locale} />
     <Carrito locale={locale} />
     <CotizacionDrawer locale={locale} />
+    {!commercialBarBlocked && <MobileCommercialBar locale={locale} />}
     <PWABanner />
 
     <!-- Lenis smooth scroll + GSAP init -->

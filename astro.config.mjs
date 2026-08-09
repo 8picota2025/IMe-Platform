@@ -29,6 +29,7 @@ export default defineConfig({
       filter: page => {
         const url = new URL(page);
         return !(
+          url.pathname === '/' ||
           url.pathname === '/admin/' ||
           url.pathname === '/comercial/' ||
           url.pathname === '/es/carrito/' ||

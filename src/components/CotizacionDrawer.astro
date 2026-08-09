@@ -632,6 +632,7 @@ const config = {
         submitBtn.textContent = i18n.enviando;
 
         const payload = {
+          origen: 'lista_cotizacion',
           nombre: String(data.get('nombre') ?? ''),
           email: String(data.get('email') ?? ''),
           telefono: String(data.get('telefono') ?? ''),

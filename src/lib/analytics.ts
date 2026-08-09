@@ -303,6 +303,7 @@ function handleClick(event: MouseEvent): void {
     emitAnalyticsEvent('whatsapp_click', {
       href,
       text: anchor.textContent?.trim() ?? '',
+      origin: anchor.dataset['commercialOrigin'],
     });
     return;
   }

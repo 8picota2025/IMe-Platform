@@ -83,6 +83,21 @@
   --space-3xl: 8rem;
 }
 
+@media (max-width: 767px) {
+  body.has-mobile-commercial-bar {
+    padding-bottom: calc(4.75rem + env(safe-area-inset-bottom));
+  }
+
+  body.has-mobile-commercial-bar .asesor-fab {
+    bottom: calc(5.5rem + env(safe-area-inset-bottom));
+  }
+
+  body.has-mobile-commercial-bar .asesor-dialog {
+    bottom: calc(8.75rem + env(safe-area-inset-bottom));
+    max-height: calc(100vh - 10rem - env(safe-area-inset-bottom));
+  }
+}
+
 /* === Tema oscuro === */
 [data-theme='dark'] {
   --white: #0b1b22;

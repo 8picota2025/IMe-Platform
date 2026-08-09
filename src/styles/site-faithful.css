@@ -235,7 +235,16 @@
   display: flex;
   gap: 14px;
   flex-wrap: wrap;
-  margin-bottom: 52px;
+  margin-bottom: 0;
+}
+.site-faithful .hero-response-note {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 14px 0 40px;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 13px;
+  font-weight: 600;
 }
 .site-faithful .hero-stats {
   display: flex;

@@ -76,18 +76,13 @@ const canonical = buildCanonical('/en/contact');
             />
           </div>
           <div class="form-field">
-            <label for="telefono" class="form-label"
-              >{t(locale, 'contacto.telefono')}
-              <span aria-hidden="true" class="required">*</span></label
-            >
+            <label for="telefono" class="form-label">Phone (optional)</label>
             <input
               type="tel"
               id="telefono"
               name="telefono"
               class="form-input"
               autocomplete="tel"
-              required
-              aria-required="true"
               placeholder="+57 300 000 0000"
             />
           </div>
@@ -145,6 +140,17 @@ const canonical = buildCanonical('/en/contact');
             aria-atomic="true"
           >
           </div>
+          <a
+            id="form-whatsapp-fallback"
+            class="form-fallback"
+            href="https://wa.me/573103332607"
+            target="_blank"
+            rel="noopener noreferrer"
+            data-commercial-origin="contact_form_fallback"
+            hidden
+          >
+            Continue request on WhatsApp
+          </a>
           <button type="submit" class="btn btn-primary form-submit" id="form-submit-btn"
             >{t(locale, 'contacto.enviar')}</button
           >
@@ -297,6 +303,16 @@ const canonical = buildCanonical('/en/contact');
   .form-status.error {
     color: #c0392b;
   }
+  .form-fallback {
+    align-self: flex-start;
+    color: #168b54;
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-underline-offset: 3px;
+  }
+  .form-fallback[hidden] {
+    display: none;
+  }
   .form-submit {
     align-self: flex-start;
   }
@@ -362,6 +378,9 @@ const canonical = buildCanonical('/en/contact');
   const submitBtn = document.getElementById('form-submit-btn') as HTMLButtonElement | null;
   const productosField = document.getElementById('productos') as HTMLTextAreaElement | null;
   const mensajeField = document.getElementById('mensaje') as HTMLTextAreaElement | null;
+  const whatsappFallback = document.getElementById(
+    'form-whatsapp-fallback'
+  ) as HTMLAnchorElement | null;
 
   function parseProductos(raw: string): Array<{ slug: string; nombre: string; cantidad: number }> {
     return raw
@@ -399,9 +418,11 @@ const canonical = buildCanonical('/en/contact');
       status.className = 'form-status';
       status.textContent = '';
     }
+    if (whatsappFallback) whatsappFallback.hidden = true;
     const data = new FormData(form);
     const result = await submitCotizacion({
       locale: 'en',
+      origen: 'contact_form',
       nombre: (data.get('nombre') as string) ?? '',
       email: (data.get('email') as string) ?? '',
       telefono: (data.get('telefono') as string) ?? '',
@@ -415,10 +436,21 @@ const canonical = buildCanonical('/en/contact');
         status.textContent = 'Request sent! We will contact you soon.';
       }
       form.reset();
+      if (whatsappFallback) whatsappFallback.hidden = true;
     } else {
       if (status) {
         status.className = 'form-status error';
         status.textContent = 'An error occurred. Please try again.';
+      }
+      if (whatsappFallback) {
+        const fallbackMessage = [
+          'Hello, I would like to request a biomedical equipment quote.',
+          `Name: ${String(data.get('nombre') ?? '').trim()}`,
+          `Products: ${String(data.get('productos') ?? '').trim() || 'To be defined'}`,
+          `Details: ${String(data.get('mensaje') ?? '').trim()}`,
+        ].join('\n');
+        whatsappFallback.href = `https://wa.me/573103332607?text=${encodeURIComponent(fallbackMessage)}`;
+        whatsappFallback.hidden = false;
       }
     }
     if (submitBtn) {
