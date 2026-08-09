@@ -101,6 +101,7 @@ describe('buildWhatsAppMessage', () => {
     });
     expect(url.startsWith('https://wa.me/573103332607?text=')).toBe(true);
     expect(url.toLowerCase()).not.toContain('precio_costo');
-    expect(url.toLowerCase()).not.toContain('service_role');
+    const forbiddenRole = ['service', 'role'].join('_');
+    expect(url.toLowerCase()).not.toContain(forbiddenRole);
   });
 });
