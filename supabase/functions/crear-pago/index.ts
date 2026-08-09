@@ -37,6 +37,7 @@ import {
   type CotizacionOfertaRow,
   type CotizacionLineaOferta,
 } from '../../../src/lib/cotizacion-oferta.ts';
+import { withStripeCheckoutSessionId } from '../../../src/lib/stripe-session.ts';
 
 const FN_NAME = 'crear-pago';
 const MAX_ITEMS = 20;
@@ -908,6 +909,31 @@ Deno.serve(
       void pushClienteToTwenty(supabase, clienteId);
     }
 
+    const pedidoMetadata: Record<string, unknown> = {
+      locale,
+      fiscal: {
+        solicitar_factura_electronica: fiscalCliente.solicitar_factura_electronica,
+        tipo_documento: fiscalCliente.tipo_documento,
+        numero_documento: fiscalCliente.numero_documento,
+        tipo_persona: fiscalCliente.tipo_persona,
+        razon_social: fiscalCliente.razon_social,
+        responsable_iva: fiscalCliente.responsable_iva === true,
+        agente_retencion: fiscalCliente.agente_retencion === true,
+        agente_reteica: fiscalCliente.agente_reteica === true,
+        email_facturacion: fiscalCliente.email_facturacion,
+      },
+      fiscal_resumen: fiscal,
+      dian_draft: dianDraft,
+      ...(lineasCotizacion
+        ? {
+            solicitud_cotizacion_id: cotizacionId,
+            origen: 'cotizacion',
+            precios_locked: true,
+            total_ofertado: calcularTotalOfertado(lineasCotizacion),
+          }
+        : {}),
+    };
+
     const { error: insertError } = await supabase.from('pedidos').insert({
       id: pedidoId,
       cliente_id: clienteId,
@@ -926,6 +952,8 @@ Deno.serve(
       mercado,
       proveedor_pago: proveedorPago,
       estado: 'pendiente',
+      // Wompi + Stripe webhooks lookup by pedido id (Stripe client_reference_id).
+      // Stripe Checkout Session id (cs_…) is stored later in metadata for reconcile.
       referencia_pasarela: pedidoId,
       facturacion_electronica_solicitada: fiscalCliente.solicitar_factura_electronica,
       facturacion_electronica_estado: fiscalCliente.solicitar_factura_electronica
@@ -933,30 +961,7 @@ Deno.serve(
         : 'no_solicitada',
       consentimiento_datos: true,
       consentimiento_timestamp: new Date().toISOString(),
-      metadata: {
-        locale,
-        fiscal: {
-          solicitar_factura_electronica: fiscalCliente.solicitar_factura_electronica,
-          tipo_documento: fiscalCliente.tipo_documento,
-          numero_documento: fiscalCliente.numero_documento,
-          tipo_persona: fiscalCliente.tipo_persona,
-          razon_social: fiscalCliente.razon_social,
-          responsable_iva: fiscalCliente.responsable_iva === true,
-          agente_retencion: fiscalCliente.agente_retencion === true,
-          agente_reteica: fiscalCliente.agente_reteica === true,
-          email_facturacion: fiscalCliente.email_facturacion,
-        },
-        fiscal_resumen: fiscal,
-        dian_draft: dianDraft,
-        ...(lineasCotizacion
-          ? {
-              solicitud_cotizacion_id: cotizacionId,
-              origen: 'cotizacion',
-              precios_locked: true,
-              total_ofertado: calcularTotalOfertado(lineasCotizacion),
-            }
-          : {}),
-      },
+      metadata: pedidoMetadata,
     });
 
     if (insertError) {
@@ -1033,13 +1038,24 @@ Deno.serve(
       );
     }
 
+    const checkoutMetadata =
+      proveedorPago === 'stripe'
+        ? withStripeCheckoutSessionId(pedidoMetadata, resultado.referencia_pasarela)
+        : pedidoMetadata;
+
     const { error: updateCheckoutError } = await supabase
       .from('pedidos')
-      .update({ checkout_url: resultado.checkout_url ?? null })
+      .update({
+        checkout_url: resultado.checkout_url ?? null,
+        metadata: checkoutMetadata,
+      })
       .eq('id', pedidoId);
 
     if (updateCheckoutError) {
-      console.warn('crear-pago: no se pudo persistir checkout_url', updateCheckoutError.message);
+      console.warn(
+        'crear-pago: no se pudo persistir checkout_url/session',
+        updateCheckoutError.message
+      );
     }
     await notificarEstadoPedido(pedidoId, 'pendiente');
 
