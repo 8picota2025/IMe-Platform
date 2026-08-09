@@ -15,7 +15,6 @@ jobs:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
       SUPABASE_PROJECT_REF: nnfbucwiasuggyfoyydo
-      SUPABASE_DB_POOLER_REGION: us-east-1
     steps:
       - uses: actions/checkout@v4
 
@@ -30,35 +29,42 @@ jobs:
             echo "Falta configurar el secret SUPABASE_DB_URL."
             exit 1
           }
+          test -n "$SUPABASE_ACCESS_TOKEN" || {
+            echo "Falta configurar el secret SUPABASE_ACCESS_TOKEN."
+            exit 1
+          }
 
       - name: Apply reviewed migrations
         run: |
           set -euo pipefail
           # El host directo del proyecto es IPv6-only. GitHub-hosted runners no
-          # tienen ruta IPv6 estable. El shard de Session Pooler no forma parte
-          # del project ref, así que se detecta con una consulta sin imprimir la URL.
+          # tienen ruta IPv6 estable. Management API devuelve el Supavisor exacto
+          # asignado al proyecto; la respuesta y la URL nunca se imprimen.
           command -v psql >/dev/null || {
             echo "psql no está disponible en el runner."
             exit 1
           }
-          POOLER_DB_URL=""
-          for shard in 0 1 2 3 4; do
-            pooler_host="aws-${shard}-${SUPABASE_DB_POOLER_REGION}.pooler.supabase.com"
-            candidate_url="$(POOLER_HOST="$pooler_host" node -e '
-              const url = new URL(process.env.SUPABASE_DB_URL);
-              url.hostname = process.env.POOLER_HOST;
-              url.username = `postgres.${process.env.SUPABASE_PROJECT_REF}`;
-              url.searchParams.set("connect_timeout", "5");
-              process.stdout.write(url.toString());
-            ')"
-            if psql "$candidate_url" -X -v ON_ERROR_STOP=1 -Atqc 'SELECT 1' >/dev/null 2>&1; then
-              POOLER_DB_URL="$candidate_url"
-              echo "Session Pooler conectado en shard aws-${shard}."
-              break
-            fi
-          done
-          test -n "$POOLER_DB_URL" || {
-            echo "No fue posible autenticar contra ningún shard Session Pooler."
+          pooler_config="$(curl --fail --silent --show-error \
+            -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+            "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/config/database/pooler")"
+          pooler_host="$(jq -r '[.[] | select(.database_type == "PRIMARY")][0].db_host // empty' <<<"$pooler_config")"
+          pooler_user="$(jq -r '[.[] | select(.database_type == "PRIMARY")][0].db_user // empty' <<<"$pooler_config")"
+          test -n "$pooler_host" || {
+            echo "Management API no devolvió host Session Pooler."
             exit 1
           }
+          if [ -z "$pooler_user" ] || [ "$pooler_user" = "postgres" ]; then
+            pooler_user="postgres.$SUPABASE_PROJECT_REF"
+          fi
+          POOLER_DB_URL="$(POOLER_HOST="$pooler_host" POOLER_USER="$pooler_user" node -e '
+            const url = new URL(process.env.SUPABASE_DB_URL);
+            url.hostname = process.env.POOLER_HOST;
+            url.port = "5432";
+            url.username = process.env.POOLER_USER;
+            url.searchParams.set("sslmode", "require");
+            url.searchParams.set("connect_timeout", "10");
+            process.stdout.write(url.toString());
+          ')"
+          psql "$POOLER_DB_URL" -X -v ON_ERROR_STOP=1 -Atqc 'SELECT 1' >/dev/null
+          echo "Session Pooler conectado."
           supabase db push --db-url "$POOLER_DB_URL" --include-all --yes
