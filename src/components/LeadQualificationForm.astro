@@ -1,8 +1,7 @@
 ---
 /**
  * Formulario progresivo B2B para landings consultivas.
- * Sandbox: valida, clasifica P1/P2/P3 y abre WhatsApp contextual.
- * Persistencia Edge Function: siguiente iteración post-visto-bueno.
+ * Persiste el lead, clasifica P1/P2/P3 y luego abre WhatsApp contextual.
  */
 import type { Locale } from '../i18n/utils';
 import type { CampaignLandingId } from '../lib/comercial-leads';
@@ -31,6 +30,9 @@ const {
 const isEn = locale === 'en';
 const privacyHref = isEn ? '/en/legal/privacy/' : '/es/legal/privacidad/';
 const habeasHref = isEn ? '/en/legal/data-authorization/' : '/es/legal/habeas-data/';
+const turnstileSiteKey = (
+  (import.meta.env['PUBLIC_TURNSTILE_SITE_KEY'] as string | undefined) ?? ''
+).trim();
 ---
 
 <form
@@ -41,11 +43,16 @@ const habeasHref = isEn ? '/en/legal/data-authorization/' : '/es/legal/habeas-da
   data-campaign={campaign}
   data-familia={familiaSlug}
   data-tipo={tipoSlug}
+  data-turnstile-site-key={turnstileSiteKey}
   aria-label={isEn ? 'Project evaluation form' : 'Formulario de evaluación de proyecto'}
 >
   <input type="hidden" name="familia_slug" value={familiaSlug} />
   <input type="hidden" name="tipo_slug" value={tipoSlug} />
   <input type="hidden" name="campaign" value={campaign} />
+  <label class="lqf-honeypot" aria-hidden="true">
+    Website
+    <input name="website" type="text" tabindex="-1" autocomplete="off" />
+  </label>
 
   <fieldset class="lqf-step" data-step="1">
     <legend class="lqf-legend"
@@ -217,9 +224,19 @@ const habeasHref = isEn ? '/en/legal/data-authorization/' : '/es/legal/habeas-da
         {primaryCta}
       </button>
     </div>
+    <div class="lqf-turnstile" data-turnstile></div>
   </fieldset>
 
   <div class="lqf-status" role="status" aria-live="polite" data-status></div>
+  <a
+    class="lqf-whatsapp-fallback"
+    data-whatsapp-fallback
+    hidden
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    {isEn ? 'Open WhatsApp' : 'Abrir WhatsApp'}
+  </a>
 </form>
 
 <style>
@@ -348,9 +365,32 @@ const habeasHref = isEn ? '/en/legal/data-authorization/' : '/es/legal/habeas-da
   .lqf-field.is-invalid select {
     border-color: #c0392b;
   }
+  .lqf-honeypot {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .lqf-turnstile {
+    margin-top: 1rem;
+  }
+  .lqf-turnstile:empty {
+    display: none;
+  }
+  .lqf-whatsapp-fallback {
+    align-self: flex-start;
+    color: var(--t900);
+    font-weight: 700;
+    text-decoration: underline;
+  }
 </style>
 
 <script>
+  import {
+    captureCommercialAttribution,
+    rememberCommercialLead,
+  } from '../lib/commercial-attribution';
   import {
     buildWhatsAppUrl,
     classifyLead,
@@ -359,6 +399,65 @@ const habeasHref = isEn ? '/en/legal/data-authorization/' : '/es/legal/habeas-da
     type CommercialLeadInput,
     type HorizonteCompra,
   } from '../lib/comercial-leads';
+  import { getSupabaseClient } from '../lib/supabase';
+
+  interface TurnstileApi {
+    render: (container: HTMLElement, options: Record<string, unknown>) => string;
+    reset: (id?: string) => void;
+  }
+
+  interface LeadResponse {
+    ok?: boolean;
+    leadId?: string;
+    priority?: 'P1' | 'P2' | 'P3';
+    crmSyncStatus?: string;
+    error?: string;
+  }
+
+  let turnstileLoaded: Promise<void> | null = null;
+  const turnstileTokens = new WeakMap<HTMLFormElement, string>();
+  const turnstileWidgets = new WeakMap<HTMLFormElement, string>();
+
+  function loadTurnstile(): Promise<void> {
+    if ((window as Window & { turnstile?: TurnstileApi }).turnstile) return Promise.resolve();
+    if (turnstileLoaded) return turnstileLoaded;
+    turnstileLoaded = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      script.async = true;
+      script.defer = true;
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error('turnstile load error'));
+      document.head.appendChild(script);
+    });
+    return turnstileLoaded;
+  }
+
+  async function ensureTurnstile(form: HTMLFormElement): Promise<string | undefined> {
+    const sitekey = form.dataset.turnstileSiteKey?.trim();
+    if (!sitekey) return undefined;
+    const container = form.querySelector<HTMLElement>('[data-turnstile]');
+    if (!container) return undefined;
+    await loadTurnstile();
+    const api = (window as Window & { turnstile?: TurnstileApi }).turnstile;
+    if (!api) return undefined;
+    if (!turnstileWidgets.has(form)) {
+      const widget = api.render(container, {
+        sitekey,
+        size: 'flexible',
+        callback: (token: string) => turnstileTokens.set(form, token),
+        'expired-callback': () => turnstileTokens.delete(form),
+        'error-callback': () => turnstileTokens.delete(form),
+      });
+      turnstileWidgets.set(form, widget);
+    }
+    return turnstileTokens.get(form);
+  }
+
+  function newIdempotencyKey(): string {
+    if (typeof window.crypto?.randomUUID === 'function') return window.crypto.randomUUID();
+    return `${Date.now()}_${Math.random().toString(36).slice(2)}_${Math.random().toString(36).slice(2)}`;
+  }
 
   function initForm(form: HTMLFormElement) {
     if (form.dataset.bound === '1') return;
@@ -371,6 +470,7 @@ const habeasHref = isEn ? '/en/legal/data-authorization/' : '/es/legal/habeas-da
     const nextBtn = form.querySelector<HTMLButtonElement>('[data-next]');
     const backBtn = form.querySelector<HTMLButtonElement>('[data-back]');
     const submitBtn = form.querySelector<HTMLButtonElement>('[data-submit]');
+    const whatsappFallback = form.querySelector<HTMLAnchorElement>('[data-whatsapp-fallback]');
 
     function showStep(n: 1 | 2) {
       if (!step1 || !step2) return;
@@ -411,7 +511,7 @@ const habeasHref = isEn ? '/en/legal/data-authorization/' : '/es/legal/habeas-da
         necesidad: 'pending',
         consentimiento: true,
       });
-      const keys = ['nombre', 'institucion', 'ciudad', 'contacto'] as const;
+      const keys = ['nombre', 'institucion', 'ciudad', 'contacto', 'email'] as const;
       const blocked = keys.some(k => step1Check.errors[k]);
       if (status) {
         status.className = 'lqf-status';
@@ -422,6 +522,7 @@ const habeasHref = isEn ? '/en/legal/data-authorization/' : '/es/legal/habeas-da
           status.classList.add('is-err');
           status.textContent =
             step1Check.errors.contacto ||
+            step1Check.errors.email ||
             step1Check.errors.institucion ||
             step1Check.errors.nombre ||
             step1Check.errors.ciudad ||
@@ -434,7 +535,9 @@ const habeasHref = isEn ? '/en/legal/data-authorization/' : '/es/legal/habeas-da
 
     backBtn?.addEventListener('click', () => showStep(1));
 
-    form.addEventListener('submit', e => {
+    void ensureTurnstile(form).catch(() => undefined);
+
+    form.addEventListener('submit', async e => {
       e.preventDefault();
       const data = read();
       const result = validateCommercialLead(data);
@@ -447,19 +550,92 @@ const habeasHref = isEn ? '/en/legal/data-authorization/' : '/es/legal/habeas-da
       }
 
       const lead = data as CommercialLeadInput;
-      const priority = classifyLead(lead.horizonte);
       const url = buildWhatsAppUrl(lead);
+      const supabase = getSupabaseClient();
+      if (!supabase) {
+        if (status) {
+          status.className = 'lqf-status is-err';
+          status.textContent =
+            locale === 'en'
+              ? 'The request service is unavailable. Please try again.'
+              : 'El servicio de solicitudes no está disponible. Intenta de nuevo.';
+        }
+        return;
+      }
+
+      const sitekey = form.dataset.turnstileSiteKey?.trim();
+      const turnstileToken = await ensureTurnstile(form).catch(() => undefined);
+      if (sitekey && !turnstileToken) {
+        if (status) {
+          status.className = 'lqf-status is-err';
+          status.textContent =
+            locale === 'en'
+              ? 'Complete the security verification.'
+              : 'Completa la verificación de seguridad.';
+        }
+        return;
+      }
+
+      form.dataset.idempotencyKey ||= newIdempotencyKey();
+      const attribution = captureCommercialAttribution(lead.campaign);
+      const originalSubmitText = submitBtn?.textContent ?? '';
+      if (status) {
+        status.className = 'lqf-status';
+        status.textContent = locale === 'en' ? 'Saving request…' : 'Registrando solicitud…';
+      }
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = locale === 'en' ? 'Saving…' : 'Registrando…';
+      }
+      if (whatsappFallback) whatsappFallback.hidden = true;
+
+      const { data: response, error } = await supabase.functions.invoke(
+        'registrar-lead-comercial',
+        {
+          body: {
+            ...lead,
+            ...attribution,
+            website: String(new FormData(form).get('website') ?? ''),
+            idempotencyKey: form.dataset.idempotencyKey,
+            turnstileToken,
+          },
+        }
+      );
+      const saved = response as LeadResponse | null;
+      if (error || !saved?.ok || !saved.leadId) {
+        if (status) {
+          status.className = 'lqf-status is-err';
+          status.textContent =
+            saved?.error ??
+            (locale === 'en'
+              ? 'We could not register the request. Nothing was marked as received; please try again.'
+              : 'No pudimos registrar la solicitud. No quedó marcada como recibida; intenta de nuevo.');
+        }
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalSubmitText;
+        }
+        const widget = turnstileWidgets.get(form);
+        if (widget) {
+          (window as Window & { turnstile?: TurnstileApi }).turnstile?.reset(widget);
+          turnstileTokens.delete(form);
+        }
+        return;
+      }
+
+      rememberCommercialLead(saved.leadId, lead.campaign);
+      const priority = saved.priority ?? classifyLead(lead.horizonte);
       if (status) {
         status.className = 'lqf-status is-ok';
         status.textContent = slaForPriority(priority, locale);
       }
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        window.setTimeout(() => {
-          submitBtn.disabled = false;
-        }, 2500);
+      if (submitBtn)
+        submitBtn.textContent = locale === 'en' ? 'Request saved' : 'Solicitud registrada';
+      const popup = window.open(url, '_blank', 'noopener,noreferrer');
+      if (whatsappFallback) {
+        whatsappFallback.href = url;
+        whatsappFallback.hidden = popup !== null;
       }
-      window.open(url, '_blank', 'noopener,noreferrer');
     });
   }
 

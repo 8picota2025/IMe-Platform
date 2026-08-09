@@ -50,6 +50,7 @@ export interface ValidationResult {
 }
 
 const WHATSAPP_E164 = '573103332607';
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function classifyLead(horizonte: HorizonteCompra): LeadPriority {
   if (horizonte === '0-3') return 'P1';
@@ -70,6 +71,9 @@ export function validateCommercialLead(input: Partial<CommercialLeadInput>): Val
   if (!input.ciudad?.trim()) req('ciudad', 'Indica la ciudad.', 'Enter the city.');
   if (!input.telefono?.trim() && !input.email?.trim()) {
     req('contacto', 'Indica teléfono o correo.', 'Enter phone or email.');
+  }
+  if (input.email?.trim() && !EMAIL_RE.test(input.email.trim())) {
+    req('email', 'Indica un correo válido.', 'Enter a valid email.');
   }
   if (!input.tipo_proyecto?.trim())
     req('tipo_proyecto', 'Selecciona el tipo de proyecto.', 'Select the project type.');

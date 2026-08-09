@@ -44,6 +44,23 @@ describe('validateCommercialLead', () => {
     });
     expect(r.valid).toBe(true);
   });
+
+  it('rechaza correo mal formado antes de enviar', () => {
+    const r = validateCommercialLead({
+      nombre: 'Ana López',
+      institucion: 'Clínica Norte',
+      ciudad: 'Medellín',
+      email: 'correo-invalido',
+      tipo_proyecto: 'nueva_torre',
+      horizonte: '0-3',
+      necesidad: 'Torre 4K sala 2',
+      consentimiento: true,
+      familia_slug: 'sala-cirugia',
+      campaign: 'torres_laparoscopia',
+    });
+    expect(r.valid).toBe(false);
+    expect(r.errors.email).toBeTruthy();
+  });
 });
 
 describe('buildWhatsAppMessage', () => {

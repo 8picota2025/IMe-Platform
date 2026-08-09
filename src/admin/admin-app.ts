@@ -1273,20 +1273,28 @@ function bindPlantillas() {
 
 const CRM_ETAPAS: Array<[string, string]> = [
   ['nuevo', 'Nuevo'],
+  ['contactado', 'Contactado'],
   ['calificacion', 'Calificacion'],
+  ['reunion', 'Reunion'],
+  ['demo', 'Demo / visita'],
   ['cotizando', 'Cotizando'],
+  ['negociacion', 'Negociacion'],
   ['checkout_pendiente', 'Checkout pendiente'],
   ['ganado', 'Ganado'],
   ['perdido', 'Perdido'],
+  ['nutrir', 'Nutrir despues'],
   ['posventa', 'Posventa'],
 ];
 
 const CRM_STAGE_VALUES = new Set(CRM_ETAPAS.map(([id]) => id));
 const CRM_CLOSED_STAGES = new Set(['ganado', 'perdido', 'posventa']);
+const CRM_PRIORITIES = new Set(['P1', 'P2', 'P3']);
 
 async function crmView(): Promise<string> {
   const params = hashParams();
   const etapa = params.get('etapa') ?? '';
+  const prioridad = params.get('prioridad') ?? '';
+  const seguimiento = params.get('seguimiento') ?? '';
   const q = (params.get('q') ?? '').trim().toLowerCase();
   const [opportunitiesRes, contactsRes, accountsRes, activitiesRes] = await Promise.all([
     supabase!
@@ -1327,6 +1335,13 @@ async function crmView(): Promise<string> {
 
   const allOpportunities = ((opportunitiesRes.data ?? []) as Row[]).filter(row => {
     if (etapa && text(row.etapa) !== etapa) return false;
+    if (prioridad && text(row.prioridad) !== prioridad) return false;
+    const closed = CRM_CLOSED_STAGES.has(text(row.etapa));
+    const nextAction = text(row.next_action_at);
+    if (seguimiento === 'vencido' && (closed || !nextAction || new Date(nextAction) > new Date())) {
+      return false;
+    }
+    if (seguimiento === 'sin_fecha' && (closed || nextAction)) return false;
     if (!q) return true;
     const contact = contacts.get(text(row.contact_id));
     const account = accounts.get(text(row.account_id));
@@ -1339,6 +1354,11 @@ async function crmView(): Promise<string> {
       contact?.telefono_e164,
       account?.nombre,
       account?.tax_id,
+      row.prioridad,
+      row.motivo_perdida,
+      row.next_action_note,
+      (row.metadata as Row | null)?.campaign,
+      (row.metadata as Row | null)?.utm_campaign,
     ]
       .map(value => text(value).toLowerCase())
       .join(' ');
@@ -1359,6 +1379,12 @@ async function crmView(): Promise<string> {
     return next ? new Date(next).getTime() <= Date.now() : false;
   });
   const won = allOpportunities.filter(row => text(row.etapa) === 'ganado');
+  const p1Open = openOpportunities.filter(row => text(row.prioridad) === 'P1');
+  const withoutNextAction = openOpportunities.filter(row => !text(row.next_action_at));
+  const marginOpen = openOpportunities.reduce(
+    (acc, row) => acc + Number(row.margen_estimado ?? 0),
+    0
+  );
 
   const stages = CRM_ETAPAS.map(([stage, label]) => {
     const stageRows = allOpportunities.filter(row => text(row.etapa) === stage);
@@ -1398,6 +1424,17 @@ async function crmView(): Promise<string> {
     <form class="admin-filters" data-crm-filter>
       ${field('q', 'Buscar', q, false, 'search')}
       ${selectStatic('etapa', 'Etapa', etapa, [['', 'Todas'], ...CRM_ETAPAS])}
+      ${selectStatic('prioridad', 'Prioridad', prioridad, [
+        ['', 'Todas'],
+        ['P1', 'P1 · 0–3 meses'],
+        ['P2', 'P2 · 4–12 meses'],
+        ['P3', 'P3 · Exploracion'],
+      ])}
+      ${selectStatic('seguimiento', 'Seguimiento', seguimiento, [
+        ['', 'Todos'],
+        ['vencido', 'Vencido'],
+        ['sin_fecha', 'Sin proxima accion'],
+      ])}
       <button class="admin-button" type="submit">Filtrar</button>
       <a class="admin-button admin-button--ghost" href="#/crm">Limpiar</a>
     </form>
@@ -1405,9 +1442,12 @@ async function crmView(): Promise<string> {
       ${metric('Oportunidades', allOpportunities.length)}
       ${metric('Abiertas', openOpportunities.length)}
       ${metric('Seguimiento vencido', dueNow.length)}
+      ${metric('P1 abiertas', p1Open.length)}
+      ${metric('Sin proxima accion', withoutNextAction.length)}
       ${metric('Ganadas', won.length)}
       ${marketingMetric('Pipeline abierto', crmMoney(totalOpen))}
       ${marketingMetric('Pipeline ponderado', crmMoney(weightedOpen))}
+      ${marketingMetric('Margen estimado', crmMoney(marginOpen))}
     </section>
     <section class="admin-panel">
       <div class="admin-panel__head">
@@ -1466,39 +1506,73 @@ function crmOpportunityCard(
   const account = accounts.get(text(row.account_id));
   const etapa = text(row.etapa) || 'nuevo';
   const nextAction = text(row.next_action_at);
+  const lastContact = text(row.last_contact_at);
   const due = nextAction ? new Date(nextAction).getTime() <= Date.now() : false;
+  const priority = text(row.prioridad);
+  const metadata =
+    row.metadata && typeof row.metadata === 'object' && !Array.isArray(row.metadata)
+      ? (row.metadata as Row)
+      : {};
+  const campaign = text(metadata.campaign || metadata.utm_campaign);
   const title =
     text(row.titulo) || text(account?.nombre) || text(contact?.email_norm) || id.slice(0, 8);
   return `
-    <article class="crm-card">
+    <form class="crm-card" data-crm-opportunity-form="${escapeHtml(id)}" data-crm-account="${escapeHtml(text(row.account_id))}" data-crm-contact="${escapeHtml(text(row.contact_id))}">
       <div class="crm-card__top">
         <strong>${escapeHtml(title)}</strong>
-        <span class="admin-badge ${due ? 'admin-badge--warn' : 'admin-badge--info'}">${escapeHtml(crmStageLabel(etapa))}</span>
+        <span class="admin-badge ${due ? 'admin-badge--warn' : 'admin-badge--info'}">${escapeHtml(priority || crmStageLabel(etapa))}</span>
       </div>
       <p class="admin-meta">${escapeHtml(text(account?.nombre) || 'Sin cuenta')} · ${escapeHtml(text(contact?.email_norm) || text(contact?.telefono_e164) || 'Sin contacto')}</p>
+      ${campaign ? `<p class="admin-meta">Campaña: ${escapeHtml(campaign)}${text(metadata.horizonte) ? ` · ${escapeHtml(text(metadata.horizonte))}` : ''}</p>` : ''}
       <div class="crm-card__numbers">
         <span>${escapeHtml(crmMoney(Number(row.valor_estimado ?? 0), text(row.moneda) || 'COP'))}</span>
         <span>${Number(row.probabilidad ?? 0)}%</span>
         <span>${text(row.updated_at) ? formatDate(text(row.updated_at)) : '—'}</span>
       </div>
       <label class="admin-field">Etapa
-        <select data-crm-stage data-crm-opportunity="${escapeHtml(id)}" data-crm-account="${escapeHtml(text(row.account_id))}" data-crm-contact="${escapeHtml(text(row.contact_id))}">
+        <select name="etapa">
           ${CRM_ETAPAS.map(
             ([stage, label]) =>
               `<option value="${escapeHtml(stage)}" ${stage === etapa ? 'selected' : ''}>${escapeHtml(label)}</option>`
           ).join('')}
         </select>
       </label>
-      <div class="crm-followup">
-        <input type="datetime-local" data-crm-next-input="${escapeHtml(id)}" value="${escapeHtml(crmDatetimeLocal(nextAction))}" aria-label="Proxima accion CRM" />
-        <button class="admin-button admin-button--ghost" type="button" data-crm-next-save="${escapeHtml(id)}" data-crm-account="${escapeHtml(text(row.account_id))}" data-crm-contact="${escapeHtml(text(row.contact_id))}">Guardar</button>
+      <div class="crm-card__fields">
+        <label class="admin-field">Prioridad
+          <select name="prioridad">
+            <option value="">Sin prioridad</option>
+            ${['P1', 'P2', 'P3'].map(value => `<option value="${value}" ${value === priority ? 'selected' : ''}>${value}</option>`).join('')}
+          </select>
+        </label>
+        <label class="admin-field">Valor estimado
+          <input name="valor_estimado" type="number" min="0" step="1" value="${escapeHtml(text(row.valor_estimado))}" />
+        </label>
+        <label class="admin-field">Margen estimado
+          <input name="margen_estimado" type="number" min="0" step="1" value="${escapeHtml(text(row.margen_estimado))}" />
+        </label>
+        <label class="admin-field">Margen %
+          <input name="margen_pct" type="number" min="0" max="100" step="0.01" value="${escapeHtml(text(row.margen_pct))}" />
+        </label>
+        <label class="admin-field">Ultimo contacto
+          <input name="last_contact_at" type="datetime-local" value="${escapeHtml(crmDatetimeLocal(lastContact))}" />
+        </label>
+        <label class="admin-field">Proxima accion
+          <input name="next_action_at" type="datetime-local" value="${escapeHtml(crmDatetimeLocal(nextAction))}" />
+        </label>
       </div>
+      <label class="admin-field">Siguiente paso
+        <textarea name="next_action_note" rows="2" maxlength="500">${escapeHtml(text(row.next_action_note))}</textarea>
+      </label>
+      <label class="admin-field">Motivo de perdida
+        <input name="motivo_perdida" type="text" maxlength="500" value="${escapeHtml(text(row.motivo_perdida))}" />
+      </label>
+      <button class="admin-button" type="submit">Guardar oportunidad</button>
       <div class="admin-toolbar crm-card__actions">
         ${crmSourceLink(row)}
         ${text(contact?.email_norm) ? `<a class="admin-button admin-button--ghost" href="mailto:${escapeHtml(text(contact?.email_norm))}">Email</a>` : ''}
         ${text(contact?.telefono_e164) ? `<a class="admin-button admin-button--ghost" href="https://wa.me/${escapeHtml(text(contact?.telefono_e164).replace(/\\D/g, ''))}" target="_blank" rel="noopener noreferrer">WhatsApp</a>` : ''}
       </div>
-    </article>`;
+    </form>`;
 }
 
 function bindCrm() {
@@ -1509,80 +1583,75 @@ function bindCrm() {
     const params = new URLSearchParams();
     const q = String(data.get('q') ?? '').trim();
     const etapa = String(data.get('etapa') ?? '').trim();
+    const prioridad = String(data.get('prioridad') ?? '').trim();
+    const seguimiento = String(data.get('seguimiento') ?? '').trim();
     if (q) params.set('q', q);
     if (etapa) params.set('etapa', etapa);
+    if (prioridad) params.set('prioridad', prioridad);
+    if (seguimiento) params.set('seguimiento', seguimiento);
     location.hash = `#/crm${params.toString() ? `?${params.toString()}` : ''}`;
   });
 
-  app.querySelectorAll<HTMLSelectElement>('[data-crm-stage]').forEach(selectEl => {
-    selectEl.addEventListener('change', async () => {
-      const id = selectEl.dataset['crmOpportunity'] ?? '';
-      const etapa = selectEl.value;
+  app.querySelectorAll<HTMLFormElement>('[data-crm-opportunity-form]').forEach(form => {
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      const id = form.dataset['crmOpportunityForm'] ?? '';
+      const data = new FormData(form);
+      const etapa = String(data.get('etapa') ?? 'nuevo');
+      const prioridad = String(data.get('prioridad') ?? '');
+      const motivoPerdida = String(data.get('motivo_perdida') ?? '').trim();
       if (!id || !CRM_STAGE_VALUES.has(etapa)) return;
-      selectEl.disabled = true;
+      if (prioridad && !CRM_PRIORITIES.has(prioridad)) return;
+      if (etapa === 'perdido' && !motivoPerdida) {
+        toast('Motivo de perdida requerido.');
+        form.querySelector<HTMLInputElement>('[name="motivo_perdida"]')?.focus();
+        return;
+      }
+      const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+      if (submit) submit.disabled = true;
       const now = new Date().toISOString();
+      const nextActionAt = crmInputIso(data.get('next_action_at'));
+      const lastContactAt = crmInputIso(data.get('last_contact_at'));
       const { error } = await supabase!
         .from('crm_opportunities')
         .update({
           etapa,
           probabilidad: crmProbabilityForStage(etapa),
           closed_at: CRM_CLOSED_STAGES.has(etapa) ? now : null,
+          prioridad: prioridad || null,
+          valor_estimado: numberOrNull(data.get('valor_estimado')),
+          margen_estimado: numberOrNull(data.get('margen_estimado')),
+          margen_pct: numberOrNull(data.get('margen_pct')),
+          motivo_perdida: etapa === 'perdido' ? motivoPerdida : null,
+          last_contact_at: lastContactAt,
+          next_action_at: nextActionAt,
+          next_action_note: emptyToNull(data.get('next_action_note')),
           updated_at: now,
         })
         .eq('id', id);
       if (error) {
         toast(error.message);
-        selectEl.disabled = false;
+        if (submit) submit.disabled = false;
         return;
       }
       await supabase!.from('crm_activities').insert({
-        event_type: `etapa_${etapa}`,
+        event_type: `oportunidad_actualizada_${Date.now()}`,
         channel: 'admin',
         source_table: 'crm_opportunities',
         source_id: id,
-        account_id: selectEl.dataset['crmAccount'] || null,
-        contact_id: selectEl.dataset['crmContact'] || null,
+        account_id: form.dataset['crmAccount'] || null,
+        contact_id: form.dataset['crmContact'] || null,
         opportunity_id: id,
-        summary: `Etapa actualizada a ${crmStageLabel(etapa)}`,
-        metadata: { etapa },
+        summary: `Oportunidad actualizada: ${crmStageLabel(etapa)}`,
+        metadata: {
+          etapa,
+          prioridad: prioridad || null,
+          next_action_at: nextActionAt,
+          last_contact_at: lastContactAt,
+          motivo_perdida: etapa === 'perdido' ? motivoPerdida : null,
+        },
       });
-      toast('Etapa CRM actualizada');
-      await render();
-    });
-  });
-
-  app.querySelectorAll<HTMLButtonElement>('[data-crm-next-save]').forEach(button => {
-    button.addEventListener('click', async () => {
-      const id = button.dataset['crmNextSave'] ?? '';
-      const input = Array.from(
-        app.querySelectorAll<HTMLInputElement>('[data-crm-next-input]')
-      ).find(item => item.dataset['crmNextInput'] === id);
-      if (!id || !input) return;
-      const nextActionAt = input.value ? new Date(input.value).toISOString() : null;
-      button.disabled = true;
-      const { error } = await supabase!
-        .from('crm_opportunities')
-        .update({ next_action_at: nextActionAt, updated_at: new Date().toISOString() })
-        .eq('id', id);
-      if (error) {
-        toast(error.message);
-        button.disabled = false;
-        return;
-      }
-      await supabase!.from('crm_activities').insert({
-        event_type: nextActionAt ? 'seguimiento_programado' : 'seguimiento_limpiado',
-        channel: 'admin',
-        source_table: 'crm_opportunities',
-        source_id: id,
-        account_id: button.dataset['crmAccount'] || null,
-        contact_id: button.dataset['crmContact'] || null,
-        opportunity_id: id,
-        summary: nextActionAt
-          ? `Proxima accion: ${formatDate(nextActionAt)}`
-          : 'Seguimiento sin fecha',
-        metadata: { next_action_at: nextActionAt },
-      });
-      toast('Seguimiento CRM guardado');
+      toast('Oportunidad CRM actualizada');
       await render();
     });
   });
@@ -1595,8 +1664,13 @@ function crmStageLabel(value: string): string {
 function crmProbabilityForStage(value: string): number {
   if (value === 'ganado' || value === 'posventa') return 100;
   if (value === 'checkout_pendiente') return 80;
+  if (value === 'negociacion') return 70;
   if (value === 'cotizando') return 55;
+  if (value === 'demo') return 45;
+  if (value === 'reunion') return 40;
   if (value === 'calificacion') return 30;
+  if (value === 'contactado') return 20;
+  if (value === 'nutrir') return 10;
   if (value === 'perdido') return 0;
   return 10;
 }
@@ -1614,15 +1688,37 @@ function crmDatetimeLocal(value: string): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
+function crmInputIso(value: FormDataEntryValue | null): string | null {
+  const raw = String(value ?? '').trim();
+  if (!raw) return null;
+  const parsed = new Date(raw);
+  return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
+}
+
 function crmSourceLink(row: Row): string {
   const sourceTable = text(row.source_table);
   const sourceId = text(row.source_id);
+  const metadata =
+    row.metadata && typeof row.metadata === 'object' && !Array.isArray(row.metadata)
+      ? (row.metadata as Row)
+      : {};
+  const quoteId = text(metadata.cotizacion_id);
+  const orderId = text(metadata.pedido_id);
+  if (orderId) {
+    return `<a class="admin-button admin-button--ghost" href="#/pedido?id=${encodeURIComponent(orderId)}">Pedido</a>`;
+  }
+  if (quoteId) {
+    return `<a class="admin-button admin-button--ghost" href="#/cotizacion?id=${encodeURIComponent(quoteId)}">Cotizacion</a>`;
+  }
   if (!sourceId) return escapeHtml(sourceTable) || '—';
   if (sourceTable === 'solicitudes_cotizacion') {
     return `<a class="admin-button admin-button--ghost" href="#/cotizacion?id=${encodeURIComponent(sourceId)}">Cotizacion</a>`;
   }
   if (sourceTable === 'pedidos') {
     return `<a class="admin-button admin-button--ghost" href="#/pedido?id=${encodeURIComponent(sourceId)}">Pedido</a>`;
+  }
+  if (sourceTable === 'leads_comerciales') {
+    return '<span class="admin-badge admin-badge--info">Lead consultivo</span>';
   }
   return escapeHtml(sourceTable || sourceId);
 }

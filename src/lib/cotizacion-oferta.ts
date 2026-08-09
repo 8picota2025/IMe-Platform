@@ -39,6 +39,16 @@ export interface CotizacionOfertaRow {
   mercado?: string | null;
   moneda?: string | null;
   metadata?: Record<string, unknown> | null;
+  lead_comercial_id?: string | null;
+  campaign?: string | null;
+  landing_path?: string | null;
+  referrer?: string | null;
+  analytics_session_id?: string | null;
+  utm_source?: string | null;
+  utm_medium?: string | null;
+  utm_campaign?: string | null;
+  utm_content?: string | null;
+  utm_term?: string | null;
 }
 
 const ESTADOS_FORMALIZABLES = new Set(['enviada', 'respondida']);

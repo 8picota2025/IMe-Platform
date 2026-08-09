@@ -618,6 +618,7 @@ Deno.serve(
 
     // ── Cotización formalizada: precios locked (admin), no recalc catálogo ──
     let lineasCotizacion: CotizacionLineaOferta[] | null = null;
+    let cotizacionAtribucion: CotizacionOfertaRow | null = null;
     if (usaCotizacionLocked) {
       const { data: cotizacionData, error: cotizacionError } = await supabase
         .from('solicitudes_cotizacion')
@@ -635,6 +636,7 @@ Deno.serve(
         );
       }
       const cotizacion = cotizacionData as CotizacionOfertaRow;
+      cotizacionAtribucion = cotizacion;
       if (cotizacion.pedido_id || cotizacion.estado === 'convertida') {
         return errorResponse(
           { code: 'COTIZACION_YA_CONVERTIDA', message: 'Esta cotizacion ya fue formalizada' },
@@ -911,6 +913,8 @@ Deno.serve(
     const { error: insertError } = await supabase.from('pedidos').insert({
       id: pedidoId,
       cliente_id: clienteId,
+      solicitud_cotizacion_id: cotizacionAtribucion ? cotizacionId : null,
+      lead_comercial_id: cotizacionAtribucion?.lead_comercial_id ?? null,
       cliente: {
         nombre: cliente.nombre,
         apellido: cliente.apellido,
@@ -951,9 +955,21 @@ Deno.serve(
         ...(lineasCotizacion
           ? {
               solicitud_cotizacion_id: cotizacionId,
+              lead_comercial_id: cotizacionAtribucion?.lead_comercial_id ?? null,
               origen: 'cotizacion',
               precios_locked: true,
               total_ofertado: calcularTotalOfertado(lineasCotizacion),
+              attribution: {
+                campaign: cotizacionAtribucion?.campaign ?? null,
+                landing_path: cotizacionAtribucion?.landing_path ?? null,
+                referrer: cotizacionAtribucion?.referrer ?? null,
+                analytics_session_id: cotizacionAtribucion?.analytics_session_id ?? null,
+                utm_source: cotizacionAtribucion?.utm_source ?? null,
+                utm_medium: cotizacionAtribucion?.utm_medium ?? null,
+                utm_campaign: cotizacionAtribucion?.utm_campaign ?? null,
+                utm_content: cotizacionAtribucion?.utm_content ?? null,
+                utm_term: cotizacionAtribucion?.utm_term ?? null,
+              },
             }
           : {}),
       },

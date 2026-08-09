@@ -494,6 +494,8 @@ Deno.serve(async req => {
   const { error: insertError } = await supabase.from('pedidos').insert({
     id: pedidoId,
     cliente_id: clienteId,
+    solicitud_cotizacion_id: id,
+    lead_comercial_id: row.lead_comercial_id ?? null,
     cliente: {
       nombre,
       apellido,
@@ -521,11 +523,23 @@ Deno.serve(async req => {
     consentimiento_timestamp: new Date().toISOString(),
     metadata: {
       solicitud_cotizacion_id: id,
+      lead_comercial_id: row.lead_comercial_id ?? null,
       origen: 'cotizacion',
       locale: row.locale === 'en' ? 'en' : 'es',
       precios_locked: true,
       metodo_pago: 'transferencia',
       condiciones: row.condiciones,
+      attribution: {
+        campaign: row.campaign ?? null,
+        landing_path: row.landing_path ?? null,
+        referrer: row.referrer ?? null,
+        analytics_session_id: row.analytics_session_id ?? null,
+        utm_source: row.utm_source ?? null,
+        utm_medium: row.utm_medium ?? null,
+        utm_campaign: row.utm_campaign ?? null,
+        utm_content: row.utm_content ?? null,
+        utm_term: row.utm_term ?? null,
+      },
       referencia_transferencia: refTransferencia || null,
       datos_bancarios: bancarios,
       fiscal: {

@@ -659,6 +659,10 @@ export class TwentyClient {
     totalEstimado?: number | null;
     moneda?: string;
     ownerId?: string;
+    priority?: 'P1' | 'P2' | 'P3';
+    campaign?: string;
+    familySlug?: string;
+    purchaseHorizon?: string;
   }): Promise<
     TwentyResult<{
       personId: string;
@@ -699,7 +703,7 @@ export class TwentyClient {
       email: input.email,
       phoneNumber,
       phoneCallingCode,
-      jobTitle: `Lead ${input.origen || 'web'}`,
+      jobTitle: `${input.priority ? `${input.priority} · ` : ''}Lead ${input.origen || 'web'}`,
       companyId,
     });
     if (!person.ok || !person.data) {
@@ -742,9 +746,13 @@ export class TwentyClient {
           .map(p => `- ${p.nombre || p.slug || 'producto'}${p.cantidad ? ` x${p.cantidad}` : ''}`)
           .join('\n')
       : '- (sin productos)';
-    const due = new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString();
+    const dueHours = input.priority === 'P2' ? 72 : input.priority === 'P3' ? 168 : 4;
+    const due = new Date(Date.now() + dueHours * 60 * 60 * 1000).toISOString();
     const task = await this.requestRecord('POST', '/tasks', {
-      title: `SLA cotización: ${oppName}`.slice(0, 120),
+      title: `${input.priority ? `SLA ${input.priority}` : 'SLA cotización'}: ${oppName}`.slice(
+        0,
+        120
+      ),
       status: 'TODO',
       dueAt: due,
       ...(ownerId ? { assigneeId: ownerId } : {}),
@@ -753,6 +761,9 @@ export class TwentyClient {
         markdown: [
           `**Canal:** ${input.origen || 'web'}`,
           `**Tipo:** ${input.tipoSolicitud || 'cotizacion'}`,
+          ...(input.campaign ? [`**Campaña:** ${input.campaign}`] : []),
+          ...(input.familySlug ? [`**Familia:** ${input.familySlug}`] : []),
+          ...(input.purchaseHorizon ? [`**Horizonte:** ${input.purchaseHorizon}`] : []),
           `**Mensaje:** ${input.mensaje || '—'}`,
           `**Productos:**\n${productList}`,
         ].join('\n'),
@@ -795,6 +806,10 @@ export async function syncCotizacionWithTwenty(input: {
   productos?: Array<{ nombre?: string; slug?: string; cantidad?: number }>;
   totalEstimado?: number | null;
   moneda?: string;
+  priority?: 'P1' | 'P2' | 'P3';
+  campaign?: string;
+  familySlug?: string;
+  purchaseHorizon?: string;
 }): Promise<
   TwentyResult<{
     personId: string;
@@ -808,6 +823,33 @@ export async function syncCotizacionWithTwenty(input: {
     return { ok: false, skipped: true, error: 'TWENTY_BASE_URL/TWENTY_API_KEY no configurados' };
   }
   return client.syncCotizacionLead(input);
+}
+
+/** Lead consultivo persistido: mismo modelo Twenty, con SLA segun prioridad. */
+export async function syncCommercialLeadWithTwenty(input: {
+  nombre: string;
+  email?: string;
+  telefono?: string;
+  empresa: string;
+  mensaje: string;
+  priority: 'P1' | 'P2' | 'P3';
+  campaign: string;
+  familySlug: string;
+  purchaseHorizon: string;
+}): Promise<
+  TwentyResult<{
+    personId: string;
+    companyId?: string;
+    opportunityId: string;
+    taskId?: string;
+  }>
+> {
+  return syncCotizacionWithTwenty({
+    ...input,
+    origen: `lead_consultivo:${input.campaign}`,
+    tipoSolicitud: 'evaluacion_proyecto',
+    productos: [{ slug: input.familySlug, nombre: input.familySlug, cantidad: 1 }],
+  });
 }
 
 /**

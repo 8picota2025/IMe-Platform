@@ -44,6 +44,16 @@ interface CotizacionBody {
   total_estimado?: number;
   cupon_codigo?: string;
   fiscal?: unknown;
+  lead_id?: string;
+  campaign?: string;
+  landing_path?: string;
+  referrer?: string;
+  analytics_session_id?: string;
+  utm_source?: string;
+  utm_medium?: string;
+  utm_campaign?: string;
+  utm_content?: string;
+  utm_term?: string;
 }
 
 interface DbErrorLike {
@@ -52,6 +62,7 @@ interface DbErrorLike {
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 type EmailLocale = 'es' | 'en';
 
 function cleanNumber(value: unknown): number | null {
@@ -66,6 +77,12 @@ function formatTotal(value: number | null): string {
 
 function normalizeLocale(locale: unknown): EmailLocale {
   return locale === 'en' ? 'en' : 'es';
+}
+
+function cleanText(value: unknown, max: number): string | null {
+  if (typeof value !== 'string') return null;
+  const clean = value.trim().slice(0, max);
+  return clean || null;
 }
 
 function shouldRetryLegacyInsert(error: DbErrorLike | null): boolean {
@@ -118,6 +135,27 @@ Deno.serve(
     const origen = (body.origen ?? 'web').trim().slice(0, 80) || 'web';
     const cuponCodigo = body.cupon_codigo?.trim().slice(0, 80) || null;
     const totalEstimado = cleanNumber(body.total_estimado);
+    let leadComercialId: string | null = null;
+    const requestedLeadId = cleanText(body.lead_id, 80);
+    if (requestedLeadId && UUID_RE.test(requestedLeadId)) {
+      const { data: linkedLead } = await supabase
+        .from('leads_comerciales')
+        .select('id')
+        .eq('id', requestedLeadId)
+        .maybeSingle();
+      leadComercialId = (linkedLead as { id?: string } | null)?.id ?? null;
+    }
+    const attribution = {
+      campaign: cleanText(body.campaign, 80),
+      landing_path: cleanText(body.landing_path, 500),
+      referrer: cleanText(body.referrer, 500),
+      analytics_session_id: cleanText(body.analytics_session_id, 80),
+      utm_source: cleanText(body.utm_source, 120),
+      utm_medium: cleanText(body.utm_medium, 120),
+      utm_campaign: cleanText(body.utm_campaign, 160),
+      utm_content: cleanText(body.utm_content, 160),
+      utm_term: cleanText(body.utm_term, 160),
+    };
 
     if (!nombre || !mensaje) return badRequest('nombre y mensaje son obligatorios', origin);
     if (!EMAIL_RE.test(email)) return badRequest('email invalido', origin);
@@ -158,8 +196,11 @@ Deno.serve(
       moneda,
       total_estimado: totalEstimado,
       cupon_codigo: cuponCodigo,
+      lead_comercial_id: leadComercialId,
+      ...attribution,
       metadata: {
         fiscal: body.fiscal ?? null,
+        attribution,
       },
     };
 
@@ -266,16 +307,20 @@ Deno.serve(
         tipo_solicitud: tipoSolicitud,
         productos_count: productos.length,
       });
-      if (solicitudId && twenty.data) {
-        await supabase
-          .from('solicitudes_cotizacion')
-          .update({
-            twenty_person_id: twenty.data.personId,
-            twenty_company_id: twenty.data.companyId ?? null,
-            twenty_opportunity_id: twenty.data.opportunityId,
-          })
-          .eq('id', solicitudId);
-      }
+    }
+    if (solicitudId) {
+      await supabase
+        .from('solicitudes_cotizacion')
+        .update({
+          crm_sync_status: twenty.skipped ? 'skipped' : twenty.ok ? 'synced' : 'failed',
+          crm_sync_error:
+            twenty.ok || twenty.skipped ? null : (twenty.error ?? 'Twenty sync failed'),
+          crm_sync_last_attempt_at: new Date().toISOString(),
+          twenty_person_id: twenty.data?.personId ?? null,
+          twenty_company_id: twenty.data?.companyId ?? null,
+          twenty_opportunity_id: twenty.data?.opportunityId ?? null,
+        })
+        .eq('id', solicitudId);
     }
 
     return new Response(
