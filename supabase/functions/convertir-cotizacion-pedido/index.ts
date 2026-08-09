@@ -21,6 +21,7 @@ import {
   splitNombreApellido,
   type CotizacionOfertaRow,
 } from '../../../src/lib/cotizacion-oferta.ts';
+import { withStripeCheckoutSessionId } from '../../../src/lib/stripe-session.ts';
 
 const ROLES = new Set(['owner', 'admin', 'ventas']);
 
@@ -198,6 +199,13 @@ Deno.serve(async req => {
 
   const clienteId = (clienteRow as { id?: string } | null)?.id ?? null;
 
+  const pedidoMetadata: Record<string, unknown> = {
+    solicitud_cotizacion_id: id,
+    origen: 'cotizacion_convertida',
+    precios_locked: true,
+    condiciones: row.condiciones,
+  };
+
   const { error: insertError } = await supabase.from('pedidos').insert({
     id: pedidoId,
     cliente_id: clienteId,
@@ -221,12 +229,7 @@ Deno.serve(async req => {
     facturacion_electronica_estado: 'no_solicitada',
     consentimiento_datos: true,
     consentimiento_timestamp: new Date().toISOString(),
-    metadata: {
-      solicitud_cotizacion_id: id,
-      origen: 'cotizacion_convertida',
-      precios_locked: true,
-      condiciones: row.condiciones,
-    },
+    metadata: pedidoMetadata,
   });
 
   if (insertError) return internalError(`error creando pedido: ${insertError.message}`, origin);
@@ -264,9 +267,17 @@ Deno.serve(async req => {
     );
   }
 
+  const checkoutMetadata =
+    proveedorFlow === 'stripe'
+      ? withStripeCheckoutSessionId(pedidoMetadata, resultado.referencia_pasarela)
+      : pedidoMetadata;
+
   await supabase
     .from('pedidos')
-    .update({ checkout_url: resultado.checkout_url ?? null })
+    .update({
+      checkout_url: resultado.checkout_url ?? null,
+      metadata: checkoutMetadata,
+    })
     .eq('id', pedidoId);
 
   const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 16);

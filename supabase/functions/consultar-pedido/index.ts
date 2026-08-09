@@ -21,6 +21,10 @@ import {
 } from '../_shared/post-pago.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { checkRateLimit } from '../_shared/rate-limit.ts';
+import {
+  isPaymentReconcileTerminalEstado,
+  resolvePaymentReconcileTarget,
+} from '../../../src/lib/stripe-session.ts';
 
 const REFERENCIA_REGEX = /^[a-zA-Z0-9-]{8,64}$/;
 
@@ -101,29 +105,48 @@ Deno.serve(async req => {
   const pedido = data as unknown as PedidoRow;
   let estado = pedido.estado;
 
-  if (pedido.proveedor_pago === 'wompi' && pedido.estado === 'pendiente') {
-    const gateway = getGatewayByProvider('wompi');
-    const verificacion = await gateway.verificarPago(referencia);
-    const nuevoEstado = verificacion.estado;
+  // Success-page reconciliation: Wompi uses pedido reference; Stripe needs cs_…
+  // stored in metadata by crear-pago / convertir-cotizacion-pedido / webhook-stripe.
+  if (pedido.estado === 'pendiente') {
+    const target = resolvePaymentReconcileTarget({
+      proveedorPago: pedido.proveedor_pago,
+      referenciaPasarela: referencia,
+      metadata: pedido.metadata,
+    });
 
-    if (nuevoEstado !== 'pendiente' && nuevoEstado !== pedido.estado) {
-      const syntheticEventId = `reconcile:${referencia}:${Date.now()}`;
-      await supabase
-        .from('pedidos')
-        .update({
-          estado: nuevoEstado,
-          metadata: { ...(pedido.metadata ?? {}), ultima_reconciliacion_wompi: syntheticEventId },
-        })
-        .eq('id', pedido.id);
+    if (target) {
+      const gateway = getGatewayByProvider(target.provider);
+      const verificacion = await gateway.verificarPago(target.reference);
+      const nuevoEstado = verificacion.estado;
 
-      if (nuevoEstado === 'pagado') {
-        await registrarPedidoPagado(supabase, pedido.id, 'wompi', syntheticEventId);
-        await notificarFulfillmentDropship(supabase, pedido.id, pedido.items ?? []);
-      } else {
-        await notificarEstadoPedido(pedido.id, nuevoEstado, pedido.estado);
+      // Apply only terminal states. Skip error_verificacion so transient API
+      // blips do not stick the pedido before the webhook/retry path recovers.
+      if (
+        isPaymentReconcileTerminalEstado(nuevoEstado) &&
+        nuevoEstado !== pedido.estado
+      ) {
+        const syntheticEventId = `reconcile:${target.provider}:${referencia}:${Date.now()}`;
+        const metaKey =
+          target.provider === 'wompi'
+            ? 'ultima_reconciliacion_wompi'
+            : 'ultima_reconciliacion_stripe';
+        await supabase
+          .from('pedidos')
+          .update({
+            estado: nuevoEstado,
+            metadata: { ...(pedido.metadata ?? {}), [metaKey]: syntheticEventId },
+          })
+          .eq('id', pedido.id);
+
+        if (nuevoEstado === 'pagado') {
+          await registrarPedidoPagado(supabase, pedido.id, target.provider, syntheticEventId);
+          await notificarFulfillmentDropship(supabase, pedido.id, pedido.items ?? []);
+        } else {
+          await notificarEstadoPedido(pedido.id, nuevoEstado, pedido.estado);
+        }
+
+        estado = nuevoEstado;
       }
-
-      estado = nuevoEstado;
     }
   }
 

@@ -22,6 +22,10 @@ import {
   registrarPedidoPagado,
 } from '../_shared/post-pago.ts';
 import { withTelemetry, trackEvent } from '../_shared/telemetry.ts';
+import {
+  extractStripeCheckoutSessionId,
+  withStripeCheckoutSessionId,
+} from '../../../src/lib/stripe-session.ts';
 
 const FN_NAME = 'webhook-stripe';
 
@@ -111,13 +115,27 @@ Deno.serve(
     const nuevoEstado = verificacion.estado;
     const eraPagado = pedidoRow.estado === 'pagado';
 
+    // Persist cs_… so consultar-pedido can reconcile if a later webhook is delayed.
+    const sessionPrevia = extractStripeCheckoutSessionId(pedidoRow.metadata);
+    const metadataConSesion = {
+      ...withStripeCheckoutSessionId(pedidoRow.metadata, sessionId),
+      ultimo_evento_stripe: evento.event_id,
+    };
+    const sessionNueva = extractStripeCheckoutSessionId(metadataConSesion);
+
     if (!eraPagado && nuevoEstado !== pedidoRow.estado) {
       await supabase
         .from('pedidos')
         .update({
           estado: nuevoEstado,
-          metadata: { ...(pedidoRow.metadata ?? {}), ultimo_evento_stripe: evento.event_id },
+          metadata: metadataConSesion,
         })
+        .eq('id', pedidoRow.id);
+    } else if (sessionNueva && sessionNueva !== sessionPrevia) {
+      // Backfill cs_… even when estado did not change (late/duplicate events).
+      await supabase
+        .from('pedidos')
+        .update({ metadata: metadataConSesion })
         .eq('id', pedidoRow.id);
     }
 
