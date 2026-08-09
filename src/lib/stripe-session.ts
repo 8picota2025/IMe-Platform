@@ -7,7 +7,8 @@
 
 export const STRIPE_CHECKOUT_SESSION_META_KEY = 'stripe_checkout_session_id';
 
-const STRIPE_SESSION_ID_RE = /^cs_[a-zA-Z0-9]+$/;
+// Stripe ids look like cs_test_… / cs_live_… (underscores after the prefix).
+const STRIPE_SESSION_ID_RE = /^cs_[a-zA-Z0-9_]+$/;
 
 export function isStripeCheckoutSessionId(value: unknown): value is string {
   return typeof value === 'string' && STRIPE_SESSION_ID_RE.test(value);
