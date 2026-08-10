@@ -15,7 +15,9 @@ import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { requireAdmin } from '../_shared/admin-auth.ts';
 import { getPaymentGateway, type CheckoutItem, type Mercado } from '../_shared/payment-gateway.ts';
 import {
+  COTIZACION_ESTADOS_CLAIMABLES,
   calcularTotalOfertado,
+  evaluateCotizacionConversionClaim,
   ofertaCompleta,
   parseLineasOferta,
   splitNombreApellido,
@@ -255,6 +257,44 @@ Deno.serve(async req => {
 
   if (insertError) return internalError(`error creando pedido: ${insertError.message}`, origin);
 
+  // Claim atomico ANTES del checkout live. Sin CAS, dos converts concurrentes
+  // crean dos sesiones Wompi/Stripe pagables sobre la misma cotizacion.
+  const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 16);
+  const nota = `[${timestamp}] Convertida a pedido ${pedidoId.slice(0, 8)}.`;
+  const notasPrevias = String(row.notas_internas ?? '').trim();
+
+  const { data: claimed, error: claimError } = await supabase
+    .from('solicitudes_cotizacion')
+    .update({
+      estado: 'convertida',
+      pedido_id: pedidoId,
+      precio_total_ofertado: total,
+      leida: true,
+      notas_internas: notasPrevias ? `${notasPrevias}\n${nota}` : nota,
+    })
+    .eq('id', id)
+    .in('estado', [...COTIZACION_ESTADOS_CLAIMABLES])
+    .is('pedido_id', null)
+    .select('id')
+    .maybeSingle();
+
+  const claimState = evaluateCotizacionConversionClaim({
+    claimedId: (claimed as { id?: string } | null)?.id,
+    claimErrorMessage: claimError?.message ?? null,
+  });
+
+  if (claimState !== 'claimed') {
+    await supabase.from('pedidos').delete().eq('id', pedidoId);
+    if (claimState === 'error') {
+      return internalError(`error reservando cotizacion: ${claimError?.message}`, origin);
+    }
+    return errorResponse(
+      { code: 'COTIZACION_YA_CONVERTIDA', message: 'La cotizacion ya fue convertida' },
+      409,
+      origin
+    );
+  }
+
   const gateway = getPaymentGateway(mercado);
   const resultado = await gateway.crearCheckout({
     items: checkoutItems,
@@ -292,21 +332,6 @@ Deno.serve(async req => {
     .from('pedidos')
     .update({ checkout_url: resultado.checkout_url ?? null })
     .eq('id', pedidoId);
-
-  const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 16);
-  const nota = `[${timestamp}] Convertida a pedido ${pedidoId.slice(0, 8)}.`;
-  const notasPrevias = String(row.notas_internas ?? '').trim();
-
-  await supabase
-    .from('solicitudes_cotizacion')
-    .update({
-      estado: 'convertida',
-      pedido_id: pedidoId,
-      precio_total_ofertado: total,
-      leida: true,
-      notas_internas: notasPrevias ? `${notasPrevias}\n${nota}` : nota,
-    })
-    .eq('id', id);
 
   return new Response(
     JSON.stringify({
