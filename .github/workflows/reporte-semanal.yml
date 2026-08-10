@@ -1,6 +1,7 @@
 name: Reporte semanal I-ME
 
 # Domingo 23:59 America/Bogota = lunes 04:59 UTC
+# (GitHub puede retrasar el schedule; la Edge Function ancla la semana al domingo)
 on:
   schedule:
     - cron: '59 4 * * 1'
@@ -14,6 +15,10 @@ on:
         options:
           - 'false'
           - 'true'
+      as_of:
+        description: 'Ancla de semana (ISO opcional, ej. 2026-08-09T23:59:59-05:00)'
+        required: false
+        default: ''
 
 jobs:
   reporte:
@@ -28,23 +33,54 @@ jobs:
           REPORTE_SEMANAL_SECRET: ${{ secrets.REPORTE_SEMANAL_SECRET }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+          AS_OF: ${{ github.event.inputs.as_of || '' }}
         run: |
           set -euo pipefail
-          BODY='{"dry_run":false}'
-          if [ "$DRY_RUN" = "true" ]; then
-            BODY='{"dry_run":true}'
+
+          if [ -z "${SUPABASE_SERVICE_ROLE_KEY:-}" ]; then
+            echo "::error::Falta secret SUPABASE_SERVICE_ROLE_KEY"
+            exit 1
           fi
-          AUTH_HEADER="Bearer ${SUPABASE_SERVICE_ROLE_KEY}"
-          EXTRA_HEADER=()
+
+          BODY=$(python3 - <<'PY'
+          import json, os
+          body = {"dry_run": os.environ.get("DRY_RUN", "false") == "true"}
+          as_of = (os.environ.get("AS_OF") or "").strip()
+          if as_of:
+              body["as_of"] = as_of
+          print(json.dumps(body))
+          PY
+          )
+
+          echo "Request body: $BODY"
+
+          CURL_ARGS=(
+            -sS -X POST "$SUPABASE_URL/functions/v1/reporte-semanal"
+            -H "Authorization: Bearer ${SUPABASE_SERVICE_ROLE_KEY}"
+            -H "apikey: ${SUPABASE_ANON_KEY:-$SUPABASE_SERVICE_ROLE_KEY}"
+            -H "Content-Type: application/json"
+            -d "$BODY"
+            -w "\nHTTP_STATUS:%{http_code}\n"
+          )
           if [ -n "${REPORTE_SEMANAL_SECRET:-}" ]; then
-            EXTRA_HEADER=(-H "x-reporte-semanal-secret: ${REPORTE_SEMANAL_SECRET}")
-            AUTH_HEADER="Bearer ${SUPABASE_ANON_KEY:-$SUPABASE_SERVICE_ROLE_KEY}"
+            CURL_ARGS+=(-H "x-reporte-semanal-secret: ${REPORTE_SEMANAL_SECRET}")
           fi
-          RESP=$(curl -sS -X POST "$SUPABASE_URL/functions/v1/reporte-semanal" \
-            -H "Authorization: ${AUTH_HEADER}" \
-            -H "apikey: ${SUPABASE_ANON_KEY:-$SUPABASE_SERVICE_ROLE_KEY}" \
-            -H "Content-Type: application/json" \
-            "${EXTRA_HEADER[@]}" \
-            -d "$BODY")
-          echo "$RESP" | tee /tmp/reporte.json
-          echo "$RESP" | grep -q '"ok":true'
+
+          RESP=$(curl "${CURL_ARGS[@]}")
+          echo "$RESP" | tee /tmp/reporte.out
+          BODY_JSON=$(echo "$RESP" | sed '/^HTTP_STATUS:/d')
+          STATUS=$(echo "$RESP" | sed -n 's/^HTTP_STATUS://p' | tr -d '\r')
+
+          echo "$BODY_JSON" > /tmp/reporte.json
+          if [ "$STATUS" != "200" ] && [ "$STATUS" != "207" ]; then
+            echo "::error::reporte-semanal HTTP $STATUS"
+            exit 1
+          fi
+          python3 - <<'PY'
+          import json, sys
+          data = json.load(open("/tmp/reporte.json"))
+          if not data.get("ok"):
+              print("Response not ok:", data, file=sys.stderr)
+              sys.exit(1)
+          print("OK summary:", json.dumps(data.get("summary") or data, ensure_ascii=False))
+          PY
