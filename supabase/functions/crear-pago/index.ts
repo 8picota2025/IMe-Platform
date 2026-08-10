@@ -29,7 +29,9 @@ import { withTelemetry, trackEvent } from '../_shared/telemetry.ts';
 import { notificarEstadoPedido } from '../_shared/post-pago.ts';
 import { pushClienteToTwenty } from '../_shared/twenty-commerce-sync.ts';
 import {
+  COTIZACION_ESTADOS_CLAIMABLES,
   calcularTotalOfertado,
+  evaluateCotizacionConversionClaim,
   hashTokenSha256,
   ofertaCompleta,
   parseLineasOferta,
@@ -979,8 +981,10 @@ Deno.serve(
       return internalError(`error creando pedido: ${insertError.message}`, origin);
     }
 
+    // Claim CAS antes del checkout: sin filtro, dos formalizaciones concurrentes
+    // dejan dos sesiones de pago vivas sobre la misma cotizacion.
     if (lineasCotizacion && cotizacionId) {
-      await supabase
+      const { data: claimed, error: claimError } = await supabase
         .from('solicitudes_cotizacion')
         .update({
           estado: 'convertida',
@@ -988,7 +992,28 @@ Deno.serve(
           precio_total_ofertado: calcularTotalOfertado(lineasCotizacion),
           leida: true,
         })
-        .eq('id', cotizacionId);
+        .eq('id', cotizacionId)
+        .in('estado', [...COTIZACION_ESTADOS_CLAIMABLES])
+        .is('pedido_id', null)
+        .select('id')
+        .maybeSingle();
+
+      const claimState = evaluateCotizacionConversionClaim({
+        claimedId: (claimed as { id?: string } | null)?.id,
+        claimErrorMessage: claimError?.message ?? null,
+      });
+
+      if (claimState !== 'claimed') {
+        await supabase.from('pedidos').delete().eq('id', pedidoId);
+        if (claimState === 'error') {
+          return internalError(`error reservando cotizacion: ${claimError?.message}`, origin);
+        }
+        return errorResponse(
+          { code: 'COTIZACION_YA_CONVERTIDA', message: 'Esta cotizacion ya fue formalizada' },
+          409,
+          origin
+        );
+      }
     }
 
     if (fiscalCliente.solicitar_factura_electronica) {

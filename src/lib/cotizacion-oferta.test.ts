@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
+  COTIZACION_ESTADOS_CLAIMABLES,
   calcularTotalOfertado,
+  evaluateCotizacionConversionClaim,
   expiryFromValidez,
   formalizarPath,
   hashTokenSha256,
@@ -107,5 +109,24 @@ describe('cotizacion-oferta', () => {
     expect(expiryFromValidez('2026-08-20', 14, now)).toContain('2026-08-20');
     const fallback = expiryFromValidez(null, 14, now);
     expect(Date.parse(fallback)).toBeGreaterThan(now.getTime());
+  });
+
+  it('evaluateCotizacionConversionClaim distingue claimed / lost_race / error', () => {
+    expect(COTIZACION_ESTADOS_CLAIMABLES).toEqual(['enviada', 'respondida']);
+    expect(evaluateCotizacionConversionClaim({ claimedId: 'cot-1' })).toBe('claimed');
+    expect(evaluateCotizacionConversionClaim({ claimedId: null })).toBe('lost_race');
+    expect(evaluateCotizacionConversionClaim({ claimedId: undefined })).toBe('lost_race');
+    expect(
+      evaluateCotizacionConversionClaim({
+        claimedId: 'cot-1',
+        claimErrorMessage: 'db down',
+      })
+    ).toBe('error');
+    expect(
+      evaluateCotizacionConversionClaim({
+        claimedId: null,
+        claimErrorMessage: 'db down',
+      })
+    ).toBe('error');
   });
 });

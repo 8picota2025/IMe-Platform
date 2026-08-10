@@ -51,7 +51,24 @@ export interface CotizacionOfertaRow {
   utm_term?: string | null;
 }
 
-const ESTADOS_FORMALIZABLES = new Set(['enviada', 'respondida']);
+/** Estados desde los que se puede reclamar atomicamente una cotizacion → pedido. */
+export const COTIZACION_ESTADOS_CLAIMABLES = ['enviada', 'respondida'] as const;
+
+const ESTADOS_FORMALIZABLES = new Set<string>(COTIZACION_ESTADOS_CLAIMABLES);
+
+/**
+ * Interpreta el resultado de un UPDATE CAS
+ * (`.in('estado', COTIZACION_ESTADOS_CLAIMABLES).is('pedido_id', null)`).
+ * Sin fila devuelta = otra request gano la carrera.
+ */
+export function evaluateCotizacionConversionClaim(args: {
+  claimedId: string | null | undefined;
+  claimErrorMessage?: string | null;
+}): 'claimed' | 'lost_race' | 'error' {
+  if (args.claimErrorMessage) return 'error';
+  if (!args.claimedId) return 'lost_race';
+  return 'claimed';
+}
 
 export function parseLineasOferta(productos: unknown): CotizacionLineaOferta[] {
   if (!Array.isArray(productos)) return [];

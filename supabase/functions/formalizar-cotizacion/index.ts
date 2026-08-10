@@ -15,6 +15,7 @@ import {
   getDatosBancariosTransferencia,
 } from '../_shared/transferencia-bancaria.ts';
 import {
+  COTIZACION_ESTADOS_CLAIMABLES,
   calcularTotalOfertado,
   hashTokenSha256,
   ofertaCompleta,
@@ -573,7 +574,7 @@ Deno.serve(async req => {
       notas_internas: notasPrevias ? `${notasPrevias}\n${nota}` : nota,
     })
     .eq('id', id)
-    .in('estado', ['enviada', 'respondida'])
+    .in('estado', [...COTIZACION_ESTADOS_CLAIMABLES])
     .is('pedido_id', null)
     .select('id')
     .maybeSingle();
