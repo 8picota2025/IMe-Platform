@@ -1,8 +1,8 @@
 /**
  * Reporte semanal ejecutivo I-ME.
- * Ventana: lunes 00:00 → domingo 23:59 America/Bogota.
- * Auth: Bearer SUPABASE_SERVICE_ROLE_KEY o x-reporte-semanal-secret.
- * Cron: GitHub Actions (lunes 04:59 UTC = domingo 23:59 Bogota).
+ * Ventana: lunes 00:00 → domingo 23:59 America/Bogota (ultima semana cerrada).
+ * Auth: Bearer service_role JWT, SUPABASE_SERVICE_ROLE_KEY, o x-reporte-semanal-secret.
+ * Cron: GitHub Actions (lunes 04:59 UTC = domingo 23:59 Bogota; tolera delay a lunes).
  */
 
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
@@ -23,14 +23,29 @@ interface DayBucket {
   importe_validados: number;
 }
 
+/** Decode JWT payload without verifying — gateway already verified when verify_jwt=true. */
+function jwtRole(bearer: string): string | null {
+  try {
+    const part = bearer.split('.')[1];
+    if (!part) return null;
+    const json = atob(part.replace(/-/g, '+').replace(/_/g, '/'));
+    const payload = JSON.parse(json) as { role?: string };
+    return typeof payload.role === 'string' ? payload.role : null;
+  } catch {
+    return null;
+  }
+}
+
 function authorized(req: Request): boolean {
   const service = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')?.trim() ?? '';
   const secret = Deno.env.get('REPORTE_SEMANAL_SECRET')?.trim() ?? '';
   const auth = req.headers.get('Authorization') ?? '';
   const bearer = auth.startsWith('Bearer ') ? auth.slice(7).trim() : '';
   const headerSecret = req.headers.get('x-reporte-semanal-secret') ?? '';
-  if (service && bearer && bearer === service) return true;
   if (secret && (headerSecret === secret || bearer === secret)) return true;
+  // Prefer role claim: survives service_role key rotation / Edge secret drift.
+  if (bearer && jwtRole(bearer) === 'service_role') return true;
+  if (service && bearer && bearer === service) return true;
   return false;
 }
 
@@ -85,6 +100,11 @@ function addDaysYmd(ymd: string, days: number): string {
   return dt.toISOString().slice(0, 10);
 }
 
+/**
+ * Last completed Mon–Sun week in America/Bogota.
+ * Cron is Mon 04:59 UTC (= Sun 23:59 Bogota) but GitHub often delays into Monday
+ * Bogota — always anchor end to the most recent Sunday so the window stays correct.
+ */
 function weekWindow(now = new Date()): {
   startIso: string;
   endIso: string;
@@ -93,10 +113,10 @@ function weekWindow(now = new Date()): {
   days: string[];
   label: string;
 } {
-  const endYmd = bogotaDateStr(now);
+  const todayYmd = bogotaDateStr(now);
   const dow = bogotaWeekday(now); // 0 Sunday
-  const daysSinceMonday = dow === 0 ? 6 : dow - 1;
-  const startYmd = addDaysYmd(endYmd, -daysSinceMonday);
+  const endYmd = dow === 0 ? todayYmd : addDaysYmd(todayYmd, -dow);
+  const startYmd = addDaysYmd(endYmd, -6);
   const days: string[] = [];
   for (let i = 0; i < 7; i++) days.push(addDaysYmd(startYmd, i));
   return {

@@ -60,6 +60,8 @@ jobs:
           TWENTY_OWNER_ID=${{ secrets.TWENTY_OWNER_ID }}
           CRM_DIGEST_TO=${{ secrets.CRM_DIGEST_TO }}
           CRM_DIGEST_SECRET=${{ secrets.CRM_DIGEST_SECRET }}
+          REPORTE_SEMANAL_SECRET=${{ secrets.REPORTE_SEMANAL_SECRET }}
+          REPORTE_SEMANAL_TO=${{ secrets.REPORTE_SEMANAL_TO }}
           SIIGO_USERNAME=${{ secrets.SIIGO_USERNAME }}
           SIIGO_ACCESS_KEY=${{ secrets.SIIGO_ACCESS_KEY }}
           SIIGO_PARTNER_ID=${{ secrets.SIIGO_PARTNER_ID }}
