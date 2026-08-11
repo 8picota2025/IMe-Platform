@@ -16,12 +16,9 @@ if (!url || !key) {
 
 const DRY_RUN = process.argv.includes('--dry-run');
 const slugsArg = process.argv.find(a => a.startsWith('--slugs='));
-if (!slugsArg) {
-  throw new Error(
-    'Uso: node scripts/sync-productos-supabase.mjs --slugs=slug1,slug2 [--dry-run]'
-  );
-}
-const targetSlugs = new Set(slugsArg.replace('--slugs=', '').split(','));
+const targetSlugs = slugsArg
+  ? new Set(slugsArg.replace('--slugs=', '').split(',').filter(Boolean))
+  : null;
 
 const mockProductos = JSON.parse(
   readFileSync('src/data/mock-productos.json', 'utf8')
@@ -33,7 +30,7 @@ const supabase = createClient(url, key, {
 let actualizados = 0;
 let saltados = 0;
 for (const producto of mockProductos) {
-  if (!targetSlugs.has(producto.slug)) continue;
+  if (targetSlugs && !targetSlugs.has(producto.slug)) continue;
 
   // Guard: solo sincronizamos productos que tengan contenido enriquecido en el
   // mock. Consideramos "enriquecido" si especificaciones o beneficios_es tienen
@@ -59,7 +56,7 @@ for (const producto of mockProductos) {
   // ejecuta en --dry-run para que la previsualización refleje el merge real.
   const { data: filaActual, error: fetchError } = await supabase
     .from('productos')
-    .select('atributos')
+    .select('id,atributos')
     .eq('slug', producto.slug)
     .maybeSingle();
   if (fetchError) {
@@ -86,17 +83,39 @@ for (const producto of mockProductos) {
     },
   };
 
-  console.log(`${DRY_RUN ? '[dry-run] ' : ''}Actualizando ${producto.slug}...`);
+  const esNuevo = !filaActual;
+  console.log(`${DRY_RUN ? '[dry-run] ' : ''}${esNuevo ? 'Creando' : 'Actualizando'} ${producto.slug}...`);
   if (DRY_RUN) {
     console.log(JSON.stringify(payload, null, 2));
     actualizados += 1;
     continue;
   }
 
-  const { error } = await supabase
-    .from('productos')
-    .update(payload)
-    .eq('slug', producto.slug);
+  const { error } = esNuevo
+    ? await supabase.from('productos').insert({
+        id: producto.id,
+        slug: producto.slug,
+        familia_id: producto.familia_id,
+        tipo_id: producto.tipo_id,
+        nombre_es: producto.nombre_es,
+        nombre_en: producto.nombre_en,
+        descripcion_corta_es: producto.descripcion_corta_es,
+        descripcion_corta_en: producto.descripcion_corta_en,
+        imagen_principal: producto.imagen_principal,
+        galeria: producto.galeria ?? [],
+        tipo_comercial: producto.tipo_comercial,
+        fulfillment_mode: producto.fulfillment_mode,
+        precio: producto.precio,
+        moneda: producto.moneda,
+        stock: producto.stock,
+        disponible: producto.disponible,
+        destacado: producto.destacado,
+        nuevo: producto.nuevo,
+        activo: producto.activo,
+        orden: producto.orden,
+        ...payload,
+      })
+    : await supabase.from('productos').update(payload).eq('slug', producto.slug);
   if (error) {
     console.error(`Error actualizando ${producto.slug}:`, error.message);
     process.exitCode = 1;
@@ -106,5 +125,5 @@ for (const producto of mockProductos) {
 }
 
 console.log(
-  `${actualizados} producto(s) ${DRY_RUN ? 'listos para actualizar' : 'actualizados'}, ${saltados} saltado(s) por falta de contenido enriquecido, de ${targetSlugs.size} solicitados.`
+  `${actualizados} producto(s) ${DRY_RUN ? 'listos para sincronizar' : 'sincronizados'}, ${saltados} saltado(s) por falta de contenido enriquecido, de ${targetSlugs?.size ?? mockProductos.length} solicitados.`
 );

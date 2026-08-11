@@ -9951,41 +9951,41 @@
     "familia_slug": "mobiliario",
     "tipo_id": "1e55f2c4-7408-4ed2-a885-cbc12a26cce2",
     "nombre_es": "Mesa de Sobrecama SKH046-11",
-    "nombre_en": "Overbed Table SKH046-11",
-    "descripcion_corta_es": "Mesa de sobrecama de resina fenólica con ajuste una mano",
-    "descripcion_corta_en": "Phenolic resin overbed table with one-hand adjustment",
-    "descripcion_larga_es": "Mesa de sobrecama con superficie de laminado en resina fenólica y base en acero con recubrimiento en polvo. Ajuste de altura por resorte a gas mediante mecanismo de una mano. Cuenta con 4 ruedas silenciosas de 2 pulgadas, dos con freno.",
-    "descripcion_larga_en": "Overbed table with phenolic resin laminate surface and powder-coated steel base. Height adjustment by gas spring with one-hand mechanism. Features 4 silent 2-inch casters, two with brakes.",
+    "nombre_en": "SKH046-11 Overbed Table",
+    "descripcion_corta_es": "mesa clínica Saikang modelo técnico SKH046-11 para instituciones de salud.",
+    "descripcion_corta_en": "Saikang clinical table model SKH046-11 for healthcare institutions.",
+    "descripcion_larga_es": "El modelo SKH046-11 de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model SKH046-11 is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
     "especificaciones": [
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Laminado resina fenólica"
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "SKH046-11"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Base U acero recubrimiento polvo"
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Mesa de Sobrecama SKH046-11"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Ajuste altura resorte gas"
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "4 ruedas silenciosas 2\""
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "2 con freno"
+        "clave": "Parámetro técnico 1",
+        "grupo": "Ficha técnica",
+        "valor": "Height adjustment t echnical parameters"
       }
     ],
     "imagen_principal": "/assets/productos/importados/skh046-11/manufacturer-01.jpg",
     "galeria": ["/assets/productos/importados/skh046-11/manufacturer-01.jpg"],
-    "ficha_pdf": null,
+    "ficha_pdf": "/assets/productos/importados/skh046-11/ficha-tecnica-saikang.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
     "precio": null,
@@ -9993,15 +9993,35 @@
     "stock": null,
     "disponible": true,
     "destacado": false,
-    "nuevo": false,
+    "nuevo": true,
     "activo": true,
     "orden": 0,
-    "aplicaciones_es": ["Hospitalización"],
-    "aplicaciones_en": [
-      "Inpatient care",
-      "Intensive care units",
-      "Neonatal units",
-      "Procedure rooms"
+    "aplicaciones_es": ["Hospitalización", "Consultorios", "Áreas clínicas"],
+    "aplicaciones_en": ["Inpatient care", "Consulting rooms", "Clinical areas"],
+    "beneficios_es": [
+      "Modelo SKH046-11 identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
+    ],
+    "beneficios_en": [
+      "Model SKH046-11 identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar SKH046-11 con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate SKH046-11 with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Mesa de Sobrecama SKH046-11",
+      "SKH046-11 Saikang",
+      "Mesa de Sobrecama SKH046-11 Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "SKH046-11 Overbed Table",
+      "SKH046-11 Saikang",
+      "SKH046-11 Overbed Table Colombia",
+      "Saikang hospital furniture"
     ]
   },
   {
@@ -10637,47 +10657,32 @@
     "familia_id": "3d631fe7-2f3b-4b43-a07c-861844755476",
     "familia_slug": "mobiliario",
     "tipo_id": "2b86e33e-2846-4485-8057-a715ea179ed1",
-    "nombre_es": "Carrito de Acero Inoxidable SKH004",
-    "nombre_en": "Stainless Steel Cart SKH004",
-    "descripcion_corta_es": "Carrito de acero inoxidable de 3 estantes",
-    "descripcion_corta_en": "Stainless steel cart with 3 shelves",
-    "descripcion_larga_es": "Carrito de acero inoxidable de 3 estantes con manijas en ambos lados y barandillas en 3 lados. Ruedas de 3 pulgadas cubiertas con 2 frenos. Estructura en tubo Φ25×1.2 y Φ13×1 mm. Dimensiones 670×450×900 mm.",
-    "descripcion_larga_en": "Stainless steel cart with 3 shelves, handles on both sides and 3-side railings. 3 inch covered casters with 2 brakes. Frame in tubing Φ25×1.2 and Φ13×1 mm. Dimensions 670×450×900 mm.",
+    "nombre_es": "Carro de Instrumental SKH004",
+    "nombre_en": "SKH004 Instrument Trolley",
+    "descripcion_corta_es": "carro clínico Saikang modelo técnico SKH004 para instituciones de salud.",
+    "descripcion_corta_en": "Saikang clinical trolley model SKH004 for healthcare institutions.",
+    "descripcion_larga_es": "El modelo SKH004 de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model SKH004 is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
     "especificaciones": [
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Acero inoxidable"
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "SKH004"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "3 estantes"
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Carro de Instrumental SKH004"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Manijas ambos lados"
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Ruedas 3\" cubiertas, 2 con freno"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Barandillas 3 lados"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Tubo Φ25×1.2 y Φ13×1 mm"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Tamaño: 670×450×900 mm"
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
       }
     ],
     "imagen_principal": "/assets/productos/importados/skm-b-skh004/imagen-principal-skm-b-skh004.jpg",
@@ -10685,7 +10690,7 @@
       "/assets/productos/importados/skm-b-skh004/imagen-principal-skm-b-skh004.jpg",
       "imagen_principal_SKM-B-SKH004.jpg"
     ],
-    "ficha_pdf": null,
+    "ficha_pdf": "/assets/productos/importados/skm-b-skh004/ficha-tecnica-saikang.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
     "precio": null,
@@ -10693,20 +10698,35 @@
     "stock": null,
     "disponible": true,
     "destacado": false,
-    "nuevo": false,
+    "nuevo": true,
     "activo": true,
     "orden": 0,
-    "aplicaciones_es": [
-      "Transporte de ropa clínica",
-      "Movilización de insumos generales",
-      "Servicios de alimentación hospitalaria",
-      "Logística de emergencias"
+    "aplicaciones_es": ["Hospitalización", "Áreas de procedimiento", "Logística clínica"],
+    "aplicaciones_en": ["Inpatient care", "Procedure areas", "Clinical logistics"],
+    "beneficios_es": [
+      "Modelo SKH004 identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
     ],
-    "aplicaciones_en": [
-      "Clinical linen transport",
-      "General supplies mobilization",
-      "Hospital food services",
-      "Emergency logistics"
+    "beneficios_en": [
+      "Model SKH004 identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar SKH004 con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate SKH004 with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Carro de Instrumental SKH004",
+      "SKH004 Saikang",
+      "Carro de Instrumental SKH004 Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "SKH004 Instrument Trolley",
+      "SKH004 Saikang",
+      "SKH004 Instrument Trolley Colombia",
+      "Saikang hospital furniture"
     ]
   },
   {
@@ -10715,37 +10735,37 @@
     "familia_id": "3d631fe7-2f3b-4b43-a07c-861844755476",
     "familia_slug": "mobiliario",
     "tipo_id": "2b86e33e-2846-4485-8057-a715ea179ed1",
-    "nombre_es": "Carro de Acero Inoxidable SKH006-1",
-    "nombre_en": "Stainless Steel Cart SKH006-1",
-    "descripcion_corta_es": "Carro de acero inoxidable con 2 estantes y 2 cajones",
-    "descripcion_corta_en": "Stainless steel cart with 2 shelves and 2 drawers",
-    "descripcion_larga_es": "Carro hospitalario fabricado en acero inoxidable, concebido para el transporte organizado de insumos clínicos. Incorpora dos estantes y dos cajones de 100×280×350 mm, lo que permite separar elementos según su grado de uso o riesgo. Su tamaño compacto de 670×450×900 mm facilita el desplazamiento por pasillos estándar sin comprometer la capacidad de almacenamiento.",
-    "descripcion_larga_en": "Stainless steel hospital cart with two shelves and two drawers of 100 × 280 × 350 mm, ideal for separating items by use level or risk. Compact size of 670 × 450 × 900 mm for agile movement through standard corridors.",
+    "nombre_es": "Carro de Instrumental SKH006",
+    "nombre_en": "SKH006 Instrument Trolley",
+    "descripcion_corta_es": "carro clínico Saikang modelo técnico SKH006 para instituciones de salud.",
+    "descripcion_corta_en": "Saikang clinical trolley model SKH006 for healthcare institutions.",
+    "descripcion_larga_es": "El modelo SKH006 de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model SKH006 is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
     "especificaciones": [
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Acero inoxidable"
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "SKH006"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "2 estantes"
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Carro de Instrumental SKH006"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "2 cajones 100×280×350 mm"
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Tamaño: 670×450×900 mm"
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
       }
     ],
     "imagen_principal": "/assets/productos/importados/skm-b-skh006-1/manufacturer-01.jpg",
     "galeria": ["/assets/productos/importados/skm-b-skh006-1/manufacturer-01.jpg"],
-    "ficha_pdf": null,
+    "ficha_pdf": "/assets/productos/importados/skm-b-skh006-1/ficha-tecnica-saikang.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
     "precio": null,
@@ -10753,20 +10773,35 @@
     "stock": null,
     "disponible": true,
     "destacado": false,
-    "nuevo": false,
+    "nuevo": true,
     "activo": true,
     "orden": 0,
-    "aplicaciones_es": [
-      "Transporte interno de material clínico",
-      "Distribución de insumos en servicios de hospitalización",
-      "Apoyo logístico en enfermería",
-      "Almacenamiento temporal en áreas de circulación controlada"
+    "aplicaciones_es": ["Hospitalización", "Áreas de procedimiento", "Logística clínica"],
+    "aplicaciones_en": ["Inpatient care", "Procedure areas", "Clinical logistics"],
+    "beneficios_es": [
+      "Modelo SKH006 identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
     ],
-    "aplicaciones_en": [
-      "Internal clinical material transport",
-      "Supply distribution in hospitalization",
-      "Logistical nursing support",
-      "Temporary storage in controlled circulation areas"
+    "beneficios_en": [
+      "Model SKH006 identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar SKH006 con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate SKH006 with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Carro de Instrumental SKH006",
+      "SKH006 Saikang",
+      "Carro de Instrumental SKH006 Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "SKH006 Instrument Trolley",
+      "SKH006 Saikang",
+      "SKH006 Instrument Trolley Colombia",
+      "Saikang hospital furniture"
     ]
   },
   {
@@ -11508,43 +11543,38 @@
     "slug": "skm-b-skr054-at",
     "familia_id": "3d631fe7-2f3b-4b43-a07c-861844755476",
     "familia_slug": "mobiliario",
-    "tipo_id": "1990047e-4352-4ae5-965f-cd11689e20b8",
-    "nombre_es": "Carro de ABS SKR054-AT",
-    "nombre_en": "ABS Cart SKR054-AT",
-    "descripcion_corta_es": "Carro de ABS con 5 cajones y cerradura centralizada",
-    "descripcion_corta_en": "ABS cart with 5 drawers and central lock",
-    "descripcion_larga_es": "Carro de ABS con cinco cajones, cerradura centralizada y estantes deslizantes, configurado para flujos de dispensación estructurados. Incluye cesta de polvo y contenedor para punzocortantes, lo que respalda la segregación de residuos durante la ronda. Sus dimensiones de 850×520×950 mm ofrecen capacidad amplia para recorridos extensos en servicios de alta demanda.",
-    "descripcion_larga_en": "ABS cart with five drawers, centralized lock and sliding shelves, configured for structured dispensing flows. Includes dust basket and sharps container, supporting waste segregation during rounds. Dimensions 850×520×950 mm provide ample capacity for extensive routes in high-demand services.",
+    "tipo_id": "2b86e33e-2846-4485-8057-a715ea179ed1",
+    "nombre_es": "Carro de Anestesia SKR054-AT",
+    "nombre_en": "SKR054-AT Anesthesia Trolley",
+    "descripcion_corta_es": "carro clínico Saikang modelo técnico SKR054-AT para instituciones de salud.",
+    "descripcion_corta_en": "Saikang clinical trolley model SKR054-AT for healthcare institutions.",
+    "descripcion_larga_es": "El modelo SKR054-AT de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model SKR054-AT is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
     "especificaciones": [
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Cesta polvo"
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "SKR054-AT"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Contenedor punzocortantes"
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Carro de Anestesia SKR054-AT"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "2 cajones pequeños, 2 medianos, 1 grande"
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Cerradura centralizada"
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Estantes deslizantes"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Tamaño: 850×520×950 mm"
+        "clave": "Parámetro técnico 1",
+        "grupo": "Ficha técnica",
+        "valor": "Cart dimensions: 760*475*945±10mm (height to tabletop)"
       }
     ],
     "imagen_principal": "/assets/productos/importados/skm-b-skr054-at/imagen-principal-skm-b-skr054-at.jpg",
@@ -11552,7 +11582,7 @@
       "/assets/productos/importados/skm-b-skr054-at/imagen-principal-skm-b-skr054-at.jpg",
       "imagen_principal_SKM-B-SKR054-AT.jpg"
     ],
-    "ficha_pdf": null,
+    "ficha_pdf": "/assets/productos/importados/skm-b-skr054-at/ficha-tecnica-saikang.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
     "precio": null,
@@ -11560,20 +11590,35 @@
     "stock": null,
     "disponible": true,
     "destacado": false,
-    "nuevo": false,
+    "nuevo": true,
     "activo": true,
     "orden": 0,
-    "aplicaciones_es": [
-      "Distribución de medicamentos en hospitalización",
-      "Transporte organizado de suministros por servicios",
-      "Apoyo en dispensación centralizada",
-      "Movilización de insumos punzocortantes segregados"
+    "aplicaciones_es": ["Hospitalización", "Áreas de procedimiento", "Logística clínica"],
+    "aplicaciones_en": ["Inpatient care", "Procedure areas", "Clinical logistics"],
+    "beneficios_es": [
+      "Modelo SKR054-AT identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
     ],
-    "aplicaciones_en": [
-      "Medication distribution in hospitalization",
-      "Organized supply transport by services",
-      "Support in centralized dispensing",
-      "Segregated movement of sharps"
+    "beneficios_en": [
+      "Model SKR054-AT identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar SKR054-AT con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate SKR054-AT with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Carro de Anestesia SKR054-AT",
+      "SKR054-AT Saikang",
+      "Carro de Anestesia SKR054-AT Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "SKR054-AT Anesthesia Trolley",
+      "SKR054-AT Saikang",
+      "SKR054-AT Anesthesia Trolley Colombia",
+      "Saikang hospital furniture"
     ]
   },
   {
@@ -11681,43 +11726,38 @@
     "slug": "skm-b-skr054-mt",
     "familia_id": "3d631fe7-2f3b-4b43-a07c-861844755476",
     "familia_slug": "mobiliario",
-    "tipo_id": "1990047e-4352-4ae5-965f-cd11689e20b8",
-    "nombre_es": "Carro de ABS SKR054-MT",
-    "nombre_en": "ABS Cart SKR054-MT",
-    "descripcion_corta_es": "Carro de ABS con 25 casetes para medicinas por lado",
-    "descripcion_corta_en": "ABS cart with 25 medicine cassettes per side",
-    "descripcion_larga_es": "Carro de ABS con cuerpo antibacteriano y estructura de aluminio, equipado con apoyabrazos de acero inoxidable y cajón de medicina doble lado con 25 casetes por lado. Las certificaciones USFDA y CE respaldan su aptitud para entornos regulados de dispensación farmacológica. Su tamaño de 750×480×920 mm favorece la ergonomía en rutas de inventario y entrega por servicios clínicos.",
-    "descripcion_larga_en": "ABS cart with antibacterial body and aluminum structure, featuring stainless steel armrests and double-sided medicine drawer with 25 cassettes per side. USFDA and CE certifications support its suitability for regulated pharmacological dispensing environments. Dimensions 750×480×920 mm enhance ergonomics in inventory and delivery routes across clinical services.",
+    "tipo_id": "2b86e33e-2846-4485-8057-a715ea179ed1",
+    "nombre_es": "Carro de Medicamentos SKR054-MT",
+    "nombre_en": "SKR054-MT Medicine Trolley",
+    "descripcion_corta_es": "carro clínico Saikang modelo técnico SKR054-MT para instituciones de salud.",
+    "descripcion_corta_en": "Saikang clinical trolley model SKR054-MT for healthcare institutions.",
+    "descripcion_larga_es": "El modelo SKR054-MT de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model SKR054-MT is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
     "especificaciones": [
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Cuerpo ABS"
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "SKR054-MT"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Estructura aluminio"
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Carro de Medicamentos SKR054-MT"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Apoyabrazos acero inoxidable"
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Cajón medicina doble lado 25 casetes"
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Tamaño: 750×480×920 mm"
-      },
-      {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "USFDA y CE"
+        "clave": "Parámetro técnico 1",
+        "grupo": "Ficha técnica",
+        "valor": "Cart dimensions: 750×475×920±10 mm (height to tabletop)"
       }
     ],
     "imagen_principal": "/assets/productos/importados/skm-b-skr054-mt/imagen-principal-skm-b-skr054-mt.jpg",
@@ -11726,7 +11766,7 @@
       "/assets/productos/importados/skm-b-skr054-mt/imagen-principal-skr054-mt.jpg",
       "imagen_principal_SKR054-MT.jpg"
     ],
-    "ficha_pdf": null,
+    "ficha_pdf": "/assets/productos/importados/skm-b-skr054-mt/ficha-tecnica-saikang.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
     "precio": null,
@@ -11734,20 +11774,35 @@
     "stock": null,
     "disponible": true,
     "destacado": false,
-    "nuevo": false,
+    "nuevo": true,
     "activo": true,
     "orden": 0,
-    "aplicaciones_es": [
-      "Dispensación estructurada de medicamentos por servicios",
-      "Transporte organizado de fármacos en hospitalización",
-      "Apoyo en gestión de inventario clínico",
-      "Movilización segura de sustancias controladas"
+    "aplicaciones_es": ["Hospitalización", "Áreas de procedimiento", "Logística clínica"],
+    "aplicaciones_en": ["Inpatient care", "Procedure areas", "Clinical logistics"],
+    "beneficios_es": [
+      "Modelo SKR054-MT identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
     ],
-    "aplicaciones_en": [
-      "Structured medication dispensing by services",
-      "Organized drug transport in hospitalization",
-      "Support in clinical inventory management",
-      "Safe movement of controlled substances"
+    "beneficios_en": [
+      "Model SKR054-MT identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar SKR054-MT con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate SKR054-MT with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Carro de Medicamentos SKR054-MT",
+      "SKR054-MT Saikang",
+      "Carro de Medicamentos SKR054-MT Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "SKR054-MT Medicine Trolley",
+      "SKR054-MT Saikang",
+      "SKR054-MT Medicine Trolley Colombia",
+      "Saikang hospital furniture"
     ]
   },
   {
@@ -12423,37 +12478,37 @@
     "familia_id": "3d631fe7-2f3b-4b43-a07c-861844755476",
     "familia_slug": "mobiliario",
     "tipo_id": "1e55f2c4-7408-4ed2-a885-cbc12a26cce2",
-    "nombre_es": "Mesita de Noche SKS025",
-    "nombre_en": "Nightstand SKS025",
-    "descripcion_corta_es": "Mesita de noche con marco de aleación de aluminio",
-    "descripcion_corta_en": "Nightstand with aluminum alloy frame",
-    "descripcion_larga_es": "Mesita de noche con marco de aleación de aluminio de cuatro columnas, lados de acero con recubrimiento en polvo y tablero compacto fenólico. Resistente a ácidos y álcalis, con retardante al fuego de 4 horas. Diseñada para alta durabilidad en habitaciones de hospitalización.",
-    "descripcion_larga_en": "Nightstand with four-column aluminum alloy frame, powder-coated steel sides and compact phenolic board. Resistant to acids and alkalis, with 4-hour fire retardant. Designed for high durability in hospitalization rooms.",
+    "nombre_es": "Mesa de Noche Hospitalaria en Resina Fenólica SKS025",
+    "nombre_en": "SKS025 Phenolic Resin Bedside Table",
+    "descripcion_corta_es": "mesa clínica Saikang modelo técnico SKS025 para instituciones de salud.",
+    "descripcion_corta_en": "Saikang clinical table model SKS025 for healthcare institutions.",
+    "descripcion_larga_es": "El modelo SKS025 de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model SKS025 is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
     "especificaciones": [
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Marco aleación aluminio 4 columnas"
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "SKS025"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Lados acero recubrimiento polvo"
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Mesa de Noche Hospitalaria en Resina Fenólica SKS025"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Tablero compacto fenólico"
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Resistente ácidos/álcalis"
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
       },
       {
-        "clave": "Característica",
-        "grupo": "Catálogo IME",
-        "valor": "Retardante fuego 4h"
+        "clave": "Parámetro técnico 1",
+        "grupo": "Ficha técnica",
+        "valor": "size ( l xWxH) 475x475x800 mm t echnical configuration ☑ d rawer 1pc ☑ Cabinet 1pc ☑ Casters 4pcs"
       }
     ],
     "imagen_principal": "/assets/productos/importados/sks025/imagen-principal-sks025.jpg",
@@ -12461,7 +12516,7 @@
       "/assets/productos/importados/sks025/imagen-principal-sks025.jpg",
       "imagen_principal_SKS025.jpg"
     ],
-    "ficha_pdf": null,
+    "ficha_pdf": "/assets/productos/importados/sks025/ficha-tecnica-saikang.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
     "precio": null,
@@ -12469,23 +12524,36 @@
     "stock": null,
     "disponible": true,
     "destacado": false,
-    "nuevo": false,
+    "nuevo": true,
     "activo": true,
     "orden": 0,
-    "aplicaciones_es": ["Hospitalización"],
-    "aplicaciones_en": ["Hospitalization", "Clinical rooms", "Demanding environments"],
+    "aplicaciones_es": ["Hospitalización", "Consultorios", "Áreas clínicas"],
+    "aplicaciones_en": ["Inpatient care", "Consulting rooms", "Clinical areas"],
     "beneficios_es": [
-      "Marco de aleación de aluminio de cuatro columnas para alta durabilidad.",
-      "Lados de acero con recubrimiento en polvo y tablero compacto fenólico.",
-      "Resistente a ácidos y álcalis, con retardante al fuego de 4 horas."
+      "Modelo SKS025 identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
     ],
     "beneficios_en": [
-      "Four-column aluminum-alloy frame for high durability.",
-      "Powder-coated steel sides and compact phenolic top.",
-      "Acid/alkali resistant with 4-hour fire retardancy."
+      "Model SKS025 identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
     ],
-    "valor_es": "Mesita de noche hospitalaria resistente a químicos y fuego para habitaciones de hospitalización.",
-    "valor_en": "Chemical- and fire-resistant hospital bedside table for inpatient rooms."
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar SKS025 con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate SKS025 with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Mesa de Noche Hospitalaria en Resina Fenólica SKS025",
+      "SKS025 Saikang",
+      "Mesa de Noche Hospitalaria en Resina Fenólica SKS025 Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "SKS025 Phenolic Resin Bedside Table",
+      "SKS025 Saikang",
+      "SKS025 Phenolic Resin Bedside Table Colombia",
+      "Saikang hospital furniture"
+    ]
   },
   {
     "id": "c47da595-1ddd-4fa1-8fdd-25f014446214",
@@ -26724,6 +26792,2270 @@
       "hospital lobby assistance",
       "robots for healthcare providers",
       "robots for hotels and clinics"
+    ]
+  },
+  {
+    "id": "a9db0095-9924-4f97-8ccc-1eb5108d190d",
+    "slug": "saikang-a048",
+    "orden": 479,
+    "destacado": false,
+    "familia_id": "2f70b322-e498-4924-8630-3a1ee268c01f",
+    "familia_slug": "neonatologia",
+    "tipo_id": "e01b746c-9916-4c17-8c1d-2b8fd4d8f269",
+    "nombre_es": "Mesa de Examen Ginecológico A048",
+    "nombre_en": "A048 Gynecological Examination Table",
+    "descripcion_corta_es": "equipo de ginecología y obstetricia Saikang modelo técnico A048 para instituciones de salud.",
+    "descripcion_corta_en": "Saikang gynecology and obstetrics equipment model A048 for healthcare institutions.",
+    "descripcion_larga_es": "El modelo A048 de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model A048 is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
+    "especificaciones": [
+      {
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "A048"
+      },
+      {
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Mesa de Examen Ginecológico A048"
+      },
+      {
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
+      },
+      {
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/saikang-a048/imagen-principal-ficha-tecnica.png",
+    "galeria": ["/assets/productos/importados/saikang-a048/imagen-principal-ficha-tecnica.png"],
+    "ficha_pdf": "/assets/productos/importados/saikang-a048/ficha-tecnica-saikang.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "nuevo": true,
+    "activo": true,
+    "aplicaciones_es": ["Ginecología y obstetricia", "Salas de parto", "Áreas de examen"],
+    "aplicaciones_en": ["Gynecology and obstetrics", "Delivery rooms", "Examination areas"],
+    "beneficios_es": [
+      "Modelo A048 identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
+    ],
+    "beneficios_en": [
+      "Model A048 identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar A048 con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate A048 with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Mesa de Examen Ginecológico A048",
+      "A048 Saikang",
+      "Mesa de Examen Ginecológico A048 Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "A048 Gynecological Examination Table",
+      "A048 Saikang",
+      "A048 Gynecological Examination Table Colombia",
+      "Saikang hospital furniture"
+    ]
+  },
+  {
+    "id": "521a8c4c-9da7-4a47-8ffb-cdccc0b908b8",
+    "slug": "saikang-a302",
+    "orden": 480,
+    "destacado": false,
+    "familia_id": "42daf82e-4b05-479c-9557-74214a9e655b",
+    "familia_slug": "sala-cirugia",
+    "tipo_id": "2effbcdd-fcbc-4184-90f3-f3636b4662a7",
+    "nombre_es": "Mesa Quirúrgica Eléctrica A302",
+    "nombre_en": "A302 Electric Operating Table",
+    "descripcion_corta_es": "equipo para quirófano Saikang modelo técnico A302 para instituciones de salud.",
+    "descripcion_corta_en": "Saikang operating-room equipment model A302 for healthcare institutions.",
+    "descripcion_larga_es": "El modelo A302 de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model A302 is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
+    "especificaciones": [
+      {
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "A302"
+      },
+      {
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Mesa Quirúrgica Eléctrica A302"
+      },
+      {
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
+      },
+      {
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
+      },
+      {
+        "clave": "Parámetro técnico 1",
+        "grupo": "Ficha técnica",
+        "valor": "Length/Width: 2000 × 555 mm ± 10 mm"
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/saikang-a302/imagen-principal-ficha-tecnica.png",
+    "galeria": ["/assets/productos/importados/saikang-a302/imagen-principal-ficha-tecnica.png"],
+    "ficha_pdf": "/assets/productos/importados/saikang-a302/ficha-tecnica-saikang.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "nuevo": true,
+    "activo": true,
+    "aplicaciones_es": ["Quirófanos", "Áreas de procedimiento", "Servicios quirúrgicos"],
+    "aplicaciones_en": ["Operating rooms", "Procedure areas", "Surgical services"],
+    "beneficios_es": [
+      "Modelo A302 identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
+    ],
+    "beneficios_en": [
+      "Model A302 identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar A302 con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate A302 with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Mesa Quirúrgica Eléctrica A302",
+      "A302 Saikang",
+      "Mesa Quirúrgica Eléctrica A302 Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "A302 Electric Operating Table",
+      "A302 Saikang",
+      "A302 Electric Operating Table Colombia",
+      "Saikang hospital furniture"
+    ]
+  },
+  {
+    "id": "f939c246-f7fb-4e56-bf2c-f89340c0e33f",
+    "slug": "saikang-a307",
+    "orden": 481,
+    "destacado": false,
+    "familia_id": "42daf82e-4b05-479c-9557-74214a9e655b",
+    "familia_slug": "sala-cirugia",
+    "tipo_id": "2effbcdd-fcbc-4184-90f3-f3636b4662a7",
+    "nombre_es": "Mesa Quirúrgica Electrohidráulica A307",
+    "nombre_en": "A307 Electric-Hydraulic Operating Table",
+    "descripcion_corta_es": "equipo para quirófano Saikang modelo técnico A307 para instituciones de salud.",
+    "descripcion_corta_en": "Saikang operating-room equipment model A307 for healthcare institutions.",
+    "descripcion_larga_es": "El modelo A307 de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model A307 is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
+    "especificaciones": [
+      {
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "A307"
+      },
+      {
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Mesa Quirúrgica Electrohidráulica A307"
+      },
+      {
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
+      },
+      {
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/saikang-a307/imagen-principal-ficha-tecnica.png",
+    "galeria": ["/assets/productos/importados/saikang-a307/imagen-principal-ficha-tecnica.png"],
+    "ficha_pdf": "/assets/productos/importados/saikang-a307/ficha-tecnica-saikang.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "nuevo": true,
+    "activo": true,
+    "aplicaciones_es": ["Quirófanos", "Áreas de procedimiento", "Servicios quirúrgicos"],
+    "aplicaciones_en": ["Operating rooms", "Procedure areas", "Surgical services"],
+    "beneficios_es": [
+      "Modelo A307 identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
+    ],
+    "beneficios_en": [
+      "Model A307 identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar A307 con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate A307 with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Mesa Quirúrgica Electrohidráulica A307",
+      "A307 Saikang",
+      "Mesa Quirúrgica Electrohidráulica A307 Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "A307 Electric-Hydraulic Operating Table",
+      "A307 Saikang",
+      "A307 Electric-Hydraulic Operating Table Colombia",
+      "Saikang hospital furniture"
+    ]
+  },
+  {
+    "id": "61f16b79-b7af-4e39-a9d0-ed7a82ea0e6a",
+    "slug": "saikang-a99-5",
+    "orden": 482,
+    "destacado": false,
+    "familia_id": "2f70b322-e498-4924-8630-3a1ee268c01f",
+    "familia_slug": "neonatologia",
+    "tipo_id": "e01b746c-9916-4c17-8c1d-2b8fd4d8f269",
+    "nombre_es": "Cama Obstétrica Eléctrica A99-5",
+    "nombre_en": "A99-5 Electric Obstetric Bed",
+    "descripcion_corta_es": "equipo de ginecología y obstetricia Saikang modelo técnico A99-5 para instituciones de salud.",
+    "descripcion_corta_en": "Saikang gynecology and obstetrics equipment model A99-5 for healthcare institutions.",
+    "descripcion_larga_es": "El modelo A99-5 de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model A99-5 is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
+    "especificaciones": [
+      {
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "A99-5"
+      },
+      {
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Cama Obstétrica Eléctrica A99-5"
+      },
+      {
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
+      },
+      {
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
+      },
+      {
+        "clave": "Parámetro técnico 1",
+        "grupo": "Ficha técnica",
+        "valor": "Height Adjustment s troke: 675-975mm±10mm"
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/saikang-a99-5/imagen-principal-ficha-tecnica.png",
+    "galeria": ["/assets/productos/importados/saikang-a99-5/imagen-principal-ficha-tecnica.png"],
+    "ficha_pdf": "/assets/productos/importados/saikang-a99-5/ficha-tecnica-saikang.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "nuevo": true,
+    "activo": true,
+    "aplicaciones_es": ["Ginecología y obstetricia", "Salas de parto", "Áreas de examen"],
+    "aplicaciones_en": ["Gynecology and obstetrics", "Delivery rooms", "Examination areas"],
+    "beneficios_es": [
+      "Modelo A99-5 identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
+    ],
+    "beneficios_en": [
+      "Model A99-5 identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar A99-5 con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate A99-5 with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Cama Obstétrica Eléctrica A99-5",
+      "A99-5 Saikang",
+      "Cama Obstétrica Eléctrica A99-5 Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "A99-5 Electric Obstetric Bed",
+      "A99-5 Saikang",
+      "A99-5 Electric Obstetric Bed Colombia",
+      "Saikang hospital furniture"
+    ]
+  },
+  {
+    "id": "fc5e9a68-a2ba-491e-adbd-2508c6baf384",
+    "slug": "saikang-a99-7",
+    "orden": 483,
+    "destacado": false,
+    "familia_id": "2f70b322-e498-4924-8630-3a1ee268c01f",
+    "familia_slug": "neonatologia",
+    "tipo_id": "e01b746c-9916-4c17-8c1d-2b8fd4d8f269",
+    "nombre_es": "Cama Obstétrica Eléctrica A99-7",
+    "nombre_en": "A99-7 Electric Obstetric Bed",
+    "descripcion_corta_es": "equipo de ginecología y obstetricia Saikang modelo técnico A99-7 para instituciones de salud.",
+    "descripcion_corta_en": "Saikang gynecology and obstetrics equipment model A99-7 for healthcare institutions.",
+    "descripcion_larga_es": "El modelo A99-7 de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model A99-7 is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
+    "especificaciones": [
+      {
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "A99-7"
+      },
+      {
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Cama Obstétrica Eléctrica A99-7"
+      },
+      {
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
+      },
+      {
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
+      },
+      {
+        "clave": "Parámetro técnico 1",
+        "grupo": "Ficha técnica",
+        "valor": "Height Adjustment s troke: 630-880mm±10mm"
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/saikang-a99-7/imagen-principal-ficha-tecnica.png",
+    "galeria": ["/assets/productos/importados/saikang-a99-7/imagen-principal-ficha-tecnica.png"],
+    "ficha_pdf": "/assets/productos/importados/saikang-a99-7/ficha-tecnica-saikang.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "nuevo": true,
+    "activo": true,
+    "aplicaciones_es": ["Ginecología y obstetricia", "Salas de parto", "Áreas de examen"],
+    "aplicaciones_en": ["Gynecology and obstetrics", "Delivery rooms", "Examination areas"],
+    "beneficios_es": [
+      "Modelo A99-7 identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
+    ],
+    "beneficios_en": [
+      "Model A99-7 identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar A99-7 con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate A99-7 with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Cama Obstétrica Eléctrica A99-7",
+      "A99-7 Saikang",
+      "Cama Obstétrica Eléctrica A99-7 Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "A99-7 Electric Obstetric Bed",
+      "A99-7 Saikang",
+      "A99-7 Electric Obstetric Bed Colombia",
+      "Saikang hospital furniture"
+    ]
+  },
+  {
+    "id": "7720e751-064f-4e01-aec4-fa7115aee3e8",
+    "slug": "saikang-ainno-l21",
+    "orden": 484,
+    "destacado": false,
+    "familia_id": "42daf82e-4b05-479c-9557-74214a9e655b",
+    "familia_slug": "sala-cirugia",
+    "tipo_id": "2effbcdd-fcbc-4184-90f3-f3636b4662a7",
+    "nombre_es": "Columna de Techo Eléctrica de Doble Brazo AInno L21",
+    "nombre_en": "AInno L21 Electric Double-Arm Pendant",
+    "descripcion_corta_es": "equipo para quirófano Saikang modelo técnico AInno L21 para instituciones de salud.",
+    "descripcion_corta_en": "Saikang operating-room equipment model AInno L21 for healthcare institutions.",
+    "descripcion_larga_es": "El modelo AInno L21 de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model AInno L21 is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
+    "especificaciones": [
+      {
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "AInno L21"
+      },
+      {
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Columna de Techo Eléctrica de Doble Brazo AInno L21"
+      },
+      {
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
+      },
+      {
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
+      },
+      {
+        "clave": "Parámetro técnico 1",
+        "grupo": "Ficha técnica",
+        "valor": "load capacity: 30kg. CABLE MANAGEMENT The side of the box"
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/saikang-ainno-l21/imagen-principal-ficha-tecnica.png",
+    "galeria": [
+      "/assets/productos/importados/saikang-ainno-l21/imagen-principal-ficha-tecnica.png"
+    ],
+    "ficha_pdf": "/assets/productos/importados/saikang-ainno-l21/ficha-tecnica-saikang.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "nuevo": true,
+    "activo": true,
+    "aplicaciones_es": ["Quirófanos", "Áreas de procedimiento", "Servicios quirúrgicos"],
+    "aplicaciones_en": ["Operating rooms", "Procedure areas", "Surgical services"],
+    "beneficios_es": [
+      "Modelo AInno L21 identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
+    ],
+    "beneficios_en": [
+      "Model AInno L21 identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar AInno L21 con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate AInno L21 with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Columna de Techo Eléctrica de Doble Brazo AInno L21",
+      "AInno L21 Saikang",
+      "Columna de Techo Eléctrica de Doble Brazo AInno L21 Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "AInno L21 Electric Double-Arm Pendant",
+      "AInno L21 Saikang",
+      "AInno L21 Electric Double-Arm Pendant Colombia",
+      "Saikang hospital furniture"
+    ]
+  },
+  {
+    "id": "edef8318-862d-47cd-868b-de8c4d6d64ee",
+    "slug": "saikang-ainno-light-m",
+    "orden": 485,
+    "destacado": false,
+    "familia_id": "42daf82e-4b05-479c-9557-74214a9e655b",
+    "familia_slug": "sala-cirugia",
+    "tipo_id": "981d6cc2-2445-48eb-956c-1337ae4125d3",
+    "nombre_es": "Lámpara Quirúrgica LED AInno Light M",
+    "nombre_en": "AInno Light M LED Operating Lamp",
+    "descripcion_corta_es": "lámpara quirúrgica Saikang modelo técnico AInno Light M para instituciones de salud.",
+    "descripcion_corta_en": "Saikang operating lamp model AInno Light M for healthcare institutions.",
+    "descripcion_larga_es": "El modelo AInno Light M de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model AInno Light M is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
+    "especificaciones": [
+      {
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "AInno Light M"
+      },
+      {
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Lámpara Quirúrgica LED AInno Light M"
+      },
+      {
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
+      },
+      {
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/saikang-ainno-light-m/imagen-principal-ficha-tecnica.png",
+    "galeria": [
+      "/assets/productos/importados/saikang-ainno-light-m/imagen-principal-ficha-tecnica.png"
+    ],
+    "ficha_pdf": "/assets/productos/importados/saikang-ainno-light-m/ficha-tecnica-saikang.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "nuevo": true,
+    "activo": true,
+    "aplicaciones_es": ["Quirófanos", "Procedimientos clínicos", "Áreas quirúrgicas"],
+    "aplicaciones_en": ["Operating rooms", "Clinical procedures", "Surgical areas"],
+    "beneficios_es": [
+      "Modelo AInno Light M identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
+    ],
+    "beneficios_en": [
+      "Model AInno Light M identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar AInno Light M con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate AInno Light M with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Lámpara Quirúrgica LED AInno Light M",
+      "AInno Light M Saikang",
+      "Lámpara Quirúrgica LED AInno Light M Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "AInno Light M LED Operating Lamp",
+      "AInno Light M Saikang",
+      "AInno Light M LED Operating Lamp Colombia",
+      "Saikang hospital furniture"
+    ]
+  },
+  {
+    "id": "e7d2792d-dd06-4040-9c0a-823eb79f925e",
+    "slug": "saikang-ainno-light10",
+    "orden": 486,
+    "destacado": false,
+    "familia_id": "42daf82e-4b05-479c-9557-74214a9e655b",
+    "familia_slug": "sala-cirugia",
+    "tipo_id": "981d6cc2-2445-48eb-956c-1337ae4125d3",
+    "nombre_es": "Lámpara Quirúrgica LED AInno Light10",
+    "nombre_en": "AInno Light10 LED Operating Lamp",
+    "descripcion_corta_es": "lámpara quirúrgica Saikang modelo técnico AInno Light10 para instituciones de salud.",
+    "descripcion_corta_en": "Saikang operating lamp model AInno Light10 for healthcare institutions.",
+    "descripcion_larga_es": "El modelo AInno Light10 de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model AInno Light10 is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
+    "especificaciones": [
+      {
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "AInno Light10"
+      },
+      {
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Lámpara Quirúrgica LED AInno Light10"
+      },
+      {
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
+      },
+      {
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/saikang-ainno-light10/imagen-principal-ficha-tecnica.png",
+    "galeria": [
+      "/assets/productos/importados/saikang-ainno-light10/imagen-principal-ficha-tecnica.png"
+    ],
+    "ficha_pdf": "/assets/productos/importados/saikang-ainno-light10/ficha-tecnica-saikang.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "nuevo": true,
+    "activo": true,
+    "aplicaciones_es": ["Quirófanos", "Procedimientos clínicos", "Áreas quirúrgicas"],
+    "aplicaciones_en": ["Operating rooms", "Clinical procedures", "Surgical areas"],
+    "beneficios_es": [
+      "Modelo AInno Light10 identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
+    ],
+    "beneficios_en": [
+      "Model AInno Light10 identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar AInno Light10 con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate AInno Light10 with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Lámpara Quirúrgica LED AInno Light10",
+      "AInno Light10 Saikang",
+      "Lámpara Quirúrgica LED AInno Light10 Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "AInno Light10 LED Operating Lamp",
+      "AInno Light10 Saikang",
+      "AInno Light10 LED Operating Lamp Colombia",
+      "Saikang hospital furniture"
+    ]
+  },
+  {
+    "id": "a0158dfb-7d35-4b2b-af90-273a349d2dd0",
+    "slug": "saikang-ainno-light20",
+    "orden": 487,
+    "destacado": false,
+    "familia_id": "42daf82e-4b05-479c-9557-74214a9e655b",
+    "familia_slug": "sala-cirugia",
+    "tipo_id": "981d6cc2-2445-48eb-956c-1337ae4125d3",
+    "nombre_es": "Lámpara Quirúrgica LED AInno Light20",
+    "nombre_en": "AInno Light20 LED Operating Lamp",
+    "descripcion_corta_es": "lámpara quirúrgica Saikang modelo técnico AInno Light20 para instituciones de salud.",
+    "descripcion_corta_en": "Saikang operating lamp model AInno Light20 for healthcare institutions.",
+    "descripcion_larga_es": "El modelo AInno Light20 de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model AInno Light20 is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
+    "especificaciones": [
+      {
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "AInno Light20"
+      },
+      {
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Lámpara Quirúrgica LED AInno Light20"
+      },
+      {
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
+      },
+      {
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/saikang-ainno-light20/imagen-principal-ficha-tecnica.png",
+    "galeria": [
+      "/assets/productos/importados/saikang-ainno-light20/imagen-principal-ficha-tecnica.png"
+    ],
+    "ficha_pdf": "/assets/productos/importados/saikang-ainno-light20/ficha-tecnica-saikang.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "nuevo": true,
+    "activo": true,
+    "aplicaciones_es": ["Quirófanos", "Procedimientos clínicos", "Áreas quirúrgicas"],
+    "aplicaciones_en": ["Operating rooms", "Clinical procedures", "Surgical areas"],
+    "beneficios_es": [
+      "Modelo AInno Light20 identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
+    ],
+    "beneficios_en": [
+      "Model AInno Light20 identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar AInno Light20 con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate AInno Light20 with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Lámpara Quirúrgica LED AInno Light20",
+      "AInno Light20 Saikang",
+      "Lámpara Quirúrgica LED AInno Light20 Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "AInno Light20 LED Operating Lamp",
+      "AInno Light20 Saikang",
+      "AInno Light20 LED Operating Lamp Colombia",
+      "Saikang hospital furniture"
+    ]
+  },
+  {
+    "id": "391fa0a3-7507-4104-b57e-b9a96991b070",
+    "slug": "saikang-ainno-x22",
+    "orden": 488,
+    "destacado": false,
+    "familia_id": "42daf82e-4b05-479c-9557-74214a9e655b",
+    "familia_slug": "sala-cirugia",
+    "tipo_id": "2effbcdd-fcbc-4184-90f3-f3636b4662a7",
+    "nombre_es": "Columna de Techo de Doble Brazo AInno X22",
+    "nombre_en": "AInno X22 Double-Arm Pendant",
+    "descripcion_corta_es": "equipo para quirófano Saikang modelo técnico AInno X22 para instituciones de salud.",
+    "descripcion_corta_en": "Saikang operating-room equipment model AInno X22 for healthcare institutions.",
+    "descripcion_larga_es": "El modelo AInno X22 de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model AInno X22 is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
+    "especificaciones": [
+      {
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "AInno X22"
+      },
+      {
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Columna de Techo de Doble Brazo AInno X22"
+      },
+      {
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
+      },
+      {
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
+      },
+      {
+        "clave": "Parámetro técnico 1",
+        "grupo": "Ficha técnica",
+        "valor": "load capacity: 30kg. CABLE MANAGEMENT The side of the box"
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/saikang-ainno-x22/imagen-principal-ficha-tecnica.png",
+    "galeria": [
+      "/assets/productos/importados/saikang-ainno-x22/imagen-principal-ficha-tecnica.png"
+    ],
+    "ficha_pdf": "/assets/productos/importados/saikang-ainno-x22/ficha-tecnica-saikang.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "nuevo": true,
+    "activo": true,
+    "aplicaciones_es": ["Quirófanos", "Áreas de procedimiento", "Servicios quirúrgicos"],
+    "aplicaciones_en": ["Operating rooms", "Procedure areas", "Surgical services"],
+    "beneficios_es": [
+      "Modelo AInno X22 identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
+    ],
+    "beneficios_en": [
+      "Model AInno X22 identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar AInno X22 con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate AInno X22 with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Columna de Techo de Doble Brazo AInno X22",
+      "AInno X22 Saikang",
+      "Columna de Techo de Doble Brazo AInno X22 Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "AInno X22 Double-Arm Pendant",
+      "AInno X22 Saikang",
+      "AInno X22 Double-Arm Pendant Colombia",
+      "Saikang hospital furniture"
+    ]
+  },
+  {
+    "id": "2ee7cd8b-9cd1-4669-9a3f-b3dc4d77dcdc",
+    "slug": "saikang-ainno-x71",
+    "orden": 489,
+    "destacado": false,
+    "familia_id": "42daf82e-4b05-479c-9557-74214a9e655b",
+    "familia_slug": "sala-cirugia",
+    "tipo_id": "2effbcdd-fcbc-4184-90f3-f3636b4662a7",
+    "nombre_es": "Puente Médico UCI AInno X71",
+    "nombre_en": "AInno X71 ICU Medical Bridge Ceiling Pendant",
+    "descripcion_corta_es": "equipo para quirófano Saikang modelo técnico AInno X71 para instituciones de salud.",
+    "descripcion_corta_en": "Saikang operating-room equipment model AInno X71 for healthcare institutions.",
+    "descripcion_larga_es": "El modelo AInno X71 de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model AInno X71 is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
+    "especificaciones": [
+      {
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "AInno X71"
+      },
+      {
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Puente Médico UCI AInno X71"
+      },
+      {
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
+      },
+      {
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/saikang-ainno-x71/imagen-principal-ficha-tecnica.png",
+    "galeria": [
+      "/assets/productos/importados/saikang-ainno-x71/imagen-principal-ficha-tecnica.png"
+    ],
+    "ficha_pdf": "/assets/productos/importados/saikang-ainno-x71/ficha-tecnica-saikang.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "nuevo": true,
+    "activo": true,
+    "aplicaciones_es": ["Quirófanos", "Áreas de procedimiento", "Servicios quirúrgicos"],
+    "aplicaciones_en": ["Operating rooms", "Procedure areas", "Surgical services"],
+    "beneficios_es": [
+      "Modelo AInno X71 identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
+    ],
+    "beneficios_en": [
+      "Model AInno X71 identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar AInno X71 con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate AInno X71 with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Puente Médico UCI AInno X71",
+      "AInno X71 Saikang",
+      "Puente Médico UCI AInno X71 Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "AInno X71 ICU Medical Bridge Ceiling Pendant",
+      "AInno X71 Saikang",
+      "AInno X71 ICU Medical Bridge Ceiling Pendant Colombia",
+      "Saikang hospital furniture"
+    ]
+  },
+  {
+    "id": "ab1941a5-5754-4522-82e5-22b82cdde309",
+    "slug": "saikang-d8d-cpr",
+    "orden": 490,
+    "destacado": false,
+    "familia_id": "3d631fe7-2f3b-4b43-a07c-861844755476",
+    "familia_slug": "mobiliario",
+    "tipo_id": "4ee8572c-0766-4463-9adf-e77056fb1338",
+    "nombre_es": "Cama UCI Eléctrica D8d-CPR",
+    "nombre_en": "D8d-CPR Electric ICU Bed",
+    "descripcion_corta_es": "cama hospitalaria Saikang modelo técnico D8d-CPR para instituciones de salud.",
+    "descripcion_corta_en": "Saikang hospital bed model D8d-CPR for healthcare institutions.",
+    "descripcion_larga_es": "El modelo D8d-CPR de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model D8d-CPR is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
+    "especificaciones": [
+      {
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "D8d-CPR"
+      },
+      {
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Cama UCI Eléctrica D8d-CPR"
+      },
+      {
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
+      },
+      {
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
+      },
+      {
+        "clave": "Parámetro técnico 1",
+        "grupo": "Ficha técnica",
+        "valor": "size ( l xW): 2280x1090 mm"
+      },
+      {
+        "clave": "Parámetro técnico 2",
+        "grupo": "Ficha técnica",
+        "valor": "Safe working load: 250 kg"
+      },
+      {
+        "clave": "Parámetro técnico 3",
+        "grupo": "Ficha técnica",
+        "valor": "Height adjustment: 435-725±10 mm"
+      },
+      {
+        "clave": "Parámetro técnico 4",
+        "grupo": "Ficha técnica",
+        "valor": "Back-rest adjustment: 0-75° (±10°)"
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/saikang-d8d-cpr/imagen-principal-ficha-tecnica.png",
+    "galeria": ["/assets/productos/importados/saikang-d8d-cpr/imagen-principal-ficha-tecnica.png"],
+    "ficha_pdf": "/assets/productos/importados/saikang-d8d-cpr/ficha-tecnica-saikang.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "nuevo": true,
+    "activo": true,
+    "aplicaciones_es": [
+      "Hospitalización",
+      "Unidades de cuidado intensivo",
+      "Servicios clínicos institucionales"
+    ],
+    "aplicaciones_en": [
+      "Inpatient care",
+      "Intensive care units",
+      "Institutional clinical services"
+    ],
+    "beneficios_es": [
+      "Modelo D8d-CPR identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
+    ],
+    "beneficios_en": [
+      "Model D8d-CPR identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar D8d-CPR con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate D8d-CPR with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Cama UCI Eléctrica D8d-CPR",
+      "D8d-CPR Saikang",
+      "Cama UCI Eléctrica D8d-CPR Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "D8d-CPR Electric ICU Bed",
+      "D8d-CPR Saikang",
+      "D8d-CPR Electric ICU Bed Colombia",
+      "Saikang hospital furniture"
+    ]
+  },
+  {
+    "id": "148a2a51-7bb7-4805-b62e-3a87d548f672",
+    "slug": "saikang-skb041-3-backrest-x-ray",
+    "orden": 491,
+    "destacado": false,
+    "familia_id": "5c8c5719-4488-4723-99e6-77b7342c1a40",
+    "familia_slug": "emergencias-traslado-inmovilizacion",
+    "tipo_id": "fd3f59cb-27cf-4fde-8422-ec71f2893cf4",
+    "nombre_es": "Camilla de Traslado con Radiografía de Respaldo SKB041-3",
+    "nombre_en": "SKB041-3 Patient Transportation Trolley with Backrest X-ray",
+    "descripcion_corta_es": "camilla de traslado Saikang modelo técnico SKB041-3 Backrest X-ray para instituciones de salud.",
+    "descripcion_corta_en": "Saikang patient transport trolley model SKB041-3 Backrest X-ray for healthcare institutions.",
+    "descripcion_larga_es": "El modelo SKB041-3 Backrest X-ray de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model SKB041-3 Backrest X-ray is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
+    "especificaciones": [
+      {
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "SKB041-3 Backrest X-ray"
+      },
+      {
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Camilla de Traslado con Radiografía de Respaldo SKB041-3"
+      },
+      {
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
+      },
+      {
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
+      },
+      {
+        "clave": "Parámetro técnico 1",
+        "grupo": "Ficha técnica",
+        "valor": "External size (LxW): 2120x840mm (±10 mm)"
+      },
+      {
+        "clave": "Parámetro técnico 2",
+        "grupo": "Ficha técnica",
+        "valor": "Load Capacity: 250 kg"
+      },
+      {
+        "clave": "Parámetro técnico 3",
+        "grupo": "Ficha técnica",
+        "valor": "height adjustment: 550-860mm (±10 mm)"
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/saikang-skb041-3-backrest-x-ray/imagen-principal-ficha-tecnica.png",
+    "galeria": [
+      "/assets/productos/importados/saikang-skb041-3-backrest-x-ray/imagen-principal-ficha-tecnica.png"
+    ],
+    "ficha_pdf": "/assets/productos/importados/saikang-skb041-3-backrest-x-ray/ficha-tecnica-saikang.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "nuevo": true,
+    "activo": true,
+    "aplicaciones_es": ["Traslado intrahospitalario", "Urgencias", "Servicios de diagnóstico"],
+    "aplicaciones_en": ["Intra-hospital transport", "Emergency departments", "Diagnostic services"],
+    "beneficios_es": [
+      "Modelo SKB041-3 Backrest X-ray identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
+    ],
+    "beneficios_en": [
+      "Model SKB041-3 Backrest X-ray identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar SKB041-3 Backrest X-ray con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate SKB041-3 Backrest X-ray with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Camilla de Traslado con Radiografía de Respaldo SKB041-3",
+      "SKB041-3 Backrest X-ray Saikang",
+      "Camilla de Traslado con Radiografía de Respaldo SKB041-3 Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "SKB041-3 Patient Transportation Trolley with Backrest X-ray",
+      "SKB041-3 Backrest X-ray Saikang",
+      "SKB041-3 Patient Transportation Trolley with Backrest X-ray Colombia",
+      "Saikang hospital furniture"
+    ]
+  },
+  {
+    "id": "bf011194-6089-4134-a2d1-8f4291e811f4",
+    "slug": "saikang-skb041-3-whole-body-x-ray",
+    "orden": 492,
+    "destacado": false,
+    "familia_id": "5c8c5719-4488-4723-99e6-77b7342c1a40",
+    "familia_slug": "emergencias-traslado-inmovilizacion",
+    "tipo_id": "fd3f59cb-27cf-4fde-8422-ec71f2893cf4",
+    "nombre_es": "Camilla de Traslado con Radiografía de Cuerpo Completo SKB041-3",
+    "nombre_en": "SKB041-3 Patient Transportation Trolley with Whole-Body X-ray",
+    "descripcion_corta_es": "camilla de traslado Saikang modelo técnico SKB041-3 Whole Body X-ray para instituciones de salud.",
+    "descripcion_corta_en": "Saikang patient transport trolley model SKB041-3 Whole Body X-ray for healthcare institutions.",
+    "descripcion_larga_es": "El modelo SKB041-3 Whole Body X-ray de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model SKB041-3 Whole Body X-ray is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
+    "especificaciones": [
+      {
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "SKB041-3 Whole Body X-ray"
+      },
+      {
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Camilla de Traslado con Radiografía de Cuerpo Completo SKB041-3"
+      },
+      {
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
+      },
+      {
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
+      },
+      {
+        "clave": "Parámetro técnico 1",
+        "grupo": "Ficha técnica",
+        "valor": "External size (LxW): 2120x840mm (±10 mm)"
+      },
+      {
+        "clave": "Parámetro técnico 2",
+        "grupo": "Ficha técnica",
+        "valor": "Load Capacity: 250 kg"
+      },
+      {
+        "clave": "Parámetro técnico 3",
+        "grupo": "Ficha técnica",
+        "valor": "height adjustment: 600-910mm (±10 mm)"
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/saikang-skb041-3-whole-body-x-ray/imagen-principal-ficha-tecnica.png",
+    "galeria": [
+      "/assets/productos/importados/saikang-skb041-3-whole-body-x-ray/imagen-principal-ficha-tecnica.png"
+    ],
+    "ficha_pdf": "/assets/productos/importados/saikang-skb041-3-whole-body-x-ray/ficha-tecnica-saikang.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "nuevo": true,
+    "activo": true,
+    "aplicaciones_es": ["Traslado intrahospitalario", "Urgencias", "Servicios de diagnóstico"],
+    "aplicaciones_en": ["Intra-hospital transport", "Emergency departments", "Diagnostic services"],
+    "beneficios_es": [
+      "Modelo SKB041-3 Whole Body X-ray identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
+    ],
+    "beneficios_en": [
+      "Model SKB041-3 Whole Body X-ray identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar SKB041-3 Whole Body X-ray con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate SKB041-3 Whole Body X-ray with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Camilla de Traslado con Radiografía de Cuerpo Completo SKB041-3",
+      "SKB041-3 Whole Body X-ray Saikang",
+      "Camilla de Traslado con Radiografía de Cuerpo Completo SKB041-3 Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "SKB041-3 Patient Transportation Trolley with Whole-Body X-ray",
+      "SKB041-3 Whole Body X-ray Saikang",
+      "SKB041-3 Patient Transportation Trolley with Whole-Body X-ray Colombia",
+      "Saikang hospital furniture"
+    ]
+  },
+  {
+    "id": "e8018021-ec85-4f95-bf44-5ae9242a7b89",
+    "slug": "saikang-skb041-7-backrest-x-ray",
+    "orden": 493,
+    "destacado": false,
+    "familia_id": "5c8c5719-4488-4723-99e6-77b7342c1a40",
+    "familia_slug": "emergencias-traslado-inmovilizacion",
+    "tipo_id": "fd3f59cb-27cf-4fde-8422-ec71f2893cf4",
+    "nombre_es": "Camilla de Traslado con Radiografía de Respaldo SKB041-7",
+    "nombre_en": "SKB041-7 Patient Transportation Trolley with Backrest X-ray",
+    "descripcion_corta_es": "camilla de traslado Saikang modelo técnico SKB041-7 Backrest X-ray para instituciones de salud.",
+    "descripcion_corta_en": "Saikang patient transport trolley model SKB041-7 Backrest X-ray for healthcare institutions.",
+    "descripcion_larga_es": "El modelo SKB041-7 Backrest X-ray de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model SKB041-7 Backrest X-ray is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
+    "especificaciones": [
+      {
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "SKB041-7 Backrest X-ray"
+      },
+      {
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Camilla de Traslado con Radiografía de Respaldo SKB041-7"
+      },
+      {
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
+      },
+      {
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
+      },
+      {
+        "clave": "Parámetro técnico 1",
+        "grupo": "Ficha técnica",
+        "valor": "External size ( l xW): 2200x770mm (±10 mm)"
+      },
+      {
+        "clave": "Parámetro técnico 2",
+        "grupo": "Ficha técnica",
+        "valor": "height adjustment: 550-860mm (±10 mm)"
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/saikang-skb041-7-backrest-x-ray/imagen-principal-ficha-tecnica.png",
+    "galeria": [
+      "/assets/productos/importados/saikang-skb041-7-backrest-x-ray/imagen-principal-ficha-tecnica.png"
+    ],
+    "ficha_pdf": "/assets/productos/importados/saikang-skb041-7-backrest-x-ray/ficha-tecnica-saikang.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "nuevo": true,
+    "activo": true,
+    "aplicaciones_es": ["Traslado intrahospitalario", "Urgencias", "Servicios de diagnóstico"],
+    "aplicaciones_en": ["Intra-hospital transport", "Emergency departments", "Diagnostic services"],
+    "beneficios_es": [
+      "Modelo SKB041-7 Backrest X-ray identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
+    ],
+    "beneficios_en": [
+      "Model SKB041-7 Backrest X-ray identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar SKB041-7 Backrest X-ray con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate SKB041-7 Backrest X-ray with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Camilla de Traslado con Radiografía de Respaldo SKB041-7",
+      "SKB041-7 Backrest X-ray Saikang",
+      "Camilla de Traslado con Radiografía de Respaldo SKB041-7 Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "SKB041-7 Patient Transportation Trolley with Backrest X-ray",
+      "SKB041-7 Backrest X-ray Saikang",
+      "SKB041-7 Patient Transportation Trolley with Backrest X-ray Colombia",
+      "Saikang hospital furniture"
+    ]
+  },
+  {
+    "id": "f5f9f927-1174-4338-8343-f5978ce9aaac",
+    "slug": "saikang-skb041-7-whole-body-x-ray",
+    "orden": 494,
+    "destacado": false,
+    "familia_id": "5c8c5719-4488-4723-99e6-77b7342c1a40",
+    "familia_slug": "emergencias-traslado-inmovilizacion",
+    "tipo_id": "fd3f59cb-27cf-4fde-8422-ec71f2893cf4",
+    "nombre_es": "Camilla de Traslado con Radiografía de Cuerpo Completo SKB041-7",
+    "nombre_en": "SKB041-7 Patient Transportation Trolley with Whole-Body X-ray",
+    "descripcion_corta_es": "camilla de traslado Saikang modelo técnico SKB041-7 Whole Body X-ray para instituciones de salud.",
+    "descripcion_corta_en": "Saikang patient transport trolley model SKB041-7 Whole Body X-ray for healthcare institutions.",
+    "descripcion_larga_es": "El modelo SKB041-7 Whole Body X-ray de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model SKB041-7 Whole Body X-ray is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
+    "especificaciones": [
+      {
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "SKB041-7 Whole Body X-ray"
+      },
+      {
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Camilla de Traslado con Radiografía de Cuerpo Completo SKB041-7"
+      },
+      {
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
+      },
+      {
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
+      },
+      {
+        "clave": "Parámetro técnico 1",
+        "grupo": "Ficha técnica",
+        "valor": "External size ( l xW): 2200x770mm (±10 mm)"
+      },
+      {
+        "clave": "Parámetro técnico 2",
+        "grupo": "Ficha técnica",
+        "valor": "height adjustment: 600-910mm (±10 mm)"
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/saikang-skb041-7-whole-body-x-ray/imagen-principal-ficha-tecnica.png",
+    "galeria": [
+      "/assets/productos/importados/saikang-skb041-7-whole-body-x-ray/imagen-principal-ficha-tecnica.png"
+    ],
+    "ficha_pdf": "/assets/productos/importados/saikang-skb041-7-whole-body-x-ray/ficha-tecnica-saikang.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "nuevo": true,
+    "activo": true,
+    "aplicaciones_es": ["Traslado intrahospitalario", "Urgencias", "Servicios de diagnóstico"],
+    "aplicaciones_en": ["Intra-hospital transport", "Emergency departments", "Diagnostic services"],
+    "beneficios_es": [
+      "Modelo SKB041-7 Whole Body X-ray identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
+    ],
+    "beneficios_en": [
+      "Model SKB041-7 Whole Body X-ray identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar SKB041-7 Whole Body X-ray con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate SKB041-7 Whole Body X-ray with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Camilla de Traslado con Radiografía de Cuerpo Completo SKB041-7",
+      "SKB041-7 Whole Body X-ray Saikang",
+      "Camilla de Traslado con Radiografía de Cuerpo Completo SKB041-7 Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "SKB041-7 Patient Transportation Trolley with Whole-Body X-ray",
+      "SKB041-7 Whole Body X-ray Saikang",
+      "SKB041-7 Patient Transportation Trolley with Whole-Body X-ray Colombia",
+      "Saikang hospital furniture"
+    ]
+  },
+  {
+    "id": "84d63910-f34e-429b-9467-7bd24824e2ab",
+    "slug": "saikang-ske-136",
+    "orden": 495,
+    "destacado": false,
+    "familia_id": "3d631fe7-2f3b-4b43-a07c-861844755476",
+    "familia_slug": "mobiliario",
+    "tipo_id": "62391ada-aa83-49d8-9019-64a26bd8f4ea",
+    "nombre_es": "Sillón Eléctrico de Diálisis SKE-136",
+    "nombre_en": "SKE-136 Electric Dialysis Chair",
+    "descripcion_corta_es": "sillón clínico Saikang modelo técnico SKE-136 para instituciones de salud.",
+    "descripcion_corta_en": "Saikang clinical chair model SKE-136 for healthcare institutions.",
+    "descripcion_larga_es": "El modelo SKE-136 de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model SKE-136 is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
+    "especificaciones": [
+      {
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "SKE-136"
+      },
+      {
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Sillón Eléctrico de Diálisis SKE-136"
+      },
+      {
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
+      },
+      {
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
+      },
+      {
+        "clave": "Parámetro técnico 1",
+        "grupo": "Ficha técnica",
+        "valor": "Size( l ×W) 2020mm×600 mm(±10mm)"
+      },
+      {
+        "clave": "Parámetro técnico 2",
+        "grupo": "Ficha técnica",
+        "valor": "Height adjustment 620 - 870mm(±10mm)"
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/saikang-ske-136/imagen-principal-ficha-tecnica.png",
+    "galeria": ["/assets/productos/importados/saikang-ske-136/imagen-principal-ficha-tecnica.png"],
+    "ficha_pdf": "/assets/productos/importados/saikang-ske-136/ficha-tecnica-saikang.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "nuevo": true,
+    "activo": true,
+    "aplicaciones_es": [
+      "Servicios ambulatorios",
+      "Unidades especializadas",
+      "Áreas de tratamiento"
+    ],
+    "aplicaciones_en": ["Outpatient services", "Specialized units", "Treatment areas"],
+    "beneficios_es": [
+      "Modelo SKE-136 identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
+    ],
+    "beneficios_en": [
+      "Model SKE-136 identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar SKE-136 con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate SKE-136 with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Sillón Eléctrico de Diálisis SKE-136",
+      "SKE-136 Saikang",
+      "Sillón Eléctrico de Diálisis SKE-136 Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "SKE-136 Electric Dialysis Chair",
+      "SKE-136 Saikang",
+      "SKE-136 Electric Dialysis Chair Colombia",
+      "Saikang hospital furniture"
+    ]
+  },
+  {
+    "id": "c3848bf9-12c6-47db-b5ef-773e6d54414d",
+    "slug": "saikang-ske091",
+    "orden": 496,
+    "destacado": false,
+    "familia_id": "3d631fe7-2f3b-4b43-a07c-861844755476",
+    "familia_slug": "mobiliario",
+    "tipo_id": "62391ada-aa83-49d8-9019-64a26bd8f4ea",
+    "nombre_es": "Sillón para Donación de Sangre SKE091",
+    "nombre_en": "SKE091 Blood Donation Chair",
+    "descripcion_corta_es": "sillón clínico Saikang modelo técnico SKE091 para instituciones de salud.",
+    "descripcion_corta_en": "Saikang clinical chair model SKE091 for healthcare institutions.",
+    "descripcion_larga_es": "El modelo SKE091 de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model SKE091 is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
+    "especificaciones": [
+      {
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "SKE091"
+      },
+      {
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Sillón para Donación de Sangre SKE091"
+      },
+      {
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
+      },
+      {
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
+      },
+      {
+        "clave": "Parámetro técnico 1",
+        "grupo": "Ficha técnica",
+        "valor": "Size ( l xW) 1750×600/940(±10) mm"
+      },
+      {
+        "clave": "Parámetro técnico 2",
+        "grupo": "Ficha técnica",
+        "valor": "height adjustment 0-100(±10) mm"
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/saikang-ske091/imagen-principal-ficha-tecnica.png",
+    "galeria": ["/assets/productos/importados/saikang-ske091/imagen-principal-ficha-tecnica.png"],
+    "ficha_pdf": "/assets/productos/importados/saikang-ske091/ficha-tecnica-saikang.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "nuevo": true,
+    "activo": true,
+    "aplicaciones_es": [
+      "Servicios ambulatorios",
+      "Unidades especializadas",
+      "Áreas de tratamiento"
+    ],
+    "aplicaciones_en": ["Outpatient services", "Specialized units", "Treatment areas"],
+    "beneficios_es": [
+      "Modelo SKE091 identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
+    ],
+    "beneficios_en": [
+      "Model SKE091 identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar SKE091 con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate SKE091 with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Sillón para Donación de Sangre SKE091",
+      "SKE091 Saikang",
+      "Sillón para Donación de Sangre SKE091 Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "SKE091 Blood Donation Chair",
+      "SKE091 Saikang",
+      "SKE091 Blood Donation Chair Colombia",
+      "Saikang hospital furniture"
+    ]
+  },
+  {
+    "id": "be8b25fc-4b2f-45d6-944b-57fb13d715ff",
+    "slug": "saikang-skh046-14",
+    "orden": 497,
+    "destacado": false,
+    "familia_id": "3d631fe7-2f3b-4b43-a07c-861844755476",
+    "familia_slug": "mobiliario",
+    "tipo_id": "1e55f2c4-7408-4ed2-a885-cbc12a26cce2",
+    "nombre_es": "Mesa de Sobrecama SKH046-14",
+    "nombre_en": "SKH046-14 Overbed Table",
+    "descripcion_corta_es": "mesa clínica Saikang modelo técnico SKH046-14 para instituciones de salud.",
+    "descripcion_corta_en": "Saikang clinical table model SKH046-14 for healthcare institutions.",
+    "descripcion_larga_es": "El modelo SKH046-14 de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model SKH046-14 is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
+    "especificaciones": [
+      {
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "SKH046-14"
+      },
+      {
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Mesa de Sobrecama SKH046-14"
+      },
+      {
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
+      },
+      {
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/saikang-skh046-14/imagen-principal-ficha-tecnica.png",
+    "galeria": [
+      "/assets/productos/importados/saikang-skh046-14/imagen-principal-ficha-tecnica.png"
+    ],
+    "ficha_pdf": "/assets/productos/importados/saikang-skh046-14/ficha-tecnica-saikang.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "nuevo": true,
+    "activo": true,
+    "aplicaciones_es": ["Hospitalización", "Consultorios", "Áreas clínicas"],
+    "aplicaciones_en": ["Inpatient care", "Consulting rooms", "Clinical areas"],
+    "beneficios_es": [
+      "Modelo SKH046-14 identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
+    ],
+    "beneficios_en": [
+      "Model SKH046-14 identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar SKH046-14 con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate SKH046-14 with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Mesa de Sobrecama SKH046-14",
+      "SKH046-14 Saikang",
+      "Mesa de Sobrecama SKH046-14 Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "SKH046-14 Overbed Table",
+      "SKH046-14 Saikang",
+      "SKH046-14 Overbed Table Colombia",
+      "Saikang hospital furniture"
+    ]
+  },
+  {
+    "id": "0a79dc9d-a36c-4ee2-bec0-4c661e40046d",
+    "slug": "saikang-skh046-26",
+    "orden": 498,
+    "destacado": false,
+    "familia_id": "3d631fe7-2f3b-4b43-a07c-861844755476",
+    "familia_slug": "mobiliario",
+    "tipo_id": "1e55f2c4-7408-4ed2-a885-cbc12a26cce2",
+    "nombre_es": "Mesa de Sobrecama SKH046-26",
+    "nombre_en": "SKH046-26 Overbed Table",
+    "descripcion_corta_es": "mesa clínica Saikang modelo técnico SKH046-26 para instituciones de salud.",
+    "descripcion_corta_en": "Saikang clinical table model SKH046-26 for healthcare institutions.",
+    "descripcion_larga_es": "El modelo SKH046-26 de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model SKH046-26 is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
+    "especificaciones": [
+      {
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "SKH046-26"
+      },
+      {
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Mesa de Sobrecama SKH046-26"
+      },
+      {
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
+      },
+      {
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/saikang-skh046-26/imagen-principal-ficha-tecnica.png",
+    "galeria": [
+      "/assets/productos/importados/saikang-skh046-26/imagen-principal-ficha-tecnica.png"
+    ],
+    "ficha_pdf": "/assets/productos/importados/saikang-skh046-26/ficha-tecnica-saikang.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "nuevo": true,
+    "activo": true,
+    "aplicaciones_es": ["Hospitalización", "Consultorios", "Áreas clínicas"],
+    "aplicaciones_en": ["Inpatient care", "Consulting rooms", "Clinical areas"],
+    "beneficios_es": [
+      "Modelo SKH046-26 identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
+    ],
+    "beneficios_en": [
+      "Model SKH046-26 identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar SKH046-26 con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate SKH046-26 with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Mesa de Sobrecama SKH046-26",
+      "SKH046-26 Saikang",
+      "Mesa de Sobrecama SKH046-26 Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "SKH046-26 Overbed Table",
+      "SKH046-26 Saikang",
+      "SKH046-26 Overbed Table Colombia",
+      "Saikang hospital furniture"
+    ]
+  },
+  {
+    "id": "7b422154-8be5-471a-9587-b05b7c5207c7",
+    "slug": "saikang-sks02-w",
+    "orden": 499,
+    "destacado": false,
+    "familia_id": "3d631fe7-2f3b-4b43-a07c-861844755476",
+    "familia_slug": "mobiliario",
+    "tipo_id": "1e55f2c4-7408-4ed2-a885-cbc12a26cce2",
+    "nombre_es": "Mesa de Noche Hospitalaria ABS SKS02-W",
+    "nombre_en": "SKS02-W ABS Bedside Table",
+    "descripcion_corta_es": "mesa clínica Saikang modelo técnico SKS02-W para instituciones de salud.",
+    "descripcion_corta_en": "Saikang clinical table model SKS02-W for healthcare institutions.",
+    "descripcion_larga_es": "El modelo SKS02-W de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model SKS02-W is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
+    "especificaciones": [
+      {
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "SKS02-W"
+      },
+      {
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Mesa de Noche Hospitalaria ABS SKS02-W"
+      },
+      {
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
+      },
+      {
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
+      },
+      {
+        "clave": "Parámetro técnico 1",
+        "grupo": "Ficha técnica",
+        "valor": "Bedside cabinet dimensions( l ×W×H) 475×475×800mm ±10mm Color Option: color （color samples） ."
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/saikang-sks02-w/imagen-principal-ficha-tecnica.png",
+    "galeria": ["/assets/productos/importados/saikang-sks02-w/imagen-principal-ficha-tecnica.png"],
+    "ficha_pdf": "/assets/productos/importados/saikang-sks02-w/ficha-tecnica-saikang.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "nuevo": true,
+    "activo": true,
+    "aplicaciones_es": ["Hospitalización", "Consultorios", "Áreas clínicas"],
+    "aplicaciones_en": ["Inpatient care", "Consulting rooms", "Clinical areas"],
+    "beneficios_es": [
+      "Modelo SKS02-W identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
+    ],
+    "beneficios_en": [
+      "Model SKS02-W identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar SKS02-W con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate SKS02-W with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Mesa de Noche Hospitalaria ABS SKS02-W",
+      "SKS02-W Saikang",
+      "Mesa de Noche Hospitalaria ABS SKS02-W Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "SKS02-W ABS Bedside Table",
+      "SKS02-W Saikang",
+      "SKS02-W ABS Bedside Table Colombia",
+      "Saikang hospital furniture"
+    ]
+  },
+  {
+    "id": "345e997c-bfa3-4086-bd0a-7b87fa1172fa",
+    "slug": "saikang-sks03-w",
+    "orden": 500,
+    "destacado": false,
+    "familia_id": "3d631fe7-2f3b-4b43-a07c-861844755476",
+    "familia_slug": "mobiliario",
+    "tipo_id": "1e55f2c4-7408-4ed2-a885-cbc12a26cce2",
+    "nombre_es": "Mesa de Noche Hospitalaria ABS SKS03-W",
+    "nombre_en": "SKS03-W ABS Bedside Table",
+    "descripcion_corta_es": "mesa clínica Saikang modelo técnico SKS03-W para instituciones de salud.",
+    "descripcion_corta_en": "Saikang clinical table model SKS03-W for healthcare institutions.",
+    "descripcion_larga_es": "El modelo SKS03-W de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model SKS03-W is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
+    "especificaciones": [
+      {
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "SKS03-W"
+      },
+      {
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Mesa de Noche Hospitalaria ABS SKS03-W"
+      },
+      {
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
+      },
+      {
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/saikang-sks03-w/imagen-principal-ficha-tecnica.png",
+    "galeria": ["/assets/productos/importados/saikang-sks03-w/imagen-principal-ficha-tecnica.png"],
+    "ficha_pdf": "/assets/productos/importados/saikang-sks03-w/ficha-tecnica-saikang.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "nuevo": true,
+    "activo": true,
+    "aplicaciones_es": ["Hospitalización", "Consultorios", "Áreas clínicas"],
+    "aplicaciones_en": ["Inpatient care", "Consulting rooms", "Clinical areas"],
+    "beneficios_es": [
+      "Modelo SKS03-W identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
+    ],
+    "beneficios_en": [
+      "Model SKS03-W identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar SKS03-W con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate SKS03-W with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Mesa de Noche Hospitalaria ABS SKS03-W",
+      "SKS03-W Saikang",
+      "Mesa de Noche Hospitalaria ABS SKS03-W Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "SKS03-W ABS Bedside Table",
+      "SKS03-W Saikang",
+      "SKS03-W ABS Bedside Table Colombia",
+      "Saikang hospital furniture"
+    ]
+  },
+  {
+    "id": "c2773f57-40cf-4458-846a-4ed3d45ef173",
+    "slug": "saikang-v6k",
+    "orden": 501,
+    "destacado": false,
+    "familia_id": "3d631fe7-2f3b-4b43-a07c-861844755476",
+    "familia_slug": "mobiliario",
+    "tipo_id": "4ee8572c-0766-4463-9adf-e77056fb1338",
+    "nombre_es": "Cama Eléctrica Hospitalaria V6k",
+    "nombre_en": "V6k Electric Hospital Bed",
+    "descripcion_corta_es": "cama hospitalaria Saikang modelo técnico V6k para instituciones de salud.",
+    "descripcion_corta_en": "Saikang hospital bed model V6k for healthcare institutions.",
+    "descripcion_larga_es": "El modelo V6k de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model V6k is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
+    "especificaciones": [
+      {
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "V6k"
+      },
+      {
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Cama Eléctrica Hospitalaria V6k"
+      },
+      {
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
+      },
+      {
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
+      },
+      {
+        "clave": "Parámetro técnico 1",
+        "grupo": "Ficha técnica",
+        "valor": "External size (LxW): 2085x995 mm"
+      },
+      {
+        "clave": "Parámetro técnico 2",
+        "grupo": "Ficha técnica",
+        "valor": "Safe working load: 200 kg"
+      },
+      {
+        "clave": "Parámetro técnico 3",
+        "grupo": "Ficha técnica",
+        "valor": "Height adjustment: 420-730mm"
+      },
+      {
+        "clave": "Parámetro técnico 4",
+        "grupo": "Ficha técnica",
+        "valor": "Back-rest adjustment: 0-75° (±5°)"
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/saikang-v6k/imagen-principal-ficha-tecnica.png",
+    "galeria": ["/assets/productos/importados/saikang-v6k/imagen-principal-ficha-tecnica.png"],
+    "ficha_pdf": "/assets/productos/importados/saikang-v6k/ficha-tecnica-saikang.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "nuevo": true,
+    "activo": true,
+    "aplicaciones_es": [
+      "Hospitalización",
+      "Unidades de cuidado intensivo",
+      "Servicios clínicos institucionales"
+    ],
+    "aplicaciones_en": [
+      "Inpatient care",
+      "Intensive care units",
+      "Institutional clinical services"
+    ],
+    "beneficios_es": [
+      "Modelo V6k identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
+    ],
+    "beneficios_en": [
+      "Model V6k identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar V6k con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate V6k with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Cama Eléctrica Hospitalaria V6k",
+      "V6k Saikang",
+      "Cama Eléctrica Hospitalaria V6k Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "V6k Electric Hospital Bed",
+      "V6k Saikang",
+      "V6k Electric Hospital Bed Colombia",
+      "Saikang hospital furniture"
+    ]
+  },
+  {
+    "id": "b10dce8c-4c3a-4ee8-bb48-c1d83ab276c5",
+    "slug": "saikang-v8v",
+    "orden": 502,
+    "destacado": false,
+    "familia_id": "3d631fe7-2f3b-4b43-a07c-861844755476",
+    "familia_slug": "mobiliario",
+    "tipo_id": "4ee8572c-0766-4463-9adf-e77056fb1338",
+    "nombre_es": "Cama UCI Eléctrica V8v",
+    "nombre_en": "V8v Electric ICU Bed",
+    "descripcion_corta_es": "cama hospitalaria Saikang modelo técnico V8v para instituciones de salud.",
+    "descripcion_corta_en": "Saikang hospital bed model V8v for healthcare institutions.",
+    "descripcion_larga_es": "El modelo V8v de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model V8v is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
+    "especificaciones": [
+      {
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "V8v"
+      },
+      {
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Cama UCI Eléctrica V8v"
+      },
+      {
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
+      },
+      {
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/saikang-v8v/imagen-principal-ficha-tecnica.png",
+    "galeria": ["/assets/productos/importados/saikang-v8v/imagen-principal-ficha-tecnica.png"],
+    "ficha_pdf": "/assets/productos/importados/saikang-v8v/ficha-tecnica-saikang.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "nuevo": true,
+    "activo": true,
+    "aplicaciones_es": [
+      "Hospitalización",
+      "Unidades de cuidado intensivo",
+      "Servicios clínicos institucionales"
+    ],
+    "aplicaciones_en": [
+      "Inpatient care",
+      "Intensive care units",
+      "Institutional clinical services"
+    ],
+    "beneficios_es": [
+      "Modelo V8v identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
+    ],
+    "beneficios_en": [
+      "Model V8v identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar V8v con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate V8v with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Cama UCI Eléctrica V8v",
+      "V8v Saikang",
+      "Cama UCI Eléctrica V8v Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "V8v Electric ICU Bed",
+      "V8v Saikang",
+      "V8v Electric ICU Bed Colombia",
+      "Saikang hospital furniture"
+    ]
+  },
+  {
+    "id": "878b5c7e-53aa-46d8-b06f-8725122fbaf3",
+    "slug": "saikang-x09",
+    "orden": 503,
+    "destacado": false,
+    "familia_id": "3d631fe7-2f3b-4b43-a07c-861844755476",
+    "familia_slug": "mobiliario",
+    "tipo_id": "1e55f2c4-7408-4ed2-a885-cbc12a26cce2",
+    "nombre_es": "Mesa de Examen X09",
+    "nombre_en": "X09 Examination Table",
+    "descripcion_corta_es": "mesa clínica Saikang modelo técnico X09 para instituciones de salud.",
+    "descripcion_corta_en": "Saikang clinical table model X09 for healthcare institutions.",
+    "descripcion_larga_es": "El modelo X09 de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model X09 is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
+    "especificaciones": [
+      {
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "X09"
+      },
+      {
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Mesa de Examen X09"
+      },
+      {
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
+      },
+      {
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
+      },
+      {
+        "clave": "Parámetro técnico 1",
+        "grupo": "Ficha técnica",
+        "valor": "size ( l xWxH) 1900x600x680 mm"
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/saikang-x09/imagen-principal-ficha-tecnica.png",
+    "galeria": ["/assets/productos/importados/saikang-x09/imagen-principal-ficha-tecnica.png"],
+    "ficha_pdf": "/assets/productos/importados/saikang-x09/ficha-tecnica-saikang.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "nuevo": true,
+    "activo": true,
+    "aplicaciones_es": ["Hospitalización", "Consultorios", "Áreas clínicas"],
+    "aplicaciones_en": ["Inpatient care", "Consulting rooms", "Clinical areas"],
+    "beneficios_es": [
+      "Modelo X09 identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
+    ],
+    "beneficios_en": [
+      "Model X09 identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar X09 con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate X09 with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Mesa de Examen X09",
+      "X09 Saikang",
+      "Mesa de Examen X09 Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "X09 Examination Table",
+      "X09 Saikang",
+      "X09 Examination Table Colombia",
+      "Saikang hospital furniture"
+    ]
+  },
+  {
+    "id": "a44d0a8c-e86b-46e7-827b-1c9a9ba4c628",
+    "slug": "saikang-x14",
+    "orden": 504,
+    "destacado": false,
+    "familia_id": "3d631fe7-2f3b-4b43-a07c-861844755476",
+    "familia_slug": "mobiliario",
+    "tipo_id": "1e55f2c4-7408-4ed2-a885-cbc12a26cce2",
+    "nombre_es": "Mesa de Examen Hidráulica X14",
+    "nombre_en": "X14 Hydraulic Examination Table",
+    "descripcion_corta_es": "mesa clínica Saikang modelo técnico X14 para instituciones de salud.",
+    "descripcion_corta_en": "Saikang clinical table model X14 for healthcare institutions.",
+    "descripcion_larga_es": "El modelo X14 de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model X14 is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
+    "especificaciones": [
+      {
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "X14"
+      },
+      {
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Mesa de Examen Hidráulica X14"
+      },
+      {
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
+      },
+      {
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
+      },
+      {
+        "clave": "Parámetro técnico 1",
+        "grupo": "Ficha técnica",
+        "valor": "Size 1940×700mm"
+      },
+      {
+        "clave": "Parámetro técnico 2",
+        "grupo": "Ficha técnica",
+        "valor": "Height adjustment 490-890mm"
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/saikang-x14/imagen-principal-ficha-tecnica.png",
+    "galeria": ["/assets/productos/importados/saikang-x14/imagen-principal-ficha-tecnica.png"],
+    "ficha_pdf": "/assets/productos/importados/saikang-x14/ficha-tecnica-saikang.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "nuevo": true,
+    "activo": true,
+    "aplicaciones_es": ["Hospitalización", "Consultorios", "Áreas clínicas"],
+    "aplicaciones_en": ["Inpatient care", "Consulting rooms", "Clinical areas"],
+    "beneficios_es": [
+      "Modelo X14 identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
+    ],
+    "beneficios_en": [
+      "Model X14 identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar X14 con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate X14 with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Mesa de Examen Hidráulica X14",
+      "X14 Saikang",
+      "Mesa de Examen Hidráulica X14 Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "X14 Hydraulic Examination Table",
+      "X14 Saikang",
+      "X14 Hydraulic Examination Table Colombia",
+      "Saikang hospital furniture"
+    ]
+  },
+  {
+    "id": "d9138864-8137-4e6d-907b-19ea295242f8",
+    "slug": "saikang-y8t",
+    "orden": 505,
+    "destacado": false,
+    "familia_id": "3d631fe7-2f3b-4b43-a07c-861844755476",
+    "familia_slug": "mobiliario",
+    "tipo_id": "4ee8572c-0766-4463-9adf-e77056fb1338",
+    "nombre_es": "Cama UCI Eléctrica Y8t",
+    "nombre_en": "Y8t Electric ICU Bed",
+    "descripcion_corta_es": "cama hospitalaria Saikang modelo técnico Y8t para instituciones de salud.",
+    "descripcion_corta_en": "Saikang hospital bed model Y8t for healthcare institutions.",
+    "descripcion_larga_es": "El modelo Y8t de Saikang se presenta para procesos clínicos e institucionales donde la selección debe basarse en información verificable. Esta landing reúne la ficha técnica del fabricante, especificaciones estructuradas, aplicaciones de uso y canal de cotización de I-ME para facilitar una evaluación técnica y comercial trazable.",
+    "descripcion_larga_en": "Saikang model Y8t is presented for clinical and institutional workflows where selection must be based on verifiable information. This landing brings together the manufacturer's datasheet, structured specifications, use applications, and I-ME's quotation channel to support a traceable technical and commercial evaluation.",
+    "especificaciones": [
+      {
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "Y8t"
+      },
+      {
+        "clave": "Tipo de equipo",
+        "grupo": "Identificación",
+        "valor": "Cama UCI Eléctrica Y8t"
+      },
+      {
+        "clave": "Fabricante",
+        "grupo": "Fabricante",
+        "valor": "Jiangsu Saikang Medical Equipment Co., Ltd."
+      },
+      {
+        "clave": "Documentación",
+        "grupo": "Documentación",
+        "valor": "Ficha técnica del fabricante disponible para descarga"
+      },
+      {
+        "clave": "Parámetro técnico 1",
+        "grupo": "Ficha técnica",
+        "valor": "size ( l xW): 2140x1060 mm"
+      },
+      {
+        "clave": "Parámetro técnico 2",
+        "grupo": "Ficha técnica",
+        "valor": "Safe working load: 250 kg"
+      },
+      {
+        "clave": "Parámetro técnico 3",
+        "grupo": "Ficha técnica",
+        "valor": "Height adjustment Instant release Angle indicator t echnical parameters"
+      },
+      {
+        "clave": "Parámetro técnico 4",
+        "grupo": "Ficha técnica",
+        "valor": "Back-rest adjustment: 0-75° (±10°)"
+      }
+    ],
+    "imagen_principal": "/assets/productos/importados/saikang-y8t/imagen-principal-ficha-tecnica.png",
+    "galeria": ["/assets/productos/importados/saikang-y8t/imagen-principal-ficha-tecnica.png"],
+    "ficha_pdf": "/assets/productos/importados/saikang-y8t/ficha-tecnica-saikang.pdf",
+    "tipo_comercial": "equipo",
+    "fulfillment_mode": "cotizacion",
+    "precio": null,
+    "moneda": "COP",
+    "stock": null,
+    "disponible": true,
+    "nuevo": true,
+    "activo": true,
+    "aplicaciones_es": [
+      "Hospitalización",
+      "Unidades de cuidado intensivo",
+      "Servicios clínicos institucionales"
+    ],
+    "aplicaciones_en": [
+      "Inpatient care",
+      "Intensive care units",
+      "Institutional clinical services"
+    ],
+    "beneficios_es": [
+      "Modelo Y8t identificado con ficha técnica original del fabricante.",
+      "Información de producto, aplicaciones y documentación disponible en una sola landing.",
+      "Cotización institucional para validar configuración, disponibilidad y condiciones comerciales."
+    ],
+    "beneficios_en": [
+      "Model Y8t identified with the original manufacturer datasheet.",
+      "Product information, applications and documentation available in one landing page.",
+      "Institutional quotation to validate configuration, availability and commercial terms."
+    ],
+    "valor_es": "I-ME centraliza documentación técnica y atención comercial para evaluar Y8t con información trazable.",
+    "valor_en": "I-ME centralizes technical documentation and commercial support to evaluate Y8t with traceable information.",
+    "marca": "Saikang Medical",
+    "seo_keywords_es": [
+      "Cama UCI Eléctrica Y8t",
+      "Y8t Saikang",
+      "Cama UCI Eléctrica Y8t Colombia",
+      "mobiliario hospitalario Saikang"
+    ],
+    "seo_keywords_en": [
+      "Y8t Electric ICU Bed",
+      "Y8t Saikang",
+      "Y8t Electric ICU Bed Colombia",
+      "Saikang hospital furniture"
     ]
   }
 ]

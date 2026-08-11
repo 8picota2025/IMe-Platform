@@ -191,7 +191,7 @@ const currentPath = '/en/quote/formalize';
 
 <script>
   import { getSupabaseClient } from '../../../lib/supabase';
-  import { verificarNitCampo } from '../../../lib/nit-dian';
+  import { verificarNitCampo, type TipoDocumentoFiscal } from '../../../lib/nit-dian';
 
   type Linea = {
     slug: string;
@@ -278,7 +278,7 @@ const currentPath = '/en/quote/formalize';
   const tipoDocSelect = form?.querySelector<HTMLSelectElement>('[name="tipo_documento"]');
   function syncNitHint() {
     if (!nitInput || !nitHint) return;
-    const tipo = (tipoDocSelect?.value || 'NIT') as 'NIT' | 'CC' | 'CE' | 'PP' | 'OTRO';
+    const tipo = (tipoDocSelect?.value || 'NIT') as TipoDocumentoFiscal;
     if (!nitInput.value.trim()) {
       nitHint.textContent = '';
       return;
@@ -399,7 +399,7 @@ const currentPath = '/en/quote/formalize';
       try {
         const dataUrl = await fileToBase64(file);
         const solicitarFactura = fd.get('solicitar_factura_electronica') === 'on';
-        const tipoDocumento = String(fd.get('tipo_documento') ?? '');
+        const tipoDocumento = String(fd.get('tipo_documento') ?? '') as TipoDocumentoFiscal;
         let numeroDocumento = String(fd.get('numero_documento') ?? '');
         if (solicitarFactura && (tipoDocumento === 'NIT' || tipoDocumento === 'CC')) {
           const check = verificarNitCampo(numeroDocumento, tipoDocumento);
