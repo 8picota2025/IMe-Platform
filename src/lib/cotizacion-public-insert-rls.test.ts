@@ -19,14 +19,31 @@ const REQUIRED_NULLS = [
   'impuestos_incluidos IS NULL',
 ] as const;
 
+function stripSqlComments(sql: string): string {
+  return sql
+    .split('\n')
+    .filter(line => !line.trimStart().startsWith('--'))
+    .join('\n');
+}
+
 function extractPublicInsertPolicy(sql: string): string {
+  const code = stripSqlComments(sql);
   const marker = 'CREATE POLICY "cotizaciones_insert_public"';
-  const start = sql.indexOf(marker);
+  const start = code.lastIndexOf(marker);
   expect(start).toBeGreaterThanOrEqual(0);
-  const rest = sql.slice(start);
-  const end = rest.indexOf('CREATE POLICY "cotizaciones_admin_all"');
-  expect(end).toBeGreaterThan(0);
-  return rest.slice(0, end);
+  const rest = code.slice(start);
+  const withCheck = rest.match(/WITH CHECK\s*\(([\s\S]*?)\)\s*;/);
+  expect(withCheck).not.toBeNull();
+  return withCheck![0]!;
+}
+
+function assertHardenedPolicy(sql: string): void {
+  const policy = extractPublicInsertPolicy(sql);
+  expect(policy).toContain("estado = 'nueva'");
+  expect(policy).not.toMatch(/WITH CHECK\s*\(\s*true\s*\)/);
+  for (const clause of REQUIRED_NULLS) {
+    expect(policy).toContain(clause);
+  }
 }
 
 describe('cotizaciones_insert_public RLS harden', () => {
@@ -38,20 +55,11 @@ describe('cotizaciones_insert_public RLS harden', () => {
       ),
       'utf8'
     );
-    expect(migration).toContain("estado = 'nueva'");
-    expect(migration).not.toMatch(/WITH CHECK\s*\(\s*true\s*\)/);
-    for (const clause of REQUIRED_NULLS) {
-      expect(migration).toContain(clause);
-    }
+    assertHardenedPolicy(migration);
   });
 
   it('schema.sql stays in sync with the hardened public INSERT policy', () => {
     const schema = readFileSync(resolve(process.cwd(), 'supabase/schema.sql'), 'utf8');
-    const policy = extractPublicInsertPolicy(schema);
-    expect(policy).toContain("estado = 'nueva'");
-    expect(policy).not.toMatch(/WITH CHECK\s*\(\s*true\s*\)/);
-    for (const clause of REQUIRED_NULLS) {
-      expect(policy).toContain(clause);
-    }
+    assertHardenedPolicy(schema);
   });
 });
