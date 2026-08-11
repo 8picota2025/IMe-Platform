@@ -1102,13 +1102,27 @@ CREATE POLICY "producto_variantes_admin_all"
   USING (is_admin(ARRAY['catalogo']))
   WITH CHECK (is_admin(ARRAY['catalogo']));
 
--- solicitudes_cotizacion: INSERT público; backoffice solo admin
+-- solicitudes_cotizacion: INSERT público solo como solicitud "nueva" (sin oferta
+-- formalizable). Ofertas/tokens/precios locked se crean vía Edge (service_role)
+-- o admin. WITH CHECK (true) permitía forjar estado=enviada + token + precios
+-- y abrir checkout live en crear-pago/formalizar-cotizacion.
 ALTER TABLE solicitudes_cotizacion ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "cotizaciones_insert_public" ON solicitudes_cotizacion;
 CREATE POLICY "cotizaciones_insert_public"
   ON solicitudes_cotizacion FOR INSERT
   TO anon, authenticated
-  WITH CHECK (true);
+  WITH CHECK (
+    estado = 'nueva'
+    AND formalizacion_token_hash IS NULL
+    AND formalizacion_token_expira_at IS NULL
+    AND condiciones IS NULL
+    AND precio_total_ofertado IS NULL
+    AND oferta_enviada_at IS NULL
+    AND pedido_id IS NULL
+    AND validez_hasta IS NULL
+    AND notas_internas IS NULL
+    AND impuestos_incluidos IS NULL
+  );
 DROP POLICY IF EXISTS "cotizaciones_select_auth" ON solicitudes_cotizacion;
 DROP POLICY IF EXISTS "cotizaciones_admin_all" ON solicitudes_cotizacion;
 CREATE POLICY "cotizaciones_admin_all"
