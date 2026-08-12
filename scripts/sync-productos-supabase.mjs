@@ -67,6 +67,8 @@ for (const producto of mockProductos) {
   const atributosActuales = (filaActual && filaActual.atributos) || {};
 
   const payload = {
+    descripcion_corta_es: producto.descripcion_corta_es ?? '',
+    descripcion_corta_en: producto.descripcion_corta_en ?? '',
     especificaciones: producto.especificaciones ?? [],
     aplicaciones_es: producto.aplicaciones_es ?? [],
     aplicaciones_en: producto.aplicaciones_en ?? [],
