@@ -58,6 +58,11 @@ jobs:
           local-dir: ./dist/
           server-dir: ${{ secrets.HOSTINGER_PROD_PATH }}
           timeout: 120000
+          # PDFs e imágenes de fabricantes ya viven en Hostinger. Excluirlos
+          # evita retransmitir ~604 MB durante la reconstrucción del índice.
+          exclude: |
+            **/assets/productos/importados/**
+            assets/productos/importados/**
           # El estado incremental anterior (.ftp-deploy-sync-state.json) quedó
           # desincronizado con el servidor (deploys cancelados a medias), lo que
           # provocó que se omitieran páginas de producto ya reconstruidas.
