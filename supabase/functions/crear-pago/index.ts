@@ -37,6 +37,10 @@ import {
   type CotizacionOfertaRow,
   type CotizacionLineaOferta,
 } from '../../../src/lib/cotizacion-oferta.ts';
+import {
+  normalizeCheckoutEmail,
+  puedeUsarListaPrecio,
+} from '../../../src/lib/lista-precio-auth.ts';
 
 const FN_NAME = 'crear-pago';
 const MAX_ITEMS = 20;
@@ -173,6 +177,25 @@ async function obtenerListaPrecio(
     if (valor > 0) precios.set(item.producto_id, valor);
   }
   return { descuentoPct: Number(listaRow.descuento_pct ?? 0), precios };
+}
+
+/**
+ * Verified Auth user email from the request JWT (not the self-asserted body email).
+ * Guest/anon tokens yield null → public catalog prices only.
+ */
+async function obtenerEmailSesionVerificado(
+  req: Request,
+  supabase: ReturnType<typeof getServerSupabase>
+): Promise<string | null> {
+  const auth = req.headers.get('Authorization') ?? '';
+  const token = auth.replace(/^Bearer\s+/i, '').trim();
+  if (!token) return null;
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser(token);
+  if (error || !user?.email) return null;
+  return normalizeCheckoutEmail(user.email);
 }
 
 function normalizarDepto(valor: string): string {
@@ -714,11 +737,14 @@ Deno.serve(
       );
     }
 
-    // Lista de precios B2B del cliente (server-side; el cliente nunca fija precios)
+    // Lista de precios B2B: solo con sesión Auth cuyo email coincide.
+    // Nunca confiar en cliente.email del body (spoof → checkout bajo precio negociado).
     // En cotización locked se ignora: manda el precio ofertado.
-    const listaPrecio = lineasCotizacion
-      ? null
-      : await obtenerListaPrecio(supabase, cliente.email.toLowerCase());
+    const emailSesion = lineasCotizacion ? null : await obtenerEmailSesionVerificado(req, supabase);
+    const listaPrecio =
+      lineasCotizacion || !puedeUsarListaPrecio(cliente.email, emailSesion)
+        ? null
+        : await obtenerListaPrecio(supabase, normalizeCheckoutEmail(cliente.email));
     const preciosLockedPorSlug = lineasCotizacion
       ? new Map(lineasCotizacion.map(l => [l.slug, l]))
       : null;
