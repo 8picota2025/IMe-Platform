@@ -22,7 +22,7 @@ jobs:
   deploy:
     name: Build · Deploy Producción
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
 
@@ -57,7 +57,7 @@ jobs:
           password: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
           local-dir: ./dist/
           server-dir: ${{ secrets.HOSTINGER_PROD_PATH }}
-          timeout: 120000
+          timeout: 300000
           # PDFs e imágenes de fabricantes ya viven en Hostinger. Excluirlos
           # evita retransmitir ~604 MB durante la reconstrucción del índice.
           exclude: |
