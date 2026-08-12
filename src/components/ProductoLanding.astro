@@ -112,7 +112,7 @@ const migas = [
   { nombre: familia.nombre, href: `${catalogoPath}?familia=${familia.slug}` },
 ];
 
-const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.nombre)}`;
+const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.nombre)}&referencia=${encodeURIComponent(modelo ?? '')}&pagina=${encodeURIComponent(productUrl)}`;
 
 // Stats de la cabecera del hero: reutiliza datos ya verificados (modalidad,
 // disponibilidad, familia, precio) en vez de intentar extraer valores cortos
@@ -186,6 +186,9 @@ if (precioFormateado) {
                 data-add-cotizacion={producto.slug}
                 data-nombre={producto.nombre}
                 data-imagen={imagenProducto}
+                data-url={productUrl}
+                data-modelo={modelo ?? ''}
+                data-marca={producto.marca ?? ''}
                 data-label-agregar={t(locale, 'cotizacion_equipos.agregar')}
                 data-label-agregado={t(locale, 'cotizacion_equipos.agregado')}
               >
@@ -1262,9 +1265,12 @@ if (precioFormateado) {
     const slug = addCotizacionBtn.dataset['addCotizacion'];
     const nombre = addCotizacionBtn.dataset['nombre'];
     const imagen = addCotizacionBtn.dataset['imagen'];
+    const url = addCotizacionBtn.dataset['url'];
+    const modelo = addCotizacionBtn.dataset['modelo'];
+    const marca = addCotizacionBtn.dataset['marca'];
     if (!slug || !nombre || !imagen) return;
     void import('../lib/cotizacion-equipos').then(({ agregarACotizacion }) => {
-      agregarACotizacion({ slug, nombre, imagen });
+      agregarACotizacion({ slug, nombre, imagen, url, modelo, marca });
       confirmarAdd(addCotizacionBtn);
     });
   });

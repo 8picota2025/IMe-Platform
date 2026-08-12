@@ -95,6 +95,8 @@ for (const producto of mockProductos) {
     descripcion_larga_es: producto.descripcion_larga_es ?? '',
     descripcion_larga_en: producto.descripcion_larga_en ?? '',
     ficha_pdf: producto.ficha_pdf ?? null,
+    imagen_principal: producto.imagen_principal ?? null,
+    galeria: producto.galeria ?? [],
     atributos: {
       ...atributosActuales,
       beneficios_es: producto.beneficios_es ?? [],
@@ -106,6 +108,8 @@ for (const producto of mockProductos) {
       seo_keywords_es: producto.seo_keywords_es ?? [],
       seo_keywords_en: producto.seo_keywords_en ?? [],
       marca: producto.marca ?? null,
+      imagen_principal: producto.imagen_principal ?? null,
+      galeria: producto.galeria ?? [],
     },
   };
 

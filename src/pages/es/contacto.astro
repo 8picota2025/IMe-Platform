@@ -408,12 +408,17 @@ const canonical = buildCanonical('/es/contacto');
     .getAll('producto')
     .map(value => value.trim())
     .filter(Boolean);
+  const referencia = params.get('referencia')?.trim() ?? '';
+  const pagina = params.get('pagina')?.trim() ?? '';
   const asesorResumen = params.get('asesor_resumen')?.trim() ?? '';
   if (productosField && prefill.length > 0 && !productosField.value.trim()) {
     productosField.value = prefill.join('\n');
   }
   if (mensajeField && asesorResumen && !mensajeField.value.trim()) {
     mensajeField.value = `Resumen de la conversación con IMEIA:\n${asesorResumen}`;
+  }
+  if (mensajeField && !mensajeField.value.trim() && (prefill.length || pagina)) {
+    mensajeField.value = `Quiero solicitar información y cotización de: ${prefill.join(', ')}${referencia ? ` (Ref. ${referencia})` : ''}.\nPágina del producto: ${pagina}`;
   }
 
   form?.addEventListener('submit', async e => {

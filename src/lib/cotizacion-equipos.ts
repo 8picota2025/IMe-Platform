@@ -1,13 +1,16 @@
 /**
  * Lista de equipos para "Solicitud de cotización" — estado persistido en
  * sessionStorage. Independiente del carrito de consumibles (carrito.ts).
- * Solo guarda slug/nombre/cantidad; el envío real va por submitCotizacion.
+ * Guarda contexto del producto para que cada solicitud conserve su origen.
  */
 
 export interface CotizacionItem {
   slug: string;
   nombre: string;
   imagen: string;
+  url?: string | undefined;
+  modelo?: string | undefined;
+  marca?: string | undefined;
   cantidad: number;
 }
 

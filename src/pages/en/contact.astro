@@ -394,12 +394,17 @@ const canonical = buildCanonical('/en/contact');
     .getAll('producto')
     .map(value => value.trim())
     .filter(Boolean);
+  const referencia = params.get('referencia')?.trim() ?? '';
+  const pagina = params.get('pagina')?.trim() ?? '';
   const asesorResumen = params.get('asesor_resumen')?.trim() ?? '';
   if (productosField && prefill.length > 0 && !productosField.value.trim()) {
     productosField.value = prefill.join('\n');
   }
   if (mensajeField && asesorResumen && !mensajeField.value.trim()) {
     mensajeField.value = `IMEIA conversation summary:\n${asesorResumen}`;
+  }
+  if (mensajeField && !mensajeField.value.trim() && (prefill.length || pagina)) {
+    mensajeField.value = `I would like information and a quote for: ${prefill.join(', ')}${referencia ? ` (Model ${referencia})` : ''}.\nProduct page: ${pagina}`;
   }
 
   form?.addEventListener('submit', async e => {

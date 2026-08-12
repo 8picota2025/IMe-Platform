@@ -459,6 +459,7 @@ const config = {
     const formEl = document.getElementById('cotizacion-form') as HTMLFormElement | null;
     const submitBtn = document.getElementById('cotizacion-submit') as HTMLButtonElement | null;
     const estadoEl = document.getElementById('cotizacion-mensaje-estado');
+    const mensajeEl = document.getElementById('cotizacion-mensaje') as HTMLTextAreaElement | null;
 
     const config: CotizacionConfig = JSON.parse(
       drawer.dataset.cotizacionConfig ?? '{}'
@@ -489,6 +490,18 @@ const config = {
       productosTituloEl.hidden = false;
       vaciarBtn.hidden = false;
       formEl.hidden = false;
+
+      // El mensaje inicial conserva producto, referencia y landing de origen.
+      // No pisa texto que el usuario ya haya escrito.
+      if (mensajeEl && !mensajeEl.value.trim()) {
+        const contextual = items.filter(item => item.url);
+        if (contextual.length) {
+          mensajeEl.value =
+            config.locale === 'en'
+              ? `I would like a quote for:\n${contextual.map(item => `- ${item.nombre}${item.modelo ? ` (Model ${item.modelo})` : ''}\n  Product page: ${item.url}`).join('\n')}\n\nPlease confirm availability, configuration, lead time and support.`
+              : `Quiero solicitar cotización de:\n${contextual.map(item => `- ${item.nombre}${item.modelo ? ` (Ref. ${item.modelo})` : ''}\n  Página del producto: ${item.url}`).join('\n')}\n\nPor favor confirmar disponibilidad, configuración, plazo y soporte.`;
+        }
+      }
 
       itemsEl.innerHTML = items
         .map(

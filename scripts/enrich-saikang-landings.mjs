@@ -103,7 +103,7 @@ function buildCopy(product, locale) {
   const p = profile(product, locale);
   const model = modelOf(product);
   const name = es ? product.nombre_es : product.nombre_en;
-  const brand = 'Saikang Medical';
+  const brand = product.marca || (/led-rx|lampara-rodable-led/i.test(product.slug) ? 'Ilumitec' : 'Saikang Medical');
   const reference = es ? `la referencia ${model}` : `reference ${model}`;
   const detail = verifiedSpecs(product, locale);
   const technical = technicalSource(product, locale);
@@ -117,8 +117,8 @@ function buildCopy(product, locale) {
     ? `La referencia queda identificada por modelo y marca, y la documentación del fabricante sirve como base para comparar alternativas de forma trazable. ${detail}${technical ? ` La información publicada también indica: ${technical}` : ''}`
     : `The reference is identified by model and brand, while the manufacturer's documentation supports a traceable comparison. ${detail}${technical ? ` Published information also states: ${technical}` : ''}`;
   const comparison = es
-    ? `Frente a ${p.edge}, la ventaja de trabajar con una referencia documentada es poder hacer preguntas concretas: qué incluye la configuración, qué medidas requiere, qué accesorios se necesitan y qué condiciones de entrega e instalación aplican. Así la decisión se basa en adecuación al servicio y coste total de operación, no solo en el precio inicial.`
-    : `Compared with ${p.edge}, the practical advantage of working with a documented reference is asking precise questions: what the configuration includes, which dimensions are required, which accessories are needed and what delivery and installation conditions apply. The decision can then be based on service fit and total operating cost, not only initial price.`;
+    ? `Para comparar ${name} (${model}) con ${p.edge}, conviene revisar en esta referencia ${detail.toLowerCase()} La decisión puede basarse en la adecuación de ${name} al servicio, sus accesorios, instalación, mantenimiento y coste total de operación, no solo en el precio inicial.`
+    : `To compare ${name} (${model}) with ${p.edge}, review this reference's ${detail.toLowerCase()} The decision can then consider how ${name} fits the service, its accessories, installation, maintenance and total operating cost—not only the initial price.`;
   const implementation = es
     ? `Antes de comprar, el equipo biomédico y el responsable del servicio deberían confirmar recorrido o espacio, usuarios, frecuencia de uso, limpieza, consumibles o accesorios, capacitación y mantenimiento. I-ME puede orientar la cotización con la ficha técnica y el contexto de la institución.`
     : `Before purchase, biomedical engineering and the service lead should confirm route or space, users, workload, cleaning, consumables or accessories, training and maintenance. I-ME can support the quote using the datasheet and institutional context.`;
@@ -127,8 +127,22 @@ function buildCopy(product, locale) {
     ? `${name} para ${p.area}. Resuelve necesidades de ${p.noun} con referencia, ficha técnica y cotización para Colombia.`
     : `${name} for ${p.area}. Address ${p.noun} needs with an identifiable reference, datasheet and quotation support in Colombia.`;
   const benefits = es
-    ? [`Ayuda a resolver ${p.pain} en ${p.area}.`, `Referencia ${model} identificable para compras, ingeniería biomédica y mantenimiento.`, 'Ficha técnica del fabricante para revisar configuración, dimensiones y parámetros publicados.', `Facilita comparar la adecuación del equipo frente a ${p.edge}.`, 'Permite preparar una cotización con contexto de servicio, instalación y soporte.', 'Documentación y canal de consulta para evaluar disponibilidad y condiciones de entrega en Colombia.`'.replace('`', '')]
-    : [`Helps address ${p.pain} in ${p.area}.`, `Identifiable ${model} reference for procurement, biomedical engineering and maintenance.`, 'Manufacturer datasheet for reviewing configuration, dimensions and published parameters.', `Makes it easier to compare service fit against ${p.edge}.`, 'Supports a quote prepared around service context, installation and support.', 'Documentation and consultation channel for availability and delivery conditions in Colombia.'];
+    ? [
+        `${name} (${model}) aborda ${p.pain} en ${p.area}.`,
+        `${name} está documentado como ${p.noun}; esa identificación ayuda a compras, ingeniería biomédica y mantenimiento a pedir exactamente la configuración requerida.`,
+        `La referencia ${model} permite revisar ${detail.replace(/^Entre los datos publicados que conviene revisar están: /i, '').replace(/\.$/, '')} antes de comparar o cotizar.`,
+        `Frente a ${p.edge}, ${name} ofrece una base concreta para contrastar medidas, accesorios, instalación, limpieza y soporte según el flujo real del servicio.`,
+        `La ficha de ${name} permite preparar una cotización con contexto de uso, espacio disponible, intensidad de trabajo y mantenimiento; no obliga a elegir por precio aislado.`,
+        `I-ME canaliza disponibilidad y condiciones de entrega en Colombia para ${name}, manteniendo modelo, documentación y página de referencia en la solicitud.`,
+      ]
+    : [
+        `${name} (${model}) addresses ${p.pain} in ${p.area}.`,
+        `${name} is documented as ${p.noun}; that identification helps procurement, biomedical engineering and maintenance request the required configuration.`,
+        `Reference ${model} lets teams review ${detail.replace(/^Published data worth reviewing include: /i, '').replace(/\.$/, '')} before comparing or requesting a quote.`,
+        `Compared with ${p.edge}, ${name} provides a concrete basis for checking dimensions, accessories, installation, cleaning and support against the real workflow.`,
+        `${name}'s datasheet supports a quote built around use case, available space, workload and maintenance—not isolated price.`,
+        `I-ME can confirm availability and delivery conditions in Colombia for ${name}, keeping model, documentation and product page in the request.`,
+      ];
   const faqs = es
     ? [
         { q: `¿Para qué sirve ${name}?`, a: `${name} está destinado a ${p.area}. Su utilidad concreta depende del protocolo, configuración y condiciones de cada institución; la ficha técnica ayuda a validar ese encaje antes de comprar.` },
@@ -149,7 +163,10 @@ function buildCopy(product, locale) {
 
 let updated = 0;
 for (const product of products) {
-  if (!/saikang/i.test(`${product.marca ?? ''} ${product.slug}`)) continue;
+  const catalogProduct = /saikang/i.test(`${product.marca ?? ''} ${product.slug}`)
+    || /^skm-b-|^sk-cd1-|^led-rx|^lampara-rodable-led-rx/i.test(product.slug);
+  if (!catalogProduct) continue;
+  product.marca ??= /^led-rx|^lampara-rodable-led-rx/i.test(product.slug) ? 'Ilumitec' : 'Saikang Medical';
   const es = buildCopy(product, 'es');
   const en = buildCopy(product, 'en');
   product.descripcion_corta_es = es.short;
