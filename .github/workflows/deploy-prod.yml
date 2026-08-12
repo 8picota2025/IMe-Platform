@@ -64,4 +64,7 @@ jobs:
           # Un state-name nuevo fuerza una subida completa (no destructiva: no
           # borra archivos del servidor, solo sube/reemplaza) y deja una línea
           # base correcta para los deploys incrementales futuros.
-          state-name: .ftp-deploy-sync-state-v2.json
+          # v2 quedó contaminado con rutas antiguas y provoca 550 al intentar
+          # eliminar carpetas que Hostinger ya no conserva. v3 reconstruye
+          # índice remoto limpio tras migración global de URLs.
+          state-name: .ftp-deploy-sync-state-v3.json
