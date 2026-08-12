@@ -79,6 +79,10 @@ for (const producto of mockProductos) {
       beneficios_en: producto.beneficios_en ?? [],
       valor_es: producto.valor_es ?? null,
       valor_en: producto.valor_en ?? null,
+      preguntas_frecuentes_es: producto.preguntas_frecuentes_es ?? [],
+      preguntas_frecuentes_en: producto.preguntas_frecuentes_en ?? [],
+      seo_keywords_es: producto.seo_keywords_es ?? [],
+      seo_keywords_en: producto.seo_keywords_en ?? [],
       marca: producto.marca ?? null,
     },
   };

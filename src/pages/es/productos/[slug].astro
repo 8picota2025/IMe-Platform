@@ -10,6 +10,7 @@ import {
   buildCanonical,
   buildProductJsonLd,
   buildBreadcrumbJsonLd,
+  buildFaqJsonLd,
   combineJsonLd,
 } from '../../../lib/seo';
 import { getProductos, getFamilias, type Familia, type Producto } from '../../../lib/datos';
@@ -63,6 +64,9 @@ const noindex = producto.slug === 'test';
 
 const jsonLd = combineJsonLd(
   buildProductJsonLd(producto, locale, familia.nombre, producto.marca),
+  ...(producto.preguntas_frecuentes.length > 0
+    ? [buildFaqJsonLd(producto.preguntas_frecuentes)]
+    : []),
   buildBreadcrumbJsonLd([
     { name: t(locale, 'catalogo.migas_inicio'), url: buildCanonical('/es/') },
     { name: t(locale, 'catalogo.migas_catalogo'), url: buildCanonical('/es/catalogo') },

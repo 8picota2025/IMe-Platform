@@ -192,6 +192,10 @@ function mapProductoSupabase(raw: any, locale: Locale): Producto {
     beneficios:
       (locale === 'en' ? raw.atributos?.beneficios_en : raw.atributos?.beneficios_es) ?? [],
     valor: (locale === 'en' ? raw.atributos?.valor_en : raw.atributos?.valor_es) ?? null,
+    preguntas_frecuentes:
+      (locale === 'en'
+        ? raw.atributos?.preguntas_frecuentes_en
+        : raw.atributos?.preguntas_frecuentes_es) ?? [],
     seo_keywords:
       (locale === 'en' ? raw.atributos?.seo_keywords_en : raw.atributos?.seo_keywords_es) ?? [],
     marca: resolveMarcaSupabase(raw),
@@ -252,6 +256,7 @@ export interface Producto {
   aplicaciones: string[];
   beneficios: string[];
   valor: string | null;
+  preguntas_frecuentes: Array<{ q: string; a: string }>;
   seo_keywords: string[];
   marca: string | null;
   imagen_principal: string | null;
@@ -349,6 +354,12 @@ function mapProducto(raw: (typeof mockProductos)[0], locale: Locale): Producto {
       (locale === 'en'
         ? (raw as { valor_en?: string }).valor_en
         : (raw as { valor_es?: string }).valor_es) ?? null,
+    preguntas_frecuentes:
+      (locale === 'en'
+        ? (raw as { preguntas_frecuentes_en?: Array<{ q: string; a: string }> })
+            .preguntas_frecuentes_en
+        : (raw as { preguntas_frecuentes_es?: Array<{ q: string; a: string }> })
+            .preguntas_frecuentes_es) ?? [],
     seo_keywords:
       (locale === 'en'
         ? (raw as { seo_keywords_en?: string[] }).seo_keywords_en

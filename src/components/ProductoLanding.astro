@@ -267,6 +267,24 @@ if (precioFormateado) {
     </div>
   </section>
 
+  <!-- Contexto de decisión: texto visible y extraíble, respaldado por ficha técnica -->
+  {
+    producto.descripcion_larga && (
+      <section class="section container" aria-labelledby="contexto-heading">
+        <h2 id="contexto-heading" class="section-title">
+          {locale === 'en'
+            ? `Why evaluate ${producto.nombre}?`
+            : `¿Qué problema ayuda a evaluar ${producto.nombre}?`}
+        </h2>
+        <div class="producto-contexto">
+          {producto.descripcion_larga.split('\n\n').map(parrafo => (
+            <p>{parrafo}</p>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
   <!-- Beneficios clave -->
   {
     producto.beneficios.length > 0 && (
@@ -409,6 +427,27 @@ if (precioFormateado) {
             ))}
           </ul>
         )}
+      </section>
+    )
+  }
+
+  <!-- Preguntas de compra: criterios verificables, sin comparativas no sustentadas -->
+  {
+    producto.preguntas_frecuentes.length > 0 && (
+      <section class="section container" aria-labelledby="faq-producto-heading">
+        <h2 id="faq-producto-heading" class="section-title">
+          {locale === 'en'
+            ? 'Decision and comparison questions'
+            : 'Preguntas para decidir y comparar'}
+        </h2>
+        <div class="producto-faq">
+          {producto.preguntas_frecuentes.map(item => (
+            <details>
+              <summary>{item.q}</summary>
+              <p>{item.a}</p>
+            </details>
+          ))}
+        </div>
       </section>
     )
   }
@@ -1043,6 +1082,40 @@ if (precioFormateado) {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .producto-contexto {
+    max-width: 76ch;
+    color: var(--text-mid);
+    font-size: 1.02rem;
+    line-height: 1.75;
+  }
+  .producto-contexto p {
+    margin: 0 0 1rem;
+  }
+  .producto-contexto p:last-child {
+    margin-bottom: 0;
+  }
+  .producto-faq {
+    display: grid;
+    gap: 0.75rem;
+    max-width: 900px;
+  }
+  .producto-faq details {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--white);
+    padding: 0.9rem 1rem;
+  }
+  .producto-faq summary {
+    cursor: pointer;
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .producto-faq p {
+    margin: 0.75rem 0 0;
+    color: var(--text-mid);
+    line-height: 1.65;
   }
 
   .sr-only {
