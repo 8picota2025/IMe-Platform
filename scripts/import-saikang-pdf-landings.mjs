@@ -102,56 +102,26 @@ function copyFor(kind, locale) {
       ? 'el acceso funcional a superficies de apoyo en la atención clínica'
       : 'functional access to support surfaces in clinical care',
   }[kind] ?? (es ? 'el flujo asistencial' : 'clinical workflow');
-  const comparison = es
-    ? 'Frente a alternativas de otras marcas o modelos similares, la comparación responsable debe contrastar configuración exacta, dimensiones, capacidad cuando aplique, accesorios, instalación, soporte y ficha técnica vigente; no asumir equivalencias por nombre o fotografía.'
-    : 'Against alternatives from other brands or similar models, a responsible comparison should verify the exact configuration, dimensions, capacity where applicable, accessories, installation, support, and current datasheet; equivalence must not be assumed from a name or photograph.';
   return {
     corta: es
-      ? `${noun} Saikang ${'{model}'} para instituciones que buscan resolver ${context} con evaluación técnica trazable.`
-      : `Saikang ${noun} ${'{model}'} for institutions addressing ${context} through a traceable technical evaluation.`,
+      ? `${noun} Saikang ${'{model}'} para instituciones de salud y áreas clínicas.`
+      : `Saikang ${noun} ${'{model}'} for healthcare institutions and clinical areas.`,
     larga: es
-      ? `El modelo ${'{model}'} de Saikang está orientado a instituciones que necesitan abordar ${context}. Su pertinencia depende del flujo real del servicio, la configuración requerida y las condiciones de instalación definidas por la institución.\n\nEsta landing convierte la ficha técnica original del fabricante en una ruta de evaluación: identifica el modelo, reúne parámetros publicados, enumera aplicaciones institucionales y conserva acceso directo a la documentación. Así, compras, ingeniería clínica y responsables asistenciales pueden partir de la misma información verificable.\n\n${comparison} I-ME puede validar con la institución la configuración disponible, alcance de suministro y condiciones comerciales antes de cotizar.`
-      : `Saikang model ${'{model}'} is intended for institutions that need to address ${context}. Its fit depends on the service's actual workflow, required configuration, and installation conditions defined by the institution.\n\nThis page turns the manufacturer's original datasheet into an evaluation path: it identifies the model, brings together published parameters, lists institutional applications, and keeps direct access to documentation. Procurement, clinical engineering, and care leaders can therefore work from the same verifiable information.\n\n${comparison} I-ME can validate the available configuration, scope of supply, and commercial conditions with the institution before quotation.`,
+      ? `El modelo ${'{model}'} de Saikang está destinado a ${context}. Su uso debe ajustarse a las condiciones de cada servicio, la configuración solicitada y las indicaciones del fabricante.\n\nLa ficha técnica disponible identifica el modelo y reúne las especificaciones publicadas por Saikang. Consulte el PDF para conocer los detalles de configuración, dimensiones, accesorios y demás información propia de este equipo.`
+      : `Saikang model ${'{model}'} is intended for ${context}. Its use should follow each service's conditions, the requested configuration, and the manufacturer's instructions.\n\nThe available datasheet identifies the model and brings together specifications published by Saikang. Consult the PDF for configuration details, dimensions, accessories, and other information specific to this equipment.`,
     beneficios: es ? [
-      `Problema que ayuda a evaluar: ${context}.`,
+      `Diseñado para ${context}.`,
       `Modelo ${'{model}'} identificado con ficha técnica original del fabricante.`,
-      'Criterios comparables en una sola landing: aplicación, especificaciones publicadas y documentación.',
-      'Evita decidir por apariencia: confirme configuración, accesorios, instalación y soporte antes de comparar ofertas.',
-      'Cotización institucional para validar disponibilidad y condiciones comerciales de la configuración requerida.',
+      'Especificaciones, aplicaciones y documentación técnica disponibles para consulta.',
     ] : [
-      `Evaluation problem addressed: ${context}.`,
+      `Designed for ${context}.`,
       `Model ${'{model}'} identified with the original manufacturer datasheet.`,
-      'Comparable criteria in one page: applications, published specifications, and documentation.',
-      'Avoid appearance-led decisions: confirm configuration, accessories, installation, and support before comparing offers.',
-      'Institutional quotation to validate availability and commercial terms for the required configuration.',
+      'Specifications, applications, and technical documentation available for consultation.',
     ],
     valor: es
-      ? `Ventaja práctica frente a alternativas poco documentadas: I-ME centraliza la ficha técnica original y el canal de validación comercial para evaluar ${'{model}'} con criterios trazables. La decisión debe basarse en ajuste al proceso, configuración confirmada y soporte requerido, no en afirmaciones genéricas de superioridad.`
-      : `A practical advantage over poorly documented alternatives: I-ME centralizes the original datasheet and commercial validation channel to assess ${'{model}'} using traceable criteria. The decision should be based on workflow fit, confirmed configuration, and required support—not generic claims of superiority.`,
+      ? `El modelo ${'{model}'} cuenta con ficha técnica del fabricante para consulta de sus especificaciones y configuración.`
+      : `Model ${'{model}'} includes the manufacturer's datasheet for consultation of its specifications and configuration.`,
   };
-}
-
-function faqFor(model, kind, locale) {
-  const es = locale === 'es';
-  const subject = {
-    camas: es ? 'una cama hospitalaria o UCI' : 'a hospital or ICU bed',
-    camillas: es ? 'una camilla de traslado' : 'a patient transport trolley',
-    quirofano: es ? 'este equipo de quirófano' : 'this operating-room equipment',
-    lamparas: es ? 'una lámpara quirúrgica' : 'an operating lamp',
-    gineco: es ? 'este equipo de ginecología u obstetricia' : 'this gynecology or obstetrics equipment',
-    sillas: es ? 'este sillón clínico' : 'this clinical chair',
-    carros: es ? 'este carro clínico' : 'this clinical trolley',
-    mesas: es ? 'esta mesa clínica' : 'this clinical table',
-  }[kind] ?? (es ? 'este equipo' : 'this equipment');
-  return es ? [
-    { q: `¿Qué problema institucional ayuda a evaluar ${model}?`, a: `La evaluación de ${model} parte de su encaje con ${subject}: flujo del servicio, área de uso, configuración requerida y condiciones de instalación. La ficha técnica publicada permite iniciar esa revisión sin asumir prestaciones no documentadas.` },
-    { q: `¿Cómo comparar ${model} con productos similares u otras marcas?`, a: 'Compare la configuración exacta, especificaciones publicadas, dimensiones, capacidad cuando aplique, accesorios incluidos, requisitos de instalación, disponibilidad, soporte y documentación vigente. Una comparación por fotografía, nombre comercial o precio aislado no confirma equivalencia técnica.' },
-    { q: `¿Qué información valida I-ME antes de cotizar ${model}?`, a: 'I-ME revisa con la institución la configuración requerida, disponibilidad, alcance de suministro y condiciones comerciales. Para parámetros técnicos, accesorios, instalación o compatibilidad no publicados, se debe confirmar la información con la ficha vigente y la propuesta correspondiente.' },
-  ] : [
-    { q: `What institutional problem does ${model} help evaluate?`, a: `Assessment of ${model} starts with its fit for ${subject}: service workflow, use area, required configuration, and installation conditions. The published datasheet supports that review without assuming undocumented capabilities.` },
-    { q: `How should ${model} be compared with similar products or other brands?`, a: 'Compare the exact configuration, published specifications, dimensions, capacity where applicable, included accessories, installation requirements, availability, support, and current documentation. A photograph, commercial name, or price alone does not establish technical equivalence.' },
-    { q: `What information does I-ME validate before quoting ${model}?`, a: 'I-ME reviews the required configuration, availability, scope of supply, and commercial terms with the institution. For technical parameters, accessories, installation, or compatibility not published, confirmation should come from the current datasheet and the corresponding proposal.' },
-  ];
 }
 
 function seoKeywords(model, nombre, kind, locale) {
@@ -163,8 +133,8 @@ function seoKeywords(model, nombre, kind, locale) {
     carros: es ? 'carro clínico' : 'clinical trolley', mesas: es ? 'mesa clínica hospitalaria' : 'hospital clinical table',
   }[kind] ?? (es ? 'equipo biomédico' : 'biomedical equipment');
   return es
-    ? [nombre, `${model} Saikang`, `${category} Saikang`, `${category} Colombia`, `${category} para hospitales`, `${category} para clínicas`, `ficha técnica ${model}`, `cotizar ${model}`, `comparar ${category}`, `proveedor de ${category} Colombia`, 'mobiliario hospitalario Saikang']
-    : [nombre, `${model} Saikang`, `Saikang ${category}`, `${category} Colombia`, `${category} for hospitals`, `${category} for clinics`, `${model} datasheet`, `request a quote for ${model}`, `compare ${category}`, `${category} supplier Colombia`, 'Saikang hospital furniture'];
+    ? [nombre, `${model} Saikang`, `${category} Saikang`, `${category} Colombia`, `${category} para hospitales`, `${category} para clínicas`, `ficha técnica ${model}`, `cotizar ${model}`, `proveedor de ${category} Colombia`, 'mobiliario hospitalario Saikang']
+    : [nombre, `${model} Saikang`, `Saikang ${category}`, `${category} Colombia`, `${category} for hospitals`, `${category} for clinics`, `${model} datasheet`, `request a quote for ${model}`, `${category} supplier Colombia`, 'Saikang hospital furniture'];
 }
 function applications(kind, locale) {
   const es = locale === 'es';
@@ -247,7 +217,7 @@ for (const [model, nombreEs, nombreEn, kind, familiaId, tipoId, pdfName, existin
     especificaciones: detectedSpecs(model, nombreEs, technicalFacts), imagen_principal: current?.imagen_principal ?? assetImage, galeria: current?.galeria?.length ? current.galeria : [assetImage], ficha_pdf: assetPdf,
     tipo_comercial: 'equipo', fulfillment_mode: 'cotizacion', precio: null, moneda: 'COP', stock: null, disponible: true, nuevo: true, activo: true,
     aplicaciones_es: applications(kind, 'es'), aplicaciones_en: applications(kind, 'en'), beneficios_es: es.beneficios.map(fill), beneficios_en: en.beneficios.map(fill), valor_es: fill(es.valor), valor_en: fill(en.valor),
-    preguntas_frecuentes_es: faqFor(model, kind, 'es'), preguntas_frecuentes_en: faqFor(model, kind, 'en'), marca: 'Saikang Medical',
+    preguntas_frecuentes_es: [], preguntas_frecuentes_en: [], marca: 'Saikang Medical',
     seo_keywords_es: seoKeywords(model, nombreEs, kind, 'es'), seo_keywords_en: seoKeywords(model, nombreEn, kind, 'en'),
   };
   if (current) { Object.assign(current, record); updated += 1; } else { products.push(record); created += 1; }

@@ -76,9 +76,35 @@ const disponibilidadTexto = noDisponible
     : producto.stock === 0
       ? t(locale, 'producto.ficha_no_disponible')
       : t(locale, 'producto.ficha_disponible');
-const whatsappHref = `https://wa.me/573103332607?text=${encodeURIComponent(
-  `${t(locale, 'producto.cta_consultar_disponibilidad')}: ${producto.nombre}`
-)}`;
+const productSegment = locale === 'en' ? 'products' : 'productos';
+const productUrl = `https://i-me.com.co/${locale}/${productSegment}/${producto.slug}/`;
+const modelo = especificaciones.find(item => item.clave.toLowerCase() === 'modelo')?.valor;
+const fichaUrl = producto.ficha_pdf
+  ? producto.ficha_pdf.startsWith('http')
+    ? producto.ficha_pdf
+    : `https://i-me.com.co${producto.ficha_pdf}`
+  : null;
+const whatsappMensaje =
+  locale === 'en'
+    ? [
+        `${t(locale, 'producto.cta_consultar_disponibilidad')}: ${producto.nombre}`,
+        modelo ? `Model: ${modelo}` : '',
+        producto.marca ? `Brand: ${producto.marca}` : '',
+        `Product page: ${productUrl}`,
+        fichaUrl ? `Datasheet: ${fichaUrl}` : '',
+      ]
+        .filter(Boolean)
+        .join('\n')
+    : [
+        `${t(locale, 'producto.cta_consultar_disponibilidad')}: ${producto.nombre}`,
+        modelo ? `Referencia: ${modelo}` : '',
+        producto.marca ? `Marca: ${producto.marca}` : '',
+        `Página del producto: ${productUrl}`,
+        fichaUrl ? `Ficha técnica: ${fichaUrl}` : '',
+      ]
+        .filter(Boolean)
+        .join('\n');
+const whatsappHref = `https://wa.me/573103332607?text=${encodeURIComponent(whatsappMensaje)}`;
 
 const migas = [
   { nombre: t(locale, 'catalogo.migas_inicio'), href: `/${locale}/` },
@@ -272,9 +298,7 @@ if (precioFormateado) {
     producto.descripcion_larga && (
       <section class="section container" aria-labelledby="contexto-heading">
         <h2 id="contexto-heading" class="section-title">
-          {locale === 'en'
-            ? `Why evaluate ${producto.nombre}?`
-            : `¿Qué problema ayuda a evaluar ${producto.nombre}?`}
+          {locale === 'en' ? 'Product description' : 'Descripción del producto'}
         </h2>
         <div class="producto-contexto">
           {producto.descripcion_larga.split('\n\n').map(parrafo => (
@@ -436,9 +460,7 @@ if (precioFormateado) {
     producto.preguntas_frecuentes.length > 0 && (
       <section class="section container" aria-labelledby="faq-producto-heading">
         <h2 id="faq-producto-heading" class="section-title">
-          {locale === 'en'
-            ? 'Decision and comparison questions'
-            : 'Preguntas para decidir y comparar'}
+          {locale === 'en' ? 'Frequently asked questions' : 'Preguntas frecuentes'}
         </h2>
         <div class="producto-faq">
           {producto.preguntas_frecuentes.map(item => (
