@@ -45,8 +45,10 @@ const LANDINGS = [
   ['SKB041-3 Whole Body X-ray', 'Camilla de Traslado con Radiografía de Cuerpo Completo SKB041-3', 'SKB041-3 Patient Transportation Trolley with Whole-Body X-ray', 'camillas', TRASLADO, tipos.camillas, 'SKB041-3_Patient-Transportation-Trolley(Whole-Body-X-ray)_SaikangMedical.pdf'],
   ['SKB041-7 Backrest X-ray', 'Camilla de Traslado con Radiografía de Respaldo SKB041-7', 'SKB041-7 Patient Transportation Trolley with Backrest X-ray', 'camillas', TRASLADO, tipos.camillas, 'SKB041-7_Patient-Transportation-Trolley(Backrest-X-ray)_SaikangMedical.pdf'],
   ['SKB041-7 Whole Body X-ray', 'Camilla de Traslado con Radiografía de Cuerpo Completo SKB041-7', 'SKB041-7 Patient Transportation Trolley with Whole-Body X-ray', 'camillas', TRASLADO, tipos.camillas, 'SKB041-7_Patient-Transportation-Trolley(Whole-Body-X-ray)_SaikangMedical.pdf'],
-  ['SKE-136', 'Sillón Eléctrico de Diálisis SKE-136', 'SKE-136 Electric Dialysis Chair', 'sillas', MOBILIARIO, tipos.sillas, 'SKE-136_Electric-Dialysis-Chair_SaikangMedical.pdf'],
-  ['SKE091', 'Sillón para Donación de Sangre SKE091', 'SKE091 Blood Donation Chair', 'sillas', MOBILIARIO, tipos.sillas, 'SKE091_Blood-Donation-Chair_SaikangMedical.pdf'],
+  // La taxonomía remota aún no tiene tipo "sillas-y-sillones-clinicos". Se conserva familia
+  // y se deja tipo nulo hasta crear dicha taxonomía, evitando romper la integridad referencial.
+  ['SKE-136', 'Sillón Eléctrico de Diálisis SKE-136', 'SKE-136 Electric Dialysis Chair', 'sillas', MOBILIARIO, null, 'SKE-136_Electric-Dialysis-Chair_SaikangMedical.pdf'],
+  ['SKE091', 'Sillón para Donación de Sangre SKE091', 'SKE091 Blood Donation Chair', 'sillas', MOBILIARIO, null, 'SKE091_Blood-Donation-Chair_SaikangMedical.pdf'],
   ['SKH004', 'Carro de Instrumental SKH004', 'SKH004 Instrument Trolley', 'carros', MOBILIARIO, tipos.carros, 'SKH004_Instrument-Trolley_SaikangMedical.pdf', 'skm-b-skh004'],
   ['SKH006', 'Carro de Instrumental SKH006', 'SKH006 Instrument Trolley', 'carros', MOBILIARIO, tipos.carros, 'SKH006_Instrument-Trolley_SaikangMedical.pdf', 'skm-b-skh006-1'],
   ['SKH046-11', 'Mesa de Sobrecama SKH046-11', 'SKH046-11 Overbed Table', 'mesas', MOBILIARIO, tipos.mesas, 'SKH046-11_Overbed-Table_SaikangMedical.pdf', 'skh046-11'],
