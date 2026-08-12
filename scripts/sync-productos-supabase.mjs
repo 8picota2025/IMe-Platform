@@ -54,11 +54,30 @@ for (const producto of mockProductos) {
   // valor_en, marca) sin pisar otras claves que ya pudieran existir en esa
   // columna JSONB. Esta lectura es de solo consulta, así que también se
   // ejecuta en --dry-run para que la previsualización refleje el merge real.
-  const { data: filaActual, error: fetchError } = await supabase
+  let { data: filaActual, error: fetchError } = await supabase
     .from('productos')
     .select('id,atributos')
     .eq('slug', producto.slug)
     .maybeSingle();
+  // Una migración de URL conserva sus slugs anteriores en atributos. Buscar
+  // esa fila evita insertar un duplicado y permite actualizar la URL primaria.
+  if (!fetchError && !filaActual) {
+    for (const legacySlug of producto.atributos?.legacy_slugs ?? []) {
+      const legacyResult = await supabase
+        .from('productos')
+        .select('id,atributos')
+        .eq('slug', legacySlug)
+        .maybeSingle();
+      if (legacyResult.error) {
+        fetchError = legacyResult.error;
+        break;
+      }
+      if (legacyResult.data) {
+        filaActual = legacyResult.data;
+        break;
+      }
+    }
+  }
   if (fetchError) {
     console.error(`Error leyendo atributos actuales de ${producto.slug}:`, fetchError.message);
     process.exitCode = 1;
@@ -67,6 +86,7 @@ for (const producto of mockProductos) {
   const atributosActuales = (filaActual && filaActual.atributos) || {};
 
   const payload = {
+    slug: producto.slug,
     descripcion_corta_es: producto.descripcion_corta_es ?? '',
     descripcion_corta_en: producto.descripcion_corta_en ?? '',
     especificaciones: producto.especificaciones ?? [],
@@ -121,7 +141,7 @@ for (const producto of mockProductos) {
         orden: producto.orden,
         ...payload,
       })
-    : await supabase.from('productos').update(payload).eq('slug', producto.slug);
+    : await supabase.from('productos').update(payload).eq('id', filaActual.id);
   if (error) {
     console.error(`Error actualizando ${producto.slug}:`, error.message);
     process.exitCode = 1;

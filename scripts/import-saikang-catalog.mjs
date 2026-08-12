@@ -100,6 +100,7 @@ function titleEs(title, url) {
   const type = kind.charAt(0).toUpperCase() + kind.slice(1);
   return model ? `${type} Ref. ${model} Saikang` : `${type} Saikang`;
 }
+function productSlug(nombreEs) { return slugify(nombreEs); }
 function titleEn(title) { return cleanHtml(title).replace(/\s+/g, ' ').trim(); }
 function sourceFacts(html) {
   const main = html.slice(html.indexOf('<main'), html.indexOf('<footer') > 0 ? html.indexOf('<footer') : undefined);
@@ -152,10 +153,10 @@ let imported = 0; let pdfsDownloaded = 0; let imagesDownloaded = 0; const failur
 
 for (const page of candidates) {
   const model = modelReference(page.title);
-  const slug = `saikang-${slugify(model)}`;
-  if (products.some(product => product.slug === slug)) continue;
   const [familyKey, familySlug] = familyFor(`${page.title} ${page.url}`);
   const nombreEs = titleEs(page.title, page.url);
+  const slug = productSlug(nombreEs);
+  if (products.some(product => product.slug === slug)) continue;
   const nombreEn = titleEn(page.title);
   const kind = productKind(`${page.title} ${page.url}`);
   const shortEs = `${nombreEs} para hospitales, clínicas y servicios de salud.`;
