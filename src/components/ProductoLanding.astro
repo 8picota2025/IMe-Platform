@@ -87,20 +87,30 @@ const fichaUrl = producto.ficha_pdf
 const whatsappMensaje =
   locale === 'en'
     ? [
-        `${t(locale, 'producto.cta_consultar_disponibilidad')}: ${producto.nombre}`,
+        `Hello, I would like to receive information and a quote for:`,
+        `Product: ${producto.nombre}`,
         modelo ? `Model: ${modelo}` : '',
         producto.marca ? `Brand: ${producto.marca}` : '',
         `Product page: ${productUrl}`,
         fichaUrl ? `Datasheet: ${fichaUrl}` : '',
+        '',
+        'My name is: ____________________',
+        'Institution: ____________________',
+        'City/Country: ____________________',
       ]
         .filter(Boolean)
         .join('\n')
     : [
-        `${t(locale, 'producto.cta_consultar_disponibilidad')}: ${producto.nombre}`,
+        'Hola, me gustaría recibir información y cotización de:',
+        `Producto: ${producto.nombre}`,
         modelo ? `Referencia: ${modelo}` : '',
         producto.marca ? `Marca: ${producto.marca}` : '',
         `Página del producto: ${productUrl}`,
         fichaUrl ? `Ficha técnica: ${fichaUrl}` : '',
+        '',
+        'Mi nombre es: ____________________',
+        'Institución: ____________________',
+        'Ciudad/país: ____________________',
       ]
         .filter(Boolean)
         .join('\n');
