@@ -23,7 +23,7 @@ const OLLAMA_EMBED_MODEL =
 const IMEIA_API_URL = (import.meta.env['PUBLIC_IMEIA_API_URL'] as string | undefined) ?? '';
 const FORCE_DIRECT_IMEIA_IN_BROWSER =
   ((import.meta.env['PUBLIC_FORCE_DIRECT_IMEIA_IN_BROWSER'] as string | undefined) ?? '') === '1';
-export const ASESOR_CLIENT_VERSION = '2026-08-13-imeia-sticky-shortlist-v2';
+export const ASESOR_CLIENT_VERSION = '2026-08-13-imeia-sticky-shortlist-v3';
 const MAX_HANDOFF_SUMMARY_CHARS = 400;
 const CATALOGO_INDEX_URL: Record<Locale, string> = {
   es: '/data/catalogo-index.es.json',
@@ -892,58 +892,64 @@ async function buscarCatalogoPublicado(
 /** Follow-ups that must reuse prior shortlist — never re-search adjectives alone. */
 export function esSeguimientoDeShortlist(mensaje: string): boolean {
   const t = normalizeSearchText(mensaje);
+  // "Cuál es el mejor de los dos?" / "cuál recomiendas entre esas"
+  const comparativeAsk =
+    /\b(cual|que|which|what)\b/.test(t) &&
+    /\b(mejor|peor|mas|recomend|conviene|elig|prefier|versatil|completo|completa|adecuado|adecuada)\b/.test(
+      t
+    );
+  const amongOptions =
+    /\b(de los dos|de las dos|de los 2|de las 2|los dos|las dos|de los tres|de las tres|de los 3|de las 3|los tres|las tres|entre (esos|estas|esas|ellos|ellas)|esas opciones|estas opciones|los sugeridos|of the (two|three)|of those)\b/.test(
+      t
+    );
+  const ordinalPick = /\b(el|la) (primer[oa]|segund[oa]|tercer[oa])\b/.test(t);
+  const compareVerb = /\b(compara|comparacion|diferencia entre|diferencias entre)\b/.test(t);
   const patterns = [
     'mas completo',
     'mas versatil',
-    'mas completo de los',
     'mas versatil y completo',
     'el mas completo',
     'el mas versatil',
     'la mas completa',
     'la mas versatil',
+    'el mejor',
+    'la mejor',
+    'mejor de los',
+    'mejor de las',
+    'mejor de esos',
+    'mejor de estas',
+    'mejor opcion',
     'cual es el mas',
     'cual es la mas',
-    'de los tres',
-    'de los 3',
-    'los tres',
-    'los 3',
-    'los sugeridos',
-    'entre esos',
-    'entre estos',
-    'entre las tres',
-    'entre las 3',
+    'cual es el mejor',
+    'cual es la mejor',
     'cual recomiendas',
     'cual me conviene',
     'cual elijo',
-    'compara',
-    'comparacion',
-    'diferencia entre',
-    'el primero',
-    'el segundo',
-    'el tercero',
-    'esa opcion',
-    'esas opciones',
-    'esas tres',
-    'esos tres',
-    'de esas opciones',
-    'de estas opciones',
-    'mejor opcion',
     'mas adecuado',
     'mas adecuada',
     'which is the most',
+    'which is better',
     'most complete',
     'most versatile',
-    'of the three',
-    'of those',
+    'best of the',
   ];
-  return patterns.some(p => t.includes(p));
+  return (
+    comparativeAsk ||
+    amongOptions ||
+    ordinalPick ||
+    compareVerb ||
+    patterns.some(p => t.includes(p))
+  );
 }
 
 function extraerNombresProductosDeTexto(contenido: string): string[] {
   const names: string[] = [];
+  // Normalize NBSP / odd spaces from pasted chat UIs before parsing numbered lists.
+  const normalized = contenido.replace(/\u00a0/g, ' ').replace(/\r/g, '');
   const numbered =
     /^\s*\d+\.\s*(?:\*\*|__)?(.+?)(?:\*\*|__)?\s*(?:—|–|-|:)\s+/gm;
-  for (const match of contenido.matchAll(numbered)) {
+  for (const match of normalized.matchAll(numbered)) {
     const name = match[1]?.trim();
     if (name && name.length >= 4 && !names.includes(name)) names.push(name);
   }
@@ -1128,6 +1134,20 @@ function esSeguimientoPuroSinProducto(mensaje: string): boolean {
     'la mas versatil',
     'cual es el mas',
     'cual es la mas',
+    'cual es el mejor',
+    'cual es la mejor',
+    'el mejor',
+    'la mejor',
+    'mejor de los',
+    'mejor de las',
+    'mejor de esos',
+    'mejor de estas',
+    'de los dos',
+    'de las dos',
+    'de los 2',
+    'de las 2',
+    'los dos',
+    'las dos',
     'de los tres',
     'de los 3',
     'los tres',
@@ -1135,6 +1155,8 @@ function esSeguimientoPuroSinProducto(mensaje: string): boolean {
     'los sugeridos',
     'entre esos',
     'entre estos',
+    'entre estas',
+    'entre esas',
     'entre las tres',
     'entre las 3',
     'cual recomiendas',
@@ -1156,10 +1178,13 @@ function esSeguimientoPuroSinProducto(mensaje: string): boolean {
     'mas adecuado',
     'mas adecuada',
     'which is the most',
+    'which is better',
     'most complete',
     'most versatile',
     'of the three',
+    'of the two',
     'of those',
+    'best of the',
     'cual',
     'cuales',
     'que',
@@ -1172,6 +1197,8 @@ function esSeguimientoPuroSinProducto(mensaje: string): boolean {
     'please',
     'which',
     'what',
+    'mejor',
+    'peor',
   ];
   for (const frase of frases) {
     rest = rest.split(frase).join(' ');

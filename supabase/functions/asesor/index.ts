@@ -572,7 +572,8 @@ function extraerNombresProductosDeHistorial(historial: HistorialItem[]): string[
     /^\s*\d+\.\s*(?:\*\*|__)?(.+?)(?:\*\*|__)?\s*(?:—|–|-|:)\s+/gm;
   for (const item of historial) {
     if (item.rol !== 'asesor') continue;
-    for (const match of item.contenido.matchAll(numbered)) {
+    const contenido = item.contenido.replace(/\u00a0/g, ' ').replace(/\r/g, '');
+    for (const match of contenido.matchAll(numbered)) {
       const name = match[1]?.trim();
       if (name && name.length >= 4 && !names.includes(name)) names.push(name);
     }
@@ -582,6 +583,17 @@ function extraerNombresProductosDeHistorial(historial: HistorialItem[]): string[
 
 function esSeguimientoDeShortlist(mensaje: string): boolean {
   const t = normalizeSearchText(mensaje);
+  const comparativeAsk =
+    /\b(cual|que|which|what)\b/.test(t) &&
+    /\b(mejor|peor|mas|recomend|conviene|elig|prefier|versatil|completo|completa|adecuado|adecuada)\b/.test(
+      t
+    );
+  const amongOptions =
+    /\b(de los dos|de las dos|de los 2|de las 2|los dos|las dos|de los tres|de las tres|de los 3|de las 3|los tres|las tres|entre (esos|estas|esas|ellos|ellas)|esas opciones|estas opciones|los sugeridos|of the (two|three)|of those)\b/.test(
+      t
+    );
+  const ordinalPick = /\b(el|la) (primer[oa]|segund[oa]|tercer[oa])\b/.test(t);
+  const compareVerb = /\b(compara|comparacion|diferencia entre|diferencias entre)\b/.test(t);
   const patterns = [
     'mas completo',
     'mas versatil',
@@ -590,43 +602,33 @@ function esSeguimientoDeShortlist(mensaje: string): boolean {
     'el mas versatil',
     'la mas completa',
     'la mas versatil',
+    'el mejor',
+    'la mejor',
+    'mejor de los',
+    'mejor de las',
     'cual es el mas',
     'cual es la mas',
-    'mas completo de los',
-    'de los tres',
-    'de los 3',
-    'los tres',
-    'los 3',
-    'los sugeridos',
-    'entre esos',
-    'entre estos',
-    'entre las tres',
-    'entre las 3',
+    'cual es el mejor',
+    'cual es la mejor',
     'cual recomiendas',
     'cual me conviene',
     'cual elijo',
-    'compara',
-    'comparacion',
-    'diferencia entre',
-    'el primero',
-    'el segundo',
-    'el tercero',
-    'esa opcion',
-    'esas opciones',
-    'esas tres',
-    'esos tres',
-    'de esas opciones',
-    'de estas opciones',
     'mejor opcion',
     'mas adecuado',
     'mas adecuada',
     'which is the most',
+    'which is better',
     'most complete',
     'most versatile',
-    'of the three',
-    'of those',
+    'best of the',
   ];
-  return patterns.some(p => t.includes(p));
+  return (
+    comparativeAsk ||
+    amongOptions ||
+    ordinalPick ||
+    compareVerb ||
+    patterns.some(p => t.includes(p))
+  );
 }
 
 async function resolverSlugsPorNombresHistorial(
