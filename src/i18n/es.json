@@ -5,7 +5,7 @@
     "catalogo": "Catálogo",
     "servicios": "Servicios",
     "financiacion": "Financiación",
-    "conocimiento": "Conocimiento",
+    "conocimiento": "Blog",
     "contacto": "Contacto",
     "cta_cotizar": "Cotizar ahora",
     "abrir_menu": "Abrir menú de navegación",
@@ -118,7 +118,7 @@
     "moneda_cop": "COP"
   },
   "conocimiento": {
-    "titulo": "Centro de Conocimiento",
+    "titulo": "Blog",
     "proximamente": "Próximamente",
     "descripcion": "Guías técnicas, artículos y recursos sobre equipamiento biomédico para instituciones de salud.",
     "cta_contacto": "¿Tienes una pregunta ahora? Contáctanos",
@@ -126,10 +126,10 @@
     "actualizado": "Actualizado el",
     "publicado": "Publicado el",
     "leer_mas": "Leer artículo",
-    "volver": "Volver al Centro de Conocimiento",
+    "volver": "Volver al Blog",
     "vacio": "Aún no hay artículos publicados. Vuelve pronto.",
     "ninguno": "Sin artículos todavía",
-    "volver_listado": "Volver a conocimiento",
+    "volver_listado": "Volver al Blog",
     "contactar_editorial": "Contactar al equipo editorial"
   },
   "contacto": {

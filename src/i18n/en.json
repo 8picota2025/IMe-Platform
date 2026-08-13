@@ -5,7 +5,7 @@
     "catalogo": "Catalog",
     "servicios": "Services",
     "financiacion": "Financing",
-    "conocimiento": "Knowledge",
+    "conocimiento": "Blog",
     "contacto": "Contact",
     "cta_cotizar": "Request Quote",
     "abrir_menu": "Open navigation menu",
@@ -118,7 +118,7 @@
     "moneda_cop": "COP"
   },
   "conocimiento": {
-    "titulo": "Knowledge Center",
+    "titulo": "Blog",
     "proximamente": "Coming soon",
     "descripcion": "Technical guides, articles and resources about biomedical equipment for healthcare institutions.",
     "cta_contacto": "Have a question now? Contact us",
@@ -126,10 +126,10 @@
     "actualizado": "Updated on",
     "publicado": "Published on",
     "leer_mas": "Read article",
-    "volver": "Back to Knowledge Center",
+    "volver": "Back to Blog",
     "vacio": "No articles published yet. Check back soon.",
     "ninguno": "No articles yet",
-    "volver_listado": "Back to knowledge",
+    "volver_listado": "Back to Blog",
     "contactar_editorial": "Contact editorial team"
   },
   "contacto": {
