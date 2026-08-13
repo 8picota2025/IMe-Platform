@@ -14,9 +14,6 @@ const { locale, productName, productSlug, familySlug, pdfUrl, modalId } = Astro.
 const isEn = locale === 'en';
 const privacyHref = isEn ? '/en/legal/privacy/' : '/es/legal/privacidad/';
 const habeasHref = isEn ? '/en/legal/data-authorization/' : '/es/legal/habeas-data/';
-const turnstileSiteKey = (
-  (import.meta.env['PUBLIC_TURNSTILE_SITE_KEY'] as string | undefined) ?? ''
-).trim();
 ---
 
 <dialog
@@ -28,7 +25,6 @@ const turnstileSiteKey = (
   data-product-slug={productSlug}
   data-family-slug={familySlug}
   data-locale={locale}
-  data-turnstile-site-key={turnstileSiteKey}
   aria-labelledby={`${modalId}-title`}
 >
   <form class="pdf-gate__form" data-pdf-gate-form novalidate>
@@ -100,7 +96,10 @@ const turnstileSiteKey = (
         >.
       </span>
     </label>
-    <div class="pdf-gate__turnstile" data-pdf-turnstile></div>
+    <label class="pdf-gate__honeypot" aria-hidden="true">
+      Website
+      <input name="website" type="text" tabindex="-1" autocomplete="off" />
+    </label>
     <p class="pdf-gate__status" data-pdf-status role="status" aria-live="polite"></p>
     <button type="submit" class="btn btn-primary pdf-gate__submit" data-pdf-submit>
       {isEn ? 'Register and download PDF' : 'Registrar y descargar PDF'}
@@ -231,8 +230,12 @@ const turnstileSiteKey = (
     color: var(--t900);
     text-decoration: underline;
   }
-  .pdf-gate__turnstile:empty {
-    display: none;
+  .pdf-gate__honeypot {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
   }
   .pdf-gate__status {
     min-height: 1.25rem;
@@ -258,32 +261,10 @@ const turnstileSiteKey = (
   } from '../lib/commercial-attribution';
   import { getSupabaseClient } from '../lib/supabase';
 
-  interface TurnstileApi {
-    render: (container: HTMLElement, options: Record<string, unknown>) => string;
-    reset: (id?: string) => void;
-  }
-
   interface LeadResponse {
     ok?: boolean;
     leadId?: string;
     error?: string;
-  }
-
-  let turnstileLoaded: Promise<void> | null = null;
-
-  function loadTurnstile(): Promise<void> {
-    if ((window as Window & { turnstile?: TurnstileApi }).turnstile) return Promise.resolve();
-    if (turnstileLoaded) return turnstileLoaded;
-    turnstileLoaded = new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
-      script.async = true;
-      script.defer = true;
-      script.onload = () => resolve();
-      script.onerror = () => reject(new Error('turnstile load error'));
-      document.head.appendChild(script);
-    });
-    return turnstileLoaded;
   }
 
   function idempotencyKey(): string {
@@ -298,9 +279,6 @@ const turnstileSiteKey = (
     const status = gate.querySelector<HTMLElement>('[data-pdf-status]');
     const submit = gate.querySelector<HTMLButtonElement>('[data-pdf-submit]');
     const close = gate.querySelector<HTMLButtonElement>('[data-pdf-close]');
-    const turnstileContainer = gate.querySelector<HTMLElement>('[data-pdf-turnstile]');
-    let turnstileToken = '';
-    let turnstileWidget = '';
 
     const setStatus = (message: string, ok = false) => {
       if (!status) return;
@@ -308,34 +286,7 @@ const turnstileSiteKey = (
       status.className = `pdf-gate__status${ok ? ' is-ok' : ''}`;
     };
 
-    const ensureTurnstile = async (): Promise<string | undefined> => {
-      const sitekey = gate.dataset.turnstileSiteKey?.trim();
-      if (!sitekey || !turnstileContainer) return undefined;
-      await loadTurnstile();
-      const api = (window as Window & { turnstile?: TurnstileApi }).turnstile;
-      if (!api) return undefined;
-      if (!turnstileWidget) {
-        turnstileWidget = api.render(turnstileContainer, {
-          sitekey,
-          size: 'flexible',
-          callback: (token: string) => {
-            turnstileToken = token;
-          },
-          'expired-callback': () => {
-            turnstileToken = '';
-          },
-          'error-callback': () => {
-            turnstileToken = '';
-          },
-        });
-      }
-      return turnstileToken || undefined;
-    };
-
     close?.addEventListener('click', () => gate.close());
-    gate.addEventListener('pdf-gate-open', () => {
-      void ensureTurnstile().catch(() => undefined);
-    });
     gate.addEventListener('click', event => {
       if (event.target === gate) gate.close();
     });
@@ -366,17 +317,6 @@ const turnstileSiteKey = (
         );
         return;
       }
-      const sitekey = gate.dataset.turnstileSiteKey?.trim();
-      const turnstile = await ensureTurnstile().catch(() => undefined);
-      if (sitekey && !turnstile) {
-        setStatus(
-          locale === 'en'
-            ? 'Complete the security verification before downloading.'
-            : 'Completa la verificación de seguridad antes de descargar.'
-        );
-        return;
-      }
-
       const attribution = captureCommercialAttribution('pdf_descarga');
       const originalText = submit?.textContent ?? '';
       if (submit) {
@@ -403,7 +343,7 @@ const turnstileSiteKey = (
             horizonte: 'exploracion',
             necesidad: `${locale === 'en' ? 'Technical PDF download requested for' : 'Solicitud de descarga de ficha técnica de'} ${gate.dataset.productName ?? ''}.`,
             consentimiento: data.get('consentimiento') === '1',
-            turnstileToken: turnstile,
+            website: String(data.get('website') ?? ''),
             landing_path: window.location.pathname,
             ...attribution,
           },
@@ -423,10 +363,6 @@ const turnstileSiteKey = (
         if (submit) {
           submit.disabled = false;
           submit.textContent = originalText;
-        }
-        if (turnstileWidget) {
-          (window as Window & { turnstile?: TurnstileApi }).turnstile?.reset(turnstileWidget);
-          turnstileToken = '';
         }
         return;
       }
@@ -458,7 +394,6 @@ const turnstileSiteKey = (
         if (!gate) return;
         if (!gate.open) gate.showModal();
         document.body.style.overflow = 'hidden';
-        gate.dispatchEvent(new Event('pdf-gate-open'));
         gate.querySelector<HTMLInputElement>('input[name="nombre"]')?.focus();
       });
     });

@@ -131,19 +131,26 @@ Deno.serve(
       );
     }
 
+    const campaign = cleanText(body.campaign, 80);
+    const horizonte = cleanText(body.horizonte, 24) as HorizonteCompra | null;
+    if (!campaign || !CAMPAIGNS.has(campaign)) return badRequest('campaign invalida', origin);
+    if (!horizonte || !HORIZONTES.has(horizonte)) return badRequest('horizonte invalido', origin);
+
+    // Descargas de fichas ya tienen formulario obligatorio, honeypot y rate-limit
+    // por IP. Turnstile puede entrar en loop 600* en navegadores/redes legítimas;
+    // no bloquear este recurso documental por un challenge no resuelto.
     const turnstile = await verifyTurnstile(body.turnstileToken, ip);
-    if (!turnstile.success && turnstile.reason !== 'not_configured') {
+    if (
+      campaign !== 'pdf_descarga' &&
+      !turnstile.success &&
+      turnstile.reason !== 'not_configured'
+    ) {
       return jsonResponse(
         { ok: false, error: 'Verificacion de seguridad requerida.' },
         origin,
         400
       );
     }
-
-    const campaign = cleanText(body.campaign, 80);
-    const horizonte = cleanText(body.horizonte, 24) as HorizonteCompra | null;
-    if (!campaign || !CAMPAIGNS.has(campaign)) return badRequest('campaign invalida', origin);
-    if (!horizonte || !HORIZONTES.has(horizonte)) return badRequest('horizonte invalido', origin);
 
     const lead: CommercialLeadInput = {
       nombre: cleanText(body.nombre, 120) ?? '',
@@ -200,7 +207,13 @@ Deno.serve(
       utm_campaign: cleanText(body.utm_campaign, 160),
       utm_content: cleanText(body.utm_content, 160),
       utm_term: cleanText(body.utm_term, 160),
-      metadata: { turnstile: turnstile.success ? 'verified' : 'not_configured' },
+      metadata: {
+        turnstile: turnstile.success
+          ? 'verified'
+          : campaign === 'pdf_descarga'
+            ? 'optional_pdf_descarga'
+            : 'not_configured',
+      },
     };
 
     const inserted = await supabase
