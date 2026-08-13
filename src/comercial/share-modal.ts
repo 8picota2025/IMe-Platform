@@ -14,7 +14,14 @@ import {
   renderMessageTemplate,
   type ComercialTemplateVars,
 } from '../lib/comercial-cms';
-import { supabase, state, escapeHtml, toast, callEdgeFunction } from './shared';
+import {
+  supabase,
+  state,
+  escapeHtml,
+  toast,
+  callEdgeFunction,
+  trackCommercialUsage,
+} from './shared';
 import type { ProductoComercial } from './catalog-view';
 
 type Canal = 'email' | 'whatsapp';
@@ -191,6 +198,14 @@ export function openShareModal(
     return;
   }
   closeModal();
+  trackCommercialUsage(
+    'share_modal_open',
+    {
+      products_count: productos.length,
+      ...(productos.length === 1 ? { product_slug: productos[0]!.slug } : {}),
+    },
+    'catalogo'
+  );
   previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
 
   const initialCanal: Canal = prefill?.channel === 'whatsapp' ? 'whatsapp' : 'email';
@@ -368,12 +383,19 @@ export function openShareModal(
       }),
     };
 
+    trackCommercialUsage(
+      'share_submitted',
+      { channel: canal, products_count: productos.length },
+      'catalogo'
+    );
+
     const { data: result, error } = await callEdgeFunction<ShareCreateResponse>('comercial-share', {
       method: 'POST',
       body: payload,
     });
 
     if (error) {
+      trackCommercialUsage('share_failed', { channel: canal, status: 'request_error' }, 'catalogo');
       if (submitBtn) {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Enviar';
@@ -389,6 +411,7 @@ export function openShareModal(
     // `comercial-share` responde 200 incluso cuando el envío falló — el
     // resultado real viene en `status` (nunca lanza HTTP de error para esto).
     if (result?.status === 'failed') {
+      trackCommercialUsage('share_failed', { channel: canal, status: 'failed' }, 'catalogo');
       if (submitBtn) {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Enviar';
@@ -423,6 +446,16 @@ export function openShareModal(
             : '';
       toast(`Catálogo enviado por email.${crmNote}`, 'success');
     }
+    trackCommercialUsage(
+      'share_succeeded',
+      {
+        channel: canal,
+        status: result?.status ?? 'sent',
+        crm_sync_status: result?.crmSyncStatus ?? 'unknown',
+        products_count: productos.length,
+      },
+      'catalogo'
+    );
     closeModal();
   });
 

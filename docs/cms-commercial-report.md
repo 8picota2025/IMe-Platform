@@ -15,6 +15,7 @@ Astro 6 SSG + SPA admin, Supabase (Postgres/Auth/Edge Functions), Resend, WhatsA
 - Capa CRM: `_shared/twenty-crm.ts`
 - Tablas: `commercial_shares`, `commercial_share_products`, `commercial_message_templates`, `commercial_audit_log`
 - PWA: `manifest-comercial.json` + `comercial-sw.js` + banner instalar
+- Telemetría de uso: `commercial_usage_events` + Edge Function `comercial-usage`; agregados en Dashboard/Marketing y reporte semanal.
 
 ## Funcionalidades completadas
 

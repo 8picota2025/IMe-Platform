@@ -15,6 +15,7 @@ import {
   replaceHashQuery,
   hashParams,
   skeletonCards,
+  trackCommercialUsage,
 } from './shared';
 
 export interface FamiliaRow {
@@ -439,6 +440,21 @@ export function bindCatalogoView(container: HTMLElement, bindings: CatalogBindin
     const root = app.querySelector('[data-catalogo-root]');
     if (!root) return;
     const filters = currentFiltersFromDom(root);
+    const resultCount = filterProductos(filters).length;
+    const activeFilters = Object.entries(filters).filter(([, value]) => value.trim());
+    if (filters.q.trim()) {
+      trackCommercialUsage(
+        'search',
+        { query_length: filters.q.trim().length, result_count: resultCount },
+        'catalogo'
+      );
+    } else if (activeFilters.length > 0) {
+      trackCommercialUsage(
+        'filter',
+        { filter: activeFilters.map(([name]) => name).join(','), result_count: resultCount },
+        'catalogo'
+      );
+    }
     replaceHashQuery(filtersToParams(filters));
     const gridSlot = root.querySelector('[data-grid]');
     if (gridSlot) gridSlot.innerHTML = gridHtml(filters);
@@ -550,6 +566,10 @@ export function bindCatalogoView(container: HTMLElement, bindings: CatalogBindin
     if (!id) return;
     if (target.checked) selection.add(id);
     else selection.delete(id);
+    const producto = cache?.productos.find(p => p.id === id);
+    if (target.checked && producto) {
+      trackCommercialUsage('product_selected', { product_slug: producto.slug }, 'catalogo');
+    }
     refreshSelectionUi();
   };
 

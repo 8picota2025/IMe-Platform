@@ -206,6 +206,11 @@ Deno.serve(async req => {
       pedPendVal,
       pedRech,
       cotEnviadas,
+      usageCurr,
+      usagePrev,
+      sharesCurr,
+      sharesPrev,
+      shareProductsCurr,
     ] = await Promise.all([
       supabase
         .from('analytics_eventos')
@@ -254,6 +259,36 @@ Deno.serve(async req => {
         .eq('estado', 'enviada')
         .gte('oferta_enviada_at', week.startIso)
         .lte('oferta_enviada_at', week.endIso),
+      supabase
+        .from('commercial_usage_events')
+        .select('event_name, user_id, session_id, view, metadata, created_at')
+        .gte('created_at', week.startIso)
+        .lte('created_at', week.endIso)
+        .limit(50000),
+      supabase
+        .from('commercial_usage_events')
+        .select('event_name, user_id, session_id, view, metadata, created_at')
+        .gte('created_at', prevStartIso)
+        .lte('created_at', prevEndIso)
+        .limit(50000),
+      supabase
+        .from('commercial_shares')
+        .select('user_id, channel, status, crm_sync_status, created_at')
+        .gte('created_at', week.startIso)
+        .lte('created_at', week.endIso)
+        .limit(10000),
+      supabase
+        .from('commercial_shares')
+        .select('user_id, channel, status, crm_sync_status, created_at')
+        .gte('created_at', prevStartIso)
+        .lte('created_at', prevEndIso)
+        .limit(10000),
+      supabase
+        .from('commercial_share_products')
+        .select('product_name_snapshot, product_slug_snapshot, commercial_shares!inner(created_at)')
+        .gte('commercial_shares.created_at', week.startIso)
+        .lte('commercial_shares.created_at', week.endIso)
+        .limit(20000),
     ]);
 
     for (const r of [analyticsCurr, analyticsPrev, cotCurr, cotPrev, pedWide]) {
@@ -284,11 +319,40 @@ Deno.serve(async req => {
       pago_validado_at?: string | null;
       proveedor_pago?: string | null;
     };
+    type UsageRow = {
+      event_name: string;
+      user_id: string;
+      session_id: string;
+      view?: string | null;
+      metadata?: Record<string, unknown> | null;
+      created_at: string;
+    };
+    type ShareUsageRow = {
+      user_id: string;
+      channel: string;
+      status: string;
+      crm_sync_status: string;
+      created_at: string;
+    };
+    type ShareProductUsageRow = {
+      product_name_snapshot?: string | null;
+      product_slug_snapshot?: string | null;
+    };
 
     const aCurr = (analyticsCurr.data ?? []) as ARow[];
     const aPrev = (analyticsPrev.data ?? []) as ARow[];
     const cCurr = (cotCurr.data ?? []) as CRow[];
     const cPrev = (cotPrev.data ?? []) as CRow[];
+    // Telemetría comercial es complementaria: si la migración aún no se ha
+    // aplicado en un entorno, el resto del reporte sigue enviándose y marca
+    // este bloque como pendiente mediante ceros.
+    const usageRows = (usageCurr.error ? [] : (usageCurr.data ?? [])) as UsageRow[];
+    const usageRowsPrev = (usagePrev.error ? [] : (usagePrev.data ?? [])) as UsageRow[];
+    const shareRows = (sharesCurr.error ? [] : (sharesCurr.data ?? [])) as ShareUsageRow[];
+    const shareRowsPrev = (sharesPrev.error ? [] : (sharesPrev.data ?? [])) as ShareUsageRow[];
+    const shareProductRows = (
+      shareProductsCurr.error ? [] : (shareProductsCurr.data ?? [])
+    ) as ShareProductUsageRow[];
 
     const inWindow = (iso: string, start: string, end: string) => iso >= start && iso <= end;
     const validatedAt = (p: PRow): string | null => {
@@ -317,6 +381,39 @@ Deno.serve(async req => {
     const productViews = aCurr.filter(e => e.event_name === 'product_view').length;
     const addToCart = aCurr.filter(e => e.event_name === 'add_to_cart').length;
     const beginCheckout = aCurr.filter(e => e.event_name === 'begin_checkout').length;
+
+    const usageEventCount = (rows: UsageRow[], event: string) =>
+      rows.filter(row => row.event_name === event).length;
+    const usageViews = usageRows.filter(row => row.event_name === 'view');
+    const usageUsers = new Set(usageRows.map(row => row.user_id).filter(Boolean));
+    const usageSessions = new Set(usageRows.map(row => row.session_id).filter(Boolean));
+    const usageUsersPrev = new Set(usageRowsPrev.map(row => row.user_id).filter(Boolean));
+    const usageSessionsPrev = new Set(usageRowsPrev.map(row => row.session_id).filter(Boolean));
+    const usageLogins = usageEventCount(usageRows, 'login');
+    const usageLoginsPrev = usageEventCount(usageRowsPrev, 'login');
+    const usageSearches = usageEventCount(usageRows, 'search');
+    const usageFilters = usageEventCount(usageRows, 'filter');
+    const usageShareOpens = usageEventCount(usageRows, 'share_modal_open');
+    const usageSubmitted = usageEventCount(usageRows, 'share_submitted');
+    const usageSucceeded = usageEventCount(usageRows, 'share_succeeded');
+    const usageFailed = usageEventCount(usageRows, 'share_failed');
+    const usageViewsCatalog = usageViews.filter(row => row.view === 'catalogo').length;
+    const usageViewsEnvios = usageViews.filter(row => row.view === 'envios').length;
+    const shareWhatsApp = shareRows.filter(row => row.channel === 'whatsapp').length;
+    const shareEmail = shareRows.filter(row => row.channel === 'email').length;
+    const shareCrmSynced = shareRows.filter(row => row.crm_sync_status === 'synced').length;
+    const shareUsers = new Set(shareRows.map(row => row.user_id).filter(Boolean));
+    const portalUsers = new Set([...usageUsers, ...shareUsers]);
+    const portalUsersPrev = new Set(usageUsersPrev);
+
+    const sharedProductCounts = new Map<string, number>();
+    for (const row of shareProductRows) {
+      const label = row.product_name_snapshot || row.product_slug_snapshot || 'sin producto';
+      sharedProductCounts.set(label, (sharedProductCounts.get(label) ?? 0) + 1);
+    }
+    const topSharedProducts = [...sharedProductCounts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8);
 
     const cotCount = cCurr.length;
     const cotCountPrev = cPrev.length;
@@ -474,6 +571,38 @@ Deno.serve(async req => {
       },
     });
 
+    const commercialUsageChart = quickChartUrl({
+      type: 'bar',
+      data: {
+        labels: buckets.map(b => b.label),
+        datasets: [
+          {
+            label: 'Acciones portal comercial',
+            data: buckets.map(
+              b =>
+                usageRows.filter(row => bogotaDateStr(new Date(row.created_at)) === b.date).length
+            ),
+            backgroundColor: '#0b7285',
+          },
+          {
+            label: 'Envíos de catálogo',
+            data: buckets.map(
+              b =>
+                shareRows.filter(row => bogotaDateStr(new Date(row.created_at)) === b.date).length
+            ),
+            backgroundColor: '#f59e0b',
+          },
+        ],
+      },
+      options: {
+        plugins: {
+          title: { display: true, text: 'Uso diario del portal comercial' },
+          legend: { position: 'bottom' },
+        },
+        scales: { y: { beginAtZero: true } },
+      },
+    });
+
     const convSesCot = sessions.size ? (cotCount / sessions.size) * 100 : 0;
     const convCotPed = cotCount ? (pedCount / cotCount) * 100 : 0;
     const ticketPromedio = pedCount ? pedImporte / pedCount : 0;
@@ -533,6 +662,20 @@ Deno.serve(async req => {
       <h2 style="font-size:16px;margin:24px 8px 8px">Ingresos y cotizaciones</h2>
       <img src="${revenueChart}" alt="Grafica ingresos" width="640" style="max-width:100%;height:auto;border:1px solid #e4e7ec;border-radius:8px" />
 
+      <h2 style="font-size:16px;margin:24px 8px 8px">Uso portal comercial</h2>
+      <img src="${commercialUsageChart}" alt="Grafica de uso diario del portal comercial" width="640" style="max-width:100%;height:auto;border:1px solid #e4e7ec;border-radius:8px" />
+      <table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;font-size:14px;margin-top:10px">
+        <tr><td style="padding:8px;border-bottom:1px solid #eee">Comerciales activos</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right">${portalUsers.size} <span style="color:#667085">(${pct(deltaPct(portalUsers.size, portalUsersPrev.size))})</span></td></tr>
+        <tr><td style="padding:8px;border-bottom:1px solid #eee">Sesiones del portal</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right">${usageSessions.size} <span style="color:#667085">(${pct(deltaPct(usageSessions.size, usageSessionsPrev.size))})</span></td></tr>
+        <tr><td style="padding:8px;border-bottom:1px solid #eee">Inicios de sesión</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right">${usageLogins} <span style="color:#667085">(${pct(deltaPct(usageLogins, usageLoginsPrev))})</span></td></tr>
+        <tr><td style="padding:8px;border-bottom:1px solid #eee">Vistas catálogo / envíos</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right">${usageViewsCatalog} / ${usageViewsEnvios}</td></tr>
+        <tr><td style="padding:8px;border-bottom:1px solid #eee">Búsquedas / filtros</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right">${usageSearches} / ${usageFilters}</td></tr>
+        <tr><td style="padding:8px;border-bottom:1px solid #eee">Envíos de catálogo</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right">${shareRows.length} <span style="color:#667085">(${pct(deltaPct(shareRows.length, shareRowsPrev.length))})</span></td></tr>
+        <tr><td style="padding:8px;border-bottom:1px solid #eee">Envíos WhatsApp / email</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right">${shareWhatsApp} / ${shareEmail}</td></tr>
+        <tr><td style="padding:8px;border-bottom:1px solid #eee">Envíos exitosos / fallidos</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right">${usageSucceeded} / ${usageFailed}</td></tr>
+        <tr><td style="padding:8px">CRM sincronizado</td><td style="padding:8px;text-align:right">${shareCrmSynced}</td></tr>
+      </table>
+
       <h2 style="font-size:16px;margin:24px 8px 8px">Otros indicadores</h2>
       <table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;font-size:14px">
         <tr><td style="padding:8px;border-bottom:1px solid #eee">WhatsApp clicks</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right">${whatsapp}</td></tr>
@@ -558,6 +701,9 @@ Deno.serve(async req => {
         </tr>
       </table>
 
+      <h3 style="font-size:14px;margin:20px 8px 8px">Productos más compartidos desde portal</h3>
+      <table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;font-size:13px;border:1px solid #e4e7ec">${topSharedProducts.length ? topSharedProducts.map(([name, count], i) => `<tr><td style="padding:6px 8px;border-bottom:1px solid #eee">${i + 1}. ${escapeHtml(name)}</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right">${count}</td></tr>`).join('') : '<tr><td style="padding:8px;color:#98a2b3">Sin envíos de catálogo esta semana</td></tr>'}</table>
+
       <p style="font-size:12px;color:#98a2b3;margin:24px 8px 0">
         Generado automaticamente por <code>${FN_NAME}</code>. Semana ant.: ${escapeHtml(prevStartYmd)} → ${escapeHtml(prevEndYmd)}.
         Pedidos validados = estado pagado / pago_validado_at en la ventana. Cotizaciones = solicitudes creadas en la ventana.
@@ -579,6 +725,25 @@ Deno.serve(async req => {
       pendientes_validacion: pedPendVal.count ?? 0,
       rechazados_semana: pedRech.count ?? 0,
       cotizaciones_enviadas: cotEnviadas.count ?? 0,
+      portal_comercial: {
+        disponible: !usageCurr.error && !sharesCurr.error,
+        comerciales_activos: portalUsers.size,
+        sesiones: usageSessions.size,
+        inicios_sesion: usageLogins,
+        vistas_catalogo: usageViewsCatalog,
+        vistas_envios: usageViewsEnvios,
+        busquedas: usageSearches,
+        filtros: usageFilters,
+        envios_catalogo: shareRows.length,
+        envios_catalogo_prev: shareRowsPrev.length,
+        modal_envio: usageShareOpens,
+        envios_iniciados: usageSubmitted,
+        envios_exitosos: usageSucceeded,
+        envios_fallidos: usageFailed,
+        whatsapp: shareWhatsApp,
+        email: shareEmail,
+        crm_sincronizado: shareCrmSynced,
+      },
     };
 
     if (body.dry_run) {

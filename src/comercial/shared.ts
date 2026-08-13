@@ -16,6 +16,71 @@ export const PUBLIC_SUPABASE_URL =
 export const PUBLIC_SUPABASE_ANON_KEY =
   (import.meta.env['PUBLIC_SUPABASE_ANON_KEY'] as string | undefined) ?? '';
 
+const COMMERCIAL_USAGE_SESSION_KEY = 'ime_comercial_usage_session_id';
+export type CommercialUsageEvent =
+  | 'login'
+  | 'logout'
+  | 'idle_logout'
+  | 'view'
+  | 'search'
+  | 'filter'
+  | 'product_selected'
+  | 'share_modal_open'
+  | 'share_submitted'
+  | 'share_succeeded'
+  | 'share_failed'
+  | 'crm_retry'
+  | 'pwa_install'
+  | 'pwa_dismiss'
+  | 'error';
+
+type CommercialUsageValue = string | number | boolean;
+
+function commercialUsageSessionId(): string {
+  try {
+    const existing = sessionStorage.getItem(COMMERCIAL_USAGE_SESSION_KEY);
+    if (existing) return existing;
+    const created =
+      typeof crypto.randomUUID === 'function'
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    sessionStorage.setItem(COMMERCIAL_USAGE_SESSION_KEY, created);
+    return created;
+  } catch {
+    return `fallback-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  }
+}
+
+/** Envía un evento de uso autenticado, sin PII y sin bloquear la interfaz. */
+export function trackCommercialUsage(
+  eventName: CommercialUsageEvent,
+  metadata: Record<string, CommercialUsageValue> = {},
+  view?: ComercialView
+): void {
+  if (!supabase || !PUBLIC_SUPABASE_URL || !PUBLIC_SUPABASE_ANON_KEY) return;
+  void (async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) return;
+    await fetch(`${PUBLIC_SUPABASE_URL}/functions/v1/comercial-usage`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        apikey: PUBLIC_SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        event_name: eventName,
+        session_id: commercialUsageSessionId(),
+        view,
+        metadata,
+      }),
+      keepalive: true,
+    }).catch(() => undefined);
+  })();
+}
+
 export type ComercialView = 'catalogo' | 'envios' | 'plantillas' | 'integraciones' | 'usuarios';
 
 export interface ComercialState {

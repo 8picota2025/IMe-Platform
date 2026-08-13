@@ -62,6 +62,101 @@ type View =
   | 'asesor';
 
 type Row = Record<string, unknown>;
+
+interface CommercialUsageSummary {
+  available: boolean;
+  events: number;
+  activeUsers: number;
+  sessions: number;
+  logins: number;
+  catalogViews: number;
+  enviosViews: number;
+  searches: number;
+  filters: number;
+  shareOpens: number;
+  shareSubmitted: number;
+  shareSucceeded: number;
+  shareFailed: number;
+  shares: number;
+  whatsapp: number;
+  email: number;
+  crmSynced: number;
+  topViews: Array<[string, number]>;
+}
+
+function emptyCommercialUsageSummary(available = false): CommercialUsageSummary {
+  return {
+    available,
+    events: 0,
+    activeUsers: 0,
+    sessions: 0,
+    logins: 0,
+    catalogViews: 0,
+    enviosViews: 0,
+    searches: 0,
+    filters: 0,
+    shareOpens: 0,
+    shareSubmitted: 0,
+    shareSucceeded: 0,
+    shareFailed: 0,
+    shares: 0,
+    whatsapp: 0,
+    email: 0,
+    crmSynced: 0,
+    topViews: [],
+  };
+}
+
+async function commercialUsageSummary(days = 30): Promise<CommercialUsageSummary> {
+  if (!supabase) return emptyCommercialUsageSummary();
+  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+  const [usageResult, sharesResult] = await Promise.all([
+    supabase
+      .from('commercial_usage_events')
+      .select('event_name,user_id,session_id,view,created_at')
+      .gte('created_at', since)
+      .limit(10000),
+    supabase
+      .from('commercial_shares')
+      .select('user_id,channel,crm_sync_status,created_at')
+      .gte('created_at', since)
+      .limit(5000),
+  ]);
+  if (usageResult.error) return emptyCommercialUsageSummary(false);
+
+  const usage = (usageResult.data ?? []) as Row[];
+  const shares = sharesResult.error ? [] : ((sharesResult.data ?? []) as Row[]);
+  const summary = emptyCommercialUsageSummary(true);
+  summary.events = usage.length;
+  summary.activeUsers = new Set(usage.map(row => text(row.user_id)).filter(Boolean)).size;
+  summary.sessions = new Set(usage.map(row => text(row.session_id)).filter(Boolean)).size;
+  summary.logins = usage.filter(row => text(row.event_name) === 'login').length;
+  summary.catalogViews = usage.filter(
+    row => text(row.event_name) === 'view' && text(row.view) === 'catalogo'
+  ).length;
+  summary.enviosViews = usage.filter(
+    row => text(row.event_name) === 'view' && text(row.view) === 'envios'
+  ).length;
+  summary.searches = usage.filter(row => text(row.event_name) === 'search').length;
+  summary.filters = usage.filter(row => text(row.event_name) === 'filter').length;
+  summary.shareOpens = usage.filter(row => text(row.event_name) === 'share_modal_open').length;
+  summary.shareSubmitted = usage.filter(row => text(row.event_name) === 'share_submitted').length;
+  summary.shareSucceeded = usage.filter(row => text(row.event_name) === 'share_succeeded').length;
+  summary.shareFailed = usage.filter(row => text(row.event_name) === 'share_failed').length;
+  summary.shares = shares.length;
+  summary.whatsapp = shares.filter(row => text(row.channel) === 'whatsapp').length;
+  summary.email = shares.filter(row => text(row.channel) === 'email').length;
+  summary.crmSynced = shares.filter(row => text(row.crm_sync_status) === 'synced').length;
+  const viewCounts = new Map<string, number>();
+  for (const row of usage.filter(item => text(item.event_name) === 'view')) {
+    const view = text(row.view) || 'sin vista';
+    viewCounts.set(view, (viewCounts.get(view) ?? 0) + 1);
+  }
+  summary.topViews = Array.from(viewCounts.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 8);
+  return summary;
+}
 type ProductoDraft = {
   id: string | undefined;
   slug: string;
@@ -1944,6 +2039,7 @@ async function dashboardView(): Promise<string> {
     ),
   ]);
   const withoutProvider = await productosDropshipSinProveedor();
+  const commercialUsage = await commercialUsageSummary(30);
   const productosSinTipo = productosRows.filter(row => !text(row.tipo_id)).length;
   const productosNoDisponibles = Math.max(0, productos - productosDisponibles);
   const productosSinImagen = productosRows.filter(row => !text(row.imagen_principal)).length;
@@ -1984,6 +2080,27 @@ async function dashboardView(): Promise<string> {
       ${metric('Sin specs', productosSinSpecs)}
       ${metric('Dropship sin proveedor', withoutProvider)}
       ${metric('Fulfillments con error', fulfillmentsError)}
+    </section>
+    <section class="admin-panel">
+      <div class="admin-panel__head">
+        <h2>Uso portal comercial · últimos 30 días</h2>
+        ${commercialUsage.available ? '' : '<span class="admin-help">Migración pendiente</span>'}
+      </div>
+      ${
+        commercialUsage.available
+          ? `<div class="admin-grid" style="padding:16px">
+              ${metric('Comerciales activos', commercialUsage.activeUsers)}
+              ${metric('Sesiones portal', commercialUsage.sessions)}
+              ${metric('Vistas catálogo', commercialUsage.catalogViews)}
+              ${metric('Búsquedas', commercialUsage.searches)}
+              ${metric('Envíos catálogo', commercialUsage.shares)}
+              ${metric('Envíos exitosos', commercialUsage.shareSucceeded)}
+              ${marketingMetric('WhatsApp / email', `${commercialUsage.whatsapp} / ${commercialUsage.email}`)}
+              ${metric('CRM sincronizado', commercialUsage.crmSynced)}
+            </div>
+            <p class="admin-help" style="padding:0 16px 16px;margin:0">Incluye actividad autenticada del equipo, búsquedas, filtros y envíos desde <code>/comercial/</code>. No almacena datos del destinatario.</p>`
+          : '<p class="admin-help" style="padding:16px">Aplica la migración <code>commercial_usage_report</code> para activar este bloque.</p>'
+      }
     </section>
     <section class="admin-panel">
       <div class="admin-panel__head"><h2>Salud operativa</h2></div>
@@ -4434,6 +4551,7 @@ async function marketingView(): Promise<string> {
   const topCtas = Array.from(ctas.entries())
     .sort((a, b) => b[1] - a[1])
     .slice(0, 12);
+  const commercialUsage = await commercialUsageSummary(30);
 
   return `
     <section class="admin-grid">
@@ -4443,6 +4561,33 @@ async function marketingView(): Promise<string> {
       ${marketingMetric('Scroll medio', `${avgScroll.toFixed(0)}%`)}
       ${marketingMetric('Conversiones', conversions.length.toLocaleString('es-CO'))}
       ${marketingMetric('Conv. por sesion', `${conversionRate.toFixed(1)}%`)}
+    </section>
+    <section class="admin-panel">
+      <div class="admin-panel__head">
+        <h2>Reporte de uso · /comercial/ · 30 días</h2>
+        ${commercialUsage.available ? '' : '<span class="admin-help">Migración pendiente</span>'}
+      </div>
+      ${
+        commercialUsage.available
+          ? `<div class="admin-grid" style="padding:16px">
+              ${marketingMetric('Comerciales activos', commercialUsage.activeUsers.toLocaleString('es-CO'))}
+              ${marketingMetric('Sesiones', commercialUsage.sessions.toLocaleString('es-CO'))}
+              ${marketingMetric('Inicios de sesión', commercialUsage.logins.toLocaleString('es-CO'))}
+              ${marketingMetric('Vistas catálogo', commercialUsage.catalogViews.toLocaleString('es-CO'))}
+              ${marketingMetric('Vistas envíos', commercialUsage.enviosViews.toLocaleString('es-CO'))}
+              ${marketingMetric('Búsquedas / filtros', `${commercialUsage.searches} / ${commercialUsage.filters}`)}
+              ${marketingMetric('Modal envío', commercialUsage.shareOpens.toLocaleString('es-CO'))}
+              ${marketingMetric('Envíos OK / error', `${commercialUsage.shareSucceeded} / ${commercialUsage.shareFailed}`)}
+            </div>
+            <div style="padding:0 16px 16px">
+              <h3>Vistas del portal</h3>
+              ${table(
+                ['Vista', 'Aperturas'],
+                commercialUsage.topViews.map(([view, total]) => [escapeHtml(view), String(total)])
+              )}
+            </div>`
+          : '<p class="admin-help" style="padding:16px">Aplica la migración <code>commercial_usage_report</code> para activar el reporte. El envío semanal lo incorpora automáticamente cuando la tabla esté disponible.</p>'
+      }
     </section>
     <section class="admin-panel admin-analytics-status">
       <div class="admin-panel__head"><h2>Stack de medicion</h2></div>

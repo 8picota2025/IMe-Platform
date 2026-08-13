@@ -16,6 +16,7 @@ import {
   toast,
   formatDate,
   callEdgeFunction,
+  trackCommercialUsage,
   type ComercialView,
 } from './shared';
 import {
@@ -42,6 +43,7 @@ const app = appElement;
 
 let idleWatcher: IdleWatcher | null = null;
 let unbindCurrentView: (() => void) | null = null;
+let lastTrackedView: ComercialView | null = null;
 
 function parseView(hash: string): ComercialView {
   const raw = hash.replace(/^#\/?/, '').split('?')[0];
@@ -123,12 +125,14 @@ function setupPwaInstallBanner(): void {
   });
 
   banner.querySelector('[data-pwa-install]')?.addEventListener('click', () => {
+    trackCommercialUsage('pwa_install', {}, state.view);
     void deferredPrompt?.prompt().then(() => {
       banner.hidden = true;
     });
   });
 
   banner.querySelector('[data-pwa-dismiss]')?.addEventListener('click', () => {
+    trackCommercialUsage('pwa_dismiss', {}, state.view);
     banner.hidden = true;
     sessionStorage.setItem('comercial_pwa_dismissed', '1');
   });
@@ -201,6 +205,7 @@ async function bootAfterLogin(): Promise<void> {
   state.rol = rol;
   state.nombre = perfilRow?.nombre ?? '';
   state.telefono = perfilRow?.telefono ?? '';
+  trackCommercialUsage('login', { source: 'session' }, state.view);
   void updateLastLogin(session.user.id);
 
   if (!idleWatcher) {
@@ -229,6 +234,7 @@ async function updateLastLogin(userId: string): Promise<void> {
 async function handleIdleLogout(): Promise<void> {
   idleWatcher?.stop();
   idleWatcher = null;
+  trackCommercialUsage('idle_logout', {}, state.view);
   await signOut();
   resetSessionState();
   clearSelection();
@@ -252,6 +258,10 @@ async function render(): Promise<void> {
 
   const view = await routeView();
   app.innerHTML = shellHtml(view.title, view.body);
+  if (lastTrackedView !== state.view) {
+    lastTrackedView = state.view;
+    trackCommercialUsage('view', {}, state.view);
+  }
   bindShell();
 
   const viewBody = app.querySelector<HTMLElement>('[data-view-body]');
@@ -283,12 +293,14 @@ async function retryCrmSync(btn: HTMLButtonElement): Promise<void> {
     query: { action: 'retry', id },
   });
   if (error) {
+    trackCommercialUsage('crm_retry', { result: 'failed' }, state.view);
     toast(error, 'error');
     btn.disabled = false;
     btn.textContent = 'Reintentar CRM';
     return;
   }
   toast('Sincronización con Twenty reintentada.', 'success');
+  trackCommercialUsage('crm_retry', { result: 'succeeded' }, state.view);
   await render();
 }
 
@@ -427,6 +439,7 @@ function shellHtml(title: string, body: string): string {
 
 function bindShell(): void {
   app.querySelector('[data-logout]')?.addEventListener('click', async () => {
+    trackCommercialUsage('logout', {}, state.view);
     idleWatcher?.stop();
     idleWatcher = null;
     await signOut();
