@@ -263,6 +263,12 @@ const turnstileSiteKey = (
     reset: (id?: string) => void;
   }
 
+  interface LeadResponse {
+    ok?: boolean;
+    leadId?: string;
+    error?: string;
+  }
+
   let turnstileLoaded: Promise<void> | null = null;
 
   function loadTurnstile(): Promise<void> {
@@ -302,25 +308,28 @@ const turnstileSiteKey = (
       status.className = `pdf-gate__status${ok ? ' is-ok' : ''}`;
     };
 
-    const ensureTurnstile = async () => {
+    const ensureTurnstile = async (): Promise<string | undefined> => {
       const sitekey = gate.dataset.turnstileSiteKey?.trim();
-      if (!sitekey || !turnstileContainer) return;
+      if (!sitekey || !turnstileContainer) return undefined;
       await loadTurnstile();
       const api = (window as Window & { turnstile?: TurnstileApi }).turnstile;
-      if (!api || turnstileWidget) return;
-      turnstileWidget = api.render(turnstileContainer, {
-        sitekey,
-        size: 'flexible',
-        callback: (token: string) => {
-          turnstileToken = token;
-        },
-        'expired-callback': () => {
-          turnstileToken = '';
-        },
-        'error-callback': () => {
-          turnstileToken = '';
-        },
-      });
+      if (!api) return undefined;
+      if (!turnstileWidget) {
+        turnstileWidget = api.render(turnstileContainer, {
+          sitekey,
+          size: 'flexible',
+          callback: (token: string) => {
+            turnstileToken = token;
+          },
+          'expired-callback': () => {
+            turnstileToken = '';
+          },
+          'error-callback': () => {
+            turnstileToken = '';
+          },
+        });
+      }
+      return turnstileToken || undefined;
     };
 
     close?.addEventListener('click', () => gate.close());
@@ -357,6 +366,17 @@ const turnstileSiteKey = (
         );
         return;
       }
+      const sitekey = gate.dataset.turnstileSiteKey?.trim();
+      const turnstile = await ensureTurnstile().catch(() => undefined);
+      if (sitekey && !turnstile) {
+        setStatus(
+          locale === 'en'
+            ? 'Complete the security verification before downloading.'
+            : 'Completa la verificación de seguridad antes de descargar.'
+        );
+        return;
+      }
+
       const attribution = captureCommercialAttribution('pdf_descarga');
       const originalText = submit?.textContent ?? '';
       if (submit) {
@@ -364,9 +384,10 @@ const turnstileSiteKey = (
         submit.textContent = locale === 'en' ? 'Registering…' : 'Registrando…';
       }
       setStatus(locale === 'en' ? 'Registering your request…' : 'Registrando tu solicitud…');
-      const { data: response, error } = await supabase.functions.invoke(
-        'registrar-lead-comercial',
-        {
+      let response: LeadResponse | null = null;
+      let error: unknown;
+      try {
+        const result = await supabase.functions.invoke('registrar-lead-comercial', {
           body: {
             idempotencyKey: idempotencyKey(),
             campaign: 'pdf_descarga',
@@ -382,12 +403,16 @@ const turnstileSiteKey = (
             horizonte: 'exploracion',
             necesidad: `${locale === 'en' ? 'Technical PDF download requested for' : 'Solicitud de descarga de ficha técnica de'} ${gate.dataset.productName ?? ''}.`,
             consentimiento: data.get('consentimiento') === '1',
-            turnstileToken: turnstileToken || undefined,
+            turnstileToken: turnstile,
             landing_path: window.location.pathname,
             ...attribution,
           },
-        }
-      );
+        });
+        response = result.data as LeadResponse | null;
+        error = result.error;
+      } catch (invokeError) {
+        error = invokeError;
+      }
       if (error || !response?.ok || !response.leadId) {
         setStatus(
           response?.error ??
