@@ -23,7 +23,7 @@ const OLLAMA_EMBED_MODEL =
 const IMEIA_API_URL = (import.meta.env['PUBLIC_IMEIA_API_URL'] as string | undefined) ?? '';
 const FORCE_DIRECT_IMEIA_IN_BROWSER =
   ((import.meta.env['PUBLIC_FORCE_DIRECT_IMEIA_IN_BROWSER'] as string | undefined) ?? '') === '1';
-export const ASESOR_CLIENT_VERSION = '2026-07-13-imeia-supabase-primary-v1';
+export const ASESOR_CLIENT_VERSION = '2026-08-13-imeia-sticky-shortlist-v2';
 const MAX_HANDOFF_SUMMARY_CHARS = 400;
 const CATALOGO_INDEX_URL: Record<Locale, string> = {
   es: '/data/catalogo-index.es.json',
@@ -867,7 +867,17 @@ async function buscarCatalogoPublicado(
     );
   }
 
-  return matches.slice(0, 4).map(({ item, score }, index) => ({
+  // Dedupe same display name (catalog sometimes has near-duplicate entries).
+  const seenNames = new Set<string>();
+  const deduped: typeof matches = [];
+  for (const match of matches) {
+    const key = normalizeSearchText(match.item.nombre);
+    if (seenNames.has(key)) continue;
+    seenNames.add(key);
+    deduped.push(match);
+  }
+
+  return deduped.slice(0, 4).map(({ item, score }, index) => ({
     slug: item.slug,
     nombre: item.nombre,
     imagen: item.imagen_principal,
@@ -877,6 +887,181 @@ async function buscarCatalogoPublicado(
     familiaNombre: item.familia.nombre,
     tipoNombre: item.tipo?.nombre ?? null,
   }));
+}
+
+/** Follow-ups that must reuse prior shortlist — never re-search adjectives alone. */
+export function esSeguimientoDeShortlist(mensaje: string): boolean {
+  const t = normalizeSearchText(mensaje);
+  const patterns = [
+    'mas completo',
+    'mas versatil',
+    'mas completo de los',
+    'mas versatil y completo',
+    'el mas completo',
+    'el mas versatil',
+    'la mas completa',
+    'la mas versatil',
+    'cual es el mas',
+    'cual es la mas',
+    'de los tres',
+    'de los 3',
+    'los tres',
+    'los 3',
+    'los sugeridos',
+    'entre esos',
+    'entre estos',
+    'entre las tres',
+    'entre las 3',
+    'cual recomiendas',
+    'cual me conviene',
+    'cual elijo',
+    'compara',
+    'comparacion',
+    'diferencia entre',
+    'el primero',
+    'el segundo',
+    'el tercero',
+    'esa opcion',
+    'esas opciones',
+    'esas tres',
+    'esos tres',
+    'de esas opciones',
+    'de estas opciones',
+    'mejor opcion',
+    'mas adecuado',
+    'mas adecuada',
+    'which is the most',
+    'most complete',
+    'most versatile',
+    'of the three',
+    'of those',
+  ];
+  return patterns.some(p => t.includes(p));
+}
+
+function extraerNombresProductosDeTexto(contenido: string): string[] {
+  const names: string[] = [];
+  const numbered =
+    /^\s*\d+\.\s*(?:\*\*|__)?(.+?)(?:\*\*|__)?\s*(?:—|–|-|:)\s+/gm;
+  for (const match of contenido.matchAll(numbered)) {
+    const name = match[1]?.trim();
+    if (name && name.length >= 4 && !names.includes(name)) names.push(name);
+  }
+  return names;
+}
+
+function extraerSlugsDeTexto(contenido: string): string[] {
+  const slugs: string[] = [];
+  const re = /\/(?:es\/productos|en\/products)\/([a-z0-9-]+)/gi;
+  for (const match of contenido.matchAll(re)) {
+    const slug = match[1];
+    if (slug && !slugs.includes(slug)) slugs.push(slug);
+  }
+  return slugs;
+}
+
+async function recuperarShortlistDelHistorial(
+  historial: MensajeAsesor[],
+  locale: Locale
+): Promise<CatalogoPublicadoItem[]> {
+  const items = await cargarCatalogoPublicado(locale);
+  if (items.length === 0) return [];
+
+  for (const msg of [...historial].reverse()) {
+    if (msg.rol !== 'asesor') continue;
+    const names = extraerNombresProductosDeTexto(msg.contenido);
+    const slugs = extraerSlugsDeTexto(msg.contenido);
+    if (names.length === 0 && slugs.length === 0) continue;
+
+    const found: CatalogoPublicadoItem[] = [];
+    for (const slug of slugs) {
+      const hit = items.find(item => item.slug === slug);
+      if (hit && !found.some(f => f.slug === hit.slug)) found.push(hit);
+    }
+    for (const name of names) {
+      const n = normalizeSearchText(name);
+      const hit =
+        items.find(item => normalizeSearchText(item.nombre) === n) ||
+        items.find(item => {
+          const iname = normalizeSearchText(item.nombre);
+          return iname.includes(n) || n.includes(iname);
+        });
+      if (hit && !found.some(f => f.slug === hit.slug)) found.push(hit);
+    }
+    if (found.length > 0) return found.slice(0, 4);
+  }
+  return [];
+}
+
+function buildShortlistComparisonResponse(params: {
+  shortlist: CatalogoPublicadoItem[];
+  mensaje: string;
+  historial: MensajeAsesor[];
+  locale: Locale;
+}): RespuestaAsesor {
+  const intent = params.historial
+    .filter(h => h.rol === 'usuario' && !esSeguimientoDeShortlist(h.contenido))
+    .map(h => h.contenido)
+    .join(' ');
+
+  const ranked = params.shortlist
+    .map(item => {
+      const intentScore = intent ? puntuarCatalogoPublicado(item, intent) : 0;
+      const completenessBoost = Math.min(90, (item.descripcion_corta?.length ?? 0) / 2);
+      return { item, score: intentScore + completenessBoost };
+    })
+    .sort((a, b) => b.score - a.score);
+
+  const winner = ranked[0]!.item;
+  const lineas = params.shortlist.map((producto, index) => {
+    const detalle =
+      producto.descripcion_corta || producto.tipo?.nombre || producto.familia.nombre || producto.slug;
+    return `${index + 1}. **${producto.nombre}** — ${detalle}`;
+  });
+
+  const texto =
+    params.locale === 'en'
+      ? [
+          `Of the options I already suggested, the most complete/versatile fit for your need is **${winner.nombre}**: ${winner.descripcion_corta || winner.tipo?.nombre || ''}`,
+          '',
+          'Shortlist comparison (same options only):',
+          ...lineas,
+          '',
+          'If you want, we can prepare a quote or continue on WhatsApp (+57 313 867 4059).',
+        ].join('\n')
+      : [
+          `De las opciones que ya le sugerí, la más completa/versátil para lo que plantea es **${winner.nombre}**: ${winner.descripcion_corta || winner.tipo?.nombre || ''}`,
+          '',
+          'Comparación de la misma shortlist (sin cambiar de línea):',
+          ...lineas,
+          '',
+          'Si quiere, armamos la cotización o seguimos por WhatsApp (+57 313 867 4059).',
+        ].join('\n');
+
+  const tipo = inferHandoffType(params.mensaje);
+  return {
+    texto,
+    productos: params.shortlist.map((item, index) => ({
+      slug: item.slug,
+      nombre: item.nombre,
+      imagen: item.imagen_principal,
+      urlLanding: buildProductPath(params.locale, item.slug),
+      score: Math.max(0.55, 0.95 - index * 0.05),
+    })),
+    accionHandoff: tipo
+      ? normalizarAccionHandoff(
+          { tipo, resumen: buildHandoffSummary(params) },
+          params,
+          texto
+        )
+      : normalizarAccionHandoff(
+          { tipo: 'cotizacion', resumen: buildHandoffSummary(params) },
+          params,
+          texto
+        ),
+    // Intentionally not keyword_degradado: this is conversation-anchored, not a fresh search.
+    modo: 'rag',
+  };
 }
 
 function buildCatalogoPublicadoFollowUp(locale: Locale, mensaje: string): string {
@@ -931,11 +1116,105 @@ function renderCatalogoPublicadoTexto(
   return [apertura, '', ...lineas, '', followUp].join('\n');
 }
 
+function esSeguimientoPuroSinProducto(mensaje: string): boolean {
+  let rest = normalizeSearchText(mensaje);
+  const frases = [
+    'mas completo',
+    'mas versatil',
+    'mas versatil y completo',
+    'el mas completo',
+    'el mas versatil',
+    'la mas completa',
+    'la mas versatil',
+    'cual es el mas',
+    'cual es la mas',
+    'de los tres',
+    'de los 3',
+    'los tres',
+    'los 3',
+    'los sugeridos',
+    'entre esos',
+    'entre estos',
+    'entre las tres',
+    'entre las 3',
+    'cual recomiendas',
+    'cual me conviene',
+    'cual elijo',
+    'compara',
+    'comparacion',
+    'diferencia entre',
+    'el primero',
+    'el segundo',
+    'el tercero',
+    'esa opcion',
+    'esas opciones',
+    'esas tres',
+    'esos tres',
+    'de esas opciones',
+    'de estas opciones',
+    'mejor opcion',
+    'mas adecuado',
+    'mas adecuada',
+    'which is the most',
+    'most complete',
+    'most versatile',
+    'of the three',
+    'of those',
+    'cual',
+    'cuales',
+    'que',
+    'me',
+    'dijo',
+    'sugirio',
+    'sugeriste',
+    'opciones',
+    'productos',
+    'please',
+    'which',
+    'what',
+  ];
+  for (const frase of frases) {
+    rest = rest.split(frase).join(' ');
+  }
+  const tokens = rest.split(/\s+/).filter(token => token.length >= 4);
+  return tokens.length === 0;
+}
+
 async function buildCatalogoPublicadoFallbackResponse(params: {
   mensaje: string;
   historial: MensajeAsesor[];
   locale: Locale;
 }): Promise<RespuestaAsesor | null> {
+  // "¿Cuál es el más versátil?" must NOT keyword-search adjectives (→ wrong lines).
+  if (esSeguimientoDeShortlist(params.mensaje)) {
+    const shortlist = await recuperarShortlistDelHistorial(params.historial, params.locale);
+    if (shortlist.length > 0) {
+      return buildShortlistComparisonResponse({
+        shortlist,
+        mensaje: params.mensaje,
+        historial: params.historial,
+        locale: params.locale,
+      });
+    }
+    if (esSeguimientoPuroSinProducto(params.mensaje)) {
+      const texto =
+        params.locale === 'en'
+          ? 'To say which option is most complete I need to stick to the products already suggested. Can you confirm the shortlist from my previous message?'
+          : 'Para indicar cuál es la más completa/versátil debo anclarme a las opciones ya sugeridas. ¿Me confirma la shortlist del mensaje anterior?';
+      return {
+        texto,
+        productos: [],
+        accionHandoff: normalizarAccionHandoff(
+          { tipo: 'whatsapp', resumen: buildHandoffSummary(params) },
+          params,
+          texto
+        ),
+        modo: 'rag',
+      };
+    }
+    // e.g. "compara bombas de infusión" with empty history → normal search below
+  }
+
   const productos = await buscarCatalogoPublicado(params.mensaje, params.locale);
   if (productos.length === 0) return null;
 

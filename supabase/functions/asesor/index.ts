@@ -249,9 +249,13 @@ Deno.serve(async req => {
 
   try {
     const canonicalContext = await obtenerContextoCanonico(supabase, navigationContext, locale);
-    const anchorsFromHistory = extraerSlugsDeHistorial(historial);
+    let anchorsFromHistory = extraerSlugsDeHistorial(historial);
     const stickyFollowUp = esSeguimientoDeShortlist(mensaje);
     let queryCatalogContext: QueryCatalogContext;
+    if (stickyFollowUp && anchorsFromHistory.length === 0) {
+      // Keyword-fallback replies list "1. Name — …" without product URLs.
+      anchorsFromHistory = await resolverSlugsPorNombresHistorial(supabase, historial, locale);
+    }
     if (stickyFollowUp && anchorsFromHistory.length > 0) {
       // "¿Cuál de los tres…?" must NOT re-search the catalog (that injects unrelated lines).
       queryCatalogContext = await obtenerContextoPorSlugs(
@@ -562,10 +566,32 @@ function extraerSlugsDeHistorial(historial: HistorialItem[]): string[] {
   return slugs.slice(-6);
 }
 
+function extraerNombresProductosDeHistorial(historial: HistorialItem[]): string[] {
+  const names: string[] = [];
+  const numbered =
+    /^\s*\d+\.\s*(?:\*\*|__)?(.+?)(?:\*\*|__)?\s*(?:—|–|-|:)\s+/gm;
+  for (const item of historial) {
+    if (item.rol !== 'asesor') continue;
+    for (const match of item.contenido.matchAll(numbered)) {
+      const name = match[1]?.trim();
+      if (name && name.length >= 4 && !names.includes(name)) names.push(name);
+    }
+  }
+  return names.slice(-6);
+}
+
 function esSeguimientoDeShortlist(mensaje: string): boolean {
   const t = normalizeSearchText(mensaje);
   const patterns = [
     'mas completo',
+    'mas versatil',
+    'mas versatil y completo',
+    'el mas completo',
+    'el mas versatil',
+    'la mas completa',
+    'la mas versatil',
+    'cual es el mas',
+    'cual es la mas',
     'mas completo de los',
     'de los tres',
     'de los 3',
@@ -591,8 +617,45 @@ function esSeguimientoDeShortlist(mensaje: string): boolean {
     'esos tres',
     'de esas opciones',
     'de estas opciones',
+    'mejor opcion',
+    'mas adecuado',
+    'mas adecuada',
+    'which is the most',
+    'most complete',
+    'most versatile',
+    'of the three',
+    'of those',
   ];
   return patterns.some(p => t.includes(p));
+}
+
+async function resolverSlugsPorNombresHistorial(
+  supabase: ReturnType<typeof getServerSupabase>,
+  historial: HistorialItem[],
+  locale: Locale
+): Promise<string[]> {
+  const names = extraerNombresProductosDeHistorial(historial);
+  if (names.length === 0) return [];
+
+  const { data, error } = await supabase
+    .from('productos')
+    .select('slug, nombre_es, nombre_en, activo')
+    .eq('activo', true);
+  if (error || !data) return [];
+
+  const slugs: string[] = [];
+  for (const name of names) {
+    const n = normalizeSearchText(name);
+    const hit = data.find(row => {
+      const nombre = normalizeSearchText(
+        String(locale === 'en' ? row.nombre_en || row.nombre_es : row.nombre_es || '')
+      );
+      return nombre === n || nombre.includes(n) || n.includes(nombre);
+    });
+    const slug = hit ? String(hit.slug) : '';
+    if (slug && !slugs.includes(slug)) slugs.push(slug);
+  }
+  return slugs.slice(0, 4);
 }
 
 async function obtenerContextoPorSlugs(
