@@ -22,6 +22,7 @@ export type CampaignLandingId =
   | 'imagenologia'
   | 'robotica_rehabilitacion'
   | 'proyectos'
+  | 'pdf_descarga'
   | FabricanteLandingId;
 
 export type HorizonteCompra = '0-3' | '4-12' | 'exploracion';

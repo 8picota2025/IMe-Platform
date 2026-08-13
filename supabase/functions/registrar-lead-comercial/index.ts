@@ -27,6 +27,7 @@ const CAMPAIGNS = new Set([
   'imagenologia',
   'robotica_rehabilitacion',
   'proyectos',
+  'pdf_descarga',
   'fab_tuttnauer',
   'fab_saikang',
   'fab_angell',

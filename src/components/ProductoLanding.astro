@@ -10,6 +10,7 @@
 import { t, type Locale } from '../i18n/utils';
 import ProductoCard from './ProductoCard.astro';
 import Resenas from './Resenas.astro';
+import PdfDownloadGate from './PdfDownloadGate.astro';
 import type { Producto, Familia } from '../lib/datos';
 import { formatMoneda } from '../lib/format';
 import { getAccionComercial } from '../lib/comercial';
@@ -123,6 +124,7 @@ const migas = [
 ];
 
 const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.nombre)}&referencia=${encodeURIComponent(modelo ?? '')}&pagina=${encodeURIComponent(productUrl)}`;
+const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
 
 // Stats de la cabecera del hero: reutiliza datos ya verificados (modalidad,
 // disponibilidad, familia, precio) en vez de intentar extraer valores cortos
@@ -232,14 +234,14 @@ if (precioFormateado) {
           }
           {
             producto.ficha_pdf && (
-              <a
-                href={producto.ficha_pdf}
+              <button
+                type="button"
                 class="btn-hero-secondary"
-                target="_blank"
-                rel="noopener noreferrer"
+                data-pdf-download-trigger
+                data-pdf-download-target={pdfGateId}
               >
                 {t(locale, 'producto.ficha_pdf')}
-              </a>
+              </button>
             )
           }
         </div>
@@ -563,6 +565,19 @@ if (precioFormateado) {
     </div>
   </section>
 
+  {
+    fichaUrl && (
+      <PdfDownloadGate
+        locale={locale}
+        productName={producto.nombre}
+        productSlug={producto.slug}
+        familySlug={familia.slug}
+        pdfUrl={fichaUrl}
+        modalId={pdfGateId}
+      />
+    )
+  }
+
   <!-- CTA sticky -->
   <div class="cta-sticky" id="cta-sticky" hidden>
     <div class="container cta-sticky__inner">
@@ -707,10 +722,12 @@ if (precioFormateado) {
     background: rgba(255, 255, 255, 0.12);
     border: 1.5px solid rgba(255, 255, 255, 0.35);
     color: var(--white);
+    font-family: inherit;
     font-weight: 600;
     font-size: 0.95rem;
     padding: 0.8rem 1.5rem;
     border-radius: var(--radius);
+    cursor: pointer;
     text-decoration: none;
     transition: background 0.2s;
   }

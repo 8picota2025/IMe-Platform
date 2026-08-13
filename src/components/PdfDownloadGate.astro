@@ -1,0 +1,444 @@
+---
+import type { Locale } from '../i18n/utils';
+
+interface Props {
+  locale: Locale;
+  productName: string;
+  productSlug: string;
+  familySlug: string;
+  pdfUrl: string;
+  modalId: string;
+}
+
+const { locale, productName, productSlug, familySlug, pdfUrl, modalId } = Astro.props;
+const isEn = locale === 'en';
+const privacyHref = isEn ? '/en/legal/privacy/' : '/es/legal/privacidad/';
+const habeasHref = isEn ? '/en/legal/data-authorization/' : '/es/legal/habeas-data/';
+const turnstileSiteKey = (
+  (import.meta.env['PUBLIC_TURNSTILE_SITE_KEY'] as string | undefined) ?? ''
+).trim();
+---
+
+<dialog
+  id={modalId}
+  class="pdf-gate"
+  data-pdf-gate
+  data-pdf-url={pdfUrl}
+  data-product-name={productName}
+  data-product-slug={productSlug}
+  data-family-slug={familySlug}
+  data-locale={locale}
+  data-turnstile-site-key={turnstileSiteKey}
+  aria-labelledby={`${modalId}-title`}
+>
+  <form class="pdf-gate__form" data-pdf-gate-form novalidate>
+    <button
+      type="button"
+      class="pdf-gate__close"
+      data-pdf-close
+      aria-label={isEn ? 'Close' : 'Cerrar'}
+    >
+      ×
+    </button>
+    <p class="pdf-gate__eyebrow">{isEn ? 'Technical document' : 'Documento técnico'}</p>
+    <h2 id={`${modalId}-title`}>
+      {isEn ? 'Download the product PDF' : 'Descarga el PDF del producto'}
+    </h2>
+    <p class="pdf-gate__product" data-pdf-product>{productName}</p>
+    <div class="pdf-gate__notice" role="note">
+      <strong>{isEn ? 'Before downloading' : 'Antes de descargar'}</strong>
+      <span>
+        {
+          isEn
+            ? 'Some equipment is configurable. Dimensions, accessories, modules and other specifications may differ from those shown in this generic document. Confirm the final configuration and current manufacturer documentation in the formal quote.'
+            : 'Algunos equipos son configurables. Las dimensiones, accesorios, módulos y otras especificaciones pueden cambiar respecto a las expuestas en este documento genérico. Confirma la configuración final y la documentación vigente del fabricante en la cotización formal.'
+        }
+      </span>
+    </div>
+
+    <div class="pdf-gate__grid">
+      <label>
+        {isEn ? 'Name' : 'Nombre'}
+        <span aria-hidden="true">*</span>
+        <input name="nombre" type="text" autocomplete="name" required />
+      </label>
+      <label>
+        {isEn ? 'Institution' : 'Institución'}
+        <span aria-hidden="true">*</span>
+        <input name="institucion" type="text" autocomplete="organization" required />
+      </label>
+      <label>
+        {isEn ? 'City' : 'Ciudad'}
+        <span aria-hidden="true">*</span>
+        <input name="ciudad" type="text" autocomplete="address-level2" required />
+      </label>
+      <label>
+        {isEn ? 'Email' : 'Correo electrónico'}
+        <span aria-hidden="true">*</span>
+        <input name="email" type="email" autocomplete="email" required />
+      </label>
+      <label>
+        {isEn ? 'Phone' : 'Teléfono'}
+        <input name="telefono" type="tel" autocomplete="tel" placeholder="+57 …" />
+      </label>
+    </div>
+
+    <label class="pdf-gate__consent">
+      <input name="consentimiento" type="checkbox" value="1" required />
+      <span>
+        {
+          isEn
+            ? 'I authorize I-ME to contact me about this product and related equipment, under the '
+            : 'Autorizo a I-ME a contactarme sobre este producto y equipos relacionados, conforme a la '
+        }
+        <a href={privacyHref} target="_blank" rel="noopener noreferrer"
+          >{isEn ? 'privacy policy' : 'política de privacidad'}</a
+        >
+        {isEn ? ' and ' : ' y la '}
+        <a href={habeasHref} target="_blank" rel="noopener noreferrer"
+          >{isEn ? 'data authorization' : 'autorización de habeas data'}</a
+        >.
+      </span>
+    </label>
+    <div class="pdf-gate__turnstile" data-pdf-turnstile></div>
+    <p class="pdf-gate__status" data-pdf-status role="status" aria-live="polite"></p>
+    <button type="submit" class="btn btn-primary pdf-gate__submit" data-pdf-submit>
+      {isEn ? 'Register and download PDF' : 'Registrar y descargar PDF'}
+    </button>
+  </form>
+</dialog>
+
+<style>
+  .pdf-gate {
+    width: min(94vw, 560px);
+    max-height: min(92vh, 760px);
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-lg);
+    color: var(--ink);
+    background: var(--white);
+    box-shadow: 0 24px 80px rgba(11, 27, 34, 0.28);
+  }
+  .pdf-gate::backdrop {
+    background: rgba(11, 27, 34, 0.62);
+    backdrop-filter: blur(3px);
+  }
+  .pdf-gate__form {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-height: min(92vh, 760px);
+    overflow-y: auto;
+    padding: clamp(1.35rem, 4vw, 2rem);
+  }
+  .pdf-gate__close {
+    position: absolute;
+    top: 0.8rem;
+    right: 0.9rem;
+    width: 2.2rem;
+    height: 2.2rem;
+    border: 0;
+    border-radius: 999px;
+    color: var(--text-mid);
+    background: var(--off);
+    font-size: 1.55rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .pdf-gate__eyebrow {
+    margin: 0;
+    color: var(--t700);
+    font: 700 0.72rem/1.2 var(--font-display);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .pdf-gate h2 {
+    max-width: 18ch;
+    margin: 0;
+    color: var(--t900);
+    font: 800 clamp(1.35rem, 4vw, 1.8rem)/1.15 var(--font-display);
+  }
+  .pdf-gate__product {
+    margin: -0.35rem 0 0;
+    color: var(--text-mid);
+    font-weight: 700;
+  }
+  .pdf-gate__notice {
+    display: grid;
+    gap: 0.35rem;
+    padding: 0.85rem 1rem;
+    border-left: 4px solid var(--green);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    color: var(--text-mid);
+    background: var(--off);
+    font-size: 0.86rem;
+    line-height: 1.5;
+  }
+  .pdf-gate__notice strong {
+    color: var(--t900);
+    font-family: var(--font-display);
+  }
+  .pdf-gate__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+  @media (min-width: 520px) {
+    .pdf-gate__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .pdf-gate__grid label {
+    display: grid;
+    gap: 0.35rem;
+    color: var(--ink);
+    font: 650 0.82rem/1.2 var(--font-display);
+  }
+  .pdf-gate__grid input {
+    width: 100%;
+    min-height: 46px;
+    padding: 0.7rem 0.8rem;
+    border: 1px solid var(--border-mid);
+    border-radius: var(--radius);
+    color: var(--text);
+    background: var(--white);
+    font: inherit;
+  }
+  .pdf-gate__grid input:focus,
+  .pdf-gate__consent input:focus-visible,
+  .pdf-gate__close:focus-visible,
+  .pdf-gate__submit:focus-visible {
+    outline: 2px solid var(--t800);
+    outline-offset: 2px;
+  }
+  .pdf-gate__consent {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    color: var(--text-mid);
+    font-size: 0.78rem;
+    line-height: 1.45;
+  }
+  .pdf-gate__consent input {
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+    margin-top: 0.1rem;
+    accent-color: var(--t900);
+  }
+  .pdf-gate__consent a {
+    color: var(--t900);
+    text-decoration: underline;
+  }
+  .pdf-gate__turnstile:empty {
+    display: none;
+  }
+  .pdf-gate__status {
+    min-height: 1.25rem;
+    margin: 0;
+    color: #b42318;
+    font-size: 0.84rem;
+    font-weight: 650;
+  }
+  .pdf-gate__status.is-ok {
+    color: #16794c;
+  }
+  .pdf-gate__submit {
+    align-self: flex-start;
+    min-height: 48px;
+  }
+</style>
+
+<script>
+  import { emitAnalyticsEvent } from '../lib/analytics';
+  import {
+    captureCommercialAttribution,
+    rememberCommercialLead,
+  } from '../lib/commercial-attribution';
+  import { getSupabaseClient } from '../lib/supabase';
+
+  interface TurnstileApi {
+    render: (container: HTMLElement, options: Record<string, unknown>) => string;
+    reset: (id?: string) => void;
+  }
+
+  let turnstileLoaded: Promise<void> | null = null;
+
+  function loadTurnstile(): Promise<void> {
+    if ((window as Window & { turnstile?: TurnstileApi }).turnstile) return Promise.resolve();
+    if (turnstileLoaded) return turnstileLoaded;
+    turnstileLoaded = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      script.async = true;
+      script.defer = true;
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error('turnstile load error'));
+      document.head.appendChild(script);
+    });
+    return turnstileLoaded;
+  }
+
+  function idempotencyKey(): string {
+    if (typeof window.crypto?.randomUUID === 'function') return window.crypto.randomUUID();
+    return `${Date.now()}_${Math.random().toString(36).slice(2)}_${Math.random().toString(36).slice(2)}`;
+  }
+
+  function initPdfGate(gate: HTMLDialogElement) {
+    if (gate.dataset.bound === '1') return;
+    gate.dataset.bound = '1';
+    const form = gate.querySelector<HTMLFormElement>('[data-pdf-gate-form]');
+    const status = gate.querySelector<HTMLElement>('[data-pdf-status]');
+    const submit = gate.querySelector<HTMLButtonElement>('[data-pdf-submit]');
+    const close = gate.querySelector<HTMLButtonElement>('[data-pdf-close]');
+    const turnstileContainer = gate.querySelector<HTMLElement>('[data-pdf-turnstile]');
+    let turnstileToken = '';
+    let turnstileWidget = '';
+
+    const setStatus = (message: string, ok = false) => {
+      if (!status) return;
+      status.textContent = message;
+      status.className = `pdf-gate__status${ok ? ' is-ok' : ''}`;
+    };
+
+    const ensureTurnstile = async () => {
+      const sitekey = gate.dataset.turnstileSiteKey?.trim();
+      if (!sitekey || !turnstileContainer) return;
+      await loadTurnstile();
+      const api = (window as Window & { turnstile?: TurnstileApi }).turnstile;
+      if (!api || turnstileWidget) return;
+      turnstileWidget = api.render(turnstileContainer, {
+        sitekey,
+        size: 'flexible',
+        callback: (token: string) => {
+          turnstileToken = token;
+        },
+        'expired-callback': () => {
+          turnstileToken = '';
+        },
+        'error-callback': () => {
+          turnstileToken = '';
+        },
+      });
+    };
+
+    close?.addEventListener('click', () => gate.close());
+    gate.addEventListener('pdf-gate-open', () => {
+      void ensureTurnstile().catch(() => undefined);
+    });
+    gate.addEventListener('click', event => {
+      if (event.target === gate) gate.close();
+    });
+    gate.addEventListener('close', () => {
+      document.body.style.overflow = '';
+      setStatus('');
+    });
+
+    form?.addEventListener('submit', async event => {
+      event.preventDefault();
+      const locale = gate.dataset.locale === 'en' ? 'en' : 'es';
+      const data = new FormData(form);
+      const nombre = String(data.get('nombre') ?? '').trim();
+      const institucion = String(data.get('institucion') ?? '').trim();
+      const ciudad = String(data.get('ciudad') ?? '').trim();
+      const email = String(data.get('email') ?? '').trim();
+      const telefono = String(data.get('telefono') ?? '').trim();
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+      const supabase = getSupabaseClient();
+      if (!supabase) {
+        setStatus(
+          locale === 'en'
+            ? 'The download service is temporarily unavailable.'
+            : 'El servicio de descarga no está disponible temporalmente.'
+        );
+        return;
+      }
+      const attribution = captureCommercialAttribution('pdf_descarga');
+      const originalText = submit?.textContent ?? '';
+      if (submit) {
+        submit.disabled = true;
+        submit.textContent = locale === 'en' ? 'Registering…' : 'Registrando…';
+      }
+      setStatus(locale === 'en' ? 'Registering your request…' : 'Registrando tu solicitud…');
+      const { data: response, error } = await supabase.functions.invoke(
+        'registrar-lead-comercial',
+        {
+          body: {
+            idempotencyKey: idempotencyKey(),
+            campaign: 'pdf_descarga',
+            locale,
+            nombre,
+            institucion,
+            ciudad,
+            email,
+            ...(telefono ? { telefono } : {}),
+            familia_slug: gate.dataset.familySlug ?? '',
+            tipo_slug: gate.dataset.productSlug ?? '',
+            tipo_proyecto: 'descarga_ficha_tecnica',
+            horizonte: 'exploracion',
+            necesidad: `${locale === 'en' ? 'Technical PDF download requested for' : 'Solicitud de descarga de ficha técnica de'} ${gate.dataset.productName ?? ''}.`,
+            consentimiento: data.get('consentimiento') === '1',
+            turnstileToken: turnstileToken || undefined,
+            landing_path: window.location.pathname,
+            ...attribution,
+          },
+        }
+      );
+      if (error || !response?.ok || !response.leadId) {
+        setStatus(
+          response?.error ??
+            (locale === 'en'
+              ? 'We could not register the request. Try again.'
+              : 'No pudimos registrar la solicitud. Intenta de nuevo.')
+        );
+        if (submit) {
+          submit.disabled = false;
+          submit.textContent = originalText;
+        }
+        if (turnstileWidget) {
+          (window as Window & { turnstile?: TurnstileApi }).turnstile?.reset(turnstileWidget);
+          turnstileToken = '';
+        }
+        return;
+      }
+      rememberCommercialLead(response.leadId, 'pdf_descarga');
+      emitAnalyticsEvent('pdf_download', {
+        product_slug: gate.dataset.productSlug ?? '',
+        gated: true,
+        page_path: window.location.pathname,
+      });
+      setStatus(
+        locale === 'en'
+          ? 'Request registered. Opening the PDF…'
+          : 'Solicitud registrada. Abriendo el PDF…',
+        true
+      );
+      const pdfUrl = gate.dataset.pdfUrl;
+      if (pdfUrl) window.location.assign(pdfUrl);
+    });
+  }
+
+  function bootPdfGates() {
+    document.querySelectorAll<HTMLDialogElement>('[data-pdf-gate]').forEach(initPdfGate);
+    document.querySelectorAll<HTMLElement>('[data-pdf-download-trigger]').forEach(trigger => {
+      if (trigger.dataset.bound === '1') return;
+      trigger.dataset.bound = '1';
+      trigger.addEventListener('click', () => {
+        const id = trigger.dataset.pdfDownloadTarget;
+        const gate = id ? (document.getElementById(id) as HTMLDialogElement | null) : null;
+        if (!gate) return;
+        if (!gate.open) gate.showModal();
+        document.body.style.overflow = 'hidden';
+        gate.dispatchEvent(new Event('pdf-gate-open'));
+        gate.querySelector<HTMLInputElement>('input[name="nombre"]')?.focus();
+      });
+    });
+  }
+
+  bootPdfGates();
+  document.addEventListener('astro:page-load', bootPdfGates);
+</script>
