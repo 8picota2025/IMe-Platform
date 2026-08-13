@@ -335,4 +335,103 @@ describe('asesor biomedical fallback', () => {
       globalThis.fetch = originalFetch;
     }
   });
+
+  it('en follow-up "más versátil" reusa shortlist y no salta a ultrasonido/máscaras (caso 1308)', async () => {
+    const originalFetch = globalThis.fetch;
+
+    globalThis.fetch = (async () =>
+      new Response(
+        JSON.stringify([
+          {
+            slug: 'sistema-radiografico-3d-en-carga-wr-3d',
+            nombre: 'Sistema radiográfico 3D en carga WR-3D Angell Technology',
+            familia: { slug: 'imagenologia-y-radiologia', nombre: 'Imagenología y Radiología' },
+            tipo: { slug: 'radiografia-digital-dr', nombre: 'Radiografía Digital DR' },
+            descripcion_corta:
+              'Sistema CBCT de radiografía 3D en bipedestación para columna, pelvis y miembros inferiores con reconstrucción MPR, MIP y VR',
+            imagen_principal: 'https://example.com/wr3d.jpg',
+            texto_busqueda: 'sistema radiografico 3d carga wr 3d cbct bipedestacion',
+          },
+          {
+            slug: 'equipo-movil-radiografia-digital-dinamica-lingxi',
+            nombre: 'Equipo Móvil de Radiografía Digital Dinámica Lingxi',
+            familia: { slug: 'imagenologia-y-radiologia', nombre: 'Imagenología y Radiología' },
+            tipo: { slug: 'radiografia-digital-dr', nombre: 'Radiografía Digital DR' },
+            descripcion_corta: 'Unidad móvil de radiografía digital dinámica',
+            imagen_principal: 'https://example.com/lingxi.jpg',
+            texto_busqueda: 'equipo movil radiografia digital dinamica lingxi',
+          },
+          {
+            slug: 'sistema-radiografia-digital-dinamica-techo-qomo',
+            nombre: 'Sistema de Radiografía Digital Dinámica de Techo QOMO',
+            familia: { slug: 'imagenologia-y-radiologia', nombre: 'Imagenología y Radiología' },
+            tipo: { slug: 'radiografia-digital-dr', nombre: 'Radiografía Digital DR' },
+            descripcion_corta: 'Sistema de radiografía digital de techo con doble detector',
+            imagen_principal: 'https://example.com/qomo.jpg',
+            texto_busqueda: 'sistema radiografia digital dinamica techo qomo',
+          },
+          {
+            slug: 'sistema-de-ultrasonido-versatil-dus-6000',
+            nombre: 'Sistema de Ultrasonido Versátil DUS-6000',
+            familia: { slug: 'ultrasonido', nombre: 'Ultrasonido' },
+            tipo: { slug: 'ultrasonido', nombre: 'Ultrasonido' },
+            descripcion_corta: 'Sistema de ultrasonido versátil portátil',
+            imagen_principal: 'https://example.com/dus.jpg',
+            texto_busqueda: 'sistema ultrasonido versatil dus 6000',
+          },
+          {
+            slug: 'mascara-nivairo',
+            nombre: 'Máscara Nivairo Fisher & Paykel',
+            familia: { slug: 'anestesia', nombre: 'Anestesia' },
+            tipo: { slug: 'mascaras', nombre: 'Máscaras' },
+            descripcion_corta: 'Máscara nasal NIVAIRO',
+            imagen_principal: 'https://example.com/nivairo.jpg',
+            texto_busqueda: 'mascara nivairo fisher paykel',
+          },
+        ]),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )) as typeof fetch;
+
+    try {
+      resetCatalogoPublicadoCache();
+      const respuesta = await buildResilientFallbackResponse({
+        mensaje: 'Cuál es el más versátil y completo?',
+        historial: [
+          {
+            rol: 'usuario',
+            contenido: 'Radiografía en 3d en un ambulatorio',
+            timestamp: new Date(),
+          },
+          {
+            rol: 'asesor',
+            contenido: [
+              'Estas son las opciones de nuestro catálogo que mejor encajan con lo que plantea:',
+              '',
+              '1. Sistema radiográfico 3D en carga WR-3D Angell Technology — Sistema CBCT de radiografía 3D en bipedestación',
+              '2. Equipo Móvil de Radiografía Digital Dinámica Lingxi — Unidad móvil de radiografía digital dinámica',
+              '3. Sistema de Radiografía Digital Dinámica de Techo QOMO — Sistema de radiografía digital de techo',
+            ].join('\n'),
+            timestamp: new Date(),
+          },
+        ],
+        locale: 'es',
+      });
+
+      expect(respuesta.texto).toContain('WR-3D');
+      expect(respuesta.texto).toMatch(/más completa|más versátil/i);
+      expect(respuesta.productos.map(p => p.slug)).toEqual([
+        'sistema-radiografico-3d-en-carga-wr-3d',
+        'equipo-movil-radiografia-digital-dinamica-lingxi',
+        'sistema-radiografia-digital-dinamica-techo-qomo',
+      ]);
+      expect(respuesta.texto).not.toContain('DUS-6000');
+      expect(respuesta.texto).not.toContain('Nivairo');
+      expect(respuesta.modo).toBe('rag');
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
 });
