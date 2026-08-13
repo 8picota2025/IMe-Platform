@@ -336,6 +336,93 @@ describe('asesor biomedical fallback', () => {
     }
   });
 
+  it('en follow-up "mejor de los dos" reusa mamógrafos y no salta a bombas/glucómetros (caso 1308b)', async () => {
+    const originalFetch = globalThis.fetch;
+
+    globalThis.fetch = (async () =>
+      new Response(
+        JSON.stringify([
+          {
+            slug: 'mamografo-digital-dm166-series',
+            nombre: 'Mamógrafo digital DM166 Series Angell con tomosíntesis 3D y CESM',
+            familia: { slug: 'imagenologia', nombre: 'Imagenología' },
+            tipo: { slug: 'mamografia', nombre: 'Mamografía' },
+            descripcion_corta:
+              'Mamógrafo digital Angell configurable con tomosíntesis 3D de ángulo amplio, detector de alta resolución y opción CESM',
+            imagen_principal: 'https://example.com/dm166.jpg',
+            texto_busqueda: 'mamografo digital dm166 angell tomosintesis cesm',
+          },
+          {
+            slug: 'mamografo-digital-dm156-series',
+            nombre: 'Mamógrafo Digital DM156 Series',
+            familia: { slug: 'imagenologia', nombre: 'Imagenología' },
+            tipo: { slug: 'mamografia', nombre: 'Mamografía' },
+            descripcion_corta: 'Mamógrafo digital con detector de 24×30cm y tomosíntesis 2D/3D',
+            imagen_principal: 'https://example.com/dm156.jpg',
+            texto_busqueda: 'mamografo digital dm156 tomosintesis',
+          },
+          {
+            slug: 'bomba-jeringa-precision-microdosis',
+            nombre: 'Bomba de Jeringa Precisión Microdosis',
+            familia: { slug: 'terapia-infusion', nombre: 'Terapia de infusión' },
+            tipo: { slug: 'bombas-jeringa', nombre: 'Bombas de jeringa' },
+            descripcion_corta: 'Bomba de jeringa para microdosis en UCI',
+            imagen_principal: 'https://example.com/bomba.jpg',
+            texto_busqueda: 'bomba jeringa precision microdosis uci',
+          },
+          {
+            slug: 'glucometro-latidos',
+            nombre: 'Glucómetro Latidos',
+            familia: { slug: 'diagnostico', nombre: 'Diagnóstico' },
+            tipo: { slug: 'glucometros', nombre: 'Glucómetros' },
+            descripcion_corta: 'Glucómetro Latidos LTD-B10',
+            imagen_principal: 'https://example.com/gluco.jpg',
+            texto_busqueda: 'glucometro latidos',
+          },
+        ]),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )) as typeof fetch;
+
+    try {
+      resetCatalogoPublicadoCache();
+      const respuesta = await buildResilientFallbackResponse({
+        mensaje: 'Cuál es el mejor de los dos ?',
+        historial: [
+          {
+            rol: 'usuario',
+            contenido: 'Tienes algún otro mamógrafo?',
+            timestamp: new Date(),
+          },
+          {
+            rol: 'asesor',
+            contenido: [
+              'Sí, en nuestro catálogo tenemos estas opciones que encajan con lo que busca:',
+              '',
+              '1.\u00a0Mamógrafo digital DM166 Series Angell con tomosíntesis 3D y CESM\u00a0— Mamógrafo digital Angell',
+              '2.\u00a0Mamógrafo Digital DM156 Series\u00a0— Mamógrafo digital con detector',
+            ].join('\n'),
+            timestamp: new Date(),
+          },
+        ],
+        locale: 'es',
+      });
+
+      expect(respuesta.productos.map(p => p.slug)).toEqual([
+        'mamografo-digital-dm166-series',
+        'mamografo-digital-dm156-series',
+      ]);
+      expect(respuesta.texto).toMatch(/DM166|DM156/);
+      expect(respuesta.texto).not.toContain('Bomba de Jeringa');
+      expect(respuesta.texto).not.toContain('Glucómetro');
+      expect(respuesta.modo).toBe('rag');
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
   it('en follow-up "más versátil" reusa shortlist y no salta a ultrasonido/máscaras (caso 1308)', async () => {
     const originalFetch = globalThis.fetch;
 
