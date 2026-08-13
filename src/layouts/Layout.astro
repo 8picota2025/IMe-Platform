@@ -40,10 +40,12 @@ const {
   fontAwesome,
 } = Astro.props;
 
-const commercialBarBlocked =
-  /\/(?:admin|comercial|carrito|cart|checkout|cuenta|account|pago|payment)(?:\/|$)/.test(
+const commercialBarAllowed =
+  /\/(?:es\/productos|en\/products)(?:\/|$)/.test(currentPath) ||
+  /\/(?:es\/(?:imagenologia|torres-laparoscopia|robotica-rehabilitacion|esterilizacion)|en\/(?:imaging|laparoscopy-towers|robotics-rehabilitation|sterilization))(?:\/|$)/.test(
     currentPath
-  );
+  ) ||
+  /\/(?:es\/fabricantes|en\/manufacturers)\/[^/]+(?:\/|$)/.test(currentPath);
 ---
 
 <!doctype html>
@@ -63,7 +65,7 @@ const commercialBarBlocked =
     <AnalyticsHead />
     <ClientRouter />
   </head>
-  <body class:list={{ 'has-mobile-commercial-bar': !commercialBarBlocked }}>
+  <body class:list={{ 'has-mobile-commercial-bar': commercialBarAllowed }}>
     <AnalyticsNoScript />
     <!-- Skip link de accesibilidad -->
     <a href="#main-content" class="skip-link">{t(locale, 'accesibilidad.saltar_contenido')}</a>
@@ -78,7 +80,7 @@ const commercialBarBlocked =
     <Asesor locale={locale} />
     <Carrito locale={locale} />
     <CotizacionDrawer locale={locale} />
-    {!commercialBarBlocked && <MobileCommercialBar locale={locale} />}
+    {commercialBarAllowed && <MobileCommercialBar locale={locale} />}
     <PWABanner />
 
     <!-- Lenis smooth scroll + GSAP init -->
