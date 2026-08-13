@@ -137,7 +137,15 @@ if (precioFormateado) {
 }
 ---
 
-<article class="producto-landing">
+<article
+  class="producto-landing"
+  data-product-context
+  data-product-name={producto.nombre}
+  data-product-model={modelo ?? ''}
+  data-product-brand={producto.marca ?? ''}
+  data-product-url={productUrl}
+  data-product-datasheet={fichaUrl ?? ''}
+>
   <!-- Breadcrumb -->
   <nav class="breadcrumb container" aria-label={t(locale, 'catalogo.migas_inicio')}>
     <ol>

@@ -22,6 +22,7 @@ const quoteLabel = isEn ? 'My quote' : 'Mi cotización';
 <nav
   class="mobile-commercial-bar"
   data-mobile-commercial-bar
+  data-locale={locale}
   aria-label={isEn ? 'Quick sales contact' : 'Contacto comercial rápido'}
 >
   <a
@@ -30,6 +31,7 @@ const quoteLabel = isEn ? 'My quote' : 'Mi cotización';
     target="_blank"
     rel="noopener noreferrer"
     data-commercial-origin="mobile_sticky_whatsapp"
+    data-mobile-whatsapp
   >
     <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
       <path
@@ -156,6 +158,47 @@ const quoteLabel = isEn ? 'My quote' : 'Mi cotización';
 
     const bar = document.querySelector<HTMLElement>('[data-mobile-commercial-bar]');
     if (!bar) return;
+
+    // En fichas de producto, sticky CTA debe conservar contexto de producto.
+    // Contexto vive en landing para que funcione también con View Transitions.
+    const mobileWhatsapp = bar.querySelector<HTMLAnchorElement>('[data-mobile-whatsapp]');
+    const productContext = document.querySelector<HTMLElement>('[data-product-context]');
+    if (mobileWhatsapp && productContext) {
+      const name = productContext.dataset.productName?.trim();
+      const model = productContext.dataset.productModel?.trim();
+      const brand = productContext.dataset.productBrand?.trim();
+      const productUrl = productContext.dataset.productUrl?.trim();
+      const datasheet = productContext.dataset.productDatasheet?.trim();
+      if (name && productUrl) {
+        const message =
+          bar.dataset.locale === 'en'
+            ? [
+                'Hello, I would like to receive information and a quote for:',
+                `Product: ${name}`,
+                model ? `Model: ${model}` : '',
+                brand ? `Brand: ${brand}` : '',
+                `Product page: ${productUrl}`,
+                datasheet ? `Datasheet: ${datasheet}` : '',
+                '',
+                'My name is: ____________________',
+                'Institution: ____________________',
+                'City/Country: ____________________',
+              ]
+            : [
+                'Hola, me gustaría recibir información y cotización de:',
+                `Producto: ${name}`,
+                model ? `Referencia: ${model}` : '',
+                brand ? `Marca: ${brand}` : '',
+                `Página del producto: ${productUrl}`,
+                datasheet ? `Ficha técnica: ${datasheet}` : '',
+                '',
+                'Mi nombre es: ____________________',
+                'Institución: ____________________',
+                'Ciudad/país: ____________________',
+              ];
+        mobileWhatsapp.href = `https://wa.me/573103332607?text=${encodeURIComponent(message.filter(Boolean).join('\n'))}`;
+      }
+    }
 
     mobileCommercialAbort = new AbortController();
     const trigger = bar.querySelector<HTMLButtonElement>('[data-mobile-quote-trigger]');
