@@ -1,6 +1,6 @@
 ---
 /**
- * CTA comercial persistente para móvil. Mantiene WhatsApp y lista de cotización
+ * CTA comercial persistente para móvil. Mantiene WhatsApp y cotización formal
  * accesibles durante todo el recorrido sin interferir con checkout o pagos.
  */
 import type { Locale } from '../i18n/utils';
@@ -16,7 +16,7 @@ const whatsappText = isEn
   : 'Hola, necesito asesoría para cotizar equipos biomédicos para mi institución.';
 const whatsappHref = `https://wa.me/573103332607?text=${encodeURIComponent(whatsappText)}`;
 const whatsappLabel = isEn ? 'Chat on WhatsApp' : 'Hablar por WhatsApp';
-const quoteLabel = isEn ? 'My quote' : 'Mi cotización';
+const quoteLabel = isEn ? 'Quote' : 'Cotización';
 ---
 
 <nav
@@ -48,7 +48,7 @@ const quoteLabel = isEn ? 'My quote' : 'Mi cotización';
     data-mobile-quote-trigger
     data-label={quoteLabel}
     aria-haspopup="dialog"
-    aria-controls="cotizacion-drawer"
+    aria-controls="quote-request-modal"
   >
     <svg
       viewBox="0 0 24 24"
@@ -67,7 +67,6 @@ const quoteLabel = isEn ? 'My quote' : 'Mi cotización';
       <line x1="9" y1="17" x2="15" y2="17"></line>
     </svg>
     <span>{quoteLabel}</span>
-    <span class="mobile-commercial-bar__count" data-mobile-quote-count hidden>0</span>
   </button>
 </nav>
 
@@ -121,40 +120,15 @@ const quoteLabel = isEn ? 'My quote' : 'Mi cotización';
       outline: 3px solid var(--green);
       outline-offset: 2px;
     }
-
-    .mobile-commercial-bar__count {
-      display: inline-grid;
-      place-items: center;
-      min-width: 1.35rem;
-      height: 1.35rem;
-      padding-inline: 0.3rem;
-      border-radius: 999px;
-      background: var(--green);
-      color: var(--ink);
-      font-size: 0.72rem;
-    }
-
-    .mobile-commercial-bar__count[hidden] {
-      display: none;
-    }
   }
 </style>
 
 <script>
-  import {
-    abrirCotizacion,
-    getCotizacionCantidad,
-    suscribirCotizacion,
-  } from '../lib/cotizacion-equipos';
-
   let mobileCommercialAbort: AbortController | null = null;
-  let unsubscribeQuoteCount: (() => void) | null = null;
 
   function initMobileCommercialBar() {
     mobileCommercialAbort?.abort();
-    unsubscribeQuoteCount?.();
     mobileCommercialAbort = null;
-    unsubscribeQuoteCount = null;
 
     const bar = document.querySelector<HTMLElement>('[data-mobile-commercial-bar]');
     if (!bar) return;
@@ -202,21 +176,17 @@ const quoteLabel = isEn ? 'My quote' : 'Mi cotización';
 
     mobileCommercialAbort = new AbortController();
     const trigger = bar.querySelector<HTMLButtonElement>('[data-mobile-quote-trigger]');
-    const count = bar.querySelector<HTMLElement>('[data-mobile-quote-count]');
     const label = trigger?.dataset.label ?? '';
-
-    const renderCount = (total: number) => {
-      if (!trigger || !count) return;
-      count.textContent = String(total);
-      count.hidden = total === 0;
-      trigger.setAttribute('aria-label', total > 0 ? `${label}, ${total}` : label);
-    };
-
-    renderCount(getCotizacionCantidad());
-    unsubscribeQuoteCount = suscribirCotizacion(items => {
-      renderCount(items.reduce((total, item) => total + item.cantidad, 0));
-    });
-    trigger?.addEventListener('click', abrirCotizacion, { signal: mobileCommercialAbort.signal });
+    trigger?.setAttribute('aria-label', label);
+    trigger?.addEventListener(
+      'click',
+      () => {
+        const win = window as Window & { __imeOpenQuoteRequest?: () => void };
+        if (win.__imeOpenQuoteRequest) win.__imeOpenQuoteRequest();
+        else document.dispatchEvent(new CustomEvent('ime:quote-request:open'));
+      },
+      { signal: mobileCommercialAbort.signal }
+    );
   }
 
   document.addEventListener('astro:page-load', initMobileCommercialBar);

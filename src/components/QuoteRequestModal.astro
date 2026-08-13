@@ -1,0 +1,337 @@
+---
+/** Formulario global de cotización. Recibe contexto de producto desde cualquier landing. */
+import type { Locale } from '../i18n/utils';
+import type { CampaignOption } from '../data/comercial-landings';
+import LeadQualificationForm from './LeadQualificationForm.astro';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const isEn = locale === 'en';
+const projectOptions: CampaignOption[] = [
+  { value: 'cotizacion_producto', label: isEn ? 'Product quote' : 'Cotización de producto' },
+  { value: 'reposicion', label: isEn ? 'Replacement' : 'Reposición de equipo' },
+  { value: 'ampliacion', label: isEn ? 'Capacity expansion' : 'Ampliación de capacidad' },
+  {
+    value: 'proyecto_institucional',
+    label: isEn ? 'Institutional project' : 'Proyecto institucional',
+  },
+  { value: 'otro', label: isEn ? 'Other' : 'Otro' },
+];
+const privacyHref = isEn ? '/en/legal/privacy/' : '/es/legal/privacidad/';
+---
+
+<dialog
+  id="quote-request-modal"
+  class="quote-request-modal"
+  data-quote-request-modal
+  aria-labelledby="quote-request-title"
+>
+  <div class="quote-request-modal__panel">
+    <button
+      type="button"
+      class="quote-request-modal__close"
+      data-quote-request-close
+      aria-label={isEn ? 'Close quote form' : 'Cerrar formulario de cotización'}
+    >
+      <span aria-hidden="true">×</span>
+    </button>
+
+    <p class="quote-request-modal__eyebrow">
+      {isEn ? 'Commercial request' : 'Solicitud comercial'}
+    </p>
+    <h2 id="quote-request-title">
+      {isEn ? 'Request a quote for this equipment' : 'Solicita cotización de este equipo'}
+    </h2>
+    <p class="quote-request-modal__intro">
+      {
+        isEn
+          ? 'Share your details and our team will prepare a proposal based on the product and your institution.'
+          : 'Déjanos tus datos y prepararemos una propuesta basada en el producto y las necesidades de tu institución.'
+      }
+    </p>
+
+    <section class="quote-request-summary" data-quote-request-summary hidden aria-live="polite">
+      <div>
+        <span class="quote-request-summary__label">{isEn ? 'Product' : 'Producto'}</span>
+        <strong data-quote-request-product></strong>
+        <span data-quote-request-model></span>
+        <span data-quote-request-brand></span>
+      </div>
+      <a data-quote-request-page target="_blank" rel="noopener noreferrer">
+        {isEn ? 'View product page ↗' : 'Ver página del producto ↗'}
+      </a>
+    </section>
+
+    <LeadQualificationForm
+      locale={locale}
+      campaign="proyectos"
+      familiaSlug="general"
+      primaryCta={isEn ? 'Submit quote request' : 'Enviar solicitud de cotización'}
+      projectOptions={projectOptions}
+      formId="quote-request-form"
+    />
+
+    <p class="quote-request-modal__privacy">
+      {isEn ? 'Your information is handled under our ' : 'Tus datos se tratan conforme a nuestra '}
+      <a href={privacyHref} target="_blank" rel="noopener noreferrer">
+        {isEn ? 'privacy policy' : 'política de privacidad'}
+      </a>.
+    </p>
+  </div>
+</dialog>
+
+<style>
+  .quote-request-modal {
+    width: min(720px, calc(100vw - 2rem));
+    max-width: 720px;
+    max-height: min(92vh, 900px);
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-lg);
+    background: var(--off);
+    color: var(--ink);
+    box-shadow: 0 24px 80px rgba(5, 24, 31, 0.3);
+  }
+  .quote-request-modal::backdrop {
+    background: rgba(5, 24, 31, 0.64);
+    backdrop-filter: blur(3px);
+  }
+  .quote-request-modal__panel {
+    position: relative;
+    overflow-y: auto;
+    max-height: min(92vh, 900px);
+    padding: clamp(1.35rem, 3vw, 2.25rem);
+  }
+  .quote-request-modal__close {
+    position: absolute;
+    top: 0.85rem;
+    right: 0.85rem;
+    width: 2.25rem;
+    height: 2.25rem;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    background: var(--white);
+    color: var(--ink);
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .quote-request-modal__close:focus-visible,
+  .quote-request-modal a:focus-visible {
+    outline: 3px solid var(--green);
+    outline-offset: 2px;
+  }
+  .quote-request-modal__eyebrow {
+    margin: 0 0 0.35rem;
+    color: var(--t700);
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .quote-request-modal h2 {
+    max-width: 18ch;
+    margin: 0;
+    padding-right: 2rem;
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: clamp(1.45rem, 3vw, 2rem);
+    line-height: 1.15;
+  }
+  .quote-request-modal__intro {
+    margin: 0.65rem 0 1.15rem;
+    max-width: 58ch;
+    color: var(--text-mid);
+    line-height: 1.55;
+  }
+  .quote-request-summary {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0 0 1.25rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid color-mix(in srgb, var(--t700) 25%, var(--border));
+    border-left: 4px solid var(--green);
+    border-radius: var(--radius);
+    background: var(--white);
+  }
+  .quote-request-summary > div {
+    display: grid;
+    gap: 0.18rem;
+  }
+  .quote-request-summary strong {
+    font-family: var(--font-display);
+    font-size: 1rem;
+  }
+  .quote-request-summary span:not(.quote-request-summary__label) {
+    color: var(--text-mid);
+    font-size: 0.82rem;
+  }
+  .quote-request-summary__label {
+    color: var(--t700);
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .quote-request-summary a {
+    flex: 0 0 auto;
+    color: var(--t800);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-decoration: underline;
+  }
+  .quote-request-modal__privacy {
+    margin: 1rem 0 0;
+    color: var(--text-mid);
+    font-size: 0.76rem;
+    line-height: 1.45;
+  }
+  .quote-request-modal__privacy a {
+    color: var(--t800);
+    font-weight: 700;
+  }
+  @media (max-width: 560px) {
+    .quote-request-modal {
+      width: calc(100vw - 0.75rem);
+      max-height: calc(100vh - 0.75rem);
+      margin: auto;
+      border-radius: var(--radius);
+    }
+    .quote-request-modal__panel {
+      max-height: calc(100vh - 0.75rem);
+      padding: 1.2rem 0.85rem 1.35rem;
+    }
+    .quote-request-summary {
+      display: block;
+    }
+    .quote-request-summary a {
+      display: inline-block;
+      margin-top: 0.65rem;
+    }
+  }
+</style>
+
+<script>
+  interface QuoteContext {
+    name?: string;
+    model?: string;
+    brand?: string;
+    url?: string;
+    familySlug?: string;
+    productSlug?: string;
+    summary?: string;
+  }
+
+  interface QuoteWindow extends Window {
+    __imeOpenQuoteRequest?: (context?: QuoteContext) => void;
+    __imeQuoteRequestInstalled?: boolean;
+  }
+
+  const win = window as QuoteWindow;
+
+  function getPageContext(): QuoteContext {
+    const node = document.querySelector<HTMLElement>('[data-product-context]');
+    if (!node) return {};
+    return {
+      name: node.dataset.productName ?? '',
+      model: node.dataset.productModel ?? '',
+      brand: node.dataset.productBrand ?? '',
+      url: node.dataset.productUrl ?? '',
+      familySlug: node.dataset.familySlug ?? '',
+      productSlug: node.dataset.productSlug ?? '',
+      summary: node.dataset.productSummary ?? '',
+    };
+  }
+
+  function initQuoteRequestModal() {
+    const modal = document.querySelector<HTMLDialogElement>('[data-quote-request-modal]');
+    const form = document.getElementById('quote-request-form') as HTMLFormElement | null;
+    if (!modal || !form) return;
+
+    const summary = modal.querySelector<HTMLElement>('[data-quote-request-summary]');
+    const product = modal.querySelector<HTMLElement>('[data-quote-request-product]');
+    const model = modal.querySelector<HTMLElement>('[data-quote-request-model]');
+    const brand = modal.querySelector<HTMLElement>('[data-quote-request-brand]');
+    const page = modal.querySelector<HTMLAnchorElement>('[data-quote-request-page]');
+    const familyInput = form.querySelector<HTMLInputElement>('[name="familia_slug"]');
+    const typeInput = form.querySelector<HTMLInputElement>('[name="tipo_slug"]');
+    const project = form.querySelector<HTMLSelectElement>('[name="tipo_proyecto"]');
+    const need = form.querySelector<HTMLTextAreaElement>('[name="necesidad"]');
+    const setExpanded = (expanded: boolean) => {
+      document
+        .getElementById('nav-cotizacion-btn')
+        ?.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+      document
+        .querySelector('[data-mobile-quote-trigger]')
+        ?.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    };
+    const close = () => {
+      if (modal.open) modal.close();
+      setExpanded(false);
+    };
+
+    const open = (provided: QuoteContext = {}) => {
+      const context = { ...getPageContext(), ...provided };
+      const hasProduct = Boolean(context.name?.trim());
+      if (summary) summary.hidden = !hasProduct;
+      if (product) product.textContent = context.name?.trim() ?? '';
+      if (model) model.textContent = context.model?.trim() ? `Ref: ${context.model.trim()}` : '';
+      if (brand) brand.textContent = context.brand?.trim() ? `Brand: ${context.brand.trim()}` : '';
+      if (page) {
+        page.hidden = !context.url;
+        page.href = context.url ?? '#';
+      }
+      if (familyInput) familyInput.value = context.familySlug?.trim() || 'general';
+      if (typeInput) typeInput.value = context.productSlug?.trim() || '';
+      if (project && !project.value) project.value = 'cotizacion_producto';
+      if (need && !need.value) {
+        const label = context.name?.trim() || 'equipos biomédicos';
+        const url = context.url?.trim();
+        need.value =
+          context.summary?.trim() ||
+          `Solicito información técnica, disponibilidad y cotización de ${label}.${url ? ` Página: ${url}` : ''}`;
+      }
+      if (typeof modal.showModal === 'function') modal.showModal();
+      else modal.setAttribute('open', '');
+      setExpanded(true);
+      modal.querySelector<HTMLElement>('input:not([type="hidden"]), textarea, select')?.focus();
+    };
+
+    win.__imeOpenQuoteRequest = open;
+    if (win.__imeQuoteRequestInstalled) return;
+    win.__imeQuoteRequestInstalled = true;
+
+    modal.querySelector('[data-quote-request-close]')?.addEventListener('click', close);
+    modal.addEventListener('close', () => setExpanded(false));
+    modal.addEventListener('click', event => {
+      if (event.target === modal) close();
+    });
+    document.addEventListener('ime:quote-request:open', () => open());
+    document.addEventListener('click', event => {
+      const target = event.target as Element | null;
+      const trigger = target?.closest<HTMLElement>('[data-quote-request-trigger]');
+      if (!trigger) return;
+      event.preventDefault();
+      open({
+        name: trigger.dataset.productName ?? '',
+        model: trigger.dataset.productModel ?? '',
+        brand: trigger.dataset.productBrand ?? '',
+        url: trigger.dataset.productUrl ?? '',
+        familySlug: trigger.dataset.familySlug ?? '',
+        productSlug: trigger.dataset.productSlug ?? '',
+        summary: trigger.dataset.productSummary ?? '',
+      });
+    });
+  }
+
+  initQuoteRequestModal();
+  document.addEventListener('astro:page-load', initQuoteRequestModal);
+</script>

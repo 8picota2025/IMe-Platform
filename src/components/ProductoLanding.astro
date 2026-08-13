@@ -27,7 +27,6 @@ interface Props {
 const { producto, familia, relacionados, locale } = Astro.props;
 
 const catalogoPath = locale === 'en' ? '/en/catalog/' : '/es/catalogo/';
-const contactoPath = locale === 'en' ? '/en/contact/' : '/es/contacto/';
 const carritoPath = locale === 'en' ? '/en/cart/' : '/es/carrito/';
 
 const especificaciones = normalizarEspecificaciones(producto.especificaciones);
@@ -123,7 +122,6 @@ const migas = [
   { nombre: familia.nombre, href: `${catalogoPath}?familia=${familia.slug}` },
 ];
 
-const ctaCotizarHref = `${contactoPath}?producto=${encodeURIComponent(producto.nombre)}&referencia=${encodeURIComponent(modelo ?? '')}&pagina=${encodeURIComponent(productUrl)}`;
 const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
 
 // Stats de la cabecera del hero: reutiliza datos ya verificados (modalidad,
@@ -147,6 +145,9 @@ if (precioFormateado) {
   data-product-brand={producto.marca ?? ''}
   data-product-url={productUrl}
   data-product-datasheet={fichaUrl ?? ''}
+  data-family-slug={familia.slug}
+  data-product-slug={producto.slug}
+  data-product-summary={producto.descripcion_corta}
 >
   <!-- Breadcrumb -->
   <nav class="breadcrumb container" aria-label={t(locale, 'catalogo.migas_inicio')}>
@@ -227,9 +228,20 @@ if (precioFormateado) {
                 {t(locale, 'producto.asesor_cta')}
               </a>
             ) : (
-              <a href={ctaCotizarHref} class="btn-hero-secondary">
+              <button
+                type="button"
+                class="btn-hero-secondary"
+                data-quote-request-trigger
+                data-product-name={producto.nombre}
+                data-product-model={modelo ?? ''}
+                data-product-brand={producto.marca ?? ''}
+                data-product-url={productUrl}
+                data-family-slug={familia.slug}
+                data-product-slug={producto.slug}
+                data-product-summary={producto.descripcion_corta}
+              >
                 {t(locale, 'producto.cotizar_cta')}
-              </a>
+              </button>
             )
           }
           {
@@ -550,9 +562,20 @@ if (precioFormateado) {
               {t(locale, 'carrito.ir_pagar')}
             </a>
           ) : (
-            <a href={ctaCotizarHref} class="btn-hero-primary">
+            <button
+              type="button"
+              class="btn-hero-primary"
+              data-quote-request-trigger
+              data-product-name={producto.nombre}
+              data-product-model={modelo ?? ''}
+              data-product-brand={producto.marca ?? ''}
+              data-product-url={productUrl}
+              data-family-slug={familia.slug}
+              data-product-slug={producto.slug}
+              data-product-summary={producto.descripcion_corta}
+            >
               {t(locale, 'producto.cotizar_cta')}
-            </a>
+            </button>
           )
         }
         <a href={whatsappHref} class="btn-hero-secondary" target="_blank" rel="noopener noreferrer">
@@ -582,9 +605,20 @@ if (precioFormateado) {
   <div class="cta-sticky" id="cta-sticky" hidden>
     <div class="container cta-sticky__inner">
       <p class="cta-sticky__nombre">{producto.nombre}</p>
-      <a href={ctaCotizarHref} class="btn btn-primary">
+      <button
+        type="button"
+        class="btn btn-primary"
+        data-quote-request-trigger
+        data-product-name={producto.nombre}
+        data-product-model={modelo ?? ''}
+        data-product-brand={producto.marca ?? ''}
+        data-product-url={productUrl}
+        data-family-slug={familia.slug}
+        data-product-slug={producto.slug}
+        data-product-summary={producto.descripcion_corta}
+      >
         {t(locale, 'producto.cotizar_cta')}
-      </a>
+      </button>
     </div>
   </div>
 </article>

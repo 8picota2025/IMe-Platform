@@ -11,6 +11,7 @@ import Footer from '../components/Footer.astro';
 import Asesor from '../components/Asesor.astro';
 import Carrito from '../components/Carrito.astro';
 import CotizacionDrawer from '../components/CotizacionDrawer.astro';
+import QuoteRequestModal from '../components/QuoteRequestModal.astro';
 import MobileCommercialBar from '../components/MobileCommercialBar.astro';
 import PWABanner from '../components/PWABanner.astro';
 import type { Locale } from '../i18n/utils';
@@ -80,6 +81,7 @@ const commercialBarAllowed =
     <Asesor locale={locale} />
     <Carrito locale={locale} />
     <CotizacionDrawer locale={locale} />
+    <QuoteRequestModal locale={locale} />
     {commercialBarAllowed && <MobileCommercialBar locale={locale} />}
     <PWABanner />
 
