@@ -13,16 +13,9 @@ const DEV_ORIGINS = [
   'http://127.0.0.1:4321',
 ];
 
-const envHint = (
-  Deno.env.get('ENVIRONMENT') ??
-  Deno.env.get('DENO_ENV') ??
-  Deno.env.get('NODE_ENV') ??
-  ''
-).toLowerCase();
-const allowDevOrigins =
-  envHint === 'development' || envHint === 'dev' || envHint === 'local' || envHint === 'test';
-
-const ALLOWED_ORIGINS = allowDevOrigins ? [...PROD_ORIGINS, ...DEV_ORIGINS] : PROD_ORIGINS;
+// Sandbox local (`127.0.0.1:44334`) siempre permitido: Origin solo aplica al
+// navegador que abre esa URL; no abre CORS a terceros en producción.
+const ALLOWED_ORIGINS = [...PROD_ORIGINS, ...DEV_ORIGINS];
 
 export function getCorsHeaders(requestOrigin: string | null): HeadersInit {
   const origin =
