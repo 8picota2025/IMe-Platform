@@ -427,13 +427,17 @@ Deno.serve(async req => {
   }
 
   const pdfPath = `${id}/${pdfRevision}.pdf`;
-  let storedPdfPath: string | null = null;
+  const previousPdfPath = typeof meta.pdf_storage_path === 'string' ? meta.pdf_storage_path : null;
+  let storedPdfPath: string | null = previousPdfPath;
   const { error: uploadError } = await supabase.storage
     .from('cotizaciones-pdf')
     .upload(pdfPath, pdfBytes, { contentType: 'application/pdf', upsert: true });
   if (!uploadError) {
     storedPdfPath = pdfPath;
+    delete meta.pdf_storage_error;
   } else {
+    // No borrar referencia de una revisión anterior si el bucket falla en un
+    // reintento; el endpoint puede seguir descargando ese PDF.
     meta.pdf_storage_error = uploadError.message.slice(0, 500);
   }
   // Si el bucket no existe aún, igual enviamos el PDF adjunto por email.
