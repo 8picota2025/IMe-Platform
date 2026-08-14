@@ -289,7 +289,9 @@ Deno.serve(async req => {
     ? Number((claimed as CotizacionOfertaRow).pdf_revision ?? 1) || 1
     : (Number((row as { pdf_revision?: number }).pdf_revision ?? 0) || 0) + 1;
   const releaseClaim = async (sendError: string) => {
-    if (claimActive) await releaseSendClaim(supabase, id, sendError);
+    // Persistir también cuando la RPC de claim aún no existe en una
+    // instancia parcialmente migrada. La función hace fallback a metadata.
+    await releaseSendClaim(supabase, id, sendError);
   };
   const locale = row.locale === 'en' ? 'en' : 'es';
   const siteUrl = (Deno.env.get('SITE_URL') ?? DEFAULT_SITE_URL).replace(/\/+$/, '');
@@ -431,6 +433,8 @@ Deno.serve(async req => {
     .upload(pdfPath, pdfBytes, { contentType: 'application/pdf', upsert: true });
   if (!uploadError) {
     storedPdfPath = pdfPath;
+  } else {
+    meta.pdf_storage_error = uploadError.message.slice(0, 500);
   }
   // Si el bucket no existe aún, igual enviamos el PDF adjunto por email.
 
