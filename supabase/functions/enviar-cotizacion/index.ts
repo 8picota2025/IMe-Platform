@@ -80,11 +80,33 @@ async function releaseSendClaim(
   id: string,
   sendError: string
 ): Promise<void> {
-  await supabase
+  const { error } = await supabase
     .from('solicitudes_cotizacion')
     .update({
       send_claimed_at: null,
       send_error: sendError.slice(0, 500),
+    })
+    .eq('id', id);
+  // Produccion puede tener la tabla antes de la migracion PDF. Conserva el
+  // error en metadata para que la interfaz no presente un falso borrador sano.
+  if (!error) return;
+  const { data } = await supabase
+    .from('solicitudes_cotizacion')
+    .select('metadata')
+    .eq('id', id)
+    .maybeSingle();
+  const previous =
+    data?.metadata && typeof data.metadata === 'object' && !Array.isArray(data.metadata)
+      ? (data.metadata as Record<string, unknown>)
+      : {};
+  await supabase
+    .from('solicitudes_cotizacion')
+    .update({
+      metadata: {
+        ...previous,
+        quote_send_error: sendError.slice(0, 500),
+        quote_send_failed_at: new Date().toISOString(),
+      },
     })
     .eq('id', id);
 }
@@ -328,6 +350,7 @@ Deno.serve(async req => {
   const notas = notasPrevias ? `${notasPrevias}\n${nota}` : nota;
 
   const preMail: Record<string, unknown> = {
+    numero,
     formalizacion_token_expira_at: expiraAt,
     metadata: meta,
     precio_total_ofertado: oferta.total,
@@ -412,6 +435,36 @@ Deno.serve(async req => {
   // Si el bucket no existe aún, igual enviamos el PDF adjunto por email.
 
   const pdfSha = await hashBytesSha256(pdfBytes);
+  // Persistir referencia del artefacto antes de llamar al proveedor de email.
+  // Si Resend falla, el comercial aún puede abrir/descargar el PDF y reintentar.
+  meta.pdf_storage_path = storedPdfPath;
+  meta.pdf_sha256 = pdfSha;
+  meta.pdf_revision = pdfRevision;
+  let { error: artifactError } = await supabase
+    .from('solicitudes_cotizacion')
+    .update({
+      numero,
+      metadata: meta,
+      ...(storedPdfPath
+        ? {
+            pdf_storage_path: storedPdfPath,
+            pdf_sha256: pdfSha,
+            pdf_revision: pdfRevision,
+          }
+        : {}),
+    })
+    .eq('id', id);
+  if (artifactError) {
+    // Legacy schema: metadata is always available, while PDF columns may not.
+    ({ error: artifactError } = await supabase
+      .from('solicitudes_cotizacion')
+      .update({ metadata: meta })
+      .eq('id', id));
+  }
+  if (artifactError) {
+    await releaseClaim(artifactError.message);
+    return internalError(artifactError.message, origin);
+  }
   const pdfAdjunto = {
     filename: `${numero}.pdf`,
     content: base64(pdfBytes),

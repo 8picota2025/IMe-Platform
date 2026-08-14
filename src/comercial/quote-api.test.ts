@@ -29,4 +29,26 @@ describe('mapQuoteRow', () => {
     expect(quote.numero).toBeNull();
     expect(quote.incompleta).toBe(true);
   });
+
+  it('recupera numero, PDF y error desde metadata en esquema legado', () => {
+    const quote = mapQuoteRow({
+      id: '22222222-2222-4222-8222-222222222222',
+      estado: 'respondida',
+      nombre: 'Luis',
+      email: 'luis@clinic.co',
+      telefono: '301',
+      moneda: 'COP',
+      productos: [],
+      metadata: {
+        numero_presupuesto: 'IME-Q-2026-000042',
+        pdf_storage_path: '22222222-2222-4222-8222-222222222222/1.pdf',
+        pdf_revision: 1,
+        quote_send_error: 'MAILER_API_KEY no configurada',
+      },
+    });
+    expect(quote.numero).toBe('IME-Q-2026-000042');
+    expect(quote.pdf_storage_path).toContain('/1.pdf');
+    expect(quote.pdf_revision).toBe(1);
+    expect(quote.send_error).toContain('MAILER_API_KEY');
+  });
 });

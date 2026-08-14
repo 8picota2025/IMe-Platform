@@ -59,6 +59,7 @@ const DETAIL_COLUMNS = [
   'pdf_storage_path',
   'pdf_revision',
   'send_error',
+  'metadata',
   'crm_sync_status',
   'created_by',
   'locale',
@@ -80,6 +81,7 @@ const DETAIL_COLUMNS_SAFE = [
   'precio_total_ofertado',
   'created_at',
   'crm_sync_status',
+  'metadata',
   'locale',
   'pedido_id',
 ].join(',');
@@ -134,11 +136,17 @@ function publicRow(
   },
   createdByNombre?: string | null
 ) {
+  const metadata =
+    row.metadata && typeof row.metadata === 'object' && !Array.isArray(row.metadata)
+      ? row.metadata
+      : {};
   const lineas = parseLineasOferta(row.productos);
   const check = ofertaCompleta(lineas, row.condiciones);
   return {
     id: row.id,
-    numero: row.numero ?? null,
+    numero:
+      row.numero ??
+      (typeof metadata.numero_presupuesto === 'string' ? metadata.numero_presupuesto : null),
     estado: row.estado ?? 'nueva',
     nombre: row.nombre ?? '',
     empresa: row.empresa ?? null,
@@ -152,9 +160,13 @@ function publicRow(
     precio_total_ofertado: Number(row.precio_total_ofertado ?? calcularTotalOfertado(lineas)),
     updated_at: row.updated_at ?? row.created_at ?? null,
     created_at: row.created_at ?? null,
-    pdf_storage_path: row.pdf_storage_path ?? null,
-    pdf_revision: row.pdf_revision ?? 0,
-    send_error: row.send_error ?? null,
+    pdf_storage_path:
+      row.pdf_storage_path ??
+      (typeof metadata.pdf_storage_path === 'string' ? metadata.pdf_storage_path : null),
+    pdf_revision: row.pdf_revision ?? (Number(metadata.pdf_revision ?? 0) || 0),
+    send_error:
+      row.send_error ??
+      (typeof metadata.quote_send_error === 'string' ? metadata.quote_send_error : null),
     crm_sync_status: row.crm_sync_status ?? null,
     created_by: row.created_by ?? null,
     created_by_nombre: createdByNombre ?? null,
@@ -414,16 +426,25 @@ async function handlePdf(
   if (!data) return notFound(origin);
   const row = data as CotizacionOfertaRow;
 
-  if (row.pdf_storage_path) {
-    const downloaded = await supabase.storage
-      .from('cotizaciones-pdf')
-      .download(row.pdf_storage_path);
+  const metadata =
+    row.metadata && typeof row.metadata === 'object' && !Array.isArray(row.metadata)
+      ? row.metadata
+      : {};
+  const storedPath =
+    row.pdf_storage_path ??
+    (typeof metadata.pdf_storage_path === 'string' ? metadata.pdf_storage_path : null);
+  if (storedPath) {
+    const downloaded = await supabase.storage.from('cotizaciones-pdf').download(storedPath);
     if (!downloaded.error && downloaded.data) {
       const bytes = new Uint8Array(await downloaded.data.arrayBuffer());
       return json(
         {
           pdf_base64: base64(bytes),
-          numero: row.numero ?? id.slice(0, 8),
+          numero:
+            row.numero ??
+            (typeof metadata.numero_presupuesto === 'string'
+              ? metadata.numero_presupuesto
+              : id.slice(0, 8)),
           stored: true,
         },
         origin
@@ -441,7 +462,10 @@ async function handlePdf(
     );
   }
   const bytes = await renderQuotePdf({
-    numero: String(row.numero ?? 'BORRADOR'),
+    numero: String(
+      row.numero ??
+        (typeof metadata.numero_presupuesto === 'string' ? metadata.numero_presupuesto : 'BORRADOR')
+    ),
     clienteNombre: String(row.nombre ?? 'Cliente'),
     empresa: row.empresa,
     email: row.email,
@@ -456,7 +480,11 @@ async function handlePdf(
   return json(
     {
       pdf_base64: base64(bytes),
-      numero: row.numero ?? 'BORRADOR',
+      numero:
+        row.numero ??
+        (typeof metadata.numero_presupuesto === 'string'
+          ? metadata.numero_presupuesto
+          : 'BORRADOR'),
       stored: false,
     },
     origin

@@ -78,11 +78,11 @@ export interface QuoteSaveInput {
 
 /** Columnas presentes en prod actual (OpenAPI). */
 const DETAIL_CORE =
-  'id,estado,nombre,empresa,email,telefono,moneda,mercado,validez_hasta,condiciones,productos,precio_total_ofertado,created_at,crm_sync_status,locale,pedido_id,campaign,landing_path,origen,tipo_solicitud';
+  'id,estado,nombre,empresa,email,telefono,moneda,mercado,validez_hasta,condiciones,productos,precio_total_ofertado,created_at,metadata,crm_sync_status,locale,pedido_id,campaign,landing_path,origen,tipo_solicitud';
 
 /** Extras de migración PDF/numeración — se intentan si existen. */
 const DETAIL_RICH =
-  'id,numero,estado,nombre,empresa,email,telefono,moneda,mercado,validez_hasta,condiciones,productos,precio_total_ofertado,updated_at,created_at,pdf_storage_path,pdf_revision,send_error,crm_sync_status,created_by,locale,pedido_id,campaign,landing_path,origen,tipo_solicitud';
+  'id,numero,estado,nombre,empresa,email,telefono,moneda,mercado,validez_hasta,condiciones,productos,precio_total_ofertado,updated_at,created_at,pdf_storage_path,pdf_revision,send_error,metadata,crm_sync_status,created_by,locale,pedido_id,campaign,landing_path,origen,tipo_solicitud';
 
 function missingSchema(message?: string | null, code?: string | null): boolean {
   if (code && /^(PGRST204|42703|42883)$/i.test(code)) return true;
@@ -124,6 +124,10 @@ function asRow(value: unknown): Record<string, unknown> {
 
 export function mapQuoteRow(raw: unknown, createdByNombre?: string | null): QuotePublic {
   const row = asRow(raw);
+  const metadata =
+    row.metadata && typeof row.metadata === 'object' && !Array.isArray(row.metadata)
+      ? (row.metadata as Record<string, unknown>)
+      : {};
   const lineas = parseLineasOferta(row.productos);
   const check = ofertaCompleta(lineas, String(row.condiciones ?? ''));
   const moneda = normalizarMonedaOferta(row.moneda);
@@ -133,7 +137,12 @@ export function mapQuoteRow(raw: unknown, createdByNombre?: string | null): Quot
   const pwa = Boolean(createdBy) || campaign.startsWith('pwa') || landing.startsWith('/comercial');
   return {
     id: String(row.id ?? ''),
-    numero: typeof row.numero === 'string' && row.numero ? row.numero : null,
+    numero:
+      typeof row.numero === 'string' && row.numero
+        ? row.numero
+        : typeof metadata.numero_presupuesto === 'string'
+          ? metadata.numero_presupuesto
+          : null,
     estado: String(row.estado ?? 'nueva'),
     nombre: String(row.nombre ?? ''),
     empresa: typeof row.empresa === 'string' ? row.empresa : null,
@@ -151,9 +160,19 @@ export function mapQuoteRow(raw: unknown, createdByNombre?: string | null): Quot
           ? row.created_at
           : null,
     created_at: typeof row.created_at === 'string' ? row.created_at : null,
-    pdf_storage_path: typeof row.pdf_storage_path === 'string' ? row.pdf_storage_path : null,
-    pdf_revision: Number(row.pdf_revision ?? 0) || 0,
-    send_error: typeof row.send_error === 'string' ? row.send_error : null,
+    pdf_storage_path:
+      typeof row.pdf_storage_path === 'string'
+        ? row.pdf_storage_path
+        : typeof metadata.pdf_storage_path === 'string'
+          ? metadata.pdf_storage_path
+          : null,
+    pdf_revision: Number(row.pdf_revision ?? metadata.pdf_revision ?? 0) || 0,
+    send_error:
+      typeof row.send_error === 'string'
+        ? row.send_error
+        : typeof metadata.quote_send_error === 'string'
+          ? metadata.quote_send_error
+          : null,
     crm_sync_status: typeof row.crm_sync_status === 'string' ? row.crm_sync_status : null,
     created_by: createdBy,
     created_by_nombre: createdByNombre ?? null,
@@ -323,11 +342,11 @@ async function listQuotesRest(
     if (/numero/.test(error.message)) useNumero = false;
     if (attempt === 0) {
       cols =
-        'id,estado,nombre,empresa,email,telefono,moneda,mercado,validez_hasta,condiciones,productos,precio_total_ofertado,created_at,crm_sync_status,locale,pedido_id,campaign,landing_path';
+        'id,estado,nombre,empresa,email,telefono,moneda,mercado,validez_hasta,condiciones,productos,precio_total_ofertado,created_at,metadata,crm_sync_status,locale,pedido_id,campaign,landing_path';
       continue;
     }
     cols =
-      'id,estado,nombre,empresa,email,telefono,moneda,productos,condiciones,created_at,campaign,landing_path';
+      'id,estado,nombre,empresa,email,telefono,moneda,productos,condiciones,metadata,created_at,campaign,landing_path';
   }
   return fail(lastError, 500);
 }
@@ -349,8 +368,8 @@ async function fetchQuoteRow(
   const colSets = [
     DETAIL_CORE,
     DETAIL_RICH,
-    'id,estado,nombre,empresa,email,telefono,moneda,mercado,validez_hasta,condiciones,productos,precio_total_ofertado,created_at,crm_sync_status,locale,pedido_id,campaign,landing_path',
-    'id,estado,nombre,empresa,email,telefono,moneda,productos,condiciones,created_at,campaign,landing_path',
+    'id,estado,nombre,empresa,email,telefono,moneda,mercado,validez_hasta,condiciones,productos,precio_total_ofertado,created_at,metadata,crm_sync_status,locale,pedido_id,campaign,landing_path',
+    'id,estado,nombre,empresa,email,telefono,moneda,productos,condiciones,metadata,created_at,campaign,landing_path',
   ];
   let lastError = 'No se pudo cargar la cotización.';
   for (const cols of colSets) {
