@@ -5,6 +5,7 @@
  */
 
 import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
+import { resultadoPlantillaInactiva } from '../../../src/lib/cotizacion-oferta.ts';
 
 export const DESTINATARIOS_INTERNOS = (
   Deno.env.get('MAILER_INTERNAL') ?? 'root@i-me.com.co,ventas@i-me.com.co'
@@ -114,6 +115,27 @@ const DEFAULTS: Record<string, { asunto: string; html: string }> = {
     asunto: 'Your I-ME quote — pay by bank transfer {{referencia}}',
     html: '<h2>Hello {{cliente_nombre}}</h2><p>We prepared your quote. Review the summary and configuration notes. To formalize, transfer the quoted total and upload the payment receipt on the platform.</p><p><strong>Reference:</strong> {{referencia}}</p><p><strong>Amount to transfer:</strong> {{total}} {{moneda}}</p><p><strong>Valid until:</strong> {{validez}}</p><p><strong>Products:</strong></p><ul>{{items_html}}</ul><p><strong>Notes / terms:</strong></p><pre>{{condiciones}}</pre><p><strong>Bank details:</strong></p><pre>{{datos_bancarios}}</pre><p><a href="{{formalizar_url_href}}" style="display:inline-block;padding:12px 20px;background:#0b3d4a;color:#fff;text-decoration:none;border-radius:4px">Pay by bank transfer</a></p><p>If the button does not work, copy this link:<br>{{formalizar_url}}</p><p>I-ME Team<br>ventas@i-me.com.co</p>',
   },
+  presupuesto: {
+    asunto: 'Presupuesto I-ME {{referencia}} — {{cliente_nombre}}',
+    html:
+      '<div style="font-family:Segoe UI,Helvetica,Arial,sans-serif;color:#14201f">' +
+      '<div style="background:#005e60;color:#fff;padding:18px 20px;border-radius:10px 10px 0 0">' +
+      '<div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.85">I-ME International Medical Enterprise</div>' +
+      '<div style="font-size:22px;font-weight:700;margin-top:4px">Presupuesto</div>' +
+      '<div style="margin-top:6px;font-size:13px">Ref. {{referencia}}</div></div>' +
+      '<div style="border:1px solid #d7e3e2;border-top:0;padding:18px 20px;border-radius:0 0 10px 10px">' +
+      '<p>Hola <strong>{{cliente_nombre}}</strong>,</p>' +
+      '<p>Soy <strong>{{nombre_comercial}}</strong>, asesor(a) comercial de I-ME. Te envío el presupuesto con el detalle completo.</p>' +
+      '<p><strong>Datos del cliente</strong><br>Nombre: {{cliente_nombre}}<br>Empresa: {{cliente_empresa}}<br>Email: {{cliente_email}}<br>Teléfono: {{cliente_telefono}}</p>' +
+      '<p><strong>Asesor comercial</strong><br>{{nombre_comercial}}<br>{{correo_comercial}} · {{telefono_comercial}}</p>' +
+      '<p><strong>Total ofertado:</strong> {{total}} {{moneda}} · <strong>Validez:</strong> {{validez}}</p>' +
+      '<p><strong>Productos</strong></p><ul>{{items_html}}</ul>' +
+      '<p><strong>Condiciones</strong></p><pre>{{condiciones}}</pre>' +
+      '<p><strong>Datos bancarios</strong></p><pre>{{datos_bancarios}}</pre>' +
+      '<p><a href="{{formalizar_url_href}}" style="display:inline-block;padding:12px 20px;background:#005e60;color:#fff;text-decoration:none;border-radius:8px">Formalizar / pagar por transferencia</a></p>' +
+      '<p style="font-size:12px;color:#5b6b6a">Si el botón no funciona:<br>{{formalizar_url}}</p>' +
+      '<p>Saludos,<br>{{nombre_comercial}}<br>I-ME<br>{{correo_comercial}} · {{telefono_comercial}}</p></div></div>',
+  },
   transferencia_recibida_interna: {
     asunto: 'Comprobante pendiente de validacion {{referencia}}',
     html: '<h2>Comprobante de transferencia recibido</h2><p>Pedido: <strong>{{referencia}}</strong></p><p>Cliente: {{cliente_nombre}} ({{cliente_email}})</p><p>Total: <strong>{{total}} {{moneda}}</strong></p><p>Validar el comprobante en el CMS de pedidos.</p>',
@@ -214,10 +236,17 @@ export interface EmailAdjunto {
   content: string;
 }
 
+export interface EnviarEmailOpciones {
+  failOnInactive?: boolean;
+  idempotencyKey?: string;
+}
+
 /**
  * Renderiza la plantilla `clave` (DB con fallback a defaults) y la envia a
  * cada destinatario. `vars` deben venir ya escapadas si contienen input de
  * usuario (usar escapeHtml / itemsToHtml).
+ *
+ * `failOnInactive`: oferta send must pass true. Other callers keep skip-as-ok.
  */
 export async function enviarEmailPlantilla(
   supabase: SupabaseClient,
@@ -225,7 +254,8 @@ export async function enviarEmailPlantilla(
   destinatarios: string[],
   vars: Record<string, string>,
   referencia?: string,
-  adjuntos: EmailAdjunto[] = []
+  adjuntos: EmailAdjunto[] = [],
+  options: EnviarEmailOpciones = {}
 ): Promise<EnvioResultado> {
   const apiKey = Deno.env.get('MAILER_API_KEY') || Deno.env.get('RESEND_API_KEY');
   if (!apiKey) return { ok: false, detalle: 'MAILER_API_KEY no configurada' };
@@ -239,7 +269,9 @@ export async function enviarEmailPlantilla(
     .maybeSingle();
   const row = data as { asunto: string; html: string; activo: boolean } | null;
   if (row) {
-    if (!row.activo) return { ok: true, detalle: `plantilla ${clave} desactivada` };
+    if (!row.activo) {
+      return resultadoPlantillaInactiva(clave, options.failOnInactive === true);
+    }
     asunto = row.asunto;
     html = row.html;
   } else if (DEFAULTS[clave]) {
@@ -258,10 +290,17 @@ export async function enviarEmailPlantilla(
   for (const to of destinatarios) {
     let status: 'enviado' | 'fallido' = 'enviado';
     let errorTxt: string | null = null;
+    const idempotencyKey = options.idempotencyKey
+      ? `${options.idempotencyKey}:${to}`.slice(0, 256)
+      : '';
     try {
       const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',
-        headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          ...(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}),
+        },
         body: JSON.stringify({
           from,
           to,
@@ -270,7 +309,10 @@ export async function enviarEmailPlantilla(
           ...(adjuntos.length > 0 ? { attachments: adjuntos } : {}),
         }),
       });
-      if (!res.ok) {
+      if (res.status === 409 && idempotencyKey) {
+        status = 'enviado';
+        errorTxt = null;
+      } else if (!res.ok) {
         status = 'fallido';
         errorTxt = `HTTP ${res.status}: ${(await res.text()).slice(0, 200)}`;
       }

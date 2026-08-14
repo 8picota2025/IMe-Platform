@@ -55,4 +55,11 @@ describe('resolveMarcaSupabase — marca fallback desde atributos', () => {
     });
     expect(result).toBeNull();
   });
+
+  it('cae de vuelta a atributos.fabricante si no hay marca', () => {
+    const result = resolveMarcaSupabase({
+      atributos: { fabricante: 'Angell Technology' },
+    });
+    expect(result).toBe('Angell Technology');
+  });
 });

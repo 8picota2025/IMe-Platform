@@ -3,10 +3,17 @@ import {
   calcularTotalOfertado,
   expiryFromValidez,
   formalizarPath,
+  formatQuoteNumero,
+  hashBytesSha256,
   hashTokenSha256,
+  normalizarOferta,
   ofertaCompleta,
   parseLineasOferta,
   puedeFormalizar,
+  quoteEditable,
+  resultadoPlantillaInactiva,
+  sanitizarLineasComercial,
+  formatQuoteMoney,
   splitNombreApellido,
   tokenExpirado,
 } from './cotizacion-oferta';
@@ -107,5 +114,85 @@ describe('cotizacion-oferta', () => {
     expect(expiryFromValidez('2026-08-20', 14, now)).toContain('2026-08-20');
     const fallback = expiryFromValidez(null, 14, now);
     expect(Date.parse(fallback)).toBeGreaterThan(now.getTime());
+  });
+
+  it('normalizarOferta recomputa subtotales y rechaza moneda mixta', () => {
+    const mixed = normalizarOferta(
+      parseLineasOferta([
+        { slug: 'a', nombre: 'A', cantidad: 1, precio_unitario: 10, moneda: 'COP' },
+        { slug: 'b', nombre: 'B', cantidad: 1, precio_unitario: 10, moneda: 'USD' },
+      ]),
+      'Neto 15 dias',
+      'COP'
+    );
+    expect(mixed.ok).toBe(false);
+    if (!mixed.ok) expect(mixed.error).toBe('OFERTA_MONEDA_MIXTA');
+
+    const parsed = parseLineasOferta([
+      {
+        slug: 'a',
+        nombre: 'A',
+        cantidad: 2,
+        precio_unitario: 100,
+        subtotal: 9999,
+        moneda: 'COP',
+      },
+    ]);
+    expect(parsed[0]!.subtotal).toBe(9999);
+    const canon = normalizarOferta(parsed, 'Entrega 30 dias', 'COP');
+    expect(canon.ok).toBe(true);
+    if (canon.ok) {
+      expect(canon.lineas[0]!.subtotal).toBe(200);
+      expect(canon.total).toBe(200);
+      expect(canon.moneda).toBe('COP');
+    }
+  });
+
+  it('formatQuoteNumero y plantilla inactiva fail-closed', () => {
+    expect(formatQuoteNumero(2026, 1)).toBe('IME-Q-2026-000001');
+    expect(resultadoPlantillaInactiva('cotizacion_oferta_cliente_es', false)).toEqual({
+      ok: true,
+      detalle: 'plantilla cotizacion_oferta_cliente_es desactivada',
+    });
+    expect(resultadoPlantillaInactiva('cotizacion_oferta_cliente_es', true).ok).toBe(false);
+  });
+
+  it('hashBytesSha256 de abc es estable', async () => {
+    const digest = await hashBytesSha256(new TextEncoder().encode('abc'));
+    expect(digest).toBe('ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad');
+  });
+
+  it('sanitizarLineasComercial elimina costo y unifica moneda', () => {
+    const lineas = sanitizarLineasComercial(
+      [
+        {
+          slug: 'a',
+          nombre: 'A',
+          cantidad: 2,
+          precio_unitario: 1000,
+          moneda: 'USD',
+          precio_costo: 1,
+          cost: 2,
+          purchase_price: 3,
+        },
+      ],
+      'COP'
+    );
+    expect(lineas).toHaveLength(1);
+    expect(lineas[0]!.moneda).toBe('COP');
+    expect(lineas[0]!.subtotal).toBe(2000);
+    expect(JSON.stringify(lineas[0])).not.toContain('precio_costo');
+    expect(JSON.stringify(lineas[0])).not.toContain('purchase_price');
+  });
+
+  it('formatQuoteMoney COP 0 dp / USD 2 dp', () => {
+    expect(formatQuoteMoney(150000, 'COP')).toContain('150.000');
+    expect(formatQuoteMoney(12.5, 'USD')).toMatch(/12[,.]50/);
+  });
+
+  it('quoteEditable solo borradores', () => {
+    expect(quoteEditable('nueva')).toBe(true);
+    expect(quoteEditable('enviada')).toBe(false);
+    expect(quoteEditable('convertida')).toBe(false);
   });
 });

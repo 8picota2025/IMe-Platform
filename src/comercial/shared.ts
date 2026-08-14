@@ -16,6 +16,39 @@ export const PUBLIC_SUPABASE_URL =
 export const PUBLIC_SUPABASE_ANON_KEY =
   (import.meta.env['PUBLIC_SUPABASE_ANON_KEY'] as string | undefined) ?? '';
 
+/** Disparado cuando la sesión JWT desaparece o no se puede refrescar. */
+export const AUTH_EXPIRED_EVENT = 'ime-comercial-auth-expired';
+
+export function notifyAuthExpired(reason = 'Sesión expirada. Vuelve a iniciar sesión.'): void {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new CustomEvent(AUTH_EXPIRED_EVENT, { detail: { reason } }));
+}
+
+/**
+ * Devuelve sesión usable: getSession → refreshSession si hace falta.
+ * Si no hay sesión, notifica AUTH_EXPIRED para que el shell vuelva al login.
+ */
+export async function ensureAuthSession(): Promise<{
+  access_token: string;
+  user: { id: string; email?: string | null };
+} | null> {
+  if (!supabase) return null;
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (session?.access_token) return session;
+
+  const { data, error } = await supabase.auth.refreshSession();
+  if (data.session?.access_token) return data.session;
+
+  notifyAuthExpired(
+    error?.message
+      ? `Sesión expirada (${error.message}). Vuelve a iniciar sesión.`
+      : 'Sesión expirada. Vuelve a iniciar sesión.'
+  );
+  return null;
+}
+
 const COMMERCIAL_USAGE_SESSION_KEY = 'ime_comercial_usage_session_id';
 export type CommercialUsageEvent =
   | 'login'
@@ -81,7 +114,13 @@ export function trackCommercialUsage(
   })();
 }
 
-export type ComercialView = 'catalogo' | 'envios' | 'plantillas' | 'integraciones' | 'usuarios';
+export type ComercialView =
+  | 'catalogo'
+  | 'cotizaciones'
+  | 'envios'
+  | 'plantillas'
+  | 'integraciones'
+  | 'usuarios';
 
 export interface ComercialState {
   view: ComercialView;
@@ -195,6 +234,7 @@ export interface EdgeFunctionResult<T> {
   data: T | null;
   error: string | null;
   status: number;
+  code?: string;
 }
 
 /** Forma de error devuelta por las Edge Functions (ver `_shared/errors.ts`): `{ error: { code, message } }`. */
@@ -202,11 +242,19 @@ interface EdgeErrorPayload {
   error?: { code?: string; message?: string } | string;
 }
 
-function extractEdgeErrorMessage(payload: unknown, status: number, name: string): string {
+function extractEdgeError(
+  payload: unknown,
+  status: number,
+  name: string
+): {
+  message: string;
+  code?: string;
+} {
   const body = payload as EdgeErrorPayload | null;
-  if (typeof body?.error === 'string') return body.error;
-  if (body?.error?.message) return body.error.message;
-  return `Error ${status} al llamar ${name}.`;
+  const code = typeof body?.error === 'object' && body.error?.code ? body.error.code : undefined;
+  if (typeof body?.error === 'string') return { message: body.error, code };
+  if (body?.error?.message) return { message: body.error.message, code };
+  return { message: `Error ${status} al llamar ${name}.`, code };
 }
 
 /**
@@ -222,9 +270,7 @@ export async function callEdgeFunction<T = unknown>(
   if (!supabase) {
     return { data: null, error: 'Supabase no configurado.', status: 0 };
   }
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+  const session = await ensureAuthSession();
   if (!session) {
     return { data: null, error: 'Sesión expirada. Vuelve a iniciar sesión.', status: 401 };
   }
@@ -251,14 +297,32 @@ export async function callEdgeFunction<T = unknown>(
         payload = raw;
       }
     }
+    if (status === 401) {
+      notifyAuthExpired();
+    }
     if (!response.ok) {
-      return { data: null, error: extractEdgeErrorMessage(payload, status, name), status };
+      const extracted = extractEdgeError(payload, status, name);
+      // Gateway 404/NOT_FOUND: message top-level, no { error: { message } }.
+      if (
+        status === 404 &&
+        payload &&
+        typeof payload === 'object' &&
+        typeof (payload as { message?: unknown }).message === 'string'
+      ) {
+        return {
+          data: null,
+          error: String((payload as { message: string }).message),
+          status,
+          code: 'NOT_FOUND',
+        };
+      }
+      return { data: null, error: extracted.message, status, code: extracted.code };
     }
     return { data: payload as T, error: null, status };
   } catch (err) {
     const raw = err instanceof Error ? err.message : 'Error de red.';
     const message = /failed to fetch|networkerror|load failed/i.test(raw)
-      ? 'No se pudo contactar la función comercial-share. Prueba ventana de incógnito o Ctrl+Shift+R (service worker/caché), y verifica que estés en http://127.0.0.1:44334 (no localhost).'
+      ? 'No se pudo contactar el backend. Usa http://127.0.0.1:44334 (no localhost) y recarga sin caché.'
       : raw;
     return { data: null, error: message, status: 0 };
   }

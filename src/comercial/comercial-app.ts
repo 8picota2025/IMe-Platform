@@ -1,8 +1,6 @@
 /**
  * Entrada del SPA comercial (`/comercial`). Enruta por hash entre catálogo,
- * envíos, plantillas, integraciones y usuarios; gestiona el shell con
- * navegación por rol, y monta los módulos de auth / catálogo / modal de
- * envío. Sigue el patrón de `src/admin/admin-app.ts`.
+ * cotizaciones, envíos, plantillas, integraciones y usuarios.
  */
 import type { Session } from '@supabase/supabase-js';
 import {
@@ -17,6 +15,7 @@ import {
   formatDate,
   callEdgeFunction,
   trackCommercialUsage,
+  AUTH_EXPIRED_EVENT,
   type ComercialView,
 } from './shared';
 import {
@@ -36,6 +35,8 @@ import {
   type ProductoComercial,
 } from './catalog-view';
 import { openShareModal } from './share-modal';
+import { bindCotizacionesView, quoteNavigationAllowed, renderCotizacionesView } from './quote-view';
+import { writeQuotePrefill } from './quote-route';
 
 const appElement = document.getElementById('comercial-app');
 if (!appElement) throw new Error('comercial-app root missing');
@@ -45,27 +46,65 @@ let idleWatcher: IdleWatcher | null = null;
 let unbindCurrentView: (() => void) | null = null;
 let lastTrackedView: ComercialView | null = null;
 
+let lastGoodHash = location.hash || '#/catalogo';
+
 function parseView(hash: string): ComercialView {
-  const raw = hash.replace(/^#\/?/, '').split('?')[0];
-  if (raw === 'envios' || raw === 'plantillas' || raw === 'integraciones' || raw === 'usuarios') {
-    return raw;
+  const top = hash.replace(/^#\/?/, '').split('?')[0]?.split('/')[0] ?? '';
+  if (
+    top === 'envios' ||
+    top === 'plantillas' ||
+    top === 'integraciones' ||
+    top === 'usuarios' ||
+    top === 'cotizaciones'
+  ) {
+    return top;
   }
   return 'catalogo';
 }
 
 function vistaPermitida(view: ComercialView): boolean {
   if (esRolAdmin(state.rol)) return true;
-  return view === 'catalogo' || view === 'envios';
+  return view === 'catalogo' || view === 'envios' || view === 'cotizaciones';
 }
 
 window.addEventListener('hashchange', () => {
+  if (!quoteNavigationAllowed()) {
+    history.replaceState(null, '', lastGoodHash || '#/catalogo');
+    return;
+  }
   state.view = parseView(location.hash);
+  lastGoodHash = location.hash;
   void render();
 });
 
 setupServiceWorker();
 setupPwaInstallBanner();
+setupAuthGuards();
 boot();
+
+function setupAuthGuards(): void {
+  window.addEventListener(AUTH_EXPIRED_EVENT, event => {
+    const detail = (event as CustomEvent<{ reason?: string }>).detail;
+    void forceLogin(detail?.reason || 'Sesión expirada. Vuelve a iniciar sesión.');
+  });
+  if (!supabase) return;
+  supabase.auth.onAuthStateChange(event => {
+    if (event === 'SIGNED_OUT') {
+      void forceLogin('Sesión cerrada. Inicia de nuevo para guardar cotizaciones.');
+    }
+  });
+}
+
+async function forceLogin(reason: string): Promise<void> {
+  idleWatcher?.stop();
+  idleWatcher = null;
+  unbindCurrentView?.();
+  unbindCurrentView = null;
+  resetSessionState();
+  clearSelection();
+  toast(reason, 'error');
+  renderLoginPanel(app, state.email || '', () => void bootAfterLogin());
+}
 
 /* ------------------------------------------------------------------ */
 /* PWA: service worker + banner de instalación (Chrome/Edge/Android)  */
@@ -266,7 +305,16 @@ async function render(): Promise<void> {
 
   const viewBody = app.querySelector<HTMLElement>('[data-view-body]');
   if (state.view === 'catalogo' && viewBody) {
-    unbindCurrentView = bindCatalogoView(viewBody, { onShare: openShareModal });
+    unbindCurrentView = bindCatalogoView(viewBody, {
+      onShare: openShareModal,
+      onQuote: productos => {
+        writeQuotePrefill(productos.map(p => ({ slug: p.slug, nombre: p.nombre_es, cantidad: 1 })));
+        location.hash = '#/cotizaciones/nueva';
+      },
+    });
+  }
+  if (state.view === 'cotizaciones' && viewBody) {
+    unbindCurrentView = bindCotizacionesView(viewBody);
   }
   app.querySelector('[data-view-retry]')?.addEventListener('click', () => void render());
   app.querySelectorAll<HTMLButtonElement>('[data-retry-crm]').forEach(btn => {
@@ -377,6 +425,8 @@ async function resendFailedShare(btn: HTMLButtonElement): Promise<void> {
 }
 
 async function routeView(): Promise<{ title: string; body: string }> {
+  if (state.view === 'cotizaciones')
+    return { title: 'Cotizaciones', body: await renderCotizacionesView() };
   if (state.view === 'envios') return { title: 'Envíos', body: await enviosView() };
   if (state.view === 'plantillas') return { title: 'Plantillas', body: await plantillasView() };
   if (state.view === 'integraciones')
@@ -398,6 +448,7 @@ function configMissingHtml(): string {
 function shellHtml(title: string, body: string): string {
   const links: Array<[ComercialView, string]> = [
     ['catalogo', 'Catálogo'],
+    ['cotizaciones', 'Cotizaciones'],
     ['envios', 'Envíos'],
   ];
   if (esRolAdmin(state.rol)) {

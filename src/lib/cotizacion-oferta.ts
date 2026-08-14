@@ -39,6 +39,13 @@ export interface CotizacionOfertaRow {
   mercado?: string | null;
   moneda?: string | null;
   metadata?: Record<string, unknown> | null;
+  numero?: string | null;
+  pdf_storage_path?: string | null;
+  pdf_sha256?: string | null;
+  pdf_revision?: number | null;
+  send_claimed_at?: string | null;
+  send_error?: string | null;
+  created_by?: string | null;
   lead_comercial_id?: string | null;
   campaign?: string | null;
   landing_path?: string | null;
@@ -93,10 +100,60 @@ export function calcularTotalOfertado(lineas: CotizacionLineaOferta[]): number {
   return Math.round(lineas.reduce((acc, l) => acc + l.precio_unitario * l.cantidad, 0) * 100) / 100;
 }
 
-export function ofertaCompleta(
+export function normalizarMonedaOferta(value: unknown): 'COP' | 'USD' {
+  return String(value ?? 'COP')
+    .trim()
+    .toUpperCase() === 'USD'
+    ? 'USD'
+    : 'COP';
+}
+
+function asUint8Array(data: BufferSource): Uint8Array {
+  if (data instanceof Uint8Array) return data;
+  if (data instanceof ArrayBuffer) return new Uint8Array(data);
+  return new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
+}
+
+/** Recompute subtotals + one currency. Does not require prices/condiciones. */
+export function canonizarLineasOferta(
   lineas: CotizacionLineaOferta[],
-  condiciones: string | null | undefined
-): { ok: true } | { ok: false; error: string } {
+  headerMoneda: unknown
+):
+  | { ok: true; lineas: CotizacionLineaOferta[]; total: number; moneda: 'COP' | 'USD' }
+  | { ok: false; error: 'OFERTA_MONEDA_MIXTA' } {
+  const moneda = normalizarMonedaOferta(headerMoneda);
+  const mixed = lineas.some(l => normalizarMonedaOferta(l.moneda) !== moneda);
+  if (mixed) return { ok: false, error: 'OFERTA_MONEDA_MIXTA' };
+  const normalized: CotizacionLineaOferta[] = lineas.map(l => {
+    const cantidad = Math.floor(l.cantidad);
+    const precio = l.precio_unitario;
+    const linea: CotizacionLineaOferta = {
+      slug: l.slug,
+      nombre: l.nombre,
+      cantidad,
+      precio_unitario: precio,
+      subtotal: Math.round(precio * cantidad * 100) / 100,
+      moneda,
+    };
+    if (l.notas) linea.notas = l.notas;
+    return linea;
+  });
+  return {
+    ok: true,
+    lineas: normalized,
+    total: calcularTotalOfertado(normalized),
+    moneda,
+  };
+}
+
+/** Canonical lines + total for save/PDF/email/Formalizar. Recomputes subtotals. */
+export function normalizarOferta(
+  lineas: CotizacionLineaOferta[],
+  condiciones: string | null | undefined,
+  headerMoneda: unknown
+):
+  | { ok: true; lineas: CotizacionLineaOferta[]; total: number; moneda: 'COP' | 'USD' }
+  | { ok: false; error: string } {
   if (lineas.length === 0) return { ok: false, error: 'OFERTA_SIN_LINEAS' };
   if (lineas.some(l => !(l.precio_unitario > 0))) {
     return { ok: false, error: 'OFERTA_SIN_PRECIO' };
@@ -104,7 +161,78 @@ export function ofertaCompleta(
   if (!String(condiciones ?? '').trim()) {
     return { ok: false, error: 'OFERTA_SIN_CONDICIONES' };
   }
-  return { ok: true };
+  return canonizarLineasOferta(lineas, headerMoneda);
+}
+
+export function formatQuoteNumero(year: number, seq: number): string {
+  return `IME-Q-${year}-${String(seq).padStart(6, '0')}`;
+}
+
+export function resultadoPlantillaInactiva(
+  clave: string,
+  failOnInactive: boolean
+): { ok: boolean; detalle: string } {
+  if (failOnInactive) {
+    return { ok: false, detalle: `TEMPLATE_INACTIVE: plantilla ${clave} desactivada` };
+  }
+  return { ok: true, detalle: `plantilla ${clave} desactivada` };
+}
+
+export function ofertaCompleta(
+  lineas: CotizacionLineaOferta[],
+  condiciones: string | null | undefined
+): { ok: true } | { ok: false; error: string } {
+  const r = normalizarOferta(lineas, condiciones, lineas[0]?.moneda ?? 'COP');
+  return r.ok ? { ok: true } : { ok: false, error: r.error };
+}
+
+export const COTIZACION_ESTADOS_PENDIENTES = ['nueva', 'en_revision', 'respondida'] as const;
+export const COTIZACION_ESTADOS_ENVIADAS = ['enviada', 'convertida'] as const;
+
+export function quoteEditable(estado: string | null | undefined): boolean {
+  const value = String(estado ?? 'nueva');
+  return value === 'nueva' || value === 'en_revision' || value === 'respondida';
+}
+
+/** Drop cost/unknown keys. Recompute subtotals. Force header currency. */
+export function sanitizarLineasComercial(
+  productos: unknown,
+  headerMoneda: unknown
+): CotizacionLineaOferta[] {
+  const moneda = normalizarMonedaOferta(headerMoneda);
+  return parseLineasOferta(productos).map(l => {
+    const cantidad = Math.floor(l.cantidad);
+    const precio = l.precio_unitario;
+    const linea: CotizacionLineaOferta = {
+      slug: l.slug,
+      nombre: l.nombre,
+      cantidad,
+      precio_unitario: precio,
+      subtotal: Math.round(precio * cantidad * 100) / 100,
+      moneda,
+    };
+    if (l.notas) linea.notas = l.notas;
+    return linea;
+  });
+}
+
+export function formatQuoteMoney(value: number, currency = 'COP'): string {
+  const moneda = currency === 'USD' ? 'USD' : 'COP';
+  const amount = Number.isFinite(value) ? value : 0;
+  const digits = moneda === 'COP' ? 0 : 2;
+  return new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: moneda,
+    maximumFractionDigits: digits,
+    minimumFractionDigits: digits,
+  }).format(amount);
+}
+
+export function ofertaIncompleta(
+  lineas: CotizacionLineaOferta[],
+  condiciones: string | null | undefined
+): boolean {
+  return !ofertaCompleta(lineas, condiciones).ok;
 }
 
 export function tokenExpirado(expiraAt: string | null | undefined, now = new Date()): boolean {
@@ -139,13 +267,17 @@ export function formalizarPath(locale: string, id: string, token: string): strin
 /** Hex sha256 — Web Crypto (browser/Deno) o Node crypto. */
 export async function hashTokenSha256(token: string): Promise<string> {
   const data = new TextEncoder().encode(token);
+  return hashBytesSha256(data);
+}
+
+export async function hashBytesSha256(data: BufferSource): Promise<string> {
+  const bytes = asUint8Array(data);
   if (typeof globalThis.crypto?.subtle?.digest === 'function') {
-    const digest = await globalThis.crypto.subtle.digest('SHA-256', data);
+    const digest = await globalThis.crypto.subtle.digest('SHA-256', bytes);
     return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
   }
-  // Fallback Node (vitest)
   const { createHash } = await import('node:crypto');
-  return createHash('sha256').update(token).digest('hex');
+  return createHash('sha256').update(bytes).digest('hex');
 }
 
 export function generarTokenFormalizacion(bytes = 32): string {

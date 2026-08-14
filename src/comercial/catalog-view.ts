@@ -8,6 +8,7 @@
  * (~150 productos), así que no hace falta re-consultar por cada filtro.
  */
 import { SPECIALTY_GROUPS, type SpecialtyGroup } from '../lib/comercial-cms';
+import { formatFabricanteDistribuidor } from '../lib/producto-origen';
 import {
   supabase,
   escapeHtml,
@@ -43,7 +44,9 @@ export interface ProductoComercial {
   familia_id: string | null;
   tipo_id: string | null;
   tipo_comercial: 'equipo' | 'consumible';
+  fulfillment_mode: string | null;
   disponible: boolean;
+  atributos: Record<string, unknown> | null;
 }
 
 interface CatalogoFilters {
@@ -115,7 +118,7 @@ async function loadCatalogoData(): Promise<void> {
         supabase
           .from('productos')
           .select(
-            'id,slug,sku,nombre_es,descripcion_corta_es,imagen_principal,familia_id,tipo_id,tipo_comercial,disponible'
+            'id,slug,sku,nombre_es,descripcion_corta_es,imagen_principal,familia_id,tipo_id,tipo_comercial,fulfillment_mode,disponible,atributos'
           )
           .eq('activo', true)
           .order('nombre_es', { ascending: true }),
@@ -300,14 +303,16 @@ function filterProductos(filters: CatalogoFilters): ProductoComercial[] {
     if (tipoSeleccionado && p.tipo_id !== tipoSeleccionado.id) return false;
     if (filters.seccion && p.tipo_comercial !== filters.seccion) return false;
     if (q) {
-      const haystack = normalizar(`${p.nombre_es} ${p.sku ?? ''} ${p.descripcion_corta_es ?? ''}`);
+      const haystack = normalizar(
+        `${p.nombre_es} ${p.sku ?? ''} ${p.descripcion_corta_es ?? ''} ${formatFabricanteDistribuidor(p)}`
+      );
       if (!haystack.includes(q)) return false;
     }
     return true;
   });
 }
 
-function productoCardHtml(p: ProductoComercial): string {
+function productoRowHtml(p: ProductoComercial): string {
   if (!cache) return '';
   const familia = p.familia_id ? cache.familiaPorId.get(p.familia_id) : undefined;
   const tipo = p.tipo_id ? cache.tipoPorId.get(p.tipo_id) : undefined;
@@ -316,36 +321,37 @@ function productoCardHtml(p: ProductoComercial): string {
   const seccionLabel = p.tipo_comercial === 'consumible' ? 'Consumible' : 'Equipo';
   const isSelected = selection.has(p.id);
   const publicUrl = `/es/productos/${encodeURIComponent(p.slug)}/`;
+  const origen = formatFabricanteDistribuidor(p);
 
   return `
-    <article class="comercial-card${isSelected ? ' comercial-card--selected' : ''}" data-card data-id="${escapeHtml(p.id)}">
-      <label class="comercial-card__select">
-        <input type="checkbox" data-select-product data-id="${escapeHtml(p.id)}" ${isSelected ? 'checked' : ''} aria-label="Seleccionar ${escapeHtml(p.nombre_es)}" />
-        <span></span>
-      </label>
-      <div class="comercial-card__media">
-        <img src="${escapeHtml(imagen)}" alt="${escapeHtml(p.nombre_es)}" loading="lazy" onerror="this.onerror=null;this.src='/assets/img-placeholder.svg';" />
-        <span class="comercial-badge comercial-badge--${p.tipo_comercial}">${seccionLabel}</span>
-        ${!p.disponible ? '<span class="comercial-badge comercial-badge--warn">No disponible</span>' : ''}
-      </div>
-      <div class="comercial-card__body">
-        ${especialidad ? `<span class="comercial-card__eyebrow">${escapeHtml(especialidad.nombre)}</span>` : ''}
-        <h3 class="comercial-card__title">${escapeHtml(p.nombre_es)}</h3>
-        <p class="comercial-card__meta">
-          ${familia ? escapeHtml(familia.nombre_es) : 'Sin familia'}${tipo ? ` · ${escapeHtml(tipo.nombre_es)}` : ''}
-        </p>
-        ${p.descripcion_corta_es ? `<p class="comercial-card__desc">${escapeHtml(p.descripcion_corta_es)}</p>` : ''}
-        <p class="comercial-card__sku">SKU: ${p.sku ? escapeHtml(p.sku) : '—'}</p>
-      </div>
-      <div class="comercial-card__actions">
-        <a class="comercial-button comercial-button--ghost" href="${escapeHtml(publicUrl)}" target="_blank" rel="noopener noreferrer" data-open-product>
-          Abrir producto
-        </a>
-        <button class="comercial-button comercial-button--primary" type="button" data-share-one data-id="${escapeHtml(p.id)}">
-          Enviar catálogo
-        </button>
-      </div>
-    </article>`;
+    <tr class="${isSelected ? 'is-selected' : ''}" data-product-row data-id="${escapeHtml(p.id)}">
+      <td>
+        <label class="comercial-catalog-check">
+          <input type="checkbox" data-select-product data-id="${escapeHtml(p.id)}" ${isSelected ? 'checked' : ''} aria-label="Seleccionar ${escapeHtml(p.nombre_es)}" />
+        </label>
+      </td>
+      <td class="comercial-catalog-table__name">
+        <div class="comercial-catalog-table__media">
+          <img src="${escapeHtml(imagen)}" alt="" loading="lazy" onerror="this.onerror=null;this.src='/assets/img-placeholder.svg';" />
+          <div>
+            ${especialidad ? `<span class="comercial-card__eyebrow">${escapeHtml(especialidad.nombre)}</span>` : ''}
+            <strong>${escapeHtml(p.nombre_es)}</strong>
+            <p class="comercial-catalog-table__meta">${escapeHtml(seccionLabel)}${tipo ? ` · ${escapeHtml(tipo.nombre_es)}` : ''}</p>
+          </div>
+        </div>
+      </td>
+      <td>${p.sku ? escapeHtml(p.sku) : '—'}</td>
+      <td>${escapeHtml(origen)}</td>
+      <td>${familia ? escapeHtml(familia.nombre_es) : '—'}</td>
+      <td>${p.disponible ? 'Disponible' : 'No disponible'}</td>
+      <td>
+        <div class="comercial-catalog-table__actions">
+          <a class="comercial-button comercial-button--ghost comercial-button--sm" href="${escapeHtml(publicUrl)}" target="_blank" rel="noopener noreferrer" data-open-product>Abrir</a>
+          <button class="comercial-button comercial-button--ghost comercial-button--sm" type="button" data-share-one data-id="${escapeHtml(p.id)}">Catálogo</button>
+          <button class="comercial-button comercial-button--primary comercial-button--sm" type="button" data-quote-one data-id="${escapeHtml(p.id)}">Cotizar</button>
+        </div>
+      </td>
+    </tr>`;
 }
 
 function gridHtml(filters: CatalogoFilters): string {
@@ -366,7 +372,25 @@ function gridHtml(filters: CatalogoFilters): string {
         <button class="comercial-button comercial-button--ghost" type="button" data-clear-filters>Limpiar filtros</button>
       </div>`;
   }
-  return `<div class="comercial-grid__list" data-grid-list>${filtered.map(productoCardHtml).join('')}</div>`;
+  return `
+    <div class="comercial-table-wrap">
+      <table class="comercial-table comercial-catalog-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Producto</th>
+            <th>SKU</th>
+            <th>Fabricante / distribuidor</th>
+            <th>Familia</th>
+            <th>Disponibilidad</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody data-grid-list>
+          ${filtered.map(productoRowHtml).join('')}
+        </tbody>
+      </table>
+    </div>`;
 }
 
 function resultCountHtml(filters: CatalogoFilters): string {
@@ -381,10 +405,9 @@ function floatingBarHtml(): string {
     <div class="comercial-floating-bar" data-floating-bar role="region" aria-label="Selección de productos">
       <span>${selection.size} producto${selection.size === 1 ? '' : 's'} seleccionado${selection.size === 1 ? '' : 's'}</span>
       <div class="comercial-floating-bar__actions">
-        <button class="comercial-button comercial-button--ghost" type="button" data-deselect-all>Deseleccionar todo</button>
-        <button class="comercial-button comercial-button--primary" type="button" data-share-selected>
-          Enviar ${selection.size} producto${selection.size === 1 ? '' : 's'}
-        </button>
+        <button class="comercial-button comercial-button--ghost" type="button" data-deselect-all>Deseleccionar</button>
+        <button class="comercial-button comercial-button--ghost" type="button" data-share-selected>Enviar catálogo</button>
+        <button class="comercial-button comercial-button--primary" type="button" data-quote-selected>Cotizar selección</button>
       </div>
     </div>`;
 }
@@ -412,6 +435,7 @@ export async function renderCatalogoView(): Promise<string> {
 
 export interface CatalogBindings {
   onShare: (productos: ProductoComercial[]) => void;
+  onQuote: (productos: ProductoComercial[]) => void;
 }
 
 function currentFiltersFromDom(root: ParentNode): CatalogoFilters {
@@ -533,9 +557,23 @@ export function bindCatalogoView(container: HTMLElement, bindings: CatalogBindin
       return;
     }
 
+    const quoteOneBtn = target.closest<HTMLElement>('[data-quote-one]');
+    if (quoteOneBtn) {
+      const id = quoteOneBtn.getAttribute('data-id');
+      const producto = cache?.productos.find(p => p.id === id);
+      if (producto) bindings.onQuote([producto]);
+      return;
+    }
+
     if (target.closest('[data-share-selected]')) {
       const productos = cache?.productos.filter(p => selection.has(p.id)) ?? [];
       if (productos.length > 0) bindings.onShare(productos);
+      return;
+    }
+
+    if (target.closest('[data-quote-selected]')) {
+      const productos = cache?.productos.filter(p => selection.has(p.id)) ?? [];
+      if (productos.length > 0) bindings.onQuote(productos);
       return;
     }
 
@@ -548,11 +586,11 @@ export function bindCatalogoView(container: HTMLElement, bindings: CatalogBindin
 
   function refreshSelectionUi() {
     const root = app.querySelector('[data-catalogo-root]');
-    root?.querySelectorAll<HTMLElement>('[data-card]').forEach(card => {
-      const id = card.getAttribute('data-id');
+    root?.querySelectorAll<HTMLElement>('[data-product-row]').forEach(row => {
+      const id = row.getAttribute('data-id');
       const selected = id ? selection.has(id) : false;
-      card.classList.toggle('comercial-card--selected', selected);
-      const checkbox = card.querySelector<HTMLInputElement>('[data-select-product]');
+      row.classList.toggle('is-selected', selected);
+      const checkbox = row.querySelector<HTMLInputElement>('[data-select-product]');
       if (checkbox) checkbox.checked = selected;
     });
     refreshFloatingBar();

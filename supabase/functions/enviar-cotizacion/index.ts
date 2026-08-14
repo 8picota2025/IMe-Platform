@@ -1,6 +1,7 @@
 /**
- * Envía oferta formal de cotización al cliente con link Formalizar.
+ * Envía oferta formal de cotización al cliente con PDF + link Formalizar.
  * Auth: JWT admin (ventas+) o service_role.
+ * estado=enviada SOLO después de que Resend acepte el correo.
  */
 
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
@@ -14,23 +15,27 @@ import {
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { requireAdmin } from '../_shared/admin-auth.ts';
 import { enviarEmailPlantilla, escapeHtml, itemsToHtml } from '../_shared/email.ts';
+import { renderQuotePdf } from '../_shared/render-quote-pdf.ts';
 import {
   datosBancariosTexto,
   getDatosBancariosTransferencia,
 } from '../_shared/transferencia-bancaria.ts';
 import {
-  calcularTotalOfertado,
+  canonizarLineasOferta,
   expiryFromValidez,
   formalizarPath,
   generarTokenFormalizacion,
+  hashBytesSha256,
   hashTokenSha256,
-  ofertaCompleta,
+  normalizarMonedaOferta,
+  normalizarOferta,
   parseLineasOferta,
   tokenExpirado,
   type CotizacionOfertaRow,
 } from '../../../src/lib/cotizacion-oferta.ts';
 
 type AdjuntoCotizacion = { path?: unknown; nombre?: unknown; size?: unknown };
+type ServerSupabase = ReturnType<typeof getServerSupabase>;
 const MAX_ADJUNTOS_BYTES = 25 * 1024 * 1024;
 
 function base64(bytes: Uint8Array): string {
@@ -42,7 +47,7 @@ function base64(bytes: Uint8Array): string {
 }
 
 async function cargarAdjuntosCliente(
-  supabase: ReturnType<typeof getServerSupabase>,
+  supabase: ServerSupabase,
   value: unknown
 ): Promise<
   | { ok: true; archivos: Array<{ filename: string; content: string }> }
@@ -70,6 +75,20 @@ async function cargarAdjuntosCliente(
   return { ok: true, archivos };
 }
 
+async function releaseSendClaim(
+  supabase: ServerSupabase,
+  id: string,
+  sendError: string
+): Promise<void> {
+  await supabase
+    .from('solicitudes_cotizacion')
+    .update({
+      send_claimed_at: null,
+      send_error: sendError.slice(0, 500),
+    })
+    .eq('id', id);
+}
+
 const DEFAULT_SITE_URL = 'https://i-me.com.co';
 const ROLES = new Set(['owner', 'admin', 'ventas']);
 
@@ -83,14 +102,6 @@ interface Body {
   mercado?: string;
   /** Si true, invalida el enlace anterior y genera uno nuevo. Default: reutilizar si sigue vigente. */
   rotar_token?: boolean;
-}
-
-function normalizarMoneda(value: unknown): 'COP' | 'USD' {
-  return String(value ?? 'COP')
-    .trim()
-    .toUpperCase() === 'USD'
-    ? 'USD'
-    : 'COP';
 }
 
 Deno.serve(async req => {
@@ -107,73 +118,26 @@ Deno.serve(async req => {
   const id = (body.cotizacion_id ?? '').trim();
   if (!id) return badRequest('cotizacion_id requerido', origin);
 
-  // Si el CMS manda la oferta actual, persistirla antes de validar/enviar.
-  if (
-    body.productos !== undefined ||
-    body.condiciones !== undefined ||
-    body.moneda !== undefined ||
-    body.mercado !== undefined
-  ) {
-    const monedaPayload = body.moneda !== undefined ? normalizarMoneda(body.moneda) : undefined;
-    const lineasPayload = parseLineasOferta(body.productos).map(l =>
-      monedaPayload ? { ...l, moneda: monedaPayload } : l
-    );
-    const condicionesPayload =
-      body.condiciones !== undefined ? String(body.condiciones).trim() : undefined;
-    const checkPayload =
-      condicionesPayload !== undefined
-        ? ofertaCompleta(lineasPayload, condicionesPayload)
-        : lineasPayload.length > 0 || body.productos === undefined
-          ? ({ ok: true } as const)
-          : { ok: false, error: 'OFERTA_SIN_LINEAS' as const };
-    if (!checkPayload.ok) {
-      return errorResponse(
-        { code: checkPayload.error, message: 'Completa precios y condiciones antes de enviar' },
-        422,
-        origin
-      );
-    }
-    const patch: Record<string, unknown> = {
-      leida: true,
-    };
-    if (body.productos !== undefined) {
-      patch.productos = lineasPayload;
-      patch.precio_total_ofertado = calcularTotalOfertado(lineasPayload);
-    }
-    if (condicionesPayload !== undefined) patch.condiciones = condicionesPayload;
-    if (body.validez_hasta !== undefined) {
-      patch.validez_hasta = body.validez_hasta ? String(body.validez_hasta).trim() || null : null;
-    }
-    if (monedaPayload) {
-      patch.moneda = monedaPayload;
-      patch.mercado =
-        body.mercado === 'INTL' || body.mercado === 'CO'
-          ? body.mercado
-          : monedaPayload === 'USD'
-            ? 'INTL'
-            : 'CO';
-    } else if (body.mercado === 'INTL' || body.mercado === 'CO') {
-      patch.mercado = body.mercado;
-    }
-    const { error: saveError } = await supabase
+  const loadRow = async (): Promise<
+    | { ok: true; row: CotizacionOfertaRow & { notas_internas?: string | null } }
+    | { ok: false; res: Response }
+  > => {
+    const { data, error } = await supabase
       .from('solicitudes_cotizacion')
-      .update(patch)
-      .eq('id', id);
-    if (saveError) return internalError(saveError.message, origin);
-  }
-
-  const { data, error } = await supabase
-    .from('solicitudes_cotizacion')
-    .select('*')
-    .eq('id', id)
-    .maybeSingle();
-  if (error) return internalError(error.message, origin);
-  if (!data) return notFound(origin);
-
-  const row = data as CotizacionOfertaRow & {
-    notas_internas?: string | null;
-    validez_hasta?: string | null;
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+    if (error) return { ok: false, res: internalError(error.message, origin) };
+    if (!data) return { ok: false, res: notFound(origin) };
+    return {
+      ok: true,
+      row: data as CotizacionOfertaRow & { notas_internas?: string | null },
+    };
   };
+
+  const loaded = await loadRow();
+  if (!loaded.ok) return loaded.res;
+  let row = loaded.row;
 
   if (row.pedido_id || row.estado === 'convertida') {
     return errorResponse(
@@ -183,11 +147,75 @@ Deno.serve(async req => {
     );
   }
 
+  const wantsPersist =
+    body.productos !== undefined ||
+    body.condiciones !== undefined ||
+    body.moneda !== undefined ||
+    body.mercado !== undefined ||
+    body.validez_hasta !== undefined;
+  const inmutable = row.estado === 'enviada';
+
+  if (wantsPersist && !inmutable) {
+    const monedaPayload =
+      body.moneda !== undefined ? normalizarMonedaOferta(body.moneda) : undefined;
+    const lineasRaw = parseLineasOferta(
+      body.productos !== undefined ? body.productos : row.productos
+    ).map(l => (monedaPayload ? { ...l, moneda: monedaPayload } : l));
+    const condicionesPayload =
+      body.condiciones !== undefined
+        ? String(body.condiciones).trim()
+        : String(row.condiciones ?? '');
+    const headerMoneda = monedaPayload ?? normalizarMonedaOferta(row.moneda);
+    const checkPayload =
+      body.condiciones !== undefined || String(row.condiciones ?? '').trim()
+        ? normalizarOferta(lineasRaw, condicionesPayload, headerMoneda)
+        : canonizarLineasOferta(lineasRaw, headerMoneda);
+    if (!checkPayload.ok) {
+      return errorResponse(
+        { code: checkPayload.error, message: 'Completa precios y condiciones antes de enviar' },
+        422,
+        origin
+      );
+    }
+    const patch: Record<string, unknown> = {
+      leida: true,
+      productos: checkPayload.lineas,
+      precio_total_ofertado: checkPayload.total,
+      moneda: checkPayload.moneda,
+    };
+    if (body.condiciones !== undefined) patch.condiciones = condicionesPayload;
+    if (body.validez_hasta !== undefined) {
+      patch.validez_hasta = body.validez_hasta ? String(body.validez_hasta).trim() || null : null;
+    }
+    patch.mercado =
+      body.mercado === 'INTL' || body.mercado === 'CO'
+        ? body.mercado
+        : checkPayload.moneda === 'USD'
+          ? 'INTL'
+          : 'CO';
+    if (auth.userId) patch.created_by = auth.userId;
+    let { error: saveError } = await supabase
+      .from('solicitudes_cotizacion')
+      .update(patch)
+      .eq('id', id);
+    if (saveError && /created_by|Could not find|schema cache/i.test(saveError.message)) {
+      delete patch.created_by;
+      ({ error: saveError } = await supabase
+        .from('solicitudes_cotizacion')
+        .update(patch)
+        .eq('id', id));
+    }
+    if (saveError) return internalError(saveError.message, origin);
+    const reloaded = await loadRow();
+    if (!reloaded.ok) return reloaded.res;
+    row = reloaded.row;
+  }
+
   const lineas = parseLineasOferta(row.productos);
-  const check = ofertaCompleta(lineas, row.condiciones);
-  if (!check.ok) {
+  const oferta = normalizarOferta(lineas, row.condiciones, row.moneda);
+  if (!oferta.ok) {
     return errorResponse(
-      { code: check.error, message: 'Completa precios y condiciones antes de enviar' },
+      { code: oferta.error, message: 'Completa precios y condiciones antes de enviar' },
       422,
       origin
     );
@@ -204,8 +232,43 @@ Deno.serve(async req => {
     );
   }
 
-  const total = calcularTotalOfertado(lineas);
-  const moneda = normalizarMoneda(row.moneda || lineas[0]?.moneda || 'COP');
+  // Numeración: RPC si existe; si no (sandbox sin migración PDF), metadata/fallback.
+  let numero = String(row.numero ?? '').trim();
+  const { data: numeroRaw, error: numeroError } = await supabase.rpc('ensure_cotizacion_numero', {
+    p_id: id,
+  });
+  if (!numeroError && numeroRaw) {
+    numero = String(numeroRaw).trim();
+  } else if (!numero) {
+    const metaNum =
+      row.metadata && typeof row.metadata === 'object' && !Array.isArray(row.metadata)
+        ? String((row.metadata as Record<string, unknown>).numero_presupuesto ?? '').trim()
+        : '';
+    numero =
+      metaNum ||
+      `IME-Q-${new Date().getFullYear()}-${id.replace(/-/g, '').slice(0, 6).toUpperCase()}`;
+  }
+  if (!numero) return internalError('No se pudo asignar numero de presupuesto', origin);
+
+  // Claim atómico si existe; si no, continuar (sandbox).
+  const { data: claimedRows, error: claimError } = await supabase.rpc('claim_cotizacion_send', {
+    p_id: id,
+  });
+  const claimed = !claimError ? (Array.isArray(claimedRows) ? claimedRows[0] : claimedRows) : null;
+  if (!claimError && !claimed) {
+    return errorResponse(
+      { code: 'SEND_IN_FLIGHT', message: 'Hay un envio en curso. Espera 2 minutos y reintenta.' },
+      409,
+      origin
+    );
+  }
+  const claimActive = Boolean(!claimError && claimed);
+  const pdfRevision = claimActive
+    ? Number((claimed as CotizacionOfertaRow).pdf_revision ?? 1) || 1
+    : (Number((row as { pdf_revision?: number }).pdf_revision ?? 0) || 0) + 1;
+  const releaseClaim = async (sendError: string) => {
+    if (claimActive) await releaseSendClaim(supabase, id, sendError);
+  };
   const locale = row.locale === 'en' ? 'en' : 'es';
   const siteUrl = (Deno.env.get('SITE_URL') ?? DEFAULT_SITE_URL).replace(/\/+$/, '');
   const expiraAt = expiryFromValidez(row.validez_hasta);
@@ -236,36 +299,65 @@ Deno.serve(async req => {
   }
 
   meta.formalizacion_url = formalizarUrl;
+  meta.numero_presupuesto = numero;
 
+  // Perfil comercial (nombre en PDF + plantilla presupuesto)
+  let nombreComercial = auth.email || 'Equipo comercial I-ME';
+  let correoComercial = auth.email || 'ventas@i-me.com.co';
+  let telefonoComercial = '';
+  if (auth.userId) {
+    const { data: perfil } = await supabase
+      .from('admin_profiles')
+      .select('nombre,email,telefono')
+      .eq('user_id', auth.userId)
+      .maybeSingle();
+    const p = perfil as { nombre?: string | null; email?: string; telefono?: string | null } | null;
+    if (p) {
+      nombreComercial = (p.nombre || '').trim() || p.email || nombreComercial;
+      correoComercial = p.email || correoComercial;
+      telefonoComercial = (p.telefono || '').trim();
+    }
+  }
+
+  const actor = correoComercial || auth.userId || 'admin';
   const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 16);
   const nota = tokenRotated
-    ? `[${timestamp}] Oferta enviada al cliente (${email}). Nuevo enlace de formalizacion.`
-    : `[${timestamp}] Oferta reenviada al cliente (${email}). Mismo enlace vigente.`;
+    ? `[${timestamp}] Presupuesto ${numero} enviado a ${email} por ${actor}. Nuevo enlace de formalizacion.`
+    : `[${timestamp}] Presupuesto ${numero} reenviado a ${email} por ${actor}. Mismo enlace vigente.`;
   const notasPrevias = String(row.notas_internas ?? '').trim();
   const notas = notasPrevias ? `${notasPrevias}\n${nota}` : nota;
 
-  const updatePayload: Record<string, unknown> = {
-    estado: 'enviada',
-    oferta_enviada_at: new Date().toISOString(),
+  const preMail: Record<string, unknown> = {
     formalizacion_token_expira_at: expiraAt,
     metadata: meta,
-    precio_total_ofertado: total,
+    precio_total_ofertado: oferta.total,
+    moneda: oferta.moneda,
     leida: true,
-    notas_internas: notas,
   };
+  if (!inmutable) {
+    preMail.productos = oferta.lineas;
+  }
   if (tokenRotated && tokenHash) {
-    updatePayload.formalizacion_token_hash = tokenHash;
+    preMail.formalizacion_token_hash = tokenHash;
+  }
+  // created_by / numero solo si el schema los tiene
+  let { error: preError } = await supabase
+    .from('solicitudes_cotizacion')
+    .update(preMail)
+    .eq('id', id);
+  if (preError && /created_by|numero|Could not find/i.test(preError.message)) {
+    const soft = { ...preMail };
+    delete soft.created_by;
+    delete soft.numero;
+    ({ error: preError } = await supabase.from('solicitudes_cotizacion').update(soft).eq('id', id));
+  }
+  if (preError) {
+    await releaseClaim(preError.message);
+    return internalError(preError.message, origin);
   }
 
-  const { error: updateError } = await supabase
-    .from('solicitudes_cotizacion')
-    .update(updatePayload)
-    .eq('id', id);
-
-  if (updateError) return internalError(updateError.message, origin);
-
-  const plantilla =
-    locale === 'en' ? 'cotizacion_oferta_cliente_en' : 'cotizacion_oferta_cliente_es';
+  // Plantilla canónica: presupuesto (ES). EN mantiene oferta_en.
+  const plantilla = locale === 'en' ? 'cotizacion_oferta_cliente_en' : 'presupuesto';
   const validezLabel = row.validez_hasta
     ? escapeHtml(String(row.validez_hasta))
     : locale === 'en'
@@ -273,52 +365,173 @@ Deno.serve(async req => {
       : 'Ver condiciones';
   const adjuntos = await cargarAdjuntosCliente(supabase, (row as { adjuntos?: unknown }).adjuntos);
   if (!adjuntos.ok) {
+    await releaseClaim(adjuntos.error);
     return errorResponse({ code: 'ADJUNTOS_INVALIDOS', message: adjuntos.error }, 422, origin);
   }
 
-  // formalizar_url MUST stay raw (& not &amp;) — used in href and copy-paste text.
-  // formalizar_url_href is for templates that explicitly want an escaped attribute.
-  const envio = await enviarEmailPlantilla(
-    supabase,
-    plantilla,
-    [email],
-    {
-      cliente_nombre: escapeHtml(String(row.nombre ?? 'Cliente')),
-      referencia: escapeHtml(id.slice(0, 8).toUpperCase()),
-      total: escapeHtml(String(total)),
-      moneda: escapeHtml(moneda),
-      validez: validezLabel,
-      items_html: itemsToHtml(lineas, locale),
-      condiciones: escapeHtml(String(row.condiciones ?? '')),
-      datos_bancarios: escapeHtml(datosBancariosTexto(getDatosBancariosTransferencia())),
-      formalizar_url: formalizarUrl,
-      formalizar_url_href: escapeHtml(formalizarUrl),
-    },
-    id,
-    adjuntos.archivos
-  );
-
-  if (!envio.ok) {
+  let pdfBytes: Uint8Array;
+  try {
+    pdfBytes = await renderQuotePdf({
+      numero,
+      clienteNombre: String(row.nombre ?? 'Cliente'),
+      empresa: row.empresa,
+      email: row.email,
+      telefono: row.telefono,
+      condiciones: String(row.condiciones ?? ''),
+      validezHasta: row.validez_hasta ? String(row.validez_hasta) : null,
+      moneda: oferta.moneda,
+      total: oferta.total,
+      lineas: oferta.lineas,
+      locale,
+      nombreComercial,
+      correoComercial,
+      telefonoComercial,
+    });
+  } catch (err) {
+    const detalle = err instanceof Error ? err.message : 'PDF_RENDER_FAILED';
+    await releaseClaim(detalle);
     return errorResponse(
       {
-        code: 'EMAIL_FALLIDO',
-        message: 'Oferta guardada pero el email no se pudo enviar',
-        details: envio.detalle,
+        code: 'PDF_RENDER_FAILED',
+        message: 'No se pudo generar el PDF del presupuesto',
+        details: detalle,
       },
-      502,
+      500,
       origin
     );
   }
+
+  const pdfPath = `${id}/${pdfRevision}.pdf`;
+  let storedPdfPath: string | null = null;
+  const { error: uploadError } = await supabase.storage
+    .from('cotizaciones-pdf')
+    .upload(pdfPath, pdfBytes, { contentType: 'application/pdf', upsert: true });
+  if (!uploadError) {
+    storedPdfPath = pdfPath;
+  }
+  // Si el bucket no existe aún, igual enviamos el PDF adjunto por email.
+
+  const pdfSha = await hashBytesSha256(pdfBytes);
+  const pdfAdjunto = {
+    filename: `${numero}.pdf`,
+    content: base64(pdfBytes),
+  };
+
+  const emailVars = {
+    cliente_nombre: escapeHtml(String(row.nombre ?? 'Cliente')),
+    cliente_empresa: escapeHtml(String(row.empresa ?? '—')),
+    cliente_email: escapeHtml(String(row.email ?? '')),
+    cliente_telefono: escapeHtml(String(row.telefono ?? '—')),
+    nombre_comercial: escapeHtml(nombreComercial),
+    correo_comercial: escapeHtml(correoComercial),
+    telefono_comercial: escapeHtml(telefonoComercial || '—'),
+    referencia: escapeHtml(numero),
+    total: escapeHtml(String(oferta.total)),
+    moneda: escapeHtml(oferta.moneda),
+    validez: validezLabel,
+    items_html: itemsToHtml(oferta.lineas, locale),
+    condiciones: escapeHtml(String(row.condiciones ?? '')),
+    datos_bancarios: escapeHtml(datosBancariosTexto(getDatosBancariosTransferencia())),
+    formalizar_url: formalizarUrl,
+    formalizar_url_href: escapeHtml(formalizarUrl),
+  };
+
+  let envio = await enviarEmailPlantilla(
+    supabase,
+    plantilla,
+    [email],
+    emailVars,
+    numero,
+    [pdfAdjunto, ...adjuntos.archivos],
+    {
+      failOnInactive: true,
+      idempotencyKey: `quote-send:${id}:${pdfRevision}`,
+    }
+  );
+  // Fallback si `presupuesto` aún no está en el proyecto Edge defaults
+  if (
+    !envio.ok &&
+    locale !== 'en' &&
+    String(envio.detalle ?? '').includes('plantilla desconocida')
+  ) {
+    envio = await enviarEmailPlantilla(
+      supabase,
+      'cotizacion_oferta_cliente_es',
+      [email],
+      emailVars,
+      numero,
+      [pdfAdjunto, ...adjuntos.archivos],
+      {
+        failOnInactive: true,
+        idempotencyKey: `quote-send:${id}:${pdfRevision}:es`,
+      }
+    );
+  }
+
+  if (!envio.ok) {
+    await releaseClaim(envio.detalle ?? 'EMAIL_FALLIDO');
+    const inactive = String(envio.detalle ?? '').includes('TEMPLATE_INACTIVE');
+    return errorResponse(
+      {
+        code: inactive ? 'TEMPLATE_INACTIVE' : 'EMAIL_FALLIDO',
+        message: inactive
+          ? 'La plantilla presupuesto esta desactivada. Activala y reintenta.'
+          : 'Email no salio. Cotizacion no marcada enviada.',
+        details: envio.detalle,
+      },
+      inactive ? 422 : 502,
+      origin
+    );
+  }
+
+  const postUpdate: Record<string, unknown> = {
+    estado: 'enviada',
+    oferta_enviada_at: new Date().toISOString(),
+    notas_internas: notas,
+    leida: true,
+    metadata: meta,
+  };
+  if (storedPdfPath) {
+    postUpdate.pdf_storage_path = storedPdfPath;
+    postUpdate.pdf_sha256 = pdfSha;
+    postUpdate.pdf_revision = pdfRevision;
+  }
+  postUpdate.send_error = null;
+  postUpdate.send_claimed_at = null;
+
+  let { error: updateError } = await supabase
+    .from('solicitudes_cotizacion')
+    .update(postUpdate)
+    .eq('id', id);
+  if (updateError && /column|schema cache|Could not find/i.test(updateError.message)) {
+    const softPost: Record<string, unknown> = {
+      estado: 'enviada',
+      oferta_enviada_at: new Date().toISOString(),
+      notas_internas: notas,
+      leida: true,
+      metadata: meta,
+    };
+    ({ error: updateError } = await supabase
+      .from('solicitudes_cotizacion')
+      .update(softPost)
+      .eq('id', id));
+  }
+
+  if (updateError) return internalError(updateError.message, origin);
 
   return new Response(
     JSON.stringify({
       ok: true,
       cotizacion_id: id,
+      numero,
       estado: 'enviada',
       formalizar_url: formalizarUrl,
       token_rotado: tokenRotated,
-      total,
-      moneda,
+      total: oferta.total,
+      moneda: oferta.moneda,
+      pdf_revision: pdfRevision,
+      pdf_storage_path: storedPdfPath,
+      plantilla,
     }),
     {
       status: 200,

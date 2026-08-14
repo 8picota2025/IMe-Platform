@@ -1,4 +1,4 @@
-import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase';
+import { formatFabricanteDistribuidor } from '../lib/producto-origen';
 import { renderMarkdown } from '../lib/markdown';
 import * as XLSX from 'xlsx';
 import {
@@ -2275,7 +2275,8 @@ type ProductListColumnType =
   | 'gallery'
   | 'link'
   | 'json'
-  | 'list';
+  | 'list'
+  | 'computed';
 
 type ProductListColumn = {
   key: string;
@@ -2327,6 +2328,7 @@ const PRODUCT_LIST_COLUMNS: ProductListColumn[] = [
   { key: 'nombre_en', label: 'Nombre EN', type: 'text', sortable: true },
   { key: 'slug', label: 'Slug', type: 'text', sortable: true },
   { key: 'sku', label: 'SKU', type: 'text', sortable: true },
+  { key: 'fabricante_distribuidor', label: 'Fabricante / distribuidor', type: 'computed' },
   { key: 'gtin', label: 'GTIN', type: 'text', sortable: true },
   { key: 'familia_id', label: 'Familia', type: 'select', sortable: true },
   { key: 'tipo_id', label: 'Tipo', type: 'select', sortable: true },
@@ -2968,6 +2970,7 @@ async function cotizacionesView(): Promise<string> {
       ${table(
         [
           '',
+          'Numero',
           'Fecha',
           'Nombre',
           'Empresa',
@@ -2986,6 +2989,7 @@ async function cotizacionesView(): Promise<string> {
               : '—';
           return [
             `<input type="checkbox" data-cotizacion-select value="${escapeHtml(text(row.id))}" aria-label="Seleccionar cotizacion" />`,
+            escapeHtml(text(row.numero)) || '—',
             formatCell(row.created_at),
             escapeHtml(text(row.nombre)),
             escapeHtml(text(row.empresa)) || '—',
@@ -3117,6 +3121,11 @@ async function cotizacionDetailView(): Promise<string> {
       <div class="cotizacion-workflow">
         <div class="cotizacion-workflow__summary" data-cotizacion-summary hidden>${escapeHtml(resumen)}</div>
         <div class="cotizacion-workflow__chips">
+          ${
+            text(row.numero)
+              ? `<span class="admin-badge admin-badge--info">${escapeHtml(text(row.numero))}</span>`
+              : ''
+          }
           <span class="admin-badge admin-badge--info">${escapeHtml(text(row.empresa) || 'Sin empresa')}</span>
           <span class="admin-badge">${escapeHtml(text(row.created_at))}</span>
           <span class="admin-badge ${row.leida ? 'admin-badge--ok' : 'admin-badge--warn'}">${row.leida ? 'Leida' : 'Sin leer'}</span>
@@ -3140,6 +3149,11 @@ async function cotizacionDetailView(): Promise<string> {
       </div>
       <div style="padding:0 16px 16px">
         <h3>Oferta comercial</h3>
+        ${
+          text(row.send_error)
+            ? `<p class="admin-help">Ultimo error de envio: ${escapeHtml(text(row.send_error))}</p>`
+            : ''
+        }
         <p class="admin-help">Edita los datos de la solicitud, los productos, precios y condiciones. La oferta guardada es la que recibirá el cliente al formalizar.</p>
         <form class="admin-form" data-cotizacion-oferta-form>
           <input type="hidden" name="id" value="${escapeHtml(text(row.id))}" />
@@ -6578,10 +6592,15 @@ function bindCotizaciones() {
       'Falta el precio unitario en alguna linea. Completalo y pulsa "Guardar oferta" antes de enviar.',
     OFERTA_SIN_CONDICIONES:
       'Faltan las observaciones/condiciones. Completalas y pulsa "Guardar oferta" antes de enviar.',
+    OFERTA_MONEDA_MIXTA: 'Hay lineas en COP y USD. Unifica la moneda de la oferta antes de enviar.',
     SIN_EMAIL: 'La cotizacion no tiene email de cliente.',
     COTIZACION_YA_CONVERTIDA: 'Esta cotizacion ya se convirtio en pedido.',
-    EMAIL_FALLIDO:
-      'Oferta guardada, pero el email no se pudo enviar. Revisa el proveedor de correo.',
+    EMAIL_FALLIDO: 'Email no salio. Cotizacion no marcada enviada. Reintenta el envio.',
+    TEMPLATE_INACTIVE:
+      'La plantilla de oferta esta desactivada. Activala en email_templates y reintenta.',
+    PDF_RENDER_FAILED: 'No se pudo generar o guardar el PDF. Reintenta el envio.',
+    SEND_IN_FLIGHT: 'Hay un envio en curso. Espera unos segundos y reintenta.',
+    NUMERO_CONFLICT: 'Conflicto al asignar numero. Reintenta.',
     UNAUTHORIZED: 'Tu sesion no tiene permisos para esta accion. Vuelve a iniciar sesion.',
   };
 
@@ -6610,7 +6629,10 @@ function bindCotizaciones() {
     }
     const json = (data ?? {}) as Record<string, unknown>;
     if (json.ok === false || (json.error && !json.ok)) {
-      const err = json.error as { message?: string } | string | undefined;
+      const err = json.error as { message?: string; code?: string } | string | undefined;
+      if (err && typeof err === 'object' && err.code && COTIZACION_ERROR_MENSAJES[err.code]) {
+        return { ok: false, message: COTIZACION_ERROR_MENSAJES[err.code]! };
+      }
       const message =
         typeof err === 'string' ? err : err?.message || 'La operacion no se pudo completar.';
       return { ok: false, message };
@@ -6700,7 +6722,11 @@ function bindCotizaciones() {
         toast(result.message);
         return;
       }
-      toast('Cotizacion enviada al cliente.');
+      toast(
+        result.data.numero
+          ? `Cotizacion ${String(result.data.numero)} enviada al cliente.`
+          : 'Cotizacion enviada al cliente.'
+      );
       await render();
     });
 
@@ -9111,6 +9137,12 @@ function productListCell(
   const name = column.key;
   const baseAttrs = `data-product-id="${escapeHtml(productId)}" data-product-field="${escapeHtml(name)}"`;
   const value = row[name];
+  if (column.type === 'computed') {
+    if (name === 'fabricante_distribuidor') {
+      return escapeHtml(formatFabricanteDistribuidor(row));
+    }
+    return '—';
+  }
   if (column.type === 'image') {
     const imageUrl = text(value);
     return `

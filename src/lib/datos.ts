@@ -11,6 +11,7 @@ import { emitAnalyticsEvent } from './analytics';
 import { captureCommercialAttribution, type CommercialAttribution } from './commercial-attribution';
 import { isSupabaseConfigured, getSupabaseClient } from './supabase';
 import { resolveFamiliaIcono } from './familias';
+import { resolveMarca } from './producto-origen';
 
 import mockFamilias from '../data/mock-familias.json';
 import mockArticulos from '../data/mock-articulos.json';
@@ -169,11 +170,9 @@ async function cargarMapaFamilias(supabase: ReturnType<typeof getSupabaseClient>
  */
 export function resolveMarcaSupabase(raw: {
   marca?: unknown;
-  atributos?: { marca?: unknown };
+  atributos?: { marca?: unknown; fabricante?: unknown };
 }): string | null {
-  const directa = typeof raw.marca === 'string' ? raw.marca : null;
-  const enAtributos = typeof raw.atributos?.marca === 'string' ? raw.atributos.marca : null;
-  return directa ?? enAtributos ?? null;
+  return resolveMarca(raw);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
