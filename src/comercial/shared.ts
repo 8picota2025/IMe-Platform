@@ -252,9 +252,15 @@ function extractEdgeError(
 } {
   const body = payload as EdgeErrorPayload | null;
   const code = typeof body?.error === 'object' && body.error?.code ? body.error.code : undefined;
-  if (typeof body?.error === 'string') return { message: body.error, code };
-  if (body?.error?.message) return { message: body.error.message, code };
-  return { message: `Error ${status} al llamar ${name}.`, code };
+  if (typeof body?.error === 'string') {
+    return code ? { message: body.error, code } : { message: body.error };
+  }
+  if (body?.error?.message) {
+    return code ? { message: body.error.message, code } : { message: body.error.message };
+  }
+  return code
+    ? { message: `Error ${status} al llamar ${name}.`, code }
+    : { message: `Error ${status} al llamar ${name}.` };
 }
 
 /**
@@ -316,7 +322,9 @@ export async function callEdgeFunction<T = unknown>(
           code: 'NOT_FOUND',
         };
       }
-      return { data: null, error: extracted.message, status, code: extracted.code };
+      return extracted.code
+        ? { data: null, error: extracted.message, status, code: extracted.code }
+        : { data: null, error: extracted.message, status };
     }
     return { data: payload as T, error: null, status };
   } catch (err) {

@@ -44,9 +44,9 @@ export interface ProductoComercial {
   familia_id: string | null;
   tipo_id: string | null;
   tipo_comercial: 'equipo' | 'consumible';
-  fulfillment_mode: string | null;
+  fulfillment_mode?: string | null;
   disponible: boolean;
-  atributos: Record<string, unknown> | null;
+  atributos?: Record<string, unknown> | null;
 }
 
 interface CatalogoFilters {

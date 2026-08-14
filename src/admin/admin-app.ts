@@ -1,5 +1,7 @@
 import { formatFabricanteDistribuidor } from '../lib/producto-origen';
 import { renderMarkdown } from '../lib/markdown';
+import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase';
+import type { AuthChangeEvent } from '@supabase/supabase-js';
 import * as XLSX from 'xlsx';
 import {
   normalizeNumeroDocumento,
@@ -311,7 +313,7 @@ window.addEventListener('hashchange', () => {
 // Flag: prevents render() from overwriting renderNewPassword() after getSession() resolves
 let recoveryHandled = false;
 
-supabase?.auth.onAuthStateChange(event => {
+supabase?.auth.onAuthStateChange((event: AuthChangeEvent) => {
   if (event === 'PASSWORD_RECOVERY') {
     recoveryHandled = true;
     history.replaceState(null, '', location.pathname);

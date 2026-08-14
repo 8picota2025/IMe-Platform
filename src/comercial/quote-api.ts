@@ -184,7 +184,13 @@ export function mapQuoteRow(raw: unknown, createdByNombre?: string | null): Quot
 }
 
 function fail<T>(error: string, status = 0, code?: string): EdgeFunctionResult<T> {
-  return { data: null, error, status, code };
+  return code ? { data: null, error, status, code } : { data: null, error, status };
+}
+
+type QuoteRowError = { error: string; status: number };
+
+function isQuoteRowError(value: Record<string, unknown> | QuoteRowError): value is QuoteRowError {
+  return typeof value.error === 'string' && typeof value.status === 'number';
 }
 
 function ok<T>(data: T, status = 200): EdgeFunctionResult<T> {
@@ -213,37 +219,22 @@ export async function duplicarQuote(
   return duplicarQuoteRest(id);
 }
 
-export async function previewQuotePdf(
-  id: string,
-  snapshot?: {
-    numero?: string | null;
-    nombre: string;
-    empresa?: string | null;
-    email: string;
-    telefono: string;
-    condiciones: string;
-    validez_hasta: string | null;
-    moneda: 'COP' | 'USD';
-    productos: CotizacionLineaOferta[];
-  }
-): Promise<EdgeFunctionResult<{ pdf_base64: string; numero: string }>> {
-  const edge = await callEdgeFunction<{ pdf_base64: string; numero: string }>(
-    'comercial-cotizacion',
-    {
-      method: 'GET',
-      query: { action: 'pdf', id },
-    }
-  );
-  if (!edge.error && edge.data?.pdf_base64) return edge;
+type QuotePdfSnapshot = {
+  numero?: string | null | undefined;
+  nombre: string;
+  empresa?: string | null | undefined;
+  email: string;
+  telefono: string;
+  condiciones: string;
+  validez_hasta: string | null;
+  moneda: 'COP' | 'USD';
+  productos: CotizacionLineaOferta[];
+};
 
-  // Fallback sandbox: PDF local con plantilla Presupuesto (sin Edge).
-  if (!snapshot) {
-    return fail(
-      edge.error ?? 'PDF no disponible.',
-      edge.status || 404,
-      edge.code ?? 'PDF_RENDER_FAILED'
-    );
-  }
+async function renderQuotePdfLocal(
+  id: string,
+  snapshot: QuotePdfSnapshot
+): Promise<EdgeFunctionResult<{ pdf_base64: string; numero: string }>> {
   try {
     const { renderQuotePdf, bytesToBase64 } = await import('../lib/render-quote-pdf');
     const numero =
@@ -253,7 +244,7 @@ export async function previewQuotePdf(
     const bytes = await renderQuotePdf({
       numero,
       clienteNombre: snapshot.nombre,
-      empresa: snapshot.empresa,
+      empresa: snapshot.empresa ?? null,
       email: snapshot.email,
       telefono: snapshot.telefono,
       condiciones: snapshot.condiciones,
@@ -274,6 +265,40 @@ export async function previewQuotePdf(
       'PDF_RENDER_FAILED'
     );
   }
+}
+
+/** PDF primero local (fiable en sandbox); Edge solo si no hay snapshot. */
+export async function previewQuotePdf(
+  id: string,
+  snapshot?: QuotePdfSnapshot
+): Promise<EdgeFunctionResult<{ pdf_base64: string; numero: string }>> {
+  if (snapshot) {
+    const local = await renderQuotePdfLocal(id, snapshot);
+    if (!local.error && local.data?.pdf_base64) return local;
+  }
+
+  const edge = await callEdgeFunction<{ pdf_base64: string; numero: string }>(
+    'comercial-cotizacion',
+    {
+      method: 'GET',
+      query: { action: 'pdf', id },
+    }
+  );
+  if (!edge.error && edge.data?.pdf_base64) return edge;
+
+  return fail(
+    edge.error ?? 'PDF no disponible.',
+    edge.status || 404,
+    edge.code ?? 'PDF_RENDER_FAILED'
+  );
+}
+
+/** Asigna IME-Q-… al guardar (RPC SECURITY DEFINER). Ignora si no hay grant aún. */
+async function ensureNumero(id: string): Promise<string | null> {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc('ensure_cotizacion_numero', { p_id: id });
+  if (error) return null;
+  return typeof data === 'string' && data ? data : null;
 }
 
 export async function searchProducts(q: string): Promise<ProductHit[]> {
@@ -328,7 +353,7 @@ async function listQuotesRest(
     }
     const { data, error, count } = await req;
     if (!error) {
-      const rows = (data ?? []) as Array<Record<string, unknown>>;
+      const rows = (data ?? []) as unknown as Array<Record<string, unknown>>;
       const names = await nombresPorUsuario(rows.map(r => String(r.created_by ?? '')));
       return ok({
         quotes: rows.map(row => mapQuoteRow(row, names.get(String(row.created_by ?? '')) ?? null)),
@@ -356,14 +381,13 @@ async function getQuoteRest(id: string): Promise<EdgeFunctionResult<{ quote: Quo
   const session = await ensureAuthSession();
   if (!session) return fail('Sesión expirada. Vuelve a iniciar sesión.', 401);
   const row = await fetchQuoteRow(id);
-  if ('error' in row) return fail(row.error, row.status);
-  const names = await nombresPorUsuario(row.created_by ? [row.created_by] : []);
-  return ok({ quote: mapQuoteRow(row, names.get(row.created_by ?? '') ?? null) });
+  if (isQuoteRowError(row)) return fail(row.error, row.status);
+  const createdBy = typeof row.created_by === 'string' ? row.created_by : '';
+  const names = await nombresPorUsuario(createdBy ? [createdBy] : []);
+  return ok({ quote: mapQuoteRow(row, names.get(createdBy) ?? null) });
 }
 
-async function fetchQuoteRow(
-  id: string
-): Promise<Record<string, unknown> | { error: string; status: number }> {
+async function fetchQuoteRow(id: string): Promise<Record<string, unknown> | QuoteRowError> {
   if (!supabase) return { error: 'Supabase no configurado.', status: 0 };
   const colSets = [
     DETAIL_CORE,
@@ -423,7 +447,7 @@ async function saveQuoteRest(
 
   if (input.id) {
     const existing = await fetchQuoteRow(input.id);
-    if ('error' in existing) return fail(existing.error, existing.status);
+    if (isQuoteRowError(existing)) return fail(existing.error, existing.status);
     const estado = String(existing.estado ?? 'nueva');
     if (existing.pedido_id || !quoteEditable(estado)) {
       return fail(
@@ -437,6 +461,7 @@ async function saveQuoteRest(
       .update(canon)
       .eq('id', input.id);
     if (error) return fail(error.message, 500);
+    await ensureNumero(input.id);
     return getQuoteRest(input.id);
   }
 
@@ -468,6 +493,7 @@ async function saveQuoteRest(
     return fail(inserted.error?.message ?? 'No se pudo guardar la cotización.', 500);
   }
   const newId = String((inserted.data as { id: string }).id);
+  await ensureNumero(newId);
   return getQuoteRest(newId);
 }
 

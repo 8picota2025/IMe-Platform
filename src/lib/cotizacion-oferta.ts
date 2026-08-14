@@ -273,7 +273,9 @@ export async function hashTokenSha256(token: string): Promise<string> {
 export async function hashBytesSha256(data: BufferSource): Promise<string> {
   const bytes = asUint8Array(data);
   if (typeof globalThis.crypto?.subtle?.digest === 'function') {
-    const digest = await globalThis.crypto.subtle.digest('SHA-256', bytes);
+    const digestInput = new Uint8Array(bytes.byteLength);
+    digestInput.set(bytes);
+    const digest = await globalThis.crypto.subtle.digest('SHA-256', digestInput);
     return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
   }
   const { createHash } = await import('node:crypto');
