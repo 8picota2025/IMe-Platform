@@ -28,6 +28,7 @@ import {
   buildQuoteAnnexes,
   loadQuotePdfFonts,
   loadQuotePdfLogo,
+  loadQuotePdfWhatsappIcon,
 } from '../_shared/quote-pdf-assets.ts';
 import { bancoLineasCotizacion } from '../_shared/transferencia-bancaria.ts';
 import { syncCotizacionWithTwenty } from '../_shared/twenty-crm.ts';
@@ -482,9 +483,10 @@ async function handlePdf(
     );
   }
   const siteUrl = (Deno.env.get('SITE_URL') ?? 'https://i-me.com.co').replace(/\/+$/, '');
-  const [annexes, logoBytes, fonts] = await Promise.all([
+  const [annexes, logoBytes, whatsappIconBytes, fonts] = await Promise.all([
     buildQuoteAnnexes(supabase, lineas, siteUrl),
     loadQuotePdfLogo(siteUrl),
+    loadQuotePdfWhatsappIcon(siteUrl),
     loadQuotePdfFonts(siteUrl),
   ]);
   const bytes = await renderQuotePdf({
@@ -504,6 +506,7 @@ async function handlePdf(
     locale: row.locale === 'en' ? 'en' : 'es',
     annexes,
     logoBytes,
+    whatsappIconBytes,
     fontRegularBytes: fonts.regular,
     fontBoldBytes: fonts.bold,
     bancoLineas: bancoLineasCotizacion(),

@@ -99,6 +99,16 @@ export async function loadQuotePdfLogo(siteUrl: string): Promise<Uint8Array | nu
   return null;
 }
 
+export async function loadQuotePdfWhatsappIcon(siteUrl: string): Promise<Uint8Array | null> {
+  const base = siteUrl.replace(/\/$/, '');
+  try {
+    return await Deno.readFile(new URL('./whatsapp-pdf.png', import.meta.url));
+  } catch {
+    /* fall through to site asset */
+  }
+  return (await fetchBytes(`${base}/assets/img/whatsapp-pdf.png`)) ?? null;
+}
+
 export async function buildQuoteAnnexes(
   // Supabase client shape varies between Edge helpers; only `.from().select()...` is used.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

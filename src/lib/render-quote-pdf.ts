@@ -45,6 +45,8 @@ export interface QuotePdfSnapshot {
   tagline?: string | null;
   annexes?: QuotePdfAnnex[];
   logoBytes?: Uint8Array | null;
+  /** Icono WhatsApp blanco (PNG) para el pie. */
+  whatsappIconBytes?: Uint8Array | null;
   fontRegularBytes?: Uint8Array | null;
   fontBoldBytes?: Uint8Array | null;
   fecha?: string | null;
@@ -229,6 +231,15 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
       } catch {
         logo = null;
       }
+    }
+  }
+
+  let whatsappIcon: PDFImage | null = null;
+  if (snapshot.whatsappIconBytes && snapshot.whatsappIconBytes.byteLength > 0) {
+    try {
+      whatsappIcon = await doc.embedPng(snapshot.whatsappIconBytes);
+    } catch {
+      whatsappIcon = null;
     }
   }
 
@@ -631,7 +642,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
       });
     });
 
-  drawFooterBar(page, font);
+  drawFooterBar(page, font, whatsappIcon);
 
   // Continuación de líneas si no caben en página 1
   if (overflowLines.length > 0) {
@@ -661,7 +672,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
       }
       oy += 6;
     }
-    drawFooterBar(page, font);
+    drawFooterBar(page, font, whatsappIcon);
   }
 
   // ——— Página consideraciones (boceto IPS p.2) ———
@@ -679,7 +690,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
   const termLines = terms.replace(/\r\n/g, '\n').split('\n');
   const ensureCondPage = () => {
     if (cy <= 760) return;
-    drawFooterBar(page, font);
+    drawFooterBar(page, font, whatsappIcon);
     page = doc.addPage([PAGE_W, PAGE_H]);
     page.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: WHITE });
     drawText(
@@ -725,7 +736,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
       cy += 15;
     }
   }
-  drawFooterBar(page, font);
+  drawFooterBar(page, font, whatsappIcon);
 
   // ——— Anexos (orden boceto): título → descripción → foto → características ———
   for (const annex of snapshot.annexes ?? []) {
@@ -791,7 +802,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     if (chars.length > 0) {
       ay = Math.max(ay, 340);
       if (ay > 700) {
-        drawFooterBar(page, font);
+        drawFooterBar(page, font, whatsappIcon);
         page = doc.addPage([PAGE_W, PAGE_H]);
         page.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: WHITE });
         ay = 50;
@@ -805,7 +816,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
       ay += 28;
       for (const c of chars.slice(0, 14)) {
         if (ay > 760) {
-          drawFooterBar(page, font);
+          drawFooterBar(page, font, whatsappIcon);
           page = doc.addPage([PAGE_W, PAGE_H]);
           page.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: WHITE });
           ay = 50;
@@ -819,7 +830,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
       }
     }
 
-    drawFooterBar(page, font);
+    drawFooterBar(page, font, whatsappIcon);
   }
 
   const bytes = await doc.save();
@@ -829,7 +840,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
   return bytes;
 };
 
-function drawFooterBar(page: PDFPage, font: PDFFont): void {
+function drawFooterBar(page: PDFPage, font: PDFFont, whatsappIcon: PDFImage | null): void {
   // Boceto footer bar y≈790–830, fill = mismo azul header
   page.drawRectangle({
     x: 46.4,
@@ -845,13 +856,29 @@ function drawFooterBar(page: PDFPage, font: PDFFont): void {
     font,
     color: WHITE,
   });
-  page.drawText(winAnsi('+57 3138674059'), {
-    x: 267,
+
+  const phone = '+57 3103332607';
+  const phoneSize = 11;
+  const iconSize = 12;
+  const gap = 4;
+  let cursorX = 252;
+  if (whatsappIcon) {
+    page.drawImage(whatsappIcon, {
+      x: cursorX,
+      y: topY(812) - 1,
+      width: iconSize,
+      height: iconSize,
+    });
+    cursorX += iconSize + gap;
+  }
+  page.drawText(winAnsi(phone), {
+    x: cursorX,
     y: topY(812),
-    size: 11,
+    size: phoneSize,
     font,
     color: WHITE,
   });
+
   page.drawText(winAnsi('info@i-me.com.co'), {
     x: 411,
     y: topY(812),

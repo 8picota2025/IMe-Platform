@@ -20,6 +20,7 @@ import {
   buildQuoteAnnexes,
   loadQuotePdfFonts,
   loadQuotePdfLogo,
+  loadQuotePdfWhatsappIcon,
 } from '../_shared/quote-pdf-assets.ts';
 import {
   datosBancariosTexto,
@@ -402,9 +403,10 @@ Deno.serve(async req => {
 
   let pdfBytes: Uint8Array;
   try {
-    const [annexes, logoBytes, fonts] = await Promise.all([
+    const [annexes, logoBytes, whatsappIconBytes, fonts] = await Promise.all([
       buildQuoteAnnexes(supabase, oferta.lineas, siteUrl),
       loadQuotePdfLogo(siteUrl),
+      loadQuotePdfWhatsappIcon(siteUrl),
       loadQuotePdfFonts(siteUrl),
     ]);
 
@@ -426,6 +428,7 @@ Deno.serve(async req => {
       telefonoComercial,
       annexes,
       logoBytes,
+      whatsappIconBytes,
       fontRegularBytes: fonts.regular,
       fontBoldBytes: fonts.bold,
       bancoLineas: bancoLineasCotizacion(banco),

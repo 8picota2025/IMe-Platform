@@ -383,6 +383,16 @@ async function loadLogoBytes(): Promise<Uint8Array | null> {
   return null;
 }
 
+async function loadWhatsappIconBytes(): Promise<Uint8Array | null> {
+  try {
+    const res = await fetch('/assets/img/whatsapp-pdf.png');
+    if (!res.ok) return null;
+    return new Uint8Array(await res.arrayBuffer());
+  } catch {
+    return null;
+  }
+}
+
 async function loadPoppinsFonts(): Promise<{
   regular: Uint8Array | null;
   bold: Uint8Array | null;
@@ -413,9 +423,10 @@ async function renderQuotePdfLocal(
       snapshot.numero?.trim() ||
       `IME-Q-${new Date().getFullYear()}-${id.replace(/-/g, '').slice(0, 6).toUpperCase()}`;
     const lineas = sanitizarLineasComercial(snapshot.productos, snapshot.moneda);
-    const [annexes, logoBytes, fonts] = await Promise.all([
+    const [annexes, logoBytes, whatsappIconBytes, fonts] = await Promise.all([
       loadQuoteAnnexes(lineas),
       loadLogoBytes(),
+      loadWhatsappIconBytes(),
       loadPoppinsFonts(),
     ]);
     const bytes = await renderQuotePdf({
@@ -435,6 +446,7 @@ async function renderQuotePdfLocal(
       telefonoComercial: state.telefono || '',
       annexes,
       logoBytes,
+      whatsappIconBytes,
       fontRegularBytes: fonts.regular,
       fontBoldBytes: fonts.bold,
       bancoLineas: bancoLineasCotizacion(),
