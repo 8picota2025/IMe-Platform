@@ -310,7 +310,7 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
     : '';
 
   return `
-    <section class="comercial-panel comercial-quote-editor" data-quote-editor data-quote-id="${escapeHtml(quote.id)}" data-updated-at="${escapeHtml(quote.updated_at ?? '')}" data-estado="${escapeHtml(quote.estado)}">
+    <section class="comercial-panel comercial-quote-editor" data-quote-editor data-quote-id="${escapeHtml(quote.id)}" data-updated-at="${escapeHtml(quote.updated_at ?? '')}" data-estado="${escapeHtml(quote.estado)}" data-quote-numero="${escapeHtml(quote.numero ?? '')}">
       <div class="comercial-panel__head">
         <div>
           <h2>${escapeHtml(quote.numero || 'Nuevo presupuesto')}</h2>
@@ -529,6 +529,7 @@ function applySaved(root: HTMLElement, quote: QuotePublic): void {
   root.setAttribute('data-quote-id', quote.id);
   root.setAttribute('data-updated-at', quote.updated_at ?? '');
   root.setAttribute('data-estado', quote.estado);
+  root.setAttribute('data-quote-numero', quote.numero ?? '');
   const title = root.querySelector('h2');
   if (title) title.textContent = quote.numero || 'Nuevo presupuesto';
   if (quote.id && !location.hash.includes(quote.id)) {
@@ -585,8 +586,12 @@ async function previewPdf(root: HTMLElement): Promise<void> {
   const slot = root.parentElement?.querySelector('[data-quote-modal-slot]');
   if (!slot) return;
   slot.innerHTML = `<div class="comercial-modal-overlay" data-pdf-overlay><div class="comercial-modal comercial-modal--wide" role="dialog" aria-modal="true" aria-labelledby="quote-pdf-title"><header class="comercial-modal__header"><h2 id="quote-pdf-title">Vista previa · Presupuesto</h2><button class="comercial-modal__close" type="button" data-pdf-close aria-label="Cerrar">✕</button></header><div class="comercial-modal__body"><p>Generando PDF…</p></div></div></div>`;
-  const title = root.querySelector('h2')?.textContent;
-  const snapshot = title?.startsWith('IME-Q') ? { ...parsed, numero: title } : parsed;
+  const title = root.querySelector('h2')?.textContent?.trim() || '';
+  const attrNumero = root.getAttribute('data-quote-numero')?.trim() || '';
+  const numero =
+    (attrNumero && attrNumero !== 'Nuevo presupuesto' ? attrNumero : '') ||
+    (title.startsWith('IME-Q') ? title : '');
+  const snapshot = { ...parsed, ...(numero ? { numero } : {}) };
   const { data, error, code } = await previewQuotePdf(id, snapshot);
   const body = slot.querySelector('.comercial-modal__body');
   if (!body) return;

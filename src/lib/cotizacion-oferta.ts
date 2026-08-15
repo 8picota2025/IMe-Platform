@@ -199,6 +199,21 @@ export function formatQuoteNumero(year: number, seq: number): string {
   return `IME-Q-${year}-${String(seq).padStart(6, '0')}`;
 }
 
+/**
+ * Número corto para el PDF (boceto `N°: 1030`).
+ * `IME-Q-2026-000042` → `42`. Si no matchea, devuelve el valor limpio.
+ */
+export function displayQuoteNumero(numero: string | null | undefined): string {
+  const raw = String(numero ?? '').trim();
+  if (!raw) return '—';
+  const m = /^IME-Q-\d{4}-(\d+)$/i.exec(raw);
+  if (m?.[1]) {
+    const n = Number.parseInt(m[1], 10);
+    return Number.isFinite(n) ? String(n) : m[1];
+  }
+  return raw;
+}
+
 export function resultadoPlantillaInactiva(
   clave: string,
   failOnInactive: boolean

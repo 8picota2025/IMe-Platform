@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   calcularTotalOfertado,
+  displayQuoteNumero,
   expiryFromValidez,
   formalizarPath,
   formatQuoteNumero,
@@ -167,6 +168,9 @@ describe('cotizacion-oferta', () => {
 
   it('formatQuoteNumero y plantilla inactiva fail-closed', () => {
     expect(formatQuoteNumero(2026, 1)).toBe('IME-Q-2026-000001');
+    expect(displayQuoteNumero('IME-Q-2026-000042')).toBe('42');
+    expect(displayQuoteNumero('IME-Q-2026-001030')).toBe('1030');
+    expect(displayQuoteNumero('BORRADOR')).toBe('BORRADOR');
     expect(resultadoPlantillaInactiva('cotizacion_oferta_cliente_es', false)).toEqual({
       ok: true,
       detalle: 'plantilla cotizacion_oferta_cliente_es desactivada',

@@ -9,6 +9,7 @@
 import { PDFDocument, rgb, type PDFFont, type PDFImage, type PDFPage } from 'npm:pdf-lib@1.17.1';
 import fontkit from 'npm:@pdf-lib/fontkit';
 import type { CotizacionLineaOferta } from '../../../src/lib/cotizacion-oferta.ts';
+import { displayQuoteNumero } from '../../../src/lib/cotizacion-oferta.ts';
 import {
   isCondicionesSectionHeading,
   resolveCondicionesOferta,
@@ -142,6 +143,82 @@ function fitOneLine(text: string, font: PDFFont, size: number, maxWidth: number)
     else hi = mid - 1;
   }
   return lo > 0 ? `${s.slice(0, lo)}${ell}` : ell;
+}
+
+/** Dibuja párrafo justificado (última línea a la izquierda). Devuelve siguiente `top`. */
+function drawJustifiedParagraph(
+  page: PDFPage,
+  text: string,
+  opts: {
+    x: number;
+    top: number;
+    size: number;
+    font: PDFFont;
+    maxWidth: number;
+    lineHeight?: number;
+    color?: ReturnType<typeof rgb>;
+    maxLines?: number;
+  }
+): number {
+  const lineHeight = opts.lineHeight ?? opts.size + 4;
+  const color = opts.color ?? INK;
+  const lines = wrapByWidth(text, opts.font, opts.size, opts.maxWidth);
+  const limited = opts.maxLines != null ? lines.slice(0, opts.maxLines) : lines;
+  let top = opts.top;
+  limited.forEach((line, idx) => {
+    const words = line.split(' ').filter(Boolean);
+    const isLast = idx === limited.length - 1;
+    const y = topY(top + opts.size * 0.78);
+    if (words.length <= 1 || isLast) {
+      page.drawText(winAnsi(line), {
+        x: opts.x,
+        y,
+        size: opts.size,
+        font: opts.font,
+        color,
+      });
+    } else {
+      const wordWidths = words.map(w => opts.font.widthOfTextAtSize(winAnsi(w), opts.size));
+      const wordsW = wordWidths.reduce((a, b) => a + b, 0);
+      const gap = (opts.maxWidth - wordsW) / (words.length - 1);
+      let cx = opts.x;
+      words.forEach((w, i) => {
+        page.drawText(winAnsi(w), {
+          x: cx,
+          y,
+          size: opts.size,
+          font: opts.font,
+          color,
+        });
+        cx += wordWidths[i]! + gap;
+      });
+    }
+    top += lineHeight;
+  });
+  return top;
+}
+
+function drawCentered(
+  page: PDFPage,
+  text: string,
+  opts: {
+    top: number;
+    size: number;
+    font: PDFFont;
+    color?: ReturnType<typeof rgb>;
+    maxWidth?: number;
+  }
+): void {
+  const raw =
+    opts.maxWidth != null ? fitOneLine(text, opts.font, opts.size, opts.maxWidth) : winAnsi(text);
+  const w = opts.font.widthOfTextAtSize(raw, opts.size);
+  page.drawText(raw, {
+    x: Math.max(40, (PAGE_W - w) / 2),
+    y: topY(opts.top + opts.size * 0.78),
+    size: opts.size,
+    font: opts.font,
+    color: opts.color ?? INK,
+  });
 }
 
 function todayLabel(locale: 'es' | 'en'): string {
@@ -289,40 +366,41 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     });
   }
 
-  // Título COTIZACIÓN — boceto: TTNormsPro-Bold 28.8 @ x348.6 top57.8
+  // Título COTIZACIÓN — boceto derecha; evitar overflow
   drawText(page, locale === 'en' ? 'QUOTATION' : 'COTIZACIÓN', {
     x: 348.6,
     top: 57.8,
-    size: 28.8,
+    size: 26,
     font: bold,
     color: GRAY_TITLE,
-    maxWidth: 220,
+    maxWidth: 200,
   });
 
-  // Tagline bajo el logo — Comfortaa ~9.4 @ x21 top94
+  // Tagline bajo el logo
   drawText(page, `"${tagline}"`, {
-    x: 21,
+    x: 40,
     top: 94,
-    size: 9.4,
+    size: 9,
     font,
     color: MUTED,
-    maxWidth: 300,
+    maxWidth: 280,
   });
 
-  // N° / Fecha (derecha)
-  drawRight(page, `${locale === 'en' ? 'No.' : 'N°'}: ${snapshot.numero}`, {
-    right: 560,
+  // N° / Fecha (derecha, número corto estilo boceto)
+  const numeroVisible = displayQuoteNumero(snapshot.numero);
+  drawRight(page, `${locale === 'en' ? 'No.' : 'N°'}: ${numeroVisible}`, {
+    right: 536,
     top: 97,
-    size: 11,
+    size: 12,
     font,
-    maxWidth: 150,
+    maxWidth: 160,
   });
   drawRight(page, `${locale === 'en' ? 'Date' : 'Fecha'}: ${fecha}`, {
-    right: 560,
-    top: 113,
-    size: 11,
+    right: 536,
+    top: 115,
+    size: 12,
     font,
-    maxWidth: 150,
+    maxWidth: 160,
   });
 
   // RECEPTOR — nombre, organización, teléfono, email
@@ -430,17 +508,17 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     });
   }
 
-  // ——— Tabla ———
-  const tableTop = Math.min(360, Math.max(300, companyTop + (snapshot.nombreComercial ? 62 : 48)));
-  const headerH = 38;
-  const colXs = [27.5, 65.1, 180.4, 381.0, 468.8, 569.2];
-  const unitRight = 460;
-  const totalRight = 560;
+  // ——— Tabla (pegada al bloque empresa; sin hueco forzado) ———
+  const tableTop = Math.min(340, Math.max(companyTop + 18, 280));
+  const headerH = 36;
+  const colXs = [27.5, 65.1, 180.4, 381.0, 468.8, 560];
+  const unitRight = 455;
+  const totalRight = 548;
   const descMaxW = colXs[3]! - colXs[2]! - 8;
   const refMaxW = colXs[2]! - colXs[1]! - 6;
-  const rowHBase = 40;
-  const footerGuard = 790;
-  const totalsBlockH = 110;
+  const rowHBase = 36;
+  const footerGuard = 780;
+  const totalsBlockH = 100;
   const available = footerGuard - totalsBlockH - (tableTop + headerH);
   const maxRowsFit = Math.max(1, Math.floor(available / rowHBase));
   const pageLines = snapshot.lineas.slice(0, maxRowsFit);
@@ -635,18 +713,16 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
       (locale === 'en'
         ? 'Prices subject to change according to market conditions.'
         : 'Precios sujetos a revisión según condiciones de mercado.');
-  wrapByWidth(note, font, 9, 280)
-    .slice(0, 4)
-    .forEach((line, i) => {
-      drawText(page, line, {
-        x: 27,
-        top: totalsTop + 56 + i * 12,
-        size: 9,
-        font,
-        color: MUTED,
-        maxWidth: 280,
-      });
-    });
+  drawJustifiedParagraph(page, note, {
+    x: 27,
+    top: totalsTop + 56,
+    size: 9,
+    font,
+    maxWidth: 280,
+    lineHeight: 12,
+    color: MUTED,
+    maxLines: 4,
+  });
 
   drawFooterBar(page, font, whatsappIcon);
 
@@ -684,63 +760,57 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
   // ——— Página consideraciones (boceto IPS p.2) ———
   page = doc.addPage([PAGE_W, PAGE_H]);
   page.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: WHITE });
-  drawText(page, locale === 'en' ? 'Offer considerations' : 'Consideraciones de la oferta', {
-    x: 40,
-    top: 50,
+  drawCentered(page, locale === 'en' ? 'Offer considerations' : 'Consideraciones de la oferta', {
+    top: 56,
     size: 14,
     font: bold,
     color: BLUE,
+    maxWidth: 480,
   });
-  let cy = 80;
+  let cy = 88;
   const terms = resolveCondicionesOferta(snapshot.condiciones, locale);
-  const termLines = terms.replace(/\r\n/g, '\n').split('\n');
+  const termBlocks = terms
+    .replace(/\r\n/g, '\n')
+    .split(/\n+/)
+    .map(s => s.trim())
+    .filter(Boolean);
   const ensureCondPage = () => {
-    if (cy <= 760) return;
+    if (cy <= 750) return;
     drawFooterBar(page, font, whatsappIcon);
     page = doc.addPage([PAGE_W, PAGE_H]);
     page.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: WHITE });
-    drawText(
+    drawCentered(
       page,
       locale === 'en' ? 'Offer considerations (cont.)' : 'Consideraciones de la oferta (cont.)',
-      {
-        x: 40,
-        top: 50,
-        size: 13,
-        font: bold,
-        color: BLUE,
-      }
+      { top: 56, size: 13, font: bold, color: BLUE, maxWidth: 480 }
     );
-    cy = 80;
+    cy = 88;
   };
-  for (const rawLine of termLines) {
-    const line = rawLine.trimEnd();
-    if (!line.trim()) {
-      cy += 10;
+  for (const block of termBlocks) {
+    ensureCondPage();
+    if (isCondicionesSectionHeading(block, locale)) {
+      cy += cy > 88 ? 10 : 0;
       ensureCondPage();
-      continue;
-    }
-    const heading = isCondicionesSectionHeading(line.trim(), locale);
-    if (heading) {
-      cy += cy > 80 ? 8 : 0;
-      ensureCondPage();
-      drawText(page, line.trim(), {
-        x: 40,
+      drawText(page, block, {
+        x: 50,
         top: cy,
         size: 13,
         font: bold,
         color: BLUE,
-        maxWidth: 510,
+        maxWidth: 490,
       });
       cy += 20;
       continue;
     }
-    const indent = /^\s/.test(rawLine) ? 58 : 40;
-    const width = 510 - (indent - 40);
-    for (const chunk of wrapByWidth(line.trim(), font, 11, width)) {
-      ensureCondPage();
-      drawText(page, chunk, { x: indent, top: cy, size: 11, font, maxWidth: width });
-      cy += 15;
-    }
+    cy = drawJustifiedParagraph(page, block, {
+      x: 50,
+      top: cy,
+      size: 11,
+      font,
+      maxWidth: 490,
+      lineHeight: 15,
+    });
+    cy += 8;
   }
   drawFooterBar(page, font, whatsappIcon);
 
@@ -751,29 +821,30 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
 
     const titleParts = wrapByWidth(annex.nombre.toUpperCase(), bold, 13, 500).slice(0, 2);
     titleParts.forEach((line, i) => {
-      const w = bold.widthOfTextAtSize(winAnsi(line), 13);
-      drawText(page, line, {
-        x: Math.max(40, (PAGE_W - w) / 2),
-        top: 57.4 + i * 18,
+      drawCentered(page, line, {
+        top: 52 + i * 18,
         size: 13,
         font: bold,
         color: BLUE,
-        maxWidth: 510,
+        maxWidth: 500,
       });
     });
 
-    // Descripción primero (boceto ~128)
-    let ay = 128;
+    let ay = 52 + titleParts.length * 18 + 16;
     const body = (annex.descripcion || annex.resumen || '').replace(/\s+/g, ' ').trim();
     if (body) {
-      for (const chunk of wrapByWidth(body, font, 11, 510).slice(0, 10)) {
-        drawText(page, chunk, { x: 38, top: ay, size: 11, font, maxWidth: 510 });
-        ay += 15;
-      }
-      ay += 10;
+      ay = drawJustifiedParagraph(page, body, {
+        x: 40,
+        top: ay,
+        size: 11,
+        font,
+        maxWidth: 510,
+        lineHeight: 15,
+        maxLines: 14,
+      });
+      ay += 12;
     }
 
-    // Foto centrada (boceto bbox ≈ 174–394 × 220–328 → ~220×109)
     if (annex.imageBytes && annex.imageBytes.byteLength > 0) {
       let img: PDFImage | null = null;
       try {
@@ -791,8 +862,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
         const scale = Math.min(maxW / img.width, maxH / img.height);
         const w = img.width * scale;
         const h = img.height * scale;
-        // Si descripción corta, anclar cerca del boceto (top≈220)
-        const imgTop = Math.max(ay, 220);
+        const imgTop = ay;
         page.drawImage(img, {
           x: (PAGE_W - w) / 2,
           y: topY(imgTop + h),
@@ -803,10 +873,8 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
       }
     }
 
-    // Características (boceto ~340)
     const chars = (annex.caracteristicas ?? []).filter(Boolean);
     if (chars.length > 0) {
-      ay = Math.max(ay, 340);
       if (ay > 700) {
         drawFooterBar(page, font, whatsappIcon);
         page = doc.addPage([PAGE_W, PAGE_H]);
@@ -819,7 +887,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
         size: 12,
         font: bold,
       });
-      ay += 28;
+      ay += 22;
       for (const c of chars.slice(0, 14)) {
         if (ay > 760) {
           drawFooterBar(page, font, whatsappIcon);
@@ -827,12 +895,12 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
           page.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: WHITE });
           ay = 50;
         }
-        const lines = wrapByWidth(c, font, 11, 470);
-        for (const line of lines.slice(0, 4)) {
-          drawText(page, line, { x: 67.5, top: ay, size: 12, font });
-          ay += 16.5;
+        const lines = wrapByWidth(`• ${c}`, font, 11, 470);
+        for (const line of lines.slice(0, 3)) {
+          drawText(page, line, { x: 55, top: ay, size: 11, font, maxWidth: 480 });
+          ay += 14;
         }
-        ay += 10;
+        ay += 4;
       }
     }
 

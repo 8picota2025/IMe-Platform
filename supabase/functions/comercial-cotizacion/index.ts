@@ -230,7 +230,7 @@ Deno.serve(
         if (action === 'pdf') {
           const id = url.searchParams.get('id') ?? '';
           if (!UUID_RE.test(id)) return badRequest('id invalido', origin);
-          return await handlePdf(supabase, id, origin);
+          return await handlePdf(supabase, id, origin, url);
         }
         const id = url.searchParams.get('id');
         if (id) {
@@ -440,7 +440,8 @@ async function handleSearch(
 async function handlePdf(
   supabase: ServerSupabase,
   id: string,
-  origin: string | null
+  origin: string | null,
+  url: URL
 ): Promise<Response> {
   const { data, error } = await selectQuoteRow(supabase, id);
   if (error) return internalError(error.message, origin);
@@ -451,10 +452,11 @@ async function handlePdf(
     row.metadata && typeof row.metadata === 'object' && !Array.isArray(row.metadata)
       ? row.metadata
       : {};
+  const fresh = url.searchParams.get('fresh') === '1';
   const storedPath =
     row.pdf_storage_path ??
     (typeof metadata.pdf_storage_path === 'string' ? metadata.pdf_storage_path : null);
-  if (storedPath) {
+  if (storedPath && !fresh) {
     const downloaded = await supabase.storage.from('cotizaciones-pdf').download(storedPath);
     if (!downloaded.error && downloaded.data) {
       const bytes = new Uint8Array(await downloaded.data.arrayBuffer());
@@ -473,8 +475,16 @@ async function handlePdf(
     }
   }
 
-  const lineas = sanitizarLineasComercial(row.productos, row.moneda);
-  const check = ofertaCompleta(lineas, row.condiciones);
+  await ensureNumero(supabase, id);
+  const reloaded = await selectQuoteRow(supabase, id);
+  const live = (reloaded.data ?? row) as CotizacionOfertaRow;
+  const liveMeta =
+    live.metadata && typeof live.metadata === 'object' && !Array.isArray(live.metadata)
+      ? live.metadata
+      : {};
+
+  const lineas = sanitizarLineasComercial(live.productos, live.moneda);
+  const check = ofertaCompleta(lineas, live.condiciones);
   if (!check.ok) {
     return errorResponse(
       { code: check.error, message: 'Completa la oferta para previsualizar el PDF.' },
@@ -489,21 +499,22 @@ async function handlePdf(
     loadQuotePdfWhatsappIcon(siteUrl),
     loadQuotePdfFonts(siteUrl),
   ]);
+  const numero = String(
+    live.numero ??
+      (typeof liveMeta.numero_presupuesto === 'string' ? liveMeta.numero_presupuesto : 'BORRADOR')
+  );
   const bytes = await renderQuotePdf({
-    numero: String(
-      row.numero ??
-        (typeof metadata.numero_presupuesto === 'string' ? metadata.numero_presupuesto : 'BORRADOR')
-    ),
-    clienteNombre: String(row.nombre ?? 'Cliente'),
-    empresa: row.empresa,
-    email: row.email,
-    telefono: row.telefono,
-    condiciones: String(row.condiciones ?? ''),
-    validezHasta: row.validez_hasta ? String(row.validez_hasta) : null,
-    moneda: normalizarMonedaOferta(row.moneda),
+    numero,
+    clienteNombre: String(live.nombre ?? 'Cliente'),
+    empresa: live.empresa,
+    email: live.email,
+    telefono: live.telefono,
+    condiciones: String(live.condiciones ?? ''),
+    validezHasta: live.validez_hasta ? String(live.validez_hasta) : null,
+    moneda: normalizarMonedaOferta(live.moneda),
     total: calcularTotalOfertado(lineas),
     lineas,
-    locale: row.locale === 'en' ? 'en' : 'es',
+    locale: live.locale === 'en' ? 'en' : 'es',
     annexes,
     logoBytes,
     whatsappIconBytes,
@@ -514,11 +525,7 @@ async function handlePdf(
   return json(
     {
       pdf_base64: base64(bytes),
-      numero:
-        row.numero ??
-        (typeof metadata.numero_presupuesto === 'string'
-          ? metadata.numero_presupuesto
-          : 'BORRADOR'),
+      numero,
       stored: false,
     },
     origin

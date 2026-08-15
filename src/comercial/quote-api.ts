@@ -421,6 +421,7 @@ async function renderQuotePdfLocal(
     const { renderQuotePdf, bytesToBase64 } = await import('../lib/render-quote-pdf');
     const numero =
       snapshot.numero?.trim() ||
+      (await ensureNumero(id)) ||
       `IME-Q-${new Date().getFullYear()}-${id.replace(/-/g, '').slice(0, 6).toUpperCase()}`;
     const lineas = sanitizarLineasComercial(snapshot.productos, snapshot.moneda);
     const [annexes, logoBytes, whatsappIconBytes, fonts] = await Promise.all([
@@ -475,7 +476,7 @@ export async function previewQuotePdf(
     'comercial-cotizacion',
     {
       method: 'GET',
-      query: { action: 'pdf', id },
+      query: { action: 'pdf', id, fresh: '1' },
     }
   );
   if (!edge.error && edge.data?.pdf_base64) return edge;
@@ -491,8 +492,11 @@ export async function previewQuotePdf(
 async function ensureNumero(id: string): Promise<string | null> {
   if (!supabase) return null;
   const { data, error } = await supabase.rpc('ensure_cotizacion_numero', { p_id: id });
-  if (error) return null;
-  return typeof data === 'string' && data ? data : null;
+  if (error) {
+    console.warn('ensure_cotizacion_numero', error.message);
+    return null;
+  }
+  return typeof data === 'string' && data.trim() ? data.trim() : null;
 }
 
 export async function searchProducts(q: string): Promise<ProductHit[]> {
@@ -654,8 +658,12 @@ async function saveQuoteRest(
       .update(canon)
       .eq('id', input.id);
     if (error) return fail(error.message, 500);
-    await ensureNumero(input.id);
-    return getQuoteRest(input.id);
+    const numbered = await ensureNumero(input.id);
+    const loaded = await getQuoteRest(input.id);
+    if (!loaded.error && loaded.data?.quote && numbered && !loaded.data.quote.numero) {
+      loaded.data.quote.numero = numbered;
+    }
+    return loaded;
   }
 
   // created_by aún no existe en prod (migración PDF pendiente). No lo enviamos.
@@ -686,8 +694,12 @@ async function saveQuoteRest(
     return fail(inserted.error?.message ?? 'No se pudo guardar la cotización.', 500);
   }
   const newId = String((inserted.data as { id: string }).id);
-  await ensureNumero(newId);
-  return getQuoteRest(newId);
+  const numbered = await ensureNumero(newId);
+  const loaded = await getQuoteRest(newId);
+  if (!loaded.error && loaded.data?.quote && numbered && !loaded.data.quote.numero) {
+    loaded.data.quote.numero = numbered;
+  }
+  return loaded;
 }
 
 async function duplicarQuoteRest(id: string): Promise<EdgeFunctionResult<{ quote: QuotePublic }>> {
