@@ -307,6 +307,21 @@ a {
   cursor: not-allowed;
 }
 
+.comercial-button--whatsapp {
+  background: #128c7e;
+  color: #fff;
+  border-color: #0b6b61;
+}
+
+.comercial-button--whatsapp:hover {
+  background: #0b6b61;
+}
+
+.comercial-button--whatsapp:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .comercial-button--link {
   background: transparent;
   border: none;

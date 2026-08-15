@@ -356,7 +356,8 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
           editable
             ? `<button class="comercial-button comercial-button--ghost" type="button" data-quote-save>Guardar</button>
                <button class="comercial-button comercial-button--ghost" type="button" data-quote-preview>Vista previa</button>
-               <button class="comercial-button comercial-button--primary comercial-quote-send" type="button" data-quote-send>Enviar presupuesto</button>
+               <button class="comercial-button comercial-button--primary comercial-quote-send" type="button" data-quote-send-email>Enviar email</button>
+               <button class="comercial-button comercial-button--whatsapp comercial-quote-send" type="button" data-quote-send-whatsapp>WhatsApp</button>
                ${adminActions}`
             : `<button class="comercial-button comercial-button--ghost" type="button" data-quote-preview>Abrir PDF</button>
                ${quote.estado === 'enviada' ? `<button class="comercial-button comercial-button--primary" type="button" data-quote-duplicar>Nueva revisión</button>` : ''}
@@ -366,7 +367,7 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
       </div>
       ${
         editable
-          ? `<p class="comercial-help comercial-quote-send-copy"><strong>Presupuesto formal:</strong> PDF + email a <span data-quote-email-copy>${escapeHtml(quote.email || '…')}</span>. El CRM se actualiza solo cuando un administrador pulsa <strong>Validar → CRM</strong>.</p>`
+          ? `<p class="comercial-help comercial-quote-send-copy"><strong>Presupuesto formal:</strong> PDF + enlace Formalizar por <strong>email</strong> o <strong>WhatsApp</strong> (usa el teléfono del contacto). CRM solo tras <strong>Validar → CRM</strong>.</p>`
           : isAdmin
             ? `<p class="comercial-help">CRM: ${escapeHtml(crmLabel || 'sin sincronizar')}.</p>`
             : ''
@@ -740,7 +741,7 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
     .querySelector('[data-quote-preview]')
     ?.addEventListener('click', () => void previewPdf(editor));
 
-  editor.querySelector('[data-quote-send]')?.addEventListener('click', async () => {
+  const runSend = async (canal: 'email' | 'whatsapp') => {
     const parsed = readForm(editor);
     const check = ofertaCompleta(parsed.productos, parsed.condiciones);
     if (!check.ok) {
@@ -754,30 +755,42 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
       applySaved(editor, saved);
       id = saved.id;
     }
-    if (/@example\.com$/i.test(parsed.email)) {
+    if (canal === 'email' && /@example\.com$/i.test(parsed.email)) {
       toast('Usa un correo real del cliente. Resend rechaza @example.com.', 'error');
       return;
     }
+    if (canal === 'whatsapp' && !parsed.telefono.trim()) {
+      toast(ERROR_COPY.SIN_TELEFONO!, 'error');
+      return;
+    }
     const numero = editor.querySelector('h2')?.textContent ?? 'IME-Q';
+    const destino = canal === 'whatsapp' ? parsed.telefono : parsed.email;
     const ok = window.confirm(
-      `¿Enviar presupuesto ${numero} a ${parsed.email} por ${formatQuoteMoney(calcularTotalOfertado(parsed.productos), parsed.moneda)}?`
+      `¿Enviar presupuesto ${numero} por ${canal === 'whatsapp' ? 'WhatsApp' : 'email'} a ${destino} (${formatQuoteMoney(calcularTotalOfertado(parsed.productos), parsed.moneda)})?`
     );
     if (!ok) return;
-    const sendBtn = editor.querySelector<HTMLButtonElement>('[data-quote-send]');
+    const emailBtn = editor.querySelector<HTMLButtonElement>('[data-quote-send-email]');
+    const waBtn = editor.querySelector<HTMLButtonElement>('[data-quote-send-whatsapp]');
     const saveBtn = editor.querySelector<HTMLButtonElement>('[data-quote-save]');
-    if (sendBtn) {
-      sendBtn.disabled = true;
-      sendBtn.textContent = 'Enviando presupuesto…';
+    const activeBtn = canal === 'whatsapp' ? waBtn : emailBtn;
+    if (emailBtn) emailBtn.disabled = true;
+    if (waBtn) waBtn.disabled = true;
+    if (activeBtn) {
+      activeBtn.textContent = canal === 'whatsapp' ? 'Abriendo WhatsApp…' : 'Enviando email…';
     }
     if (saveBtn) saveBtn.disabled = true;
     const { data, error, code } = await callEdgeFunction<{
       numero?: string;
       ok?: boolean;
+      canal?: string;
+      whatsapp_url?: string;
+      formalizar_url?: string;
       crm_sync_status?: string;
     }>('enviar-cotizacion', {
       method: 'POST',
       body: {
         cotizacion_id: id,
+        canal,
         productos: parsed.productos,
         condiciones: parsed.condiciones,
         moneda: parsed.moneda,
@@ -785,9 +798,13 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
         mercado: parsed.moneda === 'USD' ? 'INTL' : 'CO',
       },
     });
-    if (sendBtn) {
-      sendBtn.disabled = false;
-      sendBtn.textContent = 'Enviar presupuesto';
+    if (emailBtn) {
+      emailBtn.disabled = false;
+      emailBtn.textContent = 'Enviar email';
+    }
+    if (waBtn) {
+      waBtn.disabled = false;
+      waBtn.textContent = 'WhatsApp';
     }
     if (saveBtn) saveBtn.disabled = false;
     if (error) {
@@ -799,11 +816,23 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
       toast(errMsg(code, error), 'error');
       return;
     }
-    toast(
-      `Presupuesto ${String(data?.numero ?? numero)} enviado. CRM queda pendiente de validación admin.`,
-      'success'
+    if (canal === 'whatsapp' && data?.whatsapp_url) {
+      window.open(data.whatsapp_url, '_blank', 'noopener,noreferrer');
+      toast(
+        `Presupuesto ${String(data?.numero ?? numero)} listo en WhatsApp. CRM pendiente de validación admin.`,
+        'success'
+      );
+    } else {
+      toast(
+        `Presupuesto ${String(data?.numero ?? numero)} enviado por email. CRM pendiente de validación admin.`,
+        'success'
+      );
+    }
+    trackCommercialUsage(
+      'share_succeeded',
+      { result: canal === 'whatsapp' ? 'quote_whatsapp' : 'quote_email' },
+      'cotizaciones'
     );
-    trackCommercialUsage('share_succeeded', { result: 'quote_sent' }, 'cotizaciones');
     setDirty(false);
     const next = `#/cotizaciones?id=${encodeURIComponent(id)}`;
     if (location.hash === next) {
@@ -811,7 +840,14 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
     } else {
       location.hash = next;
     }
-  });
+  };
+
+  editor
+    .querySelector('[data-quote-send-email]')
+    ?.addEventListener('click', () => void runSend('email'));
+  editor
+    .querySelector('[data-quote-send-whatsapp]')
+    ?.addEventListener('click', () => void runSend('whatsapp'));
 
   editor.querySelector('[data-quote-delete]')?.addEventListener('click', async () => {
     const id = editor.getAttribute('data-quote-id') || '';

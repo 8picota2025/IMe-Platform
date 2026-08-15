@@ -1,7 +1,8 @@
 /**
  * Envía oferta formal de cotización al cliente con PDF + link Formalizar.
  * Auth: JWT admin (ventas+) o service_role.
- * estado=enviada SOLO después de que Resend acepte el correo.
+ * canal=email  → estado=enviada SOLO si Resend acepta el correo.
+ * canal=whatsapp → prepara PDF + enlace y abre wa.me (estado=enviada al devolver URL).
  */
 
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
@@ -15,6 +16,7 @@ import {
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { requireAdmin } from '../_shared/admin-auth.ts';
 import { enviarEmailPlantilla, escapeHtml, itemsToHtml } from '../_shared/email.ts';
+import { normalizeE164 } from '../_shared/phone.ts';
 import { renderQuotePdf } from '../_shared/render-quote-pdf.ts';
 import {
   buildQuoteAnnexes,
@@ -131,6 +133,8 @@ interface Body {
   mercado?: string;
   /** Si true, invalida el enlace anterior y genera uno nuevo. Default: reutilizar si sigue vigente. */
   rotar_token?: boolean;
+  /** Canal de entrega. Default email. */
+  canal?: 'email' | 'whatsapp';
 }
 
 Deno.serve(async req => {
@@ -146,6 +150,7 @@ Deno.serve(async req => {
   const body = (await req.json().catch(() => ({}))) as Body;
   const id = (body.cotizacion_id ?? '').trim();
   if (!id) return badRequest('cotizacion_id requerido', origin);
+  const canal: 'email' | 'whatsapp' = body.canal === 'whatsapp' ? 'whatsapp' : 'email';
 
   const loadRow = async (): Promise<
     | { ok: true; row: CotizacionOfertaRow & { notas_internas?: string | null } }
@@ -253,12 +258,27 @@ Deno.serve(async req => {
   const email = String(row.email ?? '')
     .trim()
     .toLowerCase();
-  if (!email.includes('@')) {
-    return errorResponse(
-      { code: 'SIN_EMAIL', message: 'Cotizacion sin email de cliente' },
-      422,
-      origin
-    );
+  const telefonoCliente = String(row.telefono ?? '').trim();
+  if (canal === 'email') {
+    if (!email.includes('@')) {
+      return errorResponse(
+        { code: 'SIN_EMAIL', message: 'Cotizacion sin email de cliente' },
+        422,
+        origin
+      );
+    }
+  } else {
+    const phone = normalizeE164(telefonoCliente, '57');
+    if (!phone.ok || !phone.e164) {
+      return errorResponse(
+        {
+          code: 'SIN_TELEFONO',
+          message: 'Cotizacion sin telefono valido para WhatsApp.',
+        },
+        422,
+        origin
+      );
+    }
   }
 
   // Numeración: RPC si existe; si no (sandbox sin migración PDF), metadata/fallback.
@@ -352,9 +372,10 @@ Deno.serve(async req => {
 
   const actor = correoComercial || auth.userId || 'admin';
   const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 16);
+  const destinoNota = canal === 'whatsapp' ? telefonoCliente || 'WhatsApp' : email;
   const nota = tokenRotated
-    ? `[${timestamp}] Presupuesto ${numero} enviado a ${email} por ${actor}. Nuevo enlace de formalizacion.`
-    : `[${timestamp}] Presupuesto ${numero} reenviado a ${email} por ${actor}. Mismo enlace vigente.`;
+    ? `[${timestamp}] Presupuesto ${numero} enviado por ${canal} a ${destinoNota} por ${actor}. Nuevo enlace de formalizacion.`
+    : `[${timestamp}] Presupuesto ${numero} reenviado por ${canal} a ${destinoNota} por ${actor}. Mismo enlace vigente.`;
   const notasPrevias = String(row.notas_internas ?? '').trim();
   const notas = notasPrevias ? `${notasPrevias}\n${nota}` : nota;
 
@@ -389,7 +410,6 @@ Deno.serve(async req => {
   }
 
   // Plantilla canónica: presupuesto (ES). EN mantiene oferta_en.
-  const plantilla = locale === 'en' ? 'cotizacion_oferta_cliente_en' : 'presupuesto';
   const validezLabel = row.validez_hasta
     ? escapeHtml(String(row.validez_hasta))
     : locale === 'en'
@@ -499,71 +519,96 @@ Deno.serve(async req => {
     content: base64(pdfBytes),
   };
 
-  const emailVars = {
-    cliente_nombre: escapeHtml(String(row.nombre ?? 'Cliente')),
-    cliente_empresa: escapeHtml(String(row.empresa ?? '—')),
-    cliente_email: escapeHtml(String(row.email ?? '')),
-    cliente_telefono: escapeHtml(String(row.telefono ?? '—')),
-    nombre_comercial: escapeHtml(nombreComercial),
-    correo_comercial: escapeHtml(correoComercial),
-    telefono_comercial: escapeHtml(telefonoComercial || '—'),
-    referencia: escapeHtml(numero),
-    total: escapeHtml(String(oferta.total)),
-    moneda: escapeHtml(oferta.moneda),
-    validez: validezLabel,
-    items_html: itemsToHtml(oferta.lineas, locale),
-    condiciones: escapeHtml(String(row.condiciones ?? '')),
-    datos_bancarios: escapeHtml(datosBancariosTexto(getDatosBancariosTransferencia())),
-    formalizar_url: formalizarUrl,
-    formalizar_url_href: escapeHtml(formalizarUrl),
-  };
+  let whatsappUrl: string | null = null;
+  let plantilla: string | null = null;
 
-  let envio = await enviarEmailPlantilla(
-    supabase,
-    plantilla,
-    [email],
-    emailVars,
-    numero,
-    [pdfAdjunto, ...adjuntos.archivos],
-    {
-      failOnInactive: true,
-      idempotencyKey: `quote-send:${id}:${pdfRevision}`,
+  if (canal === 'whatsapp') {
+    const phone = normalizeE164(telefonoCliente, '57');
+    if (!phone.ok || !phone.e164) {
+      await releaseClaim('SIN_TELEFONO');
+      return errorResponse(
+        { code: 'SIN_TELEFONO', message: 'Telefono invalido para WhatsApp.' },
+        422,
+        origin
+      );
     }
-  );
-  // Fallback si `presupuesto` aún no está en el proyecto Edge defaults
-  if (
-    !envio.ok &&
-    locale !== 'en' &&
-    String(envio.detalle ?? '').includes('plantilla desconocida')
-  ) {
-    envio = await enviarEmailPlantilla(
+    const totalTxt = `${oferta.total} ${oferta.moneda}`;
+    const mensaje =
+      locale === 'en'
+        ? `Hello ${String(row.nombre ?? '').trim() || 'there'}, here is I-ME quote ${numero} for ${totalTxt}. Review and formalize: ${formalizarUrl}`
+        : `Hola ${String(row.nombre ?? '').trim() || 'cliente'}, te compartimos el presupuesto ${numero} de I-ME por ${totalTxt}. Revisa y formaliza aquí: ${formalizarUrl}`;
+    const digits = phone.e164.replace(/^\+/, '');
+    whatsappUrl = `https://wa.me/${digits}?text=${encodeURIComponent(mensaje)}`;
+    meta.quote_send_channel = 'whatsapp';
+    meta.whatsapp_url = whatsappUrl;
+  } else {
+    plantilla = locale === 'en' ? 'cotizacion_oferta_cliente_en' : 'presupuesto';
+    const emailVars = {
+      cliente_nombre: escapeHtml(String(row.nombre ?? 'Cliente')),
+      cliente_empresa: escapeHtml(String(row.empresa ?? '—')),
+      cliente_email: escapeHtml(String(row.email ?? '')),
+      cliente_telefono: escapeHtml(String(row.telefono ?? '—')),
+      nombre_comercial: escapeHtml(nombreComercial),
+      correo_comercial: escapeHtml(correoComercial),
+      telefono_comercial: escapeHtml(telefonoComercial || '—'),
+      referencia: escapeHtml(numero),
+      total: escapeHtml(String(oferta.total)),
+      moneda: escapeHtml(oferta.moneda),
+      validez: validezLabel,
+      items_html: itemsToHtml(oferta.lineas, locale),
+      condiciones: escapeHtml(String(row.condiciones ?? '')),
+      datos_bancarios: escapeHtml(datosBancariosTexto(getDatosBancariosTransferencia())),
+      formalizar_url: formalizarUrl,
+      formalizar_url_href: escapeHtml(formalizarUrl),
+    };
+
+    let envio = await enviarEmailPlantilla(
       supabase,
-      'cotizacion_oferta_cliente_es',
+      plantilla,
       [email],
       emailVars,
       numero,
       [pdfAdjunto, ...adjuntos.archivos],
       {
         failOnInactive: true,
-        idempotencyKey: `quote-send:${id}:${pdfRevision}:es`,
+        idempotencyKey: `quote-send:${id}:${pdfRevision}`,
       }
     );
-  }
+    if (
+      !envio.ok &&
+      locale !== 'en' &&
+      String(envio.detalle ?? '').includes('plantilla desconocida')
+    ) {
+      envio = await enviarEmailPlantilla(
+        supabase,
+        'cotizacion_oferta_cliente_es',
+        [email],
+        emailVars,
+        numero,
+        [pdfAdjunto, ...adjuntos.archivos],
+        {
+          failOnInactive: true,
+          idempotencyKey: `quote-send:${id}:${pdfRevision}:es`,
+        }
+      );
+    }
 
-  if (!envio.ok) {
-    await releaseClaim(envio.detalle ?? 'EMAIL_FALLIDO');
-    const inactive = String(envio.detalle ?? '').includes('TEMPLATE_INACTIVE');
-    return errorResponse(
-      {
-        code: inactive ? 'TEMPLATE_INACTIVE' : 'EMAIL_FALLIDO',
-        message: inactive
-          ? 'La plantilla presupuesto esta desactivada. Activala y reintenta.'
-          : 'Email no salio. Cotizacion no marcada enviada.',
-        details: envio.detalle,
-      },
-      inactive ? 422 : 502,
-      origin
-    );
+    if (!envio.ok) {
+      await releaseClaim(envio.detalle ?? 'EMAIL_FALLIDO');
+      const inactive = String(envio.detalle ?? '').includes('TEMPLATE_INACTIVE');
+      return errorResponse(
+        {
+          code: inactive ? 'TEMPLATE_INACTIVE' : 'EMAIL_FALLIDO',
+          message: inactive
+            ? 'La plantilla presupuesto esta desactivada. Activala y reintenta.'
+            : 'Email no salio. Cotizacion no marcada enviada.',
+          details: envio.detalle,
+        },
+        inactive ? 422 : 502,
+        origin
+      );
+    }
+    meta.quote_send_channel = 'email';
   }
 
   const postUpdate: Record<string, unknown> = {
@@ -613,10 +658,12 @@ Deno.serve(async req => {
   return new Response(
     JSON.stringify({
       ok: true,
+      canal,
       cotizacion_id: id,
       numero,
       estado: 'enviada',
       formalizar_url: formalizarUrl,
+      whatsapp_url: whatsappUrl,
       token_rotado: tokenRotated,
       total: oferta.total,
       moneda: oferta.moneda,
