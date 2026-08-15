@@ -203,7 +203,14 @@ async function renderList(route: CotizacionesRoute): Promise<string> {
               <td>${escapeHtml(row.created_by_nombre || '—')}</td>
               <td>${row.origen === 'pwa' ? 'PWA' : 'Web'}</td>
               <td>${escapeHtml(formatDate(row.updated_at || row.created_at))}</td>
-              <td><a class="comercial-button comercial-button--primary comercial-button--sm" href="#/cotizaciones?id=${escapeHtml(row.id)}${route.equipo ? '&equipo=1' : ''}${route.tab === 'enviadas' ? '&tab=enviadas' : ''}">Abrir</a></td>
+              <td class="comercial-quote-row-actions">
+                <a class="comercial-button comercial-button--primary comercial-button--sm" href="#/cotizaciones?id=${escapeHtml(row.id)}${route.equipo ? '&equipo=1' : ''}${route.tab === 'enviadas' ? '&tab=enviadas' : ''}">Abrir</a>
+                ${
+                  esRolAdmin(state.rol) && row.estado !== 'convertida' && !row.pedido_id
+                    ? `<button class="comercial-button comercial-button--danger comercial-button--sm" type="button" data-quote-list-delete data-id="${escapeHtml(row.id)}" data-label="${escapeHtml(row.numero || row.empresa || row.nombre || 'presupuesto')}">Borrar</button>`
+                    : ''
+                }
+              </td>
             </tr>`
             )
             .join('')}
@@ -626,6 +633,24 @@ async function previewPdf(root: HTMLElement): Promise<void> {
   toast(errMsg(code, error ?? 'No se pudo mostrar el PDF.'), 'error');
 }
 
+async function confirmAndDeleteQuote(id: string, label: string): Promise<boolean> {
+  if (!id) return false;
+  if (
+    !window.confirm(
+      `¿Borrar ${label}? Esta acción no se puede deshacer (PDF incluido). Solo admin/owner.`
+    )
+  ) {
+    return false;
+  }
+  const { error, code } = await deleteQuote(id);
+  if (error) {
+    toast(errMsg(code, error), 'error');
+    return false;
+  }
+  toast('Presupuesto borrado.', 'success');
+  return true;
+}
+
 export function bindCotizacionesView(container: HTMLElement): () => void {
   navGuard = confirmLeave;
   dirty = false;
@@ -640,8 +665,26 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
   };
   container.querySelector('[data-quote-search]')?.addEventListener('submit', onSearchSubmit);
 
+  const onListDelete = (event: Event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const btn = target.closest<HTMLButtonElement>('[data-quote-list-delete]');
+    if (!btn) return;
+    event.preventDefault();
+    const id = btn.getAttribute('data-id') || '';
+    const label = btn.getAttribute('data-label') || 'este presupuesto';
+    void (async () => {
+      btn.disabled = true;
+      const ok = await confirmAndDeleteQuote(id, label);
+      btn.disabled = false;
+      if (ok) window.dispatchEvent(new HashChangeEvent('hashchange'));
+    })();
+  };
+  container.addEventListener('click', onListDelete);
+
   if (!editor) {
     return () => {
+      container.removeEventListener('click', onListDelete);
       navGuard = null;
     };
   }
@@ -774,19 +817,12 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
     const id = editor.getAttribute('data-quote-id') || '';
     if (!id) return;
     const numero = editor.querySelector('h2')?.textContent ?? 'este presupuesto';
-    if (!window.confirm(`¿Borrar ${numero}? Esta acción no se puede deshacer (PDF incluido).`)) {
-      return;
-    }
     const btn = editor.querySelector<HTMLButtonElement>('[data-quote-delete]');
     if (btn) btn.disabled = true;
-    const { error, code } = await deleteQuote(id);
+    const ok = await confirmAndDeleteQuote(id, numero);
     if (btn) btn.disabled = false;
-    if (error) {
-      toast(errMsg(code, error), 'error');
-      return;
-    }
+    if (!ok) return;
     setDirty(false);
-    toast('Presupuesto borrado.', 'success');
     location.hash = '#/cotizaciones';
   });
 
@@ -997,6 +1033,7 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
   return () => {
     navGuard = null;
     dirty = false;
+    container.removeEventListener('click', onListDelete);
     document.removeEventListener('click', onDocClick);
     document.removeEventListener('keydown', onKey);
     window.removeEventListener('beforeunload', onBeforeUnload);

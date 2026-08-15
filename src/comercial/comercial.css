@@ -1191,6 +1191,14 @@ a {
   backdrop-filter: blur(8px);
 }
 
+.comercial-quote-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
 .comercial-quote-send {
   min-height: 44px;
   min-width: 140px;
