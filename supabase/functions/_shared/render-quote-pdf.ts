@@ -1,26 +1,27 @@
 /**
- * Edge mirror of src/lib/render-quote-pdf.ts (IPS layout + annex).
+ * Edge mirror of src/lib/render-quote-pdf.ts — keep in sync.
  */
 /**
- * PDF Presupuesto I-ME — layout alineado a plantilla comercial IPS.pdf
- * (cotización + consideraciones + anexo fichas/resumen de productos).
+ * PDF Presupuesto I-ME — layout calibrado al boceto IPS.pdf
+ * (posiciones, tamaños, tabla con rejilla, totales, notas, footer,
+ *  anexo con foto + características + descripción).
  */
-import {
-  PDFDocument,
-  StandardFonts,
-  rgb,
-  type PDFFont,
-  type PDFImage,
-  type PDFPage,
-} from 'npm:pdf-lib@1.17.1';
+import { PDFDocument, rgb, type PDFFont, type PDFImage, type PDFPage } from 'npm:pdf-lib@1.17.1';
+import fontkit from 'npm:@pdf-lib/fontkit';
 import type { CotizacionLineaOferta } from '../../../src/lib/cotizacion-oferta.ts';
 
 export interface QuotePdfAnnex {
   slug: string;
   nombre: string;
   sku?: string | null;
+  /** Resumen corto (landing). */
   resumen: string;
+  /** Descripción larga (landing). */
+  descripcion?: string;
+  /** Lista de características / especificaciones. */
+  caracteristicas?: string[];
   url?: string | null;
+  imageBytes?: Uint8Array | null;
 }
 
 export interface QuotePdfSnapshot {
@@ -42,40 +43,52 @@ export interface QuotePdfSnapshot {
   condicionPago?: string | null;
   medioPago?: string | null;
   bancoLineas?: string[];
-  /** IVA % sobre subtotal. Default 19 COP / 0 USD. */
   ivaPct?: number | null;
   tagline?: string | null;
   annexes?: QuotePdfAnnex[];
   logoBytes?: Uint8Array | null;
+  fontRegularBytes?: Uint8Array | null;
+  fontBoldBytes?: Uint8Array | null;
   fecha?: string | null;
 }
 
-const TEAL = rgb(0 / 255, 94 / 255, 96 / 255);
-const INK = rgb(0.08, 0.12, 0.12);
-const MUTED = rgb(0.35, 0.4, 0.4);
-const LINE = rgb(0.82, 0.86, 0.86);
-const PAGE_W = 595.28;
-const PAGE_H = 841.89;
-const MARGIN = 40;
+/** Página A4 del boceto IPS. */
+const PAGE_W = 595.5;
+const PAGE_H = 842.25;
 const MAX_BYTES = 8 * 1024 * 1024;
-const FOOTER_Y = 36;
+
+/** Azules del boceto IPS (header/footer bars). */
+const BLUE = rgb(4 / 255, 109 / 255, 184 / 255);
+const GRAY_TITLE = rgb(0.45, 0.45, 0.45);
+const INK = rgb(0.12, 0.12, 0.12);
+const MUTED = rgb(0.35, 0.35, 0.35);
+const LINE = rgb(0.15, 0.15, 0.15);
+const WHITE = rgb(1, 1, 1);
+
+/** Convierte Y del boceto (origen arriba) → pdf-lib (origen abajo). */
+function topY(yFromTop: number): number {
+  return PAGE_H - yFromTop;
+}
 
 function winAnsi(s: string): string {
   return s.replace(/[^\t\n\r\x20-\x7E\xA0-\xFF]/g, '?');
 }
 
-function money(value: number, moneda: string, locale: 'es' | 'en'): string {
+function moneyPlain(value: number, moneda: string, locale: 'es' | 'en'): string {
   const n = Number.isFinite(value) ? value : 0;
   const digits = moneda === 'COP' ? 0 : 2;
   try {
     return new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'es-CO', {
-      style: 'currency',
-      currency: moneda,
       maximumFractionDigits: digits,
+      minimumFractionDigits: digits,
     }).format(n);
   } catch {
-    return `${n} ${moneda}`;
+    return String(n);
   }
+}
+
+function moneyCash(value: number, moneda: string, locale: 'es' | 'en'): string {
+  return `$${moneyPlain(value, moneda, locale)}`;
 }
 
 function wrapText(text: string, max: number): string[] {
@@ -88,9 +101,7 @@ function wrapText(text: string, max: number): string[] {
     if (next.length > max) {
       if (cur) lines.push(cur);
       cur = w.length > max ? w.slice(0, max) : w;
-    } else {
-      cur = next;
-    }
+    } else cur = next;
   }
   if (cur) lines.push(cur);
   return lines;
@@ -108,127 +119,49 @@ function todayLabel(locale: 'es' | 'en'): string {
   }
 }
 
-interface Ctx {
-  doc: PDFDocument;
-  page: PDFPage;
-  y: number;
-  font: PDFFont;
-  bold: PDFFont;
-  logo: PDFImage | null;
-  locale: 'es' | 'en';
-  tagline: string;
-}
-
-function drawFooter(page: PDFPage, font: PDFFont): void {
-  page.drawLine({
-    start: { x: MARGIN, y: FOOTER_Y + 14 },
-    end: { x: PAGE_W - MARGIN, y: FOOTER_Y + 14 },
-    thickness: 0.6,
-    color: LINE,
-  });
-  page.drawText(winAnsi('www.i-me.com.co   ·   info@i-me.com.co   ·   +57 313 867 4059'), {
-    x: MARGIN,
-    y: FOOTER_Y,
-    size: 8,
-    font,
-    color: MUTED,
-  });
-}
-
-function drawHeader(ctx: Ctx): void {
-  const { page, logo, font, bold, locale, tagline } = ctx;
-  if (logo) {
-    const maxH = 42;
-    const scale = maxH / logo.height;
-    const w = logo.width * scale;
-    page.drawImage(logo, { x: MARGIN, y: PAGE_H - 58, width: w, height: maxH });
-  } else {
-    page.drawText(winAnsi('I-ME'), {
-      x: MARGIN,
-      y: PAGE_H - 42,
-      size: 18,
-      font: bold,
-      color: TEAL,
-    });
+function drawText(
+  page: PDFPage,
+  text: string,
+  opts: {
+    x: number;
+    /** Y desde el borde superior del boceto. */
+    top: number;
+    size: number;
+    font: PDFFont;
+    color?: ReturnType<typeof rgb>;
+    maxWidth?: number;
   }
-  page.drawText(winAnsi(locale === 'en' ? 'QUOTATION' : 'COTIZACION'), {
-    x: PAGE_W - MARGIN - 120,
-    y: PAGE_H - 38,
-    size: 16,
-    font: bold,
-    color: TEAL,
+): void {
+  const size = opts.size;
+  // Baseline ≈ top + size * 0.78 (aproxima métricas Poppins del boceto).
+  const y = topY(opts.top + size * 0.78);
+  page.drawText(winAnsi(text).slice(0, opts.maxWidth ? 200 : 120), {
+    x: opts.x,
+    y,
+    size,
+    font: opts.font,
+    color: opts.color ?? INK,
   });
-  page.drawText(winAnsi(`"${tagline}"`), {
-    x: PAGE_W - MARGIN - 220,
-    y: PAGE_H - 54,
-    size: 7,
-    font,
-    color: MUTED,
-  });
-  page.drawLine({
-    start: { x: MARGIN, y: PAGE_H - 68 },
-    end: { x: PAGE_W - MARGIN, y: PAGE_H - 68 },
-    thickness: 1,
-    color: TEAL,
-  });
-  ctx.y = PAGE_H - 86;
-}
-
-function newPage(ctx: Ctx): void {
-  drawFooter(ctx.page, ctx.font);
-  ctx.page = ctx.doc.addPage([PAGE_W, PAGE_H]);
-  drawHeader(ctx);
-}
-
-function ensure(ctx: Ctx, need: number): void {
-  if (ctx.y < 64 + need) newPage(ctx);
-}
-
-function drawTableHeader(ctx: Ctx): void {
-  const { page, bold, locale } = ctx;
-  const y = ctx.y;
-  page.drawRectangle({
-    x: MARGIN,
-    y: y - 4,
-    width: PAGE_W - MARGIN * 2,
-    height: 18,
-    color: rgb(0.93, 0.96, 0.96),
-  });
-  const cols =
-    locale === 'en'
-      ? [
-          [MARGIN + 2, 'REF'],
-          [MARGIN + 70, 'DESCRIPTION'],
-          [MARGIN + 320, 'QTY'],
-          [MARGIN + 360, 'UNIT'],
-          [MARGIN + 450, 'TOTAL'],
-        ]
-      : [
-          [MARGIN + 2, 'REF'],
-          [MARGIN + 70, 'DESCRIPCION'],
-          [MARGIN + 320, 'CANT'],
-          [MARGIN + 360, 'P.UNIT'],
-          [MARGIN + 450, 'TOTAL'],
-        ];
-  for (const [x, label] of cols) {
-    page.drawText(winAnsi(String(label)), {
-      x: Number(x),
-      y,
-      size: 8,
-      font: bold,
-      color: TEAL,
-    });
-  }
-  ctx.y = y - 22;
 }
 
 export type QuotePdfRenderer = (snapshot: QuotePdfSnapshot) => Promise<Uint8Array>;
 
-export async function renderQuotePdf(snapshot: QuotePdfSnapshot): Promise<Uint8Array> {
+export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
   const locale = snapshot.locale === 'en' ? 'en' : 'es';
   const doc = await PDFDocument.create();
-  const font = await doc.embedFont(StandardFonts.Helvetica);
-  const bold = await doc.embedFont(StandardFonts.HelveticaBold);
+  doc.registerFontkit(fontkit);
+
+  let font: PDFFont;
+  let bold: PDFFont;
+  if (snapshot.fontRegularBytes?.byteLength && snapshot.fontBoldBytes?.byteLength) {
+    font = await doc.embedFont(snapshot.fontRegularBytes, { subset: true });
+    bold = await doc.embedFont(snapshot.fontBoldBytes, { subset: true });
+  } else {
+    const { StandardFonts } = await import('npm:pdf-lib@1.17.1');
+    font = await doc.embedFont(StandardFonts.Helvetica);
+    bold = await doc.embedFont(StandardFonts.HelveticaBold);
+  }
+
   let logo: PDFImage | null = null;
   if (snapshot.logoBytes && snapshot.logoBytes.byteLength > 0) {
     try {
@@ -252,358 +185,424 @@ export async function renderQuotePdf(snapshot: QuotePdfSnapshot): Promise<Uint8A
     snapshot.tagline?.trim() ||
     (locale === 'en'
       ? 'Equipping your mission to save lives'
-      : 'Equipando tu mision de salvar vidas');
+      : 'Equipando tu misión de salvar vidas');
   const banco =
     snapshot.bancoLineas && snapshot.bancoLineas.length > 0
       ? snapshot.bancoLineas
-      : [
-          'Transferencia bancaria',
-          'Bancolombia / Ahorros',
-          'Cuenta: configurar secrets TRANSFERENCIA_*',
-        ];
+      : ['Transferencia bancaria:', 'Bancolombia/Ahorros'];
 
-  const ctx: Ctx = {
-    doc,
-    page: doc.addPage([PAGE_W, PAGE_H]),
-    y: 0,
-    font,
-    bold,
-    logo,
-    locale,
-    tagline,
-  };
-  drawHeader(ctx);
+  // ——— Página 1: COTIZACIÓN ———
+  let page = doc.addPage([PAGE_W, PAGE_H]);
+  page.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: WHITE });
 
-  // Meta / receptor
-  const metaTop = ctx.y;
-  ctx.page.drawText(winAnsi(`${locale === 'en' ? 'No.' : 'N°'}: ${snapshot.numero}`), {
-    x: PAGE_W - MARGIN - 160,
-    y: metaTop,
-    size: 10,
+  // Logo web (navbar: logo-ime-site → logo-ime-pdf.png). Boceto ~x40.
+  if (logo) {
+    const maxW = 150;
+    const maxH = 74;
+    const scale = Math.min(maxW / logo.width, maxH / logo.height);
+    const w = logo.width * scale;
+    const h = logo.height * scale;
+    page.drawImage(logo, {
+      x: 40,
+      y: topY(18 + h),
+      width: w,
+      height: h,
+    });
+  }
+
+  // Título COTIZACIÓN — boceto: TTNormsPro-Bold 28.8 @ x348.6 top57.8
+  drawText(page, locale === 'en' ? 'QUOTATION' : 'COTIZACIÓN', {
+    x: 348.6,
+    top: 57.8,
+    size: 28.8,
     font: bold,
-    color: INK,
+    color: GRAY_TITLE,
   });
-  ctx.page.drawText(winAnsi(`${locale === 'en' ? 'Date' : 'Fecha'}: ${fecha}`), {
-    x: PAGE_W - MARGIN - 160,
-    y: metaTop - 14,
-    size: 9,
+
+  // Tagline bajo el logo — Comfortaa ~9.4 @ x21 top94
+  drawText(page, `"${tagline}"`, {
+    x: 21,
+    top: 94,
+    size: 9.4,
     font,
     color: MUTED,
   });
 
-  let leftY = metaTop;
-  ctx.page.drawText(winAnsi(locale === 'en' ? 'RECIPIENT:' : 'RECEPTOR:'), {
-    x: MARGIN,
-    y: leftY,
-    size: 9,
-    font: bold,
-    color: TEAL,
+  // N° / Fecha (derecha) — Poppins 12
+  drawText(page, `${locale === 'en' ? 'No.' : 'N°'}: ${snapshot.numero}`, {
+    x: 470,
+    top: 97,
+    size: 12,
+    font,
   });
-  leftY -= 13;
-  ctx.page.drawText(winAnsi(snapshot.clienteNombre || '—').slice(0, 60), {
-    x: MARGIN,
-    y: leftY,
-    size: 10,
-    font: bold,
-    color: INK,
+  drawText(page, `${locale === 'en' ? 'Date' : 'Fecha'}: ${fecha}`, {
+    x: 427,
+    top: 115,
+    size: 12,
+    font,
   });
-  leftY -= 12;
+
+  // RECEPTOR — nombre, organización, teléfono, email (pedido comercial)
+  drawText(page, locale === 'en' ? 'RECIPIENT:' : 'RECEPTOR:', {
+    x: 58.3,
+    top: 142.8,
+    size: 11,
+    font: bold,
+    color: BLUE,
+  });
+  drawText(page, snapshot.clienteNombre || '—', { x: 59.5, top: 155.4, size: 11, font });
+  let ry = 172.7;
   if (snapshot.empresa) {
-    ctx.page.drawText(winAnsi(snapshot.empresa).slice(0, 60), {
-      x: MARGIN,
-      y: leftY,
-      size: 9,
-      font,
-      color: INK,
-    });
-    leftY -= 11;
+    drawText(page, snapshot.empresa, { x: 59.5, top: ry, size: 11, font });
+    ry += 17.3;
   }
   if (snapshot.nitCliente) {
-    ctx.page.drawText(winAnsi(`NIT: ${snapshot.nitCliente}`), {
-      x: MARGIN,
-      y: leftY,
-      size: 9,
-      font,
-      color: MUTED,
-    });
-    leftY -= 11;
-  }
-  if (snapshot.email) {
-    ctx.page.drawText(winAnsi(snapshot.email).slice(0, 60), {
-      x: MARGIN,
-      y: leftY,
-      size: 8,
-      font,
-      color: MUTED,
-    });
-    leftY -= 11;
+    drawText(page, `Nit: ${snapshot.nitCliente}`, { x: 59.5, top: ry, size: 11, font });
+    ry += 17.3;
   }
   if (snapshot.telefono) {
-    ctx.page.drawText(winAnsi(snapshot.telefono).slice(0, 40), {
-      x: MARGIN,
-      y: leftY,
-      size: 8,
+    drawText(page, `${locale === 'en' ? 'Phone' : 'Teléfono'}: ${snapshot.telefono}`, {
+      x: 59.5,
+      top: ry,
+      size: 11,
       font,
-      color: MUTED,
     });
-    leftY -= 11;
+    ry += 17.3;
   }
-  leftY -= 8;
-  ctx.page.drawText(winAnsi('INTERNATIONAL MEDICAL ENTERPRISE'), {
-    x: MARGIN,
-    y: leftY,
-    size: 8,
-    font: bold,
-    color: TEAL,
-  });
-  leftY -= 11;
-  ctx.page.drawText(winAnsi('NIT: 901871720 · Medellin'), {
-    x: MARGIN,
-    y: leftY,
-    size: 8,
-    font,
-    color: MUTED,
-  });
-  leftY -= 11;
-  if (snapshot.nombreComercial) {
-    ctx.page.drawText(winAnsi(`Asesor: ${snapshot.nombreComercial}`).slice(0, 70), {
-      x: MARGIN,
-      y: leftY,
-      size: 8,
+  if (snapshot.email) {
+    drawText(page, `${locale === 'en' ? 'Email' : 'Correo electrónico'}: ${snapshot.email}`, {
+      x: 59.5,
+      top: ry,
+      size: 11,
       font,
-      color: MUTED,
     });
-    leftY -= 11;
+    ry += 17.3;
   }
-  ctx.y = Math.min(leftY, metaTop - 28) - 12;
 
-  drawTableHeader(ctx);
-  for (const item of snapshot.lineas) {
-    const ref = (item.slug || item.nombre || '—').slice(0, 18);
-    const nameLines = wrapText(item.nombre || item.slug || 'Producto', 42).slice(0, 3);
-    const rowH = Math.max(16, nameLines.length * 11 + 6);
-    ensure(ctx, rowH + 8);
-    const y = ctx.y;
-    ctx.page.drawText(winAnsi(ref), { x: MARGIN + 2, y: y - 2, size: 8, font, color: INK });
-    let ty = y - 2;
-    for (const line of nameLines) {
-      ctx.page.drawText(winAnsi(line), { x: MARGIN + 70, y: ty, size: 8, font, color: INK });
-      ty -= 11;
-    }
-    ctx.page.drawText(String(item.cantidad), {
-      x: MARGIN + 325,
-      y: y - 2,
-      size: 8,
+  // Bloque empresa I-ME (boceto ~255)
+  const companyTop = Math.max(ry + 12, 255);
+  drawText(page, 'INTERNATIONAL MEDICAL ENTERPRISE', {
+    x: 59.5,
+    top: companyTop,
+    size: 11,
+    font: bold,
+    color: BLUE,
+  });
+  drawText(page, 'Nit: 901871720', { x: 59.5, top: companyTop + 16.3, size: 11, font });
+  drawText(page, 'Medellín', { x: 59.5, top: companyTop + 33.6, size: 11, font });
+  if (snapshot.nombreComercial) {
+    drawText(page, `Asesor: ${snapshot.nombreComercial}`, {
+      x: 59.5,
+      top: companyTop + 50,
+      size: 10,
       font,
-      color: INK,
+      color: MUTED,
     });
-    ctx.page.drawText(winAnsi(money(item.precio_unitario, snapshot.moneda, locale)), {
-      x: MARGIN + 360,
-      y: y - 2,
-      size: 8,
+  }
+
+  // Condición / medio de pago (derecha)
+  drawText(page, locale === 'en' ? 'PAYMENT TERMS:' : 'CONDICION DE PAGO:', {
+    x: 385,
+    top: 208,
+    size: 11,
+    font: bold,
+    color: BLUE,
+  });
+  drawText(page, snapshot.condicionPago || (locale === 'en' ? 'Prepaid' : 'Contado'), {
+    x: 385,
+    top: 223,
+    size: 11,
+    font,
+  });
+  drawText(page, locale === 'en' ? 'PAYMENT METHOD:' : 'MEDIO  DE PAGO:', {
+    x: 385,
+    top: 247,
+    size: 11,
+    font: bold,
+  });
+  let py = 265;
+  for (const line of banco.slice(0, 4)) {
+    drawText(page, line, { x: 385, top: py, size: 11, font });
+    py += 16;
+  }
+
+  // ——— Tabla ———
+  // Header bar azul (boceto y≈341–380)
+  const tableTop = 341;
+  const headerH = 38;
+  page.drawRectangle({
+    x: 22,
+    y: topY(tableTop + headerH),
+    width: 552,
+    height: headerH,
+    color: BLUE,
+  });
+  const headerLabels =
+    locale === 'en'
+      ? [
+          [65, 'QTY'],
+          [125, 'REF'],
+          [205, 'DESCRIPTION'],
+          [397, 'UNIT'],
+          [484, 'TOTAL'],
+        ]
+      : [
+          [65, 'CANT'],
+          [125, 'REF'],
+          [205, 'DESCRIPCION'],
+          [397, 'PRECIO'],
+          [484, 'TOTAL'],
+        ];
+  for (const [x, label] of headerLabels) {
+    drawText(page, String(label), {
+      x: Number(x),
+      top: tableTop + 10,
+      size: 12,
+      font: bold,
+      color: WHITE,
+    });
+  }
+  if (locale !== 'en') {
+    drawText(page, 'UNIT', { x: 406, top: tableTop + 22, size: 12, font: bold, color: WHITE });
+  }
+
+  // Columnas verticales (boceto)
+  const colXs = [27.5, 65.1, 180.4, 381.0, 468.8, 569.2];
+  const rowH = 42.8;
+  const maxRows = Math.max(1, snapshot.lineas.length);
+  const gridTop = tableTop + headerH;
+  const gridBottom = gridTop + rowH * maxRows;
+
+  // Filas de datos
+  snapshot.lineas.forEach((item, idx) => {
+    const rowTop = gridTop + idx * rowH;
+    const cant = String(item.cantidad);
+    const ref = (item.slug || item.nombre || '—').slice(0, 16);
+    const descLines = wrapText(item.nombre || item.slug || 'Producto', 28).slice(0, 2);
+    drawText(page, cant, { x: 40, top: rowTop + 12, size: 12, font });
+    drawText(page, ref, { x: 74, top: rowTop + 12, size: 12, font });
+    descLines.forEach((line, i) => {
+      drawText(page, line, { x: 190, top: rowTop + 10 + i * 14, size: 11, font });
+    });
+    drawText(page, moneyPlain(item.precio_unitario, snapshot.moneda, locale), {
+      x: 395,
+      top: rowTop + 12,
+      size: 12,
       font,
-      color: INK,
     });
-    ctx.page.drawText(winAnsi(money(item.subtotal, snapshot.moneda, locale)), {
-      x: MARGIN + 450,
-      y: y - 2,
-      size: 8,
+    drawText(page, moneyPlain(item.subtotal, snapshot.moneda, locale), {
+      x: 478,
+      top: rowTop + 12,
+      size: 12,
       font,
-      color: INK,
     });
-    ctx.page.drawLine({
-      start: { x: MARGIN, y: y - rowH + 4 },
-      end: { x: PAGE_W - MARGIN, y: y - rowH + 4 },
-      thickness: 0.4,
+  });
+
+  // Rejilla
+  for (const x of colXs) {
+    page.drawLine({
+      start: { x, y: topY(gridBottom) },
+      end: { x, y: topY(gridTop) },
+      thickness: 1.2,
       color: LINE,
     });
-    ctx.y = y - rowH;
+  }
+  for (let i = 0; i <= maxRows; i += 1) {
+    const y = gridTop + i * rowH;
+    page.drawLine({
+      start: { x: 26.7, y: topY(y) },
+      end: { x: 570, y: topY(y) },
+      thickness: 1.2,
+      color: LINE,
+    });
   }
 
-  ensure(ctx, 160);
-  ctx.y -= 10;
-  const labelX = MARGIN + 320;
-  const valueX = MARGIN + 450;
-  const totalRows: Array<[string, string, boolean]> = [
-    [locale === 'en' ? 'SUBTOTAL' : 'SUBTOTAL', money(subtotal, snapshot.moneda, locale), false],
-    [
-      locale === 'en' ? `VAT ${ivaPct}%` : `IVA ${ivaPct}%`,
-      money(iva, snapshot.moneda, locale),
-      false,
-    ],
-    [
-      locale === 'en' ? 'TOTAL DUE' : 'TOTAL A PAGAR',
-      money(totalPagar, snapshot.moneda, locale),
-      true,
-    ],
-  ];
-  for (const [label, value, strong] of totalRows) {
-    ctx.page.drawText(winAnsi(label), {
-      x: labelX,
-      y: ctx.y,
-      size: strong ? 10 : 9,
-      font: strong ? bold : font,
-      color: strong ? TEAL : INK,
-    });
-    ctx.page.drawText(winAnsi(value), {
-      x: valueX,
-      y: ctx.y,
-      size: strong ? 10 : 9,
-      font: strong ? bold : font,
-      color: strong ? TEAL : INK,
-    });
-    ctx.y -= strong ? 16 : 13;
-  }
-
-  ctx.y -= 8;
-  ensure(ctx, 120);
-  ctx.page.drawText(winAnsi(locale === 'en' ? 'PAYMENT TERMS:' : 'CONDICION DE PAGO:'), {
-    x: MARGIN,
-    y: ctx.y,
-    size: 9,
+  // Totales (derecha) + NOTAS (izquierda)
+  const totalsTop = gridBottom + 14;
+  drawText(page, locale === 'en' ? 'GROSS TOTAL' : 'TOTAL BRUTO', {
+    x: 323,
+    top: totalsTop,
+    size: 12,
     font: bold,
-    color: TEAL,
   });
-  ctx.y -= 12;
-  ctx.page.drawText(
-    winAnsi(snapshot.condicionPago || (locale === 'en' ? 'As agreed' : 'Contado')).slice(0, 80),
-    { x: MARGIN, y: ctx.y, size: 9, font, color: INK }
-  );
-  ctx.y -= 14;
-  ctx.page.drawText(winAnsi(locale === 'en' ? 'PAYMENT METHOD:' : 'MEDIO DE PAGO:'), {
-    x: MARGIN,
-    y: ctx.y,
-    size: 9,
+  drawText(page, moneyPlain(subtotal, snapshot.moneda, locale), {
+    x: 478,
+    top: totalsTop,
+    size: 12,
+    font,
+  });
+  drawText(page, 'SUBTOTAL', { x: 323, top: totalsTop + 28, size: 12, font: bold });
+  drawText(page, moneyPlain(subtotal, snapshot.moneda, locale), {
+    x: 478,
+    top: totalsTop + 28,
+    size: 12,
+    font,
+  });
+  drawText(page, locale === 'en' ? `VAT ${ivaPct}%` : `IVA ${ivaPct}%`, {
+    x: 323,
+    top: totalsTop + 52,
+    size: 12,
     font: bold,
-    color: TEAL,
   });
-  ctx.y -= 12;
-  ctx.page.drawText(
-    winAnsi(
-      snapshot.medioPago || (locale === 'en' ? 'Bank transfer' : 'Transferencia bancaria')
-    ).slice(0, 80),
-    { x: MARGIN, y: ctx.y, size: 9, font, color: INK }
-  );
-  ctx.y -= 12;
-  for (const line of banco.slice(0, 5)) {
-    ensure(ctx, 14);
-    ctx.page.drawText(winAnsi(line).slice(0, 90), {
-      x: MARGIN,
-      y: ctx.y,
-      size: 8,
-      font,
-      color: MUTED,
-    });
-    ctx.y -= 11;
-  }
-  if (snapshot.validezHasta) {
-    ensure(ctx, 16);
-    ctx.y -= 4;
-    ctx.page.drawText(
-      winAnsi(
-        locale === 'en'
-          ? `Valid until ${snapshot.validezHasta}. Prices may change after this date.`
-          : `Valida hasta ${snapshot.validezHasta}. Posterior a esta fecha, precios sujetos a revision.`
-      ).slice(0, 100),
-      { x: MARGIN, y: ctx.y, size: 8, font, color: MUTED }
-    );
-    ctx.y -= 12;
-  }
-  drawFooter(ctx.page, font);
+  drawText(page, moneyPlain(iva, snapshot.moneda, locale), {
+    x: 478,
+    top: totalsTop + 52,
+    size: 12,
+    font,
+  });
+  drawText(page, locale === 'en' ? 'TOTAL DUE' : 'TOTAL A PAGAR', {
+    x: 323,
+    top: totalsTop + 82,
+    size: 12,
+    font: bold,
+    color: BLUE,
+  });
+  drawText(page, moneyCash(totalPagar, snapshot.moneda, locale), {
+    x: 460,
+    top: totalsTop + 82,
+    size: 12,
+    font: bold,
+    color: BLUE,
+  });
 
-  // Consideraciones
-  newPage(ctx);
-  ctx.page.drawText(
-    winAnsi(locale === 'en' ? 'Offer considerations' : 'Consideraciones de la oferta'),
-    {
-      x: MARGIN,
-      y: ctx.y,
-      size: 13,
-      font: bold,
-      color: TEAL,
-    }
-  );
-  ctx.y -= 22;
+  // NOTAS (validez / condiciones cortas)
+  drawText(page, locale === 'en' ? 'NOTES' : 'NOTAS', {
+    x: 27,
+    top: totalsTop + 46,
+    size: 11,
+    font: bold,
+  });
+  const note = snapshot.validezHasta
+    ? locale === 'en'
+      ? `Valid until ${snapshot.validezHasta}. After this date prices and lead times may change.`
+      : `válida hasta el ${snapshot.validezHasta}. Posterior a esta fecha, los precios y tiempos de entrega podrán estar sujetos a revisión según condiciones de mercado.`
+    : snapshot.condiciones.slice(0, 220) ||
+      (locale === 'en'
+        ? 'Prices subject to change according to market conditions.'
+        : 'Precios sujetos a revisión según condiciones de mercado.');
+  wrapText(note, 48)
+    .slice(0, 4)
+    .forEach((line, i) => {
+      drawText(page, line, { x: 27, top: totalsTop + 62 + i * 12, size: 9, font, color: MUTED });
+    });
+
+  drawFooterBar(page, font);
+
+  // ——— Página 2: consideraciones ———
+  page = doc.addPage([PAGE_W, PAGE_H]);
+  page.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: WHITE });
+  drawText(page, locale === 'en' ? 'Offer considerations' : 'Consideraciones de la oferta', {
+    x: 40,
+    top: 50,
+    size: 14,
+    font: bold,
+    color: BLUE,
+  });
+  let cy = 80;
   const terms =
     snapshot.condiciones.trim() ||
     (locale === 'en'
       ? 'See commercial terms agreed with your advisor.'
       : 'Ver condiciones comerciales acordadas con su asesor.');
-  for (const chunk of wrapText(terms, 95)) {
-    ensure(ctx, 14);
-    ctx.page.drawText(winAnsi(chunk), { x: MARGIN, y: ctx.y, size: 9, font, color: INK });
-    ctx.y -= 13;
+  for (const chunk of wrapText(terms, 92)) {
+    if (cy > 760) break;
+    drawText(page, chunk, { x: 40, top: cy, size: 11, font });
+    cy += 16;
   }
-  drawFooter(ctx.page, font);
+  drawFooterBar(page, font);
 
-  // Anexo fichas
-  const annexes = snapshot.annexes ?? [];
-  if (annexes.length > 0) {
-    newPage(ctx);
-    ctx.page.drawText(
-      winAnsi(locale === 'en' ? 'Annex - Product sheets' : 'Anexo - Fichas de producto'),
-      {
-        x: MARGIN,
-        y: ctx.y,
+  // ——— Anexos (orden boceto): título → descripción → foto → características ———
+  for (const annex of snapshot.annexes ?? []) {
+    page = doc.addPage([PAGE_W, PAGE_H]);
+    page.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: WHITE });
+
+    const titleParts = wrapText(annex.nombre.toUpperCase(), 48).slice(0, 2);
+    titleParts.forEach((line, i) => {
+      const w = bold.widthOfTextAtSize(winAnsi(line), 13);
+      drawText(page, line, {
+        x: Math.max(40, (PAGE_W - w) / 2),
+        top: 57.4 + i * 18,
         size: 13,
         font: bold,
-        color: TEAL,
-      }
-    );
-    ctx.y -= 18;
-    ctx.page.drawText(
-      winAnsi(
-        locale === 'en'
-          ? 'Summaries from the product landing pages.'
-          : 'Resumenes tomados de las landing pages de producto.'
-      ),
-      { x: MARGIN, y: ctx.y, size: 9, font, color: MUTED }
-    );
-    ctx.y -= 20;
-
-    for (const annex of annexes) {
-      ensure(ctx, 80);
-      ctx.page.drawText(winAnsi(annex.nombre).slice(0, 90), {
-        x: MARGIN,
-        y: ctx.y,
-        size: 11,
-        font: bold,
-        color: TEAL,
+        color: BLUE,
       });
-      ctx.y -= 14;
-      const meta = [annex.sku ? `SKU ${annex.sku}` : '', annex.slug || '']
-        .filter(Boolean)
-        .join(' · ');
-      if (meta) {
-        ctx.page.drawText(winAnsi(meta).slice(0, 100), {
-          x: MARGIN,
-          y: ctx.y,
-          size: 8,
-          font,
-          color: MUTED,
-        });
-        ctx.y -= 12;
+    });
+
+    // Descripción primero (boceto ~128)
+    let ay = 128;
+    const body = (annex.descripcion || annex.resumen || '').replace(/\s+/g, ' ').trim();
+    if (body) {
+      for (const chunk of wrapText(body, 88).slice(0, 8)) {
+        drawText(page, chunk, { x: 38, top: ay, size: 12, font });
+        ay += 16.5;
       }
-      if (annex.url) {
-        ctx.page.drawText(winAnsi(annex.url).slice(0, 100), {
-          x: MARGIN,
-          y: ctx.y,
-          size: 8,
-          font,
-          color: MUTED,
-        });
-        ctx.y -= 12;
-      }
-      const body =
-        annex.resumen.trim() || (locale === 'en' ? 'No summary available.' : 'Sin resumen.');
-      for (const chunk of wrapText(body, 95).slice(0, 40)) {
-        ensure(ctx, 14);
-        ctx.page.drawText(winAnsi(chunk), { x: MARGIN, y: ctx.y, size: 9, font, color: INK });
-        ctx.y -= 12;
-      }
-      ctx.y -= 14;
+      ay += 12;
     }
-    drawFooter(ctx.page, font);
+
+    // Foto centrada (boceto bbox ≈ 174–394 × 220–328 → ~220×109)
+    if (annex.imageBytes && annex.imageBytes.byteLength > 0) {
+      let img: PDFImage | null = null;
+      try {
+        img = await doc.embedJpg(annex.imageBytes);
+      } catch {
+        try {
+          img = await doc.embedPng(annex.imageBytes);
+        } catch {
+          /* unsupported image */
+        }
+      }
+      if (img) {
+        const maxW = 220;
+        const maxH = 110;
+        const scale = Math.min(maxW / img.width, maxH / img.height);
+        const w = img.width * scale;
+        const h = img.height * scale;
+        // Si descripción corta, anclar cerca del boceto (top≈220)
+        const imgTop = Math.max(ay, 220);
+        page.drawImage(img, {
+          x: (PAGE_W - w) / 2,
+          y: topY(imgTop + h),
+          width: w,
+          height: h,
+        });
+        ay = imgTop + h + 12;
+      }
+    }
+
+    // Características (boceto ~340)
+    const chars = (annex.caracteristicas ?? []).filter(Boolean);
+    if (chars.length > 0) {
+      ay = Math.max(ay, 340);
+      if (ay > 700) {
+        drawFooterBar(page, font);
+        page = doc.addPage([PAGE_W, PAGE_H]);
+        page.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: WHITE });
+        ay = 50;
+      }
+      drawText(page, locale === 'en' ? 'Smart features:' : 'Características Inteligentes:', {
+        x: 47,
+        top: ay,
+        size: 12,
+        font: bold,
+      });
+      ay += 28;
+      for (const c of chars.slice(0, 14)) {
+        if (ay > 760) {
+          drawFooterBar(page, font);
+          page = doc.addPage([PAGE_W, PAGE_H]);
+          page.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: WHITE });
+          ay = 50;
+        }
+        const lines = wrapText(c, 78);
+        for (const line of lines.slice(0, 4)) {
+          drawText(page, line, { x: 67.5, top: ay, size: 12, font });
+          ay += 16.5;
+        }
+        ay += 10;
+      }
+    }
+
+    drawFooterBar(page, font);
   }
 
   const bytes = await doc.save();
@@ -611,6 +610,38 @@ export async function renderQuotePdf(snapshot: QuotePdfSnapshot): Promise<Uint8A
     throw new Error('PDF_RENDER_FAILED: PDF exceeds 8MB');
   }
   return bytes;
+};
+
+function drawFooterBar(page: PDFPage, font: PDFFont): void {
+  // Boceto footer bar y≈790–830, fill = mismo azul header
+  page.drawRectangle({
+    x: 46.4,
+    y: topY(829.8),
+    width: 520,
+    height: 39.4,
+    color: BLUE,
+  });
+  page.drawText(winAnsi('www.i-me.com.co'), {
+    x: 88.6,
+    y: topY(812),
+    size: 11,
+    font,
+    color: WHITE,
+  });
+  page.drawText(winAnsi('+57 3138674059'), {
+    x: 267,
+    y: topY(812),
+    size: 11,
+    font,
+    color: WHITE,
+  });
+  page.drawText(winAnsi('info@i-me.com.co'), {
+    x: 411,
+    y: topY(812),
+    size: 11,
+    font,
+    color: WHITE,
+  });
 }
 
 export function bytesToBase64(bytes: Uint8Array): string {

@@ -16,6 +16,11 @@ import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { requireAdmin } from '../_shared/admin-auth.ts';
 import { enviarEmailPlantilla, escapeHtml, itemsToHtml } from '../_shared/email.ts';
 import { renderQuotePdf } from '../_shared/render-quote-pdf.ts';
+import {
+  buildQuoteAnnexes,
+  loadQuotePdfFonts,
+  loadQuotePdfLogo,
+} from '../_shared/quote-pdf-assets.ts';
 import { syncCotizacionWithTwenty } from '../_shared/twenty-crm.ts';
 import {
   datosBancariosTexto,
@@ -397,50 +402,11 @@ Deno.serve(async req => {
 
   let pdfBytes: Uint8Array;
   try {
-    const slugs = [...new Set(oferta.lineas.map(l => l.slug).filter(Boolean))];
-    const annexes: Array<{
-      slug: string;
-      nombre: string;
-      sku?: string | null;
-      resumen: string;
-      url?: string | null;
-    }> = [];
-    if (slugs.length > 0) {
-      const { data: productos } = await supabase
-        .from('productos')
-        .select('slug,sku,nombre_es,descripcion_corta_es,descripcion_larga_es')
-        .in('slug', slugs)
-        .eq('activo', true);
-      const bySlug = new Map(
-        ((productos ?? []) as Array<Record<string, unknown>>).map(row => [
-          String(row.slug ?? ''),
-          row,
-        ])
-      );
-      for (const l of oferta.lineas) {
-        const row = bySlug.get(l.slug);
-        const corta = String(row?.descripcion_corta_es ?? '').trim();
-        const larga = String(row?.descripcion_larga_es ?? '')
-          .replace(/<[^>]+>/g, ' ')
-          .replace(/\s+/g, ' ')
-          .trim();
-        annexes.push({
-          slug: l.slug,
-          nombre: String(row?.nombre_es ?? l.nombre),
-          sku: typeof row?.sku === 'string' ? row.sku : null,
-          resumen: [corta, larga].filter(Boolean).join('\n\n').slice(0, 1800) || l.nombre,
-          url: l.slug ? `${siteUrl}/es/productos/${l.slug}/` : null,
-        });
-      }
-    }
-
-    let logoBytes: Uint8Array | null = null;
-    try {
-      const logoRes = await fetch(`${siteUrl}/assets/img/logo-ime.png`);
-      if (logoRes.ok) logoBytes = new Uint8Array(await logoRes.arrayBuffer());
-    } catch {
-      logoBytes = null;
-    }
+    const [annexes, logoBytes, fonts] = await Promise.all([
+      buildQuoteAnnexes(supabase, oferta.lineas, siteUrl),
+      loadQuotePdfLogo(siteUrl),
+      loadQuotePdfFonts(siteUrl),
+    ]);
 
     const banco = getDatosBancariosTransferencia();
     pdfBytes = await renderQuotePdf({
@@ -460,12 +426,15 @@ Deno.serve(async req => {
       telefonoComercial,
       annexes,
       logoBytes,
+      fontRegularBytes: fonts.regular,
+      fontBoldBytes: fonts.bold,
       bancoLineas: [
-        `${banco.banco} / ${banco.tipo_cuenta}`,
+        'Transferencia bancaria:',
+        `${banco.banco}/${banco.tipo_cuenta}`,
         `Titular: ${banco.titular}`,
         `NIT: ${banco.nit}`,
         `Cuenta: ${banco.numero_cuenta}`,
-      ],
+      ].slice(0, 4),
     });
   } catch (err) {
     const detalle = err instanceof Error ? err.message : 'PDF_RENDER_FAILED';

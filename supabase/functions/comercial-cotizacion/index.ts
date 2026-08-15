@@ -23,6 +23,11 @@ import { checkRateLimit } from '../_shared/rate-limit.ts';
 import { withTelemetry } from '../_shared/telemetry.ts';
 import { renderQuotePdf } from '../_shared/render-quote-pdf.ts';
 import {
+  buildQuoteAnnexes,
+  loadQuotePdfFonts,
+  loadQuotePdfLogo,
+} from '../_shared/quote-pdf-assets.ts';
+import {
   calcularTotalOfertado,
   COTIZACION_ESTADOS_ENVIADAS,
   COTIZACION_ESTADOS_PENDIENTES,
@@ -462,46 +467,11 @@ async function handlePdf(
     );
   }
   const siteUrl = (Deno.env.get('SITE_URL') ?? 'https://i-me.com.co').replace(/\/+$/, '');
-  const slugs = [...new Set(lineas.map(l => l.slug).filter(Boolean))];
-  const annexes: Array<{
-    slug: string;
-    nombre: string;
-    sku?: string | null;
-    resumen: string;
-    url?: string | null;
-  }> = [];
-  if (slugs.length > 0) {
-    const { data: productos } = await supabase
-      .from('productos')
-      .select('slug,sku,nombre_es,descripcion_corta_es,descripcion_larga_es')
-      .in('slug', slugs)
-      .eq('activo', true);
-    const bySlug = new Map(
-      ((productos ?? []) as Array<Record<string, unknown>>).map(r => [String(r.slug ?? ''), r])
-    );
-    for (const l of lineas) {
-      const p = bySlug.get(l.slug);
-      const corta = String(p?.descripcion_corta_es ?? '').trim();
-      const larga = String(p?.descripcion_larga_es ?? '')
-        .replace(/<[^>]+>/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
-      annexes.push({
-        slug: l.slug,
-        nombre: String(p?.nombre_es ?? l.nombre),
-        sku: typeof p?.sku === 'string' ? p.sku : null,
-        resumen: [corta, larga].filter(Boolean).join('\n\n').slice(0, 1800) || l.nombre,
-        url: l.slug ? `${siteUrl}/es/productos/${l.slug}/` : null,
-      });
-    }
-  }
-  let logoBytes: Uint8Array | null = null;
-  try {
-    const logoRes = await fetch(`${siteUrl}/assets/img/logo-ime.png`);
-    if (logoRes.ok) logoBytes = new Uint8Array(await logoRes.arrayBuffer());
-  } catch {
-    logoBytes = null;
-  }
+  const [annexes, logoBytes, fonts] = await Promise.all([
+    buildQuoteAnnexes(supabase, lineas, siteUrl),
+    loadQuotePdfLogo(siteUrl),
+    loadQuotePdfFonts(siteUrl),
+  ]);
   const bytes = await renderQuotePdf({
     numero: String(
       row.numero ??
@@ -519,6 +489,8 @@ async function handlePdf(
     locale: row.locale === 'en' ? 'en' : 'es',
     annexes,
     logoBytes,
+    fontRegularBytes: fonts.regular,
+    fontBoldBytes: fonts.bold,
   });
   return json(
     {

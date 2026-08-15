@@ -231,59 +231,155 @@ type QuotePdfSnapshot = {
   productos: CotizacionLineaOferta[];
 };
 
-async function loadQuoteAnnexes(
-  lineas: CotizacionLineaOferta[]
-): Promise<
-  Array<{ slug: string; nombre: string; sku?: string | null; resumen: string; url?: string | null }>
+async function loadQuoteAnnexes(lineas: CotizacionLineaOferta[]): Promise<
+  Array<{
+    slug: string;
+    nombre: string;
+    sku?: string | null;
+    resumen: string;
+    descripcion?: string;
+    caracteristicas?: string[];
+    url?: string | null;
+    imageBytes?: Uint8Array | null;
+  }>
 > {
   if (!supabase) return [];
   const slugs = [...new Set(lineas.map(l => l.slug).filter(Boolean))];
+  const site = (typeof location !== 'undefined' ? location.origin : 'https://i-me.com.co').replace(
+    /\/$/,
+    ''
+  );
+
   if (slugs.length === 0) {
     return lineas.map(l => ({
       slug: l.slug || '',
       nombre: l.nombre,
       resumen: l.nombre,
+      descripcion: l.nombre,
+      caracteristicas: [],
       url: null,
+      imageBytes: null,
     }));
   }
+
   const { data } = await supabase
     .from('productos')
-    .select('slug,sku,nombre_es,descripcion_corta_es,descripcion_larga_es')
+    .select(
+      'slug,sku,nombre_es,descripcion_corta_es,descripcion_larga_es,especificaciones,aplicaciones_es,imagen_principal'
+    )
     .in('slug', slugs)
     .eq('activo', true);
   const bySlug = new Map(
     ((data ?? []) as Array<Record<string, unknown>>).map(row => [String(row.slug ?? ''), row])
   );
-  const site = (typeof location !== 'undefined' ? location.origin : 'https://i-me.com.co').replace(
-    /\/$/,
-    ''
-  );
-  return lineas.map(l => {
+
+  const resolveImageUrl = (raw: unknown): string | null => {
+    const src = String(raw ?? '').trim();
+    if (!src) return null;
+    if (/^https?:\/\//i.test(src)) return src;
+    if (src.startsWith('/')) return `${site}${src}`;
+    return `${site}/${src}`;
+  };
+
+  const candidatesFor = (url: string): string[] => {
+    const out = [url];
+    // pdf-lib solo JPEG/PNG — probar variantes si el catálogo sirve WebP/AVIF.
+    if (/\.(webp|avif)(\?|$)/i.test(url)) {
+      out.push(url.replace(/\.(webp|avif)(\?|$)/i, '.jpg$2'));
+      out.push(url.replace(/\.(webp|avif)(\?|$)/i, '.png$2'));
+      out.push(url.replace(/\.(webp|avif)(\?|$)/i, '.jpeg$2'));
+    }
+    return out;
+  };
+
+  const loadImage = async (url: string | null): Promise<Uint8Array | null> => {
+    if (!url) return null;
+    for (const candidate of candidatesFor(url)) {
+      try {
+        const res = await fetch(candidate);
+        if (!res.ok) continue;
+        const bytes = new Uint8Array(await res.arrayBuffer());
+        if (bytes.byteLength < 32) continue;
+        // Magic: JPEG FF D8 / PNG 89 50
+        const isJpg = bytes[0] === 0xff && bytes[1] === 0xd8;
+        const isPng = bytes[0] === 0x89 && bytes[1] === 0x50;
+        if (isJpg || isPng) return bytes;
+      } catch {
+        /* try next */
+      }
+    }
+    return null;
+  };
+
+  const out = [];
+  for (const l of lineas) {
     const row = bySlug.get(l.slug);
     const corta = String(row?.descripcion_corta_es ?? '').trim();
     const larga = String(row?.descripcion_larga_es ?? '')
       .replace(/<[^>]+>/g, ' ')
       .replace(/\s+/g, ' ')
       .trim();
-    const resumen = [corta, larga].filter(Boolean).join('\n\n').slice(0, 1800) || l.nombre;
-    return {
+    const specs = Array.isArray(row?.especificaciones) ? row.especificaciones : [];
+    const apps = Array.isArray(row?.aplicaciones_es) ? row.aplicaciones_es : [];
+    const caracteristicas: string[] = [];
+    for (const s of specs) {
+      if (!s || typeof s !== 'object') continue;
+      const rec = s as Record<string, unknown>;
+      const k = String(rec.clave ?? '').trim();
+      const v = String(rec.valor ?? '').trim();
+      if (k && v) caracteristicas.push(`${k}: ${v}`);
+      else if (v) caracteristicas.push(v);
+    }
+    for (const a of apps) {
+      const t = String(a ?? '').trim();
+      if (t) caracteristicas.push(t);
+    }
+    const imageBytes = await loadImage(resolveImageUrl(row?.imagen_principal));
+    out.push({
       slug: l.slug || String(row?.slug ?? ''),
       nombre: String(row?.nombre_es ?? l.nombre),
       sku: typeof row?.sku === 'string' ? row.sku : null,
-      resumen,
+      resumen: corta || l.nombre,
+      descripcion: larga || corta || l.nombre,
+      caracteristicas,
       url: l.slug ? `${site}/es/productos/${l.slug}/` : null,
-    };
-  });
+      imageBytes,
+    });
+  }
+  return out;
 }
 
 async function loadLogoBytes(): Promise<Uint8Array | null> {
-  try {
-    const res = await fetch('/assets/img/logo-ime.png');
-    if (!res.ok) return null;
-    return new Uint8Array(await res.arrayBuffer());
-  } catch {
-    return null;
+  for (const path of ['/assets/img/logo-ime-pdf.png', '/assets/img/logo-ime.png']) {
+    try {
+      const res = await fetch(path);
+      if (!res.ok) continue;
+      return new Uint8Array(await res.arrayBuffer());
+    } catch {
+      /* try next */
+    }
   }
+  return null;
+}
+
+async function loadPoppinsFonts(): Promise<{
+  regular: Uint8Array | null;
+  bold: Uint8Array | null;
+}> {
+  const load = async (path: string) => {
+    try {
+      const res = await fetch(path);
+      if (!res.ok) return null;
+      return new Uint8Array(await res.arrayBuffer());
+    } catch {
+      return null;
+    }
+  };
+  const [regular, bold] = await Promise.all([
+    load('/fonts/Poppins-Regular.ttf'),
+    load('/fonts/Poppins-Bold.ttf'),
+  ]);
+  return { regular, bold };
 }
 
 async function renderQuotePdfLocal(
@@ -296,7 +392,11 @@ async function renderQuotePdfLocal(
       snapshot.numero?.trim() ||
       `IME-Q-${new Date().getFullYear()}-${id.replace(/-/g, '').slice(0, 6).toUpperCase()}`;
     const lineas = sanitizarLineasComercial(snapshot.productos, snapshot.moneda);
-    const [annexes, logoBytes] = await Promise.all([loadQuoteAnnexes(lineas), loadLogoBytes()]);
+    const [annexes, logoBytes, fonts] = await Promise.all([
+      loadQuoteAnnexes(lineas),
+      loadLogoBytes(),
+      loadPoppinsFonts(),
+    ]);
     const bytes = await renderQuotePdf({
       numero,
       clienteNombre: snapshot.nombre,
@@ -314,9 +414,11 @@ async function renderQuotePdfLocal(
       telefonoComercial: state.telefono || '',
       annexes,
       logoBytes,
+      fontRegularBytes: fonts.regular,
+      fontBoldBytes: fonts.bold,
       bancoLineas: [
-        'Transferencia bancaria',
-        'Bancolombia / Ahorros',
+        'Transferencia bancaria:',
+        'Bancolombia/Ahorros',
         'Titular: I-ME International Medical Enterprise S.A.S.',
         'NIT: 901871720',
       ],
