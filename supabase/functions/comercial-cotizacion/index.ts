@@ -98,6 +98,9 @@ const DETAIL_COLUMNS_SAFE = [
   'metadata',
   'locale',
   'pedido_id',
+  'twenty_person_id',
+  'twenty_company_id',
+  'twenty_opportunity_id',
 ].join(',');
 
 function isMissingSchema(message?: string | null): boolean {
