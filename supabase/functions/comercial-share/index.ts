@@ -454,11 +454,16 @@ async function handleCreate(
       recipientPhoneE164,
       phoneCountryCode,
       message,
+      channel,
+      commercialName: nombreComercial,
+      commercialEmail: profile.email,
     },
     snapshots.map(s => ({
       name: s.product_name_snapshot,
       sku: s.product_sku_snapshot,
       url: s.product_url_snapshot,
+      family: s.family_snapshot,
+      specialty: s.specialty_snapshot,
     }))
   );
 
@@ -674,7 +679,9 @@ async function handleRetry(
 
   const { data: productsData, error: productsError } = await supabase
     .from('commercial_share_products')
-    .select('product_name_snapshot, product_sku_snapshot, product_url_snapshot')
+    .select(
+      'product_name_snapshot, product_sku_snapshot, product_url_snapshot, family_snapshot, specialty_snapshot'
+    )
     .eq('commercial_share_id', id);
   if (productsError) return internalError(productsError.message, origin);
 
@@ -682,7 +689,16 @@ async function handleRetry(
     product_name_snapshot: string;
     product_sku_snapshot: string | null;
     product_url_snapshot: string | null;
+    family_snapshot: string | null;
+    specialty_snapshot: string | null;
   }>;
+
+  const { data: ownerProfile } = await supabase
+    .from('admin_profiles')
+    .select('nombre, email')
+    .eq('user_id', share.user_id)
+    .maybeSingle();
+  const owner = ownerProfile as { nombre: string | null; email: string | null } | null;
 
   const twenty = await retryShareWithTwenty(
     {
@@ -692,11 +708,16 @@ async function handleRetry(
       recipientPhoneE164: share.recipient_phone,
       phoneCountryCode: share.phone_country_code,
       message: share.message,
+      channel: share.channel,
+      commercialName: owner?.nombre?.trim() || owner?.email || null,
+      commercialEmail: owner?.email ?? null,
     },
     productos.map(p => ({
       name: p.product_name_snapshot,
       sku: p.product_sku_snapshot,
       url: p.product_url_snapshot,
+      family: p.family_snapshot,
+      specialty: p.specialty_snapshot,
     })),
     {
       personId: share.crm_person_id,

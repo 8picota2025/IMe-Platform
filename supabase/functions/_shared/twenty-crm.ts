@@ -578,8 +578,17 @@ export class TwentyClient {
       recipientPhoneE164?: string | null;
       phoneCountryCode?: string | null;
       message?: string | null;
+      channel?: 'email' | 'whatsapp' | string | null;
+      commercialName?: string | null;
+      commercialEmail?: string | null;
     },
-    products: Array<{ name: string; sku?: string | null; url?: string | null }>
+    products: Array<{
+      name: string;
+      sku?: string | null;
+      url?: string | null;
+      family?: string | null;
+      specialty?: string | null;
+    }>
   ): Promise<TwentyResult<{ personId: string; companyId?: string; noteId: string }>> {
     let companyId: string | undefined;
     if (share.medicalCenterName?.trim()) {
@@ -603,12 +612,19 @@ export class TwentyClient {
       }
     }
 
+    const canal =
+      share.channel === 'whatsapp'
+        ? 'WhatsApp'
+        : share.channel === 'email'
+          ? 'Email'
+          : share.channel || '—';
     const person = await this.upsertPerson({
       firstName: firstName || share.recipientName.trim() || 'Contacto',
       lastName: restName.join(' ') || undefined,
       email: share.recipientEmail ?? undefined,
       phoneNumber,
       phoneCallingCode,
+      jobTitle: `Lead catálogo · ${canal}`,
       companyId,
     });
     if (!person.ok || !person.data)
@@ -616,12 +632,35 @@ export class TwentyClient {
 
     const productList = products.length
       ? products
-          .map(p => `- ${p.name}${p.sku ? ` (ref. ${p.sku})` : ''}${p.url ? ` — ${p.url}` : ''}`)
+          .map(p => {
+            const taxo = [p.specialty, p.family].filter(Boolean).join(' / ');
+            return `- ${p.name}${p.sku ? ` (ref. ${p.sku})` : ''}${taxo ? ` · ${taxo}` : ''}${p.url ? ` — ${p.url}` : ''}`;
+          })
           .join('\n')
       : '- (sin productos)';
+    const comercialBits = [share.commercialName?.trim(), share.commercialEmail?.trim()].filter(
+      Boolean
+    );
     const note = await this.createNote({
-      title: `Catalogo compartido — ${share.recipientName}`,
-      bodyMarkdown: `${share.message ?? ''}\n\nProductos:\n${productList}`.trim(),
+      title: `Catálogo compartido — ${share.recipientName}`.slice(0, 120),
+      bodyMarkdown: [
+        `**Origen:** CMS comercial I-ME`,
+        `**Canal:** ${canal}`,
+        `**Destinatario:** ${share.recipientName}`,
+        share.recipientEmail ? `**Email:** ${share.recipientEmail}` : '',
+        share.recipientPhoneE164 ? `**Teléfono:** ${share.recipientPhoneE164}` : '',
+        share.medicalCenterName?.trim()
+          ? `**Centro médico:** ${share.medicalCenterName.trim()}`
+          : '',
+        comercialBits.length ? `**Comercial:** ${comercialBits.join(' · ')}` : '',
+        '',
+        share.message?.trim() ? `**Mensaje:**\n${share.message.trim()}` : '',
+        '',
+        `**Productos:**\n${productList}`,
+      ]
+        .filter(line => line !== '')
+        .join('\n')
+        .trim(),
     });
     if (!note.ok || !note.data) return { ok: false, error: note.error ?? 'Nota no creada' };
 
@@ -641,6 +680,184 @@ export class TwentyClient {
     }
 
     return { ok: true, data: { personId: person.data.id, companyId, noteId: note.data.id } };
+  }
+
+  /**
+   * Presupuesto formal CMS → Company + Person + Opportunity PROPOSAL (PATCH si ya hay ID)
+   * + nota con líneas, precios, condiciones y validez. No reutiliza syncCotizacionLead.
+   */
+  async syncCotizacionOferta(input: {
+    cotizacionId: string;
+    numero: string;
+    nombre: string;
+    email?: string;
+    telefono?: string;
+    empresa?: string;
+    moneda: string;
+    total: number;
+    validezHasta?: string | null;
+    condiciones?: string | null;
+    estado?: string | null;
+    productos: Array<{
+      nombre: string;
+      slug?: string;
+      cantidad: number;
+      precio_unitario: number;
+      subtotal: number;
+      moneda?: string;
+      notas?: string;
+    }>;
+    campaign?: string;
+    origen?: string;
+    canalEnvio?: string | null;
+    formalizarUrl?: string | null;
+    validatedByEmail?: string | null;
+    twentyOpportunityId?: string | null;
+    ownerId?: string;
+  }): Promise<
+    TwentyResult<{
+      personId: string;
+      companyId?: string;
+      opportunityId: string;
+      noteId?: string;
+    }>
+  > {
+    const ownerId = resolveTwentyOwnerId(input.ownerId);
+    const companyName =
+      (input.empresa || '').trim() || `Presupuesto — ${input.nombre}`.slice(0, 120);
+    const company = await this.upsertCompany({ name: companyName });
+    if (!company.ok) return { ok: false, error: company.error };
+    const companyId = company.data?.id;
+    if (companyId && ownerId) {
+      await this.requestRaw('PATCH', `/companies/${companyId}`, { accountOwnerId: ownerId });
+    }
+
+    let phoneNumber: string | undefined;
+    let phoneCallingCode: string | undefined;
+    if (input.telefono) {
+      const digits = input.telefono.replace(/[^\d]/g, '');
+      if (digits.length >= 8) {
+        if (digits.startsWith('57') && digits.length > 10) {
+          phoneCallingCode = '+57';
+          phoneNumber = digits.slice(2);
+        } else {
+          phoneCallingCode = '+57';
+          phoneNumber = digits;
+        }
+      }
+    }
+
+    const [firstName, ...restName] = input.nombre.trim().split(/\s+/);
+    const person = await this.upsertPerson({
+      firstName: firstName || 'Contacto',
+      lastName: restName.join(' ') || 'Presupuesto',
+      email: input.email,
+      phoneNumber,
+      phoneCallingCode,
+      jobTitle: `Presupuesto ${input.numero}`,
+      companyId,
+    });
+    if (!person.ok || !person.data) {
+      return { ok: false, error: person.error ?? 'Persona no creada' };
+    }
+
+    const productLabel = input.productos
+      .map(p => p.nombre || p.slug)
+      .filter(Boolean)
+      .slice(0, 3)
+      .join(', ');
+    const oppName = `${input.numero} — ${productLabel || companyName}`.slice(0, 120);
+    const amount = {
+      amountMicros: Math.round(Number(input.total) * 1_000_000),
+      currencyCode: (input.moneda || 'COP').slice(0, 8),
+    };
+    const oppPayload: Record<string, unknown> = {
+      name: oppName,
+      stage: 'PROPOSAL',
+      position: 'first',
+      companyId,
+      pointOfContactId: person.data.id,
+      amount,
+      ...(ownerId ? { ownerId } : {}),
+      ...(input.validezHasta ? { closeDate: input.validezHasta } : {}),
+    };
+
+    let opportunityId = input.twentyOpportunityId?.trim() || '';
+    if (opportunityId) {
+      const patched = await this.requestRecord(
+        'PATCH',
+        `/opportunities/${opportunityId}`,
+        oppPayload
+      );
+      if (!patched.ok) {
+        // Opp borrada en Twenty: crear de nuevo.
+        opportunityId = '';
+      }
+    }
+    if (!opportunityId) {
+      const created = await this.requestRecord('POST', '/opportunities', oppPayload);
+      if (!created.ok || !created.data) {
+        return { ok: false, error: created.error ?? 'Oportunidad no creada' };
+      }
+      opportunityId = created.data.id;
+    }
+
+    const lineList = input.productos.length
+      ? input.productos
+          .map(p => {
+            const unit = `${p.precio_unitario} ${p.moneda || input.moneda}`;
+            const sub = `${p.subtotal} ${p.moneda || input.moneda}`;
+            const notes = p.notas?.trim() ? ` (${p.notas.trim()})` : '';
+            return `- ${p.nombre || p.slug || 'producto'} ×${p.cantidad} @ ${unit} = ${sub}${notes}`;
+          })
+          .join('\n')
+      : '- (sin líneas)';
+
+    const note = await this.createNote({
+      title: `Presupuesto ${input.numero}`.slice(0, 120),
+      bodyMarkdown: [
+        `**Origen:** ${input.origen || 'comercial_presupuesto'}`,
+        `**Nº:** ${input.numero}`,
+        `**Cotización ID:** ${input.cotizacionId}`,
+        `**Estado local:** ${input.estado || '—'}`,
+        `**Cliente:** ${input.nombre}`,
+        input.email ? `**Email:** ${input.email}` : '',
+        input.telefono ? `**Teléfono:** ${input.telefono}` : '',
+        `**Empresa:** ${companyName}`,
+        `**Total:** ${input.total} ${input.moneda}`,
+        input.validezHasta ? `**Validez hasta:** ${input.validezHasta}` : '',
+        input.canalEnvio ? `**Canal envío:** ${input.canalEnvio}` : '',
+        input.campaign ? `**Campaña:** ${input.campaign}` : '',
+        input.validatedByEmail ? `**Validado CRM por:** ${input.validatedByEmail}` : '',
+        input.formalizarUrl ? `**Formalizar:** ${input.formalizarUrl}` : '',
+        '',
+        `**Líneas:**\n${lineList}`,
+        '',
+        input.condiciones?.trim()
+          ? `**Condiciones:**\n${input.condiciones.trim()}`
+          : '**Condiciones:** —',
+      ]
+        .filter(line => line !== '')
+        .join('\n'),
+    });
+    if (note.ok && note.data) {
+      await this.linkNoteTarget({
+        noteId: note.data.id,
+        targetOpportunityId: opportunityId,
+        targetPersonId: person.data.id,
+        targetCompanyId: companyId,
+      });
+    }
+
+    return {
+      ok: true,
+      data: {
+        personId: person.data.id,
+        companyId,
+        opportunityId,
+        noteId: note.data?.id,
+      },
+    };
   }
 
   /**
@@ -865,8 +1082,17 @@ export async function syncShareWithTwenty(
     recipientPhoneE164?: string | null;
     phoneCountryCode?: string | null;
     message?: string | null;
+    channel?: 'email' | 'whatsapp' | string | null;
+    commercialName?: string | null;
+    commercialEmail?: string | null;
   },
-  products: Array<{ name: string; sku?: string | null; url?: string | null }>
+  products: Array<{
+    name: string;
+    sku?: string | null;
+    url?: string | null;
+    family?: string | null;
+    specialty?: string | null;
+  }>
 ): Promise<TwentyResult<{ personId: string; companyId?: string; noteId: string }>> {
   const client = TwentyClient.fromEnv();
   if (!client)
@@ -886,8 +1112,17 @@ export async function retryShareWithTwenty(
     recipientPhoneE164?: string | null;
     phoneCountryCode?: string | null;
     message?: string | null;
+    channel?: 'email' | 'whatsapp' | string | null;
+    commercialName?: string | null;
+    commercialEmail?: string | null;
   },
-  products: Array<{ name: string; sku?: string | null; url?: string | null }>,
+  products: Array<{
+    name: string;
+    sku?: string | null;
+    url?: string | null;
+    family?: string | null;
+    specialty?: string | null;
+  }>,
   previous: { personId?: string | null; companyId?: string | null; noteId?: string | null }
 ): Promise<TwentyResult<{ personId: string; companyId?: string; noteId: string }>> {
   const client = TwentyClient.fromEnv();
@@ -912,6 +1147,52 @@ export async function retryShareWithTwenty(
   }
 
   return client.syncCommercialShare(share, products);
+}
+
+/**
+ * Presupuesto formal (Validar → CRM): Opportunity PROPOSAL + nota completa.
+ * Si `twentyOpportunityId` existe, hace PATCH (no duplica opp).
+ */
+export async function syncCotizacionOfertaWithTwenty(input: {
+  cotizacionId: string;
+  numero: string;
+  nombre: string;
+  email?: string;
+  telefono?: string;
+  empresa?: string;
+  moneda: string;
+  total: number;
+  validezHasta?: string | null;
+  condiciones?: string | null;
+  estado?: string | null;
+  productos: Array<{
+    nombre: string;
+    slug?: string;
+    cantidad: number;
+    precio_unitario: number;
+    subtotal: number;
+    moneda?: string;
+    notas?: string;
+  }>;
+  campaign?: string;
+  origen?: string;
+  canalEnvio?: string | null;
+  formalizarUrl?: string | null;
+  validatedByEmail?: string | null;
+  twentyOpportunityId?: string | null;
+}): Promise<
+  TwentyResult<{
+    personId: string;
+    companyId?: string;
+    opportunityId: string;
+    noteId?: string;
+  }>
+> {
+  const client = TwentyClient.fromEnv();
+  if (!client) {
+    return { ok: false, skipped: true, error: 'TWENTY_BASE_URL/TWENTY_API_KEY no configurados' };
+  }
+  return client.syncCotizacionOferta(input);
 }
 
 /** Cliente nuevo (pago/formalizar) → Company + Person + tipología/factura. */

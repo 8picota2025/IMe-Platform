@@ -31,7 +31,7 @@ import {
   loadQuotePdfWhatsappIcon,
 } from '../_shared/quote-pdf-assets.ts';
 import { bancoLineasCotizacion } from '../_shared/transferencia-bancaria.ts';
-import { syncCotizacionWithTwenty } from '../_shared/twenty-crm.ts';
+import { syncCotizacionOfertaWithTwenty } from '../_shared/twenty-crm.ts';
 import {
   calcularTotalOfertado,
   COTIZACION_ESTADOS_ENVIADAS,
@@ -74,6 +74,10 @@ const DETAIL_COLUMNS = [
   'created_by',
   'locale',
   'pedido_id',
+  'campaign',
+  'twenty_person_id',
+  'twenty_company_id',
+  'twenty_opportunity_id',
 ].join(',');
 
 const DETAIL_COLUMNS_SAFE = [
@@ -804,6 +808,7 @@ async function handleValidarCrm(
   const row = data as CotizacionOfertaRow & {
     campaign?: string | null;
     telefono?: string | null;
+    twenty_opportunity_id?: string | null;
   };
   const lineas = sanitizarLineasComercial(row.productos, row.moneda);
   const check = ofertaCompleta(lineas, row.condiciones);
@@ -833,28 +838,48 @@ async function handleValidarCrm(
     (row.metadata && typeof row.metadata === 'object' && !Array.isArray(row.metadata)
       ? String((row.metadata as Record<string, unknown>).numero_presupuesto ?? id.slice(0, 8))
       : id.slice(0, 8));
-  const twenty = await syncCotizacionWithTwenty({
+  const metaExisting =
+    row.metadata && typeof row.metadata === 'object' && !Array.isArray(row.metadata)
+      ? (row.metadata as Record<string, unknown>)
+      : {};
+  const canalEnvio =
+    typeof metaExisting.quote_send_channel === 'string'
+      ? String(metaExisting.quote_send_channel)
+      : null;
+  const formalizarUrl =
+    typeof metaExisting.formalizacion_url === 'string'
+      ? String(metaExisting.formalizacion_url)
+      : null;
+  const twenty = await syncCotizacionOfertaWithTwenty({
+    cotizacionId: id,
+    numero: String(numero),
     nombre: String(row.nombre ?? ''),
     email: String(row.email ?? ''),
     telefono: String(row.telefono ?? ''),
     empresa: String(row.empresa ?? ''),
-    mensaje: `Presupuesto ${numero} validado por admin. Total ${total} ${normalizarMonedaOferta(row.moneda)}.`,
-    origen: 'comercial_presupuesto_validado',
-    tipoSolicitud: 'cotizacion_oferta',
+    moneda: normalizarMonedaOferta(row.moneda),
+    total,
+    validezHasta: row.validez_hasta ?? null,
+    condiciones: row.condiciones ?? null,
+    estado: row.estado ?? null,
     productos: lineas.map(l => ({
       nombre: l.nombre,
       slug: l.slug,
       cantidad: l.cantidad,
+      precio_unitario: l.precio_unitario,
+      subtotal: l.subtotal,
+      moneda: l.moneda,
+      notas: l.notas,
     })),
-    totalEstimado: total,
-    moneda: normalizarMonedaOferta(row.moneda),
     campaign: String(row.campaign ?? 'pwa-comercial'),
+    origen: 'comercial_presupuesto_validado',
+    canalEnvio,
+    formalizarUrl,
+    validatedByEmail: profile.email,
+    twentyOpportunityId: row.twenty_opportunity_id ?? null,
   });
   const crmSyncStatus = twenty.skipped ? 'skipped' : twenty.ok ? 'synced' : 'failed';
-  const meta =
-    row.metadata && typeof row.metadata === 'object' && !Array.isArray(row.metadata)
-      ? { ...(row.metadata as Record<string, unknown>) }
-      : {};
+  const meta = { ...metaExisting };
   meta.crm_validated_at = new Date().toISOString();
   meta.crm_validated_by = profile.user_id;
   meta.crm_validated_by_email = profile.email;
