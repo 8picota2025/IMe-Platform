@@ -25,6 +25,7 @@ import { syncCotizacionWithTwenty } from '../_shared/twenty-crm.ts';
 import {
   datosBancariosTexto,
   getDatosBancariosTransferencia,
+  bancoLineasCotizacion,
 } from '../_shared/transferencia-bancaria.ts';
 import {
   canonizarLineasOferta,
@@ -428,13 +429,7 @@ Deno.serve(async req => {
       logoBytes,
       fontRegularBytes: fonts.regular,
       fontBoldBytes: fonts.bold,
-      bancoLineas: [
-        'Transferencia bancaria:',
-        `${banco.banco}/${banco.tipo_cuenta}`,
-        `Titular: ${banco.titular}`,
-        `NIT: ${banco.nit}`,
-        `Cuenta: ${banco.numero_cuenta}`,
-      ].slice(0, 4),
+      bancoLineas: bancoLineasCotizacion(banco),
     });
   } catch (err) {
     const detalle = err instanceof Error ? err.message : 'PDF_RENDER_FAILED';

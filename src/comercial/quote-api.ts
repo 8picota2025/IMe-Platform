@@ -14,6 +14,7 @@ import {
   sanitizarLineasComercial,
   type CotizacionLineaOferta,
 } from '../lib/cotizacion-oferta';
+import { bancoLineasCotizacion } from '../lib/transferencia-bancaria';
 import {
   callEdgeFunction,
   ensureAuthSession,
@@ -420,12 +421,7 @@ async function renderQuotePdfLocal(
       logoBytes,
       fontRegularBytes: fonts.regular,
       fontBoldBytes: fonts.bold,
-      bancoLineas: [
-        'Transferencia bancaria:',
-        'Bancolombia/Ahorros',
-        'Titular: I-ME International Medical Enterprise S.A.S.',
-        'NIT: 901871720',
-      ],
+      bancoLineas: bancoLineasCotizacion(),
     });
     return ok({ pdf_base64: bytesToBase64(bytes), numero });
   } catch (err) {

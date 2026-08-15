@@ -27,6 +27,7 @@ import {
   loadQuotePdfFonts,
   loadQuotePdfLogo,
 } from '../_shared/quote-pdf-assets.ts';
+import { bancoLineasCotizacion } from '../_shared/transferencia-bancaria.ts';
 import {
   calcularTotalOfertado,
   COTIZACION_ESTADOS_ENVIADAS,
@@ -491,6 +492,7 @@ async function handlePdf(
     logoBytes,
     fontRegularBytes: fonts.regular,
     fontBoldBytes: fonts.bold,
+    bancoLineas: bancoLineasCotizacion(),
   });
   return json(
     {

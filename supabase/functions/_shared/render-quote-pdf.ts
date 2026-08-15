@@ -177,7 +177,10 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
 
   const ivaPct =
     snapshot.ivaPct != null ? Number(snapshot.ivaPct) : snapshot.moneda === 'COP' ? 19 : 0;
-  const subtotal = snapshot.lineas.reduce((acc, l) => acc + (Number(l.subtotal) || 0), 0);
+  const subtotal = snapshot.lineas.reduce((acc, l) => {
+    if (l.precio_pendiente_validar) return acc;
+    return acc + (Number(l.subtotal) || Number(l.precio_unitario) * Number(l.cantidad) || 0);
+  }, 0);
   const iva = Math.round(subtotal * (ivaPct / 100) * 100) / 100;
   const totalPagar = Math.round((subtotal + iva) * 100) / 100;
   const fecha = snapshot.fecha?.trim() || todayLabel(locale);
@@ -379,23 +382,40 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     const cant = String(item.cantidad);
     const ref = (item.slug || item.nombre || '—').slice(0, 16);
     const descLines = wrapText(item.nombre || item.slug || 'Producto', 28).slice(0, 2);
+    const pendiente = Boolean(item.precio_pendiente_validar);
     drawText(page, cant, { x: 40, top: rowTop + 12, size: 12, font });
     drawText(page, ref, { x: 74, top: rowTop + 12, size: 12, font });
     descLines.forEach((line, i) => {
       drawText(page, line, { x: 190, top: rowTop + 10 + i * 14, size: 11, font });
     });
-    drawText(page, moneyPlain(item.precio_unitario, snapshot.moneda, locale), {
-      x: 395,
-      top: rowTop + 12,
-      size: 12,
-      font,
-    });
-    drawText(page, moneyPlain(item.subtotal, snapshot.moneda, locale), {
-      x: 478,
-      top: rowTop + 12,
-      size: 12,
-      font,
-    });
+    drawText(
+      page,
+      pendiente
+        ? locale === 'en'
+          ? 'Pending'
+          : 'Pendiente'
+        : moneyPlain(item.precio_unitario, snapshot.moneda, locale),
+      {
+        x: 395,
+        top: rowTop + 12,
+        size: pendiente ? 10 : 12,
+        font,
+      }
+    );
+    drawText(
+      page,
+      pendiente
+        ? locale === 'en'
+          ? 'Pending'
+          : 'Pendiente'
+        : moneyPlain(item.subtotal, snapshot.moneda, locale),
+      {
+        x: 478,
+        top: rowTop + 12,
+        size: pendiente ? 10 : 12,
+        font,
+      }
+    );
   });
 
   // Rejilla

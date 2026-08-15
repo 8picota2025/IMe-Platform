@@ -13,20 +13,32 @@ export interface DatosBancariosTransferencia {
   instrucciones: string;
 }
 
+/** Defaults públicos del boceto IPS (cuenta visible en plantilla comercial). */
+const DEFAULT_CUENTA = '61400006521';
+const DEFAULT_BANCO = 'Bancolombia';
+const DEFAULT_TIPO = 'Ahorros';
+
 export function getDatosBancariosTransferencia(): DatosBancariosTransferencia {
   return {
-    banco: Deno.env.get('TRANSFERENCIA_BANCO')?.trim() || 'Bancolombia',
+    banco: Deno.env.get('TRANSFERENCIA_BANCO')?.trim() || DEFAULT_BANCO,
     titular:
       Deno.env.get('TRANSFERENCIA_TITULAR')?.trim() ||
       'I-ME International Medical Enterprise S.A.S.',
-    nit: Deno.env.get('TRANSFERENCIA_NIT')?.trim() || 'Pendiente configurar NIT',
-    tipo_cuenta: Deno.env.get('TRANSFERENCIA_TIPO_CUENTA')?.trim() || 'Ahorros',
-    numero_cuenta: Deno.env.get('TRANSFERENCIA_NUMERO')?.trim() || 'Pendiente configurar cuenta',
+    nit: Deno.env.get('TRANSFERENCIA_NIT')?.trim() || '901871720',
+    tipo_cuenta: Deno.env.get('TRANSFERENCIA_TIPO_CUENTA')?.trim() || DEFAULT_TIPO,
+    numero_cuenta: Deno.env.get('TRANSFERENCIA_NUMERO')?.trim() || DEFAULT_CUENTA,
     swift: Deno.env.get('TRANSFERENCIA_SWIFT')?.trim() || '',
     instrucciones:
       Deno.env.get('TRANSFERENCIA_INSTRUCCIONES')?.trim() ||
       'Transfiere el valor exacto de la cotizacion e indica la referencia en el concepto. Luego sube el comprobante en el enlace del correo.',
   };
+}
+
+/** Líneas MEDIO DE PAGO del boceto IPS: transferencia → cuenta → banco/tipo. */
+export function bancoLineasCotizacion(
+  d: DatosBancariosTransferencia = getDatosBancariosTransferencia()
+): string[] {
+  return ['Transferencia bancaria:', d.numero_cuenta, `${d.banco}/${d.tipo_cuenta}`];
 }
 
 export function datosBancariosTexto(

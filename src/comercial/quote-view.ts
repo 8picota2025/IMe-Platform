@@ -346,21 +346,28 @@ function linesHtml(
       ? `<p class="comercial-help">Sin productos. Busca en catálogo o añade una línea libre.</p>`
       : lineas
           .map((l, index) => {
-            const missing = !(l.precio_unitario > 0);
+            const pendiente = Boolean(l.precio_pendiente_validar);
+            const missing = !pendiente && !(l.precio_unitario > 0);
             return `
         <article class="comercial-quote-line" data-quote-line data-index="${index}">
           <div class="comercial-quote-line__name">
             <input class="comercial-input" data-linea-nombre value="${escapeHtml(l.nombre)}" placeholder="Nombre del producto" aria-label="Nombre" ${disabled} />
             <input class="comercial-input" data-linea-slug value="${escapeHtml(l.slug)}" placeholder="SKU (opcional)" aria-label="SKU" ${disabled} />
             ${missing ? '<span class="comercial-badge comercial-badge--status-warn">Sin precio</span>' : ''}
+            ${pendiente ? '<span class="comercial-badge comercial-badge--status-warn">Pendiente validar</span>' : ''}
           </div>
           <label class="comercial-field"><span>Cantidad</span>
             <input class="comercial-input comercial-quote-qty" data-linea-cantidad type="number" min="1" step="1" value="${l.cantidad}" ${disabled} />
           </label>
-          <label class="comercial-field"><span>Precio (${escapeHtml(moneda)})</span>
-            <input class="comercial-input" data-linea-precio type="number" min="0" step="${moneda === 'USD' ? '0.01' : '1'}" value="${l.precio_unitario}" ${disabled} />
-          </label>
-          <p class="comercial-quote-line__subtotal" data-linea-subtotal>${escapeHtml(formatQuoteMoney(l.subtotal, moneda))}</p>
+          <div class="comercial-field comercial-quote-precio">
+            <span>Precio (${escapeHtml(moneda)})</span>
+            <select class="comercial-input" data-linea-precio-modo aria-label="Modo de precio" ${disabled}>
+              <option value="numero" ${pendiente ? '' : 'selected'}>Importe</option>
+              <option value="pendiente" ${pendiente ? 'selected' : ''}>Pendiente validar</option>
+            </select>
+            <input class="comercial-input" data-linea-precio type="number" min="0" step="${moneda === 'USD' ? '0.01' : '1'}" value="${pendiente ? '' : l.precio_unitario}" placeholder="0" ${disabled} ${pendiente ? 'disabled' : ''} />
+          </div>
+          <p class="comercial-quote-line__subtotal" data-linea-subtotal>${pendiente ? 'Pendiente validar' : escapeHtml(formatQuoteMoney(l.subtotal, moneda))}</p>
           ${editable ? `<button class="comercial-button comercial-button--ghost" type="button" data-linea-eliminar aria-label="Eliminar ${escapeHtml(l.nombre || 'línea')}">Eliminar</button>` : ''}
         </article>`;
           })
@@ -389,16 +396,22 @@ function readForm(root: HTMLElement): {
       1,
       Math.floor(Number(row.querySelector<HTMLInputElement>('[data-linea-cantidad]')?.value) || 1)
     );
-    const precio = Number(row.querySelector<HTMLInputElement>('[data-linea-precio]')?.value) || 0;
+    const pendiente =
+      row.querySelector<HTMLSelectElement>('[data-linea-precio-modo]')?.value === 'pendiente';
+    const precio = pendiente
+      ? 0
+      : Number(row.querySelector<HTMLInputElement>('[data-linea-precio]')?.value) || 0;
     if (!nombre && !slug) return;
-    productos.push({
+    const linea: CotizacionLineaOferta = {
       slug,
       nombre: nombre || slug,
       cantidad,
       precio_unitario: precio,
-      subtotal: Math.round(precio * cantidad * 100) / 100,
+      subtotal: pendiente ? 0 : Math.round(precio * cantidad * 100) / 100,
       moneda,
-    });
+    };
+    if (pendiente) linea.precio_pendiente_validar = true;
+    productos.push(linea);
   });
   return {
     nombre: String(data.get('nombre') ?? '').trim(),
@@ -424,9 +437,19 @@ function refreshTotals(root: HTMLElement): void {
       1,
       Math.floor(Number(row.querySelector<HTMLInputElement>('[data-linea-cantidad]')?.value) || 1)
     );
-    const precio = Number(row.querySelector<HTMLInputElement>('[data-linea-precio]')?.value) || 0;
+    const modo = row.querySelector<HTMLSelectElement>('[data-linea-precio-modo]');
+    const pendiente = modo?.value === 'pendiente';
+    const precioInput = row.querySelector<HTMLInputElement>('[data-linea-precio]');
+    if (precioInput && modo) {
+      precioInput.disabled = Boolean(modo.disabled) || Boolean(pendiente);
+    }
+    const precio = pendiente ? 0 : Number(precioInput?.value) || 0;
     const cell = row.querySelector('[data-linea-subtotal]');
-    if (cell) cell.textContent = formatQuoteMoney(precio * cantidad, parsed.moneda);
+    if (cell) {
+      cell.textContent = pendiente
+        ? 'Pendiente validar'
+        : formatQuoteMoney(precio * cantidad, parsed.moneda);
+    }
   });
   const hint = root.querySelector('[data-quote-hint]');
   const check = ofertaCompleta(parseLineasOferta(parsed.productos), parsed.condiciones);
@@ -475,14 +498,15 @@ function htmlPreview(root: HTMLElement): string {
     parsed.productos.length === 0
       ? '<tr><td colspan="4">Sin líneas</td></tr>'
       : parsed.productos
-          .map(
-            l => `<tr>
+          .map(l => {
+            const pendiente = Boolean(l.precio_pendiente_validar);
+            return `<tr>
               <td>${escapeHtml(l.nombre)}</td>
               <td>${l.cantidad}</td>
-              <td>${escapeHtml(formatQuoteMoney(l.precio_unitario, parsed.moneda))}</td>
-              <td>${escapeHtml(formatQuoteMoney(l.subtotal, parsed.moneda))}</td>
-            </tr>`
-          )
+              <td>${pendiente ? 'Pendiente validar' : escapeHtml(formatQuoteMoney(l.precio_unitario, parsed.moneda))}</td>
+              <td>${pendiente ? '—' : escapeHtml(formatQuoteMoney(l.subtotal, parsed.moneda))}</td>
+            </tr>`;
+          })
           .join('');
   return `
     <article class="comercial-presupuesto-preview">

@@ -50,6 +50,23 @@ describe('cotizacion-oferta', () => {
     expect(ofertaCompleta(parseLineasOferta([{ slug: 'a', cantidad: 1 }]), 'ok').ok).toBe(false);
   });
 
+  it('precio pendiente validar no suma y no bloquea oferta', () => {
+    const lineas = parseLineasOferta([
+      { slug: 'a', nombre: 'A', cantidad: 2, precio_unitario: 100, moneda: 'COP' },
+      {
+        slug: 'b',
+        nombre: 'B',
+        cantidad: 3,
+        precio_unitario: 0,
+        precio_pendiente_validar: true,
+        moneda: 'COP',
+      },
+    ]);
+    expect(lineas[1]!.precio_pendiente_validar).toBe(true);
+    expect(calcularTotalOfertado(lineas)).toBe(200);
+    expect(ofertaCompleta(lineas, 'Entrega 15 dias').ok).toBe(true);
+  });
+
   it('calcularTotalOfertado suma lineas', () => {
     expect(
       calcularTotalOfertado(

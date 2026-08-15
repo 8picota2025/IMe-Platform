@@ -1202,8 +1202,18 @@ a {
   padding: 10px 12px;
 }
 
-.comercial-quote-editor h2 {
-  letter-spacing: -0.02em;
+.comercial-quote-precio {
+  display: grid;
+  gap: 6px;
+}
+
+.comercial-quote-precio > span {
+  font-size: 0.82rem;
+  color: var(--comercial-muted, #5b6470);
+}
+
+.comercial-quote-precio [data-linea-precio-modo] {
+  font-size: 0.9rem;
 }
 
 .comercial-catalog-table th:nth-child(5),

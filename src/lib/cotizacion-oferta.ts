@@ -18,6 +18,8 @@ export interface CotizacionLineaOferta {
   precio_unitario: number;
   subtotal: number;
   moneda: string;
+  /** Precio aún no validado: no entra al sumatorio ni bloquea oferta. */
+  precio_pendiente_validar?: boolean;
   notas?: string;
 }
 
@@ -72,12 +74,18 @@ export function parseLineasOferta(productos: unknown): CotizacionLineaOferta[] {
     const cantidad = Number(row.cantidad ?? 0);
     const precio = Number(row.precio_unitario ?? 0);
     const moneda = String(row.moneda ?? 'COP').trim() || 'COP';
+    const pendiente =
+      row.precio_pendiente_validar === true ||
+      String(row.precio_estado ?? '')
+        .trim()
+        .toLowerCase() === 'pendiente_validar';
     // Solicitudes libres (chat, formulario abierto) llegan sin slug de catalogo.
     if (!nombre || !Number.isFinite(cantidad) || cantidad < 1) continue;
-    const precioOk = Number.isFinite(precio) && precio > 0 ? precio : 0;
+    const precioOk = !pendiente && Number.isFinite(precio) && precio > 0 ? precio : 0;
     const subtotalRaw = Number(row.subtotal);
-    const subtotal =
-      Number.isFinite(subtotalRaw) && subtotalRaw > 0
+    const subtotal = pendiente
+      ? 0
+      : Number.isFinite(subtotalRaw) && subtotalRaw > 0
         ? subtotalRaw
         : Math.round(precioOk * cantidad * 100) / 100;
     const linea: CotizacionLineaOferta = {
@@ -88,6 +96,7 @@ export function parseLineasOferta(productos: unknown): CotizacionLineaOferta[] {
       subtotal,
       moneda,
     };
+    if (pendiente) linea.precio_pendiente_validar = true;
     if (typeof row.notas === 'string' && row.notas.trim()) {
       linea.notas = row.notas.trim();
     }
@@ -97,7 +106,14 @@ export function parseLineasOferta(productos: unknown): CotizacionLineaOferta[] {
 }
 
 export function calcularTotalOfertado(lineas: CotizacionLineaOferta[]): number {
-  return Math.round(lineas.reduce((acc, l) => acc + l.precio_unitario * l.cantidad, 0) * 100) / 100;
+  return (
+    Math.round(
+      lineas.reduce((acc, l) => {
+        if (l.precio_pendiente_validar) return acc;
+        return acc + l.precio_unitario * l.cantidad;
+      }, 0) * 100
+    ) / 100
+  );
 }
 
 export function normalizarMonedaOferta(value: unknown): 'COP' | 'USD' {
@@ -139,15 +155,17 @@ export function canonizarLineasOferta(
   if (mixed) return { ok: false, error: 'OFERTA_MONEDA_MIXTA' };
   const normalized: CotizacionLineaOferta[] = lineas.map(l => {
     const cantidad = Math.floor(l.cantidad);
-    const precio = l.precio_unitario;
+    const pendiente = Boolean(l.precio_pendiente_validar);
+    const precio = pendiente ? 0 : l.precio_unitario;
     const linea: CotizacionLineaOferta = {
       slug: l.slug,
       nombre: l.nombre,
       cantidad,
       precio_unitario: precio,
-      subtotal: Math.round(precio * cantidad * 100) / 100,
+      subtotal: pendiente ? 0 : Math.round(precio * cantidad * 100) / 100,
       moneda,
     };
+    if (pendiente) linea.precio_pendiente_validar = true;
     if (l.notas) linea.notas = l.notas;
     return linea;
   });
@@ -168,7 +186,7 @@ export function normalizarOferta(
   | { ok: true; lineas: CotizacionLineaOferta[]; total: number; moneda: 'COP' | 'USD' }
   | { ok: false; error: string } {
   if (lineas.length === 0) return { ok: false, error: 'OFERTA_SIN_LINEAS' };
-  if (lineas.some(l => !(l.precio_unitario > 0))) {
+  if (lineas.some(l => !l.precio_pendiente_validar && !(l.precio_unitario > 0))) {
     return { ok: false, error: 'OFERTA_SIN_PRECIO' };
   }
   if (!String(condiciones ?? '').trim()) {
@@ -215,15 +233,17 @@ export function sanitizarLineasComercial(
   const moneda = normalizarMonedaOferta(headerMoneda);
   return parseLineasOferta(productos).map(l => {
     const cantidad = Math.floor(l.cantidad);
-    const precio = l.precio_unitario;
+    const pendiente = Boolean(l.precio_pendiente_validar);
+    const precio = pendiente ? 0 : l.precio_unitario;
     const linea: CotizacionLineaOferta = {
       slug: l.slug,
       nombre: l.nombre,
       cantidad,
       precio_unitario: precio,
-      subtotal: Math.round(precio * cantidad * 100) / 100,
+      subtotal: pendiente ? 0 : Math.round(precio * cantidad * 100) / 100,
       moneda,
     };
+    if (pendiente) linea.precio_pendiente_validar = true;
     if (l.notas) linea.notas = l.notas;
     return linea;
   });
