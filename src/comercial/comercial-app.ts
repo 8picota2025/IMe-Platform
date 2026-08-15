@@ -72,8 +72,26 @@ window.addEventListener('hashchange', () => {
     history.replaceState(null, '', lastGoodHash || '#/catalogo');
     return;
   }
-  state.view = parseView(location.hash);
-  lastGoodHash = location.hash;
+  const nextView = parseView(location.hash);
+  const editor = app.querySelector<HTMLElement>('[data-quote-editor]');
+  const hash = location.hash;
+  const id = new URLSearchParams(hash.split('?')[1] ?? '').get('id');
+  const isNueva = /\/cotizaciones\/nueva(?:\?|$)/.test(hash);
+  // Misma superficie de presupuesto (nueva→id o id→id): no remount.
+  // Evita destruir modal PDF / form a mitad de Guardar→Vista previa→Enviar.
+  const softQuoteNav =
+    state.view === 'cotizaciones' &&
+    nextView === 'cotizaciones' &&
+    Boolean(editor) &&
+    Boolean(id) &&
+    !isNueva;
+
+  lastGoodHash = hash;
+  state.view = nextView;
+  if (softQuoteNav && editor && id) {
+    editor.setAttribute('data-quote-id', id);
+    return;
+  }
   void render();
 });
 
@@ -409,6 +427,8 @@ async function resendFailedShare(btn: HTMLButtonElement): Promise<void> {
     familia_id: null,
     tipo_id: null,
     tipo_comercial: 'equipo',
+    fulfillment_mode: null,
+    atributos: null,
     disponible: true,
   }));
   btn.disabled = false;
@@ -426,13 +446,13 @@ async function resendFailedShare(btn: HTMLButtonElement): Promise<void> {
 
 async function routeView(): Promise<{ title: string; body: string }> {
   if (state.view === 'cotizaciones')
-    return { title: 'Cotizaciones', body: await renderCotizacionesView() };
-  if (state.view === 'envios') return { title: 'Envíos', body: await enviosView() };
+    return { title: 'Presupuestos formales', body: await renderCotizacionesView() };
+  if (state.view === 'envios') return { title: 'Envíos info (WA/email)', body: await enviosView() };
   if (state.view === 'plantillas') return { title: 'Plantillas', body: await plantillasView() };
   if (state.view === 'integraciones')
     return { title: 'Integraciones', body: await integracionesView() };
   if (state.view === 'usuarios') return { title: 'Usuarios CMS', body: await usuariosView() };
-  return { title: 'Catálogo comercial', body: await renderCatalogoView() };
+  return { title: 'Catálogo · Enviar info o presupuesto', body: await renderCatalogoView() };
 }
 
 function configMissingHtml(): string {
@@ -448,8 +468,8 @@ function configMissingHtml(): string {
 function shellHtml(title: string, body: string): string {
   const links: Array<[ComercialView, string]> = [
     ['catalogo', 'Catálogo'],
-    ['cotizaciones', 'Cotizaciones'],
-    ['envios', 'Envíos'],
+    ['envios', 'Envíos info'],
+    ['cotizaciones', 'Presupuestos'],
   ];
   if (esRolAdmin(state.rol)) {
     links.push(
@@ -644,13 +664,16 @@ async function enviosView(): Promise<string> {
   }>('comercial-share', { method: 'GET', query });
 
   if (error) {
-    return panel('Envíos', fallbackState('No fue posible cargar el historial de envíos.', error));
+    return panel(
+      'Envíos info',
+      fallbackState('No fue posible cargar el historial de envíos de info/enlaces.', error)
+    );
   }
 
   const rows = data?.shares ?? [];
   const total = data?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
-  const title = isAdmin ? `Envíos del equipo (${total})` : `Mis envíos (${total})`;
+  const title = isAdmin ? `Envíos info · equipo (${total})` : `Envíos info · míos (${total})`;
 
   const searchForm = `
     <form class="comercial-toolbar" data-envios-search style="display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;align-items:center">
@@ -662,7 +685,7 @@ async function enviosView(): Promise<string> {
   if (rows.length === 0) {
     return panel(
       title,
-      `${searchForm}<div class="comercial-state comercial-state--empty"><p>${q ? 'Sin resultados para esa búsqueda.' : 'Todavía no se han enviado catálogos.'}</p></div>`
+      `${searchForm}<div class="comercial-state comercial-state--empty"><p>${q ? 'Sin resultados para esa búsqueda.' : 'Todavía no hay envíos de info/enlaces (WhatsApp o email). Presupuestos formales viven en Presupuestos.'}</p></div>`
     );
   }
 

@@ -347,8 +347,8 @@ function productoRowHtml(p: ProductoComercial): string {
       <td>
         <div class="comercial-catalog-table__actions">
           <a class="comercial-button comercial-button--ghost comercial-button--sm" href="${escapeHtml(publicUrl)}" target="_blank" rel="noopener noreferrer" data-open-product>Abrir</a>
-          <button class="comercial-button comercial-button--ghost comercial-button--sm" type="button" data-share-one data-id="${escapeHtml(p.id)}">Catálogo</button>
-          <button class="comercial-button comercial-button--primary comercial-button--sm" type="button" data-quote-one data-id="${escapeHtml(p.id)}">Cotizar</button>
+          <button class="comercial-button comercial-button--ghost comercial-button--sm" type="button" data-share-one data-id="${escapeHtml(p.id)}">Enviar info</button>
+          <button class="comercial-button comercial-button--primary comercial-button--sm" type="button" data-quote-one data-id="${escapeHtml(p.id)}">Presupuesto</button>
         </div>
       </td>
     </tr>`;
@@ -406,8 +406,8 @@ function floatingBarHtml(): string {
       <span>${selection.size} producto${selection.size === 1 ? '' : 's'} seleccionado${selection.size === 1 ? '' : 's'}</span>
       <div class="comercial-floating-bar__actions">
         <button class="comercial-button comercial-button--ghost" type="button" data-deselect-all>Deseleccionar</button>
-        <button class="comercial-button comercial-button--ghost" type="button" data-share-selected>Enviar catálogo</button>
-        <button class="comercial-button comercial-button--primary" type="button" data-quote-selected>Cotizar selección</button>
+        <button class="comercial-button comercial-button--ghost" type="button" data-share-selected>Enviar info (WA/email)</button>
+        <button class="comercial-button comercial-button--primary" type="button" data-quote-selected>Presupuesto formal</button>
       </div>
     </div>`;
 }

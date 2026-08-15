@@ -215,7 +215,7 @@ export function openShareModal(
   overlay.innerHTML = `
     <div class="comercial-modal" role="dialog" aria-modal="true" aria-labelledby="comercial-modal-title" data-modal>
       <header class="comercial-modal__header">
-        <h2 id="comercial-modal-title">Enviar catálogo (${productos.length} producto${productos.length === 1 ? '' : 's'})</h2>
+        <h2 id="comercial-modal-title">Enviar info / enlaces (${productos.length} producto${productos.length === 1 ? '' : 's'})</h2>
         <button class="comercial-modal__close" type="button" aria-label="Cerrar" data-modal-close>✕</button>
       </header>
       <form class="comercial-modal__body comercial-form" data-share-form novalidate>
@@ -444,7 +444,7 @@ export function openShareModal(
           : result?.crmSyncStatus === 'failed'
             ? ' Aviso: CRM no sincronizó.'
             : '';
-      toast(`Catálogo enviado por email.${crmNote}`, 'success');
+      toast(`Info/enlaces enviados por email.${crmNote}`, 'success');
     }
     trackCommercialUsage(
       'share_succeeded',

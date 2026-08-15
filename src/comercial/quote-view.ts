@@ -152,8 +152,8 @@ async function renderList(route: CotizacionesRoute): Promise<string> {
   if (rows.length === 0) {
     const empty = route.q
       ? `<p>Sin resultados.</p><a class="comercial-button comercial-button--ghost" href="${escapeHtml(cotizacionesListHash({ tab: route.tab, equipo: route.equipo }))}">Limpiar</a>`
-      : `<p>Aún no hay cotizaciones.</p><a class="comercial-button comercial-button--primary" href="#/cotizaciones/nueva">Nueva</a><p class="comercial-help">O selecciona productos en Catálogo.${!route.equipo ? ' Cambia a Equipo para ver solicitudes web.' : ''}</p>`;
-    return `<section class="comercial-panel"><div class="comercial-panel__head"><h2>Cotizaciones</h2></div>${toolbar}<div class="comercial-state comercial-state--empty">${empty}</div></section>`;
+      : `<p>Aún no hay presupuestos formales.</p><a class="comercial-button comercial-button--primary" href="#/cotizaciones/nueva">Nuevo presupuesto</a><p class="comercial-help">Info/catálogo por WhatsApp o email: usa Catálogo → Enviar info.${!route.equipo ? ' Cambia a Equipo para ver solicitudes web.' : ''}</p>`;
+    return `<section class="comercial-panel"><div class="comercial-panel__head"><h2>Presupuestos formales</h2><p class="comercial-help">PDF + email al cliente. Distinto de Envíos info (enlaces/catálogo).</p></div>${toolbar}<div class="comercial-state comercial-state--empty">${empty}</div></section>`;
   }
 
   const pager =
@@ -200,7 +200,7 @@ async function renderList(route: CotizacionesRoute): Promise<string> {
       </table>
     </div>`;
 
-  return `<section class="comercial-panel"><div class="comercial-panel__head"><h2>Cotizaciones (${total})</h2></div>${toolbar}${table}${pager}</section>`;
+  return `<section class="comercial-panel"><div class="comercial-panel__head"><h2>Presupuestos formales (${total})</h2><p class="comercial-help">PDF + email al cliente. Distinto de Envíos info (enlaces/catálogo).</p></div>${toolbar}${table}${pager}</section>`;
 }
 
 async function renderEditor(route: CotizacionesRoute): Promise<string> {
@@ -265,7 +265,7 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
     <section class="comercial-panel comercial-quote-editor" data-quote-editor data-quote-id="${escapeHtml(quote.id)}" data-updated-at="${escapeHtml(quote.updated_at ?? '')}" data-estado="${escapeHtml(quote.estado)}">
       <div class="comercial-panel__head">
         <div>
-          <h2>${escapeHtml(quote.numero || 'Nueva cotización')}</h2>
+          <h2>${escapeHtml(quote.numero || 'Nuevo presupuesto')}</h2>
           <p class="comercial-help">${estadoBadge(quote.estado)} · ${escapeHtml(formatQuoteMoney(quote.precio_total_ofertado, quote.moneda))}</p>
         </div>
         <a class="comercial-button comercial-button--ghost" href="#/cotizaciones">Bandeja</a>
@@ -306,7 +306,7 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
                ${quote.estado === 'expirada' ? `<button class="comercial-button comercial-button--primary" type="button" data-quote-duplicar>Duplicar a borrador</button>` : ''}`
         }
       </div>
-      ${editable ? `<p class="comercial-help comercial-quote-send-copy">Se envía por email a <span data-quote-email-copy>${escapeHtml(quote.email || '…')}</span>. Catálogo por WhatsApp sigue en Catálogo.</p>` : ''}
+      ${editable ? `<p class="comercial-help comercial-quote-send-copy"><strong>Presupuesto formal:</strong> PDF + email a <span data-quote-email-copy>${escapeHtml(quote.email || '…')}</span>. <strong>Info/enlaces WhatsApp o email:</strong> Catálogo → Enviar info (no este formulario).</p>` : ''}
     </section>
     <div data-quote-modal-slot></div>`;
 }
@@ -450,7 +450,7 @@ function applySaved(root: HTMLElement, quote: QuotePublic): void {
   root.setAttribute('data-updated-at', quote.updated_at ?? '');
   root.setAttribute('data-estado', quote.estado);
   const title = root.querySelector('h2');
-  if (title) title.textContent = quote.numero || 'Nueva cotización';
+  if (title) title.textContent = quote.numero || 'Nuevo presupuesto';
   if (quote.id && !location.hash.includes(quote.id)) {
     history.replaceState(null, '', `#/cotizaciones?id=${encodeURIComponent(quote.id)}`);
   }
@@ -504,12 +504,9 @@ async function previewPdf(root: HTMLElement): Promise<void> {
   const slot = root.parentElement?.querySelector('[data-quote-modal-slot]');
   if (!slot) return;
   slot.innerHTML = `<div class="comercial-modal-overlay" data-pdf-overlay><div class="comercial-modal comercial-modal--wide" role="dialog" aria-modal="true" aria-labelledby="quote-pdf-title"><header class="comercial-modal__header"><h2 id="quote-pdf-title">Vista previa · Presupuesto</h2><button class="comercial-modal__close" type="button" data-pdf-close aria-label="Cerrar">✕</button></header><div class="comercial-modal__body"><p>Generando PDF…</p></div></div></div>`;
-  const { data, error, code } = await previewQuotePdf(id, {
-    numero: root.querySelector('h2')?.textContent?.startsWith('IME-Q')
-      ? root.querySelector('h2')?.textContent
-      : null,
-    ...parsed,
-  });
+  const title = root.querySelector('h2')?.textContent;
+  const snapshot = title?.startsWith('IME-Q') ? { ...parsed, numero: title } : parsed;
+  const { data, error, code } = await previewQuotePdf(id, snapshot);
   const body = slot.querySelector('.comercial-modal__body');
   if (!body) return;
   slot.querySelector('[data-pdf-close]')?.addEventListener('click', () => {
@@ -628,7 +625,17 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
     if (saveBtn) saveBtn.disabled = true;
     const { data, error, code } = await callEdgeFunction<{ numero?: string; ok?: boolean }>(
       'enviar-cotizacion',
-      { method: 'POST', body: { cotizacion_id: id } }
+      {
+        method: 'POST',
+        body: {
+          cotizacion_id: id,
+          productos: parsed.productos,
+          condiciones: parsed.condiciones,
+          moneda: parsed.moneda,
+          validez_hasta: parsed.validez_hasta,
+          mercado: parsed.moneda === 'USD' ? 'INTL' : 'CO',
+        },
+      }
     );
     if (sendBtn) {
       sendBtn.disabled = false;

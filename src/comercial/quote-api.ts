@@ -331,8 +331,8 @@ async function listQuotesRest(
   const estados =
     tab === 'enviadas' ? [...COTIZACION_ESTADOS_ENVIADAS] : [...COTIZACION_ESTADOS_PENDIENTES];
 
-  let cols = DETAIL_CORE;
-  let useNumero = false;
+  let cols = DETAIL_RICH;
+  let useNumero = true;
   let lastError = 'No fue posible cargar cotizaciones.';
 
   for (let attempt = 0; attempt < 3; attempt += 1) {
@@ -364,10 +364,9 @@ async function listQuotesRest(
     }
     lastError = error.message;
     if (!missingSchema(error.message, error.code)) return fail(error.message, 500);
-    if (/numero/.test(error.message)) useNumero = false;
+    useNumero = false;
     if (attempt === 0) {
-      cols =
-        'id,estado,nombre,empresa,email,telefono,moneda,mercado,validez_hasta,condiciones,productos,precio_total_ofertado,created_at,metadata,crm_sync_status,locale,pedido_id,campaign,landing_path';
+      cols = DETAIL_CORE;
       continue;
     }
     cols =
@@ -390,8 +389,8 @@ async function getQuoteRest(id: string): Promise<EdgeFunctionResult<{ quote: Quo
 async function fetchQuoteRow(id: string): Promise<Record<string, unknown> | QuoteRowError> {
   if (!supabase) return { error: 'Supabase no configurado.', status: 0 };
   const colSets = [
-    DETAIL_CORE,
     DETAIL_RICH,
+    DETAIL_CORE,
     'id,estado,nombre,empresa,email,telefono,moneda,mercado,validez_hasta,condiciones,productos,precio_total_ofertado,created_at,metadata,crm_sync_status,locale,pedido_id,campaign,landing_path',
     'id,estado,nombre,empresa,email,telefono,moneda,productos,condiciones,metadata,created_at,campaign,landing_path',
   ];
