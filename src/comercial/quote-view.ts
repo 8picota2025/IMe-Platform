@@ -34,7 +34,7 @@ import {
   type ProductHit,
   type QuotePublic,
 } from './quote-api';
-import { ocrPresupuestoCompetencia, pickCompetenciaImage } from './quote-ocr';
+import { ocrPresupuestoCompetencia, pickCompetenciaImage, compressImageForOcr } from './quote-ocr';
 import {
   cotizacionesListHash,
   parseCotizacionesRoute,
@@ -117,6 +117,7 @@ function emptyLine(moneda: 'COP' | 'USD'): CotizacionLineaOferta {
 export async function renderCotizacionesView(): Promise<string> {
   const route = parseCotizacionesRoute(location.hash);
   if (route.mode === 'list') return renderList(route);
+  if (route.mode === 'escanear') return renderScanView();
   return renderEditor(route);
 }
 
@@ -148,12 +149,12 @@ async function renderList(route: CotizacionesRoute): Promise<string> {
       <div class="comercial-quote-tabs" role="tablist" aria-label="Bandeja de cotizaciones">
         <a class="comercial-nav-link${route.tab === 'pendientes' ? ' comercial-nav-link--active' : ''}" href="${escapeHtml(pendientesHref)}" ${route.tab === 'pendientes' ? 'aria-current="page"' : ''}>Pendientes</a>
         <a class="comercial-nav-link${route.tab === 'enviadas' ? ' comercial-nav-link--active' : ''}" href="${escapeHtml(enviadasHref)}" ${route.tab === 'enviadas' ? 'aria-current="page"' : ''}>Enviadas</a>
+        <a class="comercial-nav-link" href="#/cotizaciones/escanear">Escanear</a>
       </div>
       <div class="comercial-quote-toolbar__actions">
         <a class="comercial-button ${route.equipo ? 'comercial-button--ghost' : 'comercial-button--primary'}" href="${escapeHtml(miasHref)}">Mías</a>
         <a class="comercial-button ${route.equipo ? 'comercial-button--primary' : 'comercial-button--ghost'}" href="${escapeHtml(equipoHref)}">Equipo</a>
-        <button class="comercial-button comercial-button--ghost" type="button" data-quote-ocr-camera>Foto competencia</button>
-        <button class="comercial-button comercial-button--ghost" type="button" data-quote-ocr-gallery>Galería OCR</button>
+        <a class="comercial-button comercial-button--ghost" href="#/cotizaciones/escanear">Foto OCR</a>
         <a class="comercial-button comercial-button--primary" href="#/cotizaciones/nueva">Nueva</a>
       </div>
     </div>
@@ -166,7 +167,12 @@ async function renderList(route: CotizacionesRoute): Promise<string> {
   if (rows.length === 0) {
     const empty = route.q
       ? `<p>Sin resultados.</p><a class="comercial-button comercial-button--ghost" href="${escapeHtml(cotizacionesListHash({ tab: route.tab, equipo: route.equipo }))}">Limpiar</a>`
-      : `<p>Aún no hay presupuestos formales.</p><a class="comercial-button comercial-button--primary" href="#/cotizaciones/nueva">Nuevo presupuesto</a><p class="comercial-help">Info/catálogo por WhatsApp o email: usa Catálogo → Enviar info.${!route.equipo ? ' Cambia a Equipo para ver solicitudes web.' : ''}</p>`;
+      : `<p>Aún no hay presupuestos formales.</p>
+         <div class="comercial-quote-empty-actions">
+           <a class="comercial-button comercial-button--primary" href="#/cotizaciones/escanear">Escanear foto competencia</a>
+           <a class="comercial-button comercial-button--ghost" href="#/cotizaciones/nueva">Nuevo manual</a>
+         </div>
+         <p class="comercial-help">Info/catálogo por WhatsApp o email: usa Catálogo → Enviar info.${!route.equipo ? ' Cambia a Equipo para ver solicitudes web.' : ''}</p>`;
     return `<section class="comercial-panel"><div class="comercial-panel__head"><h2>Presupuestos formales</h2><p class="comercial-help">PDF + email al cliente. Distinto de Envíos info (enlaces/catálogo).</p></div>${toolbar}<div class="comercial-state comercial-state--empty">${empty}</div></section>`;
   }
 
@@ -222,6 +228,33 @@ async function renderList(route: CotizacionesRoute): Promise<string> {
     </div>`;
 
   return `<section class="comercial-panel"><div class="comercial-panel__head"><h2>Presupuestos formales (${total})</h2><p class="comercial-help">PDF + email al cliente. Distinto de Envíos info (enlaces/catálogo).</p></div>${toolbar}${table}${pager}</section>`;
+}
+
+/** Pantalla PWA dedicada: tomar foto o galería → OCR → borrador. */
+function renderScanView(): string {
+  return `
+    <section class="comercial-panel comercial-quote-scan" data-quote-scan>
+      <div class="comercial-panel__head">
+        <div>
+          <h2>Escanear presupuesto competencia</h2>
+          <p class="comercial-help">Desde el móvil: toma foto o elige de la galería. OCR rellena cliente, productos, unidades y precios (mejorados vs catálogo I-ME).</p>
+        </div>
+        <a class="comercial-button comercial-button--ghost" href="#/cotizaciones">Bandeja</a>
+      </div>
+      <div class="comercial-quote-scan__actions">
+        <button class="comercial-button comercial-button--primary comercial-quote-scan__cta" type="button" data-quote-ocr-camera>
+          Tomar foto
+        </button>
+        <button class="comercial-button comercial-button--ghost comercial-quote-scan__cta" type="button" data-quote-ocr-gallery>
+          Elegir de galería
+        </button>
+      </div>
+      <div class="comercial-quote-scan__preview" data-quote-scan-preview hidden>
+        <img alt="Vista previa presupuesto competencia" data-quote-scan-img />
+      </div>
+      <p class="comercial-help comercial-quote-scan__status" data-quote-scan-status role="status"></p>
+      <p class="comercial-help">También puedes crear un presupuesto vacío en <a href="#/cotizaciones/nueva">Nueva</a> y escanear después.</p>
+    </section>`;
 }
 
 async function renderEditor(route: CotizacionesRoute): Promise<string> {
@@ -329,6 +362,15 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
         <a class="comercial-button comercial-button--ghost" href="#/cotizaciones">Bandeja</a>
       </div>
       ${banner}
+      ${
+        editable && !quote.id
+          ? `<div class="comercial-quote-scan-card">
+        <p><strong>¿Tienes foto del presupuesto competencia?</strong></p>
+        <p class="comercial-help">Escanea desde el móvil y generamos un borrador mejorado automáticamente.</p>
+        <a class="comercial-button comercial-button--primary" href="#/cotizaciones/escanear">Escanear foto</a>
+      </div>`
+          : ''
+      }
       <form class="comercial-form comercial-quote-form" data-quote-form>
         <div class="comercial-field-row">
           <label class="comercial-field"><span>Nombre del contacto</span><input name="nombre" type="text" required minlength="2" autocomplete="name" value="${escapeHtml(quote.nombre)}" ${disabled} /></label>
@@ -351,9 +393,10 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
         ${
           editable
             ? `<div class="comercial-quote-ocr-bar">
-          <button class="comercial-button comercial-button--ghost comercial-button--sm" type="button" data-quote-ocr-camera>Tomar foto competencia</button>
-          <button class="comercial-button comercial-button--ghost comercial-button--sm" type="button" data-quote-ocr-gallery>Subir de galería</button>
-          <span class="comercial-help">OCR → cliente, productos, uds y precio; mejora vs competencia.</span>
+          <a class="comercial-button comercial-button--ghost comercial-button--sm" href="#/cotizaciones/escanear">Escanear foto</a>
+          <button class="comercial-button comercial-button--ghost comercial-button--sm" type="button" data-quote-ocr-camera>Cámara</button>
+          <button class="comercial-button comercial-button--ghost comercial-button--sm" type="button" data-quote-ocr-gallery>Galería</button>
+          <span class="comercial-help">Rellena o actualiza este presupuesto con OCR.</span>
         </div>`
             : ''
         }
@@ -679,16 +722,49 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
   container.querySelector('[data-quote-search]')?.addEventListener('submit', onSearchSubmit);
 
   const runOcr = async (mode: 'camera' | 'gallery', quoteId?: string) => {
+    const statusEl = container.querySelector<HTMLElement>('[data-quote-scan-status]');
+    const preview = container.querySelector<HTMLElement>('[data-quote-scan-preview]');
+    const img = container.querySelector<HTMLImageElement>('[data-quote-scan-img]');
+    const setStatus = (msg: string) => {
+      if (statusEl) statusEl.textContent = msg;
+    };
+    const buttons = container.querySelectorAll<HTMLButtonElement>(
+      '[data-quote-ocr-camera], [data-quote-ocr-gallery]'
+    );
+    buttons.forEach(b => {
+      b.disabled = true;
+    });
+
     const file = await pickCompetenciaImage(mode);
-    if (!file) return;
+    if (!file) {
+      buttons.forEach(b => {
+        b.disabled = false;
+      });
+      setStatus('Cancelado.');
+      return;
+    }
+
+    if (preview && img) {
+      const url = URL.createObjectURL(file);
+      img.src = url;
+      preview.hidden = false;
+    }
+
+    setStatus('Comprimiendo imagen…');
     toast('Analizando presupuesto competencia…', 'success');
+    const compressed = await compressImageForOcr(file);
+    setStatus('Enviando a OCR…');
     const payload: { file: Blob; filename: string; quoteId?: string } = {
-      file,
-      filename: file.name || 'competencia.jpg',
+      file: compressed.blob,
+      filename: compressed.filename,
     };
     if (quoteId) payload.quoteId = quoteId;
     const { data, error, code } = await ocrPresupuestoCompetencia(payload);
+    buttons.forEach(b => {
+      b.disabled = false;
+    });
     if (error || !data?.quote_id) {
+      setStatus(errMsg(code, error ?? 'OCR falló'));
       toast(errMsg(code, error ?? 'OCR falló'), 'error');
       return;
     }
@@ -696,6 +772,7 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
       data.extract?.confianza != null
         ? ` · confianza ${(data.extract.confianza * 100).toFixed(0)}%`
         : '';
+    setStatus(`Listo${conf}. Abriendo borrador…`);
     toast(`OCR listo${conf}. Abriendo borrador mejorado.`, 'success');
     trackCommercialUsage('share_succeeded', { result: 'ocr_competencia' }, 'cotizaciones');
     location.hash = `#/cotizaciones?id=${encodeURIComponent(data.quote_id)}`;

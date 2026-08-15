@@ -16,9 +16,13 @@ describe('parseCotizacionesRoute', () => {
     });
   });
 
-  it('nueva y edit y equipo', () => {
+  it('nueva, escanear y edit y equipo', () => {
     expect(parseCotizacionesRoute('#/cotizaciones/nueva')).toMatchObject({ mode: 'nueva' });
     expect(parseCotizacionesRoute('#/cotizaciones?id=new')).toMatchObject({ mode: 'nueva' });
+    expect(parseCotizacionesRoute('#/cotizaciones/escanear')).toMatchObject({ mode: 'escanear' });
+    expect(parseCotizacionesRoute('#/cotizaciones?tab=escanear')).toMatchObject({
+      mode: 'escanear',
+    });
     expect(parseCotizacionesRoute('#/cotizaciones?id=abc-1&tab=enviadas&equipo=1')).toMatchObject({
       mode: 'edit',
       id: 'abc-1',

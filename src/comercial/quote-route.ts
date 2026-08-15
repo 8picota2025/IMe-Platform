@@ -1,7 +1,7 @@
 export type CotizacionesTab = 'pendientes' | 'enviadas';
 
 export interface CotizacionesRoute {
-  mode: 'list' | 'nueva' | 'edit';
+  mode: 'list' | 'nueva' | 'edit' | 'escanear';
   id?: string;
   tab: CotizacionesTab;
   equipo: boolean;
@@ -19,6 +19,9 @@ export function parseCotizacionesRoute(hash: string): CotizacionesRoute {
   const q = (query.get('q') ?? '').trim();
   const page = Math.max(1, Number.parseInt(query.get('page') ?? '1', 10) || 1);
   const id = (query.get('id') ?? '').trim();
+  if (path === 'cotizaciones/escanear' || query.get('tab') === 'escanear') {
+    return { mode: 'escanear', tab, equipo, q, page };
+  }
   if (path === 'cotizaciones/nueva' || id === 'new') {
     return { mode: 'nueva', tab, equipo, q, page };
   }
