@@ -57,6 +57,9 @@ jobs:
           LLM_PROVIDER=${{ secrets.LLM_PROVIDER }}
           LLM_INGEST_MODEL=${{ secrets.LLM_INGEST_MODEL }}
           LLM_VISION_MODEL=${{ secrets.LLM_VISION_MODEL }}
+          OCR_VISION_PROVIDER=${{ secrets.OCR_VISION_PROVIDER }}
+          OLLAMA_BASE_URL=${{ secrets.OLLAMA_BASE_URL }}
+          OLLAMA_VISION_TIMEOUT_MS=${{ secrets.OLLAMA_VISION_TIMEOUT_MS }}
           IMEIA_API_URL=${{ secrets.IMEIA_API_URL }}
           IMEIA_API_KEY=${{ secrets.IMEIA_API_KEY }}
           TURNSTILE_SECRET_KEY=${{ secrets.TURNSTILE_SECRET_KEY }}

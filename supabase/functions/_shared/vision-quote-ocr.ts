@@ -1,6 +1,8 @@
 /**
  * OCR/visión de presupuestos competencia → JSON estructurado.
- * Usa OpenAI (gpt-4o-mini) o Anthropic vision según claves disponibles.
+ * Proveedor por defecto: Ollama local `moondream` (sin ChatGPT).
+ * Requiere `OLLAMA_BASE_URL` alcanzable desde la Edge Function
+ * (localhost en serve local; túnel/cloudflare en prod).
  */
 
 export interface OcrQuoteLine {
@@ -33,7 +35,9 @@ Si la moneda no es clara y precios parecen COP (miles/millones), usa COP; si hay
 Mejora implícita: captura el precio de la competencia tal cual (precio_unitario).`;
 
 function buildUserPrompt(): string {
-  return `Analiza la imagen del presupuesto competencia y extrae:
+  return `${SYSTEM}
+
+Analiza la imagen del presupuesto competencia y extrae este JSON exacto:
 
 {
   "cliente_nombre": "",
@@ -56,6 +60,21 @@ function stripJsonFence(raw: string): string {
   const trimmed = raw.trim();
   const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
   return (fenced?.[1] ?? trimmed).trim();
+}
+
+/** Moondream a veces envuelve JSON o añade texto; intenta recuperar objeto. */
+function parseLooseJson(raw: string): unknown {
+  const cleaned = stripJsonFence(raw);
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    const start = cleaned.indexOf('{');
+    const end = cleaned.lastIndexOf('}');
+    if (start >= 0 && end > start) {
+      return JSON.parse(cleaned.slice(start, end + 1));
+    }
+    throw new Error('OCR no devolvió JSON válido');
+  }
 }
 
 function normalizeExtract(raw: unknown): OcrQuoteExtract {
@@ -116,52 +135,60 @@ function normalizeExtract(raw: unknown): OcrQuoteExtract {
   };
 }
 
-async function callOpenAiVision(
-  imageBase64: string,
-  mime: string
+function ollamaBaseUrl(): string {
+  return (Deno.env.get('OLLAMA_BASE_URL') ?? 'http://127.0.0.1:11434').replace(/\/+$/, '');
+}
+
+function visionModel(): string {
+  return Deno.env.get('LLM_VISION_MODEL')?.trim() || 'moondream';
+}
+
+/**
+ * Ollama vision (moondream): messages[].images = [base64 sin data-URL].
+ * https://github.com/ollama/ollama/blob/main/docs/api.md
+ */
+async function callOllamaMoondream(
+  imageBase64: string
 ): Promise<{ content: string; model: string }> {
-  const apiKey = Deno.env.get('OPENAI_API_KEY')?.trim();
-  if (!apiKey) throw new Error('OPENAI_API_KEY no configurado');
-  const model = Deno.env.get('LLM_VISION_MODEL')?.trim() || 'gpt-4o-mini';
+  const model = visionModel();
+  const base = ollamaBaseUrl();
+  const timeoutMs = Number(Deno.env.get('OLLAMA_VISION_TIMEOUT_MS') ?? 180_000);
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 60_000);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    const res = await fetch(`${base}/api/chat`, {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model,
-        temperature: 0,
-        max_tokens: 3500,
+        stream: false,
+        format: 'json',
+        options: {
+          temperature: 0,
+          num_predict: 2048,
+        },
         messages: [
-          { role: 'system', content: SYSTEM },
           {
             role: 'user',
-            content: [
-              { type: 'text', text: buildUserPrompt() },
-              {
-                type: 'image_url',
-                image_url: {
-                  url: `data:${mime};base64,${imageBase64}`,
-                  detail: 'high',
-                },
-              },
-            ],
+            content: buildUserPrompt(),
+            images: [imageBase64],
           },
         ],
       }),
       signal: controller.signal,
     });
-    if (!res.ok) throw new Error(`OpenAI vision HTTP ${res.status}`);
+    if (!res.ok) {
+      const detail = await res.text().catch(() => '');
+      throw new Error(
+        `Ollama moondream HTTP ${res.status}${detail ? `: ${detail.slice(0, 180)}` : ''}`
+      );
+    }
     const json = (await res.json()) as {
-      choices?: Array<{ message?: { content?: string } }>;
+      message?: { content?: string };
       model?: string;
     };
     return {
-      content: json.choices?.[0]?.message?.content?.trim() ?? '',
+      content: json.message?.content?.trim() ?? '',
       model: json.model ?? model,
     };
   } finally {
@@ -169,103 +196,40 @@ async function callOpenAiVision(
   }
 }
 
-async function callAnthropicVision(
-  imageBase64: string,
-  mime: string
-): Promise<{ content: string; model: string }> {
-  const apiKey = Deno.env.get('ANTHROPIC_API_KEY')?.trim();
-  if (!apiKey) throw new Error('ANTHROPIC_API_KEY no configurado');
-  const model =
-    Deno.env.get('LLM_VISION_MODEL')?.trim() ||
-    Deno.env.get('LLM_INGEST_MODEL')?.trim() ||
-    'claude-3-5-sonnet-latest';
-  const mediaType =
-    mime === 'image/png' || mime === 'image/webp' || mime === 'image/gif' ? mime : 'image/jpeg';
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 60_000);
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model,
-        max_tokens: 3500,
-        temperature: 0,
-        system: SYSTEM,
-        messages: [
-          {
-            role: 'user',
-            content: [
-              {
-                type: 'image',
-                source: { type: 'base64', media_type: mediaType, data: imageBase64 },
-              },
-              { type: 'text', text: buildUserPrompt() },
-            ],
-          },
-        ],
-      }),
-      signal: controller.signal,
-    });
-    if (!res.ok) throw new Error(`Anthropic vision HTTP ${res.status}`);
-    const json = (await res.json()) as {
-      content?: Array<{ type?: string; text?: string }>;
-      model?: string;
-    };
-    const content =
-      json.content
-        ?.map(b => (b.type === 'text' ? (b.text ?? '') : ''))
-        .join('')
-        .trim() ?? '';
-    return { content, model: json.model ?? model };
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
 export async function extractQuoteFromImage(
   imageBase64: string,
-  mime: string
+  _mime: string
 ): Promise<{ extract: OcrQuoteExtract; model: string; provider: string }> {
-  const preferred = (Deno.env.get('LLM_PROVIDER') ?? 'openai').toLowerCase();
-  let content = '';
-  let model = '';
-  let provider = preferred;
+  const provider = (Deno.env.get('OCR_VISION_PROVIDER') ?? 'ollama').toLowerCase();
+  if (provider !== 'ollama') {
+    throw new Error(`OCR_VISION_PROVIDER=${provider} no soportado. Usa ollama (moondream local).`);
+  }
 
-  const tryOpenAi = async () => {
-    const r = await callOpenAiVision(imageBase64, mime);
-    content = r.content;
-    model = r.model;
-    provider = 'openai';
-  };
-  const tryAnthropic = async () => {
-    const r = await callAnthropicVision(imageBase64, mime);
-    content = r.content;
-    model = r.model;
-    provider = 'anthropic';
-  };
-
+  let result: { content: string; model: string };
   try {
-    if (preferred === 'anthropic') await tryAnthropic();
-    else await tryOpenAi();
-  } catch (first) {
-    try {
-      if (preferred === 'anthropic') await tryOpenAi();
-      else await tryAnthropic();
-    } catch {
-      throw first instanceof Error ? first : new Error('Vision OCR falló');
-    }
+    result = await callOllamaMoondream(imageBase64);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Ollama vision falló';
+    throw new Error(
+      `${msg}. Comprueba OLLAMA_BASE_URL (${ollamaBaseUrl()}) y modelo ${visionModel()}.`,
+      { cause: err }
+    );
+  }
+
+  if (!result.content) {
+    throw new Error('Moondream devolvió respuesta vacía');
   }
 
   let parsed: unknown;
   try {
-    parsed = JSON.parse(stripJsonFence(content));
-  } catch {
-    throw new Error('OCR no devolvió JSON válido');
+    parsed = parseLooseJson(result.content);
+  } catch (err) {
+    throw new Error('OCR moondream no devolvió JSON válido', { cause: err });
   }
-  return { extract: normalizeExtract(parsed), model, provider };
+
+  return {
+    extract: normalizeExtract(parsed),
+    model: result.model,
+    provider: 'ollama',
+  };
 }

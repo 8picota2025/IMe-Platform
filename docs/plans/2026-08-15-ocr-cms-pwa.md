@@ -47,8 +47,15 @@ OCR existe en botones pequeños de bandeja/editor + mirror local. Usuario necesi
 
 ## Phase 4 — Verify
 
-- [ ] Hash `#/cotizaciones/escanear` renderiza
-- [ ] Cámara y galería abren desde gesto de tap
+- [x] Hash `#/cotizaciones/escanear` renderiza
+- [x] Cámara y galería abren desde gesto de tap
 - [ ] OCR crea presupuesto y navega al editor
-- [ ] Sin dependencia de `:3847` para UX
-- [ ] Deploy prod + hard refresh PWA
+- [x] Sin dependencia de `:3847` para UX
+- [x] Deploy prod + hard refresh PWA
+
+## Phase 5 — Vision = Ollama moondream (no ChatGPT)
+
+- `supabase/functions/_shared/vision-quote-ocr.ts` → solo `OCR_VISION_PROVIDER=ollama`, modelo `LLM_VISION_MODEL=moondream`
+- Local: `OLLAMA_BASE_URL=http://127.0.0.1:11434`
+- Prod Edge: `OLLAMA_BASE_URL` = túnel Cloudflare a Ollama (`cloudflared tunnel --url http://127.0.0.1:11434 --http-host-header localhost`)
+- Secrets CI: `OCR_VISION_PROVIDER`, `OLLAMA_BASE_URL`, `OLLAMA_VISION_TIMEOUT_MS`, `LLM_VISION_MODEL`
