@@ -357,6 +357,15 @@ export function openShareModal(
     const recipientEmail = canal === 'email' ? String(data.get('email') ?? '').trim() : undefined;
     const recipientPhone =
       canal === 'whatsapp' ? String(data.get('telefono') ?? '').trim() : undefined;
+    if (canal === 'email' && recipientEmail && /@example\.com$/i.test(recipientEmail)) {
+      const message = 'Usa un correo real. Resend rechaza dominios @example.com.';
+      if (errorSlot) {
+        errorSlot.hidden = false;
+        errorSlot.textContent = message;
+      }
+      toast(message, 'error');
+      return;
+    }
     const phoneCountryCode =
       canal === 'whatsapp' ? String(data.get('paisCodigo') ?? '57') : undefined;
     const productIds = productos.map(p => p.id);
