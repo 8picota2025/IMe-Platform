@@ -682,11 +682,12 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
     const file = await pickCompetenciaImage(mode);
     if (!file) return;
     toast('Analizando presupuesto competencia…', 'success');
-    const { data, error, code } = await ocrPresupuestoCompetencia({
+    const payload: { file: Blob; filename: string; quoteId?: string } = {
       file,
       filename: file.name || 'competencia.jpg',
-      quoteId,
-    });
+    };
+    if (quoteId) payload.quoteId = quoteId;
+    const { data, error, code } = await ocrPresupuestoCompetencia(payload);
     if (error || !data?.quote_id) {
       toast(errMsg(code, error ?? 'OCR falló'), 'error');
       return;
