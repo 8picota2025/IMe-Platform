@@ -1248,6 +1248,13 @@ a {
   background: #fff;
 }
 
+.comercial-quote-pdf-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
 .comercial-presupuesto-preview {
   display: grid;
   gap: 14px;

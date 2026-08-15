@@ -77,14 +77,16 @@ window.addEventListener('hashchange', () => {
   const hash = location.hash;
   const id = new URLSearchParams(hash.split('?')[1] ?? '').get('id');
   const isNueva = /\/cotizaciones\/nueva(?:\?|$)/.test(hash);
-  // Misma superficie de presupuesto (nueva→id o id→id): no remount.
-  // Evita destruir modal PDF / form a mitad de Guardar→Vista previa→Enviar.
+  // Solo soft-nav si hay modal PDF abierto: evita destruir vista previa.
+  // Tras Enviar (sin modal) SÍ remount para refrescar estado/CRM.
+  const pdfOpen = Boolean(app.querySelector('[data-pdf-overlay]'));
   const softQuoteNav =
     state.view === 'cotizaciones' &&
     nextView === 'cotizaciones' &&
     Boolean(editor) &&
     Boolean(id) &&
-    !isNueva;
+    !isNueva &&
+    pdfOpen;
 
   lastGoodHash = hash;
   state.view = nextView;

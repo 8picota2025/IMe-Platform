@@ -43,9 +43,10 @@ const ERROR_COPY: Record<string, string> = {
   SIN_EMAIL: 'Email del cliente inválido.',
   SIN_NOMBRE: 'Nombre del contacto requerido.',
   SIN_TELEFONO: 'Teléfono del contacto requerido.',
-  EMAIL_FALLIDO: 'Email no salió. Cotización no marcada enviada.',
+  EMAIL_FALLIDO:
+    'Email no salió. Cotización no marcada enviada. Usa un correo real (no @example.com).',
   TEMPLATE_INACTIVE: 'La plantilla de oferta está desactivada.',
-  PDF_RENDER_FAILED: 'No se pudo generar el PDF. Reintenta.',
+  PDF_RENDER_FAILED: 'No se pudo generar el PDF. Reintenta o usa Descargar/Abrir en pestaña.',
   SEND_IN_FLIGHT: 'Hay un envío en curso. Espera y reintenta.',
   COTIZACION_INMUTABLE: 'Esta cotización ya no se edita. Crea una revisión.',
   CONCURRENT_UPDATE: 'Otro comercial guardó esta oferta. Recarga.',
@@ -516,14 +517,28 @@ async function previewPdf(root: HTMLElement): Promise<void> {
     if (event.target === event.currentTarget) slot.innerHTML = '';
   });
   if (!error && data?.pdf_base64) {
-    const bytes = Uint8Array.from(atob(data.pdf_base64), c => c.charCodeAt(0));
-    const url = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
-    body.innerHTML = `<iframe class="comercial-quote-pdf" title="Presupuesto ${escapeHtml(data.numero)}" src="${url}"></iframe>
-      <p class="comercial-help">Plantilla <strong>Presupuesto</strong> · ${escapeHtml(data.numero)} · Asesor: ${escapeHtml(state.nombre || state.email || '—')}</p>`;
-    return;
+    try {
+      const binary = atob(data.pdf_base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+      const blob = new Blob([bytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      body.innerHTML = `
+        <div class="comercial-quote-pdf-actions">
+          <a class="comercial-button comercial-button--primary comercial-button--sm" href="${url}" download="${escapeHtml(data.numero || 'presupuesto')}.pdf">Descargar PDF</a>
+          <a class="comercial-button comercial-button--ghost comercial-button--sm" href="${url}" target="_blank" rel="noopener noreferrer">Abrir en pestaña</a>
+        </div>
+        <object class="comercial-quote-pdf" type="application/pdf" data="${url}" title="Presupuesto ${escapeHtml(data.numero)}">
+          <p class="comercial-help">Tu navegador no embebe PDF. Usa Descargar o Abrir en pestaña.</p>
+        </object>
+        <p class="comercial-help">Plantilla <strong>Presupuesto</strong> · ${escapeHtml(data.numero)} · Asesor: ${escapeHtml(state.nombre || state.email || '—')}</p>`;
+      return;
+    } catch (err) {
+      console.error('quote pdf preview decode failed', err);
+    }
   }
   body.innerHTML = htmlPreview(root);
-  toast(errMsg(code, error ?? undefined), 'error');
+  toast(errMsg(code, error ?? 'No se pudo mostrar el PDF.'), 'error');
 }
 
 export function bindCotizacionesView(container: HTMLElement): () => void {
@@ -611,6 +626,10 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
       applySaved(editor, saved);
       id = saved.id;
     }
+    if (/@example\.com$/i.test(parsed.email)) {
+      toast('Usa un correo real del cliente. Resend rechaza @example.com.', 'error');
+      return;
+    }
     const numero = editor.querySelector('h2')?.textContent ?? 'IME-Q';
     const ok = window.confirm(
       `¿Enviar presupuesto ${numero} a ${parsed.email} por ${formatQuoteMoney(calcularTotalOfertado(parsed.productos), parsed.moneda)}?`
@@ -623,20 +642,21 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
       sendBtn.textContent = 'Enviando presupuesto…';
     }
     if (saveBtn) saveBtn.disabled = true;
-    const { data, error, code } = await callEdgeFunction<{ numero?: string; ok?: boolean }>(
-      'enviar-cotizacion',
-      {
-        method: 'POST',
-        body: {
-          cotizacion_id: id,
-          productos: parsed.productos,
-          condiciones: parsed.condiciones,
-          moneda: parsed.moneda,
-          validez_hasta: parsed.validez_hasta,
-          mercado: parsed.moneda === 'USD' ? 'INTL' : 'CO',
-        },
-      }
-    );
+    const { data, error, code } = await callEdgeFunction<{
+      numero?: string;
+      ok?: boolean;
+      crm_sync_status?: string;
+    }>('enviar-cotizacion', {
+      method: 'POST',
+      body: {
+        cotizacion_id: id,
+        productos: parsed.productos,
+        condiciones: parsed.condiciones,
+        moneda: parsed.moneda,
+        validez_hasta: parsed.validez_hasta,
+        mercado: parsed.moneda === 'USD' ? 'INTL' : 'CO',
+      },
+    });
     if (sendBtn) {
       sendBtn.disabled = false;
       sendBtn.textContent = 'Enviar presupuesto';
@@ -651,7 +671,15 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
       toast(errMsg(code, error), 'error');
       return;
     }
-    toast(`Presupuesto ${String(data?.numero ?? numero)} enviado.`, 'success');
+    const crmNote =
+      data?.crm_sync_status === 'synced'
+        ? ' CRM sincronizado.'
+        : data?.crm_sync_status === 'failed'
+          ? ' Aviso: CRM no sincronizó.'
+          : data?.crm_sync_status === 'skipped'
+            ? ' CRM omitido (sin secrets).'
+            : '';
+    toast(`Presupuesto ${String(data?.numero ?? numero)} enviado.${crmNote}`, 'success');
     trackCommercialUsage('share_succeeded', { result: 'quote_sent' }, 'cotizaciones');
     setDirty(false);
     const next = `#/cotizaciones?id=${encodeURIComponent(id)}`;
