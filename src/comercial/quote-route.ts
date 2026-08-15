@@ -47,30 +47,38 @@ export interface QuotePrefillLine {
   slug: string;
   nombre: string;
   cantidad: number;
+  /** Precio de catálogo si el producto lo tiene (>0). */
+  precio_unitario?: number;
+  moneda?: 'COP' | 'USD';
 }
 
 export function writeQuotePrefill(lines: QuotePrefillLine[]): void {
   try {
-    sessionStorage.setItem(QUOTE_PREFILL_KEY, JSON.stringify(lines));
+    globalThis.sessionStorage?.setItem(QUOTE_PREFILL_KEY, JSON.stringify(lines));
   } catch {
-    /* ignore quota */
+    /* ignore quota / missing storage */
   }
 }
 
 export function takeQuotePrefill(): QuotePrefillLine[] {
   try {
-    const raw = sessionStorage.getItem(QUOTE_PREFILL_KEY);
-    sessionStorage.removeItem(QUOTE_PREFILL_KEY);
+    const raw = globalThis.sessionStorage?.getItem(QUOTE_PREFILL_KEY);
+    globalThis.sessionStorage?.removeItem(QUOTE_PREFILL_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw) as unknown;
     if (!Array.isArray(parsed)) return [];
     return parsed
       .map(item => {
         const row = item as Record<string, unknown>;
+        const precio = Number(row.precio_unitario ?? 0);
+        const moneda =
+          String(row.moneda ?? '').toUpperCase() === 'USD' ? ('USD' as const) : ('COP' as const);
         return {
           slug: String(row.slug ?? '').trim(),
           nombre: String(row.nombre ?? '').trim(),
           cantidad: Math.max(1, Math.floor(Number(row.cantidad) || 1)),
+          precio_unitario: Number.isFinite(precio) && precio > 0 ? precio : 0,
+          moneda,
         };
       })
       .filter(l => l.nombre || l.slug);

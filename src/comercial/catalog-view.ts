@@ -8,6 +8,11 @@
  * (~150 productos), así que no hace falta re-consultar por cada filtro.
  */
 import { SPECIALTY_GROUPS, type SpecialtyGroup } from '../lib/comercial-cms';
+import {
+  formatQuoteMoney,
+  normalizarMonedaOferta,
+  resolveCatalogUnitPrice,
+} from '../lib/cotizacion-oferta';
 import { formatFabricanteDistribuidor } from '../lib/producto-origen';
 import {
   supabase,
@@ -46,6 +51,10 @@ export interface ProductoComercial {
   tipo_comercial: 'equipo' | 'consumible';
   fulfillment_mode?: string | null;
   disponible: boolean;
+  precio?: number | null;
+  precio_oferta?: number | null;
+  precio_regular?: number | null;
+  moneda?: string | null;
   atributos?: Record<string, unknown> | null;
 }
 
@@ -118,7 +127,7 @@ async function loadCatalogoData(): Promise<void> {
         supabase
           .from('productos')
           .select(
-            'id,slug,sku,nombre_es,descripcion_corta_es,imagen_principal,familia_id,tipo_id,tipo_comercial,fulfillment_mode,disponible,atributos'
+            'id,slug,sku,nombre_es,descripcion_corta_es,imagen_principal,familia_id,tipo_id,tipo_comercial,fulfillment_mode,disponible,precio,precio_oferta,precio_regular,moneda,atributos'
           )
           .eq('activo', true)
           .order('nombre_es', { ascending: true }),
@@ -322,6 +331,9 @@ function productoRowHtml(p: ProductoComercial): string {
   const isSelected = selection.has(p.id);
   const publicUrl = `/es/productos/${encodeURIComponent(p.slug)}/`;
   const origen = formatFabricanteDistribuidor(p);
+  const unit = resolveCatalogUnitPrice(p);
+  const moneda = normalizarMonedaOferta(p.moneda);
+  const precioLabel = unit > 0 ? formatQuoteMoney(unit, moneda) : 'Cotizar';
 
   return `
     <tr class="${isSelected ? 'is-selected' : ''}" data-product-row data-id="${escapeHtml(p.id)}">
@@ -341,6 +353,7 @@ function productoRowHtml(p: ProductoComercial): string {
         </div>
       </td>
       <td>${p.sku ? escapeHtml(p.sku) : '—'}</td>
+      <td class="comercial-catalog-table__precio">${escapeHtml(precioLabel)}</td>
       <td>${escapeHtml(origen)}</td>
       <td>${familia ? escapeHtml(familia.nombre_es) : '—'}</td>
       <td>${p.disponible ? 'Disponible' : 'No disponible'}</td>
@@ -380,6 +393,7 @@ function gridHtml(filters: CatalogoFilters): string {
             <th></th>
             <th>Producto</th>
             <th>SKU</th>
+            <th>Precio</th>
             <th>Fabricante / distribuidor</th>
             <th>Familia</th>
             <th>Disponibilidad</th>

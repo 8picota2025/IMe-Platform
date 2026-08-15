@@ -108,6 +108,19 @@ export function normalizarMonedaOferta(value: unknown): 'COP' | 'USD' {
     : 'COP';
 }
 
+/** Precio de catálogo usable en presupuesto (precio actual → oferta → regular). */
+export function resolveCatalogUnitPrice(row: {
+  precio?: number | null;
+  precio_oferta?: number | null;
+  precio_regular?: number | null;
+}): number {
+  for (const raw of [row.precio, row.precio_oferta, row.precio_regular]) {
+    const n = Number(raw);
+    if (Number.isFinite(n) && n > 0) return n;
+  }
+  return 0;
+}
+
 function asUint8Array(data: BufferSource): Uint8Array {
   if (data instanceof Uint8Array) return data;
   if (data instanceof ArrayBuffer) return new Uint8Array(data);

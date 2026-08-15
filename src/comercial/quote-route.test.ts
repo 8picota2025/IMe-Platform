@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { cotizacionesListHash, parseCotizacionesRoute } from './quote-route';
+import {
+  cotizacionesListHash,
+  parseCotizacionesRoute,
+  takeQuotePrefill,
+  writeQuotePrefill,
+} from './quote-route';
+import { resolveCatalogUnitPrice } from '../lib/cotizacion-oferta';
 
 describe('parseCotizacionesRoute', () => {
   it('lista pendientes por defecto', () => {
@@ -26,5 +32,62 @@ describe('parseCotizacionesRoute', () => {
     expect(cotizacionesListHash({ tab: 'enviadas', equipo: true, q: 'clinic', page: 2 })).toBe(
       '#/cotizaciones?tab=enviadas&equipo=1&q=clinic&page=2'
     );
+  });
+});
+
+describe('quote prefill precios', () => {
+  it('persiste precio_unitario y moneda del catálogo', () => {
+    const store = new Map<string, string>();
+    const storage = {
+      getItem: (k: string) => store.get(k) ?? null,
+      setItem: (k: string, v: string) => {
+        store.set(k, v);
+      },
+      removeItem: (k: string) => {
+        store.delete(k);
+      },
+    };
+    Object.defineProperty(globalThis, 'sessionStorage', {
+      configurable: true,
+      value: storage,
+    });
+
+    writeQuotePrefill([
+      {
+        slug: 'g-kbe-9000d',
+        nombre: 'Silla',
+        cantidad: 2,
+        precio_unitario: 285000,
+        moneda: 'COP',
+      },
+    ]);
+    const lines = takeQuotePrefill();
+    expect(lines).toEqual([
+      {
+        slug: 'g-kbe-9000d',
+        nombre: 'Silla',
+        cantidad: 2,
+        precio_unitario: 285000,
+        moneda: 'COP',
+      },
+    ]);
+    expect(takeQuotePrefill()).toEqual([]);
+  });
+});
+
+describe('resolveCatalogUnitPrice', () => {
+  it('prioriza precio actual, luego oferta, luego regular', () => {
+    expect(resolveCatalogUnitPrice({ precio: 100, precio_oferta: 80, precio_regular: 120 })).toBe(
+      100
+    );
+    expect(resolveCatalogUnitPrice({ precio: null, precio_oferta: 80, precio_regular: 120 })).toBe(
+      80
+    );
+    expect(resolveCatalogUnitPrice({ precio: 0, precio_oferta: null, precio_regular: 120 })).toBe(
+      120
+    );
+    expect(
+      resolveCatalogUnitPrice({ precio: null, precio_oferta: null, precio_regular: null })
+    ).toBe(0);
   });
 });

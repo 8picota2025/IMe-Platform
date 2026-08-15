@@ -412,7 +412,7 @@ async function handleSearch(
   if (q.length < 2) return json({ products: [] }, origin);
   const { data, error } = await supabase
     .from('productos')
-    .select('id,slug,sku,nombre_es')
+    .select('id,slug,sku,nombre_es,precio,precio_oferta,precio_regular,moneda')
     .eq('activo', true)
     .or(`nombre_es.ilike.%${q}%,sku.ilike.%${q}%,slug.ilike.%${q}%`)
     .order('nombre_es', { ascending: true })

@@ -5,8 +5,10 @@
 import {
   calcularTotalOfertado,
   formatQuoteMoney,
+  normalizarMonedaOferta,
   ofertaCompleta,
   parseLineasOferta,
+  resolveCatalogUnitPrice,
   sanitizarLineasComercial,
   type CotizacionLineaOferta,
 } from '../lib/cotizacion-oferta';
@@ -214,6 +216,22 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
     quote = data.quote;
   } else {
     const prefill = takeQuotePrefill();
+    const monedaPrefill =
+      prefill.find(l => (l.precio_unitario ?? 0) > 0)?.moneda ??
+      prefill.find(l => l.moneda)?.moneda ??
+      'COP';
+    const productos = prefill.map(l => {
+      const precio = Number(l.precio_unitario ?? 0) > 0 ? Number(l.precio_unitario) : 0;
+      const cantidad = l.cantidad;
+      return {
+        slug: l.slug,
+        nombre: l.nombre,
+        cantidad,
+        precio_unitario: precio,
+        subtotal: Math.round(precio * cantidad * 100) / 100,
+        moneda: l.moneda || monedaPrefill,
+      };
+    });
     quote = {
       id: '',
       numero: null,
@@ -222,18 +240,11 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
       empresa: '',
       email: '',
       telefono: '',
-      moneda: 'COP',
+      moneda: monedaPrefill,
       validez_hasta: null,
       condiciones: '',
-      productos: prefill.map(l => ({
-        slug: l.slug,
-        nombre: l.nombre,
-        cantidad: l.cantidad,
-        precio_unitario: 0,
-        subtotal: 0,
-        moneda: 'COP',
-      })),
-      precio_total_ofertado: 0,
+      productos,
+      precio_total_ofertado: calcularTotalOfertado(productos),
       updated_at: null,
       created_at: null,
       pdf_storage_path: null,
@@ -727,15 +738,33 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
     hits = await searchProducts(q.trim());
     suggest.hidden = hits.length === 0;
     suggest.innerHTML = hits
-      .map(
-        (p, i) =>
-          `<li role="option" data-hit="${i}" class="comercial-quote-suggest__item">${escapeHtml(p.nombre_es)}${p.sku ? ` <span class="comercial-help">${escapeHtml(p.sku)}</span>` : ''}</li>`
-      )
+      .map((p, i) => {
+        const unit = resolveCatalogUnitPrice(p);
+        const precio =
+          unit > 0
+            ? ` <span class="comercial-help">${escapeHtml(formatQuoteMoney(unit, normalizarMonedaOferta(p.moneda)))}</span>`
+            : '';
+        return `<li role="option" data-hit="${i}" class="comercial-quote-suggest__item">${escapeHtml(p.nombre_es)}${p.sku ? ` <span class="comercial-help">${escapeHtml(p.sku)}</span>` : ''}${precio}</li>`;
+      })
       .join('');
     activeIndex = -1;
   }
 
   const addHit = (hit: ProductHit) => {
+    const monedaSelect =
+      editor.querySelector<HTMLSelectElement>('[data-quote-moneda]')?.value === 'USD'
+        ? 'USD'
+        : 'COP';
+    const precio = resolveCatalogUnitPrice(hit);
+    const monedaLinea = precio > 0 ? normalizarMonedaOferta(hit.moneda) : monedaSelect;
+    // Si el presupuesto aún no tiene moneda forzada por líneas, alinear al catálogo.
+    const monedaSelectEl = editor.querySelector<HTMLSelectElement>('[data-quote-moneda]');
+    if (precio > 0 && monedaSelectEl && monedaSelectEl.value !== monedaLinea) {
+      const current = readForm(editor).productos;
+      if (current.every(l => !(l.precio_unitario > 0))) {
+        monedaSelectEl.value = monedaLinea;
+      }
+    }
     const moneda =
       editor.querySelector<HTMLSelectElement>('[data-quote-moneda]')?.value === 'USD'
         ? 'USD'
@@ -745,8 +774,8 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
       slug: hit.slug,
       nombre: hit.nombre_es,
       cantidad: 1,
-      precio_unitario: 0,
-      subtotal: 0,
+      precio_unitario: precio,
+      subtotal: precio,
       moneda,
     });
     const slot = editor.querySelector('[data-quote-lines]');

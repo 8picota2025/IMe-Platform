@@ -37,6 +37,7 @@ import {
 import { openShareModal } from './share-modal';
 import { bindCotizacionesView, quoteNavigationAllowed, renderCotizacionesView } from './quote-view';
 import { writeQuotePrefill } from './quote-route';
+import { normalizarMonedaOferta, resolveCatalogUnitPrice } from '../lib/cotizacion-oferta';
 
 const appElement = document.getElementById('comercial-app');
 if (!appElement) throw new Error('comercial-app root missing');
@@ -328,7 +329,19 @@ async function render(): Promise<void> {
     unbindCurrentView = bindCatalogoView(viewBody, {
       onShare: openShareModal,
       onQuote: productos => {
-        writeQuotePrefill(productos.map(p => ({ slug: p.slug, nombre: p.nombre_es, cantidad: 1 })));
+        writeQuotePrefill(
+          productos.map(p => {
+            const precio = resolveCatalogUnitPrice(p);
+            const moneda = normalizarMonedaOferta(p.moneda);
+            return {
+              slug: p.slug,
+              nombre: p.nombre_es,
+              cantidad: 1,
+              precio_unitario: precio,
+              moneda,
+            };
+          })
+        );
         location.hash = '#/cotizaciones/nueva';
       },
     });
