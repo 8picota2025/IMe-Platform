@@ -1,30 +1,36 @@
 /**
- * CORS headers para Edge Functions.
- * Localhost solo en entornos no productivos.
+ * CORS headers for Edge Functions.
+ * Reflect any http(s) Origin: SPA uses Bearer tokens (not cookies), so
+ * echoing Origin is safe and fixes LAN IPs / preview hosts that previously
+ * got Access-Control-Allow-Origin: https://i-me.com.co → browser "Failed to fetch".
  */
 
-const PROD_ORIGINS = ['https://i-me.com.co', 'https://www.i-me.com.co'];
+const FALLBACK_ORIGIN = 'https://i-me.com.co';
 
-const DEV_ORIGINS = [
-  'http://localhost:44334',
-  'http://localhost:4321',
-  'http://localhost:3000',
-  'http://127.0.0.1:44334',
-  'http://127.0.0.1:4321',
-];
-
-// Sandbox local (`127.0.0.1:44334`) siempre permitido: Origin solo aplica al
-// navegador que abre esa URL; no abre CORS a terceros en producción.
-const ALLOWED_ORIGINS = [...PROD_ORIGINS, ...DEV_ORIGINS];
+function resolveOrigin(requestOrigin: string | null): string {
+  const origin = (requestOrigin ?? '').trim();
+  if (/^https?:\/\/[^/]+$/i.test(origin) || /^https?:\/\/[^/]+\//i.test(origin)) {
+    // Origin header never has a path; accept host-only http(s)
+    try {
+      const u = new URL(origin);
+      if (u.protocol === 'http:' || u.protocol === 'https:') {
+        return `${u.protocol}//${u.host}`;
+      }
+    } catch {
+      /* fall through */
+    }
+  }
+  return FALLBACK_ORIGIN;
+}
 
 export function getCorsHeaders(requestOrigin: string | null): HeadersInit {
-  const origin =
-    requestOrigin && ALLOWED_ORIGINS.includes(requestOrigin) ? requestOrigin : ALLOWED_ORIGINS[0]!;
+  const origin = resolveOrigin(requestOrigin);
 
   return {
     'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Authorization, Content-Type, apikey, x-client-info',
+    'Access-Control-Allow-Headers':
+      'Authorization, Content-Type, apikey, x-client-info, x-supabase-auth',
     'Access-Control-Max-Age': '86400',
     Vary: 'Origin',
   };

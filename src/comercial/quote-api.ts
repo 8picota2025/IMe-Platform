@@ -231,6 +231,61 @@ type QuotePdfSnapshot = {
   productos: CotizacionLineaOferta[];
 };
 
+async function loadQuoteAnnexes(
+  lineas: CotizacionLineaOferta[]
+): Promise<
+  Array<{ slug: string; nombre: string; sku?: string | null; resumen: string; url?: string | null }>
+> {
+  if (!supabase) return [];
+  const slugs = [...new Set(lineas.map(l => l.slug).filter(Boolean))];
+  if (slugs.length === 0) {
+    return lineas.map(l => ({
+      slug: l.slug || '',
+      nombre: l.nombre,
+      resumen: l.nombre,
+      url: null,
+    }));
+  }
+  const { data } = await supabase
+    .from('productos')
+    .select('slug,sku,nombre_es,descripcion_corta_es,descripcion_larga_es')
+    .in('slug', slugs)
+    .eq('activo', true);
+  const bySlug = new Map(
+    ((data ?? []) as Array<Record<string, unknown>>).map(row => [String(row.slug ?? ''), row])
+  );
+  const site = (typeof location !== 'undefined' ? location.origin : 'https://i-me.com.co').replace(
+    /\/$/,
+    ''
+  );
+  return lineas.map(l => {
+    const row = bySlug.get(l.slug);
+    const corta = String(row?.descripcion_corta_es ?? '').trim();
+    const larga = String(row?.descripcion_larga_es ?? '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    const resumen = [corta, larga].filter(Boolean).join('\n\n').slice(0, 1800) || l.nombre;
+    return {
+      slug: l.slug || String(row?.slug ?? ''),
+      nombre: String(row?.nombre_es ?? l.nombre),
+      sku: typeof row?.sku === 'string' ? row.sku : null,
+      resumen,
+      url: l.slug ? `${site}/es/productos/${l.slug}/` : null,
+    };
+  });
+}
+
+async function loadLogoBytes(): Promise<Uint8Array | null> {
+  try {
+    const res = await fetch('/assets/img/logo-ime.png');
+    if (!res.ok) return null;
+    return new Uint8Array(await res.arrayBuffer());
+  } catch {
+    return null;
+  }
+}
+
 async function renderQuotePdfLocal(
   id: string,
   snapshot: QuotePdfSnapshot
@@ -241,6 +296,7 @@ async function renderQuotePdfLocal(
       snapshot.numero?.trim() ||
       `IME-Q-${new Date().getFullYear()}-${id.replace(/-/g, '').slice(0, 6).toUpperCase()}`;
     const lineas = sanitizarLineasComercial(snapshot.productos, snapshot.moneda);
+    const [annexes, logoBytes] = await Promise.all([loadQuoteAnnexes(lineas), loadLogoBytes()]);
     const bytes = await renderQuotePdf({
       numero,
       clienteNombre: snapshot.nombre,
@@ -256,6 +312,14 @@ async function renderQuotePdfLocal(
       nombreComercial: state.nombre || state.email || 'Equipo comercial I-ME',
       correoComercial: state.email || 'ventas@i-me.com.co',
       telefonoComercial: state.telefono || '',
+      annexes,
+      logoBytes,
+      bancoLineas: [
+        'Transferencia bancaria',
+        'Bancolombia / Ahorros',
+        'Titular: I-ME International Medical Enterprise S.A.S.',
+        'NIT: 901871720',
+      ],
     });
     return ok({ pdf_base64: bytesToBase64(bytes), numero });
   } catch (err) {

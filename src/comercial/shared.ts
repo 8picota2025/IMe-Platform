@@ -329,8 +329,9 @@ export async function callEdgeFunction<T = unknown>(
     return { data: payload as T, error: null, status };
   } catch (err) {
     const raw = err instanceof Error ? err.message : 'Error de red.';
+    const origin = typeof location !== 'undefined' ? location.origin : '';
     const message = /failed to fetch|networkerror|load failed/i.test(raw)
-      ? 'No se pudo contactar el backend. Usa http://127.0.0.1:44334 (no localhost) y recarga sin caché.'
+      ? `No se pudo contactar el backend (${origin || 'sin origin'}). Prueba https://i-me.com.co/comercial/ o http://127.0.0.1:44334/comercial/ y recarga sin caché.`
       : raw;
     return { data: null, error: message, status: 0 };
   }
