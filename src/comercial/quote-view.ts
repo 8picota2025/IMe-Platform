@@ -203,7 +203,7 @@ async function renderList(route: CotizacionesRoute): Promise<string> {
               <td>${escapeHtml(row.created_by_nombre || '—')}</td>
               <td>${row.origen === 'pwa' ? 'PWA' : 'Web'}</td>
               <td>${escapeHtml(formatDate(row.updated_at || row.created_at))}</td>
-              <td><a class="comercial-button comercial-button--primary comercial-button--sm" href="#/cotizaciones?id=${escapeHtml(row.id)}">Abrir</a></td>
+              <td><a class="comercial-button comercial-button--primary comercial-button--sm" href="#/cotizaciones?id=${escapeHtml(row.id)}${route.equipo ? '&equipo=1' : ''}${route.tab === 'enviadas' ? '&tab=enviadas' : ''}">Abrir</a></td>
             </tr>`
             )
             .join('')}

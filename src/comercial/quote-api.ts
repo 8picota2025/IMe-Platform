@@ -671,6 +671,7 @@ async function saveQuoteRest(
     ...canon,
     estado: 'nueva',
     consentimiento_datos: false,
+    created_by: session.user.id,
     landing_path: '/comercial',
     campaign: 'pwa-comercial',
     origen: 'pwa',

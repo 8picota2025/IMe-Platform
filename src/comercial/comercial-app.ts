@@ -36,8 +36,10 @@ import {
 } from './catalog-view';
 import { openShareModal } from './share-modal';
 import { bindCotizacionesView, quoteNavigationAllowed, renderCotizacionesView } from './quote-view';
-import { writeQuotePrefill } from './quote-route';
+import { parseCotizacionesRoute, QUOTE_PREFILL_KEY, writeQuotePrefill } from './quote-route';
 import { normalizarMonedaOferta, resolveCatalogUnitPrice } from '../lib/cotizacion-oferta';
+
+const COMERCIAL_UID_KEY = 'ime_comercial_uid';
 
 const appElement = document.getElementById('comercial-app');
 if (!appElement) throw new Error('comercial-app root missing');
@@ -48,6 +50,42 @@ let unbindCurrentView: (() => void) | null = null;
 let lastTrackedView: ComercialView | null = null;
 
 let lastGoodHash = location.hash || '#/catalogo';
+
+/** Limpia hash/prefill de presupuesto al salir o cambiar de agente. */
+function clearStickyComercialNav(reason: 'logout' | 'switch-user' | 'login-sanitize'): void {
+  try {
+    sessionStorage.removeItem(QUOTE_PREFILL_KEY);
+    if (reason === 'logout') sessionStorage.removeItem(COMERCIAL_UID_KEY);
+  } catch {
+    /* ignore */
+  }
+  const route = parseCotizacionesRoute(location.hash);
+  if (route.mode === 'edit' || route.mode === 'nueva' || reason === 'logout') {
+    history.replaceState(null, '', '#/catalogo');
+    lastGoodHash = '#/catalogo';
+    state.view = 'catalogo';
+  }
+}
+
+/** Tras login: no heredar editor de otro agente (URL con ?id=). */
+function bindComercialUserSession(userId: string): void {
+  let prev: string | null;
+  try {
+    prev = sessionStorage.getItem(COMERCIAL_UID_KEY);
+  } catch {
+    prev = null;
+  }
+  const switched = Boolean(prev && prev !== userId);
+  const freshSession = !prev;
+  if (switched || freshSession) {
+    clearStickyComercialNav(switched ? 'switch-user' : 'login-sanitize');
+  }
+  try {
+    sessionStorage.setItem(COMERCIAL_UID_KEY, userId);
+  } catch {
+    /* ignore */
+  }
+}
 
 function parseView(hash: string): ComercialView {
   const top = hash.replace(/^#\/?/, '').split('?')[0]?.split('/')[0] ?? '';
@@ -121,6 +159,7 @@ async function forceLogin(reason: string): Promise<void> {
   idleWatcher = null;
   unbindCurrentView?.();
   unbindCurrentView = null;
+  clearStickyComercialNav('logout');
   resetSessionState();
   clearSelection();
   toast(reason, 'error');
@@ -265,6 +304,7 @@ async function bootAfterLogin(): Promise<void> {
   state.rol = rol;
   state.nombre = perfilRow?.nombre ?? '';
   state.telefono = perfilRow?.telefono ?? '';
+  bindComercialUserSession(session.user.id);
   trackCommercialUsage('login', { source: 'session' }, state.view);
   void updateLastLogin(session.user.id);
 
@@ -296,6 +336,7 @@ async function handleIdleLogout(): Promise<void> {
   idleWatcher = null;
   trackCommercialUsage('idle_logout', {}, state.view);
   await signOut();
+  clearStickyComercialNav('logout');
   resetSessionState();
   clearSelection();
   toast('Sesión cerrada por inactividad.', 'info');
@@ -529,6 +570,7 @@ function bindShell(): void {
     idleWatcher?.stop();
     idleWatcher = null;
     await signOut();
+    clearStickyComercialNav('logout');
     resetSessionState();
     clearSelection();
     renderLoginPanel(app, '', () => void bootAfterLogin());
