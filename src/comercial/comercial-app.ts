@@ -397,12 +397,42 @@ async function render(): Promise<void> {
   app.querySelectorAll<HTMLButtonElement>('[data-resend-share]').forEach(btn => {
     btn.addEventListener('click', () => void resendFailedShare(btn));
   });
+  app.querySelectorAll<HTMLButtonElement>('[data-delete-share]').forEach(btn => {
+    btn.addEventListener('click', () => void deleteShare(btn));
+  });
   app.querySelector<HTMLFormElement>('[data-envios-search]')?.addEventListener('submit', event => {
     event.preventDefault();
     const form = event.currentTarget as HTMLFormElement;
     const q = String(new FormData(form).get('q') ?? '').trim();
     location.hash = enviosHash(1, q);
   });
+}
+
+async function deleteShare(btn: HTMLButtonElement): Promise<void> {
+  const id = btn.getAttribute('data-id');
+  if (!id) return;
+  const label = btn.getAttribute('data-label') || 'este envío';
+  if (
+    !window.confirm(
+      `¿Borrar envío a ${label}? Acción irreversible (solo admin/owner). Productos ligados se eliminan en cascada.`
+    )
+  ) {
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'Borrando…';
+  const { error } = await callEdgeFunction('comercial-share', {
+    method: 'DELETE',
+    query: { id },
+  });
+  if (error) {
+    toast(error, 'error');
+    btn.disabled = false;
+    btn.textContent = 'Borrar';
+    return;
+  }
+  toast('Envío eliminado.', 'success');
+  await render();
 }
 
 async function retryCrmSync(btn: HTMLButtonElement): Promise<void> {
@@ -644,15 +674,29 @@ interface ShareRowView {
   user_id: string;
   recipient_name: string;
   medical_center_name: string | null;
+  recipient_email: string | null;
+  recipient_phone: string | null;
   channel: 'email' | 'whatsapp';
   status: string;
   crm_sync_status: string;
   created_at: string;
   sent_at: string | null;
+  comercial_nombre?: string | null;
+}
+
+function recipientCell(row: ShareRowView): string {
+  const contactBits = [row.recipient_email, row.recipient_phone]
+    .map(v => String(v ?? '').trim())
+    .filter(Boolean);
+  const contact =
+    contactBits.length > 0
+      ? `<div class="comercial-help">${escapeHtml(contactBits.join(' · '))}</div>`
+      : '';
+  return `<td><div>${escapeHtml(row.recipient_name)}</div>${contact}</td>`;
 }
 
 /** Tabla de envíos comerciales (`commercial_shares`) con insignias de estado y reintento CRM. */
-function sharesTable(rows: ShareRowView[], showUser: boolean): string {
+function sharesTable(rows: ShareRowView[], showUser: boolean, canDelete: boolean): string {
   return `
     <div class="comercial-table-wrap">
       <table class="comercial-table">
@@ -670,17 +714,20 @@ function sharesTable(rows: ShareRowView[], showUser: boolean): string {
         </thead>
         <tbody>
           ${rows
-            .map(
-              row => `
+            .map(row => {
+              const comercialLabel =
+                String(row.comercial_nombre ?? '').trim() ||
+                (row.user_id ? `${row.user_id.slice(0, 8)}…` : '—');
+              return `
             <tr>
-              <td>${escapeHtml(row.recipient_name)}</td>
+              ${recipientCell(row)}
               <td>${escapeHtml(row.medical_center_name ?? '—')}</td>
               <td>${row.channel === 'email' ? 'Email' : 'WhatsApp'}</td>
               <td>${statusBadge(row.status)}</td>
               <td>${crmBadge(row.crm_sync_status)}</td>
               <td>${escapeHtml(formatDate(row.created_at))}</td>
-              ${showUser ? `<td>${escapeHtml(row.user_id.slice(0, 8))}…</td>` : ''}
-              <td>
+              ${showUser ? `<td>${escapeHtml(comercialLabel)}</td>` : ''}
+              <td style="white-space:nowrap">
                 ${
                   row.status === 'failed'
                     ? `<button class="comercial-button comercial-button--primary comercial-button--sm" type="button" data-resend-share data-id="${escapeHtml(row.id)}">Reenviar</button>`
@@ -691,9 +738,14 @@ function sharesTable(rows: ShareRowView[], showUser: boolean): string {
                     ? `<button class="comercial-button comercial-button--ghost comercial-button--sm" type="button" data-retry-crm data-id="${escapeHtml(row.id)}">Reintentar CRM</button>`
                     : ''
                 }
+                ${
+                  canDelete
+                    ? `<button class="comercial-button comercial-button--danger comercial-button--sm" type="button" data-delete-share data-id="${escapeHtml(row.id)}" data-label="${escapeHtml(row.recipient_name)}">Borrar</button>`
+                    : ''
+                }
               </td>
-            </tr>`
-            )
+            </tr>`;
+            })
             .join('')}
         </tbody>
       </table>
@@ -755,7 +807,7 @@ async function enviosView(): Promise<string> {
         </nav>`
       : '';
 
-  return panel(title, `${searchForm}${sharesTable(rows, isAdmin)}${pager}`);
+  return panel(title, `${searchForm}${sharesTable(rows, isAdmin, isAdmin)}${pager}`);
 }
 
 function hashQuery(): URLSearchParams {

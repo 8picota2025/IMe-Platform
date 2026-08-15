@@ -12,6 +12,8 @@
  *   GET  /comercial-share?id=<id>              -> detalle de un envio
  *   GET  /comercial-share                      -> lista paginada
  *       (?page=1&pageSize=20, admin/owner ven todos, ventas solo los suyos)
+ *       (incluye comercial_nombre desde admin_profiles)
+ *   DELETE /comercial-share?id=<id>           -> borrar envio (solo admin|owner)
  */
 
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
@@ -175,6 +177,12 @@ Deno.serve(
           return await handleRetry(supabase, profile, id, origin);
         }
         return await handleCreate(req, supabase, profile, origin);
+      }
+
+      if (req.method === 'DELETE') {
+        const id = url.searchParams.get('id');
+        if (!id) return badRequest('id es obligatorio', origin);
+        return await handleDelete(supabase, profile, id, origin);
       }
 
       return badRequest('Metodo no soportado', origin);
@@ -581,9 +589,28 @@ async function handleGetList(
     .range(from, to);
   if (error) return internalError(error.message, origin);
 
+  const shares = (data ?? []) as ShareRow[];
+  const userIds = [...new Set(shares.map(s => s.user_id).filter(Boolean))];
+  const nombreByUser = new Map<string, string>();
+  if (userIds.length > 0) {
+    const { data: profiles, error: profilesError } = await supabase
+      .from('admin_profiles')
+      .select('user_id, nombre, email')
+      .in('user_id', userIds);
+    if (profilesError) return internalError(profilesError.message, origin);
+    for (const p of profiles ?? []) {
+      const row = p as { user_id: string; nombre: string | null; email: string | null };
+      const label = String(row.nombre ?? '').trim() || String(row.email ?? '').trim() || '—';
+      nombreByUser.set(row.user_id, label);
+    }
+  }
+
   return jsonResponse(
     {
-      shares: data ?? [],
+      shares: shares.map(s => ({
+        ...s,
+        comercial_nombre: nombreByUser.get(s.user_id) ?? '—',
+      })),
       page,
       pageSize,
       total: count ?? 0,
@@ -591,6 +618,34 @@ async function handleGetList(
     },
     origin
   );
+}
+
+// ── Borrar envio (admin/owner) ─────────────────────────────────
+
+async function handleDelete(
+  supabase: ReturnType<typeof getServerSupabase>,
+  profile: AdminProfileRow,
+  id: string,
+  origin: string | null
+): Promise<Response> {
+  if (profile.rol !== 'admin' && profile.rol !== 'owner') {
+    return errorResponse(
+      { code: 'FORBIDDEN', message: 'Solo administradores pueden borrar envios de info.' },
+      403,
+      origin
+    );
+  }
+  const { data, error } = await supabase
+    .from('commercial_shares')
+    .select('id')
+    .eq('id', id)
+    .maybeSingle();
+  if (error) return internalError(error.message, origin);
+  if (!data) return notFound(origin);
+
+  const { error: delError } = await supabase.from('commercial_shares').delete().eq('id', id);
+  if (delError) return internalError(delError.message, origin);
+  return jsonResponse({ ok: true, deleted: id }, origin);
 }
 
 // ── Reintento de sincronizacion CRM ─────────────────────────────

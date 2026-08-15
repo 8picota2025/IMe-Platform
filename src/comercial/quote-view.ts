@@ -765,10 +765,19 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
     }
     const numero = editor.querySelector('h2')?.textContent ?? 'IME-Q';
     const destino = canal === 'whatsapp' ? parsed.telefono : parsed.email;
+    // Abrir pestaña en el mismo gesto del click (antes de confirm/await);
+    // si no, el popup blocker mata wa.me tras el async.
+    let waTab: Window | null = null;
+    if (canal === 'whatsapp') {
+      waTab = window.open('about:blank', '_blank');
+    }
     const ok = window.confirm(
       `¿Enviar presupuesto ${numero} por ${canal === 'whatsapp' ? 'WhatsApp' : 'email'} a ${destino} (${formatQuoteMoney(calcularTotalOfertado(parsed.productos), parsed.moneda)})?`
     );
-    if (!ok) return;
+    if (!ok) {
+      waTab?.close();
+      return;
+    }
     const emailBtn = editor.querySelector<HTMLButtonElement>('[data-quote-send-email]');
     const waBtn = editor.querySelector<HTMLButtonElement>('[data-quote-send-whatsapp]');
     const saveBtn = editor.querySelector<HTMLButtonElement>('[data-quote-save]');
@@ -808,6 +817,7 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
     }
     if (saveBtn) saveBtn.disabled = false;
     if (error) {
+      waTab?.close();
       const alert = editor.querySelector('[data-quote-hint]');
       if (alert) {
         alert.setAttribute('role', 'alert');
@@ -817,12 +827,23 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
       return;
     }
     if (canal === 'whatsapp' && data?.whatsapp_url) {
-      window.open(data.whatsapp_url, '_blank', 'noopener,noreferrer');
+      if (waTab && !waTab.closed) {
+        waTab.location.href = data.whatsapp_url;
+      } else {
+        const a = document.createElement('a');
+        a.href = data.whatsapp_url;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
       toast(
         `Presupuesto ${String(data?.numero ?? numero)} listo en WhatsApp. CRM pendiente de validación admin.`,
         'success'
       );
     } else {
+      waTab?.close();
       toast(
         `Presupuesto ${String(data?.numero ?? numero)} enviado por email. CRM pendiente de validación admin.`,
         'success'
