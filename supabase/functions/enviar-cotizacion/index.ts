@@ -21,7 +21,6 @@ import {
   loadQuotePdfFonts,
   loadQuotePdfLogo,
 } from '../_shared/quote-pdf-assets.ts';
-import { syncCotizacionWithTwenty } from '../_shared/twenty-crm.ts';
 import {
   datosBancariosTexto,
   getDatosBancariosTransferencia,
@@ -599,39 +598,14 @@ Deno.serve(async req => {
 
   if (updateError) return internalError(updateError.message, origin);
 
-  // Twenty CRM: best-effort. Email ya salió; no bloquear respuesta si CRM falla.
-  const twenty = await syncCotizacionWithTwenty({
-    nombre: String(row.nombre ?? ''),
-    email,
-    telefono: String(row.telefono ?? ''),
-    empresa: String(row.empresa ?? ''),
-    mensaje: `Presupuesto formal ${numero} enviado. Total ${oferta.total} ${oferta.moneda}.`,
-    origen: 'comercial_presupuesto',
-    tipoSolicitud: 'cotizacion_oferta',
-    productos: oferta.lineas.map(l => ({
-      nombre: l.nombre,
-      slug: l.slug,
-      cantidad: l.cantidad,
-    })),
-    totalEstimado: oferta.total,
-    moneda: oferta.moneda,
-    campaign: String(row.campaign ?? 'pwa-comercial'),
-  });
-  const crmSyncStatus = twenty.skipped ? 'skipped' : twenty.ok ? 'synced' : 'failed';
+  // CRM: solo tras validación admin (action validar-crm). Envío deja pending.
   await supabase
     .from('solicitudes_cotizacion')
     .update({
-      crm_sync_status: crmSyncStatus,
-      crm_sync_error: twenty.ok || twenty.skipped ? null : (twenty.error ?? 'Twenty sync failed'),
-      crm_sync_last_attempt_at: new Date().toISOString(),
-      twenty_person_id: twenty.data?.personId ?? null,
-      twenty_company_id: twenty.data?.companyId ?? null,
-      twenty_opportunity_id: twenty.data?.opportunityId ?? null,
+      crm_sync_status: 'pending',
+      crm_sync_error: null,
     })
     .eq('id', id);
-  if (!twenty.ok && !twenty.skipped) {
-    console.error('enviar-cotizacion: Twenty sync failed', twenty.error);
-  }
 
   return new Response(
     JSON.stringify({
@@ -646,7 +620,7 @@ Deno.serve(async req => {
       pdf_revision: pdfRevision,
       pdf_storage_path: storedPdfPath,
       plantilla,
-      crm_sync_status: crmSyncStatus,
+      crm_sync_status: 'pending',
     }),
     {
       status: 200,

@@ -292,6 +292,21 @@ a {
   border-color: var(--comercial-accent);
 }
 
+.comercial-button--danger {
+  background: #b42318;
+  color: #fff;
+  border-color: #912018;
+}
+
+.comercial-button--danger:hover {
+  background: #912018;
+}
+
+.comercial-button--danger:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .comercial-button--link {
   background: transparent;
   border: none;

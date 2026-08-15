@@ -8,6 +8,8 @@
  * GET  /comercial-cotizacion?action=pdf&id=   PDF base64 (stored or rendered)
  * POST /comercial-cotizacion                  save create/update
  * POST /comercial-cotizacion?action=duplicar  new row (duplicate-on-revise)
+ * POST /comercial-cotizacion?action=validar-crm  admin validates → Twenty CRM
+ * DELETE /comercial-cotizacion?id=            admin/owner delete quote
  */
 
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
@@ -28,6 +30,7 @@ import {
   loadQuotePdfLogo,
 } from '../_shared/quote-pdf-assets.ts';
 import { bancoLineasCotizacion } from '../_shared/transferencia-bancaria.ts';
+import { syncCotizacionWithTwenty } from '../_shared/twenty-crm.ts';
 import {
   calcularTotalOfertado,
   COTIZACION_ESTADOS_ENVIADAS,
@@ -255,7 +258,18 @@ Deno.serve(
           if (!UUID_RE.test(id)) return badRequest('id invalido', origin);
           return await handleDuplicar(supabase, profile, id, origin);
         }
+        if (action === 'validar-crm') {
+          const id = url.searchParams.get('id') ?? '';
+          if (!UUID_RE.test(id)) return badRequest('id invalido', origin);
+          return await handleValidarCrm(supabase, profile, id, origin);
+        }
         return await handleSave(req, supabase, profile, origin);
+      }
+
+      if (req.method === 'DELETE') {
+        const id = url.searchParams.get('id') ?? '';
+        if (!UUID_RE.test(id)) return badRequest('id invalido', origin);
+        return await handleDelete(supabase, profile, id, origin);
       }
 
       return badRequest('Metodo no soportado', origin);
@@ -715,5 +729,153 @@ async function handleDuplicar(
     { ok: true, quote: publicRow(detail.data as CotizacionOfertaRow, profile.nombre) },
     origin,
     201
+  );
+}
+
+function isAdminRole(rol: string): boolean {
+  return rol === 'admin' || rol === 'owner';
+}
+
+async function handleDelete(
+  supabase: ServerSupabase,
+  profile: AdminProfileRow,
+  id: string,
+  origin: string | null
+): Promise<Response> {
+  if (!isAdminRole(profile.rol)) {
+    return errorResponse(
+      { code: 'FORBIDDEN', message: 'Solo administradores pueden borrar presupuestos.' },
+      403,
+      origin
+    );
+  }
+  const { data, error } = await selectQuoteRow(supabase, id);
+  if (error) return internalError(error.message, origin);
+  if (!data) return notFound(origin);
+  const row = data as CotizacionOfertaRow;
+  if (row.pedido_id || row.estado === 'convertida') {
+    return errorResponse(
+      { code: 'QUOTE_LOCKED', message: 'No se puede borrar un presupuesto convertido a pedido.' },
+      409,
+      origin
+    );
+  }
+  const pdfPath =
+    row.pdf_storage_path ??
+    (row.metadata && typeof row.metadata === 'object' && !Array.isArray(row.metadata)
+      ? typeof (row.metadata as Record<string, unknown>).pdf_storage_path === 'string'
+        ? String((row.metadata as Record<string, unknown>).pdf_storage_path)
+        : null
+      : null);
+  if (pdfPath) {
+    await supabase.storage.from('cotizaciones-pdf').remove([pdfPath]);
+  }
+  const { error: delError } = await supabase.from('solicitudes_cotizacion').delete().eq('id', id);
+  if (delError) return internalError(delError.message, origin);
+  return json({ ok: true, deleted: id }, origin);
+}
+
+async function handleValidarCrm(
+  supabase: ServerSupabase,
+  profile: AdminProfileRow,
+  id: string,
+  origin: string | null
+): Promise<Response> {
+  if (!isAdminRole(profile.rol)) {
+    return errorResponse(
+      { code: 'FORBIDDEN', message: 'Solo administradores pueden validar hacia el CRM.' },
+      403,
+      origin
+    );
+  }
+  const { data, error } = await selectQuoteRow(supabase, id);
+  if (error) return internalError(error.message, origin);
+  if (!data) return notFound(origin);
+  const row = data as CotizacionOfertaRow & {
+    campaign?: string | null;
+    telefono?: string | null;
+  };
+  const lineas = sanitizarLineasComercial(row.productos, row.moneda);
+  const check = ofertaCompleta(lineas, row.condiciones);
+  if (!check.ok) {
+    return errorResponse(
+      {
+        code: check.error,
+        message: 'Completa precios (sin pendientes) y condiciones antes de validar al CRM.',
+      },
+      422,
+      origin
+    );
+  }
+  if (lineas.some(l => l.precio_pendiente_validar)) {
+    return errorResponse(
+      {
+        code: 'PRECIO_PENDIENTE',
+        message: 'Hay líneas en Pendiente validar. Asigna precio antes de enviar al CRM.',
+      },
+      422,
+      origin
+    );
+  }
+  const total = calcularTotalOfertado(lineas);
+  const numero =
+    row.numero ??
+    (row.metadata && typeof row.metadata === 'object' && !Array.isArray(row.metadata)
+      ? String((row.metadata as Record<string, unknown>).numero_presupuesto ?? id.slice(0, 8))
+      : id.slice(0, 8));
+  const twenty = await syncCotizacionWithTwenty({
+    nombre: String(row.nombre ?? ''),
+    email: String(row.email ?? ''),
+    telefono: String(row.telefono ?? ''),
+    empresa: String(row.empresa ?? ''),
+    mensaje: `Presupuesto ${numero} validado por admin. Total ${total} ${normalizarMonedaOferta(row.moneda)}.`,
+    origen: 'comercial_presupuesto_validado',
+    tipoSolicitud: 'cotizacion_oferta',
+    productos: lineas.map(l => ({
+      nombre: l.nombre,
+      slug: l.slug,
+      cantidad: l.cantidad,
+    })),
+    totalEstimado: total,
+    moneda: normalizarMonedaOferta(row.moneda),
+    campaign: String(row.campaign ?? 'pwa-comercial'),
+  });
+  const crmSyncStatus = twenty.skipped ? 'skipped' : twenty.ok ? 'synced' : 'failed';
+  const meta =
+    row.metadata && typeof row.metadata === 'object' && !Array.isArray(row.metadata)
+      ? { ...(row.metadata as Record<string, unknown>) }
+      : {};
+  meta.crm_validated_at = new Date().toISOString();
+  meta.crm_validated_by = profile.user_id;
+  meta.crm_validated_by_email = profile.email;
+  await supabase
+    .from('solicitudes_cotizacion')
+    .update({
+      crm_sync_status: crmSyncStatus,
+      crm_sync_error: twenty.ok || twenty.skipped ? null : (twenty.error ?? 'Twenty sync failed'),
+      crm_sync_last_attempt_at: new Date().toISOString(),
+      twenty_person_id: twenty.data?.personId ?? null,
+      twenty_company_id: twenty.data?.companyId ?? null,
+      twenty_opportunity_id: twenty.data?.opportunityId ?? null,
+      metadata: meta,
+    })
+    .eq('id', id);
+  if (!twenty.ok && !twenty.skipped) {
+    return errorResponse(
+      {
+        code: 'CRM_SYNC_FAILED',
+        message: twenty.error ?? 'No se pudo sincronizar con Twenty CRM.',
+      },
+      502,
+      origin
+    );
+  }
+  return json(
+    {
+      ok: true,
+      crm_sync_status: crmSyncStatus,
+      twenty_opportunity_id: twenty.data?.opportunityId ?? null,
+    },
+    origin
   );
 }

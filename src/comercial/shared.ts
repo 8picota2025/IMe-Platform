@@ -271,7 +271,11 @@ function extractEdgeError(
  */
 export async function callEdgeFunction<T = unknown>(
   name: string,
-  options: { method?: 'GET' | 'POST'; body?: unknown; query?: Record<string, string> } = {}
+  options: {
+    method?: 'GET' | 'POST' | 'DELETE';
+    body?: unknown;
+    query?: Record<string, string>;
+  } = {}
 ): Promise<EdgeFunctionResult<T>> {
   if (!supabase) {
     return { data: null, error: 'Supabase no configurado.', status: 0 };

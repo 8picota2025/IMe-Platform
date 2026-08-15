@@ -224,6 +224,22 @@ export async function duplicarQuote(
   return duplicarQuoteRest(id);
 }
 
+export async function deleteQuote(id: string): Promise<EdgeFunctionResult<{ ok: boolean }>> {
+  return callEdgeFunction('comercial-cotizacion', {
+    method: 'DELETE',
+    query: { id },
+  });
+}
+
+export async function validarQuoteCrm(
+  id: string
+): Promise<EdgeFunctionResult<{ ok: boolean; crm_sync_status?: string }>> {
+  return callEdgeFunction('comercial-cotizacion', {
+    method: 'POST',
+    query: { action: 'validar-crm', id },
+  });
+}
+
 type QuotePdfSnapshot = {
   numero?: string | null | undefined;
   nombre: string;

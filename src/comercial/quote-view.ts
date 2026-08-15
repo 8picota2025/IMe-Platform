@@ -12,21 +12,25 @@ import {
   sanitizarLineasComercial,
   type CotizacionLineaOferta,
 } from '../lib/cotizacion-oferta';
+import { defaultCondicionesOferta } from '../lib/condiciones-oferta';
 import {
   callEdgeFunction,
   escapeHtml,
+  esRolAdmin,
   formatDate,
   state,
   toast,
   trackCommercialUsage,
 } from './shared';
 import {
+  deleteQuote,
   duplicarQuote,
   getQuote,
   listQuotes,
   previewQuotePdf,
   saveQuote as persistQuote,
   searchProducts,
+  validarQuoteCrm,
   type ProductHit,
   type QuotePublic,
 } from './quote-api';
@@ -40,6 +44,10 @@ import {
 const ERROR_COPY: Record<string, string> = {
   OFERTA_SIN_LINEAS: 'Agrega al menos un producto.',
   OFERTA_SIN_PRECIO: 'Falta el precio en alguna línea.',
+  PRECIO_PENDIENTE: 'Hay líneas en Pendiente validar. Asigna precio antes de validar al CRM.',
+  CRM_SYNC_FAILED: 'No se pudo sincronizar con el CRM.',
+  QUOTE_LOCKED: 'No se puede borrar un presupuesto convertido a pedido.',
+  FORBIDDEN: 'No tienes permiso para esta acción.',
   OFERTA_SIN_CONDICIONES: 'Escribe las condiciones comerciales.',
   OFERTA_MONEDA_MIXTA: 'Unifica la moneda de la oferta.',
   SIN_EMAIL: 'Email del cliente inválido.',
@@ -214,6 +222,9 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
       return `<section class="comercial-panel"><div class="comercial-state comercial-state--empty"><p>Cotización no encontrada.</p><a class="comercial-button comercial-button--ghost" href="#/cotizaciones">Volver</a></div></section>`;
     }
     quote = data.quote;
+    if (quote.editable && !String(quote.condiciones ?? '').trim()) {
+      quote = { ...quote, condiciones: defaultCondicionesOferta('es') };
+    }
   } else {
     const prefill = takeQuotePrefill();
     const monedaPrefill =
@@ -242,7 +253,7 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
       telefono: '',
       moneda: monedaPrefill,
       validez_hasta: null,
-      condiciones: '',
+      condiciones: defaultCondicionesOferta('es'),
       productos,
       precio_total_ofertado: calcularTotalOfertado(productos),
       updated_at: null,
@@ -273,12 +284,37 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
           ? `<div class="comercial-quote-banner comercial-quote-banner--error" role="alert">${escapeHtml(quote.send_error)}</div>`
           : '';
 
+  const isAdmin = esRolAdmin(state.rol);
+  const crmStatus = quote.crm_sync_status;
+  const crmLabel =
+    crmStatus === 'synced'
+      ? 'CRM sincronizado'
+      : crmStatus === 'failed'
+        ? 'CRM falló'
+        : crmStatus === 'pending'
+          ? 'CRM pendiente de validación'
+          : crmStatus === 'skipped'
+            ? 'CRM omitido'
+            : '';
+  const canValidarCrm = Boolean(quote.id) && !quote.productos.some(l => l.precio_pendiente_validar);
+  const adminActions = isAdmin
+    ? `${
+        quote.id
+          ? `<button class="comercial-button comercial-button--danger" type="button" data-quote-delete>Borrar</button>`
+          : ''
+      }${
+        canValidarCrm
+          ? `<button class="comercial-button comercial-button--primary" type="button" data-quote-validar-crm>${crmStatus === 'synced' ? 'Revalidar CRM' : 'Validar → CRM'}</button>`
+          : ''
+      }`
+    : '';
+
   return `
     <section class="comercial-panel comercial-quote-editor" data-quote-editor data-quote-id="${escapeHtml(quote.id)}" data-updated-at="${escapeHtml(quote.updated_at ?? '')}" data-estado="${escapeHtml(quote.estado)}">
       <div class="comercial-panel__head">
         <div>
           <h2>${escapeHtml(quote.numero || 'Nuevo presupuesto')}</h2>
-          <p class="comercial-help">${estadoBadge(quote.estado)} · ${escapeHtml(formatQuoteMoney(quote.precio_total_ofertado, quote.moneda))}</p>
+          <p class="comercial-help">${estadoBadge(quote.estado)} · ${escapeHtml(formatQuoteMoney(quote.precio_total_ofertado, quote.moneda))}${crmLabel ? ` · ${escapeHtml(crmLabel)}` : ''}</p>
         </div>
         <a class="comercial-button comercial-button--ghost" href="#/cotizaciones">Bandeja</a>
       </div>
@@ -304,7 +340,8 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
         ${editable ? comboboxHtml() : ''}
         <div data-quote-lines>${linesHtml(quote.productos, quote.moneda, editable)}</div>
         <p class="comercial-quote-total" data-quote-total>Total ${escapeHtml(formatQuoteMoney(calcularTotalOfertado(quote.productos), quote.moneda))}</p>
-        <label class="comercial-field"><span>Condiciones</span><textarea name="condiciones" rows="6" ${disabled}>${escapeHtml(quote.condiciones)}</textarea></label>
+        <label class="comercial-field"><span>Condiciones / consideraciones de la oferta</span><textarea name="condiciones" rows="12" ${disabled}>${escapeHtml(quote.condiciones)}</textarea></label>
+        <p class="comercial-help">Secciones del boceto: Entrega, Costo de envío, Garantía, Instalación. Edita plazos y garantías por producto.</p>
         <p class="comercial-help" data-quote-hint role="status"></p>
       </form>
       <div class="comercial-quote-footer">
@@ -312,13 +349,21 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
           editable
             ? `<button class="comercial-button comercial-button--ghost" type="button" data-quote-save>Guardar</button>
                <button class="comercial-button comercial-button--ghost" type="button" data-quote-preview>Vista previa</button>
-               <button class="comercial-button comercial-button--primary comercial-quote-send" type="button" data-quote-send>Enviar presupuesto</button>`
+               <button class="comercial-button comercial-button--primary comercial-quote-send" type="button" data-quote-send>Enviar presupuesto</button>
+               ${adminActions}`
             : `<button class="comercial-button comercial-button--ghost" type="button" data-quote-preview>Abrir PDF</button>
                ${quote.estado === 'enviada' ? `<button class="comercial-button comercial-button--primary" type="button" data-quote-duplicar>Nueva revisión</button>` : ''}
-               ${quote.estado === 'expirada' ? `<button class="comercial-button comercial-button--primary" type="button" data-quote-duplicar>Duplicar a borrador</button>` : ''}`
+               ${quote.estado === 'expirada' ? `<button class="comercial-button comercial-button--primary" type="button" data-quote-duplicar>Duplicar a borrador</button>` : ''}
+               ${adminActions}`
         }
       </div>
-      ${editable ? `<p class="comercial-help comercial-quote-send-copy"><strong>Presupuesto formal:</strong> PDF + email a <span data-quote-email-copy>${escapeHtml(quote.email || '…')}</span>. <strong>Info/enlaces WhatsApp o email:</strong> Catálogo → Enviar info (no este formulario).</p>` : ''}
+      ${
+        editable
+          ? `<p class="comercial-help comercial-quote-send-copy"><strong>Presupuesto formal:</strong> PDF + email a <span data-quote-email-copy>${escapeHtml(quote.email || '…')}</span>. El CRM se actualiza solo cuando un administrador pulsa <strong>Validar → CRM</strong>.</p>`
+          : isAdmin
+            ? `<p class="comercial-help">CRM: ${escapeHtml(crmLabel || 'sin sincronizar')}.</p>`
+            : ''
+      }
     </section>
     <div data-quote-modal-slot></div>`;
 }
@@ -706,16 +751,86 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
       toast(errMsg(code, error), 'error');
       return;
     }
-    const crmNote =
-      data?.crm_sync_status === 'synced'
-        ? ' CRM sincronizado.'
-        : data?.crm_sync_status === 'failed'
-          ? ' Aviso: CRM no sincronizó.'
-          : data?.crm_sync_status === 'skipped'
-            ? ' CRM omitido (sin secrets).'
-            : '';
-    toast(`Presupuesto ${String(data?.numero ?? numero)} enviado.${crmNote}`, 'success');
+    toast(
+      `Presupuesto ${String(data?.numero ?? numero)} enviado. CRM queda pendiente de validación admin.`,
+      'success'
+    );
     trackCommercialUsage('share_succeeded', { result: 'quote_sent' }, 'cotizaciones');
+    setDirty(false);
+    const next = `#/cotizaciones?id=${encodeURIComponent(id)}`;
+    if (location.hash === next) {
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
+    } else {
+      location.hash = next;
+    }
+  });
+
+  editor.querySelector('[data-quote-delete]')?.addEventListener('click', async () => {
+    const id = editor.getAttribute('data-quote-id') || '';
+    if (!id) return;
+    const numero = editor.querySelector('h2')?.textContent ?? 'este presupuesto';
+    if (!window.confirm(`¿Borrar ${numero}? Esta acción no se puede deshacer (PDF incluido).`)) {
+      return;
+    }
+    const btn = editor.querySelector<HTMLButtonElement>('[data-quote-delete]');
+    if (btn) btn.disabled = true;
+    const { error, code } = await deleteQuote(id);
+    if (btn) btn.disabled = false;
+    if (error) {
+      toast(errMsg(code, error), 'error');
+      return;
+    }
+    setDirty(false);
+    toast('Presupuesto borrado.', 'success');
+    location.hash = '#/cotizaciones';
+  });
+
+  editor.querySelector('[data-quote-validar-crm]')?.addEventListener('click', async () => {
+    const id = editor.getAttribute('data-quote-id') || '';
+    if (!id) return;
+    const parsed = readForm(editor);
+    if (parsed.productos.some(l => l.precio_pendiente_validar)) {
+      toast(ERROR_COPY.PRECIO_PENDIENTE!, 'error');
+      return;
+    }
+    const check = ofertaCompleta(parsed.productos, parsed.condiciones);
+    if (!check.ok) {
+      toast(errMsg(check.error), 'error');
+      return;
+    }
+    if (dirty) {
+      const saved = await saveQuote(editor);
+      if (!saved) return;
+      applySaved(editor, saved);
+    }
+    if (
+      !window.confirm(
+        '¿Validar este presupuesto y enviarlo al CRM Twenty? Solo tras revisar precios y condiciones.'
+      )
+    ) {
+      return;
+    }
+    const btn = editor.querySelector<HTMLButtonElement>('[data-quote-validar-crm]');
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Validando…';
+    }
+    const { data, error, code } = await validarQuoteCrm(id);
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Validar → CRM';
+    }
+    if (error) {
+      toast(errMsg(code, error), 'error');
+      return;
+    }
+    const status = data?.crm_sync_status ?? 'synced';
+    toast(
+      status === 'skipped'
+        ? 'Validado. CRM omitido (sin secrets Twenty).'
+        : 'Presupuesto validado y sincronizado con el CRM.',
+      'success'
+    );
     setDirty(false);
     const next = `#/cotizaciones?id=${encodeURIComponent(id)}`;
     if (location.hash === next) {
