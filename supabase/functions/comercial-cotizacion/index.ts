@@ -886,6 +886,9 @@ async function handleValidarCrm(
   meta.crm_validated_at = new Date().toISOString();
   meta.crm_validated_by = profile.user_id;
   meta.crm_validated_by_email = profile.email;
+  if (twenty.data?.opportunityId) {
+    meta.competencia_opp_ref = twenty.data.opportunityId;
+  }
   await supabase
     .from('solicitudes_cotizacion')
     .update({
@@ -898,6 +901,33 @@ async function handleValidarCrm(
       metadata: meta,
     })
     .eq('id', id);
+
+  // Sidecar actualizado en storage con opportunity id (foto ya nombrada con quoteId).
+  if (twenty.ok && twenty.data?.opportunityId) {
+    const fotoPath =
+      typeof meta.competencia_foto_path === 'string' ? String(meta.competencia_foto_path) : '';
+    if (fotoPath) {
+      const sidecarPath = fotoPath.replace(/\.[^.]+$/, '') + '.json';
+      const fotoName =
+        typeof meta.competencia_foto_id === 'string'
+          ? String(meta.competencia_foto_id)
+          : fotoPath.split('/').pop() || 'competencia.jpg';
+      const sidecar = {
+        quote_id: id,
+        numero: String(numero),
+        twenty_opportunity_id: twenty.data.opportunityId,
+        storage_path: fotoPath,
+        crm_validated_at: meta.crm_validated_at,
+        local_hint: `/home/shoky/0 IME/presupuestos comp/${fotoName}`,
+      };
+      await supabase.storage
+        .from('presupuestos-competencia')
+        .upload(sidecarPath, new TextEncoder().encode(JSON.stringify(sidecar, null, 2)), {
+          contentType: 'application/json',
+          upsert: true,
+        });
+    }
+  }
   if (!twenty.ok && !twenty.skipped) {
     return errorResponse(
       {

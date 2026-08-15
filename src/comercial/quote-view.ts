@@ -34,6 +34,7 @@ import {
   type ProductHit,
   type QuotePublic,
 } from './quote-api';
+import { ocrPresupuestoCompetencia, pickCompetenciaImage } from './quote-ocr';
 import {
   cotizacionesListHash,
   parseCotizacionesRoute,
@@ -151,6 +152,8 @@ async function renderList(route: CotizacionesRoute): Promise<string> {
       <div class="comercial-quote-toolbar__actions">
         <a class="comercial-button ${route.equipo ? 'comercial-button--ghost' : 'comercial-button--primary'}" href="${escapeHtml(miasHref)}">Mías</a>
         <a class="comercial-button ${route.equipo ? 'comercial-button--primary' : 'comercial-button--ghost'}" href="${escapeHtml(equipoHref)}">Equipo</a>
+        <button class="comercial-button comercial-button--ghost" type="button" data-quote-ocr-camera>Foto competencia</button>
+        <button class="comercial-button comercial-button--ghost" type="button" data-quote-ocr-gallery>Galería OCR</button>
         <a class="comercial-button comercial-button--primary" href="#/cotizaciones/nueva">Nueva</a>
       </div>
     </div>
@@ -345,6 +348,15 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
           <label class="comercial-field"><span>Validez</span><input name="validez_hasta" type="date" value="${escapeHtml(quote.validez_hasta ?? '')}" ${disabled} /></label>
         </div>
         ${editable ? comboboxHtml() : ''}
+        ${
+          editable
+            ? `<div class="comercial-quote-ocr-bar">
+          <button class="comercial-button comercial-button--ghost comercial-button--sm" type="button" data-quote-ocr-camera>Tomar foto competencia</button>
+          <button class="comercial-button comercial-button--ghost comercial-button--sm" type="button" data-quote-ocr-gallery>Subir de galería</button>
+          <span class="comercial-help">OCR → cliente, productos, uds y precio; mejora vs competencia.</span>
+        </div>`
+            : ''
+        }
         <div data-quote-lines>${linesHtml(quote.productos, quote.moneda, editable)}</div>
         <p class="comercial-quote-total" data-quote-total>Total ${escapeHtml(formatQuoteMoney(calcularTotalOfertado(quote.productos), quote.moneda))}</p>
         <label class="comercial-field"><span>Condiciones / consideraciones de la oferta</span><textarea name="condiciones" rows="12" ${disabled}>${escapeHtml(quote.condiciones)}</textarea></label>
@@ -665,6 +677,43 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
     location.hash = cotizacionesListHash({ tab: route.tab, equipo: route.equipo, q });
   };
   container.querySelector('[data-quote-search]')?.addEventListener('submit', onSearchSubmit);
+
+  const runOcr = async (mode: 'camera' | 'gallery', quoteId?: string) => {
+    const file = await pickCompetenciaImage(mode);
+    if (!file) return;
+    toast('Analizando presupuesto competencia…', 'success');
+    const { data, error, code } = await ocrPresupuestoCompetencia({
+      file,
+      filename: file.name || 'competencia.jpg',
+      quoteId,
+    });
+    if (error || !data?.quote_id) {
+      toast(errMsg(code, error ?? 'OCR falló'), 'error');
+      return;
+    }
+    const conf =
+      data.extract?.confianza != null
+        ? ` · confianza ${(data.extract.confianza * 100).toFixed(0)}%`
+        : '';
+    toast(`OCR listo${conf}. Abriendo borrador mejorado.`, 'success');
+    trackCommercialUsage('share_succeeded', { result: 'ocr_competencia' }, 'cotizaciones');
+    location.hash = `#/cotizaciones?id=${encodeURIComponent(data.quote_id)}`;
+  };
+
+  container.querySelectorAll<HTMLButtonElement>('[data-quote-ocr-camera]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const qid =
+        container.querySelector('[data-quote-editor]')?.getAttribute('data-quote-id') || '';
+      void runOcr('camera', qid || undefined);
+    });
+  });
+  container.querySelectorAll<HTMLButtonElement>('[data-quote-ocr-gallery]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const qid =
+        container.querySelector('[data-quote-editor]')?.getAttribute('data-quote-id') || '';
+      void runOcr('gallery', qid || undefined);
+    });
+  });
 
   const onListDelete = (event: Event) => {
     const target = event.target;

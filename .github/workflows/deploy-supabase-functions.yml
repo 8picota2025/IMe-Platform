@@ -52,6 +52,11 @@ jobs:
           TRANSFERENCIA_INSTRUCCIONES=${{ secrets.TRANSFERENCIA_INSTRUCCIONES }}
           MAILER_API_KEY=${{ secrets.MAILER_API_KEY }}
           MAILER_FROM=${{ secrets.MAILER_FROM }}
+          OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
+          LLM_PROVIDER=${{ secrets.LLM_PROVIDER }}
+          LLM_INGEST_MODEL=${{ secrets.LLM_INGEST_MODEL }}
+          LLM_VISION_MODEL=${{ secrets.LLM_VISION_MODEL }}
           IMEIA_API_URL=${{ secrets.IMEIA_API_URL }}
           IMEIA_API_KEY=${{ secrets.IMEIA_API_KEY }}
           TURNSTILE_SECRET_KEY=${{ secrets.TURNSTILE_SECRET_KEY }}
