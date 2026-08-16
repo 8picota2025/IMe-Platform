@@ -1,0 +1,146 @@
+{
+  "monitor-multiparametrico-basico": {
+    "es": [
+      "monitores multiparamétricos UCI",
+      "monitor paciente hospital",
+      "equipos biomédicos Colombia"
+    ],
+    "en": [
+      "multiparameter ICU monitors",
+      "hospital patient monitor",
+      "biomedical equipment Colombia"
+    ]
+  },
+  "monitor-multiparametrico-uci-avanzado": {
+    "es": ["monitores multiparamétricos UCI", "monitor UCI avanzado", "monitor paciente crítico"],
+    "en": [
+      "advanced ICU patient monitor",
+      "critical care multiparameter monitor",
+      "ICU monitoring Colombia"
+    ]
+  },
+  "monitor-central-uci-multicama": {
+    "es": ["monitor central UCI", "central de monitores hospital", "UCI multicama"],
+    "en": ["ICU central station", "multi-bed monitor central", "hospital monitoring station"]
+  },
+  "monitor-de-paciente-m12-biolight": {
+    "es": [
+      "monitor de paciente Biolight",
+      "monitor multiparamétrico M12",
+      "monitor hospitalario Colombia"
+    ],
+    "en": [
+      "Biolight M12 patient monitor",
+      "M12 multiparameter monitor",
+      "hospital patient monitor Colombia"
+    ]
+  },
+  "desfibrilador-bifasico-con-monitor": {
+    "es": [
+      "desfibrilador INVIMA certificado",
+      "desfibrilador bifásico hospital",
+      "reanimación cardiología"
+    ],
+    "en": [
+      "INVIMA defibrillator",
+      "biphasic defibrillator with monitor",
+      "hospital defibrillator Colombia"
+    ]
+  },
+  "maquina-de-anestesia-con-ventilador": {
+    "es": ["máquina de anestesia hospital", "anestesia con ventilador", "sala de cirugía equipos"],
+    "en": [
+      "anesthesia machine with ventilator",
+      "OR anesthesia workstation",
+      "hospital anesthesia Colombia"
+    ]
+  },
+  "ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide": {
+    "es": [
+      "ventilador mecánico hospital",
+      "ventilador UCI adulto pediátrico",
+      "ventilación mecánica Colombia"
+    ],
+    "en": [
+      "mechanical ventilator hospital",
+      "adult pediatric ICU ventilator",
+      "critical care ventilation Colombia"
+    ]
+  },
+  "maquina-de-anestesia-am-6000-plus": {
+    "es": ["máquina de anestesia AM-6000", "anestesia quirófano", "equipos anestesia Colombia"],
+    "en": [
+      "AM-6000 anesthesia machine",
+      "OR anesthesia equipment",
+      "anesthesia workstation Colombia"
+    ]
+  },
+  "bomba-de-infusion-ip-200": {
+    "es": ["bombas infusión hospitalarias", "bomba de infusión volumétrica", "terapia IV hospital"],
+    "en": ["hospital infusion pumps", "volumetric infusion pump", "IV therapy hospital Colombia"]
+  },
+  "bomba-de-infusion-ref-sk-em211-saikang": {
+    "es": ["bomba de infusión Saikang", "bombas infusión hospitalarias", "terapia de infusión UCI"],
+    "en": ["Saikang infusion pump", "hospital infusion pumps", "ICU infusion therapy"]
+  },
+  "bomba-de-infusion-ref-sk-em215-saikang": {
+    "es": [
+      "bomba de infusión Saikang EM215",
+      "bombas infusión hospitalarias",
+      "infusión volumétrica"
+    ],
+    "en": ["Saikang EM215 infusion pump", "hospital infusion pumps", "volumetric infusion"]
+  },
+  "bomba-de-jeringa-precision-microdosis": {
+    "es": ["bomba de jeringa hospital", "microdosis UCI", "infusión de precisión"],
+    "en": ["syringe pump hospital", "ICU microdose pump", "precision infusion"]
+  },
+  "electrocardiografo-12-derivaciones-digital": {
+    "es": [
+      "electrocardiógrafo 12 derivaciones",
+      "ECG digital hospital",
+      "equipos cardiología Colombia"
+    ],
+    "en": ["12-lead digital ECG", "hospital electrocardiograph", "cardiology equipment Colombia"]
+  },
+  "electrocardiografo-ecg-3-plus": {
+    "es": ["electrocardiógrafo ECG-3", "ECG portátil hospital", "cardiología ambulatoria"],
+    "en": ["ECG-3 electrocardiograph", "portable hospital ECG", "outpatient cardiology"]
+  },
+  "ecografo-color-doppler-diagnostico-vascular": {
+    "es": [
+      "ecógrafo color Doppler",
+      "ultrasonido diagnóstico vascular",
+      "equipos ultrasonido hospital"
+    ],
+    "en": [
+      "color Doppler ultrasound",
+      "vascular diagnostic ultrasound",
+      "hospital ultrasound Colombia"
+    ]
+  },
+  "ecografo-portatil-con-wifi-y-dicom": {
+    "es": ["ecógrafo portátil DICOM", "ultrasonido point-of-care", "ecógrafo WiFi hospital"],
+    "en": ["portable DICOM ultrasound", "point-of-care ultrasound", "WiFi ultrasound hospital"]
+  },
+  "incubadora-abierta-o-servocuna-ref-bt550-bistos": {
+    "es": ["incubadora neonatal", "servocuna hospital", "equipos neonatología Colombia"],
+    "en": ["neonatal incubator", "infant warmer hospital", "neonatology equipment Colombia"]
+  },
+  "mesa-quirurgica-electrica-ref-a100-4-saikang": {
+    "es": [
+      "mesa quirúrgica eléctrica",
+      "mesa de cirugía hospital",
+      "sala de cirugía equipos completos"
+    ],
+    "en": ["electric surgical table", "OR operating table", "surgery room equipment"]
+  },
+  "arco-c-movil-dinamico-hua-ii": {
+    "es": ["equipos radiología hospital", "arco en C móvil", "fluoroscopia quirófano"],
+    "en": ["hospital radiology equipment", "mobile C-arm", "OR fluoroscopy"]
+  },
+  "autoclave-horizontal-5075": {
+    "es": ["autoclave hospitalario", "esterilización CSSD", "control de infecciones hospital"],
+    "en": ["hospital autoclave", "CSSD sterilization", "infection control hospital"]
+  }
+}

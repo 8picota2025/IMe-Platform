@@ -1,0 +1,32 @@
+url,gap,priority,owner,phase,notes
+https://i-me.com.co/es/,hreflang+Organization+title home OK,done,eng,0,baseline 2026-08-16
+https://i-me.com.co/sitemap-index.xml,sitemap live HTTP 200,done,eng,0,baseline 2026-08-16
+https://i-me.com.co/robots.txt,disallow admin/comercial only,done,eng,0,baseline 2026-08-16
+https://i-me.com.co/llms.txt,AI/GEO baseline present,done,eng,0,baseline 2026-08-16
+GSC property,Export top50 queries/pages — sin acceso API en esta sesión,P0-ops,seo,0,manual GSC
+PSI mobile,PSI API quota exceeded (429); re-run home+catalog+PDP,P0-ops,eng,0,quota Pagespeed
+GMB Envigado,Claim/optimize Google Business Profile,P2,marketing,6,ops
+https://i-me.com.co/es/productos/monitor-multiparametrico-basico/,Top01 title/meta — familia Cardiología; keywords seeded,P0,eng+copy,1,proxy ranking by audit intents (no GSC)
+https://i-me.com.co/es/productos/monitor-multiparametrico-uci-avanzado/,Top02 title/meta — familia Cardiología; keywords seeded,P0,eng+copy,1,proxy ranking by audit intents (no GSC)
+https://i-me.com.co/es/productos/monitor-central-uci-multicama/,Top03 title/meta — familia Monitores; keywords seeded,P0,eng+copy,1,proxy ranking by audit intents (no GSC)
+https://i-me.com.co/es/productos/monitor-de-paciente-m12-biolight/,Top04 title/meta — familia Monitores; keywords seeded,P0,eng+copy,1,proxy ranking by audit intents (no GSC)
+https://i-me.com.co/es/productos/desfibrilador-bifasico-con-monitor/,Top05 title/meta — familia Cardiología / reanimación; keywords seeded,P0,eng+copy,1,proxy ranking by audit intents (no GSC)
+https://i-me.com.co/es/productos/maquina-de-anestesia-con-ventilador/,Top06 title/meta — familia Anestesia; keywords seeded,P0,eng+copy,1,proxy ranking by audit intents (no GSC)
+https://i-me.com.co/es/productos/ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide/,Top07 title/meta — familia Ventiladores; keywords seeded,P0,eng+copy,1,proxy ranking by audit intents (no GSC)
+https://i-me.com.co/es/productos/maquina-de-anestesia-am-6000-plus/,Top08 title/meta — familia Anestesia; keywords seeded,P0,eng+copy,1,proxy ranking by audit intents (no GSC)
+https://i-me.com.co/es/productos/bomba-de-infusion-ip-200/,Top09 title/meta — familia Soluciones IV; keywords seeded,P0,eng+copy,1,proxy ranking by audit intents (no GSC)
+https://i-me.com.co/es/productos/bomba-de-infusion-ref-sk-em211-saikang/,Top10 title/meta — familia Terapia de Infusión; keywords seeded,P0,eng+copy,1,proxy ranking by audit intents (no GSC)
+https://i-me.com.co/es/productos/bomba-de-infusion-ref-sk-em215-saikang/,Top11 title/meta — familia Terapia de Infusión; keywords seeded,P0,eng+copy,1,proxy ranking by audit intents (no GSC)
+https://i-me.com.co/es/productos/bomba-de-jeringa-precision-microdosis/,Top12 title/meta — familia Soluciones IV; keywords seeded,P0,eng+copy,1,proxy ranking by audit intents (no GSC)
+https://i-me.com.co/es/productos/electrocardiografo-12-derivaciones-digital/,Top13 title/meta — familia Cardiología; keywords seeded,P0,eng+copy,1,proxy ranking by audit intents (no GSC)
+https://i-me.com.co/es/productos/electrocardiografo-ecg-3-plus/,Top14 title/meta — familia Cardiología; keywords seeded,P0,eng+copy,1,proxy ranking by audit intents (no GSC)
+https://i-me.com.co/es/productos/ecografo-color-doppler-diagnostico-vascular/,Top15 title/meta — familia Ultrasonido; keywords seeded,P0,eng+copy,1,proxy ranking by audit intents (no GSC)
+https://i-me.com.co/es/productos/ecografo-portatil-con-wifi-y-dicom/,Top16 title/meta — familia Ultrasonido; keywords seeded,P0,eng+copy,1,proxy ranking by audit intents (no GSC)
+https://i-me.com.co/es/productos/incubadora-abierta-o-servocuna-ref-bt550-bistos/,Top17 title/meta — familia Neonatología; keywords seeded,P0,eng+copy,1,proxy ranking by audit intents (no GSC)
+https://i-me.com.co/es/productos/mesa-quirurgica-electrica-ref-a100-4-saikang/,Top18 title/meta — familia Sala de Cirugía; keywords seeded,P0,eng+copy,1,proxy ranking by audit intents (no GSC)
+https://i-me.com.co/es/productos/arco-c-movil-dinamico-hua-ii/,Top19 title/meta — familia Radiología; keywords seeded,P0,eng+copy,1,proxy ranking by audit intents (no GSC)
+https://i-me.com.co/es/productos/autoclave-horizontal-5075/,Top20 title/meta — familia Esterilización; keywords seeded,P0,eng+copy,1,proxy ranking by audit intents (no GSC)
+/es/ciudades/*,City landings Bogotá/Medellín/Cali,P1,eng+copy,3,
+/es/catalogo/?familia=*,Unique category copy + FAQ schema,P1,eng+copy,2,
+CWV images,WebP/LCP home+PDP,P2,eng,5,PSI pending
+/es/conocimiento/,Blog cadence 1/week keywords audit,P1,copy,4,

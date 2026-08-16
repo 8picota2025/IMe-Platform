@@ -452,7 +452,17 @@
     "valor_en": "AM-6000+ anesthesia machine with advanced ventilation and hypoxic safety for the OR.",
     "atributos": {
       "legacy_slugs": ["am-6000-plus", "maquina-de-anestesia-am-6000"]
-    }
+    },
+    "seo_keywords_es": [
+      "máquina de anestesia AM-6000",
+      "anestesia quirófano",
+      "equipos anestesia Colombia"
+    ],
+    "seo_keywords_en": [
+      "AM-6000 anesthesia machine",
+      "OR anesthesia equipment",
+      "anesthesia workstation Colombia"
+    ]
   },
   {
     "id": "59628877-e1bf-4770-bef9-64ab6fb08f6a",
@@ -832,7 +842,13 @@
     "valor_en": "A 1,010-liter chamber with a double swing door, built to keep the dirty side and the sterile side seamlessly apart.",
     "atributos": {
       "legacy_slugs": ["autoclave-5075"]
-    }
+    },
+    "seo_keywords_es": [
+      "autoclave hospitalario",
+      "esterilización CSSD",
+      "control de infecciones hospital"
+    ],
+    "seo_keywords_en": ["hospital autoclave", "CSSD sterilization", "infection control hospital"]
   },
   {
     "id": "ae540c82-faf3-4877-ae6a-0856fb6fda4c",
@@ -3025,7 +3041,17 @@
     ],
     "atributos": {
       "legacy_slugs": ["ecg-3-plus"]
-    }
+    },
+    "seo_keywords_es": [
+      "electrocardiógrafo ECG-3",
+      "ECG portátil hospital",
+      "cardiología ambulatoria"
+    ],
+    "seo_keywords_en": [
+      "ECG-3 electrocardiograph",
+      "portable hospital ECG",
+      "outpatient cardiology"
+    ]
   },
   {
     "id": "cc1f4deb-73b2-43cd-b6ca-1a3206fef849",
@@ -3689,7 +3715,17 @@
       "Temperature and humidity monitoring in newborns"
     ],
     "marca": "Incubadora Abierta",
-    "proveedor_ref": "equitronic"
+    "proveedor_ref": "equitronic",
+    "seo_keywords_es": [
+      "incubadora neonatal",
+      "servocuna hospital",
+      "equipos neonatología Colombia"
+    ],
+    "seo_keywords_en": [
+      "neonatal incubator",
+      "infant warmer hospital",
+      "neonatology equipment Colombia"
+    ]
   },
   {
     "id": "3c617ca5-4951-4653-b155-743d46764417",
@@ -3838,7 +3874,17 @@
     ],
     "atributos": {
       "legacy_slugs": ["ip-200"]
-    }
+    },
+    "seo_keywords_es": [
+      "bombas infusión hospitalarias",
+      "bomba de infusión volumétrica",
+      "terapia IV hospital"
+    ],
+    "seo_keywords_en": [
+      "hospital infusion pumps",
+      "volumetric infusion pump",
+      "IV therapy hospital Colombia"
+    ]
   },
   {
     "id": "4f331982-530c-495e-b16e-8374066496fc",
@@ -5944,7 +5990,17 @@
       "Adapt the monitor to adults, pediatric and neonatal patients, and expand it with IBP, CO₂ or cardiac output as your service grows."
     ],
     "valor_es": "Un monitor pensado para servicios que necesitan moverse rápido: de la sala de observación a la UCI, sin perder precisión ni continuidad en el registro del paciente.",
-    "valor_en": "A monitor built for services that need to move fast — from the observation room to the ICU — without losing accuracy or continuity in patient records."
+    "valor_en": "A monitor built for services that need to move fast — from the observation room to the ICU — without losing accuracy or continuity in patient records.",
+    "seo_keywords_es": [
+      "monitor de paciente Biolight",
+      "monitor multiparamétrico M12",
+      "monitor hospitalario Colombia"
+    ],
+    "seo_keywords_en": [
+      "Biolight M12 patient monitor",
+      "M12 multiparameter monitor",
+      "hospital patient monitor Colombia"
+    ]
   },
   {
     "id": "c15da4c5-b9e6-45ba-a7ca-6efeff077426",
@@ -16766,7 +16822,17 @@
       "Backed by more than 30 years of experience in artificial ventilation, it offers invasive and non-invasive modes — VCV, PCV, PRVC, SIMV, PSV, CPAP, PS-Pro, Duo-Levels, APRV — to adapt to every stage of critical patient care."
     ],
     "valor_es": "Un ventilador que acompaña al paciente desde la intubación hasta la extubación, combinando ventilación invasiva y no invasiva en una misma plataforma tailor-made.",
-    "valor_en": "A ventilator that stays with the patient from intubation to extubation, combining invasive and non-invasive ventilation on a single tailor-made platform."
+    "valor_en": "A ventilator that stays with the patient from intubation to extubation, combining invasive and non-invasive ventilation on a single tailor-made platform.",
+    "seo_keywords_es": [
+      "ventilador mecánico hospital",
+      "ventilador UCI adulto pediátrico",
+      "ventilación mecánica Colombia"
+    ],
+    "seo_keywords_en": [
+      "mechanical ventilator hospital",
+      "adult pediatric ICU ventilator",
+      "critical care ventilation Colombia"
+    ]
   },
   {
     "id": "aa3caf33-200f-4a28-bba7-7be5ff55488a",
@@ -18478,6 +18544,16 @@
       "Pediatric ICU",
       "Operating rooms",
       "Post-anesthesia recovery unit"
+    ],
+    "seo_keywords_es": [
+      "monitores multiparamétricos UCI",
+      "monitor UCI avanzado",
+      "monitor paciente crítico"
+    ],
+    "seo_keywords_en": [
+      "advanced ICU patient monitor",
+      "critical care multiparameter monitor",
+      "ICU monitoring Colombia"
     ]
   },
   {
@@ -18559,6 +18635,16 @@
       "Internal medicine services",
       "Triage clinics",
       "Observation rooms"
+    ],
+    "seo_keywords_es": [
+      "monitores multiparamétricos UCI",
+      "monitor paciente hospital",
+      "equipos biomédicos Colombia"
+    ],
+    "seo_keywords_en": [
+      "multiparameter ICU monitors",
+      "hospital patient monitor",
+      "biomedical equipment Colombia"
     ]
   },
   {
@@ -18726,6 +18812,12 @@
       "Remote multi-bed monitoring",
       "Nursing coordination",
       "Clinical trend recording"
+    ],
+    "seo_keywords_es": ["monitor central UCI", "central de monitores hospital", "UCI multicama"],
+    "seo_keywords_en": [
+      "ICU central station",
+      "multi-bed monitor central",
+      "hospital monitoring station"
     ]
   },
   {
@@ -18765,6 +18857,16 @@
       "General hospital wards",
       "Emergency department",
       "Cardiovascular screening"
+    ],
+    "seo_keywords_es": [
+      "electrocardiógrafo 12 derivaciones",
+      "ECG digital hospital",
+      "equipos cardiología Colombia"
+    ],
+    "seo_keywords_en": [
+      "12-lead digital ECG",
+      "hospital electrocardiograph",
+      "cardiology equipment Colombia"
     ]
   },
   {
@@ -18851,6 +18953,16 @@
       "Ventricular arrhythmias",
       "Intraoperative monitoring",
       "Emergency and urgent care"
+    ],
+    "seo_keywords_es": [
+      "desfibrilador INVIMA certificado",
+      "desfibrilador bifásico hospital",
+      "reanimación cardiología"
+    ],
+    "seo_keywords_en": [
+      "INVIMA defibrillator",
+      "biphasic defibrillator with monitor",
+      "hospital defibrillator Colombia"
     ]
   },
   {
@@ -19216,6 +19328,16 @@
       "Complex surgeries",
       "Obstetric procedures",
       "Intensive care"
+    ],
+    "seo_keywords_es": [
+      "máquina de anestesia hospital",
+      "anestesia con ventilador",
+      "sala de cirugía equipos"
+    ],
+    "seo_keywords_en": [
+      "anesthesia machine with ventilator",
+      "OR anesthesia workstation",
+      "hospital anesthesia Colombia"
     ]
   },
   {
@@ -19419,6 +19541,16 @@
       "Thrombosis evaluation",
       "Blood flow studies",
       "Cardiovascular screening"
+    ],
+    "seo_keywords_es": [
+      "ecógrafo color Doppler",
+      "ultrasonido diagnóstico vascular",
+      "equipos ultrasonido hospital"
+    ],
+    "seo_keywords_en": [
+      "color Doppler ultrasound",
+      "vascular diagnostic ultrasound",
+      "hospital ultrasound Colombia"
     ]
   },
   {
@@ -19501,6 +19633,16 @@
       "Outpatient clinics",
       "Mobile hospitals",
       "Point-of-care ultrasound follow-up"
+    ],
+    "seo_keywords_es": [
+      "ecógrafo portátil DICOM",
+      "ultrasonido point-of-care",
+      "ecógrafo WiFi hospital"
+    ],
+    "seo_keywords_en": [
+      "portable DICOM ultrasound",
+      "point-of-care ultrasound",
+      "WiFi ultrasound hospital"
     ]
   },
   {
@@ -19747,7 +19889,9 @@
       "Controlled sedation and analgesia",
       "Administration of inotropes and vasopressors",
       "Enteral and parenteral nutrition protocols via syringe"
-    ]
+    ],
+    "seo_keywords_es": ["bomba de jeringa hospital", "microdosis UCI", "infusión de precisión"],
+    "seo_keywords_en": ["syringe pump hospital", "ICU microdose pump", "precision infusion"]
   },
   {
     "id": "dc9259ea-fcb6-4ada-92b0-71449b49792b",
@@ -21108,7 +21252,9 @@
       "Vascular surgery: angioplasty, stents and image-guided endovascular procedures",
       "Interventional procedures in operating room and hemodynamics room",
       "Fluoroscopic reduction of dislocations and manipulations under image guidance"
-    ]
+    ],
+    "seo_keywords_es": ["equipos radiología hospital", "arco en C móvil", "fluoroscopia quirófano"],
+    "seo_keywords_en": ["hospital radiology equipment", "mobile C-arm", "OR fluoroscopy"]
   },
   {
     "id": "dd001c54-0115-4ab2-a9db-a9f82a3fbcf6",
@@ -40403,9 +40549,7 @@
       "bomba de infusión Colombia",
       "ficha técnica SK-EM215",
       "cotizar SK-EM215",
-      "precio bomba de infusión",
-      "proveedor bomba de infusión Colombia",
-      "equipos biomédicos bomba de infusión"
+      "precio bomba de infusión"
     ],
     "seo_keywords_en": [
       "SK-EM215 INFUSION PUMP",
@@ -40415,8 +40559,7 @@
       "infusion pump Colombia",
       "SK-EM215 datasheet",
       "request a quote SK-EM215",
-      "infusion pump supplier Colombia",
-      "biomedical infusion pump"
+      "infusion pump supplier Colombia"
     ],
     "atributos": {
       "fabricante_url": "https://saikangmedical.com/en/product/sk-em215_infusion-pump/",
@@ -43290,9 +43433,7 @@
       "bomba de infusión Colombia",
       "ficha técnica SK-EM211",
       "cotizar SK-EM211",
-      "precio bomba de infusión",
-      "proveedor bomba de infusión Colombia",
-      "equipos biomédicos bomba de infusión"
+      "precio bomba de infusión"
     ],
     "seo_keywords_en": [
       "SK-EM211 INFUSION PUMP",
@@ -43302,8 +43443,7 @@
       "infusion pump Colombia",
       "SK-EM211 datasheet",
       "request a quote SK-EM211",
-      "infusion pump supplier Colombia",
-      "biomedical infusion pump"
+      "infusion pump supplier Colombia"
     ],
     "atributos": {
       "fabricante_url": "https://saikangmedical.com/en/product/sk-em211-infusion-pump/",
@@ -46547,9 +46687,7 @@
       "mesa quirúrgica Colombia",
       "ficha técnica A100-4",
       "cotizar A100-4",
-      "precio mesa quirúrgica",
-      "proveedor mesa quirúrgica Colombia",
-      "equipos biomédicos mesa quirúrgica"
+      "precio mesa quirúrgica"
     ],
     "seo_keywords_en": [
       "A100-4 ELECTRIC OPERATING TABLE(SKL-A)",
@@ -46559,8 +46697,7 @@
       "operating table Colombia",
       "A100-4 datasheet",
       "request a quote A100-4",
-      "operating table supplier Colombia",
-      "biomedical operating table"
+      "operating table supplier Colombia"
     ],
     "atributos": {
       "fabricante_url": "https://saikangmedical.com/en/product/a100-4-electric-operating-table/",

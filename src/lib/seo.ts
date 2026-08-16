@@ -55,6 +55,95 @@ export function buildPageTitle(pageTitle: string): string {
   return `${pageTitle} | ${BRAND}`;
 }
 
+/** Soft max for SERP title display (~60 chars including brand). */
+export const PRODUCT_TITLE_MAX = 60;
+
+function stripTrailingBrand(name: string): string {
+  return name.replace(/\s*\|\s*I-ME\s*$/i, '').trim();
+}
+
+function includesLoose(haystack: string, needle: string, locale: Locale): boolean {
+  const h = haystack.toLocaleLowerCase(locale);
+  const n = needle.toLocaleLowerCase(locale).trim();
+  if (!n) return false;
+  if (h.includes(n)) return true;
+  const words = n.split(/\s+/).filter(w => w.length > 3);
+  if (words.length > 0 && words.every(w => h.includes(w))) return true;
+  const tokens = words.length > 0 ? words : [n];
+  for (const w of tokens) {
+    const stem = w.replace(/es$/i, '').replace(/s$/i, '');
+    if (stem.length > 3 && h.includes(stem)) return true;
+  }
+  return false;
+}
+
+function shortenTitlePart(value: string, maxLen: number): string {
+  const clean = value.replace(/\s+/g, ' ').trim();
+  if (clean.length <= maxLen) return clean;
+  const cut = clean.lastIndexOf(' ', maxLen - 1);
+  const sliced = clean.slice(0, cut > maxLen * 0.55 ? cut : maxLen).trim();
+  return sliced
+    .replace(/\s+(con|de|del|la|el|los|las|y|para|por|en|with|and|for|the|a|an|of)$/i, '')
+    .trim();
+}
+
+function normalizeCategoriaLabel(categoria: string): string {
+  return categoria
+    .split(/[|/·•]/)[0]!
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * PDP title: `{nombre} | {categoría} INVIMA | I-ME` when it fits;
+ * drops INVIMA / categoría / truncates nombre to stay near PRODUCT_TITLE_MAX.
+ * Never invents specs; INVIMA is trust token for CO biomedical catalog (company-level).
+ */
+export function buildProductoPageTitle(
+  nombre: string,
+  locale: Locale,
+  categoria?: string,
+  marca?: string | null,
+  primaryIntent?: string
+): string {
+  const brandSuffix = ` | ${BRAND}`;
+  const budget = PRODUCT_TITLE_MAX - brandSuffix.length;
+  const name = stripTrailingBrand(nombre);
+  if (marca && includesLoose(name, marca, locale) === false) {
+    /* keep manufacturer in product name as-is; do not append marca again */
+  }
+
+  const cat = categoria ? normalizeCategoriaLabel(categoria) : '';
+  const intent = primaryIntent?.trim() ?? '';
+  const catUsable = Boolean(cat) && !includesLoose(name, cat, locale);
+  const intentUsable =
+    Boolean(intent) &&
+    !includesLoose(name, intent, locale) &&
+    !(cat && includesLoose(cat, intent, locale));
+
+  const middleCandidates: string[] = [];
+  if (catUsable) {
+    middleCandidates.push(`${shortenTitlePart(cat, 22)} INVIMA`);
+    middleCandidates.push(shortenTitlePart(cat, 28));
+  }
+  if (intentUsable) {
+    middleCandidates.push(shortenTitlePart(intent, 28));
+  }
+  middleCandidates.push('');
+
+  for (const middle of middleCandidates) {
+    const coreBudget = middle ? budget - middle.length - 3 : budget;
+    if (coreBudget < 18) continue;
+    const coreName = shortenTitlePart(name, coreBudget);
+    if (coreName.length < 12) continue;
+    const core = middle ? `${coreName} | ${middle}` : coreName;
+    const full = `${core}${brandSuffix}`;
+    if (full.length <= PRODUCT_TITLE_MAX + 8) return full;
+  }
+
+  return `${shortenTitlePart(name, budget)}${brandSuffix}`;
+}
+
 export function buildCanonical(path: string): string {
   const normalized = path.startsWith('/') ? path : `/${path}`;
   const [baseAndQuery, hash = ''] = normalized.split('#', 2);
@@ -94,9 +183,15 @@ export function buildProductoSeo(
   const normalizedExclusions = [producto.nombre, marca, categoria]
     .filter((value): value is string => Boolean(value))
     .map(value => value.trim().toLocaleLowerCase(locale));
-  const primaryIntent = (producto.seo_keywords ?? [])
-    .filter(keyword => !normalizedExclusions.includes(keyword.trim().toLocaleLowerCase(locale)))
-    .at(0);
+  const primaryIntent =
+    (producto.seo_keywords ?? [])
+      .map(k => k.trim())
+      .filter(Boolean)
+      .filter(keyword => !normalizedExclusions.includes(keyword.toLocaleLowerCase(locale)))
+      .at(0) ??
+    (categoria && !includesLoose(producto.nombre, categoria, locale)
+      ? categoria.trim()
+      : undefined);
   const market =
     locale === 'en'
       ? 'For Colombia, Latin America and Spain.'
@@ -113,7 +208,7 @@ export function buildProductoSeo(
       : `${SITE}${producto.imagen_principal}`
     : DEFAULT_OG_IMAGE;
   return {
-    title: buildPageTitle(producto.nombre),
+    title: buildProductoPageTitle(producto.nombre, locale, categoria, marca, primaryIntent),
     description: truncateMetaDescription(description),
     canonical: buildCanonical(`/${locale}/${segment}/${producto.slug}`),
     ogImage,
