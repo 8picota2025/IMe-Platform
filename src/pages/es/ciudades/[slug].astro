@@ -1,0 +1,114 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import {
+  buildCitySeo,
+  buildCityServiceJsonLd,
+  buildCanonical,
+  buildOrganizationJsonLd,
+  buildBreadcrumbJsonLd,
+  combineJsonLd,
+} from '../../../lib/seo';
+import { getCityLanding, listCitySlugs, cityName } from '../../../data/city-landings';
+import { getFamiliaSeo, familiaDisplayName } from '../../../data/familia-seo';
+import { t } from '../../../i18n/utils';
+
+export function getStaticPaths() {
+  return listCitySlugs().map(slug => ({ params: { slug } }));
+}
+
+const locale = 'es' as const;
+const slug = Astro.params.slug!;
+const city = getCityLanding(slug);
+if (!city) return Astro.redirect('/es/contacto/');
+
+const name = cityName(city, locale);
+const seo = buildCitySeo(locale, {
+  slug,
+  name: city.title_es,
+  description: city.description_es,
+});
+const focus = city.focusFamilias
+  .map(s => getFamiliaSeo(s))
+  .filter((f): f is NonNullable<typeof f> => Boolean(f));
+
+const jsonLd = combineJsonLd(
+  buildOrganizationJsonLd(),
+  buildCityServiceJsonLd(locale, { name: city.name_es, slug }),
+  buildBreadcrumbJsonLd([
+    { name: t(locale, 'catalogo.migas_inicio'), url: buildCanonical('/es/') },
+    { name: 'Ciudades', url: buildCanonical('/es/ciudades/bogota') },
+    { name: name, url: seo.canonical },
+  ])
+);
+---
+
+<Layout
+  title={seo.title}
+  description={seo.description}
+  canonical={seo.canonical}
+  locale={locale}
+  currentPath={`/es/ciudades/${slug}`}
+  ogImage={seo.ogImage}
+  jsonLd={jsonLd}
+>
+  <div
+    class="page-hero"
+    style="padding-top:130px;padding-bottom:var(--space-lg);background:var(--off)"
+  >
+    <div class="container" style="max-width:760px">
+      <span class="section-tag">{city.region_es}</span>
+      <h1>{city.h1_es}</h1>
+      <p style="color:var(--text-mid);margin:0.75rem 0 0;line-height:1.55">{city.lead_es}</p>
+      <p style="margin-top:1.25rem">
+        <a class="btn btn-primary" href="/es/contacto/">Solicitar cotización</a>
+        <a class="btn btn-ghost" href="/es/catalogo/" style="margin-left:0.5rem">Ver catálogo</a>
+      </p>
+    </div>
+  </div>
+
+  <section class="container" style="padding:var(--space-xl) 0;max-width:760px">
+    {
+      city.body_es.map(p => (
+        <p style="margin:0 0 1rem;line-height:1.6;color:var(--text-mid)">{p}</p>
+      ))
+    }
+    <aside
+      style="margin-top:1.5rem;padding:1rem 1.25rem;background:var(--off);border-radius:8px;font-size:0.95rem;line-height:1.5"
+    >
+      <strong>Sede I-ME (NAP):</strong> CL 28 SUR 29 83, Envigado, Antioquia ·
+      <a href="tel:+573103332607">+57 310 333 2607</a> ·
+      <a href="mailto:info@i-me.com.co">info@i-me.com.co</a>
+      <br />
+      Cobertura nacional — sin inventar sucursal en {name}.
+    </aside>
+  </section>
+
+  {
+    focus.length > 0 && (
+      <section class="container" style="padding-bottom:var(--space-2xl);max-width:760px">
+        <h2>Categorías frecuentes para {name}</h2>
+        <ul style="margin:1rem 0 0;padding:0;list-style:none;display:grid;gap:0.75rem">
+          {focus.map(f => (
+            <li>
+              <a href={`/es/familias/${f.slug}/`} style="font-weight:600">
+                {familiaDisplayName(f, locale)}
+              </a>
+              <span style="color:var(--text-mid)"> — {f.description_es}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+</Layout>
+
+<style>
+  .section-tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--teal, #0f4c5c);
+  }
+</style>

@@ -1,0 +1,89 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import {
+  buildPageTitle,
+  buildCanonical,
+  buildOrganizationJsonLd,
+  buildBreadcrumbJsonLd,
+  combineJsonLd,
+} from '../../lib/seo';
+import { t } from '../../i18n/utils';
+
+const locale = 'en' as const;
+const canonical = buildCanonical('/en/resources');
+const title = buildPageTitle('Resources for biomedical procurement');
+const description =
+  'Real I-ME routes for biomedical procurement: catalog, financing, knowledge and contact. No invented PDFs.';
+
+const jsonLd = combineJsonLd(
+  buildOrganizationJsonLd(),
+  buildBreadcrumbJsonLd([
+    { name: t(locale, 'catalogo.migas_inicio'), url: buildCanonical('/en/') },
+    { name: 'Resources', url: canonical },
+  ])
+);
+
+const links = [
+  {
+    href: '/en/catalog/',
+    title: 'Equipment catalog',
+    body: 'Browse families and request a quote per product.',
+  },
+  {
+    href: '/en/financing/',
+    title: 'Institutional financing',
+    body: 'Indicative simulator and commercial advisory path (final rates in formal quote).',
+  },
+  {
+    href: '/en/knowledge/',
+    title: 'Knowledge center',
+    body: 'Published articles on typologies and biomedical practice.',
+  },
+  {
+    href: '/en/services/',
+    title: 'I-ME services',
+    body: 'Sales, technical support, calibration and advisory.',
+  },
+  {
+    href: '/en/contact/',
+    title: 'Contact / quote',
+    body: 'Institutional form for projects and tenders.',
+  },
+];
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  locale={locale}
+  currentPath="/en/resources"
+  jsonLd={jsonLd}
+>
+  <div
+    class="page-hero"
+    style="padding-top:130px;padding-bottom:var(--space-lg);background:var(--off)"
+  >
+    <div class="container" style="max-width:760px">
+      <h1>Resources for biomedical procurement</h1>
+      <p style="color:var(--text-mid);margin:0.75rem 0 0;line-height:1.55">
+        Real I-ME site routes. Per-product PDF datasheets appear on each landing when the file
+        exists (we do not publish invented catalogs).
+      </p>
+    </div>
+  </div>
+  <section class="container" style="padding:var(--space-xl) 0;max-width:760px">
+    <ul style="list-style:none;padding:0;margin:0;display:grid;gap:1rem">
+      {
+        links.map(l => (
+          <li style="padding:1rem 1.25rem;border:1px solid var(--border,#e2e8ed);border-radius:10px">
+            <a href={l.href} style="font-weight:700;font-size:1.05rem">
+              {l.title}
+            </a>
+            <p style="margin:0.35rem 0 0;color:var(--text-mid)">{l.body}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</Layout>

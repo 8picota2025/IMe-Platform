@@ -368,6 +368,7 @@ export function buildWebSiteJsonLd(): Record<string, unknown> {
 
 /**
  * JSON-LD Product — solo si hay datos reales.
+ * MedicalDevice se añade únicamente cuando hay sellos de normativa en specs.
  */
 export function buildProductJsonLd(
   producto: {
@@ -379,10 +380,13 @@ export function buildProductJsonLd(
     precio?: number | null;
     moneda?: string | null;
     disponible?: boolean;
+    mpn?: string | null;
+    sku?: string | null;
   },
   locale: Locale,
   categoria?: string,
-  marca?: string | null
+  marca?: string | null,
+  opts?: { certificaciones?: string[]; familiaSlug?: string }
 ): Record<string, unknown> {
   const segment = locale === 'en' ? 'products' : 'productos';
   const canonicalUrl = buildCanonical(`/${locale}/${segment}/${producto.slug}`);
@@ -392,9 +396,12 @@ export function buildProductJsonLd(
       : `${SITE}${producto.imagen_principal}`
     : DEFAULT_OG_IMAGE;
 
+  const certs = (opts?.certificaciones ?? []).map(c => c.trim()).filter(Boolean);
+  const hasRegulatory = certs.some(c => /invima|ce\b|fda|iso/i.test(c));
+
   const jsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
-    '@type': 'Product',
+    '@type': hasRegulatory ? ['Product', 'MedicalDevice'] : 'Product',
     name: producto.nombre,
     description: producto.descripcion_corta,
     image: imageUrl,
@@ -417,15 +424,31 @@ export function buildProductJsonLd(
     },
   };
   if (categoria) jsonLd.category = categoria;
-  if (producto.seo_keywords && producto.seo_keywords.length > 0) {
-    jsonLd.additionalProperty = [
-      {
-        '@type': 'PropertyValue',
-        name: locale === 'en' ? 'Search use cases' : 'Casos de uso de búsqueda',
-        value: producto.seo_keywords.slice(0, 18).join(', '),
-      },
-    ];
+  if (opts?.familiaSlug) {
+    const famSeg = locale === 'en' ? 'families' : 'familias';
+    jsonLd.additionalType = `${SITE}/${locale}/${famSeg}/${opts.familiaSlug}/`;
   }
+  const mpn = producto.mpn?.trim() || producto.sku?.trim();
+  if (mpn) jsonLd.mpn = mpn;
+  if (producto.sku?.trim()) jsonLd.sku = producto.sku.trim();
+
+  const extraProps: Array<Record<string, unknown>> = [];
+  if (producto.seo_keywords && producto.seo_keywords.length > 0) {
+    extraProps.push({
+      '@type': 'PropertyValue',
+      name: locale === 'en' ? 'Search use cases' : 'Casos de uso de búsqueda',
+      value: producto.seo_keywords.slice(0, 18).join(', '),
+    });
+  }
+  for (const cert of certs.slice(0, 8)) {
+    extraProps.push({
+      '@type': 'PropertyValue',
+      name: locale === 'en' ? 'Regulatory / standard' : 'Normativa / certificación',
+      value: cert,
+    });
+  }
+  if (extraProps.length > 0) jsonLd.additionalProperty = extraProps;
+
   if (typeof producto.precio === 'number' && producto.precio > 0) {
     (jsonLd.offers as Record<string, unknown>).price = producto.precio;
     (jsonLd.offers as Record<string, unknown>).priceCurrency = producto.moneda ?? 'COP';
@@ -566,4 +589,58 @@ export function combineJsonLd(...blocks: Record<string, unknown>[]): string {
     }
   }
   return JSON.stringify({ '@context': 'https://schema.org', '@graph': nodes });
+}
+
+export function buildFamiliaSeo(
+  locale: Locale,
+  input: { slug: string; name: string; description: string }
+): SeoPageMeta {
+  const seg = locale === 'en' ? 'families' : 'familias';
+  return {
+    title: buildPageTitle(input.name),
+    description: truncateMetaDescription(input.description),
+    canonical: buildCanonical(`/${locale}/${seg}/${input.slug}`),
+    ogImage: DEFAULT_OG_IMAGE,
+  };
+}
+
+export function buildCitySeo(
+  locale: Locale,
+  input: { slug: string; name: string; description: string }
+): SeoPageMeta {
+  const seg = locale === 'en' ? 'cities' : 'ciudades';
+  return {
+    title: buildPageTitle(input.name),
+    description: truncateMetaDescription(input.description),
+    canonical: buildCanonical(`/${locale}/${seg}/${input.slug}`),
+    ogImage: INSTITUTIONAL_OG_IMAGE,
+  };
+}
+
+/** Service + areaServed City — HQ NAP stays Envigado (no fake local offices). */
+export function buildCityServiceJsonLd(
+  locale: Locale,
+  city: { name: string; slug: string }
+): Record<string, unknown> {
+  const seg = locale === 'en' ? 'cities' : 'ciudades';
+  const pageUrl = buildCanonical(`/${locale}/${seg}/${city.slug}`);
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name:
+      locale === 'en'
+        ? `Biomedical equipment supply for ${city.name}`
+        : `Suministro de equipos biomédicos para ${city.name}`,
+    serviceType:
+      locale === 'en'
+        ? 'Biomedical equipment distribution and technical support'
+        : 'Distribución de equipos biomédicos y soporte técnico',
+    provider: { '@id': `${SITE}/#organization` },
+    areaServed: {
+      '@type': 'City',
+      name: city.name,
+      containedInPlace: { '@type': 'Country', name: 'Colombia' },
+    },
+    url: pageUrl,
+  };
 }

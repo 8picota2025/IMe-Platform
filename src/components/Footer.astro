@@ -23,7 +23,6 @@ const familias = [
   { slug: 'anestesia', label_es: 'Anestesia y Ventilación', label_en: 'Anesthesia & Ventilation' },
 ];
 
-const catalogoBase = getLocalizedPath('/catalogo', locale);
 const year = new Date().getFullYear();
 const legalLinks: Array<{ kind: LegalKind; label: string }> = [
   { kind: 'privacidad', label: t(locale, 'footer.privacidad') },
@@ -79,6 +78,24 @@ const legalLinks: Array<{ kind: LegalKind; label: string }> = [
         <li>
           <a href={getLocalizedPath('/financiacion', locale)}>{t(locale, 'nav.financiacion')}</a>
         </li>
+        <li>
+          <a href={locale === 'en' ? '/en/cities/bogota/' : '/es/ciudades/bogota/'}>
+            {locale === 'en' ? 'Bogotá' : 'Bogotá'}
+          </a>
+        </li>
+        <li>
+          <a href={locale === 'en' ? '/en/cities/medellin/' : '/es/ciudades/medellin/'}>
+            {locale === 'en' ? 'Medellín' : 'Medellín'}
+          </a>
+        </li>
+        <li>
+          <a href={locale === 'en' ? '/en/cities/cali/' : '/es/ciudades/cali/'}>Cali</a>
+        </li>
+        <li>
+          <a href={locale === 'en' ? '/en/resources/' : '/es/recursos/'}>
+            {locale === 'en' ? 'Resources' : 'Recursos'}
+          </a>
+        </li>
         <li><a href={getLocalizedPath('/contacto', locale)}>{t(locale, 'nav.contacto')}</a></li>
         <li>
           <a href={getLocalizedPath('/conocimiento', locale)}>{t(locale, 'nav.conocimiento')}</a>
@@ -108,7 +125,13 @@ const legalLinks: Array<{ kind: LegalKind; label: string }> = [
         {
           familias.map(f => (
             <li>
-              <a href={`${catalogoBase}?familia=${f.slug}`}>
+              <a
+                href={
+                  f.slug === 'mobiliario'
+                    ? `${getLocalizedPath('/catalogo', locale)}?familia=${f.slug}`
+                    : `${locale === 'en' ? '/en/families' : '/es/familias'}/${f.slug}/`
+                }
+              >
                 {locale === 'en' ? f.label_en : f.label_es}
               </a>
             </li>

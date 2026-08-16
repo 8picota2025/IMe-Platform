@@ -1,0 +1,92 @@
+---
+/**
+ * Hub de recursos / lead magnets — solo enlaces a assets reales del sitio.
+ */
+import Layout from '../../layouts/Layout.astro';
+import {
+  buildPageTitle,
+  buildCanonical,
+  buildOrganizationJsonLd,
+  buildBreadcrumbJsonLd,
+  combineJsonLd,
+} from '../../lib/seo';
+import { t } from '../../i18n/utils';
+
+const locale = 'es' as const;
+const canonical = buildCanonical('/es/recursos');
+const title = buildPageTitle('Recursos para compras biomédicas');
+const description =
+  'Guías y rutas I-ME para compras biomédicas: catálogo, financiamiento, conocimiento y contacto. Sin PDFs inventados.';
+
+const jsonLd = combineJsonLd(
+  buildOrganizationJsonLd(),
+  buildBreadcrumbJsonLd([
+    { name: t(locale, 'catalogo.migas_inicio'), url: buildCanonical('/es/') },
+    { name: 'Recursos', url: canonical },
+  ])
+);
+
+const links = [
+  {
+    href: '/es/catalogo/',
+    title: 'Catálogo de equipos',
+    body: 'Explorar familias y solicitar cotización por producto.',
+  },
+  {
+    href: '/es/financiacion/',
+    title: 'Financiamiento institucional',
+    body: 'Simulador indicativo y ruta de asesoría comercial (tasas finales en cotización).',
+  },
+  {
+    href: '/es/conocimiento/',
+    title: 'Centro de conocimiento',
+    body: 'Artículos publicados sobre tipologías y buenas prácticas biomédicas.',
+  },
+  {
+    href: '/es/servicios/',
+    title: 'Servicios I-ME',
+    body: 'Venta, soporte técnico, calibración y asesoría.',
+  },
+  {
+    href: '/es/contacto/',
+    title: 'Contacto / cotización',
+    body: 'Formulario institucional para proyectos y licitaciones.',
+  },
+];
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  locale={locale}
+  currentPath="/es/recursos"
+  jsonLd={jsonLd}
+>
+  <div
+    class="page-hero"
+    style="padding-top:130px;padding-bottom:var(--space-lg);background:var(--off)"
+  >
+    <div class="container" style="max-width:760px">
+      <h1>Recursos para compras biomédicas</h1>
+      <p style="color:var(--text-mid);margin:0.75rem 0 0;line-height:1.55">
+        Rutas reales del sitio I-ME. Las fichas PDF por producto se ofrecen en cada landing cuando
+        el archivo existe (no publicamos catálogos inventados).
+      </p>
+    </div>
+  </div>
+  <section class="container" style="padding:var(--space-xl) 0;max-width:760px">
+    <ul style="list-style:none;padding:0;margin:0;display:grid;gap:1rem">
+      {
+        links.map(l => (
+          <li style="padding:1rem 1.25rem;border:1px solid var(--border,#e2e8ed);border-radius:10px">
+            <a href={l.href} style="font-weight:700;font-size:1.05rem">
+              {l.title}
+            </a>
+            <p style="margin:0.35rem 0 0;color:var(--text-mid)">{l.body}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</Layout>

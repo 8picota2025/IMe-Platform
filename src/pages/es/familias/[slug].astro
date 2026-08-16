@@ -1,0 +1,133 @@
+---
+/**
+ * Landing SEO por familia — copy único + FAQ + productos relacionados.
+ */
+import Layout from '../../../layouts/Layout.astro';
+import ProductoCard from '../../../components/ProductoCard.astro';
+import {
+  buildFamiliaSeo,
+  buildCanonical,
+  buildOrganizationJsonLd,
+  buildBreadcrumbJsonLd,
+  buildFaqJsonLd,
+  combineJsonLd,
+} from '../../../lib/seo';
+import { getFamiliaSeo, listFamiliaSeoSlugs, familiaDisplayName } from '../../../data/familia-seo';
+import { getProductosBySlugs } from '../../../lib/datos';
+import { t } from '../../../i18n/utils';
+
+export function getStaticPaths() {
+  return listFamiliaSeoSlugs().map(slug => ({ params: { slug } }));
+}
+
+const locale = 'es' as const;
+const slug = Astro.params.slug!;
+const content = getFamiliaSeo(slug);
+if (!content) {
+  return Astro.redirect('/es/catalogo/');
+}
+
+const name = familiaDisplayName(content, locale);
+const seo = buildFamiliaSeo(locale, {
+  slug,
+  name: content.title_es,
+  description: content.description_es,
+});
+const productos = await getProductosBySlugs(content.relatedSlugs, locale);
+const faq = content.faq.map(f => ({ q: f.q_es, a: f.a_es }));
+const catalogoFamilia = buildCanonical(`/es/catalogo/?familia=${slug}`);
+
+const jsonLd = combineJsonLd(
+  buildOrganizationJsonLd(),
+  buildBreadcrumbJsonLd([
+    { name: t(locale, 'catalogo.migas_inicio'), url: buildCanonical('/es/') },
+    { name: t(locale, 'catalogo.migas_catalogo'), url: buildCanonical('/es/catalogo') },
+    { name: name, url: seo.canonical },
+  ]),
+  buildFaqJsonLd(faq),
+  {
+    '@type': 'CollectionPage',
+    name: content.title_es,
+    description: content.description_es,
+    url: seo.canonical,
+  }
+);
+---
+
+<Layout
+  title={seo.title}
+  description={seo.description}
+  canonical={seo.canonical}
+  locale={locale}
+  currentPath={`/es/familias/${slug}`}
+  jsonLd={jsonLd}
+>
+  <div
+    class="page-hero"
+    style="padding-top:130px;padding-bottom:var(--space-lg);background:var(--off)"
+  >
+    <div class="container" style="max-width:760px">
+      <nav class="breadcrumb" aria-label="Ruta" style="margin-bottom:1rem;font-size:0.875rem">
+        <a href="/es/">Inicio</a><span aria-hidden="true"> / </span>
+        <a href="/es/catalogo/">Catálogo</a><span aria-hidden="true"> / </span>
+        <span aria-current="page">{name}</span>
+      </nav>
+      <span class="section-tag">Familia</span>
+      <h1>{name}</h1>
+      <p style="color:var(--text-mid);margin:0.75rem 0 0;line-height:1.55">{content.intro_es}</p>
+      <p style="margin-top:1.25rem">
+        <a class="btn btn-primary" href={catalogoFamilia}>Ver equipos en catálogo</a>
+        <a class="btn btn-ghost" href="/es/contacto/" style="margin-left:0.5rem"
+          >Solicitar cotización</a
+        >
+      </p>
+    </div>
+  </div>
+
+  <section class="container" style="padding:var(--space-xl) 0;max-width:760px">
+    {
+      content.body_es.map(p => (
+        <p style="margin:0 0 1rem;line-height:1.6;color:var(--text-mid)">{p}</p>
+      ))
+    }
+  </section>
+
+  {
+    productos.length > 0 && (
+      <section class="container" style="padding-bottom:var(--space-xl)">
+        <h2 style="margin-bottom:1rem">Equipos relacionados</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem">
+          {productos.map(p => (
+            <ProductoCard producto={p} locale={locale} />
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  <section class="container" style="padding-bottom:var(--space-2xl);max-width:760px">
+    <h2>Preguntas frecuentes</h2>
+    {
+      faq.map(item => (
+        <details style="margin:0.75rem 0;padding:0.75rem 0;border-bottom:1px solid var(--border, #e2e8ed)">
+          <summary style="cursor:pointer;font-weight:600">{item.q}</summary>
+          <p style="margin:0.5rem 0 0;color:var(--text-mid);line-height:1.55">{item.a}</p>
+        </details>
+      ))
+    }
+  </section>
+</Layout>
+
+<style>
+  .section-tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--teal, #0f4c5c);
+  }
+  .breadcrumb a {
+    color: var(--teal, #0f4c5c);
+  }
+</style>

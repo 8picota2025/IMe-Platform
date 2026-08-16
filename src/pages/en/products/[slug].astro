@@ -14,6 +14,7 @@ import {
   combineJsonLd,
 } from '../../../lib/seo';
 import { getProductos, getFamilias, type Familia, type Producto } from '../../../lib/datos';
+import { normalizarEspecificaciones } from '../../../lib/especificaciones';
 
 const locale = 'en';
 
@@ -61,16 +62,23 @@ const { familia, relacionados } = Astro.props as Props;
 
 const seo = buildProductoSeo(producto, locale, familia.nombre, producto.marca);
 const noindex = producto.slug === 'test';
+const certificaciones = normalizarEspecificaciones(producto.especificaciones)
+  .filter(item => /normativ/i.test(item.grupo ?? ''))
+  .map(item => [item.nombre, item.valor].filter(Boolean).join(': '))
+  .filter(Boolean);
 
 const jsonLd = combineJsonLd(
-  buildProductJsonLd(producto, locale, familia.nombre, producto.marca),
+  buildProductJsonLd(producto, locale, familia.nombre, producto.marca, {
+    certificaciones,
+    familiaSlug: familia.slug,
+  }),
   ...(producto.preguntas_frecuentes.length > 0
     ? [buildFaqJsonLd(producto.preguntas_frecuentes)]
     : []),
   buildBreadcrumbJsonLd([
     { name: t(locale, 'catalogo.migas_inicio'), url: buildCanonical('/en/') },
     { name: t(locale, 'catalogo.migas_catalogo'), url: buildCanonical('/en/catalog') },
-    { name: familia.nombre, url: buildCanonical(`/en/catalog/?familia=${familia.slug}`) },
+    { name: familia.nombre, url: buildCanonical(`/en/families/${familia.slug}`) },
     { name: producto.nombre, url: seo.canonical },
   ])
 );

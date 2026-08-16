@@ -26,6 +26,17 @@ describe('buildProductJsonLd', () => {
     expect((jsonLd.brand as { name: string }).name).toBe('I-ME International Medical Enterprise');
   });
 
+  it('marca MedicalDevice solo con certificaciones normativas reales', () => {
+    const plain = buildProductJsonLd(producto, 'es', 'Monitores', 'Biolight');
+    expect(plain['@type']).toBe('Product');
+    const withCert = buildProductJsonLd(producto, 'es', 'Monitores', 'Biolight', {
+      certificaciones: ['INVIMA'],
+      familiaSlug: 'monitores',
+    });
+    expect(withCert['@type']).toEqual(['Product', 'MedicalDevice']);
+    expect(withCert.additionalType).toContain('/es/familias/monitores/');
+  });
+
   it('incluye precio y moneda cuando el producto los tiene visibles', () => {
     const jsonLd = buildProductJsonLd(producto, 'es', 'Monitores', 'Biolight');
     expect((jsonLd.offers as { price: number }).price).toBe(12500000);

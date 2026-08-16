@@ -1,0 +1,128 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import ProductoCard from '../../../components/ProductoCard.astro';
+import {
+  buildFamiliaSeo,
+  buildCanonical,
+  buildOrganizationJsonLd,
+  buildBreadcrumbJsonLd,
+  buildFaqJsonLd,
+  combineJsonLd,
+} from '../../../lib/seo';
+import { getFamiliaSeo, listFamiliaSeoSlugs, familiaDisplayName } from '../../../data/familia-seo';
+import { getProductosBySlugs } from '../../../lib/datos';
+import { t } from '../../../i18n/utils';
+
+export function getStaticPaths() {
+  return listFamiliaSeoSlugs().map(slug => ({ params: { slug } }));
+}
+
+const locale = 'en' as const;
+const slug = Astro.params.slug!;
+const content = getFamiliaSeo(slug);
+if (!content) {
+  return Astro.redirect('/en/catalog/');
+}
+
+const name = familiaDisplayName(content, locale);
+const seo = buildFamiliaSeo(locale, {
+  slug,
+  name: content.title_en,
+  description: content.description_en,
+});
+const productos = await getProductosBySlugs(content.relatedSlugs, locale);
+const faq = content.faq.map(f => ({ q: f.q_en, a: f.a_en }));
+const catalogoFamilia = buildCanonical(`/en/catalog/?familia=${slug}`);
+
+const jsonLd = combineJsonLd(
+  buildOrganizationJsonLd(),
+  buildBreadcrumbJsonLd([
+    { name: t(locale, 'catalogo.migas_inicio'), url: buildCanonical('/en/') },
+    { name: t(locale, 'catalogo.migas_catalogo'), url: buildCanonical('/en/catalog') },
+    { name: name, url: seo.canonical },
+  ]),
+  buildFaqJsonLd(faq),
+  {
+    '@type': 'CollectionPage',
+    name: content.title_en,
+    description: content.description_en,
+    url: seo.canonical,
+  }
+);
+---
+
+<Layout
+  title={seo.title}
+  description={seo.description}
+  canonical={seo.canonical}
+  locale={locale}
+  currentPath={`/en/families/${slug}`}
+  jsonLd={jsonLd}
+>
+  <div
+    class="page-hero"
+    style="padding-top:130px;padding-bottom:var(--space-lg);background:var(--off)"
+  >
+    <div class="container" style="max-width:760px">
+      <nav class="breadcrumb" aria-label="Breadcrumb" style="margin-bottom:1rem;font-size:0.875rem">
+        <a href="/en/">Home</a><span aria-hidden="true"> / </span>
+        <a href="/en/catalog/">Catalog</a><span aria-hidden="true"> / </span>
+        <span aria-current="page">{name}</span>
+      </nav>
+      <span class="section-tag">Family</span>
+      <h1>{name}</h1>
+      <p style="color:var(--text-mid);margin:0.75rem 0 0;line-height:1.55">{content.intro_en}</p>
+      <p style="margin-top:1.25rem">
+        <a class="btn btn-primary" href={catalogoFamilia}>Browse catalog</a>
+        <a class="btn btn-ghost" href="/en/contact/" style="margin-left:0.5rem">Request a quote</a>
+      </p>
+    </div>
+  </div>
+
+  <section class="container" style="padding:var(--space-xl) 0;max-width:760px">
+    {
+      content.body_en.map(p => (
+        <p style="margin:0 0 1rem;line-height:1.6;color:var(--text-mid)">{p}</p>
+      ))
+    }
+  </section>
+
+  {
+    productos.length > 0 && (
+      <section class="container" style="padding-bottom:var(--space-xl)">
+        <h2 style="margin-bottom:1rem">Related equipment</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem">
+          {productos.map(p => (
+            <ProductoCard producto={p} locale={locale} />
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  <section class="container" style="padding-bottom:var(--space-2xl);max-width:760px">
+    <h2>FAQ</h2>
+    {
+      faq.map(item => (
+        <details style="margin:0.75rem 0;padding:0.75rem 0;border-bottom:1px solid var(--border, #e2e8ed)">
+          <summary style="cursor:pointer;font-weight:600">{item.q}</summary>
+          <p style="margin:0.5rem 0 0;color:var(--text-mid);line-height:1.55">{item.a}</p>
+        </details>
+      ))
+    }
+  </section>
+</Layout>
+
+<style>
+  .section-tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--teal, #0f4c5c);
+  }
+  .breadcrumb a {
+    color: var(--teal, #0f4c5c);
+  }
+</style>

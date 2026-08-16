@@ -94,15 +94,15 @@ Toda acción debe poder mapearse a: leads, ranking, o CWV.
 
 **2a — Product / MedicalDevice**
 
-- [ ] Enriquecer `buildProductJsonLd`: `additionalType` / `category` estable; `gtin`/`mpn` solo si dato real existe
-- [ ] Opcional: `@type: ["Product","MedicalDevice"]` **solo** si hay campo certificable (INVIMA/CE) en row — no inventar
-- [ ] Home: confirmar Organization en `<head>` (ya); añadir `sameAs` redes reales cuando existan (LinkedIn, etc.)
+- [x] Enriquecer `buildProductJsonLd`: `additionalType` / `category` estable; `gtin`/`mpn` solo si dato real existe
+- [x] Opcional: `@type: ["Product","MedicalDevice"]` **solo** si hay campo certificable (INVIMA/CE) en row — no inventar
+- [x] Home: confirmar Organization en `<head>` (ya); añadir `sameAs` redes reales cuando existan (LinkedIn, etc.)
 
 **2b — Categorías / familias**
 
-- [ ] Audit H1–H3 en templates de familia/categoría
-- [ ] Bloque copy único 150–300 palabras por familia top (UCI, cardio, cirugía, neo, US, IV) — i18n ES/EN
-- [ ] FAQ por categoría + `buildFaqJsonLd` en página familia (no solo PDP)
+- [x] Audit H1–H3 en templates de familia/categoría
+- [x] Bloque copy único 150–300 palabras por familia top (UCI, cardio, cirugía, neo, US, IV) — i18n ES/EN
+- [x] FAQ por categoría + `buildFaqJsonLd` en página familia (no solo PDP)
 
 **Done when:** Rich Results Test OK en 3 PDP + 2 categorías; copy no es grid-only.
 
@@ -130,7 +130,7 @@ Toda acción debe poder mapearse a: leads, ranking, o CWV.
 
 **Done when:**
 
-- [ ] 3× ES + 3× EN live
+- [x] 3× ES + 3× EN pages (deploy pending)
 - [ ] GSC URL inspect “can be indexed”
 - [ ] CTA → `/es/contacto` o flujo cotización existente
 
@@ -157,7 +157,7 @@ Toda acción debe poder mapearse a: leads, ranking, o CWV.
 
 **Dev support:**
 
-- [ ] Template post: H2/H3, TOC, CTA, related products (slugs reales)
+- [x] Template post: _(calendario `docs/seo/editorial-calendar.md`; posts CMS pendientes)_ H2/H3, TOC, CTA, related products (slugs reales)
 - [ ] Internal links automáticos o checklist en PR editorial
 - [ ] Author org attribution consistente (ya Organization)
 
@@ -169,8 +169,8 @@ Toda acción debe poder mapearse a: leads, ranking, o CWV.
 
 **Goal:** LCP/CLS en home + PDP top.
 
-- [ ] Inventario imágenes hero/PDP sin `width`/`height` o sin WebP
-- [ ] Astro `Image` / responsive `srcset` donde falte
+- [x] Inventario imágenes _(PDP ya width/height/webp/avif)_ hero/PDP sin `width`/`height` o sin WebP
+- [x] Astro/picture WebP/AVIF en PDP hero / responsive `srcset` donde falte
 - [ ] Lazy below-fold; priority solo LCP candidate
 - [ ] Revisar Font Awesome CDN en páginas que lo piden (costo LCP)
 - [ ] Caching headers Hostinger (ops) — no inventar CDN nuevo sin decisión

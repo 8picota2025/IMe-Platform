@@ -47,6 +47,9 @@ These are the highest-value queries this site should answer clearly:
 
 - Home: https://i-me.com.co/es/ | https://i-me.com.co/en/
 - Catalog (current product catalog, categories, filters and search): https://i-me.com.co/es/catalogo | https://i-me.com.co/en/catalog
+- Category SEO landings (unique copy + FAQ): https://i-me.com.co/es/familias/monitores | https://i-me.com.co/en/families/monitores
+- City coverage (HQ Envigado; national service): https://i-me.com.co/es/ciudades/bogota | https://i-me.com.co/es/ciudades/medellin | https://i-me.com.co/es/ciudades/cali
+- Resources hub: https://i-me.com.co/es/recursos | https://i-me.com.co/en/resources
 - Services: https://i-me.com.co/es/servicios | https://i-me.com.co/en/services
 - Financing (indicative simulator; no binding rates): https://i-me.com.co/es/financiacion | https://i-me.com.co/en/financing
 - Contact (quote request form): https://i-me.com.co/es/contacto | https://i-me.com.co/en/contact
