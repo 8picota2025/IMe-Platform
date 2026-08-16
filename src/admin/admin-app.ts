@@ -310,6 +310,31 @@ function vistaPermitida(view: View): boolean {
   return permitidas ? permitidas.has(view) : true;
 }
 
+function rolesQuePuedenVer(view: View): string[] {
+  const roles = ['owner', 'admin'];
+  for (const [rol, vistas] of Object.entries(VISTAS_POR_ROL)) {
+    if (vistas.has(view)) roles.push(rol);
+  }
+  return roles;
+}
+
+function accesoDenegadoView(view: View): { title: string; body: string } {
+  const roles = rolesQuePuedenVer(view).join(', ');
+  return {
+    title: 'Acceso restringido',
+    body: `
+      <div class="admin-alert">
+        Tu rol actual (<strong>${escapeHtml(state.rol || 'sin rol')}</strong>) no incluye
+        <code>#/${escapeHtml(view)}</code>.
+        Roles con acceso: <strong>${escapeHtml(roles)}</strong>.
+        El menú lateral muestra todas las funciones; las bloqueadas quedan atenuadas.
+        Pide a un owner/admin que ajuste tu perfil en Usuarios CMS si necesitas acceso.
+      </div>
+      <p class="admin-help"><a class="admin-button admin-button--ghost" href="#/dashboard">Volver al dashboard</a></p>
+    `,
+  };
+}
+
 window.addEventListener('hashchange', () => {
   state.view = parseView(location.hash);
   state.recordId = new URLSearchParams(location.hash.split('?')[1] ?? '').get('id');
@@ -474,9 +499,6 @@ async function render() {
       .maybeSingle();
     state.rol = String((perfil as Row | null)?.rol ?? '');
   }
-  if (!vistaPermitida(state.view)) {
-    state.view = 'dashboard';
-  }
 
   const view = await routeView();
   app.innerHTML = shellHtml(view.title, view.body);
@@ -638,6 +660,7 @@ function renderNewPassword() {
 }
 
 async function routeView(): Promise<{ title: string; body: string }> {
+  if (!vistaPermitida(state.view)) return accesoDenegadoView(state.view);
   if (state.view === 'crm') return { title: 'CRM', body: await crmView() };
   if (state.view === 'productos') return { title: 'Productos', body: await productosView() };
   if (state.view === 'producto') return { title: 'Producto', body: await productoFormView() };
@@ -678,42 +701,98 @@ async function routeView(): Promise<{ title: string; body: string }> {
 }
 
 function shellHtml(title: string, body: string): string {
-  const links: Array<[View, string]> = [
-    ['dashboard', 'Dashboard'],
-    ['crm', 'CRM'],
-    ['productos', 'Productos'],
-    ['taxonomia', 'Taxonomia'],
-    ['ingesta', 'Ingesta PDF'],
-    ['clientes', 'Clientes'],
-    ['cotizaciones', 'Cotizaciones'],
-    ['pedidos', 'Pedidos'],
-    ['facturas', 'Facturas'],
-    ['cupones', 'Cupones'],
-    ['listas', 'Listas de precio'],
-    ['resenas', 'Resenas'],
-    ['proveedores', 'Proveedores'],
-    ['fulfillments', 'Transportistas'],
-    ['envios', 'Tarifas envío'],
-    ['usuarios', 'Usuarios CMS'],
-    ['plantillas', 'Emails'],
-    ['reportes', 'Reportes'],
-    ['marketing', 'Marketing'],
-    ['conocimiento', 'Blog'],
-    ['propuestas', 'Propuestas blog'],
-    ['asesor', 'Asesor'],
+  type NavGroup = { label: string; items: Array<[View, string]> };
+  const groups: NavGroup[] = [
+    {
+      label: 'Inicio',
+      items: [['dashboard', 'Dashboard']],
+    },
+    {
+      label: 'Catálogo',
+      items: [
+        ['productos', 'Productos'],
+        ['taxonomia', 'Taxonomia'],
+        ['ingesta', 'Ingesta PDF'],
+      ],
+    },
+    {
+      label: 'Comercial',
+      items: [
+        ['crm', 'CRM'],
+        ['clientes', 'Clientes'],
+        ['cotizaciones', 'Cotizaciones'],
+        ['pedidos', 'Pedidos'],
+        ['facturas', 'Facturas'],
+        ['cupones', 'Cupones'],
+        ['listas', 'Listas de precio'],
+        ['resenas', 'Resenas'],
+        ['asesor', 'Asesor'],
+      ],
+    },
+    {
+      label: 'Operaciones',
+      items: [
+        ['proveedores', 'Proveedores'],
+        ['fulfillments', 'Transportistas'],
+        ['envios', 'Tarifas envío'],
+      ],
+    },
+    {
+      label: 'Contenido',
+      items: [
+        ['conocimiento', 'Blog'],
+        ['propuestas', 'Propuestas blog'],
+      ],
+    },
+    {
+      label: 'Sistema',
+      items: [
+        ['usuarios', 'Usuarios CMS'],
+        ['plantillas', 'Emails'],
+        ['reportes', 'Reportes'],
+        ['marketing', 'Marketing'],
+      ],
+    },
   ];
+
+  const rolLabel = state.rol ? `Rol: ${state.rol}` : 'Rol: sin perfil';
+  const navHtml = groups
+    .map(group => {
+      const links = group.items
+        .map(([view, label]) => {
+          const locked = !vistaPermitida(view);
+          const current =
+            state.view === view ||
+            (view === 'conocimiento' && state.view === 'conocimiento') ||
+            (view === 'productos' && state.view === 'producto') ||
+            (view === 'cotizaciones' && state.view === 'cotizacion') ||
+            (view === 'clientes' && state.view === 'cliente') ||
+            (view === 'pedidos' && state.view === 'pedido') ||
+            (view === 'facturas' && state.view === 'factura') ||
+            (view === 'cupones' && state.view === 'cupon') ||
+            (view === 'listas' && state.view === 'lista') ||
+            (view === 'proveedores' && state.view === 'proveedor-productos');
+          return `<a href="#/${view}" class="${locked ? 'is-locked' : ''}" ${
+            current ? 'aria-current="page"' : ''
+          } title="${escapeHtml(
+            locked ? `Requiere rol: ${rolesQuePuedenVer(view).join(', ')}` : label
+          )}">${escapeHtml(label)}${
+            locked ? '<span class="admin-nav__lock" aria-hidden="true">rol</span>' : ''
+          }</a>`;
+        })
+        .join('');
+      return `<div class="admin-nav__group"><div class="admin-nav__label">${escapeHtml(
+        group.label
+      )}</div>${links}</div>`;
+    })
+    .join('');
+
   return `
     <section class="admin-shell">
       <aside class="admin-sidebar">
         <div class="admin-brand"><strong>I-ME</strong><span>Biomedical commerce admin</span></div>
         <nav class="admin-nav" aria-label="Admin">
-          ${links
-            .filter(([view]) => vistaPermitida(view as View))
-            .map(
-              ([view, label]) =>
-                `<a href="#/${view}" ${state.view === view ? 'aria-current="page"' : ''}>${escapeHtml(label)}</a>`
-            )
-            .join('')}
+          ${navHtml}
         </nav>
         <button class="admin-button admin-button--sidebar" data-logout type="button">Salir</button>
       </aside>
@@ -721,7 +800,7 @@ function shellHtml(title: string, body: string): string {
         <header class="admin-topbar">
           <div>
             <h1>${escapeHtml(title)}</h1>
-            <p class="admin-meta">${escapeHtml(state.email || 'Sesion privada')}</p>
+            <p class="admin-meta">${escapeHtml(state.email || 'Sesion privada')} · ${escapeHtml(rolLabel)}</p>
           </div>
           <div class="admin-toolbar">
             <button class="admin-button admin-button--ghost" data-publish type="button">Publicar cambios</button>

@@ -66,6 +66,17 @@ La IA no publica, no autoguarda y no debe completar datos ausentes.
 - Historial: tabla `cms_publish_log` (panel Dashboard).
 - Tras publicar un articulo con imagen nueva, el rebuild ejecuta `mirror-cms-images` y sube WebP a Hostinger. Sin rebuild exitoso el sitio sigue mostrando la imagen anterior.
 
+## Menú lateral (todas las funciones)
+
+- El menú **siempre lista todas** las secciones (Catálogo, Comercial, Operaciones,
+  Contenido, Sistema). Antes, con viewport corto, el sidebar `100vh` **sin scroll**
+  cortaba Blog / Transportistas / Asesor / etc. y parecía que “desaparecían”.
+- El sidebar ahora hace scroll; Salir queda fijo abajo.
+- Por rol, los ítems no permitidos se ven atenuados con marca `rol`. Al abrirlos
+  aparece “Acceso restringido” (ya no redirige en silencio al Dashboard).
+- `owner` / `admin` ven y usan todo. RLS en Supabase sigue siendo la barrera real.
+- El topbar muestra `Rol: …` junto al email.
+
 ## Blog / Conocimiento
 
 - Menu **Blog** (`#/conocimiento` o `#/blog`): listar, buscar, editar Markdown (toolbar), autores, imagen, publicar.
