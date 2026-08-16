@@ -54,6 +54,11 @@ These are the highest-value queries this site should answer clearly:
 - Financing (indicative simulator; no binding rates): https://i-me.com.co/es/financiacion | https://i-me.com.co/en/financing
 - Contact (quote request form): https://i-me.com.co/es/contacto | https://i-me.com.co/en/contact
 - Knowledge center (published editorial content): https://i-me.com.co/es/conocimiento | https://i-me.com.co/en/knowledge
+- Editorial guides (Phase 4):
+  - Multiparameter ICU monitors: https://i-me.com.co/es/conocimiento/guia-monitores-multiparametricos-uci | https://i-me.com.co/en/knowledge/guia-monitores-multiparametricos-uci
+  - Defibrillator purchase checklist: https://i-me.com.co/es/conocimiento/checklist-compra-desfibrilador-documentacion | https://i-me.com.co/en/knowledge/checklist-compra-desfibrilador-documentacion
+  - Medical equipment financing (Colombia): https://i-me.com.co/es/conocimiento/financiamiento-equipos-medicos-colombia | https://i-me.com.co/en/knowledge/financiamiento-equipos-medicos-colombia
+  - Mechanical ventilation hospital criteria: https://i-me.com.co/es/conocimiento/criterios-hospitalarios-ventilacion-mecanica | https://i-me.com.co/en/knowledge/criterios-hospitalarios-ventilacion-mecanica
 - Published legal policies:
   - Privacy: https://i-me.com.co/es/legal/privacidad | https://i-me.com.co/en/legal/privacy
   - Data authorization: https://i-me.com.co/es/legal/habeas-data | https://i-me.com.co/en/legal/data-authorization

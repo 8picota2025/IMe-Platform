@@ -16,13 +16,25 @@ CSV: [`seo-backlog.csv`](./seo-backlog.csv)
 | `llms.txt`                                   | Presente                                                         |
 | Title home                                   | Ya optimizado (`buildHomeSeo`)                                   |
 
-## Datos que faltaron en esta sesión
+## Ops manual (GSC / PSI / GMB) — checklist
 
-| Fuente                   | Estado                                                        |
-| ------------------------ | ------------------------------------------------------------- |
-| GSC top 50 queries/pages | **Manual** — sin export API aquí                              |
-| PageSpeed Insights móvil | **429 quota** — re-correr home `/es/`, `/es/catalogo/`, 1 PDP |
-| GSC sitemap submit       | Ops: confirmar property `i-me.com.co`                         |
+Sin API GSC en este entorno. Hacer en Search Console (property `https://i-me.com.co/`):
+
+1. **Sitemaps** → enviar/confirmar `https://i-me.com.co/sitemap-index.xml`
+2. **Inspección de URL** (solicitar indexación) para:
+   - `/es/ciudades/bogota/`, `/es/ciudades/medellin/`, `/es/ciudades/cali/`
+   - `/es/familias/monitores/`, `/es/recursos/`
+   - 4 posts conocimiento Phase 4 (ver `editorial-calendar.md`)
+3. **Rendimiento** → export CSV top 50 queries + top pages → pegar en `docs/seo/` (fecha en nombre)
+4. **GMB** (Envigado HQ): 1 post/mes enlazando landing ciudad + 1 guía conocimiento
+5. **PSI móvil** (cuando haya cuota): home, catálogo, 1 PDP top — anotar LCP/CLS en backlog
+
+| Fuente                    | Estado                           |
+| ------------------------- | -------------------------------- |
+| GSC top 50 queries/pages  | **Manual** — checklist arriba    |
+| PageSpeed Insights móvil  | Re-intentar; antes 429 quota     |
+| GSC sitemap + URL inspect | Ops humano — checklist arriba    |
+| GMB posts                 | Ops marketing — checklist arriba |
 
 ## Top 20 PDP (proxy sin GSC)
 
@@ -32,14 +44,14 @@ Keywords `seo_keywords_es/en` sembradas en `mock-productos.json` (17 vacíos + m
 
 ## Gaps abiertos por fase
 
-| Phase | Gap                                                      | Priority        |
-| ----- | -------------------------------------------------------- | --------------- |
-| 1     | Titles PDP vía `buildProductoPageTitle` + keywords top20 | P0 **en curso** |
-| 2     | Copy + FAQ categorías                                    | P1              |
-| 3     | Landings ciudad                                          | P1              |
-| 4     | Cadencia blog                                            | P1              |
-| 5     | CWV/LCP                                                  | P2              |
-| 6     | GMB + lead magnets                                       | P2–P3           |
+| Phase | Gap                              | Priority    |
+| ----- | -------------------------------- | ----------- |
+| 1     | Titles PDP + keywords top20      | P0 **done** |
+| 2     | Copy + FAQ categorías / familias | P1 **done** |
+| 3     | Landings ciudad                  | P1 **done** |
+| 4     | 4 posts conocimiento + linking   | P1 **done** |
+| 5     | CWV/LCP (medición PSI)           | P2 ops      |
+| 6     | GMB + GSC indexación             | P2–P3 ops   |
 
 ## Owners
 
