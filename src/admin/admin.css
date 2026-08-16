@@ -128,6 +128,30 @@
   gap: 16px;
 }
 
+.admin-md-editor {
+  display: grid;
+  gap: 8px;
+}
+
+.admin-md-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.admin-md-toolbar__btn {
+  min-width: 2.25rem;
+  padding: 0.35rem 0.55rem;
+  font-size: 0.8rem;
+}
+
+.admin-md-body {
+  min-height: 280px !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
 .admin-markdown-preview {
   margin-top: 10px;
   padding: 14px;

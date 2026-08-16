@@ -215,6 +215,10 @@ type ArticuloDraft = {
   cuerpo_en: string;
   imagen: string;
   publicado: boolean;
+  autor_tipo: string;
+  autor_nombre: string;
+  autor_empresa: string;
+  autor_bio_corta: string;
 };
 
 interface CampoRevisable {
@@ -419,11 +423,12 @@ function parseView(hash: string): View {
     raw === 'envios' ||
     raw === 'resenas' ||
     raw === 'conocimiento' ||
+    raw === 'blog' ||
     raw === 'propuestas' ||
     raw === 'ingesta' ||
     raw === 'asesor'
   ) {
-    return raw;
+    return raw === 'blog' ? 'conocimiento' : raw;
   }
   return 'dashboard';
 }
@@ -662,7 +667,7 @@ async function routeView(): Promise<{ title: string; body: string }> {
   if (state.view === 'envios') return { title: 'Tarifas de envio', body: await enviosView() };
   if (state.view === 'resenas') return { title: 'Resenas', body: await resenasView() };
   if (state.view === 'conocimiento')
-    return { title: 'Conocimiento', body: await conocimientoView() };
+    return { title: 'Blog / Conocimiento', body: await conocimientoView() };
   if (state.view === 'propuestas')
     return { title: 'Propuestas de articulos', body: await propuestasView() };
   if (state.view === 'ingesta') return { title: 'Ingesta PDF', body: await ingestaView() };
@@ -691,8 +696,8 @@ function shellHtml(title: string, body: string): string {
     ['plantillas', 'Emails'],
     ['reportes', 'Reportes'],
     ['marketing', 'Marketing'],
-    ['conocimiento', 'Conocimiento'],
-    ['propuestas', 'Propuestas'],
+    ['conocimiento', 'Blog'],
+    ['propuestas', 'Propuestas blog'],
     ['asesor', 'Asesor'],
   ];
   return `
@@ -4979,28 +4984,37 @@ async function conocimientoView(): Promise<string> {
   return `
     <section class="admin-panel admin-panel--conocimiento-list">
       <div class="admin-panel__head">
-        <h2>Articulos</h2>
-        <a class="admin-button admin-button--ghost" href="#/conocimiento">Nuevo articulo</a>
+        <h2>Articulos del blog</h2>
+        <a class="admin-button" href="#/conocimiento">${draft.id ? 'Nuevo articulo' : 'Ir al formulario'}</a>
       </div>
       <div class="admin-help" style="padding:0 16px 12px">
-        CMS basico de articulos editorial: crea, edita y publica contenido para la seccion de Conocimiento.
+        Editor CMS del blog publico (<code>/es/conocimiento/</code>). Markdown + vista previa. Guardar borrador o publicar y pulsar <strong>Publicar cambios</strong> para rebuild.
+      </div>
+      <div style="padding:0 16px 12px">
+        <label class="admin-field">Buscar
+          <input type="search" data-article-filter placeholder="Slug, titulo ES/EN…" autocomplete="off" />
+        </label>
       </div>
       ${
         articulos.length
-          ? `<div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Estado</th><th>Slug</th><th>Titulo ES</th><th>Titulo EN</th><th>Actualizado</th><th>Acciones</th></tr></thead><tbody>${articulos
+          ? `<div class="admin-table-wrap"><table class="admin-table" data-article-table><thead><tr><th>Estado</th><th>Slug</th><th>Titulo ES</th><th>Titulo EN</th><th>Actualizado</th><th>Acciones</th></tr></thead><tbody>${articulos
               .map(row => {
                 const published = Boolean(row.publicado);
-                return `<tr>
+                const slug = text(row.slug);
+                const tituloEs = text(row.titulo_es);
+                const tituloEn = text(row.titulo_en);
+                const haystack = `${slug} ${tituloEs} ${tituloEn}`.toLowerCase();
+                return `<tr data-article-row data-filter-text="${escapeHtml(haystack)}">
                     <td>${published ? '<span class="admin-badge admin-badge--ok">Publicado</span>' : '<span class="admin-badge admin-badge--warn">Borrador</span>'}</td>
-                    <td>${escapeHtml(text(row.slug))}</td>
-                    <td>${escapeHtml(text(row.titulo_es))}</td>
-                    <td>${escapeHtml(text(row.titulo_en) || '—')}</td>
+                    <td>${escapeHtml(slug)}</td>
+                    <td>${escapeHtml(tituloEs)}</td>
+                    <td>${escapeHtml(tituloEn || '—')}</td>
                     <td>${escapeHtml(text(row.updated_at) || text(row.created_at))}</td>
                     <td>
                       <a class="admin-button admin-button--ghost" href="#/conocimiento?id=${encodeURIComponent(text(row.id))}">Editar</a>
                       ${
                         published
-                          ? `<a class="admin-button admin-button--ghost" href="/es/conocimiento/${encodeURIComponent(text(row.slug))}" target="_blank" rel="noreferrer noopener">Ver</a>`
+                          ? `<a class="admin-button admin-button--ghost" href="/es/conocimiento/${encodeURIComponent(slug)}/" target="_blank" rel="noreferrer noopener">Ver</a>`
                           : `<span class="admin-help" title="Publica el articulo para verlo en el sitio">Borrador</span>`
                       }
                     </td>
@@ -5010,7 +5024,7 @@ async function conocimientoView(): Promise<string> {
           : '<div style="padding:16px"><div class="admin-alert">Aún no hay artículos. Crea el primero con el formulario de abajo.</div></div>'
       }
     </section>
-    <section class="admin-panel admin-panel--conocimiento-form">
+    <section class="admin-panel admin-panel--conocimiento-form" id="article-editor">
       <div class="admin-panel__head">
         <h2>${draft.id ? 'Editar articulo' : 'Nuevo articulo'}</h2>
         ${draft.id ? `<a class="admin-button admin-button--ghost" href="#/conocimiento">Limpiar</a>` : ''}
@@ -5022,6 +5036,16 @@ async function conocimientoView(): Promise<string> {
           ${field('titulo_es', 'Titulo ES', draft.titulo_es, true)}
           ${field('titulo_en', 'Titulo EN', draft.titulo_en)}
         </div>
+        <div class="admin-article-toprow">
+          ${selectStatic('autor_tipo', 'Tipo de autor', draft.autor_tipo, [
+            ['ime', 'I-ME'],
+            ['cliente', 'Cliente'],
+            ['fabricante', 'Fabricante'],
+          ])}
+          ${field('autor_nombre', 'Nombre autor', draft.autor_nombre)}
+          ${field('autor_empresa', 'Empresa autor', draft.autor_empresa)}
+        </div>
+        ${field('autor_bio_corta', 'Bio corta autor', draft.autor_bio_corta)}
         <div class="admin-upload-box">
           <div class="admin-upload-box__info">
             <div class="admin-help">Imagen principal del artículo</div>
@@ -5034,22 +5058,22 @@ async function conocimientoView(): Promise<string> {
         </div>
         <div class="admin-markdown-grid">
           <div>
-            ${textarea('cuerpo_es', 'Cuerpo ES', draft.cuerpo_es)}
+            ${markdownEditor('cuerpo_es', 'Cuerpo ES (Markdown)', draft.cuerpo_es)}
             <div class="admin-help" style="margin-top:8px">Vista previa ES</div>
             <div class="admin-markdown-preview" data-article-preview-es>${renderMarkdown(draft.cuerpo_es || '')}</div>
           </div>
           <div>
-            ${textarea('cuerpo_en', 'Cuerpo EN', draft.cuerpo_en)}
+            ${markdownEditor('cuerpo_en', 'Cuerpo EN (Markdown)', draft.cuerpo_en)}
             <div class="admin-help" style="margin-top:8px">Vista previa EN</div>
             <div class="admin-markdown-preview" data-article-preview-en>${renderMarkdown(draft.cuerpo_en || '')}</div>
           </div>
         </div>
-        ${checkbox('publicado', 'Publicado', draft.publicado)}
+        ${checkbox('publicado', 'Publicado (visible en sitio tras rebuild)', draft.publicado)}
         <div class="admin-toolbar">
           <button class="admin-button" type="submit">Guardar articulo</button>
           ${draft.id ? '<button class="admin-button admin-button--danger" data-article-delete type="button">Eliminar articulo</button>' : ''}
         </div>
-        <div class="admin-alert">El contenido del CMS vive en "articulos". Las páginas publicas solo muestran registros publicados. Al publicar, la imagen se traslada y optimiza en el sitio de producción durante el rebuild (deja de depender de Supabase para servirla).</div>
+        <div class="admin-alert">El contenido vive en <code>articulos</code>. Solo filas publicadas salen en el sitio. Tras publicar, usa <strong>Publicar cambios</strong> en la barra superior si el rebuild no arranca solo.</div>
       </form>
     </section>`;
 }
@@ -5988,6 +6012,19 @@ function bindArticulos() {
   const form = app.querySelector<HTMLFormElement>('[data-article-form]');
   if (!form) return;
 
+  const filterInput = app.querySelector<HTMLInputElement>('[data-article-filter]');
+  filterInput?.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    app.querySelectorAll<HTMLTableRowElement>('[data-article-row]').forEach(row => {
+      const hay = row.getAttribute('data-filter-text') || '';
+      row.hidden = Boolean(q) && !hay.includes(q);
+    });
+  });
+
+  if (state.recordId) {
+    app.querySelector('#article-editor')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
   form.addEventListener('input', event => {
     const target = event.target;
     if (!(target instanceof HTMLInputElement) || target.name !== 'titulo_es') return;
@@ -5998,6 +6035,8 @@ function bindArticulos() {
   form.querySelectorAll<HTMLButtonElement>('[data-upload]').forEach(button => {
     button.addEventListener('click', async () => uploadFile(button, form));
   });
+
+  bindMarkdownToolbars(form);
 
   const previewEs = form.querySelector<HTMLElement>('[data-article-preview-es]');
   const previewEn = form.querySelector<HTMLElement>('[data-article-preview-en]');
@@ -6019,6 +6058,9 @@ function bindArticulos() {
     const data = new FormData(form);
     const id = String(data.get('id') ?? '');
     const slug = String(data.get('slug') ?? '').trim();
+    const autorTipoRaw = String(data.get('autor_tipo') ?? 'ime').trim();
+    const autorTipo =
+      autorTipoRaw === 'cliente' || autorTipoRaw === 'fabricante' ? autorTipoRaw : 'ime';
     const payload: Row = {
       slug,
       titulo_es: String(data.get('titulo_es') ?? '').trim(),
@@ -6026,6 +6068,10 @@ function bindArticulos() {
       cuerpo_es: emptyToNull(data.get('cuerpo_es')),
       cuerpo_en: emptyToNull(data.get('cuerpo_en')),
       imagen: emptyToNull(data.get('imagen')),
+      autor_tipo: autorTipo,
+      autor_nombre: emptyToNull(data.get('autor_nombre')) || 'Equipo I-ME',
+      autor_empresa: emptyToNull(data.get('autor_empresa')),
+      autor_bio_corta: emptyToNull(data.get('autor_bio_corta')),
       publicado:
         form.elements.namedItem('publicado') instanceof HTMLInputElement &&
         (form.elements.namedItem('publicado') as HTMLInputElement).checked,
@@ -6087,6 +6133,84 @@ function bindArticulos() {
     location.hash = '#/conocimiento';
     await render();
   });
+}
+
+function bindMarkdownToolbars(form: HTMLFormElement) {
+  form.querySelectorAll<HTMLElement>('[data-md-editor]').forEach(editor => {
+    const textarea = editor.querySelector<HTMLTextAreaElement>('[data-md-body]');
+    if (!textarea) return;
+    editor.querySelectorAll<HTMLButtonElement>('[data-md-cmd]').forEach(button => {
+      button.addEventListener('click', () => {
+        applyMarkdownCommand(textarea, button.dataset.mdCmd || '');
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+    });
+  });
+}
+
+function applyMarkdownCommand(textarea: HTMLTextAreaElement, cmd: string) {
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  const value = textarea.value;
+  const selected = value.slice(start, end);
+
+  const wrap = (before: string, after: string, placeholder: string) => {
+    const body = selected || placeholder;
+    const next = value.slice(0, start) + before + body + after + value.slice(end);
+    textarea.value = next;
+    const selStart = start + before.length;
+    textarea.focus();
+    textarea.setSelectionRange(selStart, selStart + body.length);
+  };
+
+  const prefixLines = (prefix: string) => {
+    const block = selected || 'item';
+    const lined = block
+      .split('\n')
+      .map(line => (line.trim() ? `${prefix}${line.replace(/^\s*[-*>]\s*/, '')}` : line))
+      .join('\n');
+    const next = value.slice(0, start) + lined + value.slice(end);
+    textarea.value = next;
+    textarea.focus();
+    textarea.setSelectionRange(start, start + lined.length);
+  };
+
+  switch (cmd) {
+    case 'h2':
+      wrap('\n## ', '\n', 'Titulo');
+      break;
+    case 'h3':
+      wrap('\n### ', '\n', 'Subtitulo');
+      break;
+    case 'bold':
+      wrap('**', '**', 'negrita');
+      break;
+    case 'italic':
+      wrap('_', '_', 'cursiva');
+      break;
+    case 'link':
+      wrap('[', '](https://i-me.com.co/es/)', 'texto del enlace');
+      break;
+    case 'ul':
+      prefixLines('- ');
+      break;
+    case 'quote':
+      prefixLines('> ');
+      break;
+    case 'hr': {
+      const snippet = '\n\n---\n\n';
+      textarea.value = value.slice(0, start) + snippet + value.slice(end);
+      const pos = start + snippet.length;
+      textarea.focus();
+      textarea.setSelectionRange(pos, pos);
+      break;
+    }
+    case 'pdp':
+      wrap('[', '](/es/productos/slug-del-producto/)', 'Nombre producto');
+      break;
+    default:
+      break;
+  }
 }
 
 function bindProveedorProductos() {
@@ -8823,6 +8947,7 @@ function productDraft(row: Row | null): ProductoDraft {
 }
 
 function articleDraft(row: Row | null): ArticuloDraft {
+  const autorTipo = text(row?.autor_tipo);
   return {
     id: text(row?.id) || undefined,
     slug: text(row?.slug),
@@ -8832,6 +8957,10 @@ function articleDraft(row: Row | null): ArticuloDraft {
     cuerpo_en: text(row?.cuerpo_en),
     imagen: text(row?.imagen),
     publicado: row ? Boolean(row.publicado) : false,
+    autor_tipo: autorTipo === 'cliente' || autorTipo === 'fabricante' ? autorTipo : 'ime',
+    autor_nombre: text(row?.autor_nombre) || 'Equipo I-ME',
+    autor_empresa: text(row?.autor_empresa) || 'I-ME International Medical Enterprise',
+    autor_bio_corta: text(row?.autor_bio_corta),
   };
 }
 
@@ -9246,6 +9375,34 @@ function field(
 
 function textarea(name: string, label: string, value = ''): string {
   return `<label class="admin-field">${escapeHtml(label)}<textarea name="${escapeHtml(name)}">${escapeHtml(value)}</textarea></label>`;
+}
+
+function markdownEditor(name: string, label: string, value = ''): string {
+  const cmds: Array<[string, string, string]> = [
+    ['h2', 'H2', 'Titulo H2'],
+    ['h3', 'H3', 'Titulo H3'],
+    ['bold', 'B', 'Negrita'],
+    ['italic', 'I', 'Cursiva'],
+    ['link', 'Link', 'Enlace'],
+    ['ul', 'Lista', 'Lista con viñetas'],
+    ['quote', '>', 'Cita'],
+    ['hr', '—', 'Separador'],
+    ['pdp', 'PDP', 'Enlace producto /es/productos/slug'],
+  ];
+  return `
+    <div class="admin-md-editor" data-md-editor>
+      <div class="admin-md-toolbar" role="toolbar" aria-label="Formato ${escapeHtml(label)}">
+        ${cmds
+          .map(
+            ([cmd, labelBtn, title]) =>
+              `<button type="button" class="admin-button admin-button--ghost admin-md-toolbar__btn" data-md-cmd="${cmd}" title="${escapeHtml(title)}">${escapeHtml(labelBtn)}</button>`
+          )
+          .join('')}
+      </div>
+      <label class="admin-field">${escapeHtml(label)}
+        <textarea name="${escapeHtml(name)}" class="admin-md-body" data-md-body rows="18">${escapeHtml(value)}</textarea>
+      </label>
+    </div>`;
 }
 
 function checkbox(name: string, label: string, checked: boolean): string {
