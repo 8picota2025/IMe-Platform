@@ -565,7 +565,7 @@
   min-height: 500px;
   height: 100%;
   border-radius: var(--radius-xl);
-  background: url('/assets/img/surgery-room.jpg') center/cover no-repeat;
+  background: url('/assets/img/sala-cirugia-hospitalaria-ime-colombia.webp') center/cover no-repeat;
   box-shadow: var(--shadow-lg);
   position: relative;
   overflow: hidden;

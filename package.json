@@ -18,6 +18,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "mirror:images": "node --env-file=.env scripts/mirror-cms-images.mjs",
+    "optimize:images": "node scripts/optimize-site-images.mjs",
     "import:gmd": "node --env-file=.env scripts/import-gmd-catalog.mjs",
     "import:gmd-images": "node --env-file=.env scripts/persist-gmd-images.mjs",
     "reindex:voyage": "node --env-file=.env scripts/reindex-voyage-embeddings.mjs products",

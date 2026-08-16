@@ -278,7 +278,7 @@ export function buildOrganizationJsonLd(): Record<string, unknown> {
       width: 200,
       height: 60,
     },
-    image: `${SITE}/assets/img/javier-fundador-ime.png`,
+    image: `${SITE}/assets/img/javier-fundador-ime-equipos-biomedicos-colombia.webp`,
     email: 'info@i-me.com.co',
     taxID: '901871720-1',
     address: {
@@ -329,7 +329,7 @@ export function buildOrganizationJsonLd(): Record<string, unknown> {
       '@id': `${SITE}/#founder`,
       name: 'Javier',
       jobTitle: 'Fundador y Director General',
-      image: `${SITE}/assets/img/javier-fundador-ime.png`,
+      image: `${SITE}/assets/img/javier-fundador-ime-equipos-biomedicos-colombia.webp`,
       worksFor: { '@id': `${SITE}/#organization` },
       knowsAbout: [
         'Equipos biomédicos',

@@ -1,8 +1,13 @@
 /**
- * Los artículos del CMS no tienen campo de imagen: se asigna una imagen
- * real del proyecto por slug (con fallback por palabra clave) para las
- * tarjetas y cabeceras del centro de conocimiento.
+ * Imágenes de artículos del blog/conocimiento.
+ *
+ * Prioridad (resolverImagenArticulo):
+ * 1. Mirror estático generado en build desde articulos.imagen (CMS)
+ * 2. URL CMS articulos.imagen (Supabase)
+ * 3. Fallback por slug/palabra SOLO si no hay imagen en CMS
  */
+import { imagenMirrorParaArticulo } from './conocimiento-imagen-manifest';
+
 export interface ImagenArticulo {
   src: string;
   width: number;
@@ -82,14 +87,43 @@ const POR_PALABRA: Array<{ patron: RegExp; imagen: ImagenArticulo }> = [
 ];
 
 const POR_DEFECTO: ImagenArticulo = {
-  src: '/assets/img/soluciones-biomedicas-opt.jpg',
+  src: '/assets/img/soluciones-biomedicas-opt.webp',
   width: 800,
   height: 479,
 };
 
+/** Fallback sin CMS (mock / artículo sin imagen). */
 export function imagenParaArticulo(slug: string): ImagenArticulo {
   const directa = POR_SLUG[slug];
   if (directa) return directa;
   const porPalabra = POR_PALABRA.find(({ patron }) => patron.test(slug));
   return porPalabra?.imagen ?? POR_DEFECTO;
+}
+
+export interface ArticuloImagenInput {
+  slug: string;
+  imagen?: string | null;
+}
+
+/**
+ * Fuente de verdad: imagen CMS. El mirror solo sirve esa misma imagen
+ * optimizada; nunca se sustituye por un fallback de slug/keyword si hay CMS.
+ */
+export function resolverImagenArticulo(articulo: ArticuloImagenInput): ImagenArticulo {
+  const cmsUrl = typeof articulo.imagen === 'string' ? articulo.imagen.trim() : '';
+  if (cmsUrl) {
+    const mirrored = imagenMirrorParaArticulo(articulo.slug);
+    if (mirrored) return mirrored;
+    return { src: cmsUrl, width: 1200, height: 675 };
+  }
+  const mirrored = imagenMirrorParaArticulo(articulo.slug);
+  if (mirrored) return mirrored;
+  return imagenParaArticulo(articulo.slug);
+}
+
+/** Absolute URL for JSON-LD / OG (handles already-absolute Supabase URLs). */
+export function absoluteImagenUrl(src: string, site = 'https://i-me.com.co'): string {
+  if (/^https?:\/\//i.test(src)) return src;
+  const path = src.startsWith('/') ? src : `/${src}`;
+  return `${site.replace(/\/$/, '')}${path}`;
 }

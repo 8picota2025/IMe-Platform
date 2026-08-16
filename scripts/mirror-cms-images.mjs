@@ -1,33 +1,27 @@
 #!/usr/bin/env node
 /**
- * Descarga las imágenes de artículos publicadas desde Supabase Storage,
- * las optimiza (resize + WebP) y las copia como assets estáticos de public/.
+ * Descarga imágenes CMS (articulos.imagen), optimiza a WebP y publica assets
+ * estáticos con nombres SEO + hash de contenido (cache-bust).
  *
- * El objetivo: el sitio construido sirve las imágenes directamente desde el
- * dominio de producción (Hostinger), sin depender de Supabase Storage en
- * tiempo de carga (evita latencia/timeouts cruzados y aprovecha el CDN del
- * propio hosting). Supabase sigue siendo el origen/fuente de verdad: el CMS
- * sube ahí, este script "traslada" una copia optimizada a la web en cada
- * build.
+ * Fuente de verdad = URL en Supabase. El HTML del blog prioriza este mirror
+ * solo cuando el artículo tiene imagen CMS; si no, usa fallbacks.
  *
- * Se ejecuta como paso previo a `astro build` (ver package.json). No-op
- * silencioso si no hay credenciales de Supabase (build local sin .env): deja
- * un manifest vacío y las páginas caen de vuelta a la URL de Supabase o al
- * fallback por palabra clave.
+ * Nombre: {slug}-conocimiento-equipos-biomedicos-ime-{hash8}.webp
  */
-
 import { createClient } from '@supabase/supabase-js';
+import { createHash } from 'node:crypto';
 import { mkdir, readdir, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
 
 const SUPABASE_URL = process.env.PUBLIC_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.PUBLIC_SUPABASE_ANON_KEY;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 const OUT_DIR = path.resolve('public/assets/img/conocimiento');
 const MANIFEST_PATH = path.resolve('src/data/generated/articulo-imagenes.json');
 const MAX_WIDTH = 1600;
-const WEBP_QUALITY = 82;
+const WEBP_QUALITY = 78;
 
 async function writeManifest(manifest) {
   await mkdir(path.dirname(MANIFEST_PATH), { recursive: true });
@@ -40,38 +34,53 @@ async function clearOutDir() {
   await Promise.all(existing.map(name => unlink(path.join(OUT_DIR, name)).catch(() => {})));
 }
 
+function seoFilename(slug, hash8) {
+  const safe = String(slug)
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+  return `${safe}-conocimiento-equipos-biomedicos-ime-${hash8}.webp`;
+}
+
 async function mirrorOne(slug, imagenUrl) {
-  const response = await fetch(imagenUrl);
+  const response = await fetch(imagenUrl, {
+    headers: { Accept: 'image/avif,image/webp,image/*,*/*;q=0.8' },
+  });
   if (!response.ok) throw new Error(`HTTP ${response.status} al descargar ${imagenUrl}`);
   const buffer = Buffer.from(await response.arrayBuffer());
+  const hash8 = createHash('sha1').update(buffer).digest('hex').slice(0, 8);
 
   const base = sharp(buffer).rotate();
   const metadata = await base.metadata();
   const resized =
     metadata.width && metadata.width > MAX_WIDTH ? base.resize({ width: MAX_WIDTH }) : base;
-  const output = await resized.webp({ quality: WEBP_QUALITY }).toBuffer();
+  const output = await resized.webp({ quality: WEBP_QUALITY, effort: 4 }).toBuffer();
   const outputMeta = await sharp(output).metadata();
 
-  const filename = `${slug}.webp`;
+  const filename = seoFilename(slug, hash8);
   await writeFile(path.join(OUT_DIR, filename), output);
 
   return {
     src: `/assets/img/conocimiento/${filename}`,
     width: outputMeta.width ?? MAX_WIDTH,
     height: outputMeta.height ?? Math.round((MAX_WIDTH * 9) / 16),
+    source_url: imagenUrl,
+    hash: hash8,
   };
 }
 
 async function main() {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  if (!SUPABASE_URL || (!SUPABASE_ANON_KEY && !SUPABASE_SERVICE_ROLE_KEY)) {
     console.log(
-      '[mirror-cms-images] PUBLIC_SUPABASE_URL/PUBLIC_SUPABASE_ANON_KEY no configurados: se omite el mirror.'
+      '[mirror-cms-images] Sin PUBLIC_SUPABASE_URL / keys: se omite el mirror (manifest vacío).'
     );
     await writeManifest({});
     return;
   }
 
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  const key = SUPABASE_SERVICE_ROLE_KEY || SUPABASE_ANON_KEY;
+  const supabase = createClient(SUPABASE_URL, key, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
@@ -100,6 +109,7 @@ async function main() {
     try {
       manifest[slug] = await mirrorOne(slug, imagenUrl);
       ok += 1;
+      console.log(`[mirror-cms-images] OK ${slug} → ${manifest[slug].src}`);
     } catch (err) {
       failed += 1;
       console.error(
