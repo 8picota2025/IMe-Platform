@@ -31,7 +31,7 @@ import { pushClienteToTwenty } from '../_shared/twenty-commerce-sync.ts';
 import {
   calcularTotalOfertado,
   hashTokenSha256,
-  ofertaCompleta,
+  ofertaListaParaCobro,
   parseLineasOferta,
   tokenExpirado,
   type CotizacionOfertaRow,
@@ -666,7 +666,7 @@ Deno.serve(
         return errorResponse({ code: 'TOKEN_INVALIDO', message: 'Token invalido' }, 401, origin);
       }
       lineasCotizacion = parseLineasOferta(cotizacion.productos);
-      const ofertaCheck = ofertaCompleta(lineasCotizacion, cotizacion.condiciones);
+      const ofertaCheck = ofertaListaParaCobro(lineasCotizacion, cotizacion.condiciones);
       if (!ofertaCheck.ok) {
         return errorResponse(
           { code: ofertaCheck.error, message: 'Oferta incompleta' },

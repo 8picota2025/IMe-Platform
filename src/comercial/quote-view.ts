@@ -7,6 +7,7 @@ import {
   formatQuoteMoney,
   normalizarMonedaOferta,
   ofertaCompleta,
+  ofertaListaParaCobro,
   parseLineasOferta,
   resolveCatalogUnitPrice,
   sanitizarLineasComercial,
@@ -45,6 +46,8 @@ import {
 const ERROR_COPY: Record<string, string> = {
   OFERTA_SIN_LINEAS: 'Agrega al menos un producto.',
   OFERTA_SIN_PRECIO: 'Falta el precio en alguna línea.',
+  OFERTA_PRECIO_PENDIENTE:
+    'Hay líneas en Pendiente validar. Asigna precio antes de enviar o formalizar.',
   PRECIO_PENDIENTE: 'Hay líneas en Pendiente validar. Asigna precio antes de validar al CRM.',
   CRM_SYNC_FAILED: 'No se pudo sincronizar con el CRM.',
   QUOTE_LOCKED: 'No se puede borrar un presupuesto convertido a pedido.',
@@ -870,7 +873,7 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
 
   const runSend = async (canal: 'email' | 'whatsapp') => {
     const parsed = readForm(editor);
-    const check = ofertaCompleta(parsed.productos, parsed.condiciones);
+    const check = ofertaListaParaCobro(parsed.productos, parsed.condiciones);
     if (!check.ok) {
       toast(errMsg(check.error), 'error');
       return;

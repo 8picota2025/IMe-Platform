@@ -232,6 +232,23 @@ export function ofertaCompleta(
   return r.ok ? { ok: true } : { ok: false, error: r.error };
 }
 
+/**
+ * Gate for send / formalizar / crear-pago / convertir.
+ * Drafts may keep `precio_pendiente_validar` for PDF preview; live checkout must not.
+ */
+export function ofertaListaParaCobro(
+  lineas: CotizacionLineaOferta[],
+  condiciones: string | null | undefined
+): { ok: true } | { ok: false; error: string } {
+  if (lineas.some(l => l.precio_pendiente_validar)) {
+    return { ok: false, error: 'OFERTA_PRECIO_PENDIENTE' };
+  }
+  if (!(calcularTotalOfertado(lineas) > 0)) {
+    return { ok: false, error: 'OFERTA_SIN_PRECIO' };
+  }
+  return ofertaCompleta(lineas, condiciones);
+}
+
 export const COTIZACION_ESTADOS_PENDIENTES = ['nueva', 'en_revision', 'respondida'] as const;
 export const COTIZACION_ESTADOS_ENVIADAS = ['enviada', 'convertida'] as const;
 
@@ -296,7 +313,7 @@ export function puedeFormalizar(row: CotizacionOfertaRow, now = new Date()): boo
   if (row.pedido_id) return false;
   if (tokenExpirado(row.formalizacion_token_expira_at, now)) return false;
   if (!row.formalizacion_token_hash) return false;
-  return ofertaCompleta(parseLineasOferta(row.productos), row.condiciones).ok;
+  return ofertaListaParaCobro(parseLineasOferta(row.productos), row.condiciones).ok;
 }
 
 export function splitNombreApellido(nombreCompleto: string): { nombre: string; apellido: string } {
