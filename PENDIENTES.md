@@ -310,7 +310,10 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
       lleguen credenciales Wompi
 - [x] Prueba real de `/admin` contra Supabase con usuario admin y RLS aplicadas
 - [ ] Prueba real de `ingesta-pdf` con ficha PDF/OCR y clave LLM
-- [ ] Prueba real de `trigger-rebuild` contra deploy hook o GitHub repository_dispatch
+- [x] Prueba real de `trigger-rebuild` contra deploy hook o GitHub repository_dispatch
+      (2026-08-16: `repository_dispatch` `trigger-rebuild` OK; Edge secrets vía
+      `CMS_GITHUB_TOKEN` / `CMS_GITHUB_REPOSITORY` / `CMS_GITHUB_DISPATCH_EVENT`
+      en `deploy-supabase-functions.yml`; default event alineado a `trigger-rebuild`)
 - [x] Smoke test post-despliegue (2026-06-14) de `asesor`/`generar-embeddings` ya desplegadas:
       `asesor` con `mensaje` válido responde `503 NOT_CONFIGURED` "BLOQUEANTE_BACKEND:
       TURNSTILE_SECRET_KEY no configurado" (fail-closed correcto antes de tocar presupuesto/RAG,

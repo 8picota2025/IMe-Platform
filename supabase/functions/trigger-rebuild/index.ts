@@ -64,7 +64,8 @@ Deno.serve(async req => {
 
     const githubToken = Deno.env.get('GITHUB_TOKEN');
     const repository = Deno.env.get('GITHUB_REPOSITORY');
-    const eventType = Deno.env.get('GITHUB_DISPATCH_EVENT') ?? 'cms_publish';
+    // Must match deploy-prod.yml repository_dispatch.types (default: trigger-rebuild).
+    const eventType = Deno.env.get('GITHUB_DISPATCH_EVENT') ?? 'trigger-rebuild';
     if (!githubToken || !repository) {
       await logPublish({
         mode: 'unconfigured',

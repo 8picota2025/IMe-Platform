@@ -56,9 +56,28 @@ La IA no publica, no autoguarda y no debe completar datos ausentes.
 ## Publicar Cambios
 
 - El boton `Publicar cambios` llama a `trigger-rebuild`.
-- La Edge Function usa `CI_DEPLOY_HOOK` o `GITHUB_TOKEN` server-side.
+- La Edge Function usa `CI_DEPLOY_HOOK` **o** `GITHUB_TOKEN` + `GITHUB_REPOSITORY` server-side.
+- `GITHUB_DISPATCH_EVENT` debe ser `trigger-rebuild` (mismo valor que `deploy-prod.yml`).
+- Secretos GitHub del repo (se empujan a Edge en `deploy-supabase-functions.yml`):
+  - `CMS_GITHUB_TOKEN` → Edge `GITHUB_TOKEN`
+  - `CMS_GITHUB_REPOSITORY` → Edge `GITHUB_REPOSITORY` (ej. `8picota2025/IMe-Platform`)
+  - `CMS_GITHUB_DISPATCH_EVENT` → Edge `GITHUB_DISPATCH_EVENT` (`trigger-rebuild`)
 - El secreto nunca se devuelve al cliente.
-- Si no hay credenciales de CI, queda como `NO_EJECUTADO_ENTORNO`.
+- Historial: tabla `cms_publish_log` (panel Dashboard).
+- Tras publicar un articulo con imagen nueva, el rebuild ejecuta `mirror-cms-images` y sube WebP a Hostinger. Sin rebuild exitoso el sitio sigue mostrando la imagen anterior.
+
+## Blog / Conocimiento
+
+- Menu **Blog** (`#/conocimiento` o `#/blog`): listar, buscar, editar Markdown (toolbar), autores, imagen, publicar.
+- Roles con acceso UI + RLS escritura: `owner`, `admin`, `catalogo`, **`ventas`**.
+- Menu **Propuestas blog**: moderar aportes de `/es/conocimiento/publicar/`.
+- Imagenes → bucket Storage `articulos` (max 2 MB en UI).
+
+## Tarifas envío vs Transportistas
+
+- **Tarifas envío** (`#/envios`): zonas/precios checkout (`tarifas_envio`). Rol: `operaciones` (+ owner/admin).
+- **Transportistas** (`#/fulfillments`): tracking/guia de fulfillments dropship. Rol: `operaciones` (+ owner/admin).
+- **Proveedores**: datos del proveedor dropship (no es transportista de ultima milla).
 
 ## Proveedores y productos asignados
 
@@ -74,10 +93,11 @@ La IA no publica, no autoguarda y no debe completar datos ausentes.
 - "Quitar" elimina la asignacion proveedor-producto (no afecta al producto ni al
   proveedor).
 
-## Fulfillments
+## Fulfillments / Transportistas
 
 - Un panel de estadisticas muestra el total de fulfillments pendientes,
   notificados, enviados, entregados y con error.
+- En el menu admin aparece como **Transportistas**.
 - La lista se puede filtrar por estado, proveedor y rango de fechas (creado
   entre "Desde" y "Hasta").
 - Cada fila muestra el pedido asociado, el cliente, el proveedor (si tiene), la
@@ -101,7 +121,7 @@ La IA no publica, no autoguarda y no debe completar datos ausentes.
   consentimiento. Incluye un formulario para cambiar el `estado` manualmente
   (pendiente/pagado/procesando/enviado/entregado/cancelado/error); este cambio
   es solo administrativo y **no** sustituye la verificación server-side de la
-  pasarela. Las notificaciones automáticas al proveedor se disparan desde los
+  pasarela. Las notificaciones automaticas al proveedor se disparan desde los
   webhooks/post-pago cuando el pedido queda pagado.
 
 ## Legales y auditoría F5

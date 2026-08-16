@@ -284,6 +284,8 @@ const VISTAS_POR_ROL: Record<string, Set<View>> = {
     'reportes',
     'marketing',
     'asesor',
+    'conocimiento',
+    'propuestas',
   ]),
   operaciones: new Set<View>([
     'dashboard',
@@ -658,13 +660,13 @@ async function routeView(): Promise<{ title: string; body: string }> {
   if (state.view === 'proveedor-productos')
     return { title: 'Productos del proveedor', body: await proveedorProductosView() };
   if (state.view === 'fulfillments')
-    return { title: 'Fulfillments', body: await fulfillmentsView() };
+    return { title: 'Transportistas / tracking', body: await fulfillmentsView() };
   if (state.view === 'usuarios') return { title: 'Usuarios CMS', body: await usuariosView() };
   if (state.view === 'plantillas')
     return { title: 'Plantillas de email', body: await plantillasView() };
   if (state.view === 'listas') return { title: 'Listas de precio', body: await listasView() };
   if (state.view === 'lista') return { title: 'Lista de precio', body: await listaDetailView() };
-  if (state.view === 'envios') return { title: 'Tarifas de envio', body: await enviosView() };
+  if (state.view === 'envios') return { title: 'Tarifas de envío', body: await enviosView() };
   if (state.view === 'resenas') return { title: 'Resenas', body: await resenasView() };
   if (state.view === 'conocimiento')
     return { title: 'Blog / Conocimiento', body: await conocimientoView() };
@@ -690,8 +692,8 @@ function shellHtml(title: string, body: string): string {
     ['listas', 'Listas de precio'],
     ['resenas', 'Resenas'],
     ['proveedores', 'Proveedores'],
-    ['fulfillments', 'Fulfillments'],
-    ['envios', 'Envios'],
+    ['fulfillments', 'Transportistas'],
+    ['envios', 'Tarifas envío'],
     ['usuarios', 'Usuarios CMS'],
     ['plantillas', 'Emails'],
     ['reportes', 'Reportes'],
@@ -956,7 +958,10 @@ async function enviosView(): Promise<string> {
   const rows = (data ?? []) as Row[];
   return `
     <section class="admin-panel">
-      <div class="admin-panel__head"><h2>Tarifas de envio por zona (mercado CO)</h2></div>
+      <div class="admin-panel__head"><h2>Tarifas de envío por zona (mercado CO)</h2></div>
+      <div class="admin-help" style="padding:0 16px">
+        Costos de checkout por departamento. Guías/tracking del transportista: menú <strong>Transportistas</strong>.
+      </div>
       <div class="admin-panel__body" style="padding:16px">
         ${
           rows.length === 0
@@ -4896,7 +4901,10 @@ async function fulfillmentsView(): Promise<string> {
       ${metric('Con error', conError)}
     </section>
     <section class="admin-panel">
-      <div class="admin-panel__head"><h2>Fulfillments</h2></div>
+      <div class="admin-panel__head"><h2>Transportistas / tracking</h2></div>
+      <div class="admin-help" style="padding:0 16px 12px">
+        Seguimiento de despachos dropship: estado, número de guía y URL del transportista. No es el menú de tarifas por zona (ver <strong>Tarifas envío</strong>).
+      </div>
       <form class="admin-filters" data-fulfillments-filter>
         ${selectStatic('estado', 'Estado', estado, [['', 'Todos'], ...FULFILLMENT_ESTADOS])}
         ${selectStatic('proveedor_id', 'Proveedor', proveedorId, [
@@ -8738,7 +8746,12 @@ async function triggerRebuild() {
   if (json?.ok) {
     toast(`Rebuild solicitado (${json.mode ?? 'ok'})`);
   } else {
-    toast(error?.message ?? json?.error?.message ?? 'No se pudo solicitar rebuild');
+    const detail = error?.message ?? json?.error?.message ?? 'No se pudo solicitar rebuild';
+    toast(
+      /CI_DEPLOY_HOOK|GITHUB_TOKEN|unconfigured|Configurar/i.test(detail)
+        ? 'Publicar cambios: faltan secretos Edge (GITHUB_TOKEN + GITHUB_REPOSITORY). Revisa ADMIN_GUIDE.'
+        : detail
+    );
   }
   // Refresca dashboard si estamos ahí para ver historial; no fuerza navegación.
   if (state.view === 'dashboard') await render();

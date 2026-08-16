@@ -82,6 +82,10 @@ jobs:
           SIIGO_TAX_MAP=${{ secrets.SIIGO_TAX_MAP }}
           WHATSAPP_MODE=${{ secrets.WHATSAPP_MODE }}
           CO_DEFAULT_IVA_PCT=19
+          GITHUB_TOKEN=${{ secrets.CMS_GITHUB_TOKEN }}
+          GITHUB_REPOSITORY=${{ secrets.CMS_GITHUB_REPOSITORY }}
+          GITHUB_DISPATCH_EVENT=${{ secrets.CMS_GITHUB_DISPATCH_EVENT }}
+          CI_DEPLOY_HOOK=${{ secrets.CI_DEPLOY_HOOK }}
           EOF
           grep -vE '^[A-Z_]+=$' .secrets.env > .secrets.filtered.env
           if [ -s .secrets.filtered.env ]; then
