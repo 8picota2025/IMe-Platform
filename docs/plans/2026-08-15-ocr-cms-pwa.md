@@ -49,7 +49,7 @@ OCR existe en botones pequeños de bandeja/editor + mirror local. Usuario necesi
 
 - [x] Hash `#/cotizaciones/escanear` renderiza
 - [x] Cámara y galería abren desde gesto de tap
-- [ ] OCR crea presupuesto y navega al editor
+- [x] OCR crea presupuesto y navega al editor
 - [x] Sin dependencia de `:3847` para UX
 - [x] Deploy prod + hard refresh PWA
 

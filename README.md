@@ -96,3 +96,7 @@ cada sesión. Estado de fases en AGENTS.md sección "Estado de fases".
 - `PENDIENTES.md` — pendientes activos por etiqueta
 - `BACKLOG_V2.md` — fuera de alcance V1
 - `docs/prompts/` — prompts de fase versionados
+- `docs/cms-commercial-architecture.md` — SPA `/comercial/`, cotizaciones, OCR competencia
+- `docs/cms-commercial-setup.md` — setup CMS comercial + Ollama OCR
+- `docs/commercial-quote-dev.md` — runbook PDF presupuestos y OCR
+- `COMMERCE_GUIDE.md` — flujos comercio, pagos, cotización formal
