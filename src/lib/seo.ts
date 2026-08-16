@@ -324,20 +324,6 @@ export function buildOrganizationJsonLd(): Record<string, unknown> {
       url: `${SITE}/es/catalogo/`,
       numberOfItems: 33,
     },
-    founder: {
-      '@type': 'Person',
-      '@id': `${SITE}/#founder`,
-      name: 'Javier',
-      jobTitle: 'Fundador y Director General',
-      image: `${SITE}/assets/img/ime-equipos-biomedicos-colombia-institucional.webp`,
-      worksFor: { '@id': `${SITE}/#organization` },
-      knowsAbout: [
-        'Equipos biomédicos',
-        'Distribución médica en Colombia',
-        'INVIMA',
-        'Financiamiento de tecnología hospitalaria',
-      ],
-    },
   };
 }
 

@@ -52,6 +52,8 @@ const DELETE_ORPHANS = [
   'sala-cirugia-robotica.jpg',
   'sala-radiologia-diagnostica.jpg',
   'surgery-room.jpg',
+  'javier-fundador-ime.png',
+  'javier-fundador-ime-equipos-biomedicos-colombia.webp',
   'equipos-biomedicos-vanguardia.webp', // pages use *-opt.webp
   'soluciones-biomedicas.webp', // pages use *-opt.webp
   'quirofanos-inteligentes.webp', // pages use *-opt.webp
