@@ -64,7 +64,7 @@ const seo = buildProductoSeo(producto, locale, familia.nombre, producto.marca);
 const noindex = producto.slug === 'test';
 const certificaciones = normalizarEspecificaciones(producto.especificaciones)
   .filter(item => /normativ/i.test(item.grupo ?? ''))
-  .map(item => [item.nombre, item.valor].filter(Boolean).join(': '))
+  .map(item => [item.clave, item.valor].filter(Boolean).join(': '))
   .filter(Boolean);
 
 const jsonLd = combineJsonLd(
