@@ -62,6 +62,10 @@ const ERROR_COPY: Record<string, string> = {
   COTIZACION_INMUTABLE: 'Esta cotización ya no se edita. Crea una revisión.',
   CONCURRENT_UPDATE: 'Otro comercial guardó esta oferta. Recarga.',
   COTIZACION_YA_CONVERTIDA: 'Ya se convirtió en pedido.',
+  OCR_FAILED: 'OCR falló (moondream/Ollama). Revisa que el puente local esté activo.',
+  OCR_EMPTY: 'No se detectaron datos. Prueba otra foto más nítida.',
+  INTERNAL_ERROR: 'Error interno del servidor. Reintenta; si sigue, avisa a sistemas.',
+  STORAGE_FAILED: 'No se pudo guardar la foto del presupuesto.',
 };
 
 let navGuard: (() => boolean) | null = null;

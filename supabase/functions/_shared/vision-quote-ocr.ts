@@ -1,8 +1,8 @@
 /**
  * OCR/visión de presupuestos competencia → JSON estructurado.
- * Proveedor por defecto: Ollama local `moondream` (sin ChatGPT).
- * Requiere `OLLAMA_BASE_URL` alcanzable desde la Edge Function
- * (localhost en serve local; túnel/cloudflare en prod).
+ * Preferido: puente local moondream (`OCR_BRIDGE_URL`) con `image_url`
+ * (Edge sube a Storage; el túnel NO transporta base64 — evita cuelgues CF).
+ * Fallback: Ollama directo con base64 (`OLLAMA_BASE_URL`) para `functions serve`.
  */
 
 export interface OcrQuoteLine {
@@ -139,13 +139,66 @@ function ollamaBaseUrl(): string {
   return (Deno.env.get('OLLAMA_BASE_URL') ?? 'http://127.0.0.1:11434').replace(/\/+$/, '');
 }
 
+function bridgeBaseUrl(): string {
+  return (Deno.env.get('OCR_BRIDGE_URL') ?? '').replace(/\/+$/, '');
+}
+
 function visionModel(): string {
   return Deno.env.get('LLM_VISION_MODEL')?.trim() || 'moondream';
 }
 
+async function callOcrBridge(imageUrl: string): Promise<{
+  extract: OcrQuoteExtract;
+  model: string;
+  provider: string;
+}> {
+  const base = bridgeBaseUrl();
+  if (!base) throw new Error('OCR_BRIDGE_URL no configurado');
+  const secret = Deno.env.get('OCR_BRIDGE_SECRET')?.trim() ?? '';
+  const timeoutMs = Number(Deno.env.get('OLLAMA_VISION_TIMEOUT_MS') ?? 180_000);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (secret) headers.Authorization = `Bearer ${secret}`;
+    const res = await fetch(`${base}/ocr`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ image_url: imageUrl }),
+      signal: controller.signal,
+    });
+    const raw = await res.text();
+    let payload: {
+      ok?: boolean;
+      extract?: unknown;
+      model?: string;
+      provider?: string;
+      error?: string;
+    } = {};
+    try {
+      payload = JSON.parse(raw) as typeof payload;
+    } catch {
+      /* ignore */
+    }
+    if (!res.ok) {
+      throw new Error(
+        payload.error || `OCR bridge HTTP ${res.status}${raw ? `: ${raw.slice(0, 160)}` : ''}`
+      );
+    }
+    if (!payload.extract) throw new Error('OCR bridge sin extract');
+    return {
+      extract: normalizeExtract(payload.extract),
+      model: payload.model ?? visionModel(),
+      provider: payload.provider ?? 'ollama-bridge',
+    };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 /**
  * Ollama vision (moondream): messages[].images = [base64 sin data-URL].
- * https://github.com/ollama/ollama/blob/main/docs/api.md
+ * Solo para desarrollo local (`functions serve`); en prod usar bridge + image_url.
  */
 async function callOllamaMoondream(
   imageBase64: string
@@ -198,11 +251,26 @@ async function callOllamaMoondream(
 
 export async function extractQuoteFromImage(
   imageBase64: string,
-  _mime: string
+  _mime: string,
+  opts?: { imageUrl?: string }
 ): Promise<{ extract: OcrQuoteExtract; model: string; provider: string }> {
   const provider = (Deno.env.get('OCR_VISION_PROVIDER') ?? 'ollama').toLowerCase();
   if (provider !== 'ollama') {
     throw new Error(`OCR_VISION_PROVIDER=${provider} no soportado. Usa ollama (moondream local).`);
+  }
+
+  const bridge = bridgeBaseUrl();
+  const imageUrl = opts?.imageUrl?.trim();
+  if (bridge) {
+    if (!imageUrl) {
+      throw new Error('OCR_BRIDGE_URL activo requiere imageUrl (Storage firmada)');
+    }
+    try {
+      return await callOcrBridge(imageUrl);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'OCR bridge falló';
+      throw new Error(`${msg}. Comprueba OCR_BRIDGE_URL (${bridge}).`, { cause: err });
+    }
   }
 
   let result: { content: string; model: string };
@@ -211,7 +279,7 @@ export async function extractQuoteFromImage(
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Ollama vision falló';
     throw new Error(
-      `${msg}. Comprueba OLLAMA_BASE_URL (${ollamaBaseUrl()}) y modelo ${visionModel()}.`,
+      `${msg}. Comprueba OLLAMA_BASE_URL (${ollamaBaseUrl()}) / OCR_BRIDGE_URL y modelo ${visionModel()}.`,
       { cause: err }
     );
   }

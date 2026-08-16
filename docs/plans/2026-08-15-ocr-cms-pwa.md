@@ -55,7 +55,8 @@ OCR existe en botones pequeños de bandeja/editor + mirror local. Usuario necesi
 
 ## Phase 5 — Vision = Ollama moondream (no ChatGPT)
 
-- `supabase/functions/_shared/vision-quote-ocr.ts` → solo `OCR_VISION_PROVIDER=ollama`, modelo `LLM_VISION_MODEL=moondream`
-- Local: `OLLAMA_BASE_URL=http://127.0.0.1:11434`
-- Prod Edge: `OLLAMA_BASE_URL` = túnel Cloudflare a Ollama (`cloudflared tunnel --url http://127.0.0.1:11434 --http-host-header localhost`)
-- Secrets CI: `OCR_VISION_PROVIDER`, `OLLAMA_BASE_URL`, `OLLAMA_VISION_TIMEOUT_MS`, `LLM_VISION_MODEL`
+- `vision-quote-ocr.ts` → `OCR_VISION_PROVIDER=ollama`, modelo `moondream`
+- Prod: Edge sube foto a Storage → URL firmada → **puente** `scripts/ocr-moondream-bridge.mjs` (:3850) vía túnel Cloudflare
+- Motivo: POST base64 imagen directo a Ollama por trycloudflare cuelga → Edge timeout → 500
+- Arranque local: `node scripts/ocr-moondream-bridge.mjs` + `cloudflared tunnel --url http://127.0.0.1:3850 --http-host-header localhost`
+- Secrets: `OCR_BRIDGE_URL`, `OCR_BRIDGE_SECRET`, `LLM_VISION_MODEL`, `OLLAMA_VISION_TIMEOUT_MS`

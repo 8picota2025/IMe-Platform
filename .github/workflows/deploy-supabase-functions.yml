@@ -58,6 +58,8 @@ jobs:
           LLM_INGEST_MODEL=${{ secrets.LLM_INGEST_MODEL }}
           LLM_VISION_MODEL=${{ secrets.LLM_VISION_MODEL }}
           OCR_VISION_PROVIDER=${{ secrets.OCR_VISION_PROVIDER }}
+          OCR_BRIDGE_URL=${{ secrets.OCR_BRIDGE_URL }}
+          OCR_BRIDGE_SECRET=${{ secrets.OCR_BRIDGE_SECRET }}
           OLLAMA_BASE_URL=${{ secrets.OLLAMA_BASE_URL }}
           OLLAMA_VISION_TIMEOUT_MS=${{ secrets.OLLAMA_VISION_TIMEOUT_MS }}
           IMEIA_API_URL=${{ secrets.IMEIA_API_URL }}

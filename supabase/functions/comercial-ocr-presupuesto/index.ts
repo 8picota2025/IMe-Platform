@@ -197,9 +197,39 @@ Deno.serve(
       return badRequest('mime debe ser image/*', origin);
     }
 
+    // Staging en Storage + URL firmada → puente moondream (túnel sin base64).
+    // Evita 500 por timeout: Cloudflare cuelga al POST de imágenes a Ollama.
+    const stagingPath = `ocr-inbox/${crypto.randomUUID()}.${extForMime(mime)}`;
+    const { error: stageErr } = await supabase.storage
+      .from(BUCKET)
+      .upload(stagingPath, bytes, { contentType: mime, upsert: true });
+    if (stageErr) {
+      return errorResponse(
+        {
+          code: 'STORAGE_FAILED',
+          message: `No se pudo subir imagen para OCR: ${stageErr.message}`,
+        },
+        502,
+        origin
+      );
+    }
+    const { data: signed, error: signErr } = await supabase.storage
+      .from(BUCKET)
+      .createSignedUrl(stagingPath, 600);
+    if (signErr || !signed?.signedUrl) {
+      return errorResponse(
+        {
+          code: 'STORAGE_FAILED',
+          message: `No se pudo firmar URL OCR: ${signErr?.message ?? 'sin URL'}`,
+        },
+        502,
+        origin
+      );
+    }
+
     let vision;
     try {
-      vision = await extractQuoteFromImage(rawB64, mime);
+      vision = await extractQuoteFromImage(rawB64, mime, { imageUrl: signed.signedUrl });
     } catch (err) {
       return errorResponse(
         {
