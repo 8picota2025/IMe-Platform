@@ -93,7 +93,13 @@ const jsonLd = combineJsonLd(
         <h2 style="margin-bottom:1rem">Related equipment</h2>
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem">
           {productos.map(p => (
-            <ProductoCard producto={p} locale={locale} />
+            <ProductoCard
+              producto={{
+                ...p,
+                familia: { slug: content.slug, nombre: name },
+              }}
+              locale={locale}
+            />
           ))}
         </div>
       </section>
