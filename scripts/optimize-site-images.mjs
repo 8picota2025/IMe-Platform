@@ -20,11 +20,6 @@ const PNG_Q = 80;
 /** Conversiones: origen → destino SEO WebP (y opcionalmente PNG OG comprimido). */
 const CONVERT = [
   {
-    from: 'javier-fundador-ime.png',
-    to: 'javier-fundador-ime-equipos-biomedicos-colombia.webp',
-    maxWidth: 1200,
-  },
-  {
     from: 'surgery-room.jpg',
     to: 'sala-cirugia-hospitalaria-ime-colombia.webp',
     maxWidth: 1600,
@@ -57,7 +52,6 @@ const DELETE_ORPHANS = [
   'sala-cirugia-robotica.jpg',
   'sala-radiologia-diagnostica.jpg',
   'surgery-room.jpg',
-  'javier-fundador-ime.png',
   'equipos-biomedicos-vanguardia.webp', // pages use *-opt.webp
   'soluciones-biomedicas.webp', // pages use *-opt.webp
   'quirofanos-inteligentes.webp', // pages use *-opt.webp
