@@ -8,9 +8,10 @@ import { t, getLocalizedPath } from '../i18n/utils';
 interface Props {
   locale: Locale;
   currentPath: string;
+  monolingual?: boolean;
 }
 
-const { locale, currentPath } = Astro.props;
+const { locale, currentPath, monolingual = false } = Astro.props;
 
 const links = [
   { key: 'nav.inicio', href: getLocalizedPath('/', locale) },
@@ -76,14 +77,18 @@ const altHref = getLocalizedPath(currentPath, altLocale);
     <!-- Right actions -->
     <div class="navbar__actions">
       <!-- Selector de idioma -->
-      <a
-        href={altHref}
-        class="navbar__lang-btn"
-        aria-label={`${t(locale, 'nav.cambiar_idioma')} (${altLocale.toUpperCase()})`}
-        lang={altLocale}
-      >
-        {altLocale.toUpperCase()}
-      </a>
+      {
+        !monolingual && (
+          <a
+            href={altHref}
+            class="navbar__lang-btn"
+            aria-label={`${t(locale, 'nav.cambiar_idioma')} (${altLocale.toUpperCase()})`}
+            lang={altLocale}
+          >
+            {altLocale.toUpperCase()}
+          </a>
+        )
+      }
 
       <!-- Toggle tema -->
       <button
@@ -261,11 +266,15 @@ const altHref = getLocalizedPath(currentPath, altLocale);
           </li>
         ))
       }
-      <li>
-        <a href={altHref} class="navbar__mobile-link" lang={altLocale}>
-          {t(locale, 'nav.cambiar_idioma')}: {altLocale.toUpperCase()}
-        </a>
-      </li>
+      {
+        !monolingual && (
+          <li>
+            <a href={altHref} class="navbar__mobile-link" lang={altLocale}>
+              {t(locale, 'nav.cambiar_idioma')}: {altLocale.toUpperCase()}
+            </a>
+          </li>
+        )
+      }
       <li>
         <a
           href={getLocalizedPath('/contacto', locale)}

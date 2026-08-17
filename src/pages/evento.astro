@@ -1,0 +1,862 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { buildCanonical, buildPageTitle, getInstitutionalOgImage } from '../lib/seo';
+
+const title = buildPageTitle('Registro de asistentes al evento');
+const description =
+  'Formulario de registro para asistentes al evento de I-ME. Completa tus datos y recibe la confirmación por correo.';
+const canonical = buildCanonical('/evento');
+const turnstileSiteKey = (
+  (import.meta.env['PUBLIC_TURNSTILE_SITE_KEY'] as string | undefined) ?? ''
+).trim();
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  locale="es"
+  currentPath="/evento"
+  ogImage={getInstitutionalOgImage()}
+  monolingual
+>
+  <div class="event-page">
+    <section class="event-hero" aria-labelledby="event-title">
+      <div class="event-hero__pattern" aria-hidden="true"></div>
+      <div class="container event-hero__inner">
+        <div class="event-intro">
+          <p class="event-kicker">I-ME <span aria-hidden="true">/</span> Evento</p>
+          <h1 id="event-title">Tu registro<br /><span>empieza aquí.</span></h1>
+          <p class="event-lead">
+            Completa tus datos para registrar tu asistencia. Al finalizar, recibirás un correo de
+            confirmación.
+          </p>
+
+          <div class="event-assurances" aria-label="Información del registro">
+            <div class="event-assurance">
+              <span class="event-assurance__number" aria-hidden="true">01</span>
+              <span>Registro seguro</span>
+            </div>
+            <div class="event-assurance">
+              <span class="event-assurance__number" aria-hidden="true">02</span>
+              <span>Confirmación por correo</span>
+            </div>
+            <div class="event-assurance">
+              <span class="event-assurance__number" aria-hidden="true">03</span>
+              <span>Contacto para entregar tu regalo</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="event-form-shell">
+          <div class="event-form-shell__topline" aria-hidden="true">
+            <span>Registro de asistente</span>
+            <span>EVENTO</span>
+          </div>
+
+          <form
+            id="event-registration-form"
+            class="event-form"
+            novalidate
+            data-turnstile-site-key={turnstileSiteKey}
+            aria-label="Formulario de registro de asistentes"
+          >
+            <label class="event-honeypot" aria-hidden="true">
+              Website
+              <input name="website" type="text" tabindex="-1" autocomplete="off" />
+            </label>
+
+            <div class="event-form__heading">
+              <p class="event-form__eyebrow">Datos del asistente</p>
+              <h2>Reserva tu registro</h2>
+              <p>Todos los campos son obligatorios.</p>
+            </div>
+
+            <div class="event-fields">
+              <div class="event-field">
+                <label for="event-nombres">Nombre <span aria-hidden="true">*</span></label>
+                <input
+                  id="event-nombres"
+                  name="nombres"
+                  type="text"
+                  autocomplete="given-name"
+                  maxlength="60"
+                  required
+                  aria-required="true"
+                />
+              </div>
+
+              <div class="event-field">
+                <label for="event-apellidos">Apellidos <span aria-hidden="true">*</span></label>
+                <input
+                  id="event-apellidos"
+                  name="apellidos"
+                  type="text"
+                  autocomplete="family-name"
+                  maxlength="60"
+                  required
+                  aria-required="true"
+                />
+              </div>
+
+              <div class="event-field event-field--wide">
+                <label for="event-institucion">Institución <span aria-hidden="true">*</span></label>
+                <input
+                  id="event-institucion"
+                  name="institucion"
+                  type="text"
+                  autocomplete="organization"
+                  maxlength="180"
+                  required
+                  aria-required="true"
+                />
+              </div>
+
+              <div class="event-field">
+                <label for="event-telefono">Teléfono <span aria-hidden="true">*</span></label>
+                <input
+                  id="event-telefono"
+                  name="telefono"
+                  type="tel"
+                  autocomplete="tel"
+                  inputmode="tel"
+                  maxlength="40"
+                  required
+                  aria-required="true"
+                  placeholder="+57 300 000 0000"
+                />
+              </div>
+
+              <div class="event-field">
+                <label for="event-email">Email <span aria-hidden="true">*</span></label>
+                <input
+                  id="event-email"
+                  name="email"
+                  type="email"
+                  autocomplete="email"
+                  maxlength="200"
+                  required
+                  aria-required="true"
+                  placeholder="nombre@correo.com"
+                />
+              </div>
+
+              <div class="event-field event-field--wide">
+                <label for="event-ciudad">Ciudad <span aria-hidden="true">*</span></label>
+                <input
+                  id="event-ciudad"
+                  name="ciudad"
+                  type="text"
+                  autocomplete="address-level2"
+                  maxlength="120"
+                  required
+                  aria-required="true"
+                />
+              </div>
+            </div>
+
+            <div class="event-consent">
+              <label for="event-consentimiento">
+                <input
+                  id="event-consentimiento"
+                  name="consentimiento"
+                  type="checkbox"
+                  value="1"
+                  required
+                  aria-required="true"
+                />
+                <span>
+                  Autorizo el tratamiento de mis datos y el contacto relacionado con este evento,
+                  conforme a la <a
+                    href="/es/legal/privacidad/"
+                    target="_blank"
+                    rel="noopener noreferrer">política de privacidad</a
+                  > y la <a href="/es/legal/habeas-data/" target="_blank" rel="noopener noreferrer"
+                    >autorización de habeas data</a
+                  >.
+                </span>
+              </label>
+            </div>
+
+            <div class="event-turnstile" data-turnstile></div>
+
+            <div
+              class="event-status"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+              data-status
+            >
+            </div>
+
+            <button type="submit" class="event-submit" data-submit>
+              <span data-submit-label>Completar registro</span>
+              <span class="event-submit__mark" aria-hidden="true">↗</span>
+            </button>
+
+            <p class="event-form__privacy">
+              Tus datos se usarán únicamente para gestionar el registro y el contacto posterior.
+            </p>
+          </form>
+        </div>
+      </div>
+    </section>
+  </div>
+</Layout>
+
+<style>
+  .event-page {
+    background: var(--off);
+    overflow: hidden;
+  }
+
+  .event-hero {
+    position: relative;
+    min-height: calc(100vh - 5rem);
+    padding-block: clamp(3rem, 7vw, 6rem);
+    background: var(--t900);
+    isolation: isolate;
+  }
+
+  .event-hero__pattern {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    opacity: 0.42;
+    background:
+      linear-gradient(90deg, transparent 49.7%, var(--border-mid) 50%, transparent 50.3%),
+      linear-gradient(0deg, transparent 49.7%, var(--border-mid) 50%, transparent 50.3%);
+    background-size: 4rem 4rem;
+    mask-image: linear-gradient(to right, black, transparent 72%);
+  }
+
+  .event-hero::after {
+    content: '';
+    position: absolute;
+    width: min(46rem, 85vw);
+    aspect-ratio: 1;
+    left: min(-15rem, -18vw);
+    bottom: min(-25rem, -35vw);
+    z-index: -1;
+    border: 1px solid var(--border-mid);
+    border-radius: 50%;
+    box-shadow:
+      0 0 0 4rem var(--border),
+      0 0 0 8rem var(--border);
+  }
+
+  .event-hero__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 0.82fr) minmax(32rem, 1fr);
+    gap: clamp(3rem, 7vw, 7rem);
+    align-items: center;
+  }
+
+  .event-intro {
+    color: var(--white);
+    animation: event-rise 600ms var(--ease) both;
+  }
+
+  .event-kicker,
+  .event-form__eyebrow {
+    margin: 0 0 1.25rem;
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    text-align: left;
+  }
+
+  .event-kicker {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--white);
+  }
+
+  .event-kicker::before {
+    content: '';
+    width: 2.75rem;
+    height: 2px;
+    background: var(--green);
+  }
+
+  .event-intro h1 {
+    margin: 0;
+    color: var(--white);
+    font-size: clamp(3rem, 7vw, 6.9rem);
+    line-height: 0.92;
+    letter-spacing: -0.065em;
+    max-width: 8ch;
+  }
+
+  .event-intro h1 span {
+    color: var(--green);
+  }
+
+  .event-lead {
+    max-width: 35rem;
+    margin: 2rem 0 0;
+    color: var(--white);
+    font-size: clamp(1rem, 1.8vw, 1.2rem);
+    line-height: 1.65;
+    text-align: left;
+  }
+
+  .event-assurances {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: clamp(2rem, 5vw, 4rem);
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-mid);
+  }
+
+  .event-assurance {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    gap: 0.75rem;
+    align-items: center;
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+
+  .event-assurance__number {
+    color: var(--green);
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+  }
+
+  .event-form-shell {
+    position: relative;
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    animation: event-rise 650ms 100ms var(--ease) both;
+  }
+
+  .event-form-shell::before,
+  .event-form-shell::after {
+    content: '';
+    position: absolute;
+    top: 4.3rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    background: var(--t900);
+    border-radius: 50%;
+    z-index: 1;
+  }
+
+  .event-form-shell::before {
+    left: -0.75rem;
+  }
+
+  .event-form-shell::after {
+    right: -0.75rem;
+  }
+
+  .event-form-shell__topline {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.4rem clamp(1.4rem, 4vw, 2.4rem);
+    color: var(--text-mid);
+    border-bottom: 1px dashed var(--border-mid);
+    font-family: var(--font-display);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .event-form {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+  }
+
+  .event-form__heading {
+    margin-bottom: 1.75rem;
+  }
+
+  .event-form__eyebrow {
+    margin-bottom: 0.55rem;
+    color: var(--t700);
+  }
+
+  .event-form__heading h2 {
+    margin: 0;
+    font-size: clamp(1.65rem, 3vw, 2.25rem);
+    letter-spacing: -0.035em;
+  }
+
+  .event-form__heading > p:last-child {
+    margin: 0.45rem 0 0;
+    color: var(--text-muted);
+    font-size: 0.83rem;
+    text-align: left;
+  }
+
+  .event-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.1rem;
+  }
+
+  .event-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.42rem;
+  }
+
+  .event-field--wide {
+    grid-column: 1 / -1;
+  }
+
+  .event-field label {
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+
+  .event-field label span {
+    color: var(--t700);
+  }
+
+  .event-field input {
+    width: 100%;
+    min-height: 3.15rem;
+    padding: 0.78rem 0.9rem;
+    color: var(--text);
+    background: var(--off);
+    border: 1px solid var(--border-mid);
+    border-radius: calc(var(--radius) * 0.72);
+    font: inherit;
+    font-size: 0.95rem;
+    transition:
+      border-color 160ms var(--ease),
+      background-color 160ms var(--ease),
+      box-shadow 160ms var(--ease);
+  }
+
+  .event-field input:hover {
+    border-color: var(--t700);
+  }
+
+  .event-field input:focus {
+    outline: 3px solid var(--blue);
+    outline-offset: 2px;
+    background: var(--white);
+  }
+
+  .event-field input[aria-invalid='true'] {
+    border-color: var(--t700);
+    box-shadow: inset 3px 0 0 var(--t700);
+  }
+
+  .event-consent {
+    margin-top: 1.35rem;
+    padding: 1rem;
+    background: var(--t50);
+    border-radius: calc(var(--radius) * 0.72);
+  }
+
+  .event-consent label {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    color: var(--text-mid);
+    font-size: 0.75rem;
+    line-height: 1.55;
+    cursor: pointer;
+  }
+
+  .event-consent input {
+    width: 1.15rem;
+    height: 1.15rem;
+    margin: 0.15rem 0 0;
+    flex: 0 0 auto;
+    accent-color: var(--t900);
+  }
+
+  .event-consent a {
+    font-weight: 700;
+  }
+
+  .event-turnstile {
+    margin-top: 1rem;
+  }
+
+  .event-turnstile:empty {
+    display: none;
+  }
+
+  .event-status {
+    min-height: 1.5rem;
+    margin-top: 1rem;
+    color: var(--text-mid);
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+
+  .event-status.is-error {
+    color: var(--t700);
+  }
+
+  .event-status.is-success {
+    color: var(--t900);
+  }
+
+  .event-submit {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    min-height: 3.6rem;
+    padding: 0.8rem 0.9rem 0.8rem 1.35rem;
+    color: var(--white);
+    background: var(--t900);
+    border: 0;
+    border-radius: calc(var(--radius) * 0.72);
+    font-family: var(--font-display);
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+      transform 180ms var(--ease),
+      box-shadow 180ms var(--ease),
+      background-color 180ms var(--ease);
+  }
+
+  .event-submit:hover:not(:disabled) {
+    background: var(--t800);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .event-submit:disabled {
+    cursor: wait;
+    opacity: 0.72;
+  }
+
+  .event-submit__mark {
+    display: grid;
+    place-items: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    color: var(--ink);
+    background: var(--green);
+    border-radius: 50%;
+    font-size: 1rem;
+  }
+
+  .event-form__privacy {
+    margin: 0.8rem 0 0;
+    color: var(--text-muted);
+    font-size: 0.68rem;
+    line-height: 1.45;
+    text-align: center;
+  }
+
+  .event-honeypot {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  @keyframes event-rise {
+    from {
+      opacity: 0;
+      transform: translateY(1rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 960px) {
+    .event-hero__inner {
+      grid-template-columns: 1fr;
+      max-width: 46rem;
+    }
+
+    .event-intro h1 {
+      max-width: 10ch;
+    }
+
+    .event-assurances {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .event-assurance {
+      grid-template-columns: 1fr;
+      align-content: start;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .event-hero {
+      padding-block: 2.5rem 3.5rem;
+    }
+
+    .event-hero__inner {
+      gap: 2.5rem;
+    }
+
+    .event-intro h1 {
+      font-size: clamp(3rem, 16vw, 4.4rem);
+    }
+
+    .event-assurances {
+      grid-template-columns: 1fr;
+    }
+
+    .event-assurance {
+      grid-template-columns: 2.5rem 1fr;
+    }
+
+    .event-fields {
+      grid-template-columns: 1fr;
+    }
+
+    .event-field--wide {
+      grid-column: auto;
+    }
+
+    .event-form-shell::before,
+    .event-form-shell::after {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    .event-form-shell::before {
+      left: -0.5rem;
+    }
+
+    .event-form-shell::after {
+      right: -0.5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .event-intro,
+    .event-form-shell {
+      animation: none;
+    }
+
+    .event-submit {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  import {
+    captureCommercialAttribution,
+    rememberCommercialLead,
+  } from '../lib/commercial-attribution';
+  import { getSupabaseClient } from '../lib/supabase';
+
+  interface TurnstileApi {
+    render: (container: HTMLElement, options: Record<string, unknown>) => string;
+    reset: (id?: string) => void;
+  }
+
+  interface EventRegistrationResponse {
+    ok?: boolean;
+    leadId?: string;
+    crmSyncStatus?: string;
+    emailSent?: boolean;
+    error?: string;
+  }
+
+  let turnstileLoaded: Promise<void> | null = null;
+  const turnstileTokens = new WeakMap<HTMLFormElement, string>();
+  const turnstileWidgets = new WeakMap<HTMLFormElement, string>();
+
+  function loadTurnstile(): Promise<void> {
+    if ((window as Window & { turnstile?: TurnstileApi }).turnstile) return Promise.resolve();
+    if (turnstileLoaded) return turnstileLoaded;
+
+    turnstileLoaded = new Promise((resolve, reject) => {
+      const existingScript = document.querySelector<HTMLScriptElement>(
+        'script[data-ime-turnstile]'
+      );
+      if (existingScript) {
+        existingScript.addEventListener('load', () => resolve(), { once: true });
+        existingScript.addEventListener('error', () => reject(new Error('turnstile load error')), {
+          once: true,
+        });
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      script.async = true;
+      script.defer = true;
+      script.dataset.imeTurnstile = '1';
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error('turnstile load error'));
+      document.head.appendChild(script);
+    });
+    return turnstileLoaded;
+  }
+
+  async function ensureTurnstile(form: HTMLFormElement): Promise<string | undefined> {
+    const sitekey = form.dataset.turnstileSiteKey?.trim();
+    if (!sitekey) return undefined;
+    const container = form.querySelector<HTMLElement>('[data-turnstile]');
+    if (!container) return undefined;
+
+    await loadTurnstile();
+    const api = (window as Window & { turnstile?: TurnstileApi }).turnstile;
+    if (!api) return undefined;
+    if (!turnstileWidgets.has(form)) {
+      const widgetId = api.render(container, {
+        sitekey,
+        size: 'flexible',
+        callback: (token: string) => turnstileTokens.set(form, token),
+        'expired-callback': () => turnstileTokens.delete(form),
+        'error-callback': () => turnstileTokens.delete(form),
+      });
+      turnstileWidgets.set(form, widgetId);
+    }
+    return turnstileTokens.get(form);
+  }
+
+  function newIdempotencyKey(): string {
+    if (typeof window.crypto?.randomUUID === 'function') return window.crypto.randomUUID();
+    return `${Date.now()}_${Math.random().toString(36).slice(2)}_${Math.random().toString(36).slice(2)}`;
+  }
+
+  function setStatus(status: HTMLElement | null, message: string, type?: 'error' | 'success') {
+    if (!status) return;
+    status.className = 'event-status';
+    if (type) status.classList.add(`is-${type}`);
+    status.textContent = message;
+  }
+
+  function resetTurnstile(form: HTMLFormElement) {
+    const widgetId = turnstileWidgets.get(form);
+    if (!widgetId) return;
+    (window as Window & { turnstile?: TurnstileApi }).turnstile?.reset(widgetId);
+    turnstileTokens.delete(form);
+  }
+
+  function initEventForm(form: HTMLFormElement) {
+    if (form.dataset.bound === '1') return;
+    form.dataset.bound = '1';
+
+    const status = form.querySelector<HTMLElement>('[data-status]');
+    const submit = form.querySelector<HTMLButtonElement>('[data-submit]');
+    const submitLabel = form.querySelector<HTMLElement>('[data-submit-label]');
+    const originalLabel = submitLabel?.textContent ?? 'Completar registro';
+
+    void ensureTurnstile(form).catch(() => undefined);
+
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+
+      form.querySelectorAll<HTMLInputElement>('input[aria-invalid="true"]').forEach(input => {
+        input.removeAttribute('aria-invalid');
+      });
+
+      if (!form.checkValidity()) {
+        const invalid = form.querySelector<HTMLInputElement>(':invalid');
+        invalid?.setAttribute('aria-invalid', 'true');
+        invalid?.focus();
+        form.reportValidity();
+        setStatus(status, 'Completa todos los campos obligatorios con datos válidos.', 'error');
+        return;
+      }
+
+      const supabase = getSupabaseClient();
+      if (!supabase) {
+        setStatus(status, 'El servicio de registro no está disponible. Intenta de nuevo.', 'error');
+        return;
+      }
+
+      const sitekey = form.dataset.turnstileSiteKey?.trim();
+      const turnstileToken = await ensureTurnstile(form).catch(() => undefined);
+      if (sitekey && !turnstileToken) {
+        setStatus(status, 'Completa la verificación de seguridad.', 'error');
+        return;
+      }
+
+      form.dataset.idempotencyKey ||= newIdempotencyKey();
+      const formData = new FormData(form);
+      const attribution = captureCommercialAttribution('evento');
+
+      if (submit) submit.disabled = true;
+      if (submitLabel) submitLabel.textContent = 'Registrando…';
+      setStatus(status, 'Guardando tu registro…');
+
+      const { data, error } = await supabase.functions.invoke('registrar-lead-comercial', {
+        body: {
+          nombres: String(formData.get('nombres') ?? ''),
+          apellidos: String(formData.get('apellidos') ?? ''),
+          institucion: String(formData.get('institucion') ?? ''),
+          telefono: String(formData.get('telefono') ?? ''),
+          email: String(formData.get('email') ?? ''),
+          ciudad: String(formData.get('ciudad') ?? ''),
+          consentimiento: formData.get('consentimiento') === '1',
+          campaign: 'evento',
+          locale: 'es',
+          website: String(formData.get('website') ?? ''),
+          idempotencyKey: form.dataset.idempotencyKey,
+          turnstileToken,
+          ...attribution,
+        },
+      });
+
+      const response = data as EventRegistrationResponse | null;
+      if (error || !response?.ok || !response.leadId) {
+        setStatus(
+          status,
+          response?.error ??
+            'No pudimos completar el registro. Verifica tus datos e intenta de nuevo.',
+          'error'
+        );
+        if (submit) submit.disabled = false;
+        if (submitLabel) submitLabel.textContent = originalLabel;
+        resetTurnstile(form);
+        return;
+      }
+
+      rememberCommercialLead(response.leadId, 'evento');
+      if (response.emailSent === false) {
+        setStatus(
+          status,
+          'Tu registro quedó guardado, pero el correo no pudo enviarse. Pulsa de nuevo para reintentar el correo.',
+          'error'
+        );
+        if (submit) submit.disabled = false;
+        if (submitLabel) submitLabel.textContent = 'Reintentar correo';
+        resetTurnstile(form);
+        return;
+      }
+
+      setStatus(status, 'Registro completado. Enviamos la confirmación a tu correo.', 'success');
+      if (submitLabel) submitLabel.textContent = 'Registro completado';
+      form.querySelectorAll<HTMLInputElement>('input:not([type="hidden"])').forEach(input => {
+        input.disabled = true;
+      });
+    });
+  }
+
+  function bootEventForm() {
+    document
+      .querySelectorAll<HTMLFormElement>('form.event-form')
+      .forEach(form => initEventForm(form));
+  }
+
+  bootEventForm();
+  document.addEventListener('astro:page-load', bootEventForm);
+</script>

@@ -11,6 +11,7 @@ import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { withTelemetry, trackEvent } from '../_shared/telemetry.ts';
 import { verifyTurnstile } from '../_shared/turnstile.ts';
 import { syncCommercialLeadWithTwenty } from '../_shared/twenty-crm.ts';
+import { enviarEmailPlantilla, escapeHtml } from '../_shared/email.ts';
 import {
   classifyLead,
   validateCommercialLead,
@@ -28,6 +29,7 @@ const CAMPAIGNS = new Set([
   'robotica_rehabilitacion',
   'proyectos',
   'pdf_descarga',
+  'evento',
   'fab_tuttnauer',
   'fab_saikang',
   'fab_angell',
@@ -41,6 +43,8 @@ const CAMPAIGNS = new Set([
 const HORIZONTES = new Set<HorizonteCompra>(['0-3', '4-12', 'exploracion']);
 
 interface LeadBody extends Partial<CommercialLeadInput> {
+  nombres?: string;
+  apellidos?: string;
   idempotencyKey?: string;
   turnstileToken?: string;
   website?: string;
@@ -54,17 +58,133 @@ interface LeadBody extends Partial<CommercialLeadInput> {
   utm_term?: string;
 }
 
+type CrmSyncStatus = 'pending' | 'synced' | 'failed' | 'skipped';
+
 interface LeadRow {
   id: string;
   prioridad: 'P1' | 'P2' | 'P3';
-  crm_sync_status: 'pending' | 'synced' | 'failed' | 'skipped';
-  twenty_opportunity_id?: string | null;
+  crm_sync_status: CrmSyncStatus;
+  campaign: string;
+  nombre: string;
+  email: string | null;
+  telefono: string | null;
+  institucion: string;
+  ciudad: string;
+  familia_slug: string;
+  horizonte: string;
+  necesidad: string;
+  metadata: Record<string, unknown> | null;
+  twenty_person_id: string | null;
+  twenty_company_id: string | null;
+  twenty_opportunity_id: string | null;
 }
+
+const LEAD_SELECT = [
+  'id',
+  'prioridad',
+  'crm_sync_status',
+  'campaign',
+  'nombre',
+  'email',
+  'telefono',
+  'institucion',
+  'ciudad',
+  'familia_slug',
+  'horizonte',
+  'necesidad',
+  'metadata',
+  'twenty_person_id',
+  'twenty_company_id',
+  'twenty_opportunity_id',
+].join(',');
 
 function cleanText(value: unknown, max: number): string | null {
   if (typeof value !== 'string') return null;
   const clean = value.trim().slice(0, max);
   return clean || null;
+}
+
+function metadataText(metadata: LeadRow['metadata'], key: string): string | undefined {
+  const value = metadata?.[key];
+  return typeof value === 'string' && value.trim() ? value.trim() : undefined;
+}
+
+async function syncLeadWithTwenty(
+  supabase: ReturnType<typeof getServerSupabase>,
+  lead: LeadRow
+): Promise<CrmSyncStatus> {
+  if (lead.crm_sync_status === 'synced') return 'synced';
+
+  const eventFirstNames = metadataText(lead.metadata, 'nombres');
+  const eventLastNames = metadataText(lead.metadata, 'apellidos');
+  const twenty = await syncCommercialLeadWithTwenty({
+    nombre: lead.nombre,
+    ...(eventFirstNames ? { nombres: eventFirstNames } : {}),
+    ...(eventLastNames ? { apellidos: eventLastNames } : {}),
+    ...(lead.email ? { email: lead.email } : {}),
+    ...(lead.telefono ? { telefono: lead.telefono } : {}),
+    empresa: lead.institucion,
+    mensaje: lead.necesidad,
+    priority: lead.prioridad,
+    campaign: lead.campaign,
+    familySlug: lead.familia_slug,
+    purchaseHorizon: lead.horizonte,
+    ciudad: lead.ciudad,
+    leadReference: lead.id,
+    twentyOpportunityId: lead.twenty_opportunity_id,
+  });
+  const crmSyncStatus: CrmSyncStatus = twenty.skipped ? 'skipped' : twenty.ok ? 'synced' : 'failed';
+  const update = await supabase
+    .from('leads_comerciales')
+    .update({
+      crm_sync_status: crmSyncStatus,
+      crm_sync_error: twenty.ok || twenty.skipped ? null : (twenty.error ?? 'Twenty sync failed'),
+      crm_sync_last_attempt_at: new Date().toISOString(),
+      twenty_person_id: twenty.data?.personId ?? lead.twenty_person_id,
+      twenty_company_id: twenty.data?.companyId ?? lead.twenty_company_id,
+      twenty_opportunity_id: twenty.data?.opportunityId ?? lead.twenty_opportunity_id,
+    })
+    .eq('id', lead.id);
+
+  if (update.error) {
+    void trackEvent(FN_NAME, 'lead_comercial_crm_status_update_failed', {
+      campaign: lead.campaign,
+    });
+    return lead.crm_sync_status;
+  }
+  if (!twenty.ok && !twenty.skipped) {
+    void trackEvent(FN_NAME, 'lead_comercial_twenty_failed', {
+      priority: lead.prioridad,
+      campaign: lead.campaign,
+    });
+  }
+  return crmSyncStatus;
+}
+
+async function sendEventConfirmation(
+  supabase: ReturnType<typeof getServerSupabase>,
+  lead: Pick<LeadRow, 'id' | 'campaign' | 'nombre' | 'email'>
+): Promise<boolean | undefined> {
+  if (lead.campaign !== 'evento') return undefined;
+  if (!lead.email) return false;
+
+  try {
+    const result = await enviarEmailPlantilla(
+      supabase,
+      'evento_confirmacion_cliente',
+      [lead.email],
+      { cliente_nombre: escapeHtml(lead.nombre) },
+      lead.id,
+      [],
+      {
+        failOnInactive: true,
+        idempotencyKey: `evento-confirmacion:${lead.id}`,
+      }
+    );
+    return result.ok;
+  } catch {
+    return false;
+  }
 }
 
 function jsonResponse(
@@ -104,17 +224,26 @@ Deno.serve(
     const supabase = getServerSupabase();
     const existing = await supabase
       .from('leads_comerciales')
-      .select('id,prioridad,crm_sync_status,twenty_opportunity_id')
+      .select(LEAD_SELECT)
       .eq('idempotency_key', idempotencyKey)
       .maybeSingle();
     if (existing.data) {
       const lead = existing.data as LeadRow;
+      const crmSyncStatus =
+        lead.campaign === 'evento'
+          ? await syncLeadWithTwenty(supabase, lead)
+          : lead.crm_sync_status;
+      const emailSent = await sendEventConfirmation(supabase, lead);
+      if (emailSent === false) {
+        void trackEvent(FN_NAME, 'lead_evento_email_failed', { campaign: lead.campaign });
+      }
       return jsonResponse(
         {
           ok: true,
           leadId: lead.id,
           priority: lead.prioridad,
-          crmSyncStatus: lead.crm_sync_status,
+          crmSyncStatus,
+          ...(emailSent !== undefined ? { emailSent } : {}),
           idempotent: true,
         },
         origin
@@ -132,8 +261,17 @@ Deno.serve(
     }
 
     const campaign = cleanText(body.campaign, 80);
-    const horizonte = cleanText(body.horizonte, 24) as HorizonteCompra | null;
     if (!campaign || !CAMPAIGNS.has(campaign)) return badRequest('campaign invalida', origin);
+
+    const eventFirstNames = cleanText(body.nombres, 60);
+    const eventLastNames = cleanText(body.apellidos, 60);
+    if (campaign === 'evento' && (!eventFirstNames || !eventLastNames)) {
+      return jsonResponse({ ok: false, error: 'Indica nombre y apellidos.' }, origin, 422);
+    }
+
+    const horizonte = (
+      campaign === 'evento' ? 'exploracion' : cleanText(body.horizonte, 24)
+    ) as HorizonteCompra | null;
     if (!horizonte || !HORIZONTES.has(horizonte)) return badRequest('horizonte invalido', origin);
 
     // Descargas de fichas ya tienen formulario obligatorio, honeypot y rate-limit
@@ -152,19 +290,28 @@ Deno.serve(
       );
     }
 
+    const eventFullName =
+      campaign === 'evento' && eventFirstNames && eventLastNames
+        ? `${eventFirstNames} ${eventLastNames}`.slice(0, 120)
+        : null;
     const lead: CommercialLeadInput = {
-      nombre: cleanText(body.nombre, 120) ?? '',
+      nombre: eventFullName ?? cleanText(body.nombre, 120) ?? '',
       cargo: cleanText(body.cargo, 120) ?? undefined,
       institucion: cleanText(body.institucion, 180) ?? '',
       ciudad: cleanText(body.ciudad, 120) ?? '',
       telefono: cleanText(body.telefono, 40) ?? undefined,
       email: cleanText(body.email, 200)?.toLowerCase() ?? undefined,
-      familia_slug: cleanText(body.familia_slug, 120) ?? '',
-      tipo_slug: cleanText(body.tipo_slug, 120) ?? undefined,
-      tipo_proyecto: cleanText(body.tipo_proyecto, 180) ?? '',
+      familia_slug: campaign === 'evento' ? 'evento' : (cleanText(body.familia_slug, 120) ?? ''),
+      tipo_slug: campaign === 'evento' ? undefined : (cleanText(body.tipo_slug, 120) ?? undefined),
+      tipo_proyecto:
+        campaign === 'evento' ? 'registro_evento' : (cleanText(body.tipo_proyecto, 180) ?? ''),
       horizonte,
-      presupuesto_estado: cleanText(body.presupuesto_estado, 80) ?? undefined,
-      necesidad: cleanText(body.necesidad, 2000) ?? '',
+      presupuesto_estado:
+        campaign === 'evento' ? undefined : (cleanText(body.presupuesto_estado, 80) ?? undefined),
+      necesidad:
+        campaign === 'evento'
+          ? 'Registro de asistente al evento'
+          : (cleanText(body.necesidad, 2000) ?? ''),
       consentimiento: body.consentimiento === true,
       campaign: campaign as CommercialLeadInput['campaign'],
       locale: body.locale === 'en' ? 'en' : 'es',
@@ -213,29 +360,45 @@ Deno.serve(
           : campaign === 'pdf_descarga'
             ? 'optional_pdf_descarga'
             : 'not_configured',
+        ...(campaign === 'evento'
+          ? {
+              nombres: eventFirstNames,
+              apellidos: eventLastNames,
+              tipo_registro: 'asistente_evento',
+            }
+          : {}),
       },
     };
 
     const inserted = await supabase
       .from('leads_comerciales')
       .insert(payload)
-      .select('id,prioridad,crm_sync_status')
+      .select(LEAD_SELECT)
       .maybeSingle();
     if (inserted.error || !inserted.data) {
       if (/duplicate|unique/i.test(inserted.error?.message ?? '')) {
         const raced = await supabase
           .from('leads_comerciales')
-          .select('id,prioridad,crm_sync_status')
+          .select(LEAD_SELECT)
           .eq('idempotency_key', idempotencyKey)
           .maybeSingle();
         if (raced.data) {
           const saved = raced.data as LeadRow;
+          const crmSyncStatus =
+            saved.campaign === 'evento'
+              ? await syncLeadWithTwenty(supabase, saved)
+              : saved.crm_sync_status;
+          const emailSent = await sendEventConfirmation(supabase, saved);
+          if (emailSent === false) {
+            void trackEvent(FN_NAME, 'lead_evento_email_failed', { campaign: saved.campaign });
+          }
           return jsonResponse(
             {
               ok: true,
               leadId: saved.id,
               priority: saved.prioridad,
-              crmSyncStatus: saved.crm_sync_status,
+              crmSyncStatus,
+              ...(emailSent !== undefined ? { emailSent } : {}),
               idempotent: true,
             },
             origin
@@ -253,32 +416,11 @@ Deno.serve(
       purchase_horizon: lead.horizonte,
     });
 
-    const twenty = await syncCommercialLeadWithTwenty({
-      nombre: lead.nombre,
-      ...(lead.email ? { email: lead.email } : {}),
-      ...(lead.telefono ? { telefono: lead.telefono } : {}),
-      empresa: lead.institucion,
-      mensaje: lead.necesidad,
-      priority,
-      campaign,
-      familySlug: lead.familia_slug,
-      purchaseHorizon: lead.horizonte,
-    });
-    const crmSyncStatus = twenty.skipped ? 'skipped' : twenty.ok ? 'synced' : 'failed';
-    await supabase
-      .from('leads_comerciales')
-      .update({
-        crm_sync_status: crmSyncStatus,
-        crm_sync_error: twenty.ok || twenty.skipped ? null : (twenty.error ?? 'Twenty sync failed'),
-        crm_sync_last_attempt_at: new Date().toISOString(),
-        twenty_person_id: twenty.data?.personId ?? null,
-        twenty_company_id: twenty.data?.companyId ?? null,
-        twenty_opportunity_id: twenty.data?.opportunityId ?? null,
-      })
-      .eq('id', saved.id);
+    const crmSyncStatus = await syncLeadWithTwenty(supabase, saved);
 
-    if (!twenty.ok && !twenty.skipped) {
-      void trackEvent(FN_NAME, 'lead_comercial_twenty_failed', { priority, campaign });
+    const emailSent = await sendEventConfirmation(supabase, saved);
+    if (emailSent === false) {
+      void trackEvent(FN_NAME, 'lead_evento_email_failed', { campaign });
     }
 
     return jsonResponse(
@@ -287,6 +429,7 @@ Deno.serve(
         leadId: saved.id,
         priority,
         crmSyncStatus,
+        ...(emailSent !== undefined ? { emailSent } : {}),
       },
       origin,
       201

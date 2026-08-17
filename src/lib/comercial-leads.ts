@@ -23,6 +23,7 @@ export type CampaignLandingId =
   | 'robotica_rehabilitacion'
   | 'proyectos'
   | 'pdf_descarga'
+  | 'evento'
   | FabricanteLandingId;
 
 export type HorizonteCompra = '0-3' | '4-12' | 'exploracion';
@@ -70,7 +71,10 @@ export function validateCommercialLead(input: Partial<CommercialLeadInput>): Val
   if (!input.institucion?.trim())
     req('institucion', 'Indica la institución.', 'Enter the institution.');
   if (!input.ciudad?.trim()) req('ciudad', 'Indica la ciudad.', 'Enter the city.');
-  if (!input.telefono?.trim() && !input.email?.trim()) {
+  if (input.campaign === 'evento') {
+    if (!input.telefono?.trim()) req('telefono', 'Indica el teléfono.', 'Enter the phone number.');
+    if (!input.email?.trim()) req('email', 'Indica el correo.', 'Enter the email address.');
+  } else if (!input.telefono?.trim() && !input.email?.trim()) {
     req('contacto', 'Indica teléfono o correo.', 'Enter phone or email.');
   }
   if (input.email?.trim() && !EMAIL_RE.test(input.email.trim())) {
