@@ -95,6 +95,13 @@ const DEFAULTS: Record<string, { asunto: string; html: string }> = {
     asunto: 'Hemos recibido tu solicitud de cotizacion - I-ME',
     html: '<h2>Hola {{cliente_nombre}}</h2><p>Recibimos tu solicitud de presupuesto y te contactaremos en breve.</p><p><strong>Referencia:</strong> {{referencia}}</p><p><strong>Resumen solicitado:</strong></p><ul>{{items_html}}</ul><p><strong>Mensaje recibido:</strong></p><pre>{{mensaje}}</pre><p>Equipo I-ME<br>ventas@i-me.com.co</p>',
   },
+  evento_confirmacion_cliente: {
+    asunto: 'Gracias por participar - I-ME',
+    html:
+      '<h2>Hola {{cliente_nombre}}</h2>' +
+      '<p>Gracias por participar. Nos pondremos en contacto con usted para entregarle su regalo.</p>' +
+      '<p>Equipo I-ME</p>',
+  },
   cotizacion_confirmacion_cliente_es: {
     asunto: 'Hemos recibido tu solicitud de presupuesto - I-ME',
     html: '<h2>Hola {{cliente_nombre}}</h2><p>Recibimos tu solicitud de presupuesto y te contactaremos en breve.</p><p><strong>Referencia:</strong> {{referencia}}</p><p><strong>Resumen solicitado:</strong></p><ul>{{items_html}}</ul><p><strong>Mensaje recibido:</strong></p><pre>{{mensaje}}</pre><p>Equipo I-ME<br>ventas@i-me.com.co</p>',

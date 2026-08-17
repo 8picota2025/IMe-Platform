@@ -61,6 +61,45 @@ describe('validateCommercialLead', () => {
     expect(r.valid).toBe(false);
     expect(r.errors.email).toBeTruthy();
   });
+
+  it('acepta registro de evento con nombre completo, teléfono y correo', () => {
+    const nombre = 'Ana María López Ruiz';
+    const r = validateCommercialLead({
+      nombre,
+      institucion: 'Clínica Norte',
+      ciudad: 'Medellín',
+      telefono: '3103332607',
+      email: 'ana@clinica.co',
+      tipo_proyecto: 'registro_evento',
+      horizonte: 'exploracion',
+      necesidad: 'Registro de asistente al evento',
+      consentimiento: true,
+      familia_slug: 'evento',
+      campaign: 'evento',
+    });
+    expect(r.valid).toBe(true);
+    expect(nombre).toBe('Ana María López Ruiz');
+  });
+
+  it.each([
+    ['telefono', { email: 'ana@clinica.co' }],
+    ['email', { telefono: '3103332607' }],
+  ])('exige %s en registros de evento', (field, contact) => {
+    const r = validateCommercialLead({
+      nombre: 'Ana López',
+      institucion: 'Clínica Norte',
+      ciudad: 'Medellín',
+      ...contact,
+      tipo_proyecto: 'registro_evento',
+      horizonte: 'exploracion',
+      necesidad: 'Registro de asistente al evento',
+      consentimiento: true,
+      familia_slug: 'evento',
+      campaign: 'evento',
+    });
+    expect(r.valid).toBe(false);
+    expect(r.errors[field]).toBeTruthy();
+  });
 });
 
 describe('buildWhatsAppMessage', () => {

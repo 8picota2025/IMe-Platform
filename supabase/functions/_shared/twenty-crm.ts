@@ -211,6 +211,18 @@ export class TwentyClient {
     return this.requestFirst(collectionFilterPath('companies', 'name', name), 'companies');
   }
 
+  async findOpportunityByName(name: string): Promise<TwentyResult<TwentyRecord | null>> {
+    return this.requestFirst(collectionFilterPath('opportunities', 'name', name), 'opportunities');
+  }
+
+  async findTaskByTitle(title: string): Promise<TwentyResult<TwentyRecord | null>> {
+    return this.requestFirst(collectionFilterPath('tasks', 'title', title), 'tasks');
+  }
+
+  async findTaskTargetByTaskId(taskId: string): Promise<TwentyResult<TwentyRecord | null>> {
+    return this.requestFirst(collectionFilterPath('taskTargets', 'taskId', taskId), 'taskTargets');
+  }
+
   async upsertPerson(input: {
     firstName: string;
     lastName?: string;
@@ -866,6 +878,8 @@ export class TwentyClient {
    */
   async syncCotizacionLead(input: {
     nombre: string;
+    nombres?: string;
+    apellidos?: string;
     email?: string;
     telefono?: string;
     empresa?: string;
@@ -880,6 +894,9 @@ export class TwentyClient {
     campaign?: string;
     familySlug?: string;
     purchaseHorizon?: string;
+    ciudad?: string;
+    leadReference?: string;
+    twentyOpportunityId?: string | null;
   }): Promise<
     TwentyResult<{
       personId: string;
@@ -914,13 +931,16 @@ export class TwentyClient {
     }
 
     const [firstName, ...restName] = input.nombre.trim().split(/\s+/);
+    const isEventLead = input.campaign === 'evento';
     const person = await this.upsertPerson({
-      firstName: firstName || 'Contacto',
-      lastName: restName.join(' ') || 'Web',
+      firstName: input.nombres?.trim() || firstName || 'Contacto',
+      lastName: input.apellidos?.trim() || restName.join(' ') || 'Web',
       email: input.email,
       phoneNumber,
       phoneCallingCode,
-      jobTitle: `${input.priority ? `${input.priority} · ` : ''}Lead ${input.origen || 'web'}`,
+      jobTitle: isEventLead
+        ? 'Lead evento'
+        : `${input.priority ? `${input.priority} · ` : ''}Lead ${input.origen || 'web'}`,
       companyId,
     });
     if (!person.ok || !person.data) {
@@ -932,9 +952,15 @@ export class TwentyClient {
       .filter(Boolean)
       .slice(0, 3)
       .join(', ');
-    const oppName = productLabel
-      ? `${companyName} — ${productLabel}`.slice(0, 120)
-      : companyName.slice(0, 120);
+    const eventReference = input.leadReference?.trim().slice(0, 36);
+    const oppName = isEventLead
+      ? `Registro evento${eventReference ? ` ${eventReference}` : ''} — ${input.nombre}`.slice(
+          0,
+          120
+        )
+      : productLabel
+        ? `${companyName} — ${productLabel}`.slice(0, 120)
+        : companyName.slice(0, 120);
 
     const amountMicros =
       input.totalEstimado != null && Number.isFinite(input.totalEstimado)
@@ -953,9 +979,60 @@ export class TwentyClient {
         currencyCode: (input.moneda || 'COP').slice(0, 8),
       },
     };
-    const opp = await this.requestRecord('POST', '/opportunities', oppPayload);
-    if (!opp.ok || !opp.data) {
-      return { ok: false, error: opp.error ?? 'Oportunidad no creada' };
+
+    let opportunityId = input.twentyOpportunityId?.trim() || '';
+    if (opportunityId) {
+      const patched = await this.requestRecord(
+        'PATCH',
+        `/opportunities/${opportunityId}`,
+        oppPayload
+      );
+      if (!patched.ok) {
+        if (!isEventLead) {
+          return {
+            ok: false,
+            error: patched.error ?? 'Oportunidad no actualizada',
+            data: {
+              personId: person.data.id,
+              companyId,
+              opportunityId,
+            },
+          };
+        }
+        opportunityId = '';
+      }
+    }
+    if (!opportunityId && isEventLead) {
+      const existingOpportunity = await this.findOpportunityByName(oppName);
+      if (!existingOpportunity.ok) {
+        return { ok: false, error: existingOpportunity.error };
+      }
+      if (existingOpportunity.data) {
+        const patched = await this.requestRecord(
+          'PATCH',
+          `/opportunities/${existingOpportunity.data.id}`,
+          oppPayload
+        );
+        if (!patched.ok) {
+          return {
+            ok: false,
+            error: patched.error ?? 'Oportunidad no actualizada',
+            data: {
+              personId: person.data.id,
+              companyId,
+              opportunityId: existingOpportunity.data.id,
+            },
+          };
+        }
+        opportunityId = existingOpportunity.data.id;
+      }
+    }
+    if (!opportunityId) {
+      const created = await this.requestRecord('POST', '/opportunities', oppPayload);
+      if (!created.ok || !created.data) {
+        return { ok: false, error: created.error ?? 'Oportunidad no creada' };
+      }
+      opportunityId = created.data.id;
     }
 
     const productList = (input.productos || []).length
@@ -965,11 +1042,13 @@ export class TwentyClient {
       : '- (sin productos)';
     const dueHours = input.priority === 'P2' ? 72 : input.priority === 'P3' ? 168 : 4;
     const due = new Date(Date.now() + dueHours * 60 * 60 * 1000).toISOString();
-    const task = await this.requestRecord('POST', '/tasks', {
-      title: `${input.priority ? `SLA ${input.priority}` : 'SLA cotización'}: ${oppName}`.slice(
-        0,
-        120
-      ),
+    const taskTitle = (
+      isEventLead
+        ? `Lead evento${eventReference ? ` ${eventReference}` : ''}: ${input.nombre}`
+        : `${input.priority ? `SLA ${input.priority}` : 'SLA cotización'}: ${oppName}`
+    ).slice(0, 120);
+    const taskPayload = {
+      title: taskTitle,
       status: 'TODO',
       dueAt: due,
       ...(ownerId ? { assigneeId: ownerId } : {}),
@@ -981,19 +1060,81 @@ export class TwentyClient {
           ...(input.campaign ? [`**Campaña:** ${input.campaign}`] : []),
           ...(input.familySlug ? [`**Familia:** ${input.familySlug}`] : []),
           ...(input.purchaseHorizon ? [`**Horizonte:** ${input.purchaseHorizon}`] : []),
+          ...(input.ciudad ? [`**Ciudad:** ${input.ciudad}`] : []),
           `**Mensaje:** ${input.mensaje || '—'}`,
-          `**Productos:**\n${productList}`,
+          ...(isEventLead ? [] : [`**Productos:**\n${productList}`]),
         ].join('\n'),
       },
-    });
+    };
 
-    const taskId: string | undefined = task.data?.id;
+    let task: TwentyResult<TwentyRecord>;
+    if (isEventLead) {
+      const existingTask = await this.findTaskByTitle(taskTitle);
+      if (!existingTask.ok) {
+        return {
+          ok: false,
+          error: existingTask.error,
+          data: { personId: person.data.id, companyId, opportunityId },
+        };
+      }
+      task = existingTask.data
+        ? await this.requestRecord('PATCH', `/tasks/${existingTask.data.id}`, taskPayload)
+        : await this.requestRecord('POST', '/tasks', taskPayload);
+    } else {
+      task = await this.requestRecord('POST', '/tasks', taskPayload);
+    }
+
+    const taskId = task.data?.id;
+    if (isEventLead && (!task.ok || !taskId)) {
+      return {
+        ok: false,
+        error: task.error ?? 'Tarea de evento no creada',
+        data: { personId: person.data.id, companyId, opportunityId },
+      };
+    }
+
     if (task.ok && taskId) {
-      await this.requestRaw('POST', '/taskTargets', {
-        taskId,
-        targetOpportunityId: opp.data.id,
-        position: 'first',
-      });
+      if (isEventLead) {
+        const existingTarget = await this.findTaskTargetByTaskId(taskId);
+        if (!existingTarget.ok) {
+          return {
+            ok: false,
+            error: existingTarget.error,
+            data: { personId: person.data.id, companyId, opportunityId, taskId },
+          };
+        }
+        const targetOpportunityId = existingTarget.data?.targetOpportunityId;
+        const linkedOpportunityId =
+          typeof targetOpportunityId === 'string'
+            ? targetOpportunityId
+            : isTwentyRecord(existingTarget.data?.targetOpportunity)
+              ? existingTarget.data.targetOpportunity.id
+              : undefined;
+        if (!existingTarget.data || linkedOpportunityId !== opportunityId) {
+          const method = existingTarget.data ? 'PATCH' : 'POST';
+          const path = existingTarget.data
+            ? `/taskTargets/${existingTarget.data.id}`
+            : '/taskTargets';
+          const target = await this.requestRecord(method, path, {
+            taskId,
+            targetOpportunityId: opportunityId,
+            position: 'first',
+          });
+          if (!target.ok) {
+            return {
+              ok: false,
+              error: target.error ?? 'Tarea de evento no enlazada',
+              data: { personId: person.data.id, companyId, opportunityId, taskId },
+            };
+          }
+        }
+      } else {
+        await this.requestRaw('POST', '/taskTargets', {
+          taskId,
+          targetOpportunityId: opportunityId,
+          position: 'first',
+        });
+      }
     }
 
     return {
@@ -1001,7 +1142,7 @@ export class TwentyClient {
       data: {
         personId: person.data.id,
         companyId,
-        opportunityId: opp.data.id,
+        opportunityId,
         taskId,
       },
     };
@@ -1014,6 +1155,8 @@ export class TwentyClient {
  */
 export async function syncCotizacionWithTwenty(input: {
   nombre: string;
+  nombres?: string;
+  apellidos?: string;
   email?: string;
   telefono?: string;
   empresa?: string;
@@ -1027,6 +1170,9 @@ export async function syncCotizacionWithTwenty(input: {
   campaign?: string;
   familySlug?: string;
   purchaseHorizon?: string;
+  ciudad?: string;
+  leadReference?: string;
+  twentyOpportunityId?: string | null;
 }): Promise<
   TwentyResult<{
     personId: string;
@@ -1045,6 +1191,8 @@ export async function syncCotizacionWithTwenty(input: {
 /** Lead consultivo persistido: mismo modelo Twenty, con SLA segun prioridad. */
 export async function syncCommercialLeadWithTwenty(input: {
   nombre: string;
+  nombres?: string;
+  apellidos?: string;
   email?: string;
   telefono?: string;
   empresa: string;
@@ -1053,6 +1201,9 @@ export async function syncCommercialLeadWithTwenty(input: {
   campaign: string;
   familySlug: string;
   purchaseHorizon: string;
+  ciudad?: string;
+  leadReference?: string;
+  twentyOpportunityId?: string | null;
 }): Promise<
   TwentyResult<{
     personId: string;
@@ -1063,9 +1214,12 @@ export async function syncCommercialLeadWithTwenty(input: {
 > {
   return syncCotizacionWithTwenty({
     ...input,
-    origen: `lead_consultivo:${input.campaign}`,
-    tipoSolicitud: 'evaluacion_proyecto',
-    productos: [{ slug: input.familySlug, nombre: input.familySlug, cantidad: 1 }],
+    origen: input.campaign === 'evento' ? 'evento' : `lead_consultivo:${input.campaign}`,
+    tipoSolicitud: input.campaign === 'evento' ? 'registro_evento' : 'evaluacion_proyecto',
+    productos:
+      input.campaign === 'evento'
+        ? []
+        : [{ slug: input.familySlug, nombre: input.familySlug, cantidad: 1 }],
   });
 }
 

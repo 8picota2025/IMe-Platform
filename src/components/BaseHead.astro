@@ -17,6 +17,7 @@ interface Props {
   currentPath: string;
   noindex?: boolean;
   fontAwesome?: boolean;
+  monolingual?: boolean;
 }
 
 const {
@@ -29,8 +30,9 @@ const {
   currentPath,
   noindex,
   fontAwesome,
+  monolingual = false,
 } = Astro.props;
-const alternates = getAlternateLinks(currentPath);
+const alternates = monolingual ? [] : getAlternateLinks(currentPath);
 const ogImageUrl = ogImage ?? 'https://i-me.com.co/assets/img/og-default-ime.png?v=20260629e';
 const ogImagePath = ogImageUrl.split('?')[0];
 const ogImageType = ogImagePath.endsWith('.svg')
@@ -79,7 +81,11 @@ const robotsContent = noindex ? 'noindex, nofollow' : 'index, follow, max-image-
 <meta property="og:image:height" content="630" />
 <meta property="og:image:alt" content={title} />
 <meta property="og:locale" content={locale === 'en' ? 'en_US' : 'es_CO'} />
-<meta property="og:locale:alternate" content={locale === 'en' ? 'es_CO' : 'en_US'} />
+{
+  !monolingual && (
+    <meta property="og:locale:alternate" content={locale === 'en' ? 'es_CO' : 'en_US'} />
+  )
+}
 <meta property="og:site_name" content="I-ME International Medical Enterprise" />
 
 <!-- Twitter Card -->

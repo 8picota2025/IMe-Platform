@@ -983,7 +983,7 @@ const ROBOTICA: ContentMap = {
 
 type StandardCampaignLandingId = Exclude<
   CampaignLandingId,
-  'proyectos' | 'pdf_descarga' | FabricanteLandingId
+  'proyectos' | 'pdf_descarga' | 'evento' | FabricanteLandingId
 >;
 
 const META: Record<

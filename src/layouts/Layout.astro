@@ -27,6 +27,7 @@ interface Props {
   jsonLd?: string;
   noindex?: boolean;
   fontAwesome?: boolean;
+  monolingual?: boolean;
 }
 
 const {
@@ -39,6 +40,7 @@ const {
   jsonLd,
   noindex,
   fontAwesome,
+  monolingual = false,
 } = Astro.props;
 
 const commercialBarAllowed =
@@ -62,6 +64,7 @@ const commercialBarAllowed =
       {...jsonLd !== undefined ? { jsonLd } : {}}
       {...noindex !== undefined ? { noindex } : {}}
       {...fontAwesome !== undefined ? { fontAwesome } : {}}
+      monolingual={monolingual}
     />
     <AnalyticsHead />
     <ClientRouter />
@@ -71,7 +74,7 @@ const commercialBarAllowed =
     <!-- Skip link de accesibilidad -->
     <a href="#main-content" class="skip-link">{t(locale, 'accesibilidad.saltar_contenido')}</a>
 
-    <Navbar locale={locale} currentPath={currentPath} />
+    <Navbar locale={locale} currentPath={currentPath} monolingual={monolingual} />
 
     <main id="main-content" tabindex="-1">
       <slot />
