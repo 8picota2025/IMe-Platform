@@ -26,6 +26,10 @@
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { badRequest, internalError, unauthorized, notFound } from '../_shared/errors.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
+import {
+  derivarEstadoPedidoDesdeFulfillments,
+  estadosFulfillmentConOverride,
+} from '../../../src/lib/fulfillment-pedido-estado.ts';
 
 interface ActualizarFulfillmentRequest {
   fulfillment_id?: string;
@@ -186,49 +190,77 @@ Deno.serve(async req => {
     return internalError(`error actualizando fulfillment: ${updateError.message}`, origin);
   }
 
-  // 5. Sincronizar estado del pedido + comunicar al cliente (best-effort).
+  // 5. Sincronizar estado del pedido desde TODOS los fulfillments del pedido.
+  // Nunca copiar cancelado/entregado de un solo proveedor a un pedido multi-proveedor,
+  // ni avanzar pedidos aún no pagados.
   if (fulfillmentRow.pedido_id && body.estado !== fulfillmentRow.estado) {
-    const pedidoEstadoMap: Record<string, string> = {
-      preparando: 'preparando',
-      enviado: 'enviado',
-      entregado: 'entregado',
-      retrasado: 'retrasado',
-      cancelado: 'cancelado',
-    };
-    const pedidoEstado = pedidoEstadoMap[String(body.estado ?? '')];
-    if (pedidoEstado) {
-      const { error: syncError } = await supabase
-        .from('pedidos')
-        .update({ estado: pedidoEstado })
-        .eq('id', fulfillmentRow.pedido_id);
-      if (syncError) {
-        console.error(
-          'actualizar-fulfillment: no se pudo sincronizar pedidos.estado',
-          syncError.message
-        );
-      }
-    }
+    const { data: pedidoSync, error: pedidoSyncError } = await supabase
+      .from('pedidos')
+      .select('id, estado')
+      .eq('id', fulfillmentRow.pedido_id)
+      .maybeSingle();
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL');
-    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-    if (supabaseUrl && serviceKey) {
-      try {
-        await fetch(`${supabaseUrl}/functions/v1/notificar-cliente`, {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${serviceKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            pedido_id: fulfillmentRow.pedido_id,
-            a_estado: pedidoEstado ?? body.estado,
-            de_estado: fulfillmentRow.estado,
-            tracking_number: body.tracking_number ?? fulfillmentRow.tracking_number ?? undefined,
-            tracking_url: body.tracking_url ?? fulfillmentRow.tracking_url ?? undefined,
-          }),
-        });
-      } catch (err) {
-        console.error('actualizar-fulfillment: error invocando notificar-cliente', err);
+    if (pedidoSyncError) {
+      console.error(
+        'actualizar-fulfillment: error leyendo pedido para sync',
+        pedidoSyncError.message
+      );
+    } else if (pedidoSync) {
+      const pedidoActual = pedidoSync as { id: string; estado: string };
+      const { data: siblings, error: siblingsError } = await supabase
+        .from('fulfillments')
+        .select('id, estado')
+        .eq('pedido_id', fulfillmentRow.pedido_id);
+
+      if (siblingsError) {
+        console.error(
+          'actualizar-fulfillment: error leyendo fulfillments hermanos',
+          siblingsError.message
+        );
+      } else {
+        const estados = estadosFulfillmentConOverride(
+          (siblings ?? []) as Array<{ id: string; estado: string }>,
+          fulfillmentRow.id,
+          String(body.estado)
+        );
+        const pedidoEstado = derivarEstadoPedidoDesdeFulfillments(estados, pedidoActual.estado);
+
+        if (pedidoEstado) {
+          const { error: syncError } = await supabase
+            .from('pedidos')
+            .update({ estado: pedidoEstado })
+            .eq('id', fulfillmentRow.pedido_id);
+          if (syncError) {
+            console.error(
+              'actualizar-fulfillment: no se pudo sincronizar pedidos.estado',
+              syncError.message
+            );
+          } else {
+            const supabaseUrl = Deno.env.get('SUPABASE_URL');
+            const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+            if (supabaseUrl && serviceKey) {
+              try {
+                await fetch(`${supabaseUrl}/functions/v1/notificar-cliente`, {
+                  method: 'POST',
+                  headers: {
+                    Authorization: `Bearer ${serviceKey}`,
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    pedido_id: fulfillmentRow.pedido_id,
+                    a_estado: pedidoEstado,
+                    de_estado: pedidoActual.estado,
+                    tracking_number:
+                      body.tracking_number ?? fulfillmentRow.tracking_number ?? undefined,
+                    tracking_url: body.tracking_url ?? fulfillmentRow.tracking_url ?? undefined,
+                  }),
+                });
+              } catch (err) {
+                console.error('actualizar-fulfillment: error invocando notificar-cliente', err);
+              }
+            }
+          }
+        }
       }
     }
   }
