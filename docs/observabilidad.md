@@ -39,9 +39,12 @@ group by evento;
 - `PUBLIC_SENTRY_DSN`: habilita Sentry en el cliente Astro.
 - `SENTRY_DSN`: habilita captura de excepciones en Edge Functions.
 - `SENTRY_AUTH_TOKEN`: opcional; necesario solo si se habilita subida de source maps en CI.
-- `PUBLIC_GA_ID`: habilita Google Analytics 4 (`G-...`) para pageviews, eventos y conversiones.
+- `PUBLIC_GA_ID`: habilita Google Analytics 4. En producción el fallback es `G-YKKFCZHE2N`.
 - `PUBLIC_GTM_ID`: opcional; habilita Google Tag Manager y `dataLayer`.
 - `PUBLIC_CLARITY_ID`: habilita Microsoft Clarity para heatmaps y session replay.
+- `PUBLIC_SEARCH_CONSOLE_VERIFICATION`: meta `google-site-verification` (método HTML tag).
+- `PUBLIC_SEARCH_CONSOLE_FILE`: `googleXXXX.html` escrito en `dist/` (método archivo HTML).
+- `PUBLIC_ANALYTICS_DOMAIN`: `cookie_domain` de GA/GTM (`i-me.com.co`).
 - `PUBLIC_SUPABASE_URL` + `PUBLIC_SUPABASE_ANON_KEY`: habilitan analitica first-party hacia `track-analytics`.
 
 ## Analitica marketing
@@ -90,8 +93,21 @@ Dashboard CMS:
 ## Monitores externos recomendados
 
 - `https://i-me.com.co/` con keyword `I-ME`
+- `https://i-me.com.co/es/` con `G-YKKFCZHE2N`
 - `https://i-me.com.co/sitemap-index.xml`
 - `https://<project-ref>.supabase.co/functions/v1/health`
+
+## Google Search Console + GA4
+
+Producción ya envía gtag `G-YKKFCZHE2N` en `<head>` de `/es/` (home canónica; `/` hace 301).
+
+1. Search Console → añadir propiedad URL-prefix `https://i-me.com.co/`.
+2. Verificar con **Google Analytics** (misma cuenta con permiso Edit en GA4). No hace falta meta extra.
+3. Sitemaps → enviar `https://i-me.com.co/sitemap-index.xml`.
+4. GA4 Admin → Product links → Search Console → vincular la propiedad.
+5. Conversiones GA4 a marcar: `quote_submit`, `whatsapp_click`, `begin_checkout`, `purchase`.
+
+Si Google pide HTML tag o archivo, guardar el token en el secret `PUBLIC_SEARCH_CONSOLE_VERIFICATION` o el filename en `PUBLIC_SEARCH_CONSOLE_FILE` y redeploy.
 
 ### Estado actual
 
@@ -99,6 +115,7 @@ Dashboard CMS:
   [`/.github/workflows/observabilidad-smoke.yml`](../.github/workflows/observabilidad-smoke.yml)
 - Checks incluidos:
   - home publica con keyword `I-ME`
+  - home `/es/` con gtag `G-YKKFCZHE2N`
   - `sitemap-index.xml`
   - `health` de Supabase
 - Cada check fuerza IPv4 (`curl -4`) porque el AAAA de Hostinger es inalcanzable y los runners de GHA colgaban ~30s en IPv6; además reintenta hasta 4 veces con backoff.

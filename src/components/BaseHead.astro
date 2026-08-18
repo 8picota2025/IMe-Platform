@@ -5,6 +5,7 @@
  */
 import { getAlternateLinks } from '../i18n/utils';
 import type { Locale } from '../i18n/utils';
+import { resolveSearchConsoleVerification } from '../lib/analytics-config';
 import '../styles/globals.css';
 
 interface Props {
@@ -43,6 +44,7 @@ const ogImageType = ogImagePath.endsWith('.svg')
       ? 'image/webp'
       : 'image/jpeg';
 const robotsContent = noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large';
+const searchConsoleVerification = resolveSearchConsoleVerification();
 ---
 
 <meta charset="UTF-8" />
@@ -54,6 +56,11 @@ const robotsContent = noindex ? 'noindex, nofollow' : 'index, follow, max-image-
 <meta name="description" content={description} />
 <link rel="canonical" href={canonical} />
 <meta name="robots" content={robotsContent} />
+{
+  searchConsoleVerification && (
+    <meta name="google-site-verification" content={searchConsoleVerification} />
+  )
+}
 
 <!-- hreflang -->
 {alternates.map(alt => <link rel="alternate" hreflang={alt.hreflang} href={alt.href} />)}

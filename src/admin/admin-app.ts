@@ -22,14 +22,23 @@ import {
   type TipoRow,
   type ProductoTaxonomiaRow,
 } from './taxonomia-logic';
+import {
+  GA4_MEASUREMENT_ID,
+  SEARCH_CONSOLE_SITEMAP,
+  resolveGaId,
+  resolveSearchConsoleHtmlFile,
+  resolveSearchConsoleVerification,
+} from '../lib/analytics-config';
 
 const OLLAMA_URL = (import.meta.env['PUBLIC_OLLAMA_URL'] as string | undefined) ?? '';
 const OLLAMA_INGEST_MODEL = 'qwen3:1.7b';
 const OLLAMA_EMBED_MODEL = 'mxbai-embed-large';
-const PUBLIC_GA_ID = (import.meta.env['PUBLIC_GA_ID'] as string | undefined)?.trim() ?? '';
+const PUBLIC_GA_ID = resolveGaId();
 const PUBLIC_GTM_ID = (import.meta.env['PUBLIC_GTM_ID'] as string | undefined)?.trim() ?? '';
 const PUBLIC_CLARITY_ID =
   (import.meta.env['PUBLIC_CLARITY_ID'] as string | undefined)?.trim() ?? '';
+const PUBLIC_SEARCH_CONSOLE_VERIFICATION = resolveSearchConsoleVerification();
+const PUBLIC_SEARCH_CONSOLE_FILE = resolveSearchConsoleHtmlFile();
 
 type View =
   | 'dashboard'
@@ -4699,7 +4708,20 @@ async function marketingView(): Promise<string> {
       <div class="admin-health">
         <div class="admin-health__item">
           <strong>Google Analytics 4</strong>
-          <p>${PUBLIC_GA_ID ? 'Activo por PUBLIC_GA_ID. Eventos y pageviews se envian con gtag.' : 'Pendiente: definir PUBLIC_GA_ID.'}</p>
+          <p>${PUBLIC_GA_ID ? `Activo (${PUBLIC_GA_ID}). Eventos y pageviews se envian con gtag.` : 'Pendiente: definir PUBLIC_GA_ID.'}</p>
+        </div>
+        <div class="admin-health__item">
+          <strong>Google Search Console</strong>
+          <p>
+            Sitemap ${SEARCH_CONSOLE_SITEMAP}.
+            ${
+              PUBLIC_SEARCH_CONSOLE_VERIFICATION
+                ? 'Meta google-site-verification activa.'
+                : PUBLIC_SEARCH_CONSOLE_FILE
+                  ? `Archivo HTML ${PUBLIC_SEARCH_CONSOLE_FILE} en dist.`
+                  : `Verificar propiedad https://i-me.com.co/ con Google Analytics (${GA4_MEASUREMENT_ID} en head). Luego vincular GSC en GA4 Admin → Product links → Search Console y enviar el sitemap.`
+            }
+          </p>
         </div>
         <div class="admin-health__item">
           <strong>Google Tag Manager</strong>
