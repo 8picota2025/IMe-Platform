@@ -19,6 +19,7 @@ const turnstileSiteKey = (
   currentPath="/evento"
   ogImage={getInstitutionalOgImage()}
   monolingual
+  showAsesor={false}
 >
   <div class="event-page">
     <section class="event-hero" aria-labelledby="event-title">
@@ -120,10 +121,12 @@ const turnstileSiteKey = (
                   type="tel"
                   autocomplete="tel"
                   inputmode="tel"
+                  pattern="[+0-9()\u0020-]{7,40}"
                   maxlength="40"
                   required
                   aria-required="true"
                   placeholder="+57 300 000 0000"
+                  title="Ingresa un teléfono válido de al menos 7 caracteres"
                 />
               </div>
 
@@ -685,15 +688,20 @@ const turnstileSiteKey = (
     if ((window as Window & { turnstile?: TurnstileApi }).turnstile) return Promise.resolve();
     if (turnstileLoaded) return turnstileLoaded;
 
-    turnstileLoaded = new Promise((resolve, reject) => {
+    const pending = new Promise<void>((resolve, reject) => {
       const existingScript = document.querySelector<HTMLScriptElement>(
         'script[data-ime-turnstile]'
       );
       if (existingScript) {
         existingScript.addEventListener('load', () => resolve(), { once: true });
-        existingScript.addEventListener('error', () => reject(new Error('turnstile load error')), {
-          once: true,
-        });
+        existingScript.addEventListener(
+          'error',
+          () => {
+            existingScript.remove();
+            reject(new Error('turnstile load error'));
+          },
+          { once: true }
+        );
         return;
       }
 
@@ -703,10 +711,17 @@ const turnstileSiteKey = (
       script.defer = true;
       script.dataset.imeTurnstile = '1';
       script.onload = () => resolve();
-      script.onerror = () => reject(new Error('turnstile load error'));
+      script.onerror = () => {
+        script.remove();
+        reject(new Error('turnstile load error'));
+      };
       document.head.appendChild(script);
+    }).catch(error => {
+      turnstileLoaded = null;
+      throw error;
     });
-    return turnstileLoaded;
+    turnstileLoaded = pending;
+    return pending;
   }
 
   async function ensureTurnstile(form: HTMLFormElement): Promise<string | undefined> {
@@ -784,7 +799,17 @@ const turnstileSiteKey = (
       }
 
       const sitekey = form.dataset.turnstileSiteKey?.trim();
-      const turnstileToken = await ensureTurnstile(form).catch(() => undefined);
+      let turnstileToken: string | undefined;
+      try {
+        turnstileToken = await ensureTurnstile(form);
+      } catch {
+        setStatus(
+          status,
+          'No pudimos cargar la verificación de seguridad. Revisa tu conexión o bloqueador e intenta de nuevo.',
+          'error'
+        );
+        return;
+      }
       if (sitekey && !turnstileToken) {
         setStatus(status, 'Completa la verificación de seguridad.', 'error');
         return;
