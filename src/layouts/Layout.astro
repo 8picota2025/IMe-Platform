@@ -29,6 +29,7 @@ interface Props {
   fontAwesome?: boolean;
   monolingual?: boolean;
   showAsesor?: boolean;
+  showQuoteRequest?: boolean;
 }
 
 const {
@@ -43,6 +44,7 @@ const {
   fontAwesome,
   monolingual = false,
   showAsesor = true,
+  showQuoteRequest = true,
 } = Astro.props;
 
 const commercialBarAllowed =
@@ -86,7 +88,7 @@ const commercialBarAllowed =
     {showAsesor && <Asesor locale={locale} />}
     <Carrito locale={locale} />
     <CotizacionDrawer locale={locale} />
-    <QuoteRequestModal locale={locale} />
+    {showQuoteRequest && <QuoteRequestModal locale={locale} />}
     {commercialBarAllowed && <MobileCommercialBar locale={locale} />}
     <PWABanner />
 
