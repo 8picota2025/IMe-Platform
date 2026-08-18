@@ -14,6 +14,7 @@ import { syncCommercialLeadWithTwenty } from '../_shared/twenty-crm.ts';
 import { enviarEmailPlantilla, escapeHtml } from '../_shared/email.ts';
 import {
   classifyLead,
+  isTurnstileOptionalCampaign,
   validateCommercialLead,
   type CommercialLeadInput,
   type HorizonteCompra,
@@ -274,12 +275,12 @@ Deno.serve(
     ) as HorizonteCompra | null;
     if (!horizonte || !HORIZONTES.has(horizonte)) return badRequest('horizonte invalido', origin);
 
-    // Descargas de fichas ya tienen formulario obligatorio, honeypot y rate-limit
-    // por IP. Turnstile puede entrar en loop 600* en navegadores/redes legítimas;
-    // no bloquear este recurso documental por un challenge no resuelto.
+    // Evento y descargas de fichas ya tienen formulario obligatorio, honeypot y
+    // rate-limit por IP. Turnstile puede entrar en loop 600* en navegadores o
+    // redes legítimas; no bloquear el registro por un challenge no resuelto.
     const turnstile = await verifyTurnstile(body.turnstileToken, ip);
     if (
-      campaign !== 'pdf_descarga' &&
+      !isTurnstileOptionalCampaign(campaign) &&
       !turnstile.success &&
       turnstile.reason !== 'not_configured'
     ) {
@@ -357,8 +358,8 @@ Deno.serve(
       metadata: {
         turnstile: turnstile.success
           ? 'verified'
-          : campaign === 'pdf_descarga'
-            ? 'optional_pdf_descarga'
+          : isTurnstileOptionalCampaign(campaign)
+            ? `optional_${campaign}`
             : 'not_configured',
         ...(campaign === 'evento'
           ? {

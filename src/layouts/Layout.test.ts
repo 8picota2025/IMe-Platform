@@ -11,4 +11,10 @@ describe('event layout', () => {
     expect(layoutSource).toContain('{showQuoteRequest && <QuoteRequestModal locale={locale} />}');
     expect(eventPageSource).toContain('showQuoteRequest={false}');
   });
+
+  it('does not hard-block event registration when Turnstile never issues a token', () => {
+    expect(eventPageSource).toContain('waitForTurnstileToken');
+    expect(eventPageSource).toContain('Challenge 600* no bloquea el registro');
+    expect(eventPageSource).not.toContain('Completa la verificación de seguridad.');
+  });
 });
