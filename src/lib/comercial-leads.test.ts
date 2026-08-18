@@ -3,6 +3,7 @@ import {
   buildWhatsAppMessage,
   buildWhatsAppUrl,
   classifyLead,
+  isTurnstileOptionalCampaign,
   validateCommercialLead,
 } from './comercial-leads';
 
@@ -99,6 +100,19 @@ describe('validateCommercialLead', () => {
     });
     expect(r.valid).toBe(false);
     expect(r.errors[field]).toBeTruthy();
+  });
+});
+
+describe('isTurnstileOptionalCampaign', () => {
+  it('deja pasar evento y descargas de ficha si el challenge 600* falla', () => {
+    expect(isTurnstileOptionalCampaign('evento')).toBe(true);
+    expect(isTurnstileOptionalCampaign('pdf_descarga')).toBe(true);
+  });
+
+  it('sigue exigiendo Turnstile en landings consultivas', () => {
+    expect(isTurnstileOptionalCampaign('torres_laparoscopia')).toBe(false);
+    expect(isTurnstileOptionalCampaign('proyectos')).toBe(false);
+    expect(isTurnstileOptionalCampaign(undefined)).toBe(false);
   });
 });
 

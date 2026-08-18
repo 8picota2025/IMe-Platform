@@ -53,6 +53,13 @@ export interface ValidationResult {
 
 const WHATSAPP_E164 = '573103332607';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const OPTIONAL_TURNSTILE_CAMPAIGNS = new Set<CampaignLandingId>(['pdf_descarga', 'evento']);
+
+/** Turnstile 600* puede fallar en navegadores/redes legítimas. Estas campañas
+ * siguen protegidas por honeypot, rate-limit e campos obligatorios. */
+export function isTurnstileOptionalCampaign(campaign?: string | null): boolean {
+  return Boolean(campaign && OPTIONAL_TURNSTILE_CAMPAIGNS.has(campaign as CampaignLandingId));
+}
 
 export function classifyLead(horizonte: HorizonteCompra): LeadPriority {
   if (horizonte === '0-3') return 'P1';

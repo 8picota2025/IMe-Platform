@@ -747,6 +747,26 @@ const turnstileSiteKey = (
     return turnstileTokens.get(form);
   }
 
+  function waitForTurnstileToken(
+    form: HTMLFormElement,
+    timeoutMs: number
+  ): Promise<string | undefined> {
+    const existing = turnstileTokens.get(form);
+    if (existing) return Promise.resolve(existing);
+    return new Promise(resolve => {
+      const started = Date.now();
+      const tick = () => {
+        const token = turnstileTokens.get(form);
+        if (token || Date.now() - started >= timeoutMs) {
+          resolve(token);
+          return;
+        }
+        window.setTimeout(tick, 150);
+      };
+      tick();
+    });
+  }
+
   function newIdempotencyKey(): string {
     if (typeof window.crypto?.randomUUID === 'function') return window.crypto.randomUUID();
     return `${Date.now()}_${Math.random().toString(36).slice(2)}_${Math.random().toString(36).slice(2)}`;
@@ -799,21 +819,12 @@ const turnstileSiteKey = (
         return;
       }
 
-      const sitekey = form.dataset.turnstileSiteKey?.trim();
       let turnstileToken: string | undefined;
       try {
         turnstileToken = await ensureTurnstile(form);
+        if (!turnstileToken) turnstileToken = await waitForTurnstileToken(form, 2500);
       } catch {
-        setStatus(
-          status,
-          'No pudimos cargar la verificación de seguridad. Revisa tu conexión o bloqueador e intenta de nuevo.',
-          'error'
-        );
-        return;
-      }
-      if (sitekey && !turnstileToken) {
-        setStatus(status, 'Completa la verificación de seguridad.', 'error');
-        return;
+        // Challenge 600* no bloquea el registro: honeypot + rate-limit cubren bots.
       }
 
       form.dataset.idempotencyKey ||= newIdempotencyKey();
