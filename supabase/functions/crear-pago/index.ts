@@ -37,6 +37,11 @@ import {
   type CotizacionOfertaRow,
   type CotizacionLineaOferta,
 } from '../../../src/lib/cotizacion-oferta.ts';
+import {
+  canAttemptCuponClaim,
+  decideCuponClaimMode,
+  nextCuponUsos,
+} from '../../../src/lib/cupon-claim.ts';
 
 const FN_NAME = 'crear-pago';
 const MAX_ITEMS = 20;
@@ -1003,18 +1008,55 @@ Deno.serve(
       );
     }
 
-    if (descuento.cupon) {
-      await supabase.from('cupon_usos').insert({
-        cupon_id: descuento.cupon.id,
-        pedido_id: pedidoId,
-        cliente_id: clienteId,
-        email: cliente.email.toLowerCase(),
-        descuento: descuento.descuento,
-      });
-      await supabase
+    // Limited coupons: CAS-claim a use slot BEFORE opening a discounted checkout.
+    // Otherwise N parallel crear-pago calls all pass the non-atomic usos check and
+    // each get a live underpriced Wompi/Stripe session (limite_uso_total bypass).
+    const cuponClaimMode = decideCuponClaimMode({
+      hasCupon: Boolean(descuento.cupon),
+      limiteUsoTotal: descuento.cupon?.limite_uso_total,
+    });
+    let cuponClaimedUsos: number | null = null;
+    if (descuento.cupon && cuponClaimMode === 'claim_before_checkout') {
+      const limite = descuento.cupon.limite_uso_total;
+      if (
+        limite === null ||
+        !canAttemptCuponClaim({
+          usosActual: descuento.cupon.usos,
+          limiteUsoTotal: limite,
+        })
+      ) {
+        await supabase.from('pedidos').update({ estado: 'error_verificacion' }).eq('id', pedidoId);
+        return errorResponse(
+          { code: 'CUPON_AGOTADO', message: 'Cupon sin usos disponibles' },
+          422,
+          origin
+        );
+      }
+      const usosAntes = descuento.cupon.usos;
+      const usosDespues = nextCuponUsos(usosAntes);
+      const { data: claimed, error: claimError } = await supabase
         .from('cupones')
-        .update({ usos: descuento.cupon.usos + 1 })
-        .eq('id', descuento.cupon.id);
+        .update({ usos: usosDespues })
+        .eq('id', descuento.cupon.id)
+        .eq('usos', usosAntes)
+        .select('id')
+        .maybeSingle();
+      if (claimError) {
+        await supabase.from('pedidos').update({ estado: 'error_verificacion' }).eq('id', pedidoId);
+        return internalError(`error reservando cupon: ${claimError.message}`, origin);
+      }
+      if (!claimed) {
+        await supabase.from('pedidos').update({ estado: 'error_verificacion' }).eq('id', pedidoId);
+        return errorResponse(
+          {
+            code: 'CUPON_AGOTADO',
+            message: 'Cupon sin usos disponibles (posible uso concurrente)',
+          },
+          409,
+          origin
+        );
+      }
+      cuponClaimedUsos = usosDespues;
     }
 
     const gateway = getPaymentGateway(mercado as Mercado);
@@ -1035,6 +1077,14 @@ Deno.serve(
     });
 
     if (!resultado.ok) {
+      if (descuento.cupon && cuponClaimedUsos !== null) {
+        // Release CAS reservation so the coupon remains usable after GATEWAY_ERROR.
+        await supabase
+          .from('cupones')
+          .update({ usos: descuento.cupon.usos })
+          .eq('id', descuento.cupon.id)
+          .eq('usos', cuponClaimedUsos);
+      }
       await supabase.from('pedidos').update({ estado: 'error_verificacion' }).eq('id', pedidoId);
       await notificarEstadoPedido(pedidoId, 'error_verificacion', 'pendiente');
 
@@ -1047,6 +1097,23 @@ Deno.serve(
         502,
         origin
       );
+    }
+
+    if (descuento.cupon) {
+      await supabase.from('cupon_usos').insert({
+        cupon_id: descuento.cupon.id,
+        pedido_id: pedidoId,
+        cliente_id: clienteId,
+        email: cliente.email.toLowerCase(),
+        descuento: descuento.descuento,
+      });
+      // Unlimited coupons: burn only after checkout succeeds (avoids consuming on GATEWAY_ERROR).
+      if (cuponClaimMode === 'burn_after_checkout') {
+        await supabase
+          .from('cupones')
+          .update({ usos: descuento.cupon.usos + 1 })
+          .eq('id', descuento.cupon.id);
+      }
     }
 
     const { error: updateCheckoutError } = await supabase
