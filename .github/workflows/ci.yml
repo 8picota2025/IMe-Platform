@@ -52,6 +52,9 @@ jobs:
           PUBLIC_SUPABASE_URL: https://nnfbucwiasuggyfoyydo.supabase.co
           PUBLIC_SUPABASE_ANON_KEY: sb_publishable_5nGmPS2W7yzG3B1NC7piCQ_Imt5f9b2
           PUBLIC_GA_ID: G-YKKFCZHE2N
+          PUBLIC_ANALYTICS_DOMAIN: i-me.com.co
+          PUBLIC_SEARCH_CONSOLE_VERIFICATION: ${{ secrets.PUBLIC_SEARCH_CONSOLE_VERIFICATION }}
+          PUBLIC_SEARCH_CONSOLE_FILE: ${{ secrets.PUBLIC_SEARCH_CONSOLE_FILE }}
           PUBLIC_CLARITY_ID: xqoetpnsk8
           PUBLIC_SENTRY_DSN: ${{ secrets.PUBLIC_SENTRY_DSN }}
           TURNSTILE_SITE_KEY: ${{ secrets.TURNSTILE_SITE_KEY }}

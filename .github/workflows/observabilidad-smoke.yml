@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   smoke:
-    name: Home · Products · Sitemap · Health
+    name: Home · GA4 · Products · Sitemap · Health
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -76,6 +76,11 @@ jobs:
             "https://i-me.com.co/" \
             "I-ME" \
             /tmp/home.html
+
+          smoke_check "GA4" \
+            "https://i-me.com.co/es/" \
+            "G-YKKFCZHE2N" \
+            /tmp/home-ga4.html
 
           smoke_check "Sitemap" \
             "https://i-me.com.co/sitemap-index.xml" \
