@@ -15,6 +15,7 @@ import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { badRequest, internalError } from '../_shared/errors.ts';
 import { getGatewayByProvider } from '../_shared/payment-gateway.ts';
 import {
+  claimPedidoPagado,
   notificarEstadoPedido,
   notificarFulfillmentDropship,
   registrarPedidoPagado,
@@ -108,22 +109,40 @@ Deno.serve(async req => {
 
     if (nuevoEstado !== 'pendiente' && nuevoEstado !== pedido.estado) {
       const syntheticEventId = `reconcile:${referencia}:${Date.now()}`;
-      await supabase
-        .from('pedidos')
-        .update({
-          estado: nuevoEstado,
-          metadata: { ...(pedido.metadata ?? {}), ultima_reconciliacion_wompi: syntheticEventId },
-        })
-        .eq('id', pedido.id);
 
       if (nuevoEstado === 'pagado') {
-        await registrarPedidoPagado(supabase, pedido.id, 'wompi', syntheticEventId);
-        await notificarFulfillmentDropship(supabase, pedido.id, pedido.items ?? []);
+        // CAS claim: if webhook-wompi already marked pagado, skip side effects.
+        const claimed = await claimPedidoPagado(supabase, pedido.id, {
+          ...(pedido.metadata ?? {}),
+          ultima_reconciliacion_wompi: syntheticEventId,
+        });
+        if (claimed) {
+          await registrarPedidoPagado(supabase, pedido.id, 'wompi', syntheticEventId);
+          await notificarFulfillmentDropship(supabase, pedido.id, pedido.items ?? []);
+        }
+        estado = 'pagado';
       } else {
-        await notificarEstadoPedido(pedido.id, nuevoEstado, pedido.estado);
-      }
+        const { data: updated } = await supabase
+          .from('pedidos')
+          .update({
+            estado: nuevoEstado,
+            metadata: {
+              ...(pedido.metadata ?? {}),
+              ultima_reconciliacion_wompi: syntheticEventId,
+            },
+          })
+          .eq('id', pedido.id)
+          .neq('estado', 'pagado')
+          .select('id')
+          .maybeSingle();
 
-      estado = nuevoEstado;
+        if (updated) {
+          await notificarEstadoPedido(pedido.id, nuevoEstado, pedido.estado);
+          estado = nuevoEstado;
+        } else {
+          estado = 'pagado';
+        }
+      }
     }
   }
 

@@ -17,6 +17,7 @@ import { badRequest, internalError, unauthorized } from '../_shared/errors.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { getGatewayByProvider } from '../_shared/payment-gateway.ts';
 import {
+  claimPedidoPagado,
   notificarEstadoPedido,
   notificarFulfillmentDropship,
   registrarPedidoPagado,
@@ -104,16 +105,25 @@ Deno.serve(
     const verificacion = await gateway.verificarPago(evento.referencia_pasarela);
     const nuevoEstado = verificacion.estado;
     const eraPagado = pedidoRow.estado === 'pagado';
+    let claimedPagado = false;
 
-    // Nunca degradar un pedido ya marcado como pagado
-    if (!eraPagado && nuevoEstado !== pedidoRow.estado) {
+    // Nunca degradar un pedido ya marcado como pagado.
+    // Transition to pagado uses CAS so webhook + success-page reconcile cannot
+    // both run registrarPedidoPagado / dropship notify for the same order.
+    if (!eraPagado && nuevoEstado === 'pagado') {
+      claimedPagado = await claimPedidoPagado(supabase, pedidoRow.id, {
+        ...(pedidoRow.metadata ?? {}),
+        ultimo_evento_wompi: evento.event_id,
+      });
+    } else if (!eraPagado && nuevoEstado !== pedidoRow.estado) {
       await supabase
         .from('pedidos')
         .update({
           estado: nuevoEstado,
           metadata: { ...(pedidoRow.metadata ?? {}), ultimo_evento_wompi: evento.event_id },
         })
-        .eq('id', pedidoRow.id);
+        .eq('id', pedidoRow.id)
+        .neq('estado', 'pagado');
     }
 
     await supabase
@@ -122,14 +132,14 @@ Deno.serve(
       .eq('proveedor_pago', 'wompi')
       .eq('event_id', evento.event_id);
 
-    if (!eraPagado && nuevoEstado === 'pagado') {
+    if (claimedPagado) {
       await registrarPedidoPagado(supabase, pedidoRow.id, 'wompi', evento.event_id);
       await notificarFulfillmentDropship(supabase, pedidoRow.id, pedidoRow.items ?? []);
       void trackEvent(FN_NAME, 'pago_confirmado', {
         pedido_id: pedidoRow.id,
         proveedor_pago: 'wompi',
       });
-    } else if (!eraPagado && nuevoEstado !== pedidoRow.estado) {
+    } else if (!eraPagado && nuevoEstado !== 'pagado' && nuevoEstado !== pedidoRow.estado) {
       await notificarEstadoPedido(pedidoRow.id, nuevoEstado, pedidoRow.estado);
     }
 

@@ -4,8 +4,11 @@
  */
 
 import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
+import { claimPedidoPagado } from '../../../src/lib/pedido-pagado-claim.ts';
 import { enviarEmailPlantilla, DESTINATARIOS_INTERNOS, escapeHtml, itemsToHtml } from './email.ts';
 import { pushPagoToTwenty } from './twenty-commerce-sync.ts';
+
+export { claimPedidoPagado };
 
 interface PedidoItem {
   producto_id: string;
