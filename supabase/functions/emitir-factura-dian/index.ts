@@ -13,6 +13,7 @@ import {
 } from '../_shared/siigo-client.ts';
 import { mapDianDraftToSiigoInvoice } from '../_shared/siigo-mapper.ts';
 import type { DianInvoiceDraft } from '../../../src/lib/fiscal.ts';
+import { evaluateDianEmitGuard } from '../../../src/lib/dian-emit-guard.ts';
 import { pushFacturaToTwenty } from '../_shared/twenty-commerce-sync.ts';
 import { DESTINATARIOS_INTERNOS, enviarEmailPlantilla, escapeHtml } from '../_shared/email.ts';
 
@@ -33,7 +34,9 @@ interface EmitirFacturaRequest {
 
 interface PedidoRow {
   id: string;
+  estado: string;
   facturacion_electronica_solicitada: boolean;
+  facturacion_electronica_estado?: string | null;
   total?: number | string | null;
   moneda?: string | null;
   metadata: Record<string, unknown> | null;
@@ -153,7 +156,9 @@ Deno.serve(
     const forceLive = body.force_live === true;
     const { data, error } = await supabase
       .from('pedidos')
-      .select('id, facturacion_electronica_solicitada, total, moneda, metadata')
+      .select(
+        'id, estado, facturacion_electronica_solicitada, facturacion_electronica_estado, total, moneda, metadata'
+      )
       .eq('id', body.pedido_id)
       .maybeSingle();
 
@@ -161,11 +166,42 @@ Deno.serve(
     if (!data) return badRequest('pedido no encontrado', origin);
 
     const pedido = data as PedidoRow;
-    if (!pedido.facturacion_electronica_solicitada) {
-      return new Response(JSON.stringify({ ok: true, skipped: 'no_solicitada' }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
-      });
+
+    const { data: facturaRow } = await supabase
+      .from('facturas_electronicas')
+      .select('estado')
+      .eq('pedido_id', pedido.id)
+      .maybeSingle();
+    const facturaEstado = (facturaRow as { estado?: string } | null)?.estado ?? null;
+
+    const guard = evaluateDianEmitGuard({
+      dryRun,
+      facturacionSolicitada: pedido.facturacion_electronica_solicitada === true,
+      pedidoEstado: String(pedido.estado ?? ''),
+      facturaEstado,
+      pedidoFacturaEstado: pedido.facturacion_electronica_estado ?? null,
+    });
+
+    if (!guard.ok && guard.kind === 'skip') {
+      return new Response(
+        JSON.stringify({
+          ok: true,
+          skipped: guard.code,
+          ...(guard.message ? { message: guard.message } : {}),
+        }),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
+        }
+      );
+    }
+
+    if (!guard.ok && guard.kind === 'reject') {
+      return errorResponse(
+        { code: guard.code, message: guard.message },
+        guard.status,
+        origin
+      );
     }
 
     const metadata = pedido.metadata ?? {};
