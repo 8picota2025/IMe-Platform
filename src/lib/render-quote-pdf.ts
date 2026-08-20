@@ -72,7 +72,31 @@ function topY(yFromTop: number): number {
 }
 
 function winAnsi(s: string): string {
-  return s.replace(/[^\t\n\r\x20-\x7E\xA0-\xFF]/g, '?');
+  const superMap: Record<string, string> = {
+    '\u2070': '0',
+    '\u00B9': '1',
+    '\u00B2': '2',
+    '\u00B3': '3',
+    '\u2074': '4',
+    '\u2075': '5',
+    '\u2076': '6',
+    '\u2077': '7',
+    '\u2078': '8',
+    '\u2079': '9',
+  };
+  return s
+    .replace(/[\u2013\u2014\u2212\u2010\u2011]/g, '-') // en/em/minus dashes → -
+    .replace(/[\u00D7\u2715\u2716]/g, 'x') // × → x
+    .replace(/[\u2022\u2023\u25CF\u25E6\u2219]/g, '#') // bullets → # (no · U+00B7)
+    .replace(/\u2264/g, '<=')
+    .replace(/\u2265/g, '>=')
+    .replace(
+      /[\u2070\u00B9\u00B2\u00B3\u2074-\u2079]+/g,
+      m => `^${[...m].map(c => superMap[c] ?? '').join('')}`
+    )
+    .replace(/\u207B/g, '-')
+    .replace(/\u00A0/g, ' ')
+    .replace(/[^\t\n\r\x20-\x7E\xA0-\xFF]/g, '?');
 }
 
 function moneyPlain(value: number, moneda: string, locale: 'es' | 'en'): string {
@@ -479,8 +503,8 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     py += 15;
   }
 
-  // Bloque empresa I-ME
-  const companyTop = Math.max(ry + 10, py + 8, 250);
+  // Bloque empresa I-ME (columna izquierda; no espera a MEDIO DE PAGO)
+  const companyTop = Math.max(ry + 12, 228);
   drawText(page, 'INTERNATIONAL MEDICAL ENTERPRISE', {
     x: 59.5,
     top: companyTop,
@@ -491,6 +515,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
   });
   drawText(page, 'Nit: 901871720', { x: 59.5, top: companyTop + 15, size: 10, font });
   drawText(page, 'Medellín', { x: 59.5, top: companyTop + 30, size: 10, font });
+  let companyBottom = companyTop + 42;
   if (snapshot.nombreComercial) {
     drawText(page, `Asesor: ${snapshot.nombreComercial}`, {
       x: 59.5,
@@ -500,12 +525,13 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
       color: MUTED,
       maxWidth: 310,
     });
+    companyBottom = companyTop + 58;
   }
 
-  // ——— Tabla + recuadro de precios (rejilla cerrada, alineada) ———
+  // ——— Tabla + recuadro de precios (debajo de empresa y de pago; sin tope que pise) ———
   const tableLeft = 27;
   const tableRight = 568;
-  const tableTop = Math.min(340, Math.max(companyTop + 18, 280));
+  const tableTop = Math.max(companyBottom + 16, py + 10, 270);
   const headerH = 36;
   const colXs = [tableLeft, 65, 175, 372, 462, tableRight];
   const unitRight = colXs[4]! - 8;
@@ -949,7 +975,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
           page.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: WHITE });
           ay = 50;
         }
-        const lines = wrapByWidth(`• ${c}`, font, 11, 470);
+        const lines = wrapByWidth(`# ${c}`, font, 11, 470);
         for (const line of lines.slice(0, 3)) {
           drawText(page, line, { x: 55, top: ay, size: 11, font, maxWidth: 480 });
           ay += 14;
