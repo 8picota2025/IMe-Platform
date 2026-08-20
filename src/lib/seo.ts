@@ -4,6 +4,7 @@
  */
 
 import type { Locale } from '../i18n/utils';
+import { normalizarMoneda, tienePrecioPublico } from './format';
 
 const SITE = 'https://i-me.com.co';
 const BRAND = 'I-ME';
@@ -363,7 +364,7 @@ export function buildProductJsonLd(
     imagen_principal: string | null;
     slug: string;
     seo_keywords?: string[];
-    precio?: number | null;
+    precio?: number | null | undefined;
     moneda?: string | null;
     disponible?: boolean;
     mpn?: string | null;
@@ -397,9 +398,13 @@ export function buildProductJsonLd(
       name: marca && marca.trim().length > 0 ? marca : 'I-ME International Medical Enterprise',
     },
     seller: { '@id': `${SITE}/#organization` },
-    offers: {
+  };
+  if (tienePrecioPublico(producto.precio)) {
+    jsonLd.offers = {
       '@type': 'Offer',
       url: canonicalUrl,
+      price: producto.precio,
+      priceCurrency: normalizarMoneda(producto.moneda),
       availability:
         producto.disponible === false
           ? 'https://schema.org/OutOfStock'
@@ -407,8 +412,8 @@ export function buildProductJsonLd(
       seller: { '@id': `${SITE}/#organization` },
       areaServed: { '@type': 'Country', name: 'Colombia' },
       businessFunction: 'http://purl.org/goodrelations/v1#Sell',
-    },
-  };
+    };
+  }
   if (categoria) jsonLd.category = categoria;
   if (opts?.familiaSlug) {
     const famSeg = locale === 'en' ? 'families' : 'familias';
@@ -434,11 +439,6 @@ export function buildProductJsonLd(
     });
   }
   if (extraProps.length > 0) jsonLd.additionalProperty = extraProps;
-
-  if (typeof producto.precio === 'number' && producto.precio > 0) {
-    (jsonLd.offers as Record<string, unknown>).price = producto.precio;
-    (jsonLd.offers as Record<string, unknown>).priceCurrency = producto.moneda ?? 'COP';
-  }
   return jsonLd;
 }
 

@@ -42,6 +42,35 @@ describe('buildProductJsonLd', () => {
     expect((jsonLd.offers as { price: number }).price).toBe(12500000);
     expect((jsonLd.offers as { priceCurrency: string }).priceCurrency).toBe('COP');
   });
+
+  it('usa COP cuando la moneda no contiene un código ISO de tres letras', () => {
+    const jsonLd = buildProductJsonLd({ ...producto, moneda: 'COP$' }, 'es');
+    expect((jsonLd.offers as { priceCurrency: string }).priceCurrency).toBe('COP');
+  });
+
+  it('conserva una moneda ISO configurada', () => {
+    const jsonLd = buildProductJsonLd({ ...producto, moneda: 'USD' }, 'en');
+    expect((jsonLd.offers as { priceCurrency: string }).priceCurrency).toBe('USD');
+  });
+
+  it.each([0, null, undefined, NaN, 'invalido' as unknown as number])(
+    'omite Offer cuando precio no es público: %s',
+    precio => {
+      const jsonLd = buildProductJsonLd({ ...producto, precio }, 'es');
+      expect(jsonLd.offers).toBeUndefined();
+    }
+  );
+
+  it('no añade reviews ni aggregateRating sin datos reales', () => {
+    const jsonLd = buildProductJsonLd(producto, 'es');
+    expect(jsonLd.review).toBeUndefined();
+    expect(jsonLd.aggregateRating).toBeUndefined();
+  });
+
+  it('incluye SKU únicamente cuando existe en datos de producto', () => {
+    const jsonLd = buildProductJsonLd({ ...producto, sku: 'M12-BIOLIGHT' }, 'es');
+    expect(jsonLd.sku).toBe('M12-BIOLIGHT');
+  });
 });
 
 describe('buildProductoPageTitle', () => {

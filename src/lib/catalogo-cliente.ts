@@ -5,6 +5,7 @@
  */
 import { t, type Locale } from '../i18n/utils';
 import { normalizarTexto } from './catalogo';
+import { normalizarMoneda, tienePrecioPublico } from './format';
 import { resetTransientUiState } from './motion';
 import {
   getComparador,
@@ -955,9 +956,9 @@ export function initCatalogo(locale: Locale): () => void {
   }
 
   function precioTexto(card: HTMLElement): string {
-    const raw = Number.parseFloat(card.dataset['precio'] ?? '');
-    if (!Number.isFinite(raw)) return t(locale, 'producto.ficha_atencion_desc');
-    const moneda = card.dataset['moneda'] ?? (locale === 'en' ? 'USD' : 'COP');
+    const raw = Number(card.dataset['precio'] ?? '');
+    if (!tienePrecioPublico(raw)) return t(locale, 'producto.precio_solicitud_corto');
+    const moneda = normalizarMoneda(card.dataset['moneda']);
     try {
       return new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'es-CO', {
         style: 'currency',
@@ -1011,7 +1012,7 @@ export function initCatalogo(locale: Locale): () => void {
 
     if (quickviewCta) {
       quickviewCta.hidden = false;
-      if (tipo === 'consumible' && disponible !== '0' && Number.parseFloat(precio) > 0) {
+      if (tipo === 'consumible' && disponible !== '0' && tienePrecioPublico(Number(precio))) {
         const stockAgotado = card.dataset['stock'] === '0';
         if (stockAgotado) {
           quickviewCta.hidden = true;
@@ -1022,11 +1023,11 @@ export function initCatalogo(locale: Locale): () => void {
         quickviewCta.onclick = () => {
           const slug = card.dataset['productoSlug'] ?? '';
           const nombreProducto = card.dataset['nombre'] ?? '';
-          const moneda = card.dataset['moneda'] ?? (locale === 'en' ? 'USD' : 'COP');
+          const moneda = normalizarMoneda(card.dataset['moneda']);
           const stockRaw = card.dataset['stock'] ?? '';
           const stock = stockRaw ? Number(stockRaw) : null;
-          const precioNumero = Number.parseFloat(precio);
-          if (!slug || !nombreProducto || !Number.isFinite(precioNumero)) return;
+          const precioNumero = Number(precio);
+          if (!slug || !nombreProducto || !tienePrecioPublico(precioNumero)) return;
           void import('./carrito').then(({ agregarAlCarrito }) => {
             agregarAlCarrito({ slug, nombre: nombreProducto, precio: precioNumero, moneda, stock });
           });

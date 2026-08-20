@@ -1,9 +1,10 @@
 import { t, type Locale } from '../i18n/utils';
+import { tienePrecioPublico } from './format';
 
 export type AccionComercialTipo = 'carrito' | 'cotizacion' | 'consultar';
 
 export interface ProductoComercial {
-  precio?: number | null;
+  precio?: number | null | undefined;
   disponible?: boolean;
 }
 
@@ -14,8 +15,7 @@ export interface AccionComercial {
 }
 
 export function getAccionComercial(producto: ProductoComercial, locale: Locale): AccionComercial {
-  const tienePrecio =
-    typeof producto.precio === 'number' && Number.isFinite(producto.precio) && producto.precio > 0;
+  const tienePrecio = tienePrecioPublico(producto.precio);
 
   if (tienePrecio && producto.disponible !== false) {
     return { tipo: 'carrito', label: t(locale, 'carrito.agregar'), tienePrecio };
