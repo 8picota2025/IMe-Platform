@@ -525,7 +525,9 @@ ALTER TABLE pedidos
       'pendiente_envio',
       'emitida',
       'rechazada',
-      'error'
+      'error',
+      'anulando',
+      'anulada'
     )
   );
 
@@ -539,7 +541,7 @@ CREATE TABLE IF NOT EXISTS facturas_electronicas (
   pedido_id       UUID NOT NULL UNIQUE REFERENCES pedidos(id) ON DELETE CASCADE,
   proveedor       TEXT NOT NULL DEFAULT 'pendiente_configuracion',
   estado          TEXT NOT NULL DEFAULT 'pendiente_pago'
-                  CHECK (estado IN ('pendiente_pago', 'pendiente_envio', 'emitida', 'rechazada', 'error')),
+                  CHECK (estado IN ('pendiente_pago', 'pendiente_envio', 'emitida', 'rechazada', 'error', 'anulando', 'anulada')),
   numero_factura  TEXT,
   cufe            TEXT,
   payload         JSONB NOT NULL DEFAULT '{}',
