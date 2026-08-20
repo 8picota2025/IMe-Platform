@@ -25,6 +25,12 @@ const FORCE_DIRECT_IMEIA_IN_BROWSER =
   ((import.meta.env['PUBLIC_FORCE_DIRECT_IMEIA_IN_BROWSER'] as string | undefined) ?? '') === '1';
 export const ASESOR_CLIENT_VERSION = '2026-08-13-imeia-sticky-shortlist-v3';
 const MAX_HANDOFF_SUMMARY_CHARS = 400;
+/**
+ * Shortlist conversacional: conservamos como máximo tres opciones de la última
+ * respuesta del asesor. Es suficiente para comparar sin convertir seguimiento
+ * en una nueva búsqueda de catálogo.
+ */
+const MAX_SHORTLIST_ANCHORS = 3;
 const CATALOGO_INDEX_URL: Record<Locale, string> = {
   es: '/data/catalogo-index.es.json',
   en: '/data/catalogo-index.en.json',
@@ -421,16 +427,16 @@ Responde SOLO en JSON válido con:
 }
 
 function buildImeiaTransportSystemPrompt(): string {
-  return `IMEIA ya tiene alma de ingeniera biomédica consultiva y RAG propios. No la sustituyas por un buscador. Solo adapta al JSON de la web.
+  return `IMEIA es asesor comercial consultivo de I-ME y usa RAG propio. No lo sustituyas por un buscador ni por asesoría clínica. Solo adapta la respuesta al JSON de la web.
 
 PRIORIDADES:
-1. Primero comprende y orienta (criterios clínicos/operativos, trade-offs). El catálogo sustenta; no abras con un listado de SKUs salvo pregunta explícita de "qué tienen / opciones / modelos".
+1. Primero comprende necesidad de compra, uso previsto, operación y compatibilidad. El catálogo sustenta; no abras con un listado de SKUs salvo pregunta explícita de "qué tienen / opciones / modelos".
 2. Máximo una pregunta de seguimiento, integrada, si cambia la recomendación.
 3. Tono cercano, técnico, primera persona del plural (I-ME).
 4. Evita respuestas embotelladas o cualificación rígida.
 5. WhatsApp/cotización cuando pida precio, disponibilidad, compra, instalación, garantía, financiación o soporte documental — o cuando la intención sea clara.
 6. Bombas de infusión: solo terapia de infusión real; nunca bomba de calor / cuna / carro / esterilización por coincidencia floja.
-7. Si preguntan diferencia volumétrica vs jeringa: explica uso clínico primero; luego productos relevantes con razón.
+7. Si preguntan diferencia volumétrica vs jeringa: explica diferencia funcional y operativa; luego productos relevantes con razón.
 
 FORMATO DE RESPUESTA:
 Devuelve únicamente JSON válido:
@@ -947,8 +953,7 @@ function extraerNombresProductosDeTexto(contenido: string): string[] {
   const names: string[] = [];
   // Normalize NBSP / odd spaces from pasted chat UIs before parsing numbered lists.
   const normalized = contenido.replace(/\u00a0/g, ' ').replace(/\r/g, '');
-  const numbered =
-    /^\s*\d+\.\s*(?:\*\*|__)?(.+?)(?:\*\*|__)?\s*(?:—|–|-|:)\s+/gm;
+  const numbered = /^\s*\d+\.\s*(?:\*\*|__)?(.+?)(?:\*\*|__)?\s*(?:—|–|-|:)\s+/gm;
   for (const match of normalized.matchAll(numbered)) {
     const name = match[1]?.trim();
     if (name && name.length >= 4 && !names.includes(name)) names.push(name);
@@ -960,10 +965,24 @@ function extraerSlugsDeTexto(contenido: string): string[] {
   const slugs: string[] = [];
   const re = /\/(?:es\/productos|en\/products)\/([a-z0-9-]+)/gi;
   for (const match of contenido.matchAll(re)) {
-    const slug = match[1];
+    const slug = match[1]?.toLowerCase();
     if (slug && !slugs.includes(slug)) slugs.push(slug);
   }
-  return slugs;
+  return slugs.slice(0, MAX_SHORTLIST_ANCHORS);
+}
+
+function resolverNombreExactoDeShortlist(
+  items: CatalogoPublicadoItem[],
+  nombre: string
+): CatalogoPublicadoItem | null {
+  const normalizado = normalizeSearchText(nombre);
+  if (!normalizado) return null;
+
+  // No usamos includes: "Monitor X" no puede anclar arbitrariamente
+  // "Monitor X Plus". Si el nombre no identifica un único producto, no se
+  // recupera y se pide confirmación de la shortlist.
+  const coincidencias = items.filter(item => normalizeSearchText(item.nombre) === normalizado);
+  return coincidencias.length === 1 ? coincidencias[0]! : null;
 }
 
 async function recuperarShortlistDelHistorial(
@@ -985,16 +1004,10 @@ async function recuperarShortlistDelHistorial(
       if (hit && !found.some(f => f.slug === hit.slug)) found.push(hit);
     }
     for (const name of names) {
-      const n = normalizeSearchText(name);
-      const hit =
-        items.find(item => normalizeSearchText(item.nombre) === n) ||
-        items.find(item => {
-          const iname = normalizeSearchText(item.nombre);
-          return iname.includes(n) || n.includes(iname);
-        });
+      const hit = resolverNombreExactoDeShortlist(items, name);
       if (hit && !found.some(f => f.slug === hit.slug)) found.push(hit);
     }
-    if (found.length > 0) return found.slice(0, 4);
+    if (found.length > 0) return found.slice(0, MAX_SHORTLIST_ANCHORS);
   }
   return [];
 }
@@ -1021,7 +1034,10 @@ function buildShortlistComparisonResponse(params: {
   const winner = ranked[0]!.item;
   const lineas = params.shortlist.map((producto, index) => {
     const detalle =
-      producto.descripcion_corta || producto.tipo?.nombre || producto.familia.nombre || producto.slug;
+      producto.descripcion_corta ||
+      producto.tipo?.nombre ||
+      producto.familia.nombre ||
+      producto.slug;
     return `${index + 1}. **${producto.nombre}** — ${detalle}`;
   });
 
@@ -1055,11 +1071,7 @@ function buildShortlistComparisonResponse(params: {
       score: Math.max(0.55, 0.95 - index * 0.05),
     })),
     accionHandoff: tipo
-      ? normalizarAccionHandoff(
-          { tipo, resumen: buildHandoffSummary(params) },
-          params,
-          texto
-        )
+      ? normalizarAccionHandoff({ tipo, resumen: buildHandoffSummary(params) }, params, texto)
       : normalizarAccionHandoff(
           { tipo: 'cotizacion', resumen: buildHandoffSummary(params) },
           params,

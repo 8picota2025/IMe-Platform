@@ -139,6 +139,8 @@ const MAX_HISTORIAL_TURNOS = 8;
 const MAX_HISTORIAL_CHARS = 4000;
 const IMEIA_TIMEOUT_MS = 110_000;
 const MAX_TARJETAS = 4;
+/** Última shortlist: máximo tres anchors/productos, para comparar sin reabrir catálogo. */
+const MAX_SHORTLIST_ANCHORS = 3;
 
 function periodoActual(): string {
   return new Date().toISOString().slice(0, 7);
@@ -254,15 +256,11 @@ Deno.serve(async req => {
     let queryCatalogContext: QueryCatalogContext;
     if (stickyFollowUp && anchorsFromHistory.length === 0) {
       // Keyword-fallback replies list "1. Name — …" without product URLs.
-      anchorsFromHistory = await resolverSlugsPorNombresHistorial(supabase, historial, locale);
+      anchorsFromHistory = await resolverSlugsPorNombresHistorial(supabase, historial);
     }
     if (stickyFollowUp && anchorsFromHistory.length > 0) {
       // "¿Cuál de los tres…?" must NOT re-search the catalog (that injects unrelated lines).
-      queryCatalogContext = await obtenerContextoPorSlugs(
-        supabase,
-        anchorsFromHistory.slice(0, 3),
-        locale
-      );
+      queryCatalogContext = await obtenerContextoPorSlugs(supabase, anchorsFromHistory, locale);
     } else if (stickyFollowUp) {
       queryCatalogContext = { products: [], comparable_products: [] };
     } else {
@@ -554,31 +552,32 @@ async function obtenerContextoCanonico(
 }
 
 function extraerSlugsDeHistorial(historial: HistorialItem[]): string[] {
-  const slugs: string[] = [];
   const re = /\/(?:es\/productos|en\/products)\/([a-z0-9-]+)/gi;
-  for (const item of historial) {
+  for (const item of [...historial].reverse()) {
     if (item.rol !== 'asesor') continue;
+    const slugs: string[] = [];
     for (const match of item.contenido.matchAll(re)) {
-      const slug = match[1]!;
+      const slug = match[1]!.toLowerCase();
       if (!slugs.includes(slug)) slugs.push(slug);
     }
+    if (slugs.length > 0) return slugs.slice(0, MAX_SHORTLIST_ANCHORS);
   }
-  return slugs.slice(-6);
+  return [];
 }
 
 function extraerNombresProductosDeHistorial(historial: HistorialItem[]): string[] {
-  const names: string[] = [];
-  const numbered =
-    /^\s*\d+\.\s*(?:\*\*|__)?(.+?)(?:\*\*|__)?\s*(?:—|–|-|:)\s+/gm;
-  for (const item of historial) {
+  const numbered = /^\s*\d+\.\s*(?:\*\*|__)?(.+?)(?:\*\*|__)?\s*(?:—|–|-|:)\s+/gm;
+  for (const item of [...historial].reverse()) {
     if (item.rol !== 'asesor') continue;
+    const names: string[] = [];
     const contenido = item.contenido.replace(/\u00a0/g, ' ').replace(/\r/g, '');
     for (const match of contenido.matchAll(numbered)) {
       const name = match[1]?.trim();
       if (name && name.length >= 4 && !names.includes(name)) names.push(name);
     }
+    if (names.length > 0) return names.slice(0, MAX_SHORTLIST_ANCHORS);
   }
-  return names.slice(-6);
+  return [];
 }
 
 function esSeguimientoDeShortlist(mensaje: string): boolean {
@@ -633,8 +632,7 @@ function esSeguimientoDeShortlist(mensaje: string): boolean {
 
 async function resolverSlugsPorNombresHistorial(
   supabase: ReturnType<typeof getServerSupabase>,
-  historial: HistorialItem[],
-  locale: Locale
+  historial: HistorialItem[]
 ): Promise<string[]> {
   const names = extraerNombresProductosDeHistorial(historial);
   if (names.length === 0) return [];
@@ -648,16 +646,20 @@ async function resolverSlugsPorNombresHistorial(
   const slugs: string[] = [];
   for (const name of names) {
     const n = normalizeSearchText(name);
-    const hit = data.find(row => {
-      const nombre = normalizeSearchText(
-        String(locale === 'en' ? row.nombre_en || row.nombre_es : row.nombre_es || '')
-      );
-      return nombre === n || nombre.includes(n) || n.includes(nombre);
+    if (!n) continue;
+    const matches = data.filter(row => {
+      const nombres = [row.nombre_es, row.nombre_en]
+        .filter((nombre): nombre is string => typeof nombre === 'string')
+        .map(normalizeSearchText);
+      return nombres.includes(n);
     });
+    // No fuzzy includes: nombres parecidos no son anchors seguros. Un empate
+    // tampoco es determinista, por eso se deja sin resolver.
+    const hit = matches.length === 1 ? matches[0] : undefined;
     const slug = hit ? String(hit.slug) : '';
     if (slug && !slugs.includes(slug)) slugs.push(slug);
   }
-  return slugs.slice(0, 4);
+  return slugs.slice(0, MAX_SHORTLIST_ANCHORS);
 }
 
 async function obtenerContextoPorSlugs(
@@ -848,12 +850,12 @@ REGLAS DE USO DEL CONTEXTO:
 }
 
 function buildImeiaRuntimeSystemPrompt(locale: Locale): string {
-  return `Eres IMEIA, ingeniera biomedica senior de I-ME con matiz comercial consultivo.
-NO eres un buscador de catalogo. Tu metodo: comprender → dialogar → orientar con criterio tecnico → recomendar con razones → CTA proporcional.
+  return `Eres IMEIA, asesora comercial consultiva de I-ME.
+NO eres un buscador de catalogo ni das asesoría clínica. Tu metodo: comprender → dialogar → orientar sobre producto y compra → recomendar con razones → CTA proporcional.
 Responde en ${locale === 'en' ? 'ingles si el usuario escribe en ingles; si no, usa el idioma del usuario' : 'espanol salvo que el usuario use otro idioma'}.
 
 Reglas criticas:
-- Prioriza dialogo clinico/operativo; no abras con listas de SKUs ante necesidades amplias.
+- Prioriza dialogo comercial y operativo; no abras con listas de SKUs ante necesidades amplias.
 - Usa el contexto de pagina cuando exista; no preguntes cual es el producto si canonical_product_context.product lo identifica.
 - SHORTLIST STICKY: si el usuario pregunta por "los tres / mas completo / compara esos / cual recomiendas" sobre opciones ya dadas, compara SOLO esos productos (anchors). Nunca saltes a otra linea.
 - Si query_catalog_context trae productos, son candidatos para grounding (nombres/enlaces), no un ranking a volcar.

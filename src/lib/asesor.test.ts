@@ -521,4 +521,118 @@ describe('asesor biomedical fallback', () => {
       globalThis.fetch = originalFetch;
     }
   });
+
+  it('resuelve nombres parecidos por igualdad exacta, no por includes', async () => {
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = (async () =>
+      new Response(
+        JSON.stringify([
+          {
+            slug: 'monitor-x-plus',
+            nombre: 'Monitor X Plus',
+            familia: { slug: 'monitores', nombre: 'Monitores' },
+            tipo: null,
+            descripcion_corta: 'Monitor ampliado.',
+            imagen_principal: null,
+            texto_busqueda: 'monitor x plus',
+          },
+          {
+            slug: 'monitor-x',
+            nombre: 'Monitor X',
+            familia: { slug: 'monitores', nombre: 'Monitores' },
+            tipo: null,
+            descripcion_corta: 'Monitor base.',
+            imagen_principal: null,
+            texto_busqueda: 'monitor x',
+          },
+        ]),
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
+      )) as typeof fetch;
+
+    try {
+      resetCatalogoPublicadoCache();
+      const respuesta = await buildResilientFallbackResponse({
+        mensaje: '¿Cuál recomiendas?',
+        historial: [
+          { rol: 'usuario', contenido: 'Busco un monitor.', timestamp: new Date() },
+          { rol: 'asesor', contenido: '1. Monitor X — Monitor base.', timestamp: new Date() },
+        ],
+        locale: 'es',
+      });
+
+      expect(respuesta.productos.map(producto => producto.slug)).toEqual(['monitor-x']);
+      expect(respuesta.texto).not.toContain('Monitor X Plus');
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  it('ancla la última shortlist por URLs ES y EN y conserva URLs del locale actual', async () => {
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = (async () =>
+      new Response(
+        JSON.stringify([
+          {
+            slug: 'monitor-alpha',
+            nombre: 'Alpha Monitor',
+            familia: { slug: 'monitors', nombre: 'Monitors' },
+            tipo: null,
+            descripcion_corta: 'Alpha option.',
+            imagen_principal: null,
+            texto_busqueda: 'alpha monitor',
+          },
+          {
+            slug: 'monitor-beta',
+            nombre: 'Beta Monitor',
+            familia: { slug: 'monitors', nombre: 'Monitors' },
+            tipo: null,
+            descripcion_corta: 'Beta option.',
+            imagen_principal: null,
+            texto_busqueda: 'beta monitor',
+          },
+          {
+            slug: 'monitor-old',
+            nombre: 'Old Monitor',
+            familia: { slug: 'monitors', nombre: 'Monitors' },
+            tipo: null,
+            descripcion_corta: 'Older option.',
+            imagen_principal: null,
+            texto_busqueda: 'old monitor',
+          },
+        ]),
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
+      )) as typeof fetch;
+
+    try {
+      resetCatalogoPublicadoCache();
+      const respuesta = await buildResilientFallbackResponse({
+        mensaje: 'Which is better of those?',
+        historial: [
+          {
+            rol: 'asesor',
+            contenido: 'https://i-me.com.co/en/products/monitor-old/',
+            timestamp: new Date(),
+          },
+          {
+            rol: 'asesor',
+            contenido:
+              'https://i-me.com.co/es/productos/MONITOR-ALPHA/\nhttps://i-me.com.co/en/products/monitor-beta/',
+            timestamp: new Date(),
+          },
+        ],
+        locale: 'en',
+      });
+
+      expect(respuesta.productos.map(producto => producto.slug)).toEqual([
+        'monitor-alpha',
+        'monitor-beta',
+      ]);
+      expect(respuesta.productos.map(producto => producto.urlLanding)).toEqual([
+        '/en/products/monitor-alpha/',
+        '/en/products/monitor-beta/',
+      ]);
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
 });
