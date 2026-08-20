@@ -18,7 +18,9 @@ CSV: [`seo-backlog.csv`](./seo-backlog.csv)
 
 ## Ops manual (GSC / PSI / GMB) — checklist
 
-Sin API GSC en este entorno. Hacer en Search Console (property `https://i-me.com.co/`):
+GA4 `G-YKKFCZHE2N` ya está en `<head>` de prod (`/es/`). Verificar GSC con método **Google Analytics**, no hace falta API.
+
+Hacer en Search Console (property `https://i-me.com.co/`):
 
 1. **Sitemaps** → enviar/confirmar `https://i-me.com.co/sitemap-index.xml`
 2. **Inspección de URL** (solicitar indexación) para:

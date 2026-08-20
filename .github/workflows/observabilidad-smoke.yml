@@ -5,6 +5,9 @@ on:
     # Cada 15 min: */5 saturaba la cola de runners (jobs queued ~15m → cancelled).
     - cron: '*/15 * * * *'
   workflow_dispatch:
+  workflow_run:
+    workflows: ['Deploy Producción']
+    types: [completed]
 
 concurrency:
   group: observabilidad-smoke
@@ -12,7 +15,8 @@ concurrency:
 
 jobs:
   smoke:
-    name: Home · Sitemap · Health
+    name: Home · GA4 · Products · Sitemap · Health
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -25,7 +29,8 @@ jobs:
 
           # Hostinger publishes a broken/unreachable AAAA for i-me.com.co. GHA runners
           # often prefer IPv6 and hang until max-time (~30s), which made the old
-          # `curl | grep` home check fail with exit 1. Force IPv4 and retry.
+          # `curl | grep` home check fail with exit 1. Force IPv4 and retry the
+          # complete request-and-content assertion.
           smoke_check() {
             local name="$1"
             local url="$2"
@@ -45,12 +50,12 @@ jobs:
                 -o "$outfile" \
                 -w "http_code=%{http_code} time=%{time_total} size=%{size_download}\n" \
                 "$url"; then
-                if grep -q "$pattern" "$outfile"; then
+                if grep -Fq "$pattern" "$outfile"; then
                   echo "${name} OK"
                   echo "::endgroup::"
                   return 0
                 fi
-                echo "${name} response missing pattern: ${pattern}"
+                echo "${name} response missing expected content: ${pattern}"
                 head -c 800 "$outfile" || true
                 echo
               else
@@ -72,10 +77,29 @@ jobs:
             "I-ME" \
             /tmp/home.html
 
+          smoke_check "GA4" \
+            "https://i-me.com.co/es/" \
+            "G-YKKFCZHE2N" \
+            /tmp/home-ga4.html
+
           smoke_check "Sitemap" \
             "https://i-me.com.co/sitemap-index.xml" \
             "<sitemapindex" \
             /tmp/sitemap.xml
+
+          smoke_check "Priced product" \
+            "https://i-me.com.co/es/productos/g-cdk-195/" \
+            '"priceCurrency":"COP"' \
+            /tmp/priced-product.html
+
+          smoke_check "Quote-only product" \
+            "https://i-me.com.co/es/productos/arco-c-movil-dinamico-hua-ii/" \
+            "Bajo cotización según especificaciones del producto" \
+            /tmp/quote-product.html
+          if grep -Fq '"offers":' /tmp/quote-product.html; then
+            echo "::error::Quote-only product unexpectedly exposes Product offers"
+            exit 1
+          fi
 
           smoke_check "Health" \
             "https://nnfbucwiasuggyfoyydo.supabase.co/functions/v1/health" \

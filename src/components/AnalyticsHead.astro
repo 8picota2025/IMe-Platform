@@ -1,17 +1,14 @@
 ---
-const gaId = (import.meta.env['PUBLIC_GA_ID'] as string | undefined)?.trim() ?? '';
+import { resolveAnalyticsDomain, resolveGaId } from '../lib/analytics-config';
+
+const gaId = resolveGaId();
 const gtmId = (import.meta.env['PUBLIC_GTM_ID'] as string | undefined)?.trim() ?? '';
 const clarityId = (import.meta.env['PUBLIC_CLARITY_ID'] as string | undefined)?.trim() ?? '';
-const searchConsoleVerification =
-  (import.meta.env['PUBLIC_SEARCH_CONSOLE_VERIFICATION'] as string | undefined)?.trim() ?? '';
-const analyticsDomain =
-  (import.meta.env['PUBLIC_ANALYTICS_DOMAIN'] as string | undefined)?.trim() ?? 'i-me.com.co';
+const analyticsDomain = resolveAnalyticsDomain();
 ---
 
 {
-  searchConsoleVerification && (
-    <meta name="google-site-verification" content={searchConsoleVerification} />
-  )
+  gaId && <link rel="preconnect" href="https://www.googletagmanager.com" />
 }
 
 {
