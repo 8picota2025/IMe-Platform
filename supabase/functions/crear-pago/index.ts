@@ -25,6 +25,7 @@ import {
   validateClienteFiscal,
   type ClienteFiscalProfile,
 } from '../../../src/lib/fiscal.ts';
+import { stripUntrustedAgenteFlags } from '../../../src/lib/public-checkout-fiscal.ts';
 import { withTelemetry, trackEvent } from '../_shared/telemetry.ts';
 import { notificarEstadoPedido } from '../_shared/post-pago.ts';
 import { pushClienteToTwenty } from '../_shared/twenty-commerce-sync.ts';
@@ -260,8 +261,8 @@ async function upsertCliente(
         numero_documento: fiscal.numero_documento ?? null,
         tipo_persona: fiscal.tipo_persona ?? null,
         responsable_iva: fiscal.responsable_iva === true,
-        agente_retencion: fiscal.agente_retencion === true,
-        agente_reteica: fiscal.agente_reteica === true,
+        // Never persist self-asserted agente_* from public checkout — those flags
+        // are admin-managed and would poison later fiscal totals if written here.
         email_facturacion: fiscal.email_facturacion ?? email,
         direccion_facturacion: fiscal.direccion_facturacion ?? null,
         consentimiento_datos: true,
@@ -293,7 +294,9 @@ function normalizeFiscal(
 ): ClienteFiscalProfile {
   const direccion = fiscal?.direccion_facturacion?.direccion?.trim();
   const ciudad = fiscal?.direccion_facturacion?.ciudad?.trim();
-  return {
+  // Ignore body.agente_retencion / agente_reteica — unauthenticated clients must
+  // not reduce the Wompi/Stripe charge via calculateFiscalSummary withholdings.
+  return stripUntrustedAgenteFlags({
     solicitar_factura_electronica:
       mercado === 'CO' && moneda === 'COP' && fiscal?.solicitar_factura_electronica === true,
     tipo_documento: fiscal?.tipo_documento ?? null,
@@ -301,8 +304,8 @@ function normalizeFiscal(
     tipo_persona: fiscal?.tipo_persona ?? null,
     razon_social: fiscal?.razon_social?.trim() || cliente.institucion?.trim() || null,
     responsable_iva: fiscal?.responsable_iva === true,
-    agente_retencion: fiscal?.agente_retencion === true,
-    agente_reteica: fiscal?.agente_reteica === true,
+    agente_retencion: false,
+    agente_reteica: false,
     email_facturacion: fiscal?.email_facturacion?.trim() || cliente.email?.trim() || null,
     direccion_facturacion:
       direccion && ciudad
@@ -314,7 +317,7 @@ function normalizeFiscal(
             pais: fiscal?.direccion_facturacion?.pais?.trim() || 'CO',
           }
         : null,
-  };
+  });
 }
 
 function emailPermitido(email: string, restricciones: string[] | null): boolean {
