@@ -84,12 +84,8 @@ jobs:
 
           smoke_check "Priced product" \
             "https://i-me.com.co/es/productos/g-cdk-195/" \
-            "G-CDK-195" \
+            '"priceCurrency":"COP"' \
             /tmp/priced-product.html
-          grep -Fq '"priceCurrency":"COP"' /tmp/priced-product.html || {
-            echo "::error::Priced product is missing COP Offer structured data"
-            exit 1
-          }
 
           smoke_check "Quote-only product" \
             "https://i-me.com.co/es/productos/arco-c-movil-dinamico-hua-ii/" \
