@@ -189,12 +189,17 @@ Deno.serve(
       return errorResponse({ code: 'IMAGE_TOO_LARGE', message: 'Imagen máx. 8 MB.' }, 413, origin);
     }
 
-    const mime = String(body.mime ?? 'image/jpeg')
-      .toLowerCase()
-      .split(';')[0]!
-      .trim();
+    const mime =
+      String(body.mime ?? 'image/jpeg')
+        .toLowerCase()
+        .split(';')[0]!
+        .trim() || 'image/jpeg';
+    // Cliente convierte PDF/HEIC → JPEG; aceptamos image/* (no application/pdf crudo).
     if (!mime.startsWith('image/')) {
-      return badRequest('mime debe ser image/*', origin);
+      return badRequest(
+        'mime debe ser image/* (JPG/PNG/WebP). Convierte PDF en el cliente.',
+        origin
+      );
     }
 
     // Staging en Storage + URL firmada → puente moondream (túnel sin base64).
