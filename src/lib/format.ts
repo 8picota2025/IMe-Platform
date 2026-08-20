@@ -2,28 +2,40 @@
  * Utilidades de formateo de datos para UI.
  */
 
-import type { Locale } from '../i18n/utils'
+import type { Locale } from '../i18n/utils';
+
+/** Precio público: número finito estrictamente mayor que cero. */
+export function tienePrecioPublico(valor: unknown): valor is number {
+  return typeof valor === 'number' && Number.isFinite(valor) && valor > 0;
+}
+
+/** Normaliza moneda ISO 4217 almacenada; COP es fallback comercial de I-ME. */
+export function normalizarMoneda(moneda: unknown): string {
+  const codigo = typeof moneda === 'string' ? moneda.trim().toUpperCase() : '';
+  return /^[A-Z]{3}$/.test(codigo) ? codigo : 'COP';
+}
 
 /**
  * Formatea un número como moneda COP o USD.
  * Nunca inventa precios — devuelve null si el valor es null.
  */
 export function formatMoneda(
-  valor: number | null,
-  moneda = 'COP',
+  valor: number | null | undefined,
+  moneda: string | null | undefined = 'COP',
   locale: Locale = 'es'
 ): string | null {
-  if (valor === null || valor === undefined) return null
-  const localeCode = locale === 'en' ? 'en-US' : 'es-CO'
+  if (typeof valor !== 'number' || !Number.isFinite(valor) || valor < 0) return null;
+  const monedaNormalizada = normalizarMoneda(moneda);
+  const localeCode = locale === 'en' ? 'en-US' : 'es-CO';
   try {
     return new Intl.NumberFormat(localeCode, {
       style: 'currency',
-      currency: moneda,
+      currency: monedaNormalizada,
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(valor)
+    }).format(valor);
   } catch {
-    return `${moneda} ${valor.toLocaleString()}`
+    return `${monedaNormalizada} ${valor.toLocaleString()}`;
   }
 }
 
@@ -31,15 +43,15 @@ export function formatMoneda(
  * Formatea una fecha ISO a formato legible.
  */
 export function formatFecha(iso: string, locale: Locale = 'es'): string {
-  const localeCode = locale === 'en' ? 'en-US' : 'es-CO'
+  const localeCode = locale === 'en' ? 'en-US' : 'es-CO';
   try {
     return new Intl.DateTimeFormat(localeCode, {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
-    }).format(new Date(iso))
+    }).format(new Date(iso));
   } catch {
-    return iso
+    return iso;
   }
 }
 
@@ -47,8 +59,8 @@ export function formatFecha(iso: string, locale: Locale = 'es'): string {
  * Trunca texto a maxLength caracteres con ellipsis.
  */
 export function truncar(texto: string, maxLength: number): string {
-  if (texto.length <= maxLength) return texto
-  return texto.slice(0, maxLength - 1) + '…'
+  if (texto.length <= maxLength) return texto;
+  return texto.slice(0, maxLength - 1) + '…';
 }
 
 /**
@@ -60,5 +72,5 @@ export function toSlug(texto: string): string {
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
     .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
+    .replace(/^-|-$/g, '');
 }

@@ -210,6 +210,7 @@ function mapProductoSupabase(raw: any, locale: Locale): Producto {
     fulfillment_mode: raw.fulfillment_mode,
     precio: raw.precio,
     moneda: raw.moneda,
+    sku: typeof raw.sku === 'string' ? raw.sku : null,
     stock: raw.stock ?? null,
     disponible: raw.disponible ?? true,
     destacado: raw.destacado,
@@ -265,6 +266,7 @@ export interface Producto {
   fulfillment_mode: 'dropship' | 'cotizacion' | 'individualizado';
   precio: number | null;
   moneda: string;
+  sku: string | null;
   stock: number | null;
   // Escenario A: el proveedor flaguea disponibilidad en tiempo real.
   // false → fuera de carrito/checkout (independiente de `activo`/catálogo).
@@ -371,6 +373,7 @@ function mapProducto(raw: (typeof mockProductos)[0], locale: Locale): Producto {
     fulfillment_mode: raw.fulfillment_mode as Producto['fulfillment_mode'],
     precio: raw.precio,
     moneda: raw.moneda,
+    sku: typeof raw.sku === 'string' ? raw.sku : null,
     stock: (raw as { stock?: number | null }).stock ?? null,
     disponible: (raw as { disponible?: boolean }).disponible ?? true,
     destacado: raw.destacado,

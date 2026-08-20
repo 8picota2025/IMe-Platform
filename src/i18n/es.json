@@ -337,6 +337,8 @@
     "ficha_disponible": "Disponible",
     "ficha_no_disponible": "No disponible temporalmente",
     "ficha_atencion_desc": "Atención comercial y cotización asistida según la configuración del producto.",
+    "precio_solicitud_largo": "Bajo cotización según especificaciones del producto",
+    "precio_solicitud_corto": "Bajo cotización",
     "beneficios_titulo": "Beneficios clave",
     "aplicaciones_titulo": "Aplicaciones clínicas",
     "valor_titulo": "Por qué lo eligen las instituciones",

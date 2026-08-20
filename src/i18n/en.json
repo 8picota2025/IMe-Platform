@@ -337,6 +337,8 @@
     "ficha_disponible": "Available",
     "ficha_no_disponible": "Temporarily unavailable",
     "ficha_atencion_desc": "Commercial support and assisted quoting based on the product configuration.",
+    "precio_solicitud_largo": "Price on request according to product specifications",
+    "precio_solicitud_corto": "Price on request",
     "beneficios_titulo": "Key benefits",
     "aplicaciones_titulo": "Clinical applications",
     "valor_titulo": "Why institutions choose it",

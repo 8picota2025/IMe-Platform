@@ -12,7 +12,7 @@ import ProductoCard from './ProductoCard.astro';
 import Resenas from './Resenas.astro';
 import PdfDownloadGate from './PdfDownloadGate.astro';
 import type { Producto, Familia } from '../lib/datos';
-import { formatMoneda } from '../lib/format';
+import { formatMoneda, tienePrecioPublico } from '../lib/format';
 import { getAccionComercial } from '../lib/comercial';
 import { normalizarEspecificaciones } from '../lib/especificaciones';
 import { getOptimizedImageUrl, isSupabaseStorageImage } from '../lib/image';
@@ -58,7 +58,9 @@ const imagenFallback =
     </svg>`
   );
 
-const precioFormateado = formatMoneda(producto.precio, producto.moneda, locale);
+const precioFormateado = tienePrecioPublico(producto.precio)
+  ? formatMoneda(producto.precio, producto.moneda, locale)
+  : null;
 const noDisponible = producto.disponible === false;
 const accionComercial = getAccionComercial(producto, locale);
 const modalidadTexto =
@@ -132,9 +134,10 @@ const heroStats: Array<{ valor: string; etiqueta: string }> = [
   { valor: disponibilidadTexto, etiqueta: t(locale, 'producto.ficha_stock') },
   { valor: familia.nombre, etiqueta: t(locale, 'catalogo.migas_catalogo') },
 ];
-if (precioFormateado) {
-  heroStats.push({ valor: precioFormateado, etiqueta: t(locale, 'producto.ficha_precio') });
-}
+heroStats.push({
+  valor: precioFormateado ?? t(locale, 'producto.precio_solicitud_largo'),
+  etiqueta: t(locale, 'producto.ficha_precio'),
+});
 ---
 
 <article
