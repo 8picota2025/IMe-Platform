@@ -9,6 +9,7 @@ import {
   hashTokenSha256,
   normalizarOferta,
   ofertaCompleta,
+  ofertaListaParaCobro,
   parseLineasOferta,
   puedeFormalizar,
   quoteEditable,
@@ -51,7 +52,7 @@ describe('cotizacion-oferta', () => {
     expect(ofertaCompleta(parseLineasOferta([{ slug: 'a', cantidad: 1 }]), 'ok').ok).toBe(false);
   });
 
-  it('precio pendiente validar no suma y no bloquea oferta', () => {
+  it('precio pendiente validar no suma; borrador ok, cobro bloqueado', () => {
     const lineas = parseLineasOferta([
       { slug: 'a', nombre: 'A', cantidad: 2, precio_unitario: 100, moneda: 'COP' },
       {
@@ -65,7 +66,25 @@ describe('cotizacion-oferta', () => {
     ]);
     expect(lineas[1]!.precio_pendiente_validar).toBe(true);
     expect(calcularTotalOfertado(lineas)).toBe(200);
+    // PDF/borrador: permite líneas pendientes.
     expect(ofertaCompleta(lineas, 'Entrega 15 dias').ok).toBe(true);
+    // Envío / formalizar / pago: no puede incluir gratis por pendiente.
+    const cobro = ofertaListaParaCobro(lineas, 'Entrega 15 dias');
+    expect(cobro.ok).toBe(false);
+    if (!cobro.ok) expect(cobro.error).toBe('OFERTA_PRECIO_PENDIENTE');
+
+    const soloPendiente = parseLineasOferta([
+      {
+        slug: 'c',
+        nombre: 'C',
+        cantidad: 1,
+        precio_unitario: 0,
+        precio_pendiente_validar: true,
+        moneda: 'COP',
+      },
+    ]);
+    expect(ofertaCompleta(soloPendiente, 'Entrega 15 dias').ok).toBe(true);
+    expect(ofertaListaParaCobro(soloPendiente, 'Entrega 15 dias').ok).toBe(false);
   });
 
   it('calcularTotalOfertado suma lineas', () => {

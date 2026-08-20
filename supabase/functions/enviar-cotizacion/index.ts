@@ -38,6 +38,7 @@ import {
   hashTokenSha256,
   normalizarMonedaOferta,
   normalizarOferta,
+  ofertaListaParaCobro,
   parseLineasOferta,
   tokenExpirado,
   type CotizacionOfertaRow,
@@ -211,6 +212,17 @@ Deno.serve(async req => {
         origin
       );
     }
+    const cobroGate = ofertaListaParaCobro(checkPayload.lineas, condicionesPayload);
+    if (!cobroGate.ok) {
+      return errorResponse(
+        {
+          code: cobroGate.error,
+          message: 'Asigna precio a todas las líneas antes de enviar',
+        },
+        422,
+        origin
+      );
+    }
     const patch: Record<string, unknown> = {
       leida: true,
       productos: checkPayload.lineas,
@@ -246,6 +258,17 @@ Deno.serve(async req => {
   }
 
   const lineas = parseLineasOferta(row.productos);
+  const cobro = ofertaListaParaCobro(lineas, row.condiciones);
+  if (!cobro.ok) {
+    return errorResponse(
+      {
+        code: cobro.error,
+        message: 'Asigna precio a todas las líneas antes de enviar',
+      },
+      422,
+      origin
+    );
+  }
   const oferta = normalizarOferta(lineas, row.condiciones, row.moneda);
   if (!oferta.ok) {
     return errorResponse(
