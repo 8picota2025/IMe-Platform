@@ -34,7 +34,12 @@ import {
   type ProductHit,
   type QuotePublic,
 } from './quote-api';
-import { ocrPresupuestoCompetencia, pickCompetenciaImage, compressImageForOcr } from './quote-ocr';
+import {
+  ocrPresupuestoCompetencia,
+  pickCompetenciaImage,
+  pickCompetenciaPdf,
+  prepareCompetenciaForOcr,
+} from './quote-ocr';
 import {
   cotizacionesListHash,
   parseCotizacionesRoute,
@@ -63,9 +68,11 @@ const ERROR_COPY: Record<string, string> = {
   CONCURRENT_UPDATE: 'Otro comercial guardó esta oferta. Recarga.',
   COTIZACION_YA_CONVERTIDA: 'Ya se convirtió en pedido.',
   OCR_FAILED: 'OCR falló (moondream/Ollama). Revisa que el puente local esté activo.',
-  OCR_EMPTY: 'No se detectaron datos. Prueba otra foto más nítida.',
+  OCR_EMPTY: 'No se detectaron datos. Prueba otra foto más nítida o un PDF más claro.',
+  IMAGE_TOO_LARGE: 'Archivo demasiado grande. Comprime o recorta y reintenta.',
   INTERNAL_ERROR: 'Error interno del servidor. Reintenta; si sigue, avisa a sistemas.',
   STORAGE_FAILED: 'No se pudo guardar la foto del presupuesto.',
+  RATE_LIMIT: 'Demasiados OCR. Espera un momento y reintenta.',
 };
 
 let navGuard: (() => boolean) | null = null;
@@ -241,7 +248,7 @@ function renderScanView(): string {
       <div class="comercial-panel__head">
         <div>
           <h2>Escanear presupuesto competencia</h2>
-          <p class="comercial-help">Desde el móvil: toma foto o elige de la galería. OCR rellena cliente, productos, unidades y precios (mejorados vs catálogo I-ME).</p>
+          <p class="comercial-help">Desde el móvil: toma foto, elige de la galería o importa un PDF. OCR rellena cliente, productos, unidades y precios (mejorados vs catálogo I-ME).</p>
         </div>
         <a class="comercial-button comercial-button--ghost" href="#/cotizaciones">Bandeja</a>
       </div>
@@ -251,6 +258,9 @@ function renderScanView(): string {
         </button>
         <button class="comercial-button comercial-button--ghost comercial-quote-scan__cta" type="button" data-quote-ocr-gallery>
           Elegir de galería
+        </button>
+        <button class="comercial-button comercial-button--ghost comercial-quote-scan__cta" type="button" data-quote-ocr-pdf>
+          Importar PDF
         </button>
       </div>
       <div class="comercial-quote-scan__preview" data-quote-scan-preview hidden>
@@ -369,9 +379,12 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
       ${
         editable && !quote.id
           ? `<div class="comercial-quote-scan-card">
-        <p><strong>¿Tienes foto del presupuesto competencia?</strong></p>
-        <p class="comercial-help">Escanea desde el móvil y generamos un borrador mejorado automáticamente.</p>
-        <a class="comercial-button comercial-button--primary" href="#/cotizaciones/escanear">Escanear foto</a>
+        <p><strong>¿Tienes foto o PDF del presupuesto competencia?</strong></p>
+        <p class="comercial-help">Escanea o importa y generamos un borrador mejorado automáticamente.</p>
+        <div class="comercial-quote-scan-card__actions">
+          <a class="comercial-button comercial-button--primary" href="#/cotizaciones/escanear">Escanear foto</a>
+          <button class="comercial-button comercial-button--ghost" type="button" data-quote-ocr-pdf>Importar PDF</button>
+        </div>
       </div>`
           : ''
       }
@@ -400,6 +413,7 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
           <a class="comercial-button comercial-button--ghost comercial-button--sm" href="#/cotizaciones/escanear">Escanear foto</a>
           <button class="comercial-button comercial-button--ghost comercial-button--sm" type="button" data-quote-ocr-camera>Cámara</button>
           <button class="comercial-button comercial-button--ghost comercial-button--sm" type="button" data-quote-ocr-gallery>Galería</button>
+          <button class="comercial-button comercial-button--ghost comercial-button--sm" type="button" data-quote-ocr-pdf>Importar PDF</button>
           <span class="comercial-help">Rellena o actualiza este presupuesto con OCR.</span>
         </div>`
             : ''
@@ -725,7 +739,7 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
   };
   container.querySelector('[data-quote-search]')?.addEventListener('submit', onSearchSubmit);
 
-  const runOcr = async (mode: 'camera' | 'gallery', quoteId?: string) => {
+  const runOcr = async (mode: 'camera' | 'gallery' | 'pdf', quoteId?: string) => {
     const statusEl = container.querySelector<HTMLElement>('[data-quote-scan-status]');
     const preview = container.querySelector<HTMLElement>('[data-quote-scan-preview]');
     const img = container.querySelector<HTMLImageElement>('[data-quote-scan-img]');
@@ -733,13 +747,13 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
       if (statusEl) statusEl.textContent = msg;
     };
     const buttons = container.querySelectorAll<HTMLButtonElement>(
-      '[data-quote-ocr-camera], [data-quote-ocr-gallery]'
+      '[data-quote-ocr-camera], [data-quote-ocr-gallery], [data-quote-ocr-pdf]'
     );
     buttons.forEach(b => {
       b.disabled = true;
     });
 
-    const file = await pickCompetenciaImage(mode);
+    const file = mode === 'pdf' ? await pickCompetenciaPdf() : await pickCompetenciaImage(mode);
     if (!file) {
       buttons.forEach(b => {
         b.disabled = false;
@@ -748,19 +762,37 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
       return;
     }
 
-    if (preview && img) {
+    if (preview && img && file.type.startsWith('image/')) {
       const url = URL.createObjectURL(file);
       img.src = url;
       preview.hidden = false;
     }
 
-    setStatus('Comprimiendo imagen…');
-    toast('Analizando presupuesto competencia…', 'success');
-    const compressed = await compressImageForOcr(file);
+    setStatus(mode === 'pdf' ? 'Leyendo PDF…' : 'Preparando imagen…');
+    toast(
+      mode === 'pdf' ? 'Analizando PDF competencia…' : 'Analizando presupuesto competencia…',
+      'success'
+    );
+    const prepared = await prepareCompetenciaForOcr(file);
+    if (!prepared.ok) {
+      buttons.forEach(b => {
+        b.disabled = false;
+      });
+      setStatus(prepared.error);
+      toast(prepared.error, 'error');
+      return;
+    }
+
+    if (preview && img) {
+      const url = URL.createObjectURL(prepared.blob);
+      img.src = url;
+      preview.hidden = false;
+    }
+
     setStatus('Enviando a OCR…');
     const payload: { file: Blob; filename: string; quoteId?: string } = {
-      file: compressed.blob,
-      filename: compressed.filename,
+      file: prepared.blob,
+      filename: prepared.filename,
     };
     if (quoteId) payload.quoteId = quoteId;
     const { data, error, code } = await ocrPresupuestoCompetencia(payload);
@@ -782,18 +814,22 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
     location.hash = `#/cotizaciones?id=${encodeURIComponent(data.quote_id)}`;
   };
 
+  const quoteIdFromEditor = () =>
+    container.querySelector('[data-quote-editor]')?.getAttribute('data-quote-id') || '';
+
   container.querySelectorAll<HTMLButtonElement>('[data-quote-ocr-camera]').forEach(btn => {
     btn.addEventListener('click', () => {
-      const qid =
-        container.querySelector('[data-quote-editor]')?.getAttribute('data-quote-id') || '';
-      void runOcr('camera', qid || undefined);
+      void runOcr('camera', quoteIdFromEditor() || undefined);
     });
   });
   container.querySelectorAll<HTMLButtonElement>('[data-quote-ocr-gallery]').forEach(btn => {
     btn.addEventListener('click', () => {
-      const qid =
-        container.querySelector('[data-quote-editor]')?.getAttribute('data-quote-id') || '';
-      void runOcr('gallery', qid || undefined);
+      void runOcr('gallery', quoteIdFromEditor() || undefined);
+    });
+  });
+  container.querySelectorAll<HTMLButtonElement>('[data-quote-ocr-pdf]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      void runOcr('pdf', quoteIdFromEditor() || undefined);
     });
   });
 
@@ -872,6 +908,21 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
     .querySelector('[data-quote-preview]')
     ?.addEventListener('click', () => void previewPdf(editor));
 
+  const openWhatsAppUrl = (url: string) => {
+    const ua = navigator.userAgent || '';
+    const mobile = /Android|iPhone|iPad|iPod|Mobile/i.test(ua);
+    const standalone =
+      window.matchMedia('(display-mode: standalone)').matches ||
+      Boolean((navigator as Navigator & { standalone?: boolean }).standalone);
+    // Móvil/PWA: same-tab siempre funciona tras async (popup blockers matan window.open).
+    if (mobile || standalone) {
+      window.location.assign(url);
+      return;
+    }
+    const w = window.open(url, '_blank', 'noopener,noreferrer');
+    if (!w) window.location.assign(url);
+  };
+
   const runSend = async (canal: 'email' | 'whatsapp') => {
     const parsed = readForm(editor);
     const check = ofertaCompleta(parsed.productos, parsed.condiciones);
@@ -896,19 +947,10 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
     }
     const numero = editor.querySelector('h2')?.textContent ?? 'IME-Q';
     const destino = canal === 'whatsapp' ? parsed.telefono : parsed.email;
-    // Abrir pestaña en el mismo gesto del click (antes de confirm/await);
-    // si no, el popup blocker mata wa.me tras el async.
-    let waTab: Window | null = null;
-    if (canal === 'whatsapp') {
-      waTab = window.open('about:blank', '_blank');
-    }
     const ok = window.confirm(
       `¿Enviar presupuesto ${numero} por ${canal === 'whatsapp' ? 'WhatsApp' : 'email'} a ${destino} (${formatQuoteMoney(calcularTotalOfertado(parsed.productos), parsed.moneda)})?`
     );
-    if (!ok) {
-      waTab?.close();
-      return;
-    }
+    if (!ok) return;
     const emailBtn = editor.querySelector<HTMLButtonElement>('[data-quote-send-email]');
     const waBtn = editor.querySelector<HTMLButtonElement>('[data-quote-send-whatsapp]');
     const saveBtn = editor.querySelector<HTMLButtonElement>('[data-quote-save]');
@@ -948,7 +990,6 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
     }
     if (saveBtn) saveBtn.disabled = false;
     if (error) {
-      waTab?.close();
       const alert = editor.querySelector('[data-quote-hint]');
       if (alert) {
         alert.setAttribute('role', 'alert');
@@ -958,23 +999,15 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
       return;
     }
     if (canal === 'whatsapp' && data?.whatsapp_url) {
-      if (waTab && !waTab.closed) {
-        waTab.location.href = data.whatsapp_url;
-      } else {
-        const a = document.createElement('a');
-        a.href = data.whatsapp_url;
-        a.target = '_blank';
-        a.rel = 'noopener noreferrer';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-      }
+      openWhatsAppUrl(data.whatsapp_url);
       toast(
         `Presupuesto ${String(data?.numero ?? numero)} listo en WhatsApp. CRM pendiente de validación admin.`,
         'success'
       );
+    } else if (canal === 'whatsapp') {
+      toast('WhatsApp no devolvió enlace. Revisa el teléfono e inténtalo de nuevo.', 'error');
+      return;
     } else {
-      waTab?.close();
       toast(
         `Presupuesto ${String(data?.numero ?? numero)} enviado por email. CRM pendiente de validación admin.`,
         'success'
