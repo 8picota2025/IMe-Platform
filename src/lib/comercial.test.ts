@@ -23,5 +23,9 @@ describe('getAccionComercial — precio → carrito', () => {
   it('precio 0 o invalido → cotizacion', () => {
     expect(getAccionComercial({ precio: 0 }, 'es').tipo).toBe('cotizacion');
     expect(getAccionComercial({ precio: NaN }, 'es').tipo).toBe('cotizacion');
+    expect(getAccionComercial({ precio: undefined }, 'es').tipo).toBe('cotizacion');
+    expect(getAccionComercial({ precio: 'invalido' as unknown as number }, 'es').tipo).toBe(
+      'cotizacion'
+    );
   });
 });

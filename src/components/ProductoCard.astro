@@ -5,7 +5,7 @@
  * Solo datos reales: badges, precio y CTA dependen de los campos provistos.
  */
 import { t, type Locale } from '../i18n/utils';
-import { formatMoneda } from '../lib/format';
+import { formatMoneda, tienePrecioPublico } from '../lib/format';
 import { getAccionComercial } from '../lib/comercial';
 import { getOptimizedImageUrl, isSupabaseStorageImage } from '../lib/image';
 
@@ -44,7 +44,10 @@ const { producto, locale, comparable = false } = Astro.props;
 const segment = locale === 'en' ? 'products' : 'productos';
 const href = `/${locale}/${segment}/${producto.slug}/`;
 const noDisponible = producto.disponible === false;
-const precioFormateado = formatMoneda(producto.precio ?? null, producto.moneda ?? 'COP', locale);
+const tienePrecio = tienePrecioPublico(producto.precio);
+const precioFormateado = tienePrecio
+  ? formatMoneda(producto.precio, producto.moneda ?? 'COP', locale)
+  : null;
 const accionComercial = getAccionComercial(producto, locale);
 const imagenProducto = producto.imagen_principal ?? '/assets/img-placeholder.svg';
 const imagenProductoAvif = getOptimizedImageUrl(imagenProducto, 400, 'avif');
@@ -63,12 +66,6 @@ const imagenFallback =
 const whatsappHref = `https://wa.me/573103332607?text=${encodeURIComponent(
   `${t(locale, 'producto.cta_consultar_disponibilidad')}: ${producto.nombre}`
 )}`;
-
-function modalidadLabel(modalidad?: string): string {
-  if (modalidad === 'dropship') return locale === 'en' ? 'Dropship' : 'Dropship';
-  if (modalidad === 'individualizado') return locale === 'en' ? 'Custom order' : 'A medida';
-  return locale === 'en' ? 'Quotation' : 'Cotización';
-}
 ---
 
 <li
@@ -160,15 +157,15 @@ function modalidadLabel(modalidad?: string): string {
         <div class="producto-card__meta-item">
           <span class="producto-card__meta-label">
             {
-              precioFormateado
+              tienePrecio
                 ? locale === 'en'
                   ? 'From'
                   : 'Desde'
-                : t(locale, 'producto.ficha_modalidad')
+                : t(locale, 'producto.ficha_precio')
             }
           </span>
           <strong class="producto-card__meta-value">
-            {precioFormateado ? precioFormateado : modalidadLabel(producto.fulfillment_mode)}
+            {precioFormateado ?? t(locale, 'producto.precio_solicitud_corto')}
           </strong>
         </div>
         <div class="producto-card__meta-item">
