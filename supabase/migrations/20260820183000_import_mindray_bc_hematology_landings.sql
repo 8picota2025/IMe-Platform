@@ -1,0 +1,113 @@
+-- Mindray BC-10 / BC-30s: landings enriquecidas desde ficha fabricante + cotización proveedor.
+-- Fuente local: /home/shoky/0ime/presupuestos/1
+-- Precios Distriquimicos NO se publican (costo suministro a I-ME).
+-- Specs/beneficios trazables a brochure BC-10 y ficha BC-30s. Cero testimonios inventados.
+
+
+INSERT INTO public.productos (
+  id, slug, familia_id, tipo_id,
+  nombre_es, nombre_en,
+  descripcion_corta_es, descripcion_corta_en,
+  descripcion_larga_es, descripcion_larga_en,
+  imagen_principal, galeria, ficha_pdf,
+  especificaciones, aplicaciones_es, aplicaciones_en,
+  tipo_comercial, fulfillment_mode, precio, moneda, stock,
+  disponible, destacado, nuevo, activo, orden, atributos
+) VALUES (
+  '7519e9b7-661b-4ed4-8fca-256020a6dcc1'::uuid,
+  'analizador-hematologico-automatico-mindray-bc-10',
+  '4d9a59cd-2c1e-4755-9584-28d6e9024d3c'::uuid,
+  NULL,
+  'Analizador hematológico automático Mindray BC-10',
+  'Mindray BC-10 Automatic Hematology Analyzer',
+  'Analizador hematológico de 3 partes Mindray BC-10: 20 parámetros, 3 histogramas y hasta 30 muestras/hora para laboratorios de volumen moderado',
+  'Mindray BC-10 3-part hematology analyzer: 20 parameters, 3 histograms and up to 30 samples/hour for moderate-volume labs',
+  'El Mindray BC-10 es un analizador hematológico automático de tres partes orientado a laboratorios clínicos, consultorios y servicios que necesitan CBC confiable sin ocupar una gran bancada. Según la ficha del fabricante, utiliza método de impedancia para WBC, RBC y PLT, y reactivo libre de cianuro para hemoglobina. Reporta 20 parámetros con 3 histogramas (WBC, RBC y PLT), procesa hasta 30 muestras por hora y trabaja con menos de 9 µL en modo de sangre entera o menos de 20 µL en prediluido —útil en pediatría. Integra pantalla táctil TFT de 8,4", almacenamiento de hasta 50.000 resultados, comunicación HL7 por LAN, 4 puertos USB, registrador térmico e indicadores de alarma ante resultados celulares anormales. Dimensiones publicadas: 410 × 300 × 400 mm y peso <20 kg. La configuración final, reactivos, instalación y soporte deben confirmarse en la cotización.',
+  'The Mindray BC-10 is a compact 3-part automatic hematology analyzer for clinical laboratories, clinics and services that need reliable CBC without a large bench footprint. Per the manufacturer datasheet, it uses impedance counting for WBC, RBC and PLT and a cyanide-free reagent for hemoglobin. It reports 20 parameters with 3 histograms (WBC, RBC and PLT), processes up to 30 samples per hour and requires <9 µL in whole-blood mode or <20 µL in prediluted mode —useful for pediatric samples. It includes an 8.4" TFT touchscreen, storage for up to 50,000 results, HL7 LAN communication, 4 USB ports, a thermal recorder and flagging for abnormal cell results. Published dimensions: 410 × 300 × 400 mm and weight <20 kg. Final configuration, reagents, installation and support must be confirmed in the quotation.',
+  '/assets/productos/hematologia/mindray-bc-10/producto.jpg',
+  ARRAY['/assets/productos/hematologia/mindray-bc-10/producto.jpg', '/assets/productos/hematologia/mindray-bc-10/hero-brochure.png', '/assets/productos/hematologia/mindray-bc-10/software-mantenimiento.png'],
+  '/assets/productos/hematologia/mindray-bc-10/ficha-tecnica.pdf',
+  '[{"clave": "Principios", "grupo": "Método", "valor": "Impedancia para conteo de WBC, RBC y PLT; reactivo libre de cianuro para hemoglobina"}, {"clave": "Parámetros", "grupo": "Resultados", "valor": "20 parámetros CBC+3-DIFF y 3 histogramas (WBC, RBC, PLT)"}, {"clave": "Volumen de muestra", "grupo": "Muestreo", "valor": "Sangre entera <9 µL; prediluido <20 µL"}, {"clave": "Rendimiento", "grupo": "Productividad", "valor": "Hasta 30 muestras por hora"}, {"clave": "Pantalla", "grupo": "Interfaz", "valor": "Pantalla táctil TFT de 8,4 pulgadas; multi-idioma incluyendo español"}, {"clave": "Almacenamiento", "grupo": "Datos", "valor": "Hasta 50.000 resultados con información numérica y gráfica"}, {"clave": "Comunicación", "grupo": "Conectividad", "valor": "Puerto LAN compatible con HL7; 4 puertos USB y registrador térmico de 50 mm"}, {"clave": "Dimensiones y peso", "grupo": "Instalación", "valor": "410 mm (prof.) × 300 mm (ancho) × 400 mm (alto); peso <20 kg"}, {"clave": "Alimentación y entorno", "grupo": "Instalación", "valor": "100–240 V, <180 VA, 50/60 Hz; 15–30 °C; humedad 10–90 %; 70–106 kPa"}]'::jsonb,
+  ARRAY['Hemograma completo CBC con diferencial de 3 partes en laboratorio clínico', 'Laboratorios de volumen moderado en clínicas, IPS y consultorios', 'Muestreo pediátrico o de bajo volumen por micro-muestra de sangre entera'],
+  ARRAY['Complete blood count CBC with 3-part differential in clinical laboratories', 'Moderate-volume labs in clinics, outpatient facilities and practices', 'Pediatric or low-volume sampling via whole-blood micro-sample'],
+  'equipo',
+  'cotizacion',
+  NULL,
+  'COP',
+  0,
+  TRUE, FALSE, TRUE, TRUE,
+  466,
+  '{"marca": "Mindray", "fabricante": "Mindray", "distribuidor": "I-ME", "ref_proveedor": "BC-10", "codigo_proveedor": "3012B-PA00028", "fuente_ficha": "Brochure BC-10 ESP.pdf (Mindray P/N ENG-BC-10-210285x4P-20170725)", "nota_precio": "Cotización proveedor Distriquimicos 35813 del 2026-08-20 es costo de suministro a I-ME; no se publica como precio de venta.", "beneficios_es": ["Reduce el volumen de muestra a <9 µL en sangre entera, lo que facilita el trabajo con pacientes pediátricos o venopunciones difíciles.", "Entrega CBC+3-DIFF con 20 parámetros y 3 histogramas para orientar la revisión de resultados celulares anormales con indicadores de alarma.", "Mantiene un flujo de hasta 30 muestras/hora con solo 3 reactivos, pensado para laboratorios que priorizan simplicidad operativa.", "Ocupa poco espacio en bancada (410×300×400 mm, <20 kg) frente a analizadores de mayor huella, sin renunciar a pantalla táctil y almacenamiento de 50.000 resultados.", "Se integra al sistema de información del laboratorio vía HL7 por LAN y permite impresora, lector de código de barras o Wi‑Fi externo por USB."], "beneficios_en": ["Cuts whole-blood sample volume to <9 µL, supporting pediatric patients or difficult venipuncture.", "Delivers CBC+3-DIFF with 20 parameters and 3 histograms, with flags that help review abnormal cell results.", "Supports up to 30 samples/hour with only 3 reagents for labs that prioritize operational simplicity.", "Fits a compact bench footprint (410×300×400 mm, <20 kg) while keeping a touchscreen and storage for 50,000 results.", "Connects to LIS via HL7 over LAN and supports printer, barcode reader or external Wi‑Fi through USB."], "valor_es": "CBC de tres partes compacto para laboratorios de volumen moderado que necesitan micro-muestra, indicadores de alarma y conectividad HL7 sin ampliar la bancada.", "valor_en": "Compact 3-part CBC for moderate-volume labs that need micro-sampling, abnormal flags and HL7 connectivity without expanding the bench.", "preguntas_frecuentes_es": [{"q": "¿Cuántos parámetros reporta el BC-10?", "a": "La ficha Mindray indica 20 parámetros CBC+3-DIFF más 3 histogramas para WBC, RBC y PLT."}, {"q": "¿Sirve para muestras pediátricas?", "a": "Sí. El modo de sangre entera usa <9 µL, volumen que el fabricante destaca como adecuado para pediatría."}, {"q": "¿Qué conectividad tiene?", "a": "Puerto LAN compatible con protocolo HL7, 4 puertos USB (impresora, actualización, lector de código de barras, Wi‑Fi externo, teclado/mouse) y registrador térmico."}, {"q": "¿El precio de la cotización del proveedor es el precio público?", "a": "No. Esa cotización es de suministro a I-ME. El precio institucional y la configuración se confirman en la cotización formal al comprador."}, {"q": "¿La ficha define la configuración contractual?", "a": "No necesariamente. Es documentación genérica del fabricante; reactivos, instalación, idiomas y accesorios se validan en la cotización."}], "preguntas_frecuentes_en": [{"q": "How many parameters does the BC-10 report?", "a": "Mindray''s datasheet lists 20 CBC+3-DIFF parameters plus 3 histograms for WBC, RBC and PLT."}, {"q": "Is it suitable for pediatric samples?", "a": "Yes. Whole-blood mode uses <9 µL, a volume the manufacturer highlights as suitable for pediatrics."}, {"q": "What connectivity does it offer?", "a": "HL7-compatible LAN, 4 USB ports (printer, software update, barcode reader, external Wi‑Fi, keyboard/mouse) and a thermal recorder."}, {"q": "Is the supplier quote the public price?", "a": "No. That quote is supply pricing to I-ME. Institutional price and configuration are confirmed in the formal buyer quotation."}, {"q": "Is the datasheet contractual?", "a": "Not necessarily. It is generic manufacturer documentation; reagents, installation, languages and accessories are validated in the quotation."}], "seo_keywords_es": ["analizador hematológico Mindray BC-10", "hemograma automático 3 partes Colombia", "CBC diferencial tres partes laboratorio", "analizador hematología micro muestra", "Mindray BC-10 precio cotización"], "seo_keywords_en": ["Mindray BC-10 hematology analyzer", "automatic 3-part CBC Colombia", "3-part differential hematology analyzer", "micro-sample hematology analyzer", "Mindray BC-10 quote"], "imagen_principal": "/assets/productos/hematologia/mindray-bc-10/producto.jpg", "galeria": ["/assets/productos/hematologia/mindray-bc-10/producto.jpg", "/assets/productos/hematologia/mindray-bc-10/hero-brochure.png", "/assets/productos/hematologia/mindray-bc-10/software-mantenimiento.png"]}'::jsonb
+)
+ON CONFLICT (slug) DO UPDATE SET
+  nombre_es = EXCLUDED.nombre_es,
+  nombre_en = EXCLUDED.nombre_en,
+  descripcion_corta_es = EXCLUDED.descripcion_corta_es,
+  descripcion_corta_en = EXCLUDED.descripcion_corta_en,
+  descripcion_larga_es = EXCLUDED.descripcion_larga_es,
+  descripcion_larga_en = EXCLUDED.descripcion_larga_en,
+  imagen_principal = EXCLUDED.imagen_principal,
+  galeria = EXCLUDED.galeria,
+  ficha_pdf = EXCLUDED.ficha_pdf,
+  especificaciones = EXCLUDED.especificaciones,
+  aplicaciones_es = EXCLUDED.aplicaciones_es,
+  aplicaciones_en = EXCLUDED.aplicaciones_en,
+  fulfillment_mode = EXCLUDED.fulfillment_mode,
+  nuevo = EXCLUDED.nuevo,
+  activo = EXCLUDED.activo,
+  orden = EXCLUDED.orden,
+  atributos = COALESCE(public.productos.atributos, '{}'::jsonb) || EXCLUDED.atributos;
+
+INSERT INTO public.productos (
+  id, slug, familia_id, tipo_id,
+  nombre_es, nombre_en,
+  descripcion_corta_es, descripcion_corta_en,
+  descripcion_larga_es, descripcion_larga_en,
+  imagen_principal, galeria, ficha_pdf,
+  especificaciones, aplicaciones_es, aplicaciones_en,
+  tipo_comercial, fulfillment_mode, precio, moneda, stock,
+  disponible, destacado, nuevo, activo, orden, atributos
+) VALUES (
+  'd1269a6d-ba2a-4617-9bdd-61e4ac4ce2ba'::uuid,
+  'analizador-hematologico-automatico-mindray-bc-30s',
+  '4d9a59cd-2c1e-4755-9584-28d6e9024d3c'::uuid,
+  NULL,
+  'Analizador hematológico automático Mindray BC-30s',
+  'Mindray BC-30s Automatic Hematology Analyzer',
+  'Analizador hematológico de 3 partes Mindray BC-30s: 21 parámetros, pantalla de 10,4", hasta 70 muestras/hora y almacenamiento de 500.000 resultados',
+  'Mindray BC-30s 3-part hematology analyzer: 21 parameters, 10.4" display, up to 70 samples/hour and storage for 500,000 results',
+  'El Mindray BC-30s es un analizador hematológico automático de tres partes diseñado para laboratorios pequeños y medianos que necesitan más rendimiento y mejor usabilidad en un chasis compacto. La ficha del fabricante indica método de impedancia para WBC, RBC y PLT, hemoglobina con reactivo libre de cianuro, 21 parámetros (incluye P-LCC) con 3 histogramas, rendimiento de 70 muestras por hora y micro-muestra de 9,0 µL en sangre completa (20 µL en prediluido). Incorpora pantalla táctil TFT de 10,4", almacenamiento de hasta 500.000 resultados, LIS bidireccional, HL7 por LAN, opción Wi‑Fi, 4 USB, indicadores detallados de detección (p. ej. leucopenia, anemia, trombocitopenia) y envases flexibles de reactivos M-30D / M-30 CFL. Dimensiones: 410 × 300 × 400 mm; peso ≤20 kg. Configuración, reactivos, instalación y soporte se confirman en cotización.',
+  'The Mindray BC-30s is a 3-part automatic hematology analyzer for small and mid-size laboratories that need higher throughput and better usability in a compact chassis. The manufacturer datasheet specifies impedance counting for WBC, RBC and PLT, cyanide-free hemoglobin reagent, 21 parameters (including P-LCC) with 3 histograms, 70 samples per hour and a 9.0 µL whole-blood micro-sample (20 µL prediluted). It includes a 10.4" TFT touchscreen, storage for up to 500,000 results, bidirectional LIS, HL7 over LAN, Wi‑Fi option, 4 USB ports, detailed flagging (e.g. leukopenia, anemia, thrombocytopenia) and flexible M-30D / M-30 CFL reagent packaging. Dimensions: 410 × 300 × 400 mm; weight ≤20 kg. Configuration, reagents, installation and support are confirmed in the quotation.',
+  '/assets/productos/hematologia/mindray-bc-30s/producto.jpg',
+  ARRAY['/assets/productos/hematologia/mindray-bc-30s/producto.jpg', '/assets/productos/hematologia/mindray-bc-30s/hero-laboratorio.jpg', '/assets/productos/hematologia/mindray-bc-30s/detalle-flujo.png'],
+  '/assets/productos/hematologia/mindray-bc-30s/ficha-tecnica.pdf',
+  '[{"clave": "Principios", "grupo": "Método", "valor": "Impedancia para WBC, RBC y PLT; reactivo libre de cianuro para hemoglobina"}, {"clave": "Parámetros", "grupo": "Resultados", "valor": "21 parámetros (incluye P-LCR y P-LCC) y 3 histogramas (WBC, RBC, PLT)"}, {"clave": "Volumen de muestra", "grupo": "Muestreo", "valor": "Sangre completa 9 µL; prediluido 20 µL"}, {"clave": "Rendimiento", "grupo": "Productividad", "valor": "70 muestras por hora"}, {"clave": "Pantalla", "grupo": "Interfaz", "valor": "Pantalla táctil TFT de 10,4 pulgadas"}, {"clave": "Almacenamiento", "grupo": "Datos", "valor": "Hasta 500.000 resultados con información numérica y gráfica"}, {"clave": "Comunicación", "grupo": "Conectividad", "valor": "HL7 por LAN, LIS bidireccional, Wi‑Fi opcional, 4 USB y registrador térmico de 50 mm"}, {"clave": "Reactivos", "grupo": "Consumibles", "valor": "Diluyente M-30D, cepas M-30 CFL y limpiador de sonda"}, {"clave": "Linealidad (referencia ficha)", "grupo": "Desempeño", "valor": "WBC 0–200×10⁹/L; RBC 0–8,00×10¹²/L; HGB 0–280 g/L; PLT 0–4000×10⁹/L"}, {"clave": "Dimensiones y peso", "grupo": "Instalación", "valor": "410 × 300 × 400 mm; peso ≤20 kg"}, {"clave": "Alimentación y entorno", "grupo": "Instalación", "valor": "100–240 V, ≤300 VA, 50/60 Hz; 10–40 °C; humedad 10–90 %; 70–106 kPa"}]'::jsonb,
+  ARRAY['Hemograma CBC con diferencial de 3 partes en laboratorios clínicos de mayor rotación', 'Laboratorios pequeños y medianos que requieren hasta 70 muestras/hora en bancada compacta', 'Flujos con micro-muestra pediátrica o capilar y revisión de indicadores de detección', 'Integración a LIS/HL7 en redes de laboratorio'],
+  ARRAY['CBC with 3-part differential in higher-throughput clinical labs', 'Small and mid-size laboratories needing up to 70 samples/hour on a compact bench', 'Pediatric or capillary micro-sample workflows with detailed flagging review', 'LIS/HL7 integration in laboratory networks'],
+  'equipo',
+  'cotizacion',
+  NULL,
+  'COP',
+  0,
+  TRUE, FALSE, TRUE, TRUE,
+  467,
+  '{"marca": "Mindray", "fabricante": "Mindray", "distribuidor": "I-ME", "ref_proveedor": "BC-30", "modelo_ficha": "BC-30s", "codigo_proveedor": "3011B-PA00044", "fuente_ficha": "Ficha técnica BC-30s Mindray P/N SPA-BC-30S-210285X6-20150623", "nota_precio": "Cotización proveedor Distriquimicos 35813 del 2026-08-20 es costo de suministro a I-ME; no se publica como precio de venta.", "beneficios_es": ["Sube el rendimiento a 70 muestras/hora frente a equipos de 30/h de la misma familia compacta, sin cambiar la huella de 410×300×400 mm.", "Amplía el informe a 21 parámetros (incluye P-LCC) con indicadores detallados de detección para apoyar la interpretación de leucopenia, anemia o trombocitopenia.", "Facilita el uso diario con pantalla táctil de 10,4\" y almacenamiento de hasta 500.000 resultados para revisar historiales sin saturar el archivo local.", "Reduce fricción con LIS bidireccional, HL7, Wi‑Fi opcional y USB para impresora o lector de código de barras.", "Optimiza consumibles con tecnología que reduce enjuagues y envases flexibles M-30D / M-30 CFL según el volumen diario del laboratorio."], "beneficios_en": ["Raises throughput to 70 samples/hour versus 30/h compact peers while keeping the 410×300×400 mm footprint.", "Expands reporting to 21 parameters (including P-LCC) with detailed flags that support review of leukopenia, anemia or thrombocytopenia.", "Simplifies daily use with a 10.4\" touchscreen and storage for up to 500,000 results for local result history.", "Reduces LIS friction via bidirectional LIS, HL7, optional Wi‑Fi and USB for printer or barcode reader.", "Helps manage consumables with reduced rinse demand and flexible M-30D / M-30 CFL reagent packs sized to daily volume."], "valor_es": "CBC de tres partes de alto rendimiento en formato laptop-size: 70 muestras/hora, 21 parámetros e integración LIS para laboratorios que crecen sin ampliar el área física.", "valor_en": "High-throughput 3-part CBC in a laptop-size footprint: 70 samples/hour, 21 parameters and LIS integration for labs that grow without expanding bench space.", "preguntas_frecuentes_es": [{"q": "¿Qué diferencia al BC-30s del BC-10?", "a": "Según fichas Mindray: el BC-30s aporta 21 parámetros, 70 muestras/hora, pantalla de 10,4\", 500.000 resultados, LIS bidireccional y rangos de linealidad más amplios; el BC-10 reporta 20 parámetros, 30/hora, pantalla 8,4\" y 50.000 resultados."}, {"q": "¿Qué reactivos usa?", "a": "La ficha lista diluyente M-30D, cepas M-30 CFL y limpiador de sonda. Consumo y presentación se confirman en cotización."}, {"q": "¿Se conecta al LIS?", "a": "Sí. Admite protocolo HL7 por LAN y LIS bidireccional; Wi‑Fi es una opción adicional descrita por el fabricante."}, {"q": "¿La cotización Distriquimicos es precio de venta I-ME?", "a": "No. Es costo de suministro a I-ME (REF BC-30 / código 3011B-PA00044). El precio al comprador se define en cotización institucional."}, {"q": "¿El PDF fija la configuración final?", "a": "No. Es ficha genérica (P/N SPA-BC-30S-210285X6-20150623). Accesorios, idiomas, instalación y condiciones se validan al cotizar."}], "preguntas_frecuentes_en": [{"q": "How does BC-30s differ from BC-10?", "a": "Per Mindray sheets: BC-30s provides 21 parameters, 70 samples/hour, 10.4\" display, 500,000 results, bidirectional LIS and wider linearity; BC-10 lists 20 parameters, 30/hour, 8.4\" display and 50,000 results."}, {"q": "Which reagents does it use?", "a": "The datasheet lists M-30D diluent, M-30 CFL lyse and probe cleaner. Consumption and pack size are confirmed in the quotation."}, {"q": "Does it connect to LIS?", "a": "Yes. It supports HL7 over LAN and bidirectional LIS; Wi‑Fi is an additional option described by the manufacturer."}, {"q": "Is the Distriquimicos quote the I-ME sell price?", "a": "No. It is supply cost to I-ME (REF BC-30 / code 3011B-PA00044). Buyer pricing is set in the institutional quotation."}, {"q": "Does the PDF lock the final configuration?", "a": "No. It is a generic sheet (P/N SPA-BC-30S-210285X6-20150623). Accessories, languages, installation and terms are validated when quoting."}], "seo_keywords_es": ["analizador hematológico Mindray BC-30s", "hemograma automático 70 muestras hora", "CBC 3 partes LIS HL7 Colombia", "analizador hematología laboratorio pequeño", "Mindray BC-30 cotización"], "seo_keywords_en": ["Mindray BC-30s hematology analyzer", "70 samples per hour CBC analyzer", "3-part differential LIS HL7", "compact hematology analyzer laboratory", "Mindray BC-30 quote"], "imagen_principal": "/assets/productos/hematologia/mindray-bc-30s/producto.jpg", "galeria": ["/assets/productos/hematologia/mindray-bc-30s/producto.jpg", "/assets/productos/hematologia/mindray-bc-30s/hero-laboratorio.jpg", "/assets/productos/hematologia/mindray-bc-30s/detalle-flujo.png"]}'::jsonb
+)
+ON CONFLICT (slug) DO UPDATE SET
+  nombre_es = EXCLUDED.nombre_es,
+  nombre_en = EXCLUDED.nombre_en,
+  descripcion_corta_es = EXCLUDED.descripcion_corta_es,
+  descripcion_corta_en = EXCLUDED.descripcion_corta_en,
+  descripcion_larga_es = EXCLUDED.descripcion_larga_es,
+  descripcion_larga_en = EXCLUDED.descripcion_larga_en,
+  imagen_principal = EXCLUDED.imagen_principal,
+  galeria = EXCLUDED.galeria,
+  ficha_pdf = EXCLUDED.ficha_pdf,
+  especificaciones = EXCLUDED.especificaciones,
+  aplicaciones_es = EXCLUDED.aplicaciones_es,
+  aplicaciones_en = EXCLUDED.aplicaciones_en,
+  fulfillment_mode = EXCLUDED.fulfillment_mode,
+  nuevo = EXCLUDED.nuevo,
+  activo = EXCLUDED.activo,
+  orden = EXCLUDED.orden,
+  atributos = COALESCE(public.productos.atributos, '{}'::jsonb) || EXCLUDED.atributos;
