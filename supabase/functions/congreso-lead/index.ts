@@ -116,6 +116,8 @@ Deno.serve(
       return json({ ok: false, error: 'Email invalido.' }, origin, 422);
     if (!productIds.length)
       return json({ ok: false, error: 'Selecciona al menos un producto.' }, origin, 422);
+    if (productIds.length !== 1)
+      return json({ ok: false, error: 'Selecciona un solo producto.' }, origin, 422);
 
     const { data: products, error: productsError } = await supabase
       .from('productos')
@@ -131,6 +133,21 @@ Deno.serve(
         origin,
         422
       );
+    if (
+      products.some(product => {
+        const attrs =
+          product.atributos && typeof product.atributos === 'object'
+            ? (product.atributos as Record<string, unknown>)
+            : {};
+        const enriched = Boolean(
+          (typeof attrs['valor_es'] === 'string' && attrs['valor_es'].trim()) ||
+          (Array.isArray(attrs['beneficios_es']) && attrs['beneficios_es'].length > 0) ||
+          product.descripcion_corta_es?.trim()
+        );
+        return attrs['congreso_habilitado'] === false || !enriched || !product.ficha_pdf?.trim();
+      })
+    )
+      return json({ ok: false, error: 'Producto no habilitado para esta campaña.' }, origin, 422);
 
     const productSnapshots = products.map(product => ({
       id: product.id,

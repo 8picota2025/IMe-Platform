@@ -11,12 +11,20 @@ Astro.response.status = 200;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex,nofollow" />
     <meta name="theme-color" content="#005e60" />
+    <link rel="manifest" href="/manifest-congreso.json" />
     <title>IME Congreso</title>
   </head>
   <body class="congreso-body">
     <main id="congreso-app" class="congreso-root">
       <section class="congreso-loading" aria-live="polite">Cargando IME Congreso…</section>
     </main>
+    <script is:inline>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker
+          .register('/congreso-sw.js', { scope: '/congreso/' })
+          .catch(() => undefined);
+      }
+    </script>
     <script>
       import '../congreso/congreso-app';
     </script>

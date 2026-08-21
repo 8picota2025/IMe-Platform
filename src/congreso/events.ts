@@ -9,9 +9,9 @@ export interface CongresoEvent {
 /** Configuración aditiva. No crea tablas ni modifica el CMS existente. */
 export const CONGRESO_EVENTS: CongresoEvent[] = [
   {
-    slug: 'congreso-2026',
-    name: 'Congreso 2026',
-    location: 'Por confirmar',
+    slug: 'acise2026',
+    name: 'ACISE2026',
+    location: 'ACISE 2026',
   },
 ];
 

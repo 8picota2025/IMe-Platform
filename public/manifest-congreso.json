@@ -1,0 +1,16 @@
+{
+  "name": "I-ME Congreso",
+  "short_name": "IME Congreso",
+  "description": "Captura comercial de visitantes y envío de documentación I-ME.",
+  "scope": "/congreso/",
+  "start_url": "/congreso/",
+  "id": "/congreso/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f5f8f7",
+  "theme_color": "#005e60",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

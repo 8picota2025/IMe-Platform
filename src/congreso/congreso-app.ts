@@ -2,6 +2,7 @@ import {
   ensureAuthSession,
   callEdgeFunction,
   escapeHtml,
+  esUsuarioComercial,
   supabase,
   trackCommercialUsage,
 } from '../comercial/shared';
@@ -35,8 +36,10 @@ const app = document.getElementById('congreso-app');
 if (!app) throw new Error('congreso-app root missing');
 
 let products: Product[] = [];
-const selected = new Set<string>();
+let selectedProductId: string | null = null;
 let query = '';
+let familySlug = '';
+let deferredInstallPrompt: BeforeInstallPromptEvent | null = null;
 let draft: ContactDraft = {
   nombres: '',
   apellidos: '',
@@ -51,12 +54,29 @@ let draft: ContactDraft = {
 const eventSlug = new URLSearchParams(location.search).get('evento');
 const event = getCongresoEvent(eventSlug);
 
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
+
+window.addEventListener('beforeinstallprompt', promptEvent => {
+  promptEvent.preventDefault();
+  deferredInstallPrompt = promptEvent as BeforeInstallPromptEvent;
+  refreshInstallButton();
+});
+
+window.addEventListener('appinstalled', () => {
+  deferredInstallPrompt = null;
+  refreshInstallButton();
+});
+
 function status(message: string, error = false): string {
   return `<p class="congreso-status${error ? ' is-error' : ''}" role="status">${escapeHtml(message)}</p>`;
 }
 
 function productEligible(row: Product): boolean {
   const attrs = row.atributos ?? {};
+  if (attrs['congreso_habilitado'] === false) return false;
   const enriched = Boolean(
     (typeof attrs['valor_es'] === 'string' && attrs['valor_es'].trim()) ||
     (Array.isArray(attrs['beneficios_es']) && attrs['beneficios_es'].length > 0) ||
@@ -68,6 +88,7 @@ function productEligible(row: Product): boolean {
 function visibleProducts(): Product[] {
   const needle = query.trim().toLocaleLowerCase();
   return products.filter(product => {
+    if (familySlug && product.familias?.slug !== familySlug) return false;
     if (!needle) return true;
     return [product.nombre_es, product.familias?.nombre_es, product.descripcion_corta_es]
       .filter(Boolean)
@@ -83,12 +104,12 @@ function renderProducts(): string {
     return '<p class="congreso-help">No hay productos elegibles para esta búsqueda.</p>';
   return visible
     .map(product => {
-      const isSelected = selected.has(product.id);
+      const isSelected = selectedProductId === product.id;
       const image = product.imagen_principal
         ? `<img src="${escapeHtml(product.imagen_principal)}" alt="" loading="lazy" />`
         : '';
       return `<article class="congreso-product${isSelected ? ' is-selected' : ''}" data-product-id="${escapeHtml(product.id)}" tabindex="0">
-      <input class="congreso-product__check" type="checkbox" ${isSelected ? 'checked' : ''} aria-label="Seleccionar ${escapeHtml(product.nombre_es)}" />
+      <input class="congreso-product__check" type="radio" name="producto_interes" ${isSelected ? 'checked' : ''} aria-label="Seleccionar ${escapeHtml(product.nombre_es)}" />
       ${image}<strong>${escapeHtml(product.nombre_es)}</strong>
       <span class="congreso-product__meta">${escapeHtml(product.familias?.nombre_es ?? 'Producto')}</span>
       <span class="congreso-help">${escapeHtml(product.descripcion_corta_es ?? '')}</span>
@@ -97,42 +118,54 @@ function renderProducts(): string {
     .join('');
 }
 
+function familyOptions(): string {
+  const families = [
+    ...new Map(products.map(product => [product.familias?.slug, product.familias])).values(),
+  ]
+    .filter((family): family is { nombre_es: string; slug: string } => Boolean(family))
+    .sort((a, b) => a.nombre_es.localeCompare(b.nombre_es));
+  return `<option value="">Todas las familias</option>${families.map(family => `<option value="${escapeHtml(family.slug)}" ${family.slug === familySlug ? 'selected' : ''}>${escapeHtml(family.nombre_es)}</option>`).join('')}`;
+}
+
 function render(): void {
-  const chosen = products.filter(product => selected.has(product.id));
+  const chosen = products.filter(product => product.id === selectedProductId);
   app!.innerHTML = `<div class="congreso-shell">
     <header class="congreso-topbar">
-      <div><div class="congreso-brand">I·ME CONGRESO</div><small>${escapeHtml(event.name)} · ${escapeHtml(event.location)}</small></div>
-      <button class="congreso-button congreso-button--ghost" type="button" data-signout>Cerrar sesión</button>
+      <div><div class="congreso-brand">I·ME CONGRESO</div><small>Sesión comercial · ${escapeHtml(event.location)}</small></div>
+      <div class="congreso-actions"><button class="congreso-button congreso-button--ghost" type="button" data-pwa-install hidden>Instalar PWA</button><button class="congreso-button congreso-button--ghost" type="button" data-signout>Cerrar sesión</button></div>
     </header>
-    <div class="congreso-grid">
-      <section class="congreso-panel">
-        <h1>Nuevo visitante</h1>
-        <p class="congreso-help">Selecciona soluciones de interés y registra interacción comercial.</p>
-        <div class="congreso-toolbar">
-          <input class="congreso-input" type="search" placeholder="Buscar producto o familia" value="${escapeHtml(query)}" data-search />
-          <select class="congreso-select" data-event aria-label="Evento"><option value="${escapeHtml(event.slug)}">${escapeHtml(event.name)}</option></select>
-        </div>
-        <div class="congreso-products" data-products>${renderProducts()}</div>
-      </section>
-      <aside class="congreso-panel congreso-selected">
-        <h2>Visitante</h2>
-        <p><span class="congreso-selected__count">${chosen.length} productos seleccionados</span></p>
-        ${chosen.length ? `<ul class="congreso-list">${chosen.map(p => `<li>${escapeHtml(p.nombre_es)}</li>`).join('')}</ul>` : '<p class="congreso-help">Selecciona al menos un producto.</p>'}
-        <form class="congreso-form" data-contact-form novalidate>
+    <section class="congreso-panel congreso-registration">
+      <h1>Registrar visitante</h1>
+      <p class="congreso-help">Completa o escanea los datos. Revisa siempre el resultado OCR antes de continuar.</p>
+      <form class="congreso-form" data-contact-form novalidate>
           <div class="congreso-camera"><strong>Escanear tarjeta</strong><br /><span class="congreso-help">OCR editable antes de registrar.</span><input type="file" accept="image/*" capture="environment" data-ocr /></div>
           <div class="congreso-form__row"><label>Nombre<input class="congreso-input" name="nombres" required value="${escapeHtml(draft.nombres)}" /></label><label>Apellidos<input class="congreso-input" name="apellidos" required value="${escapeHtml(draft.apellidos)}" /></label></div>
           <div class="congreso-form__row"><label>Institución<input class="congreso-input" name="institucion" required value="${escapeHtml(draft.institucion)}" /></label><label>Cargo<input class="congreso-input" name="cargo" value="${escapeHtml(draft.cargo)}" /></label></div>
           <div class="congreso-form__row"><label>Email<input class="congreso-input" name="email" type="email" value="${escapeHtml(draft.email)}" /></label><label>Teléfono / WhatsApp<input class="congreso-input" name="telefono" value="${escapeHtml(draft.telefono)}" /></label></div>
           <div class="congreso-form__row"><label>Ciudad<input class="congreso-input" name="ciudad" required value="${escapeHtml(draft.ciudad)}" /></label><label>País<input class="congreso-input" name="pais" value="${escapeHtml(draft.pais)}" /></label></div>
           <label>Notas del comercial<textarea class="congreso-textarea" name="notas" placeholder="Necesidad, plazo o contexto"></textarea></label>
+          <fieldset class="congreso-channel"><legend>Enviar información por</legend><label class="congreso-consent"><input type="checkbox" name="canal_email" checked /> <span>Email</span></label><label class="congreso-consent"><input type="checkbox" name="canal_whatsapp" /> <span>WhatsApp</span></label></fieldset>
           <label class="congreso-consent"><input type="checkbox" name="consentimiento" required /> <span>Confirmo consentimiento para tratamiento de datos, contacto comercial y envío de información solicitada.</span></label>
           <div class="congreso-actions"><button class="congreso-button congreso-button--primary" type="submit" ${chosen.length ? '' : 'disabled'}>Registrar y enviar</button><button class="congreso-button congreso-button--ghost" type="button" data-clear>Limpiar</button></div>
           <div data-status></div>
-        </form>
-      </aside>
-    </div>
+      </form>
+    </section>
+    <section class="congreso-panel congreso-products-panel">
+      <h2>Producto de interés</h2>
+      <p class="congreso-help">Selecciona un único producto por interacción.</p>
+      <div class="congreso-toolbar"><input class="congreso-input" type="search" placeholder="Buscar producto" value="${escapeHtml(query)}" data-search /><select class="congreso-select" data-family aria-label="Familia de producto">${familyOptions()}</select></div>
+      <div class="congreso-products" data-products>${renderProducts()}</div>
+      <p class="congreso-selected__count">${chosen.length ? `Seleccionado: ${escapeHtml(chosen[0]!.nombre_es)}` : 'Ningún producto seleccionado'}</p>
+    </section>
+    <footer class="congreso-panel congreso-campaign"><label>Campaña / evento<select class="congreso-select" data-event aria-label="Campaña"><option value="${escapeHtml(event.slug)}">${escapeHtml(event.name)}</option></select></label></footer>
   </div>`;
   bind();
+  refreshInstallButton();
+}
+
+function refreshInstallButton(): void {
+  const button = app?.querySelector<HTMLButtonElement>('[data-pwa-install]');
+  if (button) button.hidden = !deferredInstallPrompt;
 }
 
 function readDraft(form: HTMLFormElement): Record<string, string | boolean> {
@@ -163,10 +196,17 @@ function bind(): void {
     if (slot) slot.innerHTML = renderProducts();
     bindProductEvents();
   });
+  app!.querySelector<HTMLSelectElement>('[data-family]')?.addEventListener('change', eventInput => {
+    familySlug = (eventInput.target as HTMLSelectElement).value;
+    const slot = app!.querySelector('[data-products]');
+    if (slot) slot.innerHTML = renderProducts();
+    bindProductEvents();
+  });
   bindProductEvents();
+  app!.querySelector('[data-pwa-install]')?.addEventListener('click', () => void installPwa());
   app!.querySelector('[data-signout]')?.addEventListener('click', () => void signOut());
   app!.querySelector('[data-clear]')?.addEventListener('click', () => {
-    selected.clear();
+    selectedProductId = null;
     draft = {
       nombres: '',
       apellidos: '',
@@ -195,10 +235,13 @@ function bindProductEvents(): void {
   app!.querySelectorAll<HTMLElement>('[data-product-id]').forEach(card => {
     const toggle = () => {
       const id = card.dataset.productId!;
-      if (selected.has(id)) selected.delete(id);
-      else selected.add(id);
+      selectedProductId = selectedProductId === id ? null : id;
       render();
-      trackCommercialUsage('product_selected', { item_count: selected.size }, 'catalogo');
+      trackCommercialUsage(
+        'product_selected',
+        { item_count: selectedProductId ? 1 : 0 },
+        'catalogo'
+      );
     };
     card.addEventListener('click', toggle);
     card.addEventListener('keydown', eventKey => {
@@ -208,6 +251,14 @@ function bindProductEvents(): void {
       }
     });
   });
+}
+
+async function installPwa(): Promise<void> {
+  if (!deferredInstallPrompt) return;
+  await deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+  refreshInstallButton();
 }
 
 async function runOcr(file: File): Promise<void> {
@@ -239,6 +290,10 @@ async function runOcr(file: File): Promise<void> {
 
 async function submit(form: HTMLFormElement): Promise<void> {
   const values = readDraft(form);
+  const formData = new FormData(form);
+  const channels: Array<'email' | 'whatsapp'> = [];
+  if (formData.get('canal_email') === 'on') channels.push('email');
+  if (formData.get('canal_whatsapp') === 'on') channels.push('whatsapp');
   const slot = app!.querySelector('[data-status]');
   if (
     !values.consentimiento ||
@@ -246,15 +301,19 @@ async function submit(form: HTMLFormElement): Promise<void> {
     !draft.apellidos ||
     !draft.institucion ||
     !draft.ciudad ||
-    (!draft.email && !draft.telefono)
+    !selectedProductId ||
+    !channels.length ||
+    (channels.includes('email') && !draft.email) ||
+    (channels.includes('whatsapp') && !draft.telefono)
   ) {
-    if (slot) slot.innerHTML = status('Completa datos mínimos, contacto y consentimiento.', true);
+    if (slot)
+      slot.innerHTML = status('Completa datos, producto, canal de envío y consentimiento.', true);
     return;
   }
   const session = await ensureAuthSession();
   if (!session) return;
   const key = crypto.randomUUID();
-  const chosen = products.filter(product => selected.has(product.id));
+  const chosen = products.filter(product => product.id === selectedProductId);
   if (slot) slot.innerHTML = status('Registrando contacto…');
   const lead = await callEdgeFunction<{ leadId: string }>('congreso-lead', {
     body: {
@@ -271,9 +330,6 @@ async function submit(form: HTMLFormElement): Promise<void> {
     return;
   }
   const message = `Gracias por su tiempo. Le comparto información sobre:\n${chosen.map(product => `- ${product.nombre_es}: ${location.origin}/es/productos/${product.slug}/\n  Brochure: ${new URL(product.ficha_pdf!, location.origin).href}`).join('\n')}\n\nEquipo I-ME`;
-  const channels: Array<'email' | 'whatsapp'> = [];
-  if (draft.email) channels.push('email');
-  if (draft.telefono) channels.push('whatsapp');
   const sends = await Promise.all(
     channels.map(channel =>
       callEdgeFunction('comercial-share', {
@@ -297,7 +353,7 @@ async function submit(form: HTMLFormElement): Promise<void> {
   const failed = sends.filter(result => result.error);
   app!.innerHTML = `<div class="congreso-shell"><section class="congreso-panel congreso-success"><h1>Contacto registrado</h1><p>✓ Lead asociado al evento y al comercial.</p><p>✓ ${channels.length - failed.length} canal(es) procesado(s).</p>${whatsapp?.whatsappUrl ? `<p><a class="congreso-button congreso-button--primary" href="${escapeHtml(whatsapp.whatsappUrl)}" target="_blank" rel="noreferrer">Abrir WhatsApp</a></p>` : ''}<button class="congreso-button congreso-button--ghost" type="button" data-next>Atender siguiente visitante</button></section></div>`;
   app!.querySelector('[data-next]')?.addEventListener('click', () => {
-    selected.clear();
+    selectedProductId = null;
     draft = {
       nombres: '',
       apellidos: '',
@@ -315,6 +371,17 @@ async function submit(form: HTMLFormElement): Promise<void> {
 async function load(): Promise<void> {
   if (!supabase) {
     renderLoginPanel(app!, '', () => void load());
+    return;
+  }
+  const session = await ensureAuthSession();
+  if (!session) return;
+  const { data: profile } = await supabase
+    .from('admin_profiles')
+    .select('rol,activo')
+    .eq('user_id', session.user.id)
+    .maybeSingle();
+  if (!profile || !esUsuarioComercial(String(profile.rol ?? ''), profile.activo === true)) {
+    app!.innerHTML = status('Esta herramienta requiere una cuenta comercial activa.', true);
     return;
   }
   const { data, error } = await supabase

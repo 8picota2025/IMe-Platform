@@ -65,6 +65,11 @@
 .congreso-panel h2 {
   margin-top: 0;
 }
+.congreso-registration,
+.congreso-products-panel,
+.congreso-campaign {
+  margin-bottom: 1rem;
+}
 .congreso-toolbar {
   display: grid;
   grid-template-columns: 1fr 180px;
@@ -162,6 +167,21 @@
 }
 .congreso-consent input {
   margin-top: 0.25rem;
+}
+.congreso-channel {
+  border: 1px solid #d8e3df;
+  border-radius: 0.65rem;
+  padding: 0.7rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.congreso-channel legend {
+  padding: 0 0.35rem;
+  font-weight: 700;
+}
+.congreso-channel .congreso-consent {
+  display: flex !important;
 }
 .congreso-actions {
   display: flex;
