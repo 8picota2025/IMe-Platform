@@ -36,7 +36,7 @@ const app = document.getElementById('congreso-app');
 if (!app) throw new Error('congreso-app root missing');
 
 let products: Product[] = [];
-let selectedProductId: string | null = null;
+let selectedProductIds: string[] = [];
 let query = '';
 let familySlug = '';
 let deferredInstallPrompt: BeforeInstallPromptEvent | null = null;
@@ -104,12 +104,12 @@ function renderProducts(): string {
     return '<p class="congreso-help">No hay productos elegibles para esta búsqueda.</p>';
   return visible
     .map(product => {
-      const isSelected = selectedProductId === product.id;
+      const isSelected = selectedProductIds.includes(product.id);
       const image = product.imagen_principal
         ? `<img src="${escapeHtml(product.imagen_principal)}" alt="" loading="lazy" />`
         : '';
       return `<article class="congreso-product${isSelected ? ' is-selected' : ''}" data-product-id="${escapeHtml(product.id)}" tabindex="0">
-      <input class="congreso-product__check" type="radio" name="producto_interes" ${isSelected ? 'checked' : ''} aria-label="Seleccionar ${escapeHtml(product.nombre_es)}" />
+      <input class="congreso-product__check" type="checkbox" name="producto_interes" ${isSelected ? 'checked' : ''} aria-label="Seleccionar ${escapeHtml(product.nombre_es)}" />
       ${image}<strong>${escapeHtml(product.nombre_es)}</strong>
       <span class="congreso-product__meta">${escapeHtml(product.familias?.nombre_es ?? 'Producto')}</span>
       <span class="congreso-help">${escapeHtml(product.descripcion_corta_es ?? '')}</span>
@@ -128,7 +128,7 @@ function familyOptions(): string {
 }
 
 function render(): void {
-  const chosen = products.filter(product => product.id === selectedProductId);
+  const chosen = products.filter(product => selectedProductIds.includes(product.id));
   app!.innerHTML = `<div class="congreso-shell">
     <header class="congreso-topbar">
       <div><div class="congreso-brand">I·ME CONGRESO</div><small>Sesión comercial · ${escapeHtml(event.location)}</small></div>
@@ -151,11 +151,11 @@ function render(): void {
       </form>
     </section>
     <section class="congreso-panel congreso-products-panel">
-      <h2>Producto de interés</h2>
-      <p class="congreso-help">Selecciona un único producto por interacción.</p>
+          <h2>Productos de interés</h2>
+      <p class="congreso-help">Puedes seleccionar varios productos. La selección se conserva aunque cambies búsqueda o familia.</p>
       <div class="congreso-toolbar"><input class="congreso-input" type="search" placeholder="Buscar producto" value="${escapeHtml(query)}" data-search /><select class="congreso-select" data-family aria-label="Familia de producto">${familyOptions()}</select></div>
       <div class="congreso-products" data-products>${renderProducts()}</div>
-      <p class="congreso-selected__count">${chosen.length ? `Seleccionado: ${escapeHtml(chosen[0]!.nombre_es)}` : 'Ningún producto seleccionado'}</p>
+      <p class="congreso-selected__count">${chosen.length ? `${chosen.length} producto(s) seleccionado(s)` : 'Ningún producto seleccionado'}</p>
     </section>
     <footer class="congreso-panel congreso-campaign"><label>Campaña / evento<select class="congreso-select" data-event aria-label="Campaña"><option value="${escapeHtml(event.slug)}">${escapeHtml(event.name)}</option></select></label></footer>
   </div>`;
@@ -189,7 +189,28 @@ function readDraft(form: HTMLFormElement): Record<string, string | boolean> {
   };
 }
 
+function bindContactDraft(form: HTMLFormElement): void {
+  const fields: Array<keyof ContactDraft> = [
+    'nombres',
+    'apellidos',
+    'cargo',
+    'institucion',
+    'email',
+    'telefono',
+    'ciudad',
+    'pais',
+  ];
+  fields.forEach(field => {
+    form.querySelector<HTMLInputElement>(`[name="${field}"]`)?.addEventListener('input', event => {
+      const value = (event.target as HTMLInputElement).value.trim();
+      draft[field] = field === 'email' ? value.toLowerCase() : value;
+    });
+  });
+}
+
 function bind(): void {
+  const form = app!.querySelector<HTMLFormElement>('[data-contact-form]');
+  if (form) bindContactDraft(form);
   app!.querySelector<HTMLInputElement>('[data-search]')?.addEventListener('input', eventInput => {
     query = (eventInput.target as HTMLInputElement).value;
     const slot = app!.querySelector('[data-products]');
@@ -206,7 +227,7 @@ function bind(): void {
   app!.querySelector('[data-pwa-install]')?.addEventListener('click', () => void installPwa());
   app!.querySelector('[data-signout]')?.addEventListener('click', () => void signOut());
   app!.querySelector('[data-clear]')?.addEventListener('click', () => {
-    selectedProductId = null;
+    selectedProductIds = [];
     draft = {
       nombres: '',
       apellidos: '',
@@ -235,11 +256,13 @@ function bindProductEvents(): void {
   app!.querySelectorAll<HTMLElement>('[data-product-id]').forEach(card => {
     const toggle = () => {
       const id = card.dataset.productId!;
-      selectedProductId = selectedProductId === id ? null : id;
+      selectedProductIds = selectedProductIds.includes(id)
+        ? selectedProductIds.filter(productId => productId !== id)
+        : [...selectedProductIds, id];
       render();
       trackCommercialUsage(
         'product_selected',
-        { item_count: selectedProductId ? 1 : 0 },
+        { item_count: selectedProductIds.length },
         'catalogo'
       );
     };
@@ -277,12 +300,20 @@ async function runOcr(file: File): Promise<void> {
     if (slot) slot.innerHTML = status(result.error ?? 'OCR no disponible.', true);
     return;
   }
-  draft = {
-    ...draft,
-    ...Object.fromEntries(
-      Object.entries(result.data.extract).filter(([, value]) => typeof value === 'string')
-    ),
-  } as ContactDraft;
+  const extract = result.data.extract;
+  const detected: Partial<ContactDraft> = {
+    nombres: String(extract.nombres ?? '').trim(),
+    apellidos: String(extract.apellidos ?? '').trim(),
+    institucion: String(extract.institucion ?? '').trim(),
+    email: String(extract.email ?? '')
+      .trim()
+      .toLowerCase(),
+    telefono: String(extract.telefono ?? '').trim(),
+  };
+  draft = Object.entries(detected).reduce(
+    (current, [field, value]) => (value ? { ...current, [field]: value } : current),
+    draft
+  );
   render();
   const after = app!.querySelector('[data-status]');
   if (after) after.innerHTML = status('Datos OCR cargados. Revísalos antes de registrar.');
@@ -301,7 +332,7 @@ async function submit(form: HTMLFormElement): Promise<void> {
     !draft.apellidos ||
     !draft.institucion ||
     !draft.ciudad ||
-    !selectedProductId ||
+    !selectedProductIds.length ||
     !channels.length ||
     (channels.includes('email') && !draft.email) ||
     (channels.includes('whatsapp') && !draft.telefono)
@@ -313,7 +344,7 @@ async function submit(form: HTMLFormElement): Promise<void> {
   const session = await ensureAuthSession();
   if (!session) return;
   const key = crypto.randomUUID();
-  const chosen = products.filter(product => product.id === selectedProductId);
+  const chosen = products.filter(product => selectedProductIds.includes(product.id));
   if (slot) slot.innerHTML = status('Registrando contacto…');
   const lead = await callEdgeFunction<{ leadId: string }>('congreso-lead', {
     body: {
@@ -321,6 +352,7 @@ async function submit(form: HTMLFormElement): Promise<void> {
       eventSlug: event.slug,
       eventName: event.name,
       productIds: chosen.map(product => product.id),
+      channels,
       contact: values,
       commercialUserId: session.user.id,
     },
@@ -353,7 +385,7 @@ async function submit(form: HTMLFormElement): Promise<void> {
   const failed = sends.filter(result => result.error);
   app!.innerHTML = `<div class="congreso-shell"><section class="congreso-panel congreso-success"><h1>Contacto registrado</h1><p>✓ Lead asociado al evento y al comercial.</p><p>✓ ${channels.length - failed.length} canal(es) procesado(s).</p>${whatsapp?.whatsappUrl ? `<p><a class="congreso-button congreso-button--primary" href="${escapeHtml(whatsapp.whatsappUrl)}" target="_blank" rel="noreferrer">Abrir WhatsApp</a></p>` : ''}<button class="congreso-button congreso-button--ghost" type="button" data-next>Atender siguiente visitante</button></section></div>`;
   app!.querySelector('[data-next]')?.addEventListener('click', () => {
-    selectedProductId = null;
+    selectedProductIds = [];
     draft = {
       nombres: '',
       apellidos: '',

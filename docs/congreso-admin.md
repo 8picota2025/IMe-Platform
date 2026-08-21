@@ -2,6 +2,8 @@
 
 Configuración usa paneles administrativos existentes. No hay pantalla de configuración visible en `/congreso` para comerciales.
 
+La captura permite seleccionar varios productos; selección permanece al cambiar filtro o familia. La tarjeta se procesa con OCR y sus datos se cargan en campos editables antes del envío.
+
 ## Plantilla de email
 
 En `/admin` → `Emails`, edita plantilla `comercial_catalogo`. Variables usadas por el envío:

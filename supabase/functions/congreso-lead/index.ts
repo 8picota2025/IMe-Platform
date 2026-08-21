@@ -14,6 +14,7 @@ interface Body {
   eventSlug?: string;
   eventName?: string;
   productIds?: string[];
+  channels?: Array<'email' | 'whatsapp'>;
   commercialUserId?: string;
   contact?: {
     nombres?: string;
@@ -116,8 +117,9 @@ Deno.serve(
       return json({ ok: false, error: 'Email invalido.' }, origin, 422);
     if (!productIds.length)
       return json({ ok: false, error: 'Selecciona al menos un producto.' }, origin, 422);
-    if (productIds.length !== 1)
-      return json({ ok: false, error: 'Selecciona un solo producto.' }, origin, 422);
+    const channels = Array.isArray(body.channels)
+      ? [...new Set(body.channels.filter(channel => channel === 'email' || channel === 'whatsapp'))]
+      : [];
 
     const { data: products, error: productsError } = await supabase
       .from('productos')
@@ -182,7 +184,9 @@ Deno.serve(
         evento: { slug: clean(body.eventSlug, 120), nombre: clean(body.eventName, 180) },
         comercial_user_id: auth.user.id,
         productos_interes: productSnapshots,
-        canales_solicitados: [email ? 'email' : null, telefono ? 'whatsapp' : null].filter(Boolean),
+        canales_solicitados: channels.length
+          ? channels
+          : [email ? 'email' : null, telefono ? 'whatsapp' : null].filter(Boolean),
         consentimiento_contacto: true,
         consentimiento_documentacion: true,
         consentimiento_source: 'congreso',
