@@ -36,7 +36,14 @@ export async function ensureAuthSession(): Promise<{
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  if (session?.access_token) return session;
+  if (session?.access_token) {
+    const expiresAtMs = session.expires_at ? session.expires_at * 1000 : 0;
+    // Refrescar si faltan <2 min (OCR/PDF pueden superar el JWT restante).
+    if (!expiresAtMs || expiresAtMs - Date.now() > 120_000) return session;
+    const refreshed = await supabase.auth.refreshSession();
+    if (refreshed.data.session?.access_token) return refreshed.data.session;
+    return session;
+  }
 
   const { data, error } = await supabase.auth.refreshSession();
   if (data.session?.access_token) return data.session;

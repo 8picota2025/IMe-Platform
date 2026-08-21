@@ -15,6 +15,7 @@ import {
 import { defaultCondicionesOferta } from '../lib/condiciones-oferta';
 import {
   callEdgeFunction,
+  ensureAuthSession,
   escapeHtml,
   esRolAdmin,
   formatDate,
@@ -40,6 +41,7 @@ import {
   pickCompetenciaPdf,
   prepareCompetenciaForOcr,
 } from './quote-ocr';
+import { bumpCommercialIdle, pauseCommercialIdle, resumeCommercialIdle } from './auth';
 import {
   cotizacionesListHash,
   parseCotizacionesRoute,
@@ -753,65 +755,77 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
       b.disabled = true;
     });
 
-    const file = mode === 'pdf' ? await pickCompetenciaPdf() : await pickCompetenciaImage(mode);
-    if (!file) {
+    // File picker + conversión PDF + OCR: sin eventos de UI → no contar idle.
+    pauseCommercialIdle();
+    bumpCommercialIdle();
+    try {
+      const file = mode === 'pdf' ? await pickCompetenciaPdf() : await pickCompetenciaImage(mode);
+      bumpCommercialIdle();
+      if (!file) {
+        setStatus('Cancelado.');
+        return;
+      }
+
+      if (preview && img && file.type.startsWith('image/')) {
+        const url = URL.createObjectURL(file);
+        img.src = url;
+        preview.hidden = false;
+      }
+
+      setStatus(mode === 'pdf' ? 'Leyendo PDF…' : 'Preparando imagen…');
+      toast(
+        mode === 'pdf' ? 'Analizando PDF competencia…' : 'Analizando presupuesto competencia…',
+        'success'
+      );
+      const prepared = await prepareCompetenciaForOcr(file);
+      bumpCommercialIdle();
+      if (!prepared.ok) {
+        setStatus(prepared.error);
+        toast(prepared.error, 'error');
+        return;
+      }
+
+      if (preview && img) {
+        const url = URL.createObjectURL(prepared.blob);
+        img.src = url;
+        preview.hidden = false;
+      }
+
+      setStatus('Enviando a OCR…');
+      // Renovar JWT antes del POST largo (moondream puede superar el token restante).
+      const session = await ensureAuthSession();
+      if (!session) {
+        setStatus('Sesión expirada. Vuelve a iniciar sesión.');
+        return;
+      }
+      bumpCommercialIdle();
+      const payload: { file: Blob; filename: string; quoteId?: string } = {
+        file: prepared.blob,
+        filename: prepared.filename,
+      };
+      if (quoteId) payload.quoteId = quoteId;
+      const { data, error, code } = await ocrPresupuestoCompetencia(payload);
+      bumpCommercialIdle();
+      if (error || !data?.quote_id) {
+        setStatus(errMsg(code, error ?? 'OCR falló'));
+        toast(errMsg(code, error ?? 'OCR falló'), 'error');
+        return;
+      }
+      const conf =
+        data.extract?.confianza != null
+          ? ` · confianza ${(data.extract.confianza * 100).toFixed(0)}%`
+          : '';
+      setStatus(`Listo${conf}. Abriendo borrador…`);
+      toast(`OCR listo${conf}. Abriendo borrador mejorado.`, 'success');
+      trackCommercialUsage('share_succeeded', { result: 'ocr_competencia' }, 'cotizaciones');
+      location.hash = `#/cotizaciones?id=${encodeURIComponent(data.quote_id)}`;
+    } finally {
+      resumeCommercialIdle();
+      bumpCommercialIdle();
       buttons.forEach(b => {
         b.disabled = false;
       });
-      setStatus('Cancelado.');
-      return;
     }
-
-    if (preview && img && file.type.startsWith('image/')) {
-      const url = URL.createObjectURL(file);
-      img.src = url;
-      preview.hidden = false;
-    }
-
-    setStatus(mode === 'pdf' ? 'Leyendo PDF…' : 'Preparando imagen…');
-    toast(
-      mode === 'pdf' ? 'Analizando PDF competencia…' : 'Analizando presupuesto competencia…',
-      'success'
-    );
-    const prepared = await prepareCompetenciaForOcr(file);
-    if (!prepared.ok) {
-      buttons.forEach(b => {
-        b.disabled = false;
-      });
-      setStatus(prepared.error);
-      toast(prepared.error, 'error');
-      return;
-    }
-
-    if (preview && img) {
-      const url = URL.createObjectURL(prepared.blob);
-      img.src = url;
-      preview.hidden = false;
-    }
-
-    setStatus('Enviando a OCR…');
-    const payload: { file: Blob; filename: string; quoteId?: string } = {
-      file: prepared.blob,
-      filename: prepared.filename,
-    };
-    if (quoteId) payload.quoteId = quoteId;
-    const { data, error, code } = await ocrPresupuestoCompetencia(payload);
-    buttons.forEach(b => {
-      b.disabled = false;
-    });
-    if (error || !data?.quote_id) {
-      setStatus(errMsg(code, error ?? 'OCR falló'));
-      toast(errMsg(code, error ?? 'OCR falló'), 'error');
-      return;
-    }
-    const conf =
-      data.extract?.confianza != null
-        ? ` · confianza ${(data.extract.confianza * 100).toFixed(0)}%`
-        : '';
-    setStatus(`Listo${conf}. Abriendo borrador…`);
-    toast(`OCR listo${conf}. Abriendo borrador mejorado.`, 'success');
-    trackCommercialUsage('share_succeeded', { result: 'ocr_competencia' }, 'cotizaciones');
-    location.hash = `#/cotizaciones?id=${encodeURIComponent(data.quote_id)}`;
   };
 
   const quoteIdFromEditor = () =>
