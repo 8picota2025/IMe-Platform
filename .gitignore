@@ -17,6 +17,8 @@ public/assets/img/conocimiento/
 src/data/generated/
 .dropship-tokens.json
 .gstack/
+.venv-ocr/
+
 
 # hyperresearch (not part of IMe-Platform)
 .hyperresearch/
