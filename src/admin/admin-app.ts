@@ -29,6 +29,7 @@ import {
   resolveSearchConsoleHtmlFile,
   resolveSearchConsoleVerification,
 } from '../lib/analytics-config';
+import { quoteEditable, transicionEstadoCotizacionPermitida } from '../lib/cotizacion-oferta';
 
 const OLLAMA_URL = (import.meta.env['PUBLIC_OLLAMA_URL'] as string | undefined) ?? '';
 const OLLAMA_INGEST_MODEL = 'qwen3:1.7b';
@@ -3002,6 +3003,14 @@ async function actualizarSeguimientoCotizacion(
 ): Promise<boolean> {
   const before = await getRow('solicitudes_cotizacion', id);
   const estadoAnterior = text(before?.estado) || 'nueva';
+  if (!transicionEstadoCotizacionPermitida(estadoAnterior, estado)) {
+    toast(
+      estadoAnterior === 'enviada'
+        ? 'Cotizacion enviada: no se puede volver a borrador. Crea una nueva revision.'
+        : 'Transicion de estado no permitida.'
+    );
+    return false;
+  }
   const baseNotas =
     opciones.notas !== undefined ? opciones.notas.trim() : text(before?.notas_internas);
   const historial = appendNotaInterna(
@@ -3197,6 +3206,7 @@ async function cotizacionDetailView(): Promise<string> {
   const resumen = cotizacionResumenTexto(row);
   const estado = text(row.estado) || 'nueva';
   const convertida = estado === 'convertida' || Boolean(row.pedido_id);
+  const ofertaBloqueada = convertida || !quoteEditable(estado);
   const moneda = normalizarMonedaCotizacion(row.moneda);
   return `
     <section class="admin-panel">
@@ -3241,9 +3251,9 @@ async function cotizacionDetailView(): Promise<string> {
           }
         </div>
         <div class="admin-toolbar cotizacion-workflow__actions">
-          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="nueva" ${convertida ? 'disabled' : ''}>Volver a nueva</button>
-          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="en_revision" ${convertida ? 'disabled' : ''}>Enviar a revision</button>
-          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="respondida" ${convertida ? 'disabled' : ''}>Marcar respondida</button>
+          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="nueva" ${ofertaBloqueada ? 'disabled' : ''}>Volver a nueva</button>
+          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="en_revision" ${ofertaBloqueada ? 'disabled' : ''}>Enviar a revision</button>
+          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="respondida" ${ofertaBloqueada ? 'disabled' : ''}>Marcar respondida</button>
           <button class="admin-button" type="button" data-cotizacion-enviar ${convertida ? 'disabled' : ''}>Enviar al cliente</button>
         </div>
       </div>
@@ -3254,55 +3264,61 @@ async function cotizacionDetailView(): Promise<string> {
             ? `<p class="admin-help">Ultimo error de envio: ${escapeHtml(text(row.send_error))}</p>`
             : ''
         }
-        <p class="admin-help">Edita los datos de la solicitud, los productos, precios y condiciones. La oferta guardada es la que recibirá el cliente al formalizar.</p>
+        <p class="admin-help">${
+          ofertaBloqueada
+            ? estado === 'enviada'
+              ? 'Oferta enviada: precios y condiciones quedan bloqueados. Para cambiar montos crea una nueva revision (duplicate-on-revise).'
+              : 'Cotizacion convertida: la oferta comercial ya no se puede editar.'
+            : 'Edita los datos de la solicitud, los productos, precios y condiciones. La oferta guardada es la que recibirá el cliente al formalizar.'
+        }</p>
         <form class="admin-form" data-cotizacion-oferta-form>
           <input type="hidden" name="id" value="${escapeHtml(text(row.id))}" />
           <div class="admin-editor__cols">
             <label class="admin-field"><span>Nombre del contacto</span>
-              <input name="nombre" type="text" value="${escapeHtml(text(row.nombre))}" autocomplete="name" ${convertida ? 'disabled' : ''} />
+              <input name="nombre" type="text" value="${escapeHtml(text(row.nombre))}" autocomplete="name" ${ofertaBloqueada ? 'disabled' : ''} />
             </label>
             <label class="admin-field"><span>Empresa</span>
-              <input name="empresa" type="text" value="${escapeHtml(text(row.empresa))}" autocomplete="organization" ${convertida ? 'disabled' : ''} />
+              <input name="empresa" type="text" value="${escapeHtml(text(row.empresa))}" autocomplete="organization" ${ofertaBloqueada ? 'disabled' : ''} />
             </label>
             <label class="admin-field"><span>Email</span>
-              <input name="email" type="email" value="${escapeHtml(text(row.email))}" autocomplete="email" ${convertida ? 'disabled' : ''} />
+              <input name="email" type="email" value="${escapeHtml(text(row.email))}" autocomplete="email" ${ofertaBloqueada ? 'disabled' : ''} />
             </label>
             <label class="admin-field"><span>Teléfono</span>
-              <input name="telefono" type="tel" value="${escapeHtml(text(row.telefono))}" autocomplete="tel" ${convertida ? 'disabled' : ''} />
+              <input name="telefono" type="tel" value="${escapeHtml(text(row.telefono))}" autocomplete="tel" ${ofertaBloqueada ? 'disabled' : ''} />
             </label>
             <label class="admin-field"><span>NIT / identificación fiscal</span>
-              <input name="nit" type="text" value="${escapeHtml(text(row.nit))}" ${convertida ? 'disabled' : ''} />
+              <input name="nit" type="text" value="${escapeHtml(text(row.nit))}" ${ofertaBloqueada ? 'disabled' : ''} />
             </label>
             <label class="admin-field"><span>IVA</span>
-              <label class="admin-check"><input name="responsable_iva" type="checkbox" ${row.responsable_iva ? 'checked' : ''} ${convertida ? 'disabled' : ''} /> Responsable de IVA</label>
+              <label class="admin-check"><input name="responsable_iva" type="checkbox" ${row.responsable_iva ? 'checked' : ''} ${ofertaBloqueada ? 'disabled' : ''} /> Responsable de IVA</label>
             </label>
             <label class="admin-field"><span>Tratamiento tributario de la oferta</span>
-              <label class="admin-check"><input name="impuestos_incluidos" type="checkbox" ${row.impuestos_incluidos ? 'checked' : ''} ${convertida ? 'disabled' : ''} /> Los precios ofrecidos ya incluyen IVA cuando aplica</label>
+              <label class="admin-check"><input name="impuestos_incluidos" type="checkbox" ${row.impuestos_incluidos ? 'checked' : ''} ${ofertaBloqueada ? 'disabled' : ''} /> Los precios ofrecidos ya incluyen IVA cuando aplica</label>
             </label>
             <label class="admin-field"><span>Moneda de la oferta</span>
-              <select name="moneda" data-cotizacion-moneda ${convertida ? 'disabled' : ''}>
+              <select name="moneda" data-cotizacion-moneda ${ofertaBloqueada ? 'disabled' : ''}>
                 <option value="COP" ${moneda === 'COP' ? 'selected' : ''}>COP — Pesos colombianos</option>
                 <option value="USD" ${moneda === 'USD' ? 'selected' : ''}>USD — Dolares</option>
               </select>
             </label>
             <label class="admin-field"><span>Validez hasta</span>
-              <input name="validez_hasta" type="date" value="${escapeHtml(text(row.validez_hasta).slice(0, 10))}" ${convertida ? 'disabled' : ''} />
+              <input name="validez_hasta" type="date" value="${escapeHtml(text(row.validez_hasta).slice(0, 10))}" ${ofertaBloqueada ? 'disabled' : ''} />
             </label>
           </div>
-          ${cotizacionLineasEditorHtml(productos, moneda, convertida)}
+          ${cotizacionLineasEditorHtml(productos, moneda, ofertaBloqueada)}
           <label class="admin-field" style="margin-top:12px"><span>Mensaje o necesidad del solicitante</span>
-            <textarea name="mensaje" rows="4" placeholder="Necesidad, especificaciones o contexto" ${convertida ? 'disabled' : ''}>${escapeHtml(text(row.mensaje))}</textarea>
+            <textarea name="mensaje" rows="4" placeholder="Necesidad, especificaciones o contexto" ${ofertaBloqueada ? 'disabled' : ''}>${escapeHtml(text(row.mensaje))}</textarea>
           </label>
           <div class="admin-editor__cols">
             <label class="admin-field"><span>Dirección postal de envío</span>
-              <textarea name="direccion_envio" rows="3" ${convertida ? 'disabled' : ''}>${escapeHtml(text(row.direccion_envio))}</textarea>
+              <textarea name="direccion_envio" rows="3" ${ofertaBloqueada ? 'disabled' : ''}>${escapeHtml(text(row.direccion_envio))}</textarea>
             </label>
             <label class="admin-field"><span>Dirección de facturación</span>
-              <textarea name="direccion_facturacion" rows="3" ${convertida ? 'disabled' : ''}>${escapeHtml(text(row.direccion_facturacion))}</textarea>
+              <textarea name="direccion_facturacion" rows="3" ${ofertaBloqueada ? 'disabled' : ''}>${escapeHtml(text(row.direccion_facturacion))}</textarea>
             </label>
           </div>
           <label class="admin-field" style="margin-top:12px"><span>Adjuntos para el correo al cliente (PDF, Office o imagen; máx. 25 MB en total)</span>
-            <input type="file" data-cotizacion-adjuntos multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.webp" ${convertida ? 'disabled' : ''} />
+            <input type="file" data-cotizacion-adjuntos multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.webp" ${ofertaBloqueada ? 'disabled' : ''} />
             <span class="admin-help" data-cotizacion-adjuntos-estado>${
               adjuntos.length
                 ? `Adjuntos guardados: ${escapeHtml(
@@ -3316,11 +3332,11 @@ async function cotizacionDetailView(): Promise<string> {
             <input type="hidden" data-cotizacion-adjuntos-actuales value="${escapeHtml(JSON.stringify(adjuntos))}" />
           </label>
           <label class="admin-field" style="margin-top:12px"><span>Observaciones / condiciones de configuracion</span>
-            <textarea name="condiciones" rows="5" placeholder="Configuracion especifica, plazo de entrega, forma de pago, validez, exclusiones..." ${convertida ? 'disabled' : ''}>${escapeHtml(
+            <textarea name="condiciones" rows="5" placeholder="Configuracion especifica, plazo de entrega, forma de pago, validez, exclusiones..." ${ofertaBloqueada ? 'disabled' : ''}>${escapeHtml(
               text(row.condiciones)
             )}</textarea>
           </label>
-          ${convertida ? '' : '<button class="admin-button" type="submit">Guardar oferta</button>'}
+          ${ofertaBloqueada ? '' : '<button class="admin-button" type="submit">Guardar oferta</button>'}
         </form>
       </div>
       <div style="padding:0 16px 16px">
@@ -6767,6 +6783,16 @@ function bindCotizaciones() {
     const data = new FormData(ofertaForm);
     const id = String(data.get('id') ?? '');
     if (!id) return;
+    const existing = await getRow('solicitudes_cotizacion', id);
+    const estadoActual = text(existing?.estado) || 'nueva';
+    if (!quoteEditable(estadoActual) || existing?.pedido_id) {
+      toast(
+        estadoActual === 'enviada'
+          ? 'Oferta enviada bloqueada. Crea una nueva revision para cambiar precios.'
+          : 'Esta cotizacion ya no admite edicion de oferta.'
+      );
+      return;
+    }
     const moneda = normalizarMonedaCotizacion(data.get('moneda'));
     aplicarMonedaOfertaDom(moneda);
     const lineas = leerLineasOfertaDesdeDom()
@@ -6812,7 +6838,8 @@ function bindCotizaciones() {
         mercado,
         leida: true,
       })
-      .eq('id', id);
+      .eq('id', id)
+      .in('estado', ['nueva', 'en_revision', 'respondida']);
     if (error) {
       toast(error.message);
       return;
