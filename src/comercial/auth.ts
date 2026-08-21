@@ -8,17 +8,118 @@
 import type { Session } from '@supabase/supabase-js';
 import { supabase, escapeHtml, toast } from './shared';
 
-const IDLE_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutos
+const IDLE_TIMEOUT_MS = 45 * 60 * 1000; // 45 min — OCR/PDF puede tardar varios minutos
 const IDLE_CHECK_INTERVAL_MS = 30 * 1000;
-const IDLE_ACTIVITY_EVENTS: Array<keyof DocumentEventMap> = [
+const IDLE_ACTIVITY_EVENTS: Array<keyof WindowEventMap> = [
   'mousemove',
   'mousedown',
   'keydown',
   'touchstart',
+  'touchmove',
+  'pointerdown',
+  'wheel',
   'scroll',
   'click',
 ];
 
+/* ------------------------------------------------------------------ */
+/* Expiración de sesión por inactividad                               */
+/* ------------------------------------------------------------------ */
+
+export interface IdleWatcher {
+  stop: () => void;
+  /** Marca actividad (p. ej. tras elegir archivo o durante OCR). */
+  bump: () => void;
+  /** Congela el reloj (picker de archivos, OCR, subidas largas). */
+  pause: () => void;
+  resume: () => void;
+}
+
+let activeIdleWatcher: IdleWatcher | null = null;
+
+/** API global para operaciones largas (OCR/PDF) sin prop-drilling. */
+export function bumpCommercialIdle(): void {
+  activeIdleWatcher?.bump();
+}
+export function pauseCommercialIdle(): void {
+  activeIdleWatcher?.pause();
+}
+export function resumeCommercialIdle(): void {
+  activeIdleWatcher?.resume();
+}
+
+/**
+ * Cierra la sesión tras IDLE_TIMEOUT_MS sin actividad en primer plano.
+ * - No cuenta tiempo con la pestaña oculta (file picker / app switcher).
+ * - Al volver a visible, reinicia el reloj (vuelta = actividad).
+ * - pause()/resume() para OCR y conversión PDF.
+ */
+export function startIdleWatch(onIdleTimeout: () => void): IdleWatcher {
+  let lastActivity = Date.now();
+  let warned = false;
+  let paused = false;
+  let fired = false;
+
+  const bump = () => {
+    lastActivity = Date.now();
+    warned = false;
+  };
+
+  const registerActivity = () => {
+    if (paused || document.hidden) return;
+    bump();
+  };
+
+  const checkIdle = () => {
+    if (fired || paused || document.hidden) return;
+    const elapsed = Date.now() - lastActivity;
+    if (elapsed >= IDLE_TIMEOUT_MS) {
+      fired = true;
+      onIdleTimeout();
+      return;
+    }
+    if (!warned && elapsed >= IDLE_TIMEOUT_MS - 60_000) {
+      warned = true;
+      toast('Tu sesión se cerrará en 1 minuto por inactividad.', 'info');
+    }
+  };
+
+  const onVisibility = () => {
+    if (document.visibilityState === 'hidden') return;
+    // Volver del file picker / otra app: no castigar el tiempo en background.
+    bump();
+  };
+
+  for (const evt of IDLE_ACTIVITY_EVENTS) {
+    window.addEventListener(evt, registerActivity, { passive: true, capture: true });
+  }
+  document.addEventListener('visibilitychange', onVisibility);
+
+  const interval = window.setInterval(checkIdle, IDLE_CHECK_INTERVAL_MS);
+
+  const watcher: IdleWatcher = {
+    bump,
+    pause: () => {
+      paused = true;
+      bump();
+    },
+    resume: () => {
+      paused = false;
+      bump();
+    },
+    stop: () => {
+      window.clearInterval(interval);
+      for (const evt of IDLE_ACTIVITY_EVENTS) {
+        window.removeEventListener(evt, registerActivity, { capture: true });
+      }
+      document.removeEventListener('visibilitychange', onVisibility);
+      if (activeIdleWatcher === watcher) activeIdleWatcher = null;
+    },
+  };
+
+  activeIdleWatcher = watcher;
+  return watcher;
+}
 export type RecoveryParams = {
   code: string | null;
   searchType: string | null;
@@ -312,58 +413,4 @@ export function renderNewPassword(app: HTMLElement, onDone: () => void): void {
     toast('Contraseña actualizada.', 'success');
     onDone();
   });
-}
-
-/* ------------------------------------------------------------------ */
-/* Expiración de sesión por inactividad (15 min)                      */
-/* ------------------------------------------------------------------ */
-
-export interface IdleWatcher {
-  stop: () => void;
-}
-
-/**
- * Cierra la sesión tras 15 minutos sin actividad del usuario (mouse,
- * teclado, scroll, touch) o al volver de una pestaña oculta si el tiempo
- * transcurrido supera el umbral (evita depender solo de setTimeout, que
- * puede pausarse en segundo plano).
- */
-export function startIdleWatch(onIdleTimeout: () => void): IdleWatcher {
-  let lastActivity = Date.now();
-  let warned = false;
-
-  const registerActivity = () => {
-    lastActivity = Date.now();
-    warned = false;
-  };
-
-  const checkIdle = () => {
-    const elapsed = Date.now() - lastActivity;
-    if (elapsed >= IDLE_TIMEOUT_MS) {
-      onIdleTimeout();
-      return;
-    }
-    if (!warned && elapsed >= IDLE_TIMEOUT_MS - 60_000) {
-      warned = true;
-      toast('Tu sesión se cerrará en 1 minuto por inactividad.', 'info');
-    }
-  };
-
-  for (const evt of IDLE_ACTIVITY_EVENTS) {
-    document.addEventListener(evt, registerActivity, { passive: true });
-  }
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') checkIdle();
-  });
-
-  const interval = window.setInterval(checkIdle, IDLE_CHECK_INTERVAL_MS);
-
-  return {
-    stop: () => {
-      window.clearInterval(interval);
-      for (const evt of IDLE_ACTIVITY_EVENTS) {
-        document.removeEventListener(evt, registerActivity);
-      }
-    },
-  };
 }
