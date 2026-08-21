@@ -1,0 +1,24 @@
+---
+import '../comercial/comercial.css';
+import '../congreso/congreso.css';
+
+Astro.response.status = 200;
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta name="theme-color" content="#005e60" />
+    <title>IME Congreso</title>
+  </head>
+  <body class="congreso-body">
+    <main id="congreso-app" class="congreso-root">
+      <section class="congreso-loading" aria-live="polite">Cargando IME Congreso…</section>
+    </main>
+    <script>
+      import '../congreso/congreso-app';
+    </script>
+  </body>
+</html>
