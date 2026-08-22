@@ -13,6 +13,7 @@ interface Product {
   id: string;
   slug: string;
   nombre_es: string;
+  sku: string | null;
   nombre_en: string | null;
   descripcion_corta_es: string | null;
   imagen_principal: string | null;
@@ -161,6 +162,15 @@ function render(): void {
   </div>`;
   bind();
   refreshInstallButton();
+}
+
+function aciseProductList(chosen: Product[]): string {
+  return chosen
+    .map(
+      product =>
+        `${product.nombre_es}\nRef. ${product.sku || 'No especificada'}\n${location.origin}/es/productos/${product.slug}/`
+    )
+    .join('\n\n');
 }
 
 function refreshInstallButton(): void {
@@ -361,7 +371,46 @@ async function submit(form: HTMLFormElement): Promise<void> {
     if (slot) slot.innerHTML = status(lead.error, true);
     return;
   }
-  const message = `Gracias por su tiempo. Le comparto información sobre:\n${chosen.map(product => `- ${product.nombre_es}: ${location.origin}/es/productos/${product.slug}/\n  Brochure: ${new URL(product.ficha_pdf!, location.origin).href}`).join('\n')}\n\nEquipo I-ME`;
+  const productList = aciseProductList(chosen);
+  const whatsappMessage = `Ha sido un placer conversar con usted durante ACISE. Muchas gracias por dedicarnos unos minutos y por su interés en conocer algunas de las soluciones que ofrecemos.
+
+Tal como comentamos, le comparto la información de los equipos que seleccionamos durante nuestra conversación:
+
+Productos de interés
+
+${productList}
+
+Espero que esta información le resulte interesante. Más que simplemente enviarle un catálogo, nos gustaría poder conocer mejor su institución y ayudarle a identificar las soluciones que mejor encajen tanto desde el punto de vista técnico como presupuestario.
+
+Puede consultar también nuestro catálogo y otras soluciones en:
+
+https://i-me.com.co
+
+Si alguno de estos equipos es de su interés, puede solicitar cotización y estaremos encantados de resolver cualquier consulta y ajustar su cotización para convertirla en un proyecto en marcha.
+
+Muchas gracias nuevamente por su tiempo durante ACISE, con la seguridad de seguir en contacto.
+
+Un cordial saludo,
+
+I-ME | International Medical Enterprise
+info@i-me.com.co
++57 310 3332607
+https://i-me.com.co`;
+  const emailMessage = `En primer lugar, quiero agradecerle nuevamente el tiempo que nos ha dedicado. Ha sido un placer poder conversar con usted, conocer un poco mejor sus intereses y presentarle las soluciones que hemos comentado.
+
+Le comparto los productos señalados:
+
+Esperamos que esta información le resulte útil para valorarnos como alternativa.
+
+En I-ME entendemos que la incorporación de nueva tecnología sanitaria no se limita a la selección de un equipo. Nuestro objetivo es conocer las necesidades concretas de cada institución y acompañar a nuestros clientes en el diseño de la solución técnica, operativa y económicamente más adecuada para el entorno.
+
+Por ello, le invito a visitarnos e incluso solicitar cotización explícita de aquellos productos de su interés:
+
+https://i-me.com.co
+
+Muchas gracias nuevamente por su atención y por habernos permitido presentarle nuestras soluciones durante ACISE.
+
+Quedamos a su disposición.`;
   const sends = await Promise.all(
     channels.map(channel =>
       callEdgeFunction('comercial-share', {
@@ -372,7 +421,9 @@ async function submit(form: HTMLFormElement): Promise<void> {
           recipientEmail: channel === 'email' ? draft.email : undefined,
           recipientPhone: channel === 'whatsapp' ? draft.telefono : undefined,
           productIds: chosen.map(product => product.id),
-          message,
+          message: channel === 'whatsapp' ? whatsappMessage : emailMessage,
+          campaign: 'acise2026',
+          messageOnly: channel === 'whatsapp',
           consentContact: true,
           idempotencyKey: `${key}-${channel}`,
         },
@@ -419,7 +470,7 @@ async function load(): Promise<void> {
   const { data, error } = await supabase
     .from('productos')
     .select(
-      'id,slug,nombre_es,nombre_en,descripcion_corta_es,imagen_principal,ficha_pdf,atributos,familias(nombre_es,slug)'
+      'id,slug,nombre_es,nombre_en,sku,descripcion_corta_es,imagen_principal,ficha_pdf,atributos,familias(nombre_es,slug)'
     )
     .eq('activo', true)
     .order('orden', { ascending: true })

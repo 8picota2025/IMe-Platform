@@ -246,6 +246,7 @@ export interface EmailAdjunto {
 export interface EnviarEmailOpciones {
   failOnInactive?: boolean;
   idempotencyKey?: string;
+  subjectOverride?: string;
 }
 
 /**
@@ -289,7 +290,7 @@ export async function enviarEmailPlantilla(
   }
 
   const from = Deno.env.get('MAILER_FROM') ?? 'pedidos@i-me.com.co';
-  const subject = render(asunto, vars);
+  const subject = render(options.subjectOverride ?? asunto, vars);
   const body = render(html, vars);
   const resultados: string[] = [];
   let todosOk = true;

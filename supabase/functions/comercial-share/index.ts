@@ -66,6 +66,8 @@ interface ShareBody {
   phoneCountryCode?: string;
   productIds?: string[];
   message?: string;
+  campaign?: string;
+  messageOnly?: boolean;
   consentContact?: boolean;
   idempotencyKey?: string;
 }
@@ -414,7 +416,14 @@ async function handleCreate(
       'comercial_catalogo',
       [recipientEmail as string],
       vars,
-      shareId
+      shareId,
+      [],
+      body.campaign === 'acise2026'
+        ? {
+            subjectOverride:
+              'Gracias por conocernos en ACISE | Información de los equipos seleccionados',
+          }
+        : undefined
     );
     if (envio.ok) {
       status = 'sent';
@@ -425,17 +434,18 @@ async function handleCreate(
       errorMessage = envio.detalle ?? 'Fallo el envio del email';
     }
   } else {
-    const textoPlano =
-      `Hola ${recipientName}, soy ${nombreComercial} de I-ME.\n` +
-      `${message || ''}\n\n` +
-      `Te comparto estos productos de nuestro catalogo:\n${buildProductListText(
-        snapshots.map(s => ({
-          nombre: s.product_name_snapshot,
-          url: s.product_url_snapshot,
-          sku: s.product_sku_snapshot,
-        }))
-      )}\n\n` +
-      `Cualquier duda, quedo atento(a). ${profile.telefono ?? ''}`;
+    const textoPlano = body.messageOnly
+      ? `Hola ${recipientName}, soy ${nombreComercial}, asesor comercial de I-ME | International Medical Enterprise.\n\n${message || ''}`
+      : `Hola ${recipientName}, soy ${nombreComercial} de I-ME.\n` +
+        `${message || ''}\n\n` +
+        `Te comparto estos productos de nuestro catalogo:\n${buildProductListText(
+          snapshots.map(s => ({
+            nombre: s.product_name_snapshot,
+            url: s.product_url_snapshot,
+            sku: s.product_sku_snapshot,
+          }))
+        )}\n\n` +
+        `Cualquier duda, quedo atento(a). ${profile.telefono ?? ''}`;
     whatsappUrl = `https://wa.me/${(recipientPhoneE164 as string).replace('+', '')}?text=${encodeURIComponent(
       textoPlano.trim()
     )}`;
