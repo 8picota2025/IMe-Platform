@@ -47,7 +47,7 @@
         },
         {
           "q": "¿Cuánto tarda en llegar una cotización o propuesta comercial?",
-          "a": "Una vez recibida su solicitud, un asesor comercial especializado en equipamiento biomédico revisa su requerimiento y le envía la propuesta en menos de 24 horas hábiles. Puede solicitarla por el formulario de contacto, por WhatsApp al +57 310 333 2607 o directamente desde la ficha de cada producto."
+          "a": "Una vez recibida su solicitud, un asesor comercial especializado en equipamiento biomédico revisa su requerimiento y le envía la propuesta en menos de 24 horas hábiles. Puede solicitarla por el formulario de contacto, por WhatsApp al +57 313 724 7353 o directamente desde la ficha de cada producto."
         }
       ],
       "en": [
@@ -77,14 +77,14 @@
         },
         {
           "q": "How long does it take to receive a quotation or commercial proposal?",
-          "a": "Once we receive your request, a sales advisor specialized in biomedical equipment reviews your requirements and sends you a proposal within 24 business hours. You can request it via the contact form, WhatsApp at +57 310 333 2607, or directly from each product page."
+          "a": "Once we receive your request, a sales advisor specialized in biomedical equipment reviews your requirements and sends you a proposal within 24 business hours. You can request it via the contact form, WhatsApp at +57 313 724 7353, or directly from each product page."
         }
       ]
     },
     "quienes_somos": "Quiénes somos\n        Tecnología médica que transforma instituciones de salud\n        I-ME International Medical Enterprise es una empresa colombiana con más de 15 años de experiencia en la distribución, instalación y mantenimiento de equipos biomédicos de alta tecnología para el sector salud.\n        Trabajamos con los principales fabricantes del mundo para llevar soluciones certificadas internacionalmente a hospitales, clínicas, centros médicos y consultorios en todo el territorio colombiano.\n\n        \n          \n             Visión\n            Ser la empresa líder en Colombia en distribución de tecnología biomédica de vanguardia.\n          \n          \n             Misión\n            Equipar las instituciones de salud con tecnología certificada que mejore la atención al paciente.\n          \n          \n             Calidad\n            Todos nuestros equipos cuentan con certificaciones CE, FDA e INVIMA vigentes.\n          \n          \n             Compromiso\n            Soporte técnico especializado durante toda la vida útil de cada equipo.",
     "vision": null,
     "mision": null,
-    "whatsapp": "https://wa.me/573103332607",
+    "whatsapp": "https://wa.me/573137247353",
     "email": "info@i-me.com.co",
     "copyright": "© 2025 I-ME International Medical Enterprise. Todos los derechos reservados."
   },
@@ -93,7 +93,7 @@
     "servicios": []
   },
   "contacto": {
-    "whatsapp": "https://wa.me/573103332607",
+    "whatsapp": "https://wa.me/573137247353",
     "email": "info@i-me.com.co",
     "telefono": null,
     "direccion": null,
@@ -143,7 +143,7 @@
     ]
   },
   "footer": {
-    "html_reducido": "Empresa colombiana especializada en distribución y soporte de equipos biomédicos certificados internacionalmente.\n\n\"Equipamos tu misión de salvar vidas.\"\nNAVEGACIÓN\nInicio\nCatálogo\nServicios\nContacto\nSERVICIOS\nVenta de equipos\nSoporte técnico\nFinanciamiento\nAsesoría biomédica\nCONTACTO\n+57 310 333 2607\nWhatsApp\ninfo@i-me.com.co\n© 2025 I-ME International Medical Enterprise. Todos los derechos reservados.\nColombia · Equipos Biomédicos Certificados INVIMA",
+    "html_reducido": "Empresa colombiana especializada en distribución y soporte de equipos biomédicos certificados internacionalmente.\n\n\"Equipamos tu misión de salvar vidas.\"\nNAVEGACIÓN\nInicio\nCatálogo\nServicios\nContacto\nSERVICIOS\nVenta de equipos\nSoporte técnico\nFinanciamiento\nAsesoría biomédica\nCONTACTO\n+57 313 724 7353\nWhatsApp\ninfo@i-me.com.co\n© 2025 I-ME International Medical Enterprise. Todos los derechos reservados.\nColombia · Equipos Biomédicos Certificados INVIMA",
     "links": [
       {
         "texto": "Inicio",
@@ -178,12 +178,12 @@
         "href": "servicios.html#asesoria"
       },
       {
-        "texto": "+57 310 333 2607",
-        "href": "tel:+573103332607"
+        "texto": "+57 313 724 7353",
+        "href": "tel:+573137247353"
       },
       {
         "texto": "WhatsApp",
-        "href": "https://wa.me/573103332607"
+        "href": "https://wa.me/573137247353"
       },
       {
         "texto": "info@i-me.com.co",

@@ -27,7 +27,7 @@ const icono = { exito: '✓', pendiente: '…', fallo: '✕', resultado: '…' }
 // CTA WhatsApp directo para exito/fallo (TAREA 5 v1.1) — el mensaje se
 // completa con la referencia del pedido en el script si está disponible.
 const mostrarWhatsapp = tipo === 'exito' || tipo === 'fallo' || tipo === 'resultado';
-const whatsappHref = `https://wa.me/573103332607?text=${encodeURIComponent(t(locale, 'pago.whatsapp_mensaje'))}`;
+const whatsappHref = `https://wa.me/573137247353?text=${encodeURIComponent(t(locale, 'pago.whatsapp_mensaje'))}`;
 ---
 
 <section class="resultado-pago container">
@@ -187,7 +187,7 @@ const whatsappHref = `https://wa.me/573103332607?text=${encodeURIComponent(t(loc
     const whatsappEl = document.getElementById('resultado-pago-whatsapp');
     if (whatsappEl instanceof HTMLAnchorElement) {
       const mensaje = `${t(locale, 'pago.whatsapp_mensaje')}\n\n${t(locale, 'pago.referencia')}: ${referencia}`;
-      whatsappEl.href = `https://wa.me/573103332607?text=${encodeURIComponent(mensaje)}`;
+      whatsappEl.href = `https://wa.me/573137247353?text=${encodeURIComponent(mensaje)}`;
     }
 
     const resultado = await consultarPedido(referencia);

@@ -28,7 +28,7 @@ describe('asesor knowledge', () => {
   it('responde contacto con los canales oficiales', () => {
     const respuesta = buildAsesorStaticFallback('es', '¿Cuál es su WhatsApp?');
 
-    expect(respuesta).toContain('310 333 2607');
+    expect(respuesta).toContain('313 724 7353');
     expect(respuesta).not.toContain('313 867 4059');
     expect(respuesta).toContain('info@i-me.com.co');
   });

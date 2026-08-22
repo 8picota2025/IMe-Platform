@@ -299,7 +299,7 @@ export function buildOrganizationJsonLd(): Record<string, unknown> {
         contactOption: 'TollFree',
       },
     ],
-    sameAs: ['https://wa.me/573103332607'],
+    sameAs: ['https://wa.me/573137247353'],
     areaServed: {
       '@type': 'Country',
       name: 'Colombia',

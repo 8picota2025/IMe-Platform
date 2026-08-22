@@ -51,7 +51,7 @@ export interface ValidationResult {
   errors: Record<string, string>;
 }
 
-const WHATSAPP_E164 = '573103332607';
+const WHATSAPP_E164 = '573137247353';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const OPTIONAL_TURNSTILE_CAMPAIGNS = new Set<CampaignLandingId>(['pdf_descarga', 'evento']);
 

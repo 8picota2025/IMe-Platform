@@ -27,7 +27,7 @@ HECHOS BASELINE A VERIFICAR:
 - 8 familias esperadas: monitores, cardiologia, sala-cirugia, neonatologia, ultrasonido, soluciones-iv, mobiliario, anestesia.
 - 8 productos destacados esperados en home: Monitor Multiparamétrico UCI Avanzado; Ecógrafo Color Doppler; Incubadora Neonatal de Transporte; Bomba de Infusión Volumétrica; Desfibrilador Bifásico; Máquina de Anestesia; Sistema Radiológico WR-3D Vertical; Sistema Radiológico WR-3D 3 en 1.
 - Idioma real: español. EN no existe y debe quedar marcado como COPY_CLIENTE_REVISAR en fases futuras.
-- Datos institucionales esperados: slogan "Equipamos tu misión de salvar vidas."; WhatsApp +57 310 333 2607; email info@i-me.com.co; certificaciones CE, FDA, INVIMA, ISO 13485 si aparecen; métricas 24+ categorías, 100% INVIMA, 32 Dpt, +15 años si aparecen.
+- Datos institucionales esperados: slogan "Equipamos tu misión de salvar vidas."; WhatsApp +57 313 724 7353; email info@i-me.com.co; certificaciones CE, FDA, INVIMA, ISO 13485 si aparecen; métricas 24+ categorías, 100% INVIMA, 32 Dpt, +15 años si aparecen.
 - Assets esperados: /77/assets/img/logo-ime.png; /assets/img/portfolio/ImgNN.jpg; /assets/img/wr3d-*.webp; assets/video/quirofano-completo.mp4.
 - Financiación desde /1old: planes flexibles, plazos hasta 60 meses, sin codeudor para instituciones de salud, financiamiento para creación de clínicas y salas de cirugía. No hay tasas reales.
 

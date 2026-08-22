@@ -69,7 +69,7 @@ describe('validateCommercialLead', () => {
       nombre,
       institucion: 'Clínica Norte',
       ciudad: 'Medellín',
-      telefono: '3103332607',
+      telefono: '3137247353',
       email: 'ana@clinica.co',
       tipo_proyecto: 'registro_evento',
       horizonte: 'exploracion',
@@ -84,7 +84,7 @@ describe('validateCommercialLead', () => {
 
   it.each([
     ['telefono', { email: 'ana@clinica.co' }],
-    ['email', { telefono: '3103332607' }],
+    ['email', { telefono: '3137247353' }],
   ])('exige %s en registros de evento', (field, contact) => {
     const r = validateCommercialLead({
       nombre: 'Ana López',
@@ -152,7 +152,7 @@ describe('buildWhatsAppMessage', () => {
       consentimiento: true,
       campaign: 'esterilizacion',
     });
-    expect(url.startsWith('https://wa.me/573103332607?text=')).toBe(true);
+    expect(url.startsWith('https://wa.me/573137247353?text=')).toBe(true);
     expect(url.toLowerCase()).not.toContain('precio_costo');
     const forbiddenRole = ['service', 'role'].join('_');
     expect(url.toLowerCase()).not.toContain(forbiddenRole);

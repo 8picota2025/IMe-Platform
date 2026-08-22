@@ -1049,7 +1049,7 @@ function buildShortlistComparisonResponse(params: {
           'Shortlist comparison (same options only):',
           ...lineas,
           '',
-          'If you want, we can prepare a quote or continue on WhatsApp (+57 313 867 4059).',
+          'If you want, we can prepare a quote or continue on WhatsApp (+57 313 724 7353).',
         ].join('\n')
       : [
           `De las opciones que ya le sugerí, la más completa/versátil para lo que plantea es **${winner.nombre}**: ${winner.descripcion_corta || winner.tipo?.nombre || ''}`,
@@ -1057,7 +1057,7 @@ function buildShortlistComparisonResponse(params: {
           'Comparación de la misma shortlist (sin cambiar de línea):',
           ...lineas,
           '',
-          'Si quiere, armamos la cotización o seguimos por WhatsApp (+57 313 867 4059).',
+          'Si quiere, armamos la cotización o seguimos por WhatsApp (+57 313 724 7353).',
         ].join('\n');
 
   const tipo = inferHandoffType(params.mensaje);

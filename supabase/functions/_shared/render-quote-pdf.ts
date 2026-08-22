@@ -1011,7 +1011,7 @@ function drawFooterBar(page: PDFPage, font: PDFFont, whatsappIcon: PDFImage | nu
     color: WHITE,
   });
 
-  const phone = '+57 3103332607';
+  const phone = '+57 3137247353';
   const phoneSize = 11;
   const iconSize = 12;
   const gap = 4;

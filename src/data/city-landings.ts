@@ -74,11 +74,11 @@ export const CITY_LANDINGS: CityLanding[] = [
       'Based in Envigado, I-ME serves Aburrá Valley and Antioquia institutions with operational proximity: biomedical catalog, agreed installation and technical support.',
     body_es: [
       'Para Medellín priorizamos tiempos de respuesta en soporte y claridad de tipología (monitores, anestesia, neonatología, esterilización).',
-      'Puede visitarnos o coordinar asesoría remota; el NAP oficial es CL 28 SUR 29 83, Envigado, Antioquia — +57 310 333 2607 — info@i-me.com.co.',
+      'Puede visitarnos o coordinar asesoría remota; el NAP oficial es CL 28 SUR 29 83, Envigado, Antioquia — +57 313 724 7353 — info@i-me.com.co.',
     ],
     body_en: [
       'For Medellín we prioritize support response and clear typology (monitors, anesthesia, neonatology, sterilization).',
-      'Visit or book remote advisory; official NAP is CL 28 SUR 29 83, Envigado, Antioquia — +57 310 333 2607 — info@i-me.com.co.',
+      'Visit or book remote advisory; official NAP is CL 28 SUR 29 83, Envigado, Antioquia — +57 313 724 7353 — info@i-me.com.co.',
     ],
     focusFamilias: ['monitores', 'anestesia', 'neonatologia', 'sala-cirugia'],
   },

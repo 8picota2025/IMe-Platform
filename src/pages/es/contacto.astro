@@ -10,7 +10,7 @@ import '../../styles/contact-spacing.css';
 const locale = 'es';
 const title = buildPageTitle('Contacto — Solicitar Cotización');
 const description =
-  'Contáctanos para solicitar cotización de equipos biomédicos. Respondemos en menos de 24 horas. Tel: +57 310 333 2607 | info@i-me.com.co';
+  'Contáctanos para solicitar cotización de equipos biomédicos. Respondemos en menos de 24 horas. Tel: +57 313 724 7353 | info@i-me.com.co';
 const canonical = buildCanonical('/es/contacto');
 ---
 
@@ -146,7 +146,7 @@ const canonical = buildCanonical('/es/contacto');
           <a
             id="form-whatsapp-fallback"
             class="form-fallback"
-            href="https://wa.me/573103332607"
+            href="https://wa.me/573137247353"
             target="_blank"
             rel="noopener noreferrer"
             data-commercial-origin="contact_form_fallback"
@@ -169,7 +169,7 @@ const canonical = buildCanonical('/es/contacto');
           <div class="contacto-info__icon" aria-hidden="true">📞</div>
           <div>
             <p class="contacto-info__label">Teléfono</p>
-            <a href="tel:+573103332607" class="contacto-info__value">+57 310 333 2607</a>
+            <a href="tel:+573137247353" class="contacto-info__value">+57 313 724 7353</a>
           </div>
         </div>
 
@@ -178,7 +178,7 @@ const canonical = buildCanonical('/es/contacto');
           <div>
             <p class="contacto-info__label">WhatsApp</p>
             <a
-              href="https://wa.me/573103332607"
+              href="https://wa.me/573137247353"
               target="_blank"
               rel="noopener noreferrer"
               class="contacto-info__value"
@@ -469,7 +469,7 @@ const canonical = buildCanonical('/es/contacto');
           `Productos: ${String(data.get('productos') ?? '').trim() || 'Por definir'}`,
           `Detalle: ${String(data.get('mensaje') ?? '').trim()}`,
         ].join('\n');
-        whatsappFallback.href = `https://wa.me/573103332607?text=${encodeURIComponent(fallbackMessage)}`;
+        whatsappFallback.href = `https://wa.me/573137247353?text=${encodeURIComponent(fallbackMessage)}`;
         whatsappFallback.hidden = false;
       }
     }

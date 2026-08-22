@@ -60,7 +60,7 @@ const ES_SITE_AND_LEGAL_KNOWLEDGE = `CONTEXTO DEL SITIO Y DE I-ME
 - El sitio publica informacion sobre catalogo de productos, servicios, financiamiento orientativo, contacto, contenido editorial y paginas legales.
 - Servicios destacados del sitio: venta y distribucion, instalacion y puesta en marcha, soporte tecnico preventivo y correctivo, calibracion y verificacion metrologica, repuestos y consumibles, financiamiento orientativo y asesoria biomedica.
 - Cobertura declarada: 32 departamentos de Colombia. Experiencia declarada: mas de 15 anos.
-- Canales comerciales publicados: WhatsApp +57 310 333 2607, correo info@i-me.com.co y formulario de contacto del sitio.
+- Canales comerciales publicados: WhatsApp +57 313 724 7353, correo info@i-me.com.co y formulario de contacto del sitio.
 - Financiamiento: el sitio comunica planes orientativos para instituciones de salud, con referencia a plazos de hasta 60 meses; cualquier aprobacion, tasa, plazo final o condicion vinculante depende de validacion comercial y propuesta formal.
 - Certificaciones y registros: el sitio comunica equipos biomédicos certificados y menciona registros INVIMA y certificaciones CE/FDA cuando correspondan. Cada certificado, registro sanitario, vigencia, alcance de garantía y compatibilidad normativa debe confirmarse por producto en ficha técnica, soporte del fabricante o cotización formal.
 - Garantías y soporte: la garantía, instalación, puesta en marcha, capacitación, mantenimiento, calibración, repuestos y soporte se confirman según el producto, ciudad, alcance contratado y documentación del fabricante.
@@ -82,7 +82,7 @@ const EN_SITE_AND_LEGAL_KNOWLEDGE = `SITE AND I-ME CONTEXT
 - The website publishes information about the product catalog, services, indicative financing, contact channels, editorial content and legal pages.
 - Main services described on the site: sale and distribution, installation and commissioning, preventive and corrective technical support, calibration and metrological verification, spare parts and consumables, indicative financing and biomedical advisory.
 - Declared coverage: Colombia's 32 departments. Declared experience: more than 15 years.
-- Published commercial channels: WhatsApp +57 310 333 2607, email info@i-me.com.co and the website contact form.
+- Published commercial channels: WhatsApp +57 313 724 7353, email info@i-me.com.co and the website contact form.
 - Financing: the site communicates indicative plans for healthcare institutions, with references to terms up to 60 months; any approval, rate, final term or binding condition depends on commercial validation and a formal proposal.
 - Certifications and registrations: the site communicates certified biomedical equipment and mentions INVIMA registrations and CE/FDA certifications where applicable. Each certificate, sanitary registration, validity, warranty scope and regulatory compatibility must be confirmed per product through the technical sheet, manufacturer support or formal quotation.
 - Warranties and support: warranty, installation, commissioning, training, maintenance, calibration, spare parts and support are confirmed according to the product, city, contracted scope and manufacturer documentation.
@@ -153,7 +153,7 @@ export function buildAsesorStaticFallback(
     }
 
     if (wantsServices || wantsContact) {
-      return 'I-ME states that it provides sale and distribution of biomedical equipment, installation and commissioning, preventive and corrective technical support, calibration and metrological verification, spare parts and consumables, indicative financing, and biomedical advisory. The published commercial channels are WhatsApp +57 310 333 2607, email info@i-me.com.co, and the website contact form.';
+      return 'I-ME states that it provides sale and distribution of biomedical equipment, installation and commissioning, preventive and corrective technical support, calibration and metrological verification, spare parts and consumables, indicative financing, and biomedical advisory. The published commercial channels are WhatsApp +57 313 724 7353, email info@i-me.com.co, and the website contact form.';
     }
 
     if (wantsContent) {
@@ -181,7 +181,7 @@ export function buildAsesorStaticFallback(
     }
 
     if (wantsServices || wantsContact) {
-      return 'I-ME publica que ofrece venta y distribución de equipos biomédicos, instalación y puesta en marcha, soporte técnico preventivo y correctivo, calibración y verificación metrológica, repuestos y consumibles, financiamiento orientativo y asesoría biomédica. Los canales comerciales publicados son WhatsApp +57 310 333 2607, correo info@i-me.com.co y el formulario de contacto del sitio.';
+      return 'I-ME publica que ofrece venta y distribución de equipos biomédicos, instalación y puesta en marcha, soporte técnico preventivo y correctivo, calibración y verificación metrológica, repuestos y consumibles, financiamiento orientativo y asesoría biomédica. Los canales comerciales publicados son WhatsApp +57 313 724 7353, correo info@i-me.com.co y el formulario de contacto del sitio.';
     }
 
     if (wantsContent) {

@@ -143,7 +143,7 @@ BOOLEAN NOT NULL DEFAULT true` + `disponible_actualizado_at TIMESTAMPTZ` y
       `docs/decisions/0003-habeas-data-equivalencia.md`
 - [x] Stripe/INTL: implementado desde F4, activación real diferida — ver BACKLOG_V2.md
       §Comercio
-- [x] CTA WhatsApp (+57 310 333 2607) en páginas de resultado de pago `exito`/`fallo`
+- [x] CTA WhatsApp (+57 313 724 7353) en páginas de resultado de pago `exito`/`fallo`
       (TAREA 5 v1.1), con la referencia del pedido añadida automáticamente al mensaje
       prellenado una vez resuelve `consultarPedido()` — `ResultadoPago.astro`
 - [x] Facturación electrónica DIAN + IVA/retenciones automáticas (2026-06-18):
