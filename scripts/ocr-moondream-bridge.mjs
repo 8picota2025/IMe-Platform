@@ -19,9 +19,19 @@ import { writeFile, unlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { randomBytes } from 'node:crypto';
+import {
+  assertSafeImageUrl,
+  isBridgeAuthorized,
+  resolveAllowedImageHosts,
+} from './lib/ocr-bridge-security.mjs';
 
 const PORT = Number(process.env.OCR_BRIDGE_PORT || 3850);
 const SECRET = (process.env.OCR_BRIDGE_SECRET || '').trim();
+const BIND_HOST = (process.env.OCR_BRIDGE_BIND || '127.0.0.1').trim() || '127.0.0.1';
+const ALLOWED_IMAGE_HOSTS = resolveAllowedImageHosts(
+  process.env.SUPABASE_URL,
+  process.env.OCR_BRIDGE_ALLOWED_HOSTS
+);
 const OLLAMA = (process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434').replace(/\/+$/, '');
 const VISION_FALLBACK = process.env.LLM_VISION_MODEL || 'moondream';
 const TEXT_MODEL = process.env.OCR_TEXT_MODEL || 'qwen3-imeia';
@@ -93,10 +103,7 @@ function unauthorized(res) {
 }
 
 function checkAuth(req) {
-  if (!SECRET) return true;
-  const h = req.headers.authorization || '';
-  const token = h.replace(/^Bearer\s+/i, '').trim();
-  return token === SECRET;
+  return isBridgeAuthorized(SECRET, req.headers.authorization);
 }
 
 async function readBody(req) {
@@ -185,10 +192,13 @@ function normalizeExtract(raw) {
 }
 
 async function fetchImageBase64(imageUrl) {
+  const safe = assertSafeImageUrl(imageUrl, ALLOWED_IMAGE_HOSTS);
+  if (!safe.ok) throw new Error(safe.error);
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), 60_000);
   try {
-    const res = await fetch(imageUrl, { signal: ctrl.signal });
+    // No seguir redirects: un 302 a 127.0.0.1/metadata anularía el allowlist.
+    const res = await fetch(safe.url, { signal: ctrl.signal, redirect: 'error' });
     if (!res.ok) throw new Error(`Descarga imagen HTTP ${res.status}`);
     const buf = Buffer.from(await res.arrayBuffer());
     if (buf.length > 8 * 1024 * 1024) throw new Error('Imagen > 8 MB');
@@ -525,8 +535,15 @@ const server = http.createServer(async (req, res) => {
   json(res, 404, { error: 'not found' });
 });
 
-server.listen(PORT, '0.0.0.0', () => {
+if (!SECRET) {
+  console.error(
+    '[ocr-bridge] OCR_BRIDGE_SECRET es obligatorio (fail-closed). El túnel Cloudflare no debe quedar abierto sin auth.'
+  );
+  process.exit(1);
+}
+
+server.listen(PORT, BIND_HOST, () => {
   console.log(
-    `[ocr-bridge] :${PORT} engine=${ENGINE_PREF} engines=${resolveEngines().join(',')} gemini=${GEMINI_KEY ? 'yes' : 'no'} secret=${SECRET ? 'yes' : 'no'}`
+    `[ocr-bridge] ${BIND_HOST}:${PORT} engine=${ENGINE_PREF} engines=${resolveEngines().join(',')} gemini=${GEMINI_KEY ? 'yes' : 'no'} secret=yes hosts=${ALLOWED_IMAGE_HOSTS.join(',')}`
   );
 });
