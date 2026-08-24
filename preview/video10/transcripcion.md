@@ -8,7 +8,7 @@ Este archivo **no inventa copy**. Solo:
 - reordena bloques retóricos (apertura → alianzas → compra → IME → líneas de producto → financiación → CTA)
 - restaura ortografía (tildes) perdidas en el dictado (`tecnolgica` → `tecnológica`)
 
-Estado: preview low-res pendiente de validación. No generar cut final hasta aprobar este guion.
+Estado: transcripción completa (cola Glass vacía). Preview low-res en [`preview-480p.mp4`](./preview-480p.mp4). No generar cut final hasta aprobar este guion.
 
 ---
 
