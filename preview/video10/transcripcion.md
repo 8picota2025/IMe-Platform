@@ -8,7 +8,7 @@ Este archivo **no inventa copy**. Solo:
 - reordena bloques retóricos (apertura → alianzas → compra → IME → líneas de producto → financiación → CTA)
 - restaura ortografía (tildes) perdidas en el dictado (`tecnolgica` → `tecnológica`)
 
-Estado: transcripción actualizada con el cierre de marca. Preview low-res en [`preview-480p.mp4`](./preview-480p.mp4). No generar cut final hasta aprobar este guion.
+Estado: transcripción con cierre de marca. Preview 5 s en [`preview-480p.mp4`](./preview-480p.mp4). Cut OpenMontage (6/8) en [`video10-openmontage.mp4`](./video10-openmontage.mp4). Faltan escenas 4 y 6 por créditos.
 
 ---
 

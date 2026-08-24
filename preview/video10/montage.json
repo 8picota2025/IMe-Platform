@@ -1,0 +1,35 @@
+{
+  "title": "IME video10 — OpenMontage (6/8 escenas)",
+  "clips": [
+    {
+      "source": "scenes/s00.mp4",
+      "duration": 15.072,
+      "label": "s00 apertura + alianzas"
+    },
+    {
+      "source": "scenes/s01.mp4",
+      "duration": 20.041667,
+      "label": "s01 compra / equipo correcto"
+    },
+    {
+      "source": "scenes/s02.mp4",
+      "duration": 15.072,
+      "label": "s02 entra IME + capacidades"
+    },
+    {
+      "source": "scenes/s03.mp4",
+      "duration": 12.041667,
+      "label": "s03 líneas de producto"
+    },
+    {
+      "source": "scenes/s05.mp4",
+      "duration": 20.064,
+      "label": "s05 financiación"
+    },
+    {
+      "source": "scenes/s07.mp4",
+      "duration": 20.064,
+      "label": "s07 CTA + lockup"
+    }
+  ]
+}
