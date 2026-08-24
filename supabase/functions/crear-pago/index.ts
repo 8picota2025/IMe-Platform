@@ -33,6 +33,7 @@ import {
   hashTokenSha256,
   ofertaCompleta,
   parseLineasOferta,
+  shouldClaimCotizacionAfterCheckout,
   tokenExpirado,
   type CotizacionOfertaRow,
   type CotizacionLineaOferta,
@@ -979,18 +980,6 @@ Deno.serve(
       return internalError(`error creando pedido: ${insertError.message}`, origin);
     }
 
-    if (lineasCotizacion && cotizacionId) {
-      await supabase
-        .from('solicitudes_cotizacion')
-        .update({
-          estado: 'convertida',
-          pedido_id: pedidoId,
-          precio_total_ofertado: calcularTotalOfertado(lineasCotizacion),
-          leida: true,
-        })
-        .eq('id', cotizacionId);
-    }
-
     if (fiscalCliente.solicitar_factura_electronica) {
       await supabase.from('facturas_electronicas').upsert(
         {
@@ -1047,6 +1036,26 @@ Deno.serve(
         502,
         origin
       );
+    }
+
+    // Claim cotización solo tras checkout OK (igual que convertir-cotizacion-pedido).
+    // Si se marca convertida antes y Wompi/Stripe falla, el cliente queda con
+    // COTIZACION_YA_CONVERTIDA y sin checkout_url — oferta muerta sin reintento.
+    if (lineasCotizacion && cotizacionId && shouldClaimCotizacionAfterCheckout(resultado.ok)) {
+      const { error: claimError } = await supabase
+        .from('solicitudes_cotizacion')
+        .update({
+          estado: 'convertida',
+          pedido_id: pedidoId,
+          precio_total_ofertado: calcularTotalOfertado(lineasCotizacion),
+          leida: true,
+        })
+        .eq('id', cotizacionId)
+        .in('estado', ['enviada', 'respondida'])
+        .is('pedido_id', null);
+      if (claimError) {
+        console.warn('crear-pago: checkout ok pero claim cotizacion fallo', claimError.message);
+      }
     }
 
     const { error: updateCheckoutError } = await supabase
