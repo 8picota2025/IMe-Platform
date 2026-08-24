@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>IME video10 — preview 480p</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0b1220;
+        --fg: #f4f1ea;
+        --muted: #b7c0cc;
+      }
+      body {
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        background: var(--bg);
+        color: var(--fg);
+        display: grid;
+        place-items: center;
+        min-height: 100vh;
+        padding: 24px;
+      }
+      main {
+        max-width: 960px;
+        width: 100%;
+      }
+      h1 {
+        font-size: 1.25rem;
+        font-weight: 600;
+      }
+      p {
+        color: var(--muted);
+        line-height: 1.5;
+      }
+      video {
+        width: 100%;
+        background: #000;
+        border-radius: 8px;
+      }
+      a {
+        color: #d4af7a;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>IME video10 — preview low-res (5 s, 480p)</h1>
+      <p>
+        Locución:
+        «En salud, una decisión tecnológica nunca es solo una compra. Es una
+        oportunidad para construir soluciones juntos.»
+      </p>
+      <video controls playsinline preload="metadata">
+        <source src="./preview-480p.mp4" type="video/mp4" />
+        <source
+          src="https://d8j0ntlcm91z4.cloudfront.net/user_3F8roacBthPxBnPzKbIAwYTMBvz/hf_20260824_175244_26f45241-0950-4da7-88d6-5c657e94058d.mp4"
+          type="video/mp4"
+        />
+      </video>
+      <p>
+        <a href="./preview-480p.mp4">Descargar MP4</a>
+        ·
+        <a href="./transcripcion.md">Guion</a>
+      </p>
+    </main>
+  </body>
+</html>
