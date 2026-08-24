@@ -15,6 +15,7 @@ import {
   resultadoPlantillaInactiva,
   sanitizarLineasComercial,
   formatQuoteMoney,
+  shouldClaimCotizacionAfterCheckout,
   splitNombreApellido,
   tokenExpirado,
 } from './cotizacion-oferta';
@@ -215,5 +216,10 @@ describe('cotizacion-oferta', () => {
     expect(quoteEditable('nueva')).toBe(true);
     expect(quoteEditable('enviada')).toBe(false);
     expect(quoteEditable('convertida')).toBe(false);
+  });
+
+  it('shouldClaimCotizacionAfterCheckout only after gateway success', () => {
+    expect(shouldClaimCotizacionAfterCheckout(false)).toBe(false);
+    expect(shouldClaimCotizacionAfterCheckout(true)).toBe(true);
   });
 });

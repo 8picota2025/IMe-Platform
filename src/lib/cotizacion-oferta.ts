@@ -62,6 +62,16 @@ export interface CotizacionOfertaRow {
 
 const ESTADOS_FORMALIZABLES = new Set(['enviada', 'respondida']);
 
+/**
+ * Online checkout (crear-pago / convertir) must mark the quote `convertida`
+ * only after `gateway.crearCheckout` succeeds. Claiming earlier leaves
+ * COTIZACION_YA_CONVERTIDA + pedido `error_verificacion` with no checkout_url
+ * when Wompi/Stripe blips — permanent stuck formalization.
+ */
+export function shouldClaimCotizacionAfterCheckout(checkoutOk: boolean): boolean {
+  return checkoutOk === true;
+}
+
 export function parseLineasOferta(productos: unknown): CotizacionLineaOferta[] {
   if (!Array.isArray(productos)) return [];
   const out: CotizacionLineaOferta[] = [];
