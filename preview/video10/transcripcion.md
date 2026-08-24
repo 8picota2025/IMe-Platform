@@ -8,7 +8,7 @@ Este archivo **no inventa copy**. Solo:
 - reordena bloques retóricos (apertura → alianzas → compra → IME → líneas de producto → financiación → CTA)
 - restaura ortografía (tildes) perdidas en el dictado (`tecnolgica` → `tecnológica`)
 
-Estado: transcripción completa (cola Glass vacía). Preview low-res en [`preview-480p.mp4`](./preview-480p.mp4). No generar cut final hasta aprobar este guion.
+Estado: transcripción actualizada con el cierre de marca. Preview low-res en [`preview-480p.mp4`](./preview-480p.mp4). No generar cut final hasta aprobar este guion.
 
 ---
 
@@ -68,6 +68,8 @@ Descubra todo lo que podemos hacer juntos.
 Y quizá ese próximo avance empiece aquí.
 Cuando llegue el momento de su próxima decisión tecnológica, hablemos.
 
+Tecnología, conocimiento, negociación y alianzas para quienes hacen avanzar la salud.
+
 IME — International Medical Enterprise.
 
 ---
@@ -119,6 +121,7 @@ IME — International Medical Enterprise.
 43. IME  International Medical Enterprise.
 44. Explore nuestras soluciones.
 45. No se trata de encontrar un equipo.
+46. Tecnologa, conocimiento, negociacin y alianzas para quienes hacen avanzar la salud.
 
 ---
 
