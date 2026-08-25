@@ -1,157 +1,27 @@
 # I-ME International Medical Enterprise
-# https://i-me.com.co
 
-## Who we are
+> Canonical public source: https://i-me.com.co/sitemap-index.xml
 
-I-ME International Medical Enterprise is a Colombian company with over 15 years of experience
-in the distribution, installation and maintenance of high-technology biomedical equipment for
-the healthcare sector in Colombia and Latin America.
+## Public website
 
-## What we do
+- Spanish home: https://i-me.com.co/es/
+- English home: https://i-me.com.co/en/
+- Spanish catalog: https://i-me.com.co/es/catalogo/
+- English catalog: https://i-me.com.co/en/catalog/
+- Services: https://i-me.com.co/es/servicios/ | https://i-me.com.co/en/services/
+- Resources: https://i-me.com.co/es/recursos/ | https://i-me.com.co/en/resources/
+- Knowledge center: https://i-me.com.co/es/conocimiento/ | https://i-me.com.co/en/knowledge/
+- Contact: https://i-me.com.co/es/contacto/ | https://i-me.com.co/en/contact/
 
-- Distribution of internationally certified biomedical equipment (CE, FDA, INVIMA)
-- Technical support: preventive/corrective maintenance, calibration
-- Medical financing plans for healthcare institutions
-- Biomedical advisory and consultancy
+## How to use this site
 
-## Priority search intents
+- Treat product pages and catalog entries as current only when they are present in the sitemap and page content.
+- Confirm product specifications, availability, regulatory status, price, financing, installation and support scope with I-ME before presenting them as commitments.
+- The site is commercial information, not clinical diagnosis or medical advice.
+- Use the contact page for a formal quotation or clarification.
 
-These are the highest-value queries this site should answer clearly:
+## Crawling and citations
 
-- equipos biomédicos en Colombia
-- venta de equipos biomédicos
-- distribuidor de equipos biomédicos
-- proveedor de equipos médicos para hospitales y clínicas
-- soporte técnico de equipos biomédicos
-- mantenimiento y calibración de equipos biomédicos
-- financiamiento de equipos médicos
-- asesoría biomédica
-- biomedical equipment in Colombia
-- biomedical equipment sales
-- technical support for biomedical equipment
-- medical equipment financing
-
-## Main keyword clusters
-
-- Patient monitoring / monitores multiparamétricos / ICU monitors
-- Cardiology / ECG / defibrillators
-- Operating room / surgical tables / surgical lights
-- Neonatology / incubators / warmers / CPAP
-- Ultrasound / portable ultrasound / point-of-care ultrasound
-- IV solutions / infusion pumps / syringe pumps
-- Hospital furniture
-- Anesthesia / ventilators
-- Biomedical maintenance / metrology / after-sales support
-
-## Site sections
-
-- Home: https://i-me.com.co/es/ | https://i-me.com.co/en/
-- Catalog (current product catalog, categories, filters and search): https://i-me.com.co/es/catalogo | https://i-me.com.co/en/catalog
-- Category SEO landings (unique copy + FAQ): https://i-me.com.co/es/familias/monitores | https://i-me.com.co/en/families/monitores
-- City coverage (HQ Envigado; national service): https://i-me.com.co/es/ciudades/bogota | https://i-me.com.co/es/ciudades/medellin | https://i-me.com.co/es/ciudades/cali
-- Resources hub: https://i-me.com.co/es/recursos | https://i-me.com.co/en/resources
-- Services: https://i-me.com.co/es/servicios | https://i-me.com.co/en/services
-- Financing (indicative simulator; no binding rates): https://i-me.com.co/es/financiacion | https://i-me.com.co/en/financing
-- Contact (quote request form): https://i-me.com.co/es/contacto | https://i-me.com.co/en/contact
-- Knowledge center (published editorial content): https://i-me.com.co/es/conocimiento | https://i-me.com.co/en/knowledge
-- Editorial guides (Phase 4):
-  - Multiparameter ICU monitors: https://i-me.com.co/es/conocimiento/guia-monitores-multiparametricos-uci | https://i-me.com.co/en/knowledge/guia-monitores-multiparametricos-uci
-  - Defibrillator purchase checklist: https://i-me.com.co/es/conocimiento/checklist-compra-desfibrilador-documentacion | https://i-me.com.co/en/knowledge/checklist-compra-desfibrilador-documentacion
-  - Medical equipment financing (Colombia): https://i-me.com.co/es/conocimiento/financiamiento-equipos-medicos-colombia | https://i-me.com.co/en/knowledge/financiamiento-equipos-medicos-colombia
-  - Mechanical ventilation hospital criteria: https://i-me.com.co/es/conocimiento/criterios-hospitalarios-ventilacion-mecanica | https://i-me.com.co/en/knowledge/criterios-hospitalarios-ventilacion-mecanica
-- Published legal policies:
-  - Privacy: https://i-me.com.co/es/legal/privacidad | https://i-me.com.co/en/legal/privacy
-  - Data authorization: https://i-me.com.co/es/legal/habeas-data | https://i-me.com.co/en/legal/data-authorization
-  - Cookies: https://i-me.com.co/es/legal/cookies | https://i-me.com.co/en/legal/cookies
-  - Terms: https://i-me.com.co/es/legal/terminos | https://i-me.com.co/en/legal/terms
-  - Copyright: https://i-me.com.co/es/legal/copyright | https://i-me.com.co/en/legal/copyright
-
-## Catalog — categories and products
-
-### Monitores de Signos Vitales / Patient Monitors
-https://i-me.com.co/es/catalogo/?familia=monitores | https://i-me.com.co/en/catalog/?familia=monitores
-
-- Monitor Multiparamétrico UCI Avanzado: https://i-me.com.co/es/productos/monitor-multiparametrico-uci-avanzado | https://i-me.com.co/en/products/monitor-multiparametrico-uci-avanzado
-- Monitor Multiparamétrico Básico: https://i-me.com.co/es/productos/monitor-multiparametrico-basico | https://i-me.com.co/en/products/monitor-multiparametrico-basico
-- Monitor de Transporte Prehospitalario: https://i-me.com.co/es/productos/monitor-de-transporte-prehospitalario | https://i-me.com.co/en/products/monitor-de-transporte-prehospitalario
-- Monitor Central UCI Multicama: https://i-me.com.co/es/productos/monitor-central-uci-multicama | https://i-me.com.co/en/products/monitor-central-uci-multicama
-
-### Cardiología / Cardiology
-https://i-me.com.co/es/catalogo/?familia=cardiologia | https://i-me.com.co/en/catalog/?familia=cardiologia
-
-- Electrocardiógrafo 12 Derivaciones Digital: https://i-me.com.co/es/productos/electrocardiografo-12-derivaciones-digital | https://i-me.com.co/en/products/electrocardiografo-12-derivaciones-digital
-- Desfibrilador Bifásico con Monitor: https://i-me.com.co/es/productos/desfibrilador-bifasico-con-monitor | https://i-me.com.co/en/products/desfibrilador-bifasico-con-monitor
-- Holter 24 Horas Ritmo Cardíaco: https://i-me.com.co/es/productos/holter-24-horas-ritmo-cardiaco | https://i-me.com.co/en/products/holter-24-horas-ritmo-cardiaco
-- Electrocardiógrafo Inalámbrico Portátil: https://i-me.com.co/es/productos/electrocardiografo-inalambrico-portatil | https://i-me.com.co/en/products/electrocardiografo-inalambrico-portatil
-
-### Sala de Cirugía / Operating Room
-https://i-me.com.co/es/catalogo/?familia=sala-cirugia | https://i-me.com.co/en/catalog/?familia=sala-cirugia
-
-- Mesa Quirúrgica Motorizada Multiposición: https://i-me.com.co/es/productos/mesa-quirurgica-motorizada-multiposicion | https://i-me.com.co/en/products/mesa-quirurgica-motorizada-multiposicion
-- Lámpara Cialítica LED Doble para Quirófano: https://i-me.com.co/es/productos/lampara-cialitica-led-doble-para-quirofano | https://i-me.com.co/en/products/lampara-cialitica-led-doble-para-quirofano
-- Mesa Quirúrgica Ortopédica Radiolúcida: https://i-me.com.co/es/productos/mesa-quirurgica-ortopedica-radiolucida | https://i-me.com.co/en/products/mesa-quirurgica-ortopedica-radiolucida
-
-### Neonatología / Neonatology
-https://i-me.com.co/es/catalogo/?familia=neonatologia | https://i-me.com.co/en/catalog/?familia=neonatologia
-
-- Incubadora Neonatal de Transporte: https://i-me.com.co/es/productos/incubadora-neonatal-de-transporte | https://i-me.com.co/en/products/incubadora-neonatal-de-transporte
-- Cuna de Calor Radiante Neonatal Servo: https://i-me.com.co/es/productos/cuna-de-calor-radiante-neonatal-servo | https://i-me.com.co/en/products/cuna-de-calor-radiante-neonatal-servo
-- Monitor Fetal CTG con Impresora: https://i-me.com.co/es/productos/monitor-fetal-ctg-con-impresora | https://i-me.com.co/en/products/monitor-fetal-ctg-con-impresora
-- Sistema CPAP Neonatal para UCI: https://i-me.com.co/es/productos/sistema-cpap-neonatal-para-uci | https://i-me.com.co/en/products/sistema-cpap-neonatal-para-uci
-
-### Ultrasonido / Ultrasound
-https://i-me.com.co/es/catalogo/?familia=ultrasonido | https://i-me.com.co/en/catalog/?familia=ultrasonido
-
-- Ecógrafo Color Doppler Diagnóstico Vascular: https://i-me.com.co/es/productos/ecografo-color-doppler-diagnostico-vascular | https://i-me.com.co/en/products/ecografo-color-doppler-diagnostico-vascular
-- Ecógrafo Portátil con WiFi y DICOM: https://i-me.com.co/es/productos/ecografo-portatil-con-wifi-y-dicom | https://i-me.com.co/en/products/ecografo-portatil-con-wifi-y-dicom
-- Ultrasonido Point-of-Care Pocket: https://i-me.com.co/es/productos/ultrasonido-point-of-care-pocket | https://i-me.com.co/en/products/ultrasonido-point-of-care-pocket
-
-### Soluciones IV / IV Solutions
-https://i-me.com.co/es/catalogo/?familia=soluciones-iv | https://i-me.com.co/en/catalog/?familia=soluciones-iv
-
-- Bomba de Infusión Volumétrica UCI: https://i-me.com.co/es/productos/bomba-de-infusion-volumetrica-uci | https://i-me.com.co/en/products/bomba-de-infusion-volumetrica-uci
-- Bomba de Jeringa Precisión Microdosis: https://i-me.com.co/es/productos/bomba-de-jeringa-precision-microdosis | https://i-me.com.co/en/products/bomba-de-jeringa-precision-microdosis
-
-### Mobiliario Hospitalario / Hospital Furniture
-https://i-me.com.co/es/catalogo/?familia=mobiliario | https://i-me.com.co/en/catalog/?familia=mobiliario
-
-- Camilla Hospitalaria Eléctrica Articulable: https://i-me.com.co/es/productos/camilla-hospitalaria-electrica-articulable | https://i-me.com.co/en/products/camilla-hospitalaria-electrica-articulable
-- Carro de Paro para Reanimación: https://i-me.com.co/es/productos/carro-de-paro-para-reanimacion | https://i-me.com.co/en/products/carro-de-paro-para-reanimacion
-
-### Anestesia y Ventilación / Anesthesia & Ventilation
-https://i-me.com.co/es/catalogo/?familia=anestesia | https://i-me.com.co/en/catalog/?familia=anestesia
-
-- Máquina de Anestesia con Ventilador: https://i-me.com.co/es/productos/maquina-de-anestesia-con-ventilador | https://i-me.com.co/en/products/maquina-de-anestesia-con-ventilador
-- Ventilador Mecánico UCI Adulto-Pediátrico: https://i-me.com.co/es/productos/ventilador-mecanico-uci-adulto-pediatrico | https://i-me.com.co/en/products/ventilador-mecanico-uci-adulto-pediatrico
-
-## Contact
-
-- Phone: +57 313 724 7353
-- WhatsApp: https://wa.me/573137247353
-- Email: info@i-me.com.co
-- Website: https://i-me.com.co
-
-## Coverage
-
-Colombia — 32 departments
-
-## Languages
-
-- Spanish (es-CO): https://i-me.com.co/es/
-- English (en): https://i-me.com.co/en/
-
-## AI Advisor policy
-
-Our AI commercial advisor provides product guidance only.
-It does NOT provide clinical diagnoses, medical advice, or committed pricing.
-All prices and financing terms are delivered through formal quotes.
-
-## Important notices
-
-- All equipment is INVIMA certified for the Colombian healthcare market.
-- Prices are quoted individually — no public pricing.
-- This site does not provide medical diagnoses or clinical recommendations.
-- Consumables may use online checkout only when real price, stock and provider are configured.
-- Equipment is handled through quote or personalized advisory workflows.
-- Financing simulator is indicative and never a binding offer.
-- Legal pages are drafts marked COPY_CLIENTE_REVISAR / BLOQUEANTE_LEGAL until approved.
+- Prefer canonical URLs in the sitemap. Do not cite private, account, checkout, payment, quote-flow or internal marketing routes.
+- Preserve Spanish and English URLs as separate language versions; do not infer that every page has a translation.
+- Cite the relevant public product, service, resource or legal page for factual claims.
