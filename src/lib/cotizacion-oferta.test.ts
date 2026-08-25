@@ -17,6 +17,7 @@ import {
   formatQuoteMoney,
   splitNombreApellido,
   tokenExpirado,
+  transicionEstadoCotizacionPermitida,
 } from './cotizacion-oferta';
 
 describe('cotizacion-oferta', () => {
@@ -215,5 +216,14 @@ describe('cotizacion-oferta', () => {
     expect(quoteEditable('nueva')).toBe(true);
     expect(quoteEditable('enviada')).toBe(false);
     expect(quoteEditable('convertida')).toBe(false);
+  });
+
+  it('transicionEstadoCotizacionPermitida bloquea revertir enviada', () => {
+    expect(transicionEstadoCotizacionPermitida('enviada', 'nueva')).toBe(false);
+    expect(transicionEstadoCotizacionPermitida('enviada', 'respondida')).toBe(false);
+    expect(transicionEstadoCotizacionPermitida('enviada', 'convertida')).toBe(true);
+    expect(transicionEstadoCotizacionPermitida('enviada', 'enviada')).toBe(true);
+    expect(transicionEstadoCotizacionPermitida('respondida', 'enviada')).toBe(true);
+    expect(transicionEstadoCotizacionPermitida('convertida', 'enviada')).toBe(false);
   });
 });

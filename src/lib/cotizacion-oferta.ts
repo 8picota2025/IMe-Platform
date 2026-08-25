@@ -240,6 +240,21 @@ export function quoteEditable(estado: string | null | undefined): boolean {
   return value === 'nueva' || value === 'en_revision' || value === 'respondida';
 }
 
+/** Design: enviada is immutable; revise = new row. Illegal: enviada → draft. */
+export function transicionEstadoCotizacionPermitida(
+  desde: string | null | undefined,
+  hacia: string | null | undefined
+): boolean {
+  const from = String(desde ?? 'nueva');
+  const to = String(hacia ?? '');
+  if (!to || from === to) return true;
+  if (from === 'convertida') return false;
+  if (from === 'enviada' && (to === 'nueva' || to === 'en_revision' || to === 'respondida')) {
+    return false;
+  }
+  return true;
+}
+
 /** Drop cost/unknown keys. Recompute subtotals. Force header currency. */
 export function sanitizarLineasComercial(
   productos: unknown,

@@ -383,12 +383,12 @@ Deno.serve(async req => {
     numero,
     formalizacion_token_expira_at: expiraAt,
     metadata: meta,
-    precio_total_ofertado: oferta.total,
-    moneda: oferta.moneda,
     leida: true,
   };
   if (!inmutable) {
     preMail.productos = oferta.lineas;
+    preMail.precio_total_ofertado = oferta.total;
+    preMail.moneda = oferta.moneda;
   }
   if (tokenRotated && tokenHash) {
     preMail.formalizacion_token_hash = tokenHash;
