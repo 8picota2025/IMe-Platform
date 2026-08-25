@@ -31,7 +31,9 @@ Deno.serve(async req => {
     .eq('user_id', auth.user.id)
     .maybeSingle();
   if (!profile || profile.activo !== true || !ROLES.has(profile.rol)) return unauthorized(origin);
-  const limit = await checkRateLimit(supabase, `congreso-ocr:${auth.user.id}`, 'ocr');
+  // Same accion bucket as comercial-ocr-presupuesto / congreso-lead.
+  // 'ocr' is not a RateLimitAccion — THRESHOLDS['ocr'] threw TypeError on every request.
+  const limit = await checkRateLimit(supabase, `congreso-ocr:${auth.user.id}`, 'cotizacion');
   if (limit.limited)
     return response({ ok: false, error: 'Demasiados OCR. Espera un momento.' }, origin, 429);
   const body = (await req.json().catch(() => ({}))) as { image_base64?: string; mime?: string };

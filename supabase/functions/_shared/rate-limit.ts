@@ -76,11 +76,18 @@ export async function checkRateLimit(
   identificador: string,
   accion: RateLimitAccion = 'asesor'
 ): Promise<RateLimitResult> {
+  const thresholds = THRESHOLDS[accion];
+  // Fail closed: unknown accion must not TypeError-crash the Edge Function
+  // (historically congreso-ocr passed 'ocr', which is not a RateLimitAccion).
+  if (!thresholds) {
+    console.error(`[rate-limit] accion desconocida: ${String(accion)}`);
+    return { limited: true, reason: 'ventana', retryAfterSeconds: 60 };
+  }
   const {
     windowSeconds: WINDOW_SECONDS,
     maxPerWindow: MAX_PER_WINDOW,
     maxPerDay: MAX_PER_DAY,
-  } = THRESHOLDS[accion];
+  } = thresholds;
   const now = new Date();
   const hoy = now.toISOString().slice(0, 10);
 
