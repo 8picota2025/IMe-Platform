@@ -1,0 +1,33 @@
+---
+import '../comercial/comercial.css';
+import '../mkt/mkt.css';
+
+// Ruta privada fuera del árbol i18n; evita respuestas 404 para Auth/PWA.
+Astro.response.status = 200;
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="robots" content="noindex,nofollow,noarchive" />
+    <meta name="referrer" content="same-origin" />
+    <title>I-ME Marketing · Search Console</title>
+    <link rel="manifest" href="/manifest-mkt.json" />
+    <meta name="theme-color" content="#005e60" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="I-ME MKT" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body class="mkt-body">
+    <main id="mkt-app" class="mkt-root">
+      <section class="comercial-loading" aria-live="polite">
+        <span class="comercial-loading__mark"></span>Cargando centro de marketing
+      </section>
+    </main>
+    <script>
+      import '../mkt/mkt-app';
+    </script>
+  </body>
+</html>

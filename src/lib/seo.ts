@@ -96,9 +96,8 @@ function normalizeCategoriaLabel(categoria: string): string {
 }
 
 /**
- * PDP title: `{nombre} | {categoría} INVIMA | I-ME` when it fits;
- * drops INVIMA / categoría / truncates nombre to stay near PRODUCT_TITLE_MAX.
- * Never invents specs; INVIMA is trust token for CO biomedical catalog (company-level).
+ * PDP title: `{nombre} | {categoría} | I-ME` when it fits.
+ * Never declares a regulatory status unless it exists in that product's data.
  */
 export function buildProductoPageTitle(
   nombre: string,
@@ -124,7 +123,6 @@ export function buildProductoPageTitle(
 
   const middleCandidates: string[] = [];
   if (catUsable) {
-    middleCandidates.push(`${shortenTitlePart(cat, 22)} INVIMA`);
     middleCandidates.push(shortenTitlePart(cat, 28));
   }
   if (intentUsable) {
@@ -305,7 +303,7 @@ export function buildOrganizationJsonLd(): Record<string, unknown> {
       name: 'Colombia',
     },
     description:
-      'I-ME International Medical Enterprise S.A.S. es una empresa colombiana con más de 15 años de experiencia en distribución, instalación, mantenimiento y asesoría de equipos biomédicos certificados (INVIMA, CE, FDA) para hospitales, clínicas y centros de salud en los 32 departamentos de Colombia.',
+      'I-ME International Medical Enterprise S.A.S. es una empresa colombiana de distribución, soporte técnico y asesoría para instituciones de salud. La documentación regulatoria aplicable se confirma por referencia.',
     knowsAbout: [
       'Equipos biomédicos',
       'Monitores multiparamétricos',
@@ -339,7 +337,7 @@ export function buildWebSiteJsonLd(): Record<string, unknown> {
     url: SITE,
     name: 'I-ME International Medical Enterprise',
     description:
-      'Equipos biomédicos certificados, soporte técnico, financiamiento y asesoría para hospitales y clínicas en Colombia',
+      'Catálogo de equipos biomédicos, soporte técnico, financiamiento y asesoría para instituciones de salud en Colombia',
     inLanguage: ['es-CO', 'en'],
     publisher: { '@id': `${SITE}/#organization` },
     potentialAction: {
@@ -457,7 +455,7 @@ export function buildServiciosJsonLd(locale: Locale): Record<string, unknown> {
           serviceType: 'Venta y distribución de equipos biomédicos',
           name: 'Venta y distribución de equipos biomédicos',
           description:
-            'Distribución de equipos médicos de alta tecnología con certificaciones CE, FDA e INVIMA vigentes. Incluye instalación, puesta en marcha y capacitación al personal clínico en todo Colombia.',
+            'Distribución de equipos médicos para instituciones de salud. La disponibilidad, instalación, capacitación y documentación aplicable se confirman en la propuesta formal.',
           url: `${pageUrl}#venta`,
           provider: orgRef,
           areaServed: { '@type': 'Country', name: 'Colombia' },
@@ -465,9 +463,9 @@ export function buildServiciosJsonLd(locale: Locale): Record<string, unknown> {
         {
           '@type': 'Service',
           serviceType: 'Soporte técnico de equipos biomédicos',
-          name: 'Soporte técnico certificado',
+          name: 'Soporte técnico de equipos biomédicos',
           description:
-            'Mantenimiento preventivo, correctivo, calibración y verificación metrológica por ingenieros biomédicos certificados. Respuesta en campo en menos de 48 horas en cualquier departamento de Colombia.',
+            'Mantenimiento preventivo y correctivo, calibración y verificación metrológica según el alcance acordado. Los tiempos de atención se confirman para cada solicitud.',
           url: `${pageUrl}#soporte`,
           provider: orgRef,
           areaServed: { '@type': 'Country', name: 'Colombia' },
@@ -477,7 +475,7 @@ export function buildServiciosJsonLd(locale: Locale): Record<string, unknown> {
           serviceType: 'Financiamiento médico para equipos hospitalarios',
           name: 'Financiamiento médico flexible',
           description:
-            'Planes de adquisición a medida para instituciones de salud. Cuotas mensuales fijas, plazos de 12 a 60 meses, sin codeudor para hospitales y aprobación en 48 horas hábiles.',
+            'Alternativas de adquisición para instituciones de salud. Tasas, plazos, requisitos y aprobación se definen en cotización; el simulador no constituye una oferta vinculante.',
           url: `${pageUrl}#financiamiento`,
           provider: orgRef,
           areaServed: { '@type': 'Country', name: 'Colombia' },
@@ -487,7 +485,7 @@ export function buildServiciosJsonLd(locale: Locale): Record<string, unknown> {
           serviceType: 'Asesoría biomédica integral',
           name: 'Asesoría biomédica integral',
           description:
-            'Consultoría especializada para la selección, adquisición y gestión del parque tecnológico biomédico. Diagnóstico, plan de renovación, especificaciones para licitaciones y acompañamiento INVIMA.',
+            'Acompañamiento comercial y técnico para selección, adquisición y gestión de tecnología biomédica. La validación regulatoria se realiza por referencia y documentación vigente.',
           url: `${pageUrl}#asesoria`,
           provider: orgRef,
           areaServed: { '@type': 'Country', name: 'Colombia' },
@@ -499,7 +497,7 @@ export function buildServiciosJsonLd(locale: Locale): Record<string, unknown> {
           serviceType: 'Biomedical equipment sales and distribution',
           name: 'Sales and distribution of biomedical equipment',
           description:
-            'Distribution of high-technology medical equipment with CE, FDA and INVIMA certifications. Includes installation, commissioning and clinical staff training across Colombia.',
+            'Medical equipment distribution for healthcare institutions. Availability, installation, training and applicable documentation are confirmed in the formal proposal.',
           url: `${pageUrl}#venta`,
           provider: orgRef,
           areaServed: { '@type': 'Country', name: 'Colombia' },
@@ -507,9 +505,9 @@ export function buildServiciosJsonLd(locale: Locale): Record<string, unknown> {
         {
           '@type': 'Service',
           serviceType: 'Biomedical equipment technical support',
-          name: 'Certified technical support',
+          name: 'Biomedical equipment technical support',
           description:
-            'Preventive and corrective maintenance, calibration and metrological verification by certified biomedical engineers. Field response within 48 hours in any Colombian department.',
+            'Preventive and corrective maintenance, calibration and metrological verification according to the agreed scope. Service times are confirmed for each request.',
           url: `${pageUrl}#soporte`,
           provider: orgRef,
           areaServed: { '@type': 'Country', name: 'Colombia' },
@@ -519,7 +517,7 @@ export function buildServiciosJsonLd(locale: Locale): Record<string, unknown> {
           serviceType: 'Medical equipment financing',
           name: 'Flexible medical financing',
           description:
-            'Tailored acquisition plans for healthcare institutions. Fixed monthly payments, 12 to 60-month terms, no co-signer for hospitals, approval within 48 business hours.',
+            'Acquisition alternatives for healthcare institutions. Rates, terms, requirements and approval are defined in the quote; the simulator is not a binding offer.',
           url: `${pageUrl}#financiamiento`,
           provider: orgRef,
           areaServed: { '@type': 'Country', name: 'Colombia' },
@@ -529,7 +527,7 @@ export function buildServiciosJsonLd(locale: Locale): Record<string, unknown> {
           serviceType: 'Comprehensive biomedical advisory',
           name: 'Comprehensive biomedical advisory',
           description:
-            'Specialized consulting for biomedical technology portfolio selection, acquisition and management. Technology audit, renewal plan, tender specifications and INVIMA compliance support.',
+            'Commercial and technical guidance for biomedical technology selection, acquisition and management. Regulatory validation is confirmed per reference and current documentation.',
           url: `${pageUrl}#asesoria`,
           provider: orgRef,
           areaServed: { '@type': 'Country', name: 'Colombia' },

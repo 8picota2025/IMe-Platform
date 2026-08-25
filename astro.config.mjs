@@ -28,6 +28,41 @@ function searchConsoleHtmlFileIntegration() {
 // (/admin/, /comercial/). En produccion el host sirve el estatico y funcionan.
 const i18nDisabled = process.env.ASTRO_NO_I18N === '1';
 
+/**
+ * Routes that render `noindex` or are private/session-specific. Keep these out
+ * of the sitemap: a sitemap is a canonical URL inventory, not a route map.
+ */
+const nonIndexablePaths = new Set([
+  '/',
+  '/admin/',
+  '/comercial/',
+  '/mkt/',
+  '/es/carrito/',
+  '/es/checkout/',
+  '/es/cotizacion/',
+  '/es/cotizacion/formalizar/',
+  '/es/cuenta/',
+  '/es/conocimiento/publicar/',
+  '/es/seguimiento/',
+  '/en/account/',
+  '/en/cart/',
+  '/en/checkout/',
+  '/en/knowledge/publish/',
+  '/en/order-status/',
+  '/en/quote/',
+  '/en/quote/formalize/',
+  '/pagoswompi/',
+]);
+
+function isIndexableSitemapUrl(page) {
+  const { pathname } = new URL(page);
+  return !(
+    nonIndexablePaths.has(pathname) ||
+    /^\/(?:es\/pago|en\/payment)\//.test(pathname) ||
+    /^\/(?:es\/productos|en\/products)\/test\/?$/.test(pathname)
+  );
+}
+
 export default defineConfig({
   site: 'https://i-me.com.co',
   output: 'static',
@@ -44,27 +79,7 @@ export default defineConfig({
     }),
     searchConsoleHtmlFileIntegration(),
     sitemap({
-      filter: page => {
-        const url = new URL(page);
-        return !(
-          url.pathname === '/' ||
-          url.pathname === '/admin/' ||
-          url.pathname === '/comercial/' ||
-          url.pathname === '/es/carrito/' ||
-          url.pathname === '/es/checkout/' ||
-          url.pathname === '/es/cuenta/' ||
-          url.pathname === '/en/cart/' ||
-          url.pathname === '/en/checkout/' ||
-          url.pathname === '/en/account/' ||
-          url.pathname === '/en/knowledge/publish/' ||
-          url.pathname === '/en/order-status/' ||
-          url.pathname === '/en/products/test/' ||
-          url.pathname === '/es/seguimiento/' ||
-          url.pathname === '/es/productos/test/' ||
-          url.pathname === '/pagoswompi/' ||
-          /^\/(es\/pago|en\/payment)\//.test(url.pathname)
-        );
-      },
+      filter: isIndexableSitemapUrl,
     }),
   ],
   vite: {

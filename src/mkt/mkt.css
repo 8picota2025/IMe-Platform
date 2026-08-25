@@ -1,0 +1,236 @@
+:root {
+  --mkt-accent: #005e60;
+  --mkt-ink: #14201f;
+  --mkt-muted: #526361;
+  --mkt-line: #dce5e3;
+  --mkt-bg: #f4f7f7;
+  --mkt-panel: #fff;
+}
+.mkt-body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--mkt-bg);
+  color: var(--mkt-ink);
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+.mkt-shell {
+  min-height: 100vh;
+}
+.mkt-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: center;
+  padding: 22px max(24px, calc((100vw - 1200px) / 2));
+  background: #fff;
+  border-bottom: 1px solid var(--mkt-line);
+}
+.mkt-brand {
+  font-weight: 800;
+  color: var(--mkt-accent);
+  letter-spacing: 0.08em;
+}
+.mkt-header h1 {
+  margin: 4px 0;
+  font-size: 1.4rem;
+}
+.mkt-header p,
+.mkt-user,
+.mkt-muted {
+  color: var(--mkt-muted);
+}
+.mkt-user {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 0.85rem;
+}
+.mkt-main {
+  width: min(1200px, 100%);
+  margin: auto;
+  padding: 28px 24px 64px;
+}
+.mkt-main h2 {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+}
+.mkt-main p {
+  line-height: 1.5;
+}
+.mkt-privacy,
+.mkt-import,
+.mkt-empty,
+.mkt-section,
+.mkt-card {
+  background: var(--mkt-panel);
+  border: 1px solid var(--mkt-line);
+  border-radius: 10px;
+}
+.mkt-privacy {
+  padding: 16px 20px;
+  border-left: 4px solid var(--mkt-accent);
+}
+.mkt-privacy p {
+  margin: 0;
+}
+.mkt-import {
+  margin-top: 20px;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 14px;
+  align-items: center;
+}
+.mkt-import p {
+  margin: 0;
+}
+.mkt-import-status {
+  grid-column: 1/-1;
+  font-size: 0.9rem;
+  color: var(--mkt-muted);
+}
+.mkt-upload {
+  display: grid;
+  gap: 5px;
+  cursor: pointer;
+  padding: 10px 14px;
+  border: 1px dashed var(--mkt-accent);
+  border-radius: 7px;
+  color: var(--mkt-accent);
+  font-weight: 700;
+  text-align: center;
+}
+.mkt-upload input {
+  max-width: 210px;
+}
+.mkt-upload small {
+  font-size: 0.75rem;
+  color: var(--mkt-muted);
+  font-weight: 400;
+}
+.mkt-empty {
+  margin-top: 20px;
+  padding: 28px;
+}
+.mkt-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-top: 20px;
+}
+.mkt-card {
+  padding: 18px;
+  display: grid;
+  gap: 4px;
+}
+.mkt-card h2 {
+  color: var(--mkt-muted);
+}
+.mkt-card strong {
+  font-size: 1.8rem;
+  color: var(--mkt-accent);
+}
+.mkt-card span {
+  font-size: 0.82rem;
+  color: var(--mkt-muted);
+  overflow-wrap: anywhere;
+}
+.mkt-section {
+  margin-top: 20px;
+  padding: 20px;
+}
+.mkt-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.mkt-priorities {
+  padding: 0;
+  margin: 12px 0 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+.mkt-priority {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: start;
+  padding: 13px;
+  border: 1px solid var(--mkt-line);
+  border-left-width: 4px;
+  border-radius: 6px;
+}
+.mkt-priority--crítica {
+  border-left-color: #b3261e;
+}
+.mkt-priority--alta {
+  border-left-color: #9a6500;
+}
+.mkt-priority--media {
+  border-left-color: #005e60;
+}
+.mkt-priority span {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.mkt-priority p {
+  margin: 3px 0 0;
+  color: var(--mkt-muted);
+  font-size: 0.88rem;
+}
+.mkt-priority b {
+  font-size: 1.2rem;
+}
+.mkt-table-wrap {
+  overflow: auto;
+  border: 1px solid var(--mkt-line);
+  border-radius: 6px;
+}
+.mkt-table-wrap table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 620px;
+  font-size: 0.88rem;
+}
+.mkt-table-wrap th,
+.mkt-table-wrap td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--mkt-line);
+  vertical-align: top;
+  max-width: 430px;
+  overflow-wrap: anywhere;
+}
+.mkt-table-wrap th {
+  background: #f7faf9;
+  color: var(--mkt-muted);
+}
+.mkt-login-error {
+  color: #b3261e;
+  margin-top: 14px;
+}
+@media (max-width: 650px) {
+  .mkt-header,
+  .mkt-import {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+  .mkt-user {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .mkt-main {
+    padding: 18px 14px 42px;
+  }
+  .mkt-upload input {
+    max-width: 100%;
+  }
+  .mkt-priority {
+    grid-template-columns: auto 1fr;
+  }
+  .mkt-priority b {
+    grid-column: 2;
+  }
+}
