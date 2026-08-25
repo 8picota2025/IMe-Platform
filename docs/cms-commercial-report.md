@@ -108,3 +108,8 @@ Build y lint correctos. Hints preexistentes ajenos al CMS comercial.
 Ver `docs/cms-commercial-deployment.md` y `docs/cms-commercial-setup.md`.
 
 Local: `npm run dev` → `http://localhost:44334/comercial/`.
+
+## Extensiones 2026-08 (cotizaciones OCR + Congreso)
+
+- **Cotizaciones PWA** — `#/cotizaciones/escanear`, Edge `comercial-ocr-presupuesto`, bucket `presupuestos-competencia`. OCR vía puente local con Gemini preferido (`scripts/ocr-moondream-bridge.mjs`). Ver `docs/cms-commercial-architecture.md` § OCR y `docs/plans/2026-08-15-ocr-cms-pwa.md`.
+- **IME Congreso** — `/congreso/` captura presencial: OCR tarjeta, multi-producto, lead en `leads_comerciales`, envío vía `comercial-share`. Edge: `congreso-ocr`, `congreso-lead`. Ver `docs/congreso-architecture.md`.
