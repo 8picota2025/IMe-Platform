@@ -16,6 +16,17 @@ interface Priority {
   detail: string;
   count: number;
 }
+type WorkStatus = 'Pendiente' | 'En revisión' | 'Resuelto' | 'Descartado';
+type WorkKind = 'page' | 'query' | 'coverage';
+interface WorkItem {
+  id: string;
+  kind: WorkKind;
+  subject: string;
+  signal: string;
+  action: string;
+  priority: 'Crítica' | 'Alta' | 'Media';
+  status: WorkStatus;
+}
 
 const root = (() => {
   const node = document.getElementById('mkt-app');
@@ -24,6 +35,9 @@ const root = (() => {
 })();
 let datasets: CsvDataset[] = [];
 let viewer = { email: '', role: '' };
+let workItems: WorkItem[] = [];
+let tableFilter = '';
+let tableLimit = 25;
 
 setupServiceWorker();
 void boot();
@@ -80,6 +94,7 @@ function renderMissingConfig(): void {
 
 function renderApp(): void {
   const priorities = makePriorities(datasets);
+  workItems = reconcileWorkItems(makeWorkItems());
   root.innerHTML = `
     <div class="mkt-shell">
       <a class="comercial-skip-link" href="#mkt-main">Saltar al contenido</a>
@@ -94,7 +109,25 @@ function renderApp(): void {
   root.querySelector<HTMLInputElement>('[data-csv-input]')?.addEventListener('change', onFiles);
   root.querySelector('[data-clear]')?.addEventListener('click', () => {
     datasets = [];
+    workItems = [];
     renderApp();
+  });
+  root.querySelector<HTMLInputElement>('[data-work-filter]')?.addEventListener('input', event => {
+    tableFilter = (event.currentTarget as HTMLInputElement).value;
+    renderApp();
+  });
+  root.querySelector<HTMLSelectElement>('[data-work-limit]')?.addEventListener('change', event => {
+    tableLimit = Number((event.currentTarget as HTMLSelectElement).value) || 25;
+    renderApp();
+  });
+  root.querySelector('[data-download-work]')?.addEventListener('click', downloadWorkCsv);
+  root.querySelector('[data-copy-brief]')?.addEventListener('click', () => void copyBrief());
+  root.querySelectorAll<HTMLSelectElement>('[data-work-status]').forEach(select => {
+    select.addEventListener('change', () => {
+      const item = workItems.find(entry => entry.id === select.dataset.workStatus);
+      if (item) item.status = select.value as WorkStatus;
+      renderApp();
+    });
   });
 }
 
@@ -109,9 +142,62 @@ function dashboardHtml(priorities: Priority[]): string {
         `<article class="mkt-card"><h2>${escapeHtml(datasetLabel(data.kind))}</h2><strong>${data.rows.length.toLocaleString('es-CO')}</strong><span>filas · ${escapeHtml(data.name)}</span></article>`
     )
     .join('');
-  return `<section class="mkt-cards" aria-label="Resumen de archivos">${cards}</section>
+  return `<section class="mkt-cards" aria-label="Resumen de archivos">${cards}</section>${metricCardsHtml()}
     <section class="mkt-section" aria-labelledby="priorities-title"><div class="mkt-section-head"><h2 id="priorities-title">Prioridades detectadas</h2><button type="button" class="comercial-button comercial-button--ghost" data-clear>Quitar datos</button></div>${priorityHtml(priorities)}</section>
-    ${coverageHtml()}${performanceHtml('pages')}${performanceHtml('queries')}`;
+    ${workQueueHtml()}${coverageHtml()}${performanceHtml('pages')}${performanceHtml('queries')}`;
+}
+
+function metricCardsHtml(): string {
+  const performance = datasets.filter(item => item.kind === 'pages');
+  const rows = performance.flatMap(item => item.rows);
+  if (!rows.length) return '';
+  const headers = performance[0]?.headers ?? [];
+  const clicks = rows.reduce(
+    (sum, row) => sum + numberValue(pick(row, headers, ['clics', 'clicks'])),
+    0
+  );
+  const impressions = rows.reduce(
+    (sum, row) => sum + numberValue(pick(row, headers, ['impresiones', 'impressions'])),
+    0
+  );
+  const position =
+    rows.reduce((sum, row) => sum + numberValue(pick(row, headers, ['posición', 'position'])), 0) /
+    rows.length;
+  const ctr = impressions ? clicks / impressions : 0;
+  return `<section class="mkt-metrics" aria-label="Métricas calculadas"><article><span>Clics de páginas cargadas</span><strong>${formatNumber(clicks)}</strong></article><article><span>Impresiones de páginas cargadas</span><strong>${formatNumber(impressions)}</strong></article><article><span>CTR ponderado</span><strong>${formatPercent(ctr)}</strong></article><article><span>Posición media simple</span><strong>${Number.isFinite(position) ? position.toFixed(1) : '—'}</strong></article></section>`;
+}
+
+function workQueueHtml(): string {
+  const filtered = workItems.filter(item =>
+    `${item.subject} ${item.signal} ${item.action} ${item.status}`
+      .toLowerCase()
+      .includes(tableFilter.toLowerCase())
+  );
+  const visible = filtered.slice(0, tableLimit);
+  return `<section class="mkt-section" aria-labelledby="work-title"><div class="mkt-section-head"><div><h2 id="work-title">Cola de trabajo SEO</h2><p class="mkt-muted">Acciones sugeridas desde tus exportes. Estado guardado solo durante esta sesión.</p></div><div class="mkt-actions"><button type="button" class="comercial-button comercial-button--ghost" data-copy-brief>Copiar brief</button><button type="button" class="comercial-button" data-download-work>Exportar CSV</button></div></div><div class="mkt-controls"><label>Buscar<input type="search" value="${escapeHtml(tableFilter)}" placeholder="URL, consulta, motivo…" data-work-filter /></label><label>Mostrar<select data-work-limit><option value="25" ${tableLimit === 25 ? 'selected' : ''}>25</option><option value="100" ${tableLimit === 100 ? 'selected' : ''}>100</option><option value="9999" ${tableLimit === 9999 ? 'selected' : ''}>Todas</option></select></label><span>${filtered.length} acción(es) detectada(s)</span></div>${visible.length ? `<div class="mkt-table-wrap"><table class="mkt-work-table"><thead><tr><th>Prioridad</th><th>Activo</th><th>Señal</th><th>Acción recomendada</th><th>Estado</th></tr></thead><tbody>${visible.map(item => `<tr><td><span class="mkt-badge mkt-badge--${normalize(item.priority)}">${item.priority}</span></td><td>${subjectHtml(item)}</td><td>${escapeHtml(item.signal)}</td><td>${escapeHtml(item.action)}</td><td><select data-work-status="${escapeHtml(item.id)}">${workStatusOptions(item.status)}</select></td></tr>`).join('')}</tbody></table></div>` : '<p class="mkt-muted">No hay acciones que coincidan con filtro.</p>'}</section>`;
+}
+
+function subjectHtml(item: WorkItem): string {
+  if (item.kind !== 'page') return escapeHtml(item.subject);
+  const url = safeSiteUrl(item.subject);
+  return url
+    ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.subject)}</a>`
+    : escapeHtml(item.subject);
+}
+
+function safeSiteUrl(value: string): string | null {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && url.hostname === 'i-me.com.co' ? url.href : null;
+  } catch {
+    return null;
+  }
+}
+
+function workStatusOptions(selected: WorkStatus): string {
+  return (['Pendiente', 'En revisión', 'Resuelto', 'Descartado'] as WorkStatus[])
+    .map(status => `<option ${status === selected ? 'selected' : ''}>${status}</option>`)
+    .join('');
 }
 
 function priorityHtml(items: Priority[]): string {
@@ -366,6 +452,193 @@ function makePriorities(items: CsvDataset[]): Priority[] {
       });
   }
   return priorities;
+}
+
+function makeWorkItems(): WorkItem[] {
+  const result: WorkItem[] = [];
+  for (const coverage of datasets.filter(item => item.kind === 'coverage')) {
+    for (const row of coverage.rows) {
+      const reason = pick(row, coverage.headers, ['estado', 'status', 'motivo', 'reason']);
+      const pages = numberValue(pick(row, coverage.headers, ['paginas', 'pages']));
+      const normalized = normalize(reason);
+      if (/404|no se ha encontrado/.test(normalized)) {
+        result.push(
+          work(
+            'coverage',
+            reason,
+            `${formatNumber(pages)} URL(s)`,
+            'Exporta URLs del informe. Redirige solo si existe reemplazo equivalente; si no, elimina enlaces internos y conserva 404.',
+            'Crítica'
+          )
+        );
+      } else if (/rastreada.*sin indexar|crawled.*not indexed/.test(normalized)) {
+        result.push(
+          work(
+            'coverage',
+            reason,
+            `${formatNumber(pages)} URL(s)`,
+            'Exporta URLs. Prioriza páginas con impresiones; verifica contenido único, canonical, enlaces internos y sitemap antes de solicitar indexación.',
+            'Alta'
+          )
+        );
+      } else if (/canon/.test(normalized) && !/adecuada/.test(normalized)) {
+        result.push(
+          work(
+            'coverage',
+            reason,
+            `${formatNumber(pages)} URL(s)`,
+            'Inspecciona ejemplos y alinea canonical declarada, enlaces internos y sitemap con URL preferida.',
+            'Alta'
+          )
+        );
+      } else if (/redirec/.test(normalized)) {
+        result.push(
+          work(
+            'coverage',
+            reason,
+            `${formatNumber(pages)} URL(s)`,
+            'Muestrea redirecciones. Corrige solo cadenas, bucles o URLs que aún estén enlazadas o incluidas en sitemap.',
+            'Media'
+          )
+        );
+      }
+    }
+  }
+  for (const pages of datasets.filter(item => item.kind === 'pages')) {
+    for (const row of pages.rows) {
+      const url = pick(row, pages.headers, ['url', 'página', 'page']);
+      const clicks = numberValue(pick(row, pages.headers, ['clics', 'clicks']));
+      const impressions = numberValue(pick(row, pages.headers, ['impresiones', 'impressions']));
+      const ctr = numberValue(pick(row, pages.headers, ['ctr']));
+      const position = numberValue(pick(row, pages.headers, ['posición', 'position']));
+      if (!url) continue;
+      if (impressions >= 10 && position > 8 && position <= 30)
+        result.push(
+          work(
+            'page',
+            url,
+            `${formatNumber(impressions)} impresiones · posición ${position.toFixed(1)} · CTR ${formatPercent(ctr)}`,
+            'Revisa intención, H1, título y descripción. Refuerza enlaces internos desde categoría o contenido relacionado.',
+            'Alta'
+          )
+        );
+      else if (impressions >= 10 && ctr < 0.03)
+        result.push(
+          work(
+            'page',
+            url,
+            `${formatNumber(impressions)} impresiones · CTR ${formatPercent(ctr)} · posición ${position.toFixed(1)}`,
+            'Prueba título y meta descripción más precisos; no cambies claims comerciales sin validación.',
+            'Media'
+          )
+        );
+      else if (clicks > 0)
+        result.push(
+          work(
+            'page',
+            url,
+            `${formatNumber(clicks)} clic(s) · posición ${position.toFixed(1)}`,
+            'Conserva trazabilidad. Comprueba indexación y mejora contenido solo si la intención de búsqueda no está cubierta.',
+            'Media'
+          )
+        );
+    }
+  }
+  for (const queries of datasets.filter(item => item.kind === 'queries')) {
+    for (const row of queries.rows) {
+      const query = pick(row, queries.headers, ['consulta', 'query', 'queries']);
+      const impressions = numberValue(pick(row, queries.headers, ['impresiones', 'impressions']));
+      const ctr = numberValue(pick(row, queries.headers, ['ctr']));
+      const position = numberValue(pick(row, queries.headers, ['posición', 'position']));
+      if (!query || impressions < 3 || position > 30) continue;
+      const priority: WorkItem['priority'] = position <= 10 && ctr < 0.03 ? 'Alta' : 'Media';
+      result.push(
+        work(
+          'query',
+          query,
+          `${formatNumber(impressions)} impresiones · posición ${position.toFixed(1)} · CTR ${formatPercent(ctr)}`,
+          'Relaciona consulta con página existente. Ajusta contenido o crea página solo si existe oferta y evidencia comercial verificable.',
+          priority
+        )
+      );
+    }
+  }
+  return result.sort((a, b) => priorityWeight(a.priority) - priorityWeight(b.priority));
+}
+
+function work(
+  kind: WorkKind,
+  subject: string,
+  signal: string,
+  action: string,
+  priority: WorkItem['priority']
+): WorkItem {
+  return { id: `${kind}:${subject}`, kind, subject, signal, action, priority, status: 'Pendiente' };
+}
+
+function reconcileWorkItems(next: WorkItem[]): WorkItem[] {
+  const existing = new Map(workItems.map(item => [item.id, item.status]));
+  return next.map(item => ({ ...item, status: existing.get(item.id) ?? item.status }));
+}
+
+function priorityWeight(priority: WorkItem['priority']): number {
+  return ({ Crítica: 0, Alta: 1, Media: 2 } as Record<WorkItem['priority'], number>)[priority];
+}
+
+function downloadWorkCsv(): void {
+  const lines = [
+    ['Prioridad', 'Tipo', 'Activo', 'Señal', 'Acción recomendada', 'Estado'],
+    ...workItems.map(item => [
+      item.priority,
+      item.kind,
+      item.subject,
+      item.signal,
+      item.action,
+      item.status,
+    ]),
+  ];
+  const content = lines
+    .map(row => row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(','))
+    .join('\r\n');
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(
+    new Blob([`\ufeff${content}`], { type: 'text/csv;charset=utf-8' })
+  );
+  link.download = 'ime-seo-cola-de-trabajo.csv';
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+async function copyBrief(): Promise<void> {
+  const current = workItems.filter(
+    item => item.status !== 'Resuelto' && item.status !== 'Descartado'
+  );
+  const text = [
+    'I-ME · Brief SEO generado desde exportes locales de Search Console',
+    '',
+    ...current.map(
+      (item, index) =>
+        `${index + 1}. [${item.priority}] ${item.subject}\n   Señal: ${item.signal}\n   Acción: ${item.action}`
+    ),
+  ].join('\n');
+  await navigator.clipboard?.writeText(text);
+  const button = root.querySelector<HTMLButtonElement>('[data-copy-brief]');
+  if (button) {
+    button.textContent = 'Brief copiado';
+    window.setTimeout(() => {
+      button.textContent = 'Copiar brief';
+    }, 1800);
+  }
+}
+
+function formatNumber(value: number): string {
+  return Number.isFinite(value) ? value.toLocaleString('es-CO', { maximumFractionDigits: 1 }) : '0';
+}
+
+function formatPercent(value: number): string {
+  return Number.isFinite(value)
+    ? `${(value * 100).toLocaleString('es-CO', { maximumFractionDigits: 2 })}%`
+    : '—';
 }
 function numberValue(value: string): number {
   const normalized = value
