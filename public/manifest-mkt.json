@@ -1,0 +1,14 @@
+{
+  "name": "I-ME Marketing",
+  "short_name": "I-ME MKT",
+  "description": "Diagnóstico local de Google Search Console para I-ME.",
+  "scope": "/mkt/",
+  "start_url": "/mkt/",
+  "id": "/mkt/",
+  "display": "standalone",
+  "background_color": "#f4f7f7",
+  "theme_color": "#005e60",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

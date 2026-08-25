@@ -13,6 +13,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
     path.startsWith('/comercial/') ||
     path === '/admin' ||
     path.startsWith('/admin/') ||
+    path === '/mkt' ||
+    path.startsWith('/mkt/') ||
     path === '/comercial-diag' ||
     path.startsWith('/comercial-diag/') ||
     path === '/clear-sw' ||

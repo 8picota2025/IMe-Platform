@@ -3,8 +3,17 @@ import {
   buildProductJsonLd,
   buildProductoPageTitle,
   buildProductoSeo,
+  buildOrganizationJsonLd,
   PRODUCT_TITLE_MAX,
 } from './seo';
+
+describe('buildOrganizationJsonLd', () => {
+  it('evita promesas regulatorias o de cobertura sin evidencia por referencia', () => {
+    const description = String(buildOrganizationJsonLd().description);
+    expect(description).not.toMatch(/15 años|32 departamentos|certificados \(INVIMA, CE, FDA\)/i);
+    expect(description).toMatch(/se confirma por referencia/i);
+  });
+});
 
 describe('buildProductJsonLd', () => {
   const producto = {
@@ -74,12 +83,12 @@ describe('buildProductJsonLd', () => {
 });
 
 describe('buildProductoPageTitle', () => {
-  it('añade categoría e INVIMA cuando cabe', () => {
+  it('añade categoría sin declarar certificación no verificada', () => {
     const title = buildProductoPageTitle('Bomba IP-200', 'es', 'Soluciones IV', null);
     expect(title).toContain('Bomba IP-200');
     expect(title).toContain('I-ME');
     expect(title).toMatch(/Soluciones IV/i);
-    expect(title).toContain('INVIMA');
+    expect(title).not.toContain('INVIMA');
   });
 
   it('no duplica categoría si ya está en el nombre', () => {
@@ -123,7 +132,7 @@ describe('buildProductoPageTitle', () => {
       null
     );
     expect(title).not.toMatch(/\scon\s*\|/i);
-    expect(title).toMatch(/Cardiología INVIMA|Cardiología \| I-ME|Desfibrilador/);
+    expect(title).toMatch(/Cardiología \| I-ME|Desfibrilador/);
     expect(title).not.toContain('Cardiología /');
   });
 });
@@ -161,6 +170,6 @@ describe('buildProductoSeo', () => {
       null
     );
     expect(seo.description.toLowerCase()).toContain('esterilización');
-    expect(seo.title).toMatch(/INVIMA|Esterilización/);
+    expect(seo.title).toMatch(/Esterilización/);
   });
 });
