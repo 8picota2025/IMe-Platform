@@ -19,6 +19,7 @@ import { badRequest, errorResponse, internalError } from '../_shared/errors.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { checkRateLimit } from '../_shared/rate-limit.ts';
 import { getPaymentGateway, type CheckoutItem, type Mercado } from '../_shared/payment-gateway.ts';
+import { mercadoMonedaCompatibles } from '../../../src/lib/mercado-moneda.ts';
 import {
   buildDianInvoiceDraft,
   calculateFiscalSummary,
@@ -835,6 +836,22 @@ Deno.serve(
     }
 
     const moneda = monedaComun ?? 'COP';
+    // Currency owns mercado: INTL+COP would skip IVA in fiscal while still
+    // charging COP on Stripe (self-asserted underprice vs Wompi/CO).
+    if (!mercadoMonedaCompatibles(mercado, moneda)) {
+      return errorResponse(
+        {
+          code: 'MONEDA_MERCADO_INCOMPATIBLE',
+          message:
+            moneda.toUpperCase() === 'USD'
+              ? 'Carrito en USD: usa mercado internacional (Stripe)'
+              : 'Carrito en COP: usa mercado Colombia (Wompi)',
+          details: { mercado, moneda },
+        },
+        422,
+        origin
+      );
+    }
     const subtotal = checkoutItems.reduce((acc, it) => acc + it.precio_unitario * it.cantidad, 0);
     // Cotización locked: no cupones (precio ya negociado en la oferta).
     const cuponCodigo =
