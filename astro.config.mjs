@@ -36,6 +36,7 @@ const nonIndexablePaths = new Set([
   '/',
   '/admin/',
   '/comercial/',
+  '/congreso/',
   '/mkt/',
   '/es/carrito/',
   '/es/checkout/',
