@@ -172,7 +172,7 @@ Deno.test('evento: crea persona, oportunidad, tarea y enlace con datos del asist
 
     const person = callsFor(mock.calls, 'POST', '/rest/people')[0]?.body;
     assertEquals(person?.name, { firstName: 'Ana María', lastName: 'Pérez Gómez' });
-    assertEquals(person?.jobTitle, 'Lead evento');
+    assertEquals(person?.jobTitle, 'Lead evento · evento');
 
     const opportunity = callsFor(mock.calls, 'POST', '/rest/opportunities')[0]?.body;
     assertStringIncludes(String(opportunity?.name), 'Registro evento lead-evento-123');
@@ -180,6 +180,7 @@ Deno.test('evento: crea persona, oportunidad, tarea y enlace con datos del asist
     const task = callsFor(mock.calls, 'POST', '/rest/tasks')[0]?.body;
     const taskBody = task?.bodyV2 as { markdown?: string };
     assertStringIncludes(taskBody.markdown ?? '', '**Campaña:** evento');
+    assertStringIncludes(taskBody.markdown ?? '', '**Evento:** evento');
     assertStringIncludes(taskBody.markdown ?? '', '**Ciudad:** Bogotá');
 
     const target = callsFor(mock.calls, 'POST', '/rest/taskTargets')[0]?.body;
@@ -359,6 +360,43 @@ Deno.test('evento: reintento idempotente no duplica oportunidad, tarea ni enlace
     assertEquals(callsFor(mock.calls, 'POST', '/rest/opportunities').length, 1);
     assertEquals(callsFor(mock.calls, 'POST', '/rest/tasks').length, 1);
     assertEquals(callsFor(mock.calls, 'POST', '/rest/taskTargets').length, 1);
+  } finally {
+    mock.restore();
+  }
+});
+
+Deno.test('congreso: etiqueta persona/opp/tarea con evento ACISE y productos', async () => {
+  const mock = installTwentyMock();
+  try {
+    const result = await new TwentyClient({
+      baseUrl: 'https://twenty.test',
+      apiKey: 'test-key',
+    }).syncCotizacionLead(
+      eventInput({
+        origen: 'congreso',
+        eventSlug: 'acise2026',
+        eventName: 'ACISE2026',
+        productos: [
+          { nombre: 'Autoclave Tuttnauer', slug: 'autoclave-tuttnauer', cantidad: 1 },
+          { nombre: 'Torre laparoscopia', slug: 'torre-lap', cantidad: 1 },
+        ],
+      })
+    );
+
+    assertEquals(result.ok, true);
+    const person = callsFor(mock.calls, 'POST', '/rest/people')[0]?.body;
+    assertEquals(person?.jobTitle, 'Lead evento · ACISE2026');
+
+    const opportunity = callsFor(mock.calls, 'POST', '/rest/opportunities')[0]?.body;
+    assertStringIncludes(String(opportunity?.name), 'Registro ACISE2026');
+
+    const task = callsFor(mock.calls, 'POST', '/rest/tasks')[0]?.body;
+    const taskBody = task?.bodyV2 as { markdown?: string };
+    assertStringIncludes(taskBody.markdown ?? '', '**Canal:** congreso');
+    assertStringIncludes(taskBody.markdown ?? '', '**Evento:** ACISE2026');
+    assertStringIncludes(taskBody.markdown ?? '', '**Evento slug:** acise2026');
+    assertStringIncludes(taskBody.markdown ?? '', 'Autoclave Tuttnauer');
+    assertStringIncludes(String(task?.title ?? ''), 'Lead ACISE2026');
   } finally {
     mock.restore();
   }

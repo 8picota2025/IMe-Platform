@@ -231,14 +231,20 @@ export class TwentyClient {
     phoneCallingCode?: string;
     jobTitle?: string;
     companyId?: string;
+    /** Si true y la persona ya existe, no pisa jobTitle (p.ej. share tras lead evento). */
+    preserveJobTitleOnUpdate?: boolean;
   }): Promise<TwentyResult<TwentyRecord>> {
     let existing: TwentyResult<TwentyRecord | null> = { ok: true, data: null };
     if (input.email) {
       existing = await this.findPersonByEmail(input.email);
-    } else if (input.phoneNumber) {
-      existing = await this.findPersonByPhone(input.phoneNumber);
+      if (!existing.ok) return { ok: false, error: existing.error };
     }
-    if (!existing.ok) return { ok: false, error: existing.error };
+    // Congreso/share a menudo crea primero por WhatsApp (sin email). Si el email
+    // no matchea, deduplicar por teléfono evita HTTP 400 "duplicate entry".
+    if (!existing.data && input.phoneNumber) {
+      existing = await this.findPersonByPhone(input.phoneNumber);
+      if (!existing.ok) return { ok: false, error: existing.error };
+    }
 
     const payload: Record<string, unknown> = {
       name: { firstName: input.firstName, lastName: input.lastName ?? '' },
@@ -250,14 +256,37 @@ export class TwentyClient {
         ...(input.phoneCallingCode ? { primaryPhoneCallingCode: input.phoneCallingCode } : {}),
       };
     }
-    if (input.jobTitle) payload.jobTitle = input.jobTitle;
+    const existingId = existing.data?.id;
+    if (input.jobTitle && !(existingId && input.preserveJobTitleOnUpdate)) {
+      payload.jobTitle = input.jobTitle;
+    }
     if (input.companyId) payload.companyId = input.companyId;
 
-    const existingId = existing.data?.id;
     if (existingId) {
-      return this.requestRecord('PATCH', `/people/${existingId}`, payload);
+      const patched = await this.requestRecord('PATCH', `/people/${existingId}`, payload);
+      if (patched.ok || !input.email) return patched;
+      // Email puede chocar con workspace user u otro registro no filtrable.
+      // Reintenta sin email para no bloquear tipificación del lead.
+      const { emails: _emails, ...withoutEmail } = payload;
+      return this.requestRecord('PATCH', `/people/${existingId}`, withoutEmail);
     }
-    return this.requestRecord('POST', '/people', payload);
+    const created = await this.requestRecord('POST', '/people', payload);
+    if (created.ok) return created;
+
+    if (input.phoneNumber) {
+      const raced = await this.findPersonByPhone(input.phoneNumber);
+      if (raced.ok && raced.data?.id) {
+        const patched = await this.requestRecord('PATCH', `/people/${raced.data.id}`, payload);
+        if (patched.ok || !input.email) return patched;
+        const { emails: _emails, ...withoutEmail } = payload;
+        return this.requestRecord('PATCH', `/people/${raced.data.id}`, withoutEmail);
+      }
+    }
+    if (input.email) {
+      const { emails: _emails, ...withoutEmail } = payload;
+      return this.requestRecord('POST', '/people', withoutEmail);
+    }
+    return created;
   }
 
   async upsertCompany(input: {
@@ -638,6 +667,8 @@ export class TwentyClient {
       phoneCallingCode,
       jobTitle: `Lead catálogo · ${canal}`,
       companyId,
+      // No pisar "Lead evento · ACISE…" si el contacto ya nació del flujo congreso.
+      preserveJobTitleOnUpdate: true,
     });
     if (!person.ok || !person.data)
       return { ok: false, error: person.error ?? 'Persona no creada' };
@@ -897,6 +928,9 @@ export class TwentyClient {
     ciudad?: string;
     leadReference?: string;
     twentyOpportunityId?: string | null;
+    /** Slug/nombre del evento presencial (ACISE, etc.) para etiquetar en Twenty. */
+    eventSlug?: string;
+    eventName?: string;
   }): Promise<
     TwentyResult<{
       personId: string;
@@ -932,6 +966,11 @@ export class TwentyClient {
 
     const [firstName, ...restName] = input.nombre.trim().split(/\s+/);
     const isEventLead = input.campaign === 'evento';
+    const eventLabel =
+      (input.eventName || '').trim() ||
+      (input.eventSlug || '').trim() ||
+      (isEventLead ? 'evento' : '');
+    const eventOrigen = (input.origen || '').trim() || (isEventLead ? 'evento' : 'web');
     const person = await this.upsertPerson({
       firstName: input.nombres?.trim() || firstName || 'Contacto',
       lastName: input.apellidos?.trim() || restName.join(' ') || 'Web',
@@ -939,8 +978,8 @@ export class TwentyClient {
       phoneNumber,
       phoneCallingCode,
       jobTitle: isEventLead
-        ? 'Lead evento'
-        : `${input.priority ? `${input.priority} · ` : ''}Lead ${input.origen || 'web'}`,
+        ? `Lead evento · ${eventLabel}`.slice(0, 80)
+        : `${input.priority ? `${input.priority} · ` : ''}Lead ${eventOrigen}`,
       companyId,
     });
     if (!person.ok || !person.data) {
@@ -954,7 +993,7 @@ export class TwentyClient {
       .join(', ');
     const eventReference = input.leadReference?.trim().slice(0, 36);
     const oppName = isEventLead
-      ? `Registro evento${eventReference ? ` ${eventReference}` : ''} — ${input.nombre}`.slice(
+      ? `Registro ${eventLabel}${eventReference ? ` ${eventReference}` : ''} — ${input.nombre}`.slice(
           0,
           120
         )
@@ -1044,7 +1083,7 @@ export class TwentyClient {
     const due = new Date(Date.now() + dueHours * 60 * 60 * 1000).toISOString();
     const taskTitle = (
       isEventLead
-        ? `Lead evento${eventReference ? ` ${eventReference}` : ''}: ${input.nombre}`
+        ? `Lead ${eventLabel}${eventReference ? ` ${eventReference}` : ''}: ${input.nombre}`
         : `${input.priority ? `SLA ${input.priority}` : 'SLA cotización'}: ${oppName}`
     ).slice(0, 120);
     const taskPayload = {
@@ -1055,14 +1094,17 @@ export class TwentyClient {
       position: 'first',
       bodyV2: {
         markdown: [
-          `**Canal:** ${input.origen || 'web'}`,
+          `**Canal:** ${eventOrigen}`,
           `**Tipo:** ${input.tipoSolicitud || 'cotizacion'}`,
           ...(input.campaign ? [`**Campaña:** ${input.campaign}`] : []),
+          ...(eventLabel && isEventLead ? [`**Evento:** ${eventLabel}`] : []),
+          ...(input.eventSlug ? [`**Evento slug:** ${input.eventSlug}`] : []),
           ...(input.familySlug ? [`**Familia:** ${input.familySlug}`] : []),
           ...(input.purchaseHorizon ? [`**Horizonte:** ${input.purchaseHorizon}`] : []),
           ...(input.ciudad ? [`**Ciudad:** ${input.ciudad}`] : []),
           `**Mensaje:** ${input.mensaje || '—'}`,
-          ...(isEventLead ? [] : [`**Productos:**\n${productList}`]),
+          // Congreso/evento: productos de interés van en la tarea para seguimiento.
+          ...((input.productos || []).length ? [`**Productos:**\n${productList}`] : []),
         ].join('\n'),
       },
     };
@@ -1173,6 +1215,8 @@ export async function syncCotizacionWithTwenty(input: {
   ciudad?: string;
   leadReference?: string;
   twentyOpportunityId?: string | null;
+  eventSlug?: string;
+  eventName?: string;
 }): Promise<
   TwentyResult<{
     personId: string;
@@ -1204,6 +1248,11 @@ export async function syncCommercialLeadWithTwenty(input: {
   ciudad?: string;
   leadReference?: string;
   twentyOpportunityId?: string | null;
+  /** Override de canal (p.ej. `congreso`); por defecto deriva de campaign. */
+  origen?: string;
+  eventSlug?: string;
+  eventName?: string;
+  productos?: Array<{ nombre?: string; slug?: string; cantidad?: number }>;
 }): Promise<
   TwentyResult<{
     personId: string;
@@ -1212,14 +1261,14 @@ export async function syncCommercialLeadWithTwenty(input: {
     taskId?: string;
   }>
 > {
+  const isEvent = input.campaign === 'evento';
   return syncCotizacionWithTwenty({
     ...input,
-    origen: input.campaign === 'evento' ? 'evento' : `lead_consultivo:${input.campaign}`,
-    tipoSolicitud: input.campaign === 'evento' ? 'registro_evento' : 'evaluacion_proyecto',
-    productos:
-      input.campaign === 'evento'
-        ? []
-        : [{ slug: input.familySlug, nombre: input.familySlug, cantidad: 1 }],
+    origen: input.origen?.trim() || (isEvent ? 'evento' : `lead_consultivo:${input.campaign}`),
+    tipoSolicitud: isEvent ? 'registro_evento' : 'evaluacion_proyecto',
+    productos: isEvent
+      ? (input.productos ?? [])
+      : (input.productos ?? [{ slug: input.familySlug, nombre: input.familySlug, cantidad: 1 }]),
   });
 }
 

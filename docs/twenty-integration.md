@@ -72,7 +72,7 @@ Errores de Twenty se guardan sin URL de filtro, body remoto, email ni teléfono.
 
 `supabase/functions/_shared/twenty-crm.ts`
 
-## Cotización web → Twenty (2026-08-01)
+# Cotización web → Twenty (2026-08-01)
 
 `registrar-cotizacion` ahora llama `syncCotizacionWithTwenty` (best-effort):
 
@@ -80,6 +80,29 @@ Errores de Twenty se guardan sin URL de filtro, body remoto, email ni teléfono.
 2. Upsert Person (email/tel)
 3. Create Opportunity `NEW` + PoC + owner + amount si hay `total_estimado`
 4. Create Task SLA 4h + taskTarget
+
+## Congreso PWA → Twenty (2026-08-27)
+
+`congreso-lead` persiste en `leads_comerciales` (`campaign=evento`, `origen=congreso`)
+y sincroniza a Twenty con identificación operativa:
+
+| Campo Twenty      | Valor                                                      |
+| ----------------- | ---------------------------------------------------------- |
+| `people.jobTitle` | `Lead evento · ACISE2026`                                  |
+| Opportunity       | `Registro ACISE2026 {leadId} — {nombre}` stage `NEW`       |
+| Task              | `Lead ACISE2026 {leadId}: {nombre}` + productos de interés |
+| Task body         | Canal `congreso`, Evento, slug, ciudad, mensaje            |
+
+`comercial-share` (email/WhatsApp post-registro) crea nota de catálogo pero **no pisa**
+`jobTitle` si la persona ya existe (preserveJobTitleOnUpdate).
+
+Redeploy:
+
+```bash
+supabase functions deploy congreso-lead
+supabase functions deploy comercial-share
+supabase functions deploy registrar-lead-comercial
+```
 
 Secrets Edge (igual que comercial-share):
 

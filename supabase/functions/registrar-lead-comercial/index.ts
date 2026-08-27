@@ -118,6 +118,11 @@ async function syncLeadWithTwenty(
 
   const eventFirstNames = metadataText(lead.metadata, 'nombres');
   const eventLastNames = metadataText(lead.metadata, 'apellidos');
+  const eventoRaw = lead.metadata?.evento;
+  const evento =
+    eventoRaw && typeof eventoRaw === 'object' ? (eventoRaw as Record<string, unknown>) : null;
+  const eventSlug = typeof evento?.slug === 'string' ? evento.slug.trim() : undefined;
+  const eventName = typeof evento?.nombre === 'string' ? evento.nombre.trim() : undefined;
   const twenty = await syncCommercialLeadWithTwenty({
     nombre: lead.nombre,
     ...(eventFirstNames ? { nombres: eventFirstNames } : {}),
@@ -133,6 +138,11 @@ async function syncLeadWithTwenty(
     ciudad: lead.ciudad,
     leadReference: lead.id,
     twentyOpportunityId: lead.twenty_opportunity_id,
+    ...(metadataText(lead.metadata, 'origen')
+      ? { origen: metadataText(lead.metadata, 'origen') }
+      : {}),
+    ...(eventSlug ? { eventSlug } : {}),
+    ...(eventName ? { eventName } : {}),
   });
   const crmSyncStatus: CrmSyncStatus = twenty.skipped ? 'skipped' : twenty.ok ? 'synced' : 'failed';
   const update = await supabase
