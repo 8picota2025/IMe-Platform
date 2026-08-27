@@ -34,7 +34,7 @@ const itemListJsonLd = {
 };
 
 const jsonLd = combineJsonLd(
-  buildOrganizationJsonLd(),
+  buildOrganizationJsonLd(items.length),
   buildBreadcrumbJsonLd([
     { name: t(locale, 'catalogo.migas_inicio'), url: buildCanonical('/en/') },
     { name: t(locale, 'catalogo.migas_catalogo'), url: seo.canonical },

@@ -263,7 +263,7 @@ export function buildFaqJsonLd(items: Array<{ q: string; a: string }>): Record<s
  * JSON-LD Organization + MedicalBusiness — datos reales del cliente.
  * NIT: 901871720-1 · CL 28 SUR 29 83, Envigado, Antioquia, CO
  */
-export function buildOrganizationJsonLd(): Record<string, unknown> {
+export function buildOrganizationJsonLd(catalogItemCount?: number): Record<string, unknown> {
   return {
     '@context': 'https://schema.org',
     '@type': ['Organization', 'MedicalBusiness'],
@@ -321,7 +321,9 @@ export function buildOrganizationJsonLd(): Record<string, unknown> {
       '@type': 'OfferCatalog',
       name: 'Catálogo de Equipos Biomédicos I-ME',
       url: `${SITE}/es/catalogo/`,
-      numberOfItems: 33,
+      ...(typeof catalogItemCount === 'number' && catalogItemCount >= 0
+        ? { numberOfItems: catalogItemCount }
+        : {}),
     },
   };
 }
