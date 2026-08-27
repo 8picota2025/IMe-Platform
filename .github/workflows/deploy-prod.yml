@@ -37,7 +37,7 @@ jobs:
 
       - name: Build
         timeout-minutes: 5
-        run: npm run check && npm run build
+        run: npm run check && npm run build && npm run audit:seo-build
         env:
           PUBLIC_SUPABASE_URL: https://nnfbucwiasuggyfoyydo.supabase.co
           PUBLIC_SUPABASE_ANON_KEY: sb_publishable_5nGmPS2W7yzG3B1NC7piCQ_Imt5f9b2
