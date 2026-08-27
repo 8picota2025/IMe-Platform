@@ -37,6 +37,11 @@ import {
   type CotizacionOfertaRow,
   type CotizacionLineaOferta,
 } from '../../../src/lib/cotizacion-oferta.ts';
+import {
+  isCuponLineaElegible,
+  looksLikeUuid,
+  resolveFamiliaFilter,
+} from '../../../src/lib/cupon-familia-elegibilidad.ts';
 
 const FN_NAME = 'crear-pago';
 const MAX_ITEMS = 20;
@@ -460,16 +465,43 @@ async function calcularDescuentoCupon(args: {
 
   const incluidos = new Set(cupon.productos_incluidos ?? []);
   const excluidos = new Set(cupon.productos_excluidos ?? []);
-  const familiasIncluidas = new Set(cupon.familias_incluidas ?? []);
-  const familiasExcluidas = new Set(cupon.familias_excluidas ?? []);
-  const elegibles = args.items.filter(item => {
-    const slug = String(item.slug ?? '');
-    const familiaId = String(item.familia_id ?? '');
-    if (excluidos.has(slug) || familiasExcluidas.has(familiaId)) return false;
-    if (incluidos.size > 0 && !incluidos.has(slug)) return false;
-    if (familiasIncluidas.size > 0 && !familiasIncluidas.has(familiaId)) return false;
-    return true;
-  });
+  // Admin UI stores family slugs; items carry familia_id (UUID). Resolve
+  // slugs → ids before matching or exclusions fail-open (underpriced checkout).
+  const familiaRefs = [...(cupon.familias_incluidas ?? []), ...(cupon.familias_excluidas ?? [])]
+    .map(r => String(r ?? '').trim())
+    .filter(Boolean);
+  const slugRefs = [...new Set(familiaRefs.filter(r => !looksLikeUuid(r)))];
+  const familiasBySlug = new Map<string, string>();
+  if (slugRefs.length > 0) {
+    const { data: familiaRows, error: familiaError } = await args.supabase
+      .from('familias')
+      .select('id, slug')
+      .in('slug', slugRefs);
+    if (familiaError) {
+      return {
+        ok: false,
+        response: internalError(
+          `error resolviendo familias de cupon: ${familiaError.message}`,
+          args.origin
+        ),
+      };
+    }
+    for (const row of (familiaRows ?? []) as Array<{ id: string; slug: string }>) {
+      if (row.slug && row.id) familiasBySlug.set(row.slug, row.id);
+    }
+  }
+  const familiasIncluidas = resolveFamiliaFilter(cupon.familias_incluidas, familiasBySlug);
+  const familiasExcluidas = resolveFamiliaFilter(cupon.familias_excluidas, familiasBySlug);
+  const elegibles = args.items.filter(item =>
+    isCuponLineaElegible({
+      slug: String(item.slug ?? ''),
+      familiaId: item.familia_id == null ? null : String(item.familia_id),
+      productosIncluidos: incluidos,
+      productosExcluidos: excluidos,
+      familiasIncluidas,
+      familiasExcluidas,
+    })
+  );
   if (elegibles.length === 0) {
     return {
       ok: false,
