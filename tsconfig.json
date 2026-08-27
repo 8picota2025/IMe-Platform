@@ -29,6 +29,8 @@
     "dist",
     "node_modules",
     "supabase/functions",
+    "supabase/scripts",
+    "scripts/**/*.ts",
     "packages/*/node_modules",
     "packages/*/dist"
   ]
