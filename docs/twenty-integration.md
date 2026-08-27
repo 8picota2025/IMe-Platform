@@ -104,6 +104,12 @@ supabase functions deploy comercial-share
 supabase functions deploy registrar-lead-comercial
 ```
 
+Backfill one-shot (Deno, fuera de `astro check`):
+
+```bash
+deno run --allow-env --allow-net supabase/scripts/backfill-congreso-twenty.ts
+```
+
 Secrets Edge (igual que comercial-share):
 
 ```bash

@@ -2,9 +2,9 @@
  * One-shot: sincroniza leads_comerciales de congreso (pending/failed) a Twenty.
  * Uso:
  *   set -a && source .env && set +a
- *   deno run --allow-env --allow-net scripts/backfill-congreso-twenty.ts
+ *   deno run --allow-env --allow-net supabase/scripts/backfill-congreso-twenty.ts
  */
-import { syncCommercialLeadWithTwenty } from '../supabase/functions/_shared/twenty-crm.ts';
+import { syncCommercialLeadWithTwenty } from '../functions/_shared/twenty-crm.ts';
 
 const url = Deno.env.get('PUBLIC_SUPABASE_URL')?.replace(/\/+$/, '');
 const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
@@ -42,10 +42,10 @@ function eventInfo(meta: Lead['metadata']): { slug?: string; nombre?: string } {
   const raw = meta?.evento;
   if (!raw || typeof raw !== 'object') return {};
   const e = raw as Record<string, unknown>;
-  return {
-    slug: typeof e.slug === 'string' ? e.slug.trim() : undefined,
-    nombre: typeof e.nombre === 'string' ? e.nombre.trim() : undefined,
-  };
+  const out: { slug?: string; nombre?: string } = {};
+  if (typeof e.slug === 'string' && e.slug.trim()) out.slug = e.slug.trim();
+  if (typeof e.nombre === 'string' && e.nombre.trim()) out.nombre = e.nombre.trim();
+  return out;
 }
 
 function products(meta: Lead['metadata']) {
@@ -112,10 +112,12 @@ for (const lead of targets) {
 
   const evento = eventInfo(meta);
   const productos = products(meta);
+  const nombres = text(meta, 'nombres');
+  const apellidos = text(meta, 'apellidos');
   const twenty = await syncCommercialLeadWithTwenty({
     nombre: lead.nombre,
-    nombres: text(meta, 'nombres'),
-    apellidos: text(meta, 'apellidos'),
+    ...(nombres ? { nombres } : {}),
+    ...(apellidos ? { apellidos } : {}),
     ...(lead.email ? { email: lead.email } : {}),
     ...(lead.telefono ? { telefono: lead.telefono } : {}),
     empresa: lead.institucion,
