@@ -8688,7 +8688,7 @@ function buildLocalIngestDraft(pdfText: string, pdfUrl: string, errorMessage?: s
 
 function revisable(
   valor: string,
-  origen: 'pdf' | 'ausente' | 'manual',
+  origen: 'pdf' | 'ausente' | 'manual' | 'inferido',
   confianza: number,
   requiere_revision: boolean
 ): CampoRevisable {
@@ -9057,9 +9057,9 @@ function ingestPayload(form: HTMLFormElement): Row {
     valor_en: String(data.get('valor_en') ?? ''),
     seo_keywords_es,
     seo_keywords_en,
-    meta_title: meta_title ?? undefined,
-    meta_description: meta_description ?? undefined,
-    marca: String(data.get('marca') ?? ''),
+    ...(meta_title ? { meta_title } : {}),
+    ...(meta_description ? { meta_description } : {}),
+    ...(String(data.get('marca') ?? '').trim() ? { marca: String(data.get('marca')) } : {}),
   });
   return {
     slug: String(data.get('slug') ?? ''),
