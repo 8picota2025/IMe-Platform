@@ -1,0 +1,143 @@
+---
+import Layout from '../../../../../layouts/Layout.astro';
+import ProductoCard from '../../../../../components/ProductoCard.astro';
+import {
+  getFamiliaSeo,
+  listFamiliaSeoSlugs,
+  familiaDisplayName,
+} from '../../../../../data/familia-seo';
+import { buildCatalogoIndex, paginateCatalogItems } from '../../../../../lib/catalogo';
+import {
+  buildCanonical,
+  buildOrganizationJsonLd,
+  buildBreadcrumbJsonLd,
+  combineJsonLd,
+} from '../../../../../lib/seo';
+
+export async function getStaticPaths() {
+  const items = await buildCatalogoIndex('es');
+  const paths = [];
+  for (const slug of listFamiliaSeoSlugs()) {
+    const familyItems = items.filter(item => item.familia.slug === slug);
+    const { pageCount } = paginateCatalogItems(familyItems, 1);
+    for (let page = 2; page <= pageCount; page += 1) {
+      paths.push({ params: { slug, page: String(page) } });
+    }
+  }
+  return paths;
+}
+
+const locale = 'es' as const;
+const slug = Astro.params.slug!;
+const page = Number(Astro.params.page);
+const content = getFamiliaSeo(slug);
+if (!content) return Astro.redirect('/es/catalogo/');
+
+const name = familiaDisplayName(content, locale);
+const productos = (await buildCatalogoIndex(locale)).filter(item => item.familia.slug === slug);
+const familyPage = paginateCatalogItems(productos, page);
+if (familyPage.items.length === 0) return Astro.redirect(`/es/familias/${slug}/`);
+
+const canonical = buildCanonical(`/es/familias/${slug}/pagina/${familyPage.page}`);
+const title = `${name} — página ${familyPage.page} | I-ME`;
+const description = `Página ${familyPage.page} de equipos de ${name} disponibles en el catálogo institucional I-ME.`;
+const jsonLd = combineJsonLd(
+  buildOrganizationJsonLd(),
+  buildBreadcrumbJsonLd([
+    { name: 'Inicio', url: buildCanonical('/es/') },
+    { name: 'Catálogo', url: buildCanonical('/es/catalogo/') },
+    { name, url: buildCanonical(`/es/familias/${slug}/`) },
+    { name: `Página ${familyPage.page}`, url: canonical },
+  ]),
+  {
+    '@type': 'ItemList',
+    name: title,
+    itemListElement: familyPage.items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: (familyPage.page - 1) * 48 + index + 1,
+      url: buildCanonical(`/es/productos/${item.slug}/`),
+      name: item.nombre,
+    })),
+  }
+);
+
+const pagePath = (target: number) =>
+  target === 1 ? `/es/familias/${slug}/` : `/es/familias/${slug}/pagina/${target}/`;
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  locale={locale}
+  currentPath={`/es/familias/${slug}/pagina/${familyPage.page}`}
+  jsonLd={jsonLd}
+>
+  <div
+    class="page-hero"
+    style="padding-top:130px;padding-bottom:var(--space-md);background:var(--off)"
+  >
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Ruta">
+        <a href="/es/">Inicio</a> / <a href="/es/catalogo/">Catálogo</a> / <a
+          href={`/es/familias/${slug}/`}>{name}</a
+        >
+      </nav>
+      <span class="section-tag">Familia</span>
+      <h1>{name}: página {familyPage.page}</h1>
+      <p>{familyPage.total} equipos · página {familyPage.page} de {familyPage.pageCount}</p>
+    </div>
+  </div>
+  <section class="container equipment">
+    <div class="equipment-grid">
+      {familyPage.items.map(item => <ProductoCard producto={item} locale={locale} />)}
+    </div>
+    <nav class="family-pagination" aria-label="Paginación de la familia">
+      <a class="btn btn-secondary" href={pagePath(familyPage.page - 1)}>Anterior</a>
+      <span>Página {familyPage.page} de {familyPage.pageCount}</span>
+      {
+        familyPage.page < familyPage.pageCount && (
+          <a class="btn btn-secondary" href={pagePath(familyPage.page + 1)}>
+            Siguiente
+          </a>
+        )
+      }
+    </nav>
+  </section>
+</Layout>
+
+<style>
+  .breadcrumb {
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+  }
+  .breadcrumb a {
+    color: var(--teal, #0f4c5c);
+  }
+  .section-tag {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--teal, #0f4c5c);
+  }
+  .page-hero p {
+    color: var(--text-mid);
+  }
+  .equipment {
+    padding: var(--space-xl) 0 var(--space-2xl);
+  }
+  .equipment-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+  .family-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+</style>

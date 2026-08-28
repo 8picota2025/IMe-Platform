@@ -18,7 +18,7 @@ import {
   familiaDisplayName,
   getFamiliaGuide,
 } from '../../../data/familia-seo';
-import { buildCatalogoIndex } from '../../../lib/catalogo';
+import { buildCatalogoIndex, paginateCatalogItems } from '../../../lib/catalogo';
 import { t } from '../../../i18n/utils';
 
 export function getStaticPaths() {
@@ -43,6 +43,7 @@ const seo = buildFamiliaSeo(locale, {
 const productos = (await buildCatalogoIndex(locale)).filter(
   item => item.familia.slug === content.slug
 );
+const familyPage = paginateCatalogItems(productos, 1);
 const faq = content.faq.map(f => ({ q: f.q_es, a: f.a_es }));
 const criterios = getFamiliaGuide(slug, locale);
 const catalogoFamilia = '#equipos';
@@ -137,7 +138,7 @@ const jsonLd = combineJsonLd(
       <section id="equipos" class="container" style="padding-bottom:var(--space-xl)">
         <h2 style="margin-bottom:1rem">Equipos de {name}</h2>
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem">
-          {productos.map(p => (
+          {familyPage.items.map(p => (
             <ProductoCard
               producto={{
                 ...p,
@@ -147,6 +148,14 @@ const jsonLd = combineJsonLd(
             />
           ))}
         </div>
+        {familyPage.pageCount > 1 && (
+          <nav class="family-pagination" aria-label="Paginación de la familia">
+            <span>Página 1 de {familyPage.pageCount}</span>
+            <a class="btn btn-secondary" href={`/es/familias/${slug}/pagina/2/`}>
+              Siguiente
+            </a>
+          </nav>
+        )}
       </section>
     )
   }
@@ -184,5 +193,12 @@ const jsonLd = combineJsonLd(
   }
   .family-guide li + li {
     margin-top: 0.6rem;
+  }
+  .family-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
   }
 </style>

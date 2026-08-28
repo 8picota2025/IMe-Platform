@@ -22,6 +22,294 @@ export interface FamiliaSeoContent {
 
 export const FAMILIA_SEO: FamiliaSeoContent[] = [
   {
+    slug: 'actividades-vida-diaria',
+    name_es: 'Actividades de la vida diaria',
+    name_en: 'Activities of daily living',
+    title_es: 'Ayudas para actividades de la vida diaria | I-ME',
+    title_en: 'Daily living aids and institutional equipment | I-ME',
+    description_es:
+      'Ayudas, accesorios y equipos para movilidad cotidiana, higiene y transferencia en instituciones y cuidado asistido.',
+    description_en:
+      'Aids, accessories and equipment for daily mobility, hygiene and transfer in institutions and assisted care.',
+    intro_es:
+      'Esta familia reúne ayudas para tareas cotidianas, higiene, transferencia y apoyo funcional. La selección depende del usuario, el entorno y la compatibilidad entre equipo y accesorio.',
+    intro_en:
+      'This family brings together aids for daily tasks, hygiene, transfer and functional support. Selection depends on user, environment and equipment-accessory compatibility.',
+    body_es: [
+      'Antes de cotizar conviene documentar espacio, recorrido, tipo de asistencia, frecuencia de uso y limpieza.',
+      'Arneses, asientos, baldes, actuadores y repuestos se validan por referencia; piezas parecidas no son automáticamente compatibles.',
+    ],
+    body_en: [
+      'Before quoting, document space, route, assistance type, use frequency and cleaning.',
+      'Slings, seats, buckets, actuators and spare parts are validated per model; similar-looking parts are not automatically compatible.',
+    ],
+    faq: [
+      {
+        q_es: '¿Cómo confirmo compatibilidad de un accesorio?',
+        a_es: 'Con modelo, referencia y ficha del equipo principal. I-ME confirma la correspondencia antes de cotizar.',
+        q_en: 'How do I confirm accessory compatibility?',
+        a_en: 'Use model, reference and main-equipment documentation. I-ME confirms fit before quoting.',
+      },
+    ],
+    relatedSlugs: [],
+  },
+  {
+    slug: 'diagnostico-clinico-basico',
+    name_es: 'Diagnóstico clínico básico',
+    name_en: 'Basic clinical diagnostics',
+    title_es: 'Equipos de diagnóstico clínico y laboratorio básico | I-ME',
+    title_en: 'Basic clinical and laboratory diagnostic equipment | I-ME',
+    description_es:
+      'Equipos de diagnóstico clínico básico y laboratorio para instituciones: analizadores, medición y referencias documentadas.',
+    description_en:
+      'Basic clinical and laboratory diagnostic equipment for institutions: analyzers, measurement and documented models.',
+    intro_es:
+      'El diagnóstico básico reúne tecnologías distintas. Para comparar correctamente hay que separar medición clínica, procesamiento de muestras, capacidad y flujo documental.',
+    intro_en:
+      'Basic diagnostics includes different technologies. Sound comparison separates clinical measurement, sample processing, capacity and documentation workflow.',
+    body_es: [
+      'El volumen esperado, tipo de muestra o medición, espacio, consumibles y gestión de resultados definen la tipología.',
+      'Cada analizador o equipo se revisa contra documentación oficial, requisitos de instalación y alcance de capacitación y soporte.',
+    ],
+    body_en: [
+      'Expected volume, sample or measurement type, space, consumables and result management define the equipment class.',
+      'Each analyzer or device is reviewed against official documentation, installation requirements, training and support scope.',
+    ],
+    faq: [
+      {
+        q_es: '¿Qué información necesita una cotización?',
+        a_es: 'Tipo de prueba o medición, volumen, infraestructura, consumibles y flujo de resultados.',
+        q_en: 'What information is needed for a quote?',
+        a_en: 'Test or measurement type, volume, infrastructure, consumables and result workflow.',
+      },
+    ],
+    relatedSlugs: [],
+  },
+  {
+    slug: 'emergencias-traslado-inmovilizacion',
+    name_es: 'Emergencias, traslado e inmovilización',
+    name_en: 'Emergency, transport and immobilization',
+    title_es: 'Equipos para emergencias, traslado e inmovilización | I-ME',
+    title_en: 'Emergency, transport and immobilization equipment | I-ME',
+    description_es:
+      'Camillas, tableros, inmovilización y equipos de traslado para ambulancias e instituciones de salud.',
+    description_en:
+      'Stretchers, spine boards, immobilization and transport equipment for ambulances and healthcare institutions.',
+    intro_es:
+      'Traslado e inmovilización se dimensionan por recorrido, vehículo o área, manipulación, almacenamiento y protocolo institucional.',
+    intro_en:
+      'Transport and immobilization are sized by route, vehicle or area, handling, storage and institutional protocol.',
+    body_es: [
+      'Camillas de ambulancia, plegables, cuchara, tableros y accesorios responden a escenarios operativos diferentes.',
+      'Antes de comprar se revisan dimensiones, carga declarada, plegado, anclaje, limpieza, accesorios y mantenimiento según fabricante.',
+    ],
+    body_en: [
+      'Ambulance, folding and scoop stretchers, spine boards and accessories fit different operating scenarios.',
+      'Before purchase, review dimensions, declared load, folding, anchoring, cleaning, accessories and maintenance per manufacturer.',
+    ],
+    faq: [
+      {
+        q_es: '¿Una camilla sirve para cualquier ambulancia?',
+        a_es: 'No se debe asumir. Hay que validar dimensiones, sistema de anclaje y referencia del vehículo o instalación.',
+        q_en: 'Does one stretcher fit every ambulance?',
+        a_en: 'Do not assume so. Validate dimensions, anchoring system and vehicle or installation reference.',
+      },
+    ],
+    relatedSlugs: [],
+  },
+  {
+    slug: 'esterilizacion-control-infecciones',
+    name_es: 'Esterilización y control de infecciones',
+    name_en: 'Sterilization and infection control',
+    title_es: 'Esterilización y control de infecciones hospitalarias | I-ME',
+    title_en: 'Hospital sterilization and infection-control equipment | I-ME',
+    description_es:
+      'Autoclaves, esterilizadores, desinfección y apoyo para centrales e instituciones de salud.',
+    description_en:
+      'Autoclaves, sterilizers, disinfection and support equipment for sterile services and healthcare institutions.',
+    intro_es:
+      'Esta familia combina procesos, equipos y consumibles. La compra debe partir del material a procesar, capacidad, ciclo, infraestructura y trazabilidad requeridos.',
+    intro_en:
+      'This family combines processes, equipment and consumables. Purchasing starts from processed material, capacity, cycle, infrastructure and traceability needs.',
+    body_es: [
+      'Autoclaves, esterilizadores y sistemas de desinfección no son intercambiables: cada tecnología tiene alcance y condiciones documentadas.',
+      'Se validan agua, energía, ventilación, drenaje, carga, instalación, capacitación y mantenimiento para la referencia seleccionada.',
+    ],
+    body_en: [
+      'Autoclaves, sterilizers and disinfection systems are not interchangeable: each technology has documented scope and conditions.',
+      'Water, power, ventilation, drainage, load, installation, training and maintenance are validated for the selected model.',
+    ],
+    faq: [
+      {
+        q_es: '¿Cómo se define capacidad?',
+        a_es: 'Desde tipos de carga, volumen por jornada y flujo de la central; no solo por litros nominales.',
+        q_en: 'How is capacity defined?',
+        a_en: 'From load types, daily volume and sterile-services workflow—not nominal liters alone.',
+      },
+    ],
+    relatedSlugs: [],
+  },
+  {
+    slug: 'insumos-accesorios',
+    name_es: 'Insumos y accesorios',
+    name_en: 'Consumables and accessories',
+    title_es: 'Insumos y accesorios para equipos biomédicos | I-ME',
+    title_en: 'Biomedical equipment consumables and accessories | I-ME',
+    description_es:
+      'Circuitos, cables, interfaces, repuestos y accesorios identificados por modelo para equipos biomédicos.',
+    description_en:
+      'Circuits, cables, interfaces, spare parts and accessories identified by model for biomedical equipment.',
+    intro_es:
+      'En accesorios, compatibilidad y trazabilidad importan más que la apariencia. Cada pedido debe identificar equipo principal, marca, modelo y referencia.',
+    intro_en:
+      'For accessories, compatibility and traceability matter more than appearance. Each order should identify main equipment, brand, model and reference.',
+    body_es: [
+      'El catálogo incluye circuitos, cables, interfaces, mezcladores, arneses y repuestos para distintas líneas.',
+      'I-ME confirma presentación, compatibilidad, unidad de empaque y disponibilidad dentro de la propuesta formal.',
+    ],
+    body_en: [
+      'The catalog includes circuits, cables, interfaces, blenders, harnesses and spare parts across different lines.',
+      'I-ME confirms presentation, compatibility, pack unit and availability in the formal proposal.',
+    ],
+    faq: [
+      {
+        q_es: '¿Puedo comprar por fotografía?',
+        a_es: 'No es suficiente. Envíe etiqueta, modelo y referencia del equipo para reducir errores de compatibilidad.',
+        q_en: 'Can I purchase from a photo?',
+        a_en: 'A photo is not enough. Send label, model and equipment reference to reduce compatibility errors.',
+      },
+    ],
+    relatedSlugs: [],
+  },
+  {
+    slug: 'mobiliario',
+    name_es: 'Mobiliario hospitalario e infraestructura clínica',
+    name_en: 'Hospital furniture and clinical infrastructure',
+    title_es: 'Mobiliario hospitalario e infraestructura clínica | I-ME',
+    title_en: 'Hospital furniture and clinical infrastructure | I-ME',
+    description_es:
+      'Camas, camillas, carros, mesas y mobiliario clínico para hospitalización, UCI y áreas asistenciales.',
+    description_en:
+      'Beds, stretchers, carts, tables and clinical furniture for wards, ICU and care areas.',
+    intro_es:
+      'Mobiliario hospitalario se selecciona por servicio, espacio, recorrido, ergonomía, limpieza y carga operativa; no como una lista genérica de muebles.',
+    intro_en:
+      'Hospital furniture is selected by service, space, route, ergonomics, cleaning and operating load—not as a generic furniture list.',
+    body_es: [
+      'Camas, camillas, carros y mesas deben compararse dentro de su uso previsto y dimensiones reales del área.',
+      'Se revisan funciones, accesorios, materiales declarados, movilidad, mantenimiento y condiciones de entrega por referencia.',
+    ],
+    body_en: [
+      'Beds, stretchers, carts and tables should be compared within intended use and actual area dimensions.',
+      'Functions, accessories, declared materials, mobility, maintenance and delivery conditions are reviewed per model.',
+    ],
+    faq: [
+      {
+        q_es: '¿Qué medidas debo enviar?',
+        a_es: 'Espacio útil, puertas, ascensores, recorridos y restricciones del área, además del uso previsto.',
+        q_en: 'Which measurements should I send?',
+        a_en: 'Usable space, doors, elevators, routes and area restrictions, plus intended use.',
+      },
+    ],
+    relatedSlugs: [],
+  },
+  {
+    slug: 'movilidad-rehabilitacion',
+    name_es: 'Movilidad y rehabilitación',
+    name_en: 'Mobility and rehabilitation',
+    title_es: 'Equipos de movilidad y rehabilitación | I-ME',
+    title_en: 'Mobility and rehabilitation equipment | I-ME',
+    description_es:
+      'Sillas de ruedas, ayudas de marcha, transferencia, repuestos y apoyo para movilidad y rehabilitación.',
+    description_en:
+      'Wheelchairs, walking aids, transfer equipment, spare parts and mobility and rehabilitation support.',
+    intro_es:
+      'Movilidad no se resuelve solo con talla. Entorno, postura, transferencia, autonomía, acompañante y mantenimiento determinan la configuración.',
+    intro_en:
+      'Mobility is not solved by size alone. Environment, posture, transfer, independence, caregiver and maintenance determine configuration.',
+    body_es: [
+      'La familia incluye sillas, bastones, muletas, ayudas de transferencia y repuestos identificados por modelo.',
+      'La selección institucional debe documentar recorrido, almacenamiento, ajuste y compatibilidad; la evaluación individual corresponde al profesional responsable.',
+    ],
+    body_en: [
+      'This family includes wheelchairs, canes, crutches, transfer aids and model-identified spare parts.',
+      'Institutional selection should document route, storage, adjustment and compatibility; individual assessment belongs to the responsible professional.',
+    ],
+    faq: [
+      {
+        q_es: '¿Cómo elijo una silla o ayuda de marcha?',
+        a_es: 'I-ME compara referencias y entorno; la indicación y ajuste individual deben confirmarse por el profesional competente.',
+        q_en: 'How do I choose a wheelchair or walking aid?',
+        a_en: 'I-ME compares models and environment; individual prescription and fitting must be confirmed by the competent professional.',
+      },
+    ],
+    relatedSlugs: [],
+  },
+  {
+    slug: 'ortopedia-confort',
+    name_es: 'Ortopedia y confort',
+    name_en: 'Orthopedics and comfort',
+    title_es: 'Productos de ortopedia y confort institucional | I-ME',
+    title_en: 'Orthopedic and comfort products for institutions | I-ME',
+    description_es:
+      'Cabestrillos, fajas y productos de soporte y confort identificados por talla y referencia.',
+    description_en:
+      'Slings, binders and support and comfort products identified by size and reference.',
+    intro_es:
+      'Talla, referencia y uso indicado por el profesional responsable deben confirmarse antes de seleccionar productos de soporte y confort.',
+    intro_en:
+      'Size, model and use indicated by the responsible professional should be confirmed before selecting support and comfort products.',
+    body_es: [
+      'El catálogo separa referencias y tallas para evitar tratar productos visualmente parecidos como equivalentes.',
+      'I-ME confirma presentación y disponibilidad comercial; no realiza prescripción ni ajuste clínico.',
+    ],
+    body_en: [
+      'The catalog separates models and sizes so visually similar products are not treated as equivalents.',
+      'I-ME confirms commercial presentation and availability; it does not prescribe or perform clinical fitting.',
+    ],
+    faq: [
+      {
+        q_es: '¿I-ME recomienda talla o tratamiento?',
+        a_es: 'No. La talla y el uso deben venir definidos por el profesional responsable; I-ME confirma la referencia comercial.',
+        q_en: 'Does I-ME recommend size or treatment?',
+        a_en: 'No. Size and use must be defined by the responsible professional; I-ME confirms the commercial model.',
+      },
+    ],
+    relatedSlugs: [],
+  },
+  {
+    slug: 'terapia-respiratoria-soporte-vital',
+    name_es: 'Terapia respiratoria y soporte vital',
+    name_en: 'Respiratory therapy and life support',
+    title_es: 'Equipos de terapia respiratoria y soporte vital | I-ME',
+    title_en: 'Respiratory therapy and life-support equipment | I-ME',
+    description_es:
+      'Aspiración, mezcladores, humidificación y equipos de soporte respiratorio para instituciones de salud.',
+    description_en:
+      'Suction, blenders, humidification and respiratory-support equipment for healthcare institutions.',
+    intro_es:
+      'La familia respiratoria combina equipos y accesorios con funciones distintas. Entorno, gases, flujo, población y protocolo institucional definen la selección.',
+    intro_en:
+      'The respiratory family combines equipment and accessories with different functions. Setting, gases, flow, population and institutional protocol define selection.',
+    body_es: [
+      'Aspiradores, mezcladores, humidificación e interfaces deben compararse por función y compatibilidad documentada.',
+      'Antes de cotizar se validan infraestructura, accesorios, consumibles, limpieza, capacitación y mantenimiento por referencia.',
+    ],
+    body_en: [
+      'Suction units, blenders, humidification and interfaces should be compared by function and documented compatibility.',
+      'Before quoting, infrastructure, accessories, consumables, cleaning, training and maintenance are validated per model.',
+    ],
+    faq: [
+      {
+        q_es: '¿Todos los accesorios respiratorios son compatibles?',
+        a_es: 'No se debe asumir. Modelo, conexión, rango y documentación del fabricante deben coincidir.',
+        q_en: 'Are all respiratory accessories compatible?',
+        a_en: 'Do not assume so. Model, connection, range and manufacturer documentation must match.',
+      },
+    ],
+    relatedSlugs: [],
+  },
+  {
     slug: 'robots',
     name_es: 'Robots de servicio y asistencia',
     name_en: 'Service and assistive robots',
@@ -473,6 +761,114 @@ export interface FamiliaGuide {
 }
 
 const GUIAS_FAMILIA: Record<string, FamiliaGuide> = {
+  'actividades-vida-diaria': {
+    criteria_es: [
+      'Identificar actividad, entorno, medidas del usuario y nivel de asistencia requerido.',
+      'Validar dimensiones, ajustes, materiales, limpieza y capacidad de carga por referencia.',
+      'Probar ergonomía y seguridad con el equipo asistencial antes de estandarizar.',
+    ],
+    criteria_en: [
+      'Identify activity, environment, user measurements and required assistance level.',
+      'Validate dimensions, adjustments, materials, cleaning and load capacity per SKU.',
+      'Test ergonomics and safety with the care team before standardizing.',
+    ],
+  },
+  'diagnostico-clinico-basico': {
+    criteria_es: [
+      'Definir parámetros, población, frecuencia de uso y necesidad de portabilidad.',
+      'Comparar rango, resolución, accesorios, limpieza y requisitos de calibración documentados.',
+      'Planear recepción, capacitación, control metrológico y reposición de accesorios.',
+    ],
+    criteria_en: [
+      'Define parameters, population, use frequency and portability needs.',
+      'Compare documented range, resolution, accessories, cleaning and calibration requirements.',
+      'Plan acceptance, training, metrology control and accessory replacement.',
+    ],
+  },
+  'emergencias-traslado-inmovilizacion': {
+    criteria_es: [
+      'Mapear escenarios de rescate, rutas, vehículos, espacios y número de operadores.',
+      'Validar dimensiones, carga, plegado, sujeción, limpieza y accesorios compatibles.',
+      'Incluir inspección periódica, entrenamiento y disponibilidad de repuestos en el protocolo.',
+    ],
+    criteria_en: [
+      'Map rescue scenarios, routes, vehicles, spaces and number of operators.',
+      'Validate dimensions, load, folding, restraints, cleaning and compatible accessories.',
+      'Include periodic inspection, training and spare-part availability in protocol.',
+    ],
+  },
+  'esterilizacion-control-infecciones': {
+    criteria_es: [
+      'Definir carga, materiales, ciclos, capacidad diaria y flujo limpio-sucio institucional.',
+      'Confirmar utilidades, instalación, monitoreo, trazabilidad y consumibles por referencia.',
+      'Acordar calificación, capacitación, mantenimiento y controles de proceso aplicables.',
+    ],
+    criteria_en: [
+      'Define load, materials, cycles, daily capacity and institutional clean-dirty flow.',
+      'Confirm utilities, installation, monitoring, traceability and consumables per SKU.',
+      'Agree on qualification, training, maintenance and applicable process controls.',
+    ],
+  },
+  'insumos-accesorios': {
+    criteria_es: [
+      'Vincular cada insumo o accesorio con equipo, referencia y uso institucional previsto.',
+      'Verificar compatibilidad, presentación, almacenamiento, vida útil y documentación oficial.',
+      'Definir consumo, inventario de seguridad, rotación y trazabilidad antes de comprar.',
+    ],
+    criteria_en: [
+      'Link every supply or accessory to equipment, SKU and intended institutional use.',
+      'Verify compatibility, packaging, storage, shelf life and official documentation.',
+      'Define consumption, safety stock, rotation and traceability before purchasing.',
+    ],
+  },
+  mobiliario: {
+    criteria_es: [
+      'Levantar espacio, circulación, usuarios, carga y flujo de limpieza de cada área.',
+      'Comparar dimensiones, materiales, ajustes, ruedas, frenos y accesorios por referencia.',
+      'Revisar montaje, recepción, repuestos y mantenimiento para el ciclo de vida esperado.',
+    ],
+    criteria_en: [
+      'Survey space, circulation, users, load and cleaning flow in each area.',
+      'Compare dimensions, materials, adjustments, casters, brakes and accessories per SKU.',
+      'Review assembly, acceptance, spare parts and maintenance for expected lifecycle.',
+    ],
+  },
+  'movilidad-rehabilitacion': {
+    criteria_es: [
+      'Definir objetivo funcional, entorno, medidas del usuario y nivel de apoyo profesional.',
+      'Validar ajuste, estabilidad, capacidad, maniobrabilidad y accesorios según referencia.',
+      'Incluir prueba, capacitación, seguimiento y mantenimiento en el proceso de entrega.',
+    ],
+    criteria_en: [
+      'Define functional goal, environment, user measurements and professional support level.',
+      'Validate adjustment, stability, capacity, maneuverability and accessories per SKU.',
+      'Include trial, training, follow-up and maintenance in delivery process.',
+    ],
+  },
+  'ortopedia-confort': {
+    criteria_es: [
+      'Precisar zona corporal, medidas, entorno de uso y objetivo definido por el profesional tratante.',
+      'Comparar talla, ajuste, materiales, cuidado y contraindicaciones documentadas por fabricante.',
+      'Verificar adaptación, instrucciones de uso y criterios institucionales de seguimiento.',
+    ],
+    criteria_en: [
+      'Specify body area, measurements, use environment and treating professional’s goal.',
+      'Compare size, fit, materials, care and manufacturer-documented contraindications.',
+      'Verify fitting, use instructions and institutional follow-up criteria.',
+    ],
+  },
+  'terapia-respiratoria-soporte-vital': {
+    criteria_es: [
+      'Separar oxigenoterapia, aerosolterapia, aspiración y soporte respiratorio por flujo clínico.',
+      'Confirmar fuente, interfaces, consumibles, alarmas, limpieza y compatibilidad por referencia.',
+      'Coordinar capacitación, recepción técnica, mantenimiento y contingencia con biomédica.',
+    ],
+    criteria_en: [
+      'Separate oxygen, aerosol, suction and respiratory-support workflows.',
+      'Confirm source, interfaces, consumables, alarms, cleaning and compatibility per SKU.',
+      'Coordinate training, technical acceptance, maintenance and contingency with biomed.',
+    ],
+  },
   robots: {
     criteria_es: [
       'Definir tarea, recorrido, usuarios y responsable operativo antes de comparar modelos.',
