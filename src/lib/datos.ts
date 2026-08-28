@@ -798,7 +798,10 @@ export async function submitCotizacion(datos: CotizacionPayload): Promise<{
       item_count: datos.productos?.reduce((acc, producto) => acc + producto.cantidad, 0) ?? 0,
       products: datos.productos?.map(producto => `${producto.slug}:${producto.cantidad}`).join(','),
     });
-    return { ok: true, emails: result.emails };
+    if (result.emails) {
+      return { ok: true, emails: result.emails };
+    }
+    return { ok: true };
   }
   // Mock: siempre OK en desarrollo sin Supabase
   console.warn('[datos] submitCotizacion mock (sin Supabase):', datos.email);
