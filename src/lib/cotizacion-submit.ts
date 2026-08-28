@@ -2,22 +2,22 @@ export interface CotizacionMensajeProducto {
   slug: string;
   nombre: string;
   cantidad: number;
-  url?: string;
-  modelo?: string;
+  url?: string | undefined;
+  modelo?: string | undefined;
 }
 
 export interface CotizacionSubmitPayload {
-  locale?: 'es' | 'en';
+  locale?: 'es' | 'en' | undefined;
   mensaje: string;
-  productos?: CotizacionMensajeProducto[];
+  productos?: CotizacionMensajeProducto[] | undefined;
   [key: string]: unknown;
 }
 
 /** Mensaje por defecto cuando el usuario no escribe detalle pero sí eligió productos. */
 export function resolverMensajeCotizacion(params: {
-  locale?: 'es' | 'en';
-  mensaje?: string;
-  productos?: CotizacionMensajeProducto[];
+  locale?: 'es' | 'en' | undefined;
+  mensaje?: string | undefined;
+  productos?: CotizacionMensajeProducto[] | undefined;
 }): string {
   const trimmed = (params.mensaje ?? '').trim();
   if (trimmed) return trimmed.slice(0, 2000);
