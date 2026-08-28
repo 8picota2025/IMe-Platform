@@ -37,6 +37,10 @@ import {
   type CotizacionOfertaRow,
   type CotizacionLineaOferta,
 } from '../../../src/lib/cotizacion-oferta.ts';
+import {
+  normalizeCheckoutEmail,
+  puedeUsarCuponAllowlist,
+} from '../../../src/lib/cupon-email-auth.ts';
 
 const FN_NAME = 'crear-pago';
 const MAX_ITEMS = 20;
@@ -331,12 +335,33 @@ function emailPermitido(email: string, restricciones: string[] | null): boolean 
   });
 }
 
+/**
+ * Verified Auth user email from the request JWT (not the self-asserted body email).
+ * Guest/anon tokens yield null → exclusive allowlisted coupons are denied.
+ */
+async function obtenerEmailSesionVerificado(
+  req: Request,
+  supabase: ReturnType<typeof getServerSupabase>
+): Promise<string | null> {
+  const auth = req.headers.get('Authorization') ?? '';
+  const token = auth.replace(/^Bearer\s+/i, '').trim();
+  if (!token) return null;
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser(token);
+  if (error || !user?.email) return null;
+  return normalizeCheckoutEmail(user.email);
+}
+
 async function calcularDescuentoCupon(args: {
   supabase: ReturnType<typeof getServerSupabase>;
   codigo: string;
   subtotal: number;
   moneda: string;
   email: string;
+  /** Verified Auth session email; required when cupon.emails_permitidos is non-empty. */
+  emailSesionVerificado: string | null;
   items: Array<Record<string, unknown>>;
   origin: string | null;
 }): Promise<
@@ -406,7 +431,11 @@ async function calcularDescuentoCupon(args: {
       ),
     };
   }
-  if (!emailPermitido(args.email, cupon.emails_permitidos)) {
+  // Exclusive allowlists must match a verified Auth session — never trust body email alone.
+  if (
+    !puedeUsarCuponAllowlist(args.email, args.emailSesionVerificado, cupon.emails_permitidos) ||
+    !emailPermitido(args.email, cupon.emails_permitidos)
+  ) {
     return {
       ok: false,
       response: errorResponse(
@@ -841,13 +870,17 @@ Deno.serve(
       !lineasCotizacion && typeof body.cupon_codigo === 'string'
         ? body.cupon_codigo.trim().toUpperCase()
         : '';
+    const emailSesionVerificado = cuponCodigo
+      ? await obtenerEmailSesionVerificado(req, supabase)
+      : null;
     const descuento = cuponCodigo
       ? await calcularDescuentoCupon({
           supabase,
           codigo: cuponCodigo,
           subtotal,
           moneda,
-          email: cliente.email.toLowerCase(),
+          email: normalizeCheckoutEmail(cliente.email),
+          emailSesionVerificado,
           items: itemsSnapshot,
           origin,
         })
