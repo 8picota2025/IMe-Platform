@@ -99,7 +99,7 @@ const CONFIGS: Record<Entity, EntityConfig> = {
   },
   productos: {
     table: 'productos',
-    roles: ['catalogo'],
+    roles: ['catalogo', 'ventas'],
     conflict: 'slug',
     columns: new Set([
       'id',
@@ -238,6 +238,8 @@ Deno.serve(async req => {
       );
     }
 
+    const ventasOnlyDraft = entity === 'productos' && rol === 'ventas';
+
     const sanitized = rows.map((row, index) => sanitizeRow(row, config, index));
     const invalid = sanitized.filter(item => item.error);
     if (invalid.length) {
@@ -262,7 +264,10 @@ Deno.serve(async req => {
 
     const cleanRows = sanitized.map(item => item.row);
     if (entity === 'productos') {
-      const result = await importProductos(supabase, cleanRows, sanitized.length);
+      const productRows = ventasOnlyDraft
+        ? cleanRows.map(row => ({ ...row, activo: false }))
+        : cleanRows;
+      const result = await importProductos(supabase, productRows, sanitized.length);
       return jsonResponse(result, origin);
     }
 

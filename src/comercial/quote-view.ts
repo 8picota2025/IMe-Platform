@@ -5,10 +5,8 @@
 import {
   calcularTotalOfertado,
   formatQuoteMoney,
-  normalizarMonedaOferta,
   ofertaCompleta,
   parseLineasOferta,
-  resolveCatalogUnitPrice,
   sanitizarLineasComercial,
   type CotizacionLineaOferta,
 } from '../lib/cotizacion-oferta';
@@ -20,6 +18,7 @@ import {
   esRolAdmin,
   formatDate,
   state,
+  supabase,
   toast,
   trackCommercialUsage,
 } from './shared';
@@ -30,11 +29,10 @@ import {
   listQuotes,
   previewQuotePdf,
   saveQuote as persistQuote,
-  searchProducts,
   validarQuoteCrm,
-  type ProductHit,
   type QuotePublic,
 } from './quote-api';
+import { bindQuoteCatalogSearch, bindQuoteProductIngest } from '../lib/quote-line-tools';
 import {
   ocrPresupuestoCompetencia,
   pickCompetenciaImage,
@@ -458,8 +456,12 @@ function comboboxHtml(): string {
         <span>Buscar producto</span>
         <input type="search" data-quote-search-product autocomplete="off" placeholder="Escribe al menos 2 caracteres" aria-autocomplete="list" aria-controls="quote-product-list" />
       </label>
-      <ul id="quote-product-list" class="comercial-quote-suggest" data-quote-suggest hidden role="listbox"></ul>
-      <button class="comercial-button comercial-button--ghost" type="button" data-quote-add-free>Añadir línea libre</button>
+      <ul id="quote-product-list" class="comercial-quote-suggest quote-ingest-suggest" data-quote-suggest hidden role="listbox"></ul>
+      <div class="comercial-quote-combobox__actions">
+        <button class="comercial-button comercial-button--ghost" type="button" data-quote-ingest-pdf>Importar ficha PDF → producto</button>
+        <input type="file" accept="application/pdf,.pdf" data-quote-ingest-file hidden />
+        <button class="comercial-button comercial-button--ghost" type="button" data-quote-add-free>Añadir línea libre</button>
+      </div>
     </div>`;
 }
 
@@ -1135,114 +1137,59 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
     location.hash = `#/cotizaciones?id=${encodeURIComponent(data.quote.id)}`;
   });
 
-  const searchInput = editor.querySelector<HTMLInputElement>('[data-quote-search-product]');
-  const suggest = editor.querySelector<HTMLElement>('[data-quote-suggest]');
-  let activeIndex = -1;
-  let hits: ProductHit[] = [];
-  let searchTimer = 0;
-
-  async function runSearch(q: string): Promise<void> {
-    if (q.trim().length < 2 || !suggest) {
-      hits = [];
-      if (suggest) {
-        suggest.hidden = true;
-        suggest.innerHTML = '';
-      }
-      return;
-    }
-    hits = await searchProducts(q.trim());
-    suggest.hidden = hits.length === 0;
-    suggest.innerHTML = hits
-      .map((p, i) => {
-        const unit = resolveCatalogUnitPrice(p);
-        const precio =
-          unit > 0
-            ? ` <span class="comercial-help">${escapeHtml(formatQuoteMoney(unit, normalizarMonedaOferta(p.moneda)))}</span>`
-            : '';
-        return `<li role="option" data-hit="${i}" class="comercial-quote-suggest__item">${escapeHtml(p.nombre_es)}${p.sku ? ` <span class="comercial-help">${escapeHtml(p.sku)}</span>` : ''}${precio}</li>`;
-      })
-      .join('');
-    activeIndex = -1;
-  }
-
-  const addHit = (hit: ProductHit) => {
-    const monedaSelect =
-      editor.querySelector<HTMLSelectElement>('[data-quote-moneda]')?.value === 'USD'
-        ? 'USD'
-        : 'COP';
-    const precio = resolveCatalogUnitPrice(hit);
-    const monedaLinea = precio > 0 ? normalizarMonedaOferta(hit.moneda) : monedaSelect;
-    // Si el presupuesto aún no tiene moneda forzada por líneas, alinear al catálogo.
-    const monedaSelectEl = editor.querySelector<HTMLSelectElement>('[data-quote-moneda]');
-    if (precio > 0 && monedaSelectEl && monedaSelectEl.value !== monedaLinea) {
-      const current = readForm(editor).productos;
-      if (current.every(l => !(l.precio_unitario > 0))) {
-        monedaSelectEl.value = monedaLinea;
-      }
-    }
+  const addQuoteLine = (line: CotizacionLineaOferta) => {
     const moneda =
       editor.querySelector<HTMLSelectElement>('[data-quote-moneda]')?.value === 'USD'
         ? 'USD'
         : 'COP';
     const current = readForm(editor).productos;
-    current.push({
-      slug: hit.slug,
-      nombre: hit.nombre_es,
-      cantidad: 1,
-      precio_unitario: precio,
-      subtotal: precio,
-      moneda,
-    });
+    current.push(line);
     const slot = editor.querySelector('[data-quote-lines]');
     if (slot) slot.innerHTML = linesHtml(current, moneda, true);
     setDirty(true);
     refreshTotals(editor);
-    if (suggest) {
-      suggest.hidden = true;
-      suggest.innerHTML = '';
-    }
-    if (searchInput) searchInput.value = '';
   };
 
-  searchInput?.addEventListener('input', () => {
-    window.clearTimeout(searchTimer);
-    searchTimer = window.setTimeout(() => void runSearch(searchInput.value), 220);
-  });
-  searchInput?.addEventListener('keydown', event => {
-    if (!suggest || suggest.hidden) return;
-    if (event.key === 'ArrowDown') {
-      event.preventDefault();
-      activeIndex = Math.min(hits.length - 1, activeIndex + 1);
-    } else if (event.key === 'ArrowUp') {
-      event.preventDefault();
-      activeIndex = Math.max(0, activeIndex - 1);
-    } else if (event.key === 'Enter' && activeIndex >= 0 && hits[activeIndex]) {
-      event.preventDefault();
-      addHit(hits[activeIndex]!);
-      return;
-    } else if (event.key === 'Escape') {
-      suggest.hidden = true;
-      return;
-    } else {
-      return;
-    }
-    suggest.querySelectorAll('[data-hit]').forEach((el, i) => {
-      el.classList.toggle('is-active', i === activeIndex);
+  if (supabase) {
+    bindQuoteCatalogSearch({
+      root: editor,
+      supabase,
+      escapeHtml,
+      toast,
+      getMoneda: () =>
+        editor.querySelector<HTMLSelectElement>('[data-quote-moneda]')?.value === 'USD'
+          ? 'USD'
+          : 'COP',
+      onAddLine: addQuoteLine,
+      onDirty: () => setDirty(true),
+      searchInput: editor.querySelector<HTMLInputElement>('[data-quote-search-product]'),
+      suggestList: editor.querySelector<HTMLElement>('[data-quote-suggest]'),
     });
-  });
-  suggest?.addEventListener('click', event => {
-    const li = (event.target as Element).closest<HTMLElement>('[data-hit]');
-    if (!li) return;
-    const hit = hits[Number(li.getAttribute('data-hit'))];
-    if (hit) addHit(hit);
-  });
+    bindQuoteProductIngest({
+      root: editor,
+      supabase,
+      escapeHtml,
+      toast,
+      getMoneda: () =>
+        editor.querySelector<HTMLSelectElement>('[data-quote-moneda]')?.value === 'USD'
+          ? 'USD'
+          : 'COP',
+      onAddLine: addQuoteLine,
+      onDirty: () => setDirty(true),
+      trigger: editor.querySelector<HTMLElement>('[data-quote-ingest-pdf]'),
+      fileInput: editor.querySelector<HTMLInputElement>('[data-quote-ingest-file]'),
+      modalSlot: container.querySelector<HTMLElement>('[data-quote-modal-slot]'),
+    });
+  }
 
   const onDocClick = (event: Event) => {
     const t = event.target;
     if (!(t instanceof Element)) return;
     if (
       t.closest('[data-pdf-close]') ||
-      (t.classList.contains('comercial-modal-overlay') && t.hasAttribute('data-pdf-overlay'))
+      t.closest('[data-quote-ingest-close]') ||
+      (t.classList.contains('comercial-modal-overlay') && t.hasAttribute('data-pdf-overlay')) ||
+      (t.classList.contains('quote-ingest-overlay') && t.hasAttribute('data-quote-ingest-overlay'))
     ) {
       container.querySelector('[data-quote-modal-slot]')?.replaceChildren();
     }

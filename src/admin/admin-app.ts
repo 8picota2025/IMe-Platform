@@ -39,6 +39,8 @@ import {
   productPdfStoragePath,
   revisableStringsFromDraft,
 } from '../lib/pdf-ingest-enrich';
+import type { CotizacionLineaOferta } from '../lib/cotizacion-oferta';
+import { bindQuoteCatalogSearch, bindQuoteProductIngest } from '../lib/quote-line-tools';
 
 const OLLAMA_URL = (import.meta.env['PUBLIC_OLLAMA_URL'] as string | undefined) ?? '';
 const OLLAMA_INGEST_MODEL = 'qwen3:1.7b';
@@ -3328,6 +3330,18 @@ function cotizacionLineasEditorHtml(
   const monedaCabecera = monedaDefault === 'USD' ? 'USD' : 'COP';
   const priceStep = monedaCabecera === 'USD' ? '0.01' : '1';
   const disabled = readOnly ? 'disabled' : '';
+  const catalogTools = readOnly
+    ? ''
+    : `
+    <div class="cotizacion-catalog-tools" data-cotizacion-catalog-tools style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end">
+      <label class="admin-field" style="position:relative;min-width:280px;max-width:420px;margin:0">
+        <span>Buscar en catálogo</span>
+        <input type="search" data-cotizacion-catalog-search autocomplete="off" placeholder="Mínimo 2 caracteres" />
+        <ul data-cotizacion-catalog-suggest hidden class="quote-ingest-suggest"></ul>
+      </label>
+      <button class="admin-button admin-button--ghost" type="button" data-cotizacion-ingest-pdf>Importar ficha PDF → producto</button>
+      <input type="file" accept="application/pdf,.pdf" data-cotizacion-ingest-file hidden />
+    </div>`;
   const rows = lineas.map(raw => {
     const item = raw && typeof raw === 'object' ? (raw as Row) : {};
     const slug = text(item.slug);
@@ -3349,6 +3363,7 @@ function cotizacionLineasEditorHtml(
       </tr>`;
   });
   return `
+    ${catalogTools}
     <div class="admin-table-wrap">
       <table class="admin-table">
         <thead><tr><th>Producto / referencia</th><th>Cantidad</th><th>Precio unitario (${escapeHtml(monedaCabecera)})</th><th>Subtotal</th><th>Acciones</th></tr></thead>
@@ -3357,6 +3372,24 @@ function cotizacionLineasEditorHtml(
     </div>
     <button class="admin-button admin-button--ghost" type="button" data-cotizacion-linea-agregar ${disabled}>Añadir producto</button>
     <p class="admin-meta" style="margin-top:8px">Total ofertado: <strong data-cotizacion-total-ofertado>—</strong></p>`;
+}
+
+function cotizacionLineaFromOfertaHtml(line: CotizacionLineaOferta, moneda: 'COP' | 'USD'): string {
+  const step = moneda === 'USD' ? '0.01' : '1';
+  const cantidad = Math.max(1, line.cantidad || 1);
+  const precio = line.precio_pendiente_validar ? 0 : Number(line.precio_unitario) || 0;
+  const subtotal = line.precio_pendiente_validar ? 0 : line.subtotal || precio * cantidad;
+  return `<tr data-cotizacion-linea>
+    <td>
+      <input class="admin-inline-input" type="text" data-linea-nombre value="${escapeHtml(line.nombre)}" placeholder="Nombre del producto" aria-label="Nombre del producto" required />
+      <input class="admin-inline-input" type="text" data-linea-slug value="${escapeHtml(line.slug)}" placeholder="SKU o referencia (opcional)" aria-label="SKU o referencia" />
+      <input type="hidden" data-linea-moneda value="${escapeHtml(moneda)}" />
+    </td>
+    <td><input class="admin-inline-input" type="number" min="1" step="1" data-linea-cantidad value="${cantidad}" aria-label="Cantidad" /></td>
+    <td><input class="admin-inline-input" type="number" min="0" step="${step}" data-linea-precio value="${precio}" aria-label="Precio unitario" /></td>
+    <td data-linea-subtotal>${crmMoney(subtotal, moneda)}</td>
+    <td><button class="admin-button admin-button--ghost" type="button" data-linea-eliminar aria-label="Eliminar ${escapeHtml(line.nombre || 'producto')}">Eliminar</button></td>
+  </tr>`;
 }
 
 function cotizacionLineaNuevaHtml(moneda: 'COP' | 'USD'): string {
@@ -3451,7 +3484,9 @@ async function cotizacionDetailView(): Promise<string> {
           <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="nueva" ${convertida ? 'disabled' : ''}>Volver a nueva</button>
           <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="en_revision" ${convertida ? 'disabled' : ''}>Enviar a revision</button>
           <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="respondida" ${convertida ? 'disabled' : ''}>Marcar respondida</button>
-          <button class="admin-button" type="button" data-cotizacion-enviar ${convertida ? 'disabled' : ''}>Enviar al cliente</button>
+          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-preview ${convertida ? 'disabled' : ''}>Vista previa PDF</button>
+          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-enviar-whatsapp ${convertida ? 'disabled' : ''}>WhatsApp</button>
+          <button class="admin-button" type="button" data-cotizacion-enviar ${convertida ? 'disabled' : ''}>Enviar email</button>
         </div>
       </div>
       <div style="padding:0 16px 16px">
@@ -3575,6 +3610,7 @@ async function cotizacionDetailView(): Promise<string> {
             : 'No aceptado / no registrado'
         }</p>
       </div>
+      <div data-cotizacion-modal-slot></div>
     </section>`;
 }
 
@@ -6968,6 +7004,50 @@ function bindCotizaciones() {
     });
   syncCotizacionTotalesDom();
 
+  const appendAdminQuoteLine = (line: CotizacionLineaOferta) => {
+    const moneda = normalizarMonedaCotizacion(
+      app.querySelector<HTMLSelectElement>('[data-cotizacion-moneda]')?.value
+    );
+    const body = app.querySelector<HTMLTableSectionElement>(
+      '[data-cotizacion-oferta-form] .admin-table tbody'
+    );
+    if (!body) return;
+    body.insertAdjacentHTML('beforeend', cotizacionLineaFromOfertaHtml(line, moneda));
+    const lineaNueva = body.lastElementChild;
+    if (lineaNueva instanceof HTMLElement) bindLineaOferta(lineaNueva);
+    syncCotizacionTotalesDom();
+  };
+
+  if (supabase) {
+    bindQuoteCatalogSearch({
+      root: app,
+      supabase,
+      escapeHtml,
+      toast,
+      getMoneda: () =>
+        normalizarMonedaCotizacion(
+          app.querySelector<HTMLSelectElement>('[data-cotizacion-moneda]')?.value
+        ),
+      onAddLine: appendAdminQuoteLine,
+      searchInput: app.querySelector<HTMLInputElement>('[data-cotizacion-catalog-search]'),
+      suggestList: app.querySelector<HTMLElement>('[data-cotizacion-catalog-suggest]'),
+    });
+    bindQuoteProductIngest({
+      root: app,
+      supabase,
+      escapeHtml,
+      toast,
+      getMoneda: () =>
+        normalizarMonedaCotizacion(
+          app.querySelector<HTMLSelectElement>('[data-cotizacion-moneda]')?.value
+        ),
+      onAddLine: appendAdminQuoteLine,
+      trigger: app.querySelector<HTMLElement>('[data-cotizacion-ingest-pdf]'),
+      fileInput: app.querySelector<HTMLInputElement>('[data-cotizacion-ingest-file]'),
+      modalSlot: app.querySelector<HTMLElement>('[data-cotizacion-modal-slot]'),
+    });
+  }
+
   const ofertaForm = app.querySelector<HTMLFormElement>('[data-cotizacion-oferta-form]');
   ofertaForm?.addEventListener('submit', async event => {
     event.preventDefault();
@@ -7082,95 +7162,241 @@ function bindCotizaciones() {
     return { ok: true, data: json };
   }
 
+  async function validarOfertaDomParaEnvio(): Promise<
+    | {
+        ok: true;
+        id: string;
+        lineasConMoneda: ReturnType<typeof leerLineasOfertaDesdeDom>;
+        condicionesDom: string;
+        validezDom: string;
+        moneda: 'COP' | 'USD';
+        mercado: 'CO' | 'INTL';
+        datosOferta: FormData;
+      }
+    | { ok: false }
+  > {
+    const id = state.recordId;
+    if (!id || !ofertaForm) return { ok: false };
+    const datosOferta = new FormData(ofertaForm);
+    const lineasDom = leerLineasOfertaDesdeDom().filter(l => l.slug || l.nombre);
+    const condicionesDom =
+      app.querySelector<HTMLTextAreaElement>('[data-cotizacion-oferta-form] [name="condiciones"]')
+        ?.value ?? '';
+    if (lineasDom.length === 0) {
+      toast(COTIZACION_ERROR_MENSAJES['OFERTA_SIN_LINEAS']!);
+      return { ok: false };
+    }
+    if (lineasDom.some(l => !(l.precio_unitario > 0))) {
+      toast(COTIZACION_ERROR_MENSAJES['OFERTA_SIN_PRECIO']!);
+      return { ok: false };
+    }
+    if (!condicionesDom.trim()) {
+      toast(COTIZACION_ERROR_MENSAJES['OFERTA_SIN_CONDICIONES']!);
+      return { ok: false };
+    }
+    const validezDom =
+      app.querySelector<HTMLInputElement>('[data-cotizacion-oferta-form] [name="validez_hasta"]')
+        ?.value ?? '';
+    const moneda = normalizarMonedaCotizacion(
+      app.querySelector<HTMLSelectElement>('[data-cotizacion-moneda]')?.value
+    );
+    aplicarMonedaOfertaDom(moneda);
+    const lineasConMoneda = lineasDom.map(l => ({ ...l, moneda }));
+    const mercado = moneda === 'USD' ? 'INTL' : 'CO';
+    return {
+      ok: true,
+      id,
+      lineasConMoneda,
+      condicionesDom: condicionesDom.trim(),
+      validezDom,
+      moneda,
+      mercado,
+      datosOferta,
+    };
+  }
+
+  async function persistirOfertaAntesDeEnviar(
+    payload: Extract<Awaited<ReturnType<typeof validarOfertaDomParaEnvio>>, { ok: true }>
+  ): Promise<boolean> {
+    const totalDom = payload.lineasConMoneda.reduce((acc, l) => acc + l.subtotal, 0);
+    const adjuntos = await guardarAdjuntosCotizacion(payload.id);
+    if (!adjuntos) return false;
+    const { error: saveError } = await supabase!
+      .from('solicitudes_cotizacion')
+      .update({
+        nombre: emptyToNull(payload.datosOferta.get('nombre')),
+        empresa: emptyToNull(payload.datosOferta.get('empresa')),
+        email: emptyToNull(payload.datosOferta.get('email')),
+        telefono: emptyToNull(payload.datosOferta.get('telefono')),
+        mensaje: emptyToNull(payload.datosOferta.get('mensaje')),
+        nit: emptyToNull(payload.datosOferta.get('nit')),
+        responsable_iva: payload.datosOferta.get('responsable_iva') === 'on',
+        impuestos_incluidos: payload.datosOferta.get('impuestos_incluidos') === 'on',
+        direccion_envio: emptyToNull(payload.datosOferta.get('direccion_envio')),
+        direccion_facturacion: emptyToNull(payload.datosOferta.get('direccion_facturacion')),
+        adjuntos,
+        productos: payload.lineasConMoneda,
+        condiciones: payload.condicionesDom,
+        validez_hasta: payload.validezDom.trim() || null,
+        precio_total_ofertado: totalDom,
+        moneda: payload.moneda,
+        mercado: payload.mercado,
+        leida: true,
+      })
+      .eq('id', payload.id);
+    if (saveError) {
+      toast(`No se pudo guardar la oferta antes de enviar: ${saveError.message}`);
+      return false;
+    }
+    return true;
+  }
+
+  const openWhatsAppUrlAdmin = (url: string) => {
+    const w = window.open(url, '_blank', 'noopener,noreferrer');
+    if (!w) window.location.assign(url);
+  };
+
+  async function enviarCotizacionCanal(canal: 'email' | 'whatsapp'): Promise<void> {
+    const validated = await validarOfertaDomParaEnvio();
+    if (!validated.ok) return;
+    const telefono = String(validated.datosOferta.get('telefono') ?? '').trim();
+    const email = String(validated.datosOferta.get('email') ?? '').trim();
+    if (canal === 'whatsapp' && !telefono) {
+      toast('La cotizacion no tiene telefono para WhatsApp.');
+      return;
+    }
+    if (canal === 'email' && !email) {
+      toast(COTIZACION_ERROR_MENSAJES['SIN_EMAIL']!);
+      return;
+    }
+    const destino = canal === 'whatsapp' ? telefono : email;
+    const confirmMsg =
+      canal === 'whatsapp'
+        ? `¿Enviar presupuesto por WhatsApp a ${destino}?`
+        : '¿Enviar oferta formal al email del solicitante?';
+    if (!confirm(confirmMsg)) return;
+    const emailBtn = app.querySelector<HTMLButtonElement>('[data-cotizacion-enviar]');
+    const waBtn = app.querySelector<HTMLButtonElement>('[data-cotizacion-enviar-whatsapp]');
+    const activeBtn = canal === 'whatsapp' ? waBtn : emailBtn;
+    if (emailBtn) emailBtn.disabled = true;
+    if (waBtn) waBtn.disabled = true;
+    if (activeBtn) {
+      activeBtn.textContent = canal === 'whatsapp' ? 'Abriendo WhatsApp…' : 'Enviando email…';
+    }
+    const saved = await persistirOfertaAntesDeEnviar(validated);
+    if (!saved) {
+      if (emailBtn) emailBtn.disabled = false;
+      if (waBtn) waBtn.disabled = false;
+      if (emailBtn) emailBtn.textContent = 'Enviar email';
+      if (waBtn) waBtn.textContent = 'WhatsApp';
+      return;
+    }
+    const result = await invokeCotizacionFn('enviar-cotizacion', {
+      cotizacion_id: validated.id,
+      canal,
+      productos: validated.lineasConMoneda,
+      condiciones: validated.condicionesDom,
+      validez_hasta: validated.validezDom.trim() || null,
+      moneda: validated.moneda,
+      mercado: validated.mercado,
+    });
+    if (emailBtn) {
+      emailBtn.disabled = false;
+      emailBtn.textContent = 'Enviar email';
+    }
+    if (waBtn) {
+      waBtn.disabled = false;
+      waBtn.textContent = 'WhatsApp';
+    }
+    if (!result.ok) {
+      toast(result.message);
+      return;
+    }
+    if (canal === 'whatsapp' && typeof result.data.whatsapp_url === 'string') {
+      openWhatsAppUrlAdmin(result.data.whatsapp_url);
+    }
+    toast(
+      result.data.numero
+        ? `Cotizacion ${String(result.data.numero)} enviada (${canal === 'whatsapp' ? 'WhatsApp' : 'email'}).`
+        : `Cotizacion enviada (${canal === 'whatsapp' ? 'WhatsApp' : 'email'}).`
+    );
+    await render();
+  }
+
+  async function previewCotizacionPdfAdmin(): Promise<void> {
+    const validated = await validarOfertaDomParaEnvio();
+    if (!validated.ok) return;
+    const saved = await persistirOfertaAntesDeEnviar(validated);
+    if (!saved) return;
+    const slot = app.querySelector<HTMLElement>('[data-cotizacion-modal-slot]');
+    if (!slot) return;
+    slot.innerHTML = `<div class="quote-ingest-overlay" data-quote-ingest-overlay role="presentation"><div class="quote-ingest-modal quote-ingest-modal--wide" role="dialog" aria-modal="true"><header class="quote-ingest-modal__head"><h2>Vista previa · Presupuesto</h2><button type="button" class="quote-ingest-modal__close" data-quote-ingest-close aria-label="Cerrar">✕</button></header><div class="quote-ingest-modal__body" data-cotizacion-pdf-body><p class="quote-ingest-help">Generando PDF…</p></div></div></div>`;
+    const close = () => slot.replaceChildren();
+    slot.querySelectorAll('[data-quote-ingest-close]').forEach(btn => {
+      btn.addEventListener('click', close);
+    });
+    slot.querySelector('[data-quote-ingest-overlay]')?.addEventListener('click', event => {
+      if (event.target === event.currentTarget) close();
+    });
+    const body = slot.querySelector<HTMLElement>('[data-cotizacion-pdf-body]');
+    const {
+      data: { session },
+    } = await supabase!.auth.getSession();
+    const token = session?.access_token;
+    if (!token || !body) {
+      close();
+      toast('Sesion expirada.');
+      return;
+    }
+    const url = new URL(
+      `${import.meta.env['PUBLIC_SUPABASE_URL']}/functions/v1/comercial-cotizacion`
+    );
+    url.searchParams.set('action', 'pdf');
+    url.searchParams.set('id', validated.id);
+    url.searchParams.set('fresh', '1');
+    const response = await fetch(url.toString(), {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        apikey: import.meta.env['PUBLIC_SUPABASE_ANON_KEY'] as string,
+      },
+    });
+    const json = (await response.json().catch(() => null)) as {
+      pdf_base64?: string;
+      numero?: string;
+      error?: { message?: string };
+    } | null;
+    if (!response.ok || !json?.pdf_base64) {
+      body.innerHTML = `<p class="quote-ingest-help">${escapeHtml(json?.error?.message ?? 'No se pudo generar el PDF.')}</p>`;
+      return;
+    }
+    try {
+      const binary = atob(json.pdf_base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+      const blob = new Blob([bytes], { type: 'application/pdf' });
+      const blobUrl = URL.createObjectURL(blob);
+      body.innerHTML = `
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <a class="admin-button" href="${blobUrl}" download="${escapeHtml(json.numero || 'presupuesto')}.pdf">Descargar PDF</a>
+          <a class="admin-button admin-button--ghost" href="${blobUrl}" target="_blank" rel="noopener noreferrer">Abrir en pestaña</a>
+        </div>
+        <object type="application/pdf" data="${blobUrl}" style="width:100%;min-height:min(70vh,720px);border:1px solid var(--admin-line,#ddd);border-radius:8px">
+          <p class="quote-ingest-help">Tu navegador no embebe PDF. Usa Descargar o Abrir en pestaña.</p>
+        </object>`;
+    } catch {
+      body.innerHTML = '<p class="quote-ingest-help">No se pudo mostrar el PDF.</p>';
+    }
+  }
+
   app
     .querySelector<HTMLButtonElement>('[data-cotizacion-enviar]')
-    ?.addEventListener('click', async () => {
-      const id = state.recordId;
-      if (!id || !ofertaForm) return;
-      const datosOferta = new FormData(ofertaForm);
-      const lineasDom = leerLineasOfertaDesdeDom().filter(l => l.slug || l.nombre);
-      const condicionesDom =
-        app.querySelector<HTMLTextAreaElement>('[data-cotizacion-oferta-form] [name="condiciones"]')
-          ?.value ?? '';
-      if (lineasDom.length === 0) {
-        toast(COTIZACION_ERROR_MENSAJES['OFERTA_SIN_LINEAS']!);
-        return;
-      }
-      if (lineasDom.some(l => !(l.precio_unitario > 0))) {
-        toast(COTIZACION_ERROR_MENSAJES['OFERTA_SIN_PRECIO']!);
-        return;
-      }
-      if (!condicionesDom.trim()) {
-        toast(COTIZACION_ERROR_MENSAJES['OFERTA_SIN_CONDICIONES']!);
-        return;
-      }
-      if (!confirm('Enviar oferta formal al email del solicitante?')) return;
-      const button = app.querySelector<HTMLButtonElement>('[data-cotizacion-enviar]');
-      if (button) button.disabled = true;
-      // Persistir DOM antes de enviar: evita que edge lea precios/condiciones viejos.
-      const validezDom =
-        app.querySelector<HTMLInputElement>('[data-cotizacion-oferta-form] [name="validez_hasta"]')
-          ?.value ?? '';
-      const moneda = normalizarMonedaCotizacion(
-        app.querySelector<HTMLSelectElement>('[data-cotizacion-moneda]')?.value
-      );
-      aplicarMonedaOfertaDom(moneda);
-      const lineasConMoneda = lineasDom.map(l => ({ ...l, moneda }));
-      const totalDom = lineasConMoneda.reduce((acc, l) => acc + l.subtotal, 0);
-      const mercado = moneda === 'USD' ? 'INTL' : 'CO';
-      const adjuntos = await guardarAdjuntosCotizacion(id);
-      if (!adjuntos) {
-        if (button) button.disabled = false;
-        return;
-      }
-      const { error: saveError } = await supabase!
-        .from('solicitudes_cotizacion')
-        .update({
-          nombre: emptyToNull(datosOferta.get('nombre')),
-          empresa: emptyToNull(datosOferta.get('empresa')),
-          email: emptyToNull(datosOferta.get('email')),
-          telefono: emptyToNull(datosOferta.get('telefono')),
-          mensaje: emptyToNull(datosOferta.get('mensaje')),
-          nit: emptyToNull(datosOferta.get('nit')),
-          responsable_iva: datosOferta.get('responsable_iva') === 'on',
-          impuestos_incluidos: datosOferta.get('impuestos_incluidos') === 'on',
-          direccion_envio: emptyToNull(datosOferta.get('direccion_envio')),
-          direccion_facturacion: emptyToNull(datosOferta.get('direccion_facturacion')),
-          adjuntos,
-          productos: lineasConMoneda,
-          condiciones: condicionesDom.trim(),
-          validez_hasta: validezDom.trim() || null,
-          precio_total_ofertado: totalDom,
-          moneda,
-          mercado,
-          leida: true,
-        })
-        .eq('id', id);
-      if (saveError) {
-        if (button) button.disabled = false;
-        toast(`No se pudo guardar la oferta antes de enviar: ${saveError.message}`);
-        return;
-      }
-      const result = await invokeCotizacionFn('enviar-cotizacion', {
-        cotizacion_id: id,
-        productos: lineasConMoneda,
-        condiciones: condicionesDom.trim(),
-        validez_hasta: validezDom.trim() || null,
-        moneda,
-        mercado,
-      });
-      if (button) button.disabled = false;
-      if (!result.ok) {
-        toast(result.message);
-        return;
-      }
-      toast(
-        result.data.numero
-          ? `Cotizacion ${String(result.data.numero)} enviada al cliente.`
-          : 'Cotizacion enviada al cliente.'
-      );
-      await render();
-    });
+    ?.addEventListener('click', () => void enviarCotizacionCanal('email'));
+  app
+    .querySelector<HTMLButtonElement>('[data-cotizacion-enviar-whatsapp]')
+    ?.addEventListener('click', () => void enviarCotizacionCanal('whatsapp'));
+  app
+    .querySelector<HTMLButtonElement>('[data-cotizacion-preview]')
+    ?.addEventListener('click', () => void previewCotizacionPdfAdmin());
 
   const selectedCountEl = app.querySelector<HTMLElement>('[data-cotizaciones-selected-count]');
   const selectAllBtn = app.querySelector<HTMLButtonElement>('[data-cotizaciones-select-all]');

@@ -49,17 +49,9 @@ export interface QuotePublic {
   origen: 'pwa' | 'web';
   editable: boolean;
 }
+import { searchCatalogProducts, type CatalogProductHit } from '../lib/catalog-search';
 
-export interface ProductHit {
-  id: string;
-  slug: string;
-  sku: string | null;
-  nombre_es: string;
-  precio?: number | null;
-  precio_oferta?: number | null;
-  precio_regular?: number | null;
-  moneda?: string | null;
-}
+export type ProductHit = CatalogProductHit;
 
 export interface QuoteListResult {
   quotes: QuotePublic[];
@@ -500,19 +492,8 @@ async function ensureNumero(id: string): Promise<string | null> {
 }
 
 export async function searchProducts(q: string): Promise<ProductHit[]> {
-  const term = q.trim();
-  if (term.length < 2 || !supabase) return [];
-  const safe = term.replace(/[%_,]/g, '');
-  if (!safe) return [];
-  const { data, error } = await supabase
-    .from('productos')
-    .select('id,slug,sku,nombre_es,precio,precio_oferta,precio_regular,moneda')
-    .eq('activo', true)
-    .or(`nombre_es.ilike.%${safe}%,sku.ilike.%${safe}%,slug.ilike.%${safe}%`)
-    .order('nombre_es', { ascending: true })
-    .limit(20);
-  if (error) return [];
-  return (data ?? []) as ProductHit[];
+  if (!supabase) return [];
+  return searchCatalogProducts(supabase, q);
 }
 
 async function listQuotesRest(
