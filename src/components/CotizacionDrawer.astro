@@ -399,6 +399,7 @@ const config = {
     type CotizacionItem,
   } from '../lib/cotizacion-equipos';
   import { submitCotizacion } from '../lib/datos';
+  import { resolverMensajeCotizacion } from '../lib/cotizacion-submit';
   import { abrirDrawer, cerrarDrawer, resetTransientUiState } from '../lib/motion';
 
   interface CotizacionI18n {
@@ -494,13 +495,10 @@ const config = {
       // El mensaje inicial conserva producto, referencia y landing de origen.
       // No pisa texto que el usuario ya haya escrito.
       if (mensajeEl && !mensajeEl.value.trim()) {
-        const contextual = items.filter(item => item.url);
-        if (contextual.length) {
-          mensajeEl.value =
-            config.locale === 'en'
-              ? `I would like a quote for:\n${contextual.map(item => `- ${item.nombre}${item.modelo ? ` (Model ${item.modelo})` : ''}\n  Product page: ${item.url}`).join('\n')}\n\nPlease confirm availability, configuration, lead time and support.`
-              : `Quiero solicitar cotización de:\n${contextual.map(item => `- ${item.nombre}${item.modelo ? ` (Ref. ${item.modelo})` : ''}\n  Página del producto: ${item.url}`).join('\n')}\n\nPor favor confirmar disponibilidad, configuración, plazo y soporte.`;
-        }
+        mensajeEl.value = resolverMensajeCotizacion({
+          locale: config.locale,
+          productos: items,
+        });
       }
 
       itemsEl.innerHTML = items
@@ -644,15 +642,27 @@ const config = {
         submitBtn.disabled = true;
         submitBtn.textContent = i18n.enviando;
 
+        const productos = items.map(i => ({
+          slug: i.slug,
+          nombre: i.nombre,
+          cantidad: i.cantidad,
+          url: i.url,
+          modelo: i.modelo,
+        }));
         const payload = {
+          locale: config.locale,
           origen: 'lista_cotizacion',
           nombre: String(data.get('nombre') ?? ''),
           email: String(data.get('email') ?? ''),
           telefono: String(data.get('telefono') ?? ''),
           empresa: String(data.get('empresa') ?? ''),
-          mensaje: String(data.get('mensaje') ?? ''),
+          mensaje: resolverMensajeCotizacion({
+            locale: config.locale,
+            mensaje: String(data.get('mensaje') ?? ''),
+            productos,
+          }),
           consentimiento_datos: data.get('consentimiento') === 'on',
-          productos: items.map(i => ({ slug: i.slug, nombre: i.nombre, cantidad: i.cantidad })),
+          productos,
         };
 
         const resultado = await submitCotizacion(payload);

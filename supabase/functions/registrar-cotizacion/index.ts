@@ -129,7 +129,7 @@ Deno.serve(
     const email = (body.email ?? '').trim().slice(0, 200);
     const telefono = (body.telefono ?? '').trim().slice(0, 40);
     const empresa = (body.empresa ?? '').trim().slice(0, 160);
-    const mensaje = (body.mensaje ?? '').trim().slice(0, 2000);
+    let mensaje = (body.mensaje ?? '').trim().slice(0, 2000);
     const moneda = (body.moneda ?? 'COP').trim().slice(0, 8) || 'COP';
     const mercado = (body.mercado ?? 'CO').trim().slice(0, 8) || 'CO';
     const origen = (body.origen ?? 'web').trim().slice(0, 80) || 'web';
@@ -157,12 +157,6 @@ Deno.serve(
       utm_term: cleanText(body.utm_term, 160),
     };
 
-    if (!nombre || !mensaje) return badRequest('nombre y mensaje son obligatorios', origin);
-    if (!EMAIL_RE.test(email)) return badRequest('email invalido', origin);
-    if (body.consentimiento_datos !== true) {
-      return badRequest('consentimiento_datos es obligatorio', origin);
-    }
-
     const productos = (Array.isArray(body.productos) ? body.productos : []).slice(0, 50).map(p => ({
       slug: String(p.slug ?? '').slice(0, 200),
       nombre: String(p.nombre ?? '').slice(0, 300),
@@ -171,6 +165,22 @@ Deno.serve(
       subtotal: cleanNumber(p.subtotal),
       moneda: String(p.moneda ?? moneda).slice(0, 8),
     }));
+
+    if (!mensaje && productos.length > 0) {
+      const lineas = productos.map(
+        p => `- ${p.nombre}${p.cantidad > 1 ? ` (x${p.cantidad})` : ''}`
+      );
+      mensaje =
+        locale === 'en'
+          ? `Quote request for:\n${lineas.join('\n')}`
+          : `Solicitud de cotización para:\n${lineas.join('\n')}`;
+    }
+
+    if (!nombre || !mensaje) return badRequest('nombre y mensaje son obligatorios', origin);
+    if (!EMAIL_RE.test(email)) return badRequest('email invalido', origin);
+    if (body.consentimiento_datos !== true) {
+      return badRequest('consentimiento_datos es obligatorio', origin);
+    }
 
     const solicitudBase = {
       nombre,

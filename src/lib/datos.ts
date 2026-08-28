@@ -754,14 +754,35 @@ export async function submitCotizacion(
 ): Promise<{ ok: boolean; error?: string }> {
   if (isSupabaseConfigured()) {
     const supabase = getSupabaseClient()!;
-    const payload = { ...captureCommercialAttribution(datos.campaign), ...datos };
+    const { normalizarPayloadCotizacion, interpretarErrorEdgeFunction } =
+      await import('./cotizacion-submit');
+    const payload = normalizarPayloadCotizacion({
+      ...captureCommercialAttribution(datos.campaign),
+      ...datos,
+    });
+    if (!payload.mensaje.trim()) {
+      return {
+        ok: false,
+        error:
+          payload.locale === 'en'
+            ? 'Message is required when no products are selected.'
+            : 'El mensaje es obligatorio si no hay productos en la solicitud.',
+      };
+    }
     // Edge Function: registra la solicitud y envia emails (interno + cliente)
     const { data, error } = await supabase.functions.invoke('registrar-cotizacion', {
       body: payload,
     });
-    if (error) return { ok: false, error: error.message };
+    if (error) {
+      return { ok: false, error: await interpretarErrorEdgeFunction(error, data) };
+    }
     const result = data as { ok?: boolean; error?: string } | null;
-    if (!result?.ok) return { ok: false, error: result?.error ?? 'Error registrando solicitud' };
+    if (!result?.ok) {
+      return {
+        ok: false,
+        error: result?.error ?? (await interpretarErrorEdgeFunction(null, data)),
+      };
+    }
     emitAnalyticsEvent('quote_submit', {
       origin: datos.origen,
       has_products: Array.isArray(datos.productos) && datos.productos.length > 0,

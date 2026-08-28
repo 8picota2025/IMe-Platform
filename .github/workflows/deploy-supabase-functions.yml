@@ -80,6 +80,10 @@ jobs:
           SIIGO_PAYMENT_TYPE_ID=${{ secrets.SIIGO_PAYMENT_TYPE_ID }}
           SIIGO_ACCOUNT_GROUP_ID=${{ secrets.SIIGO_ACCOUNT_GROUP_ID }}
           SIIGO_TAX_MAP=${{ secrets.SIIGO_TAX_MAP }}
+          DIAN_PROVIDER_NAME=${{ secrets.DIAN_PROVIDER_NAME }}
+          DIAN_PROVIDER_API_URL=${{ secrets.DIAN_PROVIDER_API_URL }}
+          DIAN_PROVIDER_API_TOKEN=${{ secrets.DIAN_PROVIDER_API_TOKEN }}
+          DIAN_PROVIDER_METHOD=${{ secrets.DIAN_PROVIDER_METHOD }}
           WHATSAPP_MODE=${{ secrets.WHATSAPP_MODE }}
           CO_DEFAULT_IVA_PCT=19
           GITHUB_TOKEN=${{ secrets.CMS_GITHUB_TOKEN }}
