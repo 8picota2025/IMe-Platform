@@ -416,3 +416,160 @@ export function getFamiliaSeo(slug: string): FamiliaSeoContent | undefined {
 export function familiaDisplayName(content: FamiliaSeoContent, locale: Locale): string {
   return locale === 'en' ? content.name_en : content.name_es;
 }
+
+/** Guías de decisión institucional. No son indicaciones clínicas ni fichas de producto. */
+export interface FamiliaGuide {
+  criteria_es: string[];
+  criteria_en: string[];
+}
+
+const GUIAS_FAMILIA: Record<string, FamiliaGuide> = {
+  radiologia: {
+    criteria_es: [
+      'Definir estudios, volumen esperado y continuidad requerida antes de comparar modalidades.',
+      'Validar sala, energía, blindaje, conectividad e integración con el flujo de imágenes.',
+      'Solicitar por referencia el alcance de instalación, aceptación, capacitación y mantenimiento.',
+    ],
+    criteria_en: [
+      'Define studies, expected volume and required continuity before comparing modalities.',
+      'Validate room, power, shielding, connectivity and image-workflow integration.',
+      'Request installation, acceptance, training and maintenance scope per SKU.',
+    ],
+  },
+  monitores: {
+    criteria_es: [
+      'Separar observación, transporte, urgencias y UCI: no tienen el mismo flujo ni criticidad.',
+      'Acordar parámetros, alarmas, accesorios, centralización e interoperabilidad que realmente usará el servicio.',
+      'Planear capacitación, pruebas de aceptación y mantenimiento con ingeniería biomédica.',
+    ],
+    criteria_en: [
+      'Separate observation, transport, ER and ICU: they do not share the same workflow or criticality.',
+      'Agree on parameters, alarms, accessories, centralization and interoperability the service will actually use.',
+      'Plan training, acceptance testing and maintenance with biomedical engineering.',
+    ],
+  },
+  'cardiologia-reanimacion': {
+    criteria_es: [
+      'Definir ubicación, responsable operativo y protocolo institucional aplicable.',
+      'Diferenciar equipos de diagnóstico, monitoreo y reanimación para comparar propuestas equivalentes.',
+      'Revisar accesorios, consumibles, capacitación, mantenimiento y trazabilidad documental por referencia.',
+    ],
+    criteria_en: [
+      'Define location, operating owner and applicable institutional protocol.',
+      'Separate diagnostic, monitoring and resuscitation equipment to compare equivalent proposals.',
+      'Review accessories, consumables, training, maintenance and documentation traceability per SKU.',
+    ],
+  },
+  cardiologia: {
+    criteria_es: [
+      'Partir del flujo de atención, volumen y necesidad de registro o archivo de datos.',
+      'Confirmar compatibilidad operativa con los procesos y sistemas existentes de la institución.',
+      'Comparar alcance de capacitación, accesorios, mantenimiento y documentación por referencia.',
+    ],
+    criteria_en: [
+      'Start from care workflow, volume and record or data-archive needs.',
+      'Confirm operational compatibility with the institution’s existing processes and systems.',
+      'Compare training, accessories, maintenance and documentation scope per SKU.',
+    ],
+  },
+  'sala-cirugia': {
+    criteria_es: [
+      'Mapear especialidades, turnos, ergonomía y circulación del quirófano antes de armar el paquete.',
+      'Validar dimensiones, cargas, utilidades y compatibilidad entre mesa, iluminación y accesorios.',
+      'Acordar instalación, recepción técnica, capacitación y plan de mantenimiento desde la cotización.',
+    ],
+    criteria_en: [
+      'Map specialties, shifts, ergonomics and OR circulation before assembling a package.',
+      'Validate dimensions, loads, utilities and compatibility among table, lighting and accessories.',
+      'Agree on installation, technical acceptance, training and maintenance plan in the quotation.',
+    ],
+  },
+  neonatologia: {
+    criteria_es: [
+      'Definir nivel de cuidado, capacidad instalada y flujo entre áreas antes de seleccionar tipologías.',
+      'Revisar espacio, alimentación eléctrica, accesorios, consumibles y limpieza según ficha del fabricante.',
+      'Coordinar capacitación, recepción técnica y mantenimiento con pediatría y biomédica.',
+    ],
+    criteria_en: [
+      'Define level of care, installed capacity and flow between areas before selecting typologies.',
+      'Review space, power, accessories, consumables and cleaning according to manufacturer documentation.',
+      'Coordinate training, technical acceptance and maintenance with pediatrics and biomed.',
+    ],
+  },
+  anestesia: {
+    criteria_es: [
+      'Dimensionar por quirófanos activos, especialidades, utilidades y plan de continuidad operativa.',
+      'Separar requerimientos de anestesia de los de ventilación crítica para no mezclar alcances.',
+      'Validar instalación, pruebas de aceptación, accesorios y mantenimiento por referencia.',
+    ],
+    criteria_en: [
+      'Size by active operating rooms, specialties, utilities and continuity plan.',
+      'Separate anesthesia requirements from critical ventilation requirements to avoid mixing scopes.',
+      'Validate installation, acceptance tests, accessories and maintenance per SKU.',
+    ],
+  },
+  ventiladores: {
+    criteria_es: [
+      'Definir entorno de uso, población atendida y flujo de traslado con el equipo clínico y biomédico.',
+      'Confirmar infraestructura, accesorios, consumibles, alarmas y conectividad según referencia.',
+      'Establecer capacitación, pruebas de recepción, mantenimiento y soporte antes de la compra.',
+    ],
+    criteria_en: [
+      'Define use setting, population served and transport workflow with clinical and biomed teams.',
+      'Confirm infrastructure, accessories, consumables, alarms and connectivity per SKU.',
+      'Set training, receiving tests, maintenance and support before purchase.',
+    ],
+  },
+  ultrasonido: {
+    criteria_es: [
+      'Partir de aplicaciones autorizadas, volumen, portabilidad y flujo de archivo que requiere el servicio.',
+      'Comparar transductores, conectividad, espacio y accesorios únicamente contra fichas oficiales.',
+      'Acordar capacitación, aceptación técnica y mantenimiento por referencia.',
+    ],
+    criteria_en: [
+      'Start from authorized applications, volume, portability and archive workflow required by the service.',
+      'Compare transducers, connectivity, space and accessories only against official datasheets.',
+      'Agree on training, technical acceptance and maintenance per SKU.',
+    ],
+  },
+  'soluciones-iv': {
+    criteria_es: [
+      'Mapear terapias, camas y flujo de programación con enfermería y biomédica.',
+      'Revisar compatibilidad de accesorios y consumibles por referencia, sin asumir equivalencias.',
+      'Incluir capacitación, mantenimiento y trazabilidad de activos en el plan de compra.',
+    ],
+    criteria_en: [
+      'Map therapies, beds and programming workflow with nursing and biomed.',
+      'Review accessory and consumable compatibility per SKU; do not assume equivalence.',
+      'Include training, maintenance and asset traceability in the purchase plan.',
+    ],
+  },
+  'terapia-de-infusion': {
+    criteria_es: [
+      'Definir terapias concurrentes, servicios y estandarización deseada antes de seleccionar equipos.',
+      'Validar consumibles compatibles, disponibilidad operativa, capacitación y mantenimiento por referencia.',
+      'Documentar recepción, inventario y plan de soporte desde el inicio.',
+    ],
+    criteria_en: [
+      'Define concurrent therapies, services and desired standardization before selecting equipment.',
+      'Validate compatible consumables, operational availability, training and maintenance per SKU.',
+      'Document acceptance, inventory and support plan from the start.',
+    ],
+  },
+};
+
+export function getFamiliaGuide(slug: string, locale: Locale): string[] {
+  const guide = GUIAS_FAMILIA[slug];
+  if (guide) return locale === 'en' ? guide.criteria_en : guide.criteria_es;
+  return locale === 'en'
+    ? [
+        'Define the institutional need and operating environment.',
+        'Validate manufacturer documentation and applicable requirements per SKU.',
+        'Agree on acceptance, training, maintenance and support before purchase.',
+      ]
+    : [
+        'Definir necesidad institucional y entorno de operación.',
+        'Validar documentación del fabricante y requisitos aplicables por referencia.',
+        'Acordar aceptación, capacitación, mantenimiento y soporte antes de comprar.',
+      ];
+}

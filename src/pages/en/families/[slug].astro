@@ -9,7 +9,12 @@ import {
   buildFaqJsonLd,
   combineJsonLd,
 } from '../../../lib/seo';
-import { getFamiliaSeo, listFamiliaSeoSlugs, familiaDisplayName } from '../../../data/familia-seo';
+import {
+  getFamiliaSeo,
+  listFamiliaSeoSlugs,
+  familiaDisplayName,
+  getFamiliaGuide,
+} from '../../../data/familia-seo';
 import { buildCatalogoIndex } from '../../../lib/catalogo';
 import { t } from '../../../i18n/utils';
 
@@ -34,6 +39,7 @@ const productos = (await buildCatalogoIndex(locale)).filter(item =>
   item.familias_filtro.includes(content.slug)
 );
 const faq = content.faq.map(f => ({ q: f.q_en, a: f.a_en }));
+const criterios = getFamiliaGuide(slug, locale);
 const catalogoFamilia = '#equipment';
 
 const jsonLd = combineJsonLd(
@@ -91,6 +97,33 @@ const jsonLd = combineJsonLd(
     }
   </section>
 
+  <section class="container" style="padding:0 0 var(--space-xl);max-width:760px">
+    <h2>How to structure an institutional purchase</h2>
+    <p style="color:var(--text-mid);line-height:1.6">
+      Use this guide to prepare a comparable request. It does not replace clinical or technical
+      assessment, nor manufacturer documentation.
+    </p>
+    <ol class="family-guide">
+      {criterios.map(criterio => <li>{criterio}</li>)}
+    </ol>
+    <p style="color:var(--text-mid);line-height:1.6">
+      For each SKU, I-ME confirms applicable documentation, commercial scope and support conditions.
+      INVIMA organizes medical-device and biomedical-equipment requirements throughout their
+      lifecycle; WHO recommends integrating inspection and preventive and corrective maintenance
+      into equipment management.
+    </p>
+    <p>
+      <a
+        href="https://www.invima.gov.co/productos-vigilados/dispositivos-medicos"
+        rel="noopener noreferrer"
+        target="_blank">INVIMA medical-device guidance</a
+      > · <a
+        href="https://www.who.int/publications/i/item/9789241501538"
+        rel="noopener noreferrer"
+        target="_blank">WHO maintenance guide</a>
+    </p>
+  </section>
+
   {
     productos.length > 0 && (
       <section id="equipment" class="container" style="padding-bottom:var(--space-xl)">
@@ -134,5 +167,14 @@ const jsonLd = combineJsonLd(
   }
   .breadcrumb a {
     color: var(--teal, #0f4c5c);
+  }
+  .family-guide {
+    margin: 1rem 0;
+    padding-left: 1.25rem;
+    color: var(--text-mid);
+    line-height: 1.6;
+  }
+  .family-guide li + li {
+    margin-top: 0.6rem;
   }
 </style>
