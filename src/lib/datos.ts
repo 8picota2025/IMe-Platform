@@ -22,6 +22,53 @@ import productImageManifest from '../data/product-image-manifest.json';
 let supabaseDeshabilitadoPorError = false;
 type RawRow = Record<string, unknown>;
 
+/**
+ * Correcciones editoriales verificadas contra nombre, descripción y referencia
+ * oficial disponible en catálogo. Mantener sincronizado con migración
+ * 20260828010000_correct_product_families.sql.
+ */
+export const PRODUCT_FAMILY_CORRECTIONS: Readonly<Record<string, string>> = {
+  'lampara-cielitica-led-x36': 'sala-cirugia',
+  'lampara-cielitica-led-x3618-con-satelite': 'sala-cirugia',
+  'lampara-cielitica-led-x3636-con-satelite': 'sala-cirugia',
+  'led-x18-100k': 'sala-cirugia',
+  'ventilador-mecanico-crius-v6': 'ventiladores',
+  'ventilador-para-uci-v-1000': 'ventiladores',
+  'monitor-modular-multiparametro-virgo': 'monitores',
+  'monitor-multiparametrico-basico': 'monitores',
+  'monitor-multiparametrico-uci-avanzado': 'monitores',
+  'monitor-multiparametro-acuarius': 'monitores',
+  'monitor-multiparametro-gemini': 'monitores',
+  'monitor-multiparametro-pisces': 'monitores',
+  'monitor-multiparametro-taurus': 'monitores',
+  'monitor-multiparametro-venus': 'monitores',
+  'electrocardiografo-ref-sk-em103-saikang': 'cardiologia',
+  'monitor-de-paciente-ref-sk-em005-saikang': 'monitores',
+  'monitor-fetal-ref-sk-em006-saikang': 'neonatologia',
+  'mesa-quirurgica-electrica-ref-skl-c-saikang': 'sala-cirugia',
+  'mesa-quirurgica-electrica-ref-skl-d-saikang': 'sala-cirugia',
+  'g-des-kbe1462ff-m23-d': 'insumos-accesorios',
+  'g-desde-kbe1462ff-m23-d': 'insumos-accesorios',
+  'g-kbe1432rf-mp23l-llt': 'insumos-accesorios',
+  'g-kbe1462-fr': 'insumos-accesorios',
+  'g-kbe1462ff-m23d-a': 'insumos-accesorios',
+  'g-kbe1462ff-m23d-rp': 'insumos-accesorios',
+  'g-kbe1462re-p23l-rp': 'insumos-accesorios',
+  'g-kbo1432rf-mp23-fr': 'insumos-accesorios',
+  'g-kbo1432rf-mp23-rp': 'insumos-accesorios',
+  'g-srels-lt': 'insumos-accesorios',
+  'g-srels-pad': 'insumos-accesorios',
+  'g-srels-rpe': 'insumos-accesorios',
+  'g-srels-rpr': 'insumos-accesorios',
+  'skb-1a-skb2a10': 'emergencias-traslado-inmovilizacion',
+  'skb-2a-skb2a11': 'emergencias-traslado-inmovilizacion',
+  'skb-4a-skb2a12': 'emergencias-traslado-inmovilizacion',
+};
+
+export function correctedFamilySlug(productSlug: string, currentFamilySlug: string): string {
+  return PRODUCT_FAMILY_CORRECTIONS[productSlug] ?? currentFamilySlug;
+}
+
 function debeUsarSupabase(): boolean {
   return isSupabaseConfigured() && !supabaseDeshabilitadoPorError;
 }
@@ -177,12 +224,17 @@ export function resolveMarcaSupabase(raw: {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapProductoSupabase(raw: any, locale: Locale): Producto {
+  const originalFamilySlug = familiaSlugPorId?.[raw.familia_id] ?? '';
+  const familySlug = correctedFamilySlug(raw.slug, originalFamilySlug);
+  const familyWasCorrected = familySlug !== originalFamilySlug;
   return {
     id: raw.id,
     slug: raw.slug,
-    familia_id: raw.familia_id,
-    familia_slug: familiaSlugPorId?.[raw.familia_id] ?? '',
-    tipo_id: raw.tipo_id,
+    familia_id: familyWasCorrected
+      ? (familiaIdPorSlug?.[familySlug] ?? raw.familia_id)
+      : raw.familia_id,
+    familia_slug: familySlug,
+    tipo_id: familyWasCorrected ? null : raw.tipo_id,
     nombre: locale === 'en' ? raw.nombre_en : raw.nombre_es,
     descripcion_corta: locale === 'en' ? raw.descripcion_corta_en : raw.descripcion_corta_es,
     descripcion_larga: locale === 'en' ? raw.descripcion_larga_en : raw.descripcion_larga_es,
@@ -333,12 +385,17 @@ function mapFamilia(raw: (typeof mockFamilias)[0], locale: Locale): Familia {
 }
 
 function mapProducto(raw: (typeof mockProductos)[0], locale: Locale): Producto {
+  const familySlug = correctedFamilySlug(raw.slug, raw.familia_slug);
+  const familyWasCorrected = familySlug !== raw.familia_slug;
+  const correctedFamily = familyWasCorrected
+    ? mockFamilias.find(family => family.slug === familySlug)
+    : undefined;
   return {
     id: raw.id,
     slug: raw.slug,
-    familia_id: raw.familia_id,
-    familia_slug: raw.familia_slug,
-    tipo_id: raw.tipo_id,
+    familia_id: correctedFamily?.id ?? raw.familia_id,
+    familia_slug: familySlug,
+    tipo_id: familyWasCorrected ? null : raw.tipo_id,
     nombre: locale === 'en' ? raw.nombre_en : raw.nombre_es,
     descripcion_corta: locale === 'en' ? raw.descripcion_corta_en : raw.descripcion_corta_es,
     descripcion_larga: locale === 'en' ? raw.descripcion_larga_en : raw.descripcion_larga_es,

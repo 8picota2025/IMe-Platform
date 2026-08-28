@@ -38,8 +38,10 @@ const seo = buildFamiliaSeo(locale, {
   name: content.title_es,
   description: content.description_es,
 });
-const productos = (await buildCatalogoIndex(locale)).filter(item =>
-  item.familias_filtro.includes(content.slug)
+// Una landing canónica muestra solo su familia editorial real. `familias_filtro`
+// contiene asociaciones amplias para búsqueda y no debe definir pertenencia.
+const productos = (await buildCatalogoIndex(locale)).filter(
+  item => item.familia.slug === content.slug
 );
 const faq = content.faq.map(f => ({ q: f.q_es, a: f.a_es }));
 const criterios = getFamiliaGuide(slug, locale);
@@ -125,7 +127,8 @@ const jsonLd = combineJsonLd(
       > · <a
         href="https://www.who.int/es/publications/i/item/9789241501538"
         rel="noopener noreferrer"
-        target="_blank">Guía OMS de mantenimiento</a>
+        target="_blank">Guía OMS de mantenimiento</a
+      >
     </p>
   </section>
 

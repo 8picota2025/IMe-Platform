@@ -830,6 +830,8 @@ export function initCatalogo(locale: Locale): () => void {
 
   // Navegación por familia (overview)
   familiasView?.querySelectorAll<HTMLAnchorElement>('[data-familia-link]').forEach(enlace => {
+    // Las familias con landing editorial usan navegación HTML normal.
+    if (enlace.dataset['familyLanding'] === 'true') return;
     const onClick = (evento: Event) => {
       evento.preventDefault();
       state.familia = enlace.dataset['familiaLink'] ?? '';

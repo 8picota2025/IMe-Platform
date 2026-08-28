@@ -82,7 +82,9 @@ function reducirEspecificaciones(especificaciones: unknown[]): Record<string, st
   return reducidas;
 }
 
-export async function buildCatalogoIndex(locale: Locale): Promise<CatalogoIndexItem[]> {
+const catalogIndexCache = new Map<Locale, Promise<CatalogoIndexItem[]>>();
+
+async function buildCatalogoIndexUncached(locale: Locale): Promise<CatalogoIndexItem[]> {
   const familias = await getFamilias(locale);
   const productos = await getProductos({ pageSize: 1000 }, locale);
 
@@ -134,6 +136,15 @@ export async function buildCatalogoIndex(locale: Locale): Promise<CatalogoIndexI
     if (producto.precio != null) item.precio = producto.precio;
     return item;
   });
+}
+
+/** Comparte una sola lectura del catálogo por idioma durante cada build estático. */
+export function buildCatalogoIndex(locale: Locale): Promise<CatalogoIndexItem[]> {
+  const cached = catalogIndexCache.get(locale);
+  if (cached) return cached;
+  const pending = buildCatalogoIndexUncached(locale);
+  catalogIndexCache.set(locale, pending);
+  return pending;
 }
 
 /**

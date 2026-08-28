@@ -35,8 +35,10 @@ const seo = buildFamiliaSeo(locale, {
   name: content.title_en,
   description: content.description_en,
 });
-const productos = (await buildCatalogoIndex(locale)).filter(item =>
-  item.familias_filtro.includes(content.slug)
+// Canonical family pages use the editorial family only. `familias_filtro`
+// contains broad search associations and does not define membership.
+const productos = (await buildCatalogoIndex(locale)).filter(
+  item => item.familia.slug === content.slug
 );
 const faq = content.faq.map(f => ({ q: f.q_en, a: f.a_en }));
 const criterios = getFamiliaGuide(slug, locale);
@@ -120,7 +122,8 @@ const jsonLd = combineJsonLd(
       > · <a
         href="https://www.who.int/publications/i/item/9789241501538"
         rel="noopener noreferrer"
-        target="_blank">WHO maintenance guide</a>
+        target="_blank">WHO maintenance guide</a
+      >
     </p>
   </section>
 

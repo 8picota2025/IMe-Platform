@@ -22,6 +22,55 @@ export interface FamiliaSeoContent {
 
 export const FAMILIA_SEO: FamiliaSeoContent[] = [
   {
+    slug: 'robots',
+    name_es: 'Robots de servicio y asistencia',
+    name_en: 'Service and assistive robots',
+    title_es: 'Robots de servicio, recepción y logística institucional | I-ME',
+    title_en: 'Service, reception and institutional logistics robots | I-ME',
+    description_es:
+      'Robots de recepción, telepresencia, delivery, limpieza y asistencia para instituciones. Compare funciones, entorno y soporte con I-ME.',
+    description_en:
+      'Reception, telepresence, delivery, cleaning and assistive robots for institutions. Compare functions, environment and support with I-ME.',
+    intro_es:
+      'Un robot institucional se selecciona desde el proceso que debe resolver: orientar visitantes, conectar personas a distancia, transportar elementos, apoyar actividades o automatizar limpieza.',
+    intro_en:
+      'An institutional robot should be selected from the workflow it must support: visitor wayfinding, remote presence, internal delivery, activities or cleaning automation.',
+    body_es: [
+      'El catálogo reúne ocho referencias oficiales para recepción, servicio interactivo, telepresencia, delivery institucional y de alimentos, educación social y limpieza autónoma.',
+      'La comparación debe empezar por el entorno real: recorridos, puertas, ascensores, superficies, puntos de carga, conectividad y responsables de operación. Después se valida cada función contra la ficha del fabricante.',
+      'I-ME estructura el alcance comercial y técnico por proyecto. La autonomía, integración, accesorios y puesta en marcha se confirman para la referencia cotizada.',
+    ],
+    body_en: [
+      'The catalog includes eight official models for reception, interactive service, telepresence, institutional and food delivery, social education and autonomous cleaning.',
+      'Comparison starts with the real environment: routes, doors, elevators, surfaces, charging points, connectivity and operating owners. Each function is then validated against manufacturer documentation.',
+      'I-ME structures commercial and technical scope by project. Runtime, integration, accessories and commissioning are confirmed for the quoted model.',
+    ],
+    faq: [
+      {
+        q_es: '¿Qué tipo de robot necesita una institución?',
+        a_es: 'Depende del flujo objetivo. Recepción, telepresencia, delivery y limpieza son categorías distintas; primero documentamos recorrido, interacción y responsable operativo.',
+        q_en: 'What type of robot does an institution need?',
+        a_en: 'It depends on the target workflow. Reception, telepresence, delivery and cleaning are different categories; first document route, interaction and operating owner.',
+      },
+      {
+        q_es: '¿Puede integrarse con ascensores o sistemas existentes?',
+        a_es: 'La integración depende del modelo y de la infraestructura. Se confirma con documentación del fabricante y revisión técnica del proyecto.',
+        q_en: 'Can it integrate with elevators or existing systems?',
+        a_en: 'Integration depends on model and infrastructure. It is confirmed through manufacturer documentation and project technical review.',
+      },
+    ],
+    relatedSlugs: [
+      'padbot-x3-robot-recepcion',
+      'padbot-x2-robot-servicio-interactivo',
+      'padbot-p2-robot-telepresencia',
+      'padbot-w2-robot-delivery-institucional',
+      'padbot-w3s-robot-delivery-alimentos',
+      'padbot-t2-robot-educativo-social',
+      'c3-robot-limpieza-autonoma',
+      'cruzr-robot-comercial-inteligente-ahuman-future',
+    ],
+  },
+  {
     slug: 'radiologia',
     name_es: 'Imagenología y radiología',
     name_en: 'Medical imaging and radiology',
@@ -424,6 +473,18 @@ export interface FamiliaGuide {
 }
 
 const GUIAS_FAMILIA: Record<string, FamiliaGuide> = {
+  robots: {
+    criteria_es: [
+      'Definir tarea, recorrido, usuarios y responsable operativo antes de comparar modelos.',
+      'Levantar puertas, ascensores, pendientes, superficies, red y puntos de carga del entorno real.',
+      'Validar navegación, integración, autonomía, accesorios, soporte y puesta en marcha por referencia.',
+    ],
+    criteria_en: [
+      'Define task, route, users and operating owner before comparing models.',
+      'Survey doors, elevators, slopes, surfaces, network and charging points in the real environment.',
+      'Validate navigation, integration, runtime, accessories, support and commissioning per model.',
+    ],
+  },
   radiologia: {
     criteria_es: [
       'Definir estudios, volumen esperado y continuidad requerida antes de comparar modalidades.',

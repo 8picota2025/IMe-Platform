@@ -11,6 +11,7 @@ import { getFamilias } from '../lib/datos';
 import { buildCatalogoIndex } from '../lib/catalogo';
 import type { CatalogoIndexItem } from '../lib/catalogo';
 import { getCatalogoTaxonomia } from '../lib/taxonomia-catalogo';
+import { listFamiliaSeoSlugs } from '../data/familia-seo';
 import ProductoCard from './ProductoCard.astro';
 import FamiliaIcon from './FamiliaIcon.astro';
 
@@ -37,15 +38,7 @@ const hayNuevos = allItems.some(item => item.nuevo);
 const catalogPath = locale === 'en' ? '/en/catalog/' : '/es/catalogo/';
 const familyPath = (slug: string) =>
   locale === 'en' ? `/en/families/${slug}/` : `/es/familias/${slug}/`;
-const priorityFamilySlugs = new Set([
-  'radiologia',
-  'monitores',
-  'neonatologia',
-  'anestesia',
-  'ventiladores',
-  'sala-cirugia',
-  'cardiologia-reanimacion',
-]);
+const familyLandingSlugs = new Set(listFamiliaSeoSlugs());
 const pagePath = (targetPage: number) =>
   targetPage === 1 ? catalogPath : `${catalogPath}pagina/${targetPage}/`;
 ---
@@ -110,12 +103,13 @@ const pagePath = (targetPage: number) =>
           <li>
             <a
               href={
-                priorityFamilySlugs.has(grupo.slug)
+                familyLandingSlugs.has(grupo.slug)
                   ? familyPath(grupo.slug)
                   : `?familia=${grupo.slug}`
               }
               class="categoria-card"
               data-familia-link={grupo.slug}
+              data-family-landing={familyLandingSlugs.has(grupo.slug) ? 'true' : undefined}
               data-familia-nombre={grupo.nombre}
               data-familia-icono={grupo.icono}
             >
@@ -132,12 +126,13 @@ const pagePath = (targetPage: number) =>
               {grupo.subfamilias.map(subfamilia => (
                 <a
                   href={
-                    priorityFamilySlugs.has(subfamilia.slug)
+                    familyLandingSlugs.has(subfamilia.slug)
                       ? familyPath(subfamilia.slug)
                       : `?familia=${subfamilia.slug}`
                   }
                   class="categoria-card__subfamilia"
                   data-familia-link={subfamilia.slug}
+                  data-family-landing={familyLandingSlugs.has(subfamilia.slug) ? 'true' : undefined}
                   data-familia-nombre={subfamilia.nombre}
                   data-familia-icono={subfamilia.icono}
                 >
