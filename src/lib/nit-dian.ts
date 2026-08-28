@@ -43,6 +43,17 @@ export interface ContribuyenteDian {
   raw?: unknown;
 }
 
+/** Fuentes válidas al importar desde consultar-nit-dian (no Siigo ni cache local). */
+export const FUENTES_DIAN_CONTRIBUYENTE = new Set(['verifik', 'coresoft', 'generic', 'dian']);
+
+export function esFuenteDianContribuyente(fuente: string | null | undefined): boolean {
+  return FUENTES_DIAN_CONTRIBUYENTE.has(
+    String(fuente ?? '')
+      .trim()
+      .toLowerCase()
+  );
+}
+
 export function formatearNitConDv(nitConDv: string): string {
   const digits = soloDigitosDocumento(nitConDv);
   if (digits.length < 2) return digits;

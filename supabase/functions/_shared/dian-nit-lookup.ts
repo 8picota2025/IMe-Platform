@@ -1,6 +1,6 @@
 /**
  * Adaptadores para consultar contribuyente DIAN por NIT.
- * Providers: verifik | coresoft | generic | siigo (enriquecimiento).
+ * Providers: verifik | coresoft | generic (DIAN). No usa Siigo ni clientes locales.
  */
 
 import {
@@ -9,7 +9,6 @@ import {
   type NitVerificacion,
   type TipoDocumentoFiscal,
 } from './nit-verificacion.ts';
-import { autenticar, getSiigoConfig } from './siigo-client.ts';
 
 export interface ConsultaNitResultado {
   ok: boolean;
@@ -17,6 +16,17 @@ export interface ConsultaNitResultado {
   contribuyente: ContribuyenteDian | null;
   fuentes_intentadas: string[];
   mensaje: string;
+}
+
+/** Fuentes aceptadas para "Importar datos DIAN" (no Siigo ni cache local). */
+export const FUENTES_DIAN_CONTRIBUYENTE = new Set(['verifik', 'coresoft', 'generic', 'dian']);
+
+export function esFuenteDianContribuyente(fuente: string | null | undefined): boolean {
+  return FUENTES_DIAN_CONTRIBUYENTE.has(
+    String(fuente ?? '')
+      .trim()
+      .toLowerCase()
+  );
 }
 
 function providerName(): string {
@@ -162,62 +172,6 @@ async function lookupGeneric(nitBase: string, nitFull: string): Promise<Contribu
   return mapGeneric(body, nitFull);
 }
 
-async function lookupSiigo(nitFull: string): Promise<ContribuyenteDian | null> {
-  try {
-    const config = getSiigoConfig();
-    const token = await autenticar(config);
-    const res = await fetch(
-      `https://api.siigo.com/v1/customers?identification=${encodeURIComponent(nitFull)}`,
-      {
-        headers: {
-          Authorization: token,
-          'Partner-Id': config.partnerId,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
-    if (!res.ok) return null;
-    const body = await res.json().catch(() => null);
-    const list = Array.isArray(body)
-      ? body
-      : body && typeof body === 'object' && Array.isArray((body as { results?: unknown[] }).results)
-        ? ((body as { results: unknown[] }).results ?? [])
-        : [];
-    const first = list[0];
-    if (!first || typeof first !== 'object') return null;
-    const row = first as Record<string, unknown>;
-    const name = row.name;
-    let razon = '';
-    if (Array.isArray(name)) razon = name.filter(Boolean).join(' ').trim();
-    else if (typeof name === 'string') razon = name.trim();
-    if (!razon) return null;
-    const address =
-      row.address && typeof row.address === 'object'
-        ? (row.address as Record<string, unknown>)
-        : null;
-    const contacts = Array.isArray(row.contacts) ? row.contacts : [];
-    const contact0 =
-      contacts[0] && typeof contacts[0] === 'object'
-        ? (contacts[0] as Record<string, unknown>)
-        : null;
-    return {
-      nit: nitFull,
-      razon_social: razon,
-      tipo_persona: row.person_type === 'Person' ? 'natural' : 'juridica',
-      estado: 'SIIGO',
-      email: contact0 ? String(contact0.email ?? '').trim() || null : null,
-      direccion: address ? String(address.address ?? '').trim() || null : null,
-      ciudad: null,
-      departamento: null,
-      responsable_iva: typeof row.vat_responsible === 'boolean' ? row.vat_responsible : null,
-      fuente: 'siigo',
-      raw: row,
-    };
-  } catch {
-    return null;
-  }
-}
-
 export async function consultarContribuyentePorNit(args: {
   nit: string;
   tipo_documento?: TipoDocumentoFiscal;
@@ -253,12 +207,11 @@ export async function consultarContribuyentePorNit(args: {
       contribuyente = await lookupGeneric(nitBase, nitFull);
     }
   } catch {
-    /* provider remoto falló — seguimos con Siigo / local */
+    /* provider remoto falló — no usar Siigo ni clientes locales como sustituto DIAN */
   }
 
-  if (!contribuyente) {
-    fuentes.push('siigo');
-    contribuyente = await lookupSiigo(nitFull);
+  if (contribuyente && !esFuenteDianContribuyente(contribuyente.fuente)) {
+    contribuyente = null;
   }
 
   if (contribuyente) {

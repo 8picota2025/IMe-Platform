@@ -10,7 +10,7 @@ import {
   type TipoDocumentoFiscal,
   type TipoPersonaFiscal,
 } from '../lib/fiscal';
-import { verificarNitCampo } from '../lib/nit-dian';
+import { verificarNitCampo, esFuenteDianContribuyente } from '../lib/nit-dian';
 import {
   planificarAutoasignacionTipos,
   mensajeBloqueoEliminarFamilia,
@@ -8017,17 +8017,36 @@ function bindNitDian() {
         nitInput.value = json.verificacion.numero;
       }
 
+      const fuenteDian = String(json?.contribuyente?.fuente ?? '').toLowerCase();
       if (json?.contribuyente?.razon_social) {
+        if (!esFuenteDianContribuyente(fuenteDian)) {
+          const msg =
+            `La consulta no devolvio datos oficiales DIAN (fuente: ${fuenteDian || 'desconocida'}). ` +
+            'No se rellenaron campos para evitar datos de un cliente existente en otro sistema.';
+          setNitStatus(scope, msg, false);
+          toast(msg);
+          return;
+        }
         applyContribuyenteToForm(form, json.contribuyente, scope);
         const estado = json.contribuyente.estado ? ` · ${json.contribuyente.estado}` : '';
-        const msg = `Importado desde ${json.contribuyente.fuente ?? 'DIAN'}: ${json.contribuyente.razon_social}${estado}`;
+        const msg = `Importado desde DIAN (${fuenteDian}): ${json.contribuyente.razon_social}${estado}`;
         setNitStatus(scope, msg, true);
         toast(msg);
         return;
       }
 
-      setNitStatus(scope, json?.mensaje || 'NIT valido sin datos DIAN', json?.ok !== false);
-      toast(json?.mensaje || 'NIT valido. Sin datos DIAN para importar.');
+      const intentadas = Array.isArray(
+        (json as { fuentes_intentadas?: string[] }).fuentes_intentadas
+      )
+        ? (json as { fuentes_intentadas: string[] }).fuentes_intentadas.join(', ')
+        : '';
+      const sinDatos =
+        json?.mensaje ||
+        (intentadas
+          ? `NIT valido. DIAN no devolvio datos (consultado: ${intentadas}).`
+          : 'NIT valido. Sin datos DIAN para importar.');
+      setNitStatus(scope, sinDatos, json?.ok !== false);
+      toast(sinDatos);
     });
   });
 }

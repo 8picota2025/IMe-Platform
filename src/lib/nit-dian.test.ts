@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { formatearNitConDv, verificarNitCampo } from './nit-dian';
+import { formatearNitConDv, verificarNitCampo, esFuenteDianContribuyente } from './nit-dian';
 
 describe('nit-dian', () => {
   it('verifica NIT JHBM con espacios y calcula DV', () => {
@@ -27,5 +27,10 @@ describe('nit-dian', () => {
 
   it('formatea NIT con guion', () => {
     expect(formatearNitConDv('9014419082')).toBe('901441908-2');
+  });
+
+  it('rechaza fuentes que no son DIAN oficial', () => {
+    expect(esFuenteDianContribuyente('verifik')).toBe(true);
+    expect(esFuenteDianContribuyente('siigo')).toBe(false);
   });
 });

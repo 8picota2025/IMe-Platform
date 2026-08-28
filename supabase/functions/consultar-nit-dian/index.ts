@@ -1,6 +1,6 @@
 /**
  * Verifica NIT (formato + DV) e importa datos del contribuyente desde DIAN
- * (proveedor configurado) o Siigo si ya existe el tercero.
+ * (proveedor configurado: verifik|coresoft|generic). No usa Siigo ni clientes locales.
  *
  * Auth: JWT admin (ventas|operaciones+) o service_role.
  * Body: { nit: string, tipo_documento?: 'NIT'|'CC'|... }
