@@ -29,6 +29,16 @@ import {
   resolveSearchConsoleHtmlFile,
   resolveSearchConsoleVerification,
 } from '../lib/analytics-config';
+import {
+  buildAtributosPayload,
+  buildIngestUserPrompt,
+  deriveEnrichedFields,
+  inferFamiliaSugerida,
+  inferTipoSugerido,
+  productPdfPublicPath,
+  productPdfStoragePath,
+  revisableStringsFromDraft,
+} from '../lib/pdf-ingest-enrich';
 
 const OLLAMA_URL = (import.meta.env['PUBLIC_OLLAMA_URL'] as string | undefined) ?? '';
 const OLLAMA_INGEST_MODEL = 'qwen3:1.7b';
@@ -244,6 +254,7 @@ interface EspecRevisable extends CampoRevisable {
 
 let ingestFamilias: Row[] = [];
 let ingestTipos: Row[] = [];
+let lastIngestPdfFile: File | null = null;
 const INGEST_PDF_MAX_BYTES = 25 * 1024 * 1024;
 const INGEST_PDF_MAX_CHARS = 60_000;
 /** Tope imágenes producto (LCP / storage). PDFs usan INGEST_PDF_MAX_BYTES. */
@@ -1485,12 +1496,70 @@ const CRM_STAGE_VALUES = new Set(CRM_ETAPAS.map(([id]) => id));
 const CRM_CLOSED_STAGES = new Set(['ganado', 'perdido', 'posventa']);
 const CRM_PRIORITIES = new Set(['P1', 'P2', 'P3']);
 
+interface TwentyMemberOption {
+  id: string;
+  email: string;
+  name: string;
+}
+
+async function callCrmTwenty<T = unknown>(
+  action: string,
+  options: { method?: 'GET' | 'POST'; body?: Record<string, unknown> } = {}
+): Promise<{ ok: boolean; data?: T; error?: string; skipped?: boolean }> {
+  if (!supabase) return { ok: false, error: 'Supabase no configurado.' };
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  const token = session?.access_token;
+  if (!token) return { ok: false, error: 'Sesión expirada.' };
+  const base = import.meta.env['PUBLIC_SUPABASE_URL'] as string | undefined;
+  const anon = import.meta.env['PUBLIC_SUPABASE_ANON_KEY'] as string | undefined;
+  if (!base || !anon) return { ok: false, error: 'Supabase URL no configurada.' };
+  const method = options.method ?? (action === 'status' || action === 'members' ? 'GET' : 'POST');
+  const url = `${base}/functions/v1/crm-twenty?action=${encodeURIComponent(action)}`;
+  try {
+    const res = await fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        apikey: anon,
+      },
+      ...(method === 'GET' ? {} : { body: JSON.stringify(options.body ?? {}) }),
+    });
+    const payload = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+    if (!res.ok) {
+      const errObj = payload.error;
+      const message =
+        typeof errObj === 'object' && errObj && 'message' in errObj
+          ? String((errObj as { message: string }).message)
+          : typeof payload.error === 'string'
+            ? payload.error
+            : `Error ${res.status} en crm-twenty`;
+      return { ok: false, error: message };
+    }
+    if (payload.skipped) {
+      return { ok: false, skipped: true, error: String(payload.error ?? 'Twenty no configurado') };
+    }
+    return { ok: Boolean(payload.ok ?? true), data: payload as T };
+  } catch {
+    return { ok: false, error: 'No se pudo contactar crm-twenty.' };
+  }
+}
+
+async function loadTwentyMembers(): Promise<TwentyMemberOption[]> {
+  const res = await callCrmTwenty<{ members: TwentyMemberOption[] }>('members', { method: 'GET' });
+  if (!res.ok || !res.data?.members) return [];
+  return res.data.members;
+}
+
 async function crmView(): Promise<string> {
   const params = hashParams();
   const etapa = params.get('etapa') ?? '';
   const prioridad = params.get('prioridad') ?? '';
   const seguimiento = params.get('seguimiento') ?? '';
   const q = (params.get('q') ?? '').trim().toLowerCase();
+  const twentyMembers = await loadTwentyMembers();
   const [opportunitiesRes, contactsRes, accountsRes, activitiesRes] = await Promise.all([
     supabase!
       .from('crm_opportunities')
@@ -1593,7 +1662,9 @@ async function crmView(): Promise<string> {
         <div class="crm-stage__body">
           ${
             stageRows.length
-              ? stageRows.map(row => crmOpportunityCard(row, contacts, accounts)).join('')
+              ? stageRows
+                  .map(row => crmOpportunityCard(row, contacts, accounts, twentyMembers))
+                  .join('')
               : '<p class="admin-help">Sin oportunidades.</p>'
           }
         </div>
@@ -1651,6 +1722,8 @@ async function crmView(): Promise<string> {
           <p class="admin-meta">Formularios, cotizaciones y ventas ecommerce alimentan estas oportunidades.</p>
         </div>
         <div class="admin-toolbar">
+          <button class="admin-button admin-button--ghost" type="button" data-crm-repair-twenty>Reparar enlaces Twenty</button>
+          <a class="admin-button admin-button--ghost" href="https://crm.i-me.com.co" target="_blank" rel="noopener noreferrer">Abrir Twenty</a>
           <a class="admin-button admin-button--ghost" href="#/cotizaciones">Cotizaciones</a>
           <a class="admin-button admin-button--ghost" href="#/pedidos">Pedidos</a>
         </div>
@@ -1660,19 +1733,46 @@ async function crmView(): Promise<string> {
     <section class="admin-panel">
       <div class="admin-panel__head"><h2>Contactos explotables (${contactRows.length})</h2></div>
       ${table(
-        ['Nombre', 'Email normalizado', 'Telefono', 'Cuenta', 'Ultima actividad', 'Fuente'],
+        [
+          'Nombre',
+          'Email normalizado',
+          'Telefono',
+          'Cuenta',
+          'Twenty',
+          'Ultima actividad',
+          'Fuente',
+        ],
         contactRows.map(row => {
           const account = accounts.get(text(row.account_id));
+          const twentyPerson = text(row.twenty_person_id);
+          const twentyCompany = text(account?.twenty_company_id);
+          const twentyBadge =
+            twentyPerson && twentyCompany ? 'Enlazado' : twentyPerson ? 'Persona' : 'Pendiente';
           return [
             escapeHtml(text(row.nombre)) || '—',
             escapeHtml(text(row.email_norm)) || '—',
             escapeHtml(text(row.telefono_e164)) || '—',
             escapeHtml(text(account?.nombre)) || '—',
+            `<span class="admin-badge ${twentyBadge === 'Enlazado' ? 'admin-badge--info' : 'admin-badge--warn'}">${escapeHtml(twentyBadge)}</span>`,
             text(row.last_activity_at) ? formatDate(text(row.last_activity_at)) : '—',
             escapeHtml(text(row.first_source)) || '—',
           ];
         })
       )}
+      ${
+        contactRows.some(row => {
+          const account = accounts.get(text(row.account_id));
+          return (
+            text(row.twenty_person_id) && text(account?.nombre) && !text(account?.twenty_company_id)
+          );
+        })
+          ? `<div class="admin-toolbar" style="margin-top:1rem">
+              <button class="admin-button admin-button--ghost" type="button" data-crm-link-all-contacts>
+                Enlazar contactos pendientes a cuenta Twenty
+              </button>
+            </div>`
+          : ''
+      }
     </section>
     <section class="admin-panel">
       <div class="admin-panel__head"><h2>Actividad CRM</h2></div>
@@ -1694,7 +1794,8 @@ async function crmView(): Promise<string> {
 function crmOpportunityCard(
   row: Row,
   contacts: Map<string, Row>,
-  accounts: Map<string, Row>
+  accounts: Map<string, Row>,
+  twentyMembers: TwentyMemberOption[]
 ): string {
   const id = text(row.id);
   const contact = contacts.get(text(row.contact_id));
@@ -1704,6 +1805,10 @@ function crmOpportunityCard(
   const lastContact = text(row.last_contact_at);
   const due = nextAction ? new Date(nextAction).getTime() <= Date.now() : false;
   const priority = text(row.prioridad);
+  const twentyOpp = text(row.twenty_opportunity_id);
+  const twentyLinked = Boolean(
+    twentyOpp && text(row.twenty_person_id) && text(row.twenty_company_id)
+  );
   const metadata =
     row.metadata && typeof row.metadata === 'object' && !Array.isArray(row.metadata)
       ? (row.metadata as Row)
@@ -1711,6 +1816,11 @@ function crmOpportunityCard(
   const campaign = text(metadata.campaign || metadata.utm_campaign);
   const title =
     text(row.titulo) || text(account?.nombre) || text(contact?.email_norm) || id.slice(0, 8);
+  const memberOptions = twentyMembers.length
+    ? twentyMembers
+        .map(m => `<option value="${escapeHtml(m.id)}">${escapeHtml(m.name || m.email)}</option>`)
+        .join('')
+    : '';
   return `
     <form class="crm-card" data-crm-opportunity-form="${escapeHtml(id)}" data-crm-account="${escapeHtml(text(row.account_id))}" data-crm-contact="${escapeHtml(text(row.contact_id))}">
       <div class="crm-card__top">
@@ -1718,6 +1828,11 @@ function crmOpportunityCard(
         <span class="admin-badge ${due ? 'admin-badge--warn' : 'admin-badge--info'}">${escapeHtml(priority || crmStageLabel(etapa))}</span>
       </div>
       <p class="admin-meta">${escapeHtml(text(account?.nombre) || 'Sin cuenta')} · ${escapeHtml(text(contact?.email_norm) || text(contact?.telefono_e164) || 'Sin contacto')}</p>
+      <p class="admin-meta">
+        Twenty:
+        <span class="admin-badge ${twentyLinked ? 'admin-badge--info' : 'admin-badge--warn'}">${twentyLinked ? 'Sincronizado' : twentyOpp ? 'Parcial' : 'Pendiente'}</span>
+        ${twentyOpp ? `<span class="admin-meta">· ${escapeHtml(twentyOpp.slice(0, 8))}…</span>` : ''}
+      </p>
       ${campaign ? `<p class="admin-meta">Campaña: ${escapeHtml(campaign)}${text(metadata.horizonte) ? ` · ${escapeHtml(text(metadata.horizonte))}` : ''}</p>` : ''}
       <div class="crm-card__numbers">
         <span>${escapeHtml(crmMoney(Number(row.valor_estimado ?? 0), text(row.moneda) || 'COP'))}</span>
@@ -1761,7 +1876,22 @@ function crmOpportunityCard(
       <label class="admin-field">Motivo de perdida
         <input name="motivo_perdida" type="text" maxlength="500" value="${escapeHtml(text(row.motivo_perdida))}" />
       </label>
-      <button class="admin-button" type="submit">Guardar oportunidad</button>
+      ${
+        memberOptions
+          ? `<label class="admin-field">Reasignar comercial (Twenty)
+          <select name="twenty_owner_id" data-crm-reassign-owner>
+            <option value="">Sin cambio</option>
+            ${memberOptions}
+          </select>
+        </label>`
+          : ''
+      }
+      <button class="admin-button" type="submit">Guardar y sync Twenty</button>
+      ${
+        contact && account && (!text(contact.twenty_person_id) || !text(account.twenty_company_id))
+          ? `<button class="admin-button admin-button--ghost" type="button" data-crm-link-contact="${escapeHtml(text(contact.id))}" data-crm-link-account="${escapeHtml(text(account.id))}">Enlazar contacto ↔ cuenta Twenty</button>`
+          : ''
+      }
       <div class="admin-toolbar crm-card__actions">
         ${crmSourceLink(row)}
         ${text(contact?.email_norm) ? `<a class="admin-button admin-button--ghost" href="mailto:${escapeHtml(text(contact?.email_norm))}">Email</a>` : ''}
@@ -1787,6 +1917,65 @@ function bindCrm() {
     location.hash = `#/crm${params.toString() ? `?${params.toString()}` : ''}`;
   });
 
+  app
+    .querySelector<HTMLButtonElement>('[data-crm-repair-twenty]')
+    ?.addEventListener('click', async () => {
+      const btn = app.querySelector<HTMLButtonElement>('[data-crm-repair-twenty]');
+      if (btn) btn.disabled = true;
+      const res = await callCrmTwenty<{ data?: { linked?: number; scanned?: number } }>(
+        'repair-links',
+        {
+          body: { limit: 100 },
+        }
+      );
+      if (res.skipped) toast('Twenty no configurado en Edge secrets.');
+      else if (!res.ok) toast(res.error ?? 'Reparación falló');
+      else {
+        const stats = res.data?.data;
+        toast(`Twenty: ${stats?.linked ?? 0}/${stats?.scanned ?? 0} contactos enlazados`);
+        await render();
+      }
+      if (btn) btn.disabled = false;
+    });
+
+  app
+    .querySelector<HTMLButtonElement>('[data-crm-link-all-contacts]')
+    ?.addEventListener('click', async () => {
+      const btn = app.querySelector<HTMLButtonElement>('[data-crm-link-all-contacts]');
+      if (btn) btn.disabled = true;
+      let linked = 0;
+      let failed = 0;
+      const buttons = app.querySelectorAll<HTMLButtonElement>('[data-crm-link-contact]');
+      for (const linkBtn of buttons) {
+        const crmContactId = linkBtn.dataset['crmLinkContact'] ?? '';
+        const crmAccountId = linkBtn.dataset['crmLinkAccount'] ?? '';
+        if (!crmContactId || !crmAccountId) continue;
+        const res = await callCrmTwenty('link', { body: { crmContactId, crmAccountId } });
+        if (res.ok) linked += 1;
+        else failed += 1;
+      }
+      toast(`Enlaces Twenty: ${linked} OK${failed ? `, ${failed} fallos` : ''}`);
+      if (btn) btn.disabled = false;
+      await render();
+    });
+
+  app.querySelectorAll<HTMLButtonElement>('[data-crm-link-contact]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const crmContactId = btn.dataset['crmLinkContact'] ?? '';
+      const crmAccountId = btn.dataset['crmLinkAccount'] ?? '';
+      if (!crmContactId || !crmAccountId) return;
+      btn.disabled = true;
+      const res = await callCrmTwenty('link', { body: { crmContactId, crmAccountId } });
+      if (res.skipped) toast('Twenty no configurado.');
+      else if (!res.ok) toast(res.error ?? 'Enlace falló');
+      else {
+        toast('Contacto enlazado a cuenta Twenty');
+        await render();
+      }
+      btn.disabled = false;
+    });
+  });
+
   app.querySelectorAll<HTMLFormElement>('[data-crm-opportunity-form]').forEach(form => {
     form.addEventListener('submit', async event => {
       event.preventDefault();
@@ -1795,6 +1984,7 @@ function bindCrm() {
       const etapa = String(data.get('etapa') ?? 'nuevo');
       const prioridad = String(data.get('prioridad') ?? '');
       const motivoPerdida = String(data.get('motivo_perdida') ?? '').trim();
+      const twentyOwnerId = String(data.get('twenty_owner_id') ?? '').trim();
       if (!id || !CRM_STAGE_VALUES.has(etapa)) return;
       if (prioridad && !CRM_PRIORITIES.has(prioridad)) return;
       if (etapa === 'perdido' && !motivoPerdida) {
@@ -1807,6 +1997,7 @@ function bindCrm() {
       const now = new Date().toISOString();
       const nextActionAt = crmInputIso(data.get('next_action_at'));
       const lastContactAt = crmInputIso(data.get('last_contact_at'));
+      const valorEstimado = numberOrNull(data.get('valor_estimado'));
       const { error } = await supabase!
         .from('crm_opportunities')
         .update({
@@ -1814,7 +2005,7 @@ function bindCrm() {
           probabilidad: crmProbabilityForStage(etapa),
           closed_at: CRM_CLOSED_STAGES.has(etapa) ? now : null,
           prioridad: prioridad || null,
-          valor_estimado: numberOrNull(data.get('valor_estimado')),
+          valor_estimado: valorEstimado,
           margen_estimado: numberOrNull(data.get('margen_estimado')),
           margen_pct: numberOrNull(data.get('margen_pct')),
           motivo_perdida: etapa === 'perdido' ? motivoPerdida : null,
@@ -1846,7 +2037,23 @@ function bindCrm() {
           motivo_perdida: etapa === 'perdido' ? motivoPerdida : null,
         },
       });
-      toast('Oportunidad CRM actualizada');
+
+      const sync = await callCrmTwenty<{ twenty?: { stage?: string } }>('sync-opportunity', {
+        body: {
+          crmOpportunityId: id,
+          etapa,
+          valor_estimado: valorEstimado,
+          next_action_at: nextActionAt,
+          next_action_note: emptyToNull(data.get('next_action_note')),
+          ...(twentyOwnerId
+            ? { newOwnerId: twentyOwnerId, reason: 'Reasignación desde admin CRM' }
+            : {}),
+        },
+      });
+
+      if (sync.skipped) toast('CRM guardado. Twenty no configurado en Edge.');
+      else if (!sync.ok) toast(`CRM guardado. Twenty: ${sync.error ?? 'sync falló'}`);
+      else toast(`Oportunidad actualizada y sincronizada (${sync.data?.twenty?.stage ?? etapa})`);
       await render();
     });
   });
@@ -8139,6 +8346,24 @@ function renderIngestReview(draft: Row, pdfUrl: string): string {
   const tipoId = matchTaxonomyId(tipoSugerido.valor, ingestTipos);
   const especs = arrayOf(productoEs.especificaciones, especRevisable);
   const aplicaciones = arrayOf(productoEs.aplicaciones, campoRevisable);
+  const beneficiosDraft = revisableStringsFromDraft(productoEs.beneficios);
+  const valorDraft = campoRevisable(productoEs.valor_institucional);
+  const marcaDraft = campoRevisable(productoEs.marca);
+  const seoDraft = revisableStringsFromDraft(productoEs.seo_keywords);
+  const enrichedFallback = deriveEnrichedFields({
+    nombre: nombre.valor,
+    descripcionCorta: descripcionCorta.valor,
+    descripcionLarga: descripcionLarga.valor,
+    especificaciones: especs.map(s => ({ clave: s.clave, valor: s.valor, grupo: s.grupo })),
+    aplicaciones: aplicaciones.map(a => a.valor).filter(Boolean),
+  });
+  const beneficios_es = beneficiosDraft.length ? beneficiosDraft : enrichedFallback.beneficios_es;
+  const valor_es = valorDraft.valor || enrichedFallback.valor_es;
+  const marca = marcaDraft.valor || enrichedFallback.marca;
+  const seo_keywords_es = seoDraft.length ? seoDraft : enrichedFallback.seo_keywords_es;
+  const beneficios_en = revisableStringsFromDraft(productoEn.beneficios);
+  const valor_en = campoRevisable(productoEn.valor_institucional).valor;
+  const seo_keywords_en = revisableStringsFromDraft(productoEn.seo_keywords);
   const metaSeo =
     productoEs.meta_seo && typeof productoEs.meta_seo === 'object'
       ? (productoEs.meta_seo as Row)
@@ -8194,6 +8419,15 @@ function renderIngestReview(draft: Row, pdfUrl: string): string {
         <div data-aplicacion-rows>${aplicaciones.length ? aplicaciones.map(aplicacionRevisableRow).join('') : emptyAplicacionRow()}</div>
         <button class="admin-button admin-button--ghost" type="button" data-add-aplicacion>Agregar aplicacion</button>
 
+        <h3>Beneficios y valor (landing enriquecida)</h3>
+        ${textarea('beneficios_es', 'Beneficios ES (uno por linea)', beneficios_es.join('\n'))}
+        ${textarea('beneficios_en', 'Beneficios EN (uno por linea)', beneficios_en.join('\n'))}
+        ${field('valor_es', 'Valor institucional ES', valor_es)}
+        ${field('valor_en', 'Valor institucional EN', valor_en)}
+        ${field('marca', 'Marca / fabricante', marca)}
+        ${textarea('seo_keywords_es', 'SEO keywords ES (una por linea)', seo_keywords_es.join('\n'))}
+        ${textarea('seo_keywords_en', 'SEO keywords EN (una por linea)', seo_keywords_en.join('\n'))}
+
         <h3>Traduccion EN (borrador)</h3>
         <div class="admin-campo-revisable">
           <div class="admin-campo-revisable__head">
@@ -8234,7 +8468,7 @@ function renderIngestReview(draft: Row, pdfUrl: string): string {
             ['individualizado', 'Individualizado'],
           ])}
         </div>
-        ${checkbox('activo', 'Publicar en catalogo al crear', false)}
+        ${checkbox('activo', 'Publicar en catalogo al crear', true)}
         <div class="admin-alert">Si no publica al crear, el producto queda como borrador interno. Si publica, revise familia, descripcion e imagen antes de confirmar; la publicacion solicita rebuild automaticamente.</div>
         <p class="admin-help" data-ingest-save-status aria-live="polite"></p>
         <button class="admin-button" type="submit">Crear producto</button>
@@ -8341,6 +8575,11 @@ function bindIngestReview(container: HTMLElement) {
       return;
     }
     const productId = text((data as Row | null)?.id);
+    const pdfUrl = text(payload['ficha_pdf']);
+    if (productId && pdfUrl) {
+      if (statusEl) statusEl.textContent = 'Publicando ficha PDF en catalogo...';
+      await persistIngestPdfForProduct(slug, pdfUrl);
+    }
     if (payload['activo'] === true && productId) {
       await generarEmbeddingProducto(productId);
       await triggerRebuild();
@@ -8383,13 +8622,23 @@ function buildLocalIngestDraft(pdfText: string, pdfUrl: string, errorMessage?: s
     .join(' ')
     .slice(0, 900);
   const specs = inferSpecs(clean);
-  const family = inferFamily(`${title} ${description}`);
+  const family = inferFamiliaSugerida(`${title} ${description}`);
+  const tipo = inferTipoSugerido(`${title} ${description}`);
+  const aplicaciones = inferAplicacionesFromText(`${title} ${description} ${pdfText}`);
+  const enriched = deriveEnrichedFields({
+    nombre: title,
+    descripcionCorta: description.slice(0, 240),
+    descripcionLarga: description,
+    especificaciones: specs.map(s => ({ clave: s.clave, valor: s.valor, grupo: s.grupo })),
+    aplicaciones,
+    textoCompleto: pdfText,
+  });
   const englishName = looksLikeEnglishProductName(title) ? title : '';
   return {
     producto_es: {
       nombre: revisable(title, 'pdf', 0.55, true),
       familia_sugerida: revisable(family, family ? 'pdf' : 'ausente', family ? 0.5 : 0, true),
-      tipo_sugerido: revisable('', 'ausente', 0, true),
+      tipo_sugerido: revisable(tipo, tipo ? 'pdf' : 'ausente', tipo ? 0.5 : 0, true),
       descripcion_corta: revisable(
         description.slice(0, 240),
         description ? 'pdf' : 'ausente',
@@ -8398,7 +8647,11 @@ function buildLocalIngestDraft(pdfText: string, pdfUrl: string, errorMessage?: s
       ),
       descripcion_larga: revisable(description, description ? 'pdf' : 'ausente', 0.45, true),
       especificaciones: specs,
-      aplicaciones: [],
+      aplicaciones: aplicaciones.map(valor => revisable(valor, 'pdf', 0.5, true)),
+      beneficios: enriched.beneficios_es.map(valor => revisable(valor, 'inferido', 0.45, true)),
+      valor_institucional: revisable(enriched.valor_es, 'inferido', 0.45, true),
+      marca: revisable(enriched.marca, enriched.marca ? 'pdf' : 'ausente', 0.4, true),
+      seo_keywords: enriched.seo_keywords_es.map(valor => revisable(valor, 'inferido', 0.4, true)),
       meta_seo: {
         title,
         description: description.slice(0, 155),
@@ -8447,36 +8700,8 @@ async function callOllamaIngest(pdfText: string, pdfUrl: string): Promise<Row | 
   if (!OLLAMA_URL) return null;
   try {
     const systemPrompt =
-      'Extrae un borrador JSON bilingue para catalogo medico B2B. Devuelve solo JSON valido, sin texto adicional. No inventes datos. Campo no presente: valor vacio, origen="ausente", requiere_revision=true. Genera producto_es desde el PDF y producto_en_borrador como traduccion al ingles. La traduccion EN es borrador y todos sus campos requieren_revision=true. /no_think';
-    const userPrompt = `Fuente PDF: ${pdfUrl || 'texto pegado por admin'}
-
-Texto disponible:
-${pdfText.slice(0, 12000)}
-
-Estructura requerida:
-{
-  "producto_es": {
-    "nombre": {"valor": "", "origen": "pdf|ausente", "confianza": 0, "requiere_revision": true},
-    "familia_sugerida": {"valor": "", "origen": "pdf|ausente", "confianza": 0, "requiere_revision": true},
-    "tipo_sugerido": {"valor": "", "origen": "pdf|ausente", "confianza": 0, "requiere_revision": true},
-    "descripcion_corta": {"valor": "", "origen": "pdf|ausente", "confianza": 0, "requiere_revision": true},
-    "descripcion_larga": {"valor": "", "origen": "pdf|ausente", "confianza": 0, "requiere_revision": true},
-    "especificaciones": [{"clave": "", "valor": "", "grupo": "", "origen": "pdf", "confianza": 0, "requiere_revision": true}],
-    "aplicaciones": [{"valor": "", "origen": "pdf", "confianza": 0, "requiere_revision": true}],
-    "meta_seo": {"title": "", "description": ""}
-  },
-  "producto_en_borrador": {
-    "nombre": {"valor": "", "origen": "traduccion|ausente", "confianza": 0, "requiere_revision": true},
-    "descripcion_corta": {"valor": "", "origen": "traduccion|ausente", "confianza": 0, "requiere_revision": true},
-    "descripcion_larga": {"valor": "", "origen": "traduccion|ausente", "confianza": 0, "requiere_revision": true},
-    "aplicaciones": [{"valor": "", "origen": "traduccion|ausente", "confianza": 0, "requiere_revision": true}],
-    "meta_seo": {"title": "", "description": ""}
-  },
-  "campos_confianza": [],
-  "ausentes": [],
-  "advertencias": [],
-  "raw_model_id": ""
-}`;
+      'Extrae un borrador JSON bilingue para catalogo medico B2B con landing enriquecida (beneficios, valor institucional, SEO). Devuelve solo JSON valido, sin texto adicional. No inventes datos. Campo no presente: valor vacio, origen="ausente", requiere_revision=true. Genera producto_es desde el PDF y producto_en_borrador como traduccion al ingles. La traduccion EN es borrador y todos sus campos requieren_revision=true. /no_think';
+    const userPrompt = buildIngestUserPrompt(pdfText, pdfUrl);
 
     const res = await fetch(`${OLLAMA_URL}/api/chat`, {
       method: 'POST',
@@ -8673,25 +8898,63 @@ function inferSpecs(lines: string[]): EspecRevisable[] {
   return specs;
 }
 
-function inferFamily(textValue: string): string {
-  const value = normalizeMatchText(textValue);
-  const matches: Array<[string, string[]]> = [
-    [
-      'Radiología y Diagnóstico por Imagen',
-      ['radiologia', 'rayos x', 'rx', 'mamogra', 'arco c', 'radiograf'],
-    ],
-    ['Anestesia y Ventilación', ['anestesia', 'ventilador', 'respirador']],
-    ['Ultrasonido', ['ecogra', 'ultrasonido', 'doppler']],
-    ['Monitores', ['monitor multiparam', 'monitor de signos', 'uci']],
-    ['Cardiología', ['ecg', 'electrocardio', 'desfibrilador', 'holter', 'cardio']],
-    ['Neonatología', ['neonatal', 'incubadora', 'cpap', 'cuna radiante']],
-    ['Soluciones IV', ['infusion', 'jeringa', 'bomba']],
-    ['Mobiliario Hospitalario', ['camilla', 'cama', 'carro de paro', 'mobiliario']],
-    ['Sala de Cirugía', ['quirurg', 'cialitica', 'mesa']],
-  ];
-  return (
-    matches.find(([, keywords]) => keywords.some(keyword => value.includes(keyword)))?.[0] ?? ''
-  );
+function inferAplicacionesFromText(textValue: string): string[] {
+  const value = textValue.toLowerCase();
+  const out: string[] = [];
+  if (/invasiv/i.test(value)) out.push('Ventilación invasiva');
+  if (/no invasiv|vni|niv/i.test(value)) out.push('Ventilación no invasiva');
+  if (/adult/i.test(value)) out.push('Cuidados intensivos adultos');
+  if (/pediatr|infant|niñ/i.test(value)) out.push('Cuidados intensivos pediátricos');
+  if (/uci|critico|intensiv/i.test(value) && !out.length) out.push('Cuidados intensivos');
+  return out;
+}
+
+async function persistIngestPdfForProduct(slug: string, pdfUrl: string): Promise<string | null> {
+  const storagePath = productPdfStoragePath(slug);
+  const publicAssetPath = productPdfPublicPath(slug);
+
+  if (lastIngestPdfFile) {
+    const { error } = await supabase!.storage
+      .from('productos')
+      .upload(storagePath, lastIngestPdfFile, {
+        contentType: 'application/pdf',
+        upsert: true,
+      });
+    if (error) {
+      console.warn('No se pudo subir ficha PDF al bucket productos:', error.message);
+    } else {
+      const remoteUrl = supabase!.storage.from('productos').getPublicUrl(storagePath)
+        .data.publicUrl;
+      await supabase!.from('productos').update({ ficha_pdf: remoteUrl }).eq('slug', slug);
+      lastIngestPdfFile = null;
+      return remoteUrl;
+    }
+  }
+
+  if (pdfUrl) {
+    try {
+      const response = await fetch(pdfUrl);
+      if (response.ok) {
+        const blob = await response.blob();
+        const { error } = await supabase!.storage.from('productos').upload(storagePath, blob, {
+          contentType: 'application/pdf',
+          upsert: true,
+        });
+        if (!error) {
+          const remoteUrl = supabase!.storage.from('productos').getPublicUrl(storagePath)
+            .data.publicUrl;
+          await supabase!.from('productos').update({ ficha_pdf: remoteUrl }).eq('slug', slug);
+          return remoteUrl;
+        }
+      }
+    } catch {
+      // fallback: conservar URL original de ingesta
+    }
+    await supabase!.from('productos').update({ ficha_pdf: pdfUrl }).eq('slug', slug);
+    return pdfUrl;
+  }
+
+  return publicAssetPath;
 }
 
 function looksLikeEnglishProductName(value: string): boolean {
@@ -8781,6 +9044,23 @@ function ingestPayload(form: HTMLFormElement): Row {
   const aplicaciones_es = Array.from(form.querySelectorAll<HTMLElement>('[data-aplicacion-row]'))
     .map(row => text(row.querySelector<HTMLInputElement>('input[name="aplicacion_valor"]')?.value))
     .filter(Boolean);
+  const beneficios_es = lines(data.get('beneficios_es'));
+  const beneficios_en = lines(data.get('beneficios_en'));
+  const seo_keywords_es = lines(data.get('seo_keywords_es'));
+  const seo_keywords_en = lines(data.get('seo_keywords_en'));
+  const meta_title = emptyToNull(data.get('meta_title'));
+  const meta_description = emptyToNull(data.get('meta_description'));
+  const atributos = buildAtributosPayload({
+    beneficios_es,
+    beneficios_en,
+    valor_es: String(data.get('valor_es') ?? ''),
+    valor_en: String(data.get('valor_en') ?? ''),
+    seo_keywords_es,
+    seo_keywords_en,
+    meta_title: meta_title ?? undefined,
+    meta_description: meta_description ?? undefined,
+    marca: String(data.get('marca') ?? ''),
+  });
   return {
     slug: String(data.get('slug') ?? ''),
     nombre_es: String(data.get('nombre_es') ?? ''),
@@ -8794,6 +9074,7 @@ function ingestPayload(form: HTMLFormElement): Row {
     especificaciones,
     aplicaciones_es,
     aplicaciones_en: lines(data.get('aplicaciones_en')),
+    atributos,
     imagen_principal: emptyToNull(data.get('imagen_principal')),
     ficha_pdf: emptyToNull(data.get('ficha_pdf')),
     tipo_comercial: String(data.get('tipo_comercial') ?? 'equipo'),
@@ -9197,6 +9478,7 @@ async function uploadIngestPdf(form: HTMLFormElement) {
   input.addEventListener('change', async () => {
     const file = input.files?.[0];
     if (!file) return;
+    lastIngestPdfFile = file;
     const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
     if (!isPdf) {
       toast('Selecciona un archivo PDF.');

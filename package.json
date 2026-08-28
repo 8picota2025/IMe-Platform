@@ -22,6 +22,7 @@
     "optimize:images": "node scripts/optimize-site-images.mjs",
     "import:gmd": "node --env-file=.env scripts/import-gmd-catalog.mjs",
     "import:gmd-images": "node --env-file=.env scripts/persist-gmd-images.mjs",
+    "ingest:pdf-product": "node scripts/ingest-pdf-product.mjs",
     "reindex:voyage": "node --env-file=.env scripts/reindex-voyage-embeddings.mjs products",
     "reindex:voyage:articles": "node --env-file=.env scripts/reindex-voyage-embeddings.mjs articles",
     "reindex:voyage:all": "node --env-file=.env scripts/reindex-voyage-embeddings.mjs all",

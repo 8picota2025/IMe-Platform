@@ -6,6 +6,7 @@
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { badRequest, internalError, unauthorized } from '../_shared/errors.ts';
 import { createLlmGateway } from '../_shared/llm-gateway.ts';
+import { buildIngestPrompt } from '../_shared/pdf-ingest-prompt.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 
 interface IngestRequest {
@@ -45,11 +46,11 @@ Deno.serve(async req => {
         {
           role: 'system',
           content:
-            'Extrae un borrador JSON bilingue para catalogo medico B2B. Devuelve solo JSON valido. No inventes datos. Campo no presente: valor vacio, origen="ausente", requiere_revision=true. Genera producto_es desde el PDF y producto_en_borrador solo como traduccion al ingles de datos extraidos. La traduccion EN es borrador y todos sus campos requieren_revision=true.',
+            'Extrae un borrador JSON bilingue para catalogo medico B2B con landing enriquecida (beneficios, valor institucional, SEO). Devuelve solo JSON valido. No inventes datos. Campo no presente: valor vacio, origen="ausente", requiere_revision=true. Genera producto_es desde el PDF y producto_en_borrador solo como traduccion al ingles de datos extraidos. La traduccion EN es borrador y todos sus campos requieren_revision=true.',
         },
         {
           role: 'user',
-          content: buildPrompt(pdfText, pdfUrl),
+          content: buildIngestPrompt(pdfText, pdfUrl),
         },
       ],
     });
@@ -65,44 +66,6 @@ Deno.serve(async req => {
     return internalError(error instanceof Error ? error.message : 'ingesta-pdf error', origin);
   }
 });
-
-function buildPrompt(pdfText: string, pdfUrl: string): string {
-  return `Fuente PDF: ${pdfUrl || 'texto pegado por admin'}
-
-Texto disponible:
-${pdfText || '[No se proporciono texto extraido. Marca todos los campos como ausentes y agrega advertencia de que se requiere extraer texto/OCR del PDF antes de validar.]'}
-
-Estructura requerida:
-{
-  "producto_es": {
-    "nombre": {"valor": "", "origen": "pdf|ausente", "confianza": 0, "requiere_revision": true},
-    "familia_sugerida": {"valor": "", "origen": "pdf|ausente", "confianza": 0, "requiere_revision": true},
-    "tipo_sugerido": {"valor": "", "origen": "pdf|ausente", "confianza": 0, "requiere_revision": true},
-    "descripcion_corta": {"valor": "", "origen": "pdf|ausente", "confianza": 0, "requiere_revision": true},
-    "descripcion_larga": {"valor": "", "origen": "pdf|ausente", "confianza": 0, "requiere_revision": true},
-    "especificaciones": [{"clave": "", "valor": "", "grupo": "", "origen": "pdf", "confianza": 0, "requiere_revision": true}],
-    "aplicaciones": [{"valor": "", "origen": "pdf", "confianza": 0, "requiere_revision": true}],
-    "meta_seo": {"title": "", "description": ""}
-  },
-  "producto_en_borrador": {
-    "nombre": {"valor": "", "origen": "traduccion|ausente", "confianza": 0, "requiere_revision": true},
-    "descripcion_corta": {"valor": "", "origen": "traduccion|ausente", "confianza": 0, "requiere_revision": true},
-    "descripcion_larga": {"valor": "", "origen": "traduccion|ausente", "confianza": 0, "requiere_revision": true},
-    "aplicaciones": [{"valor": "", "origen": "traduccion|ausente", "confianza": 0, "requiere_revision": true}],
-    "meta_seo": {"title": "", "description": ""}
-  },
-  "campos_confianza": [],
-  "ausentes": [],
-  "advertencias": [],
-  "raw_model_id": ""
-}
-
-Reglas EN:
-- Traduce al ingles solo los campos presentes en producto_es.
-- Conserva marcas, modelos, unidades, cifras, certificaciones y nombres tecnicos sin alterarlos.
-- Si el dato fuente esta ausente en ES, deja el campo EN vacio con origen="ausente".
-- Marca siempre los campos EN con requiere_revision=true.`;
-}
 
 function normalizeJson(content: string, model: string): string {
   const jsonText = extractJson(content);
@@ -142,6 +105,10 @@ function normalizeDraftShape(
         ? productoEs['especificaciones']
         : [],
       aplicaciones: Array.isArray(productoEs['aplicaciones']) ? productoEs['aplicaciones'] : [],
+      beneficios: Array.isArray(productoEs['beneficios']) ? productoEs['beneficios'] : [],
+      valor_institucional: revisableValue(productoEs['valor_institucional'], 'ausente'),
+      marca: revisableValue(productoEs['marca'], 'ausente'),
+      seo_keywords: Array.isArray(productoEs['seo_keywords']) ? productoEs['seo_keywords'] : [],
       meta_seo: objectValue(productoEs['meta_seo']),
     },
     producto_en_borrador: {
@@ -152,6 +119,13 @@ function normalizeDraftShape(
       descripcion_larga: revisableValue(productoEn['descripcion_larga'], 'ausente', true),
       aplicaciones: Array.isArray(productoEn['aplicaciones'])
         ? productoEn['aplicaciones'].map(item => revisableValue(item, 'ausente', true))
+        : [],
+      beneficios: Array.isArray(productoEn['beneficios'])
+        ? productoEn['beneficios'].map(item => revisableValue(item, 'ausente', true))
+        : [],
+      valor_institucional: revisableValue(productoEn['valor_institucional'], 'ausente', true),
+      seo_keywords: Array.isArray(productoEn['seo_keywords'])
+        ? productoEn['seo_keywords'].map(item => revisableValue(item, 'ausente', true))
         : [],
       meta_seo: objectValue(productoEn['meta_seo']),
     },
@@ -172,6 +146,10 @@ function emptyDraftShape(model: string): Record<string, unknown> {
       descripcion_larga: revisableValue(undefined, 'ausente'),
       especificaciones: [],
       aplicaciones: [],
+      beneficios: [],
+      valor_institucional: revisableValue(undefined, 'ausente'),
+      marca: revisableValue(undefined, 'ausente'),
+      seo_keywords: [],
       meta_seo: {},
     },
     producto_en_borrador: {
@@ -179,6 +157,9 @@ function emptyDraftShape(model: string): Record<string, unknown> {
       descripcion_corta: revisableValue(undefined, 'ausente', true),
       descripcion_larga: revisableValue(undefined, 'ausente', true),
       aplicaciones: [],
+      beneficios: [],
+      valor_institucional: revisableValue(undefined, 'ausente', true),
+      seo_keywords: [],
       meta_seo: {},
     },
     campos_confianza: [],

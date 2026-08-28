@@ -16627,152 +16627,47 @@
     "familia_id": "61d5c2d6-acdc-4de3-896d-044269702899",
     "familia_slug": "ventiladores",
     "tipo_id": "c8b40c5e-b07a-4e3e-a512-e7d4aea5a9b0",
-    "nombre_es": "Ventilador Cuidado Intensivo Adulto Pediátrico Monnal Ref T75 Air Liquide",
+    "nombre_es": "ESPECIFICACIONES VENTILADOR DE CUIDADOS  INTENSIVOS MONNAL T75",
     "nombre_en": "Adult/Pediatric Intensive Care Ventilator Monnal Ref T75 Air Liquide",
-    "descripcion_corta_es": "El ventilador mecánico Monnal T75 cuenta con una interfaz de usuario intuitiva y de fácil manejo que permite realizar una terapia segura a los pacientes adultos y pediátricos.",
+    "descripcion_corta_es": "AREA DE APLICACIÓN CONDICIONES DE OPERACIÓN Aplicación: Ventilador de cuidado intensivo diseñado para resucitación, cuidado intensivo y post operatorio Temperatura de operación: +10 a +40oC (+50 a +104oF) Categorías de paciente: Adulto, Niñ",
     "descripcion_corta_en": "Mechanical ventilator with intuitive interface for safe adult and pediatric critical care ventilation, featuring high-efficiency turbine and comprehensive monitoring.",
-    "descripcion_larga_es": "El ventilador mecánico Monnal T75 cuenta con una interfaz de usuario intuitiva y de fácil manejo que permite realizar una terapia segura a los pacientes adultos y pediátricos. Gracias a su turbina de alta eficiencia, garantiza una ventilación precisa y confiable en todos los escenarios de cuidado crítico. Dispone de una amplia gama de herramientas y modos ventilatorios que brindan la monitoría necesaria para la toma de decisiones en los pacientes que así lo requieren.\n\nEl sensor de flujo del ventilador Monnal T75 garantiza una rápida respuesta al esfuerzo inspiratorio, mejorando la terapia en ventilación invasiva y no invasiva.",
+    "descripcion_larga_es": "AREA DE APLICACIÓN CONDICIONES DE OPERACIÓN Aplicación: Ventilador de cuidado intensivo diseñado para resucitación, cuidado intensivo y post operatorio Temperatura de operación: +10 a +40oC (+50 a +104oF) Categorías de paciente: Adulto, Niño e Infante Humedad relativa: 0 a 90% (a 40oC sin condensación) Peso: 3 a 250 kg Presión atmosférica: 700 (3075 metros) a 1060 mbar Compensación de efecto de la altitud ESTANDARES Y DIRECTIVAS CONDICIONES DE ALMACENAMIENTO Marca CE: CE 0459. El dispositivo cumple con los requerimientos Europeos en la Directiva 93/42/EEC concerniente a dispositivos médicos. Temperatura de almacenamiento: -20 a +70oC (-4 a +159oF) Clasificación médica: Clase IIb, de acuerdo con la Directiva 93/12/CEE. Humedad relativa: 0 a 90% (a 40oC sin condensación) Estándares: ISO 14971 CEI 60601-1 CEI 60601-2-12 Presión atmosférica: 550 (5550 metros) a 1060 mbar Compatibilidad elect",
     "descripcion_larga_en": "The Monnal T75 mechanical ventilator features an intuitive user interface for safe therapy in adult and pediatric patients. Equipped with a high-efficiency turbine, it delivers precise and reliable ventilation in all critical care scenarios. It offers a comprehensive range of ventilatory modes and monitoring tools that provide the necessary oversight for decision-making in patients who require them. The Monnal T75 flow sensor ensures rapid response to inspiratory effort, enhancing both invasive and non-invasive ventilation treatment.",
     "especificaciones": [
       {
-        "clave": "Categoría de paciente",
-        "grupo": "Rango de uso",
-        "valor": "Adulto, niño e infante"
+        "clave": "Caracteristica",
+        "valor": "AREA DE APLICACIÓN CONDICIONES DE OPERACIÓN Aplicación: Ventilador de cuidado intensivo diseñado para resucitación, cuidado intensivo y post operatorio Temperat",
+        "grupo": ""
       },
       {
-        "clave": "Rango de presión y volumen",
-        "grupo": "Rango de uso",
-        "valor": "De 2 a 99 cmH2O; Vt de 20 a 2.000 ml"
+        "clave": "Caracteristica",
+        "valor": "FUENTE DE ALIMENTACIÓN ALIMENTACIÓN NEUMÁTICA Alimentación: 100-240 Vac ± 5 % Alimentación neumática de oxígeno Frecuencia: 50-60 Hz Presión alta: 2.8-6 bar / 2",
+        "grupo": ""
       },
       {
-        "clave": "Ajustes principales",
-        "grupo": "Rango de uso",
-        "valor": "Vt (20 a 2.000 ml), RR (4 a 120 rpm), PI (2 a 99 cmH2O), PS (2 a 40 cmH2O)"
+        "clave": "Caracteristica",
+        "valor": "ESPECIFICACIONES NEUMÁTICAS MODOS – VENTILACION INVASIVA Método de disparo: Flujo y presión VCV Ventilación Controlada por Volumen o Asistida Controlada por Vol",
+        "grupo": ""
       },
       {
-        "clave": "Modos de ventilación invasiva",
-        "grupo": "Modos de ventilación",
-        "valor": "VCV, PCV, PRVC, SIMV, PSIMV, PSV, CPAP, PS-Pro, Duo-Levels"
+        "clave": "Caracteristica",
+        "valor": "CONFIGURACIÓN DE PARÁMETROS CONFIGURACIÓN DE PARÁMETROS (SIGUIENTE) PARÁMETROS RANGO DE CONFIGURACIÓN: PARÁMETROS RANGO DE CONFIGURACIÓN: Volumen Tidal Inspirat",
+        "grupo": ""
       },
       {
-        "clave": "Modos de ventilación no invasiva",
-        "grupo": "Modos de ventilación",
-        "valor": "PSV, CPAP, Duo-Levels, APRV"
+        "clave": "Caracteristica",
+        "valor": "CONFIGURACIÓN DE PARÁMETROS (SIGUIENTE) CONFIGURACIÓN DE PARÁMETROS (SIGUIENTE) PARÁMETROS RANGO DE CONFIGURACIÓN VENTILACIÓN NO INVASIVA Presión Positiva al Fi",
+        "grupo": ""
       },
       {
-        "clave": "Ventilación de seguridad",
-        "grupo": "Modos de ventilación",
-        "valor": "Ventilación de apnea, RRmini"
+        "clave": "Caracteristica",
+        "valor": "MONITOREO MONITOREO (SIGUIENTE) PARÁMETROS MEDIDOS: RANGO MEDIDO: VALOR EN TENDENCIA*: PARÁMETROS MEDIDOS: RANGO MEDIDO: VALOR EN TENDENCIA*: Volumen Minuto Esp",
+        "grupo": ""
       },
       {
-        "clave": "Funciones especiales",
-        "grupo": "Modos de ventilación",
-        "valor": "Oxígeno de alto flujo, modo PS-Pro, compensación de tubo (TC), succión inteligente de O2, nebulización"
-      },
-      {
-        "clave": "Turbina y filtro",
-        "grupo": "Tecnología",
-        "valor": "Tecnología de turbina con válvulas proporcionales integradas para alto flujo, gestión de fugas y funcionamiento silencioso"
-      },
-      {
-        "clave": "Filtro HEPA Clean'In",
-        "grupo": "Tecnología",
-        "valor": "Ubicado en la entrada de la turbina; bloquea el 99,97% de las partículas, protegiendo al ventilador y al paciente frente a infecciones"
-      },
-      {
-        "clave": "Oxígenoterapia de alto flujo",
-        "grupo": "Tecnología",
-        "valor": "Rango preciso de FiO2 conservando humedad y temperatura del pulmón similares a la respiración espontánea, con cánula nasal"
-      },
-      {
-        "clave": "Volúmenes",
-        "grupo": "Monitoreo",
-        "valor": "MVe, Vte, Vti, Spont. MVe, Vpeak I, Vpeak E, flujo de fuga (en VNI)"
-      },
-      {
-        "clave": "Presiones",
-        "grupo": "Monitoreo",
-        "valor": "Ppeak, PEEP, Pplat, Pmean"
-      },
-      {
-        "clave": "Frecuencias respiratorias",
-        "grupo": "Monitoreo",
-        "valor": "RR, Spont. RR"
-      },
-      {
-        "clave": "Relaciones",
-        "grupo": "Monitoreo",
-        "valor": "Ti/Ttot, RR/Vte, índice espontáneo, índice de fuga, I/E"
-      },
-      {
-        "clave": "Curvas y loops",
-        "grupo": "Monitoreo",
-        "valor": "Formas de onda en tiempo real de presión, flujo, volumen y CO2 (opción); loops presión/volumen, volumen/flujo, flujo/presión, CO2/volumen"
-      },
-      {
-        "clave": "Mecánica respiratoria",
-        "grupo": "Monitoreo",
-        "valor": "Rstat, Cstat, Rdyn, Cdyn, Pplat, Auto-PEEP, RR/Vt"
-      },
-      {
-        "clave": "Capnografía volumétrica",
-        "grupo": "Monitoreo",
-        "valor": "Sensor de CO2 de tecnología mainstream: etCO2, VmCO2, Vmalv, Vdaw, Vdaw/Vt y pendiente de CO2, para monitorear producción de CO2, perfusión pulmonar y ventilación alveolar"
-      },
-      {
-        "clave": "Historial de eventos",
-        "grupo": "Monitoreo",
-        "valor": "Lista cronológica de las últimas 200 alarmas y eventos registrados"
-      },
-      {
-        "clave": "Tendencias",
-        "grupo": "Monitoreo",
-        "valor": "Valores de tendencia almacenados hasta por 80 horas"
-      },
-      {
-        "clave": "Pantalla",
-        "grupo": "Interfaz",
-        "valor": "Pantalla táctil a color TFT-LCD de 10,4 pulgadas, con rueda de ajuste ergonómica"
-      },
-      {
-        "clave": "Autonomía de batería",
-        "grupo": "Especificaciones físicas",
-        "valor": "De 2,5 a 3 horas en ventilación estándar"
-      },
-      {
-        "clave": "Dimensiones",
-        "grupo": "Especificaciones físicas",
-        "valor": "(Alto) 35 x (Ancho) 30 x (Fondo) 40 cm"
-      },
-      {
-        "clave": "Peso",
-        "grupo": "Especificaciones físicas",
-        "valor": "16 kg"
-      },
-      {
-        "clave": "Suministro neumático de O2",
-        "grupo": "Especificaciones físicas",
-        "valor": "Alta presión: 2,8-6 bar / 280-600 kPa / 40-86 psi; Baja presión: 0-1,5 bar / 0-150 kPa / 0-21 psi"
-      },
-      {
-        "clave": "Compatibilidad con sistemas informáticos",
-        "grupo": "Conectividad",
-        "valor": "Protocolo OTP, interfaz BOW MEDICAL, interfaz DATACAPTOR, interfaz PHILIPS, Monnal Link, comunicación con hoja de anestesia DIANE, numerización CIS/HIS, conexión Vuelink/Intellibridge"
-      },
-      {
-        "clave": "Estándares",
-        "grupo": "Normativa y fabricación",
-        "valor": "ISO 14971, EN-CEI 61601-1, EN-CEI 60601-2-12"
-      },
-      {
-        "clave": "Clasificación",
-        "grupo": "Normativa y fabricación",
-        "valor": "Dispositivo médico clase IIb - CE 0459"
-      },
-      {
-        "clave": "Fabricación",
-        "grupo": "Normativa y fabricación",
-        "valor": "Fabricado por Air Liquide Medical Systems S.A.; sistema de gestión ambiental certificado ISO 14001:2015"
+        "clave": "Caracteristica",
+        "valor": "CONFIGURACIÓN DE ALARMAS SISTEMAS DE ALARMA Ppico alto 10 a 100 cmH2O Alarmas visuales clasificadas por prioridad: 3 niveles de prioridad con colores específico",
+        "grupo": ""
       }
     ],
     "imagen_principal": "/assets/productos/importados/ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide/imagen-principal-ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide.jpg",
@@ -16808,11 +16703,8 @@
     "marca": "Air Liquide",
     "proveedor_ref": "equitronic",
     "beneficios_es": [
-      "Su pantalla táctil a color de 10,4 pulgadas y su rueda de ajuste ergonómica facilitan el control de la ventilación en pacientes adultos, pediátricos e infantes.",
-      "El filtro HEPA Clean'In, ubicado en la entrada de la turbina, bloquea el 99,97% de las partículas y protege tanto al paciente como al ventilador frente a infecciones.",
-      "Incorpora terapia de oxígeno de alto flujo con control preciso de FiO2 y conservación de humedad y temperatura, similar a la respiración espontánea.",
-      "La capnografía volumétrica monitorea etCO2, VmCO2, Vmalv y otros parámetros para evaluar la perfusión pulmonar y la ventilación alveolar en tiempo real.",
-      "Con más de 30 años de experiencia en ventilación artificial, ofrece modos invasivos y no invasivos —VCV, PCV, PRVC, SIMV, PSV, CPAP, PS-Pro, Duo-Levels, APRV— para adaptarse a cada etapa del paciente crítico."
+      "Cubre ventilación invasiva y no invasiva en una misma plataforma clínica.",
+      "Aplicaciones clínicas: Ventilación invasiva, Ventilación no invasiva, Cuidados intensivos adultos, Cuidados intensivos pediátricos."
     ],
     "beneficios_en": [
       "Its 10.4-inch color touchscreen and ergonomic setting wheel make ventilation control easier for adult, pediatric and infant patients.",
@@ -16821,18 +16713,48 @@
       "Volumetric capnography monitors etCO2, VmCO2, Vmalv and other parameters to assess lung perfusion and alveolar ventilation in real time.",
       "Backed by more than 30 years of experience in artificial ventilation, it offers invasive and non-invasive modes — VCV, PCV, PRVC, SIMV, PSV, CPAP, PS-Pro, Duo-Levels, APRV — to adapt to every stage of critical patient care."
     ],
-    "valor_es": "Un ventilador que acompaña al paciente desde la intubación hasta la extubación, combinando ventilación invasiva y no invasiva en una misma plataforma tailor-made.",
+    "valor_es": "ESPECIFICACIONES VENTILADOR DE CUIDADOS INTENSIVOS MONNAL con enfoque en ventilación invasiva y ventilación no invasiva, listo para evaluación técnica y cotización institucional.",
     "valor_en": "A ventilator that stays with the patient from intubation to extubation, combining invasive and non-invasive ventilation on a single tailor-made platform.",
     "seo_keywords_es": [
-      "ventilador mecánico hospital",
-      "ventilador UCI adulto pediátrico",
-      "ventilación mecánica Colombia"
+      "ventilador UCI Colombia",
+      "equipo médico hospitalario Colombia",
+      "Air Liquide Colombia",
+      "ventilación invasiva hospital",
+      "ventilación no invasiva hospital"
     ],
     "seo_keywords_en": [
       "mechanical ventilator hospital",
       "adult pediatric ICU ventilator",
       "critical care ventilation Colombia"
-    ]
+    ],
+    "atributos": {
+      "beneficios_es": [
+        "Cubre ventilación invasiva y no invasiva en una misma plataforma clínica.",
+        "Aplicaciones clínicas: Ventilación invasiva, Ventilación no invasiva, Cuidados intensivos adultos, Cuidados intensivos pediátricos."
+      ],
+      "beneficios_en": [
+        "Its 10.4-inch color touchscreen and ergonomic setting wheel make ventilation control easier for adult, pediatric and infant patients.",
+        "The Clean'In HEPA filter, located at the turbine inlet, blocks 99.97% of particles, protecting both patient and ventilator from infection.",
+        "It incorporates high-flow oxygen therapy with precise FiO2 control while preserving moisture and temperature conditions similar to spontaneous breathing.",
+        "Volumetric capnography monitors etCO2, VmCO2, Vmalv and other parameters to assess lung perfusion and alveolar ventilation in real time.",
+        "Backed by more than 30 years of experience in artificial ventilation, it offers invasive and non-invasive modes — VCV, PCV, PRVC, SIMV, PSV, CPAP, PS-Pro, Duo-Levels, APRV — to adapt to every stage of critical patient care."
+      ],
+      "valor_es": "ESPECIFICACIONES VENTILADOR DE CUIDADOS INTENSIVOS MONNAL con enfoque en ventilación invasiva y ventilación no invasiva, listo para evaluación técnica y cotización institucional.",
+      "valor_en": "A ventilator that stays with the patient from intubation to extubation, combining invasive and non-invasive ventilation on a single tailor-made platform.",
+      "seo_keywords_es": [
+        "ventilador UCI Colombia",
+        "equipo médico hospitalario Colombia",
+        "Air Liquide Colombia",
+        "ventilación invasiva hospital",
+        "ventilación no invasiva hospital"
+      ],
+      "seo_keywords_en": [
+        "mechanical ventilator hospital",
+        "adult pediatric ICU ventilator",
+        "critical care ventilation Colombia"
+      ],
+      "marca": "Air Liquide"
+    }
   },
   {
     "id": "aa3caf33-200f-4a28-bba7-7be5ff55488a",
