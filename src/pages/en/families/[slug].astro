@@ -10,7 +10,7 @@ import {
   combineJsonLd,
 } from '../../../lib/seo';
 import { getFamiliaSeo, listFamiliaSeoSlugs, familiaDisplayName } from '../../../data/familia-seo';
-import { getProductosBySlugs } from '../../../lib/datos';
+import { buildCatalogoIndex } from '../../../lib/catalogo';
 import { t } from '../../../i18n/utils';
 
 export function getStaticPaths() {
@@ -30,9 +30,11 @@ const seo = buildFamiliaSeo(locale, {
   name: content.title_en,
   description: content.description_en,
 });
-const productos = await getProductosBySlugs(content.relatedSlugs, locale);
+const productos = (await buildCatalogoIndex(locale)).filter(item =>
+  item.familias_filtro.includes(content.slug)
+);
 const faq = content.faq.map(f => ({ q: f.q_en, a: f.a_en }));
-const catalogoFamilia = buildCanonical(`/en/catalog/?familia=${slug}`);
+const catalogoFamilia = '#equipment';
 
 const jsonLd = combineJsonLd(
   buildOrganizationJsonLd(),
@@ -73,7 +75,9 @@ const jsonLd = combineJsonLd(
       <h1>{name}</h1>
       <p style="color:var(--text-mid);margin:0.75rem 0 0;line-height:1.55">{content.intro_en}</p>
       <p style="margin-top:1.25rem">
-        <a class="btn btn-primary" href={catalogoFamilia}>Browse catalog</a>
+        <a class="btn btn-primary" href={catalogoFamilia}
+          >Browse {productos.length} family devices</a
+        >
         <a class="btn btn-ghost" href="/en/contact/" style="margin-left:0.5rem">Request a quote</a>
       </p>
     </div>
@@ -89,8 +93,8 @@ const jsonLd = combineJsonLd(
 
   {
     productos.length > 0 && (
-      <section class="container" style="padding-bottom:var(--space-xl)">
-        <h2 style="margin-bottom:1rem">Related equipment</h2>
+      <section id="equipment" class="container" style="padding-bottom:var(--space-xl)">
+        <h2 style="margin-bottom:1rem">{name} equipment</h2>
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem">
           {productos.map(p => (
             <ProductoCard
