@@ -5,6 +5,23 @@ import {
   parseStateFromUrl,
   serializeState,
 } from './catalogo-cliente';
+import { paginateCatalogItems } from './catalogo';
+
+describe('paginateCatalogItems', () => {
+  const items = Array.from({ length: 97 }, (_, index) => index + 1);
+
+  it('conserva orden y corta 48 elementos por página', () => {
+    expect(paginateCatalogItems(items, 1).items).toEqual(items.slice(0, 48));
+    expect(paginateCatalogItems(items, 2).items).toEqual(items.slice(48, 96));
+    expect(paginateCatalogItems(items, 3)).toMatchObject({ items: [97], pageCount: 3, total: 97 });
+  });
+
+  it('normaliza páginas no válidas y no crea contenido fuera de rango', () => {
+    expect(paginateCatalogItems(items, 0).page).toBe(1);
+    expect(paginateCatalogItems(items, 4).items).toEqual([]);
+    expect(paginateCatalogItems([], 1)).toMatchObject({ items: [], pageCount: 1, total: 0 });
+  });
+});
 
 function card(attrs: Record<string, string>): HTMLElement {
   return { dataset: { ...attrs } } as unknown as HTMLElement;

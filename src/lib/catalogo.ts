@@ -28,6 +28,32 @@ export interface CatalogoIndexItem {
   especificaciones_reducidas: Record<string, string>;
 }
 
+export const CATALOG_PAGE_SIZE = 48;
+
+export interface CatalogPage<T> {
+  items: T[];
+  page: number;
+  pageCount: number;
+  total: number;
+}
+
+/**
+ * Parte una lista ya ordenada sin alterar su orden canónico. Las rutas Astro
+ * usan esta función para que cada PDP tenga una única posición paginada.
+ */
+export function paginateCatalogItems<T>(
+  items: readonly T[],
+  page: number,
+  pageSize = CATALOG_PAGE_SIZE
+): CatalogPage<T> {
+  const total = items.length;
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
+  const normalizedPage = Number.isInteger(page) && page > 0 ? page : 1;
+  if (normalizedPage > pageCount) return { items: [], page: normalizedPage, pageCount, total };
+  const start = (normalizedPage - 1) * pageSize;
+  return { items: items.slice(start, start + pageSize), page: normalizedPage, pageCount, total };
+}
+
 /**
  * Minúsculas + sin acentos, para búsqueda y comparación tolerante.
  */

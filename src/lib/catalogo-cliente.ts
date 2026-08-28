@@ -15,7 +15,7 @@ import {
   COMPARADOR_EVENT,
 } from './comparador';
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 48;
 const SEARCH_SYNONYMS: Record<string, string[]> = {
   defibrillator: ['desfibrilador', 'dea', 'aed'],
   desfibrilador: ['defibrillator', 'dea', 'aed'],
@@ -348,6 +348,8 @@ export function initCatalogo(locale: Locale): () => void {
   let cleanupComparadorWindow: (() => void) | null = null;
 
   const state = parseStateFromUrl();
+  const staticPage = root.dataset['staticPage'] === 'true';
+  if (staticPage && !shouldShowGrid(state)) state.todos = true;
 
   const familiasMap = new Map<string, string>();
   familiasView?.querySelectorAll<HTMLElement>('[data-familia-link]').forEach(el => {
@@ -528,6 +530,7 @@ export function initCatalogo(locale: Locale): () => void {
   }
 
   function renderPaginacion(totalPaginas: number, actual: number): void {
+    if (staticPage && !hasActiveFilters()) return;
     if (!paginacion) return;
     paginacion.innerHTML = '';
     if (totalPaginas <= 1) {
@@ -563,6 +566,21 @@ export function initCatalogo(locale: Locale): () => void {
     });
 
     paginacion.append(anterior, info, siguiente);
+  }
+
+  function hasActiveFilters(): boolean {
+    return (
+      state.familia !== '' ||
+      state.tipo !== '' ||
+      state.q !== '' ||
+      state.comercial.size > 0 ||
+      state.destacado ||
+      state.nuevo ||
+      state.disponible !== '' ||
+      state.modalidades.size > 0 ||
+      state.facetas.size > 0 ||
+      state.orden !== 'relevancia'
+    );
   }
 
   function updateFamiliaActual(): void {

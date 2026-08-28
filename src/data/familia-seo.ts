@@ -22,6 +22,51 @@ export interface FamiliaSeoContent {
 
 export const FAMILIA_SEO: FamiliaSeoContent[] = [
   {
+    slug: 'radiologia',
+    name_es: 'Imagenología y radiología',
+    name_en: 'Medical imaging and radiology',
+    title_es: 'Equipos de imagenología y radiología hospitalaria | I-ME',
+    title_en: 'Hospital medical imaging and radiology equipment | I-ME',
+    description_es:
+      'Equipos de radiología e imagenología para instituciones de salud en Colombia: rayos X, detectores, mamografía y fluoroscopia.',
+    description_en:
+      'Radiology and medical imaging equipment for healthcare institutions in Colombia: X-ray, detectors, mammography and fluoroscopy.',
+    intro_es:
+      'Un proyecto de imagenología se define por flujo de pacientes, espacio disponible e integración con la operación radiológica; no por una ficha aislada.',
+    intro_en:
+      'An imaging project follows patient flow, available space and radiology operations—not a single product sheet.',
+    body_es: [
+      'I-ME acompaña la selección de tipología — sistemas DR de techo, piso o móvil, detectores planos, mamografía y arco en C — según el servicio y el flujo previsto.',
+      'Antes de cotizar se revisan condiciones de sala, requerimientos de instalación, integración y documentación aplicable para cada referencia. La validación regulatoria se confirma por equipo.',
+      'Para renovaciones o aperturas de servicio, se puede estructurar una lista de equipos alrededor de prioridades operativas y del alcance definido por la institución.',
+    ],
+    body_en: [
+      'I-ME supports modality selection—ceiling, floor and mobile DR systems, flat-panel detectors, mammography and C-arms—by service and expected workflow.',
+      'Before quoting, we review room conditions, installation requirements, integration and applicable documentation for each SKU. Regulatory validation is confirmed per device.',
+      'For renewals or new services, equipment lists can be structured around operational priorities and the institution-defined scope.',
+    ],
+    faq: [
+      {
+        q_es: '¿Sistema DR móvil, de piso o de techo?',
+        a_es: 'Cada tipología responde a un flujo y una infraestructura distintos. Revisamos volumen, movilidad requerida y condiciones de la sala antes de proponer referencias.',
+        q_en: 'Mobile, floor-mounted or ceiling-mounted DR?',
+        a_en: 'Each modality fits a different workflow and infrastructure. We review volume, mobility needs and room conditions before proposing SKUs.',
+      },
+      {
+        q_es: '¿La documentación regulatoria está disponible?',
+        a_es: 'La documentación aplicable se valida para la referencia cotizada; no se generaliza entre equipos.',
+        q_en: 'Is regulatory documentation available?',
+        a_en: 'Applicable documentation is validated for the quoted SKU; it is not generalized across devices.',
+      },
+    ],
+    relatedSlugs: [
+      'mamografo-digital-dm166-series',
+      'detector-plano-inalambrico-tcq-iii',
+      'sistema-de-rayos-x-dr-montado-en-techo',
+      'sistema-radiografico-3d-wr-3d-angell-technology',
+    ],
+  },
+  {
     slug: 'monitores',
     name_es: 'Monitores de signos vitales',
     name_en: 'Patient monitors',

@@ -13,19 +13,20 @@ import {
   buildBreadcrumbJsonLd,
   combineJsonLd,
 } from '../../lib/seo';
-import { buildCatalogoIndex } from '../../lib/catalogo';
+import { buildCatalogoIndex, paginateCatalogItems } from '../../lib/catalogo';
 import { getFamilias } from '../../lib/datos';
 
 const locale = 'en';
 const seo = buildCatalogoSeo(locale);
 const items = await buildCatalogoIndex(locale);
+const catalogPage = paginateCatalogItems(items, 1);
 const familias = await getFamilias(locale);
 
 const itemListJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'ItemList',
   name: seo.title,
-  itemListElement: items.map((item, index) => ({
+  itemListElement: catalogPage.items.map((item, index) => ({
     '@type': 'ListItem',
     position: index + 1,
     url: buildCanonical(`/en/products/${item.slug}/`),
@@ -65,7 +66,12 @@ const jsonLd = combineJsonLd(
   </div>
 
   <div class="container">
-    <CatalogoExplorer locale={locale} />
+    <CatalogoExplorer
+      locale={locale}
+      items={catalogPage.items}
+      page={catalogPage.page}
+      pageCount={catalogPage.pageCount}
+    />
   </div>
 </Layout>
 

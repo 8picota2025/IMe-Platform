@@ -9,29 +9,48 @@
 import { t, type Locale } from '../i18n/utils';
 import { getFamilias } from '../lib/datos';
 import { buildCatalogoIndex } from '../lib/catalogo';
+import type { CatalogoIndexItem } from '../lib/catalogo';
 import { getCatalogoTaxonomia } from '../lib/taxonomia-catalogo';
 import ProductoCard from './ProductoCard.astro';
 import FamiliaIcon from './FamiliaIcon.astro';
 
 interface Props {
   locale: Locale;
+  items?: CatalogoIndexItem[];
+  page?: number;
+  pageCount?: number;
 }
 
-const { locale } = Astro.props;
+const { locale, items: renderedItems, page = 1, pageCount = 1 } = Astro.props;
 
 const familias = await getFamilias(locale);
-const items = await buildCatalogoIndex(locale);
-const familiasConProductos = new Set(items.flatMap(item => item.familias_filtro));
+const allItems = await buildCatalogoIndex(locale);
+const items = renderedItems ?? allItems;
+const familiasConProductos = new Set(allItems.flatMap(item => item.familias_filtro));
 const taxonomia = getCatalogoTaxonomia(familias, locale, familiasConProductos);
 
 const tiposComerciales = [
-  ...new Set(items.map(item => item.tipo_comercial).filter(Boolean)),
+  ...new Set(allItems.map(item => item.tipo_comercial).filter(Boolean)),
 ].sort();
-const hayDestacados = items.some(item => item.destacado);
-const hayNuevos = items.some(item => item.nuevo);
+const hayDestacados = allItems.some(item => item.destacado);
+const hayNuevos = allItems.some(item => item.nuevo);
+const catalogPath = locale === 'en' ? '/en/catalog/' : '/es/catalogo/';
+const familyPath = (slug: string) =>
+  locale === 'en' ? `/en/families/${slug}/` : `/es/familias/${slug}/`;
+const priorityFamilySlugs = new Set([
+  'radiologia',
+  'monitores',
+  'neonatologia',
+  'anestesia',
+  'ventiladores',
+  'sala-cirugia',
+  'cardiologia-reanimacion',
+]);
+const pagePath = (targetPage: number) =>
+  targetPage === 1 ? catalogPath : `${catalogPath}pagina/${targetPage}/`;
 ---
 
-<div id="catalogo-root" class="catalogo">
+<div id="catalogo-root" class="catalogo" data-static-page="true">
   <div id="catalogo-anuncios" class="sr-only" role="status" aria-live="polite"></div>
 
   <!-- Buscador -->
@@ -90,7 +109,11 @@ const hayNuevos = items.some(item => item.nuevo);
         taxonomia.map(grupo => (
           <li>
             <a
-              href={`?familia=${grupo.slug}`}
+              href={
+                priorityFamilySlugs.has(grupo.slug)
+                  ? familyPath(grupo.slug)
+                  : `?familia=${grupo.slug}`
+              }
               class="categoria-card"
               data-familia-link={grupo.slug}
               data-familia-nombre={grupo.nombre}
@@ -108,7 +131,11 @@ const hayNuevos = items.some(item => item.nuevo);
             <div class="categoria-card__subfamilias" aria-label={grupo.nombre}>
               {grupo.subfamilias.map(subfamilia => (
                 <a
-                  href={`?familia=${subfamilia.slug}`}
+                  href={
+                    priorityFamilySlugs.has(subfamilia.slug)
+                      ? familyPath(subfamilia.slug)
+                      : `?familia=${subfamilia.slug}`
+                  }
                   class="categoria-card__subfamilia"
                   data-familia-link={subfamilia.slug}
                   data-familia-nombre={subfamilia.nombre}
@@ -303,9 +330,29 @@ const hayNuevos = items.some(item => item.nuevo);
         </div>
       </div>
 
-      <ul id="vista-productos" class="productos__grid" role="list" hidden>
+      <ul id="vista-productos" class="productos__grid" role="list">
         {items.map(item => <ProductoCard producto={item} locale={locale} comparable />)}
       </ul>
+
+      {
+        pageCount > 1 && (
+          <nav class="catalogo-paginacion" aria-label={t(locale, 'catalogo.paginacion_label')}>
+            {page > 1 && (
+              <a class="btn btn-secondary" href={pagePath(page - 1)}>
+                {t(locale, 'comun.anterior')}
+              </a>
+            )}
+            <p class="catalogo-paginacion__info">
+              {t(locale, 'comun.pagina')} {page} {t(locale, 'comun.de')} {pageCount}
+            </p>
+            {page < pageCount && (
+              <a class="btn btn-secondary" href={pagePath(page + 1)}>
+                {t(locale, 'comun.siguiente')}
+              </a>
+            )}
+          </nav>
+        )
+      }
 
       <div id="catalogo-sin-resultados" class="catalogo__sin-resultados" hidden>
         <h2 class="section-subtitle">{t(locale, 'catalogo.sin_resultados_titulo')}</h2>
