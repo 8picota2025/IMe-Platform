@@ -50,9 +50,11 @@ const THRESHOLDS: Record<RateLimitAccion, RateLimitThresholds> = {
     maxPerDay: Number(Deno.env.get('FORMALIZAR_PREVIEW_RATE_LIMIT_MAX_DIA') ?? 200),
   },
   cotizacion: {
+    // Antes: 5/h y 15/día — demasiado agresivo detrás de NAT hospitalario/oficina
+    // y quemaba cuota con intentos inválidos. Umbral anti-spam más realista.
     windowSeconds: Number(Deno.env.get('COTIZACION_RATE_LIMIT_VENTANA_SEGUNDOS') ?? 3600),
-    maxPerWindow: Number(Deno.env.get('COTIZACION_RATE_LIMIT_MAX_VENTANA') ?? 5),
-    maxPerDay: Number(Deno.env.get('COTIZACION_RATE_LIMIT_MAX_DIA') ?? 15),
+    maxPerWindow: Number(Deno.env.get('COTIZACION_RATE_LIMIT_MAX_VENTANA') ?? 40),
+    maxPerDay: Number(Deno.env.get('COTIZACION_RATE_LIMIT_MAX_DIA') ?? 120),
   },
   // CMS comercial: por usuario autenticado (identificador
   // `comercial-share:user:<uuid>`), no por IP — evita que un solo

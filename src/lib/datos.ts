@@ -776,12 +776,15 @@ export async function submitCotizacion(
     if (error) {
       return { ok: false, error: await interpretarErrorEdgeFunction(error, data) };
     }
-    const result = data as { ok?: boolean; error?: string } | null;
+    const result = data as { ok?: boolean; error?: string | { message?: string } } | null;
     if (!result?.ok) {
-      return {
-        ok: false,
-        error: result?.error ?? (await interpretarErrorEdgeFunction(null, data)),
-      };
+      const edgeError =
+        typeof result?.error === 'string'
+          ? result.error
+          : result?.error?.message
+            ? result.error.message
+            : await interpretarErrorEdgeFunction(null, data);
+      return { ok: false, error: edgeError };
     }
     emitAnalyticsEvent('quote_submit', {
       origin: datos.origen,

@@ -91,8 +91,16 @@ export async function interpretarErrorEdgeFunction(error: unknown, data: unknown
     } catch {
       /* ignore */
     }
+    if (context.status === 429) {
+      return 'Demasiadas solicitudes de cotización. Espera unos minutos e intenta de nuevo.';
+    }
   }
 
-  if (error instanceof Error && error.message) return error.message;
+  if (error instanceof Error && error.message) {
+    if (/429|rate.?limit|too many/i.test(error.message)) {
+      return 'Demasiadas solicitudes de cotización. Espera unos minutos e intenta de nuevo.';
+    }
+    return error.message;
+  }
   return 'Error registrando solicitud';
 }

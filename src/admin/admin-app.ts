@@ -688,9 +688,9 @@ async function routeView(): Promise<{ title: string; body: string }> {
   if (state.view === 'producto') return { title: 'Producto', body: await productoFormView() };
   if (state.view === 'taxonomia') return { title: 'Taxonomia', body: await taxonomiaView() };
   if (state.view === 'cotizaciones')
-    return { title: 'Cotizaciones', body: await cotizacionesView() };
+    return { title: 'Presupuestos', body: await cotizacionesView() };
   if (state.view === 'cotizacion')
-    return { title: 'Cotizacion', body: await cotizacionDetailView() };
+    return { title: 'Presupuesto', body: await cotizacionDetailView() };
   if (state.view === 'clientes') return { title: 'Clientes', body: await clientesView() };
   if (state.view === 'cliente') return { title: 'Cliente', body: await clienteDetailView() };
   if (state.view === 'pedidos') return { title: 'Pedidos', body: await pedidosView() };
@@ -742,7 +742,7 @@ function shellHtml(title: string, body: string): string {
       items: [
         ['crm', 'CRM'],
         ['clientes', 'Clientes'],
-        ['cotizaciones', 'Cotizaciones'],
+        ['cotizaciones', 'Presupuestos'],
         ['pedidos', 'Pedidos'],
         ['facturas', 'Facturas'],
         ['cupones', 'Cupones'],
@@ -1726,7 +1726,7 @@ async function crmView(): Promise<string> {
         <div class="admin-toolbar">
           <button class="admin-button admin-button--ghost" type="button" data-crm-repair-twenty>Reparar enlaces Twenty</button>
           <a class="admin-button admin-button--ghost" href="https://crm.i-me.com.co" target="_blank" rel="noopener noreferrer">Abrir Twenty</a>
-          <a class="admin-button admin-button--ghost" href="#/cotizaciones">Cotizaciones</a>
+          <a class="admin-button admin-button--ghost" href="#/cotizaciones">Presupuestos</a>
           <a class="admin-button admin-button--ghost" href="#/pedidos">Pedidos</a>
         </div>
       </div>
@@ -2377,7 +2377,7 @@ async function dashboardView(): Promise<string> {
       ${metric('Oportunidades CRM', oportunidades)}
       ${metric('CRM nuevos', oportunidadesNuevas)}
       ${metric('CRM cotizando', oportunidadesCotizando)}
-      ${metric('Cotizaciones sin leer', cotizaciones)}
+      ${metric('Presupuestos sin leer', cotizaciones)}
       ${metric('Pedidos sin leer', pedidos)}
       ${metric('Cupones activos', cupones)}
       ${metric('Dropship', productosDropship)}
@@ -2464,7 +2464,7 @@ async function dashboardView(): Promise<string> {
         <a class="admin-button admin-button--ghost" href="#/clientes">Clientes</a>
         <a class="admin-button admin-button--ghost" href="#/crm">CRM</a>
         <a class="admin-button admin-button--ghost" href="#/cupones">Cupones</a>
-        <a class="admin-button admin-button--ghost" href="#/cotizaciones">Cotizaciones</a>
+          <a class="admin-button admin-button--ghost" href="#/cotizaciones">Presupuestos</a>
         <a class="admin-button admin-button--ghost" href="#/usuarios">Usuarios CMS</a>
         <a class="admin-button admin-button--ghost" href="#/reportes">Reportes</a>
         <a class="admin-button admin-button--ghost" href="#/marketing">Marketing</a>
@@ -3268,10 +3268,14 @@ async function cotizacionesView(): Promise<string> {
   return `
     <section class="admin-panel">
       <div class="admin-panel__head">
-        <h2>Cotizaciones (${rows.length})</h2>
+        <div>
+          <h2>Presupuestos (${rows.length})</h2>
+          <p class="admin-help">Solicitudes web y ofertas formales. Crea un presupuesto, importa ficha PDF, previsualiza y envía por email o WhatsApp sin salir de admin.</p>
+        </div>
         <div class="admin-toolbar">
+          <button class="admin-button" type="button" data-cotizacion-nuevo>Nuevo presupuesto</button>
           <button class="admin-button admin-button--ghost" type="button" data-cotizaciones-select-all>Seleccionar todo</button>
-          <button class="admin-button admin-button--ghost" type="button" data-csv="${csvPayload}" data-filename="cotizaciones.csv">Exportar CSV</button>
+          <button class="admin-button admin-button--ghost" type="button" data-csv="${csvPayload}" data-filename="presupuestos.csv">Exportar CSV</button>
           <span class="admin-meta">Seleccionadas: <strong data-cotizaciones-selected-count>0</strong></span>
           <button class="admin-button admin-button--danger" type="button" data-bulk-cotizacion-delete>Eliminar seleccionadas</button>
         </div>
@@ -3442,7 +3446,7 @@ async function cotizacionDetailView(): Promise<string> {
     <section class="admin-panel">
       <div class="admin-panel__head">
         <div>
-          <h2>Cotizacion de ${escapeHtml(text(row.nombre))}</h2>
+          <h2>Presupuesto de ${escapeHtml(text(row.nombre))}</h2>
           <p class="admin-meta">${escapeHtml(text(row.empresa) || 'Sin empresa')} · ${escapeHtml(
             text(row.email)
           )} · ${escapeHtml(cotizacionEstadoLabel(estado))} · ${escapeHtml(moneda)}</p>
@@ -6920,6 +6924,73 @@ async function guardarAdjuntosCotizacion(id: string): Promise<CotizacionAdjunto[
 }
 
 function bindCotizaciones() {
+  app
+    .querySelector<HTMLButtonElement>('[data-cotizacion-nuevo]')
+    ?.addEventListener('click', async () => {
+      if (!supabase) return;
+      const btn = app.querySelector<HTMLButtonElement>('[data-cotizacion-nuevo]');
+      if (btn) btn.disabled = true;
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const userId = session?.user?.id ?? null;
+      const today = new Date();
+      const validez = new Date(today.getTime() + 15 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .slice(0, 10);
+      let payload: Record<string, unknown> = {
+        nombre: 'Nuevo contacto',
+        email: 'cliente@ejemplo.com',
+        telefono: '',
+        empresa: null,
+        mensaje: 'Presupuesto creado desde admin.',
+        productos: [],
+        condiciones: '',
+        moneda: 'COP',
+        mercado: 'CO',
+        estado: 'nueva',
+        leida: true,
+        consentimiento_datos: false,
+        locale: 'es',
+        origen: 'admin',
+        tipo_solicitud: 'cotizacion',
+        validez_hasta: validez,
+        precio_total_ofertado: 0,
+        ...(userId ? { created_by: userId } : {}),
+      };
+      let inserted = await supabase
+        .from('solicitudes_cotizacion')
+        .insert(payload)
+        .select('id')
+        .maybeSingle();
+      // Compatibilidad con esquemas legacy: quitar columnas desconocidas y reintentar.
+      for (let attempt = 0; attempt < 5 && inserted.error; attempt += 1) {
+        const msg = inserted.error.message || '';
+        if (!/column|schema cache|Could not find/i.test(msg)) break;
+        const match = msg.match(/['"]([a-zA-Z0-9_]+)['"]/);
+        if (match?.[1] && match[1] in payload) {
+          const next = { ...payload };
+          delete next[match[1]];
+          payload = next;
+        } else {
+          break;
+        }
+        inserted = await supabase
+          .from('solicitudes_cotizacion')
+          .insert(payload)
+          .select('id')
+          .maybeSingle();
+      }
+      if (btn) btn.disabled = false;
+      if (inserted.error || !inserted.data) {
+        toast(inserted.error?.message ?? 'No se pudo crear el presupuesto.');
+        return;
+      }
+      const id = text((inserted.data as Row).id);
+      toast('Presupuesto creado. Completa productos, precios y envía.');
+      location.hash = `#/cotizacion?id=${encodeURIComponent(id)}`;
+    });
+
   app.querySelectorAll<HTMLButtonElement>('[data-cotizacion-quick-estado]').forEach(button => {
     button.addEventListener('click', async () => {
       const id = state.recordId;

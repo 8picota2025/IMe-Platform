@@ -460,7 +460,8 @@ const canonical = buildCanonical('/es/contacto');
     } else {
       if (status) {
         status.className = 'form-status error';
-        status.textContent = 'Ocurrió un error. Por favor intenta de nuevo.';
+        status.textContent =
+          result.error?.trim() || 'Ocurrió un error. Por favor intenta de nuevo.';
       }
       if (whatsappFallback) {
         const fallbackMessage = [

@@ -58,15 +58,18 @@ describe('cotizacion-submit', () => {
     expect(payload.mensaje).toContain('Equipo A');
   });
 
-  it('interpretarErrorEdgeFunction lee mensaje del cuerpo JSON', async () => {
+  it('interpretarErrorEdgeFunction lee mensaje RATE_LIMIT 429', async () => {
     const response = new Response(
       JSON.stringify({
-        error: { code: 'BAD_REQUEST', message: 'nombre y mensaje son obligatorios' },
+        error: {
+          code: 'RATE_LIMIT',
+          message: 'Demasiadas solicitudes de cotización. Espera unos minutos e intenta de nuevo.',
+        },
       }),
-      { status: 400 }
+      { status: 429 }
     );
-    await expect(interpretarErrorEdgeFunction({ context: response }, null)).resolves.toBe(
-      'nombre y mensaje son obligatorios'
+    await expect(interpretarErrorEdgeFunction({ context: response }, null)).resolves.toContain(
+      'Demasiadas solicitudes'
     );
   });
 });

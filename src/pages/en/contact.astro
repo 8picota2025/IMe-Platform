@@ -443,7 +443,7 @@ const canonical = buildCanonical('/en/contact');
     } else {
       if (status) {
         status.className = 'form-status error';
-        status.textContent = 'An error occurred. Please try again.';
+        status.textContent = result.error?.trim() || 'An error occurred. Please try again.';
       }
       if (whatsappFallback) {
         const fallbackMessage = [

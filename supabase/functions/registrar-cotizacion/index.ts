@@ -105,21 +105,6 @@ Deno.serve(
 
     const supabase = getServerSupabase();
 
-    const ip =
-      req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-      req.headers.get('x-real-ip') ??
-      'desconocida';
-    const limite = await checkRateLimit(supabase, `cotizacion:ip:${ip}`, 'cotizacion');
-    if (limite.limited) {
-      return new Response(
-        JSON.stringify({ ok: false, error: 'Demasiadas solicitudes, intenta mas tarde.' }),
-        {
-          status: 429,
-          headers: { ...getCorsHeaders(origin), 'Content-Type': 'application/json' },
-        }
-      );
-    }
-
     const body = (await req.json().catch(() => ({}))) as CotizacionBody;
     const tipoSolicitud =
       body.tipo_solicitud === 'compra_a_valorar' ? 'compra_a_valorar' : 'cotizacion';
@@ -180,6 +165,38 @@ Deno.serve(
     if (!EMAIL_RE.test(email)) return badRequest('email invalido', origin);
     if (body.consentimiento_datos !== true) {
       return badRequest('consentimiento_datos es obligatorio', origin);
+    }
+
+    // Rate limit solo tras validar: intentos inválidos no queman cuota de hospitales/NAT.
+    const ip =
+      req.headers.get('cf-connecting-ip')?.trim() ||
+      req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      req.headers.get('x-real-ip') ||
+      'desconocida';
+    const limite = await checkRateLimit(supabase, `cotizacion:ip:${ip}`, 'cotizacion');
+    if (limite.limited) {
+      const retry = limite.retryAfterSeconds ?? 3600;
+      return new Response(
+        JSON.stringify({
+          ok: false,
+          error: {
+            code: 'RATE_LIMIT',
+            message:
+              locale === 'en'
+                ? 'Too many quote requests. Please wait a few minutes and try again.'
+                : 'Demasiadas solicitudes de cotización. Espera unos minutos e intenta de nuevo.',
+            retry_after_seconds: retry,
+          },
+        }),
+        {
+          status: 429,
+          headers: {
+            ...getCorsHeaders(origin),
+            'Content-Type': 'application/json',
+            'Retry-After': String(retry),
+          },
+        }
+      );
     }
 
     const solicitudBase = {

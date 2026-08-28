@@ -107,7 +107,7 @@ const config = {
       {config.i18n.vaciar}
     </button>
 
-    <form id="cotizacion-form" class="cotizacion-form" novalidate hidden>
+    <form id="cotizacion-form" class="cotizacion-form" novalidate>
       <h3>{config.i18n.formTitulo}</h3>
       <div class="cotizacion-field">
         <label for="cotizacion-nombre">{config.i18n.nombre}</label>
@@ -484,7 +484,8 @@ const config = {
         productosTituloEl.hidden = true;
         itemsEl.innerHTML = '';
         vaciarBtn.hidden = true;
-        formEl.hidden = true;
+        // Formulario visible también sin productos: permite solicitud libre (contacto).
+        formEl.hidden = false;
         return;
       }
       vacioEl.hidden = true;
@@ -649,6 +650,20 @@ const config = {
           url: i.url,
           modelo: i.modelo,
         }));
+        const mensaje = resolverMensajeCotizacion({
+          locale: config.locale,
+          mensaje: String(data.get('mensaje') ?? ''),
+          productos,
+        });
+        if (!mensaje.trim()) {
+          showEstado(
+            config.locale === 'en'
+              ? 'Add products or write a short message.'
+              : 'Añade productos o escribe un mensaje.',
+            'error'
+          );
+          return;
+        }
         const payload = {
           locale: config.locale,
           origen: 'lista_cotizacion',
@@ -656,11 +671,7 @@ const config = {
           email: String(data.get('email') ?? ''),
           telefono: String(data.get('telefono') ?? ''),
           empresa: String(data.get('empresa') ?? ''),
-          mensaje: resolverMensajeCotizacion({
-            locale: config.locale,
-            mensaje: String(data.get('mensaje') ?? ''),
-            productos,
-          }),
+          mensaje,
           consentimiento_datos: data.get('consentimiento') === 'on',
           productos,
         };
@@ -676,7 +687,7 @@ const config = {
           vaciarCotizacion();
           formEl.reset();
         } else {
-          showEstado(i18n.error, 'error');
+          showEstado(resultado.error?.trim() || i18n.error, 'error');
         }
       },
       { signal }
