@@ -749,9 +749,11 @@ export async function getArticuloBySlug(slug: string, locale: Locale): Promise<A
   };
 }
 
-export async function submitCotizacion(
-  datos: CotizacionPayload
-): Promise<{ ok: boolean; error?: string }> {
+export async function submitCotizacion(datos: CotizacionPayload): Promise<{
+  ok: boolean;
+  error?: string;
+  emails?: { interno?: boolean; cliente?: boolean };
+}> {
   if (isSupabaseConfigured()) {
     const supabase = getSupabaseClient()!;
     const { normalizarPayloadCotizacion, interpretarErrorEdgeFunction } =
@@ -776,7 +778,11 @@ export async function submitCotizacion(
     if (error) {
       return { ok: false, error: await interpretarErrorEdgeFunction(error, data) };
     }
-    const result = data as { ok?: boolean; error?: string | { message?: string } } | null;
+    const result = data as {
+      ok?: boolean;
+      error?: string | { message?: string };
+      emails?: { interno?: boolean; cliente?: boolean };
+    } | null;
     if (!result?.ok) {
       const edgeError =
         typeof result?.error === 'string'
@@ -792,7 +798,7 @@ export async function submitCotizacion(
       item_count: datos.productos?.reduce((acc, producto) => acc + producto.cantidad, 0) ?? 0,
       products: datos.productos?.map(producto => `${producto.slug}:${producto.cantidad}`).join(','),
     });
-    return { ok: true };
+    return { ok: true, emails: result.emails };
   }
   // Mock: siempre OK en desarrollo sin Supabase
   console.warn('[datos] submitCotizacion mock (sin Supabase):', datos.email);

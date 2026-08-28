@@ -139,6 +139,10 @@ const config = {
         </span>
       </label>
 
+      <button id="cotizacion-submit" class="btn btn-primary" type="submit"
+        >{config.i18n.enviar}</button
+      >
+
       <p
         id="cotizacion-mensaje-estado"
         class="cotizacion-estado"
@@ -147,10 +151,6 @@ const config = {
         hidden
       >
       </p>
-
-      <button id="cotizacion-submit" class="btn btn-primary" type="submit"
-        >{config.i18n.enviar}</button
-      >
     </form>
   </div>
 </aside>
@@ -399,7 +399,7 @@ const config = {
     type CotizacionItem,
   } from '../lib/cotizacion-equipos';
   import { submitCotizacion } from '../lib/datos';
-  import { resolverMensajeCotizacion } from '../lib/cotizacion-submit';
+  import { resolverMensajeCotizacion, mensajeExitoCotizacion } from '../lib/cotizacion-submit';
   import { abrirDrawer, cerrarDrawer, resetTransientUiState } from '../lib/motion';
 
   interface CotizacionI18n {
@@ -467,6 +467,13 @@ const config = {
     ) as CotizacionConfig;
     const { i18n } = config;
     let enviando = false;
+    const sentLabel = config.locale === 'en' ? 'Request sent' : 'Solicitud enviada';
+
+    function resetSubmitButton() {
+      if (!submitBtn) return;
+      submitBtn.disabled = false;
+      submitBtn.textContent = i18n.enviar;
+    }
 
     function escapeHtml(value: string): string {
       return value
@@ -622,6 +629,7 @@ const config = {
       estadoEl.className = 'cotizacion-estado';
       if (kind) estadoEl.classList.add(`cotizacion-estado--${kind}`);
       estadoEl.hidden = !message;
+      if (message) estadoEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     formEl?.addEventListener(
@@ -638,11 +646,6 @@ const config = {
 
         const data = new FormData(formEl);
         const items = getCotizacionItems();
-
-        enviando = true;
-        submitBtn.disabled = true;
-        submitBtn.textContent = i18n.enviando;
-
         const productos = items.map(i => ({
           slug: i.slug,
           nombre: i.nombre,
@@ -664,6 +667,11 @@ const config = {
           );
           return;
         }
+
+        enviando = true;
+        submitBtn.disabled = true;
+        submitBtn.textContent = i18n.enviando;
+
         const payload = {
           locale: config.locale,
           origen: 'lista_cotizacion',
@@ -676,18 +684,21 @@ const config = {
           productos,
         };
 
-        const resultado = await submitCotizacion(payload);
+        try {
+          const resultado = await submitCotizacion(payload);
 
-        enviando = false;
-        submitBtn.disabled = false;
-        submitBtn.textContent = i18n.enviar;
-
-        if (resultado.ok) {
-          showEstado(i18n.exito, 'exito');
-          vaciarCotizacion();
-          formEl.reset();
-        } else {
-          showEstado(resultado.error?.trim() || i18n.error, 'error');
+          if (resultado.ok) {
+            showEstado(mensajeExitoCotizacion(config.locale, resultado.emails), 'exito');
+            vaciarCotizacion();
+            formEl.reset();
+            submitBtn.disabled = true;
+            submitBtn.textContent = sentLabel;
+          } else {
+            showEstado(resultado.error?.trim() || i18n.error, 'error');
+            resetSubmitButton();
+          }
+        } finally {
+          enviando = false;
         }
       },
       { signal }

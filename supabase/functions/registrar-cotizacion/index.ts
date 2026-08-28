@@ -304,6 +304,7 @@ Deno.serve(
     ]);
     if (!interno.ok) console.error('registrar-cotizacion: email interno', interno.detalle);
     if (!cliente.ok) console.error('registrar-cotizacion: email cliente', cliente.detalle);
+    const emails = { interno: interno.ok, cliente: cliente.ok };
 
     // Twenty CRM: best-effort. No bloquea respuesta al cliente.
     const twenty = await syncCotizacionWithTwenty({
@@ -353,6 +354,7 @@ Deno.serve(
     return new Response(
       JSON.stringify({
         ok: true,
+        emails,
         twenty: twenty.skipped
           ? { status: 'skipped' }
           : twenty.ok

@@ -412,6 +412,7 @@ const turnstileSiteKey = (
     priority?: 'P1' | 'P2' | 'P3';
     crmSyncStatus?: string;
     error?: string;
+    emails?: { interno?: boolean; cliente?: boolean };
   }
 
   let turnstileLoaded: Promise<void> | null = null;
@@ -471,6 +472,14 @@ const turnstileSiteKey = (
     const backBtn = form.querySelector<HTMLButtonElement>('[data-back]');
     const submitBtn = form.querySelector<HTMLButtonElement>('[data-submit]');
     const whatsappFallback = form.querySelector<HTMLAnchorElement>('[data-whatsapp-fallback]');
+    let enviando = false;
+
+    function showStatus(message: string, kind: 'ok' | 'err' | null) {
+      if (!status) return;
+      status.className = kind ? `lqf-status is-${kind}` : 'lqf-status';
+      status.textContent = message;
+      if (message) status.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
 
     function showStep(n: 1 | 2) {
       if (!step1 || !step2) return;
@@ -518,16 +527,15 @@ const turnstileSiteKey = (
         status.textContent = '';
       }
       if (blocked) {
-        if (status) {
-          status.classList.add('is-err');
-          status.textContent =
-            step1Check.errors.contacto ||
+        showStatus(
+          step1Check.errors.contacto ||
             step1Check.errors.email ||
             step1Check.errors.institucion ||
             step1Check.errors.nombre ||
             step1Check.errors.ciudad ||
-            (locale === 'en' ? 'Complete step 1.' : 'Completa el paso 1.');
-        }
+            (locale === 'en' ? 'Complete step 1.' : 'Completa el paso 1.'),
+          'err'
+        );
         return;
       }
       showStep(2);
@@ -539,13 +547,11 @@ const turnstileSiteKey = (
 
     form.addEventListener('submit', async e => {
       e.preventDefault();
+      if (enviando) return;
       const data = read();
       const result = validateCommercialLead(data);
       if (!result.valid || !data.horizonte || !data.nombre || !data.institucion) {
-        if (status) {
-          status.className = 'lqf-status is-err';
-          status.textContent = Object.values(result.errors)[0] ?? 'Error';
-        }
+        showStatus(Object.values(result.errors)[0] ?? 'Error', 'err');
         return;
       }
 
@@ -553,88 +559,98 @@ const turnstileSiteKey = (
       const url = buildWhatsAppUrl(lead);
       const supabase = getSupabaseClient();
       if (!supabase) {
-        if (status) {
-          status.className = 'lqf-status is-err';
-          status.textContent =
-            locale === 'en'
-              ? 'The request service is unavailable. Please try again.'
-              : 'El servicio de solicitudes no está disponible. Intenta de nuevo.';
-        }
+        showStatus(
+          locale === 'en'
+            ? 'The request service is unavailable. Please try again.'
+            : 'El servicio de solicitudes no está disponible. Intenta de nuevo.',
+          'err'
+        );
         return;
       }
 
       const sitekey = form.dataset.turnstileSiteKey?.trim();
       const turnstileToken = await ensureTurnstile(form).catch(() => undefined);
       if (sitekey && !turnstileToken) {
-        if (status) {
-          status.className = 'lqf-status is-err';
-          status.textContent =
-            locale === 'en'
-              ? 'Complete the security verification.'
-              : 'Completa la verificación de seguridad.';
-        }
+        showStatus(
+          locale === 'en'
+            ? 'Complete the security verification.'
+            : 'Completa la verificación de seguridad.',
+          'err'
+        );
         return;
       }
 
       form.dataset.idempotencyKey ||= newIdempotencyKey();
       const attribution = captureCommercialAttribution(lead.campaign);
       const originalSubmitText = submitBtn?.textContent ?? '';
-      if (status) {
-        status.className = 'lqf-status';
-        status.textContent = locale === 'en' ? 'Saving request…' : 'Registrando solicitud…';
-      }
+      enviando = true;
+      showStatus(locale === 'en' ? 'Saving request…' : 'Registrando solicitud…', null);
       if (submitBtn) {
         submitBtn.disabled = true;
         submitBtn.textContent = locale === 'en' ? 'Saving…' : 'Registrando…';
       }
       if (whatsappFallback) whatsappFallback.hidden = true;
 
-      const { data: response, error } = await supabase.functions.invoke(
-        'registrar-lead-comercial',
-        {
-          body: {
-            ...lead,
-            ...attribution,
-            website: String(new FormData(form).get('website') ?? ''),
-            idempotencyKey: form.dataset.idempotencyKey,
-            turnstileToken,
-          },
-        }
-      );
-      const saved = response as LeadResponse | null;
-      if (error || !saved?.ok || !saved.leadId) {
-        if (status) {
-          status.className = 'lqf-status is-err';
-          status.textContent =
+      try {
+        const { data: response, error } = await supabase.functions.invoke(
+          'registrar-lead-comercial',
+          {
+            body: {
+              ...lead,
+              ...attribution,
+              website: String(new FormData(form).get('website') ?? ''),
+              idempotencyKey: form.dataset.idempotencyKey,
+              turnstileToken,
+            },
+          }
+        );
+        const saved = response as LeadResponse | null;
+        if (error || !saved?.ok || !saved.leadId) {
+          showStatus(
             saved?.error ??
-            (locale === 'en'
-              ? 'We could not register the request. Nothing was marked as received; please try again.'
-              : 'No pudimos registrar la solicitud. No quedó marcada como recibida; intenta de nuevo.');
+              (locale === 'en'
+                ? 'We could not register the request. Nothing was marked as received; please try again.'
+                : 'No pudimos registrar la solicitud. No quedó marcada como recibida; intenta de nuevo.'),
+            'err'
+          );
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalSubmitText;
+          }
+          const widget = turnstileWidgets.get(form);
+          if (widget) {
+            (window as Window & { turnstile?: TurnstileApi }).turnstile?.reset(widget);
+            turnstileTokens.delete(form);
+          }
+          return;
         }
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = originalSubmitText;
-        }
-        const widget = turnstileWidgets.get(form);
-        if (widget) {
-          (window as Window & { turnstile?: TurnstileApi }).turnstile?.reset(widget);
-          turnstileTokens.delete(form);
-        }
-        return;
-      }
 
-      rememberCommercialLead(saved.leadId, lead.campaign);
-      const priority = saved.priority ?? classifyLead(lead.horizonte);
-      if (status) {
-        status.className = 'lqf-status is-ok';
-        status.textContent = slaForPriority(priority, locale);
-      }
-      if (submitBtn)
-        submitBtn.textContent = locale === 'en' ? 'Request saved' : 'Solicitud registrada';
-      const popup = window.open(url, '_blank', 'noopener,noreferrer');
-      if (whatsappFallback) {
-        whatsappFallback.href = url;
-        whatsappFallback.hidden = popup !== null;
+        rememberCommercialLead(saved.leadId, lead.campaign);
+        const priority = saved.priority ?? classifyLead(lead.horizonte);
+        let successMessage = slaForPriority(priority, locale);
+        if (saved.emails?.cliente) {
+          successMessage +=
+            locale === 'en'
+              ? ' We sent a confirmation to your email.'
+              : ' Enviamos confirmación a tu correo.';
+        } else if (saved.emails?.interno) {
+          successMessage +=
+            locale === 'en'
+              ? ' Our commercial team was notified by email.'
+              : ' Nuestro equipo comercial recibió aviso por correo.';
+        }
+        showStatus(successMessage, 'ok');
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = locale === 'en' ? 'Request saved' : 'Solicitud registrada';
+        }
+        const popup = window.open(url, '_blank', 'noopener,noreferrer');
+        if (whatsappFallback) {
+          whatsappFallback.href = url;
+          whatsappFallback.hidden = popup !== null;
+        }
+      } finally {
+        enviando = false;
       }
     });
   }

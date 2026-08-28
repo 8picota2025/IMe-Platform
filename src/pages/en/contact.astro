@@ -130,14 +130,20 @@ const canonical = buildCanonical('/en/contact');
               >
             </label>
           </div>
+          <button type="submit" class="btn btn-primary form-submit" id="form-submit-btn"
+            >{t(locale, 'contacto.enviar')}</button
+          >
+
           <div
             role="alert"
             aria-live="polite"
             id="form-status"
             class="form-status"
             aria-atomic="true"
+            hidden
           >
           </div>
+
           <a
             id="form-whatsapp-fallback"
             class="form-fallback"
@@ -149,9 +155,6 @@ const canonical = buildCanonical('/en/contact');
           >
             Continue request on WhatsApp
           </a>
-          <button type="submit" class="btn btn-primary form-submit" id="form-submit-btn"
-            >{t(locale, 'contacto.enviar')}</button
-          >
         </form>
       </div>
       <aside class="contacto-info" aria-label="Contact information">
@@ -294,12 +297,21 @@ const canonical = buildCanonical('/en/contact');
     min-height: 1.5rem;
     font-size: 0.875rem;
     font-weight: 600;
+    border-radius: var(--radius);
+    padding: 0.75rem 1rem;
+  }
+  .form-status[hidden] {
+    display: none;
   }
   .form-status.success {
-    color: #2a7d1e;
+    color: #1e4620;
+    background: #e6f4ea;
+    border: 1px solid #a8d5b5;
   }
   .form-status.error {
-    color: #c0392b;
+    color: #8a1f11;
+    background: #fdecea;
+    border: 1px solid #f5b5ad;
   }
   .form-fallback {
     align-self: flex-start;
@@ -371,6 +383,8 @@ const canonical = buildCanonical('/en/contact');
 
 <script>
   import { submitCotizacion } from '../../lib/datos';
+  import { mensajeExitoCotizacion } from '../../lib/cotizacion-submit';
+
   const form = document.getElementById('contacto-form') as HTMLFormElement | null;
   const status = document.getElementById('form-status');
   const submitBtn = document.getElementById('form-submit-btn') as HTMLButtonElement | null;
@@ -379,6 +393,23 @@ const canonical = buildCanonical('/en/contact');
   const whatsappFallback = document.getElementById(
     'form-whatsapp-fallback'
   ) as HTMLAnchorElement | null;
+  const submitLabel = submitBtn?.textContent?.trim() || 'Send request';
+  const sentLabel = 'Request sent';
+  let enviando = false;
+
+  function setStatus(message: string, kind: 'success' | 'error' | null) {
+    if (!status) return;
+    status.hidden = !message;
+    status.className = kind ? `form-status ${kind}` : 'form-status';
+    status.textContent = message;
+    if (message) status.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function resetSubmitButton() {
+    if (!submitBtn) return;
+    submitBtn.disabled = false;
+    submitBtn.textContent = submitLabel;
+  }
 
   function parseProductos(raw: string): Array<{ slug: string; nombre: string; cantidad: number }> {
     return raw
@@ -409,56 +440,56 @@ const canonical = buildCanonical('/en/contact');
 
   form?.addEventListener('submit', async e => {
     e.preventDefault();
+    if (enviando) return;
     if (!form.checkValidity()) {
       form.reportValidity();
       return;
     }
+
+    enviando = true;
     if (submitBtn) {
       submitBtn.disabled = true;
       submitBtn.textContent = 'Sending…';
     }
-    if (status) {
-      status.className = 'form-status';
-      status.textContent = '';
-    }
+    setStatus('', null);
     if (whatsappFallback) whatsappFallback.hidden = true;
+
     const data = new FormData(form);
-    const result = await submitCotizacion({
-      locale: 'en',
-      origen: 'contact_form',
-      nombre: (data.get('nombre') as string) ?? '',
-      email: (data.get('email') as string) ?? '',
-      telefono: (data.get('telefono') as string) ?? '',
-      mensaje: (data.get('mensaje') as string) ?? '',
-      consentimiento_datos: data.get('consentimiento') === 'on',
-      productos: parseProductos((data.get('productos') as string) ?? ''),
-    });
-    if (result.ok) {
-      if (status) {
-        status.className = 'form-status success';
-        status.textContent = 'Request sent! We will contact you soon.';
+    try {
+      const result = await submitCotizacion({
+        locale: 'en',
+        origen: 'contact_form',
+        nombre: (data.get('nombre') as string) ?? '',
+        email: (data.get('email') as string) ?? '',
+        telefono: (data.get('telefono') as string) ?? '',
+        mensaje: (data.get('mensaje') as string) ?? '',
+        consentimiento_datos: data.get('consentimiento') === 'on',
+        productos: parseProductos((data.get('productos') as string) ?? ''),
+      });
+
+      if (result.ok) {
+        setStatus(mensajeExitoCotizacion('en', result.emails), 'success');
+        form.reset();
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = sentLabel;
+        }
+      } else {
+        setStatus(result.error?.trim() || 'An error occurred. Please try again.', 'error');
+        if (whatsappFallback) {
+          const fallbackMessage = [
+            'Hello, I would like to request a biomedical equipment quote.',
+            `Name: ${String(data.get('nombre') ?? '').trim()}`,
+            `Products: ${String(data.get('productos') ?? '').trim() || 'To be defined'}`,
+            `Details: ${String(data.get('mensaje') ?? '').trim()}`,
+          ].join('\n');
+          whatsappFallback.href = `https://wa.me/573137247353?text=${encodeURIComponent(fallbackMessage)}`;
+          whatsappFallback.hidden = false;
+        }
+        resetSubmitButton();
       }
-      form.reset();
-      if (whatsappFallback) whatsappFallback.hidden = true;
-    } else {
-      if (status) {
-        status.className = 'form-status error';
-        status.textContent = result.error?.trim() || 'An error occurred. Please try again.';
-      }
-      if (whatsappFallback) {
-        const fallbackMessage = [
-          'Hello, I would like to request a biomedical equipment quote.',
-          `Name: ${String(data.get('nombre') ?? '').trim()}`,
-          `Products: ${String(data.get('productos') ?? '').trim() || 'To be defined'}`,
-          `Details: ${String(data.get('mensaje') ?? '').trim()}`,
-        ].join('\n');
-        whatsappFallback.href = `https://wa.me/573137247353?text=${encodeURIComponent(fallbackMessage)}`;
-        whatsappFallback.hidden = false;
-      }
-    }
-    if (submitBtn) {
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Send request';
+    } finally {
+      enviando = false;
     }
   });
 </script>

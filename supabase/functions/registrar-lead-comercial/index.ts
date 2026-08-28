@@ -11,7 +11,7 @@ import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { withTelemetry, trackEvent } from '../_shared/telemetry.ts';
 import { verifyTurnstile } from '../_shared/turnstile.ts';
 import { syncCommercialLeadWithTwenty } from '../_shared/twenty-crm.ts';
-import { enviarEmailPlantilla, escapeHtml } from '../_shared/email.ts';
+import { enviarEmailPlantilla, escapeHtml, DESTINATARIOS_INTERNOS } from '../_shared/email.ts';
 import {
   classifyLead,
   isTurnstileOptionalCampaign,
@@ -231,6 +231,48 @@ async function sendEventConfirmation(
   } catch {
     return false;
   }
+}
+
+async function sendCommercialLeadEmails(
+  supabase: ReturnType<typeof getServerSupabase>,
+  lead: Pick<
+    LeadRow,
+    'id' | 'campaign' | 'nombre' | 'email' | 'telefono' | 'institucion' | 'necesidad' | 'metadata'
+  > & { locale?: string | null }
+): Promise<{ interno: boolean; cliente: boolean } | undefined> {
+  if (lead.campaign === 'evento') return undefined;
+
+  const locale = lead.locale === 'en' ? 'en' : 'es';
+  const referencia = lead.id;
+  const vars = {
+    referencia: escapeHtml(referencia),
+    cliente_nombre: escapeHtml(lead.nombre),
+    cliente_email: escapeHtml(lead.email ?? ''),
+    empresa: escapeHtml(lead.institucion),
+    telefono: escapeHtml(lead.telefono ?? ''),
+    mensaje: escapeHtml(lead.necesidad),
+    items_html:
+      locale === 'en'
+        ? `<li>${escapeHtml(lead.campaign)} lead</li>`
+        : `<li>Lead comercial (${escapeHtml(lead.campaign)})</li>`,
+    total: 'Por validar',
+    moneda: 'COP',
+    fecha: new Date().toLocaleString(locale === 'en' ? 'en-US' : 'es-CO', {
+      timeZone: 'America/Bogota',
+    }),
+  };
+  const plantillaCliente =
+    locale === 'en' ? 'cotizacion_confirmacion_cliente_en' : 'cotizacion_confirmacion_cliente_es';
+  const destinatariosCliente = lead.email ? [lead.email] : [];
+  const [interno, cliente] = await Promise.all([
+    enviarEmailPlantilla(supabase, 'cotizacion_interna', DESTINATARIOS_INTERNOS, vars, referencia),
+    destinatariosCliente.length
+      ? enviarEmailPlantilla(supabase, plantillaCliente, destinatariosCliente, vars, referencia)
+      : Promise.resolve({ ok: true as const }),
+  ]);
+  if (!interno.ok) console.error('registrar-lead-comercial: email interno', interno.detalle);
+  if (!cliente.ok) console.error('registrar-lead-comercial: email cliente', cliente.detalle);
+  return { interno: interno.ok, cliente: destinatariosCliente.length ? cliente.ok : false };
 }
 
 function jsonResponse(
@@ -468,6 +510,10 @@ Deno.serve(
     if (emailSent === false) {
       void trackEvent(FN_NAME, 'lead_evento_email_failed', { campaign });
     }
+    const emails = await sendCommercialLeadEmails(supabase, {
+      ...saved,
+      locale: lead.locale ?? 'es',
+    });
 
     return jsonResponse(
       {
@@ -476,6 +522,7 @@ Deno.serve(
         priority,
         crmSyncStatus,
         ...(emailSent !== undefined ? { emailSent } : {}),
+        ...(emails ? { emails } : {}),
       },
       origin,
       201

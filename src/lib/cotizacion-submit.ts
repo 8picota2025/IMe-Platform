@@ -58,6 +58,31 @@ export function resolverMensajeCotizacion(params: {
   ].join('\n');
 }
 
+export interface CotizacionEmailStatus {
+  interno?: boolean;
+  cliente?: boolean;
+}
+
+/** Mensaje de éxito según locale y si el correo de confirmación se envió. */
+export function mensajeExitoCotizacion(
+  locale: 'es' | 'en' | undefined,
+  emails?: CotizacionEmailStatus | null
+): string {
+  const isEn = locale === 'en';
+  const base = isEn
+    ? 'Request sent! We will contact you soon.'
+    : '¡Solicitud enviada! Te contactaremos pronto.';
+  if (!emails) return base;
+  if (emails.cliente) {
+    return isEn
+      ? `${base} We sent a confirmation to your email.`
+      : `${base} Enviamos confirmación a tu correo.`;
+  }
+  return isEn
+    ? `${base} Our team was notified; if you do not receive email, check spam or contact us on WhatsApp.`
+    : `${base} Nuestro equipo fue avisado; si no recibes correo, revisa spam o escríbenos por WhatsApp.`;
+}
+
 export function normalizarPayloadCotizacion<T extends CotizacionSubmitPayload>(datos: T): T {
   const mensaje = resolverMensajeCotizacion({
     locale: datos.locale,

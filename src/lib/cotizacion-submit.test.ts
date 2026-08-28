@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   interpretarErrorEdgeFunction,
+  mensajeExitoCotizacion,
   normalizarPayloadCotizacion,
   resolverMensajeCotizacion,
 } from './cotizacion-submit';
@@ -58,6 +59,18 @@ describe('cotizacion-submit', () => {
     expect(payload.mensaje).toContain('Equipo A');
   });
 
+  it('interpretarErrorEdgeFunction lee mensaje del cuerpo JSON', async () => {
+    const response = new Response(
+      JSON.stringify({
+        error: { code: 'BAD_REQUEST', message: 'nombre y mensaje son obligatorios' },
+      }),
+      { status: 400 }
+    );
+    await expect(interpretarErrorEdgeFunction({ context: response }, null)).resolves.toBe(
+      'nombre y mensaje son obligatorios'
+    );
+  });
+
   it('interpretarErrorEdgeFunction lee mensaje RATE_LIMIT 429', async () => {
     const response = new Response(
       JSON.stringify({
@@ -70,6 +83,12 @@ describe('cotizacion-submit', () => {
     );
     await expect(interpretarErrorEdgeFunction({ context: response }, null)).resolves.toContain(
       'Demasiadas solicitudes'
+    );
+  });
+
+  it('mensajeExitoCotizacion menciona correo cuando se envió', () => {
+    expect(mensajeExitoCotizacion('es', { interno: true, cliente: true })).toContain(
+      'confirmación a tu correo'
     );
   });
 });
