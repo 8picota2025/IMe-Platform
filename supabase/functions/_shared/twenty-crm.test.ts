@@ -3,7 +3,13 @@ import {
   assertEquals,
   assertStringIncludes,
 } from 'https://deno.land/std@0.224.0/assert/mod.ts';
-import { TwentyClient, type TwentyRecord } from './twenty-crm.ts';
+import {
+  TwentyClient,
+  deriveLifecycleFromOpportunityStage,
+  mapCrmEtapaToTwentyStage,
+  mergeAccountLifecycle,
+  type TwentyRecord,
+} from './twenty-crm.ts';
 
 interface RecordedCall {
   method: string;
@@ -397,6 +403,54 @@ Deno.test('congreso: etiqueta persona/opp/tarea con evento ACISE y productos', a
     assertStringIncludes(taskBody.markdown ?? '', '**Evento slug:** acise2026');
     assertStringIncludes(taskBody.markdown ?? '', 'Autoclave Tuttnauer');
     assertStringIncludes(String(task?.title ?? ''), 'Lead ACISE2026');
+  } finally {
+    mock.restore();
+  }
+});
+
+Deno.test('mapCrmEtapaToTwentyStage traduce pipeline admin', () => {
+  assertEquals(mapCrmEtapaToTwentyStage('nuevo'), 'NEW');
+  assertEquals(mapCrmEtapaToTwentyStage('cotizando'), 'PROPOSAL');
+  assertEquals(mapCrmEtapaToTwentyStage('ganado'), 'CUSTOMER');
+});
+
+Deno.test('deriveLifecycleFromOpportunityStage mapea pipeline I-ME', () => {
+  assertEquals(deriveLifecycleFromOpportunityStage('NEW'), 'LEAD');
+  assertEquals(deriveLifecycleFromOpportunityStage('SCREENING'), 'PROSPECT');
+  assertEquals(deriveLifecycleFromOpportunityStage('PROPOSAL'), 'PROSPECT');
+  assertEquals(deriveLifecycleFromOpportunityStage('CUSTOMER'), 'CLIENT');
+  assertEquals(mergeAccountLifecycle('LEAD', 'CLIENT'), 'CLIENT');
+  assertEquals(mergeAccountLifecycle('CLIENT', 'LEAD'), 'CLIENT');
+});
+
+Deno.test('reassignCommercialLead parchea owner, cuenta y tarea', async () => {
+  const mock = installTwentyMock({
+    opportunity: { id: 'opp-1', companyId: 'company-1' },
+    target: { id: 'target-1', taskId: 'task-1', targetOpportunityId: 'opp-1' },
+    task: { id: 'task-1' },
+  });
+  try {
+    const result = await new TwentyClient({
+      baseUrl: 'https://twenty.test',
+      apiKey: 'test-key',
+    }).reassignCommercialLead({
+      opportunityId: 'opp-1',
+      newOwnerId: 'member-2',
+      reason: 'rotacion territorio',
+    });
+
+    assertEquals(result.ok, true);
+    assertEquals(result.data?.taskIds, ['task-1']);
+
+    const oppPatch = mock.calls.find(
+      c => c.method === 'PATCH' && c.pathname === '/rest/opportunities/opp-1'
+    );
+    assertEquals(oppPatch?.body?.ownerId, 'member-2');
+
+    const companyPatch = mock.calls.find(
+      c => c.method === 'PATCH' && c.pathname === '/rest/companies/company-1'
+    );
+    assertEquals(companyPatch?.body?.accountOwnerId, 'member-2');
   } finally {
     mock.restore();
   }

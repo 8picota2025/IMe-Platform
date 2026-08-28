@@ -166,5 +166,26 @@ Campos custom opcionales (Settings → Data Model, admin): `tipoCliente` (SELECT
 | Pago confirmado          | `post-pago` → wompi/stripe/bold/validar-transferencia | `pushPagoToTwenty` (Opp CUSTOMER + importe) |
 | Factura DIAN             | `emitir-factura-dian`                                 | `pushFacturaToTwenty` (nota + patch)        |
 
-Código: `_shared/twenty-crm.ts`, `_shared/twenty-commerce-sync.ts`.
-Migración: `20260801230000_twenty_crm_ids.sql`.
+## Admin CRM ↔ Twenty (2026-08-28)
+
+Edge Function `crm-twenty` (JWT ventas|admin|owner):
+
+| Acción                          | Uso                           |
+| ------------------------------- | ----------------------------- |
+| `GET ?action=members`           | Lista comerciales Twenty      |
+| `POST ?action=sync-opportunity` | Etapa/valor/nota CRM → Twenty |
+| `POST ?action=reassign`         | Cambia owner + tasks          |
+| `POST ?action=link`             | Enlaza contacto ↔ cuenta      |
+| `POST ?action=repair-links`     | Repara personas sin company   |
+
+Panel admin `#/crm`: guardar oportunidad sincroniza Twenty; botón reparar enlaces.
+
+Migración: `20260828160000_crm_twenty_bridge.sql` (IDs Twenty en `crm_*` + `admin_profiles.twenty_member_id`).
+
+Redeploy:
+
+```bash
+supabase db push   # o aplicar migración en dashboard
+supabase functions deploy crm-twenty
+supabase functions deploy registrar-lead-comercial
+```

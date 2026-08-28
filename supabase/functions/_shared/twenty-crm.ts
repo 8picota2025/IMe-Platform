@@ -50,6 +50,54 @@ export interface TwentyRecord {
   [key: string]: unknown;
 }
 
+/** Ciclo comercial I-ME sobre cuenta (Company), derivado del pipeline Twenty. */
+export type TwentyAccountLifecycle = 'LEAD' | 'PROSPECT' | 'CLIENT';
+
+export type TwentyOpportunityStage = 'NEW' | 'SCREENING' | 'MEETING' | 'PROPOSAL' | 'CUSTOMER';
+
+/** NEW → lead; SCREENING/MEETING/PROPOSAL → prospecto; CUSTOMER → cliente formalizado. */
+export function deriveLifecycleFromOpportunityStage(stage: string): TwentyAccountLifecycle {
+  if (stage === 'CUSTOMER') return 'CLIENT';
+  if (stage === 'NEW') return 'LEAD';
+  return 'PROSPECT';
+}
+
+/** Mapeo etapa CRM warehouse → pipeline Twenty. */
+export function mapCrmEtapaToTwentyStage(etapa: string): TwentyOpportunityStage {
+  switch (etapa) {
+    case 'nuevo':
+    case 'nutrir':
+      return 'NEW';
+    case 'contactado':
+    case 'calificacion':
+      return 'SCREENING';
+    case 'reunion':
+    case 'demo':
+      return 'MEETING';
+    case 'cotizando':
+    case 'negociacion':
+    case 'checkout_pendiente':
+      return 'PROPOSAL';
+    case 'ganado':
+    case 'posventa':
+      return 'CUSTOMER';
+    case 'perdido':
+      return 'SCREENING';
+    default:
+      return 'NEW';
+  }
+}
+
+/** Prioridad: CLIENT > PROSPECT > LEAD (cuenta con varias oportunidades). */
+export function mergeAccountLifecycle(
+  current: TwentyAccountLifecycle | null | undefined,
+  next: TwentyAccountLifecycle
+): TwentyAccountLifecycle {
+  const rank: Record<TwentyAccountLifecycle, number> = { LEAD: 1, PROSPECT: 2, CLIENT: 3 };
+  if (!current) return next;
+  return rank[next] > rank[current] ? next : current;
+}
+
 function isTwentyRecord(value: unknown): value is TwentyRecord {
   return (
     typeof value === 'object' &&
@@ -221,6 +269,375 @@ export class TwentyClient {
 
   async findTaskTargetByTaskId(taskId: string): Promise<TwentyResult<TwentyRecord | null>> {
     return this.requestFirst(collectionFilterPath('taskTargets', 'taskId', taskId), 'taskTargets');
+  }
+
+  async findWorkspaceMemberByEmail(email: string): Promise<TwentyResult<TwentyRecord | null>> {
+    const normalized = email.trim().toLowerCase();
+    if (!normalized) return { ok: true, data: null };
+    return this.requestFirst(
+      collectionFilterPath('workspaceMembers', 'userEmail', normalized),
+      'workspaceMembers'
+    );
+  }
+
+  async listOpportunitiesByCompanyId(
+    companyId: string,
+    limit = 50
+  ): Promise<TwentyResult<TwentyRecord[]>> {
+    const params = new URLSearchParams({
+      filter: `companyId[eq]:${filterValue(companyId)}`,
+      limit: String(Math.min(limit, 60)),
+    });
+    const res = await this.requestRaw('GET', `/opportunities?${params.toString()}`);
+    if (!res.ok) return { ok: false, error: res.error };
+    const root = res.data as Record<string, unknown> | null;
+    const nested = root?.data as Record<string, unknown> | null;
+    const list: unknown[] = Array.isArray(root?.opportunities)
+      ? (root.opportunities as unknown[])
+      : Array.isArray(nested?.opportunities)
+        ? (nested.opportunities as unknown[])
+        : [];
+    return {
+      ok: true,
+      data: list.filter(isTwentyRecord),
+    };
+  }
+
+  /** Deriva LEAD/PROSPECT/CLIENT desde oportunidades enlazadas a la cuenta. */
+  async resolveCompanyLifecycle(companyId: string): Promise<TwentyResult<TwentyAccountLifecycle>> {
+    const opps = await this.listOpportunitiesByCompanyId(companyId);
+    if (!opps.ok) return { ok: false, error: opps.error };
+    let lifecycle: TwentyAccountLifecycle = 'LEAD';
+    for (const opp of opps.data ?? []) {
+      lifecycle = mergeAccountLifecycle(
+        lifecycle,
+        deriveLifecycleFromOpportunityStage(String(opp.stage ?? 'NEW'))
+      );
+    }
+    return { ok: true, data: lifecycle };
+  }
+
+  /**
+   * Reasigna oportunidad + cuenta + tareas abiertas a otro comercial (workspaceMemberId).
+   * Idempotente: PATCH best-effort; no lanza.
+   */
+  async reassignCommercialLead(input: {
+    opportunityId: string;
+    newOwnerId: string;
+    companyId?: string;
+    personId?: string;
+    reason?: string;
+  }): Promise<
+    TwentyResult<{
+      opportunityId: string;
+      companyId?: string;
+      taskIds: string[];
+    }>
+  > {
+    const ownerId = input.newOwnerId.trim();
+    if (!ownerId) return { ok: false, error: 'newOwnerId requerido' };
+
+    const oppPatch = await this.requestRecord('PATCH', `/opportunities/${input.opportunityId}`, {
+      ownerId,
+    });
+    if (!oppPatch.ok) return { ok: false, error: oppPatch.error };
+
+    const companyId =
+      input.companyId ||
+      (typeof oppPatch.data?.companyId === 'string' ? oppPatch.data.companyId : undefined);
+    if (companyId) {
+      await this.requestRaw('PATCH', `/companies/${companyId}`, { accountOwnerId: ownerId });
+    }
+
+    const taskIds: string[] = [];
+    const params = new URLSearchParams({
+      filter: `targetOpportunityId[eq]:${filterValue(input.opportunityId)}`,
+      limit: '20',
+    });
+    const targets = await this.requestRaw('GET', `/taskTargets?${params.toString()}`);
+    if (targets.ok && targets.data) {
+      const root = targets.data as Record<string, unknown>;
+      const nested = root.data as Record<string, unknown> | undefined;
+      const list: unknown[] = Array.isArray(root.taskTargets)
+        ? root.taskTargets
+        : Array.isArray(nested?.taskTargets)
+          ? (nested.taskTargets as unknown[])
+          : [];
+      for (const row of list) {
+        if (!isTwentyRecord(row)) continue;
+        const taskId = typeof row.taskId === 'string' ? row.taskId : undefined;
+        if (!taskId || taskIds.includes(taskId)) continue;
+        const patched = await this.requestRecord('PATCH', `/tasks/${taskId}`, {
+          assigneeId: ownerId,
+        });
+        if (patched.ok) taskIds.push(taskId);
+      }
+    }
+
+    const note = await this.createNote({
+      title: `Reasignación comercial — ${input.opportunityId.slice(0, 8)}`.slice(0, 120),
+      bodyMarkdown: [
+        '**Origen:** CMS comercial I-ME',
+        `**Nuevo owner:** ${ownerId}`,
+        input.reason ? `**Motivo:** ${input.reason}` : '',
+      ]
+        .filter(Boolean)
+        .join('\n'),
+    });
+    if (note.ok && note.data) {
+      await this.linkNoteTarget({
+        noteId: note.data.id,
+        targetOpportunityId: input.opportunityId,
+        targetCompanyId: companyId,
+        targetPersonId: input.personId,
+      });
+    }
+
+    return {
+      ok: true,
+      data: {
+        opportunityId: input.opportunityId,
+        companyId,
+        taskIds,
+      },
+    };
+  }
+
+  /** Enlaza persona huérfana a cuenta existente o recién creada por nombre institución. */
+  async ensurePersonCompanyLink(input: {
+    personId: string;
+    companyName: string;
+    companyId?: string;
+    ownerId?: string;
+  }): Promise<TwentyResult<{ personId: string; companyId: string }>> {
+    let companyId = input.companyId?.trim();
+    if (!companyId) {
+      const company = await this.upsertCompany({ name: input.companyName.trim().slice(0, 120) });
+      if (!company.ok || !company.data?.id)
+        return { ok: false, error: company.error ?? 'Company no creada' };
+      companyId = company.data.id;
+    }
+    const ownerId = resolveTwentyOwnerId(input.ownerId);
+    if (ownerId) {
+      await this.requestRaw('PATCH', `/companies/${companyId}`, { accountOwnerId: ownerId });
+    }
+    const patched = await this.requestRecord('PATCH', `/people/${input.personId}`, { companyId });
+    if (!patched.ok) return { ok: false, error: patched.error };
+    return { ok: true, data: { personId: input.personId, companyId } };
+  }
+
+  /** Nota de ciclo de vida en cuenta (sin custom fields en workspace). */
+  async syncCompanyLifecycleNote(input: {
+    companyId: string;
+    lifecycle: TwentyAccountLifecycle;
+    source?: string;
+  }): Promise<TwentyResult<{ noteId?: string; lifecycle: TwentyAccountLifecycle }>> {
+    const labels: Record<TwentyAccountLifecycle, string> = {
+      LEAD: 'Lead (NEW)',
+      PROSPECT: 'Prospecto (SCREENING/MEETING/PROPOSAL)',
+      CLIENT: 'Cliente formalizado (CUSTOMER)',
+    };
+    const note = await this.createNote({
+      title: `I-ME ciclo — ${input.lifecycle}`.slice(0, 120),
+      bodyMarkdown: [
+        '**Origen:** CMS comercial I-ME',
+        `**Ciclo cuenta:** ${labels[input.lifecycle]}`,
+        input.source ? `**Fuente:** ${input.source}` : '',
+      ]
+        .filter(Boolean)
+        .join('\n'),
+    });
+    if (note.ok && note.data) {
+      await this.linkNoteTarget({ noteId: note.data.id, targetCompanyId: input.companyId });
+    }
+    return { ok: true, data: { noteId: note.data?.id, lifecycle: input.lifecycle } };
+  }
+
+  async listWorkspaceMembers(limit = 20): Promise<TwentyResult<TwentyRecord[]>> {
+    const res = await this.requestRaw('GET', `/workspaceMembers?limit=${Math.min(limit, 60)}`);
+    if (!res.ok) return { ok: false, error: res.error };
+    const root = res.data as Record<string, unknown> | null;
+    const nested = root?.data as Record<string, unknown> | null;
+    const list: unknown[] = Array.isArray(root?.workspaceMembers)
+      ? (root.workspaceMembers as unknown[])
+      : Array.isArray(nested?.workspaceMembers)
+        ? (nested.workspaceMembers as unknown[])
+        : [];
+    return { ok: true, data: list.filter(isTwentyRecord) };
+  }
+
+  async listPeopleWithoutCompany(limit = 60): Promise<TwentyResult<TwentyRecord[]>> {
+    const res = await this.requestRaw('GET', `/people?limit=${Math.min(limit, 60)}`);
+    if (!res.ok) return { ok: false, error: res.error };
+    const root = res.data as Record<string, unknown> | null;
+    const nested = root?.data as Record<string, unknown> | null;
+    const list: unknown[] = Array.isArray(root?.people)
+      ? (root.people as unknown[])
+      : Array.isArray(nested?.people)
+        ? (nested.people as unknown[])
+        : [];
+    return {
+      ok: true,
+      data: list.filter(isTwentyRecord).filter(p => !p.companyId),
+    };
+  }
+
+  /**
+   * Enlaza persona ↔ empresa: PATCH person.companyId + accountOwner opcional.
+   * Twenty expone people[] en company vía relación inversa automática.
+   */
+  async linkPersonAndCompany(input: {
+    personId: string;
+    companyId?: string;
+    companyName?: string;
+    ownerId?: string;
+  }): Promise<TwentyResult<{ personId: string; companyId: string }>> {
+    let companyId = input.companyId?.trim();
+    const companyName = (input.companyName || '').trim();
+    if (!companyId) {
+      if (!companyName) {
+        return { ok: false, error: 'companyId o companyName requerido' };
+      }
+      const company = await this.upsertCompany({ name: companyName.slice(0, 120) });
+      if (!company.ok || !company.data?.id) {
+        return { ok: false, error: company.error ?? 'Company no creada' };
+      }
+      companyId = company.data.id;
+    }
+    const ownerId = resolveTwentyOwnerId(input.ownerId);
+    if (ownerId) {
+      await this.requestRaw('PATCH', `/companies/${companyId}`, { accountOwnerId: ownerId });
+    }
+    const patched = await this.requestRecord('PATCH', `/people/${input.personId}`, { companyId });
+    if (!patched.ok) return { ok: false, error: patched.error };
+    return { ok: true, data: { personId: input.personId, companyId } };
+  }
+
+  /** Actualiza oportunidad Twenty desde etapa/valor del CRM warehouse. */
+  async updateManagedOpportunity(input: {
+    opportunityId: string;
+    etapa?: string;
+    valorEstimado?: number | null;
+    moneda?: string;
+    ownerId?: string;
+    companyId?: string;
+    personId?: string;
+    nextActionAt?: string | null;
+    nextActionNote?: string | null;
+    titulo?: string;
+  }): Promise<TwentyResult<TwentyRecord>> {
+    const payload: Record<string, unknown> = {};
+    if (input.etapa) payload.stage = mapCrmEtapaToTwentyStage(input.etapa);
+    if (input.titulo?.trim()) payload.name = input.titulo.trim().slice(0, 120);
+    if (input.valorEstimado != null && Number.isFinite(input.valorEstimado)) {
+      payload.amount = {
+        amountMicros: Math.round(Number(input.valorEstimado) * 1_000_000),
+        currencyCode: (input.moneda || 'COP').slice(0, 8),
+      };
+    }
+    if (input.nextActionAt) payload.closeDate = input.nextActionAt;
+    const ownerId = input.ownerId ? resolveTwentyOwnerId(input.ownerId) : undefined;
+    if (ownerId) payload.ownerId = ownerId;
+    if (input.companyId) payload.companyId = input.companyId;
+    if (input.personId) payload.pointOfContactId = input.personId;
+
+    const patched = await this.requestRecord(
+      'PATCH',
+      `/opportunities/${input.opportunityId}`,
+      payload
+    );
+    if (!patched.ok) return patched;
+
+    if (input.companyId && input.etapa) {
+      void this.syncCompanyLifecycleNote({
+        companyId: input.companyId,
+        lifecycle: deriveLifecycleFromOpportunityStage(String(payload.stage ?? 'NEW')),
+        source: 'updateManagedOpportunity',
+      });
+    }
+
+    if (input.nextActionNote?.trim()) {
+      const note = await this.createNote({
+        title: `Seguimiento CRM — ${input.opportunityId.slice(0, 8)}`.slice(0, 120),
+        bodyMarkdown: input.nextActionNote.trim().slice(0, 4000),
+      });
+      if (note.ok && note.data) {
+        await this.linkNoteTarget({
+          noteId: note.data.id,
+          targetOpportunityId: input.opportunityId,
+          targetCompanyId: input.companyId,
+          targetPersonId: input.personId,
+        });
+      }
+    }
+
+    return patched;
+  }
+
+  /** Repara personas sin companyId usando oportunidad vinculada o nombre institución. */
+  async repairOrphanPeopleLinks(input?: { ownerId?: string; limit?: number }): Promise<
+    TwentyResult<{
+      scanned: number;
+      linked: number;
+      skipped: number;
+      errors: number;
+    }>
+  > {
+    const orphans = await this.listPeopleWithoutCompany(input?.limit ?? 60);
+    if (!orphans.ok) return { ok: false, error: orphans.error };
+    let linked = 0;
+    let skipped = 0;
+    let errors = 0;
+    for (const person of orphans.data ?? []) {
+      const params = new URLSearchParams({
+        filter: `pointOfContactId[eq]:${filterValue(person.id)}`,
+        limit: '1',
+      });
+      const oppRes = await this.requestRaw('GET', `/opportunities?${params.toString()}`);
+      const companyId =
+        oppRes.ok && oppRes.data
+          ? (() => {
+              const root = oppRes.data as Record<string, unknown>;
+              const nested = root.data as Record<string, unknown> | undefined;
+              const list = (nested?.opportunities ?? root.opportunities) as
+                | TwentyRecord[]
+                | undefined;
+              return list?.[0]?.companyId as string | undefined;
+            })()
+          : undefined;
+      let companyName = '';
+      if (!companyId) {
+        companyName = String(person.jobTitle || '')
+          .replace(/^Lead evento ·\s*/i, '')
+          .replace(/^Lead web.*/i, '')
+          .trim();
+        if (!companyName) {
+          const name = person.name as { firstName?: string; lastName?: string } | undefined;
+          companyName = `${name?.firstName || ''} ${name?.lastName || ''}`.trim();
+        }
+      }
+      if (!companyId && !companyName) {
+        skipped += 1;
+        continue;
+      }
+      const link = await this.linkPersonAndCompany({
+        personId: person.id,
+        companyId,
+        companyName: companyId ? undefined : `Lead — ${companyName}`.slice(0, 120),
+        ownerId: input?.ownerId,
+      });
+      if (link.ok) linked += 1;
+      else errors += 1;
+    }
+    return {
+      ok: true,
+      data: {
+        scanned: orphans.data?.length ?? 0,
+        linked,
+        skipped,
+        errors,
+      },
+    };
   }
 
   async upsertPerson(input: {
@@ -504,6 +921,14 @@ export class TwentyClient {
       });
     }
 
+    if (input.companyId) {
+      void this.syncCompanyLifecycleNote({
+        companyId: input.companyId,
+        lifecycle: 'CLIENT',
+        source: 'syncPagoConfirmado',
+      });
+    }
+
     return { ok: true, data: { opportunityId, noteId: note.data?.id } };
   }
 
@@ -632,8 +1057,14 @@ export class TwentyClient {
     }>
   ): Promise<TwentyResult<{ personId: string; companyId?: string; noteId: string }>> {
     let companyId: string | undefined;
-    if (share.medicalCenterName?.trim()) {
-      const company = await this.upsertCompany({ name: share.medicalCenterName.trim() });
+    const centerName = share.medicalCenterName?.trim();
+    const companyLabel =
+      centerName ||
+      (share.recipientName?.trim()
+        ? `Lead catálogo — ${share.recipientName.trim()}`.slice(0, 120)
+        : '');
+    if (companyLabel) {
+      const company = await this.upsertCompany({ name: companyLabel });
       if (!company.ok) return { ok: false, error: company.error };
       companyId = company.data?.id;
     }
@@ -1074,6 +1505,12 @@ export class TwentyClient {
       opportunityId = created.data.id;
     }
 
+    void this.touchCompanyLifecycle(
+      companyId,
+      String(oppPayload.stage ?? 'NEW'),
+      'syncCotizacionLead'
+    );
+
     const productList = (input.productos || []).length
       ? (input.productos || [])
           .map(p => `- ${p.nombre || p.slug || 'producto'}${p.cantidad ? ` x${p.cantidad}` : ''}`)
@@ -1188,6 +1625,17 @@ export class TwentyClient {
         taskId,
       },
     };
+  }
+
+  /** Tras sync lead: nota de ciclo LEAD/PROSPECT en cuenta (best-effort). */
+  private async touchCompanyLifecycle(
+    companyId: string | undefined,
+    stage: string,
+    source: string
+  ): Promise<void> {
+    if (!companyId) return;
+    const lifecycle = deriveLifecycleFromOpportunityStage(stage);
+    await this.syncCompanyLifecycleNote({ companyId, lifecycle, source });
   }
 }
 
@@ -1456,4 +1904,100 @@ export async function syncFacturaWithTwenty(input: {
     return { ok: false, skipped: true, error: 'TWENTY_BASE_URL/TWENTY_API_KEY no configurados' };
   }
   return client.syncFacturaEmitida(input);
+}
+
+/** Reasigna lead/oportunidad a otro workspace member (comercial). */
+export async function reassignTwentyLead(input: {
+  opportunityId: string;
+  newOwnerId: string;
+  companyId?: string;
+  personId?: string;
+  reason?: string;
+}): Promise<
+  TwentyResult<{
+    opportunityId: string;
+    companyId?: string;
+    taskIds: string[];
+  }>
+> {
+  const client = TwentyClient.fromEnv();
+  if (!client) {
+    return { ok: false, skipped: true, error: 'TWENTY_BASE_URL/TWENTY_API_KEY no configurados' };
+  }
+  return client.reassignCommercialLead(input);
+}
+
+/** Resuelve workspaceMemberId por email del comercial (Settings → Members). */
+export async function resolveTwentyOwnerByEmail(
+  email: string
+): Promise<TwentyResult<string | null>> {
+  const client = TwentyClient.fromEnv();
+  if (!client) {
+    return { ok: false, skipped: true, error: 'TWENTY_BASE_URL/TWENTY_API_KEY no configurados' };
+  }
+  const member = await client.findWorkspaceMemberByEmail(email);
+  if (!member.ok) return { ok: false, error: member.error };
+  return { ok: true, data: member.data?.id ?? null };
+}
+
+/** Lista miembros workspace Twenty (comerciales). */
+export async function listTwentyWorkspaceMembers(): Promise<TwentyResult<TwentyRecord[]>> {
+  const client = TwentyClient.fromEnv();
+  if (!client) {
+    return { ok: false, skipped: true, error: 'TWENTY_BASE_URL/TWENTY_API_KEY no configurados' };
+  }
+  return client.listWorkspaceMembers();
+}
+
+/** Enlaza contacto Twenty a empresa (bidireccional vía companyId). */
+export async function linkTwentyPersonCompany(input: {
+  personId: string;
+  companyId?: string;
+  companyName?: string;
+  ownerId?: string;
+}): Promise<TwentyResult<{ personId: string; companyId: string }>> {
+  const client = TwentyClient.fromEnv();
+  if (!client) {
+    return { ok: false, skipped: true, error: 'TWENTY_BASE_URL/TWENTY_API_KEY no configurados' };
+  }
+  return client.linkPersonAndCompany(input);
+}
+
+/** Sincroniza etapa/valor/nota desde CRM warehouse a Twenty. */
+export async function syncTwentyOpportunityFromCrm(input: {
+  opportunityId: string;
+  etapa?: string;
+  valorEstimado?: number | null;
+  moneda?: string;
+  ownerId?: string;
+  companyId?: string;
+  personId?: string;
+  nextActionAt?: string | null;
+  nextActionNote?: string | null;
+  titulo?: string;
+}): Promise<TwentyResult<TwentyRecord>> {
+  const client = TwentyClient.fromEnv();
+  if (!client) {
+    return { ok: false, skipped: true, error: 'TWENTY_BASE_URL/TWENTY_API_KEY no configurados' };
+  }
+  return client.updateManagedOpportunity(input);
+}
+
+/** Repara personas Twenty sin empresa asociada. */
+export async function repairTwentyOrphanLinks(input?: {
+  ownerId?: string;
+  limit?: number;
+}): Promise<
+  TwentyResult<{
+    scanned: number;
+    linked: number;
+    skipped: number;
+    errors: number;
+  }>
+> {
+  const client = TwentyClient.fromEnv();
+  if (!client) {
+    return { ok: false, skipped: true, error: 'TWENTY_BASE_URL/TWENTY_API_KEY no configurados' };
+  }
+  return client.repairOrphanPeopleLinks(input);
 }

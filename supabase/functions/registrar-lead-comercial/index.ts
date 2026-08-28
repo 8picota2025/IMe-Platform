@@ -163,6 +163,41 @@ async function syncLeadWithTwenty(
     });
     return lead.crm_sync_status;
   }
+
+  if (twenty.ok && twenty.data) {
+    const { data: leadRow } = await supabase
+      .from('leads_comerciales')
+      .select('crm_opportunity_id, crm_contact_id, crm_account_id')
+      .eq('id', lead.id)
+      .maybeSingle();
+    const bridge = leadRow as {
+      crm_opportunity_id?: string | null;
+      crm_contact_id?: string | null;
+      crm_account_id?: string | null;
+    } | null;
+    if (bridge?.crm_opportunity_id) {
+      await supabase
+        .from('crm_opportunities')
+        .update({
+          twenty_opportunity_id: twenty.data.opportunityId,
+          twenty_person_id: twenty.data.personId,
+          twenty_company_id: twenty.data.companyId ?? null,
+        })
+        .eq('id', bridge.crm_opportunity_id);
+    }
+    if (bridge?.crm_contact_id && twenty.data.personId) {
+      await supabase
+        .from('crm_contacts')
+        .update({ twenty_person_id: twenty.data.personId })
+        .eq('id', bridge.crm_contact_id);
+    }
+    if (bridge?.crm_account_id && twenty.data.companyId) {
+      await supabase
+        .from('crm_accounts')
+        .update({ twenty_company_id: twenty.data.companyId })
+        .eq('id', bridge.crm_account_id);
+    }
+  }
   if (!twenty.ok && !twenty.skipped) {
     void trackEvent(FN_NAME, 'lead_comercial_twenty_failed', {
       priority: lead.prioridad,
