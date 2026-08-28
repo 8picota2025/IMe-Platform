@@ -45,6 +45,7 @@ export const PRODUCT_FAMILY_CORRECTIONS: Readonly<Record<string, string>> = {
   'electrocardiografo-ref-sk-em103-saikang': 'cardiologia',
   'monitor-de-paciente-ref-sk-em005-saikang': 'monitores',
   'monitor-fetal-ref-sk-em006-saikang': 'neonatologia',
+  'carro-clinico-ref-skr-r10-saikang': 'mobiliario',
   'mesa-quirurgica-electrica-ref-skl-c-saikang': 'sala-cirugia',
   'mesa-quirurgica-electrica-ref-skl-d-saikang': 'sala-cirugia',
   'g-des-kbe1462ff-m23-d': 'insumos-accesorios',
