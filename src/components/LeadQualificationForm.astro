@@ -399,6 +399,7 @@ const turnstileSiteKey = (
     type CommercialLeadInput,
     type HorizonteCompra,
   } from '../lib/comercial-leads';
+  import { interpretarErrorEdgeFunction } from '../lib/cotizacion-submit';
   import { getSupabaseClient } from '../lib/supabase';
 
   interface TurnstileApi {
@@ -488,6 +489,9 @@ const turnstileSiteKey = (
       step2.hidden = first;
       step1.classList.toggle('is-hidden', !first);
       step2.classList.toggle('is-hidden', first);
+      if (n === 2) {
+        void ensureTurnstile(form).catch(() => undefined);
+      }
     }
 
     function read(): Partial<CommercialLeadInput> {
@@ -542,8 +546,6 @@ const turnstileSiteKey = (
     });
 
     backBtn?.addEventListener('click', () => showStep(1));
-
-    void ensureTurnstile(form).catch(() => undefined);
 
     form.addEventListener('submit', async e => {
       e.preventDefault();
@@ -606,8 +608,11 @@ const turnstileSiteKey = (
         );
         const saved = response as LeadResponse | null;
         if (error || !saved?.ok || !saved.leadId) {
+          const edgeError = saved?.error?.trim()
+            ? saved.error
+            : await interpretarErrorEdgeFunction(error, response);
           showStatus(
-            saved?.error ??
+            edgeError ||
               (locale === 'en'
                 ? 'We could not register the request. Nothing was marked as received; please try again.'
                 : 'No pudimos registrar la solicitud. No quedó marcada como recibida; intenta de nuevo.'),

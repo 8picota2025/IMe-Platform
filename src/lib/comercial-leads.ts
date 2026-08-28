@@ -53,7 +53,12 @@ export interface ValidationResult {
 
 const WHATSAPP_E164 = '573137247353';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const OPTIONAL_TURNSTILE_CAMPAIGNS = new Set<CampaignLandingId>(['pdf_descarga', 'evento']);
+const OPTIONAL_TURNSTILE_CAMPAIGNS = new Set<CampaignLandingId>([
+  'pdf_descarga',
+  'evento',
+  // Modal global «Cotización» (navbar): honeypot + rate-limit; Turnstile en paso oculto falla en prod.
+  'proyectos',
+]);
 
 /** Turnstile 600* puede fallar en navegadores/redes legítimas. Estas campañas
  * siguen protegidas por honeypot, rate-limit e campos obligatorios. */
