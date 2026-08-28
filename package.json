@@ -18,6 +18,7 @@
     "format": "prettier --write src packages",
     "test": "vitest run",
     "test:watch": "vitest",
+    "canary:cotizacion": "node --env-file-if-exists=.env scripts/canary-cotizacion.mjs",
     "mirror:images": "node --env-file=.env scripts/mirror-cms-images.mjs",
     "optimize:images": "node scripts/optimize-site-images.mjs",
     "import:gmd": "node --env-file=.env scripts/import-gmd-catalog.mjs",

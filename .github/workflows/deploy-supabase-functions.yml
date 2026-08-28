@@ -65,6 +65,7 @@ jobs:
           IMEIA_API_URL=${{ secrets.IMEIA_API_URL }}
           IMEIA_API_KEY=${{ secrets.IMEIA_API_KEY }}
           TURNSTILE_SECRET_KEY=${{ secrets.TURNSTILE_SECRET_KEY }}
+          CANARY_SMOKE_SECRET=${{ secrets.CANARY_SMOKE_SECRET }}
           TWENTY_BASE_URL=${{ secrets.TWENTY_BASE_URL }}
           TWENTY_API_KEY=${{ secrets.TWENTY_API_KEY }}
           TWENTY_OWNER_ID=${{ secrets.TWENTY_OWNER_ID }}

@@ -97,6 +97,26 @@ Dashboard CMS:
 - `https://i-me.com.co/sitemap-index.xml`
 - `https://<project-ref>.supabase.co/functions/v1/health`
 
+## Canary crítico: cotización (obligatorio post-deploy)
+
+Flujo de negocio que no puede romperse en silencio: formulario `/es/contacto`,
+modal navbar «Cotización» (`registrar-lead-comercial` campaña `proyectos`),
+Edge `registrar-cotizacion`, emails internos (`cotizacion_interna`) y
+confirmación cliente.
+
+| Pieza                                     | Qué hace                                                      |
+| ----------------------------------------- | ------------------------------------------------------------- |
+| `scripts/canary-cotizacion.mjs`           | Smoke HTML + API + `email_log`                                |
+| `.github/workflows/cotizacion-canary.yml` | Tras Deploy Producción / Deploy Functions + cada ~30 min      |
+| `npm run canary:cotizacion`               | Misma verificación en local (usa `.env`)                      |
+| `CANARY_SMOKE_SECRET`                     | Opcional; aísla rate-limit del canary (`x-ime-canary-secret`) |
+
+Si el canary falla: no asumir “llegó al CRM”. Revisar Functions logs,
+`email_log`, Turnstile solo en landings consultivas (no modal `proyectos`),
+y rate-limit `asesor_rate_limit`.
+
+Origen de pruebas canary: `canary_ci` / emails `*@ime-test.local` (filtrables).
+
 ## Google Search Console + GA4
 
 Producción ya envía gtag `G-YKKFCZHE2N` en `<head>` de `/es/` (home canónica; `/` hace 301).

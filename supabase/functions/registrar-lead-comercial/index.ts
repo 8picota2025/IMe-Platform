@@ -7,6 +7,7 @@
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { badRequest, internalError } from '../_shared/errors.ts';
 import { checkRateLimit } from '../_shared/rate-limit.ts';
+import { rateLimitIdentificador } from '../_shared/canary.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { withTelemetry, trackEvent } from '../_shared/telemetry.ts';
 import { verifyTurnstile } from '../_shared/turnstile.ts';
@@ -264,15 +265,29 @@ async function sendCommercialLeadEmails(
   const plantillaCliente =
     locale === 'en' ? 'cotizacion_confirmacion_cliente_en' : 'cotizacion_confirmacion_cliente_es';
   const destinatariosCliente = lead.email ? [lead.email] : [];
-  const [interno, cliente] = await Promise.all([
-    enviarEmailPlantilla(supabase, 'cotizacion_interna', DESTINATARIOS_INTERNOS, vars, referencia),
-    destinatariosCliente.length
-      ? enviarEmailPlantilla(supabase, plantillaCliente, destinatariosCliente, vars, referencia)
-      : Promise.resolve({ ok: true as const }),
-  ]);
-  if (!interno.ok) console.error('registrar-lead-comercial: email interno', interno.detalle);
-  if (!cliente.ok) console.error('registrar-lead-comercial: email cliente', cliente.detalle);
-  return { interno: interno.ok, cliente: destinatariosCliente.length ? cliente.ok : false };
+  try {
+    const [interno, cliente] = await Promise.all([
+      enviarEmailPlantilla(
+        supabase,
+        'cotizacion_interna',
+        DESTINATARIOS_INTERNOS,
+        vars,
+        referencia
+      ),
+      destinatariosCliente.length
+        ? enviarEmailPlantilla(supabase, plantillaCliente, destinatariosCliente, vars, referencia)
+        : Promise.resolve({ ok: true as const }),
+    ]);
+    if (!interno.ok) console.error('registrar-lead-comercial: email interno', interno.detalle);
+    if (!cliente.ok) console.error('registrar-lead-comercial: email cliente', cliente.detalle);
+    return { interno: interno.ok, cliente: destinatariosCliente.length ? cliente.ok : false };
+  } catch (err) {
+    console.error(
+      'registrar-lead-comercial: email exception',
+      err instanceof Error ? err.message : err
+    );
+    return { interno: false, cliente: false };
+  }
 }
 
 function jsonResponse(
@@ -339,7 +354,11 @@ Deno.serve(
     }
 
     const ip = clientIp(req);
-    const limit = await checkRateLimit(supabase, `lead-comercial:ip:${ip}`, 'cotizacion');
+    const limit = await checkRateLimit(
+      supabase,
+      rateLimitIdentificador(req, 'lead-comercial', ip),
+      'cotizacion'
+    );
     if (limit.limited) {
       return jsonResponse(
         { ok: false, error: 'Demasiadas solicitudes. Intenta mas tarde.' },

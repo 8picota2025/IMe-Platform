@@ -9,6 +9,7 @@ import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { badRequest, internalError } from '../_shared/errors.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { checkRateLimit } from '../_shared/rate-limit.ts';
+import { rateLimitIdentificador } from '../_shared/canary.ts';
 import {
   enviarEmailPlantilla,
   DESTINATARIOS_COMPRAS,
@@ -173,7 +174,11 @@ Deno.serve(
       req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
       req.headers.get('x-real-ip') ||
       'desconocida';
-    const limite = await checkRateLimit(supabase, `cotizacion:ip:${ip}`, 'cotizacion');
+    const limite = await checkRateLimit(
+      supabase,
+      rateLimitIdentificador(req, 'cotizacion', ip),
+      'cotizacion'
+    );
     if (limite.limited) {
       const retry = limite.retryAfterSeconds ?? 3600;
       return new Response(
@@ -298,13 +303,21 @@ Deno.serve(
     const destinatariosInternos =
       tipoSolicitud === 'compra_a_valorar' ? DESTINATARIOS_COMPRAS : DESTINATARIOS_INTERNOS;
 
-    const [interno, cliente] = await Promise.all([
-      enviarEmailPlantilla(supabase, plantillaInterna, destinatariosInternos, vars, referencia),
-      enviarEmailPlantilla(supabase, plantillaCliente, [email], vars, referencia),
-    ]);
-    if (!interno.ok) console.error('registrar-cotizacion: email interno', interno.detalle);
-    if (!cliente.ok) console.error('registrar-cotizacion: email cliente', cliente.detalle);
-    const emails = { interno: interno.ok, cliente: cliente.ok };
+    let emails = { interno: false, cliente: false };
+    try {
+      const [interno, cliente] = await Promise.all([
+        enviarEmailPlantilla(supabase, plantillaInterna, destinatariosInternos, vars, referencia),
+        enviarEmailPlantilla(supabase, plantillaCliente, [email], vars, referencia),
+      ]);
+      emails = { interno: interno.ok, cliente: cliente.ok };
+      if (!interno.ok) console.error('registrar-cotizacion: email interno', interno.detalle);
+      if (!cliente.ok) console.error('registrar-cotizacion: email cliente', cliente.detalle);
+    } catch (err) {
+      console.error(
+        'registrar-cotizacion: email exception',
+        err instanceof Error ? err.message : err
+      );
+    }
 
     // Twenty CRM: best-effort. No bloquea respuesta al cliente.
     const twenty = await syncCotizacionWithTwenty({
