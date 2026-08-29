@@ -10,19 +10,44 @@ import {
 import '../../styles/site-faithful.css';
 
 const locale = 'es';
-const title = buildPageTitle('Nosotros');
+const title = buildPageTitle('Quiénes somos');
 const description =
-  'Conoce la historia de I-ME International Medical Enterprise: más de 15 años en el sector salud, 24+ marcas internacionales y un portafolio de más de 427 productos.';
+  'I-ME International Medical Enterprise: tecnología biomédica, experiencia multidisciplinar y acompañamiento integral para instituciones de salud en Colombia.';
 const canonical = buildCanonical('/es/nosotros');
 
 const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
   '@context': 'https://schema.org',
   '@type': 'AboutPage',
   url: canonical,
-  name: 'Nosotros | I-ME',
+  name: 'Quiénes somos | I-ME',
   about: { '@id': 'https://i-me.com.co/#organization' },
   inLanguage: 'es-CO',
 });
+
+const perspectivas = [
+  'la necesidad clínica y hospitalaria',
+  'la tecnología disponible',
+  'la viabilidad técnica',
+  'la infraestructura necesaria',
+  'las alternativas de adquisición e importación',
+  'la logística y distribución',
+  'la viabilidad económica y financiera',
+  'el marco contractual y regulatorio',
+  'las personas necesarias para hacerlo realidad',
+];
+
+const propuesta = [
+  'Selección y distribución de tecnología biomédica.',
+  'Identificación de fabricantes y soluciones internacionales.',
+  'Asesoría técnica especializada antes de la adquisición.',
+  'Acompañamiento en proyectos hospitalarios y tecnológicos.',
+  'Importación, logística y distribución.',
+  'Instalación y puesta en marcha.',
+  'Capacitación y acompañamiento al usuario.',
+  'Soporte técnico y mantenimiento durante la vida útil del equipamiento.',
+  'Evaluación de alternativas económicas y comerciales.',
+  'Utilización de tecnología e inteligencia artificial para mejorar progresivamente nuestros procesos de asesoramiento y atención.',
+];
 ---
 
 <Layout
@@ -35,39 +60,35 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
   jsonLd={jsonLd}
 >
   <div class="site-faithful">
-    <!-- Hero mejorado -->
     <header class="hero-nosotros" aria-labelledby="about-h1">
       <div class="container">
         <nav class="breadcrumb" aria-label="Ruta">
           <a href="/es/">Inicio</a><span class="sep">/</span><span aria-current="page"
-            >Nosotros</span
+            >Quiénes somos</span
           >
         </nav>
         <div class="hero-content">
-          <h1 id="about-h1" class="hero-title">Nuestra historia</h1>
+          <h1 id="about-h1" class="hero-title">Quiénes somos</h1>
           <p class="hero-subtitle">
-            De grandes proyectos de construcción en Centroamérica a ser un aliado confiable del
-            sector salud: más de 15 años representando los mejores fabricantes internacionales de
-            equipos médicos.
+            Tecnología, experiencia y capacidad de ejecución al servicio de la salud
           </p>
         </div>
       </div>
     </header>
 
-    <!-- Sección: El Origen -->
-    <section class="section section-origin" aria-labelledby="historia-h2">
+    <section class="section section-origin" aria-labelledby="intro-h2">
       <div class="container">
         <div class="story-layout">
-          <div class="story-text fade-in">
-            <div class="story-badge">El origen</div>
-            <h2 id="historia-h2" class="story-title">
-              Una historia que comenzó dentro de un hospital
+          <div class="story-text">
+            <div class="story-badge">I-ME</div>
+            <h2 id="intro-h2" class="story-title">
+              Tecnología biomédica y soluciones para instituciones de salud
             </h2>
-            <div class="story-image fade-in d1">
+            <div class="story-image">
               <div class="image-wrapper">
                 <img
                   src="/assets/img/proyectos-inicio-a-fin-biomedicos.webp"
-                  alt="Proyectos biomédicos de inicio a fin - I-ME construcción healthcare"
+                  alt="Proyectos biomédicos de inicio a fin — I-ME"
                   width="1400"
                   height="787"
                   loading="eager"
@@ -77,18 +98,19 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
             </div>
             <div class="story-body">
               <p>
-                I-ME nació de la visión y experiencia de un grupo de empresarios con una sólida
-                trayectoria en negocios internacionales, que durante más de 20 años lideraron
-                importantes empresas constructoras en Centroamérica, participando en proyectos de
-                gran impacto para la región.
+                I-ME International Medical Enterprise es una empresa colombiana especializada en
+                tecnología biomédica y soluciones para instituciones de salud.
               </p>
               <p>
-                Nuestro vínculo con el sector salud comenzó precisamente con la remodelación de un
-                hospital. Gracias a la excelencia en la ejecución del proyecto, el fondo de
-                inversión propietario confió a nuestro equipo la administración de la institución:
-                una experiencia que nos permitió desarrollar un profundo conocimiento del entorno
-                hospitalario y construir relaciones de confianza con reconocidos fabricantes
-                internacionales de equipos médicos.
+                Nuestra actividad va más allá de la distribución de equipos. Trabajamos para ayudar
+                a hospitales, clínicas, centros médicos y profesionales de la salud a identificar,
+                evaluar e implementar soluciones tecnológicas adecuadas a sus necesidades clínicas,
+                técnicas, operativas y financieras.
+              </p>
+              <p>
+                Distribución, importación, ingeniería, tecnología, gestión hospitalaria y desarrollo
+                empresarial convergen en un mismo proyecto: hacer más accesible la tecnología médica
+                de calidad y acompañar a nuestros clientes durante todo su ciclo de vida.
               </p>
             </div>
           </div>
@@ -96,20 +118,17 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
       </div>
     </section>
 
-    <!-- Sección: El Crecimiento -->
-    <section class="section section-growth" aria-labelledby="crecimiento-h2">
+    <section class="section section-growth" aria-labelledby="mas-h2">
       <div class="container">
         <div class="story-layout story-layout-reverse">
-          <div class="story-text fade-in">
-            <div class="story-badge story-badge-green">El crecimiento</div>
-            <h2 id="crecimiento-h2" class="story-title">
-              De la confianza de casas matrices a un portafolio global
-            </h2>
-            <div class="story-image fade-in d1">
+          <div class="story-text">
+            <div class="story-badge story-badge-green">Enfoque</div>
+            <h2 id="mas-h2" class="story-title">Más que equipamiento biomédico</h2>
+            <div class="story-image">
               <div class="image-wrapper">
                 <img
                   src="/assets/img/atendemos-cadena-valor-distribucion.webp"
-                  alt="Atendemos cadena valor - Distribución equipos biomédicos Colombia"
+                  alt="Cadena de valor en distribución de equipos biomédicos — I-ME"
                   width="1200"
                   height="800"
                   loading="lazy"
@@ -119,22 +138,22 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
             </div>
             <div class="story-body">
               <p>
-                Derivado de ese compromiso, profesionalismo y ética empresarial, diversas casas
-                matrices nos otorgaron la representación y distribución de sus marcas, dando origen
-                al crecimiento de nuestra compañía.
+                Entendemos que una decisión tecnológica en salud nunca consiste únicamente en elegir
+                un equipo.
               </p>
               <p>
-                Hoy contamos con más de 15 años de experiencia en el sector salud, representando más
-                de 24 marcas internacionales provenientes de Europa, Estados Unidos y Asia —de
-                países como Alemania, Italia, Reino Unido, Japón, Corea del Sur, China, Hong Kong y
-                Hungría, entre otros— con un portafolio que supera los 427 productos, respaldados
-                por altos estándares de calidad y servicio.
+                Detrás de cada proyecto existen necesidades clínicas, infraestructura, financiación,
+                regulación, logística, instalación, capacitación, mantenimiento y soporte. Por ello,
+                I-ME aborda cada oportunidad desde una perspectiva integral.
               </p>
               <p>
-                Creemos que el verdadero éxito se construye mediante relaciones sólidas y duraderas
-                con nuestros socios estratégicos. Esa confianza, unida a nuestro compromiso con la
-                innovación, la capacitación continua y la excelencia, nos ha permitido consolidarnos
-                como un aliado confiable para el sector salud.
+                Nuestro objetivo es convertirnos en un socio tecnológico de largo plazo para las
+                instituciones de salud, combinando conocimiento del mercado, capacidad técnica,
+                experiencia empresarial y una creciente infraestructura digital.
+              </p>
+              <p>
+                Esta visión se sustenta especialmente en la experiencia multidisciplinar de nuestro
+                equipo de dirección y gestión.
               </p>
             </div>
           </div>
@@ -142,157 +161,226 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
       </div>
     </section>
 
-    <!-- Cifras: I-ME en números -->
-    <section class="section section-stats" aria-labelledby="cifras-h2">
+    <section class="section section-team" aria-labelledby="equipo-h2">
       <div class="container">
-        <div class="stats-header fade-in">
-          <div class="stats-badge">I-ME en cifras</div>
-          <h2 id="cifras-h2" class="stats-title">Un aliado consolidado para el sector salud</h2>
+        <div class="team-header">
+          <div class="story-badge">Liderazgo</div>
+          <h2 id="equipo-h2" class="story-title">
+            Un equipo directivo con experiencia para ejecutar proyectos complejos
+          </h2>
+          <p class="team-lead">
+            Una de las principales fortalezas de I-ME es reunir perfiles profesionales procedentes
+            de disciplinas diferentes pero profundamente complementarias. La dirección de la
+            compañía integra experiencia en construcción y gestión hospitalaria, ingeniería
+            informática y telecomunicaciones, importación y distribución, desarrollo comercial,
+            psicología y gestión del talento, finanzas, contabilidad y derecho.
+          </p>
+          <p class="team-lead">
+            Esta combinación permite analizar cada proyecto desde múltiples perspectivas antes de
+            convertirlo en una solución.
+          </p>
         </div>
-        <div class="stats-grid fade-in">
-          <div class="stat-card">
-            <div class="stat-number">15+</div>
-            <div class="stat-label">Años en el sector salud</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number">24+</div>
-            <div class="stat-label">Marcas internacionales</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number">427+</div>
-            <div class="stat-label">Productos en portafolio</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number">32</div>
-            <div class="stat-label">Departamentos cubiertos</div>
-          </div>
+
+        <div class="team-grid">
+          <article class="team-card">
+            <h3>Dirección General</h3>
+            <p class="team-role">Experiencia empresarial, construcción y gestión hospitalaria</p>
+            <p>
+              La Dirección General de I-ME está liderada por un empresario con más de 25 años de
+              trayectoria profesional, particularmente vinculada a la construcción, el desarrollo de
+              proyectos y la gestión hospitalaria.
+            </p>
+            <p>
+              Esta experiencia proporciona a la compañía una comprensión que trasciende el propio
+              equipamiento médico: permite entender cómo interactúan infraestructura, tecnología,
+              operación, recursos económicos y necesidades asistenciales dentro de una institución
+              de salud.
+            </p>
+            <p>
+              Esa visión global resulta especialmente relevante en proyectos hospitalarios donde una
+              solución técnicamente excelente solo genera valor cuando puede integrarse
+              correctamente en la realidad operativa de la institución.
+            </p>
+          </article>
+
+          <article class="team-card">
+            <h3>Dirección de Tecnología</h3>
+            <p class="team-role">Ingeniería aplicada a problemas reales de negocio</p>
+            <p>
+              La Dirección de Tecnología está encabezada por un ingeniero informático con una
+              extensa trayectoria profesional en telecomunicaciones, sistemas, innovación y
+              consultoría tecnológica.
+            </p>
+            <p>
+              A lo largo de su carrera ha participado en la puesta en marcha de cientos de
+              iniciativas y en la resolución de miles de retos empresariales mediante la aplicación
+              práctica de tecnologías avanzadas.
+            </p>
+            <p>
+              Su incorporación al proyecto I-ME permite trasladar esa experiencia al sector
+              biomédico y desarrollar una compañía en la que la tecnología no constituye únicamente
+              una herramienta interna, sino una capacidad estratégica.
+            </p>
+            <p>
+              Automatización, inteligencia artificial, integración de sistemas, gestión del
+              conocimiento, análisis de información y desarrollo de plataformas digitales forman
+              parte de una estrategia destinada a conseguir que I-ME pueda responder de manera más
+              rápida, precisa y eficiente a las necesidades de sus clientes.
+            </p>
+          </article>
+
+          <article class="team-card">
+            <h3>Dirección Comercial</h3>
+            <p class="team-role">Experiencia nacional en importación, distribución y ejecución</p>
+            <p>
+              La Dirección Comercial aporta una amplia trayectoria como importador y distribuidor de
+              equipamiento industrial y tecnológico, así como experiencia en el desarrollo y
+              ejecución de proyectos de considerable envergadura en diferentes regiones de Colombia.
+            </p>
+            <p>
+              Este conocimiento resulta fundamental para comprender la realidad del mercado
+              colombiano: proveedores, negociación internacional, importación, logística,
+              distribución territorial, estructuración comercial y ejecución efectiva de proyectos.
+            </p>
+            <p>
+              Nuestra capacidad comercial no se limita, por tanto, a vender tecnología. Está
+              orientada a conseguir que las soluciones puedan llegar efectivamente hasta las
+              instituciones que las necesitan.
+            </p>
+          </article>
+
+          <article class="team-card">
+            <h3>Dirección de Recursos Humanos</h3>
+            <p class="team-role">Las personas como parte de la estrategia</p>
+            <p>
+              Nuestra Dirección de Recursos Humanos está liderada por una psicóloga con una extensa
+              trayectoria en gestión del talento humano, desarrollo personal y acompañamiento
+              psicológico.
+            </p>
+            <p>
+              Su experiencia profesional combina la construcción y consolidación de equipos con una
+              profunda vocación por el desarrollo de las personas, actividad que mantiene
+              paralelamente mediante su práctica profesional en psicología y el acompañamiento de
+              situaciones personales de especial complejidad.
+            </p>
+            <p>
+              Esta perspectiva aporta a I-ME una dimensión especialmente importante: detrás de
+              cualquier organización, tecnología o proyecto siempre existen personas. Construir una
+              empresa capaz de crecer de manera sostenible requiere seleccionar talento, desarrollar
+              capacidades, consolidar equipos y crear una cultura basada en responsabilidad,
+              aprendizaje y compromiso.
+            </p>
+          </article>
+
+          <article class="team-card team-card-wide">
+            <h3>Dirección Financiera y Legal</h3>
+            <p class="team-role">Rigor para proyectos de alta complejidad</p>
+            <p>
+              La responsabilidad financiera y legal está dirigida por un profesional con formación
+              como abogado y contador público, y una dilatada experiencia en la gestión financiera,
+              contable, jurídica y empresarial de organizaciones y operaciones de elevado volumen y
+              complejidad.
+            </p>
+            <p>
+              Esta doble formación proporciona a I-ME una visión particularmente valiosa para
+              estructurar operaciones comerciales, gestionar riesgos, mantener el rigor financiero y
+              abordar adecuadamente las obligaciones jurídicas, contractuales, tributarias y
+              empresariales inherentes al crecimiento de la compañía.
+            </p>
+            <p>
+              En un sector regulado y en proyectos que pueden involucrar importaciones,
+              financiación, contratación, garantías y múltiples actores, esta capacidad constituye
+              un componente esencial de nuestra estructura empresarial.
+            </p>
+          </article>
         </div>
       </div>
     </section>
 
-    <!-- Valores: Visión, Misión, Compromiso -->
+    <section class="section section-vision-combo" aria-labelledby="vision-combo-h2">
+      <div class="container">
+        <div class="story-badge story-badge-on-dark">Perspectiva</div>
+        <h2 id="vision-combo-h2" class="story-title story-title-white">
+          Experiencias diferentes. Una misma visión.
+        </h2>
+        <p class="combo-lead">
+          La fortaleza de I-ME no reside únicamente en la experiencia individual de cada
+          responsable, sino en la combinación de todas estas capacidades dentro de una misma
+          organización. Cuando estudiamos un proyecto podemos analizar simultáneamente:
+        </p>
+        <ul class="combo-list">
+          {perspectivas.map(item => <li>{item}</li>)}
+        </ul>
+        <p class="combo-lead">
+          Esta perspectiva multidisciplinar nos permite abordar proyectos que requieren mucho más
+          que encontrar un producto en un catálogo.
+        </p>
+      </div>
+    </section>
+
     <section class="section section-values" aria-labelledby="valores-h2">
       <div class="container">
-        <div class="values-header fade-in">
+        <div class="values-header">
           <div class="values-badge">Lo que nos guía</div>
-          <h2 id="valores-h2" class="values-title">Visión, misión y compromiso</h2>
+          <h2 id="valores-h2" class="values-title">Misión, visión y propuesta de valor</h2>
         </div>
-        <div class="values-grid fade-in">
+        <div class="values-grid">
           <div class="value-item">
-            <div class="value-icon-box vision-icon">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                aria-hidden="true"
-              >
-                <path
-                  d="M12 5C7 5 2.73 7.61 1 11.5c1.73 3.89 6 6.5 11 6.5s9.27-2.61 11-6.5c-1.73-3.89-6-6.5-11-6.5zm0 9c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"
-                ></path>
-              </svg>
-            </div>
-            <h3>Visión</h3>
+            <h3>Nuestra misión</h3>
             <p>
-              Ser la empresa líder en Colombia en distribución de tecnología biomédica de
-              vanguardia.
+              Facilitar a las instituciones de salud el acceso a tecnología biomédica de calidad
+              mediante soluciones técnicamente adecuadas, económicamente viables y acompañadas
+              durante todo su ciclo de vida.
             </p>
           </div>
-
           <div class="value-item">
-            <div class="value-icon-box mission-icon">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                aria-hidden="true"
-              >
-                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-            </div>
-            <h3>Misión</h3>
+            <h3>Nuestra visión</h3>
             <p>
-              Equipar instituciones de salud con tecnología certificada que mejore la atención al
-              paciente.
+              Construir una compañía colombiana de referencia en tecnología biomédica, capaz de
+              conectar a las instituciones de salud con fabricantes y soluciones tecnológicas de
+              todo el mundo mediante una combinación de experiencia humana, conocimiento técnico,
+              innovación y excelencia operativa.
             </p>
           </div>
+        </div>
 
-          <div class="value-item">
-            <div class="value-icon-box quality-icon">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                aria-hidden="true"
-              >
-                <path
-                  d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
-                ></path>
-              </svg>
-            </div>
-            <h3>Calidad</h3>
-            <p>Todos nuestros equipos cuentan con certificaciones CE, FDA e INVIMA vigentes.</p>
-          </div>
-
-          <div class="value-item">
-            <div class="value-icon-box commitment-icon">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                aria-hidden="true"
-              >
-                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path>
-              </svg>
-            </div>
-            <h3>Compromiso</h3>
-            <p>Soporte técnico especializado durante toda la vida útil de cada equipo.</p>
-          </div>
+        <div class="propuesta-block">
+          <h3 class="propuesta-title">Nuestra propuesta de valor</h3>
+          <p class="propuesta-intro">
+            I-ME trabaja para ofrecer una relación integral con cada institución:
+          </p>
+          <ul class="propuesta-list">
+            {propuesta.map(item => <li>{item}</li>)}
+          </ul>
         </div>
       </div>
     </section>
 
-    <!-- CTA: Contacto -->
-    <section
-      class="section section-cta"
-      aria-label="Contacto directo"
-      hidden
-      style="display:none!important"
-    >
-      <div class="container">
-        <div class="cta-wrapper fade-in">
-          <div class="cta-badge">Hablemos</div>
-          <h2 class="cta-title">¿Listo para trabajar con nosotros?</h2>
-          <p class="cta-subtitle">
-            Escríbanos y reciba respuesta comercial directa:
-            <a href="tel:+573137247353">+57 313 724 7353</a> ·
-            <a href="mailto:info@i-me.com.co">info@i-me.com.co</a>
+    <section class="section section-closing" aria-labelledby="largo-h2">
+      <div class="container closing-inner">
+        <h2 id="largo-h2" class="story-title">Una empresa construida para el largo plazo</h2>
+        <div class="story-body">
+          <p>
+            Queremos que nuestros clientes encuentren en I-ME algo más valioso que un proveedor.
           </p>
-          <div class="cta-buttons">
-            <a
-              href="https://wa.me/573137247353?text=Hola%2C%20me%20interesa%20conocer%20m%C3%A1s%20sobre%20I-ME"
-              target="_blank"
-              rel="noopener"
-              class="btn btn-primary"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                width="20"
-                height="20"
-                aria-hidden="true"
-              >
-                <path
-                  d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.403h-.004a9.87 9.87 0 00-9.746 9.748c0 2.718.738 5.33 2.14 7.617l-2.271 6.77c-.256.767.155 1.61.934 1.859l.06.02c.505.168 1.009-.338 1.225-.668l6.924-11.176a9.87 9.87 0 009.669-4.61c.556-1.016.902-2.189.902-3.427a9.865 9.865 0 00-9.833-9.873zm-8.67.012c0-.48.384-.866.864-.866.477 0 .862.386.862.866a.862.862 0 01-.862.862.863.863 0 01-.864-.862z"
-                ></path>
-              </svg>
-              Escribir por WhatsApp
-            </a>
-            <a href="/es/contacto" class="btn btn-secondary">Formulario de contacto</a>
-          </div>
+          <p>
+            Aspiramos a ser un aliado tecnológico capaz de comprender el proyecto completo,
+            anticipar dificultades y acompañar a cada institución desde la identificación de una
+            necesidad hasta la puesta en funcionamiento y posterior soporte de la solución.
+          </p>
+          <p>
+            Porque incorporar tecnología a una institución de salud no consiste simplemente en
+            comprar un equipo. Consiste en tomar una decisión que afectará durante años a
+            profesionales, pacientes, operaciones y recursos.
+          </p>
+          <p>Y esas decisiones merecen experiencia, conocimiento y acompañamiento.</p>
+        </div>
+        <p class="closing-brand">I-ME International Medical Enterprise</p>
+        <p class="closing-tagline">
+          Tecnología y experiencia al servicio de quienes cuidan la vida.
+        </p>
+        <div class="closing-cta">
+          <a href="/es/contacto/" class="btn btn-primary">Contáctanos</a>
         </div>
       </div>
     </section>
@@ -300,12 +388,10 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
 </Layout>
 
 <style>
-  /* ===== HERO ===== */
   .hero-nosotros {
     background: linear-gradient(135deg, var(--t900) 0%, var(--t800) 100%);
     color: var(--white);
     padding: var(--space-lg) 0 var(--space-3xl);
-    position: relative;
   }
 
   .hero-nosotros .breadcrumb {
@@ -333,7 +419,6 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
     margin: 0;
   }
 
-  /* ===== STORY SECTIONS (Periódico/Magazine) ===== */
   .story-layout {
     display: block;
   }
@@ -407,6 +492,11 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
     color: var(--t900);
   }
 
+  .story-badge-on-dark {
+    background: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.95);
+  }
+
   .story-title {
     font-family: var(--font-display);
     font-size: var(--step-4);
@@ -414,6 +504,10 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
     margin: 0 0 var(--space-lg) 0;
     line-height: 1.2;
     color: var(--ink);
+  }
+
+  .story-title-white {
+    color: var(--white);
   }
 
   .story-body p {
@@ -427,74 +521,106 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
     margin-bottom: 0;
   }
 
-  /* ===== STATS SECTION ===== */
-  .section-stats {
+  .section-team {
+    background: var(--off);
+    padding: var(--space-2xl) 0;
+  }
+
+  .team-header {
+    max-width: 820px;
+    margin-bottom: var(--space-2xl);
+  }
+
+  .team-lead {
+    font-size: var(--step-0);
+    line-height: 1.8;
+    color: var(--text-mid);
+    margin: 0 0 var(--space-md) 0;
+  }
+
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-lg);
+  }
+
+  .team-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+  }
+
+  .team-card-wide {
+    grid-column: 1 / -1;
+  }
+
+  @media (min-width: 900px) {
+    .team-card-wide {
+      grid-column: span 2;
+    }
+  }
+
+  .team-card h3 {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    font-weight: 700;
+    margin: 0 0 var(--space-xs) 0;
+    color: var(--ink);
+  }
+
+  .team-role {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--t800);
+    margin: 0 0 var(--space-md) 0;
+  }
+
+  .team-card p {
+    font-size: var(--step-0);
+    line-height: 1.75;
+    color: var(--text-mid);
+    margin: 0 0 var(--space-sm) 0;
+  }
+
+  .team-card p:last-child {
+    margin-bottom: 0;
+  }
+
+  .section-vision-combo {
     background: linear-gradient(135deg, var(--t900) 0%, var(--t800) 100%);
     color: var(--white);
     padding: var(--space-2xl) 0;
   }
 
-  .stats-header {
-    text-align: center;
-    margin-bottom: var(--space-2xl);
+  .combo-lead {
+    font-size: var(--step-0);
+    line-height: 1.8;
+    opacity: 0.95;
+    max-width: 820px;
+    margin: 0 0 var(--space-md) 0;
   }
 
-  .stats-badge {
-    display: inline-block;
-    font-family: var(--font-display);
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    background: rgba(255, 255, 255, 0.2);
-    color: rgba(255, 255, 255, 0.9);
-    padding: 0.5rem 1rem;
-    border-radius: 24px;
-    margin-bottom: var(--space-md);
+  .combo-list {
+    margin: 0 0 var(--space-lg) 0;
+    padding-left: 1.25rem;
+    max-width: 820px;
+    columns: 1;
   }
 
-  .stats-title {
-    font-family: var(--font-display);
-    font-size: var(--step-4);
-    font-weight: 700;
-    margin: 0;
-    line-height: 1.2;
-  }
-
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--space-xl);
-    max-width: 1100px;
-    margin: 0 auto;
-  }
-
-  @media (max-width: 640px) {
-    .stats-grid {
-      grid-template-columns: repeat(2, 1fr);
-      gap: var(--space-lg);
+  @media (min-width: 700px) {
+    .combo-list {
+      columns: 2;
+      column-gap: var(--space-xl);
     }
   }
 
-  .stat-card {
-    text-align: center;
-    padding: var(--space-lg);
-  }
-
-  .stat-number {
-    font-family: var(--font-display);
-    font-size: clamp(2rem, 5vw, 3.5rem);
-    font-weight: 800;
-    margin-bottom: var(--space-sm);
-  }
-
-  .stat-label {
-    font-size: var(--step-0);
+  .combo-list li {
+    break-inside: avoid;
+    margin-bottom: 0.55rem;
     line-height: 1.5;
-    opacity: 0.95;
   }
 
-  /* ===== VALUES SECTION ===== */
   .section-values {
     background: var(--off);
     padding: var(--space-2xl) 0;
@@ -530,14 +656,9 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
 
   .values-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: var(--space-lg);
-  }
-
-  @media (max-width: 640px) {
-    .values-grid {
-      grid-template-columns: 1fr;
-    }
+    margin-bottom: var(--space-2xl);
   }
 
   .value-item {
@@ -545,47 +666,6 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
     padding: var(--space-lg);
     border-radius: var(--radius-lg);
     border: 1px solid var(--border);
-    text-align: center;
-    transition: all 200ms var(--ease);
-  }
-
-  .value-item:hover {
-    border-color: var(--t700);
-    box-shadow: var(--shadow-md);
-    transform: translateY(-4px);
-  }
-
-  .value-icon-box {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 80px;
-    height: 80px;
-    margin: 0 auto var(--space-md);
-    border-radius: 50%;
-    color: var(--white);
-    font-size: 2rem;
-  }
-
-  .vision-icon {
-    background: linear-gradient(135deg, var(--t900), var(--t800));
-  }
-
-  .mission-icon {
-    background: linear-gradient(135deg, var(--blue), rgba(74, 144, 226, 0.8));
-  }
-
-  .quality-icon {
-    background: linear-gradient(135deg, var(--green), rgba(126, 217, 87, 0.8));
-  }
-
-  .commitment-icon {
-    background: linear-gradient(135deg, rgba(126, 217, 87, 0.9), var(--green));
-  }
-
-  .value-icon-box svg {
-    width: 40px;
-    height: 40px;
   }
 
   .value-item h3 {
@@ -598,75 +678,70 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
 
   .value-item p {
     font-size: var(--step-0);
-    line-height: 1.6;
+    line-height: 1.7;
     color: var(--text-mid);
     margin: 0;
   }
 
-  /* ===== CTA SECTION ===== */
-  .section-cta {
-    background: linear-gradient(135deg, var(--t900) 0%, var(--t800) 100%);
-    padding: var(--space-2xl) 0;
-    color: var(--white);
-  }
-
-  .cta-wrapper {
-    max-width: 700px;
+  .propuesta-block {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    max-width: 900px;
     margin: 0 auto;
-    text-align: center;
   }
 
-  .cta-badge {
-    display: inline-block;
+  .propuesta-title {
     font-family: var(--font-display);
-    font-size: 0.75rem;
+    font-size: var(--step-3);
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    background: rgba(255, 255, 255, 0.2);
-    color: rgba(255, 255, 255, 0.9);
-    padding: 0.5rem 1rem;
-    border-radius: 24px;
-    margin-bottom: var(--space-md);
+    margin: 0 0 var(--space-sm) 0;
+    color: var(--ink);
   }
 
-  .cta-title {
-    font-family: var(--font-display);
-    font-size: var(--step-4);
-    font-weight: 700;
+  .propuesta-intro {
+    color: var(--text-mid);
     margin: 0 0 var(--space-md) 0;
-    line-height: 1.2;
+    line-height: 1.7;
   }
 
-  .cta-subtitle {
-    font-size: var(--step-1);
+  .propuesta-list {
+    margin: 0;
+    padding-left: 1.25rem;
+  }
+
+  .propuesta-list li {
+    margin-bottom: 0.55rem;
     line-height: 1.6;
-    opacity: 0.95;
-    margin-bottom: var(--space-lg);
+    color: var(--text-mid);
   }
 
-  .cta-subtitle a {
-    color: inherit;
-    text-decoration: underline;
-    transition: opacity 200ms var(--ease);
+  .section-closing {
+    padding: var(--space-2xl) 0 var(--space-3xl);
   }
 
-  .cta-subtitle a:hover {
-    opacity: 0.8;
+  .closing-inner {
+    max-width: 760px;
   }
 
-  .cta-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-md);
-    justify-content: center;
+  .closing-brand {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--step-2);
+    color: var(--ink);
+    margin: var(--space-xl) 0 var(--space-sm) 0;
   }
 
-  @media (min-width: 640px) {
-    .cta-buttons {
-      flex-direction: row;
-      flex-wrap: wrap;
-    }
+  .closing-tagline {
+    font-size: var(--step-1);
+    color: var(--text-mid);
+    font-style: italic;
+    margin: 0 0 var(--space-lg) 0;
+  }
+
+  .closing-cta {
+    margin-top: var(--space-md);
   }
 
   .btn {
@@ -681,109 +756,16 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
     text-decoration: none;
     border-radius: var(--radius);
     transition: all 200ms var(--ease);
-    cursor: pointer;
     border: none;
   }
 
   .btn-primary {
-    background: var(--green);
-    color: var(--ink);
+    background: var(--t900);
+    color: var(--white);
   }
 
   .btn-primary:hover {
-    background: rgba(126, 217, 87, 0.9);
+    background: var(--t800);
     transform: translateY(-2px);
   }
-
-  .btn-secondary {
-    background: transparent;
-    color: var(--white);
-    border: 2px solid var(--white);
-  }
-
-  .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  /* ===== FADE IN ANIMATION ===== */
-  .fade-in {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  .fade-in.visible {
-    opacity: 1;
-    transform: translateY(0);
-    transition:
-      opacity 600ms var(--ease),
-      transform 600ms var(--ease);
-  }
-
-  .fade-in.d1.visible {
-    transition-delay: 100ms;
-  }
-  .fade-in.d2.visible {
-    transition-delay: 200ms;
-  }
-  .fade-in.d3.visible {
-    transition-delay: 300ms;
-  }
 </style>
-
-<script>
-  function initNosotros() {
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const faders = document.querySelectorAll<HTMLElement>(
-      '.site-faithful .fade-in:not([data-ime-bound])'
-    );
-    faders.forEach(el => (el.dataset.imeBound = '1'));
-    if (reduce || !('IntersectionObserver' in window)) {
-      faders.forEach(el => el.classList.add('visible'));
-      return;
-    }
-    const io = new IntersectionObserver(
-      entries => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            io.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
-    );
-    faders.forEach(el => io.observe(el));
-  }
-
-  initNosotros();
-  document.addEventListener('astro:page-load', initNosotros);
-</script>
-
-<script>
-  function initNosotros() {
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const faders = document.querySelectorAll<HTMLElement>(
-      '.site-faithful .fade-in:not([data-ime-bound])'
-    );
-    faders.forEach(el => (el.dataset.imeBound = '1'));
-    if (reduce || !('IntersectionObserver' in window)) {
-      faders.forEach(el => el.classList.add('visible'));
-      return;
-    }
-    const io = new IntersectionObserver(
-      entries => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            io.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
-    );
-    faders.forEach(el => io.observe(el));
-  }
-
-  initNosotros();
-  document.addEventListener('astro:page-load', initNosotros);
-</script>

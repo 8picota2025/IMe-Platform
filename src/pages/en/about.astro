@@ -10,19 +10,44 @@ import {
 import '../../styles/site-faithful.css';
 
 const locale = 'en';
-const title = buildPageTitle('About');
+const title = buildPageTitle('About us');
 const description =
-  'Discover the story of I-ME International Medical Enterprise: over 15 years in healthcare, 24+ international brands and a portfolio of more than 427 products.';
+  'I-ME International Medical Enterprise: biomedical technology, multidisciplinary experience, and end-to-end support for healthcare institutions in Colombia.';
 const canonical = buildCanonical('/en/about');
 
 const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
   '@context': 'https://schema.org',
   '@type': 'AboutPage',
   url: canonical,
-  name: 'About | I-ME',
+  name: 'About us | I-ME',
   about: { '@id': 'https://i-me.com.co/#organization' },
   inLanguage: 'en',
 });
+
+const perspectives = [
+  'clinical and hospital needs',
+  'available technology',
+  'technical feasibility',
+  'required infrastructure',
+  'procurement and import options',
+  'logistics and distribution',
+  'economic and financial viability',
+  'contractual and regulatory framework',
+  'the people needed to make it happen',
+];
+
+const valueProp = [
+  'Selection and distribution of biomedical technology.',
+  'Identification of international manufacturers and solutions.',
+  'Specialized technical advice before acquisition.',
+  'Support for hospital and technology projects.',
+  'Import, logistics, and distribution.',
+  'Installation and commissioning.',
+  'Training and user support.',
+  'Technical support and maintenance throughout the equipment lifecycle.',
+  'Evaluation of economic and commercial alternatives.',
+  'Use of technology and artificial intelligence to progressively improve our advisory and service processes.',
+];
 ---
 
 <Layout
@@ -35,164 +60,314 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
   jsonLd={jsonLd}
 >
   <div class="site-faithful">
-    <header class="page-hero" aria-labelledby="about-h1">
+    <header class="hero-nosotros" aria-labelledby="about-h1">
       <div class="container">
         <nav class="breadcrumb" aria-label="Breadcrumb">
-          <a href="/en/">Home</a><span class="sep">/</span><span aria-current="page">About</span>
+          <a href="/en/">Home</a><span class="sep">/</span><span aria-current="page">About us</span>
         </nav>
-        <h1 id="about-h1">Our story</h1>
-        <p class="ph-sub">
-          From large construction projects in Central America to becoming a trusted partner of the
-          healthcare sector, with over 15 years representing international medical equipment
-          manufacturers.
-        </p>
+        <div class="hero-content">
+          <h1 id="about-h1" class="hero-title">About us</h1>
+          <p class="hero-subtitle">
+            Technology, experience, and execution capacity in service of healthcare
+          </p>
+        </div>
       </div>
     </header>
 
-    <!-- Story: origin -->
-    <section class="section" aria-labelledby="historia-h2">
+    <section class="section section-origin" aria-labelledby="intro-h2">
       <div class="container">
-        <div class="about-grid">
-          <div class="about-imgs fade-in">
-            <div class="about-img-main">
-              <img
-                src="/assets/img/proyectos-inicio-a-fin-biomedicos.webp"
-                alt="Biomedical projects from start to finish - I-ME healthcare construction"
-                width="1400"
-                height="787"
-                loading="eager"
-                decoding="async"
-              />
-            </div>
-          </div>
-          <div class="about-text fade-in d2">
-            <div class="s-label">The origin</div>
-            <h2 id="historia-h2" class="s-title">A story that began inside a hospital</h2>
-            <p>
-              I-ME was born from the vision and experience of a group of entrepreneurs with a solid
-              track record in international business, who for more than 20 years successfully led
-              major construction companies in Central America, taking part in high-impact projects
-              for the region.
-            </p>
-            <p>
-              Our bond with the healthcare sector began precisely with the renovation of a hospital.
-              Thanks to the excellence of that project, the investment fund that owned the hospital
-              entrusted our team with the management of the institution: an experience that gave us
-              deep knowledge of the hospital environment and built trusted relationships with
-              renowned international medical equipment manufacturers.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Story: growth -->
-    <section class="section section-off" aria-labelledby="crecimiento-h2">
-      <div class="container">
-        <div class="about-grid about-grid--reverse">
-          <div class="about-imgs fade-in">
-            <div class="about-img-main">
-              <img
-                src="/assets/img/atendemos-cadena-valor-distribucion.webp"
-                alt="We service the entire value chain - Biomedical equipment distribution Colombia"
-                width="1200"
-                height="800"
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-          </div>
-          <div class="about-text fade-in d2">
-            <div class="s-label">The growth</div>
-            <h2 id="crecimiento-h2" class="s-title">
-              From the trust of global manufacturers to a worldwide portfolio
+        <div class="story-layout">
+          <div class="story-text">
+            <div class="story-badge">I-ME</div>
+            <h2 id="intro-h2" class="story-title">
+              Biomedical technology and solutions for healthcare institutions
             </h2>
-            <p>
-              As a result of that commitment, professionalism and business ethics, several parent
-              companies granted us the representation and distribution of their brands, giving rise
-              to the growth of our company.
-            </p>
-            <p>
-              Today we have more than 15 years of experience in the healthcare sector, representing
-              over 24 international brands from Europe, the United States and Asia — from countries
-              such as Germany, Italy, the United Kingdom, Japan, South Korea, China, Hong Kong and
-              Hungary, among others — with a portfolio of more than 427 products backed by the
-              highest standards of quality and service.
-            </p>
-            <p>
-              We believe true success is built through solid, long-lasting relationships with our
-              strategic partners. That trust, together with our commitment to innovation, continuous
-              training and excellence, has allowed us to consolidate ourselves as a reliable ally
-              for the healthcare sector and to keep growing with a long-term vision.
-            </p>
+            <div class="story-image">
+              <div class="image-wrapper">
+                <img
+                  src="/assets/img/proyectos-inicio-a-fin-biomedicos.webp"
+                  alt="Biomedical projects from start to finish — I-ME"
+                  width="1400"
+                  height="787"
+                  loading="eager"
+                  decoding="async"
+                />
+              </div>
+            </div>
+            <div class="story-body">
+              <p>
+                I-ME International Medical Enterprise is a Colombian company specialized in
+                biomedical technology and solutions for healthcare institutions.
+              </p>
+              <p>
+                Our work goes beyond equipment distribution. We help hospitals, clinics, medical
+                centers, and healthcare professionals identify, evaluate, and implement technology
+                solutions suited to their clinical, technical, operational, and financial needs.
+              </p>
+              <p>
+                Distribution, import, engineering, technology, hospital management, and business
+                development converge in one project: making quality medical technology more
+                accessible and supporting our clients throughout the full equipment lifecycle.
+              </p>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Figures -->
-    <section class="section section-teal" aria-labelledby="cifras-h2">
+    <section class="section section-growth" aria-labelledby="mas-h2">
       <div class="container">
-        <div class="s-header s-header-center fade-in">
-          <div class="s-label s-label-white">I-ME in numbers</div>
-          <h2 id="cifras-h2" class="s-title s-title-white">
-            A consolidated partner for the healthcare sector
+        <div class="story-layout story-layout-reverse">
+          <div class="story-text">
+            <div class="story-badge story-badge-green">Approach</div>
+            <h2 id="mas-h2" class="story-title">More than biomedical equipment</h2>
+            <div class="story-image">
+              <div class="image-wrapper">
+                <img
+                  src="/assets/img/atendemos-cadena-valor-distribucion.webp"
+                  alt="Value chain in biomedical equipment distribution — I-ME"
+                  width="1200"
+                  height="800"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+            </div>
+            <div class="story-body">
+              <p>
+                We understand that a technology decision in healthcare is never only about choosing
+                a device.
+              </p>
+              <p>
+                Behind every project there are clinical needs, infrastructure, financing,
+                regulation, logistics, installation, training, maintenance, and support. That is why
+                I-ME approaches every opportunity from an integrated perspective.
+              </p>
+              <p>
+                Our goal is to become a long-term technology partner for healthcare institutions,
+                combining market knowledge, technical capability, business experience, and a growing
+                digital infrastructure.
+              </p>
+              <p>
+                This vision is grounded especially in the multidisciplinary experience of our
+                leadership and management team.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-team" aria-labelledby="equipo-h2">
+      <div class="container">
+        <div class="team-header">
+          <div class="story-badge">Leadership</div>
+          <h2 id="equipo-h2" class="story-title">
+            A leadership team experienced in complex project execution
           </h2>
+          <p class="team-lead">
+            One of I-ME’s main strengths is bringing together professional profiles from different
+            yet deeply complementary disciplines. Company leadership integrates experience in
+            hospital construction and management, computer engineering and telecommunications,
+            import and distribution, commercial development, psychology and talent management,
+            finance, accounting, and law.
+          </p>
+          <p class="team-lead">
+            This combination allows us to analyze every project from multiple perspectives before
+            turning it into a solution.
+          </p>
         </div>
-        <div class="cobertura-stats fade-in d2">
-          <div class="cobertura-stat">
-            <div class="stat-n">15+</div>
-            <div class="stat-l">Years in healthcare</div>
-          </div>
-          <div class="cobertura-stat">
-            <div class="stat-n">24+</div>
-            <div class="stat-l">International brands</div>
-          </div>
-          <div class="cobertura-stat">
-            <div class="stat-n">427+</div>
-            <div class="stat-l">Products in portfolio</div>
-          </div>
-          <div class="cobertura-stat">
-            <div class="stat-n">32</div>
-            <div class="stat-l">Departments covered</div>
-          </div>
+
+        <div class="team-grid">
+          <article class="team-card">
+            <h3>General Management</h3>
+            <p class="team-role">Business experience, construction, and hospital management</p>
+            <p>
+              I-ME’s General Management is led by an entrepreneur with more than 25 years of
+              professional experience, particularly linked to construction, project development, and
+              hospital management.
+            </p>
+            <p>
+              This background gives the company an understanding that goes beyond medical equipment
+              itself: it enables us to see how infrastructure, technology, operations, economic
+              resources, and care needs interact inside a healthcare institution.
+            </p>
+            <p>
+              That global view is especially relevant in hospital projects where a technically
+              excellent solution only creates value when it can be correctly integrated into the
+              institution’s operational reality.
+            </p>
+          </article>
+
+          <article class="team-card">
+            <h3>Technology Management</h3>
+            <p class="team-role">Engineering applied to real business problems</p>
+            <p>
+              Technology Management is headed by a computer engineer with an extensive professional
+              track record in telecommunications, systems, innovation, and technology consulting.
+            </p>
+            <p>
+              Throughout his career he has taken part in launching hundreds of initiatives and
+              solving thousands of business challenges through the practical application of advanced
+              technologies.
+            </p>
+            <p>
+              His involvement in the I-ME project brings that experience into the biomedical sector
+              and helps build a company where technology is not only an internal tool, but a
+              strategic capability.
+            </p>
+            <p>
+              Automation, artificial intelligence, systems integration, knowledge management,
+              information analysis, and digital platform development are part of a strategy designed
+              so I-ME can respond faster, more accurately, and more efficiently to client needs.
+            </p>
+          </article>
+
+          <article class="team-card">
+            <h3>Commercial Management</h3>
+            <p class="team-role">Nationwide experience in import, distribution, and execution</p>
+            <p>
+              Commercial Management contributes a broad track record as an importer and distributor
+              of industrial and technology equipment, as well as experience developing and executing
+              large-scale projects across different regions of Colombia.
+            </p>
+            <p>
+              This knowledge is essential to understanding Colombia’s market reality: suppliers,
+              international negotiation, import, logistics, territorial distribution, commercial
+              structuring, and effective project execution.
+            </p>
+            <p>
+              Our commercial capability is therefore not limited to selling technology. It is aimed
+              at ensuring solutions can actually reach the institutions that need them.
+            </p>
+          </article>
+
+          <article class="team-card">
+            <h3>Human Resources Management</h3>
+            <p class="team-role">People as part of the strategy</p>
+            <p>
+              Our Human Resources Management is led by a psychologist with extensive experience in
+              talent management, personal development, and psychological support.
+            </p>
+            <p>
+              Her professional background combines building and consolidating teams with a deep
+              vocation for people development, which she continues in parallel through her
+              psychology practice and support in especially complex personal situations.
+            </p>
+            <p>
+              This perspective brings I-ME a particularly important dimension: behind any
+              organization, technology, or project there are always people. Building a company able
+              to grow sustainably requires selecting talent, developing capabilities, consolidating
+              teams, and creating a culture based on responsibility, learning, and commitment.
+            </p>
+          </article>
+
+          <article class="team-card team-card-wide">
+            <h3>Finance and Legal Management</h3>
+            <p class="team-role">Rigor for high-complexity projects</p>
+            <p>
+              Financial and legal responsibility is led by a professional trained as a lawyer and
+              public accountant, with extensive experience in the financial, accounting, legal, and
+              business management of high-volume, high-complexity organizations and operations.
+            </p>
+            <p>
+              This dual training gives I-ME a particularly valuable perspective for structuring
+              commercial operations, managing risk, maintaining financial rigor, and properly
+              addressing the legal, contractual, tax, and corporate obligations inherent to company
+              growth.
+            </p>
+            <p>
+              In a regulated sector and in projects that may involve imports, financing,
+              contracting, guarantees, and multiple stakeholders, this capability is an essential
+              component of our corporate structure.
+            </p>
+          </article>
         </div>
       </div>
     </section>
 
-    <!-- Vision, mission and values -->
-    <section class="section" aria-labelledby="valores-h2">
+    <section class="section section-vision-combo" aria-labelledby="vision-combo-h2">
       <div class="container">
-        <div class="s-header s-header-center fade-in">
-          <div class="s-label">What guides us</div>
-          <h2 id="valores-h2" class="s-title">Vision, mission and commitment</h2>
+        <div class="story-badge story-badge-on-dark">Perspective</div>
+        <h2 id="vision-combo-h2" class="story-title story-title-white">
+          Different experiences. One shared vision.
+        </h2>
+        <p class="combo-lead">
+          I-ME’s strength does not rest only on the individual experience of each leader, but on the
+          combination of all these capabilities inside one organization. When we study a project, we
+          can analyze simultaneously:
+        </p>
+        <ul class="combo-list">
+          {perspectives.map(item => <li>{item}</li>)}
+        </ul>
+        <p class="combo-lead">
+          This multidisciplinary perspective lets us take on projects that require far more than
+          finding a product in a catalog.
+        </p>
+      </div>
+    </section>
+
+    <section class="section section-values" aria-labelledby="valores-h2">
+      <div class="container">
+        <div class="values-header">
+          <div class="values-badge">What guides us</div>
+          <h2 id="valores-h2" class="values-title">Mission, vision, and value proposition</h2>
         </div>
         <div class="values-grid">
-          <div class="val-card fade-in">
-            <div class="val-icon"><i class="fas fa-eye" aria-hidden="true"></i></div>
-            <h3>Vision</h3>
+          <div class="value-item">
+            <h3>Our mission</h3>
             <p>
-              To be Colombia's leading company in the distribution of cutting-edge biomedical
-              technology.
+              To help healthcare institutions access quality biomedical technology through solutions
+              that are technically appropriate, economically viable, and supported throughout their
+              full lifecycle.
             </p>
           </div>
-          <div class="val-card fade-in d1">
-            <div class="val-icon"><i class="fas fa-bullseye" aria-hidden="true"></i></div>
-            <h3>Mission</h3>
+          <div class="value-item">
+            <h3>Our vision</h3>
             <p>
-              To equip healthcare institutions with certified technology that improves patient care.
+              To build a Colombian reference company in biomedical technology, able to connect
+              healthcare institutions with manufacturers and technology solutions worldwide through
+              a combination of human experience, technical knowledge, innovation, and operational
+              excellence.
             </p>
           </div>
-          <div class="val-card fade-in d2">
-            <div class="val-icon"><i class="fas fa-award" aria-hidden="true"></i></div>
-            <h3>Quality</h3>
-            <p>All our equipment carries valid CE, FDA and INVIMA certifications.</p>
-          </div>
-          <div class="val-card fade-in d3">
-            <div class="val-icon"><i class="fas fa-handshake" aria-hidden="true"></i></div>
-            <h3>Commitment</h3>
-            <p>Specialized technical support throughout the entire life of each device.</p>
-          </div>
+        </div>
+
+        <div class="propuesta-block">
+          <h3 class="propuesta-title">Our value proposition</h3>
+          <p class="propuesta-intro">
+            I-ME works to offer an integrated relationship with every institution:
+          </p>
+          <ul class="propuesta-list">
+            {valueProp.map(item => <li>{item}</li>)}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-closing" aria-labelledby="largo-h2">
+      <div class="container closing-inner">
+        <h2 id="largo-h2" class="story-title">A company built for the long term</h2>
+        <div class="story-body">
+          <p>We want our clients to find in I-ME something more valuable than a supplier.</p>
+          <p>
+            We aspire to be a technology ally able to understand the full project, anticipate
+            difficulties, and accompany each institution from need identification through
+            commissioning and ongoing support of the solution.
+          </p>
+          <p>
+            Because bringing technology into a healthcare institution is not simply buying a device.
+            It is making a decision that will affect professionals, patients, operations, and
+            resources for years.
+          </p>
+          <p>And those decisions deserve experience, knowledge, and accompaniment.</p>
+        </div>
+        <p class="closing-brand">I-ME International Medical Enterprise</p>
+        <p class="closing-tagline">
+          Technology and experience in service of those who care for life.
+        </p>
+        <div class="closing-cta">
+          <a href="/en/contact/" class="btn btn-primary">Contact us</a>
         </div>
       </div>
     </section>
@@ -200,82 +375,384 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
 </Layout>
 
 <style>
-  /* Press-style layout: image floats next to the text instead of the
-     previous 2-column grid (which used a direction:rtl hack to
-     alternate). Scoped to this page: does not affect #quienes-somos on
-     index.astro, which reuses .about-grid with a different design
-     (background image + glass card). */
-  .site-faithful .about-grid {
+  .hero-nosotros {
+    background: linear-gradient(135deg, var(--t900) 0%, var(--t800) 100%);
+    color: var(--white);
+    padding: var(--space-lg) 0 var(--space-3xl);
+  }
+
+  .hero-nosotros .breadcrumb {
+    font-size: 0.875rem;
+    margin-bottom: var(--space-lg);
+    opacity: 0.85;
+  }
+
+  .hero-content {
+    max-width: 800px;
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: var(--step-5);
+    font-weight: 700;
+    margin: 0 0 var(--space-md) 0;
+    line-height: 1.1;
+  }
+
+  .hero-subtitle {
+    font-size: var(--step-1);
+    line-height: 1.7;
+    opacity: 0.95;
+    margin: 0;
+  }
+
+  .story-layout {
     display: block;
   }
 
-  .site-faithful .about-imgs {
+  .story-text {
+    display: flow-root;
+  }
+
+  .story-image {
+    float: right;
     width: 100%;
-    margin: 0 0 24px;
+    margin-bottom: var(--space-lg);
   }
 
-  @media (min-width: 700px) {
-    .site-faithful .about-imgs {
-      float: right;
+  @media (min-width: 768px) {
+    .story-image {
       width: 380px;
-      margin: 4px 0 20px 32px;
-    }
-
-    .site-faithful .about-grid--reverse .about-imgs {
-      float: left;
-      margin: 4px 32px 20px 0;
+      margin-left: var(--space-lg);
+      margin-bottom: var(--space-md);
     }
   }
 
-  .site-faithful .about-img-main {
-    height: auto;
+  .story-layout-reverse .story-image {
+    float: left;
+    margin-left: 0;
+    margin-right: var(--space-lg);
+  }
+
+  @media (max-width: 767px) {
+    .story-layout-reverse .story-image {
+      margin-right: 0;
+    }
+  }
+
+  .image-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
     aspect-ratio: 16 / 10;
+    box-shadow: var(--shadow-md);
   }
 
-  @media (min-width: 700px) {
-    .site-faithful .about-img-main {
+  @media (max-width: 767px) {
+    .image-wrapper {
       aspect-ratio: 4 / 3;
     }
   }
 
-  .site-faithful .cobertura-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 24px;
-    max-width: 900px;
-    margin: 48px auto 0;
-    text-align: center;
+  .image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
-  .site-faithful .cobertura-stat .stat-n {
-    font-size: 2.6rem;
+
+  .story-badge {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--t900);
+    margin-bottom: var(--space-md);
+    padding: 0.5rem 1rem;
+    background: var(--t50);
+    border-radius: 24px;
+  }
+
+  .story-badge-green {
+    background: rgba(126, 217, 87, 0.15);
+    color: var(--t900);
+  }
+
+  .story-badge-on-dark {
+    background: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.95);
+  }
+
+  .story-title {
+    font-family: var(--font-display);
+    font-size: var(--step-4);
+    font-weight: 700;
+    margin: 0 0 var(--space-lg) 0;
+    line-height: 1.2;
+    color: var(--ink);
+  }
+
+  .story-title-white {
+    color: var(--white);
+  }
+
+  .story-body p {
+    font-size: var(--step-0);
+    line-height: 1.8;
+    color: var(--text-mid);
+    margin-bottom: var(--space-md);
+  }
+
+  .story-body p:last-child {
+    margin-bottom: 0;
+  }
+
+  .section-team {
+    background: var(--off);
+    padding: var(--space-2xl) 0;
+  }
+
+  .team-header {
+    max-width: 820px;
+    margin-bottom: var(--space-2xl);
+  }
+
+  .team-lead {
+    font-size: var(--step-0);
+    line-height: 1.8;
+    color: var(--text-mid);
+    margin: 0 0 var(--space-md) 0;
+  }
+
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-lg);
+  }
+
+  .team-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+  }
+
+  .team-card-wide {
+    grid-column: 1 / -1;
+  }
+
+  @media (min-width: 900px) {
+    .team-card-wide {
+      grid-column: span 2;
+    }
+  }
+
+  .team-card h3 {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    font-weight: 700;
+    margin: 0 0 var(--space-xs) 0;
+    color: var(--ink);
+  }
+
+  .team-role {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--t800);
+    margin: 0 0 var(--space-md) 0;
+  }
+
+  .team-card p {
+    font-size: var(--step-0);
+    line-height: 1.75;
+    color: var(--text-mid);
+    margin: 0 0 var(--space-sm) 0;
+  }
+
+  .team-card p:last-child {
+    margin-bottom: 0;
+  }
+
+  .section-vision-combo {
+    background: linear-gradient(135deg, var(--t900) 0%, var(--t800) 100%);
+    color: var(--white);
+    padding: var(--space-2xl) 0;
+  }
+
+  .combo-lead {
+    font-size: var(--step-0);
+    line-height: 1.8;
+    opacity: 0.95;
+    max-width: 820px;
+    margin: 0 0 var(--space-md) 0;
+  }
+
+  .combo-list {
+    margin: 0 0 var(--space-lg) 0;
+    padding-left: 1.25rem;
+    max-width: 820px;
+    columns: 1;
+  }
+
+  @media (min-width: 700px) {
+    .combo-list {
+      columns: 2;
+      column-gap: var(--space-xl);
+    }
+  }
+
+  .combo-list li {
+    break-inside: avoid;
+    margin-bottom: 0.55rem;
+    line-height: 1.5;
+  }
+
+  .section-values {
+    background: var(--off);
+    padding: var(--space-2xl) 0;
+  }
+
+  .values-header {
+    text-align: center;
+    margin-bottom: var(--space-2xl);
+  }
+
+  .values-badge {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--t900);
+    background: var(--t50);
+    padding: 0.5rem 1rem;
+    border-radius: 24px;
+    margin-bottom: var(--space-md);
+  }
+
+  .values-title {
+    font-family: var(--font-display);
+    font-size: var(--step-4);
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.2;
+    color: var(--ink);
+  }
+
+  .values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-lg);
+    margin-bottom: var(--space-2xl);
+  }
+
+  .value-item {
+    background: var(--white);
+    padding: var(--space-lg);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+  }
+
+  .value-item h3 {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    font-weight: 600;
+    margin: 0 0 var(--space-sm) 0;
+    color: var(--ink);
+  }
+
+  .value-item p {
+    font-size: var(--step-0);
+    line-height: 1.7;
+    color: var(--text-mid);
+    margin: 0;
+  }
+
+  .propuesta-block {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .propuesta-title {
+    font-family: var(--font-display);
+    font-size: var(--step-3);
+    font-weight: 700;
+    margin: 0 0 var(--space-sm) 0;
+    color: var(--ink);
+  }
+
+  .propuesta-intro {
+    color: var(--text-mid);
+    margin: 0 0 var(--space-md) 0;
+    line-height: 1.7;
+  }
+
+  .propuesta-list {
+    margin: 0;
+    padding-left: 1.25rem;
+  }
+
+  .propuesta-list li {
+    margin-bottom: 0.55rem;
+    line-height: 1.6;
+    color: var(--text-mid);
+  }
+
+  .section-closing {
+    padding: var(--space-2xl) 0 var(--space-3xl);
+  }
+
+  .closing-inner {
+    max-width: 760px;
+  }
+
+  .closing-brand {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--step-2);
+    color: var(--ink);
+    margin: var(--space-xl) 0 var(--space-sm) 0;
+  }
+
+  .closing-tagline {
+    font-size: var(--step-1);
+    color: var(--text-mid);
+    font-style: italic;
+    margin: 0 0 var(--space-lg) 0;
+  }
+
+  .closing-cta {
+    margin-top: var(--space-md);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.875rem 2rem;
+    font-family: var(--font-display);
+    font-size: var(--step-0);
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: var(--radius);
+    transition: all 200ms var(--ease);
+    border: none;
+  }
+
+  .btn-primary {
+    background: var(--t900);
+    color: var(--white);
+  }
+
+  .btn-primary:hover {
+    background: var(--t800);
+    transform: translateY(-2px);
   }
 </style>
-
-<script>
-  function initAbout() {
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const faders = document.querySelectorAll<HTMLElement>(
-      '.site-faithful .fade-in:not([data-ime-bound])'
-    );
-    faders.forEach(el => (el.dataset.imeBound = '1'));
-    if (reduce || !('IntersectionObserver' in window)) {
-      faders.forEach(el => el.classList.add('visible'));
-      return;
-    }
-    const io = new IntersectionObserver(
-      entries => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            io.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
-    );
-    faders.forEach(el => io.observe(el));
-  }
-
-  initAbout();
-  document.addEventListener('astro:page-load', initAbout);
-</script>
