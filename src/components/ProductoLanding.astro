@@ -234,14 +234,12 @@ heroStats.push({
               <button
                 type="button"
                 class="btn-hero-secondary"
-                data-quote-request-trigger
-                data-product-name={producto.nombre}
-                data-product-model={modelo ?? ''}
-                data-product-brand={producto.marca ?? ''}
-                data-product-url={productUrl}
-                data-family-slug={familia.slug}
-                data-product-slug={producto.slug}
-                data-product-summary={producto.descripcion_corta}
+                data-ensure-cotizacion={producto.slug}
+                data-nombre={producto.nombre}
+                data-imagen={imagenProducto}
+                data-url={productUrl}
+                data-modelo={modelo ?? ''}
+                data-marca={producto.marca ?? ''}
               >
                 {t(locale, 'producto.cotizar_cta')}
               </button>
@@ -568,14 +566,12 @@ heroStats.push({
             <button
               type="button"
               class="btn-hero-primary"
-              data-quote-request-trigger
-              data-product-name={producto.nombre}
-              data-product-model={modelo ?? ''}
-              data-product-brand={producto.marca ?? ''}
-              data-product-url={productUrl}
-              data-family-slug={familia.slug}
-              data-product-slug={producto.slug}
-              data-product-summary={producto.descripcion_corta}
+              data-ensure-cotizacion={producto.slug}
+              data-nombre={producto.nombre}
+              data-imagen={imagenProducto}
+              data-url={productUrl}
+              data-modelo={modelo ?? ''}
+              data-marca={producto.marca ?? ''}
             >
               {t(locale, 'producto.cotizar_cta')}
             </button>
@@ -611,14 +607,12 @@ heroStats.push({
       <button
         type="button"
         class="btn btn-primary"
-        data-quote-request-trigger
-        data-product-name={producto.nombre}
-        data-product-model={modelo ?? ''}
-        data-product-brand={producto.marca ?? ''}
-        data-product-url={productUrl}
-        data-family-slug={familia.slug}
-        data-product-slug={producto.slug}
-        data-product-summary={producto.descripcion_corta}
+        data-ensure-cotizacion={producto.slug}
+        data-nombre={producto.nombre}
+        data-imagen={imagenProducto}
+        data-url={productUrl}
+        data-modelo={modelo ?? ''}
+        data-marca={producto.marca ?? ''}
       >
         {t(locale, 'producto.cotizar_cta')}
       </button>
@@ -1333,17 +1327,33 @@ heroStats.push({
     }, 1800);
   };
 
+  const readCotizacionItem = (btn: HTMLButtonElement) => {
+    const slug = btn.dataset['addCotizacion'] ?? btn.dataset['ensureCotizacion'];
+    const nombre = btn.dataset['nombre'];
+    const imagen = btn.dataset['imagen'];
+    const url = btn.dataset['url'];
+    const modelo = btn.dataset['modelo'];
+    const marca = btn.dataset['marca'];
+    if (!slug || !nombre || !imagen) return null;
+    return { slug, nombre, imagen, url, modelo, marca };
+  };
+
   addCotizacionBtn?.addEventListener('click', () => {
-    const slug = addCotizacionBtn.dataset['addCotizacion'];
-    const nombre = addCotizacionBtn.dataset['nombre'];
-    const imagen = addCotizacionBtn.dataset['imagen'];
-    const url = addCotizacionBtn.dataset['url'];
-    const modelo = addCotizacionBtn.dataset['modelo'];
-    const marca = addCotizacionBtn.dataset['marca'];
-    if (!slug || !nombre || !imagen) return;
+    const item = readCotizacionItem(addCotizacionBtn);
+    if (!item) return;
     void import('../lib/cotizacion-equipos').then(({ agregarACotizacion }) => {
-      agregarACotizacion({ slug, nombre, imagen, url, modelo, marca });
+      agregarACotizacion(item);
       confirmarAdd(addCotizacionBtn);
+    });
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('[data-ensure-cotizacion]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = readCotizacionItem(btn);
+      if (!item) return;
+      void import('../lib/cotizacion-equipos').then(({ asegurarProductoEnCotizacion }) => {
+        asegurarProductoEnCotizacion(item);
+      });
     });
   });
 

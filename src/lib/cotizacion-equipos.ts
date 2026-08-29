@@ -71,6 +71,21 @@ export function agregarACotizacion(
   return actualizados;
 }
 
+/**
+ * Asegura producto en lista y abre drawer de envío compuesto.
+ * No incrementa cantidad si ya estaba (CTA «Solicitar cotización»).
+ */
+export function asegurarProductoEnCotizacion(
+  item: Omit<CotizacionItem, 'cantidad'>
+): CotizacionItem[] {
+  const items = leer();
+  if (items.some(i => i.slug === item.slug)) {
+    abrirCotizacion();
+    return items;
+  }
+  return agregarACotizacion(item);
+}
+
 export function actualizarCantidadCotizacion(slug: string, cantidad: number): CotizacionItem[] {
   let items = leer();
   if (cantidad <= 0) {

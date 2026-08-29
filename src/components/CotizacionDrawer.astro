@@ -569,6 +569,7 @@ const config = {
       (
         window as Window & { __imeSetCotizacionExpanded?: (v: boolean) => void }
       ).__imeSetCotizacionExpanded?.(true);
+      document.querySelector('[data-mobile-quote-trigger]')?.setAttribute('aria-expanded', 'true');
       void abrirDrawer(drawer, backdrop);
       const firstFocusable = drawer.querySelector<HTMLElement>(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -585,6 +586,9 @@ const config = {
         (
           window as Window & { __imeSetCotizacionExpanded?: (v: boolean) => void }
         ).__imeSetCotizacionExpanded?.(false);
+        document
+          .querySelector('[data-mobile-quote-trigger]')
+          ?.setAttribute('aria-expanded', 'false');
       });
     }
 

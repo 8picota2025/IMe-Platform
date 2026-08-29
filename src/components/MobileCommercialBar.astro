@@ -48,7 +48,8 @@ const quoteLabel = isEn ? 'Quote' : 'Cotización';
     data-mobile-quote-trigger
     data-label={quoteLabel}
     aria-haspopup="dialog"
-    aria-controls="quote-request-modal"
+    aria-controls="cotizacion-drawer"
+    aria-expanded="false"
   >
     <svg
       viewBox="0 0 24 24"
@@ -181,9 +182,9 @@ const quoteLabel = isEn ? 'Quote' : 'Cotización';
     trigger?.addEventListener(
       'click',
       () => {
-        const win = window as Window & { __imeOpenQuoteRequest?: () => void };
-        if (win.__imeOpenQuoteRequest) win.__imeOpenQuoteRequest();
-        else document.dispatchEvent(new CustomEvent('ime:quote-request:open'));
+        void import('../lib/cotizacion-equipos').then(({ abrirCotizacion }) => {
+          abrirCotizacion();
+        });
       },
       { signal: mobileCommercialAbort.signal }
     );

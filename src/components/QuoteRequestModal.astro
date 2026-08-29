@@ -267,9 +267,6 @@ const privacyHref = isEn ? '/en/legal/privacy/' : '/es/legal/privacidad/';
     const need = form.querySelector<HTMLTextAreaElement>('[name="necesidad"]');
     const setExpanded = (expanded: boolean) => {
       document
-        .getElementById('nav-cotizacion-btn')
-        ?.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-      document
         .querySelector('[data-mobile-quote-trigger]')
         ?.setAttribute('aria-expanded', expanded ? 'true' : 'false');
     };

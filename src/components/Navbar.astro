@@ -145,14 +145,14 @@ const altHref = getLocalizedPath(currentPath, altLocale);
         </svg>
       </button>
 
-      <!-- Solicitud de cotización -->
+      <!-- Lista de cotización (productos añadidos → envío compuesto) -->
       <button
         id="nav-cotizacion-btn"
         class="navbar__icon-btn navbar__cart-btn"
         aria-label={t(locale, 'nav.cotizacion')}
         aria-haspopup="dialog"
         aria-expanded="false"
-        aria-controls="quote-request-modal"
+        aria-controls="cotizacion-drawer"
         type="button"
       >
         <svg
@@ -174,6 +174,20 @@ const altHref = getLocalizedPath(currentPath, altLocale);
             x2="15"
             y2="17"></line>
         </svg>
+        <span
+          id="nav-cotizacion-badge"
+          class="navbar__cart-badge"
+          aria-hidden="true"
+          style="display:none">0</span
+        >
+        <span
+          class="sr-only"
+          aria-live="polite"
+          aria-atomic="true"
+          data-cotizacion-suffix
+          data-label-base={t(locale, 'nav.items_carrito')}
+          data-action-label={t(locale, 'nav.cotizacion')}>0 {t(locale, 'nav.items_carrito')}</span
+        >
       </button>
 
       <!-- Carrito de consumibles -->
@@ -533,8 +547,9 @@ const altHref = getLocalizedPath(currentPath, altLocale);
     __imeNavbarCarritoInstalled?: boolean;
     __imeNavbarCotizacionInstalled?: boolean;
     __imeNavbarAbrirCarrito?: () => void;
-    __imeOpenQuoteRequest?: () => void;
+    __imeNavbarAbrirCotizacion?: () => void;
     __imeNavbarGetCarritoCantidad?: () => number;
+    __imeNavbarGetCotizacionCantidad?: () => number;
     __imeSetCotizacionExpanded?: (expanded: boolean) => void;
     __imeSetCarritoExpanded?: (expanded: boolean) => void;
   };
@@ -550,6 +565,7 @@ const altHref = getLocalizedPath(currentPath, altLocale);
       carritoBtn: document.getElementById('nav-carrito-btn'),
       carritoBadge: document.getElementById('nav-carrito-badge'),
       cotizacionBtn: document.getElementById('nav-cotizacion-btn'),
+      cotizacionBadge: document.getElementById('nav-cotizacion-badge'),
     };
   }
 
@@ -558,29 +574,47 @@ const altHref = getLocalizedPath(currentPath, altLocale);
     navbar?.classList.toggle('scrolled', window.scrollY > 10);
   }
 
-  function renderCarritoBadge(cantidad: number) {
-    const { carritoBadge, carritoBtn } = getNavbarElements();
-    if (!carritoBadge || !carritoBtn) return;
-    carritoBadge.textContent = String(cantidad);
-    carritoBadge.style.display = cantidad > 0 ? 'flex' : 'none';
-    const suffix = carritoBtn.querySelector<HTMLElement>('[data-carrito-suffix]');
+  function renderIconBadge(
+    badgeId: 'nav-carrito-badge' | 'nav-cotizacion-badge',
+    btnId: 'nav-carrito-btn' | 'nav-cotizacion-btn',
+    suffixAttr: 'data-carrito-suffix' | 'data-cotizacion-suffix',
+    cantidad: number
+  ) {
+    const badge = document.getElementById(badgeId);
+    const btn = document.getElementById(btnId);
+    if (!badge || !btn) return;
+    badge.textContent = String(cantidad);
+    badge.style.display = cantidad > 0 ? 'flex' : 'none';
+    const suffix = btn.querySelector<HTMLElement>(`[${suffixAttr}]`);
     const base =
       suffix?.dataset['labelBase'] ??
       suffix?.textContent?.replace(/^\d+\s*/, '').trim() ??
-      'productos en el carrito';
+      'productos';
     const action =
       suffix?.dataset['actionLabel'] ??
-      carritoBtn.dataset['actionLabel'] ??
-      carritoBtn.getAttribute('aria-label')?.replace(/,\s*\d+[\s\S]*$/, '') ??
-      'Ver carrito de compra';
+      btn.dataset['actionLabel'] ??
+      btn.getAttribute('aria-label')?.replace(/,\s*\d+[\s\S]*$/, '') ??
+      'Abrir';
     if (suffix) {
       suffix.dataset['labelBase'] = base;
       suffix.dataset['actionLabel'] = action;
       suffix.textContent = `${cantidad} ${base}`;
     }
-    carritoBtn.dataset['actionLabel'] = action;
-    // aria-label overrides contents — must include count for AT
-    carritoBtn.setAttribute('aria-label', `${action}, ${cantidad} ${base}`);
+    btn.dataset['actionLabel'] = action;
+    btn.setAttribute('aria-label', `${action}, ${cantidad} ${base}`);
+  }
+
+  function renderCarritoBadge(cantidad: number) {
+    renderIconBadge('nav-carrito-badge', 'nav-carrito-btn', 'data-carrito-suffix', cantidad);
+  }
+
+  function renderCotizacionBadge(cantidad: number) {
+    renderIconBadge(
+      'nav-cotizacion-badge',
+      'nav-cotizacion-btn',
+      'data-cotizacion-suffix',
+      cantidad
+    );
   }
 
   function setDrawerTriggerExpanded(btnId: string, expanded: boolean) {
@@ -588,10 +622,9 @@ const altHref = getLocalizedPath(currentPath, altLocale);
     if (btn) btn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
   }
 
-  // Expose for CotizacionDrawer / Carrito open+close sync (ISSUE-004).
-  // Quote button now opens formal lead form. Saved-list drawer may still be
-  // opened after adding equipment, but it no longer owns this trigger state.
-  win.__imeSetCotizacionExpanded = () => {};
+  // CotizacionDrawer / Carrito sync aria-expanded on navbar triggers.
+  win.__imeSetCotizacionExpanded = (expanded: boolean) =>
+    setDrawerTriggerExpanded('nav-cotizacion-btn', expanded);
   win.__imeSetCarritoExpanded = (expanded: boolean) =>
     setDrawerTriggerExpanded('nav-carrito-btn', expanded);
 
@@ -687,16 +720,21 @@ const altHref = getLocalizedPath(currentPath, altLocale);
     if (cotizacionBtn && cotizacionBtn.dataset['imeBound'] !== 'true') {
       cotizacionBtn.dataset['imeBound'] = 'true';
       cotizacionBtn.addEventListener('click', () => {
-        if (win.__imeOpenQuoteRequest) {
-          win.__imeOpenQuoteRequest();
+        if (win.__imeNavbarAbrirCotizacion) {
+          win.__imeNavbarAbrirCotizacion();
         } else {
-          document.dispatchEvent(new CustomEvent('ime:quote-request:open'));
+          void import('../lib/cotizacion-equipos').then(({ abrirCotizacion }) => {
+            abrirCotizacion();
+          });
         }
       });
     }
 
     if (win.__imeNavbarGetCarritoCantidad) {
       renderCarritoBadge(win.__imeNavbarGetCarritoCantidad());
+    }
+    if (win.__imeNavbarGetCotizacionCantidad) {
+      renderCotizacionBadge(win.__imeNavbarGetCotizacionCantidad());
     }
   }
 
@@ -741,8 +779,15 @@ const altHref = getLocalizedPath(currentPath, altLocale);
   if (!win.__imeNavbarCotizacionInstalled) {
     win.__imeNavbarCotizacionInstalled = true;
     void (async () => {
-      // La lista de equipos sigue disponible al añadir productos; este botón
-      // global abre la solicitud formal y activa el funnel comercial.
+      const { getCotizacionCantidad, suscribirCotizacion, abrirCotizacion } =
+        await import('../lib/cotizacion-equipos');
+      win.__imeNavbarAbrirCotizacion = abrirCotizacion;
+      win.__imeNavbarGetCotizacionCantidad = getCotizacionCantidad;
+      renderCotizacionBadge(getCotizacionCantidad());
+      suscribirCotizacion(items => {
+        const total = items.reduce((sum, item) => sum + item.cantidad, 0);
+        renderCotizacionBadge(total);
+      });
       initNavbar();
     })();
   }

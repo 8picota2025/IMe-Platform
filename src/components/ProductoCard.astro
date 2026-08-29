@@ -232,6 +232,7 @@ const whatsappHref = `https://wa.me/573137247353?text=${encodeURIComponent(
         data-add-cotizacion={producto.slug}
         data-nombre={producto.nombre}
         data-imagen={imagenProducto}
+        data-url={href}
         data-label-agregar={t(locale, 'cotizacion_equipos.agregar')}
         data-label-agregado={t(locale, 'cotizacion_equipos.agregado')}
       >
@@ -379,8 +380,9 @@ const whatsappHref = `https://wa.me/573137247353?text=${encodeURIComponent(
   document.addEventListener('click', event => {
     const target = event.target as HTMLElement;
     const cotizacionBtn = target.closest<HTMLButtonElement>('[data-add-cotizacion]');
+    const ensureBtn = target.closest<HTMLButtonElement>('[data-ensure-cotizacion]');
     const carritoBtn = target.closest<HTMLButtonElement>('[data-add-carrito]');
-    if (!cotizacionBtn && !carritoBtn) return;
+    if (!cotizacionBtn && !ensureBtn && !carritoBtn) return;
 
     const confirmar = (btn: HTMLButtonElement) => {
       const original = btn.dataset['labelAgregar'] ?? btn.textContent ?? '';
@@ -391,9 +393,26 @@ const whatsappHref = `https://wa.me/573137247353?text=${encodeURIComponent(
       }, 1800);
     };
 
-    // Hero CTAs on product landing bind their own listeners in ProductoLanding.
-    // Skip them here to avoid double-add (qty += 2 on one click).
-    if (cotizacionBtn?.closest('#cta-principal') || carritoBtn?.closest('#cta-principal')) {
+    // Hero CTAs on product landing bind their own listeners.
+    if (
+      cotizacionBtn?.closest('#cta-principal') ||
+      carritoBtn?.closest('#cta-principal') ||
+      (ensureBtn && ensureBtn.closest('.hero-producto, .cta-final, #cta-sticky, #cta-principal'))
+    ) {
+      return;
+    }
+
+    if (ensureBtn) {
+      const slug = ensureBtn.dataset['ensureCotizacion'];
+      const nombre = ensureBtn.dataset['nombre'];
+      const imagen = ensureBtn.dataset['imagen'];
+      const url = ensureBtn.dataset['url'];
+      const modelo = ensureBtn.dataset['modelo'];
+      const marca = ensureBtn.dataset['marca'];
+      if (!slug || !nombre || !imagen) return;
+      void import('../lib/cotizacion-equipos').then(({ asegurarProductoEnCotizacion }) => {
+        asegurarProductoEnCotizacion({ slug, nombre, imagen, url, modelo, marca });
+      });
       return;
     }
 
@@ -401,9 +420,10 @@ const whatsappHref = `https://wa.me/573137247353?text=${encodeURIComponent(
       const slug = cotizacionBtn.dataset['addCotizacion'];
       const nombre = cotizacionBtn.dataset['nombre'];
       const imagen = cotizacionBtn.dataset['imagen'];
+      const url = cotizacionBtn.dataset['url'];
       if (!slug || !nombre || !imagen) return;
       void import('../lib/cotizacion-equipos').then(({ agregarACotizacion }) => {
-        agregarACotizacion({ slug, nombre, imagen });
+        agregarACotizacion({ slug, nombre, imagen, url });
         confirmar(cotizacionBtn);
       });
       return;

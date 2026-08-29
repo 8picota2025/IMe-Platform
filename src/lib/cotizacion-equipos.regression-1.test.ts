@@ -55,4 +55,17 @@ describe('agregarACotizacion — single add', () => {
 
     expect(getCotizacionCantidad()).toBe(2);
   });
+
+  it('asegurarProductoEnCotizacion no duplica si ya está en lista', async () => {
+    const { agregarACotizacion, asegurarProductoEnCotizacion, getCotizacionCantidad } =
+      await import('./cotizacion-equipos');
+    const item = {
+      slug: 'hua-ii',
+      nombre: 'Arco C',
+      imagen: '/assets/x.jpg',
+    };
+    agregarACotizacion(item);
+    asegurarProductoEnCotizacion(item);
+    expect(getCotizacionCantidad()).toBe(1);
+  });
 });
