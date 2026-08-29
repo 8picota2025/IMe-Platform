@@ -83,6 +83,7 @@ jobs:
       - name: Smoke test producción
         env:
           PROD_URL: https://i-me.com.co
+          EXPECTED_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
           for path in /es/ /es/catalogo/ /es/familias/robots/ /robots.txt /sitemap-index.xml; do
@@ -90,3 +91,6 @@ jobs:
             test "$status" = "200"
             echo "OK ${status} ${path}"
           done
+          manifest="$(curl -L --silent --show-error --fail "${PROD_URL}/release-manifest.json")"
+          echo "$manifest" | grep -Fq "\"commit\": \"${EXPECTED_SHA}\""
+          echo "OK release ${EXPECTED_SHA}"

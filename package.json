@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "astro dev --host 0.0.0.0 --port 44334",
     "dev:admin": "ASTRO_NO_I18N=1 astro dev --host 0.0.0.0 --port 44334",
-    "build": "node --env-file-if-exists=.env scripts/mirror-cms-images.mjs && astro build && node scripts/generate-agent-markdown.mjs",
+    "build": "node --env-file-if-exists=.env scripts/mirror-cms-images.mjs && astro build && node scripts/generate-agent-markdown.mjs && node scripts/generate-release-manifest.mjs",
     "preview": "astro preview --host 0.0.0.0 --port 44334",
     "check": "astro check",
     "audit:seo-build": "node scripts/audit-seo-build.mjs",
