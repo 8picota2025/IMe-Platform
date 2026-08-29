@@ -53,7 +53,16 @@ export function getInstitutionalOgImage(): string {
 
 export function buildPageTitle(pageTitle: string): string {
   if (!pageTitle) return `${BRAND} — Equipos Biomédicos`;
-  return `${pageTitle} | ${BRAND}`;
+  const cleaned = pageTitle
+    .replace(/\s*\|\s*I-ME(?:\s*International(?:\s+Medical(?:\s+Enterprise)?)?)?\s*$/gi, '')
+    .replace(/\s*—\s*I-ME\s*$/gi, '')
+    .trim();
+  if (!cleaned) return `${BRAND} — Equipos Biomédicos`;
+  // Idempotent: never append brand twice (fixes "… | I-ME | I-ME" on family hubs).
+  if (/(?:^|\|\s*)I-ME(?:\s|$)/i.test(cleaned) && cleaned.length <= 70) {
+    return cleaned;
+  }
+  return `${cleaned} | ${BRAND}`;
 }
 
 /** Soft max for SERP title display (~60 chars including brand). */
@@ -155,12 +164,13 @@ export function buildCanonical(path: string): string {
 export function buildHomeSeo(locale: Locale): SeoPageMeta {
   const isEs = locale === 'es';
   return {
+    // Brand-first titles: GSC showed impressions for "i me" / "ime" / "i-me.com" with ~0 CTR.
     title: isEs
-      ? 'Equipos biomédicos en Colombia | Venta, soporte técnico y financiamiento | I-ME'
-      : 'Biomedical equipment in Colombia | Sales, technical support and financing | I-ME',
+      ? 'I-ME | Equipos biomédicos certificados en Colombia — venta, soporte e INVIMA'
+      : 'I-ME | Certified biomedical equipment in Colombia — sales, support & INVIMA',
     description: isEs
-      ? 'Venta de equipos biomédicos certificados, soporte técnico, calibración, financiamiento y asesoría para hospitales y clínicas en Colombia. 24+ categorías.'
-      : 'Certified biomedical equipment sales, technical support, calibration, financing and advisory for hospitals and clinics across Colombia. 24+ categories.',
+      ? 'I-ME (International Medical Enterprise): equipos biomédicos con respaldo INVIMA/CE/FDA, soporte técnico, calibración y financiamiento para hospitales y clínicas en Colombia.'
+      : 'I-ME (International Medical Enterprise): INVIMA/CE/FDA biomedical equipment, technical support, calibration and financing for hospitals and clinics across Colombia.',
     canonical: buildCanonical(`/${locale}/`),
     ogImage: DEFAULT_OG_IMAGE,
   };
@@ -269,7 +279,7 @@ export function buildOrganizationJsonLd(catalogItemCount?: number): Record<strin
     '@type': ['Organization', 'MedicalBusiness'],
     '@id': `${SITE}/#organization`,
     name: 'I-ME International Medical Enterprise S.A.S.',
-    alternateName: 'I-ME Biomedical',
+    alternateName: ['I-ME', 'I-ME Biomedical', 'IME', 'I ME', 'i-me.com.co'],
     url: SITE,
     logo: {
       '@type': 'ImageObject',
@@ -311,6 +321,9 @@ export function buildOrganizationJsonLd(catalogItemCount?: number): Record<strin
       'Equipos de ultrasonido',
       'Ventiladores mecánicos',
       'Equipos de anestesia',
+      'Caminadores para adultos',
+      'Sillas de ruedas',
+      'Konfort Plus',
       'Registro INVIMA',
       'Certificación CE',
       'Mantenimiento preventivo de equipos médicos',

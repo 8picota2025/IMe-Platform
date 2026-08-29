@@ -96,6 +96,21 @@ const legalLinks: Array<{ kind: LegalKind; label: string }> = [
             {locale === 'en' ? 'Resources' : 'Recursos'}
           </a>
         </li>
+        <li>
+          <a href={getLocalizedPath('/proyectos', locale)}>
+            {locale === 'en' ? 'Projects' : 'Proyectos'}
+          </a>
+        </li>
+        <li>
+          <a href={getLocalizedPath('/caminadores-para-adultos', locale)}>
+            {locale === 'en' ? 'Adult walkers' : 'Caminadores para adultos'}
+          </a>
+        </li>
+        <li>
+          <a href={getLocalizedPath('/sillas-de-ruedas', locale)}>
+            {locale === 'en' ? 'Wheelchairs' : 'Sillas de ruedas'}
+          </a>
+        </li>
         <li><a href={getLocalizedPath('/contacto', locale)}>{t(locale, 'nav.contacto')}</a></li>
         <li>
           <a href={getLocalizedPath('/conocimiento', locale)}>{t(locale, 'nav.conocimiento')}</a>

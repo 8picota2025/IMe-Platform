@@ -981,6 +981,459 @@ const ROBOTICA: ContentMap = {
   },
 };
 
+const CAMINADORES: ContentMap = {
+  es: {
+    tag: 'Movilidad · Caminadores',
+    title: 'Caminadores para adultos en Colombia | Konfort Plus y rollators | I-ME',
+    description:
+      'Caminadores para adultos, rollators y andadores Konfort Plus para instituciones y cuidado prolongado. Orientación I-ME, cotización y soporte en Colombia.',
+    h1: 'Caminadores para adultos que sí se usan — no solo se cotizan',
+    lead: 'Si busca caminador para adulto, opciones económicas o rollator con ruedas para residencia, rehabilitación o hospitalización, le ayudamos a elegir según peso, entorno y protocolo — con referencias reales del catálogo.',
+    formIntro:
+      'Indique institución (o contexto de compra), ciudad y si el uso es clínico, domiciliario o mixto. Un asesor responde con alternativas concretas.',
+    primaryCta: 'Quiero orientación de caminadores',
+    secondaryCta: 'Escribir por WhatsApp',
+    tertiaryCta: 'Ver movilidad en catálogo',
+    heroImage: '/assets/img/robotica-rehabilitacion-institucional-colombia.webp',
+    heroImageAlt: 'Caminadores y movilidad para adultos en entorno clínico — I-ME Colombia',
+    problemTitle: 'Lo que suele fallar al comprar caminadores',
+    problemBody:
+      'No es “el más barato del marketplace”. Es estabilidad, altura, ruedas vs fijo, peso del usuario y si el equipo vive en pasillo clínico o en casa. Un mal match genera devoluciones y riesgo de caída.',
+    solutionsTitle: 'Cómo le acotamos el modelo',
+    solutions: [
+      {
+        pain: 'Necesitan caminador para adulto “económico” sin sacrificar seguridad básica',
+        help: 'Comparamos líneas Konfort Plus y referencias de aluminio/acero publicadas, según presupuesto institucional y uso real.',
+      },
+      {
+        pain: 'Dudan entre caminador fijo, con ruedas o rollator',
+        help: 'Revisamos tipología (stand-up, doble función, rollator con reposapiés) según marcha, fatiga y entorno.',
+      },
+      {
+        pain: 'Quieren marca conocida (p. ej. Konfort Plus) con ficha clara',
+        help: 'Partimos de modelos Konfort Plus del catálogo I-ME y dejamos por escrito qué incluye la propuesta (equipo, entrega, soporte).',
+      },
+    ],
+    audienceYes: [
+      'Clínicas, residencias, programas de rehab o compras institucionales',
+      'Quienes buscan caminadores para adultos / rollators en Colombia',
+      'Compras o biomédica que necesitan ficha y cotización formal',
+    ],
+    audienceNo: [
+      'Pedidos sin contexto de uso (peso, entorno, cantidad)',
+      'Quienes exigen claims clínicos inventados (“cura”, “garantiza marcha”)',
+      'Urgencias de marketplace sin institución ni datos de contacto',
+    ],
+    situations: [
+      {
+        title: 'Reposición de flota',
+        body: 'Varias unidades para piso, rehab o residencia con el mismo criterio de seguridad.',
+      },
+      {
+        title: 'Alta y cuidado prolongado',
+        body: 'Caminador o rollator para acompañar deambulación con supervisión.',
+      },
+      {
+        title: 'Comparar antes de comprar',
+        body: 'Orientación entre referencias publicadas — sin catálogo infinito.',
+      },
+    ],
+    scopeTitle: 'Qué cubrimos en esta conversación',
+    scope: [
+      'Tipología de caminador / rollator según uso',
+      'Referencias publicadas en catálogo I-ME',
+      'Cotización formal cuando el caso esté claro',
+      'Entrega y soporte según propuesta',
+    ],
+    requirementsTitle: 'Para cotizar con sentido',
+    requirements: [
+      'Ciudad y tipo de comprador (institución / distribuidor / otro)',
+      'Uso: clínico, domiciliario o mixto',
+      'Cantidad aproximada y plazo',
+    ],
+    financingNote:
+      'Financiación institucional orientativa disponible según proyecto. Condiciones en propuesta formal.',
+    evidenceNote:
+      'Hablamos de equipos y fichas publicadas. No prometemos resultados de rehabilitación ni precios de vitrina no confirmados.',
+    processTitle: 'Cómo seguimos',
+    processSteps: [
+      'Cuéntenos el caso en el formulario',
+      'Priorizamos por plazo y volumen',
+      'Proponemos 1–3 referencias del catálogo',
+      'Cotización formal si encaja',
+    ],
+    faqs: [
+      {
+        q: '¿Tienen caminadores para adultos Konfort Plus?',
+        a: 'Sí. En catálogo hay caminadores y rollators Konfort Plus (por ejemplo desarmable en aluminio y stand-up doble función). La disponibilidad se confirma al cotizar.',
+      },
+      {
+        q: '¿Venden solo a hospitales?',
+        a: 'Atendemos instituciones de salud y canales B2B. Si el caso es particular, indíquelo: orientamos según política comercial vigente.',
+      },
+      {
+        q: '¿El precio está en la web?',
+        a: 'Los equipos de movilidad suelen cotizarse según cantidad, ciudad y configuración. Pedimos contexto para no mandar un número genérico e inútil.',
+      },
+    ],
+    projectOptions: [
+      { value: 'caminador_adulto', label: 'Caminador para adulto' },
+      { value: 'rollator', label: 'Rollator / caminador con ruedas' },
+      { value: 'reposicion_flota', label: 'Reposición de varias unidades' },
+      { value: 'orientacion', label: 'Aún comparando tipologías' },
+    ],
+    productSlugs: [
+      'g-kp1-8160l',
+      'g-kp1-816l-19',
+      'g-kp153-al-19',
+      'g-kp285-al-19',
+      'g-kp271-al-2',
+      'g-hy5',
+    ],
+    productsTitle: 'Referencias de caminadores y rollators',
+    productsNote: 'Modelos reales del catálogo. Confirmamos stock y variante al cotizar.',
+    catalogFilter: 'movilidad-rehabilitacion',
+  },
+  en: {
+    tag: 'Mobility · Walkers',
+    title: 'Adult walkers in Colombia | Konfort Plus & rollators | I-ME',
+    description:
+      'Adult walkers, rollators and Konfort Plus gait aids for institutions and long-term care. I-ME guidance, quotes and support in Colombia.',
+    h1: 'Adult walkers that get used — not just quoted',
+    lead: 'Looking for an adult walker, a value option or a wheeled rollator for rehab, ward or residence? We help match weight, environment and protocol — with real catalog references.',
+    formIntro:
+      'Share institution (or buyer context), city and clinical vs home use. An advisor replies with concrete options.',
+    primaryCta: 'I want walker guidance',
+    secondaryCta: 'Message on WhatsApp',
+    tertiaryCta: 'See mobility in catalog',
+    heroImage: '/assets/img/robotica-rehabilitacion-institucional-colombia.webp',
+    heroImageAlt: 'Adult walkers and mobility aids in a clinical setting — I-ME Colombia',
+    problemTitle: 'What usually goes wrong when buying walkers',
+    problemBody:
+      'It is not “cheapest marketplace SKU”. It is stability, height, fixed vs wheeled, user weight and whether the unit lives in a clinical corridor or at home.',
+    solutionsTitle: 'How we narrow the model',
+    solutions: [
+      {
+        pain: 'Need an adult walker that is affordable without skipping basic safety',
+        help: 'We compare Konfort Plus lines and published aluminum/steel references by institutional budget and real use.',
+      },
+      {
+        pain: 'Choosing between fixed walker, wheeled walker or rollator',
+        help: 'We review typology (stand-up, dual-function, rollator with footrest) by gait, fatigue and environment.',
+      },
+      {
+        pain: 'Want a known brand (e.g. Konfort Plus) with a clear sheet',
+        help: 'We start from Konfort Plus models in the I-ME catalog and document what the proposal includes.',
+      },
+    ],
+    audienceYes: [
+      'Clinics, residences, rehab programs or institutional buyers',
+      'Teams searching adult walkers / rollators in Colombia',
+      'Procurement or biomed needing a formal quote',
+    ],
+    audienceNo: [
+      'Orders with no use context (weight, environment, quantity)',
+      'Requests for invented clinical claims',
+      'Marketplace urgency with no institution or contact data',
+    ],
+    situations: [
+      {
+        title: 'Fleet replacement',
+        body: 'Several units for ward, rehab or residence under one safety standard.',
+      },
+      {
+        title: 'Discharge and long-term care',
+        body: 'Walker or rollator to support ambulation with supervision.',
+      },
+      {
+        title: 'Compare before buying',
+        body: 'Guidance across published references — not an endless catalog dump.',
+      },
+    ],
+    scopeTitle: 'What this conversation covers',
+    scope: [
+      'Walker / rollator typology by use case',
+      'Published I-ME catalog references',
+      'Formal quote when the case is clear',
+      'Delivery and support per proposal',
+    ],
+    requirementsTitle: 'To quote meaningfully',
+    requirements: [
+      'City and buyer type (institution / distributor / other)',
+      'Use: clinical, home or mixed',
+      'Approx. quantity and timeline',
+    ],
+    financingNote:
+      'Indicative institutional financing available by project. Terms in a formal proposal.',
+    evidenceNote:
+      'We discuss published equipment and sheets. No rehab outcome promises or unconfirmed shelf prices.',
+    processTitle: 'How we follow up',
+    processSteps: [
+      'Share the case in the form',
+      'We prioritize by timeline and volume',
+      'We propose 1–3 catalog references',
+      'Formal quote if it fits',
+    ],
+    faqs: [
+      {
+        q: 'Do you carry Konfort Plus adult walkers?',
+        a: 'Yes. The catalog includes Konfort Plus walkers and rollators (e.g. foldable aluminum and dual-function stand-up). Availability is confirmed when quoting.',
+      },
+      {
+        q: 'Do you only sell to hospitals?',
+        a: 'We serve healthcare institutions and B2B channels. If the case is different, say so — we follow current commercial policy.',
+      },
+      {
+        q: 'Is the price on the website?',
+        a: 'Mobility equipment is usually quoted by quantity, city and configuration. Context beats a useless generic number.',
+      },
+    ],
+    projectOptions: [
+      { value: 'caminador_adulto', label: 'Adult walker' },
+      { value: 'rollator', label: 'Rollator / wheeled walker' },
+      { value: 'reposicion_flota', label: 'Multi-unit replacement' },
+      { value: 'orientacion', label: 'Still comparing typologies' },
+    ],
+    productSlugs: [
+      'g-kp1-8160l',
+      'g-kp1-816l-19',
+      'g-kp153-al-19',
+      'g-kp285-al-19',
+      'g-kp271-al-2',
+      'g-hy5',
+    ],
+    productsTitle: 'Walker and rollator references',
+    productsNote: 'Real catalog models. We confirm stock and variant when quoting.',
+    catalogFilter: 'movilidad-rehabilitacion',
+  },
+};
+
+const SILLAS: ContentMap = {
+  es: {
+    tag: 'Movilidad · Sillas de ruedas',
+    title: 'Sillas de ruedas Konfort Plus y estándar en Colombia | I-ME',
+    description:
+      'Sillas de ruedas Konfort Plus, transporte y estándar para clínicas y programas de movilidad. Asesoría I-ME, cotización y soporte en Colombia.',
+    h1: 'Sillas de ruedas para institución — Konfort Plus y tipologías claras',
+    lead: 'Si llegó buscando “Konfort Plus silla de ruedas” o una flota estándar/transporte para su sede, le ayudamos a acotar ancho de asiento, peso, reclinación y uso (piso, traslado, bariátrica) con referencias reales.',
+    formIntro:
+      'Cuéntenos ciudad, volumen aproximado y si necesita estándar, transporte, reclinable o bariátrica. Respondemos con opciones del catálogo.',
+    primaryCta: 'Quiero orientación de sillas',
+    secondaryCta: 'Escribir por WhatsApp',
+    tertiaryCta: 'Ver sillas en catálogo',
+    heroImage: '/assets/img/equipos-biomedicos-vanguardia.webp',
+    heroImageAlt: 'Sillas de ruedas y movilidad institucional — I-ME Colombia',
+    problemTitle: 'Comprar silla no es elegir color',
+    problemBody:
+      'Ancho de asiento, peso del usuario, reclinación, desarmado para traslado y política de mantenimiento importan más que la foto. Un mismatch genera quejas de enfermería y compras repetidas.',
+    solutionsTitle: 'Cómo le ayudamos',
+    solutions: [
+      {
+        pain: 'Buscan Konfort Plus por nombre y necesitan ficha + cotización',
+        help: 'Partimos de sillas Konfort Plus publicadas (estándar, transporte, reclinable, bariátrica) y confirmamos variante al cotizar.',
+      },
+      {
+        pain: 'Flota mixta: traslado corto vs uso prolongado en piso',
+        help: 'Separamos tipologías de transporte y estándar para no comprar “una sola silla para todo”.',
+      },
+      {
+        pain: 'Casos bariátricos o anchos especiales',
+        help: 'Revisamos referencias de mayor ancho publicadas y dejamos claro límites de uso según ficha.',
+      },
+    ],
+    audienceYes: [
+      'Hospitales, clínicas, residencias y programas de movilidad',
+      'Compras buscando Konfort Plus u otras sillas institucionales',
+      'Quienes necesitan varias unidades con criterio homogéneo',
+    ],
+    audienceNo: [
+      'Pedidos sin talla/uso (transporte vs piso)',
+      'Claims de “mejor silla del mercado” sin contexto',
+      'Urgencias sin datos de contacto institucionales',
+    ],
+    situations: [
+      {
+        title: 'Reposición Konfort Plus',
+        body: 'Mantener línea conocida por personal clínico o de almacén.',
+      },
+      {
+        title: 'Apertura de servicio',
+        body: 'Mix inicial estándar + transporte según flujo de pacientes.',
+      },
+      {
+        title: 'Caso bariátrico / ancho especial',
+        body: 'Orientación con referencias de mayor ancho del catálogo.',
+      },
+    ],
+    scopeTitle: 'Alcance de esta página',
+    scope: [
+      'Tipología de silla según uso',
+      'Referencias Konfort Plus y estándar del catálogo',
+      'Cotización formal por cantidad y ciudad',
+      'Soporte según propuesta',
+    ],
+    requirementsTitle: 'Datos mínimos',
+    requirements: [
+      'Ciudad y cantidad aproximada',
+      'Uso: transporte, estándar, reclinable o bariátrica',
+      'Plazo de compra',
+    ],
+    financingNote:
+      'Financiación institucional orientativa según proyecto. Condiciones en propuesta formal.',
+    evidenceNote:
+      'Solo referencias y fichas publicadas. Disponibilidad y precio se confirman al cotizar.',
+    processTitle: 'Siguiente paso',
+    processSteps: [
+      'Envíe el caso',
+      'Priorizamos por plazo',
+      'Proponemos tipologías del catálogo',
+      'Cotización formal',
+    ],
+    faqs: [
+      {
+        q: '¿Manejan sillas de ruedas Konfort Plus?',
+        a: 'Sí. Hay varias referencias Konfort Plus en catálogo (estándar, transporte, reclinable y bariátrica). Confirmamos modelo y stock al cotizar.',
+      },
+      {
+        q: '¿También tienen otras marcas?',
+        a: 'Sí. Además de Konfort Plus hay líneas estándar y activas en la familia de movilidad. La landing prioriza lo que la gente busca por nombre en Google.',
+      },
+      {
+        q: '¿Sirve para compra particular?',
+        a: 'El foco es B2B institucional. Si su caso es otro, indíquelo en el formulario y aplicamos la política comercial vigente.',
+      },
+    ],
+    projectOptions: [
+      { value: 'konfort_plus', label: 'Konfort Plus (línea conocida)' },
+      { value: 'transporte', label: 'Silla de transporte' },
+      { value: 'estandar_piso', label: 'Estándar / uso en piso' },
+      { value: 'bariatrico', label: 'Bariátrica / ancho especial' },
+    ],
+    productSlugs: [
+      'g-kbe-9953',
+      'g-kbe-9125t',
+      'g-kbe-9630l',
+      'g-kbe-9113',
+      'g-kbe-9953-iii',
+      'g-kbe-622',
+    ],
+    productsTitle: 'Referencias de sillas de ruedas',
+    productsNote: 'Incluye Konfort Plus y estándar. Stock y variante se confirman al cotizar.',
+    catalogFilter: 'movilidad-rehabilitacion',
+  },
+  en: {
+    tag: 'Mobility · Wheelchairs',
+    title: 'Konfort Plus & institutional wheelchairs in Colombia | I-ME',
+    description:
+      'Konfort Plus, transport and standard wheelchairs for clinics and mobility programs. I-ME advisory, quotes and support in Colombia.',
+    h1: 'Institutional wheelchairs — Konfort Plus with clear typologies',
+    lead: 'Searching “Konfort Plus wheelchair” or a standard/transport fleet for your site? We help narrow seat width, weight, recline and use case with real catalog references.',
+    formIntro:
+      'Share city, approx. volume and whether you need standard, transport, recliner or bariatric. We reply with catalog options.',
+    primaryCta: 'I want wheelchair guidance',
+    secondaryCta: 'Message on WhatsApp',
+    tertiaryCta: 'See wheelchairs in catalog',
+    heroImage: '/assets/img/equipos-biomedicos-vanguardia.webp',
+    heroImageAlt: 'Institutional wheelchairs and mobility — I-ME Colombia',
+    problemTitle: 'Buying a chair is not picking a color',
+    problemBody:
+      'Seat width, user weight, recline, fold-for-transport and maintenance policy matter more than the photo.',
+    solutionsTitle: 'How we help',
+    solutions: [
+      {
+        pain: 'Looking for Konfort Plus by name with sheet + quote',
+        help: 'We start from published Konfort Plus chairs (standard, transport, recliner, bariatric) and confirm variant when quoting.',
+      },
+      {
+        pain: 'Mixed fleet: short transport vs longer ward use',
+        help: 'We separate transport vs standard typologies so you do not buy “one chair for everything”.',
+      },
+      {
+        pain: 'Bariatric or special widths',
+        help: 'We review wider published references and document use limits from the sheet.',
+      },
+    ],
+    audienceYes: [
+      'Hospitals, clinics, residences and mobility programs',
+      'Buyers looking for Konfort Plus or institutional chairs',
+      'Teams replacing multiple units under one standard',
+    ],
+    audienceNo: [
+      'Orders with no size/use context',
+      '“Best chair” claims with no site context',
+      'Urgent buys with no institutional contact data',
+    ],
+    situations: [
+      {
+        title: 'Konfort Plus replacement',
+        body: 'Keep a line staff already knows.',
+      },
+      {
+        title: 'Service opening',
+        body: 'Initial mix of standard + transport by patient flow.',
+      },
+      {
+        title: 'Bariatric / special width',
+        body: 'Guidance with wider catalog references.',
+      },
+    ],
+    scopeTitle: 'Scope of this page',
+    scope: [
+      'Chair typology by use',
+      'Konfort Plus and standard catalog references',
+      'Formal quote by quantity and city',
+      'Support per proposal',
+    ],
+    requirementsTitle: 'Minimum data',
+    requirements: [
+      'City and approx. quantity',
+      'Use: transport, standard, recliner or bariatric',
+      'Purchase timeline',
+    ],
+    financingNote: 'Indicative institutional financing by project. Terms in a formal proposal.',
+    evidenceNote:
+      'Published references and sheets only. Availability and price confirmed when quoting.',
+    processTitle: 'Next step',
+    processSteps: [
+      'Send the case',
+      'We prioritize by timeline',
+      'We propose catalog typologies',
+      'Formal quote',
+    ],
+    faqs: [
+      {
+        q: 'Do you carry Konfort Plus wheelchairs?',
+        a: 'Yes. Several Konfort Plus references are in the catalog (standard, transport, recliner, bariatric). Model and stock are confirmed when quoting.',
+      },
+      {
+        q: 'Other brands too?',
+        a: 'Yes. Beyond Konfort Plus there are standard and active lines in the mobility family. This page prioritizes what people search by name.',
+      },
+      {
+        q: 'Retail / consumer purchase?',
+        a: 'Focus is institutional B2B. If your case differs, say so — we apply current commercial policy.',
+      },
+    ],
+    projectOptions: [
+      { value: 'konfort_plus', label: 'Konfort Plus (known line)' },
+      { value: 'transporte', label: 'Transport chair' },
+      { value: 'estandar_piso', label: 'Standard / ward use' },
+      { value: 'bariatrico', label: 'Bariatric / special width' },
+    ],
+    productSlugs: [
+      'g-kbe-9953',
+      'g-kbe-9125t',
+      'g-kbe-9630l',
+      'g-kbe-9113',
+      'g-kbe-9953-iii',
+      'g-kbe-622',
+    ],
+    productsTitle: 'Wheelchair references',
+    productsNote: 'Includes Konfort Plus and standard. Stock/variant confirmed when quoting.',
+    catalogFilter: 'movilidad-rehabilitacion',
+  },
+};
+
 type StandardCampaignLandingId = Exclude<
   CampaignLandingId,
   'proyectos' | 'pdf_descarga' | 'evento' | FabricanteLandingId
@@ -1011,6 +1464,18 @@ const META: Record<
     path: '/es/robotica-rehabilitacion/',
     pathEn: '/en/robotics-rehabilitation/',
   },
+  caminadores_adultos: {
+    familia_slug: 'movilidad-rehabilitacion',
+    tipo_slug: 'caminadores',
+    path: '/es/caminadores-para-adultos/',
+    pathEn: '/en/adult-walkers/',
+  },
+  sillas_ruedas: {
+    familia_slug: 'movilidad-rehabilitacion',
+    tipo_slug: 'sillas-de-ruedas',
+    path: '/es/sillas-de-ruedas/',
+    pathEn: '/en/wheelchairs/',
+  },
 };
 
 const BY_ID: Record<StandardCampaignLandingId, ContentMap> = {
@@ -1018,6 +1483,8 @@ const BY_ID: Record<StandardCampaignLandingId, ContentMap> = {
   esterilizacion: ESTERILIZACION,
   imagenologia: IMAGENOLOGIA,
   robotica_rehabilitacion: ROBOTICA,
+  caminadores_adultos: CAMINADORES,
+  sillas_ruedas: SILLAS,
 };
 
 export function getCampaignLanding(

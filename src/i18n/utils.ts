@@ -51,6 +51,8 @@ const PATH_SEGMENT_PAIRS: Array<{ es: string; en: string }> = [
   { es: 'esterilizacion', en: 'sterilization' },
   { es: 'imagenologia', en: 'imaging' },
   { es: 'robotica-rehabilitacion', en: 'robotics-rehabilitation' },
+  { es: 'caminadores-para-adultos', en: 'adult-walkers' },
+  { es: 'sillas-de-ruedas', en: 'wheelchairs' },
   { es: 'fabricantes', en: 'manufacturers' },
   { es: 'familias', en: 'families' },
   { es: 'ciudades', en: 'cities' },

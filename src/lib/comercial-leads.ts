@@ -21,6 +21,8 @@ export type CampaignLandingId =
   | 'esterilizacion'
   | 'imagenologia'
   | 'robotica_rehabilitacion'
+  | 'caminadores_adultos'
+  | 'sillas_ruedas'
   | 'proyectos'
   | 'pdf_descarga'
   | 'evento'
