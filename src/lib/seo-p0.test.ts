@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { buildPageTitle, buildHomeSeo } from './src/lib/seo';
-import { getCampaignLanding, listCampaignLandings } from './src/data/comercial-landings';
+import { buildPageTitle, buildHomeSeo } from './seo';
+import { getCampaignLanding, listCampaignLandings } from '../data/comercial-landings';
 
 describe('SEO P0', () => {
   it('does not double brand suffix', () => {
@@ -16,7 +16,7 @@ describe('SEO P0', () => {
   });
 
   it('new landings registered', () => {
-    const ids = listCampaignLandings('es').map(l => l.id);
+    const ids = listCampaignLandings('es').map(landing => landing.id);
     expect(ids).toContain('caminadores_adultos');
     expect(ids).toContain('sillas_ruedas');
     const caminadores = getCampaignLanding('caminadores_adultos', 'es');
