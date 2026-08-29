@@ -190,10 +190,21 @@ const jsonLd = combineJsonLd(
     line-height: 1.75;
     font-size: 1.02rem;
   }
+  .site-faithful .article-body :global(p),
+  .site-faithful .article-body :global(li) {
+    text-align: justify;
+    text-justify: inter-word;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+    overflow-wrap: break-word;
+  }
   .site-faithful .article-body :global(h2),
-  .site-faithful .article-body :global(h3) {
+  .site-faithful .article-body :global(h3),
+  .site-faithful .article-body :global(h4) {
     color: var(--ink, #131b22);
     margin-top: 1.8em;
+    text-align: start;
+    hyphens: none;
   }
   .site-faithful .article-body :global(a) {
     color: var(--teal, #0f4c5c);

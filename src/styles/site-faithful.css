@@ -1350,6 +1350,32 @@
   transform: none;
 }
 
+/* Publicaciones / prosa institucional: justificar al ancho de línea */
+.site-faithful .article-page .article-body p,
+.site-faithful .article-page .article-body li,
+.site-faithful .story-body p,
+.site-faithful .about-text p,
+.site-faithful .team-card p,
+.site-faithful .team-lead,
+.site-faithful .combo-lead,
+.site-faithful .propuesta-intro,
+.site-faithful .propuesta-list li,
+.site-faithful .value-item p,
+.site-faithful .knowledge-excerpt {
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  overflow-wrap: break-word;
+}
+
+.site-faithful .article-page .article-body h2,
+.site-faithful .article-page .article-body h3,
+.site-faithful .article-page .article-body h4 {
+  text-align: start;
+  hyphens: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .site-faithful .marquee-track,
   .site-faithful .hero-ecg-wrap svg {
