@@ -15,6 +15,7 @@ import { resolveMarca } from './producto-origen';
 
 import mockFamilias from '../data/mock-familias.json';
 import mockArticulos from '../data/mock-articulos.json';
+import { sanitizeArticuloSlug, isValidArticuloSlug } from './articulo-slug';
 import mockProductos from '../data/mock-productos.json';
 import mockTipos from '../data/mock-tipos.json';
 import productImageManifest from '../data/product-image-manifest.json';
@@ -673,25 +674,28 @@ export async function getArticulos(locale: Locale): Promise<Articulo[]> {
     if (error) {
       registrarErrorSupabase('getArticulos', error);
     } else if (data) {
-      return (data as RawRow[]).map(raw => {
-        const imagen = stringValue(raw.imagen);
-        return {
-          id: stringValue(raw.id),
-          slug: stringValue(raw.slug),
-          titulo:
-            locale === 'en'
-              ? stringValue(raw.titulo_en) || stringValue(raw.titulo_es)
-              : stringValue(raw.titulo_es),
-          cuerpo:
-            locale === 'en'
-              ? stringValue(raw.cuerpo_en) || stringValue(raw.cuerpo_es)
-              : stringValue(raw.cuerpo_es),
-          ...(imagen ? { imagen } : {}),
-          publicado: Boolean(raw.publicado),
-          created_at: stringValue(raw.created_at),
-          updated_at: stringValue(raw.updated_at),
-        };
-      });
+      return (data as RawRow[])
+        .map(raw => {
+          const imagen = stringValue(raw.imagen);
+          const slug = sanitizeArticuloSlug(stringValue(raw.slug));
+          return {
+            id: stringValue(raw.id),
+            slug,
+            titulo:
+              locale === 'en'
+                ? stringValue(raw.titulo_en) || stringValue(raw.titulo_es)
+                : stringValue(raw.titulo_es),
+            cuerpo:
+              locale === 'en'
+                ? stringValue(raw.cuerpo_en) || stringValue(raw.cuerpo_es)
+                : stringValue(raw.cuerpo_es),
+            ...(imagen ? { imagen } : {}),
+            publicado: Boolean(raw.publicado),
+            created_at: stringValue(raw.created_at),
+            updated_at: stringValue(raw.updated_at),
+          };
+        })
+        .filter(articulo => isValidArticuloSlug(articulo.slug));
     }
   }
   return mockArticulos
@@ -708,37 +712,55 @@ export async function getArticulos(locale: Locale): Promise<Articulo[]> {
 }
 
 export async function getArticuloBySlug(slug: string, locale: Locale): Promise<Articulo | null> {
+  const safeSlug = sanitizeArticuloSlug(slug);
+  if (!isValidArticuloSlug(safeSlug)) return null;
+
   if (debeUsarSupabase()) {
     const supabase = getSupabaseClient()!;
-    const { data, error } = await supabase
+    let row: RawRow | null = null;
+    const { data: bySafe, error: errSafe } = await supabase
       .from('articulos')
       .select('*')
-      .eq('slug', slug)
+      .eq('slug', safeSlug)
       .eq('publicado', true)
       .maybeSingle();
-    if (error) {
-      registrarErrorSupabase('getArticuloBySlug', error);
-    } else if (data) {
-      const imagen = stringValue(data.imagen);
+    if (errSafe) {
+      registrarErrorSupabase('getArticuloBySlug', errSafe);
+    } else if (bySafe) {
+      row = bySafe as RawRow;
+    } else if (slug !== safeSlug) {
+      const { data: byRaw, error: errRaw } = await supabase
+        .from('articulos')
+        .select('*')
+        .eq('slug', slug)
+        .eq('publicado', true)
+        .maybeSingle();
+      if (errRaw) registrarErrorSupabase('getArticuloBySlug', errRaw);
+      else if (byRaw) row = byRaw as RawRow;
+    }
+    if (row) {
+      const imagen = stringValue(row.imagen);
       return {
-        id: stringValue(data.id),
-        slug: stringValue(data.slug),
+        id: stringValue(row.id),
+        slug: safeSlug,
         titulo:
           locale === 'en'
-            ? stringValue(data.titulo_en) || stringValue(data.titulo_es)
-            : stringValue(data.titulo_es),
+            ? stringValue(row.titulo_en) || stringValue(row.titulo_es)
+            : stringValue(row.titulo_es),
         cuerpo:
           locale === 'en'
-            ? stringValue(data.cuerpo_en) || stringValue(data.cuerpo_es)
-            : stringValue(data.cuerpo_es),
+            ? stringValue(row.cuerpo_en) || stringValue(row.cuerpo_es)
+            : stringValue(row.cuerpo_es),
         ...(imagen ? { imagen } : {}),
-        publicado: Boolean(data.publicado),
-        created_at: stringValue(data.created_at),
-        updated_at: stringValue(data.updated_at),
+        publicado: Boolean(row.publicado),
+        created_at: stringValue(row.created_at),
+        updated_at: stringValue(row.updated_at),
       };
     }
   }
-  const found = mockArticulos.find(articulo => articulo.slug === slug && articulo.publicado);
+  const found = mockArticulos.find(
+    articulo => sanitizeArticuloSlug(articulo.slug) === safeSlug && articulo.publicado
+  );
   if (!found) return null;
   return {
     id: found.id,

@@ -3,7 +3,14 @@ import { describe, expect, it, vi } from 'vitest';
 vi.mock('./conocimiento-imagen-manifest', () => ({
   imagenMirrorParaArticulo: (slug: string) => {
     if (slug === 'con-mirror') {
-      return { src: '/assets/img/conocimiento/con-mirror.webp', width: 800, height: 450 };
+      return {
+        src: '/assets/img/conocimiento/con-mirror.webp',
+        width: 800,
+        height: 450,
+        og_src: '/assets/img/conocimiento/con-mirror-og-red-social-equipos-biomedicos-ime.webp',
+        og_width: 1200,
+        og_height: 630,
+      };
     }
     return undefined;
   },
@@ -13,6 +20,7 @@ import {
   absoluteImagenUrl,
   imagenParaArticulo,
   resolverImagenArticulo,
+  resolverOgImagenArticulo,
 } from './conocimiento-imagenes';
 
 describe('resolverImagenArticulo', () => {
@@ -39,6 +47,18 @@ describe('resolverImagenArticulo', () => {
       imagen: null,
     });
     expect(img.src).toBe(imagenParaArticulo('guia-monitores-multiparametricos-uci').src);
+  });
+});
+
+describe('resolverOgImagenArticulo', () => {
+  it('prioriza variante OG del mirror', () => {
+    const og = resolverOgImagenArticulo({
+      slug: 'con-mirror',
+      imagen: 'https://cdn.example/storage/foto.jpg',
+    });
+    expect(og.src).toContain('og-red-social');
+    expect(og.width).toBe(1200);
+    expect(og.height).toBe(630);
   });
 });
 

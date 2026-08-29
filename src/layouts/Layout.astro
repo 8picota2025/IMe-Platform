@@ -24,6 +24,9 @@ interface Props {
   locale: Locale;
   currentPath: string;
   ogImage?: string;
+  ogImageWidth?: number;
+  ogImageHeight?: number;
+  ogType?: 'website' | 'article';
   jsonLd?: string;
   noindex?: boolean;
   fontAwesome?: boolean;
@@ -39,6 +42,9 @@ const {
   locale,
   currentPath,
   ogImage,
+  ogImageWidth,
+  ogImageHeight,
+  ogType,
   jsonLd,
   noindex,
   fontAwesome,
@@ -65,6 +71,9 @@ const commercialBarAllowed =
       locale={locale}
       currentPath={currentPath}
       {...ogImage !== undefined ? { ogImage } : {}}
+      {...ogImageWidth !== undefined ? { ogImageWidth } : {}}
+      {...ogImageHeight !== undefined ? { ogImageHeight } : {}}
+      {...ogType !== undefined ? { ogType } : {}}
       {...jsonLd !== undefined ? { jsonLd } : {}}
       {...noindex !== undefined ? { noindex } : {}}
       {...fontAwesome !== undefined ? { fontAwesome } : {}}
@@ -112,6 +121,12 @@ const commercialBarAllowed =
 
       resetTransientUiState();
       void initLenis();
+    </script>
+    <script>
+      import { initCotizacionClickDelegation } from '../lib/cotizacion-clicks';
+
+      document.addEventListener('astro:page-load', initCotizacionClickDelegation);
+      initCotizacionClickDelegation();
     </script>
   </body>
 </html>

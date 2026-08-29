@@ -20,6 +20,10 @@ export interface ImagenMirror {
   src: string;
   width: number;
   height: number;
+  /** Variante 1200×630 para Open Graph / redes sociales */
+  og_src?: string;
+  og_width?: number;
+  og_height?: number;
 }
 
 const MANIFEST_PATH = path.resolve(process.cwd(), 'src/data/generated/articulo-imagenes.json');

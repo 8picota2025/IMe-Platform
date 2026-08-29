@@ -127,3 +127,24 @@ export function absoluteImagenUrl(src: string, site = 'https://i-me.com.co'): st
   const path = src.startsWith('/') ? src : `/${src}`;
   return `${site.replace(/\/$/, '')}${path}`;
 }
+
+const OG_SOCIAL_SIZE = { width: 1200, height: 630 } as const;
+
+/**
+ * Imagen para compartir en redes: prioriza variante OG del mirror (1200×630 crop).
+ */
+export function resolverOgImagenArticulo(articulo: ArticuloImagenInput): ImagenArticulo {
+  const mirrored = imagenMirrorParaArticulo(articulo.slug);
+  if (mirrored?.og_src) {
+    return {
+      src: mirrored.og_src,
+      width: mirrored.og_width ?? OG_SOCIAL_SIZE.width,
+      height: mirrored.og_height ?? OG_SOCIAL_SIZE.height,
+    };
+  }
+  const hero = resolverImagenArticulo(articulo);
+  if (/^https?:\/\//i.test(hero.src)) {
+    return { ...hero, ...OG_SOCIAL_SIZE };
+  }
+  return { ...hero, ...OG_SOCIAL_SIZE };
+}

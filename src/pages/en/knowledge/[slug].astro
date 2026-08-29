@@ -10,7 +10,11 @@ import {
 import { getArticulos, type Articulo } from '../../../lib/datos';
 import { stripMarkdown } from '../../../lib/markdown';
 import { renderArticleBody } from '../../../lib/conocimiento-articulo';
-import { resolverImagenArticulo, absoluteImagenUrl } from '../../../lib/conocimiento-imagenes';
+import {
+  resolverImagenArticulo,
+  resolverOgImagenArticulo,
+  absoluteImagenUrl,
+} from '../../../lib/conocimiento-imagenes';
 import { t } from '../../../i18n/utils';
 import '../../../styles/site-faithful.css';
 
@@ -33,6 +37,8 @@ const canonical = buildCanonical(`/en/knowledge/${articulo.slug}`);
 const title = buildPageTitle(articulo.titulo);
 const description = stripMarkdown(articulo.cuerpo || articulo.titulo).slice(0, 155);
 const imagen = resolverImagenArticulo(articulo);
+const ogImagen = resolverOgImagenArticulo(articulo);
+const ogImage = absoluteImagenUrl(ogImagen.src);
 
 const jsonLd = combineJsonLd(
   buildOrganizationJsonLd(),
@@ -64,6 +70,10 @@ const jsonLd = combineJsonLd(
   canonical={canonical}
   locale={locale}
   currentPath={`/en/knowledge/${articulo.slug}`}
+  ogImage={ogImage}
+  ogImageWidth={ogImagen.width}
+  ogImageHeight={ogImagen.height}
+  ogType="article"
   jsonLd={jsonLd}
 >
   <div class="site-faithful">
@@ -104,7 +114,7 @@ const jsonLd = combineJsonLd(
             <div class="image-wrapper">
               <img
                 src={imagen.src}
-                alt=""
+                alt={articulo.titulo}
                 width={imagen.width}
                 height={imagen.height}
                 loading="eager"

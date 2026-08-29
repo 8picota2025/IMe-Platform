@@ -1,4 +1,4 @@
-import { formatFabricanteDistribuidor } from '../lib/producto-origen';
+import { sanitizeArticuloSlug, isValidArticuloSlug } from '../lib/articulo-slug';
 import { renderMarkdown } from '../lib/markdown';
 import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase';
 import type { AuthChangeEvent } from '@supabase/supabase-js';
@@ -6413,13 +6413,15 @@ function bindArticulos() {
     event.preventDefault();
     const data = new FormData(form);
     const id = String(data.get('id') ?? '');
-    const slug = String(data.get('slug') ?? '').trim();
+    const rawSlug = String(data.get('slug') ?? '').trim();
+    const tituloEs = String(data.get('titulo_es') ?? '').trim();
+    const slug = sanitizeArticuloSlug(rawSlug) || slugify(tituloEs);
     const autorTipoRaw = String(data.get('autor_tipo') ?? 'ime').trim();
     const autorTipo =
       autorTipoRaw === 'cliente' || autorTipoRaw === 'fabricante' ? autorTipoRaw : 'ime';
     const payload: Row = {
       slug,
-      titulo_es: String(data.get('titulo_es') ?? '').trim(),
+      titulo_es: tituloEs,
       titulo_en: emptyToNull(data.get('titulo_en')),
       cuerpo_es: emptyToNull(data.get('cuerpo_es')),
       cuerpo_en: emptyToNull(data.get('cuerpo_en')),
@@ -6433,8 +6435,12 @@ function bindArticulos() {
         (form.elements.namedItem('publicado') as HTMLInputElement).checked,
     };
 
-    if (!payload.slug || !payload.titulo_es) {
+    if (!slug || !tituloEs) {
       toast('Completa slug y titulo ES');
+      return;
+    }
+    if (!isValidArticuloSlug(slug)) {
+      toast('Slug invalido: usa solo letras, numeros y guiones (sin URLs)');
       return;
     }
 
