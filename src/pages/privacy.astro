@@ -1,0 +1,25 @@
+---
+/**
+ * Language-neutral trust anchor for agents auditing /privacy.
+ * Canonical localized pages: /es/legal/privacidad/ and /en/legal/privacy/
+ */
+import LegalPage from '../components/LegalPage.astro';
+import { buildCanonical, buildPageTitle } from '../lib/seo';
+import { legalEn } from '../data/legal-content';
+
+const doc = legalEn.privacy;
+---
+
+<LegalPage
+  locale="en"
+  currentPath="/privacy"
+  title={buildPageTitle('Privacy Policy')}
+  description={doc.description}
+  canonical={buildCanonical('/privacy')}
+  badge={doc.badge}
+  heading={doc.heading}
+  summary={doc.summary}
+  updatedAt={doc.updatedAt}
+  sections={doc.sections}
+  notice={doc.notice}
+/>

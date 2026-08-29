@@ -1,0 +1,84 @@
+---
+/**
+ * Language-neutral trust anchor for agents auditing /about.
+ * Canonical localized pages: /es/nosotros/ and /en/about/
+ */
+import Layout from '../layouts/Layout.astro';
+import {
+  buildCanonical,
+  buildOrganizationJsonLd,
+  buildPageTitle,
+  combineJsonLd,
+  getInstitutionalOgImage,
+} from '../lib/seo';
+import '../styles/site-faithful.css';
+
+const locale = 'en';
+const title = buildPageTitle('About I-ME');
+const description =
+  'I-ME International Medical Enterprise S.A.S. — over 15 years distributing certified biomedical equipment, technical support, and financing for hospitals and clinics across Colombia.';
+const canonical = buildCanonical('/about');
+
+const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
+  '@context': 'https://schema.org',
+  '@type': 'AboutPage',
+  url: canonical,
+  name: 'About I-ME',
+  about: { '@id': 'https://i-me.com.co/#organization' },
+  inLanguage: 'en',
+});
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  locale={locale}
+  currentPath="/about"
+  ogImage={getInstitutionalOgImage()}
+  jsonLd={jsonLd}
+  monolingual={true}
+>
+  <div class="site-faithful">
+    <header class="page-hero" aria-labelledby="about-h1">
+      <div class="container">
+        <h1 id="about-h1">About I-ME International Medical Enterprise</h1>
+        <p class="ph-sub">
+          Colombian distributor of biomedical technology for healthcare institutions — sales,
+          installation, training, maintenance, and financing.
+        </p>
+      </div>
+    </header>
+
+    <section class="section" aria-labelledby="about-body-h2">
+      <div class="container" style="max-width: 760px">
+        <h2 id="about-body-h2" class="s-title">Who we are</h2>
+        <p>
+          I-ME International Medical Enterprise S.A.S. (NIT 901871720-1) is headquartered in
+          Envigado, Antioquia, Colombia. For more than 15 years we have represented international
+          manufacturers of medical devices and hospital equipment, serving hospitals, clinics, and
+          health networks in all 32 departments of Colombia.
+        </p>
+        <p>
+          Our portfolio spans patient monitors, ventilators, imaging and surgery equipment,
+          sterilization systems, hospital furniture, and more than 24 equipment categories
+          documented on our public catalog. We provide on-site installation, staff training,
+          preventive and corrective biomedical engineering services, and tailored financing programs
+          for institutional buyers.
+        </p>
+        <p>
+          I-ME works exclusively with manufacturers whose products are documented for the Colombian
+          market. Regulatory status (INVIMA, CE, FDA, or other) must be confirmed per reference
+          before purchase — our commercial team validates this in every formal quotation.
+        </p>
+        <p>
+          <strong>Localized pages:</strong>
+          <a href="/es/nosotros/">Nosotros (ES)</a> ·
+          <a href="/en/about/">About (EN)</a> ·
+          <a href="/privacy/">Privacy policy</a> ·
+          <a href="/contact/">Contact</a>
+        </p>
+      </div>
+    </section>
+  </div>
+</Layout>

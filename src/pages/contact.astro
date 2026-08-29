@@ -1,0 +1,73 @@
+---
+/**
+ * Language-neutral trust anchor for agents auditing /contact.
+ * Canonical localized pages: /es/contacto/ and /en/contact/
+ */
+import Layout from '../layouts/Layout.astro';
+import { buildCanonical, buildPageTitle, getInstitutionalOgImage } from '../lib/seo';
+import '../styles/contact-spacing.css';
+
+const locale = 'en';
+const title = buildPageTitle('Contact I-ME');
+const description =
+  'Contact I-ME for biomedical equipment quotes, technical support, and financing in Colombia. Phone +57 313 724 7353 · info@i-me.com.co · Response within 24 business hours.';
+const canonical = buildCanonical('/contact');
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  locale={locale}
+  currentPath="/contact"
+  ogImage={getInstitutionalOgImage()}
+  monolingual={true}
+>
+  <div class="page-hero contacto-hero">
+    <div class="container">
+      <span class="section-tag">Contact</span>
+      <h1>Contact I-ME</h1>
+      <p style="color:var(--text-mid);max-width:640px;margin:0.75rem 0 0">
+        Request a quote, ask about availability, or speak with a biomedical equipment specialist. We
+        serve healthcare institutions across Colombia.
+      </p>
+    </div>
+  </div>
+
+  <section class="section container contacto-section">
+    <div class="contacto-grid" style="max-width: 720px">
+      <div>
+        <h2 class="s-title">How to reach us</h2>
+        <ul style="list-style:none;padding:0;display:grid;gap:0.75rem">
+          <li>
+            <strong>Phone / WhatsApp:</strong>
+            <a href="tel:+573137247353">+57 313 724 7353</a>
+          </li>
+          <li>
+            <strong>Email:</strong>
+            <a href="mailto:info@i-me.com.co">info@i-me.com.co</a>
+          </li>
+          <li>
+            <strong>Address:</strong> CL 28 SUR 29 83, Envigado, Antioquia, Colombia
+          </li>
+          <li><strong>NIT:</strong> 901871720-1</li>
+        </ul>
+        <p style="margin-top:1.25rem;color:var(--text-mid)">
+          For product-specific quotations, use the localized contact forms with your equipment
+          requirements. A commercial specialist typically responds within 24 business hours with
+          reference documentation, lead times, and financing options when applicable.
+        </p>
+        <p style="margin-top:1rem">
+          <a href="/en/contact/" class="btn btn-primary" style="display:inline-block"
+            >Full contact form (EN)</a
+          >
+          <a
+            href="/es/contacto/"
+            class="btn btn-secondary"
+            style="display:inline-block;margin-left:0.5rem">Formulario de contacto (ES)</a
+          >
+        </p>
+      </div>
+    </div>
+  </section>
+</Layout>

@@ -1,0 +1,74 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { buildCanonical, buildPageTitle } from '../lib/seo';
+import { NOT_FOUND_RECOVERY_LINKS } from '../lib/agent-ready';
+import '../styles/site-faithful.css';
+
+const locale = 'es';
+const title = buildPageTitle('Página no encontrada');
+const description =
+  'La página solicitada no existe. Consulte el catálogo, el mapa del sitio o contáctenos para equipos biomédicos en Colombia.';
+const canonical = buildCanonical('/404');
+const links = NOT_FOUND_RECOVERY_LINKS;
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  locale={locale}
+  currentPath="/404"
+  noindex={true}
+>
+  <div class="site-faithful">
+    <header class="page-hero" aria-labelledby="not-found-h1">
+      <div class="container">
+        <h1 id="not-found-h1">Página no encontrada (404)</h1>
+        <p class="ph-sub">
+          La URL solicitada no existe en I-ME. Use los enlaces siguientes para continuar.
+        </p>
+      </div>
+    </header>
+
+    <section class="section" aria-labelledby="recovery-h2">
+      <div class="container" style="max-width: 720px">
+        <h2 id="recovery-h2" class="s-title">Dónde continuar</h2>
+        <ul class="recovery-links">
+          <li><a href="/es/catalogo/">Catálogo de equipos biomédicos (ES)</a></li>
+          <li><a href="/en/catalog/">Biomedical equipment catalog (EN)</a></li>
+          <li><a href="/sitemap-index.xml">Mapa del sitio (sitemap-index.xml)</a></li>
+          <li><a href="/llms.txt">Instrucciones para agentes (llms.txt)</a></li>
+          <li><a href="/es/contacto/">Contacto y cotización (ES)</a></li>
+          <li><a href="/en/contact/">Contact and quote (EN)</a></li>
+          <li><a href="/about/">Acerca de I-ME</a></li>
+          <li><a href="/privacy/">Política de privacidad</a></li>
+        </ul>
+        <p style="color: var(--text-mid); margin-top: 1.5rem">
+          I-ME International Medical Enterprise S.A.S. — distribución, soporte técnico y
+          financiamiento de equipos biomédicos para instituciones de salud en Colombia. Confirme
+          especificaciones, disponibilidad y precios con nuestro equipo comercial antes de citarlos
+          como compromisos.
+        </p>
+        <p style="color: var(--text-mid); font-size: 0.9rem">
+          Agent recovery: <a href={links.sitemap}>{links.sitemap}</a> ·
+          <a href={links.llms}>{links.llms}</a>
+        </p>
+      </div>
+    </section>
+  </div>
+</Layout>
+
+<style>
+  .recovery-links {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+  .recovery-links a {
+    color: var(--t800);
+    font-weight: 600;
+    text-decoration: underline;
+  }
+</style>
