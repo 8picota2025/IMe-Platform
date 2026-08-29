@@ -20,6 +20,7 @@ interface Props {
   updatedAt: string;
   sections: Section[];
   notice: string;
+  monolingual?: boolean;
 }
 
 const {
@@ -34,6 +35,7 @@ const {
   updatedAt,
   sections,
   notice,
+  monolingual = false,
 } = Astro.props;
 ---
 
@@ -44,6 +46,7 @@ const {
   locale={locale}
   currentPath={currentPath}
   ogImage={getInstitutionalOgImage()}
+  monolingual={monolingual}
 >
   <article class="legal-page">
     <div class="container legal-page__inner">
