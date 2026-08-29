@@ -37,6 +37,10 @@ import {
   type CotizacionOfertaRow,
   type CotizacionLineaOferta,
 } from '../../../src/lib/cotizacion-oferta.ts';
+import {
+  isCuponLineaPermitidaConExcluirOfertas,
+  isProductoEnOfertaVigente,
+} from '../../../src/lib/cupon-excluir-ofertas.ts';
 
 const FN_NAME = 'crear-pago';
 const MAX_ITEMS = 20;
@@ -128,6 +132,8 @@ interface CuponRow {
   familias_incluidas: string[] | null;
   familias_excluidas: string[] | null;
   emails_permitidos: string[] | null;
+  /** When true, lines charged at active catalog precio_oferta are not discountable. */
+  excluir_ofertas: boolean;
   limite_uso_total: number | null;
   limite_uso_por_usuario: number | null;
   usos: number;
@@ -462,9 +468,19 @@ async function calcularDescuentoCupon(args: {
   const excluidos = new Set(cupon.productos_excluidos ?? []);
   const familiasIncluidas = new Set(cupon.familias_incluidas ?? []);
   const familiasExcluidas = new Set(cupon.familias_excluidas ?? []);
+  const excluirOfertas = cupon.excluir_ofertas === true;
   const elegibles = args.items.filter(item => {
     const slug = String(item.slug ?? '');
     const familiaId = String(item.familia_id ?? '');
+    // Admin "Excluir productos en oferta" — fail-closed; never discount precio_oferta lines.
+    if (
+      !isCuponLineaPermitidaConExcluirOfertas({
+        excluirOfertas,
+        enOferta: item.en_oferta === true,
+      })
+    ) {
+      return false;
+    }
     if (excluidos.has(slug) || familiasExcluidas.has(familiaId)) return false;
     if (incluidos.size > 0 && !incluidos.has(slug)) return false;
     if (familiasIncluidas.size > 0 && !familiasIncluidas.has(familiaId)) return false;
@@ -743,6 +759,13 @@ Deno.serve(
 
       const locked = preciosLockedPorSlug?.get(slug);
       let precio: number | null;
+      const enOferta =
+        !locked &&
+        isProductoEnOfertaVigente({
+          precioOferta: producto.precio_oferta,
+          ofertaInicio: producto.oferta_inicio,
+          ofertaFin: producto.oferta_fin,
+        });
       if (locked) {
         precio = locked.precio_unitario;
       } else {
@@ -814,6 +837,7 @@ Deno.serve(
         cantidad,
         precio_unitario: precio,
         moneda: monedaItem,
+        en_oferta: enOferta,
         ...(locked ? { precio_locked_cotizacion: true } : {}),
       });
       fiscalItems.push({
