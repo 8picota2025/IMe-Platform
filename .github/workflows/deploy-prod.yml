@@ -79,3 +79,14 @@ jobs:
           # eliminar carpetas que Hostinger ya no conserva. v3 reconstruye
           # índice remoto limpio tras migración global de URLs.
           state-name: .ftp-deploy-sync-state-v3.json
+
+      - name: Smoke test producción
+        env:
+          PROD_URL: https://i-me.com.co
+        run: |
+          set -euo pipefail
+          for path in /es/ /es/catalogo/ /es/familias/robots/ /robots.txt /sitemap-index.xml; do
+            status="$(curl -L --silent --show-error --fail --output /dev/null --write-out '%{http_code}' "${PROD_URL}${path}")"
+            test "$status" = "200"
+            echo "OK ${status} ${path}"
+          done
