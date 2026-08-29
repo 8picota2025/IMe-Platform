@@ -719,6 +719,7 @@ export async function getArticuloBySlug(slug: string, locale: Locale): Promise<A
     if (error) {
       registrarErrorSupabase('getArticuloBySlug', error);
     } else if (data) {
+      const imagen = stringValue(data.imagen);
       return {
         id: stringValue(data.id),
         slug: stringValue(data.slug),
@@ -730,6 +731,7 @@ export async function getArticuloBySlug(slug: string, locale: Locale): Promise<A
           locale === 'en'
             ? stringValue(data.cuerpo_en) || stringValue(data.cuerpo_es)
             : stringValue(data.cuerpo_es),
+        ...(imagen ? { imagen } : {}),
         publicado: Boolean(data.publicado),
         created_at: stringValue(data.created_at),
         updated_at: stringValue(data.updated_at),

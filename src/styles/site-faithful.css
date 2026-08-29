@@ -1342,6 +1342,14 @@
   transition-delay: 0.44s;
 }
 
+/* Blog article pages: never hide body copy behind scroll-reveal.
+   Long articles in .fade-in may never hit the 12% IO threshold. */
+.site-faithful .article-page .story-text,
+.site-faithful .article-page .story-image {
+  opacity: 1;
+  transform: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .site-faithful .marquee-track,
   .site-faithful .hero-ecg-wrap svg {

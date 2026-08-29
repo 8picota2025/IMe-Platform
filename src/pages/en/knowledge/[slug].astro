@@ -8,7 +8,8 @@ import {
   combineJsonLd,
 } from '../../../lib/seo';
 import { getArticulos, type Articulo } from '../../../lib/datos';
-import { renderMarkdown, stripMarkdown } from '../../../lib/markdown';
+import { stripMarkdown } from '../../../lib/markdown';
+import { renderArticleBody } from '../../../lib/conocimiento-articulo';
 import { resolverImagenArticulo, absoluteImagenUrl } from '../../../lib/conocimiento-imagenes';
 import { t } from '../../../i18n/utils';
 import '../../../styles/site-faithful.css';
@@ -98,8 +99,8 @@ const jsonLd = combineJsonLd(
 
     <article class="section article-page">
       <div class="container article-shell">
-        <div class="story-text fade-in">
-          <div class="story-image fade-in d1">
+        <div class="story-text">
+          <div class="story-image">
             <div class="image-wrapper">
               <img
                 src={imagen.src}
@@ -113,7 +114,7 @@ const jsonLd = combineJsonLd(
           </div>
           <div
             class="article-body"
-            set:html={renderMarkdown(articulo.cuerpo || t(locale, 'conocimiento.vacio'))}
+            set:html={renderArticleBody(articulo.cuerpo, t(locale, 'conocimiento.vacio'))}
           />
         </div>
         <div class="article-footer">
@@ -202,32 +203,3 @@ const jsonLd = combineJsonLd(
     border-top: 1px solid var(--border, #e2e8f0);
   }
 </style>
-
-<script>
-  function initArticulo() {
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const faders = document.querySelectorAll<HTMLElement>(
-      '.site-faithful .fade-in:not([data-ime-bound])'
-    );
-    faders.forEach(el => (el.dataset.imeBound = '1'));
-    if (reduce || !('IntersectionObserver' in window)) {
-      faders.forEach(el => el.classList.add('visible'));
-      return;
-    }
-    const io = new IntersectionObserver(
-      entries => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            io.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
-    );
-    faders.forEach(el => io.observe(el));
-  }
-
-  initArticulo();
-  document.addEventListener('astro:page-load', initArticulo);
-</script>
