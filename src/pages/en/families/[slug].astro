@@ -44,6 +44,13 @@ const familyPage = paginateCatalogItems(productos, 1);
 const faq = content.faq.map(f => ({ q: f.q_en, a: f.a_en }));
 const criterios = getFamiliaGuide(slug, locale);
 const catalogoFamilia = '#equipment';
+const mobilityHub =
+  slug === 'movilidad-rehabilitacion'
+    ? {
+        walkers: { href: '/en/adult-walkers/', label: 'Adult walkers guide' },
+        wheelchairs: { href: '/en/wheelchairs/', label: 'Konfort Plus wheelchairs guide' },
+      }
+    : null;
 
 const jsonLd = combineJsonLd(
   buildOrganizationJsonLd(),
@@ -97,6 +104,18 @@ const jsonLd = combineJsonLd(
       content.body_en.map(p => (
         <p style="margin:0 0 1rem;line-height:1.6;color:var(--text-mid)">{p}</p>
       ))
+    }
+    {
+      mobilityHub && (
+        <p style="margin:1.25rem 0 0">
+          <a class="btn btn-secondary" href={mobilityHub.walkers.href} style="margin-right:0.5rem">
+            {mobilityHub.walkers.label}
+          </a>
+          <a class="btn btn-secondary" href={mobilityHub.wheelchairs.href}>
+            {mobilityHub.wheelchairs.label}
+          </a>
+        </p>
+      )
     }
   </section>
 

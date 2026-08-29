@@ -217,12 +217,12 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
     slug: 'movilidad-rehabilitacion',
     name_es: 'Movilidad y rehabilitación',
     name_en: 'Mobility and rehabilitation',
-    title_es: 'Equipos de movilidad y rehabilitación | I-ME',
-    title_en: 'Mobility and rehabilitation equipment | I-ME',
+    title_es: 'Caminadores para adultos y sillas Konfort Plus | Movilidad | I-ME',
+    title_en: 'Adult walkers & Konfort Plus wheelchairs | Mobility | I-ME',
     description_es:
-      'Sillas de ruedas, ayudas de marcha, transferencia, repuestos y apoyo para movilidad y rehabilitación.',
+      'Caminadores para adultos, rollators Konfort Plus, sillas de ruedas estándar y transporte. Orientación y cotización institucional en Colombia.',
     description_en:
-      'Wheelchairs, walking aids, transfer equipment, spare parts and mobility and rehabilitation support.',
+      'Adult walkers, Konfort Plus rollators and wheelchairs — standard and transport models. Institutional guidance and quotes in Colombia.',
     intro_es:
       'Movilidad no se resuelve solo con talla. Entorno, postura, transferencia, autonomía, acompañante y mantenimiento determinan la configuración.',
     intro_en:
@@ -241,6 +241,18 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
         a_es: 'I-ME compara referencias y entorno; la indicación y ajuste individual deben confirmarse por el profesional competente.',
         q_en: 'How do I choose a wheelchair or walking aid?',
         a_en: 'I-ME compares models and environment; individual prescription and fitting must be confirmed by the competent professional.',
+      },
+      {
+        q_es: '¿Tienen caminadores para adultos Konfort Plus?',
+        a_es: 'Sí. Hay caminadores y rollators Konfort Plus en catálogo. Para orientación por uso y presupuesto, consulte la guía de caminadores o solicite cotización.',
+        q_en: 'Do you carry Konfort Plus adult walkers?',
+        a_en: 'Yes. Konfort Plus walkers and rollators are in the catalog. For use-case and budget guidance, see the walkers hub or request a quote.',
+      },
+      {
+        q_es: '¿Venden sillas de ruedas Konfort Plus?',
+        a_es: 'Sí. Konfort Plus incluye sillas estándar, transporte y reclinables publicadas en catálogo. Confirmamos variante y disponibilidad al cotizar.',
+        q_en: 'Do you sell Konfort Plus wheelchairs?',
+        a_en: 'Yes. Konfort Plus standard, transport and reclining wheelchairs are published in the catalog. We confirm variant and availability when quoting.',
       },
     ],
     relatedSlugs: [],

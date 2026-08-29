@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildPageTitle, buildHomeSeo } from './seo';
+import { buildPageTitle, buildHomeSeo, buildServiciosSeo } from './seo';
 import { getCampaignLanding, listCampaignLandings } from '../data/comercial-landings';
 
 describe('SEO P0', () => {
@@ -22,5 +22,11 @@ describe('SEO P0', () => {
     const caminadores = getCampaignLanding('caminadores_adultos', 'es');
     expect(caminadores.path).toBe('/es/caminadores-para-adultos/');
     expect(caminadores.productSlugs.length).toBeGreaterThan(0);
+  });
+
+  it('EN services targets GSC B2B queries', () => {
+    const en = buildServiciosSeo('en');
+    expect(en.description.toLowerCase()).toContain('renewal');
+    expect(en.description.toLowerCase()).toContain('leading');
   });
 });

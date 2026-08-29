@@ -244,11 +244,11 @@ export function buildServiciosSeo(locale: Locale): SeoPageMeta {
     title:
       locale === 'es'
         ? 'Servicios biomédicos en Colombia | venta, soporte técnico y financiamiento | I-ME'
-        : 'Biomedical services in Colombia | sales, technical support and financing | I-ME',
+        : 'I-ME biomedical services Colombia | medical device sales, renewal & support',
     description:
       locale === 'es'
         ? 'I-ME ofrece venta de equipos biomédicos con registro INVIMA, soporte técnico de ingenieros certificados, calibración, financiamiento y asesoría para hospitales y clínicas.'
-        : 'I-ME offers INVIMA-registered biomedical equipment, certified technical support, calibration, financing and advisory for hospitals and clinics.',
+        : 'I-ME International Medical Enterprise: leading biomedical distributor in Colombia — equipment sales, device renewal, INVIMA-registered imports, technical support and financing for hospitals.',
     canonical: buildCanonical(locale === 'es' ? '/es/servicios' : '/en/services'),
     ogImage: DEFAULT_OG_IMAGE,
   };
