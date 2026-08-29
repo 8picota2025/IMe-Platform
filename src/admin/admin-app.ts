@@ -1,3 +1,4 @@
+import { formatFabricanteDistribuidor } from '../lib/producto-origen';
 import { sanitizeArticuloSlug, isValidArticuloSlug } from '../lib/articulo-slug';
 import { renderMarkdown } from '../lib/markdown';
 import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase';
