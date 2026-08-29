@@ -814,3 +814,28 @@ RewriteRule ^en/products/gmd-ltd-b10-100/?$ /en/products/combo-100-cajas-de-tiri
 RewriteRule ^es/productos/combo-50-cajas-de-tirillas-plus-50-cajas-de-lancetas-plus-10-glucometros-en-obsequio/?$ /es/productos/g-ltd-b10-50/ [R=301,L]
 RewriteRule ^en/products/combo-50-cajas-de-tirillas-plus-50-cajas-de-lancetas-plus-10-glucometros-en-obsequio/?$ /en/products/g-ltd-b10-50/ [R=301,L]
 # End product slug migrations
+
+# --- Agent-ready: markdown negotiation + 404 (acceptmarkdown.com) ---
+<IfModule mod_headers.c>
+  <FilesMatch "\.md$">
+    Header set Content-Type "text/markdown; charset=utf-8"
+  </FilesMatch>
+  Header merge Vary Accept
+</IfModule>
+
+# Markdown for agents when a sibling index.md exists (directory layout).
+RewriteCond %{HTTP:Accept} text/markdown [NC]
+RewriteCond %{HTTP:Accept} !text/markdown\s*;\s*q\s*=\s*0 [NC]
+RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI}index.md -f
+RewriteRule ^(.+?)/?$ $1/index.md [L]
+
+# Agent-friendly 404: markdown body when requested.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{HTTP:Accept} text/markdown [NC]
+RewriteCond %{HTTP:Accept} !text/markdown\s*;\s*q\s*=\s*0 [NC]
+RewriteCond %{DOCUMENT_ROOT}/404.md -f
+RewriteRule ^ /404.md [L]
+
+ErrorDocument 404 /404.html
+# --- End agent-ready ---
