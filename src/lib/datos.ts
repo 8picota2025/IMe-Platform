@@ -22,6 +22,7 @@ import productImageManifest from '../data/product-image-manifest.json';
 
 let supabaseDeshabilitadoPorError = false;
 type RawRow = Record<string, unknown>;
+const REQUIRE_LIVE_DATA = import.meta.env['REQUIRE_LIVE_DATA'] === 'true';
 
 /**
  * Correcciones editoriales verificadas contra nombre, descripción y referencia
@@ -86,6 +87,11 @@ function debeUsarSupabase(): boolean {
 
 function registrarErrorSupabase(scope: string, error: { message?: string } | null): void {
   supabaseDeshabilitadoPorError = true;
+  if (REQUIRE_LIVE_DATA) {
+    throw new Error(
+      `[datos] Build estricto: Supabase ${scope} falló: ${error?.message ?? 'error desconocido'}`
+    );
+  }
   console.error(
     `[datos] Supabase ${scope} error, falling back to mock:`,
     error?.message ?? 'error desconocido'
@@ -93,6 +99,9 @@ function registrarErrorSupabase(scope: string, error: { message?: string } | nul
 }
 
 function registrarVacioSupabase(scope: string): void {
+  if (REQUIRE_LIVE_DATA) {
+    throw new Error(`[datos] Build estricto: Supabase ${scope} devolvió 0 filas`);
+  }
   console.warn(`[datos] Supabase ${scope} devolvió 0 filas, usando mock como respaldo`);
 }
 

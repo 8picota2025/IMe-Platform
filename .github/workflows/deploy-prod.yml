@@ -41,6 +41,7 @@ jobs:
         env:
           PUBLIC_SUPABASE_URL: https://nnfbucwiasuggyfoyydo.supabase.co
           PUBLIC_SUPABASE_ANON_KEY: sb_publishable_5nGmPS2W7yzG3B1NC7piCQ_Imt5f9b2
+          REQUIRE_LIVE_DATA: 'true'
           # Solo mirror de imágenes CMS en build (no llega al bundle cliente).
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           PUBLIC_SUPABASE_TIMEOUT_MS: 8000

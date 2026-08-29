@@ -29,6 +29,7 @@ jobs:
         env:
           PUBLIC_SUPABASE_URL: https://nnfbucwiasuggyfoyydo.supabase.co
           PUBLIC_SUPABASE_ANON_KEY: sb_publishable_5nGmPS2W7yzG3B1NC7piCQ_Imt5f9b2
+          REQUIRE_LIVE_DATA: 'true'
           PUBLIC_GA_ID: G-YKKFCZHE2N
           PUBLIC_ANALYTICS_DOMAIN: i-me.com.co
           PUBLIC_SEARCH_CONSOLE_VERIFICATION: ${{ secrets.PUBLIC_SEARCH_CONSOLE_VERIFICATION }}
