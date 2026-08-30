@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Reindexa embeddings con Voyage en Supabase remoto.
+ * Reindexa embeddings en Supabase usando proveedor local Ollama o Voyage.
  *
  * Modos:
  *   node --env-file=.env scripts/reindex-voyage-embeddings.mjs products
@@ -13,8 +13,10 @@ import { createClient } from '@supabase/supabase-js'
 const mode = (process.argv[2] ?? 'products').toLowerCase()
 const url = process.env.PUBLIC_SUPABASE_URL
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+const provider = process.env.EMBEDDING_PROVIDER ?? 'ollama'
 const voyageKey = process.env.VOYAGE_API_KEY
-const model = process.env.EMBEDDING_MODEL ?? 'voyage-3'
+const model = process.env.EMBEDDING_MODEL ?? (provider === 'ollama' ? 'mxbai-embed-large' : 'voyage-3')
+const ollamaBaseUrl = (process.env.OLLAMA_BASE_URL ?? 'http://127.0.0.1:11434').replace(/\/+$/, '')
 const batchSize = Number(process.env.REINDEX_BATCH_SIZE ?? 20)
 const requestGapMs = Number(process.env.REINDEX_REQUEST_GAP_MS ?? 21000)
 const maxRetries = Number(process.env.REINDEX_MAX_RETRIES ?? 4)
@@ -24,7 +26,11 @@ if (!url || !serviceKey) {
   throw new Error('PUBLIC_SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY son requeridos')
 }
 
-if (!voyageKey) {
+if (!['ollama', 'voyage'].includes(provider)) {
+  throw new Error(`Proveedor de embeddings invalido: ${provider}`)
+}
+
+if (provider === 'voyage' && !voyageKey) {
   throw new Error('VOYAGE_API_KEY es requerido')
 }
 
@@ -70,7 +76,7 @@ async function reindexProducts() {
   }
 
   console.log(
-    `Reindexando ${rows.length} productos con Voyage (${model})${onlyMissing ? ' — solo faltantes' : ''}...`
+    `Reindexando ${rows.length} productos con ${provider} (${model})${onlyMissing ? ' — solo faltantes' : ''}...`
   )
   await reindexRows(rows, 'productos', normalizeProductText)
 }
@@ -104,8 +110,7 @@ async function reindexRows(rows, tableName, buildText) {
   for (let i = 0; i < rows.length; i += batchSize) {
     const lote = rows.slice(i, i + batchSize)
     const textos = lote.map(buildText)
-    const json = await fetchVoyageEmbeddings(textos)
-    const vectors = json?.data?.map(item => item?.embedding ?? []) ?? []
+    const vectors = await fetchEmbeddings(textos)
 
     if (vectors.length !== lote.length) {
       throw new Error(
@@ -184,6 +189,26 @@ function normalizeArticleText(articulo) {
     .slice(0, 6000)
 }
 
+async function fetchEmbeddings(texts) {
+  if (provider === 'ollama') return fetchOllamaEmbeddings(texts)
+  return fetchVoyageEmbeddings(texts)
+}
+
+async function fetchOllamaEmbeddings(texts) {
+  const res = await fetch(`${ollamaBaseUrl}/api/embed`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model, input: texts }),
+  })
+  if (!res.ok) throw new Error(`Ollama error ${res.status}: ${await res.text()}`)
+  const json = await res.json()
+  const vectors = json?.embeddings ?? []
+  if (!Array.isArray(vectors) || vectors.length !== texts.length) {
+    throw new Error(`Longitud inesperada de embeddings Ollama: esperaba ${texts.length}`)
+  }
+  return vectors
+}
+
 async function fetchVoyageEmbeddings(texts) {
   for (let attempt = 1; attempt <= maxRetries; attempt += 1) {
     const res = await fetch('https://api.voyageai.com/v1/embeddings', {
@@ -200,7 +225,8 @@ async function fetchVoyageEmbeddings(texts) {
     })
 
     if (res.ok) {
-      return res.json()
+      const json = await res.json()
+      return json?.data?.map(item => item?.embedding ?? []) ?? []
     }
 
     const body = await res.text()

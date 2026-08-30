@@ -77,7 +77,13 @@ curl -X POST http://localhost:54321/functions/v1/asesor -d '{"mensaje":"..."}'
 Verificar en `asesor_uso`: `proveedor='ollama'`, `modelo='qwen3:8b'`,
 `coste_estimado=0`.
 
-### Embeddings (pendiente en este servidor)
+### Embeddings (verificado)
+
+El modelo `mxbai-embed-large` está instalado localmente y la reindexación del
+catálogo activo se completó con Ollama: 715 productos activos, 0 embeddings
+faltantes. El script `scripts/reindex-voyage-embeddings.mjs` acepta
+`EMBEDDING_PROVIDER=ollama` y `REINDEX_ONLY_MISSING=true`; el nombre histórico
+del script se conserva para no romper automatizaciones existentes.
 
 `curl http://localhost:11434/api/embed` con `qwen3:8b` devuelve
 `{"error":"This server does not support embeddings. Start it with
