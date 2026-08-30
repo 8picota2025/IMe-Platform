@@ -130,6 +130,8 @@ async function main() {
     for (const match of xml.matchAll(/<loc>([^<]+)<\/loc>/g)) {
       const url = match[1];
       const pathname = new URL(url).pathname;
+      // sitemap-index.xml lista otros sitemaps (*.xml), no páginas HTML
+      if (/\.xml$/i.test(pathname)) continue;
       sitemapPaths.add(pathname);
       const file = localFileForPath(pathname);
       if (!(await fileExists(file))) fail(`sitemap: destino no generado: ${pathname}`);
