@@ -25,20 +25,28 @@ describe('buildProductJsonLd', () => {
     moneda: 'COP',
   };
 
+  function expectProductJsonLd(
+    ...args: Parameters<typeof buildProductJsonLd>
+  ): Record<string, unknown> {
+    const jsonLd = buildProductJsonLd(...args);
+    expect(jsonLd).not.toBeNull();
+    return jsonLd as Record<string, unknown>;
+  }
+
   it('usa la marca del fabricante cuando esta presente', () => {
-    const jsonLd = buildProductJsonLd(producto, 'es', 'Monitores', 'Biolight');
+    const jsonLd = expectProductJsonLd(producto, 'es', 'Monitores', 'Biolight');
     expect((jsonLd.brand as { name: string }).name).toBe('Biolight');
   });
 
   it('cae a I-ME cuando no hay marca', () => {
-    const jsonLd = buildProductJsonLd(producto, 'es', 'Monitores', null);
+    const jsonLd = expectProductJsonLd(producto, 'es', 'Monitores', null);
     expect((jsonLd.brand as { name: string }).name).toBe('I-ME International Medical Enterprise');
   });
 
   it('marca MedicalDevice solo con certificaciones normativas reales', () => {
-    const plain = buildProductJsonLd(producto, 'es', 'Monitores', 'Biolight');
+    const plain = expectProductJsonLd(producto, 'es', 'Monitores', 'Biolight');
     expect(plain['@type']).toBe('Product');
-    const withCert = buildProductJsonLd(producto, 'es', 'Monitores', 'Biolight', {
+    const withCert = expectProductJsonLd(producto, 'es', 'Monitores', 'Biolight', {
       certificaciones: ['INVIMA'],
       familiaSlug: 'monitores',
     });
@@ -47,18 +55,18 @@ describe('buildProductJsonLd', () => {
   });
 
   it('incluye precio y moneda cuando el producto los tiene visibles', () => {
-    const jsonLd = buildProductJsonLd(producto, 'es', 'Monitores', 'Biolight');
+    const jsonLd = expectProductJsonLd(producto, 'es', 'Monitores', 'Biolight');
     expect((jsonLd.offers as { price: number }).price).toBe(12500000);
     expect((jsonLd.offers as { priceCurrency: string }).priceCurrency).toBe('COP');
   });
 
   it('usa COP cuando la moneda no contiene un código ISO de tres letras', () => {
-    const jsonLd = buildProductJsonLd({ ...producto, moneda: 'COP$' }, 'es');
+    const jsonLd = expectProductJsonLd({ ...producto, moneda: 'COP$' }, 'es');
     expect((jsonLd.offers as { priceCurrency: string }).priceCurrency).toBe('COP');
   });
 
   it('conserva una moneda ISO configurada', () => {
-    const jsonLd = buildProductJsonLd({ ...producto, moneda: 'USD' }, 'en');
+    const jsonLd = expectProductJsonLd({ ...producto, moneda: 'USD' }, 'en');
     expect((jsonLd.offers as { priceCurrency: string }).priceCurrency).toBe('USD');
   });
 
@@ -71,9 +79,8 @@ describe('buildProductJsonLd', () => {
   );
 
   it('Offer incluye campos merchant listing cuando hay precio', () => {
-    const jsonLd = buildProductJsonLd(producto, 'es', 'Monitores', 'Biolight');
-    expect(jsonLd).not.toBeNull();
-    const offers = jsonLd!.offers as Record<string, unknown>;
+    const jsonLd = expectProductJsonLd(producto, 'es', 'Monitores', 'Biolight');
+    const offers = jsonLd.offers as Record<string, unknown>;
     expect(offers.itemCondition).toBe('https://schema.org/NewCondition');
     expect(offers.priceValidUntil).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     expect(offers.hasMerchantReturnPolicy).toBeDefined();
@@ -81,13 +88,13 @@ describe('buildProductJsonLd', () => {
   });
 
   it('no añade reviews ni aggregateRating sin datos reales', () => {
-    const jsonLd = buildProductJsonLd(producto, 'es');
+    const jsonLd = expectProductJsonLd(producto, 'es');
     expect(jsonLd.review).toBeUndefined();
     expect(jsonLd.aggregateRating).toBeUndefined();
   });
 
   it('incluye SKU únicamente cuando existe en datos de producto', () => {
-    const jsonLd = buildProductJsonLd({ ...producto, sku: 'M12-BIOLIGHT' }, 'es');
+    const jsonLd = expectProductJsonLd({ ...producto, sku: 'M12-BIOLIGHT' }, 'es');
     expect(jsonLd.sku).toBe('M12-BIOLIGHT');
   });
 });
