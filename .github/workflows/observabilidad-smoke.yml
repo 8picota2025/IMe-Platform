@@ -2,8 +2,8 @@ name: Observabilidad Smoke
 
 on:
   schedule:
-    # Cada 15 min: */5 saturaba la cola de runners (jobs queued ~15m → cancelled).
-    - cron: '*/15 * * * *'
+    # Cada hora en minuto 11 para evitar coincidir con otros workflows programados.
+    - cron: '11 * * * *'
   workflow_dispatch:
   workflow_run:
     workflows: ['Deploy Producción']

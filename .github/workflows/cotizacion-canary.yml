@@ -1,10 +1,11 @@
 name: Cotización Canary
 
 # Flujo crítico: solicitud de cotización (contacto + modal navbar + emails).
-# Corre tras deploy web o Edge, y cada 30 min como red de seguridad.
+# Corre tras deploy web o Edge, y cada 6 h como red de seguridad; el minuto 17
+# evita coincidir con otros workflows programados.
 on:
   schedule:
-    - cron: '7,37 * * * *'
+    - cron: '17 */6 * * *'
   workflow_dispatch:
   workflow_run:
     workflows:
@@ -23,10 +24,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
 
