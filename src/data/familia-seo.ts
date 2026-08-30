@@ -1085,7 +1085,7 @@ const FAMILIA_HUB_LINKS: Record<string, FamiliaHubLink[]> = {
     },
     {
       href_es: '/es/conocimiento/caminadores-para-adultos-guia-compra-colombia/',
-      href_en: '/es/conocimiento/caminadores-para-adultos-guia-compra-colombia/',
+      href_en: '/en/knowledge/caminadores-para-adultos-guia-compra-colombia/',
       label_es: 'Artículo: cómo elegir caminador',
       label_en: 'Article: how to choose a walker',
     },
@@ -1120,6 +1120,12 @@ const FAMILIA_HUB_LINKS: Record<string, FamiliaHubLink[]> = {
   ],
   'terapia-respiratoria-soporte-vital': [
     {
+      href_es: '/es/alto-flujo-fisher-paykel/',
+      href_en: '/en/fisher-paykel-high-flow/',
+      label_es: 'Guía alto flujo Fisher Paykel Airvo',
+      label_en: 'Fisher Paykel Airvo high-flow guide',
+    },
+    {
       href_es: '/es/productos/sistema-de-alto-flujo-ref-airvo-3-fisher-paykel/',
       href_en: '/en/products/sistema-de-alto-flujo-ref-airvo-3-fisher-paykel/',
       label_es: 'Alto flujo Fisher Paykel Airvo 3',
@@ -1130,6 +1136,14 @@ const FAMILIA_HUB_LINKS: Record<string, FamiliaHubLink[]> = {
       href_en: '/en/products/circuito-para-alto-flujo-optiflow-junior-ref-rt330-fisher-paykel/',
       label_es: 'Circuitos Optiflow Fisher Paykel',
       label_en: 'Fisher Paykel Optiflow circuits',
+    },
+  ],
+  'emergencias-traslado-inmovilizacion': [
+    {
+      href_es: '/es/camillas-medicas/',
+      href_en: '/en/medical-stretchers/',
+      label_es: 'Guía camillas médicas y traslado',
+      label_en: 'Medical stretchers & transport guide',
     },
   ],
 };

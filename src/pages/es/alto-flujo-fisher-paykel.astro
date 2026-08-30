@@ -1,0 +1,11 @@
+---
+import CampaignLandingPage from '../../components/CampaignLandingPage.astro';
+import { getCampaignLanding } from '../../data/comercial-landings';
+import { getProductosBySlugs } from '../../lib/datos';
+
+const locale = 'es' as const;
+const content = getCampaignLanding('alto_flujo_fisher_paykel', locale);
+const productos = await getProductosBySlugs(content.productSlugs, locale);
+---
+
+<CampaignLandingPage locale={locale} content={content} productos={productos} />

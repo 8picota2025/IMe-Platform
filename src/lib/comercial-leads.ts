@@ -24,6 +24,8 @@ export type CampaignLandingId =
   | 'caminadores_adultos'
   | 'sillas_ruedas'
   | 'monitores_biolight'
+  | 'alto_flujo_fisher_paykel'
+  | 'camillas_medicas'
   | 'proyectos'
   | 'pdf_descarga'
   | 'evento'

@@ -116,6 +116,16 @@ const legalLinks: Array<{ kind: LegalKind; label: string }> = [
             {locale === 'en' ? 'Biolight ICU monitors' : 'Monitores Biolight UCI'}
           </a>
         </li>
+        <li>
+          <a href={getLocalizedPath('/alto-flujo-fisher-paykel', locale)}>
+            {locale === 'en' ? 'Fisher Paykel high flow' : 'Alto flujo Fisher Paykel'}
+          </a>
+        </li>
+        <li>
+          <a href={getLocalizedPath('/camillas-medicas', locale)}>
+            {locale === 'en' ? 'Medical stretchers' : 'Camillas médicas'}
+          </a>
+        </li>
         <li><a href={getLocalizedPath('/contacto', locale)}>{t(locale, 'nav.contacto')}</a></li>
         <li>
           <a href={getLocalizedPath('/conocimiento', locale)}>{t(locale, 'nav.conocimiento')}</a>

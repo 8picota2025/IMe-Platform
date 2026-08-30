@@ -54,6 +54,8 @@ const PATH_SEGMENT_PAIRS: Array<{ es: string; en: string }> = [
   { es: 'caminadores-para-adultos', en: 'adult-walkers' },
   { es: 'sillas-de-ruedas', en: 'wheelchairs' },
   { es: 'monitores-biolight-uci', en: 'biolight-icu-monitors' },
+  { es: 'alto-flujo-fisher-paykel', en: 'fisher-paykel-high-flow' },
+  { es: 'camillas-medicas', en: 'medical-stretchers' },
   { es: 'fabricantes', en: 'manufacturers' },
   { es: 'familias', en: 'families' },
   { es: 'ciudades', en: 'cities' },

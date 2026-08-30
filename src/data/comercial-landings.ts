@@ -1219,6 +1219,459 @@ const MONITORES_BIOLIGHT: ContentMap = {
   },
 };
 
+const ALTO_FLUJO_FISHER_PAYKEL: ContentMap = {
+  es: {
+    tag: 'Terapia respiratoria · Alto flujo',
+    title: 'Alto flujo Fisher Paykel Airvo y Optiflow | UCI y urgencias | I-ME',
+    description:
+      'Sistemas de alto flujo Fisher Paykel Airvo 2/3, circuitos Optiflow y cánulas para UCI, neonatología y urgencias en Colombia. Orientación I-ME sin catálogo infinito.',
+    h1: 'Alto flujo Fisher Paykel — Airvo y Optiflow con criterio institucional',
+    lead: 'Si busca sistema de alto flujo, Airvo 3, circuitos Optiflow o consumibles Fisher Paykel, le ayudamos a acotar equipo principal, interfaces y repuestos con referencias reales del catálogo.',
+    formIntro:
+      'Indique servicio (UCI, neonatología, urgencias), población y si cotiza equipo, circuitos o ambos. Un asesor responde con alternativas Fisher Paykel publicadas.',
+    primaryCta: 'Quiero orientación de alto flujo',
+    secondaryCta: 'Escribir por WhatsApp',
+    tertiaryCta: 'Ver terapia respiratoria',
+    heroImage: '/assets/img/hospital-uci-pasillo.webp',
+    heroImageAlt: 'Terapia respiratoria y alto flujo en UCI — I-ME Colombia',
+    problemTitle: 'Lo que suele fallar al comprar alto flujo',
+    problemBody:
+      'No es “el circuito más barato”. Es compatibilidad Airvo ↔ Optiflow, población (adulto/pediátrico), humidificación, consumibles recurrentes y soporte documentado. Un mismatch genera stock inútil y paradas operativas.',
+    solutionsTitle: 'Cómo acotamos la solución Fisher Paykel',
+    solutions: [
+      {
+        pain: 'Renovación o primera compra de Airvo para UCI o urgencias',
+        help: 'Partimos del Airvo 3 o Airvo 2 publicado y definimos interfaces y circuitos obligatorios según protocolo.',
+      },
+      {
+        pain: 'Reposición de circuitos Optiflow o cánulas sin mezclar referencias',
+        help: 'Confirmamos modelo de equipo, talla/población y SKU exacto (RT202, RT330, cánula adulto, etc.).',
+      },
+      {
+        pain: 'Homologar flota antes de licitar o ampliar camas',
+        help: 'Estructuramos checklist técnico por servicio con fichas publicadas — sin equivalencias inventadas.',
+      },
+    ],
+    audienceYes: [
+      'Hospitales e IPS con UCI, neonatología o urgencias',
+      'Biomédica / compras que buscan Fisher Paykel Airvo u Optiflow',
+      'Reposición de consumibles con trazabilidad por referencia',
+    ],
+    audienceNo: [
+      'Pedidos sin equipo principal ni población definida',
+      'Quienes exigen claims clínicos inventados o precios de vitrina',
+      'Compatibilidad “genérica” sin documentación del fabricante',
+    ],
+    situations: [
+      {
+        title: 'Equipo + consumibles',
+        body: 'Proyecto con Airvo y primera dotación de circuitos Optiflow.',
+      },
+      {
+        title: 'Solo reposición',
+        body: 'Circuitos, cánulas o accesorios para flota existente.',
+      },
+      {
+        title: 'Ampliación por fases',
+        body: 'Nuevas camas o servicio con el mismo estándar Fisher Paykel.',
+      },
+    ],
+    scopeTitle: 'Qué cubrimos en esta conversación',
+    scope: [
+      'Tipología Airvo y consumibles según servicio',
+      'Referencias Airvo 2/3, Optiflow RT202/RT330 y cánulas del catálogo I-ME',
+      'Alcance de instalación, capacitación y soporte en propuesta',
+      'Financiación orientativa para instituciones',
+    ],
+    requirementsTitle: 'Para cotizar con sentido',
+    requirements: [
+      'Servicio y ciudad',
+      'Población (adulto, pediátrico, neonatal)',
+      '¿Equipo, consumibles o ambos?',
+      'Cantidad y plazo',
+    ],
+    financingNote:
+      'Proyectos respiratorios suelen financiarse por fases. Condiciones en propuesta formal.',
+    evidenceNote:
+      'Hablamos de equipos y fichas publicadas. No prometemos outcomes clínicos ni tiempos de respuesta genéricos.',
+    processTitle: 'Cómo seguimos',
+    processSteps: [
+      'Cuéntenos el servicio en el formulario',
+      'Priorizamos por plazo y criticidad',
+      'Proponemos 1–3 referencias Fisher Paykel del catálogo',
+      'Cotización formal con alcance técnico',
+    ],
+    faqs: [
+      {
+        q: '¿Tienen Airvo 3 Fisher Paykel?',
+        a: 'Sí. Airvo 3 y Airvo 2 están publicados. Confirmamos configuración, interfaces y disponibilidad al cotizar.',
+      },
+      {
+        q: '¿Venden solo el circuito Optiflow?',
+        a: 'Sí, hay circuitos RT202, RT330 y cánulas Optiflow adulto en catálogo. Indique modelo de equipo y población.',
+      },
+      {
+        q: '¿Los accesorios son intercambiables entre marcas?',
+        a: 'No se debe asumir. Validamos compatibilidad por referencia y documentación del fabricante.',
+      },
+    ],
+    projectOptions: [
+      { value: 'airvo_equipo', label: 'Compra o renovación Airvo' },
+      { value: 'optiflow_consumibles', label: 'Circuitos / cánulas Optiflow' },
+      { value: 'proyecto_uci', label: 'Proyecto UCI o urgencias' },
+      { value: 'orientacion', label: 'Aún comparando referencias' },
+    ],
+    productSlugs: [
+      'sistema-de-alto-flujo-ref-airvo-3-fisher-paykel',
+      'sistema-de-alto-flujo-airvo-2-fisher-paykel',
+      'circuito-para-alto-flujo-optiflow-junior-ref-rt330-fisher-paykel',
+      'circuito-desechable-para-canula-de-alto-flujo-adulto-ref-rt202-fisher-paykel',
+      'canula-nasal-optiflow-adulto-fisher-paykel',
+    ],
+    productsTitle: 'Referencias Fisher Paykel con demanda real',
+    productsNote: 'Modelos del catálogo I-ME. Configuración y consumibles confirmados al cotizar.',
+    catalogFilter: 'terapia-respiratoria-soporte-vital',
+  },
+  en: {
+    tag: 'Respiratory therapy · High flow',
+    title: 'Fisher Paykel Airvo high flow & Optiflow | ICU & ER | I-ME',
+    description:
+      'Fisher Paykel Airvo 2/3 high-flow systems, Optiflow circuits and cannulas for ICU, neonatal and emergency care in Colombia. I-ME guidance without an infinite catalog.',
+    h1: 'Fisher Paykel high flow — Airvo and Optiflow with institutional criteria',
+    lead: 'Searching for a high-flow system, Airvo 3, Optiflow circuits or Fisher Paykel consumables? We help narrow main equipment, interfaces and spares with real catalog references.',
+    formIntro:
+      'Share service (ICU, neonatal, ER), population and whether you need equipment, circuits or both. An advisor replies with published Fisher Paykel options.',
+    primaryCta: 'I want high-flow guidance',
+    secondaryCta: 'Message on WhatsApp',
+    tertiaryCta: 'See respiratory therapy',
+    heroImage: '/assets/img/hospital-uci-pasillo.webp',
+    heroImageAlt: 'Respiratory therapy and high flow in ICU — I-ME Colombia',
+    problemTitle: 'What usually goes wrong when buying high flow',
+    problemBody:
+      'It is not “cheapest circuit”. It is Airvo ↔ Optiflow compatibility, population (adult/pediatric), humidification, recurring consumables and documented support.',
+    solutionsTitle: 'How we scope the Fisher Paykel solution',
+    solutions: [
+      {
+        pain: 'Airvo renewal or first purchase for ICU or ER',
+        help: 'We start from published Airvo 3 or Airvo 2 and define mandatory interfaces and circuits by protocol.',
+      },
+      {
+        pain: 'Optiflow circuit or cannula replenishment without mixing SKUs',
+        help: 'We confirm equipment model, population/size and exact SKU (RT202, RT330, adult cannula, etc.).',
+      },
+      {
+        pain: 'Fleet standardization before tender or bed expansion',
+        help: 'We structure a technical checklist per service with published sheets — no invented equivalents.',
+      },
+    ],
+    audienceYes: [
+      'Hospitals and clinics with ICU, neonatal or ER',
+      'Biomed / procurement seeking Fisher Paykel Airvo or Optiflow',
+      'Consumable replenishment with traceability per SKU',
+    ],
+    audienceNo: [
+      'Orders with no main equipment or population defined',
+      'Requests for invented clinical claims or shelf prices',
+      '“Generic” compatibility without manufacturer documentation',
+    ],
+    situations: [
+      {
+        title: 'Equipment + consumables',
+        body: 'Airvo project with first Optiflow circuit allocation.',
+      },
+      {
+        title: 'Replenishment only',
+        body: 'Circuits, cannulas or accessories for an existing fleet.',
+      },
+      {
+        title: 'Phased expansion',
+        body: 'New beds or service with the same Fisher Paykel standard.',
+      },
+    ],
+    scopeTitle: 'What we cover in this conversation',
+    scope: [
+      'Airvo typology and consumables by service',
+      'Airvo 2/3, Optiflow RT202/RT330 and cannula references in the I-ME catalog',
+      'Installation, training and support scope in the proposal',
+      'Indicative institutional financing',
+    ],
+    requirementsTitle: 'To quote with purpose',
+    requirements: [
+      'Service and city',
+      'Population (adult, pediatric, neonatal)',
+      'Equipment, consumables or both?',
+      'Quantity and timeline',
+    ],
+    financingNote: 'Respiratory projects are often financed in phases. Terms in a formal proposal.',
+    evidenceNote:
+      'We discuss published equipment and datasheets. No invented clinical outcomes or generic response times.',
+    processTitle: 'How we follow up',
+    processSteps: [
+      'Share the service in the form',
+      'We prioritize by timeline and criticality',
+      'We propose 1–3 Fisher Paykel catalog references',
+      'Formal quote with technical scope',
+    ],
+    faqs: [
+      {
+        q: 'Do you carry Fisher Paykel Airvo 3?',
+        a: 'Yes. Airvo 3 and Airvo 2 are published. We confirm configuration, interfaces and availability when quoting.',
+      },
+      {
+        q: 'Do you sell Optiflow circuits only?',
+        a: 'Yes. RT202, RT330 circuits and adult Optiflow cannulas are in catalog. Share equipment model and population.',
+      },
+      {
+        q: 'Are accessories interchangeable across brands?',
+        a: 'Do not assume so. We validate compatibility per SKU and manufacturer documentation.',
+      },
+    ],
+    projectOptions: [
+      { value: 'airvo_equipo', label: 'Airvo purchase or renewal' },
+      { value: 'optiflow_consumibles', label: 'Optiflow circuits / cannulas' },
+      { value: 'proyecto_uci', label: 'ICU or ER project' },
+      { value: 'orientacion', label: 'Still comparing references' },
+    ],
+    productSlugs: [
+      'sistema-de-alto-flujo-ref-airvo-3-fisher-paykel',
+      'sistema-de-alto-flujo-airvo-2-fisher-paykel',
+      'circuito-para-alto-flujo-optiflow-junior-ref-rt330-fisher-paykel',
+      'circuito-desechable-para-canula-de-alto-flujo-adulto-ref-rt202-fisher-paykel',
+      'canula-nasal-optiflow-adulto-fisher-paykel',
+    ],
+    productsTitle: 'Fisher Paykel references with real demand',
+    productsNote: 'I-ME catalog models. Configuration and consumables confirmed when quoting.',
+    catalogFilter: 'terapia-respiratoria-soporte-vital',
+  },
+};
+
+const CAMILLAS_MEDICAS: ContentMap = {
+  es: {
+    tag: 'Emergencias · Camillas',
+    title: 'Camillas médicas y de traslado hospitalario | Saikang | I-ME',
+    description:
+      'Camillas médicas de traslado, plegables, cuchara y procedimientos para urgencias, ambulancia e instituciones en Colombia. Orientación I-ME y cotización formal.',
+    h1: 'Camillas médicas que encajan en su recorrido — no solo en el brochure',
+    lead: 'Si busca camillas médicas, camilla de traslado, plegable o cuchara para urgencias, ambulancia o traslado intrahospitalario, le ayudamos a elegir según dimensiones, carga y protocolo — con referencias Saikang del catálogo.',
+    formIntro:
+      'Indique institución, ciudad, tipo de uso (urgencias, ambulancia, traslado interno) y cantidad. Un asesor responde con alternativas concretas.',
+    primaryCta: 'Quiero orientación de camillas',
+    secondaryCta: 'Escribir por WhatsApp',
+    tertiaryCta: 'Ver emergencias y traslado',
+    heroImage: '/assets/img/equipos-biomedicos-vanguardia.webp',
+    heroImageAlt: 'Camillas médicas y equipos de traslado hospitalario — I-ME Colombia',
+    problemTitle: 'Lo que suele fallar al comprar camillas',
+    problemBody:
+      'No es “la más barata del catálogo genérico”. Es recorrido real, anclaje en ambulancia, plegado, carga declarada, limpieza y mantenimiento. Una camilla mal dimensionada frena urgencias y genera devoluciones.',
+    solutionsTitle: 'Cómo acotamos el modelo',
+    solutions: [
+      {
+        pain: 'Traslado intrahospitalario entre urgencias, imagenología y hospitalización',
+        help: 'Comparamos camillas de traslado Saikang según radio, respaldo y accesorios publicados.',
+      },
+      {
+        pain: 'Dudan entre camilla plegable, cuchara o estándar',
+        help: 'Revisamos escenario (extricación, procedimiento, ambulancia) antes de empujar un SKU.',
+      },
+      {
+        pain: 'Reposición de flota con el mismo protocolo',
+        help: 'Documentamos medidas, carga y referencia exacta para no mezclar variantes incompatibles.',
+      },
+    ],
+    audienceYes: [
+      'Hospitales, clínicas, ambulancias y compras institucionales',
+      'Biomédica que busca camillas médicas con ficha y cotización',
+      'Proyectos de renovación o ampliación de urgencias',
+    ],
+    audienceNo: [
+      'Pedidos sin contexto de recorrido o vehículo',
+      'Quienes asumen que “cualquier camilla sirve” sin medir',
+      'Urgencias de marketplace sin institución ni datos de contacto',
+    ],
+    situations: [
+      {
+        title: 'Urgencias y traslado interno',
+        body: 'Camillas de traslado para recorridos frecuentes entre servicios.',
+      },
+      {
+        title: 'Ambulancia o prehospitalario',
+        body: 'Validación de dimensiones, anclaje y plegado según vehículo.',
+      },
+      {
+        title: 'Reposición por lote',
+        body: 'Varias unidades con el mismo checklist técnico.',
+      },
+    ],
+    scopeTitle: 'Qué cubrimos en esta conversación',
+    scope: [
+      'Tipología de camilla según uso (traslado, plegable, cuchara)',
+      'Referencias Saikang publicadas en catálogo I-ME',
+      'Cotización formal cuando el caso esté claro',
+      'Entrega y soporte según propuesta',
+    ],
+    requirementsTitle: 'Para cotizar con sentido',
+    requirements: [
+      'Institución y ciudad',
+      'Uso: urgencias, ambulancia, traslado interno u otro',
+      'Cantidad aproximada y plazo',
+      '¿Hay restricciones de espacio o anclaje?',
+    ],
+    financingNote:
+      'Financiación institucional orientativa disponible según proyecto. Condiciones en propuesta formal.',
+    evidenceNote:
+      'Hablamos de equipos y fichas publicadas. No prometemos tiempos clínicos ni cargas no documentadas en ficha.',
+    processTitle: 'Cómo seguimos',
+    processSteps: [
+      'Cuéntenos el caso en el formulario',
+      'Priorizamos por plazo y volumen',
+      'Proponemos 1–3 referencias del catálogo',
+      'Cotización formal si encaja',
+    ],
+    faqs: [
+      {
+        q: '¿Tienen camillas médicas para hospitales?',
+        a: 'Sí. Hay camillas de traslado, plegables y cuchara Saikang publicadas. La variante se confirma al cotizar.',
+      },
+      {
+        q: '¿Sirve la misma camilla para ambulancia y urgencias?',
+        a: 'No siempre. Hay que validar dimensiones, anclaje y protocolo antes de recomendar referencia.',
+      },
+      {
+        q: '¿El precio está en la web?',
+        a: 'Suelen cotizarse según cantidad, ciudad y configuración. Pedimos contexto para un número útil.',
+      },
+    ],
+    projectOptions: [
+      { value: 'traslado_interno', label: 'Traslado intrahospitalario' },
+      { value: 'ambulancia', label: 'Ambulancia / prehospitalario' },
+      { value: 'reposicion_lote', label: 'Reposición de varias unidades' },
+      { value: 'orientacion', label: 'Aún comparando tipologías' },
+    ],
+    productSlugs: [
+      'camilla-de-traslado-ref-skb041-6-saikang',
+      'camilla-de-traslado-ref-skb041-1-saikang',
+      'camilla-plegable-ref-skb1a04-saikang',
+      'camilla-cuchara-ref-skb2b01-saikang',
+      'camilla-manual-st-100',
+    ],
+    productsTitle: 'Referencias de camillas médicas',
+    productsNote: 'Modelos reales del catálogo. Confirmamos variante y accesorios al cotizar.',
+    catalogFilter: 'emergencias-traslado-inmovilizacion',
+  },
+  en: {
+    tag: 'Emergency · Stretchers',
+    title: 'Medical stretchers & hospital transport | Saikang | I-ME',
+    description:
+      'Medical transport, folding, scoop and procedure stretchers for ER, ambulance and institutions in Colombia. I-ME guidance and formal quotes.',
+    h1: 'Medical stretchers that fit your route — not just the brochure',
+    lead: 'Looking for medical stretchers, transport, folding or scoop models for ER, ambulance or intra-hospital transfer? We help match dimensions, load and protocol — with published Saikang references.',
+    formIntro:
+      'Share institution, city, use type (ER, ambulance, internal transfer) and quantity. An advisor replies with concrete options.',
+    primaryCta: 'I want stretcher guidance',
+    secondaryCta: 'Message on WhatsApp',
+    tertiaryCta: 'See emergency & transport',
+    heroImage: '/assets/img/equipos-biomedicos-vanguardia.webp',
+    heroImageAlt: 'Medical stretchers and hospital transport equipment — I-ME Colombia',
+    problemTitle: 'What usually goes wrong when buying stretchers',
+    problemBody:
+      'It is not “cheapest generic catalog SKU”. It is real route, ambulance anchoring, folding, declared load, cleaning and maintenance.',
+    solutionsTitle: 'How we narrow the model',
+    solutions: [
+      {
+        pain: 'Intra-hospital transfer between ER, imaging and wards',
+        help: 'We compare Saikang transport stretchers by radius, backrest and published accessories.',
+      },
+      {
+        pain: 'Choosing between folding, scoop or standard stretcher',
+        help: 'We review scenario (extrication, procedure, ambulance) before pushing a SKU.',
+      },
+      {
+        pain: 'Fleet replenishment with the same protocol',
+        help: 'We document dimensions, load and exact reference to avoid incompatible variants.',
+      },
+    ],
+    audienceYes: [
+      'Hospitals, clinics, ambulance operators and institutional buyers',
+      'Biomed teams needing stretchers with datasheets and quotes',
+      'ER renewal or expansion projects',
+    ],
+    audienceNo: [
+      'Orders with no route or vehicle context',
+      'Assuming “any stretcher works” without measuring',
+      'Marketplace urgency with no institution or contact data',
+    ],
+    situations: [
+      {
+        title: 'ER and internal transfer',
+        body: 'Transport stretchers for frequent routes between services.',
+      },
+      {
+        title: 'Ambulance or pre-hospital',
+        body: 'Dimension, anchoring and folding validation per vehicle.',
+      },
+      {
+        title: 'Batch replenishment',
+        body: 'Multiple units with the same technical checklist.',
+      },
+    ],
+    scopeTitle: 'What we cover in this conversation',
+    scope: [
+      'Stretcher typology by use (transport, folding, scoop)',
+      'Published Saikang references in the I-ME catalog',
+      'Formal quote when the case is clear',
+      'Delivery and support per proposal',
+    ],
+    requirementsTitle: 'To quote with purpose',
+    requirements: [
+      'Institution and city',
+      'Use: ER, ambulance, internal transfer or other',
+      'Approximate quantity and timeline',
+      'Any space or anchoring constraints?',
+    ],
+    financingNote:
+      'Indicative institutional financing available by project. Terms in a formal proposal.',
+    evidenceNote:
+      'We discuss published equipment and datasheets. No invented clinical timelines or undocumented loads.',
+    processTitle: 'How we follow up',
+    processSteps: [
+      'Tell us the case in the form',
+      'We prioritize by timeline and volume',
+      'We propose 1–3 catalog references',
+      'Formal quote if it fits',
+    ],
+    faqs: [
+      {
+        q: 'Do you carry medical stretchers for hospitals?',
+        a: 'Yes. Saikang transport, folding and scoop stretchers are published. Variant confirmed when quoting.',
+      },
+      {
+        q: 'Does one stretcher fit ambulance and ER alike?',
+        a: 'Not always. Dimensions, anchoring and protocol must be validated before recommending a model.',
+      },
+      {
+        q: 'Is the price on the website?',
+        a: 'Usually quoted by quantity, city and configuration. We ask for context for a useful number.',
+      },
+    ],
+    projectOptions: [
+      { value: 'traslado_interno', label: 'Intra-hospital transfer' },
+      { value: 'ambulancia', label: 'Ambulance / pre-hospital' },
+      { value: 'reposicion_lote', label: 'Replenish several units' },
+      { value: 'orientacion', label: 'Still comparing typologies' },
+    ],
+    productSlugs: [
+      'camilla-de-traslado-ref-skb041-6-saikang',
+      'camilla-de-traslado-ref-skb041-1-saikang',
+      'camilla-plegable-ref-skb1a04-saikang',
+      'camilla-cuchara-ref-skb2b01-saikang',
+      'camilla-manual-st-100',
+    ],
+    productsTitle: 'Medical stretcher references',
+    productsNote: 'Real catalog models. Variant and accessories confirmed when quoting.',
+    catalogFilter: 'emergencias-traslado-inmovilizacion',
+  },
+};
+
 const CAMINADORES: ContentMap = {
   es: {
     tag: 'Movilidad · Caminadores',
@@ -1719,6 +2172,16 @@ const META: Record<
     path: '/es/monitores-biolight-uci/',
     pathEn: '/en/biolight-icu-monitors/',
   },
+  alto_flujo_fisher_paykel: {
+    familia_slug: 'terapia-respiratoria-soporte-vital',
+    path: '/es/alto-flujo-fisher-paykel/',
+    pathEn: '/en/fisher-paykel-high-flow/',
+  },
+  camillas_medicas: {
+    familia_slug: 'emergencias-traslado-inmovilizacion',
+    path: '/es/camillas-medicas/',
+    pathEn: '/en/medical-stretchers/',
+  },
 };
 
 const BY_ID: Record<StandardCampaignLandingId, ContentMap> = {
@@ -1729,6 +2192,8 @@ const BY_ID: Record<StandardCampaignLandingId, ContentMap> = {
   caminadores_adultos: CAMINADORES,
   sillas_ruedas: SILLAS,
   monitores_biolight: MONITORES_BIOLIGHT,
+  alto_flujo_fisher_paykel: ALTO_FLUJO_FISHER_PAYKEL,
+  camillas_medicas: CAMILLAS_MEDICAS,
 };
 
 export function getCampaignLanding(

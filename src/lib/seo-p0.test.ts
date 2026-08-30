@@ -20,6 +20,8 @@ describe('SEO P0', () => {
     expect(ids).toContain('caminadores_adultos');
     expect(ids).toContain('sillas_ruedas');
     expect(ids).toContain('monitores_biolight');
+    expect(ids).toContain('alto_flujo_fisher_paykel');
+    expect(ids).toContain('camillas_medicas');
     const caminadores = getCampaignLanding('caminadores_adultos', 'es');
     expect(caminadores.path).toBe('/es/caminadores-para-adultos/');
     expect(caminadores.productSlugs.length).toBeGreaterThan(0);
@@ -28,6 +30,12 @@ describe('SEO P0', () => {
     expect(monitores.productSlugs).toContain(
       'monitor-de-paciente-modular-serie-p-ref-p15-biolight'
     );
+    const altoFlujo = getCampaignLanding('alto_flujo_fisher_paykel', 'es');
+    expect(altoFlujo.path).toBe('/es/alto-flujo-fisher-paykel/');
+    expect(altoFlujo.productSlugs).toContain('sistema-de-alto-flujo-ref-airvo-3-fisher-paykel');
+    const camillas = getCampaignLanding('camillas_medicas', 'es');
+    expect(camillas.path).toBe('/es/camillas-medicas/');
+    expect(camillas.productSlugs).toContain('camilla-de-traslado-ref-skb041-6-saikang');
   });
 
   it('EN services targets GSC B2B queries', () => {
