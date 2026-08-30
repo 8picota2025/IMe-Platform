@@ -66,9 +66,9 @@ const POR_SLUG: Record<string, ImagenArticulo> = {
     height: 784,
   },
   'caminadores-para-adultos-guia-compra-colombia': {
-    src: '/assets/img/robotica-rehabilitacion-institucional-colombia.webp',
-    width: 1200,
-    height: 675,
+    src: '/assets/img/caminadores-adultos-konfort-plus-colombia.webp',
+    width: 1600,
+    height: 1200,
   },
   'guia-monitores-multiparametricos-uci': {
     src: '/assets/img/hospital-uci-pasillo.webp',

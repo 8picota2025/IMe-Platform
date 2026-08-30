@@ -38,6 +38,21 @@ describe('SEO P0', () => {
     expect(camillas.productSlugs).toContain('camilla-de-traslado-ref-skb041-6-saikang');
   });
 
+  it('GSC landings use SEO hero images tied to content', () => {
+    expect(getCampaignLanding('monitores_biolight', 'es').heroImage).toBe(
+      '/assets/img/monitores-biolight-p15-uci-colombia.webp'
+    );
+    expect(getCampaignLanding('alto_flujo_fisher_paykel', 'es').heroImage).toBe(
+      '/assets/img/alto-flujo-fisher-paykel-airvo-uci-colombia.webp'
+    );
+    expect(getCampaignLanding('camillas_medicas', 'es').heroImage).toBe(
+      '/assets/img/camillas-medicas-traslado-hospitalario-colombia.webp'
+    );
+    expect(getCampaignLanding('caminadores_adultos', 'es').heroImage).toBe(
+      '/assets/img/caminadores-adultos-konfort-plus-colombia.webp'
+    );
+  });
+
   it('EN services targets GSC B2B queries', () => {
     const en = buildServiciosSeo('en');
     expect(en.description.toLowerCase()).toContain('renewal');
