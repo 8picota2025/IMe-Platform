@@ -89,12 +89,12 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
     slug: 'emergencias-traslado-inmovilizacion',
     name_es: 'Emergencias, traslado e inmovilización',
     name_en: 'Emergency, transport and immobilization',
-    title_es: 'Equipos para emergencias, traslado e inmovilización | I-ME',
-    title_en: 'Emergency, transport and immobilization equipment | I-ME',
+    title_es: 'Camillas médicas y equipos de traslado hospitalario | I-ME',
+    title_en: 'Medical stretchers and hospital transport equipment | I-ME',
     description_es:
-      'Camillas, tableros, inmovilización y equipos de traslado para ambulancias e instituciones de salud.',
+      'Camillas médicas, de ambulancia, procedimientos, tableros e inmovilización para urgencias e instituciones de salud en Colombia.',
     description_en:
-      'Stretchers, spine boards, immobilization and transport equipment for ambulances and healthcare institutions.',
+      'Medical stretchers, ambulance stretchers, procedure stretchers, spine boards and immobilization for ER and healthcare institutions in Colombia.',
     intro_es:
       'Traslado e inmovilización se dimensionan por recorrido, vehículo o área, manipulación, almacenamiento y protocolo institucional.',
     intro_en:
@@ -113,6 +113,12 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
         a_es: 'No se debe asumir. Hay que validar dimensiones, sistema de anclaje y referencia del vehículo o instalación.',
         q_en: 'Does one stretcher fit every ambulance?',
         a_en: 'Do not assume so. Validate dimensions, anchoring system and vehicle or installation reference.',
+      },
+      {
+        q_es: '¿Qué camilla necesito para urgencias o procedimientos?',
+        a_es: 'Camilla de ambulancia, plegable, de procedimientos o cuchara responden a usos distintos. Documente recorrido, manipulación y protocolo antes de cotizar.',
+        q_en: 'Which stretcher do I need for ER or procedures?',
+        a_en: 'Ambulance, folding, procedure or scoop stretchers fit different uses. Document route, handling and protocol before quoting.',
       },
     ],
     relatedSlugs: [],
@@ -293,12 +299,12 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
     slug: 'terapia-respiratoria-soporte-vital',
     name_es: 'Terapia respiratoria y soporte vital',
     name_en: 'Respiratory therapy and life support',
-    title_es: 'Equipos de terapia respiratoria y soporte vital | I-ME',
-    title_en: 'Respiratory therapy and life-support equipment | I-ME',
+    title_es: 'Alto flujo Fisher Paykel Airvo y terapia respiratoria | I-ME',
+    title_en: 'Fisher Paykel Airvo high flow & respiratory therapy | I-ME',
     description_es:
-      'Aspiración, mezcladores, humidificación y equipos de soporte respiratorio para instituciones de salud.',
+      'Sistemas de alto flujo Fisher Paykel Airvo, circuitos Optiflow, aspiración e interfaces respiratorias para UCI, neonatología y urgencias.',
     description_en:
-      'Suction, blenders, humidification and respiratory-support equipment for healthcare institutions.',
+      'Fisher Paykel Airvo high-flow systems, Optiflow circuits, suction and respiratory interfaces for ICU, neonatal and emergency care.',
     intro_es:
       'La familia respiratoria combina equipos y accesorios con funciones distintas. Entorno, gases, flujo, población y protocolo institucional definen la selección.',
     intro_en:
@@ -318,8 +324,18 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
         q_en: 'Are all respiratory accessories compatible?',
         a_en: 'Do not assume so. Model, connection, range and manufacturer documentation must match.',
       },
+      {
+        q_es: '¿Tienen sistemas de alto flujo Fisher Paykel?',
+        a_es: 'Sí. En catálogo hay Airvo y circuitos Optiflow Fisher Paykel. Confirmamos referencia, interfaces y consumibles al cotizar.',
+        q_en: 'Do you carry Fisher Paykel high-flow systems?',
+        a_en: 'Yes. The catalog includes Airvo and Fisher Paykel Optiflow circuits. We confirm model, interfaces and consumables when quoting.',
+      },
     ],
-    relatedSlugs: [],
+    relatedSlugs: [
+      'sistema-de-alto-flujo-ref-airvo-3-fisher-paykel',
+      'circuito-para-alto-flujo-optiflow-junior-ref-rt330-fisher-paykel',
+      'circuito-desechable-para-canula-de-alto-flujo-adulto-ref-rt202-fisher-paykel',
+    ],
   },
   {
     slug: 'robots',
@@ -374,8 +390,8 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
     slug: 'radiologia',
     name_es: 'Imagenología y radiología',
     name_en: 'Medical imaging and radiology',
-    title_es: 'Equipos de imagenología y radiología hospitalaria | I-ME',
-    title_en: 'Hospital medical imaging and radiology equipment | I-ME',
+    title_es: 'Mamografía digital y equipos de imagenología hospitalaria | I-ME',
+    title_en: 'Digital mammography & hospital imaging equipment | I-ME',
     description_es:
       'Equipos de radiología e imagenología para instituciones de salud en Colombia: rayos X, detectores, mamografía y fluoroscopia.',
     description_en:
@@ -419,12 +435,12 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
     slug: 'monitores',
     name_es: 'Monitores de signos vitales',
     name_en: 'Patient monitors',
-    title_es: 'Monitores multiparamétricos UCI y hospital | I-ME',
-    title_en: 'ICU multiparameter patient monitors | I-ME',
+    title_es: 'Monitores Biolight P15/S12 y multiparamétricos UCI | I-ME',
+    title_en: 'Biolight P15/S12 & ICU multiparameter monitors | I-ME',
     description_es:
-      'Monitores de paciente y centrales UCI para hospitales en Colombia. Orientación I-ME: parámetros, conectividad y soporte — con equipos certificados.',
+      'Monitores de paciente Biolight P15, S12 y multiparamétricos UCI para hospitales. Orientación I-ME: parámetros, modularidad y soporte en Colombia.',
     description_en:
-      'Patient monitors and ICU centrals for hospitals in Colombia. I-ME guidance on parameters, connectivity and support — certified equipment.',
+      'Biolight P15, S12 and ICU multiparameter patient monitors for hospitals. I-ME guidance on parameters, modularity and support in Colombia.',
     intro_es:
       'Elegir un monitor no es solo “pantalla grande”. En UCI, urgencias o transporte el criterio cambia: parámetros base, modularidad, alarma usable y cómo se integra a la estación central.',
     intro_en:
@@ -452,8 +468,16 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
         q_en: 'Does I-ME install and train?',
         a_en: 'Yes — installation and training scope are agreed in the quote by site and number of points.',
       },
+      {
+        q_es: '¿Tienen monitores Biolight P15 o S12?',
+        a_es: 'Sí. P15 modular y S12 están en catálogo activo. Confirmamos configuración, central y disponibilidad al cotizar.',
+        q_en: 'Do you carry Biolight P15 or S12 monitors?',
+        a_en: 'Yes. Modular P15 and S12 are in the active catalog. We confirm configuration, central station and availability when quoting.',
+      },
     ],
     relatedSlugs: [
+      'monitor-de-paciente-modular-serie-p-ref-p15-biolight',
+      'monitor-de-paciente-s12-biolight',
       'monitor-multiparametrico-uci-avanzado',
       'monitor-multiparametrico-basico',
       'monitor-central-uci-multicama',
@@ -1041,4 +1065,77 @@ export function getFamiliaGuide(slug: string, locale: Locale): string[] {
         'Validar documentación del fabricante y requisitos aplicables por referencia.',
         'Acordar aceptación, capacitación, mantenimiento y soporte antes de comprar.',
       ];
+}
+
+/** GSC-driven quick links on family hub pages (high-click PDPs / campaign landings). */
+export interface FamiliaHubLink {
+  href_es: string;
+  href_en: string;
+  label_es: string;
+  label_en: string;
+}
+
+const FAMILIA_HUB_LINKS: Record<string, FamiliaHubLink[]> = {
+  'movilidad-rehabilitacion': [
+    {
+      href_es: '/es/caminadores-para-adultos/',
+      href_en: '/en/adult-walkers/',
+      label_es: 'Guía de caminadores para adultos',
+      label_en: 'Adult walkers guide',
+    },
+    {
+      href_es: '/es/sillas-de-ruedas/',
+      href_en: '/en/wheelchairs/',
+      label_es: 'Guía Konfort Plus sillas',
+      label_en: 'Konfort Plus wheelchairs guide',
+    },
+  ],
+  monitores: [
+    {
+      href_es: '/es/productos/monitor-de-paciente-modular-serie-p-ref-p15-biolight/',
+      href_en: '/en/products/monitor-de-paciente-modular-serie-p-ref-p15-biolight/',
+      label_es: 'Monitor Biolight P15',
+      label_en: 'Biolight P15 monitor',
+    },
+    {
+      href_es: '/es/productos/monitor-de-paciente-s12-biolight/',
+      href_en: '/en/products/monitor-de-paciente-s12-biolight/',
+      label_es: 'Monitor Biolight S12',
+      label_en: 'Biolight S12 monitor',
+    },
+  ],
+  radiologia: [
+    {
+      href_es: '/es/imagenologia/',
+      href_en: '/en/imaging/',
+      label_es: 'Proyecto de imagenología',
+      label_en: 'Imaging project guide',
+    },
+  ],
+  'terapia-respiratoria-soporte-vital': [
+    {
+      href_es: '/es/productos/sistema-de-alto-flujo-ref-airvo-3-fisher-paykel/',
+      href_en: '/en/products/sistema-de-alto-flujo-ref-airvo-3-fisher-paykel/',
+      label_es: 'Alto flujo Fisher Paykel Airvo 3',
+      label_en: 'Fisher Paykel Airvo 3 high flow',
+    },
+    {
+      href_es: '/es/productos/circuito-para-alto-flujo-optiflow-junior-ref-rt330-fisher-paykel/',
+      href_en: '/en/products/circuito-para-alto-flujo-optiflow-junior-ref-rt330-fisher-paykel/',
+      label_es: 'Circuitos Optiflow Fisher Paykel',
+      label_en: 'Fisher Paykel Optiflow circuits',
+    },
+  ],
+};
+
+export function getFamiliaHubLinks(
+  slug: string,
+  locale: Locale
+): Array<{ href: string; label: string }> {
+  const links = FAMILIA_HUB_LINKS[slug];
+  if (!links?.length) return [];
+  return links.map(link => ({
+    href: locale === 'en' ? link.href_en : link.href_es,
+    label: locale === 'en' ? link.label_en : link.label_es,
+  }));
 }

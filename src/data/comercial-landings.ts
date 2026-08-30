@@ -562,9 +562,9 @@ const ESTERILIZACION: ContentMap = {
 const IMAGENOLOGIA: ContentMap = {
   es: {
     tag: 'Imagen diagnóstica',
-    title: 'Equipos de imagenología para clínicas | Renovar o ampliar con I-ME',
+    title: 'Mamografía digital y equipos de imagenología | Renovar con I-ME',
     description:
-      'Arco en C, mamografía, DR o ultrasonido: oriente la renovación o apertura de su servicio de imagen con asesoría I-ME en Colombia.',
+      'Mamografía digital DM166/DM156, arco en C, DR y ultrasonido: oriente la renovación o apertura de su servicio de imagen con asesoría I-ME en Colombia.',
     h1: 'Renovar imagen no es pedir un catálogo: es acertar modalidad y capacidad',
     lead: 'Si abre, renueva o amplía mamografía, arco en C, rayos X digital o ultrasonido, le ayudamos a aterrizar el proyecto con instalación, capacitación y un plan de adquisición realista.',
     formIntro:
@@ -658,6 +658,7 @@ const IMAGENOLOGIA: ContentMap = {
       { value: 'orientacion', label: 'Aún defino la modalidad' },
     ],
     productSlugs: [
+      'mamografo-digital-dm166-series',
       'arco-en-c-alc-280-series',
       'mamografo-digital-dm156-series-angell-technology',
       'sistema-de-rayos-x-dr-montado-en-techo',
@@ -765,6 +766,7 @@ const IMAGENOLOGIA: ContentMap = {
       { value: 'orientacion', label: 'Still defining modality' },
     ],
     productSlugs: [
+      'mamografo-digital-dm166-series',
       'arco-en-c-alc-280-series',
       'mamografo-digital-dm156-series-angell-technology',
       'sistema-de-rayos-x-dr-montado-en-techo',
@@ -1221,7 +1223,7 @@ const CAMINADORES: ContentMap = {
 const SILLAS: ContentMap = {
   es: {
     tag: 'Movilidad · Sillas de ruedas',
-    title: 'Sillas de ruedas Konfort Plus y estándar en Colombia | I-ME',
+    title: 'Konfort Plus sillas de ruedas en Colombia | estándar y transporte | I-ME',
     description:
       'Sillas de ruedas Konfort Plus, transporte y estándar para clínicas y programas de movilidad. Asesoría I-ME, cotización y soporte en Colombia.',
     h1: 'Sillas de ruedas para institución — Konfort Plus y tipologías claras',

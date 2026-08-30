@@ -17,6 +17,7 @@ import {
   listFamiliaSeoSlugs,
   familiaDisplayName,
   getFamiliaGuide,
+  getFamiliaHubLinks,
 } from '../../../data/familia-seo';
 import { buildCatalogoIndex, paginateCatalogItems } from '../../../lib/catalogo';
 import { t } from '../../../i18n/utils';
@@ -47,16 +48,7 @@ const familyPage = paginateCatalogItems(productos, 1);
 const faq = content.faq.map(f => ({ q: f.q_es, a: f.a_es }));
 const criterios = getFamiliaGuide(slug, locale);
 const catalogoFamilia = '#equipos';
-const mobilityHub =
-  slug === 'movilidad-rehabilitacion'
-    ? {
-        walkers: {
-          href: '/es/caminadores-para-adultos/',
-          label: 'Guía de caminadores para adultos',
-        },
-        wheelchairs: { href: '/es/sillas-de-ruedas/', label: 'Guía de sillas Konfort Plus' },
-      }
-    : null;
+const hubLinks = getFamiliaHubLinks(slug, locale);
 
 const jsonLd = combineJsonLd(
   buildOrganizationJsonLd(),
@@ -114,14 +106,21 @@ const jsonLd = combineJsonLd(
       ))
     }
     {
-      mobilityHub && (
+      hubLinks.length > 0 && (
         <p style="margin:1.25rem 0 0">
-          <a class="btn btn-secondary" href={mobilityHub.walkers.href} style="margin-right:0.5rem">
-            {mobilityHub.walkers.label}
-          </a>
-          <a class="btn btn-secondary" href={mobilityHub.wheelchairs.href}>
-            {mobilityHub.wheelchairs.label}
-          </a>
+          {hubLinks.map((link, index) => (
+            <a
+              class="btn btn-secondary"
+              href={link.href}
+              style={
+                index < hubLinks.length - 1
+                  ? 'margin-right:0.5rem;margin-bottom:0.5rem'
+                  : 'margin-bottom:0.5rem'
+              }
+            >
+              {link.label}
+            </a>
+          ))}
         </p>
       )
     }
