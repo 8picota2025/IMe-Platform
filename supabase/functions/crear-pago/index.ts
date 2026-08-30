@@ -37,6 +37,10 @@ import {
   type CotizacionOfertaRow,
   type CotizacionLineaOferta,
 } from '../../../src/lib/cotizacion-oferta.ts';
+import {
+  isWithinPerUserCuponLimit,
+  needsPerUserCuponClaim,
+} from '../../../src/lib/cupon-uso-usuario.ts';
 
 const FN_NAME = 'crear-pago';
 const MAX_ITEMS = 20;
@@ -1003,14 +1007,51 @@ Deno.serve(
       );
     }
 
+    // Per-email limit: insert cupon_usos FIRST, then re-count. A pre-insert
+    // count alone lets N parallel crear-pago calls all pass and each open an
+    // underpriced checkout (limite_uso_por_usuario bypass).
+    let cuponUsoReservado = false;
     if (descuento.cupon) {
+      const emailNorm = cliente.email.toLowerCase();
       await supabase.from('cupon_usos').insert({
         cupon_id: descuento.cupon.id,
         pedido_id: pedidoId,
         cliente_id: clienteId,
-        email: cliente.email.toLowerCase(),
+        email: emailNorm,
         descuento: descuento.descuento,
       });
+      cuponUsoReservado = true;
+
+      if (needsPerUserCuponClaim(descuento.cupon.limite_uso_por_usuario)) {
+        const limite = descuento.cupon.limite_uso_por_usuario as number;
+        const { count } = await supabase
+          .from('cupon_usos')
+          .select('id', { count: 'exact', head: true })
+          .eq('cupon_id', descuento.cupon.id)
+          .eq('email', emailNorm);
+        if (
+          !isWithinPerUserCuponLimit({
+            usoCountAfterClaim: count ?? 0,
+            limiteUsoPorUsuario: limite,
+          })
+        ) {
+          await supabase.from('cupon_usos').delete().eq('pedido_id', pedidoId);
+          cuponUsoReservado = false;
+          await supabase
+            .from('pedidos')
+            .update({ estado: 'error_verificacion' })
+            .eq('id', pedidoId);
+          return errorResponse(
+            {
+              code: 'CUPON_LIMITE_USUARIO',
+              message: 'Limite de uso alcanzado para este email (posible uso concurrente)',
+            },
+            409,
+            origin
+          );
+        }
+      }
+
       await supabase
         .from('cupones')
         .update({ usos: descuento.cupon.usos + 1 })
@@ -1035,6 +1076,11 @@ Deno.serve(
     });
 
     if (!resultado.ok) {
+      if (cuponUsoReservado && descuento.cupon) {
+        // Release per-email slot so GATEWAY_ERROR does not permanently burn
+        // limite_uso_por_usuario (and soft-precheck stays accurate on retry).
+        await supabase.from('cupon_usos').delete().eq('pedido_id', pedidoId);
+      }
       await supabase.from('pedidos').update({ estado: 'error_verificacion' }).eq('id', pedidoId);
       await notificarEstadoPedido(pedidoId, 'error_verificacion', 'pendiente');
 
