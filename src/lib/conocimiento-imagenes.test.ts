@@ -48,6 +48,25 @@ describe('resolverImagenArticulo', () => {
     });
     expect(img.src).toBe(imagenParaArticulo('guia-monitores-multiparametricos-uci').src);
   });
+
+  it('guía caminadores usa assets editoriales ES/EN', () => {
+    const es = resolverImagenArticulo(
+      {
+        slug: 'caminadores-para-adultos-guia-compra-colombia',
+        imagen: 'https://cdn.example/x.jpg',
+      },
+      'es'
+    );
+    const en = resolverImagenArticulo(
+      {
+        slug: 'caminadores-para-adultos-guia-compra-colombia',
+        imagen: 'https://cdn.example/x.jpg',
+      },
+      'en'
+    );
+    expect(es.src).toBe('/assets/img/guia-compra-caminadores-es.webp');
+    expect(en.src).toBe('/assets/img/buying-guide-adult-walkers-en.webp');
+  });
 });
 
 describe('resolverOgImagenArticulo', () => {

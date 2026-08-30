@@ -66,9 +66,9 @@ const POR_SLUG: Record<string, ImagenArticulo> = {
     height: 784,
   },
   'caminadores-para-adultos-guia-compra-colombia': {
-    src: '/assets/img/caminadores-adultos-konfort-plus-colombia.webp',
-    width: 1600,
-    height: 1200,
+    src: '/assets/img/guia-compra-caminadores-es.webp',
+    width: 900,
+    height: 1041,
   },
   'guia-monitores-multiparametricos-uci': {
     src: '/assets/img/hospital-uci-pasillo.webp',
@@ -106,8 +106,19 @@ const POR_DEFECTO: ImagenArticulo = {
   height: 479,
 };
 
+const GUIA_CAMINADORES_EN: ImagenArticulo = {
+  src: '/assets/img/buying-guide-adult-walkers-en.webp',
+  width: 900,
+  height: 1041,
+};
+
 /** Fallback sin CMS (mock / artículo sin imagen). */
-export function imagenParaArticulo(slug: string): ImagenArticulo {
+export function imagenParaArticulo(slug: string, locale: 'es' | 'en' = 'es'): ImagenArticulo {
+  if (slug === 'caminadores-para-adultos-guia-compra-colombia') {
+    return locale === 'en'
+      ? GUIA_CAMINADORES_EN
+      : POR_SLUG['caminadores-para-adultos-guia-compra-colombia']!;
+  }
   const directa = POR_SLUG[slug];
   if (directa) return directa;
   const porPalabra = POR_PALABRA.find(({ patron }) => patron.test(slug));
@@ -122,8 +133,15 @@ export interface ArticuloImagenInput {
 /**
  * Fuente de verdad: imagen CMS. El mirror solo sirve esa misma imagen
  * optimizada; nunca se sustituye por un fallback de slug/keyword si hay CMS.
+ * Excepción: guía caminadores GSC usa assets editoriales ES/EN.
  */
-export function resolverImagenArticulo(articulo: ArticuloImagenInput): ImagenArticulo {
+export function resolverImagenArticulo(
+  articulo: ArticuloImagenInput,
+  locale: 'es' | 'en' = 'es'
+): ImagenArticulo {
+  if (articulo.slug === 'caminadores-para-adultos-guia-compra-colombia') {
+    return imagenParaArticulo(articulo.slug, locale);
+  }
   const cmsUrl = typeof articulo.imagen === 'string' ? articulo.imagen.trim() : '';
   if (cmsUrl) {
     const mirrored = imagenMirrorParaArticulo(articulo.slug);
@@ -132,7 +150,7 @@ export function resolverImagenArticulo(articulo: ArticuloImagenInput): ImagenArt
   }
   const mirrored = imagenMirrorParaArticulo(articulo.slug);
   if (mirrored) return mirrored;
-  return imagenParaArticulo(articulo.slug);
+  return imagenParaArticulo(articulo.slug, locale);
 }
 
 /** Absolute URL for JSON-LD / OG (handles already-absolute Supabase URLs). */
@@ -147,7 +165,13 @@ const OG_SOCIAL_SIZE = { width: 1200, height: 630 } as const;
 /**
  * Imagen para compartir en redes: prioriza variante OG del mirror (1200×630 crop).
  */
-export function resolverOgImagenArticulo(articulo: ArticuloImagenInput): ImagenArticulo {
+export function resolverOgImagenArticulo(
+  articulo: ArticuloImagenInput,
+  locale: 'es' | 'en' = 'es'
+): ImagenArticulo {
+  if (articulo.slug === 'caminadores-para-adultos-guia-compra-colombia') {
+    return { ...resolverImagenArticulo(articulo, locale), ...OG_SOCIAL_SIZE };
+  }
   const mirrored = imagenMirrorParaArticulo(articulo.slug);
   if (mirrored?.og_src) {
     return {
@@ -156,7 +180,7 @@ export function resolverOgImagenArticulo(articulo: ArticuloImagenInput): ImagenA
       height: mirrored.og_height ?? OG_SOCIAL_SIZE.height,
     };
   }
-  const hero = resolverImagenArticulo(articulo);
+  const hero = resolverImagenArticulo(articulo, locale);
   if (/^https?:\/\//i.test(hero.src)) {
     return { ...hero, ...OG_SOCIAL_SIZE };
   }

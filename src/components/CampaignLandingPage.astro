@@ -124,8 +124,8 @@ const sitTitle = isEn ? 'Common project moments' : 'Momentos típicos del proyec
           <img
             src={content.heroImage}
             alt={content.heroImageAlt}
-            width="960"
-            height="720"
+            width="900"
+            height="1041"
             fetchpriority="high"
             decoding="async"
           />
@@ -515,9 +515,10 @@ const sitTitle = isEn ? 'Common project moments' : 'Momentos típicos del proyec
   .clp-hero__media img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     object-position: center;
     display: block;
+    background: var(--off2);
   }
 
   @media (max-width: 959px) {

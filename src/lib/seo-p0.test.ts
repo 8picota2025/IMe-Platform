@@ -67,22 +67,46 @@ describe('SEO P0', () => {
 
   it('GSC landings use SEO hero images tied to content', () => {
     expect(getCampaignLanding('monitores_biolight', 'es').heroImage).toBe(
-      '/assets/img/monitores-biolight-p15-uci-colombia.webp'
+      '/assets/img/monitores-biolight-uci-es.webp'
+    );
+    expect(getCampaignLanding('monitores_biolight', 'en').heroImage).toBe(
+      '/assets/img/biolight-icu-monitors-en.webp'
     );
     expect(getCampaignLanding('alto_flujo_fisher_paykel', 'es').heroImage).toBe(
-      '/assets/img/alto-flujo-fisher-paykel-airvo-uci-colombia.webp'
+      '/assets/img/alto-flujo-fisher-paykel-es.webp'
+    );
+    expect(getCampaignLanding('alto_flujo_fisher_paykel', 'en').heroImage).toBe(
+      '/assets/img/fisher-paykel-high-flow-en.webp'
     );
     expect(getCampaignLanding('camillas_medicas', 'es').heroImage).toBe(
-      '/assets/img/camillas-medicas-traslado-hospitalario-colombia.webp'
+      '/assets/img/camillas-medicas-es.webp'
+    );
+    expect(getCampaignLanding('camillas_medicas', 'en').heroImage).toBe(
+      '/assets/img/medical-stretchers-en.webp'
     );
     expect(getCampaignLanding('caminadores_adultos', 'es').heroImage).toBe(
-      '/assets/img/caminadores-adultos-konfort-plus-colombia.webp'
+      '/assets/img/caminadores-para-adultos-es.webp'
+    );
+    expect(getCampaignLanding('caminadores_adultos', 'en').heroImage).toBe(
+      '/assets/img/adult-walkers-en.webp'
+    );
+    expect(getCampaignLanding('sillas_ruedas', 'es').heroImage).toBe(
+      '/assets/img/sillas-de-ruedas-es.webp'
+    );
+    expect(getCampaignLanding('sillas_ruedas', 'en').heroImage).toBe(
+      '/assets/img/wheelchairs-en.webp'
     );
     expect(getCampaignLanding('ventiladores_mecanicos', 'es').heroImage).toBe(
-      '/assets/img/ventiladores-mecanicos-monnal-uci-colombia.webp'
+      '/assets/img/ventiladores-mecanicos-uci-es.webp'
+    );
+    expect(getCampaignLanding('ventiladores_mecanicos', 'en').heroImage).toBe(
+      '/assets/img/mechanical-ventilators-icu-en.webp'
     );
     expect(getCampaignLanding('desfibriladores_hospital', 'es').heroImage).toBe(
-      '/assets/img/desfibriladores-hospitalarios-reanimacion-colombia.webp'
+      '/assets/img/desfibriladores-hospitalarios-es.webp'
+    );
+    expect(getCampaignLanding('desfibriladores_hospital', 'en').heroImage).toBe(
+      '/assets/img/hospital-defibrillators-en.webp'
     );
   });
 

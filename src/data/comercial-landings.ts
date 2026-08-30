@@ -1006,7 +1006,7 @@ const MONITORES_BIOLIGHT: ContentMap = {
     primaryCta: 'Quiero orientación de monitores UCI',
     secondaryCta: 'Escribir por WhatsApp',
     tertiaryCta: 'Ver familia monitores',
-    heroImage: '/assets/img/monitores-biolight-p15-uci-colombia.webp',
+    heroImage: '/assets/img/monitores-biolight-uci-es.webp',
     heroImageAlt: 'Monitor de paciente Biolight P15 modular en UCI — I-ME Colombia',
     problemTitle: 'Lo que suele fallar al comprar monitores UCI',
     problemBody:
@@ -1118,7 +1118,7 @@ const MONITORES_BIOLIGHT: ContentMap = {
     primaryCta: 'I want ICU monitor guidance',
     secondaryCta: 'Message on WhatsApp',
     tertiaryCta: 'See monitors family',
-    heroImage: '/assets/img/monitores-biolight-p15-uci-colombia.webp',
+    heroImage: '/assets/img/biolight-icu-monitors-en.webp',
     heroImageAlt: 'Biolight modular P15 patient monitor in ICU — I-ME Colombia',
     problemTitle: 'What usually goes wrong when buying ICU monitors',
     problemBody:
@@ -1232,7 +1232,7 @@ const ALTO_FLUJO_FISHER_PAYKEL: ContentMap = {
     primaryCta: 'Quiero orientación de alto flujo',
     secondaryCta: 'Escribir por WhatsApp',
     tertiaryCta: 'Ver terapia respiratoria',
-    heroImage: '/assets/img/alto-flujo-fisher-paykel-airvo-uci-colombia.webp',
+    heroImage: '/assets/img/alto-flujo-fisher-paykel-es.webp',
     heroImageAlt: 'Sistema de alto flujo Fisher Paykel Airvo 3 en UCI — I-ME Colombia',
     problemTitle: 'Lo que suele fallar al comprar alto flujo',
     problemBody:
@@ -1344,7 +1344,7 @@ const ALTO_FLUJO_FISHER_PAYKEL: ContentMap = {
     primaryCta: 'I want high-flow guidance',
     secondaryCta: 'Message on WhatsApp',
     tertiaryCta: 'See respiratory therapy',
-    heroImage: '/assets/img/alto-flujo-fisher-paykel-airvo-uci-colombia.webp',
+    heroImage: '/assets/img/fisher-paykel-high-flow-en.webp',
     heroImageAlt: 'Fisher Paykel Airvo 3 high-flow system in ICU — I-ME Colombia',
     problemTitle: 'What usually goes wrong when buying high flow',
     problemBody:
@@ -1458,7 +1458,7 @@ const CAMILLAS_MEDICAS: ContentMap = {
     primaryCta: 'Quiero orientación de camillas',
     secondaryCta: 'Escribir por WhatsApp',
     tertiaryCta: 'Ver emergencias y traslado',
-    heroImage: '/assets/img/camillas-medicas-traslado-hospitalario-colombia.webp',
+    heroImage: '/assets/img/camillas-medicas-es.webp',
     heroImageAlt: 'Camilla médica de traslado Saikang en hospital — I-ME Colombia',
     problemTitle: 'Lo que suele fallar al comprar camillas',
     problemBody:
@@ -1570,7 +1570,7 @@ const CAMILLAS_MEDICAS: ContentMap = {
     primaryCta: 'I want stretcher guidance',
     secondaryCta: 'Message on WhatsApp',
     tertiaryCta: 'See emergency & transport',
-    heroImage: '/assets/img/camillas-medicas-traslado-hospitalario-colombia.webp',
+    heroImage: '/assets/img/medical-stretchers-en.webp',
     heroImageAlt: 'Saikang medical transport stretcher in hospital — I-ME Colombia',
     problemTitle: 'What usually goes wrong when buying stretchers',
     problemBody:
@@ -1685,7 +1685,7 @@ const VENTILADORES_MECANICOS: ContentMap = {
     primaryCta: 'Quiero orientación de ventiladores UCI',
     secondaryCta: 'Escribir por WhatsApp',
     tertiaryCta: 'Ver familia ventiladores',
-    heroImage: '/assets/img/ventiladores-mecanicos-monnal-uci-colombia.webp',
+    heroImage: '/assets/img/ventiladores-mecanicos-uci-es.webp',
     heroImageAlt: 'Ventilador mecánico Monnal T75 en UCI — I-ME Colombia',
     problemTitle: 'Lo que suele fallar al comprar ventiladores',
     problemBody:
@@ -1789,7 +1789,7 @@ const VENTILADORES_MECANICOS: ContentMap = {
     primaryCta: 'I want ICU ventilator guidance',
     secondaryCta: 'Message on WhatsApp',
     tertiaryCta: 'See ventilators family',
-    heroImage: '/assets/img/ventiladores-mecanicos-monnal-uci-colombia.webp',
+    heroImage: '/assets/img/mechanical-ventilators-icu-en.webp',
     heroImageAlt: 'Monnal T75 mechanical ventilator in ICU — I-ME Colombia',
     problemTitle: 'What usually goes wrong when buying ventilators',
     problemBody:
@@ -1892,7 +1892,7 @@ const DESFIBRILADORES: ContentMap = {
     primaryCta: 'Quiero orientación de desfibriladores',
     secondaryCta: 'Escribir por WhatsApp',
     tertiaryCta: 'Ver cardiología y reanimación',
-    heroImage: '/assets/img/desfibriladores-hospitalarios-reanimacion-colombia.webp',
+    heroImage: '/assets/img/desfibriladores-hospitalarios-es.webp',
     heroImageAlt: 'Desfibrilador bifásico con monitor en área de reanimación — I-ME Colombia',
     problemTitle: 'Lo que suele fallar al comprar desfibriladores',
     problemBody:
@@ -1990,7 +1990,7 @@ const DESFIBRILADORES: ContentMap = {
     primaryCta: 'I want defibrillator guidance',
     secondaryCta: 'Message on WhatsApp',
     tertiaryCta: 'See cardiology & resuscitation',
-    heroImage: '/assets/img/desfibriladores-hospitalarios-reanimacion-colombia.webp',
+    heroImage: '/assets/img/hospital-defibrillators-en.webp',
     heroImageAlt: 'Biphasic defibrillator with monitor in resuscitation area — I-ME Colombia',
     problemTitle: 'What usually goes wrong when buying defibrillators',
     problemBody:
@@ -2091,7 +2091,7 @@ const CAMINADORES: ContentMap = {
     primaryCta: 'Quiero orientación de caminadores',
     secondaryCta: 'Escribir por WhatsApp',
     tertiaryCta: 'Ver movilidad en catálogo',
-    heroImage: '/assets/img/caminadores-adultos-konfort-plus-colombia.webp',
+    heroImage: '/assets/img/caminadores-para-adultos-es.webp',
     heroImageAlt: 'Caminador para adultos Konfort Plus en rehabilitación — I-ME Colombia',
     problemTitle: 'Lo que suele fallar al comprar caminadores',
     problemBody:
@@ -2203,7 +2203,7 @@ const CAMINADORES: ContentMap = {
     primaryCta: 'I want walker guidance',
     secondaryCta: 'Message on WhatsApp',
     tertiaryCta: 'See mobility in catalog',
-    heroImage: '/assets/img/caminadores-adultos-konfort-plus-colombia.webp',
+    heroImage: '/assets/img/adult-walkers-en.webp',
     heroImageAlt: 'Konfort Plus adult walker in rehabilitation — I-ME Colombia',
     problemTitle: 'What usually goes wrong when buying walkers',
     problemBody:
@@ -2318,7 +2318,7 @@ const SILLAS: ContentMap = {
     primaryCta: 'Quiero orientación de sillas',
     secondaryCta: 'Escribir por WhatsApp',
     tertiaryCta: 'Ver sillas en catálogo',
-    heroImage: '/assets/img/equipos-biomedicos-vanguardia.webp',
+    heroImage: '/assets/img/sillas-de-ruedas-es.webp',
     heroImageAlt: 'Sillas de ruedas y movilidad institucional — I-ME Colombia',
     problemTitle: 'Comprar silla no es elegir color',
     problemBody:
@@ -2430,7 +2430,7 @@ const SILLAS: ContentMap = {
     primaryCta: 'I want wheelchair guidance',
     secondaryCta: 'Message on WhatsApp',
     tertiaryCta: 'See wheelchairs in catalog',
-    heroImage: '/assets/img/equipos-biomedicos-vanguardia.webp',
+    heroImage: '/assets/img/wheelchairs-en.webp',
     heroImageAlt: 'Institutional wheelchairs and mobility — I-ME Colombia',
     problemTitle: 'Buying a chair is not picking a color',
     problemBody:
