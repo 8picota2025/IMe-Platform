@@ -40,7 +40,7 @@ const posts = [
 
 Compras, ingeniería biomédica y liderazgo clínico suelen comparar monitores por lista de parámetros. En UCI el riesgo real es otro: **elegir un equipo que no encaja con el flujo de sala, la central, la capacitación ni el soporte documental**.
 
-Esta guía orienta la decisión institucional sin inventar claims clínicos. Complementa la landing de [monitores](/es/familias/monitores/) y la ficha del [monitor multiparamétrico UCI avanzado](/es/productos/monitor-multiparametrico-uci-avanzado).
+Esta guía orienta la decisión institucional sin inventar claims clínicos. Complementa la landing de [monitores Biolight UCI](/es/monitores-biolight-uci/) y la familia [monitores](/es/familias/monitores/).
 
 ## 1. Defina el caso de uso antes del brochure
 
@@ -96,7 +96,7 @@ Caso de uso, cantidad, requisitos de central/módulos y restricciones de instala
 
 Purchasing, biomedical engineering and clinical leadership often compare monitors by parameter lists. In the ICU the real risk is different: **choosing a device that does not fit room flow, central station, training or documentary support**.
 
-This guide supports an institutional decision without invented clinical claims. It complements the [monitors](/en/families/monitores/) landing and the [advanced ICU multiparameter monitor](/en/products/monitor-multiparametrico-uci-avanzado) sheet.
+This guide supports an institutional decision without invented clinical claims. It complements the [Biolight ICU monitors](/en/biolight-icu-monitors/) landing and the [monitors](/en/families/monitores/) family.
 
 ## 1. Define the use case before the brochure
 
@@ -440,6 +440,89 @@ Not by default. They are different profiles. If you need both, specify that in t
 
 ### Is a manufacturer demo enough?
 Demos help, but the decision must include utilities, training, consumables and documented support.
+`,
+  },
+  {
+    slug: 'caminadores-para-adultos-guia-compra-colombia',
+    titulo_es: 'Caminadores para adultos en Colombia: guía de compra institucional',
+    titulo_en: 'Adult walkers in Colombia: institutional buying guide',
+    cuerpo_es: `# Para quién es esta guía
+
+Compras, gerencia de residencias, programas de rehabilitación y familias con apoyo institucional suelen buscar **caminador para adulto**, opciones **económicas** o **rollators con ruedas**. Esta guía ordena la decisión sin inventar indicaciones clínicas.
+
+Complementa la landing de [caminadores para adultos](/es/caminadores-para-adultos/) y la familia [movilidad y rehabilitación](/es/familias/movilidad-rehabilitacion/).
+
+## 1. Defina el uso antes del precio
+
+1. ¿Uso clínico, domiciliario o residencia?
+2. ¿Caminador fijo, con ruedas o rollator con asiento?
+3. ¿Peso del usuario y entorno (pasillo, ascensor)?
+4. ¿Cantidad y plazo?
+5. ¿Marca conocida (Konfort Plus) con ficha clara?
+
+## 2. Tipologías
+
+| Tipo | Cuándo se evalúa |
+| --- | --- |
+| Caminador fijo | Apoyo básico en interiores |
+| Con ruedas | Menos levantamiento en pasillos |
+| Rollator | Fatiga y descanso con asiento |
+| Stand-up | Ayuda para ponerse de pie |
+
+Compare referencias publicadas (p. ej. [g-kp1-8160l](/es/productos/g-kp1-8160l/)) con el mismo checklist.
+
+## 3. Cómo proceder con I-ME
+
+1. Revise la [guía de caminadores](/es/caminadores-para-adultos/).
+2. Contraste modelos Konfort Plus del catálogo.
+3. Cotice en [contacto](/es/contacto/) con ciudad, cantidad y uso.
+
+## Preguntas frecuentes
+
+### ¿Tienen caminadores económicos?
+Sí. Konfort Plus y referencias de aluminio están publicadas. El precio depende de cantidad y ciudad.
+
+### ¿Venden solo a hospitales?
+Atendemos instituciones y canales B2B. Indique su contexto en el formulario.
+`,
+    cuerpo_en: `# Who this guide is for
+
+Procurement and rehab programs often search for an **adult walker**, **affordable options** or **wheeled rollators**. This guide structures the decision without invented clinical claims.
+
+It complements the [adult walkers](/en/adult-walkers/) landing and [mobility and rehabilitation](/en/families/movilidad-rehabilitacion/) family.
+
+## 1. Define use before price
+
+1. Clinical, home or residence use?
+2. Fixed walker, wheeled walker or rollator with seat?
+3. User weight and environment?
+4. Quantity and timeline?
+5. Known brand (Konfort Plus) with a clear sheet?
+
+## 2. Typologies
+
+| Type | When evaluated |
+| --- | --- |
+| Fixed walker | Basic indoor support |
+| Wheeled walker | Less lifting in corridors |
+| Rollator | Fatigue and seated rest |
+| Stand-up | Help standing with support |
+
+Compare published references (e.g. [g-kp1-8160l](/en/products/g-kp1-8160l/)) with the same checklist.
+
+## 3. How to proceed with I-ME
+
+1. Review the [adult walkers guide](/en/adult-walkers/).
+2. Contrast Konfort Plus catalog models.
+3. Quote via [contact](/en/contact/) with city, quantity and use.
+
+## FAQ
+
+### Do you carry affordable adult walkers?
+Yes. Konfort Plus and aluminum references are published. Price depends on quantity and city.
+
+### Do you only sell to hospitals?
+We serve institutions and B2B channels. State your context in the form.
 `,
   },
 ];

@@ -23,6 +23,7 @@ export type CampaignLandingId =
   | 'robotica_rehabilitacion'
   | 'caminadores_adultos'
   | 'sillas_ruedas'
+  | 'monitores_biolight'
   | 'proyectos'
   | 'pdf_descarga'
   | 'evento'

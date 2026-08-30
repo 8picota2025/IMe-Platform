@@ -19,9 +19,15 @@ describe('SEO P0', () => {
     const ids = listCampaignLandings('es').map(landing => landing.id);
     expect(ids).toContain('caminadores_adultos');
     expect(ids).toContain('sillas_ruedas');
+    expect(ids).toContain('monitores_biolight');
     const caminadores = getCampaignLanding('caminadores_adultos', 'es');
     expect(caminadores.path).toBe('/es/caminadores-para-adultos/');
     expect(caminadores.productSlugs.length).toBeGreaterThan(0);
+    const monitores = getCampaignLanding('monitores_biolight', 'es');
+    expect(monitores.path).toBe('/es/monitores-biolight-uci/');
+    expect(monitores.productSlugs).toContain(
+      'monitor-de-paciente-modular-serie-p-ref-p15-biolight'
+    );
   });
 
   it('EN services targets GSC B2B queries', () => {

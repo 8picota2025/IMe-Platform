@@ -65,6 +65,16 @@ const POR_SLUG: Record<string, ImagenArticulo> = {
     width: 1168,
     height: 784,
   },
+  'caminadores-para-adultos-guia-compra-colombia': {
+    src: '/assets/img/robotica-rehabilitacion-institucional-colombia.webp',
+    width: 1200,
+    height: 675,
+  },
+  'guia-monitores-multiparametricos-uci': {
+    src: '/assets/img/hospital-uci-pasillo.webp',
+    width: 1400,
+    height: 787,
+  },
 };
 
 const POR_PALABRA: Array<{ patron: RegExp; imagen: ImagenArticulo }> = [
@@ -75,6 +85,10 @@ const POR_PALABRA: Array<{ patron: RegExp; imagen: ImagenArticulo }> = [
   { patron: /servicio|soporte|mantenimiento/, imagen: POR_SLUG['ime-servicios']! },
   { patron: /financia/, imagen: POR_SLUG['ime-financiamiento']! },
   { patron: /compra|cotizacion|proceso/, imagen: POR_SLUG['ime-proceso-compra']! },
+  {
+    patron: /caminador|rollator|andador|movilidad/,
+    imagen: POR_SLUG['caminadores-para-adultos-guia-compra-colombia']!,
+  },
   { patron: /monitor|uci/, imagen: POR_SLUG['como-elegir-un-monitor-biomedico']! },
   {
     patron: /avance|tecnolog|diagnost|tratamiento/,

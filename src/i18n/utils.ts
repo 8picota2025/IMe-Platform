@@ -53,6 +53,7 @@ const PATH_SEGMENT_PAIRS: Array<{ es: string; en: string }> = [
   { es: 'robotica-rehabilitacion', en: 'robotics-rehabilitation' },
   { es: 'caminadores-para-adultos', en: 'adult-walkers' },
   { es: 'sillas-de-ruedas', en: 'wheelchairs' },
+  { es: 'monitores-biolight-uci', en: 'biolight-icu-monitors' },
   { es: 'fabricantes', en: 'manufacturers' },
   { es: 'familias', en: 'families' },
   { es: 'ciudades', en: 'cities' },

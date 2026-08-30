@@ -1084,6 +1084,12 @@ const FAMILIA_HUB_LINKS: Record<string, FamiliaHubLink[]> = {
       label_en: 'Adult walkers guide',
     },
     {
+      href_es: '/es/conocimiento/caminadores-para-adultos-guia-compra-colombia/',
+      href_en: '/es/conocimiento/caminadores-para-adultos-guia-compra-colombia/',
+      label_es: 'Artículo: cómo elegir caminador',
+      label_en: 'Article: how to choose a walker',
+    },
+    {
       href_es: '/es/sillas-de-ruedas/',
       href_en: '/en/wheelchairs/',
       label_es: 'Guía Konfort Plus sillas',
@@ -1092,16 +1098,16 @@ const FAMILIA_HUB_LINKS: Record<string, FamiliaHubLink[]> = {
   ],
   monitores: [
     {
+      href_es: '/es/monitores-biolight-uci/',
+      href_en: '/en/biolight-icu-monitors/',
+      label_es: 'Guía monitores Biolight UCI',
+      label_en: 'Biolight ICU monitors guide',
+    },
+    {
       href_es: '/es/productos/monitor-de-paciente-modular-serie-p-ref-p15-biolight/',
       href_en: '/en/products/monitor-de-paciente-modular-serie-p-ref-p15-biolight/',
       label_es: 'Monitor Biolight P15',
       label_en: 'Biolight P15 monitor',
-    },
-    {
-      href_es: '/es/productos/monitor-de-paciente-s12-biolight/',
-      href_en: '/en/products/monitor-de-paciente-s12-biolight/',
-      label_es: 'Monitor Biolight S12',
-      label_en: 'Biolight S12 monitor',
     },
   ],
   radiologia: [

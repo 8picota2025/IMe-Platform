@@ -993,6 +993,232 @@ const ROBOTICA: ContentMap = {
   },
 };
 
+const MONITORES_BIOLIGHT: ContentMap = {
+  es: {
+    tag: 'UCI · Monitores Biolight',
+    title: 'Monitores Biolight P15 y S12 para UCI | Multiparamétricos | I-ME',
+    description:
+      'Monitores de paciente Biolight P15 modular y S12 para UCI y áreas críticas en Colombia. Orientación I-ME: parámetros, central y soporte — sin catálogo infinito.',
+    h1: 'Monitores Biolight para UCI — P15 modular y S12 con criterio institucional',
+    lead: 'Si busca monitor multiparamétrico UCI, Biolight P15 o S12, o está renovando la central de monitoreo, le ayudamos a acotar módulos, alarmas y soporte con referencias reales del catálogo.',
+    formIntro:
+      'Indique servicio (UCI, urgencias, transporte), cantidad de puntos y si necesita central. Un asesor responde con alternativas Biolight publicadas.',
+    primaryCta: 'Quiero orientación de monitores UCI',
+    secondaryCta: 'Escribir por WhatsApp',
+    tertiaryCta: 'Ver familia monitores',
+    heroImage: '/assets/img/hospital-uci-pasillo.webp',
+    heroImageAlt: 'Monitores multiparamétricos en entorno UCI — I-ME Colombia',
+    problemTitle: 'Lo que suele fallar al comprar monitores UCI',
+    problemBody:
+      'No es “el que más parámetros en brochure”. Es modularidad real, alarmas usables en turno, central multicama, capacitación y soporte local. Un mismatch genera alarmas ignoradas y CapEx subutilizado.',
+    solutionsTitle: 'Cómo acotamos el modelo Biolight',
+    solutions: [
+      {
+        pain: 'Necesitan P15 modular para UCI adulta con expansión futura',
+        help: 'Partimos del P15 publicado y definimos módulos obligatorios vs opcionales según protocolo.',
+      },
+      {
+        pain: 'Comparan S12 vs P12 para observación o pasillo crítico',
+        help: 'Revisamos criticidad del servicio, transporte y conectividad antes de empujar un SKU.',
+      },
+      {
+        pain: 'Quieren homogeneizar flota sin perder flexibilidad por área',
+        help: 'Estructuramos por unidad (UCI, urgencias, recuperación) con el mismo checklist técnico.',
+      },
+    ],
+    audienceYes: [
+      'Hospitales e IPS renovando monitoreo en UCI o áreas críticas',
+      'Biomédica / compras que buscan Biolight P15, S12 o equivalente documentado',
+      'Proyectos con central multicama o expansión por fases',
+    ],
+    audienceNo: [
+      'Pedidos sin servicio ni cantidad de puntos definidos',
+      'Quienes exigen claims clínicos inventados o precios de vitrina',
+      'Urgencias de marketplace sin institución ni datos de contacto',
+    ],
+    situations: [
+      {
+        title: 'Renovación de central UCI',
+        body: 'Reemplazo de flota con criterio de modularidad, alarmas y soporte.',
+      },
+      {
+        title: 'Ampliación de camas críticas',
+        body: 'Nuevos puntos compatibles con la estación y protocolo existente.',
+      },
+      {
+        title: 'Homologar antes de licitar',
+        body: 'Checklist técnico y referencias publicadas para proceso de compra.',
+      },
+    ],
+    scopeTitle: 'Qué cubrimos en esta conversación',
+    scope: [
+      'Tipología Biolight según servicio y criticidad',
+      'Referencias P15, S12, P12 y M12 del catálogo I-ME',
+      'Alcance de instalación, capacitación y soporte en propuesta',
+      'Financiación orientativa para instituciones',
+    ],
+    requirementsTitle: 'Para cotizar con sentido',
+    requirements: [
+      'Servicio y ciudad',
+      'Cantidad de puntos y plazo',
+      'Parámetros obligatorios (ECG, SpO₂, NIBP, IBP, EtCO₂, etc.)',
+      '¿Central multicama o monitores standalone?',
+    ],
+    financingNote:
+      'Proyectos de monitoreo suelen financiarse por fases. Condiciones en propuesta formal.',
+    evidenceNote:
+      'Hablamos de equipos y fichas publicadas. No prometemos outcomes clínicos ni tiempos de respuesta genéricos.',
+    processTitle: 'Cómo seguimos',
+    processSteps: [
+      'Cuéntenos el servicio en el formulario',
+      'Priorizamos por plazo y criticidad',
+      'Proponemos 1–3 referencias Biolight del catálogo',
+      'Cotización formal con alcance técnico',
+    ],
+    faqs: [
+      {
+        q: '¿Tienen monitor Biolight P15 en catálogo?',
+        a: 'Sí. El P15 modular está publicado. Confirmamos configuración, módulos y disponibilidad al cotizar.',
+      },
+      {
+        q: '¿Sirve el S12 para UCI?',
+        a: 'Depende del protocolo y criticidad. Lo evaluamos contra P15/P12 según parámetros y flujo del servicio.',
+      },
+      {
+        q: '¿Incluyen instalación y capacitación?',
+        a: 'El alcance se define en la propuesta según sede, cantidad y central.',
+      },
+    ],
+    projectOptions: [
+      { value: 'renovacion_uci', label: 'Renovar monitores UCI' },
+      { value: 'ampliacion_camas', label: 'Ampliar puntos de monitoreo' },
+      { value: 'central_multicama', label: 'Proyecto con central multicama' },
+      { value: 'orientacion', label: 'Aún comparando modelos Biolight' },
+    ],
+    productSlugs: [
+      'monitor-de-paciente-modular-serie-p-ref-p15-biolight',
+      'monitor-de-paciente-s12-biolight',
+      'monitor-de-paciente-p12-biolight',
+      'monitor-de-paciente-m12-biolight',
+      'monitor-modular-de-paciente-pm-200m',
+    ],
+    productsTitle: 'Referencias Biolight con demanda real',
+    productsNote: 'Modelos del catálogo I-ME. Configuración y central se confirman al cotizar.',
+    catalogFilter: 'monitores',
+  },
+  en: {
+    tag: 'ICU · Biolight monitors',
+    title: 'Biolight P15 & S12 ICU patient monitors | Multiparameter | I-ME',
+    description:
+      'Biolight modular P15 and S12 patient monitors for ICU and critical areas in Colombia. I-ME guidance on parameters, central station and support.',
+    h1: 'Biolight monitors for ICU — modular P15 and S12 with institutional criteria',
+    lead: 'Looking for an ICU multiparameter monitor, Biolight P15 or S12, or renewing a central station? We help narrow modules, alarms and support with real catalog references.',
+    formIntro:
+      'Share service (ICU, ED, transport), number of points and whether you need a central station. An advisor replies with published Biolight options.',
+    primaryCta: 'I want ICU monitor guidance',
+    secondaryCta: 'Message on WhatsApp',
+    tertiaryCta: 'See monitors family',
+    heroImage: '/assets/img/hospital-uci-pasillo.webp',
+    heroImageAlt: 'Multiparameter monitors in an ICU setting — I-ME Colombia',
+    problemTitle: 'What usually goes wrong when buying ICU monitors',
+    problemBody:
+      'It is not “most parameters on the brochure”. It is real modularity, shift-usable alarms, multi-bed central, training and local support. A mismatch yields ignored alarms and underused CapEx.',
+    solutionsTitle: 'How we narrow the Biolight model',
+    solutions: [
+      {
+        pain: 'Need modular P15 for adult ICU with future expansion',
+        help: 'We start from the published P15 and define mandatory vs optional modules by protocol.',
+      },
+      {
+        pain: 'Comparing S12 vs P12 for observation or critical ward',
+        help: 'We review service criticality, transport and connectivity before pushing a SKU.',
+      },
+      {
+        pain: 'Want to homogenize fleet without losing per-area flexibility',
+        help: 'We structure by unit (ICU, ED, recovery) with the same technical checklist.',
+      },
+    ],
+    audienceYes: [
+      'Hospitals and networks renewing ICU monitoring',
+      'Biomed / procurement seeking documented Biolight P15, S12 or equivalent',
+      'Projects with multi-bed central or phased expansion',
+    ],
+    audienceNo: [
+      'Orders with no service or point count defined',
+      'Requests for invented clinical claims or shelf prices',
+      'Marketplace urgency with no institution or contact data',
+    ],
+    situations: [
+      {
+        title: 'ICU central renewal',
+        body: 'Fleet replacement with modularity, alarms and support criteria.',
+      },
+      {
+        title: 'Critical bed expansion',
+        body: 'New points compatible with existing station and protocol.',
+      },
+      {
+        title: 'Homologate before tender',
+        body: 'Technical checklist and published references for purchasing.',
+      },
+    ],
+    scopeTitle: 'What this conversation covers',
+    scope: [
+      'Biolight typology by service and criticality',
+      'P15, S12, P12 and M12 references in the I-ME catalog',
+      'Install, training and support scope in the proposal',
+      'Indicative institutional financing',
+    ],
+    requirementsTitle: 'To quote meaningfully',
+    requirements: [
+      'Service and city',
+      'Point count and timeline',
+      'Mandatory parameters (ECG, SpO₂, NIBP, IBP, EtCO₂, etc.)',
+      'Multi-bed central or standalone monitors?',
+    ],
+    financingNote: 'Monitoring projects are often financed in phases. Terms in a formal proposal.',
+    evidenceNote:
+      'We discuss published equipment and sheets. No invented clinical outcomes or generic response times.',
+    processTitle: 'How we follow up',
+    processSteps: [
+      'Share the service in the form',
+      'We prioritize by timeline and criticality',
+      'We propose 1–3 Biolight catalog references',
+      'Formal quote with technical scope',
+    ],
+    faqs: [
+      {
+        q: 'Do you carry the Biolight P15 monitor?',
+        a: 'Yes. The modular P15 is published. We confirm configuration, modules and availability when quoting.',
+      },
+      {
+        q: 'Is the S12 suitable for ICU?',
+        a: 'It depends on protocol and criticality. We evaluate it against P15/P12 by parameters and workflow.',
+      },
+      {
+        q: 'Do you include installation and training?',
+        a: 'Scope is defined in the proposal by site, quantity and central station.',
+      },
+    ],
+    projectOptions: [
+      { value: 'renovacion_uci', label: 'Renew ICU monitors' },
+      { value: 'ampliacion_camas', label: 'Expand monitoring points' },
+      { value: 'central_multicama', label: 'Multi-bed central project' },
+      { value: 'orientacion', label: 'Still comparing Biolight models' },
+    ],
+    productSlugs: [
+      'monitor-de-paciente-modular-serie-p-ref-p15-biolight',
+      'monitor-de-paciente-s12-biolight',
+      'monitor-de-paciente-p12-biolight',
+      'monitor-de-paciente-m12-biolight',
+      'monitor-modular-de-paciente-pm-200m',
+    ],
+    productsTitle: 'Biolight references with real demand',
+    productsNote: 'I-ME catalog models. Configuration and central station confirmed when quoting.',
+    catalogFilter: 'monitores',
+  },
+};
+
 const CAMINADORES: ContentMap = {
   es: {
     tag: 'Movilidad · Caminadores',
@@ -1488,6 +1714,11 @@ const META: Record<
     path: '/es/sillas-de-ruedas/',
     pathEn: '/en/wheelchairs/',
   },
+  monitores_biolight: {
+    familia_slug: 'monitores',
+    path: '/es/monitores-biolight-uci/',
+    pathEn: '/en/biolight-icu-monitors/',
+  },
 };
 
 const BY_ID: Record<StandardCampaignLandingId, ContentMap> = {
@@ -1497,6 +1728,7 @@ const BY_ID: Record<StandardCampaignLandingId, ContentMap> = {
   robotica_rehabilitacion: ROBOTICA,
   caminadores_adultos: CAMINADORES,
   sillas_ruedas: SILLAS,
+  monitores_biolight: MONITORES_BIOLIGHT,
 };
 
 export function getCampaignLanding(
