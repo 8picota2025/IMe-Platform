@@ -100,12 +100,37 @@ async function main() {
     }
   }
 
-  const sitemapFiles = (await filesUnder(DIST)).filter(file => /sitemap(?:-\d+)?\.xml$/.test(file));
+  const requiredSeoPaths = [
+    '/es/monitores-biolight-uci/',
+    '/es/alto-flujo-fisher-paykel/',
+    '/es/camillas-medicas/',
+    '/es/caminadores-para-adultos/',
+    '/es/conocimiento/caminadores-para-adultos-guia-compra-colombia/',
+    '/en/biolight-icu-monitors/',
+    '/en/fisher-paykel-high-flow/',
+    '/en/medical-stretchers/',
+    '/en/knowledge/caminadores-para-adultos-guia-compra-colombia/',
+  ];
+  const sitemapPaths = new Set();
+
+  const sitemapFiles = (await filesUnder(DIST)).filter(file =>
+    /sitemap(?:-index|-(?:pages|products|knowledge)-\d+|-\d+)?\.xml$/.test(
+      file.replace(/\\/g, '/').split('/').pop() ?? ''
+    )
+  );
+  if (!sitemapFiles.some(f => f.endsWith('sitemap-index.xml'))) {
+    fail('sitemap-index.xml ausente');
+  }
+  let sawLastmod = false;
+  let sawHreflang = false;
   for (const sitemapFile of sitemapFiles) {
     const xml = await readFile(sitemapFile, 'utf8');
+    if (xml.includes('<lastmod>')) sawLastmod = true;
+    if (xml.includes('hreflang') || xml.includes('xhtml:link')) sawHreflang = true;
     for (const match of xml.matchAll(/<loc>([^<]+)<\/loc>/g)) {
       const url = match[1];
       const pathname = new URL(url).pathname;
+      sitemapPaths.add(pathname);
       const file = localFileForPath(pathname);
       if (!(await fileExists(file))) fail(`sitemap: destino no generado: ${pathname}`);
       const html = await readFile(file, 'utf8').catch(() => '');
@@ -114,6 +139,11 @@ async function main() {
       if (pathname === '/congreso/') fail('sitemap: /congreso/ no debe aparecer');
     }
   }
+  for (const pathname of requiredSeoPaths) {
+    if (!sitemapPaths.has(pathname)) fail(`sitemap: falta URL SEO prioritaria: ${pathname}`);
+  }
+  if (!sawLastmod) fail('sitemap: falta lastmod en entradas');
+  if (!sawHreflang) fail('sitemap: falta hreflang (xhtml:link)');
 
   if (errors.length > 0) {
     console.error(`SEO build audit: ${errors.length} error(es)`);

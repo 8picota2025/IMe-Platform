@@ -4,6 +4,9 @@ import { defineConfig } from 'astro/config';
 import sentry from '@sentry/astro';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
+import {
+  sitemapIntegrationOptions,
+} from './scripts/sitemap-seo.mjs';
 
 const sentryDsn = process.env.PUBLIC_SENTRY_DSN;
 const sentryEnabled = Boolean(sentryDsn);
@@ -81,6 +84,11 @@ export default defineConfig({
     searchConsoleHtmlFileIntegration(),
     sitemap({
       filter: isIndexableSitemapUrl,
+      lastmod: sitemapIntegrationOptions.lastmod,
+      entryLimit: sitemapIntegrationOptions.entryLimit,
+      serialize: sitemapIntegrationOptions.serialize,
+      chunks: sitemapIntegrationOptions.chunks,
+      namespaces: sitemapIntegrationOptions.namespaces,
     }),
   ],
   vite: {
