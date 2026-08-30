@@ -771,22 +771,7 @@ const servicios = [
         });
       });
 
-    document
-      .querySelectorAll<HTMLButtonElement>(
-        '.site-faithful [data-add-cotizacion]:not([data-ime-bound])'
-      )
-      .forEach(btn => {
-        btn.dataset.imeBound = '1';
-        btn.addEventListener('click', async () => {
-          const slug = btn.dataset.addCotizacion;
-          const nombre = btn.dataset.nombre;
-          const imagen = btn.dataset.imagen;
-          if (!slug || !nombre) return;
-          const mod = await import('../../lib/cotizacion-equipos');
-          mod.agregarACotizacion({ slug, nombre, imagen: imagen ?? '' });
-          mod.abrirCotizacion();
-        });
-      });
+    // Quote list: global delegation in Layout (cotizacion-clicks.ts).
 
     // ── "Add to cart" → carrito de compra y abre el drawer ──
     document

@@ -391,8 +391,6 @@ const config = {
 <script>
   import {
     getCotizacionItems,
-    actualizarCantidadCotizacion,
-    quitarDeCotizacion,
     vaciarCotizacion,
     suscribirCotizacion,
     alAbrirCotizacion,
@@ -531,26 +529,6 @@ const config = {
 
     render(getCotizacionItems());
     unsubCambioCotizacion = suscribirCotizacion(render);
-
-    itemsEl?.addEventListener(
-      'click',
-      event => {
-        const target = event.target as HTMLElement;
-        const button = target.closest<HTMLElement>('button[data-action]');
-        if (!button) return;
-        const li = button.closest<HTMLElement>('.cotizacion-item');
-        const slug = li?.dataset.slug;
-        if (!slug) return;
-        const items = getCotizacionItems();
-        const item = items.find(i => i.slug === slug);
-        if (!item) return;
-        const action = button.dataset.action;
-        if (action === 'inc') actualizarCantidadCotizacion(slug, item.cantidad + 1);
-        else if (action === 'dec') actualizarCantidadCotizacion(slug, item.cantidad - 1);
-        else if (action === 'remove') quitarDeCotizacion(slug);
-      },
-      { signal }
-    );
 
     vaciarBtn?.addEventListener(
       'click',

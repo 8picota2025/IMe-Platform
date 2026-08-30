@@ -1310,10 +1310,7 @@ heroStats.push({
     });
   }
 
-  // Añadir a cotización / carrito desde el CTA principal
-  const addCotizacionBtn = document.querySelector<HTMLButtonElement>(
-    '#cta-principal [data-add-cotizacion]'
-  );
+  // Añadir a carrito desde el CTA principal (cotización vía delegación global en Layout).
   const addCarritoBtn = document.querySelector<HTMLButtonElement>(
     '#cta-principal [data-add-carrito]'
   );
@@ -1326,36 +1323,6 @@ heroStats.push({
       btn.textContent = original;
     }, 1800);
   };
-
-  const readCotizacionItem = (btn: HTMLButtonElement) => {
-    const slug = btn.dataset['addCotizacion'] ?? btn.dataset['ensureCotizacion'];
-    const nombre = btn.dataset['nombre'];
-    const imagen = btn.dataset['imagen'];
-    const url = btn.dataset['url'];
-    const modelo = btn.dataset['modelo'];
-    const marca = btn.dataset['marca'];
-    if (!slug || !nombre || !imagen) return null;
-    return { slug, nombre, imagen, url, modelo, marca };
-  };
-
-  addCotizacionBtn?.addEventListener('click', () => {
-    const item = readCotizacionItem(addCotizacionBtn);
-    if (!item) return;
-    void import('../lib/cotizacion-equipos').then(({ agregarACotizacion }) => {
-      agregarACotizacion(item);
-      confirmarAdd(addCotizacionBtn);
-    });
-  });
-
-  document.querySelectorAll<HTMLButtonElement>('[data-ensure-cotizacion]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const item = readCotizacionItem(btn);
-      if (!item) return;
-      void import('../lib/cotizacion-equipos').then(({ asegurarProductoEnCotizacion }) => {
-        asegurarProductoEnCotizacion(item);
-      });
-    });
-  });
 
   addCarritoBtn?.addEventListener('click', () => {
     const slug = addCarritoBtn.dataset['addCarrito'];

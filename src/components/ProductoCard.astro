@@ -379,10 +379,8 @@ const whatsappHref = `https://wa.me/573137247353?text=${encodeURIComponent(
 <script>
   document.addEventListener('click', event => {
     const target = event.target as HTMLElement;
-    const cotizacionBtn = target.closest<HTMLButtonElement>('[data-add-cotizacion]');
-    const ensureBtn = target.closest<HTMLButtonElement>('[data-ensure-cotizacion]');
     const carritoBtn = target.closest<HTMLButtonElement>('[data-add-carrito]');
-    if (!cotizacionBtn && !ensureBtn && !carritoBtn) return;
+    if (!carritoBtn) return;
 
     const confirmar = (btn: HTMLButtonElement) => {
       const original = btn.dataset['labelAgregar'] ?? btn.textContent ?? '';
@@ -394,53 +392,18 @@ const whatsappHref = `https://wa.me/573137247353?text=${encodeURIComponent(
     };
 
     // Hero CTAs on product landing bind their own listeners.
-    if (
-      cotizacionBtn?.closest('#cta-principal') ||
-      carritoBtn?.closest('#cta-principal') ||
-      (ensureBtn && ensureBtn.closest('.hero-producto, .cta-final, #cta-sticky, #cta-principal'))
-    ) {
-      return;
-    }
+    if (carritoBtn.closest('#cta-principal')) return;
 
-    if (ensureBtn) {
-      const slug = ensureBtn.dataset['ensureCotizacion'];
-      const nombre = ensureBtn.dataset['nombre'];
-      const imagen = ensureBtn.dataset['imagen'];
-      const url = ensureBtn.dataset['url'];
-      const modelo = ensureBtn.dataset['modelo'];
-      const marca = ensureBtn.dataset['marca'];
-      if (!slug || !nombre || !imagen) return;
-      void import('../lib/cotizacion-equipos').then(({ asegurarProductoEnCotizacion }) => {
-        asegurarProductoEnCotizacion({ slug, nombre, imagen, url, modelo, marca });
-      });
-      return;
-    }
-
-    if (cotizacionBtn) {
-      const slug = cotizacionBtn.dataset['addCotizacion'];
-      const nombre = cotizacionBtn.dataset['nombre'];
-      const imagen = cotizacionBtn.dataset['imagen'];
-      const url = cotizacionBtn.dataset['url'];
-      if (!slug || !nombre || !imagen) return;
-      void import('../lib/cotizacion-equipos').then(({ agregarACotizacion }) => {
-        agregarACotizacion({ slug, nombre, imagen, url });
-        confirmar(cotizacionBtn);
-      });
-      return;
-    }
-
-    if (carritoBtn) {
-      const slug = carritoBtn.dataset['addCarrito'];
-      const nombre = carritoBtn.dataset['nombre'];
-      const precio = Number(carritoBtn.dataset['precio']);
-      const moneda = carritoBtn.dataset['moneda'] ?? 'COP';
-      const stockRaw = carritoBtn.dataset['stock'];
-      const stock = stockRaw ? Number(stockRaw) : null;
-      if (!slug || !nombre || Number.isNaN(precio)) return;
-      void import('../lib/carrito').then(({ agregarAlCarrito }) => {
-        agregarAlCarrito({ slug, nombre, precio, moneda, stock });
-        confirmar(carritoBtn);
-      });
-    }
+    const slug = carritoBtn.dataset['addCarrito'];
+    const nombre = carritoBtn.dataset['nombre'];
+    const precio = Number(carritoBtn.dataset['precio']);
+    const moneda = carritoBtn.dataset['moneda'] ?? 'COP';
+    const stockRaw = carritoBtn.dataset['stock'];
+    const stock = stockRaw ? Number(stockRaw) : null;
+    if (!slug || !nombre || Number.isNaN(precio)) return;
+    void import('../lib/carrito').then(({ agregarAlCarrito }) => {
+      agregarAlCarrito({ slug, nombre, precio, moneda, stock });
+      confirmar(carritoBtn);
+    });
   });
 </script>
