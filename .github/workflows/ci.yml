@@ -62,3 +62,6 @@ jobs:
 
       - name: SEO build audit
         run: npm run audit:seo-build
+
+      - name: Performance build budget
+        run: npm run audit:performance-build

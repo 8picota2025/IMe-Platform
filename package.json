@@ -14,6 +14,7 @@
     "preview": "astro preview --host 0.0.0.0 --port 44334",
     "check": "astro check",
     "audit:seo-build": "node scripts/audit-seo-build.mjs",
+    "audit:performance-build": "node scripts/audit-performance-build.mjs",
     "lint": "eslint src packages --max-warnings 0",
     "format": "prettier --write src packages",
     "test": "vitest run",
