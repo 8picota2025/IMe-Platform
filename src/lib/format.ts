@@ -10,9 +10,10 @@ export function tienePrecioPublico(valor: unknown): valor is number {
 }
 
 /** Precio publicado en catálogo, PDP, carrito y JSON-LD: campo `precio_regular` de BD. */
-export function resolvePrecioPublico(row: { precio_regular?: unknown }): number | null {
-  const n =
-    typeof row.precio_regular === 'number' ? row.precio_regular : Number(row.precio_regular);
+export function resolvePrecioPublico(row: unknown): number | null {
+  if (!row || typeof row !== 'object') return null;
+  const raw = (row as { precio_regular?: unknown }).precio_regular;
+  const n = typeof raw === 'number' ? raw : Number(raw);
   return tienePrecioPublico(n) ? n : null;
 }
 
