@@ -9,6 +9,13 @@ export function tienePrecioPublico(valor: unknown): valor is number {
   return typeof valor === 'number' && Number.isFinite(valor) && valor > 0;
 }
 
+/** Precio publicado en catálogo, PDP, carrito y JSON-LD: campo `precio_regular` de BD. */
+export function resolvePrecioPublico(row: { precio_regular?: unknown }): number | null {
+  const n =
+    typeof row.precio_regular === 'number' ? row.precio_regular : Number(row.precio_regular);
+  return tienePrecioPublico(n) ? n : null;
+}
+
 /** Normaliza moneda ISO 4217 almacenada; COP es fallback comercial de I-ME. */
 export function normalizarMoneda(moneda: unknown): string {
   const codigo = typeof moneda === 'string' ? moneda.trim().toUpperCase() : '';

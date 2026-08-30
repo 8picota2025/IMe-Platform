@@ -96,6 +96,7 @@ interface ProductoRow {
   nombre_es: string;
   nombre_en: string | null;
   precio: number | string | null;
+  precio_regular: number | string | null;
   precio_oferta: number | string | null;
   oferta_inicio: string | null;
   oferta_fin: string | null;
@@ -229,11 +230,12 @@ function aplicarListaPrecio(
 }
 
 function precioVigente(producto: ProductoRow): number | string | null {
-  if (producto.precio_oferta === null) return producto.precio;
+  const precioPublico = producto.precio_regular;
+  if (producto.precio_oferta === null) return precioPublico;
   const now = Date.now();
   const inicioOk = !producto.oferta_inicio || new Date(producto.oferta_inicio).getTime() <= now;
   const finOk = !producto.oferta_fin || new Date(producto.oferta_fin).getTime() >= now;
-  return inicioOk && finOk ? producto.precio_oferta : producto.precio;
+  return inicioOk && finOk ? producto.precio_oferta : precioPublico;
 }
 
 async function upsertCliente(

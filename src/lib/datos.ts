@@ -12,6 +12,7 @@ import { captureCommercialAttribution, type CommercialAttribution } from './comm
 import { isSupabaseConfigured, getSupabaseClient } from './supabase';
 import { resolveFamiliaIcono } from './familias';
 import { resolveMarca } from './producto-origen';
+import { resolvePrecioPublico } from './format';
 
 import mockFamilias from '../data/mock-familias.json';
 import mockArticulos from '../data/mock-articulos.json';
@@ -280,7 +281,7 @@ function mapProductoSupabase(raw: any, locale: Locale): Producto {
     ficha_pdf: robotImportedPdf(raw.slug, raw.ficha_pdf),
     tipo_comercial: raw.tipo_comercial,
     fulfillment_mode: raw.fulfillment_mode,
-    precio: raw.precio,
+    precio: resolvePrecioPublico(raw),
     moneda: raw.moneda,
     sku: typeof raw.sku === 'string' ? raw.sku : null,
     stock: raw.stock ?? null,
@@ -448,7 +449,7 @@ function mapProducto(raw: (typeof mockProductos)[0], locale: Locale): Producto {
     ficha_pdf: raw.ficha_pdf,
     tipo_comercial: raw.tipo_comercial as Producto['tipo_comercial'],
     fulfillment_mode: raw.fulfillment_mode as Producto['fulfillment_mode'],
-    precio: raw.precio,
+    precio: resolvePrecioPublico(raw),
     moneda: raw.moneda,
     sku: typeof raw.sku === 'string' ? raw.sku : null,
     stock: (raw as { stock?: number | null }).stock ?? null,
