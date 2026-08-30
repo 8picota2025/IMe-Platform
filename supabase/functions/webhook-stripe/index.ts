@@ -66,13 +66,26 @@ Deno.serve(
 
     if (insertEventoError) {
       if (insertEventoError.code === '23505') {
-        // Evento duplicado ya procesado anteriormente
-        return new Response(JSON.stringify({ ok: true, duplicate: true }), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
-        });
+        // Un proceso puede haber caído después del INSERT. Solo descartamos
+        // replay si fila ya está procesada; si quedó pendiente, reintentamos.
+        const { data: existente, error: existenteError } = await supabase
+          .from('eventos_pago')
+          .select('procesado')
+          .eq('proveedor_pago', 'stripe')
+          .eq('event_id', evento.event_id)
+          .maybeSingle();
+        if (existenteError)
+          return internalError(`error consultando evento: ${existenteError.message}`, origin);
+        if (existente?.procesado === true) {
+          return new Response(JSON.stringify({ ok: true, duplicate: true }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
+          });
+        }
       }
-      return internalError(`error registrando evento: ${insertEventoError.message}`, origin);
+      if (insertEventoError.code !== '23505') {
+        return internalError(`error registrando evento: ${insertEventoError.message}`, origin);
+      }
     }
 
     // ── Buscar pedido (referencia_pasarela = pedidos.id, ver crear-pago) ──

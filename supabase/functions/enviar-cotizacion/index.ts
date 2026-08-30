@@ -173,6 +173,13 @@ Deno.serve(async req => {
   if (!loaded.ok) return loaded.res;
   let row = loaded.row;
 
+  // Vendedores solo pueden operar cotizaciones propias. service_role y
+  // supervisores conservan bandeja compartida; filas web sin propietario
+  // pueden ser reclamadas por el vendedor que las envía.
+  if (auth.userId && auth.role === 'ventas' && row.created_by && row.created_by !== auth.userId) {
+    return notFound(origin);
+  }
+
   if (row.pedido_id || row.estado === 'convertida') {
     return errorResponse(
       { code: 'COTIZACION_YA_CONVERTIDA', message: 'La cotizacion ya fue convertida en pedido' },

@@ -25,12 +25,14 @@ export async function requireAdmin(
   supabase: SupabaseClient,
   authHeader: string | null,
   roles: Set<string> = DEFAULT_ROLES
-): Promise<{ ok: true; userId: string | null; email: string | null } | { ok: false }> {
+): Promise<
+  { ok: true; userId: string | null; email: string | null; role: string | null } | { ok: false }
+> {
   const token = (authHeader ?? '').replace(/^Bearer\s+/i, '').trim();
   if (!token) return { ok: false };
 
   if (isServiceRoleToken(token)) {
-    return { ok: true, userId: null, email: null };
+    return { ok: true, userId: null, email: null, role: 'service_role' };
   }
 
   const {
@@ -46,5 +48,5 @@ export async function requireAdmin(
     .maybeSingle();
   const p = profile as { rol?: string; activo?: boolean } | null;
   if (!p?.activo || !roles.has(p.rol ?? '')) return { ok: false };
-  return { ok: true, userId: user.id, email: user.email ?? null };
+  return { ok: true, userId: user.id, email: user.email ?? null, role: p.rol ?? null };
 }
