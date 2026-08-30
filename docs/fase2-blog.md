@@ -82,13 +82,54 @@ Rama: `feature/fase2-blog-nosotros`
   - aprobacion -> insercion/actualizacion en `articulos`
   - `trigger-rebuild`
 
+## Imágenes de artículo (build + runtime)
+
+Prioridad en `src/lib/conocimiento-imagenes.ts` → `resolverImagenArticulo()`:
+
+1. Mirror estático generado en build desde `articulos.imagen` (CMS).
+2. URL CMS en Supabase (`articulos.imagen`).
+3. Fallback por slug o palabra clave (`POR_SLUG`, `POR_PALABRA`) solo si no hay imagen CMS.
+
+Pipeline pre-build (`scripts/mirror-cms-images.mjs`):
+
+- Descarga imágenes CMS, optimiza a WebP (hero + variante OG 1200×630).
+- Escribe manifest en `src/data/generated/articulo-imagenes.json` (leído por `conocimiento-imagen-manifest.ts`).
+- Requiere `PUBLIC_SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` en CI/prod (ver deploy workflows).
+- Nombre de archivo: `{slug}-conocimiento-equipos-biomedicos-ime-{hash8}.webp`.
+
+Tras publicar imagen nueva en admin: **rebuild obligatorio** — sin deploy el sitio sigue mostrando la imagen anterior (`ADMIN_GUIDE.md`).
+
+## Slugs de artículo
+
+`src/lib/articulo-slug.ts`:
+
+- `sanitizeArticuloSlug()` — corrige URLs pegadas (`https://...`) y normaliza a kebab-case.
+- `isValidArticuloSlug()` — rechaza reservados (`conocimiento`, `blog`, etc.) y slugs con `://`.
+- Admin y mirror comparten la misma lógica; tests en `articulo-slug.test.ts`.
+
+## Cuerpo del artículo en detalle
+
+`src/lib/conocimiento-articulo.ts`:
+
+- `renderArticleBody()` — Markdown completo del CMS (no truncar).
+- `demoteLeadingMarkdownH1()` — evita duplicar el `<h1>` del hero de página.
+
+Páginas: `src/pages/es/conocimiento/[slug].astro`, `src/pages/en/knowledge/[slug].astro`.
+
+JSON-LD `Article` incluye imagen OG cuando `resolverImagenArticulo` devuelve asset.
+
+## Nosotros / About
+
+Páginas institucionales publicadas:
+
+- `/es/nosotros/`, `/en/about/`, `/about/` (trust anchor agent-ready).
+- Copy editorial en Astro; no dependen de tabla `articulos`.
+
 ## Huecos confirmados
 
-- No existe tabla `articulos_propuestos`.
-- No existen columnas de autor en `articulos`.
-- No existe formulario publico `/es/conocimiento/publicar/`.
-- No existe moderacion de propuestas en admin.
-- No existe pagina `/es/nosotros/` ni `/en/about/` en el estado actual inspeccionado.
+- No existe tabla `articulos_propuestos` (moderación futura).
+- No existen columnas de autor en `articulos` (byline variable pendiente).
+- Formulario público `/es/conocimiento/publicar/` y moderación de propuestas: ver backlog Fase 2.
 
 ## Decision para la tarea 2
 
