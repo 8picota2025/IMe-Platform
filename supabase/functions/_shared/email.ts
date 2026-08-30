@@ -249,6 +249,24 @@ export interface EnviarEmailOpciones {
   subjectOverride?: string;
 }
 
+const EMAIL_MAX_ATTEMPTS = 3;
+
+function emailErrorRetryable(status: number): boolean {
+  return status === 429 || status >= 500;
+}
+
+function emailRetryDelayMs(response: Response, attempt: number): number {
+  const retryAfter = Number(response.headers.get('retry-after') ?? 0);
+  if (Number.isFinite(retryAfter) && retryAfter > 0) {
+    return Math.min(retryAfter * 1000, 10_000);
+  }
+  return 1000 * 2 ** attempt;
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 /**
  * Renderiza la plantilla `clave` (DB con fallback a defaults) y la envia a
  * cada destinatario. `vars` deben venir ya escapadas si contienen input de
@@ -301,32 +319,38 @@ export async function enviarEmailPlantilla(
     const idempotencyKey = options.idempotencyKey
       ? `${options.idempotencyKey}:${to}`.slice(0, 256)
       : '';
-    try {
-      const res = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-          ...(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}),
-        },
-        body: JSON.stringify({
-          from,
-          to,
-          subject,
-          html: body,
-          ...(adjuntos.length > 0 ? { attachments: adjuntos } : {}),
-        }),
-      });
-      if (res.status === 409 && idempotencyKey) {
-        status = 'enviado';
-        errorTxt = null;
-      } else if (!res.ok) {
+    for (let attempt = 0; attempt < EMAIL_MAX_ATTEMPTS; attempt += 1) {
+      try {
+        const res = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+            ...(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}),
+          },
+          body: JSON.stringify({
+            from,
+            to,
+            subject,
+            html: body,
+            ...(adjuntos.length > 0 ? { attachments: adjuntos } : {}),
+          }),
+        });
+        if (res.ok || (res.status === 409 && idempotencyKey)) {
+          status = 'enviado';
+          errorTxt = null;
+          break;
+        }
         status = 'fallido';
         errorTxt = `HTTP ${res.status}: ${(await res.text()).slice(0, 200)}`;
+        if (!emailErrorRetryable(res.status) || attempt === EMAIL_MAX_ATTEMPTS - 1) break;
+        await sleep(emailRetryDelayMs(res, attempt));
+      } catch (err) {
+        status = 'fallido';
+        errorTxt = err instanceof Error ? err.message : 'error desconocido';
+        if (attempt === EMAIL_MAX_ATTEMPTS - 1) break;
+        await sleep(1000 * 2 ** attempt);
       }
-    } catch (err) {
-      status = 'fallido';
-      errorTxt = err instanceof Error ? err.message : 'error desconocido';
     }
     if (status === 'fallido') {
       todosOk = false;
