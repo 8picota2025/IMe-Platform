@@ -63,12 +63,22 @@ describe('buildProductJsonLd', () => {
   });
 
   it.each([0, null, undefined, NaN, 'invalido' as unknown as number])(
-    'omite Offer cuando precio no es público: %s',
+    'no emite Product cuando precio no es público: %s',
     precio => {
       const jsonLd = buildProductJsonLd({ ...producto, precio }, 'es');
-      expect(jsonLd.offers).toBeUndefined();
+      expect(jsonLd).toBeNull();
     }
   );
+
+  it('Offer incluye campos merchant listing cuando hay precio', () => {
+    const jsonLd = buildProductJsonLd(producto, 'es', 'Monitores', 'Biolight');
+    expect(jsonLd).not.toBeNull();
+    const offers = jsonLd!.offers as Record<string, unknown>;
+    expect(offers.itemCondition).toBe('https://schema.org/NewCondition');
+    expect(offers.priceValidUntil).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(offers.hasMerchantReturnPolicy).toBeDefined();
+    expect(offers.shippingDetails).toBeDefined();
+  });
 
   it('no añade reviews ni aggregateRating sin datos reales', () => {
     const jsonLd = buildProductJsonLd(producto, 'es');

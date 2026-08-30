@@ -366,8 +366,62 @@ export function buildWebSiteJsonLd(): Record<string, unknown> {
   };
 }
 
+/** ISO date ~12 months ahead — priceValidUntil for Offer rich results. */
+function buildPriceValidUntil(): string {
+  const until = new Date();
+  until.setUTCFullYear(until.getUTCFullYear() + 1);
+  return until.toISOString().slice(0, 10);
+}
+
+/** Merchant return policy — alineada a /es/legal/devoluciones/ y términos B2B. */
+export function buildMerchantReturnPolicyJsonLd(locale: Locale): Record<string, unknown> {
+  const legalPath = locale === 'en' ? '/en/legal/returns/' : '/es/legal/devoluciones/';
+  return {
+    '@type': 'MerchantReturnPolicy',
+    '@id': `${SITE}/#return-policy`,
+    applicableCountry: 'CO',
+    returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+    merchantReturnDays: 5,
+    returnMethod: 'https://schema.org/ReturnByMail',
+    returnFees: 'https://schema.org/ReturnFeesCustomerResponsibility',
+    returnPolicyUrl: `${SITE}${legalPath}`,
+  };
+}
+
+/** Shipping defaults for Colombia — coste final se confirma en cotización. */
+function buildOfferShippingDetails(currency: string): Record<string, unknown> {
+  return {
+    '@type': 'OfferShippingDetails',
+    shippingDestination: {
+      '@type': 'DefinedRegion',
+      addressCountry: 'CO',
+    },
+    deliveryTime: {
+      '@type': 'ShippingDeliveryTime',
+      handlingTime: {
+        '@type': 'QuantitativeValue',
+        minValue: 1,
+        maxValue: 5,
+        unitCode: 'DAY',
+      },
+      transitTime: {
+        '@type': 'QuantitativeValue',
+        minValue: 2,
+        maxValue: 15,
+        unitCode: 'DAY',
+      },
+    },
+    shippingRate: {
+      '@type': 'MonetaryAmount',
+      value: 0,
+      currency,
+    },
+  };
+}
+
 /**
- * JSON-LD Product — solo si hay datos reales.
+ * JSON-LD Product — solo cuando hay precio público (Offer válido para Google Shopping/snippets).
+ * Sin precio visible no emitimos Product: GSC exige offers, review o aggregateRating.
  * MedicalDevice se añade únicamente cuando hay sellos de normativa en specs.
  */
 export function buildProductJsonLd(
@@ -387,7 +441,9 @@ export function buildProductJsonLd(
   categoria?: string,
   marca?: string | null,
   opts?: { certificaciones?: string[]; familiaSlug?: string }
-): Record<string, unknown> {
+): Record<string, unknown> | null {
+  if (!tienePrecioPublico(producto.precio)) return null;
+
   const segment = locale === 'en' ? 'products' : 'productos';
   const canonicalUrl = buildCanonical(`/${locale}/${segment}/${producto.slug}`);
   const imageUrl = producto.imagen_principal
@@ -412,21 +468,24 @@ export function buildProductJsonLd(
     },
     seller: { '@id': `${SITE}/#organization` },
   };
-  if (tienePrecioPublico(producto.precio)) {
-    jsonLd.offers = {
-      '@type': 'Offer',
-      url: canonicalUrl,
-      price: producto.precio,
-      priceCurrency: normalizarMoneda(producto.moneda),
-      availability:
-        producto.disponible === false
-          ? 'https://schema.org/OutOfStock'
-          : 'https://schema.org/InStock',
-      seller: { '@id': `${SITE}/#organization` },
-      areaServed: { '@type': 'Country', name: 'Colombia' },
-      businessFunction: 'http://purl.org/goodrelations/v1#Sell',
-    };
-  }
+  const priceCurrency = normalizarMoneda(producto.moneda);
+  jsonLd.offers = {
+    '@type': 'Offer',
+    url: canonicalUrl,
+    price: producto.precio,
+    priceCurrency,
+    priceValidUntil: buildPriceValidUntil(),
+    itemCondition: 'https://schema.org/NewCondition',
+    availability:
+      producto.disponible === false
+        ? 'https://schema.org/OutOfStock'
+        : 'https://schema.org/InStock',
+    seller: { '@id': `${SITE}/#organization` },
+    areaServed: { '@type': 'Country', name: 'Colombia' },
+    businessFunction: 'http://purl.org/goodrelations/v1#Sell',
+    hasMerchantReturnPolicy: buildMerchantReturnPolicyJsonLd(locale),
+    shippingDetails: buildOfferShippingDetails(priceCurrency),
+  };
   if (categoria) jsonLd.category = categoria;
   if (opts?.familiaSlug) {
     const famSeg = locale === 'en' ? 'families' : 'familias';
@@ -577,9 +636,12 @@ export function buildBreadcrumbJsonLd(
  * Combina varios bloques JSON-LD en un único <script type="application/ld+json">
  * usando @graph. Aplana bloques que ya tienen @graph propio.
  */
-export function combineJsonLd(...blocks: Record<string, unknown>[]): string {
+export function combineJsonLd(
+  ...blocks: Array<Record<string, unknown> | null | undefined>
+): string {
   const nodes: Record<string, unknown>[] = [];
   for (const block of blocks) {
+    if (!block) continue;
     const { '@context': _ctx, '@graph': graph, ...rest } = block;
     if (Array.isArray(graph)) {
       nodes.push(...(graph as Record<string, unknown>[]));
