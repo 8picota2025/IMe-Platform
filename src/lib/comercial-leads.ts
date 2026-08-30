@@ -26,6 +26,8 @@ export type CampaignLandingId =
   | 'monitores_biolight'
   | 'alto_flujo_fisher_paykel'
   | 'camillas_medicas'
+  | 'ventiladores_mecanicos'
+  | 'desfibriladores_hospital'
   | 'proyectos'
   | 'pdf_descarga'
   | 'evento'

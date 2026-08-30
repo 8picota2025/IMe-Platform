@@ -1672,6 +1672,412 @@ const CAMILLAS_MEDICAS: ContentMap = {
   },
 };
 
+const VENTILADORES_MECANICOS: ContentMap = {
+  es: {
+    tag: 'UCI · Ventilación mecánica',
+    title: 'Ventiladores mecánicos UCI Monnal T75 y TEO | Adulto y pediátrico | I-ME',
+    description:
+      'Ventiladores mecánicos para UCI adulto/pediátrico, transporte y neonatología en Colombia. Monnal T75, TEO y T60 — orientación I-ME sin catálogo infinito.',
+    h1: 'Ventiladores mecánicos UCI — Monnal y tipología con criterio institucional',
+    lead: 'Si busca ventilador UCI, Monnal T75, ventilador de transporte o VNI neonatal, le ayudamos a separar tipologías (UCI vs transporte vs neonato) con referencias reales del catálogo.',
+    formIntro:
+      'Indique servicio (UCI, urgencias, transporte, neonatología), población y cantidad. Un asesor responde con alternativas publicadas.',
+    primaryCta: 'Quiero orientación de ventiladores UCI',
+    secondaryCta: 'Escribir por WhatsApp',
+    tertiaryCta: 'Ver familia ventiladores',
+    heroImage: '/assets/img/ventiladores-mecanicos-monnal-uci-colombia.webp',
+    heroImageAlt: 'Ventilador mecánico Monnal T75 en UCI — I-ME Colombia',
+    problemTitle: 'Lo que suele fallar al comprar ventiladores',
+    problemBody:
+      'Mezclar brief de UCI, quirófano y transporte genera equipos subutilizados o sin soporte local. Definimos tipología, modos y consumibles antes de empujar un SKU.',
+    solutionsTitle: 'Cómo acotamos el ventilador',
+    solutions: [
+      {
+        pain: 'Necesitan ventilador UCI adulto/pediátrico homogéneo',
+        help: 'Partimos de Monnal T75/TEO publicados y validamos población y modos obligatorios.',
+      },
+      {
+        pain: 'Requieren ventilador de transporte intrahospitalario',
+        help: 'Separamos T60 transporte de UCI fija — distinto brief, distinto soporte.',
+      },
+      {
+        pain: 'Neonatología pide VNI o ventilación convencional',
+        help: 'Enlazamos NC3 Medin o SLE6000 según servicio sin mezclar con UCI adulta.',
+      },
+    ],
+    audienceYes: [
+      'Hospitales e IPS renovando ventilación en UCI o urgencias',
+      'Biomédica / compras con proyecto Monnal o equivalente documentado',
+      'Redes que estandarizan flota por servicio',
+    ],
+    audienceNo: [
+      'Pedidos sin servicio ni población definidos',
+      'Claims clínicos inventados o precios de vitrina',
+      'Urgencias marketplace sin institución',
+    ],
+    situations: [
+      { title: 'Renovar flota UCI', body: 'Reemplazo T75/TEO con criterio de modos y soporte.' },
+      {
+        title: 'Transporte crítico',
+        body: 'Ventilador portátil T60 para traslados intrahospitalarios.',
+      },
+      { title: 'Ampliar camas UCI', body: 'Nuevas unidades compatibles con protocolo existente.' },
+    ],
+    scopeTitle: 'Qué cubrimos',
+    scope: [
+      'Tipología por servicio y población',
+      'Referencias Monnal, Medin y SLE del catálogo I-ME',
+      'Instalación, capacitación y soporte en propuesta',
+      'Financiación orientativa institucional',
+    ],
+    requirementsTitle: 'Para cotizar con sentido',
+    requirements: [
+      'Servicio y ciudad',
+      'Cantidad y plazo',
+      'Población (adulto, pediátrico, neonato)',
+      '¿Transporte, UCI fija o ambos?',
+    ],
+    financingNote:
+      'Proyectos de ventilación suelen financiarse por fases. Condiciones en propuesta formal.',
+    evidenceNote: 'Solo equipos y fichas publicadas. Sin outcomes clínicos inventados.',
+    processTitle: 'Cómo seguimos',
+    processSteps: [
+      'Cuéntenos el servicio en el formulario',
+      'Priorizamos por plazo y criticidad',
+      'Proponemos 1–3 referencias del catálogo',
+      'Cotización formal con alcance técnico',
+    ],
+    faqs: [
+      {
+        q: '¿Tienen ventilador Monnal T75 en catálogo?',
+        a: 'Sí. El T75 UCI adulto/pediátrico está publicado. Confirmamos configuración y disponibilidad al cotizar.',
+      },
+      {
+        q: '¿Sirve un ventilador UCI para transporte?',
+        a: 'No siempre. Recomendamos T60 transporte cuando el brief es traslado — lo evaluamos por servicio.',
+      },
+      {
+        q: '¿Incluyen instalación y capacitación?',
+        a: 'El alcance se define en la propuesta según sede y cantidad.',
+      },
+    ],
+    projectOptions: [
+      { value: 'renovacion_uci', label: 'Renovar ventiladores UCI' },
+      { value: 'transporte', label: 'Ventilación de transporte' },
+      { value: 'neonatologia', label: 'Neonatología / VNI' },
+      { value: 'orientacion', label: 'Aún comparando modelos' },
+    ],
+    productSlugs: [
+      'ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide',
+      'ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-teo-air-liquide',
+      'ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide',
+      'ventilador-neonatal-no-invasivo-ref-nc3-medin',
+    ],
+    productsTitle: 'Referencias con demanda real',
+    productsNote: 'Modelos del catálogo I-ME. Configuración y consumibles se confirman al cotizar.',
+    catalogFilter: 'ventiladores',
+  },
+  en: {
+    tag: 'ICU · Mechanical ventilation',
+    title: 'ICU mechanical ventilators Monnal T75 & TEO | Adult & pediatric | I-ME',
+    description:
+      'Mechanical ventilators for adult/pediatric ICU, transport and neonatology in Colombia. Monnal T75, TEO and T60 — I-ME guidance without an infinite catalog.',
+    h1: 'ICU mechanical ventilators — Monnal typology with institutional criteria',
+    lead: 'Looking for an ICU ventilator, Monnal T75, transport ventilator or neonatal NIV? We help separate typologies (ICU vs transport vs neonatal) with real catalog references.',
+    formIntro:
+      'Share service (ICU, ED, transport, neonatology), population and quantity. An advisor replies with published options.',
+    primaryCta: 'I want ICU ventilator guidance',
+    secondaryCta: 'Message on WhatsApp',
+    tertiaryCta: 'See ventilators family',
+    heroImage: '/assets/img/ventiladores-mecanicos-monnal-uci-colombia.webp',
+    heroImageAlt: 'Monnal T75 mechanical ventilator in ICU — I-ME Colombia',
+    problemTitle: 'What usually goes wrong when buying ventilators',
+    problemBody:
+      'Mixing ICU, OR and transport briefs yields underused equipment or weak local support. We define typology, modes and consumables before pushing a SKU.',
+    solutionsTitle: 'How we narrow the ventilator',
+    solutions: [
+      {
+        pain: 'Need homogeneous adult/pediatric ICU ventilator',
+        help: 'We start from published Monnal T75/TEO and validate population and mandatory modes.',
+      },
+      {
+        pain: 'Require intrahospital transport ventilator',
+        help: 'We separate T60 transport from fixed ICU — different brief, different support.',
+      },
+      {
+        pain: 'Neonatology asks for NIV or conventional ventilation',
+        help: 'We link NC3 Medin or SLE6000 by service without mixing with adult ICU.',
+      },
+    ],
+    audienceYes: [
+      'Hospitals and networks renewing ICU or ED ventilation',
+      'Biomed / procurement with a documented Monnal or equivalent project',
+      'Networks standardizing fleet by service',
+    ],
+    audienceNo: [
+      'Orders with no service or population defined',
+      'Invented clinical claims or shelf prices',
+      'Marketplace urgency with no institution',
+    ],
+    situations: [
+      { title: 'Renew ICU fleet', body: 'T75/TEO replacement with modes and support criteria.' },
+      { title: 'Critical transport', body: 'T60 portable ventilator for intrahospital transfers.' },
+      { title: 'Expand ICU beds', body: 'New units compatible with existing protocol.' },
+    ],
+    scopeTitle: 'What we cover',
+    scope: [
+      'Typology by service and population',
+      'Monnal, Medin and SLE references in the I-ME catalog',
+      'Installation, training and support in the proposal',
+      'Indicative institutional financing',
+    ],
+    requirementsTitle: 'To quote meaningfully',
+    requirements: [
+      'Service and city',
+      'Quantity and timeline',
+      'Population (adult, pediatric, neonatal)',
+      'Transport, fixed ICU or both?',
+    ],
+    financingNote: 'Ventilation projects are often financed in phases. Terms in a formal proposal.',
+    evidenceNote: 'Published equipment and sheets only. No invented clinical outcomes.',
+    processTitle: 'How we follow up',
+    processSteps: [
+      'Share the service in the form',
+      'We prioritize by timeline and criticality',
+      'We propose 1–3 catalog references',
+      'Formal quote with technical scope',
+    ],
+    faqs: [
+      {
+        q: 'Do you carry the Monnal T75 ventilator?',
+        a: 'Yes. The adult/pediatric ICU T75 is published. We confirm configuration and availability when quoting.',
+      },
+      {
+        q: 'Can an ICU ventilator cover transport?',
+        a: 'Not always. We recommend T60 transport when the brief is transfer — we evaluate by service.',
+      },
+      {
+        q: 'Do you include installation and training?',
+        a: 'Scope is defined in the proposal by site and quantity.',
+      },
+    ],
+    projectOptions: [
+      { value: 'renovacion_uci', label: 'Renew ICU ventilators' },
+      { value: 'transporte', label: 'Transport ventilation' },
+      { value: 'neonatologia', label: 'Neonatology / NIV' },
+      { value: 'orientacion', label: 'Still comparing models' },
+    ],
+    productSlugs: [
+      'ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide',
+      'ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-teo-air-liquide',
+      'ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide',
+      'ventilador-neonatal-no-invasivo-ref-nc3-medin',
+    ],
+    productsTitle: 'References with real demand',
+    productsNote: 'I-ME catalog models. Configuration and consumables confirmed when quoting.',
+    catalogFilter: 'ventiladores',
+  },
+};
+
+const DESFIBRILADORES: ContentMap = {
+  es: {
+    tag: 'Reanimación · Desfibrilación',
+    title: 'Desfibriladores hospitalarios bifásicos con monitor | Urgencias y UCI | I-ME',
+    description:
+      'Desfibriladores bifásicos con monitor para urgencias, UCI y código azul en Colombia. Orientación I-ME por protocolo institucional — sin catálogo infinito.',
+    h1: 'Desfibriladores hospitalarios — bifásico con monitor y criterio de reanimación',
+    lead: 'Si busca desfibrilador bifásico, DEA hospitalario o equipo de reanimación con monitor, le ayudamos a acotar tipología según servicio y protocolo con referencias del catálogo.',
+    formIntro:
+      'Indique servicio (urgencias, UCI, ambulancia interna), cantidad y si renueva flota. Un asesor responde con alternativas publicadas.',
+    primaryCta: 'Quiero orientación de desfibriladores',
+    secondaryCta: 'Escribir por WhatsApp',
+    tertiaryCta: 'Ver cardiología y reanimación',
+    heroImage: '/assets/img/desfibriladores-hospitalarios-reanimacion-colombia.webp',
+    heroImageAlt: 'Desfibrilador bifásico con monitor en área de reanimación — I-ME Colombia',
+    problemTitle: 'Lo que suele fallar al comprar desfibriladores',
+    problemBody:
+      'No es “el más barato”. Es protocolo de código, quién opera el equipo, mantenimiento de baterías/parchos y dónde vive (urgencias vs UCI vs ambulancia).',
+    solutionsTitle: 'Cómo acotamos el desfibrilador',
+    solutions: [
+      {
+        pain: 'Urgencias necesita desfibrilador con monitor multiparamétrico',
+        help: 'Revisamos bifásico con monitor publicado y alcance de capacitación biomédica.',
+      },
+      {
+        pain: 'Quieren homogeneizar flota de reanimación',
+        help: 'Estructuramos por área (urgencias, UCI, traslado) con el mismo checklist técnico.',
+      },
+      {
+        pain: 'Compras teme caducidad de consumibles',
+        help: 'Dejamos claro parchos, baterías y soporte en la propuesta — sin promesas genéricas.',
+      },
+    ],
+    audienceYes: [
+      'Hospitales e IPS renovando equipos de reanimación',
+      'Biomédica / compras con protocolo de código definido',
+      'Proyectos que separan diagnóstico cardíaco de reanimación',
+    ],
+    audienceNo: [
+      'Pedidos sin servicio ni cantidad definidos',
+      'Claims clínicos inventados',
+      'Compras DEA público sin institución',
+    ],
+    situations: [
+      { title: 'Renovar urgencias', body: 'Reemplazo bifásico con monitor y capacitación.' },
+      {
+        title: 'Ampliar puntos de reanimación',
+        body: 'Nuevas unidades en UCI o pasillos críticos.',
+      },
+      { title: 'Homologar antes de licitar', body: 'Checklist técnico y referencias para compra.' },
+    ],
+    scopeTitle: 'Qué cubrimos',
+    scope: [
+      'Tipología desfibrilador vs monitor reanimación',
+      'Referencias publicadas del catálogo I-ME',
+      'Capacitación, mantenimiento y consumibles en propuesta',
+      'Financiación orientativa institucional',
+    ],
+    requirementsTitle: 'Para cotizar con sentido',
+    requirements: [
+      'Servicio y ciudad',
+      'Cantidad y plazo',
+      'Protocolo de código (si aplica)',
+      '¿Renovación o primera compra?',
+    ],
+    financingNote: 'Equipos de reanimación suelen financiarse en propuesta formal.',
+    evidenceNote: 'Solo equipos publicados. Sin promesas de supervivencia ni tiempos genéricos.',
+    processTitle: 'Cómo seguimos',
+    processSteps: [
+      'Cuéntenos el servicio en el formulario',
+      'Priorizamos por plazo',
+      'Proponemos referencias del catálogo',
+      'Cotización formal con alcance',
+    ],
+    faqs: [
+      {
+        q: '¿Tienen desfibrilador bifásico con monitor?',
+        a: 'Sí. Hay referencia publicada en catálogo. Confirmamos configuración al cotizar.',
+      },
+      {
+        q: '¿Incluyen parchos y baterías?',
+        a: 'El alcance de consumibles y mantenimiento se define en la propuesta.',
+      },
+      {
+        q: '¿Capacitan al personal?',
+        a: 'La capacitación se acuerda por institución en la propuesta formal.',
+      },
+    ],
+    projectOptions: [
+      { value: 'renovacion_urgencias', label: 'Renovar desfibriladores urgencias' },
+      { value: 'ampliacion', label: 'Ampliar puntos de reanimación' },
+      { value: 'homologacion', label: 'Homologar para licitación' },
+      { value: 'orientacion', label: 'Aún comparando modelos' },
+    ],
+    productSlugs: ['desfibrilador-bifasico-con-monitor'],
+    productsTitle: 'Referencia principal',
+    productsNote: 'Modelo del catálogo I-ME. Accesorios y consumibles confirmados al cotizar.',
+    catalogFilter: 'cardiologia-reanimacion',
+  },
+  en: {
+    tag: 'Resuscitation · Defibrillation',
+    title: 'Hospital biphasic defibrillators with monitor | ER & ICU | I-ME',
+    description:
+      'Biphasic defibrillators with monitor for ER, ICU and code teams in Colombia. I-ME guidance by institutional protocol — not an infinite catalog.',
+    h1: 'Hospital defibrillators — biphasic with monitor and resuscitation criteria',
+    lead: 'Looking for a biphasic defibrillator, hospital AED or resuscitation monitor? We help narrow typology by service and protocol with catalog references.',
+    formIntro:
+      'Share service (ER, ICU, internal ambulance), quantity and whether you are renewing a fleet. An advisor replies with published options.',
+    primaryCta: 'I want defibrillator guidance',
+    secondaryCta: 'Message on WhatsApp',
+    tertiaryCta: 'See cardiology & resuscitation',
+    heroImage: '/assets/img/desfibriladores-hospitalarios-reanimacion-colombia.webp',
+    heroImageAlt: 'Biphasic defibrillator with monitor in resuscitation area — I-ME Colombia',
+    problemTitle: 'What usually goes wrong when buying defibrillators',
+    problemBody:
+      'It is not “the cheapest unit”. It is code protocol, who operates the device, battery/pad maintenance and where it lives (ER vs ICU vs ambulance).',
+    solutionsTitle: 'How we narrow the defibrillator',
+    solutions: [
+      {
+        pain: 'ER needs defibrillator with multiparameter monitor',
+        help: 'We review the published biphasic with monitor and biomed training scope.',
+      },
+      {
+        pain: 'Want to homogenize resuscitation fleet',
+        help: 'We structure by area (ER, ICU, transport) with the same technical checklist.',
+      },
+      {
+        pain: 'Procurement fears consumable expiry',
+        help: 'We clarify pads, batteries and support in the proposal — no generic promises.',
+      },
+    ],
+    audienceYes: [
+      'Hospitals renewing resuscitation equipment',
+      'Biomed / procurement with a defined code protocol',
+      'Projects separating diagnostic cardiology from resuscitation',
+    ],
+    audienceNo: [
+      'Orders with no service or quantity defined',
+      'Invented clinical claims',
+      'Public AED purchases with no institution',
+    ],
+    situations: [
+      { title: 'Renew ER fleet', body: 'Biphasic replacement with monitor and training.' },
+      { title: 'Expand resuscitation points', body: 'New units in ICU or critical wards.' },
+      {
+        title: 'Homologate before tender',
+        body: 'Technical checklist and references for purchasing.',
+      },
+    ],
+    scopeTitle: 'What we cover',
+    scope: [
+      'Defibrillator vs resuscitation monitor typology',
+      'Published references in the I-ME catalog',
+      'Training, maintenance and consumables in the proposal',
+      'Indicative institutional financing',
+    ],
+    requirementsTitle: 'To quote meaningfully',
+    requirements: [
+      'Service and city',
+      'Quantity and timeline',
+      'Code protocol (if applicable)',
+      'Renewal or first purchase?',
+    ],
+    financingNote: 'Resuscitation equipment is usually financed in a formal proposal.',
+    evidenceNote: 'Published equipment only. No survival or generic response-time promises.',
+    processTitle: 'How we follow up',
+    processSteps: [
+      'Share the service in the form',
+      'We prioritize by timeline',
+      'We propose catalog references',
+      'Formal quote with scope',
+    ],
+    faqs: [
+      {
+        q: 'Do you carry a biphasic defibrillator with monitor?',
+        a: 'Yes. There is a published catalog reference. We confirm configuration when quoting.',
+      },
+      {
+        q: 'Do you include pads and batteries?',
+        a: 'Consumables and maintenance scope are defined in the proposal.',
+      },
+      {
+        q: 'Do you train staff?',
+        a: 'Training is agreed per institution in the formal proposal.',
+      },
+    ],
+    projectOptions: [
+      { value: 'renovacion_urgencias', label: 'Renew ER defibrillators' },
+      { value: 'ampliacion', label: 'Expand resuscitation points' },
+      { value: 'homologacion', label: 'Homologate for tender' },
+      { value: 'orientacion', label: 'Still comparing models' },
+    ],
+    productSlugs: ['desfibrilador-bifasico-con-monitor'],
+    productsTitle: 'Primary reference',
+    productsNote: 'I-ME catalog model. Accessories and consumables confirmed when quoting.',
+    catalogFilter: 'cardiologia-reanimacion',
+  },
+};
+
 const CAMINADORES: ContentMap = {
   es: {
     tag: 'Movilidad · Caminadores',
@@ -2182,6 +2588,16 @@ const META: Record<
     path: '/es/camillas-medicas/',
     pathEn: '/en/medical-stretchers/',
   },
+  ventiladores_mecanicos: {
+    familia_slug: 'ventiladores',
+    path: '/es/ventiladores-mecanicos-uci/',
+    pathEn: '/en/mechanical-ventilators-icu/',
+  },
+  desfibriladores_hospital: {
+    familia_slug: 'cardiologia-reanimacion',
+    path: '/es/desfibriladores-hospitalarios/',
+    pathEn: '/en/hospital-defibrillators/',
+  },
 };
 
 const BY_ID: Record<StandardCampaignLandingId, ContentMap> = {
@@ -2194,6 +2610,8 @@ const BY_ID: Record<StandardCampaignLandingId, ContentMap> = {
   monitores_biolight: MONITORES_BIOLIGHT,
   alto_flujo_fisher_paykel: ALTO_FLUJO_FISHER_PAYKEL,
   camillas_medicas: CAMILLAS_MEDICAS,
+  ventiladores_mecanicos: VENTILADORES_MECANICOS,
+  desfibriladores_hospital: DESFIBRILADORES,
 };
 
 export function getCampaignLanding(

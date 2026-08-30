@@ -1117,6 +1117,56 @@ const FAMILIA_HUB_LINKS: Record<string, FamiliaHubLink[]> = {
       label_es: 'Proyecto de imagenología',
       label_en: 'Imaging project guide',
     },
+    {
+      href_es: '/es/productos/mamografo-digital-dm166-series/',
+      href_en: '/en/products/mamografo-digital-dm166-series/',
+      label_es: 'Mamógrafo digital DM166',
+      label_en: 'DM166 digital mammography',
+    },
+    {
+      href_es: '/es/productos/mamografo-digital-dm156-series-angell-technology/',
+      href_en: '/en/products/mamografo-digital-dm156-series-angell-technology/',
+      label_es: 'Mamógrafo digital DM156',
+      label_en: 'DM156 digital mammography',
+    },
+  ],
+  ventiladores: [
+    {
+      href_es: '/es/ventiladores-mecanicos-uci/',
+      href_en: '/en/mechanical-ventilators-icu/',
+      label_es: 'Guía ventiladores UCI Monnal',
+      label_en: 'Monnal ICU ventilators guide',
+    },
+    {
+      href_es:
+        '/es/productos/ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide/',
+      href_en:
+        '/en/products/ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide/',
+      label_es: 'Ventilador Monnal T75 UCI',
+      label_en: 'Monnal T75 ICU ventilator',
+    },
+  ],
+  'cardiologia-reanimacion': [
+    {
+      href_es: '/es/desfibriladores-hospitalarios/',
+      href_en: '/en/hospital-defibrillators/',
+      label_es: 'Guía desfibriladores hospitalarios',
+      label_en: 'Hospital defibrillators guide',
+    },
+    {
+      href_es: '/es/productos/desfibrilador-bifasico-con-monitor/',
+      href_en: '/en/products/desfibrilador-bifasico-con-monitor/',
+      label_es: 'Desfibrilador bifásico con monitor',
+      label_en: 'Biphasic defibrillator with monitor',
+    },
+  ],
+  cardiologia: [
+    {
+      href_es: '/es/desfibriladores-hospitalarios/',
+      href_en: '/en/hospital-defibrillators/',
+      label_es: 'Desfibriladores y reanimación',
+      label_en: 'Defibrillators & resuscitation',
+    },
   ],
   'terapia-respiratoria-soporte-vital': [
     {

@@ -169,10 +169,25 @@ export function buildHomeSeo(locale: Locale): SeoPageMeta {
       ? 'I-ME | Equipos biomédicos certificados en Colombia — venta, soporte e INVIMA'
       : 'I-ME | Certified biomedical equipment in Colombia — sales, support & INVIMA',
     description: isEs
-      ? 'I-ME (International Medical Enterprise): equipos biomédicos con respaldo INVIMA/CE/FDA, soporte técnico, calibración y financiamiento para hospitales y clínicas en Colombia.'
-      : 'I-ME (International Medical Enterprise): INVIMA/CE/FDA biomedical equipment, technical support, calibration and financing for hospitals and clinics across Colombia.',
+      ? 'I-ME (i-me.com.co · IME · International Medical Enterprise): distribuidor biomédico en Colombia — equipos con respaldo INVIMA/CE/FDA, soporte técnico, calibración y financiamiento para hospitales y clínicas.'
+      : 'I-ME (i-me.com.co · IME · International Medical Enterprise): biomedical distributor in Colombia — INVIMA/CE/FDA equipment, technical support, calibration and financing for hospitals and clinics.',
     canonical: buildCanonical(`/${locale}/`),
     ogImage: DEFAULT_OG_IMAGE,
+  };
+}
+
+/** About/nosotros — captura consultas de marca (i-me.com, ime, i me) en GSC. */
+export function buildAboutSeo(locale: Locale): SeoPageMeta {
+  const isEs = locale === 'es';
+  return {
+    title: isEs
+      ? 'I-ME | i-me.com.co — International Medical Enterprise Colombia'
+      : 'I-ME | i-me.com.co — International Medical Enterprise Colombia',
+    description: isEs
+      ? 'I-ME (IME, i-me.com.co): empresa colombiana de equipos biomédicos, importación INVIMA, soporte técnico y financiamiento para hospitales y clínicas desde Envigado, Antioquia.'
+      : 'I-ME (IME, i-me.com.co): Colombian biomedical equipment company — INVIMA imports, technical support and financing for hospitals and clinics from Envigado, Antioquia.',
+    canonical: buildCanonical(isEs ? '/es/nosotros' : '/en/about'),
+    ogImage: INSTITUTIONAL_OG_IMAGE,
   };
 }
 
@@ -244,14 +259,48 @@ export function buildServiciosSeo(locale: Locale): SeoPageMeta {
     title:
       locale === 'es'
         ? 'Servicios biomédicos en Colombia | venta, soporte técnico y financiamiento | I-ME'
-        : 'I-ME biomedical services Colombia | medical device sales, renewal & support',
+        : 'I-ME | Leading biomedical company in Colombia health sector | device renewal',
     description:
       locale === 'es'
         ? 'I-ME ofrece venta de equipos biomédicos con registro INVIMA, soporte técnico de ingenieros certificados, calibración, financiamiento y asesoría para hospitales y clínicas.'
-        : 'I-ME International Medical Enterprise: leading biomedical distributor in Colombia — equipment sales, device renewal, INVIMA-registered imports, technical support and financing for hospitals.',
+        : 'I-ME International Medical Enterprise: leading biomedical distributor in Colombia health sector — medical device renewal, INVIMA-registered imports, equipment sales, technical support and financing for hospitals.',
     canonical: buildCanonical(locale === 'es' ? '/es/servicios' : '/en/services'),
     ogImage: DEFAULT_OG_IMAGE,
   };
+}
+
+/** FAQ visible + schema para queries B2B EN en GSC (renewal / leading company). */
+export function buildServiciosFaqItems(locale: Locale): Array<{ q: string; a: string }> {
+  if (locale === 'en') {
+    return [
+      {
+        q: 'Is I-ME a leading company in the health sector in Colombia?',
+        a: 'I-ME International Medical Enterprise is a Colombian biomedical distributor focused on hospitals and clinics — equipment sales, INVIMA-registered imports, technical support and institutional financing from Envigado, Antioquia.',
+      },
+      {
+        q: 'Does I-ME support medical device renewal in Colombia?',
+        a: 'Yes. We advise on replacing monitors, imaging, ventilation and critical-care fleets with documented references, installation scope, training and support defined in a formal proposal.',
+      },
+      {
+        q: 'What services does I-ME offer healthcare institutions?',
+        a: 'Sales and distribution, certified technical support, flexible financing and comprehensive biomedical advisory — always confirmed per SKU and institution in the formal quote.',
+      },
+    ];
+  }
+  return [
+    {
+      q: '¿Qué servicios ofrece I-ME a instituciones de salud?',
+      a: 'Venta y distribución de equipos biomédicos, soporte técnico certificado, financiamiento flexible y asesoría integral — siempre confirmados por referencia e institución en la propuesta formal.',
+    },
+    {
+      q: '¿I-ME acompaña renovación de equipos médicos?',
+      a: 'Sí. Orientamos reemplazo de monitores, imagen, ventilación y flotas críticas con referencias documentadas, alcance de instalación, capacitación y soporte en propuesta formal.',
+    },
+    {
+      q: '¿Los equipos tienen respaldo INVIMA?',
+      a: 'La documentación regulatoria aplicable se confirma por referencia y en la propuesta de compra; no prometemos registros genéricos sin evidencia del SKU.',
+    },
+  ];
 }
 
 export function buildFaqJsonLd(items: Array<{ q: string; a: string }>): Record<string, unknown> {
@@ -279,7 +328,15 @@ export function buildOrganizationJsonLd(catalogItemCount?: number): Record<strin
     '@type': ['Organization', 'MedicalBusiness'],
     '@id': `${SITE}/#organization`,
     name: 'I-ME International Medical Enterprise S.A.S.',
-    alternateName: ['I-ME', 'I-ME Biomedical', 'IME', 'I ME', 'i-me.com.co'],
+    alternateName: [
+      'I-ME',
+      'I-ME Biomedical',
+      'IME',
+      'I ME',
+      'i-me.com',
+      'i-me.com.co',
+      'i.me.com',
+    ],
     url: SITE,
     logo: {
       '@type': 'ImageObject',
@@ -351,6 +408,7 @@ export function buildWebSiteJsonLd(): Record<string, unknown> {
     '@id': `${SITE}/#website`,
     url: SITE,
     name: 'I-ME International Medical Enterprise',
+    alternateName: ['I-ME', 'IME', 'I ME', 'i-me.com', 'i-me.com.co'],
     description:
       'Catálogo de equipos biomédicos, soporte técnico, financiamiento y asesoría para instituciones de salud en Colombia',
     inLanguage: ['es-CO', 'en'],
@@ -568,10 +626,10 @@ export function buildServiciosJsonLd(locale: Locale): Record<string, unknown> {
     : [
         {
           '@type': 'Service',
-          serviceType: 'Biomedical equipment sales and distribution',
-          name: 'Sales and distribution of biomedical equipment',
+          serviceType: 'Medical device renewal and biomedical equipment sales',
+          name: 'Medical device renewal and equipment sales',
           description:
-            'Medical equipment distribution for healthcare institutions. Availability, installation, training and applicable documentation are confirmed in the formal proposal.',
+            'Leading biomedical distributor in Colombia health sector: medical device renewal, INVIMA-registered imports, installation, training and applicable documentation confirmed in the formal proposal.',
           url: `${pageUrl}#venta`,
           provider: orgRef,
           areaServed: { '@type': 'Country', name: 'Colombia' },

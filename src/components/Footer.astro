@@ -126,6 +126,21 @@ const legalLinks: Array<{ kind: LegalKind; label: string }> = [
             {locale === 'en' ? 'Medical stretchers' : 'Camillas médicas'}
           </a>
         </li>
+        <li>
+          <a href={getLocalizedPath('/ventiladores-mecanicos-uci', locale)}>
+            {locale === 'en' ? 'ICU ventilators' : 'Ventiladores UCI'}
+          </a>
+        </li>
+        <li>
+          <a href={getLocalizedPath('/desfibriladores-hospitalarios', locale)}>
+            {locale === 'en' ? 'Hospital defibrillators' : 'Desfibriladores hospitalarios'}
+          </a>
+        </li>
+        <li>
+          <a href={getLocalizedPath('/imagenologia', locale)}>
+            {locale === 'en' ? 'Diagnostic imaging' : 'Imagenología'}
+          </a>
+        </li>
         <li><a href={getLocalizedPath('/contacto', locale)}>{t(locale, 'nav.contacto')}</a></li>
         <li>
           <a href={getLocalizedPath('/conocimiento', locale)}>{t(locale, 'nav.conocimiento')}</a>

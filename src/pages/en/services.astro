@@ -8,6 +8,8 @@ import Layout from '../../layouts/Layout.astro';
 import {
   buildServiciosSeo,
   buildServiciosJsonLd,
+  buildServiciosFaqItems,
+  buildFaqJsonLd,
   buildOrganizationJsonLd,
   combineJsonLd,
 } from '../../lib/seo';
@@ -16,8 +18,13 @@ import '../../styles/site-faithful.css';
 const locale = 'en';
 const seo = buildServiciosSeo(locale);
 const { title, description, canonical } = seo;
+const faqItems = buildServiciosFaqItems(locale);
 
-const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildServiciosJsonLd(locale));
+const jsonLd = combineJsonLd(
+  buildOrganizationJsonLd(),
+  buildServiciosJsonLd(locale),
+  buildFaqJsonLd(faqItems)
+);
 ---
 
 <Layout
@@ -36,11 +43,10 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildServiciosJsonLd(loc
         <nav class="breadcrumb" aria-label="Breadcrumb">
           <a href="/en/">Home</a><span class="sep">/</span><span aria-current="page">Services</span>
         </nav>
-        <h1 id="svc-h1">Biomedical services for healthcare institutions</h1>
+        <h1 id="svc-h1">I-ME biomedical services — leading company in Colombia health sector</h1>
         <p class="ph-sub">
-          I-ME International Medical Enterprise — a leading biomedical company in Colombia’s health
-          sector. Sales, medical device renewal, technical support, financing and advisory for
-          hospitals and clinics.
+          I-ME International Medical Enterprise: medical device renewal, equipment sales, certified
+          technical support, financing and advisory for hospitals and clinics across Colombia.
         </p>
       </div>
     </header>
@@ -291,6 +297,22 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildServiciosJsonLd(loc
         </div>
       </div>
     </section>
+
+    <section class="section section-off" id="faq" aria-labelledby="svc-faq-h2">
+      <div class="container" style="max-width:760px">
+        <h2 id="svc-faq-h2" class="s-title">Frequently asked questions</h2>
+        <dl class="svc-faq">
+          {
+            faqItems.map(item => (
+              <>
+                <dt>{item.q}</dt>
+                <dd>{item.a}</dd>
+              </>
+            ))
+          }
+        </dl>
+      </div>
+    </section>
   </div>
 </Layout>
 
@@ -348,6 +370,22 @@ const jsonLd = combineJsonLd(buildOrganizationJsonLd(), buildServiciosJsonLd(loc
 
   .site-faithful .service-actions {
     clear: both;
+  }
+
+  .site-faithful .svc-faq {
+    margin: 1.5rem 0 0;
+  }
+
+  .site-faithful .svc-faq dt {
+    font-weight: 600;
+    margin: 1.25rem 0 0.35rem;
+    color: var(--text-dark, #111);
+  }
+
+  .site-faithful .svc-faq dd {
+    margin: 0 0 0.5rem;
+    line-height: 1.6;
+    color: var(--text-mid, #444);
   }
 </style>
 

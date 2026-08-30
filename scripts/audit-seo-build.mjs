@@ -104,11 +104,15 @@ async function main() {
     '/es/monitores-biolight-uci/',
     '/es/alto-flujo-fisher-paykel/',
     '/es/camillas-medicas/',
+    '/es/ventiladores-mecanicos-uci/',
+    '/es/desfibriladores-hospitalarios/',
     '/es/caminadores-para-adultos/',
     '/es/conocimiento/caminadores-para-adultos-guia-compra-colombia/',
     '/en/biolight-icu-monitors/',
     '/en/fisher-paykel-high-flow/',
     '/en/medical-stretchers/',
+    '/en/mechanical-ventilators-icu/',
+    '/en/hospital-defibrillators/',
     '/en/knowledge/caminadores-para-adultos-guia-compra-colombia/',
   ];
   const sitemapPaths = new Set();

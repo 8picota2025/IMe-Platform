@@ -56,6 +56,8 @@ const PATH_SEGMENT_PAIRS: Array<{ es: string; en: string }> = [
   { es: 'monitores-biolight-uci', en: 'biolight-icu-monitors' },
   { es: 'alto-flujo-fisher-paykel', en: 'fisher-paykel-high-flow' },
   { es: 'camillas-medicas', en: 'medical-stretchers' },
+  { es: 'ventiladores-mecanicos-uci', en: 'mechanical-ventilators-icu' },
+  { es: 'desfibriladores-hospitalarios', en: 'hospital-defibrillators' },
   { es: 'fabricantes', en: 'manufacturers' },
   { es: 'familias', en: 'families' },
   { es: 'ciudades', en: 'cities' },

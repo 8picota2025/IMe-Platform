@@ -1,8 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import {
-  buildCanonical,
-  buildPageTitle,
+  buildAboutSeo,
   buildOrganizationJsonLd,
   combineJsonLd,
   getInstitutionalOgImage,
@@ -10,10 +9,8 @@ import {
 import '../../styles/site-faithful.css';
 
 const locale = 'es';
-const title = buildPageTitle('I-ME International Medical Enterprise | Quiénes somos');
-const description =
-  'I-ME International Medical Enterprise (IME): distribuidor biomédico en Colombia con INVIMA, soporte técnico, importación y financiamiento para hospitales y clínicas.';
-const canonical = buildCanonical('/es/nosotros');
+const seo = buildAboutSeo(locale);
+const { title, description, canonical } = seo;
 
 const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
   '@context': 'https://schema.org',
@@ -68,9 +65,10 @@ const propuesta = [
           >
         </nav>
         <div class="hero-content">
-          <h1 id="about-h1" class="hero-title">Quiénes somos</h1>
+          <h1 id="about-h1" class="hero-title">I-ME — International Medical Enterprise</h1>
           <p class="hero-subtitle">
-            Tecnología, experiencia y capacidad de ejecución al servicio de la salud
+            i-me.com.co · Distribuidor biomédico en Colombia — tecnología, experiencia y ejecución
+            al servicio de la salud
           </p>
         </div>
       </div>

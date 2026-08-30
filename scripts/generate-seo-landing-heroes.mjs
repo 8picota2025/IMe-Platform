@@ -133,6 +133,24 @@ async function main() {
     await heroCover(caminadorPath, 'caminadores-adultos-konfort-plus-colombia.webp');
   }
 
+  await heroComposite({
+    bg: uciBg,
+    product: path.join(
+      PROD,
+      'ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide/imagen-principal-ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide.jpg'
+    ),
+    outName: 'ventiladores-mecanicos-monnal-uci-colombia.webp',
+    productScale: 0.54,
+  });
+
+  await heroComposite({
+    bg: uciBg,
+    product: path.join(ROOT, 'public/assets/extraccion/img/Img6.jpg'),
+    outName: 'desfibriladores-hospitalarios-reanimacion-colombia.webp',
+    productScale: 0.5,
+    darken: 0.88,
+  });
+
   console.log('[hero] done');
 }
 

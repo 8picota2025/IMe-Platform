@@ -1,8 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import {
-  buildCanonical,
-  buildPageTitle,
+  buildAboutSeo,
   buildOrganizationJsonLd,
   combineJsonLd,
   getInstitutionalOgImage,
@@ -10,10 +9,8 @@ import {
 import '../../styles/site-faithful.css';
 
 const locale = 'en';
-const title = buildPageTitle('About us');
-const description =
-  'I-ME International Medical Enterprise: biomedical technology, multidisciplinary experience, and end-to-end support for healthcare institutions in Colombia.';
-const canonical = buildCanonical('/en/about');
+const seo = buildAboutSeo(locale);
+const { title, description, canonical } = seo;
 
 const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
   '@context': 'https://schema.org',
@@ -66,9 +63,10 @@ const valueProp = [
           <a href="/en/">Home</a><span class="sep">/</span><span aria-current="page">About us</span>
         </nav>
         <div class="hero-content">
-          <h1 id="about-h1" class="hero-title">About us</h1>
+          <h1 id="about-h1" class="hero-title">I-ME — International Medical Enterprise</h1>
           <p class="hero-subtitle">
-            Technology, experience, and execution capacity in service of healthcare
+            i-me.com.co · Colombian biomedical distributor — technology, experience and execution in
+            service of healthcare
           </p>
         </div>
       </div>
