@@ -18,6 +18,7 @@ const model = process.env.EMBEDDING_MODEL ?? 'voyage-3'
 const batchSize = Number(process.env.REINDEX_BATCH_SIZE ?? 20)
 const requestGapMs = Number(process.env.REINDEX_REQUEST_GAP_MS ?? 21000)
 const maxRetries = Number(process.env.REINDEX_MAX_RETRIES ?? 4)
+const onlyMissing = process.env.REINDEX_ONLY_MISSING === 'true'
 
 if (!url || !serviceKey) {
   throw new Error('PUBLIC_SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY son requeridos')
@@ -50,11 +51,13 @@ async function reindexProducts() {
     familias(nombre_es, nombre_en), tipos(nombre_es, nombre_en)
   `
 
-  const { data: productos, error: selectError } = await supabase
+  let request = supabase
     .from('productos')
     .select(query)
     .eq('activo', true)
     .order('orden', { ascending: true })
+  if (onlyMissing) request = request.is('embedding', null)
+  const { data: productos, error: selectError } = await request
 
   if (selectError) {
     throw new Error(`No se pudieron leer productos: ${selectError.message}`)
@@ -66,7 +69,9 @@ async function reindexProducts() {
     return
   }
 
-  console.log(`Reindexando ${rows.length} productos con Voyage (${model})...`)
+  console.log(
+    `Reindexando ${rows.length} productos con Voyage (${model})${onlyMissing ? ' — solo faltantes' : ''}...`
+  )
   await reindexRows(rows, 'productos', normalizeProductText)
 }
 
