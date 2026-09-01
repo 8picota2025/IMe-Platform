@@ -37,6 +37,7 @@ import {
   type CotizacionOfertaRow,
   type CotizacionLineaOferta,
 } from '../../../src/lib/cotizacion-oferta.ts';
+import { calcularMontoDescuentoCupon } from '../../../src/lib/cupon-descuento-monto.ts';
 
 const FN_NAME = 'crear-pago';
 const MAX_ITEMS = 20;
@@ -487,21 +488,16 @@ async function calcularDescuentoCupon(args: {
     (acc, item) => acc + Number(item.precio_unitario ?? 0) * Number(item.cantidad ?? 0),
     0
   );
-  const valorRaw = Number(cupon.valor);
-  const valor =
-    cupon.tipo_descuento === 'porcentaje'
-      ? Math.min(100, Math.max(0, Number.isFinite(valorRaw) ? valorRaw : 0))
-      : Math.max(0, Number.isFinite(valorRaw) ? valorRaw : 0);
-  const descuento =
-    cupon.tipo_descuento === 'porcentaje'
-      ? baseElegible * (valor / 100)
-      : cupon.tipo_descuento === 'monto_producto'
-        ? Math.min(
-            baseElegible,
-            valor * elegibles.reduce((acc, item) => acc + Number(item.cantidad ?? 0), 0)
-          )
-        : Math.min(args.subtotal, valor);
-  return { ok: true, descuento: Math.max(0, Math.round(descuento)), cupon };
+  const unidadesElegibles = elegibles.reduce((acc, item) => acc + Number(item.cantidad ?? 0), 0);
+  // Cap all coupon types (incl. monto_carrito) to eligible lines — never full cart
+  // subtotal when includes/excludes filtered the set (underpay via cheap key SKU).
+  const descuento = calcularMontoDescuentoCupon({
+    tipo: cupon.tipo_descuento,
+    valor: Number(cupon.valor),
+    baseElegible,
+    unidadesElegibles,
+  });
+  return { ok: true, descuento, cupon };
 }
 
 Deno.serve(
