@@ -155,18 +155,15 @@ const whatsappHref = `https://wa.me/573137247353?text=${encodeURIComponent(
       <p class="producto-card__desc">{producto.descripcion_corta}</p>
       <div class="producto-card__meta" aria-label={t(locale, 'producto.ficha_resumen_titulo')}>
         <div class="producto-card__meta-item">
-          <span class="producto-card__meta-label">
-            {
-              tienePrecio
-                ? locale === 'en'
-                  ? 'From'
-                  : 'Desde'
-                : t(locale, 'producto.ficha_precio')
-            }
-          </span>
+          <span class="producto-card__meta-label">{t(locale, 'producto.ficha_precio')}</span>
           <strong class="producto-card__meta-value">
             {precioFormateado ?? t(locale, 'producto.precio_solicitud_corto')}
           </strong>
+          {
+            tienePrecio && (
+              <span class="producto-card__tax">{t(locale, 'producto.iva_incluido')}</span>
+            )
+          }
         </div>
         <div class="producto-card__meta-item">
           <span class="producto-card__meta-label">{t(locale, 'producto.ficha_stock')}</span>
@@ -341,6 +338,10 @@ const whatsappHref = `https://wa.me/573137247353?text=${encodeURIComponent(
     font-size: 0.85rem;
     color: var(--ink);
     line-height: 1.3;
+  }
+  .producto-card__tax {
+    font-size: 0.72rem;
+    color: var(--text-mid);
   }
   .producto-card__compare {
     display: flex;

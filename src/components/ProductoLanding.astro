@@ -59,7 +59,8 @@ const imagenFallback =
     </svg>`
   );
 
-const precioFormateado = tienePrecioPublico(producto.precio)
+const tienePrecio = tienePrecioPublico(producto.precio);
+const precioFormateado = tienePrecio
   ? formatMoneda(producto.precio, producto.moneda, locale)
   : null;
 const noDisponible = producto.disponible === false;
@@ -259,6 +260,14 @@ heroStats.push({
             )
           }
         </div>
+
+        {
+          tienePrecio && (
+            <p class="hero-producto__price-notice">
+              {t(locale, 'producto.iva_incluido')} · {t(locale, 'producto.envio_no_incluido')}
+            </p>
+          )
+        }
 
         <div class="hero-producto__stats">
           {
@@ -725,6 +734,12 @@ heroStats.push({
     flex-wrap: wrap;
     gap: 0.75rem;
     margin-block-start: 0.4rem;
+  }
+  .hero-producto__price-notice {
+    margin: 0.9rem 0 0;
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 0.85rem;
+    line-height: 1.5;
   }
   .btn-hero-primary {
     display: inline-flex;

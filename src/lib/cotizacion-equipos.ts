@@ -1,3 +1,5 @@
+import { emitAnalyticsEvent } from './analytics';
+
 /**
  * Lista de equipos para "Solicitud de cotización" — estado persistido en
  * sessionStorage. Independiente del carrito de consumibles (carrito.ts).
@@ -67,6 +69,12 @@ export function agregarACotizacion(
     items.push({ ...item, cantidad: Math.max(cantidad, 1) });
   }
   const actualizados = escribir(items);
+  emitAnalyticsEvent('quote_add', {
+    item_id: item.slug,
+    item_name: item.nombre,
+    quantity: cantidad,
+    item_count: actualizados.reduce((acc, producto) => acc + producto.cantidad, 0),
+  });
   abrirCotizacion();
   return actualizados;
 }
@@ -113,7 +121,12 @@ export function suscribirCotizacion(callback: (items: CotizacionItem[]) => void)
 }
 
 export function abrirCotizacion(): void {
-  if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent(EVENTO_ABRIR));
+  if (typeof window !== 'undefined') {
+    emitAnalyticsEvent('quote_open', {
+      item_count: getCotizacionCantidad(),
+    });
+    window.dispatchEvent(new CustomEvent(EVENTO_ABRIR));
+  }
 }
 
 export function alAbrirCotizacion(callback: () => void): () => void {

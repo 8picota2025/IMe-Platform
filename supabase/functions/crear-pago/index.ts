@@ -886,7 +886,10 @@ Deno.serve(
         mercado: mercado as Mercado,
         descuento_total: descuento.descuento,
         envio_total: envioTotal,
-        default_iva_pct: parseEnvNumber('CO_DEFAULT_IVA_PCT', 0),
+        // productos.precio es siempre base sin IVA. Las ofertas formalizadas
+        // conservan su importe locked: su tratamiento fiscal ya fue acordado
+        // al emitir la cotizacion y no se le aplica este fallback.
+        default_iva_pct: lineasCotizacion ? 0 : parseEnvNumber('CO_DEFAULT_IVA_PCT', 19),
         default_retencion_fuente_pct: parseEnvNumber('CO_DEFAULT_RETEFUENTE_PCT', 0),
         default_retencion_iva_pct: parseEnvNumber('CO_DEFAULT_RETEIVA_PCT', 0),
         default_retencion_ica_pct: parseEnvNumber('CO_DEFAULT_RETEICA_PCT', 0),

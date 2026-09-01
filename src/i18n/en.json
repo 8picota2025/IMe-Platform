@@ -253,6 +253,7 @@
     "agregado": "Product added to cart",
     "requerido": "Required field",
     "aviso_recalculo": "Prices and stock are confirmed when processing payment.",
+    "aviso_fiscal_envio": "Displayed prices include 19% VAT. Shipping costs are not included; they are calculated by destination and charged separately.",
     "item_no_disponible": "{nombre} is no longer available and was removed from your cart."
   },
   "cotizacion_equipos": {
@@ -336,6 +337,8 @@
     "ficha_precio": "Price",
     "ficha_disponible": "Available",
     "ficha_no_disponible": "Temporarily unavailable",
+    "iva_incluido": "19% VAT included",
+    "envio_no_incluido": "Shipping costs are not included; they are calculated by destination and charged separately.",
     "ficha_atencion_desc": "Commercial support and assisted quoting based on the product configuration.",
     "precio_solicitud_largo": "Price on request according to product specifications",
     "precio_solicitud_corto": "Price on request",

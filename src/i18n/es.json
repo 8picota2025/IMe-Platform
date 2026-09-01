@@ -253,6 +253,7 @@
     "agregado": "Producto añadido al carrito",
     "requerido": "Campo requerido",
     "aviso_recalculo": "Los precios y el stock se confirman al procesar el pago.",
+    "aviso_fiscal_envio": "Los precios mostrados incluyen IVA 19%. Los gastos de envío no están incluidos; se calculan según destino y se cobran por separado.",
     "item_no_disponible": "{nombre} ya no está disponible y se quitó del carrito."
   },
   "cotizacion_equipos": {
@@ -336,6 +337,8 @@
     "ficha_precio": "Precio",
     "ficha_disponible": "Disponible",
     "ficha_no_disponible": "No disponible temporalmente",
+    "iva_incluido": "IVA 19% incluido",
+    "envio_no_incluido": "Gastos de envío no incluidos; se calculan según destino y se cobran por separado.",
     "ficha_atencion_desc": "Atención comercial y cotización asistida según la configuración del producto.",
     "precio_solicitud_largo": "Bajo cotización según especificaciones del producto",
     "precio_solicitud_corto": "Bajo cotización",

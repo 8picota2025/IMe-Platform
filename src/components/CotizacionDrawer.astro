@@ -397,6 +397,7 @@ const config = {
     type CotizacionItem,
   } from '../lib/cotizacion-equipos';
   import { submitCotizacion } from '../lib/datos';
+  import { emitAnalyticsEvent } from '../lib/analytics';
   import { resolverMensajeCotizacion, mensajeExitoCotizacion } from '../lib/cotizacion-submit';
   import { abrirDrawer, cerrarDrawer, resetTransientUiState } from '../lib/motion';
 
@@ -618,6 +619,9 @@ const config = {
       'submit',
       async event => {
         event.preventDefault();
+        emitAnalyticsEvent('quote_begin', {
+          item_count: getCotizacionItems().reduce((acc, item) => acc + item.cantidad, 0),
+        });
         if (enviando || !formEl || !submitBtn) return;
         showEstado('', null);
 

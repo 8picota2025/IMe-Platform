@@ -71,6 +71,7 @@ const config = {
     errorValidacion: t(locale, 'carrito.error_validacion'),
     requerido: t(locale, 'carrito.requerido'),
     avisoRecalculo: t(locale, 'carrito.aviso_recalculo'),
+    avisoFiscalEnvio: t(locale, 'carrito.aviso_fiscal_envio'),
     itemNoDisponible: t(locale, 'carrito.item_no_disponible'),
     cupon: locale === 'en' ? 'Coupon code' : 'Codigo de cupon',
   },
@@ -140,6 +141,7 @@ const config = {
         <span id="carrito-total">—</span>
       </div>
       <p class="carrito-aviso">{config.i18n.avisoRecalculo}</p>
+      <p class="carrito-aviso">{config.i18n.avisoFiscalEnvio}</p>
     </div>
   </div>
 
@@ -746,6 +748,7 @@ const config = {
     errorValidacion: string;
     requerido: string;
     avisoRecalculo: string;
+    avisoFiscalEnvio: string;
     itemNoDisponible: string;
     cupon: string;
   }

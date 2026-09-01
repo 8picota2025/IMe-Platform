@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { formatMoneda, normalizarMoneda, resolvePrecioPublico, tienePrecioPublico } from './format';
+import {
+  formatMoneda,
+  IVA_COLOMBIA_PCT,
+  normalizarMoneda,
+  precioConIvaColombia,
+  resolvePrecioPublico,
+  tienePrecioPublico,
+} from './format';
 
 describe('tienePrecioPublico', () => {
   it.each([12500000, 0.01])('acepta precio finito mayor que cero: %s', precio => {
@@ -12,8 +19,9 @@ describe('tienePrecioPublico', () => {
 });
 
 describe('resolvePrecioPublico', () => {
-  it('usa precio_regular cuando es finito y mayor que cero', () => {
-    expect(resolvePrecioPublico({ precio_regular: 1200000 })).toBe(1200000);
+  it('convierte precio_regular neto a precio público con IVA incluido', () => {
+    expect(IVA_COLOMBIA_PCT).toBe(19);
+    expect(resolvePrecioPublico({ precio_regular: 1000000 })).toBe(1190000);
   });
 
   it.each([0, null, undefined, NaN, 'invalido'])(
@@ -22,6 +30,17 @@ describe('resolvePrecioPublico', () => {
       expect(resolvePrecioPublico({ precio_regular })).toBeNull();
     }
   );
+});
+
+describe('precioConIvaColombia', () => {
+  it.each([
+    [100000, 119000],
+    [1000000, 1190000],
+    [49000000, 58310000],
+    [3500, 4165],
+  ])('calcula %i base como %i COP con IVA incluido', (base, esperado) => {
+    expect(precioConIvaColombia(base)).toBe(esperado);
+  });
 });
 
 describe('formatMoneda', () => {

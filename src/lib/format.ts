@@ -9,12 +9,25 @@ export function tienePrecioPublico(valor: unknown): valor is number {
   return typeof valor === 'number' && Number.isFinite(valor) && valor > 0;
 }
 
-/** Precio publicado en catálogo, PDP, carrito y JSON-LD: campo `precio_regular` de BD. */
+/** Tasa confirmada para precios públicos en Colombia. */
+export const IVA_COLOMBIA_PCT = 19;
+
+/**
+ * Convierte precio base COP a venta con IVA incluido.
+ * COP se publica sin decimales: normaliza a pesos enteros y redondea IVA.
+ */
+export function precioConIvaColombia(precioBase: number): number | null {
+  if (!tienePrecioPublico(precioBase)) return null;
+  const baseEnPesos = Math.round(precioBase);
+  return baseEnPesos + Math.round((baseEnPesos * IVA_COLOMBIA_PCT) / 100);
+}
+
+/** Precio público: campo base `precio_regular` de BD más IVA incluido. */
 export function resolvePrecioPublico(row: unknown): number | null {
   if (!row || typeof row !== 'object') return null;
   const raw = (row as { precio_regular?: unknown }).precio_regular;
   const n = typeof raw === 'number' ? raw : Number(raw);
-  return tienePrecioPublico(n) ? n : null;
+  return precioConIvaColombia(n);
 }
 
 /** Normaliza moneda ISO 4217 almacenada; COP es fallback comercial de I-ME. */
