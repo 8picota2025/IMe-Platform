@@ -20,17 +20,42 @@ RewriteRule ^77/?$ /es/ [R=301,L]
 RewriteRule ^77/index\.html$ /es/ [R=301,L]
 RewriteRule ^es/productos/?$ /es/catalogo/ [R=301,L]
 RewriteRule ^en/products/?$ /en/catalog/ [R=301,L]
+RewriteRule ^en/contact$ /en/contact/ [R=301,L]
 
-# Legacy catalog and category URLs. Query strings are preserved by default.
+# Root legacy HTML (duplicate catalog without redirect)
+RewriteRule ^catalogo\.html$ /es/catalogo/ [R=301,L]
+
+# Catalog ?familia= → SEO family landings (GSC: alternate canonical)
+RewriteCond %{QUERY_STRING} ^familia=([a-z0-9-]+)(&.*)?$ [NC]
+RewriteRule ^es/catalogo/?$ /es/familias/%1/ [R=301,L]
+
+RewriteCond %{QUERY_STRING} ^familia=([a-z0-9-]+)(&.*)?$ [NC]
+RewriteRule ^en/catalog/?$ /en/families/%1/ [R=301,L]
+
+# Other catalog query variants → base catalog URL
+RewriteCond %{QUERY_STRING} .+
+RewriteRule ^es/catalogo/?$ /es/catalogo/? [R=301,L]
+
+RewriteCond %{QUERY_STRING} .+
+RewriteRule ^en/catalog/?$ /en/catalog/? [R=301,L]
+
+# Contact tracking/query params → canonical contact page
+RewriteCond %{QUERY_STRING} .+
+RewriteRule ^es/contacto/?$ /es/contacto/? [R=301,L]
+
+RewriteCond %{QUERY_STRING} .+
+RewriteRule ^en/contact/?$ /en/contact/? [R=301,L]
+
+# Legacy catalog and category URLs
 RewriteRule ^77/catalogo\.html$ /es/catalogo/ [R=301,L]
-RewriteRule ^77/monitores\.html$ /es/catalogo/?familia=monitores [R=301,L,QSA]
-RewriteRule ^77/cardiologia\.html$ /es/catalogo/?familia=cardiologia [R=301,L,QSA]
-RewriteRule ^77/sala-cirugia\.html$ /es/catalogo/?familia=sala-cirugia [R=301,L,QSA]
-RewriteRule ^77/neonatologia\.html$ /es/catalogo/?familia=neonatologia [R=301,L,QSA]
-RewriteRule ^77/ultrasonido\.html$ /es/catalogo/?familia=ultrasonido [R=301,L,QSA]
-RewriteRule ^77/soluciones-iv\.html$ /es/catalogo/?familia=soluciones-iv [R=301,L,QSA]
-RewriteRule ^77/mobiliario\.html$ /es/catalogo/?familia=mobiliario [R=301,L,QSA]
-RewriteRule ^77/anestesia\.html$ /es/catalogo/?familia=anestesia [R=301,L,QSA]
+RewriteRule ^77/monitores\.html$ /es/familias/monitores/ [R=301,L]
+RewriteRule ^77/cardiologia\.html$ /es/familias/cardiologia/ [R=301,L]
+RewriteRule ^77/sala-cirugia\.html$ /es/familias/sala-cirugia/ [R=301,L]
+RewriteRule ^77/neonatologia\.html$ /es/familias/neonatologia/ [R=301,L]
+RewriteRule ^77/ultrasonido\.html$ /es/familias/ultrasonido/ [R=301,L]
+RewriteRule ^77/soluciones-iv\.html$ /es/familias/soluciones-iv/ [R=301,L]
+RewriteRule ^77/mobiliario\.html$ /es/familias/mobiliario/ [R=301,L]
+RewriteRule ^77/anestesia\.html$ /es/familias/anestesia/ [R=301,L]
 
 # Legacy core pages
 RewriteRule ^77/servicios\.html$ /es/servicios/ [R=301,L]

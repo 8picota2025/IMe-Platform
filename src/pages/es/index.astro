@@ -20,6 +20,7 @@ import {
   combineJsonLd,
 } from '../../lib/seo';
 import contenidoIme from '../../data/contenido_ime.json';
+import { familyCatalogHref } from '../../lib/seo-urls';
 import '../../styles/site-faithful.css';
 
 const locale = 'es';
@@ -406,7 +407,7 @@ const servicios = [
         {
           categorias.map(c => (
             <a
-              href={`/es/catalogo/?familia=${c.slug}`}
+              href={familyCatalogHref(locale, c.slug)}
               class="cat-card"
               role="listitem"
               aria-label={c.aria}

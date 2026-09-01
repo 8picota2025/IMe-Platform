@@ -16,6 +16,7 @@ import { formatMoneda, tienePrecioPublico } from '../lib/format';
 import { getAccionComercial } from '../lib/comercial';
 import { normalizarEspecificaciones } from '../lib/especificaciones';
 import { getOptimizedImageUrl, isSupabaseStorageImage } from '../lib/image';
+import { familyCatalogHref } from '../lib/seo-urls';
 
 interface Props {
   producto: Producto;
@@ -121,7 +122,7 @@ const whatsappHref = `https://wa.me/573137247353?text=${encodeURIComponent(whats
 const migas = [
   { nombre: t(locale, 'catalogo.migas_inicio'), href: `/${locale}/` },
   { nombre: t(locale, 'catalogo.migas_catalogo'), href: catalogoPath },
-  { nombre: familia.nombre, href: `${catalogoPath}?familia=${familia.slug}` },
+  { nombre: familia.nombre, href: familyCatalogHref(locale, familia.slug) },
 ];
 
 const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
@@ -518,7 +519,7 @@ heroStats.push({
           <h2 id="relacionados-heading" class="section-title">
             {t(locale, 'producto.relacionados_titulo')}
           </h2>
-          <a href={`${catalogoPath}?familia=${familia.slug}`} class="ver-familia-link">
+          <a href={familyCatalogHref(locale, familia.slug)} class="ver-familia-link">
             {t(locale, 'producto.ver_familia')} →
           </a>
         </div>

@@ -11,7 +11,7 @@ const locale = 'en';
 const title = buildPageTitle('Contact — Request a Quote');
 const description =
   'Contact us to request a biomedical equipment quote. We reply within 24 hours. Tel: +57 313 724 7353';
-const canonical = buildCanonical('/en/contact');
+const canonical = buildCanonical('/en/contact/');
 ---
 
 <Layout
@@ -420,7 +420,13 @@ const canonical = buildCanonical('/en/contact');
       .map(nombre => ({ slug: '', nombre, cantidad: 1 }));
   }
 
-  const params = new URLSearchParams(window.location.search);
+  function readContactPrefillParams(): URLSearchParams {
+    const hash = window.location.hash.replace(/^#/, '');
+    if (hash) return new URLSearchParams(hash);
+    return new URLSearchParams(window.location.search);
+  }
+
+  const params = readContactPrefillParams();
   const prefill = params
     .getAll('producto')
     .map(value => value.trim())

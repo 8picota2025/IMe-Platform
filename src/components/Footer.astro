@@ -5,6 +5,7 @@
 import type { Locale } from '../i18n/utils';
 import { t, getLocalizedPath } from '../i18n/utils';
 import { getLegalSlug, type LegalKind } from '../lib/legal';
+import { familyCatalogHref } from '../lib/seo-urls';
 
 interface Props {
   locale: Locale;
@@ -170,13 +171,7 @@ const legalLinks: Array<{ kind: LegalKind; label: string }> = [
         {
           familias.map(f => (
             <li>
-              <a
-                href={
-                  f.slug === 'mobiliario'
-                    ? `${getLocalizedPath('/catalogo', locale)}?familia=${f.slug}`
-                    : `${locale === 'en' ? '/en/families' : '/es/familias'}/${f.slug}/`
-                }
-              >
+              <a href={familyCatalogHref(locale, f.slug)}>
                 {locale === 'en' ? f.label_en : f.label_es}
               </a>
             </li>

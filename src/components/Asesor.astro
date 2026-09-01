@@ -23,7 +23,7 @@ const asesorConfig = {
   locale,
   turnstileSiteKey,
   whatsappUrl: 'https://wa.me/573137247353',
-  contactoHref: locale === 'en' ? '/en/contact' : '/es/contacto',
+  contactoHref: locale === 'en' ? '/en/contact/' : '/es/contacto/',
   i18n: {
     bienvenida: t(locale, 'asesor.bienvenida'),
     buscando: t(locale, 'asesor.buscando'),
@@ -760,12 +760,14 @@ const asesorConfig = {
       productos: ProductoSugerido[] = []
     ): string {
       const url = new URL(config.contactoHref, window.location.origin);
-      if (handoff?.resumen) url.searchParams.set('asesor_resumen', handoff.resumen);
-      url.searchParams.set('origen', 'asesor');
+      const params = new URLSearchParams();
+      if (handoff?.resumen) params.set('asesor_resumen', handoff.resumen);
+      params.set('origen', 'asesor');
       for (const producto of productos.slice(0, 6)) {
-        url.searchParams.append('producto', producto.nombre);
+        params.append('producto', producto.nombre);
       }
-      return `${url.pathname}${url.search}`;
+      const hash = params.toString();
+      return `${url.pathname}${hash ? `#${hash}` : ''}`;
     }
 
     function buildWhatsappSummary(handoff: AccionHandoff, productos: ProductoSugerido[]): string {

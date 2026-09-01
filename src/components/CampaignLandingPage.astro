@@ -18,6 +18,7 @@ import {
   combineJsonLd,
 } from '../lib/seo';
 import { buildWhatsAppUrl } from '../lib/comercial-leads';
+import { familyCatalogHref } from '../lib/seo-urls';
 import '../styles/site-faithful.css';
 
 interface Props {
@@ -40,7 +41,7 @@ const canonical = buildCanonical(path);
 const currentPath = path.replace(/\/$/, '');
 const catalogBase = isEn ? '/en/catalog/' : '/es/catalogo/';
 const catalogHref = content.catalogFilter
-  ? `${catalogBase}?familia=${encodeURIComponent(content.catalogFilter)}`
+  ? familyCatalogHref(locale, content.catalogFilter)
   : catalogBase;
 const financiacionHref = isEn ? '/en/financing/' : '/es/financiacion/';
 const proyectosHref = isEn ? '/en/projects/' : '/es/proyectos/';
