@@ -27,10 +27,10 @@ RewriteRule ^catalogo\.html$ /es/catalogo/ [R=301,L]
 
 # Catalog ?familia= → SEO family landings (GSC: alternate canonical)
 RewriteCond %{QUERY_STRING} ^familia=([a-z0-9-]+)(&.*)?$ [NC]
-RewriteRule ^es/catalogo/?$ /es/familias/%1/ [R=301,L]
+RewriteRule ^es/catalogo/?$ /es/familias/%1/? [R=301,L]
 
 RewriteCond %{QUERY_STRING} ^familia=([a-z0-9-]+)(&.*)?$ [NC]
-RewriteRule ^en/catalog/?$ /en/families/%1/ [R=301,L]
+RewriteRule ^en/catalog/?$ /en/families/%1/? [R=301,L]
 
 # Other catalog query variants → base catalog URL
 RewriteCond %{QUERY_STRING} .+
