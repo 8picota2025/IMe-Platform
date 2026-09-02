@@ -22,6 +22,7 @@ import {
   registrarPedidoPagado,
 } from '../_shared/post-pago.ts';
 import { withTelemetry, trackEvent } from '../_shared/telemetry.ts';
+import { claimPaidTransition, type PaymentStateClient } from '../../../src/lib/payment-state.ts';
 
 const FN_NAME = 'webhook-wompi';
 
@@ -117,16 +118,36 @@ Deno.serve(
     const verificacion = await gateway.verificarPago(evento.referencia_pasarela);
     const nuevoEstado = verificacion.estado;
     const eraPagado = pedidoRow.estado === 'pagado';
+    let pagoReclamado = false;
+    let estadoActualizado = false;
 
-    // Nunca degradar un pedido ya marcado como pagado
-    if (!eraPagado && nuevoEstado !== pedidoRow.estado) {
-      await supabase
+    if (!eraPagado && nuevoEstado === 'pagado') {
+      const claim = await claimPaidTransition(
+        supabase as unknown as PaymentStateClient,
+        pedidoRow.id
+      );
+      if (claim.error) {
+        return internalError(`error reclamando pago confirmado: ${claim.error}`, origin);
+      }
+      pagoReclamado = claim.claimed;
+      estadoActualizado = claim.claimed;
+    } else if (!eraPagado && nuevoEstado !== pedidoRow.estado) {
+      // El predicado evita que una respuesta de verificacion obsoleta degrade
+      // un pago confirmado en paralelo por el webhook o la reconciliacion.
+      const { data: actualizado, error: actualizarError } = await supabase
         .from('pedidos')
         .update({
           estado: nuevoEstado,
           metadata: { ...(pedidoRow.metadata ?? {}), ultimo_evento_wompi: evento.event_id },
         })
-        .eq('id', pedidoRow.id);
+        .eq('id', pedidoRow.id)
+        .neq('estado', 'pagado')
+        .select('id')
+        .maybeSingle();
+      if (actualizarError) {
+        return internalError(`error actualizando pedido: ${actualizarError.message}`, origin);
+      }
+      estadoActualizado = actualizado !== null;
     }
 
     await supabase
@@ -135,14 +156,14 @@ Deno.serve(
       .eq('proveedor_pago', 'wompi')
       .eq('event_id', evento.event_id);
 
-    if (!eraPagado && nuevoEstado === 'pagado') {
+    if (pagoReclamado) {
       await registrarPedidoPagado(supabase, pedidoRow.id, 'wompi', evento.event_id);
       await notificarFulfillmentDropship(supabase, pedidoRow.id, pedidoRow.items ?? []);
       void trackEvent(FN_NAME, 'pago_confirmado', {
         pedido_id: pedidoRow.id,
         proveedor_pago: 'wompi',
       });
-    } else if (!eraPagado && nuevoEstado !== pedidoRow.estado) {
+    } else if (estadoActualizado && nuevoEstado !== 'pagado') {
       await notificarEstadoPedido(pedidoRow.id, nuevoEstado, pedidoRow.estado);
     }
 

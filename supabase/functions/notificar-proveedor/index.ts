@@ -26,7 +26,7 @@
  */
 
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
-import { badRequest, internalError, notFound } from '../_shared/errors.ts';
+import { badRequest, internalError, notFound, unauthorized } from '../_shared/errors.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { createLogger, generateRequestId } from '../_shared/logging.ts';
 import { postWithRetry } from '../_shared/retry-strategy.ts';
@@ -84,6 +84,53 @@ interface NotificacionPayload {
 interface ResultadoNotificacion {
   ok: boolean;
   mensaje: string;
+}
+
+interface ResendActor {
+  userId: string | null;
+  role: 'service_role' | 'owner' | 'admin' | 'operaciones';
+}
+
+const RESEND_ROLES = new Set<ResendActor['role']>(['owner', 'admin', 'operaciones']);
+
+function bearerToken(authHeader: string | null): string {
+  return (authHeader ?? '').replace(/^Bearer\s+/i, '').trim();
+}
+
+/** Automatic fulfillment is an internal privilege: only the configured service key may use it. */
+function isTrustedServiceRole(token: string): boolean {
+  const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')?.trim() ?? '';
+  return serviceKey.length > 0 && token === serviceKey;
+}
+
+async function authorizeResend(
+  supabase: ReturnType<typeof getServerSupabase>,
+  token: string
+): Promise<ResendActor | null> {
+  if (isTrustedServiceRole(token)) {
+    return { userId: null, role: 'service_role' };
+  }
+
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser(token);
+  if (error || !user) return null;
+
+  const { data: profile, error: profileError } = await supabase
+    .from('admin_profiles')
+    .select('rol, activo')
+    .eq('user_id', user.id)
+    .maybeSingle();
+  if (profileError || !profile) return null;
+
+  const row = profile as { rol?: string; activo?: boolean };
+  if (row.activo !== true || !RESEND_ROLES.has(row.rol as ResendActor['role'])) return null;
+
+  return {
+    userId: user.id,
+    role: row.rol as ResendActor['role'],
+  };
 }
 
 function escapeHtml(input: string): string {
@@ -381,7 +428,8 @@ async function reenviarFulfillment(
   supabase: ReturnType<typeof getServerSupabase>,
   fulfillmentId: string,
   origin: string | null,
-  logger: ReturnType<typeof createLogger>
+  logger: ReturnType<typeof createLogger>,
+  actor: ResendActor
 ): Promise<Response> {
   const { data: fulfillment, error: fulfillmentError } = await supabase
     .from('fulfillments')
@@ -434,6 +482,8 @@ async function reenviarFulfillment(
   // Log reintento (FASE 3)
   await logNotificationAttempt(supabase, proveedorRow.id, resultado.ok ? 'enviado' : 'fallido', {
     fulfillment_id: fulfillmentId,
+    actor_user_id: actor.userId,
+    actor_role: actor.role,
   });
 
   return new Response(JSON.stringify(resultado), {
@@ -454,6 +504,9 @@ Deno.serve(async req => {
   if (corsRes) return corsRes;
   if (req.method !== 'POST') return badRequest('Metodo no soportado', origin);
 
+  const token = bearerToken(req.headers.get('authorization'));
+  if (!token) return unauthorized(origin);
+
   let body: NotificarRequest;
   try {
     body = (await req.json()) as NotificarRequest;
@@ -464,11 +517,20 @@ Deno.serve(async req => {
   const supabase = getServerSupabase();
 
   if (typeof body.fulfillment_id === 'string' && body.fulfillment_id) {
+    const actor = await authorizeResend(supabase, token);
+    if (!actor) {
+      logger.warn('Reenvio no autorizado');
+      return unauthorized(origin);
+    }
     logger.info('Reenviar fulfillment', { fulfillment_id: body.fulfillment_id });
-    return await reenviarFulfillment(supabase, body.fulfillment_id, origin, logger);
+    return await reenviarFulfillment(supabase, body.fulfillment_id, origin, logger, actor);
   }
 
   if (typeof body.pedido_id === 'string' && body.pedido_id && Array.isArray(body.producto_ids)) {
+    if (!isTrustedServiceRole(token)) {
+      logger.warn('Procesamiento automatico no autorizado');
+      return unauthorized(origin);
+    }
     logger.info('Procesar pedido', {
       pedido_id: body.pedido_id,
       producto_count: body.producto_ids.length,

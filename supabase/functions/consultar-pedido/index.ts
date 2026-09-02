@@ -21,6 +21,7 @@ import {
 } from '../_shared/post-pago.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { checkRateLimit } from '../_shared/rate-limit.ts';
+import { claimPaidTransition, type PaymentStateClient } from '../../../src/lib/payment-state.ts';
 
 const REFERENCIA_REGEX = /^[a-zA-Z0-9-]{8,64}$/;
 
@@ -108,22 +109,42 @@ Deno.serve(async req => {
 
     if (nuevoEstado !== 'pendiente' && nuevoEstado !== pedido.estado) {
       const syntheticEventId = `reconcile:${referencia}:${Date.now()}`;
-      await supabase
-        .from('pedidos')
-        .update({
-          estado: nuevoEstado,
-          metadata: { ...(pedido.metadata ?? {}), ultima_reconciliacion_wompi: syntheticEventId },
-        })
-        .eq('id', pedido.id);
-
       if (nuevoEstado === 'pagado') {
-        await registrarPedidoPagado(supabase, pedido.id, 'wompi', syntheticEventId);
-        await notificarFulfillmentDropship(supabase, pedido.id, pedido.items ?? []);
+        const claim = await claimPaidTransition(
+          supabase as unknown as PaymentStateClient,
+          pedido.id
+        );
+        if (claim.error) {
+          return internalError(`error reclamando pago confirmado: ${claim.error}`, origin);
+        }
+        if (claim.claimed) {
+          await registrarPedidoPagado(supabase, pedido.id, 'wompi', syntheticEventId);
+          await notificarFulfillmentDropship(supabase, pedido.id, pedido.items ?? []);
+        }
       } else {
-        await notificarEstadoPedido(pedido.id, nuevoEstado, pedido.estado);
+        const { data: actualizado, error: actualizarError } = await supabase
+          .from('pedidos')
+          .update({
+            estado: nuevoEstado,
+            metadata: {
+              ...(pedido.metadata ?? {}),
+              ultima_reconciliacion_wompi: syntheticEventId,
+            },
+          })
+          .eq('id', pedido.id)
+          .neq('estado', 'pagado')
+          .select('id')
+          .maybeSingle();
+        if (actualizarError) {
+          return internalError(`error actualizando pedido: ${actualizarError.message}`, origin);
+        }
+        if (actualizado) {
+          await notificarEstadoPedido(pedido.id, nuevoEstado, pedido.estado);
+        }
+        estado = actualizado ? nuevoEstado : 'pagado';
       }
 
-      estado = nuevoEstado;
+      if (nuevoEstado === 'pagado') estado = 'pagado';
     }
   }
 
