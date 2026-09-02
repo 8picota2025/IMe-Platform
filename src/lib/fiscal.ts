@@ -103,6 +103,87 @@ export function baseNetaDesdePrecioConIva(precioConIva: number, tarifaIvaPct: nu
   return Math.round((precioConIva / (1 + tarifaIvaPct / 100)) * 100) / 100;
 }
 
+export interface LockedOfferFiscalProducto {
+  tarifa_iva_pct?: number | string | null;
+  retencion_fuente_pct?: number | string | null;
+  retencion_iva_pct?: number | string | null;
+  retencion_ica_pct?: number | string | null;
+  dian_codigo?: string | null;
+  excluido_iva?: boolean | null;
+}
+
+/**
+ * Perfil fiscal para una línea de cotización locked.
+ * El `precio_unitario` ofertado es el total comercial acordado — nunca se le
+ * suma de nuevo la tarifa IVA del catálogo (eso sobre-cobraría en Wompi/Stripe).
+ *
+ * - Sin FE: marca `excluido_iva` para cobrar exactamente lo ofertado.
+ * - Con FE + `impuestos_incluidos`: extrae base neta y re-aplica IVA.
+ * - Con FE sin `impuestos_incluidos`: error (misma regla que formalizar-cotizacion).
+ */
+export function fiscalProfileFromLockedOffer(args: {
+  producto_id?: string;
+  slug: string;
+  nombre: string;
+  cantidad: number;
+  precio_unitario_ofertado: number;
+  solicitar_factura_electronica: boolean;
+  impuestos_incluidos: boolean;
+  producto?: LockedOfferFiscalProducto | null;
+}): ProductFiscalProfile {
+  const base = {
+    producto_id: args.producto_id,
+    slug: args.slug,
+    nombre: args.nombre,
+    cantidad: args.cantidad,
+  };
+
+  if (!args.solicitar_factura_electronica) {
+    return {
+      ...base,
+      precio_unitario: args.precio_unitario_ofertado,
+      excluido_iva: true,
+    };
+  }
+
+  if (!args.impuestos_incluidos) {
+    throw new Error(
+      'La oferta no declara que sus precios incluyen impuestos. Solicita a I-ME una cotizacion revisada antes de emitir factura electronica.'
+    );
+  }
+
+  const producto = args.producto;
+  if (!producto) {
+    throw new Error(`Producto sin configuracion fiscal: ${args.slug}`);
+  }
+
+  const excluido = producto.excluido_iva === true;
+  const tarifaIva = excluido ? 0 : Number(producto.tarifa_iva_pct);
+  if (!excluido && (!Number.isFinite(tarifaIva) || tarifaIva < 0)) {
+    throw new Error(`Tarifa IVA invalida para producto: ${args.slug}`);
+  }
+
+  return {
+    ...base,
+    precio_unitario: baseNetaDesdePrecioConIva(args.precio_unitario_ofertado, tarifaIva),
+    tarifa_iva_pct: tarifaIva,
+    retencion_fuente_pct:
+      producto.retencion_fuente_pct === null || producto.retencion_fuente_pct === undefined
+        ? null
+        : Number(producto.retencion_fuente_pct),
+    retencion_iva_pct:
+      producto.retencion_iva_pct === null || producto.retencion_iva_pct === undefined
+        ? null
+        : Number(producto.retencion_iva_pct),
+    retencion_ica_pct:
+      producto.retencion_ica_pct === null || producto.retencion_ica_pct === undefined
+        ? null
+        : Number(producto.retencion_ica_pct),
+    dian_codigo: producto.dian_codigo ?? null,
+    excluido_iva: excluido,
+  };
+}
+
 function isFacturacionColombia(config: FiscalConfig): boolean {
   return config.mercado === 'CO' && config.moneda.toUpperCase() === 'COP';
 }
