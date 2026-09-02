@@ -30,6 +30,27 @@ describe('resolvePrecioPublico', () => {
       expect(resolvePrecioPublico({ precio_regular })).toBeNull();
     }
   );
+
+  it('publica precio de oferta vigente con IVA incluido, igual que checkout', () => {
+    expect(
+      resolvePrecioPublico({
+        precio_regular: 1000000,
+        precio_oferta: 900000,
+        oferta_inicio: '2020-01-01T00:00:00.000Z',
+        oferta_fin: '2099-01-01T00:00:00.000Z',
+      })
+    ).toBe(1071000);
+  });
+
+  it('ignora oferta vencida y vuelve al precio regular con IVA incluido', () => {
+    expect(
+      resolvePrecioPublico({
+        precio_regular: 1000000,
+        precio_oferta: 900000,
+        oferta_fin: '2020-01-01T00:00:00.000Z',
+      })
+    ).toBe(1190000);
+  });
 });
 
 describe('precioConIvaColombia', () => {

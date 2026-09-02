@@ -22,12 +22,33 @@ export function precioConIvaColombia(precioBase: number): number | null {
   return baseEnPesos + Math.round((baseEnPesos * IVA_COLOMBIA_PCT) / 100);
 }
 
-/** Precio público: campo base `precio_regular` de BD más IVA incluido. */
+function numeroPublicable(valor: unknown): number | null {
+  const numero = typeof valor === 'number' ? valor : Number(valor);
+  return tienePrecioPublico(numero) ? numero : null;
+}
+
+function ofertaVigente(row: Record<string, unknown>): number | null {
+  const precioOferta = numeroPublicable(row['precio_oferta']);
+  if (precioOferta === null) return null;
+  const ahora = Date.now();
+  const inicio = row['oferta_inicio'];
+  const fin = row['oferta_fin'];
+  const inicioOk =
+    typeof inicio !== 'string' || !inicio.trim() || new Date(inicio).getTime() <= ahora;
+  const finOk = typeof fin !== 'string' || !fin.trim() || new Date(fin).getTime() >= ahora;
+  return inicioOk && finOk ? precioOferta : null;
+}
+
+/**
+ * Precio público: precio neto vigente (`precio_oferta` si aplica, si no
+ * `precio_regular`) más IVA. Debe coincidir con la selección del checkout.
+ */
 export function resolvePrecioPublico(row: unknown): number | null {
   if (!row || typeof row !== 'object') return null;
-  const raw = (row as { precio_regular?: unknown }).precio_regular;
-  const n = typeof raw === 'number' ? raw : Number(raw);
-  return precioConIvaColombia(n);
+  const valores = row as Record<string, unknown>;
+  return precioConIvaColombia(
+    ofertaVigente(valores) ?? numeroPublicable(valores['precio_regular']) ?? 0
+  );
 }
 
 /** Normaliza moneda ISO 4217 almacenada; COP es fallback comercial de I-ME. */
