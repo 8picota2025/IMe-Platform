@@ -22,6 +22,7 @@ import { getPaymentGateway, type CheckoutItem, type Mercado } from '../_shared/p
 import {
   buildDianInvoiceDraft,
   calculateFiscalSummary,
+  fiscalProfileFromLockedOffer,
   validateClienteFiscal,
   type ClienteFiscalProfile,
 } from '../../../src/lib/fiscal.ts';
@@ -621,6 +622,7 @@ Deno.serve(
     // ── Cotización formalizada: precios locked (admin), no recalc catálogo ──
     let lineasCotizacion: CotizacionLineaOferta[] | null = null;
     let cotizacionAtribucion: CotizacionOfertaRow | null = null;
+    let impuestosIncluidosOferta = false;
     if (usaCotizacionLocked) {
       const { data: cotizacionData, error: cotizacionError } = await supabase
         .from('solicitudes_cotizacion')
@@ -639,6 +641,7 @@ Deno.serve(
       }
       const cotizacion = cotizacionData as CotizacionOfertaRow;
       cotizacionAtribucion = cotizacion;
+      impuestosIncluidosOferta = cotizacion.impuestos_incluidos === true;
       if (cotizacion.pedido_id || cotizacion.estado === 'convertida') {
         return errorResponse(
           { code: 'COTIZACION_YA_CONVERTIDA', message: 'Esta cotizacion ya fue formalizada' },
@@ -818,22 +821,45 @@ Deno.serve(
         moneda: monedaItem,
         ...(locked ? { precio_locked_cotizacion: true } : {}),
       });
-      fiscalItems.push({
-        producto_id: producto.id,
-        slug: producto.slug,
-        nombre,
-        cantidad,
-        precio_unitario: precio,
-        tarifa_iva_pct: producto.tarifa_iva_pct === null ? null : Number(producto.tarifa_iva_pct),
-        retencion_fuente_pct:
-          producto.retencion_fuente_pct === null ? null : Number(producto.retencion_fuente_pct),
-        retencion_iva_pct:
-          producto.retencion_iva_pct === null ? null : Number(producto.retencion_iva_pct),
-        retencion_ica_pct:
-          producto.retencion_ica_pct === null ? null : Number(producto.retencion_ica_pct),
-        dian_codigo: producto.dian_codigo,
-        excluido_iva: producto.excluido_iva === true,
-      });
+      if (locked) {
+        try {
+          fiscalItems.push(
+            fiscalProfileFromLockedOffer({
+              producto_id: producto.id,
+              slug: producto.slug,
+              nombre,
+              cantidad,
+              precio_unitario_ofertado: precio,
+              solicitar_factura_electronica: fiscalCliente.solicitar_factura_electronica,
+              impuestos_incluidos: impuestosIncluidosOferta,
+              producto,
+            })
+          );
+        } catch (error) {
+          const message = error instanceof Error ? error.message : 'Configuracion fiscal invalida';
+          const code = message.includes('impuestos')
+            ? 'TRATAMIENTO_TRIBUTARIO_OFERTA_REQUERIDO'
+            : 'CONFIGURACION_FISCAL_PRODUCTO_INVALIDA';
+          return errorResponse({ code, message }, 422, origin);
+        }
+      } else {
+        fiscalItems.push({
+          producto_id: producto.id,
+          slug: producto.slug,
+          nombre,
+          cantidad,
+          precio_unitario: precio,
+          tarifa_iva_pct: producto.tarifa_iva_pct === null ? null : Number(producto.tarifa_iva_pct),
+          retencion_fuente_pct:
+            producto.retencion_fuente_pct === null ? null : Number(producto.retencion_fuente_pct),
+          retencion_iva_pct:
+            producto.retencion_iva_pct === null ? null : Number(producto.retencion_iva_pct),
+          retencion_ica_pct:
+            producto.retencion_ica_pct === null ? null : Number(producto.retencion_ica_pct),
+          dian_codigo: producto.dian_codigo,
+          excluido_iva: producto.excluido_iva === true,
+        });
+      }
     }
 
     const moneda = monedaComun ?? 'COP';
@@ -900,7 +926,26 @@ Deno.serve(
     );
 
     const _impuestoTotal = fiscal.impuesto_total;
-    const total = fiscal.total;
+    const totalOfertado = lineasCotizacion ? calcularTotalOfertado(lineasCotizacion) : null;
+    if (
+      lineasCotizacion &&
+      fiscalCliente.solicitar_factura_electronica &&
+      totalOfertado !== null &&
+      Math.abs(fiscal.total - totalOfertado) > 1
+    ) {
+      return errorResponse(
+        {
+          code: 'TOTAL_FISCAL_NO_CUADRA',
+          message:
+            'El total fiscal no coincide con el total ofrecido. Solicita una cotizacion revisada.',
+        },
+        422,
+        origin
+      );
+    }
+    // Cotización locked: el importe a cobrar es siempre el total ofertado.
+    // fiscal.total se usa para DIAN; sin FE coincide tras excluido_iva.
+    const total = totalOfertado ?? fiscal.total;
     const pedidoId = crypto.randomUUID();
     const dianDraft = buildDianInvoiceDraft({
       referencia: pedidoId,
