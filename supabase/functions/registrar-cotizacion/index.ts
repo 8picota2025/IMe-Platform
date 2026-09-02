@@ -1,8 +1,7 @@
 /**
  * Registra una solicitud de cotizacion (antes insert directo desde el
- * navegador) y dispara los emails: aviso interno (root@ + ventas@) y
- * confirmacion de recepcion al cliente. Los emails son best-effort:
- * si fallan, la solicitud queda registrada igualmente.
+ * navegador. No genera correos en éxito: solo alerta internamente ante un
+ * fallo crítico de sincronización. La solicitud queda registrada en ambos casos.
  */
 
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
@@ -12,7 +11,6 @@ import { checkRateLimit } from '../_shared/rate-limit.ts';
 import { rateLimitIdentificador } from '../_shared/canary.ts';
 import {
   enviarEmailPlantilla,
-  DESTINATARIOS_COMPRAS,
   DESTINATARIOS_INTERNOS,
   escapeHtml,
   itemsToHtml,
@@ -119,6 +117,9 @@ Deno.serve(
     const moneda = (body.moneda ?? 'COP').trim().slice(0, 8) || 'COP';
     const mercado = (body.mercado ?? 'CO').trim().slice(0, 8) || 'CO';
     const origen = (body.origen ?? 'web').trim().slice(0, 80) || 'web';
+    // Marcador explícito, reservado al canary del flujo crítico. No inferir QA
+    // por email, nombre o texto: esos datos también pueden ser comerciales.
+    const esQaFlujo = origen === 'canary_ci';
     const cuponCodigo = body.cupon_codigo?.trim().slice(0, 80) || null;
     const totalEstimado = cleanNumber(body.total_estimado);
     let leadComercialId: string | null = null;
@@ -233,6 +234,7 @@ Deno.serve(
       metadata: {
         fiscal: body.fiscal ?? null,
         attribution,
+        supervision: { qa_flujo: esQaFlujo },
       },
     };
 
@@ -268,10 +270,12 @@ Deno.serve(
 
     // Evento de negocio para el funnel semanal (docs/observabilidad.md).
     // Sin PII en detalle: solo conteo de productos, nunca email/nombre/telefono.
-    void trackEvent(FN_NAME, 'cotizacion_registrada', {
-      productos_count: productos.length,
-      tipo_solicitud: tipoSolicitud,
-    });
+    if (!esQaFlujo) {
+      void trackEvent(FN_NAME, 'cotizacion_registrada', {
+        productos_count: productos.length,
+        tipo_solicitud: tipoSolicitud,
+      });
+    }
 
     const vars = {
       referencia: escapeHtml(referencia),
@@ -290,34 +294,9 @@ Deno.serve(
       fecha: new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' }),
     };
 
-    const plantillaInterna =
-      tipoSolicitud === 'compra_a_valorar' ? 'compra_valorar_interna' : 'cotizacion_interna';
-    const plantillaCliente =
-      tipoSolicitud === 'compra_a_valorar'
-        ? locale === 'en'
-          ? 'compra_valorar_confirmacion_cliente_en'
-          : 'compra_valorar_confirmacion_cliente_es'
-        : locale === 'en'
-          ? 'cotizacion_confirmacion_cliente_en'
-          : 'cotizacion_confirmacion_cliente_es';
-    const destinatariosInternos =
-      tipoSolicitud === 'compra_a_valorar' ? DESTINATARIOS_COMPRAS : DESTINATARIOS_INTERNOS;
-
-    let emails = { interno: false, cliente: false };
-    try {
-      const [interno, cliente] = await Promise.all([
-        enviarEmailPlantilla(supabase, plantillaInterna, destinatariosInternos, vars, referencia),
-        enviarEmailPlantilla(supabase, plantillaCliente, [email], vars, referencia),
-      ]);
-      emails = { interno: interno.ok, cliente: cliente.ok };
-      if (!interno.ok) console.error('registrar-cotizacion: email interno', interno.detalle);
-      if (!cliente.ok) console.error('registrar-cotizacion: email cliente', cliente.detalle);
-    } catch (err) {
-      console.error(
-        'registrar-cotizacion: email exception',
-        err instanceof Error ? err.message : err
-      );
-    }
+    // Éxito no genera correo. La supervisión se limita a alertas accionables
+    // de fallos del flujo crítico; la solicitud y CRM siguen siendo trazables.
+    let emails = { alerta_fallo: false };
 
     // Twenty CRM: best-effort. No bloquea respuesta al cliente.
     const twenty = await syncCotizacionWithTwenty({
@@ -342,7 +321,28 @@ Deno.serve(
       console.error('registrar-cotizacion: Twenty sync failed', twenty.error);
       void trackEvent(FN_NAME, 'cotizacion_twenty_failed', {
         tipo_solicitud: tipoSolicitud,
+        qa_flujo: esQaFlujo,
       });
+      try {
+        const alerta = await enviarEmailPlantilla(
+          supabase,
+          'cotizacion_flujo_fallido_interna',
+          DESTINATARIOS_INTERNOS,
+          {
+            ...vars,
+            etapa_fallo: 'Sincronización Twenty CRM',
+            error_flujo: escapeHtml(twenty.error ?? 'Error desconocido'),
+          },
+          referencia
+        );
+        emails = { alerta_fallo: alerta.ok };
+        if (!alerta.ok) console.error('registrar-cotizacion: alerta de fallo', alerta.detalle);
+      } catch (err) {
+        console.error(
+          'registrar-cotizacion: excepción enviando alerta de fallo',
+          err instanceof Error ? err.message : err
+        );
+      }
     } else {
       void trackEvent(FN_NAME, 'cotizacion_twenty_synced', {
         tipo_solicitud: tipoSolicitud,

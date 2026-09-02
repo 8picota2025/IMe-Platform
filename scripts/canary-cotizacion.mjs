@@ -4,7 +4,7 @@
  *
  * Comprueba tras cada deploy:
  * 1) Página /es/contacto con formulario + status + modal navbar
- * 2) Edge registrar-cotizacion → ok + email interno
+ * 2) Edge registrar-cotizacion → ok sin correo de éxito
  * 3) Edge registrar-lead-comercial (campaña proyectos) → ok + email interno
  * 4) Opcional: email_log (service role) confirma envíos recientes
  *
@@ -138,7 +138,6 @@ async function checkContactPage() {
 
 async function checkRegistrarCotizacion(stamp) {
   const email = `canary-cotizacion-${stamp}@ime-test.local`;
-  const sinceIso = new Date(Date.now() - 60_000).toISOString();
   const { status, json, text } = await invokeFunction('registrar-cotizacion', {
     locale: 'es',
     origen: 'canary_ci',
@@ -154,18 +153,10 @@ async function checkRegistrarCotizacion(stamp) {
     fail(`registrar-cotizacion HTTP ${status}: ${text.slice(0, 300)}`);
     return;
   }
-  ok(`registrar-cotizacion ok (lead email ${email})`);
-
-  if (json.emails && json.emails.interno !== true) {
-    fail(`registrar-cotizacion emails.interno=${JSON.stringify(json.emails)}`);
-  } else if (json.emails?.interno) {
-    ok('registrar-cotizacion emails.interno=true');
-  } else {
-    fail('registrar-cotizacion sin campo emails (deploy Edge desfasado?)');
+  ok(`registrar-cotizacion ok (QA sin correo de éxito: ${email})`);
+  if (json.emails?.alerta_fallo) {
+    fail(`registrar-cotizacion alerta de fallo inesperada: ${JSON.stringify(json.emails)}`);
   }
-
-  await checkEmailLog('cotizacion_interna', 'i-me.com.co', sinceIso);
-  await checkEmailLog('cotizacion_confirmacion_cliente_es', email, sinceIso);
 }
 
 async function checkRegistrarLead(stamp) {

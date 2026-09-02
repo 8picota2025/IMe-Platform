@@ -79,6 +79,10 @@ const DEFAULTS: Record<string, { asunto: string; html: string }> = {
     asunto: 'Nueva cotizacion de {{cliente_nombre}} - I-ME',
     html: '<h2>Nueva solicitud de cotizacion</h2><p>Nombre: {{cliente_nombre}}</p><p>Empresa: {{empresa}}</p><p>Email: {{cliente_email}}</p><p>Telefono: {{telefono}}</p><ul>{{items_html}}</ul><p>Mensaje: {{mensaje}}</p>',
   },
+  cotizacion_flujo_fallido_interna: {
+    asunto: 'Acción requerida: falló flujo de cotización {{referencia}}',
+    html: '<h2>Fallo en flujo crítico de cotización</h2><p><strong>Referencia:</strong> {{referencia}}</p><p><strong>Cliente:</strong> {{cliente_nombre}} ({{cliente_email}})</p><p><strong>Etapa:</strong> {{etapa_fallo}}</p><p><strong>Error:</strong> {{error_flujo}}</p><p>La solicitud quedó registrada. Revise CRM y el log operativo antes de reintentar.</p>',
+  },
   pedido_confirmacion_cliente: {
     asunto: 'Confirmacion de tu pedido {{referencia}} - I-ME',
     html: '<h2>Gracias por tu compra, {{cliente_nombre}}</h2><p>Hemos recibido el pago de tu pedido <strong>{{referencia}}</strong>.</p><p>Total: <strong>{{total}} {{moneda}}</strong></p><ul>{{items_html}}</ul><p>Equipo I-ME</p>',

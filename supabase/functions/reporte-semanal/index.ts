@@ -226,13 +226,15 @@ Deno.serve(async req => {
         .limit(50000),
       supabase
         .from('solicitudes_cotizacion')
-        .select('id, created_at, estado, precio_total_ofertado, total_estimado, moneda')
+        .select(
+          'id, created_at, estado, precio_total_ofertado, total_estimado, moneda, origen, metadata'
+        )
         .gte('created_at', week.startIso)
         .lte('created_at', week.endIso)
         .limit(10000),
       supabase
         .from('solicitudes_cotizacion')
-        .select('id, created_at, precio_total_ofertado, total_estimado')
+        .select('id, created_at, precio_total_ofertado, total_estimado, origen, metadata')
         .gte('created_at', prevStartIso)
         .lte('created_at', prevEndIso)
         .limit(10000),
@@ -257,6 +259,7 @@ Deno.serve(async req => {
         .from('solicitudes_cotizacion')
         .select('id', { count: 'exact', head: true })
         .eq('estado', 'enviada')
+        .or('origen.is.null,origen.neq.canary_ci')
         .gte('oferta_enviada_at', week.startIso)
         .lte('oferta_enviada_at', week.endIso),
       supabase
@@ -309,6 +312,8 @@ Deno.serve(async req => {
       precio_total_ofertado?: number | string | null;
       total_estimado?: number | string | null;
       moneda?: string | null;
+      origen?: string | null;
+      metadata?: { supervision?: { qa_flujo?: boolean } | null } | null;
     };
     type PRow = {
       id: string;
@@ -341,8 +346,14 @@ Deno.serve(async req => {
 
     const aCurr = (analyticsCurr.data ?? []) as ARow[];
     const aPrev = (analyticsPrev.data ?? []) as ARow[];
-    const cCurr = (cotCurr.data ?? []) as CRow[];
-    const cPrev = (cotPrev.data ?? []) as CRow[];
+    const esCotizacionQa = (cotizacion: CRow): boolean =>
+      cotizacion.origen === 'canary_ci' || cotizacion.metadata?.supervision?.qa_flujo === true;
+    const cCurr = ((cotCurr.data ?? []) as CRow[]).filter(
+      cotizacion => !esCotizacionQa(cotizacion)
+    );
+    const cPrev = ((cotPrev.data ?? []) as CRow[]).filter(
+      cotizacion => !esCotizacionQa(cotizacion)
+    );
     // Telemetría comercial es complementaria: si la migración aún no se ha
     // aplicado en un entorno, el resto del reporte sigue enviándose y marca
     // este bloque como pendiente mediante ceros.
