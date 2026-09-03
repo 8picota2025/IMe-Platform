@@ -42,6 +42,7 @@ import {
 } from '../lib/pdf-ingest-enrich';
 import type { CotizacionLineaOferta } from '../lib/cotizacion-oferta';
 import { bindQuoteCatalogSearch, bindQuoteProductIngest } from '../lib/quote-line-tools';
+import { canManageTwentyBridge, canReassignCommercialLeads } from '../lib/comercial-cms';
 import {
   CRM_QUICK_LOG,
   CRM_SNOOZE_DAYS,
@@ -343,7 +344,11 @@ function vistaPermitida(view: View): boolean {
 }
 
 function esSupervisorCms(): boolean {
-  return state.rol === 'owner' || state.rol === 'admin';
+  return canManageTwentyBridge(state.rol, true);
+}
+
+function esRolComercialCms(): boolean {
+  return canReassignCommercialLeads(state.rol, true);
 }
 
 function rolesQuePuedenVer(view: View): string[] {
@@ -1599,7 +1604,7 @@ async function crmView(): Promise<string> {
   const seguimiento = (params.get('seguimiento') ?? '') as CrmSeguimientoFilter;
   const asignacion = (params.get('asignacion') ?? '') as CrmAsignacionFilter;
   const q = (params.get('q') ?? '').trim().toLowerCase();
-  const twentyMembers = esSupervisorCms() ? await loadTwentyMembers() : [];
+  const twentyMembers = esRolComercialCms() ? await loadTwentyMembers() : [];
   const [opportunitiesRes, contactsRes, accountsRes, activitiesRes] = await Promise.all([
     supabase!
       .from('crm_opportunities')
@@ -1921,9 +1926,14 @@ function crmOpportunityCard(
   const campaign = text(metadata.campaign || metadata.utm_campaign);
   const title =
     text(row.titulo) || text(account?.nombre) || text(contact?.email_norm) || id.slice(0, 8);
+  const currentOwner = twentyMembers.find(m => m.id === text(row.twenty_owner_id));
+  const currentOwnerId = text(row.twenty_owner_id);
   const memberOptions = twentyMembers.length
     ? twentyMembers
-        .map(m => `<option value="${escapeHtml(m.id)}">${escapeHtml(m.name || m.email)}</option>`)
+        .map(m => {
+          const label = `${m.name || m.email}${m.id === currentOwnerId ? ' (actual)' : ''}`;
+          return `<option value="${escapeHtml(m.id)}">${escapeHtml(label)}</option>`;
+        })
         .join('')
     : '';
   return `
@@ -1938,6 +1948,7 @@ function crmOpportunityCard(
         <span class="admin-badge ${twentyLinked ? 'admin-badge--info' : 'admin-badge--warn'}">${twentyLinked ? 'Sincronizado' : twentyOpp ? 'Parcial' : 'Pendiente'}</span>
         ${twentyOpp ? `<span class="admin-meta">· ${escapeHtml(twentyOpp.slice(0, 8))}…</span>` : ''}
       </p>
+      ${currentOwner ? `<p class="admin-meta">Comercial: ${escapeHtml(currentOwner.name || currentOwner.email)}</p>` : '<p class="admin-meta">Comercial: sin asignar</p>'}
       ${campaign ? `<p class="admin-meta">Campaña: ${escapeHtml(campaign)}${text(metadata.horizonte) ? ` · ${escapeHtml(text(metadata.horizonte))}` : ''}</p>` : ''}
       <div class="crm-card__numbers">
         <span>${escapeHtml(crmMoney(Number(row.valor_estimado ?? 0), text(row.moneda) || 'COP'))}</span>
@@ -1983,8 +1994,8 @@ function crmOpportunityCard(
         <input name="motivo_perdida" type="text" maxlength="500" value="${escapeHtml(text(row.motivo_perdida))}" />
       </label>
       ${
-        esSupervisorCms() && memberOptions
-          ? `<label class="admin-field">Reasignar comercial (Twenty)
+        esRolComercialCms() && memberOptions
+          ? `<label class="admin-field">Reasignar a un comercial
           <select name="twenty_owner_id" data-crm-reassign-owner>
             <option value="">Sin cambio</option>
             ${memberOptions}
@@ -2132,6 +2143,7 @@ function bindCrm() {
           next_action_at: nextActionAt,
           next_action_note: emptyToNull(data.get('next_action_note')),
           updated_at: now,
+          ...(esRolComercialCms() && twentyOwnerId ? { twenty_owner_id: twentyOwnerId } : {}),
         })
         .eq('id', id);
       if (error) {
@@ -2154,6 +2166,7 @@ function bindCrm() {
           next_action_at: nextActionAt,
           last_contact_at: lastContactAt,
           motivo_perdida: etapa === 'perdido' ? motivoPerdida : null,
+          ...(twentyOwnerId ? { newOwnerId: twentyOwnerId } : {}),
         },
       });
 
@@ -2164,8 +2177,8 @@ function bindCrm() {
           valor_estimado: valorEstimado,
           next_action_at: nextActionAt,
           next_action_note: emptyToNull(data.get('next_action_note')),
-          ...(esSupervisorCms() && twentyOwnerId
-            ? { newOwnerId: twentyOwnerId, reason: 'Reasignación desde admin CRM' }
+          ...(esRolComercialCms() && twentyOwnerId
+            ? { newOwnerId: twentyOwnerId, reason: `Reasignado por ${state.email}` }
             : {}),
         },
       });
@@ -3963,27 +3976,35 @@ async function clientesView(): Promise<string> {
 
 async function clienteDetailView(): Promise<string> {
   const cliente = state.recordId ? await getRow('clientes', state.recordId) : null;
-  const [direcciones, pedidos, cotizaciones] = cliente
-    ? await Promise.all([
-        selectRowsWhere(
-          'cliente_direcciones',
-          '*',
-          'created_at',
-          { cliente_id: text(cliente.id) },
-          50,
-          false
-        ),
-        selectRowsWhere('pedidos', '*', 'created_at', { cliente_id: text(cliente.id) }, 50, false),
-        selectRowsWhere(
-          'solicitudes_cotizacion',
-          '*',
-          'created_at',
-          { email: text(cliente.email) },
-          50,
-          false
-        ),
-      ])
-    : [[], [], []];
+  let direcciones: Row[] = [];
+  let pedidos: Row[] = [];
+  let cotizaciones: Row[] = [];
+  let twentyMembers: TwentyMemberOption[] = [];
+  if (cliente) {
+    [direcciones, pedidos, cotizaciones] = await Promise.all([
+      selectRowsWhere(
+        'cliente_direcciones',
+        '*',
+        'created_at',
+        { cliente_id: text(cliente.id) },
+        50,
+        false
+      ),
+      selectRowsWhere('pedidos', '*', 'created_at', { cliente_id: text(cliente.id) }, 50, false),
+      selectRowsWhere(
+        'solicitudes_cotizacion',
+        '*',
+        'created_at',
+        { email: text(cliente.email) },
+        50,
+        false
+      ),
+    ]);
+    if (esRolComercialCms()) twentyMembers = await loadTwentyMembers();
+  }
+  const memberOptions = twentyMembers
+    .map(m => `<option value="${escapeHtml(m.id)}">${escapeHtml(m.name || m.email)}</option>`)
+    .join('');
 
   return `
     <section class="admin-panel">
@@ -4054,6 +4075,29 @@ async function clienteDetailView(): Promise<string> {
         <button class="admin-button" type="submit">Guardar cliente</button>
       </form>
     </section>
+    ${
+      cliente && esRolComercialCms() && memberOptions
+        ? `
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Reasignar comercial</h2></div>
+      <form class="admin-form" data-cliente-reassign style="padding:16px">
+        <input type="hidden" name="clienteId" value="${escapeHtml(text(cliente.id))}" />
+        <input type="hidden" name="email" value="${escapeHtml(text(cliente.email))}" />
+        <p class="admin-help">Pasa todos los leads y oportunidades de este cliente a otro comercial del equipo I-ME. Se actualiza el CRM y Twenty.</p>
+        <div class="admin-editor__cols">
+          <label class="admin-field">Nuevo comercial
+            <select name="newOwnerId" required>
+              <option value="">Elegir comercial</option>
+              ${memberOptions}
+            </select>
+          </label>
+          ${field('reason', 'Motivo (opcional)')}
+        </div>
+        <button class="admin-button" type="submit">Reasignar cliente</button>
+      </form>
+    </section>`
+        : ''
+    }
     ${
       cliente
         ? `
@@ -7888,6 +7932,44 @@ function bindClientes() {
     }
     toast('Cliente guardado');
     location.hash = `#/cliente?id=${encodeURIComponent(text((saved as Row).id))}`;
+  });
+
+  const reassignForm = app.querySelector<HTMLFormElement>('[data-cliente-reassign]');
+  reassignForm?.addEventListener('submit', async event => {
+    event.preventDefault();
+    if (!esRolComercialCms()) return;
+    const data = new FormData(reassignForm);
+    const clienteId = String(data.get('clienteId') ?? '').trim();
+    const email = String(data.get('email') ?? '')
+      .trim()
+      .toLowerCase();
+    const newOwnerId = String(data.get('newOwnerId') ?? '').trim();
+    const reason = String(data.get('reason') ?? '').trim();
+    if (!clienteId || !newOwnerId) {
+      toast('Elige un comercial del equipo.');
+      return;
+    }
+    const submit = reassignForm.querySelector<HTMLButtonElement>('button[type="submit"]');
+    if (submit) submit.disabled = true;
+    const res = await callCrmTwenty<{
+      data?: { reassigned?: number; failed?: number };
+    }>('reassign-client', {
+      body: {
+        clienteId,
+        email,
+        newOwnerId,
+        reason: reason || `Cliente reasignado por ${state.email}`,
+      },
+    });
+    const stats = res.data?.data;
+    if (res.skipped) toast('CRM local no pudo confirmar Twenty: no configurado.');
+    else if (stats?.reassigned) {
+      toast(
+        `Cliente reasignado: ${stats.reassigned} lead(s)${stats.failed ? `, ${stats.failed} fallo(s) Twenty` : ''}`
+      );
+      await render();
+    } else toast(res.error ?? 'No hay leads CRM para reasignar en este cliente.');
+    if (submit) submit.disabled = false;
   });
 
   const dirForm = app.querySelector<HTMLFormElement>('[data-direccion-form]');
