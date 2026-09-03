@@ -1047,6 +1047,7 @@ export class TwentyClient {
       channel?: 'email' | 'whatsapp' | string | null;
       commercialName?: string | null;
       commercialEmail?: string | null;
+      ownerId?: string | null;
     },
     products: Array<{
       name: string;
@@ -1151,6 +1152,43 @@ export class TwentyClient {
         error: link.error,
         data: { personId: person.data.id, companyId, noteId: note.data.id },
       };
+    }
+
+    // Tarea de seguimiento (best-effort): el digest diario la recoge.
+    const ownerId = resolveTwentyOwnerId(share.ownerId ?? undefined);
+    const due = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+    const task = await this.requestRecord('POST', '/tasks', {
+      title: `Seguimiento catálogo: ${share.recipientName}`.slice(0, 120),
+      status: 'TODO',
+      dueAt: due,
+      ...(ownerId ? { assigneeId: ownerId } : {}),
+      position: 'first',
+      bodyV2: {
+        markdown: [
+          `**Origen:** CMS comercial I-ME`,
+          `**Canal:** ${canal}`,
+          `**Destinatario:** ${share.recipientName}`,
+          share.recipientEmail ? `**Email:** ${share.recipientEmail}` : '',
+          share.recipientPhoneE164 ? `**Teléfono:** ${share.recipientPhoneE164}` : '',
+          share.medicalCenterName?.trim()
+            ? `**Centro médico:** ${share.medicalCenterName.trim()}`
+            : '',
+          comercialBits.length ? `**Comercial:** ${comercialBits.join(' · ')}` : '',
+          '',
+          `**Productos:**\n${productList}`,
+        ]
+          .filter(line => line !== '')
+          .join('\n')
+          .trim(),
+      },
+    });
+    if (task.ok && task.data?.id) {
+      await this.requestRaw('POST', '/taskTargets', {
+        taskId: task.data.id,
+        targetPersonId: person.data.id,
+        ...(companyId ? { targetCompanyId: companyId } : {}),
+        position: 'first',
+      });
     }
 
     return { ok: true, data: { personId: person.data.id, companyId, noteId: note.data.id } };
@@ -1736,6 +1774,7 @@ export async function syncShareWithTwenty(
     channel?: 'email' | 'whatsapp' | string | null;
     commercialName?: string | null;
     commercialEmail?: string | null;
+    ownerId?: string | null;
   },
   products: Array<{
     name: string;
@@ -1766,6 +1805,7 @@ export async function retryShareWithTwenty(
     channel?: 'email' | 'whatsapp' | string | null;
     commercialName?: string | null;
     commercialEmail?: string | null;
+    ownerId?: string | null;
   },
   products: Array<{
     name: string;

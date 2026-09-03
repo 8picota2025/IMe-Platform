@@ -276,7 +276,9 @@ const state = {
   rol: '' as string,
 };
 
-/** Vistas visibles por rol (owner/admin ven todo; RLS es la barrera real en DB). */
+/** Vistas visibles por rol (owner/admin ven todo; RLS es la barrera real en DB).
+ *  Perfil comercial (`ventas`) es más restringido que admin: pipeline y
+ *  cotizaciones/pedidos propios, sin facturación, cupones, plantillas ni Asesor. */
 const VISTAS_POR_ROL: Record<string, Set<View>> = {
   catalogo: new Set<View>([
     'dashboard',
@@ -296,19 +298,6 @@ const VISTAS_POR_ROL: Record<string, Set<View>> = {
     'cotizacion',
     'pedidos',
     'pedido',
-    'facturas',
-    'factura',
-    'cupones',
-    'cupon',
-    'listas',
-    'lista',
-    'resenas',
-    'plantillas',
-    'reportes',
-    'marketing',
-    'asesor',
-    'conocimiento',
-    'propuestas',
   ]),
   operaciones: new Set<View>([
     'dashboard',
@@ -328,9 +317,13 @@ const VISTAS_POR_ROL: Record<string, Set<View>> = {
 };
 
 function vistaPermitida(view: View): boolean {
-  if (!state.rol || state.rol === 'owner' || state.rol === 'admin') return true;
+  if (state.rol === 'owner' || state.rol === 'admin') return true;
   const permitidas = VISTAS_POR_ROL[state.rol];
-  return permitidas ? permitidas.has(view) : true;
+  return permitidas ? permitidas.has(view) : false;
+}
+
+function esSupervisorCms(): boolean {
+  return state.rol === 'owner' || state.rol === 'admin';
 }
 
 function rolesQuePuedenVer(view: View): string[] {
@@ -350,7 +343,7 @@ function accesoDenegadoView(view: View): { title: string; body: string } {
         Tu rol actual (<strong>${escapeHtml(state.rol || 'sin rol')}</strong>) no incluye
         <code>#/${escapeHtml(view)}</code>.
         Roles con acceso: <strong>${escapeHtml(roles)}</strong>.
-        El menú lateral muestra todas las funciones; las bloqueadas quedan atenuadas.
+        El menú solo muestra las secciones de tu rol.
         Pide a un owner/admin que ajuste tu perfil en Usuarios CMS si necesitas acceso.
       </div>
       <p class="admin-help"><a class="admin-button admin-button--ghost" href="#/dashboard">Volver al dashboard</a></p>
@@ -517,10 +510,17 @@ async function render() {
   if (!state.rol) {
     const { data: perfil } = await supabase!
       .from('admin_profiles')
-      .select('rol')
+      .select('rol,activo')
       .eq('user_id', session.user.id)
       .maybeSingle();
-    state.rol = String((perfil as Row | null)?.rol ?? '');
+    const row = perfil as (Row & { activo?: boolean }) | null;
+    if (row && row.activo === false) {
+      await supabase!.auth.signOut();
+      toast('Este perfil está desactivado. Pide acceso a un administrador.');
+      renderLogin();
+      return;
+    }
+    state.rol = String(row?.rol ?? '');
   }
 
   const view = await routeView();
@@ -779,9 +779,14 @@ function shellHtml(title: string, body: string): string {
   ];
 
   const rolLabel = state.rol ? `Rol: ${state.rol}` : 'Rol: sin perfil';
+  const hideLockedNav = !esSupervisorCms();
   const navHtml = groups
     .map(group => {
-      const links = group.items
+      const items = hideLockedNav
+        ? group.items.filter(([view]) => vistaPermitida(view))
+        : group.items;
+      if (items.length === 0) return '';
+      const links = items
         .map(([view, label]) => {
           const locked = !vistaPermitida(view);
           const current =
@@ -826,7 +831,16 @@ function shellHtml(title: string, body: string): string {
             <p class="admin-meta">${escapeHtml(state.email || 'Sesion privada')} · ${escapeHtml(rolLabel)}</p>
           </div>
           <div class="admin-toolbar">
-            <button class="admin-button admin-button--ghost" data-publish type="button">Publicar cambios</button>
+            ${
+              state.rol === 'ventas'
+                ? `<a class="admin-button" href="/comercial/">CMS comercial</a>`
+                : ''
+            }
+            ${
+              esSupervisorCms() || state.rol === 'catalogo'
+                ? `<button class="admin-button admin-button--ghost" data-publish type="button">Publicar cambios</button>`
+                : ''
+            }
           </div>
         </header>
         ${body}
@@ -1562,7 +1576,7 @@ async function crmView(): Promise<string> {
   const prioridad = params.get('prioridad') ?? '';
   const seguimiento = params.get('seguimiento') ?? '';
   const q = (params.get('q') ?? '').trim().toLowerCase();
-  const twentyMembers = await loadTwentyMembers();
+  const twentyMembers = esSupervisorCms() ? await loadTwentyMembers() : [];
   const [opportunitiesRes, contactsRes, accountsRes, activitiesRes] = await Promise.all([
     supabase!
       .from('crm_opportunities')
@@ -1725,7 +1739,11 @@ async function crmView(): Promise<string> {
           <p class="admin-meta">Formularios, cotizaciones y ventas ecommerce alimentan estas oportunidades.</p>
         </div>
         <div class="admin-toolbar">
-          <button class="admin-button admin-button--ghost" type="button" data-crm-repair-twenty>Reparar enlaces Twenty</button>
+          ${
+            esSupervisorCms()
+              ? `<button class="admin-button admin-button--ghost" type="button" data-crm-repair-twenty>Reparar enlaces Twenty</button>`
+              : ''
+          }
           <a class="admin-button admin-button--ghost" href="https://crm.i-me.com.co" target="_blank" rel="noopener noreferrer">Abrir Twenty</a>
           <a class="admin-button admin-button--ghost" href="#/cotizaciones">Presupuestos</a>
           <a class="admin-button admin-button--ghost" href="#/pedidos">Pedidos</a>
@@ -1763,6 +1781,7 @@ async function crmView(): Promise<string> {
         })
       )}
       ${
+        esSupervisorCms() &&
         contactRows.some(row => {
           const account = accounts.get(text(row.account_id));
           return (
@@ -1880,7 +1899,7 @@ function crmOpportunityCard(
         <input name="motivo_perdida" type="text" maxlength="500" value="${escapeHtml(text(row.motivo_perdida))}" />
       </label>
       ${
-        memberOptions
+        esSupervisorCms() && memberOptions
           ? `<label class="admin-field">Reasignar comercial (Twenty)
           <select name="twenty_owner_id" data-crm-reassign-owner>
             <option value="">Sin cambio</option>
@@ -1891,7 +1910,10 @@ function crmOpportunityCard(
       }
       <button class="admin-button" type="submit">Guardar y sync Twenty</button>
       ${
-        contact && account && (!text(contact.twenty_person_id) || !text(account.twenty_company_id))
+        esSupervisorCms() &&
+        contact &&
+        account &&
+        (!text(contact.twenty_person_id) || !text(account.twenty_company_id))
           ? `<button class="admin-button admin-button--ghost" type="button" data-crm-link-contact="${escapeHtml(text(contact.id))}" data-crm-link-account="${escapeHtml(text(account.id))}">Enlazar contacto ↔ cuenta Twenty</button>`
           : ''
       }
@@ -1923,6 +1945,7 @@ function bindCrm() {
   app
     .querySelector<HTMLButtonElement>('[data-crm-repair-twenty]')
     ?.addEventListener('click', async () => {
+      if (!esSupervisorCms()) return;
       const btn = app.querySelector<HTMLButtonElement>('[data-crm-repair-twenty]');
       if (btn) btn.disabled = true;
       const res = await callCrmTwenty<{ data?: { linked?: number; scanned?: number } }>(
@@ -1944,6 +1967,7 @@ function bindCrm() {
   app
     .querySelector<HTMLButtonElement>('[data-crm-link-all-contacts]')
     ?.addEventListener('click', async () => {
+      if (!esSupervisorCms()) return;
       const btn = app.querySelector<HTMLButtonElement>('[data-crm-link-all-contacts]');
       if (btn) btn.disabled = true;
       let linked = 0;
@@ -1964,6 +1988,7 @@ function bindCrm() {
 
   app.querySelectorAll<HTMLButtonElement>('[data-crm-link-contact]').forEach(btn => {
     btn.addEventListener('click', async () => {
+      if (!esSupervisorCms()) return;
       const crmContactId = btn.dataset['crmLinkContact'] ?? '';
       const crmAccountId = btn.dataset['crmLinkAccount'] ?? '';
       if (!crmContactId || !crmAccountId) return;
@@ -2048,7 +2073,7 @@ function bindCrm() {
           valor_estimado: valorEstimado,
           next_action_at: nextActionAt,
           next_action_note: emptyToNull(data.get('next_action_note')),
-          ...(twentyOwnerId
+          ...(esSupervisorCms() && twentyOwnerId
             ? { newOwnerId: twentyOwnerId, reason: 'Reasignación desde admin CRM' }
             : {}),
         },
@@ -2312,6 +2337,7 @@ function bindUsuarios() {
 }
 
 async function dashboardView(): Promise<string> {
+  if (state.rol === 'ventas') return ventasDashboardView();
   const [
     productos,
     productosActivos,
@@ -2469,6 +2495,36 @@ async function dashboardView(): Promise<string> {
         <a class="admin-button admin-button--ghost" href="#/usuarios">Usuarios CMS</a>
         <a class="admin-button admin-button--ghost" href="#/reportes">Reportes</a>
         <a class="admin-button admin-button--ghost" href="#/marketing">Marketing</a>
+      </div>
+    </section>`;
+}
+
+async function ventasDashboardView(): Promise<string> {
+  const [cotizaciones, oportunidades, oportunidadesNuevas, oportunidadesCotizando, pedidos] =
+    await Promise.all([
+      count('solicitudes_cotizacion', { leida: false }),
+      count('crm_opportunities'),
+      count('crm_opportunities', { etapa: 'nuevo' }),
+      count('crm_opportunities', { etapa: 'cotizando' }),
+      count('pedidos', { leida: false }),
+    ]);
+  return `
+    <section class="admin-grid">
+      ${metric('Oportunidades CRM', oportunidades)}
+      ${metric('CRM nuevos', oportunidadesNuevas)}
+      ${metric('CRM cotizando', oportunidadesCotizando)}
+      ${metric('Presupuestos sin leer', cotizaciones)}
+      ${metric('Pedidos sin leer', pedidos)}
+    </section>
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Accesos comerciales</h2></div>
+      <div class="admin-grid" style="padding:16px">
+        <a class="admin-button" href="/comercial/">CMS comercial</a>
+        <a class="admin-button admin-button--ghost" href="#/crm">Pipeline CRM</a>
+        <a class="admin-button admin-button--ghost" href="#/cotizaciones">Presupuestos</a>
+        <a class="admin-button admin-button--ghost" href="#/pedidos">Pedidos</a>
+        <a class="admin-button admin-button--ghost" href="#/clientes">Clientes</a>
+        <a class="admin-button admin-button--ghost" href="https://crm.i-me.com.co" target="_blank" rel="noopener noreferrer">Abrir Twenty</a>
       </div>
     </section>`;
 }
@@ -3278,7 +3334,11 @@ async function cotizacionesView(): Promise<string> {
           <button class="admin-button admin-button--ghost" type="button" data-cotizaciones-select-all>Seleccionar todo</button>
           <button class="admin-button admin-button--ghost" type="button" data-csv="${csvPayload}" data-filename="presupuestos.csv">Exportar CSV</button>
           <span class="admin-meta">Seleccionadas: <strong data-cotizaciones-selected-count>0</strong></span>
-          <button class="admin-button admin-button--danger" type="button" data-bulk-cotizacion-delete>Eliminar seleccionadas</button>
+          ${
+            esSupervisorCms()
+              ? '<button class="admin-button admin-button--danger" type="button" data-bulk-cotizacion-delete>Eliminar seleccionadas</button>'
+              : ''
+          }
         </div>
       </div>
       ${table(
@@ -7506,6 +7566,7 @@ function bindCotizaciones() {
   });
 
   bulkDeleteBtn?.addEventListener('click', async () => {
+    if (!esSupervisorCms()) return;
     const ids = getSelectedIds();
     if (ids.length === 0) {
       toast('Selecciona al menos una cotizacion.');

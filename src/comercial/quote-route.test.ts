@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   cotizacionesListHash,
   parseCotizacionesRoute,
+  scopeQuoteRoute,
   takeQuotePrefill,
   writeQuotePrefill,
 } from './quote-route';
@@ -36,6 +37,12 @@ describe('parseCotizacionesRoute', () => {
     expect(cotizacionesListHash({ tab: 'enviadas', equipo: true, q: 'clinic', page: 2 })).toBe(
       '#/cotizaciones?tab=enviadas&equipo=1&q=clinic&page=2'
     );
+  });
+
+  it('ventas no puede forzar la bandeja Equipo por querystring', () => {
+    const parsed = parseCotizacionesRoute('#/cotizaciones?equipo=1&tab=enviadas');
+    expect(scopeQuoteRoute(parsed, false)).toMatchObject({ equipo: false, tab: 'enviadas' });
+    expect(scopeQuoteRoute(parsed, true)).toMatchObject({ equipo: true, tab: 'enviadas' });
   });
 });
 

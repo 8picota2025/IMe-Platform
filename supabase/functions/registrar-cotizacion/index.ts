@@ -1,7 +1,7 @@
 /**
- * Registra una solicitud de cotizacion (antes insert directo desde el
- * navegador. No genera correos en éxito: solo alerta internamente ante un
- * fallo crítico de sincronización. La solicitud queda registrada en ambos casos.
+ * Registra una solicitud de cotizacion. En éxito avisa a ventas (cotizacion_interna)
+ * y confirma al cliente. Twenty se sincroniza best-effort; si hay lead previo
+ * se reutiliza la oportunidad (no se duplica).
  */
 
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
@@ -123,14 +123,32 @@ Deno.serve(
     const cuponCodigo = body.cupon_codigo?.trim().slice(0, 80) || null;
     const totalEstimado = cleanNumber(body.total_estimado);
     let leadComercialId: string | null = null;
+    let leadTwentyOpportunityId: string | null = null;
+    let leadCampaign: string | null = null;
+    let leadFamilia: string | null = null;
+    let leadHorizonte: string | null = null;
+    let leadCiudad: string | null = null;
     const requestedLeadId = cleanText(body.lead_id, 80);
     if (requestedLeadId && UUID_RE.test(requestedLeadId)) {
       const { data: linkedLead } = await supabase
         .from('leads_comerciales')
-        .select('id')
+        .select('id,twenty_opportunity_id,campaign,familia_slug,horizonte,ciudad')
         .eq('id', requestedLeadId)
         .maybeSingle();
-      leadComercialId = (linkedLead as { id?: string } | null)?.id ?? null;
+      const lead = linkedLead as {
+        id?: string;
+        twenty_opportunity_id?: string | null;
+        campaign?: string | null;
+        familia_slug?: string | null;
+        horizonte?: string | null;
+        ciudad?: string | null;
+      } | null;
+      leadComercialId = lead?.id ?? null;
+      leadTwentyOpportunityId = lead?.twenty_opportunity_id ?? null;
+      leadCampaign = lead?.campaign ?? null;
+      leadFamilia = lead?.familia_slug ?? null;
+      leadHorizonte = lead?.horizonte ?? null;
+      leadCiudad = lead?.ciudad ?? null;
     }
     const attribution = {
       campaign: cleanText(body.campaign, 80),
@@ -294,11 +312,39 @@ Deno.serve(
       fecha: new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' }),
     };
 
-    // Éxito no genera correo. La supervisión se limita a alertas accionables
-    // de fallos del flujo crítico; la solicitud y CRM siguen siendo trazables.
-    let emails = { alerta_fallo: false };
+    // Aviso a ventas en cada captura (contacto, drawer, carrito). El canary CI
+    // no dispara correo para no ensuciar la bandeja.
+    let emails: { interno?: boolean; cliente?: boolean; alerta_fallo?: boolean } = {};
+    if (!esQaFlujo) {
+      try {
+        const plantillaCliente =
+          locale === 'en'
+            ? 'cotizacion_confirmacion_cliente_en'
+            : 'cotizacion_confirmacion_cliente_es';
+        const [interno, cliente] = await Promise.all([
+          enviarEmailPlantilla(
+            supabase,
+            'cotizacion_interna',
+            DESTINATARIOS_INTERNOS,
+            vars,
+            referencia
+          ),
+          email
+            ? enviarEmailPlantilla(supabase, plantillaCliente, [email], vars, referencia)
+            : Promise.resolve({ ok: true as const }),
+        ]);
+        emails = { interno: interno.ok, cliente: cliente.ok };
+        if (!interno.ok) console.error('registrar-cotizacion: email interno', interno.detalle);
+        if (!cliente.ok) console.error('registrar-cotizacion: email cliente', cliente.detalle);
+      } catch (err) {
+        console.error(
+          'registrar-cotizacion: excepción enviando correos',
+          err instanceof Error ? err.message : err
+        );
+      }
+    }
 
-    // Twenty CRM: best-effort. No bloquea respuesta al cliente.
+    // Twenty CRM: best-effort. Reutiliza opp del lead si existe (lead → cotización).
     const twenty = await syncCotizacionWithTwenty({
       nombre,
       email,
@@ -314,6 +360,13 @@ Deno.serve(
       })),
       totalEstimado,
       moneda,
+      priority: tipoSolicitud === 'compra_a_valorar' ? 'P1' : undefined,
+      campaign: attribution.campaign ?? leadCampaign ?? undefined,
+      familySlug: leadFamilia ?? undefined,
+      purchaseHorizon: leadHorizonte ?? undefined,
+      ciudad: leadCiudad ?? undefined,
+      leadReference: leadComercialId ?? solicitudId ?? undefined,
+      twentyOpportunityId: leadTwentyOpportunityId,
     });
     if (twenty.skipped) {
       console.warn('registrar-cotizacion: Twenty skipped (secrets ausentes)');
@@ -335,7 +388,7 @@ Deno.serve(
           },
           referencia
         );
-        emails = { alerta_fallo: alerta.ok };
+        emails = { ...emails, alerta_fallo: alerta.ok };
         if (!alerta.ok) console.error('registrar-cotizacion: alerta de fallo', alerta.detalle);
       } catch (err) {
         console.error(

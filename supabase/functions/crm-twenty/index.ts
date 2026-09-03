@@ -4,11 +4,11 @@
  * Auth: Bearer JWT + admin_profiles activo (ventas|admin|owner).
  *
  * GET  ?action=status
- * GET  ?action=members
- * POST ?action=reassign        { crmOpportunityId?, twentyOpportunityId?, newOwnerId?, newOwnerEmail?, reason? }
- * POST ?action=link            { crmContactId?, crmAccountId?, twentyPersonId?, twentyCompanyId?, companyName? }
- * POST ?action=repair-links    { limit? }
- * POST ?action=sync-opportunity { crmOpportunityId, etapa?, valor_estimado?, moneda?, next_action_at?, next_action_note?, titulo?, newOwnerId? }
+ * GET  ?action=members         — admin/owner
+ * POST ?action=reassign        { ... }  — admin/owner
+ * POST ?action=link            { ... }  — admin/owner
+ * POST ?action=repair-links    { ... }  — admin/owner
+ * POST ?action=sync-opportunity { ... } — ventas|admin|owner
  */
 
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
@@ -226,7 +226,16 @@ Deno.serve(
     try {
       if (req.method === 'GET') {
         if (action === 'status') return await handleStatus(origin);
-        if (action === 'members') return await handleMembers(origin);
+        if (action === 'members') {
+          if (profile.rol !== 'admin' && profile.rol !== 'owner') {
+            return errorResponse(
+              { code: 'FORBIDDEN', message: 'Solo admin/owner puede listar miembros Twenty.' },
+              403,
+              origin
+            );
+          }
+          return await handleMembers(origin);
+        }
         return badRequest('action GET invalida (status|members)', origin);
       }
 
@@ -235,13 +244,35 @@ Deno.serve(
       }
 
       const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
+      const isSupervisor = profile.rol === 'admin' || profile.rol === 'owner';
 
       switch (action) {
         case 'reassign':
+          if (!isSupervisor) {
+            return errorResponse(
+              { code: 'FORBIDDEN', message: 'Solo admin/owner puede reasignar en Twenty.' },
+              403,
+              origin
+            );
+          }
           return await handleReassign(supabase, profile, body, origin);
         case 'link':
+          if (!isSupervisor) {
+            return errorResponse(
+              { code: 'FORBIDDEN', message: 'Solo admin/owner puede enlazar contactos Twenty.' },
+              403,
+              origin
+            );
+          }
           return await handleLink(supabase, body, origin);
         case 'repair-links':
+          if (!isSupervisor) {
+            return errorResponse(
+              { code: 'FORBIDDEN', message: 'Solo admin/owner puede reparar enlaces Twenty.' },
+              403,
+              origin
+            );
+          }
           return await handleRepairLinks(body, origin);
         case 'sync-opportunity':
           return await handleSyncOpportunity(supabase, profile, body, origin);
@@ -534,11 +565,13 @@ async function handleSyncOpportunity(
   const etapa = String(body.etapa ?? opp.etapa).trim();
   const valorRaw = body.valor_estimado ?? opp.valor_estimado;
   const valorEstimado = valorRaw == null || valorRaw === '' ? null : Number(valorRaw);
-  const ownerId =
-    (await resolveOwnerId(body)) ||
-    profile.twenty_member_id ||
-    Deno.env.get('TWENTY_OWNER_ID')?.trim() ||
-    undefined;
+  const isSupervisor = profile.rol === 'admin' || profile.rol === 'owner';
+  const ownerId = isSupervisor
+    ? (await resolveOwnerId(body)) ||
+      profile.twenty_member_id ||
+      Deno.env.get('TWENTY_OWNER_ID')?.trim() ||
+      undefined
+    : undefined;
 
   if (ids.personId && ids.companyId) {
     await linkTwentyPersonCompany({
@@ -549,7 +582,7 @@ async function handleSyncOpportunity(
   }
 
   const explicitReassign = String(body.newOwnerId ?? body.newOwnerEmail ?? '').trim();
-  if (explicitReassign && ownerId) {
+  if (isSupervisor && explicitReassign && ownerId) {
     await reassignTwentyLead({
       opportunityId: ids.opportunityId,
       newOwnerId: ownerId,

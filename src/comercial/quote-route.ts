@@ -29,6 +29,12 @@ export function parseCotizacionesRoute(hash: string): CotizacionesRoute {
   return { mode: 'list', tab, equipo, q, page };
 }
 
+/** Ventas no ve la bandeja Equipo; admin/owner sí. */
+export function scopeQuoteRoute(route: CotizacionesRoute, canSeeTeam: boolean): CotizacionesRoute {
+  if (canSeeTeam) return route;
+  return { ...route, equipo: false };
+}
+
 export function cotizacionesListHash(opts: {
   tab?: CotizacionesTab;
   equipo?: boolean;

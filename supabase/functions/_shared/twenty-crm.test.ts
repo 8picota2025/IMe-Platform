@@ -45,6 +45,8 @@ function installTwentyMock(options: MockOptions = {}) {
   let opportunity = options.opportunity ?? null;
   let task = options.task ?? null;
   let target = options.target ?? null;
+  let note: TwentyRecord | null = null;
+  let noteTarget: TwentyRecord | null = null;
 
   globalThis.fetch = (async (input: Request | URL | string, init?: RequestInit) => {
     const request = input instanceof Request ? input : null;
@@ -120,6 +122,20 @@ function installTwentyMock(options: MockOptions = {}) {
       }
       target = { ...(target ?? {}), id: url.pathname.split('/').at(-1)!, ...body };
       return record(target);
+    }
+
+    if (url.pathname === '/rest/notes') {
+      if (method === 'GET') return collection('notes', note);
+      note = { id: 'note-1', ...body };
+      return record(note, 201);
+    }
+    if (url.pathname.startsWith('/rest/notes/')) {
+      note = { ...(note ?? {}), id: url.pathname.split('/').at(-1)!, ...body };
+      return record(note);
+    }
+    if (url.pathname === '/rest/noteTargets') {
+      noteTarget = { id: 'note-target-1', ...body };
+      return record(noteTarget, 201);
     }
 
     return Response.json({ error: 'unexpected request' }, { status: 500 });
@@ -451,6 +467,47 @@ Deno.test('reassignCommercialLead parchea owner, cuenta y tarea', async () => {
       c => c.method === 'PATCH' && c.pathname === '/rest/companies/company-1'
     );
     assertEquals(companyPatch?.body?.accountOwnerId, 'member-2');
+  } finally {
+    mock.restore();
+  }
+});
+
+Deno.test('share catálogo: nota + tarea de seguimiento asignada al comercial', async () => {
+  const mock = installTwentyMock();
+  try {
+    const result = await new TwentyClient({
+      baseUrl: 'https://twenty.test',
+      apiKey: 'test-key',
+    }).syncCommercialShare(
+      {
+        recipientName: 'Dra. Ana Pérez',
+        medicalCenterName: 'Hospital Central',
+        recipientEmail: 'ana@hospital.test',
+        channel: 'whatsapp',
+        commercialName: 'Comercial Uno',
+        commercialEmail: 'comercial1@i-me.com.co',
+        ownerId: 'comercial-member-1',
+        message: 'Adjunto catálogo de monitores',
+      },
+      [{ name: 'Monitor X', sku: 'MX-1', family: 'monitores', specialty: 'Diagnóstico' }]
+    );
+
+    assertEquals(result.ok, true);
+    assertEquals(result.data?.noteId, 'note-1');
+    assertEquals(result.data?.personId, 'person-1');
+
+    const note = callsFor(mock.calls, 'POST', '/rest/notes')[0]?.body;
+    assertStringIncludes(
+      String((note?.bodyV2 as { markdown?: string })?.markdown ?? ''),
+      'Monitor X'
+    );
+
+    const task = callsFor(mock.calls, 'POST', '/rest/tasks')[0]?.body;
+    assertEquals(task?.assigneeId, 'comercial-member-1');
+    assertStringIncludes(String(task?.title ?? ''), 'Seguimiento catálogo');
+
+    const taskTarget = callsFor(mock.calls, 'POST', '/rest/taskTargets')[0]?.body;
+    assertEquals(taskTarget?.targetPersonId, 'person-1');
   } finally {
     mock.restore();
   }

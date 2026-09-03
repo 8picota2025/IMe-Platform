@@ -299,6 +299,11 @@ export function isCommercialAdmin(rol: string | null | undefined, activo: boolea
   return activo === true && ADMIN_ROLES.includes(rol as CommercialRole);
 }
 
+/** Reparar/reasignar/enlazar Twenty: solo supervisor, no perfil comercial. */
+export function canManageTwentyBridge(rol: string | null | undefined, activo = true): boolean {
+  return isCommercialAdmin(rol, activo);
+}
+
 export interface CommercialViewer {
   userId: string;
   rol: string | null | undefined;

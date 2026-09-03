@@ -9,6 +9,7 @@
 
 import type { Locale } from '../i18n/utils';
 import { emitAnalyticsEvent } from './analytics';
+import { captureCommercialAttribution } from './commercial-attribution';
 import type { ClienteFiscalProfile } from './fiscal';
 
 export interface CarritoItem {
@@ -418,6 +419,7 @@ export async function solicitarCotizacionCompra(params: {
   const nombre = `${params.cliente.nombre} ${params.cliente.apellido}`.trim();
   const { data, error } = await supabase.functions.invoke('registrar-cotizacion', {
     body: {
+      ...captureCommercialAttribution(),
       tipo_solicitud: 'compra_a_valorar',
       origen: 'carrito',
       locale: params.locale,

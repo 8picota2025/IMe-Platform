@@ -43,6 +43,7 @@ import { bumpCommercialIdle, pauseCommercialIdle, resumeCommercialIdle } from '.
 import {
   cotizacionesListHash,
   parseCotizacionesRoute,
+  scopeQuoteRoute,
   takeQuotePrefill,
   type CotizacionesRoute,
 } from './quote-route';
@@ -125,8 +126,12 @@ function emptyLine(moneda: 'COP' | 'USD'): CotizacionLineaOferta {
   return { slug: '', nombre: '', cantidad: 1, precio_unitario: 0, subtotal: 0, moneda };
 }
 
+function commercialQuoteRoute(hash: string): CotizacionesRoute {
+  return scopeQuoteRoute(parseCotizacionesRoute(hash), esRolAdmin(state.rol));
+}
+
 export async function renderCotizacionesView(): Promise<string> {
-  const route = parseCotizacionesRoute(location.hash);
+  const route = commercialQuoteRoute(location.hash);
   if (route.mode === 'list') return renderList(route);
   if (route.mode === 'escanear') return renderScanView();
   return renderEditor(route);
@@ -164,7 +169,11 @@ async function renderList(route: CotizacionesRoute): Promise<string> {
       </div>
       <div class="comercial-quote-toolbar__actions">
         <a class="comercial-button ${route.equipo ? 'comercial-button--ghost' : 'comercial-button--primary'}" href="${escapeHtml(miasHref)}">Mías</a>
-        <a class="comercial-button ${route.equipo ? 'comercial-button--primary' : 'comercial-button--ghost'}" href="${escapeHtml(equipoHref)}">Equipo</a>
+        ${
+          esRolAdmin(state.rol)
+            ? `<a class="comercial-button ${route.equipo ? 'comercial-button--primary' : 'comercial-button--ghost'}" href="${escapeHtml(equipoHref)}">Equipo</a>`
+            : ''
+        }
         <a class="comercial-button comercial-button--ghost" href="#/cotizaciones/escanear">Foto OCR</a>
         <a class="comercial-button comercial-button--primary" href="#/cotizaciones/nueva">Nueva</a>
       </div>
@@ -183,7 +192,7 @@ async function renderList(route: CotizacionesRoute): Promise<string> {
            <a class="comercial-button comercial-button--primary" href="#/cotizaciones/escanear">Escanear foto competencia</a>
            <a class="comercial-button comercial-button--ghost" href="#/cotizaciones/nueva">Nuevo manual</a>
          </div>
-         <p class="comercial-help">Info/catálogo por WhatsApp o email: usa Catálogo → Enviar info.${!route.equipo ? ' Cambia a Equipo para ver solicitudes web.' : ''}</p>`;
+         <p class="comercial-help">Info/catálogo por WhatsApp o email: usa Catálogo → Enviar info.${esRolAdmin(state.rol) && !route.equipo ? ' Cambia a Equipo para ver solicitudes web.' : ''}</p>`;
     return `<section class="comercial-panel"><div class="comercial-panel__head"><h2>Presupuestos formales</h2><p class="comercial-help">PDF + email al cliente. Distinto de Envíos info (enlaces/catálogo).</p></div>${toolbar}<div class="comercial-state comercial-state--empty">${empty}</div></section>`;
   }
 
@@ -738,7 +747,7 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
     event.preventDefault();
     const form = event.currentTarget as HTMLFormElement;
     const q = String(new FormData(form).get('q') ?? '').trim();
-    const route = parseCotizacionesRoute(location.hash);
+    const route = commercialQuoteRoute(location.hash);
     location.hash = cotizacionesListHash({ tab: route.tab, equipo: route.equipo, q });
   };
   container.querySelector('[data-quote-search]')?.addEventListener('submit', onSearchSubmit);
