@@ -37,6 +37,7 @@ import {
   type CotizacionOfertaRow,
   type CotizacionLineaOferta,
 } from '../../../src/lib/cotizacion-oferta.ts';
+import { resolveCheckoutEnvioTotal } from '../../../src/lib/checkout-envio.ts';
 
 const FN_NAME = 'crear-pago';
 const MAX_ITEMS = 20;
@@ -856,15 +857,22 @@ Deno.serve(
       : { ok: true as const, descuento: 0, cupon: null as CuponRow | null };
     if (!descuento.ok) return descuento.response;
 
-    // Envio por zona (solo CO; INTL se cotiza aparte)
-    const envioTotal =
-      mercado === 'CO'
+    // Envio por zona (solo CO; INTL se cotiza aparte).
+    // Cotización locked: envio_total=0 — el total ofertado ya es el acuerdo
+    // comercial (paridad con formalizar-cotizacion / convertir-cotizacion-pedido).
+    const tarifaZona =
+      !lineasCotizacion && mercado === 'CO'
         ? await calcularEnvio(
             supabase,
             body.fiscal?.direccion_facturacion?.departamento,
             subtotal - descuento.descuento
           )
         : 0;
+    const envioTotal = resolveCheckoutEnvioTotal({
+      mercado,
+      preciosLockedCotizacion: Boolean(lineasCotizacion),
+      tarifaZona,
+    });
 
     const fiscal = calculateFiscalSummary(
       fiscalItems as Array<{
