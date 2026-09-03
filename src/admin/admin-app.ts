@@ -42,6 +42,25 @@ import {
 } from '../lib/pdf-ingest-enrich';
 import type { CotizacionLineaOferta } from '../lib/cotizacion-oferta';
 import { bindQuoteCatalogSearch, bindQuoteProductIngest } from '../lib/quote-line-tools';
+import {
+  CRM_QUICK_LOG,
+  CRM_SNOOZE_DAYS,
+  CRM_STALE_DAYS,
+  crmFilterHref,
+  crmStageRequiresNextAction,
+  isAgendaItem,
+  isDueToday,
+  isOverdueNextAction,
+  isStaleOpportunity,
+  matchesCrmAsignacion,
+  matchesCrmSeguimiento,
+  nextActionAfterQuickLog,
+  snoozeNextActionIso,
+  type CrmAsignacionFilter,
+  type CrmQuickLogKind,
+  type CrmSeguimientoFilter,
+  type CrmSnoozeDays,
+} from '../lib/crm-productivity';
 
 const OLLAMA_URL = (import.meta.env['PUBLIC_OLLAMA_URL'] as string | undefined) ?? '';
 const OLLAMA_INGEST_MODEL = 'qwen3:1.7b';
@@ -274,6 +293,7 @@ const state = {
   recordId: new URLSearchParams(location.hash.split('?')[1] ?? '').get('id'),
   email: '',
   rol: '' as string,
+  twentyMemberId: '',
 };
 
 /** Vistas visibles por rol (owner/admin ven todo; RLS es la barrera real en DB).
@@ -510,10 +530,10 @@ async function render() {
   if (!state.rol) {
     const { data: perfil } = await supabase!
       .from('admin_profiles')
-      .select('rol,activo')
+      .select('rol,activo,twenty_member_id')
       .eq('user_id', session.user.id)
       .maybeSingle();
-    const row = perfil as (Row & { activo?: boolean }) | null;
+    const row = perfil as (Row & { activo?: boolean; twenty_member_id?: string | null }) | null;
     if (row && row.activo === false) {
       await supabase!.auth.signOut();
       toast('Este perfil está desactivado. Pide acceso a un administrador.');
@@ -521,6 +541,7 @@ async function render() {
       return;
     }
     state.rol = String(row?.rol ?? '');
+    state.twentyMemberId = String(row?.twenty_member_id ?? '').trim();
   }
 
   const view = await routeView();
@@ -851,6 +872,7 @@ function shellHtml(title: string, body: string): string {
 function bindShell() {
   app.querySelector('[data-logout]')?.addEventListener('click', async () => {
     state.rol = '';
+    state.twentyMemberId = '';
     await supabase?.auth.signOut();
     location.hash = '#/dashboard';
     await render();
@@ -1574,7 +1596,8 @@ async function crmView(): Promise<string> {
   const params = hashParams();
   const etapa = params.get('etapa') ?? '';
   const prioridad = params.get('prioridad') ?? '';
-  const seguimiento = params.get('seguimiento') ?? '';
+  const seguimiento = (params.get('seguimiento') ?? '') as CrmSeguimientoFilter;
+  const asignacion = (params.get('asignacion') ?? '') as CrmAsignacionFilter;
   const q = (params.get('q') ?? '').trim().toLowerCase();
   const twentyMembers = esSupervisorCms() ? await loadTwentyMembers() : [];
   const [opportunitiesRes, contactsRes, accountsRes, activitiesRes] = await Promise.all([
@@ -1614,15 +1637,15 @@ async function crmView(): Promise<string> {
     return acc;
   }, new Map());
 
-  const allOpportunities = ((opportunitiesRes.data ?? []) as Row[]).filter(row => {
+  const now = new Date();
+  const scopedOpportunities = ((opportunitiesRes.data ?? []) as Row[]).filter(row => {
     if (etapa && text(row.etapa) !== etapa) return false;
     if (prioridad && text(row.prioridad) !== prioridad) return false;
-    const closed = CRM_CLOSED_STAGES.has(text(row.etapa));
-    const nextAction = text(row.next_action_at);
-    if (seguimiento === 'vencido' && (closed || !nextAction || new Date(nextAction) > new Date())) {
+    if (
+      !matchesCrmAsignacion(text(row.twenty_owner_id) || null, state.twentyMemberId, asignacion)
+    ) {
       return false;
     }
-    if (seguimiento === 'sin_fecha' && (closed || nextAction)) return false;
     if (!q) return true;
     const contact = contacts.get(text(row.contact_id));
     const account = accounts.get(text(row.account_id));
@@ -1646,6 +1669,19 @@ async function crmView(): Promise<string> {
     return haystack.includes(q);
   });
 
+  const allOpportunities = scopedOpportunities.filter(row =>
+    matchesCrmSeguimiento(
+      {
+        etapa: text(row.etapa) || 'nuevo',
+        nextActionAt: text(row.next_action_at) || null,
+        lastContactAt: text(row.last_contact_at) || null,
+        updatedAt: text(row.updated_at) || null,
+      },
+      seguimiento,
+      now
+    )
+  );
+
   const openOpportunities = allOpportunities.filter(row => !CRM_CLOSED_STAGES.has(text(row.etapa)));
   const totalOpen = openOpportunities.reduce(
     (acc, row) => acc + Number(row.valor_estimado ?? 0),
@@ -1655,17 +1691,41 @@ async function crmView(): Promise<string> {
     (acc, row) => acc + Number(row.valor_estimado ?? 0) * (Number(row.probabilidad ?? 0) / 100),
     0
   );
-  const dueNow = openOpportunities.filter(row => {
-    const next = text(row.next_action_at);
-    return next ? new Date(next).getTime() <= Date.now() : false;
-  });
-  const won = allOpportunities.filter(row => text(row.etapa) === 'ganado');
-  const p1Open = openOpportunities.filter(row => text(row.prioridad) === 'P1');
-  const withoutNextAction = openOpportunities.filter(row => !text(row.next_action_at));
+  const openScoped = scopedOpportunities.filter(row => !CRM_CLOSED_STAGES.has(text(row.etapa)));
+  const dueNow = openScoped.filter(row =>
+    isOverdueNextAction(text(row.next_action_at) || null, now)
+  );
+  const dueToday = openScoped.filter(row => isDueToday(text(row.next_action_at) || null, now));
+  const won = scopedOpportunities.filter(row => text(row.etapa) === 'ganado');
+  const p1Open = openScoped.filter(row => text(row.prioridad) === 'P1');
+  const withoutNextAction = openScoped.filter(row => !text(row.next_action_at));
+  const staleOpen = scopedOpportunities.filter(row =>
+    isStaleOpportunity({
+      etapa: text(row.etapa) || 'nuevo',
+      lastContactAt: text(row.last_contact_at) || null,
+      updatedAt: text(row.updated_at) || null,
+      now,
+    })
+  );
+  const unassignedOpen = openScoped.filter(row => !text(row.twenty_owner_id));
   const marginOpen = openOpportunities.reduce(
     (acc, row) => acc + Number(row.margen_estimado ?? 0),
     0
   );
+
+  const agendaRows = scopedOpportunities
+    .filter(row =>
+      isAgendaItem(
+        { etapa: text(row.etapa) || 'nuevo', nextActionAt: text(row.next_action_at) || null },
+        now
+      )
+    )
+    .sort((a, b) => {
+      const aDue = text(a.next_action_at);
+      const bDue = text(b.next_action_at);
+      return (aDue ? new Date(aDue).getTime() : 0) - (bDue ? new Date(bDue).getTime() : 0);
+    })
+    .slice(0, 8);
 
   const stages = CRM_ETAPAS.map(([stage, label]) => {
     const stageRows = allOpportunities.filter(row => text(row.etapa) === stage);
@@ -1716,7 +1776,14 @@ async function crmView(): Promise<string> {
       ${selectStatic('seguimiento', 'Seguimiento', seguimiento, [
         ['', 'Todos'],
         ['vencido', 'Vencido'],
+        ['hoy', 'Hoy'],
         ['sin_fecha', 'Sin proxima accion'],
+        ['estancada', `Estancada (${CRM_STALE_DAYS}d)`],
+      ])}
+      ${selectStatic('asignacion', 'Asignacion', asignacion, [
+        ['', 'Equipo (todas)'],
+        ['mias', 'Mias (Twenty)'],
+        ['sin_owner', 'Sin comercial'],
       ])}
       <button class="admin-button" type="submit">Filtrar</button>
       <a class="admin-button admin-button--ghost" href="#/crm">Limpiar</a>
@@ -1724,13 +1791,29 @@ async function crmView(): Promise<string> {
     <section class="admin-grid">
       ${metric('Oportunidades', allOpportunities.length)}
       ${metric('Abiertas', openOpportunities.length)}
-      ${metric('Seguimiento vencido', dueNow.length)}
-      ${metric('P1 abiertas', p1Open.length)}
-      ${metric('Sin proxima accion', withoutNextAction.length)}
+      ${metricHref('Vencidas', dueNow.length, crmFilterHref(params, { seguimiento: 'vencido' }))}
+      ${metricHref('Hoy', dueToday.length, crmFilterHref(params, { seguimiento: 'hoy' }))}
+      ${metricHref('Sin proxima accion', withoutNextAction.length, crmFilterHref(params, { seguimiento: 'sin_fecha' }))}
+      ${metricHref(`Estancadas ${CRM_STALE_DAYS}d`, staleOpen.length, crmFilterHref(params, { seguimiento: 'estancada' }))}
+      ${metricHref('P1 abiertas', p1Open.length, crmFilterHref(params, { prioridad: 'P1', seguimiento: null }))}
+      ${metricHref('Sin comercial', unassignedOpen.length, crmFilterHref(params, { asignacion: 'sin_owner' }))}
       ${metric('Ganadas', won.length)}
       ${marketingMetric('Pipeline abierto', crmMoney(totalOpen))}
       ${marketingMetric('Pipeline ponderado', crmMoney(weightedOpen))}
       ${marketingMetric('Margen estimado', crmMoney(marginOpen))}
+    </section>
+    <section class="admin-panel">
+      <div class="admin-panel__head">
+        <div>
+          <h2>Agenda comercial</h2>
+          <p class="admin-meta">Cola de hoy y vencidas (Sugar Activities / Odoo). Log rápido y posponer sin abrir la ficha.</p>
+        </div>
+      </div>
+      ${
+        agendaRows.length
+          ? `<div class="crm-agenda">${agendaRows.map(row => crmAgendaRow(row, contacts, accounts)).join('')}</div>`
+          : '<p class="admin-help" style="padding:16px">Nada vencido ni para hoy. Usa Estancadas o Sin próxima acción para cazar huecos.</p>'
+      }
     </section>
     <section class="admin-panel">
       <div class="admin-panel__head">
@@ -1892,6 +1975,7 @@ function crmOpportunityCard(
           <input name="next_action_at" type="datetime-local" value="${escapeHtml(crmDatetimeLocal(nextAction))}" />
         </label>
       </div>
+      <div class="crm-followup">${crmQuickActionButtons(row)}</div>
       <label class="admin-field">Siguiente paso
         <textarea name="next_action_note" rows="2" maxlength="500">${escapeHtml(text(row.next_action_note))}</textarea>
       </label>
@@ -1935,10 +2019,12 @@ function bindCrm() {
     const etapa = String(data.get('etapa') ?? '').trim();
     const prioridad = String(data.get('prioridad') ?? '').trim();
     const seguimiento = String(data.get('seguimiento') ?? '').trim();
+    const asignacion = String(data.get('asignacion') ?? '').trim();
     if (q) params.set('q', q);
     if (etapa) params.set('etapa', etapa);
     if (prioridad) params.set('prioridad', prioridad);
     if (seguimiento) params.set('seguimiento', seguimiento);
+    if (asignacion) params.set('asignacion', asignacion);
     location.hash = `#/crm${params.toString() ? `?${params.toString()}` : ''}`;
   });
 
@@ -2020,10 +2106,15 @@ function bindCrm() {
         form.querySelector<HTMLInputElement>('[name="motivo_perdida"]')?.focus();
         return;
       }
+      const nextActionAt = crmInputIso(data.get('next_action_at'));
+      if (crmStageRequiresNextAction(etapa) && !nextActionAt) {
+        toast('Define la próxima acción antes de guardar (como en Sugar/Odoo).');
+        form.querySelector<HTMLInputElement>('[name="next_action_at"]')?.focus();
+        return;
+      }
       const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]');
       if (submit) submit.disabled = true;
       const now = new Date().toISOString();
-      const nextActionAt = crmInputIso(data.get('next_action_at'));
       const lastContactAt = crmInputIso(data.get('last_contact_at'));
       const valorEstimado = numberOrNull(data.get('valor_estimado'));
       const { error } = await supabase!
@@ -2083,6 +2174,138 @@ function bindCrm() {
       else if (!sync.ok) toast(`CRM guardado. Twenty: ${sync.error ?? 'sync falló'}`);
       else toast(`Oportunidad actualizada y sincronizada (${sync.data?.twenty?.stage ?? etapa})`);
       await render();
+    });
+  });
+
+  bindCrmQuickActions();
+}
+
+function metricHref(label: string, value: number, href: string): string {
+  return `<a class="admin-card" href="${escapeHtml(href)}"><strong>${escapeHtml(label)}</strong><span>${value}</span></a>`;
+}
+
+function crmQuickActionButtons(row: Row): string {
+  const id = text(row.id);
+  const logs = (Object.keys(CRM_QUICK_LOG) as CrmQuickLogKind[])
+    .map(
+      kind =>
+        `<button class="admin-button admin-button--ghost" type="button" data-crm-quick-log="${kind}" data-crm-opp="${escapeHtml(id)}" data-crm-account="${escapeHtml(text(row.account_id))}" data-crm-contact="${escapeHtml(text(row.contact_id))}" data-crm-prioridad="${escapeHtml(text(row.prioridad))}">${escapeHtml(CRM_QUICK_LOG[kind].label)}</button>`
+    )
+    .join('');
+  const snoozes = CRM_SNOOZE_DAYS.map(
+    days =>
+      `<button class="admin-button admin-button--ghost" type="button" data-crm-snooze="${days}" data-crm-opp="${escapeHtml(id)}" data-crm-account="${escapeHtml(text(row.account_id))}" data-crm-contact="${escapeHtml(text(row.contact_id))}" data-crm-next="${escapeHtml(text(row.next_action_at))}">+${days}d</button>`
+  ).join('');
+  return `<div class="crm-quick-actions" role="group" aria-label="Log y posponer">${logs}${snoozes}</div>`;
+}
+
+function crmAgendaRow(row: Row, contacts: Map<string, Row>, accounts: Map<string, Row>): string {
+  const id = text(row.id);
+  const contact = contacts.get(text(row.contact_id));
+  const account = accounts.get(text(row.account_id));
+  const title =
+    text(row.titulo) || text(account?.nombre) || text(contact?.email_norm) || id.slice(0, 8);
+  const next = text(row.next_action_at);
+  const overdue = isOverdueNextAction(next);
+  return `
+    <article class="crm-agenda__row">
+      <div>
+        <strong>${escapeHtml(title)}</strong>
+        <p class="admin-meta">${escapeHtml(crmStageLabel(text(row.etapa) || 'nuevo'))} · ${escapeHtml(text(contact?.email_norm) || text(contact?.telefono_e164) || 'Sin contacto')}</p>
+      </div>
+      <span class="admin-badge ${overdue ? 'admin-badge--warn' : 'admin-badge--info'}">${overdue ? 'Vencida' : 'Hoy'}${next ? ` · ${escapeHtml(formatDate(next))}` : ''}</span>
+      ${crmQuickActionButtons(row)}
+    </article>`;
+}
+
+async function patchCrmFollowUp(input: {
+  id: string;
+  accountId: string;
+  contactId: string;
+  fields: Row;
+  summary: string;
+  channel: string;
+  eventType: string;
+}): Promise<boolean> {
+  const now = new Date().toISOString();
+  const { error } = await supabase!
+    .from('crm_opportunities')
+    .update({ ...input.fields, updated_at: now })
+    .eq('id', input.id);
+  if (error) {
+    toast(error.message);
+    return false;
+  }
+  await supabase!.from('crm_activities').insert({
+    event_type: `${input.eventType}_${Date.now()}`,
+    channel: input.channel,
+    source_table: 'crm_opportunities',
+    source_id: input.id,
+    account_id: input.accountId || null,
+    contact_id: input.contactId || null,
+    opportunity_id: input.id,
+    summary: input.summary,
+    metadata: input.fields,
+  });
+  const sync = await callCrmTwenty('sync-opportunity', {
+    body: {
+      crmOpportunityId: input.id,
+      next_action_at: input.fields['next_action_at'] ?? null,
+      next_action_note: input.fields['next_action_note'] ?? null,
+    },
+  });
+  if (sync.skipped) toast(`${input.summary}. Twenty no configurado.`);
+  else if (!sync.ok) toast(`${input.summary}. Twenty: ${sync.error ?? 'sync falló'}`);
+  else toast(input.summary);
+  return true;
+}
+
+function bindCrmQuickActions() {
+  app.querySelectorAll<HTMLButtonElement>('[data-crm-quick-log]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const id = button.dataset['crmOpp'] ?? '';
+      const kind = button.dataset['crmQuickLog'] as CrmQuickLogKind | undefined;
+      if (!id || !kind || !(kind in CRM_QUICK_LOG)) return;
+      button.disabled = true;
+      const spec = CRM_QUICK_LOG[kind];
+      const now = new Date();
+      const next = nextActionAfterQuickLog(button.dataset['crmPrioridad'] || null, now);
+      const ok = await patchCrmFollowUp({
+        id,
+        accountId: button.dataset['crmAccount'] ?? '',
+        contactId: button.dataset['crmContact'] ?? '',
+        fields: {
+          last_contact_at: now.toISOString(),
+          next_action_at: next,
+          next_action_note: `${spec.label} registrada. Recontactar.`,
+        },
+        summary: `${spec.label} registrada. Próxima acción ${formatDate(next)}`,
+        channel: spec.channel,
+        eventType: `contacto_${kind}`,
+      });
+      button.disabled = false;
+      if (ok) await render();
+    });
+  });
+
+  app.querySelectorAll<HTMLButtonElement>('[data-crm-snooze]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const id = button.dataset['crmOpp'] ?? '';
+      const days = Number(button.dataset['crmSnooze']) as CrmSnoozeDays;
+      if (!id || !CRM_SNOOZE_DAYS.includes(days)) return;
+      button.disabled = true;
+      const next = snoozeNextActionIso(button.dataset['crmNext'] || null, days);
+      const ok = await patchCrmFollowUp({
+        id,
+        accountId: button.dataset['crmAccount'] ?? '',
+        contactId: button.dataset['crmContact'] ?? '',
+        fields: { next_action_at: next },
+        summary: `Seguimiento pospuesto +${days}d (${formatDate(next)})`,
+        channel: 'admin',
+        eventType: 'seguimiento_pospuesto',
+      });
+      button.disabled = false;
+      if (ok) await render();
     });
   });
 }
