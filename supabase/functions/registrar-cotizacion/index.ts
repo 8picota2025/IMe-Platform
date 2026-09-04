@@ -8,7 +8,7 @@ import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { badRequest, internalError } from '../_shared/errors.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { checkRateLimit } from '../_shared/rate-limit.ts';
-import { rateLimitIdentificador } from '../_shared/canary.ts';
+import { isCanaryRequest, rateLimitIdentificador } from '../_shared/canary.ts';
 import {
   enviarEmailPlantilla,
   DESTINATARIOS_INTERNOS,
@@ -119,7 +119,7 @@ Deno.serve(
     const origen = (body.origen ?? 'web').trim().slice(0, 80) || 'web';
     // Marcador explícito, reservado al canary del flujo crítico. No inferir QA
     // por email, nombre o texto: esos datos también pueden ser comerciales.
-    const esQaFlujo = origen === 'canary_ci';
+    const esQaFlujo = origen === 'canary_ci' && isCanaryRequest(req);
     const cuponCodigo = body.cupon_codigo?.trim().slice(0, 80) || null;
     const totalEstimado = cleanNumber(body.total_estimado);
     let leadComercialId: string | null = null;
@@ -236,6 +236,7 @@ Deno.serve(
         attribution,
         supervision: { qa_flujo: esQaFlujo },
       },
+      crm_sync_status: esQaFlujo ? 'skipped' : 'pending',
     };
 
     let solicitudId: string | null;
@@ -275,6 +276,23 @@ Deno.serve(
         productos_count: productos.length,
         tipo_solicitud: tipoSolicitud,
       });
+    }
+
+    // Prueba autenticada: confirma Edge + persistencia sin contaminar CRM,
+    // métricas ni correo. Un error de registro ya devuelve fallo al canary.
+    if (esQaFlujo) {
+      return new Response(
+        JSON.stringify({
+          ok: true,
+          qa: true,
+          emails: { alerta_fallo: false },
+          twenty: { status: 'skipped' },
+        }),
+        {
+          status: 200,
+          headers: { ...getCorsHeaders(origin), 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     const vars = {

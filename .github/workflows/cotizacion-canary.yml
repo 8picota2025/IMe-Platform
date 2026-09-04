@@ -1,6 +1,6 @@
 name: Cotización Canary
 
-# Flujo crítico: solicitud de cotización (contacto + modal navbar + emails).
+# Flujo crítico: solicitud de cotización (contacto + modal navbar), sin emails.
 # Corre tras deploy web o Edge, y cada 6 h como red de seguridad; el minuto 17
 # evita coincidir con otros workflows programados.
 on:
@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   canary:
-    name: Contacto · Modal · Edge · Emails
+    name: Contacto · Modal · Edge
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -40,6 +40,5 @@ jobs:
           CANARY_BASE_URL: https://i-me.com.co
           PUBLIC_SUPABASE_URL: https://nnfbucwiasuggyfoyydo.supabase.co
           PUBLIC_SUPABASE_ANON_KEY: sb_publishable_5nGmPS2W7yzG3B1NC7piCQ_Imt5f9b2
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           CANARY_SMOKE_SECRET: ${{ secrets.CANARY_SMOKE_SECRET }}
         run: node scripts/canary-cotizacion.mjs

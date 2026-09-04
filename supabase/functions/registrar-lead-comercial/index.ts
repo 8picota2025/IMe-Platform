@@ -7,7 +7,7 @@
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { badRequest, internalError } from '../_shared/errors.ts';
 import { checkRateLimit } from '../_shared/rate-limit.ts';
-import { rateLimitIdentificador } from '../_shared/canary.ts';
+import { isCanaryRequest, rateLimitIdentificador } from '../_shared/canary.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { withTelemetry, trackEvent } from '../_shared/telemetry.ts';
 import { verifyTurnstile } from '../_shared/turnstile.ts';
@@ -432,6 +432,22 @@ Deno.serve(
       );
     }
     if (lead.email && !EMAIL_RE.test(lead.email)) return badRequest('email invalido', origin);
+
+    // El canary autenticado comprueba validación, CORS y rate-limit, pero no
+    // representa interés comercial: no debe crear leads, CRM, telemetría ni
+    // correos. La persistencia de Edge/BD se comprueba con registrar-cotizacion.
+    if (isCanaryRequest(req)) {
+      return jsonResponse(
+        {
+          ok: true,
+          qa: true,
+          crmSyncStatus: 'skipped',
+          emails: { interno: false, cliente: false },
+        },
+        origin,
+        201
+      );
+    }
 
     const priority = classifyLead(lead.horizonte);
     const payload = {

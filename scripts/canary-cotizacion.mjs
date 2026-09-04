@@ -4,9 +4,8 @@
  *
  * Comprueba tras cada deploy:
  * 1) Página /es/contacto con formulario + status + modal navbar
- * 2) Edge registrar-cotizacion → ok sin correo de éxito
- * 3) Edge registrar-lead-comercial (campaña proyectos) → ok + email interno
- * 4) Opcional: email_log (service role) confirma envíos recientes
+ * 2) Edge registrar-cotizacion → ok, persistencia QA y cero correo/CRM
+ * 3) Edge registrar-lead-comercial (campaña proyectos) → validación QA silenciosa
  *
  * Uso:
  *   node scripts/canary-cotizacion.mjs
@@ -27,11 +26,7 @@ const SUPABASE_URL = (
   process.env.SUPABASE_URL ||
   'https://nnfbucwiasuggyfoyydo.supabase.co'
 ).replace(/\/$/, '');
-const ANON_KEY =
-  process.env.PUBLIC_SUPABASE_ANON_KEY ||
-  process.env.SUPABASE_ANON_KEY ||
-  '';
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const ANON_KEY = process.env.PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
 const CANARY_SECRET = process.env.CANARY_SMOKE_SECRET || '';
 const UA = 'IME-Cotizacion-Canary/1.0 (+https://github.com/8picota2025/IMe-Platform)';
 
@@ -81,46 +76,6 @@ async function invokeFunction(name, body) {
   return { status: res.status, json, text };
 }
 
-async function checkEmailLog(plantilla, destinatarioContains, sinceIso) {
-  if (!SERVICE_KEY) {
-    console.log('SKIP  email_log (sin SUPABASE_SERVICE_ROLE_KEY)');
-    return;
-  }
-  const url = new URL(`${SUPABASE_URL}/rest/v1/email_log`);
-  url.searchParams.set(
-    'select',
-    'destinatario,plantilla,status,error,created_at'
-  );
-  url.searchParams.set('plantilla', `eq.${plantilla}`);
-  url.searchParams.set('created_at', `gte.${sinceIso}`);
-  url.searchParams.set('order', 'created_at.desc');
-  url.searchParams.set('limit', '20');
-
-  const res = await fetch(url, {
-    headers: {
-      apikey: SERVICE_KEY,
-      Authorization: `Bearer ${SERVICE_KEY}`,
-    },
-  });
-  if (!res.ok) {
-    fail(`email_log query ${plantilla}: HTTP ${res.status}`);
-    return;
-  }
-  const rows = await res.json();
-  const hit = rows.find(
-    r =>
-      r.status === 'enviado' &&
-      String(r.destinatario || '').includes(destinatarioContains)
-  );
-  if (!hit) {
-    fail(
-      `email_log: sin envío ok de ${plantilla} a *${destinatarioContains}* desde ${sinceIso}`
-    );
-    return;
-  }
-  ok(`email_log ${plantilla} → ${hit.destinatario}`);
-}
-
 async function checkContactPage() {
   const html = await fetchText(`${BASE_URL}/es/contacto/`);
   const required = [
@@ -153,15 +108,19 @@ async function checkRegistrarCotizacion(stamp) {
     fail(`registrar-cotizacion HTTP ${status}: ${text.slice(0, 300)}`);
     return;
   }
-  ok(`registrar-cotizacion ok (QA sin correo de éxito: ${email})`);
-  if (json.emails?.alerta_fallo) {
-    fail(`registrar-cotizacion alerta de fallo inesperada: ${JSON.stringify(json.emails)}`);
+  if (
+    json.qa !== true ||
+    json.emails?.alerta_fallo !== false ||
+    json.twenty?.status !== 'skipped'
+  ) {
+    fail(`registrar-cotizacion QA no silenciosa: ${JSON.stringify(json)}`);
+    return;
   }
+  ok(`registrar-cotizacion QA silenciosa (Edge + BD): ${email}`);
 }
 
 async function checkRegistrarLead(stamp) {
   const email = `canary-lead-${stamp}@ime-test.local`;
-  const sinceIso = new Date(Date.now() - 60_000).toISOString();
   const idem = createHash('sha256')
     .update(`canary-lead-${stamp}-${randomUUID()}`)
     .digest('hex')
@@ -187,22 +146,25 @@ async function checkRegistrarLead(stamp) {
     fail(`registrar-lead-comercial HTTP ${status}: ${text.slice(0, 300)}`);
     return;
   }
-  ok(`registrar-lead-comercial ok leadId=${json.leadId}`);
-
-  if (json.emails && json.emails.interno !== true) {
-    fail(`registrar-lead-comercial emails.interno=${JSON.stringify(json.emails)}`);
-  } else if (json.emails?.interno) {
-    ok('registrar-lead-comercial emails.interno=true');
-  } else {
-    fail('registrar-lead-comercial sin campo emails (deploy Edge desfasado?)');
+  if (
+    json.qa !== true ||
+    json.crmSyncStatus !== 'skipped' ||
+    json.emails?.interno !== false ||
+    json.emails?.cliente !== false
+  ) {
+    fail(`registrar-lead-comercial QA no silencioso: ${JSON.stringify(json)}`);
+    return;
   }
-
-  await checkEmailLog('cotizacion_interna', 'i-me.com.co', sinceIso);
+  ok('registrar-lead-comercial QA silencioso (sin lead, CRM ni correo)');
 }
 
 async function main() {
   console.log(`Canary cotización → ${BASE_URL}`);
   console.log(`Supabase → ${SUPABASE_URL}`);
+  if (!CANARY_SECRET) {
+    fail('CANARY_SMOKE_SECRET ausente; se aborta para no generar tráfico comercial real');
+    process.exit(1);
+  }
   const stamp = Date.now().toString(36);
 
   try {
