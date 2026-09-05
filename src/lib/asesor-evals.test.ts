@@ -6,14 +6,18 @@ import { describe, expect, it } from 'vitest';
 
 import {
   buildAsesorLocalSystemPrompt,
+  buildImeiaCompletionPayload,
   buildImeiaRuntimeSystemPrompt,
   buildImeiaTransportSystemPrompt,
   clasificarFalloImeia,
+  composeGroundedAsesorReply,
   detectarAccionHandoff,
   esIntencionHandoffComercial,
   esIntencionInvimaSku,
   imeiaPromptEvalChecks,
   inferHandoffFromUserIntent,
+  isImeiaSoulModel,
+  resolveImeiaCompletionModel,
 } from './asesor-guardrails';
 import {
   buildAsesorStaticFallback,
@@ -131,6 +135,50 @@ describe('IMEIA evals — accion_handoff', () => {
         texto: texto ?? '',
       })?.tipo
     ).toBe('whatsapp');
+  });
+});
+
+describe('IMEIA evals — no se usa el SOUL de Hermes', () => {
+  it('rechaza el modelo agente imeia y acepta un chat raw', () => {
+    expect(isImeiaSoulModel('imeia')).toBe(true);
+    expect(isImeiaSoulModel('IMEIA')).toBe(true);
+    expect(isImeiaSoulModel('')).toBe(true);
+    expect(isImeiaSoulModel(undefined)).toBe(true);
+    expect(resolveImeiaCompletionModel('imeia')).toBeNull();
+    expect(resolveImeiaCompletionModel('qwen3:8b')).toBe('qwen3:8b');
+    expect(() =>
+      buildImeiaCompletionPayload({
+        model: 'imeia',
+        messages: [{ role: 'user', content: 'hola' }],
+      })
+    ).toThrow('imeia_soul_model_forbidden');
+    const payload = buildImeiaCompletionPayload({
+      model: 'qwen3:8b',
+      messages: [{ role: 'user', content: 'hola' }],
+    });
+    expect(payload.model).toBe('qwen3:8b');
+    expect(payload.soul).toBe(false);
+    expect(payload.agent).toBe(false);
+  });
+
+  it('compone desde catálogo sin inventar RS INVIMA ni precio', () => {
+    const respuesta = composeGroundedAsesorReply({
+      locale: 'es',
+      mensaje: '¿Cuál es el registro sanitario INVIMA del monitor M12?',
+      products: [
+        {
+          slug: 'monitor-de-paciente-m12-biolight',
+          nombre: 'Monitor de Paciente M12 Biolight',
+          descripcion_corta: 'Monitor de paciente compacto.',
+          url_canonica: 'https://i-me.com.co/es/productos/monitor-de-paciente-m12-biolight',
+        },
+      ],
+    });
+    expect(respuesta.texto).toContain('Monitor de Paciente M12 Biolight');
+    expect(respuesta.texto).toMatch(/WhatsApp \(\+57 313 724 7353\)/);
+    expect(respuesta.texto).not.toMatch(/\bRS[-\s]?\d{4,}/i);
+    expect(respuesta.texto).not.toMatch(/\$\s?\d|\bCOP\s?\d/);
+    expect(respuesta.slugs).toEqual(['monitor-de-paciente-m12-biolight']);
   });
 });
 

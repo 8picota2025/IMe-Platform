@@ -10,11 +10,13 @@
 import { getSupabaseClient } from './supabase';
 import {
   buildAsesorLocalSystemPrompt,
+  buildImeiaCompletionPayload,
   buildImeiaTransportSystemPrompt,
   detectarAccionHandoff,
   inferHandoffFromAssistantText,
   inferHandoffFromUserIntent,
   MAX_HANDOFF_SUMMARY_CHARS as SHARED_MAX_HANDOFF_SUMMARY_CHARS,
+  resolveImeiaCompletionModel,
 } from './asesor-guardrails';
 import {
   buildAsesorStaticFallback,
@@ -31,9 +33,10 @@ const OLLAMA_CHAT_MODEL =
 const OLLAMA_EMBED_MODEL =
   (import.meta.env['PUBLIC_OLLAMA_EMBED_MODEL'] as string | undefined) ?? 'mxbai-embed-large';
 const IMEIA_API_URL = (import.meta.env['PUBLIC_IMEIA_API_URL'] as string | undefined) ?? '';
+const IMEIA_CHAT_MODEL = (import.meta.env['PUBLIC_IMEIA_CHAT_MODEL'] as string | undefined) ?? '';
 const FORCE_DIRECT_IMEIA_IN_BROWSER =
   ((import.meta.env['PUBLIC_FORCE_DIRECT_IMEIA_IN_BROWSER'] as string | undefined) ?? '') === '1';
-export const ASESOR_CLIENT_VERSION = '2026-09-05-imeia-guardrails-handoff-v1';
+export const ASESOR_CLIENT_VERSION = '2026-09-05-imeia-no-soul-v2';
 const MAX_HANDOFF_SUMMARY_CHARS = SHARED_MAX_HANDOFF_SUMMARY_CHARS;
 /**
  * Shortlist conversacional: conservamos como máximo tres opciones de la última
@@ -249,11 +252,14 @@ export async function preguntarAsesor(params: {
   }
 
   if (transport === 'imeia_direct') {
-    try {
-      const respuesta = await preguntarAsesorImeia(params);
-      return { ok: true, respuesta };
-    } catch {
-      // continua con Edge Functions / fallback resiliente
+    const rawModel = resolveImeiaCompletionModel(IMEIA_CHAT_MODEL);
+    if (rawModel) {
+      try {
+        const respuesta = await preguntarAsesorImeia(params, rawModel);
+        return { ok: true, respuesta };
+      } catch {
+        // continua con Edge Functions / fallback resiliente
+      }
     }
   }
 
@@ -364,28 +370,32 @@ function shouldUseDirectImeiaInBrowser(
 }
 
 /** Llama al endpoint IMEIA vía Nginx (producción sin Turnstile) */
-async function preguntarAsesorImeia(params: {
-  mensaje: string;
-  historial: MensajeAsesor[];
-  locale: Locale;
-  turnstileToken?: string | undefined;
-  navigationContext?: AsesorNavigationContext | undefined;
-}): Promise<RespuestaAsesor> {
+async function preguntarAsesorImeia(
+  params: {
+    mensaje: string;
+    historial: MensajeAsesor[];
+    locale: Locale;
+    turnstileToken?: string | undefined;
+    navigationContext?: AsesorNavigationContext | undefined;
+  },
+  model: string
+): Promise<RespuestaAsesor> {
   const historial = params.historial.slice(-8).map(m => ({ rol: m.rol, contenido: m.contenido }));
 
   const res = await fetch(`${IMEIA_API_URL}/v1/chat/completions`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'imeia',
-      messages: [
-        { role: 'system', content: buildImeiaTransportSystemPrompt() },
-        { role: 'user', content: buildAsesorUserPromptForImeia(params, historial) },
-      ],
-      stream: false,
-      temperature: 0.3,
-      max_tokens: 1200,
-    }),
+    body: JSON.stringify(
+      buildImeiaCompletionPayload({
+        model,
+        messages: [
+          { role: 'system', content: buildImeiaTransportSystemPrompt() },
+          { role: 'user', content: buildAsesorUserPromptForImeia(params, historial) },
+        ],
+        maxTokens: 1200,
+        temperature: 0.3,
+      })
+    ),
   });
 
   if (!res.ok) {

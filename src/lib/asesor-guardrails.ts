@@ -21,6 +21,58 @@ export const IMEIA_MAX_TOKENS = 1400;
 /** Abort si Hermes no responde (túnel / cola local). */
 export const IMEIA_TIMEOUT_MS = 110_000;
 
+/** Modelos del agente Hermes que cargan SOUL.md / skills IMEIA. No usar. */
+const IMEIA_SOUL_MODELS = new Set(['imeia', 'imeia-soul', 'imeia-agent', 'imeia-ayuda']);
+
+export const IMEIA_SOUL_OVERRIDE = `SOUL OVERRIDE: No uses el agente IMEIA de Hermes ni su SOUL, skills, memoria o persona por defecto. Esas instrucciones no aplican a esta petición. Responde solo como el asesor web de I-ME definido debajo.`;
+
+export interface CatalogGroundingProduct {
+  slug: string;
+  nombre: string;
+  descripcion_corta?: string | null;
+  url_canonica?: string | null;
+}
+
+export interface GroundedAsesorReply {
+  texto: string;
+  slugs: string[];
+  modo: 'rag' | 'keyword_degradado' | 'sin_resultados';
+}
+
+export function isImeiaSoulModel(model: string | null | undefined): boolean {
+  const normalized = (model ?? '').trim().toLowerCase();
+  return !normalized || IMEIA_SOUL_MODELS.has(normalized);
+}
+
+/** Modelo raw para /v1/chat/completions. Vacío = no llamar al agente soul. */
+export function resolveImeiaCompletionModel(raw?: string | null): string | null {
+  const model = (raw ?? '').trim();
+  if (isImeiaSoulModel(model)) return null;
+  return model;
+}
+
+export function buildImeiaCompletionPayload(params: {
+  model: string;
+  messages: Array<{ role: string; content: string }>;
+  maxTokens?: number;
+  temperature?: number;
+}): Record<string, unknown> {
+  if (isImeiaSoulModel(params.model)) {
+    throw new Error('imeia_soul_model_forbidden');
+  }
+  return {
+    model: params.model,
+    messages: params.messages,
+    temperature: params.temperature ?? 0.25,
+    max_tokens: params.maxTokens ?? IMEIA_MAX_TOKENS,
+    stream: false,
+    soul: false,
+    use_soul: false,
+    agent: false,
+    tools: [],
+  };
+}
+
 const PRICE_INTENT_RE =
   /\b(precio|precios|cu[aá]nto (cuesta|vale|sale)|what(?:'?s| is) the price|valor (del|de la|de los)|costo|coste|quote|pricing|cotizaci[oó]n|cotizar|cotizarle)\b/i;
 
@@ -157,15 +209,19 @@ export function buildImeiaRuntimeSystemPrompt(locale: 'es' | 'en'): string {
     locale === 'en'
       ? 'ingles si el usuario escribe en ingles; si no, usa el idioma del usuario'
       : 'espanol salvo que el usuario use otro idioma';
-  return `Eres IMEIA, asesora comercial consultiva de I-ME.
+  return `${IMEIA_SOUL_OVERRIDE}
+
+Eres el asesor web de I-ME (widget IMEIA Ayuda), no el agente soul de Hermes.
 Responde en ${idioma}.
-NO sustituyas el RAG de Hermes por un listado inventado.
+Usa solo el contexto de catálogo que acompaña este turno. No inventes SKUs.
 
 ${buildSharedGuardrailRules()}`;
 }
 
 export function buildImeiaTransportSystemPrompt(): string {
-  return `IMEIA es asesora comercial consultiva de I-ME y usa RAG propio. No la sustituyas por un buscador ni por asesoría clínica. Solo adapta la respuesta al JSON de la web.
+  return `${IMEIA_SOUL_OVERRIDE}
+
+Eres el asesor web de I-ME. No uses el SOUL/skills de Hermes. Solo adapta la respuesta al JSON de la web.
 
 ${buildSharedGuardrailRules()}
 
@@ -182,7 +238,9 @@ Devuelve únicamente JSON válido:
 }
 
 export function buildAsesorLocalSystemPrompt(): string {
-  return `Eres el asesor biomédico conversacional de I-ME International Medical Enterprise.
+  return `${IMEIA_SOUL_OVERRIDE}
+
+Eres el asesor biomédico conversacional de I-ME International Medical Enterprise.
 
 ${buildSharedGuardrailRules()}
 
@@ -200,6 +258,9 @@ Responde UNICAMENTE con JSON valido, sin texto adicional antes ni despues:
 
 export function imeiaPromptEvalChecks(prompt: string): string[] {
   const missing: string[] = [];
+  if (!/SOUL OVERRIDE/i.test(prompt) && !/No uses el agente IMEIA/i.test(prompt)) {
+    missing.push('soul_override');
+  }
   if (!/no invent/i.test(prompt) && !/NUNCA invent/i.test(prompt) && !/Inventar/i.test(prompt)) {
     missing.push('prohibicion_inventar');
   }
@@ -211,4 +272,75 @@ export function imeiaPromptEvalChecks(prompt: string): string[] {
   if (!/financi/i.test(prompt)) missing.push('financiacion');
   if (!/precio/i.test(prompt)) missing.push('precio');
   return missing;
+}
+
+export function composeGroundedAsesorReply(params: {
+  locale: 'es' | 'en';
+  mensaje: string;
+  products: CatalogGroundingProduct[];
+  stickyFollowUp?: boolean;
+  pageProductName?: string | null;
+}): GroundedAsesorReply {
+  const products = params.products.slice(0, 4);
+  const slugs = products.map(product => product.slug).filter(Boolean);
+  const en = params.locale === 'en';
+  const cta = en
+    ? `If you need a confirmed price, INVIMA sanitary registration (RS) for a specific SKU, financing or availability, we prepare a quote or continue on WhatsApp (${IME_WHATSAPP_DISPLAY}). We do not invent those figures.`
+    : `Si necesita precio confirmado, registro sanitario INVIMA (RS) de un SKU, financiación o disponibilidad, armamos la cotización o seguimos por WhatsApp (${IME_WHATSAPP_DISPLAY}). No inventamos esos datos.`;
+
+  if (products.length === 0) {
+    const focus = params.pageProductName?.trim();
+    const texto = en
+      ? [
+          focus
+            ? `I can help qualify ${focus} from the published I-ME catalog.`
+            : 'I can help qualify the biomedical need from the published I-ME catalog.',
+          'Share the clinical service, intended use and any must-have specification. I will not invent models, INVIMA RS numbers, stock or binding prices.',
+          cta,
+        ].join('\n\n')
+      : [
+          focus
+            ? `Puedo ayudarle a cualificar ${focus} con el catálogo publicado de I-ME.`
+            : 'Puedo ayudarle a cualificar la necesidad biomédica con el catálogo publicado de I-ME.',
+          'Indique servicio clínico, uso previsto y alguna especificación imprescindible. No invento modelos, números de registro INVIMA, stock ni precios vinculantes.',
+          cta,
+        ].join('\n\n');
+    return { texto, slugs: [], modo: 'sin_resultados' };
+  }
+
+  const lineas = products.map((product, index) => {
+    const detalle = product.descripcion_corta?.trim() || product.slug;
+    const url = product.url_canonica?.trim();
+    const nombre = url ? `[${product.nombre}](${url})` : `**${product.nombre}**`;
+    return `${index + 1}. ${nombre} — ${detalle}`;
+  });
+
+  if (params.stickyFollowUp) {
+    const winner = products[0]!;
+    const texto = en
+      ? [
+          `Of the options already on the table, I would stay with **${winner.nombre}** for the need you described. I am not introducing another product line.`,
+          '',
+          'Same shortlist:',
+          ...lineas,
+          '',
+          cta,
+        ].join('\n')
+      : [
+          `De las opciones que ya están sobre la mesa, me quedaría con **${winner.nombre}** para lo que plantea. No cambio de línea.`,
+          '',
+          'Misma shortlist:',
+          ...lineas,
+          '',
+          cta,
+        ].join('\n');
+    return { texto, slugs, modo: 'rag' };
+  }
+
+  const apertura = en
+    ? 'From the published catalog, these references match what you asked — descriptions only, no invented specs or INVIMA RS numbers:'
+    : 'En el catálogo publicado, estas referencias encajan con lo que consulta — solo descripción publicada, sin specs ni RS INVIMA inventados:';
+
+  const texto = [apertura, '', ...lineas, '', cta].join('\n');
+  return { texto, slugs, modo: products.length ? 'keyword_degradado' : 'sin_resultados' };
 }

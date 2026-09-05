@@ -2,7 +2,7 @@
 
 Widget **IMEIA Ayuda** (`src/components/Asesor.astro`) → cliente `src/lib/asesor.ts` → Edge Function `asesor` → Hermes (`IMEIA_API_URL/v1/chat/completions`).
 
-Hermes / skills locales en `/home/shoky/IMEIA` **no están en este repo**. Esta fachada no inventa catálogo, precios ni RS INVIMA.
+Hermes / skills locales en `/home/shoky/IMEIA` **no están en este repo**. **No se usa el SOUL del agente `imeia`**: responde mal y no es la fuente de verdad. La web compone desde catálogo + guardrails; un LLM raw (`IMEIA_CHAT_MODEL`, nunca `imeia`) es opcional solo para redactar.
 
 ## Número WhatsApp Business
 
@@ -24,10 +24,11 @@ Usuario (Asesor.astro)
             3. Rate-limit IP + sesión
             4. Contacto/legal estático (sin LLM) + handoff WhatsApp si es contacto
             5. Contexto canónico + catálogo / shortlist sticky
-            6. POST Hermes  model=imeia  timeout 110s
-            7. Tarjetas desde URLs de producto en el texto
-            8. accion_handoff: texto Hermes o intención del usuario
-            9. 503 UNAVAILABLE → cliente usa fallback de catálogo publicado
+            6. Si IMEIA_CHAT_MODEL es raw (no `imeia`) → LLM de redacción
+               Si no → composeGroundedAsesorReply (sin SOUL)
+            7. Tarjetas desde slugs de catálogo + URLs en el texto
+            8. accion_handoff: texto o intención del usuario
+            9. 503 solo si falla el compose/LLM ya intentado; el cliente tiene fallback
 ```
 
 `accion_handoff` en el widget:
@@ -37,18 +38,18 @@ Usuario (Asesor.astro)
 
 ## Modos de fallo observados (no se asume un único root cause)
 
-| Síntoma               | Causa en esta fachada                                     | Qué ve el usuario                                             |
-| --------------------- | --------------------------------------------------------- | ------------------------------------------------------------- |
-| Timeout ~110s         | Hermes lento, túnel caído, cola local                     | 503 → fallback catálogo o CTA WhatsApp                        |
-| `IMEIA sin contenido` | `choices[0].message.content` vacío                        | igual                                                         |
-| `IMEIA HTTP 4xx/5xx`  | URL/key, 401 Hermes, 502 Nginx                            | igual                                                         |
-| RAG vacío             | sin `product_slug` y keyword score &lt; 90                | Hermes responde sin grounding; prompt prohíbe inventar SKU/RS |
-| Respuesta floja       | SOUL de Hermes fuera de repo; prompt de fachada era corto | se refuerza tono ingeniera de ventas + INVIMA                 |
-| CTA ausente           | handoff solo si el texto decía "WhatsApp"/"cotización"    | ahora también dispara por precio, RS-SKU, financiación        |
-| Contacto sin botón    | intercepto estático con `accion_handoff: null`            | contacto adjunta handoff WhatsApp                             |
-| 403 / verificación    | Turnstile inválido o bloqueado                            | reintentar / desbloquear                                      |
-| 429                   | 8/min o 60/día por IP o sesión                            | mensaje de límite                                             |
-| 503 `NOT_CONFIGURED`  | falta `TURNSTILE_SECRET_KEY` o `IMEIA_API_*`              | no gasta LLM                                                  |
+| Síntoma                | Causa en esta fachada                                  | Qué ve el usuario                                             |
+| ---------------------- | ------------------------------------------------------ | ------------------------------------------------------------- |
+| Timeout ~110s          | Hermes lento, túnel caído, cola local                  | 503 → fallback catálogo o CTA WhatsApp                        |
+| `IMEIA sin contenido`  | `choices[0].message.content` vacío                     | igual                                                         |
+| `IMEIA HTTP 4xx/5xx`   | URL/key, 401 Hermes, 502 Nginx                         | igual                                                         |
+| RAG vacío              | sin `product_slug` y keyword score &lt; 90             | Hermes responde sin grounding; prompt prohíbe inventar SKU/RS |
+| Respuesta floja / soul | Se llamaba `model: imeia` (SOUL.md de Hermes)          | ya no se llama; compose de catálogo o LLM raw                 |
+| CTA ausente            | handoff solo si el texto decía "WhatsApp"/"cotización" | ahora también dispara por precio, RS-SKU, financiación        |
+| Contacto sin botón     | intercepto estático con `accion_handoff: null`         | contacto adjunta handoff WhatsApp                             |
+| 403 / verificación     | Turnstile inválido o bloqueado                         | reintentar / desbloquear                                      |
+| 429                    | 8/min o 60/día por IP o sesión                         | mensaje de límite                                             |
+| 503 `NOT_CONFIGURED`   | falta `TURNSTILE_SECRET_KEY` o `IMEIA_API_*`           | no gasta LLM                                                  |
 
 Turnstile y rate-limit **no se relajan** en este cambio.
 
@@ -58,8 +59,10 @@ Ya existentes — no se añaden secretos nuevos:
 
 | Variable                               | Dónde                | Uso                                              |
 | -------------------------------------- | -------------------- | ------------------------------------------------ |
-| `IMEIA_API_URL`                        | secret Edge Function | Base Hermes, sin slash final                     |
+| `IMEIA_API_URL`                        | secret Edge Function | Gateway OpenAI-compatible, sin slash final       |
 | `IMEIA_API_KEY`                        | secret Edge Function | Bearer                                           |
+| `IMEIA_CHAT_MODEL`                     | secret Edge Function | Chat raw. **Prohibido `imeia`** (soul)           |
+| `PUBLIC_IMEIA_CHAT_MODEL`              | build Astro          | Igual, solo si hay Hermes directo en staging     |
 | `PUBLIC_IMEIA_API_URL`                 | build Astro          | Solo local/staging; prod usa la Edge Function    |
 | `PUBLIC_FORCE_DIRECT_IMEIA_IN_BROWSER` | build                | `1` fuerza Hermes directo también en i-me.com.co |
 | `TURNSTILE_SECRET_KEY`                 | Edge                 | Verificación server-side                         |
@@ -99,7 +102,7 @@ curl -sS http://127.0.0.1:54321/functions/v1/asesor \
   -H 'Content-Type: application/json' \
   -d '{"mensaje":"¿Cuál es su WhatsApp?","locale":"es","sessionId":"dev-local","turnstileToken":"XXXX.DUMMY.TOKEN"}'
 
-# Precio: debe ir a Hermes (si está up) y devolver accion_handoff cotizacion
+# Precio: compose o LLM raw (nunca model=imeia); accion_handoff cotizacion
 curl -sS http://127.0.0.1:54321/functions/v1/asesor \
   -H 'Content-Type: application/json' \
   -d '{"mensaje":"¿Cuánto cuesta una bomba de infusión volumétrica?","locale":"es","sessionId":"dev-local","turnstileToken":"XXXX.DUMMY.TOKEN"}'
