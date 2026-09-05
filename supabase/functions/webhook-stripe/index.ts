@@ -22,6 +22,7 @@ import {
   registrarPedidoPagado,
 } from '../_shared/post-pago.ts';
 import { withTelemetry, trackEvent } from '../_shared/telemetry.ts';
+import { claimPaidTransition, type PaymentStateClient } from '../../../src/lib/payment-state.ts';
 
 const FN_NAME = 'webhook-stripe';
 
@@ -123,15 +124,44 @@ Deno.serve(
     const verificacion = await gateway.verificarPago(sessionId);
     const nuevoEstado = verificacion.estado;
     const eraPagado = pedidoRow.estado === 'pagado';
+    let estadoActualizado = false;
 
-    if (!eraPagado && nuevoEstado !== pedidoRow.estado) {
-      await supabase
+    if (!eraPagado && nuevoEstado === 'pagado') {
+      const claim = await claimPaidTransition(
+        supabase as unknown as PaymentStateClient,
+        pedidoRow.id
+      );
+      if (claim.error) {
+        return internalError(`error reclamando pago confirmado: ${claim.error}`, origin);
+      }
+      estadoActualizado = claim.claimed;
+    } else if (!eraPagado && nuevoEstado !== pedidoRow.estado) {
+      const { data: actualizado, error: actualizarError } = await supabase
         .from('pedidos')
         .update({
           estado: nuevoEstado,
           metadata: { ...(pedidoRow.metadata ?? {}), ultimo_evento_stripe: evento.event_id },
         })
-        .eq('id', pedidoRow.id);
+        .eq('id', pedidoRow.id)
+        .neq('estado', 'pagado')
+        .select('id')
+        .maybeSingle();
+      if (actualizarError) {
+        return internalError(`error actualizando pedido: ${actualizarError.message}`, origin);
+      }
+      estadoActualizado = actualizado !== null;
+    }
+
+    // Side effects before procesado — same crash-recovery contract as webhook-wompi.
+    if (nuevoEstado === 'pagado') {
+      await registrarPedidoPagado(supabase, pedidoRow.id, 'stripe', evento.event_id);
+      await notificarFulfillmentDropship(supabase, pedidoRow.id, pedidoRow.items ?? []);
+      void trackEvent(FN_NAME, 'pago_confirmado', {
+        pedido_id: pedidoRow.id,
+        proveedor_pago: 'stripe',
+      });
+    } else if (estadoActualizado) {
+      await notificarEstadoPedido(pedidoRow.id, nuevoEstado, pedidoRow.estado);
     }
 
     await supabase
@@ -139,17 +169,6 @@ Deno.serve(
       .update({ procesado: true })
       .eq('proveedor_pago', 'stripe')
       .eq('event_id', evento.event_id);
-
-    if (!eraPagado && nuevoEstado === 'pagado') {
-      await registrarPedidoPagado(supabase, pedidoRow.id, 'stripe', evento.event_id);
-      await notificarFulfillmentDropship(supabase, pedidoRow.id, pedidoRow.items ?? []);
-      void trackEvent(FN_NAME, 'pago_confirmado', {
-        pedido_id: pedidoRow.id,
-        proveedor_pago: 'stripe',
-      });
-    } else if (!eraPagado && nuevoEstado !== pedidoRow.estado) {
-      await notificarEstadoPedido(pedidoRow.id, nuevoEstado, pedidoRow.estado);
-    }
 
     return new Response(JSON.stringify({ ok: true }), {
       status: 200,

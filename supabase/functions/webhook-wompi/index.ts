@@ -118,7 +118,6 @@ Deno.serve(
     const verificacion = await gateway.verificarPago(evento.referencia_pasarela);
     const nuevoEstado = verificacion.estado;
     const eraPagado = pedidoRow.estado === 'pagado';
-    let pagoReclamado = false;
     let estadoActualizado = false;
 
     if (!eraPagado && nuevoEstado === 'pagado') {
@@ -129,7 +128,6 @@ Deno.serve(
       if (claim.error) {
         return internalError(`error reclamando pago confirmado: ${claim.error}`, origin);
       }
-      pagoReclamado = claim.claimed;
       estadoActualizado = claim.claimed;
     } else if (!eraPagado && nuevoEstado !== pedidoRow.estado) {
       // El predicado evita que una respuesta de verificacion obsoleta degrade
@@ -150,22 +148,26 @@ Deno.serve(
       estadoActualizado = actualizado !== null;
     }
 
-    await supabase
-      .from('eventos_pago')
-      .update({ procesado: true })
-      .eq('proveedor_pago', 'wompi')
-      .eq('event_id', evento.event_id);
-
-    if (pagoReclamado) {
+    // Side effects BEFORE marking the event processed. If we ACK/procesado first and
+    // then crash, Wompi retries become no-ops while emails/DIAN/dropship never run.
+    // Incomplete retries (procesado=false, already pagado) also re-enter here;
+    // registrarPedidoPagado is idempotent via pedido_eventos.
+    if (nuevoEstado === 'pagado') {
       await registrarPedidoPagado(supabase, pedidoRow.id, 'wompi', evento.event_id);
       await notificarFulfillmentDropship(supabase, pedidoRow.id, pedidoRow.items ?? []);
       void trackEvent(FN_NAME, 'pago_confirmado', {
         pedido_id: pedidoRow.id,
         proveedor_pago: 'wompi',
       });
-    } else if (estadoActualizado && nuevoEstado !== 'pagado') {
+    } else if (estadoActualizado) {
       await notificarEstadoPedido(pedidoRow.id, nuevoEstado, pedidoRow.estado);
     }
+
+    await supabase
+      .from('eventos_pago')
+      .update({ procesado: true })
+      .eq('proveedor_pago', 'wompi')
+      .eq('event_id', evento.event_id);
 
     return new Response(JSON.stringify({ ok: true }), {
       status: 200,
