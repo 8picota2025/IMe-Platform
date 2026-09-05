@@ -72,6 +72,7 @@ type View =
   | 'reportes'
   | 'marketing'
   | 'proveedores'
+  | 'proveedor'
   | 'proveedor-productos'
   | 'fulfillments'
   | 'usuarios'
@@ -318,6 +319,7 @@ const VISTAS_POR_ROL: Record<string, Set<View>> = {
     'facturas',
     'factura',
     'proveedores',
+    'proveedor',
     'proveedor-productos',
     'fulfillments',
     'envios',
@@ -464,6 +466,7 @@ function parseView(hash: string): View {
     raw === 'reportes' ||
     raw === 'marketing' ||
     raw === 'proveedores' ||
+    raw === 'proveedor' ||
     raw === 'proveedor-productos' ||
     raw === 'fulfillments' ||
     raw === 'usuarios' ||
@@ -703,6 +706,7 @@ async function routeView(): Promise<{ title: string; body: string }> {
   if (state.view === 'reportes') return { title: 'Reportes', body: await reportesView() };
   if (state.view === 'marketing') return { title: 'Marketing', body: await marketingView() };
   if (state.view === 'proveedores') return { title: 'Proveedores', body: await proveedoresView() };
+  if (state.view === 'proveedor') return { title: 'Proveedor', body: await proveedorDetailView() };
   if (state.view === 'proveedor-productos')
     return { title: 'Productos del proveedor', body: await proveedorProductosView() };
   if (state.view === 'fulfillments')
@@ -866,6 +870,7 @@ function bindView() {
   bindIngest();
   bindArticulos();
   bindProviderFilters();
+  bindProveedorDetail();
   bindProveedorProductos();
   bindFulfillments();
   bindUsuarios();
@@ -5179,9 +5184,243 @@ async function proveedoresView(): Promise<string> {
           dropshipStatus(Boolean(r.dropship_enabled)),
           `${String(conteosContactos.get(text(r.id)) ?? 0)} contactos · ${String(conteosFuentesVerificadas.get(text(r.id)) ?? 0)} fuentes verificadas`,
           String(conteos.get(text(r.id)) ?? 0),
-          `<a class="admin-button admin-button--ghost" href="#/proveedor-productos?id=${encodeURIComponent(text(r.id))}">Productos</a>`,
+          `<div class="admin-toolbar"><a class="admin-button admin-button--ghost" href="#/proveedor?id=${encodeURIComponent(text(r.id))}">Abrir</a><a class="admin-button admin-button--ghost" href="#/proveedor-productos?id=${encodeURIComponent(text(r.id))}">Productos</a></div>`,
         ])
       )}
+    </section>`;
+}
+
+const PROVEEDOR_CONTACTO_TIPOS: Array<[string, string]> = [
+  ['comercial', 'Comercial'],
+  ['ventas', 'Ventas'],
+  ['pedidos', 'Pedidos'],
+  ['soporte', 'Soporte'],
+  ['tecnico', 'Técnico'],
+  ['logistica', 'Logística'],
+  ['devoluciones', 'Devoluciones'],
+  ['finanzas', 'Finanzas'],
+  ['regulatorio', 'Regulatorio'],
+  ['direccion', 'Dirección'],
+  ['general', 'General'],
+];
+
+const VERIFICATION_STATUSES: Array<[string, string]> = [
+  ['pendiente', 'Pendiente'],
+  ['verificado', 'Verificado'],
+  ['obsoleto', 'Obsoleto'],
+  ['rechazado', 'Rechazado'],
+];
+
+const PROVEEDOR_FUENTE_TIPOS: Array<[string, string]> = [
+  ['sitio_oficial', 'Sitio oficial'],
+  ['documento_oficial', 'Documento oficial'],
+  ['directorio_publico', 'Directorio público'],
+  ['investigacion_local', 'Investigación local'],
+  ['confirmacion_comercial', 'Confirmación comercial'],
+];
+
+const PROVEEDOR_CANAL_TIPOS: Array<[string, string]> = [
+  ['email', 'Email'],
+  ['whatsapp', 'WhatsApp'],
+  ['portal', 'Portal'],
+  ['edi', 'EDI'],
+  ['manual', 'Manual'],
+];
+
+function commaList(value: unknown): string {
+  return stringArray(value).join(', ');
+}
+
+function proveedorValue(row: Row, key: string): string {
+  return text(row[key]);
+}
+
+function optionLabel(options: Array<[string, string]>, value: string): string {
+  return options.find(([id]) => id === value)?.[1] ?? (value || 'Sin definir');
+}
+
+function contactoTipoLabel(value: string): string {
+  return optionLabel(PROVEEDOR_CONTACTO_TIPOS, value);
+}
+
+function fuenteTipoLabel(value: string): string {
+  return optionLabel(PROVEEDOR_FUENTE_TIPOS, value);
+}
+
+function canalTipoLabel(value: string): string {
+  return optionLabel(PROVEEDOR_CANAL_TIPOS, value);
+}
+
+function verificationLabel(value: string): string {
+  return optionLabel(VERIFICATION_STATUSES, value);
+}
+
+async function proveedorDetailView(): Promise<string> {
+  const proveedorId = state.recordId;
+  if (!proveedorId)
+    return notFoundPanel('Selecciona un proveedor desde el directorio.', '#/proveedores');
+  const [proveedor, contactos, fuentes, canales, documentos] = await Promise.all([
+    getRow('proveedores', proveedorId),
+    selectRows('proveedor_contactos', '*', 'tipo', 200).then(rows =>
+      rows.filter(r => text(r.proveedor_id) === proveedorId)
+    ),
+    selectRows('proveedor_fuentes', '*', 'consultado_at', 200).then(rows =>
+      rows.filter(r => text(r.proveedor_id) === proveedorId)
+    ),
+    selectRows('proveedor_canales_pedido', '*', 'tipo', 200).then(rows =>
+      rows.filter(r => text(r.proveedor_id) === proveedorId)
+    ),
+    selectRows('proveedor_documentos', '*', 'created_at', 200).then(rows =>
+      rows.filter(r => text(r.proveedor_id) === proveedorId)
+    ),
+  ]);
+  if (!proveedor) return notFoundPanel('Proveedor no encontrado.', '#/proveedores');
+  return `
+    <section class="admin-panel admin-form">
+      <div class="admin-panel__head">
+        <div><h2>${escapeHtml(proveedorValue(proveedor, 'nombre'))}</h2><p class="admin-meta">Directorio operativo interno. No incluye credenciales, tokens, webhooks ni costos.</p></div>
+        <div class="admin-toolbar"><a class="admin-button admin-button--ghost" href="#/proveedores">Volver</a><a class="admin-button admin-button--ghost" href="#/proveedor-productos?id=${encodeURIComponent(proveedorId)}">Productos asociados</a></div>
+      </div>
+      <form data-proveedor-master-form data-id="${escapeHtml(proveedorId)}">
+        <div style="padding:16px" class="admin-editor__cols">
+          ${field('slug', 'Slug', proveedorValue(proveedor, 'slug'), true)}
+          ${field('nombre', 'Nombre comercial', proveedorValue(proveedor, 'nombre'), true)}
+          ${field('razon_social', 'Razón social', proveedorValue(proveedor, 'razon_social'))}
+          ${selectStatic('tipo_entidad', 'Tipo de entidad', proveedorValue(proveedor, 'tipo_entidad'), PROVEEDOR_TIPOS)}
+          ${field('sitio_web', 'Sitio web', proveedorValue(proveedor, 'sitio_web'), false, 'url')}
+          ${field('pais', 'País', proveedorValue(proveedor, 'pais'))}
+          ${field('ciudad', 'Ciudad', proveedorValue(proveedor, 'ciudad'))}
+          ${field('direccion_comercial', 'Dirección comercial', proveedorValue(proveedor, 'direccion_comercial'))}
+          ${field('contacto_email', 'Email general', proveedorValue(proveedor, 'contacto_email'), false, 'email')}
+          ${field('contacto_whatsapp', 'WhatsApp general', proveedorValue(proveedor, 'contacto_whatsapp'))}
+          ${selectStatic('canal', 'Canal legado', proveedorValue(proveedor, 'canal') || 'manual', [
+            ['email', 'Email'],
+            ['whatsapp', 'WhatsApp'],
+            ['manual', 'Manual'],
+          ])}
+          ${selectStatic('lifecycle_status', 'Estado de validación', proveedorValue(proveedor, 'lifecycle_status'), PROVEEDOR_LIFECYCLES)}
+          ${checkbox('dropship_enabled', 'Dropshipping habilitado', Boolean(proveedor.dropship_enabled))}
+          ${field('cobertura_envios', 'Cobertura de envíos (separada por comas)', commaList(proveedor.cobertura_envios))}
+          ${field('incoterms', 'Incoterms (separados por comas)', commaList(proveedor.incoterms))}
+          ${textarea('almacenes', 'Almacenes (JSON)', JSON.stringify(proveedor.almacenes ?? [], null, 2))}
+          ${field('moneda_operativa', 'Moneda operativa', proveedorValue(proveedor, 'moneda_operativa'))}
+          ${field('sla_respuesta_horas', 'SLA respuesta (horas)', proveedorValue(proveedor, 'sla_respuesta_horas'), false, 'number')}
+          ${field('sla_despacho_dias_habiles', 'SLA despacho (días hábiles)', proveedorValue(proveedor, 'sla_despacho_dias_habiles'), false, 'number')}
+          ${selectStatic(
+            'stock_feed_tipo',
+            'Fuente de stock',
+            proveedorValue(proveedor, 'stock_feed_tipo'),
+            [
+              ['', 'Sin definir'],
+              ['ninguno', 'Ninguna'],
+              ['manual', 'Manual'],
+              ['archivo', 'Archivo'],
+              ['portal', 'Portal'],
+              ['api', 'API'],
+              ['edi', 'EDI'],
+            ]
+          )}
+          ${selectStatic(
+            'riesgo_operativo',
+            'Riesgo operativo',
+            proveedorValue(proveedor, 'riesgo_operativo'),
+            [
+              ['', 'Sin evaluar'],
+              ['bajo', 'Bajo'],
+              ['medio', 'Medio'],
+              ['alto', 'Alto'],
+            ]
+          )}
+          ${field('ultimo_contacto_at', 'Último contacto', proveedorValue(proveedor, 'ultimo_contacto_at').slice(0, 16), false, 'datetime-local')}
+          ${textarea('devoluciones_rma_notas', 'Devoluciones / RMA', proveedorValue(proveedor, 'devoluciones_rma_notas'))}
+          ${textarea('onboarding_notas', 'Notas de onboarding', proveedorValue(proveedor, 'onboarding_notas'))}
+          ${textarea('notas', 'Notas internas', proveedorValue(proveedor, 'notas'))}
+          ${checkbox('activo', 'Activo', Boolean(proveedor.activo))}
+        </div>
+        <div style="padding:0 16px 16px"><button class="admin-button" type="submit">Guardar proveedor</button></div>
+      </form>
+    </section>
+    <section class="admin-panel admin-form">
+      <div class="admin-panel__head"><h2>Contactos por rol</h2><span class="admin-meta">Cada rol puede tener un contacto principal.</span></div>
+      ${table(
+        ['Rol', 'Nombre / cargo', 'Contacto', 'Estado', 'Principal', 'Acciones'],
+        contactos.map(contacto => [
+          escapeHtml(contactoTipoLabel(text(contacto.tipo))),
+          `${escapeHtml(text(contacto.nombre))}<br /><span class="admin-meta">${escapeHtml(text(contacto.cargo))}</span>`,
+          escapeHtml(
+            [text(contacto.email), text(contacto.telefono), text(contacto.whatsapp)]
+              .filter(Boolean)
+              .join(' · ')
+          ),
+          escapeHtml(verificationLabel(text(contacto.verification_status))),
+          contacto.es_principal ? 'Sí' : '—',
+          `<button class="admin-button admin-button--ghost" data-proveedor-contact-edit="${escapeHtml(text(contacto.id))}" type="button">Editar</button> <button class="admin-button admin-button--danger" data-proveedor-contact-delete="${escapeHtml(text(contacto.id))}" type="button">Eliminar</button>`,
+        ])
+      )}
+      <form data-proveedor-contact-form data-proveedor-id="${escapeHtml(proveedorId)}" style="padding:16px">
+        <input type="hidden" name="id" value="" />
+        <div class="admin-editor__cols">${selectStatic('tipo', 'Rol', 'comercial', PROVEEDOR_CONTACTO_TIPOS)}${field('nombre', 'Nombre')}${field('cargo', 'Cargo')}${field('email', 'Email', '', false, 'email')}${field('telefono', 'Teléfono')}${field('whatsapp', 'WhatsApp')}${selectStatic('verification_status', 'Verificación', 'pendiente', VERIFICATION_STATUSES)}${checkbox('es_principal', 'Contacto principal de este rol', false)}${textarea('source_note', 'Nota de origen')}</div>
+        <button class="admin-button" type="submit">Guardar contacto</button>
+      </form>
+    </section>
+    <section class="admin-panel admin-form">
+      <div class="admin-panel__head"><h2>Fuentes y trazabilidad</h2></div>
+      ${table(
+        ['Tipo', 'Título / URL', 'Estado', 'Notas', 'Acciones'],
+        fuentes.map(fuente => [
+          escapeHtml(fuenteTipoLabel(text(fuente.tipo))),
+          `${escapeHtml(text(fuente.titulo))}<br /><span class="admin-meta">${escapeHtml(text(fuente.url) || text(fuente.referencia_local))}</span>`,
+          escapeHtml(verificationLabel(text(fuente.verification_status))),
+          escapeHtml(text(fuente.notas)),
+          `<button class="admin-button admin-button--ghost" data-proveedor-source-edit="${escapeHtml(text(fuente.id))}" type="button">Editar</button> <button class="admin-button admin-button--danger" data-proveedor-source-delete="${escapeHtml(text(fuente.id))}" type="button">Eliminar</button>`,
+        ])
+      )}
+      <form data-proveedor-source-form data-proveedor-id="${escapeHtml(proveedorId)}" style="padding:16px"><input type="hidden" name="id" value="" /><div class="admin-editor__cols">${selectStatic('tipo', 'Tipo', 'sitio_oficial', PROVEEDOR_FUENTE_TIPOS)}${field('titulo', 'Título')}${field('url', 'URL', '', false, 'url')}${field('referencia_local', 'Referencia local')}${selectStatic('verification_status', 'Verificación', 'pendiente', VERIFICATION_STATUSES)}${textarea('notas', 'Notas')}</div><button class="admin-button" type="submit">Guardar fuente</button></form>
+    </section>
+    <section class="admin-panel admin-form">
+      <div class="admin-panel__head"><h2>Canales de pedido</h2><span class="admin-meta">Solo destinos públicos; secretos se gestionan en servidor.</span></div>
+      ${table(
+        ['Tipo', 'Etiqueta', 'Destino público', 'Estado', 'Instrucciones', 'Acciones'],
+        canales.map(canal => [
+          escapeHtml(canalTipoLabel(text(canal.tipo))),
+          escapeHtml(text(canal.etiqueta)),
+          escapeHtml(text(canal.destino_publico)),
+          status(canal.activo),
+          escapeHtml(text(canal.instrucciones)),
+          `<button class="admin-button admin-button--ghost" data-proveedor-channel-edit="${escapeHtml(text(canal.id))}" type="button">Editar</button> <button class="admin-button admin-button--danger" data-proveedor-channel-delete="${escapeHtml(text(canal.id))}" type="button">Eliminar</button>`,
+        ])
+      )}
+      <form data-proveedor-channel-form data-proveedor-id="${escapeHtml(proveedorId)}" style="padding:16px"><input type="hidden" name="id" value="" /><div class="admin-editor__cols">${selectStatic('tipo', 'Tipo', 'email', PROVEEDOR_CANAL_TIPOS)}${field('etiqueta', 'Etiqueta', '', true)}${field('destino_publico', 'Destino público')}${textarea('instrucciones', 'Instrucciones')}${checkbox('activo', 'Activo', false)}</div><button class="admin-button" type="submit">Guardar canal</button></form>
+    </section>
+    <section class="admin-panel admin-form">
+      <div class="admin-panel__head"><h2>Documentos operativos</h2><span class="admin-meta">Solo metadatos y enlaces públicos; archivos privados siguen en almacenamiento interno.</span></div>
+      ${table(
+        ['Tipo', 'Nombre', 'Fuente', 'Vence', 'Estado', 'Acciones'],
+        documentos.map(documento => [
+          escapeHtml(text(documento.tipo)),
+          escapeHtml(text(documento.nombre)),
+          escapeHtml(text(documento.source_url) || text(documento.storage_path)),
+          escapeHtml(text(documento.vence_at)),
+          escapeHtml(verificationLabel(text(documento.verification_status))),
+          `<button class="admin-button admin-button--ghost" data-proveedor-document-edit="${escapeHtml(text(documento.id))}" type="button">Editar</button> <button class="admin-button admin-button--danger" data-proveedor-document-delete="${escapeHtml(text(documento.id))}" type="button">Eliminar</button>`,
+        ])
+      )}
+      <form data-proveedor-document-form data-proveedor-id="${escapeHtml(proveedorId)}" style="padding:16px"><input type="hidden" name="id" value="" /><div class="admin-editor__cols">${selectStatic(
+        'tipo',
+        'Tipo',
+        'catalogo',
+        [
+          ['registro_legal', 'Registro legal'],
+          ['fiscal', 'Fiscal'],
+          ['bancario', 'Bancario'],
+          ['calidad', 'Calidad'],
+          ['regulatorio', 'Regulatorio'],
+          ['contrato', 'Contrato'],
+          ['seguro', 'Seguro'],
+          ['catalogo', 'Catálogo'],
+          ['otro', 'Otro'],
+        ]
+      )}${field('nombre', 'Nombre', '', true)}${field('source_url', 'URL pública', '', false, 'url')}${field('storage_path', 'Ruta interna')}${field('vence_at', 'Vence', '', false, 'date')}${selectStatic('verification_status', 'Verificación', 'pendiente', VERIFICATION_STATUSES)}${textarea('notas', 'Notas')}</div><button class="admin-button" type="submit">Guardar documento</button></form>
     </section>`;
 }
 
@@ -5198,38 +5437,61 @@ async function proveedorProductosView(): Promise<string> {
   if (!proveedor) {
     return `<section class="admin-panel"><div style="padding:16px" class="admin-alert">Proveedor no encontrado.</div></section>`;
   }
-  const asignados = new Set(asignaciones.map(row => text(row.producto_id)));
-  const disponibles = productos.filter(p => !asignados.has(text(p.id)));
   return `
     <section class="admin-panel">
       <div class="admin-panel__head">
         <h2>Productos de ${escapeHtml(text(proveedor.nombre))}</h2>
         <a class="admin-button admin-button--ghost" href="#/proveedores">Volver a proveedores</a>
       </div>
-      <div style="padding:16px" class="admin-alert">precio_costo es CONFIDENCIAL: nunca se expone en APIs publicas ni en el sitio.</div>
+      <div style="padding:16px" class="admin-alert">precio_costo es CONFIDENCIAL: solo se muestra y edita en este admin interno autorizado; nunca en APIs públicas ni en el sitio.</div>
       ${table(
-        ['Producto', 'Fulfillment', 'Precio costo', 'Moneda', 'Prioridad', 'Activo', 'Acciones'],
+        [
+          'Producto',
+          'SKU / disponibilidad',
+          'Operación',
+          'Precio costo',
+          'Prioridad',
+          'Activo',
+          'Acciones',
+        ],
         asignaciones.map(row => {
           const producto =
             row.productos && typeof row.productos === 'object' ? (row.productos as Row) : {};
           return [
             text(producto.nombre_es) || text(row.producto_id),
-            text(producto.fulfillment_mode),
+            `${escapeHtml(text(row.sku_proveedor))}<br /><span class="admin-meta">${escapeHtml(text(row.disponibilidad))}</span>`,
+            `${escapeHtml(text(row.lead_time_dias_habiles))} días · ${escapeHtml(text(row.pais_despacho))}`,
             text(row.precio_costo),
-            text(row.moneda_costo),
             text(row.prioridad),
             status(row.activo),
-            `<button class="admin-button admin-button--ghost admin-button--danger" data-remove-pp="${escapeHtml(text(row.id))}" type="button">Quitar</button>`,
+            `<button class="admin-button admin-button--ghost" data-edit-pp="${escapeHtml(text(row.id))}" type="button">Editar</button> <button class="admin-button admin-button--ghost admin-button--danger" data-remove-pp="${escapeHtml(text(row.id))}" type="button">Quitar</button>`,
           ];
         })
       )}
       <form class="admin-form" data-pp-form style="padding:16px">
+        <input type="hidden" name="id" value="" />
         <input type="hidden" name="proveedor_id" value="${escapeHtml(proveedorId)}" />
         <div class="admin-editor__cols">
-          ${select('producto_id', 'Producto', '', disponibles, 'nombre_es', true)}
-          ${field('precio_costo', 'Precio costo', '', true, 'number')}
+          ${select('producto_id', 'Producto', '', productos, 'nombre_es', true)}
+          ${field('precio_costo', 'Precio costo confidencial', '', true, 'number')}
           ${field('moneda_costo', 'Moneda', 'COP', true)}
           ${field('prioridad', 'Prioridad (1 = preferente)', '1', true, 'number')}
+          ${field('sku_proveedor', 'SKU del proveedor')}
+          ${selectStatic('disponibilidad', 'Disponibilidad', 'desconocida', [
+            ['en_stock', 'En stock'],
+            ['bajo_pedido', 'Bajo pedido'],
+            ['agotado', 'Agotado'],
+            ['descontinuado', 'Descontinuado'],
+            ['desconocida', 'Desconocida'],
+          ])}
+          ${field('unidades_disponibles', 'Unidades disponibles', '', false, 'number')}
+          ${field('cantidad_minima_pedido', 'Cantidad mínima', '', false, 'number')}
+          ${field('lead_time_dias_habiles', 'Lead time (días hábiles)', '', false, 'number')}
+          ${field('pais_origen', 'País de origen')}
+          ${field('pais_despacho', 'País de despacho')}
+          ${field('incoterm', 'Incoterm')}
+          ${checkbox('apto_dropship', 'Apto para dropship', false)}
+          ${textarea('notas_operativas', 'Notas operativas')}
           ${checkbox('activo', 'Activo', true)}
         </div>
         <button class="admin-button" type="submit">Asignar producto</button>
@@ -6646,6 +6908,7 @@ function bindProveedorProductos() {
   form?.addEventListener('submit', async event => {
     event.preventDefault();
     const data = new FormData(form);
+    const assignmentId = text(data.get('id'));
     const productoId = String(data.get('producto_id') ?? '');
     if (!productoId) {
       toast('Selecciona un producto');
@@ -6657,18 +6920,50 @@ function bindProveedorProductos() {
       precio_costo: numberOrZero(data.get('precio_costo')),
       moneda_costo: emptyToNull(data.get('moneda_costo')) ?? 'COP',
       prioridad: numberOrZero(data.get('prioridad')) || 1,
+      sku_proveedor: emptyToNull(data.get('sku_proveedor')),
+      disponibilidad: text(data.get('disponibilidad')) || 'desconocida',
+      unidades_disponibles: nullableNumber(data.get('unidades_disponibles')),
+      cantidad_minima_pedido: nullableNumber(data.get('cantidad_minima_pedido')),
+      lead_time_dias_habiles: nullableNumber(data.get('lead_time_dias_habiles')),
+      pais_origen: emptyToNull(data.get('pais_origen')),
+      pais_despacho: emptyToNull(data.get('pais_despacho')),
+      incoterm: emptyToNull(data.get('incoterm')),
+      apto_dropship:
+        form.elements.namedItem('apto_dropship') instanceof HTMLInputElement
+          ? (form.elements.namedItem('apto_dropship') as HTMLInputElement).checked
+          : false,
+      notas_operativas: emptyToNull(data.get('notas_operativas')),
       activo:
         form.elements.namedItem('activo') instanceof HTMLInputElement
           ? (form.elements.namedItem('activo') as HTMLInputElement).checked
           : true,
     };
-    const { error } = await supabase!.from('proveedor_producto').insert(payload);
+    const { error } = assignmentId
+      ? await supabase!.from('proveedor_producto').update(payload).eq('id', assignmentId)
+      : await supabase!.from('proveedor_producto').insert(payload);
     if (error) {
       toast(error.message);
       return;
     }
-    toast('Producto asignado');
+    toast(assignmentId ? 'Asociación actualizada' : 'Producto asignado');
     await render();
+  });
+  app.querySelectorAll<HTMLButtonElement>('[data-edit-pp]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const id = button.dataset['editPp'];
+      if (!id || !form) return;
+      const { data, error } = await supabase!
+        .from('proveedor_producto')
+        .select('*')
+        .eq('id', id)
+        .single();
+      if (error || !data) {
+        toast(error?.message ?? 'No se pudo cargar la asociación.');
+        return;
+      }
+      fillProveedorForm(form, data as unknown as Row);
+      form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
   });
   app.querySelectorAll<HTMLButtonElement>('[data-remove-pp]').forEach(button => {
     button.addEventListener('click', async () => {
@@ -6679,6 +6974,269 @@ function bindProveedorProductos() {
       await render();
     });
   });
+}
+
+function fillProveedorForm(form: HTMLFormElement, row: Row): void {
+  for (const [key, value] of Object.entries(row)) {
+    const element = form.elements.namedItem(key);
+    if (element instanceof HTMLInputElement) {
+      if (element.type === 'checkbox') element.checked = Boolean(value);
+      else element.value = text(value);
+    } else if (element instanceof HTMLTextAreaElement || element instanceof HTMLSelectElement) {
+      element.value = text(value);
+    }
+  }
+}
+
+function nullableNumber(value: FormDataEntryValue | null): number | null {
+  const raw = text(value).trim();
+  if (!raw) return null;
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function commaListPayload(value: FormDataEntryValue | null): string[] {
+  return text(value)
+    .split(',')
+    .map(item => item.trim())
+    .filter(Boolean);
+}
+
+function formCheckbox(form: HTMLFormElement, name: string): boolean {
+  const element = form.elements.namedItem(name);
+  return element instanceof HTMLInputElement && element.checked;
+}
+
+function contactPayload(form: HTMLFormElement): Row | null {
+  const data = new FormData(form);
+  const email = emptyToNull(data.get('email'));
+  const telefono = emptyToNull(data.get('telefono'));
+  const whatsapp = emptyToNull(data.get('whatsapp'));
+  if (!email && !telefono && !whatsapp) {
+    toast('Indica email, teléfono o WhatsApp para el contacto.');
+    return null;
+  }
+  return {
+    proveedor_id: text(form.dataset['proveedorId']),
+    tipo: text(data.get('tipo')),
+    nombre: emptyToNull(data.get('nombre')),
+    cargo: emptyToNull(data.get('cargo')),
+    email,
+    telefono,
+    whatsapp,
+    es_principal: formCheckbox(form, 'es_principal'),
+    verification_status: text(data.get('verification_status')) || 'pendiente',
+    source_note: emptyToNull(data.get('source_note')),
+  };
+}
+
+function bindProveedorDetail() {
+  const master = app.querySelector<HTMLFormElement>('[data-proveedor-master-form]');
+  master?.addEventListener('submit', async event => {
+    event.preventDefault();
+    const data = new FormData(master);
+    let almacenes: unknown[] = [];
+    const almacenesRaw = text(data.get('almacenes')).trim();
+    if (almacenesRaw) {
+      try {
+        const parsed: unknown = JSON.parse(almacenesRaw);
+        if (!Array.isArray(parsed)) throw new Error('not-array');
+        almacenes = parsed;
+      } catch {
+        toast('Almacenes debe ser un arreglo JSON válido.');
+        return;
+      }
+    }
+    const lifecycleStatus = text(data.get('lifecycle_status'));
+    const dropshipEnabled = formCheckbox(master, 'dropship_enabled');
+    if (dropshipEnabled && lifecycleStatus !== 'aprobado') {
+      toast('Dropshipping solo se habilita para proveedores aprobados.');
+      return;
+    }
+    const payload: Row = {
+      slug: emptyToNull(data.get('slug')),
+      nombre: emptyToNull(data.get('nombre')),
+      razon_social: emptyToNull(data.get('razon_social')),
+      tipo_entidad: text(data.get('tipo_entidad')),
+      sitio_web: emptyToNull(data.get('sitio_web')),
+      pais: emptyToNull(data.get('pais')),
+      ciudad: emptyToNull(data.get('ciudad')),
+      direccion_comercial: emptyToNull(data.get('direccion_comercial')),
+      contacto_email: emptyToNull(data.get('contacto_email')),
+      contacto_whatsapp: emptyToNull(data.get('contacto_whatsapp')),
+      canal: text(data.get('canal')),
+      lifecycle_status: lifecycleStatus,
+      dropship_enabled: dropshipEnabled,
+      cobertura_envios: commaListPayload(data.get('cobertura_envios')),
+      almacenes,
+      incoterms: commaListPayload(data.get('incoterms')),
+      moneda_operativa: emptyToNull(data.get('moneda_operativa')),
+      sla_respuesta_horas: nullableNumber(data.get('sla_respuesta_horas')),
+      sla_despacho_dias_habiles: nullableNumber(data.get('sla_despacho_dias_habiles')),
+      devoluciones_rma_notas: emptyToNull(data.get('devoluciones_rma_notas')),
+      stock_feed_tipo: emptyToNull(data.get('stock_feed_tipo')),
+      onboarding_notas: emptyToNull(data.get('onboarding_notas')),
+      ultimo_contacto_at: emptyToNull(data.get('ultimo_contacto_at')),
+      riesgo_operativo: emptyToNull(data.get('riesgo_operativo')),
+      notas: emptyToNull(data.get('notas')),
+      activo: formCheckbox(master, 'activo'),
+    };
+    const { error } = await supabase!
+      .from('proveedores')
+      .update(payload)
+      .eq('id', text(master.dataset['id']));
+    if (error) {
+      toast(error.message);
+      return;
+    }
+    toast('Proveedor actualizado');
+    await render();
+  });
+
+  const bindChild = (
+    selector: string,
+    tableName:
+      | 'proveedor_contactos'
+      | 'proveedor_fuentes'
+      | 'proveedor_canales_pedido'
+      | 'proveedor_documentos',
+    payloadFor: (form: HTMLFormElement) => Row | null
+  ) => {
+    const form = app.querySelector<HTMLFormElement>(selector);
+    form?.addEventListener('submit', async event => {
+      event.preventDefault();
+      const data = new FormData(form);
+      const id = text(data.get('id'));
+      const payload = payloadFor(form);
+      if (!payload) return;
+      const query = id
+        ? supabase!.from(tableName).update(payload).eq('id', id)
+        : supabase!.from(tableName).insert(payload);
+      const { error } = await query;
+      if (error) {
+        toast(error.message);
+        return;
+      }
+      toast(id ? 'Registro actualizado' : 'Registro creado');
+      await render();
+    });
+  };
+
+  bindChild('[data-proveedor-contact-form]', 'proveedor_contactos', contactPayload);
+  bindChild('[data-proveedor-source-form]', 'proveedor_fuentes', form => {
+    const data = new FormData(form);
+    const url = emptyToNull(data.get('url'));
+    const referenciaLocal = emptyToNull(data.get('referencia_local'));
+    if (!url && !referenciaLocal) {
+      toast('Indica una URL o una referencia local para la fuente.');
+      return null;
+    }
+    return {
+      proveedor_id: text(form.dataset['proveedorId']),
+      tipo: text(data.get('tipo')),
+      titulo: emptyToNull(data.get('titulo')),
+      url,
+      referencia_local: referenciaLocal,
+      verification_status: text(data.get('verification_status')) || 'pendiente',
+      notas: emptyToNull(data.get('notas')),
+    };
+  });
+  bindChild('[data-proveedor-channel-form]', 'proveedor_canales_pedido', form => {
+    const data = new FormData(form);
+    const destination = emptyToNull(data.get('destino_publico'));
+    if (destination && /webhook/i.test(destination)) {
+      toast('No guardes URLs de webhook en este directorio.');
+      return null;
+    }
+    return {
+      proveedor_id: text(form.dataset['proveedorId']),
+      tipo: text(data.get('tipo')),
+      etiqueta: emptyToNull(data.get('etiqueta')),
+      destino_publico: destination,
+      instrucciones: emptyToNull(data.get('instrucciones')),
+      activo: formCheckbox(form, 'activo'),
+    };
+  });
+  bindChild('[data-proveedor-document-form]', 'proveedor_documentos', form => {
+    const data = new FormData(form);
+    const sourceUrl = emptyToNull(data.get('source_url'));
+    const storagePath = emptyToNull(data.get('storage_path'));
+    if (!sourceUrl && !storagePath) {
+      toast('Indica una URL pública o una ruta interna para el documento.');
+      return null;
+    }
+    return {
+      proveedor_id: text(form.dataset['proveedorId']),
+      tipo: text(data.get('tipo')),
+      nombre: emptyToNull(data.get('nombre')),
+      source_url: sourceUrl,
+      storage_path: storagePath,
+      vence_at: emptyToNull(data.get('vence_at')),
+      verification_status: text(data.get('verification_status')) || 'pendiente',
+      notas: emptyToNull(data.get('notas')),
+    };
+  });
+
+  const bindEdit = (
+    selector: string,
+    formSelector: string,
+    tableName:
+      | 'proveedor_contactos'
+      | 'proveedor_fuentes'
+      | 'proveedor_canales_pedido'
+      | 'proveedor_documentos'
+  ) => {
+    app.querySelectorAll<HTMLButtonElement>(selector).forEach(button => {
+      button.addEventListener('click', async () => {
+        const id = text(Object.values(button.dataset)[0]);
+        if (!id) return;
+        const row = await getRow(tableName, id);
+        const form = app.querySelector<HTMLFormElement>(formSelector);
+        if (row && form) {
+          fillProveedorForm(form, row);
+          form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      });
+    });
+  };
+  const bindDelete = (
+    selector: string,
+    tableName:
+      | 'proveedor_contactos'
+      | 'proveedor_fuentes'
+      | 'proveedor_canales_pedido'
+      | 'proveedor_documentos'
+  ) => {
+    app.querySelectorAll<HTMLButtonElement>(selector).forEach(button => {
+      button.addEventListener('click', async () => {
+        const id = text(Object.values(button.dataset)[0]);
+        if (!id || !confirm('Eliminar este registro?')) return;
+        const { error } = await supabase!.from(tableName).delete().eq('id', id);
+        if (error) {
+          toast(error.message);
+          return;
+        }
+        toast('Registro eliminado');
+        await render();
+      });
+    });
+  };
+  bindEdit('[data-proveedor-contact-edit]', '[data-proveedor-contact-form]', 'proveedor_contactos');
+  bindEdit('[data-proveedor-source-edit]', '[data-proveedor-source-form]', 'proveedor_fuentes');
+  bindEdit(
+    '[data-proveedor-channel-edit]',
+    '[data-proveedor-channel-form]',
+    'proveedor_canales_pedido'
+  );
+  bindEdit(
+    '[data-proveedor-document-edit]',
+    '[data-proveedor-document-form]',
+    'proveedor_documentos'
+  );
+  bindDelete('[data-proveedor-contact-delete]', 'proveedor_contactos');
+  bindDelete('[data-proveedor-source-delete]', 'proveedor_fuentes');
+  bindDelete('[data-proveedor-channel-delete]', 'proveedor_canales_pedido');
+  bindDelete('[data-proveedor-document-delete]', 'proveedor_documentos');
 }
 
 async function actualizarEstadoPedido(id: string, estado: string): Promise<boolean> {
