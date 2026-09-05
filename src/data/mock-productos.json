@@ -1762,11 +1762,14 @@
     "tipo_id": "ca4cf3be-2041-478e-86a2-69a7435eeabf",
     "nombre_es": "Circuito Airvo Spiral Ref 900PT561 Fisher & Paykel",
     "nombre_en": "Airvo Spiral Circuit Ref 900PT561 Fisher & Paykel",
-    "descripcion_corta_es": "El circuito calefaccionado 900PT561 está diseñado exclusivamente para su uso con el sistema Airvo 2, ofreciendo tecnología avanzada en terapias de oxigenación de alto flujo.",
-    "descripcion_corta_en": "Heated circuit 900PT561 designed exclusively for use with the Airvo 2 system, offering advanced high-flow oxygen therapy technology.",
-    "descripcion_larga_es": "El circuito calefaccionado 900PT561 está diseñado exclusivamente para su uso con el sistema Airvo 2, ofreciendo tecnología avanzada en terapias de oxigenación de alto flujo. Su diseño con doble espiral calefactora permite mantener una humidificación constante y controlada, lo que reduce eficazmente la formación de condensación en la línea.\n\nEste sistema garantiza la entrega de un flujo de gas caliente y humidificado en condiciones óptimas, incluso en contextos clínicos de insuficiencia respiratoria hipoxémica. Además, cuenta con conexiones seguras y flexibles, libres de acoples, cables o adaptadores externos, lo que facilita su instalación y uso en entornos clínicos.",
-    "descripcion_larga_en": "Heated circuit 900PT561 designed exclusively for use with the Airvo 2 system, offering advanced high-flow oxygen therapy technology. Its dual heated-spiral design maintains constant, controlled humidification, effectively reducing condensation buildup in the line. This system ensures delivery of warm, humidified gas under optimal conditions, even in clinical settings with hypoxemic respiratory failure. It also features secure, flexible connections without external clamps, cables, or adapters, facilitating installation and use in clinical environments.",
-    "especificaciones": [],
+    "descripcion_corta_es": "Kit de tubo y circuito AirSpiral 900PT561 para el sistema Airvo 2.",
+    "descripcion_corta_en": "AirSpiral tube and circuit kit 900PT561 for the Airvo 2 system.",
+    "descripcion_larga_es": "El 900PT561 es un kit de tubo y circuito AirSpiral para uso con el sistema Airvo 2.",
+    "descripcion_larga_en": "The 900PT561 is an AirSpiral tube and circuit kit for use with the Airvo 2 system.",
+    "especificaciones": [
+      { "clave": "Compatibilidad", "grupo": "Catálogo IME", "valor": "Airvo 2" },
+      { "clave": "Presentación", "grupo": "Catálogo IME", "valor": "Caja de 10 unidades" }
+    ],
     "imagen_principal": "/assets/productos/importados/circuito-airvo-spiral-ref-900pt561-fisher-paykel/imagen-principal-circuito-airvo-spiral-ref-900pt561-fisher-paykel.png",
     "galeria": [
       "/assets/productos/importados/circuito-airvo-spiral-ref-900pt561-fisher-paykel/imagen-principal-circuito-airvo-spiral-ref-900pt561-fisher-paykel.png"
@@ -1785,7 +1788,25 @@
     "aplicaciones_es": ["Terapia de alto flujo", "Airvo 2", "Oxigenoterapia"],
     "aplicaciones_en": ["High-flow therapy", "Airvo 2", "Oxygen therapy"],
     "marca": "Circuito Airvo",
-    "proveedor_ref": "equitronic"
+    "proveedor_ref": "equitronic",
+    "beneficios_es": ["Kit de tubo y circuito para Airvo 2", "Presentación de 10 unidades"],
+    "beneficios_en": ["Tube and circuit kit for Airvo 2", "Pack of 10 units"],
+    "valor_es": "Kit de tubo y circuito AirSpiral 900PT561 para Airvo 2, en caja de 10 unidades.",
+    "valor_en": "AirSpiral tube and circuit kit 900PT561 for Airvo 2, supplied in a box of 10 units.",
+    "preguntas_frecuentes_es": [
+      { "q": "¿Con qué equipo se utiliza?", "a": "Con el sistema Airvo 2." },
+      { "q": "¿Cuál es la presentación?", "a": "Caja de 10 unidades." }
+    ],
+    "preguntas_frecuentes_en": [
+      { "q": "Which device is it used with?", "a": "The Airvo 2 system." },
+      { "q": "What is the pack size?", "a": "Box of 10 units." }
+    ],
+    "seo_keywords_es": ["900PT561", "AirSpiral", "circuito Airvo 2", "Fisher & Paykel"],
+    "seo_keywords_en": ["900PT561", "AirSpiral", "Airvo 2 circuit", "Fisher & Paykel"],
+    "atributos": {
+      "fabricante": "Fisher & Paykel",
+      "fuentes": ["https://www.fphcare.com/us/products/airvo/airvo-2/"]
+    }
   },
   {
     "id": "3317e4d8-0769-4284-961b-a15dad7200f1",
@@ -1795,11 +1816,18 @@
     "tipo_id": "ca4cf3be-2041-478e-86a2-69a7435eeabf",
     "nombre_es": "Circuito Desechable Para Adulto Evaqua Con Línea de Presión Ref RT385 Fisher & Paykel",
     "nombre_en": "Disposable Adult Evaqua Circuit with Pressure Line Ref RT385 Fisher & Paykel",
-    "descripcion_corta_es": "El RT385 es un circuito de ventilación mecánica de doble rama, apto para pacientes pediátricos y adultos que movilizan volúmenes tidal a partir de 120 mL.",
-    "descripcion_corta_en": "Dual-limb ventilation circuit suitable for pediatric and adult patients with tidal volumes from 120 mL.",
-    "descripcion_larga_es": "El RT385 es un circuito de ventilación mecánica de doble rama, apto para pacientes pediátricos y adultos que movilizan volúmenes tidal a partir de 120 mL. Es compatible con cualquier ventilador invasivo que cuente con línea de presión proximal y tecnología Evaqua™ 2. Su innovador diseño de doble hilo calefactor en ambas ramas (inspiratoria y espiratoria), junto con el material MicroCells, permeable al vapor de agua, permite reducir la condensación hasta en un 60 %, manteniendo los filtros y el bloque espiratorio libres de humedad.",
-    "descripcion_larga_en": "The RT385 is a dual-limb mechanical ventilation circuit suitable for pediatric and adult patients with tidal volumes from 120 mL. It is compatible with any invasive ventilator featuring a proximal pressure line and Evaqua™ 2 technology. Its innovative dual heated wire design in both limbs (inspiratory and expiratory), combined with MicroCells vapor-permeable material, reduces condensation by up to 60%, keeping filters and the expiratory block moisture-free.",
-    "especificaciones": [],
+    "descripcion_corta_es": "Circuito desechable adulto de doble rama Evaqua con línea de presión RT385.",
+    "descripcion_corta_en": "RT385 disposable adult dual-limb Evaqua circuit with pressure line.",
+    "descripcion_larga_es": "El RT385 es un circuito desechable adulto de doble rama Evaqua con línea de presión.",
+    "descripcion_larga_en": "The RT385 is a disposable adult dual-limb Evaqua circuit with pressure line.",
+    "especificaciones": [
+      {
+        "clave": "Tipo",
+        "grupo": "Catálogo IME",
+        "valor": "Circuito adulto de doble rama Evaqua con línea de presión"
+      },
+      { "clave": "Presentación", "grupo": "Catálogo IME", "valor": "Caja de 10 unidades" }
+    ],
     "imagen_principal": "/assets/productos/importados/circuito-desachable-para-adulto-evaqua-con-linea-de-presion-ref-rt385-fisher-paykel/imagen-principal-circuito-desachable-para-adulto-evaqua-con-linea-de-presion-ref-rt385-fisher-paykel.png",
     "galeria": [
       "/assets/productos/importados/circuito-desachable-para-adulto-evaqua-con-linea-de-presion-ref-rt385-fisher-paykel/imagen-principal-circuito-desachable-para-adulto-evaqua-con-linea-de-presion-ref-rt385-fisher-paykel.png"
@@ -1818,7 +1846,35 @@
     "aplicaciones_es": ["Ventilación invasiva", "Ventilación no invasiva", "UCI", "Pediatría"],
     "aplicaciones_en": ["Invasive ventilation", "Non-invasive ventilation", "ICU", "Pediatrics"],
     "marca": "Circuito Desechable",
-    "proveedor_ref": "equitronic"
+    "proveedor_ref": "equitronic",
+    "beneficios_es": [
+      "Configuración de doble rama",
+      "Incluye línea de presión",
+      "Presentación de 10 unidades"
+    ],
+    "beneficios_en": ["Dual-limb configuration", "Includes pressure line", "Pack of 10 units"],
+    "valor_es": "Circuito desechable adulto RT385 de doble rama Evaqua con línea de presión, caja de 10 unidades.",
+    "valor_en": "RT385 disposable adult dual-limb Evaqua circuit with pressure line, box of 10 units.",
+    "preguntas_frecuentes_es": [
+      {
+        "q": "¿Qué tipo de circuito es?",
+        "a": "Un circuito desechable adulto de doble rama Evaqua con línea de presión."
+      },
+      { "q": "¿Cuál es la presentación?", "a": "Caja de 10 unidades." }
+    ],
+    "preguntas_frecuentes_en": [
+      {
+        "q": "What type of circuit is it?",
+        "a": "A disposable adult dual-limb Evaqua circuit with pressure line."
+      },
+      { "q": "What is the pack size?", "a": "Box of 10 units." }
+    ],
+    "seo_keywords_es": ["RT385", "circuito Evaqua adulto", "línea de presión", "Fisher & Paykel"],
+    "seo_keywords_en": ["RT385", "adult Evaqua circuit", "pressure line", "Fisher & Paykel"],
+    "atributos": {
+      "fabricante": "Fisher & Paykel",
+      "fuentes": ["https://www.fphcare.com/us/products/respiratory-care/respiratory-circuits/"]
+    }
   },
   {
     "id": "0891e354-26bb-4fa8-a99d-51e72b9ccf6c",
@@ -1828,11 +1884,15 @@
     "tipo_id": "ca4cf3be-2041-478e-86a2-69a7435eeabf",
     "nombre_es": "Circuito Desechable Bicalentado/Cascada Ref RT268 Fisher & Paykel",
     "nombre_en": "Disposable Heated Dual-Limb Chamber Circuit Ref RT268 Fisher & Paykel",
-    "descripcion_corta_es": "El circuito ventilatorio está diseñado específicamente para neonatos y lactantes de hasta 20 kg, proporciona un sistema de ventilación avanzado, seguro y eficiente.",
-    "descripcion_corta_en": "Ventilation circuit designed specifically for neonates and infants up to 20 kg, providing an advanced, safe, and efficient ventilation system.",
-    "descripcion_larga_es": "El circuito ventilatorio está diseñado específicamente para neonatos y lactantes de hasta 20 kg, proporciona un sistema de ventilación avanzado, seguro y eficiente. Este circuito bicalentado de doble hilo incorpora la tecnología Evaqua™ 2, que emplea un innovador material permeable al vapor de agua (MicroCells) para reducir significativamente la condensación interna, sin comprometer la humedad necesaria para el tratamiento respiratorio.",
-    "descripcion_larga_en": "Ventilation circuit designed specifically for neonates and infants up to 20 kg, providing an advanced, safe, and efficient ventilation system. This dual-heated-wire circuit incorporates Evaqua™ 2 technology, which employs an innovative water-vapor-permeable material (MicroCells) to significantly reduce internal condensation without compromising the humidity necessary for respiratory treatment.",
-    "especificaciones": [],
+    "descripcion_corta_es": "Circuito bicalentado desechable Evaqua 2 con cámara MR290 para SLE5000.",
+    "descripcion_corta_en": "Disposable dual-heated Evaqua 2 circuit with MR290 chamber for SLE5000.",
+    "descripcion_larga_es": "El RT268 es un circuito bicalentado desechable Evaqua 2 con cámara MR290 para SLE5000.",
+    "descripcion_larga_en": "The RT268 is a disposable dual-heated Evaqua 2 circuit with MR290 chamber for SLE5000.",
+    "especificaciones": [
+      { "clave": "Compatibilidad", "grupo": "Catálogo IME", "valor": "SLE5000" },
+      { "clave": "Cámara", "grupo": "Catálogo IME", "valor": "MR290" },
+      { "clave": "Presentación", "grupo": "Catálogo IME", "valor": "Caja de 10 unidades" }
+    ],
     "imagen_principal": "/assets/productos/importados/circuito-desechable-bicalentado-cascada-ref-rt268-fisher-paykel/imagen-principal-circuito-desechable-bicalentado-cascada-ref-rt268-fisher-paykel.png",
     "galeria": [
       "/assets/productos/importados/circuito-desechable-bicalentado-cascada-ref-rt268-fisher-paykel/imagen-principal-circuito-desechable-bicalentado-cascada-ref-rt268-fisher-paykel.png"
@@ -1848,10 +1908,28 @@
     "nuevo": false,
     "activo": true,
     "orden": 0,
-    "aplicaciones_es": ["Neonatología", "Ventilación invasiva", "Lactantes hasta 20 kg"],
-    "aplicaciones_en": ["Neonatology", "Invasive ventilation", "Infants up to 20 kg"],
+    "aplicaciones_es": ["Neonatología", "Ventilación invasiva"],
+    "aplicaciones_en": ["Neonatology", "Invasive ventilation"],
     "marca": "Circuito Desechable",
-    "proveedor_ref": "equitronic"
+    "proveedor_ref": "equitronic",
+    "beneficios_es": ["Doble calentamiento", "Cámara MR290", "Presentación de 10 unidades"],
+    "beneficios_en": ["Dual heating", "MR290 chamber", "Pack of 10 units"],
+    "valor_es": "Circuito RT268 Evaqua 2 con cámara MR290 para SLE5000, caja de 10 unidades.",
+    "valor_en": "RT268 Evaqua 2 circuit with MR290 chamber for SLE5000, box of 10 units.",
+    "preguntas_frecuentes_es": [
+      { "q": "¿Con qué ventilador se utiliza?", "a": "SLE5000." },
+      { "q": "¿Cuál es la presentación?", "a": "Caja de 10 unidades." }
+    ],
+    "preguntas_frecuentes_en": [
+      { "q": "Which ventilator is it for?", "a": "SLE5000." },
+      { "q": "What is the pack size?", "a": "Box of 10 units." }
+    ],
+    "seo_keywords_es": ["RT268", "Evaqua 2", "SLE5000", "MR290"],
+    "seo_keywords_en": ["RT268", "Evaqua 2", "SLE5000", "MR290"],
+    "atributos": {
+      "fabricante": "Fisher & Paykel",
+      "fuentes": ["https://www.fphcare.com/us/products/respiratory-care/respiratory-circuits/"]
+    }
   },
   {
     "id": "a771e18b-e4ef-4f8f-91a7-1a8bf632fb15",
@@ -1861,11 +1939,15 @@
     "tipo_id": "ca4cf3be-2041-478e-86a2-69a7435eeabf",
     "nombre_es": "Circuito Desechable Bicalentado/Cascada Ref RT269 Fisher & Paykel",
     "nombre_en": "Disposable Heated Dual-Limb Chamber Circuit Ref RT269 Fisher & Paykel",
-    "descripcion_corta_es": "El circuito ventilatorio está diseñado específicamente para neonatos y lactantes de hasta 20 kg, ofreciendo un sistema de ventilación avanzado, seguro y eficiente.",
-    "descripcion_corta_en": "Ventilation circuit designed specifically for neonates and infants up to 20 kg, offering an advanced, safe, and efficient ventilation system.",
-    "descripcion_larga_es": "El circuito ventilatorio está diseñado específicamente para neonatos y lactantes de hasta 20 kg, ofreciendo un sistema de ventilación avanzado, seguro y eficiente. Este circuito bicalentado de doble hilo incorpora la tecnología Evaqua™ 2, que emplea un innovador material permeable al vapor de agua (MicroCells), capaz de reducir significativamente la condensación interna sin comprometer los niveles de humedad necesarios para una terapia respiratoria efectiva.",
-    "descripcion_larga_en": "Ventilation circuit designed specifically for neonates and infants up to 20 kg, offering an advanced, safe, and efficient ventilation system. This dual-heated-wire circuit incorporates Evaqua™ 2 technology, which employs an innovative water-vapor-permeable material (MicroCells) capable of significantly reducing internal condensation without compromising the humidity levels necessary for effective respiratory therapy.",
-    "especificaciones": [],
+    "descripcion_corta_es": "Circuito bicalentado desechable Evaqua 2 con cámara MR290 para SLE6000.",
+    "descripcion_corta_en": "Disposable dual-heated Evaqua 2 circuit with MR290 chamber for SLE6000.",
+    "descripcion_larga_es": "El RT269 es un circuito bicalentado desechable Evaqua 2 con cámara MR290 para SLE6000.",
+    "descripcion_larga_en": "The RT269 is a disposable dual-heated Evaqua 2 circuit with MR290 chamber for SLE6000.",
+    "especificaciones": [
+      { "clave": "Compatibilidad", "grupo": "Catálogo IME", "valor": "SLE6000" },
+      { "clave": "Cámara", "grupo": "Catálogo IME", "valor": "MR290" },
+      { "clave": "Presentación", "grupo": "Catálogo IME", "valor": "Caja de 10 unidades" }
+    ],
     "imagen_principal": "/assets/productos/importados/circuito-desechable-bicalentado-cascada-ref-rt269-fisher-paykel/imagen-principal-circuito-desechable-bicalentado-cascada-ref-rt269-fisher-paykel.png",
     "galeria": [
       "/assets/productos/importados/circuito-desechable-bicalentado-cascada-ref-rt269-fisher-paykel/imagen-principal-circuito-desechable-bicalentado-cascada-ref-rt269-fisher-paykel.png"
@@ -1881,10 +1963,28 @@
     "nuevo": false,
     "activo": true,
     "orden": 0,
-    "aplicaciones_es": ["Neonatología", "Ventilación invasiva", "Lactantes hasta 20 kg"],
-    "aplicaciones_en": ["Neonatology", "Invasive ventilation", "Infants up to 20 kg"],
+    "aplicaciones_es": ["Neonatología", "Ventilación invasiva"],
+    "aplicaciones_en": ["Neonatology", "Invasive ventilation"],
     "marca": "Circuito Desechable",
-    "proveedor_ref": "equitronic"
+    "proveedor_ref": "equitronic",
+    "beneficios_es": ["Doble calentamiento", "Cámara MR290", "Presentación de 10 unidades"],
+    "beneficios_en": ["Dual heating", "MR290 chamber", "Pack of 10 units"],
+    "valor_es": "Circuito RT269 Evaqua 2 con cámara MR290 para SLE6000, caja de 10 unidades.",
+    "valor_en": "RT269 Evaqua 2 circuit with MR290 chamber for SLE6000, box of 10 units.",
+    "preguntas_frecuentes_es": [
+      { "q": "¿Con qué ventilador se utiliza?", "a": "SLE6000." },
+      { "q": "¿Cuál es la presentación?", "a": "Caja de 10 unidades." }
+    ],
+    "preguntas_frecuentes_en": [
+      { "q": "Which ventilator is it for?", "a": "SLE6000." },
+      { "q": "What is the pack size?", "a": "Box of 10 units." }
+    ],
+    "seo_keywords_es": ["RT269", "Evaqua 2", "SLE6000", "MR290"],
+    "seo_keywords_en": ["RT269", "Evaqua 2", "SLE6000", "MR290"],
+    "atributos": {
+      "fabricante": "Fisher & Paykel",
+      "fuentes": ["https://www.fphcare.com/us/products/respiratory-care/respiratory-circuits/"]
+    }
   },
   {
     "id": "adcfd118-e9d8-4fec-b29a-e9b9ab810347",
@@ -1894,11 +1994,15 @@
     "tipo_id": "ca4cf3be-2041-478e-86a2-69a7435eeabf",
     "nombre_es": "Circuito Desechable Neonatal Bical/Cascada Evaqua 2 Ref RT265 Fisher & Paykel",
     "nombre_en": "Disposable Neonatal Heated Dual-Limb Chamber Evaqua 2 Circuit Ref RT265 Fisher & Paykel",
-    "descripcion_corta_es": "El circuito ventilatorio está diseñado específicamente para neonatos y lactantes de hasta 20 kg, y ofrece un sistema de ventilación avanzado, seguro y eficiente.",
-    "descripcion_corta_en": "Ventilation circuit designed specifically for neonates and infants up to 20 kg, providing an advanced, safe, and efficient ventilation system.",
-    "descripcion_larga_es": "El circuito ventilatorio está diseñado específicamente para neonatos y lactantes de hasta 20 kg, y ofrece un sistema de ventilación avanzado, seguro y eficiente. Este circuito bicalentado de doble hilo incorpora la tecnología Evaqua™ 2, que utiliza un innovador material permeable al vapor de agua (MicroCells) para reducir significativamente la condensación interna, sin comprometer la humedad necesaria para el tratamiento respiratorio.",
-    "descripcion_larga_en": "Ventilation circuit designed specifically for neonates and infants up to 20 kg, providing an advanced, safe, and efficient ventilation system. This dual-heated-wire circuit incorporates Evaqua™ 2 technology, which uses an innovative water-vapor-permeable material (MicroCells) to significantly reduce internal condensation without compromising the humidity necessary for respiratory treatment.",
-    "especificaciones": [],
+    "descripcion_corta_es": "Circuito neonatal bicalentado desechable Evaqua 2 con cámara MR290, referencia RT265.",
+    "descripcion_corta_en": "RT265 disposable neonatal dual-heated Evaqua 2 circuit with MR290 chamber.",
+    "descripcion_larga_es": "El RT265 es un circuito neonatal bicalentado desechable Evaqua 2 con cámara MR290, para flujos superiores a 4 L/min.",
+    "descripcion_larga_en": "The RT265 is a disposable neonatal dual-heated Evaqua 2 circuit with MR290 chamber, for flows above 4 L/min.",
+    "especificaciones": [
+      { "clave": "Cámara", "grupo": "Catálogo IME", "valor": "MR290" },
+      { "clave": "Flujo", "grupo": "Catálogo IME", "valor": "Superior a 4 L/min" },
+      { "clave": "Presentación", "grupo": "Catálogo IME", "valor": "Caja de 10 unidades" }
+    ],
     "imagen_principal": "/assets/productos/importados/circuito-desechable-neonatal-bical-cascada-evaqua-2-ref-rt265-fisher-paykel/imagen-principal-circuito-desechable-neonatal-bical-cascada-evaqua-2-ref-rt265-fisher-paykel.png",
     "galeria": [
       "/assets/productos/importados/circuito-desechable-neonatal-bical-cascada-evaqua-2-ref-rt265-fisher-paykel/imagen-principal-circuito-desechable-neonatal-bical-cascada-evaqua-2-ref-rt265-fisher-paykel.png"
@@ -1917,7 +2021,25 @@
     "aplicaciones_es": ["Neonatología", "Ventilación invasiva", "Lactantes hasta 20 kg"],
     "aplicaciones_en": ["Neonatology", "Invasive ventilation", "Infants up to 20 kg"],
     "marca": "Circuito Desechable",
-    "proveedor_ref": "equitronic"
+    "proveedor_ref": "equitronic",
+    "beneficios_es": ["Doble calentamiento", "Cámara MR290", "Flujo superior a 4 L/min"],
+    "beneficios_en": ["Dual heating", "MR290 chamber", "Flow above 4 L/min"],
+    "valor_es": "Circuito neonatal RT265 Evaqua 2 con cámara MR290, caja de 10 unidades.",
+    "valor_en": "RT265 neonatal Evaqua 2 circuit with MR290 chamber, box of 10 units.",
+    "preguntas_frecuentes_es": [
+      { "q": "¿Qué cámara incluye?", "a": "Cámara MR290." },
+      { "q": "¿Cuál es la presentación?", "a": "Caja de 10 unidades." }
+    ],
+    "preguntas_frecuentes_en": [
+      { "q": "Which chamber is included?", "a": "MR290 chamber." },
+      { "q": "What is the pack size?", "a": "Box of 10 units." }
+    ],
+    "seo_keywords_es": ["RT265", "Evaqua 2 neonatal", "MR290", "circuito bicalentado"],
+    "seo_keywords_en": ["RT265", "neonatal Evaqua 2", "MR290", "dual-heated circuit"],
+    "atributos": {
+      "fabricante": "Fisher & Paykel",
+      "fuentes": ["https://www.fphcare.com/us/products/respiratory-care/respiratory-circuits/"]
+    }
   },
   {
     "id": "6b00ed47-d201-47bc-adae-197ee87b29a5",
@@ -1927,11 +2049,19 @@
     "tipo_id": "b904c899-93f4-4792-8d0d-b4a3f67073e7",
     "nombre_es": "Circuito Desechable Para Cánula de Alto Flujo Adulto Ref RT202 Fisher & Paykel",
     "nombre_en": "Disposable Adult High-Flow Cannula Circuit Ref RT202 Fisher & Paykel",
-    "descripcion_corta_es": "El circuito desechable de alto flujo RT202 de Fisher & Paykel está diseñado para ofrecer un soporte respiratorio eficiente y seguro en pacientes a partir de los 20 kg.",
-    "descripcion_corta_en": "High-flow disposable circuit designed to provide efficient and safe respiratory support in patients from 20 kg.",
-    "descripcion_larga_es": "El circuito desechable de alto flujo RT202 de Fisher & Paykel está diseñado para ofrecer un soporte respiratorio eficiente y seguro en pacientes a partir de los 20 kg. Su diámetro de 22 mm permite un flujo óptimo y constante, ideal para terapias de alto flujo en ambientes hospitalarios exigentes.",
-    "descripcion_larga_en": "The RT202 high-flow disposable circuit from Fisher & Paykel is designed to provide efficient and safe respiratory support in patients from 20 kg. Its 22 mm diameter allows optimal and constant flow, ideal for high-flow therapy in demanding hospital environments.",
-    "especificaciones": [],
+    "descripcion_corta_es": "Circuito inspiratorio calefaccionado adulto RT202 con cámara MR290 de llenado automático.",
+    "descripcion_corta_en": "RT202 adult heated inspiratory circuit with MR290 auto-fill chamber.",
+    "descripcion_larga_es": "El RT202 es un circuito inspiratorio calefaccionado adulto con cámara MR290 de llenado automático.",
+    "descripcion_larga_en": "The RT202 is an adult heated inspiratory circuit with MR290 auto-fill chamber.",
+    "especificaciones": [
+      {
+        "clave": "Tipo",
+        "grupo": "Catálogo IME",
+        "valor": "Circuito inspiratorio calefaccionado adulto"
+      },
+      { "clave": "Cámara", "grupo": "Catálogo IME", "valor": "MR290 de llenado automático" },
+      { "clave": "Presentación", "grupo": "Catálogo IME", "valor": "Caja de 10 unidades" }
+    ],
     "imagen_principal": "/assets/productos/importados/circuito-desechable-para-canula-de-alto-flujo-adulto-ref-rt202-fisher-paykel/imagen-principal-circuito-desechable-para-canula-de-alto-flujo-adulto-ref-rt202-fisher-paykel.png",
     "galeria": [
       "/assets/productos/importados/circuito-desechable-para-canula-de-alto-flujo-adulto-ref-rt202-fisher-paykel/imagen-principal-circuito-desechable-para-canula-de-alto-flujo-adulto-ref-rt202-fisher-paykel.png"
@@ -1950,7 +2080,29 @@
     "aplicaciones_es": ["Terapia de alto flujo", "Oxigenoterapia", "Adultos mayores de 20 kg"],
     "aplicaciones_en": ["High-flow therapy", "Oxygen therapy", "Adults over 20 kg"],
     "marca": "Circuito Desechable",
-    "proveedor_ref": "equitronic"
+    "proveedor_ref": "equitronic",
+    "beneficios_es": [
+      "Rama inspiratoria calefaccionada",
+      "Cámara MR290 de llenado automático",
+      "Presentación de 10 unidades"
+    ],
+    "beneficios_en": ["Heated inspiratory limb", "MR290 auto-fill chamber", "Pack of 10 units"],
+    "valor_es": "Circuito inspiratorio calefaccionado adulto RT202 con cámara MR290 de llenado automático.",
+    "valor_en": "RT202 adult heated inspiratory circuit with MR290 auto-fill chamber.",
+    "preguntas_frecuentes_es": [
+      { "q": "¿Qué cámara incluye?", "a": "Cámara MR290 de llenado automático." },
+      { "q": "¿Cuál es la presentación?", "a": "Caja de 10 unidades." }
+    ],
+    "preguntas_frecuentes_en": [
+      { "q": "Which chamber is included?", "a": "MR290 auto-fill chamber." },
+      { "q": "What is the pack size?", "a": "Box of 10 units." }
+    ],
+    "seo_keywords_es": ["RT202", "circuito inspiratorio adulto", "MR290", "alto flujo"],
+    "seo_keywords_en": ["RT202", "adult inspiratory circuit", "MR290", "high flow"],
+    "atributos": {
+      "fabricante": "Fisher & Paykel",
+      "fuentes": ["https://www.fphcare.com/us/products/respiratory-care/respiratory-circuits/"]
+    }
   },
   {
     "id": "4479baad-1148-4f90-9dd2-15adfcddb42a",
@@ -1993,11 +2145,15 @@
     "tipo_id": "ca4cf3be-2041-478e-86a2-69a7435eeabf",
     "nombre_es": "Circuito Optiflow Junior Para Ventilador Ref RT331 Fisher & Paykel",
     "nombre_en": "Optiflow Junior Ventilator Circuit Ref RT331 Fisher & Paykel",
-    "descripcion_corta_es": "El circuito RT331 está diseñado para terapias de alto flujo en pacientes pediátricos.",
-    "descripcion_corta_en": "RT331 circuit designed for high-flow therapy in pediatric patients.",
-    "descripcion_larga_es": "El circuito RT331 está diseñado para terapias de alto flujo en pacientes pediátricos. Es compatible con los humidificadores MR850, las cánulas Optiflow Junior y el uso con ventilación mecánica. Ofrece una solución integral para la administración segura y eficiente de gases humidificados y calentados, reduciendo la condensación y mejorando la comodidad del paciente.",
-    "descripcion_larga_en": "The RT331 circuit is designed for high-flow therapy in pediatric patients. It is compatible with MR850 humidifiers, Optiflow Junior cannulas, and mechanical ventilation use. Provides a comprehensive solution for safe and efficient delivery of heated, humidified gases, reducing condensation and improving patient comfort.",
-    "especificaciones": [],
+    "descripcion_corta_es": "Kit de circuito Optiflow Junior para ventilador MR850, referencia RT331.",
+    "descripcion_corta_en": "Optiflow Junior ventilator circuit kit for MR850, reference RT331.",
+    "descripcion_larga_es": "El RT331 es un kit de circuito Optiflow Junior para ventilador MR850.",
+    "descripcion_larga_en": "The RT331 is an Optiflow Junior ventilator circuit kit for MR850.",
+    "especificaciones": [
+      { "clave": "Tipo", "grupo": "Catálogo IME", "valor": "Kit de circuito para ventilador" },
+      { "clave": "Compatibilidad", "grupo": "Catálogo IME", "valor": "MR850" },
+      { "clave": "Presentación", "grupo": "Catálogo IME", "valor": "Caja de 10 unidades" }
+    ],
     "imagen_principal": "/assets/productos/importados/circuito-optiflow-junior-para-ventilador-ref-rt331-fisher-paykel/imagen-principal-circuito-optiflow-junior-para-ventilador-ref-rt331-fisher-paykel.png",
     "galeria": [
       "/assets/productos/importados/circuito-optiflow-junior-para-ventilador-ref-rt331-fisher-paykel/imagen-principal-circuito-optiflow-junior-para-ventilador-ref-rt331-fisher-paykel.png"
@@ -2020,7 +2176,29 @@
     ],
     "aplicaciones_en": ["Pediatric high-flow therapy", "Mechanical ventilation", "Oxygen therapy"],
     "marca": "Circuito Optiflow",
-    "proveedor_ref": "equitronic"
+    "proveedor_ref": "equitronic",
+    "beneficios_es": [
+      "Kit Optiflow Junior para ventilador",
+      "Compatibilidad con MR850",
+      "Presentación de 10 unidades"
+    ],
+    "beneficios_en": ["Optiflow Junior ventilator kit", "MR850 compatibility", "Pack of 10 units"],
+    "valor_es": "Kit de circuito Optiflow Junior RT331 para ventilador MR850, caja de 10 unidades.",
+    "valor_en": "RT331 Optiflow Junior ventilator circuit kit for MR850, box of 10 units.",
+    "preguntas_frecuentes_es": [
+      { "q": "¿Para qué ventilador es?", "a": "Para MR850." },
+      { "q": "¿Cuál es la presentación?", "a": "Caja de 10 unidades." }
+    ],
+    "preguntas_frecuentes_en": [
+      { "q": "Which ventilator is it for?", "a": "MR850." },
+      { "q": "What is the pack size?", "a": "Box of 10 units." }
+    ],
+    "seo_keywords_es": ["RT331", "Optiflow Junior", "circuito MR850", "Fisher & Paykel"],
+    "seo_keywords_en": ["RT331", "Optiflow Junior", "MR850 circuit", "Fisher & Paykel"],
+    "atributos": {
+      "fabricante": "Fisher & Paykel",
+      "fuentes": ["https://www.fphcare.com/us/products/respiratory-care/respiratory-circuits/"]
+    }
   },
   {
     "id": "b285b9b2-5c4c-42c1-b20a-8d591e2d5315",
@@ -2030,11 +2208,16 @@
     "tipo_id": "b904c899-93f4-4792-8d0d-b4a3f67073e7",
     "nombre_es": "Circuito Para Alto Flujo Optiflow Junior Ref RT330 Fisher & Paykel",
     "nombre_en": "Optiflow Junior High-Flow Circuit Ref RT330 Fisher & Paykel",
-    "descripcion_corta_es": "El RT330 es un circuito de alto flujo no invasivo, diseñado para neonatos y lactantes de hasta 20 kg.",
-    "descripcion_corta_en": "RT330 non-invasive high-flow circuit designed for neonates and infants up to 20 kg.",
-    "descripcion_larga_es": "El RT330 es un circuito de alto flujo no invasivo, diseñado para neonatos y lactantes de hasta 20 kg. Es ideal para unidades de cuidado neonatal y programas de madre canguro. Además, es compatible con el humidificador MR850.",
-    "descripcion_larga_en": "The RT330 is a non-invasive high-flow circuit designed for neonates and infants up to 20 kg. It is ideal for neonatal care units and kangaroo mother care programs. It is also compatible with the MR850 humidifier.",
-    "especificaciones": [],
+    "descripcion_corta_es": "Kit de circuito Optiflow Junior para blender MR850, referencia RT330.",
+    "descripcion_corta_en": "Optiflow Junior blender circuit kit for MR850, reference RT330.",
+    "descripcion_larga_es": "El RT330 es un kit de circuito Optiflow Junior para blender MR850 y cámara MR290, con longitud de 1,75 m.",
+    "descripcion_larga_en": "The RT330 is an Optiflow Junior blender circuit kit for MR850 and MR290 chamber, with a length of 1.75 m.",
+    "especificaciones": [
+      { "clave": "Tipo", "grupo": "Catálogo IME", "valor": "Kit de circuito para blender" },
+      { "clave": "Compatibilidad", "grupo": "Catálogo IME", "valor": "MR850 y cámara MR290" },
+      { "clave": "Longitud", "grupo": "Catálogo IME", "valor": "1,75 m" },
+      { "clave": "Presentación", "grupo": "Catálogo IME", "valor": "Caja de 10 unidades" }
+    ],
     "imagen_principal": "/assets/productos/importados/circuito-para-alto-flujo-optiflow-junior-ref-rt330-fisher-paykel/imagen-principal-circuito-para-alto-flujo-optiflow-junior-ref-rt330-fisher-paykel.jpg",
     "galeria": [
       "/assets/productos/importados/circuito-para-alto-flujo-optiflow-junior-ref-rt330-fisher-paykel/imagen-principal-circuito-para-alto-flujo-optiflow-junior-ref-rt330-fisher-paykel.jpg",
@@ -2054,7 +2237,33 @@
     "aplicaciones_es": ["Terapia de alto flujo neonatal", "Programa madre canguro", "Neonatología"],
     "aplicaciones_en": ["Neonatal high-flow therapy", "Kangaroo mother care", "Neonatology"],
     "marca": "Circuito Para",
-    "proveedor_ref": "equitronic"
+    "proveedor_ref": "equitronic",
+    "beneficios_es": [
+      "Kit Optiflow Junior para blender",
+      "Compatibilidad con MR850 y MR290",
+      "Longitud de 1,75 m"
+    ],
+    "beneficios_en": [
+      "Optiflow Junior blender kit",
+      "MR850 and MR290 compatibility",
+      "1.75 m length"
+    ],
+    "valor_es": "Kit de circuito Optiflow Junior RT330 para blender MR850 y cámara MR290, 1,75 m, caja de 10 unidades.",
+    "valor_en": "RT330 Optiflow Junior blender circuit kit for MR850 and MR290 chamber, 1.75 m, box of 10 units.",
+    "preguntas_frecuentes_es": [
+      { "q": "¿Con qué equipos es compatible?", "a": "Con MR850 y cámara MR290." },
+      { "q": "¿Cuál es la longitud?", "a": "1,75 m." }
+    ],
+    "preguntas_frecuentes_en": [
+      { "q": "Which devices is it compatible with?", "a": "MR850 and MR290 chamber." },
+      { "q": "What is the length?", "a": "1.75 m." }
+    ],
+    "seo_keywords_es": ["RT330", "Optiflow Junior", "blender MR850", "MR290"],
+    "seo_keywords_en": ["RT330", "Optiflow Junior", "MR850 blender", "MR290"],
+    "atributos": {
+      "fabricante": "Fisher & Paykel",
+      "fuentes": ["https://www.fphcare.com/us/products/respiratory-care/respiratory-circuits/"]
+    }
   },
   {
     "id": "7b3760c4-0741-4795-8f0e-969d9f38fb88",
@@ -7994,11 +8203,20 @@
     "tipo_id": "ca4cf3be-2041-478e-86a2-69a7435eeabf",
     "nombre_es": "Sensor de Flujo Desechable Ref N5302/05 SLE",
     "nombre_en": "Single-Use Flow Sensor Ref N5302/05 SLE",
-    "descripcion_corta_es": "El sensor de flujo de un solo uso de SLE está diseñado para su uso con ventiladores neonatales, incluidos los modelos SLE4000, SLE5000 y SLE6000.",
-    "descripcion_corta_en": "The single-use flow sensor from SLE is designed for use with neonatal ventilators, including models SLE4000, SLE5000 and SLE6000.",
-    "descripcion_larga_es": "El sensor de flujo de un solo uso de SLE está diseñado para su uso con ventiladores neonatales, incluidos los modelos SLE4000, SLE5000 y SLE6000. Su diseño está basado en un anemómetro de hilo caliente que le permite responder casi de forma instantánea incluso a los flujos más pequeños, lo que lo hace ideal para su uso en neonatos prematuros.",
-    "descripcion_larga_en": "The single-use flow sensor from SLE is designed for use with neonatal ventilators, including models SLE4000, SLE5000 and SLE6000. Its hot-wire anemometer-based design allows it to respond almost instantly even to the smallest flows, making it ideal for premature neonates.",
-    "especificaciones": [],
+    "descripcion_corta_es": "Sensor de flujo desechable SLE para ventilación neonatal, con tecnología de doble hilo caliente y rango de medición de 0,2 a 30 L/min.",
+    "descripcion_corta_en": "SLE single-use flow sensor for neonatal ventilation, with dual hot-wire technology and a 0.2–30 L/min measurement range.",
+    "descripcion_larga_es": "Sensor de flujo desechable SLE para ventilación neonatal. La especificación del sistema SLE6000 describe un sensor de doble hilo caliente de 10 mm, con rango de 0,2 a 30 L/min y espacio muerto de 1 ml. Confirme compatibilidad de referencia y configuración antes de cotizar.",
+    "descripcion_larga_en": "SLE single-use flow sensor for neonatal ventilation. The SLE6000 system specification describes a 10 mm dual hot-wire sensor, with a 0.2–30 L/min range and 1 ml dead space. Confirm reference and configuration compatibility before requesting a quote.",
+    "especificaciones": [
+      {
+        "clave": "Tecnología",
+        "grupo": "Especificaciones SLE6000",
+        "valor": "Sensor de doble hilo caliente de 10 mm"
+      },
+      { "clave": "Rango de flujo", "grupo": "Especificaciones SLE6000", "valor": "0,2–30 L/min" },
+      { "clave": "Espacio muerto", "grupo": "Especificaciones SLE6000", "valor": "1 ml" },
+      { "clave": "Presentación", "grupo": "Especificaciones SLE6000", "valor": "Desechable" }
+    ],
     "imagen_principal": "/assets/productos/importados/sensor-de-flujo-desechable-ref-n5302-05-sle/imagen-principal-sensor-de-flujo-desechable-ref-n5302-05-sle.png",
     "galeria": [
       "/assets/productos/importados/sensor-de-flujo-desechable-ref-n5302-05-sle/imagen-principal-sensor-de-flujo-desechable-ref-n5302-05-sle.png"
@@ -8024,8 +8242,58 @@
       "Respiratory flow monitoring",
       "Use with SLE neonatal ventilators"
     ],
-    "marca": "Sensor de",
-    "proveedor_ref": "equitronic"
+    "beneficios_es": [
+      "Medición mediante doble hilo caliente.",
+      "Rango de 0,2 a 30 L/min y espacio muerto de 1 ml según SLE6000.",
+      "Formato desechable para ventilación neonatal."
+    ],
+    "beneficios_en": [
+      "Measurement using dual hot-wire technology.",
+      "0.2–30 L/min range and 1 ml dead space according to SLE6000.",
+      "Single-use format for neonatal ventilation."
+    ],
+    "valor_es": "Sensor desechable para evaluación de ventilación neonatal con parámetros documentados.",
+    "valor_en": "Single-use sensor for neonatal ventilation evaluation with documented parameters.",
+    "preguntas_frecuentes_es": [
+      {
+        "q": "¿Qué tecnología utiliza?",
+        "a": "Sensor de doble hilo caliente de 10 mm según la especificación SLE6000."
+      },
+      { "q": "¿Cuál es su rango?", "a": "0,2–30 L/min y espacio muerto de 1 ml." },
+      {
+        "q": "¿Es compatible con mi ventilador?",
+        "a": "Confirme compatibilidad de referencia y configuración antes de cotizar."
+      }
+    ],
+    "preguntas_frecuentes_en": [
+      {
+        "q": "What technology does it use?",
+        "a": "A 10 mm dual hot-wire sensor according to the SLE6000 specification."
+      },
+      { "q": "What is its range?", "a": "0.2–30 L/min, with 1 ml dead space." },
+      {
+        "q": "Is it compatible with my ventilator?",
+        "a": "Confirm reference and configuration compatibility before requesting a quote."
+      }
+    ],
+    "seo_keywords_es": [
+      "sensor de flujo desechable SLE",
+      "sensor doble hilo caliente neonatal",
+      "sensor flujo 0,2 30 L/min"
+    ],
+    "seo_keywords_en": [
+      "SLE single-use flow sensor",
+      "neonatal dual hot-wire flow sensor",
+      "0.2–30 L/min flow sensor"
+    ],
+    "marca": "SLE",
+    "proveedor_ref": "equitronic",
+    "atributos": {
+      "fabricante": "SLE",
+      "fuentes": [
+        "https://inspirationhealthcaregroup.com/wp-content/uploads/2023/02/SLE6000-specifications.pdf"
+      ]
+    }
   },
   {
     "id": "9a92ddc6-db85-4b66-9127-25e6fee705d4",
@@ -8035,11 +8303,24 @@
     "tipo_id": "ca4cf3be-2041-478e-86a2-69a7435eeabf",
     "nombre_es": "Sensor de Flujo Reusable Ref N5402 SLE",
     "nombre_en": "Reusable Flow Sensor Ref N5402 SLE",
-    "descripcion_corta_es": "El sensor de flujo reusable de SLE es un dispositivo altamente sensible, diseñado para su uso con los ventiladores neonatales SLE4000, SLE5000 y SLE6000.",
-    "descripcion_corta_en": "The reusable flow sensor from SLE is a highly sensitive device designed for use with the neonatal ventilators SLE4000, SLE5000 and SLE6000.",
-    "descripcion_larga_es": "El sensor de flujo reusable de SLE es un dispositivo altamente sensible, diseñado para su uso con los ventiladores neonatales SLE4000, SLE5000 y SLE6000. Su estructura incorpora un cuerpo que contiene dos hilos sensores ultrafinos, de apenas 13 micrones de diámetro, dispuestos transversalmente en el conducto de flujo. En ambos extremos del cuerpo se encuentran mallas de alambre fino, que permiten generar un flujo laminar dirigido hacia los hilos sensores.",
-    "descripcion_larga_en": "The reusable flow sensor from SLE is a highly sensitive device designed for use with neonatal ventilators SLE4000, SLE5000 and SLE6000. Its structure incorporates a body containing two ultra-fine sensor wires, only 13 microns in diameter, arranged transversely in the flow duct. Fine wire meshes at both ends generate laminar flow directed towards the sensor wires.",
-    "especificaciones": [],
+    "descripcion_corta_es": "Sensor de flujo reusable SLE para ventilación neonatal, con tecnología de doble hilo caliente y versión autoclavable documentada para la gama SLE6000.",
+    "descripcion_corta_en": "SLE reusable flow sensor for neonatal ventilation, with dual hot-wire technology and an autoclavable version documented for the SLE6000 range.",
+    "descripcion_larga_es": "Sensor de flujo reusable SLE para ventilación neonatal. La especificación del sistema SLE6000 describe un sensor de doble hilo caliente de 10 mm, con rango de 0,2 a 30 L/min y espacio muerto de 1 ml; también documenta una versión autoclavable. Confirme compatibilidad y método de reprocesamiento para la referencia solicitada antes de cotizar.",
+    "descripcion_larga_en": "SLE reusable flow sensor for neonatal ventilation. The SLE6000 system specification describes a 10 mm dual hot-wire sensor, with a 0.2–30 L/min range and 1 ml dead space; it also documents an autoclavable version. Confirm compatibility and reprocessing method for the requested reference before quoting.",
+    "especificaciones": [
+      {
+        "clave": "Tecnología",
+        "grupo": "Especificaciones SLE6000",
+        "valor": "Sensor de doble hilo caliente de 10 mm"
+      },
+      { "clave": "Rango de flujo", "grupo": "Especificaciones SLE6000", "valor": "0,2–30 L/min" },
+      { "clave": "Espacio muerto", "grupo": "Especificaciones SLE6000", "valor": "1 ml" },
+      {
+        "clave": "Reprocesamiento",
+        "grupo": "Especificaciones SLE6000",
+        "valor": "Versión autoclavable documentada; confirmar referencia"
+      }
+    ],
     "imagen_principal": "/assets/productos/importados/sensor-de-flujo-reusable-ref-n5402-sle/imagen-principal-sensor-de-flujo-reusable-ref-n5402-sle.jpg",
     "galeria": [
       "/assets/productos/importados/sensor-de-flujo-reusable-ref-n5402-sle/imagen-principal-sensor-de-flujo-reusable-ref-n5402-sle.jpg",
@@ -8066,8 +8347,66 @@
       "Respiratory flow monitoring",
       "Use with SLE neonatal ventilators"
     ],
-    "marca": "Sensor de",
-    "proveedor_ref": "equitronic"
+    "beneficios_es": [
+      "Medición mediante doble hilo caliente.",
+      "Rango de 0,2 a 30 L/min y espacio muerto de 1 ml según SLE6000.",
+      "La gama documenta versión autoclavable; validar reprocesamiento de referencia."
+    ],
+    "beneficios_en": [
+      "Measurement using dual hot-wire technology.",
+      "0.2–30 L/min range and 1 ml dead space according to SLE6000.",
+      "The range documents an autoclavable version; validate reprocessing for the reference."
+    ],
+    "valor_es": "Sensor reusable para evaluación de ventilación neonatal con parámetros documentados y verificación de reprocesamiento.",
+    "valor_en": "Reusable sensor for neonatal ventilation evaluation with documented parameters and reprocessing verification.",
+    "preguntas_frecuentes_es": [
+      {
+        "q": "¿Qué tecnología utiliza?",
+        "a": "Sensor de doble hilo caliente de 10 mm según la especificación SLE6000."
+      },
+      { "q": "¿Cuál es su rango?", "a": "0,2–30 L/min y espacio muerto de 1 ml." },
+      {
+        "q": "¿Se puede autoclavar?",
+        "a": "La documentación contempla una versión autoclavable; confirme aplicación a N5402 antes de reprocesar."
+      },
+      {
+        "q": "¿Es compatible con mi ventilador?",
+        "a": "Confirme compatibilidad de referencia y configuración antes de cotizar."
+      }
+    ],
+    "preguntas_frecuentes_en": [
+      {
+        "q": "What technology does it use?",
+        "a": "A 10 mm dual hot-wire sensor according to the SLE6000 specification."
+      },
+      { "q": "What is its range?", "a": "0.2–30 L/min, with 1 ml dead space." },
+      {
+        "q": "Can it be autoclaved?",
+        "a": "The documentation includes an autoclavable version; confirm applicability to N5402 before reprocessing."
+      },
+      {
+        "q": "Is it compatible with my ventilator?",
+        "a": "Confirm reference and configuration compatibility before requesting a quote."
+      }
+    ],
+    "seo_keywords_es": [
+      "sensor de flujo reusable SLE",
+      "sensor autoclavable ventilador neonatal",
+      "sensor doble hilo caliente neonatal"
+    ],
+    "seo_keywords_en": [
+      "SLE reusable flow sensor",
+      "autoclavable neonatal ventilator sensor",
+      "neonatal dual hot-wire flow sensor"
+    ],
+    "marca": "SLE",
+    "proveedor_ref": "equitronic",
+    "atributos": {
+      "fabricante": "SLE",
+      "fuentes": [
+        "https://inspirationhealthcaregroup.com/wp-content/uploads/2023/02/SLE6000-specifications.pdf"
+      ]
+    }
   },
   {
     "id": "2cc8e0e0-ac30-45f1-9830-04b32dcc5445",

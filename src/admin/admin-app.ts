@@ -5058,24 +5058,43 @@ async function proveedoresView(): Promise<string> {
   const params = hashParams();
   const q = (params.get('q') ?? '').trim();
   const activo = params.get('activo') ?? '';
+  const tipoEntidad = params.get('tipo_entidad') ?? '';
+  const lifecycleStatus = params.get('lifecycle_status') ?? '';
+  const dropship = params.get('dropship') ?? '';
   const incorporadoDesde = params.get('incorporado_desde') ?? '';
   const incorporadoHasta = params.get('incorporado_hasta') ?? '';
   const ordenar = params.get('ordenar') ?? 'alfabetico_asc';
 
-  const [rows, asignaciones] = await Promise.all([
+  const [rows, asignaciones, contactos, fuentes] = await Promise.all([
     selectProveedores({
       q,
       activo,
+      tipo_entidad: tipoEntidad,
+      lifecycle_status: lifecycleStatus,
+      dropship,
       incorporado_desde: incorporadoDesde,
       incorporado_hasta: incorporadoHasta,
       ordenar,
     }),
     selectRows('proveedor_producto', 'proveedor_id', 'prioridad', 1000),
+    selectRows('proveedor_contactos', 'proveedor_id,verification_status', 'created_at', 1000),
+    selectRows('proveedor_fuentes', 'proveedor_id,verification_status', 'consultado_at', 1000),
   ]);
   const conteos = new Map<string, number>();
+  const conteosContactos = new Map<string, number>();
+  const conteosFuentesVerificadas = new Map<string, number>();
   for (const row of asignaciones) {
     const id = text(row.proveedor_id);
     conteos.set(id, (conteos.get(id) ?? 0) + 1);
+  }
+  for (const contacto of contactos) {
+    const id = text(contacto.proveedor_id);
+    conteosContactos.set(id, (conteosContactos.get(id) ?? 0) + 1);
+  }
+  for (const fuente of fuentes) {
+    if (text(fuente.verification_status) !== 'verificado') continue;
+    const id = text(fuente.proveedor_id);
+    conteosFuentesVerificadas.set(id, (conteosFuentesVerificadas.get(id) ?? 0) + 1);
   }
   return `
     <section class="admin-panel admin-form">
@@ -5093,6 +5112,16 @@ async function proveedoresView(): Promise<string> {
           ['1', 'Activo'],
           ['0', 'Inactivo'],
         ])}
+        ${selectStatic('tipo_entidad', 'Tipo', tipoEntidad, [['', 'Todos'], ...PROVEEDOR_TIPOS])}
+        ${selectStatic('lifecycle_status', 'Validación', lifecycleStatus, [
+          ['', 'Todas'],
+          ...PROVEEDOR_LIFECYCLES,
+        ])}
+        ${selectStatic('dropship', 'Dropshipping', dropship, [
+          ['', 'Todos'],
+          ['1', 'Habilitado'],
+          ['0', 'No habilitado'],
+        ])}
         ${field('incorporado_desde', 'Fecha incorporación desde', incorporadoDesde, false, 'date')}
         ${field('incorporado_hasta', 'Fecha incorporación hasta', incorporadoHasta, false, 'date')}
         ${selectStatic('ordenar', 'Ordenar', ordenar, [
@@ -5104,32 +5133,51 @@ async function proveedoresView(): Promise<string> {
         <button class="admin-button" type="submit">Filtrar</button>
         <a class="admin-button admin-button--ghost" href="#/proveedores">Limpiar</a>
       </form>
-      ${entityImportForm('proveedores', 'proveedores', 'Upsert por slug. api_config debe conservar JSON válido.')}
-      <form class="admin-panel admin-form" data-simple-form data-table="proveedores" data-fields="slug,nombre,contacto_email,contacto_whatsapp,canal,webhook_url,notas,activo">
+      ${entityImportForm('proveedores', 'proveedores', 'Upsert por slug con datos operativos públicos. No importes tokens, claves, costos ni datos de clientes.')}
+      <form class="admin-panel admin-form" data-simple-form data-table="proveedores" data-fields="slug,nombre,razon_social,tipo_entidad,sitio_web,pais,ciudad,contacto_email,contacto_whatsapp,canal,lifecycle_status,dropship_enabled,notas,activo">
         <div class="admin-panel__head"><h2>Crear proveedor</h2><button class="admin-button" type="submit">Guardar</button></div>
         <div style="padding:16px" class="admin-editor__cols">
           ${field('slug', 'Slug', '', true)}
           ${field('nombre', 'Nombre', '', true)}
+          ${field('razon_social', 'Razón social')}
+          ${selectStatic('tipo_entidad', 'Tipo de entidad', 'proveedor', PROVEEDOR_TIPOS)}
+          ${field('sitio_web', 'Sitio web', '', false, 'url')}
+          ${field('pais', 'País')}
+          ${field('ciudad', 'Ciudad')}
           ${field('contacto_email', 'Email')}
           ${field('contacto_whatsapp', 'WhatsApp')}
           ${selectStatic('canal', 'Canal', 'email', [
             ['email', 'Email'],
             ['whatsapp', 'WhatsApp'],
-            ['webhook', 'Webhook'],
-            ['api', 'API'],
             ['manual', 'Manual'],
           ])}
-          ${field('webhook_url', 'Webhook URL')}
+          ${selectStatic('lifecycle_status', 'Estado de validación', 'prospect', PROVEEDOR_LIFECYCLES)}
+          ${checkbox(
+            'dropship_enabled',
+            'Habilitar dropshipping (requiere proveedor aprobado)',
+            false
+          ).replace('type="checkbox"', 'type="checkbox" disabled aria-describedby="dropship-help"')}
           ${textarea('notas', 'Notas')}
-          ${checkbox('activo', 'Activo', true)}
+          ${checkbox('activo', 'Activo', false)}
         </div>
+        <p id="dropship-help" class="admin-help">Los prospectos se crean inactivos y sin dropshipping. La habilitación exige validación comercial, canal de pedido y aprobación operativa.</p>
       </form>
       ${table(
-        ['Nombre', 'Canal', 'Estado', 'Productos asignados', 'Acciones'],
+        [
+          'Proveedor',
+          'Ubicación',
+          'Validación',
+          'Dropship',
+          'Contactos / fuentes',
+          'Productos',
+          'Acciones',
+        ],
         rows.map(r => [
-          text(r.nombre),
-          text(r.canal),
-          status(r.activo),
+          `<strong>${escapeHtml(text(r.nombre))}</strong><br /><span class="admin-meta">${escapeHtml(proveedorTipoLabel(text(r.tipo_entidad)))}</span>`,
+          escapeHtml([text(r.ciudad), text(r.pais)].filter(Boolean).join(', ')) || '—',
+          proveedorLifecycleBadge(text(r.lifecycle_status)),
+          dropshipStatus(Boolean(r.dropship_enabled)),
+          `${String(conteosContactos.get(text(r.id)) ?? 0)} contactos · ${String(conteosFuentesVerificadas.get(text(r.id)) ?? 0)} fuentes verificadas`,
           String(conteos.get(text(r.id)) ?? 0),
           `<a class="admin-button admin-button--ghost" href="#/proveedor-productos?id=${encodeURIComponent(text(r.id))}">Productos</a>`,
         ])
@@ -5663,7 +5711,16 @@ function bindProviderFilters() {
     event.preventDefault();
     const data = new FormData(form);
     const params = new URLSearchParams();
-    for (const key of ['q', 'activo', 'incorporado_desde', 'incorporado_hasta', 'ordenar']) {
+    for (const key of [
+      'q',
+      'activo',
+      'tipo_entidad',
+      'lifecycle_status',
+      'dropship',
+      'incorporado_desde',
+      'incorporado_hasta',
+      'ordenar',
+    ]) {
       const value = String(data.get(key) ?? '').trim();
       if (value) params.set(key, value);
     }
@@ -5992,6 +6049,14 @@ function bindTaxonomy() {
         } else {
           payload[fieldName] = emptyToNull(data.get(fieldName));
         }
+      }
+      if (
+        tableName === 'proveedores' &&
+        payload['dropship_enabled'] === true &&
+        payload['lifecycle_status'] !== 'aprobado'
+      ) {
+        toast('Dropshipping solo se habilita para proveedores aprobados.');
+        return;
       }
       const { error } = await supabase!.from(tableName).insert(payload);
       if (error) {
@@ -10168,6 +10233,44 @@ function status(value: unknown): string {
     : '<span class="admin-badge admin-badge--warn">Inactivo</span>';
 }
 
+const PROVEEDOR_TIPOS: Array<[string, string]> = [
+  ['fabricante', 'Fabricante'],
+  ['distribuidor', 'Distribuidor'],
+  ['proveedor', 'Proveedor'],
+  ['logistica', 'Logística'],
+];
+
+const PROVEEDOR_LIFECYCLES: Array<[string, string]> = [
+  ['prospect', 'Prospecto'],
+  ['contactado', 'Contactado'],
+  ['calificado', 'Calificado'],
+  ['onboarding', 'En onboarding'],
+  ['aprobado', 'Aprobado'],
+  ['suspendido', 'Suspendido'],
+  ['rechazado', 'Rechazado'],
+];
+
+function proveedorTipoLabel(value: string): string {
+  return PROVEEDOR_TIPOS.find(([id]) => id === value)?.[1] ?? 'Proveedor';
+}
+
+function proveedorLifecycleBadge(value: string): string {
+  const label = PROVEEDOR_LIFECYCLES.find(([id]) => id === value)?.[1] ?? 'Sin validar';
+  const tone =
+    value === 'aprobado'
+      ? 'ok'
+      : value === 'rechazado' || value === 'suspendido'
+        ? 'danger'
+        : 'warn';
+  return `<span class="admin-badge admin-badge--${tone}">${escapeHtml(label)}</span>`;
+}
+
+function dropshipStatus(enabled: boolean): string {
+  return enabled
+    ? '<span class="admin-badge admin-badge--ok">Habilitado</span>'
+    : '<span class="admin-badge admin-badge--warn">No habilitado</span>';
+}
+
 function text(value: unknown): string {
   if (typeof value === 'string') return value;
   if (typeof value === 'number' || typeof value === 'boolean') return String(value);
@@ -10275,6 +10378,9 @@ type ProductosExcelFilters = {
 type ProveedoresQuery = {
   q: string;
   activo: string;
+  tipo_entidad: string;
+  lifecycle_status: string;
+  dropship: string;
   incorporado_desde: string;
   incorporado_hasta: string;
   ordenar: string;
@@ -10321,11 +10427,15 @@ const CLIENTES_EXCEL_HEADERS = [
 const PROVEEDORES_EXCEL_HEADERS = [
   'slug',
   'nombre',
+  'razon_social',
+  'tipo_entidad',
+  'sitio_web',
+  'pais',
+  'ciudad',
   'contacto_email',
   'contacto_whatsapp',
   'canal',
-  'webhook_url',
-  'api_config',
+  'lifecycle_status',
   'notas',
   'activo',
 ];
@@ -10390,13 +10500,17 @@ const ENTITY_EXCEL_CONFIGS: Record<ExcelEntity, EntityExcelConfig> = {
     sample: {
       slug: 'proveedor-ejemplo',
       nombre: 'Proveedor ejemplo',
+      razon_social: 'Proveedor ejemplo S.A.S.',
+      tipo_entidad: 'proveedor',
+      sitio_web: 'https://proveedor.ejemplo.com',
+      pais: 'Colombia',
+      ciudad: 'Bogotá D.C.',
       contacto_email: 'proveedor@ejemplo.com',
       contacto_whatsapp: '+57 300 000 0000',
       canal: 'email',
-      webhook_url: '',
-      api_config: '{}',
+      lifecycle_status: 'prospect',
       notas: 'Condiciones internas',
-      activo: true,
+      activo: false,
     },
   },
   pedidos: {
@@ -10591,6 +10705,9 @@ async function fetchProveedoresForExcel(): Promise<Row[]> {
   const filters: ProveedoresQuery = {
     q: (params.get('q') ?? '').trim(),
     activo: params.get('activo') ?? '',
+    tipo_entidad: params.get('tipo_entidad') ?? '',
+    lifecycle_status: params.get('lifecycle_status') ?? '',
+    dropship: params.get('dropship') ?? '',
     incorporado_desde: params.get('incorporado_desde') ?? '',
     incorporado_hasta: params.get('incorporado_hasta') ?? '',
     ordenar: params.get('ordenar') ?? 'alfabetico_asc',
@@ -10602,6 +10719,10 @@ async function fetchProveedoresForExcel(): Promise<Row[]> {
   }
   if (filters.activo === '1') query = query.eq('activo', true);
   if (filters.activo === '0') query = query.eq('activo', false);
+  if (filters.tipo_entidad) query = query.eq('tipo_entidad', filters.tipo_entidad);
+  if (filters.lifecycle_status) query = query.eq('lifecycle_status', filters.lifecycle_status);
+  if (filters.dropship === '1') query = query.eq('dropship_enabled', true);
+  if (filters.dropship === '0') query = query.eq('dropship_enabled', false);
   if (filters.incorporado_desde)
     query = query.gte('created_at', `${filters.incorporado_desde}T00:00:00`);
   if (filters.incorporado_hasta)
@@ -10845,13 +10966,31 @@ function normalizeProveedorImportRow(row: Row): Row | null {
   return removeUndefined({
     slug,
     nombre,
+    razon_social: emptyStringToNull(text(row.razon_social)),
+    tipo_entidad: ['fabricante', 'distribuidor', 'proveedor', 'logistica'].includes(
+      text(row.tipo_entidad)
+    )
+      ? text(row.tipo_entidad)
+      : 'proveedor',
+    sitio_web: emptyStringToNull(text(row.sitio_web)),
+    pais: emptyStringToNull(text(row.pais)),
+    ciudad: emptyStringToNull(text(row.ciudad)),
     contacto_email: emptyStringToNull(text(row.contacto_email)),
     contacto_whatsapp: emptyStringToNull(text(row.contacto_whatsapp)),
-    canal: ['email', 'whatsapp', 'webhook', 'api', 'manual'].includes(canal) ? canal : 'email',
-    webhook_url: emptyStringToNull(text(row.webhook_url)),
-    api_config: parseExcelJsonObject(row.api_config),
+    canal: ['email', 'whatsapp', 'manual'].includes(canal) ? canal : 'manual',
+    lifecycle_status: [
+      'prospect',
+      'contactado',
+      'calificado',
+      'onboarding',
+      'aprobado',
+      'suspendido',
+      'rechazado',
+    ].includes(text(row.lifecycle_status))
+      ? text(row.lifecycle_status)
+      : 'prospect',
     notas: emptyStringToNull(text(row.notas)),
-    activo: parseExcelBoolean(row.activo, true),
+    activo: parseExcelBoolean(row.activo, false),
   });
 }
 
@@ -11225,6 +11364,10 @@ async function selectProveedores(filters: ProveedoresQuery): Promise<Row[]> {
   }
   if (filters.activo === '1') query = query.eq('activo', true);
   if (filters.activo === '0') query = query.eq('activo', false);
+  if (filters.tipo_entidad) query = query.eq('tipo_entidad', filters.tipo_entidad);
+  if (filters.lifecycle_status) query = query.eq('lifecycle_status', filters.lifecycle_status);
+  if (filters.dropship === '1') query = query.eq('dropship_enabled', true);
+  if (filters.dropship === '0') query = query.eq('dropship_enabled', false);
   if (filters.incorporado_desde)
     query = query.gte('created_at', `${filters.incorporado_desde}T00:00:00`);
   if (filters.incorporado_hasta)
