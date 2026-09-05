@@ -33,7 +33,9 @@ export interface PaidTransitionClaim {
 
 /**
  * Atomically changes a non-paid order to paid and returns whether this caller
- * won the transition. Only the winner may execute customer/provider side effects.
+ * won the transition. Callers must still run post-pago side effects when the
+ * gateway reports paid — including incomplete retries where the order is
+ * already pagado but emails/DIAN/dropship never finished.
  */
 export async function claimPaidTransition(
   client: PaymentStateClient,

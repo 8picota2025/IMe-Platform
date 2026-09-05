@@ -6,6 +6,7 @@
 import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 import { enviarEmailPlantilla, DESTINATARIOS_INTERNOS, escapeHtml, itemsToHtml } from './email.ts';
 import { pushPagoToTwenty } from './twenty-commerce-sync.ts';
+import { tipoEventoPostPago, yaRegistroPostPago } from '../../../src/lib/post-pago-guard.ts';
 
 interface PedidoItem {
   producto_id: string;
@@ -104,6 +105,23 @@ export async function registrarPedidoPagado(
   options?: { deEstado?: string; skipClienteEmail?: boolean }
 ): Promise<void> {
   const deEstado = options?.deEstado ?? 'pendiente';
+
+  // Idempotent re-entry: webhook may retry after claiming `pagado` but crashing
+  // before emails/DIAN/dropship. A second pass must not double-count totals.
+  const { data: eventosPrevios, error: eventosError } = await supabase
+    .from('pedido_eventos')
+    .select('tipo')
+    .eq('pedido_id', pedidoId)
+    .in('tipo', ['pago_confirmado', 'transferencia_validada'])
+    .limit(1);
+  if (eventosError) {
+    console.error('registrarPedidoPagado: error consultando eventos', eventosError.message);
+    return;
+  }
+  if (yaRegistroPostPago(eventosPrevios as Array<{ tipo?: string }> | null)) {
+    return;
+  }
+
   const { data: pedido, error } = await supabase
     .from('pedidos')
     .select('id, cliente_id, total')
@@ -138,7 +156,7 @@ export async function registrarPedidoPagado(
 
   await supabase.from('pedido_eventos').insert({
     pedido_id: pedidoId,
-    tipo: provider === 'transferencia' ? 'transferencia_validada' : 'pago_confirmado',
+    tipo: tipoEventoPostPago(provider),
     de_estado: deEstado,
     a_estado: 'pagado',
     metadata: { provider, event_id: eventId },

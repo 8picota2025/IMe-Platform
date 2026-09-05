@@ -22,6 +22,7 @@ import {
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { checkRateLimit } from '../_shared/rate-limit.ts';
 import { claimPaidTransition, type PaymentStateClient } from '../../../src/lib/payment-state.ts';
+import { yaRegistroPostPago } from '../../../src/lib/post-pago-guard.ts';
 
 const REFERENCIA_REGEX = /^[a-zA-Z0-9-]{8,64}$/;
 
@@ -101,6 +102,28 @@ Deno.serve(async req => {
 
   const pedido = data as unknown as PedidoRow;
   let estado = pedido.estado;
+
+  // Recovery: order already pagado but webhook crashed after the CAS claim and
+  // before emails/DIAN/dropship. Success-page polls must finish those effects.
+  if (pedido.estado === 'pagado') {
+    const { data: eventosPrevios } = await supabase
+      .from('pedido_eventos')
+      .select('tipo')
+      .eq('pedido_id', pedido.id)
+      .in('tipo', ['pago_confirmado', 'transferencia_validada'])
+      .limit(1);
+    if (!yaRegistroPostPago(eventosPrevios as Array<{ tipo?: string }> | null)) {
+      const provider =
+        pedido.proveedor_pago === 'stripe'
+          ? 'stripe'
+          : pedido.proveedor_pago === 'transferencia'
+            ? 'transferencia'
+            : 'wompi';
+      const syntheticEventId = `reconcile-recovery:${referencia}`;
+      await registrarPedidoPagado(supabase, pedido.id, provider, syntheticEventId);
+      await notificarFulfillmentDropship(supabase, pedido.id, pedido.items ?? []);
+    }
+  }
 
   if (pedido.proveedor_pago === 'wompi' && pedido.estado === 'pendiente') {
     const gateway = getGatewayByProvider('wompi');
