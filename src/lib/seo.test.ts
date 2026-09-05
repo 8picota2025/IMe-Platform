@@ -13,6 +13,14 @@ describe('buildOrganizationJsonLd', () => {
     expect(description).not.toMatch(/15 años|32 departamentos|certificados \(INVIMA, CE, FDA\)/i);
     expect(description).toMatch(/se confirma por referencia/i);
   });
+
+  it('usa el WhatsApp Business oficial +57 313 724 7353', () => {
+    const org = buildOrganizationJsonLd();
+    const contact = (org.contactPoint as Array<{ telephone?: string }>)[0];
+    expect(contact?.telephone).toBe('+57-313-724-7353');
+    expect(org.sameAs).toEqual(['https://wa.me/573137247353']);
+    expect(JSON.stringify(org)).not.toContain('310-333-2607');
+  });
 });
 
 describe('buildProductJsonLd', () => {

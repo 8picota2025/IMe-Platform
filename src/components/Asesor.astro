@@ -6,6 +6,7 @@
  */
 import type { Locale } from '../i18n/utils';
 import { t } from '../i18n/utils';
+import { IME_WHATSAPP_URL } from '../lib/contacto-oficial';
 
 interface Props {
   locale: Locale;
@@ -22,7 +23,7 @@ const turnstileSiteKey = (
 const asesorConfig = {
   locale,
   turnstileSiteKey,
-  whatsappUrl: 'https://wa.me/573137247353',
+  whatsappUrl: IME_WHATSAPP_URL,
   contactoHref: locale === 'en' ? '/en/contact/' : '/es/contacto/',
   i18n: {
     bienvenida: t(locale, 'asesor.bienvenida'),

@@ -3,6 +3,8 @@
  * No inventa precios ni claims clínicos — solo calificación y mensajes.
  */
 
+import { IME_WHATSAPP_E164 } from './contacto-oficial.ts';
+
 export type LeadPriority = 'P1' | 'P2' | 'P3';
 
 export type FabricanteLandingId =
@@ -58,7 +60,7 @@ export interface ValidationResult {
   errors: Record<string, string>;
 }
 
-const WHATSAPP_E164 = '573137247353';
+const WHATSAPP_E164 = IME_WHATSAPP_E164;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const OPTIONAL_TURNSTILE_CAMPAIGNS = new Set<CampaignLandingId>([
   'pdf_descarga',

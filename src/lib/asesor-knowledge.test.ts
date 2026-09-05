@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildAsesorStaticFallback, esConsultaSitioOLegal } from './asesor-knowledge';
+import {
+  buildAsesorStaticFallback,
+  esConsultaContacto,
+  esConsultaSitioOLegal,
+} from './asesor-knowledge';
 
 describe('asesor knowledge', () => {
   // 2026-07-15: el intercepto estático se acotó a contacto y páginas legales
@@ -30,7 +34,13 @@ describe('asesor knowledge', () => {
 
     expect(respuesta).toContain('313 724 7353');
     expect(respuesta).not.toContain('313 867 4059');
+    expect(respuesta).not.toContain('310 333 2607');
     expect(respuesta).toContain('info@i-me.com.co');
+  });
+
+  it('marca consultas de canal como contacto (handoff WhatsApp en la fachada)', () => {
+    expect(esConsultaContacto('¿Cuál es su WhatsApp?')).toBe(true);
+    expect(esConsultaContacto('política de privacidad')).toBe(false);
   });
 
   it('responde privacidad con el marco legal aplicable', () => {

@@ -12,6 +12,10 @@
  * Secretos (supabase secrets):
  *  - IMEIA_API_URL  p. ej. https://<tunel>.trycloudflare.com
  *  - IMEIA_API_KEY  API key del gateway Hermes (Bearer)
+ *
+ * Guardrails y handoff: src/lib/asesor-guardrails.ts
+ * WhatsApp Business: src/lib/contacto-oficial.ts (+57 313 724 7353)
+ * Ruta y fallos: docs/imeia-asesor-path.md
  */
 
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
@@ -21,8 +25,17 @@ import { verifyTurnstile } from '../_shared/turnstile.ts';
 import { checkRateLimit } from '../_shared/rate-limit.ts';
 import {
   buildAsesorStaticFallback,
+  esConsultaContacto,
   esConsultaSitioOLegal,
 } from '../../../src/lib/asesor-knowledge.ts';
+import {
+  buildImeiaRuntimeSystemPrompt,
+  clasificarFalloImeia,
+  detectarAccionHandoff,
+  IMEIA_MAX_TOKENS,
+  IMEIA_TIMEOUT_MS,
+} from '../../../src/lib/asesor-guardrails.ts';
+import { IME_WHATSAPP_DISPLAY } from '../../../src/lib/contacto-oficial.ts';
 
 type Locale = 'es' | 'en';
 type Modo = 'rag' | 'keyword_degradado' | 'sin_resultados';
@@ -137,7 +150,6 @@ interface QueryCatalogContext {
 const MAX_MENSAJE_CHARS = 1000;
 const MAX_HISTORIAL_TURNOS = 8;
 const MAX_HISTORIAL_CHARS = 4000;
-const IMEIA_TIMEOUT_MS = 110_000;
 const MAX_TARJETAS = 4;
 /** Última shortlist: máximo tres anchors/productos, para comparar sin reabrir catálogo. */
 const MAX_SHORTLIST_ANCHORS = 3;
@@ -221,16 +233,19 @@ Deno.serve(async req => {
     ? buildAsesorStaticFallback(locale, mensaje)
     : null;
   if (fallbackSitio) {
+    const accionSitio = esConsultaContacto(mensaje)
+      ? detectarAccionHandoff({ mensaje, texto: fallbackSitio })
+      : null;
     await registrarUso(supabase, {
       sessionId,
       locale,
       historial,
       tokens: 0,
       latenciaMs: Date.now() - inicio,
-      handoff: null,
+      handoff: accionSitio?.tipo ?? null,
     });
     return respuestaOk(
-      { texto: fallbackSitio, productos: [], accion_handoff: null, modo: 'rag' },
+      { texto: fallbackSitio, productos: [], accion_handoff: accionSitio, modo: 'rag' },
       origin
     );
   }
@@ -304,7 +319,7 @@ Deno.serve(async req => {
           model: 'imeia',
           messages,
           temperature: 0.25,
-          max_tokens: 1400,
+          max_tokens: IMEIA_MAX_TOKENS,
         }),
         signal: controller.signal,
       });
@@ -321,7 +336,7 @@ Deno.serve(async req => {
     if (!texto) throw new Error('IMEIA sin contenido');
 
     const productos = await construirTarjetas(supabase, texto, locale);
-    const accionHandoff = detectarHandoff(texto, mensaje);
+    const accionHandoff = detectarAccionHandoff({ mensaje, texto });
     const tokens = data.usage?.total_tokens ?? 0;
 
     await registrarUso(supabase, {
@@ -335,7 +350,11 @@ Deno.serve(async req => {
 
     return respuestaOk({ texto, productos, accion_handoff: accionHandoff, modo: 'rag' }, origin);
   } catch (err) {
-    console.error('[asesor] IMEIA no disponible:', err instanceof Error ? err.message : err);
+    const kind = clasificarFalloImeia(err);
+    console.error(
+      `[asesor] IMEIA no disponible (${kind}):`,
+      err instanceof Error ? err.message : err
+    );
     return errorResponse({ code: 'UNAVAILABLE', message: 'Asesor no disponible' }, 503, origin);
   }
 });
@@ -844,27 +863,10 @@ REGLAS DE USO DEL CONTEXTO:
 - Si el usuario dice "este producto", "este equipo" o equivalente, usa canonical_product_context.product si existe.
 - Si sticky_shortlist_followup=true (ej. "cual de los tres", "el mas completo", "compara esos"): analiza SOLO query_catalog_context.products / conversation_product_anchors. PROHIBIDO introducir productos nuevos de otras lineas.
 - Si query_catalog_context.products contiene productos y NO es follow-up sticky, son CANDIDATOS validados (nombres/enlaces). NO los vuelques como resultados de busqueda. Primero enmarca la necesidad; cita 1-3 con razon cuando toque recomendar.
-- Tras elegir un ganador entre opciones, cierra con CTA de conversion (cotizacion web o WhatsApp +57 313 724 7353) sin presion.
-- No afirmes precio, stock, disponibilidad, registro INVIMA, certificaciones, garantia o plazo si no aparece en los datos canonicos o documentacion recuperada.
+- Tras elegir un ganador entre opciones, cierra con CTA de conversion (cotizacion web o WhatsApp ${IME_WHATSAPP_DISPLAY}) sin presion.
+- No afirmes precio, stock, disponibilidad, registro sanitario INVIMA (RS), certificaciones, garantia o plazo si no aparece en los datos canonicos o documentacion recuperada. Si el usuario lo pide, escala; no inventes el dato.
+- Si query_catalog_context.products esta vacio y no hay producto canonico, no inventes SKUs.
 - Si el contexto del navegador y los datos canonicos no coinciden, usa los datos canonicos del servidor.`;
-}
-
-function buildImeiaRuntimeSystemPrompt(locale: Locale): string {
-  return `Eres IMEIA, asesora comercial consultiva de I-ME.
-NO eres un buscador de catalogo ni das asesoría clínica. Tu metodo: comprender → dialogar → orientar sobre producto y compra → recomendar con razones → CTA proporcional.
-Responde en ${locale === 'en' ? 'ingles si el usuario escribe en ingles; si no, usa el idioma del usuario' : 'espanol salvo que el usuario use otro idioma'}.
-
-Reglas criticas:
-- Prioriza dialogo comercial y operativo; no abras con listas de SKUs ante necesidades amplias.
-- Usa el contexto de pagina cuando exista; no preguntes cual es el producto si canonical_product_context.product lo identifica.
-- SHORTLIST STICKY: si el usuario pregunta por "los tres / mas completo / compara esos / cual recomiendas" sobre opciones ya dadas, compara SOLO esos productos (anchors). Nunca saltes a otra linea.
-- Si query_catalog_context trae productos, son candidatos para grounding (nombres/enlaces), no un ranking a volcar.
-- Distingue informacion verificada, orientacion general de categoria y datos pendientes de confirmacion.
-- No inventes especificaciones, precios, stock, plazos, garantias, certificados ni registros INVIMA.
-- Conversion: tras recomendar o elegir ganador, ofrece cotizacion o WhatsApp (+57 313 724 7353) como siguiente paso natural.
-- Ante soporte tecnico con riesgo para paciente: protocolo institucional/manual; no instrucciones invasivas.
-- No diagnostiques ni indiques tratamiento; reconduce a tecnologia.
-- Maximo 1-2 preguntas de descubrimiento por turno, integradas en la conversacion.`;
 }
 
 function normalizarHistorial(historial: HistorialItem[] | undefined): HistorialItem[] {
@@ -933,16 +935,6 @@ async function construirTarjetas(
   } catch {
     return [];
   }
-}
-
-/** Heurística de handoff sobre el texto de IMEIA (su SOUL ofrece WhatsApp/cotización). */
-function detectarHandoff(texto: string, mensaje: string): AccionHandoff | null {
-  const resumen = mensaje.slice(0, 200);
-  if (/whatsapp/i.test(texto)) return { tipo: 'whatsapp', resumen };
-  if (/cotizaci[oó]n|cotizarle|solicitud de cotizaci/i.test(texto)) {
-    return { tipo: 'cotizacion', resumen };
-  }
-  return null;
 }
 
 async function registrarUso(

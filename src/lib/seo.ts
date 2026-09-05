@@ -4,6 +4,7 @@
  */
 
 import type { Locale } from '../i18n/utils';
+import { IME_WHATSAPP_TEL, IME_WHATSAPP_URL } from './contacto-oficial';
 import { normalizarMoneda, tienePrecioPublico } from './format';
 
 const SITE = 'https://i-me.com.co';
@@ -357,14 +358,14 @@ export function buildOrganizationJsonLd(catalogItemCount?: number): Record<strin
     contactPoint: [
       {
         '@type': 'ContactPoint',
-        telephone: '+57-310-333-2607',
+        telephone: IME_WHATSAPP_TEL,
         contactType: 'sales',
         availableLanguage: ['Spanish', 'English'],
         areaServed: 'CO',
         contactOption: 'TollFree',
       },
     ],
-    sameAs: ['https://wa.me/573137247353'],
+    sameAs: [IME_WHATSAPP_URL],
     areaServed: {
       '@type': 'Country',
       name: 'Colombia',

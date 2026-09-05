@@ -394,7 +394,7 @@ Un cordial saludo,
 
 I-ME | International Medical Enterprise
 info@i-me.com.co
-+57 310 3332607
++57 313 724 7353
 https://i-me.com.co`;
   const emailMessage = `En primer lugar, quiero agradecerle nuevamente el tiempo que nos ha dedicado. Ha sido un placer poder conversar con usted, conocer un poco mejor sus intereses y presentarle las soluciones que hemos comentado.
 
