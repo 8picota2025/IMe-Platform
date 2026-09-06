@@ -2,16 +2,15 @@
  * Edge Function `asesor` — IMEIA (v3, 2026-07-03).
  *
  * Fachada segura del widget IMEIA Ayuda: valida entrada, Turnstile, rate-limit,
- * responde contacto/legal en estático y compone el resto desde el catálogo
- * publicado + guardrails propios. No usa el agente soul `imeia` de Hermes
- * (SOUL.md / skills). Si IMEIA_CHAT_MODEL es un modelo raw (nunca `imeia`)
- * y hay IMEIA_API_URL/KEY, se usa solo como LLM de redacción.
- * Contrato de respuesta: texto, productos[], accion_handoff, modo.
+ * responde contacto/legal en estático y deja que Grok (xAI) redacte con el
+ * mismo rol comercial que el WhatsApp Business. No usa el agente soul `imeia`
+ * de Hermes (SOUL.md / skills). Sin XAI_API_KEY / api.x.ai, degrada a compose
+ * de catálogo. Contrato: texto, productos[], accion_handoff, modo.
  *
  * Secretos (supabase secrets):
- *  - IMEIA_API_URL  p. ej. https://<tunel>.trycloudflare.com
- *  - IMEIA_API_KEY  API key del gateway (Bearer)
- *  - IMEIA_CHAT_MODEL  modelo raw de chat (nunca `imeia`; si falta, se compone sin LLM)
+ *  - XAI_API_KEY / XAI_API_URL  Grok (preferido; default https://api.x.ai)
+ *  - IMEIA_API_URL / IMEIA_API_KEY  gateway OpenAI-compat (si apunta a api.x.ai = Grok)
+ *  - IMEIA_CHAT_MODEL  default grok-4 en xAI; NUNCA `imeia`
  *
  * Guardrails y handoff: src/lib/asesor-guardrails.ts
  * WhatsApp Business: src/lib/contacto-oficial.ts (+57 313 724 7353)
@@ -36,7 +35,7 @@ import {
   detectarAccionHandoff,
   IMEIA_MAX_TOKENS,
   IMEIA_TIMEOUT_MS,
-  resolveImeiaCompletionModel,
+  resolveAsesorLlmUpstream,
   type CatalogGroundingProduct,
 } from '../../../src/lib/asesor-guardrails.ts';
 import { IME_WHATSAPP_DISPLAY } from '../../../src/lib/contacto-oficial.ts';
@@ -254,7 +253,7 @@ Deno.serve(async req => {
     );
   }
 
-  // Catálogo + asesor web propio. Nunca se llama el agente soul `imeia`.
+  // Grok (rol WhatsApp) + catálogo. Nunca se llama el agente soul `imeia`.
   try {
     const canonicalContext = await obtenerContextoCanonico(supabase, navigationContext, locale);
     let anchorsFromHistory = extraerSlugsDeHistorial(historial);
@@ -279,16 +278,20 @@ Deno.serve(async req => {
     }
 
     const groundingProducts = productosParaGrounding(canonicalContext, queryCatalogContext);
-    const rawModel = resolveImeiaCompletionModel(Deno.env.get('IMEIA_CHAT_MODEL'));
-    const apiUrl = Deno.env.get('IMEIA_API_URL')?.replace(/\/$/, '');
-    const apiKey = Deno.env.get('IMEIA_API_KEY');
+    const upstream = resolveAsesorLlmUpstream({
+      XAI_API_KEY: Deno.env.get('XAI_API_KEY'),
+      XAI_API_URL: Deno.env.get('XAI_API_URL'),
+      IMEIA_API_URL: Deno.env.get('IMEIA_API_URL'),
+      IMEIA_API_KEY: Deno.env.get('IMEIA_API_KEY'),
+      IMEIA_CHAT_MODEL: Deno.env.get('IMEIA_CHAT_MODEL'),
+    });
 
     let texto: string;
     let modo: Modo = 'keyword_degradado';
     let tokens = 0;
     let slugsForCards = groundingProducts.map(product => product.slug);
 
-    if (rawModel && apiUrl && apiKey) {
+    if (upstream) {
       const messages = [
         { role: 'system', content: buildImeiaRuntimeSystemPrompt(locale) },
         {
@@ -312,17 +315,18 @@ Deno.serve(async req => {
       const timer = setTimeout(() => controller.abort(), IMEIA_TIMEOUT_MS);
       let res: Response;
       try {
-        res = await fetch(`${apiUrl}/v1/chat/completions`, {
+        res = await fetch(`${upstream.url}/v1/chat/completions`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${apiKey}`,
+            Authorization: `Bearer ${upstream.key}`,
           },
           body: JSON.stringify(
             buildImeiaCompletionPayload({
-              model: rawModel,
+              model: upstream.model,
               messages,
               maxTokens: IMEIA_MAX_TOKENS,
+              provider: upstream.provider,
             })
           ),
           signal: controller.signal,
@@ -342,11 +346,9 @@ Deno.serve(async req => {
       tokens = data.usage?.total_tokens ?? 0;
       modo = groundingProducts.length ? 'rag' : 'keyword_degradado';
     } else {
-      if (apiUrl && !rawModel) {
-        console.warn(
-          '[asesor] IMEIA_CHAT_MODEL=imeia/vacío: no se usa el SOUL; se compone desde catálogo'
-        );
-      }
+      console.warn(
+        '[asesor] sin XAI_API_KEY ni api.x.ai: se compone desde catálogo (Grok no configurado)'
+      );
       const composed = composeGroundedAsesorReply({
         locale,
         mensaje,
