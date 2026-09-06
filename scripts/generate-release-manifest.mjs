@@ -38,6 +38,14 @@ const manifest = {
   ),
 };
 
+// Alias /sitemap.xml → same bytes as sitemap-index.xml (common bot entrypoint).
+try {
+  const indexXml = await readFile(join(root, 'sitemap-index.xml'));
+  await writeFile(join(root, 'sitemap.xml'), indexXml);
+} catch {
+  console.warn('release-manifest: sitemap-index.xml missing; skipped sitemap.xml alias');
+}
+
 await writeFile(join(root, 'release-manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
 console.log(
   `release-manifest: ${manifest.commit} · ${manifest.file_count} files · ${relative(process.cwd(), join(root, 'release-manifest.json'))}`
