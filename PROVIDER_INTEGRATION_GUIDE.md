@@ -1,5 +1,9 @@
 # Guía de Integración para Proveedores — I-ME Dropshipping
 
+Integración **externa** (API/webhooks) para proveedores ya aprobados en operaciones.
+El alta, validacion comercial y directorio interno viven en el admin — ver
+`docs/supplier-directory.md`.
+
 ## Inicio rápido
 
 ### 1. Recibe notificación de I-ME

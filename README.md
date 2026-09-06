@@ -88,6 +88,8 @@ cada sesión. Estado de fases en AGENTS.md sección "Estado de fases".
 - `CONTRIBUTING.md` — flujo de ramas y git
 - `AGENTS_GUIDE.md` — división de trabajo entre agentes
 - `ADMIN_GUIDE.md` — uso operativo del back-office `/admin`
+- `docs/supplier-directory.md` — directorio de proveedores, validacion y dropship readiness
+- `docs/decisions/0011-public-pricing-iva-colombia.md` — precio neto en BD vs IVA en storefront
 - `VALIDACION.md` — evidencia y pipeline F5
 - `QA.md` — matriz de pruebas F5
 - `REMEDIACION.md` — hallazgos abiertos/cerrados
