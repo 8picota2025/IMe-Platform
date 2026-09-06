@@ -5,7 +5,8 @@
  * Comprueba tras cada deploy:
  * 1) Página /es/contacto con formulario + status + modal navbar
  * 2) Edge registrar-cotizacion → ok, persistencia QA y cero correo/CRM
- * 3) Edge registrar-lead-comercial (campaña proyectos) → validación QA silenciosa
+ * 3) Edge registrar-lead-comercial (campaña proyectos) → QA silencioso
+ *    (201 + ok + qa, sin leadId / CRM / correo)
  *
  * Uso:
  *   node scripts/canary-cotizacion.mjs
@@ -19,6 +20,8 @@
  */
 
 import { createHash, randomUUID } from 'node:crypto';
+
+import { assessRegistrarLeadComercialQa } from './canary-cotizacion-checks.mjs';
 
 const BASE_URL = (process.env.CANARY_BASE_URL || 'https://i-me.com.co').replace(/\/$/, '');
 const SUPABASE_URL = (
@@ -142,17 +145,17 @@ async function checkRegistrarLead(stamp) {
     familia_slug: 'general',
   });
 
-  if (![200, 201].includes(status) || !json?.ok || !json?.leadId) {
-    fail(`registrar-lead-comercial HTTP ${status}: ${text.slice(0, 300)}`);
-    return;
-  }
-  if (
-    json.qa !== true ||
-    json.crmSyncStatus !== 'skipped' ||
-    json.emails?.interno !== false ||
-    json.emails?.cliente !== false
-  ) {
-    fail(`registrar-lead-comercial QA no silencioso: ${JSON.stringify(json)}`);
+  const verdict = assessRegistrarLeadComercialQa(status, json);
+  if (!verdict.pass) {
+    if (verdict.code === 'http') {
+      fail(`registrar-lead-comercial HTTP ${status}: ${text.slice(0, 300)}`);
+    } else if (verdict.code === 'unexpected_lead') {
+      fail(
+        `registrar-lead-comercial QA persistió leadId (${String(json?.leadId)}); debe ser silencioso`
+      );
+    } else {
+      fail(`registrar-lead-comercial QA no silencioso: ${JSON.stringify(json)}`);
+    }
     return;
   }
   ok('registrar-lead-comercial QA silencioso (sin lead, CRM ni correo)');
