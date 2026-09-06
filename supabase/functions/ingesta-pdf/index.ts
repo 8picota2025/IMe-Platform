@@ -1,13 +1,17 @@
 /**
  * Edge Function: ingesta-pdf
  * Genera borrador estructurado. Nunca escribe en BD ni publica.
+ *
+ * Auth: JWT validado por Auth + admin_profiles activo (owner|admin|catalogo|ventas).
+ * Una sesión de cuenta/tienda NO basta — evita quemar presupuesto LLM con claves de Edge.
  */
 
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
-import { badRequest, internalError, unauthorized } from '../_shared/errors.ts';
-import { createLlmGateway } from '../_shared/llm-gateway.ts';
+import { badRequest, errorResponse, internalError, unauthorized } from '../_shared/errors.ts';
+import { confirmarUsoLlm, createLlmGateway, reservarPresupuesto } from '../_shared/llm-gateway.ts';
 import { buildIngestPrompt } from '../_shared/pdf-ingest-prompt.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
+import { canInvokeIngestaPdf } from '../../../src/lib/ingesta-auth.ts';
 
 interface IngestRequest {
   pdf_url?: string;
@@ -20,16 +24,39 @@ Deno.serve(async req => {
   if (corsRes) return corsRes;
   if (req.method !== 'POST') return badRequest('Metodo no soportado', origin);
 
-  const token = req.headers.get('Authorization')?.replace(/^Bearer\s+/i, '');
+  const token = req.headers
+    .get('Authorization')
+    ?.replace(/^Bearer\s+/i, '')
+    .trim();
   if (!token) return unauthorized(origin);
 
   try {
     const supabase = getServerSupabase();
+    // Validar sesión real vía Auth (no confiar en claims JWT sin verificar).
     const {
       data: { user },
       error,
     } = await supabase.auth.getUser(token);
     if (error || !user) return unauthorized(origin);
+
+    const { data: profile, error: profileError } = await supabase
+      .from('admin_profiles')
+      .select('rol, activo')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    if (profileError) {
+      return internalError(`error consultando perfil admin: ${profileError.message}`, origin);
+    }
+    if (!canInvokeIngestaPdf(profile as { rol?: string | null; activo?: boolean | null } | null)) {
+      return errorResponse(
+        {
+          code: 'FORBIDDEN',
+          message: 'Se requiere perfil admin activo (catalogo, ventas, admin u owner)',
+        },
+        403,
+        origin
+      );
+    }
 
     const body = (await req.json()) as IngestRequest;
     const pdfText = body.pdf_text?.trim() ?? '';
@@ -39,21 +66,45 @@ Deno.serve(async req => {
     }
 
     const gateway = createLlmGateway();
+    const systemPrompt =
+      'Extrae un borrador JSON bilingue para catalogo medico B2B con landing enriquecida (beneficios, valor institucional, SEO). Devuelve solo JSON valido. No inventes datos. Campo no presente: valor vacio, origen="ausente", requiere_revision=true. Genera producto_es desde el PDF y producto_en_borrador solo como traduccion al ingles de datos extraidos. La traduccion EN es borrador y todos sus campos requieren_revision=true.';
+    const userPrompt = buildIngestPrompt(pdfText, pdfUrl);
+
+    const reserva = await reservarPresupuesto(supabase, {
+      proveedor: gateway.provider,
+      modelo: gateway.defaultChatModel,
+      tipo: 'ingesta',
+      approxInputChars: systemPrompt.length + userPrompt.length,
+      maxOutputTokens: 4500,
+      sessionId: user.id,
+    });
+    if (!reserva.disponible) {
+      return badRequest(
+        `BLOQUEANTE_BACKEND: presupuesto LLM mensual agotado ` +
+          `($${reserva.gastado.toFixed(2)} / $${reserva.limite} en ${reserva.periodo}). ` +
+          `Ingesta PDF detenida.`,
+        origin
+      );
+    }
+
     const response = await gateway.chat({
       maxTokens: 4500,
       temperature: 0,
       messages: [
-        {
-          role: 'system',
-          content:
-            'Extrae un borrador JSON bilingue para catalogo medico B2B con landing enriquecida (beneficios, valor institucional, SEO). Devuelve solo JSON valido. No inventes datos. Campo no presente: valor vacio, origen="ausente", requiere_revision=true. Genera producto_es desde el PDF y producto_en_borrador solo como traduccion al ingles de datos extraidos. La traduccion EN es borrador y todos sus campos requieren_revision=true.',
-        },
-        {
-          role: 'user',
-          content: buildIngestPrompt(pdfText, pdfUrl),
-        },
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
       ],
     });
+
+    if (reserva.reservaId) {
+      await confirmarUsoLlm(supabase, {
+        reservaId: reserva.reservaId,
+        proveedor: gateway.provider,
+        modelo: response.model,
+        inputTokens: response.inputTokens,
+        outputTokens: response.outputTokens,
+      });
+    }
 
     return new Response(normalizeJson(response.content, response.model), {
       status: 200,
