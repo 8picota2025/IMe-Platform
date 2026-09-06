@@ -25,6 +25,12 @@ export class SupabaseWamidStore implements WamidClaimStore {
 
     if (!error) return 'claimed';
     if (error.code === '23505') return 'duplicate';
+    // Tabla aún no aplicada: no tumbar el webhook (scaffold). Riesgo de
+    // re-reply si Meta reintenta antes de la migración.
+    if (error.code === '42P01' || /whatsapp_inbound_events/i.test(error.message)) {
+      console.warn('[whatsapp-wamid] tabla ausente; se permite este wamid (aplicar migración)');
+      return 'claimed';
+    }
     throw new Error(`whatsapp_wamid_claim_failed:${error.message}`);
   }
 }

@@ -123,9 +123,21 @@ Deno.serve(
       );
     }
 
-    const decisions = await decideWhatsAppInbound(parsed, store, {
-      ownWaId: IME_WHATSAPP_E164,
-    });
+    let decisions;
+    try {
+      decisions = await decideWhatsAppInbound(parsed, store, {
+        ownWaId: IME_WHATSAPP_E164,
+      });
+    } catch (err) {
+      console.warn(
+        '[whatsapp-webhook] idempotencia persistente falló; memoria:',
+        err instanceof Error ? err.message : err
+      );
+      store = memoryWamidStoreFallback();
+      decisions = await decideWhatsAppInbound(parsed, store, {
+        ownWaId: IME_WHATSAPP_E164,
+      });
+    }
 
     const graph = resolveWhatsAppGraphConfig({
       WHATSAPP_TOKEN: Deno.env.get('WHATSAPP_TOKEN'),
