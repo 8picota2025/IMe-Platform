@@ -56,6 +56,7 @@ cp .env.example .env
 - Equipos: cotización o atención personalizada según `tipo_comercial` y `fulfillment_mode`.
 - Webhooks: `webhook-wompi` y `webhook-stripe` verifican firma y estado server-side.
 - Asesor IA: Edge Function `asesor` con Turnstile, rate-limit, presupuesto y fallback por palabra clave.
+- WhatsApp Cloud API: Edge Function `whatsapp-webhook` (verificación Meta + reply IMEIA). Setup: `docs/WHATSAPP_CLOUD_API.md`.
 - Las pruebas reales requieren secretos en Supabase/CI; ver `PENDIENTES.md`.
 - Desarrollo local sin credenciales: `LLM_PROVIDER=ollama` / `EMBEDDING_PROVIDER=ollama` (Ollama autoalojado, coste $0) — ver `docs/decisions/0005-ollama-asesor-local.md`.
 - Reindexado Voyage: usa `npm run reindex:voyage[:articles|:all]` tras cambiar `VOYAGE_API_KEY` o parámetros de embeddings.
