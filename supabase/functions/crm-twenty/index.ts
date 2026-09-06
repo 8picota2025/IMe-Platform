@@ -4,11 +4,12 @@
  * Auth: Bearer JWT + admin_profiles activo (ventas|admin|owner).
  *
  * GET  ?action=status
- * GET  ?action=members
- * POST ?action=reassign        { crmOpportunityId?, twentyOpportunityId?, newOwnerId?, newOwnerEmail?, reason? }
- * POST ?action=link            { crmContactId?, crmAccountId?, twentyPersonId?, twentyCompanyId?, companyName? }
- * POST ?action=repair-links    { limit? }
- * POST ?action=sync-opportunity { crmOpportunityId, etapa?, valor_estimado?, moneda?, next_action_at?, next_action_note?, titulo?, newOwnerId? }
+ * GET  ?action=members         — ventas|admin|owner
+ * POST ?action=reassign        { ... }  — ventas|admin|owner (entre comerciales)
+ * POST ?action=reassign-client { ... }  — ventas|admin|owner (cuenta + leads abiertos)
+ * POST ?action=link            { ... }  — admin/owner
+ * POST ?action=repair-links    { ... }  — admin/owner
+ * POST ?action=sync-opportunity { ... } — ventas|admin|owner
  */
 
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
@@ -226,7 +227,7 @@ Deno.serve(
     try {
       if (req.method === 'GET') {
         if (action === 'status') return await handleStatus(origin);
-        if (action === 'members') return await handleMembers(origin);
+        if (action === 'members') return await handleMembers(supabase, origin);
         return badRequest('action GET invalida (status|members)', origin);
       }
 
@@ -235,19 +236,36 @@ Deno.serve(
       }
 
       const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
+      const isSupervisor = profile.rol === 'admin' || profile.rol === 'owner';
 
       switch (action) {
         case 'reassign':
           return await handleReassign(supabase, profile, body, origin);
+        case 'reassign-client':
+          return await handleReassignClient(supabase, profile, body, origin);
         case 'link':
+          if (!isSupervisor) {
+            return errorResponse(
+              { code: 'FORBIDDEN', message: 'Solo admin/owner puede enlazar contactos Twenty.' },
+              403,
+              origin
+            );
+          }
           return await handleLink(supabase, body, origin);
         case 'repair-links':
+          if (!isSupervisor) {
+            return errorResponse(
+              { code: 'FORBIDDEN', message: 'Solo admin/owner puede reparar enlaces Twenty.' },
+              403,
+              origin
+            );
+          }
           return await handleRepairLinks(body, origin);
         case 'sync-opportunity':
           return await handleSyncOpportunity(supabase, profile, body, origin);
         default:
           return badRequest(
-            'action POST invalida (reassign|link|repair-links|sync-opportunity)',
+            'action POST invalida (reassign|reassign-client|link|repair-links|sync-opportunity)',
             origin
           );
       }
@@ -280,27 +298,56 @@ async function handleStatus(origin: string | null): Promise<Response> {
   );
 }
 
-async function handleMembers(origin: string | null): Promise<Response> {
+async function handleMembers(
+  supabase: ReturnType<typeof getServerSupabase>,
+  origin: string | null
+): Promise<Response> {
+  const { data: profiles } = await supabase
+    .from('admin_profiles')
+    .select('twenty_member_id, email, nombre, rol, activo')
+    .eq('activo', true)
+    .in('rol', [...ALLOWED_ROLES])
+    .not('twenty_member_id', 'is', null);
+  const imeMembers = (
+    (profiles ?? []) as Array<{
+      twenty_member_id: string | null;
+      email: string | null;
+      nombre: string | null;
+    }>
+  )
+    .filter(p => p.twenty_member_id)
+    .map(p => ({
+      id: p.twenty_member_id as string,
+      email: p.email || '',
+      name: (p.nombre || p.email || '').trim(),
+      jobTitle: '',
+    }));
+  const allowed = new Map(imeMembers.map(m => [m.id, m]));
+
   const members = await listTwentyWorkspaceMembers();
-  if (members.skipped) {
+  if (members.skipped || !members.ok) {
     return Response.json(
-      { ok: false, skipped: true, error: members.error },
+      { ok: true, members: imeMembers, twenty: members.skipped ? 'skipped' : 'error' },
       { headers: getCorsHeaders(origin) }
     );
   }
-  if (!members.ok) {
-    return errorResponse({ code: 'TWENTY_ERROR', message: members.error ?? 'Error' }, 502, origin);
-  }
-  const list = (members.data ?? []).map(m => ({
-    id: m.id,
-    email: (m.userEmail as string) ?? '',
-    name: (() => {
+  const list = (members.data ?? [])
+    .filter(m => allowed.has(m.id))
+    .map(m => {
+      const profile = allowed.get(m.id);
       const n = m.name as { firstName?: string; lastName?: string } | undefined;
-      return [n?.firstName, n?.lastName].filter(Boolean).join(' ').trim();
-    })(),
-    jobTitle: (m.jobTitle as string) ?? '',
-  }));
-  return Response.json({ ok: true, members: list }, { headers: getCorsHeaders(origin) });
+      const twentyName = [n?.firstName, n?.lastName].filter(Boolean).join(' ').trim();
+      return {
+        id: m.id,
+        email: (m.userEmail as string) || profile?.email || '',
+        name: twentyName || profile?.name || '',
+        jobTitle: (m.jobTitle as string) ?? '',
+      };
+    });
+  return Response.json(
+    { ok: true, members: list.length ? list : imeMembers },
+    { headers: getCorsHeaders(origin) }
+  );
 }
 
 async function resolveOwnerId(body: Record<string, unknown>): Promise<string | null> {
@@ -313,6 +360,31 @@ async function resolveOwnerId(body: Record<string, unknown>): Promise<string | n
   const resolved = await resolveTwentyOwnerByEmail(email);
   if (!resolved.ok) return null;
   return resolved.data ?? null;
+}
+
+async function assertImeCommercialAssignee(
+  supabase: ReturnType<typeof getServerSupabase>,
+  newOwnerId: string,
+  origin: string | null
+): Promise<Response | null> {
+  const { data, error } = await supabase
+    .from('admin_profiles')
+    .select('twenty_member_id, rol, activo')
+    .eq('twenty_member_id', newOwnerId)
+    .maybeSingle();
+  if (error) return internalError(error.message, origin);
+  const row = data as { twenty_member_id?: string; rol?: string; activo?: boolean } | null;
+  if (!row || row.activo === false || !ALLOWED_ROLES.has(row.rol as ComercialRol)) {
+    return errorResponse(
+      {
+        code: 'FORBIDDEN',
+        message: 'Solo puedes reasignar a un comercial I-ME activo (ventas/admin/owner).',
+      },
+      403,
+      origin
+    );
+  }
+  return null;
 }
 
 async function loadCrmOpportunity(
@@ -340,6 +412,8 @@ async function handleReassign(
   if (!newOwnerId) {
     return badRequest('newOwnerId o newOwnerEmail requerido', origin);
   }
+  const forbidden = await assertImeCommercialAssignee(supabase, newOwnerId, origin);
+  if (forbidden) return forbidden;
 
   let twentyOpportunityId = String(body.twentyOpportunityId ?? '').trim();
   let personId = String(body.twentyPersonId ?? '').trim() || undefined;
@@ -394,6 +468,136 @@ async function handleReassign(
   }
 
   return Response.json({ ok: true, data: result.data }, { headers: getCorsHeaders(origin) });
+}
+
+async function handleReassignClient(
+  supabase: ReturnType<typeof getServerSupabase>,
+  profile: AdminProfileRow,
+  body: Record<string, unknown>,
+  origin: string | null
+): Promise<Response> {
+  const newOwnerId = await resolveOwnerId(body);
+  if (!newOwnerId) {
+    return badRequest('newOwnerId o newOwnerEmail requerido', origin);
+  }
+  const forbidden = await assertImeCommercialAssignee(supabase, newOwnerId, origin);
+  if (forbidden) return forbidden;
+
+  const reason = String(body.reason ?? `Cliente reasignado por ${profile.email}`).trim();
+  const clienteId = String(body.clienteId ?? '').trim();
+  let crmAccountId = String(body.crmAccountId ?? '').trim();
+  let email = String(body.email ?? '')
+    .trim()
+    .toLowerCase();
+
+  if (clienteId && !email) {
+    const { data: cliente } = await supabase
+      .from('clientes')
+      .select('id, email')
+      .eq('id', clienteId)
+      .maybeSingle();
+    const row = cliente as { email?: string } | null;
+    email = String(row?.email ?? '')
+      .trim()
+      .toLowerCase();
+    if (!email) return notFound('Cliente sin email para localizar el CRM', origin);
+  }
+
+  let personId: string | undefined;
+  let companyId: string | undefined;
+  let contactId: string | undefined;
+
+  if (email) {
+    const { data: contact } = await supabase
+      .from('crm_contacts')
+      .select('id, account_id, twenty_person_id, email_norm')
+      .eq('email_norm', email)
+      .maybeSingle();
+    const row = contact as CrmContactRow | null;
+    if (row) {
+      contactId = row.id;
+      personId = row.twenty_person_id ?? undefined;
+      if (!crmAccountId && row.account_id) crmAccountId = row.account_id;
+    }
+  }
+
+  if (crmAccountId) {
+    const { data: account } = await supabase
+      .from('crm_accounts')
+      .select('id, nombre, twenty_company_id')
+      .eq('id', crmAccountId)
+      .maybeSingle();
+    const row = account as CrmAccountRow | null;
+    if (!row) return notFound('Cuenta CRM no encontrada', origin);
+    companyId = row.twenty_company_id ?? undefined;
+  }
+
+  if (!crmAccountId && !contactId) {
+    return notFound('No hay ficha CRM para este cliente. Reasigna desde el pipeline.', origin);
+  }
+
+  let oppQuery = supabase
+    .from('crm_opportunities')
+    .select(
+      'id, titulo, etapa, contact_id, account_id, source_table, source_id, twenty_opportunity_id, twenty_person_id, twenty_company_id'
+    );
+  if (crmAccountId) oppQuery = oppQuery.eq('account_id', crmAccountId);
+  else oppQuery = oppQuery.eq('contact_id', contactId as string);
+
+  const { data: oppRows, error: oppError } = await oppQuery.limit(80);
+  if (oppError) return internalError(oppError.message, origin);
+  const opps = (oppRows ?? []) as CrmOpportunityRow[];
+  if (!opps.length) {
+    return badRequest('Este cliente no tiene leads/oportunidades para reasignar', origin);
+  }
+
+  const reassigned: string[] = [];
+  const failed: string[] = [];
+  for (const opp of opps) {
+    const ids = await hydrateTwentyIds(supabase, opp);
+    const opportunityId = ids.opportunityId;
+    if (opportunityId) {
+      const result = await reassignTwentyLead({
+        opportunityId,
+        newOwnerId,
+        personId: ids.personId || personId,
+        companyId: ids.companyId || companyId,
+        reason,
+      });
+      if (!result.ok && !result.skipped) failed.push(opp.id);
+    }
+    await persistTwentyIdsOnCrm(supabase, opp.id, {
+      opportunityId,
+      personId: ids.personId || personId,
+      companyId: ids.companyId || companyId,
+      ownerId: newOwnerId,
+    });
+    await supabase.from('crm_activities').insert({
+      event_type: `reasignacion_cliente_${crypto.randomUUID()}`,
+      channel: 'admin',
+      source_table: 'crm_opportunities',
+      source_id: opp.id,
+      account_id: opp.account_id,
+      contact_id: opp.contact_id,
+      opportunity_id: opp.id,
+      summary: `Cliente reasignado por ${profile.email}`,
+      metadata: { newOwnerId, reason, by: profile.email },
+    });
+    reassigned.push(opp.id);
+  }
+
+  return Response.json(
+    {
+      ok: failed.length === 0,
+      data: {
+        reassigned: reassigned.length,
+        failed: failed.length,
+        accountId: crmAccountId || null,
+        contactId: contactId || null,
+      },
+    },
+    { headers: getCorsHeaders(origin) }
+  );
 }
 
 async function handleLink(
@@ -527,18 +731,36 @@ async function handleSyncOpportunity(
   if (!opp) return notFound('Oportunidad CRM no encontrada', origin);
 
   const ids = await hydrateTwentyIds(supabase, opp);
-  if (!ids.opportunityId) {
-    return badRequest('Sin twenty_opportunity_id; sincroniza el lead primero', origin);
-  }
-
   const etapa = String(body.etapa ?? opp.etapa).trim();
   const valorRaw = body.valor_estimado ?? opp.valor_estimado;
   const valorEstimado = valorRaw == null || valorRaw === '' ? null : Number(valorRaw);
-  const ownerId =
-    (await resolveOwnerId(body)) ||
-    profile.twenty_member_id ||
-    Deno.env.get('TWENTY_OWNER_ID')?.trim() ||
-    undefined;
+  const isSupervisor = profile.rol === 'admin' || profile.rol === 'owner';
+  const explicitReassign = String(body.newOwnerId ?? body.newOwnerEmail ?? '').trim();
+  let ownerId: string | undefined;
+  if (explicitReassign) {
+    const resolved = await resolveOwnerId(body);
+    if (!resolved) return badRequest('newOwnerId o newOwnerEmail invalido', origin);
+    const forbidden = await assertImeCommercialAssignee(supabase, resolved, origin);
+    if (forbidden) return forbidden;
+    ownerId = resolved;
+  } else if (isSupervisor) {
+    ownerId = profile.twenty_member_id || Deno.env.get('TWENTY_OWNER_ID')?.trim() || undefined;
+  }
+
+  if (!ids.opportunityId) {
+    if (ownerId) {
+      await persistTwentyIdsOnCrm(supabase, crmOpportunityId, { ownerId });
+      return Response.json(
+        {
+          ok: true,
+          twenty: { ownerId, stage: null },
+          warning: 'Sin twenty_opportunity_id; owner actualizado solo en CRM I-ME',
+        },
+        { headers: getCorsHeaders(origin) }
+      );
+    }
+    return badRequest('Sin twenty_opportunity_id; sincroniza el lead primero', origin);
+  }
 
   if (ids.personId && ids.companyId) {
     await linkTwentyPersonCompany({
@@ -548,14 +770,13 @@ async function handleSyncOpportunity(
     });
   }
 
-  const explicitReassign = String(body.newOwnerId ?? body.newOwnerEmail ?? '').trim();
   if (explicitReassign && ownerId) {
     await reassignTwentyLead({
       opportunityId: ids.opportunityId,
       newOwnerId: ownerId,
       personId: ids.personId,
       companyId: ids.companyId,
-      reason: String(body.reason ?? `Sync admin ${profile.email}`).trim(),
+      reason: String(body.reason ?? `Reasignado por ${profile.email}`).trim(),
     });
   }
 

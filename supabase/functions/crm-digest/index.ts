@@ -10,7 +10,6 @@ import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { badRequest, internalError } from '../_shared/errors.ts';
 
 const FN_NAME = 'crm-digest';
-const OWNER_ID = Deno.env.get('TWENTY_OWNER_ID')?.trim() || '';
 const DIGEST_TO = (Deno.env.get('CRM_DIGEST_TO') ?? 'wangruben1@gmail.com,root@i-me.com.co')
   .split(',')
   .map(s => s.trim())
@@ -99,7 +98,7 @@ Deno.serve(async req => {
     const items: string[] = [];
     for (const t of tasks) {
       if (t.status !== 'TODO') continue;
-      if (OWNER_ID && t.assigneeId && t.assigneeId !== OWNER_ID) continue;
+      // Equipo completo: no filtrar por un solo owner.
       const title = String(t.title ?? '(sin título)');
       if (title.startsWith('Agenda comercial HOY')) continue;
       const due = t.dueAt ? String(t.dueAt).slice(0, 10) : null;

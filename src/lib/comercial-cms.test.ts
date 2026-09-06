@@ -5,6 +5,8 @@ import {
   buildWhatsAppLink,
   canAccessShare,
   canManageCommercialTemplates,
+  canManageTwentyBridge,
+  canReassignCommercialLeads,
   filterProductsHierarchical,
   isCommercialAdmin,
   isComercialUser,
@@ -316,6 +318,21 @@ describe('permisos comerciales (mirror de is_admin()/is_comercial_user())', () =
     expect(isCommercialAdmin('owner', true)).toBe(true);
     expect(isCommercialAdmin('ventas', true)).toBe(false);
     expect(isCommercialAdmin('admin', false)).toBe(false);
+  });
+
+  it('canManageTwentyBridge: ventas no repara ni enlaza Twenty', () => {
+    expect(canManageTwentyBridge('ventas', true)).toBe(false);
+    expect(canManageTwentyBridge('admin', true)).toBe(true);
+    expect(canManageTwentyBridge('owner', true)).toBe(true);
+    expect(canManageTwentyBridge('admin', false)).toBe(false);
+  });
+
+  it('canReassignCommercialLeads: ventas sí se reasigna leads con otros comerciales', () => {
+    expect(canReassignCommercialLeads('ventas', true)).toBe(true);
+    expect(canReassignCommercialLeads('admin', true)).toBe(true);
+    expect(canReassignCommercialLeads('owner', true)).toBe(true);
+    expect(canReassignCommercialLeads('catalogo', true)).toBe(false);
+    expect(canReassignCommercialLeads('ventas', false)).toBe(false);
   });
 
   it('canAccessShare: ventas solo ve lo propio', () => {

@@ -79,6 +79,7 @@ interface AdminProfileRow {
   activo: boolean;
   nombre: string | null;
   telefono: string | null;
+  twenty_member_id: string | null;
 }
 
 interface ProductoTaxonomiaRow {
@@ -144,7 +145,7 @@ Deno.serve(
 
     const { data: profileData, error: profileError } = await supabase
       .from('admin_profiles')
-      .select('user_id, email, rol, activo, nombre, telefono')
+      .select('user_id, email, rol, activo, nombre, telefono, twenty_member_id')
       .eq('user_id', user.id)
       .maybeSingle();
     if (profileError) return internalError(profileError.message, origin);
@@ -467,6 +468,7 @@ async function handleCreate(
       channel,
       commercialName: nombreComercial,
       commercialEmail: profile.email,
+      ownerId: profile.twenty_member_id,
     },
     snapshots.map(s => ({
       name: s.product_name_snapshot,
@@ -705,10 +707,14 @@ async function handleRetry(
 
   const { data: ownerProfile } = await supabase
     .from('admin_profiles')
-    .select('nombre, email')
+    .select('nombre, email, twenty_member_id')
     .eq('user_id', share.user_id)
     .maybeSingle();
-  const owner = ownerProfile as { nombre: string | null; email: string | null } | null;
+  const owner = ownerProfile as {
+    nombre: string | null;
+    email: string | null;
+    twenty_member_id: string | null;
+  } | null;
 
   const twenty = await retryShareWithTwenty(
     {
@@ -721,6 +727,7 @@ async function handleRetry(
       channel: share.channel,
       commercialName: owner?.nombre?.trim() || owner?.email || null,
       commercialEmail: owner?.email ?? null,
+      ownerId: owner?.twenty_member_id ?? null,
     },
     productos.map(p => ({
       name: p.product_name_snapshot,
