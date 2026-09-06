@@ -36,7 +36,7 @@ const IMEIA_API_URL = (import.meta.env['PUBLIC_IMEIA_API_URL'] as string | undef
 const IMEIA_CHAT_MODEL = (import.meta.env['PUBLIC_IMEIA_CHAT_MODEL'] as string | undefined) ?? '';
 const FORCE_DIRECT_IMEIA_IN_BROWSER =
   ((import.meta.env['PUBLIC_FORCE_DIRECT_IMEIA_IN_BROWSER'] as string | undefined) ?? '') === '1';
-export const ASESOR_CLIENT_VERSION = '2026-09-05-imeia-no-soul-v2';
+export const ASESOR_CLIENT_VERSION = '2026-09-06-imeia-grok-whatsapp-v1';
 const MAX_HANDOFF_SUMMARY_CHARS = SHARED_MAX_HANDOFF_SUMMARY_CHARS;
 /**
  * Shortlist conversacional: conservamos como máximo tres opciones de la última
