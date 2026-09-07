@@ -22,7 +22,11 @@ import {
   registrarPedidoPagado,
 } from '../_shared/post-pago.ts';
 import { withTelemetry, trackEvent } from '../_shared/telemetry.ts';
-import { claimPaidTransition, type PaymentStateClient } from '../../../src/lib/payment-state.ts';
+import {
+  claimCancelFromPaid,
+  claimPaidTransition,
+  type PaymentStateClient,
+} from '../../../src/lib/payment-state.ts';
 
 const FN_NAME = 'webhook-wompi';
 
@@ -119,17 +123,30 @@ Deno.serve(
     const nuevoEstado = verificacion.estado;
     const eraPagado = pedidoRow.estado === 'pagado';
     let pagoReclamado = false;
+    let canceladoDesdePagado = false;
     let estadoActualizado = false;
+    const paymentClient = supabase as unknown as PaymentStateClient;
 
     if (!eraPagado && nuevoEstado === 'pagado') {
-      const claim = await claimPaidTransition(
-        supabase as unknown as PaymentStateClient,
-        pedidoRow.id
-      );
+      const claim = await claimPaidTransition(paymentClient, pedidoRow.id);
       if (claim.error) {
         return internalError(`error reclamando pago confirmado: ${claim.error}`, origin);
       }
       pagoReclamado = claim.claimed;
+      estadoActualizado = claim.claimed;
+    } else if (eraPagado && nuevoEstado === 'cancelado') {
+      // Card VOIDED after APPROVED: money reversed at Wompi; stop treating as paid.
+      const claim = await claimCancelFromPaid(paymentClient, pedidoRow.id, {
+        metadata: {
+          ...(pedidoRow.metadata ?? {}),
+          ultimo_evento_wompi: evento.event_id,
+          anulado_por_wompi: true,
+        },
+      });
+      if (claim.error) {
+        return internalError(`error reclamando anulación de pago: ${claim.error}`, origin);
+      }
+      canceladoDesdePagado = claim.claimed;
       estadoActualizado = claim.claimed;
     } else if (!eraPagado && nuevoEstado !== pedidoRow.estado) {
       // El predicado evita que una respuesta de verificacion obsoleta degrade
@@ -160,6 +177,12 @@ Deno.serve(
       await registrarPedidoPagado(supabase, pedidoRow.id, 'wompi', evento.event_id);
       await notificarFulfillmentDropship(supabase, pedidoRow.id, pedidoRow.items ?? []);
       void trackEvent(FN_NAME, 'pago_confirmado', {
+        pedido_id: pedidoRow.id,
+        proveedor_pago: 'wompi',
+      });
+    } else if (canceladoDesdePagado) {
+      await notificarEstadoPedido(pedidoRow.id, 'cancelado', 'pagado');
+      void trackEvent(FN_NAME, 'pago_anulado', {
         pedido_id: pedidoRow.id,
         proveedor_pago: 'wompi',
       });
