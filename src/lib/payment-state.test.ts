@@ -1,16 +1,20 @@
 import { describe, expect, it, vi } from 'vitest';
-import { claimPaidTransition, type PaymentStateClient } from './payment-state';
+import { claimCancelFromPaid, claimPaidTransition, type PaymentStateClient } from './payment-state';
 
 function createClient(result: { data: { id: string } | null; error: { message: string } | null }) {
   const maybeSingle = vi.fn().mockResolvedValue(result);
   const select = vi.fn(() => ({ maybeSingle }));
   const neq = vi.fn(() => ({ select }));
-  const eq = vi.fn(() => ({ neq }));
+  const eqEstado = vi.fn(() => ({ select }));
+  const eq = vi.fn((column: string) => {
+    if (column === 'id') return { neq, eq: eqEstado };
+    return { select };
+  });
   const update = vi.fn(() => ({ eq }));
   const from = vi.fn(() => ({ update }));
   const client: PaymentStateClient = { from };
 
-  return { client, from, update, eq, neq, select, maybeSingle };
+  return { client, from, update, eq, eqEstado, neq, select, maybeSingle };
 }
 
 describe('claimPaidTransition', () => {
@@ -44,6 +48,43 @@ describe('claimPaidTransition', () => {
     await expect(claimPaidTransition(mock.client, 'pedido-1')).resolves.toEqual({
       claimed: false,
       error: 'database unavailable',
+    });
+  });
+});
+
+describe('claimCancelFromPaid', () => {
+  it('CAS-moves pagado → cancelado after Wompi VOIDED', async () => {
+    const mock = createClient({ data: { id: 'pedido-1' }, error: null });
+
+    await expect(claimCancelFromPaid(mock.client, 'pedido-1')).resolves.toEqual({
+      claimed: true,
+      error: null,
+    });
+    expect(mock.update).toHaveBeenCalledWith({ estado: 'cancelado' });
+    expect(mock.eq).toHaveBeenCalledWith('id', 'pedido-1');
+    expect(mock.eqEstado).toHaveBeenCalledWith('estado', 'pagado');
+    expect(mock.select).toHaveBeenCalledWith('id');
+  });
+
+  it('forwards extra fields in the same CAS update', async () => {
+    const mock = createClient({ data: { id: 'pedido-1' }, error: null });
+
+    await claimCancelFromPaid(mock.client, 'pedido-1', {
+      metadata: { anulado_por_wompi: true },
+    });
+
+    expect(mock.update).toHaveBeenCalledWith({
+      estado: 'cancelado',
+      metadata: { anulado_por_wompi: true },
+    });
+  });
+
+  it('does not claim when order is no longer pagado', async () => {
+    const mock = createClient({ data: null, error: null });
+
+    await expect(claimCancelFromPaid(mock.client, 'pedido-1')).resolves.toEqual({
+      claimed: false,
+      error: null,
     });
   });
 });
