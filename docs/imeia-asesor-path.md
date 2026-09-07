@@ -10,6 +10,8 @@ Oficial en uso (WhatsApp Web I-ME): **+57 313 724 7353** → `https://wa.me/5731
 
 Constante: `src/lib/contacto-oficial.ts`. El `+57 310 333 2607` es histórico (schema.org / plantilla congreso) y no debe usarse en handoff.
 
+Canal Cloud API (sin WhatsApp Web): Edge Function `whatsapp-webhook` — ver `docs/WHATSAPP_CLOUD_API.md`. Reutiliza los mismos guardrails; no toca Turnstile del widget.
+
 ## Ruta de una pregunta
 
 ```

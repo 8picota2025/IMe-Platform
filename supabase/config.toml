@@ -382,6 +382,10 @@ inspector_port = 8083
 # The Deno major version to use.
 deno_version = 2
 
+# WhatsApp Cloud API: Meta no envía JWT. Auth = verify_token + X-Hub-Signature-256.
+[functions.whatsapp-webhook]
+verify_jwt = false
+
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 
