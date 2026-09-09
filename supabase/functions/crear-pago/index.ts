@@ -37,6 +37,7 @@ import {
   type CotizacionOfertaRow,
   type CotizacionLineaOferta,
 } from '../../../src/lib/cotizacion-oferta.ts';
+import { resolverEnvioPorZona, type TarifaEnvioZona } from '../../../src/lib/envio-zona.ts';
 
 const FN_NAME = 'crear-pago';
 const MAX_ITEMS = 20;
@@ -176,42 +177,26 @@ async function obtenerListaPrecio(
   return { descuentoPct: Number(listaRow.descuento_pct ?? 0), precios };
 }
 
-function normalizarDepto(valor: string): string {
-  return valor.normalize('NFD').replace(/[̀-ͯ]/g, '').trim().toLowerCase();
-}
-
 /**
- * Envio por zona (tabla tarifas_envio, solo mercado CO). La zona se resuelve
- * por departamento de la direccion de facturacion; una zona con departamentos
- * vacios actua como tarifa por defecto. gratis_desde compara contra la base
- * (subtotal - descuento). Sin tarifas configuradas: envio 0 (comportamiento previo).
+ * Envio por zona (tabla tarifas_envio, solo mercado CO).
+ * Sin tarifas: 0. Con tarifas: exige departamento resoluble (fail-closed).
  */
 async function calcularEnvio(
   supabase: ReturnType<typeof getServerSupabase>,
   departamento: string | undefined,
   base: number
-): Promise<number> {
+): Promise<
+  | { ok: true; envio: number }
+  | { ok: false; code: string; message: string }
+  | { ok: false; internal: string }
+> {
   const { data, error } = await supabase
     .from('tarifas_envio')
     .select('zona, departamentos, tarifa, gratis_desde')
     .eq('activo', true);
-  if (error || !data || data.length === 0) return 0;
-
-  const tarifas = data as Array<{
-    departamentos: string[] | null;
-    tarifa: number | string;
-    gratis_desde: number | string | null;
-  }>;
-  const depto = departamento ? normalizarDepto(departamento) : '';
-  const especifica = depto
-    ? tarifas.find(t => (t.departamentos ?? []).some(d => normalizarDepto(d) === depto))
-    : undefined;
-  const porDefecto = tarifas.find(t => (t.departamentos ?? []).length === 0);
-  const zona = especifica ?? porDefecto;
-  if (!zona) return 0;
-  const gratisDesde = zona.gratis_desde === null ? null : Number(zona.gratis_desde);
-  if (gratisDesde !== null && base >= gratisDesde) return 0;
-  return Number(zona.tarifa) || 0;
+  if (error) return { ok: false, internal: `error consultando tarifas_envio: ${error.message}` };
+  const tarifas = (data ?? []) as TarifaEnvioZona[];
+  return resolverEnvioPorZona(tarifas, departamento, base);
 }
 
 /** Precio por producto de la lista tiene prioridad; si no, descuento % sobre el publico. */
@@ -856,15 +841,22 @@ Deno.serve(
       : { ok: true as const, descuento: 0, cupon: null as CuponRow | null };
     if (!descuento.ok) return descuento.response;
 
-    // Envio por zona (solo CO; INTL se cotiza aparte)
-    const envioTotal =
-      mercado === 'CO'
-        ? await calcularEnvio(
-            supabase,
-            body.fiscal?.direccion_facturacion?.departamento,
-            subtotal - descuento.descuento
-          )
-        : 0;
+    // Envio por zona (solo CO catalog checkout). Cotización locked: el total
+    // ofertado ya es el acordado (#78). Fail-closed si hay tarifas activas y el
+    // departamento no resuelve zona — evita undercharge a envio 0.
+    let envioTotal = 0;
+    if (mercado === 'CO' && !lineasCotizacion) {
+      const envio = await calcularEnvio(
+        supabase,
+        body.fiscal?.direccion_facturacion?.departamento,
+        subtotal - descuento.descuento
+      );
+      if (!envio.ok) {
+        if ('internal' in envio) return internalError(envio.internal, origin);
+        return errorResponse({ code: envio.code, message: envio.message }, 422, origin);
+      }
+      envioTotal = envio.envio;
+    }
 
     const fiscal = calculateFiscalSummary(
       fiscalItems as Array<{
