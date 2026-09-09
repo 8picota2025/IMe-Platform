@@ -9,9 +9,9 @@ import {
   esIntencionHandoffComercial,
   inferHandoffFromUserIntent,
   type CatalogGroundingProduct,
-} from './asesor-guardrails';
-import { buildAsesorStaticFallback, esConsultaSitioOLegal } from './asesor-knowledge';
-import { IME_WHATSAPP_DISPLAY, IME_WHATSAPP_E164 } from './contacto-oficial';
+} from './asesor-guardrails.ts';
+import { buildAsesorStaticFallback, esConsultaSitioOLegal } from './asesor-knowledge.ts';
+import { IME_WHATSAPP_DISPLAY, IME_WHATSAPP_E164 } from './contacto-oficial.ts';
 
 export const IME_COTIZACION_URL = 'https://i-me.com.co/es/contacto/';
 export const WHATSAPP_DEFAULT_API_VERSION = 'v21.0';
