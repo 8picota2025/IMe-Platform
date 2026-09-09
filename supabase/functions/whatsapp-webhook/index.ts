@@ -4,7 +4,7 @@
  * GET: verificación hub.mode / hub.verify_token / hub.challenge.
  * POST: inbound messages + statuses. Firma X-Hub-Signature-256 si
  * WHATSAPP_APP_SECRET está configurado. Reply IMEIA (catálogo + guardrails,
- * sin SOUL Hermes) vía Graph API `/{phone-number-id}/messages`.
+ * ack + wake a Ayuda Local; respuesta completa fuera de Edge `/{phone-number-id}/messages`.
  *
  * Secretos: WHATSAPP_VERIFY_TOKEN, WHATSAPP_APP_SECRET, WHATSAPP_TOKEN,
  * WHATSAPP_PHONE_NUMBER_ID, WHATSAPP_API_VERSION.
@@ -16,7 +16,6 @@ import { badRequest, unauthorized } from '../_shared/errors.ts';
 import { checkRateLimit } from '../_shared/rate-limit.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { trackEvent, withTelemetry } from '../_shared/telemetry.ts';
-import { composeImeiaWhatsAppReply } from '../_shared/whatsapp-imeia.ts';
 import {
   markWamidStatus,
   memoryWamidStoreFallback,
@@ -175,47 +174,67 @@ Deno.serve(
         });
       }
 
+      // Brain = Ayuda Local (Cursor/Grok) via wake webhook — not Hermes / Edge LLM.
       const locale = detectarLocaleWhatsApp(message.text);
-      const reply = await composeImeiaWhatsAppReply({
-        mensaje: message.text,
-        locale,
-        supabase,
-      });
+      if (supabase) {
+        await markWamidStatus(supabase, message.wamid, 'pending_agent', wamidExtra);
+      }
 
-      if (!graph) {
-        console.warn('[whatsapp-webhook] WHATSAPP_TOKEN/PHONE_NUMBER_ID ausentes: no se envía');
-        if (supabase) {
-          await markWamidStatus(supabase, message.wamid, 'send_failed', wamidExtra);
-        }
+      if (graph) {
+        const ackEs = 'Un momento, reviso su consulta…';
+        const ackEn = 'One moment — checking your question…';
+        void sendWhatsAppText({
+          to: message.from,
+          body: locale === 'en' ? ackEn : ackEs,
+          token: graph.token,
+          phoneNumberId: graph.phoneNumberId,
+          apiVersion: graph.apiVersion,
+        });
+      }
+
+      const wakeUrl = Deno.env.get('IMEIA_AGENT_WEBHOOK_URL')?.trim();
+      const wakeKey = Deno.env.get('IMEIA_AGENT_WEBHOOK_KEY')?.trim();
+      if (!wakeUrl || !wakeKey) {
+        console.warn('[whatsapp-webhook] IMEIA_AGENT_WEBHOOK_URL/KEY ausentes: no wake');
+        void trackEvent(FN_NAME, 'whatsapp_wake_missing', {}, { nivel: 'warn' });
+        ignored += 1;
         continue;
       }
 
-      const sent = await sendWhatsAppText({
-        to: message.from,
-        body: reply.texto,
-        token: graph.token,
-        phoneNumberId: graph.phoneNumberId,
-        apiVersion: graph.apiVersion,
-      });
-
-      if (supabase) {
-        await markWamidStatus(
-          supabase,
-          message.wamid,
-          sent.ok ? 'replied' : 'send_failed',
-          wamidExtra
-        );
-      }
-
-      if (sent.ok) {
-        replied += 1;
-      } else {
-        console.error('[whatsapp-webhook] Graph send falló:', sent.error);
-        void trackEvent(
-          FN_NAME,
-          'whatsapp_send_failed',
-          { status: sent.status ?? 0 },
-          { nivel: 'warn' }
+      try {
+        const wakeRes = await fetch(wakeUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${wakeKey}`,
+            'X-Webhook-Key': wakeKey,
+          },
+          body: JSON.stringify({
+            source: 'whatsapp-cloud',
+            channel: 'imeia',
+            from: message.from,
+            text: message.text,
+            wamid: message.wamid,
+            phone_number_id: message.phoneNumberId ?? graph?.phoneNumberId ?? null,
+            locale,
+            received_at: new Date().toISOString(),
+          }),
+        });
+        if (!wakeRes.ok) {
+          console.error('[whatsapp-webhook] wake HTTP', wakeRes.status);
+          void trackEvent(
+            FN_NAME,
+            'whatsapp_wake_failed',
+            { status: wakeRes.status },
+            { nivel: 'warn' }
+          );
+        } else {
+          replied += 1; // queued for agent reply
+        }
+      } catch (err) {
+        console.error(
+          '[whatsapp-webhook] wake error:',
+          err instanceof Error ? err.message : err
         );
       }
     }
