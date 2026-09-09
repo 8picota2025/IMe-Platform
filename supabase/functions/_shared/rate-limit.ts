@@ -3,7 +3,7 @@
  * asesor_rate_limit: ventana corta (anti-burst) + tope diario.
  *
  * Tabla compartida entre acciones ('asesor' | 'crear-pago' | 'cotizacion' |
- * 'comercial-share'): cada accion tiene
+ * 'comercial-share' | 'whatsapp'): cada accion tiene
  * sus propios umbrales (env vars) pero el `identificador` (con su prefijo,
  * ej. 'pago:ip:<ip>' vs 'asesor:...') ya evita que se mezclen los contadores.
  * No se crea una tabla `rate_limits` separada — el esquema actual admite una
@@ -17,7 +17,8 @@ export type RateLimitAccion =
   | 'crear-pago'
   | 'cotizacion'
   | 'comercial-share'
-  | 'formalizar-preview';
+  | 'formalizar-preview'
+  | 'whatsapp';
 
 export interface RateLimitResult {
   limited: boolean;
@@ -63,6 +64,11 @@ const THRESHOLDS: Record<RateLimitAccion, RateLimitThresholds> = {
     windowSeconds: Number(Deno.env.get('COMERCIAL_SHARE_RATE_LIMIT_VENTANA_SEGUNDOS') ?? 3600),
     maxPerWindow: Number(Deno.env.get('COMERCIAL_SHARE_RATE_LIMIT_MAX_VENTANA') ?? 30),
     maxPerDay: Number(Deno.env.get('COMERCIAL_SHARE_RATE_LIMIT_MAX_DIA') ?? 100),
+  },
+  whatsapp: {
+    windowSeconds: Number(Deno.env.get('WHATSAPP_RATE_LIMIT_VENTANA_SEGUNDOS') ?? 60),
+    maxPerWindow: Number(Deno.env.get('WHATSAPP_RATE_LIMIT_MAX_VENTANA') ?? 8),
+    maxPerDay: Number(Deno.env.get('WHATSAPP_RATE_LIMIT_MAX_DIA') ?? 80),
   },
 };
 
