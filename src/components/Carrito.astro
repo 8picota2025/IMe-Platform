@@ -158,6 +158,21 @@ const config = {
       </label>
     </fieldset>
 
+    <fieldset class="carrito-fieldset" id="carrito-envio-co">
+      <legend>{config.i18n.departamentoFacturacion}</legend>
+      <p class="carrito-aviso">{config.i18n.avisoFiscalEnvio}</p>
+      <div class="carrito-field">
+        <label for="carrito-departamento-envio">{config.i18n.departamentoFacturacion}</label>
+        <input
+          id="carrito-departamento-envio"
+          name="departamento_envio"
+          type="text"
+          autocomplete="address-level1"
+          required
+        />
+      </div>
+    </fieldset>
+
     <fieldset class="carrito-fieldset">
       <legend>{config.i18n.datosTitulo}</legend>
       <div class="carrito-grid">
@@ -794,6 +809,10 @@ const config = {
       'carrito-solicitar-factura'
     ) as HTMLInputElement | null;
     const fiscalFieldsEl = document.getElementById('carrito-fiscal-fields');
+    const envioCoEl = document.getElementById('carrito-envio-co');
+    const departamentoEnvioEl = document.getElementById(
+      'carrito-departamento-envio'
+    ) as HTMLInputElement | null;
 
     const config: CarritoConfig = JSON.parse(drawer.dataset.carritoConfig ?? '{}') as CarritoConfig;
     const { i18n, locale } = config;
@@ -931,6 +950,13 @@ const config = {
         if (!enabled) field.setCustomValidity('');
       });
       if (solicitarFacturaEl) solicitarFacturaEl.disabled = mercadoActual !== 'CO';
+      // Envio CO: departamento siempre requerido cuando hay tarifas (servidor fail-closed).
+      const envioCo = mercadoActual === 'CO';
+      if (envioCoEl) envioCoEl.hidden = !envioCo;
+      if (departamentoEnvioEl) {
+        departamentoEnvioEl.required = envioCo;
+        if (!envioCo) departamentoEnvioEl.setCustomValidity('');
+      }
     }
 
     toggleFiscalFields();
@@ -1058,6 +1084,9 @@ const config = {
         if (institucion) Object.assign(cliente, { institucion });
         const consentimientoDatos = data.get('consentimiento') === 'on';
         const cuponCodigo = String(data.get('cupon') ?? '').trim();
+        const departamentoEnvio = String(
+          data.get('departamento_envio') ?? data.get('departamento_facturacion') ?? ''
+        ).trim();
         const solicitarFacturaElectronica =
           mercado === 'CO' && data.get('solicitar_factura_electronica') === 'on';
         const fiscal = solicitarFacturaElectronica
@@ -1071,14 +1100,25 @@ const config = {
               direccion_facturacion: {
                 direccion: String(data.get('direccion_facturacion') ?? ''),
                 ciudad: String(data.get('ciudad_facturacion') ?? ''),
-                departamento: String(data.get('departamento_facturacion') ?? ''),
+                departamento:
+                  String(data.get('departamento_facturacion') ?? '').trim() || departamentoEnvio,
                 pais: String(data.get('pais_facturacion') ?? 'CO'),
               },
               responsable_iva: data.get('responsable_iva') === 'on',
               agente_retencion: data.get('agente_retencion') === 'on',
               agente_reteica: data.get('agente_reteica') === 'on',
             }
-          : undefined;
+          : mercado === 'CO' && departamentoEnvio
+            ? {
+                solicitar_factura_electronica: false,
+                direccion_facturacion: {
+                  direccion: '',
+                  ciudad: '',
+                  departamento: departamentoEnvio,
+                  pais: 'CO',
+                },
+              }
+            : undefined;
         if (fiscal) Object.assign(cliente, { fiscal });
 
         enviando = true;
