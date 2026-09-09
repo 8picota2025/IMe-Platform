@@ -177,7 +177,7 @@ Deno.serve(
       // Brain = Ayuda Local (Cursor/Grok) via wake webhook — not Hermes / Edge LLM.
       const locale = detectarLocaleWhatsApp(message.text);
       if (supabase) {
-        await markWamidStatus(supabase, message.wamid, 'pending_agent', wamidExtra);
+        await markWamidStatus(supabase, message.wamid, 'pending_agent', { ...wamidExtra, body: message.text });
       }
 
       if (graph) {

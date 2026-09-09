@@ -38,18 +38,22 @@ export class SupabaseWamidStore implements WamidClaimStore {
 export async function markWamidStatus(
   supabase: SupabaseClient,
   wamid: string,
-  status: 'replied' | 'ignored' | 'rate_limited' | 'send_failed',
-  extra: { fromWa?: string; phoneNumberId?: string; kind?: string } = {}
+  status: 'replied' | 'ignored' | 'rate_limited' | 'send_failed' | 'pending_agent',
+  extra: { fromWa?: string; phoneNumberId?: string; kind?: string; body?: string } = {}
 ): Promise<void> {
+  const patch: Record<string, unknown> = {
+    status,
+    from_wa: extra.fromWa ?? null,
+    phone_number_id: extra.phoneNumberId ?? null,
+    kind: extra.kind ?? 'message',
+    updated_at: new Date().toISOString(),
+  };
+  if (extra.body !== undefined) {
+    patch.body = extra.body;
+  }
   const { error } = await supabase
     .from('whatsapp_inbound_events')
-    .update({
-      status,
-      from_wa: extra.fromWa ?? null,
-      phone_number_id: extra.phoneNumberId ?? null,
-      kind: extra.kind ?? 'message',
-      updated_at: new Date().toISOString(),
-    })
+    .update(patch)
     .eq('wamid', wamid);
   if (error) {
     console.warn('[whatsapp-wamid] update status failed:', error.message);
