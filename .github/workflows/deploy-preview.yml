@@ -29,6 +29,21 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
 
+      - name: Validate deployment configuration
+        env:
+          HOSTINGER_PREVIEW_PATH: ${{ secrets.HOSTINGER_PREVIEW_PATH }}
+          HOSTINGER_PREVIEW_DOMAIN: ${{ secrets.HOSTINGER_PREVIEW_DOMAIN }}
+        run: |
+          set -euo pipefail
+          test -n "$HOSTINGER_PREVIEW_PATH" || {
+            echo "Falta configurar el secret HOSTINGER_PREVIEW_PATH."
+            exit 1
+          }
+          test -n "$HOSTINGER_PREVIEW_DOMAIN" || {
+            echo "Falta configurar el secret HOSTINGER_PREVIEW_DOMAIN."
+            exit 1
+          }
+
       - name: Install dependencies
         run: npm ci
 

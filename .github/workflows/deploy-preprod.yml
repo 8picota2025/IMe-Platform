@@ -21,6 +21,16 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
 
+      - name: Validate deployment configuration
+        env:
+          HOSTINGER_PREPROD_PATH: ${{ secrets.HOSTINGER_PREPROD_PATH }}
+        run: |
+          set -euo pipefail
+          test -n "$HOSTINGER_PREPROD_PATH" || {
+            echo "Falta configurar el secret HOSTINGER_PREPROD_PATH."
+            exit 1
+          }
+
       - name: Install dependencies
         run: npm ci
 
