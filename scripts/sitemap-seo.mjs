@@ -61,6 +61,24 @@ for (const pair of LEGAL_SLUG_PAIRS) {
   LEGAL_SLUG_LOOKUP.set(pair.en, pair);
 }
 
+/** Nested slug pairs under a localized section (e.g. conocimiento/publicar). */
+const NESTED_SLUG_PAIRS = [
+  { sectionEs: 'conocimiento', sectionEn: 'knowledge', es: 'publicar', en: 'publish' },
+];
+
+function localizeNestedSlugs(segments, targetLocale) {
+  if (segments.length < 2) return;
+  for (const pair of NESTED_SLUG_PAIRS) {
+    const section = targetLocale === 'es' ? pair.sectionEs : pair.sectionEn;
+    const sectionMatch = segments[0] === pair.sectionEs || segments[0] === pair.sectionEn;
+    const slugMatch = segments[1] === pair.es || segments[1] === pair.en;
+    if (sectionMatch && slugMatch) {
+      segments[0] = section;
+      segments[1] = pair[targetLocale];
+    }
+  }
+}
+
 /** Landings y artículos SEO recientes — prioridad alta + changefreq weekly. */
 const HIGH_PRIORITY_ES_PATHS = new Set([
   '/es/',
@@ -104,6 +122,7 @@ function getLocalizedPath(path, targetLocale) {
     const legalPair = LEGAL_SLUG_LOOKUP.get(segments[1]);
     if (legalPair) segments[1] = legalPair[targetLocale];
   }
+  localizeNestedSlugs(segments, targetLocale);
 
   return withTrailingSlash(`/${targetLocale}/${segments.join('/')}`);
 }

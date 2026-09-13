@@ -25,3 +25,40 @@ Formato: `[ubicación] [severidad] [descripción] [evidencia] [fix concreto] [fa
 - `[Legal/Footer] [Mayor] Footer apuntaba legales a "#". Evidencia: Footer actualizado con rutas reales. Fix aplicado. [F5]`
 - `[Consentimiento] [Mayor] Contacto indicaba enlace de privacidad pendiente. Evidencia: formularios enlazan política borrador. Fix aplicado. [F5]`
 - `[SEO/Legacy] [Mayor] /77 y /1old no tenían reglas 301 documentadas en build. Evidencia: public/.htaccess agregado. Fix aplicado, verificación hosting pendiente. [F5]`
+
+## Bloqueo de crawlers a recursos SEO públicos
+
+### Evidencia
+
+- 2026-09-13: `curl` a `/robots.txt`, `/sitemap-index.xml`, `/es/conocimiento/` → **200** con UA browser, `Googlebot` y `SEO-Audit-Test`.
+- `/blog` → **404** (no 403 WAF).
+- Headers: `platform: hostinger`, `server: hcdn`. Sin Cloudflare.
+- Live `robots.txt` Disallow `/_astro/` (no está en git).
+- Live `sitemap-index.xml` solo lista `sitemap-0.xml`; `sitemap-pages-0.xml` / `sitemap-knowledge-0.xml` → **404**.
+- `release-manifest.json` → **404** pese a deploys recientes en Actions.
+
+### Capa que responde
+
+Hostinger CDN/origen (`hcdn`). Bloqueo WAF **no confirmado** para recursos SEO públicos. `/es/pago/` sí responde **403** (protección Hostinger; coherente con no indexar).
+
+### Rutas afectadas
+
+- Legacy editorial sin redirect: `/blog`, `/conocimiento`, `/knowledge`, `/en/blog`.
+- Drift SEO artifacts: `robots.txt`, `sitemap-index.xml`, chunks de sitemap, `release-manifest.json`.
+
+### Cambio manual requerido (ops Hostinger)
+
+1. Merge + deploy-prod desde `fix/seo-crawlers-blog` (sube `robots.txt`, `.htaccess`, sitemaps nuevos).
+2. Verificar en File Manager / FTP que `public_html` (o `HOSTINGER_PROD_PATH`) contiene el `release-manifest.json` del SHA desplegado.
+3. Si el index nuevo está en sitio pero `sitemap-0.xml` viejo queda huérfano: **borrar** `sitemap-0.xml` del docroot para evitar confusión (FTP deploy no destruye).
+4. Confirmar live `robots.txt` **sin** `Disallow: /_astro/`.
+5. No desactivar WAF global ni “Allow all bots”. Excepción mínima solo si reaparece 403 en `/robots.txt` o `/sitemap*.xml` — restringida a esas rutas y bots verificados si el panel lo ofrece.
+
+### Riesgo
+
+- Deploy parcial deja sitemaps viejos indexados en GSC.
+- Borrar `sitemap-0.xml` sin index actualizado → ventana sin sitemap.
+
+### Validación posterior
+
+Ver `docs/SEO_VALIDACION.md` y checklist HUMAN_POST_DEPLOY en `docs/SEO_CRAWL_AUDIT.md`.

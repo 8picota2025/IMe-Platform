@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { serializeSitemapItem, chunkProducts, chunkKnowledge } from '../../scripts/sitemap-seo.mjs';
+import { isIndexableSitemapUrl } from '../../scripts/sitemap-indexability.mjs';
 
 describe('sitemap-seo', () => {
   it('assigns high priority and hreflang to GSC campaign landings', () => {
@@ -23,6 +24,15 @@ describe('sitemap-seo', () => {
     ).toBe(true);
   });
 
+  it('maps conocimiento/publicar ↔ knowledge/publish for hreflang', () => {
+    const item = serializeSitemapItem({
+      url: 'https://i-me.com.co/es/conocimiento/publicar/',
+    });
+    expect(item.links?.some(l => l.lang === 'en' && l.url.endsWith('/en/knowledge/publish/'))).toBe(
+      true
+    );
+  });
+
   it('chunks products and knowledge separately', () => {
     const product = chunkProducts({ url: 'https://i-me.com.co/es/productos/foo/' });
     const article = chunkKnowledge({
@@ -32,5 +42,28 @@ describe('sitemap-seo', () => {
     expect(product?.url).toContain('/productos/');
     expect(article?.url).toContain('/conocimiento/');
     expect(page).toBeUndefined();
+  });
+});
+
+describe('sitemap-indexability', () => {
+  it('excludes private and legacy prefixes without substring false positives', () => {
+    expect(isIndexableSitemapUrl('https://i-me.com.co/es/conocimiento/')).toBe(true);
+    expect(isIndexableSitemapUrl('https://i-me.com.co/es/catalogo/')).toBe(true);
+    expect(isIndexableSitemapUrl('https://i-me.com.co/admin/')).toBe(false);
+    expect(isIndexableSitemapUrl('https://i-me.com.co/es/pago/xyz/')).toBe(false);
+    expect(isIndexableSitemapUrl('https://i-me.com.co/en/payment/xyz/')).toBe(false);
+    expect(isIndexableSitemapUrl('https://i-me.com.co/77/catalogo.html')).toBe(false);
+    expect(isIndexableSitemapUrl('https://i-me.com.co/1old/')).toBe(false);
+    expect(isIndexableSitemapUrl('https://i-me.com.co/blog/')).toBe(false);
+    expect(isIndexableSitemapUrl('https://i-me.com.co/es/conocimiento/publicar/')).toBe(false);
+    expect(isIndexableSitemapUrl('https://i-me.com.co/es/cotizacion/')).toBe(false);
+    expect(isIndexableSitemapUrl('https://i-me.com.co/es/productos/test/')).toBe(false);
+    expect(isIndexableSitemapUrl('https://i-me.com.co/en/products/test/')).toBe(false);
+    expect(
+      isIndexableSitemapUrl('https://i-me.com.co/es/productos/test-de-pasarela-de-pagos/')
+    ).toBe(false);
+    expect(
+      isIndexableSitemapUrl('https://i-me.com.co/es/productos/monitor-administrativo-demo/')
+    ).toBe(true);
   });
 });
