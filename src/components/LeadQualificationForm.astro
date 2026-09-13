@@ -15,6 +15,7 @@ interface Props {
   primaryCta: string;
   projectOptions: CampaignOption[];
   formId?: string;
+  institutionTypeOptions?: Array<{ value: string; label: string }>;
 }
 
 const {
@@ -25,6 +26,7 @@ const {
   primaryCta,
   projectOptions,
   formId = 'lead-qualification-form',
+  institutionTypeOptions = [],
 } = Astro.props;
 
 const isEn = locale === 'en';
@@ -66,6 +68,29 @@ const turnstileSiteKey = (
         >
         <input id={`${formId}-nombre`} name="nombre" type="text" autocomplete="name" required />
       </div>
+      {
+        institutionTypeOptions.length > 0 && (
+          <div class="lqf-field">
+            <label for={`${formId}-tipo-institucion`}>
+              Tipo de institución{' '}
+              <span class="req" aria-hidden="true">
+                *
+              </span>
+            </label>
+            <select
+              id={`${formId}-tipo-institucion`}
+              name="tipo_institucion"
+              required
+              class="lqf-select"
+            >
+              <option value="">Selecciona…</option>
+              {institutionTypeOptions.map(option => (
+                <option value={option.value}>{option.label}</option>
+              ))}
+            </select>
+          </div>
+        )
+      }
       <div class="lqf-field">
         <label for={`${formId}-cargo`}>{isEn ? 'Role' : 'Cargo'}</label>
         <input
@@ -495,7 +520,14 @@ const turnstileSiteKey = (
         tipo_proyecto: String(fd.get('tipo_proyecto') ?? ''),
         horizonte: String(fd.get('horizonte') ?? '') as HorizonteCompra,
         presupuesto_estado: String(fd.get('presupuesto_estado') ?? ''),
-        necesidad: String(fd.get('necesidad') ?? ''),
+        necesidad: [
+          fd.get('tipo_institucion')
+            ? `Tipo de institución: ${String(fd.get('tipo_institucion'))}`
+            : '',
+          String(fd.get('necesidad') ?? ''),
+        ]
+          .filter(Boolean)
+          .join('\n'),
         consentimiento: fd.get('consentimiento') === '1',
         campaign: (form.dataset.campaign ?? 'proyectos') as CommercialLeadInput['campaign'],
         locale,
@@ -512,7 +544,9 @@ const turnstileSiteKey = (
         consentimiento: true,
       });
       const keys = ['nombre', 'institucion', 'ciudad', 'contacto', 'email'] as const;
-      const blocked = keys.some(k => step1Check.errors[k]);
+      const institutionType = form.querySelector<HTMLSelectElement>('[name="tipo_institucion"]');
+      const blocked =
+        keys.some(k => step1Check.errors[k]) || Boolean(institutionType && !institutionType.value);
       if (status) {
         status.className = 'lqf-status';
         status.textContent = '';
@@ -526,6 +560,11 @@ const turnstileSiteKey = (
             step1Check.errors.institucion ||
             step1Check.errors.nombre ||
             step1Check.errors.ciudad ||
+            (institutionType && !institutionType.value
+              ? locale === 'en'
+                ? 'Select institution type.'
+                : 'Selecciona el tipo de institución.'
+              : '') ||
             (locale === 'en' ? 'Complete step 1.' : 'Completa el paso 1.');
         }
         return;

@@ -1,0 +1,578 @@
+---
+import Layout from '../layouts/Layout.astro';
+import LeadQualificationForm from './LeadQualificationForm.astro';
+import {
+  buildBreadcrumbJsonLd,
+  buildCanonical,
+  buildFaqJsonLd,
+  buildOrganizationJsonLd,
+  combineJsonLd,
+  getInstitutionalOgImage,
+} from '../lib/seo';
+import { buildWhatsAppUrl } from '../lib/comercial-leads';
+import '../styles/site-faithful.css';
+
+const path = '/es/esterilizacion/';
+const title = 'Esterilización hospitalaria: autoclaves y centrales | Colombia';
+const description =
+  'Orientación para proyectos de esterilización hospitalaria en Colombia: flujo, trazabilidad, autoclaves y centrales. Evalúe su proyecto con I-ME.';
+const whatsapp = buildWhatsAppUrl({
+  nombre: '',
+  cargo: '',
+  institucion: '',
+  ciudad: '',
+  telefono: '',
+  email: '',
+  familia_slug: 'esterilizacion-control-infecciones',
+  tipo_slug: '',
+  tipo_proyecto: 'central_esterilizacion',
+  horizonte: 'exploracion',
+  presupuesto_estado: '',
+  necesidad: 'Solicito orientación para un proyecto de esterilización.',
+  consentimiento: true,
+  campaign: 'esterilizacion',
+  locale: 'es',
+});
+const faqs = [
+  {
+    q: '¿INVIMA certifica una central de esterilización?',
+    a: 'No asuma que existe una certificación única. Los requisitos aplicables dependen del servicio, la habilitación, el equipo y la autoridad competente. Revise la norma vigente y el alcance de su institución.',
+  },
+  {
+    q: '¿Una autoclave Clase B sirve para toda institución?',
+    a: 'No. La selección parte de la carga, las instrucciones de uso del dispositivo, el ciclo validado por fabricante, capacidad, servicios y trazabilidad. Clase B y N no sustituyen esa evaluación.',
+  },
+  {
+    q: '¿Qué datos necesito para dimensionar una central?',
+    a: 'Volumen y tipos de cargas, horarios, servicios atendidos, flujo físico, utilidades, equipos existentes, responsables y registros de trazabilidad.',
+  },
+  {
+    q: '¿Cuánto cuesta una central de esterilización?',
+    a: 'No publicamos cifras genéricas: cambian con obra, flujo, capacidad, tratamiento de agua, equipos, instalación y alcance documental. Solicite una evaluación del proyecto.',
+  },
+];
+const jsonLd = combineJsonLd(
+  buildOrganizationJsonLd(),
+  buildBreadcrumbJsonLd([
+    { name: 'Inicio', url: '/es/' },
+    { name: 'Esterilización', url: path },
+  ]),
+  buildFaqJsonLd(faqs)
+);
+---
+
+<Layout
+  locale="es"
+  currentPath={path}
+  title={title}
+  description={description}
+  canonical={buildCanonical(path)}
+  ogImage={getInstitutionalOgImage()}
+  jsonLd={jsonLd}
+>
+  <div class="site-faithful sp">
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <nav class="breadcrumb" aria-label="Ruta de navegación">
+            <a href="/es/">Inicio</a><span aria-hidden="true">/</span><span aria-current="page"
+              >Esterilización hospitalaria</span>
+          </nav>
+          <p class="eyebrow">CENTRAL DE ESTERILIZACIÓN · COLOMBIA</p><h1>
+            Esterilización hospitalaria en Colombia: autoclaves y centrales de esterilización
+          </h1><p class="lead">
+            Convierta necesidades de carga, flujo y trazabilidad en un proyecto que su equipo pueda
+            revisar. Partimos de información verificable, sin prometer cumplimiento automático.
+          </p><div class="actions">
+            <a class="btn btn-primary" href="#esterilizacion-form">Dimensionar mi central</a><a
+              class="btn btn-secondary"
+              href={whatsapp}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-analytics-event="whatsapp_click">Hablar con un asesor</a
+            >
+          </div>
+        </div>
+        <img
+          src="/assets/img/esterilizacion-central-hospitalaria-colombia.webp"
+          alt="Área hospitalaria de esterilización"
+          width="1200"
+          height="800"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </div>
+    </section>
+    <section class="wrap section">
+      <h2>Flujo que conecta áreas, equipos y registros</h2><ol class="flow">
+        {
+          ['Recepción', 'Lavado', 'Inspección', 'Empaque', 'Esterilización', 'Almacenamiento'].map(
+            (step, i) => (
+              <li>
+                <span>{String(i + 1).padStart(2, '0')}</span>
+                {step}
+              </li>
+            )
+          )
+        }
+      </ol><p class="muted">
+        Activo disponible: imagen de proceso. El componente está listo para video HTML5 cuando se
+        entregue un archivo WebM/MP4 real; no se simula video.
+      </p>
+    </section>
+    <section class="band">
+      <div class="wrap">
+        <h2>Marco documental: verifique vigencia y alcance</h2><p>
+          Resolución 914 de 2025: manual de buenas prácticas para reprocesamiento de dispositivos
+          médicos. La regulación de habilitación tuvo cambios en 2026; confirme regla, transición y
+          aplicación con asesoría jurídica o autoridad territorial antes de diseñar o operar.
+        </p><p>
+          <a
+            href="https://www.minsalud.gov.co/Normatividad_Nuevo/Resoluci%C3%B3n%20No%20914%20de%202025.pdf"
+            target="_blank"
+            rel="noopener noreferrer">Consultar Resolución 914 de 2025</a
+          > · <a
+            href="https://www.suin-juriscol.gov.co/viewDocument.asp?id=30039964"
+            target="_blank"
+            rel="noopener noreferrer">Consultar Resolución 3100 en SUIN</a
+          >
+        </p>
+      </div>
+    </section>
+    <section class="wrap section two">
+      <div>
+        <h2>Autoclave Clase B y Clase N: conversación técnica, no sello normativo</h2><table>
+          <thead><tr><th>Clase</th><th>Lectura prudente</th></tr></thead><tbody
+            ><tr
+              ><td>B</td><td
+                >Los ciclos y cargas admitidas dependen del equipo, su validación y las
+                instrucciones del fabricante.</td
+              ></tr
+            ><tr
+              ><td>N</td><td
+                >Su aplicación debe revisarse frente a tipo de carga, empaque y limitaciones del
+                fabricante.</td
+              ></tr
+            ></tbody
+          >
+        </table><p>
+          Estas categorías no reemplazan evaluación de riesgo, instrucciones de uso, mantenimiento,
+          controles ni requisitos aplicables.
+        </p>
+      </div><div>
+        <h2>Separación funcional de central</h2><ul>
+          <li>Área sucia: recepción y lavado.</li><li>Área limpia: inspección y empaque.</li><li>
+            Área estéril: descarga y almacenamiento.
+          </li>
+        </ul><p>
+          La distribución final requiere revisar barreras, circulación, servicios, cargas y
+          operación real del sitio.
+        </p>
+      </div>
+    </section>
+    <section class="wrap section">
+      <h2>Trazabilidad: registro que permite reconstruir proceso</h2><p class="trace">
+        DISPOSITIVO → CARGA → CICLO → EQUIPO → FECHA → OPERADOR → CONTROLES → DESTINO
+      </p><p>
+        Defina responsables, registros y controles con su equipo de calidad y según procedimientos
+        institucionales. No se infiere trazabilidad por comprar un equipo.
+      </p>
+    </section>
+    <section class="band">
+      <div class="wrap">
+        <h2>Pre-dimensionamiento orientativo</h2><p>
+          Herramienta comercial no clínica. No calcula ciclos validados ni prescribe capacidad:
+          organiza datos para una conversación técnica.
+        </p><form class="calculator" data-calculator>
+          <label
+            >Tipo de institución<select name="inst"
+              ><option>Consultorio</option><option>Clínica / IPS</option><option>Hospital</option
+              ><option>Central externa</option></select
+            ></label
+          ><label
+            >Procedimientos por día<input
+              name="procedures"
+              type="number"
+              min="0"
+              inputmode="numeric"
+            /></label
+          ><label
+            >Cargas reportadas por día<input
+              name="loads"
+              type="number"
+              min="0"
+              inputmode="numeric"
+            /></label
+          ><label
+            >Quirófanos / consultorios<input
+              name="rooms"
+              type="number"
+              min="0"
+              inputmode="numeric"
+            /></label
+          ><label
+            >Horas de operación<input
+              name="hours"
+              type="number"
+              min="0"
+              inputmode="numeric"
+            /></label
+          ><label
+            >Tipo de instrumental<select name="instruments"
+              ><option>Mixto / por revisar</option><option>Sólido</option><option
+                >Hueco o poroso</option
+              ></select
+            ></label
+          ><label
+            >Autoclave actual<select name="current"
+              ><option>Sin información</option><option>Existe y requiere revisión</option><option
+                >No existe</option
+              ></select
+            ></label
+          ><label
+            >Tratamiento de agua<select name="water"
+              ><option>Por revisar</option><option>Existe</option><option>No existe</option></select
+            ></label
+          ><label
+            >Registro de trazabilidad<select name="traceability"
+              ><option>Por revisar</option><option>Manual</option><option>Digital</option></select
+            ></label
+          ><button class="btn btn-primary" type="submit">Ver orientación inicial</button>
+        </form><div class="result" aria-live="polite" data-result></div>
+      </div>
+    </section>
+    <section class="wrap section checklist">
+      <div>
+        <p class="eyebrow">RECURSO</p><h2>Checklist de 18 puntos para evaluar su central</h2><p>
+          Flujo, carga, utilidades, equipos, controles, registros y responsables. Se entrega para
+          evaluación del proyecto; no constituye certificación, concepto legal ni aprobación de
+          autoridad.
+        </p><a class="btn btn-secondary" href="#esterilizacion-form">Solicitar checklist</a>
+      </div><ol>
+        {
+          [
+            'Servicios y demanda',
+            'Tipos de dispositivos',
+            'Cargas y picos',
+            'Flujo sucio-limpio-estéril',
+            'Recepción',
+            'Lavado',
+            'Inspección',
+            'Empaque',
+            'Ciclos',
+            'Capacidad',
+            'Agua',
+            'Energía',
+            'Vapor',
+            'Ventilación',
+            'Controles',
+            'Trazabilidad',
+            'Mantenimiento',
+            'Responsables',
+          ].map(item => <li>{item}</li>)
+        }
+      </ol>
+    </section>
+    <section class="wrap section">
+      <h2>Productos para revisar dentro de un proyecto</h2><div class="cards">
+        <a href="/es/productos/autoclave-horizontal-5075/">Autoclave horizontal 5075</a><a
+          href="/es/productos/t-max-6/">Autoclave T-Max 6</a
+        ><a href="/es/catalogo/?familia=esterilizacion-control-infecciones"
+          >Ver catálogo de esterilización</a
+        >
+      </div><p class="muted">
+        Disponibilidad, configuración, instalación, soporte y financiación se confirman solo en
+        propuesta formal.
+      </p>
+    </section>
+    <section class="band">
+      <div class="wrap">
+        <h2>Errores que encarecen proyecto</h2><div class="cards">
+          <p><strong>Comprar por litros.</strong> Revise carga, ciclo, flujo y picos.</p><p>
+            <strong>Ignorar agua y utilidades.</strong> Evalúe condiciones de sitio y fabricante.
+          </p><p>
+            <strong>Dejar registros al final.</strong> Diseñe responsables y trazabilidad desde inicio.
+          </p>
+        </div>
+      </div>
+    </section>
+    <section class="wrap section">
+      <h2>Guías para continuar evaluación</h2><div class="cards">
+        <a href="/es/conocimiento/autoclave-clase-b-vs-n/">Autoclave Clase B vs N</a><a
+          href="/es/conocimiento/como-elegir-autoclave-odontologia/"
+          >Cómo elegir autoclave para odontología</a
+        ><a href="/es/conocimiento/mantenimiento-autoclave-colombia/"
+          >Mantenimiento de autoclaves en Colombia</a
+        >
+      </div>
+    </section>
+    <section class="form-section">
+      <div class="wrap form-grid">
+        <div>
+          <p class="eyebrow">EVALUACIÓN DE PROYECTO</p><h2>
+            Cuéntenos cómo opera su institución
+          </h2><p>
+            Use este formulario para recibir el checklist o coordinar una conversación. El tipo de
+            institución queda asociado a necesidad del proyecto.
+          </p>
+        </div><LeadQualificationForm
+          locale="es"
+          campaign="esterilizacion"
+          familiaSlug="esterilizacion-control-infecciones"
+          primaryCta="Solicitar evaluación"
+          formId="esterilizacion-form"
+          institutionTypeOptions={[
+            { value: 'consultorio', label: 'Consultorio' },
+            { value: 'ips', label: 'Clínica / IPS' },
+            { value: 'hospital', label: 'Hospital' },
+            { value: 'central-externa', label: 'Central externa' },
+          ]}
+          projectOptions={[
+            { value: 'checklist_central', label: 'Solicitar checklist de central' },
+            { value: 'nueva_central', label: 'Nueva central' },
+            { value: 'renovacion', label: 'Renovación o ampliación' },
+            { value: 'autoclave', label: 'Evaluar autoclave' },
+          ]}
+        />
+      </div>
+    </section>
+    <section class="wrap section">
+      <h2>Preguntas frecuentes sobre esterilización hospitalaria</h2>{
+        faqs.map(item => (
+          <details>
+            <>
+              <summary>{item.q}</summary>
+              <p>{item.a}</p>
+            </>
+          </details>
+        ))
+      }
+    </section>
+    <section class="wrap section keyword-section">
+      <p class="eyebrow">EQUIPOS Y SERVICIO</p><h2>
+        Autoclaves hospitalarias para esterilización de instrumental
+      </h2><p>
+        Evaluamos autoclaves hospitalarias, autoclaves de vapor y equipos para central de
+        esterilización según instrumental, cargas, servicios y espacio disponible. La venta de
+        autoclaves incluye una propuesta de configuración, instalación y soporte solo cuando el
+        alcance se confirma por escrito.
+      </p><div class="cards">
+        <a href="/es/productos/autoclave-horizontal-5075/">Autoclave hospitalaria horizontal</a><a
+          href="/es/productos/t-max-6/">Autoclave compacta para instrumental</a
+        ><a href="/es/conocimiento/mantenimiento-autoclave-colombia/"
+          >Servicio y mantenimiento de autoclaves</a>
+      </div>
+    </section>
+  </div>
+</Layout>
+<style>
+  .sp {
+    color: var(--ink);
+  }
+  .breadcrumb {
+    display: flex;
+    gap: 0.55rem;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+  .breadcrumb a {
+    color: var(--t800);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+  .wrap {
+    width: min(1140px, calc(100% - 2rem));
+    margin: auto;
+  }
+  .hero {
+    background: var(--off);
+    color: var(--ink);
+    padding: 5rem 0;
+  }
+  .hero h1 {
+    max-width: 18ch;
+    letter-spacing: -0.035em;
+  }
+  .hero-grid,
+  .form-grid,
+  .two,
+  .checklist {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 3rem;
+    align-items: center;
+  }
+  .hero img {
+    width: 100%;
+    border-radius: var(--radius-lg);
+    aspect-ratio: 3/2;
+    object-fit: cover;
+  }
+  .eyebrow {
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    font-size: 0.75rem;
+    color: var(--t500);
+  }
+  h1 {
+    font-size: clamp(2.1rem, 5vw, 4rem);
+    line-height: 1.05;
+    margin: 0.5rem 0 1rem;
+  }
+  .lead {
+    font-size: 1.15rem;
+    line-height: 1.6;
+  }
+  .actions,
+  .cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  .section {
+    padding: 4.5rem 0;
+  }
+  .band {
+    padding: 4.5rem 0;
+    background: var(--surface);
+  }
+  h2 {
+    font-size: clamp(1.65rem, 3vw, 2.5rem);
+  }
+  .flow {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    list-style: none;
+    padding: 0;
+    gap: 0.75rem;
+  }
+  .flow li,
+  .cards > a,
+  .cards > p {
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--white);
+    color: var(--ink);
+  }
+  .flow span {
+    display: block;
+    color: var(--t700);
+    font-weight: 800;
+  }
+  .trace {
+    font-weight: 800;
+    word-spacing: 0.3rem;
+  }
+  .muted {
+    color: var(--text-muted);
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  th,
+  td {
+    padding: 0.8rem;
+    border: 1px solid var(--border);
+    text-align: left;
+    vertical-align: top;
+  }
+  .calculator {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+  .calculator label {
+    display: grid;
+    gap: 0.4rem;
+    font-weight: 700;
+  }
+  .calculator input,
+  .calculator select {
+    min-height: 45px;
+    padding: 0.6rem;
+  }
+  .result {
+    margin-top: 1.25rem;
+    padding: 1rem;
+    background: var(--white);
+    border-radius: var(--radius);
+    min-height: 1.5rem;
+  }
+  .checklist ol {
+    columns: 2;
+  }
+  .form-section {
+    padding: 4.5rem 0;
+    background: var(--t950);
+    color: var(--white);
+  }
+  details {
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 0;
+  }
+  summary {
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .keyword-section {
+    max-width: 860px;
+  }
+  @media (max-width: 760px) {
+    .hero-grid,
+    .form-grid,
+    .two,
+    .checklist {
+      grid-template-columns: 1fr;
+    }
+    .flow {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .calculator {
+      grid-template-columns: 1fr;
+    }
+    .hero {
+      padding: 3rem 0;
+    }
+    .checklist ol {
+      columns: 1;
+    }
+  }
+</style>
+<script>
+  import { emitAnalyticsEvent } from '../lib/analytics';
+  document.querySelectorAll<HTMLFormElement>('[data-calculator]').forEach(form => {
+    if (form.dataset.bound) return;
+    form.dataset.bound = '1';
+    let started = false;
+    form.addEventListener('input', () => {
+      if (!started) {
+        started = true;
+        emitAnalyticsEvent('cta_clicked', { cta_id: 'sterilization_calculator_start' });
+      }
+    });
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      const fd = new FormData(form);
+      const loads = Number(fd.get('loads') || 0);
+      const procedures = Number(fd.get('procedures') || 0);
+      const rooms = Number(fd.get('rooms') || 0);
+      const band =
+        loads >= 20
+          ? 'alta demanda declarada'
+          : loads >= 8
+            ? 'demanda media declarada'
+            : loads > 0
+              ? 'demanda inicial declarada'
+              : 'demanda por confirmar';
+      const result = form.parentElement?.querySelector<HTMLElement>('[data-result]');
+      if (result)
+        result.textContent = `Orientación: ${band}. Reportó ${loads || 'sin'} cargas/día, ${procedures || 'sin'} procedimientos/día y ${rooms || 'sin'} salas. Revisaremos carga real, flujo, utilidades, controles y trazabilidad antes de proponer configuración.`;
+      emitAnalyticsEvent('cta_clicked', { cta_id: 'sterilization_calculator_complete' });
+    });
+  });
+</script>

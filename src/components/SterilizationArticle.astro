@@ -1,0 +1,87 @@
+---
+import Layout from '../layouts/Layout.astro';
+import {
+  buildBreadcrumbJsonLd,
+  buildCanonical,
+  buildOrganizationJsonLd,
+  combineJsonLd,
+  getInstitutionalOgImage,
+} from '../lib/seo';
+interface Props {
+  title: string;
+  description: string;
+  path: string;
+  intro: string;
+  sections: Array<{ heading: string; body: string }>;
+}
+const { title, description, path, intro, sections } = Astro.props;
+const jsonLd = combineJsonLd(
+  buildOrganizationJsonLd(),
+  buildBreadcrumbJsonLd([
+    { name: 'Inicio', url: '/es/' },
+    { name: 'Conocimiento', url: '/es/conocimiento/' },
+    { name: title, url: path },
+  ])
+);
+---
+
+<Layout
+  locale="es"
+  currentPath={path}
+  title={`${title} | I-ME Colombia`}
+  description={description}
+  canonical={buildCanonical(path)}
+  ogImage={getInstitutionalOgImage()}
+  jsonLd={jsonLd}
+>
+  <article class="article">
+    <a href="/es/esterilizacion/">← Esterilización hospitalaria</a><p class="tag">
+      GUÍA TÉCNICA
+    </p><h1>{title}</h1><p class="intro">{intro}</p>{
+      sections.map(section => (
+        <section>
+          <>
+            <h2>{section.heading}</h2>
+            <p>{section.body}</p>
+          </>
+        </section>
+      ))
+    }<p class="note">
+      Contenido informativo. Verifique instrucciones de uso, especificaciones de fabricante,
+      procedimientos institucionales y requisitos vigentes antes de decidir.
+    </p><a class="btn btn-primary" href="/es/esterilizacion/#esterilizacion-form"
+      >Evaluar proyecto de esterilización</a>
+  </article>
+</Layout>
+<style>
+  .article {
+    width: min(780px, calc(100% - 2rem));
+    margin: 4rem auto 6rem;
+  }
+  .tag {
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: var(--t700);
+    font-size: 0.75rem;
+    margin-top: 2rem;
+  }
+  h1 {
+    font-size: clamp(2.1rem, 5vw, 3.7rem);
+    line-height: 1.08;
+  }
+  h2 {
+    margin-top: 2.7rem;
+  }
+  .intro {
+    font-size: 1.2rem;
+    line-height: 1.65;
+  }
+  .article p {
+    line-height: 1.7;
+  }
+  .note {
+    padding: 1rem;
+    border-left: 4px solid var(--t700);
+    background: var(--surface);
+  }
+</style>
