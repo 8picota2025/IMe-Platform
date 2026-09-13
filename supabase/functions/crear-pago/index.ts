@@ -37,6 +37,8 @@ import {
   type CotizacionOfertaRow,
   type CotizacionLineaOferta,
 } from '../../../src/lib/cotizacion-oferta.ts';
+import { isPurchasable } from '../../../src/lib/commerce-policy.ts';
+import { liberarReservasPedido, reservarStockProducto } from '../_shared/stock-reservas.ts';
 
 const FN_NAME = 'crear-pago';
 const MAX_ITEMS = 20;
@@ -102,6 +104,9 @@ interface ProductoRow {
   oferta_fin: string | null;
   moneda: string;
   stock: number | null;
+  gestionar_stock?: boolean | null;
+  stock_estado?: string | null;
+  backorder_policy?: string | null;
   activo: boolean;
   /** Escenario A: disponibilidad en tiempo real provista por el proveedor. */
   disponible: boolean;
@@ -767,12 +772,38 @@ Deno.serve(
           origin
         );
       }
-      if (!lineasCotizacion && producto.stock !== null && cantidad > producto.stock) {
-        return errorResponse(
-          { code: 'STOCK_INSUFICIENTE', message: `Stock insuficiente para ${slug}` },
-          409,
-          origin
+
+      // Política única F4.2 (salvo cotización locked: precio ya negociado).
+      if (!lineasCotizacion) {
+        const purchase = isPurchasable(
+          {
+            activo: producto.activo,
+            disponible: producto.disponible,
+            precio,
+            stock: producto.stock,
+            gestionar_stock: producto.gestionar_stock,
+            stock_estado: producto.stock_estado,
+            backorder_policy: producto.backorder_policy,
+            fulfillment_mode: producto.fulfillment_mode,
+          },
+          { quantity: cantidad }
         );
+        if (!purchase.ok) {
+          const code =
+            purchase.reason === 'stock_insuficiente' || purchase.reason === 'sin_stock'
+              ? 'STOCK_INSUFICIENTE'
+              : purchase.reason === 'no_disponible' || purchase.reason === 'inactivo'
+                ? 'PRODUCTO_NO_DISPONIBLE'
+                : 'NO_COMPRABLE';
+          return errorResponse(
+            {
+              code,
+              message: `${slug} no es comprable ahora (${purchase.reason})`,
+            },
+            409,
+            origin
+          );
+        }
       }
       if (producto.fulfillment_mode === 'dropship') {
         const { data: proveedor, error: provError } = await supabase.rpc(
@@ -984,6 +1015,47 @@ Deno.serve(
       return internalError(`error creando pedido: ${insertError.message}`, origin);
     }
 
+    // Reserva atómica post-pedido: evita doble venta de la última unidad.
+    // Si falla cualquier ítem → libera todo y cancela el pedido.
+    if (!lineasCotizacion) {
+      const correlationId = crypto.randomUUID();
+      for (const item of checkoutItems) {
+        const reserva = await reservarStockProducto(supabase, {
+          productoId: item.producto_id,
+          cantidad: item.cantidad,
+          pedidoId,
+          ttlMinutes: Number(Deno.env.get('STOCK_RESERVA_TTL_MIN') ?? 30),
+          correlationId,
+        });
+        if (!reserva.ok) {
+          await liberarReservasPedido(supabase, pedidoId);
+          await supabase.from('pedidos').update({ estado: 'cancelado' }).eq('id', pedidoId);
+          void trackEvent(
+            FN_NAME,
+            'reserva_stock_fallida',
+            {
+              pedido_id: pedidoId,
+              producto_id: item.producto_id,
+              motivo: reserva.motivo,
+            },
+            { nivel: 'warn' }
+          );
+          return errorResponse(
+            {
+              code: 'STOCK_INSUFICIENTE',
+              message: `No se pudo reservar stock (${reserva.motivo})`,
+            },
+            409,
+            origin
+          );
+        }
+      }
+      void trackEvent(FN_NAME, 'reserva_stock_ok', {
+        pedido_id: pedidoId,
+        items_count: checkoutItems.length,
+      });
+    }
+
     if (lineasCotizacion && cotizacionId) {
       await supabase
         .from('solicitudes_cotizacion')
@@ -1040,6 +1112,7 @@ Deno.serve(
     });
 
     if (!resultado.ok) {
+      await liberarReservasPedido(supabase, pedidoId);
       await supabase.from('pedidos').update({ estado: 'error_verificacion' }).eq('id', pedidoId);
       await notificarEstadoPedido(pedidoId, 'error_verificacion', 'pendiente');
 

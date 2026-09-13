@@ -5,6 +5,7 @@
  */
 import { t, type Locale } from '../i18n/utils';
 import { normalizarTexto } from './catalogo';
+import { getAccionComercial } from './comercial';
 import { normalizarMoneda, tienePrecioPublico } from './format';
 import { resetTransientUiState } from './motion';
 import {
@@ -1001,7 +1002,6 @@ export function initCatalogo(locale: Locale): () => void {
     const fulfillment = card.dataset['fulfillment'] ?? 'cotizacion';
     const precio = card.dataset['precio'] ?? '';
     const href = card.dataset['href'] ?? '#';
-    const tipo = card.dataset['comercial'] ?? '';
     const whatsappHref = `https://wa.me/573137247353?text=${encodeURIComponent(
       `${t(locale, 'producto.cta_consultar_disponibilidad')}: ${nombre}`
     )}`;
@@ -1024,37 +1024,48 @@ export function initCatalogo(locale: Locale): () => void {
     if (quickviewPrecio) quickviewPrecio.textContent = precioTexto(card);
     if (quickviewFicha) quickviewFicha.href = href;
 
+    // Misma política que ProductoCard/Landing/crear-pago (F4.2) — no rutear por tipo_comercial.
+    const stockRaw = card.dataset['stock'] ?? '';
+    const stockNumero = stockRaw === '' ? null : Number(stockRaw);
+    const precioNumero = Number(precio);
+    const accion = getAccionComercial(
+      {
+        precio: tienePrecioPublico(precioNumero) ? precioNumero : null,
+        disponible: disponible !== '0',
+        stock: stockNumero !== null && Number.isFinite(stockNumero) ? stockNumero : null,
+        gestionar_stock: stockNumero !== null,
+      },
+      locale
+    );
+
     if (quickviewWhatsapp) {
-      const mostrarWhatsapp = tipo === 'consumible' && disponible === '0';
+      const mostrarWhatsapp = accion.tipo === 'consultar';
       quickviewWhatsapp.hidden = !mostrarWhatsapp;
       quickviewWhatsapp.href = whatsappHref;
     }
 
     if (quickviewCta) {
       quickviewCta.hidden = false;
-      if (tipo === 'consumible' && disponible !== '0' && tienePrecioPublico(Number(precio))) {
-        const stockAgotado = card.dataset['stock'] === '0';
-        if (stockAgotado) {
-          quickviewCta.hidden = true;
-          if (quickviewWhatsapp) quickviewWhatsapp.hidden = false;
-          return;
-        }
-        quickviewCta.textContent = t(locale, 'carrito.agregar');
+      if (accion.tipo === 'carrito') {
+        quickviewCta.textContent = accion.label;
         quickviewCta.onclick = () => {
           const slug = card.dataset['productoSlug'] ?? '';
           const nombreProducto = card.dataset['nombre'] ?? '';
           const moneda = normalizarMoneda(card.dataset['moneda']);
-          const stockRaw = card.dataset['stock'] ?? '';
-          const stock = stockRaw ? Number(stockRaw) : null;
-          const precioNumero = Number(precio);
           if (!slug || !nombreProducto || !tienePrecioPublico(precioNumero)) return;
           void import('./carrito').then(({ agregarAlCarrito }) => {
-            agregarAlCarrito({ slug, nombre: nombreProducto, precio: precioNumero, moneda, stock });
+            agregarAlCarrito({
+              slug,
+              nombre: nombreProducto,
+              precio: precioNumero,
+              moneda,
+              stock: stockNumero !== null && Number.isFinite(stockNumero) ? stockNumero : null,
+            });
           });
           quickviewDialog.close();
         };
-      } else if (tipo === 'equipo') {
-        quickviewCta.textContent = t(locale, 'cotizacion_equipos.agregar');
+      } else if (accion.tipo === 'cotizacion') {
+        quickviewCta.textContent = accion.label;
         quickviewCta.onclick = () => {
           const slug = card.dataset['productoSlug'] ?? '';
           const nombreProducto = card.dataset['nombre'] ?? '';
@@ -1066,7 +1077,9 @@ export function initCatalogo(locale: Locale): () => void {
           quickviewDialog.close();
         };
       } else {
+        // consultar disponibilidad → WhatsApp; ocultar CTA primario duplicado
         quickviewCta.hidden = true;
+        if (quickviewWhatsapp) quickviewWhatsapp.hidden = false;
       }
     }
 

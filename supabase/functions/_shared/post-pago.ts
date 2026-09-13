@@ -6,6 +6,12 @@
 import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 import { enviarEmailPlantilla, DESTINATARIOS_INTERNOS, escapeHtml, itemsToHtml } from './email.ts';
 import { pushPagoToTwenty } from './twenty-commerce-sync.ts';
+import {
+  consumirReservasPedido,
+  liberarReservasPedido,
+  pedidoDebeLiberarReserva,
+} from './stock-reservas.ts';
+import { getServerSupabase } from './supabase-server.ts';
 
 interface PedidoItem {
   producto_id: string;
@@ -21,6 +27,16 @@ export async function notificarEstadoPedido(
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
   const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
   if (!supabaseUrl || !serviceKey) return;
+
+  // Liberar reservas en estados terminales no pagados (best-effort).
+  if (pedidoDebeLiberarReserva(aEstado)) {
+    try {
+      await liberarReservasPedido(getServerSupabase(), pedidoId);
+    } catch (err) {
+      console.error('notificarEstadoPedido: liberar reservas', err);
+    }
+  }
+
   try {
     const response = await fetch(`${supabaseUrl}/functions/v1/notificar-cliente`, {
       method: 'POST',
@@ -143,6 +159,12 @@ export async function registrarPedidoPagado(
     a_estado: 'pagado',
     metadata: { provider, event_id: eventId },
   });
+
+  // Reserva → venta definitiva (idempotente a nivel de filas 'activa').
+  const consumidas = await consumirReservasPedido(supabase, pedidoId);
+  if (consumidas > 0) {
+    console.info('registrarPedidoPagado: stock consumido', { pedidoId, consumidas });
+  }
 
   const { data: pedidoFiscal } = await supabase
     .from('pedidos')
