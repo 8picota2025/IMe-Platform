@@ -5,7 +5,7 @@
 - **Fecha:** 2026-09-13
 - **Rama:** `fix/seo-crawlers-blog`
 - **Entorno:** local `/home/shoky/cursor/ime-platform` + probes HTTPS a `https://i-me.com.co`
-- **Commit:** pendiente push (hash local en `git log -1`)
+- **Commit:** `02382d4`
 
 ## Archivos modificados
 
