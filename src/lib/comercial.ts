@@ -4,10 +4,7 @@ import { tienePrecioPublico } from './format';
 
 export type AccionComercialTipo = 'carrito' | 'cotizacion' | 'consultar';
 
-export interface ProductoComercial extends CommerceProductSignals {
-  precio?: number | null | undefined;
-  disponible?: boolean;
-}
+export type ProductoComercial = CommerceProductSignals;
 
 export interface AccionComercial {
   tipo: AccionComercialTipo;

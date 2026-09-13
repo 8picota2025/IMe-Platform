@@ -28,20 +28,20 @@ export type AvailabilityState =
   | 'unknown';
 
 export interface CommerceProductSignals {
-  activo?: boolean | null;
-  disponible?: boolean | null;
+  activo?: boolean | null | undefined;
+  disponible?: boolean | null | undefined;
   /** Precio público ya resuelto (p. ej. con IVA), no precio_costo. */
-  precio?: number | null;
-  stock?: number | null;
-  gestionar_stock?: boolean | null;
-  stock_estado?: string | null;
-  backorder_policy?: string | null;
-  fulfillment_mode?: string | null;
-  imagen_principal?: string | null;
-  slug?: string | null;
+  precio?: number | null | undefined;
+  stock?: number | null | undefined;
+  gestionar_stock?: boolean | null | undefined;
+  stock_estado?: string | null | undefined;
+  backorder_policy?: string | null | undefined;
+  fulfillment_mode?: string | null | undefined;
+  imagen_principal?: string | null | undefined;
+  slug?: string | null | undefined;
   /** Marca/fabricante reales si existen; no inventar "I-ME". */
-  marca?: string | null;
-  fabricante?: string | null;
+  marca?: string | null | undefined;
+  fabricante?: string | null | undefined;
 }
 
 export interface AvailabilityResult {
