@@ -7,9 +7,14 @@
  * Jerarquía ADR-0009: activo → disponible → stock_estado → stock → fulfillment.
  * Regla feat-comercio: precio público > 0 → checkout; sin precio → cotización.
  * Umbral $6M COP: NO forma parte de esta política (ausente en repo).
+ *
+ * Nota Edge/Deno: sin imports a format/i18n (el bundler de functions exige
+ * grafo autocontenido con extensiones .ts).
  */
 
-import { tienePrecioPublico } from './format';
+function tienePrecioPublico(valor: unknown): valor is number {
+  return typeof valor === 'number' && Number.isFinite(valor) && valor > 0;
+}
 
 export type StockEstado = 'instock' | 'outofstock' | 'onbackorder';
 export type BackorderPolicy = 'no' | 'notify' | 'yes';

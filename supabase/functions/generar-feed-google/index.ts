@@ -11,7 +11,7 @@
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { checkRateLimit } from '../_shared/rate-limit.ts';
-import { resolvePrecioPublico } from '../../../src/lib/format.ts';
+import { resolvePrecioPublico } from '../_shared/precio-publico.ts';
 import { buildMerchantFeedXml, type MerchantFeedProduct } from '../../../src/lib/merchant-feed.ts';
 
 const SITE = (Deno.env.get('SITE_URL') ?? 'https://i-me.com.co').replace(/\/$/, '');

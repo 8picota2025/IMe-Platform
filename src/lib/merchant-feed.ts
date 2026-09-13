@@ -1,14 +1,15 @@
 /**
  * Serialización XML Google Merchant (fuente canónica lógica).
  * La Edge Function `generar-feed-google` es el único generador desplegado.
+ *
+ * Autocontenido para bundler Deno (sin format/i18n).
  */
 
 import {
   isMerchantEligible,
   merchantAvailability,
   type CommerceProductSignals,
-} from './commerce-policy';
-import { tienePrecioPublico } from './format';
+} from './commerce-policy.ts';
 
 export interface MerchantFeedProduct extends CommerceProductSignals {
   id: string;
@@ -16,6 +17,10 @@ export interface MerchantFeedProduct extends CommerceProductSignals {
   descripcion?: string | null;
   link: string;
   currency?: string;
+}
+
+function tienePrecioPublico(valor: unknown): valor is number {
+  return typeof valor === 'number' && Number.isFinite(valor) && valor > 0;
 }
 
 export function escapeXml(value: string): string {
