@@ -63,7 +63,7 @@ npx eslint src/lib/commerce-policy.ts src/lib/comercial.ts \
 ## BLOCKED_HUMAN_REVIEW
 
 1. Aplicar migración en Supabase producción
-2. Deploy `generar-feed-google` + rewrite opcional `/feed-google.xml`
+2. Deploy `generar-feed-google` — done. Canonical: `https://i-me.com.co/feed-google.xml` (302 → Edge)
 3. Alta / políticas Google Merchant Center + mapping categorías
 4. Política INVIMA por producto (no crear columna a ciegas)
 5. Bundles kits + margen

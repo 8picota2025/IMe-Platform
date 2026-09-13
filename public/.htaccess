@@ -26,6 +26,10 @@ RewriteRule ^en/contact$ /en/contact/ [R=301,L]
 RewriteRule ^sitemap\.xml$ /sitemap-index.xml [R=301,L]
 RewriteRule ^sitemap-0\.xml$ /sitemap-index.xml [R=301,L]
 
+# Google Merchant feed: canonical site path → Edge Function (fuente dinámica).
+# 302: permite cambiar backend sin cache permanente en crawlers.
+RewriteRule ^feed-google\.xml$ https://nnfbucwiasuggyfoyydo.supabase.co/functions/v1/generar-feed-google [R=302,L]
+
 # Typo product slug (missing leading "m") → canonical
 RewriteRule ^es/productos/onitor-de-paciente-p22-biolight/?$ /es/productos/monitor-de-paciente-p22-biolight/ [R=301,L]
 RewriteRule ^en/products/onitor-de-paciente-p22-biolight/?$ /en/products/monitor-de-paciente-p22-biolight/ [R=301,L]
