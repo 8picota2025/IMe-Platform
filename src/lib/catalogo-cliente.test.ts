@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   collectTiposFromCards,
   matchesBase,
+  matchesSearchText,
   parseStateFromUrl,
   serializeState,
 } from './catalogo-cliente';
@@ -94,6 +95,20 @@ describe('matchesBase tipo filter', () => {
     const conTipo = card({ familias: 'monitores', tipo: 'oximetros-de-pulso' });
     expect(matchesBase(sinTipo, { ...base, tipo: '__general__' })).toBe(true);
     expect(matchesBase(conTipo, { ...base, tipo: '__general__' })).toBe(false);
+  });
+});
+
+describe('catalogo search matching', () => {
+  it('acepta sinónimos en ambos idiomas', () => {
+    expect(matchesSearchText('desfibrilador dea hospitalario', 'defibrillator')).toBe(true);
+    expect(matchesSearchText('defibrillator aed hospital', 'desfibrilador')).toBe(true);
+  });
+
+  it('normaliza guiones y exige todos los términos de la búsqueda', () => {
+    const texto = 'Ultrasonido portátil DUS-5000 Plus para diagnóstico';
+    expect(matchesSearchText(texto, 'dus 5000 plus')).toBe(true);
+    expect(matchesSearchText(texto, 'ultrasonido dus 5000')).toBe(true);
+    expect(matchesSearchText(texto, 'dus 5000 inexistente')).toBe(false);
   });
 });
 
