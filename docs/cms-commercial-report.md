@@ -29,6 +29,15 @@ Astro 6 SSG + SPA admin, Supabase (Postgres/Auth/Edge Functions), Resend, WhatsA
 - Rate limiting server-side
 - Documentación en `docs/cms-commercial-*.md` + `twenty-integration.md`
 
+## Extensiones cotizaciones + OCR (2026-08)
+
+- Módulo `#/cotizaciones` sobre `solicitudes_cotizacion` (misma SoT que Formalizar)
+- PDF numerado `IME-Q-*` vía `enviar-cotizacion`; envío email/WhatsApp desde CMS
+- **Validar → CRM** → Twenty Opportunity (`syncCotizacionOfertaWithTwenty`)
+- OCR competencia PWA `#/cotizaciones/escanear` → `comercial-ocr-presupuesto` + Ollama moondream
+- Storage privado `presupuestos-competencia` para fotos OCR
+- Docs operativas: `docs/cms-commercial-architecture.md`, `docs/commercial-quote-dev.md`
+
 ## Flujo del catálogo
 
 Especialidad (UI) → familias → tipos → productos activos desde Supabase; sección = equipo/consumible; búsqueda debounce.
