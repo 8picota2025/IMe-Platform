@@ -15,6 +15,8 @@
  * - SITE_URL (origen público del sitio, p.ej. https://i-me.com.co) — usado para redirect URLs
  */
 
+import { buildStripeCheckoutLineItems } from '../../../src/lib/stripe-checkout-amounts.ts';
+
 export type PaymentProvider = 'wompi' | 'stripe';
 export type Mercado = 'CO' | 'INTL';
 
@@ -369,13 +371,17 @@ export class StripeGateway implements PaymentGateway {
     body.set('success_url', `${siteUrl}/en/payment/success?ref=${request.referencia}`);
     body.set('cancel_url', `${siteUrl}/en/payment/failure?ref=${request.referencia}`);
 
-    request.items.forEach((item, i) => {
+    // Charge request.total (server fiscal total after coupons). Item unit prices alone
+    // would overcharge when descuento_total > 0 — Wompi already uses request.total.
+    const lineItems = buildStripeCheckoutLineItems(
+      request.items,
+      request.total,
+      request.referencia
+    );
+    lineItems.forEach((item, i) => {
       body.set(`line_items[${i}][quantity]`, String(item.cantidad));
-      body.set(`line_items[${i}][price_data][currency]`, item.moneda.toLowerCase());
-      body.set(
-        `line_items[${i}][price_data][unit_amount]`,
-        String(Math.round(item.precio_unitario * 100))
-      );
+      body.set(`line_items[${i}][price_data][currency]`, item.moneda);
+      body.set(`line_items[${i}][price_data][unit_amount]`, String(item.unit_amount_cents));
       body.set(`line_items[${i}][price_data][product_data][name]`, item.nombre);
     });
 
