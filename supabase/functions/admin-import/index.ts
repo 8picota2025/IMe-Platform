@@ -1,6 +1,10 @@
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { badRequest, errorResponse, internalError, unauthorized } from '../_shared/errors.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
+import {
+  prepareVentasProductDraftRows,
+  resolveProductImportRows,
+} from '../../../src/lib/admin-import-productos.ts';
 
 type Entity = 'clientes' | 'proveedores' | 'pedidos' | 'productos' | 'familias' | 'tipos';
 type Row = Record<string, unknown>;
@@ -264,10 +268,11 @@ Deno.serve(async req => {
 
     const cleanRows = sanitized.map(item => item.row);
     if (entity === 'productos') {
-      const productRows = ventasOnlyDraft
-        ? cleanRows.map(row => ({ ...row, activo: false }))
-        : cleanRows;
-      const result = await importProductos(supabase, productRows, sanitized.length);
+      // ventas: only new inactive drafts — never overwrite live catalog by slug/sku/id
+      const productRows = ventasOnlyDraft ? prepareVentasProductDraftRows(cleanRows) : cleanRows;
+      const result = await importProductos(supabase, productRows, sanitized.length, {
+        forbidExisting: ventasOnlyDraft,
+      });
       return jsonResponse(result, origin);
     }
 
@@ -373,7 +378,8 @@ async function importPedidos(
 async function importProductos(
   supabase: ReturnType<typeof getServerSupabase>,
   rows: Row[],
-  totalRows: number
+  totalRows: number,
+  options: { forbidExisting?: boolean } = {}
 ): Promise<{ ok: boolean; processed: number; skipped: number }> {
   const slugs = new Set<string>();
   const skus = new Set<string>();
@@ -405,20 +411,8 @@ async function importProductos(
     fetchExistingProductos(supabase, 'slug', [...slugs]),
   ]);
 
-  const resolvedRows = rows.map((row, index) => {
-    const slug = typeof row.slug === 'string' ? row.slug.trim() : '';
-    const sku = typeof row.sku === 'string' ? row.sku.trim() : '';
-    const bySku = sku ? existingBySku.get(sku) : null;
-    const bySlug = slug ? existingBySlug.get(slug) : null;
-
-    if (bySku && bySlug && bySku.id !== bySlug.id) {
-      throw new Error(
-        `Fila ${index + 2}: sku ${sku} ya pertenece a otro producto distinto del slug ${slug}.`
-      );
-    }
-
-    const existing = bySku ?? bySlug;
-    return existing ? { ...row, id: existing.id } : row;
+  const resolvedRows = resolveProductImportRows(rows, existingBySku, existingBySlug, {
+    forbidExisting: options.forbidExisting,
   });
 
   // Split: existing rows (have id) vs new rows (no id).
