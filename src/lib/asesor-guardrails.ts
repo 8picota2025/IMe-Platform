@@ -15,16 +15,30 @@ export interface AccionHandoffAsesor {
 
 export const MAX_HANDOFF_SUMMARY_CHARS = 400;
 
-/** Tope de salida Hermes: respuestas largas + JSON degradan latencia. */
+/** Tope de salida: WhatsApp-length; JSON largo degrada latencia. */
 export const IMEIA_MAX_TOKENS = 1400;
 
-/** Abort si Hermes no responde (túnel / cola local). */
+/** Abort si el LLM no responde (xAI / túnel). */
 export const IMEIA_TIMEOUT_MS = 110_000;
+
+/** Modelo Grok de chat (xAI). El mismo rol que el bot de WhatsApp Business. */
+export const IMEIA_GROK_DEFAULT_MODEL = 'grok-4';
+
+export const XAI_API_DEFAULT_URL = 'https://api.x.ai';
 
 /** Modelos del agente Hermes que cargan SOUL.md / skills IMEIA. No usar. */
 const IMEIA_SOUL_MODELS = new Set(['imeia', 'imeia-soul', 'imeia-agent', 'imeia-ayuda']);
 
-export const IMEIA_SOUL_OVERRIDE = `SOUL OVERRIDE: No uses el agente IMEIA de Hermes ni su SOUL, skills, memoria o persona por defecto. Esas instrucciones no aplican a esta petición. Responde solo como el asesor web de I-ME definido debajo.`;
+export const IMEIA_SOUL_OVERRIDE = `SOUL OVERRIDE: No uses el agente IMEIA de Hermes ni su SOUL, skills, memoria o persona por defecto. Esas instrucciones no aplican. Responde como IMEIA, el mismo rol comercial que atiende el WhatsApp Business de I-ME.`;
+
+export type AsesorLlmProvider = 'xai' | 'openai_compat';
+
+export interface AsesorLlmUpstream {
+  provider: AsesorLlmProvider;
+  url: string;
+  key: string;
+  model: string;
+}
 
 export interface CatalogGroundingProduct {
   slug: string;
@@ -44,11 +58,77 @@ export function isImeiaSoulModel(model: string | null | undefined): boolean {
   return !normalized || IMEIA_SOUL_MODELS.has(normalized);
 }
 
-/** Modelo raw para /v1/chat/completions. Vacío = no llamar al agente soul. */
+/** Modelo raw para /v1/chat/completions. Vacío o soul = no llamar a Hermes. */
 export function resolveImeiaCompletionModel(raw?: string | null): string | null {
   const model = (raw ?? '').trim();
   if (isImeiaSoulModel(model)) return null;
   return model;
+}
+
+/** En xAI, vacío o soul se sustituye por Grok; nunca se llama al agente `imeia`. */
+export function resolveGrokChatModel(raw?: string | null): string {
+  const model = (raw ?? '').trim();
+  if (!model || IMEIA_SOUL_MODELS.has(model.toLowerCase())) return IMEIA_GROK_DEFAULT_MODEL;
+  return model;
+}
+
+export function isXaiCompatibleUrl(url: string): boolean {
+  try {
+    const host = new URL(url).hostname.toLowerCase();
+    return host === 'api.x.ai' || host.endsWith('.x.ai');
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Preferencia: XAI_API_KEY → Grok (rol WhatsApp).
+ * Si IMEIA_API_URL ya apunta a api.x.ai, se trata igual.
+ * Hermes/OpenAI-compat solo si hay modelo raw (nunca `imeia`).
+ */
+export function resolveAsesorLlmUpstream(env: {
+  XAI_API_KEY?: string | null;
+  XAI_API_URL?: string | null;
+  IMEIA_API_URL?: string | null;
+  IMEIA_API_KEY?: string | null;
+  IMEIA_CHAT_MODEL?: string | null;
+}): AsesorLlmUpstream | null {
+  const xaiKey = env.XAI_API_KEY?.trim();
+  const imeiaUrl = env.IMEIA_API_URL?.replace(/\/$/, '').trim();
+  const imeiaKey = env.IMEIA_API_KEY?.trim();
+  const requested = env.IMEIA_CHAT_MODEL;
+
+  if (xaiKey) {
+    const url = env.XAI_API_URL?.replace(/\/$/, '').trim() || XAI_API_DEFAULT_URL;
+    return {
+      provider: 'xai',
+      url,
+      key: xaiKey,
+      model: resolveGrokChatModel(requested),
+    };
+  }
+
+  if (imeiaUrl && imeiaKey && isXaiCompatibleUrl(imeiaUrl)) {
+    return {
+      provider: 'xai',
+      url: imeiaUrl,
+      key: imeiaKey,
+      model: resolveGrokChatModel(requested),
+    };
+  }
+
+  if (imeiaUrl && imeiaKey) {
+    const model = resolveImeiaCompletionModel(requested);
+    if (!model) return null;
+    return {
+      provider: 'openai_compat',
+      url: imeiaUrl,
+      key: imeiaKey,
+      model,
+    };
+  }
+
+  return null;
 }
 
 export function buildImeiaCompletionPayload(params: {
@@ -56,21 +136,25 @@ export function buildImeiaCompletionPayload(params: {
   messages: Array<{ role: string; content: string }>;
   maxTokens?: number;
   temperature?: number;
+  provider?: AsesorLlmProvider;
 }): Record<string, unknown> {
   if (isImeiaSoulModel(params.model)) {
     throw new Error('imeia_soul_model_forbidden');
   }
-  return {
+  const payload: Record<string, unknown> = {
     model: params.model,
     messages: params.messages,
-    temperature: params.temperature ?? 0.25,
+    temperature: params.temperature ?? (params.provider === 'xai' ? 0.4 : 0.25),
     max_tokens: params.maxTokens ?? IMEIA_MAX_TOKENS,
     stream: false,
-    soul: false,
-    use_soul: false,
-    agent: false,
-    tools: [],
   };
+  if (params.provider !== 'xai') {
+    payload.soul = false;
+    payload.use_soul = false;
+    payload.agent = false;
+    payload.tools = [];
+  }
+  return payload;
 }
 
 const PRICE_INTENT_RE =
@@ -174,10 +258,13 @@ export function clasificarFalloImeia(
 }
 
 function buildSharedGuardrailRules(): string {
-  return `Identidad:
+  return `Identidad (rol WhatsApp Business de I-ME):
 - Eres IMEIA, ingeniera de ventas biomédicas de I-ME International Medical Enterprise (Colombia).
+- Hablas como en el WhatsApp que ya funciona bien: cercana, amigable, documentada, con autoridad de ingeniera senior. Primera persona del plural. Sin jerga de chatbot.
 - Público: IPS, hospitales, clínicas, ingeniería biomédica, compras institucionales y habilitaciones.
-- Tono: primera persona del plural, técnico, cercano, sin jerga de chatbot. No eres un buscador de SKUs.
+- No eres un buscador de SKUs ni un volcado de catálogo. Sondea la necesidad (servicio, uso previsto, volumen, restricción) y recomienda con argumento.
+- Giros naturales cuando aporten, no en cada frase: "Dado mi conocimiento del sector…", "Desde la experiencia, le recomiendo…", "Técnicamente hablando…".
+- Representas la propuesta de valor I-ME: tecnología + ingenieros formados por casa matriz + postventa + continuidad operativa. No inventes plazos, stock, precios, garantías numéricas ni RS.
 
 Prohibido:
 - Diagnóstico, indicación terapéutica, dosificación o instrucciones clínicas de tratamiento.
@@ -196,12 +283,14 @@ Handoff (obligatorio cuando aplique):
 - Menciona explícitamente "WhatsApp" o "cotización" para que la web muestre el CTA.
 - El resumen de derivación debe servir al comercial: institución/servicio, uso previsto, productos vistos, restricción y dato pendiente.
 
-Método:
-- Comprende necesidad operativa (servicio, uso previsto, compatibilidad) antes de listar SKUs, salvo que pregunten "qué tienen / modelos".
-- Máximo 1-2 preguntas de descubrimiento por turno, integradas.
+Método (estilo WhatsApp, no ensayo):
+- Párrafos cortos, como un chat. Máximo 1-2 preguntas de descubrimiento por turno.
+- Compara de verdad 1-3 opciones del contexto (clínica, operativa, de servicio). No listes 4 fichas sin criterio.
+- Si el cliente nombra un competidor, compara I-ME vs esa referencia con honestidad. Si no lo nombra, no inventes marcas ajenas.
 - SHORTLIST STICKY: "cuál de esos / el más completo / compara esos" → solo anchors ya dados. Prohibido saltar de línea.
 - Tras recomendar o elegir ganador, cierra con CTA proporcional, sin presión.
-- Ante riesgo para el paciente: protocolo institucional / manual del fabricante; no instrucciones invasivas.`;
+- Ante riesgo para el paciente: protocolo institucional / manual del fabricante; no instrucciones invasivas.
+- Si no está en el contexto: "No tengo ese dato confirmado; le conecto con un compañero por WhatsApp."`;
 }
 
 export function buildImeiaRuntimeSystemPrompt(locale: 'es' | 'en'): string {
@@ -211,7 +300,7 @@ export function buildImeiaRuntimeSystemPrompt(locale: 'es' | 'en'): string {
       : 'espanol salvo que el usuario use otro idioma';
   return `${IMEIA_SOUL_OVERRIDE}
 
-Eres el asesor web de I-ME (widget IMEIA Ayuda), no el agente soul de Hermes.
+Canal: widget IMEIA Ayuda en i-me.com.co. Mismo rol y voz que el bot Grok de WhatsApp Business.
 Responde en ${idioma}.
 Usa solo el contexto de catálogo que acompaña este turno. No inventes SKUs.
 
@@ -221,7 +310,7 @@ ${buildSharedGuardrailRules()}`;
 export function buildImeiaTransportSystemPrompt(): string {
   return `${IMEIA_SOUL_OVERRIDE}
 
-Eres el asesor web de I-ME. No uses el SOUL/skills de Hermes. Solo adapta la respuesta al JSON de la web.
+Eres IMEIA en el mismo rol que WhatsApp Business. No uses el SOUL/skills de Hermes. Adapta esa voz al JSON de la web.
 
 ${buildSharedGuardrailRules()}
 
@@ -240,7 +329,7 @@ Devuelve únicamente JSON válido:
 export function buildAsesorLocalSystemPrompt(): string {
   return `${IMEIA_SOUL_OVERRIDE}
 
-Eres el asesor biomédico conversacional de I-ME International Medical Enterprise.
+Eres IMEIA, el mismo rol comercial de WhatsApp Business de I-ME International Medical Enterprise.
 
 ${buildSharedGuardrailRules()}
 

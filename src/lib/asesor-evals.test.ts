@@ -14,9 +14,12 @@ import {
   detectarAccionHandoff,
   esIntencionHandoffComercial,
   esIntencionInvimaSku,
+  IMEIA_GROK_DEFAULT_MODEL,
   imeiaPromptEvalChecks,
   inferHandoffFromUserIntent,
   isImeiaSoulModel,
+  resolveAsesorLlmUpstream,
+  resolveGrokChatModel,
   resolveImeiaCompletionModel,
 } from './asesor-guardrails';
 import {
@@ -138,7 +141,7 @@ describe('IMEIA evals — accion_handoff', () => {
   });
 });
 
-describe('IMEIA evals — no se usa el SOUL de Hermes', () => {
+describe('IMEIA evals — Grok (xAI) con rol WhatsApp, sin SOUL Hermes', () => {
   it('rechaza el modelo agente imeia y acepta un chat raw', () => {
     expect(isImeiaSoulModel('imeia')).toBe(true);
     expect(isImeiaSoulModel('IMEIA')).toBe(true);
@@ -159,6 +162,63 @@ describe('IMEIA evals — no se usa el SOUL de Hermes', () => {
     expect(payload.model).toBe('qwen3:8b');
     expect(payload.soul).toBe(false);
     expect(payload.agent).toBe(false);
+  });
+
+  it('en xAI vacío o imeia se sustituyen por grok-4; el payload no manda soul Hermes', () => {
+    expect(resolveGrokChatModel('')).toBe(IMEIA_GROK_DEFAULT_MODEL);
+    expect(resolveGrokChatModel('imeia')).toBe(IMEIA_GROK_DEFAULT_MODEL);
+    expect(resolveGrokChatModel('grok-4.6')).toBe('grok-4.6');
+    const payload = buildImeiaCompletionPayload({
+      model: IMEIA_GROK_DEFAULT_MODEL,
+      messages: [{ role: 'user', content: 'hola' }],
+      provider: 'xai',
+    });
+    expect(payload.model).toBe('grok-4');
+    expect(payload.soul).toBeUndefined();
+    expect(payload.agent).toBeUndefined();
+    expect(payload.tools).toBeUndefined();
+  });
+
+  it('prioriza XAI_API_KEY y trata api.x.ai como Grok aunque el modelo esté vacío', () => {
+    expect(
+      resolveAsesorLlmUpstream({
+        XAI_API_KEY: 'xai-test',
+        IMEIA_CHAT_MODEL: 'imeia',
+      })
+    ).toEqual({
+      provider: 'xai',
+      url: 'https://api.x.ai',
+      key: 'xai-test',
+      model: 'grok-4',
+    });
+    expect(
+      resolveAsesorLlmUpstream({
+        IMEIA_API_URL: 'https://api.x.ai',
+        IMEIA_API_KEY: 'xai-via-imeia',
+        IMEIA_CHAT_MODEL: '',
+      })
+    ).toMatchObject({ provider: 'xai', model: 'grok-4' });
+    expect(
+      resolveAsesorLlmUpstream({
+        IMEIA_API_URL: 'https://hermes.example',
+        IMEIA_API_KEY: 'hermes-key',
+        IMEIA_CHAT_MODEL: '',
+      })
+    ).toBeNull();
+    expect(
+      resolveAsesorLlmUpstream({
+        IMEIA_API_URL: 'https://hermes.example',
+        IMEIA_API_KEY: 'hermes-key',
+        IMEIA_CHAT_MODEL: 'qwen3:8b',
+      })
+    ).toMatchObject({ provider: 'openai_compat', model: 'qwen3:8b' });
+  });
+
+  it('el system prompt declara el rol WhatsApp y no el soul de Hermes', () => {
+    const prompt = buildImeiaRuntimeSystemPrompt('es');
+    expect(prompt).toMatch(/rol WhatsApp|WhatsApp Business/i);
+    expect(prompt).toMatch(/No uses el agente IMEIA de Hermes/i);
+    expect(prompt).not.toMatch(/agente soul de Hermes/);
   });
 
   it('compone desde catálogo sin inventar RS INVIMA ni precio', () => {
