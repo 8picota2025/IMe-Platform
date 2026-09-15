@@ -22,6 +22,25 @@ RewriteRule ^es/productos/?$ /es/catalogo/ [R=301,L]
 RewriteRule ^en/products/?$ /en/catalog/ [R=301,L]
 RewriteRule ^en/contact$ /en/contact/ [R=301,L]
 
+# Legacy editorial aliases → conocimiento / knowledge (trailing slash = site policy)
+# Exact hubs only — do not blanket-redirect /blog/* without per-slug maps.
+RewriteRule ^blog/?$ /es/conocimiento/ [R=301,L,NE]
+RewriteRule ^conocimiento/?$ /es/conocimiento/ [R=301,L,NE]
+RewriteRule ^en/blog/?$ /en/knowledge/ [R=301,L,NE]
+RewriteRule ^knowledge/?$ /en/knowledge/ [R=301,L,NE]
+
+# Sitemap aliases — bots often hit /sitemap.xml; real inventory is sitemap-index.xml
+RewriteRule ^sitemap\.xml$ /sitemap-index.xml [R=301,L]
+RewriteRule ^sitemap-0\.xml$ /sitemap-index.xml [R=301,L]
+
+# Google Merchant feed: canonical site path → Edge Function (fuente dinámica).
+# 302: permite cambiar backend sin cache permanente en crawlers.
+RewriteRule ^feed-google\.xml$ https://nnfbucwiasuggyfoyydo.supabase.co/functions/v1/generar-feed-google [R=302,L]
+
+# Typo product slug (missing leading "m") → canonical
+RewriteRule ^es/productos/onitor-de-paciente-p22-biolight/?$ /es/productos/monitor-de-paciente-p22-biolight/ [R=301,L]
+RewriteRule ^en/products/onitor-de-paciente-p22-biolight/?$ /en/products/monitor-de-paciente-p22-biolight/ [R=301,L]
+
 # Root legacy HTML (duplicate catalog without redirect)
 RewriteRule ^catalogo\.html$ /es/catalogo/ [R=301,L]
 

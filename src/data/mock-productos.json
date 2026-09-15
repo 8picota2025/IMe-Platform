@@ -7080,7 +7080,7 @@
   },
   {
     "id": "5bbd5310-9894-470c-affd-23c14300e42b",
-    "slug": "onitor-de-paciente-p22-biolight",
+    "slug": "monitor-de-paciente-p22-biolight",
     "familia_id": "82aa3109-df88-468b-aed8-5ff953f2749a",
     "familia_slug": "monitores",
     "tipo_id": "4478f7f7-b567-4eab-ad35-b3e1a691f9ef",
@@ -7174,7 +7174,10 @@
       "Red Dot 2021 design for comprehensive, high-complexity monitoring in adult, pediatric and neonatal patients."
     ],
     "valor_es": "El monitor de mayor capacidad de la Serie P, pensado para los escenarios de más alta complejidad: neuromonitoreo, hemodinamia y anestesia en un solo equipo.",
-    "valor_en": "The highest-capacity monitor in the P Series, built for the most complex scenarios — neuromonitoring, hemodynamics and anesthesia in a single device."
+    "valor_en": "The highest-capacity monitor in the P Series, built for the most complex scenarios — neuromonitoring, hemodynamics and anesthesia in a single device.",
+    "atributos": {
+      "legacy_slugs": ["onitor-de-paciente-p22-biolight"]
+    }
   },
   {
     "id": "dcc4cd58-8e8b-4fc1-9ef7-e252ff40674f",

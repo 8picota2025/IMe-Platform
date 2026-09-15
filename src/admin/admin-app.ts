@@ -42,6 +42,10 @@ import {
 } from '../lib/pdf-ingest-enrich';
 import type { CotizacionLineaOferta } from '../lib/cotizacion-oferta';
 import { bindQuoteCatalogSearch, bindQuoteProductIngest } from '../lib/quote-line-tools';
+import { getAccionComercial } from '../lib/comercial';
+import { isPurchasable, resolveAvailability } from '../lib/commerce-policy';
+import { resolvePrecioPublico } from '../lib/format';
+import { stockDisponibleNumerico } from '../lib/stock-availability';
 
 const OLLAMA_URL = (import.meta.env['PUBLIC_OLLAMA_URL'] as string | undefined) ?? '';
 const OLLAMA_INGEST_MODEL = 'qwen3:1.7b';
@@ -84,7 +88,8 @@ type View =
   | 'conocimiento'
   | 'propuestas'
   | 'ingesta'
-  | 'asesor';
+  | 'asesor'
+  | 'compra-directa';
 
 type Row = Record<string, unknown>;
 
@@ -287,6 +292,7 @@ const VISTAS_POR_ROL: Record<string, Set<View>> = {
     'ingesta',
     'conocimiento',
     'propuestas',
+    'compra-directa',
   ]),
   ventas: new Set<View>([
     'dashboard',
@@ -310,6 +316,7 @@ const VISTAS_POR_ROL: Record<string, Set<View>> = {
     'asesor',
     'conocimiento',
     'propuestas',
+    'compra-directa',
   ]),
   operaciones: new Set<View>([
     'dashboard',
@@ -479,7 +486,8 @@ function parseView(hash: string): View {
     raw === 'blog' ||
     raw === 'propuestas' ||
     raw === 'ingesta' ||
-    raw === 'asesor'
+    raw === 'asesor' ||
+    raw === 'compra-directa'
   ) {
     return raw === 'blog' ? 'conocimiento' : raw;
   }
@@ -724,6 +732,8 @@ async function routeView(): Promise<{ title: string; body: string }> {
     return { title: 'Propuestas de articulos', body: await propuestasView() };
   if (state.view === 'ingesta') return { title: 'Ingesta PDF', body: await ingestaView() };
   if (state.view === 'asesor') return { title: 'Asesor', body: await asesorView() };
+  if (state.view === 'compra-directa')
+    return { title: 'Compra directa', body: await compraDirectaView() };
   return { title: 'Dashboard', body: await dashboardView() };
 }
 
@@ -752,6 +762,7 @@ function shellHtml(title: string, body: string): string {
         ['facturas', 'Facturas'],
         ['cupones', 'Cupones'],
         ['listas', 'Listas de precio'],
+        ['compra-directa', 'Compra directa'],
         ['resenas', 'Resenas'],
         ['asesor', 'Asesor'],
       ],
@@ -880,6 +891,7 @@ function bindView() {
   bindResenas();
   bindPropuestas();
   bindAsesorPanel();
+  bindCompraDirecta();
 }
 
 async function plantillasView(): Promise<string> {
@@ -4642,6 +4654,186 @@ async function cuponesView(): Promise<string> {
         ])
       )}
     </section>`;
+}
+
+async function compraDirectaView(): Promise<string> {
+  const productos = await selectRows(
+    'productos',
+    'id,slug,nombre_es,precio,precio_regular,precio_oferta,oferta_inicio,oferta_fin,stock,gestionar_stock,stock_estado,disponible,activo,fulfillment_mode,tipo_comercial,imagen_principal',
+    'nombre_es',
+    500,
+    true
+  );
+
+  let reservas: Row[] = [];
+  {
+    const { data, error } = await supabase!
+      .from('stock_reservas')
+      .select('producto_id,cantidad,estado,expires_at')
+      .eq('estado', 'activa')
+      .limit(2000);
+    if (!error && data) reservas = data as unknown as Row[];
+  }
+
+  const reservadoPorProducto = new Map<string, number>();
+  const ahora = Date.now();
+  for (const r of reservas) {
+    if (text(r.estado) !== 'activa') continue;
+    const exp = r.expires_at ? new Date(String(r.expires_at)).getTime() : 0;
+    if (exp && exp <= ahora) continue;
+    const pid = text(r.producto_id);
+    reservadoPorProducto.set(pid, (reservadoPorProducto.get(pid) ?? 0) + Number(r.cantidad ?? 0));
+  }
+
+  const conPrecio = productos.filter(p => {
+    const precio = resolvePrecioPublico(p);
+    return (
+      isPurchasable({
+        activo: p.activo !== false,
+        disponible: p.disponible !== false,
+        precio,
+        stock: p.stock === null || p.stock === undefined ? null : Number(p.stock),
+        gestionar_stock: Boolean(p.gestionar_stock),
+        stock_estado: text(p.stock_estado) || null,
+      }).ok ||
+      (precio !== null && precio > 0)
+    );
+  });
+
+  const rowsHtml = conPrecio.map(p => {
+    const id = text(p.id);
+    const precioPublico = resolvePrecioPublico(p);
+    const stockFisico = p.stock === null || p.stock === undefined ? null : Number(p.stock);
+    const reservado = reservadoPorProducto.get(id) ?? 0;
+    const disponibleNum = stockDisponibleNumerico(
+      stockFisico,
+      reservado,
+      Boolean(p.gestionar_stock) || stockFisico !== null
+    );
+    const signals = {
+      activo: p.activo !== false,
+      disponible: p.disponible !== false,
+      precio: precioPublico,
+      stock: stockFisico,
+      gestionar_stock: Boolean(p.gestionar_stock),
+      stock_estado: text(p.stock_estado) || null,
+      imagen_principal: text(p.imagen_principal) || null,
+      slug: text(p.slug),
+    };
+    const cta = getAccionComercial(signals, 'es');
+    const avail = resolveAvailability(signals);
+    return [
+      text(p.slug),
+      text(p.nombre_es),
+      precioPublico != null ? String(Math.round(precioPublico)) : '—',
+      text(p.precio_regular) || '—',
+      stockFisico == null ? '∞' : String(stockFisico),
+      String(reservado),
+      disponibleNum == null ? '∞' : String(disponibleNum),
+      status(p.activo),
+      `${avail.state} / ${cta.tipo}`,
+      `<form class="admin-inline-form" data-compra-directa-form data-id="${escapeHtml(id)}">
+        <label>precio_regular <input name="precio_regular" type="number" min="0" step="1" value="${escapeHtml(text(p.precio_regular))}" style="width:7rem"/></label>
+        <label>stock <input name="stock" type="number" min="0" step="1" value="${stockFisico == null ? '' : escapeHtml(String(stockFisico))}" style="width:5rem"/></label>
+        <label><input name="disponible" type="checkbox" ${p.disponible !== false ? 'checked' : ''}/> disponible</label>
+        <label><input name="activo" type="checkbox" ${p.activo !== false ? 'checked' : ''}/> activo</label>
+        <button class="admin-button admin-button--ghost" type="submit">Guardar</button>
+      </form>`,
+    ];
+  });
+
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head">
+        <h2>Compra directa (${conPrecio.length})</h2>
+        <p class="admin-help">Productos con precio público. Stock reservado requiere migración F4.2. Actor de auditoría = sesión Auth (no editable en cliente).</p>
+      </div>
+      ${table(
+        [
+          'Slug',
+          'Nombre',
+          'Precio público',
+          'Precio regular',
+          'Stock físico',
+          'Reservado',
+          'Disponible',
+          'Activo',
+          'Estado / CTA',
+          'Editar',
+        ],
+        rowsHtml
+      )}
+    </section>`;
+}
+
+function bindCompraDirecta() {
+  document.querySelectorAll<HTMLFormElement>('[data-compra-directa-form]').forEach(form => {
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      if (!supabase) return;
+      const id = form.dataset['id'];
+      if (!id) return;
+      const fd = new FormData(form);
+      const precioRegularRaw = String(fd.get('precio_regular') ?? '').trim();
+      const stockRaw = String(fd.get('stock') ?? '').trim();
+      const disponible = fd.get('disponible') === 'on';
+      const activo = fd.get('activo') === 'on';
+
+      const { data: actual, error: readError } = await supabase
+        .from('productos')
+        .select('precio_regular,stock,disponible,activo')
+        .eq('id', id)
+        .maybeSingle();
+      if (readError) {
+        toast(readError.message);
+        return;
+      }
+
+      const patch: Row = {
+        disponible,
+        activo,
+        precio_regular: precioRegularRaw === '' ? null : Number(precioRegularRaw),
+        stock: stockRaw === '' ? null : Number(stockRaw),
+      };
+
+      const { data: sessionData } = await supabase.auth.getSession();
+      const actorId = sessionData.session?.user?.id;
+      if (!actorId) {
+        toast('Sesión requerida para auditar cambios.');
+        return;
+      }
+
+      const { error } = await supabase.from('productos').update(patch).eq('id', id);
+      if (error) {
+        toast(error.message);
+        return;
+      }
+
+      const campos: Array<[string, unknown, unknown]> = [
+        ['precio_regular', actual?.precio_regular, patch.precio_regular],
+        ['stock', actual?.stock, patch.stock],
+        ['disponible', actual?.disponible, patch.disponible],
+        ['activo', actual?.activo, patch.activo],
+      ];
+      for (const [campo, antes, despues] of campos) {
+        if (String(antes ?? '') === String(despues ?? '')) continue;
+        const { error: auditError } = await supabase.from('auditoria_catalogo').insert({
+          actor_id: actorId,
+          entidad: 'productos',
+          entidad_id: id,
+          campo,
+          valor_anterior: antes == null ? null : String(antes),
+          valor_nuevo: despues == null ? null : String(despues),
+        });
+        if (auditError) {
+          // Tabla puede no existir aún en prod; no bloquear el guardado.
+          console.warn('auditoria_catalogo', auditError.message);
+        }
+      }
+      toast('Producto actualizado.');
+      await render();
+    });
+  });
 }
 
 async function cuponFormView(): Promise<string> {

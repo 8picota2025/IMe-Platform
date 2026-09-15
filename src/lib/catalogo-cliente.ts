@@ -4,7 +4,8 @@
  * por CatalogoExplorer.astro (progressive enhancement, sin SPA).
  */
 import { t, type Locale } from '../i18n/utils';
-import { normalizarTexto } from './catalogo';
+import { normalizarTexto, type CatalogoIndexItem } from './catalogo';
+import { getAccionComercial } from './comercial';
 import { normalizarMoneda, tienePrecioPublico } from './format';
 import { resetTransientUiState } from './motion';
 import {
@@ -150,6 +151,28 @@ function getSearchTerms(raw: string): string[] {
   return [...terms].filter(Boolean);
 }
 
+function normalizeSearchText(text: string): string {
+  return normalizarTexto(text)
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * Cada término escrito debe aparecer; un sinónimo puede satisfacer ese término.
+ * Al tokenizar separadores como guiones, "DUS-5000" también coincide con "dus 5000".
+ */
+export function matchesSearchText(text: string, query: string): boolean {
+  const searchable = new Set(normalizeSearchText(text).split(' ').filter(Boolean));
+  const tokens = normalizeSearchText(query).split(' ').filter(Boolean);
+  return tokens.every(token => {
+    const alternatives = [token, ...(SEARCH_SYNONYMS[token] ?? [])]
+      .flatMap(term => normalizeSearchText(term).split(' '))
+      .filter(Boolean);
+    return alternatives.some(term => searchable.has(term));
+  });
+}
+
 function relevanceScore(
   card: HTMLElement,
   state: CatalogoState,
@@ -207,9 +230,8 @@ export function matchesBase(card: HTMLElement, state: CatalogoState): boolean {
     return false;
   }
   if (state.q) {
-    const needle = normalizarTexto(state.q);
     const texto = card.dataset['busqueda'] ?? '';
-    if (needle && !texto.includes(needle)) return false;
+    if (!matchesSearchText(texto, state.q)) return false;
   }
   return true;
 }
@@ -295,8 +317,9 @@ export function initCatalogo(locale: Locale): () => void {
 
   const grid = document.getElementById('vista-productos');
   const familiasView = document.getElementById('vista-familias');
-  const cards = Array.from(grid?.querySelectorAll<HTMLElement>('[data-producto-slug]') ?? []);
-  const cardOrder = new Map(cards.map((card, index) => [card, index]));
+  let cards = Array.from(grid?.querySelectorAll<HTMLElement>('[data-producto-slug]') ?? []);
+  const initialCards = cards;
+  let cardOrder = new Map(cards.map((card, index) => [card, index]));
   const buscarInput = document.getElementById('catalogo-buscar') as HTMLInputElement | null;
   const contador = document.getElementById('catalogo-contador');
   const anuncios = document.getElementById('catalogo-anuncios');
@@ -349,6 +372,9 @@ export function initCatalogo(locale: Locale): () => void {
 
   const state = parseStateFromUrl();
   const staticPage = root.dataset['staticPage'] === 'true';
+  let fullCatalogRequested = state.todos;
+  let catalogoIndex: CatalogoIndexItem[] | null = null;
+  let catalogoIndexPending: Promise<CatalogoIndexItem[]> | null = null;
   if (staticPage && !shouldShowGrid(state)) state.todos = true;
 
   const familiasMap = new Map<string, string>();
@@ -364,6 +390,151 @@ export function initCatalogo(locale: Locale): () => void {
     window.requestAnimationFrame(() => {
       anuncios.textContent = msg;
     });
+  }
+
+  function isCatalogoIndexItem(item: unknown): item is CatalogoIndexItem {
+    return (
+      !!item &&
+      typeof item === 'object' &&
+      typeof (item as { slug?: unknown }).slug === 'string' &&
+      typeof (item as { nombre?: unknown }).nombre === 'string' &&
+      typeof (item as { familia?: { slug?: unknown; nombre?: unknown } }).familia?.slug ===
+        'string' &&
+      typeof (item as { familia?: { slug?: unknown; nombre?: unknown } }).familia?.nombre ===
+        'string'
+    );
+  }
+
+  async function loadCatalogoIndex(): Promise<CatalogoIndexItem[]> {
+    if (catalogoIndex) return catalogoIndex;
+    if (!catalogoIndexPending) {
+      catalogoIndexPending = fetch(`/data/catalogo-index.${locale}.json`, {
+        headers: { Accept: 'application/json' },
+      })
+        .then(async response => {
+          if (!response.ok) return [];
+          const data = (await response.json()) as unknown;
+          return Array.isArray(data) ? data.filter(isCatalogoIndexItem) : [];
+        })
+        .catch(() => []);
+    }
+    catalogoIndex = await catalogoIndexPending;
+    return catalogoIndex;
+  }
+
+  function indexItemMatchesBase(item: CatalogoIndexItem, filterState: CatalogoState): boolean {
+    const familias = item.familias_filtro ?? [item.familia.slug];
+    if (filterState.familia && !familias.includes(filterState.familia)) return false;
+    const tipo = item.tipo?.slug ?? '';
+    if (
+      filterState.tipo &&
+      (filterState.tipo === '__general__' ? !!tipo : tipo !== filterState.tipo)
+    ) {
+      return false;
+    }
+    if (filterState.comercial.size > 0 && !filterState.comercial.has(item.tipo_comercial ?? '')) {
+      return false;
+    }
+    if (filterState.destacado && !item.destacado) return false;
+    if (filterState.nuevo && !item.nuevo) return false;
+    if (filterState.disponible === '1' && item.disponible === false) return false;
+    if (filterState.disponible === '0' && item.disponible !== false) return false;
+    if (
+      filterState.modalidades.size > 0 &&
+      !filterState.modalidades.has(item.fulfillment_mode ?? '')
+    ) {
+      return false;
+    }
+    return !filterState.q || matchesSearchText(item.texto_busqueda ?? '', filterState.q);
+  }
+
+  function materializeIndexItem(item: CatalogoIndexItem): HTMLElement {
+    const card = document.createElement('li');
+    const href = `/${locale}/${locale === 'en' ? 'products' : 'productos'}/${item.slug}/`;
+    const imagen = item.imagen_principal ?? '/assets/img-placeholder.svg';
+    card.className = 'card producto-card';
+    card.dataset['productoSlug'] = item.slug;
+    card.dataset['nombre'] = item.nombre;
+    card.dataset['imagen'] = imagen;
+    card.dataset['familia'] = item.familia.slug;
+    card.dataset['familias'] = (item.familias_filtro ?? [item.familia.slug]).join(' ');
+    card.dataset['familiaNombre'] = item.familia.nombre;
+    card.dataset['tipo'] = item.tipo?.slug ?? '';
+    card.dataset['tipoNombre'] = item.tipo?.nombre ?? '';
+    card.dataset['comercial'] = item.tipo_comercial ?? '';
+    card.dataset['fulfillment'] = item.fulfillment_mode ?? '';
+    card.dataset['disponible'] = item.disponible === false ? '0' : '1';
+    card.dataset['destacado'] = item.destacado ? '1' : '0';
+    card.dataset['nuevo'] = item.nuevo ? '1' : '0';
+    card.dataset['busqueda'] = item.texto_busqueda ?? '';
+    card.dataset['specs'] = JSON.stringify(item.especificaciones_reducidas ?? {});
+    card.dataset['precio'] = item.precio == null ? '' : String(item.precio);
+    card.dataset['moneda'] = item.moneda ?? 'COP';
+    card.dataset['stock'] = item.stock == null ? '' : String(item.stock);
+    card.dataset['href'] = href;
+
+    const link = document.createElement('a');
+    link.className = 'producto-card__link';
+    link.href = href;
+    link.setAttribute('aria-label', `${t(locale, 'catalogo.ver_detalle')}: ${item.nombre}`);
+    const image = document.createElement('img');
+    image.className = 'producto-card__img';
+    image.src = imagen;
+    image.alt = item.nombre;
+    image.width = 400;
+    image.height = 280;
+    image.loading = 'lazy';
+    image.decoding = 'async';
+    const media = document.createElement('div');
+    media.className = 'producto-card__img-wrapper';
+    media.appendChild(image);
+    const body = document.createElement('div');
+    body.className = 'producto-card__body';
+    const family = document.createElement('p');
+    family.className = 'producto-card__familia';
+    family.textContent = item.tipo?.nombre
+      ? `${item.familia.nombre} · ${item.tipo.nombre}`
+      : item.familia.nombre;
+    const name = document.createElement('h3');
+    name.className = 'producto-card__nombre';
+    name.textContent = item.nombre;
+    const description = document.createElement('p');
+    description.className = 'producto-card__desc';
+    description.textContent = item.descripcion_corta;
+    const cta = document.createElement('span');
+    cta.className = 'btn btn-secondary producto-card__cta';
+    cta.textContent = t(locale, 'catalogo.ver_detalle');
+    body.append(family, name, description, cta);
+    link.append(media, body);
+    const compare = document.createElement('label');
+    compare.className = 'producto-card__compare';
+    const compareInput = document.createElement('input');
+    compareInput.type = 'checkbox';
+    compareInput.className = 'producto-card__compare-input';
+    compareInput.dataset['compareSlug'] = item.slug;
+    compareInput.checked = getComparador().includes(item.slug);
+    compare.append(compareInput, ` ${t(locale, 'catalogo.comparar_anadir')}`);
+    const quick = document.createElement('button');
+    quick.type = 'button';
+    quick.className = 'btn btn-secondary producto-card__quick';
+    quick.dataset['quickView'] = '';
+    quick.textContent = t(locale, 'catalogo.vista_rapida');
+    card.append(link, compare, quick);
+    return card;
+  }
+
+  async function materializeMatchingRemoteCards(): Promise<void> {
+    const items = await loadCatalogoIndex();
+    if (!grid || items.length === 0) return;
+    const existingSlugs = new Set(cards.map(card => card.dataset['productoSlug']).filter(Boolean));
+    const baseState = { ...state, facetas: new Map<string, Set<string>>() };
+    const remoteCards = items
+      .filter(item => !existingSlugs.has(item.slug) && indexItemMatchesBase(item, baseState))
+      .map(materializeIndexItem);
+    if (remoteCards.length === 0) return;
+    grid.append(...remoteCards);
+    cards = [...cards, ...remoteCards];
+    cardOrder = new Map(cards.map((card, index) => [card, index]));
   }
 
   function scrollToResultados(): void {
@@ -644,7 +815,10 @@ export function initCatalogo(locale: Locale): () => void {
     document.body.style.overflow = open ? 'hidden' : '';
   }
 
-  function applyFiltros(): void {
+  async function applyFiltros(): Promise<void> {
+    if (staticPage && (fullCatalogRequested || hasActiveFilters())) {
+      await materializeMatchingRemoteCards();
+    }
     const mostrarGrid = shouldShowGrid(state);
 
     if (familiasView) familiasView.hidden = mostrarGrid;
@@ -652,7 +826,7 @@ export function initCatalogo(locale: Locale): () => void {
     if (mostrarGrid) setFiltrosPanelOpen(false);
 
     if (!mostrarGrid) {
-      const visibles = getInitialFeaturedCards(cards);
+      const visibles = getInitialFeaturedCards(initialCards);
       const totalPaginas = Math.max(1, Math.ceil(visibles.length / PAGE_SIZE));
       if (state.pagina > totalPaginas || state.pagina < 1) state.pagina = 1;
       const inicio = (state.pagina - 1) * PAGE_SIZE;
@@ -923,6 +1097,7 @@ export function initCatalogo(locale: Locale): () => void {
   // Mostrar todos
   mostrarTodosBtns.forEach(btn => {
     const onClick = () => {
+      fullCatalogRequested = true;
       state.todos = true;
       state.familia = '';
       state.tipo = '';
@@ -1001,7 +1176,6 @@ export function initCatalogo(locale: Locale): () => void {
     const fulfillment = card.dataset['fulfillment'] ?? 'cotizacion';
     const precio = card.dataset['precio'] ?? '';
     const href = card.dataset['href'] ?? '#';
-    const tipo = card.dataset['comercial'] ?? '';
     const whatsappHref = `https://wa.me/573137247353?text=${encodeURIComponent(
       `${t(locale, 'producto.cta_consultar_disponibilidad')}: ${nombre}`
     )}`;
@@ -1024,37 +1198,48 @@ export function initCatalogo(locale: Locale): () => void {
     if (quickviewPrecio) quickviewPrecio.textContent = precioTexto(card);
     if (quickviewFicha) quickviewFicha.href = href;
 
+    // Misma política que ProductoCard/Landing/crear-pago (F4.2) — no rutear por tipo_comercial.
+    const stockRaw = card.dataset['stock'] ?? '';
+    const stockNumero = stockRaw === '' ? null : Number(stockRaw);
+    const precioNumero = Number(precio);
+    const accion = getAccionComercial(
+      {
+        precio: tienePrecioPublico(precioNumero) ? precioNumero : null,
+        disponible: disponible !== '0',
+        stock: stockNumero !== null && Number.isFinite(stockNumero) ? stockNumero : null,
+        gestionar_stock: stockNumero !== null,
+      },
+      locale
+    );
+
     if (quickviewWhatsapp) {
-      const mostrarWhatsapp = tipo === 'consumible' && disponible === '0';
+      const mostrarWhatsapp = accion.tipo === 'consultar';
       quickviewWhatsapp.hidden = !mostrarWhatsapp;
       quickviewWhatsapp.href = whatsappHref;
     }
 
     if (quickviewCta) {
       quickviewCta.hidden = false;
-      if (tipo === 'consumible' && disponible !== '0' && tienePrecioPublico(Number(precio))) {
-        const stockAgotado = card.dataset['stock'] === '0';
-        if (stockAgotado) {
-          quickviewCta.hidden = true;
-          if (quickviewWhatsapp) quickviewWhatsapp.hidden = false;
-          return;
-        }
-        quickviewCta.textContent = t(locale, 'carrito.agregar');
+      if (accion.tipo === 'carrito') {
+        quickviewCta.textContent = accion.label;
         quickviewCta.onclick = () => {
           const slug = card.dataset['productoSlug'] ?? '';
           const nombreProducto = card.dataset['nombre'] ?? '';
           const moneda = normalizarMoneda(card.dataset['moneda']);
-          const stockRaw = card.dataset['stock'] ?? '';
-          const stock = stockRaw ? Number(stockRaw) : null;
-          const precioNumero = Number(precio);
           if (!slug || !nombreProducto || !tienePrecioPublico(precioNumero)) return;
           void import('./carrito').then(({ agregarAlCarrito }) => {
-            agregarAlCarrito({ slug, nombre: nombreProducto, precio: precioNumero, moneda, stock });
+            agregarAlCarrito({
+              slug,
+              nombre: nombreProducto,
+              precio: precioNumero,
+              moneda,
+              stock: stockNumero !== null && Number.isFinite(stockNumero) ? stockNumero : null,
+            });
           });
           quickviewDialog.close();
         };
-      } else if (tipo === 'equipo') {
-        quickviewCta.textContent = t(locale, 'cotizacion_equipos.agregar');
+      } else if (accion.tipo === 'cotizacion') {
+        quickviewCta.textContent = accion.label;
         quickviewCta.onclick = () => {
           const slug = card.dataset['productoSlug'] ?? '';
           const nombreProducto = card.dataset['nombre'] ?? '';
@@ -1066,7 +1251,9 @@ export function initCatalogo(locale: Locale): () => void {
           quickviewDialog.close();
         };
       } else {
+        // consultar disponibilidad → WhatsApp; ocultar CTA primario duplicado
         quickviewCta.hidden = true;
+        if (quickviewWhatsapp) quickviewWhatsapp.hidden = false;
       }
     }
 
@@ -1076,9 +1263,8 @@ export function initCatalogo(locale: Locale): () => void {
 
   // --- Comparador ---
   function initComparador(): void {
-    const compareInputs = Array.from(
-      document.querySelectorAll<HTMLInputElement>('[data-compare-slug]')
-    );
+    const getCompareInputs = () =>
+      Array.from(document.querySelectorAll<HTMLInputElement>('[data-compare-slug]'));
     const bar = document.getElementById('comparador-bar');
     const contadorEl = document.getElementById('comparador-contador');
     const verBtn = document.getElementById('comparador-ver');
@@ -1088,7 +1274,7 @@ export function initCatalogo(locale: Locale): () => void {
     const cerrarBtn = dialog?.querySelector('[data-comparador-close]');
 
     function syncCheckboxes(slugs: string[]): void {
-      compareInputs.forEach(input => {
+      getCompareInputs().forEach(input => {
         const slug = input.dataset['compareSlug'] ?? '';
         input.checked = slugs.includes(slug);
         input.disabled = !input.checked && slugs.length >= MAX_COMPARADOR;
@@ -1210,27 +1396,29 @@ export function initCatalogo(locale: Locale): () => void {
     syncCheckboxes(inicial);
     syncBar(inicial);
 
-    compareInputs.forEach(input => {
-      const onChange = () => {
-        const slug = input.dataset['compareSlug'] ?? '';
-        const resultado = toggleComparador(slug);
-        if (!resultado.ok) {
-          input.checked = false;
-          announce(t(locale, 'catalogo.comparar_limite'));
-        }
-        syncCheckboxes(resultado.slugs);
-        syncBar(resultado.slugs);
-      };
-      input.addEventListener('change', onChange);
-    });
+    const onCompareChange = (event: Event) => {
+      const input = event.target as HTMLInputElement | null;
+      if (!input?.matches('[data-compare-slug]')) return;
+      const slug = input.dataset['compareSlug'] ?? '';
+      const resultado = toggleComparador(slug);
+      if (!resultado.ok) {
+        input.checked = false;
+        announce(t(locale, 'catalogo.comparar_limite'));
+      }
+      syncCheckboxes(resultado.slugs);
+      syncBar(resultado.slugs);
+    };
+    document.addEventListener('change', onCompareChange);
 
     const onComparadorChange = ((evento: CustomEvent<string[]>) => {
       syncCheckboxes(evento.detail);
       syncBar(evento.detail);
     }) as EventListener;
     window.addEventListener(COMPARADOR_EVENT, onComparadorChange);
-    cleanupComparadorWindow = () =>
+    cleanupComparadorWindow = () => {
+      document.removeEventListener('change', onCompareChange);
       window.removeEventListener(COMPARADOR_EVENT, onComparadorChange);
+    };
 
     const onVaciar = () => {
       clearComparador();

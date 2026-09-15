@@ -39,7 +39,20 @@ Deno.serve(async req => {
   }>;
 
   let enviados = 0;
+  let omitidosConsentimiento = 0;
   for (const carrito of carritos) {
+    // No comunicar sin consentimiento explícito registrado en clientes.
+    const { data: cliente } = await supabase
+      .from('clientes')
+      .select('consentimiento_datos')
+      .eq('email', carrito.email)
+      .maybeSingle();
+    if ((cliente as { consentimiento_datos?: boolean } | null)?.consentimiento_datos !== true) {
+      omitidosConsentimiento += 1;
+      console.info('recordatorio-carritos: omitido sin consentimiento', carrito.email);
+      continue;
+    }
+
     const resultado = await enviarEmailPlantilla(
       supabase,
       'carrito_abandonado_cliente',
@@ -62,8 +75,16 @@ Deno.serve(async req => {
     else console.error('recordatorio-carritos:', carrito.email, resultado.detalle);
   }
 
-  return new Response(JSON.stringify({ ok: true, procesados: carritos.length, enviados }), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' },
-  });
+  return new Response(
+    JSON.stringify({
+      ok: true,
+      procesados: carritos.length,
+      enviados,
+      omitidos_sin_consentimiento: omitidosConsentimiento,
+    }),
+    {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    }
+  );
 });
