@@ -88,6 +88,9 @@ cada sesión. Estado de fases en AGENTS.md sección "Estado de fases".
 - `CONTRIBUTING.md` — flujo de ramas y git
 - `AGENTS_GUIDE.md` — división de trabajo entre agentes
 - `ADMIN_GUIDE.md` — uso operativo del back-office `/admin`
+- `COMMERCE_GUIDE.md` — pasarelas, cotizaciones, transferencia, NIT/DIAN y facturación Siigo
+- `docs/twenty-integration.md` — sync CRM Twenty (comercial + comercio)
+- `docs/observabilidad.md` — consultas SQL, analítica marketing y smoke monitor CI
 - `VALIDACION.md` — evidencia y pipeline F5
 - `QA.md` — matriz de pruebas F5
 - `REMEDIACION.md` — hallazgos abiertos/cerrados
