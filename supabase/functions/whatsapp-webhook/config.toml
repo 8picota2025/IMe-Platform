@@ -1,0 +1,3 @@
+# Meta no envía JWT de Supabase. La autenticación es hub.verify_token (GET)
+# y X-Hub-Signature-256 (POST) con WHATSAPP_APP_SECRET.
+verify_jwt = false

@@ -65,6 +65,8 @@ jobs:
           IMEIA_API_URL=${{ secrets.IMEIA_API_URL }}
           IMEIA_API_KEY=${{ secrets.IMEIA_API_KEY }}
           IMEIA_CHAT_MODEL=${{ secrets.IMEIA_CHAT_MODEL }}
+          IMEIA_WEB_AGENT_WEBHOOK_URL=${{ secrets.IMEIA_WEB_AGENT_WEBHOOK_URL }}
+          IMEIA_WEB_AGENT_WEBHOOK_KEY=${{ secrets.IMEIA_WEB_AGENT_WEBHOOK_KEY }}
           TURNSTILE_SECRET_KEY=${{ secrets.TURNSTILE_SECRET_KEY }}
           CANARY_SMOKE_SECRET=${{ secrets.CANARY_SMOKE_SECRET }}
           TWENTY_BASE_URL=${{ secrets.TWENTY_BASE_URL }}
@@ -87,6 +89,11 @@ jobs:
           DIAN_PROVIDER_API_TOKEN=${{ secrets.DIAN_PROVIDER_API_TOKEN }}
           DIAN_PROVIDER_METHOD=${{ secrets.DIAN_PROVIDER_METHOD }}
           WHATSAPP_MODE=${{ secrets.WHATSAPP_MODE }}
+          WHATSAPP_VERIFY_TOKEN=${{ secrets.WHATSAPP_VERIFY_TOKEN }}
+          WHATSAPP_APP_SECRET=${{ secrets.WHATSAPP_APP_SECRET }}
+          WHATSAPP_TOKEN=${{ secrets.WHATSAPP_TOKEN }}
+          WHATSAPP_PHONE_NUMBER_ID=${{ secrets.WHATSAPP_PHONE_NUMBER_ID }}
+          WHATSAPP_API_VERSION=${{ secrets.WHATSAPP_API_VERSION }}
           CO_DEFAULT_IVA_PCT=19
           GITHUB_TOKEN=${{ secrets.CMS_GITHUB_TOKEN }}
           GITHUB_REPOSITORY=${{ secrets.CMS_GITHUB_REPOSITORY }}

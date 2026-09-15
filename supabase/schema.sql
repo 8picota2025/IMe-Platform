@@ -971,6 +971,33 @@ CREATE TABLE IF NOT EXISTS asesor_uso (
 CREATE INDEX IF NOT EXISTS idx_asesor_uso_periodo ON asesor_uso(periodo_yyyy_mm);
 CREATE INDEX IF NOT EXISTS idx_asesor_uso_session ON asesor_uso(session_id);
 
+-- Async web turns answered by the external IMEIA/Grok routine.
+CREATE TABLE IF NOT EXISTS asesor_agent_turns (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  status TEXT NOT NULL DEFAULT 'pending'
+    CHECK (status IN ('pending', 'replied', 'failed', 'timeout')),
+  session_id TEXT NOT NULL,
+  conversation_id TEXT,
+  locale TEXT NOT NULL CHECK (locale IN ('es', 'en')),
+  mensaje TEXT NOT NULL,
+  historial JSONB NOT NULL DEFAULT '[]'::jsonb,
+  navigation_context JSONB NOT NULL DEFAULT '{}'::jsonb,
+  reply_texto TEXT,
+  error TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_asesor_agent_turns_status_created_at
+  ON asesor_agent_turns (status, created_at);
+CREATE INDEX IF NOT EXISTS idx_asesor_agent_turns_session_created_at
+  ON asesor_agent_turns (session_id, created_at DESC);
+
+DROP TRIGGER IF EXISTS set_asesor_agent_turns_updated_at ON asesor_agent_turns;
+CREATE TRIGGER set_asesor_agent_turns_updated_at
+  BEFORE UPDATE ON asesor_agent_turns
+  FOR EACH ROW EXECUTE FUNCTION trigger_set_updated_at();
+
 -- Rate-limit por identificador ('ip:<ip>' o 'session:<id>'): ventana corta + tope diario
 CREATE TABLE IF NOT EXISTS asesor_rate_limit (
   id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -1023,6 +1050,25 @@ REVOKE ALL ON FUNCTION is_admin(TEXT[]) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION is_admin(TEXT[]) TO authenticated;
 
 CREATE INDEX IF NOT EXISTS idx_asesor_rate_limit_identificador ON asesor_rate_limit(identificador);
+
+-- Idempotencia inbound WhatsApp Cloud API (wamid). Solo service_role.
+CREATE TABLE IF NOT EXISTS whatsapp_inbound_events (
+  wamid            TEXT PRIMARY KEY,
+  from_wa          TEXT,
+  phone_number_id  TEXT,
+  kind             TEXT NOT NULL DEFAULT 'message'
+                   CHECK (kind IN ('message', 'status', 'ignored')),
+  status           TEXT NOT NULL DEFAULT 'claimed'
+                   CHECK (status IN ('claimed', 'replied', 'ignored', 'rate_limited', 'send_failed')),
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_whatsapp_inbound_events_created
+  ON whatsapp_inbound_events(created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_whatsapp_inbound_events_status
+  ON whatsapp_inbound_events(status);
 
 -- ── 9. proveedores (módulo dropshipping) ────────────────────
 CREATE TABLE IF NOT EXISTS proveedores (
@@ -1325,8 +1371,14 @@ CREATE POLICY "asesor_uso_admin_select"
   TO authenticated
   USING (is_admin(ARRAY['ventas', 'operaciones']));
 
+-- Turnos del agente web: sin políticas; solo Edge Function/routine service_role.
+ALTER TABLE asesor_agent_turns ENABLE ROW LEVEL SECURITY;
+
 -- asesor_rate_limit: sin politicas (deny-all a anon/authenticated); solo service_role (bypassa RLS)
 ALTER TABLE asesor_rate_limit ENABLE ROW LEVEL SECURITY;
+
+-- whatsapp_inbound_events: deny-all a anon/authenticated; solo service_role
+ALTER TABLE whatsapp_inbound_events ENABLE ROW LEVEL SECURITY;
 
 -- perfiles admin: cada usuario ve su perfil; owner/admin gestiona todos
 ALTER TABLE admin_profiles ENABLE ROW LEVEL SECURITY;
