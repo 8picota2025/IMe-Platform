@@ -1,12 +1,10 @@
 import { t, type Locale } from '../i18n/utils';
+import { isPurchasable, type CommerceProductSignals } from './commerce-policy';
 import { tienePrecioPublico } from './format';
 
 export type AccionComercialTipo = 'carrito' | 'cotizacion' | 'consultar';
 
-export interface ProductoComercial {
-  precio?: number | null | undefined;
-  disponible?: boolean;
-}
+export type ProductoComercial = CommerceProductSignals;
 
 export interface AccionComercial {
   tipo: AccionComercialTipo;
@@ -14,14 +12,20 @@ export interface AccionComercial {
   tienePrecio: boolean;
 }
 
+/**
+ * CTA de UI derivado de la política única `isPurchasable`.
+ * Con precio pero no comprable ahora (stock/disponible) → consultar.
+ * Sin precio → cotización.
+ */
 export function getAccionComercial(producto: ProductoComercial, locale: Locale): AccionComercial {
   const tienePrecio = tienePrecioPublico(producto.precio);
+  const purchase = isPurchasable(producto, { quantity: 1 });
 
-  if (tienePrecio && producto.disponible !== false) {
+  if (purchase.ok) {
     return { tipo: 'carrito', label: t(locale, 'carrito.agregar'), tienePrecio };
   }
 
-  if (tienePrecio && producto.disponible === false) {
+  if (tienePrecio) {
     return {
       tipo: 'consultar',
       label: t(locale, 'producto.cta_consultar_disponibilidad'),

@@ -14,6 +14,14 @@ describe('getAccionComercial — precio → carrito', () => {
     expect(accion.tienePrecio).toBe(true);
   });
 
+  it('producto con precio y stock 0 → consultar', () => {
+    const accion = getAccionComercial(
+      { precio: 500000, disponible: true, stock: 0, gestionar_stock: true },
+      'es'
+    );
+    expect(accion.tipo).toBe('consultar');
+  });
+
   it('producto sin precio → cotizacion', () => {
     const accion = getAccionComercial({ precio: null, disponible: true }, 'es');
     expect(accion.tipo).toBe('cotizacion');
