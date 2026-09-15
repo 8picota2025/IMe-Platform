@@ -1200,20 +1200,50 @@ CREATE POLICY "producto_variantes_admin_all"
   USING (is_admin(ARRAY['catalogo']))
   WITH CHECK (is_admin(ARRAY['catalogo']));
 
--- solicitudes_cotizacion: INSERT público; backoffice solo admin
+-- solicitudes_cotizacion: sin INSERT anon (web → registrar-cotizacion service_role).
+-- Ventas inserta borradores; formalizar/token solo vía Edge Functions (service_role).
 ALTER TABLE solicitudes_cotizacion ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "cotizaciones_insert_public" ON solicitudes_cotizacion;
-CREATE POLICY "cotizaciones_insert_public"
-  ON solicitudes_cotizacion FOR INSERT
-  TO anon, authenticated
-  WITH CHECK (true);
+DROP POLICY IF EXISTS "cotizaciones_ventas_insert_public" ON solicitudes_cotizacion;
+DROP POLICY IF EXISTS "cotizaciones_ventas_insert" ON solicitudes_cotizacion;
 DROP POLICY IF EXISTS "cotizaciones_select_auth" ON solicitudes_cotizacion;
 DROP POLICY IF EXISTS "cotizaciones_admin_all" ON solicitudes_cotizacion;
-CREATE POLICY "cotizaciones_admin_all"
-  ON solicitudes_cotizacion FOR ALL
+DROP POLICY IF EXISTS "cotizaciones_ventas_select_own" ON solicitudes_cotizacion;
+DROP POLICY IF EXISTS "cotizaciones_ventas_update_own" ON solicitudes_cotizacion;
+DROP POLICY IF EXISTS "cotizaciones_supervisor_all" ON solicitudes_cotizacion;
+CREATE POLICY "cotizaciones_ventas_insert"
+  ON solicitudes_cotizacion FOR INSERT
   TO authenticated
-  USING (is_admin(ARRAY['ventas']))
-  WITH CHECK (is_admin(ARRAY['ventas']));
+  WITH CHECK (
+    is_admin(ARRAY['ventas'])
+    AND estado = 'nueva'
+    AND formalizacion_token_hash IS NULL
+    AND formalizacion_token_expira_at IS NULL
+    AND oferta_enviada_at IS NULL
+    AND pedido_id IS NULL
+  );
+CREATE POLICY "cotizaciones_ventas_select_own"
+  ON solicitudes_cotizacion FOR SELECT
+  TO authenticated
+  USING (
+    is_admin(ARRAY['owner', 'admin'])
+    OR (is_admin(ARRAY['ventas']) AND created_by = (SELECT auth.uid()))
+  );
+CREATE POLICY "cotizaciones_ventas_update_own"
+  ON solicitudes_cotizacion FOR UPDATE
+  TO authenticated
+  USING (
+    is_admin(ARRAY['owner', 'admin'])
+    OR (is_admin(ARRAY['ventas']) AND created_by = (SELECT auth.uid()))
+  )
+  WITH CHECK (
+    is_admin(ARRAY['owner', 'admin'])
+    OR (is_admin(ARRAY['ventas']) AND created_by = (SELECT auth.uid()))
+  );
+CREATE POLICY "cotizaciones_supervisor_all"
+  ON solicitudes_cotizacion FOR DELETE
+  TO authenticated
+  USING (is_admin(ARRAY['owner', 'admin']));
 
 -- clientes: datos personales solo backoffice/admin
 ALTER TABLE clientes ENABLE ROW LEVEL SECURITY;
