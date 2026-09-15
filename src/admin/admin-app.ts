@@ -5684,8 +5684,9 @@ async function proveedorProductosView(): Promise<string> {
           ${field('incoterm', 'Incoterm')}
           ${checkbox('apto_dropship', 'Apto para dropship', false)}
           ${textarea('notas_operativas', 'Notas operativas')}
-          ${checkbox('activo', 'Activo', true)}
+          ${checkbox('activo', 'Activo', false)}
         </div>
+        <p class="admin-help">Nuevas asociaciones nacen inactivas y sin apto_dropship. get_proveedor_para_producto solo notifica si el proveedor tiene dropship_enabled y la fila está activa + apta.</p>
         <button class="admin-button" type="submit">Asignar producto</button>
       </form>
     </section>`;
@@ -7128,7 +7129,7 @@ function bindProveedorProductos() {
       activo:
         form.elements.namedItem('activo') instanceof HTMLInputElement
           ? (form.elements.namedItem('activo') as HTMLInputElement).checked
-          : true,
+          : false,
     };
     const { error } = assignmentId
       ? await supabase!.from('proveedor_producto').update(payload).eq('id', assignmentId)

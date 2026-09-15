@@ -1400,7 +1400,9 @@ AS $$
   JOIN proveedores p ON p.id = pp.proveedor_id
   WHERE pp.producto_id = p_producto_id
     AND pp.activo = true
+    AND pp.apto_dropship = true
     AND p.activo = true
+    AND p.dropship_enabled = true
   ORDER BY pp.prioridad ASC
   LIMIT 1;
 $$;
