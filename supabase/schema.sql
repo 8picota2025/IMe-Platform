@@ -1405,6 +1405,12 @@ AS $$
   LIMIT 1;
 $$;
 
+-- Solo Edge/service_role: webhook_url y api_config.headers son secretos de proveedor.
+REVOKE ALL ON FUNCTION public.get_proveedor_para_producto(uuid) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.get_proveedor_para_producto(uuid) FROM anon;
+REVOKE ALL ON FUNCTION public.get_proveedor_para_producto(uuid) FROM authenticated;
+GRANT EXECUTE ON FUNCTION public.get_proveedor_para_producto(uuid) TO service_role;
+
 -- ── RPC match_productos (Asesor RAG) ────────────────────────
 -- Busqueda vectorial sobre productos.embedding (Voyage voyage-3, 1024 dims).
 -- security definer: solo expone productos activos, sin precio_costo.
