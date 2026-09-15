@@ -88,6 +88,11 @@ cada sesión. Estado de fases en AGENTS.md sección "Estado de fases".
 - `CONTRIBUTING.md` — flujo de ramas y git
 - `AGENTS_GUIDE.md` — división de trabajo entre agentes
 - `ADMIN_GUIDE.md` — uso operativo del back-office `/admin`
+- `COMMERCE_GUIDE.md` — comercio híbrido, pagos y fulfillment
+- `docs/cms-commercial-architecture.md` — CMS comercial `/comercial/` (catálogo, cotizaciones, OCR)
+- `docs/cms-commercial-setup.md` — setup CMS comercial y puente OCR
+- `docs/congreso-architecture.md` — captura de leads en congresos `/congreso/`
+- `docs/congreso-setup.md` — setup y deploy IME Congreso
 - `VALIDACION.md` — evidencia y pipeline F5
 - `QA.md` — matriz de pruebas F5
 - `REMEDIACION.md` — hallazgos abiertos/cerrados

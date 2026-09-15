@@ -103,7 +103,52 @@ Nav: Catálogo · Cotizaciones · Envíos. Writes go through `comercial-cotizaci
 (allowlist). Send still `enviar-cotizacion`.
 
 ```bash
-npx supabase functions deploy comercial-cotizacion enviar-cotizacion
+npx supabase functions deploy comercial-cotizacion comercial-ocr-presupuesto enviar-cotizacion
 ```
 
 `/comercial` quote UI. Twenty offer sync. Duplicate-on-revise UI. RLS isolation.
+
+### Enviar desde CMS (email o WhatsApp)
+
+El editor `#/cotizaciones?id=…` expone **Email** y **WhatsApp**. Ambos llaman `enviar-cotizacion` con el JWT del comercial:
+
+```bash
+curl -sS -X POST "$PUBLIC_SUPABASE_URL/functions/v1/enviar-cotizacion" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "apikey: $PUBLIC_SUPABASE_ANON_KEY" \
+  -H "Content-Type: application/json" \
+  -d "{\"cotizacion_id\":\"$COTIZACION_ID\",\"canal\":\"email\"}"
+```
+
+`canal` opcional: `email` (default) | `whatsapp`. WhatsApp en `WHATSAPP_MODE=link` prepara mensaje + PDF; no marca pago aprobado.
+
+**Validar → CRM** es acción separada (`comercial-cotizacion`); el envío al cliente no sincroniza Opportunity.
+
+### OCR competencia (PWA)
+
+Pantalla `#/cotizaciones/escanear` o botones en editor. Flujo: foto → `comercial-ocr-presupuesto` → borrador.
+
+Requisitos Edge:
+
+- `OCR_VISION_PROVIDER=ollama` (provider Edge; visión vía puente)
+- `OCR_BRIDGE_URL` + `OCR_BRIDGE_SECRET` en prod (ver `docs/cms-commercial-deployment.md`)
+- Puente local con `GEMINI_API_KEY` preferido (`scripts/ocr-moondream-bridge.mjs`)
+
+Prueba manual:
+
+```bash
+# TOKEN = JWT ventas/admin
+# IMG_B64 = base64 sin prefijo data: (máx. 8 MB)
+
+curl -sS -X POST "$PUBLIC_SUPABASE_URL/functions/v1/comercial-ocr-presupuesto" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "apikey: $PUBLIC_SUPABASE_ANON_KEY" \
+  -H "Content-Type: application/json" \
+  -d "{\"image_base64\":\"$IMG_B64\",\"mime\":\"image/jpeg\"}"
+```
+
+Expect `ok: true`, `quote_id`, `improved_lines`, `storage_path` en bucket `presupuestos-competencia`.
+
+Códigos OCR: `OCR_FAILED`, `OCR_EMPTY`, `IMAGE_TOO_LARGE`, `QUOTE_LOCKED`, `RATE_LIMIT`.
+
+Arquitectura: `docs/cms-commercial-architecture.md` § OCR. Plan: `docs/plans/2026-08-15-ocr-cms-pwa.md`.
