@@ -5,6 +5,7 @@ import {
   baseNetaDesdePrecioConIva,
   calculateFiscalSummary,
   digitoVerificacionNit,
+  fiscalProfileFromLockedOffer,
   normalizeNumeroDocumento,
   validateClienteFiscal,
   type ClienteFiscalProfile,
@@ -32,6 +33,79 @@ describe('fiscal', () => {
   it('deriva la base gravable desde un precio de oferta con IVA incluido', () => {
     expect(baseNetaDesdePrecioConIva(119000, 19)).toBe(100000);
     expect(baseNetaDesdePrecioConIva(100000, 0)).toBe(100000);
+  });
+
+  it('locked offer without FE charges the offered total (no catalog IVA stack)', () => {
+    const line = fiscalProfileFromLockedOffer({
+      producto_id: 'prod-1',
+      slug: 'monitor-uci',
+      nombre: 'Monitor UCI',
+      cantidad: 1,
+      precio_unitario_ofertado: 10_000_000,
+      solicitar_factura_electronica: false,
+      impuestos_incluidos: false,
+      producto: { tarifa_iva_pct: 19, excluido_iva: false },
+    });
+    expect(line.excluido_iva).toBe(true);
+    expect(line.precio_unitario).toBe(10_000_000);
+
+    const stackedWrong = calculateFiscalSummary(
+      [
+        {
+          cantidad: 1,
+          precio_unitario: 10_000_000,
+          tarifa_iva_pct: 19,
+        },
+      ],
+      { solicitar_factura_electronica: false },
+      { moneda: 'COP', mercado: 'CO', default_iva_pct: 0 }
+    );
+    expect(stackedWrong.total).toBe(11_900_000);
+
+    const fixed = calculateFiscalSummary([line], { solicitar_factura_electronica: false }, {
+      moneda: 'COP',
+      mercado: 'CO',
+      default_iva_pct: 0,
+    });
+    expect(fixed.total).toBe(10_000_000);
+  });
+
+  it('locked offer with FE + impuestos_incluidos rebuilds IVA without changing total', () => {
+    const line = fiscalProfileFromLockedOffer({
+      producto_id: 'prod-1',
+      slug: 'monitor-uci',
+      nombre: 'Monitor UCI',
+      cantidad: 1,
+      precio_unitario_ofertado: 11_900_000,
+      solicitar_factura_electronica: true,
+      impuestos_incluidos: true,
+      producto: { tarifa_iva_pct: 19, excluido_iva: false, dian_codigo: '42142100' },
+    });
+    expect(line.precio_unitario).toBe(10_000_000);
+    expect(line.tarifa_iva_pct).toBe(19);
+
+    const fiscal = calculateFiscalSummary([line], clienteFiscal, {
+      moneda: 'COP',
+      mercado: 'CO',
+      default_iva_pct: 0,
+    });
+    // Sin retenciones de producto, total == ofertado.
+    expect(fiscal.impuesto_total).toBe(1_900_000);
+    expect(fiscal.total).toBe(11_900_000);
+  });
+
+  it('locked offer with FE rejects missing impuestos_incluidos', () => {
+    expect(() =>
+      fiscalProfileFromLockedOffer({
+        slug: 'monitor-uci',
+        nombre: 'Monitor UCI',
+        cantidad: 1,
+        precio_unitario_ofertado: 10_000_000,
+        solicitar_factura_electronica: true,
+        impuestos_incluidos: false,
+        producto: { tarifa_iva_pct: 19 },
+      })
+    ).toThrow(/impuestos/);
   });
 
   it('calcula iva y retenciones por linea', () => {
