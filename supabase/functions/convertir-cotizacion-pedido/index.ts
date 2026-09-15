@@ -14,6 +14,7 @@ import {
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { requireAdmin } from '../_shared/admin-auth.ts';
 import { getPaymentGateway, type CheckoutItem, type Mercado } from '../_shared/payment-gateway.ts';
+import { mercadoDesdeMoneda } from '../../../src/lib/mercado-moneda.ts';
 import {
   calcularTotalOfertado,
   ofertaCompleta,
@@ -124,9 +125,11 @@ Deno.serve(async req => {
   }
 
   const { nombre, apellido } = splitNombreApellido(String(row.nombre ?? 'Cliente'));
-  const mercado: Mercado = body.mercado === 'INTL' || row.mercado === 'INTL' ? 'INTL' : 'CO';
   const locale = body.locale === 'en' || row.locale === 'en' ? 'en' : 'es';
-  const moneda = lineas[0]?.moneda || (mercado === 'CO' ? 'COP' : 'USD');
+  const moneda = lineas[0]?.moneda || 'COP';
+  // Currency owns gateway: never honor self-asserted INTL on a COP offer
+  // (would skip Colombian IVA while charging COP on Stripe).
+  const mercado: Mercado = mercadoDesdeMoneda(moneda);
   const total = calcularTotalOfertado(lineas);
 
   const slugs = lineas.map(l => l.slug);
