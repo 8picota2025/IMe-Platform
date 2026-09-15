@@ -16,7 +16,7 @@ import { requireAdmin } from '../_shared/admin-auth.ts';
 import { getPaymentGateway, type CheckoutItem, type Mercado } from '../_shared/payment-gateway.ts';
 import {
   calcularTotalOfertado,
-  ofertaCompleta,
+  ofertaListaParaCobro,
   parseLineasOferta,
   splitNombreApellido,
   type CotizacionOfertaRow,
@@ -99,7 +99,7 @@ Deno.serve(async req => {
   }
 
   const lineas = parseLineasOferta(row.productos);
-  const check = ofertaCompleta(lineas, row.condiciones);
+  const check = ofertaListaParaCobro(lineas, row.condiciones);
   if (!check.ok) {
     return errorResponse(
       { code: check.error, message: 'Completa precios y condiciones antes de convertir' },

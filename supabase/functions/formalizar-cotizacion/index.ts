@@ -17,7 +17,7 @@ import {
 import {
   calcularTotalOfertado,
   hashTokenSha256,
-  ofertaCompleta,
+  ofertaListaParaCobro,
   parseLineasOferta,
   splitNombreApellido,
   tokenExpirado,
@@ -144,7 +144,7 @@ async function loadCotizacionValidada(
   }
 
   const lineas = parseLineasOferta(row.productos);
-  const check = ofertaCompleta(lineas, row.condiciones);
+  const check = ofertaListaParaCobro(lineas, row.condiciones);
   if (!check.ok) {
     return {
       ok: false,
