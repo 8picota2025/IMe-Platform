@@ -41,6 +41,12 @@ export interface FiscalConfig {
   moneda: string;
   mercado: 'CO' | 'INTL';
   descuento_total?: number;
+  /**
+   * Si se informa, el descuento solo se reparte entre estas lineas (slugs).
+   * Evita que un cupon restringido a productos excluidos de IVA reduzca la
+   * base gravable de lineas gravadas y deje de cobrar IVA en Wompi/DIAN.
+   */
+  descuento_slugs_elegibles?: string[];
   envio_total?: number;
   default_iva_pct?: number;
   default_retencion_fuente_pct?: number;
@@ -236,17 +242,40 @@ export function calculateFiscalSummary(
   );
   const descuentoTotal = toMoney(config.descuento_total ?? 0);
   const envioTotal = toMoney(config.envio_total ?? 0);
-  const factorDescuento = subtotal > 0 ? descuentoTotal / subtotal : 0;
+  const elegibleSlugSet =
+    Array.isArray(config.descuento_slugs_elegibles) && config.descuento_slugs_elegibles.length > 0
+      ? new Set(config.descuento_slugs_elegibles)
+      : null;
+  const recibeDescuento = (item: ProductFiscalProfile): boolean =>
+    !elegibleSlugSet || (typeof item.slug === 'string' && elegibleSlugSet.has(item.slug));
+  const baseDescuentoPool = toMoney(
+    items.reduce((acc, item) => {
+      if (!recibeDescuento(item)) return acc;
+      return acc + item.precio_unitario * item.cantidad;
+    }, 0)
+  );
+  const factorDescuento = baseDescuentoPool > 0 ? descuentoTotal / baseDescuentoPool : 0;
+  let lastDiscountIndex = -1;
+  for (let i = items.length - 1; i >= 0; i -= 1) {
+    const candidate = items[i];
+    if (candidate && recibeDescuento(candidate)) {
+      lastDiscountIndex = i;
+      break;
+    }
+  }
   const esCO = isFacturacionColombia(config);
 
   let descuentoAcumulado = 0;
   const lineas = items.map((item, index) => {
     const baseBruta = toMoney(item.precio_unitario * item.cantidad);
-    const descuentoAsignado =
-      index === items.length - 1
-        ? toMoney(descuentoTotal - descuentoAcumulado)
-        : toMoney(baseBruta * factorDescuento);
-    descuentoAcumulado += descuentoAsignado;
+    let descuentoAsignado = 0;
+    if (descuentoTotal > 0 && baseDescuentoPool > 0 && recibeDescuento(item)) {
+      descuentoAsignado =
+        index === lastDiscountIndex
+          ? toMoney(descuentoTotal - descuentoAcumulado)
+          : toMoney(baseBruta * factorDescuento);
+      descuentoAcumulado += descuentoAsignado;
+    }
 
     const baseNeta = Math.max(0, toMoney(baseBruta - descuentoAsignado));
     const tarifaIvaPct = esCO

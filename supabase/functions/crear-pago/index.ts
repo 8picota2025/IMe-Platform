@@ -347,7 +347,8 @@ async function calcularDescuentoCupon(args: {
   items: Array<Record<string, unknown>>;
   origin: string | null;
 }): Promise<
-  { ok: true; descuento: number; cupon: CuponRow | null } | { ok: false; response: Response }
+  | { ok: true; descuento: number; cupon: CuponRow | null; slugs_elegibles: string[] }
+  | { ok: false; response: Response }
 > {
   const { data, error } = await args.supabase
     .from('cupones')
@@ -506,7 +507,12 @@ async function calcularDescuentoCupon(args: {
             valor * elegibles.reduce((acc, item) => acc + Number(item.cantidad ?? 0), 0)
           )
         : Math.min(args.subtotal, valor);
-  return { ok: true, descuento: Math.max(0, Math.round(descuento)), cupon };
+  return {
+    ok: true,
+    descuento: Math.max(0, Math.round(descuento)),
+    cupon,
+    slugs_elegibles: elegibles.map(item => String(item.slug ?? '')).filter(Boolean),
+  };
 }
 
 Deno.serve(
@@ -884,7 +890,12 @@ Deno.serve(
           items: itemsSnapshot,
           origin,
         })
-      : { ok: true as const, descuento: 0, cupon: null as CuponRow | null };
+      : {
+          ok: true as const,
+          descuento: 0,
+          cupon: null as CuponRow | null,
+          slugs_elegibles: [] as string[],
+        };
     if (!descuento.ok) return descuento.response;
 
     // Envio por zona (solo CO; INTL se cotiza aparte)
@@ -916,6 +927,9 @@ Deno.serve(
         moneda,
         mercado: mercado as Mercado,
         descuento_total: descuento.descuento,
+        ...(descuento.slugs_elegibles.length > 0
+          ? { descuento_slugs_elegibles: descuento.slugs_elegibles }
+          : {}),
         envio_total: envioTotal,
         // productos.precio es siempre base sin IVA. Las ofertas formalizadas
         // conservan su importe locked: su tratamiento fiscal ya fue acordado
