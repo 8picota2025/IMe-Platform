@@ -51,6 +51,27 @@ TURNSTILE_SECRET_KEY=         # Turnstile secreta — SOLO Edge Functions
 CI_DEPLOY_HOOK=               # Hook para trigger-rebuild desde CMS
 ```
 
+## Build estricto con catálogo en vivo (`REQUIRE_LIVE_DATA`)
+
+En CI de deploy (`deploy-prod.yml`, `deploy-preprod.yml`) el build exporta:
+
+```bash
+REQUIRE_LIVE_DATA=true
+```
+
+Con esta variable, `src/lib/datos.ts` **falla el build** si:
+
+- Supabase no responde o devuelve error al cargar productos, familias, tipos o artículos.
+- Supabase responde pero con **0 filas** en una consulta esperada.
+
+Sin `REQUIRE_LIVE_DATA` (dev local sin `.env` completo), la capa cae a mocks JSON y solo registra warning en consola.
+
+Implicaciones:
+
+- Un deploy a producción **nunca** debe publicar catálogo mock por accidente.
+- Si el build falla en CI con `[datos] Build estricto`, revisar conectividad Supabase, RLS anon en lectura pública y que existan filas activas.
+- Local: usar mocks (`npm run dev`) o copiar credenciales de preprod con `REQUIRE_LIVE_DATA=true` para reproducir el fallo.
+
 ## Reindexado de embeddings
 
 Cuando cambies `VOYAGE_API_KEY`, `EMBEDDING_PROVIDER`, `EMBEDDING_MODEL` o

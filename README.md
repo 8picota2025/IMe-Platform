@@ -96,3 +96,7 @@ cada sesión. Estado de fases en AGENTS.md sección "Estado de fases".
 - `PENDIENTES.md` — pendientes activos por etiqueta
 - `BACKLOG_V2.md` — fuera de alcance V1
 - `docs/prompts/` — prompts de fase versionados
+- `docs/agent-ready.md` — `llms.txt`, negociación Markdown y 404 para agentes IA
+- `docs/seo/comercial-landings.md` — landings consultivas B2B (campañas SEO)
+- `docs/fase2-blog.md` — blog/conocimiento, imágenes CMS y slugs
+- `docs/observabilidad.md` — canary cotización, GA4/GSC, SQL operativo

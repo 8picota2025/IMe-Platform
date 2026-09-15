@@ -14,6 +14,8 @@ Todo dato comercial capturado por I-ME debe quedar en CRM normalizado para segui
 | Venta e-commerce    | carrito -> `crear-pago`                        | `pedidos`                | cliente, cuenta, contacto, oportunidad, actividad |
 | Cambio pago/pedido  | webhooks/operaciones -> `pedidos.estado`       | `pedidos`                | oportunidad y actividad actualizadas              |
 | Landing consultiva  | `registrar-lead-comercial`                     | `leads_comerciales`      | cuenta, contacto, oportunidad P1/P2/P3, actividad |
+| Modal navbar «Cotización» | `registrar-lead-comercial` (`campaign: proyectos`) | `leads_comerciales` | sin Turnstile; ver `OPTIONAL_TURNSTILE_CAMPAIGNS` |
+| Lista drawer cotización | `CotizacionDrawer` → envío compuesto productos + mensaje | `solicitudes_cotizacion` | vía `cotizacion-submit.ts` + `registrar-cotizacion` |
 
 Landings consultivas persisten antes de abrir WhatsApp. `lead_comercial_id` y
 `solicitud_cotizacion_id` mantienen la misma oportunidad durante
@@ -95,4 +97,5 @@ Decision semanal:
 - Cero formulario consultivo con mensaje de exito sin fila en `leads_comerciales`.
 - Cero cotizacion atribuida que pierda `lead_comercial_id`, UTM o campaña.
 - Cero venta pagada sin contacto en stage `cliente`.
+- Post-deploy: canary de cotización (`docs/observabilidad.md`, `npm run canary:cotizacion`) — no asumir CRM si falla.
 - RLS: CRM solo backoffice `ventas`, `operaciones`, `admin`, `owner`.
