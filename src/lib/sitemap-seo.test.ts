@@ -63,6 +63,14 @@ describe('sitemap-indexability', () => {
       isIndexableSitemapUrl('https://i-me.com.co/es/productos/test-de-pasarela-de-pagos/')
     ).toBe(false);
     expect(
+      isIndexableSitemapUrl(
+        'https://i-me.com.co/es/productos/lampara-quirurgica-ref-ainno-saikang/'
+      )
+    ).toBe(false);
+    expect(
+      isIndexableSitemapUrl('https://i-me.com.co/en/products/lampara-quirurgica-ref-ainno-saikang/')
+    ).toBe(false);
+    expect(
       isIndexableSitemapUrl('https://i-me.com.co/es/productos/monitor-administrativo-demo/')
     ).toBe(true);
   });

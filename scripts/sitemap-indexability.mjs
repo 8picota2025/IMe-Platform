@@ -57,6 +57,17 @@ export const NON_INDEXABLE_PREFIXES = [
   '/pagoswompi',
 ];
 
+/**
+ * Rutas de producto heredadas que responden con redirección permanente.
+ * El sitemap debe contener solo la URL canónica de destino, nunca la fuente
+ * de un 301. Mantenerlas aquí hasta que el registro heredado se retire del
+ * catálogo de origen.
+ */
+export const REDIRECT_ONLY_PRODUCT_PATHS = new Set([
+  '/es/productos/lampara-quirurgica-ref-ainno-saikang/',
+  '/en/products/lampara-quirurgica-ref-ainno-saikang/',
+]);
+
 function normalizePathname(pathname) {
   if (!pathname || pathname === '/') return '/';
   return pathname.endsWith('/') ? pathname : `${pathname}/`;
@@ -85,6 +96,7 @@ export function isIndexableSitemapUrl(page) {
   const normalized = normalizePathname(pathname);
 
   if (NON_INDEXABLE_PATHS.has(normalized)) return false;
+  if (REDIRECT_ONLY_PRODUCT_PATHS.has(normalized)) return false;
   if (NON_INDEXABLE_PREFIXES.some(prefix => matchesPrefix(pathname, prefix))) return false;
   if (/^\/(?:es\/productos|en\/products)\/test(?:\/|$|-)/.test(pathname)) return false;
   if (/test-de-pasarela-de-pagos/.test(pathname)) return false;
