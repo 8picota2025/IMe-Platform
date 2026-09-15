@@ -10,13 +10,10 @@
 import { getSupabaseClient } from './supabase';
 import {
   buildAsesorLocalSystemPrompt,
-  buildImeiaCompletionPayload,
-  buildImeiaTransportSystemPrompt,
   detectarAccionHandoff,
   inferHandoffFromAssistantText,
   inferHandoffFromUserIntent,
   MAX_HANDOFF_SUMMARY_CHARS as SHARED_MAX_HANDOFF_SUMMARY_CHARS,
-  resolveImeiaCompletionModel,
 } from './asesor-guardrails';
 import {
   buildAsesorStaticFallback,
@@ -32,11 +29,7 @@ const OLLAMA_CHAT_MODEL =
   (import.meta.env['PUBLIC_OLLAMA_CHAT_MODEL'] as string | undefined) ?? 'gemma4:12b';
 const OLLAMA_EMBED_MODEL =
   (import.meta.env['PUBLIC_OLLAMA_EMBED_MODEL'] as string | undefined) ?? 'mxbai-embed-large';
-const IMEIA_API_URL = (import.meta.env['PUBLIC_IMEIA_API_URL'] as string | undefined) ?? '';
-const IMEIA_CHAT_MODEL = (import.meta.env['PUBLIC_IMEIA_CHAT_MODEL'] as string | undefined) ?? '';
-const FORCE_DIRECT_IMEIA_IN_BROWSER =
-  ((import.meta.env['PUBLIC_FORCE_DIRECT_IMEIA_IN_BROWSER'] as string | undefined) ?? '') === '1';
-export const ASESOR_CLIENT_VERSION = '2026-09-05-imeia-no-soul-v2';
+export const ASESOR_CLIENT_VERSION = '2026-09-15-imeia-web-agent-v1';
 const MAX_HANDOFF_SUMMARY_CHARS = SHARED_MAX_HANDOFF_SUMMARY_CHARS;
 /**
  * Shortlist conversacional: conservamos como máximo tres opciones de la última
@@ -143,7 +136,7 @@ export type ResultadoAsesor =
   | { ok: true; respuesta: RespuestaAsesor }
   | { ok: false; error: ErrorAsesor };
 
-export type AsesorTransport = 'local_ollama' | 'imeia_direct' | 'supabase';
+export type AsesorTransport = 'local_ollama' | 'supabase';
 
 interface AsesorApiResponse {
   texto: string;
@@ -251,18 +244,6 @@ export async function preguntarAsesor(params: {
     }
   }
 
-  if (transport === 'imeia_direct') {
-    const rawModel = resolveImeiaCompletionModel(IMEIA_CHAT_MODEL);
-    if (rawModel) {
-      try {
-        const respuesta = await preguntarAsesorImeia(params, rawModel);
-        return { ok: true, respuesta };
-      } catch {
-        // continua con Edge Functions / fallback resiliente
-      }
-    }
-  }
-
   const supabase = getSupabaseClient();
   if (!supabase) return { ok: true, respuesta: await buildResilientFallbackResponse(params) };
 
@@ -321,22 +302,9 @@ export async function preguntarAsesor(params: {
 
 export function resolveAsesorTransport(
   hostname?: string,
-  options?: {
-    hasLocalOllamaUrl?: boolean;
-    hasDirectImeiaUrl?: boolean;
-    forceDirectImeiaInBrowser?: boolean;
-  }
+  options?: { hasLocalOllamaUrl?: boolean }
 ): AsesorTransport {
   if (shouldUseLocalOllama(hostname, options?.hasLocalOllamaUrl)) return 'local_ollama';
-  if (
-    shouldUseDirectImeiaInBrowser(
-      hostname,
-      options?.hasDirectImeiaUrl,
-      options?.forceDirectImeiaInBrowser
-    )
-  ) {
-    return 'imeia_direct';
-  }
   return 'supabase';
 }
 
@@ -351,101 +319,6 @@ function shouldUseLocalOllama(hostname?: string, hasLocalOllamaUrl = Boolean(OLL
   const browserHostname = getBrowserHostname(hostname);
   if (!browserHostname) return false;
   return ['localhost', '127.0.0.1', '::1'].includes(browserHostname);
-}
-
-function isImeProductionHostname(hostname?: string): boolean {
-  const browserHostname = getBrowserHostname(hostname);
-  if (!browserHostname) return false;
-  return browserHostname === 'i-me.com.co' || browserHostname === 'www.i-me.com.co';
-}
-
-function shouldUseDirectImeiaInBrowser(
-  hostname?: string,
-  hasDirectImeiaUrl = Boolean(IMEIA_API_URL),
-  forceDirectImeiaInBrowser = FORCE_DIRECT_IMEIA_IN_BROWSER
-): boolean {
-  if (!hasDirectImeiaUrl) return false;
-  if (isImeProductionHostname(hostname) && !forceDirectImeiaInBrowser) return false;
-  return true;
-}
-
-/** Llama al endpoint IMEIA vía Nginx (producción sin Turnstile) */
-async function preguntarAsesorImeia(
-  params: {
-    mensaje: string;
-    historial: MensajeAsesor[];
-    locale: Locale;
-    turnstileToken?: string | undefined;
-    navigationContext?: AsesorNavigationContext | undefined;
-  },
-  model: string
-): Promise<RespuestaAsesor> {
-  const historial = params.historial.slice(-8).map(m => ({ rol: m.rol, contenido: m.contenido }));
-
-  const res = await fetch(`${IMEIA_API_URL}/v1/chat/completions`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(
-      buildImeiaCompletionPayload({
-        model,
-        messages: [
-          { role: 'system', content: buildImeiaTransportSystemPrompt() },
-          { role: 'user', content: buildAsesorUserPromptForImeia(params, historial) },
-        ],
-        maxTokens: 1200,
-        temperature: 0.3,
-      })
-    ),
-  });
-
-  if (!res.ok) {
-    throw new Error(`IMEIA API error: ${res.status}`);
-  }
-
-  const data = await res.json();
-  const content = data.choices?.[0]?.message?.content ?? '';
-  const parsed = parseStructuredAsesorResponse(content, params.locale);
-  const productos = await cargarProductosSugeridos(parsed.productosCitados, params.locale);
-  const accionHandoff = normalizarAccionHandoff(parsed.accionHandoff, params, parsed.texto);
-
-  return {
-    texto: parsed.texto,
-    productos,
-    accionHandoff,
-    modo: 'rag',
-  };
-}
-
-function buildAsesorUserPromptForImeia(
-  params: {
-    mensaje: string;
-    historial: MensajeAsesor[];
-    locale: Locale;
-    navigationContext?: AsesorNavigationContext | undefined;
-  },
-  historial: { rol: 'usuario' | 'asesor'; contenido: string }[]
-): string {
-  const historialTexto = historial.length
-    ? historial.map(m => `${m.rol}: ${m.contenido}`).join('\n')
-    : '(sin historial previo)';
-
-  return `IDIOMA DEL USUARIO: ${params.locale}
-
-CONTEXTO DE NAVEGACION VALIDABLE:
-${JSON.stringify(params.navigationContext ?? null)}
-
-HISTORIAL RECIENTE:
-${historialTexto}
-
-MENSAJE DEL USUARIO:
-${params.mensaje}
-
-Responde SOLO en JSON válido con:
-{
-  "texto": "respuesta útil en el idioma del usuario",
-  "productos_citados": ["slug-1"],
-  "accion_handoff": {"tipo": "whatsapp"|"cotizacion", "resumen": "..."} | null
-}`;
 }
 
 export function parseStructuredAsesorResponse(texto: string, _locale: Locale) {
@@ -586,52 +459,6 @@ function normalizarAccionHandoff(
     texto,
     resumen: buildHandoffSummary(params),
   });
-}
-
-async function cargarProductosSugeridos(
-  slugs: string[],
-  locale: Locale
-): Promise<ProductoSugerido[]> {
-  const unicos = [...new Set(slugs.map(slug => slug.trim()).filter(Boolean))].slice(0, 4);
-  if (unicos.length === 0) return [];
-
-  const supabase = getSupabaseClient();
-  if (!supabase) {
-    return unicos.map((slug, index) => ({
-      slug,
-      nombre: slug,
-      imagen: null,
-      urlLanding: buildProductPath(locale, slug),
-      score: 1 - index * 0.05,
-    }));
-  }
-
-  try {
-    const { data, error } = await supabase
-      .from('productos')
-      .select('slug, nombre_es, nombre_en, imagen_principal')
-      .in('slug', unicos);
-    if (error || !data) return [];
-
-    const porSlug = new Map(data.map(producto => [String(producto.slug), producto]));
-    return unicos
-      .filter(slug => porSlug.has(slug))
-      .map((slug, index) => {
-        const producto = porSlug.get(slug)!;
-        return {
-          slug,
-          nombre:
-            locale === 'en'
-              ? String(producto.nombre_en ?? producto.nombre_es ?? slug)
-              : String(producto.nombre_es ?? slug),
-          imagen: typeof producto.imagen_principal === 'string' ? producto.imagen_principal : null,
-          urlLanding: buildProductPath(locale, slug),
-          score: 1 - index * 0.05,
-        };
-      });
-  } catch {
-    return [];
-  }
 }
 
 async function cargarCatalogoPublicado(locale: Locale): Promise<CatalogoPublicadoItem[]> {
