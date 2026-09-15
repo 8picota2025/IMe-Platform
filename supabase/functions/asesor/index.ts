@@ -1,19 +1,16 @@
 /**
  * Edge Function `asesor` — IMEIA (v3, 2026-07-03).
  *
- * Fachada segura del widget IMEIA Ayuda: valida entrada, Turnstile, rate-limit,
- * responde contacto/legal en estático y compone el resto desde el catálogo
- * publicado + guardrails propios. No usa el agente soul `imeia` de Hermes
- * (SOUL.md / skills). Si IMEIA_CHAT_MODEL es un modelo raw (nunca `imeia`)
- * y hay IMEIA_API_URL/KEY, se usa solo como LLM de redacción.
- * Contrato de respuesta: texto, productos[], accion_handoff, modo.
+ * Fachada segura del widget IMEIA Ayuda: valida entrada, Turnstile y rate-limit,
+ * conserva consultas sitio/legal en estático, persiste los demás turnos y despierta
+ * routine IMEIA/Grok. Routine escribe respuesta en Supabase; esta función espera
+ * resultado sin cambiar contrato: texto, productos[], accion_handoff, modo.
  *
  * Secretos (supabase secrets):
- *  - IMEIA_API_URL  p. ej. https://<tunel>.trycloudflare.com
- *  - IMEIA_API_KEY  API key del gateway (Bearer)
- *  - IMEIA_CHAT_MODEL  modelo raw de chat (nunca `imeia`; si falta, se compone sin LLM)
+ *  - IMEIA_WEB_AGENT_WEBHOOK_URL
+ *  - IMEIA_WEB_AGENT_WEBHOOK_KEY
  *
- * Guardrails y handoff: src/lib/asesor-guardrails.ts
+ * Routine contract: docs/imeia-web-agent-routine.md
  * WhatsApp Business: src/lib/contacto-oficial.ts (+57 313 724 7353)
  * Ruta y fallos: docs/imeia-asesor-path.md
  */
@@ -28,17 +25,7 @@ import {
   esConsultaContacto,
   esConsultaSitioOLegal,
 } from '../../../src/lib/asesor-knowledge.ts';
-import {
-  buildImeiaCompletionPayload,
-  buildImeiaRuntimeSystemPrompt,
-  clasificarFalloImeia,
-  composeGroundedAsesorReply,
-  detectarAccionHandoff,
-  IMEIA_MAX_TOKENS,
-  IMEIA_TIMEOUT_MS,
-  resolveImeiaCompletionModel,
-  type CatalogGroundingProduct,
-} from '../../../src/lib/asesor-guardrails.ts';
+import { detectarAccionHandoff } from '../../../src/lib/asesor-guardrails.ts';
 import { IME_WHATSAPP_DISPLAY } from '../../../src/lib/contacto-oficial.ts';
 
 type Locale = 'es' | 'en';
@@ -107,6 +94,13 @@ interface AsesorResponse {
   modo: Modo;
 }
 
+interface AgentTurn {
+  id: string;
+  status: 'pending' | 'replied' | 'failed' | 'timeout';
+  reply_texto: string | null;
+  error: string | null;
+}
+
 interface CanonicalProductContext {
   product: {
     id: string;
@@ -155,6 +149,8 @@ const MAX_MENSAJE_CHARS = 1000;
 const MAX_HISTORIAL_TURNOS = 8;
 const MAX_HISTORIAL_CHARS = 4000;
 const MAX_TARJETAS = 4;
+const IMEIA_TIMEOUT_MS = 110_000;
+const AGENT_POLL_INTERVAL_MS = 1_000;
 /** Última shortlist: máximo tres anchors/productos, para comparar sin reabrir catálogo. */
 const MAX_SHORTLIST_ANCHORS = 3;
 
@@ -254,167 +250,183 @@ Deno.serve(async req => {
     );
   }
 
-  // Catálogo + asesor web propio. Nunca se llama el agente soul `imeia`.
+  const webhookUrl = Deno.env.get('IMEIA_WEB_AGENT_WEBHOOK_URL')?.trim();
+  const webhookKey = Deno.env.get('IMEIA_WEB_AGENT_WEBHOOK_KEY')?.trim();
+  if (!webhookUrl || !webhookKey) {
+    return errorResponse(
+      {
+        code: 'NOT_CONFIGURED',
+        message:
+          'BLOQUEANTE_BACKEND: IMEIA_WEB_AGENT_WEBHOOK_URL/IMEIA_WEB_AGENT_WEBHOOK_KEY no configurados',
+      },
+      503,
+      origin
+    );
+  }
+
   try {
-    const canonicalContext = await obtenerContextoCanonico(supabase, navigationContext, locale);
-    let anchorsFromHistory = extraerSlugsDeHistorial(historial);
-    const stickyFollowUp = esSeguimientoDeShortlist(mensaje);
-    let queryCatalogContext: QueryCatalogContext;
-    if (stickyFollowUp && anchorsFromHistory.length === 0) {
-      // Keyword-fallback replies list "1. Name — …" without product URLs.
-      anchorsFromHistory = await resolverSlugsPorNombresHistorial(supabase, historial);
-    }
-    if (stickyFollowUp && anchorsFromHistory.length > 0) {
-      // "¿Cuál de los tres…?" must NOT re-search the catalog (that injects unrelated lines).
-      queryCatalogContext = await obtenerContextoPorSlugs(supabase, anchorsFromHistory, locale);
-    } else if (stickyFollowUp) {
-      queryCatalogContext = { products: [], comparable_products: [] };
-    } else {
-      queryCatalogContext = await obtenerContextoCatalogoPorMensaje(
-        supabase,
-        mensaje,
-        locale,
-        canonicalContext
-      );
-    }
+    const turnId = await crearTurnoAgente(supabase, {
+      sessionId,
+      conversationId: navigationContext.conversation_id,
+      locale,
+      mensaje,
+      historial,
+      navigationContext,
+    });
+    await despertarAgente(supabase, webhookUrl, webhookKey, {
+      turnId,
+      sessionId,
+      conversationId: navigationContext.conversation_id,
+      locale,
+      mensaje,
+      historial,
+      navigationContext,
+    });
+    const turno = await esperarRespuestaAgente(supabase, turnId);
+    const texto = turno.reply_texto?.trim();
+    if (turno.status !== 'replied' || !texto) throw new Error(turno.error || turno.status);
 
-    const groundingProducts = productosParaGrounding(canonicalContext, queryCatalogContext);
-    const rawModel = resolveImeiaCompletionModel(Deno.env.get('IMEIA_CHAT_MODEL'));
-    const apiUrl = Deno.env.get('IMEIA_API_URL')?.replace(/\/$/, '');
-    const apiKey = Deno.env.get('IMEIA_API_KEY');
-
-    let texto: string;
-    let modo: Modo = 'keyword_degradado';
-    let tokens = 0;
-    let slugsForCards = groundingProducts.map(product => product.slug);
-
-    if (rawModel && apiUrl && apiKey) {
-      const messages = [
-        { role: 'system', content: buildImeiaRuntimeSystemPrompt(locale) },
-        {
-          role: 'system',
-          content: buildStructuredContextBlock(
-            navigationContext,
-            canonicalContext,
-            queryCatalogContext,
-            anchorsFromHistory,
-            stickyFollowUp
-          ),
-        },
-        ...historial.map(h => ({
-          role: h.rol === 'usuario' ? 'user' : 'assistant',
-          content: h.contenido,
-        })),
-        { role: 'user', content: mensaje },
-      ];
-
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), IMEIA_TIMEOUT_MS);
-      let res: Response;
-      try {
-        res = await fetch(`${apiUrl}/v1/chat/completions`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${apiKey}`,
-          },
-          body: JSON.stringify(
-            buildImeiaCompletionPayload({
-              model: rawModel,
-              messages,
-              maxTokens: IMEIA_MAX_TOKENS,
-            })
-          ),
-          signal: controller.signal,
-        });
-      } finally {
-        clearTimeout(timer);
-      }
-
-      if (!res.ok) throw new Error(`IMEIA HTTP ${res.status}`);
-      const data = (await res.json()) as {
-        choices?: Array<{ message?: { content?: string } }>;
-        usage?: { total_tokens?: number };
-      };
-      const generated = data.choices?.[0]?.message?.content?.trim();
-      if (!generated) throw new Error('IMEIA sin contenido');
-      texto = generated;
-      tokens = data.usage?.total_tokens ?? 0;
-      modo = groundingProducts.length ? 'rag' : 'keyword_degradado';
-    } else {
-      if (apiUrl && !rawModel) {
-        console.warn(
-          '[asesor] IMEIA_CHAT_MODEL=imeia/vacío: no se usa el SOUL; se compone desde catálogo'
-        );
-      }
-      const composed = composeGroundedAsesorReply({
-        locale,
-        mensaje,
-        products: groundingProducts,
-        stickyFollowUp,
-        pageProductName: canonicalContext.product?.nombre ?? navigationContext.product_name,
-      });
-      texto = composed.texto;
-      slugsForCards = composed.slugs;
-      modo = composed.modo;
-    }
-
-    const productos = await construirTarjetas(supabase, texto, locale, slugsForCards);
+    const productos = await construirTarjetas(supabase, texto, locale);
     const accionHandoff = detectarAccionHandoff({ mensaje, texto });
 
     await registrarUso(supabase, {
       sessionId,
       locale,
       historial,
-      tokens,
+      tokens: 0,
       latenciaMs: Date.now() - inicio,
       handoff: accionHandoff?.tipo ?? null,
     });
 
-    return respuestaOk({ texto, productos, accion_handoff: accionHandoff, modo }, origin);
+    return respuestaOk({ texto, productos, accion_handoff: accionHandoff, modo: 'rag' }, origin);
   } catch (err) {
-    const kind = clasificarFalloImeia(err);
-    console.error(
-      `[asesor] completion no disponible (${kind}):`,
-      err instanceof Error ? err.message : err
-    );
-    return errorResponse({ code: 'UNAVAILABLE', message: 'Asesor no disponible' }, 503, origin);
+    console.error('[asesor] agente web no disponible:', err instanceof Error ? err.message : err);
+    return respuestaOk(respuestaDegradada(locale), origin);
   }
 });
-
-function productosParaGrounding(
-  canonical: CanonicalProductContext,
-  queryCatalogContext: QueryCatalogContext
-): CatalogGroundingProduct[] {
-  if (canonical.product) {
-    return [
-      {
-        slug: canonical.product.slug,
-        nombre: canonical.product.nombre,
-        descripcion_corta: canonical.product.descripcion_corta,
-        url_canonica: canonical.product.url_canonica,
-      },
-      ...canonical.comparable_products.map(item => ({
-        slug: item.slug,
-        nombre: item.nombre,
-        descripcion_corta: null,
-        url_canonica: item.url_canonica,
-      })),
-    ].slice(0, 4);
-  }
-  return queryCatalogContext.products.map(product => ({
-    slug: product.slug,
-    nombre: product.nombre,
-    descripcion_corta: product.descripcion_corta,
-    url_canonica: product.url_canonica,
-  }));
-}
 
 function respuestaOk(payload: AsesorResponse, origin: string | null): Response {
   return new Response(JSON.stringify(payload), {
     status: 200,
     headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
   });
+}
+
+function respuestaDegradada(locale: Locale): AsesorResponse {
+  return {
+    texto:
+      locale === 'en'
+        ? 'Our advisor is taking longer than expected. Please try again shortly or contact our team for help.'
+        : 'Nuestra asesora está tardando más de lo esperado. Inténtalo de nuevo en unos minutos o contacta a nuestro equipo para ayudarte.',
+    productos: [],
+    accion_handoff: null,
+    modo: 'keyword_degradado',
+  };
+}
+
+async function crearTurnoAgente(
+  supabase: ReturnType<typeof getServerSupabase>,
+  input: {
+    sessionId: string;
+    conversationId: string;
+    locale: Locale;
+    mensaje: string;
+    historial: HistorialItem[];
+    navigationContext: NavigationContext;
+  }
+): Promise<string> {
+  const { data, error } = await supabase
+    .from('asesor_agent_turns')
+    .insert({
+      status: 'pending',
+      session_id: input.sessionId,
+      conversation_id: input.conversationId,
+      locale: input.locale,
+      mensaje: input.mensaje,
+      historial: input.historial,
+      navigation_context: input.navigationContext,
+    })
+    .select('id')
+    .single();
+  if (error || !data?.id) throw new Error(`crear turno: ${error?.message ?? 'sin id'}`);
+  return String(data.id);
+}
+
+async function despertarAgente(
+  supabase: ReturnType<typeof getServerSupabase>,
+  webhookUrl: string,
+  webhookKey: string,
+  input: {
+    turnId: string;
+    sessionId: string;
+    conversationId: string;
+    locale: Locale;
+    mensaje: string;
+    historial: HistorialItem[];
+    navigationContext: NavigationContext;
+  }
+): Promise<void> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 10_000);
+  try {
+    const res = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${webhookKey}`,
+        'X-Webhook-Key': webhookKey,
+      },
+      body: JSON.stringify({
+        source: 'web-asesor',
+        channel: 'imeia-web',
+        turn_id: input.turnId,
+        mensaje: input.mensaje,
+        historial: input.historial,
+        locale: input.locale,
+        navigation_context: input.navigationContext,
+        session_id: input.sessionId,
+        conversation_id: input.conversationId,
+        received_at: new Date().toISOString(),
+      }),
+      signal: controller.signal,
+    });
+    if (!res.ok) throw new Error(`wake HTTP ${res.status}`);
+  } catch (err) {
+    const message = err instanceof Error ? err.message.slice(0, 500) : 'wake falló';
+    await supabase
+      .from('asesor_agent_turns')
+      .update({ status: 'failed', error: message })
+      .eq('id', input.turnId)
+      .eq('status', 'pending');
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function esperarRespuestaAgente(
+  supabase: ReturnType<typeof getServerSupabase>,
+  turnId: string
+): Promise<AgentTurn> {
+  const deadline = Date.now() + IMEIA_TIMEOUT_MS;
+  while (Date.now() < deadline) {
+    const { data, error } = await supabase
+      .from('asesor_agent_turns')
+      .select('id, status, reply_texto, error')
+      .eq('id', turnId)
+      .single();
+    if (error || !data) throw new Error(`leer turno: ${error?.message ?? 'no encontrado'}`);
+    const turno = data as AgentTurn;
+    if (turno.status !== 'pending') return turno;
+    await new Promise<void>(resolve => setTimeout(resolve, AGENT_POLL_INTERVAL_MS));
+  }
+
+  await supabase
+    .from('asesor_agent_turns')
+    .update({ status: 'timeout', error: 'Tiempo de espera del widget agotado' })
+    .eq('id', turnId)
+    .eq('status', 'pending');
+  return { id: turnId, status: 'timeout', reply_texto: null, error: 'timeout' };
 }
 
 function obtenerIp(req: Request): string {
@@ -524,7 +536,7 @@ function normalizarNavigationContext(
   };
 }
 
-async function obtenerContextoCanonico(
+async function _obtenerContextoCanonico(
   supabase: ReturnType<typeof getServerSupabase>,
   navigation: NavigationContext,
   locale: Locale
@@ -621,7 +633,7 @@ async function obtenerContextoCanonico(
   return canonical;
 }
 
-function extraerSlugsDeHistorial(historial: HistorialItem[]): string[] {
+function _extraerSlugsDeHistorial(historial: HistorialItem[]): string[] {
   const re = /\/(?:es\/productos|en\/products)\/([a-z0-9-]+)/gi;
   for (const item of [...historial].reverse()) {
     if (item.rol !== 'asesor') continue;
@@ -650,7 +662,7 @@ function extraerNombresProductosDeHistorial(historial: HistorialItem[]): string[
   return [];
 }
 
-function esSeguimientoDeShortlist(mensaje: string): boolean {
+function _esSeguimientoDeShortlist(mensaje: string): boolean {
   const t = normalizeSearchText(mensaje);
   const comparativeAsk =
     /\b(cual|que|which|what)\b/.test(t) &&
@@ -700,7 +712,7 @@ function esSeguimientoDeShortlist(mensaje: string): boolean {
   );
 }
 
-async function resolverSlugsPorNombresHistorial(
+async function _resolverSlugsPorNombresHistorial(
   supabase: ReturnType<typeof getServerSupabase>,
   historial: HistorialItem[]
 ): Promise<string[]> {
@@ -732,7 +744,7 @@ async function resolverSlugsPorNombresHistorial(
   return slugs.slice(0, MAX_SHORTLIST_ANCHORS);
 }
 
-async function obtenerContextoPorSlugs(
+async function _obtenerContextoPorSlugs(
   supabase: ReturnType<typeof getServerSupabase>,
   slugs: string[],
   locale: Locale
@@ -775,7 +787,7 @@ async function obtenerContextoPorSlugs(
   return { products, comparable_products: [] };
 }
 
-async function obtenerContextoCatalogoPorMensaje(
+async function _obtenerContextoCatalogoPorMensaje(
   supabase: ReturnType<typeof getServerSupabase>,
   mensaje: string,
   locale: Locale,
@@ -893,7 +905,7 @@ function extraerLocale(raw: Record<string, unknown>, field: string, locale: Loca
   return extraerString(localized) ?? extraerString(fallback);
 }
 
-function buildStructuredContextBlock(
+function _buildStructuredContextBlock(
   navigation: NavigationContext,
   canonical: CanonicalProductContext,
   queryCatalogContext: QueryCatalogContext,

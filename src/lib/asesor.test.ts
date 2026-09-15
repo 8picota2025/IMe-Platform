@@ -11,15 +11,9 @@ import {
 const contextoVacio: Parameters<typeof buildBiomedicalFallback>[0] = [];
 
 describe('asesor biomedical fallback', () => {
-  it('prioriza la edge function estable en produccion aunque exista URL directa de IMEIA', () => {
-    expect(resolveAsesorTransport('i-me.com.co', { hasDirectImeiaUrl: true })).toBe('supabase');
-    expect(resolveAsesorTransport('www.i-me.com.co', { hasDirectImeiaUrl: true })).toBe('supabase');
-  });
-
-  it('mantiene IMEIA directo disponible fuera del host de produccion', () => {
-    expect(resolveAsesorTransport('preview.i-me.internal', { hasDirectImeiaUrl: true })).toBe(
-      'imeia_direct'
-    );
+  it('usa Edge Function fuera de desarrollo local; nunca llama IMEIA directo desde navegador', () => {
+    expect(resolveAsesorTransport('i-me.com.co')).toBe('supabase');
+    expect(resolveAsesorTransport('preview.i-me.internal')).toBe('supabase');
   });
 
   it('responde a un medico de urgencias sobre monitores sin derivar a WhatsApp', () => {
