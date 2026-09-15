@@ -42,13 +42,12 @@ const asesorConfig = {
 };
 ---
 
-<!-- Botón flotante para abrir el asesor -->
+<!-- Botón de reapertura: solo aparece después de cerrar el panel desplegado -->
 <button
   id="asesor-trigger"
   class="asesor-fab"
   aria-label={t(locale, 'asesor.abrir')}
-  aria-haspopup="dialog"
-  aria-expanded="false"
+  aria-expanded="true"
   aria-controls="asesor-dialog"
   type="button"
   transition:persist={`asesor-fab-${locale}`}
@@ -70,15 +69,13 @@ const asesorConfig = {
   <span class="asesor-fab__label">{locale === 'es' ? 'IMEIA Ayuda' : 'IMEIA Help'}</span>
 </button>
 
-<!-- Dialog del asesor -->
-<div
+<!-- Panel del asesor: visible desde la primera visita -->
+<aside
   id="asesor-dialog"
   class="asesor-dialog"
-  role="dialog"
-  aria-modal="true"
+  role="complementary"
   aria-label={t(locale, 'asesor.titulo')}
   data-asesor-config={JSON.stringify(asesorConfig)}
-  hidden
   transition:persist={`asesor-dialog-${locale}`}
 >
   <div class="asesor-dialog__inner">
@@ -179,7 +176,7 @@ const asesorConfig = {
       </button>
     </form>
   </div>
-</div>
+</aside>
 
 <style>
   .sr-only {
@@ -218,6 +215,9 @@ const asesorConfig = {
   .asesor-fab:hover {
     background: var(--t800);
     transform: scale(1.04);
+  }
+  .asesor-fab[aria-expanded='true'] {
+    display: none;
   }
   .asesor-fab__label {
     display: none;
@@ -375,6 +375,7 @@ const asesorConfig = {
     border-radius: 12px;
     font-size: 0.875rem;
     line-height: 1.5;
+    text-align: left;
     overflow-wrap: anywhere;
   }
   .chat-bubble--user {
@@ -619,6 +620,7 @@ const asesorConfig = {
 
   let abortController: AbortController | null = null;
   let asesorTurnstileContainer: HTMLElement | null = null;
+  const ASESOR_DISMISSED_KEY = 'ime_asesor_dismissed';
 
   function initAsesor() {
     const trigger = document.getElementById('asesor-trigger');
@@ -1011,11 +1013,12 @@ const asesorConfig = {
       }
     }
 
-    async function openDialog() {
+    async function openDialog(focusInput = true, rememberOpen = true) {
       if (!dialog || !trigger) return;
       resetTransientUiState();
       dialog.removeAttribute('hidden');
       trigger.setAttribute('aria-expanded', 'true');
+      if (rememberOpen) sessionStorage.removeItem(ASESOR_DISMISSED_KEY);
 
       if (!localInitialized) {
         localInitialized = true;
@@ -1033,46 +1036,24 @@ const asesorConfig = {
         }
       }
 
-      setTimeout(() => inputEl?.focus(), 100);
+      if (focusInput) setTimeout(() => inputEl?.focus(), 100);
     }
 
     function closeDialog() {
       if (!dialog || !trigger) return;
       dialog.setAttribute('hidden', '');
       trigger.setAttribute('aria-expanded', 'false');
+      sessionStorage.setItem(ASESOR_DISMISSED_KEY, '1');
       trigger.focus();
     }
 
-    trigger.addEventListener('click', openDialog, { signal });
+    trigger.addEventListener('click', () => void openDialog(), { signal });
     closeBtn?.addEventListener('click', closeDialog, { signal });
 
     document.addEventListener(
       'keydown',
       (e: KeyboardEvent) => {
         if (e.key === 'Escape' && !dialog.hasAttribute('hidden')) closeDialog();
-      },
-      { signal }
-    );
-
-    dialog.addEventListener(
-      'keydown',
-      e => {
-        if (e.key !== 'Tab') return;
-        const focusable = Array.from(
-          dialog.querySelectorAll<HTMLElement>(
-            'button, textarea, a[href], [tabindex]:not([tabindex="-1"])'
-          )
-        );
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-        if (!first || !last) return;
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
       },
       { signal }
     );
@@ -1114,6 +1095,13 @@ const asesorConfig = {
       },
       { signal }
     );
+
+    if (sessionStorage.getItem(ASESOR_DISMISSED_KEY) === '1') {
+      dialog.setAttribute('hidden', '');
+      trigger.setAttribute('aria-expanded', 'false');
+    } else {
+      void openDialog(false, false);
+    }
   }
 
   document.addEventListener('astro:page-load', initAsesor);
