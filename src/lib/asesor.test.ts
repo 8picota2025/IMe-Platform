@@ -1,14 +1,27 @@
 import { describe, expect, it } from 'vitest';
 
+import es from '../i18n/es.json';
+import en from '../i18n/en.json';
 import {
   buildBiomedicalFallback,
   buildResilientFallbackResponse,
+  extractFunctionsInvokeStatus,
+  mapAsesorEdgeStatus,
   parseStructuredAsesorResponse,
   resetCatalogoPublicadoCache,
   resolveAsesorTransport,
 } from './asesor';
 
 const contextoVacio: Parameters<typeof buildBiomedicalFallback>[0] = [];
+
+async function requireCatalogFallback(
+  params: Parameters<typeof buildResilientFallbackResponse>[0]
+) {
+  const respuesta = await buildResilientFallbackResponse(params);
+  expect(respuesta).not.toBeNull();
+  if (!respuesta) throw new Error('expected catalog keyword fallback');
+  return respuesta;
+}
 
 describe('asesor biomedical fallback', () => {
   it('usa Edge Function fuera de desarrollo local; nunca llama IMEIA directo desde navegador', () => {
@@ -112,7 +125,7 @@ describe('asesor biomedical fallback', () => {
 
     try {
       resetCatalogoPublicadoCache();
-      const respuesta = await buildResilientFallbackResponse({
+      const respuesta = await requireCatalogFallback({
         mensaje: 'Tienes alguna cama para uso en domicilio?',
         historial: [],
         locale: 'es',
@@ -172,7 +185,7 @@ describe('asesor biomedical fallback', () => {
 
     try {
       resetCatalogoPublicadoCache();
-      const respuesta = await buildResilientFallbackResponse({
+      const respuesta = await requireCatalogFallback({
         mensaje: 'I need an infusion pump for ICU',
         historial: [],
         locale: 'en',
@@ -240,7 +253,7 @@ describe('asesor biomedical fallback', () => {
 
     try {
       resetCatalogoPublicadoCache();
-      const respuesta = await buildResilientFallbackResponse({
+      const respuesta = await requireCatalogFallback({
         mensaje: '¿Qué bombas de infusión tienen?',
         historial: [],
         locale: 'es',
@@ -310,7 +323,7 @@ describe('asesor biomedical fallback', () => {
 
     try {
       resetCatalogoPublicadoCache();
-      const respuesta = await buildResilientFallbackResponse({
+      const respuesta = await requireCatalogFallback({
         mensaje:
           'Hablame del wr-3d, cómpralo con otros productos similares indicando sus ventajas.',
         historial: [],
@@ -382,7 +395,7 @@ describe('asesor biomedical fallback', () => {
 
     try {
       resetCatalogoPublicadoCache();
-      const respuesta = await buildResilientFallbackResponse({
+      const respuesta = await requireCatalogFallback({
         mensaje: 'Cuál es el mejor de los dos ?',
         historial: [
           {
@@ -478,7 +491,7 @@ describe('asesor biomedical fallback', () => {
 
     try {
       resetCatalogoPublicadoCache();
-      const respuesta = await buildResilientFallbackResponse({
+      const respuesta = await requireCatalogFallback({
         mensaje: 'Cuál es el más versátil y completo?',
         historial: [
           {
@@ -545,7 +558,7 @@ describe('asesor biomedical fallback', () => {
 
     try {
       resetCatalogoPublicadoCache();
-      const respuesta = await buildResilientFallbackResponse({
+      const respuesta = await requireCatalogFallback({
         mensaje: '¿Cuál recomiendas?',
         historial: [
           { rol: 'usuario', contenido: 'Busco un monitor.', timestamp: new Date() },
@@ -599,7 +612,7 @@ describe('asesor biomedical fallback', () => {
 
     try {
       resetCatalogoPublicadoCache();
-      const respuesta = await buildResilientFallbackResponse({
+      const respuesta = await requireCatalogFallback({
         mensaje: 'Which is better of those?',
         historial: [
           {
@@ -628,5 +641,61 @@ describe('asesor biomedical fallback', () => {
     } finally {
       globalThis.fetch = originalFetch;
     }
+  });
+
+  it('no inventa copy consultiva Hermes si el catálogo no encontró productos', async () => {
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = (async () =>
+      new Response(JSON.stringify([]), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })) as typeof fetch;
+
+    try {
+      resetCatalogoPublicadoCache();
+      const respuesta = await buildResilientFallbackResponse({
+        mensaje: 'Hola IMEia',
+        historial: [],
+        locale: 'es',
+      });
+
+      expect(respuesta).toBeNull();
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+});
+
+describe('asesor Edge error mapping', () => {
+  it('mapea 403 a verificación y 503 a no disponible', () => {
+    expect(mapAsesorEdgeStatus(403)).toEqual({ tipo: 'verificacion' });
+    expect(mapAsesorEdgeStatus(503)).toEqual({ tipo: 'no_disponible' });
+    expect(mapAsesorEdgeStatus(429)).toEqual({
+      tipo: 'rate_limited',
+      retryAfterSegundos: null,
+    });
+    expect(mapAsesorEdgeStatus(500)).toEqual({ tipo: 'error' });
+    expect(mapAsesorEdgeStatus(null)).toEqual({ tipo: 'error' });
+  });
+
+  it('lee 403 desde el código FORBIDDEN aunque context no sea Response', () => {
+    expect(
+      extractFunctionsInvokeStatus({ context: { status: 502 } }, { error: { code: 'FORBIDDEN' } })
+    ).toBe(403);
+    expect(extractFunctionsInvokeStatus({ context: { status: 403 } }, null)).toBe(403);
+    expect(extractFunctionsInvokeStatus({}, { error: { code: 'NOT_CONFIGURED' } })).toBe(503);
+  });
+});
+
+describe('IMEIA welcome copy', () => {
+  it('usa el saludo de alma WhatsApp y no el texto Hermes antiguo', () => {
+    expect(es.asesor.bienvenida).toContain(
+      'Hola, soy IMEIA, del equipo de I-ME, un gusto saludarte.'
+    );
+    expect(es.asesor.bienvenida).toContain('¿En qué equipo o especialidad te podemos orientar?');
+    expect(es.asesor.bienvenida).not.toContain('asesora biomédica');
+    expect(es.asesor.bienvenida).not.toContain('¿Cómo puedo ayudarle hoy?');
+    expect(en.asesor.bienvenida).toContain("Hello, I'm IMEIA, from the I-ME team");
+    expect(en.asesor.bienvenida).not.toContain('biomedical advisor');
   });
 });
