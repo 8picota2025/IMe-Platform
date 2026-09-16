@@ -1165,14 +1165,32 @@ export async function buildResilientFallbackResponse(params: {
   mensaje: string;
   historial: MensajeAsesor[];
   locale: Locale;
-}): Promise<RespuestaAsesor | null> {
+}): Promise<RespuestaAsesor> {
   const esConsultaSitio = esConsultaSitioOLegal(params.mensaje);
-  if (esConsultaSitio) return null;
+  if (!esConsultaSitio) {
+    const catalogoFallback = await buildCatalogoPublicadoFallbackResponse(params);
+    if (catalogoFallback) return catalogoFallback;
+  }
 
-  const catalogoFallback = await buildCatalogoPublicadoFallbackResponse(params);
-  if (catalogoFallback) return catalogoFallback;
+  const texto =
+    buildAsesorStaticFallback(params.locale, params.mensaje) ??
+    buildBiomedicalFallback([], params.locale, params.mensaje) ??
+    (params.locale === 'en'
+      ? 'We can narrow this down quickly if you share the service, intended use or operating setting, and then we will point you to the catalog options that fit best.'
+      : 'Podemos acotarlo rápido si nos comparte el servicio, el uso previsto o el entorno de operación, y así le orientamos hacia las opciones del catálogo que mejor encajen.');
 
-  return null;
+  return {
+    texto,
+    productos: [],
+    accionHandoff: esConsultaSitio
+      ? null
+      : normalizarAccionHandoff(
+          { tipo: 'whatsapp', resumen: buildHandoffSummary(params) },
+          params,
+          texto
+        ),
+    modo: 'keyword_degradado',
+  };
 }
 
 // ── Modo local Ollama (dev sin Edge Functions) ────────────────────────────────
