@@ -29,7 +29,7 @@ const OLLAMA_CHAT_MODEL =
   (import.meta.env['PUBLIC_OLLAMA_CHAT_MODEL'] as string | undefined) ?? 'gemma4:12b';
 const OLLAMA_EMBED_MODEL =
   (import.meta.env['PUBLIC_OLLAMA_EMBED_MODEL'] as string | undefined) ?? 'mxbai-embed-large';
-export const ASESOR_CLIENT_VERSION = '2026-09-15-imeia-web-agent-v1';
+export const ASESOR_CLIENT_VERSION = '2026-09-16-imeia-no-mask-v1';
 const MAX_HANDOFF_SUMMARY_CHARS = SHARED_MAX_HANDOFF_SUMMARY_CHARS;
 /**
  * Shortlist conversacional: conservamos como máximo tres opciones de la última
@@ -130,6 +130,7 @@ interface CatalogoPublicadoMatch extends ProductoSugerido {
 export type ErrorAsesor =
   | { tipo: 'rate_limited'; retryAfterSegundos: number | null }
   | { tipo: 'no_disponible' }
+  | { tipo: 'verificacion' }
   | { tipo: 'error' };
 
 export type ResultadoAsesor =
@@ -239,13 +240,17 @@ export async function preguntarAsesor(params: {
     try {
       const respuesta = await preguntarAsesorLocal(params);
       return { ok: true, respuesta };
-    } catch {
-      return { ok: true, respuesta: await buildResilientFallbackResponse(params) };
+    } catch (err) {
+      console.warn('[asesor] Ollama local falló; no se enmascara como asesora', err);
+      return fallbackCatalogoOError(params, { tipo: 'error' });
     }
   }
 
   const supabase = getSupabaseClient();
-  if (!supabase) return { ok: true, respuesta: await buildResilientFallbackResponse(params) };
+  if (!supabase) {
+    console.warn('[asesor] Supabase no configurado');
+    return fallbackCatalogoOError(params, { tipo: 'no_disponible' });
+  }
 
   const historial = params.historial.slice(-8).map(m => ({ rol: m.rol, contenido: m.contenido }));
 
@@ -261,26 +266,26 @@ export async function preguntarAsesor(params: {
   });
 
   if (error) {
-    const context = (error as { context?: unknown }).context;
-    if (context instanceof Response) {
-      if (context.status === 429) {
-        const retryAfter = context.headers.get('Retry-After');
-        return {
-          ok: false,
-          error: {
-            tipo: 'rate_limited',
-            retryAfterSegundos: retryAfter ? Number(retryAfter) : null,
-          },
-        };
-      }
-      if (context.status === 403 || context.status === 503) {
-        return { ok: true, respuesta: await buildResilientFallbackResponse(params) };
-      }
+    const status = extractFunctionsInvokeStatus(error, data);
+    const mapped = mapAsesorEdgeStatus(status);
+    console.warn('[asesor] Edge asesor error', { status, tipo: mapped.tipo });
+    if (mapped.tipo === 'rate_limited') {
+      const retryAfter = retryAfterFromInvokeError(error);
+      return {
+        ok: false,
+        error: { tipo: 'rate_limited', retryAfterSegundos: retryAfter },
+      };
     }
-    return { ok: true, respuesta: await buildResilientFallbackResponse(params) };
+    if (mapped.tipo === 'verificacion') {
+      return { ok: false, error: { tipo: 'verificacion' } };
+    }
+    return fallbackCatalogoOError(params, mapped);
   }
 
-  if (!data) return { ok: true, respuesta: await buildResilientFallbackResponse(params) };
+  if (!data) {
+    console.warn('[asesor] Edge asesor sin cuerpo');
+    return fallbackCatalogoOError(params, { tipo: 'error' });
+  }
   const json = data as AsesorApiResponse;
 
   return {
@@ -298,6 +303,64 @@ export async function preguntarAsesor(params: {
       modo: json.modo,
     },
   };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function codeFromEdgePayload(data: unknown): string | null {
+  if (!isRecord(data)) return null;
+  const error = data.error;
+  if (typeof error === 'string') {
+    if (/forbidden|verificacion|anti-bot/i.test(error)) return 'FORBIDDEN';
+    if (/not_configured|no configurado/i.test(error)) return 'NOT_CONFIGURED';
+    return null;
+  }
+  if (isRecord(error) && typeof error.code === 'string') return error.code;
+  return null;
+}
+
+/** Status of a failed `functions.invoke`, including when `context` is not a Response instance. */
+export function extractFunctionsInvokeStatus(error: unknown, data: unknown): number | null {
+  const code = codeFromEdgePayload(data);
+  if (code === 'FORBIDDEN') return 403;
+  if (code === 'NOT_CONFIGURED') return 503;
+  if (code === 'RATE_LIMITED') return 429;
+
+  const context = isRecord(error) ? error.context : undefined;
+  if (isRecord(context) && typeof context.status === 'number') return context.status;
+  return null;
+}
+
+export function mapAsesorEdgeStatus(status: number | null): ErrorAsesor {
+  if (status === 403) return { tipo: 'verificacion' };
+  if (status === 503) return { tipo: 'no_disponible' };
+  if (status === 429) return { tipo: 'rate_limited', retryAfterSegundos: null };
+  return { tipo: 'error' };
+}
+
+function retryAfterFromInvokeError(error: unknown): number | null {
+  const context = isRecord(error) ? error.context : undefined;
+  if (!context || typeof context !== 'object') return null;
+  const headers = (context as { headers?: { get?: (name: string) => string | null } }).headers;
+  const retryAfter = headers?.get?.('Retry-After');
+  if (typeof retryAfter !== 'string' || retryAfter === '') return null;
+  const parsed = Number(retryAfter);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+async function fallbackCatalogoOError(
+  params: {
+    mensaje: string;
+    historial: MensajeAsesor[];
+    locale: Locale;
+  },
+  error: ErrorAsesor
+): Promise<ResultadoAsesor> {
+  const fallback = await buildResilientFallbackResponse(params);
+  if (fallback) return { ok: true, respuesta: fallback };
+  return { ok: false, error };
 }
 
 export function resolveAsesorTransport(
@@ -1102,32 +1165,14 @@ export async function buildResilientFallbackResponse(params: {
   mensaje: string;
   historial: MensajeAsesor[];
   locale: Locale;
-}): Promise<RespuestaAsesor> {
+}): Promise<RespuestaAsesor | null> {
   const esConsultaSitio = esConsultaSitioOLegal(params.mensaje);
-  if (!esConsultaSitio) {
-    const catalogoFallback = await buildCatalogoPublicadoFallbackResponse(params);
-    if (catalogoFallback) return catalogoFallback;
-  }
+  if (esConsultaSitio) return null;
 
-  const texto =
-    buildAsesorStaticFallback(params.locale, params.mensaje) ??
-    buildBiomedicalFallback([], params.locale, params.mensaje) ??
-    (params.locale === 'en'
-      ? 'We can narrow this down quickly if you share the service, intended use or operating setting, and then we will point you to the catalog options that fit best.'
-      : 'Podemos acotarlo rápido si nos comparte el servicio, el uso previsto o el entorno de operación, y así le orientamos hacia las opciones del catálogo que mejor encajen.');
+  const catalogoFallback = await buildCatalogoPublicadoFallbackResponse(params);
+  if (catalogoFallback) return catalogoFallback;
 
-  return {
-    texto,
-    productos: [],
-    accionHandoff: esConsultaSitio
-      ? null
-      : normalizarAccionHandoff(
-          { tipo: 'whatsapp', resumen: buildHandoffSummary(params) },
-          params,
-          texto
-        ),
-    modo: 'keyword_degradado',
-  };
+  return null;
 }
 
 // ── Modo local Ollama (dev sin Edge Functions) ────────────────────────────────

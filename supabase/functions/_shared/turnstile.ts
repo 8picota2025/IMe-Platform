@@ -7,6 +7,8 @@
 export interface TurnstileResult {
   success: boolean;
   reason?: 'not_configured' | 'missing_token' | 'invalid' | 'error';
+  /** Cloudflare `error-codes` or a compact http_* marker. Never includes the token. */
+  errorCodes?: string[];
 }
 
 interface TurnstileApiResponse {
@@ -31,10 +33,18 @@ export async function verifyTurnstile(
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body,
     });
-    if (!res.ok) return { success: false, reason: 'error' };
+    if (!res.ok) return { success: false, reason: 'error', errorCodes: [`http_${res.status}`] };
 
     const json = (await res.json()) as TurnstileApiResponse;
-    return json.success ? { success: true } : { success: false, reason: 'invalid' };
+    if (json.success) return { success: true };
+    const errorCodes = (json['error-codes'] ?? []).filter(
+      (code): code is string => typeof code === 'string'
+    );
+    return {
+      success: false,
+      reason: 'invalid',
+      ...(errorCodes.length > 0 ? { errorCodes: errorCodes.slice(0, 8) } : {}),
+    };
   } catch {
     return { success: false, reason: 'error' };
   }

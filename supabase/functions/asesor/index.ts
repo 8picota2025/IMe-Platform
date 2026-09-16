@@ -17,6 +17,7 @@
 
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { badRequest, errorResponse } from '../_shared/errors.ts';
+import { createLogger, generateRequestId } from '../_shared/logging.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { verifyTurnstile } from '../_shared/turnstile.ts';
 import { checkRateLimit } from '../_shared/rate-limit.ts';
@@ -164,6 +165,7 @@ Deno.serve(async req => {
   const corsRes = handleCors(req);
   if (corsRes) return corsRes;
   if (req.method !== 'POST') return badRequest('Metodo no soportado', origin);
+  const logger = createLogger({ function: 'asesor', requestId: generateRequestId() });
 
   let body: AsesorRequest;
   try {
@@ -189,6 +191,12 @@ Deno.serve(async req => {
   // Anti-bot: falla cerrado, sin gastar presupuesto LLM.
   const turnstile = await verifyTurnstile(body.turnstileToken, ip);
   if (!turnstile.success) {
+    logger.warn('Turnstile fallido', {
+      reason: turnstile.reason ?? 'unknown',
+      errorCodes: turnstile.errorCodes ?? [],
+      tokenPresent: Boolean(body.turnstileToken),
+      ip,
+    });
     if (turnstile.reason === 'not_configured') {
       return errorResponse(
         {
@@ -200,7 +208,14 @@ Deno.serve(async req => {
       );
     }
     return errorResponse(
-      { code: 'FORBIDDEN', message: 'Verificacion anti-bot fallida' },
+      {
+        code: 'FORBIDDEN',
+        message: 'Verificacion anti-bot fallida',
+        details: {
+          reason: turnstile.reason ?? 'unknown',
+          errorCodes: turnstile.errorCodes ?? [],
+        },
+      },
       403,
       origin
     );

@@ -329,7 +329,7 @@ const asesorConfig = {
     overflow: visible;
   }
   .asesor-turnstile:empty {
-    display: none;
+    padding: 0;
   }
   .asesor-turnstile iframe {
     max-width: 100%;
@@ -601,6 +601,7 @@ const asesorConfig = {
           error:
             | { tipo: 'rate_limited'; retryAfterSegundos: number | null }
             | { tipo: 'no_disponible' }
+            | { tipo: 'verificacion' }
             | { tipo: 'error' };
         }
     >;
@@ -886,7 +887,7 @@ const asesorConfig = {
       }
     }
 
-    function renderError(error: ErrorAsesor | { tipo: 'verificacion' }) {
+    function renderError(error: ErrorAsesor) {
       if (error.tipo === 'rate_limited') {
         addBubble(config.i18n.limite, 'asesor');
         return;
@@ -967,7 +968,8 @@ const asesorConfig = {
           if (!widgetRecienCreado) window.turnstile?.reset(widgetId);
           window.turnstile?.execute(widgetId);
         });
-      } catch {
+      } catch (err) {
+        console.error('[asesor] Turnstile no pudo obtener token:', err);
         return undefined;
       }
     }
@@ -984,6 +986,11 @@ const asesorConfig = {
         // lo resuelve en la mayoría de casos sin molestar al usuario.
         if (!turnstileToken && config.turnstileSiteKey) {
           turnstileToken = await getTurnstileToken();
+        }
+        if (config.turnstileSiteKey && !turnstileToken) {
+          console.warn('[asesor] Turnstile token ausente; no se envía el mensaje al agente');
+          renderError({ tipo: 'verificacion' });
+          return;
         }
 
         const resultado = await asesorLib.preguntarAsesor({
