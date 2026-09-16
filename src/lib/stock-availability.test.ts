@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   pedidoDebeLiberarReserva,
+  puedeConsumirReservaPago,
   simularReservaConcurrente,
   stockDisponibleNumerico,
 } from './stock-availability';
@@ -32,5 +33,45 @@ describe('pedidoDebeLiberarReserva', () => {
     expect(pedidoDebeLiberarReserva('rechazado')).toBe(true);
     expect(pedidoDebeLiberarReserva('pagado')).toBe(false);
     expect(pedidoDebeLiberarReserva('pendiente')).toBe(false);
+  });
+});
+
+describe('puedeConsumirReservaPago — TTL / doble venta', () => {
+  it('reserva expirada sola aún puede consumir la última unidad', () => {
+    expect(
+      puedeConsumirReservaPago({
+        stockFisico: 1,
+        cantidad: 1,
+        otrasReservasActivasNoExpiradas: 0,
+      })
+    ).toBe(true);
+  });
+
+  it('no consume si otra hold viva ya cubre el stock (evita oversell post-TTL)', () => {
+    expect(
+      puedeConsumirReservaPago({
+        stockFisico: 1,
+        cantidad: 1,
+        otrasReservasActivasNoExpiradas: 1,
+      })
+    ).toBe(false);
+  });
+
+  it('doble pago secuencial: solo el primero con hold viva gana', () => {
+    let stock = 1;
+    const primerPago = puedeConsumirReservaPago({
+      stockFisico: stock,
+      cantidad: 1,
+      otrasReservasActivasNoExpiradas: 0,
+    });
+    expect(primerPago).toBe(true);
+    if (primerPago) stock -= 1;
+    expect(
+      puedeConsumirReservaPago({
+        stockFisico: stock,
+        cantidad: 1,
+        otrasReservasActivasNoExpiradas: 0,
+      })
+    ).toBe(false);
   });
 });
