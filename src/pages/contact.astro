@@ -11,7 +11,9 @@ const locale = 'en';
 const title = buildPageTitle('Contact I-ME');
 const description =
   'Contact I-ME for biomedical equipment quotes, technical support, and financing in Colombia. Phone +57 313 724 7353 · info@i-me.com.co · Response within 24 business hours.';
-const canonical = buildCanonical('/contact');
+// Language-neutral trust anchor for agents (public/llms.txt); search engines are
+// pointed at the localized page so the two do not compete as duplicates.
+const canonical = buildCanonical('/en/contact');
 ---
 
 <Layout

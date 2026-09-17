@@ -849,14 +849,21 @@ RewriteRule ^es/productos/combo-600-cajas-de-tirillas-plus-600-cajas-de-lancetas
 RewriteRule ^en/products/combo-600-cajas-de-tirillas-plus-600-cajas-de-lancetas-plus-200-glucometros-en-obsequio/?$ /en/products/g-ltd-b10-600/ [R=301,L]
 RewriteRule ^es/productos/combo-200-cajas-de-tirillas-plus-200-cajas-de-lancetas-plus-67-glucometros-en-obsequio/?$ /es/productos/g-ltd-b10-200/ [R=301,L]
 RewriteRule ^en/products/combo-200-cajas-de-tirillas-plus-200-cajas-de-lancetas-plus-67-glucometros-en-obsequio/?$ /en/products/g-ltd-b10-200/ [R=301,L]
-RewriteRule ^es/productos/gmd-ltd-b10-200/?$ /es/productos/combo-200-cajas-de-tirillas-plus-200-cajas-de-lancetas-plus-67-glucometros-en-obsequio-ee958bf4-f926-4d/ [R=301,L]
-RewriteRule ^en/products/gmd-ltd-b10-200/?$ /en/products/combo-200-cajas-de-tirillas-plus-200-cajas-de-lancetas-plus-67-glucometros-en-obsequio-ee958bf4-f926-4d/ [R=301,L]
+RewriteRule ^es/productos/gmd-ltd-b10-200/?$ /es/productos/g-ltd-b10-200/ [R=301,L]
+RewriteRule ^en/products/gmd-ltd-b10-200/?$ /en/products/g-ltd-b10-200/ [R=301,L]
+RewriteRule ^es/productos/combo-200-cajas-de-tirillas-plus-200-cajas-de-lancetas-plus-67-glucometros-en-obsequio-ee958bf4-f926-4d/?$ /es/productos/g-ltd-b10-200/ [R=301,L]
+RewriteRule ^en/products/combo-200-cajas-de-tirillas-plus-200-cajas-de-lancetas-plus-67-glucometros-en-obsequio-ee958bf4-f926-4d/?$ /en/products/g-ltd-b10-200/ [R=301,L]
 RewriteRule ^es/productos/combo-100-cajas-de-tirillas-plus-100-cajas-de-lancetas-plus-25-glucometros-en-obsequio/?$ /es/productos/g-ltd-b10-100/ [R=301,L]
 RewriteRule ^en/products/combo-100-cajas-de-tirillas-plus-100-cajas-de-lancetas-plus-25-glucometros-en-obsequio/?$ /en/products/g-ltd-b10-100/ [R=301,L]
-RewriteRule ^es/productos/gmd-ltd-b10-100/?$ /es/productos/combo-100-cajas-de-tirillas-plus-100-cajas-de-lancetas-plus-25-glucometros-en-obsequio-75e09b13-8a2a-48/ [R=301,L]
-RewriteRule ^en/products/gmd-ltd-b10-100/?$ /en/products/combo-100-cajas-de-tirillas-plus-100-cajas-de-lancetas-plus-25-glucometros-en-obsequio-75e09b13-8a2a-48/ [R=301,L]
+RewriteRule ^es/productos/gmd-ltd-b10-100/?$ /es/productos/g-ltd-b10-100/ [R=301,L]
+RewriteRule ^en/products/gmd-ltd-b10-100/?$ /en/products/g-ltd-b10-100/ [R=301,L]
+RewriteRule ^es/productos/combo-100-cajas-de-tirillas-plus-100-cajas-de-lancetas-plus-25-glucometros-en-obsequio-75e09b13-8a2a-48/?$ /es/productos/g-ltd-b10-100/ [R=301,L]
+RewriteRule ^en/products/combo-100-cajas-de-tirillas-plus-100-cajas-de-lancetas-plus-25-glucometros-en-obsequio-75e09b13-8a2a-48/?$ /en/products/g-ltd-b10-100/ [R=301,L]
 RewriteRule ^es/productos/combo-50-cajas-de-tirillas-plus-50-cajas-de-lancetas-plus-10-glucometros-en-obsequio/?$ /es/productos/g-ltd-b10-50/ [R=301,L]
 RewriteRule ^en/products/combo-50-cajas-de-tirillas-plus-50-cajas-de-lancetas-plus-10-glucometros-en-obsequio/?$ /en/products/g-ltd-b10-50/ [R=301,L]
+# Duplicate catalog record: same radiography system published under two slugs.
+RewriteRule ^es/productos/sistema-radiografico-3d-wr-3d/?$ /es/productos/sistema-radiografico-3d-wr-3d-angell-technology/ [R=301,L]
+RewriteRule ^en/products/sistema-radiografico-3d-wr-3d/?$ /en/products/sistema-radiografico-3d-wr-3d-angell-technology/ [R=301,L]
 # End product slug migrations
 
 # --- Agent-ready: markdown negotiation + 404 (acceptmarkdown.com) ---

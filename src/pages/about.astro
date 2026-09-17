@@ -17,12 +17,16 @@ const locale = 'en';
 const title = buildPageTitle('About I-ME');
 const description =
   'I-ME International Medical Enterprise — Colombian biomedical technology partner helping healthcare institutions identify, evaluate, and implement clinical solutions with end-to-end support.';
-const canonical = buildCanonical('/about');
+// Stays reachable at /about/ as a language-neutral trust anchor for agents
+// (see public/llms.txt), but points search engines at the localized page so the
+// two do not compete as duplicates.
+const selfUrl = buildCanonical('/about');
+const canonical = buildCanonical('/en/about');
 
 const jsonLd = combineJsonLd(buildOrganizationJsonLd(), {
   '@context': 'https://schema.org',
   '@type': 'AboutPage',
-  url: canonical,
+  url: selfUrl,
   name: 'About I-ME',
   about: { '@id': 'https://i-me.com.co/#organization' },
   inLanguage: 'en',

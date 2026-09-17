@@ -8,6 +8,8 @@ import { buildCanonical, buildPageTitle } from '../lib/seo';
 import { legalEn } from '../data/legal-content';
 
 const doc = legalEn.privacy;
+// Language-neutral trust anchor for agents (public/llms.txt); search engines are
+// pointed at the localized page so the two do not compete as duplicates.
 ---
 
 <LegalPage
@@ -15,7 +17,7 @@ const doc = legalEn.privacy;
   currentPath="/privacy"
   title={buildPageTitle('Privacy Policy')}
   description={doc.description}
-  canonical={buildCanonical('/privacy')}
+  canonical={buildCanonical('/en/legal/privacy')}
   badge={doc.badge}
   heading={doc.heading}
   summary={doc.summary}
