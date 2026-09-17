@@ -5,7 +5,8 @@
  * un SW que hace respondWith de cross-origin provoca "Failed to fetch"
  * en el cliente cuando el fetch interno falla o la respuesta CORS se corrompe.
  */
-const CACHE = 'ime-v4';
+/** Bump al desplegar cliente asesor (poll); fuerza purga en móvil/PWA. */
+const CACHE = 'ime-v5';
 const SHELL_URLS = ['/es/', '/es/catalogo/'];
 
 function isCacheableGet(request, url) {
