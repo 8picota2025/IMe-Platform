@@ -87,6 +87,21 @@ describe('preguntarAsesor error handling', () => {
     expect(resultado).toEqual({ ok: false, error: { tipo: 'verificacion' } });
   });
 
+  it('expone 403 cuando el body de error llega como string JSON', async () => {
+    mockInvoke({
+      data: '{"error":{"code":"FORBIDDEN","message":"Verificacion anti-bot fallida"}}',
+      error: { message: 'Edge Function returned a non-2xx status code' },
+    });
+
+    const resultado = await preguntarAsesor({
+      mensaje: 'Holter y desfibriladores',
+      historial: [],
+      locale: 'es',
+    });
+
+    expect(resultado).toEqual({ ok: false, error: { tipo: 'verificacion' } });
+  });
+
   it('expone 503 de backend como no disponible, nunca shortlist de catálogo', async () => {
     const restoreFetch = mockCatalogFetch();
     try {
@@ -264,6 +279,23 @@ describe('preguntarAsesor error handling', () => {
     } finally {
       globalThis.fetch = originalFetch;
     }
+  });
+
+  it('expone AbortError envuelto por supabase-js como no_disponible, no error genérico', async () => {
+    const abort = new Error('The operation was aborted');
+    abort.name = 'AbortError';
+    mockInvoke({
+      data: null,
+      error: new Error('Failed to send a request to the Edge Function', { cause: abort }),
+    });
+
+    const resultado = await preguntarAsesor({
+      mensaje: 'Holter y desfibriladores',
+      historial: [],
+      locale: 'es',
+    });
+
+    expect(resultado).toEqual({ ok: false, error: { tipo: 'no_disponible' } });
   });
 
   it('hace poll corto cuando el edge responde pending + turn_id', async () => {

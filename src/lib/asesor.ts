@@ -348,7 +348,8 @@ async function invokeAsesorEdge(
   const { data, error } = await supabase.functions.invoke('asesor', { body });
 
   if (error) {
-    const status = extractFunctionsInvokeStatus(error, data);
+    const payload = coerceAsesorEdgePayload(data);
+    const status = extractFunctionsInvokeStatus(error, payload);
     const mapped = mapAsesorEdgeStatus(status);
     console.warn('[asesor] Edge asesor error', {
       status,
@@ -358,17 +359,30 @@ async function invokeAsesorEdge(
     return { ok: false, result: resultFromMappedEdgeError(mapped, error) };
   }
 
-  return { ok: true, data };
+  return { ok: true, data: coerceAsesorEdgePayload(data) };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
 
+/** supabase-js sometimes yields the Edge JSON body as a string. */
+export function coerceAsesorEdgePayload(data: unknown): unknown {
+  if (typeof data !== 'string') return data;
+  const trimmed = data.trim();
+  if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) return data;
+  try {
+    return JSON.parse(trimmed) as unknown;
+  } catch {
+    return data;
+  }
+}
+
 function codeFromEdgePayload(data: unknown): string | null {
-  if (!isRecord(data)) return null;
-  if (typeof data.code === 'string') return data.code;
-  const error = data.error;
+  const payload = coerceAsesorEdgePayload(data);
+  if (!isRecord(payload)) return null;
+  if (typeof payload.code === 'string') return payload.code;
+  const error = payload.error;
   if (typeof error === 'string') {
     if (/forbidden|verificacion|anti-bot/i.test(error)) return 'FORBIDDEN';
     if (/not_configured|no configurado|agent_unavailable|agent_timeout/i.test(error)) {
@@ -378,6 +392,36 @@ function codeFromEdgePayload(data: unknown): string | null {
   }
   if (isRecord(error) && typeof error.code === 'string') return error.code;
   return null;
+}
+
+function statusFromUnknown(value: unknown): number | null {
+  if (typeof Response !== 'undefined' && value instanceof Response) return value.status;
+  if (isRecord(value) && typeof value.status === 'number') return value.status;
+  return null;
+}
+
+function collectErrorMessages(error: unknown, depth = 0): string[] {
+  if (depth > 5 || error == null) return [];
+  if (typeof error === 'string') return [error];
+  const messages: string[] = [];
+  if (error instanceof Error) {
+    messages.push(error.name, error.message);
+    messages.push(...collectErrorMessages(error.cause, depth + 1));
+  }
+  if (isRecord(error)) {
+    if (typeof error.name === 'string') messages.push(error.name);
+    if (typeof error.message === 'string') messages.push(error.message);
+    messages.push(...collectErrorMessages(error.cause, depth + 1));
+    messages.push(...collectErrorMessages(error.context, depth + 1));
+  }
+  return messages;
+}
+
+export function mapAsesorWidgetException(error: unknown): ErrorAsesor {
+  const blob = collectErrorMessages(error).join(' ');
+  if (/turnstile/i.test(blob)) return { tipo: 'verificacion' };
+  if (/timed? ?out|AbortError|aborted/i.test(blob)) return { tipo: 'no_disponible' };
+  return { tipo: 'error' };
 }
 
 function isAsesorSuccessPayload(data: unknown): data is AsesorApiResponse {
@@ -397,16 +441,19 @@ export function extractFunctionsInvokeStatus(error: unknown, data: unknown): num
   if (code === 'AGENT_TIMEOUT') return 504;
   if (code === 'RATE_LIMITED') return 429;
 
-  if (isRecord(error) && typeof error.status === 'number') return error.status;
+  const directStatus = statusFromUnknown(error);
+  if (directStatus !== null) return directStatus;
 
-  const context = isRecord(error) ? error.context : undefined;
-  if (isRecord(context) && typeof context.status === 'number') return context.status;
+  if (isRecord(error)) {
+    const contextStatus = statusFromUnknown(error.context);
+    if (contextStatus !== null) return contextStatus;
+  }
 
-  const message = isRecord(error) && typeof error.message === 'string' ? error.message : '';
-  if (/403|forbidden|anti-bot|verificacion/i.test(message)) return 403;
-  if (/429|rate.?limit/i.test(message)) return 429;
-  if (/504|timed? ?out/i.test(message)) return 504;
-  if (/503|not.?configured|unavailable/i.test(message)) return 503;
+  const blob = collectErrorMessages(error).join(' ');
+  if (/403|forbidden|anti-bot|verificacion/i.test(blob)) return 403;
+  if (/429|rate.?limit/i.test(blob)) return 429;
+  if (/504|timed? ?out|AbortError/i.test(blob)) return 504;
+  if (/503|not.?configured|unavailable/i.test(blob)) return 503;
   return null;
 }
 

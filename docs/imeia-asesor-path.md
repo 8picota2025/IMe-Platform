@@ -43,20 +43,30 @@ Turnstile y rate-limit siguen fail-closed. No incluir valores secretos en archiv
 
 ## Turnstile (web chat)
 
-El widget pinta Cloudflare Turnstile con `appearance: always` (casilla visible) al abrir el chat, script `render=explicit`. Edge verifica el token en `siteverify` con timeout de 8 s; si Cloudflare no responde, `asesor` devuelve 403 `FORBIDDEN` con `errorCodes: ['siteverify_timeout']` **sin** despertar el agente.
+El widget pinta Cloudflare Turnstile con `appearance: always` (casilla visible) al abrir el chat, script `render=explicit`, tema `light`.
+
+Tamaño: **`normal` (300×65)** si el contenedor tiene ≥300px; **`compact` (150×140)** si es más estrecho. No usamos `size: flexible` (mínimo 300px y en Android Chrome a menudo pinta un recuadro gris vacío). El panel en móvil es casi a ancho completo (`100dvh`) para que quepa el checkbox. No se estiliza el iframe interno.
+
+Tras un envío que **consumió** token, se hace `remove` + render fresco (los tokens son de un solo uso). Si falta token, **no** se resetea el widget: se muestra `asesor.verificacion` y se deja la casilla para completarla.
+
+Edge verifica el token en `siteverify` con timeout de 8 s; si Cloudflare no responde, `asesor` devuelve 403 `FORBIDDEN` con `errorCodes: ['siteverify_timeout']` **sin** despertar el agente.
+
+Bypass de emergencia: secreto Edge `ASESOR_TURNSTILE_BYPASS=true` (default **OFF** / unset). Solo si Cloudflare está caído; no lo actives en producción rutinaria.
 
 Tras merge + deploy (sitio estático **y** Edge `asesor`):
 
-1. Abrir https://i-me.com.co en un navegador real **sin** bloqueadores agresivos.
-2. Confirmar la casilla de Turnstile entre los mensajes y el campo de envío (puede auto-resolverse).
-3. Enviar «Busco un holter». No debe aparecer `asesor.verificacion`.
-4. Debe crearse fila `asesor_agent_turns` y una respuesta IMEIA, o el error honesto de agente caído (`no_disponible` / timeout) — nunca shortlist de catálogo.
+1. Abrir https://i-me.com.co en un navegador real **sin** bloqueadores agresivos, también en **Android Chrome**.
+2. Confirmar la casilla de Turnstile entre los mensajes y el campo de envío (checkbox usable o auto-resolverse). No debe quedar un recuadro gris vacío.
+3. Enviar «Holter y desfibriladores» o «Busco un holter». No debe aparecer el error genérico `asesor.error` por falta de casilla.
+4. Sin token / casilla rota → copy de `asesor.verificacion` (no «No pudimos procesar tu mensaje»).
+5. Debe crearse fila `asesor_agent_turns` y una respuesta IMEIA, o el error honesto de agente caído (`no_disponible` / timeout) — nunca shortlist de catálogo.
 
-Si la casilla no carga o sigue `verificacion` después de completarla, revisar el dashboard de Cloudflare Turnstile (el código no puede hacerlo):
+Si la casilla no carga o sigue `verificacion` después de completarla, revisar el **Cloudflare Turnstile Dashboard** (el código no puede hacerlo):
 
 - Hostnames permitidos: `i-me.com.co`, `www.i-me.com.co` (y previews si aplican).
-- Site key pública del widget = secreto GitHub `TURNSTILE_SITE_KEY` (`PUBLIC_TURNSTILE_SITE_KEY` en el build).
+- Site key pública del widget = secreto GitHub `TURNSTILE_SITE_KEY` (`PUBLIC_TURNSTILE_SITE_KEY` en el build). Site key live conocida: `0x4AAAAAADn55axRM58KEtfM`.
 - Secret key de siteverify = secreto GitHub / Supabase `TURNSTILE_SECRET_KEY` (el par debe coincidir; un secret viejo o de otro widget produce `invalid-input-secret`).
-- Widget tipo managed (checkbox), no un site key de otro dominio.
+- Widget tipo **managed (checkbox)**, no un site key invisible de otro dominio.
+- Preflight: un hostname que falte en allowlist muestra widget gris/error 110200 en móvil más a menudo que en desktop.
 
-No hay bypass de Turnstile en producción. Un escape hatch temporal requeriría flag de entorno explícito, default OFF, y no está implementado.
+Evidencia QA (2026-09-17, Android Chrome, https://i-me.com.co/es/): recuadro gris + `asesor.error` tras «Holter y desfibriladores» — `docs/qa/imeia-turnstile-mobile-android-2026-09-17.jpg`.

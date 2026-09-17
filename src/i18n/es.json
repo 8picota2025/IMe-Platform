@@ -190,6 +190,7 @@
     "no_disponible": "IMEIA no está disponible en este momento. Contáctanos por WhatsApp.",
     "verificacion": "No pudimos completar la verificación de seguridad. Desactiva bloqueadores de contenido o recarga la página y vuelve a intentarlo.",
     "verificacion_hint": "Completa la casilla de seguridad para enviar tu mensaje.",
+    "verificacion_cargando": "Cargando casilla de seguridad…",
     "ver_producto": "Ver producto",
     "handoff_whatsapp": "Continuar por WhatsApp",
     "handoff_cotizacion": "Solicitar cotización",
