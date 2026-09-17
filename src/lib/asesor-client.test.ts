@@ -265,4 +265,71 @@ describe('preguntarAsesor error handling', () => {
       globalThis.fetch = originalFetch;
     }
   });
+
+  it('hace poll corto cuando el edge responde pending + turn_id', async () => {
+    vi.useFakeTimers();
+    const invoke = vi
+      .fn()
+      .mockResolvedValueOnce({
+        data: {
+          status: 'pending',
+          turn_id: '11111111-1111-4111-8111-111111111111',
+          texto: '',
+          productos: [],
+          accion_handoff: null,
+          modo: 'rag',
+        },
+        error: null,
+      })
+      .mockResolvedValueOnce({
+        data: {
+          status: 'pending',
+          turn_id: '11111111-1111-4111-8111-111111111111',
+          texto: '',
+          productos: [],
+          accion_handoff: null,
+          modo: 'rag',
+        },
+        error: null,
+      })
+      .mockResolvedValueOnce({
+        data: {
+          status: 'replied',
+          turn_id: '11111111-1111-4111-8111-111111111111',
+          texto: 'Tenemos mesas quirúrgicas y lámparas en catálogo.',
+          productos: [
+            {
+              slug: 'mesa-quirurgica-motorizada-multiposicion',
+              nombre: 'Mesa quirúrgica',
+              imagen: null,
+              url_landing: '/es/productos/mesa-quirurgica-motorizada-multiposicion/',
+              score: 1,
+            },
+          ],
+          accion_handoff: null,
+          modo: 'rag',
+        },
+        error: null,
+      });
+    getClient.mockReturnValue({ functions: { invoke } } as never);
+
+    try {
+      const pending = preguntarAsesor({
+        mensaje: 'Busco equipar un quirófano',
+        historial: [],
+        locale: 'es',
+      });
+      await vi.runAllTimersAsync();
+      const resultado = await pending;
+
+      expect(resultado.ok).toBe(true);
+      if (!resultado.ok) throw new Error('expected success');
+      expect(resultado.respuesta.texto).toContain('mesas quirúrgicas');
+      expect(resultado.respuesta.productos).toHaveLength(1);
+      expect(invoke).toHaveBeenCalledTimes(3);
+      expect(invoke.mock.calls[1]![1].body.turnId).toBe('11111111-1111-4111-8111-111111111111');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });

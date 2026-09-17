@@ -150,7 +150,13 @@ interface AsesorApiResponse {
   }>;
   accion_handoff: { tipo: TipoHandoff; resumen: string } | null;
   modo: ModoAsesor;
+  status?: 'pending' | 'replied';
+  turn_id?: string;
 }
+
+/** Móvil/middleboxes cortan HTTP largos. Poll corto evita eso. */
+const ASESOR_POLL_INTERVAL_MS = 2_000;
+const ASESOR_POLL_DEADLINE_MS = 150_000;
 
 const SESSION_STORAGE_KEY = 'ime_asesor_session';
 const HISTORIAL_STORAGE_KEY = 'ime_asesor_historial';
@@ -252,24 +258,44 @@ export async function preguntarAsesor(params: {
     return { ok: false, error: { tipo: 'no_disponible' } };
   }
 
+  const sessionId = getSessionId();
   const historial = params.historial.slice(-8).map(m => ({ rol: m.rol, contenido: m.contenido }));
 
-  const { data, error } = await supabase.functions.invoke('asesor', {
-    body: {
-      mensaje: params.mensaje,
-      historial,
-      locale: params.locale,
-      turnstileToken: params.turnstileToken,
-      sessionId: getSessionId(),
-      navigationContext: params.navigationContext,
-    },
+  const started = await invokeAsesorEdge(supabase, {
+    mensaje: params.mensaje,
+    historial,
+    locale: params.locale,
+    turnstileToken: params.turnstileToken,
+    sessionId,
+    navigationContext: params.navigationContext,
   });
+  if (!started.ok) return started.result;
 
-  if (error) {
-    const status = extractFunctionsInvokeStatus(error, data);
-    const mapped = mapAsesorEdgeStatus(status);
-    console.warn('[asesor] Edge asesor error', { status, tipo: mapped.tipo });
-    return resultFromMappedEdgeError(mapped, error);
+  let data: unknown = started.data;
+
+  if (
+    isRecord(data) &&
+    data.status === 'pending' &&
+    typeof data.turn_id === 'string' &&
+    data.turn_id
+  ) {
+    const turnId = data.turn_id;
+    const deadline = Date.now() + ASESOR_POLL_DEADLINE_MS;
+    while (Date.now() < deadline) {
+      await new Promise<void>(resolve => setTimeout(resolve, ASESOR_POLL_INTERVAL_MS));
+      const polled = await invokeAsesorEdge(supabase, {
+        turnId,
+        sessionId,
+        locale: params.locale,
+      });
+      if (!polled.ok) return polled.result;
+      data = polled.data;
+      if (!(isRecord(data) && data.status === 'pending')) break;
+    }
+    if (isRecord(data) && data.status === 'pending') {
+      console.warn('[asesor] poll agotado sin respuesta del agente', { turnId });
+      return { ok: false, error: { tipo: 'no_disponible' } };
+    }
   }
 
   const payloadError = mapAsesorEdgePayloadError(data);
@@ -303,6 +329,36 @@ export async function preguntarAsesor(params: {
       modo: data.modo === 'sin_resultados' ? 'sin_resultados' : 'rag',
     },
   };
+}
+
+type InvokeAsesorBody = {
+  mensaje?: string;
+  historial?: { rol: string; contenido: string }[];
+  locale: Locale;
+  turnstileToken?: string | undefined;
+  sessionId: string;
+  navigationContext?: AsesorNavigationContext | undefined;
+  turnId?: string;
+};
+
+async function invokeAsesorEdge(
+  supabase: NonNullable<ReturnType<typeof getSupabaseClient>>,
+  body: InvokeAsesorBody
+): Promise<{ ok: true; data: unknown } | { ok: false; result: ResultadoAsesor }> {
+  const { data, error } = await supabase.functions.invoke('asesor', { body });
+
+  if (error) {
+    const status = extractFunctionsInvokeStatus(error, data);
+    const mapped = mapAsesorEdgeStatus(status);
+    console.warn('[asesor] Edge asesor error', {
+      status,
+      tipo: mapped.tipo,
+      poll: Boolean(body.turnId),
+    });
+    return { ok: false, result: resultFromMappedEdgeError(mapped, error) };
+  }
+
+  return { ok: true, data };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

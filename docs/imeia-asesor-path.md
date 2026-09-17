@@ -2,17 +2,25 @@
 
 Widget (`Asesor.astro`) → `src/lib/asesor.ts` → Edge Function `asesor` → fila `asesor_agent_turns` → webhook routine IMEIA/Grok → fila `replied` → widget.
 
-Hermes, `IMEIA_API_*`, `IMEIA_CHAT_MODEL` y el navegador directo no forman parte del flujo web. El cliente espera hasta 120 s solo para `functions/v1/asesor`; resto de llamadas Supabase conserva timeout normal.
+Hermes, `IMEIA_API_*`, `IMEIA_CHAT_MODEL` y el navegador directo no forman parte del flujo web.
+
+El cliente **no** mantiene una sola petición HTTP de 2 minutos (móviles y middleboxes la cortan):
+
+1. `POST asesor` con mensaje + Turnstile → edge crea turno, despierta routine y responde `{ status: "pending", turn_id }` en ~1 s.
+2. Cliente hace poll cada 2 s: `POST asesor` con `{ turnId, sessionId }` (sin Turnstile ni rate-limit de mensaje).
+3. Cuando routine escribe `replied`, el poll devuelve texto + tarjetas.
+
+Tope de espera del widget: ~150 s en peticiones cortas (~30 s timeout c/u).
 
 ## Secuencia
 
 1. Edge valida mensaje, historial, Turnstile y rate-limit IP/sesión.
 2. Preguntas de sitio, legales o contacto usan fallback estático sin llamar agente.
 3. Pregunta comercial crea turno `pending` con contexto de navegación e historial validados.
-4. Edge envía wake autenticado a routine y consulta fila cada segundo durante máximo 110 s.
+4. Edge envía wake autenticado a routine y **devuelve `turn_id` de inmediato**.
 5. Routine escribe `reply_texto` y transición `pending → replied` con service role.
-6. Edge genera tarjetas solo desde enlaces I-ME existentes en respuesta y devuelve contrato actual.
-7. Wake fallido marca `failed` y responde HTTP 503 `AGENT_UNAVAILABLE`. Vencimiento marca `timeout` y responde HTTP 504 `AGENT_TIMEOUT`. El widget muestra reintento + WhatsApp; nunca shortlist de catálogo ni copy consultiva.
+6. Poll del cliente recibe texto, genera tarjetas solo desde enlaces I-ME existentes y cierra el turno en UI.
+7. Wake fallido → HTTP 503 `AGENT_UNAVAILABLE`. Poll que ve `timeout`/`failed` → 504/503. El widget muestra reintento + WhatsApp; nunca shortlist de catálogo ni copy consultiva.
 
 ## Secretos y despliegue
 

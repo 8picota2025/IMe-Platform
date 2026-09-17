@@ -55,6 +55,8 @@ interface AsesorRequest {
   locale?: Locale;
   turnstileToken?: string;
   sessionId?: string;
+  /** Poll de un turno ya creado (sin Turnstile ni rate-limit de mensaje). */
+  turnId?: string;
   navigationContext?: Partial<NavigationContext>;
 }
 
@@ -95,7 +97,12 @@ interface AsesorResponse {
   productos: ProductoTarjeta[];
   accion_handoff: AccionHandoff | null;
   modo: Modo;
+  /** Presente cuando el agente aún trabaja; el cliente debe volver a preguntar. */
+  status?: 'pending' | 'replied';
+  turn_id?: string;
 }
+
+const TURN_ID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 interface AgentTurn {
   id: string;
@@ -152,8 +159,6 @@ const MAX_MENSAJE_CHARS = 1000;
 const MAX_HISTORIAL_TURNOS = 8;
 const MAX_HISTORIAL_CHARS = 4000;
 const MAX_TARJETAS = 4;
-const IMEIA_TIMEOUT_MS = 110_000;
-const AGENT_POLL_INTERVAL_MS = 1_000;
 /** Última shortlist: máximo tres anchors/productos, para comparar sin reabrir catálogo. */
 const MAX_SHORTLIST_ANCHORS = 3;
 
@@ -176,18 +181,109 @@ Deno.serve(async req => {
     return badRequest('JSON invalido', origin);
   }
 
+  const locale: Locale = body.locale === 'en' ? 'en' : 'es';
+  const sessionId = (body.sessionId?.trim() || crypto.randomUUID()).slice(0, 128);
+  const ip = obtenerIp(req);
+
+  // --- Poll de turno pendiente (peticiones cortas; sin Turnstile ni rate-limit) ---
+  const turnIdPoll = body.turnId?.trim() ?? '';
+  if (turnIdPoll) {
+    if (!TURN_ID_RE.test(turnIdPoll)) return badRequest('turnId invalido', origin);
+    if (!body.sessionId?.trim()) return badRequest('sessionId requerido para poll', origin);
+
+    const supabase = getServerSupabase();
+    const { data, error } = await supabase
+      .from('asesor_agent_turns')
+      .select('id, status, reply_texto, error, session_id, mensaje')
+      .eq('id', turnIdPoll)
+      .maybeSingle();
+
+    if (error || !data) {
+      return errorResponse({ code: 'NOT_FOUND', message: 'Turno no encontrado' }, 404, origin);
+    }
+    if (String(data.session_id) !== sessionId) {
+      return errorResponse(
+        { code: 'FORBIDDEN', message: 'Turno no pertenece a la sesion' },
+        403,
+        origin
+      );
+    }
+
+    const status = data.status as AgentTurn['status'];
+    if (status === 'pending') {
+      return respuestaOk(
+        {
+          status: 'pending',
+          turn_id: turnIdPoll,
+          texto: '',
+          productos: [],
+          accion_handoff: null,
+          modo: 'rag',
+        },
+        origin
+      );
+    }
+
+    const texto = typeof data.reply_texto === 'string' ? data.reply_texto.trim() : '';
+    if (status === 'timeout' || (status === 'failed' && !texto)) {
+      const isTimeout = status === 'timeout';
+      return errorResponse(
+        {
+          code: isTimeout ? 'AGENT_TIMEOUT' : 'AGENT_UNAVAILABLE',
+          message: isTimeout
+            ? 'IMEIA tardó más de lo esperado. Reintenta o continúa por WhatsApp.'
+            : 'IMEIA no está disponible. Reintenta o continúa por WhatsApp.',
+        },
+        isTimeout ? 504 : 503,
+        origin
+      );
+    }
+
+    if (status !== 'replied' || !texto) {
+      logger.warn('Turno sin respuesta util', { turnId: turnIdPoll, status, error: data.error });
+      return errorResponse(
+        {
+          code: 'AGENT_UNAVAILABLE',
+          message: 'IMEIA no está disponible. Reintenta o continúa por WhatsApp.',
+        },
+        503,
+        origin
+      );
+    }
+
+    const mensajeOriginal = typeof data.mensaje === 'string' ? data.mensaje : '';
+    const productos = await construirTarjetas(supabase, texto, locale);
+    const accionHandoff = detectarAccionHandoff({ mensaje: mensajeOriginal, texto });
+    await registrarUso(supabase, {
+      sessionId,
+      locale,
+      historial: [],
+      tokens: 0,
+      latenciaMs: Date.now() - inicio,
+      handoff: accionHandoff?.tipo ?? null,
+    });
+    return respuestaOk(
+      {
+        status: 'replied',
+        turn_id: turnIdPoll,
+        texto,
+        productos,
+        accion_handoff: accionHandoff,
+        modo: 'rag',
+      },
+      origin
+    );
+  }
+
+  // --- Nuevo mensaje ---
   const mensaje = body.mensaje?.trim() ?? '';
   if (!mensaje) return badRequest('mensaje requerido', origin);
   if (mensaje.length > MAX_MENSAJE_CHARS) {
     return badRequest(`mensaje supera ${MAX_MENSAJE_CHARS} caracteres`, origin);
   }
 
-  const locale: Locale = body.locale === 'en' ? 'en' : 'es';
-  const sessionId = (body.sessionId?.trim() || crypto.randomUUID()).slice(0, 128);
   const historial = normalizarHistorial(body.historial);
   const navigationContext = normalizarNavigationContext(body.navigationContext, locale, sessionId);
-
-  const ip = obtenerIp(req);
 
   // Anti-bot: falla cerrado y rápido, sin despertar el agente ni abrir Supabase.
   const turnstile = await verifyTurnstile(body.turnstileToken, ip);
@@ -300,23 +396,19 @@ Deno.serve(async req => {
       historial,
       navigationContext,
     });
-    const turno = await esperarRespuestaAgente(supabase, turnId);
-    const texto = turno.reply_texto?.trim();
-    if (turno.status !== 'replied' || !texto) throw new Error(turno.error || turno.status);
-
-    const productos = await construirTarjetas(supabase, texto, locale);
-    const accionHandoff = detectarAccionHandoff({ mensaje, texto });
-
-    await registrarUso(supabase, {
-      sessionId,
-      locale,
-      historial,
-      tokens: 0,
-      latenciaMs: Date.now() - inicio,
-      handoff: accionHandoff?.tipo ?? null,
-    });
-
-    return respuestaOk({ texto, productos, accion_handoff: accionHandoff, modo: 'rag' }, origin);
+    // No esperamos aquí: HTTP largos (80–110 s) mueren en móvil/middleboxes.
+    // El cliente hace poll corto con turnId.
+    return respuestaOk(
+      {
+        status: 'pending',
+        turn_id: turnId,
+        texto: '',
+        productos: [],
+        accion_handoff: null,
+        modo: 'rag',
+      },
+      origin
+    );
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error('[asesor] agente web no disponible:', message);
@@ -419,31 +511,6 @@ async function despertarAgente(
   } finally {
     clearTimeout(timer);
   }
-}
-
-async function esperarRespuestaAgente(
-  supabase: ReturnType<typeof getServerSupabase>,
-  turnId: string
-): Promise<AgentTurn> {
-  const deadline = Date.now() + IMEIA_TIMEOUT_MS;
-  while (Date.now() < deadline) {
-    const { data, error } = await supabase
-      .from('asesor_agent_turns')
-      .select('id, status, reply_texto, error')
-      .eq('id', turnId)
-      .single();
-    if (error || !data) throw new Error(`leer turno: ${error?.message ?? 'no encontrado'}`);
-    const turno = data as AgentTurn;
-    if (turno.status !== 'pending') return turno;
-    await new Promise<void>(resolve => setTimeout(resolve, AGENT_POLL_INTERVAL_MS));
-  }
-
-  await supabase
-    .from('asesor_agent_turns')
-    .update({ status: 'timeout', error: 'Tiempo de espera del widget agotado' })
-    .eq('id', turnId)
-    .eq('status', 'pending');
-  return { id: turnId, status: 'timeout', reply_texto: null, error: 'timeout' };
 }
 
 function obtenerIp(req: Request): string {

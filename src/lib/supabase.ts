@@ -11,7 +11,8 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env['PUBLIC_SUPABASE_URL'] as string | undefined;
 const supabaseAnonKey = import.meta.env['PUBLIC_SUPABASE_ANON_KEY'] as string | undefined;
 const DEFAULT_SUPABASE_TIMEOUT_MS = import.meta.env.SSR ? 8000 : 15000;
-const ASESOR_FUNCTION_TIMEOUT_MS = 120_000;
+/** Wake + poll son cortos; 30 s basta y falla antes en redes móviles inestables. */
+const ASESOR_FUNCTION_TIMEOUT_MS = 30_000;
 /** Subir fotos (móvil/cámara sin comprimir) puede tardar mucho más que una
  * consulta de datos normal, sobre todo en redes lentas. El timeout general
  * (PUBLIC_SUPABASE_TIMEOUT_MS, fijado corto para fallar rápido en build/API)
