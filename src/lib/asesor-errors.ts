@@ -24,12 +24,14 @@ export type ErrorAsesor = {
   clase: AsesorErrorClase;
   retryAfterSegundos?: number | null;
   codes?: string[];
+  /** Existing agent turn to resume on retry instead of creating a new row. */
+  turnId?: string;
 };
 
 export function asesorError(
   tipo: ErrorAsesor['tipo'],
   clase: AsesorErrorClase,
-  extra?: { retryAfterSegundos?: number | null; codes?: string[] }
+  extra?: { retryAfterSegundos?: number | null; codes?: string[]; turnId?: string }
 ): ErrorAsesor {
   return {
     tipo,
@@ -38,6 +40,7 @@ export function asesorError(
       ? { retryAfterSegundos: extra.retryAfterSegundos }
       : {}),
     ...(extra?.codes && extra.codes.length > 0 ? { codes: extra.codes.slice(0, 8) } : {}),
+    ...(extra?.turnId ? { turnId: extra.turnId } : {}),
   };
 }
 

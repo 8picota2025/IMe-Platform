@@ -695,6 +695,7 @@ const asesorConfig = {
       locale: 'es' | 'en';
       turnstileToken?: string | undefined;
       navigationContext?: AsesorNavigationContext | undefined;
+      turnId?: string | undefined;
     }) => Promise<
       | {
           ok: true;
@@ -723,6 +724,8 @@ const asesorConfig = {
   } | null = null;
   let enviando = false;
   let ultimoMensaje: string | null = null;
+  let ultimoTurnId: string | null = null;
+  let greetingLock: Promise<void> | null = null;
   let turnstileWidgetId: string | null = null;
   let turnstileLoadPromise: Promise<void> | null = null;
   let turnstileTokenCache: string | undefined;
@@ -1287,14 +1290,17 @@ const asesorConfig = {
           locale: config.locale,
           turnstileToken,
           navigationContext: buildNavigationContext(),
+          turnId: ultimoTurnId ?? undefined,
         });
 
         if (!resultado.ok) {
+          if (resultado.error.turnId) ultimoTurnId = resultado.error.turnId;
           renderError(resultado.error);
           if (resultado.error.tipo === 'verificacion') highlightTurnstile();
           return;
         }
 
+        ultimoTurnId = null;
         historial.push({ rol: 'usuario', contenido: mensaje, timestamp: new Date() });
         historial.push({
           rol: 'asesor',
@@ -1308,6 +1314,7 @@ const asesorConfig = {
           tipo: 'error' as const,
           clase: 'generic' as const,
         };
+        if (ultimoTurnId) mapped.turnId = ultimoTurnId;
         renderError(mapped);
         if (mapped.tipo === 'verificacion') highlightTurnstile();
       } finally {
@@ -1323,6 +1330,31 @@ const asesorConfig = {
       }
     }
 
+    async function ensureWelcome() {
+      if (!messagesEl) return;
+      if (messagesEl.childElementCount > 0) return;
+      if (!greetingLock) {
+        greetingLock = (async () => {
+          if (!asesorLib) asesorLib = await import('../lib/asesor');
+          if (!messagesEl || messagesEl.childElementCount > 0) return;
+          const historialPrevio = asesorLib.obtenerHistorial();
+          if (historialPrevio.length) {
+            historial.push(...historialPrevio);
+            for (const mensajePrevio of historialPrevio) {
+              addBubble(
+                mensajePrevio.contenido,
+                mensajePrevio.rol === 'usuario' ? 'user' : 'asesor'
+              );
+            }
+            return;
+          }
+          const bubble = addBubble(config.i18n.bienvenida, 'asesor');
+          bubble?.setAttribute('data-ime-greeting', '1');
+        })();
+      }
+      await greetingLock;
+    }
+
     async function openDialog(focusInput = true, rememberOpen = true) {
       if (!dialog || !trigger) return;
       resetTransientUiState();
@@ -1332,18 +1364,7 @@ const asesorConfig = {
 
       if (!localInitialized) {
         localInitialized = true;
-        // Restaura la conversación previa (misma pestaña) si existe; antes una
-        // recarga de página perdía todo el historial sin aviso al usuario.
-        if (!asesorLib) asesorLib = await import('../lib/asesor');
-        const historialPrevio = asesorLib.obtenerHistorial();
-        if (historialPrevio.length) {
-          historial.push(...historialPrevio);
-          for (const mensajePrevio of historialPrevio) {
-            addBubble(mensajePrevio.contenido, mensajePrevio.rol === 'usuario' ? 'user' : 'asesor');
-          }
-        } else {
-          addBubble(config.i18n.bienvenida, 'asesor');
-        }
+        await ensureWelcome();
       }
 
       if (focusInput) setTimeout(() => inputEl?.focus(), 100);
@@ -1384,6 +1405,7 @@ const asesorConfig = {
 
         addBubble(msg, 'user');
         if (inputEl) inputEl.value = '';
+        ultimoTurnId = null;
 
         await enviarMensaje(msg);
       },

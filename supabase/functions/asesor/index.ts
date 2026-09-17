@@ -64,6 +64,8 @@ interface AsesorRequest {
   sessionId?: string;
   /** Poll de un turno ya creado (sin Turnstile ni rate-limit de mensaje). */
   turnId?: string;
+  /** Releer el último turno de esta sesión (retry tras abort, sin nuevo insert). */
+  resume?: boolean;
   navigationContext?: Partial<NavigationContext>;
 }
 
@@ -192,18 +194,32 @@ Deno.serve(async req => {
   const sessionId = (body.sessionId?.trim() || crypto.randomUUID()).slice(0, 128);
   const ip = obtenerIp(req);
 
-  // --- Poll de turno pendiente (peticiones cortas; sin Turnstile ni rate-limit) ---
+  // --- Poll / resume de turno (peticiones cortas; sin Turnstile ni rate-limit) ---
   const turnIdPoll = body.turnId?.trim() ?? '';
-  if (turnIdPoll) {
-    if (!TURN_ID_RE.test(turnIdPoll)) return badRequest('turnId invalido', origin);
+  const wantsResume = body.resume === true;
+  if (turnIdPoll || wantsResume) {
+    if (turnIdPoll && !TURN_ID_RE.test(turnIdPoll)) return badRequest('turnId invalido', origin);
     if (!body.sessionId?.trim()) return badRequest('sessionId requerido para poll', origin);
 
     const supabase = getServerSupabase();
-    const { data, error } = await supabase
+    let lookup = supabase
       .from('asesor_agent_turns')
-      .select('id, status, reply_texto, error, session_id, mensaje')
-      .eq('id', turnIdPoll)
-      .maybeSingle();
+      .select('id, status, reply_texto, error, session_id, mensaje');
+
+    if (turnIdPoll) {
+      lookup = lookup.eq('id', turnIdPoll);
+    } else {
+      lookup = lookup
+        .eq('session_id', sessionId)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      const mensajeResume = body.mensaje?.trim() ?? '';
+      if (mensajeResume) {
+        lookup = lookup.eq('mensaje', mensajeResume.slice(0, MAX_MENSAJE_CHARS));
+      }
+    }
+
+    const { data, error } = await lookup.maybeSingle();
 
     if (error || !data) {
       return errorResponse({ code: 'NOT_FOUND', message: 'Turno no encontrado' }, 404, origin);
@@ -216,12 +232,13 @@ Deno.serve(async req => {
       );
     }
 
+    const turnId = String(data.id);
     const status = data.status as AgentTurn['status'];
     if (status === 'pending') {
       return respuestaOk(
         {
           status: 'pending',
-          turn_id: turnIdPoll,
+          turn_id: turnId,
           texto: '',
           productos: [],
           accion_handoff: null,
@@ -247,7 +264,7 @@ Deno.serve(async req => {
     }
 
     if (status !== 'replied' || !texto) {
-      logger.warn('Turno sin respuesta util', { turnId: turnIdPoll, status, error: data.error });
+      logger.warn('Turno sin respuesta util', { turnId, status, error: data.error });
       return errorResponse(
         {
           code: 'AGENT_UNAVAILABLE',
@@ -261,18 +278,10 @@ Deno.serve(async req => {
     const mensajeOriginal = typeof data.mensaje === 'string' ? data.mensaje : '';
     const productos = await construirTarjetas(supabase, texto, locale);
     const accionHandoff = detectarAccionHandoff({ mensaje: mensajeOriginal, texto });
-    await registrarUso(supabase, {
-      sessionId,
-      locale,
-      historial: [],
-      tokens: 0,
-      latenciaMs: Date.now() - inicio,
-      handoff: accionHandoff?.tipo ?? null,
-    });
     return respuestaOk(
       {
         status: 'replied',
-        turn_id: turnIdPoll,
+        turn_id: turnId,
         texto,
         productos,
         accion_handoff: accionHandoff,
@@ -404,7 +413,7 @@ Deno.serve(async req => {
       historial,
       navigationContext,
     });
-    await despertarAgente(supabase, webhookUrl, webhookKey, {
+    const wake = despertarAgente(supabase, webhookUrl, webhookKey, {
       turnId,
       sessionId,
       conversationId: navigationContext.conversation_id,
@@ -413,8 +422,13 @@ Deno.serve(async req => {
       historial,
       navigationContext,
     });
-    // No esperamos aquí: HTTP largos (80–110 s) mueren en móvil/middleboxes.
-    // El cliente hace poll corto con turnId.
+    // Return turn_id immediately so the client can poll even if the webhook ACK is slow.
+    const waitUntil = getEdgeWaitUntil();
+    if (waitUntil) {
+      waitUntil(wake.catch(err => console.error('[asesor] wake background', err)));
+    } else {
+      await wake;
+    }
     return respuestaOk(
       {
         status: 'pending',
@@ -443,10 +457,23 @@ Deno.serve(async req => {
   }
 });
 
+function getEdgeWaitUntil(): ((work: Promise<unknown>) => void) | null {
+  const runtime = (
+    globalThis as {
+      EdgeRuntime?: { waitUntil?: (work: Promise<unknown>) => void };
+    }
+  ).EdgeRuntime;
+  return typeof runtime?.waitUntil === 'function' ? runtime.waitUntil.bind(runtime) : null;
+}
+
 function respuestaOk(payload: AsesorResponse, origin: string | null): Response {
   return new Response(JSON.stringify(payload), {
     status: 200,
-    headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-store',
+      ...getCorsHeaders(origin),
+    },
   });
 }
 

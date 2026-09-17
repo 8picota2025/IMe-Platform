@@ -11,8 +11,12 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env['PUBLIC_SUPABASE_URL'] as string | undefined;
 const supabaseAnonKey = import.meta.env['PUBLIC_SUPABASE_ANON_KEY'] as string | undefined;
 const DEFAULT_SUPABASE_TIMEOUT_MS = import.meta.env.SSR ? 8000 : 15000;
-/** Wake + poll son cortos; 30 s basta y falla antes en redes móviles inestables. */
-const ASESOR_FUNCTION_TIMEOUT_MS = 30_000;
+/**
+ * Each asesor HTTP call is short (create+wake or a DB poll). 60s covers Edge
+ * cold-start + webhook ACK on slow mobile without waiting the full agent reply.
+ * The widget poll loop owns the 90–180s wait; this timer must not abort it.
+ */
+const ASESOR_FUNCTION_TIMEOUT_MS = 60_000;
 /** Subir fotos (móvil/cámara sin comprimir) puede tardar mucho más que una
  * consulta de datos normal, sobre todo en redes lentas. El timeout general
  * (PUBLIC_SUPABASE_TIMEOUT_MS, fijado corto para fallar rápido en build/API)
@@ -44,6 +48,12 @@ async function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit): P
     : isAsesorFunctionRequest(input)
       ? ASESOR_FUNCTION_TIMEOUT_MS
       : resolveSupabaseTimeoutMs();
+  const parentSignal = init?.signal;
+  const onParentAbort = () => controller.abort();
+  if (parentSignal) {
+    if (parentSignal.aborted) controller.abort();
+    else parentSignal.addEventListener('abort', onParentAbort, { once: true });
+  }
   const timeoutId = globalThis.setTimeout(() => controller.abort(), timeoutMs);
   try {
     return await fetch(input, {
@@ -52,11 +62,15 @@ async function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit): P
     });
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
-      throw new Error(`Supabase request timed out after ${timeoutMs}ms`, { cause: error });
+      if (parentSignal?.aborted) throw error;
+      const timeoutErr = new Error(`Supabase request timed out after ${timeoutMs}ms`);
+      timeoutErr.name = 'TimeoutError';
+      throw timeoutErr;
     }
     throw error;
   } finally {
     globalThis.clearTimeout(timeoutId);
+    parentSignal?.removeEventListener('abort', onParentAbort);
   }
 }
 
