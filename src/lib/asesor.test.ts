@@ -704,4 +704,11 @@ describe('IMEIA welcome copy', () => {
     expect(en.asesor.bienvenida).toContain("Hello, I'm IMEIA, from the I-ME team");
     expect(en.asesor.bienvenida).not.toContain('biomedical advisor');
   });
+
+  it('mantiene copy honesta de verificación y el hint del checkbox visible', () => {
+    expect(es.asesor.verificacion).toContain('verificación de seguridad');
+    expect(es.asesor.verificacion_hint).toContain('casilla de seguridad');
+    expect(en.asesor.verificacion).toContain('security check');
+    expect(en.asesor.verificacion_hint).toContain('security checkbox');
+  });
 });

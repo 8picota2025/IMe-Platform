@@ -187,10 +187,9 @@ Deno.serve(async req => {
   const historial = normalizarHistorial(body.historial);
   const navigationContext = normalizarNavigationContext(body.navigationContext, locale, sessionId);
 
-  const supabase = getServerSupabase();
   const ip = obtenerIp(req);
 
-  // Anti-bot: falla cerrado, sin gastar presupuesto LLM.
+  // Anti-bot: falla cerrado y rápido, sin despertar el agente ni abrir Supabase.
   const turnstile = await verifyTurnstile(body.turnstileToken, ip);
   if (!turnstile.success) {
     logger.warn('Turnstile fallido', {
@@ -222,6 +221,8 @@ Deno.serve(async req => {
       origin
     );
   }
+
+  const supabase = getServerSupabase();
 
   // Rate-limit por IP y por sesion.
   const limitIp = await checkRateLimit(supabase, `ip:${ip}`);
