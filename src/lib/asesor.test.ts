@@ -6,8 +6,10 @@ import {
   buildBiomedicalFallback,
   buildResilientFallbackResponse,
   coerceAsesorEdgePayload,
+  copyForAsesorError,
   extractFunctionsInvokeStatus,
   mapAsesorEdgeStatus,
+  mapAsesorInvokeFailure,
   mapAsesorWidgetException,
   parseStructuredAsesorResponse,
   resetCatalogoPublicadoCache,
@@ -669,16 +671,23 @@ describe('asesor biomedical fallback', () => {
 });
 
 describe('asesor Edge error mapping', () => {
-  it('mapea 403 a verificación y 503/504 a no disponible', () => {
-    expect(mapAsesorEdgeStatus(403)).toEqual({ tipo: 'verificacion' });
-    expect(mapAsesorEdgeStatus(503)).toEqual({ tipo: 'no_disponible' });
-    expect(mapAsesorEdgeStatus(504)).toEqual({ tipo: 'no_disponible' });
+  it('mapea 403 a verificación y 503/504 a no disponible, con clase precisa', () => {
+    expect(mapAsesorEdgeStatus(403)).toEqual({
+      tipo: 'verificacion',
+      clase: 'turnstile_forbidden',
+    });
+    expect(mapAsesorEdgeStatus(503)).toEqual({
+      tipo: 'no_disponible',
+      clase: 'agent_unavailable',
+    });
+    expect(mapAsesorEdgeStatus(504)).toEqual({ tipo: 'no_disponible', clase: 'agent_timeout' });
     expect(mapAsesorEdgeStatus(429)).toEqual({
       tipo: 'rate_limited',
+      clase: 'rate_limited',
       retryAfterSegundos: null,
     });
-    expect(mapAsesorEdgeStatus(500)).toEqual({ tipo: 'error' });
-    expect(mapAsesorEdgeStatus(null)).toEqual({ tipo: 'error' });
+    expect(mapAsesorEdgeStatus(500)).toEqual({ tipo: 'error', clase: 'generic' });
+    expect(mapAsesorEdgeStatus(null)).toEqual({ tipo: 'error', clase: 'generic' });
   });
 
   it('lee 403 desde el código FORBIDDEN aunque context no sea Response', () => {
@@ -716,16 +725,60 @@ describe('asesor Edge error mapping', () => {
     );
   });
 
-  it('clasifica excepciones del widget: Turnstile → verificacion, timeout → no_disponible', () => {
+  it('clasifica excepciones del widget: Turnstile → turnstile_client, abort → invoke_abort', () => {
     expect(mapAsesorWidgetException(new Error('turnstile load error'))).toEqual({
       tipo: 'verificacion',
+      clase: 'turnstile_client',
     });
     expect(mapAsesorWidgetException(new Error('Supabase request timed out after 30000ms'))).toEqual(
       {
         tipo: 'no_disponible',
+        clase: 'invoke_timeout',
       }
     );
-    expect(mapAsesorWidgetException(new Error('boom'))).toEqual({ tipo: 'error' });
+    const abort = new Error('The operation was aborted');
+    abort.name = 'AbortError';
+    expect(mapAsesorWidgetException(abort)).toEqual({
+      tipo: 'no_disponible',
+      clase: 'invoke_abort',
+    });
+    expect(mapAsesorWidgetException(new Error('boom'))).toEqual({
+      tipo: 'error',
+      clase: 'generic',
+    });
+  });
+
+  it('distingue AGENT_TIMEOUT, siteverify_timeout y missing_token en el payload Edge', () => {
+    expect(
+      mapAsesorInvokeFailure({
+        status: 504,
+        data: { error: { code: 'AGENT_TIMEOUT' } },
+        error: null,
+      })
+    ).toEqual({ tipo: 'no_disponible', clase: 'agent_timeout' });
+    expect(
+      mapAsesorInvokeFailure({
+        status: 403,
+        data: {
+          error: {
+            code: 'FORBIDDEN',
+            details: { reason: 'error', errorCodes: ['siteverify_timeout'] },
+          },
+        },
+        error: null,
+      })
+    ).toEqual({
+      tipo: 'verificacion',
+      clase: 'siteverify_timeout',
+      codes: ['siteverify_timeout'],
+    });
+    expect(
+      mapAsesorInvokeFailure({
+        status: 403,
+        data: { error: { code: 'FORBIDDEN', details: { reason: 'missing_token' } } },
+        error: null,
+      })
+    ).toEqual({ tipo: 'verificacion', clase: 'missing_token' });
   });
 });
 
@@ -741,12 +794,41 @@ describe('IMEIA welcome copy', () => {
     expect(en.asesor.bienvenida).not.toContain('biomedical advisor');
   });
 
-  it('mantiene copy honesta de verificación y el hint del checkbox visible', () => {
+  it('mantiene copy honesta de verificación y nombra las clases de fallo', () => {
     expect(es.asesor.verificacion).toContain('verificación de seguridad');
     expect(es.asesor.verificacion_hint).toContain('casilla de seguridad');
     expect(es.asesor.verificacion_cargando).toContain('Cargando casilla');
     expect(en.asesor.verificacion).toContain('security check');
     expect(en.asesor.verificacion_hint).toContain('security checkbox');
     expect(en.asesor.verificacion_cargando).toContain('Loading security checkbox');
+    expect(es.asesor.error_agent_timeout).toContain('AGENT_TIMEOUT');
+    expect(es.asesor.error_invoke_abort).toContain('INVOKE_ABORT');
+    expect(es.asesor.error_siteverify_timeout).toContain('SITEVERIFY_TIMEOUT');
+    expect(es.asesor.error_missing_token).toContain('MISSING_TOKEN');
+    expect(en.asesor.error_agent_timeout).toContain('AGENT_TIMEOUT');
+    expect(en.asesor.error_invoke_abort).toContain('INVOKE_ABORT');
+  });
+
+  it('copyForAsesorError nombra la clase y anexa códigos Cloudflare', () => {
+    expect(
+      copyForAsesorError(
+        { tipo: 'verificacion', clase: 'siteverify_timeout', codes: ['siteverify_timeout'] },
+        {
+          errorSiteverifyTimeout: 'Cloudflare no respondió (SITEVERIFY_TIMEOUT).',
+          verificacion: 'verificación genérica',
+          error: 'error genérico',
+        }
+      )
+    ).toBe('Cloudflare no respondió (SITEVERIFY_TIMEOUT). (siteverify_timeout)');
+    expect(
+      copyForAsesorError(
+        { tipo: 'no_disponible', clase: 'invoke_abort' },
+        {
+          errorInvokeAbort: 'Se cortó (INVOKE_ABORT).',
+          noDisponible: 'no disponible',
+          error: 'error',
+        }
+      )
+    ).toBe('Se cortó (INVOKE_ABORT).');
   });
 });

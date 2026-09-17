@@ -11,11 +11,13 @@ import {
   ASESOR_TURNSTILE_TOKEN_WAIT_MS,
   buildAsesorTurnstileRenderOptions,
   containerHasTurnstileIframe,
+  isAsesorTurnstileClientEnabled,
   isUnrecoverableTurnstileError,
   mapAsesorTurnstileClientFailure,
   obtainAsesorTurnstileToken,
   resolveAsesorTurnstileSize,
   shouldMarkTurnstilePending,
+  shouldSkipAsesorTurnstileVerify,
   turnstileMinHeightPx,
 } from './asesor-turnstile';
 
@@ -74,9 +76,24 @@ describe('asesor Turnstile widget contract', () => {
     expect(containerHasTurnstileIframe({ querySelector: () => null })).toBe(false);
     expect(isUnrecoverableTurnstileError('110200')).toBe(true);
     expect(isUnrecoverableTurnstileError('300010')).toBe(false);
-    expect(mapAsesorTurnstileClientFailure({ tokenMissing: true })).toBe('verificacion');
-    expect(mapAsesorTurnstileClientFailure({ iframeMissing: true })).toBe('verificacion');
+    expect(mapAsesorTurnstileClientFailure({ tokenMissing: true })).toBe('missing_token');
+    expect(mapAsesorTurnstileClientFailure({ iframeMissing: true })).toBe('turnstile_client');
     expect(mapAsesorTurnstileClientFailure({})).toBeNull();
+  });
+
+  it('Turnstile del chat IMEIA está apagado por defecto y se reactiva con flags explícitos', () => {
+    expect(isAsesorTurnstileClientEnabled(undefined)).toBe(false);
+    expect(isAsesorTurnstileClientEnabled('')).toBe(false);
+    expect(isAsesorTurnstileClientEnabled('false')).toBe(false);
+    expect(isAsesorTurnstileClientEnabled('true')).toBe(true);
+    expect(shouldSkipAsesorTurnstileVerify({})).toBe(true);
+    expect(shouldSkipAsesorTurnstileVerify({ ASESOR_TURNSTILE_REQUIRED: 'true' })).toBe(false);
+    expect(
+      shouldSkipAsesorTurnstileVerify({
+        ASESOR_TURNSTILE_REQUIRED: 'true',
+        ASESOR_TURNSTILE_BYPASS: 'true',
+      })
+    ).toBe(true);
   });
 
   it('devuelve el token en cache sin esperar', async () => {
@@ -174,19 +191,22 @@ describe('asesor Turnstile widget contract', () => {
     expect(loadScript).not.toHaveBeenCalled();
   });
 
-  it('Asesor.astro usa checkbox normal/compact, remount y no interaction-only', async () => {
+  it('Asesor.astro no exige widget salvo opt-in PUBLIC_ASESOR_TURNSTILE', async () => {
     const source = await readFile(join(ROOT, 'components/Asesor.astro'), 'utf8');
+    expect(source).toContain('isAsesorTurnstileClientEnabled');
+    expect(source).toContain('PUBLIC_ASESOR_TURNSTILE');
+    expect(source).toContain('turnstileEnabled');
+    expect(source).toContain('copyForAsesorError');
     expect(source).toContain('buildAsesorTurnstileRenderOptions');
     expect(source).toContain('obtainAsesorTurnstileToken');
     expect(source).toContain('ASESOR_TURNSTILE_SCRIPT_SRC');
     expect(source).toContain('asesor-turnstile-wrap');
     expect(source).toContain('resolveAsesorTurnstileSize');
     expect(source).toContain('destroyTurnstileWidget');
-    expect(source).toContain("tipo: 'verificacion'");
     expect(source).not.toContain('interaction-only');
     expect(source).not.toContain("size: 'flexible'");
     expect(source).not.toMatch(/asesor-turnstile iframe[\s\S]{0,80}max-width:\s*100%/);
-    expect(source).toContain('void ensureTurnstileWidget()');
+    expect(source).toContain('if (config.turnstileEnabled)');
     expect(source).toContain('100dvh');
   });
 });

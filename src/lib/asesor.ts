@@ -8,6 +8,7 @@
  */
 
 import { getSupabaseClient } from './supabase';
+import { asesorError, type ErrorAsesor } from './asesor-errors';
 import {
   buildAsesorLocalSystemPrompt,
   detectarAccionHandoff,
@@ -23,6 +24,9 @@ import {
 } from './asesor-knowledge';
 import { IME_WHATSAPP_DISPLAY } from './contacto-oficial';
 import type { Locale } from '../i18n/utils';
+
+export type { AsesorErrorClase, ErrorAsesor };
+export { asesorError, copyForAsesorError } from './asesor-errors';
 
 const OLLAMA_URL = (import.meta.env['PUBLIC_OLLAMA_URL'] as string | undefined) ?? '';
 const OLLAMA_CHAT_MODEL =
@@ -126,12 +130,6 @@ interface CatalogoPublicadoMatch extends ProductoSugerido {
   familiaNombre: string;
   tipoNombre: string | null;
 }
-
-export type ErrorAsesor =
-  | { tipo: 'rate_limited'; retryAfterSegundos: number | null }
-  | { tipo: 'no_disponible' }
-  | { tipo: 'verificacion' }
-  | { tipo: 'error' };
 
 export type ResultadoAsesor =
   | { ok: true; respuesta: RespuestaAsesor }
@@ -248,14 +246,14 @@ export async function preguntarAsesor(params: {
       return { ok: true, respuesta };
     } catch (err) {
       console.warn('[asesor] Ollama local falló; no se enmascara como asesora', err);
-      return { ok: false, error: { tipo: 'error' } };
+      return { ok: false, error: asesorError('error', 'generic') };
     }
   }
 
   const supabase = getSupabaseClient();
   if (!supabase) {
     console.warn('[asesor] Supabase no configurado');
-    return { ok: false, error: { tipo: 'no_disponible' } };
+    return { ok: false, error: asesorError('no_disponible', 'supabase_missing') };
   }
 
   const sessionId = getSessionId();
@@ -294,7 +292,7 @@ export async function preguntarAsesor(params: {
     }
     if (isRecord(data) && data.status === 'pending') {
       console.warn('[asesor] poll agotado sin respuesta del agente', { turnId });
-      return { ok: false, error: { tipo: 'no_disponible' } };
+      return { ok: false, error: asesorError('no_disponible', 'agent_poll_timeout') };
     }
   }
 
@@ -306,12 +304,12 @@ export async function preguntarAsesor(params: {
 
   if (!isAsesorSuccessPayload(data)) {
     console.warn('[asesor] Edge asesor sin cuerpo de agente');
-    return { ok: false, error: { tipo: 'error' } };
+    return { ok: false, error: asesorError('error', 'invalid_payload') };
   }
 
   if (data.modo === 'keyword_degradado') {
     console.warn('[asesor] Edge devolvió keyword_degradado; no se muestra como IMEIA');
-    return { ok: false, error: { tipo: 'no_disponible' } };
+    return { ok: false, error: asesorError('no_disponible', 'agent_unavailable') };
   }
 
   return {
@@ -350,10 +348,12 @@ async function invokeAsesorEdge(
   if (error) {
     const payload = coerceAsesorEdgePayload(data);
     const status = extractFunctionsInvokeStatus(error, payload);
-    const mapped = mapAsesorEdgeStatus(status);
+    const mapped = mapAsesorInvokeFailure({ status, data: payload, error });
     console.warn('[asesor] Edge asesor error', {
       status,
       tipo: mapped.tipo,
+      clase: mapped.clase,
+      codes: mapped.codes ?? [],
       poll: Boolean(body.turnId),
     });
     return { ok: false, result: resultFromMappedEdgeError(mapped, error) };
@@ -385,13 +385,64 @@ function codeFromEdgePayload(data: unknown): string | null {
   const error = payload.error;
   if (typeof error === 'string') {
     if (/forbidden|verificacion|anti-bot/i.test(error)) return 'FORBIDDEN';
-    if (/not_configured|no configurado|agent_unavailable|agent_timeout/i.test(error)) {
-      return 'NOT_CONFIGURED';
-    }
+    if (/agent_timeout/i.test(error)) return 'AGENT_TIMEOUT';
+    if (/agent_unavailable/i.test(error)) return 'AGENT_UNAVAILABLE';
+    if (/not_configured|no configurado/i.test(error)) return 'NOT_CONFIGURED';
     return null;
   }
   if (isRecord(error) && typeof error.code === 'string') return error.code;
   return null;
+}
+
+function stringList(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is string => typeof item === 'string' && item.length > 0);
+}
+
+function detailsFromEdgePayload(data: unknown): {
+  reason?: string;
+  errorCodes: string[];
+  message?: string;
+} {
+  const payload = coerceAsesorEdgePayload(data);
+  if (!isRecord(payload)) return { errorCodes: [] };
+  const error = isRecord(payload.error) ? payload.error : payload;
+  const details = isRecord(error.details) ? error.details : {};
+  const reason = typeof details.reason === 'string' ? details.reason : undefined;
+  const errorCodes = stringList(details.errorCodes);
+  const message = typeof error.message === 'string' ? error.message : undefined;
+  return {
+    ...(reason ? { reason } : {}),
+    errorCodes,
+    ...(message ? { message } : {}),
+  };
+}
+
+function isAbortLike(error: unknown): boolean {
+  return /AbortError|\baborted\b/i.test(collectErrorMessages(error).join(' '));
+}
+
+function isTimeoutLike(error: unknown): boolean {
+  return /timed? ?out/i.test(collectErrorMessages(error).join(' '));
+}
+
+function mapForbiddenFailure(data: unknown): ErrorAsesor {
+  const details = detailsFromEdgePayload(data);
+  const codes = details.errorCodes;
+  const blob = `${details.reason ?? ''} ${details.message ?? ''} ${codes.join(' ')}`;
+  if (/Turno no pertenece|sesion/i.test(details.message ?? '')) {
+    return asesorError('error', 'session_forbidden');
+  }
+  if (details.reason === 'missing_token' || codes.includes('missing_token')) {
+    return asesorError('verificacion', 'missing_token', { codes });
+  }
+  if (details.reason === 'not_configured' || /TURNSTILE_SECRET_KEY|not_configured/i.test(blob)) {
+    return asesorError('verificacion', 'turnstile_not_configured', { codes });
+  }
+  if (codes.includes('siteverify_timeout') || /siteverify_timeout/i.test(blob)) {
+    return asesorError('verificacion', 'siteverify_timeout', { codes });
+  }
+  return asesorError('verificacion', 'turnstile_forbidden', { codes });
 }
 
 function statusFromUnknown(value: unknown): number | null {
@@ -419,9 +470,10 @@ function collectErrorMessages(error: unknown, depth = 0): string[] {
 
 export function mapAsesorWidgetException(error: unknown): ErrorAsesor {
   const blob = collectErrorMessages(error).join(' ');
-  if (/turnstile/i.test(blob)) return { tipo: 'verificacion' };
-  if (/timed? ?out|AbortError|aborted/i.test(blob)) return { tipo: 'no_disponible' };
-  return { tipo: 'error' };
+  if (/turnstile/i.test(blob)) return asesorError('verificacion', 'turnstile_client');
+  if (/AbortError|\baborted\b/i.test(blob)) return asesorError('no_disponible', 'invoke_abort');
+  if (/timed? ?out/i.test(blob)) return asesorError('no_disponible', 'invoke_timeout');
+  return asesorError('error', 'generic');
 }
 
 function isAsesorSuccessPayload(data: unknown): data is AsesorApiResponse {
@@ -458,21 +510,50 @@ export function extractFunctionsInvokeStatus(error: unknown, data: unknown): num
 }
 
 export function mapAsesorEdgeStatus(status: number | null): ErrorAsesor {
-  if (status === 403) return { tipo: 'verificacion' };
-  if (status === 503 || status === 504) return { tipo: 'no_disponible' };
-  if (status === 429) return { tipo: 'rate_limited', retryAfterSegundos: null };
-  return { tipo: 'error' };
+  return mapAsesorInvokeFailure({ status, data: null, error: null });
+}
+
+export function mapAsesorInvokeFailure(params: {
+  status: number | null;
+  data: unknown;
+  error: unknown;
+}): ErrorAsesor {
+  const code = codeFromEdgePayload(params.data);
+
+  if (code === 'RATE_LIMITED' || params.status === 429) {
+    return asesorError('rate_limited', 'rate_limited', { retryAfterSegundos: null });
+  }
+  if (code === 'AGENT_TIMEOUT') {
+    return asesorError('no_disponible', 'agent_timeout');
+  }
+  if (code === 'AGENT_UNAVAILABLE') {
+    return asesorError('no_disponible', 'agent_unavailable');
+  }
+  if (code === 'NOT_CONFIGURED') {
+    const details = detailsFromEdgePayload(params.data);
+    if (/TURNSTILE/i.test(details.message ?? '')) {
+      return asesorError('verificacion', 'turnstile_not_configured');
+    }
+    return asesorError('no_disponible', 'agent_unavailable');
+  }
+  if (code === 'FORBIDDEN' || params.status === 403) {
+    return mapForbiddenFailure(params.data);
+  }
+  if (isAbortLike(params.error)) {
+    return asesorError('no_disponible', 'invoke_abort');
+  }
+  if (isTimeoutLike(params.error)) {
+    return asesorError('no_disponible', 'invoke_timeout');
+  }
+  if (params.status === 504) return asesorError('no_disponible', 'agent_timeout');
+  if (params.status === 503) return asesorError('no_disponible', 'agent_unavailable');
+  return asesorError('error', 'generic');
 }
 
 function mapAsesorEdgePayloadError(data: unknown): ErrorAsesor | null {
   const code = codeFromEdgePayload(data);
   if (!code) return null;
-  if (code === 'FORBIDDEN') return { tipo: 'verificacion' };
-  if (code === 'RATE_LIMITED') return { tipo: 'rate_limited', retryAfterSegundos: null };
-  if (code === 'NOT_CONFIGURED' || code === 'AGENT_UNAVAILABLE' || code === 'AGENT_TIMEOUT') {
-    return { tipo: 'no_disponible' };
-  }
-  return { tipo: 'error' };
+  return mapAsesorInvokeFailure({ status: null, data, error: null });
 }
 
 function resultFromMappedEdgeError(mapped: ErrorAsesor, error: unknown): ResultadoAsesor {
@@ -480,7 +561,7 @@ function resultFromMappedEdgeError(mapped: ErrorAsesor, error: unknown): Resulta
     const retryAfter = retryAfterFromInvokeError(error);
     return {
       ok: false,
-      error: { tipo: 'rate_limited', retryAfterSegundos: retryAfter },
+      error: asesorError('rate_limited', 'rate_limited', { retryAfterSegundos: retryAfter }),
     };
   }
   return { ok: false, error: mapped };

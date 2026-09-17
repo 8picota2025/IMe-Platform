@@ -46,8 +46,9 @@ WOMPI_API_BASE=               # Opcional, default https://production.wompi.co/v1
 STRIPE_PUBLIC_KEY=            # Stripe (pública)
 STRIPE_SECRET_KEY=            # Stripe secreta — SOLO Edge Functions
 STRIPE_WEBHOOK_SECRET=        # Firma webhooks Stripe
-TURNSTILE_SITE_KEY=           # Cloudflare Turnstile (pública)
+TURNSTILE_SITE_KEY=           # Cloudflare Turnstile (pública; formularios)
 TURNSTILE_SECRET_KEY=         # Turnstile secreta — SOLO Edge Functions
+PUBLIC_ASESOR_TURNSTILE=      # true solo si se reactiva el muro en el chat IMEIA
 CI_DEPLOY_HOOK=               # Hook para trigger-rebuild desde CMS
 ```
 
