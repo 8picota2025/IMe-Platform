@@ -149,6 +149,47 @@ describe('buildProductoPageTitle', () => {
     expect(title.length).toBeLessThanOrEqual(PRODUCT_TITLE_MAX + 12);
   });
 
+  it('mantiene la referencia cuando el nombre no cabe con la categoría', () => {
+    // GSC 2026-09-16: 36 PDP compartían "Carro clínico Ref. | Mobiliario hospitalario e | I-ME".
+    const a = buildProductoPageTitle(
+      'Cama hospitalaria Ref. SK-A2 Saikang',
+      'es',
+      'Mobiliario hospitalario e insumos',
+      'Saikang'
+    );
+    const b = buildProductoPageTitle(
+      'Cama hospitalaria Ref. SK-A3 Saikang',
+      'es',
+      'Mobiliario hospitalario e insumos',
+      'Saikang'
+    );
+    expect(a).toContain('SK-A2');
+    expect(b).toContain('SK-A3');
+    expect(a).not.toBe(b);
+  });
+
+  it('no deja "Ref." ni conjunción colgante en el título', () => {
+    const title = buildProductoPageTitle(
+      'Carro clínico Ref. SKB041-10 Saikang',
+      'es',
+      'Mobiliario hospitalario e insumos',
+      'Saikang'
+    );
+    expect(title).not.toMatch(/Ref\.\s*\|/i);
+    expect(title).not.toMatch(/\s(e|y|de|con)\s*\|/i);
+  });
+
+  it('conserva el código de modelo aunque el nombre exceda el máximo duro', () => {
+    const title = buildProductoPageTitle(
+      'Sistema de Radiografía Digital Dinámica Multipropósito UC-ARM DTP580 Series Fanghua',
+      'es',
+      'Radiología',
+      'Fanghua'
+    );
+    expect(title).toContain('DTP580');
+    expect(title.endsWith('| I-ME')).toBe(true);
+  });
+
   it('no deja preposición colgante al truncar', () => {
     const title = buildProductoPageTitle(
       'Desfibrilador Bifásico con Monitor',
@@ -196,5 +237,46 @@ describe('buildProductoSeo', () => {
     );
     expect(seo.description.toLowerCase()).toContain('esterilización');
     expect(seo.title).toMatch(/Esterilización/);
+  });
+});
+
+describe('descripciones hermanas', () => {
+  const base = {
+    descripcion_corta:
+      'La Faja Abdominal Konfort Plus está diseñada para brindar soporte y mejorar la postura.',
+    imagen_principal: null,
+  };
+
+  it('distingue productos que comparten la misma descripcion_corta', () => {
+    const a = buildProductoSeo(
+      { ...base, nombre: 'Faja Abdominal De 30 cm Talla S/M', slug: 'faja-30-sm' },
+      'es',
+      'Ortopedia',
+      'Konfort Plus'
+    );
+    const b = buildProductoSeo(
+      { ...base, nombre: 'Faja Abdominal De 30 cm Talla L/XL', slug: 'faja-30-lxl' },
+      'es',
+      'Ortopedia',
+      'Konfort Plus'
+    );
+    expect(a.description).not.toBe(b.description);
+    expect(a.description).toContain('S/M');
+    expect(b.description).toContain('L/XL');
+  });
+
+  it('no antepone el nombre cuando la descripción ya lo distingue', () => {
+    const seo = buildProductoSeo(
+      {
+        nombre: 'Monitor de Paciente P22 Biolight',
+        descripcion_corta: 'El monitor P22 Biolight ofrece monitoreo multiparamétrico continuo.',
+        imagen_principal: null,
+        slug: 'monitor-p22',
+      },
+      'es',
+      'Monitorización',
+      'Biolight'
+    );
+    expect(seo.description.startsWith('El monitor P22')).toBe(true);
   });
 });

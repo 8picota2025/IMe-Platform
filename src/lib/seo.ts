@@ -66,8 +66,15 @@ export function buildPageTitle(pageTitle: string): string {
   return `${cleaned} | ${BRAND}`;
 }
 
-/** Soft max for SERP title display (~60 chars including brand). */
-export const PRODUCT_TITLE_MAX = 60;
+/** Soft max for SERP title display (~65 chars including brand). */
+export const PRODUCT_TITLE_MAX = 65;
+
+/**
+ * Absolute ceiling. Between PRODUCT_TITLE_MAX and this, we keep the full product
+ * name instead of truncating: a slightly long title still ranks, a title that lost
+ * its reference code collides with every sibling product.
+ */
+const PRODUCT_TITLE_HARD_MAX = 77;
 
 function stripTrailingBrand(name: string): string {
   return name.replace(/\s*\|\s*I-ME\s*$/i, '').trim();
@@ -88,14 +95,84 @@ function includesLoose(haystack: string, needle: string, locale: Locale): boolea
   return false;
 }
 
+const DANGLING_WORDS =
+  /\s+(con|de|del|la|el|los|las|un|una|y|e|o|u|ni|al|a|para|por|en|sin|tipo|sobre|entre|desde|hasta|with|and|or|for|the|a|an|of|to|in|on)$/i;
+
+/** A trailing "Ref."/"Mod." with no code after it reads as a broken title. */
+const DANGLING_REF = /[\s,–-]*\b(ref|mod|modelo|model)\.?$/i;
+
+function stripDangling(value: string): string {
+  let out = value.trim();
+  let previous = '';
+  while (out !== previous) {
+    previous = out;
+    out = out.replace(DANGLING_REF, '').replace(DANGLING_WORDS, '').trim();
+  }
+  return out;
+}
+
 function shortenTitlePart(value: string, maxLen: number): string {
   const clean = value.replace(/\s+/g, ' ').trim();
   if (clean.length <= maxLen) return clean;
   const cut = clean.lastIndexOf(' ', maxLen - 1);
   const sliced = clean.slice(0, cut > maxLen * 0.55 ? cut : maxLen).trim();
-  return sliced
-    .replace(/\s+(con|de|del|la|el|los|las|y|para|por|en|with|and|for|the|a|an|of)$/i, '')
+  return stripDangling(sliced);
+}
+
+/** Model/reference token: carries a digit, e.g. SKB041-1, SK-A2, IP-200, T75. */
+const MODEL_CODE_TOKEN = /^[\p{L}\p{N}][\p{L}\p{N}./+-]*$/u;
+
+function findModelCodeIndex(tokens: readonly string[]): number {
+  for (let i = tokens.length - 1; i >= 0; i -= 1) {
+    const token = tokens[i]!;
+    if (token.length <= 20 && /\d/.test(token) && MODEL_CODE_TOKEN.test(token)) return i;
+  }
+  return -1;
+}
+
+/**
+ * Truncate a product name without ever dropping its reference code.
+ *
+ * The code is the only token that distinguishes sibling products (SK-A2 vs SK-A3),
+ * so a naive right-side cut collapsed dozens of PDPs onto one identical title.
+ */
+function shortenProductName(name: string, maxLen: number): string {
+  const clean = name.replace(/\s+/g, ' ').trim();
+  if (clean.length <= maxLen) return clean;
+
+  const tokens = clean.split(' ');
+  const codeIndex = findModelCodeIndex(tokens);
+  if (codeIndex <= 0) return shortenTitlePart(clean, maxLen);
+
+  const code = tokens[codeIndex]!;
+  const headBudget = maxLen - code.length - 1;
+  if (headBudget < 10) return code.slice(0, maxLen);
+
+  const head = shortenTitlePart(tokens.slice(0, codeIndex).join(' '), headBudget);
+  return head ? `${head} ${code}` : code;
+}
+
+/**
+ * Shortest fragment of the product name that separates it from its siblings:
+ * the model code when there is one, otherwise the trailing qualifier
+ * ("Talla L/XL", "Color Bronce").
+ */
+function productDiscriminator(nombre: string, marca?: string | null): string {
+  const clean = stripTrailingBrand(nombre)
+    .replace(marca ? new RegExp(`\\s*${escapeRegExp(marca)}\\s*$`, 'i') : /$^/, '')
+    .replace(/\s+/g, ' ')
     .trim();
+  const tokens = clean.split(' ').filter(Boolean);
+  if (tokens.length === 0) return '';
+
+  const codeIndex = findModelCodeIndex(tokens);
+  if (codeIndex >= 0) return tokens[codeIndex]!;
+
+  return tokens.slice(-2).join(' ');
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function normalizeCategoriaLabel(categoria: string): string {
@@ -117,8 +194,7 @@ export function buildProductoPageTitle(
   primaryIntent?: string
 ): string {
   const brandSuffix = ` | ${BRAND}`;
-  const budget = PRODUCT_TITLE_MAX - brandSuffix.length;
-  const name = stripTrailingBrand(nombre);
+  const name = stripDangling(stripTrailingBrand(nombre));
   if (marca && includesLoose(name, marca, locale) === false) {
     /* keep manufacturer in product name as-is; do not append marca again */
   }
@@ -131,26 +207,22 @@ export function buildProductoPageTitle(
     !includesLoose(name, intent, locale) &&
     !(cat && includesLoose(cat, intent, locale));
 
+  // A middle segment is only worth it whole: a half-cut category ("Mobiliario
+  // hospitalario e") adds no keyword and reads as a bug.
   const middleCandidates: string[] = [];
-  if (catUsable) {
-    middleCandidates.push(shortenTitlePart(cat, 28));
-  }
-  if (intentUsable) {
-    middleCandidates.push(shortenTitlePart(intent, 28));
-  }
-  middleCandidates.push('');
+  if (catUsable) middleCandidates.push(cat);
+  if (intentUsable) middleCandidates.push(intent);
 
   for (const middle of middleCandidates) {
-    const coreBudget = middle ? budget - middle.length - 3 : budget;
-    if (coreBudget < 18) continue;
-    const coreName = shortenTitlePart(name, coreBudget);
-    if (coreName.length < 12) continue;
-    const core = middle ? `${coreName} | ${middle}` : coreName;
-    const full = `${core}${brandSuffix}`;
-    if (full.length <= PRODUCT_TITLE_MAX + 8) return full;
+    const full = `${name} | ${middle}${brandSuffix}`;
+    if (full.length <= PRODUCT_TITLE_MAX) return full;
   }
 
-  return `${shortenTitlePart(name, budget)}${brandSuffix}`;
+  // Uniqueness beats length: keep the untruncated name while it stays sane.
+  const nameOnly = `${name}${brandSuffix}`;
+  if (nameOnly.length <= PRODUCT_TITLE_HARD_MAX) return nameOnly;
+
+  return `${shortenProductName(name, PRODUCT_TITLE_HARD_MAX - brandSuffix.length)}${brandSuffix}`;
 }
 
 export function buildCanonical(path: string): string {
@@ -221,7 +293,17 @@ export function buildProductoSeo(
     locale === 'en'
       ? 'For Colombia, Latin America and Spain.'
       : 'Para Colombia, Latinoamérica y España.';
-  const baseDescription = producto.descripcion_corta?.trim() || producto.nombre.trim();
+  // Sibling products frequently share one generic `descripcion_corta` (the same
+  // paragraph for four belt sizes). Leading with the product name is what keeps
+  // each meta description distinct.
+  const rawDescription = producto.descripcion_corta?.trim() || producto.nombre.trim();
+  const discriminator = productDiscriminator(producto.nombre, marca);
+  const descriptionIsDistinct =
+    !discriminator ||
+    rawDescription.toLocaleLowerCase(locale).includes(discriminator.toLocaleLowerCase(locale));
+  const baseDescription = descriptionIsDistinct
+    ? rawDescription
+    : `${producto.nombre.trim()}. ${rawDescription}`;
   const seoTail = [primaryIntent ? `${primaryIntent}.` : '', market].filter(Boolean).join(' ');
   const baseBudget = seoTail ? 154 - seoTail.length : 155;
   const lead = compactMetaLead(baseDescription, Math.max(72, baseBudget));
