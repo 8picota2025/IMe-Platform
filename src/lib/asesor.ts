@@ -436,7 +436,7 @@ function mapForbiddenFailure(data: unknown): ErrorAsesor {
   if (details.reason === 'missing_token' || codes.includes('missing_token')) {
     return asesorError('verificacion', 'missing_token', { codes });
   }
-  if (details.reason === 'not_configured' || /TURNSTILE_SECRET_KEY|not_configured/i.test(blob)) {
+  if (details.reason === 'not_configured' || /not_configured/i.test(blob)) {
     return asesorError('verificacion', 'turnstile_not_configured', { codes });
   }
   if (codes.includes('siteverify_timeout') || /siteverify_timeout/i.test(blob)) {
@@ -531,7 +531,8 @@ export function mapAsesorInvokeFailure(params: {
   }
   if (code === 'NOT_CONFIGURED') {
     const details = detailsFromEdgePayload(params.data);
-    if (/TURNSTILE/i.test(details.message ?? '')) {
+    const msg = `${details.reason ?? ''} ${details.message ?? ''}`;
+    if (/not_configured|no configurado|BLOQUEANTE_BACKEND|TURNSTILE/i.test(msg)) {
       return asesorError('verificacion', 'turnstile_not_configured');
     }
     return asesorError('no_disponible', 'agent_unavailable');

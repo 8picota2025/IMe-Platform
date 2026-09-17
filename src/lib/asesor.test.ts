@@ -779,6 +779,25 @@ describe('asesor Edge error mapping', () => {
         error: null,
       })
     ).toEqual({ tipo: 'verificacion', clase: 'missing_token' });
+    expect(
+      mapAsesorInvokeFailure({
+        status: 403,
+        data: { error: { code: 'FORBIDDEN', details: { reason: 'not_configured' } } },
+        error: null,
+      })
+    ).toEqual({ tipo: 'verificacion', clase: 'turnstile_not_configured' });
+    expect(
+      mapAsesorInvokeFailure({
+        status: 503,
+        data: {
+          error: {
+            code: 'NOT_CONFIGURED',
+            message: 'BLOQUEANTE_BACKEND: anti-bot no configurado',
+          },
+        },
+        error: null,
+      })
+    ).toEqual({ tipo: 'verificacion', clase: 'turnstile_not_configured' });
   });
 });
 
