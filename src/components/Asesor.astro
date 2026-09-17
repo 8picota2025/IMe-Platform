@@ -33,6 +33,7 @@ const asesorConfig = {
     error: t(locale, 'asesor.error'),
     verificacion: t(locale, 'asesor.verificacion'),
     verificacionHint: t(locale, 'asesor.verificacion_hint'),
+    verificacionCargando: t(locale, 'asesor.verificacion_cargando'),
     noDisponible: t(locale, 'asesor.no_disponible'),
     verProducto: t(locale, 'asesor.ver_producto'),
     handoffWhatsapp: t(locale, 'asesor.handoff_whatsapp'),
@@ -146,11 +147,15 @@ const asesorConfig = {
           <p id="asesor-turnstile-hint" class="asesor-turnstile-hint">
             {t(locale, 'asesor.verificacion_hint')}
           </p>
+          <p id="asesor-turnstile-status" class="asesor-turnstile-status">
+            {t(locale, 'asesor.verificacion_cargando')}
+          </p>
           <div
             id="asesor-turnstile"
             class="asesor-turnstile is-pending"
             role="group"
             aria-labelledby="asesor-turnstile-hint"
+            data-size="normal"
           />
         </div>
       ) : null
@@ -248,7 +253,7 @@ const asesorConfig = {
     right: 1.5rem;
     z-index: 201;
     width: min(max(470px, 33.33vw), calc(100vw - 2rem));
-    max-height: calc(100vh - 6rem);
+    max-height: calc(100dvh - 6rem);
     display: flex;
     flex-direction: column;
     border-radius: var(--radius-lg);
@@ -336,7 +341,7 @@ const asesorConfig = {
     flex-direction: column;
     gap: 0.75rem;
     min-height: 240px;
-    max-height: min(540px, calc(100vh - 17rem));
+    max-height: min(540px, calc(100dvh - 17rem));
   }
   .asesor-turnstile-wrap {
     flex-shrink: 0;
@@ -348,33 +353,43 @@ const asesorConfig = {
     border-top: 1px solid var(--border);
     background: var(--t50);
     overflow: visible;
-    z-index: 2;
+    z-index: 4;
+    isolation: isolate;
+    pointer-events: auto;
   }
-  .asesor-turnstile-hint {
+  .asesor-turnstile-hint,
+  .asesor-turnstile-status {
     margin: 0;
     font-size: 0.75rem;
     color: var(--text-muted);
     text-align: center;
     line-height: 1.35;
   }
-  .asesor-turnstile {
-    display: flex;
-    justify-content: center;
-    min-height: 68px;
-    width: 100%;
-    overflow: visible;
+  .asesor-turnstile-status[hidden] {
+    display: none;
   }
-  .asesor-turnstile.is-pending {
-    min-height: 68px;
+  .asesor-turnstile {
+    display: block;
+    width: 100%;
+    min-height: 65px;
+    overflow: visible;
+    line-height: 0;
+  }
+  .asesor-turnstile[data-size='compact'] {
+    min-height: 140px;
+  }
+  .asesor-turnstile.is-pending:not(:has(iframe)) {
+    min-height: 65px;
+  }
+  .asesor-turnstile.is-broken {
+    outline: 1px dashed var(--border-mid);
+    outline-offset: 4px;
   }
   .asesor-error-actions {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
     margin-top: 0.75rem;
-  }
-  .asesor-turnstile iframe {
-    max-width: 100%;
   }
   .asesor-dialog__form {
     display: flex;
@@ -533,10 +548,12 @@ const asesorConfig = {
 
   @media (max-width: 479px) {
     .asesor-dialog {
-      right: 0.75rem;
-      bottom: 4.75rem;
-      width: min(420px, calc(100vw - 1.5rem));
-      max-height: min(620px, calc(100vh - 7rem));
+      left: 0.5rem;
+      right: 0.5rem;
+      bottom: 0.5rem;
+      width: auto;
+      max-width: none;
+      max-height: calc(100dvh - 1rem);
     }
 
     .asesor-dialog__header {
@@ -544,8 +561,12 @@ const asesorConfig = {
     }
 
     .asesor-dialog__messages {
-      max-height: min(460px, calc(100vh - 13rem));
+      max-height: min(460px, calc(100dvh - 14rem));
       padding: 0.875rem;
+    }
+
+    .asesor-turnstile-wrap {
+      padding: 0.5rem 0.5rem 0.6rem;
     }
 
     .chat-bubble {
@@ -573,12 +594,18 @@ const asesorConfig = {
 <script>
   import { resetTransientUiState } from '../lib/motion';
   import {
+    ASESOR_TURNSTILE_IFRAME_WAIT_MS,
     ASESOR_TURNSTILE_RETRY_WAIT_MS,
     ASESOR_TURNSTILE_SCRIPT_SRC,
+    ASESOR_TURNSTILE_SCRIPT_WAIT_MS,
     ASESOR_TURNSTILE_TOKEN_WAIT_MS,
     buildAsesorTurnstileRenderOptions,
+    containerHasTurnstileIframe,
+    isUnrecoverableTurnstileError,
     obtainAsesorTurnstileToken,
+    resolveAsesorTurnstileSize,
     shouldMarkTurnstilePending,
+    turnstileMinHeightPx,
   } from '../lib/asesor-turnstile';
   import type {
     MensajeAsesor,
@@ -598,6 +625,7 @@ const asesorConfig = {
     error: string;
     verificacion: string;
     verificacionHint: string;
+    verificacionCargando: string;
     noDisponible: string;
     verProducto: string;
     handoffWhatsapp: string;
@@ -617,6 +645,7 @@ const asesorConfig = {
   declare global {
     interface Window {
       turnstile?: {
+        ready?: (callback: () => void) => void;
         render: (container: string | HTMLElement, options: Record<string, unknown>) => string;
         execute: (widgetId: string | HTMLElement, options?: Record<string, unknown>) => void;
         reset: (widgetId?: string | HTMLElement) => void;
@@ -660,6 +689,13 @@ const asesorConfig = {
     >;
     resetHistorial: () => void;
     getSessionId: () => string;
+    mapAsesorWidgetException: (
+      error: unknown
+    ) =>
+      | { tipo: 'rate_limited'; retryAfterSegundos: number | null }
+      | { tipo: 'no_disponible' }
+      | { tipo: 'verificacion' }
+      | { tipo: 'error' };
     obtenerHistorial: () => { rol: 'usuario' | 'asesor'; contenido: string; timestamp: Date }[];
     guardarHistorial: (
       historial: { rol: 'usuario' | 'asesor'; contenido: string; timestamp: Date }[]
@@ -708,6 +744,7 @@ const asesorConfig = {
     const inputEl = document.getElementById('asesor-input') as HTMLTextAreaElement | null;
     const sendBtn = form?.querySelector<HTMLButtonElement>('.asesor-dialog__send') ?? null;
     const turnstileContainer = document.getElementById('asesor-turnstile');
+    const turnstileStatusEl = document.getElementById('asesor-turnstile-status');
 
     const config: AsesorConfig = JSON.parse(dialog.dataset.asesorConfig ?? '{}') as AsesorConfig;
     // If the dialog persisted (messages already present), don't show welcome again
@@ -965,40 +1002,139 @@ const asesorConfig = {
       form?.setAttribute('aria-busy', value ? 'true' : 'false');
     }
 
+    function sleep(ms: number): Promise<void> {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function waitForTurnstileApi(timeoutMs: number): Promise<void> {
+      return new Promise((resolve, reject) => {
+        let settled = false;
+        let pollId = 0;
+        let timeoutId = 0;
+        const finishOk = () => {
+          if (settled) return;
+          settled = true;
+          window.clearTimeout(timeoutId);
+          window.clearInterval(pollId);
+          resolve();
+        };
+        timeoutId = window.setTimeout(() => {
+          if (settled) return;
+          if (window.turnstile) {
+            finishOk();
+            return;
+          }
+          settled = true;
+          window.clearInterval(pollId);
+          reject(new Error('turnstile load timeout'));
+        }, timeoutMs);
+        const armReady = () => {
+          if (settled || !window.turnstile) return;
+          window.clearInterval(pollId);
+          if (typeof window.turnstile.ready === 'function') {
+            window.turnstile.ready(finishOk);
+            return;
+          }
+          finishOk();
+        };
+        pollId = window.setInterval(armReady, 50);
+        armReady();
+      });
+    }
+
     function loadTurnstileScript(): Promise<void> {
-      if (window.turnstile) return Promise.resolve();
+      if (window.turnstile) return waitForTurnstileApi(ASESOR_TURNSTILE_SCRIPT_WAIT_MS);
       if (turnstileLoadPromise) return turnstileLoadPromise;
       const existing = document.querySelector<HTMLScriptElement>('script[data-ime-turnstile]');
       turnstileLoadPromise = new Promise((resolve, reject) => {
+        const fail = () => reject(new Error('turnstile load error'));
+        const succeed = () => {
+          void waitForTurnstileApi(ASESOR_TURNSTILE_SCRIPT_WAIT_MS).then(resolve, reject);
+        };
         if (existing) {
-          existing.addEventListener('load', () => resolve(), { once: true });
-          existing.addEventListener('error', () => reject(new Error('turnstile load error')), {
-            once: true,
-          });
-          if (window.turnstile) resolve();
+          existing.addEventListener('load', succeed, { once: true });
+          existing.addEventListener('error', fail, { once: true });
+          if (window.turnstile) succeed();
+          else void waitForTurnstileApi(ASESOR_TURNSTILE_SCRIPT_WAIT_MS).then(resolve, reject);
           return;
         }
         const script = document.createElement('script');
         script.src = ASESOR_TURNSTILE_SCRIPT_SRC;
         script.async = true;
         script.dataset.imeTurnstile = '1';
-        script.onload = () => resolve();
-        script.onerror = () => reject(new Error('turnstile load error'));
+        script.onload = succeed;
+        script.onerror = fail;
         document.head.appendChild(script);
       });
       return turnstileLoadPromise;
     }
 
+    function setTurnstileStatusVisible(visible: boolean) {
+      if (!turnstileStatusEl) return;
+      turnstileStatusEl.hidden = !visible;
+    }
+
+    function markTurnstileBroken(broken: boolean) {
+      turnstileContainer?.classList.toggle('is-broken', broken);
+    }
+
+    function highlightTurnstile() {
+      turnstileContainer?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      markTurnstileBroken(true);
+    }
+
     function setTurnstilePending(pending: boolean) {
       const tokenReady = Boolean(turnstileTokenCache) && !pending;
-      turnstileContainer?.classList.toggle(
-        'is-pending',
+      const showPending =
         pending ||
-          shouldMarkTurnstilePending({
-            siteKeyPresent: Boolean(config.turnstileSiteKey),
-            tokenReady,
-          })
-      );
+        shouldMarkTurnstilePending({
+          siteKeyPresent: Boolean(config.turnstileSiteKey),
+          tokenReady,
+        });
+      turnstileContainer?.classList.toggle('is-pending', showPending);
+      const iframeReady = containerHasTurnstileIframe(turnstileContainer);
+      setTurnstileStatusVisible(showPending && !iframeReady && !tokenReady);
+      if (tokenReady || iframeReady) markTurnstileBroken(false);
+    }
+
+    function currentTurnstileSize() {
+      const width = turnstileContainer?.getBoundingClientRect().width ?? 0;
+      return resolveAsesorTurnstileSize(width);
+    }
+
+    function applyTurnstileSize(size: ReturnType<typeof resolveAsesorTurnstileSize>) {
+      if (!turnstileContainer) return;
+      turnstileContainer.dataset.size = size;
+      turnstileContainer.style.minHeight = `${turnstileMinHeightPx(size)}px`;
+    }
+
+    function destroyTurnstileWidget() {
+      if (turnstileWidgetId !== null) {
+        try {
+          window.turnstile?.remove(turnstileWidgetId);
+        } catch {
+          try {
+            window.turnstile?.reset(turnstileWidgetId);
+          } catch {
+            /* ignore */
+          }
+        }
+      }
+      turnstileWidgetId = null;
+      turnstileTokenCache = undefined;
+      resolveTurnstileToken = null;
+      if (turnstileContainer) turnstileContainer.replaceChildren();
+      markTurnstileBroken(false);
+      setTurnstilePending(true);
+    }
+
+    async function waitForTurnstileIframe(): Promise<boolean> {
+      const deadline = Date.now() + ASESOR_TURNSTILE_IFRAME_WAIT_MS;
+      while (Date.now() < deadline) {
+        if (containerHasTurnstileIframe(turnstileContainer)) return true;
+        await sleep(50);
+      }
+      return containerHasTurnstileIframe(turnstileContainer);
     }
 
     async function ensureTurnstileWidget(): Promise<string | null> {
@@ -1006,29 +1142,54 @@ const asesorConfig = {
       await loadTurnstileScript();
       if (!window.turnstile) return null;
 
-      if (turnstileWidgetId !== null) return turnstileWidgetId;
+      if (turnstileWidgetId !== null && containerHasTurnstileIframe(turnstileContainer)) {
+        return turnstileWidgetId;
+      }
+      if (turnstileWidgetId !== null) destroyTurnstileWidget();
 
+      for (let i = 0; i < 8; i += 1) {
+        if ((turnstileContainer.getBoundingClientRect().width ?? 0) >= 150) break;
+        await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+      }
+
+      const size = currentTurnstileSize();
+      applyTurnstileSize(size);
       setTurnstilePending(true);
       turnstileWidgetId = window.turnstile.render(
         turnstileContainer,
-        buildAsesorTurnstileRenderOptions(config.turnstileSiteKey, {
-          callback: (token: string) => {
-            turnstileTokenCache = token;
-            setTurnstilePending(false);
-            resolveTurnstileToken?.(token);
+        buildAsesorTurnstileRenderOptions(
+          config.turnstileSiteKey,
+          {
+            callback: (token: string) => {
+              turnstileTokenCache = token;
+              setTurnstilePending(false);
+              resolveTurnstileToken?.(token);
+            },
+            'error-callback': (codigo: unknown) => {
+              console.error('[asesor] Turnstile error-callback:', codigo);
+              turnstileTokenCache = undefined;
+              setTurnstilePending(true);
+              if (isUnrecoverableTurnstileError(codigo)) {
+                markTurnstileBroken(true);
+                resolveTurnstileToken?.(undefined);
+              }
+            },
+            'expired-callback': () => {
+              turnstileTokenCache = undefined;
+              setTurnstilePending(true);
+            },
           },
-          'error-callback': (codigo: unknown) => {
-            console.error('[asesor] Turnstile error-callback:', codigo);
-            turnstileTokenCache = undefined;
-            setTurnstilePending(true);
-            // Do not fail the waiter: retry:auto may still produce a token.
-          },
-          'expired-callback': () => {
-            turnstileTokenCache = undefined;
-            setTurnstilePending(true);
-          },
-        })
+          { size, language: config.locale }
+        )
       );
+
+      const iframeReady = await waitForTurnstileIframe();
+      if (!iframeReady) {
+        console.warn('[asesor] Turnstile iframe no apareció');
+        markTurnstileBroken(true);
+      } else {
+        setTurnstilePending(!turnstileTokenCache);
+      }
       return turnstileWidgetId;
     }
 
@@ -1061,6 +1222,8 @@ const asesorConfig = {
         setPending: setTurnstilePending,
         waitMs: ASESOR_TURNSTILE_TOKEN_WAIT_MS,
         retryWaitMs: ASESOR_TURNSTILE_RETRY_WAIT_MS,
+        retryWithReset: false,
+        iframeReady: () => containerHasTurnstileIframe(turnstileContainer),
       });
     }
 
@@ -1068,6 +1231,7 @@ const asesorConfig = {
       if (enviando) return;
       ultimoMensaje = mensaje;
       setEnviando(true);
+      let consumedToken = false;
       const loadingBubble = addBubble(config.i18n.buscando, 'loading');
       try {
         if (!asesorLib) asesorLib = await import('../lib/asesor');
@@ -1079,10 +1243,13 @@ const asesorConfig = {
         const turnstileToken = await getTurnstileToken();
         if (!turnstileToken) {
           console.warn('[asesor] Turnstile token ausente; no se envía el mensaje al agente');
+          loadingBubble?.remove();
           renderError({ tipo: 'verificacion' });
+          highlightTurnstile();
           return;
         }
 
+        consumedToken = true;
         const resultado = await asesorLib.preguntarAsesor({
           mensaje,
           historial,
@@ -1093,6 +1260,7 @@ const asesorConfig = {
 
         if (!resultado.ok) {
           renderError(resultado.error);
+          if (resultado.error.tipo === 'verificacion') highlightTurnstile();
           return;
         }
 
@@ -1104,12 +1272,18 @@ const asesorConfig = {
         });
         asesorLib.guardarHistorial(historial);
         renderRespuesta(resultado.respuesta);
-      } catch {
-        renderError({ tipo: 'error' });
+      } catch (err) {
+        const mapped = asesorLib?.mapAsesorWidgetException(err) ?? { tipo: 'error' as const };
+        renderError(mapped);
+        if (mapped.tipo === 'verificacion') highlightTurnstile();
       } finally {
-        turnstileTokenCache = undefined;
-        if (turnstileWidgetId !== null) window.turnstile?.reset(turnstileWidgetId);
-        setTurnstilePending(true);
+        if (consumedToken) {
+          turnstileTokenCache = undefined;
+          destroyTurnstileWidget();
+          void ensureTurnstileWidget().catch(err =>
+            console.warn('[asesor] Turnstile remount falló', err)
+          );
+        }
         loadingBubble?.remove();
         setEnviando(false);
       }
@@ -1140,9 +1314,10 @@ const asesorConfig = {
 
       if (focusInput) setTimeout(() => inputEl?.focus(), 100);
       setTurnstilePending(true);
-      void ensureTurnstileWidget().catch(err =>
-        console.warn('[asesor] Turnstile preload falló', err)
-      );
+      void ensureTurnstileWidget().catch(err => {
+        console.warn('[asesor] Turnstile preload falló', err);
+        markTurnstileBroken(true);
+      });
     }
 
     function closeDialog() {

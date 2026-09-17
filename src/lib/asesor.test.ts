@@ -5,8 +5,10 @@ import en from '../i18n/en.json';
 import {
   buildBiomedicalFallback,
   buildResilientFallbackResponse,
+  coerceAsesorEdgePayload,
   extractFunctionsInvokeStatus,
   mapAsesorEdgeStatus,
+  mapAsesorWidgetException,
   parseStructuredAsesorResponse,
   resetCatalogoPublicadoCache,
   resolveAsesorTransport,
@@ -691,6 +693,40 @@ describe('asesor Edge error mapping', () => {
       extractFunctionsInvokeStatus({ message: 'Supabase request timed out after 120000ms' }, null)
     ).toBe(504);
   });
+
+  it('lee FORBIDDEN aunque el body llegue como string JSON', () => {
+    expect(
+      extractFunctionsInvokeStatus(
+        { message: 'Edge Function returned a non-2xx status code' },
+        '{"error":{"code":"FORBIDDEN","message":"Verificacion anti-bot fallida"}}'
+      )
+    ).toBe(403);
+    expect(coerceAsesorEdgePayload('{"error":{"code":"FORBIDDEN"}}')).toEqual({
+      error: { code: 'FORBIDDEN' },
+    });
+  });
+
+  it('mapea FunctionsFetchError con AbortError anidado a 504, no a error genérico', () => {
+    const abort = new Error('The operation was aborted');
+    abort.name = 'AbortError';
+    const wrapped = new Error('Failed to send a request to the Edge Function', { cause: abort });
+    expect(extractFunctionsInvokeStatus(wrapped, null)).toBe(504);
+    expect(extractFunctionsInvokeStatus({ context: abort, message: 'Failed to send' }, null)).toBe(
+      504
+    );
+  });
+
+  it('clasifica excepciones del widget: Turnstile → verificacion, timeout → no_disponible', () => {
+    expect(mapAsesorWidgetException(new Error('turnstile load error'))).toEqual({
+      tipo: 'verificacion',
+    });
+    expect(mapAsesorWidgetException(new Error('Supabase request timed out after 30000ms'))).toEqual(
+      {
+        tipo: 'no_disponible',
+      }
+    );
+    expect(mapAsesorWidgetException(new Error('boom'))).toEqual({ tipo: 'error' });
+  });
 });
 
 describe('IMEIA welcome copy', () => {
@@ -708,7 +744,9 @@ describe('IMEIA welcome copy', () => {
   it('mantiene copy honesta de verificación y el hint del checkbox visible', () => {
     expect(es.asesor.verificacion).toContain('verificación de seguridad');
     expect(es.asesor.verificacion_hint).toContain('casilla de seguridad');
+    expect(es.asesor.verificacion_cargando).toContain('Cargando casilla');
     expect(en.asesor.verificacion).toContain('security check');
     expect(en.asesor.verificacion_hint).toContain('security checkbox');
+    expect(en.asesor.verificacion_cargando).toContain('Loading security checkbox');
   });
 });

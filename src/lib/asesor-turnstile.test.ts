@@ -6,11 +6,17 @@ import { describe, expect, it, vi } from 'vitest';
 
 import {
   ASESOR_TURNSTILE_APPEARANCE,
+  ASESOR_TURNSTILE_NORMAL_MIN_WIDTH_PX,
   ASESOR_TURNSTILE_SCRIPT_SRC,
   ASESOR_TURNSTILE_TOKEN_WAIT_MS,
   buildAsesorTurnstileRenderOptions,
+  containerHasTurnstileIframe,
+  isUnrecoverableTurnstileError,
+  mapAsesorTurnstileClientFailure,
   obtainAsesorTurnstileToken,
+  resolveAsesorTurnstileSize,
   shouldMarkTurnstilePending,
+  turnstileMinHeightPx,
 } from './asesor-turnstile';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -24,16 +30,53 @@ describe('asesor Turnstile widget contract', () => {
     });
     expect(options.appearance).toBe('always');
     expect(options.appearance).toBe(ASESOR_TURNSTILE_APPEARANCE);
-    expect(options.size).toBe('flexible');
+    expect(options.size).toBe('normal');
+    expect(options.theme).toBe('light');
+    expect(options.execution).toBe('render');
     expect(options.retry).toBe('auto');
     expect(ASESOR_TURNSTILE_SCRIPT_SRC).toContain('render=explicit');
-    expect(ASESOR_TURNSTILE_TOKEN_WAIT_MS).toBeGreaterThanOrEqual(20_000);
+    expect(ASESOR_TURNSTILE_TOKEN_WAIT_MS).toBeLessThanOrEqual(12_000);
+    expect(ASESOR_TURNSTILE_TOKEN_WAIT_MS).toBeGreaterThanOrEqual(5_000);
+  });
+
+  it('elige compact bajo 300px y normal cuando cabe el checkbox', () => {
+    expect(ASESOR_TURNSTILE_NORMAL_MIN_WIDTH_PX).toBe(300);
+    expect(resolveAsesorTurnstileSize(272)).toBe('compact');
+    expect(resolveAsesorTurnstileSize(299)).toBe('compact');
+    expect(resolveAsesorTurnstileSize(300)).toBe('normal');
+    expect(resolveAsesorTurnstileSize(360)).toBe('normal');
+    expect(turnstileMinHeightPx('compact')).toBe(140);
+    expect(turnstileMinHeightPx('normal')).toBe(65);
+  });
+
+  it('compact se pasa a las opciones de render', () => {
+    const options = buildAsesorTurnstileRenderOptions(
+      'site-key',
+      {
+        callback: () => undefined,
+        'error-callback': () => undefined,
+        'expired-callback': () => undefined,
+      },
+      { size: 'compact', language: 'es' }
+    );
+    expect(options.size).toBe('compact');
+    expect(options.language).toBe('es');
   });
 
   it('marca el contenedor pendiente hasta que hay token', () => {
     expect(shouldMarkTurnstilePending({ siteKeyPresent: true, tokenReady: false })).toBe(true);
     expect(shouldMarkTurnstilePending({ siteKeyPresent: true, tokenReady: true })).toBe(false);
     expect(shouldMarkTurnstilePending({ siteKeyPresent: false, tokenReady: false })).toBe(false);
+  });
+
+  it('detecta iframe del widget y códigos irrecuperables', () => {
+    expect(containerHasTurnstileIframe({ querySelector: () => ({}) })).toBe(true);
+    expect(containerHasTurnstileIframe({ querySelector: () => null })).toBe(false);
+    expect(isUnrecoverableTurnstileError('110200')).toBe(true);
+    expect(isUnrecoverableTurnstileError('300010')).toBe(false);
+    expect(mapAsesorTurnstileClientFailure({ tokenMissing: true })).toBe('verificacion');
+    expect(mapAsesorTurnstileClientFailure({ iframeMissing: true })).toBe('verificacion');
+    expect(mapAsesorTurnstileClientFailure({})).toBeNull();
   });
 
   it('devuelve el token en cache sin esperar', async () => {
@@ -73,7 +116,7 @@ describe('asesor Turnstile widget contract', () => {
     expect(resetWidget).not.toHaveBeenCalled();
   });
 
-  it('tras un wait vacío hace reset y reintenta, dejando el widget visible si falla', async () => {
+  it('si no hay token no resetea el widget (evita el recuadro gris en móvil)', async () => {
     const setPending = vi.fn();
     const resetWidget = vi.fn();
     const waits: number[] = [];
@@ -93,9 +136,26 @@ describe('asesor Turnstile widget contract', () => {
       retryWaitMs: 15,
     });
     expect(token).toBeUndefined();
-    expect(resetWidget).toHaveBeenCalledWith('widget-1');
-    expect(waits).toEqual([30, 15]);
+    expect(resetWidget).not.toHaveBeenCalled();
+    expect(waits).toEqual([30]);
     expect(setPending).toHaveBeenLastCalledWith(true);
+  });
+
+  it('falla rápido si el iframe nunca monta', async () => {
+    const waitForToken = vi.fn();
+    const token = await obtainAsesorTurnstileToken({
+      siteKey: 'site-key',
+      hasContainer: true,
+      cachedToken: undefined,
+      loadScript: async () => undefined,
+      ensureWidget: async () => 'widget-1',
+      waitForToken,
+      resetWidget: vi.fn(),
+      setPending: vi.fn(),
+      iframeReady: () => false,
+    });
+    expect(token).toBeUndefined();
+    expect(waitForToken).not.toHaveBeenCalled();
   });
 
   it('sin site key no llama al script', async () => {
@@ -114,13 +174,19 @@ describe('asesor Turnstile widget contract', () => {
     expect(loadScript).not.toHaveBeenCalled();
   });
 
-  it('Asesor.astro usa el contrato visible y no interaction-only', async () => {
+  it('Asesor.astro usa checkbox normal/compact, remount y no interaction-only', async () => {
     const source = await readFile(join(ROOT, 'components/Asesor.astro'), 'utf8');
     expect(source).toContain('buildAsesorTurnstileRenderOptions');
     expect(source).toContain('obtainAsesorTurnstileToken');
     expect(source).toContain('ASESOR_TURNSTILE_SCRIPT_SRC');
     expect(source).toContain('asesor-turnstile-wrap');
+    expect(source).toContain('resolveAsesorTurnstileSize');
+    expect(source).toContain('destroyTurnstileWidget');
+    expect(source).toContain("tipo: 'verificacion'");
     expect(source).not.toContain('interaction-only');
+    expect(source).not.toContain("size: 'flexible'");
+    expect(source).not.toMatch(/asesor-turnstile iframe[\s\S]{0,80}max-width:\s*100%/);
     expect(source).toContain('void ensureTurnstileWidget()');
+    expect(source).toContain('100dvh');
   });
 });

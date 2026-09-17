@@ -286,36 +286,43 @@ Deno.serve(async req => {
   const navigationContext = normalizarNavigationContext(body.navigationContext, locale, sessionId);
 
   // Anti-bot: falla cerrado y rápido, sin despertar el agente ni abrir Supabase.
-  const turnstile = await verifyTurnstile(body.turnstileToken, ip);
-  if (!turnstile.success) {
-    logger.warn('Turnstile fallido', {
-      reason: turnstile.reason ?? 'unknown',
-      errorCodes: turnstile.errorCodes ?? [],
-      tokenPresent: Boolean(body.turnstileToken),
-      ip,
-    });
-    if (turnstile.reason === 'not_configured') {
+  // ASESOR_TURNSTILE_BYPASS=true is an emergency hatch (default OFF). Never enable in prod
+  // unless Cloudflare is down; it skips siteverify for this function only.
+  const turnstileBypass = Deno.env.get('ASESOR_TURNSTILE_BYPASS') === 'true';
+  if (turnstileBypass) {
+    logger.warn('Turnstile bypass activo (ASESOR_TURNSTILE_BYPASS=true)');
+  } else {
+    const turnstile = await verifyTurnstile(body.turnstileToken, ip);
+    if (!turnstile.success) {
+      logger.warn('Turnstile fallido', {
+        reason: turnstile.reason ?? 'unknown',
+        errorCodes: turnstile.errorCodes ?? [],
+        tokenPresent: Boolean(body.turnstileToken),
+        ip,
+      });
+      if (turnstile.reason === 'not_configured') {
+        return errorResponse(
+          {
+            code: 'NOT_CONFIGURED',
+            message: 'BLOQUEANTE_BACKEND: TURNSTILE_SECRET_KEY no configurado',
+          },
+          503,
+          origin
+        );
+      }
       return errorResponse(
         {
-          code: 'NOT_CONFIGURED',
-          message: 'BLOQUEANTE_BACKEND: TURNSTILE_SECRET_KEY no configurado',
+          code: 'FORBIDDEN',
+          message: 'Verificacion anti-bot fallida',
+          details: {
+            reason: turnstile.reason ?? 'unknown',
+            errorCodes: turnstile.errorCodes ?? [],
+          },
         },
-        503,
+        403,
         origin
       );
     }
-    return errorResponse(
-      {
-        code: 'FORBIDDEN',
-        message: 'Verificacion anti-bot fallida',
-        details: {
-          reason: turnstile.reason ?? 'unknown',
-          errorCodes: turnstile.errorCodes ?? [],
-        },
-      },
-      403,
-      origin
-    );
   }
 
   const supabase = getServerSupabase();
