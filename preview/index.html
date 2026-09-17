@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Preview low-res — I-ME / ACISE</title>
+    <style>
+      :root {
+        --ink: #0b1b22;
+        --teal: #0f4c5c;
+        --off: #f7f9fb;
+        --muted: #456070;
+      }
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, sans-serif;
+        background: var(--off);
+        color: var(--ink);
+      }
+      main {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 2rem 1.25rem 4rem;
+      }
+      h1 {
+        font-family: Sora, Inter, sans-serif;
+        color: var(--teal);
+        margin: 0 0 0.35rem;
+      }
+      p {
+        color: var(--muted);
+        max-width: 62ch;
+      }
+      .sheet {
+        width: 100%;
+        height: auto;
+        border-radius: 14px;
+        margin: 1.5rem 0 2.5rem;
+      }
+      .grid {
+        display: grid;
+        gap: 1.25rem;
+        grid-template-columns: 1fr;
+      }
+      @media (min-width: 800px) {
+        .grid {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      figure {
+        margin: 0;
+        background: #fff;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 8px 40px rgba(15, 76, 92, 0.12);
+      }
+      img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      figcaption {
+        padding: 0.75rem 1rem 1rem;
+        font-size: 0.95rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Preview low-res · I-ME / ACISE</h1>
+      <p>
+        Storyboard 16:9 a 960 px para validar look y arco. No es el corte final.
+        Sin audio y sin logo oficial bloqueado.
+      </p>
+      <img
+        class="sheet"
+        src="./contacto-storyboard.jpg"
+        width="1920"
+        height="730"
+        alt="Hoja de contacto de los 6 fotogramas del storyboard"
+      />
+      <div class="grid">
+        <figure>
+          <img src="./01-apertura-congreso.jpg" width="960" height="548" alt="Stand I-ME en congreso médico" />
+          <figcaption>01 · Apertura congreso</figcaption>
+        </figure>
+        <figure>
+          <img src="./02-asesor-b2b.jpg" width="960" height="548" alt="Asesor comercial B2B con decisor hospitalario" />
+          <figcaption>02 · Asesor B2B</figcaption>
+        </figure>
+        <figure>
+          <img src="./03-entorno-clinico.jpg" width="960" height="548" alt="Entorno clínico genérico" />
+          <figcaption>03 · Entorno clínico genérico</figcaption>
+        </figure>
+        <figure>
+          <img src="./04-catalogo-digital.jpg" width="960" height="548" alt="Catálogo digital I-ME en tablet" />
+          <figcaption>04 · Catálogo digital</figcaption>
+        </figure>
+        <figure>
+          <img src="./05-soporte-tecnico.jpg" width="960" height="548" alt="Ingeniero de soporte técnico en campo" />
+          <figcaption>05 · Soporte técnico</figcaption>
+        </figure>
+        <figure>
+          <img src="./06-cierre-marca.jpg" width="960" height="548" alt="Cierre de marca I-ME" />
+          <figcaption>06 · Cierre de marca</figcaption>
+        </figure>
+      </div>
+    </main>
+  </body>
+</html>
