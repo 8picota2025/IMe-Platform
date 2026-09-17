@@ -2,50 +2,32 @@
  * Verificación server-side de Cloudflare Turnstile.
  * Sin TURNSTILE_SECRET_KEY configurado, falla cerrado (not_configured):
  * el caller debe responder sin consumir presupuesto LLM.
+ *
+ * siteverify never hangs: AbortSignal timeout maps to
+ * `{ success: false, reason: 'error', errorCodes: ['siteverify_timeout'] }`.
  */
 
-export interface TurnstileResult {
-  success: boolean;
-  reason?: 'not_configured' | 'missing_token' | 'invalid' | 'error';
-  /** Cloudflare `error-codes` or a compact http_* marker. Never includes the token. */
-  errorCodes?: string[];
-}
+import { verifyTurnstileToken, type TurnstileResult } from '../../../src/lib/turnstile-verify.ts';
 
-interface TurnstileApiResponse {
-  success?: boolean;
-  'error-codes'?: string[];
-}
+export type { TurnstileResult };
 
 export async function verifyTurnstile(
   token: string | undefined | null,
   remoteIp?: string | null
 ): Promise<TurnstileResult> {
-  const secret = Deno.env.get('TURNSTILE_SECRET_KEY');
-  if (!secret) return { success: false, reason: 'not_configured' };
-  if (!token) return { success: false, reason: 'missing_token' };
-
-  try {
-    const body = new URLSearchParams({ secret, response: token });
-    if (remoteIp) body.set('remoteip', remoteIp);
-
-    const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body,
-    });
-    if (!res.ok) return { success: false, reason: 'error', errorCodes: [`http_${res.status}`] };
-
-    const json = (await res.json()) as TurnstileApiResponse;
-    if (json.success) return { success: true };
-    const errorCodes = (json['error-codes'] ?? []).filter(
-      (code): code is string => typeof code === 'string'
+  const result = await verifyTurnstileToken({
+    secret: Deno.env.get('TURNSTILE_SECRET_KEY'),
+    token,
+    remoteIp,
+  });
+  if (!result.success) {
+    console.warn(
+      JSON.stringify({
+        msg: 'turnstile_verify_failed',
+        reason: result.reason ?? 'unknown',
+        errorCodes: result.errorCodes ?? [],
+      })
     );
-    return {
-      success: false,
-      reason: 'invalid',
-      ...(errorCodes.length > 0 ? { errorCodes: errorCodes.slice(0, 8) } : {}),
-    };
-  } catch {
-    return { success: false, reason: 'error' };
   }
+  return result;
 }

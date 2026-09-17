@@ -59,7 +59,7 @@ Asesor puede recuperarlos.
 - [ ] `VOYAGE_API_KEY`: cuenta en voyageai.com
 - [x] `WOMPI_PUBLIC_KEY` / `WOMPI_PRIVATE_KEY` / `WOMPI_EVENTS_SECRET`: en producción (2026-08-01)
 - [ ] `STRIPE_PUBLIC_KEY` / `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET`: cuenta en stripe.com
-- [ ] `TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY` / `PUBLIC_TURNSTILE_SITE_KEY` (mismo valor que `TURNSTILE_SITE_KEY`): crear en Cloudflare Dashboard — sin esto el Asesor responde 503 (modo "no disponible")
+- [ ] `TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY` / `PUBLIC_TURNSTILE_SITE_KEY` (mismo valor que `TURNSTILE_SITE_KEY`): secretos GitHub existen y la site key pública está en prod. TODO_CLIENTE: en Cloudflare Turnstile Dashboard confirmar hostnames `i-me.com.co` y `www.i-me.com.co`, y que el secret de siteverify es el par de esa site key. Un par o allowlist incorrectos muestran `asesor.verificacion` (403), no 503.
 - [ ] `HOSTINGER_FTP_HOST` / `HOSTINGER_FTP_USER` / `HOSTINGER_FTP_PASSWORD`: panel Hostinger
 - [ ] `HOSTINGER_PREPROD_PATH` / `HOSTINGER_PROD_PATH`: confirmar rutas de deploy
 - [ ] DNS AAAA de `i-me.com.co` (`2a02:4780:2b:1555:0:fea:6f4:5`): inalcanzable; provoca timeouts IPv6 desde runners GHA del smoke de observabilidad. Corregir IPv6 en Hostinger o eliminar el AAAA hasta que responda en `:443`. Mitigación en CI: `curl -4` en `observabilidad-smoke.yml`.

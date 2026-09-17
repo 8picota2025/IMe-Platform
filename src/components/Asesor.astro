@@ -32,6 +32,7 @@ const asesorConfig = {
     degradado: t(locale, 'asesor.degradado'),
     error: t(locale, 'asesor.error'),
     verificacion: t(locale, 'asesor.verificacion'),
+    verificacionHint: t(locale, 'asesor.verificacion_hint'),
     noDisponible: t(locale, 'asesor.no_disponible'),
     verProducto: t(locale, 'asesor.ver_producto'),
     handoffWhatsapp: t(locale, 'asesor.handoff_whatsapp'),
@@ -139,8 +140,21 @@ const asesorConfig = {
       <!-- Los mensajes se insertan dinámicamente -->
     </div>
 
-    <!-- Contenedor para Turnstile cuando Cloudflare requiere interacción -->
-    <div id="asesor-turnstile" class="asesor-turnstile"></div>
+    {
+      turnstileSiteKey ? (
+        <div id="asesor-turnstile-wrap" class="asesor-turnstile-wrap">
+          <p id="asesor-turnstile-hint" class="asesor-turnstile-hint">
+            {t(locale, 'asesor.verificacion_hint')}
+          </p>
+          <div
+            id="asesor-turnstile"
+            class="asesor-turnstile is-pending"
+            role="group"
+            aria-labelledby="asesor-turnstile-hint"
+          />
+        </div>
+      ) : null
+    }
 
     <!-- Input -->
     <form id="asesor-form" class="asesor-dialog__form" novalidate>
@@ -241,7 +255,7 @@ const asesorConfig = {
     background: var(--white);
     box-shadow: var(--shadow-lg);
     border: 1px solid var(--border);
-    overflow: hidden;
+    overflow: visible;
   }
   .asesor-dialog[hidden] {
     display: none;
@@ -250,6 +264,8 @@ const asesorConfig = {
     display: flex;
     flex-direction: column;
     height: 100%;
+    overflow: visible;
+    border-radius: inherit;
   }
   .asesor-dialog__header {
     display: flex;
@@ -259,6 +275,7 @@ const asesorConfig = {
     background: var(--t900);
     color: white;
     gap: 1rem;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   }
   .asesor-dialog__title-row {
     display: flex;
@@ -321,19 +338,34 @@ const asesorConfig = {
     min-height: 240px;
     max-height: min(540px, calc(100vh - 17rem));
   }
+  .asesor-turnstile-wrap {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.5rem 0.75rem 0.65rem;
+    border-top: 1px solid var(--border);
+    background: var(--t50);
+    overflow: visible;
+    z-index: 2;
+  }
+  .asesor-turnstile-hint {
+    margin: 0;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1.35;
+  }
   .asesor-turnstile {
     display: flex;
     justify-content: center;
-    padding: 0 0.75rem;
-    min-height: 0;
+    min-height: 68px;
+    width: 100%;
     overflow: visible;
-  }
-  .asesor-turnstile:empty {
-    padding: 0;
   }
   .asesor-turnstile.is-pending {
     min-height: 68px;
-    padding-bottom: 0.5rem;
   }
   .asesor-error-actions {
     display: flex;
@@ -349,6 +381,7 @@ const asesorConfig = {
     gap: 0.5rem;
     padding: 0.75rem;
     border-top: 1px solid var(--border);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
   }
   .asesor-dialog__input {
     flex: 1;
@@ -539,6 +572,14 @@ const asesorConfig = {
 
 <script>
   import { resetTransientUiState } from '../lib/motion';
+  import {
+    ASESOR_TURNSTILE_RETRY_WAIT_MS,
+    ASESOR_TURNSTILE_SCRIPT_SRC,
+    ASESOR_TURNSTILE_TOKEN_WAIT_MS,
+    buildAsesorTurnstileRenderOptions,
+    obtainAsesorTurnstileToken,
+    shouldMarkTurnstilePending,
+  } from '../lib/asesor-turnstile';
   import type {
     MensajeAsesor,
     RespuestaAsesor,
@@ -556,6 +597,7 @@ const asesorConfig = {
     degradado: string;
     error: string;
     verificacion: string;
+    verificacionHint: string;
     noDisponible: string;
     verProducto: string;
     handoffWhatsapp: string;
@@ -937,7 +979,7 @@ const asesorConfig = {
           return;
         }
         const script = document.createElement('script');
-        script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+        script.src = ASESOR_TURNSTILE_SCRIPT_SRC;
         script.async = true;
         script.dataset.imeTurnstile = '1';
         script.onload = () => resolve();
@@ -948,39 +990,45 @@ const asesorConfig = {
     }
 
     function setTurnstilePending(pending: boolean) {
-      turnstileContainer?.classList.toggle('is-pending', pending);
+      const tokenReady = Boolean(turnstileTokenCache) && !pending;
+      turnstileContainer?.classList.toggle(
+        'is-pending',
+        pending ||
+          shouldMarkTurnstilePending({
+            siteKeyPresent: Boolean(config.turnstileSiteKey),
+            tokenReady,
+          })
+      );
     }
 
-    async function ensureTurnstileWidget(
-      appearance: 'interaction-only' | 'always' = 'interaction-only'
-    ): Promise<string | null> {
+    async function ensureTurnstileWidget(): Promise<string | null> {
       if (!config.turnstileSiteKey || !turnstileContainer) return null;
       await loadTurnstileScript();
       if (!window.turnstile) return null;
 
       if (turnstileWidgetId !== null) return turnstileWidgetId;
 
-      turnstileWidgetId = window.turnstile.render(turnstileContainer, {
-        sitekey: config.turnstileSiteKey,
-        size: 'flexible',
-        appearance,
-        retry: 'auto',
-        'refresh-expired': 'auto',
-        callback: (token: string) => {
-          turnstileTokenCache = token;
-          setTurnstilePending(false);
-          resolveTurnstileToken?.(token);
-        },
-        'error-callback': (codigo: unknown) => {
-          console.error('[asesor] Turnstile error-callback:', codigo);
-          turnstileTokenCache = undefined;
-          resolveTurnstileToken?.(undefined);
-        },
-        'expired-callback': () => {
-          turnstileTokenCache = undefined;
-          resolveTurnstileToken?.(undefined);
-        },
-      });
+      setTurnstilePending(true);
+      turnstileWidgetId = window.turnstile.render(
+        turnstileContainer,
+        buildAsesorTurnstileRenderOptions(config.turnstileSiteKey, {
+          callback: (token: string) => {
+            turnstileTokenCache = token;
+            setTurnstilePending(false);
+            resolveTurnstileToken?.(token);
+          },
+          'error-callback': (codigo: unknown) => {
+            console.error('[asesor] Turnstile error-callback:', codigo);
+            turnstileTokenCache = undefined;
+            setTurnstilePending(true);
+            // Do not fail the waiter: retry:auto may still produce a token.
+          },
+          'expired-callback': () => {
+            turnstileTokenCache = undefined;
+            setTurnstilePending(true);
+          },
+        })
+      );
       return turnstileWidgetId;
     }
 
@@ -1002,45 +1050,18 @@ const asesorConfig = {
     }
 
     async function getTurnstileToken(): Promise<string | undefined> {
-      if (!config.turnstileSiteKey || !turnstileContainer) return undefined;
-      try {
-        setTurnstilePending(true);
-        await ensureTurnstileWidget();
-        if (turnstileTokenCache) {
-          setTurnstilePending(false);
-          return turnstileTokenCache;
-        }
-
-        let token = await waitForTurnstileToken(20_000);
-        if (token) {
-          setTurnstilePending(false);
-          return token;
-        }
-
-        const widgetId = turnstileWidgetId;
-        if (widgetId !== null) {
-          window.turnstile?.reset(widgetId);
-          token = await waitForTurnstileToken(20_000);
-        }
-        if (token) {
-          setTurnstilePending(false);
-          return token;
-        }
-
-        // Challenge invisible falló: mostrar checkbox para que un navegador real pueda completar.
-        if (widgetId !== null) {
-          window.turnstile?.remove?.(widgetId);
-          turnstileWidgetId = null;
-        }
-        await ensureTurnstileWidget('always');
-        token = await waitForTurnstileToken(45_000);
-        setTurnstilePending(false);
-        return token;
-      } catch (err) {
-        console.error('[asesor] Turnstile no pudo obtener token:', err);
-        setTurnstilePending(false);
-        return undefined;
-      }
+      return obtainAsesorTurnstileToken({
+        siteKey: config.turnstileSiteKey,
+        hasContainer: Boolean(turnstileContainer),
+        cachedToken: turnstileTokenCache,
+        loadScript: loadTurnstileScript,
+        ensureWidget: ensureTurnstileWidget,
+        waitForToken: waitForTurnstileToken,
+        resetWidget: widgetId => window.turnstile?.reset(widgetId),
+        setPending: setTurnstilePending,
+        waitMs: ASESOR_TURNSTILE_TOKEN_WAIT_MS,
+        retryWaitMs: ASESOR_TURNSTILE_RETRY_WAIT_MS,
+      });
     }
 
     async function enviarMensaje(mensaje: string) {
@@ -1088,6 +1109,7 @@ const asesorConfig = {
       } finally {
         turnstileTokenCache = undefined;
         if (turnstileWidgetId !== null) window.turnstile?.reset(turnstileWidgetId);
+        setTurnstilePending(true);
         loadingBubble?.remove();
         setEnviando(false);
       }
@@ -1117,6 +1139,7 @@ const asesorConfig = {
       }
 
       if (focusInput) setTimeout(() => inputEl?.focus(), 100);
+      setTurnstilePending(true);
       void ensureTurnstileWidget().catch(err =>
         console.warn('[asesor] Turnstile preload falló', err)
       );
