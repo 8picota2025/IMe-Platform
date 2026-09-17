@@ -26,14 +26,14 @@ Idempotencia: tabla `whatsapp_inbound_events` (PK `wamid`). Rate-limit: `asesor_
 
 ## Secretos (nombres; nunca commitear valores)
 
-| Variable                   | Uso                                                                          |
-| -------------------------- | ---------------------------------------------------------------------------- |
-| `WHATSAPP_VERIFY_TOKEN`    | Token que pegas en la consola Meta (GET challenge)                           |
-| `WHATSAPP_APP_SECRET`      | App Secret → `X-Hub-Signature-256`. Si falta, se omite la firma (solo local) |
-| `WHATSAPP_TOKEN`           | Token permanente de la app (Graph)                                           |
-| `WHATSAPP_PHONE_NUMBER_ID` | ID del número, no el E.164                                                   |
-| `WHATSAPP_API_VERSION`     | Default `v21.0`                                                              |
-| `WHATSAPP_RATE_LIMIT_*`    | Ventana / tope diario por remitente                                          |
+| Variable                   | Uso                                                                                                                     |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `WHATSAPP_VERIFY_TOKEN`    | Token que pegas en la consola Meta (GET challenge)                                                                      |
+| `WHATSAPP_APP_SECRET`      | App Secret → `X-Hub-Signature-256`. **Obligatorio**: sin secreto el POST responde 503 (fail closed; `verify_jwt=false`) |
+| `WHATSAPP_TOKEN`           | Token permanente de la app (Graph)                                                                                      |
+| `WHATSAPP_PHONE_NUMBER_ID` | ID del número, no el E.164                                                                                              |
+| `WHATSAPP_API_VERSION`     | Default `v21.0`                                                                                                         |
+| `WHATSAPP_RATE_LIMIT_*`    | Ventana / tope diario por remitente                                                                                     |
 
 En Supabase:
 
@@ -107,7 +107,7 @@ curl -sS -o /dev/null -w '%{http_code}\n' \
 
 ### 3. Inbound POST de muestra
 
-Sin `WHATSAPP_APP_SECRET` (local) la firma se omite. Con secreto, calcula HMAC-SHA256 del body crudo y envía `X-Hub-Signature-256: sha256=<hex>`.
+Sin `WHATSAPP_APP_SECRET` el webhook responde **503** (fail closed). Con secreto, calcula HMAC-SHA256 del body crudo y envía `X-Hub-Signature-256: sha256=<hex>`.
 
 ```bash
 curl -sS http://127.0.0.1:54321/functions/v1/whatsapp-webhook \

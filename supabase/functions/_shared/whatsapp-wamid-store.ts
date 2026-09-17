@@ -5,6 +5,7 @@
 
 import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 import {
+  classifyWamidClaimError,
   MemoryWamidStore,
   type WamidClaimResult,
   type WamidClaimStore,
@@ -24,12 +25,12 @@ export class SupabaseWamidStore implements WamidClaimStore {
     });
 
     if (!error) return 'claimed';
-    if (error.code === '23505') return 'duplicate';
-    // Tabla aún no aplicada: no tumbar el webhook (scaffold). Riesgo de
-    // re-reply si Meta reintenta antes de la migración.
-    if (error.code === '42P01' || /whatsapp_inbound_events/i.test(error.message)) {
-      console.warn('[whatsapp-wamid] tabla ausente; se permite este wamid (aplicar migración)');
-      return 'claimed';
+    const kind = classifyWamidClaimError(error);
+    if (kind === 'duplicate') return 'duplicate';
+    // Fail closed: without durable unique(wamid), Meta retries duplicate outbound
+    // (ack + agent wake). Apply migration before processing production traffic.
+    if (kind === 'missing_table') {
+      throw new Error('whatsapp_wamid_table_missing:aplicar migracion whatsapp_inbound_events');
     }
     throw new Error(`whatsapp_wamid_claim_failed:${error.message}`);
   }
@@ -51,10 +52,7 @@ export async function markWamidStatus(
   if (extra.body !== undefined) {
     patch.body = extra.body;
   }
-  const { error } = await supabase
-    .from('whatsapp_inbound_events')
-    .update(patch)
-    .eq('wamid', wamid);
+  const { error } = await supabase.from('whatsapp_inbound_events').update(patch).eq('wamid', wamid);
   if (error) {
     console.warn('[whatsapp-wamid] update status failed:', error.message);
   }

@@ -2,9 +2,10 @@
  * Edge Function `whatsapp-webhook` — WhatsApp Cloud API (Meta).
  *
  * GET: verificación hub.mode / hub.verify_token / hub.challenge.
- * POST: inbound messages + statuses. Firma X-Hub-Signature-256 si
- * WHATSAPP_APP_SECRET está configurado. Reply IMEIA (catálogo + guardrails,
- * ack + wake a Ayuda Local; respuesta completa fuera de Edge `/{phone-number-id}/messages`.
+ * POST: inbound messages + statuses. Firma X-Hub-Signature-256 obligatoria
+ * (`WHATSAPP_APP_SECRET`); sin secreto → 503. Idempotencia durable en
+ * `whatsapp_inbound_events` (sin fallback memoria). Reply: ack Graph + wake
+ * Ayuda Local (`IMEIA_AGENT_WEBHOOK_*`).
  *
  * Secretos: WHATSAPP_VERIFY_TOKEN, WHATSAPP_APP_SECRET, WHATSAPP_TOKEN,
  * WHATSAPP_PHONE_NUMBER_ID, WHATSAPP_API_VERSION.
@@ -12,25 +13,21 @@
  */
 
 import { handleCors } from '../_shared/cors.ts';
-import { badRequest, unauthorized } from '../_shared/errors.ts';
+import { badRequest, serviceUnavailable, unauthorized } from '../_shared/errors.ts';
 import { checkRateLimit } from '../_shared/rate-limit.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { trackEvent, withTelemetry } from '../_shared/telemetry.ts';
-import {
-  markWamidStatus,
-  memoryWamidStoreFallback,
-  SupabaseWamidStore,
-} from '../_shared/whatsapp-wamid-store.ts';
+import { markWamidStatus, SupabaseWamidStore } from '../_shared/whatsapp-wamid-store.ts';
 import {
   decideWhatsAppInbound,
   detectarLocaleWhatsApp,
+  hasWhatsAppAppSecret,
   markWhatsAppMessageRead,
   parseWhatsAppWebhook,
   resolveWhatsAppGraphConfig,
   sendWhatsAppText,
   verifyWhatsAppChallenge,
   verifyWhatsAppSignature,
-  type WamidClaimStore,
 } from '../../../src/lib/whatsapp-cloud.ts';
 import { IME_WHATSAPP_E164 } from '../../../src/lib/contacto-oficial.ts';
 
@@ -86,20 +83,27 @@ Deno.serve(
 
     const rawBody = await req.text();
     const appSecret = Deno.env.get('WHATSAPP_APP_SECRET')?.trim() ?? '';
-    if (appSecret) {
-      const signature = req.headers.get('x-hub-signature-256');
-      const valid = await verifyWhatsAppSignature(rawBody, signature, appSecret);
-      if (!valid) {
-        void trackEvent(
-          FN_NAME,
-          'webhook_rechazado',
-          { motivo: 'firma_invalida' },
-          { nivel: 'warn' }
-        );
-        return unauthorized(origin);
-      }
-    } else {
-      console.warn('[whatsapp-webhook] WHATSAPP_APP_SECRET no configurado: se omite firma');
+    // verify_jwt=false: App Secret HMAC is the only POST auth. Fail closed.
+    if (!hasWhatsAppAppSecret(appSecret)) {
+      console.error('[whatsapp-webhook] WHATSAPP_APP_SECRET ausente: POST rechazado');
+      void trackEvent(
+        FN_NAME,
+        'webhook_rechazado',
+        { motivo: 'secret_ausente' },
+        { nivel: 'warn' }
+      );
+      return serviceUnavailable('WHATSAPP_APP_SECRET no configurado', origin);
+    }
+    const signature = req.headers.get('x-hub-signature-256');
+    const valid = await verifyWhatsAppSignature(rawBody, signature, appSecret);
+    if (!valid) {
+      void trackEvent(
+        FN_NAME,
+        'webhook_rechazado',
+        { motivo: 'firma_invalida' },
+        { nivel: 'warn' }
+      );
+      return unauthorized(origin);
     }
 
     let payload: unknown;
@@ -110,17 +114,23 @@ Deno.serve(
     }
 
     const parsed = parseWhatsAppWebhook(payload);
-    let store: WamidClaimStore = memoryWamidStoreFallback();
-    let supabase: ReturnType<typeof getServerSupabase> | null = null;
+    let supabase: ReturnType<typeof getServerSupabase>;
     try {
       supabase = getServerSupabase();
-      store = new SupabaseWamidStore(supabase);
     } catch (err) {
-      console.warn(
-        '[whatsapp-webhook] Supabase no disponible; idempotencia en memoria:',
+      console.error(
+        '[whatsapp-webhook] Supabase no disponible (idempotencia requerida):',
         err instanceof Error ? err.message : err
       );
+      void trackEvent(
+        FN_NAME,
+        'webhook_idempotencia_fallo',
+        { motivo: 'supabase' },
+        { nivel: 'warn' }
+      );
+      return serviceUnavailable('Idempotencia WhatsApp no disponible', origin);
     }
+    const store = new SupabaseWamidStore(supabase);
 
     let decisions;
     try {
@@ -128,14 +138,19 @@ Deno.serve(
         ownWaId: IME_WHATSAPP_E164,
       });
     } catch (err) {
-      console.warn(
-        '[whatsapp-webhook] idempotencia persistente falló; memoria:',
+      // Do not fall back to in-memory claim: that re-processes DB-claimed wamids
+      // and duplicates Graph ack + agent wake on Meta retries / partial failures.
+      console.error(
+        '[whatsapp-webhook] claim wamid falló:',
         err instanceof Error ? err.message : err
       );
-      store = memoryWamidStoreFallback();
-      decisions = await decideWhatsAppInbound(parsed, store, {
-        ownWaId: IME_WHATSAPP_E164,
-      });
+      void trackEvent(
+        FN_NAME,
+        'webhook_idempotencia_fallo',
+        { motivo: 'claim' },
+        { nivel: 'warn' }
+      );
+      return serviceUnavailable('Idempotencia WhatsApp no disponible', origin);
     }
 
     const graph = resolveWhatsAppGraphConfig({
@@ -156,13 +171,11 @@ Deno.serve(
       const message = decision.message;
       const wamidExtra: { fromWa?: string; phoneNumberId?: string } = { fromWa: message.from };
       if (message.phoneNumberId) wamidExtra.phoneNumberId = message.phoneNumberId;
-      if (supabase) {
-        const limit = await checkRateLimit(supabase, `whatsapp:wa:${message.from}`, 'whatsapp');
-        if (limit.limited) {
-          await markWamidStatus(supabase, message.wamid, 'rate_limited', wamidExtra);
-          ignored += 1;
-          continue;
-        }
+      const limit = await checkRateLimit(supabase, `whatsapp:wa:${message.from}`, 'whatsapp');
+      if (limit.limited) {
+        await markWamidStatus(supabase, message.wamid, 'rate_limited', wamidExtra);
+        ignored += 1;
+        continue;
       }
 
       if (graph) {
@@ -176,9 +189,10 @@ Deno.serve(
 
       // Brain = Ayuda Local (Cursor/Grok) via wake webhook — not Hermes / Edge LLM.
       const locale = detectarLocaleWhatsApp(message.text);
-      if (supabase) {
-        await markWamidStatus(supabase, message.wamid, 'pending_agent', { ...wamidExtra, body: message.text });
-      }
+      await markWamidStatus(supabase, message.wamid, 'pending_agent', {
+        ...wamidExtra,
+        body: message.text,
+      });
 
       if (graph) {
         const ackEs = 'Un momento, reviso su consulta…';
@@ -232,10 +246,7 @@ Deno.serve(
           replied += 1; // queued for agent reply
         }
       } catch (err) {
-        console.error(
-          '[whatsapp-webhook] wake error:',
-          err instanceof Error ? err.message : err
-        );
+        console.error('[whatsapp-webhook] wake error:', err instanceof Error ? err.message : err);
       }
     }
 
