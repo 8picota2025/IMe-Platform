@@ -667,9 +667,10 @@ describe('asesor biomedical fallback', () => {
 });
 
 describe('asesor Edge error mapping', () => {
-  it('mapea 403 a verificación y 503 a no disponible', () => {
+  it('mapea 403 a verificación y 503/504 a no disponible', () => {
     expect(mapAsesorEdgeStatus(403)).toEqual({ tipo: 'verificacion' });
     expect(mapAsesorEdgeStatus(503)).toEqual({ tipo: 'no_disponible' });
+    expect(mapAsesorEdgeStatus(504)).toEqual({ tipo: 'no_disponible' });
     expect(mapAsesorEdgeStatus(429)).toEqual({
       tipo: 'rate_limited',
       retryAfterSegundos: null,
@@ -684,6 +685,11 @@ describe('asesor Edge error mapping', () => {
     ).toBe(403);
     expect(extractFunctionsInvokeStatus({ context: { status: 403 } }, null)).toBe(403);
     expect(extractFunctionsInvokeStatus({}, { error: { code: 'NOT_CONFIGURED' } })).toBe(503);
+    expect(extractFunctionsInvokeStatus({}, { error: { code: 'AGENT_UNAVAILABLE' } })).toBe(503);
+    expect(extractFunctionsInvokeStatus({}, { error: { code: 'AGENT_TIMEOUT' } })).toBe(504);
+    expect(
+      extractFunctionsInvokeStatus({ message: 'Supabase request timed out after 120000ms' }, null)
+    ).toBe(504);
   });
 });
 

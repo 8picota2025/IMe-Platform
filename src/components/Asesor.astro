@@ -331,6 +331,16 @@ const asesorConfig = {
   .asesor-turnstile:empty {
     padding: 0;
   }
+  .asesor-turnstile.is-pending {
+    min-height: 68px;
+    padding-bottom: 0.5rem;
+  }
+  .asesor-error-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
   .asesor-turnstile iframe {
     max-width: 100%;
   }
@@ -568,6 +578,7 @@ const asesorConfig = {
         render: (container: string | HTMLElement, options: Record<string, unknown>) => string;
         execute: (widgetId: string | HTMLElement, options?: Record<string, unknown>) => void;
         reset: (widgetId?: string | HTMLElement) => void;
+        remove: (widgetId?: string | HTMLElement) => void;
       };
     }
   }
@@ -616,6 +627,7 @@ const asesorConfig = {
   let ultimoMensaje: string | null = null;
   let turnstileWidgetId: string | null = null;
   let turnstileLoadPromise: Promise<void> | null = null;
+  let turnstileTokenCache: string | undefined;
   let resolveTurnstileToken: ((token: string | undefined) => void) | null = null;
   const historial: MensajeAsesor[] = [];
   let ultimoHandoff: AccionHandoff | null = null;
@@ -640,6 +652,7 @@ const asesorConfig = {
     const newTurnstileContainer = document.getElementById('asesor-turnstile');
     if (newTurnstileContainer !== asesorTurnstileContainer) {
       turnstileWidgetId = null;
+      turnstileTokenCache = undefined;
       resolveTurnstileToken = null;
       asesorTurnstileContainer = newTurnstileContainer;
       historial.length = 0;
@@ -892,20 +905,14 @@ const asesorConfig = {
         addBubble(config.i18n.limite, 'asesor');
         return;
       }
+      const retry = `<button type="button" class="asesor-cta asesor-cta--retry" data-asesor-retry>${escapeHtml(config.i18n.reintentar)}</button>`;
       if (error.tipo === 'verificacion') {
-        addHtmlBubble(
-          `<p>${escapeHtml(config.i18n.verificacion)}</p><button type="button" class="asesor-cta asesor-cta--retry" data-asesor-retry>${escapeHtml(config.i18n.reintentar)}</button>`
-        );
+        addHtmlBubble(`<p>${escapeHtml(config.i18n.verificacion)}</p>${retry}`);
         return;
       }
-      if (error.tipo === 'no_disponible') {
-        addHtmlBubble(
-          `<p>${escapeHtml(config.i18n.noDisponible)}</p>${buildHandoffHtml({ tipo: 'whatsapp', resumen: '' })}`
-        );
-        return;
-      }
+      const texto = error.tipo === 'no_disponible' ? config.i18n.noDisponible : config.i18n.error;
       addHtmlBubble(
-        `<p>${escapeHtml(config.i18n.error)}</p><button type="button" class="asesor-cta asesor-cta--retry" data-asesor-retry>${escapeHtml(config.i18n.reintentar)}</button>`
+        `<p>${escapeHtml(texto)}</p><div class="asesor-error-actions">${retry}${buildHandoffHtml({ tipo: 'whatsapp', resumen: ultimoMensaje ?? '' })}</div>`
       );
     }
 
@@ -919,10 +926,20 @@ const asesorConfig = {
     function loadTurnstileScript(): Promise<void> {
       if (window.turnstile) return Promise.resolve();
       if (turnstileLoadPromise) return turnstileLoadPromise;
+      const existing = document.querySelector<HTMLScriptElement>('script[data-ime-turnstile]');
       turnstileLoadPromise = new Promise((resolve, reject) => {
+        if (existing) {
+          existing.addEventListener('load', () => resolve(), { once: true });
+          existing.addEventListener('error', () => reject(new Error('turnstile load error')), {
+            once: true,
+          });
+          if (window.turnstile) resolve();
+          return;
+        }
         const script = document.createElement('script');
         script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
         script.async = true;
+        script.dataset.imeTurnstile = '1';
         script.onload = () => resolve();
         script.onerror = () => reject(new Error('turnstile load error'));
         document.head.appendChild(script);
@@ -930,46 +947,98 @@ const asesorConfig = {
       return turnstileLoadPromise;
     }
 
+    function setTurnstilePending(pending: boolean) {
+      turnstileContainer?.classList.toggle('is-pending', pending);
+    }
+
+    async function ensureTurnstileWidget(
+      appearance: 'interaction-only' | 'always' = 'interaction-only'
+    ): Promise<string | null> {
+      if (!config.turnstileSiteKey || !turnstileContainer) return null;
+      await loadTurnstileScript();
+      if (!window.turnstile) return null;
+
+      if (turnstileWidgetId !== null) return turnstileWidgetId;
+
+      turnstileWidgetId = window.turnstile.render(turnstileContainer, {
+        sitekey: config.turnstileSiteKey,
+        size: 'flexible',
+        appearance,
+        retry: 'auto',
+        'refresh-expired': 'auto',
+        callback: (token: string) => {
+          turnstileTokenCache = token;
+          setTurnstilePending(false);
+          resolveTurnstileToken?.(token);
+        },
+        'error-callback': (codigo: unknown) => {
+          console.error('[asesor] Turnstile error-callback:', codigo);
+          turnstileTokenCache = undefined;
+          resolveTurnstileToken?.(undefined);
+        },
+        'expired-callback': () => {
+          turnstileTokenCache = undefined;
+          resolveTurnstileToken?.(undefined);
+        },
+      });
+      return turnstileWidgetId;
+    }
+
+    function waitForTurnstileToken(timeoutMs: number): Promise<string | undefined> {
+      if (turnstileTokenCache) return Promise.resolve(turnstileTokenCache);
+      return new Promise(resolve => {
+        let resolveWrapped: ((token: string | undefined) => void) | null = null;
+        const timeout = setTimeout(() => {
+          if (resolveTurnstileToken === resolveWrapped) resolveTurnstileToken = null;
+          resolve(turnstileTokenCache);
+        }, timeoutMs);
+        resolveWrapped = (token: string | undefined) => {
+          clearTimeout(timeout);
+          resolveTurnstileToken = null;
+          resolve(token);
+        };
+        resolveTurnstileToken = resolveWrapped;
+      });
+    }
+
     async function getTurnstileToken(): Promise<string | undefined> {
       if (!config.turnstileSiteKey || !turnstileContainer) return undefined;
       try {
-        await loadTurnstileScript();
-        if (!window.turnstile) return undefined;
-
-        let widgetRecienCreado = false;
-        if (turnstileWidgetId === null) {
-          turnstileWidgetId = window.turnstile.render(turnstileContainer, {
-            sitekey: config.turnstileSiteKey,
-            size: 'normal',
-            appearance: 'interaction-only',
-            execution: 'execute',
-            callback: (token: string) => resolveTurnstileToken?.(token),
-            'error-callback': (codigo: unknown) => {
-              console.error('[asesor] Turnstile error-callback:', codigo);
-              resolveTurnstileToken?.(undefined);
-            },
-            'expired-callback': () => resolveTurnstileToken?.(undefined),
-          });
-          widgetRecienCreado = true;
+        setTurnstilePending(true);
+        await ensureTurnstileWidget();
+        if (turnstileTokenCache) {
+          setTurnstilePending(false);
+          return turnstileTokenCache;
         }
-        const widgetId = turnstileWidgetId;
-        if (widgetId === null) return undefined;
 
-        return await new Promise<string | undefined>(resolve => {
-          const timeout = setTimeout(() => resolve(undefined), 45000);
-          resolveTurnstileToken = token => {
-            clearTimeout(timeout);
-            resolveTurnstileToken = null;
-            resolve(token);
-          };
-          // reset() solo sobre un widget ya usado: resetear uno recién
-          // renderizado puede abortar su inicialización y dejar el challenge
-          // colgado hasta el timeout.
-          if (!widgetRecienCreado) window.turnstile?.reset(widgetId);
-          window.turnstile?.execute(widgetId);
-        });
+        let token = await waitForTurnstileToken(20_000);
+        if (token) {
+          setTurnstilePending(false);
+          return token;
+        }
+
+        const widgetId = turnstileWidgetId;
+        if (widgetId !== null) {
+          window.turnstile?.reset(widgetId);
+          token = await waitForTurnstileToken(20_000);
+        }
+        if (token) {
+          setTurnstilePending(false);
+          return token;
+        }
+
+        // Challenge invisible falló: mostrar checkbox para que un navegador real pueda completar.
+        if (widgetId !== null) {
+          window.turnstile?.remove?.(widgetId);
+          turnstileWidgetId = null;
+        }
+        await ensureTurnstileWidget('always');
+        token = await waitForTurnstileToken(45_000);
+        setTurnstilePending(false);
+        return token;
       } catch (err) {
         console.error('[asesor] Turnstile no pudo obtener token:', err);
+        setTurnstilePending(false);
         return undefined;
       }
     }
@@ -981,13 +1050,13 @@ const asesorConfig = {
       const loadingBubble = addBubble(config.i18n.buscando, 'loading');
       try {
         if (!asesorLib) asesorLib = await import('../lib/asesor');
-        let turnstileToken = await getTurnstileToken();
-        // Un fallo del challenge suele ser transitorio: un reintento inmediato
-        // lo resuelve en la mayoría de casos sin molestar al usuario.
-        if (!turnstileToken && config.turnstileSiteKey) {
-          turnstileToken = await getTurnstileToken();
+        if (!config.turnstileSiteKey) {
+          console.warn('[asesor] Turnstile site key ausente; no se envía al agente');
+          renderError({ tipo: 'no_disponible' });
+          return;
         }
-        if (config.turnstileSiteKey && !turnstileToken) {
+        const turnstileToken = await getTurnstileToken();
+        if (!turnstileToken) {
           console.warn('[asesor] Turnstile token ausente; no se envía el mensaje al agente');
           renderError({ tipo: 'verificacion' });
           return;
@@ -1017,6 +1086,8 @@ const asesorConfig = {
       } catch {
         renderError({ tipo: 'error' });
       } finally {
+        turnstileTokenCache = undefined;
+        if (turnstileWidgetId !== null) window.turnstile?.reset(turnstileWidgetId);
         loadingBubble?.remove();
         setEnviando(false);
       }
@@ -1046,6 +1117,9 @@ const asesorConfig = {
       }
 
       if (focusInput) setTimeout(() => inputEl?.focus(), 100);
+      void ensureTurnstileWidget().catch(err =>
+        console.warn('[asesor] Turnstile preload falló', err)
+      );
     }
 
     function closeDialog() {

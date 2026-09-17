@@ -4,7 +4,9 @@
  * Fachada segura del widget IMEIA Ayuda: valida entrada, Turnstile y rate-limit,
  * conserva consultas sitio/legal en estático, persiste los demás turnos y despierta
  * routine IMEIA/Grok. Routine escribe respuesta en Supabase; esta función espera
- * resultado sin cambiar contrato: texto, productos[], accion_handoff, modo.
+ * resultado y, si hay reply, devuelve el contrato: texto, productos[], accion_handoff, modo: rag.
+ * Timeout → HTTP 504 AGENT_TIMEOUT; wake fallido → HTTP 503 AGENT_UNAVAILABLE.
+ * Nunca Hermes, nunca shortlist keyword_degradado.
  *
  * Secretos (supabase secrets):
  *  - IMEIA_WEB_AGENT_WEBHOOK_URL
@@ -315,8 +317,19 @@ Deno.serve(async req => {
 
     return respuestaOk({ texto, productos, accion_handoff: accionHandoff, modo: 'rag' }, origin);
   } catch (err) {
-    console.error('[asesor] agente web no disponible:', err instanceof Error ? err.message : err);
-    return respuestaOk(respuestaDegradada(locale), origin);
+    const message = err instanceof Error ? err.message : String(err);
+    console.error('[asesor] agente web no disponible:', message);
+    const isTimeout = /\btimeout\b/i.test(message);
+    return errorResponse(
+      {
+        code: isTimeout ? 'AGENT_TIMEOUT' : 'AGENT_UNAVAILABLE',
+        message: isTimeout
+          ? 'IMEIA tardó más de lo esperado. Reintenta o continúa por WhatsApp.'
+          : 'IMEIA no está disponible. Reintenta o continúa por WhatsApp.',
+      },
+      isTimeout ? 504 : 503,
+      origin
+    );
   }
 });
 
@@ -325,18 +338,6 @@ function respuestaOk(payload: AsesorResponse, origin: string | null): Response {
     status: 200,
     headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
   });
-}
-
-function respuestaDegradada(locale: Locale): AsesorResponse {
-  return {
-    texto:
-      locale === 'en'
-        ? 'Our advisor is taking longer than expected. Please try again shortly or contact our team for help.'
-        : 'Nuestra asesora está tardando más de lo esperado. Inténtalo de nuevo en unos minutos o contacta a nuestro equipo para ayudarte.',
-    productos: [],
-    accion_handoff: null,
-    modo: 'keyword_degradado',
-  };
 }
 
 async function crearTurnoAgente(

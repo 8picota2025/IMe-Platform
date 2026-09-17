@@ -29,7 +29,7 @@ const OLLAMA_CHAT_MODEL =
   (import.meta.env['PUBLIC_OLLAMA_CHAT_MODEL'] as string | undefined) ?? 'gemma4:12b';
 const OLLAMA_EMBED_MODEL =
   (import.meta.env['PUBLIC_OLLAMA_EMBED_MODEL'] as string | undefined) ?? 'mxbai-embed-large';
-export const ASESOR_CLIENT_VERSION = '2026-09-16-imeia-no-mask-v1';
+export const ASESOR_CLIENT_VERSION = '2026-09-17-imeia-agent-only-v1';
 const MAX_HANDOFF_SUMMARY_CHARS = SHARED_MAX_HANDOFF_SUMMARY_CHARS;
 /**
  * Shortlist conversacional: conservamos como máximo tres opciones de la última
@@ -242,14 +242,14 @@ export async function preguntarAsesor(params: {
       return { ok: true, respuesta };
     } catch (err) {
       console.warn('[asesor] Ollama local falló; no se enmascara como asesora', err);
-      return fallbackCatalogoOError(params, { tipo: 'error' });
+      return { ok: false, error: { tipo: 'error' } };
     }
   }
 
   const supabase = getSupabaseClient();
   if (!supabase) {
     console.warn('[asesor] Supabase no configurado');
-    return fallbackCatalogoOError(params, { tipo: 'no_disponible' });
+    return { ok: false, error: { tipo: 'no_disponible' } };
   }
 
   const historial = params.historial.slice(-8).map(m => ({ rol: m.rol, contenido: m.contenido }));
@@ -269,38 +269,38 @@ export async function preguntarAsesor(params: {
     const status = extractFunctionsInvokeStatus(error, data);
     const mapped = mapAsesorEdgeStatus(status);
     console.warn('[asesor] Edge asesor error', { status, tipo: mapped.tipo });
-    if (mapped.tipo === 'rate_limited') {
-      const retryAfter = retryAfterFromInvokeError(error);
-      return {
-        ok: false,
-        error: { tipo: 'rate_limited', retryAfterSegundos: retryAfter },
-      };
-    }
-    if (mapped.tipo === 'verificacion') {
-      return { ok: false, error: { tipo: 'verificacion' } };
-    }
-    return fallbackCatalogoOError(params, mapped);
+    return resultFromMappedEdgeError(mapped, error);
   }
 
-  if (!data) {
-    console.warn('[asesor] Edge asesor sin cuerpo');
-    return fallbackCatalogoOError(params, { tipo: 'error' });
+  const payloadError = mapAsesorEdgePayloadError(data);
+  if (payloadError) {
+    console.warn('[asesor] Edge asesor payload de error en 2xx', payloadError);
+    return { ok: false, error: payloadError };
   }
-  const json = data as AsesorApiResponse;
+
+  if (!isAsesorSuccessPayload(data)) {
+    console.warn('[asesor] Edge asesor sin cuerpo de agente');
+    return { ok: false, error: { tipo: 'error' } };
+  }
+
+  if (data.modo === 'keyword_degradado') {
+    console.warn('[asesor] Edge devolvió keyword_degradado; no se muestra como IMEIA');
+    return { ok: false, error: { tipo: 'no_disponible' } };
+  }
 
   return {
     ok: true,
     respuesta: {
-      texto: json.texto,
-      productos: (json.productos ?? []).map(p => ({
+      texto: data.texto,
+      productos: (data.productos ?? []).map(p => ({
         slug: p.slug,
         nombre: p.nombre,
         imagen: p.imagen,
         urlLanding: normalizeProductLandingPath(params.locale, p.slug, p.url_landing),
         score: p.score,
       })),
-      accionHandoff: json.accion_handoff,
-      modo: json.modo,
+      accionHandoff: data.accion_handoff,
+      modo: data.modo === 'sin_resultados' ? 'sin_resultados' : 'rag',
     },
   };
 }
@@ -311,33 +311,76 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function codeFromEdgePayload(data: unknown): string | null {
   if (!isRecord(data)) return null;
+  if (typeof data.code === 'string') return data.code;
   const error = data.error;
   if (typeof error === 'string') {
     if (/forbidden|verificacion|anti-bot/i.test(error)) return 'FORBIDDEN';
-    if (/not_configured|no configurado/i.test(error)) return 'NOT_CONFIGURED';
+    if (/not_configured|no configurado|agent_unavailable|agent_timeout/i.test(error)) {
+      return 'NOT_CONFIGURED';
+    }
     return null;
   }
   if (isRecord(error) && typeof error.code === 'string') return error.code;
   return null;
 }
 
+function isAsesorSuccessPayload(data: unknown): data is AsesorApiResponse {
+  if (!isRecord(data) || data.error) return false;
+  if (typeof data.texto !== 'string' || !data.texto.trim()) return false;
+  const modo = data.modo;
+  return (
+    modo == null || modo === 'rag' || modo === 'keyword_degradado' || modo === 'sin_resultados'
+  );
+}
+
 /** Status of a failed `functions.invoke`, including when `context` is not a Response instance. */
 export function extractFunctionsInvokeStatus(error: unknown, data: unknown): number | null {
   const code = codeFromEdgePayload(data);
   if (code === 'FORBIDDEN') return 403;
-  if (code === 'NOT_CONFIGURED') return 503;
+  if (code === 'NOT_CONFIGURED' || code === 'AGENT_UNAVAILABLE') return 503;
+  if (code === 'AGENT_TIMEOUT') return 504;
   if (code === 'RATE_LIMITED') return 429;
+
+  if (isRecord(error) && typeof error.status === 'number') return error.status;
 
   const context = isRecord(error) ? error.context : undefined;
   if (isRecord(context) && typeof context.status === 'number') return context.status;
+
+  const message = isRecord(error) && typeof error.message === 'string' ? error.message : '';
+  if (/403|forbidden|anti-bot|verificacion/i.test(message)) return 403;
+  if (/429|rate.?limit/i.test(message)) return 429;
+  if (/504|timed? ?out/i.test(message)) return 504;
+  if (/503|not.?configured|unavailable/i.test(message)) return 503;
   return null;
 }
 
 export function mapAsesorEdgeStatus(status: number | null): ErrorAsesor {
   if (status === 403) return { tipo: 'verificacion' };
-  if (status === 503) return { tipo: 'no_disponible' };
+  if (status === 503 || status === 504) return { tipo: 'no_disponible' };
   if (status === 429) return { tipo: 'rate_limited', retryAfterSegundos: null };
   return { tipo: 'error' };
+}
+
+function mapAsesorEdgePayloadError(data: unknown): ErrorAsesor | null {
+  const code = codeFromEdgePayload(data);
+  if (!code) return null;
+  if (code === 'FORBIDDEN') return { tipo: 'verificacion' };
+  if (code === 'RATE_LIMITED') return { tipo: 'rate_limited', retryAfterSegundos: null };
+  if (code === 'NOT_CONFIGURED' || code === 'AGENT_UNAVAILABLE' || code === 'AGENT_TIMEOUT') {
+    return { tipo: 'no_disponible' };
+  }
+  return { tipo: 'error' };
+}
+
+function resultFromMappedEdgeError(mapped: ErrorAsesor, error: unknown): ResultadoAsesor {
+  if (mapped.tipo === 'rate_limited') {
+    const retryAfter = retryAfterFromInvokeError(error);
+    return {
+      ok: false,
+      error: { tipo: 'rate_limited', retryAfterSegundos: retryAfter },
+    };
+  }
+  return { ok: false, error: mapped };
 }
 
 function retryAfterFromInvokeError(error: unknown): number | null {
@@ -348,19 +391,6 @@ function retryAfterFromInvokeError(error: unknown): number | null {
   if (typeof retryAfter !== 'string' || retryAfter === '') return null;
   const parsed = Number(retryAfter);
   return Number.isFinite(parsed) ? parsed : null;
-}
-
-async function fallbackCatalogoOError(
-  params: {
-    mensaje: string;
-    historial: MensajeAsesor[];
-    locale: Locale;
-  },
-  error: ErrorAsesor
-): Promise<ResultadoAsesor> {
-  const fallback = await buildResilientFallbackResponse(params);
-  if (fallback) return { ok: true, respuesta: fallback };
-  return { ok: false, error };
 }
 
 export function resolveAsesorTransport(
@@ -1161,6 +1191,12 @@ async function buildCatalogoPublicadoFallbackResponse(params: {
   };
 }
 
+/**
+ * Matcher de catálogo publicado. NO se usa en el transporte supabase/producción:
+ * un fallo de Edge, Turnstile o del agente debe ser error honesto, no shortlist
+ * consultiva (lo que el usuario percibe como “Hermes”). Se conserva para tests
+ * de relevancia del índice estático y para no perder esa lógica.
+ */
 export async function buildResilientFallbackResponse(params: {
   mensaje: string;
   historial: MensajeAsesor[];
