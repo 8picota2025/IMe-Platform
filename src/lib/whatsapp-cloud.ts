@@ -166,8 +166,8 @@ export async function computeWhatsAppSignatureHex(
 }
 
 /**
- * Verifica `X-Hub-Signature-256`. Si `appSecret` está vacío, no hay secreto
- * configurado: el caller decide si omite la verificación (local) o rechaza.
+ * Verifica `X-Hub-Signature-256`. Empty `appSecret` always fails — callers must
+ * fail closed (no unsigned production webhook with `verify_jwt = false`).
  */
 export async function verifyWhatsAppSignature(
   rawBody: string,
@@ -179,6 +179,29 @@ export async function verifyWhatsAppSignature(
   if (!/^[0-9a-f]+$/i.test(expected)) return false;
   const computed = await computeWhatsAppSignatureHex(rawBody, appSecret);
   return timingSafeEqualString(computed, expected.toLowerCase());
+}
+
+/** True only when App Secret is present (POST auth required). */
+export function hasWhatsAppAppSecret(appSecret: string | null | undefined): boolean {
+  return Boolean(appSecret?.trim());
+}
+
+export type WamidClaimErrorClass = 'duplicate' | 'missing_table' | 'other';
+
+/**
+ * Classify Supabase insert errors for `whatsapp_inbound_events`.
+ * Missing table must NOT soft-claim — that re-sends on every Meta retry.
+ */
+export function classifyWamidClaimError(error: {
+  code?: string | null;
+  message?: string | null;
+}): WamidClaimErrorClass {
+  if (error.code === '23505') return 'duplicate';
+  if (error.code === '42P01') return 'missing_table';
+  if (typeof error.message === 'string' && /whatsapp_inbound_events/i.test(error.message)) {
+    return 'missing_table';
+  }
+  return 'other';
 }
 
 export function verifyWhatsAppChallenge(

@@ -7,9 +7,11 @@ import {
   RADIOLOGY_QUOTE_SCOPE_ES,
   WHATSAPP_DEFAULT_API_VERSION,
   buildWhatsAppMessagesUrl,
+  classifyWamidClaimError,
   composeWhatsAppImeiaReply,
   computeWhatsAppSignatureHex,
   decideWhatsAppInbound,
+  hasWhatsAppAppSecret,
   isStatusOnlyWebhook,
   parseWhatsAppWebhook,
   sampleInboundTextPayload,
@@ -71,6 +73,29 @@ describe('WhatsApp Cloud API — X-Hub-Signature-256', () => {
     await expect(
       verifyWhatsAppSignature('{"ok":false}', `sha256=${hex}`, APP_SECRET)
     ).resolves.toBe(false);
+  });
+
+  it('exige App Secret presente antes de aceptar POST sin JWT', () => {
+    expect(hasWhatsAppAppSecret('meta-app-secret')).toBe(true);
+    expect(hasWhatsAppAppSecret('  ')).toBe(false);
+    expect(hasWhatsAppAppSecret(undefined)).toBe(false);
+    expect(hasWhatsAppAppSecret(null)).toBe(false);
+  });
+});
+
+describe('WhatsApp Cloud API — classifyWamidClaimError', () => {
+  it('marca duplicate / missing_table / other sin soft-claim', () => {
+    expect(classifyWamidClaimError({ code: '23505', message: 'duplicate' })).toBe('duplicate');
+    expect(classifyWamidClaimError({ code: '42P01', message: 'undefined_table' })).toBe(
+      'missing_table'
+    );
+    expect(
+      classifyWamidClaimError({
+        code: 'PGRST205',
+        message: 'Could not find the table whatsapp_inbound_events',
+      })
+    ).toBe('missing_table');
+    expect(classifyWamidClaimError({ code: '57014', message: 'timeout' })).toBe('other');
   });
 });
 
