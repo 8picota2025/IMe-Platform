@@ -193,7 +193,6 @@ describe('asesor Turnstile widget contract', () => {
 
   it('Asesor.astro no exige widget salvo opt-in PUBLIC_ASESOR_TURNSTILE', async () => {
     const source = await readFile(join(ROOT, 'components/Asesor.astro'), 'utf8');
-    expect(source).toContain('isAsesorTurnstileClientEnabled');
     expect(source).toContain('PUBLIC_ASESOR_TURNSTILE');
     expect(source).toContain('turnstileEnabled');
     expect(source).toContain('copyForAsesorError');

@@ -25,7 +25,7 @@ import {
 import { IME_WHATSAPP_DISPLAY } from './contacto-oficial';
 import type { Locale } from '../i18n/utils';
 
-export type { AsesorErrorClase, ErrorAsesor };
+export type { AsesorErrorClase, ErrorAsesor } from './asesor-errors';
 export { asesorError, copyForAsesorError } from './asesor-errors';
 
 const OLLAMA_URL = (import.meta.env['PUBLIC_OLLAMA_URL'] as string | undefined) ?? '';

@@ -60,21 +60,19 @@ const ASESOR_ERROR_COPY_FIELD: Record<AsesorErrorClase, string> = {
 };
 
 /** Pick UI copy for a classified asesor failure. Falls back to the tipo bucket. */
-export function copyForAsesorError(
-  error: ErrorAsesor,
-  i18n: { readonly [key: string]: string | undefined }
-): string {
+export function copyForAsesorError(error: ErrorAsesor, i18n: object): string {
+  const bag = i18n as Record<string, string | undefined>;
   const field = ASESOR_ERROR_COPY_FIELD[error.clase];
-  const specific = i18n[field];
+  const specific = bag[field];
   const fallback =
     error.tipo === 'rate_limited'
-      ? i18n.limite
+      ? bag.limite
       : error.tipo === 'no_disponible'
-        ? i18n.noDisponible
+        ? bag.noDisponible
         : error.tipo === 'verificacion'
-          ? i18n.verificacion
-          : i18n.error;
-  let texto = (specific && specific.trim()) || fallback || i18n.error || error.clase;
+          ? bag.verificacion
+          : bag.error;
+  let texto = (specific && specific.trim()) || fallback || bag.error || error.clase;
   if (error.codes && error.codes.length > 0) {
     texto = `${texto} (${error.codes.slice(0, 4).join(', ')})`;
   }
