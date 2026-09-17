@@ -58,4 +58,4 @@ En fallo, actualizar `status = 'failed'` y `error` solo cuando `status = 'pendin
 1. Preguntar catálogo en widget; verificar fila `pending` y wake recibido.
 2. Routine escribe `replied`; confirmar texto, tarjetas y enlaces reales.
 3. Revisar logs: `asesor` no hace fetch a Hermes/OpenAI-compatible.
-4. No responder routine por ~110 s; widget recibe degradación limpia ES/EN y fila queda `timeout`.
+4. No responder routine por ~110 s; Edge responde HTTP 504 `AGENT_TIMEOUT`, el widget muestra reintento + WhatsApp y la fila queda `timeout`. Nunca shortlist de catálogo.

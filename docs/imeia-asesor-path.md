@@ -12,7 +12,7 @@ Hermes, `IMEIA_API_*`, `IMEIA_CHAT_MODEL` y el navegador directo no forman parte
 4. Edge envía wake autenticado a routine y consulta fila cada segundo durante máximo 110 s.
 5. Routine escribe `reply_texto` y transición `pending → replied` con service role.
 6. Edge genera tarjetas solo desde enlaces I-ME existentes en respuesta y devuelve contrato actual.
-7. Wake fallido marca `failed`; vencimiento marca `timeout`; ambos devuelven degradación limpia sin datos comerciales inventados.
+7. Wake fallido marca `failed` y responde HTTP 503 `AGENT_UNAVAILABLE`. Vencimiento marca `timeout` y responde HTTP 504 `AGENT_TIMEOUT`. El widget muestra reintento + WhatsApp; nunca shortlist de catálogo ni copy consultiva.
 
 ## Secretos y despliegue
 
@@ -29,6 +29,6 @@ Workflow despliega secretos de GitHub con mismos nombres. Configurar routine y p
 1. En widget enviar consulta de catálogo; revisar nuevo turno `pending` y wake con `source=web-asesor`.
 2. Routine escribe respuesta con enlace I-ME. Confirmar `replied`, texto, tarjetas, enlace y `accion_handoff`.
 3. Ver logs de `asesor`: no debe existir fetch a Hermes ni `/v1/chat/completions`.
-4. Omitir respuesta de routine: tras ~110 s comprobar `timeout` y texto de degradación ES/EN.
+4. Omitir respuesta de routine: tras ~110 s comprobar fila `timeout` y que el widget muestre error honesto (reintento + WhatsApp), no shortlist de catálogo.
 
 Turnstile y rate-limit siguen fail-closed. No incluir valores secretos en archivos ni logs.
