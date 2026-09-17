@@ -1,12 +1,18 @@
 /**
  * Edge Function `asesor` — IMEIA (v3, 2026-07-03).
  *
- * Fachada segura del widget IMEIA Ayuda: valida entrada, Turnstile y rate-limit,
+ * Fachada segura del widget IMEIA Ayuda: valida entrada y rate-limit,
  * conserva consultas sitio/legal en estático, persiste los demás turnos y despierta
  * routine IMEIA/Grok. Routine escribe respuesta en Supabase; esta función espera
  * resultado y, si hay reply, devuelve el contrato: texto, productos[], accion_handoff, modo: rag.
  * Timeout → HTTP 504 AGENT_TIMEOUT; wake fallido → HTTP 503 AGENT_UNAVAILABLE.
  * Nunca Hermes, nunca shortlist keyword_degradado.
+ *
+ * Cloudflare Turnstile is **off by default** for this function (Shoky 2026-09-17):
+ * chat works without a widget token. Re-enable with Edge secret
+ * `ASESOR_TURNSTILE_REQUIRED=true` plus client `PUBLIC_ASESOR_TURNSTILE=true`.
+ * `ASESOR_TURNSTILE_BYPASS=true` skips siteverify even when required.
+ * Rate-limit IP/sesión remains active.
  *
  * Secretos (supabase secrets):
  *  - IMEIA_WEB_AGENT_WEBHOOK_URL
@@ -23,6 +29,7 @@ import { createLogger, generateRequestId } from '../_shared/logging.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { verifyTurnstile } from '../_shared/turnstile.ts';
 import { checkRateLimit } from '../_shared/rate-limit.ts';
+import { shouldSkipAsesorTurnstileVerify } from '../../../src/lib/asesor-turnstile.ts';
 import {
   buildAsesorStaticFallback,
   esConsultaContacto,
@@ -285,12 +292,15 @@ Deno.serve(async req => {
   const historial = normalizarHistorial(body.historial);
   const navigationContext = normalizarNavigationContext(body.navigationContext, locale, sessionId);
 
-  // Anti-bot: falla cerrado y rápido, sin despertar el agente ni abrir Supabase.
-  // ASESOR_TURNSTILE_BYPASS=true is an emergency hatch (default OFF). Never enable in prod
-  // unless Cloudflare is down; it skips siteverify for this function only.
-  const turnstileBypass = Deno.env.get('ASESOR_TURNSTILE_BYPASS') === 'true';
-  if (turnstileBypass) {
-    logger.warn('Turnstile bypass activo (ASESOR_TURNSTILE_BYPASS=true)');
+  // Anti-bot: default OFF for IMEIA web chat. Rate-limit below still applies.
+  const skipTurnstile = shouldSkipAsesorTurnstileVerify({
+    ASESOR_TURNSTILE_REQUIRED: Deno.env.get('ASESOR_TURNSTILE_REQUIRED'),
+    ASESOR_TURNSTILE_BYPASS: Deno.env.get('ASESOR_TURNSTILE_BYPASS'),
+  });
+  if (skipTurnstile) {
+    if (Deno.env.get('ASESOR_TURNSTILE_BYPASS') === 'true') {
+      logger.warn('Turnstile bypass explícito (ASESOR_TURNSTILE_BYPASS=true)');
+    }
   } else {
     const turnstile = await verifyTurnstile(body.turnstileToken, ip);
     if (!turnstile.success) {

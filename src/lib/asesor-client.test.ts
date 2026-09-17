@@ -66,7 +66,10 @@ describe('preguntarAsesor error handling', () => {
       locale: 'es',
     });
 
-    expect(resultado).toEqual({ ok: false, error: { tipo: 'verificacion' } });
+    expect(resultado).toEqual({
+      ok: false,
+      error: { tipo: 'verificacion', clase: 'turnstile_forbidden' },
+    });
     if (resultado.ok) throw new Error('expected verification error');
     expect(JSON.stringify(resultado)).not.toContain('Podemos acotarlo');
     expect(JSON.stringify(resultado)).not.toContain(CATALOG_COPY);
@@ -84,7 +87,10 @@ describe('preguntarAsesor error handling', () => {
       locale: 'es',
     });
 
-    expect(resultado).toEqual({ ok: false, error: { tipo: 'verificacion' } });
+    expect(resultado).toEqual({
+      ok: false,
+      error: { tipo: 'verificacion', clase: 'turnstile_forbidden' },
+    });
   });
 
   it('expone 403 cuando el body de error llega como string JSON', async () => {
@@ -99,7 +105,10 @@ describe('preguntarAsesor error handling', () => {
       locale: 'es',
     });
 
-    expect(resultado).toEqual({ ok: false, error: { tipo: 'verificacion' } });
+    expect(resultado).toEqual({
+      ok: false,
+      error: { tipo: 'verificacion', clase: 'turnstile_forbidden' },
+    });
   });
 
   it('expone 503 de backend como no disponible, nunca shortlist de catálogo', async () => {
@@ -121,7 +130,10 @@ describe('preguntarAsesor error handling', () => {
         locale: 'es',
       });
 
-      expect(resultado).toEqual({ ok: false, error: { tipo: 'no_disponible' } });
+      expect(resultado).toEqual({
+        ok: false,
+        error: { tipo: 'no_disponible', clase: 'agent_unavailable' },
+      });
       expect(JSON.stringify(resultado)).not.toContain(CATALOG_COPY);
     } finally {
       restoreFetch();
@@ -147,8 +159,10 @@ describe('preguntarAsesor error handling', () => {
         locale: 'es',
       });
 
-      expect(resultado).toEqual({ ok: false, error: { tipo: 'no_disponible' } });
-      expect(JSON.stringify(resultado)).not.toContain('Cama de Atención Domiciliaria');
+      expect(resultado).toEqual({
+        ok: false,
+        error: { tipo: 'no_disponible', clase: 'agent_timeout' },
+      });
     } finally {
       restoreFetch();
     }
@@ -169,7 +183,10 @@ describe('preguntarAsesor error handling', () => {
       locale: 'es',
     });
 
-    expect(resultado).toEqual({ ok: false, error: { tipo: 'no_disponible' } });
+    expect(resultado).toEqual({
+      ok: false,
+      error: { tipo: 'no_disponible', clase: 'agent_unavailable' },
+    });
   });
 
   it('en 500 no usa fallback de catálogo aunque haya productos reales', async () => {
@@ -189,7 +206,10 @@ describe('preguntarAsesor error handling', () => {
         locale: 'es',
       });
 
-      expect(resultado).toEqual({ ok: false, error: { tipo: 'error' } });
+      expect(resultado).toEqual({
+        ok: false,
+        error: { tipo: 'error', clase: 'generic' },
+      });
       expect(JSON.stringify(resultado)).not.toContain(CATALOG_COPY);
       expect(JSON.stringify(resultado)).not.toContain('Cama de Atención Domiciliaria HB421');
     } finally {
@@ -222,7 +242,10 @@ describe('preguntarAsesor error handling', () => {
       locale: 'es',
     });
 
-    expect(resultado).toEqual({ ok: false, error: { tipo: 'no_disponible' } });
+    expect(resultado).toEqual({
+      ok: false,
+      error: { tipo: 'no_disponible', clase: 'agent_unavailable' },
+    });
   });
 
   it('pasa la respuesta rag del agente sin reescribirla', async () => {
@@ -244,6 +267,7 @@ describe('preguntarAsesor error handling', () => {
     });
 
     expect(invoke).toHaveBeenCalledTimes(1);
+    expect(invoke.mock.calls[0]?.[1]?.body?.turnstileToken).toBe('token-ok');
     expect(resultado).toEqual({
       ok: true,
       respuesta: {
@@ -275,7 +299,10 @@ describe('preguntarAsesor error handling', () => {
         locale: 'es',
       });
 
-      expect(resultado).toEqual({ ok: false, error: { tipo: 'error' } });
+      expect(resultado).toEqual({
+        ok: false,
+        error: { tipo: 'error', clase: 'generic' },
+      });
     } finally {
       globalThis.fetch = originalFetch;
     }
@@ -295,7 +322,90 @@ describe('preguntarAsesor error handling', () => {
       locale: 'es',
     });
 
-    expect(resultado).toEqual({ ok: false, error: { tipo: 'no_disponible' } });
+    expect(resultado).toEqual({
+      ok: false,
+      error: { tipo: 'no_disponible', clase: 'invoke_abort' },
+    });
+  });
+
+  it('clasifica 403 siteverify_timeout y missing_token, no un FORBIDDEN genérico', async () => {
+    mockInvoke({
+      data: {
+        error: {
+          code: 'FORBIDDEN',
+          message: 'Verificacion anti-bot fallida',
+          details: { reason: 'error', errorCodes: ['siteverify_timeout'] },
+        },
+      },
+      error: {
+        message: 'Edge Function returned a non-2xx status code',
+        context: new Response(
+          JSON.stringify({
+            error: {
+              code: 'FORBIDDEN',
+              details: { reason: 'error', errorCodes: ['siteverify_timeout'] },
+            },
+          }),
+          { status: 403 }
+        ),
+      },
+    });
+
+    const timeout = await preguntarAsesor({
+      mensaje: 'Tienes mamógrafos?',
+      historial: [],
+      locale: 'es',
+    });
+    expect(timeout).toEqual({
+      ok: false,
+      error: {
+        tipo: 'verificacion',
+        clase: 'siteverify_timeout',
+        codes: ['siteverify_timeout'],
+      },
+    });
+
+    mockInvoke({
+      data: {
+        error: {
+          code: 'FORBIDDEN',
+          message: 'Verificacion anti-bot fallida',
+          details: { reason: 'missing_token', errorCodes: [] },
+        },
+      },
+      error: { message: 'Edge Function returned a non-2xx status code', context: { status: 403 } },
+    });
+    const missing = await preguntarAsesor({
+      mensaje: 'Holters please',
+      historial: [],
+      locale: 'en',
+    });
+    expect(missing).toEqual({
+      ok: false,
+      error: { tipo: 'verificacion', clase: 'missing_token' },
+    });
+  });
+
+  it('envía el mensaje al agente aunque no haya turnstileToken (chat sin Cloudflare)', async () => {
+    const invoke = mockInvoke({
+      data: {
+        texto: 'Sí, tenemos holters en catálogo.',
+        productos: [],
+        accion_handoff: null,
+        modo: 'rag',
+      },
+      error: null,
+    });
+
+    const resultado = await preguntarAsesor({
+      mensaje: 'Holters please',
+      historial: [],
+      locale: 'en',
+    });
+
+    expect(resultado.ok).toBe(true);
+    expect(invoke).toHaveBeenCalledTimes(1);
+    expect(invoke.mock.calls[0]?.[1]?.body?.turnstileToken).toBeUndefined();
   });
 
   it('hace poll corto cuando el edge responde pending + turn_id', async () => {

@@ -14,14 +14,18 @@ interface Props {
 
 const { locale } = Astro.props;
 
-const turnstileSiteKey = (
+const turnstileEnabled =
+  ((import.meta.env['PUBLIC_ASESOR_TURNSTILE'] as string | undefined) ?? '').trim() === 'true';
+const configuredTurnstileSiteKey = (
   (import.meta.env['PUBLIC_TURNSTILE_SITE_KEY'] as string | undefined) ??
   (import.meta.env['TURNSTILE_SITE_KEY'] as string | undefined) ??
   ''
 ).trim();
+const turnstileSiteKey = turnstileEnabled ? configuredTurnstileSiteKey : '';
 
 const asesorConfig = {
   locale,
+  turnstileEnabled,
   turnstileSiteKey,
   whatsappUrl: IME_WHATSAPP_URL,
   contactoHref: locale === 'en' ? '/en/contact/' : '/es/contacto/',
@@ -35,6 +39,19 @@ const asesorConfig = {
     verificacionHint: t(locale, 'asesor.verificacion_hint'),
     verificacionCargando: t(locale, 'asesor.verificacion_cargando'),
     noDisponible: t(locale, 'asesor.no_disponible'),
+    errorAgentUnavailable: t(locale, 'asesor.error_agent_unavailable'),
+    errorAgentTimeout: t(locale, 'asesor.error_agent_timeout'),
+    errorAgentPollTimeout: t(locale, 'asesor.error_agent_poll_timeout'),
+    errorInvokeAbort: t(locale, 'asesor.error_invoke_abort'),
+    errorInvokeTimeout: t(locale, 'asesor.error_invoke_timeout'),
+    errorMissingToken: t(locale, 'asesor.error_missing_token'),
+    errorSiteverifyTimeout: t(locale, 'asesor.error_siteverify_timeout'),
+    errorTurnstileForbidden: t(locale, 'asesor.error_turnstile_forbidden'),
+    errorTurnstileNotConfigured: t(locale, 'asesor.error_turnstile_not_configured'),
+    errorTurnstileClient: t(locale, 'asesor.error_turnstile_client'),
+    errorSessionForbidden: t(locale, 'asesor.error_session_forbidden'),
+    errorSupabaseMissing: t(locale, 'asesor.error_supabase_missing'),
+    errorInvalidPayload: t(locale, 'asesor.error_invalid_payload'),
     verProducto: t(locale, 'asesor.ver_producto'),
     handoffWhatsapp: t(locale, 'asesor.handoff_whatsapp'),
     handoffCotizacion: t(locale, 'asesor.handoff_cotizacion'),
@@ -142,7 +159,7 @@ const asesorConfig = {
     </div>
 
     {
-      turnstileSiteKey ? (
+      turnstileEnabled && turnstileSiteKey ? (
         <div id="asesor-turnstile-wrap" class="asesor-turnstile-wrap">
           <p id="asesor-turnstile-hint" class="asesor-turnstile-hint">
             {t(locale, 'asesor.verificacion_hint')}
@@ -616,6 +633,8 @@ const asesorConfig = {
     AsesorNavigationContext,
     AsesorPageType,
   } from '../lib/asesor';
+  import { copyForAsesorError } from '../lib/asesor-errors';
+  import { mapAsesorTurnstileClientFailure } from '../lib/asesor-turnstile';
 
   interface AsesorI18n {
     bienvenida: string;
@@ -627,6 +646,19 @@ const asesorConfig = {
     verificacionHint: string;
     verificacionCargando: string;
     noDisponible: string;
+    errorAgentUnavailable: string;
+    errorAgentTimeout: string;
+    errorAgentPollTimeout: string;
+    errorInvokeAbort: string;
+    errorInvokeTimeout: string;
+    errorMissingToken: string;
+    errorSiteverifyTimeout: string;
+    errorTurnstileForbidden: string;
+    errorTurnstileNotConfigured: string;
+    errorTurnstileClient: string;
+    errorSessionForbidden: string;
+    errorSupabaseMissing: string;
+    errorInvalidPayload: string;
     verProducto: string;
     handoffWhatsapp: string;
     handoffCotizacion: string;
@@ -636,6 +668,7 @@ const asesorConfig = {
 
   interface AsesorConfig {
     locale: 'es' | 'en';
+    turnstileEnabled: boolean;
     turnstileSiteKey: string;
     whatsappUrl: string;
     contactoHref: string;
@@ -678,24 +711,11 @@ const asesorConfig = {
             modo: 'rag' | 'keyword_degradado' | 'sin_resultados';
           };
         }
-      | {
-          ok: false;
-          error:
-            | { tipo: 'rate_limited'; retryAfterSegundos: number | null }
-            | { tipo: 'no_disponible' }
-            | { tipo: 'verificacion' }
-            | { tipo: 'error' };
-        }
+      | { ok: false; error: ErrorAsesor }
     >;
     resetHistorial: () => void;
     getSessionId: () => string;
-    mapAsesorWidgetException: (
-      error: unknown
-    ) =>
-      | { tipo: 'rate_limited'; retryAfterSegundos: number | null }
-      | { tipo: 'no_disponible' }
-      | { tipo: 'verificacion' }
-      | { tipo: 'error' };
+    mapAsesorWidgetException: (error: unknown) => ErrorAsesor;
     obtenerHistorial: () => { rol: 'usuario' | 'asesor'; contenido: string; timestamp: Date }[];
     guardarHistorial: (
       historial: { rol: 'usuario' | 'asesor'; contenido: string; timestamp: Date }[]
@@ -985,11 +1005,11 @@ const asesorConfig = {
         return;
       }
       const retry = `<button type="button" class="asesor-cta asesor-cta--retry" data-asesor-retry>${escapeHtml(config.i18n.reintentar)}</button>`;
+      const texto = copyForAsesorError(error, config.i18n);
       if (error.tipo === 'verificacion') {
-        addHtmlBubble(`<p>${escapeHtml(config.i18n.verificacion)}</p>${retry}`);
+        addHtmlBubble(`<p>${escapeHtml(texto)}</p>${retry}`);
         return;
       }
-      const texto = error.tipo === 'no_disponible' ? config.i18n.noDisponible : config.i18n.error;
       addHtmlBubble(
         `<p>${escapeHtml(texto)}</p><div class="asesor-error-actions">${retry}${buildHandoffHtml({ tipo: 'whatsapp', resumen: ultimoMensaje ?? '' })}</div>`
       );
@@ -1235,21 +1255,32 @@ const asesorConfig = {
       const loadingBubble = addBubble(config.i18n.buscando, 'loading');
       try {
         if (!asesorLib) asesorLib = await import('../lib/asesor');
-        if (!config.turnstileSiteKey) {
-          console.warn('[asesor] Turnstile site key ausente; no se envía al agente');
-          renderError({ tipo: 'no_disponible' });
-          return;
-        }
-        const turnstileToken = await getTurnstileToken();
-        if (!turnstileToken) {
-          console.warn('[asesor] Turnstile token ausente; no se envía el mensaje al agente');
-          loadingBubble?.remove();
-          renderError({ tipo: 'verificacion' });
-          highlightTurnstile();
-          return;
+        let turnstileToken: string | undefined;
+        if (config.turnstileEnabled) {
+          if (!config.turnstileSiteKey) {
+            console.warn('[asesor] Turnstile opt-in activo pero site key ausente');
+            renderError({ tipo: 'verificacion', clase: 'turnstile_not_configured' });
+            return;
+          }
+          turnstileToken = await getTurnstileToken();
+          if (!turnstileToken) {
+            const iframeMissing = !containerHasTurnstileIframe(turnstileContainer);
+            const clase =
+              mapAsesorTurnstileClientFailure({
+                tokenMissing: true,
+                iframeMissing,
+              }) ?? 'missing_token';
+            console.warn('[asesor] Turnstile token ausente; no se envía el mensaje al agente', {
+              clase,
+            });
+            loadingBubble?.remove();
+            renderError({ tipo: 'verificacion', clase });
+            highlightTurnstile();
+            return;
+          }
+          consumedToken = true;
         }
 
-        consumedToken = true;
         const resultado = await asesorLib.preguntarAsesor({
           mensaje,
           historial,
@@ -1273,11 +1304,14 @@ const asesorConfig = {
         asesorLib.guardarHistorial(historial);
         renderRespuesta(resultado.respuesta);
       } catch (err) {
-        const mapped = asesorLib?.mapAsesorWidgetException(err) ?? { tipo: 'error' as const };
+        const mapped = asesorLib?.mapAsesorWidgetException(err) ?? {
+          tipo: 'error' as const,
+          clase: 'generic' as const,
+        };
         renderError(mapped);
         if (mapped.tipo === 'verificacion') highlightTurnstile();
       } finally {
-        if (consumedToken) {
+        if (consumedToken && config.turnstileEnabled) {
           turnstileTokenCache = undefined;
           destroyTurnstileWidget();
           void ensureTurnstileWidget().catch(err =>
@@ -1313,11 +1347,13 @@ const asesorConfig = {
       }
 
       if (focusInput) setTimeout(() => inputEl?.focus(), 100);
-      setTurnstilePending(true);
-      void ensureTurnstileWidget().catch(err => {
-        console.warn('[asesor] Turnstile preload falló', err);
-        markTurnstileBroken(true);
-      });
+      if (config.turnstileEnabled) {
+        setTurnstilePending(true);
+        void ensureTurnstileWidget().catch(err => {
+          console.warn('[asesor] Turnstile preload falló', err);
+          markTurnstileBroken(true);
+        });
+      }
     }
 
     function closeDialog() {

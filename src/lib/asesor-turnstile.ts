@@ -1,13 +1,35 @@
 /**
  * Client Turnstile contract for the IMEIA widget.
- * Visible checkbox (`appearance: always`) from chat open — not a late fallback
- * after `interaction-only` fails.
+ *
+ * Production default: **off**. The Cloudflare checkbox blocked real visitors
+ * on i-me.com.co (widget missing / grey box / siteverify 403) so web chat
+ * no longer requires a token. Re-enable only with BOTH:
+ *   - `PUBLIC_ASESOR_TURNSTILE=true` at static build (renders the widget)
+ *   - `ASESOR_TURNSTILE_REQUIRED=true` Edge secret (siteverify)
+ * `ASESOR_TURNSTILE_BYPASS=true` always skips Edge siteverify, even if required.
  *
  * Size: never `flexible` on this widget. Cloudflare flexible requires min 300px
  * and often renders as an empty grey box in narrow Android Chrome / WebView
  * chat panels. Use `normal` (300×65) when the container fits it, `compact`
  * (150×140) when it does not.
  */
+
+/** Build-time flag. Unset / anything other than `true` → no widget, no token wait. */
+export function isAsesorTurnstileClientEnabled(flag: string | undefined | null): boolean {
+  return flag?.trim() === 'true';
+}
+
+/**
+ * Edge siteverify gate. Default skips Turnstile so chat works without Cloudflare.
+ * Required only when `ASESOR_TURNSTILE_REQUIRED=true` and bypass is not `true`.
+ */
+export function shouldSkipAsesorTurnstileVerify(env: {
+  ASESOR_TURNSTILE_REQUIRED?: string | undefined;
+  ASESOR_TURNSTILE_BYPASS?: string | undefined;
+}): boolean {
+  if (env.ASESOR_TURNSTILE_BYPASS?.trim() === 'true') return true;
+  return env.ASESOR_TURNSTILE_REQUIRED?.trim() !== 'true';
+}
 
 export const ASESOR_TURNSTILE_APPEARANCE = 'always' as const;
 export const ASESOR_TURNSTILE_THEME = 'light' as const;
@@ -94,19 +116,17 @@ export function isUnrecoverableTurnstileError(code: unknown): boolean {
   return UNRECOVERABLE_TURNSTILE_CODES.has(normalized);
 }
 
+export type AsesorTurnstileClientFailureClase = 'missing_token' | 'turnstile_client';
+
 export function mapAsesorTurnstileClientFailure(reason: {
   scriptFailed?: boolean;
   iframeMissing?: boolean;
   unrecoverableError?: boolean;
   tokenMissing?: boolean;
-}): 'verificacion' | null {
-  if (
-    reason.scriptFailed ||
-    reason.iframeMissing ||
-    reason.unrecoverableError ||
-    reason.tokenMissing
-  ) {
-    return 'verificacion';
+}): AsesorTurnstileClientFailureClase | null {
+  if (reason.tokenMissing) return 'missing_token';
+  if (reason.scriptFailed || reason.iframeMissing || reason.unrecoverableError) {
+    return 'turnstile_client';
   }
   return null;
 }
