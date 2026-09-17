@@ -10,7 +10,7 @@ El cliente **no** mantiene una sola petición HTTP de 2 minutos (móviles y midd
 2. Cliente hace poll cada 2 s: `POST asesor` con `{ turnId, sessionId }` (sin Turnstile ni rate-limit de mensaje).
 3. Cuando routine escribe `replied`, el poll devuelve texto + tarjetas.
 
-Tope de espera del widget: ~150 s en peticiones cortas (~30 s timeout c/u).
+Tope de espera del widget: **180 s** de poll corto (cada 2 s). Cada HTTP individual al Edge tiene ~60 s de tope; un abort/timeout de una petición **no** cancela la espera: el cliente reintenta el mismo `turnId`. Retry del widget relée el turno (o `resume` por sesión+mensaje) y muestra `reply_texto` si el agente ya contestó.
 
 ## Secuencia
 
@@ -37,7 +37,7 @@ Workflow despliega secretos de GitHub con mismos nombres. Configurar routine y p
 1. En widget enviar consulta de catálogo; revisar nuevo turno `pending` y wake con `source=web-asesor`.
 2. Routine escribe respuesta con enlace I-ME. Confirmar `replied`, texto, tarjetas, enlace y `accion_handoff`.
 3. Ver logs de `asesor`: no debe existir fetch a Hermes ni `/v1/chat/completions`.
-4. Omitir respuesta de routine: tras ~110 s comprobar fila `timeout` y que el widget muestre error honesto (reintento + WhatsApp), no shortlist de catálogo.
+4. Omitir respuesta de routine: tras ~180 s comprobar que el widget muestra `POLL_TIMEOUT` (reintento + WhatsApp), no shortlist de catálogo. Si routine escribe después, **Reintentar** debe pintar esa respuesta (mismo `turnId`).
 
 Rate-limit IP/sesión sigue activo. No incluir valores secretos en archivos ni logs.
 
@@ -65,7 +65,7 @@ Si se reactiva, el widget usa `appearance: always`, `size` `normal` (≥300px) o
 Tras merge + deploy (sitio estático **y** Edge `asesor`):
 
 1. Abrir https://i-me.com.co en móvil y desktop (Android Chrome incluido). **No** debe aparecer casilla ni recuadro gris de Cloudflare entre los mensajes y el campo de envío.
-2. Enviar «Holters please» / «Tienes mamógrafos?». Debe crearse fila `asesor_agent_turns` y una respuesta IMEIA, o el error honesto de agente (`AGENT_UNAVAILABLE` / `AGENT_TIMEOUT` / `INVOKE_ABORT`) — nunca shortlist de catálogo ni `keyword_degradado`.
+2. Enviar «Holters please» / «Tienes mamógrafos?». Debe crearse fila `asesor_agent_turns` y una respuesta IMEIA, o el error honesto de agente (`AGENT_UNAVAILABLE` / `AGENT_TIMEOUT` / `POLL_TIMEOUT`) — nunca shortlist de catálogo ni `keyword_degradado`. Un `INVOKE_ABORT` de una sola petición no debe abortar la espera: el poll continúa o Reintentar recupera el turno.
 3. Si algo falla, el globo debe incluir el nombre de la clase (p. ej. `INVOKE_ABORT`), no solo `asesor.error` / `asesor.verificacion`.
 
 Evidencia previa (2026-09-17, Android Chrome, https://i-me.com.co/es/): recuadro gris + fallo de envío — `docs/qa/imeia-turnstile-mobile-android-2026-09-17.jpg`. Ese síntoma es el motivo de apagar Turnstile en el chat.

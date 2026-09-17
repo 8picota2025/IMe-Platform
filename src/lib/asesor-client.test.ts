@@ -5,7 +5,7 @@ vi.mock('./supabase', () => ({
 }));
 
 import { getSupabaseClient } from './supabase';
-import { preguntarAsesor, resetCatalogoPublicadoCache } from './asesor';
+import { preguntarAsesor, resetCatalogoPublicadoCache, ASESOR_POLL_DEADLINE_MS } from './asesor';
 
 const getClient = vi.mocked(getSupabaseClient);
 
@@ -473,5 +473,161 @@ describe('preguntarAsesor error handling', () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it('sigue pollando tras AbortError transitorio y entrega el reply del agente', async () => {
+    vi.useFakeTimers();
+    const abort = new Error('The operation was aborted');
+    abort.name = 'AbortError';
+    const invoke = vi
+      .fn()
+      .mockResolvedValueOnce({
+        data: {
+          status: 'pending',
+          turn_id: '7dbfef9b-a4e8-441c-b0ba-499ebd9ef114',
+          texto: '',
+          productos: [],
+          accion_handoff: null,
+          modo: 'rag',
+        },
+        error: null,
+      })
+      .mockResolvedValueOnce({
+        data: null,
+        error: new Error('Failed to send a request to the Edge Function', { cause: abort }),
+      })
+      .mockResolvedValueOnce({
+        data: {
+          status: 'replied',
+          turn_id: '7dbfef9b-a4e8-441c-b0ba-499ebd9ef114',
+          texto: 'Sí, tenemos holters en catálogo.',
+          productos: [],
+          accion_handoff: null,
+          modo: 'rag',
+        },
+        error: null,
+      });
+    getClient.mockReturnValue({ functions: { invoke } } as never);
+
+    try {
+      const pending = preguntarAsesor({
+        mensaje: 'Tienes holters?',
+        historial: [],
+        locale: 'es',
+      });
+      await vi.runAllTimersAsync();
+      const resultado = await pending;
+
+      expect(resultado.ok).toBe(true);
+      if (!resultado.ok) throw new Error('expected success');
+      expect(resultado.respuesta.texto).toContain('holters');
+      expect(invoke).toHaveBeenCalledTimes(3);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('reanuda un turnId ya replied sin crear otro mensaje', async () => {
+    const invoke = mockInvoke({
+      data: {
+        status: 'replied',
+        turn_id: 'ea85a1e8-f46b-4fbc-bc1e-39b332f9869f',
+        texto: 'Tenemos equipos de laparoscopia en catálogo.',
+        productos: [],
+        accion_handoff: null,
+        modo: 'rag',
+      },
+      error: null,
+    });
+
+    const resultado = await preguntarAsesor({
+      mensaje: 'Tienes equips de lamparoscopia?',
+      historial: [],
+      locale: 'es',
+      turnId: 'ea85a1e8-f46b-4fbc-bc1e-39b332f9869f',
+    });
+
+    expect(resultado.ok).toBe(true);
+    if (!resultado.ok) throw new Error('expected success');
+    expect(resultado.respuesta.texto).toContain('laparoscopia');
+    expect(invoke).toHaveBeenCalledTimes(1);
+    expect(invoke.mock.calls[0]?.[1]?.body).toMatchObject({
+      turnId: 'ea85a1e8-f46b-4fbc-bc1e-39b332f9869f',
+    });
+    expect(invoke.mock.calls[0]?.[1]?.body.mensaje).toBeUndefined();
+  });
+
+  it('POLL_TIMEOUT incluye turnId para reintentar el mismo turno', async () => {
+    vi.useFakeTimers();
+    const invoke = vi.fn().mockResolvedValue({
+      data: {
+        status: 'pending',
+        turn_id: 'ea85a1e8-f46b-4fbc-bc1e-39b332f9869f',
+        texto: '',
+        productos: [],
+        accion_handoff: null,
+        modo: 'rag',
+      },
+      error: null,
+    });
+    getClient.mockReturnValue({ functions: { invoke } } as never);
+
+    try {
+      const pending = preguntarAsesor({
+        mensaje: 'Tienes equips de lamparoscopia?',
+        historial: [],
+        locale: 'es',
+      });
+      await vi.advanceTimersByTimeAsync(ASESOR_POLL_DEADLINE_MS + 5_000);
+      const resultado = await pending;
+
+      expect(resultado).toEqual({
+        ok: false,
+        error: {
+          tipo: 'no_disponible',
+          clase: 'agent_poll_timeout',
+          turnId: 'ea85a1e8-f46b-4fbc-bc1e-39b332f9869f',
+        },
+      });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('tras abort en el invoke inicial, resume por sesión entrega el reply ya escrito', async () => {
+    const abort = new Error('The operation was aborted');
+    abort.name = 'AbortError';
+    const invoke = vi
+      .fn()
+      .mockResolvedValueOnce({
+        data: null,
+        error: new Error('Failed to send a request to the Edge Function', { cause: abort }),
+      })
+      .mockResolvedValueOnce({
+        data: {
+          status: 'replied',
+          turn_id: '7dbfef9b-a4e8-441c-b0ba-499ebd9ef114',
+          texto: 'Sí, manejamos holter de 24 y 48 horas.',
+          productos: [],
+          accion_handoff: null,
+          modo: 'rag',
+        },
+        error: null,
+      });
+    getClient.mockReturnValue({ functions: { invoke } } as never);
+
+    const resultado = await preguntarAsesor({
+      mensaje: 'Tienes holters?',
+      historial: [],
+      locale: 'es',
+    });
+
+    expect(resultado.ok).toBe(true);
+    if (!resultado.ok) throw new Error('expected success');
+    expect(resultado.respuesta.texto).toContain('holter');
+    expect(invoke.mock.calls[1]?.[1]?.body).toMatchObject({
+      resume: true,
+      mensaje: 'Tienes holters?',
+    });
   });
 });

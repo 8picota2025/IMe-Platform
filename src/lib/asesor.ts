@@ -33,7 +33,7 @@ const OLLAMA_CHAT_MODEL =
   (import.meta.env['PUBLIC_OLLAMA_CHAT_MODEL'] as string | undefined) ?? 'gemma4:12b';
 const OLLAMA_EMBED_MODEL =
   (import.meta.env['PUBLIC_OLLAMA_EMBED_MODEL'] as string | undefined) ?? 'mxbai-embed-large';
-export const ASESOR_CLIENT_VERSION = '2026-09-17-imeia-agent-only-v1';
+export const ASESOR_CLIENT_VERSION = '2026-09-17-imeia-poll-resume-v1';
 const MAX_HANDOFF_SUMMARY_CHARS = SHARED_MAX_HANDOFF_SUMMARY_CHARS;
 /**
  * Shortlist conversacional: conservamos como máximo tres opciones de la última
@@ -153,8 +153,9 @@ interface AsesorApiResponse {
 }
 
 /** Móvil/middleboxes cortan HTTP largos. Poll corto evita eso. */
-const ASESOR_POLL_INTERVAL_MS = 2_000;
-const ASESOR_POLL_DEADLINE_MS = 150_000;
+export const ASESOR_POLL_INTERVAL_MS = 2_000;
+/** Typical routine latency is 30–90s; 180s covers 120s replies with slack. */
+export const ASESOR_POLL_DEADLINE_MS = 180_000;
 
 const SESSION_STORAGE_KEY = 'ime_asesor_session';
 const HISTORIAL_STORAGE_KEY = 'ime_asesor_historial';
@@ -214,12 +215,29 @@ export function getSessionId(): string {
  * (rate-limit, no disponible, error genérico) para que la UI elija el estado adecuado.
  * Si PUBLIC_OLLAMA_URL está configurado, usa Ollama + Supabase directo (modo dev local).
  */
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export function isRetryableAsesorPollError(error: ErrorAsesor): boolean {
+  return (
+    error.clase === 'invoke_abort' || error.clase === 'invoke_timeout' || error.clase === 'generic'
+  );
+}
+
+function attachTurnId(error: ErrorAsesor, turnId: string | undefined): ErrorAsesor {
+  if (!turnId || error.turnId) return error;
+  return { ...error, turnId };
+}
+
 export async function preguntarAsesor(params: {
   mensaje: string;
   historial: MensajeAsesor[];
   locale: Locale;
   turnstileToken?: string | undefined;
   navigationContext?: AsesorNavigationContext | undefined;
+  /** Resume an existing turn (retry) instead of inserting a new row. */
+  turnId?: string | undefined;
 }): Promise<ResultadoAsesor> {
   const fallbackSitio = esConsultaSitioOLegal(params.mensaje)
     ? buildAsesorStaticFallback(params.locale, params.mensaje)
@@ -258,6 +276,17 @@ export async function preguntarAsesor(params: {
 
   const sessionId = getSessionId();
   const historial = params.historial.slice(-8).map(m => ({ rol: m.rol, contenido: m.contenido }));
+  const resumeTurnId = params.turnId?.trim();
+
+  if (resumeTurnId) {
+    return waitForAsesorTurn({
+      supabase,
+      turnId: resumeTurnId,
+      sessionId,
+      locale: params.locale,
+      immediate: true,
+    });
+  }
 
   const started = await invokeAsesorEdge(supabase, {
     mensaje: params.mensaje,
@@ -267,49 +296,129 @@ export async function preguntarAsesor(params: {
     sessionId,
     navigationContext: params.navigationContext,
   });
-  if (!started.ok) return started.result;
 
-  let data: unknown = started.data;
-
-  if (
-    isRecord(data) &&
-    data.status === 'pending' &&
-    typeof data.turn_id === 'string' &&
-    data.turn_id
-  ) {
-    const turnId = data.turn_id;
-    const deadline = Date.now() + ASESOR_POLL_DEADLINE_MS;
-    while (Date.now() < deadline) {
-      await new Promise<void>(resolve => setTimeout(resolve, ASESOR_POLL_INTERVAL_MS));
-      const polled = await invokeAsesorEdge(supabase, {
-        turnId,
+  if (!started.ok) {
+    if (isRetryableAsesorPollError(started.error)) {
+      const resumed = await invokeAsesorEdge(supabase, {
         sessionId,
         locale: params.locale,
+        mensaje: params.mensaje,
+        resume: true,
       });
-      if (!polled.ok) return polled.result;
-      data = polled.data;
-      if (!(isRecord(data) && data.status === 'pending')) break;
+      if (resumed.ok) {
+        const resumedTurnId = turnIdFromPayload(resumed.data);
+        if (resumedTurnId && isPendingPayload(resumed.data)) {
+          return waitForAsesorTurn({
+            supabase,
+            turnId: resumedTurnId,
+            sessionId,
+            locale: params.locale,
+            immediate: true,
+          });
+        }
+        return decodeAsesorPayload(resumed.data, params.locale, resumedTurnId);
+      }
     }
-    if (isRecord(data) && data.status === 'pending') {
-      console.warn('[asesor] poll agotado sin respuesta del agente', { turnId });
-      return { ok: false, error: asesorError('no_disponible', 'agent_poll_timeout') };
+    return { ok: false, error: started.error };
+  }
+
+  const startedTurnId = turnIdFromPayload(started.data);
+  if (isPendingPayload(started.data) && startedTurnId) {
+    return waitForAsesorTurn({
+      supabase,
+      turnId: startedTurnId,
+      sessionId,
+      locale: params.locale,
+      immediate: false,
+    });
+  }
+
+  return decodeAsesorPayload(started.data, params.locale, startedTurnId);
+}
+
+async function waitForAsesorTurn(params: {
+  supabase: NonNullable<ReturnType<typeof getSupabaseClient>>;
+  turnId: string;
+  sessionId: string;
+  locale: Locale;
+  immediate: boolean;
+}): Promise<ResultadoAsesor> {
+  const { supabase, turnId, sessionId, locale } = params;
+  const deadline = Date.now() + ASESOR_POLL_DEADLINE_MS;
+  let skipSleep = params.immediate;
+
+  while (Date.now() < deadline) {
+    if (!skipSleep) await sleep(ASESOR_POLL_INTERVAL_MS);
+    skipSleep = false;
+
+    const polled = await invokeAsesorEdge(supabase, {
+      turnId,
+      sessionId,
+      locale,
+    });
+
+    if (!polled.ok) {
+      if (isRetryableAsesorPollError(polled.error) && Date.now() < deadline) {
+        console.warn('[asesor] poll transitorio, se reintenta', {
+          turnId,
+          clase: polled.error.clase,
+        });
+        continue;
+      }
+      return { ok: false, error: attachTurnId(polled.error, turnId) };
+    }
+
+    if (!isPendingPayload(polled.data)) {
+      return decodeAsesorPayload(polled.data, locale, turnId);
     }
   }
 
+  const lastChance = await invokeAsesorEdge(supabase, { turnId, sessionId, locale });
+  if (lastChance.ok && !isPendingPayload(lastChance.data)) {
+    return decodeAsesorPayload(lastChance.data, locale, turnId);
+  }
+  if (!lastChance.ok && !isRetryableAsesorPollError(lastChance.error)) {
+    return { ok: false, error: attachTurnId(lastChance.error, turnId) };
+  }
+
+  console.warn('[asesor] poll agotado sin respuesta del agente', { turnId });
+  return {
+    ok: false,
+    error: asesorError('no_disponible', 'agent_poll_timeout', { turnId }),
+  };
+}
+
+function turnIdFromPayload(data: unknown): string | undefined {
+  if (isRecord(data) && typeof data.turn_id === 'string' && data.turn_id) return data.turn_id;
+  return undefined;
+}
+
+function isPendingPayload(data: unknown): boolean {
+  return isRecord(data) && data.status === 'pending';
+}
+
+function decodeAsesorPayload(
+  data: unknown,
+  locale: Locale,
+  turnId: string | undefined
+): ResultadoAsesor {
   const payloadError = mapAsesorEdgePayloadError(data);
   if (payloadError) {
     console.warn('[asesor] Edge asesor payload de error en 2xx', payloadError);
-    return { ok: false, error: payloadError };
+    return { ok: false, error: attachTurnId(payloadError, turnId) };
   }
 
   if (!isAsesorSuccessPayload(data)) {
     console.warn('[asesor] Edge asesor sin cuerpo de agente');
-    return { ok: false, error: asesorError('error', 'invalid_payload') };
+    return { ok: false, error: attachTurnId(asesorError('error', 'invalid_payload'), turnId) };
   }
 
   if (data.modo === 'keyword_degradado') {
     console.warn('[asesor] Edge devolvió keyword_degradado; no se muestra como IMEIA');
-    return { ok: false, error: asesorError('no_disponible', 'agent_unavailable') };
+    return {
+      ok: false,
+      error: attachTurnId(asesorError('no_disponible', 'agent_unavailable'), turnId),
+    };
   }
 
   return {
@@ -320,7 +429,7 @@ export async function preguntarAsesor(params: {
         slug: p.slug,
         nombre: p.nombre,
         imagen: p.imagen,
-        urlLanding: normalizeProductLandingPath(params.locale, p.slug, p.url_landing),
+        urlLanding: normalizeProductLandingPath(locale, p.slug, p.url_landing),
         score: p.score,
       })),
       accionHandoff: data.accion_handoff,
@@ -337,12 +446,13 @@ type InvokeAsesorBody = {
   sessionId: string;
   navigationContext?: AsesorNavigationContext | undefined;
   turnId?: string;
+  resume?: boolean;
 };
 
 async function invokeAsesorEdge(
   supabase: NonNullable<ReturnType<typeof getSupabaseClient>>,
   body: InvokeAsesorBody
-): Promise<{ ok: true; data: unknown } | { ok: false; result: ResultadoAsesor }> {
+): Promise<{ ok: true; data: unknown } | { ok: false; error: ErrorAsesor }> {
   const { data, error } = await supabase.functions.invoke('asesor', { body });
 
   if (error) {
@@ -356,7 +466,8 @@ async function invokeAsesorEdge(
       codes: mapped.codes ?? [],
       poll: Boolean(body.turnId),
     });
-    return { ok: false, result: resultFromMappedEdgeError(mapped, error) };
+    const failed = resultFromMappedEdgeError(mapped, error);
+    return { ok: false, error: failed.error };
   }
 
   return { ok: true, data: coerceAsesorEdgePayload(data) };
@@ -423,7 +534,8 @@ function isAbortLike(error: unknown): boolean {
 }
 
 function isTimeoutLike(error: unknown): boolean {
-  return /timed? ?out/i.test(collectErrorMessages(error).join(' '));
+  const blob = collectErrorMessages(error).join(' ');
+  return /TimeoutError|timed? ?out/i.test(blob);
 }
 
 function mapForbiddenFailure(data: unknown): ErrorAsesor {
@@ -557,7 +669,10 @@ function mapAsesorEdgePayloadError(data: unknown): ErrorAsesor | null {
   return mapAsesorInvokeFailure({ status: null, data, error: null });
 }
 
-function resultFromMappedEdgeError(mapped: ErrorAsesor, error: unknown): ResultadoAsesor {
+function resultFromMappedEdgeError(
+  mapped: ErrorAsesor,
+  error: unknown
+): { ok: false; error: ErrorAsesor } {
   if (mapped.tipo === 'rate_limited') {
     const retryAfter = retryAfterFromInvokeError(error);
     return {
