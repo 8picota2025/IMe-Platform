@@ -773,37 +773,36 @@ Deno.serve(
         );
       }
 
-      // Política única F4.2 (salvo cotización locked: precio ya negociado).
-      if (!lineasCotizacion) {
-        const purchase = isPurchasable(
+      // Política F4.2: stock/disponibilidad también aplica a cotización locked
+      // (el precio puede estar negociado; el inventario no se salta).
+      const purchase = isPurchasable(
+        {
+          activo: producto.activo,
+          disponible: producto.disponible,
+          precio,
+          stock: producto.stock,
+          gestionar_stock: producto.gestionar_stock,
+          stock_estado: producto.stock_estado,
+          backorder_policy: producto.backorder_policy,
+          fulfillment_mode: producto.fulfillment_mode,
+        },
+        { quantity: cantidad }
+      );
+      if (!purchase.ok) {
+        const code =
+          purchase.reason === 'stock_insuficiente' || purchase.reason === 'sin_stock'
+            ? 'STOCK_INSUFICIENTE'
+            : purchase.reason === 'no_disponible' || purchase.reason === 'inactivo'
+              ? 'PRODUCTO_NO_DISPONIBLE'
+              : 'NO_COMPRABLE';
+        return errorResponse(
           {
-            activo: producto.activo,
-            disponible: producto.disponible,
-            precio,
-            stock: producto.stock,
-            gestionar_stock: producto.gestionar_stock,
-            stock_estado: producto.stock_estado,
-            backorder_policy: producto.backorder_policy,
-            fulfillment_mode: producto.fulfillment_mode,
+            code,
+            message: `${slug} no es comprable ahora (${purchase.reason})`,
           },
-          { quantity: cantidad }
+          409,
+          origin
         );
-        if (!purchase.ok) {
-          const code =
-            purchase.reason === 'stock_insuficiente' || purchase.reason === 'sin_stock'
-              ? 'STOCK_INSUFICIENTE'
-              : purchase.reason === 'no_disponible' || purchase.reason === 'inactivo'
-                ? 'PRODUCTO_NO_DISPONIBLE'
-                : 'NO_COMPRABLE';
-          return errorResponse(
-            {
-              code,
-              message: `${slug} no es comprable ahora (${purchase.reason})`,
-            },
-            409,
-            origin
-          );
-        }
       }
       if (producto.fulfillment_mode === 'dropship') {
         const { data: proveedor, error: provError } = await supabase.rpc(
@@ -1015,9 +1014,9 @@ Deno.serve(
       return internalError(`error creando pedido: ${insertError.message}`, origin);
     }
 
-    // Reserva atómica post-pedido: evita doble venta de la última unidad.
+    // Reserva atómica post-pedido (carrito y cotización locked): evita doble venta.
     // Si falla cualquier ítem → libera todo y cancela el pedido.
-    if (!lineasCotizacion) {
+    {
       const correlationId = crypto.randomUUID();
       for (const item of checkoutItems) {
         const reserva = await reservarStockProducto(supabase, {
@@ -1053,6 +1052,7 @@ Deno.serve(
       void trackEvent(FN_NAME, 'reserva_stock_ok', {
         pedido_id: pedidoId,
         items_count: checkoutItems.length,
+        desde_cotizacion: Boolean(lineasCotizacion),
       });
     }
 
