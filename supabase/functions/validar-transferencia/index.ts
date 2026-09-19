@@ -17,6 +17,8 @@ import {
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { requireAdmin } from '../_shared/admin-auth.ts';
 import { notificarFulfillmentDropship, registrarPedidoPagado } from '../_shared/post-pago.ts';
+import { reservarItemsPedido } from '../_shared/stock-reservas.ts';
+import { ttlMinutosReservaTransferencia } from '../../../src/lib/stock-availability.ts';
 
 const ROLES = new Set(['owner', 'admin', 'ventas', 'operaciones']);
 
@@ -26,6 +28,7 @@ interface Body {
 
 interface PedidoItem {
   producto_id?: string;
+  cantidad?: number;
 }
 
 Deno.serve(async req => {
@@ -82,6 +85,41 @@ Deno.serve(async req => {
       409,
       origin
     );
+  }
+
+  // Si el hold de formalizar expiró (TTL), re-reservar antes de marcar pagado.
+  // Sin filas activas, registrarPedidoPagado no decrementa productos.stock.
+  const { count: reservasActivas, error: reservasErr } = await supabase
+    .from('stock_reservas')
+    .select('id', { count: 'exact', head: true })
+    .eq('pedido_id', pedidoId)
+    .eq('estado', 'activa');
+  if (reservasErr) return internalError(reservasErr.message, origin);
+
+  if ((reservasActivas ?? 0) === 0) {
+    const items = Array.isArray(pedido.items) ? pedido.items : [];
+    if (items.some(i => typeof i.producto_id === 'string' && i.producto_id.trim())) {
+      const reserva = await reservarItemsPedido(supabase, {
+        pedidoId,
+        items: items.map(i => ({
+          producto_id: i.producto_id ?? null,
+          cantidad: i.cantidad ?? 1,
+        })),
+        ttlMinutes: ttlMinutosReservaTransferencia(
+          Deno.env.get('STOCK_RESERVA_TTL_TRANSFERENCIA_MIN')
+        ),
+      });
+      if (!reserva.ok) {
+        return errorResponse(
+          {
+            code: 'STOCK_INSUFICIENTE',
+            message: `No hay stock para confirmar la transferencia (${reserva.motivo})`,
+          },
+          409,
+          origin
+        );
+      }
+    }
   }
 
   const deEstado = pedido.estado;

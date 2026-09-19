@@ -3,6 +3,10 @@
  */
 
 import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
+import {
+  normalizeStockReserveItems,
+  type StockReserveItem,
+} from '../../../src/lib/stock-availability.ts';
 
 export interface ReservaStockResult {
   ok: boolean;
@@ -10,6 +14,8 @@ export interface ReservaStockResult {
   disponible_restante: number | null;
   motivo: string;
 }
+
+export type { StockReserveItem };
 
 type RpcClient = Pick<SupabaseClient, 'rpc'>;
 
@@ -54,6 +60,39 @@ export async function reservarStockProducto(
     return { ok: false, reserva_id: null, disponible_restante: 0, motivo: error.message };
   }
   return parseReservaRow(data);
+}
+
+/**
+ * Reserva atómica todos los ítems de un pedido. Si uno falla, libera lo ya
+ * reservado. Productos sin gestión de stock (`sin_gestion_stock`) pasan OK.
+ */
+export async function reservarItemsPedido(
+  supabase: RpcClient,
+  params: {
+    pedidoId: string;
+    items: ReadonlyArray<{ producto_id?: string | null; cantidad?: number | null }>;
+    ttlMinutes: number;
+    correlationId?: string;
+  }
+): Promise<{ ok: true; items: StockReserveItem[] } | { ok: false; motivo: string }> {
+  const normalized = normalizeStockReserveItems(params.items);
+  if (!normalized.ok) return { ok: false, motivo: normalized.motivo };
+
+  const correlationId = params.correlationId ?? crypto.randomUUID();
+  for (const item of normalized.items) {
+    const reserva = await reservarStockProducto(supabase, {
+      productoId: item.producto_id,
+      cantidad: item.cantidad,
+      pedidoId: params.pedidoId,
+      ttlMinutes: params.ttlMinutes,
+      correlationId,
+    });
+    if (!reserva.ok) {
+      await liberarReservasPedido(supabase, params.pedidoId);
+      return { ok: false, motivo: reserva.motivo };
+    }
+  }
+  return { ok: true, items: normalized.items };
 }
 
 export async function consumirReservasPedido(
