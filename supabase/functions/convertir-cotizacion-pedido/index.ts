@@ -14,6 +14,8 @@ import {
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { requireAdmin } from '../_shared/admin-auth.ts';
 import { getPaymentGateway, type CheckoutItem, type Mercado } from '../_shared/payment-gateway.ts';
+import { liberarReservasPedido, reservarItemsPedido } from '../_shared/stock-reservas.ts';
+import { ttlMinutosReservaCheckout } from '../../../src/lib/stock-availability.ts';
 import {
   calcularTotalOfertado,
   ofertaCompleta,
@@ -255,6 +257,28 @@ Deno.serve(async req => {
 
   if (insertError) return internalError(`error creando pedido: ${insertError.message}`, origin);
 
+  // F4.2: sin reserva aquí, pagar no decrementa stock (post-pago solo consume
+  // filas stock_reservas) y un checkout cart concurrente puede oversell.
+  const reserva = await reservarItemsPedido(supabase, {
+    pedidoId,
+    items: checkoutItems.map(i => ({
+      producto_id: i.producto_id,
+      cantidad: i.cantidad,
+    })),
+    ttlMinutes: ttlMinutosReservaCheckout(Deno.env.get('STOCK_RESERVA_TTL_MIN')),
+  });
+  if (!reserva.ok) {
+    await supabase.from('pedidos').update({ estado: 'cancelado' }).eq('id', pedidoId);
+    return errorResponse(
+      {
+        code: 'STOCK_INSUFICIENTE',
+        message: `No se pudo reservar stock (${reserva.motivo})`,
+      },
+      409,
+      origin
+    );
+  }
+
   const gateway = getPaymentGateway(mercado);
   const resultado = await gateway.crearCheckout({
     items: checkoutItems,
@@ -273,6 +297,7 @@ Deno.serve(async req => {
   });
 
   if (!resultado.ok) {
+    await liberarReservasPedido(supabase, pedidoId);
     await supabase
       .from('pedidos')
       .update({ estado: 'error_verificacion', metadata: { error: resultado.error } })
