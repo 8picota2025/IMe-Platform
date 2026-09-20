@@ -5,7 +5,7 @@ Canal **WhatsApp Business Cloud API (Meta)** para que IMEIA responda sin automat
 Número Business en uso: **+57 313 724 7353** (`src/lib/contacto-oficial.ts`).
 Cotización institucional: [https://i-me.com.co/es/contacto/](https://i-me.com.co/es/contacto/).
 
-El widget web (`src/components/Asesor.astro` → `asesor`) no cambia: Turnstile y rate-limit web siguen igual. Este canal es una Edge Function aparte.
+El widget web (`src/components/Asesor.astro` → `asesor`) es independiente: poll corto + rate-limit IP/sesión; Turnstile del chat está **off por defecto** (ver `docs/imeia-asesor-path.md`). Este canal WhatsApp es una Edge Function aparte con su propio rate-limit (`whatsapp:wa:<from>`).
 
 ## Arquitectura
 
