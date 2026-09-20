@@ -71,7 +71,7 @@
   --step-2: clamp(1.5rem, 1.39rem + 0.55vw, 2rem);
   --step-3: clamp(1.875rem, 1.7rem + 0.88vw, 2.625rem);
   --step-4: clamp(2.375rem, 2.1rem + 1.38vw, 3.5rem);
-  --step-5: clamp(3rem, 2.6rem + 2vw, 5rem);
+  --step-5: clamp(2rem, 1rem + 4.4vw, 5rem);
 
   /* Espaciado */
   --space-xs: 0.5rem;

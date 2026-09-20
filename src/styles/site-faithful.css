@@ -200,6 +200,22 @@
   height: 1.5px;
   background: var(--green);
 }
+@media (max-width: 640px) {
+  .site-faithful .hero-kicker {
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 12px;
+    line-height: 1.5;
+    letter-spacing: 1.5px;
+    margin-bottom: 20px;
+  }
+  .site-faithful .hero-kicker::before {
+    display: none;
+  }
+  .site-faithful .hero-kicker i {
+    margin-top: 0.4em;
+  }
+}
 .site-faithful .hero-title {
   font-family: 'Sora', sans-serif;
   font-size: clamp(40px, 5vw, 78px);

@@ -492,6 +492,18 @@ const altHref = getLocalizedPath(currentPath, altLocale);
       transform 260ms var(--ease),
       opacity 260ms var(--ease);
   }
+  /* Pantallas muy estrechas (320-400px): sin desbordamiento horizontal en la cabecera */
+  @media (max-width: 400px) {
+    .navbar__inner {
+      gap: 0.5rem;
+    }
+    .navbar__actions {
+      gap: 0.25rem;
+    }
+    .navbar__logo img {
+      height: 32px;
+    }
+  }
   .navbar__hamburger[aria-expanded='true'] .hamburger-bar:nth-child(1) {
     transform: translateY(7px) rotate(45deg);
   }
