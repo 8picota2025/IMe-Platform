@@ -69,3 +69,46 @@ describe('agregarACotizacion — single add', () => {
     expect(getCotizacionCantidad()).toBe(1);
   });
 });
+
+describe('agregarACotizacion — flujo de cotización desde la ficha', () => {
+  const item = { slug: 'equipo-x', nombre: 'Equipo X', imagen: '/x.jpg' };
+
+  beforeEach(() => {
+    store.clear();
+    vi.stubGlobal('window', new EventTarget());
+  });
+
+  it('respeta la cantidad seleccionada y acumula productos distintos', async () => {
+    const { agregarACotizacion, getCotizacionItems, getCotizacionCantidad } =
+      await import('./cotizacion-equipos');
+    agregarACotizacion(item, 3, { abrir: false });
+    agregarACotizacion({ slug: 'equipo-y', nombre: 'Equipo Y', imagen: '/y.jpg' }, 1, {
+      abrir: false,
+    });
+    expect(getCotizacionItems().map(i => [i.slug, i.cantidad])).toEqual([
+      ['equipo-x', 3],
+      ['equipo-y', 1],
+    ]);
+    expect(getCotizacionCantidad()).toBe(4);
+  });
+
+  it('no abre el drawer con abrir:false, pero sí por defecto', async () => {
+    const { agregarACotizacion, alAbrirCotizacion } = await import('./cotizacion-equipos');
+    const abrir = vi.fn();
+    alAbrirCotizacion(abrir);
+    agregarACotizacion(item, 1, { abrir: false });
+    expect(abrir).not.toHaveBeenCalled();
+    agregarACotizacion(item, 1);
+    expect(abrir).toHaveBeenCalledTimes(1);
+  });
+
+  it('normaliza cantidades inválidas y limita al máximo', async () => {
+    const { normalizarCantidadCotizacion, CANTIDAD_MAXIMA_COTIZACION } =
+      await import('./cotizacion-equipos');
+    expect(normalizarCantidadCotizacion(0)).toBe(1);
+    expect(normalizarCantidadCotizacion(-4)).toBe(1);
+    expect(normalizarCantidadCotizacion('abc')).toBe(1);
+    expect(normalizarCantidadCotizacion(2.9)).toBe(2);
+    expect(normalizarCantidadCotizacion(10_000)).toBe(CANTIDAD_MAXIMA_COTIZACION);
+  });
+});

@@ -65,6 +65,7 @@ const precioFormateado = tienePrecio
   : null;
 const noDisponible = producto.disponible === false;
 const accionComercial = getAccionComercial(producto, locale);
+const esCotizacion = accionComercial.tipo === 'cotizacion';
 const modalidadTexto =
   producto.tipo_comercial === 'consumible'
     ? locale === 'en'
@@ -83,6 +84,8 @@ const disponibilidadTexto = noDisponible
 const productSegment = locale === 'en' ? 'products' : 'productos';
 const productUrl = `https://i-me.com.co/${locale}/${productSegment}/${producto.slug}/`;
 const modelo = especificaciones.find(item => item.clave.toLowerCase() === 'modelo')?.valor;
+const referencia = modelo?.trim() || producto.sku?.trim() || null;
+const disponibleParaMostrar = !noDisponible && producto.stock !== 0;
 const fichaUrl = producto.ficha_pdf
   ? producto.ficha_pdf.startsWith('http')
     ? producto.ficha_pdf
@@ -131,15 +134,20 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
 // Stats de la cabecera del hero: reutiliza datos ya verificados (modalidad,
 // disponibilidad, familia, precio) en vez de intentar extraer valores cortos
 // de las especificaciones en prosa, que no son fiables para un resumen.
+// En modo cotización, disponibilidad y precio viven en la tarjeta comercial.
 const heroStats: Array<{ valor: string; etiqueta: string }> = [
   { valor: modalidadTexto, etiqueta: t(locale, 'producto.ficha_modalidad') },
-  { valor: disponibilidadTexto, etiqueta: t(locale, 'producto.ficha_stock') },
+  ...(esCotizacion
+    ? []
+    : [{ valor: disponibilidadTexto, etiqueta: t(locale, 'producto.ficha_stock') }]),
   { valor: familia.nombre, etiqueta: t(locale, 'catalogo.migas_catalogo') },
 ];
-heroStats.push({
-  valor: precioFormateado ?? t(locale, 'producto.precio_solicitud_largo'),
-  etiqueta: t(locale, 'producto.ficha_precio'),
-});
+if (!esCotizacion) {
+  heroStats.push({
+    valor: precioFormateado ?? t(locale, 'producto.precio_solicitud_largo'),
+    etiqueta: t(locale, 'producto.ficha_precio'),
+  });
+}
 ---
 
 <article
@@ -170,96 +178,85 @@ heroStats.push({
   </nav>
 
   <!-- Hero -->
-  <section class="hero-producto">
+  <section class:list={['hero-producto', { 'hero-producto--quote': esCotizacion }]}>
     <div class="hero-producto__bg" aria-hidden="true"></div>
-    <div class="container hero-producto__inner">
+    <div
+      class:list={[
+        'container',
+        'hero-producto__inner',
+        { 'hero-producto__inner--quote': esCotizacion },
+      ]}
+      data-quote-pdp={esCotizacion ? '' : undefined}
+    >
       <div class="hero-producto__content">
         <span class="hero-producto__badge">{producto.marca || familia.nombre}</span>
         <h1>{producto.nombre}</h1>
         <p class="hero-producto__desc">{producto.descripcion_corta}</p>
 
-        <div class="hero-producto__cta-group" id="cta-principal">
-          {
-            accionComercial.tipo === 'consultar' ? (
-              <a
-                href={whatsappHref}
-                class="btn-hero-primary"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {accionComercial.label}
-              </a>
-            ) : accionComercial.tipo === 'carrito' ? (
-              <button
-                type="button"
-                class="btn-hero-primary"
-                aria-live="polite"
-                data-add-carrito={producto.slug}
-                data-nombre={producto.nombre}
-                data-precio={producto.precio}
-                data-moneda={producto.moneda ?? 'COP'}
-                data-stock={producto.stock ?? ''}
-                data-label-agregar={t(locale, 'carrito.agregar')}
-                data-label-agregado={t(locale, 'carrito.agregado')}
-              >
-                {accionComercial.label}
-              </button>
-            ) : (
-              <button
-                type="button"
-                class="btn-hero-primary"
-                aria-live="polite"
-                data-add-cotizacion={producto.slug}
-                data-nombre={producto.nombre}
-                data-imagen={imagenProducto}
-                data-url={productUrl}
-                data-modelo={modelo ?? ''}
-                data-marca={producto.marca ?? ''}
-                data-label-agregar={t(locale, 'cotizacion_equipos.agregar')}
-                data-label-agregado={t(locale, 'cotizacion_equipos.agregado')}
-              >
-                {accionComercial.label}
-              </button>
-            )
-          }
-          {
-            accionComercial.tipo === 'carrito' ? (
-              <a
-                href={whatsappHref}
-                class="btn-hero-secondary"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {t(locale, 'producto.asesor_cta')}
-              </a>
-            ) : (
-              <button
-                type="button"
-                class="btn-hero-secondary"
-                data-ensure-cotizacion={producto.slug}
-                data-nombre={producto.nombre}
-                data-imagen={imagenProducto}
-                data-url={productUrl}
-                data-modelo={modelo ?? ''}
-                data-marca={producto.marca ?? ''}
-              >
-                {t(locale, 'producto.cotizar_cta')}
-              </button>
-            )
-          }
-          {
-            producto.ficha_pdf && (
-              <button
-                type="button"
-                class="btn-hero-secondary"
-                data-pdf-download-trigger
-                data-pdf-download-target={pdfGateId}
-              >
-                {t(locale, 'producto.ficha_pdf')}
-              </button>
-            )
-          }
-        </div>
+        {
+          !esCotizacion && (
+            <div class="hero-producto__cta-group" id="cta-principal">
+              {accionComercial.tipo === 'consultar' ? (
+                <a
+                  href={whatsappHref}
+                  class="btn-hero-primary"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {accionComercial.label}
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  class="btn-hero-primary"
+                  aria-live="polite"
+                  data-add-carrito={producto.slug}
+                  data-nombre={producto.nombre}
+                  data-precio={producto.precio}
+                  data-moneda={producto.moneda ?? 'COP'}
+                  data-stock={producto.stock ?? ''}
+                  data-label-agregar={t(locale, 'carrito.agregar')}
+                  data-label-agregado={t(locale, 'carrito.agregado')}
+                >
+                  {accionComercial.label}
+                </button>
+              )}
+              {accionComercial.tipo === 'carrito' ? (
+                <a
+                  href={whatsappHref}
+                  class="btn-hero-secondary"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {t(locale, 'producto.asesor_cta')}
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  class="btn-hero-secondary"
+                  data-ensure-cotizacion={producto.slug}
+                  data-nombre={producto.nombre}
+                  data-imagen={imagenProducto}
+                  data-url={productUrl}
+                  data-modelo={modelo ?? ''}
+                  data-marca={producto.marca ?? ''}
+                >
+                  {t(locale, 'producto.cotizar_cta')}
+                </button>
+              )}
+              {producto.ficha_pdf && (
+                <button
+                  type="button"
+                  class="btn-hero-secondary"
+                  data-pdf-download-trigger
+                  data-pdf-download-target={pdfGateId}
+                >
+                  {t(locale, 'producto.ficha_pdf')}
+                </button>
+              )}
+            </div>
+          )
+        }
 
         {
           tienePrecio && (
@@ -336,6 +333,190 @@ heroStats.push({
           )
         }
       </div>
+
+      {
+        esCotizacion && (
+          <section
+            class="quote-card"
+            id="cta-principal"
+            aria-label={t(locale, 'producto.quote_precio_titulo')}
+            data-quote-card
+            data-price-mode="quote"
+            data-product-slug={producto.slug}
+            data-product-name={producto.nombre}
+            data-product-category={familia.nombre}
+          >
+            <div class="quote-card__meta">
+              <p
+                class:list={[
+                  'quote-card__estado',
+                  { 'quote-card__estado--no': !disponibleParaMostrar },
+                ]}
+              >
+                <span class="quote-card__dot" aria-hidden="true" />
+                {disponibilidadTexto}
+              </p>
+              {referencia && (
+                <p class="quote-card__ref">
+                  {t(locale, 'producto.quote_referencia').replace('{ref}', referencia)}
+                </p>
+              )}
+            </div>
+
+            <p class="quote-card__precio">{t(locale, 'producto.quote_precio_titulo')}</p>
+            <p class="quote-card__desc">{t(locale, 'producto.quote_precio_desc')}</p>
+
+            <div class="quote-card__qty">
+              <label for="quote-qty-input" class="quote-card__qty-label">
+                {t(locale, 'producto.quote_cantidad')}
+              </label>
+              <div class="quote-stepper">
+                <button
+                  type="button"
+                  class="quote-stepper__btn"
+                  data-qty-step="-1"
+                  aria-label={t(locale, 'producto.quote_cantidad_disminuir')}
+                >
+                  <span aria-hidden="true">−</span>
+                </button>
+                <input
+                  id="quote-qty-input"
+                  class="quote-stepper__input"
+                  type="number"
+                  inputmode="numeric"
+                  min="1"
+                  max="99"
+                  step="1"
+                  value="1"
+                  data-quote-qty
+                />
+                <button
+                  type="button"
+                  class="quote-stepper__btn"
+                  data-qty-step="1"
+                  aria-label={t(locale, 'producto.quote_cantidad_aumentar')}
+                >
+                  <span aria-hidden="true">+</span>
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              class="quote-btn quote-btn--primary"
+              data-add-cotizacion={producto.slug}
+              data-nombre={producto.nombre}
+              data-imagen={imagenProducto}
+              data-url={productUrl}
+              data-modelo={modelo ?? ''}
+              data-marca={producto.marca ?? ''}
+              data-cantidad-desde="#quote-qty-input"
+              data-no-abrir
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="20"
+                height="20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="12" y1="12" x2="12" y2="18" />
+                <line x1="9" y1="15" x2="15" y2="15" />
+              </svg>
+              {t(locale, 'producto.quote_agregar')}
+            </button>
+            <button
+              type="button"
+              class="quote-btn quote-btn--secondary"
+              data-ensure-cotizacion={producto.slug}
+              data-nombre={producto.nombre}
+              data-imagen={imagenProducto}
+              data-url={productUrl}
+              data-modelo={modelo ?? ''}
+              data-marca={producto.marca ?? ''}
+              data-cantidad-desde="#quote-qty-input"
+            >
+              {t(locale, 'producto.quote_solicitar_ahora')}
+            </button>
+
+            <p class="quote-card__aviso" role="status" aria-live="polite" data-quote-aviso hidden>
+              <span data-quote-aviso-texto>{t(locale, 'producto.quote_agregado_aviso')}</span>
+              <button type="button" class="quote-card__link" data-quote-ver>
+                {t(locale, 'producto.quote_ver')}
+              </button>
+            </p>
+
+            <ul class="quote-card__trust" role="list">
+              <li>
+                <svg
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <>
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                  </>
+                </svg>
+                {t(locale, 'producto.quote_trust_factura')}
+              </li>
+              <li>
+                <svg
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <>
+                    <rect x="3" y="11" width="18" height="11" rx="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </>
+                </svg>
+                {t(locale, 'producto.quote_trust_datos')}
+              </li>
+            </ul>
+
+            <div class="quote-card__soporte">
+              <a
+                href={whatsappHref}
+                class="quote-card__link"
+                target="_blank"
+                rel="noopener noreferrer"
+                data-quote-asesor
+              >
+                {t(locale, 'producto.quote_ayuda')}
+              </a>
+              {producto.ficha_pdf && (
+                <button
+                  type="button"
+                  class="quote-card__link"
+                  data-pdf-download-trigger
+                  data-pdf-download-target={pdfGateId}
+                >
+                  {t(locale, 'producto.ficha_pdf')}
+                </button>
+              )}
+            </div>
+          </section>
+        )
+      }
     </div>
   </section>
 
@@ -572,6 +753,20 @@ heroStats.push({
             <a href={carritoPath} class="btn-hero-primary">
               {t(locale, 'carrito.ir_pagar')}
             </a>
+          ) : esCotizacion ? (
+            <button
+              type="button"
+              class="btn-hero-primary"
+              data-ensure-cotizacion={producto.slug}
+              data-nombre={producto.nombre}
+              data-imagen={imagenProducto}
+              data-url={productUrl}
+              data-modelo={modelo ?? ''}
+              data-marca={producto.marca ?? ''}
+              data-cantidad-desde="#quote-qty-input"
+            >
+              {t(locale, 'producto.quote_solicitar_ahora')}
+            </button>
           ) : (
             <button
               type="button"
@@ -611,23 +806,40 @@ heroStats.push({
   }
 
   <!-- CTA sticky -->
-  <div class="cta-sticky" id="cta-sticky" hidden>
-    <div class="container cta-sticky__inner">
-      <p class="cta-sticky__nombre">{producto.nombre}</p>
-      <button
-        type="button"
-        class="btn btn-primary"
-        data-ensure-cotizacion={producto.slug}
-        data-nombre={producto.nombre}
-        data-imagen={imagenProducto}
-        data-url={productUrl}
-        data-modelo={modelo ?? ''}
-        data-marca={producto.marca ?? ''}
-      >
-        {t(locale, 'producto.cotizar_cta')}
-      </button>
-    </div>
-  </div>
+  {
+    esCotizacion ? (
+      <div class="cta-sticky cta-sticky--quote" id="cta-sticky" hidden>
+        <div class="container cta-sticky__inner">
+          <p class="cta-sticky__precio">{t(locale, 'producto.quote_precio_titulo')}</p>
+          <button
+            type="button"
+            class="quote-btn quote-btn--primary quote-btn--compact"
+            data-quote-sticky-add
+          >
+            {t(locale, 'producto.quote_agregar')}
+          </button>
+        </div>
+      </div>
+    ) : (
+      <div class="cta-sticky" id="cta-sticky" hidden>
+        <div class="container cta-sticky__inner">
+          <p class="cta-sticky__nombre">{producto.nombre}</p>
+          <button
+            type="button"
+            class="btn btn-primary"
+            data-ensure-cotizacion={producto.slug}
+            data-nombre={producto.nombre}
+            data-imagen={imagenProducto}
+            data-url={productUrl}
+            data-modelo={modelo ?? ''}
+            data-marca={producto.marca ?? ''}
+          >
+            {t(locale, 'producto.cotizar_cta')}
+          </button>
+        </div>
+      </div>
+    )
+  }
 </article>
 
 <style>
@@ -1160,6 +1372,326 @@ heroStats.push({
     gap: 1rem;
   }
 
+  /* ─── Estado "precio bajo cotización" ─────────────────────────────── */
+  .hero-producto__inner--quote {
+    grid-template-columns: 1fr;
+    align-items: start;
+    row-gap: 0.9rem;
+    grid-template-areas:
+      'badge'
+      'title'
+      'media'
+      'card'
+      'desc'
+      'stats'
+      'compare';
+  }
+  .hero-producto__inner--quote .hero-producto__content {
+    display: contents;
+  }
+  .hero-producto__inner--quote .hero-producto__badge {
+    grid-area: badge;
+  }
+  .hero-producto__inner--quote h1 {
+    grid-area: title;
+  }
+  .hero-producto__inner--quote .hero-producto__media {
+    grid-area: media;
+  }
+  .hero-producto__inner--quote .quote-card {
+    grid-area: card;
+  }
+  .hero-producto__inner--quote .hero-producto__desc {
+    grid-area: desc;
+  }
+  .hero-producto__inner--quote .hero-producto__stats {
+    grid-area: stats;
+    margin-block-start: 0;
+  }
+  .hero-producto__inner--quote .producto-landing__compare {
+    grid-area: compare;
+  }
+  @media (min-width: 900px) {
+    .hero-producto__inner--quote {
+      grid-template-columns: 1fr 1fr;
+      column-gap: var(--space-lg);
+      grid-template-areas:
+        'badge media'
+        'title media'
+        'desc media'
+        'card media'
+        'stats media'
+        'compare media';
+      grid-template-rows: repeat(5, auto) 1fr;
+    }
+  }
+  @media (min-width: 1200px) {
+    .hero-producto__inner--quote {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(300px, 340px);
+      grid-template-areas:
+        'badge media card'
+        'title media card'
+        'desc media card'
+        'stats media card'
+        'compare media card';
+      grid-template-rows: repeat(4, auto) 1fr;
+    }
+    .hero-producto__inner--quote .quote-card {
+      position: sticky;
+      top: 96px;
+    }
+  }
+
+  .hero-producto__inner--quote .quote-card,
+  .hero-producto__inner--quote .hero-producto__media {
+    align-self: start;
+  }
+  @media (max-width: 899px) {
+    .hero-producto--quote {
+      padding-block: var(--space-md) var(--space-lg);
+    }
+    .hero-producto__inner--quote .hero-producto__media {
+      aspect-ratio: 16 / 9;
+      max-height: 28vh;
+    }
+  }
+
+  .quote-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    padding: 1.25rem;
+    border-radius: var(--radius-lg);
+    background: var(--white);
+    color: var(--ink);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-lg);
+    min-width: 0;
+  }
+  .quote-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem 1rem;
+    font-size: 0.82rem;
+  }
+  .quote-card__estado {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .quote-card__dot {
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 0 3px var(--green-pale);
+  }
+  .quote-card__estado--no .quote-card__dot {
+    background: var(--text-mid);
+    box-shadow: none;
+  }
+  .quote-card__ref {
+    margin: 0;
+    color: var(--text-mid);
+  }
+  .quote-card__precio {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--ink);
+  }
+  .quote-card__desc {
+    margin: 0;
+    color: var(--text-mid);
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+  .quote-card__qty {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .quote-card__qty-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-mid);
+  }
+  .quote-stepper {
+    display: inline-flex;
+    align-items: stretch;
+    align-self: flex-start;
+    border: 1.5px solid var(--border-mid);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .quote-stepper__btn {
+    width: 48px;
+    min-height: 48px;
+    border: none;
+    background: var(--off);
+    color: var(--ink);
+    font-size: 1.3rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .quote-stepper__btn:hover:not(:disabled) {
+    background: var(--t50);
+  }
+  .quote-stepper__btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .quote-stepper__input {
+    width: 4rem;
+    border: none;
+    border-inline: 1px solid var(--border-mid);
+    background: var(--white);
+    color: var(--ink);
+    text-align: center;
+    font-family: inherit;
+    font-size: 1.05rem;
+    font-weight: 600;
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  .quote-stepper__input::-webkit-outer-spin-button,
+  .quote-stepper__input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .quote-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    width: 100%;
+    min-height: 52px;
+    padding: 0.8rem 1.2rem;
+    border-radius: var(--radius);
+    border: 2px solid transparent;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+      transform 0.15s,
+      box-shadow 0.15s,
+      background 0.15s;
+  }
+  .quote-btn--primary {
+    background: var(--green);
+    color: #0b1b22;
+  }
+  .quote-btn--primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(126, 217, 87, 0.35);
+  }
+  .quote-btn--secondary {
+    background: var(--t900);
+    color: #ffffff;
+  }
+  .quote-btn--secondary:hover:not(:disabled) {
+    background: var(--t800);
+  }
+  .quote-btn:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+  .quote-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .quote-btn:focus-visible,
+  .quote-stepper__btn:focus-visible,
+  .quote-stepper__input:focus-visible,
+  .quote-card__link:focus-visible {
+    outline: 3px solid var(--t800);
+    outline-offset: 2px;
+  }
+  .quote-btn--compact {
+    width: auto;
+    min-height: 48px;
+    flex-shrink: 0;
+  }
+  .quote-card__aviso {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.3rem 0.75rem;
+    margin: 0;
+    padding: 0.6rem 0.8rem;
+    border-radius: 10px;
+    background: var(--green-pale);
+    border: 1px solid var(--border);
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .quote-card__aviso[hidden] {
+    display: none;
+  }
+  .quote-card__link {
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--t800);
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+  }
+  .quote-card__trust {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1rem;
+    margin: 0;
+    padding: 0.85rem 0 0;
+    list-style: none;
+    border-top: 1px solid var(--border);
+    font-size: 0.8rem;
+    color: var(--text-mid);
+  }
+  .quote-card__trust li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .quote-card__soporte {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1rem;
+  }
+
+  .cta-sticky--quote {
+    z-index: 190;
+    padding-block-end: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  }
+  .cta-sticky__precio {
+    margin: 0;
+    text-align: start;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--ink);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .quote-btn {
+      transition: none;
+    }
+  }
+
   /* CTA sticky */
   .cta-sticky {
     position: fixed;
@@ -1247,6 +1779,14 @@ heroStats.push({
     }
     .hero-producto__cta-group {
       justify-content: center;
+    }
+  }
+</style>
+
+<style is:global>
+  @media (max-width: 767px) {
+    body:has([data-quote-pdp]) .mobile-commercial-bar {
+      display: none;
     }
   }
 </style>
@@ -1339,6 +1879,49 @@ heroStats.push({
       btn.textContent = original;
     }, 1800);
   };
+
+  // Tarjeta de cotización (productos sin precio)
+  const quoteCard = document.querySelector<HTMLElement>('[data-quote-card]');
+  if (quoteCard) {
+    const qtyInput = quoteCard.querySelector<HTMLInputElement>('[data-quote-qty]');
+    const stepBtns = quoteCard.querySelectorAll<HTMLButtonElement>('[data-qty-step]');
+    const addBtn = quoteCard.querySelector<HTMLButtonElement>('[data-add-cotizacion]');
+    const aviso = quoteCard.querySelector<HTMLElement>('[data-quote-aviso]');
+    const MAX = 99;
+
+    const leerCantidad = (): number => {
+      const n = Math.floor(Number(qtyInput?.value));
+      if (!Number.isFinite(n) || n < 1) return 1;
+      return Math.min(n, MAX);
+    };
+    const pintarCantidad = () => {
+      const n = leerCantidad();
+      if (qtyInput) qtyInput.value = String(n);
+      stepBtns.forEach(btn => {
+        const paso = Number(btn.dataset['qtyStep']);
+        btn.disabled = (paso < 0 && n <= 1) || (paso > 0 && n >= MAX);
+      });
+    };
+    pintarCantidad();
+    qtyInput?.addEventListener('change', pintarCantidad);
+    stepBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (qtyInput) qtyInput.value = String(leerCantidad() + Number(btn.dataset['qtyStep']));
+        pintarCantidad();
+      });
+    });
+
+    addBtn?.addEventListener('click', () => {
+      // La lista se actualiza en la delegación global (cotizacion-clicks.ts).
+      if (aviso) aviso.hidden = false;
+    });
+    quoteCard.querySelector('[data-quote-ver]')?.addEventListener('click', () => {
+      void import('../lib/cotizacion-equipos').then(({ abrirCotizacion }) => abrirCotizacion());
+    });
+    document.querySelector('[data-quote-sticky-add]')?.addEventListener('click', () => {
+      addBtn?.click();
+    });
+  }
 
   addCarritoBtn?.addEventListener('click', () => {
     const slug = addCarritoBtn.dataset['addCarrito'];

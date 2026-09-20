@@ -5051,6 +5051,8 @@ async function marketingView(): Promise<string> {
     'product_view',
     'quick_view',
     'quote_open',
+    'add_to_quote',
+    'begin_quote',
     'quote_submit',
     'whatsapp_click',
     'add_to_cart',

@@ -12,6 +12,7 @@ export type AnalyticsEventName =
   | 'quote_submit'
   | 'quote_open'
   | 'quote_begin'
+  | 'quote_success'
   | 'whatsapp_click'
   | 'tel_click'
   | 'imeia_open'
@@ -252,6 +253,7 @@ export function trackPageView(): void {
       product_slug: decodeURIComponent(productSlug),
       page_path: pathname,
       page_title: document.title,
+      price_mode: document.querySelector('[data-quote-card]') ? 'quote' : 'purchase',
     });
   }
 }

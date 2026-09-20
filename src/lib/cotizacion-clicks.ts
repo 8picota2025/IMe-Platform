@@ -10,6 +10,7 @@ import {
   actualizarCantidadCotizacion,
   quitarDeCotizacion,
   getCotizacionItems,
+  normalizarCantidadCotizacion,
   type CotizacionItem,
 } from './cotizacion-equipos';
 
@@ -33,6 +34,14 @@ function readCotizacionItem(btn: HTMLElement): Omit<CotizacionItem, 'cantidad'> 
   const marca = btn.dataset['marca'];
   if (!slug || !nombre || !imagen) return null;
   return { slug, nombre, imagen, url, modelo, marca };
+}
+
+/** Cantidad del CTA: `data-cantidad-desde` apunta a un input (selector en la ficha). */
+function readCantidad(btn: HTMLElement): number | undefined {
+  const selector = btn.dataset['cantidadDesde'];
+  if (!selector) return undefined;
+  const input = document.querySelector<HTMLInputElement>(selector);
+  return input ? normalizarCantidadCotizacion(input.value) : undefined;
 }
 
 function onDocumentClick(event: MouseEvent): void {
@@ -60,7 +69,7 @@ function onDocumentClick(event: MouseEvent): void {
     event.preventDefault();
     const item = readCotizacionItem(ensureBtn);
     if (!item) return;
-    asegurarProductoEnCotizacion(item);
+    asegurarProductoEnCotizacion(item, readCantidad(ensureBtn));
     return;
   }
 
@@ -70,8 +79,10 @@ function onDocumentClick(event: MouseEvent): void {
   event.preventDefault();
   const item = readCotizacionItem(cotizacionBtn);
   if (!item) return;
-  agregarACotizacion(item);
-  confirmarAdd(cotizacionBtn);
+  // `data-no-abrir`: la ficha sin precio permite seguir navegando y muestra su propio aviso.
+  const seguirNavegando = cotizacionBtn.dataset['noAbrir'] !== undefined;
+  agregarACotizacion(item, readCantidad(cotizacionBtn) ?? 1, { abrir: !seguirNavegando });
+  if (!seguirNavegando) confirmarAdd(cotizacionBtn);
 }
 
 /** Registra (o reemplaza) el listener global de cotización. Idempotente en astro:page-load. */
