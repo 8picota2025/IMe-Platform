@@ -37,7 +37,7 @@ for (const espec of especificaciones) {
 
 // Sellos de certificación/normativa: se derivan de especificaciones reales
 // del propio producto (grupo "Normativa"), nunca de una lista inventada.
-const certificaciones = especificaciones.filter(item => /normativ/i.test(item.grupo ?? ''));
+const _certificaciones = especificaciones.filter(item => /normativ/i.test(item.grupo ?? ''));
 
 const galeria = producto.galeria.filter(url => url && url !== producto.imagen_principal);
 const imagenes = [producto.imagen_principal ?? '/assets/img-placeholder.svg', ...galeria];
@@ -254,459 +254,589 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
             </ul>
           )
         }
-      </div>
-
-      <!-- Identidad -->
-      <div class="pdp-identity">
-        <div class="pdp-identity__meta">
-          <span class="pdp-identity__category">{familia.nombre}</span>
-          {referencia && <span class="pdp-identity__sku">SKU {referencia}</span>}
-        </div>
-        <h1>{producto.nombre}</h1>
         {
-          producto.descripcion_corta && (
-            <p class="pdp-identity__desc">{producto.descripcion_corta}</p>
+          producto.beneficios.length > 0 && (
+            <ul class="pdp-highlights" role="list">
+              {producto.beneficios.slice(0, 4).map(beneficio => (
+                <li>
+                  <span aria-hidden="true">✓</span>
+                  <span>{beneficio}</span>
+                </li>
+              ))}
+            </ul>
           )
         }
-        <ul class="pdp-identity__attrs" role="list">
-          <li>
-            <span class="pdp-identity__attr-label">{t(locale, 'producto.ficha_modalidad')}</span>
-            <span>{modalidadTexto}</span>
-          </li>
-          {
-            producto.marca && (
-              <li>
-                <span class="pdp-identity__attr-label">{locale === 'en' ? 'Brand' : 'Marca'}</span>
-                <span>{producto.marca}</span>
-              </li>
-            )
-          }
-        </ul>
-        <label class="producto-landing__compare">
-          <input type="checkbox" id="comparador-toggle" data-compare-slug={producto.slug} />
-          <span>{t(locale, 'catalogo.comparar_anadir')}</span>
-        </label>
       </div>
 
-      <!-- Panel commerce -->
-      {
-        esCommerce && (
-          <section
-            class="product-purchase-panel"
-            id="cta-principal"
-            aria-label={t(locale, 'producto.commerce_precio_label')}
-            data-commerce-panel
-            data-price-mode="commerce"
-            data-stock-max={stockMax}
-          >
-            <p
-              class:list={[
-                'product-purchase-panel__availability',
-                { 'product-purchase-panel__availability--no': !disponibleParaMostrar },
-              ]}
-            >
-              <span class="product-purchase-panel__dot" aria-hidden="true" />
-              {disponibilidadTexto}
-            </p>
-            <p class="product-purchase-panel__price-label">
-              {t(locale, 'producto.commerce_precio_label')}
-            </p>
-            <p class="product-purchase-panel__price">
-              {precioFormateado}
-              <small>{producto.moneda ?? 'COP'}</small>
-            </p>
-            <p class="product-purchase-panel__price-notice">
-              {t(locale, 'producto.iva_incluido')} · {t(locale, 'producto.envio_no_incluido')}
-            </p>
-
-            {isPurchasableProduct ? (
-              <>
-                <div class="product-purchase-panel__quantity">
-                  <span class="product-purchase-panel__qty-label" id="commerce-qty-label">
-                    {t(locale, 'producto.commerce_cantidad')}
+      <!-- Columna identidad + compra/cotización -->
+      <div
+        class:list={[
+          'pdp-buy',
+          { 'pdp-buy--commerce': esCommerce, 'pdp-buy--quote': esCotizacion },
+        ]}
+      >
+        <!-- Identidad -->
+        <div class="pdp-identity">
+          <div class="pdp-identity__meta">
+            <span class="pdp-identity__category">{familia.nombre}</span>
+            {referencia && <span class="pdp-identity__sku">SKU {referencia}</span>}
+          </div>
+          <h1>{producto.nombre}</h1>
+          {
+            producto.descripcion_corta && (
+              <p class="pdp-identity__desc">{producto.descripcion_corta}</p>
+            )
+          }
+          <ul class="pdp-identity__attrs" role="list">
+            <li>
+              <span class="pdp-identity__attr-label">{t(locale, 'producto.ficha_modalidad')}</span>
+              <span>{modalidadTexto}</span>
+            </li>
+            {
+              producto.marca && (
+                <li>
+                  <span class="pdp-identity__attr-label">
+                    {locale === 'en' ? 'Brand' : 'Marca'}
                   </span>
-                  <div class="commerce-stepper" role="group" aria-labelledby="commerce-qty-label">
-                    <button
-                      type="button"
-                      data-pdp-quantity-decrease
-                      aria-label={t(locale, 'producto.commerce_cantidad_disminuir')}
-                    >
-                      −
-                    </button>
-                    <output data-pdp-quantity>1</output>
-                    <button
-                      type="button"
-                      data-pdp-quantity-increase
-                      aria-label={t(locale, 'producto.commerce_cantidad_aumentar')}
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  class="btn-pdp btn-pdp--primary"
-                  aria-live="polite"
-                  data-add-carrito={producto.slug}
-                  data-nombre={producto.nombre}
-                  data-precio={producto.precio}
-                  data-moneda={producto.moneda ?? 'COP'}
-                  data-stock={producto.stock ?? ''}
-                  data-label-agregar={t(locale, 'producto.commerce_anadir_cesta')}
-                  data-label-agregado={t(locale, 'carrito.agregado')}
-                >
-                  {t(locale, 'producto.commerce_anadir_cesta')}
-                </button>
-                <button type="button" class="btn-pdp btn-pdp--secondary" data-buy-now>
-                  {t(locale, 'producto.commerce_comprar_ahora')}
-                </button>
-                <p class="product-purchase-panel__payments">
-                  {t(locale, 'producto.commerce_pago_wompi')}
-                </p>
-              </>
-            ) : (
-              <a
-                href={whatsappHref}
-                class="btn-pdp btn-pdp--primary"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {accionComercial.label}
-              </a>
-            )}
+                  <span>{producto.marca}</span>
+                </li>
+              )
+            }
+          </ul>
+          <label class="producto-landing__compare">
+            <input type="checkbox" id="comparador-toggle" data-compare-slug={producto.slug} />
+            <span>{t(locale, 'catalogo.comparar_anadir')}</span>
+          </label>
+        </div>
 
-            <ul class="product-purchase-panel__trust" role="list">
-              <li>{t(locale, 'producto.commerce_trust_segura')}</li>
-              <li>{t(locale, 'producto.commerce_trust_factura')}</li>
-            </ul>
-
-            {producto.ficha_pdf && (
-              <button
-                type="button"
-                class="product-purchase-panel__link"
-                data-pdf-download-trigger
-                data-pdf-download-target={pdfGateId}
-              >
-                {t(locale, 'producto.ficha_pdf')}
-              </button>
-            )}
-          </section>
-        )
-      }
-
-      <!-- Panel quote (existente, columna comercial) -->
-      {
-        esCotizacion && (
-          <section
-            class="quote-card"
-            id="cta-principal"
-            aria-label={t(locale, 'producto.quote_precio_titulo')}
-            data-quote-card
-            data-price-mode="quote"
-            data-product-slug={producto.slug}
-            data-product-name={producto.nombre}
-            data-product-category={familia.nombre}
-          >
-            <div class="quote-card__meta">
+        <!-- Panel commerce -->
+        {
+          esCommerce && (
+            <section
+              class="product-purchase-panel"
+              id="cta-principal"
+              aria-label={t(locale, 'producto.commerce_precio_label')}
+              data-commerce-panel
+              data-price-mode="commerce"
+              data-stock-max={stockMax}
+            >
               <p
                 class:list={[
-                  'quote-card__estado',
-                  { 'quote-card__estado--no': !disponibleParaMostrar },
+                  'product-purchase-panel__availability',
+                  { 'product-purchase-panel__availability--no': !disponibleParaMostrar },
                 ]}
               >
-                <span class="quote-card__dot" aria-hidden="true" />
+                <span class="product-purchase-panel__dot" aria-hidden="true" />
                 {disponibilidadTexto}
               </p>
-              {referencia && (
-                <p class="quote-card__ref">
-                  {t(locale, 'producto.quote_referencia').replace('{ref}', referencia)}
-                </p>
+              <p class="product-purchase-panel__price-label">
+                {t(locale, 'producto.commerce_precio_label')}
+              </p>
+              <p class="product-purchase-panel__price">
+                {precioFormateado}
+                <small>{producto.moneda ?? 'COP'}</small>
+              </p>
+              <p class="product-purchase-panel__price-notice">
+                {t(locale, 'producto.iva_incluido')} · {t(locale, 'producto.envio_no_incluido')}
+              </p>
+
+              {isPurchasableProduct ? (
+                <>
+                  <div class="product-purchase-panel__quantity">
+                    <span class="product-purchase-panel__qty-label" id="commerce-qty-label">
+                      {t(locale, 'producto.commerce_cantidad')}
+                    </span>
+                    <div class="commerce-stepper" role="group" aria-labelledby="commerce-qty-label">
+                      <button
+                        type="button"
+                        data-pdp-quantity-decrease
+                        aria-label={t(locale, 'producto.commerce_cantidad_disminuir')}
+                      >
+                        −
+                      </button>
+                      <output data-pdp-quantity>1</output>
+                      <button
+                        type="button"
+                        data-pdp-quantity-increase
+                        aria-label={t(locale, 'producto.commerce_cantidad_aumentar')}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    class="btn-pdp btn-pdp--primary"
+                    aria-live="polite"
+                    data-add-carrito={producto.slug}
+                    data-nombre={producto.nombre}
+                    data-precio={producto.precio}
+                    data-moneda={producto.moneda ?? 'COP'}
+                    data-stock={producto.stock ?? ''}
+                    data-label-agregar={t(locale, 'producto.commerce_anadir_cesta')}
+                    data-label-agregado={t(locale, 'carrito.agregado')}
+                  >
+                    {t(locale, 'producto.commerce_anadir_cesta')}
+                  </button>
+                  <button type="button" class="btn-pdp btn-pdp--secondary" data-buy-now>
+                    {t(locale, 'producto.commerce_comprar_ahora')}
+                  </button>
+                  <p class="product-purchase-panel__payments">
+                    {t(locale, 'producto.commerce_pago_wompi')}
+                  </p>
+                </>
+              ) : (
+                <a
+                  href={whatsappHref}
+                  class="btn-pdp btn-pdp--primary"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {accionComercial.label}
+                </a>
               )}
-            </div>
 
-            <p class="quote-card__precio">{t(locale, 'producto.quote_precio_titulo')}</p>
-            <p class="quote-card__desc">{t(locale, 'producto.quote_precio_desc')}</p>
+              <ul class="product-purchase-panel__trust" role="list">
+                <li>{t(locale, 'producto.commerce_trust_segura')}</li>
+                <li>{t(locale, 'producto.commerce_trust_factura')}</li>
+              </ul>
 
-            <div class="quote-card__qty">
-              <label for="quote-qty-input" class="quote-card__qty-label">
-                {t(locale, 'producto.quote_cantidad')}
-              </label>
-              <div class="quote-stepper">
-                <button
-                  type="button"
-                  class="quote-stepper__btn"
-                  data-qty-step="-1"
-                  aria-label={t(locale, 'producto.quote_cantidad_disminuir')}
-                >
-                  <span aria-hidden="true">−</span>
-                </button>
-                <input
-                  id="quote-qty-input"
-                  class="quote-stepper__input"
-                  type="number"
-                  inputmode="numeric"
-                  min="1"
-                  max="99"
-                  step="1"
-                  value="1"
-                  data-quote-qty
-                />
-                <button
-                  type="button"
-                  class="quote-stepper__btn"
-                  data-qty-step="1"
-                  aria-label={t(locale, 'producto.quote_cantidad_aumentar')}
-                >
-                  <span aria-hidden="true">+</span>
-                </button>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              class="quote-btn quote-btn--primary"
-              data-add-cotizacion={producto.slug}
-              data-nombre={producto.nombre}
-              data-imagen={imagenProducto}
-              data-url={productUrl}
-              data-modelo={modelo ?? ''}
-              data-marca={producto.marca ?? ''}
-              data-cantidad-desde="#quote-qty-input"
-              data-no-abrir
-            >
-              {t(locale, 'producto.quote_agregar')}
-            </button>
-            <button
-              type="button"
-              class="quote-btn quote-btn--secondary"
-              data-ensure-cotizacion={producto.slug}
-              data-nombre={producto.nombre}
-              data-imagen={imagenProducto}
-              data-url={productUrl}
-              data-modelo={modelo ?? ''}
-              data-marca={producto.marca ?? ''}
-              data-cantidad-desde="#quote-qty-input"
-            >
-              {t(locale, 'producto.quote_solicitar_ahora')}
-            </button>
-
-            <p class="quote-card__aviso" role="status" aria-live="polite" data-quote-aviso hidden>
-              <span data-quote-aviso-texto>{t(locale, 'producto.quote_agregado_aviso')}</span>
-              <button type="button" class="quote-card__link" data-quote-ver>
-                {t(locale, 'producto.quote_ver')}
-              </button>
-            </p>
-
-            <ul class="quote-card__trust" role="list">
-              <li>{t(locale, 'producto.quote_trust_factura')}</li>
-              <li>{t(locale, 'producto.quote_trust_datos')}</li>
-            </ul>
-
-            <div class="quote-card__soporte">
-              <a
-                href={whatsappHref}
-                class="quote-card__link"
-                target="_blank"
-                rel="noopener noreferrer"
-                data-quote-asesor
-              >
-                {t(locale, 'producto.quote_ayuda')}
-              </a>
               {producto.ficha_pdf && (
                 <button
                   type="button"
-                  class="quote-card__link"
+                  class="product-purchase-panel__link"
                   data-pdf-download-trigger
                   data-pdf-download-target={pdfGateId}
                 >
                   {t(locale, 'producto.ficha_pdf')}
                 </button>
               )}
-            </div>
-          </section>
-        )
-      }
+            </section>
+          )
+        }
+
+        <!-- Panel quote (existente, columna comercial) -->
+        {
+          esCotizacion && (
+            <section
+              class="quote-card"
+              id="cta-principal"
+              aria-label={t(locale, 'producto.quote_precio_titulo')}
+              data-quote-card
+              data-price-mode="quote"
+              data-product-slug={producto.slug}
+              data-product-name={producto.nombre}
+              data-product-category={familia.nombre}
+            >
+              <div class="quote-card__meta">
+                <p
+                  class:list={[
+                    'quote-card__estado',
+                    { 'quote-card__estado--no': !disponibleParaMostrar },
+                  ]}
+                >
+                  <span class="quote-card__dot" aria-hidden="true" />
+                  {disponibilidadTexto}
+                </p>
+                {referencia && (
+                  <p class="quote-card__ref">
+                    {t(locale, 'producto.quote_referencia').replace('{ref}', referencia)}
+                  </p>
+                )}
+              </div>
+
+              <p class="quote-card__precio">{t(locale, 'producto.quote_precio_titulo')}</p>
+              <p class="quote-card__desc">{t(locale, 'producto.quote_precio_desc')}</p>
+
+              <div class="quote-card__qty">
+                <label for="quote-qty-input" class="quote-card__qty-label">
+                  {t(locale, 'producto.quote_cantidad')}
+                </label>
+                <div class="quote-stepper">
+                  <button
+                    type="button"
+                    class="quote-stepper__btn"
+                    data-qty-step="-1"
+                    aria-label={t(locale, 'producto.quote_cantidad_disminuir')}
+                  >
+                    <span aria-hidden="true">−</span>
+                  </button>
+                  <input
+                    id="quote-qty-input"
+                    class="quote-stepper__input"
+                    type="number"
+                    inputmode="numeric"
+                    min="1"
+                    max="99"
+                    step="1"
+                    value="1"
+                    data-quote-qty
+                  />
+                  <button
+                    type="button"
+                    class="quote-stepper__btn"
+                    data-qty-step="1"
+                    aria-label={t(locale, 'producto.quote_cantidad_aumentar')}
+                  >
+                    <span aria-hidden="true">+</span>
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                class="quote-btn quote-btn--primary"
+                data-add-cotizacion={producto.slug}
+                data-nombre={producto.nombre}
+                data-imagen={imagenProducto}
+                data-url={productUrl}
+                data-modelo={modelo ?? ''}
+                data-marca={producto.marca ?? ''}
+                data-cantidad-desde="#quote-qty-input"
+                data-no-abrir
+              >
+                {t(locale, 'producto.quote_agregar')}
+              </button>
+              <button
+                type="button"
+                class="quote-btn quote-btn--secondary"
+                data-ensure-cotizacion={producto.slug}
+                data-nombre={producto.nombre}
+                data-imagen={imagenProducto}
+                data-url={productUrl}
+                data-modelo={modelo ?? ''}
+                data-marca={producto.marca ?? ''}
+                data-cantidad-desde="#quote-qty-input"
+              >
+                {t(locale, 'producto.quote_solicitar_ahora')}
+              </button>
+
+              <p class="quote-card__aviso" role="status" aria-live="polite" data-quote-aviso hidden>
+                <span data-quote-aviso-texto>{t(locale, 'producto.quote_agregado_aviso')}</span>
+                <button type="button" class="quote-card__link" data-quote-ver>
+                  {t(locale, 'producto.quote_ver')}
+                </button>
+              </p>
+
+              <ul class="quote-card__trust" role="list">
+                <li>{t(locale, 'producto.quote_trust_factura')}</li>
+                <li>{t(locale, 'producto.quote_trust_datos')}</li>
+              </ul>
+
+              <div class="quote-card__soporte">
+                <a
+                  href={whatsappHref}
+                  class="quote-card__link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-quote-asesor
+                >
+                  {t(locale, 'producto.quote_ayuda')}
+                </a>
+                {producto.ficha_pdf && (
+                  <button
+                    type="button"
+                    class="quote-card__link"
+                    data-pdf-download-trigger
+                    data-pdf-download-target={pdfGateId}
+                  >
+                    {t(locale, 'producto.ficha_pdf')}
+                  </button>
+                )}
+              </div>
+            </section>
+          )
+        }
+      </div>
     </div>
   </section>
 
-  <!-- Contexto de decisión: texto visible y extraíble, respaldado por ficha técnica -->
-  {
-    producto.descripcion_larga && (
-      <section class="section container" aria-labelledby="contexto-heading">
-        <h2 id="contexto-heading" class="section-title">
-          {locale === 'en' ? 'Product description' : 'Descripción del producto'}
-        </h2>
-        <div class="producto-contexto">
-          {producto.descripcion_larga.split('\n\n').map(parrafo => (
-            <p>{parrafo}</p>
-          ))}
-        </div>
-      </section>
-    )
-  }
-
-  <!-- Beneficios clave -->
-  {
-    producto.beneficios.length > 0 && (
-      <section class="section container" aria-labelledby="beneficios-heading">
-        <h2 id="beneficios-heading" class="section-title">
-          {t(locale, 'producto.beneficios_titulo')}
-        </h2>
-        <ul class="beneficios__grid" role="list">
-          {producto.beneficios.map(beneficio => (
-            <li class="beneficios__card">
-              <span class="beneficios__icono" aria-hidden="true">
-                ✓
-              </span>
-              <p>{beneficio}</p>
-            </li>
-          ))}
-        </ul>
-      </section>
-    )
-  }
-
-  <!-- Galería -->
-  {
-    galeria.length > 0 && (
-      <section class="section container" aria-labelledby="galeria-heading">
-        <h2 id="galeria-heading" class="section-title">
-          {t(locale, 'producto.galeria_titulo')}
-        </h2>
-        <ul class="galeria__grid" role="list">
-          {imagenes.map((src, index) => (
-            <li>
-              <button
-                type="button"
-                class="galeria__thumb"
-                data-galeria-index={index}
-                aria-label={`${t(locale, 'producto.galeria_abrir')}: ${producto.nombre} ${index + 1}/${imagenes.length}`}
-              >
-                <img
-                  src={getOptimizedImageUrl(src, 320, 'webp')}
-                  alt=""
-                  width="200"
-                  height="150"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </button>
-            </li>
-          ))}
-        </ul>
-
-        <dialog id="galeria-lightbox" aria-label={t(locale, 'producto.galeria_titulo')}>
-          <div class="lightbox__header">
-            <p class="lightbox__contador" aria-live="polite" id="lightbox-contador" />
-            <button type="button" class="lightbox__cerrar" data-lightbox-close>
-              <span aria-hidden="true">×</span>
-              <span class="sr-only">{t(locale, 'producto.galeria_cerrar')}</span>
+  <!-- Contenido tabulado + asistencia -->
+  <section class="pdp-lower container" data-pdp-tabs>
+    <div class="pdp-lower__main">
+      <div
+        class="pdp-tabs"
+        role="tablist"
+        aria-label={locale === 'en' ? 'Product information' : 'Información del producto'}
+      >
+        {
+          producto.descripcion_larga && (
+            <button
+              type="button"
+              class="pdp-tabs__tab"
+              role="tab"
+              id="tab-desc"
+              aria-controls="panel-desc"
+              aria-selected="true"
+              data-pdp-tab="desc"
+            >
+              {locale === 'en' ? 'Description' : 'Descripción'}
             </button>
-          </div>
-          <img id="lightbox-img" src={imagenes[0]} alt="" decoding="async" />
-          <div class="lightbox__nav">
-            <button type="button" data-lightbox-prev class="btn btn-secondary">
-              {t(locale, 'producto.galeria_anterior')}
+          )
+        }
+        <button
+          type="button"
+          class="pdp-tabs__tab"
+          role="tab"
+          id="tab-specs"
+          aria-controls="panel-specs"
+          aria-selected={!producto.descripcion_larga}
+          data-pdp-tab="specs"
+        >
+          {t(locale, 'producto.specs_titulo')}
+        </button>
+        {
+          producto.ficha_pdf && (
+            <button
+              type="button"
+              class="pdp-tabs__tab"
+              role="tab"
+              id="tab-docs"
+              aria-controls="panel-docs"
+              aria-selected="false"
+              data-pdp-tab="docs"
+            >
+              {locale === 'en' ? 'Documentation' : 'Documentación'}
             </button>
-            <button type="button" data-lightbox-next class="btn btn-secondary">
-              {t(locale, 'producto.galeria_siguiente')}
+          )
+        }
+        {
+          esCotizacion && producto.aplicaciones.length > 0 ? (
+            <button
+              type="button"
+              class="pdp-tabs__tab"
+              role="tab"
+              id="tab-apps"
+              aria-controls="panel-apps"
+              aria-selected="false"
+              data-pdp-tab="apps"
+            >
+              {t(locale, 'producto.aplicaciones_titulo')}
             </button>
-          </div>
-        </dialog>
-      </section>
-    )
-  }
+          ) : producto.preguntas_frecuentes.length > 0 ? (
+            <button
+              type="button"
+              class="pdp-tabs__tab"
+              role="tab"
+              id="tab-faq"
+              aria-controls="panel-faq"
+              aria-selected="false"
+              data-pdp-tab="faq"
+            >
+              {locale === 'en' ? 'FAQ' : 'Preguntas frecuentes'}
+            </button>
+          ) : null
+        }
+      </div>
 
-  <!-- Especificaciones -->
-  <section class="section section-off container" aria-labelledby="specs-heading">
-    <h2 id="specs-heading" class="section-title">{t(locale, 'producto.specs_titulo')}</h2>
-    {
-      especificaciones.length > 0 ? (
-        [...grupos.entries()].map(([grupo, items]) => (
-          <div class="specs-grupo">
-            {grupo && <h3 class="specs-grupo__titulo">{grupo}</h3>}
-            <table class="specs-table">
-              <thead>
-                <tr>
-                  <th scope="col">{t(locale, 'producto.specs_columna_parametro')}</th>
-                  <th scope="col">{t(locale, 'producto.specs_columna_detalle')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map(item => (
-                  <tr>
-                    <th scope="row">{item.clave}</th>
-                    <td>{item.valor}</td>
-                  </tr>
+      {
+        producto.descripcion_larga && (
+          <div
+            class="pdp-tabs__panel"
+            role="tabpanel"
+            id="panel-desc"
+            aria-labelledby="tab-desc"
+            data-pdp-panel="desc"
+          >
+            <h2 class="sr-only">
+              {locale === 'en' ? 'Product description' : 'Descripción del producto'}
+            </h2>
+            <div class="producto-contexto">
+              {producto.descripcion_larga.split('\n\n').map(parrafo => (
+                <p>{parrafo}</p>
+              ))}
+            </div>
+            {producto.beneficios.length > 0 && (
+              <ul class="beneficios__grid" role="list" style="margin-top:1.25rem">
+                {producto.beneficios.map(beneficio => (
+                  <li class="beneficios__card">
+                    <span class="beneficios__icono" aria-hidden="true">
+                      ✓
+                    </span>
+                    <p>{beneficio}</p>
+                  </li>
                 ))}
-              </tbody>
-            </table>
+              </ul>
+            )}
           </div>
-        ))
-      ) : (
-        <p class="specs-pendiente">{t(locale, 'producto.specs_pendiente')}</p>
-      )
-    }
+        )
+      }
+
+      <div
+        class="pdp-tabs__panel"
+        role="tabpanel"
+        id="panel-specs"
+        aria-labelledby="tab-specs"
+        data-pdp-panel="specs"
+        hidden={producto.descripcion_larga ? true : undefined}
+      >
+        <h2 class="sr-only">{t(locale, 'producto.specs_titulo')}</h2>
+        {
+          especificaciones.length > 0 ? (
+            [...grupos.entries()].map(([grupo, items]) => (
+              <div class="specs-grupo">
+                {grupo && <h3 class="specs-grupo__titulo">{grupo}</h3>}
+                <table class="specs-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">{t(locale, 'producto.specs_columna_parametro')}</th>
+                      <th scope="col">{t(locale, 'producto.specs_columna_detalle')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.map(item => (
+                      <tr>
+                        <th scope="row">{item.clave}</th>
+                        <td>{item.valor}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ))
+          ) : (
+            <p class="specs-pendiente">{t(locale, 'producto.specs_pendiente')}</p>
+          )
+        }
+      </div>
+
+      {
+        producto.ficha_pdf && (
+          <div
+            class="pdp-tabs__panel"
+            role="tabpanel"
+            id="panel-docs"
+            aria-labelledby="tab-docs"
+            data-pdp-panel="docs"
+            hidden
+          >
+            <h2 class="sr-only">{locale === 'en' ? 'Documentation' : 'Documentación'}</h2>
+            <button
+              type="button"
+              class="btn-pdp btn-pdp--secondary"
+              style="width:auto;min-width:240px"
+              data-pdf-download-trigger
+              data-pdf-download-target={pdfGateId}
+            >
+              {t(locale, 'producto.ficha_pdf')}
+            </button>
+          </div>
+        )
+      }
+
+      {
+        esCotizacion && producto.aplicaciones.length > 0 ? (
+          <div
+            class="pdp-tabs__panel"
+            role="tabpanel"
+            id="panel-apps"
+            aria-labelledby="tab-apps"
+            data-pdp-panel="apps"
+            hidden
+          >
+            <h2 class="sr-only">{t(locale, 'producto.aplicaciones_titulo')}</h2>
+            <ul class="aplicaciones__grid" role="list">
+              {producto.aplicaciones.map(item => (
+                <li class="aplicaciones__item">
+                  <span class="aplicaciones__icono" aria-hidden="true">
+                    ✓
+                  </span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : producto.preguntas_frecuentes.length > 0 ? (
+          <div
+            class="pdp-tabs__panel"
+            role="tabpanel"
+            id="panel-faq"
+            aria-labelledby="tab-faq"
+            data-pdp-panel="faq"
+            hidden
+          >
+            <h2 class="sr-only">{locale === 'en' ? 'FAQ' : 'Preguntas frecuentes'}</h2>
+            <div class="producto-faq">
+              {producto.preguntas_frecuentes.map(item => (
+                <details>
+                  <summary>{item.q}</summary>
+                  <p>{item.a}</p>
+                </details>
+              ))}
+            </div>
+          </div>
+        ) : null
+      }
+
+      {
+        producto.valor && (
+          <div class="valor-card" style="margin-top:1.5rem">
+            <p class="valor-card__texto">{producto.valor}</p>
+          </div>
+        )
+      }
+    </div>
+
+    <aside class="pdp-lower__aside" aria-label={locale === 'en' ? 'Assistance' : 'Asistencia'}>
+      <div class="pdp-assist-card">
+        <h2>{locale === 'en' ? 'Need advice?' : '¿Necesitas asesoría?'}</h2>
+        <p>
+          {
+            locale === 'en'
+              ? 'Talk with our team about this product.'
+              : 'Habla con nuestro equipo sobre este producto.'
+          }
+        </p>
+        <a
+          href={whatsappHref}
+          class="btn-pdp btn-pdp--primary"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {locale === 'en' ? 'Chat on WhatsApp' : 'Hablar por WhatsApp'}
+        </a>
+      </div>
+      {
+        esCotizacion && (
+          <div class="pdp-assist-card pdp-assist-card--muted">
+            <h2>{locale === 'en' ? 'Institutional quote?' : '¿Cotización para tu institución?'}</h2>
+            <p>
+              {locale === 'en'
+                ? 'Request a project quote with multiple items.'
+                : 'Solicita una cotización de proyecto con varios ítems.'}
+            </p>
+            <a
+              href={locale === 'en' ? '/en/contact/' : '/es/contacto/'}
+              class="btn-pdp btn-pdp--secondary"
+            >
+              {locale === 'en' ? 'Quote project' : 'Cotizar proyecto'}
+            </a>
+          </div>
+        )
+      }
+    </aside>
   </section>
 
-  <!-- Aplicaciones clínicas -->
   {
-    producto.aplicaciones.length > 0 && (
-      <section class="section container" aria-labelledby="aplicaciones-heading">
-        <h2 id="aplicaciones-heading" class="section-title">
-          {t(locale, 'producto.aplicaciones_titulo')}
-        </h2>
-        <ul class="aplicaciones__grid" role="list">
-          {producto.aplicaciones.map(item => (
-            <li class="aplicaciones__item">
-              <span class="aplicaciones__icono" aria-hidden="true">
-                ✓
-              </span>
-              {item}
-            </li>
-          ))}
-        </ul>
-      </section>
-    )
-  }
-
-  <!-- Bloque de valor (no es un testimonio atribuido a una persona) -->
-  {
-    producto.valor && (
-      <section class="section section-off container" aria-labelledby="valor-heading">
-        <h2 id="valor-heading" class="section-title">
-          {t(locale, 'producto.valor_titulo')}
-        </h2>
-        <div class="valor-card">
-          <p class="valor-card__texto">{producto.valor}</p>
+    galeria.length > 0 && (
+      <dialog id="galeria-lightbox" aria-label={t(locale, 'producto.galeria_titulo')}>
+        <div class="lightbox__header">
+          <p class="lightbox__contador" aria-live="polite" id="lightbox-contador" />
+          <button type="button" class="lightbox__cerrar" data-lightbox-close>
+            <span aria-hidden="true">×</span>
+            <span class="sr-only">{t(locale, 'producto.galeria_cerrar')}</span>
+          </button>
         </div>
-        {certificaciones.length > 0 && (
-          <ul class="cert-badges" role="list">
-            {certificaciones.map(item => (
-              <li class="cert-badge">{item.valor}</li>
-            ))}
-          </ul>
-        )}
-      </section>
-    )
-  }
-
-  <!-- Preguntas de compra: criterios verificables, sin comparativas no sustentadas -->
-  {
-    producto.preguntas_frecuentes.length > 0 && (
-      <section class="section container" aria-labelledby="faq-producto-heading">
-        <h2 id="faq-producto-heading" class="section-title">
-          {locale === 'en' ? 'Frequently asked questions' : 'Preguntas frecuentes'}
-        </h2>
-        <div class="producto-faq">
-          {producto.preguntas_frecuentes.map(item => (
-            <details>
-              <summary>{item.q}</summary>
-              <p>{item.a}</p>
-            </details>
-          ))}
+        <img id="lightbox-img" src={imagenes[0]} alt="" decoding="async" />
+        <div class="lightbox__nav">
+          <button type="button" data-lightbox-prev class="btn btn-secondary">
+            {t(locale, 'producto.galeria_anterior')}
+          </button>
+          <button type="button" data-lightbox-next class="btn btn-secondary">
+            {t(locale, 'producto.galeria_siguiente')}
+          </button>
         </div>
-      </section>
+      </dialog>
     )
   }
 
@@ -1379,63 +1509,152 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
   }
 
   /* ─── PDP unificada (commerce / quote) — sin hero turquesa ───────── */
+  .producto-landing > .breadcrumb.container,
+  .producto-landing .pdp-top > .container,
+  .producto-landing > .section.container,
+  .producto-landing > .pdp-tabs.container,
+  .producto-landing > .pdp-lower.container {
+    max-width: 1440px;
+    padding-inline: clamp(24px, 3vw, 48px);
+  }
+
+  .pdp-lower {
+    display: grid;
+    gap: 1.75rem;
+    padding-block: 1.5rem 2.5rem;
+  }
+  @media (min-width: 1024px) {
+    .pdp-lower {
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
+      align-items: start;
+    }
+  }
+  .pdp-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1.25rem;
+  }
+  .pdp-tabs__tab {
+    appearance: none;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    padding: 0.75rem 0.15rem;
+    font: inherit;
+    font-weight: 700;
+    color: var(--text-mid);
+    cursor: pointer;
+  }
+  .pdp-tabs__tab[aria-selected='true'] {
+    color: var(--t700, #0f5a6d);
+    border-bottom-color: var(--t700, #0f5a6d);
+  }
+  .pdp-tabs__tab:focus-visible {
+    outline: 2px solid var(--t700);
+    outline-offset: 2px;
+  }
+  .pdp-tabs__panel[hidden] {
+    display: none;
+  }
+  .pdp-assist-card {
+    display: grid;
+    gap: 0.75rem;
+    padding: 1.15rem;
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    background: var(--white);
+    margin-bottom: 1rem;
+  }
+  .pdp-assist-card h2 {
+    margin: 0;
+    font-size: 1.05rem;
+  }
+  .pdp-assist-card p {
+    margin: 0;
+    color: var(--text-mid);
+    font-size: 0.92rem;
+    line-height: 1.45;
+  }
+  .pdp-assist-card--muted {
+    background: #f4f7f9;
+  }
+
+  .producto-landing > .section {
+    padding-block: 1.75rem;
+  }
+  .producto-landing > .section.section-off {
+    padding-block: 1.75rem;
+  }
   .pdp-top {
-    background: linear-gradient(180deg, #f4f7f9 0%, var(--white, #fff) 42%);
-    padding-block: var(--space-md) var(--space-xl);
+    background: #f7f9fb;
+    padding-block: 0.75rem 1.5rem;
     color: var(--ink);
   }
   .pdp-top__grid {
     display: grid;
-    gap: 1.25rem 1.75rem;
+    gap: 1.5rem 2rem;
     align-items: start;
   }
-  .pdp-top__grid--commerce {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      'gallery'
-      'identity'
-      'panel';
-  }
-  .pdp-top__grid--quote {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      'gallery'
-      'identity'
-      'panel';
-  }
-  .pdp-gallery {
-    grid-area: gallery;
-  }
-  .pdp-identity {
-    grid-area: identity;
+  .pdp-buy--commerce {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
     min-width: 0;
   }
-  .product-purchase-panel,
-  .quote-card {
-    grid-area: panel;
+  .pdp-buy--quote {
+    display: contents;
+  }
+  .pdp-gallery {
+    min-width: 0;
+  }
+  .pdp-identity {
+    min-width: 0;
+  }
+
+  /* Mobile: stack */
+  .pdp-top__grid--commerce,
+  .pdp-top__grid--quote {
+    grid-template-columns: 1fr;
   }
 
   @media (min-width: 900px) {
     .pdp-top__grid--commerce {
-      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-      grid-template-areas:
-        'gallery identity'
-        'gallery panel';
-      grid-template-rows: auto 1fr;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 0.95fr);
     }
     .pdp-top__grid--quote {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      grid-template-areas:
-        'gallery identity'
-        'gallery panel';
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    }
+    .pdp-top__grid--quote .pdp-gallery {
+      grid-column: 1;
+      grid-row: 1 / span 2;
+    }
+    .pdp-top__grid--quote .pdp-identity {
+      grid-column: 2;
+      grid-row: 1;
+    }
+    .pdp-top__grid--quote .quote-card {
+      grid-column: 2;
+      grid-row: 2;
     }
   }
   @media (min-width: 1200px) {
     .pdp-top__grid--quote {
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(300px, 340px);
-      grid-template-areas: 'gallery identity panel';
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.9fr) minmax(300px, 0.85fr);
+    }
+    .pdp-top__grid--quote .pdp-gallery {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .pdp-top__grid--quote .pdp-identity {
+      grid-column: 2;
+      grid-row: 1;
     }
     .pdp-top__grid--quote .quote-card {
+      grid-column: 3;
+      grid-row: 1;
       position: sticky;
       top: 96px;
     }
@@ -1443,13 +1662,45 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
 
   .pdp-gallery__main {
     position: relative;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 1 / 1;
+    max-height: min(560px, 70vh);
     background: var(--white);
     border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
+    border-radius: 1rem;
     overflow: hidden;
     display: grid;
     place-items: center;
+    height: auto;
+    min-height: 0;
+  }
+  .pdp-highlights {
+    list-style: none;
+    margin: 1rem 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.65rem 1rem;
+  }
+  .pdp-highlights li {
+    display: flex;
+    gap: 0.45rem;
+    align-items: flex-start;
+    font-size: 0.88rem;
+    line-height: 1.35;
+    color: var(--ink);
+  }
+  .pdp-highlights li > span:first-child {
+    color: var(--green, #2f9e44);
+    font-weight: 800;
+  }
+  @media (max-width: 899px) {
+    .pdp-highlights {
+      grid-template-columns: 1fr;
+    }
+    .pdp-gallery__main {
+      aspect-ratio: 4 / 3;
+      max-height: 42vh;
+    }
   }
   .pdp-gallery__img {
     width: 100%;
@@ -1506,10 +1757,11 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
     color: var(--text-mid);
   }
   .pdp-identity h1 {
-    margin: 0 0 0.65rem;
+    margin: 0 0 0.75rem;
     color: var(--ink);
-    font-size: clamp(1.55rem, 3vw, 2.2rem);
-    line-height: 1.2;
+    font-size: clamp(1.65rem, 2.8vw, 2.35rem);
+    line-height: 1.18;
+    font-weight: 800;
   }
   .pdp-identity__desc {
     margin: 0 0 1rem;
@@ -1521,17 +1773,27 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
     list-style: none;
     margin: 0 0 1rem;
     padding: 0;
-    display: grid;
-    gap: 0.45rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
   }
   .pdp-identity__attrs li {
-    display: flex;
-    gap: 0.5rem;
-    font-size: 0.92rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.86rem;
+    padding: 0.45rem 0.75rem;
+    border-radius: 999px;
+    background: #eef3f6;
+    border: 1px solid var(--border);
+    color: var(--ink);
   }
   .pdp-identity__attr-label {
     color: var(--text-mid);
-    min-width: 6.5rem;
+    font-weight: 600;
+  }
+  .pdp-identity__attr-label::after {
+    content: ':';
   }
   .producto-landing__compare {
     display: inline-flex;
@@ -1544,13 +1806,19 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
   .product-purchase-panel {
     display: flex;
     flex-direction: column;
-    gap: 0.85rem;
-    padding: 1.25rem;
-    border-radius: var(--radius-lg);
+    gap: 0.95rem;
+    padding: 1.35rem 1.4rem 1.5rem;
+    border-radius: 1rem;
     background: var(--white);
     border: 1px solid var(--border);
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 10px 28px rgba(15, 45, 60, 0.08);
     min-width: 0;
+  }
+  .pdp-buy--commerce .product-purchase-panel {
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    background: transparent;
   }
   .product-purchase-panel__availability {
     display: inline-flex;
@@ -1579,9 +1847,10 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
   .product-purchase-panel__price {
     margin: 0;
     font-family: var(--font-display);
-    font-size: clamp(2rem, 4.5vw, 2.85rem);
+    font-size: clamp(2.35rem, 5vw, 3.15rem);
     font-weight: 800;
-    line-height: 1;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
     color: var(--t900, #093b4b);
   }
   .product-purchase-panel__price small {
@@ -1635,24 +1904,31 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 48px;
+    min-height: 52px;
     width: 100%;
-    border-radius: var(--radius);
-    font-weight: 700;
-    font-size: 0.95rem;
+    border-radius: 0.65rem;
+    font-weight: 800;
+    font-size: 1rem;
+    letter-spacing: 0.01em;
     text-decoration: none;
     cursor: pointer;
     border: none;
     font-family: inherit;
   }
   .btn-pdp--primary {
-    background: var(--green);
-    color: var(--ink);
+    background: #7ed957;
+    color: #0a2a1a;
+  }
+  .btn-pdp--primary:hover {
+    filter: brightness(0.97);
   }
   .btn-pdp--secondary {
-    background: transparent;
-    color: var(--t900, #093b4b);
-    border: 1.5px solid var(--t700, #0f5a6d);
+    background: #0f4c5c;
+    color: #fff;
+    border: none;
+  }
+  .btn-pdp--secondary:hover {
+    filter: brightness(1.06);
   }
   .btn-pdp:focus-visible {
     outline: 2px solid var(--t700);
@@ -1890,6 +2166,7 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
     margin: 0;
   }
   .quote-btn {
+    width: 100%;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -2295,6 +2572,25 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
     });
     document.querySelector('[data-quote-sticky-add]')?.addEventListener('click', () => {
       addBtn?.click();
+    });
+  }
+
+  // Tabs PDP
+  const tabRoot = document.querySelector('[data-pdp-tabs]');
+  if (tabRoot) {
+    const tabs = Array.from(tabRoot.querySelectorAll<HTMLButtonElement>('[data-pdp-tab]'));
+    const panels = Array.from(tabRoot.querySelectorAll<HTMLElement>('[data-pdp-panel]'));
+    const activate = (id: string) => {
+      tabs.forEach(tab => {
+        const on = tab.dataset['pdpTab'] === id;
+        tab.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      panels.forEach(panel => {
+        panel.hidden = panel.dataset['pdpPanel'] !== id;
+      });
+    };
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => activate(tab.dataset['pdpTab'] ?? ''));
     });
   }
 </script>

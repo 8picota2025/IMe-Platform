@@ -1435,11 +1435,11 @@ const asesorConfig = {
       { signal }
     );
 
-    if (sessionStorage.getItem(ASESOR_DISMISSED_KEY) === '1') {
-      dialog.setAttribute('hidden', '');
-      trigger.setAttribute('aria-expanded', 'false');
-    } else {
-      void openDialog(false, false);
+    // PDP/UX: chat starts closed; user must open explicitly.
+    dialog.setAttribute('hidden', '');
+    trigger.setAttribute('aria-expanded', 'false');
+    if (sessionStorage.getItem(ASESOR_DISMISSED_KEY) !== '1') {
+      // Keep dismissed flag unset so first open still feels fresh.
     }
   }
 
