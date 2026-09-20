@@ -14,6 +14,7 @@ import PdfDownloadGate from './PdfDownloadGate.astro';
 import type { Producto, Familia } from '../lib/datos';
 import { formatMoneda, tienePrecioPublico } from '../lib/format';
 import { getAccionComercial } from '../lib/comercial';
+import { isPurchasable } from '../lib/commerce-policy';
 import { normalizarEspecificaciones } from '../lib/especificaciones';
 import { getOptimizedImageUrl, isSupabaseStorageImage } from '../lib/image';
 import { familyCatalogHref } from '../lib/seo-urls';
@@ -65,6 +66,8 @@ const precioFormateado = tienePrecio
   : null;
 const noDisponible = producto.disponible === false;
 const accionComercial = getAccionComercial(producto, locale);
+const purchasePolicy = isPurchasable(producto);
+const isPurchasableProduct = purchasePolicy.ok;
 const modalidadTexto =
   producto.tipo_comercial === 'consumible'
     ? locale === 'en'
@@ -131,7 +134,7 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
 // Stats de la cabecera del hero: reutiliza datos ya verificados (modalidad,
 // disponibilidad, familia, precio) en vez de intentar extraer valores cortos
 // de las especificaciones en prosa, que no son fiables para un resumen.
-const heroStats: Array<{ valor: string; etiqueta: string }> = [
+const heroStats: Array<{ valor: string; etiqueta: string }> = isPurchasableProduct ? [] : [
   { valor: modalidadTexto, etiqueta: t(locale, 'producto.ficha_modalidad') },
   { valor: disponibilidadTexto, etiqueta: t(locale, 'producto.ficha_stock') },
   { valor: familia.nombre, etiqueta: t(locale, 'catalogo.migas_catalogo') },
@@ -178,7 +181,25 @@ heroStats.push({
         <h1>{producto.nombre}</h1>
         <p class="hero-producto__desc">{producto.descripcion_corta}</p>
 
-        <div class="hero-producto__cta-group" id="cta-principal">
+        {isPurchasableProduct && (
+          <div class="product-purchase-panel" id="cta-principal">
+            <p class="product-purchase-panel__availability">✓ {locale === 'en' ? 'Available' : 'Disponible'}</p>
+            <p class="product-purchase-panel__price-label">{locale === 'en' ? 'Price (tax included)' : 'Precio (IVA incluido)'}</p>
+            <p class="product-purchase-panel__price">{precioFormateado} <small>{producto.moneda ?? 'COP'}</small></p>
+            <div class="product-purchase-panel__quantity" aria-label={locale === 'en' ? 'Quantity' : 'Cantidad'}>
+              <button type="button" data-pdp-quantity-decrease aria-label={locale === 'en' ? 'Decrease quantity' : 'Reducir cantidad'}>−</button>
+              <output data-pdp-quantity>1</output>
+              <button type="button" data-pdp-quantity-increase aria-label={locale === 'en' ? 'Increase quantity' : 'Aumentar cantidad'}>+</button>
+            </div>
+            <button type="button" class="btn-hero-primary" aria-live="polite" data-add-carrito={producto.slug} data-nombre={producto.nombre} data-precio={producto.precio} data-moneda={producto.moneda ?? 'COP'} data-stock={producto.stock ?? ''} data-label-agregar={locale === 'en' ? 'Add to cart' : 'Añadir a la cesta'} data-label-agregado={t(locale, 'carrito.agregado')}>
+              🛒 {locale === 'en' ? 'Add to cart' : 'Añadir a la cesta'}
+            </button>
+            <button type="button" class="btn-hero-secondary" data-buy-now>{locale === 'en' ? 'Buy now' : 'Comprar ahora'}</button>
+            <p class="product-purchase-panel__support">🔒 {locale === 'en' ? 'Secure purchase' : 'Compra segura'} · {locale === 'en' ? 'Electronic invoice' : 'Factura electrónica'}</p>
+          </div>
+        )}
+
+        {!isPurchasableProduct && <div class="hero-producto__cta-group" id="cta-principal">
           {
             accionComercial.tipo === 'consultar' ? (
               <a
@@ -259,7 +280,7 @@ heroStats.push({
               </button>
             )
           }
-        </div>
+        </div>}
 
         {
           tienePrecio && (
@@ -1340,7 +1361,19 @@ heroStats.push({
     }, 1800);
   };
 
-  addCarritoBtn?.addEventListener('click', () => {
+  let quantity = 1;
+  const quantityOutput = document.querySelector<HTMLOutputElement>('[data-pdp-quantity]');
+  const stockLimit = Number(addCarritoBtn?.dataset['stock'] ?? '') || Infinity;
+  const renderQuantity = () => { if (quantityOutput) quantityOutput.value = String(quantity); };
+  document.querySelector('[data-pdp-quantity-decrease]')?.addEventListener('click', () => {
+    quantity = Math.max(1, quantity - 1); renderQuantity();
+  });
+  document.querySelector('[data-pdp-quantity-increase]')?.addEventListener('click', () => {
+    quantity = Math.min(stockLimit, quantity + 1); renderQuantity();
+  });
+
+  const addToCart = (checkout = false) => {
+    if (!addCarritoBtn) return;
     const slug = addCarritoBtn.dataset['addCarrito'];
     const nombre = addCarritoBtn.dataset['nombre'];
     const precio = Number(addCarritoBtn.dataset['precio']);
@@ -1349,8 +1382,24 @@ heroStats.push({
     const stock = stockRaw ? Number(stockRaw) : null;
     if (!slug || !nombre || Number.isNaN(precio)) return;
     void import('../lib/carrito').then(({ agregarAlCarrito }) => {
-      agregarAlCarrito({ slug, nombre, precio, moneda, stock });
+      agregarAlCarrito({ slug, nombre, precio, moneda, stock }, quantity);
       confirmarAdd(addCarritoBtn);
+      if (checkout) window.location.href = document.documentElement.lang.startsWith('en') ? '/en/cart/' : '/es/carrito/';
     });
-  });
+  };
+  addCarritoBtn?.addEventListener('click', () => addToCart());
+  document.querySelector('[data-buy-now]')?.addEventListener('click', () => addToCart(true));
 </script>
+
+<style>
+  .product-purchase-panel { display:grid; gap:.85rem; margin-top:1.5rem; padding:1.25rem; background:var(--color-surface, #fff); border:1px solid var(--color-border, #d6e0e8); border-radius:1rem; box-shadow:0 12px 32px rgba(15,45,60,.12); }
+  .product-purchase-panel__availability { margin:0; color:var(--color-success, #16734a); font-weight:700; }
+  .product-purchase-panel__price-label,.product-purchase-panel__support { margin:0; color:var(--color-text-muted, #52616b); font-size:.9rem; }
+  .product-purchase-panel__price { margin:0; color:var(--color-primary, #093b4b); font-size:clamp(2rem,5vw,3.25rem); font-weight:800; line-height:1; }
+  .product-purchase-panel__price small { font-size:.4em; }
+  .product-purchase-panel__quantity { display:flex; align-items:center; gap:1rem; }
+  .product-purchase-panel__quantity button { width:48px; height:48px; border:1px solid var(--color-border, #d6e0e8); border-radius:.5rem; background:#fff; font-size:1.5rem; cursor:pointer; }
+  .product-purchase-panel__quantity output { min-width:2ch; text-align:center; font-weight:700; }
+  .product-purchase-panel .btn-hero-primary,.product-purchase-panel .btn-hero-secondary { min-height:48px; width:100%; }
+  @media (max-width: 768px) { .product-purchase-panel { margin-inline:-.25rem; } }
+</style>
