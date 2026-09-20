@@ -94,7 +94,7 @@ jobs:
 
           smoke_check "Quote-only product" \
             "https://i-me.com.co/es/productos/arco-c-movil-dinamico-hua-ii/" \
-            "Bajo cotización según especificaciones del producto" \
+            "Precio bajo cotización" \
             /tmp/quote-product.html
           if grep -Fq '"offers":' /tmp/quote-product.html; then
             echo "::error::Quote-only product unexpectedly exposes Product offers"
