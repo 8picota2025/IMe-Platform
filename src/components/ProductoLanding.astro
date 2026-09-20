@@ -14,6 +14,7 @@ import PdfDownloadGate from './PdfDownloadGate.astro';
 import type { Producto, Familia } from '../lib/datos';
 import { formatMoneda, tienePrecioPublico } from '../lib/format';
 import { getAccionComercial } from '../lib/comercial';
+import { isPurchasable } from '../lib/commerce-policy';
 import { normalizarEspecificaciones } from '../lib/especificaciones';
 import { getOptimizedImageUrl, isSupabaseStorageImage } from '../lib/image';
 import { familyCatalogHref } from '../lib/seo-urls';
@@ -66,6 +67,7 @@ const precioFormateado = tienePrecio
 const noDisponible = producto.disponible === false;
 const accionComercial = getAccionComercial(producto, locale);
 const esCotizacion = accionComercial.tipo === 'cotizacion';
+const isPurchasableProduct = isPurchasable(producto).ok;
 const modalidadTexto =
   producto.tipo_comercial === 'consumible'
     ? locale === 'en'
@@ -194,7 +196,7 @@ if (!esCotizacion) {
         <p class="hero-producto__desc">{producto.descripcion_corta}</p>
 
         {
-          !esCotizacion && (
+          isPurchasableProduct && (
             <div class="hero-producto__cta-group" id="cta-principal">
               {accionComercial.tipo === 'consultar' ? (
                 <a
@@ -203,7 +205,7 @@ if (!esCotizacion) {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  {accionComercial.label}
+                  🛒 {locale === 'en' ? 'Add to cart' : 'Añadir a la cesta'}
                 </a>
               ) : (
                 <button
