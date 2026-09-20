@@ -87,6 +87,12 @@ const pagePath = (targetPage: number) =>
   >
   </div>
 
+  <!-- El cliente fuerza la vista de listado en la página estática (catalogo-cliente.ts, `staticPage`);
+       se anticipa antes del primer pintado para que la sección de categorías no salte al hidratar. -->
+  <script is:inline>
+    document.documentElement.setAttribute('data-catalogo-grid', '');
+  </script>
+
   <!-- Vista familias (overview) -->
   <section id="vista-familias" aria-labelledby="familias-heading">
     <div class="catalogo__familias-header">
@@ -452,6 +458,12 @@ const pagePath = (targetPage: number) =>
     </div>
   </div>
 </dialog>
+
+<style is:global>
+  html[data-catalogo-grid] #vista-familias {
+    display: none;
+  }
+</style>
 
 <style>
   .sr-only {

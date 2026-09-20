@@ -90,11 +90,7 @@ const whatsappHref = `https://wa.me/573137247353?text=${encodeURIComponent(
   data-stock={producto.stock ?? ''}
   data-href={href}
 >
-  <a
-    href={href}
-    class="producto-card__link"
-    aria-label={`${t(locale, 'catalogo.ver_detalle')}: ${producto.nombre}`}
-  >
+  <a href={href} class="producto-card__link">
     <div class="producto-card__img-wrapper">
       {
         imagenProductoTransformable ? (

@@ -33,7 +33,7 @@
   --ink: #0b1b22;
   --text: #1d3a47;
   --text-mid: #456070;
-  --text-muted: #7a9bab;
+  --text-muted: #4d6e7e;
 
   /* Footer: siempre oscuro (independiente del tema), igual al sitio real */
   --footer-bg: #0b1b22;
@@ -111,7 +111,7 @@
   --ink: #e6eff3;
   --text: #c8dde6;
   --text-mid: #8db0c0;
-  --text-muted: #4a7080;
+  --text-muted: #7a9db0;
   --border: rgba(126, 200, 219, 0.12);
   --border-mid: rgba(126, 200, 219, 0.22);
   --shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.3);
