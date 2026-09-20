@@ -1,19 +1,15 @@
 ---
 /**
- * ProductoLanding — landing estática de producto (ES/EN).
- * Estructura visual alineada al modelo de referencia (hero degradado con
- * badge y stats, tarjetas de beneficios, tabla de specs con cabecera oscura,
- * bloque de valor destacado, relacionados, CTA final): breadcrumb, hero,
- * beneficios, galería, especificaciones, aplicaciones, relacionados, CTA de
- * contacto, bloque de valor, reseñas reales, CTA sticky.
+ * ProductoLanding — PDP unificada (ES/EN).
+ * Variantes commerce | quote vía getProductPurchaseMode. Sin hero turquesa.
  */
 import { t, type Locale } from '../i18n/utils';
 import ProductoCard from './ProductoCard.astro';
 import Resenas from './Resenas.astro';
 import PdfDownloadGate from './PdfDownloadGate.astro';
 import type { Producto, Familia } from '../lib/datos';
-import { formatMoneda, tienePrecioPublico } from '../lib/format';
-import { getAccionComercial } from '../lib/comercial';
+import { formatMoneda } from '../lib/format';
+import { getAccionComercial, getProductPurchaseMode } from '../lib/comercial';
 import { isPurchasable } from '../lib/commerce-policy';
 import { normalizarEspecificaciones } from '../lib/especificaciones';
 import { getOptimizedImageUrl, isSupabaseStorageImage } from '../lib/image';
@@ -41,7 +37,7 @@ for (const espec of especificaciones) {
 
 // Sellos de certificación/normativa: se derivan de especificaciones reales
 // del propio producto (grupo "Normativa"), nunca de una lista inventada.
-const certificaciones = especificaciones.filter(item => /normativ/i.test(item.grupo ?? ''));
+const _certificaciones = especificaciones.filter(item => /normativ/i.test(item.grupo ?? ''));
 
 const galeria = producto.galeria.filter(url => url && url !== producto.imagen_principal);
 const imagenes = [producto.imagen_principal ?? '/assets/img-placeholder.svg', ...galeria];
@@ -49,24 +45,43 @@ const imagenProducto = producto.imagen_principal ?? '/assets/img-placeholder.svg
 const heroImageAvif = getOptimizedImageUrl(imagenes[0], 960, 'avif', 80);
 const heroImageWebp = getOptimizedImageUrl(imagenes[0], 960, 'webp', 80);
 const heroImageTransformable = isSupabaseStorageImage(imagenes[0]);
+const monogramIniciales = (() => {
+  const parts = producto.nombre
+    .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+    .split(/\s+/)
+    .filter(Boolean);
+  const letters = parts
+    .slice(0, 2)
+    .map(p => p[0]?.toUpperCase() ?? '')
+    .join('');
+  return letters || 'IME';
+})();
 const imagenFallback =
   'data:image/svg+xml;charset=UTF-8,' +
   encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" role="img" aria-label="${producto.nombre}">
-      <rect width="640" height="480" fill="#f3f6f8"/>
-      <rect x="32" y="32" width="576" height="416" rx="24" fill="#ffffff" stroke="#d6e0e8"/>
-      <path d="M220 286h200" stroke="#c0ccd6" stroke-width="12" stroke-linecap="round"/>
-      <path d="M260 254l52 52 70-88 70 88" fill="none" stroke="#90a4b3" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" role="img" aria-label="${producto.nombre}">
+      <defs>
+        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#F0F6F8"/>
+          <stop offset="100%" stop-color="#E6EFF3"/>
+        </linearGradient>
+      </defs>
+      <rect width="640" height="640" fill="url(#g)"/>
+      <circle cx="320" cy="300" r="92" fill="#FFFFFF" stroke="rgba(15,76,92,0.12)" stroke-width="2"/>
+      <text x="320" y="318" text-anchor="middle" font-family="Sora,Inter,system-ui,sans-serif" font-size="56" font-weight="800" fill="#0F4C5C">${monogramIniciales}</text>
+      <text x="320" y="430" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="18" font-weight="600" fill="#456070">I-ME</text>
     </svg>`
   );
 
-const tienePrecio = tienePrecioPublico(producto.precio);
+const purchaseMode = getProductPurchaseMode(producto);
+const esCotizacion = purchaseMode === 'quote';
+const esCommerce = purchaseMode === 'commerce';
+const tienePrecio = esCommerce;
 const precioFormateado = tienePrecio
   ? formatMoneda(producto.precio, producto.moneda, locale)
   : null;
 const noDisponible = producto.disponible === false;
 const accionComercial = getAccionComercial(producto, locale);
-const esCotizacion = accionComercial.tipo === 'cotizacion';
 const isPurchasableProduct = isPurchasable(producto).ok;
 const modalidadTexto =
   producto.tipo_comercial === 'consumible'
@@ -88,6 +103,10 @@ const productUrl = `https://i-me.com.co/${locale}/${productSegment}/${producto.s
 const modelo = especificaciones.find(item => item.clave.toLowerCase() === 'modelo')?.valor;
 const referencia = modelo?.trim() || producto.sku?.trim() || null;
 const disponibleParaMostrar = !noDisponible && producto.stock !== 0;
+const stockMax =
+  typeof producto.stock === 'number' && Number.isFinite(producto.stock) && producto.stock > 0
+    ? Math.min(producto.stock, 99)
+    : 99;
 const fichaUrl = producto.ficha_pdf
   ? producto.ficha_pdf.startsWith('http')
     ? producto.ficha_pdf
@@ -132,24 +151,6 @@ const migas = [
 ];
 
 const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
-
-// Stats de la cabecera del hero: reutiliza datos ya verificados (modalidad,
-// disponibilidad, familia, precio) en vez de intentar extraer valores cortos
-// de las especificaciones en prosa, que no son fiables para un resumen.
-// En modo cotización, disponibilidad y precio viven en la tarjeta comercial.
-const heroStats: Array<{ valor: string; etiqueta: string }> = [
-  { valor: modalidadTexto, etiqueta: t(locale, 'producto.ficha_modalidad') },
-  ...(esCotizacion
-    ? []
-    : [{ valor: disponibilidadTexto, etiqueta: t(locale, 'producto.ficha_stock') }]),
-  { valor: familia.nombre, etiqueta: t(locale, 'catalogo.migas_catalogo') },
-];
-if (!esCotizacion) {
-  heroStats.push({
-    valor: precioFormateado ?? t(locale, 'producto.precio_solicitud_largo'),
-    etiqueta: t(locale, 'producto.ficha_precio'),
-  });
-}
 ---
 
 <article
@@ -179,118 +180,41 @@ if (!esCotizacion) {
     </ol>
   </nav>
 
-  <!-- Hero -->
-  <section class:list={['hero-producto', { 'hero-producto--quote': esCotizacion }]}>
-    <div class="hero-producto__bg" aria-hidden="true"></div>
+  <!-- PDP top: commerce | quote (sin hero turquesa) -->
+  <section
+    class:list={['pdp-top', { 'pdp-top--commerce': esCommerce, 'pdp-top--quote': esCotizacion }]}
+    data-purchase-mode={purchaseMode}
+    data-quote-pdp={esCotizacion ? '' : undefined}
+  >
     <div
       class:list={[
         'container',
-        'hero-producto__inner',
-        { 'hero-producto__inner--quote': esCotizacion },
+        'pdp-top__grid',
+        { 'pdp-top__grid--commerce': esCommerce, 'pdp-top__grid--quote': esCotizacion },
       ]}
-      data-quote-pdp={esCotizacion ? '' : undefined}
     >
-      <div class="hero-producto__content">
-        <span class="hero-producto__badge">{producto.marca || familia.nombre}</span>
-        <h1>{producto.nombre}</h1>
-        <p class="hero-producto__desc">{producto.descripcion_corta}</p>
-
-        {
-          isPurchasableProduct && (
-            <div class="hero-producto__cta-group" id="cta-principal">
-              {accionComercial.tipo === 'consultar' ? (
-                <a
-                  href={whatsappHref}
-                  class="btn-hero-primary"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  🛒 {locale === 'en' ? 'Add to cart' : 'Añadir a la cesta'}
-                </a>
-              ) : (
-                <button
-                  type="button"
-                  class="btn-hero-primary"
-                  aria-live="polite"
-                  data-add-carrito={producto.slug}
-                  data-nombre={producto.nombre}
-                  data-precio={producto.precio}
-                  data-moneda={producto.moneda ?? 'COP'}
-                  data-stock={producto.stock ?? ''}
-                  data-label-agregar={t(locale, 'carrito.agregar')}
-                  data-label-agregado={t(locale, 'carrito.agregado')}
-                >
-                  {accionComercial.label}
-                </button>
-              )}
-              {accionComercial.tipo === 'carrito' ? (
-                <a
-                  href={whatsappHref}
-                  class="btn-hero-secondary"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {t(locale, 'producto.asesor_cta')}
-                </a>
-              ) : (
-                <button
-                  type="button"
-                  class="btn-hero-secondary"
-                  data-ensure-cotizacion={producto.slug}
-                  data-nombre={producto.nombre}
-                  data-imagen={imagenProducto}
-                  data-url={productUrl}
-                  data-modelo={modelo ?? ''}
-                  data-marca={producto.marca ?? ''}
-                >
-                  {t(locale, 'producto.cotizar_cta')}
-                </button>
-              )}
-              {producto.ficha_pdf && (
-                <button
-                  type="button"
-                  class="btn-hero-secondary"
-                  data-pdf-download-trigger
-                  data-pdf-download-target={pdfGateId}
-                >
-                  {t(locale, 'producto.ficha_pdf')}
-                </button>
-              )}
-            </div>
-          )
-        }
-
-        {
-          tienePrecio && (
-            <p class="hero-producto__price-notice">
-              {t(locale, 'producto.iva_incluido')} · {t(locale, 'producto.envio_no_incluido')}
-            </p>
-          )
-        }
-
-        <div class="hero-producto__stats">
+      <!-- Galería -->
+      <div class="pdp-gallery">
+        <div class="pdp-gallery__main">
           {
-            heroStats.map(stat => (
-              <div class="hero-producto__stat">
-                <span class="hero-producto__stat-valor">{stat.valor}</span>
-                <span class="hero-producto__stat-etiqueta">{stat.etiqueta}</span>
-              </div>
-            ))
-          }
-        </div>
-
-        <label class="producto-landing__compare">
-          <input type="checkbox" id="comparador-toggle" data-compare-slug={producto.slug} />
-          <span>{t(locale, 'catalogo.comparar_anadir')}</span>
-        </label>
-      </div>
-
-      <div class="hero-producto__media">
-        {
-          heroImageTransformable ? (
-            <picture>
-              <source srcset={heroImageAvif} type="image/avif" />
-              <source srcset={heroImageWebp} type="image/webp" />
+            heroImageTransformable ? (
+              <picture>
+                <source srcset={heroImageAvif} type="image/avif" />
+                <source srcset={heroImageWebp} type="image/webp" />
+                <img
+                  src={imagenes[0]}
+                  alt={producto.nombre}
+                  width="640"
+                  height="480"
+                  decoding="async"
+                  fetchpriority="high"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  class="pdp-gallery__img"
+                  id="producto-imagen-principal"
+                  onerror={`this.onerror=null;this.src='${imagenFallback}'`}
+                />
+              </picture>
+            ) : (
               <img
                 src={imagenes[0]}
                 alt={producto.nombre}
@@ -299,407 +223,649 @@ if (!esCotizacion) {
                 decoding="async"
                 fetchpriority="high"
                 sizes="(max-width: 768px) 100vw, 50vw"
-                class="hero-producto__img"
+                class="pdp-gallery__img"
                 id="producto-imagen-principal"
                 onerror={`this.onerror=null;this.src='${imagenFallback}'`}
               />
-            </picture>
-          ) : (
-            <img
-              src={imagenes[0]}
-              alt={producto.nombre}
-              width="640"
-              height="480"
-              decoding="async"
-              fetchpriority="high"
-              sizes="(max-width: 768px) 100vw, 50vw"
-              class="hero-producto__img"
-              id="producto-imagen-principal"
-              onerror={`this.onerror=null;this.src='${imagenFallback}'`}
-            />
+            )
+          }
+          {
+            (producto.destacado || producto.nuevo || noDisponible) && (
+              <div class="pdp-gallery__badges" aria-hidden="true">
+                {producto.nuevo && (
+                  <span class="badge badge-green">{t(locale, 'producto.badge_nuevo')}</span>
+                )}
+                {producto.destacado && (
+                  <span class="badge badge-teal">{t(locale, 'producto.badge_destacado')}</span>
+                )}
+                {noDisponible && (
+                  <span class="badge badge-gris">{t(locale, 'producto.badge_no_disponible')}</span>
+                )}
+              </div>
+            )
+          }
+        </div>
+        {
+          imagenes.length > 1 && (
+            <ul class="pdp-gallery__thumbs" role="list">
+              {imagenes.map((src, index) => (
+                <li>
+                  <button
+                    type="button"
+                    class="pdp-gallery__thumb"
+                    data-galeria-index={index}
+                    data-pdp-thumb
+                    aria-current={index === 0 ? 'true' : undefined}
+                    aria-label={`${t(locale, 'producto.galeria_abrir')}: ${producto.nombre} ${index + 1}/${imagenes.length}`}
+                  >
+                    <img
+                      src={getOptimizedImageUrl(src, 160, 'webp')}
+                      alt=""
+                      width="72"
+                      height="72"
+                      loading={index === 0 ? 'eager' : 'lazy'}
+                      decoding="async"
+                    />
+                  </button>
+                </li>
+              ))}
+            </ul>
           )
         }
         {
-          (producto.destacado || producto.nuevo || noDisponible) && (
-            <div class="hero-producto__badges" aria-hidden="true">
-              {producto.nuevo && (
-                <span class="badge badge-green">{t(locale, 'producto.badge_nuevo')}</span>
-              )}
-              {producto.destacado && (
-                <span class="badge badge-teal">{t(locale, 'producto.badge_destacado')}</span>
-              )}
-              {noDisponible && (
-                <span class="badge badge-gris">{t(locale, 'producto.badge_no_disponible')}</span>
-              )}
-            </div>
+          producto.beneficios.length > 0 && (
+            <ul class="pdp-highlights" role="list">
+              {producto.beneficios.slice(0, 4).map(beneficio => (
+                <li>
+                  <span aria-hidden="true">✓</span>
+                  <span>{beneficio}</span>
+                </li>
+              ))}
+            </ul>
           )
         }
       </div>
 
-      {
-        esCotizacion && (
-          <section
-            class="quote-card"
-            id="cta-principal"
-            aria-label={t(locale, 'producto.quote_precio_titulo')}
-            data-quote-card
-            data-price-mode="quote"
-            data-product-slug={producto.slug}
-            data-product-name={producto.nombre}
-            data-product-category={familia.nombre}
-          >
-            <div class="quote-card__meta">
-              <p
+      <!-- Columna identidad + compra/cotización -->
+      <div
+        class:list={[
+          'pdp-buy',
+          { 'pdp-buy--commerce': esCommerce, 'pdp-buy--quote': esCotizacion },
+        ]}
+      >
+        <!-- Identidad -->
+        <div class="pdp-identity">
+          <div class="pdp-identity__meta">
+            <span class="pdp-identity__category">{familia.nombre}</span>
+            {referencia && <span class="pdp-identity__sku">SKU {referencia}</span>}
+          </div>
+          <h1>{producto.nombre}</h1>
+          {
+            producto.descripcion_corta && (
+              <p class="pdp-identity__desc">{producto.descripcion_corta}</p>
+            )
+          }
+          <ul class="pdp-identity__trust" role="list">
+            <li>
+              <span
                 class:list={[
-                  'quote-card__estado',
-                  { 'quote-card__estado--no': !disponibleParaMostrar },
+                  'pdp-identity__trust-dot',
+                  { 'pdp-identity__trust-dot--no': !disponibleParaMostrar },
                 ]}
-              >
-                <span class="quote-card__dot" aria-hidden="true" />
-                {disponibilidadTexto}
-              </p>
-              {referencia && (
-                <p class="quote-card__ref">
-                  {t(locale, 'producto.quote_referencia').replace('{ref}', referencia)}
+                aria-hidden="true"></span>
+              <span>{disponibilidadTexto}</span>
+            </li>
+            {
+              producto.marca && (
+                <li>
+                  <span class="pdp-identity__trust-mark" aria-hidden="true" />
+                  <span>
+                    {locale === 'en' ? 'Brand' : 'Marca'} {producto.marca}
+                  </span>
+                </li>
+              )
+            }
+            <li>
+              <span class="pdp-identity__trust-mark" aria-hidden="true"></span>
+              <span>{modalidadTexto}</span>
+            </li>
+          </ul>
+          <label class="producto-landing__compare">
+            <input type="checkbox" id="comparador-toggle" data-compare-slug={producto.slug} />
+            <span>{t(locale, 'catalogo.comparar_anadir')}</span>
+          </label>
+        </div>
+
+        <!-- Panel commerce -->
+        {
+          esCommerce && (
+            <section
+              class="product-purchase-panel"
+              id="cta-principal"
+              aria-label={t(locale, 'producto.commerce_precio_label')}
+              data-commerce-panel
+              data-price-mode="commerce"
+              data-stock-max={stockMax}
+            >
+              <div class="product-purchase-panel__price-row">
+                <div>
+                  <p class="product-purchase-panel__price-label">
+                    {t(locale, 'producto.commerce_precio_label')}
+                  </p>
+                  <p class="product-purchase-panel__price">
+                    {precioFormateado}
+                    <small>{producto.moneda ?? 'COP'}</small>
+                  </p>
+                </div>
+                <p
+                  class:list={[
+                    'product-purchase-panel__availability',
+                    { 'product-purchase-panel__availability--no': !disponibleParaMostrar },
+                  ]}
+                >
+                  <span class="product-purchase-panel__dot" aria-hidden="true" />
+                  {disponibilidadTexto}
                 </p>
-              )}
-            </div>
-
-            <p class="quote-card__precio">{t(locale, 'producto.quote_precio_titulo')}</p>
-            <p class="quote-card__desc">{t(locale, 'producto.quote_precio_desc')}</p>
-
-            <div class="quote-card__qty">
-              <label for="quote-qty-input" class="quote-card__qty-label">
-                {t(locale, 'producto.quote_cantidad')}
-              </label>
-              <div class="quote-stepper">
-                <button
-                  type="button"
-                  class="quote-stepper__btn"
-                  data-qty-step="-1"
-                  aria-label={t(locale, 'producto.quote_cantidad_disminuir')}
-                >
-                  <span aria-hidden="true">−</span>
-                </button>
-                <input
-                  id="quote-qty-input"
-                  class="quote-stepper__input"
-                  type="number"
-                  inputmode="numeric"
-                  min="1"
-                  max="99"
-                  step="1"
-                  value="1"
-                  data-quote-qty
-                />
-                <button
-                  type="button"
-                  class="quote-stepper__btn"
-                  data-qty-step="1"
-                  aria-label={t(locale, 'producto.quote_cantidad_aumentar')}
-                >
-                  <span aria-hidden="true">+</span>
-                </button>
               </div>
-            </div>
+              <p class="product-purchase-panel__price-notice">
+                {t(locale, 'producto.iva_incluido')} · {t(locale, 'producto.envio_no_incluido')}
+              </p>
 
-            <button
-              type="button"
-              class="quote-btn quote-btn--primary"
-              data-add-cotizacion={producto.slug}
-              data-nombre={producto.nombre}
-              data-imagen={imagenProducto}
-              data-url={productUrl}
-              data-modelo={modelo ?? ''}
-              data-marca={producto.marca ?? ''}
-              data-cantidad-desde="#quote-qty-input"
-              data-no-abrir
-            >
-              <svg
-                viewBox="0 0 24 24"
-                width="20"
-                height="20"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-                <line x1="12" y1="12" x2="12" y2="18" />
-                <line x1="9" y1="15" x2="15" y2="15" />
-              </svg>
-              {t(locale, 'producto.quote_agregar')}
-            </button>
-            <button
-              type="button"
-              class="quote-btn quote-btn--secondary"
-              data-ensure-cotizacion={producto.slug}
-              data-nombre={producto.nombre}
-              data-imagen={imagenProducto}
-              data-url={productUrl}
-              data-modelo={modelo ?? ''}
-              data-marca={producto.marca ?? ''}
-              data-cantidad-desde="#quote-qty-input"
-            >
-              {t(locale, 'producto.quote_solicitar_ahora')}
-            </button>
-
-            <p class="quote-card__aviso" role="status" aria-live="polite" data-quote-aviso hidden>
-              <span data-quote-aviso-texto>{t(locale, 'producto.quote_agregado_aviso')}</span>
-              <button type="button" class="quote-card__link" data-quote-ver>
-                {t(locale, 'producto.quote_ver')}
-              </button>
-            </p>
-
-            <ul class="quote-card__trust" role="list">
-              <li>
-                <svg
-                  viewBox="0 0 24 24"
-                  width="16"
-                  height="16"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
+              {isPurchasableProduct ? (
+                <>
+                  <div class="product-purchase-panel__quantity">
+                    <span class="product-purchase-panel__qty-label" id="commerce-qty-label">
+                      {t(locale, 'producto.commerce_cantidad')}
+                    </span>
+                    <div class="commerce-stepper" role="group" aria-labelledby="commerce-qty-label">
+                      <button
+                        type="button"
+                        data-pdp-quantity-decrease
+                        aria-label={t(locale, 'producto.commerce_cantidad_disminuir')}
+                      >
+                        −
+                      </button>
+                      <output data-pdp-quantity>1</output>
+                      <button
+                        type="button"
+                        data-pdp-quantity-increase
+                        aria-label={t(locale, 'producto.commerce_cantidad_aumentar')}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    class="btn-pdp btn-pdp--primary"
+                    aria-live="polite"
+                    data-add-carrito={producto.slug}
+                    data-nombre={producto.nombre}
+                    data-precio={producto.precio}
+                    data-moneda={producto.moneda ?? 'COP'}
+                    data-stock={producto.stock ?? ''}
+                    data-label-agregar={t(locale, 'producto.commerce_anadir_cesta')}
+                    data-label-agregado={t(locale, 'carrito.agregado')}
+                  >
+                    {t(locale, 'producto.commerce_anadir_cesta')}
+                  </button>
+                  <button type="button" class="btn-pdp btn-pdp--secondary" data-buy-now>
+                    {t(locale, 'producto.commerce_comprar_ahora')}
+                  </button>
+                  <p class="product-purchase-panel__payments">
+                    {t(locale, 'producto.commerce_pago_wompi')}
+                  </p>
+                </>
+              ) : (
+                <a
+                  href={whatsappHref}
+                  class="btn-pdp btn-pdp--primary"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
-                  <>
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                    <polyline points="14 2 14 8 20 8" />
-                  </>
-                </svg>
-                {t(locale, 'producto.quote_trust_factura')}
-              </li>
-              <li>
-                <svg
-                  viewBox="0 0 24 24"
-                  width="16"
-                  height="16"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <>
-                    <rect x="3" y="11" width="18" height="11" rx="2" />
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                  </>
-                </svg>
-                {t(locale, 'producto.quote_trust_datos')}
-              </li>
-            </ul>
+                  {accionComercial.label}
+                </a>
+              )}
 
-            <div class="quote-card__soporte">
-              <a
-                href={whatsappHref}
-                class="quote-card__link"
-                target="_blank"
-                rel="noopener noreferrer"
-                data-quote-asesor
-              >
-                {t(locale, 'producto.quote_ayuda')}
-              </a>
+              <ul class="product-purchase-panel__trust" role="list">
+                <li>{t(locale, 'producto.commerce_trust_segura')}</li>
+                <li>{t(locale, 'producto.commerce_trust_factura')}</li>
+              </ul>
+
               {producto.ficha_pdf && (
                 <button
                   type="button"
-                  class="quote-card__link"
+                  class="product-purchase-panel__link"
                   data-pdf-download-trigger
                   data-pdf-download-target={pdfGateId}
                 >
                   {t(locale, 'producto.ficha_pdf')}
                 </button>
               )}
-            </div>
-          </section>
-        )
-      }
+            </section>
+          )
+        }
+
+        <!-- Panel quote (existente, columna comercial) -->
+        {
+          esCotizacion && (
+            <section
+              class="quote-card"
+              id="cta-principal"
+              aria-label={t(locale, 'producto.quote_precio_titulo')}
+              data-quote-card
+              data-price-mode="quote"
+              data-product-slug={producto.slug}
+              data-product-name={producto.nombre}
+              data-product-category={familia.nombre}
+            >
+              <div class="quote-card__meta">
+                <p
+                  class:list={[
+                    'quote-card__estado',
+                    { 'quote-card__estado--no': !disponibleParaMostrar },
+                  ]}
+                >
+                  <span class="quote-card__dot" aria-hidden="true" />
+                  {disponibilidadTexto}
+                </p>
+                {referencia && (
+                  <p class="quote-card__ref">
+                    {t(locale, 'producto.quote_referencia').replace('{ref}', referencia)}
+                  </p>
+                )}
+              </div>
+
+              <p class="quote-card__precio">{t(locale, 'producto.quote_precio_titulo')}</p>
+              <p class="quote-card__desc">{t(locale, 'producto.quote_precio_desc')}</p>
+
+              <div class="quote-card__qty">
+                <label for="quote-qty-input" class="quote-card__qty-label">
+                  {t(locale, 'producto.quote_cantidad')}
+                </label>
+                <div class="quote-stepper">
+                  <button
+                    type="button"
+                    class="quote-stepper__btn"
+                    data-qty-step="-1"
+                    aria-label={t(locale, 'producto.quote_cantidad_disminuir')}
+                  >
+                    <span aria-hidden="true">−</span>
+                  </button>
+                  <input
+                    id="quote-qty-input"
+                    class="quote-stepper__input"
+                    type="number"
+                    inputmode="numeric"
+                    min="1"
+                    max="99"
+                    step="1"
+                    value="1"
+                    data-quote-qty
+                  />
+                  <button
+                    type="button"
+                    class="quote-stepper__btn"
+                    data-qty-step="1"
+                    aria-label={t(locale, 'producto.quote_cantidad_aumentar')}
+                  >
+                    <span aria-hidden="true">+</span>
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                class="quote-btn quote-btn--primary"
+                data-add-cotizacion={producto.slug}
+                data-nombre={producto.nombre}
+                data-imagen={imagenProducto}
+                data-url={productUrl}
+                data-modelo={modelo ?? ''}
+                data-marca={producto.marca ?? ''}
+                data-cantidad-desde="#quote-qty-input"
+                data-no-abrir
+              >
+                {t(locale, 'producto.quote_agregar')}
+              </button>
+              <button
+                type="button"
+                class="quote-btn quote-btn--secondary"
+                data-ensure-cotizacion={producto.slug}
+                data-nombre={producto.nombre}
+                data-imagen={imagenProducto}
+                data-url={productUrl}
+                data-modelo={modelo ?? ''}
+                data-marca={producto.marca ?? ''}
+                data-cantidad-desde="#quote-qty-input"
+              >
+                {t(locale, 'producto.quote_solicitar_ahora')}
+              </button>
+
+              <p class="quote-card__aviso" role="status" aria-live="polite" data-quote-aviso hidden>
+                <span data-quote-aviso-texto>{t(locale, 'producto.quote_agregado_aviso')}</span>
+                <button type="button" class="quote-card__link" data-quote-ver>
+                  {t(locale, 'producto.quote_ver')}
+                </button>
+              </p>
+
+              <ul class="quote-card__trust" role="list">
+                <li>{t(locale, 'producto.quote_trust_factura')}</li>
+                <li>{t(locale, 'producto.quote_trust_datos')}</li>
+              </ul>
+
+              <div class="quote-card__soporte">
+                <a
+                  href={whatsappHref}
+                  class="quote-card__link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-quote-asesor
+                >
+                  {t(locale, 'producto.quote_ayuda')}
+                </a>
+                {producto.ficha_pdf && (
+                  <button
+                    type="button"
+                    class="quote-card__link"
+                    data-pdf-download-trigger
+                    data-pdf-download-target={pdfGateId}
+                  >
+                    {t(locale, 'producto.ficha_pdf')}
+                  </button>
+                )}
+              </div>
+            </section>
+          )
+        }
+      </div>
     </div>
   </section>
 
-  <!-- Contexto de decisión: texto visible y extraíble, respaldado por ficha técnica -->
-  {
-    producto.descripcion_larga && (
-      <section class="section container" aria-labelledby="contexto-heading">
-        <h2 id="contexto-heading" class="section-title">
-          {locale === 'en' ? 'Product description' : 'Descripción del producto'}
-        </h2>
-        <div class="producto-contexto">
-          {producto.descripcion_larga.split('\n\n').map(parrafo => (
-            <p>{parrafo}</p>
-          ))}
-        </div>
-      </section>
-    )
-  }
-
-  <!-- Beneficios clave -->
-  {
-    producto.beneficios.length > 0 && (
-      <section class="section container" aria-labelledby="beneficios-heading">
-        <h2 id="beneficios-heading" class="section-title">
-          {t(locale, 'producto.beneficios_titulo')}
-        </h2>
-        <ul class="beneficios__grid" role="list">
-          {producto.beneficios.map(beneficio => (
-            <li class="beneficios__card">
-              <span class="beneficios__icono" aria-hidden="true">
-                ✓
-              </span>
-              <p>{beneficio}</p>
-            </li>
-          ))}
-        </ul>
-      </section>
-    )
-  }
-
-  <!-- Galería -->
-  {
-    galeria.length > 0 && (
-      <section class="section container" aria-labelledby="galeria-heading">
-        <h2 id="galeria-heading" class="section-title">
-          {t(locale, 'producto.galeria_titulo')}
-        </h2>
-        <ul class="galeria__grid" role="list">
-          {imagenes.map((src, index) => (
-            <li>
-              <button
-                type="button"
-                class="galeria__thumb"
-                data-galeria-index={index}
-                aria-label={`${t(locale, 'producto.galeria_abrir')}: ${producto.nombre} ${index + 1}/${imagenes.length}`}
-              >
-                <img
-                  src={getOptimizedImageUrl(src, 320, 'webp')}
-                  alt=""
-                  width="200"
-                  height="150"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </button>
-            </li>
-          ))}
-        </ul>
-
-        <dialog id="galeria-lightbox" aria-label={t(locale, 'producto.galeria_titulo')}>
-          <div class="lightbox__header">
-            <p class="lightbox__contador" aria-live="polite" id="lightbox-contador" />
-            <button type="button" class="lightbox__cerrar" data-lightbox-close>
-              <span aria-hidden="true">×</span>
-              <span class="sr-only">{t(locale, 'producto.galeria_cerrar')}</span>
+  <!-- Contenido tabulado + asistencia -->
+  <section class="pdp-lower container" data-pdp-tabs>
+    <div class="pdp-lower__main">
+      <div
+        class="pdp-tabs"
+        role="tablist"
+        aria-label={locale === 'en' ? 'Product information' : 'Información del producto'}
+      >
+        {
+          producto.descripcion_larga && (
+            <button
+              type="button"
+              class="pdp-tabs__tab"
+              role="tab"
+              id="tab-desc"
+              aria-controls="panel-desc"
+              aria-selected="true"
+              data-pdp-tab="desc"
+            >
+              {locale === 'en' ? 'Description' : 'Descripción'}
             </button>
-          </div>
-          <img id="lightbox-img" src={imagenes[0]} alt="" decoding="async" />
-          <div class="lightbox__nav">
-            <button type="button" data-lightbox-prev class="btn btn-secondary">
-              {t(locale, 'producto.galeria_anterior')}
+          )
+        }
+        <button
+          type="button"
+          class="pdp-tabs__tab"
+          role="tab"
+          id="tab-specs"
+          aria-controls="panel-specs"
+          aria-selected={!producto.descripcion_larga}
+          data-pdp-tab="specs"
+        >
+          {t(locale, 'producto.specs_titulo')}
+        </button>
+        {
+          producto.ficha_pdf && (
+            <button
+              type="button"
+              class="pdp-tabs__tab"
+              role="tab"
+              id="tab-docs"
+              aria-controls="panel-docs"
+              aria-selected="false"
+              data-pdp-tab="docs"
+            >
+              {locale === 'en' ? 'Documentation' : 'Documentación'}
             </button>
-            <button type="button" data-lightbox-next class="btn btn-secondary">
-              {t(locale, 'producto.galeria_siguiente')}
+          )
+        }
+        {
+          esCotizacion && producto.aplicaciones.length > 0 ? (
+            <button
+              type="button"
+              class="pdp-tabs__tab"
+              role="tab"
+              id="tab-apps"
+              aria-controls="panel-apps"
+              aria-selected="false"
+              data-pdp-tab="apps"
+            >
+              {t(locale, 'producto.aplicaciones_titulo')}
             </button>
-          </div>
-        </dialog>
-      </section>
-    )
-  }
+          ) : producto.preguntas_frecuentes.length > 0 ? (
+            <button
+              type="button"
+              class="pdp-tabs__tab"
+              role="tab"
+              id="tab-faq"
+              aria-controls="panel-faq"
+              aria-selected="false"
+              data-pdp-tab="faq"
+            >
+              {locale === 'en' ? 'FAQ' : 'Preguntas frecuentes'}
+            </button>
+          ) : null
+        }
+      </div>
 
-  <!-- Especificaciones -->
-  <section class="section section-off container" aria-labelledby="specs-heading">
-    <h2 id="specs-heading" class="section-title">{t(locale, 'producto.specs_titulo')}</h2>
-    {
-      especificaciones.length > 0 ? (
-        [...grupos.entries()].map(([grupo, items]) => (
-          <div class="specs-grupo">
-            {grupo && <h3 class="specs-grupo__titulo">{grupo}</h3>}
-            <table class="specs-table">
-              <thead>
-                <tr>
-                  <th scope="col">{t(locale, 'producto.specs_columna_parametro')}</th>
-                  <th scope="col">{t(locale, 'producto.specs_columna_detalle')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map(item => (
-                  <tr>
-                    <th scope="row">{item.clave}</th>
-                    <td>{item.valor}</td>
-                  </tr>
+      {
+        producto.descripcion_larga && (
+          <div
+            class="pdp-tabs__panel"
+            role="tabpanel"
+            id="panel-desc"
+            aria-labelledby="tab-desc"
+            data-pdp-panel="desc"
+          >
+            <h2 class="sr-only">
+              {locale === 'en' ? 'Product description' : 'Descripción del producto'}
+            </h2>
+            <div class="producto-contexto">
+              {producto.descripcion_larga.split('\n\n').map(parrafo => (
+                <p>{parrafo}</p>
+              ))}
+            </div>
+            {producto.beneficios.length > 0 && (
+              <ul class="pdp-desc-highlights" role="list">
+                {producto.beneficios.map(beneficio => (
+                  <li>
+                    <span aria-hidden="true">✓</span>
+                    <span>{beneficio}</span>
+                  </li>
                 ))}
-              </tbody>
-            </table>
+              </ul>
+            )}
           </div>
-        ))
-      ) : (
-        <p class="specs-pendiente">{t(locale, 'producto.specs_pendiente')}</p>
-      )
-    }
+        )
+      }
+
+      <div
+        class="pdp-tabs__panel"
+        role="tabpanel"
+        id="panel-specs"
+        aria-labelledby="tab-specs"
+        data-pdp-panel="specs"
+        hidden={producto.descripcion_larga ? true : undefined}
+      >
+        <h2 class="sr-only">{t(locale, 'producto.specs_titulo')}</h2>
+        {
+          especificaciones.length > 0 ? (
+            [...grupos.entries()].map(([grupo, items]) => (
+              <div class="specs-grupo">
+                {grupo && <h3 class="specs-grupo__titulo">{grupo}</h3>}
+                <table class="specs-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">{t(locale, 'producto.specs_columna_parametro')}</th>
+                      <th scope="col">{t(locale, 'producto.specs_columna_detalle')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.map(item => (
+                      <tr>
+                        <th scope="row">{item.clave}</th>
+                        <td>{item.valor}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ))
+          ) : (
+            <p class="specs-pendiente">{t(locale, 'producto.specs_pendiente')}</p>
+          )
+        }
+      </div>
+
+      {
+        producto.ficha_pdf && (
+          <div
+            class="pdp-tabs__panel"
+            role="tabpanel"
+            id="panel-docs"
+            aria-labelledby="tab-docs"
+            data-pdp-panel="docs"
+            hidden
+          >
+            <h2 class="sr-only">{locale === 'en' ? 'Documentation' : 'Documentación'}</h2>
+            <button
+              type="button"
+              class="btn-pdp btn-pdp--secondary"
+              style="width:auto;min-width:240px"
+              data-pdf-download-trigger
+              data-pdf-download-target={pdfGateId}
+            >
+              {t(locale, 'producto.ficha_pdf')}
+            </button>
+          </div>
+        )
+      }
+
+      {
+        esCotizacion && producto.aplicaciones.length > 0 ? (
+          <div
+            class="pdp-tabs__panel"
+            role="tabpanel"
+            id="panel-apps"
+            aria-labelledby="tab-apps"
+            data-pdp-panel="apps"
+            hidden
+          >
+            <h2 class="sr-only">{t(locale, 'producto.aplicaciones_titulo')}</h2>
+            <ul class="aplicaciones__grid" role="list">
+              {producto.aplicaciones.map(item => (
+                <li class="aplicaciones__item">
+                  <span class="aplicaciones__icono" aria-hidden="true">
+                    ✓
+                  </span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : producto.preguntas_frecuentes.length > 0 ? (
+          <div
+            class="pdp-tabs__panel"
+            role="tabpanel"
+            id="panel-faq"
+            aria-labelledby="tab-faq"
+            data-pdp-panel="faq"
+            hidden
+          >
+            <h2 class="sr-only">{locale === 'en' ? 'FAQ' : 'Preguntas frecuentes'}</h2>
+            <div class="producto-faq">
+              {producto.preguntas_frecuentes.map(item => (
+                <details>
+                  <summary>{item.q}</summary>
+                  <p>{item.a}</p>
+                </details>
+              ))}
+            </div>
+          </div>
+        ) : null
+      }
+
+      {
+        producto.valor && (
+          <div class="valor-card" style="margin-top:1.5rem">
+            <p class="valor-card__texto">{producto.valor}</p>
+          </div>
+        )
+      }
+    </div>
+
+    <aside class="pdp-lower__aside" aria-label={locale === 'en' ? 'Assistance' : 'Asistencia'}>
+      <div class="pdp-assist-card">
+        <h2>{locale === 'en' ? 'Need advice?' : '¿Necesitas asesoría?'}</h2>
+        <p>
+          {
+            locale === 'en'
+              ? 'Talk with our team about this product.'
+              : 'Habla con nuestro equipo sobre este producto.'
+          }
+        </p>
+        <a
+          href={whatsappHref}
+          class="btn-pdp btn-pdp--ghost"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {locale === 'en' ? 'Chat on WhatsApp' : 'Hablar por WhatsApp'}
+        </a>
+      </div>
+      {
+        esCotizacion && (
+          <div class="pdp-assist-card pdp-assist-card--muted">
+            <h2>{locale === 'en' ? 'Institutional quote?' : '¿Cotización para tu institución?'}</h2>
+            <p>
+              {locale === 'en'
+                ? 'Request a project quote with multiple items.'
+                : 'Solicita una cotización de proyecto con varios ítems.'}
+            </p>
+            <a
+              href={locale === 'en' ? '/en/contact/' : '/es/contacto/'}
+              class="btn-pdp btn-pdp--ghost"
+            >
+              {locale === 'en' ? 'Quote project' : 'Cotizar proyecto'}
+            </a>
+          </div>
+        )
+      }
+    </aside>
   </section>
 
-  <!-- Aplicaciones clínicas -->
   {
-    producto.aplicaciones.length > 0 && (
-      <section class="section container" aria-labelledby="aplicaciones-heading">
-        <h2 id="aplicaciones-heading" class="section-title">
-          {t(locale, 'producto.aplicaciones_titulo')}
-        </h2>
-        <ul class="aplicaciones__grid" role="list">
-          {producto.aplicaciones.map(item => (
-            <li class="aplicaciones__item">
-              <span class="aplicaciones__icono" aria-hidden="true">
-                ✓
-              </span>
-              {item}
-            </li>
-          ))}
-        </ul>
-      </section>
-    )
-  }
-
-  <!-- Bloque de valor (no es un testimonio atribuido a una persona) -->
-  {
-    producto.valor && (
-      <section class="section section-off container" aria-labelledby="valor-heading">
-        <h2 id="valor-heading" class="section-title">
-          {t(locale, 'producto.valor_titulo')}
-        </h2>
-        <div class="valor-card">
-          <p class="valor-card__texto">{producto.valor}</p>
+    galeria.length > 0 && (
+      <dialog id="galeria-lightbox" aria-label={t(locale, 'producto.galeria_titulo')}>
+        <div class="lightbox__header">
+          <p class="lightbox__contador" aria-live="polite" id="lightbox-contador" />
+          <button type="button" class="lightbox__cerrar" data-lightbox-close>
+            <span aria-hidden="true">×</span>
+            <span class="sr-only">{t(locale, 'producto.galeria_cerrar')}</span>
+          </button>
         </div>
-        {certificaciones.length > 0 && (
-          <ul class="cert-badges" role="list">
-            {certificaciones.map(item => (
-              <li class="cert-badge">{item.valor}</li>
-            ))}
-          </ul>
-        )}
-      </section>
-    )
-  }
-
-  <!-- Preguntas de compra: criterios verificables, sin comparativas no sustentadas -->
-  {
-    producto.preguntas_frecuentes.length > 0 && (
-      <section class="section container" aria-labelledby="faq-producto-heading">
-        <h2 id="faq-producto-heading" class="section-title">
-          {locale === 'en' ? 'Frequently asked questions' : 'Preguntas frecuentes'}
-        </h2>
-        <div class="producto-faq">
-          {producto.preguntas_frecuentes.map(item => (
-            <details>
-              <summary>{item.q}</summary>
-              <p>{item.a}</p>
-            </details>
-          ))}
+        <img id="lightbox-img" src={imagenes[0]} alt="" decoding="async" />
+        <div class="lightbox__nav">
+          <button type="button" data-lightbox-prev class="btn btn-secondary">
+            {t(locale, 'producto.galeria_anterior')}
+          </button>
+          <button type="button" data-lightbox-next class="btn btn-secondary">
+            {t(locale, 'producto.galeria_siguiente')}
+          </button>
         </div>
-      </section>
+      </dialog>
     )
   }
 
@@ -815,28 +981,31 @@ if (!esCotizacion) {
           <p class="cta-sticky__precio">{t(locale, 'producto.quote_precio_titulo')}</p>
           <button
             type="button"
-            class="quote-btn quote-btn--primary quote-btn--compact"
-            data-quote-sticky-add
-          >
-            {t(locale, 'producto.quote_agregar')}
-          </button>
-        </div>
-      </div>
-    ) : (
-      <div class="cta-sticky" id="cta-sticky" hidden>
-        <div class="container cta-sticky__inner">
-          <p class="cta-sticky__nombre">{producto.nombre}</p>
-          <button
-            type="button"
-            class="btn btn-primary"
+            class="quote-btn quote-btn--secondary quote-btn--compact"
             data-ensure-cotizacion={producto.slug}
             data-nombre={producto.nombre}
             data-imagen={imagenProducto}
             data-url={productUrl}
             data-modelo={modelo ?? ''}
             data-marca={producto.marca ?? ''}
+            data-cantidad-desde="#quote-qty-input"
           >
-            {t(locale, 'producto.cotizar_cta')}
+            {t(locale, 'producto.quote_solicitar_ahora')}
+          </button>
+        </div>
+      </div>
+    ) : (
+      <div class="cta-sticky cta-sticky--commerce" id="cta-sticky" hidden>
+        <div class="container cta-sticky__inner">
+          <p class="cta-sticky__precio">{precioFormateado}</p>
+          <button
+            type="button"
+            class="btn btn-primary"
+            data-sticky-add-carrito
+            data-label-agregar={t(locale, 'producto.commerce_anadir_cesta')}
+            data-label-agregado={t(locale, 'carrito.agregado')}
+          >
+            {t(locale, 'producto.commerce_anadir_cesta')}
           </button>
         </div>
       </div>
@@ -1268,24 +1437,25 @@ if (!esCotizacion) {
   }
 
   /* Aplicaciones clínicas */
-  .aplicaciones__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 0.85rem;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
   .aplicaciones__item {
     display: flex;
     align-items: flex-start;
     gap: 0.65rem;
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 0.9rem 1.1rem;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    border-radius: 0;
+    padding: 0.75rem 0;
     font-size: 0.92rem;
     color: var(--ink);
+  }
+  .aplicaciones__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    list-style: none;
+    margin: 0;
+    padding: 0;
   }
   .aplicaciones__icono {
     color: var(--blue);
@@ -1372,6 +1542,589 @@ if (!esCotizacion) {
     justify-content: center;
     flex-wrap: wrap;
     gap: 1rem;
+  }
+
+  /* ─── PDP unificada (commerce / quote) — sin hero turquesa ───────── */
+  .producto-landing > .breadcrumb.container,
+  .producto-landing .pdp-top > .container,
+  .producto-landing > .section.container,
+  .producto-landing > .pdp-tabs.container,
+  .producto-landing > .pdp-lower.container {
+    max-width: 1440px;
+    padding-inline: clamp(24px, 3vw, 48px);
+  }
+
+  .pdp-lower {
+    display: grid;
+    gap: 1.75rem;
+    padding-block: 1.5rem 2.5rem;
+  }
+  @media (min-width: 1024px) {
+    .pdp-lower {
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
+      align-items: start;
+    }
+  }
+  .pdp-tabs {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.25rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1.25rem;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+  .pdp-tabs__tab {
+    appearance: none;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    padding: 0.75rem 0.15rem;
+    font: inherit;
+    font-weight: 700;
+    color: var(--text-mid);
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .pdp-tabs__tab[aria-selected='true'] {
+    color: var(--t700, #0f5a6d);
+    border-bottom-color: var(--t700, #0f5a6d);
+  }
+  .pdp-tabs__tab:focus-visible {
+    outline: 2px solid var(--t700);
+    outline-offset: 2px;
+  }
+  .pdp-tabs__panel[hidden] {
+    display: none;
+  }
+  .pdp-assist-card {
+    display: grid;
+    gap: 0.75rem;
+    padding: 1.15rem 0 0;
+    border: none;
+    border-top: 1px solid var(--border);
+    border-radius: 0;
+    background: transparent;
+    margin-bottom: 1.25rem;
+  }
+  .pdp-assist-card h2 {
+    margin: 0;
+    font-size: 1.05rem;
+  }
+  .pdp-assist-card p {
+    margin: 0;
+    color: var(--text-mid);
+    font-size: 0.92rem;
+    line-height: 1.45;
+  }
+  .pdp-assist-card--muted {
+    background: transparent;
+  }
+  .pdp-desc-highlights {
+    list-style: none;
+    margin: 1.25rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0.55rem;
+  }
+  .pdp-desc-highlights li {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    color: var(--text);
+  }
+  .pdp-desc-highlights li > span:first-child {
+    color: var(--t800);
+    font-weight: 800;
+  }
+
+  .producto-landing > .section {
+    padding-block: 1.75rem;
+  }
+  .producto-landing > .section.section-off {
+    padding-block: 1.75rem;
+  }
+  .pdp-top {
+    background: #f7f9fb;
+    padding-block: 0.75rem 1.5rem;
+    color: var(--ink);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .pdp-gallery,
+    .pdp-identity,
+    .product-purchase-panel,
+    .quote-card {
+      animation: pdp-rise 360ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .pdp-identity {
+      animation-delay: 40ms;
+    }
+    .product-purchase-panel,
+    .quote-card {
+      animation-delay: 80ms;
+    }
+  }
+  @keyframes pdp-rise {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .pdp-top__grid {
+    display: grid;
+    gap: 1.5rem 2rem;
+    align-items: start;
+  }
+  /* Mobile: stack identity → gallery → purchase/quote (no gallery-first) */
+  .pdp-top__grid--commerce,
+  .pdp-top__grid--quote {
+    grid-template-columns: 1fr;
+  }
+  .pdp-buy--commerce {
+    display: contents;
+  }
+  .pdp-buy--quote {
+    display: contents;
+  }
+  .pdp-gallery,
+  .pdp-identity {
+    min-width: 0;
+  }
+  .pdp-top__grid--commerce .pdp-identity,
+  .pdp-top__grid--quote .pdp-identity {
+    order: 1;
+  }
+  .pdp-top__grid--commerce .pdp-gallery,
+  .pdp-top__grid--quote .pdp-gallery {
+    order: 2;
+  }
+  .pdp-top__grid--commerce .product-purchase-panel,
+  .pdp-top__grid--quote .quote-card {
+    order: 3;
+  }
+
+  @media (min-width: 900px) {
+    .pdp-buy--commerce {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      min-width: 0;
+      order: initial;
+    }
+    .pdp-top__grid--commerce .pdp-identity,
+    .pdp-top__grid--commerce .pdp-gallery,
+    .pdp-top__grid--commerce .product-purchase-panel,
+    .pdp-top__grid--quote .pdp-identity,
+    .pdp-top__grid--quote .pdp-gallery,
+    .pdp-top__grid--quote .quote-card {
+      order: initial;
+    }
+    .pdp-top__grid--commerce {
+      grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+      gap: 1.75rem 2.5rem;
+    }
+    .pdp-top__grid--quote {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    }
+    .pdp-top__grid--quote .pdp-gallery {
+      grid-column: 1;
+      grid-row: 1 / span 2;
+    }
+    .pdp-top__grid--quote .pdp-identity {
+      grid-column: 2;
+      grid-row: 1;
+    }
+    .pdp-top__grid--quote .quote-card {
+      grid-column: 2;
+      grid-row: 2;
+    }
+  }
+  @media (min-width: 1200px) {
+    .pdp-top__grid--quote {
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.9fr) minmax(300px, 0.85fr);
+    }
+    .pdp-top__grid--quote .pdp-gallery {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .pdp-top__grid--quote .pdp-identity {
+      grid-column: 2;
+      grid-row: 1;
+    }
+    .pdp-top__grid--quote .quote-card {
+      grid-column: 3;
+      grid-row: 1;
+      position: sticky;
+      top: 96px;
+    }
+  }
+
+  .pdp-gallery__main {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    max-height: min(560px, 70vh);
+    background:
+      radial-gradient(ellipse at 30% 20%, rgba(126, 217, 87, 0.06), transparent 55%),
+      linear-gradient(160deg, #f0f6f8 0%, #ffffff 48%, #eef3f6 100%);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    height: auto;
+    min-height: 0;
+    box-shadow: 0 1px 0 rgba(15, 76, 92, 0.04);
+  }
+  .pdp-highlights {
+    list-style: none;
+    margin: 1rem 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.65rem 1rem;
+  }
+  .pdp-highlights li {
+    display: flex;
+    gap: 0.45rem;
+    align-items: flex-start;
+    font-size: 0.88rem;
+    line-height: 1.35;
+    color: var(--ink);
+  }
+  .pdp-highlights li > span:first-child {
+    color: var(--green, #2f9e44);
+    font-weight: 800;
+  }
+  @media (max-width: 899px) {
+    .pdp-highlights {
+      grid-template-columns: 1fr;
+    }
+    .pdp-gallery__main {
+      aspect-ratio: 4 / 3;
+      max-height: 42vh;
+    }
+  }
+  .pdp-gallery__img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 1rem;
+  }
+  .pdp-gallery__badges {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .pdp-gallery__thumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    list-style: none;
+    margin: 0.75rem 0 0;
+    padding: 0;
+  }
+  .pdp-gallery__thumb {
+    width: 72px;
+    height: 72px;
+    padding: 0;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--white);
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .pdp-gallery__thumb[aria-current='true'],
+  .pdp-gallery__thumb.is-active {
+    border-color: var(--t700);
+    box-shadow: 0 0 0 2px rgba(26, 95, 110, 0.2);
+  }
+  .pdp-gallery__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .pdp-gallery__thumb:focus-visible {
+    outline: 2px solid var(--t700);
+    outline-offset: 2px;
+  }
+
+  .pdp-identity__meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-mid);
+  }
+  .pdp-identity h1 {
+    margin: 0 0 0.75rem;
+    color: var(--t900, #0f4c5c);
+    font-family: var(--font-display);
+    font-size: clamp(1.65rem, 2.8vw, 2.45rem);
+    line-height: 1.18;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .pdp-identity__desc {
+    margin: 0 0 1rem;
+    color: var(--text-mid);
+    line-height: 1.6;
+    max-width: 52ch;
+  }
+  .pdp-identity__trust {
+    list-style: none;
+    margin: 0 0 0.85rem;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem 1.15rem;
+  }
+  .pdp-identity__trust li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.88rem;
+    color: var(--text);
+    font-weight: 600;
+  }
+  .pdp-identity__trust-dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 0 3px var(--green-pale);
+    flex-shrink: 0;
+  }
+  .pdp-identity__trust-dot--no {
+    background: var(--text-mid);
+    box-shadow: none;
+  }
+  .pdp-identity__trust-mark {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 2px;
+    background: var(--t100);
+    border: 1px solid var(--border-mid);
+    flex-shrink: 0;
+  }
+  .producto-landing__compare {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--text-mid);
+    font-size: 0.86rem;
+    margin-top: 0.15rem;
+  }
+
+  .product-purchase-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.95rem;
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    min-width: 0;
+  }
+  .product-purchase-panel__price-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0.75rem 1.25rem;
+  }
+  .product-purchase-panel__availability {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0;
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    background: var(--green-pale);
+    font-weight: 700;
+    font-size: 0.82rem;
+    color: var(--ink);
+  }
+  .product-purchase-panel__availability--no {
+    background: var(--off2);
+  }
+  .product-purchase-panel__dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: var(--green);
+  }
+  .product-purchase-panel__availability--no .product-purchase-panel__dot {
+    background: var(--text-mid);
+  }
+  .product-purchase-panel__price-label {
+    margin: 0 0 0.2rem;
+    font-size: 0.8rem;
+    color: var(--text-mid);
+  }
+  .product-purchase-panel__price {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.85rem, 3vw, 2.5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--t900, #0f4c5c);
+    font-variant-numeric: tabular-nums;
+  }
+  .product-purchase-panel__price small {
+    margin-inline-start: 0.35rem;
+    font-size: 0.38em;
+    font-weight: 700;
+    color: var(--text-mid);
+  }
+  .product-purchase-panel__price-notice {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--text-mid);
+    line-height: 1.45;
+  }
+  .product-purchase-panel__quantity {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .product-purchase-panel__qty-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-mid);
+  }
+  .commerce-stepper {
+    display: inline-flex;
+    align-items: stretch;
+    border: 1.5px solid var(--border-mid, var(--border));
+    border-radius: var(--radius);
+    overflow: hidden;
+    align-self: flex-start;
+  }
+  .commerce-stepper button {
+    width: 48px;
+    min-height: 48px;
+    border: none;
+    background: var(--off, #f3f6f8);
+    font-size: 1.3rem;
+    cursor: pointer;
+  }
+  .commerce-stepper output {
+    min-width: 3ch;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    padding-inline: 0.75rem;
+  }
+  .btn-pdp {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    width: 100%;
+    border-radius: 14px;
+    font-weight: 800;
+    font-size: 1rem;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+  }
+  .btn-pdp--primary {
+    background: #7ed957;
+    color: #0f4c5c;
+  }
+  .btn-pdp--primary:hover {
+    filter: brightness(0.97);
+  }
+  .btn-pdp--secondary {
+    background: #0f4c5c;
+    color: #fff;
+    border: none;
+  }
+  .btn-pdp--secondary:hover {
+    filter: brightness(1.06);
+  }
+  .btn-pdp--ghost {
+    background: transparent;
+    color: var(--t800);
+    border: 1.5px solid var(--border-mid);
+  }
+  .btn-pdp--ghost:hover {
+    background: var(--t50);
+  }
+  .btn-pdp:focus-visible {
+    outline: 2px solid var(--t700);
+    outline-offset: 2px;
+  }
+  .btn-pdp,
+  .quote-btn,
+  .commerce-stepper button,
+  .quote-stepper__btn {
+    transition:
+      background 180ms var(--ease),
+      filter 180ms var(--ease),
+      border-color 180ms var(--ease),
+      transform 150ms var(--ease);
+  }
+  .btn-pdp:active:not(:disabled),
+  .quote-btn:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+  .product-purchase-panel__payments,
+  .product-purchase-panel__trust {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: var(--text-mid);
+    font-size: 0.85rem;
+  }
+  .product-purchase-panel__trust {
+    display: grid;
+    gap: 0.35rem;
+  }
+  .product-purchase-panel__link {
+    align-self: flex-start;
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--t700);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  .cta-sticky--commerce .cta-sticky__precio {
+    margin: 0;
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: var(--ink);
+  }
+  @media (max-width: 767px) {
+    .cta-sticky {
+      padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+    }
   }
 
   /* ─── Estado "precio bajo cotización" ─────────────────────────────── */
@@ -1461,13 +2214,13 @@ if (!esCotizacion) {
   .quote-card {
     display: flex;
     flex-direction: column;
-    gap: 0.85rem;
-    padding: 1.25rem;
-    border-radius: var(--radius-lg);
+    gap: 0.95rem;
+    padding: 1.35rem 1.4rem;
+    border-radius: 1rem;
     background: var(--white);
     color: var(--ink);
     border: 1px solid var(--border);
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 2px 12px rgba(15, 76, 92, 0.05);
     min-width: 0;
   }
   .quote-card__meta {
@@ -1504,10 +2257,12 @@ if (!esCotizacion) {
   .quote-card__precio {
     margin: 0;
     font-family: var(--font-display);
-    font-size: 1.5rem;
-    font-weight: 700;
-    line-height: 1.2;
-    color: var(--ink);
+    font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+    font-weight: 800;
+    line-height: 1.25;
+    color: var(--t900, #0f4c5c);
+    letter-spacing: -0.015em;
+    text-wrap: balance;
   }
   .quote-card__desc {
     margin: 0;
@@ -1571,42 +2326,44 @@ if (!esCotizacion) {
     margin: 0;
   }
   .quote-btn {
+    width: 100%;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.55rem;
-    width: 100%;
-    min-height: 52px;
+    min-height: 48px;
     padding: 0.8rem 1.2rem;
-    border-radius: var(--radius);
+    border-radius: 14px;
     border: 2px solid transparent;
     font-family: inherit;
     font-size: 1rem;
-    font-weight: 700;
+    font-weight: 800;
+    letter-spacing: 0.01em;
     cursor: pointer;
+    text-decoration: none;
     transition:
-      transform 0.15s,
-      box-shadow 0.15s,
-      background 0.15s;
+      transform 150ms var(--ease),
+      filter 180ms var(--ease),
+      background 180ms var(--ease);
   }
   .quote-btn--primary {
-    background: var(--green);
-    color: #0b1b22;
+    background: #7ed957;
+    color: #0f4c5c;
+    border-color: #7ed957;
   }
   .quote-btn--primary:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 8px 20px rgba(126, 217, 87, 0.35);
+    filter: brightness(0.97);
   }
   .quote-btn--secondary {
-    background: var(--t900);
-    color: #ffffff;
+    background: #0f4c5c;
+    color: #fff;
+    border-color: #0f4c5c;
   }
   .quote-btn--secondary:hover:not(:disabled) {
-    background: var(--t800);
+    filter: brightness(1.06);
   }
   .quote-btn:active:not(:disabled) {
-    transform: translateY(0);
-    box-shadow: none;
+    transform: translateY(1px);
   }
   .quote-btn:disabled {
     opacity: 0.55;
@@ -1787,7 +2544,8 @@ if (!esCotizacion) {
 
 <style is:global>
   @media (max-width: 767px) {
-    body:has([data-quote-pdp]) .mobile-commercial-bar {
+    body:has([data-quote-pdp]) .mobile-commercial-bar,
+    body:has([data-purchase-mode='commerce']) .mobile-commercial-bar {
       display: none;
     }
   }
@@ -1822,11 +2580,12 @@ if (!esCotizacion) {
     observer.observe(ctaPrincipal);
   }
 
-  // Lightbox de galería
+  // Lightbox: abrir desde imagen principal. Thumbs solo cambian preview.
   const lightbox = document.getElementById('galeria-lightbox') as HTMLDialogElement | null;
   const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement | null;
   const lightboxContador = document.getElementById('lightbox-contador');
   const thumbs = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-galeria-index]'));
+  const mainImg = document.getElementById('producto-imagen-principal') as HTMLImageElement | null;
 
   if (lightbox && lightboxImg && thumbs.length > 0) {
     let indiceActual = 0;
@@ -1835,22 +2594,30 @@ if (!esCotizacion) {
       const thumb = thumbs[indiceActual];
       const img = thumb?.querySelector('img');
       if (img) {
-        lightboxImg.src = img.src;
-        lightboxImg.alt = img.alt || '';
+        lightboxImg.src = img.currentSrc || img.src;
+        lightboxImg.alt = mainImg?.alt || img.alt || '';
       }
       if (lightboxContador) {
         lightboxContador.textContent = `${indiceActual + 1} / ${thumbs.length}`;
       }
+      thumbs.forEach((thumbBtn, i) => {
+        if (i === indiceActual) thumbBtn.setAttribute('aria-current', 'true');
+        else thumbBtn.removeAttribute('aria-current');
+      });
     };
 
-    thumbs.forEach((thumb, index) => {
-      thumb.addEventListener('click', () => {
-        indiceActual = index;
-        actualizar();
-        resetTransientUiState();
-        lightbox.showModal();
-      });
+    const openLightbox = (index = 0) => {
+      indiceActual = index;
+      actualizar();
+      resetTransientUiState();
+      lightbox.showModal();
+    };
+
+    mainImg?.addEventListener('click', () => {
+      const current = thumbs.findIndex(t => t.getAttribute('aria-current') === 'true');
+      openLightbox(current >= 0 ? current : 0);
     });
+    if (mainImg) mainImg.style.cursor = 'zoom-in';
 
     document
       .querySelector('[data-lightbox-close]')
@@ -1868,10 +2635,13 @@ if (!esCotizacion) {
     });
   }
 
-  // Añadir a carrito desde el CTA principal (cotización vía delegación global en Layout).
+  // Añadir a carrito / comprar ahora (cantidad + checkout)
   const addCarritoBtn = document.querySelector<HTMLButtonElement>(
     '#cta-principal [data-add-carrito]'
   );
+  const checkoutPath = document.documentElement.lang.startsWith('en')
+    ? '/en/checkout/'
+    : '/es/checkout/';
 
   const confirmarAdd = (btn: HTMLButtonElement) => {
     const original = btn.dataset['labelAgregar'] ?? btn.textContent ?? '';
@@ -1881,6 +2651,59 @@ if (!esCotizacion) {
       btn.textContent = original;
     }, 1800);
   };
+
+  let quantity = 1;
+  const quantityOutput = document.querySelector<HTMLOutputElement>('[data-pdp-quantity]');
+  const stockLimitRaw = Number(addCarritoBtn?.dataset['stock'] ?? '');
+  const stockLimit = Number.isFinite(stockLimitRaw) && stockLimitRaw > 0 ? stockLimitRaw : 99;
+  const renderQuantity = () => {
+    if (quantityOutput) quantityOutput.value = String(quantity);
+  };
+  document.querySelector('[data-pdp-quantity-decrease]')?.addEventListener('click', () => {
+    quantity = Math.max(1, quantity - 1);
+    renderQuantity();
+  });
+  document.querySelector('[data-pdp-quantity-increase]')?.addEventListener('click', () => {
+    quantity = Math.min(stockLimit, quantity + 1);
+    renderQuantity();
+  });
+
+  const addToCart = (goCheckout = false) => {
+    if (!addCarritoBtn) return;
+    const slug = addCarritoBtn.dataset['addCarrito'];
+    const nombre = addCarritoBtn.dataset['nombre'];
+    const precio = Number(addCarritoBtn.dataset['precio']);
+    const moneda = addCarritoBtn.dataset['moneda'] ?? 'COP';
+    const stockRaw = addCarritoBtn.dataset['stock'];
+    const stock = stockRaw ? Number(stockRaw) : null;
+    if (!slug || !nombre || Number.isNaN(precio)) return;
+    void import('../lib/carrito').then(({ agregarAlCarrito }) => {
+      agregarAlCarrito({ slug, nombre, precio, moneda, stock }, quantity);
+      confirmarAdd(addCarritoBtn);
+      if (goCheckout) window.location.href = checkoutPath;
+    });
+  };
+
+  addCarritoBtn?.addEventListener('click', () => addToCart(false));
+  document.querySelector('[data-buy-now]')?.addEventListener('click', () => addToCart(true));
+  document.querySelector('[data-sticky-add-carrito]')?.addEventListener('click', event => {
+    event.preventDefault();
+    addToCart(false);
+  });
+
+  // Thumbs: actualizar imagen principal + estado activo (sin abrir lightbox)
+  document.querySelectorAll<HTMLButtonElement>('[data-pdp-thumb]').forEach((btn, index) => {
+    btn.addEventListener('click', () => {
+      const thumbImg = btn.querySelector('img');
+      if (mainImg && thumbImg) {
+        mainImg.src = thumbImg.currentSrc || thumbImg.src;
+      }
+      document.querySelectorAll<HTMLButtonElement>('[data-pdp-thumb]').forEach((other, i) => {
+        if (i === index) other.setAttribute('aria-current', 'true');
+        else other.removeAttribute('aria-current');
+      });
+    });
+  });
 
   // Tarjeta de cotización (productos sin precio)
   const quoteCard = document.querySelector<HTMLElement>('[data-quote-card]');
@@ -1925,17 +2748,22 @@ if (!esCotizacion) {
     });
   }
 
-  addCarritoBtn?.addEventListener('click', () => {
-    const slug = addCarritoBtn.dataset['addCarrito'];
-    const nombre = addCarritoBtn.dataset['nombre'];
-    const precio = Number(addCarritoBtn.dataset['precio']);
-    const moneda = addCarritoBtn.dataset['moneda'] ?? 'COP';
-    const stockRaw = addCarritoBtn.dataset['stock'];
-    const stock = stockRaw ? Number(stockRaw) : null;
-    if (!slug || !nombre || Number.isNaN(precio)) return;
-    void import('../lib/carrito').then(({ agregarAlCarrito }) => {
-      agregarAlCarrito({ slug, nombre, precio, moneda, stock });
-      confirmarAdd(addCarritoBtn);
+  // Tabs PDP
+  const tabRoot = document.querySelector('[data-pdp-tabs]');
+  if (tabRoot) {
+    const tabs = Array.from(tabRoot.querySelectorAll<HTMLButtonElement>('[data-pdp-tab]'));
+    const panels = Array.from(tabRoot.querySelectorAll<HTMLElement>('[data-pdp-panel]'));
+    const activate = (id: string) => {
+      tabs.forEach(tab => {
+        const on = tab.dataset['pdpTab'] === id;
+        tab.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      panels.forEach(panel => {
+        panel.hidden = panel.dataset['pdpPanel'] !== id;
+      });
+    };
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => activate(tab.dataset['pdpTab'] ?? ''));
     });
-  });
+  }
 </script>

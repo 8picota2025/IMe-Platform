@@ -61,6 +61,10 @@ export default defineConfig({
       chunkSizeWarningLimit: 2000,
     },
     plugins: [tailwindcss()],
+    server: {
+      // Sandbox tunnels (cloudflared trycloudflare.com)
+      allowedHosts: true,
+    },
   },
   ...(i18nDisabled
     ? {}

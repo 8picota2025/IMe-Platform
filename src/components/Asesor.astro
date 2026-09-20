@@ -61,12 +61,12 @@ const asesorConfig = {
 };
 ---
 
-<!-- Botón de reapertura: solo aparece después de cerrar el panel desplegado -->
+<!-- FAB: cerrado por defecto junto al panel (evita FOUC abierto) -->
 <button
   id="asesor-trigger"
   class="asesor-fab"
   aria-label={t(locale, 'asesor.abrir')}
-  aria-expanded="true"
+  aria-expanded="false"
   aria-controls="asesor-dialog"
   type="button"
   transition:persist={`asesor-fab-${locale}`}
@@ -88,13 +88,13 @@ const asesorConfig = {
   <span class="asesor-fab__label">{locale === 'es' ? 'IMEIA Ayuda' : 'IMEIA Help'}</span>
 </button>
 
-<!-- Panel del asesor: cerrado por defecto; se abre desde el botón flotante -->
+<!-- Panel del asesor: cerrado por defecto en todos los breakpoints -->
 <aside
   id="asesor-dialog"
   class="asesor-dialog"
-  hidden
   role="complementary"
   aria-label={t(locale, 'asesor.titulo')}
+  hidden
   data-asesor-config={JSON.stringify(asesorConfig)}
   transition:persist={`asesor-dialog-${locale}`}
 >
@@ -737,8 +737,7 @@ const asesorConfig = {
 
   let abortController: AbortController | null = null;
   let asesorTurnstileContainer: HTMLElement | null = null;
-  // El asesor nace cerrado: solo se reabre si el usuario lo abrió antes en esta sesión.
-  const ASESOR_OPENED_KEY = 'ime_asesor_opened';
+  const ASESOR_DISMISSED_KEY = 'ime_asesor_dismissed';
 
   function initAsesor() {
     const trigger = document.getElementById('asesor-trigger');
@@ -1362,7 +1361,7 @@ const asesorConfig = {
       resetTransientUiState();
       dialog.removeAttribute('hidden');
       trigger.setAttribute('aria-expanded', 'true');
-      if (rememberOpen) sessionStorage.setItem(ASESOR_OPENED_KEY, '1');
+      if (rememberOpen) sessionStorage.removeItem(ASESOR_DISMISSED_KEY);
 
       if (!localInitialized) {
         localInitialized = true;
@@ -1383,7 +1382,7 @@ const asesorConfig = {
       if (!dialog || !trigger) return;
       dialog.setAttribute('hidden', '');
       trigger.setAttribute('aria-expanded', 'false');
-      sessionStorage.removeItem(ASESOR_OPENED_KEY);
+      sessionStorage.setItem(ASESOR_DISMISSED_KEY, '1');
       trigger.focus();
     }
 
@@ -1437,11 +1436,11 @@ const asesorConfig = {
       { signal }
     );
 
-    if (sessionStorage.getItem(ASESOR_OPENED_KEY) === '1') {
-      void openDialog(false, false);
-    } else {
-      dialog.setAttribute('hidden', '');
-      trigger.setAttribute('aria-expanded', 'false');
+    // PDP/UX: chat starts closed; user must open explicitly.
+    dialog.setAttribute('hidden', '');
+    trigger.setAttribute('aria-expanded', 'false');
+    if (sessionStorage.getItem(ASESOR_DISMISSED_KEY) !== '1') {
+      // Keep dismissed flag unset so first open still feels fresh.
     }
   }
 

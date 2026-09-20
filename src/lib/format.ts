@@ -47,7 +47,11 @@ export function resolvePrecioPublico(row: unknown): number | null {
   if (!row || typeof row !== 'object') return null;
   const valores = row as Record<string, unknown>;
   return precioConIvaColombia(
-    ofertaVigente(valores) ?? numeroPublicable(valores['precio_regular']) ?? 0
+    ofertaVigente(valores) ??
+      numeroPublicable(valores['precio_regular']) ??
+      // Mock/legacy rows may only expose `precio` (same base semantics as precio_regular).
+      numeroPublicable(valores['precio']) ??
+      0
   );
 }
 
