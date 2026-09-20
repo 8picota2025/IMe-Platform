@@ -1,19 +1,15 @@
 ---
 /**
- * ProductoLanding — landing estática de producto (ES/EN).
- * Estructura visual alineada al modelo de referencia (hero degradado con
- * badge y stats, tarjetas de beneficios, tabla de specs con cabecera oscura,
- * bloque de valor destacado, relacionados, CTA final): breadcrumb, hero,
- * beneficios, galería, especificaciones, aplicaciones, relacionados, CTA de
- * contacto, bloque de valor, reseñas reales, CTA sticky.
+ * ProductoLanding — PDP unificada (ES/EN).
+ * Variantes commerce | quote vía getProductPurchaseMode. Sin hero turquesa.
  */
 import { t, type Locale } from '../i18n/utils';
 import ProductoCard from './ProductoCard.astro';
 import Resenas from './Resenas.astro';
 import PdfDownloadGate from './PdfDownloadGate.astro';
 import type { Producto, Familia } from '../lib/datos';
-import { formatMoneda, tienePrecioPublico } from '../lib/format';
-import { getAccionComercial } from '../lib/comercial';
+import { formatMoneda } from '../lib/format';
+import { getAccionComercial, getProductPurchaseMode } from '../lib/comercial';
 import { isPurchasable } from '../lib/commerce-policy';
 import { normalizarEspecificaciones } from '../lib/especificaciones';
 import { getOptimizedImageUrl, isSupabaseStorageImage } from '../lib/image';
@@ -60,13 +56,15 @@ const imagenFallback =
     </svg>`
   );
 
-const tienePrecio = tienePrecioPublico(producto.precio);
+const purchaseMode = getProductPurchaseMode(producto);
+const esCotizacion = purchaseMode === 'quote';
+const esCommerce = purchaseMode === 'commerce';
+const tienePrecio = esCommerce;
 const precioFormateado = tienePrecio
   ? formatMoneda(producto.precio, producto.moneda, locale)
   : null;
 const noDisponible = producto.disponible === false;
 const accionComercial = getAccionComercial(producto, locale);
-const esCotizacion = accionComercial.tipo === 'cotizacion';
 const isPurchasableProduct = isPurchasable(producto).ok;
 const modalidadTexto =
   producto.tipo_comercial === 'consumible'
@@ -88,6 +86,10 @@ const productUrl = `https://i-me.com.co/${locale}/${productSegment}/${producto.s
 const modelo = especificaciones.find(item => item.clave.toLowerCase() === 'modelo')?.valor;
 const referencia = modelo?.trim() || producto.sku?.trim() || null;
 const disponibleParaMostrar = !noDisponible && producto.stock !== 0;
+const stockMax =
+  typeof producto.stock === 'number' && Number.isFinite(producto.stock) && producto.stock > 0
+    ? Math.min(producto.stock, 99)
+    : 99;
 const fichaUrl = producto.ficha_pdf
   ? producto.ficha_pdf.startsWith('http')
     ? producto.ficha_pdf
@@ -132,24 +134,6 @@ const migas = [
 ];
 
 const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
-
-// Stats de la cabecera del hero: reutiliza datos ya verificados (modalidad,
-// disponibilidad, familia, precio) en vez de intentar extraer valores cortos
-// de las especificaciones en prosa, que no son fiables para un resumen.
-// En modo cotización, disponibilidad y precio viven en la tarjeta comercial.
-const heroStats: Array<{ valor: string; etiqueta: string }> = [
-  { valor: modalidadTexto, etiqueta: t(locale, 'producto.ficha_modalidad') },
-  ...(esCotizacion
-    ? []
-    : [{ valor: disponibilidadTexto, etiqueta: t(locale, 'producto.ficha_stock') }]),
-  { valor: familia.nombre, etiqueta: t(locale, 'catalogo.migas_catalogo') },
-];
-if (!esCotizacion) {
-  heroStats.push({
-    valor: precioFormateado ?? t(locale, 'producto.precio_solicitud_largo'),
-    etiqueta: t(locale, 'producto.ficha_precio'),
-  });
-}
 ---
 
 <article
@@ -179,118 +163,41 @@ if (!esCotizacion) {
     </ol>
   </nav>
 
-  <!-- Hero -->
-  <section class:list={['hero-producto', { 'hero-producto--quote': esCotizacion }]}>
-    <div class="hero-producto__bg" aria-hidden="true"></div>
+  <!-- PDP top: commerce | quote (sin hero turquesa) -->
+  <section
+    class:list={['pdp-top', { 'pdp-top--commerce': esCommerce, 'pdp-top--quote': esCotizacion }]}
+    data-purchase-mode={purchaseMode}
+    data-quote-pdp={esCotizacion ? '' : undefined}
+  >
     <div
       class:list={[
         'container',
-        'hero-producto__inner',
-        { 'hero-producto__inner--quote': esCotizacion },
+        'pdp-top__grid',
+        { 'pdp-top__grid--commerce': esCommerce, 'pdp-top__grid--quote': esCotizacion },
       ]}
-      data-quote-pdp={esCotizacion ? '' : undefined}
     >
-      <div class="hero-producto__content">
-        <span class="hero-producto__badge">{producto.marca || familia.nombre}</span>
-        <h1>{producto.nombre}</h1>
-        <p class="hero-producto__desc">{producto.descripcion_corta}</p>
-
-        {
-          isPurchasableProduct && (
-            <div class="hero-producto__cta-group" id="cta-principal">
-              {accionComercial.tipo === 'consultar' ? (
-                <a
-                  href={whatsappHref}
-                  class="btn-hero-primary"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  🛒 {locale === 'en' ? 'Add to cart' : 'Añadir a la cesta'}
-                </a>
-              ) : (
-                <button
-                  type="button"
-                  class="btn-hero-primary"
-                  aria-live="polite"
-                  data-add-carrito={producto.slug}
-                  data-nombre={producto.nombre}
-                  data-precio={producto.precio}
-                  data-moneda={producto.moneda ?? 'COP'}
-                  data-stock={producto.stock ?? ''}
-                  data-label-agregar={t(locale, 'carrito.agregar')}
-                  data-label-agregado={t(locale, 'carrito.agregado')}
-                >
-                  {accionComercial.label}
-                </button>
-              )}
-              {accionComercial.tipo === 'carrito' ? (
-                <a
-                  href={whatsappHref}
-                  class="btn-hero-secondary"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {t(locale, 'producto.asesor_cta')}
-                </a>
-              ) : (
-                <button
-                  type="button"
-                  class="btn-hero-secondary"
-                  data-ensure-cotizacion={producto.slug}
-                  data-nombre={producto.nombre}
-                  data-imagen={imagenProducto}
-                  data-url={productUrl}
-                  data-modelo={modelo ?? ''}
-                  data-marca={producto.marca ?? ''}
-                >
-                  {t(locale, 'producto.cotizar_cta')}
-                </button>
-              )}
-              {producto.ficha_pdf && (
-                <button
-                  type="button"
-                  class="btn-hero-secondary"
-                  data-pdf-download-trigger
-                  data-pdf-download-target={pdfGateId}
-                >
-                  {t(locale, 'producto.ficha_pdf')}
-                </button>
-              )}
-            </div>
-          )
-        }
-
-        {
-          tienePrecio && (
-            <p class="hero-producto__price-notice">
-              {t(locale, 'producto.iva_incluido')} · {t(locale, 'producto.envio_no_incluido')}
-            </p>
-          )
-        }
-
-        <div class="hero-producto__stats">
+      <!-- Galería -->
+      <div class="pdp-gallery">
+        <div class="pdp-gallery__main">
           {
-            heroStats.map(stat => (
-              <div class="hero-producto__stat">
-                <span class="hero-producto__stat-valor">{stat.valor}</span>
-                <span class="hero-producto__stat-etiqueta">{stat.etiqueta}</span>
-              </div>
-            ))
-          }
-        </div>
-
-        <label class="producto-landing__compare">
-          <input type="checkbox" id="comparador-toggle" data-compare-slug={producto.slug} />
-          <span>{t(locale, 'catalogo.comparar_anadir')}</span>
-        </label>
-      </div>
-
-      <div class="hero-producto__media">
-        {
-          heroImageTransformable ? (
-            <picture>
-              <source srcset={heroImageAvif} type="image/avif" />
-              <source srcset={heroImageWebp} type="image/webp" />
+            heroImageTransformable ? (
+              <picture>
+                <source srcset={heroImageAvif} type="image/avif" />
+                <source srcset={heroImageWebp} type="image/webp" />
+                <img
+                  src={imagenes[0]}
+                  alt={producto.nombre}
+                  width="640"
+                  height="480"
+                  decoding="async"
+                  fetchpriority="high"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  class="pdp-gallery__img"
+                  id="producto-imagen-principal"
+                  onerror={`this.onerror=null;this.src='${imagenFallback}'`}
+                />
+              </picture>
+            ) : (
               <img
                 src={imagenes[0]}
                 alt={producto.nombre}
@@ -299,43 +206,195 @@ if (!esCotizacion) {
                 decoding="async"
                 fetchpriority="high"
                 sizes="(max-width: 768px) 100vw, 50vw"
-                class="hero-producto__img"
+                class="pdp-gallery__img"
                 id="producto-imagen-principal"
                 onerror={`this.onerror=null;this.src='${imagenFallback}'`}
               />
-            </picture>
-          ) : (
-            <img
-              src={imagenes[0]}
-              alt={producto.nombre}
-              width="640"
-              height="480"
-              decoding="async"
-              fetchpriority="high"
-              sizes="(max-width: 768px) 100vw, 50vw"
-              class="hero-producto__img"
-              id="producto-imagen-principal"
-              onerror={`this.onerror=null;this.src='${imagenFallback}'`}
-            />
-          )
-        }
+            )
+          }
+          {
+            (producto.destacado || producto.nuevo || noDisponible) && (
+              <div class="pdp-gallery__badges" aria-hidden="true">
+                {producto.nuevo && (
+                  <span class="badge badge-green">{t(locale, 'producto.badge_nuevo')}</span>
+                )}
+                {producto.destacado && (
+                  <span class="badge badge-teal">{t(locale, 'producto.badge_destacado')}</span>
+                )}
+                {noDisponible && (
+                  <span class="badge badge-gris">{t(locale, 'producto.badge_no_disponible')}</span>
+                )}
+              </div>
+            )
+          }
+        </div>
         {
-          (producto.destacado || producto.nuevo || noDisponible) && (
-            <div class="hero-producto__badges" aria-hidden="true">
-              {producto.nuevo && (
-                <span class="badge badge-green">{t(locale, 'producto.badge_nuevo')}</span>
-              )}
-              {producto.destacado && (
-                <span class="badge badge-teal">{t(locale, 'producto.badge_destacado')}</span>
-              )}
-              {noDisponible && (
-                <span class="badge badge-gris">{t(locale, 'producto.badge_no_disponible')}</span>
-              )}
-            </div>
+          imagenes.length > 1 && (
+            <ul class="pdp-gallery__thumbs" role="list">
+              {imagenes.map((src, index) => (
+                <li>
+                  <button
+                    type="button"
+                    class="pdp-gallery__thumb"
+                    data-galeria-index={index}
+                    data-pdp-thumb
+                    aria-label={`${t(locale, 'producto.galeria_abrir')}: ${producto.nombre} ${index + 1}/${imagenes.length}`}
+                  >
+                    <img
+                      src={getOptimizedImageUrl(src, 160, 'webp')}
+                      alt=""
+                      width="72"
+                      height="72"
+                      loading={index === 0 ? 'eager' : 'lazy'}
+                      decoding="async"
+                    />
+                  </button>
+                </li>
+              ))}
+            </ul>
           )
         }
       </div>
 
+      <!-- Identidad -->
+      <div class="pdp-identity">
+        <div class="pdp-identity__meta">
+          <span class="pdp-identity__category">{familia.nombre}</span>
+          {referencia && <span class="pdp-identity__sku">SKU {referencia}</span>}
+        </div>
+        <h1>{producto.nombre}</h1>
+        {
+          producto.descripcion_corta && (
+            <p class="pdp-identity__desc">{producto.descripcion_corta}</p>
+          )
+        }
+        <ul class="pdp-identity__attrs" role="list">
+          <li>
+            <span class="pdp-identity__attr-label">{t(locale, 'producto.ficha_modalidad')}</span>
+            <span>{modalidadTexto}</span>
+          </li>
+          {
+            producto.marca && (
+              <li>
+                <span class="pdp-identity__attr-label">{locale === 'en' ? 'Brand' : 'Marca'}</span>
+                <span>{producto.marca}</span>
+              </li>
+            )
+          }
+        </ul>
+        <label class="producto-landing__compare">
+          <input type="checkbox" id="comparador-toggle" data-compare-slug={producto.slug} />
+          <span>{t(locale, 'catalogo.comparar_anadir')}</span>
+        </label>
+      </div>
+
+      <!-- Panel commerce -->
+      {
+        esCommerce && (
+          <section
+            class="product-purchase-panel"
+            id="cta-principal"
+            aria-label={t(locale, 'producto.commerce_precio_label')}
+            data-commerce-panel
+            data-price-mode="commerce"
+            data-stock-max={stockMax}
+          >
+            <p
+              class:list={[
+                'product-purchase-panel__availability',
+                { 'product-purchase-panel__availability--no': !disponibleParaMostrar },
+              ]}
+            >
+              <span class="product-purchase-panel__dot" aria-hidden="true" />
+              {disponibilidadTexto}
+            </p>
+            <p class="product-purchase-panel__price-label">
+              {t(locale, 'producto.commerce_precio_label')}
+            </p>
+            <p class="product-purchase-panel__price">
+              {precioFormateado}
+              <small>{producto.moneda ?? 'COP'}</small>
+            </p>
+            <p class="product-purchase-panel__price-notice">
+              {t(locale, 'producto.iva_incluido')} · {t(locale, 'producto.envio_no_incluido')}
+            </p>
+
+            {isPurchasableProduct ? (
+              <>
+                <div class="product-purchase-panel__quantity">
+                  <span class="product-purchase-panel__qty-label" id="commerce-qty-label">
+                    {t(locale, 'producto.commerce_cantidad')}
+                  </span>
+                  <div class="commerce-stepper" role="group" aria-labelledby="commerce-qty-label">
+                    <button
+                      type="button"
+                      data-pdp-quantity-decrease
+                      aria-label={t(locale, 'producto.commerce_cantidad_disminuir')}
+                    >
+                      −
+                    </button>
+                    <output data-pdp-quantity>1</output>
+                    <button
+                      type="button"
+                      data-pdp-quantity-increase
+                      aria-label={t(locale, 'producto.commerce_cantidad_aumentar')}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  class="btn-pdp btn-pdp--primary"
+                  aria-live="polite"
+                  data-add-carrito={producto.slug}
+                  data-nombre={producto.nombre}
+                  data-precio={producto.precio}
+                  data-moneda={producto.moneda ?? 'COP'}
+                  data-stock={producto.stock ?? ''}
+                  data-label-agregar={t(locale, 'producto.commerce_anadir_cesta')}
+                  data-label-agregado={t(locale, 'carrito.agregado')}
+                >
+                  {t(locale, 'producto.commerce_anadir_cesta')}
+                </button>
+                <button type="button" class="btn-pdp btn-pdp--secondary" data-buy-now>
+                  {t(locale, 'producto.commerce_comprar_ahora')}
+                </button>
+                <p class="product-purchase-panel__payments">
+                  {t(locale, 'producto.commerce_pago_wompi')}
+                </p>
+              </>
+            ) : (
+              <a
+                href={whatsappHref}
+                class="btn-pdp btn-pdp--primary"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {accionComercial.label}
+              </a>
+            )}
+
+            <ul class="product-purchase-panel__trust" role="list">
+              <li>{t(locale, 'producto.commerce_trust_segura')}</li>
+              <li>{t(locale, 'producto.commerce_trust_factura')}</li>
+            </ul>
+
+            {producto.ficha_pdf && (
+              <button
+                type="button"
+                class="product-purchase-panel__link"
+                data-pdf-download-trigger
+                data-pdf-download-target={pdfGateId}
+              >
+                {t(locale, 'producto.ficha_pdf')}
+              </button>
+            )}
+          </section>
+        )
+      }
+
+      <!-- Panel quote (existente, columna comercial) -->
       {
         esCotizacion && (
           <section
@@ -415,22 +474,6 @@ if (!esCotizacion) {
               data-cantidad-desde="#quote-qty-input"
               data-no-abrir
             >
-              <svg
-                viewBox="0 0 24 24"
-                width="20"
-                height="20"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-                <line x1="12" y1="12" x2="12" y2="18" />
-                <line x1="9" y1="15" x2="15" y2="15" />
-              </svg>
               {t(locale, 'producto.quote_agregar')}
             </button>
             <button
@@ -455,44 +498,8 @@ if (!esCotizacion) {
             </p>
 
             <ul class="quote-card__trust" role="list">
-              <li>
-                <svg
-                  viewBox="0 0 24 24"
-                  width="16"
-                  height="16"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <>
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                    <polyline points="14 2 14 8 20 8" />
-                  </>
-                </svg>
-                {t(locale, 'producto.quote_trust_factura')}
-              </li>
-              <li>
-                <svg
-                  viewBox="0 0 24 24"
-                  width="16"
-                  height="16"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <>
-                    <rect x="3" y="11" width="18" height="11" rx="2" />
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                  </>
-                </svg>
-                {t(locale, 'producto.quote_trust_datos')}
-              </li>
+              <li>{t(locale, 'producto.quote_trust_factura')}</li>
+              <li>{t(locale, 'producto.quote_trust_datos')}</li>
             </ul>
 
             <div class="quote-card__soporte">
@@ -823,20 +830,17 @@ if (!esCotizacion) {
         </div>
       </div>
     ) : (
-      <div class="cta-sticky" id="cta-sticky" hidden>
+      <div class="cta-sticky cta-sticky--commerce" id="cta-sticky" hidden>
         <div class="container cta-sticky__inner">
-          <p class="cta-sticky__nombre">{producto.nombre}</p>
+          <p class="cta-sticky__precio">{precioFormateado}</p>
           <button
             type="button"
             class="btn btn-primary"
-            data-ensure-cotizacion={producto.slug}
-            data-nombre={producto.nombre}
-            data-imagen={imagenProducto}
-            data-url={productUrl}
-            data-modelo={modelo ?? ''}
-            data-marca={producto.marca ?? ''}
+            data-sticky-add-carrito
+            data-label-agregar={t(locale, 'producto.commerce_anadir_cesta')}
+            data-label-agregado={t(locale, 'carrito.agregado')}
           >
-            {t(locale, 'producto.cotizar_cta')}
+            {t(locale, 'producto.commerce_anadir_cesta')}
           </button>
         </div>
       </div>
@@ -1374,6 +1378,321 @@ if (!esCotizacion) {
     gap: 1rem;
   }
 
+  /* ─── PDP unificada (commerce / quote) — sin hero turquesa ───────── */
+  .pdp-top {
+    background: linear-gradient(180deg, #f4f7f9 0%, var(--white, #fff) 42%);
+    padding-block: var(--space-md) var(--space-xl);
+    color: var(--ink);
+  }
+  .pdp-top__grid {
+    display: grid;
+    gap: 1.25rem 1.75rem;
+    align-items: start;
+  }
+  .pdp-top__grid--commerce {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'gallery'
+      'identity'
+      'panel';
+  }
+  .pdp-top__grid--quote {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'gallery'
+      'identity'
+      'panel';
+  }
+  .pdp-gallery {
+    grid-area: gallery;
+  }
+  .pdp-identity {
+    grid-area: identity;
+    min-width: 0;
+  }
+  .product-purchase-panel,
+  .quote-card {
+    grid-area: panel;
+  }
+
+  @media (min-width: 900px) {
+    .pdp-top__grid--commerce {
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+      grid-template-areas:
+        'gallery identity'
+        'gallery panel';
+      grid-template-rows: auto 1fr;
+    }
+    .pdp-top__grid--quote {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      grid-template-areas:
+        'gallery identity'
+        'gallery panel';
+    }
+  }
+  @media (min-width: 1200px) {
+    .pdp-top__grid--quote {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(300px, 340px);
+      grid-template-areas: 'gallery identity panel';
+    }
+    .pdp-top__grid--quote .quote-card {
+      position: sticky;
+      top: 96px;
+    }
+  }
+
+  .pdp-gallery__main {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+  }
+  .pdp-gallery__img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 1rem;
+  }
+  .pdp-gallery__badges {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .pdp-gallery__thumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    list-style: none;
+    margin: 0.75rem 0 0;
+    padding: 0;
+  }
+  .pdp-gallery__thumb {
+    width: 72px;
+    height: 72px;
+    padding: 0;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--white);
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .pdp-gallery__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .pdp-gallery__thumb:focus-visible {
+    outline: 2px solid var(--t700);
+    outline-offset: 2px;
+  }
+
+  .pdp-identity__meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-mid);
+  }
+  .pdp-identity h1 {
+    margin: 0 0 0.65rem;
+    color: var(--ink);
+    font-size: clamp(1.55rem, 3vw, 2.2rem);
+    line-height: 1.2;
+  }
+  .pdp-identity__desc {
+    margin: 0 0 1rem;
+    color: var(--text-mid);
+    line-height: 1.6;
+    max-width: 52ch;
+  }
+  .pdp-identity__attrs {
+    list-style: none;
+    margin: 0 0 1rem;
+    padding: 0;
+    display: grid;
+    gap: 0.45rem;
+  }
+  .pdp-identity__attrs li {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.92rem;
+  }
+  .pdp-identity__attr-label {
+    color: var(--text-mid);
+    min-width: 6.5rem;
+  }
+  .producto-landing__compare {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--text-mid);
+    font-size: 0.9rem;
+  }
+
+  .product-purchase-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    padding: 1.25rem;
+    border-radius: var(--radius-lg);
+    background: var(--white);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-lg);
+    min-width: 0;
+  }
+  .product-purchase-panel__availability {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .product-purchase-panel__dot {
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 0 3px var(--green-pale);
+  }
+  .product-purchase-panel__availability--no .product-purchase-panel__dot {
+    background: var(--text-mid);
+    box-shadow: none;
+  }
+  .product-purchase-panel__price-label {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-mid);
+  }
+  .product-purchase-panel__price {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4.5vw, 2.85rem);
+    font-weight: 800;
+    line-height: 1;
+    color: var(--t900, #093b4b);
+  }
+  .product-purchase-panel__price small {
+    margin-inline-start: 0.35rem;
+    font-size: 0.38em;
+    font-weight: 700;
+    color: var(--text-mid);
+  }
+  .product-purchase-panel__price-notice {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--text-mid);
+    line-height: 1.45;
+  }
+  .product-purchase-panel__quantity {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .product-purchase-panel__qty-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-mid);
+  }
+  .commerce-stepper {
+    display: inline-flex;
+    align-items: stretch;
+    border: 1.5px solid var(--border-mid, var(--border));
+    border-radius: var(--radius);
+    overflow: hidden;
+    align-self: flex-start;
+  }
+  .commerce-stepper button {
+    width: 48px;
+    min-height: 48px;
+    border: none;
+    background: var(--off, #f3f6f8);
+    font-size: 1.3rem;
+    cursor: pointer;
+  }
+  .commerce-stepper output {
+    min-width: 3ch;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    padding-inline: 0.75rem;
+  }
+  .btn-pdp {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    width: 100%;
+    border-radius: var(--radius);
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+  }
+  .btn-pdp--primary {
+    background: var(--green);
+    color: var(--ink);
+  }
+  .btn-pdp--secondary {
+    background: transparent;
+    color: var(--t900, #093b4b);
+    border: 1.5px solid var(--t700, #0f5a6d);
+  }
+  .btn-pdp:focus-visible {
+    outline: 2px solid var(--t700);
+    outline-offset: 2px;
+  }
+  .product-purchase-panel__payments,
+  .product-purchase-panel__trust {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: var(--text-mid);
+    font-size: 0.85rem;
+  }
+  .product-purchase-panel__trust {
+    display: grid;
+    gap: 0.35rem;
+  }
+  .product-purchase-panel__link {
+    align-self: flex-start;
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--t700);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  .cta-sticky--commerce .cta-sticky__precio {
+    margin: 0;
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: var(--ink);
+  }
+  @media (max-width: 767px) {
+    .cta-sticky {
+      padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+    }
+  }
+
   /* ─── Estado "precio bajo cotización" ─────────────────────────────── */
   .hero-producto__inner--quote {
     grid-template-columns: 1fr;
@@ -1787,7 +2106,8 @@ if (!esCotizacion) {
 
 <style is:global>
   @media (max-width: 767px) {
-    body:has([data-quote-pdp]) .mobile-commercial-bar {
+    body:has([data-quote-pdp]) .mobile-commercial-bar,
+    body:has([data-purchase-mode='commerce']) .mobile-commercial-bar {
       display: none;
     }
   }
@@ -1868,10 +2188,13 @@ if (!esCotizacion) {
     });
   }
 
-  // Añadir a carrito desde el CTA principal (cotización vía delegación global en Layout).
+  // Añadir a carrito / comprar ahora (cantidad + checkout)
   const addCarritoBtn = document.querySelector<HTMLButtonElement>(
     '#cta-principal [data-add-carrito]'
   );
+  const checkoutPath = document.documentElement.lang.startsWith('en')
+    ? '/en/checkout/'
+    : '/es/checkout/';
 
   const confirmarAdd = (btn: HTMLButtonElement) => {
     const original = btn.dataset['labelAgregar'] ?? btn.textContent ?? '';
@@ -1881,6 +2204,56 @@ if (!esCotizacion) {
       btn.textContent = original;
     }, 1800);
   };
+
+  let quantity = 1;
+  const quantityOutput = document.querySelector<HTMLOutputElement>('[data-pdp-quantity]');
+  const stockLimitRaw = Number(addCarritoBtn?.dataset['stock'] ?? '');
+  const stockLimit = Number.isFinite(stockLimitRaw) && stockLimitRaw > 0 ? stockLimitRaw : 99;
+  const renderQuantity = () => {
+    if (quantityOutput) quantityOutput.value = String(quantity);
+  };
+  document.querySelector('[data-pdp-quantity-decrease]')?.addEventListener('click', () => {
+    quantity = Math.max(1, quantity - 1);
+    renderQuantity();
+  });
+  document.querySelector('[data-pdp-quantity-increase]')?.addEventListener('click', () => {
+    quantity = Math.min(stockLimit, quantity + 1);
+    renderQuantity();
+  });
+
+  const addToCart = (goCheckout = false) => {
+    if (!addCarritoBtn) return;
+    const slug = addCarritoBtn.dataset['addCarrito'];
+    const nombre = addCarritoBtn.dataset['nombre'];
+    const precio = Number(addCarritoBtn.dataset['precio']);
+    const moneda = addCarritoBtn.dataset['moneda'] ?? 'COP';
+    const stockRaw = addCarritoBtn.dataset['stock'];
+    const stock = stockRaw ? Number(stockRaw) : null;
+    if (!slug || !nombre || Number.isNaN(precio)) return;
+    void import('../lib/carrito').then(({ agregarAlCarrito }) => {
+      agregarAlCarrito({ slug, nombre, precio, moneda, stock }, quantity);
+      confirmarAdd(addCarritoBtn);
+      if (goCheckout) window.location.href = checkoutPath;
+    });
+  };
+
+  addCarritoBtn?.addEventListener('click', () => addToCart(false));
+  document.querySelector('[data-buy-now]')?.addEventListener('click', () => addToCart(true));
+  document.querySelector('[data-sticky-add-carrito]')?.addEventListener('click', event => {
+    event.preventDefault();
+    addToCart(false);
+  });
+
+  // Thumbs en PDP: actualizar imagen principal (lightbox sigue en data-galeria-index)
+  const mainImg = document.getElementById('producto-imagen-principal') as HTMLImageElement | null;
+  document.querySelectorAll<HTMLButtonElement>('[data-pdp-thumb]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const thumbImg = btn.querySelector('img');
+      if (mainImg && thumbImg) {
+        mainImg.src = thumbImg.currentSrc || thumbImg.src;
+      }
+    });
+  });
 
   // Tarjeta de cotización (productos sin precio)
   const quoteCard = document.querySelector<HTMLElement>('[data-quote-card]');
@@ -1924,18 +2297,4 @@ if (!esCotizacion) {
       addBtn?.click();
     });
   }
-
-  addCarritoBtn?.addEventListener('click', () => {
-    const slug = addCarritoBtn.dataset['addCarrito'];
-    const nombre = addCarritoBtn.dataset['nombre'];
-    const precio = Number(addCarritoBtn.dataset['precio']);
-    const moneda = addCarritoBtn.dataset['moneda'] ?? 'COP';
-    const stockRaw = addCarritoBtn.dataset['stock'];
-    const stock = stockRaw ? Number(stockRaw) : null;
-    if (!slug || !nombre || Number.isNaN(precio)) return;
-    void import('../lib/carrito').then(({ agregarAlCarrito }) => {
-      agregarAlCarrito({ slug, nombre, precio, moneda, stock });
-      confirmarAdd(addCarritoBtn);
-    });
-  });
 </script>

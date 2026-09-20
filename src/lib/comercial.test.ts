@@ -1,5 +1,27 @@
 import { describe, expect, it } from 'vitest';
-import { getAccionComercial } from './comercial';
+import { getAccionComercial, getProductPurchaseMode } from './comercial';
+
+describe('getProductPurchaseMode — commerce vs quote', () => {
+  it('precio válido → commerce aunque no haya stock', () => {
+    expect(getProductPurchaseMode({ precio: 1000, disponible: true })).toBe('commerce');
+    expect(
+      getProductPurchaseMode({
+        precio: 1000,
+        disponible: true,
+        stock: 0,
+        gestionar_stock: true,
+      })
+    ).toBe('commerce');
+    expect(getProductPurchaseMode({ precio: 1000, disponible: false })).toBe('commerce');
+  });
+
+  it('sin precio / inválido → quote (no implica agotado)', () => {
+    expect(getProductPurchaseMode({ precio: null, disponible: true })).toBe('quote');
+    expect(getProductPurchaseMode({ precio: 0 })).toBe('quote');
+    expect(getProductPurchaseMode({ precio: NaN })).toBe('quote');
+    expect(getProductPurchaseMode({ precio: undefined })).toBe('quote');
+  });
+});
 
 describe('getAccionComercial — precio → carrito', () => {
   it('producto con precio > 0 y disponible → carrito (equipo o consumible)', () => {
