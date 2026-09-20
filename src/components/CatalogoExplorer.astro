@@ -873,7 +873,7 @@ const pagePath = (targetPage: number) =>
       box-shadow: var(--shadow-md);
       padding: var(--space-md);
       overflow-y: auto;
-      z-index: 95;
+      z-index: 121; /* por encima de la cabecera fija (z-index 100) para que su ✕ sea pulsable */
       transform: translateX(-100%);
       transition: transform 260ms var(--ease);
     }
@@ -885,7 +885,7 @@ const pagePath = (targetPage: number) =>
       inset: 0;
       background: rgba(10, 24, 28, 0.42);
       backdrop-filter: blur(1.5px);
-      z-index: 94;
+      z-index: 120;
     }
   }
   @media (min-width: 900px) {
