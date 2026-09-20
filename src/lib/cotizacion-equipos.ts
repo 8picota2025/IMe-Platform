@@ -57,16 +57,34 @@ export function getCotizacionCantidad(): number {
   return leer().reduce((acc, item) => acc + item.cantidad, 0);
 }
 
+export const CANTIDAD_MAXIMA_COTIZACION = 99;
+
+/** Normaliza a entero entre 1 y CANTIDAD_MAXIMA_COTIZACION; valores inválidos → 1. */
+export function normalizarCantidadCotizacion(valor: unknown): number {
+  const n = Math.floor(Number(valor));
+  if (!Number.isFinite(n) || n < 1) return 1;
+  return Math.min(n, CANTIDAD_MAXIMA_COTIZACION);
+}
+
+/**
+ * Añade un producto a la lista. Por defecto abre el drawer (comportamiento
+ * histórico de catálogo/tarjetas); `abrir: false` permite seguir navegando y
+ * dejar que el contador del header refleje el cambio.
+ */
 export function agregarACotizacion(
   item: Omit<CotizacionItem, 'cantidad'>,
-  cantidad = 1
+  cantidad = 1,
+  opciones: { abrir?: boolean } = {}
 ): CotizacionItem[] {
   const items = leer();
   const existente = items.find(i => i.slug === item.slug);
   if (existente) {
-    existente.cantidad += cantidad;
+    existente.cantidad = Math.min(
+      existente.cantidad + normalizarCantidadCotizacion(cantidad),
+      CANTIDAD_MAXIMA_COTIZACION
+    );
   } else {
-    items.push({ ...item, cantidad: Math.max(cantidad, 1) });
+    items.push({ ...item, cantidad: normalizarCantidadCotizacion(cantidad) });
   }
   const actualizados = escribir(items);
   emitAnalyticsEvent('quote_add', {
@@ -75,7 +93,7 @@ export function agregarACotizacion(
     quantity: cantidad,
     item_count: actualizados.reduce((acc, producto) => acc + producto.cantidad, 0),
   });
-  abrirCotizacion();
+  if (opciones.abrir !== false) abrirCotizacion();
   return actualizados;
 }
 
@@ -84,14 +102,18 @@ export function agregarACotizacion(
  * No incrementa cantidad si ya estaba (CTA «Solicitar cotización»).
  */
 export function asegurarProductoEnCotizacion(
-  item: Omit<CotizacionItem, 'cantidad'>
+  item: Omit<CotizacionItem, 'cantidad'>,
+  cantidad?: number
 ): CotizacionItem[] {
   const items = leer();
   if (items.some(i => i.slug === item.slug)) {
+    // Con cantidad explícita (ficha con selector) se respeta; sin ella no se incrementa.
+    const actualizados =
+      cantidad === undefined ? items : actualizarCantidadCotizacion(item.slug, cantidad);
     abrirCotizacion();
-    return items;
+    return actualizados;
   }
-  return agregarACotizacion(item);
+  return agregarACotizacion(item, cantidad ?? 1);
 }
 
 export function actualizarCantidadCotizacion(slug: string, cantidad: number): CotizacionItem[] {
@@ -100,7 +122,7 @@ export function actualizarCantidadCotizacion(slug: string, cantidad: number): Co
     items = items.filter(i => i.slug !== slug);
   } else {
     const existente = items.find(i => i.slug === slug);
-    if (existente) existente.cantidad = cantidad;
+    if (existente) existente.cantidad = normalizarCantidadCotizacion(cantidad);
   }
   return escribir(items);
 }

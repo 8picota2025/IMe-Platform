@@ -40,6 +40,7 @@ const config = {
     consentimiento: t(locale, 'cotizacion_equipos.consentimiento'),
     productosTitulo: t(locale, 'cotizacion_equipos.productos_titulo'),
     requerido: t(locale, 'cotizacion_equipos.requerido'),
+    ciudad: t(locale, 'cotizacion_equipos.ciudad'),
   },
   catalogoHref: locale === 'en' ? '/en/catalog/' : '/es/catalogo/',
 };
@@ -124,6 +125,10 @@ const config = {
       <div class="cotizacion-field">
         <label for="cotizacion-institucion">{config.i18n.institucion}</label>
         <input id="cotizacion-institucion" name="empresa" type="text" autocomplete="organization" />
+      </div>
+      <div class="cotizacion-field">
+        <label for="cotizacion-ciudad">{config.i18n.ciudad}</label>
+        <input id="cotizacion-ciudad" name="ciudad" type="text" autocomplete="address-level2" />
       </div>
       <div class="cotizacion-field">
         <label for="cotizacion-mensaje">{config.i18n.mensaje}</label>
@@ -248,7 +253,7 @@ const config = {
     flex-direction: column;
     gap: 0.75rem;
   }
-  .cotizacion-item {
+  .cotizacion-items :global(.cotizacion-item) {
     display: grid;
     grid-template-columns: 1fr auto;
     gap: 0.75rem;
@@ -256,18 +261,18 @@ const config = {
     padding-block-end: 0.75rem;
     border-bottom: 1px solid var(--border);
   }
-  .cotizacion-item__nombre {
+  .cotizacion-items :global(.cotizacion-item__nombre) {
     font-weight: 600;
     color: var(--ink);
     font-size: 0.875rem;
     margin: 0 0 0.4rem;
   }
-  .cotizacion-item__qty {
+  .cotizacion-items :global(.cotizacion-item__qty) {
     display: flex;
     align-items: center;
     gap: 0.4rem;
   }
-  .cotizacion-item__qty button {
+  .cotizacion-items :global(.cotizacion-item__qty button) {
     width: 26px;
     height: 26px;
     border-radius: 6px;
@@ -277,22 +282,22 @@ const config = {
     font-size: 1rem;
     line-height: 1;
   }
-  .cotizacion-item__qty button:hover {
+  .cotizacion-items :global(.cotizacion-item__qty button:hover) {
     background: var(--t50);
   }
-  .cotizacion-item__qty span {
+  .cotizacion-items :global(.cotizacion-item__qty span) {
     min-width: 1.5rem;
     text-align: center;
     font-size: 0.875rem;
   }
-  .cotizacion-item__remove {
+  .cotizacion-items :global(.cotizacion-item__remove) {
     border: none;
     background: transparent;
     color: var(--text-mid);
     cursor: pointer;
     padding: 0.25rem;
   }
-  .cotizacion-item__remove:hover {
+  .cotizacion-items :global(.cotizacion-item__remove:hover) {
     color: var(--t900);
   }
 
@@ -425,6 +430,7 @@ const config = {
     consentimiento: string;
     productosTitulo: string;
     requerido: string;
+    ciudad: string;
   }
 
   interface CotizacionConfig {
@@ -639,11 +645,16 @@ const config = {
           url: i.url,
           modelo: i.modelo,
         }));
-        const mensaje = resolverMensajeCotizacion({
+        const ciudad = String(data.get('ciudad') ?? '').trim();
+        const mensajeBase = resolverMensajeCotizacion({
           locale: config.locale,
           mensaje: String(data.get('mensaje') ?? ''),
           productos,
         });
+        const mensaje =
+          ciudad && mensajeBase.trim()
+            ? `${i18n.ciudad}: ${ciudad}\n\n${mensajeBase}`
+            : mensajeBase;
         if (!mensaje.trim()) {
           showEstado(
             config.locale === 'en'
@@ -675,6 +686,11 @@ const config = {
 
           if (resultado.ok) {
             showEstado(mensajeExitoCotizacion(config.locale, resultado.emails), 'exito');
+            emitAnalyticsEvent('quote_success', {
+              item_count: productos.reduce((acc, i) => acc + i.cantidad, 0),
+              product_count: productos.length,
+              price_mode: 'quote',
+            });
             vaciarCotizacion();
             formEl.reset();
             submitBtn.disabled = true;

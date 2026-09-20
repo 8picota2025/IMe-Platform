@@ -16,7 +16,8 @@
     "carrito": "Ver carrito de compra",
     "items_carrito": "productos en el carrito",
     "cotizacion": "Cotización",
-    "items_cotizacion": "equipos en la lista de cotización"
+    "items_cotizacion": "equipos en la lista de cotización",
+    "mi_cotizacion": "Mi cotización"
   },
   "hero": {
     "ver_catalogo": "Ver catálogo",
@@ -294,7 +295,8 @@
     "error": "Ocurrió un error. Intenta de nuevo.",
     "consentimiento": "Acepto el tratamiento de mis datos personales conforme a la Ley 1581 de 2012 (Habeas Data) y la política de privacidad.",
     "productos_titulo": "Productos seleccionados",
-    "requerido": "Campo requerido"
+    "requerido": "Campo requerido",
+    "ciudad": "Ciudad / departamento"
   },
   "pago": {
     "exito_titulo": "¡Pago confirmado!",
@@ -372,6 +374,19 @@
     "relacionados_titulo": "Productos relacionados",
     "cotizar_cta": "Solicitar cotización",
     "asesor_cta": "Hablar con un asesor",
+    "quote_precio_titulo": "Precio bajo cotización",
+    "quote_precio_desc": "Solicita precio y disponibilidad. Nuestro equipo comercial revisará tu solicitud.",
+    "quote_referencia": "Ref: {ref}",
+    "quote_cantidad": "Cantidad",
+    "quote_agregar": "Añadir a cotización",
+    "quote_solicitar_ahora": "Solicitar cotización ahora",
+    "quote_agregado_aviso": "Producto añadido a tu cotización.",
+    "quote_ver": "Ver mi cotización",
+    "quote_trust_factura": "Factura electrónica",
+    "quote_trust_datos": "Datos protegidos (Ley 1581 de 2012)",
+    "quote_ayuda": "¿Necesitas ayuda? Hablar con un asesor",
+    "quote_cantidad_disminuir": "Disminuir cantidad",
+    "quote_cantidad_aumentar": "Aumentar cantidad",
     "ficha_pdf": "Descargar ficha técnica (PDF)",
     "contacto_titulo": "¿Necesitas más información?",
     "contacto_desc": "Nuestro equipo comercial te ayuda a elegir el equipo adecuado y a preparar tu cotización.",

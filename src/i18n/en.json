@@ -16,7 +16,8 @@
     "carrito": "View shopping cart",
     "items_carrito": "products in cart",
     "cotizacion": "Quote",
-    "items_cotizacion": "equipment in quote list"
+    "items_cotizacion": "equipment in quote list",
+    "mi_cotizacion": "My quote"
   },
   "hero": {
     "ver_catalogo": "View catalog",
@@ -294,7 +295,8 @@
     "error": "An error occurred. Please try again.",
     "consentimiento": "I accept the processing of my personal data in accordance with Colombian Law 1581 of 2012 (Habeas Data) and the privacy policy.",
     "productos_titulo": "Selected products",
-    "requerido": "Required field"
+    "requerido": "Required field",
+    "ciudad": "City / state"
   },
   "pago": {
     "exito_titulo": "Payment confirmed!",
@@ -372,6 +374,19 @@
     "relacionados_titulo": "Related products",
     "cotizar_cta": "Request quote",
     "asesor_cta": "Talk to an advisor",
+    "quote_precio_titulo": "Price on request",
+    "quote_precio_desc": "Request price and availability. Our sales team will review your request.",
+    "quote_referencia": "Ref: {ref}",
+    "quote_cantidad": "Quantity",
+    "quote_agregar": "Add to quote",
+    "quote_solicitar_ahora": "Request a quote now",
+    "quote_agregado_aviso": "Product added to your quote.",
+    "quote_ver": "View my quote",
+    "quote_trust_factura": "Electronic invoicing",
+    "quote_trust_datos": "Data protected (Law 1581 of 2012)",
+    "quote_ayuda": "Need help? Talk to an advisor",
+    "quote_cantidad_disminuir": "Decrease quantity",
+    "quote_cantidad_aumentar": "Increase quantity",
     "ficha_pdf": "Download data sheet (PDF)",
     "contacto_titulo": "Need more information?",
     "contacto_desc": "Our sales team can help you choose the right equipment and prepare your quote.",
