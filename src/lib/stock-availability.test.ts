@@ -28,8 +28,13 @@ describe('simularReservaConcurrente — última unidad', () => {
 });
 
 describe('pedidoDebeLiberarReserva', () => {
-  it('libera en estados terminales no pagados', () => {
-    expect(pedidoDebeLiberarReserva('rechazado')).toBe(true);
+  it('libera solo abandono definitivo (cancelado/expirado), no decline', () => {
+    // Wompi allows multiple txs per reference and prefers APPROVED. Liberating
+    // on DECLINED left consumir=0 on later APPROVED → oversell + dropship.
+    expect(pedidoDebeLiberarReserva('rechazado')).toBe(false);
+    expect(pedidoDebeLiberarReserva('error_verificacion')).toBe(false);
+    expect(pedidoDebeLiberarReserva('cancelado')).toBe(true);
+    expect(pedidoDebeLiberarReserva('expirado')).toBe(true);
     expect(pedidoDebeLiberarReserva('pagado')).toBe(false);
     expect(pedidoDebeLiberarReserva('pendiente')).toBe(false);
   });

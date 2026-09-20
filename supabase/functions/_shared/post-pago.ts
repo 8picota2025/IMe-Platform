@@ -7,7 +7,7 @@ import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 import { enviarEmailPlantilla, DESTINATARIOS_INTERNOS, escapeHtml, itemsToHtml } from './email.ts';
 import { pushPagoToTwenty } from './twenty-commerce-sync.ts';
 import {
-  consumirReservasPedido,
+  asegurarConsumoStockPedido,
   liberarReservasPedido,
   pedidoDebeLiberarReserva,
 } from './stock-reservas.ts';
@@ -15,6 +15,12 @@ import { getServerSupabase } from './supabase-server.ts';
 
 interface PedidoItem {
   producto_id: string;
+  cantidad?: number;
+}
+
+export interface RegistrarPedidoPagadoResult {
+  /** false → no notificar dropship (oversell risk); el pago sigue confirmado. */
+  stockOk: boolean;
 }
 
 /** Notificacion centralizada de estado. Best-effort; no bloquea pagos/webhooks. */
@@ -118,20 +124,25 @@ export async function registrarPedidoPagado(
   provider: ProveedorPagoConfirmado,
   eventId: string,
   options?: { deEstado?: string; skipClienteEmail?: boolean }
-): Promise<void> {
+): Promise<RegistrarPedidoPagadoResult> {
   const deEstado = options?.deEstado ?? 'pendiente';
   const { data: pedido, error } = await supabase
     .from('pedidos')
-    .select('id, cliente_id, total')
+    .select('id, cliente_id, total, items, metadata')
     .eq('id', pedidoId)
     .maybeSingle();
 
   if (error) {
     console.error('registrarPedidoPagado: error consultando pedido', error.message);
-    return;
+    return { stockOk: false };
   }
 
-  const row = pedido as { cliente_id?: string | null; total?: number | string | null } | null;
+  const row = pedido as {
+    cliente_id?: string | null;
+    total?: number | string | null;
+    items?: PedidoItem[] | null;
+    metadata?: Record<string, unknown> | null;
+  } | null;
   if (row?.cliente_id) {
     const { data: cliente } = await supabase
       .from('clientes')
@@ -160,10 +171,31 @@ export async function registrarPedidoPagado(
     metadata: { provider, event_id: eventId },
   });
 
-  // Reserva → venta definitiva (idempotente a nivel de filas 'activa').
-  const consumidas = await consumirReservasPedido(supabase, pedidoId);
-  if (consumidas > 0) {
-    console.info('registrarPedidoPagado: stock consumido', { pedidoId, consumidas });
+  // Reserva → venta definitiva. Si el hold ya se liberó (TTL / decline legacy),
+  // re-reserva antes de autorizar dropship.
+  const stock = await asegurarConsumoStockPedido(supabase, pedidoId, row?.items ?? []);
+  if (stock.ok && stock.consumidas > 0) {
+    console.info('registrarPedidoPagado: stock consumido', {
+      pedidoId,
+      consumidas: stock.consumidas,
+      motivo: stock.motivo,
+    });
+  } else if (!stock.ok) {
+    console.error('registrarPedidoPagado: stock no asegurado', {
+      pedidoId,
+      motivo: stock.motivo,
+    });
+    await supabase
+      .from('pedidos')
+      .update({
+        metadata: {
+          ...(row?.metadata ?? {}),
+          stock_deficit: true,
+          stock_deficit_motivo: stock.motivo,
+          stock_deficit_at: new Date().toISOString(),
+        },
+      })
+      .eq('id', pedidoId);
   }
 
   const { data: pedidoFiscal } = await supabase
@@ -205,6 +237,7 @@ export async function registrarPedidoPagado(
   });
   await marcarCarritoConvertido(supabase, pedidoId);
   void pushPagoToTwenty(supabase, pedidoId, provider);
+  return { stockOk: stock.ok };
 }
 
 async function marcarCarritoConvertido(supabase: SupabaseClient, pedidoId: string): Promise<void> {

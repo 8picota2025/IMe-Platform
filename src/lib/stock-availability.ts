@@ -29,11 +29,15 @@ export function simularReservaConcurrente(stockDisponible: number, demandas: num
   });
 }
 
+/**
+ * Liberar hold solo en abandono definitivo.
+ * `rechazado` / `error_verificacion` NO liberan: Wompi (y similares) permiten
+ * reintentos con la misma referencia; si liberamos al DECLINED y luego llega
+ * APPROVED, `consumir_stock_reservas_pedido` no encuentra filas `activa` y el
+ * pedido queda pagado + dropship sin decrementar stock (oversell).
+ * Holds de decline quedan hasta TTL (`liberar_stock_reservas_expiradas`) o
+ * cancelación explícita.
+ */
 export function pedidoDebeLiberarReserva(estado: string): boolean {
-  return (
-    estado === 'rechazado' ||
-    estado === 'expirado' ||
-    estado === 'cancelado' ||
-    estado === 'error_verificacion'
-  );
+  return estado === 'expirado' || estado === 'cancelado';
 }

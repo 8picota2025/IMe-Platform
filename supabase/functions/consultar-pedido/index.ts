@@ -118,8 +118,17 @@ Deno.serve(async req => {
           return internalError(`error reclamando pago confirmado: ${claim.error}`, origin);
         }
         if (claim.claimed) {
-          await registrarPedidoPagado(supabase, pedido.id, 'wompi', syntheticEventId);
-          await notificarFulfillmentDropship(supabase, pedido.id, pedido.items ?? []);
+          const pagado = await registrarPedidoPagado(
+            supabase,
+            pedido.id,
+            'wompi',
+            syntheticEventId
+          );
+          if (pagado.stockOk) {
+            await notificarFulfillmentDropship(supabase, pedido.id, pedido.items ?? []);
+          } else {
+            console.error('consultar-pedido: skip dropship por stock_deficit', pedido.id);
+          }
         }
       } else {
         const { data: actualizado, error: actualizarError } = await supabase
