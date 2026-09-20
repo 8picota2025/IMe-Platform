@@ -23,7 +23,7 @@
   --ink: #0b1b22;
   --text: #1d3a47;
   --text-mid: #456070;
-  --text-muted: #7a9bab;
+  --text-muted: #4d6e7e;
   --border: rgba(15, 76, 92, 0.1);
   --border-mid: rgba(15, 76, 92, 0.18);
   --shadow-sm: 0 2px 12px rgba(15, 76, 92, 0.08);
@@ -200,6 +200,22 @@
   height: 1.5px;
   background: var(--green);
 }
+@media (max-width: 640px) {
+  .site-faithful .hero-kicker {
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 12px;
+    line-height: 1.5;
+    letter-spacing: 1.5px;
+    margin-bottom: 20px;
+  }
+  .site-faithful .hero-kicker::before {
+    display: none;
+  }
+  .site-faithful .hero-kicker i {
+    margin-top: 0.4em;
+  }
+}
 .site-faithful .hero-title {
   font-family: 'Sora', sans-serif;
   font-size: clamp(40px, 5vw, 78px);
@@ -263,7 +279,7 @@
 }
 .site-faithful .stat-l {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.72);
   letter-spacing: 1px;
   text-transform: uppercase;
   margin-top: 5px;
@@ -343,7 +359,7 @@
   color: white;
 }
 .site-faithful .feature-row-content .s-label {
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 255, 255, 0.78);
   margin-bottom: 14px;
 }
 .site-faithful .feature-row-content h3 {
@@ -410,7 +426,7 @@
   font-weight: 700;
   letter-spacing: 2.5px;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(255, 255, 255, 0.78);
 }
 .site-faithful .marquee-item i {
   color: var(--green);
@@ -508,7 +524,7 @@
   background: var(--green);
 }
 .site-faithful .s-label-white {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.78);
 }
 .site-faithful .s-label-white::before {
   background: var(--green);
@@ -532,7 +548,7 @@
   line-height: 1.75;
 }
 .site-faithful .s-sub-white {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.78);
 }
 .site-faithful .s-header {
   margin-bottom: 40px;
@@ -649,7 +665,7 @@
 .site-faithful .mv-card:hover::before {
   transform: scaleX(1);
 }
-.site-faithful .mv-card h4 {
+.site-faithful .mv-card h3 {
   font-family: 'Sora', sans-serif;
   font-size: 13px;
   font-weight: 700;
@@ -1163,7 +1179,7 @@
 }
 .site-faithful .cta-sub {
   font-size: 17px;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.78);
   position: relative;
   z-index: 1;
   max-width: 520px;

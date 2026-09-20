@@ -33,7 +33,7 @@
   --ink: #0b1b22;
   --text: #1d3a47;
   --text-mid: #456070;
-  --text-muted: #7a9bab;
+  --text-muted: #4d6e7e;
 
   /* Footer: siempre oscuro (independiente del tema), igual al sitio real */
   --footer-bg: #0b1b22;
@@ -71,7 +71,7 @@
   --step-2: clamp(1.5rem, 1.39rem + 0.55vw, 2rem);
   --step-3: clamp(1.875rem, 1.7rem + 0.88vw, 2.625rem);
   --step-4: clamp(2.375rem, 2.1rem + 1.38vw, 3.5rem);
-  --step-5: clamp(3rem, 2.6rem + 2vw, 5rem);
+  --step-5: clamp(2rem, 1rem + 4.4vw, 5rem);
 
   /* Espaciado */
   --space-xs: 0.5rem;
@@ -111,7 +111,7 @@
   --ink: #e6eff3;
   --text: #c8dde6;
   --text-mid: #8db0c0;
-  --text-muted: #4a7080;
+  --text-muted: #7a9db0;
   --border: rgba(126, 200, 219, 0.12);
   --border-mid: rgba(126, 200, 219, 0.22);
   --shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.3);
@@ -209,8 +209,8 @@ h4 {
 
 p {
   margin-block-end: 1rem;
-  text-align: justify;
-  hyphens: auto;
+  text-align: start;
+  hyphens: manual;
   overflow-wrap: break-word;
 }
 

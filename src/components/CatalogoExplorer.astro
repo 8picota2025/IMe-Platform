@@ -87,6 +87,12 @@ const pagePath = (targetPage: number) =>
   >
   </div>
 
+  <!-- El cliente fuerza la vista de listado en la página estática (catalogo-cliente.ts, `staticPage`);
+       se anticipa antes del primer pintado para que la sección de categorías no salte al hidratar. -->
+  <script is:inline>
+    document.documentElement.setAttribute('data-catalogo-grid', '');
+  </script>
+
   <!-- Vista familias (overview) -->
   <section id="vista-familias" aria-labelledby="familias-heading">
     <div class="catalogo__familias-header">
@@ -453,6 +459,12 @@ const pagePath = (targetPage: number) =>
   </div>
 </dialog>
 
+<style is:global>
+  html[data-catalogo-grid] #vista-familias {
+    display: none;
+  }
+</style>
+
 <style>
   .sr-only {
     position: absolute;
@@ -479,7 +491,12 @@ const pagePath = (targetPage: number) =>
 
   /* Buscador */
   .catalogo__buscador {
-    margin-block-end: var(--space-lg);
+    margin-block-end: var(--space-sm);
+  }
+  @media (min-width: 900px) {
+    .catalogo__buscador {
+      margin-block-end: var(--space-lg);
+    }
   }
   .catalogo__buscar-input {
     width: 100%;
@@ -856,7 +873,7 @@ const pagePath = (targetPage: number) =>
       box-shadow: var(--shadow-md);
       padding: var(--space-md);
       overflow-y: auto;
-      z-index: 95;
+      z-index: 121; /* por encima de la cabecera fija (z-index 100) para que su ✕ sea pulsable */
       transform: translateX(-100%);
       transition: transform 260ms var(--ease);
     }
@@ -868,24 +885,7 @@ const pagePath = (targetPage: number) =>
       inset: 0;
       background: rgba(10, 24, 28, 0.42);
       backdrop-filter: blur(1.5px);
-      z-index: 94;
-    }
-    .catalogo__toolbar {
-      flex-direction: column;
-      align-items: stretch;
-    }
-    .catalogo__toolbar-meta {
-      width: 100%;
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0.65rem;
-    }
-    .catalogo__orden {
-      justify-content: space-between;
-      width: 100%;
-    }
-    .catalogo__orden-select {
-      width: 100%;
+      z-index: 120;
     }
   }
   @media (min-width: 900px) {
@@ -938,6 +938,41 @@ const pagePath = (targetPage: number) =>
     margin: 0;
     font-size: 0.875rem;
     color: var(--text-mid);
+  }
+  @media (max-width: 899px) {
+    /* Móvil: filtros + orden en una sola fila; contador debajo (el producto sube al primer pantallazo) */
+    .catalogo__toolbar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: stretch;
+      gap: 0.5rem;
+    }
+    .catalogo__filtros-toggle {
+      width: 100%;
+      min-height: 44px;
+    }
+    .catalogo__toolbar-meta {
+      display: contents;
+    }
+    .catalogo__orden {
+      width: 100%;
+    }
+    .catalogo__orden-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+    .catalogo__orden-select {
+      width: 100%;
+      min-width: 0;
+      min-height: 44px;
+    }
+    .catalogo__contador {
+      grid-column: 1 / -1;
+    }
   }
   .productos__grid {
     display: grid;

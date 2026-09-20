@@ -476,7 +476,6 @@ export function initCatalogo(locale: Locale): () => void {
     const link = document.createElement('a');
     link.className = 'producto-card__link';
     link.href = href;
-    link.setAttribute('aria-label', `${t(locale, 'catalogo.ver_detalle')}: ${item.nombre}`);
     const image = document.createElement('img');
     image.className = 'producto-card__img';
     image.src = imagen;
@@ -822,6 +821,8 @@ export function initCatalogo(locale: Locale): () => void {
     const mostrarGrid = shouldShowGrid(state);
 
     if (familiasView) familiasView.hidden = mostrarGrid;
+    // A partir de aquí manda el atributo `hidden`; se retira la pre-decisión de CatalogoExplorer.
+    document.documentElement.removeAttribute('data-catalogo-grid');
     if (grid) grid.hidden = !mostrarGrid;
     if (mostrarGrid) setFiltrosPanelOpen(false);
 
