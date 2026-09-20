@@ -209,8 +209,8 @@ h4 {
 
 p {
   margin-block-end: 1rem;
-  text-align: justify;
-  hyphens: auto;
+  text-align: start;
+  hyphens: manual;
   overflow-wrap: break-word;
 }
 

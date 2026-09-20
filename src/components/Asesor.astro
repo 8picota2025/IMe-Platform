@@ -88,10 +88,11 @@ const asesorConfig = {
   <span class="asesor-fab__label">{locale === 'es' ? 'IMEIA Ayuda' : 'IMEIA Help'}</span>
 </button>
 
-<!-- Panel del asesor: visible desde la primera visita -->
+<!-- Panel del asesor: cerrado por defecto; se abre desde el botón flotante -->
 <aside
   id="asesor-dialog"
   class="asesor-dialog"
+  hidden
   role="complementary"
   aria-label={t(locale, 'asesor.titulo')}
   data-asesor-config={JSON.stringify(asesorConfig)}
@@ -736,7 +737,8 @@ const asesorConfig = {
 
   let abortController: AbortController | null = null;
   let asesorTurnstileContainer: HTMLElement | null = null;
-  const ASESOR_DISMISSED_KEY = 'ime_asesor_dismissed';
+  // El asesor nace cerrado: solo se reabre si el usuario lo abrió antes en esta sesión.
+  const ASESOR_OPENED_KEY = 'ime_asesor_opened';
 
   function initAsesor() {
     const trigger = document.getElementById('asesor-trigger');
@@ -1360,7 +1362,7 @@ const asesorConfig = {
       resetTransientUiState();
       dialog.removeAttribute('hidden');
       trigger.setAttribute('aria-expanded', 'true');
-      if (rememberOpen) sessionStorage.removeItem(ASESOR_DISMISSED_KEY);
+      if (rememberOpen) sessionStorage.setItem(ASESOR_OPENED_KEY, '1');
 
       if (!localInitialized) {
         localInitialized = true;
@@ -1381,7 +1383,7 @@ const asesorConfig = {
       if (!dialog || !trigger) return;
       dialog.setAttribute('hidden', '');
       trigger.setAttribute('aria-expanded', 'false');
-      sessionStorage.setItem(ASESOR_DISMISSED_KEY, '1');
+      sessionStorage.removeItem(ASESOR_OPENED_KEY);
       trigger.focus();
     }
 
@@ -1435,11 +1437,11 @@ const asesorConfig = {
       { signal }
     );
 
-    if (sessionStorage.getItem(ASESOR_DISMISSED_KEY) === '1') {
+    if (sessionStorage.getItem(ASESOR_OPENED_KEY) === '1') {
+      void openDialog(false, false);
+    } else {
       dialog.setAttribute('hidden', '');
       trigger.setAttribute('aria-expanded', 'false');
-    } else {
-      void openDialog(false, false);
     }
   }
 
