@@ -45,14 +45,31 @@ const imagenProducto = producto.imagen_principal ?? '/assets/img-placeholder.svg
 const heroImageAvif = getOptimizedImageUrl(imagenes[0], 960, 'avif', 80);
 const heroImageWebp = getOptimizedImageUrl(imagenes[0], 960, 'webp', 80);
 const heroImageTransformable = isSupabaseStorageImage(imagenes[0]);
+const monogramIniciales = (() => {
+  const parts = producto.nombre
+    .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+    .split(/\s+/)
+    .filter(Boolean);
+  const letters = parts
+    .slice(0, 2)
+    .map(p => p[0]?.toUpperCase() ?? '')
+    .join('');
+  return letters || 'IME';
+})();
 const imagenFallback =
   'data:image/svg+xml;charset=UTF-8,' +
   encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" role="img" aria-label="${producto.nombre}">
-      <rect width="640" height="480" fill="#f3f6f8"/>
-      <rect x="32" y="32" width="576" height="416" rx="24" fill="#ffffff" stroke="#d6e0e8"/>
-      <path d="M220 286h200" stroke="#c0ccd6" stroke-width="12" stroke-linecap="round"/>
-      <path d="M260 254l52 52 70-88 70 88" fill="none" stroke="#90a4b3" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" role="img" aria-label="${producto.nombre}">
+      <defs>
+        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#F0F6F8"/>
+          <stop offset="100%" stop-color="#E6EFF3"/>
+        </linearGradient>
+      </defs>
+      <rect width="640" height="640" fill="url(#g)"/>
+      <circle cx="320" cy="300" r="92" fill="#FFFFFF" stroke="rgba(15,76,92,0.12)" stroke-width="2"/>
+      <text x="320" y="318" text-anchor="middle" font-family="Sora,Inter,system-ui,sans-serif" font-size="56" font-weight="800" fill="#0F4C5C">${monogramIniciales}</text>
+      <text x="320" y="430" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="18" font-weight="600" fill="#456070">I-ME</text>
     </svg>`
   );
 
@@ -238,6 +255,7 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
                     class="pdp-gallery__thumb"
                     data-galeria-index={index}
                     data-pdp-thumb
+                    aria-current={index === 0 ? 'true' : undefined}
                     aria-label={`${t(locale, 'producto.galeria_abrir')}: ${producto.nombre} ${index + 1}/${imagenes.length}`}
                   >
                     <img
@@ -287,21 +305,30 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
               <p class="pdp-identity__desc">{producto.descripcion_corta}</p>
             )
           }
-          <ul class="pdp-identity__attrs" role="list">
+          <ul class="pdp-identity__trust" role="list">
             <li>
-              <span class="pdp-identity__attr-label">{t(locale, 'producto.ficha_modalidad')}</span>
-              <span>{modalidadTexto}</span>
+              <span
+                class:list={[
+                  'pdp-identity__trust-dot',
+                  { 'pdp-identity__trust-dot--no': !disponibleParaMostrar },
+                ]}
+                aria-hidden="true"></span>
+              <span>{disponibilidadTexto}</span>
             </li>
             {
               producto.marca && (
                 <li>
-                  <span class="pdp-identity__attr-label">
-                    {locale === 'en' ? 'Brand' : 'Marca'}
+                  <span class="pdp-identity__trust-mark" aria-hidden="true" />
+                  <span>
+                    {locale === 'en' ? 'Brand' : 'Marca'} {producto.marca}
                   </span>
-                  <span>{producto.marca}</span>
                 </li>
               )
             }
+            <li>
+              <span class="pdp-identity__trust-mark" aria-hidden="true"></span>
+              <span>{modalidadTexto}</span>
+            </li>
           </ul>
           <label class="producto-landing__compare">
             <input type="checkbox" id="comparador-toggle" data-compare-slug={producto.slug} />
@@ -320,22 +347,26 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
               data-price-mode="commerce"
               data-stock-max={stockMax}
             >
-              <p
-                class:list={[
-                  'product-purchase-panel__availability',
-                  { 'product-purchase-panel__availability--no': !disponibleParaMostrar },
-                ]}
-              >
-                <span class="product-purchase-panel__dot" aria-hidden="true" />
-                {disponibilidadTexto}
-              </p>
-              <p class="product-purchase-panel__price-label">
-                {t(locale, 'producto.commerce_precio_label')}
-              </p>
-              <p class="product-purchase-panel__price">
-                {precioFormateado}
-                <small>{producto.moneda ?? 'COP'}</small>
-              </p>
+              <div class="product-purchase-panel__price-row">
+                <div>
+                  <p class="product-purchase-panel__price-label">
+                    {t(locale, 'producto.commerce_precio_label')}
+                  </p>
+                  <p class="product-purchase-panel__price">
+                    {precioFormateado}
+                    <small>{producto.moneda ?? 'COP'}</small>
+                  </p>
+                </div>
+                <p
+                  class:list={[
+                    'product-purchase-panel__availability',
+                    { 'product-purchase-panel__availability--no': !disponibleParaMostrar },
+                  ]}
+                >
+                  <span class="product-purchase-panel__dot" aria-hidden="true" />
+                  {disponibilidadTexto}
+                </p>
+              </div>
               <p class="product-purchase-panel__price-notice">
                 {t(locale, 'producto.iva_incluido')} · {t(locale, 'producto.envio_no_incluido')}
               </p>
@@ -647,13 +678,11 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
               ))}
             </div>
             {producto.beneficios.length > 0 && (
-              <ul class="beneficios__grid" role="list" style="margin-top:1.25rem">
+              <ul class="pdp-desc-highlights" role="list">
                 {producto.beneficios.map(beneficio => (
-                  <li class="beneficios__card">
-                    <span class="beneficios__icono" aria-hidden="true">
-                      ✓
-                    </span>
-                    <p>{beneficio}</p>
+                  <li>
+                    <span aria-hidden="true">✓</span>
+                    <span>{beneficio}</span>
                   </li>
                 ))}
               </ul>
@@ -789,7 +818,7 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
         </p>
         <a
           href={whatsappHref}
-          class="btn-pdp btn-pdp--primary"
+          class="btn-pdp btn-pdp--ghost"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -807,7 +836,7 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
             </p>
             <a
               href={locale === 'en' ? '/en/contact/' : '/es/contacto/'}
-              class="btn-pdp btn-pdp--secondary"
+              class="btn-pdp btn-pdp--ghost"
             >
               {locale === 'en' ? 'Quote project' : 'Cotizar proyecto'}
             </a>
@@ -952,10 +981,16 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
           <p class="cta-sticky__precio">{t(locale, 'producto.quote_precio_titulo')}</p>
           <button
             type="button"
-            class="quote-btn quote-btn--primary quote-btn--compact"
-            data-quote-sticky-add
+            class="quote-btn quote-btn--secondary quote-btn--compact"
+            data-ensure-cotizacion={producto.slug}
+            data-nombre={producto.nombre}
+            data-imagen={imagenProducto}
+            data-url={productUrl}
+            data-modelo={modelo ?? ''}
+            data-marca={producto.marca ?? ''}
+            data-cantidad-desde="#quote-qty-input"
           >
-            {t(locale, 'producto.quote_agregar')}
+            {t(locale, 'producto.quote_solicitar_ahora')}
           </button>
         </div>
       </div>
@@ -1402,24 +1437,25 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
   }
 
   /* Aplicaciones clínicas */
-  .aplicaciones__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 0.85rem;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
   .aplicaciones__item {
     display: flex;
     align-items: flex-start;
     gap: 0.65rem;
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 0.9rem 1.1rem;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    border-radius: 0;
+    padding: 0.75rem 0;
     font-size: 0.92rem;
     color: var(--ink);
+  }
+  .aplicaciones__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    list-style: none;
+    margin: 0;
+    padding: 0;
   }
   .aplicaciones__icono {
     color: var(--blue);
@@ -1531,10 +1567,13 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
   }
   .pdp-tabs {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 0.25rem 1.25rem;
     border-bottom: 1px solid var(--border);
     margin-bottom: 1.25rem;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
   }
   .pdp-tabs__tab {
     appearance: none;
@@ -1547,6 +1586,8 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
     font-weight: 700;
     color: var(--text-mid);
     cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
   .pdp-tabs__tab[aria-selected='true'] {
     color: var(--t700, #0f5a6d);
@@ -1562,11 +1603,12 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
   .pdp-assist-card {
     display: grid;
     gap: 0.75rem;
-    padding: 1.15rem;
-    border: 1px solid var(--border);
-    border-radius: 1rem;
-    background: var(--white);
-    margin-bottom: 1rem;
+    padding: 1.15rem 0 0;
+    border: none;
+    border-top: 1px solid var(--border);
+    border-radius: 0;
+    background: transparent;
+    margin-bottom: 1.25rem;
   }
   .pdp-assist-card h2 {
     margin: 0;
@@ -1579,7 +1621,26 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
     line-height: 1.45;
   }
   .pdp-assist-card--muted {
-    background: #f4f7f9;
+    background: transparent;
+  }
+  .pdp-desc-highlights {
+    list-style: none;
+    margin: 1.25rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0.55rem;
+  }
+  .pdp-desc-highlights li {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    color: var(--text);
+  }
+  .pdp-desc-highlights li > span:first-child {
+    color: var(--t800);
+    font-weight: 800;
   }
 
   .producto-landing > .section {
@@ -1593,36 +1654,83 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
     padding-block: 0.75rem 1.5rem;
     color: var(--ink);
   }
+  @media (prefers-reduced-motion: no-preference) {
+    .pdp-gallery,
+    .pdp-identity,
+    .product-purchase-panel,
+    .quote-card {
+      animation: pdp-rise 360ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .pdp-identity {
+      animation-delay: 40ms;
+    }
+    .product-purchase-panel,
+    .quote-card {
+      animation-delay: 80ms;
+    }
+  }
+  @keyframes pdp-rise {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
   .pdp-top__grid {
     display: grid;
     gap: 1.5rem 2rem;
     align-items: start;
   }
-  .pdp-buy--commerce {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-    min-width: 0;
-  }
-  .pdp-buy--quote {
-    display: contents;
-  }
-  .pdp-gallery {
-    min-width: 0;
-  }
-  .pdp-identity {
-    min-width: 0;
-  }
-
-  /* Mobile: stack */
+  /* Mobile: stack identity → gallery → purchase/quote (no gallery-first) */
   .pdp-top__grid--commerce,
   .pdp-top__grid--quote {
     grid-template-columns: 1fr;
   }
+  .pdp-buy--commerce {
+    display: contents;
+  }
+  .pdp-buy--quote {
+    display: contents;
+  }
+  .pdp-gallery,
+  .pdp-identity {
+    min-width: 0;
+  }
+  .pdp-top__grid--commerce .pdp-identity,
+  .pdp-top__grid--quote .pdp-identity {
+    order: 1;
+  }
+  .pdp-top__grid--commerce .pdp-gallery,
+  .pdp-top__grid--quote .pdp-gallery {
+    order: 2;
+  }
+  .pdp-top__grid--commerce .product-purchase-panel,
+  .pdp-top__grid--quote .quote-card {
+    order: 3;
+  }
 
   @media (min-width: 900px) {
+    .pdp-buy--commerce {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      min-width: 0;
+      order: initial;
+    }
+    .pdp-top__grid--commerce .pdp-identity,
+    .pdp-top__grid--commerce .pdp-gallery,
+    .pdp-top__grid--commerce .product-purchase-panel,
+    .pdp-top__grid--quote .pdp-identity,
+    .pdp-top__grid--quote .pdp-gallery,
+    .pdp-top__grid--quote .quote-card {
+      order: initial;
+    }
     .pdp-top__grid--commerce {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 0.95fr);
+      grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+      gap: 1.75rem 2.5rem;
     }
     .pdp-top__grid--quote {
       grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
@@ -1664,7 +1772,9 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
     position: relative;
     aspect-ratio: 1 / 1;
     max-height: min(560px, 70vh);
-    background: var(--white);
+    background:
+      radial-gradient(ellipse at 30% 20%, rgba(126, 217, 87, 0.06), transparent 55%),
+      linear-gradient(160deg, #f0f6f8 0%, #ffffff 48%, #eef3f6 100%);
     border: 1px solid var(--border);
     border-radius: 1rem;
     overflow: hidden;
@@ -1672,6 +1782,7 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
     place-items: center;
     height: auto;
     min-height: 0;
+    box-shadow: 0 1px 0 rgba(15, 76, 92, 0.04);
   }
   .pdp-highlights {
     list-style: none;
@@ -1734,6 +1845,11 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
     overflow: hidden;
     cursor: pointer;
   }
+  .pdp-gallery__thumb[aria-current='true'],
+  .pdp-gallery__thumb.is-active {
+    border-color: var(--t700);
+    box-shadow: 0 0 0 2px rgba(26, 95, 110, 0.2);
+  }
   .pdp-gallery__thumb img {
     width: 100%;
     height: 100%;
@@ -1758,10 +1874,12 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
   }
   .pdp-identity h1 {
     margin: 0 0 0.75rem;
-    color: var(--ink);
-    font-size: clamp(1.65rem, 2.8vw, 2.35rem);
+    color: var(--t900, #0f4c5c);
+    font-family: var(--font-display);
+    font-size: clamp(1.65rem, 2.8vw, 2.45rem);
     line-height: 1.18;
     font-weight: 800;
+    letter-spacing: -0.02em;
   }
   .pdp-identity__desc {
     margin: 0 0 1rem;
@@ -1769,89 +1887,107 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
     line-height: 1.6;
     max-width: 52ch;
   }
-  .pdp-identity__attrs {
+  .pdp-identity__trust {
     list-style: none;
-    margin: 0 0 1rem;
+    margin: 0 0 0.85rem;
     padding: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0.55rem 1.15rem;
   }
-  .pdp-identity__attrs li {
+  .pdp-identity__trust li {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    font-size: 0.86rem;
-    padding: 0.45rem 0.75rem;
-    border-radius: 999px;
-    background: #eef3f6;
-    border: 1px solid var(--border);
-    color: var(--ink);
-  }
-  .pdp-identity__attr-label {
-    color: var(--text-mid);
+    font-size: 0.88rem;
+    color: var(--text);
     font-weight: 600;
   }
-  .pdp-identity__attr-label::after {
-    content: ':';
+  .pdp-identity__trust-dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 0 3px var(--green-pale);
+    flex-shrink: 0;
+  }
+  .pdp-identity__trust-dot--no {
+    background: var(--text-mid);
+    box-shadow: none;
+  }
+  .pdp-identity__trust-mark {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 2px;
+    background: var(--t100);
+    border: 1px solid var(--border-mid);
+    flex-shrink: 0;
   }
   .producto-landing__compare {
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
     color: var(--text-mid);
-    font-size: 0.9rem;
+    font-size: 0.86rem;
+    margin-top: 0.15rem;
   }
 
   .product-purchase-panel {
     display: flex;
     flex-direction: column;
     gap: 0.95rem;
-    padding: 1.35rem 1.4rem 1.5rem;
-    border-radius: 1rem;
-    background: var(--white);
-    border: 1px solid var(--border);
-    box-shadow: 0 10px 28px rgba(15, 45, 60, 0.08);
-    min-width: 0;
-  }
-  .pdp-buy--commerce .product-purchase-panel {
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
     border: none;
     box-shadow: none;
-    padding: 0;
-    background: transparent;
+    min-width: 0;
+  }
+  .product-purchase-panel__price-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0.75rem 1.25rem;
   }
   .product-purchase-panel__availability {
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
     margin: 0;
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    background: var(--green-pale);
     font-weight: 700;
+    font-size: 0.82rem;
     color: var(--ink);
   }
+  .product-purchase-panel__availability--no {
+    background: var(--off2);
+  }
   .product-purchase-panel__dot {
-    width: 0.6rem;
-    height: 0.6rem;
+    width: 0.55rem;
+    height: 0.55rem;
     border-radius: 50%;
     background: var(--green);
-    box-shadow: 0 0 0 3px var(--green-pale);
   }
   .product-purchase-panel__availability--no .product-purchase-panel__dot {
     background: var(--text-mid);
-    box-shadow: none;
   }
   .product-purchase-panel__price-label {
-    margin: 0;
-    font-size: 0.85rem;
+    margin: 0 0 0.2rem;
+    font-size: 0.8rem;
     color: var(--text-mid);
   }
   .product-purchase-panel__price {
     margin: 0;
     font-family: var(--font-display);
-    font-size: clamp(2.35rem, 5vw, 3.15rem);
+    font-size: clamp(1.85rem, 3vw, 2.5rem);
     font-weight: 800;
-    line-height: 0.95;
+    line-height: 1.05;
     letter-spacing: -0.02em;
-    color: var(--t900, #093b4b);
+    color: var(--t900, #0f4c5c);
+    font-variant-numeric: tabular-nums;
   }
   .product-purchase-panel__price small {
     margin-inline-start: 0.35rem;
@@ -1904,9 +2040,9 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 52px;
+    min-height: 48px;
     width: 100%;
-    border-radius: 0.65rem;
+    border-radius: 14px;
     font-weight: 800;
     font-size: 1rem;
     letter-spacing: 0.01em;
@@ -1917,7 +2053,7 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
   }
   .btn-pdp--primary {
     background: #7ed957;
-    color: #0a2a1a;
+    color: #0f4c5c;
   }
   .btn-pdp--primary:hover {
     filter: brightness(0.97);
@@ -1930,9 +2066,31 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
   .btn-pdp--secondary:hover {
     filter: brightness(1.06);
   }
+  .btn-pdp--ghost {
+    background: transparent;
+    color: var(--t800);
+    border: 1.5px solid var(--border-mid);
+  }
+  .btn-pdp--ghost:hover {
+    background: var(--t50);
+  }
   .btn-pdp:focus-visible {
     outline: 2px solid var(--t700);
     outline-offset: 2px;
+  }
+  .btn-pdp,
+  .quote-btn,
+  .commerce-stepper button,
+  .quote-stepper__btn {
+    transition:
+      background 180ms var(--ease),
+      filter 180ms var(--ease),
+      border-color 180ms var(--ease),
+      transform 150ms var(--ease);
+  }
+  .btn-pdp:active:not(:disabled),
+  .quote-btn:active:not(:disabled) {
+    transform: translateY(1px);
   }
   .product-purchase-panel__payments,
   .product-purchase-panel__trust {
@@ -2056,13 +2214,13 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
   .quote-card {
     display: flex;
     flex-direction: column;
-    gap: 0.85rem;
-    padding: 1.25rem;
-    border-radius: var(--radius-lg);
+    gap: 0.95rem;
+    padding: 1.35rem 1.4rem;
+    border-radius: 1rem;
     background: var(--white);
     color: var(--ink);
     border: 1px solid var(--border);
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 2px 12px rgba(15, 76, 92, 0.05);
     min-width: 0;
   }
   .quote-card__meta {
@@ -2099,10 +2257,12 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
   .quote-card__precio {
     margin: 0;
     font-family: var(--font-display);
-    font-size: 1.5rem;
-    font-weight: 700;
-    line-height: 1.2;
-    color: var(--ink);
+    font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+    font-weight: 800;
+    line-height: 1.25;
+    color: var(--t900, #0f4c5c);
+    letter-spacing: -0.015em;
+    text-wrap: balance;
   }
   .quote-card__desc {
     margin: 0;
@@ -2171,38 +2331,39 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
     align-items: center;
     justify-content: center;
     gap: 0.55rem;
-    width: 100%;
-    min-height: 52px;
+    min-height: 48px;
     padding: 0.8rem 1.2rem;
-    border-radius: var(--radius);
+    border-radius: 14px;
     border: 2px solid transparent;
     font-family: inherit;
     font-size: 1rem;
-    font-weight: 700;
+    font-weight: 800;
+    letter-spacing: 0.01em;
     cursor: pointer;
+    text-decoration: none;
     transition:
-      transform 0.15s,
-      box-shadow 0.15s,
-      background 0.15s;
+      transform 150ms var(--ease),
+      filter 180ms var(--ease),
+      background 180ms var(--ease);
   }
   .quote-btn--primary {
-    background: var(--green);
-    color: #0b1b22;
+    background: #7ed957;
+    color: #0f4c5c;
+    border-color: #7ed957;
   }
   .quote-btn--primary:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 8px 20px rgba(126, 217, 87, 0.35);
+    filter: brightness(0.97);
   }
   .quote-btn--secondary {
-    background: var(--t900);
-    color: #ffffff;
+    background: #0f4c5c;
+    color: #fff;
+    border-color: #0f4c5c;
   }
   .quote-btn--secondary:hover:not(:disabled) {
-    background: var(--t800);
+    filter: brightness(1.06);
   }
   .quote-btn:active:not(:disabled) {
-    transform: translateY(0);
-    box-shadow: none;
+    transform: translateY(1px);
   }
   .quote-btn:disabled {
     opacity: 0.55;
@@ -2419,11 +2580,12 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
     observer.observe(ctaPrincipal);
   }
 
-  // Lightbox de galería
+  // Lightbox: abrir desde imagen principal. Thumbs solo cambian preview.
   const lightbox = document.getElementById('galeria-lightbox') as HTMLDialogElement | null;
   const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement | null;
   const lightboxContador = document.getElementById('lightbox-contador');
   const thumbs = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-galeria-index]'));
+  const mainImg = document.getElementById('producto-imagen-principal') as HTMLImageElement | null;
 
   if (lightbox && lightboxImg && thumbs.length > 0) {
     let indiceActual = 0;
@@ -2432,22 +2594,30 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
       const thumb = thumbs[indiceActual];
       const img = thumb?.querySelector('img');
       if (img) {
-        lightboxImg.src = img.src;
-        lightboxImg.alt = img.alt || '';
+        lightboxImg.src = img.currentSrc || img.src;
+        lightboxImg.alt = mainImg?.alt || img.alt || '';
       }
       if (lightboxContador) {
         lightboxContador.textContent = `${indiceActual + 1} / ${thumbs.length}`;
       }
+      thumbs.forEach((thumbBtn, i) => {
+        if (i === indiceActual) thumbBtn.setAttribute('aria-current', 'true');
+        else thumbBtn.removeAttribute('aria-current');
+      });
     };
 
-    thumbs.forEach((thumb, index) => {
-      thumb.addEventListener('click', () => {
-        indiceActual = index;
-        actualizar();
-        resetTransientUiState();
-        lightbox.showModal();
-      });
+    const openLightbox = (index = 0) => {
+      indiceActual = index;
+      actualizar();
+      resetTransientUiState();
+      lightbox.showModal();
+    };
+
+    mainImg?.addEventListener('click', () => {
+      const current = thumbs.findIndex(t => t.getAttribute('aria-current') === 'true');
+      openLightbox(current >= 0 ? current : 0);
     });
+    if (mainImg) mainImg.style.cursor = 'zoom-in';
 
     document
       .querySelector('[data-lightbox-close]')
@@ -2521,14 +2691,17 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
     addToCart(false);
   });
 
-  // Thumbs en PDP: actualizar imagen principal (lightbox sigue en data-galeria-index)
-  const mainImg = document.getElementById('producto-imagen-principal') as HTMLImageElement | null;
-  document.querySelectorAll<HTMLButtonElement>('[data-pdp-thumb]').forEach(btn => {
+  // Thumbs: actualizar imagen principal + estado activo (sin abrir lightbox)
+  document.querySelectorAll<HTMLButtonElement>('[data-pdp-thumb]').forEach((btn, index) => {
     btn.addEventListener('click', () => {
       const thumbImg = btn.querySelector('img');
       if (mainImg && thumbImg) {
         mainImg.src = thumbImg.currentSrc || thumbImg.src;
       }
+      document.querySelectorAll<HTMLButtonElement>('[data-pdp-thumb]').forEach((other, i) => {
+        if (i === index) other.setAttribute('aria-current', 'true');
+        else other.removeAttribute('aria-current');
+      });
     });
   });
 

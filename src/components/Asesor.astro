@@ -61,12 +61,12 @@ const asesorConfig = {
 };
 ---
 
-<!-- Botón de reapertura: solo aparece después de cerrar el panel desplegado -->
+<!-- FAB: cerrado por defecto junto al panel (evita FOUC abierto) -->
 <button
   id="asesor-trigger"
   class="asesor-fab"
   aria-label={t(locale, 'asesor.abrir')}
-  aria-expanded="true"
+  aria-expanded="false"
   aria-controls="asesor-dialog"
   type="button"
   transition:persist={`asesor-fab-${locale}`}
@@ -88,12 +88,13 @@ const asesorConfig = {
   <span class="asesor-fab__label">{locale === 'es' ? 'IMEIA Ayuda' : 'IMEIA Help'}</span>
 </button>
 
-<!-- Panel del asesor: visible desde la primera visita -->
+<!-- Panel del asesor: cerrado por defecto en todos los breakpoints -->
 <aside
   id="asesor-dialog"
   class="asesor-dialog"
   role="complementary"
   aria-label={t(locale, 'asesor.titulo')}
+  hidden
   data-asesor-config={JSON.stringify(asesorConfig)}
   transition:persist={`asesor-dialog-${locale}`}
 >
