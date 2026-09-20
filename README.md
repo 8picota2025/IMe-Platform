@@ -55,7 +55,7 @@ cp .env.example .env
 - Consumibles: checkout online con Wompi (CO) o Stripe (INTL) desde Edge Function `crear-pago`.
 - Equipos: cotización o atención personalizada según `tipo_comercial` y `fulfillment_mode`.
 - Webhooks: `webhook-wompi` y `webhook-stripe` verifican firma y estado server-side.
-- Asesor IA: Edge Function `asesor` con Turnstile, rate-limit, presupuesto y fallback por palabra clave.
+- Asesor IA (IMEIA web): Edge Function `asesor` con poll corto, rate-limit IP/sesión y agente Grok vía webhook. Turnstile **desactivado por defecto** en el chat; ver `docs/imeia-asesor-path.md`.
 - WhatsApp Cloud API: Edge Function `whatsapp-webhook` (verificación Meta + reply IMEIA). Setup: `docs/WHATSAPP_CLOUD_API.md`.
 - Las pruebas reales requieren secretos en Supabase/CI; ver `PENDIENTES.md`.
 - Desarrollo local sin credenciales: `LLM_PROVIDER=ollama` / `EMBEDDING_PROVIDER=ollama` (Ollama autoalojado, coste $0) — ver `docs/decisions/0005-ollama-asesor-local.md`.
@@ -97,3 +97,7 @@ cada sesión. Estado de fases en AGENTS.md sección "Estado de fases".
 - `PENDIENTES.md` — pendientes activos por etiqueta
 - `BACKLOG_V2.md` — fuera de alcance V1
 - `docs/prompts/` — prompts de fase versionados
+- `docs/F4.2_RUNBOOK.md` — comercio F4.2, idempotencia pagos, Merchant Center
+- `docs/fulfillment-snapshots.md` — timeline append-only de fulfillments
+- `docs/seo-catalog-deduplication.md` — retiro de productos duplicados (SEO)
+- `docs/imeia-asesor-path.md` — operación del chat IMEIA web
