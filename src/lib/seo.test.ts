@@ -210,7 +210,7 @@ describe('buildProductoSeo', () => {
         nombre: 'Bomba de Infusión IP-200',
         descripcion_corta: 'Bomba volumétrica para terapia IV hospitalaria.',
         imagen_principal: null,
-        slug: 'bomba-de-infusion-ip-200',
+        slug: 'bomba-de-infusion-ip-200-advanced',
         seo_keywords: ['bombas infusión hospitalarias', 'terapia IV UCI'],
       },
       'es',
@@ -219,7 +219,7 @@ describe('buildProductoSeo', () => {
     );
     expect(seo.title).toContain('I-ME');
     expect(seo.description.toLowerCase()).toContain('bombas');
-    expect(seo.canonical).toContain('/es/productos/bomba-de-infusion-ip-200');
+    expect(seo.canonical).toContain('/es/productos/bomba-de-infusion-ip-200-advanced');
   });
 
   it('cae a categoría como intent si no hay seo_keywords', () => {
@@ -228,7 +228,7 @@ describe('buildProductoSeo', () => {
         nombre: 'Autoclave Horizontal 5075',
         descripcion_corta: 'Esterilización a vapor para CSSD.',
         imagen_principal: null,
-        slug: 'autoclave-horizontal-5075',
+        slug: 'autoclave-horizontal-5075-tuttnauer',
         seo_keywords: [],
       },
       'es',
