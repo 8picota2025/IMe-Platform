@@ -425,9 +425,9 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
       },
     ],
     relatedSlugs: [
-      'mamografo-digital-dm166-series',
-      'detector-plano-inalambrico-tcq-iii',
-      'sistema-de-rayos-x-dr-montado-en-techo',
+      'mamografo-digital-dm166-series-angell',
+      'detector-plano-inalambrico-tcq-iii-angell',
+      'sistema-de-rayos-x-dr-montado-en-techo-ref-dr-ceiling-angell',
       'sistema-radiografico-3d-wr-3d-angell-technology',
     ],
   },
@@ -518,7 +518,7 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
     ],
     relatedSlugs: [
       'electrocardiografo-12-derivaciones-digital',
-      'electrocardiografo-ecg-3-plus',
+      'electrocardiografo-ecg-3-plus-advanced',
       'desfibrilador-bifasico-con-monitor',
     ],
   },
@@ -681,7 +681,7 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
       },
     ],
     relatedSlugs: [
-      'bomba-de-infusion-ip-200',
+      'bomba-de-infusion-ip-200-advanced',
       'bomba-de-infusion-ref-sk-em211-saikang',
       'bomba-de-jeringa-precision-microdosis',
     ],
@@ -714,7 +714,10 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
         a_en: 'Common in modern ORs. We validate utilities (O₂, air, vacuum) with on-site biomed engineering.',
       },
     ],
-    relatedSlugs: ['maquina-de-anestesia-con-ventilador', 'maquina-de-anestesia-am-6000-plus'],
+    relatedSlugs: [
+      'maquina-de-anestesia-con-ventilador',
+      'maquina-de-anestesia-am-6000-plus-advanced',
+    ],
   },
   {
     slug: 'ventiladores',
@@ -1118,8 +1121,8 @@ const FAMILIA_HUB_LINKS: Record<string, FamiliaHubLink[]> = {
       label_en: 'Imaging project guide',
     },
     {
-      href_es: '/es/productos/mamografo-digital-dm166-series/',
-      href_en: '/en/products/mamografo-digital-dm166-series/',
+      href_es: '/es/productos/mamografo-digital-dm166-series-angell/',
+      href_en: '/en/products/mamografo-digital-dm166-series-angell/',
       label_es: 'Mamógrafo digital DM166',
       label_en: 'DM166 digital mammography',
     },
