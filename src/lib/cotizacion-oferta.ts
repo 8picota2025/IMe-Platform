@@ -143,6 +143,23 @@ function asUint8Array(data: BufferSource): Uint8Array {
   return new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
 }
 
+/**
+ * Resolve a locked-offer line for checkout by **index**, never by slug Map.
+ * Commercial quotes may repeat the same SKU at different negotiated unit prices;
+ * collapsing `Map(slug → line)` would charge the last price on every duplicate.
+ */
+export function lineaOfertaLockedPorIndice(
+  lineas: CotizacionLineaOferta[] | null | undefined,
+  index: number,
+  slug: string
+): CotizacionLineaOferta | null {
+  if (!lineas) return null;
+  const linea = lineas[index];
+  if (!linea) return null;
+  if (linea.slug !== slug) return null;
+  return linea;
+}
+
 /** Recompute subtotals + one currency. Does not require prices/condiciones. */
 export function canonizarLineasOferta(
   lineas: CotizacionLineaOferta[],

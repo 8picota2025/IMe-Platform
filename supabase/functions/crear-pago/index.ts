@@ -31,6 +31,7 @@ import { pushClienteToTwenty } from '../_shared/twenty-commerce-sync.ts';
 import {
   calcularTotalOfertado,
   hashTokenSha256,
+  lineaOfertaLockedPorIndice,
   ofertaCompleta,
   parseLineasOferta,
   tokenExpirado,
@@ -726,16 +727,14 @@ Deno.serve(
     const listaPrecio = lineasCotizacion
       ? null
       : await obtenerListaPrecio(supabase, cliente.email.toLowerCase());
-    const preciosLockedPorSlug = lineasCotizacion
-      ? new Map(lineasCotizacion.map(l => [l.slug, l]))
-      : null;
 
     const checkoutItems: CheckoutItem[] = [];
     const itemsSnapshot: Array<Record<string, unknown>> = [];
     const fiscalItems: Array<Record<string, unknown>> = [];
     let monedaComun: string | null = null;
 
-    for (const item of items) {
+    for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
+      const item = items[itemIndex]!;
       const slug = item.slug as string;
       const cantidad = item.cantidad as number;
       const producto = productosPorSlug.get(slug);
@@ -748,7 +747,17 @@ Deno.serve(
         );
       }
 
-      const locked = preciosLockedPorSlug?.get(slug);
+      // Index-aligned with lineasCotizacion (built 1:1 above). Never Map-by-slug:
+      // duplicate SKUs can carry different negotiated unit prices.
+      const locked = lineasCotizacion
+        ? lineaOfertaLockedPorIndice(lineasCotizacion, itemIndex, slug)
+        : null;
+      if (lineasCotizacion && !locked) {
+        return internalError(
+          `inconsistencia de lineas locked en cotizacion (${slug} @${itemIndex})`,
+          origin
+        );
+      }
       let precio: number | null;
       if (locked) {
         precio = locked.precio_unitario;
