@@ -137,9 +137,10 @@ let analyticsScriptsLoaded = false;
  * consentimiento de analítica (hasAnalyticsConsent() === true) — ya sea al
  * cargar la página (consentimiento previo guardado) o al aceptar en el
  * banner (sin recargar). Idempotente: una segunda llamada no duplica tags.
+ * Devuelve true sólo si esta llamada fue la que cargó los tags.
  */
-export function loadAnalyticsScripts(ids: AnalyticsIds): void {
-  if (typeof window === 'undefined' || analyticsScriptsLoaded) return;
+export function loadAnalyticsScripts(ids: AnalyticsIds): boolean {
+  if (typeof window === 'undefined' || analyticsScriptsLoaded) return false;
   analyticsScriptsLoaded = true;
 
   if (ids.gtmId) {
@@ -190,4 +191,48 @@ export function loadAnalyticsScripts(ids: AnalyticsIds): void {
     const first = document.getElementsByTagName('script')[0];
     first?.parentNode?.insertBefore(script, first);
   }
+
+  return true;
+}
+
+export function analyticsScriptsAreLoaded(): boolean {
+  return analyticsScriptsLoaded;
+}
+
+/** Cookies de primera parte que dejan GA4/gtag (_ga, _ga_<id>, _gid, _gat, _gcl_*) y Clarity (_clck, _clsk). */
+const ANALYTICS_COOKIE_RE = /^(?:_ga|_gid|_gat|_gcl_|_clck$|_clsk$)/;
+
+/** El host y cada dominio padre con al menos dos etiquetas: a.b.c.co → a.b.c.co, b.c.co, c.co. */
+function cookieDomainCandidates(hostname: string): string[] {
+  const labels = hostname.split('.');
+  const domains: string[] = [];
+  for (let i = 0; i < labels.length - 1; i++) {
+    domains.push(labels.slice(i).join('.'));
+  }
+  return domains;
+}
+
+/**
+ * Retiro del consentimiento (ADR-0012): borra las cookies de analítica ya
+ * puestas. No se sabe con qué atributo `domain` las escribió cada tag
+ * (GA usa el dominio registrable, Clarity el host), así que se expiran en
+ * todas las variantes posibles; las que no existen se ignoran.
+ * Devuelve los nombres de cookie expirados.
+ */
+export function clearAnalyticsCookies(): string[] {
+  if (typeof document === 'undefined') return [];
+  const names = document.cookie
+    .split(';')
+    .map(part => part.split('=')[0]?.trim() ?? '')
+    .filter(name => ANALYTICS_COOKIE_RE.test(name));
+  const expired = 'expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+  const domains = cookieDomainCandidates(window.location.hostname);
+  for (const name of names) {
+    document.cookie = `${name}=; ${expired}`;
+    for (const domain of domains) {
+      document.cookie = `${name}=; ${expired}; domain=${domain}`;
+      document.cookie = `${name}=; ${expired}; domain=.${domain}`;
+    }
+  }
+  return names;
 }

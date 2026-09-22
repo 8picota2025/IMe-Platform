@@ -66,6 +66,20 @@ categoría se refiere explícitamente a "Google Analytics 4, Matomo,
 Microsoft Clarity u otra analítica"). Gatear esa tubería habría sido
 ampliar el alcance más allá de lo que el hallazgo original (R-1) pedía.
 
+**Aceptar en la primera visita:** el `page_view` de esa página ya se emitió
+antes de que existiera `gtag`. GTM lo recupera solo (al cargar procesa lo que
+ya está en `dataLayer`), pero GA4 vía gtag lo perdía, y esa página suele ser
+la landing con los UTM. Al aceptar desde el banner se reenvía ese `page_view`
+sólo a `gtag` (`replayPageViewToGtag()` en `src/lib/analytics.ts`), sin
+duplicarlo en `dataLayer` ni en la analítica propia.
+
+**Retiro del consentimiento:** si el visitante rechaza con los tags ya
+cargados, no hay forma fiable de descargar GTM/GA4/Clarity en caliente: se
+expiran sus cookies (`_ga*`, `_gid`, `_gat`, `_gcl_*`, `_clck`, `_clsk`) en el
+host y en cada dominio padre (`clearAnalyticsCookies()`) y se recarga la
+página, que ya no los carga. Si no estaban cargados, sólo se borran las
+cookies que pudieran quedar de una visita anterior.
+
 Tampoco se añade un toggle de "Publicidad/remarketing": la política es
 explícita en que esa categoría no está activa y requiere aprobación
 jurídica + actualización expresa de la política antes de activarse.

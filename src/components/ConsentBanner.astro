@@ -201,8 +201,11 @@ const cookiesPolicyHref = getLocalizedPath('/legal/cookies/', locale);
 </style>
 
 <script>
+  import { replayPageViewToGtag } from '../lib/analytics';
   import {
+    analyticsScriptsAreLoaded,
     applyConsentModeUpdate,
+    clearAnalyticsCookies,
     hasAnalyticsConsent,
     loadAnalyticsScripts,
     readStoredConsent,
@@ -233,7 +236,19 @@ const cookiesPolicyHref = getLocalizedPath('/legal/cookies/', locale);
   function applyDecision(analytics: boolean, source: 'accept_all' | 'reject_all' | 'custom') {
     writeStoredConsent(analytics, source);
     applyConsentModeUpdate(analytics);
-    if (analytics) loadAnalyticsScripts(analyticsIdsFromMeta());
+    if (analytics) {
+      if (loadAnalyticsScripts(analyticsIdsFromMeta())) replayPageViewToGtag();
+    } else if (analyticsScriptsAreLoaded()) {
+      // Retiro del consentimiento con los tags ya corriendo: no hay forma
+      // fiable de descargar GTM/GA4/Clarity en caliente. Se borran sus
+      // cookies y se recarga; en la recarga no se cargan (no hay consentimiento).
+      clearAnalyticsCookies();
+      window.location.reload();
+      return;
+    } else {
+      // Pudieron quedar cookies de una visita anterior con consentimiento.
+      clearAnalyticsCookies();
+    }
     banner?.setAttribute('hidden', '');
   }
 

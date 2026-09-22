@@ -21,10 +21,17 @@ Dos mecanismos independientes, no uno solo:
 
 ### 1. Redacción de patrones de alta confianza (`_shared/pii-redact.ts`)
 
-Regex para email y teléfono (CO e internacional genérico), aplicados una sola vez sobre
+Regex para email y teléfono, aplicados una sola vez sobre
 `mensaje`/`historial` **antes** de que ese valor llegue tanto a `crearTurnoAgente()` como
 a `despertarAgente()` (mismo dato, una sola redacción, en el único punto donde ambas
 llamadas comparten `mensaje`/`historial` en `asesor/index.ts`).
+
+El patrón de teléfono es deliberadamente estrecho: móvil CO (`3XX XXX XXXX`), fijo CO
+(`60X XXX XXXX`), ambos con `+57` opcional, e internacional sólo con `+` explícito. La
+primera versión usaba un patrón genérico de 7-15 dígitos que redactaba también precios
+(`1.500.000`), NITs, fechas y referencias de producto — y como el texto redactado es lo
+que recibe el agente IMEIA, eso degradaba sus respuestas comerciales. Corregido en la
+revisión posterior al cierre de Fase 1, con tests de no-regresión para esos casos.
 
 **Deliberadamente NO se redactan nombres propios.** Un detector de nombres por regex es
 poco confiable (falsos negativos silenciosos) — prometer redacción de nombres sin poder
@@ -78,8 +85,11 @@ plano).
   directo de integración del Edge Function completo (no existe ningún test Deno para
   ningún `index.ts` en el repo — es el patrón establecido, sólo `_shared/*.ts` se testea
   directamente, porque `index.ts` llama `Deno.serve` a nivel de módulo).
-- Sin impacto en el flujo síncrono del asesor: la redacción ocurre sobre la copia que se
-  persiste/reenvía, no cambia qué responde el asesor al usuario en la sesión activa.
+- Impacto en las respuestas del asesor: el agente IMEIA recibe el texto redactado, así
+  que no ve emails ni teléfonos que el usuario escriba en el chat (no puede repetirlos ni
+  usarlos). Precios, cantidades, NITs, fechas y referencias sí llegan intactos gracias
+  al patrón estrecho descrito arriba. Contrapartida: un teléfono en formato no cubierto
+  (p. ej. internacional sin `+`) no se redacta — falso negativo aceptado.
 - Deuda reconocida: el default de 90 días de retención es una elección conservadora
   razonable, no un número validado legal/jurídicamente — queda documentado como tal para
   que negocio/legal lo confirme o ajuste (cambio de una línea de env var, no de código).

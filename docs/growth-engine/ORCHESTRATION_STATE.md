@@ -10,16 +10,57 @@
 
 - **Fase actual:** Fase 1 — Foundation → **CERRADA**. 8/8 ADRs (0011-0018) aceptadas,
   redactadas e implementadas donde correspondía; cluster piloto decidido; plan de
-  contenido de Fase 2 redactado. Sesión **pausada aquí a pedido del usuario** — no hay
-  trabajo en curso ni cambios sin commitear.
-- **Última actualización:** 2026-09-22 (fin de sesión)
+  contenido de Fase 2 redactado. Después del cierre se hizo una **revisión de errores de
+  todo lo realizado** (ver "Revisión post-cierre" abajo); sus correcciones están
+  commiteadas en la rama.
+- **Última actualización:** 2026-09-22 (revisión post-cierre)
 
 ### 🔴 Punto de reanudación — leer esto primero al retomar
 
-**Todo está commiteado y pusheado.** `git status` limpio, rama
-`feat/growth-engine-foundation` al día con `origin` (verificado antes de pausar). PR
-[#116](https://github.com/8picota2025/IMe-Platform/pull/116) abierto en draft, 17
-commits, título y descripción reflejan el alcance completo.
+**Estado git:** los 17 commits de Fase 1 están pusheados en
+`feat/growth-engine-foundation`, PR
+[#116](https://github.com/8picota2025/IMe-Platform/pull/116) en draft. El commit de la
+revisión post-cierre está **en local**; verificar con `git status -sb` si ya se pusheó.
+
+### Revisión post-cierre (2026-09-22)
+
+Se revisaron los 17 commits contra `a1280c2`. Corregido en la rama:
+
+- **Redacción de PII (ADR-0017) demasiado amplia:** el patrón genérico de 7-15 dígitos
+  redactaba precios, NITs, fechas y referencias, y ese texto es el que recibe el agente
+  IMEIA. Ahora sólo móvil/fijo CO (+57 opcional) e internacional con `+`; tests de
+  no-regresión en `pii-redact.test.ts`. ADR-0017 actualizada.
+- **Contraseña del CMS legado** copiada en texto plano en `IMPLEMENTATION_PLAN.md` (D-1):
+  retirada del documento. **Sigue en el historial de git** (`raw_js_cms.js` hasta
+  `167146f` y el propio plan en `4f62386`): rotarla donde se haya reutilizado.
+- **Primer `page_view` perdido al aceptar el banner:** se reenvía sólo a `gtag` al
+  aceptar (`replayPageViewToGtag()`), sin duplicar en `dataLayer` ni en la analítica propia.
+- **Retirar el consentimiento no apagaba los tags:** ahora se expiran las cookies de
+  GA/Clarity (`clearAnalyticsCookies()`) y se recarga la página. ADR-0012 actualizada.
+- **`supabase/schema.sql` no reflejaba las migraciones nuevas:** añadidos
+  `producto_claims_evidencia`, `topic_clusters` + columnas de `articulos` y el índice de
+  retención. `whatsapp_opt_ins` no se replica (depende de `leads_comerciales`, que sólo
+  vive en migraciones). Verificado idempotente (dos ejecuciones) en Postgres 16 desechable.
+- Este archivo: secciones desactualizadas corregidas.
+
+**Abierto tras la revisión (requiere confirmación antes de tocar):**
+
+1. **Consent Mode v2 probablemente inoperante:** `consent.ts` y el `gtag` definen
+   comandos con `dataLayer.push([...])` / `...args` (arrays). gtag.js sólo reconoce
+   objetos `arguments`, así que `consent default/update` — y posiblemente el
+   `gtag('config')` de GA4, que ya venía así antes de esta rama — se estarían ignorando.
+   **Verificar en DevTools** durante el QA manual del banner antes de cambiarlo.
+2. **Clases de riesgo INVIMA incorrectas** en `src/data/invima-knowledge-base.json`
+   (preexistente) y heredadas por `pilot-clusters-content-plan.md` §2.1/§3: usa
+   "Clase II"; el Decreto 4725/2005 define I, **IIa**, IIb, III. Confirmar con el equipo
+   biomédico/regulatorio antes de producir contenido INVIMA.
+3. Menores: el input `retention_dias` de `purgar-asesor-agent-turns.yml` no se usa; el
+   CHECK de evidencia acepta `fuente_url = ''`; `revisado_por` es legible por `anon`;
+   las funciones de trigger nuevas no fijan `search_path`; `purgar-asesor-agent-turns`
+   acepta un JWT `service_role` sin verificar firma (hoy lo cubre `verify_jwt` del
+   gateway, mismo patrón que `reporte-semanal`).
+4. **ADR-0013 a 0018 figuran como "aceptadas"** pero la tabla de decisiones de abajo no
+   registra su aprobación humana explícita — confirmar con el usuario.
 
 **Lo último que se hizo:** `docs/growth-engine/pilot-clusters-content-plan.md` — plan de
 contenido (sin producir nada todavía) para los dos clusters piloto que el usuario aprobó:
@@ -71,17 +112,16 @@ original — está todo aquí.
 
 ## Decisiones vigentes
 
-Ninguna decisión de arquitectura/alcance ha sido tomada todavía por el humano. Lo que
-existe hasta ahora son **recomendaciones de Claude Orchestrator pendientes de
-aprobación**:
+Decisiones de arquitectura/alcance y su estado de aprobación humana:
 
-| Decisión pendiente            | Recomendación de Claude                                                                                                                                                                                                                                                     | Estado                                |
-| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
-| Cluster piloto (mandato §24)  | Monitoreo / UCI + INVIMA / Regulación (dos clusters piloto en paralelo, decisión del usuario — no la recomendación original de Claude, que sugería Ventilación como segundo; INVIMA se vuelve viable ahora porque su precondición, ADR-0013, ya está mergeada en esta rama) | **Aprobada** — 2026-09-22             |
-| Secuencia de Fase 1           | Priorizar ADR-0012 (CMP) y ADR-0011 (fix atribución Twenty) antes que nada más                                                                                                                                                                                              | **Aprobada y ejecutada** — 2026-09-22 |
-| Enfoque CMP (ADR-0012)        | Banner propio ligero (sin vendor de pago)                                                                                                                                                                                                                                   | **Aprobada y ejecutada** — 2026-09-22 |
-| Prioridad GE-008 (tests Deno) | Arreglar ahora como parte de Fase 1                                                                                                                                                                                                                                         | **Aprobada y ejecutada** — 2026-09-22 |
-| Modelo de evidencia           | Versión mínima viable (3 campos) en vez del modelo completo de 10 campos del mandato, para no bloquear Fase 2                                                                                                                                                               | Pendiente de aprobación humana        |
+| Decisión pendiente            | Recomendación de Claude                                                                                                                                                                                                                                                     | Estado                                                                              |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Cluster piloto (mandato §24)  | Monitoreo / UCI + INVIMA / Regulación (dos clusters piloto en paralelo, decisión del usuario — no la recomendación original de Claude, que sugería Ventilación como segundo; INVIMA se vuelve viable ahora porque su precondición, ADR-0013, ya está mergeada en esta rama) | **Aprobada** — 2026-09-22                                                           |
+| Secuencia de Fase 1           | Priorizar ADR-0012 (CMP) y ADR-0011 (fix atribución Twenty) antes que nada más                                                                                                                                                                                              | **Aprobada y ejecutada** — 2026-09-22                                               |
+| Enfoque CMP (ADR-0012)        | Banner propio ligero (sin vendor de pago)                                                                                                                                                                                                                                   | **Aprobada y ejecutada** — 2026-09-22                                               |
+| Prioridad GE-008 (tests Deno) | Arreglar ahora como parte de Fase 1                                                                                                                                                                                                                                         | **Aprobada y ejecutada** — 2026-09-22                                               |
+| Modelo de evidencia           | Versión mínima viable (3 campos) en vez del modelo completo de 10 campos del mandato, para no bloquear Fase 2                                                                                                                                                               | **Implementado** (ADR-0013, `744b4ce`); aprobación humana no registrada — confirmar |
+| ADR-0014 a ADR-0018           | Redactadas e implementadas por Claude en la sesión de 2026-09-22                                                                                                                                                                                                            | Aprobación humana no registrada — confirmar                                         |
 
 ## ADRs (ver `IMPLEMENTATION_PLAN.md` §9 para el detalle)
 
@@ -110,28 +150,27 @@ Numeración continúa desde la última ADR real del repo (`docs/decisions/0010-q
 | GE-000-discovery-compliance   | CLAUDE_SUBAGENT                          | L3                                    | —                                                                                                                                                | Completado                | ninguno (read-only)                                                                                                                                                       | —                                                                                                                                                  | —                                                                                  | integrado en IMPLEMENTATION_PLAN §1.6-1.7                                                                                                         |
 | GE-001-gate-decision          | (humano)                                 | —                                     | GE-000-\*                                                                                                                                        | **Completado — GO**       | —                                                                                                                                                                         | —                                                                                                                                                  | —                                                                                  | secuencia recomendada aprobada, 2026-09-22                                                                                                        |
 | GE-002-codex-discovery        | CLAUDE                                   | L1                                    | GE-001 = GO                                                                                                                                      | **Completado**            | —                                                                                                                                                                         | —                                                                                                                                                  | —                                                                                  | `codex:codex-rescue` confirmado como conector real disponible                                                                                     |
-| GE-005-d1-secreto-legado      | CLAUDE (directo, no ameritó Codex)       | L1                                    | GE-001 = GO                                                                                                                                      | **Completado**            | `src/data/raw_js_cms.js` (eliminado)                                                                                                                                      | cero referencias confirmadas por grep antes de borrar                                                                                              | —                                                                                  | commit `1abf064`-previo en `feat/growth-engine-foundation`                                                                                        |
+| GE-005-d1-secreto-legado      | CLAUDE (directo, no ameritó Codex)       | L1                                    | GE-001 = GO                                                                                                                                      | **Completado**            | `src/data/raw_js_cms.js` (eliminado)                                                                                                                                      | cero referencias confirmadas por grep antes de borrar                                                                                              | la contraseña sigue en el historial de git                                         | borrado dentro de commit `167146f` (junto al gate de vitest). **Pendiente:** rotar la contraseña donde se haya reutilizado                        |
 | GE-006-vitest-ci-gate         | CLAUDE (directo, no ameritó Codex)       | L1                                    | GE-001 = GO                                                                                                                                      | **Completado**            | `.github/workflows/ci.yml`                                                                                                                                                | 402/402 vitest verificado localmente antes de wirear el gate                                                                                       | —                                                                                  | commit `167146f`                                                                                                                                  |
 | GE-004-adr-0011-twenty-attrib | CLAUDE (diseño e implementación directa) | L2                                    | GE-001 = GO; **admin Twenty aún debe crear campos custom** (no bloqueó esta iteración — se resolvió como fix interino de texto libre en la nota) | **Completado (interino)** | `supabase/functions/_shared/twenty-crm.ts`, `.test.ts`, `registrar-cotizacion/index.ts`, `registrar-lead-comercial/index.ts`                                              | 16/16 Deno tests (2 nuevos), 402/402 vitest, `deno check` limpio en `twenty-crm.ts`                                                                | dependencia externa sigue abierta para la fase estructurada (campos custom reales) | commit `1abf064`. **Pendiente real:** cuando el admin de Twenty cree los campos custom, escribirlos también de forma estructurada (no sólo texto) |
-| GE-008-deno-tests-sin-ci      | CLAUDE (directo)                         | L1 (una vez priorizado por el humano) | GE-001 = GO                                                                                                                                      | **Completado**            | `.github/workflows/ci.yml` (+ inventario: descubierto un 5º archivo, `actualizar-fulfillment/test.ts`, integración contra Supabase local — NO incluido, follow-up aparte) | 37/37 Deno tests verificados localmente antes de wirear el gate                                                                                    | —                                                                                  | commit `6da5350`                                                                                                                                  |
+| GE-008-deno-tests-sin-ci      | CLAUDE (directo)                         | L1 (una vez priorizado por el humano) | GE-001 = GO                                                                                                                                      | **Completado**            | `.github/workflows/ci.yml` (+ inventario: descubierto un 5º archivo, `actualizar-fulfillment/test.ts`, integración contra Supabase local — NO incluido, follow-up aparte) | 37/37 Deno tests al wirear el gate (hoy 52/52 en 6 archivos, tras ADR-0017 y la revisión)                                                          | —                                                                                  | commit `6da5350`                                                                                                                                  |
 | GE-003-adr-0012-cmp           | CLAUDE (diseño e implementación directa) | L3 diseño / L1-L2 implementación      | GE-001 = GO; decisión de vendor/build tomada por el humano (banner propio)                                                                       | **Completado**            | `src/lib/consent.ts`, `consent.test.ts`, `ConsentBanner.astro`, `AnalyticsHead.astro`, `AnalyticsNoScript.astro`, `Footer.astro`, `Layout.astro`, `es.json`, `en.json`    | 407/407 vitest (5 nuevos), lint limpio, `astro check` 0 errores, build real verificado (gtag/js y noscript GTM ausentes del HTML, banner presente) | —                                                                                  | commit `b1f8195`. ADR formal: `docs/decisions/0012-cmp-consentimiento-analitica.md`                                                               |
 | GE-007-r7-estado-legal        | CLAUDE                                   | L1                                    | GE-001 = GO                                                                                                                                      | No iniciada               | `README.md` y/o `REMEDIACION.md`                                                                                                                                          | —                                                                                                                                                  | requiere confirmar con negocio cuál es la verdad vigente                           | preguntar al usuario/cliente antes de editar                                                                                                      |
+| ADR-0013-evidencia            | CLAUDE                                   | L2                                    | GE-001 = GO                                                                                                                                      | **Completado**            | `supabase/migrations/20260922200000_producto_claims_evidencia.sql`, `supabase/schema.sql`                                                                                 | CHECK verificado en Postgres desechable                                                                                                            | migración no aplicada a producción (manual)                                        | commit `744b4ce`                                                                                                                                  |
+| ADR-0014-topic-clusters       | CLAUDE                                   | L2                                    | GE-001 = GO                                                                                                                                      | **Completado**            | `supabase/migrations/20260922210000_articulos_topic_clusters.sql`, `supabase/schema.sql`                                                                                  | —                                                                                                                                                  | migración no aplicada a producción (manual)                                        | commit `6127fbb`                                                                                                                                  |
+| ADR-0015-landing-factory      | CLAUDE                                   | L3                                    | GE-001 = GO                                                                                                                                      | **Completado (decisión)** | `docs/decisions/0015-*.md`                                                                                                                                                | —                                                                                                                                                  | migración de datos fuera de alcance                                                | commit `6aaebf1`                                                                                                                                  |
+| ADR-0016-whatsapp-opt-in      | CLAUDE                                   | L2                                    | GE-001 = GO                                                                                                                                      | **Completado (schema)**   | `supabase/migrations/20260922230000_whatsapp_opt_ins.sql`                                                                                                                 | —                                                                                                                                                  | lógica conversacional es Fase 4                                                    | commit `239632a`                                                                                                                                  |
+| ADR-0017-pii-asesor           | CLAUDE                                   | L2                                    | GE-001 = GO                                                                                                                                      | **Completado**            | `_shared/pii-redact.ts`, `_shared/asesor-retention.ts`, `asesor/index.ts`, `purgar-asesor-agent-turns/`, workflow de purga                                                | Deno tests en CI (patrón de teléfono corregido en la revisión post-cierre)                                                                         | 90 días de retención sin validar legalmente                                        | commit `ef83cec` + revisión post-cierre                                                                                                           |
+| ADR-0018-automatizacion       | CLAUDE                                   | L3                                    | GE-001 = GO                                                                                                                                      | **Completado (decisión)** | `docs/decisions/0018-*.md`                                                                                                                                                | —                                                                                                                                                  | —                                                                                  | commit `78708f9`                                                                                                                                  |
+| GE-009-revision-post-cierre   | CLAUDE                                   | L1-L2                                 | Fase 1 cerrada                                                                                                                                   | **Completado**            | ver "Revisión post-cierre" arriba                                                                                                                                         | 409/409 vitest, 52/52 Deno, lint, `astro check`, build                                                                                             | puntos 1-4 de "Abierto tras la revisión" requieren confirmación                    | QA del banner en navegador (incluye verificar Consent Mode)                                                                                       |
 
 ### Hallazgos nuevos desde Fase 0
 
-- **`vitest.config.mjs` nunca incluyó `supabase/functions/**`** — los 4 archivos
-`Deno.test`bajo`supabase/functions/\_shared/`(incluido`twenty-crm.test.ts`, que
-cubre justo el código tocado por GE-004) **no corren en ningún lado**: no en
-`npm run test`, no en `ci.yml`, no hay paso `deno test`en ningún workflow. Verificado
-ejecutándolos manualmente con el binario Deno ya presente en`~/.deno/bin/deno`(2.9.3) — los 14 preexistentes + 2 nuevos de este bloque pasan (16/16). Esto es más
-severo que D-3/R-10 (que ya se resolvió): no es que un test roto pueda llegar a`main`, es que **una categoría entera de tests nunca se ejecuta**, ni localmente vía
-`npm run validate`ni en CI.`deno check`sobre`twenty-crm.ts` también reveló que el
-propio archivo de test (`twenty-crm.test.ts`, no tocado en su lógica de mock) tiene 10
-errores de tipos preexistentes (`TwentyRecord | null`no asignable) — otra señal de que
-nadie corre`deno check`en CI tampoco.
-**No se ha decidido owner ni alcance de la corrección** (¿añadir`deno test`a`ci.yml`? ¿arreglar primero los 10 errores de tipos preexistentes? ¿instalar Deno en el
-  runner de CI?) — se deja como hallazgo abierto para que el humano decida prioridad,
-  en vez de ampliar el alcance de GE-006 sin autorización.
+- **Tests Deno de `supabase/functions/**` sin ejecutar en ningún lado** (ni vitest ni
+CI) — **resuelto por GE-008** (`6da5350`): paso `deno test`en`ci.yml`, hoy 6 archivos,
+52 tests. Sigue con `--no-check`por 10 errores de tipos preexistentes en el helper de
+mocks de`twenty-crm.test.ts` (`TwentyRecord | null`) — follow-up menor sin owner.
+`actualizar-fulfillment/test.ts` (integración) sigue fuera de CI, ver Blockers.
 
 ---
 
@@ -169,9 +208,6 @@ resuelve en Fase 1 como quick win).
 
 ## Siguiente acción
 
-Todo el backlog de quick wins de Fase 1 aprobado en la sesión de 2026-09-22 está
-**completado** (GE-001 a GE-008, salvo GE-007 que requiere una confirmación del cliente
-sobre el estado legal antes de tocar copy). Rama `feat/growth-engine-foundation` lista
-para push + PR draft (aprobado por el usuario). Después del push: continuar con
-ADR-0013 (evidencia mínima), ADR-0014 (taxonomía de topic clusters) y la decisión final
-de cluster piloto.
+Ver **"Punto de reanudación"** al principio de este archivo: aprobación del plan de
+contenido piloto, verificación en Supabase real, confirmaciones del equipo biomédico y
+los puntos abiertos tras la revisión post-cierre.

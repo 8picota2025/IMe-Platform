@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   CONSENT_POLICY_VERSION,
   CONSENT_STORAGE_KEY,
+  clearAnalyticsCookies,
   hasAnalyticsConsent,
   readStoredConsent,
   writeStoredConsent,
@@ -68,5 +69,39 @@ describe('consent', () => {
   it('treats malformed stored JSON as no decision', () => {
     localStorage.setItem(CONSENT_STORAGE_KEY, '{not json');
     expect(readStoredConsent()).toBeNull();
+  });
+});
+
+describe('clearAnalyticsCookies', () => {
+  function stubCookies(initial: string): string[] {
+    const writes: string[] = [];
+    vi.stubGlobal('window', { location: { hostname: 'www.i-me.com.co' } });
+    vi.stubGlobal('document', {
+      get cookie() {
+        return initial;
+      },
+      set cookie(value: string) {
+        writes.push(value);
+      },
+    });
+    return writes;
+  }
+
+  it('expires only GA/Clarity cookies, on the host and every parent domain', () => {
+    const writes = stubCookies('_ga=GA1.1.1; _ga_ABC123=GS1; ime_session=x; _clck=y; _gcl_au=z');
+    expect(clearAnalyticsCookies()).toEqual(['_ga', '_ga_ABC123', '_clck', '_gcl_au']);
+    expect(writes.every(w => w.includes('expires=Thu, 01 Jan 1970'))).toBe(true);
+    expect(writes.some(w => w.startsWith('ime_session='))).toBe(false);
+    for (const domain of ['www.i-me.com.co', '.i-me.com.co', 'com.co']) {
+      expect(writes).toContain(
+        `_ga=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=${domain}`
+      );
+    }
+  });
+
+  it('does nothing when there are no analytics cookies', () => {
+    const writes = stubCookies('ime_session=x');
+    expect(clearAnalyticsCookies()).toEqual([]);
+    expect(writes).toEqual([]);
   });
 });

@@ -15,9 +15,21 @@
 
 const EMAIL_RE = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
 
-// Telefono CO (fijo/movil, con o sin +57, con o sin separadores) o
-// internacional generico de 7-15 digitos con separadores opcionales.
-const PHONE_RE = /(?:\+?\d[\d\s().-]{6,17}\d)/g;
+// Telefonos, con patrones deliberadamente estrechos: un patron generico de
+// "7-15 digitos" se comia precios (1.500.000), NITs, fechas y referencias de
+// producto, y el texto redactado es lo que recibe el agente IMEIA — perder
+// esos datos degrada las respuestas comerciales. Se redacta solo:
+// - movil CO: 3XX XXX XXXX (10 digitos), opcional +57 / 57 delante;
+// - fijo CO (marcacion 2021+): 60X XXX XXXX, opcional (60X) y +57;
+// - internacional explicito: "+" seguido de 8-15 digitos con separadores.
+const SEP = String.raw`[\s.-]?`;
+const CO_PREFIX = String.raw`(?:\+?57${SEP})?`;
+const CO_MOBILE = String.raw`3\d{2}${SEP}\d{3}${SEP}\d{4}`;
+const CO_LANDLINE = String.raw`\(?60\d\)?${SEP}\d{3}${SEP}\d{4}`;
+const PHONE_RE = new RegExp(
+  String.raw`(?<![\w.+-])(?:${CO_PREFIX}(?:${CO_MOBILE}|${CO_LANDLINE})|\+\d[\d\s().-]{6,18}\d)(?![\w.-]?\d)`,
+  'g'
+);
 
 function looksLikePhone(candidate: string): boolean {
   const digits = candidate.replace(/\D/g, '');

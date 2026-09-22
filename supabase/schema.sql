@@ -992,6 +992,9 @@ CREATE INDEX IF NOT EXISTS idx_asesor_agent_turns_status_created_at
   ON asesor_agent_turns (status, created_at);
 CREATE INDEX IF NOT EXISTS idx_asesor_agent_turns_session_created_at
   ON asesor_agent_turns (session_id, created_at DESC);
+-- ADR-0017: purga por antiguedad (purgar-asesor-agent-turns).
+CREATE INDEX IF NOT EXISTS idx_asesor_agent_turns_created_at
+  ON asesor_agent_turns (created_at);
 
 DROP TRIGGER IF EXISTS set_asesor_agent_turns_updated_at ON asesor_agent_turns;
 CREATE TRIGGER set_asesor_agent_turns_updated_at
@@ -2016,3 +2019,129 @@ ON CONFLICT (clave) DO NOTHING;
 --     headers := jsonb_build_object('Authorization', 'Bearer ' || current_setting('app.settings.service_key'))
 --   );
 -- $$);
+
+-- ============================================================
+-- GROWTH ENGINE FASE 1 (ADR-0013, ADR-0014)
+-- Espejo de supabase/migrations/20260922200000_producto_claims_evidencia.sql
+-- y 20260922210000_articulos_topic_clusters.sql. El indice de retencion de
+-- asesor_agent_turns (ADR-0017) esta junto a esa tabla, arriba.
+-- whatsapp_opt_ins (ADR-0016, 20260922230000_whatsapp_opt_ins.sql) NO se
+-- replica aqui: referencia leads_comerciales, que (como el resto del modulo
+-- CRM) vive solo en migraciones y no en este archivo.
+-- ============================================================
+
+-- ── Evidence & Compliance para claims biomedicos (ADR-0013) ──
+CREATE TABLE IF NOT EXISTS producto_claims_evidencia (
+  id                 UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  producto_id        UUID NOT NULL REFERENCES productos(id) ON DELETE CASCADE,
+  claim_texto        TEXT NOT NULL,
+  categoria          TEXT NOT NULL DEFAULT 'otro'
+                     CHECK (categoria IN (
+                       'invima', 'ce', 'fda', 'iso', 'indicacion',
+                       'precision', 'eficacia', 'seguridad',
+                       'compatibilidad', 'garantia', 'otro'
+                     )),
+  fuente_url         TEXT,
+  revisado_por       TEXT,
+  estado_aprobacion  TEXT NOT NULL DEFAULT 'pendiente'
+                     CHECK (estado_aprobacion IN ('pendiente', 'aprobado', 'rechazado')),
+  notas              TEXT,
+  created_at         TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at         TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  -- Regla del mandato: "INSUFFICIENT EVIDENCE -> DO NOT PUBLISH". No se
+  -- puede marcar aprobado sin fuente_url ni revisado_por.
+  CONSTRAINT producto_claims_evidencia_aprobado_requiere_evidencia CHECK (
+    estado_aprobacion <> 'aprobado'
+    OR (fuente_url IS NOT NULL AND revisado_por IS NOT NULL)
+  )
+);
+
+CREATE INDEX IF NOT EXISTS idx_producto_claims_evidencia_producto_id
+  ON producto_claims_evidencia(producto_id);
+CREATE INDEX IF NOT EXISTS idx_producto_claims_evidencia_estado
+  ON producto_claims_evidencia(estado_aprobacion);
+
+CREATE OR REPLACE FUNCTION set_updated_at_producto_claims_evidencia()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_producto_claims_evidencia_updated_at ON producto_claims_evidencia;
+CREATE TRIGGER trg_producto_claims_evidencia_updated_at
+  BEFORE UPDATE ON producto_claims_evidencia
+  FOR EACH ROW
+  EXECUTE FUNCTION set_updated_at_producto_claims_evidencia();
+
+-- RLS: SELECT publico solo de claims aprobados (para que el sitio/asesor
+-- puedan citar evidencia real); escritura solo admin/catalogo. Mismo
+-- patron que articulos_select_public / articulos_admin_all.
+ALTER TABLE producto_claims_evidencia ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "producto_claims_evidencia_select_aprobado" ON producto_claims_evidencia;
+CREATE POLICY "producto_claims_evidencia_select_aprobado"
+  ON producto_claims_evidencia FOR SELECT
+  TO anon, authenticated
+  USING (estado_aprobacion = 'aprobado');
+
+DROP POLICY IF EXISTS "producto_claims_evidencia_admin_all" ON producto_claims_evidencia;
+CREATE POLICY "producto_claims_evidencia_admin_all"
+  ON producto_claims_evidencia FOR ALL
+  TO authenticated
+  USING (is_admin(ARRAY['catalogo', 'ventas']))
+  WITH CHECK (is_admin(ARRAY['catalogo', 'ventas']));
+
+-- ── Taxonomia de topic clusters del Knowledge Hub (ADR-0014) ──
+CREATE TABLE IF NOT EXISTS topic_clusters (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  slug         TEXT NOT NULL UNIQUE,
+  nombre_es    TEXT NOT NULL,
+  nombre_en    TEXT NOT NULL,
+  descripcion  TEXT,
+  activo       BOOLEAN NOT NULL DEFAULT true,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE articulos
+  ADD COLUMN IF NOT EXISTS cluster_id UUID REFERENCES topic_clusters(id),
+  ADD COLUMN IF NOT EXISTS tags TEXT[] NOT NULL DEFAULT '{}';
+
+CREATE INDEX IF NOT EXISTS idx_articulos_cluster_id ON articulos(cluster_id);
+CREATE INDEX IF NOT EXISTS idx_topic_clusters_slug ON topic_clusters(slug);
+
+ALTER TABLE topic_clusters ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "topic_clusters_select_public" ON topic_clusters;
+CREATE POLICY "topic_clusters_select_public"
+  ON topic_clusters FOR SELECT
+  TO anon, authenticated
+  USING (activo = true);
+
+DROP POLICY IF EXISTS "topic_clusters_admin_all" ON topic_clusters;
+CREATE POLICY "topic_clusters_admin_all"
+  ON topic_clusters FOR ALL
+  TO authenticated
+  USING (is_admin(ARRAY['catalogo', 'ventas']))
+  WITH CHECK (is_admin(ARRAY['catalogo', 'ventas']));
+
+-- Semilla: clusters con profundidad real hoy (landing + keywords +
+-- contenido + catalogo), segun el subagente de discovery SEO de Fase 0.
+-- ON CONFLICT DO NOTHING: reejecutable, no pisa ediciones manuales.
+INSERT INTO topic_clusters (slug, nombre_es, nombre_en, descripcion) VALUES
+  ('monitoreo-uci', 'Monitoreo / UCI', 'Monitoring / ICU',
+   'Monitores multiparametricos y cardiologia. Cluster con mayor profundidad hoy: family hub, landing /es/monitores-biolight-uci/, keywords top-20, 2 articulos, PDPs.'),
+  ('ventilacion-terapia-respiratoria', 'Ventilacion / terapia respiratoria', 'Ventilation / respiratory therapy',
+   'Ventiladores y soporte vital respiratorio. Landings /es/ventiladores-mecanicos-uci/ y /es/alto-flujo-fisher-paykel/, 1 articulo.'),
+  ('movilidad-rehabilitacion', 'Movilidad / rehabilitacion', 'Mobility / rehabilitation',
+   'Caminadores y sillas de ruedas. Unico cluster con hub->articulo ya conectado en FAMILIA_HUB_LINKS.'),
+  ('cardiologia-reanimacion', 'Cardiologia / reanimacion', 'Cardiology / resuscitation',
+   'Desfibriladores y equipos de reanimacion. Landing /es/desfibriladores-hospitalarios/, 1 articulo.'),
+  ('financiacion', 'Financiacion', 'Financing',
+   'SimuladorFinanciero.astro en produccion, 1 articulo. Contenido de tasas reales bloqueado por firma legal pendiente (ver PENDIENTES.md) — no publicar contenido nuevo de este cluster hasta resolver ese bloqueante.'),
+  ('invima-regulacion', 'INVIMA / regulacion', 'INVIMA / regulatory',
+   'Sin contenido publicado hoy; datos ya existen (invima-knowledge-base.json, sin usar). Candidato fuerte solo despues de que exista el modelo de evidencia (ADR-0013) — no antes.')
+ON CONFLICT (slug) DO NOTHING;

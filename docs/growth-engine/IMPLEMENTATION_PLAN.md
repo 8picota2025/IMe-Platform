@@ -111,15 +111,15 @@ importadores unidireccionales:
 
 ### 1.3 Modelos de datos (tablas clave)
 
-| Dominio | Tablas | Notas |
-|---|---|---|
-| Catálogo | `familias`, `tipos`, `productos`, `producto_variantes` | bilingüe, `fulfillment_mode` (dropship/cotización/individualizado), fiscal CO completo, embedding vector |
-| Funnel comercial | `solicitudes_cotizacion`, `clientes`, `pedidos`, `facturas_electronicas`, `eventos_pago`, `reembolsos` | estado `nueva→…→convertida→expirada` |
-| CRM local (warehouse) | `crm_accounts`, `crm_contacts`, `crm_opportunities`, `crm_activities`, `leads_comerciales` | **no está en `schema.sql`**, sólo en migraciones (`20260723040818_crm_normalizado_flujos.sql`, `20260809090000_commercial_leads_attribution_crm.sql`). `leads_comerciales` ya tiene columnas UTM completas + `landing_path`, `referrer`, `analytics_session_id` |
-| Contenido | `articulos` | sin taxonomía |
-| IA/agente | `llm_uso`, `asesor_uso`, `asesor_agent_turns`, `asesor_rate_limit` | `asesor_agent_turns` persiste histórico completo de conversación sin redacción — ver R-4 |
-| Analítica | `eventos_sistema` (RLS sin policies, sólo service-role), `analytics_eventos` (con denylist de PII en `track-analytics`) | doble tracking: eventos de negocio + eventos tipo GA |
-| Admin/RBAC | `admin_profiles` (owner/admin/catalogo/ventas/operaciones/lectura) + `is_admin()` SECURITY DEFINER | UI es cosmética, RLS es la barrera real (comentario explícito en el propio código) |
+| Dominio               | Tablas                                                                                                                  | Notas                                                                                                                                                                                                                                                           |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Catálogo              | `familias`, `tipos`, `productos`, `producto_variantes`                                                                  | bilingüe, `fulfillment_mode` (dropship/cotización/individualizado), fiscal CO completo, embedding vector                                                                                                                                                        |
+| Funnel comercial      | `solicitudes_cotizacion`, `clientes`, `pedidos`, `facturas_electronicas`, `eventos_pago`, `reembolsos`                  | estado `nueva→…→convertida→expirada`                                                                                                                                                                                                                            |
+| CRM local (warehouse) | `crm_accounts`, `crm_contacts`, `crm_opportunities`, `crm_activities`, `leads_comerciales`                              | **no está en `schema.sql`**, sólo en migraciones (`20260723040818_crm_normalizado_flujos.sql`, `20260809090000_commercial_leads_attribution_crm.sql`). `leads_comerciales` ya tiene columnas UTM completas + `landing_path`, `referrer`, `analytics_session_id` |
+| Contenido             | `articulos`                                                                                                             | sin taxonomía                                                                                                                                                                                                                                                   |
+| IA/agente             | `llm_uso`, `asesor_uso`, `asesor_agent_turns`, `asesor_rate_limit`                                                      | `asesor_agent_turns` persiste histórico completo de conversación sin redacción — ver R-4                                                                                                                                                                        |
+| Analítica             | `eventos_sistema` (RLS sin policies, sólo service-role), `analytics_eventos` (con denylist de PII en `track-analytics`) | doble tracking: eventos de negocio + eventos tipo GA                                                                                                                                                                                                            |
+| Admin/RBAC            | `admin_profiles` (owner/admin/catalogo/ventas/operaciones/lectura) + `is_admin()` SECURITY DEFINER                      | UI es cosmética, RLS es la barrera real (comentario explícito en el propio código)                                                                                                                                                                              |
 
 ### 1.4 CRM e integraciones existentes
 
@@ -155,6 +155,7 @@ pero no presente en el repo (`twenty-daily-crm.py`, `crm-digest/index.ts:6` —
 `UNKNOWN / REQUIRES_VERIFICATION`).
 
 **Trabajo ya intentado y semi-construido (no greenfield):**
+
 - **`feat/crm-digest-email`** — ya mergeado, digest diario de Twenty por email vía Resend.
 - **`feature/meta-publishing-hardened`** — ~70% construido: `_shared/meta-graph.ts` (610
   líneas + tests), Edge Function `meta-publish/` con publish-once/dry-run/fail-closed
@@ -168,21 +169,22 @@ pero no presente en el repo (`twenty-daily-crm.py`, `crm-digest/index.ts:6` —
 
 **SEO técnico: fuerte, no es la brecha.** `src/lib/seo.ts` (849 líneas) es una librería
 real de structured data (Organization/MedicalBusiness con NIT real, Product/MedicalDevice
-+ Offer + MerchantReturnPolicy, FAQPage, BreadcrumbList, Service+areaServed). Canonical,
-hreflang (es/es-CO/en/x-default), sitemap con filtro de indexabilidad, OG/Twitter
-completos — todo en `src/components/BaseHead.astro`, usado en cada página. Auditorías
-SEO ya ejecutadas y documentadas: `docs/SEO_CRAWL_AUDIT.md`, `docs/SEO_VALIDACION.md`
-(1659 páginas, 1628 URLs en sitemap, validadores OK), `docs/plans/2026-08-16-seo-audit-implem.md`
-(plan de 7 fases contra una auditoría externa de 65/100, +30% orgánico objetivo a 6 meses,
-fases 0-4 mayormente cerradas). `docs/seo/top20-keywords.json` ya define ~120 frases
-objetivo sobre 20 PDPs.
+
+- Offer + MerchantReturnPolicy, FAQPage, BreadcrumbList, Service+areaServed). Canonical,
+  hreflang (es/es-CO/en/x-default), sitemap con filtro de indexabilidad, OG/Twitter
+  completos — todo en `src/components/BaseHead.astro`, usado en cada página. Auditorías
+  SEO ya ejecutadas y documentadas: `docs/SEO_CRAWL_AUDIT.md`, `docs/SEO_VALIDACION.md`
+  (1659 páginas, 1628 URLs en sitemap, validadores OK), `docs/plans/2026-08-16-seo-audit-implem.md`
+  (plan de 7 fases contra una auditoría externa de 65/100, +30% orgánico objetivo a 6 meses,
+  fases 0-4 mayormente cerradas). `docs/seo/top20-keywords.json` ya define ~120 frases
+  objetivo sobre 20 PDPs.
 
 **Knowledge Hub (`/es/conocimiento/`): sin clusters.** Grid plano ordenado por fecha, sin
 taxonomía, sin tags, sin hub/spoke, sin bloque de artículos relacionados. El único
 mecanismo de linking sistemático es `FAMILIA_HUB_LINKS`
 (`src/data/familia-seo.ts:1074-1214`), un mapa hardcodeado de 8 familias → 1-3 enlaces
 curados — y sólo en sentido familia→artículo, nunca artículo→artículo. `publicar.astro` es
-un formulario público de *propuesta* (moderado, `noindex`, CTA oculto), no una UI de
+un formulario público de _propuesta_ (moderado, `noindex`, CTA oculto), no una UI de
 autoría real.
 
 **Landing Factory: sustancialmente ya existe.** Cuatro sistemas data-driven con un
@@ -211,8 +213,8 @@ UI y el lead-gate.
 Los claims regulatorios viven como texto libre dentro de `productos.especificaciones`
 JSONB. De 718 productos en el mock dataset, sólo 7 tienen algún campo de fuente
 (`atributos.fuente_url`). El propio equipo ya identificó esto como bloqueado
-(`VALIDACION.md → BLOCKED_HUMAN_REVIEW #4`: *"Política INVIMA por producto (no crear
-columna a ciegas)"*). El asesor IMEIA tiene guardrails de **enrutamiento** (precio,
+(`VALIDACION.md → BLOCKED_HUMAN_REVIEW #4`: _"Política INVIMA por producto (no crear
+columna a ciegas)"_). El asesor IMEIA tiene guardrails de **enrutamiento** (precio,
 financiación, disponibilidad, INVIMA-por-SKU específico → handoff humano vía
 `src/lib/asesor-guardrails.ts`) pero **no de citación**: las respuestas regulatorias
 genéricas salen de texto estático no condicionado a evidencia por producto
@@ -228,6 +230,7 @@ alguno** — `productos.activo` es un toggle directo en admin.
 ### 1.7 Seguridad y privacidad
 
 Postura relativamente fuerte comparada con el resto del sistema:
+
 - **RLS: cobertura completa** — 34/34 tablas, 52 policies, deny-by-default explícito en
   tablas sensibles (`asesor_agent_turns`).
 - **Rate limiting: disciplina real y consistente** — un solo módulo compartido
@@ -240,9 +243,9 @@ Postura relativamente fuerte comparada con el resto del sistema:
   (comentario explícito en el código).
 - **PII en analytics: buena higiene** — denylist real en `track-analytics`.
 - **PII en el asesor IA: riesgo alto no mitigado** — `asesor_agent_turns` persiste mensaje
-  + historial completo + contexto de navegación **verbatim**, sin redacción, sin TTL, sin
-  retención configurada, y lo reenvía a un **endpoint de agente externo de terceros**.
-  Conversaciones de compra hospitalaria pueden contener nombres, institución y contacto.
+  - historial completo + contexto de navegación **verbatim**, sin redacción, sin TTL, sin
+    retención configurada, y lo reenvía a un **endpoint de agente externo de terceros**.
+    Conversaciones de compra hospitalaria pueden contener nombres, institución y contacto.
 - **Consentimiento de formularios: capturado** (`consentimiento_datos` +
   `consentimiento_timestamp`, ADR-0003 ya resuelto vía equivalencia funcional a
   `habeas_data_ok`). **Consentimiento de tracking: no existe** — ver punto 1 del resumen ejecutivo.
@@ -324,42 +327,43 @@ de leads en absoluto.
 
 ## 3. Componentes reutilizables
 
-| Componente | Ubicación | Reutilizar para |
-|---|---|---|
-| `CampaignLandingPage.astro` + `CampaignLandingContent` schema | `src/components/`, `src/data/comercial-landings.ts` | Landing Factory formal |
-| `_shared/rate-limit.ts` | `supabase/functions/_shared/` | cualquier endpoint nuevo (tools, formularios de canal) |
-| `_shared/twenty-crm.ts` (`TwentyClient`) | idem | extender firma con atribución (ADR-0011) |
-| `src/lib/seo.ts` (schema.org builders) | — | nuevos topic clusters, comparadores, tools |
-| `src/lib/comercial-attribution.ts` | — | base para first/last-touch persistente (hoy sólo session) |
-| `src/lib/analytics.ts` + `analytics_eventos` | — | intent scoring (Sección 12 del mandato) |
-| `invima-knowledge-base.json` + `src/lib/invima.ts` (sin usar hoy) | `src/data/`, `src/lib/` | primer Tool Factory nuevo: checklist INVIMA |
-| `PdfDownloadGate.astro` + `registrar-lead-comercial` | `src/components/` | lead magnets nuevos |
-| `_shared/meta-graph.ts` + `meta-publish/` (rama `feature/meta-publishing-hardened`, sin mergear) | — | base del adapter de Instagram; requiere decisión de merge |
-| `crm-digest` (mergeado) | `supabase/functions/crm-digest/` | patrón para reporting recurrente sin n8n |
+| Componente                                                                                       | Ubicación                                           | Reutilizar para                                           |
+| ------------------------------------------------------------------------------------------------ | --------------------------------------------------- | --------------------------------------------------------- |
+| `CampaignLandingPage.astro` + `CampaignLandingContent` schema                                    | `src/components/`, `src/data/comercial-landings.ts` | Landing Factory formal                                    |
+| `_shared/rate-limit.ts`                                                                          | `supabase/functions/_shared/`                       | cualquier endpoint nuevo (tools, formularios de canal)    |
+| `_shared/twenty-crm.ts` (`TwentyClient`)                                                         | idem                                                | extender firma con atribución (ADR-0011)                  |
+| `src/lib/seo.ts` (schema.org builders)                                                           | —                                                   | nuevos topic clusters, comparadores, tools                |
+| `src/lib/comercial-attribution.ts`                                                               | —                                                   | base para first/last-touch persistente (hoy sólo session) |
+| `src/lib/analytics.ts` + `analytics_eventos`                                                     | —                                                   | intent scoring (Sección 12 del mandato)                   |
+| `invima-knowledge-base.json` + `src/lib/invima.ts` (sin usar hoy)                                | `src/data/`, `src/lib/`                             | primer Tool Factory nuevo: checklist INVIMA               |
+| `PdfDownloadGate.astro` + `registrar-lead-comercial`                                             | `src/components/`                                   | lead magnets nuevos                                       |
+| `_shared/meta-graph.ts` + `meta-publish/` (rama `feature/meta-publishing-hardened`, sin mergear) | —                                                   | base del adapter de Instagram; requiere decisión de merge |
+| `crm-digest` (mergeado)                                                                          | `supabase/functions/crm-digest/`                    | patrón para reporting recurrente sin n8n                  |
 
 ---
 
 ## 4. Deuda técnica relevante
 
-| ID | Deuda | Severidad | Evidencia |
-|---|---|---|---|
-| D-1 | Contraseña hardcodeada del CMS legado en archivo trackeado | Alta (trivial de arreglar) | `src/data/raw_js_cms.js` `CMS_PASS = 'imecms2024'` |
-| D-2 | `mock-productos.json` de 5.0 MB importado incondicionalmente en `datos.ts` | Media | infla el grafo de módulos incluso en build con `REQUIRE_LIVE_DATA=true` |
-| D-3 | Vitest no es gate de CI | Media-Alta | `ci.yml` no ejecuta `npm run test` |
-| D-4 | `schema.sql` (2018 líneas) convive con 48 migraciones sin fuente única verificable | Media | tablas como `eventos_sistema`, `crm_*`, `leads_comerciales` sólo existen en migraciones |
-| D-5 | 3 vías de autoría de landings (TS / SQL / admin) | Media | bloquea Landing Factory formal (ADR-0015) |
-| D-6 | Deploy FTP con estado corrupto documentado 2 veces (`.ftp-deploy-sync-state` v1/v2) | Media | comentarios en `deploy-prod.yml`; ~604 MB de assets de fabricante sólo en el host, sin backup versionado |
-| D-7 | Importador GMD depende de sesión Chrome manual (`127.0.0.1:9222`) | Media | no programable en CI; refresco de catálogo no automatizable hoy |
-| D-8 | `admin-app.ts` de 12 516 líneas en un solo archivo | Media (mantenibilidad) | mayor superficie de costo de mantenimiento del repo |
-| D-9 | ~30 documentos `.md` de estado en la raíz con alcance solapado y sin fecha clara | Baja-Media | dificulta encontrar la verdad vigente (README ya está desactualizado respecto a `PENDIENTES.md` en al menos un punto legal — ver R-7) |
-| D-10 | Sprawl de worktrees (12, incluido un duplicado de mayúsculas/minúsculas, varios prunable en `/tmp`) | Media (riesgo operativo) | alto riesgo de editar el checkout equivocado |
-| D-11 | `TERMINOS_FINANCIACION_COLOMBIA.md/json` e `invima-knowledge-base.json`/`invima.ts` construidos pero no importados por ningún código | Baja | oportunidad barata, no deuda que arreglar sino activo dormido |
+| ID   | Deuda                                                                                                                                | Severidad                  | Evidencia                                                                                                                                           |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------ | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D-1  | Contraseña hardcodeada del CMS legado en archivo trackeado                                                                           | Alta (trivial de arreglar) | `src/data/raw_js_cms.js` (`CMS_PASS`; archivo eliminado en `167146f`, sigue en el historial de git — rotar la contraseña donde se haya reutilizado) |
+| D-2  | `mock-productos.json` de 5.0 MB importado incondicionalmente en `datos.ts`                                                           | Media                      | infla el grafo de módulos incluso en build con `REQUIRE_LIVE_DATA=true`                                                                             |
+| D-3  | Vitest no es gate de CI                                                                                                              | Media-Alta                 | `ci.yml` no ejecuta `npm run test`                                                                                                                  |
+| D-4  | `schema.sql` (2018 líneas) convive con 48 migraciones sin fuente única verificable                                                   | Media                      | tablas como `eventos_sistema`, `crm_*`, `leads_comerciales` sólo existen en migraciones                                                             |
+| D-5  | 3 vías de autoría de landings (TS / SQL / admin)                                                                                     | Media                      | bloquea Landing Factory formal (ADR-0015)                                                                                                           |
+| D-6  | Deploy FTP con estado corrupto documentado 2 veces (`.ftp-deploy-sync-state` v1/v2)                                                  | Media                      | comentarios en `deploy-prod.yml`; ~604 MB de assets de fabricante sólo en el host, sin backup versionado                                            |
+| D-7  | Importador GMD depende de sesión Chrome manual (`127.0.0.1:9222`)                                                                    | Media                      | no programable en CI; refresco de catálogo no automatizable hoy                                                                                     |
+| D-8  | `admin-app.ts` de 12 516 líneas en un solo archivo                                                                                   | Media (mantenibilidad)     | mayor superficie de costo de mantenimiento del repo                                                                                                 |
+| D-9  | ~30 documentos `.md` de estado en la raíz con alcance solapado y sin fecha clara                                                     | Baja-Media                 | dificulta encontrar la verdad vigente (README ya está desactualizado respecto a `PENDIENTES.md` en al menos un punto legal — ver R-7)               |
+| D-10 | Sprawl de worktrees (12, incluido un duplicado de mayúsculas/minúsculas, varios prunable en `/tmp`)                                  | Media (riesgo operativo)   | alto riesgo de editar el checkout equivocado                                                                                                        |
+| D-11 | `TERMINOS_FINANCIACION_COLOMBIA.md/json` e `invima-knowledge-base.json`/`invima.ts` construidos pero no importados por ningún código | Baja                       | oportunidad barata, no deuda que arreglar sino activo dormido                                                                                       |
 
 ---
 
 ## 5. Datos disponibles / Datos faltantes
 
 **Disponibles y de buena calidad:**
+
 - Catálogo completo con especificaciones, fiscalidad CO, embeddings semánticos.
 - Funnel comercial completo en Supabase (cotización → pedido → factura → reembolso).
 - UTM/session/landing/referrer ya capturados en `leads_comerciales` y `solicitudes_cotizacion`.
@@ -368,6 +372,7 @@ de leads en absoluto.
 - Base de conocimiento INVIMA estructurada (sin usar).
 
 **Faltantes o insuficientes:**
+
 - Ningún dato de GSC/PSI en el repo — no hay línea base de métricas orgánicas verificable
   desde aquí (`UNKNOWN`, requiere acceso a Search Console del cliente).
 - Sin `content_id` como entidad — no hay forma de rastrear un asset de contenido a través
@@ -389,6 +394,7 @@ de leads en absoluto.
 Resend (mailer), Google Merchant feed.
 
 **Pendientes / bloqueadas:**
+
 - **Admin de Twenty debe crear campos custom** antes de poder sincronizar UTM/session/
   content_id (la API key actual no tiene `create_field_metadata`). Acción humana, no de
   código — coordinar con quien administra `crm.i-me.com.co`.
@@ -412,25 +418,25 @@ Resend (mailer), Google Merchant feed.
 
 ### Riesgos regulatorios / privacidad (los más urgentes)
 
-| ID | Riesgo | Severidad | Mitigación propuesta |
-|---|---|---|---|
-| R-1 | GA4/GTM/Clarity cargan sin gate de consentimiento, contradiciendo la política de cookies propia y validada legalmente | **Crítica** | Implementar CMP + `gtag('consent', ...)` con default-deny antes de cualquier ampliación de tracking. ADR-0012. Candidato de Fase 1, no esperar a Foundation completa. |
-| R-2 | Conversaciones del asesor IA persisten PII potencial sin redacción/retención, reenviadas a agente externo | Alta | Redacción tipo `PII_KEYS` (ya existe patrón en `track-analytics`) + TTL/retención en `asesor_agent_turns`. ADR-0017. |
-| R-3 | Cero gobernanza de evidencia para claims biomédicos sensibles (INVIMA/CE/FDA) | Alta | Modelo de evidencia mínimo viable en Fase 1 (no el modelo completo de 10 campos de inmediato): `fuente_url` + `revisado_por` + `estado_aprobacion` obligatorios para nuevos claims regulatorios. ADR-0013. |
-| R-4 | Asesor IA responde preguntas clínicas/regulatorias con texto no citado por producto | Media-Alta | Condicionar respuestas regulatorias a existencia de evidencia por SKU; fallback a handoff humano si no hay evidencia verificada. |
-| R-7 | Documentos de estado del repo se contradicen entre sí sobre si los legales ya fueron aprobados (`README.md` vs `REMEDIACION.md` vs `PENDIENTES.md`) | Media | Resolver cuál es la fuente de verdad antes de referenciar el estado legal en cualquier nuevo contenido. Acción de 30 minutos, alto valor. |
+| ID  | Riesgo                                                                                                                                              | Severidad   | Mitigación propuesta                                                                                                                                                                                       |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| R-1 | GA4/GTM/Clarity cargan sin gate de consentimiento, contradiciendo la política de cookies propia y validada legalmente                               | **Crítica** | Implementar CMP + `gtag('consent', ...)` con default-deny antes de cualquier ampliación de tracking. ADR-0012. Candidato de Fase 1, no esperar a Foundation completa.                                      |
+| R-2 | Conversaciones del asesor IA persisten PII potencial sin redacción/retención, reenviadas a agente externo                                           | Alta        | Redacción tipo `PII_KEYS` (ya existe patrón en `track-analytics`) + TTL/retención en `asesor_agent_turns`. ADR-0017.                                                                                       |
+| R-3 | Cero gobernanza de evidencia para claims biomédicos sensibles (INVIMA/CE/FDA)                                                                       | Alta        | Modelo de evidencia mínimo viable en Fase 1 (no el modelo completo de 10 campos de inmediato): `fuente_url` + `revisado_por` + `estado_aprobacion` obligatorios para nuevos claims regulatorios. ADR-0013. |
+| R-4 | Asesor IA responde preguntas clínicas/regulatorias con texto no citado por producto                                                                 | Media-Alta  | Condicionar respuestas regulatorias a existencia de evidencia por SKU; fallback a handoff humano si no hay evidencia verificada.                                                                           |
+| R-7 | Documentos de estado del repo se contradicen entre sí sobre si los legales ya fueron aprobados (`README.md` vs `REMEDIACION.md` vs `PENDIENTES.md`) | Media       | Resolver cuál es la fuente de verdad antes de referenciar el estado legal en cualquier nuevo contenido. Acción de 30 minutos, alto valor.                                                                  |
 
 ### Riesgos técnicos
 
-| ID | Riesgo | Severidad | Mitigación propuesta |
-|---|---|---|---|
-| R-2b | WhatsApp (canal B2B primario en Colombia) no genera lead/contacto — mayor fuga de atribución individual | Alta | Diseñar captura de identidad mínima en `whatsapp-webhook` (opt-in) antes de escalar inversión en el canal. |
-| R-5 | Atribución (UTM/session/landing/first-touch/content_id) no llega a Twenty CRM | Alta pero barata de resolver | Extender firma de `syncCotizacionWithTwenty`/`syncCommercialLeadWithTwenty`. Depende de que Twenty admin cree los campos custom primero. |
-| R-6 | 3 vías de autoría de landings inconsistentes | Media | Elegir una (recomendado: admin CMS o un generador sobre los TS files) antes de escalar el Landing Factory. ADR-0015. |
-| R-8 | Drift no verificable entre `schema.sql` y migraciones aplicadas | Media | Verificar contra un proyecto Supabase real cuál es la fuente de verdad; documentar. |
-| R-9 | 12 worktrees, incluido duplicado de mayúsculas, alto riesgo de editar el checkout equivocado | Media (operativo) | Higiene de worktrees fuera del alcance de este plan de producto, pero se señala como bloqueante operativo para cualquier ejecución paralela con Codex. |
-| R-10 | Vitest no es gate de CI | Media | Añadir `npm run test` a `ci.yml`. Cambio de bajo riesgo, candidato L1/Codex. |
-| R-11 | Importador de catálogo depende de scraping de un storefront de tercero (GMD) vía sesión manual de Chrome | Media (legal/operativo, fuera de alcance técnico) | Señalar al negocio para revisión de ToS; no es parte del alcance de este growth engine pero condiciona la frescura del catálogo. |
+| ID   | Riesgo                                                                                                   | Severidad                                         | Mitigación propuesta                                                                                                                                   |
+| ---- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| R-2b | WhatsApp (canal B2B primario en Colombia) no genera lead/contacto — mayor fuga de atribución individual  | Alta                                              | Diseñar captura de identidad mínima en `whatsapp-webhook` (opt-in) antes de escalar inversión en el canal.                                             |
+| R-5  | Atribución (UTM/session/landing/first-touch/content_id) no llega a Twenty CRM                            | Alta pero barata de resolver                      | Extender firma de `syncCotizacionWithTwenty`/`syncCommercialLeadWithTwenty`. Depende de que Twenty admin cree los campos custom primero.               |
+| R-6  | 3 vías de autoría de landings inconsistentes                                                             | Media                                             | Elegir una (recomendado: admin CMS o un generador sobre los TS files) antes de escalar el Landing Factory. ADR-0015.                                   |
+| R-8  | Drift no verificable entre `schema.sql` y migraciones aplicadas                                          | Media                                             | Verificar contra un proyecto Supabase real cuál es la fuente de verdad; documentar.                                                                    |
+| R-9  | 12 worktrees, incluido duplicado de mayúsculas, alto riesgo de editar el checkout equivocado             | Media (operativo)                                 | Higiene de worktrees fuera del alcance de este plan de producto, pero se señala como bloqueante operativo para cualquier ejecución paralela con Codex. |
+| R-10 | Vitest no es gate de CI                                                                                  | Media                                             | Añadir `npm run test` a `ci.yml`. Cambio de bajo riesgo, candidato L1/Codex.                                                                           |
+| R-11 | Importador de catálogo depende de scraping de un storefront de tercero (GMD) vía sesión manual de Chrome | Media (legal/operativo, fuera de alcance técnico) | Señalar al negocio para revisión de ToS; no es parte del alcance de este growth engine pero condiciona la frescura del catálogo.                       |
 
 **Nota:** no se declaran métricas ni causalidad que no puedan verificarse desde el repo —
 todo lo anterior está citado a archivo y línea por los subagentes de discovery.
@@ -465,16 +471,16 @@ y `eventos_sistema` ya cubren ese rol.
 
 ## 9. ADRs propuestas (a redactar formalmente en Fase 1, numeración continúa desde 0010)
 
-| ADR propuesta | Decisión a tomar | Bloquea a |
-|---|---|---|
-| 0011 | Extender `TwentyClient` con atribución (session/UTM/landing/content_id/first-last-touch) | Sección 11/13 del mandato |
-| 0012 | Selección de CMP y política de consent-mode por defecto (deny) para GA4/GTM/Clarity | Cualquier trabajo de canales pagos/pixel |
-| 0013 | Modelo mínimo de Evidence & Compliance para claims biomédicos (alcance reducido vs. el modelo completo de 10 campos) | Sección 15/16 del mandato, Knowledge Hub |
-| 0014 | Taxonomía de topic clusters para `articulos` (tags/categoría/cluster_id) | Fase 2 |
-| 0015 | Autoría única del Landing Factory (elegir entre admin CMS / generador sobre TS / deprecar SQL enrichment) | Fase 3 |
-| 0016 | Captura de identidad mínima opt-in en WhatsApp inbound → lead | Sección 8/11 del mandato |
-| 0017 | Redacción de PII y retención configurable en `asesor_agent_turns` | R-2, cumplimiento |
-| 0018 | Automatización: ¿n8n nuevo, o Edge Functions + GitHub Actions cron (patrón ya usado en `crm-digest`)? | Fase 8 |
+| ADR propuesta | Decisión a tomar                                                                                                     | Bloquea a                                |
+| ------------- | -------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| 0011          | Extender `TwentyClient` con atribución (session/UTM/landing/content_id/first-last-touch)                             | Sección 11/13 del mandato                |
+| 0012          | Selección de CMP y política de consent-mode por defecto (deny) para GA4/GTM/Clarity                                  | Cualquier trabajo de canales pagos/pixel |
+| 0013          | Modelo mínimo de Evidence & Compliance para claims biomédicos (alcance reducido vs. el modelo completo de 10 campos) | Sección 15/16 del mandato, Knowledge Hub |
+| 0014          | Taxonomía de topic clusters para `articulos` (tags/categoría/cluster_id)                                             | Fase 2                                   |
+| 0015          | Autoría única del Landing Factory (elegir entre admin CMS / generador sobre TS / deprecar SQL enrichment)            | Fase 3                                   |
+| 0016          | Captura de identidad mínima opt-in en WhatsApp inbound → lead                                                        | Sección 8/11 del mandato                 |
+| 0017          | Redacción de PII y retención configurable en `asesor_agent_turns`                                                    | R-2, cumplimiento                        |
+| 0018          | Automatización: ¿n8n nuevo, o Edge Functions + GitHub Actions cron (patrón ya usado en `crm-digest`)?                | Fase 8                                   |
 
 ---
 
@@ -504,21 +510,21 @@ tocan arquitectura, y varios son candidatos directos a Codex (L1).
 
 ## 11. Matriz de routing Claude / Codex (para el backlog de Fase 1)
 
-| Tarea | Nivel | Routing | Razón |
-|---|---|---|---|
-| Diseño del modelo mínimo de Evidence & Compliance (ADR-0013) | L3 | Claude | riesgo regulatorio alto, decisión transversal |
-| Selección de CMP + diseño de consent-mode (ADR-0012) | L3 (diseño) / L2 (implementación) | Claude diseña, Codex implementa | decisión legal/UX + integración técnica bien especificable |
-| Extender `TwentyClient` con campos de atribución | L2 | Claude diseña la interfaz, Codex implementa | depende de que Twenty admin cree campos custom primero (bloqueo externo) |
-| Remediar D-1 (secreto legado en `raw_js_cms.js`) | L1 | Codex | mecánico, acotado, sin ambigüedad |
-| Añadir `npm run test` como gate de CI | L1 | Codex | mecánico |
-| Diseño de taxonomía de topic clusters (ADR-0014) | L3 | Claude (subagente SEO/IA) | arquitectura de contenido transversal |
-| Implementación de tags/cluster_id en `articulos` + UI admin | L2 | Claude diseña, Codex implementa | schema + UI bien especificable tras el ADR |
-| Selección/diseño del cluster piloto (Sección 24 del mandato) | L3 | Claude | síntesis de negocio + evidencia + SEO |
-| Checklist INVIMA (tool nuevo sobre datos ya existentes) | L2 | Claude diseña la UX del checklist, Codex implementa | dato y lógica ya existen, sólo falta la superficie |
-| Captura de identidad opt-in en WhatsApp (ADR-0016) | L3 diseño / L2 implementación | Claude diseña, Codex implementa | toca consentimiento y UX conversacional, luego es mecánico |
-| Adapter Instagram (retomar rama `feature/meta-publishing-hardened`) | L2 | Claude revisa la rama existente, Codex completa/mergea | ya 70% construido, requiere decisión de merge de Claude primero |
-| Adapter LinkedIn / X | L2-L3 según diseño de estrategia por canal | Claude diseña estrategia (Sección 8 del mandato), Codex implementa el adapter técnico | greenfield, requiere estrategia antes que código |
-| Redacción PII en `asesor_agent_turns` (ADR-0017) | L2 | Claude diseña el denylist/política de retención (reusar patrón de `track-analytics`), Codex implementa | patrón ya existe en el repo, es replicar con criterio |
+| Tarea                                                               | Nivel                                      | Routing                                                                                                | Razón                                                                    |
+| ------------------------------------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------ |
+| Diseño del modelo mínimo de Evidence & Compliance (ADR-0013)        | L3                                         | Claude                                                                                                 | riesgo regulatorio alto, decisión transversal                            |
+| Selección de CMP + diseño de consent-mode (ADR-0012)                | L3 (diseño) / L2 (implementación)          | Claude diseña, Codex implementa                                                                        | decisión legal/UX + integración técnica bien especificable               |
+| Extender `TwentyClient` con campos de atribución                    | L2                                         | Claude diseña la interfaz, Codex implementa                                                            | depende de que Twenty admin cree campos custom primero (bloqueo externo) |
+| Remediar D-1 (secreto legado en `raw_js_cms.js`)                    | L1                                         | Codex                                                                                                  | mecánico, acotado, sin ambigüedad                                        |
+| Añadir `npm run test` como gate de CI                               | L1                                         | Codex                                                                                                  | mecánico                                                                 |
+| Diseño de taxonomía de topic clusters (ADR-0014)                    | L3                                         | Claude (subagente SEO/IA)                                                                              | arquitectura de contenido transversal                                    |
+| Implementación de tags/cluster_id en `articulos` + UI admin         | L2                                         | Claude diseña, Codex implementa                                                                        | schema + UI bien especificable tras el ADR                               |
+| Selección/diseño del cluster piloto (Sección 24 del mandato)        | L3                                         | Claude                                                                                                 | síntesis de negocio + evidencia + SEO                                    |
+| Checklist INVIMA (tool nuevo sobre datos ya existentes)             | L2                                         | Claude diseña la UX del checklist, Codex implementa                                                    | dato y lógica ya existen, sólo falta la superficie                       |
+| Captura de identidad opt-in en WhatsApp (ADR-0016)                  | L3 diseño / L2 implementación              | Claude diseña, Codex implementa                                                                        | toca consentimiento y UX conversacional, luego es mecánico               |
+| Adapter Instagram (retomar rama `feature/meta-publishing-hardened`) | L2                                         | Claude revisa la rama existente, Codex completa/mergea                                                 | ya 70% construido, requiere decisión de merge de Claude primero          |
+| Adapter LinkedIn / X                                                | L2-L3 según diseño de estrategia por canal | Claude diseña estrategia (Sección 8 del mandato), Codex implementa el adapter técnico                  | greenfield, requiere estrategia antes que código                         |
+| Redacción PII en `asesor_agent_turns` (ADR-0017)                    | L2                                         | Claude diseña el denylist/política de retención (reusar patrón de `track-analytics`), Codex implementa | patrón ya existe en el repo, es replicar con criterio                    |
 
 ---
 
@@ -538,8 +544,7 @@ tocan arquitectura, y varios son candidatos directos a Codex (L1).
    claims de producto en Fase 2+.
 7. **ADR-0017 (redacción PII en asesor)** — mitigar el riesgo de mayor blast radius
    (conversaciones con PII hospitalaria hacia terceros).
-8. Diseño de taxonomía de topic clusters (ADR-0014) + selección de cluster piloto (Sección
-   24) — preparación para Fase 2/3.
+8. Diseño de taxonomía de topic clusters (ADR-0014) + selección de cluster piloto (Sección 24) — preparación para Fase 2/3.
 9. Diseño de captura de identidad opt-in en WhatsApp (ADR-0016) — preparación para Fase 4.
 10. Decisión sobre la rama `feature/meta-publishing-hardened` (¿retomar y mergear, o
     reconstruir?) — preparación para Fase 4.
@@ -582,19 +587,19 @@ tocan arquitectura, y varios son candidatos directos a Codex (L1).
 
 ## 15. Estimación relativa de complejidad (T-shirt, no horas — para no inventar precisión falsa)
 
-| Item | Complejidad |
-|---|---|
-| CMP + consent-mode (ADR-0012) | M |
-| Fix atribución Twenty (ADR-0011, código) | S (bloqueado por dependencia externa de admin Twenty) |
-| Modelo mínimo de evidencia (ADR-0013) | M |
-| Taxonomía de topic clusters (ADR-0014) | S-M |
-| Formalizar Landing Factory (ADR-0015) | M-L (decisión de consolidar 3 vías de autoría es lo costoso, no el código) |
-| Captura de identidad WhatsApp (ADR-0016) | M |
-| Redacción PII asesor (ADR-0017) | S |
-| Adapter Instagram (retomar rama existente) | S-M |
-| Adapter LinkedIn / X (greenfield) | L cada uno |
-| Checklist INVIMA (tool nuevo) | S (dato y lógica ya existen) |
-| Automatización (n8n vs. patrón nativo, ADR-0018) | M (decisión) + L (si se elige n8n nuevo) |
+| Item                                             | Complejidad                                                                |
+| ------------------------------------------------ | -------------------------------------------------------------------------- |
+| CMP + consent-mode (ADR-0012)                    | M                                                                          |
+| Fix atribución Twenty (ADR-0011, código)         | S (bloqueado por dependencia externa de admin Twenty)                      |
+| Modelo mínimo de evidencia (ADR-0013)            | M                                                                          |
+| Taxonomía de topic clusters (ADR-0014)           | S-M                                                                        |
+| Formalizar Landing Factory (ADR-0015)            | M-L (decisión de consolidar 3 vías de autoría es lo costoso, no el código) |
+| Captura de identidad WhatsApp (ADR-0016)         | M                                                                          |
+| Redacción PII asesor (ADR-0017)                  | S                                                                          |
+| Adapter Instagram (retomar rama existente)       | S-M                                                                        |
+| Adapter LinkedIn / X (greenfield)                | L cada uno                                                                 |
+| Checklist INVIMA (tool nuevo)                    | S (dato y lógica ya existen)                                               |
+| Automatización (n8n vs. patrón nativo, ADR-0018) | M (decisión) + L (si se elige n8n nuevo)                                   |
 
 ---
 
@@ -605,14 +610,14 @@ negocio.** Criterios del mandato: demanda, relevancia comercial, disponibilidad 
 evidencia, profundidad del catálogo, posibilidad de herramienta/lead magnet, potencial de
 RFQ.
 
-| Cluster | Evidencia hoy | Fortaleza |
-|---|---|---|
-| **Monitoreo / UCI** | family hub `monitores`+`cardiologia`, landing `/es/monitores-biolight-uci/`, ~4 sets de keywords top-20, 2 artículos, muchos PDPs, ya en `FAMILIA_HUB_LINKS` | **Candidato más fuerte** — es el único con profundidad simultánea en landing + keywords + contenido + catálogo |
-| Ventilación / terapia respiratoria | familias `ventiladores`+`terapia-respiratoria-soporte-vital`, 2 landings, 1 artículo, hub links presentes | Segundo más fuerte, alto valor unitario del equipo (mayor potencial de RFQ por ticket) |
-| Movilidad / rehabilitación | landings caminadores + sillas de ruedas, 1 artículo, único cluster con linking hub↔artículo ya conectado | Menor ticket promedio, pero el más "listo" en términos de UX de contenido |
-| Cardiología / reanimación | landing desfibriladores, 1 artículo, keywords | Sólido, nicho más estrecho |
-| Financiación | tool ya en producción (`SimuladorFinanciero`), 1 artículo, pero contenido legal aún bloqueado | Alto valor de conversión transversal, pero bloqueado por firma legal de tasas — no recomendado como piloto hasta resolver el bloqueante legal |
-| INVIMA / regulación | sólo datos (`invima-knowledge-base.json`), sin página, sin tool activo | Cero contenido hoy, pero es donde vive el gap de Evidence & Compliance — candidato fuerte para *después* de que exista ADR-0013, no como piloto inicial |
+| Cluster                            | Evidencia hoy                                                                                                                                                | Fortaleza                                                                                                                                               |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Monitoreo / UCI**                | family hub `monitores`+`cardiologia`, landing `/es/monitores-biolight-uci/`, ~4 sets de keywords top-20, 2 artículos, muchos PDPs, ya en `FAMILIA_HUB_LINKS` | **Candidato más fuerte** — es el único con profundidad simultánea en landing + keywords + contenido + catálogo                                          |
+| Ventilación / terapia respiratoria | familias `ventiladores`+`terapia-respiratoria-soporte-vital`, 2 landings, 1 artículo, hub links presentes                                                    | Segundo más fuerte, alto valor unitario del equipo (mayor potencial de RFQ por ticket)                                                                  |
+| Movilidad / rehabilitación         | landings caminadores + sillas de ruedas, 1 artículo, único cluster con linking hub↔artículo ya conectado                                                     | Menor ticket promedio, pero el más "listo" en términos de UX de contenido                                                                               |
+| Cardiología / reanimación          | landing desfibriladores, 1 artículo, keywords                                                                                                                | Sólido, nicho más estrecho                                                                                                                              |
+| Financiación                       | tool ya en producción (`SimuladorFinanciero`), 1 artículo, pero contenido legal aún bloqueado                                                                | Alto valor de conversión transversal, pero bloqueado por firma legal de tasas — no recomendado como piloto hasta resolver el bloqueante legal           |
+| INVIMA / regulación                | sólo datos (`invima-knowledge-base.json`), sin página, sin tool activo                                                                                       | Cero contenido hoy, pero es donde vive el gap de Evidence & Compliance — candidato fuerte para _después_ de que exista ADR-0013, no como piloto inicial |
 
 **Recomendación de Claude Orchestrator (no vinculante, requiere decisión humana):**
 **Monitoreo / UCI** como piloto, con **Ventilación** como segundo cluster inmediato si el

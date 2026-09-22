@@ -49,3 +49,25 @@ Deno.test('redactHistorial: redacta contenido en cada item, conserva rol', () =>
   assertEquals(result[0]?.rol, 'usuario');
   assertEquals(result[1]?.contenido, 'Claro, te contactamos pronto.');
 });
+
+Deno.test('redactPii: reemplaza fijo CO con indicativo entre parentesis', () => {
+  assertEquals(redactPii('oficina (601) 555 1234 ext 2'), 'oficina [TELEFONO] ext 2');
+});
+
+Deno.test('redactPii: reemplaza internacional explicito con +', () => {
+  assertEquals(redactPii('whatsapp +1 305 555 0142'), 'whatsapp [TELEFONO]');
+});
+
+Deno.test('redactPii: conserva datos comerciales que el agente necesita', () => {
+  for (const texto of [
+    'Precio 1.500.000 COP',
+    'Presupuesto de 350.000.000 para 2027',
+    'Monitor ref 7021-3350 cantidad 2',
+    'Entrega 2026-09-22',
+    'NIT 900.123.456-7',
+    'Registro INVIMA 2019DM-0019876',
+    'Pedido 3001234567890',
+  ]) {
+    assertEquals(redactPii(texto), texto);
+  }
+});
