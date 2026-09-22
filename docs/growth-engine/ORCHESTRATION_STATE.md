@@ -8,13 +8,55 @@
 
 ## Estado general
 
-- **Fase actual:** Fase 1 — Foundation → **8/8 ADRs aceptadas y redactadas** (0011-0018).
-  Todo el diseño de Fase 1 que el plan proponía está cerrado; lo que queda es
-  implementación diferida ya scopeada explícitamente a Fase 2/3/4 en cada ADR, más la
-  decisión de negocio del cluster piloto.
-- **Objetivo actual:** push de los commits pendientes, actualizar PR #116. Después:
-  decisión de negocio del cluster piloto (plan §16) para poder arrancar Fase 2.
-- **Última actualización:** 2026-09-22
+- **Fase actual:** Fase 1 — Foundation → **CERRADA**. 8/8 ADRs (0011-0018) aceptadas,
+  redactadas e implementadas donde correspondía; cluster piloto decidido; plan de
+  contenido de Fase 2 redactado. Sesión **pausada aquí a pedido del usuario** — no hay
+  trabajo en curso ni cambios sin commitear.
+- **Última actualización:** 2026-09-22 (fin de sesión)
+
+### 🔴 Punto de reanudación — leer esto primero al retomar
+
+**Todo está commiteado y pusheado.** `git status` limpio, rama
+`feat/growth-engine-foundation` al día con `origin` (verificado antes de pausar). PR
+[#116](https://github.com/8picota2025/IMe-Platform/pull/116) abierto en draft, 17
+commits, título y descripción reflejan el alcance completo.
+
+**Lo último que se hizo:** `docs/growth-engine/pilot-clusters-content-plan.md` — plan de
+contenido (sin producir nada todavía) para los dos clusters piloto que el usuario aprobó:
+**Monitoreo/UCI + INVIMA/Regulación**. El plan está a la espera de aprobación del usuario
+antes de que se escriba cualquier artículo/landing/tool/post real.
+
+**Siguiente acción concreta cuando se retome** (en orden, per el propio plan de
+contenido §4):
+
+1. El usuario aprueba (o ajusta) `pilot-clusters-content-plan.md`.
+2. Verificar en Supabase real cuántos artículos de Monitoreo ya están publicados en
+   producción (el build local sólo tiene mock data — no se puede confirmar desde aquí sin
+   credenciales).
+3. Confirmar con el equipo biomédico de I-ME cualquier checklist operativo que el plan
+   marcó `REQUIRES_VERIFICATION` (§1.3.3 del plan de contenido).
+4. Recién ahí, producir contenido real — sigue siendo Fase 2 (`Knowledge Hub`), no
+   arrancada todavía.
+
+**Pendientes que no bloquean lo anterior pero siguen abiertos:**
+
+- QA manual del banner de consentimiento (ADR-0012) en navegador real — no se hizo en
+  esta sesión.
+- Coordinar con el admin de Twenty CRM para crear los campos custom de la fase
+  estructurada de ADR-0011 (hoy la atribución llega a Twenty como texto, funciona, pero
+  no es un campo nativo consultable).
+- GE-007 (contradicción de estado legal entre `README.md`/`REMEDIACION.md`/
+  `PENDIENTES.md`) — identificado en Fase 0, nunca se resolvió, no bloquea nada, pendiente
+  desde el principio.
+- `actualizar-fulfillment/test.ts` — test de integración contra Supabase local
+  descubierto durante GE-008, nunca se metió a CI (necesita su propio harness con
+  service container, fuera de alcance de lo hecho hasta ahora).
+
+**Para reanudar sin releer todo el hilo:** este archivo + `IMPLEMENTATION_PLAN.md` +
+`pilot-clusters-content-plan.md` + los 8 archivos en `docs/decisions/0011-*.md` a
+`0018-*.md` son la fuente de verdad completa. No hace falta releer la conversación
+original — está todo aquí.
+
 - **Repo/rama de trabajo:** `/home/shoky/cursor/ime-platform-growth-engine`, rama
   `feat/growth-engine-foundation` (creada desde `origin/main` @ `a1280c2`, worktree
   dedicado — no reutiliza `fix/saikang-missing-cart-images`, que sigue intacto).
