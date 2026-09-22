@@ -74,6 +74,20 @@ describe('producto-seo-slug', () => {
     expect(plan.changed).toBe(false);
   });
 
+  it('con strictRef inserta -ref- aunque el modelo ya esté inline', () => {
+    const plan = planProductoSeoSlug(
+      {
+        slug: 'incubadora-neonatal-a3186-advanced',
+        nombre_es: 'Incubadora Neonatal A3186',
+        sku: 'A3186',
+        atributos: { fabricante: 'Advanced' },
+      },
+      { strictRef: true }
+    );
+    expect(plan.newSlug).toBe('incubadora-neonatal-ref-a3186-advanced');
+    expect(plan.changed).toBe(true);
+  });
+
   it('acorta marcas corporativas largas', () => {
     expect(brandSlugFromLabel('Rayto Life and Analytical Sciences Co.,Ltd.')).toBe('rayto');
   });

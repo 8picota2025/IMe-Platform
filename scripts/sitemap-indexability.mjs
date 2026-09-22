@@ -81,8 +81,8 @@ export const REDIRECT_ONLY_PRODUCT_PATHS = new Set([
   '/es/productos/combo-200-cajas-de-tirillas-plus-200-cajas-de-lancetas-plus-67-glucometros-en-obsequio-e-ref-200/',
   '/en/products/combo-200-cajas-de-tirillas-plus-200-cajas-de-lancetas-plus-67-glucometros-en-obsequio-e-ref-200/',
   // Mismo sistema radiográfico publicado con dos slugs.
-  '/es/productos/sistema-radiografico-3d-wr-3d-angell/',
-  '/en/products/sistema-radiografico-3d-wr-3d-angell/',
+  '/es/productos/sistema-radiografico-3d-ref-wr-3d-angell/',
+  '/en/products/sistema-radiografico-3d-ref-wr-3d-angell/',
 ]);
 
 function normalizePathname(pathname) {

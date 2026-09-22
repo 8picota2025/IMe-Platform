@@ -376,14 +376,14 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
       },
     ],
     relatedSlugs: [
-      'padbot-x3-robot-recepcion',
-      'padbot-x2-robot-servicio-interactivo',
-      'padbot-p2-robot-telepresencia',
-      'padbot-w2-robot-delivery-institucional',
-      'padbot-w3s-robot-delivery-alimentos',
-      'padbot-t2-robot-educativo-social',
-      'c3-robot-limpieza-autonoma',
-      'cruzr-robot-comercial-inteligente-ahuman-future',
+      'padbot-x3-robot-recepcion-ref-padbot-x3-padbot',
+      'padbot-x2-robot-servicio-interactivo-ref-padbot-x2-padbot',
+      'padbot-p2-robot-telepresencia-ref-padbot-p2-padbot',
+      'padbot-w2-robot-delivery-institucional-ref-padbot-w2-padbot',
+      'padbot-w3s-robot-delivery-alimentos-ref-padbot-w3s-padbot',
+      'padbot-t2-robot-educativo-social-ref-padbot-t2-padbot',
+      'c3-robot-limpieza-autonoma-ref-c3-cleaning-robot',
+      'cruzr-robot-comercial-inteligente-ref-cruzr-ahuman-future-ahuman-future',
     ],
   },
   {
@@ -425,10 +425,10 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
       },
     ],
     relatedSlugs: [
-      'mamografo-digital-dm166-series-angell',
-      'detector-plano-inalambrico-tcq-iii-angell',
+      'mamografo-digital-dm166-series-ref-dm166-angell',
+      'detector-plano-inalambrico-ref-tcq-iii-angell',
       'sistema-de-rayos-x-dr-montado-en-techo-ref-dr-ceiling-angell',
-      'sistema-radiografico-3d-wr-3d-angell-technology',
+      'sistema-radiografico-3d-wr-3d-angell-technology-ref-wr-3d-angell',
     ],
   },
   {
@@ -477,11 +477,11 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
     ],
     relatedSlugs: [
       'monitor-de-paciente-modular-serie-p-ref-p15-biolight',
-      'monitor-de-paciente-s12-biolight',
+      'monitor-de-paciente-ref-s12-biolight',
       'monitor-multiparametrico-uci-avanzado',
       'monitor-multiparametrico-basico',
       'monitor-central-uci-multicama',
-      'monitor-de-paciente-m12-biolight',
+      'monitor-de-paciente-ref-m12-biolight',
     ],
   },
   {
@@ -518,7 +518,7 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
     ],
     relatedSlugs: [
       'electrocardiografo-12-derivaciones-digital',
-      'electrocardiografo-ecg-3-plus-advanced',
+      'electrocardiografo-ref-ecg-3-plus-advanced',
       'desfibrilador-bifasico-con-monitor',
     ],
   },
@@ -681,7 +681,7 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
       },
     ],
     relatedSlugs: [
-      'bomba-de-infusion-ip-200-advanced',
+      'bomba-de-infusion-ref-ip-200-advanced',
       'bomba-de-infusion-ref-sk-em211-saikang',
       'bomba-de-jeringa-precision-microdosis',
     ],
@@ -716,7 +716,7 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
     ],
     relatedSlugs: [
       'maquina-de-anestesia-con-ventilador',
-      'maquina-de-anestesia-am-6000-plus-advanced',
+      'maquina-de-anestesia-ref-am-6000-plus-advanced',
     ],
   },
   {
@@ -1121,14 +1121,14 @@ const FAMILIA_HUB_LINKS: Record<string, FamiliaHubLink[]> = {
       label_en: 'Imaging project guide',
     },
     {
-      href_es: '/es/productos/mamografo-digital-dm166-series-angell/',
-      href_en: '/en/products/mamografo-digital-dm166-series-angell/',
+      href_es: '/es/productos/mamografo-digital-dm166-series-ref-dm166-angell/',
+      href_en: '/en/products/mamografo-digital-dm166-series-ref-dm166-angell/',
       label_es: 'Mamógrafo digital DM166',
       label_en: 'DM166 digital mammography',
     },
     {
-      href_es: '/es/productos/mamografo-digital-dm156-series-angell-technology/',
-      href_en: '/en/products/mamografo-digital-dm156-series-angell-technology/',
+      href_es: '/es/productos/mamografo-digital-dm156-series-angell-technology-ref-dm156-angell/',
+      href_en: '/en/products/mamografo-digital-dm156-series-angell-technology-ref-dm156-angell/',
       label_es: 'Mamógrafo digital DM156',
       label_en: 'DM156 digital mammography',
     },

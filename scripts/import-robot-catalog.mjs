@@ -18,18 +18,18 @@ const ROBOT_IMAGE_MAX_WIDTH = 1200;
 const ROBOT_IMAGE_WEBP_QUALITY = 82;
 
 const robotMediaSeoSlugByProductSlug = {
-  'cruzr-robot-comercial-inteligente-ahuman-future':
+  'cruzr-robot-comercial-inteligente-ref-cruzr-ahuman-future-ahuman-future':
     'robot-asistencial-recepcion-hospitalaria-cruzr-ahuman-future',
-  'padbot-x3-robot-recepcion': 'robot-asistencial-recepcion-clinicas-hospitales-padbot-x3',
-  'padbot-x2-robot-servicio-interactivo':
+  'padbot-x3-robot-recepcion-ref-padbot-x3-padbot': 'robot-asistencial-recepcion-clinicas-hospitales-padbot-x3',
+  'padbot-x2-robot-servicio-interactivo-ref-padbot-x2-padbot':
     'robot-asistencial-servicio-interactivo-clinicas-hospitales-padbot-x2',
-  'padbot-p2-robot-telepresencia': 'robot-telepresencia-telemedicina-tercera-edad-padbot-p2',
-  'padbot-w2-robot-delivery-institucional':
+  'padbot-p2-robot-telepresencia-ref-padbot-p2-padbot': 'robot-telepresencia-telemedicina-tercera-edad-padbot-p2',
+  'padbot-w2-robot-delivery-institucional-ref-padbot-w2-padbot':
     'robot-delivery-hospitalario-industrial-logistica-padbot-w2',
-  'padbot-w3s-robot-delivery-alimentos':
+  'padbot-w3s-robot-delivery-alimentos-ref-padbot-w3s-padbot':
     'robot-delivery-alimentos-restaurantes-hospitales-padbot-w3s',
-  'c3-robot-limpieza-autonoma': 'robot-limpieza-industrial-hospitalaria-autonoma-c3',
-  'padbot-t2-robot-educativo-social': 'robot-educativo-social-tercera-edad-padbot-t2',
+  'c3-robot-limpieza-autonoma-ref-c3-cleaning-robot': 'robot-limpieza-industrial-hospitalaria-autonoma-c3',
+  'padbot-t2-robot-educativo-social-ref-padbot-t2-padbot': 'robot-educativo-social-tercera-edad-padbot-t2',
 };
 
 function mediaSeoSlug(productSlug) {
@@ -460,7 +460,7 @@ function enrichApplications(product, locale) {
 const products = [
   {
     id: 'b0e856bd-b2c9-4dd1-b53e-6e60831df04d',
-    slug: 'cruzr-robot-comercial-inteligente-ahuman-future',
+    slug: 'cruzr-robot-comercial-inteligente-ref-cruzr-ahuman-future-ahuman-future',
     sku: 'CRUZR-AHUMAN-FUTURE',
     tipo_slug: 'robots-recepcion-atencion',
     pdf: 'AOMANFUTURE Cruzr .pdf',
@@ -526,7 +526,7 @@ const products = [
   },
   {
     id: '8132d872-63da-4f0a-b410-27894a84a575',
-    slug: 'padbot-x3-robot-recepcion',
+    slug: 'padbot-x3-robot-recepcion-ref-padbot-x3-padbot',
     sku: 'PADBOT-X3',
     tipo_slug: 'robots-recepcion-atencion',
     pdf: 'X3英文说明书0115.pdf',
@@ -595,7 +595,7 @@ const products = [
   },
   {
     id: 'e986e120-882c-4292-9097-122b54ebec98',
-    slug: 'padbot-x2-robot-servicio-interactivo',
+    slug: 'padbot-x2-robot-servicio-interactivo-ref-padbot-x2-padbot',
     sku: 'PADBOT-X2',
     tipo_slug: 'robots-recepcion-atencion',
     pdf: 'X2英文说明书0701.pdf',
@@ -662,7 +662,7 @@ const products = [
   },
   {
     id: '8e24c076-ace2-408a-9f46-53cd1ab05835',
-    slug: 'padbot-p2-robot-telepresencia',
+    slug: 'padbot-p2-robot-telepresencia-ref-padbot-p2-padbot',
     sku: 'PADBOT-P2',
     tipo_slug: 'robots-telepresencia',
     pdf: 'P2英文说明书.pptx.pdf',
@@ -729,7 +729,7 @@ const products = [
   },
   {
     id: 'e067c073-02ce-4ccf-873f-0c630f210ddb',
-    slug: 'padbot-w2-robot-delivery-institucional',
+    slug: 'padbot-w2-robot-delivery-institucional-ref-padbot-w2-padbot',
     sku: 'PADBOT-W2',
     tipo_slug: 'robots-delivery-institucional',
     pdf: 'W2英文说明书0115.pdf',
@@ -796,7 +796,7 @@ const products = [
   },
   {
     id: '97d6eb5d-668a-4444-99ee-04f037d41efa',
-    slug: 'padbot-w3s-robot-delivery-alimentos',
+    slug: 'padbot-w3s-robot-delivery-alimentos-ref-padbot-w3s-padbot',
     sku: 'PADBOT-W3S',
     tipo_slug: 'robots-delivery-alimentos',
     pdf: 'W3s英文说明书0518.pdf',
@@ -864,7 +864,7 @@ const products = [
   },
   {
     id: '9f7f8781-1fda-40d7-bb1c-0def7e7156e6',
-    slug: 'c3-robot-limpieza-autonoma',
+    slug: 'c3-robot-limpieza-autonoma-ref-c3-cleaning-robot',
     sku: 'C3-CLEANING-ROBOT',
     tipo_slug: 'robots-limpieza-autonoma',
     pdf: 'C3英文说明书.pdf',
@@ -933,7 +933,7 @@ const products = [
   },
   {
     id: '16361e0e-1e44-4242-9523-4388ca98430b',
-    slug: 'padbot-t2-robot-educativo-social',
+    slug: 'padbot-t2-robot-educativo-social-ref-padbot-t2-padbot',
     sku: 'PADBOT-T2',
     tipo_slug: 'robots-educativos-sociales',
     pdf: 'T2英文说明书0525.pdf',

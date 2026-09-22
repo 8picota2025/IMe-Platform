@@ -23,7 +23,7 @@
     "es": ["monitor central UCI", "central de monitores hospital", "UCI multicama"],
     "en": ["ICU central station", "multi-bed monitor central", "hospital monitoring station"]
   },
-  "monitor-de-paciente-m12-biolight": {
+  "monitor-de-paciente-ref-m12-biolight": {
     "es": [
       "monitor de paciente Biolight",
       "monitor multiparamétrico M12",
@@ -67,7 +67,7 @@
       "critical care ventilation Colombia"
     ]
   },
-  "maquina-de-anestesia-am-6000-plus-advanced": {
+  "maquina-de-anestesia-ref-am-6000-plus-advanced": {
     "es": ["máquina de anestesia AM-6000", "anestesia quirófano", "equipos anestesia Colombia"],
     "en": [
       "AM-6000 anesthesia machine",
@@ -75,7 +75,7 @@
       "anesthesia workstation Colombia"
     ]
   },
-  "bomba-de-infusion-ip-200-advanced": {
+  "bomba-de-infusion-ref-ip-200-advanced": {
     "es": ["bombas infusión hospitalarias", "bomba de infusión volumétrica", "terapia IV hospital"],
     "en": ["hospital infusion pumps", "volumetric infusion pump", "IV therapy hospital Colombia"]
   },
@@ -103,7 +103,7 @@
     ],
     "en": ["12-lead digital ECG", "hospital electrocardiograph", "cardiology equipment Colombia"]
   },
-  "electrocardiografo-ecg-3-plus-advanced": {
+  "electrocardiografo-ref-ecg-3-plus-advanced": {
     "es": ["electrocardiógrafo ECG-3", "ECG portátil hospital", "cardiología ambulatoria"],
     "en": ["ECG-3 electrocardiograph", "portable hospital ECG", "outpatient cardiology"]
   },
@@ -139,7 +139,7 @@
     "es": ["equipos radiología hospital", "arco en C móvil", "fluoroscopia quirófano"],
     "en": ["hospital radiology equipment", "mobile C-arm", "OR fluoroscopy"]
   },
-  "autoclave-horizontal-5075-tuttnauer": {
+  "autoclave-horizontal-ref-5075-tuttnauer": {
     "es": ["autoclave hospitalario", "esterilización CSSD", "control de infecciones hospital"],
     "en": ["hospital autoclave", "CSSD sterilization", "infection control hospital"]
   }
