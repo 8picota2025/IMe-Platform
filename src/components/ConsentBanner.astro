@@ -1,0 +1,264 @@
+---
+// CMP mínimo (ADR-0012). Banner + panel de personalización para
+// consentimiento de analítica no esencial (GA4/GTM/Clarity), per la
+// política de cookies (src/lib/legal.ts, kind 'cookies'): debe permitir
+// aceptar, rechazar y modificar preferencias, y no bloquear la navegación
+// esencial.
+import type { Locale } from '../i18n/utils';
+import { t, getLocalizedPath } from '../i18n/utils';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const cookiesPolicyHref = getLocalizedPath('/legal/cookies/', locale);
+---
+
+<div
+  id="ime-consent-banner"
+  class="ime-consent-banner"
+  hidden
+  role="dialog"
+  aria-modal="false"
+  aria-labelledby="ime-consent-title"
+>
+  <div class="ime-consent-banner__card">
+    <p id="ime-consent-title" class="ime-consent-banner__title">{t(locale, 'consent.titulo')}</p>
+    <p class="ime-consent-banner__body">{t(locale, 'consent.cuerpo')}</p>
+
+    <div id="ime-consent-panel" class="ime-consent-banner__panel" hidden>
+      <div class="ime-consent-banner__category">
+        <label>
+          <input type="checkbox" checked disabled />
+          <span>
+            <strong>{t(locale, 'consent.categoria_necesaria_titulo')}</strong>
+            <small>{t(locale, 'consent.categoria_necesaria_desc')}</small>
+          </span>
+        </label>
+      </div>
+      <div class="ime-consent-banner__category">
+        <label>
+          <input type="checkbox" id="ime-consent-analytics-toggle" />
+          <span>
+            <strong>{t(locale, 'consent.categoria_analitica_titulo')}</strong>
+            <small>{t(locale, 'consent.categoria_analitica_desc')}</small>
+          </span>
+        </label>
+      </div>
+    </div>
+
+    <div class="ime-consent-banner__actions">
+      <a href={cookiesPolicyHref} class="ime-consent-banner__link"
+        >{t(locale, 'consent.mas_info')}</a
+      >
+      <div class="ime-consent-banner__buttons">
+        <button
+          type="button"
+          id="ime-consent-customize"
+          class="ime-consent-banner__btn ime-consent-banner__btn--ghost"
+        >
+          {t(locale, 'consent.personalizar')}
+        </button>
+        <button
+          type="button"
+          id="ime-consent-reject"
+          class="ime-consent-banner__btn ime-consent-banner__btn--ghost"
+        >
+          {t(locale, 'consent.rechazar')}
+        </button>
+        <button
+          type="button"
+          id="ime-consent-save"
+          class="ime-consent-banner__btn ime-consent-banner__btn--ghost"
+          hidden
+        >
+          {t(locale, 'consent.guardar_preferencias')}
+        </button>
+        <button
+          type="button"
+          id="ime-consent-accept"
+          class="ime-consent-banner__btn ime-consent-banner__btn--primary"
+        >
+          {t(locale, 'consent.aceptar')}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .ime-consent-banner {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    padding: 1rem;
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .ime-consent-banner__card {
+    width: min(680px, 100%);
+    background: var(--white, #fff);
+    border: 1px solid var(--border-mid, rgba(15, 76, 92, 0.18));
+    border-radius: var(--radius-lg, 24px);
+    box-shadow: var(--shadow-lg, 0 20px 80px rgba(15, 76, 92, 0.16));
+    padding: 1.25rem 1.5rem;
+    color: var(--text, #1d3a47);
+  }
+
+  .ime-consent-banner__title {
+    font-weight: 700;
+    margin: 0 0 0.35rem;
+    color: var(--ink, #0b1b22);
+  }
+
+  .ime-consent-banner__body {
+    margin: 0 0 0.75rem;
+    font-size: 0.9rem;
+    color: var(--text-mid, #456070);
+  }
+
+  .ime-consent-banner__panel {
+    display: grid;
+    gap: 0.75rem;
+    margin: 0 0 0.9rem;
+    padding: 0.75rem;
+    background: var(--off, #f7f9fb);
+    border-radius: var(--radius, 14px);
+  }
+
+  .ime-consent-banner__category label {
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-start;
+    cursor: pointer;
+  }
+
+  .ime-consent-banner__category input[type='checkbox'] {
+    margin-top: 0.2rem;
+    flex: none;
+  }
+
+  .ime-consent-banner__category small {
+    display: block;
+    color: var(--text-muted, #4d6e7e);
+    font-weight: 400;
+  }
+
+  .ime-consent-banner__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .ime-consent-banner__link {
+    font-size: 0.85rem;
+    color: var(--t700, #1a5f6e);
+    text-decoration: underline;
+  }
+
+  .ime-consent-banner__buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-inline-start: auto;
+  }
+
+  .ime-consent-banner__btn {
+    border-radius: 999px;
+    padding: 0.55rem 1.1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: 1px solid transparent;
+    cursor: pointer;
+  }
+
+  .ime-consent-banner__btn--ghost {
+    background: transparent;
+    border-color: var(--border-mid, rgba(15, 76, 92, 0.18));
+    color: var(--text, #1d3a47);
+  }
+
+  .ime-consent-banner__btn--primary {
+    background: var(--t900, #0f4c5c);
+    color: var(--white, #fff);
+  }
+
+  @media (max-width: 560px) {
+    .ime-consent-banner__buttons {
+      width: 100%;
+      justify-content: stretch;
+    }
+    .ime-consent-banner__btn {
+      flex: 1 1 auto;
+    }
+  }
+</style>
+
+<script>
+  import {
+    applyConsentModeUpdate,
+    hasAnalyticsConsent,
+    loadAnalyticsScripts,
+    readStoredConsent,
+    writeStoredConsent,
+    type AnalyticsIds,
+  } from '../lib/consent';
+
+  const banner = document.getElementById('ime-consent-banner');
+  const panel = document.getElementById('ime-consent-panel');
+  const analyticsToggle = document.getElementById(
+    'ime-consent-analytics-toggle'
+  ) as HTMLInputElement | null;
+  const customizeBtn = document.getElementById('ime-consent-customize');
+  const rejectBtn = document.getElementById('ime-consent-reject');
+  const saveBtn = document.getElementById('ime-consent-save');
+  const acceptBtn = document.getElementById('ime-consent-accept');
+
+  function analyticsIdsFromMeta(): AnalyticsIds {
+    const meta = document.querySelector<HTMLMetaElement>('meta[name="ime-analytics"]');
+    return {
+      gtmId: meta?.dataset.gtm || '',
+      gaId: meta?.dataset.ga || '',
+      clarityId: meta?.dataset.clarity || '',
+      analyticsDomain: meta?.content || 'i-me.com.co',
+    };
+  }
+
+  function applyDecision(analytics: boolean, source: 'accept_all' | 'reject_all' | 'custom') {
+    writeStoredConsent(analytics, source);
+    applyConsentModeUpdate(analytics);
+    if (analytics) loadAnalyticsScripts(analyticsIdsFromMeta());
+    banner?.setAttribute('hidden', '');
+  }
+
+  if (banner && !readStoredConsent()) {
+    banner.removeAttribute('hidden');
+  }
+
+  customizeBtn?.addEventListener('click', () => {
+    panel?.removeAttribute('hidden');
+    customizeBtn.setAttribute('hidden', '');
+    rejectBtn?.setAttribute('hidden', '');
+    saveBtn?.removeAttribute('hidden');
+  });
+
+  rejectBtn?.addEventListener('click', () => applyDecision(false, 'reject_all'));
+  acceptBtn?.addEventListener('click', () => applyDecision(true, 'accept_all'));
+  saveBtn?.addEventListener('click', () =>
+    applyDecision(analyticsToggle?.checked === true, 'custom')
+  );
+
+  // Reabrir el panel de preferencias desde el enlace del footer/política de
+  // cookies (ver Footer.astro / página /legal/cookies).
+  window.addEventListener('ime:open-consent-preferences', () => {
+    if (!banner) return;
+    banner.removeAttribute('hidden');
+    if (analyticsToggle) analyticsToggle.checked = hasAnalyticsConsent();
+  });
+</script>

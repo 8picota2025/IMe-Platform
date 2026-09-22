@@ -14,6 +14,7 @@ import CotizacionDrawer from '../components/CotizacionDrawer.astro';
 import QuoteRequestModal from '../components/QuoteRequestModal.astro';
 import MobileCommercialBar from '../components/MobileCommercialBar.astro';
 import PWABanner from '../components/PWABanner.astro';
+import ConsentBanner from '../components/ConsentBanner.astro';
 import type { Locale } from '../i18n/utils';
 import { t } from '../i18n/utils';
 
@@ -100,6 +101,7 @@ const commercialBarAllowed =
     {showQuoteRequest && <QuoteRequestModal locale={locale} />}
     {commercialBarAllowed && <MobileCommercialBar locale={locale} />}
     <PWABanner />
+    <ConsentBanner locale={locale} />
 
     <!-- Lenis smooth scroll + GSAP init -->
     <script>

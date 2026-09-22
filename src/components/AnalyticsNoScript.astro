@@ -1,17 +1,11 @@
----
-const gtmId = (import.meta.env['PUBLIC_GTM_ID'] as string | undefined)?.trim() ?? '';
----
-
 {
-  gtmId && (
-    <noscript>
-      <iframe
-        src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
-        height="0"
-        width="0"
-        style="display:none;visibility:hidden"
-        title="Google Tag Manager"
-      ></iframe>
-    </noscript>
-  )
+  /*
+    ADR-0012: el iframe <noscript> de GTM se retiró deliberadamente. No hay
+    forma de comprobar consentimiento sin JavaScript, así que cargarlo
+    incondicionalmente para visitantes sin JS violaba la misma regla de
+    "consentimiento previo para analítica no esencial" (src/lib/legal.ts,
+    kind 'cookies') que motivó el resto de este cambio. Un visitante sin JS
+    simplemente no recibe analítica de terceros — comportamiento correcto,
+    no un bug.
+  */
 }

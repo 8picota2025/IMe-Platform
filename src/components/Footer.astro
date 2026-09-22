@@ -248,6 +248,9 @@ const legalLinks: Array<{ kind: LegalKind; label: string }> = [
             <a href={`/${locale}/legal/${getLegalSlug(link.kind, locale)}`}>{link.label}</a>
           ))
         }
+        <button type="button" id="ime-footer-consent-preferences" class="footer__legal-btn">
+          {t(locale, 'consent.personalizar')}
+        </button>
       </nav>
     </div>
   </div>
@@ -514,6 +517,22 @@ const legalLinks: Array<{ kind: LegalKind; label: string }> = [
     color: rgba(255, 255, 255, 0.95);
   }
 
+  .footer__legal-btn {
+    font-size: var(--step--1);
+    color: rgba(255, 255, 255, 0.65);
+    text-decoration: none;
+    transition: color 200ms var(--ease);
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  .footer__legal-btn:hover {
+    color: rgba(255, 255, 255, 0.95);
+  }
+
   /* ===== ACCESSIBILITY ===== */
   .sr-only {
     position: absolute;
@@ -527,3 +546,9 @@ const legalLinks: Array<{ kind: LegalKind; label: string }> = [
     border-width: 0;
   }
 </style>
+
+<script>
+  document.getElementById('ime-footer-consent-preferences')?.addEventListener('click', () => {
+    window.dispatchEvent(new CustomEvent('ime:open-consent-preferences'));
+  });
+</script>
