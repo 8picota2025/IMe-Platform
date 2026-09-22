@@ -45,8 +45,8 @@ aprobación**:
 | ---- | --------------------------------------- | --------------------------------------------------------------------------------- |
 | 0011 | Atribución en `TwentyClient`            | **Aceptada (interina), redactada** — `docs/decisions/0011-*.md`, commit `1abf064` |
 | 0012 | CMP y consent-mode por defecto          | **Aceptada, redactada** — `docs/decisions/0012-*.md`, commit `b1f8195`            |
-| 0013 | Modelo mínimo de Evidence & Compliance  | Propuesta, no redactada formalmente                                               |
-| 0014 | Taxonomía de topic clusters             | Propuesta, no redactada formalmente                                               |
+| 0013 | Modelo mínimo de Evidence & Compliance  | **Aceptada, redactada** — `docs/decisions/0013-*.md`, commit `744b4ce`            |
+| 0014 | Taxonomía de topic clusters             | **Aceptada, redactada** — `docs/decisions/0014-*.md`, commit `6127fbb`            |
 | 0015 | Autoría única del Landing Factory       | Propuesta, no redactada formalmente                                               |
 | 0016 | Captura de identidad opt-in en WhatsApp | Propuesta, no redactada formalmente                                               |
 | 0017 | Redacción PII en `asesor_agent_turns`   | Propuesta, no redactada formalmente                                               |
