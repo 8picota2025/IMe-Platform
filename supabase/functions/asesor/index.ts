@@ -28,6 +28,7 @@ import { badRequest, errorResponse } from '../_shared/errors.ts';
 import { createLogger, generateRequestId } from '../_shared/logging.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { verifyTurnstile } from '../_shared/turnstile.ts';
+import { redactHistorial, redactPii } from '../_shared/pii-redact.ts';
 import { checkRateLimit } from '../_shared/rate-limit.ts';
 import { shouldSkipAsesorTurnstileVerify } from '../../../src/lib/asesor-turnstile.ts';
 import {
@@ -405,12 +406,18 @@ Deno.serve(async req => {
   }
 
   try {
+    // ADR-0017: redactar email/telefono antes de persistir en
+    // asesor_agent_turns y antes de reenviar al agente externo. El dato de
+    // contacto real para seguimiento comercial viaja por un canal aparte y
+    // consentido (registrar-lead-comercial); no se pierde nada operativo.
+    const mensajeParaGuardar = redactPii(mensaje);
+    const historialParaGuardar = redactHistorial(historial);
     const turnId = await crearTurnoAgente(supabase, {
       sessionId,
       conversationId: navigationContext.conversation_id,
       locale,
-      mensaje,
-      historial,
+      mensaje: mensajeParaGuardar,
+      historial: historialParaGuardar,
       navigationContext,
     });
     const wake = despertarAgente(supabase, webhookUrl, webhookKey, {
@@ -418,8 +425,8 @@ Deno.serve(async req => {
       sessionId,
       conversationId: navigationContext.conversation_id,
       locale,
-      mensaje,
-      historial,
+      mensaje: mensajeParaGuardar,
+      historial: historialParaGuardar,
       navigationContext,
     });
     // Return turn_id immediately so the client can poll even if the webhook ACK is slow.

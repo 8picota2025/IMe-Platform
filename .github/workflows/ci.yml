@@ -50,7 +50,9 @@ jobs:
             supabase/functions/_shared/twenty-crm.test.ts \
             supabase/functions/_shared/divipola.test.ts \
             supabase/functions/_shared/siigo-client.test.ts \
-            supabase/functions/_shared/siigo-mapper.test.ts
+            supabase/functions/_shared/siigo-mapper.test.ts \
+            supabase/functions/_shared/pii-redact.test.ts \
+            supabase/functions/_shared/asesor-retention.test.ts
 
       - name: Security grep — no secrets in src/
         run: |
