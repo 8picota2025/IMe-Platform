@@ -33,13 +33,13 @@ Ninguna decisión de arquitectura/alcance ha sido tomada todavía por el humano.
 existe hasta ahora son **recomendaciones de Claude Orchestrator pendientes de
 aprobación**:
 
-| Decisión pendiente            | Recomendación de Claude                                                                                       | Estado                                |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
-| Cluster piloto (mandato §24)  | Monitoreo / UCI, con Ventilación como segundo                                                                 | Pendiente de aprobación humana        |
-| Secuencia de Fase 1           | Priorizar ADR-0012 (CMP) y ADR-0011 (fix atribución Twenty) antes que nada más                                | **Aprobada y ejecutada** — 2026-09-22 |
-| Enfoque CMP (ADR-0012)        | Banner propio ligero (sin vendor de pago)                                                                     | **Aprobada y ejecutada** — 2026-09-22 |
-| Prioridad GE-008 (tests Deno) | Arreglar ahora como parte de Fase 1                                                                           | **Aprobada y ejecutada** — 2026-09-22 |
-| Modelo de evidencia           | Versión mínima viable (3 campos) en vez del modelo completo de 10 campos del mandato, para no bloquear Fase 2 | Pendiente de aprobación humana        |
+| Decisión pendiente            | Recomendación de Claude                                                                                                                                                                                                                                                     | Estado                                |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
+| Cluster piloto (mandato §24)  | Monitoreo / UCI + INVIMA / Regulación (dos clusters piloto en paralelo, decisión del usuario — no la recomendación original de Claude, que sugería Ventilación como segundo; INVIMA se vuelve viable ahora porque su precondición, ADR-0013, ya está mergeada en esta rama) | **Aprobada** — 2026-09-22             |
+| Secuencia de Fase 1           | Priorizar ADR-0012 (CMP) y ADR-0011 (fix atribución Twenty) antes que nada más                                                                                                                                                                                              | **Aprobada y ejecutada** — 2026-09-22 |
+| Enfoque CMP (ADR-0012)        | Banner propio ligero (sin vendor de pago)                                                                                                                                                                                                                                   | **Aprobada y ejecutada** — 2026-09-22 |
+| Prioridad GE-008 (tests Deno) | Arreglar ahora como parte de Fase 1                                                                                                                                                                                                                                         | **Aprobada y ejecutada** — 2026-09-22 |
+| Modelo de evidencia           | Versión mínima viable (3 campos) en vez del modelo completo de 10 campos del mandato, para no bloquear Fase 2                                                                                                                                                               | Pendiente de aprobación humana        |
 
 ## ADRs (ver `IMPLEMENTATION_PLAN.md` §9 para el detalle)
 
