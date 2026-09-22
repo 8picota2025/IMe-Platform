@@ -8,12 +8,21 @@
 
 ## Estado general
 
-- **Fase actual:** Fase 0 — Discovery & Plan → **COMPLETADA**
-- **Objetivo actual:** obtener decisión GO/HOLD humana para iniciar Fase 1 — Foundation
+- **Fase actual:** Fase 1 — Foundation → **EN PROGRESO** (GO recibido del humano)
+- **Objetivo actual:** cerrar el resto del backlog de quick wins de Fase 1 (ADR-0012 CMP,
+  ADR-0013 evidencia, ADR-0017 PII asesor) y avanzar taxonomía/cluster piloto
 - **Última actualización:** 2026-09-22
-- **Repo:** `/home/shoky/cursor/ime-platform` (worktree, rama `fix/saikang-missing-cart-images`)
-- **CODEX_CONNECTOR_UNAVAILABLE:** aún no verificado — descubrir el conector/plugin Codex
-  real es el primer paso técnico de Fase 1 (mandato §18.5), no se asumió nada en Fase 0.
+- **Repo/rama de trabajo:** `/home/shoky/cursor/ime-platform-growth-engine`, rama
+  `feat/growth-engine-foundation` (creada desde `origin/main` @ `a1280c2`, worktree
+  dedicado — no reutiliza `fix/saikang-missing-cart-images`, que sigue intacto). **Sin
+  push a remoto todavía** — pendiente de confirmación del humano antes de abrir PR.
+- **Codex connector:** confirmado disponible como agente `codex:codex-rescue` en este
+  entorno (mandato §18.5). No usado todavía en Fase 1 — los quick wins ejecutados hasta
+  ahora eran lo bastante triviales para que Claude los hiciera directamente (D-1, gate de
+  CI) o requerían diseño de Claude primero (ADR-0011); ninguno ameritó el overhead de
+  delegar a un agente Codex separado. Se delegará a Codex cuando haya trabajo de mayor
+  volumen mecánico verificable (p. ej. implementación de la taxonomía de topic clusters
+  tras ADR-0014).
 
 ---
 
@@ -23,24 +32,24 @@ Ninguna decisión de arquitectura/alcance ha sido tomada todavía por el humano.
 existe hasta ahora son **recomendaciones de Claude Orchestrator pendientes de
 aprobación**:
 
-| Decisión pendiente | Recomendación de Claude | Estado |
-|---|---|---|
-| Cluster piloto (mandato §24) | Monitoreo / UCI, con Ventilación como segundo | Pendiente de aprobación humana |
-| Secuencia de Fase 1 | Priorizar ADR-0012 (CMP) y ADR-0011 (fix atribución Twenty) antes que nada más | Pendiente de aprobación humana |
-| Modelo de evidencia | Versión mínima viable (3 campos) en vez del modelo completo de 10 campos del mandato, para no bloquear Fase 2 | Pendiente de aprobación humana |
+| Decisión pendiente           | Recomendación de Claude                                                                                       | Estado                         |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------- | ------------------------------ |
+| Cluster piloto (mandato §24) | Monitoreo / UCI, con Ventilación como segundo                                                                 | Pendiente de aprobación humana |
+| Secuencia de Fase 1          | Priorizar ADR-0012 (CMP) y ADR-0011 (fix atribución Twenty) antes que nada más                                | Pendiente de aprobación humana |
+| Modelo de evidencia          | Versión mínima viable (3 campos) en vez del modelo completo de 10 campos del mandato, para no bloquear Fase 2 | Pendiente de aprobación humana |
 
 ## ADRs (ver `IMPLEMENTATION_PLAN.md` §9 para el detalle)
 
-| ADR | Título | Estado |
-|---|---|---|
-| 0011 | Atribución en `TwentyClient` | Propuesta, no redactada formalmente |
-| 0012 | CMP y consent-mode por defecto | Propuesta, no redactada formalmente |
-| 0013 | Modelo mínimo de Evidence & Compliance | Propuesta, no redactada formalmente |
-| 0014 | Taxonomía de topic clusters | Propuesta, no redactada formalmente |
-| 0015 | Autoría única del Landing Factory | Propuesta, no redactada formalmente |
+| ADR  | Título                                  | Estado                              |
+| ---- | --------------------------------------- | ----------------------------------- |
+| 0011 | Atribución en `TwentyClient`            | Propuesta, no redactada formalmente |
+| 0012 | CMP y consent-mode por defecto          | Propuesta, no redactada formalmente |
+| 0013 | Modelo mínimo de Evidence & Compliance  | Propuesta, no redactada formalmente |
+| 0014 | Taxonomía de topic clusters             | Propuesta, no redactada formalmente |
+| 0015 | Autoría única del Landing Factory       | Propuesta, no redactada formalmente |
 | 0016 | Captura de identidad opt-in en WhatsApp | Propuesta, no redactada formalmente |
-| 0017 | Redacción PII en `asesor_agent_turns` | Propuesta, no redactada formalmente |
-| 0018 | Automatización (n8n vs. patrón nativo) | Propuesta, no redactada formalmente |
+| 0017 | Redacción PII en `asesor_agent_turns`   | Propuesta, no redactada formalmente |
+| 0018 | Automatización (n8n vs. patrón nativo)  | Propuesta, no redactada formalmente |
 
 Numeración continúa desde la última ADR real del repo (`docs/decisions/0010-quote-numero-pdf.md`).
 
@@ -48,19 +57,36 @@ Numeración continúa desde la última ADR real del repo (`docs/decisions/0010-q
 
 ## Tareas abiertas
 
-| task_id | Owner | Nivel | Dependencias | Estado | Archivos afectados | Tests requeridos | Bloqueadores | Siguiente acción |
-|---|---|---|---|---|---|---|---|---|
-| GE-000-discovery-arch | CLAUDE_SUBAGENT | L3 | — | Completado | ninguno (read-only) | — | — | integrado en IMPLEMENTATION_PLAN §1.1-1.3,§4 |
-| GE-000-discovery-crm | CLAUDE_SUBAGENT | L3 | — | Completado | ninguno (read-only) | — | — | integrado en IMPLEMENTATION_PLAN §1.4 |
-| GE-000-discovery-seo | CLAUDE_SUBAGENT | L3 | — | Completado | ninguno (read-only) | — | — | integrado en IMPLEMENTATION_PLAN §1.5 |
-| GE-000-discovery-compliance | CLAUDE_SUBAGENT | L3 | — | Completado | ninguno (read-only) | — | — | integrado en IMPLEMENTATION_PLAN §1.6-1.7 |
-| GE-001-gate-decision | (humano) | — | GE-000-* | Pendiente | — | — | requiere decisión del usuario | presentar resumen ejecutivo, esperar GO/HOLD |
-| GE-002-codex-discovery | CLAUDE | L1 | GE-001 = GO | No iniciada | — | — | GE-001 | inspeccionar conector/plugin Codex disponible (mandato §18.5) |
-| GE-003-adr-0012-cmp | CLAUDE | L3 diseño | GE-001 = GO | No iniciada | `src/components/AnalyticsHead.astro`, nuevo módulo CMP | manual QA de consent-mode en Chrome/Safari | GE-001 | redactar ADR-0012 formal |
-| GE-004-adr-0011-twenty-attrib | CLAUDE | L2 (diseño Claude / impl. Codex) | GE-001 = GO; admin Twenty crea campos custom | No iniciada | `supabase/functions/_shared/twenty-crm.ts` | test unitario de firma extendida | dependencia externa: admin de Twenty | coordinar con admin de `crm.i-me.com.co` en paralelo al diseño |
-| GE-005-d1-secreto-legado | CODEX | L1 | GE-001 = GO | No iniciada | `src/data/raw_js_cms.js` | ninguno usa el archivo (verificar antes de borrar) | — | confirmar cero referencias, remover o sanear |
-| GE-006-vitest-ci-gate | CODEX | L1 | GE-001 = GO | No iniciada | `.github/workflows/ci.yml` | `npm run test` en verde | — | añadir step al workflow |
-| GE-007-r7-estado-legal | CLAUDE | L1 | GE-001 = GO | No iniciada | `README.md` y/o `REMEDIACION.md` | — | requiere confirmar con negocio cuál es la verdad vigente | preguntar al usuario/cliente antes de editar |
+| task_id                       | Owner                                    | Nivel                                    | Dependencias                                                                                                                                     | Estado                                       | Archivos afectados                                                                                                                                 | Tests requeridos                                                                    | Bloqueadores                                                                       | Siguiente acción                                                                                                                                  |
+| ----------------------------- | ---------------------------------------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GE-000-discovery-arch         | CLAUDE_SUBAGENT                          | L3                                       | —                                                                                                                                                | Completado                                   | ninguno (read-only)                                                                                                                                | —                                                                                   | —                                                                                  | integrado en IMPLEMENTATION_PLAN §1.1-1.3,§4                                                                                                      |
+| GE-000-discovery-crm          | CLAUDE_SUBAGENT                          | L3                                       | —                                                                                                                                                | Completado                                   | ninguno (read-only)                                                                                                                                | —                                                                                   | —                                                                                  | integrado en IMPLEMENTATION_PLAN §1.4                                                                                                             |
+| GE-000-discovery-seo          | CLAUDE_SUBAGENT                          | L3                                       | —                                                                                                                                                | Completado                                   | ninguno (read-only)                                                                                                                                | —                                                                                   | —                                                                                  | integrado en IMPLEMENTATION_PLAN §1.5                                                                                                             |
+| GE-000-discovery-compliance   | CLAUDE_SUBAGENT                          | L3                                       | —                                                                                                                                                | Completado                                   | ninguno (read-only)                                                                                                                                | —                                                                                   | —                                                                                  | integrado en IMPLEMENTATION_PLAN §1.6-1.7                                                                                                         |
+| GE-001-gate-decision          | (humano)                                 | —                                        | GE-000-\*                                                                                                                                        | **Completado — GO**                          | —                                                                                                                                                  | —                                                                                   | —                                                                                  | secuencia recomendada aprobada, 2026-09-22                                                                                                        |
+| GE-002-codex-discovery        | CLAUDE                                   | L1                                       | GE-001 = GO                                                                                                                                      | **Completado**                               | —                                                                                                                                                  | —                                                                                   | —                                                                                  | `codex:codex-rescue` confirmado como conector real disponible                                                                                     |
+| GE-005-d1-secreto-legado      | CLAUDE (directo, no ameritó Codex)       | L1                                       | GE-001 = GO                                                                                                                                      | **Completado**                               | `src/data/raw_js_cms.js` (eliminado)                                                                                                               | cero referencias confirmadas por grep antes de borrar                               | —                                                                                  | commit `1abf064`-previo en `feat/growth-engine-foundation`                                                                                        |
+| GE-006-vitest-ci-gate         | CLAUDE (directo, no ameritó Codex)       | L1                                       | GE-001 = GO                                                                                                                                      | **Completado**                               | `.github/workflows/ci.yml`                                                                                                                         | 402/402 vitest verificado localmente antes de wirear el gate                        | —                                                                                  | commit `167146f`                                                                                                                                  |
+| GE-004-adr-0011-twenty-attrib | CLAUDE (diseño e implementación directa) | L2                                       | GE-001 = GO; **admin Twenty aún debe crear campos custom** (no bloqueó esta iteración — se resolvió como fix interino de texto libre en la nota) | **Completado (interino)**                    | `supabase/functions/_shared/twenty-crm.ts`, `.test.ts`, `registrar-cotizacion/index.ts`, `registrar-lead-comercial/index.ts`                       | 16/16 Deno tests (2 nuevos), 402/402 vitest, `deno check` limpio en `twenty-crm.ts` | dependencia externa sigue abierta para la fase estructurada (campos custom reales) | commit `1abf064`. **Pendiente real:** cuando el admin de Twenty cree los campos custom, escribirlos también de forma estructurada (no sólo texto) |
+| GE-008-deno-tests-sin-ci      | CLAUDE                                   | — (hallazgo, no tarea de código todavía) | —                                                                                                                                                | **Hallazgo nuevo, sin owner asignado**       | 4 archivos `Deno.test` en `supabase/functions/_shared/` (`twenty-crm.test.ts`, `divipola.test.ts`, `siigo-client.test.ts`, `siigo-mapper.test.ts`) | —                                                                                   | ninguno técnico; decisión de owner/alcance pendiente                               | ver sección "Hallazgos nuevos" abajo — añadir a `IMPLEMENTATION_PLAN.md` como D-12/R-12 en la próxima revisión del plan                           |
+| GE-003-adr-0012-cmp           | CLAUDE                                   | L3 diseño                                | GE-001 = GO; **decisión de vendor/build de CMP**                                                                                                 | Pendiente — bloqueado en decisión de negocio | `src/components/AnalyticsHead.astro`, nuevo módulo CMP                                                                                             | manual QA de consent-mode en Chrome/Safari                                          | requiere elegir CMP (build propio vs. vendor de pago) antes de escribir código     | preguntar al usuario                                                                                                                              |
+| GE-007-r7-estado-legal        | CLAUDE                                   | L1                                       | GE-001 = GO                                                                                                                                      | No iniciada                                  | `README.md` y/o `REMEDIACION.md`                                                                                                                   | —                                                                                   | requiere confirmar con negocio cuál es la verdad vigente                           | preguntar al usuario/cliente antes de editar                                                                                                      |
+
+### Hallazgos nuevos desde Fase 0
+
+- **`vitest.config.mjs` nunca incluyó `supabase/functions/**`** — los 4 archivos
+`Deno.test`bajo`supabase/functions/\_shared/`(incluido`twenty-crm.test.ts`, que
+cubre justo el código tocado por GE-004) **no corren en ningún lado**: no en
+`npm run test`, no en `ci.yml`, no hay paso `deno test`en ningún workflow. Verificado
+ejecutándolos manualmente con el binario Deno ya presente en`~/.deno/bin/deno`(2.9.3) — los 14 preexistentes + 2 nuevos de este bloque pasan (16/16). Esto es más
+severo que D-3/R-10 (que ya se resolvió): no es que un test roto pueda llegar a`main`, es que **una categoría entera de tests nunca se ejecuta**, ni localmente vía
+`npm run validate`ni en CI.`deno check`sobre`twenty-crm.ts` también reveló que el
+propio archivo de test (`twenty-crm.test.ts`, no tocado en su lógica de mock) tiene 10
+errores de tipos preexistentes (`TwentyRecord | null`no asignable) — otra señal de que
+nadie corre`deno check`en CI tampoco.
+**No se ha decidido owner ni alcance de la corrección** (¿añadir`deno test`a`ci.yml`? ¿arreglar primero los 10 errores de tipos preexistentes? ¿instalar Deno en el
+  runner de CI?) — se deja como hallazgo abierto para que el humano decida prioridad,
+  en vez de ampliar el alcance de GE-006 sin autorización.
 
 ---
 
@@ -84,18 +110,25 @@ resuelve en Fase 1 como quick win).
 
 ## Blockers activos
 
-1. **Decisión GO/HOLD humana** para iniciar Fase 1 (bloquea todo lo demás).
-2. **Admin de Twenty CRM debe crear campos custom** antes de que ADR-0011 pueda
-   implementarse en producción — acción humana externa al repo.
+1. **Decisión de vendor/build para el CMP (ADR-0012)** — bloquea el riesgo regulatorio
+   más urgente del plan (R-1). Requiere decisión de negocio (¿banner propio + consent
+   mode, o vendor de pago tipo Cookiebot/Osano?) antes de escribir código.
+2. **Admin de Twenty CRM debe crear campos custom** para que la atribución (ADR-0011) deje
+   de ser texto libre en una nota y pase a campos estructurados — el fix interino ya está
+   en producción-lista (commit `1abf064`), esto es sólo para la fase estructurada
+   posterior.
 3. **Firma legal de tasas de financiación reales** — bloquea contenido del cluster
    "Financiación" (por eso no se recomienda como piloto).
-4. **Conector/plugin Codex no descubierto todavía** — bloquea cualquier delegación L1/L2
-   real hasta GE-002.
+4. **Push/PR pendiente de confirmación** — el trabajo de Fase 1 hasta ahora vive sólo en
+   el worktree local `feat/growth-engine-foundation`, no se ha empujado a `origin` ni
+   abierto PR.
 
 ---
 
 ## Siguiente acción
 
-Presentar resumen ejecutivo (`IMPLEMENTATION_PLAN.md` §0) y esta tabla de blockers al
-usuario. Esperar decisión GO/HOLD antes de tocar código de producción o crear ADRs
-formales.
+1. Preguntar al usuario: (a) ¿empujar `feat/growth-engine-foundation` y abrir PR para
+   review de los quick wins ya completados (D-1, gate de CI, ADR-0011 interino)?, (b) qué
+   enfoque de CMP prefiere para ADR-0012, (c) qué prioridad darle al hallazgo de los tests
+   Deno sin ejecutar (GE-008).
+2. Con esas respuestas, continuar con ADR-0012 y el resto del backlog de Fase 1.
