@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import {
   brandSlugFromLabel,
+  buildSafeProductRedirectRules,
   ensureUniqueProductoSeoSlug,
   isOpaqueProductSlug,
   mergeLegacySlugs,
   planProductoSeoSlug,
+  primaryProductSlugs,
+  sanitizeLegacySlugsAgainstPrimaries,
 } from './producto-seo-slug';
 
 describe('producto-seo-slug', () => {
@@ -89,5 +92,52 @@ describe('producto-seo-slug', () => {
     );
     expect(mergeLegacySlugs(['old-a'], 'old-b', 'new')).toEqual(['old-a', 'old-b']);
     expect(mergeLegacySlugs(['new'], 'new', 'new')).toEqual([]);
+  });
+
+  it('nunca redirige un slug primario vivo ni legacies ambiguas', () => {
+    const products = [
+      {
+        slug: 'lampara-quirurgica-ref-ainno-saikang',
+        atributos: { legacy_slugs: ['saikang-ainno'] },
+      },
+      {
+        slug: 'lampara-quirurgica-ref-ainno-light-m-saikang',
+        // Collision: another product's live primary must not become a 301 source
+        atributos: {
+          legacy_slugs: ['saikang-ainno-light-m', 'lampara-quirurgica-ref-ainno-saikang'],
+        },
+      },
+      {
+        slug: 'compresor-nebulizador-nube-3000-plus',
+        atributos: { legacy_slugs: ['g-gmrn-211'] },
+      },
+      {
+        slug: 'other',
+        atributos: { legacy_slugs: ['shared-legacy'] },
+      },
+      {
+        slug: 'other-b',
+        atributos: { legacy_slugs: ['shared-legacy'] },
+      },
+    ];
+
+    const primaries = primaryProductSlugs(products);
+    expect(
+      sanitizeLegacySlugsAgainstPrimaries(
+        products[1]!.atributos!.legacy_slugs as string[],
+        products[1]!.slug,
+        primaries
+      )
+    ).toEqual(['saikang-ainno-light-m']);
+
+    const rules = buildSafeProductRedirectRules(products).join('\n');
+    expect(rules).toContain(
+      'RewriteRule ^es/productos/saikang-ainno/?$ /es/productos/lampara-quirurgica-ref-ainno-saikang/ [R=301,L]'
+    );
+    expect(rules).toContain(
+      'RewriteRule ^es/productos/g-gmrn-211/?$ /es/productos/compresor-nebulizador-nube-3000-plus/ [R=301,L]'
+    );
+    expect(rules).not.toContain('lampara-quirurgica-ref-ainno-saikang/?$ /es/productos/lampara-quirurgica-ref-ainno-light-m');
+    expect(rules).not.toContain('shared-legacy');
   });
 });

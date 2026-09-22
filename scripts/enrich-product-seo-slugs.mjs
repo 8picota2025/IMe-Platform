@@ -17,9 +17,13 @@ import { readFile, writeFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { createClient } from '@supabase/supabase-js';
 import {
+  buildSafeProductRedirectRules,
   ensureUniqueProductoSeoSlug,
+  listLegacySlugs,
   mergeLegacySlugs,
   planProductoSeoSlug,
+  primaryProductSlugs,
+  sanitizeLegacySlugsAgainstPrimaries,
 } from '../src/lib/producto-seo-slug.ts';
 
 const ROOT = process.cwd();
@@ -116,21 +120,43 @@ async function applySupabase(plans) {
 
 async function updateMock(plans) {
   const byOld = new Map(plans.map(plan => [plan.oldSlug, plan]));
+  const byId = new Map(plans.map(plan => [plan.id, plan]));
   const products = JSON.parse(await readFile(PRODUCTS_MOCK, 'utf8'));
   let touched = 0;
+  // Apply renames by id first (mock may already use a descriptive slug while
+  // Supabase still had g-* / short form — matching only oldSlug leaves mock stale
+  // and htaccess pointing at pages the static build never emits).
   for (const product of products) {
-    const plan = byOld.get(product.slug);
+    const plan = byId.get(product.id) ?? byOld.get(product.slug);
     if (!plan) continue;
+    const previousSlug = product.slug;
     product.atributos = {
       ...(product.atributos ?? {}),
       legacy_slugs: mergeLegacySlugs(
         product.atributos?.legacy_slugs,
-        plan.oldSlug,
+        plan.oldSlug !== previousSlug ? plan.oldSlug : previousSlug,
         plan.newSlug
       ),
     };
+    if (previousSlug !== plan.newSlug && previousSlug !== plan.oldSlug) {
+      product.atributos.legacy_slugs = mergeLegacySlugs(
+        product.atributos.legacy_slugs,
+        previousSlug,
+        plan.newSlug
+      );
+    }
     product.slug = plan.newSlug;
     touched += 1;
+  }
+  const primaries = primaryProductSlugs(products);
+  for (const product of products) {
+    const cleaned = sanitizeLegacySlugsAgainstPrimaries(
+      listLegacySlugs(product.atributos),
+      product.slug,
+      primaries
+    );
+    if (!product.atributos) product.atributos = {};
+    product.atributos.legacy_slugs = cleaned;
   }
   if (APPLY) {
     await writeFile(PRODUCTS_MOCK, `${JSON.stringify(products, null, 2)}\n`);
@@ -155,18 +181,10 @@ async function updateImageManifest(plans) {
 
 async function updateHtaccess(allProductsWithLegacy) {
   let htaccess = await readFile(HTACCESS, 'utf8');
-  const previous = new RegExp(`${START}[\\s\\S]*?${END}\\n?`, 'g');
-  const rules = allProductsWithLegacy.flatMap(product => {
-    const legacy = Array.isArray(product.atributos?.legacy_slugs)
-      ? product.atributos.legacy_slugs
-      : [];
-    return legacy
-      .filter(oldSlug => oldSlug && oldSlug !== product.slug)
-      .flatMap(oldSlug => [
-        `RewriteRule ^es/productos/${oldSlug}/?$ /es/productos/${product.slug}/ [R=301,L]`,
-        `RewriteRule ^en/products/${oldSlug}/?$ /en/products/${product.slug}/ [R=301,L]`,
-      ]);
-  });
+  const escapeRe = value => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const previous = new RegExp(`${escapeRe(START)}[\\s\\S]*?${escapeRe(END)}\\n?`, 'g');
+  // Never 301 away from a live primary, and never target a slug outside this set.
+  const rules = buildSafeProductRedirectRules(allProductsWithLegacy);
   const block = `\n\n${START}\n${rules.join('\n')}\n${END}\n`;
   htaccess = htaccess.replace(previous, '').trimEnd() + block;
   if (APPLY) await writeFile(HTACCESS, htaccess);
