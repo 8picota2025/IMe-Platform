@@ -8,10 +8,12 @@
 
 ## Estado general
 
-- **Fase actual:** Fase 1 — Foundation → **EN PROGRESO** (GO recibido del humano; backlog
-  de quick wins de la sesión 2026-09-22 completado)
-- **Objetivo actual:** push + PR draft de `feat/growth-engine-foundation`, luego avanzar
-  ADR-0013 (evidencia), ADR-0014 (taxonomía) y decisión de cluster piloto
+- **Fase actual:** Fase 1 — Foundation → **8/8 ADRs aceptadas y redactadas** (0011-0018).
+  Todo el diseño de Fase 1 que el plan proponía está cerrado; lo que queda es
+  implementación diferida ya scopeada explícitamente a Fase 2/3/4 en cada ADR, más la
+  decisión de negocio del cluster piloto.
+- **Objetivo actual:** push de los commits pendientes, actualizar PR #116. Después:
+  decisión de negocio del cluster piloto (plan §16) para poder arrancar Fase 2.
 - **Última actualización:** 2026-09-22
 - **Repo/rama de trabajo:** `/home/shoky/cursor/ime-platform-growth-engine`, rama
   `feat/growth-engine-foundation` (creada desde `origin/main` @ `a1280c2`, worktree
@@ -41,16 +43,16 @@ aprobación**:
 
 ## ADRs (ver `IMPLEMENTATION_PLAN.md` §9 para el detalle)
 
-| ADR  | Título                                  | Estado                                                                            |
-| ---- | --------------------------------------- | --------------------------------------------------------------------------------- |
-| 0011 | Atribución en `TwentyClient`            | **Aceptada (interina), redactada** — `docs/decisions/0011-*.md`, commit `1abf064` |
-| 0012 | CMP y consent-mode por defecto          | **Aceptada, redactada** — `docs/decisions/0012-*.md`, commit `b1f8195`            |
-| 0013 | Modelo mínimo de Evidence & Compliance  | **Aceptada, redactada** — `docs/decisions/0013-*.md`, commit `744b4ce`            |
-| 0014 | Taxonomía de topic clusters             | **Aceptada, redactada** — `docs/decisions/0014-*.md`, commit `6127fbb`            |
-| 0015 | Autoría única del Landing Factory       | Propuesta, no redactada formalmente                                               |
-| 0016 | Captura de identidad opt-in en WhatsApp | Propuesta, no redactada formalmente                                               |
-| 0017 | Redacción PII en `asesor_agent_turns`   | Propuesta, no redactada formalmente                                               |
-| 0018 | Automatización (n8n vs. patrón nativo)  | Propuesta, no redactada formalmente                                               |
+| ADR  | Título                                  | Estado                                                                                           |
+| ---- | --------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| 0011 | Atribución en `TwentyClient`            | **Aceptada (interina), redactada** — `docs/decisions/0011-*.md`, commit `1abf064`                |
+| 0012 | CMP y consent-mode por defecto          | **Aceptada, redactada** — `docs/decisions/0012-*.md`, commit `b1f8195`                           |
+| 0013 | Modelo mínimo de Evidence & Compliance  | **Aceptada, redactada** — `docs/decisions/0013-*.md`, commit `744b4ce`                           |
+| 0014 | Taxonomía de topic clusters             | **Aceptada, redactada** — `docs/decisions/0014-*.md`, commit `6127fbb`                           |
+| 0015 | Autoría única del Landing Factory       | **Aceptada (decisión, sin migración), redactada** — `docs/decisions/0015-*.md`, commit `6aaebf1` |
+| 0016 | Captura de identidad opt-in en WhatsApp | **Aceptada (schema), redactada** — `docs/decisions/0016-*.md`, commit `239632a`                  |
+| 0017 | Redacción PII en `asesor_agent_turns`   | **Aceptada, redactada** — `docs/decisions/0017-*.md`, commit `ef83cec`                           |
+| 0018 | Automatización (n8n vs. patrón nativo)  | **Aceptada, redactada** — `docs/decisions/0018-*.md`, commit `78708f9`                           |
 
 Numeración continúa desde la última ADR real del repo (`docs/decisions/0010-quote-numero-pdf.md`).
 
