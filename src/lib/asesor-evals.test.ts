@@ -167,10 +167,10 @@ describe('IMEIA evals — no se usa el SOUL de Hermes', () => {
       mensaje: '¿Cuál es el registro sanitario INVIMA del monitor M12?',
       products: [
         {
-          slug: 'monitor-de-paciente-m12-biolight',
+          slug: 'monitor-de-paciente-ref-m12-biolight',
           nombre: 'Monitor de Paciente M12 Biolight',
           descripcion_corta: 'Monitor de paciente compacto.',
-          url_canonica: 'https://i-me.com.co/es/productos/monitor-de-paciente-m12-biolight',
+          url_canonica: 'https://i-me.com.co/es/productos/monitor-de-paciente-ref-m12-biolight',
         },
       ],
     });
@@ -178,7 +178,7 @@ describe('IMEIA evals — no se usa el SOUL de Hermes', () => {
     expect(respuesta.texto).toMatch(/WhatsApp \(\+57 313 724 7353\)/);
     expect(respuesta.texto).not.toMatch(/\bRS[-\s]?\d{4,}/i);
     expect(respuesta.texto).not.toMatch(/\$\s?\d|\bCOP\s?\d/);
-    expect(respuesta.slugs).toEqual(['monitor-de-paciente-m12-biolight']);
+    expect(respuesta.slugs).toEqual(['monitor-de-paciente-ref-m12-biolight']);
   });
 });
 

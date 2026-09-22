@@ -280,7 +280,7 @@ describe('asesor biomedical fallback', () => {
       new Response(
         JSON.stringify([
           {
-            slug: 'sistema-radiografico-3d-wr-3d-angell',
+            slug: 'sistema-radiografico-3d-ref-wr-3d-angell',
             nombre: 'Sistema Radiográfico 3D WR-3D',
             familia: { slug: 'imagenologia-y-radiologia', nombre: 'Imagenología y Radiología' },
             tipo: { slug: 'radiografia-digital-dr', nombre: 'Radiografía Digital DR' },
@@ -335,7 +335,7 @@ describe('asesor biomedical fallback', () => {
       });
 
       expect(respuesta.productos.map(producto => producto.slug)).toEqual([
-        'sistema-radiografico-3d-wr-3d-angell',
+        'sistema-radiografico-3d-ref-wr-3d-angell',
         'sistema-radiografico-3d-en-carga-wr-3d',
       ]);
       expect(respuesta.texto).toContain('Sistema Radiográfico 3D WR-3D');
@@ -354,7 +354,7 @@ describe('asesor biomedical fallback', () => {
       new Response(
         JSON.stringify([
           {
-            slug: 'mamografo-digital-dm166-series-angell',
+            slug: 'mamografo-digital-dm166-series-ref-dm166-angell',
             nombre: 'Mamógrafo digital DM166 Series Angell con tomosíntesis 3D y CESM',
             familia: { slug: 'imagenologia', nombre: 'Imagenología' },
             tipo: { slug: 'mamografia', nombre: 'Mamografía' },
@@ -422,7 +422,7 @@ describe('asesor biomedical fallback', () => {
       });
 
       expect(respuesta.productos.map(p => p.slug)).toEqual([
-        'mamografo-digital-dm166-series-angell',
+        'mamografo-digital-dm166-series-ref-dm166-angell',
         'mamografo-digital-dm156-series',
       ]);
       expect(respuesta.texto).toMatch(/DM166|DM156/);
@@ -469,7 +469,7 @@ describe('asesor biomedical fallback', () => {
             texto_busqueda: 'sistema radiografia digital dinamica techo qomo',
           },
           {
-            slug: 'sistema-de-ultrasonido-versatil-dus-6000-advanced',
+            slug: 'sistema-de-ultrasonido-versatil-ref-dus-6000-advanced',
             nombre: 'Sistema de Ultrasonido Versátil DUS-6000',
             familia: { slug: 'ultrasonido', nombre: 'Ultrasonido' },
             tipo: { slug: 'ultrasonido', nombre: 'Ultrasonido' },

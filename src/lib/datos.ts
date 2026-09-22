@@ -31,12 +31,12 @@ const REQUIRE_LIVE_DATA = import.meta.env['REQUIRE_LIVE_DATA'] === 'true';
  * 20260828010000_correct_product_families.sql.
  */
 export const PRODUCT_FAMILY_CORRECTIONS: Readonly<Record<string, string>> = {
-  'lampara-cielitica-led-x36-ilumitec': 'sala-cirugia',
-  'lampara-cielitica-led-x3618-con-satelite-ilumitec': 'sala-cirugia',
-  'lampara-cielitica-led-x3636-con-satelite-ilumitec': 'sala-cirugia',
-  'led-x18-100k-ilumitec': 'sala-cirugia',
-  'ventilador-mecanico-crius-v6-northern': 'ventiladores',
-  'ventilador-para-uci-v-1000-advanced': 'ventiladores',
+  'lampara-cielitica-ref-led-x36-ilumitec': 'sala-cirugia',
+  'lampara-cielitica-led-x3618-con-satelite-ref-led-x3618-ilumitec': 'sala-cirugia',
+  'lampara-cielitica-led-x3636-con-satelite-ref-led-x3636-ilumitec': 'sala-cirugia',
+  'ref-led-x18-100k-ilumitec': 'sala-cirugia',
+  'ventilador-mecanico-ref-crius-v6-northern': 'ventiladores',
+  'ventilador-para-uci-ref-v-1000-advanced': 'ventiladores',
   'ventilador-neonatal-pedriatrico-convencional-ref-6000-sle': 'ventiladores',
   'ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-teo-air-liquide': 'ventiladores',
   'ventilador-neonatal-pediatrico-alta-frecuencia-plus-convencional-ref-6000-sle': 'ventiladores',
@@ -46,14 +46,14 @@ export const PRODUCT_FAMILY_CORRECTIONS: Readonly<Record<string, string>> = {
   'ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide': 'ventiladores',
   'ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide': 'ventiladores',
   'ventilador-mecanico-uci-adulto-pediatrico': 'ventiladores',
-  'monitor-modular-multiparametro-virgo-northern': 'monitores',
+  'monitor-modular-multiparametro-ref-virgo-northern': 'monitores',
   'monitor-multiparametrico-basico': 'monitores',
   'monitor-multiparametrico-uci-avanzado': 'monitores',
-  'monitor-multiparametro-acuarius-northern': 'monitores',
-  'monitor-multiparametro-gemini-northern': 'monitores',
-  'monitor-multiparametro-pisces-northern': 'monitores',
-  'monitor-multiparametro-taurus-northern': 'monitores',
-  'monitor-multiparametro-venus-northern': 'monitores',
+  'monitor-multiparametro-ref-acuarius-northern': 'monitores',
+  'monitor-multiparametro-ref-gemini-northern': 'monitores',
+  'monitor-multiparametro-ref-pisces-northern': 'monitores',
+  'monitor-multiparametro-ref-taurus-northern': 'monitores',
+  'monitor-multiparametro-ref-venus-northern': 'monitores',
   'electrocardiografo-ref-sk-em103-saikang': 'cardiologia',
   'monitor-de-paciente-ref-sk-em005-saikang': 'monitores',
   'monitor-fetal-ref-sk-em006-saikang': 'neonatologia',
@@ -140,9 +140,9 @@ function localProductImage(slug: unknown): string | null {
     'camilla-manual-v2k-ref-sk-c1-v2k-saikang': 'sk-c1',
     'cama-de-hospital-plana-r00-ref-sk-c1-r00-saikang': 'sk-c1-r000w',
     'led-rx18': 'led-rx18-100k',
-    'led-rx18-100k-ilumitec': 'led-rx18-100k',
+    'ref-led-rx18-100k-ilumitec': 'led-rx18-100k',
     'led-rx36-160k': 'led-rx36',
-    'led-rx36-160k-ilumitec': 'led-rx36',
+    'ref-led-rx36-160k-ilumitec': 'led-rx36',
     ske001: 'ske001-19',
   };
   const manifest = productImageManifest as Record<string, string>;
@@ -150,29 +150,33 @@ function localProductImage(slug: unknown): string | null {
 }
 
 const ROBOT_IMPORT_GALLERY_COUNT: Record<string, number> = {
-  'padbot-x3-robot-recepcion': 2,
-  'padbot-x2-robot-servicio-interactivo': 2,
-  'padbot-p2-robot-telepresencia': 2,
-  'padbot-w2-robot-delivery-institucional': 2,
-  'padbot-w3s-robot-delivery-alimentos': 2,
-  'c3-robot-limpieza-autonoma': 2,
-  'padbot-t2-robot-educativo-social': 2,
-  'cruzr-robot-comercial-inteligente-ahuman-future': 1,
+  'padbot-x3-robot-recepcion-ref-padbot-x3-padbot': 2,
+  'padbot-x2-robot-servicio-interactivo-ref-padbot-x2-padbot': 2,
+  'padbot-p2-robot-telepresencia-ref-padbot-p2-padbot': 2,
+  'padbot-w2-robot-delivery-institucional-ref-padbot-w2-padbot': 2,
+  'padbot-w3s-robot-delivery-alimentos-ref-padbot-w3s-padbot': 2,
+  'c3-robot-limpieza-autonoma-ref-c3-cleaning-robot': 2,
+  'padbot-t2-robot-educativo-social-ref-padbot-t2-padbot': 2,
+  'cruzr-robot-comercial-inteligente-ref-cruzr-ahuman-future-ahuman-future': 1,
 };
 
 const ROBOT_MEDIA_SEO_SLUG: Record<string, string> = {
-  'cruzr-robot-comercial-inteligente-ahuman-future':
+  'cruzr-robot-comercial-inteligente-ref-cruzr-ahuman-future-ahuman-future':
     'robot-asistencial-recepcion-hospitalaria-cruzr-ahuman-future',
-  'padbot-x3-robot-recepcion': 'robot-asistencial-recepcion-clinicas-hospitales-padbot-x3',
-  'padbot-x2-robot-servicio-interactivo':
+  'padbot-x3-robot-recepcion-ref-padbot-x3-padbot':
+    'robot-asistencial-recepcion-clinicas-hospitales-padbot-x3',
+  'padbot-x2-robot-servicio-interactivo-ref-padbot-x2-padbot':
     'robot-asistencial-servicio-interactivo-clinicas-hospitales-padbot-x2',
-  'padbot-p2-robot-telepresencia': 'robot-telepresencia-telemedicina-tercera-edad-padbot-p2',
-  'padbot-w2-robot-delivery-institucional':
+  'padbot-p2-robot-telepresencia-ref-padbot-p2-padbot':
+    'robot-telepresencia-telemedicina-tercera-edad-padbot-p2',
+  'padbot-w2-robot-delivery-institucional-ref-padbot-w2-padbot':
     'robot-delivery-hospitalario-industrial-logistica-padbot-w2',
-  'padbot-w3s-robot-delivery-alimentos':
+  'padbot-w3s-robot-delivery-alimentos-ref-padbot-w3s-padbot':
     'robot-delivery-alimentos-restaurantes-hospitales-padbot-w3s',
-  'c3-robot-limpieza-autonoma': 'robot-limpieza-industrial-hospitalaria-autonoma-c3',
-  'padbot-t2-robot-educativo-social': 'robot-educativo-social-tercera-edad-padbot-t2',
+  'c3-robot-limpieza-autonoma-ref-c3-cleaning-robot':
+    'robot-limpieza-industrial-hospitalaria-autonoma-c3',
+  'padbot-t2-robot-educativo-social-ref-padbot-t2-padbot':
+    'robot-educativo-social-tercera-edad-padbot-t2',
 };
 
 function robotImportedAssetPath(slug: unknown, filename: string): string | null {

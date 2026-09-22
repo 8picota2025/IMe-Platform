@@ -185,10 +185,10 @@ describe('WhatsApp Cloud API — IMEIA composition', () => {
       locale: 'es',
       products: [
         {
-          slug: 'monitor-de-paciente-m12-biolight',
+          slug: 'monitor-de-paciente-ref-m12-biolight',
           nombre: 'Monitor de Paciente M12 Biolight',
           descripcion_corta: 'Monitor de paciente compacto.',
-          url_canonica: 'https://i-me.com.co/es/productos/monitor-de-paciente-m12-biolight',
+          url_canonica: 'https://i-me.com.co/es/productos/monitor-de-paciente-ref-m12-biolight',
         },
       ],
     });

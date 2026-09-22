@@ -3,7 +3,19 @@
  * Conserva la descripción actual cuando ya es legible; solo completa lo que falte.
  */
 
-const JUNK_BRANDS = new Set(['c', 'l', 'm', 'arn']);
+const JUNK_BRANDS = new Set([
+  'c',
+  'l',
+  'm',
+  'arn',
+  'bm',
+  'c3',
+  'sunny',
+  'kit-cpap',
+  'nuprep-skin',
+  'prematuro-wigglepads',
+  'sistema-resusa',
+]);
 
 const BAD_BRAND_PREFIX =
   /^(monitor de|circuito|blender|kit de|mesa de|sistema de|torre de|prong|cascada|cable|autoclave|equipo|canula|cánula|gorro|mascara|máscara|silla|cama|lampara|lámpara|incubadora|ventilador|bomba|manta|humidificador|carrito|carro|camilla)/i;
@@ -78,6 +90,11 @@ export type ProductoSeoSlugPlan = {
   model: string | null;
 };
 
+export type ProductoSeoSlugOptions = {
+  /** Fuerza `-ref-{modelo}` aunque el modelo ya esté inline en la descripción. */
+  strictRef?: boolean;
+};
+
 export function slugifyProductoSeo(value: string): string {
   return String(value ?? '')
     .toLowerCase()
@@ -121,8 +138,8 @@ export function resolveUsefulBrand(input: ProductoSeoSlugInput): string | null {
   const attrs = input.atributos ?? {};
   const candidates = [
     firstText(attrs.fabricante),
-    firstText(input.marca),
     firstText(attrs.marca),
+    firstText(input.marca),
     firstText(attrs.brand),
   ].filter((value): value is string => Boolean(value));
 
@@ -246,6 +263,47 @@ function slugContainsModel(slug: string, model: string): boolean {
   return hits >= Math.ceil(parts.length * 0.6);
 }
 
+/** Convierte `{desc}-{modelo}-{marca}` en `{desc}-ref-{modelo}-{marca}`. */
+export function normalizeExplicitRefSlug(
+  slug: string,
+  model: string,
+  brandSlug: string | null
+): string {
+  let base = slug;
+  if (brandSlug && base.endsWith(`-${brandSlug}`)) {
+    base = base.slice(0, -(brandSlug.length + 1));
+  }
+  if (base === model) {
+    base = '';
+  } else if (base.endsWith(`-${model}`)) {
+    base = base.slice(0, -(model.length + 1));
+  } else {
+    for (const part of model.split('-').filter(Boolean).reverse()) {
+      if (part.length >= 2 && base.endsWith(`-${part}`)) {
+        base = base.slice(0, -(part.length + 1));
+      }
+    }
+  }
+  base = slugifyProductoSeo(base);
+  // Si la descripción quedó como prefijo del modelo (slug era solo modelo+marca),
+  // preferir `ref-{modelo}-{marca}` limpio.
+  if (!base || model === base || model.startsWith(`${base}-`)) {
+    const parts = ['ref', model];
+    if (brandSlug) parts.push(brandSlug);
+    return slugifyProductoSeo(parts.join('-'));
+  }
+  const parts = [base, 'ref', model];
+  if (brandSlug) parts.push(brandSlug);
+  return slugifyProductoSeo(parts.join('-'));
+}
+
+export function needsExplicitRefSegment(slug: string, model: string): boolean {
+  if (!model) return false;
+  // Ya tiene -ref- y el modelo está en el slug (p.ej. ref-ainno-light20).
+  if (/-ref-/.test(slug) && slugContainsModel(slug, model)) return false;
+  return slugContainsModel(slug, model);
+}
+
 function clampSlug(slug: string, brandSlug: string | null, model: string | null): string {
   const MAX = 96;
   if (slug.length <= MAX) return slug;
@@ -265,7 +323,10 @@ function clampSlug(slug: string, brandSlug: string | null, model: string | null)
  * Plan de URL canónica: `{descripcion}[-ref-{modelo}][-{fabricante}]`.
  * No renombra el producto de prueba `test`.
  */
-export function planProductoSeoSlug(input: ProductoSeoSlugInput): ProductoSeoSlugPlan {
+export function planProductoSeoSlug(
+  input: ProductoSeoSlugInput,
+  options: ProductoSeoSlugOptions = {}
+): ProductoSeoSlugPlan {
   const oldSlug = input.slug;
   if (oldSlug === 'test') {
     return {
@@ -310,6 +371,9 @@ export function planProductoSeoSlug(input: ProductoSeoSlugInput): ProductoSeoSlu
     slug = slug.replace(new RegExp(`(-${escapeRegExp(brandSlug)}){2,}$`), `-${brandSlug}`);
   }
   slug = slug.replace(/(-ref){2,}-/g, '-ref-');
+  if (options.strictRef && model && needsExplicitRefSegment(slug, model)) {
+    slug = normalizeExplicitRefSlug(slug, model, brandSlug);
+  }
   slug = clampSlug(slug, brandSlug, model);
 
   return {

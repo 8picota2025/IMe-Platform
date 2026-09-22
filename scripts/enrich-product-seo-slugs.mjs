@@ -6,6 +6,7 @@
  * Uso:
  *   node --env-file=.env scripts/enrich-product-seo-slugs.mjs            # dry-run
  *   node --env-file=.env scripts/enrich-product-seo-slugs.mjs --apply    # escribe
+ *   node --env-file=.env scripts/enrich-product-seo-slugs.mjs --strict-ref --apply
  *
  * Efectos con --apply:
  * - Actualiza `productos.slug` y `atributos.legacy_slugs` en Supabase
@@ -24,6 +25,7 @@ import {
 
 const ROOT = process.cwd();
 const APPLY = process.argv.includes('--apply');
+const STRICT_REF = process.argv.includes('--strict-ref');
 const LIMIT_ARG = process.argv.find(arg => arg.startsWith('--limit='));
 const LIMIT = LIMIT_ARG ? Number(LIMIT_ARG.split('=')[1]) : Infinity;
 
@@ -66,12 +68,15 @@ function buildPlans(products) {
   const plans = [];
 
   for (const product of products) {
-    const draft = planProductoSeoSlug({
-      slug: product.slug,
-      nombre_es: product.nombre_es,
-      sku: product.sku,
-      atributos: product.atributos,
-    });
+    const draft = planProductoSeoSlug(
+      {
+        slug: product.slug,
+        nombre_es: product.nombre_es,
+        sku: product.sku,
+        atributos: product.atributos,
+      },
+      { strictRef: STRICT_REF }
+    );
     if (!draft.changed) continue;
 
     occupied.delete(draft.oldSlug);
@@ -247,6 +252,7 @@ console.log(
   JSON.stringify(
     {
       mode: APPLY ? 'apply' : 'dry-run',
+      strictRef: STRICT_REF,
       activeProducts: products.length,
       renames: plans.length,
       sample: plans.slice(0, 25).map(plan => ({
