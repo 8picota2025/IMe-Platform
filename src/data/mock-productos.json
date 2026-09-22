@@ -13166,8 +13166,8 @@
         "valor": "Tamaño: 670×450×900 mm"
       }
     ],
-    "imagen_principal": null,
-    "galeria": [],
+    "imagen_principal": "/assets/productos/fabricante/saikang/skh001.jpg",
+    "galeria": ["/assets/productos/fabricante/saikang/skh001.jpg"],
     "ficha_pdf": null,
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -13276,7 +13276,105 @@
       "biomedical clinical trolley"
     ],
     "atributos": {
-      "legacy_slugs": ["skm-b-skh001"]
+      "legacy_slugs": ["skm-b-skh001"],
+      "marca": "Saikang Medical",
+      "source": "excel_admin",
+      "galeria": ["/assets/productos/fabricante/saikang/skh001.jpg"],
+      "valor_en": "Reference Carro de Acero Inoxidable SKH001 should be evaluated with its datasheet, configuration and service context to avoid generic purchases that do not fit the real workflow.",
+      "valor_es": "La referencia Carro de Acero Inoxidable SKH001 se evalúa con ficha técnica, configuración y contexto de servicio para evitar compras genéricas que no resuelven el flujo real.",
+      "fabricante": "Saikang",
+      "beneficios_en": [
+        "Stainless Steel Cart SKH001 (Carro de Acero Inoxidable SKH001) addresses scattered supplies, unnecessary movement and lost time when preparing care in inpatient care, emergency, anesthesia, procedures and internal logistics.",
+        "Stainless Steel Cart SKH001 is documented as clinical trolley; that identification helps procurement, biomedical engineering and maintenance request the required configuration.",
+        "Reference Carro de Acero Inoxidable SKH001 lets teams review Característica: Acero inoxidable; Característica: 2 estantes; Característica: 1 cajón 100×280×350 mm; Característica: Manijas ambos lados; Característica: Ruedas 3\" cubiertas, 2 con freno before comparing or requesting a quote.",
+        "Compared with a generic cart that does not match the area volume, route or protocol, Stainless Steel Cart SKH001 provides a concrete basis for checking dimensions, accessories, installation, cleaning and support against the real workflow.",
+        "Stainless Steel Cart SKH001's datasheet supports a quote built around use case, available space, workload and maintenance—not isolated price.",
+        "I-ME can confirm availability and delivery conditions in Colombia for Stainless Steel Cart SKH001, keeping model, documentation and product page in the request."
+      ],
+      "beneficios_es": [
+        "Carro de Acero Inoxidable SKH001 (Carro de Acero Inoxidable SKH001) aborda insumos dispersos, desplazamientos innecesarios y pérdida de tiempo al preparar una atención en hospitalización, urgencias, anestesia, procedimientos y logística interna.",
+        "Carro de Acero Inoxidable SKH001 está documentado como carro clínico; esa identificación ayuda a compras, ingeniería biomédica y mantenimiento a pedir exactamente la configuración requerida.",
+        "La referencia Carro de Acero Inoxidable SKH001 permite revisar Característica: Acero inoxidable; Característica: 2 estantes; Característica: 1 cajón 100×280×350 mm; Característica: Manijas ambos lados; Característica: Ruedas 3\" cubiertas, 2 con freno antes de comparar o cotizar.",
+        "Frente a un carro genérico que no responde al volumen, recorrido o protocolo del área, Carro de Acero Inoxidable SKH001 ofrece una base concreta para contrastar medidas, accesorios, instalación, limpieza y soporte según el flujo real del servicio.",
+        "La ficha de Carro de Acero Inoxidable SKH001 permite preparar una cotización con contexto de uso, espacio disponible, intensidad de trabajo y mantenimiento; no obliga a elegir por precio aislado.",
+        "I-ME canaliza disponibilidad y condiciones de entrega en Colombia para Carro de Acero Inoxidable SKH001, manteniendo modelo, documentación y página de referencia en la solicitud."
+      ],
+      "bulk_import_at": "2026-06-30T02:08:29.166Z",
+      "seo_keywords_en": [
+        "Stainless Steel Cart SKH001",
+        "Saikang clinical trolley",
+        "clinical trolley for hospitals",
+        "clinical trolley for clinics",
+        "clinical trolley Colombia",
+        "Carro de Acero Inoxidable SKH001 datasheet",
+        "request a quote Carro de Acero Inoxidable SKH001",
+        "clinical trolley supplier Colombia",
+        "biomedical clinical trolley"
+      ],
+      "seo_keywords_es": [
+        "Carro de Acero Inoxidable SKH001",
+        "carro clínico Saikang",
+        "carro clínico para hospitales",
+        "carro clínico para clínicas",
+        "carro clínico Colombia",
+        "ficha técnica Carro de Acero Inoxidable SKH001",
+        "cotizar Carro de Acero Inoxidable SKH001",
+        "precio carro clínico",
+        "proveedor carro clínico Colombia",
+        "equipos biomédicos carro clínico"
+      ],
+      "imagen_principal": "/assets/productos/fabricante/saikang/skh001.jpg",
+      "local_asset_source": "CAT",
+      "local_asset_synced_at": "2026-06-30T23:44:05.276Z",
+      "preguntas_frecuentes_en": [
+        {
+          "a": "Stainless Steel Cart SKH001 is intended for inpatient care, emergency, anesthesia, procedures and internal logistics. Its suitability depends on each institution's protocol, configuration and conditions; the datasheet helps validate the fit before purchase.",
+          "q": "What is Stainless Steel Cart SKH001 used for?"
+        },
+        {
+          "a": "It helps address scattered supplies, unnecessary movement and lost time when preparing care. It does not replace protocols or staff; it provides documented equipment for a more predictable evaluation and workflow.",
+          "q": "What problem can reference Carro de Acero Inoxidable SKH001 help solve?"
+        },
+        {
+          "a": "Confirm space and route, workload, users, accessories, installation, training, maintenance and applicable regulatory requirements. I-ME reviews these details with the manufacturer's datasheet.",
+          "q": "What should I confirm before requesting a quote?"
+        },
+        {
+          "a": "The technical datasheet is available for download on this page. Final dimensions, configuration and parameters must be confirmed in the manufacturer document and quotation.",
+          "q": "Where can I find Carro de Acero Inoxidable SKH001 specifications?"
+        },
+        {
+          "a": "There is no universal answer. Compare service fit, documentation, accessories, support, maintenance and total cost. This reference enables a traceable comparison against options with insufficient information.",
+          "q": "Is it better than a similar brand or product?"
+        }
+      ],
+      "preguntas_frecuentes_es": [
+        {
+          "a": "Carro de Acero Inoxidable SKH001 está destinado a hospitalización, urgencias, anestesia, procedimientos y logística interna. Su utilidad concreta depende del protocolo, configuración y condiciones de cada institución; la ficha técnica ayuda a validar ese encaje antes de comprar.",
+          "q": "¿Para qué sirve Carro de Acero Inoxidable SKH001?"
+        },
+        {
+          "a": "Ayuda a abordar insumos dispersos, desplazamientos innecesarios y pérdida de tiempo al preparar una atención. No reemplaza protocolos ni personal: aporta una referencia documentada para ordenar el flujo y reducir incertidumbre durante la evaluación.",
+          "q": "¿Qué problema ayuda a resolver la referencia Carro de Acero Inoxidable SKH001?"
+        },
+        {
+          "a": "Confirme espacio y recorrido, intensidad de uso, usuarios, accesorios, instalación, capacitación, mantenimiento y requisitos regulatorios aplicables. I-ME revisa estos datos junto con la ficha del fabricante.",
+          "q": "¿Qué debo revisar antes de cotizar este equipo?"
+        },
+        {
+          "a": "La ficha técnica está disponible en esta página para descarga. Las dimensiones, configuración y parámetros definitivos deben confirmarse en el documento del fabricante y en la cotización.",
+          "q": "¿Dónde consulto las especificaciones de Carro de Acero Inoxidable SKH001?"
+        },
+        {
+          "a": "No existe una respuesta universal. La comparación debe considerar adecuación al servicio, documentación, accesorios, soporte, mantenimiento y coste total. Esta referencia facilita una comparación trazable frente a opciones sin información suficiente.",
+          "q": "¿Es mejor que una marca o producto similar?"
+        }
+      ],
+      "image_source": "https://tesamedical.com/d/file/p/2022/10-05/3a018225be1e35ce6c595555017e1c79.jpg",
+      "manufacturer_image_source": "https://tesamedical.com/",
+      "image_source_type": "distributor-catalog",
+      "image_match_confidence": "medium",
+      "image_match_notes": "Distributor catalog image labeled SKH001"
     }
   },
   {
@@ -13772,8 +13870,8 @@
         "valor": "Tamaño: 670×450×900 mm"
       }
     ],
-    "imagen_principal": null,
-    "galeria": [],
+    "imagen_principal": "/assets/productos/fabricante/saikang/skh029.jpg",
+    "galeria": ["/assets/productos/fabricante/saikang/skh029.jpg"],
     "ficha_pdf": null,
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -13882,7 +13980,105 @@
       "biomedical clinical trolley"
     ],
     "atributos": {
-      "legacy_slugs": ["skm-b-skh029"]
+      "legacy_slugs": ["skm-b-skh029"],
+      "marca": "Saikang Medical",
+      "source": "excel_admin",
+      "galeria": ["/assets/productos/fabricante/saikang/skh029.jpg"],
+      "valor_en": "Reference Carro de Acero Inoxidable SKH029 should be evaluated with its datasheet, configuration and service context to avoid generic purchases that do not fit the real workflow.",
+      "valor_es": "La referencia Carro de Acero Inoxidable SKH029 se evalúa con ficha técnica, configuración y contexto de servicio para evitar compras genéricas que no resuelven el flujo real.",
+      "fabricante": "Saikang",
+      "beneficios_en": [
+        "Stainless Steel Cart SKH029 (Carro de Acero Inoxidable SKH029) addresses scattered supplies, unnecessary movement and lost time when preparing care in inpatient care, emergency, anesthesia, procedures and internal logistics.",
+        "Stainless Steel Cart SKH029 is documented as clinical trolley; that identification helps procurement, biomedical engineering and maintenance request the required configuration.",
+        "Reference Carro de Acero Inoxidable SKH029 lets teams review Característica: 2 estantes acero inoxidable; Característica: 2 cajones con cerradura 100×280×350 mm; Característica: Ruedas 3\", 2 con freno; Característica: Barandillas 3 lados; Característica: Tubo Φ25×1.2 y Φ13×1 mm before comparing or requesting a quote.",
+        "Compared with a generic cart that does not match the area volume, route or protocol, Stainless Steel Cart SKH029 provides a concrete basis for checking dimensions, accessories, installation, cleaning and support against the real workflow.",
+        "Stainless Steel Cart SKH029's datasheet supports a quote built around use case, available space, workload and maintenance—not isolated price.",
+        "I-ME can confirm availability and delivery conditions in Colombia for Stainless Steel Cart SKH029, keeping model, documentation and product page in the request."
+      ],
+      "beneficios_es": [
+        "Carro de Acero Inoxidable SKH029 (Carro de Acero Inoxidable SKH029) aborda insumos dispersos, desplazamientos innecesarios y pérdida de tiempo al preparar una atención en hospitalización, urgencias, anestesia, procedimientos y logística interna.",
+        "Carro de Acero Inoxidable SKH029 está documentado como carro clínico; esa identificación ayuda a compras, ingeniería biomédica y mantenimiento a pedir exactamente la configuración requerida.",
+        "La referencia Carro de Acero Inoxidable SKH029 permite revisar Característica: 2 estantes acero inoxidable; Característica: 2 cajones con cerradura 100×280×350 mm; Característica: Ruedas 3\", 2 con freno; Característica: Barandillas 3 lados; Característica: Tubo Φ25×1.2 y Φ13×1 mm antes de comparar o cotizar.",
+        "Frente a un carro genérico que no responde al volumen, recorrido o protocolo del área, Carro de Acero Inoxidable SKH029 ofrece una base concreta para contrastar medidas, accesorios, instalación, limpieza y soporte según el flujo real del servicio.",
+        "La ficha de Carro de Acero Inoxidable SKH029 permite preparar una cotización con contexto de uso, espacio disponible, intensidad de trabajo y mantenimiento; no obliga a elegir por precio aislado.",
+        "I-ME canaliza disponibilidad y condiciones de entrega en Colombia para Carro de Acero Inoxidable SKH029, manteniendo modelo, documentación y página de referencia en la solicitud."
+      ],
+      "bulk_import_at": "2026-06-30T02:08:29.169Z",
+      "seo_keywords_en": [
+        "Stainless Steel Cart SKH029",
+        "Saikang clinical trolley",
+        "clinical trolley for hospitals",
+        "clinical trolley for clinics",
+        "clinical trolley Colombia",
+        "Carro de Acero Inoxidable SKH029 datasheet",
+        "request a quote Carro de Acero Inoxidable SKH029",
+        "clinical trolley supplier Colombia",
+        "biomedical clinical trolley"
+      ],
+      "seo_keywords_es": [
+        "Carro de Acero Inoxidable SKH029",
+        "carro clínico Saikang",
+        "carro clínico para hospitales",
+        "carro clínico para clínicas",
+        "carro clínico Colombia",
+        "ficha técnica Carro de Acero Inoxidable SKH029",
+        "cotizar Carro de Acero Inoxidable SKH029",
+        "precio carro clínico",
+        "proveedor carro clínico Colombia",
+        "equipos biomédicos carro clínico"
+      ],
+      "imagen_principal": "/assets/productos/fabricante/saikang/skh029.jpg",
+      "local_asset_source": "CAT",
+      "local_asset_synced_at": "2026-06-30T23:44:05.460Z",
+      "preguntas_frecuentes_en": [
+        {
+          "a": "Stainless Steel Cart SKH029 is intended for inpatient care, emergency, anesthesia, procedures and internal logistics. Its suitability depends on each institution's protocol, configuration and conditions; the datasheet helps validate the fit before purchase.",
+          "q": "What is Stainless Steel Cart SKH029 used for?"
+        },
+        {
+          "a": "It helps address scattered supplies, unnecessary movement and lost time when preparing care. It does not replace protocols or staff; it provides documented equipment for a more predictable evaluation and workflow.",
+          "q": "What problem can reference Carro de Acero Inoxidable SKH029 help solve?"
+        },
+        {
+          "a": "Confirm space and route, workload, users, accessories, installation, training, maintenance and applicable regulatory requirements. I-ME reviews these details with the manufacturer's datasheet.",
+          "q": "What should I confirm before requesting a quote?"
+        },
+        {
+          "a": "The technical datasheet is available for download on this page. Final dimensions, configuration and parameters must be confirmed in the manufacturer document and quotation.",
+          "q": "Where can I find Carro de Acero Inoxidable SKH029 specifications?"
+        },
+        {
+          "a": "There is no universal answer. Compare service fit, documentation, accessories, support, maintenance and total cost. This reference enables a traceable comparison against options with insufficient information.",
+          "q": "Is it better than a similar brand or product?"
+        }
+      ],
+      "preguntas_frecuentes_es": [
+        {
+          "a": "Carro de Acero Inoxidable SKH029 está destinado a hospitalización, urgencias, anestesia, procedimientos y logística interna. Su utilidad concreta depende del protocolo, configuración y condiciones de cada institución; la ficha técnica ayuda a validar ese encaje antes de comprar.",
+          "q": "¿Para qué sirve Carro de Acero Inoxidable SKH029?"
+        },
+        {
+          "a": "Ayuda a abordar insumos dispersos, desplazamientos innecesarios y pérdida de tiempo al preparar una atención. No reemplaza protocolos ni personal: aporta una referencia documentada para ordenar el flujo y reducir incertidumbre durante la evaluación.",
+          "q": "¿Qué problema ayuda a resolver la referencia Carro de Acero Inoxidable SKH029?"
+        },
+        {
+          "a": "Confirme espacio y recorrido, intensidad de uso, usuarios, accesorios, instalación, capacitación, mantenimiento y requisitos regulatorios aplicables. I-ME revisa estos datos junto con la ficha del fabricante.",
+          "q": "¿Qué debo revisar antes de cotizar este equipo?"
+        },
+        {
+          "a": "La ficha técnica está disponible en esta página para descarga. Las dimensiones, configuración y parámetros definitivos deben confirmarse en el documento del fabricante y en la cotización.",
+          "q": "¿Dónde consulto las especificaciones de Carro de Acero Inoxidable SKH029?"
+        },
+        {
+          "a": "No existe una respuesta universal. La comparación debe considerar adecuación al servicio, documentación, accesorios, soporte, mantenimiento y coste total. Esta referencia facilita una comparación trazable frente a opciones sin información suficiente.",
+          "q": "¿Es mejor que una marca o producto similar?"
+        }
+      ],
+      "image_source": "https://www.tesamedical.com/d/file/p/2022/10-05/fa64e17fb185427139be9ef073ef9413.jpg",
+      "manufacturer_image_source": "https://www.tesamedical.com/",
+      "image_source_type": "distributor-catalog",
+      "image_match_confidence": "medium",
+      "image_match_notes": "Distributor catalog image labeled SKH029; not on saikangmedical.com"
     }
   },
   {
@@ -14332,8 +14528,8 @@
         "valor": "Tamaño: 780×475×1000 mm"
       }
     ],
-    "imagen_principal": null,
-    "galeria": [],
+    "imagen_principal": "/assets/productos/fabricante/saikang/skr-ct231.webp",
+    "galeria": ["/assets/productos/fabricante/saikang/skr-ct231.webp"],
     "ficha_pdf": null,
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -14442,7 +14638,105 @@
       "biomedical clinical trolley"
     ],
     "atributos": {
-      "legacy_slugs": ["skm-b-skr-ct231"]
+      "legacy_slugs": ["skm-b-skr-ct231"],
+      "marca": "Saikang Medical",
+      "source": "excel_admin",
+      "galeria": ["/assets/productos/fabricante/saikang/skr-ct231.webp"],
+      "valor_en": "Reference Carro ABS SKR-CT231 should be evaluated with its datasheet, configuration and service context to avoid generic purchases that do not fit the real workflow.",
+      "valor_es": "La referencia Carro ABS SKR-CT231 se evalúa con ficha técnica, configuración y contexto de servicio para evitar compras genéricas que no resuelven el flujo real.",
+      "fabricante": "Saikang",
+      "beneficios_en": [
+        "ABS Cart SKR-CT231 (Carro ABS SKR-CT231) addresses scattered supplies, unnecessary movement and lost time when preparing care in inpatient care, emergency, anesthesia, procedures and internal logistics.",
+        "ABS Cart SKR-CT231 is documented as clinical trolley; that identification helps procurement, biomedical engineering and maintenance request the required configuration.",
+        "Reference Carro ABS SKR-CT231 lets teams review Característica: Estructura acero y aluminio; Característica: Materiales HDPE antibacteriales; Característica: Pasamanos acero inoxidable; Característica: Tamaño: 780×475×1000 mm before comparing or requesting a quote.",
+        "Compared with a generic cart that does not match the area volume, route or protocol, ABS Cart SKR-CT231 provides a concrete basis for checking dimensions, accessories, installation, cleaning and support against the real workflow.",
+        "ABS Cart SKR-CT231's datasheet supports a quote built around use case, available space, workload and maintenance—not isolated price.",
+        "I-ME can confirm availability and delivery conditions in Colombia for ABS Cart SKR-CT231, keeping model, documentation and product page in the request."
+      ],
+      "beneficios_es": [
+        "Carro ABS SKR-CT231 (Carro ABS SKR-CT231) aborda insumos dispersos, desplazamientos innecesarios y pérdida de tiempo al preparar una atención en hospitalización, urgencias, anestesia, procedimientos y logística interna.",
+        "Carro ABS SKR-CT231 está documentado como carro clínico; esa identificación ayuda a compras, ingeniería biomédica y mantenimiento a pedir exactamente la configuración requerida.",
+        "La referencia Carro ABS SKR-CT231 permite revisar Característica: Estructura acero y aluminio; Característica: Materiales HDPE antibacteriales; Característica: Pasamanos acero inoxidable; Característica: Tamaño: 780×475×1000 mm antes de comparar o cotizar.",
+        "Frente a un carro genérico que no responde al volumen, recorrido o protocolo del área, Carro ABS SKR-CT231 ofrece una base concreta para contrastar medidas, accesorios, instalación, limpieza y soporte según el flujo real del servicio.",
+        "La ficha de Carro ABS SKR-CT231 permite preparar una cotización con contexto de uso, espacio disponible, intensidad de trabajo y mantenimiento; no obliga a elegir por precio aislado.",
+        "I-ME canaliza disponibilidad y condiciones de entrega en Colombia para Carro ABS SKR-CT231, manteniendo modelo, documentación y página de referencia en la solicitud."
+      ],
+      "bulk_import_at": "2026-06-30T02:08:28.419Z",
+      "seo_keywords_en": [
+        "ABS Cart SKR-CT231",
+        "Saikang clinical trolley",
+        "clinical trolley for hospitals",
+        "clinical trolley for clinics",
+        "clinical trolley Colombia",
+        "Carro ABS SKR-CT231 datasheet",
+        "request a quote Carro ABS SKR-CT231",
+        "clinical trolley supplier Colombia",
+        "biomedical clinical trolley"
+      ],
+      "seo_keywords_es": [
+        "Carro ABS SKR-CT231",
+        "carro clínico Saikang",
+        "carro clínico para hospitales",
+        "carro clínico para clínicas",
+        "carro clínico Colombia",
+        "ficha técnica Carro ABS SKR-CT231",
+        "cotizar Carro ABS SKR-CT231",
+        "precio carro clínico",
+        "proveedor carro clínico Colombia",
+        "equipos biomédicos carro clínico"
+      ],
+      "imagen_principal": "/assets/productos/fabricante/saikang/skr-ct231.webp",
+      "local_asset_source": "CAT",
+      "local_asset_synced_at": "2026-06-30T23:44:05.618Z",
+      "preguntas_frecuentes_en": [
+        {
+          "a": "ABS Cart SKR-CT231 is intended for inpatient care, emergency, anesthesia, procedures and internal logistics. Its suitability depends on each institution's protocol, configuration and conditions; the datasheet helps validate the fit before purchase.",
+          "q": "What is ABS Cart SKR-CT231 used for?"
+        },
+        {
+          "a": "It helps address scattered supplies, unnecessary movement and lost time when preparing care. It does not replace protocols or staff; it provides documented equipment for a more predictable evaluation and workflow.",
+          "q": "What problem can reference Carro ABS SKR-CT231 help solve?"
+        },
+        {
+          "a": "Confirm space and route, workload, users, accessories, installation, training, maintenance and applicable regulatory requirements. I-ME reviews these details with the manufacturer's datasheet.",
+          "q": "What should I confirm before requesting a quote?"
+        },
+        {
+          "a": "The technical datasheet is available for download on this page. Final dimensions, configuration and parameters must be confirmed in the manufacturer document and quotation.",
+          "q": "Where can I find Carro ABS SKR-CT231 specifications?"
+        },
+        {
+          "a": "There is no universal answer. Compare service fit, documentation, accessories, support, maintenance and total cost. This reference enables a traceable comparison against options with insufficient information.",
+          "q": "Is it better than a similar brand or product?"
+        }
+      ],
+      "preguntas_frecuentes_es": [
+        {
+          "a": "Carro ABS SKR-CT231 está destinado a hospitalización, urgencias, anestesia, procedimientos y logística interna. Su utilidad concreta depende del protocolo, configuración y condiciones de cada institución; la ficha técnica ayuda a validar ese encaje antes de comprar.",
+          "q": "¿Para qué sirve Carro ABS SKR-CT231?"
+        },
+        {
+          "a": "Ayuda a abordar insumos dispersos, desplazamientos innecesarios y pérdida de tiempo al preparar una atención. No reemplaza protocolos ni personal: aporta una referencia documentada para ordenar el flujo y reducir incertidumbre durante la evaluación.",
+          "q": "¿Qué problema ayuda a resolver la referencia Carro ABS SKR-CT231?"
+        },
+        {
+          "a": "Confirme espacio y recorrido, intensidad de uso, usuarios, accesorios, instalación, capacitación, mantenimiento y requisitos regulatorios aplicables. I-ME revisa estos datos junto con la ficha del fabricante.",
+          "q": "¿Qué debo revisar antes de cotizar este equipo?"
+        },
+        {
+          "a": "La ficha técnica está disponible en esta página para descarga. Las dimensiones, configuración y parámetros definitivos deben confirmarse en el documento del fabricante y en la cotización.",
+          "q": "¿Dónde consulto las especificaciones de Carro ABS SKR-CT231?"
+        },
+        {
+          "a": "No existe una respuesta universal. La comparación debe considerar adecuación al servicio, documentación, accesorios, soporte, mantenimiento y coste total. Esta referencia facilita una comparación trazable frente a opciones sin información suficiente.",
+          "q": "¿Es mejor que una marca o producto similar?"
+        }
+      ],
+      "image_source": "https://img13.fr-trading.com/3/1_650_33475_600_600.jpg.webp",
+      "manufacturer_image_source": "https://img13.fr-trading.com/",
+      "image_source_type": "distributor-catalog",
+      "image_match_confidence": "medium",
+      "image_match_notes": "Third-party trading catalog image for SKR-CT231; medium confidence"
     }
   },
   {
@@ -14489,8 +14783,8 @@
         "valor": "Tamaño: 750×475×920 mm"
       }
     ],
-    "imagen_principal": null,
-    "galeria": [],
+    "imagen_principal": "/assets/productos/fabricante/saikang/skr-ct750-1.jpg",
+    "galeria": ["/assets/productos/fabricante/saikang/skr-ct750-1.jpg"],
     "ficha_pdf": null,
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -14599,7 +14893,105 @@
       "biomedical clinical trolley"
     ],
     "atributos": {
-      "legacy_slugs": ["skm-b-skr-ct750-1"]
+      "legacy_slugs": ["skm-b-skr-ct750-1"],
+      "marca": "Saikang Medical",
+      "source": "excel_admin",
+      "galeria": ["/assets/productos/fabricante/saikang/skr-ct750-1.jpg"],
+      "valor_en": "Reference Carro ABS SKR-CT750-1 should be evaluated with its datasheet, configuration and service context to avoid generic purchases that do not fit the real workflow.",
+      "valor_es": "La referencia Carro ABS SKR-CT750-1 se evalúa con ficha técnica, configuración y contexto de servicio para evitar compras genéricas que no resuelven el flujo real.",
+      "fabricante": "Saikang",
+      "beneficios_en": [
+        "ABS Cart SKR-CT750-1 (Carro ABS SKR-CT750-1) addresses scattered supplies, unnecessary movement and lost time when preparing care in inpatient care, emergency, anesthesia, procedures and internal logistics.",
+        "ABS Cart SKR-CT750-1 is documented as clinical trolley; that identification helps procurement, biomedical engineering and maintenance request the required configuration.",
+        "Reference Carro ABS SKR-CT750-1 lets teams review Característica: Aluminio, acero, ABS; Característica: Moldeo inyección ABS; Característica: Reposabrazos; Característica: Barandilla acero 304; Característica: Vidrio templado before comparing or requesting a quote.",
+        "Compared with a generic cart that does not match the area volume, route or protocol, ABS Cart SKR-CT750-1 provides a concrete basis for checking dimensions, accessories, installation, cleaning and support against the real workflow.",
+        "ABS Cart SKR-CT750-1's datasheet supports a quote built around use case, available space, workload and maintenance—not isolated price.",
+        "I-ME can confirm availability and delivery conditions in Colombia for ABS Cart SKR-CT750-1, keeping model, documentation and product page in the request."
+      ],
+      "beneficios_es": [
+        "Carro ABS SKR-CT750-1 (Carro ABS SKR-CT750-1) aborda insumos dispersos, desplazamientos innecesarios y pérdida de tiempo al preparar una atención en hospitalización, urgencias, anestesia, procedimientos y logística interna.",
+        "Carro ABS SKR-CT750-1 está documentado como carro clínico; esa identificación ayuda a compras, ingeniería biomédica y mantenimiento a pedir exactamente la configuración requerida.",
+        "La referencia Carro ABS SKR-CT750-1 permite revisar Característica: Aluminio, acero, ABS; Característica: Moldeo inyección ABS; Característica: Reposabrazos; Característica: Barandilla acero 304; Característica: Vidrio templado antes de comparar o cotizar.",
+        "Frente a un carro genérico que no responde al volumen, recorrido o protocolo del área, Carro ABS SKR-CT750-1 ofrece una base concreta para contrastar medidas, accesorios, instalación, limpieza y soporte según el flujo real del servicio.",
+        "La ficha de Carro ABS SKR-CT750-1 permite preparar una cotización con contexto de uso, espacio disponible, intensidad de trabajo y mantenimiento; no obliga a elegir por precio aislado.",
+        "I-ME canaliza disponibilidad y condiciones de entrega en Colombia para Carro ABS SKR-CT750-1, manteniendo modelo, documentación y página de referencia en la solicitud."
+      ],
+      "bulk_import_at": "2026-06-30T02:08:28.416Z",
+      "seo_keywords_en": [
+        "ABS Cart SKR-CT750-1",
+        "Saikang clinical trolley",
+        "clinical trolley for hospitals",
+        "clinical trolley for clinics",
+        "clinical trolley Colombia",
+        "Carro ABS SKR-CT750-1 datasheet",
+        "request a quote Carro ABS SKR-CT750-1",
+        "clinical trolley supplier Colombia",
+        "biomedical clinical trolley"
+      ],
+      "seo_keywords_es": [
+        "Carro ABS SKR-CT750-1",
+        "carro clínico Saikang",
+        "carro clínico para hospitales",
+        "carro clínico para clínicas",
+        "carro clínico Colombia",
+        "ficha técnica Carro ABS SKR-CT750-1",
+        "cotizar Carro ABS SKR-CT750-1",
+        "precio carro clínico",
+        "proveedor carro clínico Colombia",
+        "equipos biomédicos carro clínico"
+      ],
+      "imagen_principal": "/assets/productos/fabricante/saikang/skr-ct750-1.jpg",
+      "local_asset_source": "CAT",
+      "local_asset_synced_at": "2026-06-30T23:44:05.658Z",
+      "preguntas_frecuentes_en": [
+        {
+          "a": "ABS Cart SKR-CT750-1 is intended for inpatient care, emergency, anesthesia, procedures and internal logistics. Its suitability depends on each institution's protocol, configuration and conditions; the datasheet helps validate the fit before purchase.",
+          "q": "What is ABS Cart SKR-CT750-1 used for?"
+        },
+        {
+          "a": "It helps address scattered supplies, unnecessary movement and lost time when preparing care. It does not replace protocols or staff; it provides documented equipment for a more predictable evaluation and workflow.",
+          "q": "What problem can reference Carro ABS SKR-CT750-1 help solve?"
+        },
+        {
+          "a": "Confirm space and route, workload, users, accessories, installation, training, maintenance and applicable regulatory requirements. I-ME reviews these details with the manufacturer's datasheet.",
+          "q": "What should I confirm before requesting a quote?"
+        },
+        {
+          "a": "The technical datasheet is available for download on this page. Final dimensions, configuration and parameters must be confirmed in the manufacturer document and quotation.",
+          "q": "Where can I find Carro ABS SKR-CT750-1 specifications?"
+        },
+        {
+          "a": "There is no universal answer. Compare service fit, documentation, accessories, support, maintenance and total cost. This reference enables a traceable comparison against options with insufficient information.",
+          "q": "Is it better than a similar brand or product?"
+        }
+      ],
+      "preguntas_frecuentes_es": [
+        {
+          "a": "Carro ABS SKR-CT750-1 está destinado a hospitalización, urgencias, anestesia, procedimientos y logística interna. Su utilidad concreta depende del protocolo, configuración y condiciones de cada institución; la ficha técnica ayuda a validar ese encaje antes de comprar.",
+          "q": "¿Para qué sirve Carro ABS SKR-CT750-1?"
+        },
+        {
+          "a": "Ayuda a abordar insumos dispersos, desplazamientos innecesarios y pérdida de tiempo al preparar una atención. No reemplaza protocolos ni personal: aporta una referencia documentada para ordenar el flujo y reducir incertidumbre durante la evaluación.",
+          "q": "¿Qué problema ayuda a resolver la referencia Carro ABS SKR-CT750-1?"
+        },
+        {
+          "a": "Confirme espacio y recorrido, intensidad de uso, usuarios, accesorios, instalación, capacitación, mantenimiento y requisitos regulatorios aplicables. I-ME revisa estos datos junto con la ficha del fabricante.",
+          "q": "¿Qué debo revisar antes de cotizar este equipo?"
+        },
+        {
+          "a": "La ficha técnica está disponible en esta página para descarga. Las dimensiones, configuración y parámetros definitivos deben confirmarse en el documento del fabricante y en la cotización.",
+          "q": "¿Dónde consulto las especificaciones de Carro ABS SKR-CT750-1?"
+        },
+        {
+          "a": "No existe una respuesta universal. La comparación debe considerar adecuación al servicio, documentación, accesorios, soporte, mantenimiento y coste total. Esta referencia facilita una comparación trazable frente a opciones sin información suficiente.",
+          "q": "¿Es mejor que una marca o producto similar?"
+        }
+      ],
+      "image_source": "https://tesamedical.com/d/file/p/2022/10-05/f7fd50b225bc1ceee0b5006cd79527f8.jpg",
+      "manufacturer_image_source": "https://tesamedical.com/",
+      "image_source_type": "distributor-catalog",
+      "image_match_confidence": "medium",
+      "image_match_notes": "Distributor catalog image labeled SKR-CT750-1"
     }
   },
   {
@@ -15085,8 +15477,8 @@
         "valor": "Tamaño: 539×366×855 mm"
       }
     ],
-    "imagen_principal": null,
-    "galeria": [],
+    "imagen_principal": "/assets/productos/fabricante/saikang/skr002-3.jpg",
+    "galeria": ["/assets/productos/fabricante/saikang/skr002-3.jpg"],
     "ficha_pdf": null,
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -15195,7 +15587,105 @@
       "biomedical clinical trolley"
     ],
     "atributos": {
-      "legacy_slugs": ["skm-b-skr002-3"]
+      "legacy_slugs": ["skm-b-skr002-3"],
+      "marca": "Saikang Medical",
+      "source": "excel_admin",
+      "galeria": ["/assets/productos/fabricante/saikang/skr002-3.jpg"],
+      "valor_en": "Reference Carro de ABS SKR002-3 should be evaluated with its datasheet, configuration and service context to avoid generic purchases that do not fit the real workflow.",
+      "valor_es": "La referencia Carro de ABS SKR002-3 se evalúa con ficha técnica, configuración y contexto de servicio para evitar compras genéricas que no resuelven el flujo real.",
+      "fabricante": "Saikang",
+      "beneficios_en": [
+        "ABS Cart SKR002-3 (Carro de ABS SKR002-3) addresses scattered supplies, unnecessary movement and lost time when preparing care in inpatient care, emergency, anesthesia, procedures and internal logistics.",
+        "ABS Cart SKR002-3 is documented as clinical trolley; that identification helps procurement, biomedical engineering and maintenance request the required configuration.",
+        "Reference Carro de ABS SKR002-3 lets teams review Característica: Encimera 3 niveles; Característica: Baranda 3 lados; Característica: Apoyabrazos; Característica: 4 ruedas silenciosas, 2 con freno; Característica: Tamaño: 539×366×855 mm before comparing or requesting a quote.",
+        "Compared with a generic cart that does not match the area volume, route or protocol, ABS Cart SKR002-3 provides a concrete basis for checking dimensions, accessories, installation, cleaning and support against the real workflow.",
+        "ABS Cart SKR002-3's datasheet supports a quote built around use case, available space, workload and maintenance—not isolated price.",
+        "I-ME can confirm availability and delivery conditions in Colombia for ABS Cart SKR002-3, keeping model, documentation and product page in the request."
+      ],
+      "beneficios_es": [
+        "Carro de ABS SKR002-3 (Carro de ABS SKR002-3) aborda insumos dispersos, desplazamientos innecesarios y pérdida de tiempo al preparar una atención en hospitalización, urgencias, anestesia, procedimientos y logística interna.",
+        "Carro de ABS SKR002-3 está documentado como carro clínico; esa identificación ayuda a compras, ingeniería biomédica y mantenimiento a pedir exactamente la configuración requerida.",
+        "La referencia Carro de ABS SKR002-3 permite revisar Característica: Encimera 3 niveles; Característica: Baranda 3 lados; Característica: Apoyabrazos; Característica: 4 ruedas silenciosas, 2 con freno; Característica: Tamaño: 539×366×855 mm antes de comparar o cotizar.",
+        "Frente a un carro genérico que no responde al volumen, recorrido o protocolo del área, Carro de ABS SKR002-3 ofrece una base concreta para contrastar medidas, accesorios, instalación, limpieza y soporte según el flujo real del servicio.",
+        "La ficha de Carro de ABS SKR002-3 permite preparar una cotización con contexto de uso, espacio disponible, intensidad de trabajo y mantenimiento; no obliga a elegir por precio aislado.",
+        "I-ME canaliza disponibilidad y condiciones de entrega en Colombia para Carro de ABS SKR002-3, manteniendo modelo, documentación y página de referencia en la solicitud."
+      ],
+      "bulk_import_at": "2026-06-30T02:08:28.425Z",
+      "seo_keywords_en": [
+        "ABS Cart SKR002-3",
+        "Saikang clinical trolley",
+        "clinical trolley for hospitals",
+        "clinical trolley for clinics",
+        "clinical trolley Colombia",
+        "Carro de ABS SKR002-3 datasheet",
+        "request a quote Carro de ABS SKR002-3",
+        "clinical trolley supplier Colombia",
+        "biomedical clinical trolley"
+      ],
+      "seo_keywords_es": [
+        "Carro de ABS SKR002-3",
+        "carro clínico Saikang",
+        "carro clínico para hospitales",
+        "carro clínico para clínicas",
+        "carro clínico Colombia",
+        "ficha técnica Carro de ABS SKR002-3",
+        "cotizar Carro de ABS SKR002-3",
+        "precio carro clínico",
+        "proveedor carro clínico Colombia",
+        "equipos biomédicos carro clínico"
+      ],
+      "imagen_principal": "/assets/productos/fabricante/saikang/skr002-3.jpg",
+      "local_asset_source": "CAT",
+      "local_asset_synced_at": "2026-06-30T23:44:05.824Z",
+      "preguntas_frecuentes_en": [
+        {
+          "a": "ABS Cart SKR002-3 is intended for inpatient care, emergency, anesthesia, procedures and internal logistics. Its suitability depends on each institution's protocol, configuration and conditions; the datasheet helps validate the fit before purchase.",
+          "q": "What is ABS Cart SKR002-3 used for?"
+        },
+        {
+          "a": "It helps address scattered supplies, unnecessary movement and lost time when preparing care. It does not replace protocols or staff; it provides documented equipment for a more predictable evaluation and workflow.",
+          "q": "What problem can reference Carro de ABS SKR002-3 help solve?"
+        },
+        {
+          "a": "Confirm space and route, workload, users, accessories, installation, training, maintenance and applicable regulatory requirements. I-ME reviews these details with the manufacturer's datasheet.",
+          "q": "What should I confirm before requesting a quote?"
+        },
+        {
+          "a": "The technical datasheet is available for download on this page. Final dimensions, configuration and parameters must be confirmed in the manufacturer document and quotation.",
+          "q": "Where can I find Carro de ABS SKR002-3 specifications?"
+        },
+        {
+          "a": "There is no universal answer. Compare service fit, documentation, accessories, support, maintenance and total cost. This reference enables a traceable comparison against options with insufficient information.",
+          "q": "Is it better than a similar brand or product?"
+        }
+      ],
+      "preguntas_frecuentes_es": [
+        {
+          "a": "Carro de ABS SKR002-3 está destinado a hospitalización, urgencias, anestesia, procedimientos y logística interna. Su utilidad concreta depende del protocolo, configuración y condiciones de cada institución; la ficha técnica ayuda a validar ese encaje antes de comprar.",
+          "q": "¿Para qué sirve Carro de ABS SKR002-3?"
+        },
+        {
+          "a": "Ayuda a abordar insumos dispersos, desplazamientos innecesarios y pérdida de tiempo al preparar una atención. No reemplaza protocolos ni personal: aporta una referencia documentada para ordenar el flujo y reducir incertidumbre durante la evaluación.",
+          "q": "¿Qué problema ayuda a resolver la referencia Carro de ABS SKR002-3?"
+        },
+        {
+          "a": "Confirme espacio y recorrido, intensidad de uso, usuarios, accesorios, instalación, capacitación, mantenimiento y requisitos regulatorios aplicables. I-ME revisa estos datos junto con la ficha del fabricante.",
+          "q": "¿Qué debo revisar antes de cotizar este equipo?"
+        },
+        {
+          "a": "La ficha técnica está disponible en esta página para descarga. Las dimensiones, configuración y parámetros definitivos deben confirmarse en el documento del fabricante y en la cotización.",
+          "q": "¿Dónde consulto las especificaciones de Carro de ABS SKR002-3?"
+        },
+        {
+          "a": "No existe una respuesta universal. La comparación debe considerar adecuación al servicio, documentación, accesorios, soporte, mantenimiento y coste total. Esta referencia facilita una comparación trazable frente a opciones sin información suficiente.",
+          "q": "¿Es mejor que una marca o producto similar?"
+        }
+      ],
+      "image_source": "https://tesamedical.com/d/file/p/2022/10-05/c7ba96aa57b3ba483fe21b878e75d17e.jpg",
+      "manufacturer_image_source": "https://tesamedical.com/",
+      "image_source_type": "distributor-catalog",
+      "image_match_confidence": "medium",
+      "image_match_notes": "Distributor catalog image labeled SKR002-3"
     }
   },
   {
