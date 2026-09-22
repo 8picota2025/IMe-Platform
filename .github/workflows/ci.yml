@@ -32,6 +32,26 @@ jobs:
       - name: Test
         run: npm run test
 
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Deno tests (Edge Functions)
+        # Estos 4 archivos son unit tests puros (mockean fetch, sin red real).
+        # actualizar-fulfillment/test.ts NO está aquí: es un test de
+        # integración contra un Supabase local en localhost:54321, requiere
+        # su propio harness (supabase start) — fuera de alcance de este gate.
+        # --no-check: hay errores de tipos preexistentes en el helper de
+        # mocks de twenty-crm.test.ts (TwentyRecord | null), sin relación con
+        # la lógica bajo prueba; arreglarlos es un follow-up aparte.
+        run: |
+          deno test --allow-env --no-check \
+            supabase/functions/_shared/twenty-crm.test.ts \
+            supabase/functions/_shared/divipola.test.ts \
+            supabase/functions/_shared/siigo-client.test.ts \
+            supabase/functions/_shared/siigo-mapper.test.ts
+
       - name: Security grep — no secrets in src/
         run: |
           echo "Checking for exposed secrets..."
