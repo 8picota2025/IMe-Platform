@@ -344,3 +344,77 @@ export function mergeLegacySlugs(existing: unknown, oldSlug: string, newSlug: st
     : [];
   return [...new Set([...fromExisting, oldSlug])].filter(slug => slug && slug !== newSlug);
 }
+
+/** Slugs that currently resolve a product page — never emit a 301 away from these. */
+export function primaryProductSlugs(
+  products: Array<{ slug?: string | null }>
+): Set<string> {
+  return new Set(
+    products
+      .map(product => product.slug)
+      .filter((slug): slug is string => typeof slug === 'string' && slug.length > 0)
+  );
+}
+
+export function listLegacySlugs(atributos: { legacy_slugs?: unknown } | null | undefined): string[] {
+  const raw = atributos?.legacy_slugs;
+  if (!Array.isArray(raw)) return [];
+  return [...new Set(raw.filter((value): value is string => typeof value === 'string' && Boolean(value)))];
+}
+
+/**
+ * Drop legacy entries that collide with another product's live primary slug.
+ * Those collisions produce Hostinger 301s that steal a live PDP URL.
+ */
+export function sanitizeLegacySlugsAgainstPrimaries(
+  legacy: string[],
+  ownSlug: string,
+  primarySlugs: Set<string>
+): string[] {
+  return [...new Set(legacy)].filter(
+    slug => Boolean(slug) && slug !== ownSlug && !primarySlugs.has(slug)
+  );
+}
+
+export type ProductoRedirectSource = {
+  slug: string;
+  atributos?: { legacy_slugs?: unknown } | null;
+};
+
+/**
+ * Build Apache product redirects: legacy → current primary only.
+ * Skips: empty, self, live primary collisions, ambiguous shared legacies.
+ */
+export function buildSafeProductRedirectRules(products: ProductoRedirectSource[]): string[] {
+  const primaries = primaryProductSlugs(products);
+  const owners = new Map<string, string[]>();
+
+  for (const product of products) {
+    if (!product.slug) continue;
+    const legacy = sanitizeLegacySlugsAgainstPrimaries(
+      listLegacySlugs(product.atributos),
+      product.slug,
+      primaries
+    );
+    for (const oldSlug of legacy) {
+      const list = owners.get(oldSlug) ?? [];
+      list.push(product.slug);
+      owners.set(oldSlug, list);
+    }
+  }
+
+  const rules: string[] = [];
+  for (const [oldSlug, targets] of [...owners.entries()].sort((a, b) =>
+    a[0].localeCompare(b[0])
+  )) {
+    const uniqueTargets = [...new Set(targets)];
+    if (uniqueTargets.length !== 1) continue;
+    const target = uniqueTargets[0]!;
+    if (!primaries.has(target)) continue;
+    rules.push(
+      `RewriteRule ^es/productos/${oldSlug}/?$ /es/productos/${target}/ [R=301,L]`,
+      `RewriteRule ^en/products/${oldSlug}/?$ /en/products/${target}/ [R=301,L]`
+    );
+  }
+  return rules;
+}
