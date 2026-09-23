@@ -8,7 +8,9 @@
 
 ## Estado general
 
-- **Fase actual:** Fase 1 — Foundation → **CERRADA**. 8/8 ADRs (0011-0018) aceptadas,
+- **Fase actual:** Fase 2 — Knowledge Hub → **AUTORIZADA** (2026-09-23), a la espera de
+  la validación biomédica para el contenido técnico de Monitoreo. Fase 1 — Foundation →
+  **CERRADA**. 8/8 ADRs (0011-0018) aceptadas,
   redactadas e implementadas donde correspondía; cluster piloto decidido; plan de
   contenido de Fase 2 redactado. Después del cierre se hizo una **revisión de errores de
   todo lo realizado** (ver "Revisión post-cierre" abajo) y un QA del banner en navegador.
@@ -91,17 +93,29 @@ contenido (sin producir nada todavía) para los dos clusters piloto que el usuar
 **Monitoreo/UCI + INVIMA/Regulación**. El plan está a la espera de aprobación del usuario
 antes de que se escriba cualquier artículo/landing/tool/post real.
 
-**Siguiente acción concreta cuando se retome** (en orden, per el propio plan de
-contenido §4):
+**Fase 2 (Knowledge Hub) — AUTORIZADA el 2026-09-23.** Estado de los prerrequisitos del
+plan de contenido §4:
 
-1. El usuario aprueba (o ajusta) `pilot-clusters-content-plan.md`.
-2. Verificar en Supabase real cuántos artículos de Monitoreo ya están publicados en
-   producción (el build local sólo tiene mock data — no se puede confirmar desde aquí sin
-   credenciales).
-3. Confirmar con el equipo biomédico de I-ME cualquier checklist operativo que el plan
-   marcó `REQUIRES_VERIFICATION` (§1.3.3 del plan de contenido).
-4. Recién ahí, producir contenido real — sigue siendo Fase 2 (`Knowledge Hub`), no
-   arrancada todavía.
+1. ✅ **Plan aprobado** por el usuario (2026-09-23). Además, **producción de contenido
+   autorizada sin aprobación pieza por pieza**, con una condición: **mostrar al usuario la
+   URL del sandbox (preview local) de cada pieza antes de pushear/publicar**.
+2. ✅ **Verificado en Supabase de producción** (2026-09-23): 14 artículos publicados,
+   ninguno con `cluster_id` todavía. Monitoreo/UCI tiene **uno solo**
+   (`guia-monitores-multiparametricos-uci`, no dos como suponía el plan). INVIMA ya tiene
+   `guia-actualizada-distribuidores-importacion-y-regulacion-2025-biomedicos` (el plan
+   decía que no había nada): reutilizarlo como base, no duplicarlo.
+3. ⏳ **Validación biomédica enviada**: documento Word
+   `Validacion_biomedica_Monitoreo_UCI.docx` entregado al usuario (escritorio) para el
+   equipo biomédico. Secciones: A) checklist de recepción/instalación (bloquea ese
+   artículo), B) datos técnicos por modelo para la pilar de Monitoreo (parámetros de
+   serie/opcionales de los 5 monitores del catálogo, básico vs. avanzado, central
+   multicama, UCI adulto/pediátrica/neonatal, mantenimiento y calibración, consumibles),
+   C) revisión de las 7 afirmaciones del artículo de monitores publicado. **Todo contenido
+   de Monitoreo con afirmaciones técnicas espera estas respuestas.**
+4. **Se puede producir ya, sin esperar a los biomédicos:** clasificar los 14 artículos en
+   `topic_clusters`, y el cluster INVIMA sin clases de riesgo (registro sanitario en
+   general, normatividad con enlaces oficiales, checklist para compradores sin clasificar
+   el equipo), partiendo de la guía INVIMA ya publicada.
 
 **Pendientes que no bloquean lo anterior pero siguen abiertos:**
 
@@ -144,15 +158,17 @@ original — está todo aquí.
 
 Decisiones de arquitectura/alcance y su estado de aprobación humana:
 
-| Decisión                                | Recomendación de Claude                                                                                                                                                                                                                                                     | Estado                                          |
-| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| Cluster piloto (mandato §24)            | Monitoreo / UCI + INVIMA / Regulación (dos clusters piloto en paralelo, decisión del usuario — no la recomendación original de Claude, que sugería Ventilación como segundo; INVIMA se vuelve viable ahora porque su precondición, ADR-0013, ya está mergeada en esta rama) | **Aprobada** — 2026-09-22                       |
-| Contenido sobre clases de riesgo INVIMA | No producirlo por ahora (piezas excluidas listadas al inicio de `pilot-clusters-content-plan.md`)                                                                                                                                                                           | **Decisión del usuario** — 2026-09-23           |
-| Secuencia de Fase 1                     | Priorizar ADR-0012 (CMP) y ADR-0011 (fix atribución Twenty) antes que nada más                                                                                                                                                                                              | **Aprobada y ejecutada** — 2026-09-22           |
-| Enfoque CMP (ADR-0012)                  | Banner propio ligero (sin vendor de pago)                                                                                                                                                                                                                                   | **Aprobada y ejecutada** — 2026-09-22           |
-| Prioridad GE-008 (tests Deno)           | Arreglar ahora como parte de Fase 1                                                                                                                                                                                                                                         | **Aprobada y ejecutada** — 2026-09-22           |
-| Modelo de evidencia                     | Versión mínima viable (3 campos) en vez del modelo completo de 10 campos del mandato, para no bloquear Fase 2                                                                                                                                                               | **Aprobada** (ADR-0013, `744b4ce`) — 2026-09-23 |
-| ADR-0014 a ADR-0018                     | Redactadas e implementadas por Claude en la sesión de 2026-09-22                                                                                                                                                                                                            | **Aprobadas** — 2026-09-23                      |
+| Decisión                                 | Recomendación de Claude                                                                                                                                                                                                                                                     | Estado                                          |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| Cluster piloto (mandato §24)             | Monitoreo / UCI + INVIMA / Regulación (dos clusters piloto en paralelo, decisión del usuario — no la recomendación original de Claude, que sugería Ventilación como segundo; INVIMA se vuelve viable ahora porque su precondición, ADR-0013, ya está mergeada en esta rama) | **Aprobada** — 2026-09-22                       |
+| Plan de contenido de los clusters piloto | Aprobar `pilot-clusters-content-plan.md`                                                                                                                                                                                                                                    | **Aprobado** — 2026-09-23                       |
+| Aprobación de piezas de contenido        | Producir sin aprobación pieza por pieza; **mostrar la URL del sandbox antes de pushear/publicar**                                                                                                                                                                           | **Decisión del usuario** — 2026-09-23           |
+| Contenido sobre clases de riesgo INVIMA  | No producirlo por ahora (piezas excluidas listadas al inicio de `pilot-clusters-content-plan.md`)                                                                                                                                                                           | **Decisión del usuario** — 2026-09-23           |
+| Secuencia de Fase 1                      | Priorizar ADR-0012 (CMP) y ADR-0011 (fix atribución Twenty) antes que nada más                                                                                                                                                                                              | **Aprobada y ejecutada** — 2026-09-22           |
+| Enfoque CMP (ADR-0012)                   | Banner propio ligero (sin vendor de pago)                                                                                                                                                                                                                                   | **Aprobada y ejecutada** — 2026-09-22           |
+| Prioridad GE-008 (tests Deno)            | Arreglar ahora como parte de Fase 1                                                                                                                                                                                                                                         | **Aprobada y ejecutada** — 2026-09-22           |
+| Modelo de evidencia                      | Versión mínima viable (3 campos) en vez del modelo completo de 10 campos del mandato, para no bloquear Fase 2                                                                                                                                                               | **Aprobada** (ADR-0013, `744b4ce`) — 2026-09-23 |
+| ADR-0014 a ADR-0018                      | Redactadas e implementadas por Claude en la sesión de 2026-09-22                                                                                                                                                                                                            | **Aprobadas** — 2026-09-23                      |
 
 ## ADRs (ver `IMPLEMENTATION_PLAN.md` §9 para el detalle)
 
