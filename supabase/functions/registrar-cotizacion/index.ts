@@ -332,6 +332,16 @@ Deno.serve(
       })),
       totalEstimado,
       moneda,
+      attribution: {
+        landingPath: attribution.landing_path,
+        referrer: attribution.referrer,
+        sessionId: attribution.analytics_session_id,
+        utmSource: attribution.utm_source,
+        utmMedium: attribution.utm_medium,
+        utmCampaign: attribution.utm_campaign,
+        utmContent: attribution.utm_content,
+        utmTerm: attribution.utm_term,
+      },
     });
     if (twenty.skipped) {
       console.warn('registrar-cotizacion: Twenty skipped (secrets ausentes)');

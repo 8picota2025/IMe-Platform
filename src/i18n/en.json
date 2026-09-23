@@ -1,4 +1,18 @@
 {
+  "consent": {
+    "titulo": "Cookies and analytics",
+    "cuerpo": "We use essential storage so the site works (cart, quote requests, preferences). With your permission, we also measure site traffic and usage with analytics tools.",
+    "aceptar": "Accept all",
+    "rechazar": "Reject non-essential",
+    "personalizar": "Customize",
+    "guardar_preferencias": "Save preferences",
+    "categoria_necesaria_titulo": "Strictly necessary",
+    "categoria_necesaria_desc": "Always active. Enable navigation, security, cart and quote requests.",
+    "categoria_analitica_titulo": "Analytics",
+    "categoria_analitica_desc": "Google Analytics 4, Google Tag Manager and Microsoft Clarity. Helps us understand site usage in aggregate.",
+    "mas_info": "View cookie policy",
+    "cerrar": "Close"
+  },
   "nav": {
     "inicio": "Home",
     "nosotros": "About",

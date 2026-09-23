@@ -1,4 +1,8 @@
 ---
+// ADR-0012: GTM/GA4/Clarity ya no se inyectan de forma incondicional. Se
+// cargan sólo si hay consentimiento de analítica guardado (ver
+// src/lib/consent.ts) — la política de cookies (src/lib/legal.ts, kind
+// 'cookies') exige consentimiento previo para "Analítica no esencial".
 import { resolveAnalyticsDomain, resolveGaId } from '../lib/analytics-config';
 
 const gaId = resolveGaId();
@@ -11,80 +15,43 @@ const analyticsDomain = resolveAnalyticsDomain();
   gaId && <link rel="preconnect" href="https://www.googletagmanager.com" />
 }
 
-{
-  gtmId && (
-    <script is:inline define:vars={{ gtmId, analyticsDomain }}>
-      (function (w, d, s, l, i) {
-        w[l] = w[l] || [];
-        w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js', data_domain: analyticsDomain });
-        const f = d.getElementsByTagName(s)[0];
-        const j = d.createElement(s);
-        const dl = l != 'dataLayer' ? '&l=' + l : '';
-        j.async = true;
-        j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
-        f.parentNode.insertBefore(j, f);
-      })(window, document, 'script', 'dataLayer', gtmId);
-    </script>
-  )
-}
-
-{
-  gaId && (
-    <>
-      <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}></script>
-      <script is:inline define:vars={{ gaId, analyticsDomain }}>
-        window.dataLayer = window.dataLayer || [];
-        window.gtag = window.gtag || function (...args) {
-          window.dataLayer.push(args);
-        };
-        window.gtag('js', new Date());
-        window.gtag('config', gaId, {
-          send_page_view: false,
-          cookie_domain: analyticsDomain === 'auto' ? 'auto' : analyticsDomain,
-        });
-      </script>
-    </>
-  )
-}
-
-{
-  clarityId && (
-    <script is:inline define:vars={{ clarityId }}>
-      (function (c, l, a, r, i, t, y) {
-        c[a] =
-          c[a] ||
-          function (...args) {
-            (c[a].q = c[a].q || []).push(args);
-          };
-        t = l.createElement(r);
-        t.async = 1;
-        t.src = 'https://www.clarity.ms/tag/' + i;
-        y = l.getElementsByTagName(r)[0];
-        y.parentNode.insertBefore(t, y);
-      })(window, document, 'clarity', 'script', clarityId);
-    </script>
-  )
-}
-
 <meta
   name="ime-analytics"
   content={analyticsDomain}
-  data-ga={gaId ? '1' : '0'}
-  data-gtm={gtmId ? '1' : '0'}
-  data-clarity={clarityId ? '1' : '0'}
+  data-ga={gaId}
+  data-gtm={gtmId}
+  data-clarity={clarityId}
 />
 
 <script>
-  // define:vars forzaba is:inline y el import relativo llegaba crudo al
-  // navegador (404 /es/lib/analytics); la config viaja en el meta de arriba.
   import { installAnalytics, trackPageView } from '../lib/analytics';
+  import {
+    applyDefaultConsentMode,
+    hasAnalyticsConsent,
+    loadAnalyticsScripts,
+  } from '../lib/consent';
+
+  // Señal Consent Mode v2 "default" — antes de cualquier tag, exista o no
+  // consentimiento guardado todavía.
+  applyDefaultConsentMode();
 
   const meta = document.querySelector<HTMLMetaElement>('meta[name="ime-analytics"]');
+  const ids = {
+    gtmId: meta?.dataset.gtm || '',
+    gaId: meta?.dataset.ga || '',
+    clarityId: meta?.dataset.clarity || '',
+    analyticsDomain: meta?.content || 'i-me.com.co',
+  };
+
+  if (hasAnalyticsConsent()) {
+    loadAnalyticsScripts(ids);
+  }
+
   installAnalytics({
-    dataDomain: meta?.content || 'i-me.com.co',
-    gaEnabled: meta?.dataset.ga === '1',
-    gtmEnabled: meta?.dataset.gtm === '1',
-    clarityEnabled: meta?.dataset.clarity === '1',
+    dataDomain: ids.analyticsDomain,
+    gaEnabled: !!ids.gaId,
+    gtmEnabled: !!ids.gtmId,
+    clarityEnabled: !!ids.clarityId,
   });
 
   trackPageView();

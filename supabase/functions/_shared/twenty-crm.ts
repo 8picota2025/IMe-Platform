@@ -35,6 +35,26 @@ export interface TwentyResult<T> {
   data?: T;
 }
 
+/**
+ * Atribución de marketing (UTM/landing/referrer/sesión), ya capturada en
+ * `leads_comerciales`/`solicitudes_cotizacion` pero hasta ahora no
+ * propagada a Twenty. La API key de Twenty no tiene `create_field_metadata`
+ * hoy (requiere que un admin humano cree campos custom), así que esto se
+ * escribe como texto legible en la nota/tarea en vez de en campos
+ * estructurados — interino hasta que existan esos campos.
+ * Ver docs/growth-engine/IMPLEMENTATION_PLAN.md ADR-0011.
+ */
+export interface TwentyAttribution {
+  landingPath?: string | null;
+  referrer?: string | null;
+  sessionId?: string | null;
+  utmSource?: string | null;
+  utmMedium?: string | null;
+  utmCampaign?: string | null;
+  utmContent?: string | null;
+  utmTerm?: string | null;
+}
+
 /** Owner Twenty desde env; sin hardcode UUID (evita opp huérfanas si user borrado). */
 function resolveTwentyOwnerId(explicit?: string): string | undefined {
   const fromInput = explicit?.trim();
@@ -1362,6 +1382,7 @@ export class TwentyClient {
     /** Slug/nombre del evento presencial (ACISE, etc.) para etiquetar en Twenty. */
     eventSlug?: string;
     eventName?: string;
+    attribution?: TwentyAttribution;
   }): Promise<
     TwentyResult<{
       personId: string;
@@ -1539,6 +1560,28 @@ export class TwentyClient {
           ...(input.familySlug ? [`**Familia:** ${input.familySlug}`] : []),
           ...(input.purchaseHorizon ? [`**Horizonte:** ${input.purchaseHorizon}`] : []),
           ...(input.ciudad ? [`**Ciudad:** ${input.ciudad}`] : []),
+          // Atribución: ver TwentyAttribution — interino en texto hasta que
+          // existan campos custom en Twenty (ADR-0011).
+          ...(input.attribution?.utmSource
+            ? [`**UTM Source:** ${input.attribution.utmSource}`]
+            : []),
+          ...(input.attribution?.utmMedium
+            ? [`**UTM Medium:** ${input.attribution.utmMedium}`]
+            : []),
+          ...(input.attribution?.utmCampaign
+            ? [`**UTM Campaign:** ${input.attribution.utmCampaign}`]
+            : []),
+          ...(input.attribution?.utmContent
+            ? [`**UTM Content:** ${input.attribution.utmContent}`]
+            : []),
+          ...(input.attribution?.utmTerm ? [`**UTM Term:** ${input.attribution.utmTerm}`] : []),
+          ...(input.attribution?.landingPath
+            ? [`**Landing:** ${input.attribution.landingPath}`]
+            : []),
+          ...(input.attribution?.referrer ? [`**Referrer:** ${input.attribution.referrer}`] : []),
+          ...(input.attribution?.sessionId
+            ? [`**Session ID:** ${input.attribution.sessionId}`]
+            : []),
           `**Mensaje:** ${input.mensaje || '—'}`,
           // Congreso/evento: productos de interés van en la tarea para seguimiento.
           ...((input.productos || []).length ? [`**Productos:**\n${productList}`] : []),
@@ -1665,6 +1708,7 @@ export async function syncCotizacionWithTwenty(input: {
   twentyOpportunityId?: string | null;
   eventSlug?: string;
   eventName?: string;
+  attribution?: TwentyAttribution;
 }): Promise<
   TwentyResult<{
     personId: string;
@@ -1701,6 +1745,7 @@ export async function syncCommercialLeadWithTwenty(input: {
   eventSlug?: string;
   eventName?: string;
   productos?: Array<{ nombre?: string; slug?: string; cantidad?: number }>;
+  attribution?: TwentyAttribution;
 }): Promise<
   TwentyResult<{
     personId: string;

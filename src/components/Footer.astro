@@ -248,6 +248,9 @@ const legalLinks: Array<{ kind: LegalKind; label: string }> = [
             <a href={`/${locale}/legal/${getLegalSlug(link.kind, locale)}`}>{link.label}</a>
           ))
         }
+        <button type="button" id="ime-footer-consent-preferences" class="footer__legal-btn">
+          {t(locale, 'consent.personalizar')}
+        </button>
       </nav>
     </div>
   </div>
@@ -456,6 +459,16 @@ const legalLinks: Array<{ kind: LegalKind; label: string }> = [
     padding-block: var(--space-lg);
   }
 
+  /* En móvil el botón flotante del asesor (.asesor-fab, fixed abajo a la
+     derecha, ~3rem de alto a 1.5rem del borde) tapaba al final del scroll el
+     último enlace legal: "Personalizar" cookies, el único acceso para retirar
+     el consentimiento (ADR-0012). Espacio extra para que quede libre. */
+  @media (max-width: 767px) {
+    .footer__bottom {
+      padding-bottom: calc(var(--space-lg) + 5rem);
+    }
+  }
+
   .footer__bottom-inner {
     display: flex;
     flex-direction: column;
@@ -514,6 +527,22 @@ const legalLinks: Array<{ kind: LegalKind; label: string }> = [
     color: rgba(255, 255, 255, 0.95);
   }
 
+  .footer__legal-btn {
+    font-size: var(--step--1);
+    color: rgba(255, 255, 255, 0.65);
+    text-decoration: none;
+    transition: color 200ms var(--ease);
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  .footer__legal-btn:hover {
+    color: rgba(255, 255, 255, 0.95);
+  }
+
   /* ===== ACCESSIBILITY ===== */
   .sr-only {
     position: absolute;
@@ -527,3 +556,13 @@ const legalLinks: Array<{ kind: LegalKind; label: string }> = [
     border-width: 0;
   }
 </style>
+
+<script>
+  // Delegado en document: con View Transitions el footer se reemplaza en cada
+  // navegación y un listener directo sobre el botón se perdería.
+  document.addEventListener('click', event => {
+    if ((event.target as Element | null)?.closest?.('#ime-footer-consent-preferences')) {
+      window.dispatchEvent(new CustomEvent('ime:open-consent-preferences'));
+    }
+  });
+</script>

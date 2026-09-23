@@ -1,0 +1,59 @@
+name: Purga asesor_agent_turns (retencion)
+
+# ADR-0017: retencion de conversaciones del asesor IA. Diario 03:17 UTC
+# (fuera de horario pico CO). Reutiliza el secret SUPABASE_SERVICE_ROLE_KEY
+# ya existente (usado por reporte-semanal, cotizacion-canary, etc.) — sin
+# credenciales nuevas.
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+    inputs:
+      retention_dias:
+        description: 'Override de ASESOR_RETENTION_DIAS (vacio = usa el default de la funcion, 90)'
+        required: false
+        default: ''
+
+jobs:
+  purgar:
+    name: Purgar turnos vencidos
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Invocar purgar-asesor-agent-turns
+        env:
+          SUPABASE_URL: https://nnfbucwiasuggyfoyydo.supabase.co
+          SUPABASE_ANON_KEY: ${{ secrets.PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${SUPABASE_SERVICE_ROLE_KEY:-}" ]; then
+            echo "::error::Falta secret SUPABASE_SERVICE_ROLE_KEY"
+            exit 1
+          fi
+
+          RESP=$(curl -sS -X POST "$SUPABASE_URL/functions/v1/purgar-asesor-agent-turns" \
+            -H "Authorization: Bearer ${SUPABASE_SERVICE_ROLE_KEY}" \
+            -H "apikey: ${SUPABASE_ANON_KEY:-$SUPABASE_SERVICE_ROLE_KEY}" \
+            -H "Content-Type: application/json" \
+            -w "\nHTTP_STATUS:%{http_code}\n")
+
+          echo "$RESP"
+          BODY_JSON=$(echo "$RESP" | sed '/^HTTP_STATUS:/d')
+          STATUS=$(echo "$RESP" | sed -n 's/^HTTP_STATUS://p' | tr -d '\r')
+
+          if [ "$STATUS" != "200" ]; then
+            echo "::error::purgar-asesor-agent-turns HTTP $STATUS"
+            exit 1
+          fi
+
+          echo "$BODY_JSON" > /tmp/purga.json
+          python3 - <<'PY'
+          import json, sys
+          data = json.load(open("/tmp/purga.json"))
+          if not data.get("ok"):
+              print("Response not ok:", data, file=sys.stderr)
+              sys.exit(1)
+          print(f"OK: {data.get('borrados')} turnos borrados (retencion {data.get('dias')} dias, cutoff {data.get('cutoff')})")
+          PY

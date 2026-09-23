@@ -79,6 +79,14 @@ interface LeadRow {
   twenty_person_id: string | null;
   twenty_company_id: string | null;
   twenty_opportunity_id: string | null;
+  landing_path: string | null;
+  referrer: string | null;
+  analytics_session_id: string | null;
+  utm_source: string | null;
+  utm_medium: string | null;
+  utm_campaign: string | null;
+  utm_content: string | null;
+  utm_term: string | null;
 }
 
 const LEAD_SELECT = [
@@ -98,6 +106,14 @@ const LEAD_SELECT = [
   'twenty_person_id',
   'twenty_company_id',
   'twenty_opportunity_id',
+  'landing_path',
+  'referrer',
+  'analytics_session_id',
+  'utm_source',
+  'utm_medium',
+  'utm_campaign',
+  'utm_content',
+  'utm_term',
 ].join(',');
 
 function cleanText(value: unknown, max: number): string | null {
@@ -144,6 +160,16 @@ async function syncLeadWithTwenty(
       : {}),
     ...(eventSlug ? { eventSlug } : {}),
     ...(eventName ? { eventName } : {}),
+    attribution: {
+      landingPath: lead.landing_path,
+      referrer: lead.referrer,
+      sessionId: lead.analytics_session_id,
+      utmSource: lead.utm_source,
+      utmMedium: lead.utm_medium,
+      utmCampaign: lead.utm_campaign,
+      utmContent: lead.utm_content,
+      utmTerm: lead.utm_term,
+    },
   });
   const crmSyncStatus: CrmSyncStatus = twenty.skipped ? 'skipped' : twenty.ok ? 'synced' : 'failed';
   const update = await supabase

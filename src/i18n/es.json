@@ -1,4 +1,18 @@
 {
+  "consent": {
+    "titulo": "Uso de cookies y analítica",
+    "cuerpo": "Usamos almacenamiento esencial para que el sitio funcione (carrito, cotización, preferencias). Con tu autorización, también medimos tráfico y uso del sitio con herramientas de analítica.",
+    "aceptar": "Aceptar todo",
+    "rechazar": "Rechazar no esenciales",
+    "personalizar": "Personalizar",
+    "guardar_preferencias": "Guardar preferencias",
+    "categoria_necesaria_titulo": "Estrictamente necesarias",
+    "categoria_necesaria_desc": "Siempre activas. Permiten navegación, seguridad, carrito y cotización.",
+    "categoria_analitica_titulo": "Analítica",
+    "categoria_analitica_desc": "Google Analytics 4, Google Tag Manager y Microsoft Clarity. Nos ayuda a entender el uso del sitio de forma agregada.",
+    "mas_info": "Ver política de cookies",
+    "cerrar": "Cerrar"
+  },
   "nav": {
     "inicio": "Inicio",
     "nosotros": "Nosotros",

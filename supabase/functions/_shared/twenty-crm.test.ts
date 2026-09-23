@@ -196,6 +196,65 @@ Deno.test('evento: crea persona, oportunidad, tarea y enlace con datos del asist
   }
 });
 
+Deno.test(
+  'atribucion: UTM/landing/referrer/session se escriben en la nota de la tarea',
+  async () => {
+    const mock = installTwentyMock();
+    try {
+      await new TwentyClient({
+        baseUrl: 'https://twenty.test',
+        apiKey: 'test-key',
+      }).syncCotizacionLead(
+        eventInput({
+          attribution: {
+            landingPath: '/es/monitores-biolight-uci/',
+            referrer: 'https://www.google.com/',
+            sessionId: 'sess-abc123',
+            utmSource: 'linkedin',
+            utmMedium: 'social',
+            utmCampaign: 'lanzamiento-uci',
+            utmContent: 'carrusel-1',
+            utmTerm: 'monitor multiparametrico',
+          },
+        })
+      );
+
+      const task = callsFor(mock.calls, 'POST', '/rest/tasks')[0]?.body;
+      const taskBody = task?.bodyV2 as { markdown?: string };
+      const markdown = taskBody.markdown ?? '';
+      assertStringIncludes(markdown, '**UTM Source:** linkedin');
+      assertStringIncludes(markdown, '**UTM Medium:** social');
+      assertStringIncludes(markdown, '**UTM Campaign:** lanzamiento-uci');
+      assertStringIncludes(markdown, '**UTM Content:** carrusel-1');
+      assertStringIncludes(markdown, '**UTM Term:** monitor multiparametrico');
+      assertStringIncludes(markdown, '**Landing:** /es/monitores-biolight-uci/');
+      assertStringIncludes(markdown, '**Referrer:** https://www.google.com/');
+      assertStringIncludes(markdown, '**Session ID:** sess-abc123');
+    } finally {
+      mock.restore();
+    }
+  }
+);
+
+Deno.test('atribucion: ausente no agrega lineas vacias a la nota', async () => {
+  const mock = installTwentyMock();
+  try {
+    await new TwentyClient({
+      baseUrl: 'https://twenty.test',
+      apiKey: 'test-key',
+    }).syncCotizacionLead(eventInput());
+
+    const task = callsFor(mock.calls, 'POST', '/rest/tasks')[0]?.body;
+    const taskBody = task?.bodyV2 as { markdown?: string };
+    const markdown = taskBody.markdown ?? '';
+    assert(!markdown.includes('**UTM Source:**'));
+    assert(!markdown.includes('**Landing:**'));
+    assert(!markdown.includes('**Session ID:**'));
+  } finally {
+    mock.restore();
+  }
+});
+
 Deno.test('evento: actualiza oportunidad persistida sin buscarla ni duplicarla', async () => {
   const mock = installTwentyMock({ opportunity: { id: 'opportunity-saved' } });
   try {
