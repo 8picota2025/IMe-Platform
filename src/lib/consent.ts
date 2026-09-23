@@ -88,6 +88,22 @@ export function hasAnalyticsConsent(): boolean {
 }
 
 /**
+ * gtag.js sólo reconoce comandos que llegan a `dataLayer` como objeto
+ * `arguments`; un array (`dataLayer.push([...])`, o un `gtag` escrito como
+ * `(...args) => dataLayer.push(args)`) se ignora en silencio. Verificado en
+ * navegador: con arrays, GA4 no enviaba ningún hit — tampoco en producción
+ * antes de ADR-0012 — y Consent Mode no registraba ni `default` ni `update`.
+ * No se asigna a `window.gtag` hasta que hay consentimiento: analytics.ts usa
+ * `window.gtag?.()` y encolaría eventos que luego se duplicarían con
+ * `replayPageViewToGtag()`.
+ */
+const pushGtagCommand = function () {
+  window.dataLayer = window.dataLayer ?? [];
+  // eslint-disable-next-line prefer-rest-params -- gtag.js exige `arguments`, ver arriba
+  window.dataLayer.push(arguments);
+} as (...command: unknown[]) => void;
+
+/**
  * Google Consent Mode v2 — señal "default" antes de cargar cualquier tag.
  * Debe llamarse lo antes posible en <head>, antes del snippet de GTM/gtag.
  * No depende de que exista GTM: si nunca se carga, sólo se acumula en un
@@ -95,32 +111,22 @@ export function hasAnalyticsConsent(): boolean {
  */
 export function applyDefaultConsentMode(): void {
   if (typeof window === 'undefined') return;
-  window.dataLayer = window.dataLayer ?? [];
-  window.dataLayer.push([
-    'consent',
-    'default',
-    {
-      analytics_storage: 'denied',
-      ad_storage: 'denied',
-      ad_user_data: 'denied',
-      ad_personalization: 'denied',
-      functionality_storage: 'granted',
-      security_storage: 'granted',
-      wait_for_update: 500,
-    },
-  ]);
+  pushGtagCommand('consent', 'default', {
+    analytics_storage: 'denied',
+    ad_storage: 'denied',
+    ad_user_data: 'denied',
+    ad_personalization: 'denied',
+    functionality_storage: 'granted',
+    security_storage: 'granted',
+    wait_for_update: 500,
+  });
 }
 
 export function applyConsentModeUpdate(analytics: boolean): void {
   if (typeof window === 'undefined') return;
-  window.dataLayer = window.dataLayer ?? [];
-  window.dataLayer.push([
-    'consent',
-    'update',
-    {
-      analytics_storage: analytics ? 'granted' : 'denied',
-    },
-  ]);
+  pushGtagCommand('consent', 'update', {
+    analytics_storage: analytics ? 'granted' : 'denied',
+  });
 }
 
 export interface AnalyticsIds {
@@ -162,12 +168,7 @@ export function loadAnalyticsScripts(ids: AnalyticsIds): boolean {
     gaScript.async = true;
     gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${ids.gaId}`;
     document.head.appendChild(gaScript);
-    window.dataLayer = window.dataLayer ?? [];
-    window.gtag =
-      window.gtag ||
-      function (...args: unknown[]) {
-        window.dataLayer!.push(args);
-      };
+    window.gtag = window.gtag || pushGtagCommand;
     window.gtag('js', new Date());
     window.gtag('config', ids.gaId, {
       send_page_view: false,
@@ -193,6 +194,23 @@ export function loadAnalyticsScripts(ids: AnalyticsIds): boolean {
   }
 
   return true;
+}
+
+/**
+ * Retiro del consentimiento con los tags ya cargados: los silencia antes de
+ * recargar. Sin esto, verificado en navegador, entre el clic en "Rechazar" y
+ * la recarga GA4 todavía enviaba hits (`scroll`, y `session_engaged` como
+ * ping de Consent Mode con gcs=G100) y Clarity subía la grabación pendiente
+ * (~35 KB). `ga-disable-<id>` es el opt-out oficial de gtag.js.
+ * `clarity('stop')` corta la grabación dejando sólo su aviso de fin de
+ * sesión (~300 bytes, sin contenido de la página); `clarity('consent',
+ * false)` NO se usa: dispara justamente esa subida de ~35 KB. Las cookies de
+ * Clarity las borra clearAnalyticsCookies().
+ */
+export function silenceLoadedAnalytics(ids: Pick<AnalyticsIds, 'gaId'>): void {
+  if (typeof window === 'undefined') return;
+  if (ids.gaId) (window as unknown as Record<string, unknown>)[`ga-disable-${ids.gaId}`] = true;
+  window.clarity?.('stop');
 }
 
 export function analyticsScriptsAreLoaded(): boolean {

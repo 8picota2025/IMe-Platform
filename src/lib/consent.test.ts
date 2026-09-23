@@ -2,8 +2,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   CONSENT_POLICY_VERSION,
   CONSENT_STORAGE_KEY,
+  applyConsentModeUpdate,
+  applyDefaultConsentMode,
   clearAnalyticsCookies,
   hasAnalyticsConsent,
+  silenceLoadedAnalytics,
   readStoredConsent,
   writeStoredConsent,
 } from './consent';
@@ -103,5 +106,42 @@ describe('clearAnalyticsCookies', () => {
     const writes = stubCookies('ime_session=x');
     expect(clearAnalyticsCookies()).toEqual([]);
     expect(writes).toEqual([]);
+  });
+});
+
+describe('Consent Mode commands', () => {
+  // gtag.js ignora en silencio los comandos que llegan como array; sólo
+  // procesa objetos `arguments` (verificado en navegador, ver consent.ts).
+  const kind = (entry: unknown) => Object.prototype.toString.call(entry);
+
+  it('pushes default and update as arguments objects, not arrays', () => {
+    const dataLayer: unknown[] = [];
+    vi.stubGlobal('window', { dataLayer });
+    applyDefaultConsentMode();
+    applyConsentModeUpdate(true);
+    expect(dataLayer.map(kind)).toEqual(['[object Arguments]', '[object Arguments]']);
+    const [def, upd] = dataLayer as IArguments[];
+    expect([def?.[0], def?.[1], def?.[2]?.analytics_storage]).toEqual([
+      'consent',
+      'default',
+      'denied',
+    ]);
+    expect([upd?.[0], upd?.[1], upd?.[2]?.analytics_storage]).toEqual([
+      'consent',
+      'update',
+      'granted',
+    ]);
+  });
+});
+
+describe('silenceLoadedAnalytics', () => {
+  it('sets the official GA opt-out flag and only stops Clarity', () => {
+    const clarity = vi.fn();
+    const win: Record<string, unknown> = { clarity };
+    vi.stubGlobal('window', win);
+    silenceLoadedAnalytics({ gaId: 'G-TEST123' });
+    expect(win['ga-disable-G-TEST123']).toBe(true);
+    // clarity('consent', false) dispara la subida de la grabación pendiente.
+    expect(clarity.mock.calls).toEqual([['stop']]);
   });
 });

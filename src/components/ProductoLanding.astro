@@ -2567,18 +2567,33 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
     });
   }
 
-  // CTA sticky tras pasar el CTA principal
+  // CTA sticky tras pasar el CTA principal. Se oculta también mientras el
+  // footer está a la vista: fijo abajo tapaba los enlaces legales del final,
+  // incluido "Personalizar" cookies (retiro del consentimiento, ADR-0012).
   const ctaPrincipal = document.getElementById('cta-principal');
   const ctaSticky = document.getElementById('cta-sticky');
   if (ctaPrincipal && ctaSticky) {
-    const observer = new IntersectionObserver(
+    let principalVisible = true;
+    let footerVisible = false;
+    const sync = () => {
+      ctaSticky.hidden = principalVisible || footerVisible;
+    };
+    new IntersectionObserver(
       ([entry]) => {
         if (!entry) return;
-        ctaSticky.hidden = entry.isIntersecting;
+        principalVisible = entry.isIntersecting;
+        sync();
       },
       { rootMargin: '-80px 0px 0px 0px' }
-    );
-    observer.observe(ctaPrincipal);
+    ).observe(ctaPrincipal);
+    const footer = document.querySelector('footer[role="contentinfo"]');
+    if (footer) {
+      new IntersectionObserver(([entry]) => {
+        if (!entry) return;
+        footerVisible = entry.isIntersecting;
+        sync();
+      }).observe(footer);
+    }
   }
 
   // Lightbox: abrir desde imagen principal. Thumbs solo cambian preview.

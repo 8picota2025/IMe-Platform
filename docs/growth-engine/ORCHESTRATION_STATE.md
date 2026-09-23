@@ -45,11 +45,16 @@ Se revisaron los 17 commits contra `a1280c2`. Corregido en la rama:
 
 **Abierto tras la revisión (requiere confirmación antes de tocar):**
 
-1. **Consent Mode v2 probablemente inoperante:** `consent.ts` y el `gtag` definen
-   comandos con `dataLayer.push([...])` / `...args` (arrays). gtag.js sólo reconoce
-   objetos `arguments`, así que `consent default/update` — y posiblemente el
-   `gtag('config')` de GA4, que ya venía así antes de esta rama — se estarían ignorando.
-   **Verificar en DevTools** durante el QA manual del banner antes de cambiarlo.
+1. ~~Consent Mode v2 probablemente inoperante~~ — **confirmado y corregido en el QA en
+   navegador (2026-09-23):** con arrays, gtag.js ignoraba todos los comandos. **GA4 no
+   recibía ningún hit en producción** (verificado cargando `i-me.com.co` con los envíos
+   bloqueados), desde antes de esta rama. Ahora usa `arguments`; QA de 38 escenarios
+   (primera visita, aceptar, recargar, retirar desde el footer, rechazar, personalizar,
+   `/en/`, móvil, teclado, navegación con View Transitions): 37 pasan. El restante es
+   comportamiento esperado: lo capturado con consentimiento vigente justo antes de
+   retirarlo puede salir al descargar la página. Nada posterior al rechazo se envía.
+   Detalle en ADR-0012. Se sale del QA con: foco y orden de Tab del banner, re-enlace en
+   View Transitions, y el botón "Personalizar" del footer ya no queda tapado.
 2. **Clases de riesgo INVIMA incorrectas** en `src/data/invima-knowledge-base.json`
    (preexistente): usa "Clase II"; el Decreto 4725/2005 define I, **IIa**, IIb, III.
    **Diferido por decisión del usuario (2026-09-23):** por ahora no habrá contenido

@@ -459,6 +459,16 @@ const legalLinks: Array<{ kind: LegalKind; label: string }> = [
     padding-block: var(--space-lg);
   }
 
+  /* En móvil el botón flotante del asesor (.asesor-fab, fixed abajo a la
+     derecha, ~3rem de alto a 1.5rem del borde) tapaba al final del scroll el
+     último enlace legal: "Personalizar" cookies, el único acceso para retirar
+     el consentimiento (ADR-0012). Espacio extra para que quede libre. */
+  @media (max-width: 767px) {
+    .footer__bottom {
+      padding-bottom: calc(var(--space-lg) + 5rem);
+    }
+  }
+
   .footer__bottom-inner {
     display: flex;
     flex-direction: column;
@@ -548,7 +558,11 @@ const legalLinks: Array<{ kind: LegalKind; label: string }> = [
 </style>
 
 <script>
-  document.getElementById('ime-footer-consent-preferences')?.addEventListener('click', () => {
-    window.dispatchEvent(new CustomEvent('ime:open-consent-preferences'));
+  // Delegado en document: con View Transitions el footer se reemplaza en cada
+  // navegación y un listener directo sobre el botón se perdería.
+  document.addEventListener('click', event => {
+    if ((event.target as Element | null)?.closest?.('#ime-footer-consent-preferences')) {
+      window.dispatchEvent(new CustomEvent('ime:open-consent-preferences'));
+    }
   });
 </script>

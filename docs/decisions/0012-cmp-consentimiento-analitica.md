@@ -80,6 +80,32 @@ host y en cada dominio padre (`clearAnalyticsCookies()`) y se recarga la
 página, que ya no los carga. Si no estaban cargados, sólo se borran las
 cookies que pudieran quedar de una visita anterior.
 
+**Formato de los comandos gtag (QA en navegador, 2026-09-23):** gtag.js sólo
+procesa comandos que llegan a `dataLayer` como objeto `arguments`. Tanto este
+CMP como el snippet anterior (`function (...args) { dataLayer.push(args) }`)
+empujaban arrays, que gtag.js ignora en silencio: **GA4 no enviaba ningún hit,
+tampoco en producción antes de esta ADR**, y Consent Mode no registraba ni
+`default` ni `update`. Corregido con `pushGtagCommand()` en `consent.ts`
+(test unitario que exige `[object Arguments]`) y verificado en navegador
+contra un snippet oficial de control.
+
+**Retiro con tags cargados, detalle:** antes de recargar se activa
+`ga-disable-<id>` (opt-out oficial de gtag.js) y se llama `clarity('stop')`.
+No se usa `clarity('consent', false)`: dispara la subida de la grabación
+pendiente (~35 KB). Verificado: nada ocurrido después del rechazo se envía;
+Clarity manda sólo su aviso de fin de sesión (<1 KB). Lo capturado _antes_ del
+rechazo, con consentimiento vigente, puede salir en el vaciado de buffers al
+descargar la página.
+
+**View Transitions y accesibilidad:** el layout usa `<ClientRouter />`, que
+reemplaza el DOM en cada navegación sin re-ejecutar los módulos. El banner se
+re-enlaza en `astro:page-load` y el botón del footer usa delegación en
+`document`. El banner va justo después del skip link (alcanzable en 1-3 Tab,
+antes >100) y recibe el foco al reabrirse desde el footer. El botón del footer
+quedaba tapado por el botón flotante del asesor (móvil) y por la barra fija de
+cotización de las fichas de producto (escritorio): más espacio bajo el footer
+en móvil, y la barra se oculta mientras el footer está a la vista.
+
 Tampoco se añade un toggle de "Publicidad/remarketing": la política es
 explícita en que esa categoría no está activa y requiere aprobación
 jurídica + actualización expresa de la política antes de activarse.

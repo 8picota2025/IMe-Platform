@@ -21,6 +21,7 @@ const cookiesPolicyHref = getLocalizedPath('/legal/cookies/', locale);
   hidden
   role="dialog"
   aria-modal="false"
+  tabindex="-1"
   aria-labelledby="ime-consent-title"
 >
   <div class="ime-consent-banner__card">
@@ -97,6 +98,17 @@ const cookiesPolicyHref = getLocalizedPath('/legal/cookies/', locale);
     justify-content: center;
     padding: 1rem;
     padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Recibe el foco al reabrirse desde el footer (tabindex="-1"): el anillo va
+     en la tarjeta visible, no en la franja transparente a todo el ancho. */
+  .ime-consent-banner:focus {
+    outline: none;
+  }
+
+  .ime-consent-banner:focus-visible .ime-consent-banner__card {
+    outline: 3px solid var(--blue);
+    outline-offset: 3px;
   }
 
   .ime-consent-banner__card {
@@ -209,19 +221,21 @@ const cookiesPolicyHref = getLocalizedPath('/legal/cookies/', locale);
     hasAnalyticsConsent,
     loadAnalyticsScripts,
     readStoredConsent,
+    silenceLoadedAnalytics,
     writeStoredConsent,
     type AnalyticsIds,
+    type ConsentSource,
   } from '../lib/consent';
 
-  const banner = document.getElementById('ime-consent-banner');
-  const panel = document.getElementById('ime-consent-panel');
-  const analyticsToggle = document.getElementById(
-    'ime-consent-analytics-toggle'
-  ) as HTMLInputElement | null;
-  const customizeBtn = document.getElementById('ime-consent-customize');
-  const rejectBtn = document.getElementById('ime-consent-reject');
-  const saveBtn = document.getElementById('ime-consent-save');
-  const acceptBtn = document.getElementById('ime-consent-accept');
+  // Con <ClientRouter /> (View Transitions) este módulo corre una sola vez,
+  // pero cada navegación reemplaza el DOM del banner: los listeners se
+  // re-enlazan en cada astro:page-load (mismo patrón que MobileCommercialBar).
+  let consentBannerAbort: AbortController | null = null;
+  // Elemento que tenía el foco al reabrir el banner desde el footer, para
+  // devolvérselo al decidir.
+  let focusBeforeOpen: HTMLElement | null = null;
+
+  const getBanner = () => document.getElementById('ime-consent-banner');
 
   function analyticsIdsFromMeta(): AnalyticsIds {
     const meta = document.querySelector<HTMLMetaElement>('meta[name="ime-analytics"]');
@@ -233,15 +247,17 @@ const cookiesPolicyHref = getLocalizedPath('/legal/cookies/', locale);
     };
   }
 
-  function applyDecision(analytics: boolean, source: 'accept_all' | 'reject_all' | 'custom') {
+  function applyDecision(analytics: boolean, source: ConsentSource) {
     writeStoredConsent(analytics, source);
     applyConsentModeUpdate(analytics);
     if (analytics) {
       if (loadAnalyticsScripts(analyticsIdsFromMeta())) replayPageViewToGtag();
     } else if (analyticsScriptsAreLoaded()) {
       // Retiro del consentimiento con los tags ya corriendo: no hay forma
-      // fiable de descargar GTM/GA4/Clarity en caliente. Se borran sus
-      // cookies y se recarga; en la recarga no se cargan (no hay consentimiento).
+      // fiable de descargar GTM/GA4/Clarity en caliente. Se silencian (si no,
+      // siguen enviando hits hasta que la página se descarga), se borran las
+      // cookies y se recarga; en la recarga ya no se cargan.
+      silenceLoadedAnalytics(analyticsIdsFromMeta());
       clearAnalyticsCookies();
       window.location.reload();
       return;
@@ -249,31 +265,63 @@ const cookiesPolicyHref = getLocalizedPath('/legal/cookies/', locale);
       // Pudieron quedar cookies de una visita anterior con consentimiento.
       clearAnalyticsCookies();
     }
-    banner?.setAttribute('hidden', '');
+    getBanner()?.setAttribute('hidden', '');
+    if (focusBeforeOpen?.isConnected) focusBeforeOpen.focus();
+    focusBeforeOpen = null;
   }
 
-  if (banner && !readStoredConsent()) {
-    banner.removeAttribute('hidden');
-  }
+  function initConsentBanner() {
+    consentBannerAbort?.abort();
+    consentBannerAbort = new AbortController();
+    const { signal } = consentBannerAbort;
 
-  customizeBtn?.addEventListener('click', () => {
-    panel?.removeAttribute('hidden');
-    customizeBtn.setAttribute('hidden', '');
-    rejectBtn?.setAttribute('hidden', '');
-    saveBtn?.removeAttribute('hidden');
-  });
-
-  rejectBtn?.addEventListener('click', () => applyDecision(false, 'reject_all'));
-  acceptBtn?.addEventListener('click', () => applyDecision(true, 'accept_all'));
-  saveBtn?.addEventListener('click', () =>
-    applyDecision(analyticsToggle?.checked === true, 'custom')
-  );
-
-  // Reabrir el panel de preferencias desde el enlace del footer/política de
-  // cookies (ver Footer.astro / página /legal/cookies).
-  window.addEventListener('ime:open-consent-preferences', () => {
+    const banner = getBanner();
     if (!banner) return;
+    const panel = document.getElementById('ime-consent-panel');
+    const analyticsToggle = document.getElementById(
+      'ime-consent-analytics-toggle'
+    ) as HTMLInputElement | null;
+    const customizeBtn = document.getElementById('ime-consent-customize');
+    const rejectBtn = document.getElementById('ime-consent-reject');
+    const saveBtn = document.getElementById('ime-consent-save');
+    const acceptBtn = document.getElementById('ime-consent-accept');
+
+    if (!readStoredConsent()) banner.removeAttribute('hidden');
+
+    customizeBtn?.addEventListener(
+      'click',
+      () => {
+        panel?.removeAttribute('hidden');
+        customizeBtn.setAttribute('hidden', '');
+        rejectBtn?.setAttribute('hidden', '');
+        saveBtn?.removeAttribute('hidden');
+        analyticsToggle?.focus();
+      },
+      { signal }
+    );
+    rejectBtn?.addEventListener('click', () => applyDecision(false, 'reject_all'), { signal });
+    acceptBtn?.addEventListener('click', () => applyDecision(true, 'accept_all'), { signal });
+    saveBtn?.addEventListener(
+      'click',
+      () => applyDecision(analyticsToggle?.checked === true, 'custom'),
+      { signal }
+    );
+  }
+
+  // Reabrir el panel de preferencias desde el footer / política de cookies.
+  // En window: sobrevive a los swaps de View Transitions, se enlaza una vez.
+  window.addEventListener('ime:open-consent-preferences', () => {
+    const banner = getBanner();
+    if (!banner) return;
+    const toggle = document.getElementById(
+      'ime-consent-analytics-toggle'
+    ) as HTMLInputElement | null;
+    if (toggle) toggle.checked = hasAnalyticsConsent();
+    focusBeforeOpen = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     banner.removeAttribute('hidden');
-    if (analyticsToggle) analyticsToggle.checked = hasAnalyticsConsent();
+    banner.focus();
   });
+
+  document.addEventListener('astro:page-load', initConsentBanner);
+  initConsentBanner();
 </script>

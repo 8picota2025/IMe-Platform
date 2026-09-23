@@ -87,6 +87,9 @@ const commercialBarAllowed =
     <AnalyticsNoScript />
     <!-- Skip link de accesibilidad -->
     <a href="#main-content" class="skip-link">{t(locale, 'accesibilidad.saltar_contenido')}</a>
+    <!-- Justo después del skip link: es position:fixed, pero su lugar en el DOM
+         define el orden de Tab; al final del body quedaba a >100 Tabs. -->
+    <ConsentBanner locale={locale} />
 
     <Navbar locale={locale} currentPath={currentPath} monolingual={monolingual} />
 
@@ -101,7 +104,6 @@ const commercialBarAllowed =
     {showQuoteRequest && <QuoteRequestModal locale={locale} />}
     {commercialBarAllowed && <MobileCommercialBar locale={locale} />}
     <PWABanner />
-    <ConsentBanner locale={locale} />
 
     <!-- Lenis smooth scroll + GSAP init -->
     <script>
