@@ -17,10 +17,10 @@
 
 ### 🔴 Punto de reanudación — leer esto primero al retomar
 
-**Estado git:** los 17 commits de Fase 1 están pusheados en
-`feat/growth-engine-foundation`, PR
-[#116](https://github.com/8picota2025/IMe-Platform/pull/116) en draft. El commit de la
-revisión post-cierre está **en local**; verificar con `git status -sb` si ya se pusheó.
+**Estado git:** todo pusheado en `feat/growth-engine-foundation`, PR
+[#116](https://github.com/8picota2025/IMe-Platform/pull/116) en draft: los 17 commits de
+Fase 1, la revisión post-cierre (`dfa5d22`, CI verde) y el registro de la decisión sobre
+clases INVIMA. Descripción del PR actualizada con la revisión.
 
 ### Revisión post-cierre (2026-09-22)
 
@@ -51,9 +51,11 @@ Se revisaron los 17 commits contra `a1280c2`. Corregido en la rama:
    `gtag('config')` de GA4, que ya venía así antes de esta rama — se estarían ignorando.
    **Verificar en DevTools** durante el QA manual del banner antes de cambiarlo.
 2. **Clases de riesgo INVIMA incorrectas** en `src/data/invima-knowledge-base.json`
-   (preexistente) y heredadas por `pilot-clusters-content-plan.md` §2.1/§3: usa
-   "Clase II"; el Decreto 4725/2005 define I, **IIa**, IIb, III. Confirmar con el equipo
-   biomédico/regulatorio antes de producir contenido INVIMA.
+   (preexistente): usa "Clase II"; el Decreto 4725/2005 define I, **IIa**, IIb, III.
+   **Diferido por decisión del usuario (2026-09-23):** por ahora no habrá contenido
+   sobre clases de riesgo INVIMA, así que no bloquea nada. Corregir y verificar el JSON
+   antes de retomar ese contenido (y antes de exponer `src/lib/invima.ts` en una tool
+   que clasifique equipos).
 3. Menores: el input `retention_dias` de `purgar-asesor-agent-turns.yml` no se usa; el
    CHECK de evidencia acepta `fuente_url = ''`; `revisado_por` es legible por `anon`;
    las funciones de trigger nuevas no fijan `search_path`; `purgar-asesor-agent-turns`
@@ -114,14 +116,15 @@ original — está todo aquí.
 
 Decisiones de arquitectura/alcance y su estado de aprobación humana:
 
-| Decisión pendiente            | Recomendación de Claude                                                                                                                                                                                                                                                     | Estado                                                                              |
-| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| Cluster piloto (mandato §24)  | Monitoreo / UCI + INVIMA / Regulación (dos clusters piloto en paralelo, decisión del usuario — no la recomendación original de Claude, que sugería Ventilación como segundo; INVIMA se vuelve viable ahora porque su precondición, ADR-0013, ya está mergeada en esta rama) | **Aprobada** — 2026-09-22                                                           |
-| Secuencia de Fase 1           | Priorizar ADR-0012 (CMP) y ADR-0011 (fix atribución Twenty) antes que nada más                                                                                                                                                                                              | **Aprobada y ejecutada** — 2026-09-22                                               |
-| Enfoque CMP (ADR-0012)        | Banner propio ligero (sin vendor de pago)                                                                                                                                                                                                                                   | **Aprobada y ejecutada** — 2026-09-22                                               |
-| Prioridad GE-008 (tests Deno) | Arreglar ahora como parte de Fase 1                                                                                                                                                                                                                                         | **Aprobada y ejecutada** — 2026-09-22                                               |
-| Modelo de evidencia           | Versión mínima viable (3 campos) en vez del modelo completo de 10 campos del mandato, para no bloquear Fase 2                                                                                                                                                               | **Implementado** (ADR-0013, `744b4ce`); aprobación humana no registrada — confirmar |
-| ADR-0014 a ADR-0018           | Redactadas e implementadas por Claude en la sesión de 2026-09-22                                                                                                                                                                                                            | Aprobación humana no registrada — confirmar                                         |
+| Decisión pendiente                      | Recomendación de Claude                                                                                                                                                                                                                                                     | Estado                                                                              |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Cluster piloto (mandato §24)            | Monitoreo / UCI + INVIMA / Regulación (dos clusters piloto en paralelo, decisión del usuario — no la recomendación original de Claude, que sugería Ventilación como segundo; INVIMA se vuelve viable ahora porque su precondición, ADR-0013, ya está mergeada en esta rama) | **Aprobada** — 2026-09-22                                                           |
+| Contenido sobre clases de riesgo INVIMA | No producirlo por ahora (piezas excluidas listadas al inicio de `pilot-clusters-content-plan.md`)                                                                                                                                                                           | **Decisión del usuario** — 2026-09-23                                               |
+| Secuencia de Fase 1                     | Priorizar ADR-0012 (CMP) y ADR-0011 (fix atribución Twenty) antes que nada más                                                                                                                                                                                              | **Aprobada y ejecutada** — 2026-09-22                                               |
+| Enfoque CMP (ADR-0012)                  | Banner propio ligero (sin vendor de pago)                                                                                                                                                                                                                                   | **Aprobada y ejecutada** — 2026-09-22                                               |
+| Prioridad GE-008 (tests Deno)           | Arreglar ahora como parte de Fase 1                                                                                                                                                                                                                                         | **Aprobada y ejecutada** — 2026-09-22                                               |
+| Modelo de evidencia                     | Versión mínima viable (3 campos) en vez del modelo completo de 10 campos del mandato, para no bloquear Fase 2                                                                                                                                                               | **Implementado** (ADR-0013, `744b4ce`); aprobación humana no registrada — confirmar |
+| ADR-0014 a ADR-0018                     | Redactadas e implementadas por Claude en la sesión de 2026-09-22                                                                                                                                                                                                            | Aprobación humana no registrada — confirmar                                         |
 
 ## ADRs (ver `IMPLEMENTATION_PLAN.md` §9 para el detalle)
 

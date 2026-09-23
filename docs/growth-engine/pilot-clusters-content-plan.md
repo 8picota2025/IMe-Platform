@@ -9,6 +9,15 @@ ver `ORCHESTRATION_STATE.md`, "Decisiones vigentes")
 > escrito. El mandato exige que todo quede en DRAFT/REVIEW hasta aprobación humana — este
 > plan es el paso previo a esa producción, no la producción en sí.
 
+> **Decisión del usuario (2026-09-23): por ahora no se produce contenido sobre clases de
+> riesgo INVIMA.** Quedan fuera, hasta nueva decisión, todas las piezas de este plan que
+> presentan o dependen de la clase de riesgo de un dispositivo: la parte de "clases de
+> riesgo" de la pilar §2.2, los artículos §1.3.4 y §2.3.2-§2.3.4, la entrada por "clase
+> estimada" de la tool §2.4, el carrusel de clases de §2.6 y el artículo puente de §3.
+> Motivo adicional: `src/data/invima-knowledge-base.json` usa "Clase II", mientras que el
+> Decreto 4725/2005 define I, IIa, IIb y III — esa fuente no debe alimentar contenido
+> sobre clases sin corregirse y verificarse antes.
+
 ---
 
 ## 0. Regla de fuentes — aplica a los dos clusters, especialmente INVIMA
@@ -116,6 +125,10 @@ resultado (mandato: no declarar causalidad antes de tener muestra).
 ---
 
 ## 2. Cluster: INVIMA / Regulación
+
+> Ver la decisión del 2026-09-23 al inicio del documento: sin contenido sobre clases de
+> riesgo por ahora. El resto del cluster (registro sanitario en general, normatividad,
+> checklist para compradores sin clasificar el equipo) sigue en el plan.
 
 ### 2.1 Activos ya existentes
 
