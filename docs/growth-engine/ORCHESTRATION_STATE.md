@@ -11,16 +11,33 @@
 - **Fase actual:** Fase 1 — Foundation → **CERRADA**. 8/8 ADRs (0011-0018) aceptadas,
   redactadas e implementadas donde correspondía; cluster piloto decidido; plan de
   contenido de Fase 2 redactado. Después del cierre se hizo una **revisión de errores de
-  todo lo realizado** (ver "Revisión post-cierre" abajo); sus correcciones están
-  commiteadas en la rama.
-- **Última actualización:** 2026-09-22 (revisión post-cierre)
+  todo lo realizado** (ver "Revisión post-cierre" abajo) y un QA del banner en navegador.
+  **Todo está en producción desde el 2026-09-23** (ver "Estado de despliegue").
+- **Última actualización:** 2026-09-23 (merge y despliegue de Fase 1)
 
 ### 🔴 Punto de reanudación — leer esto primero al retomar
 
-**Estado git:** todo pusheado en `feat/growth-engine-foundation`, PR
-[#116](https://github.com/8picota2025/IMe-Platform/pull/116) en draft: los 17 commits de
-Fase 1, la revisión post-cierre (`dfa5d22`, CI verde) y el registro de la decisión sobre
-clases INVIMA. Descripción del PR actualizada con la revisión.
+**Estado de despliegue (2026-09-23):**
+
+- PR [#116](https://github.com/8picota2025/IMe-Platform/pull/116) **fusionado en `main`**
+  (`7d4244a`), con merge commit.
+- **Edge Functions** desplegadas por `deploy-supabase-functions.yml` al primer intento
+  (redacción de PII del asesor, función de purga).
+- **Sitio** desplegado por `deploy-prod.yml`. El primer intento falló en la build por un
+  `statement timeout` de Supabase al leer todos los productos (`getProductos`, ~14 MB),
+  ajeno al PR; relanzado el paso fallido, terminó bien. Si se repite, revisar esa
+  consulta (`select('*')` de todo el catálogo en cada build).
+- **Verificado en `https://i-me.com.co/es/`** con los envíos bloqueados: banner visible,
+  cero scripts y hits de terceros antes de aceptar; al aceptar, GA4 envía `page_view`,
+  crea `_ga` y registra el consentimiento. **GA4 vuelve a recibir datos en producción**
+  (antes no recibía ninguno, ver ADR-0012) — sólo de quien acepta.
+- **Migraciones aplicadas** con `deploy-supabase-migrations.yml` (vía Session Pooler):
+  `20260922200000` a `20260922230000`. Antes se confirmó con `list_migrations` que eran
+  las únicas pendientes. Verificado en producción: tablas con RLS y sus 5 políticas, 6
+  topic clusters sembrados, `articulos.cluster_id`/`tags`, índice de retención y CHECK de
+  evidencia.
+- **Purga de `asesor_agent_turns`:** el cron diario ya corre, pero no borrará nada hasta
+  mediados de diciembre (la tabla existe desde el 2026-09-15; 34 filas al 2026-09-23).
 
 ### Revisión post-cierre (2026-09-22)
 
@@ -88,8 +105,14 @@ contenido §4):
 
 **Pendientes que no bloquean lo anterior pero siguen abiertos:**
 
-- QA manual del banner de consentimiento (ADR-0012) en navegador real — no se hizo en
-  esta sesión.
+- **Avisos de seguridad de Supabase preexistentes (hallazgo 2026-09-23, no de esta
+  rama):** 24 funciones `SECURITY DEFINER` son ejecutables por `anon` vía
+  `/rest/v1/rpc/`, entre ellas `reservar_stock`, `consumir_stock_reservas_pedido`,
+  `liberar_stock_reservas_*`, `crm_upsert_contact`, `claim_cotizacion_send` y
+  `reservar_presupuesto_llm`. Revisar cuáles deben ser públicas y revocar `EXECUTE` al
+  resto. Además: protección de contraseñas filtradas de Auth desactivada.
+- **Contraseña del CMS legado** (D-1): sigue en el historial de git; rotarla donde se
+  haya reutilizado.
 - Coordinar con el admin de Twenty CRM para crear los campos custom de la fase
   estructurada de ADR-0011 (hoy la atribución llega a Twenty como texto, funciona, pero
   no es un campo nativo consultable).
@@ -164,13 +187,13 @@ Numeración continúa desde la última ADR real del repo (`docs/decisions/0010-q
 | GE-008-deno-tests-sin-ci      | CLAUDE (directo)                         | L1 (una vez priorizado por el humano) | GE-001 = GO                                                                                                                                      | **Completado**            | `.github/workflows/ci.yml` (+ inventario: descubierto un 5º archivo, `actualizar-fulfillment/test.ts`, integración contra Supabase local — NO incluido, follow-up aparte) | 37/37 Deno tests al wirear el gate (hoy 52/52 en 6 archivos, tras ADR-0017 y la revisión)                                                          | —                                                                                  | commit `6da5350`                                                                                                                                  |
 | GE-003-adr-0012-cmp           | CLAUDE (diseño e implementación directa) | L3 diseño / L1-L2 implementación      | GE-001 = GO; decisión de vendor/build tomada por el humano (banner propio)                                                                       | **Completado**            | `src/lib/consent.ts`, `consent.test.ts`, `ConsentBanner.astro`, `AnalyticsHead.astro`, `AnalyticsNoScript.astro`, `Footer.astro`, `Layout.astro`, `es.json`, `en.json`    | 407/407 vitest (5 nuevos), lint limpio, `astro check` 0 errores, build real verificado (gtag/js y noscript GTM ausentes del HTML, banner presente) | —                                                                                  | commit `b1f8195`. ADR formal: `docs/decisions/0012-cmp-consentimiento-analitica.md`                                                               |
 | GE-007-r7-estado-legal        | CLAUDE                                   | L1                                    | GE-001 = GO                                                                                                                                      | No iniciada               | `README.md` y/o `REMEDIACION.md`                                                                                                                                          | —                                                                                                                                                  | requiere confirmar con negocio cuál es la verdad vigente                           | preguntar al usuario/cliente antes de editar                                                                                                      |
-| ADR-0013-evidencia            | CLAUDE                                   | L2                                    | GE-001 = GO                                                                                                                                      | **Completado**            | `supabase/migrations/20260922200000_producto_claims_evidencia.sql`, `supabase/schema.sql`                                                                                 | CHECK verificado en Postgres desechable                                                                                                            | migración no aplicada a producción (manual)                                        | commit `744b4ce`                                                                                                                                  |
-| ADR-0014-topic-clusters       | CLAUDE                                   | L2                                    | GE-001 = GO                                                                                                                                      | **Completado**            | `supabase/migrations/20260922210000_articulos_topic_clusters.sql`, `supabase/schema.sql`                                                                                  | —                                                                                                                                                  | migración no aplicada a producción (manual)                                        | commit `6127fbb`                                                                                                                                  |
+| ADR-0013-evidencia            | CLAUDE                                   | L2                                    | GE-001 = GO                                                                                                                                      | **Completado**            | `supabase/migrations/20260922200000_producto_claims_evidencia.sql`, `supabase/schema.sql`                                                                                 | CHECK verificado en Postgres desechable                                                                                                            | — (migración aplicada en producción 2026-09-23)                                    | commit `744b4ce`                                                                                                                                  |
+| ADR-0014-topic-clusters       | CLAUDE                                   | L2                                    | GE-001 = GO                                                                                                                                      | **Completado**            | `supabase/migrations/20260922210000_articulos_topic_clusters.sql`, `supabase/schema.sql`                                                                                  | —                                                                                                                                                  | — (migración aplicada en producción 2026-09-23)                                    | commit `6127fbb`                                                                                                                                  |
 | ADR-0015-landing-factory      | CLAUDE                                   | L3                                    | GE-001 = GO                                                                                                                                      | **Completado (decisión)** | `docs/decisions/0015-*.md`                                                                                                                                                | —                                                                                                                                                  | migración de datos fuera de alcance                                                | commit `6aaebf1`                                                                                                                                  |
 | ADR-0016-whatsapp-opt-in      | CLAUDE                                   | L2                                    | GE-001 = GO                                                                                                                                      | **Completado (schema)**   | `supabase/migrations/20260922230000_whatsapp_opt_ins.sql`                                                                                                                 | —                                                                                                                                                  | lógica conversacional es Fase 4                                                    | commit `239632a`                                                                                                                                  |
 | ADR-0017-pii-asesor           | CLAUDE                                   | L2                                    | GE-001 = GO                                                                                                                                      | **Completado**            | `_shared/pii-redact.ts`, `_shared/asesor-retention.ts`, `asesor/index.ts`, `purgar-asesor-agent-turns/`, workflow de purga                                                | Deno tests en CI (patrón de teléfono corregido en la revisión post-cierre)                                                                         | 90 días de retención sin validar legalmente                                        | commit `ef83cec` + revisión post-cierre                                                                                                           |
 | ADR-0018-automatizacion       | CLAUDE                                   | L3                                    | GE-001 = GO                                                                                                                                      | **Completado (decisión)** | `docs/decisions/0018-*.md`                                                                                                                                                | —                                                                                                                                                  | —                                                                                  | commit `78708f9`                                                                                                                                  |
-| GE-009-revision-post-cierre   | CLAUDE                                   | L1-L2                                 | Fase 1 cerrada                                                                                                                                   | **Completado**            | ver "Revisión post-cierre" arriba                                                                                                                                         | 409/409 vitest, 52/52 Deno, lint, `astro check`, build                                                                                             | puntos 1-4 de "Abierto tras la revisión" requieren confirmación                    | QA del banner en navegador (incluye verificar Consent Mode)                                                                                       |
+| GE-009-revision-post-cierre   | CLAUDE                                   | L1-L2                                 | Fase 1 cerrada                                                                                                                                   | **Completado**            | ver "Revisión post-cierre" arriba                                                                                                                                         | 409/409 vitest, 52/52 Deno, lint, `astro check`, build                                                                                             | —                                                                                  | QA del banner hecho y desplegado (`f83a472`, merge `7d4244a`)                                                                                     |
 
 ### Hallazgos nuevos desde Fase 0
 
