@@ -32,6 +32,8 @@ import {
   type ClienteFiscalProfile,
 } from '../../../src/lib/fiscal.ts';
 import { pushClienteToTwenty } from '../_shared/twenty-commerce-sync.ts';
+import { liberarReservasPedido, reservarItemsPedido } from '../_shared/stock-reservas.ts';
+import { ttlMinutosReservaTransferencia } from '../../../src/lib/stock-availability.ts';
 
 interface Body {
   action?: 'preview' | 'registrar_transferencia';
@@ -563,6 +565,30 @@ Deno.serve(async req => {
     return internalError(`error creando pedido: ${insertError.message}`, origin);
   }
 
+  // Hold stock until admin validates transfer (long TTL). Without this,
+  // registrarPedidoPagado cannot decrement productos.stock and cart checkout
+  // can sell the same unit while the transfer is pending.
+  const reserva = await reservarItemsPedido(supabase, {
+    pedidoId,
+    items: itemsSnapshot.map(i => ({
+      producto_id: typeof i.producto_id === 'string' ? i.producto_id : null,
+      cantidad: i.cantidad,
+    })),
+    ttlMinutes: ttlMinutosReservaTransferencia(Deno.env.get('STOCK_RESERVA_TTL_TRANSFERENCIA_MIN')),
+  });
+  if (!reserva.ok) {
+    await supabase.from('pedidos').delete().eq('id', pedidoId);
+    await supabase.storage.from('comprobantes-pago').remove([storagePath]);
+    return errorResponse(
+      {
+        code: 'STOCK_INSUFICIENTE',
+        message: `No se pudo reservar stock (${reserva.motivo})`,
+      },
+      409,
+      origin
+    );
+  }
+
   const { data: claimed, error: claimError } = await supabase
     .from('solicitudes_cotizacion')
     .update({
@@ -579,6 +605,7 @@ Deno.serve(async req => {
     .maybeSingle();
 
   if (claimError || !claimed) {
+    await liberarReservasPedido(supabase, pedidoId);
     await supabase.from('pedidos').delete().eq('id', pedidoId);
     await supabase.storage.from('comprobantes-pago').remove([storagePath]);
     if (claimError) {

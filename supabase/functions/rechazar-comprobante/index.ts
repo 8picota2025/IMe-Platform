@@ -25,6 +25,7 @@ import {
   hashTokenSha256,
   type CotizacionOfertaRow,
 } from '../../../src/lib/cotizacion-oferta.ts';
+import { liberarReservasPedido } from '../_shared/stock-reservas.ts';
 
 const DEFAULT_SITE_URL = 'https://i-me.com.co';
 const ROLES = new Set(['owner', 'admin', 'ventas', 'operaciones']);
@@ -117,6 +118,9 @@ Deno.serve(async req => {
       origin
     );
   }
+
+  // Liberar hold de inventario; sin esto el stock queda bloqueado tras rechazo.
+  await liberarReservasPedido(supabase, pedidoId);
 
   let formalizarUrl = '';
   let cotizacionRef = pedido.referencia_pasarela ?? pedidoId.slice(0, 8).toUpperCase();
