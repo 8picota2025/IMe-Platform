@@ -145,7 +145,16 @@
     "vacio": "Aún no hay artículos publicados. Vuelve pronto.",
     "ninguno": "Sin artículos todavía",
     "volver_listado": "Volver al Blog",
-    "contactar_editorial": "Contactar al equipo editorial"
+    "contactar_editorial": "Contactar al equipo editorial",
+    "temas_titulo": "Explorar por tema",
+    "temas_todos": "Todos los artículos",
+    "tema_label": "Tema",
+    "tema_articulos_uno": "artículo",
+    "tema_articulos_varios": "artículos",
+    "relacionados_titulo": "Más sobre",
+    "ver_tema": "Ver todo el tema",
+    "pilar": "Guía principal",
+    "borrador_aviso": "BORRADOR — vista previa local, no publicado"
   },
   "contacto": {
     "titulo": "Contacto",

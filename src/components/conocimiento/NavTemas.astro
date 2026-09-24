@@ -1,0 +1,115 @@
+---
+// Navegación por temas del Centro de Conocimiento (ADR-0014): "Todos" + un
+// enlace por tema con artículos publicados.
+import type { Locale } from '../../i18n/utils';
+import { t } from '../../i18n/utils';
+import { rutasConocimiento, type TopicClusterRef } from '../../lib/conocimiento-clusters';
+
+interface Props {
+  temas: Array<{ cluster: TopicClusterRef; articulos: unknown[] }>;
+  locale: Locale;
+  total: number;
+  /** Slug del tema actual; sin valor = portada ("Todos"). */
+  actual?: string;
+}
+
+const { temas, locale, total, actual } = Astro.props;
+const unidad = (n: number) =>
+  t(locale, n === 1 ? 'conocimiento.tema_articulos_uno' : 'conocimiento.tema_articulos_varios');
+---
+
+{
+  temas.length > 0 && (
+    <nav class="temas-nav" aria-label={t(locale, 'conocimiento.temas_titulo')}>
+      <p class="temas-nav__titulo">{t(locale, 'conocimiento.temas_titulo')}</p>
+      <ul class="temas-nav__lista">
+        <li>
+          <a
+            class="temas-nav__chip"
+            href={rutasConocimiento.indice(locale)}
+            aria-current={actual ? undefined : 'page'}
+          >
+            {t(locale, 'conocimiento.temas_todos')} <span class="temas-nav__n">{total}</span>
+          </a>
+        </li>
+        {temas.map(({ cluster, articulos }) => (
+          <li>
+            <a
+              class="temas-nav__chip"
+              href={rutasConocimiento.tema(locale, cluster.slug)}
+              aria-current={actual === cluster.slug ? 'page' : undefined}
+            >
+              {cluster.nombre}{' '}
+              <span
+                class="temas-nav__n"
+                aria-label={`${articulos.length} ${unidad(articulos.length)}`}
+              >
+                {articulos.length}
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}
+
+<style>
+  .temas-nav {
+    margin: 0 0 36px;
+  }
+  .temas-nav__titulo {
+    margin: 0 0 12px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-mid);
+  }
+  .temas-nav__lista {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .temas-nav__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 8px 16px;
+    border: 1px solid var(--border-mid);
+    border-radius: 999px;
+    color: var(--t900);
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease;
+  }
+  .temas-nav__chip:hover {
+    background: var(--t50);
+    border-color: var(--t900);
+  }
+  .temas-nav__chip[aria-current='page'] {
+    background: var(--t900);
+    border-color: var(--t900);
+    color: var(--white);
+  }
+  .temas-nav__n {
+    display: inline-block;
+    min-width: 1.6em;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--t50);
+    color: var(--t900);
+    font-size: 0.8rem;
+    text-align: center;
+  }
+  .temas-nav__chip[aria-current='page'] .temas-nav__n {
+    background: var(--white);
+  }
+</style>

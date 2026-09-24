@@ -145,7 +145,16 @@
     "vacio": "No articles published yet. Check back soon.",
     "ninguno": "No articles yet",
     "volver_listado": "Back to Blog",
-    "contactar_editorial": "Contact editorial team"
+    "contactar_editorial": "Contact editorial team",
+    "temas_titulo": "Browse by topic",
+    "temas_todos": "All articles",
+    "tema_label": "Topic",
+    "tema_articulos_uno": "article",
+    "tema_articulos_varios": "articles",
+    "relacionados_titulo": "More on",
+    "ver_tema": "See the whole topic",
+    "pilar": "Main guide",
+    "borrador_aviso": "DRAFT — local preview, not published"
   },
   "contacto": {
     "titulo": "Contact",
