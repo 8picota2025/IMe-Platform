@@ -70,7 +70,11 @@ const NESTED_SLUG_PAIRS: Array<{
   sectionEn: string;
   es: string;
   en: string;
-}> = [{ sectionEs: 'conocimiento', sectionEn: 'knowledge', es: 'publicar', en: 'publish' }];
+}> = [
+  { sectionEs: 'conocimiento', sectionEn: 'knowledge', es: 'publicar', en: 'publish' },
+  // Páginas de tema del Centro de Conocimiento (ADR-0014).
+  { sectionEs: 'conocimiento', sectionEn: 'knowledge', es: 'tema', en: 'topic' },
+];
 
 const LEGAL_SLUG_PAIRS: Array<{ es: string; en: string }> = [
   { es: 'privacidad', en: 'privacy' },
