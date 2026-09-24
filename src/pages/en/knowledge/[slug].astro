@@ -7,7 +7,10 @@ import {
   buildBreadcrumbJsonLd,
   combineJsonLd,
 } from '../../../lib/seo';
-import { getArticulos, type Articulo } from '../../../lib/datos';
+import type { Articulo } from '../../../lib/datos';
+import { getArticulosConocimiento, esBorrador } from '../../../lib/conocimiento-borradores';
+import { relacionadosEnTema, rutasConocimiento } from '../../../lib/conocimiento-clusters';
+import RelacionadosTema from '../../../components/conocimiento/RelacionadosTema.astro';
 import { stripMarkdown } from '../../../lib/markdown';
 import { renderArticleBody } from '../../../lib/conocimiento-articulo';
 import {
@@ -21,18 +24,20 @@ import '../../../styles/site-faithful.css';
 const locale = 'en';
 
 export async function getStaticPaths() {
-  const articulos = await getArticulos('en');
+  const articulos = await getArticulosConocimiento('en');
   return articulos.map(articulo => ({
     params: { slug: articulo.slug },
-    props: { articulo },
+    props: { articulo, relacionados: relacionadosEnTema(articulo, articulos) },
   }));
 }
 
 interface Props {
   articulo: Articulo;
+  relacionados: Articulo[];
 }
 
-const { articulo } = Astro.props as Props;
+const { articulo, relacionados } = Astro.props as Props;
+const tema = articulo.cluster;
 const canonical = buildCanonical(`/en/knowledge/${articulo.slug}`);
 const title = buildPageTitle(articulo.titulo);
 const description = stripMarkdown(articulo.cuerpo || articulo.titulo).slice(0, 155);
@@ -45,6 +50,9 @@ const jsonLd = combineJsonLd(
   buildBreadcrumbJsonLd([
     { name: t(locale, 'catalogo.migas_inicio'), url: buildCanonical('/en/') },
     { name: t(locale, 'conocimiento.titulo'), url: buildCanonical('/en/knowledge') },
+    ...(tema
+      ? [{ name: tema.nombre, url: buildCanonical(rutasConocimiento.tema(locale, tema.slug)) }]
+      : []),
     { name: articulo.titulo, url: canonical },
   ]),
   {
@@ -81,9 +89,24 @@ const jsonLd = combineJsonLd(
       <div class="container">
         <nav class="breadcrumb" aria-label="Breadcrumb">
           <a href="/en/">Home</a><span class="sep">/</span>
-          <a href="/en/knowledge">{t(locale, 'conocimiento.titulo')}</a><span class="sep">/</span
-          ><span aria-current="page">{articulo.titulo}</span>
+          <a href="/en/knowledge">{t(locale, 'conocimiento.titulo')}</a><span class="sep">/</span>
+          {
+            tema && (
+              <>
+                <a href={rutasConocimiento.tema(locale, tema.slug)}>{tema.nombre}</a>
+                <span class="sep">/</span>
+              </>
+            )
+          }
+          <span aria-current="page">{articulo.titulo}</span>
         </nav>
+        {
+          esBorrador(articulo) && (
+            <p class="borrador-aviso" role="note">
+              {t(locale, 'conocimiento.borrador_aviso')}
+            </p>
+          )
+        }
         <h1 id="article-h1">{articulo.titulo}</h1>
         <p class="ph-sub article-meta">
           {t(locale, 'conocimiento.publicado')}
@@ -127,6 +150,7 @@ const jsonLd = combineJsonLd(
             set:html={renderArticleBody(articulo.cuerpo, t(locale, 'conocimiento.vacio'))}
           />
         </div>
+        <RelacionadosTema articulo={articulo} relacionados={relacionados} locale={locale} />
         <div class="article-footer">
           <a href="/en/knowledge" class="btn btn-outline">← {t(locale, 'conocimiento.volver')}</a>
           <a href="/en/contact/" class="btn btn-primary">{t(locale, 'conocimiento.cta_contacto')}</a
@@ -138,6 +162,17 @@ const jsonLd = combineJsonLd(
 </Layout>
 
 <style>
+  .site-faithful .borrador-aviso {
+    display: inline-block;
+    margin: 0 0 12px;
+    padding: 4px 12px;
+    border-radius: 6px;
+    background: var(--white);
+    color: var(--t900);
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+  }
   .site-faithful .article-shell {
     max-width: 860px;
   }
@@ -195,6 +230,55 @@ const jsonLd = combineJsonLd(
   }
   .site-faithful .article-body :global(a) {
     color: var(--teal, #0f4c5c);
+  }
+  .site-faithful .article-body :global(.md-table) {
+    margin: 1.5em 0;
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  .site-faithful .article-body :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+  }
+  .site-faithful .article-body :global(th),
+  .site-faithful .article-body :global(td) {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    vertical-align: top;
+    hyphens: none;
+  }
+  .site-faithful .article-body :global(th) {
+    background: var(--t50);
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .site-faithful .article-body :global(tbody tr:last-child td) {
+    border-bottom: 0;
+  }
+  .site-faithful .article-body :global(ul),
+  .site-faithful .article-body :global(ol) {
+    margin: 0 0 1.2em;
+    padding-left: 1.4em;
+  }
+  .site-faithful .article-body :global(ul) {
+    list-style: disc;
+  }
+  .site-faithful .article-body :global(ol) {
+    list-style: decimal;
+  }
+  .site-faithful .article-body :global(li) {
+    margin-bottom: 0.4em;
+  }
+  .site-faithful .article-body :global(li.md-task) {
+    list-style: none;
+    margin-left: -1.2em;
+  }
+  .site-faithful .article-body :global(.md-task__box) {
+    color: var(--t900);
+    font-weight: 700;
   }
   .site-faithful .article-body :global(img) {
     max-width: 100%;

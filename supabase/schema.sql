@@ -2134,14 +2134,14 @@ CREATE POLICY "topic_clusters_admin_all"
 INSERT INTO topic_clusters (slug, nombre_es, nombre_en, descripcion) VALUES
   ('monitoreo-uci', 'Monitoreo / UCI', 'Monitoring / ICU',
    'Monitores multiparametricos y cardiologia. Cluster con mayor profundidad hoy: family hub, landing /es/monitores-biolight-uci/, keywords top-20, 2 articulos, PDPs.'),
-  ('ventilacion-terapia-respiratoria', 'Ventilacion / terapia respiratoria', 'Ventilation / respiratory therapy',
+  ('ventilacion-terapia-respiratoria', 'Ventilación / terapia respiratoria', 'Ventilation / respiratory therapy',
    'Ventiladores y soporte vital respiratorio. Landings /es/ventiladores-mecanicos-uci/ y /es/alto-flujo-fisher-paykel/, 1 articulo.'),
-  ('movilidad-rehabilitacion', 'Movilidad / rehabilitacion', 'Mobility / rehabilitation',
+  ('movilidad-rehabilitacion', 'Movilidad / rehabilitación', 'Mobility / rehabilitation',
    'Caminadores y sillas de ruedas. Unico cluster con hub->articulo ya conectado en FAMILIA_HUB_LINKS.'),
-  ('cardiologia-reanimacion', 'Cardiologia / reanimacion', 'Cardiology / resuscitation',
+  ('cardiologia-reanimacion', 'Cardiología / reanimación', 'Cardiology / resuscitation',
    'Desfibriladores y equipos de reanimacion. Landing /es/desfibriladores-hospitalarios/, 1 articulo.'),
-  ('financiacion', 'Financiacion', 'Financing',
+  ('financiacion', 'Financiación', 'Financing',
    'SimuladorFinanciero.astro en produccion, 1 articulo. Contenido de tasas reales bloqueado por firma legal pendiente (ver PENDIENTES.md) — no publicar contenido nuevo de este cluster hasta resolver ese bloqueante.'),
-  ('invima-regulacion', 'INVIMA / regulacion', 'INVIMA / regulatory',
+  ('invima-regulacion', 'INVIMA / regulación', 'INVIMA / regulatory',
    'Sin contenido publicado hoy; datos ya existen (invima-knowledge-base.json, sin usar). Candidato fuerte solo despues de que exista el modelo de evidencia (ADR-0013) — no antes.')
 ON CONFLICT (slug) DO NOTHING;
