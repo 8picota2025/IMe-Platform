@@ -29,6 +29,12 @@ RewriteRule ^conocimiento/?$ /es/conocimiento/ [R=301,L,NE]
 RewriteRule ^en/blog/?$ /en/knowledge/ [R=301,L,NE]
 RewriteRule ^knowledge/?$ /en/knowledge/ [R=301,L,NE]
 
+# Artículos despublicados → su reemplazo (Growth Engine Fase 2, 2026-09-24).
+# Guía de distribuidores 2025: despublicada (clases de riesgo, cifras sin fuente);
+# la sustituye la guía del registro sanitario INVIMA, con fuentes.
+RewriteRule ^es/conocimiento/guia-actualizada-distribuidores-importacion-y-regulacion-2025-biomedicos/?$ /es/conocimiento/registro-sanitario-invima-equipos-biomedicos/ [R=301,L,NE]
+RewriteRule ^en/knowledge/guia-actualizada-distribuidores-importacion-y-regulacion-2025-biomedicos/?$ /en/knowledge/registro-sanitario-invima-equipos-biomedicos/ [R=301,L,NE]
+
 # Sitemap aliases — bots often hit /sitemap.xml; real inventory is sitemap-index.xml
 RewriteRule ^sitemap\.xml$ /sitemap-index.xml [R=301,L]
 RewriteRule ^sitemap-0\.xml$ /sitemap-index.xml [R=301,L]
