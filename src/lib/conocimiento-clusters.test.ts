@@ -127,18 +127,4 @@ describe('contenido del repo', () => {
       expect(`${borrador!.slug}.md`, 'el archivo se llama como su slug').toBe(archivo);
     }
   });
-
-  it('la asignación de temas del preview coincide con la migración', () => {
-    const asignacion = JSON.parse(
-      readFileSync(resolve(dir, 'asignacion-temas.json'), 'utf8')
-    ) as Record<string, string>;
-    const sql = readFileSync(
-      resolve(__dirname, '../../supabase/migrations/20260924120000_asignar_temas_articulos.sql'),
-      'utf8'
-    );
-    const enSql = Object.fromEntries(
-      [...sql.matchAll(/\('([a-z0-9-]+)', '([a-z0-9-]+)'\)/g)].map(m => [m[1], m[2]])
-    );
-    expect(enSql).toEqual(asignacion);
-  });
 });

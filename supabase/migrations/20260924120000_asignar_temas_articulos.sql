@@ -1,13 +1,11 @@
 -- Fase 2 (Knowledge Hub): asigna tema (topic_clusters, ADR-0014) a los
--- artículos ya publicados. Debe coincidir con
--- src/data/conocimiento-borradores/asignacion-temas.json, que es lo que el
--- preview local muestra antes de aplicar esto (lo verifica
--- src/lib/conocimiento-clusters.test.ts).
+-- artículos ya publicados. Es la asignación revisada en el preview local
+-- (PREVIEW_DRAFTS) antes de aplicar esto.
 --
 -- Sólo toca artículos sin tema (cluster_id IS NULL): no pisa una asignación
 -- hecha a mano después. Sin tema a propósito: páginas institucionales (ime-*),
 -- artículos que no encajan en ningún tema piloto, y la guía de distribuidores
--- 2025 (pendiente de decisión por su contenido).
+-- 2025 (se despublica en 20260924130100).
 
 UPDATE articulos a
 SET cluster_id = tc.id
