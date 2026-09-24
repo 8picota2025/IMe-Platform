@@ -8,14 +8,15 @@
 
 ## Estado general
 
-- **Fase actual:** Fase 2 — Knowledge Hub → **AUTORIZADA** (2026-09-23), a la espera de
-  la validación biomédica para el contenido técnico de Monitoreo. Fase 1 — Foundation →
+- **Fase actual:** Fase 2 — Knowledge Hub → **EN CURSO**: clusters en la web y cluster
+  INVIMA publicados (2026-09-24); validación biomédica de Monitoreo **recibida y aprobada**
+  (2026-09-24), contenido de Monitoreo siguiente. Fase 1 — Foundation →
   **CERRADA**. 8/8 ADRs (0011-0018) aceptadas,
   redactadas e implementadas donde correspondía; cluster piloto decidido; plan de
   contenido de Fase 2 redactado. Después del cierre se hizo una **revisión de errores de
   todo lo realizado** (ver "Revisión post-cierre" abajo) y un QA del banner en navegador.
   **Todo está en producción desde el 2026-09-23** (ver "Estado de despliegue").
-- **Última actualización:** 2026-09-23 (merge y despliegue de Fase 1)
+- **Última actualización:** 2026-09-24 (Fase 2: clusters, INVIMA, embeddings del asesor)
 
 ### 🔴 Punto de reanudación — leer esto primero al retomar
 
@@ -93,6 +94,47 @@ contenido (sin producir nada todavía) para los dos clusters piloto que el usuar
 **Monitoreo/UCI + INVIMA/Regulación**. El plan está a la espera de aprobación del usuario
 antes de que se escriba cualquier artículo/landing/tool/post real.
 
+**Fase 2 — avance (2026-09-24):**
+
+- **PR [#122](https://github.com/8picota2025/IMe-Platform/pull/122) fusionado** (`d55231b`):
+  páginas de tema `/es/conocimiento/tema/<slug>` y `/en/knowledge/topic/<slug>`,
+  navegación por temas, miga de pan y "Más sobre <tema>"; preview de borradores con
+  `PREVIEW_DRAFTS=true` (sólo frontmatter de páginas, nunca en bundles de cliente);
+  corrección del renderizador de markdown (tablas, enlaces internos y viñetas se veían
+  como texto crudo en producción).
+- **Migraciones aplicadas** (`20260924120000`–`20260924130200`): 6 artículos con tema,
+  nombres de temas con tildes, **2 artículos INVIMA publicados** (guía del registro
+  sanitario + checklist para compradores, sin clases de riesgo, cada afirmación citada a
+  Decreto 4725/2005 mod. 582/2017, Res. 4002/2007, Res. 4816/2008), **guía de
+  distribuidores 2025 despublicada** (clases de riesgo, cifras sin fuente, competidores,
+  errores regulatorios; sólo `publicado = false`) y 3 enlaces a productos renombrados
+  corregidos.
+- **Hotfix [#123](https://github.com/8picota2025/IMe-Platform/pull/123)** (`5ac7cf2`): el
+  despliegue del #122 falló en la auditoría SEO porque las páginas EN de tema enlazaban su
+  alterna ES como `/es/conocimiento/topic/…`. El CI del PR no podía verlo (sin temas en la
+  BD hasta migrar). Lección: **una build de producción con datos reales tras migrar**
+  (`check && build && audit:seo-build && audit:performance-build`) antes de fusionar
+  cambios que dependan de datos migrados.
+- **Embeddings del asesor regenerados** (15 artículos publicados) con Ollama
+  `mxbai-embed-large`, el modelo de los productos, del asesor web y del admin. Los 5
+  vectores de artículos que existían venían de **otro modelo** (similitud ≈ 0,04 con
+  consultas mxbai: la búsqueda semántica de artículos no funcionaba) y 10 artículos no
+  tenían vector. Verificado: cada consulta de prueba devuelve primero el artículo
+  correcto (0,74–0,86). Ojo: los `.env` locales discrepan (dos dicen `voyage`, dos
+  `ollama`); el sistema de registro es `mxbai-embed-large`. `scripts/reindex-voyage-embeddings.mjs`
+  imprime "con Voyage" aunque use Ollama (etiqueta fija).
+- **Validación biomédica recibida**: `Validacion_biomedica_Monitoreo_UCI_Respondido-1.docx`
+  (escritorio), **aprobada en las 3 secciones** y firmada por el Ing. Andrés F. Rojas M.
+  (Ingeniero Biomédico Senior, 2026-09-24). Es la fuente del contenido técnico de
+  Monitoreo: checklist de recepción e instalación (A1–A8), datos por modelo y criterios
+  (B1–B6), y las 7 afirmaciones del artículo publicado confirmadas, con 3 añadidos
+  sugeridos (C3: IEC 60601 y registro INVIMA vigente como criterio; C4: verificar
+  infraestructura eléctrica y de red; C7: plan de capacitación y stock inicial de
+  consumibles en la cotización).
+
+**Siguiente:** pilar de Monitoreo + checklist de recepción e instalación + 2–3 artículos
+de apoyo a partir de la validación biomédica, con preview antes de publicar.
+
 **Fase 2 (Knowledge Hub) — AUTORIZADA el 2026-09-23.** Estado de los prerrequisitos del
 plan de contenido §4:
 
@@ -104,7 +146,7 @@ plan de contenido §4:
    (`guia-monitores-multiparametricos-uci`, no dos como suponía el plan). INVIMA ya tiene
    `guia-actualizada-distribuidores-importacion-y-regulacion-2025-biomedicos` (el plan
    decía que no había nada): reutilizarlo como base, no duplicarlo.
-3. ⏳ **Validación biomédica enviada**: documento Word
+3. ✅ **Validación biomédica recibida y aprobada** (2026-09-24, ver arriba). Documento Word
    `Validacion_biomedica_Monitoreo_UCI.docx` entregado al usuario (escritorio) para el
    equipo biomédico. Secciones: A) checklist de recepción/instalación (bloquea ese
    artículo), B) datos técnicos por modelo para la pilar de Monitoreo (parámetros de
@@ -119,14 +161,12 @@ plan de contenido §4:
 
 **Pendientes que no bloquean lo anterior pero siguen abiertos:**
 
-- **Avisos de seguridad de Supabase preexistentes (hallazgo 2026-09-23, no de esta
-  rama):** 24 funciones `SECURITY DEFINER` son ejecutables por `anon` vía
-  `/rest/v1/rpc/`, entre ellas `reservar_stock`, `consumir_stock_reservas_pedido`,
-  `liberar_stock_reservas_*`, `crm_upsert_contact`, `claim_cotizacion_send` y
-  `reservar_presupuesto_llm`. Revisar cuáles deben ser públicas y revocar `EXECUTE` al
-  resto. Además: protección de contraseñas filtradas de Auth desactivada.
-- **Contraseña del CMS legado** (D-1): sigue en el historial de git; rotarla donde se
-  haya reutilizado.
+- ~~24 funciones `SECURITY DEFINER` ejecutables por `anon`~~ — **resuelto** en
+  [#118](https://github.com/8picota2025/IMe-Platform/pull/118) (migración
+  `20260923210000`, verificada en producción: sin sesión sólo quedan las 4 búsquedas del
+  asesor). Pendiente del usuario: activar la protección de contraseñas filtradas de Auth
+  en el panel de Supabase.
+- ~~Contraseña del CMS legado~~ — **rotada por el usuario** (2026-09-24).
 - Coordinar con el admin de Twenty CRM para crear los campos custom de la fase
   estructurada de ADR-0011 (hoy la atribución llega a Twenty como texto, funciona, pero
   no es un campo nativo consultable).
