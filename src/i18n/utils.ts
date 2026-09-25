@@ -74,6 +74,13 @@ const NESTED_SLUG_PAIRS: Array<{
   { sectionEs: 'conocimiento', sectionEn: 'knowledge', es: 'publicar', en: 'publish' },
   // Páginas de tema del Centro de Conocimiento (ADR-0014).
   { sectionEs: 'conocimiento', sectionEn: 'knowledge', es: 'tema', en: 'topic' },
+  // Herramientas de Fase 3.
+  {
+    sectionEs: 'recursos',
+    sectionEn: 'resources',
+    es: 'checklist-recepcion-monitor',
+    en: 'monitor-receiving-checklist',
+  },
 ];
 
 const LEGAL_SLUG_PAIRS: Array<{ es: string; en: string }> = [

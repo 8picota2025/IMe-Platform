@@ -1,0 +1,502 @@
+---
+/**
+ * Herramienta D1 de Fase 3: checklist interactivo de recepción e instalación de monitores,
+ * con descarga en PDF tras registrar el lead (PdfDownloadGate, campaña `herramienta`).
+ * El avance sólo vive en el navegador de quien lo usa (localStorage).
+ */
+import PdfDownloadGate from './PdfDownloadGate.astro';
+import {
+  CHECKLIST_ARTICULO_SLUG,
+  CHECKLIST_RECEPCION_MONITOR_ID,
+  CHECKLIST_SECCIONES,
+  CHECKLIST_VALIDACION,
+  totalItemsChecklist,
+} from '../data/checklist-recepcion-monitor';
+import type { Locale } from '../i18n/utils';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const isEn = locale === 'en';
+const total = totalItemsChecklist();
+const modalId = 'checklist-recepcion-gate';
+const articuloHref = isEn
+  ? `/en/knowledge/${CHECKLIST_ARTICULO_SLUG}/`
+  : `/es/conocimiento/${CHECKLIST_ARTICULO_SLUG}/`;
+const contactoHref = isEn ? '/en/contact/' : '/es/contacto/';
+const titulo = isEn
+  ? 'Monitor receiving and installation checklist'
+  : 'Checklist de recepción e instalación de monitores';
+---
+
+<div
+  class="checklist-tool"
+  data-checklist-tool
+  data-tool-id={CHECKLIST_RECEPCION_MONITOR_ID}
+  data-locale={locale}
+  data-total={total}
+  data-gate-id={modalId}
+>
+  <div class="checklist-tool__bar" role="region" aria-label={isEn ? 'Progress' : 'Avance'}>
+    <div class="checklist-tool__progress">
+      <p class="checklist-tool__count" data-checklist-count aria-live="polite">
+        {isEn ? `0 of ${total} items checked` : `0 de ${total} puntos marcados`}
+      </p>
+      <progress data-checklist-progress max={total} value="0" aria-hidden="true"></progress>
+    </div>
+    <button type="button" class="btn btn-primary checklist-tool__download" data-checklist-download>
+      {isEn ? 'Download PDF' : 'Descargar PDF'}
+    </button>
+  </div>
+  <div class="checklist-tool__meta">
+    <p class="checklist-tool__status" data-checklist-status role="status" aria-live="polite"></p>
+    <button type="button" class="checklist-tool__reset" data-checklist-reset>
+      {isEn ? 'Clear all' : 'Desmarcar todo'}
+    </button>
+  </div>
+
+  <p class="checklist-tool__validation">
+    {CHECKLIST_VALIDACION[locale]}
+    {' '}
+    <a href={articuloHref}>{isEn ? 'Read the full guide' : 'Leer la guía completa'}</a>.
+  </p>
+
+  {
+    CHECKLIST_SECCIONES.map((seccion, i) => (
+      <fieldset class="checklist-tool__section">
+        <legend>
+          <span class="checklist-tool__step" aria-hidden="true">
+            {i + 1}
+          </span>
+          {seccion.titulo[locale]}
+        </legend>
+        <ul>
+          {seccion.items.map(item => (
+            <li>
+              <label>
+                <input type="checkbox" name={item.id} data-checklist-item />
+                <span>{item.texto[locale]}</span>
+              </label>
+            </li>
+          ))}
+        </ul>
+        {seccion.nota && <p class="checklist-tool__note">{seccion.nota[locale]}</p>}
+      </fieldset>
+    ))
+  }
+
+  <aside class="checklist-tool__cta">
+    <p>
+      {
+        isEn
+          ? 'Preparing monitors for a unit? I-ME coordinates installation, testing and training by shift.'
+          : '¿Está preparando monitores para un servicio? I-ME coordina la instalación, las pruebas y la capacitación por turnos.'
+      }
+    </p>
+    <a class="btn btn-secondary" href={contactoHref}>
+      {isEn ? 'Talk to an advisor' : 'Hablar con un asesor'}
+    </a>
+  </aside>
+</div>
+
+<PdfDownloadGate
+  locale={locale}
+  productName={titulo}
+  productSlug={CHECKLIST_RECEPCION_MONITOR_ID}
+  familySlug="monitores"
+  pdfUrl=""
+  modalId={modalId}
+  campaign="herramienta"
+  tipoProyecto={CHECKLIST_RECEPCION_MONITOR_ID}
+  eyebrow={isEn ? 'Free tool' : 'Herramienta gratuita'}
+  heading={isEn ? 'Download the checklist as a PDF' : 'Descarga el checklist en PDF'}
+  notice={null}
+  consentSubject={isEn
+    ? 'patient monitors and related equipment'
+    : 'monitores de paciente y equipos relacionados'}
+  necesidad={isEn
+    ? 'Downloaded the monitor receiving and installation checklist (tool).'
+    : 'Descarga del checklist de recepción e instalación de monitores (herramienta).'}
+/>
+
+<style>
+  .checklist-tool {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .checklist-tool__bar {
+    position: sticky;
+    top: 76px;
+    z-index: 5;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1rem;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1rem;
+    background: var(--white);
+    border: 1px solid var(--border-mid);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .checklist-tool__progress {
+    flex: 1 1 220px;
+    display: grid;
+    gap: 0.4rem;
+  }
+
+  .checklist-tool__count {
+    margin: 0;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--ink);
+  }
+
+  .checklist-tool__progress progress {
+    width: 100%;
+    height: 8px;
+    appearance: none;
+    border: 0;
+    border-radius: 999px;
+    background: var(--t100);
+    overflow: hidden;
+  }
+
+  .checklist-tool__progress progress::-webkit-progress-bar {
+    background: var(--t100);
+  }
+
+  .checklist-tool__progress progress::-webkit-progress-value {
+    background: var(--t900);
+    border-radius: 999px;
+  }
+
+  .checklist-tool__progress progress::-moz-progress-bar {
+    background: var(--t900);
+    border-radius: 999px;
+  }
+
+  .checklist-tool__meta {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: -0.5rem;
+  }
+
+  .checklist-tool__status {
+    margin: 0;
+    min-height: 1.2em;
+    font-size: 0.85rem;
+    color: var(--text-mid);
+  }
+
+  .checklist-tool__reset {
+    flex: none;
+    padding: 0.35rem 0.2rem;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: 0.85rem;
+    color: var(--t700);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .checklist-tool__reset:focus-visible {
+    outline: 3px solid var(--blue);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  .checklist-tool__validation {
+    margin: 0;
+    padding: 0.85rem 1rem;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--text-mid);
+    background: var(--t50);
+    border-radius: var(--radius);
+  }
+
+  .checklist-tool__section {
+    margin: 0;
+    padding: 1.1rem 1.25rem 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--white);
+  }
+
+  .checklist-tool__section legend {
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+    padding: 0 0.35rem;
+    font-weight: 700;
+    font-size: 1.02rem;
+    color: var(--ink);
+  }
+
+  .checklist-tool__step {
+    display: inline-grid;
+    place-items: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    font-size: 0.8rem;
+    color: var(--white);
+    background: var(--t900);
+  }
+
+  .checklist-tool__section ul {
+    list-style: none;
+    margin: 0.5rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0.15rem;
+  }
+
+  .checklist-tool__section label {
+    display: flex;
+    gap: 0.7rem;
+    align-items: flex-start;
+    padding: 0.55rem 0.4rem;
+    border-radius: 8px;
+    line-height: 1.5;
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  .checklist-tool__section label:hover {
+    background: var(--off);
+  }
+
+  .checklist-tool__section input[type='checkbox'] {
+    flex: none;
+    width: 1.1rem;
+    height: 1.1rem;
+    margin-top: 0.2rem;
+    accent-color: var(--t900);
+  }
+
+  .checklist-tool__section input:checked + span {
+    color: var(--text-muted);
+  }
+
+  .checklist-tool__note {
+    margin: 0.6rem 0 0;
+    padding-left: 2.2rem;
+    font-size: 0.85rem;
+    font-style: italic;
+    color: var(--text-mid);
+  }
+
+  .checklist-tool__cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem;
+    border-radius: var(--radius);
+    background: var(--off2);
+  }
+
+  .checklist-tool__cta p {
+    flex: 1 1 280px;
+    margin: 0;
+    color: var(--text);
+  }
+
+  @media (max-width: 560px) {
+    .checklist-tool__bar {
+      top: 64px;
+      flex-wrap: nowrap;
+      gap: 0.75rem;
+      padding: 0.55rem 0.65rem;
+    }
+    .checklist-tool__progress {
+      flex: 1 1 auto;
+      min-width: 0;
+      gap: 0.3rem;
+    }
+    .checklist-tool__count {
+      font-size: 0.8rem;
+    }
+    .checklist-tool__download {
+      padding: 0.55rem 0.9rem;
+      font-size: 0.85rem;
+    }
+    .checklist-tool__section {
+      padding: 0.9rem 0.85rem 1rem;
+    }
+    .checklist-tool__note {
+      padding-left: 0;
+    }
+  }
+
+  @media print {
+    .checklist-tool__bar,
+    .checklist-tool__meta,
+    .checklist-tool__cta {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  import { emitAnalyticsEvent } from '../lib/analytics';
+
+  const STORAGE_PREFIX = 'ime:herramienta:';
+
+  function leer(clave: string): string | null {
+    try {
+      return window.localStorage.getItem(STORAGE_PREFIX + clave);
+    } catch {
+      return null;
+    }
+  }
+
+  function guardar(clave: string, valor: string | null): void {
+    try {
+      if (valor === null) window.localStorage.removeItem(STORAGE_PREFIX + clave);
+      else window.localStorage.setItem(STORAGE_PREFIX + clave, valor);
+    } catch {
+      // Sin almacenamiento (modo privado): la herramienta funciona igual, sin recordar el avance.
+    }
+  }
+
+  function descargarBytes(bytes: Uint8Array, nombre: string): void {
+    const blob = new Blob([bytes as Uint8Array<ArrayBuffer>], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const enlace = document.createElement('a');
+    enlace.href = url;
+    enlace.download = nombre;
+    document.body.append(enlace);
+    enlace.click();
+    enlace.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 10_000);
+  }
+
+  function initChecklist(tool: HTMLElement) {
+    if (tool.dataset.bound === '1') return;
+    tool.dataset.bound = '1';
+    const toolId = tool.dataset.toolId ?? 'herramienta';
+    const locale = tool.dataset.locale === 'en' ? 'en' : 'es';
+    const total = Number(tool.dataset.total ?? '0');
+    const boxes = [...tool.querySelectorAll<HTMLInputElement>('[data-checklist-item]')];
+    const count = tool.querySelector<HTMLElement>('[data-checklist-count]');
+    const progress = tool.querySelector<HTMLProgressElement>('[data-checklist-progress]');
+    const status = tool.querySelector<HTMLElement>('[data-checklist-status]');
+    const gate = document.getElementById(tool.dataset.gateId ?? '') as HTMLDialogElement | null;
+    let empezado = false;
+    let completado = false;
+
+    const marcados = () => new Set(boxes.filter(b => b.checked).map(b => b.name));
+
+    const pintar = () => {
+      const hechos = boxes.filter(b => b.checked).length;
+      if (count) {
+        count.textContent =
+          locale === 'en'
+            ? `${hechos} of ${total} items checked`
+            : `${hechos} de ${total} puntos marcados`;
+      }
+      if (progress) progress.value = hechos;
+      return hechos;
+    };
+
+    try {
+      const guardado = JSON.parse(leer(`${toolId}:marcados`) ?? '[]') as unknown;
+      if (Array.isArray(guardado)) {
+        const ids = new Set(guardado.filter((v): v is string => typeof v === 'string'));
+        boxes.forEach(b => (b.checked = ids.has(b.name)));
+      }
+    } catch {
+      // Avance guardado ilegible: se empieza en blanco.
+    }
+    completado = pintar() === total;
+
+    tool.addEventListener('change', event => {
+      if (!(event.target instanceof HTMLInputElement)) return;
+      const hechos = pintar();
+      guardar(`${toolId}:marcados`, JSON.stringify([...marcados()]));
+      if (!empezado) {
+        empezado = true;
+        emitAnalyticsEvent('tool_start', { content_id: toolId, page_path: location.pathname });
+      }
+      if (hechos === total && !completado) {
+        completado = true;
+        emitAnalyticsEvent('tool_complete', { content_id: toolId, page_path: location.pathname });
+      }
+      if (hechos < total) completado = false;
+    });
+
+    tool.querySelector('[data-checklist-reset]')?.addEventListener('click', () => {
+      boxes.forEach(b => (b.checked = false));
+      pintar();
+      completado = false;
+      guardar(`${toolId}:marcados`, null);
+      if (status)
+        status.textContent = locale === 'en' ? 'Checklist cleared.' : 'Checklist reiniciado.';
+    });
+
+    const generar = async () => {
+      if (status)
+        status.textContent = locale === 'en' ? 'Preparing the PDF…' : 'Preparando el PDF…';
+      try {
+        const { generarChecklistPdf } = await import('../lib/checklist-pdf');
+        const bytes = await generarChecklistPdf({
+          locale,
+          marcados: marcados(),
+          fecha: new Date().toLocaleDateString(locale === 'en' ? 'en-US' : 'es-CO'),
+          url: `${location.origin}${location.pathname}`,
+        });
+        descargarBytes(
+          bytes,
+          locale === 'en'
+            ? 'i-me-monitor-receiving-checklist.pdf'
+            : 'i-me-checklist-recepcion-monitor.pdf'
+        );
+        if (status) status.textContent = locale === 'en' ? 'PDF downloaded.' : 'PDF descargado.';
+      } catch {
+        if (status) {
+          status.textContent =
+            locale === 'en'
+              ? 'We could not generate the PDF. Try again.'
+              : 'No pudimos generar el PDF. Intenta de nuevo.';
+        }
+      }
+    };
+
+    gate?.addEventListener('pdf-gate:registered', () => {
+      guardar(`${toolId}:registrado`, '1');
+      window.setTimeout(() => {
+        gate.close();
+        void generar();
+      }, 600);
+    });
+
+    tool.querySelector('[data-checklist-download]')?.addEventListener('click', () => {
+      // Quien ya dejó sus datos en este navegador descarga directamente.
+      if (leer(`${toolId}:registrado`) === '1' || !gate) {
+        void generar();
+        return;
+      }
+      if (!gate.open) gate.showModal();
+      document.body.style.overflow = 'hidden';
+      gate.querySelector<HTMLInputElement>('input[name="nombre"]')?.focus();
+    });
+  }
+
+  function bootChecklists() {
+    document.querySelectorAll<HTMLElement>('[data-checklist-tool]').forEach(initChecklist);
+  }
+
+  bootChecklists();
+  document.addEventListener('astro:page-load', bootChecklists);
+</script>

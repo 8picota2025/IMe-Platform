@@ -2541,7 +2541,7 @@ const SILLAS: ContentMap = {
 
 type StandardCampaignLandingId = Exclude<
   CampaignLandingId,
-  'proyectos' | 'pdf_descarga' | 'evento' | FabricanteLandingId
+  'proyectos' | 'pdf_descarga' | 'herramienta' | 'evento' | FabricanteLandingId
 >;
 
 const META: Record<

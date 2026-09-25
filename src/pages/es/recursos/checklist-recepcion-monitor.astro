@@ -1,0 +1,81 @@
+---
+/** Herramienta D1 de Fase 3 (docs/growth-engine/fase3-plan.md). */
+import Layout from '../../../layouts/Layout.astro';
+import ChecklistRecepcionMonitor from '../../../components/ChecklistRecepcionMonitor.astro';
+import {
+  buildPageTitle,
+  buildCanonical,
+  buildOrganizationJsonLd,
+  buildBreadcrumbJsonLd,
+  combineJsonLd,
+} from '../../../lib/seo';
+import { t } from '../../../i18n/utils';
+
+const locale = 'es' as const;
+const path = '/es/recursos/checklist-recepcion-monitor';
+const canonical = buildCanonical(path);
+const title = buildPageTitle('Checklist de recepción e instalación de monitores');
+const description =
+  'Checklist interactivo para recibir e instalar un monitor de paciente: preparación, recepción, documentos, pruebas, capacitación y acta. Validado por ingeniería biomédica. Descárgalo en PDF.';
+
+const jsonLd = combineJsonLd(
+  buildOrganizationJsonLd(),
+  buildBreadcrumbJsonLd([
+    { name: t(locale, 'catalogo.migas_inicio'), url: buildCanonical('/es/') },
+    { name: 'Recursos', url: buildCanonical('/es/recursos') },
+    { name: 'Checklist de recepción de monitores', url: canonical },
+  ])
+);
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  locale={locale}
+  currentPath={path}
+  jsonLd={jsonLd}
+>
+  <div class="page-hero checklist-hero">
+    <div class="container checklist-hero__inner">
+      <p class="checklist-hero__eyebrow">Herramienta gratuita · Monitoreo UCI</p>
+      <h1>Checklist de recepción e instalación de monitores</h1>
+      <p class="checklist-hero__lead">
+        Marca cada punto desde que se confirma la compra hasta que el monitor se usa con pacientes.
+        Tu avance se guarda en este navegador y puedes descargar el checklist en PDF para firmarlo
+        con el proveedor.
+      </p>
+    </div>
+  </div>
+  <section class="container checklist-page">
+    <ChecklistRecepcionMonitor locale={locale} />
+  </section>
+</Layout>
+
+<style>
+  .checklist-hero {
+    padding-top: 130px;
+    padding-bottom: var(--space-lg);
+    background: var(--off);
+  }
+  .checklist-hero__inner,
+  .checklist-page {
+    max-width: 820px;
+  }
+  .checklist-hero__eyebrow {
+    margin: 0 0 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--t700);
+  }
+  .checklist-hero__lead {
+    margin: 0.75rem 0 0;
+    line-height: 1.55;
+    color: var(--text-mid);
+  }
+  .checklist-page {
+    padding: var(--space-lg) 0 var(--space-xl);
+  }
+</style>

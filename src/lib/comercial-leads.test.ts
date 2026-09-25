@@ -107,6 +107,7 @@ describe('isTurnstileOptionalCampaign', () => {
   it('deja pasar evento, descargas de ficha y modal global si el challenge 600* falla', () => {
     expect(isTurnstileOptionalCampaign('evento')).toBe(true);
     expect(isTurnstileOptionalCampaign('pdf_descarga')).toBe(true);
+    expect(isTurnstileOptionalCampaign('herramienta')).toBe(true);
     expect(isTurnstileOptionalCampaign('proyectos')).toBe(true);
   });
 

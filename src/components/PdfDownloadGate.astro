@@ -6,12 +6,36 @@ interface Props {
   productName: string;
   productSlug: string;
   familySlug: string;
+  /** Vacío: el gate sólo registra el lead y emite `pdf-gate:registered` (p. ej. un PDF generado en el navegador). */
   pdfUrl: string;
   modalId: string;
+  /** Lead magnets que no son la ficha de un producto (herramientas de Fase 3). */
+  campaign?: 'pdf_descarga' | 'herramienta';
+  tipoProyecto?: string;
+  eyebrow?: string;
+  heading?: string;
+  /** `null` oculta el aviso de configuración de producto. */
+  notice?: string | null;
+  consentSubject?: string;
+  necesidad?: string;
 }
 
 const { locale, productName, productSlug, familySlug, pdfUrl, modalId } = Astro.props;
 const isEn = locale === 'en';
+const campaign = Astro.props.campaign ?? 'pdf_descarga';
+const tipoProyecto = Astro.props.tipoProyecto ?? 'descarga_ficha_tecnica';
+const eyebrow = Astro.props.eyebrow ?? (isEn ? 'Technical document' : 'Documento técnico');
+const heading =
+  Astro.props.heading ?? (isEn ? 'Download the product PDF' : 'Descarga el PDF del producto');
+const notice =
+  Astro.props.notice === undefined
+    ? isEn
+      ? 'Some equipment is configurable. Dimensions, accessories, modules and other specifications may differ from those shown in this generic document. Confirm the final configuration and current manufacturer documentation in the formal quote.'
+      : 'Algunos equipos son configurables. Las dimensiones, accesorios, módulos y otras especificaciones pueden cambiar respecto a las expuestas en este documento genérico. Confirma la configuración final y la documentación vigente del fabricante en la cotización formal.'
+    : Astro.props.notice;
+const consentSubject =
+  Astro.props.consentSubject ??
+  (isEn ? 'this product and related equipment' : 'este producto y equipos relacionados');
 const privacyHref = isEn ? '/en/legal/privacy/' : '/es/legal/privacidad/';
 const habeasHref = isEn ? '/en/legal/data-authorization/' : '/es/legal/habeas-data/';
 ---
@@ -25,6 +49,9 @@ const habeasHref = isEn ? '/en/legal/data-authorization/' : '/es/legal/habeas-da
   data-product-slug={productSlug}
   data-family-slug={familySlug}
   data-locale={locale}
+  data-campaign={campaign}
+  data-tipo-proyecto={tipoProyecto}
+  data-necesidad={Astro.props.necesidad ?? ''}
   aria-labelledby={`${modalId}-title`}
 >
   <form class="pdf-gate__form" data-pdf-gate-form novalidate>
@@ -36,21 +63,17 @@ const habeasHref = isEn ? '/en/legal/data-authorization/' : '/es/legal/habeas-da
     >
       ×
     </button>
-    <p class="pdf-gate__eyebrow">{isEn ? 'Technical document' : 'Documento técnico'}</p>
-    <h2 id={`${modalId}-title`}>
-      {isEn ? 'Download the product PDF' : 'Descarga el PDF del producto'}
-    </h2>
+    <p class="pdf-gate__eyebrow">{eyebrow}</p>
+    <h2 id={`${modalId}-title`}>{heading}</h2>
     <p class="pdf-gate__product" data-pdf-product>{productName}</p>
-    <div class="pdf-gate__notice" role="note">
-      <strong>{isEn ? 'Before downloading' : 'Antes de descargar'}</strong>
-      <span>
-        {
-          isEn
-            ? 'Some equipment is configurable. Dimensions, accessories, modules and other specifications may differ from those shown in this generic document. Confirm the final configuration and current manufacturer documentation in the formal quote.'
-            : 'Algunos equipos son configurables. Las dimensiones, accesorios, módulos y otras especificaciones pueden cambiar respecto a las expuestas en este documento genérico. Confirma la configuración final y la documentación vigente del fabricante en la cotización formal.'
-        }
-      </span>
-    </div>
+    {
+      notice && (
+        <div class="pdf-gate__notice" role="note">
+          <strong>{isEn ? 'Before downloading' : 'Antes de descargar'}</strong>
+          <span>{notice}</span>
+        </div>
+      )
+    }
 
     <div class="pdf-gate__grid">
       <label>
@@ -84,8 +107,8 @@ const habeasHref = isEn ? '/en/legal/data-authorization/' : '/es/legal/habeas-da
       <span>
         {
           isEn
-            ? 'I authorize I-ME to contact me about this product and related equipment, under the '
-            : 'Autorizo a I-ME a contactarme sobre este producto y equipos relacionados, conforme a la '
+            ? `I authorize I-ME to contact me about ${consentSubject}, under the `
+            : `Autorizo a I-ME a contactarme sobre ${consentSubject}, conforme a la `
         }
         <a href={privacyHref} target="_blank" rel="noopener noreferrer"
           >{isEn ? 'privacy policy' : 'política de privacidad'}</a
@@ -317,7 +340,8 @@ const habeasHref = isEn ? '/en/legal/data-authorization/' : '/es/legal/habeas-da
         );
         return;
       }
-      const attribution = captureCommercialAttribution('pdf_descarga');
+      const campaign = gate.dataset.campaign === 'herramienta' ? 'herramienta' : 'pdf_descarga';
+      const attribution = captureCommercialAttribution(campaign);
       const originalText = submit?.textContent ?? '';
       if (submit) {
         submit.disabled = true;
@@ -330,7 +354,7 @@ const habeasHref = isEn ? '/en/legal/data-authorization/' : '/es/legal/habeas-da
         const result = await supabase.functions.invoke('registrar-lead-comercial', {
           body: {
             idempotencyKey: idempotencyKey(),
-            campaign: 'pdf_descarga',
+            campaign,
             locale,
             nombre,
             institucion,
@@ -339,9 +363,11 @@ const habeasHref = isEn ? '/en/legal/data-authorization/' : '/es/legal/habeas-da
             ...(telefono ? { telefono } : {}),
             familia_slug: gate.dataset.familySlug ?? '',
             tipo_slug: gate.dataset.productSlug ?? '',
-            tipo_proyecto: 'descarga_ficha_tecnica',
+            tipo_proyecto: gate.dataset.tipoProyecto || 'descarga_ficha_tecnica',
             horizonte: 'exploracion',
-            necesidad: `${locale === 'en' ? 'Technical PDF download requested for' : 'Solicitud de descarga de ficha técnica de'} ${gate.dataset.productName ?? ''}.`,
+            necesidad:
+              gate.dataset.necesidad ||
+              `${locale === 'en' ? 'Technical PDF download requested for' : 'Solicitud de descarga de ficha técnica de'} ${gate.dataset.productName ?? ''}.`,
             consentimiento: data.get('consentimiento') === '1',
             website: String(data.get('website') ?? ''),
             landing_path: window.location.pathname,
@@ -366,8 +392,11 @@ const habeasHref = isEn ? '/en/legal/data-authorization/' : '/es/legal/habeas-da
         }
         return;
       }
-      rememberCommercialLead(response.leadId, 'pdf_descarga');
-      emitAnalyticsEvent('pdf_download', {
+      rememberCommercialLead(response.leadId, campaign);
+      gate.dispatchEvent(
+        new CustomEvent('pdf-gate:registered', { detail: { leadId: response.leadId } })
+      );
+      emitAnalyticsEvent(campaign === 'herramienta' ? 'lead_magnet_download' : 'pdf_download', {
         product_slug: gate.dataset.productSlug ?? '',
         gated: true,
         page_path: window.location.pathname,
