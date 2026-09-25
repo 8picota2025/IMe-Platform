@@ -94,11 +94,44 @@ function mapOutbound(row: OutboundDb): OutboundEventRow {
   };
 }
 
+function pausasAusentes(error: { code?: string; message?: string }): boolean {
+  return (
+    error.code === '42P01' ||
+    error.code === 'PGRST205' ||
+    /whatsapp_contact_pauses/i.test(error.message ?? '')
+  );
+}
+
+async function cargarPausados(
+  supabase: SupabaseClient,
+  fromWa: string | null
+): Promise<string[] | null> {
+  let query = supabase.from('whatsapp_contact_pauses').select('wa_id').eq('paused', true);
+  if (fromWa) query = query.eq('wa_id', fromWa);
+  const { data, error } = await query;
+  if (!error) {
+    return ((data ?? []) as Array<{ wa_id?: string }>)
+      .map(fila => fila.wa_id ?? '')
+      .filter(waId => waId.length > 0);
+  }
+  if (pausasAusentes(error)) {
+    console.warn('[whatsapp-dispatch] whatsapp_contact_pauses aún no existe');
+    return [];
+  }
+  console.error('[whatsapp-dispatch] pausas:', error.message);
+  return null;
+}
+
 async function cargarSnapshot(
   supabase: SupabaseClient,
   fromWa: string | null,
   now: Date
-): Promise<{ events: InboundEventRow[]; outbound: OutboundEventRow[]; outboundOk: boolean }> {
+): Promise<{
+  events: InboundEventRow[];
+  outbound: OutboundEventRow[];
+  outboundOk: boolean;
+  pausedWaIds: string[] | null;
+}> {
   const since = new Date(now.getTime() - WHATSAPP_PENDING_WINDOW_MS).toISOString();
   let inboundQuery = supabase
     .from('whatsapp_inbound_events')
@@ -117,10 +150,14 @@ async function cargarSnapshot(
     .limit(1000);
   if (fromWa) outboundQuery = outboundQuery.eq('to_wa', fromWa);
 
-  const [inboundRes, outboundRes] = await Promise.all([inboundQuery, outboundQuery]);
+  const [inboundRes, outboundRes, pausedWaIds] = await Promise.all([
+    inboundQuery,
+    outboundQuery,
+    cargarPausados(supabase, fromWa),
+  ]);
   if (inboundRes.error) {
     console.error('[whatsapp-dispatch] inbound:', inboundRes.error.message);
-    return { events: [], outbound: [], outboundOk: false };
+    return { events: [], outbound: [], outboundOk: false, pausedWaIds };
   }
   if (outboundRes.error) {
     console.error('[whatsapp-dispatch] outbound:', outboundRes.error.message);
@@ -132,7 +169,7 @@ async function cargarSnapshot(
   const outbound = outboundRes.error
     ? []
     : ((outboundRes.data ?? []) as OutboundDb[]).map(mapOutbound);
-  return { events, outbound, outboundOk: !outboundRes.error };
+  return { events, outbound, outboundOk: !outboundRes.error, pausedWaIds };
 }
 
 async function liberarReclamo(supabase: SupabaseClient, token: string): Promise<void> {
@@ -367,9 +404,15 @@ export async function despacharWhatsAppImeia(opts: {
   const fetchImpl = opts.fetchImpl ?? fetch;
   const fromWa = opts.fromWa ?? null;
   const snapshot = await cargarSnapshot(opts.supabase, fromWa, now);
+  if (snapshot.pausedWaIds === null) return { wakes: 0, holdings: 0 };
   if (snapshot.events.length === 0) return { wakes: 0, holdings: 0 };
 
-  const plan = planWhatsAppDispatch({ now, events: snapshot.events, outbound: snapshot.outbound });
+  const plan = planWhatsAppDispatch({
+    now,
+    events: snapshot.events,
+    outbound: snapshot.outbound,
+    pausedWaIds: snapshot.pausedWaIds,
+  });
   let wakes = 0;
   let holdings = 0;
 

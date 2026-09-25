@@ -168,6 +168,11 @@ describe('reclamo de lote', () => {
     ).toEqual([]);
   });
 
+  it('un cliente en pausa no se reclama', () => {
+    const ahora = T0 + 27_000 + WHATSAPP_QUIET_MS;
+    expect(reclamarLoteWhatsApp(base, FROM, ahora, { paused: true })).toEqual([]);
+  });
+
   it('no reclama un contacto ignorado y sí recupera un reclamo vencido', () => {
     const ahora = T0 + WHATSAPP_QUIET_MS + 5_000;
     const ignorado: FilaReclamo[] = [
@@ -230,6 +235,18 @@ describe('plan de despacho', () => {
       text: 'el de 12 pulgadas',
     });
     expect(listo.holdings).toEqual([]);
+  });
+
+  it('un cliente en pausa no despierta al agente ni recibe espera', () => {
+    const events = [pendiente({ wamid: 'wamid.pausa', createdAt: new Date(T0).toISOString() })];
+    const plan = planWhatsAppDispatch({
+      now: new Date(T0 + WHATSAPP_HOLDING_AFTER_MS + 5_000),
+      events,
+      outbound: [],
+      pausedWaIds: [FROM],
+    });
+    expect(plan.wakes).toEqual([]);
+    expect(plan.holdings).toEqual([]);
   });
 
   it('manda una sola espera variada si el pendiente supera el minuto y nadie ha escrito', () => {

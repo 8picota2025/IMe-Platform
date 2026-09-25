@@ -86,6 +86,8 @@ export interface PlanWhatsAppDispatchInput {
   now: Date;
   events: readonly InboundEventRow[];
   outbound: readonly OutboundEventRow[];
+  /** Clientes con `#pausa` vigente. Ni wake ni espera. */
+  pausedWaIds?: readonly string[];
   quietMs?: number;
   holdingAfterMs?: number;
   holdingMinGapMs?: number;
@@ -123,12 +125,12 @@ export function reclamarLoteWhatsApp(
   filas: readonly FilaReclamo[],
   fromWa: string,
   nowMs: number,
-  options: { quietMs?: number; claimTtlMs?: number; ventanaMs?: number } = {}
+  options: { quietMs?: number; claimTtlMs?: number; ventanaMs?: number; paused?: boolean } = {}
 ): string[] {
   const quietMs = options.quietMs ?? WHATSAPP_QUIET_MS;
   const claimTtlMs = options.claimTtlMs ?? WHATSAPP_CLAIM_TTL_MS;
   const ventanaMs = options.ventanaMs ?? WHATSAPP_PENDING_WINDOW_MS;
-  if (!fromWa.trim() || esRemitenteGrupo(fromWa)) return [];
+  if (!fromWa.trim() || esRemitenteGrupo(fromWa) || options.paused) return [];
 
   const enVentana = filas.filter(fila => {
     if (fila.fromWa !== fromWa) return false;
@@ -172,10 +174,11 @@ export function planWhatsAppDispatch(input: PlanWhatsAppDispatchInput): Dispatch
 
   const wakes: WakePlan[] = [];
   const holdings: HoldingPlan[] = [];
+  const pausados = new Set(input.pausedWaIds ?? []);
   const remitentes = [...porRemitente.keys()].sort();
 
   for (const fromWa of remitentes) {
-    if (esRemitenteGrupo(fromWa)) continue;
+    if (esRemitenteGrupo(fromWa) || pausados.has(fromWa)) continue;
     const eventos = porRemitente.get(fromWa) ?? [];
     const pending = eventos.filter(evento => {
       if (evento.status !== 'pending_agent') return false;

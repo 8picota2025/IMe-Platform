@@ -52,9 +52,21 @@ export interface WhatsAppStatusEvent {
   recipientId: string | null;
 }
 
+/** Mensaje que Shoky envió desde la app (eco). `waId` es el cliente (`to`). */
+export interface WhatsAppManualEcho {
+  wamid: string;
+  waId: string;
+  fromWa: string;
+  text: string;
+  timestamp: string;
+  phoneNumberId: string | null;
+  field: string;
+}
+
 export interface ParsedWhatsAppWebhook {
   object: string | null;
   texts: InboundWhatsAppText[];
+  echoes: WhatsAppManualEcho[];
   statuses: WhatsAppStatusEvent[];
   ignored: Array<{ reason: string; wamid?: string }>;
 }
@@ -213,15 +225,64 @@ function isGroupMessage(raw: Record<string, unknown>): boolean {
   return /@g\.us\b/i.test(from) || from.includes('-');
 }
 
+function esIdentificadorGrupo(valor: string): boolean {
+  return /@g\.us\b/i.test(valor) || valor.includes('-');
+}
+
+function considerarEco(
+  row: unknown,
+  field: string,
+  phoneNumberId: string | null,
+  echoes: WhatsAppManualEcho[],
+  ignored: Array<{ reason: string; wamid?: string }>
+): void {
+  const message = asRecord(row);
+  if (!message) return;
+  const wamid = asString(message.id).trim();
+  const rawTo = asString(message.to);
+  const waId = rawTo.replace(/\D/g, '');
+  const fromWa = asString(message.from).replace(/\D/g, '');
+  if (!wamid || !waId) {
+    ignored.push(wamid ? { reason: 'malformed_echo', wamid } : { reason: 'malformed_echo' });
+    return;
+  }
+  if (esIdentificadorGrupo(rawTo) || esIdentificadorGrupo(fromWa)) {
+    ignored.push({ reason: 'group', wamid });
+    return;
+  }
+  const type = asString(message.type) || 'unknown';
+  if (type !== 'text') {
+    ignored.push({ reason: `echo_unsupported_type:${type}`, wamid });
+    return;
+  }
+  const textObj = asRecord(message.text);
+  const text = asString(textObj?.body).trim();
+  if (!text) {
+    ignored.push({ reason: 'empty_text', wamid });
+    return;
+  }
+  echoes.push({
+    wamid,
+    waId,
+    fromWa,
+    text: text.slice(0, 4096),
+    timestamp: asString(message.timestamp),
+    phoneNumberId,
+    field: field || 'message_echoes',
+  });
+}
+
 export function parseWhatsAppWebhook(payload: unknown): ParsedWhatsAppWebhook {
   const root = asRecord(payload);
   const object = root ? asString(root.object) || null : null;
   const texts: InboundWhatsAppText[] = [];
+  const echoes: WhatsAppManualEcho[] = [];
   const statuses: WhatsAppStatusEvent[] = [];
   const ignored: Array<{ reason: string; wamid?: string }> = [];
+  const propio = IME_WHATSAPP_E164.replace(/\D/g, '');
 
   if (!root || object !== 'whatsapp_business_account') {
-    return { object, texts, statuses, ignored: [...ignored, { reason: 'not_whatsapp' }] };
+    return { object, texts, echoes, statuses, ignored: [...ignored, { reason: 'not_whatsapp' }] };
   }
 
   const entries = Array.isArray(root.entry) ? root.entry : [];
@@ -233,6 +294,7 @@ export function parseWhatsAppWebhook(payload: unknown): ParsedWhatsAppWebhook {
       const changeObj = asRecord(change);
       const value = changeObj ? asRecord(changeObj.value) : null;
       if (!value) continue;
+      const field = changeObj ? asString(changeObj.field) : '';
 
       const metadata = asRecord(value.metadata);
       const phoneNumberId = metadata ? asString(metadata.phone_number_id) || null : null;
@@ -254,12 +316,26 @@ export function parseWhatsAppWebhook(payload: unknown): ParsedWhatsAppWebhook {
         });
       }
 
+      const echoRows = [
+        ...(Array.isArray(value.message_echoes) ? value.message_echoes : []),
+        ...(Array.isArray(value.smb_message_echoes) ? value.smb_message_echoes : []),
+      ];
+      for (const row of echoRows) {
+        considerarEco(row, field || 'message_echoes', phoneNumberId, echoes, ignored);
+      }
+
       const messageRows = Array.isArray(value.messages) ? value.messages : [];
       for (const row of messageRows) {
         const message = asRecord(row);
         if (!message) continue;
+        const toRaw = asString(message.to).trim();
+        const fromDigits = asString(message.from).replace(/\D/g, '');
+        if (toRaw && fromDigits === propio && fromDigits !== toRaw.replace(/\D/g, '')) {
+          considerarEco(message, field || 'messages', phoneNumberId, echoes, ignored);
+          continue;
+        }
         const wamid = asString(message.id).trim();
-        const from = asString(message.from).replace(/\D/g, '');
+        const from = fromDigits;
         const type = asString(message.type) || 'unknown';
         if (!wamid || !from) {
           ignored.push(
@@ -295,7 +371,7 @@ export function parseWhatsAppWebhook(payload: unknown): ParsedWhatsAppWebhook {
     }
   }
 
-  return { object, texts, statuses, ignored };
+  return { object, texts, echoes, statuses, ignored };
 }
 
 export function isStatusOnlyWebhook(parsed: ParsedWhatsAppWebhook): boolean {

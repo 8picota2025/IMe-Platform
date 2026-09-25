@@ -1061,9 +1061,9 @@ CREATE TABLE IF NOT EXISTS whatsapp_inbound_events (
   from_wa          TEXT,
   phone_number_id  TEXT,
   kind             TEXT NOT NULL DEFAULT 'message'
-                   CHECK (kind IN ('message', 'status', 'ignored')),
+                   CHECK (kind IN ('message', 'status', 'ignored', 'echo')),
   status           TEXT NOT NULL DEFAULT 'claimed'
-                   CHECK (status IN ('claimed', 'replied', 'ignored', 'rate_limited', 'send_failed', 'pending_agent')),
+                   CHECK (status IN ('claimed', 'replied', 'ignored', 'rate_limited', 'send_failed', 'pending_agent', 'human_paused', 'echo')),
   body             TEXT,
   agent_claimed_at TIMESTAMPTZ,
   agent_claim_token UUID,
@@ -1107,9 +1107,23 @@ CREATE UNIQUE INDEX IF NOT EXISTS uniq_whatsapp_outbound_holding_turn
   ON whatsapp_outbound_messages (to_wa, turn_key)
   WHERE kind = 'holding' AND turn_key IS NOT NULL;
 
+CREATE UNIQUE INDEX IF NOT EXISTS uniq_whatsapp_outbound_wamid
+  ON whatsapp_outbound_messages (wamid)
+  WHERE wamid IS NOT NULL;
+
 -- La función claim_whatsapp_agent_batch vive en
 -- supabase/migrations/20260925143000_whatsapp_outbound_dispatch.sql
+-- y 20260925160000 la reemplaza para saltar clientes en pausa
 -- (no se duplica aquí: SECURITY DEFINER + grants solo service_role).
+
+-- Pausa de IMEIA por chat. El valor lo escribe el webhook con el eco #pausa / #activa.
+CREATE TABLE IF NOT EXISTS whatsapp_contact_pauses (
+  wa_id      TEXT PRIMARY KEY CHECK (wa_id ~ '^[0-9]{8,15}$'),
+  paused     BOOLEAN NOT NULL,
+  paused_at  TIMESTAMPTZ,
+  resumed_at TIMESTAMPTZ,
+  updated_by TEXT
+);
 
 -- Bearer del cron. El valor lo genera la migración 20260925150000; aquí solo
 -- el contenedor, para no inventar un token en el archivo.
@@ -1437,6 +1451,10 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE whatsapp_outbound_messages TO serv
 ALTER TABLE whatsapp_dispatch_auth ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON TABLE whatsapp_dispatch_auth FROM PUBLIC, anon, authenticated;
 GRANT SELECT ON TABLE whatsapp_dispatch_auth TO service_role;
+
+ALTER TABLE whatsapp_contact_pauses ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON TABLE whatsapp_contact_pauses FROM PUBLIC, anon, authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE whatsapp_contact_pauses TO service_role;
 
 -- perfiles admin: cada usuario ve su perfil; owner/admin gestiona todos
 ALTER TABLE admin_profiles ENABLE ROW LEVEL SECURITY;
