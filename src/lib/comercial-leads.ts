@@ -30,11 +30,51 @@ export type CampaignLandingId =
   | 'camillas_medicas'
   | 'ventiladores_mecanicos'
   | 'desfibriladores_hospital'
+  | 'dotacion_monitoreo_uci'
   | 'proyectos'
   | 'pdf_descarga'
   | 'herramienta'
   | 'evento'
   | FabricanteLandingId;
+
+/**
+ * Campañas que acepta `registrar-lead-comercial`. El `Record` obliga a registrar aquí cada
+ * campaña nueva del tipo: antes la Edge Function mantenía su propia lista y 7 landings de
+ * campaña quedaron fuera (sus formularios devolvían «campaign invalida»).
+ */
+const CAMPAIGN_FLAGS: Record<CampaignLandingId, true> = {
+  torres_laparoscopia: true,
+  esterilizacion: true,
+  imagenologia: true,
+  robotica_rehabilitacion: true,
+  caminadores_adultos: true,
+  sillas_ruedas: true,
+  monitores_biolight: true,
+  alto_flujo_fisher_paykel: true,
+  camillas_medicas: true,
+  ventiladores_mecanicos: true,
+  desfibriladores_hospital: true,
+  dotacion_monitoreo_uci: true,
+  proyectos: true,
+  pdf_descarga: true,
+  herramienta: true,
+  evento: true,
+  fab_tuttnauer: true,
+  fab_saikang: true,
+  fab_angell: true,
+  fab_northern: true,
+  fab_ilumitec: true,
+  fab_perlong: true,
+  fab_bm: true,
+  fab_advanced: true,
+  fab_m: true,
+};
+
+export const CAMPAIGN_IDS = Object.keys(CAMPAIGN_FLAGS) as CampaignLandingId[];
+
+export function isKnownCampaign(value: string | null | undefined): value is CampaignLandingId {
+  return Boolean(value && Object.prototype.hasOwnProperty.call(CAMPAIGN_FLAGS, value));
+}
 
 export type HorizonteCompra = '0-3' | '4-12' | 'exploracion';
 

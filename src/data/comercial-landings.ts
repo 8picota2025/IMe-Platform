@@ -60,6 +60,13 @@ export interface CampaignLandingContent {
   tertiaryCta: string;
   heroImage: string;
   heroImageAlt: string;
+  /** Dimensiones reales de `heroImage`; por defecto 900×1041 (retrato). */
+  heroImageWidth?: number;
+  heroImageHeight?: number;
+  /** Herramienta o lead magnet destacado (Fase 3, mandato §6). */
+  leadMagnet?: { label: string; title: string; body: string; href: string; cta: string };
+  /** Guías del Centro de Conocimiento en las que se apoya el contenido. */
+  relatedGuides?: { title: string; href: string }[];
   problemTitle: string;
   problemBody: string;
   solutionsTitle: string;
@@ -2539,6 +2546,315 @@ const SILLAS: ContentMap = {
   },
 };
 
+/**
+ * Fase 3, D2 (`docs/growth-engine/fase3-plan.md`): landing por proyecto, no por marca.
+ * Todo el contenido técnico sale de la validación biomédica del 2026-09-24 (cluster
+ * Monitoreo/UCI); los productos son los que citan esos artículos.
+ */
+const DOTACION_MONITOREO_UCI: ContentMap = {
+  es: {
+    tag: 'Proyectos UCI · Monitoreo',
+    title: 'Dotación de monitoreo para UCI: monitores y central | I-ME',
+    description:
+      '¿Abre o amplía camas de UCI? Dimensionamos el monitoreo por tipo de paciente, decidimos central o monitores independientes y acompañamos instalación y capacitación.',
+    h1: 'Dotar el monitoreo de una UCI, de la primera cama al acta de entrega',
+    lead: 'Si está abriendo una UCI o ampliando camas, el monitor es solo una parte. Le ayudamos a definir qué necesita cada cama según el paciente, si conviene una central y qué hay que preparar para que el equipo funcione desde el primer turno.',
+    formIntro:
+      'Cuéntenos cuántas camas, qué tipo de paciente y en qué plazo. Un asesor le responde con una propuesta pensada para su servicio.',
+    primaryCta: 'Quiero dimensionar mi proyecto',
+    secondaryCta: 'Escribir por WhatsApp',
+    tertiaryCta: 'Ver monitores en catálogo',
+    heroImage: '/assets/img/central-monitoreo-multicama.webp',
+    heroImageAlt: 'Central de monitoreo de una UCI con los datos de varias camas en pantalla',
+    heroImageWidth: 1400,
+    heroImageHeight: 788,
+    leadMagnet: {
+      label: 'Herramienta gratuita',
+      title: 'Checklist de recepción e instalación de monitores',
+      body: 'Los 36 puntos que conviene preparar, verificar y dejar firmados desde que se confirma la compra hasta el uso con pacientes. Márquelos en línea y descárguelo en PDF.',
+      href: '/es/recursos/checklist-recepcion-monitor/',
+      cta: 'Abrir el checklist',
+    },
+    relatedGuides: [
+      {
+        title: 'Guía completa de monitores multiparamétricos hospitalarios',
+        href: '/es/conocimiento/guia-monitores-multiparametricos-hospitalarios-colombia/',
+      },
+      {
+        title: 'Monitores para UCI adulto, pediátrica y neonatal',
+        href: '/es/conocimiento/monitores-uci-adulto-pediatrica-neonatal/',
+      },
+      {
+        title: 'Central de monitoreo multicama o monitores independientes',
+        href: '/es/conocimiento/central-monitoreo-multicama-o-monitores-independientes/',
+      },
+    ],
+    problemTitle: 'Dónde se complica un proyecto de monitoreo',
+    problemBody:
+      'Muchos problemas de la primera semana no son del monitor: una toma sin polo a tierra, una red que la central no reconoce, sensores de un solo tamaño o un único turno capacitado. Se evitan si se prevén desde la cotización.',
+    solutionsTitle: 'Cómo le ayudamos a dimensionarlo',
+    solutions: [
+      {
+        pain: 'No está claro si cada cama necesita un monitor básico o uno de UCI avanzado',
+        help: 'Si el servicio requiere monitoreo invasivo de rutina o atiende pacientes en ventilación mecánica o de alto riesgo, UCI avanzado. Si el volumen es alto y la complejidad baja, un básico o intermedio suele bastar.',
+      },
+      {
+        pain: 'La unidad atiende adultos, niños o neonatos',
+        help: 'Un mismo monitor puede servir a los tres si se cotizan los sensores y brazaletes de cada tamaño y se configuran los perfiles de paciente y las alarmas según el protocolo del servicio.',
+      },
+      {
+        pain: 'No saben si justifica una central multicama',
+        help: 'A partir de unas 4 camas de monitoreo continuo, o si enfermería supervisa varias camas a la vez, la central empieza a justificarse. Necesita red o VLAN dedicada y monitores compatibles.',
+      },
+      {
+        pain: 'Temen que el equipo llegue y no se use bien',
+        help: 'Incluimos en la propuesta la instalación, las pruebas con simulador antes del uso clínico, la capacitación por turno y un stock inicial de consumibles.',
+      },
+    ],
+    audienceYes: [
+      'IPS y hospitales que abren una UCI o amplían camas de cuidado crítico o intermedio',
+      'Ingeniería biomédica que prepara la especificación técnica del proyecto',
+      'Compras que necesitan comparar propuestas con el mismo alcance',
+    ],
+    audienceNo: [
+      'Quien busca un único monitor sin proyecto ni servicio definido',
+      'Quien necesita recomendaciones clínicas: los valores de alarma los define su protocolo',
+      'Solicitudes sin institución ni datos de contacto',
+    ],
+    situations: [
+      {
+        title: 'UCI nueva',
+        body: 'Definir desde cero monitores de cabecera, central, red e instalación.',
+      },
+      {
+        title: 'Ampliación de camas',
+        body: 'Sumar camas compatibles con la central y el protocolo que ya existen.',
+      },
+      {
+        title: 'Unidad pediátrica o neonatal',
+        body: 'Accesorios de cada tamaño, perfiles de paciente y capacitación diferenciada.',
+      },
+    ],
+    scopeTitle: 'Qué cubre la propuesta',
+    scope: [
+      'Monitores de cabecera según tipo de paciente y complejidad',
+      'Central multicama cuando el número de camas o la supervisión lo justifican',
+      'Accesorios y sensores de cada tamaño que el servicio necesita',
+      'Instalación, pruebas antes del uso clínico y acta de entrega',
+      'Capacitación por turno para el personal asistencial y para ingeniería biomédica',
+      'Stock inicial de consumibles y mantenimiento preventivo',
+    ],
+    requirementsTitle: 'Para dimensionar con sentido',
+    requirements: [
+      'Número de camas y tipo de paciente (adulto, pediátrico, neonatal)',
+      'Parámetros que exige su protocolo (ECG, SpO₂, NIBP, IBP, EtCO₂…)',
+      'Si hay transporte de pacientes o solo camas fijas',
+      'Estado de la instalación eléctrica y de la red de datos',
+      'Plazo de apertura o ampliación',
+    ],
+    financingNote:
+      'Los proyectos de dotación suelen financiarse por fases. Las condiciones se definen en la propuesta formal.',
+    evidenceNote:
+      'El contenido técnico de esta página está validado por el equipo de ingeniería biomédica de I-ME. No sustituye los protocolos clínicos de su institución ni la ficha técnica de cada modelo, que prevalece ante cualquier diferencia.',
+    processTitle: 'Cómo seguimos',
+    processSteps: [
+      'Nos cuenta el proyecto en el formulario',
+      'Revisamos camas, tipo de paciente y si conviene central',
+      'Proponemos monitores del catálogo con accesorios, instalación y capacitación',
+      'Cotización formal con el alcance completo',
+    ],
+    faqs: [
+      {
+        q: '¿Un mismo monitor sirve para adultos, niños y neonatos?',
+        a: 'Muchos sí, siempre que se incluyan los sensores, brazaletes y electrodos de cada tamaño y se configuren los perfiles de paciente. En neonatos, muchos equipos tienen además un modo o módulo "Neo".',
+      },
+      {
+        q: '¿Cuándo conviene una central de monitoreo?',
+        a: 'A partir de unas 4 camas de monitoreo continuo, cuando enfermería supervisa varias camas a la vez, cuando se necesita revisar alarmas pasadas o integrar la historia clínica, o si el diseño de la sala impide ver cada monitor.',
+      },
+      {
+        q: '¿Qué hay que preparar antes de que lleguen los equipos?',
+        a: 'Tomas reguladas con polo a tierra verificado, punto de red activo si habrá central, el sistema de montaje y personal de ingeniería biomédica para la recepción. Nuestro checklist de recepción recoge todos los puntos.',
+      },
+      {
+        q: '¿Incluyen capacitación?',
+        a: 'Sí, se define en la propuesta. Como referencia, de 2 a 4 horas por grupo o turno para el personal asistencial y de 4 a 8 horas para ingeniería biomédica, ajustadas al número de equipos y de turnos.',
+      },
+      {
+        q: '¿Qué documentos deben venir con los monitores?',
+        a: 'Manual de usuario en español, certificados de garantía, certificado de pruebas de fábrica o calibración inicial, copia del registro sanitario INVIMA vigente e inventario de accesorios.',
+      },
+    ],
+    projectOptions: [
+      { value: 'uci_nueva', label: 'Abrir una UCI nueva' },
+      { value: 'ampliacion_camas', label: 'Ampliar camas de monitoreo' },
+      { value: 'uci_pediatrica_neonatal', label: 'Unidad pediátrica o neonatal' },
+      { value: 'central_multicama', label: 'Central multicama' },
+    ],
+    productSlugs: [
+      'monitor-multiparametrico-uci-avanzado',
+      'monitor-multiparametrico-basico',
+      'monitor-de-paciente-modular-serie-p-ref-p15-biolight',
+      'monitor-de-paciente-ref-m12-biolight',
+      'monitor-central-uci-multicama',
+    ],
+    productsTitle: 'Monitores y central del catálogo',
+    productsNote:
+      'La configuración, los módulos y los accesorios de cada equipo se confirman al cotizar.',
+    catalogFilter: 'monitores',
+  },
+  en: {
+    tag: 'ICU projects · Monitoring',
+    title: 'ICU monitoring projects: monitors and central station | I-ME',
+    description:
+      'Opening or expanding ICU beds? We size monitoring by patient type, decide between a central station and standalone monitors, and support installation and training.',
+    h1: 'Equipping ICU monitoring, from the first bed to the handover record',
+    lead: 'If you are opening an ICU or adding beds, the monitor is only part of it. We help you define what each bed needs by patient type, whether a central station makes sense, and what to prepare so the equipment works from the first shift.',
+    formIntro:
+      'Tell us how many beds, the patient type and your timeline. An advisor replies with a proposal built for your unit.',
+    primaryCta: 'I want to size my project',
+    secondaryCta: 'Message on WhatsApp',
+    tertiaryCta: 'See monitors in the catalog',
+    heroImage: '/assets/img/central-monitoreo-multicama.webp',
+    heroImageAlt: 'ICU central monitoring station showing data from several beds',
+    heroImageWidth: 1400,
+    heroImageHeight: 788,
+    leadMagnet: {
+      label: 'Free tool',
+      title: 'Monitor receiving and installation checklist',
+      body: 'The 36 items to prepare, check and sign off from the moment the purchase is confirmed until use on patients. Check them online and download the PDF.',
+      href: '/en/resources/monitor-receiving-checklist/',
+      cta: 'Open the checklist',
+    },
+    relatedGuides: [
+      {
+        title: 'Complete guide to hospital multiparameter monitors',
+        href: '/en/knowledge/guia-monitores-multiparametricos-hospitalarios-colombia/',
+      },
+      {
+        title: 'Monitors for adult, pediatric and neonatal ICUs',
+        href: '/en/knowledge/monitores-uci-adulto-pediatrica-neonatal/',
+      },
+      {
+        title: 'Multi-bed central monitoring station or standalone monitors',
+        href: '/en/knowledge/central-monitoreo-multicama-o-monitores-independientes/',
+      },
+    ],
+    problemTitle: 'Where a monitoring project gets complicated',
+    problemBody:
+      'Many first-week problems are not the monitor: an ungrounded outlet, a network the central station does not recognize, sensors in only one size, or only one shift trained. They are avoided when planned from the quote.',
+    solutionsTitle: 'How we help you size it',
+    solutions: [
+      {
+        pain: 'It is not clear whether each bed needs a basic or an advanced ICU monitor',
+        help: 'If the unit needs routine invasive monitoring or treats ventilated or high-risk patients, advanced ICU. If volume is high and complexity low, a basic or mid-range monitor is usually enough.',
+      },
+      {
+        pain: 'The unit treats adults, children or neonates',
+        help: "One monitor can serve all three if the sensors and cuffs in each size are quoted and the patient profiles and alarms are configured per the unit's protocol.",
+      },
+      {
+        pain: 'Unsure whether a multi-bed central station is justified',
+        help: 'From about 4 continuously monitored beds, or when nurses supervise several beds at once, a central station starts to pay off. It needs a dedicated network or VLAN and compatible monitors.',
+      },
+      {
+        pain: 'Worried the equipment will arrive and not be used well',
+        help: 'The proposal includes installation, simulator testing before clinical use, training per shift and an initial stock of consumables.',
+      },
+    ],
+    audienceYes: [
+      'IPS and hospitals opening an ICU or adding critical or intermediate care beds',
+      'Clinical engineering preparing the project technical specification',
+      'Procurement comparing proposals with the same scope',
+    ],
+    audienceNo: [
+      'Looking for a single monitor with no defined project or unit',
+      'Needing clinical recommendations: alarm values are set by your protocol',
+      'Requests with no institution or contact details',
+    ],
+    situations: [
+      {
+        title: 'New ICU',
+        body: 'Define bedside monitors, central station, network and installation from scratch.',
+      },
+      {
+        title: 'Adding beds',
+        body: 'Add beds compatible with the existing central station and protocol.',
+      },
+      {
+        title: 'Pediatric or neonatal unit',
+        body: 'Accessories in each size, patient profiles and differentiated training.',
+      },
+    ],
+    scopeTitle: 'What the proposal covers',
+    scope: [
+      'Bedside monitors by patient type and complexity',
+      'Multi-bed central station when bed count or supervision justifies it',
+      'Accessories and sensors in each size the unit needs',
+      'Installation, testing before clinical use and handover record',
+      'Training per shift for clinical staff and for clinical engineering',
+      'Initial stock of consumables and preventive maintenance',
+    ],
+    requirementsTitle: 'To size it properly',
+    requirements: [
+      'Number of beds and patient type (adult, pediatric, neonatal)',
+      'Parameters your protocol requires (ECG, SpO₂, NIBP, IBP, EtCO₂…)',
+      'Whether patients are transported or beds are fixed',
+      'State of the electrical installation and data network',
+      'Opening or expansion timeline',
+    ],
+    financingNote:
+      'Equipment projects are often financed in phases. Terms are set in the formal proposal.',
+    evidenceNote:
+      "The technical content on this page is validated by I-ME's clinical engineering team. It does not replace your institution's clinical protocols or each model's data sheet, which prevails where they differ.",
+    processTitle: 'Next steps',
+    processSteps: [
+      'Tell us about the project in the form',
+      'We review beds, patient type and whether a central station makes sense',
+      'We propose catalog monitors with accessories, installation and training',
+      'Formal quote with the full scope',
+    ],
+    faqs: [
+      {
+        q: 'Can one monitor serve adults, children and neonates?',
+        a: 'Many can, as long as the sensors, cuffs and electrodes in each size are included and the patient profiles are configured. For neonates, many units also have a "Neo" mode or module.',
+      },
+      {
+        q: 'When does a central monitoring station make sense?',
+        a: 'From about 4 continuously monitored beds, when nurses supervise several beds at once, when past alarms must be reviewed or the EHR integrated, or when the room layout prevents seeing every monitor.',
+      },
+      {
+        q: 'What should be prepared before the equipment arrives?',
+        a: 'Regulated outlets with a verified ground, an active network port if there will be a central station, the mounting system and clinical engineering staff for receiving. Our receiving checklist covers every item.',
+      },
+      {
+        q: 'Is training included?',
+        a: 'Yes, it is defined in the proposal. As a reference, 2 to 4 hours per group or shift for clinical staff and 4 to 8 hours for clinical engineering, adjusted to the number of units and shifts.',
+      },
+      {
+        q: 'Which documents should come with the monitors?',
+        a: 'User manual in Spanish, warranty certificates, factory test or initial calibration certificate, a copy of the current INVIMA sanitary registration and the accessory inventory.',
+      },
+    ],
+    projectOptions: [
+      { value: 'uci_nueva', label: 'Open a new ICU' },
+      { value: 'ampliacion_camas', label: 'Add monitored beds' },
+      { value: 'uci_pediatrica_neonatal', label: 'Pediatric or neonatal unit' },
+      { value: 'central_multicama', label: 'Multi-bed central station' },
+    ],
+    productSlugs: [
+      'monitor-multiparametrico-uci-avanzado',
+      'monitor-multiparametrico-basico',
+      'monitor-de-paciente-modular-serie-p-ref-p15-biolight',
+      'monitor-de-paciente-ref-m12-biolight',
+      'monitor-central-uci-multicama',
+    ],
+    productsTitle: 'Monitors and central station from the catalog',
+    productsNote: "Each unit's configuration, modules and accessories are confirmed when quoting.",
+    catalogFilter: 'monitores',
+  },
+};
+
 type StandardCampaignLandingId = Exclude<
   CampaignLandingId,
   'proyectos' | 'pdf_descarga' | 'herramienta' | 'evento' | FabricanteLandingId
@@ -2606,6 +2922,11 @@ const META: Record<
     path: '/es/desfibriladores-hospitalarios/',
     pathEn: '/en/hospital-defibrillators/',
   },
+  dotacion_monitoreo_uci: {
+    familia_slug: 'monitores',
+    path: '/es/dotacion-monitoreo-uci/',
+    pathEn: '/en/icu-monitoring-projects/',
+  },
 };
 
 const BY_ID: Record<StandardCampaignLandingId, ContentMap> = {
@@ -2620,6 +2941,7 @@ const BY_ID: Record<StandardCampaignLandingId, ContentMap> = {
   camillas_medicas: CAMILLAS_MEDICAS,
   ventiladores_mecanicos: VENTILADORES_MECANICOS,
   desfibriladores_hospital: DESFIBRILADORES,
+  dotacion_monitoreo_uci: DOTACION_MONITOREO_UCI,
 };
 
 export function getCampaignLanding(

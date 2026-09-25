@@ -55,8 +55,14 @@ async function main() {
     const rel = relative(DIST, file).split(sep).join('/');
     const page = rel === 'index.html' ? '/' : `/${rel.replace(/index\.html$/, '')}`;
     const title = extractOne(html, /<title[^>]*>([\s\S]*?)<\/title>/i);
-    const canonical = extractOne(html, /<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']/i);
-    const robots = extractOne(html, /<meta[^>]+name=["']robots["'][^>]+content=["']([^"']+)["']/i).toLowerCase();
+    const canonical = extractOne(
+      html,
+      /<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']/i
+    );
+    const robots = extractOne(
+      html,
+      /<meta[^>]+name=["']robots["'][^>]+content=["']([^"']+)["']/i
+    ).toLowerCase();
     const isTechnicalPage = /\.(?:html|json)$/i.test(page) || robots.includes('noindex');
     if (!isTechnicalPage && !title) fail(`${page}: title ausente`);
     if (!isTechnicalPage && !canonical) fail(`${page}: canonical ausente`);
@@ -64,7 +70,11 @@ async function main() {
       fail(`${page}: canonical fuera de host: ${canonical}`);
     }
 
-    const jsonLdBlocks = [...html.matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
+    const jsonLdBlocks = [
+      ...html.matchAll(
+        /<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi
+      ),
+    ];
     for (const [, block] of jsonLdBlocks) {
       try {
         JSON.parse(block);
@@ -80,7 +90,9 @@ async function main() {
       if (!href) continue;
       if (/\brel=["'][^"']*alternate[^"']*["']/i.test(tag) && /\bhreflang=/i.test(tag)) continue;
       if (!href || /^(?:https?:|mailto:|tel:|javascript:|#|data:)/i.test(href)) continue;
-      const rawPath = href.startsWith('/') ? href : new URL(href, `https://i-me.com.co${page}`).pathname;
+      const rawPath = href.startsWith('/')
+        ? href
+        : new URL(href, `https://i-me.com.co${page}`).pathname;
       const hasFileExtension = /\.[a-z0-9]{1,8}$/i.test(rawPath.split(/[?#]/, 1)[0]);
       if (hasFileExtension) {
         if (!(await fileExists(localAssetForPath(rawPath)))) {
@@ -106,6 +118,7 @@ async function main() {
     '/es/camillas-medicas/',
     '/es/ventiladores-mecanicos-uci/',
     '/es/desfibriladores-hospitalarios/',
+    '/es/dotacion-monitoreo-uci/',
     '/es/caminadores-para-adultos/',
     '/es/conocimiento/caminadores-para-adultos-guia-compra-colombia/',
     '/en/biolight-icu-monitors/',
@@ -113,6 +126,7 @@ async function main() {
     '/en/medical-stretchers/',
     '/en/mechanical-ventilators-icu/',
     '/en/hospital-defibrillators/',
+    '/en/icu-monitoring-projects/',
     '/en/knowledge/caminadores-para-adultos-guia-compra-colombia/',
   ];
   const sitemapPaths = new Set();
@@ -140,7 +154,10 @@ async function main() {
       const file = localFileForPath(pathname);
       if (!(await fileExists(file))) fail(`sitemap: destino no generado: ${pathname}`);
       const html = await readFile(file, 'utf8').catch(() => '');
-      const robots = extractOne(html, /<meta[^>]+name=["']robots["'][^>]+content=["']([^"']+)["']/i).toLowerCase();
+      const robots = extractOne(
+        html,
+        /<meta[^>]+name=["']robots["'][^>]+content=["']([^"']+)["']/i
+      ).toLowerCase();
       if (robots.includes('noindex')) fail(`sitemap: URL noindex: ${pathname}`);
       if (pathname === '/congreso/') fail('sitemap: /congreso/ no debe aparecer');
     }
