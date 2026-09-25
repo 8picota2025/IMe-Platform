@@ -32,6 +32,7 @@ export type CampaignLandingId =
   | 'desfibriladores_hospital'
   | 'proyectos'
   | 'pdf_descarga'
+  | 'herramienta'
   | 'evento'
   | FabricanteLandingId;
 
@@ -64,6 +65,8 @@ const WHATSAPP_E164 = IME_WHATSAPP_E164;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const OPTIONAL_TURNSTILE_CAMPAIGNS = new Set<CampaignLandingId>([
   'pdf_descarga',
+  // Lead magnets de herramientas (Fase 3): mismo gate que la descarga de fichas.
+  'herramienta',
   'evento',
   // Modal global «Cotización» (navbar): honeypot + rate-limit; Turnstile en paso oculto falla en prod.
   'proyectos',

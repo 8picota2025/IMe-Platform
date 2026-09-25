@@ -31,6 +31,7 @@ const CAMPAIGNS = new Set([
   'robotica_rehabilitacion',
   'proyectos',
   'pdf_descarga',
+  'herramienta',
   'evento',
   'fab_tuttnauer',
   'fab_saikang',

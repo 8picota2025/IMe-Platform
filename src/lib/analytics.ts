@@ -18,7 +18,11 @@ export type AnalyticsEventName =
   | 'imeia_open'
   | 'product_view'
   | 'quick_view'
-  | 'pdf_download';
+  | 'pdf_download'
+  // Herramientas de Fase 3 (mandato §7): intención, sólo con consentimiento como el resto.
+  | 'tool_start'
+  | 'tool_complete'
+  | 'lead_magnet_download';
 
 export interface AnalyticsConfig {
   dataDomain: string;
