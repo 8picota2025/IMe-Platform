@@ -34,17 +34,19 @@ https://i-me.com.co/es/conocimiento/<slug-articulo>/?utm_source=<canal>&utm_medi
 
 ### 2.1 Mapa de enlaces
 
-| Pieza                               | Canal     | Destino           | URL con UTM                                                                                                                                                                                                     |
-| ----------------------------------- | --------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Guía principal                      | LinkedIn  | Guía de monitores | https://i-me.com.co/es/conocimiento/guia-monitores-multiparametricos-hospitalarios-colombia/?utm_source=linkedin&utm_medium=social-organico&utm_campaign=monitoreo-uci&utm_content=post-guia-monitores          |
-| Central o independientes            | LinkedIn  | Central multicama | https://i-me.com.co/es/conocimiento/central-monitoreo-multicama-o-monitores-independientes/?utm_source=linkedin&utm_medium=social-organico&utm_campaign=monitoreo-uci&utm_content=post-central-multicama        |
-| Checklist de instalación            | LinkedIn  | Checklist         | https://i-me.com.co/es/conocimiento/checklist-recepcion-instalacion-monitor-hospitalario/?utm_source=linkedin&utm_medium=social-organico&utm_campaign=monitoreo-uci&utm_content=post-checklist-instalacion      |
-| Carrusel básico vs. avanzado        | Instagram | Guía de monitores | https://i-me.com.co/es/conocimiento/guia-monitores-multiparametricos-hospitalarios-colombia/?utm_source=instagram&utm_medium=social-organico&utm_campaign=monitoreo-uci&utm_content=carrusel-basico-vs-avanzado |
-| Carrusel adulto/pediátrico/neonatal | Instagram | UCI por tipo      | https://i-me.com.co/es/conocimiento/monitores-uci-adulto-pediatrica-neonatal/?utm_source=instagram&utm_medium=social-organico&utm_campaign=monitoreo-uci&utm_content=carrusel-tipos-uci                         |
-| Errores de instalación              | Facebook  | Checklist         | https://i-me.com.co/es/conocimiento/checklist-recepcion-instalacion-monitor-hospitalario/?utm_source=facebook&utm_medium=social-organico&utm_campaign=monitoreo-uci&utm_content=post-errores-instalacion        |
-| Guía por WhatsApp (asesores)        | WhatsApp  | Guía de monitores | https://i-me.com.co/es/conocimiento/guia-monitores-multiparametricos-hospitalarios-colombia/?utm_source=whatsapp&utm_medium=mensajeria&utm_campaign=monitoreo-uci&utm_content=articulo-guia-monitores           |
+| Pieza                               | Canal     | Destino               | URL con UTM                                                                                                                                                                                                     |
+| ----------------------------------- | --------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Guía principal                      | LinkedIn  | Guía de monitores     | https://i-me.com.co/es/conocimiento/guia-monitores-multiparametricos-hospitalarios-colombia/?utm_source=linkedin&utm_medium=social-organico&utm_campaign=monitoreo-uci&utm_content=post-guia-monitores          |
+| Central o independientes            | LinkedIn  | Central multicama     | https://i-me.com.co/es/conocimiento/central-monitoreo-multicama-o-monitores-independientes/?utm_source=linkedin&utm_medium=social-organico&utm_campaign=monitoreo-uci&utm_content=post-central-multicama        |
+| Checklist de instalación            | LinkedIn  | Herramienta checklist | https://i-me.com.co/es/recursos/checklist-recepcion-monitor/?utm_source=linkedin&utm_medium=social-organico&utm_campaign=monitoreo-uci&utm_content=post-checklist-instalacion                                   |
+| Proyectos de UCI                    | LinkedIn  | Landing proyectos UCI | https://i-me.com.co/es/dotacion-monitoreo-uci/?utm_source=linkedin&utm_medium=social-organico&utm_campaign=monitoreo-uci&utm_content=post-dotacion-uci                                                          |
+| Carrusel básico vs. avanzado        | Instagram | Guía de monitores     | https://i-me.com.co/es/conocimiento/guia-monitores-multiparametricos-hospitalarios-colombia/?utm_source=instagram&utm_medium=social-organico&utm_campaign=monitoreo-uci&utm_content=carrusel-basico-vs-avanzado |
+| Carrusel adulto/pediátrico/neonatal | Instagram | UCI por tipo          | https://i-me.com.co/es/conocimiento/monitores-uci-adulto-pediatrica-neonatal/?utm_source=instagram&utm_medium=social-organico&utm_campaign=monitoreo-uci&utm_content=carrusel-tipos-uci                         |
+| Errores de instalación              | Facebook  | Herramienta checklist | https://i-me.com.co/es/recursos/checklist-recepcion-monitor/?utm_source=facebook&utm_medium=social-organico&utm_campaign=monitoreo-uci&utm_content=post-errores-instalacion                                     |
+| Guía por WhatsApp (asesores)        | WhatsApp  | Guía de monitores     | https://i-me.com.co/es/conocimiento/guia-monitores-multiparametricos-hospitalarios-colombia/?utm_source=whatsapp&utm_medium=mensajeria&utm_campaign=monitoreo-uci&utm_content=articulo-guia-monitores           |
+| Checklist por WhatsApp (asesores)   | WhatsApp  | Herramienta checklist | https://i-me.com.co/es/recursos/checklist-recepcion-monitor/?utm_source=whatsapp&utm_medium=mensajeria&utm_campaign=monitoreo-uci&utm_content=herramienta-checklist                                             |
 
-### 2.2 LinkedIn (3 publicaciones)
+### 2.2 LinkedIn (4 publicaciones)
 
 **Post 1 — Guía principal** · `post-guia-monitores`
 
@@ -70,7 +72,17 @@ https://i-me.com.co/es/conocimiento/<slug-articulo>/?utm_source=<canal>&utm_medi
 
 > Muchos problemas de la primera semana de un monitor nuevo no son del monitor: son del polo a tierra, de la red o de haber capacitado a un solo turno.
 >
-> Publicamos el checklist que usa nuestro equipo de ingeniería biomédica: qué preparar antes de la entrega, qué verificar al recibir, qué pruebas hacer antes de usarlo con pacientes y qué debe decir el acta.
+> Publicamos el checklist que usa nuestro equipo de ingeniería biomédica: qué preparar antes de la entrega, qué verificar al recibir, qué pruebas hacer antes de usarlo con pacientes y qué debe decir el acta. Márquelo en línea y descárguelo en PDF para firmarlo con el proveedor.
+>
+> 👉 [enlace con UTM]
+
+**Post 4 — Proyectos de UCI** · `post-dotacion-uci`
+
+> Abrir o ampliar camas de UCI no es comprar monitores: es decidir qué necesita cada cama según el paciente, si conviene una central y qué preparar para que todo funcione desde el primer turno.
+>
+> Tres preguntas antes de cotizar: ¿adultos, niños o neonatos? (cambian sensores, brazaletes y alarmas). ¿Cuántas camas de monitoreo continuo? (desde unas 4, la central empieza a justificarse). ¿Están listas la instalación eléctrica y la red?
+>
+> Le ayudamos a dimensionarlo, con instalación, pruebas y capacitación por turno.
 >
 > 👉 [enlace con UTM]
 
@@ -186,12 +198,13 @@ Sólo escucha: `registro sanitario INVIMA`, `INVIMA dispositivos médicos`, `tec
 
 - **En la web:** `analytics_eventos` filtrado por `utm_campaign`: `quote_submit`, `whatsapp_click` y `page_view` de los artículos del cluster (plan §1.7 y §2.7).
 - **En el CRM:** Twenty recibe la atribución completa en la nota de cada lead (ADR-0011). Sirve para contar leads por `utm_campaign` y `utm_content`.
-- **En GA4:** sólo de quien acepta cookies (ADR-0012), así que los números de GA4 serán menores que los de `analytics_eventos`. No son comparables uno a uno.
-- **Pendiente:** el dashboard mínimo por cluster todavía no existe; es el siguiente entregable de la Fase 2.
+- **En GA4:** sólo de quien acepta cookies (ADR-0012), así que los números de GA4 serán menores que los de `analytics_eventos`, que no depende del banner. No son comparables uno a uno.
+- **Dashboard del piloto:** admin → Marketing → «Piloto Monitoreo/UCI · 30 días»: sesiones por etapa (contenido, landing, herramienta), checklist iniciados, completos y descargados, leads de la herramienta y de la landing, y sesiones y leads por `utm_source / utm_medium`. Lee `analytics_eventos` (analítica propia, todas las visitas) y `leads_comerciales`.
 
 ## 5. Antes de publicar
 
 - [ ] Aprobación humana de cada pieza (mandato §16).
 - [ ] Imágenes reales o gráficos sin foto de producto.
-- [ ] Probar cada URL con UTM: debe abrir el artículo y, al enviar una cotización, el lead debe llegar a Twenty con la campaña correcta.
+- [ ] Probar cada URL con UTM: debe abrir su destino y, al enviar el formulario (cotización o descarga del checklist), el lead debe llegar a Twenty con la campaña correcta.
+- [ ] Las piezas que llevan al checklist, sólo después de que el Ing. Rojas revise el PDF.
 - [ ] En campañas pagas: `utm_medium=social-pago` y `utm_term` con la audiencia.
