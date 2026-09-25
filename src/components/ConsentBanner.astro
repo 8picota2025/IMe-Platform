@@ -95,9 +95,10 @@ const cookiesPolicyHref = getLocalizedPath('/legal/cookies/', locale);
     bottom: 0;
     z-index: 9999;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     padding: 1rem;
     padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+    pointer-events: none;
   }
 
   /* Recibe el foco al reabrirse desde el footer (tabindex="-1"): el anillo va
@@ -112,24 +113,27 @@ const cookiesPolicyHref = getLocalizedPath('/legal/cookies/', locale);
   }
 
   .ime-consent-banner__card {
-    width: min(680px, 100%);
+    width: min(520px, 100%);
     background: var(--white, #fff);
     border: 1px solid var(--border-mid, rgba(15, 76, 92, 0.18));
-    border-radius: var(--radius-lg, 24px);
-    box-shadow: var(--shadow-lg, 0 20px 80px rgba(15, 76, 92, 0.16));
-    padding: 1.25rem 1.5rem;
+    border-radius: var(--radius, 14px);
+    box-shadow: var(--shadow-md, 0 8px 28px rgba(15, 76, 92, 0.12));
+    padding: 0.9rem 1.1rem;
     color: var(--text, #1d3a47);
+    pointer-events: auto;
   }
 
   .ime-consent-banner__title {
     font-weight: 700;
-    margin: 0 0 0.35rem;
+    font-size: 0.9rem;
+    margin: 0 0 0.25rem;
     color: var(--ink, #0b1b22);
   }
 
   .ime-consent-banner__body {
-    margin: 0 0 0.75rem;
-    font-size: 0.9rem;
+    margin: 0 0 0.6rem;
+    font-size: 0.8rem;
+    line-height: 1.45;
     color: var(--text-mid, #456070);
   }
 
@@ -163,13 +167,13 @@ const cookiesPolicyHref = getLocalizedPath('/legal/cookies/', locale);
   .ime-consent-banner__actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
+    gap: 0.5rem 0.75rem;
     align-items: center;
     justify-content: space-between;
   }
 
   .ime-consent-banner__link {
-    font-size: 0.85rem;
+    font-size: 0.78rem;
     color: var(--t700, #1a5f6e);
     text-decoration: underline;
   }
@@ -177,14 +181,14 @@ const cookiesPolicyHref = getLocalizedPath('/legal/cookies/', locale);
   .ime-consent-banner__buttons {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0.4rem;
     margin-inline-start: auto;
   }
 
   .ime-consent-banner__btn {
     border-radius: 999px;
-    padding: 0.55rem 1.1rem;
-    font-size: 0.85rem;
+    padding: 0.4rem 0.9rem;
+    font-size: 0.78rem;
     font-weight: 600;
     border: 1px solid transparent;
     cursor: pointer;
@@ -201,13 +205,53 @@ const cookiesPolicyHref = getLocalizedPath('/legal/cookies/', locale);
     color: var(--white, #fff);
   }
 
+  /* Móvil: franja baja y compacta; el título queda solo para lectores de pantalla. */
   @media (max-width: 560px) {
+    .ime-consent-banner {
+      padding: 0.5rem;
+      padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+    }
+    .ime-consent-banner__card {
+      padding: 0.65rem 0.75rem;
+      border-radius: 12px;
+    }
+    .ime-consent-banner__title {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+    .ime-consent-banner__body {
+      font-size: 0.72rem;
+      line-height: 1.4;
+      margin-bottom: 0.45rem;
+    }
+    .ime-consent-banner__link {
+      font-size: 0.72rem;
+    }
+    .ime-consent-banner__actions {
+      gap: 0.35rem;
+    }
     .ime-consent-banner__buttons {
       width: 100%;
-      justify-content: stretch;
+      flex-wrap: nowrap;
+      gap: 0.3rem;
     }
     .ime-consent-banner__btn {
       flex: 1 1 auto;
+      padding: 0.35rem 0.45rem;
+      font-size: 0.7rem;
+      white-space: nowrap;
+      min-height: 30px;
+    }
+  }
+
+  /* Pantallas muy estrechas: los botones vuelven a repartirse en dos filas. */
+  @media (max-width: 374px) {
+    .ime-consent-banner__buttons {
+      flex-wrap: wrap;
     }
   }
 </style>
