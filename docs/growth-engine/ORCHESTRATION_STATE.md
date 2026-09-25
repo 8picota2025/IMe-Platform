@@ -8,15 +8,13 @@
 
 ## Estado general
 
-- **Fase actual:** Fase 2 — Knowledge Hub → **EN CURSO**: clusters en la web y cluster
-  INVIMA publicados (2026-09-24); validación biomédica de Monitoreo **recibida y aprobada**
-  (2026-09-24), contenido de Monitoreo siguiente. Fase 1 — Foundation →
-  **CERRADA**. 8/8 ADRs (0011-0018) aceptadas,
-  redactadas e implementadas donde correspondía; cluster piloto decidido; plan de
-  contenido de Fase 2 redactado. Después del cierre se hizo una **revisión de errores de
-  todo lo realizado** (ver "Revisión post-cierre" abajo) y un QA del banner en navegador.
-  **Todo está en producción desde el 2026-09-23** (ver "Estado de despliegue").
-- **Última actualización:** 2026-09-24 (Fase 2: clusters, INVIMA, embeddings del asesor)
+- **Fase actual:** Fase 3 — Landing & Tool Foundation → **GO del usuario el 2026-09-25** (D1 checklist de recepción, D2 landing de
+  UCI, D3 opción A), en implementación (3A)
+  (`docs/growth-engine/fase3-plan.md`, 2026-09-25). Fase 2 — Knowledge Hub →
+  **ENTREGADA** (2026-09-25, ver "Gate de Fase 2" abajo): clusters Monitoreo/UCI e
+  INVIMA publicados, 24 URLs nuevas en producción. Fase 1 — Foundation → **CERRADA**,
+  8/8 ADRs (0011-0018) aceptadas.
+- **Última actualización:** 2026-09-25 (cierre de Fase 2, plan de Fase 3)
 
 ### 🔴 Punto de reanudación — leer esto primero al retomar
 
@@ -134,6 +132,51 @@ antes de que se escriba cualquier artículo/landing/tool/post real.
 
 **Siguiente:** pilar de Monitoreo + checklist de recepción e instalación + 2–3 artículos
 de apoyo a partir de la validación biomédica, con preview antes de publicar.
+
+### Fase 2 — avance (2026-09-25)
+
+- **[#126](https://github.com/8picota2025/IMe-Platform/pull/126) — cluster Monitoreo/UCI
+  publicado:** pilar (guía de monitores multiparamétricos) + checklist de recepción e
+  instalación + UCI adulto/pediátrica/neonatal + central multicama vs. monitores
+  independientes, sobre la validación del Ing. Rojas. La presión arterial pediátrica (B4)
+  quedó fuera hasta que la confirme.
+- **[#124](https://github.com/8picota2025/IMe-Platform/pull/124):** 301 de la guía de
+  distribuidores 2025 (despublicada) a la guía del registro sanitario INVIMA.
+- **[#125](https://github.com/8picota2025/IMe-Platform/pull/125):** el `statement timeout`
+  de `getProductos` en la build se repetía; ahora select reducido y lectura por lotes.
+- **Embeddings:** el almacén de modelos de Ollama se vació; se volvió a bajar
+  `mxbai-embed-large` y se comprobó que da las mismas puntuaciones (0,858 en la consulta
+  "quiénes somos") antes de regenerar los vectores de los artículos nuevos.
+- **[#127](https://github.com/8picota2025/IMe-Platform/pull/127):** paquetes por canal y
+  mapa UTM de los dos clusters piloto (`paquetes-canal-utm-clusters-piloto.md`). Nada
+  publicado en redes: Fase 4 exige aprobación.
+- **[#128](https://github.com/8picota2025/IMe-Platform/pull/128):** footer agrupado en 6
+  categorías plegables. Verificado en producción.
+- **[#130](https://github.com/8picota2025/IMe-Platform/pull/130):** imagen propia para los 4
+  artículos de Monitoreo (antes todos con `hospital-uci-pasillo.webp` por el fallback de
+  palabra clave) y banner de cookies más discreto (móvil ≈150 px en vez de ≈190 px,
+  escritorio en la esquina inferior izquierda). Las imágenes versionadas van en
+  `public/assets/img/`: `public/assets/img/conocimiento/` está en `.gitignore` (lo llena
+  el espejo del CMS en cada build).
+- Listado de páginas nuevas entregado al usuario (`~/Desktop/IMEGrowth_paginas_nuevas.md`).
+
+### Gate de Fase 2 (mandato §20) — 2026-09-25
+
+| Paso              | Resultado                                                                                                            |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Plan / task graph | `pilot-clusters-content-plan.md`, aprobado 2026-09-23                                                                |
+| Implementación    | #122, #123, #124, #125, #126, #127, #128, #130                                                                       |
+| Tests             | `npm run validate` en cada PR; build de producción con datos reales tras cada migración (lección de #123)            |
+| Seguridad         | #118 (SECURITY DEFINER), contraseña del CMS rotada; sin endpoints nuevos en Fase 2                                   |
+| Compliance        | afirmaciones técnicas validadas por ingeniería biomédica; INVIMA sin clases de riesgo y cada afirmación con su norma |
+| UX                | QA en navegador del banner (38 escenarios), footer y banner compacto en 320/375 px                                   |
+| Documentación     | este archivo, `paquetes-canal-utm-clusters-piloto.md`, listado de páginas nuevas                                     |
+| **Decisión**      | **GO a Fase 3**, con la deuda aceptada de abajo                                                                      |
+
+**Deuda aceptada al cerrar Fase 2:** Ventilación, Cardiología y Movilidad con un solo
+artículo y sin pilar; Financiación bloqueado por la firma legal de tasas; B4 pendiente
+del Ing. Rojas; fotos y textos de los artículos nuevos los mejora el usuario; GE-007 y el
+test de integración de `actualizar-fulfillment` siguen abiertos.
 
 **Fase 2 (Knowledge Hub) — AUTORIZADA el 2026-09-23.** Estado de los prerrequisitos del
 plan de contenido §4:
@@ -295,6 +338,6 @@ resuelve en Fase 1 como quick win).
 
 ## Siguiente acción
 
-Ver **"Punto de reanudación"** al principio de este archivo: aprobación del plan de
-contenido piloto, verificación en Supabase real, confirmaciones del equipo biomédico y
-los puntos abiertos tras la revisión post-cierre.
+Fase 3A según `docs/growth-engine/fase3-plan.md` (GO del usuario el 2026-09-25): herramienta
+de checklist de recepción de monitores con PDF y lead, luego la landing de dotación de
+monitoreo para UCI.
