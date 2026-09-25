@@ -8,13 +8,14 @@
 
 ## Estado general
 
-- **Fase actual:** Fase 3 — Landing & Tool Foundation → **GO del usuario el 2026-09-25** (D1 checklist de recepción, D2 landing de
-  UCI, D3 opción A), en implementación (3A)
-  (`docs/growth-engine/fase3-plan.md`, 2026-09-25). Fase 2 — Knowledge Hub →
-  **ENTREGADA** (2026-09-25, ver "Gate de Fase 2" abajo): clusters Monitoreo/UCI e
-  INVIMA publicados, 24 URLs nuevas en producción. Fase 1 — Foundation → **CERRADA**,
-  8/8 ADRs (0011-0018) aceptadas.
-- **Última actualización:** 2026-09-25 (cierre de Fase 2, plan de Fase 3)
+- **Fase actual:** Fase 3 — Landing & Tool Foundation → **3A ENTREGADA** (2026-09-25):
+  herramienta del checklist de recepción ([#133](https://github.com/8picota2025/IMe-Platform/pull/133))
+  y landing de dotación de monitoreo para UCI ([#134](https://github.com/8picota2025/IMe-Platform/pull/134)),
+  en producción. **En curso: cierre del piloto Monitoreo/UCI** (mandato §24: CRM mapping,
+  dashboard mínimo, paquetes de canal apuntando a landing y herramienta), autorizado por el
+  usuario el 2026-09-25. **3B** (Landing Factory en CMS, ADR-0015) queda para después del
+  piloto. Fase 2 — Knowledge Hub → **ENTREGADA** (2026-09-25). Fase 1 → **CERRADA**.
+- **Última actualización:** 2026-09-25 (cierre de 3A, inicio del cierre del piloto)
 
 ### 🔴 Punto de reanudación — leer esto primero al retomar
 
@@ -159,6 +160,39 @@ de apoyo a partir de la validación biomédica, con preview antes de publicar.
   `public/assets/img/`: `public/assets/img/conocimiento/` está en `.gitignore` (lo llena
   el espejo del CMS en cada build).
 - Listado de páginas nuevas entregado al usuario (`~/Desktop/IMEGrowth_paginas_nuevas.md`).
+
+### Fase 3A — entregada (2026-09-25)
+
+- **[#133](https://github.com/8picota2025/IMe-Platform/pull/133) — herramienta D1:**
+  `/es/recursos/checklist-recepcion-monitor/` y `/en/resources/monitor-receiving-checklist/`.
+  36 puntos con el texto literal validado por el Ing. Rojas (un test lo compara con la
+  migración del artículo), avance en `localStorage`, PDF generado en el navegador con
+  `pdf-lib` tras registrar el lead (`PdfDownloadGate`, campaña nueva `herramienta`),
+  eventos `tool_start`, `tool_complete`, `lead_magnet_download`. **Pendiente:** revisión del
+  PDF por el Ing. Rojas (muestra en el escritorio del usuario) antes de promocionarlo.
+- **[#134](https://github.com/8picota2025/IMe-Platform/pull/134) — landing D2:**
+  `/es/dotacion-monitoreo-uci/` y `/en/icu-monitoring-projects/`, por proyecto y no por
+  marca, con el checklist como lead magnet y 3 guías del cluster. `CampaignLandingContent`
+  gana `leadMagnet`, `relatedGuides` y tamaño de hero (opcionales).
+- **Bug de producción corregido en #134 — leads rechazados en 7 landings:** la Edge
+  Function `registrar-lead-comercial` tenía su propia lista de campañas y no incluía
+  Biolight, ventiladores, desfibriladores, alto flujo, camillas, caminadores ni sillas:
+  sus formularios devolvían `400 campaign invalida` desde que se publicaron (la más antigua,
+  Biolight, el 2026-08-30). Ahora la lista sale de `CAMPAIGN_IDS` en
+  `src/lib/comercial-leads.ts`, completa por tipo, con test sobre cada landing publicada.
+  **Pendiente del usuario:** revisar en el CRM/WhatsApp si se perdieron consultas.
+- **Bug corregido en #134 — hreflang del sitemap:** `scripts/sitemap-seo.mjs` duplicaba los
+  pares de rutas sin `tema/topic` ni la herramienta y declaraba alternas inexistentes
+  (`/en/knowledge/tema/…`). Añadidos, con test de paridad contra `getLocalizedPath`.
+  Verificado en producción.
+- Deploy de Edge Functions del #133: cancelado por concurrencia al llegar un push posterior
+  (#132), que sí desplegó la función con el cambio (`No change found`). Si un deploy de
+  funciones sale `cancelled`, comprobar el run siguiente antes de relanzar.
+
+**Gate de 3A (§20):** plan aprobado (D1, D2, opción A); tests 470/470; seguridad (sin
+endpoints nuevos, campaña validada contra lista cerrada, PDF sin datos personales);
+cumplimiento (texto validado, sin consejo clínico); UX en sandbox 320/375/1366 px, ES/EN.
+**GO** al cierre del piloto.
 
 ### Gate de Fase 2 (mandato §20) — 2026-09-25
 
@@ -338,6 +372,7 @@ resuelve en Fase 1 como quick win).
 
 ## Siguiente acción
 
-Fase 3A según `docs/growth-engine/fase3-plan.md` (GO del usuario el 2026-09-25): herramienta
-de checklist de recepción de monitores con PDF y lead, luego la landing de dotación de
-monitoreo para UCI.
+Cierre del piloto Monitoreo/UCI (mandato §24, autorizado el 2026-09-25): mapping de los
+leads de la landing y la herramienta en el CRM, dashboard mínimo del cluster y paquetes de
+canal con enlaces y UTM a la landing y al checklist (sin publicar: Fase 4 exige
+aprobación). Después, 3B (Landing Factory en CMS).
