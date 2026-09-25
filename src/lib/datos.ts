@@ -656,26 +656,109 @@ export async function getTipos(familiaSlug: string, locale: Locale): Promise<Tip
     }));
 }
 
+/**
+ * Columnas de productos que usa el sitio: todas salvo `embedding` (vector de
+ * 1024 dims, ~46% del peso de la tabla) y `busqueda_tsv`. Con `select('*')`
+ * la build pedía ~14 MB de JSON y el rol `anon` corta a los 3 s
+ * (`statement_timeout`), así que el despliegue fallaba de forma intermitente.
+ */
+export const PRODUCTO_SELECT = [
+  'id',
+  'slug',
+  'familia_id',
+  'tipo_id',
+  'nombre_es',
+  'nombre_en',
+  'descripcion_corta_es',
+  'descripcion_corta_en',
+  'descripcion_larga_es',
+  'descripcion_larga_en',
+  'especificaciones',
+  'aplicaciones_es',
+  'aplicaciones_en',
+  'imagen_principal',
+  'galeria',
+  'ficha_pdf',
+  'tipo_comercial',
+  'fulfillment_mode',
+  'precio',
+  'moneda',
+  'stock',
+  'destacado',
+  'nuevo',
+  'activo',
+  'orden',
+  'created_at',
+  'updated_at',
+  'sku',
+  'gtin',
+  'atributos',
+  'peso_kg',
+  'dimensiones_cm',
+  'precio_regular',
+  'precio_oferta',
+  'oferta_inicio',
+  'oferta_fin',
+  'gestionar_stock',
+  'stock_estado',
+  'backorder_policy',
+  'disponible',
+  'disponible_actualizado_at',
+  'dian_codigo',
+  'tarifa_iva_pct',
+  'retencion_fuente_pct',
+  'retencion_iva_pct',
+  'retencion_ica_pct',
+  'excluido_iva',
+].join(',');
+
+/** Filas por petición: páginas grandes (p. ej. 1000 en la build) se piden en lotes. */
+export const PRODUCTOS_LOTE = 200;
+
+/** Divide el rango [desde, hasta] (inclusivo) en lotes de como máximo `lote` filas. */
+export function lotesDeRango(
+  desde: number,
+  hasta: number,
+  lote = PRODUCTOS_LOTE
+): Array<[number, number]> {
+  const lotes: Array<[number, number]> = [];
+  for (let inicio = desde; inicio <= hasta; inicio += lote) {
+    lotes.push([inicio, Math.min(inicio + lote - 1, hasta)]);
+  }
+  return lotes;
+}
+
 export async function getProductos(filtros: FiltrosProductos, locale: Locale): Promise<Producto[]> {
   const { familia, tipo, destacado, query, page = 1, pageSize = 24 } = filtros;
 
   if (debeUsarSupabase()) {
     const supabase = getSupabaseClient()!;
     await cargarMapaFamilias(supabase);
-    let req = supabase.from('productos').select('*').eq('activo', true);
-    if (familia) {
-      const familiaId = familiaIdPorSlug?.[familia];
-      // Familia sin equivalente en Supabase: no hay filas que coincidan.
-      req = req.eq('familia_id', familiaId ?? '00000000-0000-0000-0000-000000000000');
+    const filas: RawRow[] = [];
+    let error: { message?: string } | null = null;
+    for (const [desde, hasta] of lotesDeRango((page - 1) * pageSize, page * pageSize - 1)) {
+      let req = supabase.from('productos').select(PRODUCTO_SELECT).eq('activo', true);
+      if (familia) {
+        const familiaId = familiaIdPorSlug?.[familia];
+        // Familia sin equivalente en Supabase: no hay filas que coincidan.
+        req = req.eq('familia_id', familiaId ?? '00000000-0000-0000-0000-000000000000');
+      }
+      if (destacado !== undefined) req = req.eq('destacado', destacado);
+      // `id` desempata `orden` repetidos: sin él, los lotes podrían solaparse o saltarse filas.
+      const res = await req.order('orden').order('id').range(desde, hasta);
+      if (res.error) {
+        error = res.error;
+        break;
+      }
+      const lote = (res.data ?? []) as unknown as RawRow[];
+      filas.push(...lote);
+      if (lote.length < hasta - desde + 1) break; // no hay más filas
     }
-    if (destacado !== undefined) req = req.eq('destacado', destacado);
-    req = req.order('orden').range((page - 1) * pageSize, page * pageSize - 1);
-    const { data, error } = await req;
-    if (!error && data && data.length > 0) {
-      return data.map(raw => mapProductoSupabase(raw, locale));
+    if (!error && filas.length > 0) {
+      return filas.map(raw => mapProductoSupabase(raw, locale));
     }
     if (error) registrarErrorSupabase('getProductos', error);
-    else if (data && !familia) registrarVacioSupabase('getProductos');
+    else if (!familia) registrarVacioSupabase('getProductos');
   }
 
   let lista = mockProductos.filter(p => p.activo);
