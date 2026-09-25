@@ -1,5 +1,5 @@
 -- Despacho IMEIA: reclamo por remitente y bitácora de salidas.
--- Aditiva. No programa pg_cron (eso queda manual: ver docs/WHATSAPP_CLOUD_API.md).
+-- Aditiva. El cron lo programa 20260925150000_whatsapp_dispatch_cron.sql.
 -- El criterio de reclamo debe seguir a reclamarLoteWhatsApp
 -- (src/lib/whatsapp-imeia-dispatch.ts).
 

@@ -386,9 +386,9 @@ deno_version = 2
 [functions.whatsapp-webhook]
 verify_jwt = false
 
-# Despacho IMEIA (debounce + espera). Lo invoca pg_cron con service_role.
+# Despacho IMEIA. pg_cron autentica con el token de whatsapp_dispatch_auth.
 [functions.whatsapp-imeia-dispatch]
-verify_jwt = true
+verify_jwt = false
 
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"

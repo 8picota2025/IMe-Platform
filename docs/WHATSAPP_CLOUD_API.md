@@ -50,7 +50,7 @@ supabase secrets set \
   WHATSAPP_API_VERSION=v21.0
 ```
 
-Migraciones: `supabase/migrations/20260906020000_whatsapp_inbound_events.sql`, `20260909050000_whatsapp_inbound_body.sql`, `20260925143000_whatsapp_outbound_dispatch.sql`.
+Migraciones: `supabase/migrations/20260906020000_whatsapp_inbound_events.sql`, `20260909050000_whatsapp_inbound_body.sql`, `20260925143000_whatsapp_outbound_dispatch.sql`, `20260925150000_whatsapp_dispatch_cron.sql`.
 
 ## Setup en Meta Business Suite
 
@@ -70,45 +70,41 @@ Proyecto I-ME actual: `https://nnfbucwiasuggyfoyydo.supabase.co/functions/v1/wha
 ## Deploy
 
 ```bash
-# 1. Migración ANTES que las funciones (reclamo + bitácora). No programa el cron.
+# 1. Migraciones ANTES que las funciones. La segunda programa el cron.
+#    Workflow: Deploy Supabase Migrations (workflow_dispatch) sobre la rama
+#    que ya contiene 20260925143000 y 20260925150000. Tiene que decir
+#    "Session Pooler conectado." y aplicarlas con supabase db push.
+#    El fallback de Management API solo cubre 20260809090000 y no sirve aquí.
 supabase db push
-# o aplicar supabase/migrations/20260925143000_whatsapp_outbound_dispatch.sql
 
-# 2. Funciones. whatsapp-webhook sigue con JWT off; el despacho exige service_role.
+# 2. Funciones, después de las migraciones. Las dos van con verify_jwt = false.
 supabase functions deploy whatsapp-webhook whatsapp-imeia-dispatch --project-ref <ref>
 ```
 
-No hace falta ningún secreto nuevo. Siguen `WHATSAPP_*` y `IMEIA_AGENT_WEBHOOK_URL` / `IMEIA_AGENT_WEBHOOK_KEY`.
+No hace falta ningún secreto nuevo en git ni en Vault. Siguen `WHATSAPP_*` y `IMEIA_AGENT_WEBHOOK_URL` / `IMEIA_AGENT_WEBHOOK_KEY`. `SUPABASE_SERVICE_ROLE_KEY` ya lo inyecta la plataforma en la función.
 
 ### Cron (necesario como red de seguridad)
 
-El webhook agenda el seguimiento con `EdgeRuntime.waitUntil` (~25 s de silencio y una pasada al minuto). Si ese isolate muere, **nada despierta al agente** hasta que corre el cron. Programar una vez en el SQL editor, con `pg_cron` y `pg_net` activos. La clave va en Vault, no en el repo:
+El webhook agenda el seguimiento con `EdgeRuntime.waitUntil` (~25 s de silencio y una pasada al minuto). Si ese isolate muere, **nada despierta al agente** hasta que corre el cron.
+
+`20260925150000_whatsapp_dispatch_cron.sql` hace el alta al aplicar la migración:
+
+- Crea `whatsapp_dispatch_auth` (una fila, `id = 1`) y, si está vacía, guarda un token de 64 hex generado con `gen_random_uuid`. Reaplicar no lo rota.
+- RLS sin políticas. `anon` y `authenticated` no tienen GRANT. `service_role` puede leer. El dueño (`postgres`, que es quien corre pg_cron) bypassa RLS.
+- Programa `whatsapp-imeia-dispatch` con `* * * * *`. El comando lee el token en el momento de ejecutar; el valor no queda escrito en `cron.job`.
+- `net.http_post` usa timeout de 5 s. La función responde **202** y sigue el despacho en `waitUntil`, para que ese corte no aborte un wake de 40–80 s.
+
+La función acepta el bearer si coincide con ese token o con `SUPABASE_SERVICE_ROLE_KEY`. No acepta un JWT sin verificar aunque el payload diga `role=service_role`.
+
+Para quitarlo:
 
 ```sql
-select vault.create_secret('<SERVICE_ROLE_KEY>', 'whatsapp_dispatch_service_role');
-
-select cron.schedule(
-  'whatsapp-imeia-dispatch',
-  '* * * * *',
-  $$
-  select net.http_post(
-    url := 'https://nnfbucwiasuggyfoyydo.supabase.co/functions/v1/whatsapp-imeia-dispatch',
-    headers := jsonb_build_object(
-      'Content-Type', 'application/json',
-      'Authorization', 'Bearer ' || (
-        select decrypted_secret from vault.decrypted_secrets
-        where name = 'whatsapp_dispatch_service_role'
-      )
-    ),
-    body := '{}'::jsonb
-  ) as request_id;
-  $$
-);
+select cron.unschedule(jobid)
+from cron.job
+where jobname = 'whatsapp-imeia-dispatch';
 ```
 
-Para quitarlo: `select cron.unschedule('whatsapp-imeia-dispatch');`.
-
-CI (`deploy-supabase-functions.yml`) despliega todas las funciones al hacer push a `main` y puede empujar secretos si existen como GitHub Secrets (no pisa valores vacíos). El cron no se crea solo.
+CI (`deploy-supabase-functions.yml`) despliega todas las funciones al hacer push a `main`. Las migraciones, cron incluido, solo corren con `deploy-supabase-migrations.yml` (`workflow_dispatch`). Hay que aplicarlas antes de mergear: si el webhook nuevo llega a producción sin la migración, los clientes se quedan sin respuesta.
 
 ## Probar
 

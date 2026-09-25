@@ -1111,6 +1111,14 @@ CREATE UNIQUE INDEX IF NOT EXISTS uniq_whatsapp_outbound_holding_turn
 -- supabase/migrations/20260925143000_whatsapp_outbound_dispatch.sql
 -- (no se duplica aquí: SECURITY DEFINER + grants solo service_role).
 
+-- Bearer del cron. El valor lo genera la migración 20260925150000; aquí solo
+-- el contenedor, para no inventar un token en el archivo.
+CREATE TABLE IF NOT EXISTS whatsapp_dispatch_auth (
+  id         SMALLINT PRIMARY KEY DEFAULT 1 CHECK (id = 1),
+  token      TEXT NOT NULL CHECK (char_length(token) >= 32),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 -- ── 9. proveedores (módulo dropshipping) ────────────────────
 CREATE TABLE IF NOT EXISTS proveedores (
   id                 UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -1425,6 +1433,10 @@ ALTER TABLE whatsapp_inbound_events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE whatsapp_outbound_messages ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON TABLE whatsapp_outbound_messages FROM PUBLIC, anon, authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE whatsapp_outbound_messages TO service_role;
+
+ALTER TABLE whatsapp_dispatch_auth ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON TABLE whatsapp_dispatch_auth FROM PUBLIC, anon, authenticated;
+GRANT SELECT ON TABLE whatsapp_dispatch_auth TO service_role;
 
 -- perfiles admin: cada usuario ve su perfil; owner/admin gestiona todos
 ALTER TABLE admin_profiles ENABLE ROW LEVEL SECURITY;
