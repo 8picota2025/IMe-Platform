@@ -23,6 +23,7 @@ import {
 } from '../_shared/whatsapp-wamid-store.ts';
 import {
   decideWhatsAppInbound,
+  isOwnBusinessNumber,
   markWhatsAppMessageRead,
   parseWhatsAppWebhook,
   resolveWhatsAppGraphConfig,
@@ -32,6 +33,8 @@ import {
 } from '../../../src/lib/whatsapp-cloud.ts';
 import { IME_WHATSAPP_E164 } from '../../../src/lib/contacto-oficial.ts';
 import { edgeWaitUntil, seguirTurnoWhatsApp } from '../_shared/whatsapp-dispatch.ts';
+import { contactoEstaPausado, registrarEcoManual } from '../_shared/whatsapp-echo.ts';
+import { estadoInboundWhatsApp } from '../../../src/lib/whatsapp-human-takeover.ts';
 
 const FN_NAME = 'whatsapp-webhook';
 
@@ -145,7 +148,26 @@ Deno.serve(
 
     let queued = 0;
     let ignored = 0;
+    let echoes = 0;
     const pendientes = new Set<string>();
+
+    if (supabase && parsed.echoes.length > 0) {
+      for (const echo of parsed.echoes) {
+        if (isOwnBusinessNumber(echo.waId, IME_WHATSAPP_E164)) {
+          ignored += 1;
+          continue;
+        }
+        try {
+          const resultado = await registrarEcoManual(supabase, echo);
+          if (resultado === 'duplicate') ignored += 1;
+          else echoes += 1;
+        } catch (err) {
+          console.error('[whatsapp-webhook] eco:', err instanceof Error ? err.message : err);
+        }
+      }
+    } else if (parsed.echoes.length > 0) {
+      ignored += parsed.echoes.length;
+    }
 
     for (const decision of decisions) {
       if (decision.action === 'ignore') {
@@ -156,7 +178,15 @@ Deno.serve(
       const message = decision.message;
       const wamidExtra: { fromWa?: string; phoneNumberId?: string } = { fromWa: message.from };
       if (message.phoneNumberId) wamidExtra.phoneNumberId = message.phoneNumberId;
-      if (supabase) {
+      // El agente (fuera de esta función) lee los pending_agent y responde.
+      // Aquí no se envía espera ni se despierta: una ráfaga sería N wakes.
+      // Un cliente en #pausa queda human_paused y no se encola.
+      if (!supabase) {
+        ignored += 1;
+        continue;
+      }
+      const pausado = await contactoEstaPausado(supabase, message.from);
+      if (!pausado) {
         const limit = await checkRateLimit(supabase, `whatsapp:wa:${message.from}`, 'whatsapp');
         if (limit.limited) {
           await markWamidStatus(supabase, message.wamid, 'rate_limited', wamidExtra);
@@ -174,16 +204,15 @@ Deno.serve(
         });
       }
 
-      // El agente (fuera de esta función) lee los pending_agent y responde.
-      // Aquí no se envía espera ni se despierta: una ráfaga sería N wakes.
-      if (!supabase) {
-        ignored += 1;
-        continue;
-      }
-      await markWamidStatus(supabase, message.wamid, 'pending_agent', {
+      const estado = estadoInboundWhatsApp(pausado);
+      await markWamidStatus(supabase, message.wamid, estado, {
         ...wamidExtra,
         body: message.text,
       });
+      if (pausado) {
+        ignored += 1;
+        continue;
+      }
       pendientes.add(message.from);
       queued += 1;
     }
@@ -213,6 +242,7 @@ Deno.serve(
       queued,
       replied: 0,
       ignored,
+      echoes,
       statuses: parsed.statuses.length,
     });
   })
