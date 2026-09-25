@@ -56,6 +56,7 @@ interface LeadRow {
   institucion: string;
   ciudad: string;
   familia_slug: string;
+  tipo_proyecto: string;
   horizonte: string;
   necesidad: string;
   metadata: Record<string, unknown> | null;
@@ -83,6 +84,7 @@ const LEAD_SELECT = [
   'institucion',
   'ciudad',
   'familia_slug',
+  'tipo_proyecto',
   'horizonte',
   'necesidad',
   'metadata',
@@ -138,6 +140,7 @@ async function syncLeadWithTwenty(
     ciudad: lead.ciudad,
     leadReference: lead.id,
     twentyOpportunityId: lead.twenty_opportunity_id,
+    tipoProyecto: lead.tipo_proyecto,
     ...(metadataText(lead.metadata, 'origen')
       ? { origen: metadataText(lead.metadata, 'origen') }
       : {}),
