@@ -1,7 +1,7 @@
 # Fase 3 — Landing & Tool Foundation: plan
 
-> Estado: **PROPUESTO, esperando GO/HOLD del usuario** (2026-09-25). Paso 1 del gate del
-> mandato (§20, `CLAUDE PLAN`). No se implementa nada antes del GO.
+> Estado: **GO del usuario (2026-09-25) con D1, D2 y la opción A de D3.** Paso 1 del gate del
+> mandato (§20, `CLAUDE PLAN`) cerrado; en implementación (3A).
 
 ## Alcance según el mandato
 

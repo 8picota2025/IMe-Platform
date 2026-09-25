@@ -8,7 +8,8 @@
 
 ## Estado general
 
-- **Fase actual:** Fase 3 — Landing & Tool Foundation → **PLAN PROPUESTO, esperando GO**
+- **Fase actual:** Fase 3 — Landing & Tool Foundation → **GO del usuario el 2026-09-25** (D1 checklist de recepción, D2 landing de
+  UCI, D3 opción A), en implementación (3A)
   (`docs/growth-engine/fase3-plan.md`, 2026-09-25). Fase 2 — Knowledge Hub →
   **ENTREGADA** (2026-09-25, ver "Gate de Fase 2" abajo): clusters Monitoreo/UCI e
   INVIMA publicados, 24 URLs nuevas en producción. Fase 1 — Foundation → **CERRADA**,
@@ -337,5 +338,6 @@ resuelve en Fase 1 como quick win).
 
 ## Siguiente acción
 
-GO/HOLD del usuario sobre `docs/growth-engine/fase3-plan.md` (Fase 3 — Landing & Tool
-Foundation). Nada de Fase 3 se implementa antes.
+Fase 3A según `docs/growth-engine/fase3-plan.md` (GO del usuario el 2026-09-25): herramienta
+de checklist de recepción de monitores con PDF y lead, luego la landing de dotación de
+monitoreo para UCI.
