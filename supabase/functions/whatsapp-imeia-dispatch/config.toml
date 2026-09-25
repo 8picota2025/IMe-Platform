@@ -1,0 +1,3 @@
+# La invoca pg_cron con el JWT service_role, no Meta.
+# El webhook público sigue siendo whatsapp-webhook (verify_jwt = false).
+verify_jwt = true

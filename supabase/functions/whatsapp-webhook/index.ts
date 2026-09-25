@@ -3,8 +3,8 @@
  *
  * GET: verificación hub.mode / hub.verify_token / hub.challenge.
  * POST: inbound messages + statuses. Firma X-Hub-Signature-256 si
- * WHATSAPP_APP_SECRET está configurado. Reply IMEIA (catálogo + guardrails,
- * ack + wake a Ayuda Local; respuesta completa fuera de Edge `/{phone-number-id}/messages`.
+ * WHATSAPP_APP_SECRET está configurado. Guarda el texto y deja el wake
+ * (y el mensaje de espera, si pasa un minuto) a un despacho por remitente.
  *
  * Secretos: WHATSAPP_VERIFY_TOKEN, WHATSAPP_APP_SECRET, WHATSAPP_TOKEN,
  * WHATSAPP_PHONE_NUMBER_ID, WHATSAPP_API_VERSION.
@@ -23,16 +23,15 @@ import {
 } from '../_shared/whatsapp-wamid-store.ts';
 import {
   decideWhatsAppInbound,
-  detectarLocaleWhatsApp,
   markWhatsAppMessageRead,
   parseWhatsAppWebhook,
   resolveWhatsAppGraphConfig,
-  sendWhatsAppText,
   verifyWhatsAppChallenge,
   verifyWhatsAppSignature,
   type WamidClaimStore,
 } from '../../../src/lib/whatsapp-cloud.ts';
 import { IME_WHATSAPP_E164 } from '../../../src/lib/contacto-oficial.ts';
+import { edgeWaitUntil, seguirTurnoWhatsApp } from '../_shared/whatsapp-dispatch.ts';
 
 const FN_NAME = 'whatsapp-webhook';
 
@@ -144,8 +143,9 @@ Deno.serve(
       WHATSAPP_API_VERSION: Deno.env.get('WHATSAPP_API_VERSION'),
     });
 
-    let replied = 0;
+    let queued = 0;
     let ignored = 0;
+    const pendientes = new Set<string>();
 
     for (const decision of decisions) {
       if (decision.action === 'ignore') {
@@ -174,74 +174,44 @@ Deno.serve(
         });
       }
 
-      // Brain = Ayuda Local (Cursor/Grok) via wake webhook — not Hermes / Edge LLM.
-      const locale = detectarLocaleWhatsApp(message.text);
-      if (supabase) {
-        await markWamidStatus(supabase, message.wamid, 'pending_agent', { ...wamidExtra, body: message.text });
-      }
-
-      if (graph) {
-        const ackEs = 'Un momento, reviso su consulta…';
-        const ackEn = 'One moment — checking your question…';
-        void sendWhatsAppText({
-          to: message.from,
-          body: locale === 'en' ? ackEn : ackEs,
-          token: graph.token,
-          phoneNumberId: graph.phoneNumberId,
-          apiVersion: graph.apiVersion,
-        });
-      }
-
-      const wakeUrl = Deno.env.get('IMEIA_AGENT_WEBHOOK_URL')?.trim();
-      const wakeKey = Deno.env.get('IMEIA_AGENT_WEBHOOK_KEY')?.trim();
-      if (!wakeUrl || !wakeKey) {
-        console.warn('[whatsapp-webhook] IMEIA_AGENT_WEBHOOK_URL/KEY ausentes: no wake');
-        void trackEvent(FN_NAME, 'whatsapp_wake_missing', {}, { nivel: 'warn' });
+      // El agente (fuera de esta función) lee los pending_agent y responde.
+      // Aquí no se envía espera ni se despierta: una ráfaga sería N wakes.
+      if (!supabase) {
         ignored += 1;
         continue;
       }
+      await markWamidStatus(supabase, message.wamid, 'pending_agent', {
+        ...wamidExtra,
+        body: message.text,
+      });
+      pendientes.add(message.from);
+      queued += 1;
+    }
 
-      try {
-        const wakeRes = await fetch(wakeUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${wakeKey}`,
-            'X-Webhook-Key': wakeKey,
-          },
-          body: JSON.stringify({
-            source: 'whatsapp-cloud',
-            channel: 'imeia',
-            from: message.from,
-            text: message.text,
-            wamid: message.wamid,
-            phone_number_id: message.phoneNumberId ?? graph?.phoneNumberId ?? null,
-            locale,
-            received_at: new Date().toISOString(),
-          }),
-        });
-        if (!wakeRes.ok) {
-          console.error('[whatsapp-webhook] wake HTTP', wakeRes.status);
-          void trackEvent(
-            FN_NAME,
-            'whatsapp_wake_failed',
-            { status: wakeRes.status },
-            { nivel: 'warn' }
-          );
-        } else {
-          replied += 1; // queued for agent reply
-        }
-      } catch (err) {
-        console.error(
-          '[whatsapp-webhook] wake error:',
-          err instanceof Error ? err.message : err
-        );
+    if (supabase && pendientes.size > 0) {
+      const seguimiento = seguirTurnoWhatsApp({
+        supabase,
+        graph,
+        wakeUrl: Deno.env.get('IMEIA_AGENT_WEBHOOK_URL')?.trim() ?? null,
+        wakeKey: Deno.env.get('IMEIA_AGENT_WEBHOOK_KEY')?.trim() ?? null,
+        froms: [...pendientes],
+      });
+      const seguimientoSeguro = seguimiento.catch(err =>
+        console.error('[whatsapp-webhook] seguimiento:', err instanceof Error ? err.message : err)
+      );
+      const waitUntil = edgeWaitUntil();
+      if (waitUntil) waitUntil(seguimientoSeguro);
+      else {
+        console.warn('[whatsapp-webhook] sin EdgeRuntime.waitUntil; el cron despacha el turno');
+        void seguimientoSeguro;
       }
+      void trackEvent(FN_NAME, 'whatsapp_turno_encolado', { remitentes: pendientes.size });
     }
 
     return jsonOk({
       ok: true,
-      replied,
+      queued,
+      replied: 0,
       ignored,
       statuses: parsed.statuses.length,
     });

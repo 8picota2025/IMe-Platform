@@ -15,12 +15,16 @@ Meta Cloud API
   POST /functions/v1/whatsapp-webhook   → X-Hub-Signature-256 + payload
        ├─ statuses / grupos / no-texto  → 200, sin reply
        ├─ wamid ya visto                → 200, no reenvía
-       └─ texto nuevo                   → catálogo + guardrails IMEIA → Graph send
+       └─ texto 1:1 nuevo               → fila pending_agent (sin burbuja inmediata)
+            └─ seguimiento (~25 s de silencio, y otra pasada al minuto)
+                 ├─ claim_whatsapp_agent_batch  → 1 wake del agente por remitente
+                 └─ si el pendiente sigue >60 s y no hubo salida → 1 mensaje de espera
+  pg_cron cada minuto → whatsapp-imeia-dispatch (mismo despacho, por si el isolate murió)
 ```
 
-Respuestas: `composeGroundedAsesorReply` / knowledge estático (PR #82). **No** se llama el agente soul `imeia` de Hermes. No se inventan precios ni RS INVIMA. En radiología, la cotización cubre **equipo + instalación del equipo**, no adecuación de sala, transformadores ni ventilación.
+La respuesta al cliente la escribe el agente externo (no esta función, no Hermes). El webhook solo verifica firma, filtra grupos y guarda el texto. No se inventan precios ni RS INVIMA.
 
-Idempotencia: tabla `whatsapp_inbound_events` (PK `wamid`). Rate-limit: `asesor_rate_limit` con identificador `whatsapp:wa:<from>`.
+Idempotencia: tabla `whatsapp_inbound_events` (PK `wamid`). Salidas: `whatsapp_outbound_messages`. Rate-limit: `asesor_rate_limit` con identificador `whatsapp:wa:<from>`.
 
 `verify_jwt = false` (Meta no envía JWT). La autenticación es el token de verificación (GET) y la firma HMAC (POST).
 
@@ -46,7 +50,7 @@ supabase secrets set \
   WHATSAPP_API_VERSION=v21.0
 ```
 
-Migración de idempotencia: `supabase/migrations/20260906020000_whatsapp_inbound_events.sql`.
+Migraciones: `supabase/migrations/20260906020000_whatsapp_inbound_events.sql`, `20260909050000_whatsapp_inbound_body.sql`, `20260925143000_whatsapp_outbound_dispatch.sql`.
 
 ## Setup en Meta Business Suite
 
@@ -66,14 +70,45 @@ Proyecto I-ME actual: `https://nnfbucwiasuggyfoyydo.supabase.co/functions/v1/wha
 ## Deploy
 
 ```bash
-# Migración (idempotencia wamid)
-supabase db push   # o aplicar 20260906020000_whatsapp_inbound_events.sql
+# 1. Migración ANTES que las funciones (reclamo + bitácora). No programa el cron.
+supabase db push
+# o aplicar supabase/migrations/20260925143000_whatsapp_outbound_dispatch.sql
 
-# Función (JWT off: config.toml + functions/whatsapp-webhook/config.toml)
-supabase functions deploy whatsapp-webhook --project-ref <ref>
+# 2. Funciones. whatsapp-webhook sigue con JWT off; el despacho exige service_role.
+supabase functions deploy whatsapp-webhook whatsapp-imeia-dispatch --project-ref <ref>
 ```
 
-CI (`deploy-supabase-functions.yml`) despliega todas las funciones y puede empujar estos secretos si existen como GitHub Secrets (no pisa valores vacíos).
+No hace falta ningún secreto nuevo. Siguen `WHATSAPP_*` y `IMEIA_AGENT_WEBHOOK_URL` / `IMEIA_AGENT_WEBHOOK_KEY`.
+
+### Cron (necesario como red de seguridad)
+
+El webhook agenda el seguimiento con `EdgeRuntime.waitUntil` (~25 s de silencio y una pasada al minuto). Si ese isolate muere, **nada despierta al agente** hasta que corre el cron. Programar una vez en el SQL editor, con `pg_cron` y `pg_net` activos. La clave va en Vault, no en el repo:
+
+```sql
+select vault.create_secret('<SERVICE_ROLE_KEY>', 'whatsapp_dispatch_service_role');
+
+select cron.schedule(
+  'whatsapp-imeia-dispatch',
+  '* * * * *',
+  $$
+  select net.http_post(
+    url := 'https://nnfbucwiasuggyfoyydo.supabase.co/functions/v1/whatsapp-imeia-dispatch',
+    headers := jsonb_build_object(
+      'Content-Type', 'application/json',
+      'Authorization', 'Bearer ' || (
+        select decrypted_secret from vault.decrypted_secrets
+        where name = 'whatsapp_dispatch_service_role'
+      )
+    ),
+    body := '{}'::jsonb
+  ) as request_id;
+  $$
+);
+```
+
+Para quitarlo: `select cron.unschedule('whatsapp-imeia-dispatch');`.
+
+CI (`deploy-supabase-functions.yml`) despliega todas las funciones al hacer push a `main` y puede empujar secretos si existen como GitHub Secrets (no pisa valores vacíos). El cron no se crea solo.
 
 ## Probar
 
@@ -138,9 +173,7 @@ curl -sS http://127.0.0.1:54321/functions/v1/whatsapp-webhook \
   }'
 ```
 
-Esperado: `{ "ok": true, "replied": 1, ... }` si hay `WHATSAPP_TOKEN` + `WHATSAPP_PHONE_NUMBER_ID`; si faltan, `ok: true` y log `no se envía` (scaffold de verify + parse). El texto **no** debe incluir un RS inventado ni un precio en COP.
-
-Reenviar el mismo `wamid` → `replied: 0` (idempotencia).
+Esperado: `{ "ok": true, "queued": 1, "replied": 0, ... }`. Este POST no envía burbuja ni despierta al agente en la misma petición: deja la fila `pending_agent` y agenda el despacho. Reenviar el mismo `wamid` → `queued: 0` (idempotencia). El texto de la respuesta real lo escribe el agente; no debe incluir un RS inventado ni un precio en COP.
 
 Status-only (sin reply):
 
@@ -180,6 +213,60 @@ curl -sS http://127.0.0.1:54321/functions/v1/whatsapp-webhook \
 ```
 
 Firma incorrecta → 401.
+
+## Reglas del mensaje de espera
+
+No se envía al recibir el mensaje. Se envía solo si, en el despacho:
+
+1. El pendiente más reciente de ese cliente tiene **más de 60 s** y el agente aún no lo cerró.
+2. **No hay ninguna salida** (`whatsapp_outbound_messages.send_status = sent`) hacia ese número desde que llegó ese pendiente. Una respuesta del agente cuenta, si quedó registrada.
+3. **Como mucho una vez por turno** (el turno es el `wamid` pendiente más reciente) y **nunca más de una cada 3 minutos** por cliente.
+4. **Nunca** si todos los pendientes del turno son acuse trivial: `ok`, `gracias`, `listo`, variantes cortas (`vale`, `thanks`, `muchas gracias`) o solo emoji. Una pregunta junto a un «ok» sí puede llevar espera.
+5. **Nunca** a grupos ni a un contacto cuyo evento más reciente en 24 h está `ignored`.
+
+El texto rota, en «tú», y no repite el último que ese cliente ya recibió. Ejemplos:
+
+- Dame un momento, estoy revisando la información para responderte bien.
+- Ya casi, estoy confirmando los detalles.
+- Sigo con tu consulta, en breve te escribo.
+
+Si el pendiente está en inglés, rota el equivalente en inglés. La frase fija anterior («Un momento, reviso su consulta…») ya no se usa.
+
+## Bitácora de salida (el agente también escribe aquí)
+
+Tabla `whatsapp_outbound_messages`: `to_wa`, `body`, `kind` (`holding` | `reply` | `other`), `wamid` (id de Graph del mensaje **saliente**), `created_at`. RLS sin políticas: solo `service_role` (el rol bypassa RLS).
+
+La plataforma inserta `kind = holding` cuando manda la espera. El agente, con la misma service role, debe insertar su respuesta **al enviarla por Graph y antes de marcar las filas `replied`**, para que el despacho no mande una espera encima:
+
+```sql
+insert into public.whatsapp_outbound_messages (to_wa, body, kind, wamid)
+values ('573001112233', 'texto que IMEIA acaba de enviar', 'reply', 'wamid.HBg...');
+```
+
+`send_status` queda en `sent` por defecto. `to_wa` son dígitos, sin `+`.
+
+## Wake
+
+Sigue el contrato de siempre, una vez por lote, con el pendiente más reciente:
+
+```json
+{
+  "source": "whatsapp-cloud",
+  "channel": "imeia",
+  "from": "573001112233",
+  "text": "texto del último pendiente",
+  "wamid": "wamid.HBg...",
+  "phone_number_id": "PHONE_NUMBER_ID",
+  "locale": "es",
+  "received_at": "2026-09-25T15:00:00.000Z"
+}
+```
+
+El agente lee los `pending_agent` de ese `from` en las últimas 24 h y los marca `replied` o `ignored`. Un segundo despacho que reclama 0 filas no vuelve a despertarlo mientras el reclamo tenga menos de 3 minutos. Si el wake HTTP falla, el reclamo se suelta y el cron reintenta. Si el wake no responde a tiempo, el reclamo se conserva para no disparar otra corrida en paralelo.
+
+## Canal web
+
+La Edge Function `asesor` no manda un texto de espera: el widget mostraba al instante «IMEIA está preparando su respuesta…». Ahora ese aviso es un «…» y la frase (la misma rotación, a los 60 s, sin acuses, sin repetir en 3 minutos) solo aparece si la respuesta sigue pendiente. El input sigue bloqueado, así que no se apilan burbujas.
 
 ## Relación con comercial-share
 

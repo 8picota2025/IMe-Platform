@@ -1055,6 +1055,7 @@ GRANT EXECUTE ON FUNCTION is_admin(TEXT[]) TO authenticated;
 CREATE INDEX IF NOT EXISTS idx_asesor_rate_limit_identificador ON asesor_rate_limit(identificador);
 
 -- Idempotencia inbound WhatsApp Cloud API (wamid). Solo service_role.
+-- Espejo de 20260906020000 + 20260909050000 + 20260925143000.
 CREATE TABLE IF NOT EXISTS whatsapp_inbound_events (
   wamid            TEXT PRIMARY KEY,
   from_wa          TEXT,
@@ -1062,16 +1063,53 @@ CREATE TABLE IF NOT EXISTS whatsapp_inbound_events (
   kind             TEXT NOT NULL DEFAULT 'message'
                    CHECK (kind IN ('message', 'status', 'ignored')),
   status           TEXT NOT NULL DEFAULT 'claimed'
-                   CHECK (status IN ('claimed', 'replied', 'ignored', 'rate_limited', 'send_failed')),
+                   CHECK (status IN ('claimed', 'replied', 'ignored', 'rate_limited', 'send_failed', 'pending_agent')),
+  body             TEXT,
+  agent_claimed_at TIMESTAMPTZ,
+  agent_claim_token UUID,
   created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+ALTER TABLE whatsapp_inbound_events
+  ADD COLUMN IF NOT EXISTS body TEXT,
+  ADD COLUMN IF NOT EXISTS agent_claimed_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS agent_claim_token UUID;
 
 CREATE INDEX IF NOT EXISTS idx_whatsapp_inbound_events_created
   ON whatsapp_inbound_events(created_at DESC);
 
 CREATE INDEX IF NOT EXISTS idx_whatsapp_inbound_events_status
   ON whatsapp_inbound_events(status);
+
+CREATE INDEX IF NOT EXISTS idx_whatsapp_inbound_events_pending_sender
+  ON whatsapp_inbound_events (from_wa, created_at DESC)
+  WHERE status = 'pending_agent';
+
+-- Bitácora de lo que IMEIA envió. El agente inserta kind = 'reply' con service_role.
+CREATE TABLE IF NOT EXISTS whatsapp_outbound_messages (
+  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  to_wa            TEXT NOT NULL,
+  body             TEXT NOT NULL CHECK (char_length(btrim(body)) BETWEEN 1 AND 4096),
+  kind             TEXT NOT NULL CHECK (kind IN ('holding', 'reply', 'other')),
+  wamid            TEXT,
+  turn_key         TEXT,
+  phone_number_id  TEXT,
+  send_status      TEXT NOT NULL DEFAULT 'sent'
+                   CHECK (send_status IN ('pending', 'sent', 'failed')),
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_whatsapp_outbound_to_created
+  ON whatsapp_outbound_messages (to_wa, created_at DESC);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uniq_whatsapp_outbound_holding_turn
+  ON whatsapp_outbound_messages (to_wa, turn_key)
+  WHERE kind = 'holding' AND turn_key IS NOT NULL;
+
+-- La función claim_whatsapp_agent_batch vive en
+-- supabase/migrations/20260925143000_whatsapp_outbound_dispatch.sql
+-- (no se duplica aquí: SECURITY DEFINER + grants solo service_role).
 
 -- ── 9. proveedores (módulo dropshipping) ────────────────────
 CREATE TABLE IF NOT EXISTS proveedores (
@@ -1382,6 +1420,11 @@ ALTER TABLE asesor_rate_limit ENABLE ROW LEVEL SECURITY;
 
 -- whatsapp_inbound_events: deny-all a anon/authenticated; solo service_role
 ALTER TABLE whatsapp_inbound_events ENABLE ROW LEVEL SECURITY;
+
+-- whatsapp_outbound_messages: igual. El agente escribe con service_role.
+ALTER TABLE whatsapp_outbound_messages ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON TABLE whatsapp_outbound_messages FROM PUBLIC, anon, authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE whatsapp_outbound_messages TO service_role;
 
 -- perfiles admin: cada usuario ve su perfil; owner/admin gestiona todos
 ALTER TABLE admin_profiles ENABLE ROW LEVEL SECURITY;
