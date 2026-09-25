@@ -1,6 +1,7 @@
 import { formatFabricanteDistribuidor } from '../lib/producto-origen';
 import { sanitizeArticuloSlug, isValidArticuloSlug } from '../lib/articulo-slug';
 import { renderMarkdown } from '../lib/markdown';
+import { CAMPANAS_PILOTO, resumirPiloto, rutasPiloto } from '../lib/piloto-monitoreo';
 import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase';
 import type { AuthChangeEvent } from '@supabase/supabase-js';
 import * as XLSX from 'xlsx';
@@ -5011,6 +5012,78 @@ async function reportesView(): Promise<string> {
     </section>`;
 }
 
+const ETAPA_PILOTO_LABEL = {
+  contenido: 'Contenido (tema y artículos)',
+  landing: 'Landing de proyectos UCI',
+  herramienta: 'Checklist de recepción',
+} as const;
+
+/** Piloto Monitoreo/UCI (Growth Engine, mandato §24): embudo y fuentes de los últimos 30 días. */
+async function pilotoMonitoreoPanel(since: string): Promise<string> {
+  const [eventosRes, leadsRes] = await Promise.all([
+    supabase!
+      .from('analytics_eventos')
+      .select('event_name, session_id, page_path, utm_source, utm_medium')
+      .gte('ts', since)
+      .in('page_path', rutasPiloto())
+      .limit(20000),
+    supabase!
+      .from('leads_comerciales')
+      .select('campaign, tipo_proyecto, utm_source, utm_medium')
+      .gte('created_at', since)
+      .in('campaign', CAMPANAS_PILOTO)
+      .limit(5000),
+  ]);
+  const error = eventosRes.error ?? leadsRes.error;
+  if (error) {
+    return `
+      <section class="admin-panel">
+        <div class="admin-panel__head"><h2>Piloto Monitoreo/UCI</h2></div>
+        <div class="admin-panel__body" style="padding:16px">
+          <div class="admin-alert">No se pudieron leer los datos del piloto: ${escapeHtml(error.message)}</div>
+        </div>
+      </section>`;
+  }
+  const r = resumirPiloto(
+    (eventosRes.data ?? []) as Parameters<typeof resumirPiloto>[0],
+    (leadsRes.data ?? []) as Parameters<typeof resumirPiloto>[1]
+  );
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head">
+        <h2>Piloto Monitoreo/UCI · 30 días</h2>
+        <span class="admin-help">Analítica propia: todas las visitas (GA4 sólo cuenta a quien acepta cookies).</span>
+      </div>
+      <div class="admin-grid" style="padding:16px">
+        ${r.etapas
+          .map(e =>
+            marketingMetric(
+              `${ETAPA_PILOTO_LABEL[e.etapa]} · sesiones`,
+              e.sesiones.toLocaleString('es-CO')
+            )
+          )
+          .join('')}
+        ${marketingMetric('Checklist iniciados', r.herramienta.inicios.toLocaleString('es-CO'))}
+        ${marketingMetric('Checklist completos', r.herramienta.completados.toLocaleString('es-CO'))}
+        ${marketingMetric('Descargas PDF', r.herramienta.descargas.toLocaleString('es-CO'))}
+        ${marketingMetric('Leads herramienta', r.leads.herramienta.toLocaleString('es-CO'))}
+        ${marketingMetric('Leads landing', r.leads.landing.toLocaleString('es-CO'))}
+      </div>
+      <div style="padding:0 16px 16px">
+        <h3>Fuentes (sesiones en páginas del piloto y leads)</h3>
+        ${table(
+          ['Fuente / medio', 'Sesiones', 'Leads'],
+          r.fuentes.map(f => [escapeHtml(f.fuente), String(f.sesiones), String(f.leads)])
+        )}
+        <h3>Páginas del piloto</h3>
+        ${table(
+          ['Página', 'Vistas'],
+          r.paginas.map(p => [escapeHtml(p.ruta), String(p.vistas)])
+        )}
+      </div>
+    </section>`;
+}
+
 async function marketingView(): Promise<string> {
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   const { data, error } = await supabase!
@@ -5113,6 +5186,7 @@ async function marketingView(): Promise<string> {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 12);
   const commercialUsage = await commercialUsageSummary(30);
+  const piloto = await pilotoMonitoreoPanel(since);
 
   return `
     <section class="admin-grid">
@@ -5123,6 +5197,7 @@ async function marketingView(): Promise<string> {
       ${marketingMetric('Conversiones', conversions.length.toLocaleString('es-CO'))}
       ${marketingMetric('Conv. por sesion', `${conversionRate.toFixed(1)}%`)}
     </section>
+    ${piloto}
     <section class="admin-panel">
       <div class="admin-panel__head">
         <h2>Reporte de uso · /comercial/ · 30 días</h2>

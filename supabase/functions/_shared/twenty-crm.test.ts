@@ -6,6 +6,8 @@ import {
 import {
   TwentyClient,
   deriveLifecycleFromOpportunityStage,
+  esCampanaLeadMagnet,
+  leadMagnetJobTitle,
   mapCrmEtapaToTwentyStage,
   mergeAccountLifecycle,
   type TwentyRecord,
@@ -120,6 +122,13 @@ function installTwentyMock(options: MockOptions = {}) {
       }
       target = { ...(target ?? {}), id: url.pathname.split('/').at(-1)!, ...body };
       return record(target);
+    }
+
+    if (url.pathname === '/rest/notes') {
+      return record({ id: 'note-1', ...body }, 201);
+    }
+    if (url.pathname === '/rest/noteTargets') {
+      return record({ id: 'note-target-1', ...body }, 201);
     }
 
     return Response.json({ error: 'unexpected request' }, { status: 500 });
@@ -513,4 +522,47 @@ Deno.test('reassignCommercialLead parchea owner, cuenta y tarea', async () => {
   } finally {
     mock.restore();
   }
+});
+
+Deno.test('lead magnet: contacto y nota con atribución, sin oportunidad ni tarea', async () => {
+  const mock = installTwentyMock();
+  try {
+    const result = await new TwentyClient({
+      baseUrl: 'https://twenty.test',
+      apiKey: 'test-key',
+    }).syncLeadMagnetContact({
+      nombre: 'Laura Gómez',
+      email: 'laura@example.test',
+      empresa: 'Clínica Demo',
+      leadMagnetId: 'checklist-recepcion-monitor',
+      campaign: 'herramienta',
+      familySlug: 'monitores',
+      ciudad: 'Medellín',
+      attribution: { utmSource: 'linkedin', utmMedium: 'social-organico' },
+    });
+
+    assertEquals(result.ok, true);
+    assertEquals(result.data, { personId: 'person-1', companyId: 'company-1', noteId: 'note-1' });
+    assertEquals(callsFor(mock.calls, 'POST', '/rest/opportunities').length, 0);
+    assertEquals(callsFor(mock.calls, 'POST', '/rest/tasks').length, 0);
+
+    const person = callsFor(mock.calls, 'POST', '/rest/people')[0];
+    assertEquals(person?.body?.jobTitle, 'Lead magnet · checklist-recepcion-monitor');
+
+    const note = callsFor(mock.calls, 'POST', '/rest/notes')[0];
+    const markdown = String((note?.body?.bodyV2 as { markdown?: string } | undefined)?.markdown);
+    assertStringIncludes(markdown, '**UTM Source:** linkedin');
+    assertStringIncludes(markdown, '**Herramienta:** checklist-recepcion-monitor');
+    assertEquals(callsFor(mock.calls, 'POST', '/rest/noteTargets').length, 2);
+  } finally {
+    mock.restore();
+  }
+});
+
+Deno.test('lead magnet: sólo la campaña herramienta; cargo acotado a 80 caracteres', () => {
+  assertEquals(esCampanaLeadMagnet('herramienta'), true);
+  assertEquals(esCampanaLeadMagnet('dotacion_monitoreo_uci'), false);
+  assertEquals(esCampanaLeadMagnet('pdf_descarga'), false);
+  assertEquals(esCampanaLeadMagnet(undefined), false);
+  assert(leadMagnetJobTitle('x'.repeat(200)).length <= 80);
 });
