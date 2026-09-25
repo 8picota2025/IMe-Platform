@@ -22,6 +22,8 @@ Tope de espera del widget: **180 s** de poll corto (cada 2 s). Cada HTTP individ
 6. Poll del cliente recibe texto, genera tarjetas solo desde enlaces I-ME existentes y cierra el turno en UI.
 7. Wake fallido → HTTP 503 `AGENT_UNAVAILABLE`. Poll que ve `timeout`/`failed` → 504/503. El widget muestra reintento + WhatsApp; nunca shortlist de catálogo ni copy consultiva.
 
+Mientras espera, el widget muestra «…», no la frase fija «IMEIA está preparando su respuesta…». Si el turno sigue abierto a los 60 s, rota una frase corta (la misma lista que WhatsApp, `src/lib/whatsapp-espera.ts`): una por turno, no en acuses (`ok`, `gracias`, `listo`, solo emoji) y no más de una cada 3 minutos. El compositor sigue bloqueado hasta que llega la respuesta o el error, así que no se apilan avisos.
+
 ## Secretos y despliegue
 
 Edge necesita:
