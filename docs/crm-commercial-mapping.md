@@ -42,7 +42,8 @@ Dos entradas nuevas, ambas por `registrar-lead-comercial` → `leads_comerciales
 verdad) → Twenty (espejo).
 
 **Regla (decisión del usuario, 2026-09-25): la Opportunity nace con la cotización.** Los
-leads de herramientas (`campaign = 'herramienta'`) son contactos por explorar: en Twenty,
+leads de herramientas (`campaign = 'herramienta'`) y de descargas de fichas técnicas
+(`pdf_descarga`, desde `20260926000000_fichas_sin_oportunidad.sql`) son contactos por explorar: en Twenty,
 Person + Company + nota con atribución, **sin Opportunity ni tarea**; en el warehouse,
 cuenta + contacto + actividad, **sin `crm_opportunities`** (migración
 `20260925220000_lead_magnet_sin_oportunidad.sql`). Si luego piden cotización, la cotización
@@ -68,4 +69,5 @@ Cuando existan los campos custom de ADR-0011, filtrar por un campo en vez de por
 **Cuantificación:** admin → Marketing → «Piloto Monitoreo/UCI · 30 días»
 (`src/lib/piloto-monitoreo.ts`), desde `leads_comerciales`, que conserva todos los leads.
 
-`pdf_descarga` (fichas de producto) sigue creando Opportunity: fuera de este cambio.
+Descargas de fichas (`pdf_descarga`): mismo trato, con cargo único `Lead magnet · ficha-tecnica`
+para todas (el producto, `tipo_slug`, va en la nota) y así caen en la misma vista.

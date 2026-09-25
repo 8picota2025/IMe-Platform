@@ -70,8 +70,12 @@ export interface TwentyRecord {
   [key: string]: unknown;
 }
 
-/** Campañas que sólo generan contacto en Twenty (sin Opportunity hasta que haya cotización). */
-const LEAD_MAGNET_CAMPAIGNS = new Set(['herramienta']);
+/**
+ * Campañas que sólo generan contacto en Twenty (sin Opportunity hasta que haya cotización):
+ * herramientas y descargas de fichas técnicas. Espejo en la función SQL
+ * `crm_sync_from_lead_comercial()`: cambiar las dos a la vez.
+ */
+const LEAD_MAGNET_CAMPAIGNS = new Set(['herramienta', 'pdf_descarga']);
 
 export function esCampanaLeadMagnet(campaign?: string | null): boolean {
   return Boolean(campaign && LEAD_MAGNET_CAMPAIGNS.has(campaign));
@@ -1072,6 +1076,8 @@ export class TwentyClient {
     empresa?: string;
     mensaje?: string;
     leadMagnetId: string;
+    /** Producto de la ficha descargada (`tipo_slug` del lead), si aplica. */
+    productSlug?: string;
     campaign: string;
     familySlug?: string;
     ciudad?: string;
@@ -1113,7 +1119,8 @@ export class TwentyClient {
     const note = await this.createNote({
       title: `Lead magnet: ${input.leadMagnetId} — ${input.nombre}`.slice(0, 120),
       bodyMarkdown: [
-        `**Herramienta:** ${input.leadMagnetId}`,
+        `**Lead magnet:** ${input.leadMagnetId}`,
+        ...(input.productSlug ? [`**Producto:** ${input.productSlug}`] : []),
         `**Campaña:** ${input.campaign}`,
         ...(input.familySlug ? [`**Familia:** ${input.familySlug}`] : []),
         ...(input.ciudad ? [`**Ciudad:** ${input.ciudad}`] : []),
@@ -1831,6 +1838,8 @@ export async function syncCommercialLeadWithTwenty(input: {
   twentyOpportunityId?: string | null;
   /** `tipo_proyecto` del lead: en campañas lead magnet, el id de la herramienta. */
   tipoProyecto?: string;
+  /** `tipo_slug` del lead: en descargas de fichas, el producto. */
+  tipoSlug?: string;
   /** Override de canal (p.ej. `congreso`); por defecto deriva de campaign. */
   origen?: string;
   eventSlug?: string;
@@ -1857,7 +1866,13 @@ export async function syncCommercialLeadWithTwenty(input: {
       telefono: input.telefono,
       empresa: input.empresa,
       mensaje: input.mensaje,
-      leadMagnetId: input.tipoProyecto?.trim() || input.campaign,
+      // Fichas: un solo cargo para todas (el producto va en la nota) para no partir la vista.
+      leadMagnetId:
+        input.campaign === 'pdf_descarga'
+          ? 'ficha-tecnica'
+          : input.tipoProyecto?.trim() || input.campaign,
+      productSlug:
+        input.campaign === 'pdf_descarga' ? input.tipoSlug?.trim() || undefined : undefined,
       campaign: input.campaign,
       familySlug: input.familySlug,
       ciudad: input.ciudad,
