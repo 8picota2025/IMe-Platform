@@ -15,6 +15,7 @@ import { syncCommercialLeadWithTwenty } from '../_shared/twenty-crm.ts';
 import { enviarEmailPlantilla, escapeHtml, DESTINATARIOS_INTERNOS } from '../_shared/email.ts';
 import {
   classifyLead,
+  isKnownCampaign,
   isTurnstileOptionalCampaign,
   validateCommercialLead,
   type CommercialLeadInput,
@@ -24,25 +25,6 @@ import {
 const FN_NAME = 'registrar-lead-comercial';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const IDEMPOTENCY_RE = /^[A-Za-z0-9_-]{16,200}$/;
-const CAMPAIGNS = new Set([
-  'torres_laparoscopia',
-  'esterilizacion',
-  'imagenologia',
-  'robotica_rehabilitacion',
-  'proyectos',
-  'pdf_descarga',
-  'herramienta',
-  'evento',
-  'fab_tuttnauer',
-  'fab_saikang',
-  'fab_angell',
-  'fab_northern',
-  'fab_ilumitec',
-  'fab_perlong',
-  'fab_bm',
-  'fab_advanced',
-  'fab_m',
-]);
 const HORIZONTES = new Set<HorizonteCompra>(['0-3', '4-12', 'exploracion']);
 
 interface LeadBody extends Partial<CommercialLeadInput> {
@@ -395,7 +377,7 @@ Deno.serve(
     }
 
     const campaign = cleanText(body.campaign, 80);
-    if (!campaign || !CAMPAIGNS.has(campaign)) return badRequest('campaign invalida', origin);
+    if (!isKnownCampaign(campaign)) return badRequest('campaign invalida', origin);
 
     const eventFirstNames = cleanText(body.nombres, 60);
     const eventLastNames = cleanText(body.apellidos, 60);

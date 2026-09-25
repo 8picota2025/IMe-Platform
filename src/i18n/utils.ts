@@ -58,6 +58,7 @@ const PATH_SEGMENT_PAIRS: Array<{ es: string; en: string }> = [
   { es: 'camillas-medicas', en: 'medical-stretchers' },
   { es: 'ventiladores-mecanicos-uci', en: 'mechanical-ventilators-icu' },
   { es: 'desfibriladores-hospitalarios', en: 'hospital-defibrillators' },
+  { es: 'dotacion-monitoreo-uci', en: 'icu-monitoring-projects' },
   { es: 'fabricantes', en: 'manufacturers' },
   { es: 'familias', en: 'families' },
   { es: 'ciudades', en: 'cities' },

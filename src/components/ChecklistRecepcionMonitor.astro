@@ -25,7 +25,8 @@ const modalId = 'checklist-recepcion-gate';
 const articuloHref = isEn
   ? `/en/knowledge/${CHECKLIST_ARTICULO_SLUG}/`
   : `/es/conocimiento/${CHECKLIST_ARTICULO_SLUG}/`;
-const contactoHref = isEn ? '/en/contact/' : '/es/contacto/';
+// La landing de proyectos de UCI (Fase 3, D2) es el siguiente paso comercial de la herramienta.
+const proyectoHref = isEn ? '/en/icu-monitoring-projects/' : '/es/dotacion-monitoreo-uci/';
 const titulo = isEn
   ? 'Monitor receiving and installation checklist'
   : 'Checklist de recepción e instalación de monitores';
@@ -95,8 +96,8 @@ const titulo = isEn
           : '¿Está preparando monitores para un servicio? I-ME coordina la instalación, las pruebas y la capacitación por turnos.'
       }
     </p>
-    <a class="btn btn-secondary" href={contactoHref}>
-      {isEn ? 'Talk to an advisor' : 'Hablar con un asesor'}
+    <a class="btn btn-secondary" href={proyectoHref}>
+      {isEn ? 'Plan your ICU project' : 'Planear el proyecto de UCI'}
     </a>
   </aside>
 </div>

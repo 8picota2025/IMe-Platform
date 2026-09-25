@@ -3,9 +3,12 @@ import {
   buildWhatsAppMessage,
   buildWhatsAppUrl,
   classifyLead,
+  isKnownCampaign,
   isTurnstileOptionalCampaign,
   validateCommercialLead,
 } from './comercial-leads';
+import { listCampaignLandings } from '../data/comercial-landings';
+import { listFabricanteLandings } from '../data/fabricante-landings';
 
 describe('classifyLead', () => {
   it('0-3 → P1', () => expect(classifyLead('0-3')).toBe('P1'));
@@ -157,5 +160,26 @@ describe('buildWhatsAppMessage', () => {
     expect(url.toLowerCase()).not.toContain('precio_costo');
     const forbiddenRole = ['service', 'role'].join('_');
     expect(url.toLowerCase()).not.toContain(forbiddenRole);
+  });
+});
+
+describe('isKnownCampaign', () => {
+  it('acepta la campaña de cada landing publicada (campaña y fabricante)', () => {
+    const ids = [...listCampaignLandings('es'), ...listFabricanteLandings('es')].map(l => l.id);
+    expect(ids.length).toBeGreaterThan(10);
+    for (const id of ids) expect(isKnownCampaign(id), id).toBe(true);
+  });
+
+  it('acepta los formularios que no son landing', () => {
+    for (const id of ['proyectos', 'pdf_descarga', 'herramienta', 'evento']) {
+      expect(isKnownCampaign(id), id).toBe(true);
+    }
+  });
+
+  it('rechaza valores desconocidos o vacíos', () => {
+    expect(isKnownCampaign('inventada')).toBe(false);
+    expect(isKnownCampaign('toString')).toBe(false);
+    expect(isKnownCampaign('')).toBe(false);
+    expect(isKnownCampaign(null)).toBe(false);
   });
 });
