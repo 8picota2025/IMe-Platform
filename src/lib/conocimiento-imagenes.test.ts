@@ -41,6 +41,26 @@ describe('resolverImagenArticulo', () => {
     expect(img.src).not.toContain('hospital-uci-pasillo');
   });
 
+  it('sustituye la imagen genérica del CMS por la propia del slug', () => {
+    const img = resolverImagenArticulo({
+      slug: 'central-monitoreo-multicama-o-monitores-independientes',
+      imagen: 'https://i-me.com.co/assets/img/hospital-uci-pasillo.webp',
+    });
+    expect(img.src).toBe('/assets/img/central-monitoreo-multicama.webp');
+  });
+
+  it('cada artículo de monitoreo tiene imagen propia distinta', () => {
+    const slugs = [
+      'guia-monitores-multiparametricos-hospitalarios-colombia',
+      'checklist-recepcion-instalacion-monitor-hospitalario',
+      'monitores-uci-adulto-pediatrica-neonatal',
+      'central-monitoreo-multicama-o-monitores-independientes',
+    ];
+    const srcs = slugs.map(slug => resolverImagenArticulo({ slug, imagen: null }).src);
+    expect(new Set(srcs).size).toBe(4);
+    expect(srcs.some(src => src.includes('hospital-uci-pasillo'))).toBe(false);
+  });
+
   it('solo usa fallback por slug si no hay imagen CMS', () => {
     const img = resolverImagenArticulo({
       slug: 'guia-monitores-multiparametricos-uci',

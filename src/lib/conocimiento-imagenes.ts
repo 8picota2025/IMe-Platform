@@ -15,6 +15,26 @@ export interface ImagenArticulo {
 }
 
 const POR_SLUG: Record<string, ImagenArticulo> = {
+  'guia-monitores-multiparametricos-hospitalarios-colombia': {
+    src: '/assets/img/monitores-multiparametricos-guia.webp',
+    width: 1400,
+    height: 788,
+  },
+  'checklist-recepcion-instalacion-monitor-hospitalario': {
+    src: '/assets/img/monitor-recepcion-instalacion.webp',
+    width: 1400,
+    height: 788,
+  },
+  'monitores-uci-adulto-pediatrica-neonatal': {
+    src: '/assets/img/monitores-uci-adulto-pediatrica-neonatal.webp',
+    width: 1400,
+    height: 788,
+  },
+  'central-monitoreo-multicama-o-monitores-independientes': {
+    src: '/assets/img/central-monitoreo-multicama.webp',
+    width: 1400,
+    height: 788,
+  },
   'ime-certificaciones-calidad': {
     src: '/assets/img/equipos-biomedicos-vanguardia-opt.webp',
     width: 900,
@@ -135,6 +155,13 @@ export interface ArticuloImagenInput {
  * optimizada; nunca se sustituye por un fallback de slug/keyword si hay CMS.
  * Excepción: guía caminadores GSC usa assets editoriales ES/EN.
  */
+/** Imágenes de relleno compartidas por varios artículos: si el CMS solo tiene una de estas, gana la imagen propia del slug. */
+const IMAGENES_GENERICAS = ['/assets/img/hospital-uci-pasillo.webp'];
+
+function esImagenGenerica(url: string): boolean {
+  return IMAGENES_GENERICAS.some(generica => url.endsWith(generica));
+}
+
 export function resolverImagenArticulo(
   articulo: ArticuloImagenInput,
   locale: 'es' | 'en' = 'es'
@@ -143,6 +170,8 @@ export function resolverImagenArticulo(
     return imagenParaArticulo(articulo.slug, locale);
   }
   const cmsUrl = typeof articulo.imagen === 'string' ? articulo.imagen.trim() : '';
+  const especifica = POR_SLUG[articulo.slug];
+  if (especifica && esImagenGenerica(cmsUrl)) return especifica;
   if (cmsUrl) {
     const mirrored = imagenMirrorParaArticulo(articulo.slug);
     if (mirrored) return mirrored;
