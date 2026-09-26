@@ -23,6 +23,7 @@ import {
   type ImportFieldError,
 } from '../lib/proveedor-import';
 import { renderMarkdown } from '../lib/markdown';
+import { bindLandings, landingsView, type LandingsAdminCtx } from './landings-admin';
 import { CAMPANAS_PILOTO, resumirPiloto, rutasPiloto } from '../lib/piloto-monitoreo';
 import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase';
 import type { AuthChangeEvent } from '@supabase/supabase-js';
@@ -109,6 +110,7 @@ type View =
   | 'envios'
   | 'resenas'
   | 'conocimiento'
+  | 'landings'
   | 'propuestas'
   | 'ingesta'
   | 'asesor'
@@ -314,6 +316,7 @@ const VISTAS_POR_ROL: Record<string, Set<View>> = {
     'taxonomia',
     'ingesta',
     'conocimiento',
+    'landings',
     'propuestas',
     'compra-directa',
   ]),
@@ -338,6 +341,7 @@ const VISTAS_POR_ROL: Record<string, Set<View>> = {
     'marketing',
     'asesor',
     'conocimiento',
+    'landings',
     'propuestas',
     'compra-directa',
   ]),
@@ -506,6 +510,7 @@ function parseView(hash: string): View {
     raw === 'envios' ||
     raw === 'resenas' ||
     raw === 'conocimiento' ||
+    raw === 'landings' ||
     raw === 'blog' ||
     raw === 'propuestas' ||
     raw === 'ingesta' ||
@@ -716,6 +721,18 @@ function renderNewPassword() {
   });
 }
 
+/** Dependencias del editor de landings (Fase 3B), que vive en su propio módulo. */
+function landingsCtx(): LandingsAdminCtx {
+  return {
+    supabase: supabase!,
+    escapeHtml,
+    toast,
+    triggerRebuild,
+    uploadFile,
+    rerender: render,
+  };
+}
+
 async function routeView(): Promise<{ title: string; body: string }> {
   if (!vistaPermitida(state.view)) return accesoDenegadoView(state.view);
   if (state.view === 'crm') return { title: 'CRM', body: await crmView() };
@@ -751,6 +768,8 @@ async function routeView(): Promise<{ title: string; body: string }> {
   if (state.view === 'resenas') return { title: 'Resenas', body: await resenasView() };
   if (state.view === 'conocimiento')
     return { title: 'Blog / Conocimiento', body: await conocimientoView() };
+  if (state.view === 'landings')
+    return { title: 'Landings', body: await landingsView(landingsCtx()) };
   if (state.view === 'propuestas')
     return { title: 'Propuestas de articulos', body: await propuestasView() };
   if (state.view === 'ingesta') return { title: 'Ingesta PDF', body: await ingestaView() };
@@ -802,6 +821,7 @@ function shellHtml(title: string, body: string): string {
       label: 'Contenido',
       items: [
         ['conocimiento', 'Blog'],
+        ['landings', 'Landings'],
         ['propuestas', 'Propuestas blog'],
       ],
     },
@@ -915,6 +935,7 @@ function bindView() {
   bindPropuestas();
   bindAsesorPanel();
   bindCompraDirecta();
+  if (state.view === 'landings') bindLandings(landingsCtx());
 }
 
 async function plantillasView(): Promise<string> {

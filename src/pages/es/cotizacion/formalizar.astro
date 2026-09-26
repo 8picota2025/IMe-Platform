@@ -292,9 +292,7 @@ const currentPath = '/es/cotizacion/formalizar';
       // Guardar dígitos limpios para el backend
       nitInput.value = r.numero;
       nitHint.textContent =
-        tipo === 'NIT'
-          ? `NIT válido: ${r.numero_formateado}`
-          : 'Documento con formato válido';
+        tipo === 'NIT' ? `NIT válido: ${r.numero_formateado}` : 'Documento con formato válido';
       nitHint.style.color = '#0b5c3b';
     } else {
       nitHint.textContent = r.errores[0] ?? 'Documento inválido';
@@ -409,10 +407,7 @@ const currentPath = '/es/cotizacion/formalizar';
         const tipoDocumento = String(fd.get('tipo_documento') ?? '');
         let numeroDocumento = String(fd.get('numero_documento') ?? '');
         if (solicitarFactura && (tipoDocumento === 'NIT' || tipoDocumento === 'CC')) {
-          const check = verificarNitCampo(
-            numeroDocumento,
-            tipoDocumento as 'NIT' | 'CC'
-          );
+          const check = verificarNitCampo(numeroDocumento, tipoDocumento as 'NIT' | 'CC');
           if (!check.ok || !check.numero) {
             formStatus.textContent = check.errores[0] ?? 'Documento fiscal inválido';
             submitBtn.disabled = false;
@@ -425,7 +420,8 @@ const currentPath = '/es/cotizacion/formalizar';
           ? {
               solicitar_factura_electronica: true,
               tipo_documento: tipoDocumento,
-              numero_documento: numeroDocumento,              tipo_persona: String(fd.get('tipo_persona') ?? ''),
+              numero_documento: numeroDocumento,
+              tipo_persona: String(fd.get('tipo_persona') ?? ''),
               razon_social: String(fd.get('razon_social') ?? ''),
               email_facturacion: String(fd.get('email_facturacion') ?? ''),
               responsable_iva: fd.get('responsable_iva') === 'on',

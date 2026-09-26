@@ -1,7 +1,9 @@
 # Fase 3B — Landing Factory en el CMS (ADR-0015): plan
 
-> Estado: **PROPUESTO, esperando GO/HOLD del usuario** (2026-09-26). Paso 1 del gate del
-> mandato (§20). No se implementa nada antes del GO.
+> Estado: **GO del usuario (2026-09-26)** con las tres propuestas: editan `catalogo`, `ventas`,
+> `owner` y `admin`; borrador + «Publicar»; empezar por las tandas 0 y 1. Pedido añadido: un
+> editor en el admin que liste todas las landings y edite texto y fotos, no diseño. **Tandas 0
+> y 1 implementadas** (tabla, loaders validados, seed de las 12 de campaña, editor).
 
 ## Qué se migra (inventario del 2026-09-26)
 

@@ -1,10 +1,10 @@
 ---
 import CampaignLandingPage from '../../components/CampaignLandingPage.astro';
-import { getCampaignLanding } from '../../data/comercial-landings';
+import { getCampaignLandingCms } from '../../lib/landings-cms';
 import { getProductosBySlugs } from '../../lib/datos';
 
 const locale = 'en' as const;
-const content = getCampaignLanding('torres_laparoscopia', locale);
+const content = await getCampaignLandingCms('torres_laparoscopia', locale);
 const productos = await getProductosBySlugs(content.productSlugs, locale);
 ---
 
