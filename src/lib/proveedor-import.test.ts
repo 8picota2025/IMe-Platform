@@ -18,8 +18,6 @@ import {
   suggestContactsFromNote,
 } from './proveedor-import';
 
-const CANVA_PATH = '/home/shoky/0 IME/proveedores list/proveedores-canva.csv';
-
 describe('plantilla de proveedores', () => {
   it('usa las mismas columnas que la muestra y no incluye secretos', () => {
     expect(Object.keys(PROVEEDOR_TEMPLATE_SAMPLE)).toEqual([...PROVEEDOR_IMPORT_COLUMNS]);
@@ -258,9 +256,11 @@ describe('CSV interno de proveedores', () => {
     expect(buried.distribuidorLocalSugerido).toBe('Electromed');
   });
 
-  it('lee el archivo real y propone el titular aparte de la nota', () => {
-    const rows = parseCsv(readFileSync(CANVA_PATH, 'utf8'));
-    expect(rows.length).toBeGreaterThan(20);
+  it('lee la muestra del directorio y propone el titular aparte de la nota', () => {
+    const rows = parseCsv(
+      readFileSync(new URL('./proveedor-import.fixture.csv', import.meta.url), 'utf8')
+    );
+    expect(rows).toHaveLength(1);
     const headers = Object.keys(rows[0] ?? {});
     const mapping = defaultCsvMapping(headers);
     expect(mapping.Marca).toBe('nombre');
