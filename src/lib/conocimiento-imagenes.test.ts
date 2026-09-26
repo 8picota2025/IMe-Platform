@@ -109,4 +109,19 @@ describe('absoluteImagenUrl', () => {
   it('prefija sitio en rutas relativas', () => {
     expect(absoluteImagenUrl('/assets/img/x.webp')).toBe('https://i-me.com.co/assets/img/x.webp');
   });
+
+  it('los artículos INVIMA usan su imagen propia, no la genérica de calidad', () => {
+    for (const slug of [
+      'registro-sanitario-invima-equipos-biomedicos',
+      'checklist-invima-compra-equipos-medicos',
+    ]) {
+      const img = resolverImagenArticulo({ slug, imagen: null });
+      expect(img.src, slug).toBe(`/assets/img/${slug}.webp`);
+      const conGenerica = resolverImagenArticulo({
+        slug,
+        imagen: 'https://i-me.com.co/assets/img/equipos-biomedicos-vanguardia-opt.webp',
+      });
+      expect(conGenerica.src, slug).toBe(`/assets/img/${slug}.webp`);
+    }
+  });
 });

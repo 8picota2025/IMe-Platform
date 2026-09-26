@@ -2566,8 +2566,8 @@ const DOTACION_MONITOREO_UCI: ContentMap = {
     tertiaryCta: 'Ver monitores en catálogo',
     heroImage: '/assets/img/central-monitoreo-multicama.webp',
     heroImageAlt: 'Central de monitoreo de una UCI con los datos de varias camas en pantalla',
-    heroImageWidth: 1400,
-    heroImageHeight: 788,
+    heroImageWidth: 1168,
+    heroImageHeight: 784,
     leadMagnet: {
       label: 'Herramienta gratuita',
       title: 'Checklist de recepción e instalación de monitores',
@@ -2717,8 +2717,8 @@ const DOTACION_MONITOREO_UCI: ContentMap = {
     tertiaryCta: 'See monitors in the catalog',
     heroImage: '/assets/img/central-monitoreo-multicama.webp',
     heroImageAlt: 'ICU central monitoring station showing data from several beds',
-    heroImageWidth: 1400,
-    heroImageHeight: 788,
+    heroImageWidth: 1168,
+    heroImageHeight: 784,
     leadMagnet: {
       label: 'Free tool',
       title: 'Monitor receiving and installation checklist',
