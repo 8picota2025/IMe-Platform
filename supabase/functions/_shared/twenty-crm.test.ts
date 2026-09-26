@@ -552,17 +552,18 @@ Deno.test('lead magnet: contacto y nota con atribución, sin oportunidad ni tare
     const note = callsFor(mock.calls, 'POST', '/rest/notes')[0];
     const markdown = String((note?.body?.bodyV2 as { markdown?: string } | undefined)?.markdown);
     assertStringIncludes(markdown, '**UTM Source:** linkedin');
-    assertStringIncludes(markdown, '**Herramienta:** checklist-recepcion-monitor');
+    assertStringIncludes(markdown, '**Lead magnet:** checklist-recepcion-monitor');
     assertEquals(callsFor(mock.calls, 'POST', '/rest/noteTargets').length, 2);
   } finally {
     mock.restore();
   }
 });
 
-Deno.test('lead magnet: sólo la campaña herramienta; cargo acotado a 80 caracteres', () => {
+Deno.test('lead magnet: herramientas y fichas; cargo acotado a 80 caracteres', () => {
   assertEquals(esCampanaLeadMagnet('herramienta'), true);
+  assertEquals(esCampanaLeadMagnet('pdf_descarga'), true);
   assertEquals(esCampanaLeadMagnet('dotacion_monitoreo_uci'), false);
-  assertEquals(esCampanaLeadMagnet('pdf_descarga'), false);
+  assertEquals(esCampanaLeadMagnet('proyectos'), false);
   assertEquals(esCampanaLeadMagnet(undefined), false);
   assert(leadMagnetJobTitle('x'.repeat(200)).length <= 80);
 });
