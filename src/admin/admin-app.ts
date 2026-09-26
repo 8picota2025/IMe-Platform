@@ -10,6 +10,10 @@ import {
   applyCsvMapping,
   defaultCsvMapping,
   estadoInvimaLabel,
+  isValidEmail,
+  isValidHttpUrl,
+  normalizePais,
+  normalizeWhatsapp,
   findDuplicateGroups,
   matchExistingProveedor,
   parseCsv,
@@ -5463,7 +5467,7 @@ async function proveedoresView(): Promise<string> {
         </div>
       </div>
       <form class="admin-filters" data-proveedores-filter>
-        ${field('q', 'Buscar por nombre o slug', q, false, 'search')}
+        ${field('q', 'Buscar por nombre, equipo, email, país o INVIMA', q, false, 'search')}
         ${selectStatic('activo', 'Estado', activo, [
           ['', 'Todos'],
           ['1', 'Activo'],
@@ -5522,11 +5526,14 @@ async function proveedoresView(): Promise<string> {
         </div>
         <p id="dropship-help" class="admin-help">Los prospectos se crean inactivos y sin dropshipping. Marcar el estado como aprobado no activa dropshipping. La habilitación exige validación comercial, canal de pedido y aprobación operativa.</p>
       </form>
+      <p class="admin-help">${rows.length} proveedores en esta vista.</p>
       ${table(
         [
           'Proveedor',
           'Ubicación',
+          'Equipos',
           'Validación',
+          'Último contacto',
           'Dropship',
           'Contactos / fuentes',
           'Productos',
@@ -5535,7 +5542,9 @@ async function proveedoresView(): Promise<string> {
         rows.map(r => [
           `<strong>${escapeHtml(text(r.nombre))}</strong><br /><span class="admin-meta">${escapeHtml(proveedorTipoLabel(text(r.tipo_entidad)))}</span>`,
           escapeHtml([text(r.ciudad), text(r.pais)].filter(Boolean).join(', ')) || '—',
+          escapeHtml(clipText(text(r.lineas_equipos))) || '—',
           proveedorLifecycleBadge(text(r.lifecycle_status)),
+          escapeHtml(text(r.ultimo_contacto_at).replace('T', ' ').slice(0, 16)) || '—',
           dropshipStatus(Boolean(r.dropship_enabled)),
           `${String(conteosContactos.get(text(r.id)) ?? 0)} contactos · ${String(conteosFuentesVerificadas.get(text(r.id)) ?? 0)} fuentes verificadas`,
           String(conteos.get(text(r.id)) ?? 0),
@@ -5615,7 +5624,7 @@ async function proveedorDetailView(): Promise<string> {
   if (!proveedorId)
     return notFoundPanel('Selecciona un proveedor desde el directorio.', '#/proveedores');
   const [proveedor, contactos, fuentes, canales, documentos, interacciones] = await Promise.all([
-    getRow('proveedores', proveedorId),
+    getProveedor(proveedorId),
     selectRows('proveedor_contactos', '*', 'tipo', 200).then(rows =>
       rows.filter(r => text(r.proveedor_id) === proveedorId)
     ),
@@ -6712,6 +6721,13 @@ function bindTaxonomy() {
         toast('Dropshipping solo se habilita para proveedores aprobados.');
         return;
       }
+      if (tableName === 'proveedores') {
+        const contactoError = normalizarContactoProveedor(payload);
+        if (contactoError) {
+          toast(contactoError);
+          return;
+        }
+      }
       const { error } = await supabase!.from(tableName).insert(payload);
       if (error) {
         toast(error.message);
@@ -7399,12 +7415,41 @@ function formCheckbox(form: HTMLFormElement, name: string): boolean {
   return element instanceof HTMLInputElement && element.checked;
 }
 
+/** Valida email, URL y WhatsApp, y deja el teléfono en E.164 y el país normalizado. */
+function normalizarContactoProveedor(payload: Row): string | null {
+  const email = text(payload['contacto_email']);
+  if (email && !isValidEmail(email)) return `Email no válido: ${email}`;
+  if (email) payload['contacto_email'] = email.toLowerCase();
+  const site = text(payload['sitio_web']);
+  if (site && !isValidHttpUrl(site)) return `Sitio web no válido: ${site}`;
+  const whatsapp = normalizeWhatsapp(payload['contacto_whatsapp']);
+  if (!whatsapp.ok) return `WhatsApp debe estar en formato +573001112233 (${whatsapp.raw})`;
+  payload['contacto_whatsapp'] = whatsapp.value;
+  if (payload['pais']) payload['pais'] = normalizePais(payload['pais']);
+  return null;
+}
+
+function clipText(value: string, max = 90): string {
+  const clean = value.replace(/\s+/g, ' ').trim();
+  if (clean.length <= max) return clean;
+  return `${clean.slice(0, max - 1)}…`;
+}
+
 function contactPayload(form: HTMLFormElement): Row | null {
   const data = new FormData(form);
-  const email = emptyToNull(data.get('email'));
+  const emailRaw = text(data.get('email'));
+  if (emailRaw && !isValidEmail(emailRaw)) {
+    toast(`Email no válido: ${emailRaw}`);
+    return null;
+  }
+  const email = emailRaw ? emailRaw.toLowerCase() : null;
   const telefono = emptyToNull(data.get('telefono'));
-  const whatsapp = emptyToNull(data.get('whatsapp'));
-  if (!email && !telefono && !whatsapp) {
+  const whatsapp = normalizeWhatsapp(data.get('whatsapp'));
+  if (!whatsapp.ok) {
+    toast(`WhatsApp debe estar en formato +573001112233 (${whatsapp.raw})`);
+    return null;
+  }
+  if (!email && !telefono && !whatsapp.value) {
     toast('Indica email, teléfono o WhatsApp para el contacto.');
     return null;
   }
@@ -7415,7 +7460,7 @@ function contactPayload(form: HTMLFormElement): Row | null {
     cargo: emptyToNull(data.get('cargo')),
     email,
     telefono,
-    whatsapp,
+    whatsapp: whatsapp.value,
     es_principal: formCheckbox(form, 'es_principal'),
     verification_status: text(data.get('verification_status')) || 'pendiente',
     source_note: emptyToNull(data.get('source_note')),
@@ -7477,6 +7522,11 @@ function bindProveedorDetail() {
       notas: emptyToNull(data.get('notas')),
       activo: formCheckbox(master, 'activo'),
     };
+    const contactoError = normalizarContactoProveedor(payload);
+    if (contactoError) {
+      toast(contactoError);
+      return;
+    }
     const { error } = await supabase!
       .from('proveedores')
       .update(payload)
@@ -10869,7 +10919,57 @@ async function selectRowsWhere(
   return (data ?? []) as unknown as Row[];
 }
 
+const PROVEEDOR_ADMIN_COLUMNS = [
+  'id',
+  'slug',
+  'nombre',
+  'razon_social',
+  'tipo_entidad',
+  'sitio_web',
+  'pais',
+  'ciudad',
+  'direccion_comercial',
+  'contacto_email',
+  'contacto_whatsapp',
+  'canal',
+  'lifecycle_status',
+  'lineas_equipos',
+  'estado_invima',
+  'invima_titular',
+  'distribuidor_local',
+  'notas',
+  'activo',
+  'dropship_enabled',
+  'cobertura_envios',
+  'incoterms',
+  'almacenes',
+  'moneda_operativa',
+  'sla_respuesta_horas',
+  'sla_despacho_dias_habiles',
+  'stock_feed_tipo',
+  'riesgo_operativo',
+  'ultimo_contacto_at',
+  'devoluciones_rma_notas',
+  'onboarding_notas',
+  'created_at',
+  'updated_at',
+].join(',');
+
+async function getProveedor(id: string): Promise<Row | null> {
+  const { data, error } = await supabase!
+    .from('proveedores')
+    .select(PROVEEDOR_ADMIN_COLUMNS)
+    .eq('id', id)
+    .maybeSingle();
+  if (error) {
+    toast(error.message);
+    return null;
+  }
+  return (data as Row | null) ?? null;
+}
+
 async function getRow(tableName: string, id: string): Promise<Row | null> {
+  if (tableName === 'proveedores') return getProveedor(id);
   const { data, error } = await supabase!.from(tableName).select('*').eq('id', id).maybeSingle();
   if (error) {
     toast(error.message);
@@ -11938,23 +12038,28 @@ async function fetchClientesForExcel(): Promise<Row[]> {
   return fetchQueryPages(query);
 }
 
-async function fetchProveedoresForExcel(): Promise<Row[]> {
-  const params = hashParams();
-  const filters: ProveedoresQuery = {
-    q: (params.get('q') ?? '').trim(),
-    activo: params.get('activo') ?? '',
-    tipo_entidad: params.get('tipo_entidad') ?? '',
-    lifecycle_status: params.get('lifecycle_status') ?? '',
-    dropship: params.get('dropship') ?? '',
-    incorporado_desde: params.get('incorporado_desde') ?? '',
-    incorporado_hasta: params.get('incorporado_hasta') ?? '',
-    ordenar: params.get('ordenar') ?? 'alfabetico_asc',
-  };
-  let query = supabase!.from('proveedores').select('*');
-  if (filters.q) {
-    const safeQ = filters.q.replace(/[,()%]/g, '');
-    if (safeQ) query = query.or(`nombre.ilike.%${safeQ}%,slug.ilike.%${safeQ}%`);
-  }
+function proveedorSearchFilter(q: string): string | null {
+  const safeQ = q.replace(/[,()%]/g, '');
+  if (!safeQ) return null;
+  const fields = [
+    'nombre',
+    'slug',
+    'razon_social',
+    'contacto_email',
+    'pais',
+    'ciudad',
+    'lineas_equipos',
+    'invima_titular',
+    'distribuidor_local',
+    'estado_invima',
+  ];
+  return fields.map(fieldName => `${fieldName}.ilike.%${safeQ}%`).join(',');
+}
+
+function proveedoresFilteredQuery(filters: ProveedoresQuery) {
+  let query = supabase!.from('proveedores').select(PROVEEDOR_ADMIN_COLUMNS);
+  const search = proveedorSearchFilter(filters.q);
+  if (search) query = query.or(search);
   if (filters.activo === '1') query = query.eq('activo', true);
   if (filters.activo === '0') query = query.eq('activo', false);
   if (filters.tipo_entidad) query = query.eq('tipo_entidad', filters.tipo_entidad);
@@ -11974,7 +12079,23 @@ async function fetchProveedoresForExcel(): Promise<Row[]> {
   } else {
     query = query.order('nombre', { ascending: true }).order('created_at', { ascending: false });
   }
-  return fetchQueryPages(query);
+  return query;
+}
+
+async function fetchProveedoresForExcel(): Promise<Row[]> {
+  const params = hashParams();
+  return fetchQueryPages(
+    proveedoresFilteredQuery({
+      q: (params.get('q') ?? '').trim(),
+      activo: params.get('activo') ?? '',
+      tipo_entidad: params.get('tipo_entidad') ?? '',
+      lifecycle_status: params.get('lifecycle_status') ?? '',
+      dropship: params.get('dropship') ?? '',
+      incorporado_desde: params.get('incorporado_desde') ?? '',
+      incorporado_hasta: params.get('incorporado_hasta') ?? '',
+      ordenar: params.get('ordenar') ?? 'alfabetico_asc',
+    })
+  );
 }
 
 async function fetchPedidosForExcel(): Promise<Row[]> {
@@ -12692,31 +12813,7 @@ function productoToExcelRow(row: Row, familias: Row[], tipos: Row[]): Record<str
 }
 
 async function selectProveedores(filters: ProveedoresQuery): Promise<Row[]> {
-  let query = supabase!.from('proveedores').select('*');
-  if (filters.q) {
-    const safeQ = filters.q.replace(/[,()%]/g, '');
-    if (safeQ) query = query.or(`nombre.ilike.%${safeQ}%,slug.ilike.%${safeQ}%`);
-  }
-  if (filters.activo === '1') query = query.eq('activo', true);
-  if (filters.activo === '0') query = query.eq('activo', false);
-  if (filters.tipo_entidad) query = query.eq('tipo_entidad', filters.tipo_entidad);
-  if (filters.lifecycle_status) query = query.eq('lifecycle_status', filters.lifecycle_status);
-  if (filters.dropship === '1') query = query.eq('dropship_enabled', true);
-  if (filters.dropship === '0') query = query.eq('dropship_enabled', false);
-  if (filters.incorporado_desde)
-    query = query.gte('created_at', `${filters.incorporado_desde}T00:00:00`);
-  if (filters.incorporado_hasta)
-    query = query.lte('created_at', `${filters.incorporado_hasta}T23:59:59.999`);
-  if (filters.ordenar === 'alfabetico_desc') {
-    query = query.order('nombre', { ascending: false }).order('created_at', { ascending: false });
-  } else if (filters.ordenar === 'recientes') {
-    query = query.order('created_at', { ascending: false }).order('nombre', { ascending: true });
-  } else if (filters.ordenar === 'antiguos') {
-    query = query.order('created_at', { ascending: true }).order('nombre', { ascending: true });
-  } else {
-    query = query.order('nombre', { ascending: true }).order('created_at', { ascending: false });
-  }
-  const { data, error } = await query.limit(100);
+  const { data, error } = await proveedoresFilteredQuery(filters).limit(500);
   if (error) {
     toast(error.message);
     return [];
