@@ -1,10 +1,14 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { getCampaignLanding, listCampaignLandingIds } from '../data/comercial-landings';
+import { getFabricanteLanding, listFabricanteLandingIds } from '../data/fabricante-landings';
 import {
   CAMPOS_BLOQUEADOS,
   copyEditableDesdeTs,
   getCampaignLandingCms,
+  getFabricanteLandingCms,
+  indexarFilas,
+  validarCopyLanding,
   indexarFilasCampana,
   mezclarLandingCampana,
   validarCopyCampana,
@@ -133,6 +137,70 @@ describe('seed de la tanda 1', () => {
       );
       expect(JSON.parse(en!), `${clave} (en)`).toEqual(
         copyEditableDesdeTs(getCampaignLanding(id, 'en'))
+      );
+    }
+  });
+});
+
+describe('tanda 2: landings de fabricante', () => {
+  it('cada landing de fabricante es válida y sale idéntica tras el paso por jsonb', () => {
+    for (const id of listFabricanteLandingIds()) {
+      for (const locale of LOCALES) {
+        const base = getFabricanteLanding(id, locale);
+        const copy = JSON.parse(JSON.stringify(copyEditableDesdeTs(base)));
+        expect(validarCopyLanding(copy, 'fabricante'), `${id} (${locale})`).toEqual([]);
+        expect(mezclarLandingCampana(base, copy), `${id} (${locale})`).toEqual(base);
+      }
+    }
+  });
+
+  it('en fabricante la marca es obligatoria y los productos no', () => {
+    const copy = copyEditableDesdeTs(getFabricanteLanding('fab_tuttnauer', 'es'));
+    delete copy['brandName'];
+    expect(validarCopyLanding(copy, 'fabricante')).toContain('brandName: obligatorio');
+    expect(
+      validarCopyLanding({ ...copy, brandName: 'X', productsTitle: '' }, 'fabricante')
+    ).toEqual([]);
+  });
+
+  it('no mezcla tipos: una fila de fabricante no vale como campaña', () => {
+    const fila = {
+      tipo: 'fabricante' as const,
+      clave: 'fab_tuttnauer',
+      contenido_es: copyEditableDesdeTs(getFabricanteLanding('fab_tuttnauer', 'es')),
+      contenido_en: copyEditableDesdeTs(getFabricanteLanding('fab_tuttnauer', 'en')),
+    };
+    expect(indexarFilas('fabricante', [fila]).has('fab_tuttnauer')).toBe(true);
+    expect(indexarFilas('campana', [fila]).size).toBe(0);
+  });
+
+  it('sin Supabase configurado devuelve la landing del código', async () => {
+    expect(await getFabricanteLandingCms('fab_saikang', 'en')).toEqual(
+      getFabricanteLanding('fab_saikang', 'en')
+    );
+  });
+
+  it('el seed coincide con el copy del código (desde la tanda 2 se edita en el CMS)', () => {
+    const sql = readFileSync(
+      new URL(
+        '../../supabase/migrations/20260926230000_seed_landings_fabricante.sql',
+        import.meta.url
+      ),
+      'utf8'
+    );
+    const filas = [
+      ...sql.matchAll(
+        /\('fabricante', '([a-z_]+)', \$ime_landing\$(.*?)\$ime_landing\$::jsonb, \$ime_landing\$(.*?)\$ime_landing\$::jsonb\)/g
+      ),
+    ];
+    expect(filas.map(f => f[1]).sort()).toEqual([...listFabricanteLandingIds()].sort());
+    for (const [, clave, es, en] of filas) {
+      const id = clave as ReturnType<typeof listFabricanteLandingIds>[number];
+      expect(JSON.parse(es!), `${clave} (es)`).toEqual(
+        copyEditableDesdeTs(getFabricanteLanding(id, 'es'))
+      );
+      expect(JSON.parse(en!), `${clave} (en)`).toEqual(
+        copyEditableDesdeTs(getFabricanteLanding(id, 'en'))
       );
     }
   });

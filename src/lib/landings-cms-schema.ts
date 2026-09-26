@@ -187,23 +187,53 @@ export type CopyCampana = Record<string, unknown>;
 
 const esTexto = (v: unknown): v is string => typeof v === 'string' && v.trim().length > 0;
 
-/** Valida un copy de campaña. Devuelve los errores con la ruta del campo (vacío = válido). */
-export function validarCopyCampana(copy: unknown): string[] {
+/** Tipos de landing que comparten el esquema de `CampaignLandingContent`. */
+export type TipoLandingCampana = Extract<TipoLanding, 'campana' | 'fabricante'>;
+
+/** Campos que cambian de obligatorios a opcionales (o al revés) en las landings de fabricante. */
+const OBLIGATORIOS_FABRICANTE = new Set([
+  'brandName',
+  'brandProfileTitle',
+  'brandProfileBody',
+  'typologiesTitle',
+  'typologiesIntro',
+  'typologies',
+]);
+// Sin sección de productos (la página los recibe vacíos).
+const OPCIONALES_FABRICANTE = new Set(['productsTitle', 'productsNote']);
+
+/** Campos editables de un tipo de landing, con la obligatoriedad de ese tipo. */
+export function camposPara(tipo: TipoLandingCampana): CampoEditable[] {
+  if (tipo === 'campana') return CAMPOS_CAMPANA;
+  return CAMPOS_CAMPANA.map(c =>
+    OBLIGATORIOS_FABRICANTE.has(c.clave)
+      ? { ...c, obligatorio: true }
+      : OPCIONALES_FABRICANTE.has(c.clave)
+        ? { ...c, obligatorio: false }
+        : c
+  );
+}
+
+/** Valida el copy de una landing. Devuelve los errores con la ruta del campo (vacío = válido). */
+export function validarCopyLanding(copy: unknown, tipo: TipoLandingCampana): string[] {
   if (!copy || typeof copy !== 'object' || Array.isArray(copy)) {
     return ['el contenido no es un objeto'];
   }
+  const campos = camposPara(tipo);
   const errores: string[] = [];
   const obj = copy as Record<string, unknown>;
-  const conocidos = new Set(CAMPOS_CAMPANA.map(c => c.clave));
+  const conocidos = new Set(campos.map(c => c.clave));
   for (const clave of Object.keys(obj)) {
     if (!conocidos.has(clave)) errores.push(`${clave}: campo desconocido o no editable`);
   }
-  for (const campo of CAMPOS_CAMPANA) {
+  for (const campo of campos) {
     const v = obj[campo.clave];
     if (v === undefined || v === null) {
       if (campo.obligatorio) errores.push(`${campo.clave}: obligatorio`);
       continue;
     }
+    // Un opcional vacío equivale a no tenerlo (se conserva tal cual para la paridad).
+    if (!campo.obligatorio && v === '') continue;
     switch (campo.tipo) {
       case 'texto':
       case 'parrafo':
@@ -244,6 +274,11 @@ export function validarCopyCampana(copy: unknown): string[] {
     }
   }
   return errores;
+}
+
+/** Valida el copy de una landing de campaña. */
+export function validarCopyCampana(copy: unknown): string[] {
+  return validarCopyLanding(copy, 'campana');
 }
 
 /** Copy editable de una landing del TypeScript: todo menos los campos bloqueados. */
