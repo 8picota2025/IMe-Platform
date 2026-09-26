@@ -6,14 +6,8 @@
  * editan aquí. Flujo: guardar borrador → publicar (nueva versión + rebuild) → historial.
  */
 import type { SupabaseClient } from '@supabase/supabase-js';
-import {
-  getCampaignLanding,
-  listCampaignLandingIds,
-  type StandardCampaignLandingId,
-} from '../data/comercial-landings';
-import { listFabricanteLandings } from '../data/fabricante-landings';
-import { CITY_LANDINGS } from '../data/city-landings';
-import { FAMILIA_SEO } from '../data/familia-seo';
+// Sólo el índice (nombres y rutas): cargar el copy completo rompía el presupuesto de JS.
+import { LANDINGS_INDICE, type EntradaIndiceLanding } from '../data/landings-indice';
 import {
   CAMPOS_CAMPANA,
   validarCopyCampana,
@@ -98,8 +92,10 @@ function tablaLista(filas: string[]): string {
 async function listaView(ctx: LandingsAdminCtx): Promise<string> {
   const e = ctx.escapeHtml;
   const { filas, borradores, error } = await filasCampana(ctx);
-  const campana = listCampaignLandingIds().map(id => {
-    const ts = getCampaignLanding(id, 'es');
+  const porTipo = (tipo: EntradaIndiceLanding['tipo']) =>
+    LANDINGS_INDICE.filter(l => l.tipo === tipo);
+  const campana = porTipo('campana').map(landing => {
+    const id = landing.clave;
     const fila = filas.get(id);
     const borrador = fila ? borradores.get(fila.id) : undefined;
     const estado = !fila
@@ -108,19 +104,15 @@ async function listaView(ctx: LandingsAdminCtx): Promise<string> {
     const accion = fila
       ? `<a class="admin-button admin-button--ghost" href="#/landings?id=${encodeURIComponent(id)}">Editar</a>`
       : '';
-    return filaLista(ctx, ts.tag, ts.path, estado, accion);
+    return filaLista(ctx, landing.nombre, landing.path, estado, accion);
   });
   const pendiente = (tanda: number) =>
     `<span class="admin-help">En código · se podrá editar tras la tanda ${tanda}</span>`;
-  const fabricantes = listFabricanteLandings('es').map(l =>
-    filaLista(ctx, l.brandName ?? l.tag, l.path, pendiente(2), '')
+  const fabricantes = porTipo('fabricante').map(l =>
+    filaLista(ctx, l.nombre, l.path, pendiente(2), '')
   );
-  const ciudades = CITY_LANDINGS.map(c =>
-    filaLista(ctx, c.name_es, `/es/ciudades/${c.slug}/`, pendiente(3), '')
-  );
-  const familias = FAMILIA_SEO.map(f =>
-    filaLista(ctx, f.name_es, `/es/familias/${f.slug}/`, pendiente(3), '')
-  );
+  const ciudades = porTipo('ciudad').map(l => filaLista(ctx, l.nombre, l.path, pendiente(3), ''));
+  const familias = porTipo('familia').map(l => filaLista(ctx, l.nombre, l.path, pendiente(3), ''));
   const aviso = error
     ? `<div class="admin-alert">No se pudo leer la tabla de landings (${e(error)}). ¿Está aplicada la migración 20260926200000?</div>`
     : '';
@@ -250,7 +242,8 @@ function medidasImagen(src: string): Promise<{ width: number; height: number } |
 
 async function editorView(ctx: LandingsAdminCtx, id: string, locale: Locale): Promise<string> {
   const e = ctx.escapeHtml;
-  if (!listCampaignLandingIds().includes(id as StandardCampaignLandingId)) {
+  const landing = LANDINGS_INDICE.find(l => l.tipo === 'campana' && l.clave === id);
+  if (!landing) {
     return `<div class="admin-alert">La landing «${e(id)}» no existe.</div>`;
   }
   const { filas, borradores, error } = await filasCampana(ctx);
@@ -260,7 +253,6 @@ async function editorView(ctx: LandingsAdminCtx, id: string, locale: Locale): Pr
   }
   const borrador = borradores.get(fila.id);
   const contenido = (borrador ?? fila)[`contenido_${locale}`];
-  const ts = getCampaignLanding(id as StandardCampaignLandingId, locale);
   const visibles = CAMPOS_CAMPANA.filter(c => c.obligatorio || contenido[c.clave] !== undefined);
   const { data: historial } = await ctx.supabase
     .from('landings_historial')
@@ -275,11 +267,11 @@ async function editorView(ctx: LandingsAdminCtx, id: string, locale: Locale): Pr
     )
     .join('');
   const otro: Locale = locale === 'es' ? 'en' : 'es';
-  const ruta = locale === 'es' ? ts.path : ts.pathEn;
+  const ruta = locale === 'es' ? landing.path : landing.pathEn;
   return `
     <section class="admin-panel">
       <div class="admin-panel__head">
-        <h2>${e(ts.tag)} · ${locale.toUpperCase()}</h2>
+        <h2>${e(landing.nombre)} · ${locale.toUpperCase()}</h2>
         <div>
           <a class="admin-button admin-button--ghost" href="#/landings?id=${encodeURIComponent(id)}&lang=${otro}">Editar en ${otro.toUpperCase()}</a>
           <a class="admin-button admin-button--ghost" href="${e(SITIO + ruta)}" target="_blank" rel="noopener noreferrer">Ver publicada</a>
@@ -318,7 +310,7 @@ export function bindLandings(ctx: LandingsAdminCtx): void {
   const form = document.querySelector<HTMLFormElement>('[data-landing-form]');
   if (!form) return;
   const landingId = form.dataset['landingId']!;
-  const clave = form.dataset['landingClave'] as StandardCampaignLandingId;
+  const clave = form.dataset['landingClave'] ?? '';
   const locale = form.dataset['landingLocale'] as Locale;
   const errores = form.querySelector<HTMLElement>('[data-landing-errores]');
 
@@ -401,7 +393,7 @@ export function bindLandings(ctx: LandingsAdminCtx): void {
     ];
     mostrarErrores(lista);
     if (lista.length) return;
-    const nombre = getCampaignLanding(clave, 'es').tag;
+    const nombre = LANDINGS_INDICE.find(l => l.clave === clave)?.nombre ?? clave;
     if (!confirm(`¿Publicar «${nombre}»? Se reconstruye el sitio.`)) return;
     const { data, error } = await ctx.supabase.rpc('publicar_landing', { p_landing_id: landingId });
     if (error) {
