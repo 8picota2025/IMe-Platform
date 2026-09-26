@@ -8,14 +8,14 @@
 
 ## Estado general
 
-- **Fase actual:** Fase 3 — Landing & Tool Foundation → **3A ENTREGADA** (2026-09-25):
-  herramienta del checklist de recepción ([#133](https://github.com/8picota2025/IMe-Platform/pull/133))
-  y landing de dotación de monitoreo para UCI ([#134](https://github.com/8picota2025/IMe-Platform/pull/134)),
-  en producción. **En curso: cierre del piloto Monitoreo/UCI** (mandato §24: CRM mapping,
-  dashboard mínimo, paquetes de canal apuntando a landing y herramienta), autorizado por el
-  usuario el 2026-09-25. **3B** (Landing Factory en CMS, ADR-0015) queda para después del
-  piloto. Fase 2 — Knowledge Hub → **ENTREGADA** (2026-09-25). Fase 1 → **CERRADA**.
-- **Última actualización:** 2026-09-25 (cierre de 3A, inicio del cierre del piloto)
+- **Fase actual:** Fase 3 — Landing & Tool Foundation → **3A ENTREGADA** y **piloto
+  Monitoreo/UCI completo en código** (2026-09-26): herramienta, landing, dashboard, paquetes de
+  canal y CRM con la oportunidad naciendo en la cotización. **Arranque del piloto pendiente
+  del usuario** (revisión del PDF por el Ing. Rojas, vista de Twenty, aprobación de posts).
+  **En curso: pilar de Ventilación** (autorizado el 2026-09-26), con validación biomédica
+  previa como Monitoreo. **3B** (Landing Factory en CMS) después. Fase 2 → **ENTREGADA**.
+  Fase 1 → **CERRADA**.
+- **Última actualización:** 2026-09-26 (cierre del piloto en código, inicio de Ventilación)
 
 ### 🔴 Punto de reanudación — leer esto primero al retomar
 
@@ -160,6 +160,35 @@ de apoyo a partir de la validación biomédica, con preview antes de publicar.
   `public/assets/img/`: `public/assets/img/conocimiento/` está en `.gitignore` (lo llena
   el espejo del CMS en cada build).
 - Listado de páginas nuevas entregado al usuario (`~/Desktop/IMEGrowth_paginas_nuevas.md`).
+
+### Piloto Monitoreo/UCI — completo en código (2026-09-26)
+
+- **[#136](https://github.com/8picota2025/IMe-Platform/pull/136):**
+  - Dashboard mínimo en admin → Marketing, «Piloto Monitoreo/UCI · 30 días»
+    (`src/lib/piloto-monitoreo.ts`).
+  - Paquetes de canal apuntando a la landing y al checklist.
+  - Mapping CRM en `docs/crm-commercial-mapping.md`.
+- **Decisión del usuario (2026-09-25): la Opportunity nace con la cotización.** Los leads de
+  herramientas (#136) y de descargas de fichas (#137,
+  [enlace](https://github.com/8picota2025/IMe-Platform/pull/137)) no abren oportunidad:
+  - **En Twenty:** Person con cargo `Lead magnet · <herramienta|ficha-tecnica>` + Company +
+    nota con atribución.
+  - **En el warehouse:** cuenta + contacto + actividad. Migraciones `20260925220000` y
+    `20260926000000`, aplicadas en producción con `deploy-supabase-migrations.yml`; probadas
+    antes en Postgres 16 desechable.
+  - La lista de campañas lead magnet vive en `esCampanaLeadMagnet()` y en la función SQL:
+    cambiar las dos a la vez.
+- **Corrección:** la analítica propia (`analytics_eventos`) no depende del banner de cookies
+  (ADR-0012); sólo GA4 y Clarity. Textos del código y del panel corregidos.
+- `deploy-supabase-migrations.yml` aplica **todas** las migraciones pendientes
+  (`db push --include-all`): antes de lanzarlo, revisar qué otras ramas añadieron migraciones.
+  El 2026-09-25 las tres de WhatsApp (#129, #132) ya estaban aplicadas.
+- **Para arrancar el piloto (usuario):**
+  1. OK del Ing. Rojas al PDF del checklist.
+  2. Vista de Twenty «Lead magnet — por explorar» (People → Job Title contiene `Lead magnet`).
+  3. Aprobación y publicación de los posts.
+
+  Después, medir 3–4 semanas en el panel.
 
 ### Fase 3A — entregada (2026-09-25)
 
@@ -372,7 +401,12 @@ resuelve en Fase 1 como quick win).
 
 ## Siguiente acción
 
-Cierre del piloto Monitoreo/UCI (mandato §24, autorizado el 2026-09-25): mapping de los
-leads de la landing y la herramienta en el CRM, dashboard mínimo del cluster y paquetes de
-canal con enlaces y UTM a la landing y al checklist (sin publicar: Fase 4 exige
-aprobación). Después, 3B (Landing Factory en CMS).
+Pilar de Ventilación / terapia respiratoria (autorizado el 2026-09-26), con el mismo proceso que
+Monitoreo:
+
+1. Inventario del catálogo y del contenido existente.
+2. Cuestionario de validación para el Ing. Rojas.
+3. Borrador en preview.
+4. Publicación sólo con la validación firmada (ADR-0013).
+
+En paralelo, el arranque del piloto Monitoreo/UCI depende del usuario (ver arriba). Después, 3B.
