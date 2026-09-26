@@ -2855,7 +2855,7 @@ const DOTACION_MONITOREO_UCI: ContentMap = {
   },
 };
 
-type StandardCampaignLandingId = Exclude<
+export type StandardCampaignLandingId = Exclude<
   CampaignLandingId,
   'proyectos' | 'pdf_descarga' | 'herramienta' | 'evento' | FabricanteLandingId
 >;
@@ -2955,6 +2955,11 @@ export function getCampaignLanding(
     ...meta,
     ...copy,
   };
+}
+
+/** Ids de las landings de campaña con página propia (orden de publicación). */
+export function listCampaignLandingIds(): StandardCampaignLandingId[] {
+  return Object.keys(BY_ID) as StandardCampaignLandingId[];
 }
 
 export function listCampaignLandings(locale: Locale): CampaignLandingContent[] {
