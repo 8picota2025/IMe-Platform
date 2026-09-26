@@ -22,18 +22,28 @@ const POR_SLUG: Record<string, ImagenArticulo> = {
   },
   'checklist-recepcion-instalacion-monitor-hospitalario': {
     src: '/assets/img/monitor-recepcion-instalacion.webp',
-    width: 1400,
-    height: 788,
+    width: 1168,
+    height: 784,
   },
   'monitores-uci-adulto-pediatrica-neonatal': {
     src: '/assets/img/monitores-uci-adulto-pediatrica-neonatal.webp',
-    width: 1400,
-    height: 788,
+    width: 1168,
+    height: 784,
+  },
+  'registro-sanitario-invima-equipos-biomedicos': {
+    src: '/assets/img/registro-sanitario-invima-equipos-biomedicos.webp',
+    width: 1168,
+    height: 784,
+  },
+  'checklist-invima-compra-equipos-medicos': {
+    src: '/assets/img/checklist-invima-compra-equipos-medicos.webp',
+    width: 1168,
+    height: 784,
   },
   'central-monitoreo-multicama-o-monitores-independientes': {
     src: '/assets/img/central-monitoreo-multicama.webp',
-    width: 1400,
-    height: 788,
+    width: 1168,
+    height: 784,
   },
   'ime-certificaciones-calidad': {
     src: '/assets/img/equipos-biomedicos-vanguardia-opt.webp',
@@ -156,7 +166,10 @@ export interface ArticuloImagenInput {
  * Excepción: guía caminadores GSC usa assets editoriales ES/EN.
  */
 /** Imágenes de relleno compartidas por varios artículos: si el CMS solo tiene una de estas, gana la imagen propia del slug. */
-const IMAGENES_GENERICAS = ['/assets/img/hospital-uci-pasillo.webp'];
+const IMAGENES_GENERICAS = [
+  '/assets/img/hospital-uci-pasillo.webp',
+  '/assets/img/equipos-biomedicos-vanguardia-opt.webp',
+];
 
 function esImagenGenerica(url: string): boolean {
   return IMAGENES_GENERICAS.some(generica => url.endsWith(generica));
