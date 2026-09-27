@@ -315,7 +315,53 @@ export function initCatalogo(locale: Locale): () => void {
   const root = document.getElementById('catalogo-root');
   if (!root) return () => undefined;
 
+  const productImageObserver =
+    'IntersectionObserver' in window
+      ? new IntersectionObserver(
+          entries => {
+            entries.forEach(entry => {
+              if (!entry.isIntersecting) return;
+              const image = entry.target as HTMLImageElement;
+              const picture = image.parentElement?.tagName === 'PICTURE' ? image.parentElement : null;
+              picture?.querySelectorAll<HTMLSourceElement>('source[data-lazy-srcset]').forEach(source => {
+                const srcset = source.dataset['lazySrcset'];
+                if (!srcset) return;
+                source.srcset = srcset;
+                delete source.dataset['lazySrcset'];
+              });
+              const src = image.dataset['lazySrc'];
+              if (src) {
+                image.loading = 'eager';
+                image.src = src;
+                delete image.dataset['lazySrc'];
+              }
+              productImageObserver?.unobserve(image);
+            });
+          },
+          { rootMargin: '100px 0px' }
+        )
+      : null;
+
+  function observeProductImages(scope: ParentNode): void {
+    scope.querySelectorAll<HTMLImageElement>('img[data-lazy-src]').forEach(image => {
+      if (productImageObserver) {
+        productImageObserver.observe(image);
+        return;
+      }
+      const picture = image.parentElement?.tagName === 'PICTURE' ? image.parentElement : null;
+      picture?.querySelectorAll<HTMLSourceElement>('source[data-lazy-srcset]').forEach(source => {
+        const srcset = source.dataset['lazySrcset'];
+        if (srcset) source.srcset = srcset;
+        delete source.dataset['lazySrcset'];
+      });
+      const src = image.dataset['lazySrc'];
+      if (src) image.src = src;
+      delete image.dataset['lazySrc'];
+    });
+  }
+
   const grid = document.getElementById('vista-productos');
+  observeProductImages(root);
   const familiasView = document.getElementById('vista-familias');
   let cards = Array.from(grid?.querySelectorAll<HTMLElement>('[data-producto-slug]') ?? []);
   const initialCards = cards;
@@ -478,7 +524,8 @@ export function initCatalogo(locale: Locale): () => void {
     link.href = href;
     const image = document.createElement('img');
     image.className = 'producto-card__img';
-    image.src = imagen;
+    image.src = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+    image.dataset['lazySrc'] = imagen;
     image.alt = item.nombre;
     image.width = 400;
     image.height = 280;
@@ -534,6 +581,7 @@ export function initCatalogo(locale: Locale): () => void {
     grid.append(...remoteCards);
     cards = [...cards, ...remoteCards];
     cardOrder = new Map(cards.map((card, index) => [card, index]));
+    observeProductImages(grid);
   }
 
   function scrollToResultados(): void {
@@ -1468,6 +1516,7 @@ export function initCatalogo(locale: Locale): () => void {
   initComparador();
 
   return () => {
+    productImageObserver?.disconnect();
     if (debounceTimer) clearTimeout(debounceTimer);
     cleanupComparadorWindow?.();
     document.removeEventListener('click', onQuickViewClick);
