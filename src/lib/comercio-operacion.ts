@@ -225,7 +225,7 @@ export const MCP_TOOLS = [
 
 export type McpToolName = (typeof MCP_TOOLS)[number];
 
-const SECRETOS = ['webhook_url', 'api_config', 'api_token', 'service_role', 'precio_costo'];
+const SECRETOS = ['webhook_url', 'api_config', 'api_token', 'precio_costo'];
 
 export function filaSinSecretos<T extends Record<string, unknown>>(row: T): T {
   const copy = { ...row };
