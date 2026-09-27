@@ -509,7 +509,7 @@ function mapProducto(raw: (typeof mockProductos)[0], locale: Locale): Producto {
         ? (raw as { seo_keywords_en?: string[] }).seo_keywords_en
         : (raw as { seo_keywords_es?: string[] }).seo_keywords_es) ?? [],
     marca: (raw as { marca?: string }).marca ?? null,
-    imagen_principal: publicImage(raw.imagen_principal),
+    imagen_principal: localProductImage(raw.slug) ?? publicImage(raw.imagen_principal),
     galeria: raw.galeria.map(publicImage).filter(isString),
     ficha_pdf: raw.ficha_pdf,
     tipo_comercial: raw.tipo_comercial as Producto['tipo_comercial'],
