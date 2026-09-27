@@ -5,6 +5,8 @@
 > editor en el admin que liste todas las landings y edite texto y fotos, no diseño. **Tandas 0
 > y 1 implementadas** (tabla, loaders validados, seed de las 12 de campaña, editor).
 
+Runbook operativo (admin + build): [`docs/landings-cms.md`](../landings-cms.md).
+
 ## Qué se migra (inventario del 2026-09-26)
 
 | Tipo                  | Fuente hoy                        | Contenidos | Páginas (ES+EN) | Forma                                          |
