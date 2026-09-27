@@ -6,6 +6,8 @@
 > y 1 en producción** el 2026-09-26 (paridad 26/26 páginas idénticas antes y después).
 > **Tanda 2 implementada** (9 landings de fabricante; paridad por Postgres 18/18).
 
+Runbook operativo (admin + build): [`docs/landings-cms.md`](../landings-cms.md).
+
 ## Qué se migra (inventario del 2026-09-26)
 
 | Tipo                  | Fuente hoy                        | Contenidos | Páginas (ES+EN) | Forma                                          |
