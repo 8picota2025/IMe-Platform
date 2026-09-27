@@ -22,6 +22,7 @@ import {
   type DuplicateGroup,
   type ImportFieldError,
 } from '../lib/proveedor-import';
+import { camposFichaPermitidos, siguientePasoPedido } from '../lib/comercio-operacion';
 import { renderMarkdown } from '../lib/markdown';
 import { bindLandings, landingsView, type LandingsAdminCtx } from './landings-admin';
 import { CAMPANAS_PILOTO, resumirPiloto, rutasPiloto } from '../lib/piloto-monitoreo';
@@ -839,9 +840,10 @@ function shellHtml(title: string, body: string): string {
   const rolLabel = state.rol ? `Rol: ${state.rol}` : 'Rol: sin perfil';
   const navHtml = groups
     .map(group => {
-      const links = group.items
+      const visibles = group.items.filter(([view]) => vistaPermitida(view));
+      if (!visibles.length) return '';
+      const links = visibles
         .map(([view, label]) => {
-          const locked = !vistaPermitida(view);
           const current =
             state.view === view ||
             (view === 'conocimiento' && state.view === 'conocimiento') ||
@@ -853,13 +855,9 @@ function shellHtml(title: string, body: string): string {
             (view === 'cupones' && state.view === 'cupon') ||
             (view === 'listas' && state.view === 'lista') ||
             (view === 'proveedores' && state.view === 'proveedor-productos');
-          return `<a href="#/${view}" class="${locked ? 'is-locked' : ''}" ${
+          return `<a href="#/${view}" ${
             current ? 'aria-current="page"' : ''
-          } title="${escapeHtml(
-            locked ? `Requiere rol: ${rolesQuePuedenVer(view).join(', ')}` : label
-          )}">${escapeHtml(label)}${
-            locked ? '<span class="admin-nav__lock" aria-hidden="true">rol</span>' : ''
-          }</a>`;
+          } title="${escapeHtml(label)}">${escapeHtml(label)}</a>`;
         })
         .join('');
       return `<div class="admin-nav__group"><div class="admin-nav__label">${escapeHtml(
@@ -933,6 +931,7 @@ function bindView() {
   bindEnvios();
   bindResenas();
   bindPropuestas();
+  bindPropuestasFicha();
   bindAsesorPanel();
   bindCompraDirecta();
   if (state.view === 'landings') bindLandings(landingsCtx());
@@ -2372,6 +2371,216 @@ function bindUsuarios() {
   });
 }
 
+async function propuestasFichaHtml(productoId: string): Promise<string> {
+  if (!productoId) return '';
+  const { data, error } = await supabase!
+    .from('comercio_confirmaciones')
+    .select('id,creada_en,vence_en,actor,motivo,payload')
+    .eq('herramienta', 'proponer_ficha')
+    .eq('entidad_id', productoId)
+    .eq('estado', 'pendiente')
+    .order('creada_en', { ascending: false })
+    .limit(10);
+  if (error || !data?.length) return '';
+  const filas = (data as Row[]).map(row => {
+    const campos = camposFichaPermitidos((row.payload as Row | null) ?? {});
+    const id = escapeHtml(text(row.id));
+    return `<li>
+      <p><strong>${escapeHtml(text(row.actor))}</strong> · ${formatCell(row.creada_en)} · ${escapeHtml(text(row.motivo))}</p>
+      <p class="admin-help">Campos: ${escapeHtml(Object.keys(campos).join(', ') || 'ninguno permitido')}</p>
+      <details><summary>Ver contenido</summary><pre class="admin-pre">${escapeHtml(JSON.stringify(campos, null, 2))}</pre></details>
+      <div class="admin-toolbar">
+        <button class="admin-button" type="button" data-ficha-propuesta-aplicar="${id}">Aplicar a la ficha</button>
+        <button class="admin-button admin-button--ghost" type="button" data-ficha-propuesta-rechazar="${id}">Rechazar</button>
+      </div>
+    </li>`;
+  });
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Propuestas del agente (${data.length})</h2><span class="admin-meta">No cambian la ficha hasta aplicarlas</span></div>
+      <ul class="admin-list" style="padding:0 16px 16px">${filas.join('')}</ul>
+    </section>`;
+}
+
+function bindPropuestasFicha() {
+  const resolver = async (id: string, aplicar: boolean) => {
+    const { data: propuesta, error } = await supabase!
+      .from('comercio_confirmaciones')
+      .select('id,estado,vence_en,entidad_id,payload')
+      .eq('id', id)
+      .maybeSingle();
+    if (error || !propuesta) {
+      toast(error?.message ?? 'Propuesta no encontrada');
+      return;
+    }
+    if (propuesta.estado !== 'pendiente') {
+      toast(`La propuesta ya está ${propuesta.estado}`);
+      return;
+    }
+    const productoId = text(propuesta.entidad_id);
+    const campos = camposFichaPermitidos((propuesta.payload as Row | null) ?? {});
+    if (aplicar) {
+      if (new Date(text(propuesta.vence_en)).getTime() < Date.now()) {
+        await supabase!.from('comercio_confirmaciones').update({ estado: 'vencida' }).eq('id', id);
+        toast('La propuesta venció');
+        await render();
+        return;
+      }
+      const { error: updateError } = await supabase!
+        .from('productos')
+        .update(campos)
+        .eq('id', productoId);
+      if (updateError) {
+        toast(updateError.message);
+        return;
+      }
+    }
+    const estado = aplicar ? 'confirmada' : 'rechazada';
+    const { error: estadoError } = await supabase!
+      .from('comercio_confirmaciones')
+      .update({ estado, confirmada_en: new Date().toISOString(), confirmada_por: state.email })
+      .eq('id', id);
+    if (estadoError) toast(estadoError.message);
+    await supabase!.from('comercio_actuaciones').insert({
+      actor: state.email,
+      rol: state.rol || 'admin',
+      herramienta: aplicar ? 'aplicar_propuesta_ficha' : 'rechazar_propuesta_ficha',
+      entidad: 'productos',
+      entidad_id: productoId,
+      despues: aplicar ? campos : null,
+      confirmacion_id: id,
+    });
+    toast(aplicar ? 'Propuesta aplicada. Publica para llevarla al sitio.' : 'Propuesta rechazada');
+    await render();
+  };
+  app.querySelectorAll<HTMLButtonElement>('[data-ficha-propuesta-aplicar]').forEach(button => {
+    button.addEventListener('click', () => {
+      button.disabled = true;
+      void resolver(button.dataset['fichaPropuestaAplicar'] ?? '', true);
+    });
+  });
+  app.querySelectorAll<HTMLButtonElement>('[data-ficha-propuesta-rechazar]').forEach(button => {
+    button.addEventListener('click', () => {
+      button.disabled = true;
+      void resolver(button.dataset['fichaPropuestaRechazar'] ?? '', false);
+    });
+  });
+}
+
+async function actuacionesHtml(entidad: string, entidadId: string): Promise<string> {
+  if (!entidadId) return '';
+  const { data, error } = await supabase!
+    .from('comercio_actuaciones')
+    .select('en,actor,rol,herramienta,motivo')
+    .eq('entidad', entidad)
+    .eq('entidad_id', entidadId)
+    .order('en', { ascending: false })
+    .limit(20);
+  const body = error
+    ? `<p class="admin-help" style="padding:0 16px 16px">Registro no disponible: ${escapeHtml(error.message)}</p>`
+    : table(
+        ['Fecha', 'Quien', 'Accion', 'Motivo'],
+        ((data ?? []) as Row[]).map(row => [
+          formatCell(row.en),
+          `${text(row.actor)}${text(row.rol) ? ` (${text(row.rol)})` : ''}`,
+          text(row.herramienta),
+          text(row.motivo) || '—',
+        ])
+      );
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Actuaciones</h2></div>
+      ${body}
+    </section>`;
+}
+
+async function bandejaHoyHtml(): Promise<string> {
+  const tareas: string[] = [];
+  const avisos: string[] = [];
+  const pushError = (etiqueta: string, message: string | undefined) => {
+    if (message) avisos.push(`${etiqueta}: ${message}`);
+  };
+  const [cotizaciones, oportunidades, pedidos, carritos, fichas] = await Promise.all([
+    supabase!
+      .from('solicitudes_cotizacion')
+      .select('id,numero,nombre,empresa')
+      .eq('leida', false)
+      .order('created_at', { ascending: false })
+      .limit(6),
+    supabase!
+      .from('crm_opportunities')
+      .select('id,titulo,etapa')
+      .in('etapa', ['nuevo', 'cotizando'])
+      .order('updated_at', { ascending: false })
+      .limit(6),
+    supabase!
+      .from('pedidos')
+      .select('id,estado,proveedor_pago,referencia_pasarela')
+      .in('estado', ['pendiente', 'pendiente_validacion'])
+      .order('created_at', { ascending: false })
+      .limit(6),
+    supabase!
+      .from('carritos_abandonados')
+      .select('id,subtotal,estado')
+      .eq('estado', 'activo')
+      .order('created_at', { ascending: false })
+      .limit(4),
+    supabase!
+      .from('productos')
+      .select('id,nombre_es,slug,imagen_principal,ficha_pdf,especificaciones,activo')
+      .eq('activo', true)
+      .limit(80),
+  ]);
+  pushError('Presupuestos', cotizaciones.error?.message);
+  pushError('CRM', oportunidades.error?.message);
+  pushError('Pedidos', pedidos.error?.message);
+  pushError('Carritos', carritos.error?.message);
+  pushError('Fichas', fichas.error?.message);
+  for (const row of cotizaciones.data ?? []) {
+    tareas.push(
+      `<li><a href="#/cotizacion?id=${encodeURIComponent(text(row.id))}"><strong>Presupuesto sin leer</strong><span>${escapeHtml(text(row.numero) || text(row.nombre) || text(row.empresa))}</span></a></li>`
+    );
+  }
+  for (const row of oportunidades.data ?? []) {
+    tareas.push(
+      `<li><a href="#/crm"><strong>${escapeHtml(text(row.etapa) === 'cotizando' ? 'Cotizando' : 'Oportunidad nueva')}</strong><span>${escapeHtml(text(row.titulo) || text(row.id).slice(0, 8))}</span></a></li>`
+    );
+  }
+  for (const row of pedidos.data ?? []) {
+    const paso = siguientePasoPedido({
+      estado: text(row.estado),
+      proveedorPago: text(row.proveedor_pago),
+    });
+    tareas.push(
+      `<li><a href="#/pedido?id=${encodeURIComponent(text(row.id))}"><strong>${escapeHtml(paso.accion)}</strong><span>Pedido ${escapeHtml(text(row.referencia_pasarela) || text(row.id).slice(0, 8))}</span></a></li>`
+    );
+  }
+  for (const row of carritos.data ?? []) {
+    tareas.push(
+      `<li><a href="#/reportes"><strong>Carrito abandonado</strong><span>Subtotal ${escapeHtml(text(row.subtotal) || '—')}</span></a></li>`
+    );
+  }
+  for (const row of (fichas.data ?? [])
+    .filter(item => {
+      const specs = item.especificaciones;
+      return (
+        !item.imagen_principal || !item.ficha_pdf || !Array.isArray(specs) || specs.length === 0
+      );
+    })
+    .slice(0, 4)) {
+    tareas.push(
+      `<li><a href="#/producto?id=${encodeURIComponent(text(row.id))}"><strong>Ficha incompleta</strong><span>${escapeHtml(text(row.nombre_es) || text(row.slug))}</span></a></li>`
+    );
+  }
+  const vacia = tareas.length
+    ? `<ul class="admin-queue__list">${tareas.join('')}</ul>`
+    : '<p class="admin-help">No hay tareas abiertas en esta consulta.</p>';
+  const alerta = avisos.length
+    ? `<div class="admin-alert">${avisos.map(item => escapeHtml(item)).join('<br />')}</div>`
+    : '';
+  return `<section class="admin-panel admin-queue"><div class="admin-panel__head"><h2>Hoy</h2><span class="admin-meta">Qué hacer ahora</span></div>${alerta}${vacia}</section>`;
+}
+
 async function dashboardView(): Promise<string> {
   const [
     productos,
@@ -2429,7 +2638,9 @@ async function dashboardView(): Promise<string> {
     )
     .slice(0, 12);
   const publishHistory = await publishLogPanel();
+  const hoy = await bandejaHoyHtml();
   return `
+    ${hoy}
     ${withoutProvider > 0 ? `<div class="admin-alert">${withoutProvider} productos dropship no tienen proveedor asignado.</div>` : ''}
     <section class="admin-grid">
       ${metric('Total productos', productos)}
@@ -2823,10 +3034,24 @@ async function productosView(): Promise<string> {
     })
   );
 
-  let query = supabase!.from('productos').select('*', { count: 'exact' });
+  const productSelect = [
+    'id',
+    ...new Set([
+      ...PRODUCT_LIST_COLUMNS.filter(column => column.type !== 'computed').map(
+        column => column.key
+      ),
+      'atributos',
+      'marca',
+    ]),
+  ].join(',');
+  let query = supabase!.from('productos').select(productSelect, { count: 'exact' });
   if (q) {
     const safeQ = q.replace(/[,()%]/g, '');
-    if (safeQ) query = query.or(`nombre_es.ilike.%${safeQ}%,slug.ilike.%${safeQ}%`);
+    if (safeQ) {
+      query = query.or(
+        `nombre_es.ilike.%${safeQ}%,nombre_en.ilike.%${safeQ}%,slug.ilike.%${safeQ}%,sku.ilike.%${safeQ}%,gtin.ilike.%${safeQ}%`
+      );
+    }
   }
   if (familiaId) query = query.eq('familia_id', familiaId);
   if (tipoId) query = query.eq('tipo_id', tipoId);
@@ -2871,7 +3096,7 @@ async function productosView(): Promise<string> {
         </div>
       </div>
       <form class="admin-filters" data-productos-filter>
-        ${field('q', 'Buscar por nombre o slug', q, false, 'search')}
+        ${field('q', 'Buscar por nombre, SKU o GTIN', q, false, 'search')}
         ${selectStatic('familia_id', 'Familia', familiaId, [
           ['', 'Todas las familias'],
           ...familias.map((f): [string, string] => [text(f.id), text(f.nombre_es)]),
@@ -2951,10 +3176,12 @@ async function productosView(): Promise<string> {
 }
 
 async function productoFormView(): Promise<string> {
-  const [familias, tipos, producto] = await Promise.all([
+  const [familias, tipos, producto, actuaciones, propuestas] = await Promise.all([
     selectRows('familias', '*', 'orden', 200),
     selectRows('tipos', '*', 'orden', 300),
     state.recordId ? getRow('productos', state.recordId) : Promise.resolve(null),
+    actuacionesHtml('productos', state.recordId ?? ''),
+    propuestasFichaHtml(state.recordId ?? ''),
   ]);
   const draft = productDraft(producto);
   return `
@@ -2969,6 +3196,7 @@ async function productoFormView(): Promise<string> {
       </div>
       <div class="admin-editor">
         <div class="admin-form">
+          <h3 class="admin-task-title">Identidad</h3>
           <div class="admin-editor__cols">
             ${field('nombre_es', 'Nombre ES', draft.nombre_es, true)}
             ${field('nombre_en', 'Nombre EN', draft.nombre_en)}
@@ -2977,6 +3205,9 @@ async function productoFormView(): Promise<string> {
             ${field('gtin', 'GTIN / codigo externo', draft.gtin)}
             ${select('familia_id', 'Familia', draft.familia_id, familias, 'nombre_es')}
             ${select('tipo_id', 'Tipo', draft.tipo_id, tipos, 'nombre_es', true)}
+          </div>
+          <h3 class="admin-task-title">Venta y stock</h3>
+          <div class="admin-editor__cols">
             ${selectStatic('tipo_comercial', 'Tipo comercial', draft.tipo_comercial, [
               ['equipo', 'Equipo'],
               ['consumible', 'Consumible'],
@@ -2992,11 +3223,6 @@ async function productoFormView(): Promise<string> {
             ${field('oferta_inicio', 'Inicio oferta', draft.oferta_inicio, false, 'datetime-local')}
             ${field('oferta_fin', 'Fin oferta', draft.oferta_fin, false, 'datetime-local')}
             ${field('stock', 'Stock', draft.stock?.toString() ?? '', false, 'number')}
-            ${field('dian_codigo', 'Codigo DIAN / UNSPSC', draft.dian_codigo ?? '')}
-            ${field('tarifa_iva_pct', 'IVA %', draft.tarifa_iva_pct?.toString() ?? '', false, 'number')}
-            ${field('retencion_fuente_pct', 'Retefuente %', draft.retencion_fuente_pct?.toString() ?? '', false, 'number')}
-            ${field('retencion_iva_pct', 'ReteIVA %', draft.retencion_iva_pct?.toString() ?? '', false, 'number')}
-            ${field('retencion_ica_pct', 'ReteICA %', draft.retencion_ica_pct?.toString() ?? '', false, 'number')}
             ${selectStatic('stock_estado', 'Estado stock', draft.stock_estado, [
               ['instock', 'En stock'],
               ['outofstock', 'Agotado'],
@@ -3010,8 +3236,17 @@ async function productoFormView(): Promise<string> {
             ${field('peso_kg', 'Peso kg', draft.peso_kg?.toString() ?? '', false, 'number')}
             ${field('orden', 'Orden', String(draft.orden), false, 'number')}
           </div>
-          ${textarea('atributos', 'Atributos JSON', JSON.stringify(draft.atributos, null, 2))}
           ${textarea('dimensiones_cm', 'Dimensiones cm JSON', JSON.stringify(draft.dimensiones_cm, null, 2))}
+          <h3 class="admin-task-title">Fiscal</h3>
+          <div class="admin-editor__cols">
+            ${field('dian_codigo', 'Codigo DIAN / UNSPSC', draft.dian_codigo ?? '')}
+            ${field('tarifa_iva_pct', 'IVA %', draft.tarifa_iva_pct?.toString() ?? '', false, 'number')}
+            ${field('retencion_fuente_pct', 'Retefuente %', draft.retencion_fuente_pct?.toString() ?? '', false, 'number')}
+            ${field('retencion_iva_pct', 'ReteIVA %', draft.retencion_iva_pct?.toString() ?? '', false, 'number')}
+            ${field('retencion_ica_pct', 'ReteICA %', draft.retencion_ica_pct?.toString() ?? '', false, 'number')}
+          </div>
+          <h3 class="admin-task-title">Contenido</h3>
+          ${textarea('atributos', 'Atributos JSON', JSON.stringify(draft.atributos, null, 2))}
           ${textarea('descripcion_corta_es', 'Descripcion corta ES', draft.descripcion_corta_es)}
           ${textarea('descripcion_corta_en', 'Descripcion corta EN', draft.descripcion_corta_en)}
           ${textarea('descripcion_larga_es', 'Descripcion larga ES', draft.descripcion_larga_es)}
@@ -3021,6 +3256,7 @@ async function productoFormView(): Promise<string> {
           ${textarea('aplicaciones_en', 'Aplicaciones EN (una por linea)', draft.aplicaciones_en.join('\n'))}
         </div>
         <aside class="admin-form">
+          <h3 class="admin-task-title">Publicacion y medios</h3>
           ${field('imagen_principal', 'URL imagen principal', draft.imagen_principal)}
           ${upload('productos', 'imagen_principal', 'Subir imagen')}
           ${field('ficha_pdf', 'URL ficha PDF', draft.ficha_pdf)}
@@ -3036,7 +3272,9 @@ async function productoFormView(): Promise<string> {
           <div class="admin-alert">Guardar desde ingesta siempre debe quedar como borrador hasta revision humana. Publicar cambios dispara rebuild separado.</div>
         </aside>
       </div>
-    </form>`;
+    </form>
+    ${propuestas}
+    ${actuaciones}`;
 }
 
 async function taxonomiaView(): Promise<string> {
@@ -3686,14 +3924,16 @@ async function clientesView(): Promise<string> {
   const tipo = params.get('tipo_cliente') ?? '';
   let query = supabase!
     .from('clientes')
-    .select('*')
+    .select(
+      'id,email,nombre,apellido,telefono,institucion,razon_social,documento_numero,tipo_cliente,total_pedidos,total_gastado,updated_at'
+    )
     .order('updated_at', { ascending: false })
-    .limit(100);
+    .limit(500);
   if (q) {
     const safeQ = q.replace(/[,()%]/g, '');
     if (safeQ)
       query = query.or(
-        `email.ilike.%${safeQ}%,nombre.ilike.%${safeQ}%,apellido.ilike.%${safeQ}%,institucion.ilike.%${safeQ}%`
+        `email.ilike.%${safeQ}%,nombre.ilike.%${safeQ}%,apellido.ilike.%${safeQ}%,institucion.ilike.%${safeQ}%,razon_social.ilike.%${safeQ}%,documento_numero.ilike.%${safeQ}%`
       );
   }
   if (tipo) query = query.eq('tipo_cliente', tipo);
@@ -3702,6 +3942,7 @@ async function clientesView(): Promise<string> {
   const rows = (data ?? []) as unknown as Row[];
   return `
     <section class="admin-panel">
+      ${error ? `<div class="admin-alert">${escapeHtml(error.message)}</div>` : ''}
       <div class="admin-panel__head">
         <h2>Clientes (${rows.length})</h2>
         <div class="admin-toolbar">
@@ -3741,7 +3982,7 @@ async function clientesView(): Promise<string> {
 
 async function clienteDetailView(): Promise<string> {
   const cliente = state.recordId ? await getRow('clientes', state.recordId) : null;
-  const [direcciones, pedidos, cotizaciones] = cliente
+  const [direcciones, pedidos, cotizaciones, oportunidades, actuaciones] = cliente
     ? await Promise.all([
         selectRowsWhere(
           'cliente_direcciones',
@@ -3751,17 +3992,50 @@ async function clienteDetailView(): Promise<string> {
           50,
           false
         ),
-        selectRowsWhere('pedidos', '*', 'created_at', { cliente_id: text(cliente.id) }, 50, false),
+        selectRowsWhere(
+          'pedidos',
+          'id,created_at,estado,total,moneda,referencia_pasarela',
+          'created_at',
+          { cliente_id: text(cliente.id) },
+          50,
+          false
+        ),
         selectRowsWhere(
           'solicitudes_cotizacion',
-          '*',
+          'id,created_at,estado,precio_total_ofertado',
           'created_at',
           { email: text(cliente.email) },
           50,
           false
         ),
+        selectRowsWhere(
+          'crm_opportunities',
+          'id,updated_at,titulo,etapa,valor_estimado,moneda,next_action_at',
+          'updated_at',
+          { cliente_id: text(cliente.id) },
+          50,
+          false
+        ),
+        actuacionesHtml('clientes', text(cliente.id)),
       ])
-    : [[], [], []];
+    : [[], [], [], [], ''];
+  const pedidoIds = pedidos.map(row => text(row.id)).filter(Boolean);
+  const facturas: Row[] = pedidoIds.length
+    ? (((
+        await supabase!
+          .from('facturas_electronicas')
+          .select('id,pedido_id,estado,numero_factura,created_at')
+          .in('pedido_id', pedidoIds)
+      ).data ?? []) as Row[])
+    : [];
+  const valorAbierto = oportunidades
+    .filter(row => !['ganado', 'perdido'].includes(text(row.etapa)))
+    .reduce((sum, row) => sum + (Number(row.valor_estimado) || 0), 0);
+  const totalPedidos = pedidos
+    .filter(
+      row => !['cancelado', 'rechazado', 'expirado', 'reembolsado'].includes(text(row.estado))
+    )
+    .reduce((sum, row) => sum + (Number(row.total) || 0), 0);
 
   return `
     <section class="admin-panel">
@@ -3868,6 +4142,34 @@ async function clienteDetailView(): Promise<string> {
         </form>
       </section>
       <section class="admin-panel">
+        <div class="admin-panel__head"><h2>Vista 360</h2></div>
+        <div class="admin-grid" style="padding:0 16px 16px">
+          ${marketingMetric('Pedidos validos', `${totalPedidos.toLocaleString('es-CO')} COP`)}
+          ${marketingMetric('Oportunidades abiertas', `${valorAbierto.toLocaleString('es-CO')} COP`)}
+          ${metric('Cotizaciones', cotizaciones.length)}
+          ${metric('Facturas', facturas.length)}
+        </div>
+        ${table(
+          ['Oportunidad', 'Etapa', 'Valor', 'Proxima accion', 'Acciones'],
+          oportunidades.map(row => [
+            text(row.titulo),
+            text(row.etapa),
+            row.valor_estimado == null ? '—' : `${text(row.valor_estimado)} ${text(row.moneda)}`,
+            formatCell(row.next_action_at),
+            `<a class="admin-button admin-button--ghost" href="#/crm?q=${encodeURIComponent(text(row.titulo))}">CRM</a>`,
+          ])
+        )}
+        ${table(
+          ['Factura', 'Estado', 'Fecha', 'Pedido'],
+          facturas.map(row => [
+            text(row.numero_factura) || '—',
+            text(row.estado),
+            formatCell(row.created_at),
+            `<a class="admin-button admin-button--ghost" href="#/pedido?id=${encodeURIComponent(text(row.pedido_id))}">Ver</a>`,
+          ])
+        )}
+      </section>
+      <section class="admin-panel">
         <div class="admin-panel__head"><h2>Actividad comercial</h2></div>
         ${table(
           ['Fecha', 'Tipo', 'Estado', 'Total', 'Acciones'],
@@ -3888,7 +4190,8 @@ async function clienteDetailView(): Promise<string> {
             ]),
           ]
         )}
-      </section>`
+      </section>
+      ${actuaciones}`
         : ''
     }`;
 }
@@ -4230,6 +4533,16 @@ async function pedidoDetailView(): Promise<string> {
   const notas = (notasResult.data ?? []) as Row[];
   const timeline = (timelineResult.data ?? []) as Row[];
   const factura = (facturaResult.data ?? null) as Row | null;
+  const actuaciones = await actuacionesHtml('pedidos', text(row.id));
+  const tieneGuia = fulfillments.some(
+    item => text(item.tracking_number) || text(item.tracking_url)
+  );
+  const pasoPedido = siguientePasoPedido({
+    estado: text(row.estado),
+    proveedorPago: text(row.proveedor_pago),
+    tieneGuia,
+    facturaEstado: text(row.facturacion_electronica_estado) || text(factura?.estado),
+  });
   const metadata =
     row.metadata && typeof row.metadata === 'object' && !Array.isArray(row.metadata)
       ? (row.metadata as Row)
@@ -4335,6 +4648,11 @@ async function pedidoDetailView(): Promise<string> {
         </div>
       </div>
       <div class="admin-panel__body">
+        <div class="admin-next ${pasoPedido.cerrado ? 'is-done' : ''}">
+          <p class="admin-next__kicker">Siguiente paso</p>
+          <strong>${escapeHtml(pasoPedido.accion)}</strong>
+          <p>${escapeHtml(pasoPedido.detalle)}</p>
+        </div>
         <div class="pedido-workflow">
           <div class="pedido-workflow__summary" data-pedido-summary hidden>${escapeHtml(resumenPedido)}</div>
           <div class="pedido-workflow__meta">
@@ -4668,7 +4986,8 @@ async function pedidoDetailView(): Promise<string> {
         </div>
         <button class="admin-button" type="submit">Cambiar estado</button>
       </form>
-    </section>`;
+    </section>
+    ${actuaciones}`;
 }
 
 const CUPON_TIPOS: Array<[string, string]> = [
@@ -12046,7 +12365,10 @@ async function fetchClientesForExcel(): Promise<Row[]> {
   const params = hashParams();
   const q = (params.get('q') ?? '').trim();
   const tipo = params.get('tipo_cliente') ?? '';
-  let query = supabase!.from('clientes').select('*').order('updated_at', { ascending: false });
+  let query = supabase!
+    .from('clientes')
+    .select(CLIENTES_EXCEL_HEADERS.join(','))
+    .order('updated_at', { ascending: false });
   if (q) {
     const safeQ = q.replace(/[,()%]/g, '');
     if (safeQ) {
@@ -12125,7 +12447,10 @@ async function fetchPedidosForExcel(): Promise<Row[]> {
   const estado = params.get('estado') ?? '';
   const mercado = params.get('mercado') ?? '';
   const leida = params.get('leida') ?? '';
-  let query = supabase!.from('pedidos').select('*').order('created_at', { ascending: false });
+  let query = supabase!
+    .from('pedidos')
+    .select(PEDIDOS_EXCEL_HEADERS.join(','))
+    .order('created_at', { ascending: false });
   if (q) {
     const safeQ = q.replace(/[,()%]/g, '');
     if (safeQ) {

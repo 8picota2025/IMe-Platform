@@ -189,8 +189,8 @@
 
 .admin-markdown-preview blockquote {
   margin: 0 0 0.75rem;
-  padding-left: 1rem;
-  border-left: 3px solid var(--admin-accent);
+  padding: 0.2rem 0.8rem;
+  background: rgba(0, 94, 96, 0.08);
   color: var(--admin-muted);
 }
 
@@ -1292,6 +1292,103 @@
     BlinkMacSystemFont,
     'Segoe UI',
     sans-serif;
+}
+
+.admin-queue__list {
+  list-style: none;
+  margin: 0;
+  padding: 8px;
+  display: grid;
+  gap: 8px;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+}
+
+.admin-queue__list a {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: baseline;
+  padding: 12px 14px;
+  border: 1px solid var(--admin-line);
+  border-radius: 6px;
+  background: #fff;
+  color: inherit;
+  text-decoration: none;
+}
+
+.admin-queue__list a:hover {
+  border-color: var(--admin-accent);
+}
+
+.admin-queue__list span {
+  color: var(--admin-muted);
+  font-size: 0.92rem;
+}
+
+.admin-next {
+  margin: 16px 16px 0;
+  padding: 14px 16px;
+  border-radius: 8px;
+  background: #e7f3f3;
+  border: 1px solid #b7d6d6;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+}
+
+.admin-next strong {
+  display: block;
+  margin: 2px 0 4px;
+  font-size: 1.15rem;
+  color: var(--admin-accent);
+}
+
+.admin-next p {
+  margin: 0;
+}
+
+.admin-task-title {
+  grid-column: 1 / -1;
+  margin: 18px 0 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--admin-line, #d9d2c3);
+  font-size: 0.78rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #005e60;
+}
+
+.admin-task-title:first-child {
+  margin-top: 0;
+}
+
+.admin-next__kicker {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--admin-muted);
+}
+
+.admin-next.is-done {
+  background: #eef6ef;
+  border-color: #c5e0cb;
+}
+
+.admin-next.is-done strong {
+  color: var(--admin-ok);
 }
 
 @media (max-width: 860px) {

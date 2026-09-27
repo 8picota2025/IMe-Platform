@@ -23,6 +23,7 @@
     "canary:cotizacion": "node --env-file-if-exists=.env scripts/canary-cotizacion.mjs",
     "mirror:images": "node --env-file=.env scripts/mirror-cms-images.mjs",
     "optimize:images": "node scripts/optimize-site-images.mjs",
+    "mcp:comercio": "node --experimental-strip-types src/mcp/ime-comercio-stdio.ts",
     "import:gmd": "node --env-file=.env scripts/import-gmd-catalog.mjs",
     "import:gmd-images": "node --env-file=.env scripts/persist-gmd-images.mjs",
     "ingest:pdf-product": "node scripts/ingest-pdf-product.mjs",
