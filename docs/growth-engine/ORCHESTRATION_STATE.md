@@ -12,10 +12,32 @@
   Monitoreo/UCI completo en código** (2026-09-26): herramienta, landing, dashboard, paquetes de
   canal y CRM con la oportunidad naciendo en la cotización. **Arranque del piloto pendiente
   del usuario** (revisión del PDF por el Ing. Rojas, vista de Twenty, aprobación de posts).
-  **En curso: pilar de Ventilación** (autorizado el 2026-09-26), con validación biomédica
-  previa como Monitoreo. **3B** (Landing Factory en CMS) después. Fase 2 → **ENTREGADA**.
-  Fase 1 → **CERRADA**.
-- **Última actualización:** 2026-09-26 (cierre del piloto en código, inicio de Ventilación)
+  **Pilar de Ventilación:** cuestionario y plan listos; **esperando las respuestas del Ing.
+  Rojas** (no se publica nada sin ellas, ADR-0013). **3B (Landing Factory en CMS): tandas
+  0-3 en producción** — las 45 landings (12 campaña, 9 fabricante, 3 ciudad, 21 familia) se
+  leen del CMS, con editor en el admin (texto e imágenes, borrador → Publicar, historial).
+  Fase 2 → **ENTREGADA**. Fase 1 → **CERRADA**.
+- **Última actualización:** 2026-09-27 (Fase 3B, tanda 3 en producción)
+
+### Fase 3B — Landing Factory en CMS (2026-09-26/27)
+
+Plan y decisiones en `docs/growth-engine/fase3b-plan.md`. Roles con acceso al editor:
+`catalogo` y `ventas` (más owner/admin).
+
+| Tanda | Contenido                                                    | PR                                                           | Paridad en producción                                                                               |
+| ----- | ------------------------------------------------------------ | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| 0 + 1 | Tablas, RLS, `publicar_landing`, editor admin, 12 de campaña | [#143](https://github.com/8picota2025/IMe-Platform/pull/143) | 26/26 páginas idénticas                                                                             |
+| 2     | 9 landings de fabricante                                     | [#144](https://github.com/8picota2025/IMe-Platform/pull/144) | 20/20 (contenido, HTML y JSON-LD)                                                                   |
+| 3     | 3 ciudades + 21 textos SEO de familia                        | [#147](https://github.com/8picota2025/IMe-Platform/pull/147) | 62/62 (48 byte a byte; 14 paginaciones sólo reordenan dos bloques de CSS inline con scope distinto) |
+
+- **Pendiente:** tanda 5 (borrar el copy de los `.ts`) tras una semana sin incidencias, y
+  probar el editor con un login real de `catalogo`/`ventas`.
+- La build falla con el campo exacto si una fila del CMS no valida; si falta la fila, usa
+  el copy del TS. Los enlaces internos (familias destacadas, guías, hubs) siguen en código.
+- **Nota de despliegue:** Hostinger devolvió una vez un 403 transitorio en el smoke test
+  tras el FTP; relanzar el deploy lo resolvió. Si se repite, revisar el WAF de Hostinger.
+- **Herramientas:** instalado el plugin `context-mode` (1.0.169, ámbito de usuario) para
+  reducir el contexto que consumen las salidas de herramientas.
 
 ### 🔴 Punto de reanudación — leer esto primero al retomar
 
@@ -401,12 +423,11 @@ resuelve en Fase 1 como quick win).
 
 ## Siguiente acción
 
-Pilar de Ventilación / terapia respiratoria (autorizado el 2026-09-26), con el mismo proceso que
-Monitoreo:
+1. **Fase 3B, tanda 5** (hacia el 2026-10-04, tras una semana sin incidencias): borrar el
+   copy migrado de los `.ts` y dejar el CMS como única fuente. Antes, probar el editor con
+   un usuario `catalogo` real.
+2. **Ventilación:** en cuanto lleguen las respuestas del Ing. Rojas, borrador en preview y
+   publicación con la validación firmada (ADR-0013).
 
-1. Inventario del catálogo y del contenido existente.
-2. Cuestionario de validación para el Ing. Rojas.
-3. Borrador en preview.
-4. Publicación sólo con la validación firmada (ADR-0013).
-
-En paralelo, el arranque del piloto Monitoreo/UCI depende del usuario (ver arriba). Después, 3B.
+Pendiente del usuario: arranque del piloto Monitoreo/UCI (visto bueno del PDF del checklist
+por el Ing. Rojas, vista "Lead magnet — por explorar" en Twenty, aprobación de los posts).
