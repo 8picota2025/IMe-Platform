@@ -18,9 +18,14 @@ import {
   type StandardCampaignLandingId,
 } from '../data/comercial-landings';
 import { getFabricanteLanding, listFabricanteLandingIds } from '../data/fabricante-landings';
+import { getCityLanding, listCitySlugs, type CityLanding } from '../data/city-landings';
+import { getFamiliaSeo, listFamiliaSeoSlugs, type FamiliaSeoContent } from '../data/familia-seo';
 import {
+  mezclarCiudad,
+  mezclarFamilia,
   mezclarLandingCampana,
   validarCopyLanding,
+  validarParIdiomas,
   type CopyCampana,
   type TipoLanding,
   type TipoLandingCampana,
@@ -36,16 +41,15 @@ export interface FilaLanding {
   version?: number;
 }
 
-const IDS_POR_TIPO: Record<TipoLandingCampana, () => string[]> = {
+const IDS_POR_TIPO: Record<TipoLanding, () => string[]> = {
   campana: listCampaignLandingIds,
   fabricante: listFabricanteLandingIds,
+  ciudad: listCitySlugs,
+  familia: listFamiliaSeoSlugs,
 };
 
 /** Indexa y valida las filas de un tipo; lanza con el detalle si alguna no cumple. */
-export function indexarFilas(
-  tipo: TipoLandingCampana,
-  filas: FilaLanding[]
-): Map<string, FilaLanding> {
+export function indexarFilas(tipo: TipoLanding, filas: FilaLanding[]): Map<string, FilaLanding> {
   const ids = new Set<string>(IDS_POR_TIPO[tipo]());
   const mapa = new Map<string, FilaLanding>();
   const problemas: string[] = [];
@@ -59,6 +63,13 @@ export function indexarFilas(
       for (const e of validarCopyLanding(fila[`contenido_${locale}`], tipo)) {
         problemas.push(`landing «${fila.clave}» (${locale}): ${e}`);
       }
+    }
+    for (const e of validarParIdiomas(
+      tipo,
+      fila.contenido_es as CopyCampana,
+      fila.contenido_en as CopyCampana
+    )) {
+      problemas.push(`landing «${fila.clave}»: ${e}`);
     }
     mapa.set(fila.clave, fila);
   }
@@ -85,7 +96,7 @@ function esTablaInexistente(error: { code?: string; message?: string }): boolean
 
 const REQUIRE_LIVE_DATA = import.meta.env?.['REQUIRE_LIVE_DATA'] === 'true';
 
-async function cargarFilas(tipo: TipoLandingCampana): Promise<Map<string, FilaLanding>> {
+async function cargarFilas(tipo: TipoLanding): Promise<Map<string, FilaLanding>> {
   if (!isSupabaseConfigured()) return new Map();
   const supabase = getSupabaseClient()!;
   const { data, error } = await supabase
@@ -108,9 +119,9 @@ async function cargarFilas(tipo: TipoLandingCampana): Promise<Map<string, FilaLa
   return indexarFilas(tipo, (data ?? []) as FilaLanding[]);
 }
 
-const cache = new Map<TipoLandingCampana, Promise<Map<string, FilaLanding>>>();
+const cache = new Map<TipoLanding, Promise<Map<string, FilaLanding>>>();
 
-function filasDe(tipo: TipoLandingCampana): Promise<Map<string, FilaLanding>> {
+function filasDe(tipo: TipoLanding): Promise<Map<string, FilaLanding>> {
   let filas = cache.get(tipo);
   if (!filas) {
     filas = cargarFilas(tipo);
@@ -152,4 +163,22 @@ export async function getFabricanteLandingCms(
 
 export async function listFabricanteLandingsCms(locale: Locale): Promise<CampaignLandingContent[]> {
   return Promise.all(listFabricanteLandingIds().map(id => getFabricanteLandingCms(id, locale)));
+}
+
+/** Landing de ciudad para la build (tanda 3): CMS si está publicada, si no el código. */
+export async function getCityLandingCms(slug: string): Promise<CityLanding | undefined> {
+  const base = getCityLanding(slug);
+  if (!base) return undefined;
+  const fila = (await filasDe('ciudad')).get(slug);
+  if (!fila) return base;
+  return mezclarCiudad(base, fila.contenido_es as CopyCampana, fila.contenido_en as CopyCampana);
+}
+
+/** Texto SEO de familia para la build (tanda 3): CMS si está publicado, si no el código. */
+export async function getFamiliaSeoCms(slug: string): Promise<FamiliaSeoContent | undefined> {
+  const base = getFamiliaSeo(slug);
+  if (!base) return undefined;
+  const fila = (await filasDe('familia')).get(slug);
+  if (!fila) return base;
+  return mezclarFamilia(base, fila.contenido_es as CopyCampana, fila.contenido_en as CopyCampana);
 }
