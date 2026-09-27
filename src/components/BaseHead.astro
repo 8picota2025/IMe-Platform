@@ -53,11 +53,35 @@ const ogWidth = String(ogImageWidth ?? 1200);
 const ogHeight = String(ogImageHeight ?? 630);
 const robotsContent = noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large';
 const searchConsoleVerification = resolveSearchConsoleVerification();
+const googleFontsHref =
+  'https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=Inter:wght@400;500;600&display=swap';
 ---
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="generator" content={Astro.generator} />
+
+<script is:inline>
+  document.addEventListener(
+    'load',
+    event => {
+      const target = event.target;
+      if (target instanceof HTMLLinkElement && target.hasAttribute('data-deferred-stylesheet')) {
+        target.media = 'all';
+      }
+    },
+    true
+  );
+</script>
+
+<!-- Carga fuentes sin bloquear el primer render; el navegador usa fallback mientras llegan. -->
+<link
+  rel="stylesheet"
+  href={googleFontsHref}
+  media="print"
+  data-deferred-stylesheet
+/>
+<noscript><link rel="stylesheet" href={googleFontsHref} /></noscript>
 
 <!-- Primary Meta -->
 <title>{title}</title>
@@ -73,15 +97,27 @@ const searchConsoleVerification = resolveSearchConsoleVerification();
 <!-- hreflang -->
 {alternates.map(alt => <link rel="alternate" hreflang={alt.hreflang} href={alt.href} />)}
 
-<!-- Font Awesome 6.5.1 — iconos fieles al sitio en producción (solo páginas que lo solicitan) -->
+<!-- Font Awesome — no bloquea el primer render en páginas con iconos. -->
 {
   fontAwesome && (
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
+    <>
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+        media="print"
+        data-deferred-stylesheet
+      />
+      <noscript>
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer"
+        />
+      </noscript>
+    </>
   )
 }
 

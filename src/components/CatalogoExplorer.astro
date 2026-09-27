@@ -94,7 +94,7 @@ const pagePath = (targetPage: number) =>
   </script>
 
   <!-- Vista familias (overview) -->
-  <section id="vista-familias" aria-labelledby="familias-heading">
+  <section id="vista-familias" aria-labelledby="familias-heading" hidden>
     <div class="catalogo__familias-header">
       <h2 id="familias-heading" class="section-subtitle">
         {t(locale, 'catalogo.familias_titulo')}
@@ -332,7 +332,11 @@ const pagePath = (targetPage: number) =>
       </div>
 
       <ul id="vista-productos" class="productos__grid" role="list">
-        {items.map(item => <ProductoCard producto={item} locale={locale} comparable />)}
+        {
+          items.map(item => (
+            <ProductoCard producto={item} locale={locale} comparable deferImageLoad />
+          ))
+        }
       </ul>
 
       {

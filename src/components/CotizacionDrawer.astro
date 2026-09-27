@@ -401,7 +401,6 @@ const config = {
     alAbrirCotizacion,
     type CotizacionItem,
   } from '../lib/cotizacion-equipos';
-  import { submitCotizacion } from '../lib/datos';
   import { emitAnalyticsEvent } from '../lib/analytics';
   import { resolverMensajeCotizacion, mensajeExitoCotizacion } from '../lib/cotizacion-submit';
   import { abrirDrawer, cerrarDrawer, resetTransientUiState } from '../lib/motion';
@@ -682,6 +681,7 @@ const config = {
         };
 
         try {
+          const { submitCotizacion } = await import('../lib/submit-cotizacion');
           const resultado = await submitCotizacion(payload);
 
           if (resultado.ok) {
