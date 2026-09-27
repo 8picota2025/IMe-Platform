@@ -9,10 +9,10 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 // Sólo el índice (nombres y rutas): cargar el copy completo rompía el presupuesto de JS.
 import { LANDINGS_INDICE, type EntradaIndiceLanding } from '../data/landings-indice';
 import {
-  CAMPOS_CAMPANA,
   camposPara,
   validarCopyLanding,
-  type TipoLandingCampana,
+  validarParIdiomas,
+  type TipoLanding,
   type CampoEditable,
   type CopyCampana,
 } from '../lib/landings-cms-schema';
@@ -30,7 +30,7 @@ type Locale = 'es' | 'en';
 
 interface FilaCms {
   id: string;
-  tipo: TipoLandingCampana;
+  tipo: TipoLanding;
   clave: string;
   version: number;
   publicado_at: string;
@@ -49,6 +49,12 @@ const SITIO = 'https://i-me.com.co';
 const fecha = (iso: string) =>
   iso ? new Date(iso).toLocaleString('es-CO', { dateStyle: 'medium', timeStyle: 'short' }) : '—';
 
+const TIPOS: TipoLanding[] = ['campana', 'fabricante', 'ciudad', 'familia'];
+
+function tipoDe(valor: string | null): TipoLanding {
+  return TIPOS.includes(valor as TipoLanding) ? (valor as TipoLanding) : 'campana';
+}
+
 function parametros(): URLSearchParams {
   return new URLSearchParams(location.hash.split('?')[1] ?? '');
 }
@@ -62,7 +68,7 @@ async function filasCms(ctx: LandingsAdminCtx): Promise<{
     ctx.supabase
       .from('landings')
       .select('id, tipo, clave, version, publicado_at, contenido_es, contenido_en')
-      .in('tipo', ['campana', 'fabricante']),
+      .in('tipo', ['campana', 'fabricante', 'ciudad', 'familia']),
     ctx.supabase
       .from('landings_borradores')
       .select('landing_id, contenido_es, contenido_en, updated_at'),
@@ -100,7 +106,7 @@ async function listaView(ctx: LandingsAdminCtx): Promise<string> {
     LANDINGS_INDICE.filter(l => l.tipo === tipo);
   const pendiente = (tanda: number) =>
     `<span class="admin-help">En código · se podrá editar tras la tanda ${tanda}</span>`;
-  const editables = (tipo: TipoLandingCampana, tanda: number) =>
+  const editables = (tipo: TipoLanding, tanda: number) =>
     porTipo(tipo).map(landing => {
       const fila = filas.get(`${tipo}:${landing.clave}`);
       const borrador = fila ? borradores.get(fila.id) : undefined;
@@ -114,8 +120,8 @@ async function listaView(ctx: LandingsAdminCtx): Promise<string> {
     });
   const campana = editables('campana', 1);
   const fabricantes = editables('fabricante', 2);
-  const ciudades = porTipo('ciudad').map(l => filaLista(ctx, l.nombre, l.path, pendiente(3), ''));
-  const familias = porTipo('familia').map(l => filaLista(ctx, l.nombre, l.path, pendiente(3), ''));
+  const ciudades = editables('ciudad', 3);
+  const familias = editables('familia', 3);
   const aviso = error
     ? `<div class="admin-alert">No se pudo leer la tabla de landings (${e(error)}). ¿Está aplicada la migración 20260926200000?</div>`
     : '';
@@ -206,9 +212,13 @@ function campoHtml(ctx: LandingsAdminCtx, campo: CampoEditable, valor: unknown):
 }
 
 /** Lee el formulario sobre una copia del contenido de partida (sólo cambia lo editable). */
-function leerFormulario(form: HTMLFormElement, partida: CopyCampana): CopyCampana {
+function leerFormulario(
+  form: HTMLFormElement,
+  partida: CopyCampana,
+  tipo: TipoLanding
+): CopyCampana {
   const copy = structuredClone(partida);
-  const campos = new Map(CAMPOS_CAMPANA.map(c => [c.clave, c]));
+  const campos = new Map(camposPara(tipo).map(c => [c.clave, c]));
   form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('[name^="c."]').forEach(el => {
     const ruta = el.name.slice(2).split('.');
     const campo = campos.get(ruta[0]!);
@@ -245,7 +255,7 @@ function medidasImagen(src: string): Promise<{ width: number; height: number } |
 
 async function editorView(
   ctx: LandingsAdminCtx,
-  tipo: TipoLandingCampana,
+  tipo: TipoLanding,
   id: string,
   locale: Locale
 ): Promise<string> {
@@ -310,7 +320,7 @@ async function editorView(
 export async function landingsView(ctx: LandingsAdminCtx): Promise<string> {
   const params = parametros();
   const id = params.get('id');
-  const tipo: TipoLandingCampana = params.get('tipo') === 'fabricante' ? 'fabricante' : 'campana';
+  const tipo = tipoDe(params.get('tipo'));
   const locale: Locale = params.get('lang') === 'en' ? 'en' : 'es';
   return id ? editorView(ctx, tipo, id, locale) : listaView(ctx);
 }
@@ -320,8 +330,7 @@ export function bindLandings(ctx: LandingsAdminCtx): void {
   if (!form) return;
   const landingId = form.dataset['landingId']!;
   const clave = form.dataset['landingClave'] ?? '';
-  const tipo: TipoLandingCampana =
-    form.dataset['landingTipo'] === 'fabricante' ? 'fabricante' : 'campana';
+  const tipo = tipoDe(form.dataset['landingTipo'] ?? null);
   const locale = form.dataset['landingLocale'] as Locale;
   const errores = form.querySelector<HTMLElement>('[data-landing-errores]');
 
@@ -365,7 +374,7 @@ export function bindLandings(ctx: LandingsAdminCtx): void {
     event.preventDefault();
     const actual = await contenidoActual();
     if (!actual) return;
-    const editado = leerFormulario(form, actual[locale]);
+    const editado = leerFormulario(form, actual[locale], tipo);
     // Foto nueva: guardar sus medidas reales para que la página reserve bien el espacio.
     if (editado['heroImage'] !== actual[locale]['heroImage']) {
       const medidas = await medidasImagen(String(editado['heroImage']));
@@ -401,6 +410,7 @@ export function bindLandings(ctx: LandingsAdminCtx): void {
     const lista = [
       ...validarCopyLanding(actual.es, tipo).map(x => `ES · ${x}`),
       ...validarCopyLanding(actual.en, tipo).map(x => `EN · ${x}`),
+      ...validarParIdiomas(tipo, actual.es, actual.en),
     ];
     mostrarErrores(lista);
     if (lista.length) return;

@@ -4,7 +4,9 @@
 > `owner` y `admin`; borrador + «Publicar»; empezar por las tandas 0 y 1. Pedido añadido: un
 > editor en el admin que liste todas las landings y edite texto y fotos, no diseño. **Tandas 0
 > y 1 en producción** el 2026-09-26 (paridad 26/26 páginas idénticas antes y después).
-> **Tanda 2 implementada** (9 landings de fabricante; paridad por Postgres 18/18).
+> **Tanda 2 en producción** (9 de fabricante; paridad 20/20 páginas, JSON-LD idéntico).
+> **Tanda 3 implementada** (3 de ciudad y 21 de familia; paridad por Postgres 24/24). Guías de
+> criterios y hub links de familia siguen en el código (enlaces internos y estructura SEO).
 
 ## Qué se migra (inventario del 2026-09-26)
 

@@ -1,11 +1,8 @@
 ---
 import Layout from '../../../../../layouts/Layout.astro';
 import ProductoCard from '../../../../../components/ProductoCard.astro';
-import {
-  getFamiliaSeo,
-  listFamiliaSeoSlugs,
-  familiaDisplayName,
-} from '../../../../../data/familia-seo';
+import { listFamiliaSeoSlugs, familiaDisplayName } from '../../../../../data/familia-seo';
+import { getFamiliaSeoCms } from '../../../../../lib/landings-cms';
 import { buildCatalogoIndex, paginateCatalogItems } from '../../../../../lib/catalogo';
 import {
   buildCanonical,
@@ -30,7 +27,7 @@ export async function getStaticPaths() {
 const locale = 'es' as const;
 const slug = Astro.params.slug!;
 const page = Number(Astro.params.page);
-const content = getFamiliaSeo(slug);
+const content = await getFamiliaSeoCms(slug);
 if (!content) return Astro.redirect('/es/catalogo/');
 
 const name = familiaDisplayName(content, locale);

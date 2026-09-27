@@ -4,6 +4,8 @@
  * (`landings-cms.ts`), el editor del admin y el script del seed.
  */
 import type { CampaignLandingContent } from '../data/comercial-landings';
+import type { CityLanding } from '../data/city-landings';
+import type { FamiliaSeoContent } from '../data/familia-seo';
 
 export type TipoLanding = 'campana' | 'fabricante' | 'ciudad' | 'familia';
 
@@ -202,8 +204,40 @@ const OBLIGATORIOS_FABRICANTE = new Set([
 // Sin sección de productos (la página los recibe vacíos).
 const OPCIONALES_FABRICANTE = new Set(['productsTitle', 'productsNote']);
 
+/** Landings de ciudad (tanda 3). `slug` y `focusFamilias` (enlaces internos) siguen en el código. */
+export const CAMPOS_CIUDAD: CampoEditable[] = [
+  texto('name', 'Ciudad'),
+  texto('region', 'Región'),
+  texto('title', 'Título SEO (<title>)', true, 'Unos 60 caracteres.'),
+  parrafo('description', 'Meta descripción'),
+  texto('h1', 'Titular (H1)'),
+  parrafo('lead', 'Entradilla'),
+  { ...lista('body', 'Párrafos del cuerpo'), ayuda: 'Un párrafo por línea.' },
+];
+
+/** Textos SEO de familia (tanda 3). `slug` y `relatedSlugs` (enlaces internos) siguen en el código. */
+export const CAMPOS_FAMILIA: CampoEditable[] = [
+  texto('name', 'Nombre de la familia'),
+  texto('title', 'Título SEO (<title>)', true, 'Unos 60 caracteres.'),
+  parrafo('description', 'Meta descripción'),
+  parrafo('intro', 'Introducción'),
+  { ...lista('body', 'Párrafos del cuerpo'), ayuda: 'Un párrafo por línea.' },
+  {
+    clave: 'faq',
+    etiqueta: 'Preguntas frecuentes',
+    tipo: 'pares',
+    obligatorio: true,
+    subcampos: [
+      { clave: 'q', etiqueta: 'Pregunta' },
+      { clave: 'a', etiqueta: 'Respuesta' },
+    ],
+  },
+];
+
 /** Campos editables de un tipo de landing, con la obligatoriedad de ese tipo. */
-export function camposPara(tipo: TipoLandingCampana): CampoEditable[] {
+export function camposPara(tipo: TipoLanding): CampoEditable[] {
+  if (tipo === 'ciudad') return CAMPOS_CIUDAD;
+  if (tipo === 'familia') return CAMPOS_FAMILIA;
   if (tipo === 'campana') return CAMPOS_CAMPANA;
   return CAMPOS_CAMPANA.map(c =>
     OBLIGATORIOS_FABRICANTE.has(c.clave)
@@ -215,7 +249,7 @@ export function camposPara(tipo: TipoLandingCampana): CampoEditable[] {
 }
 
 /** Valida el copy de una landing. Devuelve los errores con la ruta del campo (vacío = válido). */
-export function validarCopyLanding(copy: unknown, tipo: TipoLandingCampana): string[] {
+export function validarCopyLanding(copy: unknown, tipo: TipoLanding): string[] {
   if (!copy || typeof copy !== 'object' || Array.isArray(copy)) {
     return ['el contenido no es un objeto'];
   }
@@ -303,4 +337,92 @@ export function mezclarLandingCampana(
     if (valor !== undefined) bloqueados[clave] = valor;
   }
   return { ...copy, ...bloqueados } as unknown as CampaignLandingContent;
+}
+
+// ── Ciudad y familia: el código guarda ES y EN en el mismo objeto; el CMS, un copy por idioma ──
+
+type Idioma = 'es' | 'en';
+
+export function copyCiudadDesdeTs(city: CityLanding, locale: Idioma): CopyCampana {
+  return structuredClone({
+    name: city[`name_${locale}`],
+    region: city[`region_${locale}`],
+    title: city[`title_${locale}`],
+    description: city[`description_${locale}`],
+    h1: city[`h1_${locale}`],
+    lead: city[`lead_${locale}`],
+    body: city[`body_${locale}`],
+  });
+}
+
+/** Reconstruye la landing de ciudad con los dos idiomas del CMS; slug y familias, del código. */
+export function mezclarCiudad(base: CityLanding, es: CopyCampana, en: CopyCampana): CityLanding {
+  const c = (copy: CopyCampana, clave: string) => copy[clave] as string;
+  return {
+    slug: base.slug,
+    name_es: c(es, 'name'),
+    name_en: c(en, 'name'),
+    region_es: c(es, 'region'),
+    region_en: c(en, 'region'),
+    title_es: c(es, 'title'),
+    title_en: c(en, 'title'),
+    description_es: c(es, 'description'),
+    description_en: c(en, 'description'),
+    h1_es: c(es, 'h1'),
+    h1_en: c(en, 'h1'),
+    lead_es: c(es, 'lead'),
+    lead_en: c(en, 'lead'),
+    body_es: es['body'] as string[],
+    body_en: en['body'] as string[],
+    focusFamilias: base.focusFamilias,
+  };
+}
+
+export function copyFamiliaDesdeTs(familia: FamiliaSeoContent, locale: Idioma): CopyCampana {
+  return structuredClone({
+    name: familia[`name_${locale}`],
+    title: familia[`title_${locale}`],
+    description: familia[`description_${locale}`],
+    intro: familia[`intro_${locale}`],
+    body: familia[`body_${locale}`],
+    faq: familia.faq.map(f => ({ q: f[`q_${locale}`], a: f[`a_${locale}`] })),
+  });
+}
+
+/** Reconstruye el texto SEO de familia con los dos idiomas del CMS; slug y relacionadas, del código. */
+export function mezclarFamilia(
+  base: FamiliaSeoContent,
+  es: CopyCampana,
+  en: CopyCampana
+): FamiliaSeoContent {
+  const faqEs = es['faq'] as Array<{ q: string; a: string }>;
+  const faqEn = en['faq'] as Array<{ q: string; a: string }>;
+  return {
+    slug: base.slug,
+    name_es: es['name'] as string,
+    name_en: en['name'] as string,
+    title_es: es['title'] as string,
+    title_en: en['title'] as string,
+    description_es: es['description'] as string,
+    description_en: en['description'] as string,
+    intro_es: es['intro'] as string,
+    intro_en: en['intro'] as string,
+    body_es: es['body'] as string[],
+    body_en: en['body'] as string[],
+    faq: faqEs.map((f, i) => ({
+      q_es: f.q,
+      a_es: f.a,
+      q_en: faqEn[i]!.q,
+      a_en: faqEn[i]!.a,
+    })),
+    relatedSlugs: base.relatedSlugs,
+  };
+}
+
+/** Comprobaciones entre idiomas: las FAQ de familia se emparejan por posición. */
+export function validarParIdiomas(tipo: TipoLanding, es: CopyCampana, en: CopyCampana): string[] {
+  if (tipo !== 'familia') return [];
+  const nEs = Array.isArray(es['faq']) ? es['faq'].length : 0;
+  const nEn = Array.isArray(en['faq']) ? en['faq'].length : 0;
+  return nEs === nEn ? [] : [`faq: ES tiene ${nEs} preguntas y EN ${nEn}; deben coincidir`];
 }
