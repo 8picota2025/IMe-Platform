@@ -161,6 +161,7 @@ async function ejecutar(nombre: McpToolName, args: Json): Promise<Json> {
         .from('crm_opportunities')
         .select('id,titulo,etapa,updated_at')
         .in('etapa', ['nuevo', 'cotizando'])
+        .is('eliminada_at', null)
         .order('updated_at', { ascending: false })
         .limit(8),
       db

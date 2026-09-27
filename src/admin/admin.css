@@ -686,6 +686,11 @@
   color: var(--admin-ink);
 }
 
+details.admin-panel > summary {
+  cursor: pointer;
+  list-style: none;
+}
+
 .admin-button--danger {
   background: var(--admin-accent-2);
 }
