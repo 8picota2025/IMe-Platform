@@ -8,8 +8,9 @@ import {
   buildBreadcrumbJsonLd,
   combineJsonLd,
 } from '../../../lib/seo';
-import { getCityLanding, listCitySlugs, cityName } from '../../../data/city-landings';
-import { getFamiliaSeo, familiaDisplayName } from '../../../data/familia-seo';
+import { listCitySlugs, cityName } from '../../../data/city-landings';
+import { familiaDisplayName } from '../../../data/familia-seo';
+import { getCityLandingCms, getFamiliaSeoCms } from '../../../lib/landings-cms';
 import { t } from '../../../i18n/utils';
 
 export function getStaticPaths() {
@@ -18,7 +19,7 @@ export function getStaticPaths() {
 
 const locale = 'en' as const;
 const slug = Astro.params.slug!;
-const city = getCityLanding(slug);
+const city = await getCityLandingCms(slug);
 if (!city) return Astro.redirect('/en/contact/');
 
 const name = cityName(city, locale);
@@ -27,9 +28,9 @@ const seo = buildCitySeo(locale, {
   name: city.title_en,
   description: city.description_en,
 });
-const focus = city.focusFamilias
-  .map(s => getFamiliaSeo(s))
-  .filter((f): f is NonNullable<typeof f> => Boolean(f));
+const focus = (await Promise.all(city.focusFamilias.map(s => getFamiliaSeoCms(s)))).filter(
+  (f): f is NonNullable<typeof f> => Boolean(f)
+);
 
 const jsonLd = combineJsonLd(
   buildOrganizationJsonLd(),

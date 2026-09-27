@@ -1,10 +1,23 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { getCampaignLanding, listCampaignLandingIds } from '../data/comercial-landings';
+import { getFabricanteLanding, listFabricanteLandingIds } from '../data/fabricante-landings';
+import { CITY_LANDINGS, getCityLanding } from '../data/city-landings';
+import { FAMILIA_SEO, getFamiliaSeo } from '../data/familia-seo';
 import {
   CAMPOS_BLOQUEADOS,
   copyEditableDesdeTs,
   getCampaignLandingCms,
+  copyCiudadDesdeTs,
+  copyFamiliaDesdeTs,
+  getCityLandingCms,
+  getFabricanteLandingCms,
+  getFamiliaSeoCms,
+  indexarFilas,
+  mezclarCiudad,
+  mezclarFamilia,
+  validarParIdiomas,
+  validarCopyLanding,
   indexarFilasCampana,
   mezclarLandingCampana,
   validarCopyCampana,
@@ -135,5 +148,151 @@ describe('seed de la tanda 1', () => {
         copyEditableDesdeTs(getCampaignLanding(id, 'en'))
       );
     }
+  });
+});
+
+describe('tanda 2: landings de fabricante', () => {
+  it('cada landing de fabricante es válida y sale idéntica tras el paso por jsonb', () => {
+    for (const id of listFabricanteLandingIds()) {
+      for (const locale of LOCALES) {
+        const base = getFabricanteLanding(id, locale);
+        const copy = JSON.parse(JSON.stringify(copyEditableDesdeTs(base)));
+        expect(validarCopyLanding(copy, 'fabricante'), `${id} (${locale})`).toEqual([]);
+        expect(mezclarLandingCampana(base, copy), `${id} (${locale})`).toEqual(base);
+      }
+    }
+  });
+
+  it('en fabricante la marca es obligatoria y los productos no', () => {
+    const copy = copyEditableDesdeTs(getFabricanteLanding('fab_tuttnauer', 'es'));
+    delete copy['brandName'];
+    expect(validarCopyLanding(copy, 'fabricante')).toContain('brandName: obligatorio');
+    expect(
+      validarCopyLanding({ ...copy, brandName: 'X', productsTitle: '' }, 'fabricante')
+    ).toEqual([]);
+  });
+
+  it('no mezcla tipos: una fila de fabricante no vale como campaña', () => {
+    const fila = {
+      tipo: 'fabricante' as const,
+      clave: 'fab_tuttnauer',
+      contenido_es: copyEditableDesdeTs(getFabricanteLanding('fab_tuttnauer', 'es')),
+      contenido_en: copyEditableDesdeTs(getFabricanteLanding('fab_tuttnauer', 'en')),
+    };
+    expect(indexarFilas('fabricante', [fila]).has('fab_tuttnauer')).toBe(true);
+    expect(indexarFilas('campana', [fila]).size).toBe(0);
+  });
+
+  it('sin Supabase configurado devuelve la landing del código', async () => {
+    expect(await getFabricanteLandingCms('fab_saikang', 'en')).toEqual(
+      getFabricanteLanding('fab_saikang', 'en')
+    );
+  });
+
+  it('el seed coincide con el copy del código (desde la tanda 2 se edita en el CMS)', () => {
+    const sql = readFileSync(
+      new URL(
+        '../../supabase/migrations/20260926230000_seed_landings_fabricante.sql',
+        import.meta.url
+      ),
+      'utf8'
+    );
+    const filas = [
+      ...sql.matchAll(
+        /\('fabricante', '([a-z_]+)', \$ime_landing\$(.*?)\$ime_landing\$::jsonb, \$ime_landing\$(.*?)\$ime_landing\$::jsonb\)/g
+      ),
+    ];
+    expect(filas.map(f => f[1]).sort()).toEqual([...listFabricanteLandingIds()].sort());
+    for (const [, clave, es, en] of filas) {
+      const id = clave as ReturnType<typeof listFabricanteLandingIds>[number];
+      expect(JSON.parse(es!), `${clave} (es)`).toEqual(
+        copyEditableDesdeTs(getFabricanteLanding(id, 'es'))
+      );
+      expect(JSON.parse(en!), `${clave} (en)`).toEqual(
+        copyEditableDesdeTs(getFabricanteLanding(id, 'en'))
+      );
+    }
+  });
+});
+
+const viaJsonb = <T>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
+
+function filasDelSeed(archivo: string, tipo: string): Array<[string, unknown, unknown]> {
+  const sql = readFileSync(
+    new URL(`../../supabase/migrations/${archivo}`, import.meta.url),
+    'utf8'
+  );
+  const re = new RegExp(
+    `\\('${tipo}', '([a-z0-9_-]+)', \\$ime_landing\\$(.*?)\\$ime_landing\\$::jsonb, \\$ime_landing\\$(.*?)\\$ime_landing\\$::jsonb\\)`,
+    'g'
+  );
+  return [...sql.matchAll(re)].map(m => [m[1]!, JSON.parse(m[2]!), JSON.parse(m[3]!)]);
+}
+
+describe('tanda 3: ciudades', () => {
+  it('cada ciudad es válida y sale idéntica tras el paso por jsonb', () => {
+    for (const city of CITY_LANDINGS) {
+      const es = viaJsonb(copyCiudadDesdeTs(city, 'es'));
+      const en = viaJsonb(copyCiudadDesdeTs(city, 'en'));
+      expect(validarCopyLanding(es, 'ciudad'), city.slug).toEqual([]);
+      expect(validarCopyLanding(en, 'ciudad'), city.slug).toEqual([]);
+      expect(mezclarCiudad(city, es, en), city.slug).toEqual(city);
+    }
+  });
+
+  it('el seed coincide con el código', () => {
+    const filas = filasDelSeed('20260927020000_seed_landings_ciudad.sql', 'ciudad');
+    expect(filas).toHaveLength(CITY_LANDINGS.length);
+    for (const [slug, es, en] of filas) {
+      const city = getCityLanding(slug)!;
+      expect(es, slug).toEqual(copyCiudadDesdeTs(city, 'es'));
+      expect(en, slug).toEqual(copyCiudadDesdeTs(city, 'en'));
+    }
+  });
+
+  it('sin Supabase configurado devuelve la ciudad del código', async () => {
+    expect(await getCityLandingCms('medellin')).toEqual(getCityLanding('medellin'));
+    expect(await getCityLandingCms('no-existe')).toBeUndefined();
+  });
+});
+
+describe('tanda 3: familias', () => {
+  it('cada familia es válida y sale idéntica tras el paso por jsonb', () => {
+    for (const familia of FAMILIA_SEO) {
+      const es = viaJsonb(copyFamiliaDesdeTs(familia, 'es'));
+      const en = viaJsonb(copyFamiliaDesdeTs(familia, 'en'));
+      expect(validarCopyLanding(es, 'familia'), familia.slug).toEqual([]);
+      expect(validarCopyLanding(en, 'familia'), familia.slug).toEqual([]);
+      expect(validarParIdiomas('familia', es, en), familia.slug).toEqual([]);
+      expect(mezclarFamilia(familia, es, en), familia.slug).toEqual(familia);
+    }
+  });
+
+  it('las FAQ de ES y EN deben tener el mismo número de preguntas', () => {
+    const familia = FAMILIA_SEO.find(f => f.faq.length > 1)!;
+    const es = copyFamiliaDesdeTs(familia, 'es');
+    const en = copyFamiliaDesdeTs(familia, 'en');
+    (en['faq'] as unknown[]).pop();
+    expect(validarParIdiomas('familia', es, en)[0]).toMatch(/deben coincidir/);
+    expect(() =>
+      indexarFilas('familia', [
+        { tipo: 'familia', clave: familia.slug, contenido_es: es, contenido_en: en },
+      ])
+    ).toThrow(/deben coincidir/);
+  });
+
+  it('el seed coincide con el código', () => {
+    const filas = filasDelSeed('20260927020100_seed_landings_familia.sql', 'familia');
+    expect(filas).toHaveLength(FAMILIA_SEO.length);
+    for (const [slug, es, en] of filas) {
+      const familia = getFamiliaSeo(slug)!;
+      expect(es, slug).toEqual(copyFamiliaDesdeTs(familia, 'es'));
+      expect(en, slug).toEqual(copyFamiliaDesdeTs(familia, 'en'));
+    }
+  });
+
+  it('sin Supabase configurado devuelve la familia del código', async () => {
+    const slug = FAMILIA_SEO[0]!.slug;
+    expect(await getFamiliaSeoCms(slug)).toEqual(getFamiliaSeo(slug));
   });
 });

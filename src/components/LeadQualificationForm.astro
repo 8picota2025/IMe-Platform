@@ -400,7 +400,6 @@ const turnstileSiteKey = (
     type HorizonteCompra,
   } from '../lib/comercial-leads';
   import { interpretarErrorEdgeFunction } from '../lib/cotizacion-submit';
-  import { getSupabaseClient } from '../lib/supabase';
 
   interface TurnstileApi {
     render: (container: HTMLElement, options: Record<string, unknown>) => string;
@@ -559,7 +558,8 @@ const turnstileSiteKey = (
 
       const lead = data as CommercialLeadInput;
       const url = buildWhatsAppUrl(lead);
-      const supabase = getSupabaseClient();
+      const supabaseModule = await import('../lib/supabase').catch(() => null);
+      const supabase = supabaseModule?.getSupabaseClient();
       if (!supabase) {
         showStatus(
           locale === 'en'

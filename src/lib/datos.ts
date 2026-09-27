@@ -7,8 +7,7 @@
  */
 
 import type { Locale } from '../i18n/utils';
-import { emitAnalyticsEvent } from './analytics';
-import { captureCommercialAttribution, type CommercialAttribution } from './commercial-attribution';
+import type { CommercialAttribution } from './commercial-attribution';
 import { isSupabaseConfigured, getSupabaseClient } from './supabase';
 import { resolveFamiliaIcono } from './familias';
 import { resolveMarca } from './producto-origen';
@@ -510,7 +509,7 @@ function mapProducto(raw: (typeof mockProductos)[0], locale: Locale): Producto {
         ? (raw as { seo_keywords_en?: string[] }).seo_keywords_en
         : (raw as { seo_keywords_es?: string[] }).seo_keywords_es) ?? [],
     marca: (raw as { marca?: string }).marca ?? null,
-    imagen_principal: publicImage(raw.imagen_principal),
+    imagen_principal: localProductImage(raw.slug) ?? publicImage(raw.imagen_principal),
     galeria: raw.galeria.map(publicImage).filter(isString),
     ficha_pdf: raw.ficha_pdf,
     tipo_comercial: raw.tipo_comercial as Producto['tipo_comercial'],
@@ -896,67 +895,4 @@ export async function getArticuloBySlug(slug: string, locale: Locale): Promise<A
   return found ? mapArticuloMock(found, locale) : null;
 }
 
-export async function submitCotizacion(datos: CotizacionPayload): Promise<{
-  ok: boolean;
-  error?: string;
-  emails?: { interno?: boolean; cliente?: boolean };
-}> {
-  if (isSupabaseConfigured()) {
-    const supabase = getSupabaseClient()!;
-    const { normalizarPayloadCotizacion, interpretarErrorEdgeFunction } =
-      await import('./cotizacion-submit');
-    const payload = normalizarPayloadCotizacion({
-      ...captureCommercialAttribution(datos.campaign),
-      ...datos,
-    });
-    if (!payload.mensaje.trim()) {
-      return {
-        ok: false,
-        error:
-          payload.locale === 'en'
-            ? 'Message is required when no products are selected.'
-            : 'El mensaje es obligatorio si no hay productos en la solicitud.',
-      };
-    }
-    // Edge Function: registra la solicitud y envia emails (interno + cliente)
-    const { data, error } = await supabase.functions.invoke('registrar-cotizacion', {
-      body: payload,
-    });
-    if (error) {
-      return { ok: false, error: await interpretarErrorEdgeFunction(error, data) };
-    }
-    const result = data as {
-      ok?: boolean;
-      error?: string | { message?: string };
-      emails?: { interno?: boolean; cliente?: boolean };
-    } | null;
-    if (!result?.ok) {
-      const edgeError =
-        typeof result?.error === 'string'
-          ? result.error
-          : result?.error?.message
-            ? result.error.message
-            : await interpretarErrorEdgeFunction(null, data);
-      return { ok: false, error: edgeError };
-    }
-    emitAnalyticsEvent('quote_submit', {
-      origin: datos.origen,
-      has_products: Array.isArray(datos.productos) && datos.productos.length > 0,
-      item_count: datos.productos?.reduce((acc, producto) => acc + producto.cantidad, 0) ?? 0,
-      products: datos.productos?.map(producto => `${producto.slug}:${producto.cantidad}`).join(','),
-    });
-    if (result.emails) {
-      return { ok: true, emails: result.emails };
-    }
-    return { ok: true };
-  }
-  // Mock: siempre OK en desarrollo sin Supabase
-  console.warn('[datos] submitCotizacion mock (sin Supabase):', datos.email);
-  emitAnalyticsEvent('quote_submit', {
-    origin: datos.origen,
-    has_products: Array.isArray(datos.productos) && datos.productos.length > 0,
-    item_count: datos.productos?.reduce((acc, producto) => acc + producto.cantidad, 0) ?? 0,
-    products: datos.productos?.map(producto => `${producto.slug}:${producto.cantidad}`).join(','),
-  });
-  return { ok: true };
-}
+export { submitCotizacion } from './submit-cotizacion';

@@ -38,9 +38,11 @@ interface Props {
   locale: Locale;
   /** Habilita el checkbox de comparación (catálogo). */
   comparable?: boolean;
+  /** Difiere las imágenes hasta que la tarjeta se acerque al viewport. */
+  deferImageLoad?: boolean;
 }
 
-const { producto, locale, comparable = false } = Astro.props;
+const { producto, locale, comparable = false, deferImageLoad = false } = Astro.props;
 const segment = locale === 'en' ? 'products' : 'productos';
 const href = `/${locale}/${segment}/${producto.slug}/`;
 const noDisponible = producto.disponible === false;
@@ -95,10 +97,23 @@ const whatsappHref = `https://wa.me/573137247353?text=${encodeURIComponent(
       {
         imagenProductoTransformable ? (
           <picture>
-            <source srcset={imagenProductoAvif} type="image/avif" />
-            <source srcset={imagenProductoWebp} type="image/webp" />
+            <source
+              srcset={deferImageLoad ? undefined : imagenProductoAvif}
+              data-lazy-srcset={deferImageLoad ? imagenProductoAvif : undefined}
+              type="image/avif"
+            />
+            <source
+              srcset={deferImageLoad ? undefined : imagenProductoWebp}
+              data-lazy-srcset={deferImageLoad ? imagenProductoWebp : undefined}
+              type="image/webp"
+            />
             <img
-              src={imagenProducto}
+              src={
+                deferImageLoad
+                  ? 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='
+                  : imagenProducto
+              }
+              data-lazy-src={deferImageLoad ? imagenProducto : undefined}
               alt={producto.nombre}
               width="400"
               height="280"
@@ -111,7 +126,12 @@ const whatsappHref = `https://wa.me/573137247353?text=${encodeURIComponent(
           </picture>
         ) : (
           <img
-            src={imagenProducto}
+            src={
+              deferImageLoad
+                ? 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='
+                : imagenProducto
+            }
+            data-lazy-src={deferImageLoad ? imagenProducto : undefined}
             alt={producto.nombre}
             width="400"
             height="280"
