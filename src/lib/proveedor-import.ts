@@ -101,6 +101,31 @@ export const PROVEEDOR_SENSITIVE_COLUMNS = [
   'precio_costo',
 ] as const;
 
+/**
+ * Campos de routing/estado que la importación no puede reescribir en un
+ * proveedor con dropshipping activo (notificar-proveedor lee canal + contactos).
+ */
+export const DROPSHIP_PROTECTED_IMPORT_FIELDS = [
+  'canal',
+  'contacto_email',
+  'contacto_whatsapp',
+  'activo',
+  'lifecycle_status',
+] as const;
+
+/** Quita campos operativos del payload cuando el proveedor ya tiene dropship. */
+export function sanitizeDropshipImportPayload(
+  payload: Record<string, unknown>,
+  current: { dropship_enabled: boolean } | undefined
+): Record<string, unknown> {
+  if (!current?.dropship_enabled) return payload;
+  const next: Record<string, unknown> = { ...payload };
+  for (const field of DROPSHIP_PROTECTED_IMPORT_FIELDS) {
+    delete next[field];
+  }
+  return next;
+}
+
 export const PROVEEDOR_TEMPLATE_SAMPLE: Record<string, string | boolean> = {
   slug: 'proveedor-ejemplo',
   nombre: 'Proveedor ejemplo',
