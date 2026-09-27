@@ -1,0 +1,88 @@
+---
+// "Más sobre <tema>" al final de un artículo: enlazado interno dentro del
+// topic cluster (ADR-0014). No se muestra si el artículo no tiene tema o si
+// es el único del tema.
+import type { Articulo } from '../../lib/datos';
+import type { Locale } from '../../i18n/utils';
+import { t } from '../../i18n/utils';
+import { esPilar, rutasConocimiento } from '../../lib/conocimiento-clusters';
+
+interface Props {
+  articulo: Articulo;
+  relacionados: Articulo[];
+  locale: Locale;
+}
+
+const { articulo, relacionados, locale } = Astro.props;
+const tema = articulo.cluster;
+---
+
+{
+  tema && relacionados.length > 0 && (
+    <aside class="relacionados" aria-labelledby="relacionados-titulo">
+      <h2 id="relacionados-titulo" class="relacionados__titulo">
+        {t(locale, 'conocimiento.relacionados_titulo')} {tema.nombre}
+      </h2>
+      <ul class="relacionados__lista">
+        {relacionados.map(otro => (
+          <li>
+            <a href={rutasConocimiento.articulo(locale, otro.slug)}>{otro.titulo}</a>
+            {esPilar(otro) && (
+              <span class="relacionados__pilar">{t(locale, 'conocimiento.pilar')}</span>
+            )}
+          </li>
+        ))}
+      </ul>
+      <a class="relacionados__tema" href={rutasConocimiento.tema(locale, tema.slug)}>
+        {t(locale, 'conocimiento.ver_tema')}: {tema.nombre}{' '}
+        <i class="fas fa-arrow-right" aria-hidden="true" />
+      </a>
+    </aside>
+  )
+}
+
+<style>
+  .relacionados {
+    clear: both;
+    margin-top: 40px;
+    padding: 24px 28px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--t50);
+  }
+  .relacionados__titulo {
+    margin: 0 0 14px;
+    font-size: 1.15rem;
+    color: var(--ink);
+  }
+  .relacionados__lista {
+    margin: 0 0 16px;
+    padding-left: 1.2em;
+  }
+  .relacionados__lista li {
+    margin: 0 0 8px;
+    line-height: 1.5;
+  }
+  .relacionados__lista a {
+    color: var(--t900);
+    font-weight: 600;
+  }
+  .relacionados__pilar {
+    margin-left: 8px;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: var(--t900);
+    color: var(--white);
+    font-size: 0.75rem;
+    font-weight: 600;
+    vertical-align: middle;
+  }
+  .relacionados__tema {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    font-weight: 700;
+    color: var(--t900);
+  }
+</style>

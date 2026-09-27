@@ -35,6 +35,9 @@ const RESERVED_ARTICULO_SLUGS = new Set([
   'knowledge',
   'publicar',
   'publish',
+  // /es/conocimiento/tema/<cluster>, /en/knowledge/topic/<cluster>
+  'tema',
+  'topic',
   'blog',
   'articulos',
   'articles',

@@ -8,19 +8,38 @@
 
 ## Estado general
 
-- **Fase actual:** Fase 1 — Foundation → **CERRADA**. 8/8 ADRs (0011-0018) aceptadas,
-  redactadas e implementadas donde correspondía; cluster piloto decidido; plan de
-  contenido de Fase 2 redactado. Después del cierre se hizo una **revisión de errores de
-  todo lo realizado** (ver "Revisión post-cierre" abajo); sus correcciones están
-  commiteadas en la rama.
-- **Última actualización:** 2026-09-22 (revisión post-cierre)
+- **Fase actual:** Fase 3 — Landing & Tool Foundation → **3A ENTREGADA** y **piloto
+  Monitoreo/UCI completo en código** (2026-09-26): herramienta, landing, dashboard, paquetes de
+  canal y CRM con la oportunidad naciendo en la cotización. **Arranque del piloto pendiente
+  del usuario** (revisión del PDF por el Ing. Rojas, vista de Twenty, aprobación de posts).
+  **En curso: pilar de Ventilación** (autorizado el 2026-09-26), con validación biomédica
+  previa como Monitoreo. **3B** (Landing Factory en CMS) después. Fase 2 → **ENTREGADA**.
+  Fase 1 → **CERRADA**.
+- **Última actualización:** 2026-09-26 (cierre del piloto en código, inicio de Ventilación)
 
 ### 🔴 Punto de reanudación — leer esto primero al retomar
 
-**Estado git:** todo pusheado en `feat/growth-engine-foundation`, PR
-[#116](https://github.com/8picota2025/IMe-Platform/pull/116) en draft: los 17 commits de
-Fase 1, la revisión post-cierre (`dfa5d22`, CI verde) y el registro de la decisión sobre
-clases INVIMA. Descripción del PR actualizada con la revisión.
+**Estado de despliegue (2026-09-23):**
+
+- PR [#116](https://github.com/8picota2025/IMe-Platform/pull/116) **fusionado en `main`**
+  (`7d4244a`), con merge commit.
+- **Edge Functions** desplegadas por `deploy-supabase-functions.yml` al primer intento
+  (redacción de PII del asesor, función de purga).
+- **Sitio** desplegado por `deploy-prod.yml`. El primer intento falló en la build por un
+  `statement timeout` de Supabase al leer todos los productos (`getProductos`, ~14 MB),
+  ajeno al PR; relanzado el paso fallido, terminó bien. Si se repite, revisar esa
+  consulta (`select('*')` de todo el catálogo en cada build).
+- **Verificado en `https://i-me.com.co/es/`** con los envíos bloqueados: banner visible,
+  cero scripts y hits de terceros antes de aceptar; al aceptar, GA4 envía `page_view`,
+  crea `_ga` y registra el consentimiento. **GA4 vuelve a recibir datos en producción**
+  (antes no recibía ninguno, ver ADR-0012) — sólo de quien acepta.
+- **Migraciones aplicadas** con `deploy-supabase-migrations.yml` (vía Session Pooler):
+  `20260922200000` a `20260922230000`. Antes se confirmó con `list_migrations` que eran
+  las únicas pendientes. Verificado en producción: tablas con RLS y sus 5 políticas, 6
+  topic clusters sembrados, `articulos.cluster_id`/`tags`, índice de retención y CHECK de
+  evidencia.
+- **Purga de `asesor_agent_turns`:** el cron diario ya corre, pero no borrará nada hasta
+  mediados de diciembre (la tabla existe desde el 2026-09-15; 34 filas al 2026-09-23).
 
 ### Revisión post-cierre (2026-09-22)
 
@@ -74,22 +93,186 @@ contenido (sin producir nada todavía) para los dos clusters piloto que el usuar
 **Monitoreo/UCI + INVIMA/Regulación**. El plan está a la espera de aprobación del usuario
 antes de que se escriba cualquier artículo/landing/tool/post real.
 
-**Siguiente acción concreta cuando se retome** (en orden, per el propio plan de
-contenido §4):
+**Fase 2 — avance (2026-09-24):**
 
-1. El usuario aprueba (o ajusta) `pilot-clusters-content-plan.md`.
-2. Verificar en Supabase real cuántos artículos de Monitoreo ya están publicados en
-   producción (el build local sólo tiene mock data — no se puede confirmar desde aquí sin
-   credenciales).
-3. Confirmar con el equipo biomédico de I-ME cualquier checklist operativo que el plan
-   marcó `REQUIRES_VERIFICATION` (§1.3.3 del plan de contenido).
-4. Recién ahí, producir contenido real — sigue siendo Fase 2 (`Knowledge Hub`), no
-   arrancada todavía.
+- **PR [#122](https://github.com/8picota2025/IMe-Platform/pull/122) fusionado** (`d55231b`):
+  páginas de tema `/es/conocimiento/tema/<slug>` y `/en/knowledge/topic/<slug>`,
+  navegación por temas, miga de pan y "Más sobre <tema>"; preview de borradores con
+  `PREVIEW_DRAFTS=true` (sólo frontmatter de páginas, nunca en bundles de cliente);
+  corrección del renderizador de markdown (tablas, enlaces internos y viñetas se veían
+  como texto crudo en producción).
+- **Migraciones aplicadas** (`20260924120000`–`20260924130200`): 6 artículos con tema,
+  nombres de temas con tildes, **2 artículos INVIMA publicados** (guía del registro
+  sanitario + checklist para compradores, sin clases de riesgo, cada afirmación citada a
+  Decreto 4725/2005 mod. 582/2017, Res. 4002/2007, Res. 4816/2008), **guía de
+  distribuidores 2025 despublicada** (clases de riesgo, cifras sin fuente, competidores,
+  errores regulatorios; sólo `publicado = false`) y 3 enlaces a productos renombrados
+  corregidos.
+- **Hotfix [#123](https://github.com/8picota2025/IMe-Platform/pull/123)** (`5ac7cf2`): el
+  despliegue del #122 falló en la auditoría SEO porque las páginas EN de tema enlazaban su
+  alterna ES como `/es/conocimiento/topic/…`. El CI del PR no podía verlo (sin temas en la
+  BD hasta migrar). Lección: **una build de producción con datos reales tras migrar**
+  (`check && build && audit:seo-build && audit:performance-build`) antes de fusionar
+  cambios que dependan de datos migrados.
+- **Embeddings del asesor regenerados** (15 artículos publicados) con Ollama
+  `mxbai-embed-large`, el modelo de los productos, del asesor web y del admin. Los 5
+  vectores de artículos que existían venían de **otro modelo** (similitud ≈ 0,04 con
+  consultas mxbai: la búsqueda semántica de artículos no funcionaba) y 10 artículos no
+  tenían vector. Verificado: cada consulta de prueba devuelve primero el artículo
+  correcto (0,74–0,86). Ojo: los `.env` locales discrepan (dos dicen `voyage`, dos
+  `ollama`); el sistema de registro es `mxbai-embed-large`. `scripts/reindex-voyage-embeddings.mjs`
+  imprime "con Voyage" aunque use Ollama (etiqueta fija).
+- **Validación biomédica recibida**: `Validacion_biomedica_Monitoreo_UCI_Respondido-1.docx`
+  (escritorio), **aprobada en las 3 secciones** y firmada por el Ing. Andrés F. Rojas M.
+  (Ingeniero Biomédico Senior, 2026-09-24). Es la fuente del contenido técnico de
+  Monitoreo: checklist de recepción e instalación (A1–A8), datos por modelo y criterios
+  (B1–B6), y las 7 afirmaciones del artículo publicado confirmadas, con 3 añadidos
+  sugeridos (C3: IEC 60601 y registro INVIMA vigente como criterio; C4: verificar
+  infraestructura eléctrica y de red; C7: plan de capacitación y stock inicial de
+  consumibles en la cotización).
+
+**Siguiente:** pilar de Monitoreo + checklist de recepción e instalación + 2–3 artículos
+de apoyo a partir de la validación biomédica, con preview antes de publicar.
+
+### Fase 2 — avance (2026-09-25)
+
+- **[#126](https://github.com/8picota2025/IMe-Platform/pull/126) — cluster Monitoreo/UCI
+  publicado:** pilar (guía de monitores multiparamétricos) + checklist de recepción e
+  instalación + UCI adulto/pediátrica/neonatal + central multicama vs. monitores
+  independientes, sobre la validación del Ing. Rojas. La presión arterial pediátrica (B4)
+  quedó fuera hasta que la confirme.
+- **[#124](https://github.com/8picota2025/IMe-Platform/pull/124):** 301 de la guía de
+  distribuidores 2025 (despublicada) a la guía del registro sanitario INVIMA.
+- **[#125](https://github.com/8picota2025/IMe-Platform/pull/125):** el `statement timeout`
+  de `getProductos` en la build se repetía; ahora select reducido y lectura por lotes.
+- **Embeddings:** el almacén de modelos de Ollama se vació; se volvió a bajar
+  `mxbai-embed-large` y se comprobó que da las mismas puntuaciones (0,858 en la consulta
+  "quiénes somos") antes de regenerar los vectores de los artículos nuevos.
+- **[#127](https://github.com/8picota2025/IMe-Platform/pull/127):** paquetes por canal y
+  mapa UTM de los dos clusters piloto (`paquetes-canal-utm-clusters-piloto.md`). Nada
+  publicado en redes: Fase 4 exige aprobación.
+- **[#128](https://github.com/8picota2025/IMe-Platform/pull/128):** footer agrupado en 6
+  categorías plegables. Verificado en producción.
+- **[#130](https://github.com/8picota2025/IMe-Platform/pull/130):** imagen propia para los 4
+  artículos de Monitoreo (antes todos con `hospital-uci-pasillo.webp` por el fallback de
+  palabra clave) y banner de cookies más discreto (móvil ≈150 px en vez de ≈190 px,
+  escritorio en la esquina inferior izquierda). Las imágenes versionadas van en
+  `public/assets/img/`: `public/assets/img/conocimiento/` está en `.gitignore` (lo llena
+  el espejo del CMS en cada build).
+- Listado de páginas nuevas entregado al usuario (`~/Desktop/IMEGrowth_paginas_nuevas.md`).
+
+### Piloto Monitoreo/UCI — completo en código (2026-09-26)
+
+- **[#136](https://github.com/8picota2025/IMe-Platform/pull/136):**
+  - Dashboard mínimo en admin → Marketing, «Piloto Monitoreo/UCI · 30 días»
+    (`src/lib/piloto-monitoreo.ts`).
+  - Paquetes de canal apuntando a la landing y al checklist.
+  - Mapping CRM en `docs/crm-commercial-mapping.md`.
+- **Decisión del usuario (2026-09-25): la Opportunity nace con la cotización.** Los leads de
+  herramientas (#136) y de descargas de fichas (#137,
+  [enlace](https://github.com/8picota2025/IMe-Platform/pull/137)) no abren oportunidad:
+  - **En Twenty:** Person con cargo `Lead magnet · <herramienta|ficha-tecnica>` + Company +
+    nota con atribución.
+  - **En el warehouse:** cuenta + contacto + actividad. Migraciones `20260925220000` y
+    `20260926000000`, aplicadas en producción con `deploy-supabase-migrations.yml`; probadas
+    antes en Postgres 16 desechable.
+  - La lista de campañas lead magnet vive en `esCampanaLeadMagnet()` y en la función SQL:
+    cambiar las dos a la vez.
+- **Corrección:** la analítica propia (`analytics_eventos`) no depende del banner de cookies
+  (ADR-0012); sólo GA4 y Clarity. Textos del código y del panel corregidos.
+- `deploy-supabase-migrations.yml` aplica **todas** las migraciones pendientes
+  (`db push --include-all`): antes de lanzarlo, revisar qué otras ramas añadieron migraciones.
+  El 2026-09-25 las tres de WhatsApp (#129, #132) ya estaban aplicadas.
+- **Para arrancar el piloto (usuario):**
+  1. OK del Ing. Rojas al PDF del checklist.
+  2. Vista de Twenty «Lead magnet — por explorar» (People → Job Title contiene `Lead magnet`).
+  3. Aprobación y publicación de los posts.
+
+  Después, medir 3–4 semanas en el panel.
+
+### Fase 3A — entregada (2026-09-25)
+
+- **[#133](https://github.com/8picota2025/IMe-Platform/pull/133) — herramienta D1:**
+  `/es/recursos/checklist-recepcion-monitor/` y `/en/resources/monitor-receiving-checklist/`.
+  36 puntos con el texto literal validado por el Ing. Rojas (un test lo compara con la
+  migración del artículo), avance en `localStorage`, PDF generado en el navegador con
+  `pdf-lib` tras registrar el lead (`PdfDownloadGate`, campaña nueva `herramienta`),
+  eventos `tool_start`, `tool_complete`, `lead_magnet_download`. **Pendiente:** revisión del
+  PDF por el Ing. Rojas (muestra en el escritorio del usuario) antes de promocionarlo.
+- **[#134](https://github.com/8picota2025/IMe-Platform/pull/134) — landing D2:**
+  `/es/dotacion-monitoreo-uci/` y `/en/icu-monitoring-projects/`, por proyecto y no por
+  marca, con el checklist como lead magnet y 3 guías del cluster. `CampaignLandingContent`
+  gana `leadMagnet`, `relatedGuides` y tamaño de hero (opcionales).
+- **Bug de producción corregido en #134 — leads rechazados en 7 landings:** la Edge
+  Function `registrar-lead-comercial` tenía su propia lista de campañas y no incluía
+  Biolight, ventiladores, desfibriladores, alto flujo, camillas, caminadores ni sillas:
+  sus formularios devolvían `400 campaign invalida` desde que se publicaron (la más antigua,
+  Biolight, el 2026-08-30). Ahora la lista sale de `CAMPAIGN_IDS` en
+  `src/lib/comercial-leads.ts`, completa por tipo, con test sobre cada landing publicada.
+  **Pendiente del usuario:** revisar en el CRM/WhatsApp si se perdieron consultas.
+- **Bug corregido en #134 — hreflang del sitemap:** `scripts/sitemap-seo.mjs` duplicaba los
+  pares de rutas sin `tema/topic` ni la herramienta y declaraba alternas inexistentes
+  (`/en/knowledge/tema/…`). Añadidos, con test de paridad contra `getLocalizedPath`.
+  Verificado en producción.
+- Deploy de Edge Functions del #133: cancelado por concurrencia al llegar un push posterior
+  (#132), que sí desplegó la función con el cambio (`No change found`). Si un deploy de
+  funciones sale `cancelled`, comprobar el run siguiente antes de relanzar.
+
+**Gate de 3A (§20):** plan aprobado (D1, D2, opción A); tests 470/470; seguridad (sin
+endpoints nuevos, campaña validada contra lista cerrada, PDF sin datos personales);
+cumplimiento (texto validado, sin consejo clínico); UX en sandbox 320/375/1366 px, ES/EN.
+**GO** al cierre del piloto.
+
+### Gate de Fase 2 (mandato §20) — 2026-09-25
+
+| Paso              | Resultado                                                                                                            |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Plan / task graph | `pilot-clusters-content-plan.md`, aprobado 2026-09-23                                                                |
+| Implementación    | #122, #123, #124, #125, #126, #127, #128, #130                                                                       |
+| Tests             | `npm run validate` en cada PR; build de producción con datos reales tras cada migración (lección de #123)            |
+| Seguridad         | #118 (SECURITY DEFINER), contraseña del CMS rotada; sin endpoints nuevos en Fase 2                                   |
+| Compliance        | afirmaciones técnicas validadas por ingeniería biomédica; INVIMA sin clases de riesgo y cada afirmación con su norma |
+| UX                | QA en navegador del banner (38 escenarios), footer y banner compacto en 320/375 px                                   |
+| Documentación     | este archivo, `paquetes-canal-utm-clusters-piloto.md`, listado de páginas nuevas                                     |
+| **Decisión**      | **GO a Fase 3**, con la deuda aceptada de abajo                                                                      |
+
+**Deuda aceptada al cerrar Fase 2:** Ventilación, Cardiología y Movilidad con un solo
+artículo y sin pilar; Financiación bloqueado por la firma legal de tasas; B4 pendiente
+del Ing. Rojas; fotos y textos de los artículos nuevos los mejora el usuario; GE-007 y el
+test de integración de `actualizar-fulfillment` siguen abiertos.
+
+**Fase 2 (Knowledge Hub) — AUTORIZADA el 2026-09-23.** Estado de los prerrequisitos del
+plan de contenido §4:
+
+1. ✅ **Plan aprobado** por el usuario (2026-09-23). Además, **producción de contenido
+   autorizada sin aprobación pieza por pieza**, con una condición: **mostrar al usuario la
+   URL del sandbox (preview local) de cada pieza antes de pushear/publicar**.
+2. ✅ **Verificado en Supabase de producción** (2026-09-23): 14 artículos publicados,
+   ninguno con `cluster_id` todavía. Monitoreo/UCI tiene **uno solo**
+   (`guia-monitores-multiparametricos-uci`, no dos como suponía el plan). INVIMA ya tiene
+   `guia-actualizada-distribuidores-importacion-y-regulacion-2025-biomedicos` (el plan
+   decía que no había nada): reutilizarlo como base, no duplicarlo.
+3. ✅ **Validación biomédica recibida y aprobada** (2026-09-24, ver arriba). Documento Word
+   `Validacion_biomedica_Monitoreo_UCI.docx` entregado al usuario (escritorio) para el
+   equipo biomédico. Secciones: A) checklist de recepción/instalación (bloquea ese
+   artículo), B) datos técnicos por modelo para la pilar de Monitoreo (parámetros de
+   serie/opcionales de los 5 monitores del catálogo, básico vs. avanzado, central
+   multicama, UCI adulto/pediátrica/neonatal, mantenimiento y calibración, consumibles),
+   C) revisión de las 7 afirmaciones del artículo de monitores publicado. **Todo contenido
+   de Monitoreo con afirmaciones técnicas espera estas respuestas.**
+4. **Se puede producir ya, sin esperar a los biomédicos:** clasificar los 14 artículos en
+   `topic_clusters`, y el cluster INVIMA sin clases de riesgo (registro sanitario en
+   general, normatividad con enlaces oficiales, checklist para compradores sin clasificar
+   el equipo), partiendo de la guía INVIMA ya publicada.
 
 **Pendientes que no bloquean lo anterior pero siguen abiertos:**
 
-- QA manual del banner de consentimiento (ADR-0012) en navegador real — no se hizo en
-  esta sesión.
+- ~~24 funciones `SECURITY DEFINER` ejecutables por `anon`~~ — **resuelto** en
+  [#118](https://github.com/8picota2025/IMe-Platform/pull/118) (migración
+  `20260923210000`, verificada en producción: sin sesión sólo quedan las 4 búsquedas del
+  asesor). Pendiente del usuario: activar la protección de contraseñas filtradas de Auth
+  en el panel de Supabase.
+- ~~Contraseña del CMS legado~~ — **rotada por el usuario** (2026-09-24).
 - Coordinar con el admin de Twenty CRM para crear los campos custom de la fase
   estructurada de ADR-0011 (hoy la atribución llega a Twenty como texto, funciona, pero
   no es un campo nativo consultable).
@@ -121,15 +304,17 @@ original — está todo aquí.
 
 Decisiones de arquitectura/alcance y su estado de aprobación humana:
 
-| Decisión                                | Recomendación de Claude                                                                                                                                                                                                                                                     | Estado                                          |
-| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| Cluster piloto (mandato §24)            | Monitoreo / UCI + INVIMA / Regulación (dos clusters piloto en paralelo, decisión del usuario — no la recomendación original de Claude, que sugería Ventilación como segundo; INVIMA se vuelve viable ahora porque su precondición, ADR-0013, ya está mergeada en esta rama) | **Aprobada** — 2026-09-22                       |
-| Contenido sobre clases de riesgo INVIMA | No producirlo por ahora (piezas excluidas listadas al inicio de `pilot-clusters-content-plan.md`)                                                                                                                                                                           | **Decisión del usuario** — 2026-09-23           |
-| Secuencia de Fase 1                     | Priorizar ADR-0012 (CMP) y ADR-0011 (fix atribución Twenty) antes que nada más                                                                                                                                                                                              | **Aprobada y ejecutada** — 2026-09-22           |
-| Enfoque CMP (ADR-0012)                  | Banner propio ligero (sin vendor de pago)                                                                                                                                                                                                                                   | **Aprobada y ejecutada** — 2026-09-22           |
-| Prioridad GE-008 (tests Deno)           | Arreglar ahora como parte de Fase 1                                                                                                                                                                                                                                         | **Aprobada y ejecutada** — 2026-09-22           |
-| Modelo de evidencia                     | Versión mínima viable (3 campos) en vez del modelo completo de 10 campos del mandato, para no bloquear Fase 2                                                                                                                                                               | **Aprobada** (ADR-0013, `744b4ce`) — 2026-09-23 |
-| ADR-0014 a ADR-0018                     | Redactadas e implementadas por Claude en la sesión de 2026-09-22                                                                                                                                                                                                            | **Aprobadas** — 2026-09-23                      |
+| Decisión                                 | Recomendación de Claude                                                                                                                                                                                                                                                     | Estado                                          |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| Cluster piloto (mandato §24)             | Monitoreo / UCI + INVIMA / Regulación (dos clusters piloto en paralelo, decisión del usuario — no la recomendación original de Claude, que sugería Ventilación como segundo; INVIMA se vuelve viable ahora porque su precondición, ADR-0013, ya está mergeada en esta rama) | **Aprobada** — 2026-09-22                       |
+| Plan de contenido de los clusters piloto | Aprobar `pilot-clusters-content-plan.md`                                                                                                                                                                                                                                    | **Aprobado** — 2026-09-23                       |
+| Aprobación de piezas de contenido        | Producir sin aprobación pieza por pieza; **mostrar la URL del sandbox antes de pushear/publicar**                                                                                                                                                                           | **Decisión del usuario** — 2026-09-23           |
+| Contenido sobre clases de riesgo INVIMA  | No producirlo por ahora (piezas excluidas listadas al inicio de `pilot-clusters-content-plan.md`)                                                                                                                                                                           | **Decisión del usuario** — 2026-09-23           |
+| Secuencia de Fase 1                      | Priorizar ADR-0012 (CMP) y ADR-0011 (fix atribución Twenty) antes que nada más                                                                                                                                                                                              | **Aprobada y ejecutada** — 2026-09-22           |
+| Enfoque CMP (ADR-0012)                   | Banner propio ligero (sin vendor de pago)                                                                                                                                                                                                                                   | **Aprobada y ejecutada** — 2026-09-22           |
+| Prioridad GE-008 (tests Deno)            | Arreglar ahora como parte de Fase 1                                                                                                                                                                                                                                         | **Aprobada y ejecutada** — 2026-09-22           |
+| Modelo de evidencia                      | Versión mínima viable (3 campos) en vez del modelo completo de 10 campos del mandato, para no bloquear Fase 2                                                                                                                                                               | **Aprobada** (ADR-0013, `744b4ce`) — 2026-09-23 |
+| ADR-0014 a ADR-0018                      | Redactadas e implementadas por Claude en la sesión de 2026-09-22                                                                                                                                                                                                            | **Aprobadas** — 2026-09-23                      |
 
 ## ADRs (ver `IMPLEMENTATION_PLAN.md` §9 para el detalle)
 
@@ -164,13 +349,13 @@ Numeración continúa desde la última ADR real del repo (`docs/decisions/0010-q
 | GE-008-deno-tests-sin-ci      | CLAUDE (directo)                         | L1 (una vez priorizado por el humano) | GE-001 = GO                                                                                                                                      | **Completado**            | `.github/workflows/ci.yml` (+ inventario: descubierto un 5º archivo, `actualizar-fulfillment/test.ts`, integración contra Supabase local — NO incluido, follow-up aparte) | 37/37 Deno tests al wirear el gate (hoy 52/52 en 6 archivos, tras ADR-0017 y la revisión)                                                          | —                                                                                  | commit `6da5350`                                                                                                                                  |
 | GE-003-adr-0012-cmp           | CLAUDE (diseño e implementación directa) | L3 diseño / L1-L2 implementación      | GE-001 = GO; decisión de vendor/build tomada por el humano (banner propio)                                                                       | **Completado**            | `src/lib/consent.ts`, `consent.test.ts`, `ConsentBanner.astro`, `AnalyticsHead.astro`, `AnalyticsNoScript.astro`, `Footer.astro`, `Layout.astro`, `es.json`, `en.json`    | 407/407 vitest (5 nuevos), lint limpio, `astro check` 0 errores, build real verificado (gtag/js y noscript GTM ausentes del HTML, banner presente) | —                                                                                  | commit `b1f8195`. ADR formal: `docs/decisions/0012-cmp-consentimiento-analitica.md`                                                               |
 | GE-007-r7-estado-legal        | CLAUDE                                   | L1                                    | GE-001 = GO                                                                                                                                      | No iniciada               | `README.md` y/o `REMEDIACION.md`                                                                                                                                          | —                                                                                                                                                  | requiere confirmar con negocio cuál es la verdad vigente                           | preguntar al usuario/cliente antes de editar                                                                                                      |
-| ADR-0013-evidencia            | CLAUDE                                   | L2                                    | GE-001 = GO                                                                                                                                      | **Completado**            | `supabase/migrations/20260922200000_producto_claims_evidencia.sql`, `supabase/schema.sql`                                                                                 | CHECK verificado en Postgres desechable                                                                                                            | migración no aplicada a producción (manual)                                        | commit `744b4ce`                                                                                                                                  |
-| ADR-0014-topic-clusters       | CLAUDE                                   | L2                                    | GE-001 = GO                                                                                                                                      | **Completado**            | `supabase/migrations/20260922210000_articulos_topic_clusters.sql`, `supabase/schema.sql`                                                                                  | —                                                                                                                                                  | migración no aplicada a producción (manual)                                        | commit `6127fbb`                                                                                                                                  |
+| ADR-0013-evidencia            | CLAUDE                                   | L2                                    | GE-001 = GO                                                                                                                                      | **Completado**            | `supabase/migrations/20260922200000_producto_claims_evidencia.sql`, `supabase/schema.sql`                                                                                 | CHECK verificado en Postgres desechable                                                                                                            | — (migración aplicada en producción 2026-09-23)                                    | commit `744b4ce`                                                                                                                                  |
+| ADR-0014-topic-clusters       | CLAUDE                                   | L2                                    | GE-001 = GO                                                                                                                                      | **Completado**            | `supabase/migrations/20260922210000_articulos_topic_clusters.sql`, `supabase/schema.sql`                                                                                  | —                                                                                                                                                  | — (migración aplicada en producción 2026-09-23)                                    | commit `6127fbb`                                                                                                                                  |
 | ADR-0015-landing-factory      | CLAUDE                                   | L3                                    | GE-001 = GO                                                                                                                                      | **Completado (decisión)** | `docs/decisions/0015-*.md`                                                                                                                                                | —                                                                                                                                                  | migración de datos fuera de alcance                                                | commit `6aaebf1`                                                                                                                                  |
 | ADR-0016-whatsapp-opt-in      | CLAUDE                                   | L2                                    | GE-001 = GO                                                                                                                                      | **Completado (schema)**   | `supabase/migrations/20260922230000_whatsapp_opt_ins.sql`                                                                                                                 | —                                                                                                                                                  | lógica conversacional es Fase 4                                                    | commit `239632a`                                                                                                                                  |
 | ADR-0017-pii-asesor           | CLAUDE                                   | L2                                    | GE-001 = GO                                                                                                                                      | **Completado**            | `_shared/pii-redact.ts`, `_shared/asesor-retention.ts`, `asesor/index.ts`, `purgar-asesor-agent-turns/`, workflow de purga                                                | Deno tests en CI (patrón de teléfono corregido en la revisión post-cierre)                                                                         | 90 días de retención sin validar legalmente                                        | commit `ef83cec` + revisión post-cierre                                                                                                           |
 | ADR-0018-automatizacion       | CLAUDE                                   | L3                                    | GE-001 = GO                                                                                                                                      | **Completado (decisión)** | `docs/decisions/0018-*.md`                                                                                                                                                | —                                                                                                                                                  | —                                                                                  | commit `78708f9`                                                                                                                                  |
-| GE-009-revision-post-cierre   | CLAUDE                                   | L1-L2                                 | Fase 1 cerrada                                                                                                                                   | **Completado**            | ver "Revisión post-cierre" arriba                                                                                                                                         | 409/409 vitest, 52/52 Deno, lint, `astro check`, build                                                                                             | puntos 1-4 de "Abierto tras la revisión" requieren confirmación                    | QA del banner en navegador (incluye verificar Consent Mode)                                                                                       |
+| GE-009-revision-post-cierre   | CLAUDE                                   | L1-L2                                 | Fase 1 cerrada                                                                                                                                   | **Completado**            | ver "Revisión post-cierre" arriba                                                                                                                                         | 409/409 vitest, 52/52 Deno, lint, `astro check`, build                                                                                             | —                                                                                  | QA del banner hecho y desplegado (`f83a472`, merge `7d4244a`)                                                                                     |
 
 ### Hallazgos nuevos desde Fase 0
 
@@ -216,6 +401,12 @@ resuelve en Fase 1 como quick win).
 
 ## Siguiente acción
 
-Ver **"Punto de reanudación"** al principio de este archivo: aprobación del plan de
-contenido piloto, verificación en Supabase real, confirmaciones del equipo biomédico y
-los puntos abiertos tras la revisión post-cierre.
+Pilar de Ventilación / terapia respiratoria (autorizado el 2026-09-26), con el mismo proceso que
+Monitoreo:
+
+1. Inventario del catálogo y del contenido existente.
+2. Cuestionario de validación para el Ing. Rojas.
+3. Borrador en preview.
+4. Publicación sólo con la validación firmada (ADR-0013).
+
+En paralelo, el arranque del piloto Monitoreo/UCI depende del usuario (ver arriba). Después, 3B.

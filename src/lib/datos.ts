@@ -16,6 +16,8 @@ import { resolvePrecioPublico } from './format';
 import mockFamilias from '../data/mock-familias.json';
 import mockArticulos from '../data/mock-articulos.json';
 import { sanitizeArticuloSlug, isValidArticuloSlug } from './articulo-slug';
+import type { TopicClusterRef } from './conocimiento-clusters';
+import { nombreTema } from '../data/temas-conocimiento';
 import mockProductos from '../data/mock-productos.json';
 import mockTipos from '../data/mock-tipos.json';
 import productImageManifest from '../data/product-image-manifest.json';
@@ -395,6 +397,61 @@ export interface Articulo {
   publicado: boolean;
   created_at: string;
   updated_at: string;
+  /** Topic cluster (ADR-0014); null si el artículo no tiene tema asignado. */
+  cluster: TopicClusterRef | null;
+  tags: string[];
+}
+
+/** Columnas de articulos + su topic cluster (FK cluster_id, embebido por PostgREST). */
+const ARTICULO_SELECT = '*, topic_clusters(slug, nombre_es, nombre_en)';
+
+function mapClusterEmbebido(raw: unknown, locale: Locale): TopicClusterRef | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const row = raw as RawRow;
+  const slug = stringValue(row.slug);
+  if (!slug) return null;
+  const nombre =
+    nombreTema(slug, locale) ??
+    (locale === 'en'
+      ? stringValue(row.nombre_en) || stringValue(row.nombre_es)
+      : stringValue(row.nombre_es));
+  return { slug, nombre: nombre || slug };
+}
+
+function mapArticuloRow(raw: RawRow, locale: Locale): Articulo {
+  const imagen = stringValue(raw.imagen);
+  return {
+    id: stringValue(raw.id),
+    slug: sanitizeArticuloSlug(stringValue(raw.slug)),
+    titulo:
+      locale === 'en'
+        ? stringValue(raw.titulo_en) || stringValue(raw.titulo_es)
+        : stringValue(raw.titulo_es),
+    cuerpo:
+      locale === 'en'
+        ? stringValue(raw.cuerpo_en) || stringValue(raw.cuerpo_es)
+        : stringValue(raw.cuerpo_es),
+    ...(imagen ? { imagen } : {}),
+    publicado: Boolean(raw.publicado),
+    created_at: stringValue(raw.created_at),
+    updated_at: stringValue(raw.updated_at),
+    cluster: mapClusterEmbebido(raw.topic_clusters, locale),
+    tags: Array.isArray(raw.tags) ? raw.tags.filter((t): t is string => typeof t === 'string') : [],
+  };
+}
+
+function mapArticuloMock(raw: (typeof mockArticulos)[0], locale: Locale): Articulo {
+  return {
+    id: raw.id,
+    slug: raw.slug,
+    titulo: locale === 'en' ? raw.titulo_en || raw.titulo_es : raw.titulo_es,
+    cuerpo: locale === 'en' ? raw.cuerpo_en || raw.cuerpo_es : raw.cuerpo_es,
+    publicado: raw.publicado,
+    created_at: raw.created_at,
+    updated_at: raw.updated_at,
+    cluster: null,
+    tags: [],
+  };
 }
 
 /* ============================================================
@@ -598,26 +655,109 @@ export async function getTipos(familiaSlug: string, locale: Locale): Promise<Tip
     }));
 }
 
+/**
+ * Columnas de productos que usa el sitio: todas salvo `embedding` (vector de
+ * 1024 dims, ~46% del peso de la tabla) y `busqueda_tsv`. Con `select('*')`
+ * la build pedía ~14 MB de JSON y el rol `anon` corta a los 3 s
+ * (`statement_timeout`), así que el despliegue fallaba de forma intermitente.
+ */
+export const PRODUCTO_SELECT = [
+  'id',
+  'slug',
+  'familia_id',
+  'tipo_id',
+  'nombre_es',
+  'nombre_en',
+  'descripcion_corta_es',
+  'descripcion_corta_en',
+  'descripcion_larga_es',
+  'descripcion_larga_en',
+  'especificaciones',
+  'aplicaciones_es',
+  'aplicaciones_en',
+  'imagen_principal',
+  'galeria',
+  'ficha_pdf',
+  'tipo_comercial',
+  'fulfillment_mode',
+  'precio',
+  'moneda',
+  'stock',
+  'destacado',
+  'nuevo',
+  'activo',
+  'orden',
+  'created_at',
+  'updated_at',
+  'sku',
+  'gtin',
+  'atributos',
+  'peso_kg',
+  'dimensiones_cm',
+  'precio_regular',
+  'precio_oferta',
+  'oferta_inicio',
+  'oferta_fin',
+  'gestionar_stock',
+  'stock_estado',
+  'backorder_policy',
+  'disponible',
+  'disponible_actualizado_at',
+  'dian_codigo',
+  'tarifa_iva_pct',
+  'retencion_fuente_pct',
+  'retencion_iva_pct',
+  'retencion_ica_pct',
+  'excluido_iva',
+].join(',');
+
+/** Filas por petición: páginas grandes (p. ej. 1000 en la build) se piden en lotes. */
+export const PRODUCTOS_LOTE = 200;
+
+/** Divide el rango [desde, hasta] (inclusivo) en lotes de como máximo `lote` filas. */
+export function lotesDeRango(
+  desde: number,
+  hasta: number,
+  lote = PRODUCTOS_LOTE
+): Array<[number, number]> {
+  const lotes: Array<[number, number]> = [];
+  for (let inicio = desde; inicio <= hasta; inicio += lote) {
+    lotes.push([inicio, Math.min(inicio + lote - 1, hasta)]);
+  }
+  return lotes;
+}
+
 export async function getProductos(filtros: FiltrosProductos, locale: Locale): Promise<Producto[]> {
   const { familia, tipo, destacado, query, page = 1, pageSize = 24 } = filtros;
 
   if (debeUsarSupabase()) {
     const supabase = getSupabaseClient()!;
     await cargarMapaFamilias(supabase);
-    let req = supabase.from('productos').select('*').eq('activo', true);
-    if (familia) {
-      const familiaId = familiaIdPorSlug?.[familia];
-      // Familia sin equivalente en Supabase: no hay filas que coincidan.
-      req = req.eq('familia_id', familiaId ?? '00000000-0000-0000-0000-000000000000');
+    const filas: RawRow[] = [];
+    let error: { message?: string } | null = null;
+    for (const [desde, hasta] of lotesDeRango((page - 1) * pageSize, page * pageSize - 1)) {
+      let req = supabase.from('productos').select(PRODUCTO_SELECT).eq('activo', true);
+      if (familia) {
+        const familiaId = familiaIdPorSlug?.[familia];
+        // Familia sin equivalente en Supabase: no hay filas que coincidan.
+        req = req.eq('familia_id', familiaId ?? '00000000-0000-0000-0000-000000000000');
+      }
+      if (destacado !== undefined) req = req.eq('destacado', destacado);
+      // `id` desempata `orden` repetidos: sin él, los lotes podrían solaparse o saltarse filas.
+      const res = await req.order('orden').order('id').range(desde, hasta);
+      if (res.error) {
+        error = res.error;
+        break;
+      }
+      const lote = (res.data ?? []) as unknown as RawRow[];
+      filas.push(...lote);
+      if (lote.length < hasta - desde + 1) break; // no hay más filas
     }
-    if (destacado !== undefined) req = req.eq('destacado', destacado);
-    req = req.order('orden').range((page - 1) * pageSize, page * pageSize - 1);
-    const { data, error } = await req;
-    if (!error && data && data.length > 0) {
-      return data.map(raw => mapProductoSupabase(raw, locale));
+    if (!error && filas.length > 0) {
+      return filas.map(raw => mapProductoSupabase(raw, locale));
     }
     if (error) registrarErrorSupabase('getProductos', error);
-    else if (data && !familia) registrarVacioSupabase('getProductos');
+    else if (!familia) registrarVacioSupabase('getProductos');
   }
 
   let lista = mockProductos.filter(p => p.activo);
@@ -686,47 +826,38 @@ export async function getArticulos(locale: Locale): Promise<Articulo[]> {
     const supabase = getSupabaseClient()!;
     const { data, error } = await supabase
       .from('articulos')
-      .select('*')
+      .select(ARTICULO_SELECT)
       .eq('publicado', true)
       .order('created_at', { ascending: false });
     if (error) {
       registrarErrorSupabase('getArticulos', error);
     } else if (data) {
       return (data as RawRow[])
-        .map(raw => {
-          const imagen = stringValue(raw.imagen);
-          const slug = sanitizeArticuloSlug(stringValue(raw.slug));
-          return {
-            id: stringValue(raw.id),
-            slug,
-            titulo:
-              locale === 'en'
-                ? stringValue(raw.titulo_en) || stringValue(raw.titulo_es)
-                : stringValue(raw.titulo_es),
-            cuerpo:
-              locale === 'en'
-                ? stringValue(raw.cuerpo_en) || stringValue(raw.cuerpo_es)
-                : stringValue(raw.cuerpo_es),
-            ...(imagen ? { imagen } : {}),
-            publicado: Boolean(raw.publicado),
-            created_at: stringValue(raw.created_at),
-            updated_at: stringValue(raw.updated_at),
-          };
-        })
+        .map(raw => mapArticuloRow(raw, locale))
         .filter(articulo => isValidArticuloSlug(articulo.slug));
     }
   }
   return mockArticulos
     .filter(articulo => articulo.publicado)
-    .map(articulo => ({
-      id: articulo.id,
-      slug: articulo.slug,
-      titulo: locale === 'en' ? articulo.titulo_en || articulo.titulo_es : articulo.titulo_es,
-      cuerpo: locale === 'en' ? articulo.cuerpo_en || articulo.cuerpo_es : articulo.cuerpo_es,
-      publicado: articulo.publicado,
-      created_at: articulo.created_at,
-      updated_at: articulo.updated_at,
-    }));
+    .map(articulo => mapArticuloMock(articulo, locale));
+}
+
+/** Temas activos del Centro de Conocimiento (tabla topic_clusters, ADR-0014). */
+export async function getTopicClusters(locale: Locale): Promise<TopicClusterRef[]> {
+  if (debeUsarSupabase()) {
+    const supabase = getSupabaseClient()!;
+    const { data, error } = await supabase
+      .from('topic_clusters')
+      .select('slug, nombre_es, nombre_en')
+      .eq('activo', true);
+    if (error) registrarErrorSupabase('getTopicClusters', error);
+    else if (data) {
+      return (data as RawRow[])
+        .map(raw => mapClusterEmbebido(raw, locale))
+        .filter((c): c is TopicClusterRef => c !== null);
+    }
+  }
+  return [];
 }
 
 export async function getArticuloBySlug(slug: string, locale: Locale): Promise<Articulo | null> {
@@ -738,7 +869,7 @@ export async function getArticuloBySlug(slug: string, locale: Locale): Promise<A
     let row: RawRow | null = null;
     const { data: bySafe, error: errSafe } = await supabase
       .from('articulos')
-      .select('*')
+      .select(ARTICULO_SELECT)
       .eq('slug', safeSlug)
       .eq('publicado', true)
       .maybeSingle();
@@ -749,46 +880,19 @@ export async function getArticuloBySlug(slug: string, locale: Locale): Promise<A
     } else if (slug !== safeSlug) {
       const { data: byRaw, error: errRaw } = await supabase
         .from('articulos')
-        .select('*')
+        .select(ARTICULO_SELECT)
         .eq('slug', slug)
         .eq('publicado', true)
         .maybeSingle();
       if (errRaw) registrarErrorSupabase('getArticuloBySlug', errRaw);
       else if (byRaw) row = byRaw as RawRow;
     }
-    if (row) {
-      const imagen = stringValue(row.imagen);
-      return {
-        id: stringValue(row.id),
-        slug: safeSlug,
-        titulo:
-          locale === 'en'
-            ? stringValue(row.titulo_en) || stringValue(row.titulo_es)
-            : stringValue(row.titulo_es),
-        cuerpo:
-          locale === 'en'
-            ? stringValue(row.cuerpo_en) || stringValue(row.cuerpo_es)
-            : stringValue(row.cuerpo_es),
-        ...(imagen ? { imagen } : {}),
-        publicado: Boolean(row.publicado),
-        created_at: stringValue(row.created_at),
-        updated_at: stringValue(row.updated_at),
-      };
-    }
+    if (row) return { ...mapArticuloRow(row, locale), slug: safeSlug };
   }
   const found = mockArticulos.find(
     articulo => sanitizeArticuloSlug(articulo.slug) === safeSlug && articulo.publicado
   );
-  if (!found) return null;
-  return {
-    id: found.id,
-    slug: found.slug,
-    titulo: locale === 'en' ? found.titulo_en || found.titulo_es : found.titulo_es,
-    cuerpo: locale === 'en' ? found.cuerpo_en || found.cuerpo_es : found.cuerpo_es,
-    publicado: found.publicado,
-    created_at: found.created_at,
-    updated_at: found.updated_at,
-  };
+  return found ? mapArticuloMock(found, locale) : null;
 }
 
 export { submitCotizacion } from './submit-cotizacion';

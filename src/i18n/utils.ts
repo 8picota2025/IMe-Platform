@@ -58,6 +58,7 @@ const PATH_SEGMENT_PAIRS: Array<{ es: string; en: string }> = [
   { es: 'camillas-medicas', en: 'medical-stretchers' },
   { es: 'ventiladores-mecanicos-uci', en: 'mechanical-ventilators-icu' },
   { es: 'desfibriladores-hospitalarios', en: 'hospital-defibrillators' },
+  { es: 'dotacion-monitoreo-uci', en: 'icu-monitoring-projects' },
   { es: 'fabricantes', en: 'manufacturers' },
   { es: 'familias', en: 'families' },
   { es: 'ciudades', en: 'cities' },
@@ -70,7 +71,18 @@ const NESTED_SLUG_PAIRS: Array<{
   sectionEn: string;
   es: string;
   en: string;
-}> = [{ sectionEs: 'conocimiento', sectionEn: 'knowledge', es: 'publicar', en: 'publish' }];
+}> = [
+  { sectionEs: 'conocimiento', sectionEn: 'knowledge', es: 'publicar', en: 'publish' },
+  // Páginas de tema del Centro de Conocimiento (ADR-0014).
+  { sectionEs: 'conocimiento', sectionEn: 'knowledge', es: 'tema', en: 'topic' },
+  // Herramientas de Fase 3.
+  {
+    sectionEs: 'recursos',
+    sectionEn: 'resources',
+    es: 'checklist-recepcion-monitor',
+    en: 'monitor-receiving-checklist',
+  },
+];
 
 const LEGAL_SLUG_PAIRS: Array<{ es: string; en: string }> = [
   { es: 'privacidad', en: 'privacy' },

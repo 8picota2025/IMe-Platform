@@ -1101,6 +1101,12 @@ const FAMILIA_HUB_LINKS: Record<string, FamiliaHubLink[]> = {
   ],
   monitores: [
     {
+      href_es: '/es/dotacion-monitoreo-uci/',
+      href_en: '/en/icu-monitoring-projects/',
+      label_es: 'Proyectos de monitoreo para UCI',
+      label_en: 'ICU monitoring projects',
+    },
+    {
       href_es: '/es/monitores-biolight-uci/',
       href_en: '/en/biolight-icu-monitors/',
       label_es: 'Guía monitores Biolight UCI',

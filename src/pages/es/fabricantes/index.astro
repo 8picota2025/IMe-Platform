@@ -1,11 +1,11 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
-import { listFabricanteLandings } from '../../../data/fabricante-landings';
+import { listFabricanteLandingsCms } from '../../../lib/landings-cms';
 import { buildPageTitle, buildCanonical, getInstitutionalOgImage } from '../../../lib/seo';
 import '../../../styles/site-faithful.css';
 
 const locale = 'es' as const;
-const landings = listFabricanteLandings(locale);
+const landings = await listFabricanteLandingsCms(locale);
 const title = buildPageTitle('Fabricantes y tipologías biomédicas — asesoría I-ME');
 const description =
   'Landings por especialidad de fabricante: esterilización, mobiliario, imagen, monitoreo, quirófano, diagnóstico, ultrasonido e infusión. Tipologías y problemas del sector — sin vitrina de productos.';

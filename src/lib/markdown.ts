@@ -9,14 +9,55 @@ function escapeHtml(value: string): string {
 
 function inlineMarkdown(text: string): string {
   const escaped = escapeHtml(text);
-  return escaped
-    .replace(
-      /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
-      '<a href="$2" target="_blank" rel="noreferrer noopener">$1</a>'
+  return (
+    escaped
+      .replace(
+        /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+        '<a href="$2" target="_blank" rel="noreferrer noopener">$1</a>'
+      )
+      // Enlaces internos del sitio (/es/..., /en/...): misma pestaña. Sólo rutas
+      // que empiezan por una única "/" (no "//host", que sería externo); el texto
+      // ya viene escapado, así que no puede cerrar el atributo href.
+      .replace(/\[([^\]]+)\]\((\/(?!\/)[^\s)]*)\)/g, '<a href="$2">$1</a>')
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/(^|[^*])\*([^*]+)\*(?!\*)/g, '$1<em>$2</em>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+  );
+}
+
+const TABLE_SEPARATOR = /^\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)*\|?$/;
+
+function tableCells(line: string): string[] {
+  return line
+    .trim()
+    .replace(/^\|/, '')
+    .replace(/\|$/, '')
+    .split('|')
+    .map(cell => cell.trim());
+}
+
+function renderTable(lines: string[]): string {
+  const [header = '', , ...rows] = lines;
+  const th = tableCells(header)
+    .map(cell => `<th scope="col">${inlineMarkdown(cell)}</th>`)
+    .join('');
+  const trs = rows
+    .map(
+      row =>
+        `<tr>${tableCells(row)
+          .map(cell => `<td>${inlineMarkdown(cell)}</td>`)
+          .join('')}</tr>`
     )
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/(^|[^*])\*([^*]+)\*(?!\*)/g, '$1<em>$2</em>')
-    .replace(/`([^`]+)`/g, '<code>$1</code>');
+    .join('');
+  return `<div class="md-table"><table><thead><tr>${th}</tr></thead><tbody>${trs}</tbody></table></div>`;
+}
+
+/** "- [ ] texto" / "- [x] texto": casilla de checklist (estática, sólo lectura). */
+function listItem(item: string): string {
+  const task = item.match(/^\[( |x|X)\]\s+(.+)$/);
+  if (!task) return `<li>${inlineMarkdown(item)}</li>`;
+  const marca = task[1] === ' ' ? '☐' : '☑';
+  return `<li class="md-task"><span class="md-task__box" aria-hidden="true">${marca}</span> ${inlineMarkdown(task[2]!)}</li>`;
 }
 
 export function renderMarkdown(markdown: string): string {
@@ -38,7 +79,7 @@ export function renderMarkdown(markdown: string): string {
 
   const flushList = () => {
     if (listItems.length) {
-      blocks.push(`<ul>${listItems.map(item => `<li>${inlineMarkdown(item)}</li>`).join('')}</ul>`);
+      blocks.push(`<ul>${listItems.map(listItem).join('')}</ul>`);
       listItems = [];
     }
     if (orderedItems.length) {
@@ -61,8 +102,34 @@ export function renderMarkdown(markdown: string): string {
     codeLines = [];
   };
 
-  for (const rawLine of lines) {
+  let tableLines: string[] = [];
+  const flushTable = () => {
+    if (!tableLines.length) return;
+    blocks.push(renderTable(tableLines));
+    tableLines = [];
+  };
+
+  for (const [index, rawLine] of lines.entries()) {
     const line = rawLine.trimEnd();
+    if (tableLines.length) {
+      const separador = tableLines.length === 1 && TABLE_SEPARATOR.test(line.trim());
+      if (separador || line.trim().startsWith('|')) {
+        tableLines.push(line);
+        continue;
+      }
+      flushTable();
+    }
+    if (
+      !inCode &&
+      line.trim().startsWith('|') &&
+      TABLE_SEPARATOR.test((lines[index + 1] ?? '').trim())
+    ) {
+      flushParagraph();
+      flushList();
+      flushQuote();
+      tableLines.push(line);
+      continue;
+    }
     if (line.startsWith('```')) {
       if (inCode) {
         flushCode();
@@ -128,6 +195,7 @@ export function renderMarkdown(markdown: string): string {
   }
 
   if (inCode) flushCode();
+  flushTable();
   flushParagraph();
   flushList();
   flushQuote();
@@ -139,7 +207,7 @@ export function stripMarkdown(markdown: string): string {
   return (markdown || '')
     .replace(/```[\s\S]*?```/g, ' ')
     .replace(/\[(.*?)\]\((.*?)\)/g, '$1')
-    .replace(/[#>*_`-]/g, ' ')
+    .replace(/[#>*_`|-]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 }

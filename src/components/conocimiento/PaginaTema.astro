@@ -1,0 +1,146 @@
+---
+// Página de un tema del Centro de Conocimiento (ADR-0014): intro, navegación
+// por temas y artículos del tema (pilar primero). Compartida ES/EN.
+import Layout from '../../layouts/Layout.astro';
+import TarjetaArticulo from './TarjetaArticulo.astro';
+import NavTemas from './NavTemas.astro';
+import type { Articulo } from '../../lib/datos';
+import type { Locale } from '../../i18n/utils';
+import { t } from '../../i18n/utils';
+import {
+  buildPageTitle,
+  buildCanonical,
+  buildOrganizationJsonLd,
+  buildBreadcrumbJsonLd,
+  combineJsonLd,
+} from '../../lib/seo';
+import { rutasConocimiento, type TemaConArticulos } from '../../lib/conocimiento-clusters';
+import { introTema } from '../../data/temas-conocimiento';
+import '../../styles/site-faithful.css';
+
+interface Props {
+  locale: Locale;
+  tema: TemaConArticulos<Articulo>;
+  temas: TemaConArticulos<Articulo>[];
+  total: number;
+}
+
+const { locale, tema, temas, total } = Astro.props;
+const { cluster, articulos } = tema;
+const ruta = rutasConocimiento.tema(locale, cluster.slug);
+const canonical = buildCanonical(ruta);
+const intro = introTema(cluster.slug, locale);
+const tituloConocimiento = t(locale, 'conocimiento.titulo');
+const title = buildPageTitle(`${cluster.nombre} · ${tituloConocimiento}`);
+const description = intro ?? `${tituloConocimiento}: ${cluster.nombre}`;
+const inicio = locale === 'en' ? '/en/' : '/es/';
+
+const jsonLd = combineJsonLd(
+  buildOrganizationJsonLd(),
+  buildBreadcrumbJsonLd([
+    { name: t(locale, 'catalogo.migas_inicio'), url: buildCanonical(inicio) },
+    { name: tituloConocimiento, url: buildCanonical(rutasConocimiento.indice(locale)) },
+    { name: cluster.nombre, url: canonical },
+  ]),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: cluster.nombre,
+    description,
+    url: canonical,
+    hasPart: articulos.map(articulo => ({
+      '@type': 'Article',
+      headline: articulo.titulo,
+      url: buildCanonical(rutasConocimiento.articulo(locale, articulo.slug)),
+    })),
+  }
+);
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  locale={locale}
+  currentPath={ruta}
+  jsonLd={jsonLd}
+>
+  <div class="site-faithful">
+    <header class="page-hero" aria-labelledby="tema-h1">
+      <div class="container">
+        <nav class="breadcrumb" aria-label={locale === 'en' ? 'Breadcrumb' : 'Ruta'}>
+          <a href={inicio}>{t(locale, 'catalogo.migas_inicio')}</a><span class="sep">/</span>
+          <a href={rutasConocimiento.indice(locale)}>{tituloConocimiento}</a><span class="sep"
+            >/</span
+          ><span aria-current="page">{cluster.nombre}</span>
+        </nav>
+        <p class="tema-label">{t(locale, 'conocimiento.tema_label')}</p>
+        <h1 id="tema-h1">{cluster.nombre}</h1>
+        {intro && <p class="ph-sub">{intro}</p>}
+      </div>
+    </header>
+
+    <section class="section" aria-labelledby="tema-h1">
+      <div class="container">
+        <NavTemas temas={temas} locale={locale} total={total} actual={cluster.slug} />
+        <div class="knowledge-grid">
+          {
+            articulos.map((articulo, index) => (
+              <TarjetaArticulo
+                articulo={articulo}
+                locale={locale}
+                index={index}
+                mostrarTema={false}
+              />
+            ))
+          }
+        </div>
+      </div>
+    </section>
+  </div>
+</Layout>
+
+<style>
+  .knowledge-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 28px;
+  }
+  .tema-label {
+    margin: 0 0 6px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+</style>
+
+<script>
+  function initTema() {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const faders = document.querySelectorAll<HTMLElement>(
+      '.site-faithful .fade-in:not([data-ime-bound])'
+    );
+    faders.forEach(el => (el.dataset.imeBound = '1'));
+    if (reduce || !('IntersectionObserver' in window)) {
+      faders.forEach(el => el.classList.add('visible'));
+      return;
+    }
+    const io = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            io.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+    );
+    faders.forEach(el => io.observe(el));
+  }
+
+  initTema();
+  document.addEventListener('astro:page-load', initTema);
+</script>

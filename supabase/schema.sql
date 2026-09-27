@@ -1055,23 +1055,83 @@ GRANT EXECUTE ON FUNCTION is_admin(TEXT[]) TO authenticated;
 CREATE INDEX IF NOT EXISTS idx_asesor_rate_limit_identificador ON asesor_rate_limit(identificador);
 
 -- Idempotencia inbound WhatsApp Cloud API (wamid). Solo service_role.
+-- Espejo de 20260906020000 + 20260909050000 + 20260925143000.
 CREATE TABLE IF NOT EXISTS whatsapp_inbound_events (
   wamid            TEXT PRIMARY KEY,
   from_wa          TEXT,
   phone_number_id  TEXT,
   kind             TEXT NOT NULL DEFAULT 'message'
-                   CHECK (kind IN ('message', 'status', 'ignored')),
+                   CHECK (kind IN ('message', 'status', 'ignored', 'echo')),
   status           TEXT NOT NULL DEFAULT 'claimed'
-                   CHECK (status IN ('claimed', 'replied', 'ignored', 'rate_limited', 'send_failed')),
+                   CHECK (status IN ('claimed', 'replied', 'ignored', 'rate_limited', 'send_failed', 'pending_agent', 'human_paused', 'echo')),
+  body             TEXT,
+  agent_claimed_at TIMESTAMPTZ,
+  agent_claim_token UUID,
   created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+ALTER TABLE whatsapp_inbound_events
+  ADD COLUMN IF NOT EXISTS body TEXT,
+  ADD COLUMN IF NOT EXISTS agent_claimed_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS agent_claim_token UUID;
 
 CREATE INDEX IF NOT EXISTS idx_whatsapp_inbound_events_created
   ON whatsapp_inbound_events(created_at DESC);
 
 CREATE INDEX IF NOT EXISTS idx_whatsapp_inbound_events_status
   ON whatsapp_inbound_events(status);
+
+CREATE INDEX IF NOT EXISTS idx_whatsapp_inbound_events_pending_sender
+  ON whatsapp_inbound_events (from_wa, created_at DESC)
+  WHERE status = 'pending_agent';
+
+-- Bitácora de lo que IMEIA envió. El agente inserta kind = 'reply' con service_role.
+CREATE TABLE IF NOT EXISTS whatsapp_outbound_messages (
+  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  to_wa            TEXT NOT NULL,
+  body             TEXT NOT NULL CHECK (char_length(btrim(body)) BETWEEN 1 AND 4096),
+  kind             TEXT NOT NULL CHECK (kind IN ('holding', 'reply', 'other')),
+  wamid            TEXT,
+  turn_key         TEXT,
+  phone_number_id  TEXT,
+  send_status      TEXT NOT NULL DEFAULT 'sent'
+                   CHECK (send_status IN ('pending', 'sent', 'failed')),
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_whatsapp_outbound_to_created
+  ON whatsapp_outbound_messages (to_wa, created_at DESC);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uniq_whatsapp_outbound_holding_turn
+  ON whatsapp_outbound_messages (to_wa, turn_key)
+  WHERE kind = 'holding' AND turn_key IS NOT NULL;
+
+CREATE UNIQUE INDEX IF NOT EXISTS uniq_whatsapp_outbound_wamid
+  ON whatsapp_outbound_messages (wamid)
+  WHERE wamid IS NOT NULL;
+
+-- La función claim_whatsapp_agent_batch vive en
+-- supabase/migrations/20260925143000_whatsapp_outbound_dispatch.sql
+-- y 20260925160000 la reemplaza para saltar clientes en pausa
+-- (no se duplica aquí: SECURITY DEFINER + grants solo service_role).
+
+-- Pausa de IMEIA por chat. El valor lo escribe el webhook con el eco #pausa / #activa.
+CREATE TABLE IF NOT EXISTS whatsapp_contact_pauses (
+  wa_id      TEXT PRIMARY KEY CHECK (wa_id ~ '^[0-9]{8,15}$'),
+  paused     BOOLEAN NOT NULL,
+  paused_at  TIMESTAMPTZ,
+  resumed_at TIMESTAMPTZ,
+  updated_by TEXT
+);
+
+-- Bearer del cron. El valor lo genera la migración 20260925150000; aquí solo
+-- el contenedor, para no inventar un token en el archivo.
+CREATE TABLE IF NOT EXISTS whatsapp_dispatch_auth (
+  id         SMALLINT PRIMARY KEY DEFAULT 1 CHECK (id = 1),
+  token      TEXT NOT NULL CHECK (char_length(token) >= 32),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 
 -- ── 9. proveedores (módulo dropshipping) ────────────────────
 CREATE TABLE IF NOT EXISTS proveedores (
@@ -1382,6 +1442,19 @@ ALTER TABLE asesor_rate_limit ENABLE ROW LEVEL SECURITY;
 
 -- whatsapp_inbound_events: deny-all a anon/authenticated; solo service_role
 ALTER TABLE whatsapp_inbound_events ENABLE ROW LEVEL SECURITY;
+
+-- whatsapp_outbound_messages: igual. El agente escribe con service_role.
+ALTER TABLE whatsapp_outbound_messages ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON TABLE whatsapp_outbound_messages FROM PUBLIC, anon, authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE whatsapp_outbound_messages TO service_role;
+
+ALTER TABLE whatsapp_dispatch_auth ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON TABLE whatsapp_dispatch_auth FROM PUBLIC, anon, authenticated;
+GRANT SELECT ON TABLE whatsapp_dispatch_auth TO service_role;
+
+ALTER TABLE whatsapp_contact_pauses ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON TABLE whatsapp_contact_pauses FROM PUBLIC, anon, authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE whatsapp_contact_pauses TO service_role;
 
 -- perfiles admin: cada usuario ve su perfil; owner/admin gestiona todos
 ALTER TABLE admin_profiles ENABLE ROW LEVEL SECURITY;
@@ -2134,14 +2207,14 @@ CREATE POLICY "topic_clusters_admin_all"
 INSERT INTO topic_clusters (slug, nombre_es, nombre_en, descripcion) VALUES
   ('monitoreo-uci', 'Monitoreo / UCI', 'Monitoring / ICU',
    'Monitores multiparametricos y cardiologia. Cluster con mayor profundidad hoy: family hub, landing /es/monitores-biolight-uci/, keywords top-20, 2 articulos, PDPs.'),
-  ('ventilacion-terapia-respiratoria', 'Ventilacion / terapia respiratoria', 'Ventilation / respiratory therapy',
+  ('ventilacion-terapia-respiratoria', 'Ventilación / terapia respiratoria', 'Ventilation / respiratory therapy',
    'Ventiladores y soporte vital respiratorio. Landings /es/ventiladores-mecanicos-uci/ y /es/alto-flujo-fisher-paykel/, 1 articulo.'),
-  ('movilidad-rehabilitacion', 'Movilidad / rehabilitacion', 'Mobility / rehabilitation',
+  ('movilidad-rehabilitacion', 'Movilidad / rehabilitación', 'Mobility / rehabilitation',
    'Caminadores y sillas de ruedas. Unico cluster con hub->articulo ya conectado en FAMILIA_HUB_LINKS.'),
-  ('cardiologia-reanimacion', 'Cardiologia / reanimacion', 'Cardiology / resuscitation',
+  ('cardiologia-reanimacion', 'Cardiología / reanimación', 'Cardiology / resuscitation',
    'Desfibriladores y equipos de reanimacion. Landing /es/desfibriladores-hospitalarios/, 1 articulo.'),
-  ('financiacion', 'Financiacion', 'Financing',
+  ('financiacion', 'Financiación', 'Financing',
    'SimuladorFinanciero.astro en produccion, 1 articulo. Contenido de tasas reales bloqueado por firma legal pendiente (ver PENDIENTES.md) — no publicar contenido nuevo de este cluster hasta resolver ese bloqueante.'),
-  ('invima-regulacion', 'INVIMA / regulacion', 'INVIMA / regulatory',
+  ('invima-regulacion', 'INVIMA / regulación', 'INVIMA / regulatory',
    'Sin contenido publicado hoy; datos ya existen (invima-knowledge-base.json, sin usar). Candidato fuerte solo despues de que exista el modelo de evidencia (ADR-0013) — no antes.')
 ON CONFLICT (slug) DO NOTHING;

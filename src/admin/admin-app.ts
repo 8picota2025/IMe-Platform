@@ -1,6 +1,30 @@
 import { formatFabricanteDistribuidor } from '../lib/producto-origen';
 import { sanitizeArticuloSlug, isValidArticuloSlug } from '../lib/articulo-slug';
+import {
+  CSV_MAPPABLE_FIELDS,
+  PROVEEDOR_CONTACTO_IMPORT_COLUMNS,
+  PROVEEDOR_CONTACTO_TEMPLATE_SAMPLE,
+  PROVEEDOR_ESTADOS_INVIMA,
+  PROVEEDOR_IMPORT_COLUMNS,
+  PROVEEDOR_TEMPLATE_SAMPLE,
+  applyCsvMapping,
+  defaultCsvMapping,
+  estadoInvimaLabel,
+  isValidEmail,
+  isValidHttpUrl,
+  normalizePais,
+  normalizeWhatsapp,
+  findDuplicateGroups,
+  matchExistingProveedor,
+  parseCsv,
+  prepareProveedorImportRow,
+  type ContactSuggestion,
+  type DuplicateGroup,
+  type ImportFieldError,
+} from '../lib/proveedor-import';
 import { renderMarkdown } from '../lib/markdown';
+import { bindLandings, landingsView, type LandingsAdminCtx } from './landings-admin';
+import { CAMPANAS_PILOTO, resumirPiloto, rutasPiloto } from '../lib/piloto-monitoreo';
 import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase';
 import type { AuthChangeEvent } from '@supabase/supabase-js';
 import * as XLSX from 'xlsx';
@@ -86,6 +110,7 @@ type View =
   | 'envios'
   | 'resenas'
   | 'conocimiento'
+  | 'landings'
   | 'propuestas'
   | 'ingesta'
   | 'asesor'
@@ -291,6 +316,7 @@ const VISTAS_POR_ROL: Record<string, Set<View>> = {
     'taxonomia',
     'ingesta',
     'conocimiento',
+    'landings',
     'propuestas',
     'compra-directa',
   ]),
@@ -315,6 +341,7 @@ const VISTAS_POR_ROL: Record<string, Set<View>> = {
     'marketing',
     'asesor',
     'conocimiento',
+    'landings',
     'propuestas',
     'compra-directa',
   ]),
@@ -483,6 +510,7 @@ function parseView(hash: string): View {
     raw === 'envios' ||
     raw === 'resenas' ||
     raw === 'conocimiento' ||
+    raw === 'landings' ||
     raw === 'blog' ||
     raw === 'propuestas' ||
     raw === 'ingesta' ||
@@ -693,6 +721,18 @@ function renderNewPassword() {
   });
 }
 
+/** Dependencias del editor de landings (Fase 3B), que vive en su propio módulo. */
+function landingsCtx(): LandingsAdminCtx {
+  return {
+    supabase: supabase!,
+    escapeHtml,
+    toast,
+    triggerRebuild,
+    uploadFile,
+    rerender: render,
+  };
+}
+
 async function routeView(): Promise<{ title: string; body: string }> {
   if (!vistaPermitida(state.view)) return accesoDenegadoView(state.view);
   if (state.view === 'crm') return { title: 'CRM', body: await crmView() };
@@ -728,6 +768,8 @@ async function routeView(): Promise<{ title: string; body: string }> {
   if (state.view === 'resenas') return { title: 'Resenas', body: await resenasView() };
   if (state.view === 'conocimiento')
     return { title: 'Blog / Conocimiento', body: await conocimientoView() };
+  if (state.view === 'landings')
+    return { title: 'Landings', body: await landingsView(landingsCtx()) };
   if (state.view === 'propuestas')
     return { title: 'Propuestas de articulos', body: await propuestasView() };
   if (state.view === 'ingesta') return { title: 'Ingesta PDF', body: await ingestaView() };
@@ -779,6 +821,7 @@ function shellHtml(title: string, body: string): string {
       label: 'Contenido',
       items: [
         ['conocimiento', 'Blog'],
+        ['landings', 'Landings'],
         ['propuestas', 'Propuestas blog'],
       ],
     },
@@ -892,6 +935,7 @@ function bindView() {
   bindPropuestas();
   bindAsesorPanel();
   bindCompraDirecta();
+  if (state.view === 'landings') bindLandings(landingsCtx());
 }
 
 async function plantillasView(): Promise<string> {
@@ -5011,6 +5055,78 @@ async function reportesView(): Promise<string> {
     </section>`;
 }
 
+const ETAPA_PILOTO_LABEL = {
+  contenido: 'Contenido (tema y artículos)',
+  landing: 'Landing de proyectos UCI',
+  herramienta: 'Checklist de recepción',
+} as const;
+
+/** Piloto Monitoreo/UCI (Growth Engine, mandato §24): embudo y fuentes de los últimos 30 días. */
+async function pilotoMonitoreoPanel(since: string): Promise<string> {
+  const [eventosRes, leadsRes] = await Promise.all([
+    supabase!
+      .from('analytics_eventos')
+      .select('event_name, session_id, page_path, utm_source, utm_medium')
+      .gte('ts', since)
+      .in('page_path', rutasPiloto())
+      .limit(20000),
+    supabase!
+      .from('leads_comerciales')
+      .select('campaign, tipo_proyecto, utm_source, utm_medium')
+      .gte('created_at', since)
+      .in('campaign', CAMPANAS_PILOTO)
+      .limit(5000),
+  ]);
+  const error = eventosRes.error ?? leadsRes.error;
+  if (error) {
+    return `
+      <section class="admin-panel">
+        <div class="admin-panel__head"><h2>Piloto Monitoreo/UCI</h2></div>
+        <div class="admin-panel__body" style="padding:16px">
+          <div class="admin-alert">No se pudieron leer los datos del piloto: ${escapeHtml(error.message)}</div>
+        </div>
+      </section>`;
+  }
+  const r = resumirPiloto(
+    (eventosRes.data ?? []) as Parameters<typeof resumirPiloto>[0],
+    (leadsRes.data ?? []) as Parameters<typeof resumirPiloto>[1]
+  );
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head">
+        <h2>Piloto Monitoreo/UCI · 30 días</h2>
+        <span class="admin-help">Analítica propia: todas las visitas (GA4 sólo cuenta a quien acepta cookies).</span>
+      </div>
+      <div class="admin-grid" style="padding:16px">
+        ${r.etapas
+          .map(e =>
+            marketingMetric(
+              `${ETAPA_PILOTO_LABEL[e.etapa]} · sesiones`,
+              e.sesiones.toLocaleString('es-CO')
+            )
+          )
+          .join('')}
+        ${marketingMetric('Checklist iniciados', r.herramienta.inicios.toLocaleString('es-CO'))}
+        ${marketingMetric('Checklist completos', r.herramienta.completados.toLocaleString('es-CO'))}
+        ${marketingMetric('Descargas PDF', r.herramienta.descargas.toLocaleString('es-CO'))}
+        ${marketingMetric('Leads herramienta', r.leads.herramienta.toLocaleString('es-CO'))}
+        ${marketingMetric('Leads landing', r.leads.landing.toLocaleString('es-CO'))}
+      </div>
+      <div style="padding:0 16px 16px">
+        <h3>Fuentes (sesiones en páginas del piloto y leads)</h3>
+        ${table(
+          ['Fuente / medio', 'Sesiones', 'Leads'],
+          r.fuentes.map(f => [escapeHtml(f.fuente), String(f.sesiones), String(f.leads)])
+        )}
+        <h3>Páginas del piloto</h3>
+        ${table(
+          ['Página', 'Vistas'],
+          r.paginas.map(p => [escapeHtml(p.ruta), String(p.vistas)])
+        )}
+      </div>
+    </section>`;
+}
+
 async function marketingView(): Promise<string> {
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   const { data, error } = await supabase!
@@ -5113,6 +5229,7 @@ async function marketingView(): Promise<string> {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 12);
   const commercialUsage = await commercialUsageSummary(30);
+  const piloto = await pilotoMonitoreoPanel(since);
 
   return `
     <section class="admin-grid">
@@ -5123,6 +5240,7 @@ async function marketingView(): Promise<string> {
       ${marketingMetric('Conversiones', conversions.length.toLocaleString('es-CO'))}
       ${marketingMetric('Conv. por sesion', `${conversionRate.toFixed(1)}%`)}
     </section>
+    ${piloto}
     <section class="admin-panel">
       <div class="admin-panel__head">
         <h2>Reporte de uso · /comercial/ · 30 días</h2>
@@ -5253,6 +5371,71 @@ function jsonRowsTable(items: unknown[]): string {
   );
 }
 
+async function loadProveedorDuplicateGroups(): Promise<DuplicateGroup[]> {
+  const { data, error } = await supabase!
+    .from('proveedores')
+    .select('id,slug,nombre,sitio_web,contacto_email')
+    .limit(1000);
+  if (error || !data) return [];
+  return findDuplicateGroups(
+    (data as unknown as Row[]).map(row => ({
+      id: text(row.id),
+      slug: text(row.slug),
+      nombre: text(row.nombre),
+      sitio_web: text(row.sitio_web),
+      contacto_email: text(row.contacto_email),
+    }))
+  );
+}
+
+function proveedorDuplicatePanel(groups: DuplicateGroup[]): string {
+  if (!groups.length) return '';
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Posibles duplicados</h2><span class="admin-meta">Mismo nombre normalizado, mismo dominio o mismo email. Fusionar conserva productos, contactos y seguimiento en el registro elegido.</span></div>
+      ${groups
+        .map(group => {
+          const buttons = group.members
+            .map(member => {
+              const losers = group.members.filter(other => other.id !== member.id);
+              return `<button class="admin-button admin-button--ghost" type="button" data-merge-keeper="${escapeHtml(member.id)}" data-merge-losers="${escapeHtml(losers.map(other => other.id).join(','))}" data-merge-label="${escapeHtml(member.nombre)}">Conservar ${escapeHtml(member.nombre)}</button>`;
+            })
+            .join(' ');
+          const names = group.members
+            .map(member => `${escapeHtml(member.nombre)} (${escapeHtml(member.slug)})`)
+            .join(' · ');
+          return `<div style="padding:0 16px 16px"><p>${names}</p><div class="admin-toolbar">${buttons}</div></div>`;
+        })
+        .join('')}
+    </section>`;
+}
+
+function proveedorCsvImportPanel(): string {
+  const options = ['', ...CSV_MAPPABLE_FIELDS]
+    .map(field => `<option value="${escapeHtml(field)}">${escapeHtml(field || 'Ignorar')}</option>`)
+    .join('');
+  return `
+    <form class="admin-panel admin-form" data-proveedor-csv-form>
+      <div class="admin-panel__head">
+        <h2>Importar CSV interno</h2>
+        <button class="admin-button" type="submit">Importar CSV</button>
+      </div>
+      <div class="admin-upload-box">
+        <div>
+          <strong>Sube el CSV de marcas</strong>
+          <p>Mapea cada columna, revisa la vista previa y confirma los contactos extraídos de las notas antes de guardarlos.</p>
+        </div>
+        <label class="admin-button admin-button--ghost">
+          Seleccionar CSV
+          <input data-proveedor-csv-file type="file" accept=".csv,text/csv" hidden />
+        </label>
+      </div>
+      <p class="admin-help" data-proveedor-csv-status>Sin archivo seleccionado. Las celdas vacías no borran datos existentes.</p>
+      <div data-proveedor-csv-preview hidden></div>
+      <template data-proveedor-csv-options>${options}</template>
+    </form>`;
+}
+
 async function proveedoresView(): Promise<string> {
   const params = hashParams();
   const q = (params.get('q') ?? '').trim();
@@ -5305,7 +5488,7 @@ async function proveedoresView(): Promise<string> {
         </div>
       </div>
       <form class="admin-filters" data-proveedores-filter>
-        ${field('q', 'Buscar por nombre o slug', q, false, 'search')}
+        ${field('q', 'Buscar por nombre, equipo, email, país o INVIMA', q, false, 'search')}
         ${selectStatic('activo', 'Estado', activo, [
           ['', 'Todos'],
           ['1', 'Activo'],
@@ -5332,8 +5515,10 @@ async function proveedoresView(): Promise<string> {
         <button class="admin-button" type="submit">Filtrar</button>
         <a class="admin-button admin-button--ghost" href="#/proveedores">Limpiar</a>
       </form>
-      ${entityImportForm('proveedores', 'proveedores', 'Upsert por slug con datos operativos públicos. No importes tokens, claves, costos ni datos de clientes.')}
-      <form class="admin-panel admin-form" data-simple-form data-table="proveedores" data-fields="slug,nombre,razon_social,tipo_entidad,sitio_web,pais,ciudad,contacto_email,contacto_whatsapp,canal,lifecycle_status,dropship_enabled,notas,activo">
+      ${proveedorDuplicatePanel(await loadProveedorDuplicateGroups())}
+      ${proveedorCsvImportPanel()}
+      ${entityImportForm('proveedores', 'proveedores', 'Upsert por slug con datos operativos públicos. Una celda vacía no borra el valor guardado, salvo que marques vaciar campos. No importes tokens, claves, costos ni datos de clientes. La hoja opcional contactos se enlaza por slug.')}
+      <form class="admin-panel admin-form" data-simple-form data-table="proveedores" data-fields="slug,nombre,razon_social,tipo_entidad,sitio_web,pais,ciudad,direccion_comercial,contacto_email,contacto_whatsapp,canal,lifecycle_status,lineas_equipos,estado_invima,invima_titular,distribuidor_local,dropship_enabled,notas,activo">
         <div class="admin-panel__head"><h2>Crear proveedor</h2><button class="admin-button" type="submit">Guardar</button></div>
         <div style="padding:16px" class="admin-editor__cols">
           ${field('slug', 'Slug', '', true)}
@@ -5343,14 +5528,15 @@ async function proveedoresView(): Promise<string> {
           ${field('sitio_web', 'Sitio web', '', false, 'url')}
           ${field('pais', 'País')}
           ${field('ciudad', 'Ciudad')}
+          ${field('direccion_comercial', 'Dirección comercial')}
           ${field('contacto_email', 'Email')}
           ${field('contacto_whatsapp', 'WhatsApp')}
-          ${selectStatic('canal', 'Canal', 'email', [
-            ['email', 'Email'],
-            ['whatsapp', 'WhatsApp'],
-            ['manual', 'Manual'],
-          ])}
+          ${selectStatic('canal', 'Canal', 'email', PROVEEDOR_CANALES)}
           ${selectStatic('lifecycle_status', 'Estado de validación', 'prospect', PROVEEDOR_LIFECYCLES)}
+          ${textarea('lineas_equipos', 'Líneas de equipo')}
+          ${selectStatic('estado_invima', 'Estado INVIMA', '', PROVEEDOR_INVIMA_OPTIONS)}
+          ${field('invima_titular', 'Titular INVIMA')}
+          ${field('distribuidor_local', 'Distribuidor local')}
           ${checkbox(
             'dropship_enabled',
             'Habilitar dropshipping (requiere proveedor aprobado)',
@@ -5359,13 +5545,16 @@ async function proveedoresView(): Promise<string> {
           ${textarea('notas', 'Notas')}
           ${checkbox('activo', 'Activo', false)}
         </div>
-        <p id="dropship-help" class="admin-help">Los prospectos se crean inactivos y sin dropshipping. La habilitación exige validación comercial, canal de pedido y aprobación operativa.</p>
+        <p id="dropship-help" class="admin-help">Los prospectos se crean inactivos y sin dropshipping. Marcar el estado como aprobado no activa dropshipping. La habilitación exige validación comercial, canal de pedido y aprobación operativa.</p>
       </form>
+      <p class="admin-help">${rows.length} proveedores en esta vista.</p>
       ${table(
         [
           'Proveedor',
           'Ubicación',
+          'Equipos',
           'Validación',
+          'Último contacto',
           'Dropship',
           'Contactos / fuentes',
           'Productos',
@@ -5374,7 +5563,9 @@ async function proveedoresView(): Promise<string> {
         rows.map(r => [
           `<strong>${escapeHtml(text(r.nombre))}</strong><br /><span class="admin-meta">${escapeHtml(proveedorTipoLabel(text(r.tipo_entidad)))}</span>`,
           escapeHtml([text(r.ciudad), text(r.pais)].filter(Boolean).join(', ')) || '—',
+          escapeHtml(clipText(text(r.lineas_equipos))) || '—',
           proveedorLifecycleBadge(text(r.lifecycle_status)),
+          escapeHtml(text(r.ultimo_contacto_at).replace('T', ' ').slice(0, 16)) || '—',
           dropshipStatus(Boolean(r.dropship_enabled)),
           `${String(conteosContactos.get(text(r.id)) ?? 0)} contactos · ${String(conteosFuentesVerificadas.get(text(r.id)) ?? 0)} fuentes verificadas`,
           String(conteos.get(text(r.id)) ?? 0),
@@ -5453,8 +5644,8 @@ async function proveedorDetailView(): Promise<string> {
   const proveedorId = state.recordId;
   if (!proveedorId)
     return notFoundPanel('Selecciona un proveedor desde el directorio.', '#/proveedores');
-  const [proveedor, contactos, fuentes, canales, documentos] = await Promise.all([
-    getRow('proveedores', proveedorId),
+  const [proveedor, contactos, fuentes, canales, documentos, interacciones] = await Promise.all([
+    getProveedor(proveedorId),
     selectRows('proveedor_contactos', '*', 'tipo', 200).then(rows =>
       rows.filter(r => text(r.proveedor_id) === proveedorId)
     ),
@@ -5467,6 +5658,13 @@ async function proveedorDetailView(): Promise<string> {
     selectRows('proveedor_documentos', '*', 'created_at', 200).then(rows =>
       rows.filter(r => text(r.proveedor_id) === proveedorId)
     ),
+    supabase!
+      .from('proveedor_interacciones')
+      .select('id,fecha,tipo,resumen,proximo_paso,responsable')
+      .eq('proveedor_id', proveedorId)
+      .order('fecha', { ascending: false })
+      .limit(50)
+      .then(({ data }) => (data ?? []) as unknown as Row[]),
   ]);
   if (!proveedor) return notFoundPanel('Proveedor no encontrado.', '#/proveedores');
   return `
@@ -5485,13 +5683,13 @@ async function proveedorDetailView(): Promise<string> {
           ${field('pais', 'País', proveedorValue(proveedor, 'pais'))}
           ${field('ciudad', 'Ciudad', proveedorValue(proveedor, 'ciudad'))}
           ${field('direccion_comercial', 'Dirección comercial', proveedorValue(proveedor, 'direccion_comercial'))}
+          ${textarea('lineas_equipos', 'Líneas de equipo', proveedorValue(proveedor, 'lineas_equipos'))}
+          ${selectStatic('estado_invima', 'Estado INVIMA', proveedorValue(proveedor, 'estado_invima'), PROVEEDOR_INVIMA_OPTIONS)}
+          ${field('invima_titular', 'Titular INVIMA', proveedorValue(proveedor, 'invima_titular'))}
+          ${field('distribuidor_local', 'Distribuidor local', proveedorValue(proveedor, 'distribuidor_local'))}
           ${field('contacto_email', 'Email general', proveedorValue(proveedor, 'contacto_email'), false, 'email')}
           ${field('contacto_whatsapp', 'WhatsApp general', proveedorValue(proveedor, 'contacto_whatsapp'))}
-          ${selectStatic('canal', 'Canal legado', proveedorValue(proveedor, 'canal') || 'manual', [
-            ['email', 'Email'],
-            ['whatsapp', 'WhatsApp'],
-            ['manual', 'Manual'],
-          ])}
+          ${selectStatic('canal', 'Canal legado', proveedorValue(proveedor, 'canal') || 'manual', PROVEEDOR_CANALES)}
           ${selectStatic('lifecycle_status', 'Estado de validación', proveedorValue(proveedor, 'lifecycle_status'), PROVEEDOR_LIFECYCLES)}
           ${checkbox('dropship_enabled', 'Dropshipping habilitado', Boolean(proveedor.dropship_enabled))}
           ${field('cobertura_envios', 'Cobertura de envíos (separada por comas)', commaList(proveedor.cobertura_envios))}
@@ -5555,6 +5753,36 @@ async function proveedorDetailView(): Promise<string> {
         <input type="hidden" name="id" value="" />
         <div class="admin-editor__cols">${selectStatic('tipo', 'Rol', 'comercial', PROVEEDOR_CONTACTO_TIPOS)}${field('nombre', 'Nombre')}${field('cargo', 'Cargo')}${field('email', 'Email', '', false, 'email')}${field('telefono', 'Teléfono')}${field('whatsapp', 'WhatsApp')}${selectStatic('verification_status', 'Verificación', 'pendiente', VERIFICATION_STATUSES)}${checkbox('es_principal', 'Contacto principal de este rol', false)}${textarea('source_note', 'Nota de origen')}</div>
         <button class="admin-button" type="submit">Guardar contacto</button>
+      </form>
+    </section>
+    <section class="admin-panel admin-form">
+      <div class="admin-panel__head"><h2>Seguimiento comercial</h2><span class="admin-meta">Reuniones, pendientes y próximos pasos. No reemplaza las notas del directorio.</span></div>
+      ${table(
+        ['Fecha', 'Tipo', 'Resumen', 'Próximo paso', 'Responsable'],
+        interacciones.map(item => [
+          escapeHtml(text(item.fecha).replace('T', ' ').slice(0, 16)),
+          escapeHtml(text(item.tipo)),
+          escapeHtml(text(item.resumen)),
+          escapeHtml(text(item.proximo_paso)),
+          escapeHtml(text(item.responsable)),
+        ])
+      )}
+      <form data-proveedor-interaccion-form data-proveedor-id="${escapeHtml(proveedorId)}" style="padding:16px">
+        <div class="admin-editor__cols">
+          ${selectStatic('tipo', 'Tipo', 'nota', [
+            ['nota', 'Nota'],
+            ['reunion', 'Reunión'],
+            ['llamada', 'Llamada'],
+            ['email', 'Email'],
+            ['whatsapp', 'WhatsApp'],
+            ['seguimiento', 'Seguimiento'],
+          ])}
+          ${field('fecha', 'Fecha', '', false, 'datetime-local')}
+          ${field('responsable', 'Responsable')}
+          ${textarea('resumen', 'Resumen')}
+          ${textarea('proximo_paso', 'Próximo paso')}
+        </div>
+        <button class="admin-button" type="submit">Guardar seguimiento</button>
       </form>
     </section>
     <section class="admin-panel admin-form">
@@ -6514,6 +6742,13 @@ function bindTaxonomy() {
         toast('Dropshipping solo se habilita para proveedores aprobados.');
         return;
       }
+      if (tableName === 'proveedores') {
+        const contactoError = normalizarContactoProveedor(payload);
+        if (contactoError) {
+          toast(contactoError);
+          return;
+        }
+      }
       const { error } = await supabase!.from(tableName).insert(payload);
       if (error) {
         toast(error.message);
@@ -7201,12 +7436,41 @@ function formCheckbox(form: HTMLFormElement, name: string): boolean {
   return element instanceof HTMLInputElement && element.checked;
 }
 
+/** Valida email, URL y WhatsApp, y deja el teléfono en E.164 y el país normalizado. */
+function normalizarContactoProveedor(payload: Row): string | null {
+  const email = text(payload['contacto_email']);
+  if (email && !isValidEmail(email)) return `Email no válido: ${email}`;
+  if (email) payload['contacto_email'] = email.toLowerCase();
+  const site = text(payload['sitio_web']);
+  if (site && !isValidHttpUrl(site)) return `Sitio web no válido: ${site}`;
+  const whatsapp = normalizeWhatsapp(payload['contacto_whatsapp']);
+  if (!whatsapp.ok) return `WhatsApp debe estar en formato +573001112233 (${whatsapp.raw})`;
+  payload['contacto_whatsapp'] = whatsapp.value;
+  if (payload['pais']) payload['pais'] = normalizePais(payload['pais']);
+  return null;
+}
+
+function clipText(value: string, max = 90): string {
+  const clean = value.replace(/\s+/g, ' ').trim();
+  if (clean.length <= max) return clean;
+  return `${clean.slice(0, max - 1)}…`;
+}
+
 function contactPayload(form: HTMLFormElement): Row | null {
   const data = new FormData(form);
-  const email = emptyToNull(data.get('email'));
+  const emailRaw = text(data.get('email'));
+  if (emailRaw && !isValidEmail(emailRaw)) {
+    toast(`Email no válido: ${emailRaw}`);
+    return null;
+  }
+  const email = emailRaw ? emailRaw.toLowerCase() : null;
   const telefono = emptyToNull(data.get('telefono'));
-  const whatsapp = emptyToNull(data.get('whatsapp'));
-  if (!email && !telefono && !whatsapp) {
+  const whatsapp = normalizeWhatsapp(data.get('whatsapp'));
+  if (!whatsapp.ok) {
+    toast(`WhatsApp debe estar en formato +573001112233 (${whatsapp.raw})`);
+    return null;
+  }
+  if (!email && !telefono && !whatsapp.value) {
     toast('Indica email, teléfono o WhatsApp para el contacto.');
     return null;
   }
@@ -7217,7 +7481,7 @@ function contactPayload(form: HTMLFormElement): Row | null {
     cargo: emptyToNull(data.get('cargo')),
     email,
     telefono,
-    whatsapp,
+    whatsapp: whatsapp.value,
     es_principal: formCheckbox(form, 'es_principal'),
     verification_status: text(data.get('verification_status')) || 'pendiente',
     source_note: emptyToNull(data.get('source_note')),
@@ -7256,6 +7520,10 @@ function bindProveedorDetail() {
       pais: emptyToNull(data.get('pais')),
       ciudad: emptyToNull(data.get('ciudad')),
       direccion_comercial: emptyToNull(data.get('direccion_comercial')),
+      lineas_equipos: emptyToNull(data.get('lineas_equipos')),
+      estado_invima: emptyToNull(data.get('estado_invima')),
+      invima_titular: emptyToNull(data.get('invima_titular')),
+      distribuidor_local: emptyToNull(data.get('distribuidor_local')),
       contacto_email: emptyToNull(data.get('contacto_email')),
       contacto_whatsapp: emptyToNull(data.get('contacto_whatsapp')),
       canal: text(data.get('canal')),
@@ -7275,6 +7543,11 @@ function bindProveedorDetail() {
       notas: emptyToNull(data.get('notas')),
       activo: formCheckbox(master, 'activo'),
     };
+    const contactoError = normalizarContactoProveedor(payload);
+    if (contactoError) {
+      toast(contactoError);
+      return;
+    }
     const { error } = await supabase!
       .from('proveedores')
       .update(payload)
@@ -7317,6 +7590,36 @@ function bindProveedorDetail() {
   };
 
   bindChild('[data-proveedor-contact-form]', 'proveedor_contactos', contactPayload);
+  const interaccionForm = app.querySelector<HTMLFormElement>('[data-proveedor-interaccion-form]');
+  interaccionForm?.addEventListener('submit', async event => {
+    event.preventDefault();
+    const data = new FormData(interaccionForm);
+    const resumen = emptyToNull(data.get('resumen'));
+    if (!resumen) {
+      toast('Escribe el resumen del seguimiento.');
+      return;
+    }
+    const fecha = emptyToNull(data.get('fecha'));
+    const { error } = await supabase!.from('proveedor_interacciones').insert({
+      proveedor_id: text(interaccionForm.dataset['proveedorId']),
+      tipo: text(data.get('tipo')) || 'nota',
+      fecha: fecha ? new Date(fecha).toISOString() : new Date().toISOString(),
+      resumen,
+      proximo_paso: emptyToNull(data.get('proximo_paso')),
+      responsable: emptyToNull(data.get('responsable')),
+    });
+    if (error) {
+      toast(error.message);
+      return;
+    }
+    const { error: touchError } = await supabase!
+      .from('proveedores')
+      .update({ ultimo_contacto_at: new Date().toISOString() })
+      .eq('id', text(interaccionForm.dataset['proveedorId']));
+    if (touchError) toast(touchError.message);
+    else toast('Seguimiento guardado');
+    await render();
+  });
   bindChild('[data-proveedor-source-form]', 'proveedor_fuentes', form => {
     const data = new FormData(form);
     const url = emptyToNull(data.get('url'));
@@ -7612,12 +7915,14 @@ function bindEntityExcelTools() {
       }
       try {
         if (statusEl) statusEl.textContent = 'Leyendo Excel...';
-        const result = await importEntityExcel(entity, file);
-        if (statusEl) {
-          statusEl.innerHTML = `<strong>Importación completada.</strong> ${result.processed} filas procesadas, ${result.skipped} omitidas.`;
-        }
-        toast(`Importación ${entity}: ${result.processed} filas`);
-        await render();
+        const clearEmpty =
+          form.querySelector<HTMLInputElement>('[data-clear-empty]')?.checked === true;
+        const result = await importEntityExcel(entity, file, { clearEmpty });
+        if (statusEl) statusEl.innerHTML = formatEntityImportStatus(result);
+        toast(
+          `Importación ${entity}: ${result.processed} filas, ${result.rejected.length} rechazadas`
+        );
+        if (!result.rejected.length) await render();
       } catch (error) {
         const message = formatImportError(error);
         if (statusEl) {
@@ -7627,6 +7932,255 @@ function bindEntityExcelTools() {
       }
     });
   });
+  bindProveedorMerge();
+  bindProveedorCsvImport();
+}
+
+function bindProveedorMerge(): void {
+  app.querySelectorAll<HTMLButtonElement>('[data-merge-keeper]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const keeper = button.dataset['mergeKeeper'] ?? '';
+      const losers = (button.dataset['mergeLosers'] ?? '').split(',').filter(Boolean);
+      const label = button.dataset['mergeLabel'] ?? 'el registro elegido';
+      if (!keeper || !losers.length) return;
+      if (
+        !confirm(
+          `Se conservará "${label}" y se fusionarán ${losers.length} duplicado(s). Los productos y contactos pasan al registro conservado.`
+        )
+      ) {
+        return;
+      }
+      button.disabled = true;
+      for (const duplicateId of losers) {
+        const { error } = await supabase!.rpc('merge_proveedores', {
+          keeper_id: keeper,
+          duplicate_id: duplicateId,
+        });
+        if (error) {
+          toast(error.message);
+          button.disabled = false;
+          return;
+        }
+      }
+      toast('Proveedores fusionados');
+      await render();
+    });
+  });
+}
+
+let csvImportRows: Record<string, string>[] = [];
+let csvImportMapping: Record<string, string> = {};
+
+function bindProveedorCsvImport(): void {
+  const form = app.querySelector<HTMLFormElement>('[data-proveedor-csv-form]');
+  const fileInput = form?.querySelector<HTMLInputElement>('[data-proveedor-csv-file]');
+  const statusEl = form?.querySelector<HTMLElement>('[data-proveedor-csv-status]');
+  const preview = form?.querySelector<HTMLElement>('[data-proveedor-csv-preview]');
+  fileInput?.addEventListener('change', async () => {
+    const file = fileInput.files?.[0];
+    if (!file || !preview) return;
+    const textContent = await file.text();
+    csvImportRows = parseCsv(textContent);
+    const headers = Object.keys(csvImportRows[0] ?? {});
+    csvImportMapping = defaultCsvMapping(headers);
+    if (statusEl)
+      statusEl.textContent = `${file.name}: ${csvImportRows.length} filas. Revisa el mapeo y la vista previa.`;
+    await renderProveedorCsvPreview(preview);
+  });
+  preview?.addEventListener('change', event => {
+    const target = event.target;
+    if (!(target instanceof HTMLSelectElement) || !target.dataset['csvColumn']) return;
+    csvImportMapping[target.dataset['csvColumn']] = target.value;
+    void renderProveedorCsvPreview(preview);
+  });
+  form?.addEventListener('submit', async event => {
+    event.preventDefault();
+    if (!csvImportRows.length) {
+      toast('Selecciona un CSV.');
+      return;
+    }
+    try {
+      if (statusEl) statusEl.textContent = 'Importando CSV...';
+      const result = await submitProveedorCsv(form);
+      if (statusEl) statusEl.innerHTML = formatEntityImportStatus(result);
+      toast(`CSV: ${result.processed} filas, ${result.rejected.length} rechazadas`);
+      if (!result.rejected.length) await render();
+    } catch (error) {
+      const message = formatImportError(error);
+      if (statusEl) {
+        statusEl.innerHTML = `<span class="admin-import-error">Error al importar:</span> ${escapeHtml(message)}`;
+      }
+      toast(message);
+    }
+  });
+}
+
+async function renderProveedorCsvPreview(preview: HTMLElement): Promise<void> {
+  const headers = Object.keys(csvImportRows[0] ?? {});
+  const directory = await loadProveedorDirectory();
+  const mappingRow = headers
+    .map(header => {
+      const options = ['', ...CSV_MAPPABLE_FIELDS]
+        .map(field => {
+          const selected = csvImportMapping[header] === field ? 'selected' : '';
+          return `<option value="${escapeHtml(field)}" ${selected}>${escapeHtml(field || 'Ignorar')}</option>`;
+        })
+        .join('');
+      return `<label class="admin-field">${escapeHtml(header)}<select data-csv-column="${escapeHtml(header)}">${options}</select></label>`;
+    })
+    .join('');
+  const body = csvImportRows
+    .slice(0, 30)
+    .map((row, index) => {
+      const mapped = applyCsvMapping(row, csvImportMapping);
+      const match = matchExistingProveedor(
+        {
+          nombre: text(mapped.proveedor.nombre),
+          sitio_web: text(mapped.proveedor.sitio_web),
+          contacto_email: text(mapped.proveedor.contacto_email),
+          slug: text(mapped.proveedor.slug),
+        },
+        directory
+      );
+      const prepared = prepareProveedorImportRow(
+        { ...mapped.proveedor, slug: match?.slug ?? mapped.proveedor.slug },
+        index + 2
+      );
+      const extras = mapped.contactosSugeridos
+        .map(
+          (contact, contactIndex) =>
+            `<label><input type="checkbox" data-csv-extra="${index}:${contactIndex}" /> ${escapeHtml(
+              [contact.nombre, contact.email, contact.whatsapp].filter(Boolean).join(' · ') ||
+                'Contacto sugerido'
+            )}</label>`
+        )
+        .join('<br />');
+      return `<tr>
+        <td>${escapeHtml(text(mapped.proveedor.nombre))}</td>
+        <td>${escapeHtml(match ? `Actualizar ${match.slug}` : `Crear ${text(mapped.proveedor.slug)}`)}</td>
+        <td>${prepared.ok ? 'Lista' : escapeHtml(prepared.errors.map(error => error.message).join(' '))}</td>
+        <td>${
+          mapped.contactoPrincipal
+            ? `<label><input type="checkbox" data-csv-principal="${index}" checked /> ${escapeHtml(mapped.contactoPrincipal.nombre ?? 'Contacto')}</label>`
+            : '—'
+        }</td>
+        <td>${extras || '—'}${
+          mapped.invimaTitularSugerido
+            ? `<br /><label><input type="checkbox" data-csv-titular="${index}" /> Titular: ${escapeHtml(mapped.invimaTitularSugerido)}</label>`
+            : ''
+        }${
+          mapped.distribuidorLocalSugerido
+            ? `<br /><label><input type="checkbox" data-csv-distribuidor="${index}" /> Distribuidor: ${escapeHtml(mapped.distribuidorLocalSugerido)}</label>`
+            : ''
+        }${
+          mapped.interaccion
+            ? `<br /><label><input type="checkbox" data-csv-note="${index}" checked /> Guardar nota como seguimiento</label>`
+            : ''
+        }</td>
+      </tr>`;
+    })
+    .join('');
+  preview.hidden = false;
+  preview.innerHTML = `<div class="admin-editor__cols" style="padding:16px">${mappingRow}</div>
+    <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Marca</th><th>Acción</th><th>Validación</th><th>Contacto principal</th><th>Confirmar antes de guardar</th></tr></thead><tbody>${body}</tbody></table></div>
+    ${
+      csvImportRows.length > 30
+        ? `<p class="admin-help">Vista previa de 30 de ${csvImportRows.length} filas. La importación incluye todas.</p>`
+        : ''
+    }`;
+}
+
+async function loadProveedorDirectory(): Promise<
+  Array<{ id: string; slug: string; nombre: string; sitio_web: string; contacto_email: string }>
+> {
+  const { data, error } = await supabase!
+    .from('proveedores')
+    .select('id,slug,nombre,sitio_web,contacto_email')
+    .limit(1000);
+  if (error || !data) return [];
+  return (data as unknown as Row[]).map(row => ({
+    id: text(row.id),
+    slug: text(row.slug),
+    nombre: text(row.nombre),
+    sitio_web: text(row.sitio_web),
+    contacto_email: text(row.contacto_email),
+  }));
+}
+
+async function submitProveedorCsv(form: HTMLFormElement): Promise<EntityImportResult> {
+  const directory = await loadProveedorDirectory();
+  const rows: Row[] = [];
+  const contactRows: Row[] = [];
+  const interactionRows: Row[] = [];
+  const rejected: ImportFieldError[] = [];
+  csvImportRows.forEach((row, index) => {
+    const mapped = applyCsvMapping(row, csvImportMapping);
+    const match = matchExistingProveedor(
+      {
+        nombre: text(mapped.proveedor.nombre),
+        sitio_web: text(mapped.proveedor.sitio_web),
+        contacto_email: text(mapped.proveedor.contacto_email),
+        slug: text(mapped.proveedor.slug),
+      },
+      directory
+    );
+    const payload: Row = { ...mapped.proveedor, slug: match?.slug ?? mapped.proveedor.slug };
+    if (form.querySelector<HTMLInputElement>(`[data-csv-titular="${index}"]`)?.checked) {
+      payload.invima_titular = mapped.invimaTitularSugerido;
+    }
+    if (form.querySelector<HTMLInputElement>(`[data-csv-distribuidor="${index}"]`)?.checked) {
+      payload.distribuidor_local = mapped.distribuidorLocalSugerido;
+    }
+    const prepared = prepareProveedorImportRow(payload, index + 2);
+    if (!prepared.ok) {
+      rejected.push(...prepared.errors);
+      return;
+    }
+    rows.push(prepared.payload);
+    const slug = text(prepared.payload.slug);
+    if (
+      form.querySelector<HTMLInputElement>(`[data-csv-principal="${index}"]`)?.checked &&
+      mapped.contactoPrincipal
+    ) {
+      contactRows.push(contactSuggestionRow(slug, mapped.contactoPrincipal));
+    }
+    mapped.contactosSugeridos.forEach((contact, contactIndex) => {
+      if (
+        form.querySelector<HTMLInputElement>(`[data-csv-extra="${index}:${contactIndex}"]`)?.checked
+      ) {
+        contactRows.push(contactSuggestionRow(slug, contact));
+      }
+    });
+    if (
+      form.querySelector<HTMLInputElement>(`[data-csv-note="${index}"]`)?.checked &&
+      mapped.interaccion
+    ) {
+      interactionRows.push({
+        slug_proveedor: slug,
+        tipo: mapped.interaccion.tipo,
+        resumen: mapped.interaccion.resumen,
+      });
+    }
+  });
+  if (!rows.length) {
+    return { ...emptyImportResult(0, csvImportRows.length), rejected };
+  }
+  const result = await invokeAdminImport('proveedores', rows, { contactRows, interactionRows });
+  return { ...result, rejected: [...rejected, ...result.rejected] };
+}
+
+function contactSuggestionRow(slug: string, contact: ContactSuggestion): Row {
+  return {
+    slug_proveedor: slug,
+    nombre: contact.nombre,
+    cargo: contact.cargo,
+    tipo: contact.tipo,
+    email: contact.email,
+    telefono: contact.telefono,
+    whatsapp: contact.whatsapp,
+    es_principal: contact.es_principal,
+    source_note: contact.source_note,
+  };
 }
 
 function leerLineasOfertaDesdeDom(): Array<{
@@ -10386,7 +10940,57 @@ async function selectRowsWhere(
   return (data ?? []) as unknown as Row[];
 }
 
+const PROVEEDOR_ADMIN_COLUMNS = [
+  'id',
+  'slug',
+  'nombre',
+  'razon_social',
+  'tipo_entidad',
+  'sitio_web',
+  'pais',
+  'ciudad',
+  'direccion_comercial',
+  'contacto_email',
+  'contacto_whatsapp',
+  'canal',
+  'lifecycle_status',
+  'lineas_equipos',
+  'estado_invima',
+  'invima_titular',
+  'distribuidor_local',
+  'notas',
+  'activo',
+  'dropship_enabled',
+  'cobertura_envios',
+  'incoterms',
+  'almacenes',
+  'moneda_operativa',
+  'sla_respuesta_horas',
+  'sla_despacho_dias_habiles',
+  'stock_feed_tipo',
+  'riesgo_operativo',
+  'ultimo_contacto_at',
+  'devoluciones_rma_notas',
+  'onboarding_notas',
+  'created_at',
+  'updated_at',
+].join(',');
+
+async function getProveedor(id: string): Promise<Row | null> {
+  const { data, error } = await supabase!
+    .from('proveedores')
+    .select(PROVEEDOR_ADMIN_COLUMNS)
+    .eq('id', id)
+    .maybeSingle();
+  if (error) {
+    toast(error.message);
+    return null;
+  }
+  return (data as Row | null) ?? null;
+}
+
 async function getRow(tableName: string, id: string): Promise<Row | null> {
+  if (tableName === 'proveedores') return getProveedor(id);
   const { data, error } = await supabase!.from(tableName).select('*').eq('id', id).maybeSingle();
   if (error) {
     toast(error.message);
@@ -10779,6 +11383,11 @@ function entityImportForm(entity: ExcelEntity, label: string, help: string): str
           <input data-entity-import-file type="file" accept=".xlsx,.xls" hidden />
         </label>
       </div>
+      ${
+        entity === 'proveedores'
+          ? '<label class="admin-field"><span><input data-clear-empty type="checkbox" /> Vaciar campos que vengan vacíos en el archivo</span></label>'
+          : ''
+      }
       <p class="admin-help" data-entity-import-status>Sin archivo seleccionado.</p>
     </form>`;
 }
@@ -11002,6 +11611,19 @@ const PROVEEDOR_LIFECYCLES: Array<[string, string]> = [
   ['rechazado', 'Rechazado'],
 ];
 
+const PROVEEDOR_CANALES: Array<[string, string]> = [
+  ['email', 'Email'],
+  ['whatsapp', 'WhatsApp'],
+  ['webhook', 'Webhook'],
+  ['api', 'API'],
+  ['manual', 'Manual'],
+];
+
+const PROVEEDOR_INVIMA_OPTIONS: Array<[string, string]> = [
+  ['', 'Sin definir'],
+  ...PROVEEDOR_ESTADOS_INVIMA.map((id): [string, string] => [id, estadoInvimaLabel(id)]),
+];
+
 function proveedorTipoLabel(value: string): string {
   return PROVEEDOR_TIPOS.find(([id]) => id === value)?.[1] ?? 'Proveedor';
 }
@@ -11176,21 +11798,7 @@ const CLIENTES_EXCEL_HEADERS = [
   'ultimo_pedido_at',
 ];
 
-const PROVEEDORES_EXCEL_HEADERS = [
-  'slug',
-  'nombre',
-  'razon_social',
-  'tipo_entidad',
-  'sitio_web',
-  'pais',
-  'ciudad',
-  'contacto_email',
-  'contacto_whatsapp',
-  'canal',
-  'lifecycle_status',
-  'notas',
-  'activo',
-];
+const PROVEEDORES_EXCEL_HEADERS = [...PROVEEDOR_IMPORT_COLUMNS];
 
 const PEDIDOS_EXCEL_HEADERS = [
   'id',
@@ -11249,21 +11857,7 @@ const ENTITY_EXCEL_CONFIGS: Record<ExcelEntity, EntityExcelConfig> = {
     sheet: 'proveedores',
     conflict: 'slug',
     headers: PROVEEDORES_EXCEL_HEADERS,
-    sample: {
-      slug: 'proveedor-ejemplo',
-      nombre: 'Proveedor ejemplo',
-      razon_social: 'Proveedor ejemplo S.A.S.',
-      tipo_entidad: 'proveedor',
-      sitio_web: 'https://proveedor.ejemplo.com',
-      pais: 'Colombia',
-      ciudad: 'Bogotá D.C.',
-      contacto_email: 'proveedor@ejemplo.com',
-      contacto_whatsapp: '+57 300 000 0000',
-      canal: 'email',
-      lifecycle_status: 'prospect',
-      notas: 'Condiciones internas',
-      activo: false,
-    },
+    sample: PROVEEDOR_TEMPLATE_SAMPLE,
   },
   pedidos: {
     entity: 'pedidos',
@@ -11414,6 +12008,15 @@ function buildEntityTemplateWorkbook(entity: ExcelEntity): XLSX.WorkBook {
     XLSX.utils.json_to_sheet([config.sample], { header: config.headers }),
     config.sheet
   );
+  if (entity === 'proveedores') {
+    XLSX.utils.book_append_sheet(
+      workbook,
+      XLSX.utils.json_to_sheet([PROVEEDOR_CONTACTO_TEMPLATE_SAMPLE], {
+        header: [...PROVEEDOR_CONTACTO_IMPORT_COLUMNS],
+      }),
+      'contactos'
+    );
+  }
   XLSX.utils.book_append_sheet(
     workbook,
     XLSX.utils.aoa_to_sheet([
@@ -11423,6 +12026,10 @@ function buildEntityTemplateWorkbook(entity: ExcelEntity): XLSX.WorkBook {
         `Clave de importación: ${entity === 'pedidos' ? 'id o referencia_pasarela' : config.conflict}.`,
       ],
       ['No cambies los encabezados de columnas.'],
+      ['Una celda vacía conserva el valor ya guardado.'],
+      ['Marcar aprobado no activa dropshipping.'],
+      ['La hoja contactos es opcional y se enlaza por slug_proveedor.'],
+      ['Borra la fila de ejemplo antes de importar contactos reales.'],
     ]),
     'instrucciones'
   );
@@ -11452,23 +12059,28 @@ async function fetchClientesForExcel(): Promise<Row[]> {
   return fetchQueryPages(query);
 }
 
-async function fetchProveedoresForExcel(): Promise<Row[]> {
-  const params = hashParams();
-  const filters: ProveedoresQuery = {
-    q: (params.get('q') ?? '').trim(),
-    activo: params.get('activo') ?? '',
-    tipo_entidad: params.get('tipo_entidad') ?? '',
-    lifecycle_status: params.get('lifecycle_status') ?? '',
-    dropship: params.get('dropship') ?? '',
-    incorporado_desde: params.get('incorporado_desde') ?? '',
-    incorporado_hasta: params.get('incorporado_hasta') ?? '',
-    ordenar: params.get('ordenar') ?? 'alfabetico_asc',
-  };
-  let query = supabase!.from('proveedores').select('*');
-  if (filters.q) {
-    const safeQ = filters.q.replace(/[,()%]/g, '');
-    if (safeQ) query = query.or(`nombre.ilike.%${safeQ}%,slug.ilike.%${safeQ}%`);
-  }
+function proveedorSearchFilter(q: string): string | null {
+  const safeQ = q.replace(/[,()%]/g, '');
+  if (!safeQ) return null;
+  const fields = [
+    'nombre',
+    'slug',
+    'razon_social',
+    'contacto_email',
+    'pais',
+    'ciudad',
+    'lineas_equipos',
+    'invima_titular',
+    'distribuidor_local',
+    'estado_invima',
+  ];
+  return fields.map(fieldName => `${fieldName}.ilike.%${safeQ}%`).join(',');
+}
+
+function proveedoresFilteredQuery(filters: ProveedoresQuery) {
+  let query = supabase!.from('proveedores').select(PROVEEDOR_ADMIN_COLUMNS);
+  const search = proveedorSearchFilter(filters.q);
+  if (search) query = query.or(search);
   if (filters.activo === '1') query = query.eq('activo', true);
   if (filters.activo === '0') query = query.eq('activo', false);
   if (filters.tipo_entidad) query = query.eq('tipo_entidad', filters.tipo_entidad);
@@ -11488,7 +12100,23 @@ async function fetchProveedoresForExcel(): Promise<Row[]> {
   } else {
     query = query.order('nombre', { ascending: true }).order('created_at', { ascending: false });
   }
-  return fetchQueryPages(query);
+  return query;
+}
+
+async function fetchProveedoresForExcel(): Promise<Row[]> {
+  const params = hashParams();
+  return fetchQueryPages(
+    proveedoresFilteredQuery({
+      q: (params.get('q') ?? '').trim(),
+      activo: params.get('activo') ?? '',
+      tipo_entidad: params.get('tipo_entidad') ?? '',
+      lifecycle_status: params.get('lifecycle_status') ?? '',
+      dropship: params.get('dropship') ?? '',
+      incorporado_desde: params.get('incorporado_desde') ?? '',
+      incorporado_hasta: params.get('incorporado_hasta') ?? '',
+      ordenar: params.get('ordenar') ?? 'alfabetico_asc',
+    })
+  );
 }
 
 async function fetchPedidosForExcel(): Promise<Row[]> {
@@ -11539,11 +12167,52 @@ function entityRowToExcel(row: Row, entity: ExcelEntity): Record<string, unknown
   return result;
 }
 
+type EntityImportResult = {
+  processed: number;
+  skipped: number;
+  created: number;
+  updated: number;
+  rejected: ImportFieldError[];
+  contactsProcessed: number;
+  interactionsProcessed: number;
+};
+
+function emptyImportResult(processed = 0, skipped = 0): EntityImportResult {
+  return {
+    processed,
+    skipped,
+    created: 0,
+    updated: 0,
+    rejected: [],
+    contactsProcessed: 0,
+    interactionsProcessed: 0,
+  };
+}
+
+function formatEntityImportStatus(result: EntityImportResult): string {
+  const rejected = result.rejected
+    .slice(0, 12)
+    .map(error => escapeHtml(error.message))
+    .join('<br />');
+  return `<strong>Importación terminada.</strong> ${result.created} creados, ${result.updated} actualizados, ${result.processed} procesados, ${result.rejected.length} rechazados. Contactos: ${result.contactsProcessed}. Seguimientos: ${result.interactionsProcessed}.<br />${rejected}`;
+}
+
 async function importEntityExcel(
   entity: ExcelEntity,
-  file: File
-): Promise<{ processed: number; skipped: number }> {
-  const rows = await readWorkbookRows(file, entity);
+  file: File,
+  options: { clearEmpty?: boolean } = {}
+): Promise<EntityImportResult> {
+  const buffer = await readFileArrayBuffer(file);
+  if (entity === 'proveedores') {
+    const workbook = XLSX.read(buffer, { type: 'array', cellDates: true });
+    const rows = workbookSheetRows(workbook, 'proveedores');
+    if (!rows.length) throw new Error('La hoja proveedores no contiene filas.');
+    return invokeAdminImport('proveedores', rows, {
+      contactRows: workbookSheetRows(workbook, 'contactos'),
+      clearEmpty: options.clearEmpty === true,
+    });
+  }
+  const rows = await readWorkbookRowsFromBuffer(buffer, entity);
   if (!rows.length) throw new Error('La hoja principal no contiene filas.');
   const parsedRows = rows.map((row, index) => ({
     row: normalizeEntityImportRow(entity, row),
@@ -11558,7 +12227,24 @@ async function importEntityExcel(
   }
 
   const result = await invokeAdminImport(entity, payloads);
-  return { processed: result.processed, skipped: rows.length - payloads.length + result.skipped };
+  return {
+    ...emptyImportResult(result.processed, rows.length - payloads.length + result.skipped),
+    ...result,
+  };
+}
+
+function workbookSheetRows(workbook: XLSX.WorkBook, sheetName: string): Row[] {
+  const found =
+    workbook.SheetNames.find(name => name.toLowerCase() === sheetName.toLowerCase()) ??
+    (sheetName === 'proveedores'
+      ? workbook.SheetNames.find(
+          name => name.toLowerCase() !== 'instrucciones' && name.toLowerCase() !== 'contactos'
+        )
+      : undefined);
+  if (!found) return [];
+  const sheet = workbook.Sheets[found];
+  if (!sheet) return [];
+  return XLSX.utils.sheet_to_json<Row>(sheet, { defval: '' });
 }
 
 async function readWorkbookRows(
@@ -11631,8 +12317,9 @@ async function readFileArrayBuffer(file: File): Promise<ArrayBuffer> {
 
 async function invokeAdminImport(
   entity: AdminImportEntity,
-  rows: Row[]
-): Promise<{ processed: number; skipped: number }> {
+  rows: Row[],
+  extra: { contactRows?: Row[]; interactionRows?: Row[]; clearEmpty?: boolean } = {}
+): Promise<EntityImportResult> {
   const {
     data: { session },
   } = await supabase!.auth.getSession();
@@ -11647,7 +12334,13 @@ async function invokeAdminImport(
       Authorization: `Bearer ${accessToken}`,
       apikey: import.meta.env['PUBLIC_SUPABASE_ANON_KEY'] as string,
     },
-    body: JSON.stringify({ entity, rows }),
+    body: JSON.stringify({
+      entity,
+      rows,
+      contactRows: extra.contactRows ?? [],
+      interactionRows: extra.interactionRows ?? [],
+      clearEmpty: extra.clearEmpty === true,
+    }),
   });
   const json = (await response.json().catch(() => null)) as Row | null;
   if (!response.ok) {
@@ -11655,10 +12348,42 @@ async function invokeAdminImport(
     const details = error?.details ? ` Detalle: ${formatErrorDetails(error.details)}` : '';
     throw new Error(`${text(error?.message) || `HTTP ${response.status}`}${details}`.trim());
   }
+  const contacts =
+    json?.contacts && typeof json.contacts === 'object' ? (json.contacts as Row) : {};
+  const interactions =
+    json?.interactions && typeof json.interactions === 'object' ? (json.interactions as Row) : {};
+  const rejected = [
+    ...importErrors(json?.rejected),
+    ...importErrors(contacts.rejected),
+    ...importErrors(interactions.rejected),
+  ];
   return {
     processed: Number(json?.processed ?? 0),
     skipped: Number(json?.skipped ?? 0),
+    created: Number(json?.created ?? 0),
+    updated: Number(json?.updated ?? 0),
+    rejected,
+    contactsProcessed: Number(contacts.processed ?? 0),
+    interactionsProcessed: Number(interactions.processed ?? 0),
   };
+}
+
+function importErrors(value: unknown): ImportFieldError[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap(item => {
+    if (!item || typeof item !== 'object') return [];
+    const row = item as Row;
+    const message = text(row.message);
+    if (!message) return [];
+    return [
+      {
+        row: Number(row.row ?? 0),
+        column: text(row.column),
+        value: text(row.value),
+        message,
+      },
+    ];
+  });
 }
 
 function normalizeEntityImportRow(entity: ExcelEntity, rawRow: Row): Row | null {
@@ -12109,31 +12834,7 @@ function productoToExcelRow(row: Row, familias: Row[], tipos: Row[]): Record<str
 }
 
 async function selectProveedores(filters: ProveedoresQuery): Promise<Row[]> {
-  let query = supabase!.from('proveedores').select('*');
-  if (filters.q) {
-    const safeQ = filters.q.replace(/[,()%]/g, '');
-    if (safeQ) query = query.or(`nombre.ilike.%${safeQ}%,slug.ilike.%${safeQ}%`);
-  }
-  if (filters.activo === '1') query = query.eq('activo', true);
-  if (filters.activo === '0') query = query.eq('activo', false);
-  if (filters.tipo_entidad) query = query.eq('tipo_entidad', filters.tipo_entidad);
-  if (filters.lifecycle_status) query = query.eq('lifecycle_status', filters.lifecycle_status);
-  if (filters.dropship === '1') query = query.eq('dropship_enabled', true);
-  if (filters.dropship === '0') query = query.eq('dropship_enabled', false);
-  if (filters.incorporado_desde)
-    query = query.gte('created_at', `${filters.incorporado_desde}T00:00:00`);
-  if (filters.incorporado_hasta)
-    query = query.lte('created_at', `${filters.incorporado_hasta}T23:59:59.999`);
-  if (filters.ordenar === 'alfabetico_desc') {
-    query = query.order('nombre', { ascending: false }).order('created_at', { ascending: false });
-  } else if (filters.ordenar === 'recientes') {
-    query = query.order('created_at', { ascending: false }).order('nombre', { ascending: true });
-  } else if (filters.ordenar === 'antiguos') {
-    query = query.order('created_at', { ascending: true }).order('nombre', { ascending: true });
-  } else {
-    query = query.order('nombre', { ascending: true }).order('created_at', { ascending: false });
-  }
-  const { data, error } = await query.limit(100);
+  const { data, error } = await proveedoresFilteredQuery(filters).limit(500);
   if (error) {
     toast(error.message);
     return [];

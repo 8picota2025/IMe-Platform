@@ -1,0 +1,163 @@
+---
+// Tarjeta de artículo del Centro de Conocimiento: portada y páginas de tema.
+import type { Articulo } from '../../lib/datos';
+import type { Locale } from '../../i18n/utils';
+import { t } from '../../i18n/utils';
+import { stripMarkdown } from '../../lib/markdown';
+import { resolverImagenArticulo } from '../../lib/conocimiento-imagenes';
+import { esPilar, rutasConocimiento } from '../../lib/conocimiento-clusters';
+
+interface Props {
+  articulo: Articulo;
+  locale: Locale;
+  index: number;
+  /** Muestra la etiqueta del tema (en la portada; en la página del tema sobra). */
+  mostrarTema?: boolean;
+}
+
+const { articulo, locale, index, mostrarTema = true } = Astro.props;
+const href = rutasConocimiento.articulo(locale, articulo.slug);
+const imagen = resolverImagenArticulo(articulo, locale);
+const resumen = stripMarkdown(articulo.cuerpo);
+const fecha = new Date(articulo.updated_at || articulo.created_at).toLocaleDateString(
+  locale === 'en' ? 'en-US' : 'es-CO',
+  { year: 'numeric', month: 'long', day: 'numeric' }
+);
+const retraso = index % 3 === 1 ? 'd1' : index % 3 === 2 ? 'd2' : '';
+---
+
+<article class={`knowledge-card fade-in ${retraso}`}>
+  <a class="knowledge-card-img" href={href} tabindex="-1" aria-hidden="true">
+    <img
+      src={imagen.src}
+      alt=""
+      width={imagen.width}
+      height={imagen.height}
+      loading="lazy"
+      decoding="async"
+    />
+  </a>
+  <div class="knowledge-card-body">
+    <p class="knowledge-meta">
+      {
+        esPilar(articulo) && (
+          <span class="knowledge-pill knowledge-pill--pilar">
+            {t(locale, 'conocimiento.pilar')}
+          </span>
+        )
+      }
+      {
+        mostrarTema && articulo.cluster && (
+          <a class="knowledge-pill" href={rutasConocimiento.tema(locale, articulo.cluster.slug)}>
+            {articulo.cluster.nombre}
+          </a>
+        )
+      }
+      <span>{t(locale, 'conocimiento.actualizado')} {fecha}</span>
+    </p>
+    <h3><a href={href}>{articulo.titulo}</a></h3>
+    <p class="knowledge-excerpt">
+      {resumen.slice(0, 160)}{resumen.length > 160 ? '…' : ''}
+    </p>
+    <a class="knowledge-more" href={href}>
+      {t(locale, 'conocimiento.leer_mas')}
+      <i class="fas fa-arrow-right" aria-hidden="true"></i>
+    </a>
+  </div>
+</article>
+
+<style>
+  .knowledge-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition:
+      transform 0.25s ease,
+      box-shadow 0.25s ease;
+  }
+  .knowledge-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+  .knowledge-card-img {
+    display: block;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+  }
+  .knowledge-card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.35s ease;
+  }
+  .knowledge-card:hover .knowledge-card-img img {
+    transform: scale(1.04);
+  }
+  .knowledge-card-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 22px 24px 24px;
+  }
+  .knowledge-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    margin: 0 0 8px;
+    font-size: 0.82rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--t900);
+    font-weight: 600;
+  }
+  .knowledge-pill {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--t50);
+    color: var(--t900);
+    text-decoration: none;
+    letter-spacing: 0.02em;
+  }
+  a.knowledge-pill:hover {
+    text-decoration: underline;
+  }
+  .knowledge-pill--pilar {
+    background: var(--t900);
+    color: var(--white);
+  }
+  .knowledge-card h3 {
+    margin: 0 0 10px;
+    font-size: 1.15rem;
+    line-height: 1.35;
+  }
+  .knowledge-card h3 a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .knowledge-card h3 a:hover {
+    color: var(--t900);
+  }
+  .knowledge-excerpt {
+    margin: 0 0 18px;
+    color: var(--text-mid);
+    line-height: 1.65;
+    flex: 1;
+  }
+  .knowledge-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--t900);
+    text-decoration: none;
+  }
+  .knowledge-more:hover {
+    text-decoration: underline;
+  }
+</style>

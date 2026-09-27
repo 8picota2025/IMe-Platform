@@ -18,7 +18,12 @@ export type AnalyticsEventName =
   | 'imeia_open'
   | 'product_view'
   | 'quick_view'
-  | 'pdf_download';
+  | 'pdf_download'
+  // Herramientas de Fase 3 (mandato §7). Como el resto: GA4/Clarity sólo con consentimiento;
+  // la analítica propia (`analytics_eventos`) no se gatea (ADR-0012).
+  | 'tool_start'
+  | 'tool_complete'
+  | 'lead_magnet_download';
 
 export interface AnalyticsConfig {
   dataDomain: string;

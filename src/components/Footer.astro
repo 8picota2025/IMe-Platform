@@ -24,6 +24,104 @@ const familias = [
   { slug: 'anestesia', label_es: 'Anestesia y Ventilación', label_en: 'Anesthesia & Ventilation' },
 ];
 
+const es = locale === 'es';
+const L = (esLabel: string, enLabel: string) => (es ? esLabel : enLabel);
+const path = (ruta: string) => getLocalizedPath(ruta, locale);
+
+/**
+ * Menú del footer en grupos plegables con nombres orientados al visitante
+ * (antes: una columna "Navegación" con 21 enlaces mezclados + "Categorías").
+ * Plegados por defecto en todos los tamaños: <details> nativo, se despliega
+ * con clic o teclado sin JavaScript.
+ */
+const gruposFooter: Array<{
+  id: string;
+  titulo: string;
+  enlaces: Array<{ href: string; label: string }>;
+}> = [
+  {
+    id: 'conoce',
+    titulo: L('Conoce I-ME', 'About I-ME'),
+    enlaces: [
+      { href: path('/'), label: t(locale, 'nav.inicio') },
+      { href: path('/nosotros'), label: t(locale, 'nav.nosotros') },
+      { href: path('/servicios'), label: t(locale, 'nav.servicios') },
+      { href: path('/proyectos'), label: L('Proyectos', 'Projects') },
+      { href: path('/contacto'), label: t(locale, 'nav.contacto') },
+    ],
+  },
+  {
+    id: 'compra',
+    titulo: L('Compra y financia', 'Buy & finance'),
+    enlaces: [
+      { href: path('/catalogo'), label: L('Catálogo completo', 'Full catalog') },
+      { href: path('/financiacion'), label: t(locale, 'nav.financiacion') },
+      { href: path('/seguimiento'), label: L('Sigue tu pedido', 'Track your order') },
+    ],
+  },
+  {
+    id: 'especialidad',
+    titulo: L('Equipos por especialidad', 'Equipment by specialty'),
+    enlaces: familias.map(f => ({
+      href: familyCatalogHref(locale, f.slug),
+      label: es ? f.label_es : f.label_en,
+    })),
+  },
+  {
+    id: 'soluciones',
+    titulo: L('Soluciones destacadas', 'Featured solutions'),
+    enlaces: [
+      {
+        href: path('/monitores-biolight-uci'),
+        label: L('Monitores Biolight para UCI', 'Biolight ICU monitors'),
+      },
+      {
+        href: path('/ventiladores-mecanicos-uci'),
+        label: L('Ventiladores para UCI', 'ICU ventilators'),
+      },
+      {
+        href: path('/alto-flujo-fisher-paykel'),
+        label: L('Alto flujo Fisher & Paykel', 'Fisher & Paykel high flow'),
+      },
+      {
+        href: path('/desfibriladores-hospitalarios'),
+        label: L('Desfibriladores', 'Defibrillators'),
+      },
+      { href: path('/imagenologia'), label: L('Imagenología', 'Diagnostic imaging') },
+      { href: path('/camillas-medicas'), label: L('Camillas médicas', 'Medical stretchers') },
+      { href: path('/caminadores-para-adultos'), label: L('Caminadores', 'Walkers') },
+      { href: path('/sillas-de-ruedas'), label: L('Sillas de ruedas', 'Wheelchairs') },
+    ],
+  },
+  {
+    id: 'aprende',
+    titulo: L('Aprende', 'Learn'),
+    enlaces: [
+      { href: path('/conocimiento'), label: L('Blog y guías', 'Blog & guides') },
+      {
+        href: es ? '/es/conocimiento/tema/monitoreo-uci/' : '/en/knowledge/topic/monitoreo-uci/',
+        label: L('Guías de monitoreo / UCI', 'Monitoring / ICU guides'),
+      },
+      {
+        href: es
+          ? '/es/conocimiento/tema/invima-regulacion/'
+          : '/en/knowledge/topic/invima-regulacion/',
+        label: L('Registro INVIMA', 'INVIMA registration'),
+      },
+      { href: es ? '/es/recursos/' : '/en/resources/', label: L('Recursos', 'Resources') },
+    ],
+  },
+  {
+    id: 'ciudades',
+    titulo: L('Dónde estamos', 'Where we are'),
+    enlaces: [
+      { href: es ? '/es/ciudades/bogota/' : '/en/cities/bogota/', label: 'Bogotá' },
+      { href: es ? '/es/ciudades/medellin/' : '/en/cities/medellin/', label: 'Medellín' },
+      { href: es ? '/es/ciudades/cali/' : '/en/cities/cali/', label: 'Cali' },
+    ],
+  },
+];
+
 const year = new Date().getFullYear();
 const legalLinks: Array<{ kind: LegalKind; label: string }> = [
   { kind: 'privacidad', label: t(locale, 'footer.privacidad') },
@@ -61,123 +159,34 @@ const legalLinks: Array<{ kind: LegalKind; label: string }> = [
       <p class="footer__slogan">"Equipamos tu misión de salvar vidas."</p>
     </div>
 
-    <!-- Columna 2: Navegación principal -->
-    <nav class="footer__section" aria-label={t(locale, 'footer.navegacion')}>
-      <h3 class="footer__heading">
-        <span class="footer__heading-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M4 6h16M4 12h16M4 18h16"></path>
-          </svg>
-        </span>
-        {t(locale, 'footer.navegacion')}
-      </h3>
-      <ul class="footer__list" role="list">
-        <li><a href={getLocalizedPath('/', locale)}>{t(locale, 'nav.inicio')}</a></li>
-        <li><a href={getLocalizedPath('/nosotros', locale)}>{t(locale, 'nav.nosotros')}</a></li>
-        <li><a href={getLocalizedPath('/catalogo', locale)}>{t(locale, 'nav.catalogo')}</a></li>
-        <li><a href={getLocalizedPath('/servicios', locale)}>{t(locale, 'nav.servicios')}</a></li>
-        <li>
-          <a href={getLocalizedPath('/financiacion', locale)}>{t(locale, 'nav.financiacion')}</a>
-        </li>
-        <li>
-          <a href={locale === 'en' ? '/en/cities/bogota/' : '/es/ciudades/bogota/'}>
-            {locale === 'en' ? 'Bogotá' : 'Bogotá'}
-          </a>
-        </li>
-        <li>
-          <a href={locale === 'en' ? '/en/cities/medellin/' : '/es/ciudades/medellin/'}>
-            {locale === 'en' ? 'Medellín' : 'Medellín'}
-          </a>
-        </li>
-        <li>
-          <a href={locale === 'en' ? '/en/cities/cali/' : '/es/ciudades/cali/'}>Cali</a>
-        </li>
-        <li>
-          <a href={locale === 'en' ? '/en/resources/' : '/es/recursos/'}>
-            {locale === 'en' ? 'Resources' : 'Recursos'}
-          </a>
-        </li>
-        <li>
-          <a href={getLocalizedPath('/proyectos', locale)}>
-            {locale === 'en' ? 'Projects' : 'Proyectos'}
-          </a>
-        </li>
-        <li>
-          <a href={getLocalizedPath('/caminadores-para-adultos', locale)}>
-            {locale === 'en' ? 'Adult walkers' : 'Caminadores para adultos'}
-          </a>
-        </li>
-        <li>
-          <a href={getLocalizedPath('/sillas-de-ruedas', locale)}>
-            {locale === 'en' ? 'Wheelchairs' : 'Sillas de ruedas'}
-          </a>
-        </li>
-        <li>
-          <a href={getLocalizedPath('/monitores-biolight-uci', locale)}>
-            {locale === 'en' ? 'Biolight ICU monitors' : 'Monitores Biolight UCI'}
-          </a>
-        </li>
-        <li>
-          <a href={getLocalizedPath('/alto-flujo-fisher-paykel', locale)}>
-            {locale === 'en' ? 'Fisher Paykel high flow' : 'Alto flujo Fisher Paykel'}
-          </a>
-        </li>
-        <li>
-          <a href={getLocalizedPath('/camillas-medicas', locale)}>
-            {locale === 'en' ? 'Medical stretchers' : 'Camillas médicas'}
-          </a>
-        </li>
-        <li>
-          <a href={getLocalizedPath('/ventiladores-mecanicos-uci', locale)}>
-            {locale === 'en' ? 'ICU ventilators' : 'Ventiladores UCI'}
-          </a>
-        </li>
-        <li>
-          <a href={getLocalizedPath('/desfibriladores-hospitalarios', locale)}>
-            {locale === 'en' ? 'Hospital defibrillators' : 'Desfibriladores hospitalarios'}
-          </a>
-        </li>
-        <li>
-          <a href={getLocalizedPath('/imagenologia', locale)}>
-            {locale === 'en' ? 'Diagnostic imaging' : 'Imagenología'}
-          </a>
-        </li>
-        <li><a href={getLocalizedPath('/contacto', locale)}>{t(locale, 'nav.contacto')}</a></li>
-        <li>
-          <a href={getLocalizedPath('/conocimiento', locale)}>{t(locale, 'nav.conocimiento')}</a>
-        </li>
-        <li>
-          <a href={getLocalizedPath('/seguimiento', locale)}>
-            {locale === 'en' ? 'Order status' : 'Seguimiento'}
-          </a>
-        </li>
-      </ul>
-    </nav>
-
-    <!-- Columna 3: Categorías de productos -->
-    <nav class="footer__section" aria-label={t(locale, 'catalogo.familias_titulo')}>
-      <h3 class="footer__heading">
-        <span class="footer__heading-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="3" width="7" height="7"></rect>
-            <rect x="14" y="3" width="7" height="7"></rect>
-            <rect x="14" y="14" width="7" height="7"></rect>
-            <rect x="3" y="14" width="7" height="7"></rect>
-          </svg>
-        </span>
-        {t(locale, 'footer.categorias')}
-      </h3>
-      <ul class="footer__list" role="list">
-        {
-          familias.map(f => (
-            <li>
-              <a href={familyCatalogHref(locale, f.slug)}>
-                {locale === 'en' ? f.label_en : f.label_es}
-              </a>
-            </li>
-          ))
-        }
-      </ul>
+    <!-- Menú en grupos plegables -->
+    <nav class="footer__nav" aria-label={t(locale, 'footer.navegacion')}>
+      {
+        gruposFooter.map(grupo => (
+          <details class="footer__group" data-footer-group>
+            <summary class="footer__group-title">
+              <span>{grupo.titulo}</span>
+              <svg
+                class="footer__group-chevron"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </summary>
+            <ul class="footer__list" role="list">
+              {grupo.enlaces.map(enlace => (
+                <li>
+                  <a href={enlace.href}>{enlace.label}</a>
+                </li>
+              ))}
+            </ul>
+          </details>
+        ))
+      }
     </nav>
 
     <!-- Columna 4: Contacto directo -->
@@ -272,17 +281,95 @@ const legalLinks: Array<{ kind: LegalKind; label: string }> = [
     padding-block: var(--space-2xl);
   }
 
-  @media (min-width: 640px) {
+  @media (min-width: 1024px) {
     .footer__main {
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1.2fr 3.4fr 1.2fr;
       gap: var(--space-xl);
     }
   }
 
-  @media (min-width: 1024px) {
-    .footer__main {
-      grid-template-columns: 1.5fr 1fr 1.2fr 1.3fr;
-      gap: var(--space-2xl);
+  /* ===== MENÚ EN GRUPOS ===== */
+  .footer__nav {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  @media (min-width: 768px) {
+    .footer__nav {
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-lg) var(--space-xl);
+    }
+  }
+
+  .footer__group {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  @media (min-width: 768px) {
+    .footer__group {
+      border-bottom: 0;
+    }
+  }
+
+  .footer__group-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    min-height: 44px;
+    padding: 0.5rem 0;
+    cursor: pointer;
+    list-style: none;
+    font-family: var(--font-display);
+    font-size: var(--step--1);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.95);
+  }
+
+  .footer__group-title::-webkit-details-marker {
+    display: none;
+  }
+
+  .footer__group-title:focus-visible {
+    outline: 2px solid var(--green);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  .footer__group-chevron {
+    width: 18px;
+    height: 18px;
+    flex: none;
+    color: var(--green);
+    transition: transform 200ms var(--ease);
+  }
+
+  .footer__group[open] .footer__group-chevron {
+    transform: rotate(180deg);
+  }
+
+  .footer__group .footer__list {
+    padding: 0.25rem 0 1rem;
+  }
+
+  /* Enlaces de varias líneas: el sangrado afecta a todo el bloque. */
+  .footer__group .footer__list a {
+    display: inline-block;
+  }
+
+  @media (min-width: 768px) {
+    .footer__group {
+      align-self: start;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .footer__group-chevron {
+      transition: none;
     }
   }
 
@@ -309,6 +396,7 @@ const legalLinks: Array<{ kind: LegalKind; label: string }> = [
   .footer__logo img {
     width: auto;
     height: auto;
+    max-width: 150px;
     display: block;
   }
 
