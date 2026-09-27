@@ -3,7 +3,8 @@
 > Estado: **GO del usuario (2026-09-26)** con las tres propuestas: editan `catalogo`, `ventas`,
 > `owner` y `admin`; borrador + «Publicar»; empezar por las tandas 0 y 1. Pedido añadido: un
 > editor en el admin que liste todas las landings y edite texto y fotos, no diseño. **Tandas 0
-> y 1 implementadas** (tabla, loaders validados, seed de las 12 de campaña, editor).
+> y 1 en producción** el 2026-09-26 (paridad 26/26 páginas idénticas antes y después).
+> **Tanda 2 implementada** (9 landings de fabricante; paridad por Postgres 18/18).
 
 ## Qué se migra (inventario del 2026-09-26)
 

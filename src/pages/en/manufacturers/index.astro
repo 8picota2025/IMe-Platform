@@ -1,11 +1,11 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
-import { listFabricanteLandings } from '../../../data/fabricante-landings';
+import { listFabricanteLandingsCms } from '../../../lib/landings-cms';
 import { buildPageTitle, buildCanonical, getInstitutionalOgImage } from '../../../lib/seo';
 import '../../../styles/site-faithful.css';
 
 const locale = 'en' as const;
-const landings = listFabricanteLandings(locale);
+const landings = await listFabricanteLandingsCms(locale);
 const title = buildPageTitle('Manufacturers & biomedical typologies — I-ME advisory');
 const description =
   'Manufacturer landings by specialty: sterilization, furniture, imaging, monitoring, OR, diagnostics, ultrasound and infusion. Sector typologies and problems — no product showcase.';

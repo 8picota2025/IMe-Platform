@@ -10,7 +10,9 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { LANDINGS_INDICE, type EntradaIndiceLanding } from '../data/landings-indice';
 import {
   CAMPOS_CAMPANA,
-  validarCopyCampana,
+  camposPara,
+  validarCopyLanding,
+  type TipoLandingCampana,
   type CampoEditable,
   type CopyCampana,
 } from '../lib/landings-cms-schema';
@@ -28,6 +30,7 @@ type Locale = 'es' | 'en';
 
 interface FilaCms {
   id: string;
+  tipo: TipoLandingCampana;
   clave: string;
   version: number;
   publicado_at: string;
@@ -50,7 +53,7 @@ function parametros(): URLSearchParams {
   return new URLSearchParams(location.hash.split('?')[1] ?? '');
 }
 
-async function filasCampana(ctx: LandingsAdminCtx): Promise<{
+async function filasCms(ctx: LandingsAdminCtx): Promise<{
   filas: Map<string, FilaCms>;
   borradores: Map<string, Borrador>;
   error?: string;
@@ -58,14 +61,15 @@ async function filasCampana(ctx: LandingsAdminCtx): Promise<{
   const [filasRes, borradoresRes] = await Promise.all([
     ctx.supabase
       .from('landings')
-      .select('id, clave, version, publicado_at, contenido_es, contenido_en')
-      .eq('tipo', 'campana'),
+      .select('id, tipo, clave, version, publicado_at, contenido_es, contenido_en')
+      .in('tipo', ['campana', 'fabricante']),
     ctx.supabase
       .from('landings_borradores')
       .select('landing_id, contenido_es, contenido_en, updated_at'),
   ]);
   const error = filasRes.error?.message ?? borradoresRes.error?.message;
-  const filas = new Map(((filasRes.data ?? []) as FilaCms[]).map(f => [f.clave, f]));
+  // Clave `tipo:clave`: las claves sólo son únicas dentro de cada tipo.
+  const filas = new Map(((filasRes.data ?? []) as FilaCms[]).map(f => [`${f.tipo}:${f.clave}`, f]));
   const borradores = new Map(
     ((borradoresRes.data ?? []) as Borrador[]).map(b => [b.landing_id, b])
   );
@@ -91,26 +95,25 @@ function tablaLista(filas: string[]): string {
 
 async function listaView(ctx: LandingsAdminCtx): Promise<string> {
   const e = ctx.escapeHtml;
-  const { filas, borradores, error } = await filasCampana(ctx);
+  const { filas, borradores, error } = await filasCms(ctx);
   const porTipo = (tipo: EntradaIndiceLanding['tipo']) =>
     LANDINGS_INDICE.filter(l => l.tipo === tipo);
-  const campana = porTipo('campana').map(landing => {
-    const id = landing.clave;
-    const fila = filas.get(id);
-    const borrador = fila ? borradores.get(fila.id) : undefined;
-    const estado = !fila
-      ? '<span class="admin-help">En código (sin migrar)</span>'
-      : `CMS · v${fila.version} · ${e(fecha(fila.publicado_at))}${borrador ? ' · <strong>borrador sin publicar</strong>' : ''}`;
-    const accion = fila
-      ? `<a class="admin-button admin-button--ghost" href="#/landings?id=${encodeURIComponent(id)}">Editar</a>`
-      : '';
-    return filaLista(ctx, landing.nombre, landing.path, estado, accion);
-  });
   const pendiente = (tanda: number) =>
     `<span class="admin-help">En código · se podrá editar tras la tanda ${tanda}</span>`;
-  const fabricantes = porTipo('fabricante').map(l =>
-    filaLista(ctx, l.nombre, l.path, pendiente(2), '')
-  );
+  const editables = (tipo: TipoLandingCampana, tanda: number) =>
+    porTipo(tipo).map(landing => {
+      const fila = filas.get(`${tipo}:${landing.clave}`);
+      const borrador = fila ? borradores.get(fila.id) : undefined;
+      const estado = !fila
+        ? pendiente(tanda)
+        : `CMS · v${fila.version} · ${e(fecha(fila.publicado_at))}${borrador ? ' · <strong>borrador sin publicar</strong>' : ''}`;
+      const accion = fila
+        ? `<a class="admin-button admin-button--ghost" href="#/landings?tipo=${tipo}&id=${encodeURIComponent(landing.clave)}">Editar</a>`
+        : '';
+      return filaLista(ctx, landing.nombre, landing.path, estado, accion);
+    });
+  const campana = editables('campana', 1);
+  const fabricantes = editables('fabricante', 2);
   const ciudades = porTipo('ciudad').map(l => filaLista(ctx, l.nombre, l.path, pendiente(3), ''));
   const familias = porTipo('familia').map(l => filaLista(ctx, l.nombre, l.path, pendiente(3), ''));
   const aviso = error
@@ -240,20 +243,25 @@ function medidasImagen(src: string): Promise<{ width: number; height: number } |
   });
 }
 
-async function editorView(ctx: LandingsAdminCtx, id: string, locale: Locale): Promise<string> {
+async function editorView(
+  ctx: LandingsAdminCtx,
+  tipo: TipoLandingCampana,
+  id: string,
+  locale: Locale
+): Promise<string> {
   const e = ctx.escapeHtml;
-  const landing = LANDINGS_INDICE.find(l => l.tipo === 'campana' && l.clave === id);
+  const landing = LANDINGS_INDICE.find(l => l.tipo === tipo && l.clave === id);
   if (!landing) {
     return `<div class="admin-alert">La landing «${e(id)}» no existe.</div>`;
   }
-  const { filas, borradores, error } = await filasCampana(ctx);
-  const fila = filas.get(id);
+  const { filas, borradores, error } = await filasCms(ctx);
+  const fila = filas.get(`${tipo}:${id}`);
   if (error || !fila) {
     return `<div class="admin-alert">Esta landing aún no está en el CMS${error ? ` (${e(error)})` : ''}.</div>`;
   }
   const borrador = borradores.get(fila.id);
   const contenido = (borrador ?? fila)[`contenido_${locale}`];
-  const visibles = CAMPOS_CAMPANA.filter(c => c.obligatorio || contenido[c.clave] !== undefined);
+  const visibles = camposPara(tipo).filter(c => c.obligatorio || contenido[c.clave] !== undefined);
   const { data: historial } = await ctx.supabase
     .from('landings_historial')
     .select('version, publicado_at')
@@ -273,7 +281,7 @@ async function editorView(ctx: LandingsAdminCtx, id: string, locale: Locale): Pr
       <div class="admin-panel__head">
         <h2>${e(landing.nombre)} · ${locale.toUpperCase()}</h2>
         <div>
-          <a class="admin-button admin-button--ghost" href="#/landings?id=${encodeURIComponent(id)}&lang=${otro}">Editar en ${otro.toUpperCase()}</a>
+          <a class="admin-button admin-button--ghost" href="#/landings?tipo=${tipo}&id=${encodeURIComponent(id)}&lang=${otro}">Editar en ${otro.toUpperCase()}</a>
           <a class="admin-button admin-button--ghost" href="${e(SITIO + ruta)}" target="_blank" rel="noopener noreferrer">Ver publicada</a>
           <a class="admin-button admin-button--ghost" href="#/landings">Volver a la lista</a>
         </div>
@@ -283,7 +291,7 @@ async function editorView(ctx: LandingsAdminCtx, id: string, locale: Locale): Pr
         ${borrador ? `<strong>Estás editando un borrador guardado el ${e(fecha(borrador.updated_at))}.</strong>` : 'Sin borrador: al guardar se crea uno; la web no cambia hasta publicar.'}
         El diseño, la URL (${e(ruta)}), los productos y los códigos del formulario no se editan aquí.
       </p>
-      <form class="admin-form" data-landing-form data-landing-id="${e(fila.id)}" data-landing-clave="${e(id)}" data-landing-locale="${locale}" style="padding:16px">
+      <form class="admin-form" data-landing-form data-landing-id="${e(fila.id)}" data-landing-clave="${e(id)}" data-landing-tipo="${tipo}" data-landing-locale="${locale}" style="padding:16px">
         ${visibles.map(c => campoHtml(ctx, c, contenido[c.clave])).join('')}
         <div data-landing-errores hidden></div>
         <div class="admin-form__actions">
@@ -302,8 +310,9 @@ async function editorView(ctx: LandingsAdminCtx, id: string, locale: Locale): Pr
 export async function landingsView(ctx: LandingsAdminCtx): Promise<string> {
   const params = parametros();
   const id = params.get('id');
+  const tipo: TipoLandingCampana = params.get('tipo') === 'fabricante' ? 'fabricante' : 'campana';
   const locale: Locale = params.get('lang') === 'en' ? 'en' : 'es';
-  return id ? editorView(ctx, id, locale) : listaView(ctx);
+  return id ? editorView(ctx, tipo, id, locale) : listaView(ctx);
 }
 
 export function bindLandings(ctx: LandingsAdminCtx): void {
@@ -311,6 +320,8 @@ export function bindLandings(ctx: LandingsAdminCtx): void {
   if (!form) return;
   const landingId = form.dataset['landingId']!;
   const clave = form.dataset['landingClave'] ?? '';
+  const tipo: TipoLandingCampana =
+    form.dataset['landingTipo'] === 'fabricante' ? 'fabricante' : 'campana';
   const locale = form.dataset['landingLocale'] as Locale;
   const errores = form.querySelector<HTMLElement>('[data-landing-errores]');
 
@@ -365,7 +376,7 @@ export function bindLandings(ctx: LandingsAdminCtx): void {
       editado['heroImageWidth'] = medidas.width;
       editado['heroImageHeight'] = medidas.height;
     }
-    const lista = validarCopyCampana(editado);
+    const lista = validarCopyLanding(editado, tipo);
     mostrarErrores(lista);
     if (lista.length) return;
     const { data: sesion } = await ctx.supabase.auth.getUser();
@@ -388,12 +399,12 @@ export function bindLandings(ctx: LandingsAdminCtx): void {
     const actual = await contenidoActual();
     if (!actual) return;
     const lista = [
-      ...validarCopyCampana(actual.es).map(x => `ES · ${x}`),
-      ...validarCopyCampana(actual.en).map(x => `EN · ${x}`),
+      ...validarCopyLanding(actual.es, tipo).map(x => `ES · ${x}`),
+      ...validarCopyLanding(actual.en, tipo).map(x => `EN · ${x}`),
     ];
     mostrarErrores(lista);
     if (lista.length) return;
-    const nombre = LANDINGS_INDICE.find(l => l.clave === clave)?.nombre ?? clave;
+    const nombre = LANDINGS_INDICE.find(l => l.tipo === tipo && l.clave === clave)?.nombre ?? clave;
     if (!confirm(`¿Publicar «${nombre}»? Se reconstruye el sitio.`)) return;
     const { data, error } = await ctx.supabase.rpc('publicar_landing', { p_landing_id: landingId });
     if (error) {
