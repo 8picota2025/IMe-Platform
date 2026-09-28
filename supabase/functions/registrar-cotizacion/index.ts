@@ -1,7 +1,12 @@
 /**
- * Registra una solicitud de cotizacion (antes insert directo desde el
- * navegador. No genera correos en éxito: solo alerta internamente ante un
- * fallo crítico de sincronización. La solicitud queda registrada en ambos casos.
+ * Registra una solicitud de cotizacion y dispara los emails: aviso interno
+ * (root@ + ventas@, o compras@ para compra a valorar) con el resumen completo
+ * y confirmación de recepción al cliente. Los emails son best-effort: si
+ * fallan, la solicitud queda registrada igualmente. Si falla la sync con
+ * Twenty CRM se envía además una alerta interna.
+ *
+ * El canary autenticado (origen `canary_ci` + secreto) solo comprueba
+ * validación, CORS y rate-limit: no persiste, ni genera CRM, correo o métricas.
  */
 
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
@@ -11,6 +16,7 @@ import { checkRateLimit } from '../_shared/rate-limit.ts';
 import { isCanaryRequest, rateLimitIdentificador } from '../_shared/canary.ts';
 import {
   enviarEmailPlantilla,
+  DESTINATARIOS_COMPRAS,
   DESTINATARIOS_INTERNOS,
   escapeHtml,
   itemsToHtml,
@@ -34,6 +40,8 @@ interface CotizacionBody {
     slug?: string;
     nombre?: string;
     cantidad?: number;
+    url?: string;
+    modelo?: string;
     precio_unitario?: number;
     subtotal?: number;
     moneda?: string;
@@ -82,6 +90,20 @@ function cleanText(value: unknown, max: number): string | null {
   if (typeof value !== 'string') return null;
   const clean = value.trim().slice(0, max);
   return clean || null;
+}
+
+/** Solo URLs del propio sitio: el enlace acaba en correos internos y al cliente. */
+function cleanProductUrl(value: unknown): string | null {
+  const raw = cleanText(value, 500);
+  if (!raw) return null;
+  try {
+    const url = new URL(raw);
+    return url.protocol === 'https:' && /(^|\.)i-me\.com\.co$/.test(url.hostname)
+      ? url.toString()
+      : null;
+  } catch {
+    return null;
+  }
 }
 
 function shouldRetryLegacyInsert(error: DbErrorLike | null): boolean {
@@ -144,14 +166,20 @@ Deno.serve(
       utm_term: cleanText(body.utm_term, 160),
     };
 
-    const productos = (Array.isArray(body.productos) ? body.productos : []).slice(0, 50).map(p => ({
-      slug: String(p.slug ?? '').slice(0, 200),
-      nombre: String(p.nombre ?? '').slice(0, 300),
-      cantidad: Math.max(1, Math.min(9999, Number(p.cantidad) || 1)),
-      precio_unitario: cleanNumber(p.precio_unitario),
-      subtotal: cleanNumber(p.subtotal),
-      moneda: String(p.moneda ?? moneda).slice(0, 8),
-    }));
+    const productos = (Array.isArray(body.productos) ? body.productos : []).slice(0, 50).map(p => {
+      const modelo = cleanText(p.modelo, 120);
+      const url = cleanProductUrl(p.url);
+      return {
+        slug: String(p.slug ?? '').slice(0, 200),
+        nombre: String(p.nombre ?? '').slice(0, 300),
+        cantidad: Math.max(1, Math.min(9999, Number(p.cantidad) || 1)),
+        ...(modelo ? { modelo } : {}),
+        ...(url ? { url } : {}),
+        precio_unitario: cleanNumber(p.precio_unitario),
+        subtotal: cleanNumber(p.subtotal),
+        moneda: String(p.moneda ?? moneda).slice(0, 8),
+      };
+    });
 
     if (!mensaje && productos.length > 0) {
       const lineas = productos.map(
@@ -205,6 +233,23 @@ Deno.serve(
       );
     }
 
+    // El canary autenticado termina aquí (validación + CORS + rate-limit): una
+    // fila de prueba dispararía el trigger CRM y ensuciaría tablero y métricas.
+    if (esQaFlujo) {
+      return new Response(
+        JSON.stringify({
+          ok: true,
+          qa: true,
+          emails: { interno: false, cliente: false, alerta_fallo: false },
+          twenty: { status: 'skipped' },
+        }),
+        {
+          status: 200,
+          headers: { ...getCorsHeaders(origin), 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
     const solicitudBase = {
       nombre,
       empresa,
@@ -234,9 +279,8 @@ Deno.serve(
       metadata: {
         fiscal: body.fiscal ?? null,
         attribution,
-        supervision: { qa_flujo: esQaFlujo },
       },
-      crm_sync_status: esQaFlujo ? 'skipped' : 'pending',
+      crm_sync_status: 'pending',
     };
 
     let solicitudId: string | null;
@@ -271,29 +315,10 @@ Deno.serve(
 
     // Evento de negocio para el funnel semanal (docs/observabilidad.md).
     // Sin PII en detalle: solo conteo de productos, nunca email/nombre/telefono.
-    if (!esQaFlujo) {
-      void trackEvent(FN_NAME, 'cotizacion_registrada', {
-        productos_count: productos.length,
-        tipo_solicitud: tipoSolicitud,
-      });
-    }
-
-    // Prueba autenticada: confirma Edge + persistencia sin contaminar CRM,
-    // métricas ni correo. Un error de registro ya devuelve fallo al canary.
-    if (esQaFlujo) {
-      return new Response(
-        JSON.stringify({
-          ok: true,
-          qa: true,
-          emails: { alerta_fallo: false },
-          twenty: { status: 'skipped' },
-        }),
-        {
-          status: 200,
-          headers: { ...getCorsHeaders(origin), 'Content-Type': 'application/json' },
-        }
-      );
-    }
+    void trackEvent(FN_NAME, 'cotizacion_registrada', {
+      productos_count: productos.length,
+      tipo_solicitud: tipoSolicitud,
+    });
 
     const vars = {
       referencia: escapeHtml(referencia),
@@ -301,7 +326,8 @@ Deno.serve(
       cliente_email: escapeHtml(email),
       empresa: escapeHtml(empresa),
       telefono: escapeHtml(telefono),
-      mensaje: escapeHtml(mensaje),
+      // <br>: las plantillas usan <p>{{mensaje}}</p> y el resumen es multilínea.
+      mensaje: escapeHtml(mensaje).replace(/\n/g, '<br>'),
       items_html: productos.length
         ? itemsToHtml(productos, locale)
         : locale === 'en'
@@ -312,9 +338,31 @@ Deno.serve(
       fecha: new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' }),
     };
 
-    // Éxito no genera correo. La supervisión se limita a alertas accionables
-    // de fallos del flujo crítico; la solicitud y CRM siguen siendo trazables.
-    let emails = { alerta_fallo: false };
+    const plantillaInterna =
+      tipoSolicitud === 'compra_a_valorar' ? 'compra_valorar_interna' : 'cotizacion_interna';
+    const plantillaCliente =
+      tipoSolicitud === 'compra_a_valorar'
+        ? `compra_valorar_confirmacion_cliente_${locale}`
+        : `cotizacion_confirmacion_cliente_${locale}`;
+    const destinatariosInternos =
+      tipoSolicitud === 'compra_a_valorar' ? DESTINATARIOS_COMPRAS : DESTINATARIOS_INTERNOS;
+
+    const emails = { interno: false, cliente: false, alerta_fallo: false };
+    try {
+      const [interno, cliente] = await Promise.all([
+        enviarEmailPlantilla(supabase, plantillaInterna, destinatariosInternos, vars, referencia),
+        enviarEmailPlantilla(supabase, plantillaCliente, [email], vars, referencia),
+      ]);
+      emails.interno = interno.ok;
+      emails.cliente = cliente.ok;
+      if (!interno.ok) console.error('registrar-cotizacion: email interno', interno.detalle);
+      if (!cliente.ok) console.error('registrar-cotizacion: email cliente', cliente.detalle);
+    } catch (err) {
+      console.error(
+        'registrar-cotizacion: email exception',
+        err instanceof Error ? err.message : err
+      );
+    }
 
     // Twenty CRM: best-effort. No bloquea respuesta al cliente.
     const twenty = await syncCotizacionWithTwenty({
@@ -349,7 +397,6 @@ Deno.serve(
       console.error('registrar-cotizacion: Twenty sync failed', twenty.error);
       void trackEvent(FN_NAME, 'cotizacion_twenty_failed', {
         tipo_solicitud: tipoSolicitud,
-        qa_flujo: esQaFlujo,
       });
       try {
         const alerta = await enviarEmailPlantilla(
@@ -363,7 +410,7 @@ Deno.serve(
           },
           referencia
         );
-        emails = { alerta_fallo: alerta.ok };
+        emails.alerta_fallo = alerta.ok;
         if (!alerta.ok) console.error('registrar-cotizacion: alerta de fallo', alerta.detalle);
       } catch (err) {
         console.error(
