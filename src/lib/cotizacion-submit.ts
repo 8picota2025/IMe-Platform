@@ -58,6 +58,40 @@ export function resolverMensajeCotizacion(params: {
   ].join('\n');
 }
 
+/**
+ * Mensaje final de la lista de cotización: el resumen se genera SIEMPRE con
+ * todos los productos actuales y los comentarios del usuario van aparte.
+ * Antes el textarea se precargaba con el primer producto y, al tener texto,
+ * no se actualizaba al añadir más: el resumen solo llevaba el primero.
+ */
+export function componerMensajeCotizacion(params: {
+  locale?: 'es' | 'en' | undefined;
+  comentarios?: string | undefined;
+  productos?: CotizacionMensajeProducto[] | undefined;
+  ciudad?: string | undefined;
+  ciudadLabel?: string | undefined;
+}): string {
+  const locale = params.locale === 'en' ? 'en' : 'es';
+  const comentarios = (params.comentarios ?? '').trim();
+  const resumen = resolverMensajeCotizacion({ locale, productos: params.productos });
+  if (!resumen && !comentarios) return '';
+
+  const partes: string[] = [];
+  const ciudad = (params.ciudad ?? '').trim();
+  if (ciudad) {
+    const label =
+      params.ciudadLabel ?? (locale === 'en' ? 'City / state' : 'Ciudad / departamento');
+    partes.push(`${label}: ${ciudad}`);
+  }
+  if (resumen) partes.push(resumen);
+  if (comentarios) {
+    partes.push(
+      resumen ? `${locale === 'en' ? 'Comments' : 'Comentarios'}:\n${comentarios}` : comentarios
+    );
+  }
+  return partes.join('\n\n').slice(0, 2000);
+}
+
 export interface CotizacionEmailStatus {
   interno?: boolean;
   cliente?: boolean;

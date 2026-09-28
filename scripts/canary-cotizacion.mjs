@@ -4,7 +4,8 @@
  *
  * Comprueba tras cada deploy:
  * 1) Página /es/contacto con formulario + status + modal navbar
- * 2) Edge registrar-cotizacion → ok, persistencia QA y cero correo/CRM
+ * 2) Edge registrar-cotizacion → QA silencioso (validación + rate-limit;
+ *    sin fila en BD, CRM, correo ni métricas)
  * 3) Edge registrar-lead-comercial (campaña proyectos) → QA silencioso
  *    (201 + ok + qa, sin leadId / CRM / correo)
  *
@@ -113,13 +114,15 @@ async function checkRegistrarCotizacion(stamp) {
   }
   if (
     json.qa !== true ||
+    json.emails?.interno !== false ||
+    json.emails?.cliente !== false ||
     json.emails?.alerta_fallo !== false ||
     json.twenty?.status !== 'skipped'
   ) {
     fail(`registrar-cotizacion QA no silenciosa: ${JSON.stringify(json)}`);
     return;
   }
-  ok(`registrar-cotizacion QA silenciosa (Edge + BD): ${email}`);
+  ok(`registrar-cotizacion QA silenciosa (sin persistencia): ${email}`);
 }
 
 async function checkRegistrarLead(stamp) {

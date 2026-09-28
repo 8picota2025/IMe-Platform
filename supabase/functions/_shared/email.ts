@@ -44,6 +44,8 @@ export function itemsToHtml(
   items: Array<{
     nombre?: string;
     cantidad?: number;
+    modelo?: string;
+    url?: string;
     precio_unitario?: number | null;
     subtotal?: number | null;
     moneda?: string;
@@ -65,7 +67,13 @@ export function itemsToHtml(
         precio || subtotal
           ? ` - ${unitLabel}: ${precio || pendingLabel} · ${totalLabel}: ${subtotal || pendingLabel}`
           : '';
-      return `<li>${cantidad} x ${nombre}${valores}</li>`;
+      const modelo = i.modelo
+        ? ` (${locale === 'en' ? 'Model' : 'Ref.'} ${escapeHtml(String(i.modelo))})`
+        : '';
+      const enlace = i.url
+        ? ` — <a href="${escapeHtml(String(i.url))}">${locale === 'en' ? 'View product' : 'Ver producto'}</a>`
+        : '';
+      return `<li>${cantidad} x ${nombre}${modelo}${valores}${enlace}</li>`;
     })
     .join('');
 }
