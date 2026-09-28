@@ -1623,20 +1623,37 @@ async function crmView(): Promise<string> {
   const seguimiento = params.get('seguimiento') ?? '';
   const q = (params.get('q') ?? '').trim().toLowerCase();
   const twentyMembers = await loadTwentyMembers();
-  const [opportunitiesRes, contactsRes, accountsRes, activitiesRes] = await Promise.all([
-    supabase!
-      .from('crm_opportunities')
-      .select('*')
-      .order('updated_at', { ascending: false })
-      .limit(250),
-    supabase!.from('crm_contacts').select('*').order('updated_at', { ascending: false }).limit(250),
-    supabase!.from('crm_accounts').select('*').order('updated_at', { ascending: false }).limit(250),
-    supabase!
-      .from('crm_activities')
-      .select('*')
-      .order('occurred_at', { ascending: false })
-      .limit(120),
-  ]);
+  const [opportunitiesRes, contactsRes, accountsRes, activitiesRes, deletedRes] = await Promise.all(
+    [
+      supabase!
+        .from('crm_opportunities')
+        .select('*')
+        .is('eliminada_at', null)
+        .order('updated_at', { ascending: false })
+        .limit(250),
+      supabase!
+        .from('crm_contacts')
+        .select('*')
+        .order('updated_at', { ascending: false })
+        .limit(250),
+      supabase!
+        .from('crm_accounts')
+        .select('*')
+        .order('updated_at', { ascending: false })
+        .limit(250),
+      supabase!
+        .from('crm_activities')
+        .select('*')
+        .order('occurred_at', { ascending: false })
+        .limit(120),
+      supabase!
+        .from('crm_opportunities')
+        .select('id,titulo,etapa,valor_estimado,moneda,eliminada_at,eliminada_por,eliminada_motivo')
+        .not('eliminada_at', 'is', null)
+        .order('eliminada_at', { ascending: false })
+        .limit(50),
+    ]
+  );
 
   if (opportunitiesRes.error) {
     return `
@@ -1650,6 +1667,7 @@ async function crmView(): Promise<string> {
   if (contactsRes.error) toast(contactsRes.error.message);
   if (accountsRes.error) toast(accountsRes.error.message);
   if (activitiesRes.error) toast(activitiesRes.error.message);
+  const deletedOpportunities = deletedRes.error ? [] : ((deletedRes.data ?? []) as Row[]);
 
   const contacts = ((contactsRes.data ?? []) as Row[]).reduce<Map<string, Row>>((acc, row) => {
     acc.set(text(row.id), row);
@@ -1851,7 +1869,26 @@ async function crmView(): Promise<string> {
             crmSourceLink(row),
           ])
       )}
-    </section>`;
+    </section>
+    ${
+      deletedOpportunities.length
+        ? `<details class="admin-panel">
+      <summary class="admin-panel__head"><h2>Eliminadas (${deletedOpportunities.length})</h2><span class="admin-meta">Fuera del tablero y de las estadísticas</span></summary>
+      ${table(
+        ['Eliminada', 'Oportunidad', 'Etapa', 'Valor', 'Por', 'Motivo', ''],
+        deletedOpportunities.map(row => [
+          text(row.eliminada_at) ? formatDate(text(row.eliminada_at)) : '—',
+          escapeHtml(text(row.titulo) || text(row.id).slice(0, 8)),
+          escapeHtml(crmStageLabel(text(row.etapa))),
+          escapeHtml(crmMoney(Number(row.valor_estimado ?? 0), text(row.moneda) || 'COP')),
+          escapeHtml(text(row.eliminada_por)) || '—',
+          escapeHtml(text(row.eliminada_motivo)) || '—',
+          `<button class="admin-button admin-button--ghost" type="button" data-crm-restore="${escapeHtml(text(row.id))}">Restaurar</button>`,
+        ])
+      )}
+    </details>`
+        : ''
+    }`;
 }
 
 function crmOpportunityCard(
@@ -1959,6 +1996,7 @@ function crmOpportunityCard(
         ${crmSourceLink(row)}
         ${text(contact?.email_norm) ? `<a class="admin-button admin-button--ghost" href="mailto:${escapeHtml(text(contact?.email_norm))}">Email</a>` : ''}
         ${text(contact?.telefono_e164) ? `<a class="admin-button admin-button--ghost" href="https://wa.me/${escapeHtml(text(contact?.telefono_e164).replace(/\\D/g, ''))}" target="_blank" rel="noopener noreferrer">WhatsApp</a>` : ''}
+        <button class="admin-button admin-button--danger" type="button" data-crm-delete="${escapeHtml(id)}">Eliminar</button>
       </div>
     </form>`;
 }
@@ -2036,6 +2074,82 @@ function bindCrm() {
         await render();
       }
       btn.disabled = false;
+    });
+  });
+
+  app.querySelectorAll<HTMLButtonElement>('[data-crm-delete]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset['crmDelete'] ?? '';
+      if (!id) return;
+      const motivo = window
+        .prompt(
+          'Eliminar oportunidad: sale del tablero y de las estadísticas (se puede restaurar). Motivo:'
+        )
+        ?.trim();
+      if (motivo === undefined) return;
+      if (!motivo) {
+        toast('Motivo requerido para eliminar.');
+        return;
+      }
+      btn.disabled = true;
+      const { data: antes } = await supabase!
+        .from('crm_opportunities')
+        .select('id,titulo,etapa,valor_estimado,moneda,source_table,source_id,cliente_id')
+        .eq('id', id)
+        .maybeSingle();
+      const eliminadaAt = new Date().toISOString();
+      const { error } = await supabase!
+        .from('crm_opportunities')
+        .update({
+          eliminada_at: eliminadaAt,
+          eliminada_por: state.email,
+          eliminada_motivo: motivo.slice(0, 500),
+        })
+        .eq('id', id);
+      if (error) {
+        toast(error.message);
+        btn.disabled = false;
+        return;
+      }
+      await supabase!.from('comercio_actuaciones').insert({
+        actor: state.email,
+        rol: state.rol || 'admin',
+        herramienta: 'eliminar_oportunidad',
+        entidad: 'crm_opportunities',
+        entidad_id: id,
+        antes,
+        despues: { eliminada_at: eliminadaAt },
+        motivo: motivo.slice(0, 500),
+      });
+      toast('Oportunidad eliminada de tablero y estadísticas');
+      await render();
+    });
+  });
+
+  app.querySelectorAll<HTMLButtonElement>('[data-crm-restore]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset['crmRestore'] ?? '';
+      if (!id) return;
+      btn.disabled = true;
+      const { error } = await supabase!
+        .from('crm_opportunities')
+        .update({ eliminada_at: null, eliminada_por: null, eliminada_motivo: null })
+        .eq('id', id);
+      if (error) {
+        toast(error.message);
+        btn.disabled = false;
+        return;
+      }
+      await supabase!.from('comercio_actuaciones').insert({
+        actor: state.email,
+        rol: state.rol || 'admin',
+        herramienta: 'restaurar_oportunidad',
+        entidad: 'crm_opportunities',
+        entidad_id: id,
+        despues: { eliminada_at: null },
+      });
+      toast('Oportunidad restaurada');
+      await render();
     });
   });
 
@@ -2511,6 +2625,7 @@ async function bandejaHoyHtml(): Promise<string> {
       .from('crm_opportunities')
       .select('id,titulo,etapa')
       .in('etapa', ['nuevo', 'cotizando'])
+      .is('eliminada_at', null)
       .order('updated_at', { ascending: false })
       .limit(6),
     supabase!
@@ -2604,9 +2719,9 @@ async function dashboardView(): Promise<string> {
     count('productos', { fulfillment_mode: 'dropship' }),
     count('productos', { disponible: true }),
     count('solicitudes_cotizacion', { leida: false }),
-    count('crm_opportunities'),
-    count('crm_opportunities', { etapa: 'nuevo' }),
-    count('crm_opportunities', { etapa: 'cotizando' }),
+    count('crm_opportunities', { eliminada_at: null }),
+    count('crm_opportunities', { etapa: 'nuevo', eliminada_at: null }),
+    count('crm_opportunities', { etapa: 'cotizando', eliminada_at: null }),
     count('pedidos', { leida: false }),
     count('clientes'),
     count('cupones', { activo: true }),
@@ -4012,7 +4127,7 @@ async function clienteDetailView(): Promise<string> {
           'crm_opportunities',
           'id,updated_at,titulo,etapa,valor_estimado,moneda,next_action_at',
           'updated_at',
-          { cliente_id: text(cliente.id) },
+          { cliente_id: text(cliente.id), eliminada_at: null },
           50,
           false
         ),
@@ -11250,7 +11365,8 @@ async function selectRowsWhere(
   ascending = true
 ): Promise<Row[]> {
   let req = supabase!.from(tableName).select(columns).order(order, { ascending }).limit(limit);
-  for (const [key, value] of Object.entries(eq)) req = req.eq(key, value);
+  for (const [key, value] of Object.entries(eq))
+    req = value === null ? req.is(key, null) : req.eq(key, value);
   const { data, error } = await req;
   if (error) {
     toast(error.message);
@@ -11320,7 +11436,8 @@ async function getRow(tableName: string, id: string): Promise<Row | null> {
 
 async function count(tableName: string, eq?: Row): Promise<number> {
   let req = supabase!.from(tableName).select('id', { count: 'exact', head: true });
-  for (const [key, value] of Object.entries(eq ?? {})) req = req.eq(key, value);
+  for (const [key, value] of Object.entries(eq ?? {}))
+    req = value === null ? req.is(key, null) : req.eq(key, value);
   const { count: total, error } = await req;
   if (error) return 0;
   return total ?? 0;
