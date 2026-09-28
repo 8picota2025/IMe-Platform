@@ -92,12 +92,17 @@ function cleanText(value: unknown, max: number): string | null {
   return clean || null;
 }
 
-/** Solo URLs del propio sitio: el enlace acaba en correos internos y al cliente. */
+const SITIO = 'https://i-me.com.co';
+
+/**
+ * Solo URLs del propio sitio: el enlace acaba en correos internos y al cliente.
+ * Las rutas relativas (tarjetas de catálogo) se resuelven contra el dominio.
+ */
 function cleanProductUrl(value: unknown): string | null {
   const raw = cleanText(value, 500);
   if (!raw) return null;
   try {
-    const url = new URL(raw);
+    const url = new URL(raw, SITIO);
     return url.protocol === 'https:' && /(^|\.)i-me\.com\.co$/.test(url.hostname)
       ? url.toString()
       : null;
@@ -168,9 +173,15 @@ Deno.serve(
 
     const productos = (Array.isArray(body.productos) ? body.productos : []).slice(0, 50).map(p => {
       const modelo = cleanText(p.modelo, 120);
-      const url = cleanProductUrl(p.url);
+      const slug = String(p.slug ?? '').slice(0, 200);
+      // Sin URL (carrito, formulario de contacto) se deriva la ficha del slug.
+      const url =
+        cleanProductUrl(p.url) ??
+        (/^[a-z0-9-]+$/.test(slug)
+          ? `${SITIO}/${locale}/${locale === 'en' ? 'products' : 'productos'}/${slug}/`
+          : null);
       return {
-        slug: String(p.slug ?? '').slice(0, 200),
+        slug,
         nombre: String(p.nombre ?? '').slice(0, 300),
         cantidad: Math.max(1, Math.min(9999, Number(p.cantidad) || 1)),
         ...(modelo ? { modelo } : {}),

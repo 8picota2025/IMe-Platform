@@ -71,7 +71,7 @@ export function itemsToHtml(
         ? ` (${locale === 'en' ? 'Model' : 'Ref.'} ${escapeHtml(String(i.modelo))})`
         : '';
       const enlace = i.url
-        ? ` — <a href="${escapeHtml(String(i.url))}">${locale === 'en' ? 'View product' : 'Ver producto'}</a>`
+        ? `<br>${locale === 'en' ? 'Product page' : 'Ficha'}: <a href="${escapeHtml(String(i.url))}">${escapeHtml(String(i.url))}</a>`
         : '';
       return `<li>${cantidad} x ${nombre}${modelo}${valores}${enlace}</li>`;
     })

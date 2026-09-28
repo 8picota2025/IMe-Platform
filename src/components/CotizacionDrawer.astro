@@ -402,7 +402,11 @@ const config = {
     type CotizacionItem,
   } from '../lib/cotizacion-equipos';
   import { emitAnalyticsEvent } from '../lib/analytics';
-  import { componerMensajeCotizacion, mensajeExitoCotizacion } from '../lib/cotizacion-submit';
+  import {
+    componerMensajeCotizacion,
+    mensajeExitoCotizacion,
+    urlAbsolutaProducto,
+  } from '../lib/cotizacion-submit';
   import { abrirDrawer, cerrarDrawer, resetTransientUiState } from '../lib/motion';
 
   interface CotizacionI18n {
@@ -641,7 +645,7 @@ const config = {
           slug: i.slug,
           nombre: i.nombre,
           cantidad: i.cantidad,
-          url: i.url,
+          url: urlAbsolutaProducto(i.url),
           modelo: i.modelo,
         }));
         const mensaje = componerMensajeCotizacion({
