@@ -5,6 +5,7 @@ import {
   mensajeExitoCotizacion,
   normalizarPayloadCotizacion,
   resolverMensajeCotizacion,
+  urlAbsolutaProducto,
 } from './cotizacion-submit';
 
 describe('cotizacion-submit', () => {
@@ -122,5 +123,20 @@ describe('cotizacion-submit', () => {
     it('vacío si no hay productos ni comentarios', () => {
       expect(componerMensajeCotizacion({ locale: 'es', ciudad: 'Bogotá' })).toBe('');
     });
+  });
+
+  it('convierte rutas relativas de tarjetas en enlace completo', () => {
+    expect(urlAbsolutaProducto('/es/productos/wr-3d/')).toBe(
+      'https://i-me.com.co/es/productos/wr-3d/'
+    );
+    expect(urlAbsolutaProducto('https://i-me.com.co/es/productos/x/')).toBe(
+      'https://i-me.com.co/es/productos/x/'
+    );
+    expect(urlAbsolutaProducto('  ')).toBeUndefined();
+    const mensaje = resolverMensajeCotizacion({
+      locale: 'es',
+      productos: [{ slug: 'wr-3d', nombre: 'WR-3D', cantidad: 1, url: '/es/productos/wr-3d/' }],
+    });
+    expect(mensaje).toContain('Página del producto: https://i-me.com.co/es/productos/wr-3d/');
   });
 });

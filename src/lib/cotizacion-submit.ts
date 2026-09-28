@@ -13,6 +13,22 @@ export interface CotizacionSubmitPayload {
   [key: string]: unknown;
 }
 
+export const SITIO_CANONICO = 'https://i-me.com.co';
+
+/**
+ * Las tarjetas de catálogo/familia pasan rutas relativas (`/es/productos/x/`);
+ * correos y CRM necesitan el enlace completo para abrir la ficha.
+ */
+export function urlAbsolutaProducto(url: string | undefined): string | undefined {
+  const raw = url?.trim();
+  if (!raw) return undefined;
+  try {
+    return new URL(raw, SITIO_CANONICO).href;
+  } catch {
+    return undefined;
+  }
+}
+
 /** Mensaje por defecto cuando el usuario no escribe detalle pero sí eligió productos. */
 export function resolverMensajeCotizacion(params: {
   locale?: 'es' | 'en' | undefined;
@@ -33,10 +49,11 @@ export function resolverMensajeCotizacion(params: {
         ? ` (Model ${producto.modelo})`
         : ` (Ref. ${producto.modelo})`
       : '';
-    const page = producto.url
+    const url = urlAbsolutaProducto(producto.url);
+    const page = url
       ? locale === 'en'
-        ? `\n  Product page: ${producto.url}`
-        : `\n  Página del producto: ${producto.url}`
+        ? `\n  Product page: ${url}`
+        : `\n  Página del producto: ${url}`
       : '';
     return `- ${producto.nombre}${ref}${qty}${page}`;
   });
