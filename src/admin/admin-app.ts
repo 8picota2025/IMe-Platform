@@ -1921,24 +1921,42 @@ function crmOpportunityCard(
         .map(m => `<option value="${escapeHtml(m.id)}">${escapeHtml(m.name || m.email)}</option>`)
         .join('')
     : '';
+  const badge = `<span class="admin-badge ${due ? 'admin-badge--warn' : 'admin-badge--info'}">${escapeHtml(priority || crmStageLabel(etapa))}</span>`;
+  const who = `${text(account?.nombre) || 'Sin cuenta'} · ${text(contact?.email_norm) || text(contact?.telefono_e164) || 'Sin contacto'}`;
+  const money = crmMoney(Number(row.valor_estimado ?? 0), text(row.moneda) || 'COP');
+  const titleId = `crm-drawer-title-${id}`;
   return `
+    <article class="crm-item">
+    <button class="crm-tile" type="button" data-crm-open="${escapeHtml(id)}" aria-haspopup="dialog">
+      <span class="crm-tile__top">
+        <span class="crm-tile__title">${escapeHtml(title)}</span>
+        ${badge}
+      </span>
+      <span class="crm-tile__meta">${escapeHtml(who)}</span>
+      <span class="crm-tile__numbers">
+        <strong>${escapeHtml(money)}</strong>
+        <span>${Number(row.probabilidad ?? 0)}%</span>
+        <span class="crm-tile__due${due ? ' is-overdue' : ''}">${nextAction ? formatDate(nextAction) : '—'}</span>
+        <span class="crm-sync-dot${twentyLinked ? ' is-synced' : ''}" title="Twenty: ${twentyLinked ? 'sincronizado' : twentyOpp ? 'parcial' : 'pendiente'}"></span>
+      </span>
+    </button>
+    <dialog class="admin-drawer" data-crm-drawer="${escapeHtml(id)}" aria-labelledby="${escapeHtml(titleId)}">
+      <header class="admin-drawer__head">
+        <div>
+          ${badge}
+          <h2 id="${escapeHtml(titleId)}">${escapeHtml(title)}</h2>
+          <p class="admin-meta">${escapeHtml(who)}</p>
+        </div>
+        <button class="admin-button admin-button--ghost admin-drawer__close" type="button" data-drawer-close>Cerrar</button>
+      </header>
     <form class="crm-card" data-crm-opportunity-form="${escapeHtml(id)}" data-crm-account="${escapeHtml(text(row.account_id))}" data-crm-contact="${escapeHtml(text(row.contact_id))}">
-      <div class="crm-card__top">
-        <strong>${escapeHtml(title)}</strong>
-        <span class="admin-badge ${due ? 'admin-badge--warn' : 'admin-badge--info'}">${escapeHtml(priority || crmStageLabel(etapa))}</span>
-      </div>
-      <p class="admin-meta">${escapeHtml(text(account?.nombre) || 'Sin cuenta')} · ${escapeHtml(text(contact?.email_norm) || text(contact?.telefono_e164) || 'Sin contacto')}</p>
       <p class="admin-meta">
         Twenty:
-        <span class="admin-badge ${twentyLinked ? 'admin-badge--info' : 'admin-badge--warn'}">${twentyLinked ? 'Sincronizado' : twentyOpp ? 'Parcial' : 'Pendiente'}</span>
+        <span class="admin-badge ${twentyLinked ? 'admin-badge--ok' : 'admin-badge--warn'}">${twentyLinked ? 'Sincronizado' : twentyOpp ? 'Parcial' : 'Pendiente'}</span>
         ${twentyOpp ? `<span class="admin-meta">· ${escapeHtml(twentyOpp.slice(0, 8))}…</span>` : ''}
+        · ${escapeHtml(money)} · ${Number(row.probabilidad ?? 0)}% · act. ${text(row.updated_at) ? formatDate(text(row.updated_at)) : '—'}
       </p>
       ${campaign ? `<p class="admin-meta">Campaña: ${escapeHtml(campaign)}${text(metadata.horizonte) ? ` · ${escapeHtml(text(metadata.horizonte))}` : ''}</p>` : ''}
-      <div class="crm-card__numbers">
-        <span>${escapeHtml(crmMoney(Number(row.valor_estimado ?? 0), text(row.moneda) || 'COP'))}</span>
-        <span>${Number(row.probabilidad ?? 0)}%</span>
-        <span>${text(row.updated_at) ? formatDate(text(row.updated_at)) : '—'}</span>
-      </div>
       <label class="admin-field">Etapa
         <select name="etapa">
           ${CRM_ETAPAS.map(
@@ -1986,7 +2004,6 @@ function crmOpportunityCard(
         </label>`
           : ''
       }
-      <button class="admin-button" type="submit">Guardar y sync Twenty</button>
       ${
         contact && account && (!text(contact.twenty_person_id) || !text(account.twenty_company_id))
           ? `<button class="admin-button admin-button--ghost" type="button" data-crm-link-contact="${escapeHtml(text(contact.id))}" data-crm-link-account="${escapeHtml(text(account.id))}">Enlazar contacto ↔ cuenta Twenty</button>`
@@ -1995,13 +2012,33 @@ function crmOpportunityCard(
       <div class="admin-toolbar crm-card__actions">
         ${crmSourceLink(row)}
         ${text(contact?.email_norm) ? `<a class="admin-button admin-button--ghost" href="mailto:${escapeHtml(text(contact?.email_norm))}">Email</a>` : ''}
-        ${text(contact?.telefono_e164) ? `<a class="admin-button admin-button--ghost" href="https://wa.me/${escapeHtml(text(contact?.telefono_e164).replace(/\\D/g, ''))}" target="_blank" rel="noopener noreferrer">WhatsApp</a>` : ''}
-        <button class="admin-button admin-button--danger" type="button" data-crm-delete="${escapeHtml(id)}">Eliminar</button>
+        ${text(contact?.telefono_e164) ? `<a class="admin-button admin-button--ghost" href="https://wa.me/${escapeHtml(text(contact?.telefono_e164).replace(/\D/g, ''))}" target="_blank" rel="noopener noreferrer">WhatsApp</a>` : ''}
       </div>
-    </form>`;
+      <div class="admin-drawer__footer">
+        <button class="admin-button admin-button--danger" type="button" data-crm-delete="${escapeHtml(id)}">Eliminar</button>
+        <button class="admin-button" type="submit">Guardar y sync Twenty</button>
+      </div>
+    </form>
+    </dialog>
+    </article>`;
 }
 
 function bindCrm() {
+  app.querySelectorAll<HTMLButtonElement>('[data-crm-open]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const drawer = btn.parentElement?.querySelector<HTMLDialogElement>('[data-crm-drawer]');
+      drawer?.showModal();
+    });
+  });
+  app.querySelectorAll<HTMLDialogElement>('[data-crm-drawer]').forEach(drawer => {
+    drawer
+      .querySelector<HTMLButtonElement>('[data-drawer-close]')
+      ?.addEventListener('click', () => drawer.close());
+    drawer.addEventListener('click', event => {
+      if (event.target === drawer) drawer.close();
+    });
+  });
+
   app.querySelector<HTMLFormElement>('[data-crm-filter]')?.addEventListener('submit', event => {
     event.preventDefault();
     const form = event.currentTarget as HTMLFormElement;
