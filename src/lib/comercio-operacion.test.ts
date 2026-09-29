@@ -3,6 +3,7 @@ import { getAccionComercial } from './comercial';
 import {
   cambioEtapaCrm,
   camposFichaPermitidos,
+  confirmacionEjecutable,
   decidirCompra,
   filaSinSecretos,
   MCP_TOOLS,
@@ -116,5 +117,73 @@ describe('borrado en Twenty (preparar/confirmar)', () => {
     );
     expect(objetivoBorradoCrm('people', '../companies/x').ok).toBe(false);
     expect(objetivoBorradoCrm('companies', undefined).ok).toBe(false);
+  });
+});
+
+describe('confirmación verificada contra admin de Supabase', () => {
+  const ahora = Date.parse('2026-09-29T12:00:00Z');
+  const aprobada = {
+    estado: 'aprobada',
+    herramienta: 'preparar_borrado_crm',
+    aprobada_por: '11111111-1111-4111-8111-111111111111',
+    aprobada_en: '2026-09-29T11:00:00Z',
+  };
+  const owner = { rol: 'owner', activo: true };
+
+  it('ejecuta solo lo aprobado por owner/admin activo', () => {
+    expect(confirmacionEjecutable(aprobada, 'preparar_borrado_crm', owner, ahora)).toEqual({
+      ok: true,
+    });
+    expect(
+      confirmacionEjecutable(
+        aprobada,
+        'preparar_borrado_crm',
+        { rol: 'admin', activo: true },
+        ahora
+      ).ok
+    ).toBe(true);
+  });
+
+  it('no se fía del rol declarado: sin aprobación del CMS no ejecuta', () => {
+    const pendiente = { ...aprobada, estado: 'pendiente', aprobada_por: null, aprobada_en: null };
+    const r = confirmacionEjecutable(pendiente, 'preparar_borrado_crm', owner, ahora);
+    expect(r.ok).toBe(false);
+  });
+
+  it('rechaza aprobador sin rol, inactivo, herramienta cruzada o aprobación caducada', () => {
+    expect(
+      confirmacionEjecutable(
+        aprobada,
+        'preparar_borrado_crm',
+        { rol: 'ventas', activo: true },
+        ahora
+      ).ok
+    ).toBe(false);
+    expect(
+      confirmacionEjecutable(
+        aprobada,
+        'preparar_borrado_crm',
+        { rol: 'owner', activo: false },
+        ahora
+      ).ok
+    ).toBe(false);
+    expect(confirmacionEjecutable(aprobada, 'preparar_borrado_crm', null, ahora).ok).toBe(false);
+    expect(confirmacionEjecutable(aprobada, 'preparar_reembolso', owner, ahora).ok).toBe(false);
+    expect(
+      confirmacionEjecutable(
+        { ...aprobada, aprobada_en: '2026-09-28T10:00:00Z' },
+        'preparar_borrado_crm',
+        owner,
+        ahora
+      ).ok
+    ).toBe(false);
+    expect(
+      confirmacionEjecutable(
+        { ...aprobada, estado: 'confirmada' },
+        'preparar_borrado_crm',
+        owner,
+        ahora
+      ).ok
+    ).toBe(false);
   });
 });

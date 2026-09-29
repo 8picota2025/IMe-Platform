@@ -932,6 +932,7 @@ function bindView() {
   bindResenas();
   bindPropuestas();
   bindPropuestasFicha();
+  bindAprobacionesAgente();
   bindAsesorPanel();
   bindCompraDirecta();
   if (state.view === 'landings') bindLandings(landingsCtx());
@@ -2618,6 +2619,94 @@ function bindPropuestasFicha() {
   });
 }
 
+const ACCIONES_AGENTE: Record<string, string> = {
+  preparar_borrado_crm: 'Borrar en Twenty CRM',
+  preparar_factura: 'Emitir factura DIAN',
+  preparar_anulacion_factura: 'Anular factura DIAN',
+  preparar_reembolso: 'Marcar pedido reembolsado',
+  preparar_precio_bajo_piso: 'Precio por debajo del piso',
+  preparar_afirmacion_invima: 'Afirmación INVIMA de proveedor',
+};
+
+/**
+ * Acciones sensibles que el agente MCP preparó. Solo owner/admin las aprueban;
+ * el trigger de comercio_confirmaciones registra quién (auth.uid()) y el MCP
+ * no ejecuta nada sin esa aprobación.
+ */
+async function aprobacionesAgenteHtml(): Promise<string> {
+  if (state.rol && state.rol !== 'owner' && state.rol !== 'admin') return '';
+  const { data, error } = await supabase!
+    .from('comercio_confirmaciones')
+    .select('id,creada_en,vence_en,actor,herramienta,entidad,entidad_id,payload,motivo,estado')
+    .in('estado', ['pendiente', 'aprobada'])
+    .neq('herramienta', 'proponer_ficha')
+    .order('creada_en', { ascending: false })
+    .limit(20);
+  if (error || !data?.length) return '';
+  const filas = (data as Row[]).map(row => {
+    const id = escapeHtml(text(row.id));
+    const accion = ACCIONES_AGENTE[text(row.herramienta)] ?? text(row.herramienta);
+    const aprobada = text(row.estado) === 'aprobada';
+    return `<li>
+      <p><strong>${escapeHtml(accion)}</strong> · ${escapeHtml(text(row.entidad))} ${escapeHtml(text(row.entidad_id))}</p>
+      <p class="admin-help">${escapeHtml(text(row.actor))} · ${formatCell(row.creada_en)} · vence ${formatCell(row.vence_en)}</p>
+      <p>${escapeHtml(text(row.motivo))}</p>
+      <details><summary>Ver datos</summary><pre class="admin-pre">${escapeHtml(JSON.stringify(row.payload ?? {}, null, 2))}</pre></details>
+      <div class="admin-toolbar">
+        ${
+          aprobada
+            ? '<span class="admin-meta">Aprobada · el agente ya puede ejecutarla</span>'
+            : `<button class="admin-button" type="button" data-aprobacion-aprobar="${id}">Aprobar</button>`
+        }
+        <button class="admin-button admin-button--ghost" type="button" data-aprobacion-rechazar="${id}">Rechazar</button>
+      </div>
+    </li>`;
+  });
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Aprobaciones del agente (${data.length})</h2><span class="admin-meta">Nada se ejecuta sin aprobación de owner/admin</span></div>
+      <ul class="admin-list" style="padding:0 16px 16px">${filas.join('')}</ul>
+    </section>`;
+}
+
+function bindAprobacionesAgente() {
+  const resolver = async (id: string, aprobar: boolean) => {
+    const estado = aprobar ? 'aprobada' : 'rechazada';
+    const { error } = await supabase!
+      .from('comercio_confirmaciones')
+      .update({ estado })
+      .eq('id', id);
+    if (error) {
+      toast(error.message);
+      await render();
+      return;
+    }
+    await supabase!.from('comercio_actuaciones').insert({
+      actor: state.email,
+      rol: state.rol || 'admin',
+      herramienta: aprobar ? 'aprobar_accion_agente' : 'rechazar_accion_agente',
+      entidad: 'comercio_confirmaciones',
+      entidad_id: id,
+      despues: { estado },
+      confirmacion_id: id,
+    });
+    toast(aprobar ? 'Aprobada: el agente puede ejecutarla' : 'Rechazada');
+    await render();
+  };
+  app.querySelectorAll<HTMLButtonElement>('[data-aprobacion-aprobar]').forEach(button => {
+    button.addEventListener('click', () => {
+      button.disabled = true;
+      void resolver(button.dataset['aprobacionAprobar'] ?? '', true);
+    });
+  });
+  app.querySelectorAll<HTMLButtonElement>('[data-aprobacion-rechazar]').forEach(button => {
+    button.addEventListener('click', () => {
+      button.disabled = true;
+      void resolver(button.dataset['aprobacionRechazar'] ?? '', false);
+    });
+  });
+}
+
 async function actuacionesHtml(entidad: string, entidadId: string): Promise<string> {
   if (!entidadId) return '';
   const { data, error } = await supabase!
@@ -2791,7 +2880,9 @@ async function dashboardView(): Promise<string> {
     .slice(0, 12);
   const publishHistory = await publishLogPanel();
   const hoy = await bandejaHoyHtml();
+  const aprobaciones = await aprobacionesAgenteHtml();
   return `
+    ${aprobaciones}
     ${hoy}
     ${withoutProvider > 0 ? `<div class="admin-alert">${withoutProvider} productos dropship no tienen proveedor asignado.</div>` : ''}
     <section class="admin-grid">
