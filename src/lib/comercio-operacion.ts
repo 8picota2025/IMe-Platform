@@ -210,6 +210,47 @@ export function objetivoBorradoCrm(
   return { ok: true, objeto: objeto as ObjetoTwentyBorrable, id: limpio.toLowerCase() };
 }
 
+/** Una aprobación del CMS caduca si el agente no la ejecuta a tiempo. */
+export const APROBACION_VIGENTE_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * El MCP solo ejecuta una confirmación que un owner/admin activo aprobó en el
+ * CMS (estado `aprobada`, fijado por trigger con auth.uid()). El `rol` que
+ * declare quien llama a la herramienta no cuenta.
+ */
+export function confirmacionEjecutable(
+  fila: {
+    estado: string;
+    herramienta: string;
+    aprobada_por: string | null;
+    aprobada_en: string | null;
+  },
+  herramienta: string,
+  aprobador: { rol: string; activo: boolean } | null,
+  ahora = Date.now()
+): { ok: true } | { ok: false; error: string } {
+  if (fila.herramienta !== herramienta) {
+    return { ok: false, error: 'La confirmación no corresponde a esta herramienta.' };
+  }
+  if (fila.estado === 'pendiente') {
+    return {
+      ok: false,
+      error: 'Pendiente de aprobación: un owner o admin debe aprobarla en el CMS (Dashboard).',
+    };
+  }
+  if (fila.estado !== 'aprobada') return { ok: false, error: `Estado ${fila.estado}.` };
+  if (!fila.aprobada_por || !fila.aprobada_en) {
+    return { ok: false, error: 'La aprobación no tiene responsable.' };
+  }
+  if (!aprobador?.activo || !['owner', 'admin'].includes(aprobador.rol)) {
+    return { ok: false, error: 'Quien aprobó ya no es owner/admin activo.' };
+  }
+  if (ahora - new Date(fila.aprobada_en).getTime() > APROBACION_VIGENTE_MS) {
+    return { ok: false, error: 'La aprobación caducó (más de 24 h). Pide una nueva.' };
+  }
+  return { ok: true };
+}
+
 export const MCP_TOOLS = [
   'bandeja_trabajo',
   'decidir_compra',

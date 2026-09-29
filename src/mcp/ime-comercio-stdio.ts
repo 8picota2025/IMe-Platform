@@ -8,6 +8,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import {
   cambioEtapaCrm,
   camposFichaPermitidos,
+  confirmacionEjecutable,
   decidirCompra,
   filaSinSecretos,
   MCP_TOOLS,
@@ -21,7 +22,6 @@ import {
 
 type Json = Record<string, unknown>;
 
-const ROLES_CONFIRMAN = new Set(['admin', 'owner']);
 const PRODUCTO_COLS =
   'id,slug,sku,gtin,nombre_es,precio,precio_regular,stock,gestionar_stock,stock_estado,disponible,activo,ficha_pdf,imagen_principal,especificaciones,fulfillment_mode';
 const PROVEEDOR_COLS =
@@ -85,7 +85,8 @@ async function preparar(
 ): Promise<Json> {
   const quien = actorDe(args);
   if (!quien.motivo) return { ok: false, error: 'Hace falta un motivo.' };
-  const vence = new Date(Date.now() + 30 * 60 * 1000).toISOString();
+  // Margen para que un owner/admin la revise y apruebe en el CMS.
+  const vence = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
   const { data, error } = await db
     .from('comercio_confirmaciones')
     .insert({
@@ -104,29 +105,50 @@ async function preparar(
   return { ok: true, confirmacion_id: data.id, vence_en: data.vence_en, estado: data.estado };
 }
 
+/**
+ * Ejecutar exige una aprobación hecha en el CMS por un owner/admin con sesión
+ * (estado `aprobada`, fijado por trigger). El `rol` de los argumentos no cuenta.
+ */
 async function confirmar(db: SupabaseClient, args: Json, herramienta: string): Promise<Json> {
   const quien = actorDe(args);
-  if (!ROLES_CONFIRMAN.has(quien.rol)) {
-    return { ok: false, error: 'Solo admin u owner confirman esta acción.' };
-  }
   const id = String(args.confirmacion_id ?? '');
   if (!id || !quien.motivo) return { ok: false, error: 'Hacen falta confirmacion_id y motivo.' };
   const { data, error } = await db
     .from('comercio_confirmaciones')
-    .select('id,estado,vence_en,herramienta,payload,entidad_id')
+    .select('id,estado,vence_en,herramienta,payload,entidad_id,aprobada_por,aprobada_en')
     .eq('id', id)
     .maybeSingle();
   if (error) return { ok: false, error: error.message };
   if (!data) return { ok: false, error: 'Confirmación no encontrada.' };
-  if (data.herramienta !== herramienta) {
-    return { ok: false, error: 'La confirmación no corresponde a esta herramienta.' };
-  }
-  if (data.estado !== 'pendiente') return { ok: false, error: `Estado ${data.estado}.` };
-  if (new Date(String(data.vence_en)).getTime() < Date.now()) {
+  if (data.estado === 'pendiente' && new Date(String(data.vence_en)).getTime() < Date.now()) {
     await db.from('comercio_confirmaciones').update({ estado: 'vencida' }).eq('id', id);
-    return { ok: false, error: 'La confirmación venció.' };
+    return { ok: false, error: 'La confirmación venció sin aprobarse.' };
   }
-  return { ok: true, fila: data, quien };
+  const aprobador = data.aprobada_por
+    ? (
+        await db
+          .from('admin_profiles')
+          .select('rol,activo,email')
+          .eq('user_id', data.aprobada_por)
+          .maybeSingle()
+      ).data
+    : null;
+  const veredicto = confirmacionEjecutable(
+    {
+      estado: String(data.estado),
+      herramienta: String(data.herramienta),
+      aprobada_por: data.aprobada_por ? String(data.aprobada_por) : null,
+      aprobada_en: data.aprobada_en ? String(data.aprobada_en) : null,
+    },
+    herramienta,
+    aprobador ? { rol: String(aprobador.rol), activo: aprobador.activo === true } : null
+  );
+  if (!veredicto.ok) return veredicto;
+  return {
+    ok: true,
+    fila: data,
+    quien: { ...quien, rol: String(aprobador?.rol), aprobador: String(aprobador?.email ?? '') },
+  };
 }
 
 /**
