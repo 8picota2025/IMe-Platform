@@ -6,6 +6,7 @@ import {
   decidirCompra,
   filaSinSecretos,
   MCP_TOOLS,
+  objetivoBorradoCrm,
   precioBajoPiso,
   siguientePasoPedido,
   unidadesReservables,
@@ -98,5 +99,22 @@ describe('reglas de escritura del agente', () => {
         dropship_enabled: true,
       })
     ).toEqual({ descripcion_corta_es: 'Monitor' });
+  });
+});
+
+describe('borrado en Twenty (preparar/confirmar)', () => {
+  it('solo admite objetos borrables y UUID de Twenty', () => {
+    expect(MCP_TOOLS).toContain('preparar_borrado_crm');
+    expect(MCP_TOOLS).toContain('confirmar_borrado_crm');
+    expect(objetivoBorradoCrm('opportunities', ' 74F0A95D-3561-4446-895A-16AC73418D53 ')).toEqual({
+      ok: true,
+      objeto: 'opportunities',
+      id: '74f0a95d-3561-4446-895a-16ac73418d53',
+    });
+    expect(objetivoBorradoCrm('workspaceMembers', '74f0a95d-3561-4446-895a-16ac73418d53').ok).toBe(
+      false
+    );
+    expect(objetivoBorradoCrm('people', '../companies/x').ok).toBe(false);
+    expect(objetivoBorradoCrm('companies', undefined).ok).toBe(false);
   });
 });
