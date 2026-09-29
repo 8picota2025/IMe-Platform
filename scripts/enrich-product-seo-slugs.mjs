@@ -120,11 +120,17 @@ async function applySupabase(plans) {
 }
 
 async function updateMock(plans) {
+  const byId = new Map(plans.map(plan => [plan.id, plan]));
   const byOld = new Map(plans.map(plan => [plan.oldSlug, plan]));
   const products = JSON.parse(await readFile(PRODUCTS_MOCK, 'utf8'));
   let touched = 0;
+  // Match by id first, oldSlug as fallback: si mock-productos.json ya estaba
+  // desalineado de Supabase (por cualquier motivo, incluso uno solo previo),
+  // emparejar solo por `product.slug` falla en silencio para ese producto y
+  // el mock queda huérfano para siempre — el problema se autoperpetúa en
+  // cada corrida futura. `id` es estable aunque el slug ya haya divergido.
   for (const product of products) {
-    const plan = byOld.get(product.slug);
+    const plan = byId.get(product.id) ?? byOld.get(product.slug);
     if (!plan) continue;
     product.atributos = {
       ...(product.atributos ?? {}),
