@@ -191,6 +191,25 @@ export function camposFichaPermitidos(payload: Record<string, unknown>): Record<
   return limpio;
 }
 
+/** Objetos de Twenty que el agente puede borrar, siempre tras confirmación humana. */
+export const OBJETOS_TWENTY_BORRABLES = ['opportunities', 'people', 'companies'] as const;
+export type ObjetoTwentyBorrable = (typeof OBJETOS_TWENTY_BORRABLES)[number];
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Valida el objetivo de un borrado en Twenty antes de crear la confirmación. */
+export function objetivoBorradoCrm(
+  objeto: unknown,
+  id: unknown
+): { ok: true; objeto: ObjetoTwentyBorrable; id: string } | { ok: false; error: string } {
+  if (!OBJETOS_TWENTY_BORRABLES.includes(objeto as ObjetoTwentyBorrable)) {
+    return { ok: false, error: `objeto debe ser uno de: ${OBJETOS_TWENTY_BORRABLES.join(', ')}.` };
+  }
+  const limpio = String(id ?? '').trim();
+  if (!UUID_RE.test(limpio)) return { ok: false, error: 'entidad_id debe ser el UUID de Twenty.' };
+  return { ok: true, objeto: objeto as ObjetoTwentyBorrable, id: limpio.toLowerCase() };
+}
+
 export const MCP_TOOLS = [
   'bandeja_trabajo',
   'decidir_compra',
@@ -221,6 +240,8 @@ export const MCP_TOOLS = [
   'confirmar_precio_bajo_piso',
   'preparar_afirmacion_invima',
   'confirmar_afirmacion_invima',
+  'preparar_borrado_crm',
+  'confirmar_borrado_crm',
 ] as const;
 
 export type McpToolName = (typeof MCP_TOOLS)[number];

@@ -11,10 +11,12 @@ import {
   decidirCompra,
   filaSinSecretos,
   MCP_TOOLS,
+  objetivoBorradoCrm,
   precioBajoPiso,
   siguientePasoPedido,
   unidadesReservables,
   type McpToolName,
+  type ObjetoTwentyBorrable,
 } from '../lib/comercio-operacion.ts';
 
 type Json = Record<string, unknown>;
@@ -125,6 +127,28 @@ async function confirmar(db: SupabaseClient, args: Json, herramienta: string): P
     return { ok: false, error: 'La confirmación venció.' };
   }
   return { ok: true, fila: data, quien };
+}
+
+/**
+ * Borra en Twenty con la clave propia del agente (TWENTY_MCP_API_KEY, rol con
+ * Delete). Nunca usa TWENTY_API_KEY: esa es la de la web y no debe poder borrar.
+ */
+async function borrarEnTwenty(objeto: ObjetoTwentyBorrable, id: string): Promise<Json> {
+  const base = process.env.TWENTY_BASE_URL?.trim().replace(/\/+$/, '');
+  const key = process.env.TWENTY_MCP_API_KEY?.trim();
+  if (!base || !key) {
+    return {
+      ok: false,
+      error:
+        'Falta TWENTY_BASE_URL o TWENTY_MCP_API_KEY en el entorno del MCP. La clave no se imprime.',
+    };
+  }
+  const res = await fetch(`${base}/rest/${objeto}/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+  });
+  if (res.ok || res.status === 404) return { ok: true };
+  return { ok: false, error: `Twenty respondió HTTP ${res.status} al borrar ${objeto}/${id}.` };
 }
 
 async function ejecutar(nombre: McpToolName, args: Json): Promise<Json> {
@@ -421,6 +445,17 @@ async function ejecutar(nombre: McpToolName, args: Json): Promise<Json> {
     };
   }
 
+  if (nombre === 'preparar_borrado_crm') {
+    const objetivo = objetivoBorradoCrm(args.objeto, args.entidad_id);
+    if (!objetivo.ok) return objetivo;
+    return preparar(
+      db,
+      { ...args, entidad_id: objetivo.id, payload: { objeto: objetivo.objeto } },
+      nombre,
+      `twenty.${objetivo.objeto}`
+    );
+  }
+
   if (nombre.startsWith('preparar_')) {
     return preparar(db, args, nombre, String(args.entidad ?? 'comercio'));
   }
@@ -456,6 +491,12 @@ async function ejecutar(nombre: McpToolName, args: Json): Promise<Json> {
       }
       const { error } = await db.from('proveedores').update(patch).eq('id', fila.entidad_id);
       if (error) return { ok: false, error: error.message };
+    }
+    if (nombre === 'confirmar_borrado_crm') {
+      const objetivo = objetivoBorradoCrm((fila.payload as Json).objeto, fila.entidad_id);
+      if (!objetivo.ok) return objetivo;
+      const borrado = await borrarEnTwenty(objetivo.objeto, objetivo.id);
+      if (!borrado.ok) return borrado;
     }
     if (nombre === 'confirmar_factura' || nombre === 'confirmar_anulacion_factura') {
       const funcion =
@@ -807,6 +848,10 @@ const inputSchema = {
     confirmacion_id: { type: 'string' },
     entidad_id: { type: 'string' },
     entidad: { type: 'string' },
+    objeto: {
+      type: 'string',
+      description: 'borrado_crm: opportunities | people | companies (Twenty)',
+    },
     items: { type: 'array', description: '[{producto_id, cantidad}]' },
     payload: { type: 'object' },
     cantidad: { type: 'number' },
