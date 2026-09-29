@@ -3785,7 +3785,7 @@
   },
   {
     "id": "cc1f4deb-73b2-43cd-b6ca-1a3206fef849",
-    "slug": "producto-de-ejemplo",
+    "slug": "ejemplo-producto",
     "familia_id": "01a7591f-3603-4342-a698-d626fb8756e9",
     "familia_slug": "movilidad-rehabilitacion",
     "tipo_id": "827bb703-23f0-48c9-94af-4f00de1eb8e6",
@@ -3810,7 +3810,7 @@
     "activo": false,
     "orden": 0,
     "atributos": {
-      "legacy_slugs": ["ejemplo-producto"]
+      "legacy_slugs": ["producto-de-ejemplo"]
     }
   },
   {
@@ -7573,7 +7573,7 @@
   },
   {
     "id": "dcc4cd58-8e8b-4fc1-9ef7-e252ff40674f",
-    "slug": "optiflow-plus-asymmetrical-nasal-cannula-fisher-paykel",
+    "slug": "optiflow-asymmetrical-nasal-cannula-fisher-paykel",
     "familia_id": "f174f837-09ad-4f7b-b425-f26edc168530",
     "familia_slug": "insumos-accesorios",
     "tipo_id": "ca4cf3be-2041-478e-86a2-69a7435eeabf",
@@ -7614,7 +7614,7 @@
     "marca": "Optiflow",
     "proveedor_ref": "equitronic",
     "atributos": {
-      "legacy_slugs": ["optiflow-asymmetrical-nasal-cannula-fisher-paykel"]
+      "legacy_slugs": ["optiflow-plus-asymmetrical-nasal-cannula-fisher-paykel"]
     }
   },
   {
@@ -17609,7 +17609,7 @@
   },
   {
     "id": "81306066-082c-45b3-825e-7879da3c6d3c",
-    "slug": "test-de-pasarela-de-pagos",
+    "slug": "test",
     "familia_id": "",
     "familia_slug": "",
     "tipo_id": null,
@@ -17634,7 +17634,7 @@
     "activo": true,
     "orden": 0,
     "atributos": {
-      "legacy_slugs": ["test"]
+      "legacy_slugs": ["test-de-pasarela-de-pagos"]
     }
   },
   {
@@ -23036,7 +23036,7 @@
   },
   {
     "id": "add93ff1-2924-439e-9519-209d962dad89",
-    "slug": "compresor-nebulizador-nube-3000-plus",
+    "slug": "compresor-nebulizador-nube-3000-plus-ref-gmrn-211",
     "familia_id": "7cbfd53b-91c4-4cd1-9c6c-7d4fd812520b",
     "familia_slug": "terapia-respiratoria-soporte-vital",
     "tipo_id": "f3909b95-164b-47dc-bb86-56da2e3bfe29",
@@ -23079,7 +23079,7 @@
       "Controlled administration of medications in pediatrics and adults"
     ],
     "atributos": {
-      "legacy_slugs": ["g-gmrn-211"]
+      "legacy_slugs": ["g-gmrn-211", "compresor-nebulizador-nube-3000-plus"]
     }
   },
   {
@@ -23694,7 +23694,7 @@
   },
   {
     "id": "07dd2848-4130-4dc2-b539-407ff0672d8e",
-    "slug": "silla-de-ruedas-de-transporte-en-aluminio-tipo-avion",
+    "slug": "silla-de-ruedas-de-transporte-en-aluminio-tipo-avion-ref-kp9806l",
     "familia_id": "01a7591f-3603-4342-a698-d626fb8756e9",
     "familia_slug": "movilidad-rehabilitacion",
     "tipo_id": "2c659346-3e83-4810-9050-659445b69e8a",
@@ -23736,7 +23736,7 @@
       "Support in daily life activities for people with temporarily reduced mobility"
     ],
     "atributos": {
-      "legacy_slugs": ["g-kp9806l"]
+      "legacy_slugs": ["g-kp9806l", "silla-de-ruedas-de-transporte-en-aluminio-tipo-avion"]
     }
   },
   {
@@ -24697,7 +24697,7 @@
   },
   {
     "id": "ca5ca260-49d3-44b6-ae5a-8ca2c740ed09",
-    "slug": "compresor-nebulizador-nube-5000",
+    "slug": "compresor-nebulizador-nube-5000-ref-gmrn846",
     "familia_id": "7cbfd53b-91c4-4cd1-9c6c-7d4fd812520b",
     "familia_slug": "terapia-respiratoria-soporte-vital",
     "tipo_id": "f3909b95-164b-47dc-bb86-56da2e3bfe29",
@@ -24741,7 +24741,7 @@
       "Delivery of nebulized solutions for airway hydration"
     ],
     "atributos": {
-      "legacy_slugs": ["g-gmrn846"]
+      "legacy_slugs": ["g-gmrn846", "compresor-nebulizador-nube-5000"]
     }
   },
   {
@@ -25593,7 +25593,7 @@
   },
   {
     "id": "32e99cee-8409-4c16-bfea-eaaa26947653",
-    "slug": "silla-de-ruedas-estandar-en-acero-con-apoyabrazos-abatibles-konfort-plus",
+    "slug": "silla-de-ruedas-estandar-en-acero-con-apoyabrazos-abatibles-ref-kbe9119f-konfort-plus",
     "familia_id": "01a7591f-3603-4342-a698-d626fb8756e9",
     "familia_slug": "movilidad-rehabilitacion",
     "tipo_id": "2c659346-3e83-4810-9050-659445b69e8a",
@@ -25638,7 +25638,10 @@
       "Temporary transfer in health centers and clinics"
     ],
     "atributos": {
-      "legacy_slugs": ["g-kbe9119f"]
+      "legacy_slugs": [
+        "g-kbe9119f",
+        "silla-de-ruedas-estandar-en-acero-con-apoyabrazos-abatibles-konfort-plus"
+      ]
     }
   },
   {
@@ -26802,7 +26805,7 @@
   },
   {
     "id": "9d24876f-9e83-4d10-94a4-34aa81233d67",
-    "slug": "kit-1-de-oxigeno-con-cilindro-de-680-l",
+    "slug": "kit-1-de-oxigeno-con-cilindro-de-680-l-ref-kit1",
     "familia_id": "7cbfd53b-91c4-4cd1-9c6c-7d4fd812520b",
     "familia_slug": "terapia-respiratoria-soporte-vital",
     "tipo_id": "8a870345-e18a-45a9-af31-0be9f7b10cf2",
@@ -26843,7 +26846,7 @@
       "Portable respiratory support with transport cart"
     ],
     "atributos": {
-      "legacy_slugs": ["g-kit1"]
+      "legacy_slugs": ["g-kit1", "kit-1-de-oxigeno-con-cilindro-de-680-l"]
     }
   },
   {
@@ -26983,7 +26986,7 @@
   },
   {
     "id": "b127a18f-f90d-43c8-88c4-7b442a3ac013",
-    "slug": "carra-para-cilindro-680-l",
+    "slug": "carra-para-cilindro-680-l-ref-150-0100",
     "familia_id": "7cbfd53b-91c4-4cd1-9c6c-7d4fd812520b",
     "familia_slug": "terapia-respiratoria-soporte-vital",
     "tipo_id": "1a03b653-4507-4e4c-aee6-1cb800c3177f",
@@ -27022,7 +27025,7 @@
       "Facilitation of intra-hospital transfers"
     ],
     "atributos": {
-      "legacy_slugs": ["g-150-0100"]
+      "legacy_slugs": ["g-150-0100", "carra-para-cilindro-680-l"]
     }
   },
   {
@@ -27778,7 +27781,7 @@
   },
   {
     "id": "71f5adbe-2a8b-45dd-9158-3c64a62a3b3b",
-    "slug": "caminador-5-funciones-hy5",
+    "slug": "caminador-5-funciones-ref-hy5",
     "familia_id": "01a7591f-3603-4342-a698-d626fb8756e9",
     "familia_slug": "movilidad-rehabilitacion",
     "tipo_id": "c1b7fd12-38f1-45df-b41a-853342a8e11c",
@@ -27822,7 +27825,7 @@
       "Use in health institutions and home care"
     ],
     "atributos": {
-      "legacy_slugs": ["g-hy5"]
+      "legacy_slugs": ["g-hy5", "caminador-5-funciones-hy5"]
     }
   },
   {
@@ -29228,7 +29231,7 @@
   },
   {
     "id": "3aa8417b-d0a3-40ac-a75b-651339d34388",
-    "slug": "barra-de-seguridad-tamano-60-96-cm-konfort-plus",
+    "slug": "barra-de-seguridad-tamano-60-96-cm-ref-kp68083-konfort-plus",
     "familia_id": "de5498d0-4a86-43d8-a7a8-34cdf21e76ab",
     "familia_slug": "actividades-vida-diaria",
     "tipo_id": "8a86bf32-7918-45e7-b5e8-3478a8e11c57",
@@ -29267,12 +29270,12 @@
       "Safety in home and geriatric environments"
     ],
     "atributos": {
-      "legacy_slugs": ["g-kp68083"]
+      "legacy_slugs": ["g-kp68083", "barra-de-seguridad-tamano-60-96-cm-konfort-plus"]
     }
   },
   {
     "id": "03e2d96c-14d3-401c-bebe-4f09c91076a6",
-    "slug": "barra-de-seguridad-tamano-45-72-cm-konfort-plus",
+    "slug": "barra-de-seguridad-tamano-45-72-cm-ref-kp68082-konfort-plus",
     "familia_id": "de5498d0-4a86-43d8-a7a8-34cdf21e76ab",
     "familia_slug": "actividades-vida-diaria",
     "tipo_id": "8a86bf32-7918-45e7-b5e8-3478a8e11c57",
@@ -29311,12 +29314,12 @@
       "Passive safety element in ramps or corridors."
     ],
     "atributos": {
-      "legacy_slugs": ["g-kp68082"]
+      "legacy_slugs": ["g-kp68082", "barra-de-seguridad-tamano-45-72-cm-konfort-plus"]
     }
   },
   {
     "id": "a48ae669-ca89-43c4-af12-9f34f76a41aa",
-    "slug": "barra-de-seguridad-tamano-40-64-cm-konfort-plus",
+    "slug": "barra-de-seguridad-tamano-40-64-cm-ref-kp68081-konfort-plus",
     "familia_id": "de5498d0-4a86-43d8-a7a8-34cdf21e76ab",
     "familia_slug": "actividades-vida-diaria",
     "tipo_id": "8a86bf32-7918-45e7-b5e8-3478a8e11c57",
@@ -29355,12 +29358,12 @@
       "Passive safety element in ramps or corridors."
     ],
     "atributos": {
-      "legacy_slugs": ["g-kp68081"]
+      "legacy_slugs": ["g-kp68081", "barra-de-seguridad-tamano-40-64-cm-konfort-plus"]
     }
   },
   {
     "id": "ec4ce0d1-52d9-4547-8410-ecec8eaa6ffa",
-    "slug": "barra-de-seguridad-tamano-30-48-cm-konfort-plus",
+    "slug": "barra-de-seguridad-tamano-30-48-cm-ref-kp68080-konfort-plus",
     "familia_id": "de5498d0-4a86-43d8-a7a8-34cdf21e76ab",
     "familia_slug": "actividades-vida-diaria",
     "tipo_id": "8a86bf32-7918-45e7-b5e8-3478a8e11c57",
@@ -29399,7 +29402,7 @@
       "Passive safety element in ramps or corridors."
     ],
     "atributos": {
-      "legacy_slugs": ["g-kp68080"]
+      "legacy_slugs": ["g-kp68080", "barra-de-seguridad-tamano-30-48-cm-konfort-plus"]
     }
   },
   {
@@ -29672,7 +29675,7 @@
   },
   {
     "id": "e7e5e09e-f03f-4961-b3e4-2029e374e5a8",
-    "slug": "combo-600-cajas-de-tirillas-plus-600-cajas-de-lancetas-plus-200-glucometros-en-obsequio",
+    "slug": "combo-600-cajas-de-tirillas-plus-600-cajas-de-lancetas-plus-200-glucometros-en-o-ref-ltd-b10-600",
     "familia_id": "4d9a59cd-2c1e-4755-9584-28d6e9024d3c",
     "familia_slug": "diagnostico-clinico-basico",
     "tipo_id": "4a048525-a76e-434d-8d81-c55e6540ef93",
@@ -29711,12 +29714,15 @@
       "Institutional campaign stock coverage."
     ],
     "atributos": {
-      "legacy_slugs": ["g-ltd-b10-600"]
+      "legacy_slugs": [
+        "g-ltd-b10-600",
+        "combo-600-cajas-de-tirillas-plus-600-cajas-de-lancetas-plus-200-glucometros-en-obsequio"
+      ]
     }
   },
   {
     "id": "2c530091-031e-44f2-a0bd-0b03a06d9754",
-    "slug": "combo-200-cajas-de-tirillas-plus-200-cajas-de-lancetas-plus-67-glucometros-en-obsequio",
+    "slug": "combo-cajas-de-tirillas-plus-cajas-de-lancetas-plus-67-glucometros-en-obsequio-ref-200",
     "familia_id": "4d9a59cd-2c1e-4755-9584-28d6e9024d3c",
     "familia_slug": "diagnostico-clinico-basico",
     "tipo_id": "4a048525-a76e-434d-8d81-c55e6540ef93",
@@ -29755,7 +29761,10 @@
       "Stock coverage for medium-demand services."
     ],
     "atributos": {
-      "legacy_slugs": ["g-ltd-b10-200"]
+      "legacy_slugs": [
+        "g-ltd-b10-200",
+        "combo-200-cajas-de-tirillas-plus-200-cajas-de-lancetas-plus-67-glucometros-en-obsequio"
+      ]
     }
   },
   {
@@ -29853,7 +29862,7 @@
   },
   {
     "id": "bb7b987e-d362-44dc-ba7b-80dd14ba987e",
-    "slug": "combo-100-cajas-de-tirillas-plus-100-cajas-de-lancetas-plus-25-glucometros-en-obsequio",
+    "slug": "combo-cajas-de-tirillas-plus-cajas-de-lancetas-plus-25-glucometros-en-obsequio-ref-100",
     "familia_id": "4d9a59cd-2c1e-4755-9584-28d6e9024d3c",
     "familia_slug": "diagnostico-clinico-basico",
     "tipo_id": "4a048525-a76e-434d-8d81-c55e6540ef93",
@@ -29892,7 +29901,10 @@
       "Startup or replenishment in ambulatory services."
     ],
     "atributos": {
-      "legacy_slugs": ["g-ltd-b10-100"]
+      "legacy_slugs": [
+        "g-ltd-b10-100",
+        "combo-100-cajas-de-tirillas-plus-100-cajas-de-lancetas-plus-25-glucometros-en-obsequio"
+      ]
     }
   },
   {
@@ -29990,7 +30002,7 @@
   },
   {
     "id": "235baaf8-e8fe-4394-a2f7-8bf498b347ed",
-    "slug": "combo-50-cajas-de-tirillas-plus-50-cajas-de-lancetas-plus-10-glucometros-en-obsequio",
+    "slug": "combo-50-cajas-de-tirillas-plus-50-cajas-de-lancetas-plus-10-glucometros-en-obseq-ref-ltd-b10-50",
     "familia_id": "4d9a59cd-2c1e-4755-9584-28d6e9024d3c",
     "familia_slug": "diagnostico-clinico-basico",
     "tipo_id": "4a048525-a76e-434d-8d81-c55e6540ef93",
@@ -30029,7 +30041,10 @@
       "Timely replenishment in ambulatory services."
     ],
     "atributos": {
-      "legacy_slugs": ["g-ltd-b10-50"]
+      "legacy_slugs": [
+        "g-ltd-b10-50",
+        "combo-50-cajas-de-tirillas-plus-50-cajas-de-lancetas-plus-10-glucometros-en-obsequio"
+      ]
     }
   },
   {
