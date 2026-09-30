@@ -65,8 +65,38 @@ import {
   productPdfStoragePath,
   revisableStringsFromDraft,
 } from '../lib/pdf-ingest-enrich';
-import type { CotizacionLineaOferta } from '../lib/cotizacion-oferta';
+import {
+  calcularTotalOfertado,
+  formatQuoteMoney,
+  ofertaCompleta,
+  parseLineasOferta,
+  quoteEditable,
+  sanitizarLineasComercial,
+  type CotizacionLineaOferta,
+} from '../lib/cotizacion-oferta';
+import { defaultCondicionesOferta } from '../lib/condiciones-oferta';
+import {
+  buscarCoincidencia,
+  calcularCambiosFicha,
+  construirActualizacion,
+  type CambioFicha,
+  type Coincidencia,
+} from './ficha-actualizar';
 import { bindQuoteCatalogSearch, bindQuoteProductIngest } from '../lib/quote-line-tools';
+import {
+  deleteQuote as deleteQuoteApi,
+  duplicarQuote,
+  listQuotes,
+  previewQuotePdf,
+  validarQuoteCrm,
+} from '../comercial/quote-api';
+import {
+  ocrPresupuestoCompetencia,
+  pickCompetenciaImage,
+  pickCompetenciaPdf,
+  prepareCompetenciaForOcr,
+} from '../comercial/quote-ocr';
+import { ensureAuthSession, state as comercialState } from '../comercial/shared';
 import { getAccionComercial } from '../lib/comercial';
 import { isPurchasable, resolveAvailability } from '../lib/commerce-policy';
 import { resolvePrecioPublico } from '../lib/format';
@@ -90,6 +120,7 @@ type View =
   | 'taxonomia'
   | 'cotizaciones'
   | 'cotizacion'
+  | 'cotizaciones-escanear'
   | 'clientes'
   | 'cliente'
   | 'pedidos'
@@ -290,6 +321,8 @@ interface EspecRevisable extends CampoRevisable {
 let ingestFamilias: Row[] = [];
 let ingestTipos: Row[] = [];
 let lastIngestPdfFile: File | null = null;
+/** Producto elegido desde su ficha (`#/ingesta?producto=<id>`): la ficha nueva lo actualiza. */
+let ingestProductoObjetivo: string | null = null;
 const INGEST_PDF_MAX_BYTES = 25 * 1024 * 1024;
 const INGEST_PDF_MAX_CHARS = 60_000;
 /** Tope imágenes producto (LCP / storage). PDFs usan INGEST_PDF_MAX_BYTES. */
@@ -328,6 +361,7 @@ const VISTAS_POR_ROL: Record<string, Set<View>> = {
     'cliente',
     'cotizaciones',
     'cotizacion',
+    'cotizaciones-escanear',
     'pedidos',
     'pedido',
     'facturas',
@@ -490,6 +524,7 @@ function parseView(hash: string): View {
     raw === 'taxonomia' ||
     raw === 'cotizaciones' ||
     raw === 'cotizacion' ||
+    raw === 'cotizaciones-escanear' ||
     raw === 'clientes' ||
     raw === 'cliente' ||
     raw === 'pedidos' ||
@@ -557,11 +592,17 @@ async function render() {
   if (!state.rol) {
     const { data: perfil } = await supabase!
       .from('admin_profiles')
-      .select('rol')
+      .select('rol,nombre,telefono')
       .eq('user_id', session.user.id)
       .maybeSingle();
     state.rol = String((perfil as Row | null)?.rol ?? '');
+    comercialState.nombre = text((perfil as Row | null)?.nombre);
+    comercialState.telefono = text((perfil as Row | null)?.telefono);
   }
+  // Los módulos de presupuestos de /comercial (PDF, OCR, persistencia) leen este estado.
+  comercialState.email = state.email;
+  comercialState.rol = state.rol;
+  comercialState.userId = session.user.id;
 
   const view = await routeView();
   app.innerHTML = shellHtml(view.title, view.body);
@@ -742,6 +783,8 @@ async function routeView(): Promise<{ title: string; body: string }> {
   if (state.view === 'taxonomia') return { title: 'Taxonomia', body: await taxonomiaView() };
   if (state.view === 'cotizaciones')
     return { title: 'Presupuestos', body: await cotizacionesView() };
+  if (state.view === 'cotizaciones-escanear')
+    return { title: 'Escanear presupuesto', body: cotizacionEscanearView() };
   if (state.view === 'cotizacion')
     return { title: 'Presupuesto', body: await cotizacionDetailView() };
   if (state.view === 'clientes') return { title: 'Clientes', body: await clientesView() };
@@ -849,6 +892,7 @@ function shellHtml(title: string, body: string): string {
             (view === 'conocimiento' && state.view === 'conocimiento') ||
             (view === 'productos' && state.view === 'producto') ||
             (view === 'cotizaciones' && state.view === 'cotizacion') ||
+            (view === 'cotizaciones' && state.view === 'cotizaciones-escanear') ||
             (view === 'clientes' && state.view === 'cliente') ||
             (view === 'pedidos' && state.view === 'pedido') ||
             (view === 'facturas' && state.view === 'factura') ||
@@ -3284,7 +3328,6 @@ async function productosView(): Promise<string> {
         column => column.key
       ),
       'atributos',
-      'marca',
     ]),
   ].join(',');
   let query = supabase!.from('productos').select(productSelect, { count: 'exact' });
@@ -3434,6 +3477,7 @@ async function productoFormView(): Promise<string> {
         <h2>${draft.id ? 'Editar producto' : 'Crear producto'}</h2>
         <div class="admin-toolbar">
           <button class="admin-button" type="submit">Guardar borrador</button>
+          ${draft.id ? `<a class="admin-button admin-button--ghost" href="#/ingesta?producto=${encodeURIComponent(draft.id)}">Actualizar desde ficha PDF</a>` : ''}
           ${draft.id ? '<button class="admin-button admin-button--danger" data-delete-product type="button">Eliminar</button>' : ''}
         </div>
       </div>
@@ -3702,6 +3746,13 @@ async function taxonomiaView(): Promise<string> {
     </section>`;
 }
 
+const COTIZACION_AVISOS: Record<string, string> = {
+  OFERTA_SIN_LINEAS: 'Agrega al menos un producto.',
+  OFERTA_SIN_PRECIO: 'Falta el precio en alguna línea (o márcala como Pendiente validar).',
+  OFERTA_SIN_CONDICIONES: 'Escribe las condiciones comerciales.',
+  OFERTA_MONEDA_MIXTA: 'Unifica la moneda de la oferta.',
+};
+
 const COTIZACION_ESTADOS: Array<[string, string]> = [
   ['nueva', 'Nueva'],
   ['en_revision', 'En revision'],
@@ -3805,59 +3856,152 @@ async function actualizarSeguimientoFulfillment(
   return true;
 }
 
+type CotizacionesTab = 'pendientes' | 'enviadas' | 'expiradas' | 'todas';
+
+const COTIZACIONES_TABS: Array<[CotizacionesTab, string]> = [
+  ['pendientes', 'Pendientes'],
+  ['enviadas', 'Enviadas'],
+  ['expiradas', 'Expiradas'],
+  ['todas', 'Todas'],
+];
+
+function cotizacionesLink(overrides: Record<string, string>): string {
+  const params = hashParams();
+  for (const [key, value] of Object.entries(overrides)) {
+    if (value) params.set(key, value);
+    else params.delete(key);
+  }
+  const qs = params.toString();
+  return `#/cotizaciones${qs ? `?${qs}` : ''}`;
+}
+
+function cotizacionEstadoBadge(estado: string): string {
+  const kind =
+    estado === 'enviada' || estado === 'convertida'
+      ? 'ok'
+      : estado === 'nueva' || estado === 'expirada'
+        ? 'warn'
+        : 'info';
+  return `<span class="admin-badge admin-badge--${kind}">${escapeHtml(cotizacionEstadoLabel(estado))}</span>`;
+}
+
 async function cotizacionesView(): Promise<string> {
-  const rows = await selectRows('solicitudes_cotizacion', '*', 'created_at', 100, false);
-  const csvPayload = escapeHtml(JSON.stringify(rows));
+  const params = hashParams();
+  const tabParam = params.get('tab') ?? 'pendientes';
+  const tab: CotizacionesTab =
+    COTIZACIONES_TABS.find(([value]) => value === tabParam)?.[0] ?? 'pendientes';
+  const q = (params.get('q') ?? '').trim();
+  const mias = params.get('mias') === '1';
+  const page = Math.max(1, numberOrZero(params.get('page')) || 1);
+
+  const { data, error } = await listQuotes({
+    tab,
+    page: String(page),
+    ...(q ? { q } : {}),
+    ...(mias ? { mias: '1' } : {}),
+  });
+  if (error || !data) {
+    return `<section class="admin-panel"><div class="admin-alert">No fue posible cargar presupuestos: ${escapeHtml(error ?? 'sin datos')}</div><a class="admin-button admin-button--ghost" href="${cotizacionesLink({})}">Reintentar</a></section>`;
+  }
+
+  const rows = data.quotes;
+  const totalPages = Math.max(1, Math.ceil(data.total / data.pageSize));
+  const unread = new Set<string>();
+  if (rows.length > 0) {
+    const { data: sinLeer } = await supabase!
+      .from('solicitudes_cotizacion')
+      .select('id')
+      .in(
+        'id',
+        rows.map(row => row.id)
+      )
+      .eq('leida', false);
+    for (const item of (sinLeer ?? []) as Row[]) unread.add(text(item.id));
+  }
+  const csvPayload = escapeHtml(
+    JSON.stringify(
+      rows.map(row => ({
+        numero: row.numero,
+        nombre: row.nombre,
+        empresa: row.empresa,
+        email: row.email,
+        telefono: row.telefono,
+        estado: row.estado,
+        moneda: row.moneda,
+        total_ofertado: row.precio_total_ofertado,
+        comercial: row.created_by_nombre,
+        origen: row.origen,
+        creada: row.created_at,
+        actualizada: row.updated_at,
+      }))
+    )
+  );
+
+  const tabs = COTIZACIONES_TABS.map(
+    ([value, label]) =>
+      `<a class="admin-button ${tab === value ? '' : 'admin-button--ghost'}" href="${cotizacionesLink({ tab: value === 'pendientes' ? '' : value, page: '' })}" ${tab === value ? 'aria-current="page"' : ''}>${label}</a>`
+  ).join('');
+
   return `
     <section class="admin-panel">
       <div class="admin-panel__head">
         <div>
-          <h2>Presupuestos (${rows.length})</h2>
-          <p class="admin-help">Solicitudes web y ofertas formales. Crea un presupuesto, importa ficha PDF, previsualiza y envía por email o WhatsApp sin salir de admin.</p>
+          <h2>Presupuestos (${data.total})</h2>
+          <p class="admin-help">Solicitudes web y ofertas formales. Crea un presupuesto, escanea el de la competencia, previsualiza y envía por email o WhatsApp sin salir de admin.</p>
         </div>
         <div class="admin-toolbar">
           <button class="admin-button" type="button" data-cotizacion-nuevo>Nuevo presupuesto</button>
+          <a class="admin-button admin-button--ghost" href="#/cotizaciones-escanear">Escanear competencia (OCR)</a>
           <button class="admin-button admin-button--ghost" type="button" data-cotizaciones-select-all>Seleccionar todo</button>
           <button class="admin-button admin-button--ghost" type="button" data-csv="${csvPayload}" data-filename="presupuestos.csv">Exportar CSV</button>
           <span class="admin-meta">Seleccionadas: <strong data-cotizaciones-selected-count>0</strong></span>
           <button class="admin-button admin-button--danger" type="button" data-bulk-cotizacion-delete>Eliminar seleccionadas</button>
         </div>
       </div>
+      <div class="admin-toolbar" role="tablist" aria-label="Bandeja de presupuestos">
+        ${tabs}
+        <a class="admin-button ${mias ? '' : 'admin-button--ghost'}" href="${cotizacionesLink({ mias: mias ? '' : '1', page: '' })}">${mias ? 'Solo mías ✓' : 'Solo mías'}</a>
+      </div>
+      <form class="admin-filters" data-cotizaciones-filter>
+        ${field('q', 'Buscar número, empresa, contacto o email', q, false, 'search')}
+        <button class="admin-button" type="submit">Buscar</button>
+        ${q ? `<a class="admin-button admin-button--ghost" href="${cotizacionesLink({ q: '', page: '' })}">Limpiar</a>` : ''}
+      </form>
       ${table(
         [
           '',
           'Numero',
           'Fecha',
-          'Nombre',
-          'Empresa',
+          'Cliente',
           'Email',
           'Estado',
-          'Moneda',
           'Total ofertado',
-          'Enviada',
+          'Comercial',
+          'Origen',
+          'Actualizada',
           'Acciones',
         ],
         rows.map(row => {
-          const moneda = normalizarMonedaCotizacion(row.moneda);
-          const total =
-            row.precio_total_ofertado != null && row.precio_total_ofertado !== ''
-              ? crmMoney(Number(row.precio_total_ofertado), moneda)
-              : '—';
+          const total = crmMoney(row.precio_total_ofertado, row.moneda);
+          const borrable = row.estado !== 'convertida' && !row.pedido_id;
           return [
-            `<input type="checkbox" data-cotizacion-select value="${escapeHtml(text(row.id))}" aria-label="Seleccionar cotizacion" />`,
-            escapeHtml(text(row.numero)) || '—',
+            `<input type="checkbox" data-cotizacion-select value="${escapeHtml(row.id)}" aria-label="Seleccionar cotizacion" />`,
+            escapeHtml(row.numero || 'Borrador'),
             formatCell(row.created_at),
-            escapeHtml(text(row.nombre)),
-            escapeHtml(text(row.empresa)) || '—',
-            escapeHtml(text(row.email)),
-            escapeHtml(cotizacionEstadoLabel(text(row.estado) || 'nueva')),
-            escapeHtml(moneda),
+            `${escapeHtml(row.empresa || row.nombre)}${row.incompleta ? ' <span class="admin-badge admin-badge--warn">Precio incompleto</span>' : ''}${unread.has(row.id) ? ' <span class="admin-badge admin-badge--warn">Sin leer</span>' : ''}`,
+            escapeHtml(row.email),
+            cotizacionEstadoBadge(row.estado),
             escapeHtml(total),
-            row.oferta_enviada_at ? formatCell(row.oferta_enviada_at) : '—',
+            escapeHtml(row.created_by_nombre || '—'),
+            row.origen === 'pwa' ? 'PWA' : 'Web',
+            formatCell(row.updated_at || row.created_at),
             [
-              `<a class="admin-button admin-button--ghost" href="#/cotizacion?id=${escapeHtml(text(row.id))}">Ver</a>`,
-              row.leida === false
-                ? `<button class="admin-button admin-button--ghost" data-table="solicitudes_cotizacion" data-mark-read="${escapeHtml(text(row.id))}" type="button">Marcar leida</button>`
+              `<a class="admin-button admin-button--ghost" href="#/cotizacion?id=${escapeHtml(row.id)}">Abrir</a>`,
+              unread.has(row.id)
+                ? `<button class="admin-button admin-button--ghost" data-table="solicitudes_cotizacion" data-mark-read="${escapeHtml(row.id)}" type="button">Marcar leida</button>`
+                : '',
+              borrable
+                ? `<button class="admin-button admin-button--danger" type="button" data-cotizacion-list-delete="${escapeHtml(row.id)}" data-label="${escapeHtml(row.numero || row.empresa || row.nombre || 'presupuesto')}">Borrar</button>`
                 : '',
             ]
               .filter(Boolean)
@@ -3865,7 +4009,62 @@ async function cotizacionesView(): Promise<string> {
           ];
         })
       )}
+      <div class="admin-pagination">
+        <span class="admin-meta">Pagina ${page} de ${totalPages}</span>
+        <div class="admin-toolbar">
+          <a class="admin-button admin-button--ghost" href="${cotizacionesLink({ page: page > 2 ? String(page - 1) : '' })}" ${page <= 1 ? 'aria-disabled="true" tabindex="-1" style="pointer-events:none;opacity:.5"' : ''}>Anterior</a>
+          <a class="admin-button admin-button--ghost" href="${cotizacionesLink({ page: String(page + 1) })}" ${page >= totalPages ? 'aria-disabled="true" tabindex="-1" style="pointer-events:none;opacity:.5"' : ''}>Siguiente</a>
+        </div>
+      </div>
     </section>`;
+}
+
+type CotizacionLineaFila = {
+  slug: string;
+  nombre: string;
+  cantidad: number;
+  precio_unitario: number;
+  precio_pendiente_validar?: boolean;
+};
+
+/** Una fila del editor de líneas: misma semántica que /comercial (importe o "Pendiente validar"). */
+function cotizacionLineaRowHtml(
+  line: CotizacionLineaFila,
+  moneda: 'COP' | 'USD',
+  readOnly = false
+): string {
+  const step = moneda === 'USD' ? '0.01' : '1';
+  const disabled = readOnly ? 'disabled' : '';
+  const pendiente = Boolean(line.precio_pendiente_validar);
+  const cantidad = Math.max(1, Math.floor(Number(line.cantidad) || 1));
+  const precio = pendiente ? 0 : Number(line.precio_unitario) || 0;
+  const sinPrecio = !pendiente && !(precio > 0);
+  const nombre = line.nombre || line.slug;
+  return `
+      <tr data-cotizacion-linea>
+        <td>
+          <input class="admin-inline-input" type="text" data-linea-nombre value="${escapeHtml(nombre)}" placeholder="Nombre del producto" aria-label="Nombre del producto" required ${disabled} />
+          <input class="admin-inline-input" type="text" data-linea-slug value="${escapeHtml(line.slug)}" placeholder="SKU o referencia (opcional)" aria-label="SKU o referencia" ${disabled} />
+          <input type="hidden" data-linea-moneda value="${moneda}" />
+          <span data-linea-aviso>${
+            pendiente
+              ? '<span class="admin-badge admin-badge--warn">Pendiente validar</span>'
+              : sinPrecio
+                ? '<span class="admin-badge admin-badge--warn">Sin precio</span>'
+                : ''
+          }</span>
+        </td>
+        <td><input class="admin-inline-input" type="number" min="1" step="1" data-linea-cantidad value="${cantidad}" aria-label="Cantidad" ${disabled} /></td>
+        <td>
+          <select class="admin-inline-input" data-linea-precio-modo aria-label="Modo de precio" ${disabled}>
+            <option value="numero" ${pendiente ? '' : 'selected'}>Importe</option>
+            <option value="pendiente" ${pendiente ? 'selected' : ''}>Pendiente validar</option>
+          </select>
+          <input class="admin-inline-input" type="number" min="0" step="${step}" data-linea-precio value="${pendiente ? '' : precio}" placeholder="0" aria-label="Precio unitario" ${readOnly || pendiente ? 'disabled' : ''} />
+        </td>
+        <td data-linea-subtotal>${pendiente ? 'Pendiente validar' : crmMoney(precio * cantidad, moneda)}</td>
+        <td><button class="admin-button admin-button--ghost" type="button" data-linea-eliminar aria-label="Eliminar ${escapeHtml(nombre || 'producto')}" ${disabled}>Eliminar</button></td>
+      </tr>`;
 }
 
 function cotizacionLineasEditorHtml(
@@ -3873,10 +4072,8 @@ function cotizacionLineasEditorHtml(
   monedaDefault = 'COP',
   readOnly = false
 ): string {
-  const lineas = Array.isArray(productos) ? productos : [];
-  const monedaCabecera = monedaDefault === 'USD' ? 'USD' : 'COP';
-  const priceStep = monedaCabecera === 'USD' ? '0.01' : '1';
-  const disabled = readOnly ? 'disabled' : '';
+  const lineas = parseLineasOferta(productos);
+  const moneda: 'COP' | 'USD' = monedaDefault === 'USD' ? 'USD' : 'COP';
   const catalogTools = readOnly
     ? ''
     : `
@@ -3888,70 +4085,32 @@ function cotizacionLineasEditorHtml(
       </label>
       <button class="admin-button admin-button--ghost" type="button" data-cotizacion-ingest-pdf>Importar ficha PDF → producto</button>
       <input type="file" accept="application/pdf,.pdf" data-cotizacion-ingest-file hidden />
+    </div>
+    <div class="cotizacion-catalog-tools" style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+      <button class="admin-button admin-button--ghost" type="button" data-cotizacion-ocr="camera">Escanear con cámara</button>
+      <button class="admin-button admin-button--ghost" type="button" data-cotizacion-ocr="gallery">Foto de galería</button>
+      <button class="admin-button admin-button--ghost" type="button" data-cotizacion-ocr="pdf">Importar PDF de competencia</button>
+      <span class="admin-help" data-cotizacion-ocr-status role="status">OCR rellena este presupuesto con cliente, productos, unidades y precios.</span>
     </div>`;
-  const rows = lineas.map(raw => {
-    const item = raw && typeof raw === 'object' ? (raw as Row) : {};
-    const slug = text(item.slug);
-    const nombre = text(item.nombre) || slug;
-    const cantidad = Number(item.cantidad ?? 1) || 1;
-    const precio = Number(item.precio_unitario ?? 0) || 0;
-    const moneda = monedaCabecera;
-    return `
-      <tr data-cotizacion-linea>
-        <td>
-          <input class="admin-inline-input" type="text" data-linea-nombre value="${escapeHtml(nombre)}" placeholder="Nombre del producto" aria-label="Nombre del producto" required ${disabled} />
-          <input class="admin-inline-input" type="text" data-linea-slug value="${escapeHtml(slug)}" placeholder="SKU o referencia (opcional)" aria-label="SKU o referencia" ${disabled} />
-          <input type="hidden" data-linea-moneda value="${escapeHtml(moneda)}" />
-        </td>
-        <td><input class="admin-inline-input" type="number" min="1" step="1" data-linea-cantidad value="${cantidad}" ${disabled} /></td>
-        <td><input class="admin-inline-input" type="number" min="0" step="${priceStep}" data-linea-precio value="${precio}" ${disabled} /></td>
-        <td data-linea-subtotal>${crmMoney(precio * cantidad, moneda)}</td>
-        <td><button class="admin-button admin-button--ghost" type="button" data-linea-eliminar aria-label="Eliminar ${escapeHtml(nombre || 'producto')}" ${disabled}>Eliminar</button></td>
-      </tr>`;
-  });
   return `
     ${catalogTools}
     <div class="admin-table-wrap">
       <table class="admin-table">
-        <thead><tr><th>Producto / referencia</th><th>Cantidad</th><th>Precio unitario (${escapeHtml(monedaCabecera)})</th><th>Subtotal</th><th>Acciones</th></tr></thead>
-        <tbody>${rows.join('')}</tbody>
+        <thead><tr><th>Producto / referencia</th><th>Cantidad</th><th>Precio unitario (${moneda})</th><th>Subtotal</th><th>Acciones</th></tr></thead>
+        <tbody>${lineas.map(line => cotizacionLineaRowHtml(line, moneda, readOnly)).join('')}</tbody>
       </table>
     </div>
-    <button class="admin-button admin-button--ghost" type="button" data-cotizacion-linea-agregar ${disabled}>Añadir producto</button>
-    <p class="admin-meta" style="margin-top:8px">Total ofertado: <strong data-cotizacion-total-ofertado>—</strong></p>`;
+    <button class="admin-button admin-button--ghost" type="button" data-cotizacion-linea-agregar ${readOnly ? 'disabled' : ''}>Añadir producto</button>
+    <p class="admin-meta" style="margin-top:8px">Total ofertado: <strong data-cotizacion-total-ofertado>—</strong></p>
+    <p class="admin-help" data-cotizacion-hint role="status"></p>`;
 }
 
 function cotizacionLineaFromOfertaHtml(line: CotizacionLineaOferta, moneda: 'COP' | 'USD'): string {
-  const step = moneda === 'USD' ? '0.01' : '1';
-  const cantidad = Math.max(1, line.cantidad || 1);
-  const precio = line.precio_pendiente_validar ? 0 : Number(line.precio_unitario) || 0;
-  const subtotal = line.precio_pendiente_validar ? 0 : line.subtotal || precio * cantidad;
-  return `<tr data-cotizacion-linea>
-    <td>
-      <input class="admin-inline-input" type="text" data-linea-nombre value="${escapeHtml(line.nombre)}" placeholder="Nombre del producto" aria-label="Nombre del producto" required />
-      <input class="admin-inline-input" type="text" data-linea-slug value="${escapeHtml(line.slug)}" placeholder="SKU o referencia (opcional)" aria-label="SKU o referencia" />
-      <input type="hidden" data-linea-moneda value="${escapeHtml(moneda)}" />
-    </td>
-    <td><input class="admin-inline-input" type="number" min="1" step="1" data-linea-cantidad value="${cantidad}" aria-label="Cantidad" /></td>
-    <td><input class="admin-inline-input" type="number" min="0" step="${step}" data-linea-precio value="${precio}" aria-label="Precio unitario" /></td>
-    <td data-linea-subtotal>${crmMoney(subtotal, moneda)}</td>
-    <td><button class="admin-button admin-button--ghost" type="button" data-linea-eliminar aria-label="Eliminar ${escapeHtml(line.nombre || 'producto')}">Eliminar</button></td>
-  </tr>`;
+  return cotizacionLineaRowHtml(line, moneda);
 }
 
 function cotizacionLineaNuevaHtml(moneda: 'COP' | 'USD'): string {
-  const step = moneda === 'USD' ? '0.01' : '1';
-  return `<tr data-cotizacion-linea>
-    <td>
-      <input class="admin-inline-input" type="text" data-linea-nombre value="" placeholder="Nombre del producto" aria-label="Nombre del producto" required />
-      <input class="admin-inline-input" type="text" data-linea-slug value="" placeholder="SKU o referencia (opcional)" aria-label="SKU o referencia" />
-      <input type="hidden" data-linea-moneda value="${moneda}" />
-    </td>
-    <td><input class="admin-inline-input" type="number" min="1" step="1" data-linea-cantidad value="1" aria-label="Cantidad" /></td>
-    <td><input class="admin-inline-input" type="number" min="0" step="${step}" data-linea-precio value="0" aria-label="Precio unitario" /></td>
-    <td data-linea-subtotal>${crmMoney(0, moneda)}</td>
-    <td><button class="admin-button admin-button--ghost" type="button" data-linea-eliminar aria-label="Eliminar producto">Eliminar</button></td>
-  </tr>`;
+  return cotizacionLineaRowHtml({ slug: '', nombre: '', cantidad: 1, precio_unitario: 0 }, moneda);
 }
 
 function normalizarMonedaCotizacion(value: unknown): 'COP' | 'USD' {
@@ -3985,6 +4144,30 @@ async function cotizacionDetailView(): Promise<string> {
   const estado = text(row.estado) || 'nueva';
   const convertida = estado === 'convertida' || Boolean(row.pedido_id);
   const moneda = normalizarMonedaCotizacion(row.moneda);
+  // Igual que /comercial: solo nueva / en revisión / respondida se editan; enviada y expirada piden revisión.
+  const soloLectura = !quoteEditable(estado) || Boolean(row.pedido_id);
+  const puedeGestionar = !state.rol || state.rol === 'owner' || state.rol === 'admin';
+  const crmStatus = text(row.crm_sync_status);
+  const crmLabel =
+    crmStatus === 'synced'
+      ? 'CRM sincronizado'
+      : crmStatus === 'failed'
+        ? 'CRM falló'
+        : crmStatus === 'pending'
+          ? 'CRM pendiente de validación'
+          : crmStatus === 'skipped'
+            ? 'CRM omitido'
+            : '';
+  const tienePendientes = parseLineasOferta(productos).some(l => l.precio_pendiente_validar);
+  const condicionesValor =
+    text(row.condiciones) || (soloLectura ? '' : defaultCondicionesOferta('es'));
+  const banner = convertida
+    ? '<div class="admin-alert" role="status">Convertido en pedido — no se edita.</div>'
+    : estado === 'expirada'
+      ? '<div class="admin-alert" role="status">Vencida. Duplica a borrador para cotizar de nuevo.</div>'
+      : estado === 'enviada'
+        ? `<div class="admin-alert" role="status">${escapeHtml(text(row.numero) || 'IME-Q')} enviada. El PDF anterior queda en archivo; usa «Nueva revisión» para cambiarla.</div>`
+        : '';
   return `
     <section class="admin-panel">
       <div class="admin-panel__head">
@@ -4003,14 +4186,20 @@ async function cotizacionDetailView(): Promise<string> {
           <button class="admin-button admin-button--ghost" type="button" data-cotizacion-copy-summary>Copiar resumen</button>
           <a class="admin-button admin-button--ghost" href="mailto:${escapeHtml(text(row.email))}">Responder email</a>
           <a class="admin-button admin-button--ghost" href="#/cotizaciones">Volver</a>
+          ${
+            puedeGestionar && !convertida
+              ? '<button class="admin-button admin-button--danger" type="button" data-cotizacion-borrar>Borrar</button>'
+              : ''
+          }
         </div>
       </div>
+      ${banner}
       <div class="cotizacion-workflow">
         <div class="cotizacion-workflow__summary" data-cotizacion-summary hidden>${escapeHtml(resumen)}</div>
         <div class="cotizacion-workflow__chips">
           ${
             text(row.numero)
-              ? `<span class="admin-badge admin-badge--info">${escapeHtml(text(row.numero))}</span>`
+              ? `<span class="admin-badge admin-badge--info" data-cotizacion-numero>${escapeHtml(text(row.numero))}</span>`
               : ''
           }
           <span class="admin-badge admin-badge--info">${escapeHtml(text(row.empresa) || 'Sin empresa')}</span>
@@ -4026,14 +4215,25 @@ async function cotizacionDetailView(): Promise<string> {
               ? `<a class="admin-badge admin-badge--ok" href="#/pedido?id=${escapeHtml(text(row.pedido_id))}">Pedido vinculado</a>`
               : ''
           }
+          ${crmLabel ? `<span class="admin-badge ${crmStatus === 'synced' ? 'admin-badge--ok' : 'admin-badge--warn'}">${escapeHtml(crmLabel)}</span>` : ''}
         </div>
         <div class="admin-toolbar cotizacion-workflow__actions">
-          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="nueva" ${convertida ? 'disabled' : ''}>Volver a nueva</button>
-          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="en_revision" ${convertida ? 'disabled' : ''}>Enviar a revision</button>
-          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="respondida" ${convertida ? 'disabled' : ''}>Marcar respondida</button>
+          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="nueva" ${soloLectura ? 'disabled' : ''}>Volver a nueva</button>
+          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="en_revision" ${soloLectura ? 'disabled' : ''}>Enviar a revision</button>
+          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="respondida" ${soloLectura ? 'disabled' : ''}>Marcar respondida</button>
           <button class="admin-button admin-button--ghost" type="button" data-cotizacion-preview ${convertida ? 'disabled' : ''}>Vista previa PDF</button>
-          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-enviar-whatsapp ${convertida ? 'disabled' : ''}>WhatsApp</button>
-          <button class="admin-button" type="button" data-cotizacion-enviar ${convertida ? 'disabled' : ''}>Enviar email</button>
+          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-enviar-whatsapp ${soloLectura ? 'disabled' : ''}>WhatsApp</button>
+          <button class="admin-button" type="button" data-cotizacion-enviar ${soloLectura ? 'disabled' : ''}>Enviar email</button>
+          ${
+            soloLectura && !row.pedido_id && (estado === 'enviada' || estado === 'expirada')
+              ? `<button class="admin-button" type="button" data-cotizacion-duplicar>${estado === 'enviada' ? 'Nueva revisión' : 'Duplicar a borrador'}</button>`
+              : ''
+          }
+          ${
+            puedeGestionar && !tienePendientes && !convertida
+              ? `<button class="admin-button" type="button" data-cotizacion-validar-crm>${crmStatus === 'synced' ? 'Revalidar CRM' : 'Validar → CRM'}</button>`
+              : ''
+          }
         </div>
       </div>
       <div style="padding:0 16px 16px">
@@ -4044,54 +4244,54 @@ async function cotizacionDetailView(): Promise<string> {
             : ''
         }
         <p class="admin-help">Edita los datos de la solicitud, los productos, precios y condiciones. La oferta guardada es la que recibirá el cliente al formalizar.</p>
-        <form class="admin-form" data-cotizacion-oferta-form>
+        <form class="admin-form" data-cotizacion-oferta-form ${soloLectura ? 'data-solo-lectura' : ''}>
           <input type="hidden" name="id" value="${escapeHtml(text(row.id))}" />
           <div class="admin-editor__cols">
             <label class="admin-field"><span>Nombre del contacto</span>
-              <input name="nombre" type="text" value="${escapeHtml(text(row.nombre))}" autocomplete="name" ${convertida ? 'disabled' : ''} />
+              <input name="nombre" type="text" value="${escapeHtml(text(row.nombre))}" autocomplete="name" ${soloLectura ? 'disabled' : ''} />
             </label>
             <label class="admin-field"><span>Empresa</span>
-              <input name="empresa" type="text" value="${escapeHtml(text(row.empresa))}" autocomplete="organization" ${convertida ? 'disabled' : ''} />
+              <input name="empresa" type="text" value="${escapeHtml(text(row.empresa))}" autocomplete="organization" ${soloLectura ? 'disabled' : ''} />
             </label>
             <label class="admin-field"><span>Email</span>
-              <input name="email" type="email" value="${escapeHtml(text(row.email))}" autocomplete="email" ${convertida ? 'disabled' : ''} />
+              <input name="email" type="email" value="${escapeHtml(text(row.email))}" autocomplete="email" ${soloLectura ? 'disabled' : ''} />
             </label>
             <label class="admin-field"><span>Teléfono</span>
-              <input name="telefono" type="tel" value="${escapeHtml(text(row.telefono))}" autocomplete="tel" ${convertida ? 'disabled' : ''} />
+              <input name="telefono" type="tel" value="${escapeHtml(text(row.telefono))}" autocomplete="tel" ${soloLectura ? 'disabled' : ''} />
             </label>
             <label class="admin-field"><span>NIT / identificación fiscal</span>
-              <input name="nit" type="text" value="${escapeHtml(text(row.nit))}" ${convertida ? 'disabled' : ''} />
+              <input name="nit" type="text" value="${escapeHtml(text(row.nit))}" ${soloLectura ? 'disabled' : ''} />
             </label>
             <label class="admin-field"><span>IVA</span>
-              <label class="admin-check"><input name="responsable_iva" type="checkbox" ${row.responsable_iva ? 'checked' : ''} ${convertida ? 'disabled' : ''} /> Responsable de IVA</label>
+              <label class="admin-check"><input name="responsable_iva" type="checkbox" ${row.responsable_iva ? 'checked' : ''} ${soloLectura ? 'disabled' : ''} /> Responsable de IVA</label>
             </label>
             <label class="admin-field"><span>Tratamiento tributario de la oferta</span>
-              <label class="admin-check"><input name="impuestos_incluidos" type="checkbox" ${row.impuestos_incluidos ? 'checked' : ''} ${convertida ? 'disabled' : ''} /> Los precios ofrecidos ya incluyen IVA cuando aplica</label>
+              <label class="admin-check"><input name="impuestos_incluidos" type="checkbox" ${row.impuestos_incluidos ? 'checked' : ''} ${soloLectura ? 'disabled' : ''} /> Los precios ofrecidos ya incluyen IVA cuando aplica</label>
             </label>
             <label class="admin-field"><span>Moneda de la oferta</span>
-              <select name="moneda" data-cotizacion-moneda ${convertida ? 'disabled' : ''}>
+              <select name="moneda" data-cotizacion-moneda ${soloLectura ? 'disabled' : ''}>
                 <option value="COP" ${moneda === 'COP' ? 'selected' : ''}>COP — Pesos colombianos</option>
                 <option value="USD" ${moneda === 'USD' ? 'selected' : ''}>USD — Dolares</option>
               </select>
             </label>
             <label class="admin-field"><span>Validez hasta</span>
-              <input name="validez_hasta" type="date" value="${escapeHtml(text(row.validez_hasta).slice(0, 10))}" ${convertida ? 'disabled' : ''} />
+              <input name="validez_hasta" type="date" value="${escapeHtml(text(row.validez_hasta).slice(0, 10))}" ${soloLectura ? 'disabled' : ''} />
             </label>
           </div>
-          ${cotizacionLineasEditorHtml(productos, moneda, convertida)}
+          ${cotizacionLineasEditorHtml(productos, moneda, soloLectura)}
           <label class="admin-field" style="margin-top:12px"><span>Mensaje o necesidad del solicitante</span>
-            <textarea name="mensaje" rows="4" placeholder="Necesidad, especificaciones o contexto" ${convertida ? 'disabled' : ''}>${escapeHtml(text(row.mensaje))}</textarea>
+            <textarea name="mensaje" rows="4" placeholder="Necesidad, especificaciones o contexto" ${soloLectura ? 'disabled' : ''}>${escapeHtml(text(row.mensaje))}</textarea>
           </label>
           <div class="admin-editor__cols">
             <label class="admin-field"><span>Dirección postal de envío</span>
-              <textarea name="direccion_envio" rows="3" ${convertida ? 'disabled' : ''}>${escapeHtml(text(row.direccion_envio))}</textarea>
+              <textarea name="direccion_envio" rows="3" ${soloLectura ? 'disabled' : ''}>${escapeHtml(text(row.direccion_envio))}</textarea>
             </label>
             <label class="admin-field"><span>Dirección de facturación</span>
-              <textarea name="direccion_facturacion" rows="3" ${convertida ? 'disabled' : ''}>${escapeHtml(text(row.direccion_facturacion))}</textarea>
+              <textarea name="direccion_facturacion" rows="3" ${soloLectura ? 'disabled' : ''}>${escapeHtml(text(row.direccion_facturacion))}</textarea>
             </label>
           </div>
           <label class="admin-field" style="margin-top:12px"><span>Adjuntos para el correo al cliente (PDF, Office o imagen; máx. 25 MB en total)</span>
-            <input type="file" data-cotizacion-adjuntos multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.webp" ${convertida ? 'disabled' : ''} />
+            <input type="file" data-cotizacion-adjuntos multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.webp" ${soloLectura ? 'disabled' : ''} />
             <span class="admin-help" data-cotizacion-adjuntos-estado>${
               adjuntos.length
                 ? `Adjuntos guardados: ${escapeHtml(
@@ -4105,11 +4305,11 @@ async function cotizacionDetailView(): Promise<string> {
             <input type="hidden" data-cotizacion-adjuntos-actuales value="${escapeHtml(JSON.stringify(adjuntos))}" />
           </label>
           <label class="admin-field" style="margin-top:12px"><span>Observaciones / condiciones de configuracion</span>
-            <textarea name="condiciones" rows="5" placeholder="Configuracion especifica, plazo de entrega, forma de pago, validez, exclusiones..." ${convertida ? 'disabled' : ''}>${escapeHtml(
-              text(row.condiciones)
+            <textarea name="condiciones" rows="5" placeholder="Configuracion especifica, plazo de entrega, forma de pago, validez, exclusiones..." ${soloLectura ? 'disabled' : ''}>${escapeHtml(
+              condicionesValor
             )}</textarea>
           </label>
-          ${convertida ? '' : '<button class="admin-button" type="submit">Guardar oferta</button>'}
+          ${soloLectura ? '' : '<button class="admin-button" type="submit">Guardar oferta</button>'}
         </form>
       </div>
       <div style="padding:0 16px 16px">
@@ -6736,9 +6936,19 @@ async function ingestaView(): Promise<string> {
   ]);
   ingestFamilias = familias;
   ingestTipos = tipos;
+  ingestProductoObjetivo = hashParams().get('producto');
+  const objetivo = ingestProductoObjetivo
+    ? await getRow('productos', ingestProductoObjetivo)
+    : null;
+  if (ingestProductoObjetivo && !objetivo) ingestProductoObjetivo = null;
   return `
     <section class="admin-panel">
       <div class="admin-panel__head"><h2>PDF a borrador revisable</h2></div>
+      ${
+        objetivo
+          ? `<div class="admin-alert">Ficha nueva para <strong>${escapeHtml(text(objetivo.nombre_es))}</strong>. El borrador se comparará con el producto actual y podrás aplicar solo lo que cambie. <a href="#/ingesta">Ingestar otro producto</a></div>`
+          : ''
+      }
       <form class="admin-form" data-ingest-form style="padding:16px">
         <div class="admin-upload-box">
           <div>
@@ -8745,34 +8955,30 @@ function contactSuggestionRow(slug: string, contact: ContactSuggestion): Row {
   };
 }
 
-function leerLineasOfertaDesdeDom(): Array<{
-  slug: string;
-  nombre: string;
-  cantidad: number;
-  precio_unitario: number;
-  subtotal: number;
-  moneda: string;
-}> {
+function leerLineasOfertaDesdeDom(): CotizacionLineaOferta[] {
   return Array.from(app.querySelectorAll<HTMLElement>('[data-cotizacion-linea]')).map(row => {
-    const slug = row.querySelector<HTMLInputElement>('[data-linea-slug]')?.value ?? '';
-    const nombre = row.querySelector<HTMLInputElement>('[data-linea-nombre]')?.value ?? slug;
+    const slug = row.querySelector<HTMLInputElement>('[data-linea-slug]')?.value.trim() ?? '';
+    const nombre = row.querySelector<HTMLInputElement>('[data-linea-nombre]')?.value.trim() || slug;
     const moneda = row.querySelector<HTMLInputElement>('[data-linea-moneda]')?.value || 'COP';
     const cantidad = Math.max(
       1,
       Math.floor(Number(row.querySelector<HTMLInputElement>('[data-linea-cantidad]')?.value ?? 1))
     );
-    const precio = Math.max(
-      0,
-      Number(row.querySelector<HTMLInputElement>('[data-linea-precio]')?.value ?? 0)
-    );
-    return {
+    const pendiente =
+      row.querySelector<HTMLSelectElement>('[data-linea-precio-modo]')?.value === 'pendiente';
+    const precio = pendiente
+      ? 0
+      : Math.max(0, Number(row.querySelector<HTMLInputElement>('[data-linea-precio]')?.value ?? 0));
+    const linea: CotizacionLineaOferta = {
       slug,
       nombre,
       cantidad,
       precio_unitario: precio,
-      subtotal: Math.round(precio * cantidad * 100) / 100,
+      subtotal: pendiente ? 0 : Math.round(precio * cantidad * 100) / 100,
       moneda,
     };
+    if (pendiente) linea.precio_pendiente_validar = true;
+    return linea;
   });
 }
 
@@ -8780,18 +8986,40 @@ function syncCotizacionTotalesDom() {
   const monedaSelect = app.querySelector<HTMLSelectElement>('[data-cotizacion-moneda]');
   const monedaCabecera = normalizarMonedaCotizacion(monedaSelect?.value);
   const lineas = leerLineasOfertaDesdeDom().map(l => ({ ...l, moneda: monedaCabecera }));
-  let total = 0;
   app.querySelectorAll<HTMLElement>('[data-cotizacion-linea]').forEach((row, index) => {
     const linea = lineas[index];
     if (!linea) return;
+    const pendiente = Boolean(linea.precio_pendiente_validar);
     const monedaInput = row.querySelector<HTMLInputElement>('[data-linea-moneda]');
     if (monedaInput) monedaInput.value = monedaCabecera;
-    total += linea.subtotal;
+    const modo = row.querySelector<HTMLSelectElement>('[data-linea-precio-modo]');
+    const precioInput = row.querySelector<HTMLInputElement>('[data-linea-precio]');
+    if (precioInput) precioInput.disabled = Boolean(modo?.disabled) || pendiente;
     const cell = row.querySelector<HTMLElement>('[data-linea-subtotal]');
-    if (cell) cell.textContent = crmMoney(linea.subtotal, monedaCabecera);
+    if (cell)
+      cell.textContent = pendiente ? 'Pendiente validar' : crmMoney(linea.subtotal, monedaCabecera);
+    const aviso = row.querySelector<HTMLElement>('[data-linea-aviso]');
+    if (aviso) {
+      aviso.innerHTML = pendiente
+        ? '<span class="admin-badge admin-badge--warn">Pendiente validar</span>'
+        : linea.precio_unitario > 0
+          ? ''
+          : '<span class="admin-badge admin-badge--warn">Sin precio</span>';
+    }
   });
   const totalEl = app.querySelector<HTMLElement>('[data-cotizacion-total-ofertado]');
-  if (totalEl) totalEl.textContent = crmMoney(total, monedaCabecera);
+  if (totalEl) totalEl.textContent = crmMoney(calcularTotalOfertado(lineas), monedaCabecera);
+  const hint = app.querySelector<HTMLElement>('[data-cotizacion-hint]');
+  if (hint) {
+    const condiciones =
+      app.querySelector<HTMLTextAreaElement>('[data-cotizacion-oferta-form] [name="condiciones"]')
+        ?.value ?? '';
+    const check = ofertaCompleta(
+      lineas.filter(l => l.slug || l.nombre),
+      condiciones
+    );
+    hint.textContent = check.ok ? '' : (COTIZACION_AVISOS[check.error] ?? '');
+  }
 }
 
 type CotizacionAdjunto = { path: string; nombre: string; tipo: string; size: number };
@@ -8863,6 +9091,117 @@ async function guardarAdjuntosCotizacion(id: string): Promise<CotizacionAdjunto[
   return resultado;
 }
 
+let cotizacionDirty = false;
+window.addEventListener('beforeunload', event => {
+  if (!cotizacionDirty) return;
+  event.preventDefault();
+  event.returnValue = '';
+});
+
+function cotizacionEscanearView(): string {
+  return `
+    <section class="admin-panel" data-cotizacion-scan>
+      <div class="admin-panel__head">
+        <div>
+          <h2>Escanear presupuesto de la competencia</h2>
+          <p class="admin-help">Toma una foto, elige una de la galería o importa un PDF. El OCR rellena cliente, productos, unidades y precios en un borrador nuevo que puedes revisar y mejorar.</p>
+        </div>
+        <a class="admin-button admin-button--ghost" href="#/cotizaciones">Bandeja</a>
+      </div>
+      <div class="admin-toolbar">
+        <button class="admin-button" type="button" data-cotizacion-ocr="camera">Tomar foto</button>
+        <button class="admin-button admin-button--ghost" type="button" data-cotizacion-ocr="gallery">Elegir de galería</button>
+        <button class="admin-button admin-button--ghost" type="button" data-cotizacion-ocr="pdf">Importar PDF</button>
+      </div>
+      <div hidden data-cotizacion-scan-preview style="margin-top:12px">
+        <img alt="Vista previa del presupuesto de la competencia" data-cotizacion-scan-img style="max-width:320px;border-radius:8px" />
+      </div>
+      <p class="admin-help" data-cotizacion-ocr-status role="status"></p>
+      <p class="admin-help">También puedes crear un presupuesto vacío y escanear después desde su ficha.</p>
+    </section>`;
+}
+
+type GuardarOfertaArgs = {
+  id: string;
+  datos: FormData;
+  lineas: CotizacionLineaOferta[];
+  condiciones: string;
+  validez: string | null;
+  moneda: 'COP' | 'USD';
+};
+
+/** Persiste la oferta (datos de contacto, líneas, fiscal, adjuntos) y asigna IME-Q-… si falta. */
+async function guardarOfertaAdmin(args: GuardarOfertaArgs): Promise<boolean> {
+  const adjuntos = await guardarAdjuntosCotizacion(args.id);
+  if (!adjuntos) return false;
+  const { error } = await supabase!
+    .from('solicitudes_cotizacion')
+    .update({
+      nombre: emptyToNull(args.datos.get('nombre')),
+      empresa: emptyToNull(args.datos.get('empresa')),
+      email: emptyToNull(args.datos.get('email')),
+      telefono: emptyToNull(args.datos.get('telefono')),
+      mensaje: emptyToNull(args.datos.get('mensaje')),
+      nit: emptyToNull(args.datos.get('nit')),
+      responsable_iva: args.datos.get('responsable_iva') === 'on',
+      impuestos_incluidos: args.datos.get('impuestos_incluidos') === 'on',
+      direccion_envio: emptyToNull(args.datos.get('direccion_envio')),
+      direccion_facturacion: emptyToNull(args.datos.get('direccion_facturacion')),
+      adjuntos,
+      productos: args.lineas,
+      condiciones: args.condiciones || null,
+      validez_hasta: args.validez,
+      precio_total_ofertado: calcularTotalOfertado(args.lineas),
+      moneda: args.moneda,
+      mercado: args.moneda === 'USD' ? 'INTL' : 'CO',
+      leida: true,
+    })
+    .eq('id', args.id);
+  if (error) {
+    toast(`No se pudo guardar la oferta: ${error.message}`);
+    return false;
+  }
+  const { error: numeroError } = await supabase!.rpc('ensure_cotizacion_numero', {
+    p_id: args.id,
+  });
+  if (numeroError) console.warn('ensure_cotizacion_numero', numeroError.message);
+  cotizacionDirty = false;
+  return true;
+}
+
+const COTIZACION_ERROR_API: Record<string, string> = {
+  QUOTE_LOCKED: 'No se puede borrar un presupuesto convertido a pedido.',
+  FORBIDDEN: 'No tienes permiso para esta acción.',
+  PRECIO_PENDIENTE: 'Hay líneas en Pendiente validar. Asigna precio antes de validar al CRM.',
+  CRM_SYNC_FAILED: 'No se pudo sincronizar con el CRM.',
+  COTIZACION_INMUTABLE: 'Esta cotización ya no se edita. Crea una revisión.',
+  OCR_FAILED: 'OCR falló. Revisa la conexión o vuelve a intentar.',
+  OCR_EMPTY: 'No se detectaron datos. Prueba otra foto o un PDF más claro.',
+  IMAGE_TOO_LARGE: 'Archivo demasiado grande. Comprime o recorta y reintenta.',
+  STORAGE_FAILED: 'No se pudo guardar la foto del presupuesto.',
+  RATE_LIMIT: 'Demasiados OCR. Espera un momento y reintenta.',
+};
+
+function cotizacionErrorCopy(code: string | undefined, fallback?: string | null): string {
+  if (code && COTIZACION_ERROR_API[code]) return COTIZACION_ERROR_API[code]!;
+  return fallback || 'No se pudo completar la operación.';
+}
+
+async function borrarCotizacionAdmin(id: string, label: string): Promise<boolean> {
+  if (
+    !confirm(`¿Borrar ${label}? Esta acción no se puede deshacer (PDF incluido). Solo admin/owner.`)
+  ) {
+    return false;
+  }
+  const { error, code } = await deleteQuoteApi(id);
+  if (error) {
+    toast(cotizacionErrorCopy(code, error));
+    return false;
+  }
+  toast('Presupuesto borrado.');
+  return true;
+}
+
 function bindCotizaciones() {
   app
     .querySelector<HTMLButtonElement>('[data-cotizacion-nuevo]')
@@ -8885,7 +9224,7 @@ function bindCotizaciones() {
         empresa: null,
         mensaje: 'Presupuesto creado desde admin.',
         productos: [],
-        condiciones: '',
+        condiciones: defaultCondicionesOferta('es'),
         moneda: 'COP',
         mercado: 'CO',
         estado: 'nueva',
@@ -8984,10 +9323,13 @@ function bindCotizaciones() {
 
   const bindLineaOferta = (row: HTMLElement) => {
     row
-      .querySelectorAll<HTMLInputElement>('[data-linea-cantidad], [data-linea-precio]')
+      .querySelectorAll<HTMLElement>(
+        '[data-linea-cantidad], [data-linea-precio], [data-linea-precio-modo]'
+      )
       .forEach(input => input.addEventListener('input', syncCotizacionTotalesDom));
     row.querySelector<HTMLButtonElement>('[data-linea-eliminar]')?.addEventListener('click', () => {
       row.remove();
+      cotizacionDirty = true;
       syncCotizacionTotalesDom();
     });
   };
@@ -9005,6 +9347,7 @@ function bindCotizaciones() {
       if (!(lineaNueva instanceof HTMLElement)) return;
       bindLineaOferta(lineaNueva);
       lineaNueva.querySelector<HTMLInputElement>('[data-linea-nombre]')?.focus();
+      cotizacionDirty = true;
       syncCotizacionTotalesDom();
     });
   app
@@ -9026,6 +9369,7 @@ function bindCotizaciones() {
     body.insertAdjacentHTML('beforeend', cotizacionLineaFromOfertaHtml(line, moneda));
     const lineaNueva = body.lastElementChild;
     if (lineaNueva instanceof HTMLElement) bindLineaOferta(lineaNueva);
+    cotizacionDirty = true;
     syncCotizacionTotalesDom();
   };
 
@@ -9060,6 +9404,17 @@ function bindCotizaciones() {
   }
 
   const ofertaForm = app.querySelector<HTMLFormElement>('[data-cotizacion-oferta-form]');
+  cotizacionDirty = false;
+  // Buscar en el catálogo o elegir un archivo no son cambios de la oferta.
+  const esCambioDeOferta = (event: Event) =>
+    !(event.target instanceof Element && event.target.closest('[data-cotizacion-catalog-tools]'));
+  ofertaForm?.addEventListener('input', event => {
+    if (esCambioDeOferta(event)) cotizacionDirty = true;
+    syncCotizacionTotalesDom();
+  });
+  ofertaForm?.addEventListener('change', event => {
+    if (esCambioDeOferta(event)) cotizacionDirty = true;
+  });
   ofertaForm?.addEventListener('submit', async event => {
     event.preventDefault();
     const data = new FormData(ofertaForm);
@@ -9067,55 +9422,27 @@ function bindCotizaciones() {
     if (!id) return;
     const moneda = normalizarMonedaCotizacion(data.get('moneda'));
     aplicarMonedaOfertaDom(moneda);
-    const lineas = leerLineasOfertaDesdeDom()
-      .filter(l => l.slug || l.nombre)
-      .map(l => ({ ...l, moneda }));
-    if (lineas.length === 0) {
-      toast('No hay lineas de producto.');
-      return;
-    }
-    if (lineas.some(l => !(l.precio_unitario > 0))) {
-      toast('Todas las lineas necesitan precio unitario > 0.');
-      return;
-    }
+    const lineas = sanitizarLineasComercial(
+      leerLineasOfertaDesdeDom().filter(l => l.slug || l.nombre),
+      moneda
+    );
     const condiciones = String(data.get('condiciones') ?? '').trim();
-    if (!condiciones) {
-      toast('Completa las condiciones de la cotizacion.');
-      return;
-    }
     const validez = String(data.get('validez_hasta') ?? '').trim() || null;
-    const total = lineas.reduce((acc, l) => acc + l.subtotal, 0);
-    const mercado = moneda === 'USD' ? 'INTL' : 'CO';
-    const adjuntos = await guardarAdjuntosCotizacion(id);
-    if (!adjuntos) return;
-    const { error } = await supabase!
-      .from('solicitudes_cotizacion')
-      .update({
-        nombre: emptyToNull(data.get('nombre')),
-        empresa: emptyToNull(data.get('empresa')),
-        email: emptyToNull(data.get('email')),
-        telefono: emptyToNull(data.get('telefono')),
-        mensaje: emptyToNull(data.get('mensaje')),
-        nit: emptyToNull(data.get('nit')),
-        responsable_iva: data.get('responsable_iva') === 'on',
-        impuestos_incluidos: data.get('impuestos_incluidos') === 'on',
-        direccion_envio: emptyToNull(data.get('direccion_envio')),
-        direccion_facturacion: emptyToNull(data.get('direccion_facturacion')),
-        adjuntos,
-        productos: lineas,
-        condiciones,
-        validez_hasta: validez,
-        precio_total_ofertado: total,
-        moneda,
-        mercado,
-        leida: true,
-      })
-      .eq('id', id);
-    if (error) {
-      toast(error.message);
-      return;
-    }
-    toast(`Oferta guardada en ${moneda}.`);
+    const guardada = await guardarOfertaAdmin({
+      id,
+      datos: data,
+      lineas,
+      condiciones,
+      validez,
+      moneda,
+    });
+    if (!guardada) return;
+    const check = ofertaCompleta(lineas, condiciones);
+    toast(
+      check.ok
+        ? `Oferta guardada en ${moneda}.`
+        : `Guardada como borrador: ${COTIZACION_AVISOS[check.error] ?? check.error}`
+    );
     await render();
   });
 
@@ -9193,18 +9520,6 @@ function bindCotizaciones() {
     const condicionesDom =
       app.querySelector<HTMLTextAreaElement>('[data-cotizacion-oferta-form] [name="condiciones"]')
         ?.value ?? '';
-    if (lineasDom.length === 0) {
-      toast(COTIZACION_ERROR_MENSAJES['OFERTA_SIN_LINEAS']!);
-      return { ok: false };
-    }
-    if (lineasDom.some(l => !(l.precio_unitario > 0))) {
-      toast(COTIZACION_ERROR_MENSAJES['OFERTA_SIN_PRECIO']!);
-      return { ok: false };
-    }
-    if (!condicionesDom.trim()) {
-      toast(COTIZACION_ERROR_MENSAJES['OFERTA_SIN_CONDICIONES']!);
-      return { ok: false };
-    }
     const validezDom =
       app.querySelector<HTMLInputElement>('[data-cotizacion-oferta-form] [name="validez_hasta"]')
         ?.value ?? '';
@@ -9212,7 +9527,14 @@ function bindCotizaciones() {
       app.querySelector<HTMLSelectElement>('[data-cotizacion-moneda]')?.value
     );
     aplicarMonedaOfertaDom(moneda);
-    const lineasConMoneda = lineasDom.map(l => ({ ...l, moneda }));
+    const lineasConMoneda = sanitizarLineasComercial(lineasDom, moneda);
+    const check = ofertaCompleta(lineasConMoneda, condicionesDom);
+    if (!check.ok) {
+      toast(
+        COTIZACION_ERROR_MENSAJES[check.error] ?? COTIZACION_AVISOS[check.error] ?? check.error
+      );
+      return { ok: false };
+    }
     const mercado = moneda === 'USD' ? 'INTL' : 'CO';
     return {
       ok: true,
@@ -9229,37 +9551,14 @@ function bindCotizaciones() {
   async function persistirOfertaAntesDeEnviar(
     payload: Extract<Awaited<ReturnType<typeof validarOfertaDomParaEnvio>>, { ok: true }>
   ): Promise<boolean> {
-    const totalDom = payload.lineasConMoneda.reduce((acc, l) => acc + l.subtotal, 0);
-    const adjuntos = await guardarAdjuntosCotizacion(payload.id);
-    if (!adjuntos) return false;
-    const { error: saveError } = await supabase!
-      .from('solicitudes_cotizacion')
-      .update({
-        nombre: emptyToNull(payload.datosOferta.get('nombre')),
-        empresa: emptyToNull(payload.datosOferta.get('empresa')),
-        email: emptyToNull(payload.datosOferta.get('email')),
-        telefono: emptyToNull(payload.datosOferta.get('telefono')),
-        mensaje: emptyToNull(payload.datosOferta.get('mensaje')),
-        nit: emptyToNull(payload.datosOferta.get('nit')),
-        responsable_iva: payload.datosOferta.get('responsable_iva') === 'on',
-        impuestos_incluidos: payload.datosOferta.get('impuestos_incluidos') === 'on',
-        direccion_envio: emptyToNull(payload.datosOferta.get('direccion_envio')),
-        direccion_facturacion: emptyToNull(payload.datosOferta.get('direccion_facturacion')),
-        adjuntos,
-        productos: payload.lineasConMoneda,
-        condiciones: payload.condicionesDom,
-        validez_hasta: payload.validezDom.trim() || null,
-        precio_total_ofertado: totalDom,
-        moneda: payload.moneda,
-        mercado: payload.mercado,
-        leida: true,
-      })
-      .eq('id', payload.id);
-    if (saveError) {
-      toast(`No se pudo guardar la oferta antes de enviar: ${saveError.message}`);
-      return false;
-    }
-    return true;
+    return guardarOfertaAdmin({
+      id: payload.id,
+      datos: payload.datosOferta,
+      lineas: payload.lineasConMoneda,
+      condiciones: payload.condicionesDom,
+      validez: payload.validezDom.trim() || null,
+      moneda: payload.moneda,
+    });
   }
 
   const openWhatsAppUrlAdmin = (url: string) => {
@@ -9280,11 +9579,20 @@ function bindCotizaciones() {
       toast(COTIZACION_ERROR_MENSAJES['SIN_EMAIL']!);
       return;
     }
+    if (canal === 'email' && /@(example\.(com|org|net)|ejemplo\.com)$/i.test(email)) {
+      toast(
+        'Usa un correo real del cliente: ese dominio es de ejemplo y el envío sería rechazado o iría a un tercero.'
+      );
+      return;
+    }
     const destino = canal === 'whatsapp' ? telefono : email;
-    const confirmMsg =
-      canal === 'whatsapp'
-        ? `¿Enviar presupuesto por WhatsApp a ${destino}?`
-        : '¿Enviar oferta formal al email del solicitante?';
+    const numeroActual =
+      app.querySelector<HTMLElement>('[data-cotizacion-numero]')?.textContent?.trim() ?? '';
+    const totalTexto = formatQuoteMoney(
+      calcularTotalOfertado(validated.lineasConMoneda),
+      validated.moneda
+    );
+    const confirmMsg = `¿Enviar presupuesto ${numeroActual || 'nuevo'} por ${canal === 'whatsapp' ? 'WhatsApp' : 'email'} a ${destino} (${totalTexto})?`;
     if (!confirm(confirmMsg)) return;
     const emailBtn = app.querySelector<HTMLButtonElement>('[data-cotizacion-enviar]');
     const waBtn = app.querySelector<HTMLButtonElement>('[data-cotizacion-enviar-whatsapp]');
@@ -9335,10 +9643,31 @@ function bindCotizaciones() {
   }
 
   async function previewCotizacionPdfAdmin(): Promise<void> {
-    const validated = await validarOfertaDomParaEnvio();
-    if (!validated.ok) return;
-    const saved = await persistirOfertaAntesDeEnviar(validated);
-    if (!saved) return;
+    // Presupuesto enviado/expirado/convertido: sus campos están deshabilitados (FormData los omite),
+    // así que no se guarda nada; el PDF sale de lo ya persistido.
+    const soloLectura = ofertaForm?.hasAttribute('data-solo-lectura') ?? false;
+    let idPdf = state.recordId ?? '';
+    let snapshot: Parameters<typeof previewQuotePdf>[1];
+    if (!soloLectura) {
+      const validated = await validarOfertaDomParaEnvio();
+      if (!validated.ok) return;
+      if (!(await persistirOfertaAntesDeEnviar(validated))) return;
+      idPdf = validated.id;
+      const numeroActual =
+        app.querySelector<HTMLElement>('[data-cotizacion-numero]')?.textContent?.trim() ?? '';
+      snapshot = {
+        ...(numeroActual ? { numero: numeroActual } : {}),
+        nombre: String(validated.datosOferta.get('nombre') ?? '').trim(),
+        empresa: String(validated.datosOferta.get('empresa') ?? '').trim(),
+        email: String(validated.datosOferta.get('email') ?? '').trim(),
+        telefono: String(validated.datosOferta.get('telefono') ?? '').trim(),
+        condiciones: validated.condicionesDom,
+        validez_hasta: validated.validezDom.trim() || null,
+        moneda: validated.moneda,
+        productos: validated.lineasConMoneda,
+      };
+    }
+    if (!idPdf) return;
     const slot = app.querySelector<HTMLElement>('[data-cotizacion-modal-slot]');
     if (!slot) return;
     slot.innerHTML = `<div class="quote-ingest-overlay" data-quote-ingest-overlay role="presentation"><div class="quote-ingest-modal quote-ingest-modal--wide" role="dialog" aria-modal="true"><header class="quote-ingest-modal__head"><h2>Vista previa · Presupuesto</h2><button type="button" class="quote-ingest-modal__close" data-quote-ingest-close aria-label="Cerrar">✕</button></header><div class="quote-ingest-modal__body" data-cotizacion-pdf-body><p class="quote-ingest-help">Generando PDF…</p></div></div></div>`;
@@ -9350,34 +9679,13 @@ function bindCotizaciones() {
       if (event.target === event.currentTarget) close();
     });
     const body = slot.querySelector<HTMLElement>('[data-cotizacion-pdf-body]');
-    const {
-      data: { session },
-    } = await supabase!.auth.getSession();
-    const token = session?.access_token;
-    if (!token || !body) {
+    if (!body) {
       close();
-      toast('Sesion expirada.');
       return;
     }
-    const url = new URL(
-      `${import.meta.env['PUBLIC_SUPABASE_URL']}/functions/v1/comercial-cotizacion`
-    );
-    url.searchParams.set('action', 'pdf');
-    url.searchParams.set('id', validated.id);
-    url.searchParams.set('fresh', '1');
-    const response = await fetch(url.toString(), {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        apikey: import.meta.env['PUBLIC_SUPABASE_ANON_KEY'] as string,
-      },
-    });
-    const json = (await response.json().catch(() => null)) as {
-      pdf_base64?: string;
-      numero?: string;
-      error?: { message?: string };
-    } | null;
-    if (!response.ok || !json?.pdf_base64) {
-      body.innerHTML = `<p class="quote-ingest-help">${escapeHtml(json?.error?.message ?? 'No se pudo generar el PDF.')}</p>`;
+    const { data: json, error: pdfError, code: pdfCode } = await previewQuotePdf(idPdf, snapshot);
+    if (pdfError || !json?.pdf_base64) {
+      body.innerHTML = `<p class="quote-ingest-help">${escapeHtml(cotizacionErrorCopy(pdfCode, pdfError ?? 'No se pudo generar el PDF.'))}</p>`;
       return;
     }
     try {
@@ -9447,13 +9755,203 @@ function bindCotizaciones() {
     if (!confirm(`Eliminar ${ids.length} cotizacion(es)? Esta accion no se puede deshacer.`)) {
       return;
     }
-    const { error } = await supabase!.from('solicitudes_cotizacion').delete().in('id', ids);
-    if (error) {
-      toast(error.message);
+    let borradas = 0;
+    let ultimoError = '';
+    for (const id of ids) {
+      const { error, code } = await deleteQuoteApi(id);
+      if (error) ultimoError = cotizacionErrorCopy(code, error);
+      else borradas += 1;
+    }
+    toast(
+      ultimoError
+        ? `${borradas} de ${ids.length} eliminadas. ${ultimoError}`
+        : `${borradas} cotizacion(es) eliminadas.`
+    );
+    await render();
+  });
+
+  const filtroCotizaciones = app.querySelector<HTMLFormElement>('[data-cotizaciones-filter]');
+  filtroCotizaciones?.addEventListener('submit', event => {
+    event.preventDefault();
+    const q = String(new FormData(filtroCotizaciones).get('q') ?? '').trim();
+    const destino = cotizacionesLink({ q, page: '' });
+    if (location.hash === destino) void render();
+    else location.hash = destino;
+  });
+
+  app.querySelectorAll<HTMLButtonElement>('[data-cotizacion-list-delete]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset['cotizacionListDelete'] ?? '';
+      if (!id) return;
+      btn.disabled = true;
+      const ok = await borrarCotizacionAdmin(id, btn.dataset['label'] || 'este presupuesto');
+      btn.disabled = false;
+      if (ok) await render();
+    });
+  });
+
+  app
+    .querySelector<HTMLButtonElement>('[data-cotizacion-borrar]')
+    ?.addEventListener('click', async () => {
+      const id = state.recordId;
+      if (!id) return;
+      const numero =
+        app.querySelector<HTMLElement>('[data-cotizacion-numero]')?.textContent?.trim() ||
+        'este presupuesto';
+      if (!(await borrarCotizacionAdmin(id, numero))) return;
+      cotizacionDirty = false;
+      location.hash = '#/cotizaciones';
+    });
+
+  app
+    .querySelector<HTMLButtonElement>('[data-cotizacion-duplicar]')
+    ?.addEventListener('click', async () => {
+      const id = state.recordId;
+      if (!id) return;
+      if (
+        !confirm(
+          'Esto crea una revisión nueva. El PDF anterior queda en archivo. El cliente recibirá un correo nuevo si envías.'
+        )
+      ) {
+        return;
+      }
+      const { data, error, code } = await duplicarQuote(id);
+      if (error || !data?.quote) {
+        toast(cotizacionErrorCopy(code, error));
+        return;
+      }
+      // /comercial no maneja estos datos: se copian para no perder lo que admin ya capturó.
+      const origen = await getRow('solicitudes_cotizacion', id);
+      if (origen) {
+        await supabase!
+          .from('solicitudes_cotizacion')
+          .update({
+            mensaje: origen.mensaje ?? null,
+            nit: origen.nit ?? null,
+            responsable_iva: Boolean(origen.responsable_iva),
+            impuestos_incluidos: Boolean(origen.impuestos_incluidos),
+            direccion_envio: origen.direccion_envio ?? null,
+            direccion_facturacion: origen.direccion_facturacion ?? null,
+          })
+          .eq('id', data.quote.id);
+      }
+      cotizacionDirty = false;
+      toast('Revisión creada.');
+      location.hash = `#/cotizacion?id=${encodeURIComponent(data.quote.id)}`;
+    });
+
+  app
+    .querySelector<HTMLButtonElement>('[data-cotizacion-validar-crm]')
+    ?.addEventListener('click', async () => {
+      const id = state.recordId;
+      if (!id) return;
+      const validated = await validarOfertaDomParaEnvio();
+      if (!validated.ok) return;
+      if (validated.lineasConMoneda.some(l => l.precio_pendiente_validar)) {
+        toast(COTIZACION_ERROR_API['PRECIO_PENDIENTE']!);
+        return;
+      }
+      if (cotizacionDirty && !(await persistirOfertaAntesDeEnviar(validated))) return;
+      if (
+        !confirm(
+          '¿Validar este presupuesto y enviarlo al CRM Twenty? Solo tras revisar precios y condiciones.'
+        )
+      ) {
+        return;
+      }
+      const btn = app.querySelector<HTMLButtonElement>('[data-cotizacion-validar-crm]');
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Validando…';
+      }
+      const { data, error, code } = await validarQuoteCrm(id);
+      if (btn) btn.disabled = false;
+      if (error) {
+        if (btn) btn.textContent = 'Validar → CRM';
+        toast(cotizacionErrorCopy(code, error));
+        return;
+      }
+      toast(
+        (data?.crm_sync_status ?? 'synced') === 'skipped'
+          ? 'Validado. CRM omitido (sin secrets Twenty).'
+          : 'Presupuesto validado y sincronizado con el CRM.'
+      );
+      await render();
+    });
+
+  const ejecutarOcrAdmin = async (mode: 'camera' | 'gallery' | 'pdf') => {
+    const statusEl = app.querySelector<HTMLElement>('[data-cotizacion-ocr-status]');
+    const preview = app.querySelector<HTMLElement>('[data-cotizacion-scan-preview]');
+    const img = app.querySelector<HTMLImageElement>('[data-cotizacion-scan-img]');
+    const setStatus = (mensaje: string) => {
+      if (statusEl) statusEl.textContent = mensaje;
+    };
+    const quoteId = state.view === 'cotizacion' ? state.recordId : null;
+    if (
+      quoteId &&
+      cotizacionDirty &&
+      !confirm('Hay cambios sin guardar. El OCR actualizará este presupuesto. ¿Continuar?')
+    ) {
       return;
     }
-    toast(`${ids.length} cotizacion(es) eliminadas.`);
-    await render();
+    const botones = app.querySelectorAll<HTMLButtonElement>('[data-cotizacion-ocr]');
+    botones.forEach(b => {
+      b.disabled = true;
+    });
+    try {
+      const file = mode === 'pdf' ? await pickCompetenciaPdf() : await pickCompetenciaImage(mode);
+      if (!file) {
+        setStatus('Cancelado.');
+        return;
+      }
+      if (preview && img && file.type.startsWith('image/')) {
+        img.src = URL.createObjectURL(file);
+        preview.hidden = false;
+      }
+      setStatus(mode === 'pdf' ? 'Leyendo PDF…' : 'Preparando imagen…');
+      const prepared = await prepareCompetenciaForOcr(file);
+      if (!prepared.ok) {
+        setStatus(prepared.error);
+        toast(prepared.error);
+        return;
+      }
+      setStatus('Enviando a OCR…');
+      // Renueva el JWT antes del POST largo: el OCR puede superar el token restante.
+      if (!(await ensureAuthSession())) {
+        setStatus('Sesión expirada. Vuelve a iniciar sesión.');
+        return;
+      }
+      const { data, error, code } = await ocrPresupuestoCompetencia({
+        file: prepared.blob,
+        filename: prepared.filename,
+        ...(quoteId ? { quoteId } : {}),
+      });
+      if (error || !data?.quote_id) {
+        const mensaje = cotizacionErrorCopy(code, error ?? 'OCR falló');
+        setStatus(mensaje);
+        toast(mensaje);
+        return;
+      }
+      const confianza =
+        data.extract?.confianza != null
+          ? ` · confianza ${(data.extract.confianza * 100).toFixed(0)}%`
+          : '';
+      toast(`OCR listo${confianza}. Abriendo borrador.`);
+      cotizacionDirty = false;
+      const destino = `#/cotizacion?id=${encodeURIComponent(data.quote_id)}`;
+      if (location.hash === destino) await render();
+      else location.hash = destino;
+    } finally {
+      botones.forEach(b => {
+        b.disabled = false;
+      });
+    }
+  };
+  app.querySelectorAll<HTMLButtonElement>('[data-cotizacion-ocr]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const mode = btn.dataset['cotizacionOcr'];
+      if (mode === 'camera' || mode === 'gallery' || mode === 'pdf') void ejecutarOcrAdmin(mode);
+    });
   });
 }
 
@@ -10643,6 +11141,7 @@ function renderIngestReview(draft: Row, pdfUrl: string): string {
       </div>
       <form class="admin-form" data-ingest-review-form style="padding:16px">
         <input type="hidden" name="ficha_pdf" value="${escapeHtml(pdfUrl)}" />
+        <div data-ficha-existente></div>
         <h3>Espanol (fuente)</h3>
         ${field('slug', 'Slug', slugify(nombre.valor), true)}
         ${campoRevisableField('nombre_es', 'Nombre', nombre)}
@@ -10769,6 +11268,7 @@ function bindIngestReview(container: HTMLElement) {
 
   const form = container.querySelector<HTMLFormElement>('[data-ingest-review-form]');
   if (!form) return;
+  void prepararFichaExistente(form);
 
   const nombreInput = form.elements.namedItem('nombre_es');
   if (nombreInput instanceof HTMLInputElement) {
@@ -10791,6 +11291,11 @@ function bindIngestReview(container: HTMLElement) {
     const payload = ingestPayload(form);
     if (!text(payload['nombre_es'])) {
       toast('El nombre en español (ES) es obligatorio para crear el producto');
+      return;
+    }
+    const destinoFicha = fichaDestinos.get(form);
+    if (destinoFicha && leerSeleccionFicha(form).modo === 'actualizar') {
+      await actualizarProductoDesdeFicha(form, destinoFicha, payload);
       return;
     }
     if (!text(payload['nombre_en'])) {
@@ -10850,6 +11355,231 @@ function bindIngestReview(container: HTMLElement) {
   });
 
   syncSpecJson(container);
+}
+
+type FichaDestino = { existente: Row; coincidencia: Coincidencia };
+const fichaDestinos = new WeakMap<HTMLFormElement, FichaDestino>();
+const fichaDesmarcados = new WeakMap<HTMLFormElement, Set<string>>();
+
+const FICHA_MOTIVO: Record<Coincidencia['motivo'], string> = {
+  slug: 'mismo slug',
+  sku: 'mismo SKU',
+  nombre: 'mismo nombre',
+  seleccion: 'elegido por ti',
+};
+
+function leerSeleccionFicha(form: HTMLFormElement): {
+  modo: 'actualizar' | 'crear';
+  campos: Set<string>;
+} {
+  const modo =
+    form.querySelector<HTMLInputElement>('input[name="ingest_modo"]:checked')?.value === 'crear'
+      ? 'crear'
+      : 'actualizar';
+  const campos = new Set(
+    Array.from(form.querySelectorAll<HTMLInputElement>('input[data-ficha-cambio]:checked')).map(
+      input => input.dataset['fichaCambio'] ?? ''
+    )
+  );
+  return { modo, campos };
+}
+
+function pintarPanelFicha(form: HTMLFormElement, destino: FichaDestino): void {
+  const slot = form.querySelector<HTMLElement>('[data-ficha-existente]');
+  if (!slot) return;
+  const modoActual = leerSeleccionFicha(form).modo;
+  const desmarcados = fichaDesmarcados.get(form) ?? new Set<string>();
+  fichaDesmarcados.set(form, desmarcados);
+  const cambios = calcularCambiosFicha(destino.existente, ingestPayload(form));
+  const { existente, coincidencia } = destino;
+  const boton = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+  if (boton) {
+    boton.dataset['textoCrear'] ??= boton.textContent ?? '';
+    boton.textContent =
+      modoActual === 'actualizar' ? 'Actualizar producto existente' : boton.dataset['textoCrear'];
+  }
+  const filas = cambios.map(
+    (cambio: CambioFicha) => `<tr>
+      <td><label><input type="checkbox" data-ficha-cambio="${escapeHtml(cambio.campo)}" ${desmarcados.has(cambio.campo) ? '' : 'checked'} /> ${escapeHtml(cambio.etiqueta)}</label></td>
+      <td>${escapeHtml(cambio.antes) || '<span class="admin-help">vacío</span>'}</td>
+      <td>${escapeHtml(cambio.despues)}</td>
+    </tr>`
+  );
+  slot.innerHTML = `
+    <div class="admin-alert" data-ficha-existente-panel>
+      <p><strong>Este producto ya existe en el catálogo:</strong>
+        <a href="#/producto?id=${encodeURIComponent(text(existente.id))}">${escapeHtml(text(existente.nombre_es))}</a>
+        <span class="admin-help">(${escapeHtml(text(existente.slug))} · ${FICHA_MOTIVO[coincidencia.motivo]})</span></p>
+      <div class="admin-form" style="gap:4px">
+        <label><input type="radio" name="ingest_modo" value="actualizar" ${modoActual === 'actualizar' ? 'checked' : ''} /> Actualizar el producto existente con esta ficha (recomendado)</label>
+        <label><input type="radio" name="ingest_modo" value="crear" ${modoActual === 'crear' ? 'checked' : ''} /> Crear un producto nuevo (se generará otro slug)</label>
+      </div>
+      ${
+        modoActual === 'actualizar'
+          ? cambios.length
+            ? `<p class="admin-help">Cambios que trae la ficha. Precio, stock, publicación y orden no se tocan; lo que la ficha no trae no se borra. Desmarca lo que no quieras aplicar.</p>
+               <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Campo</th><th>Ahora</th><th>Con la ficha nueva</th></tr></thead><tbody>${filas.join('')}</tbody></table></div>`
+            : '<p class="admin-help">La ficha no aporta cambios respecto al producto actual.</p>'
+          : ''
+      }
+    </div>`;
+}
+
+/** Busca si la ficha corresponde a un producto ya publicado o en borrador y pinta el panel de cambios. */
+async function prepararFichaExistente(form: HTMLFormElement): Promise<void> {
+  let coincidencia: Coincidencia | null = null;
+  if (ingestProductoObjetivo) {
+    const elegido = await getRow('productos', ingestProductoObjetivo);
+    if (elegido) {
+      coincidencia = {
+        producto: {
+          id: text(elegido.id),
+          slug: text(elegido.slug),
+          nombre_es: text(elegido.nombre_es),
+          sku: text(elegido.sku) || null,
+        },
+        motivo: 'seleccion',
+      };
+    }
+  }
+  if (!coincidencia) {
+    const { data, error } = await supabase!
+      .from('productos')
+      .select('id,slug,nombre_es,sku')
+      .range(0, 4999);
+    if (error) return;
+    const payload = ingestPayload(form);
+    coincidencia = buscarCoincidencia(
+      { slug: payload['slug'], nombre_es: payload['nombre_es'] },
+      ((data ?? []) as Row[]).map(row => ({
+        id: text(row.id),
+        slug: text(row.slug),
+        nombre_es: text(row.nombre_es),
+        sku: text(row.sku) || null,
+      }))
+    );
+  }
+  if (!coincidencia) return;
+  const existente = await getRow('productos', coincidencia.producto.id);
+  if (!existente) return;
+  const destino: FichaDestino = { existente, coincidencia };
+  fichaDestinos.set(form, destino);
+  pintarPanelFicha(form, destino);
+
+  form.addEventListener('change', event => {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement)) return;
+    const desmarcados = fichaDesmarcados.get(form) ?? new Set<string>();
+    if (target.dataset['fichaCambio']) {
+      if (target.checked) desmarcados.delete(target.dataset['fichaCambio']);
+      else desmarcados.add(target.dataset['fichaCambio']);
+    }
+    if (target.name === 'ingest_modo' || target.dataset['fichaCambio'])
+      pintarPanelFicha(form, destino);
+  });
+  let temporizador: number | undefined;
+  form.addEventListener('input', event => {
+    if (event.target instanceof HTMLElement && event.target.closest('[data-ficha-existente]'))
+      return;
+    window.clearTimeout(temporizador);
+    temporizador = window.setTimeout(() => pintarPanelFicha(form, destino), 350);
+  });
+}
+
+/** Landings y páginas que muestran este producto: se revisan tras aplicar la ficha nueva. */
+async function revisionLandingsProductoHtml(
+  productId: string,
+  slug: string,
+  nombre: string
+): Promise<string> {
+  const { listCampaignLandings } = await import('../data/comercial-landings');
+  const campanas = listCampaignLandings('es').filter(landing =>
+    landing.productSlugs.includes(slug)
+  );
+  const campanasHtml = campanas.length
+    ? `<ul>${campanas
+        .map(
+          landing =>
+            `<li><a href="${escapeHtml(landing.path)}" target="_blank" rel="noopener noreferrer">${escapeHtml(landing.h1 || landing.path)}</a> · <a href="#/landings?tipo=campana&id=${encodeURIComponent(landing.id)}">Editar en el CMS</a></li>`
+        )
+        .join('')}</ul>`
+    : '<p class="admin-help">Ninguna landing de campaña lista este producto.</p>';
+  return `
+    <section class="admin-panel" data-ficha-revision>
+      <div class="admin-panel__head"><h2>Revisar la landing de ${escapeHtml(nombre)}</h2></div>
+      <div style="padding:0 16px 16px">
+        <p>La ficha ya está aplicada al producto. La web pública se regenera con la publicación; revisa que estas páginas sigan coherentes con la ficha nueva:</p>
+        <ul>
+          <li><a href="/es/productos/${encodeURIComponent(slug)}/" target="_blank" rel="noopener noreferrer">Landing del producto (ES)</a> · <a href="/en/products/${encodeURIComponent(slug)}/" target="_blank" rel="noopener noreferrer">EN</a> · <a href="#/producto?id=${encodeURIComponent(productId)}">ficha en el admin</a></li>
+        </ul>
+        <h3>Landings de campaña que lo incluyen</h3>
+        ${campanasHtml}
+        <p class="admin-help">Comprueba titulares, beneficios, especificaciones citadas, marca y afirmaciones regulatorias (INVIMA, garantía) contra la ficha.</p>
+      </div>
+    </section>`;
+}
+
+async function actualizarProductoDesdeFicha(
+  form: HTMLFormElement,
+  destino: FichaDestino,
+  payload: Row
+): Promise<void> {
+  const statusEl = form.querySelector<HTMLElement>('[data-ingest-save-status]');
+  const submitButton = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+  const { existente } = destino;
+  const productId = text(existente.id);
+  const slug = text(existente.slug);
+  const cambios = calcularCambiosFicha(existente, payload);
+  const update = construirActualizacion(cambios, leerSeleccionFicha(form).campos);
+  if (Object.keys(update).length === 0) {
+    toast('No hay cambios seleccionados para aplicar.');
+    return;
+  }
+  if (submitButton) submitButton.disabled = true;
+  if (statusEl) statusEl.textContent = 'Actualizando el producto existente...';
+  const { error } = await supabase!.from('productos').update(update).eq('id', productId);
+  if (error) {
+    if (statusEl) {
+      statusEl.innerHTML = `<span class="admin-import-error">Error al actualizar:</span> ${escapeHtml(error.message)}`;
+    }
+    toast(error.message);
+    if (submitButton) submitButton.disabled = false;
+    return;
+  }
+  if ('ficha_pdf' in update && text(update['ficha_pdf'])) {
+    await persistIngestPdfForProduct(slug, text(update['ficha_pdf']));
+  }
+  const antes = Object.fromEntries(
+    Object.keys(update).map(campo => [campo, existente[campo] ?? null])
+  );
+  const { error: auditError } = await supabase!.from('comercio_actuaciones').insert({
+    actor: state.email,
+    rol: state.rol || 'admin',
+    herramienta: 'actualizar_desde_ficha',
+    entidad: 'productos',
+    entidad_id: productId,
+    antes,
+    despues: update,
+    motivo: 'Ficha PDF nueva aplicada desde Ingesta PDF',
+  });
+  if (auditError) console.warn('comercio_actuaciones', auditError.message);
+  const publicado = existente.activo === true;
+  if (publicado) {
+    await generarEmbeddingProducto(productId);
+    await triggerRebuild();
+  }
+  toast(
+    publicado
+      ? 'Producto actualizado con la ficha nueva y publicación solicitada.'
+      : 'Producto actualizado con la ficha nueva (sigue como borrador).'
+  );
+  if (statusEl)
+    statusEl.textContent = `Producto actualizado: ${Object.keys(update).length} campo(s).`;
+  const revision = await revisionLandingsProductoHtml(productId, slug, text(existente.nombre_es));
+  form.closest('section')?.insertAdjacentHTML('afterend', revision);
+  form.querySelectorAll('input,textarea,select,button').forEach(el => {
+    (el as HTMLInputElement).disabled = true;
+  });
 }
 
 function syncSpecJson(container: HTMLElement) {
