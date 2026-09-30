@@ -82,7 +82,11 @@ import {
   type CambioFicha,
   type Coincidencia,
 } from './ficha-actualizar';
-import { bindQuoteCatalogSearch, bindQuoteProductIngest } from '../lib/quote-line-tools';
+import {
+  bindQuoteCatalogSearch,
+  bindQuoteProductIngest,
+  fetchResumenCatalogo,
+} from '../lib/quote-line-tools';
 import {
   deleteQuote as deleteQuoteApi,
   duplicarQuote,
@@ -4025,6 +4029,7 @@ type CotizacionLineaFila = {
   cantidad: number;
   precio_unitario: number;
   precio_pendiente_validar?: boolean;
+  notas?: string;
 };
 
 /** Una fila del editor de líneas: misma semántica que /comercial (importe o "Pendiente validar"). */
@@ -4046,6 +4051,8 @@ function cotizacionLineaRowHtml(
           <input class="admin-inline-input" type="text" data-linea-nombre value="${escapeHtml(nombre)}" placeholder="Nombre del producto" aria-label="Nombre del producto" required ${disabled} />
           <input class="admin-inline-input" type="text" data-linea-slug value="${escapeHtml(line.slug)}" placeholder="SKU o referencia (opcional)" aria-label="SKU o referencia" ${disabled} />
           <input type="hidden" data-linea-moneda value="${moneda}" />
+          <textarea class="admin-inline-input" data-linea-notas rows="3" placeholder="Resumen de especificaciones (lo verá el cliente en la oferta)" aria-label="Resumen de especificaciones" ${disabled}>${escapeHtml(line.notas ?? '')}</textarea>
+          ${readOnly ? '' : '<button class="admin-button admin-button--ghost" type="button" data-linea-specs-catalogo>Traer del catálogo</button>'}
           <span data-linea-aviso>${
             pendiente
               ? '<span class="admin-badge admin-badge--warn">Pendiente validar</span>'
@@ -8978,6 +8985,8 @@ function leerLineasOfertaDesdeDom(): CotizacionLineaOferta[] {
       moneda,
     };
     if (pendiente) linea.precio_pendiente_validar = true;
+    const notas = row.querySelector<HTMLTextAreaElement>('[data-linea-notas]')?.value.trim() ?? '';
+    if (notas) linea.notas = notas;
     return linea;
   });
 }
@@ -9327,6 +9336,23 @@ function bindCotizaciones() {
         '[data-linea-cantidad], [data-linea-precio], [data-linea-precio-modo]'
       )
       .forEach(input => input.addEventListener('input', syncCotizacionTotalesDom));
+    row
+      .querySelector<HTMLButtonElement>('[data-linea-specs-catalogo]')
+      ?.addEventListener('click', async () => {
+        const slug = row.querySelector<HTMLInputElement>('[data-linea-slug]')?.value ?? '';
+        const destino = row.querySelector<HTMLTextAreaElement>('[data-linea-notas]');
+        if (!slug.trim()) {
+          toast('Escribe el SKU o slug del producto para traer sus especificaciones.');
+          return;
+        }
+        const resumen = supabase ? await fetchResumenCatalogo(supabase, slug) : '';
+        if (!resumen) {
+          toast('No hay especificaciones en el catálogo para esa referencia.');
+          return;
+        }
+        if (destino) destino.value = resumen;
+        cotizacionDirty = true;
+      });
     row.querySelector<HTMLButtonElement>('[data-linea-eliminar]')?.addEventListener('click', () => {
       row.remove();
       cotizacionDirty = true;

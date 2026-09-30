@@ -2,6 +2,7 @@
  * Ingesta de ficha PDF → producto borrador → línea de cotización.
  * Compartido entre `/comercial` y admin `#/cotizacion`.
  */
+import { resumenEspecificaciones } from './quote-specs-summary';
 import {
   buildIngestUserPrompt,
   deriveEnrichedFields,
@@ -190,6 +191,7 @@ export function catalogHitToQuoteLine(
 ): CotizacionLineaOferta {
   const precio = resolveCatalogUnitPrice(hit);
   const lineMoneda = precio > 0 ? (hit.moneda === 'USD' ? 'USD' : 'COP') : moneda;
+  const resumen = resumenEspecificaciones(hit.especificaciones, hit.aplicaciones_es);
   return {
     slug: hit.slug,
     nombre: hit.nombre_es,
@@ -197,6 +199,7 @@ export function catalogHitToQuoteLine(
     precio_unitario: precio,
     subtotal: precio > 0 ? Math.round(precio * cantidad * 100) / 100 : 0,
     moneda: lineMoneda,
+    ...(resumen ? { notas: resumen } : {}),
     ...(precio <= 0 ? { precio_pendiente_validar: true } : {}),
   };
 }
@@ -210,6 +213,8 @@ export function draftToQuoteLine(
 ): CotizacionLineaOferta {
   const qty = Math.max(1, cantidad);
   const unit = Math.max(0, precio);
+  const resumen = resumenEspecificaciones(draft.especificaciones, draft.aplicaciones_es);
+  const notas = resumen ? { notas: resumen } : {};
   if (unit <= 0) {
     return {
       slug,
@@ -218,6 +223,7 @@ export function draftToQuoteLine(
       precio_unitario: 0,
       subtotal: 0,
       moneda,
+      ...notas,
       precio_pendiente_validar: true,
     };
   }
@@ -228,6 +234,7 @@ export function draftToQuoteLine(
     precio_unitario: unit,
     subtotal: Math.round(unit * qty * 100) / 100,
     moneda,
+    ...notas,
   };
 }
 

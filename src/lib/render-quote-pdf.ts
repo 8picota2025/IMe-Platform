@@ -9,6 +9,8 @@ import type { CotizacionLineaOferta } from './cotizacion-oferta';
 import { displayQuoteNumero } from './cotizacion-oferta';
 import { isCondicionesSectionHeading, resolveCondicionesOferta } from './condiciones-oferta';
 
+import { lineasDeResumen } from './quote-specs-summary';
+
 export interface QuotePdfAnnex {
   slug: string;
   nombre: string;
@@ -538,7 +540,9 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
   const totalRight = tableRight - 8;
   const descMaxW = colXs[3]! - colXs[2]! - 10;
   const refMaxW = colXs[2]! - colXs[1]! - 8;
-  const rowHBase = 40;
+  // Con resumen de especificaciones en alguna línea, las filas crecen para alojarlo (3 líneas).
+  const conResumen = snapshot.lineas.some(l => lineasDeResumen(l.notas).length > 0);
+  const rowHBase = conResumen ? 72 : 40;
   const footerGuard = 780;
   const totalsBlockH = 118;
   const available = footerGuard - totalsBlockH - (tableTop + headerH);
@@ -617,6 +621,21 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
         maxWidth: descMaxW,
       });
     });
+    if (conResumen) {
+      const resumenLineas = lineasDeResumen(item.notas)
+        .flatMap(linea => wrapByWidth(`• ${linea}`, font, 8, descMaxW).slice(0, 1))
+        .slice(0, 3);
+      const resumenTop = rowTop + 10 + descLines.length * 13 + 2;
+      resumenLineas.forEach((linea, i) => {
+        drawText(page, linea, {
+          x: 186,
+          top: resumenTop + i * 10,
+          size: 8,
+          font,
+          maxWidth: descMaxW,
+        });
+      });
+    }
     drawRight(
       page,
       pendiente
@@ -831,6 +850,12 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
       for (const chunk of wrapByWidth(line, font, 11, 500).slice(0, 2)) {
         drawText(page, chunk, { x: 40, top: oy, size: 11, font, maxWidth: 510 });
         oy += 15;
+      }
+      for (const resumen of lineasDeResumen(item.notas)) {
+        for (const chunk of wrapByWidth(`• ${resumen}`, font, 9, 490).slice(0, 1)) {
+          drawText(page, chunk, { x: 50, top: oy, size: 9, font, maxWidth: 500 });
+          oy += 12;
+        }
       }
       oy += 6;
     }

@@ -4,6 +4,7 @@
  * Todos los envios se registran en email_log (best-effort).
  */
 
+import { lineasDeResumen } from '../../../src/lib/quote-specs-summary.ts';
 import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 import { resultadoPlantillaInactiva } from '../../../src/lib/cotizacion-oferta.ts';
 
@@ -49,6 +50,7 @@ export function itemsToHtml(
     precio_unitario?: number | null;
     subtotal?: number | null;
     moneda?: string;
+    notas?: string;
   }>,
   locale: EmailLocale = 'es'
 ): string {
@@ -73,7 +75,10 @@ export function itemsToHtml(
       const enlace = i.url
         ? `<br>${locale === 'en' ? 'Product page' : 'Ficha'}: <a href="${escapeHtml(String(i.url))}">${escapeHtml(String(i.url))}</a>`
         : '';
-      return `<li>${cantidad} x ${nombre}${modelo}${valores}${enlace}</li>`;
+      const resumen = lineasDeResumen(i.notas)
+        .map(linea => `<br>&bull; ${escapeHtml(linea)}`)
+        .join('');
+      return `<li>${cantidad} x ${nombre}${modelo}${valores}${resumen}${enlace}</li>`;
     })
     .join('');
 }

@@ -32,7 +32,11 @@ import {
   validarQuoteCrm,
   type QuotePublic,
 } from './quote-api';
-import { bindQuoteCatalogSearch, bindQuoteProductIngest } from '../lib/quote-line-tools';
+import {
+  bindQuoteCatalogSearch,
+  bindQuoteProductIngest,
+  fetchResumenCatalogo,
+} from '../lib/quote-line-tools';
 import {
   ocrPresupuestoCompetencia,
   pickCompetenciaImage,
@@ -483,6 +487,8 @@ function linesHtml(
           <div class="comercial-quote-line__name">
             <input class="comercial-input" data-linea-nombre value="${escapeHtml(l.nombre)}" placeholder="Nombre del producto" aria-label="Nombre" ${disabled} />
             <input class="comercial-input" data-linea-slug value="${escapeHtml(l.slug)}" placeholder="SKU (opcional)" aria-label="SKU" ${disabled} />
+            <textarea class="comercial-input" data-linea-notas rows="3" placeholder="Resumen de especificaciones (lo verá el cliente en la oferta)" aria-label="Resumen de especificaciones" ${disabled}>${escapeHtml(l.notas ?? '')}</textarea>
+            ${editable ? '<button class="comercial-button comercial-button--ghost comercial-button--sm" type="button" data-linea-specs-catalogo>Traer del catálogo</button>' : ''}
             ${missing ? '<span class="comercial-badge comercial-badge--status-warn">Sin precio</span>' : ''}
             ${pendiente ? '<span class="comercial-badge comercial-badge--status-warn">Pendiente validar</span>' : ''}
           </div>
@@ -541,6 +547,8 @@ function readForm(root: HTMLElement): {
       moneda,
     };
     if (pendiente) linea.precio_pendiente_validar = true;
+    const notas = row.querySelector<HTMLTextAreaElement>('[data-linea-notas]')?.value.trim() ?? '';
+    if (notas) linea.notas = notas;
     productos.push(linea);
   });
   return {
@@ -890,6 +898,26 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
       target.closest('[data-quote-line]')?.remove();
       setDirty(true);
       refreshTotals(editor);
+      return;
+    }
+    const specsBtn = target.closest('[data-linea-specs-catalogo]');
+    if (specsBtn) {
+      const fila = specsBtn.closest('[data-quote-line]');
+      const slug = fila?.querySelector<HTMLInputElement>('[data-linea-slug]')?.value ?? '';
+      const destino = fila?.querySelector<HTMLTextAreaElement>('[data-linea-notas]');
+      if (!slug.trim()) {
+        toast('Escribe el SKU o slug del producto para traer sus especificaciones.', 'error');
+        return;
+      }
+      void (async () => {
+        const resumen = supabase ? await fetchResumenCatalogo(supabase, slug) : '';
+        if (!resumen) {
+          toast('No hay especificaciones en el catálogo para esa referencia.', 'error');
+          return;
+        }
+        if (destino) destino.value = resumen;
+        setDirty(true);
+      })();
       return;
     }
     if (target.closest('[data-quote-add-free]')) {
