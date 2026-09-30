@@ -502,13 +502,24 @@ async function listQuotesRest(
   if (!supabase) return fail('Supabase no configurado.');
   const session = await ensureAuthSession();
   if (!session) return fail('Sesión expirada. Vuelve a iniciar sesión.', 401);
-  const tab = query.tab === 'enviadas' ? 'enviadas' : 'pendientes';
+  // `expiradas` y `todas` solo los usa /admin; /comercial sigue con pendientes/enviadas.
+  const tab =
+    query.tab === 'enviadas' || query.tab === 'expiradas' || query.tab === 'todas'
+      ? query.tab
+      : 'pendientes';
   const q = (query.q ?? '').trim();
   const page = Math.max(1, Number.parseInt(query.page ?? '1', 10) || 1);
   const pageSize = 20;
   const from = (page - 1) * pageSize;
-  const estados =
-    tab === 'enviadas' ? [...COTIZACION_ESTADOS_ENVIADAS] : [...COTIZACION_ESTADOS_PENDIENTES];
+  const estados: string[] | null =
+    tab === 'enviadas'
+      ? [...COTIZACION_ESTADOS_ENVIADAS]
+      : tab === 'expiradas'
+        ? ['expirada']
+        : tab === 'todas'
+          ? null
+          : [...COTIZACION_ESTADOS_PENDIENTES];
+  const soloMias = query.mias === '1';
 
   let cols = DETAIL_RICH;
   let useNumero = true;
@@ -518,9 +529,10 @@ async function listQuotesRest(
     let req = supabase
       .from('solicitudes_cotizacion')
       .select(cols, { count: 'exact' })
-      .in('estado', estados)
       .order('created_at', { ascending: false })
       .range(from, from + pageSize - 1);
+    if (estados) req = req.in('estado', estados);
+    if (soloMias) req = req.eq('created_by', session.user.id);
     if (q) {
       const safe = q.replace(/[%_,]/g, '');
       if (safe) {
