@@ -807,8 +807,6 @@ export async function getProductosBySlugs(slugs: string[], locale: Locale): Prom
       .in('slug', slugs)
       .eq('activo', true);
     if (!error && data) {
-      // Sin error, 0 filas = ninguno de esos productos está activo (despublicados):
-      // no se muestran ni se cae al mock; la landing se renderiza sin ellos.
       return data.map(raw => mapProductoSupabase(raw, locale));
     }
     if (error) registrarErrorSupabase('getProductosBySlugs', error);
