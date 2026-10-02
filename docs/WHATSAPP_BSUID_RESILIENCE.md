@@ -75,7 +75,7 @@ SELECT wamid, drop_reason FROM public.whatsapp_drop_log ORDER BY created_at DESC
 SELECT sender_id, turn_key, retry_count, second_holding_status FROM public.whatsapp_alerts;
 ```
 
-Validación realizada: 69 pruebas de WhatsApp/pipeline/auth pasan; SQL de identidad y cron probado en contenedores aislados; lint, Astro check (0 errores/advertencias) y build pasan; Deno check de las cuatro funciones pasa. La suite general presenta tres fallos de `src/lib/datos.test.ts`, reproducidos también en un checkout limpio del mismo `main` (`82d278d`): el producto requerido por esos tests está inactivo y devuelve null. No se alteró el catálogo para ocultarlos.
+Validación realizada: 615 pruebas de la suite general, incluidas 69 de WhatsApp/pipeline/auth, y 54 pruebas Deno pasan; SQL de identidad y cron probado en contenedores aislados; lint, Astro check (0 errores/advertencias) y build pasan; Deno check de las cuatro funciones pasa. Los tres fallos heredados de `src/lib/datos.test.ts` se debían a que el producto esperado estaba inactivo. Los tests de mapeo usan ahora un snapshot controlado, sin depender de la publicación actual ni de red, y comprueban también que un producto inactivo sigue oculto. El catálogo de producción no se modificó. El workflow de migraciones elimina el fallback que podía declarar éxito aplicando únicamente una migración antigua; exige credenciales vigentes y falla explícitamente si no puede aplicar el conjunto revisado.
 
 ## Despliegue, solo después de aprobación de Shoky
 
