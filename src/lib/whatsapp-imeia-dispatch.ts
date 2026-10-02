@@ -102,7 +102,7 @@ function tiempo(iso: string): number {
 
 /** Grupos de WhatsApp no se atienden (mismo criterio que el parseo del webhook). */
 export function esRemitenteGrupo(fromWa: string): boolean {
-  return /@g\.us\b/i.test(fromWa) || fromWa.includes('-');
+  return /@g\.us\b/i.test(fromWa) || /^\d+-\d+$/.test(fromWa);
 }
 
 function ultimoPorFecha<T extends { createdAt: string }>(filas: readonly T[]): T | null {

@@ -29,7 +29,7 @@ const CAMPOS_WAKE_OBLIGATORIOS = [
 export function clasificarTomaHumana(texto: string): AccionTomaHumana | null {
   const primero = texto.trim().split(/\s+/, 1)[0] ?? '';
   const token = primero.replace(/[.,;:!?…]+$/u, '');
-  if (/^#pausa$/i.test(token)) return 'pause';
+  if (/^(#pausa|\/pausa|#parar)$/i.test(token)) return 'pause';
   if (/^#activa$/i.test(token)) return 'resume';
   return null;
 }

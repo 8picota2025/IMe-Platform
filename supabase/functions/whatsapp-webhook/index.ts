@@ -17,24 +17,17 @@ import { checkRateLimit } from '../_shared/rate-limit.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { trackEvent, withTelemetry } from '../_shared/telemetry.ts';
 import {
-  markWamidStatus,
-  memoryWamidStoreFallback,
-  SupabaseWamidStore,
-} from '../_shared/whatsapp-wamid-store.ts';
-import {
-  decideWhatsAppInbound,
   isOwnBusinessNumber,
   markWhatsAppMessageRead,
   parseWhatsAppWebhook,
   resolveWhatsAppGraphConfig,
   verifyWhatsAppChallenge,
   verifyWhatsAppSignature,
-  type WamidClaimStore,
 } from '../../../src/lib/whatsapp-cloud.ts';
 import { IME_WHATSAPP_E164 } from '../../../src/lib/contacto-oficial.ts';
 import { edgeWaitUntil, seguirTurnoWhatsApp } from '../_shared/whatsapp-dispatch.ts';
 import { contactoEstaPausado, registrarEcoManual } from '../_shared/whatsapp-echo.ts';
-import { estadoInboundWhatsApp } from '../../../src/lib/whatsapp-human-takeover.ts';
+import { auditWhatsAppDrop, ingestWhatsAppMessage } from '../_shared/whatsapp-ingest.ts';
 
 const FN_NAME = 'whatsapp-webhook';
 
@@ -112,32 +105,12 @@ Deno.serve(
     }
 
     const parsed = parseWhatsAppWebhook(payload);
-    let store: WamidClaimStore = memoryWamidStoreFallback();
-    let supabase: ReturnType<typeof getServerSupabase> | null = null;
+    // A 200 is only returned after durable persistence. Meta retries a 503.
+    let supabase: ReturnType<typeof getServerSupabase>;
     try {
       supabase = getServerSupabase();
-      store = new SupabaseWamidStore(supabase);
-    } catch (err) {
-      console.warn(
-        '[whatsapp-webhook] Supabase no disponible; idempotencia en memoria:',
-        err instanceof Error ? err.message : err
-      );
-    }
-
-    let decisions;
-    try {
-      decisions = await decideWhatsAppInbound(parsed, store, {
-        ownWaId: IME_WHATSAPP_E164,
-      });
-    } catch (err) {
-      console.warn(
-        '[whatsapp-webhook] idempotencia persistente falló; memoria:',
-        err instanceof Error ? err.message : err
-      );
-      store = memoryWamidStoreFallback();
-      decisions = await decideWhatsAppInbound(parsed, store, {
-        ownWaId: IME_WHATSAPP_E164,
-      });
+    } catch {
+      return jsonOk({ ok: false, error: 'storage_unavailable' }, 503);
     }
 
     const graph = resolveWhatsAppGraphConfig({
@@ -151,70 +124,49 @@ Deno.serve(
     let echoes = 0;
     const pendientes = new Set<string>();
 
-    if (supabase && parsed.echoes.length > 0) {
+    try {
+      for (const ignoredEvent of parsed.ignored) {
+        await auditWhatsAppDrop(supabase, ignoredEvent.reason, payload, ignoredEvent.wamid);
+        ignored += 1;
+      }
+      for (const status of parsed.statuses) {
+        await auditWhatsAppDrop(supabase, 'status_update', payload, status.wamid);
+        ignored += 1;
+      }
       for (const echo of parsed.echoes) {
         if (isOwnBusinessNumber(echo.waId, IME_WHATSAPP_E164)) {
+          await auditWhatsAppDrop(supabase, 'own_number', payload, echo.wamid);
           ignored += 1;
           continue;
         }
-        try {
-          const resultado = await registrarEcoManual(supabase, echo);
-          if (resultado === 'duplicate') ignored += 1;
-          else echoes += 1;
-        } catch (err) {
-          console.error('[whatsapp-webhook] eco:', err instanceof Error ? err.message : err);
+        const result = await registrarEcoManual(supabase, { ...echo, raw: payload });
+        if (result === 'duplicate') {
+          await auditWhatsAppDrop(supabase, 'duplicate', payload, echo.wamid);
+          ignored += 1;
+        } else echoes += 1;
+      }
+      for (const message of parsed.texts) {
+        let reason: string | null = message.isBot
+          ? 'bot'
+          : isOwnBusinessNumber(message.from, IME_WHATSAPP_E164)
+            ? 'own_number'
+            : null;
+        if (!reason && !(await contactoEstaPausado(supabase, message.from))) {
+          const limit = await checkRateLimit(supabase, `whatsapp:wa:${message.from}`, 'whatsapp');
+          if (limit.limited) reason = 'rate_limited';
         }
-      }
-    } else if (parsed.echoes.length > 0) {
-      ignored += parsed.echoes.length;
-    }
-
-    for (const decision of decisions) {
-      if (decision.action === 'ignore') {
-        ignored += 1;
-        continue;
-      }
-
-      const message = decision.message;
-      const wamidExtra: { fromWa?: string; phoneNumberId?: string } = { fromWa: message.from };
-      if (message.phoneNumberId) wamidExtra.phoneNumberId = message.phoneNumberId;
-      // El agente (fuera de esta función) lee los pending_agent y responde.
-      // Aquí no se envía espera ni se despierta: una ráfaga sería N wakes.
-      // Un cliente en #pausa queda human_paused y no se encola.
-      if (!supabase) {
-        ignored += 1;
-        continue;
-      }
-      const pausado = await contactoEstaPausado(supabase, message.from);
-      if (!pausado) {
-        const limit = await checkRateLimit(supabase, `whatsapp:wa:${message.from}`, 'whatsapp');
-        if (limit.limited) {
-          await markWamidStatus(supabase, message.wamid, 'rate_limited', wamidExtra);
+        const result = await ingestWhatsAppMessage(supabase, message, payload, reason);
+        if (result.status !== 'pending_agent') {
           ignored += 1;
           continue;
         }
+        if (graph) void markWhatsAppMessageRead({ wamid: message.wamid, ...graph });
+        pendientes.add(result.from_wa);
+        queued += 1;
       }
-
-      if (graph) {
-        void markWhatsAppMessageRead({
-          wamid: message.wamid,
-          token: graph.token,
-          phoneNumberId: graph.phoneNumberId,
-          apiVersion: graph.apiVersion,
-        });
-      }
-
-      const estado = estadoInboundWhatsApp(pausado);
-      await markWamidStatus(supabase, message.wamid, estado, {
-        ...wamidExtra,
-        body: message.text,
-      });
-      if (pausado) {
-        ignored += 1;
-        continue;
-      }
-      pendientes.add(message.from);
-      queued += 1;
+    } catch {
+      console.error('[whatsapp-webhook] persistence_failed; Meta must retry');
+      return jsonOk({ ok: false, error: 'persistence_failed' }, 503);
     }
 
     if (supabase && pendientes.size > 0) {
