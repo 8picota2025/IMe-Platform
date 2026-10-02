@@ -7,6 +7,7 @@
 import { lineasDeResumen } from '../../../src/lib/quote-specs-summary.ts';
 import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 import { resultadoPlantillaInactiva } from '../../../src/lib/cotizacion-oferta.ts';
+import { construirPayloadResend } from '../../../src/lib/email-payload.ts';
 
 export const DESTINATARIOS_INTERNOS = (
   Deno.env.get('MAILER_INTERNAL') ?? 'root@i-me.com.co,ventas@i-me.com.co'
@@ -253,6 +254,10 @@ function render(tpl: string, vars: Record<string, string>): string {
 export interface EnvioResultado {
   ok: boolean;
   detalle?: string;
+  /** Id del mensaje en Resend del último destinatario enviado (si el proveedor lo devolvió). */
+  messageId?: string;
+  /** Ids por destinatario, en orden de envío. */
+  messageIds?: string[];
 }
 
 export interface EmailAdjunto {
@@ -264,6 +269,8 @@ export interface EnviarEmailOpciones {
   failOnInactive?: boolean;
   idempotencyKey?: string;
   subjectOverride?: string;
+  /** Dirección Reply-To (p. ej. el email del asesor). Sin valor no se envía el header. */
+  replyTo?: string;
 }
 
 const EMAIL_MAX_ATTEMPTS = 3;
@@ -291,6 +298,37 @@ function sleep(ms: number): Promise<void> {
  *
  * `failOnInactive`: oferta send must pass true. Other callers keep skip-as-ok.
  */
+export interface PrevisualizacionPlantilla {
+  ok: boolean;
+  asunto?: string;
+  inactiva?: boolean;
+  desconocida?: boolean;
+  detalle?: string;
+}
+
+/** Comprueba que la plantilla existe y está activa, y devuelve el asunto renderizado (sin enviar). */
+export async function previsualizarPlantilla(
+  supabase: SupabaseClient,
+  clave: string,
+  vars: Record<string, string>
+): Promise<PrevisualizacionPlantilla> {
+  const { data } = await supabase
+    .from('email_templates')
+    .select('asunto, activo')
+    .eq('clave', clave)
+    .maybeSingle();
+  const row = data as { asunto: string; activo: boolean } | null;
+  if (row) {
+    if (!row.activo) {
+      const inactiva = resultadoPlantillaInactiva(clave, true);
+      return { ok: false, inactiva: true, detalle: inactiva.detalle };
+    }
+    return { ok: true, asunto: render(row.asunto, vars) };
+  }
+  if (DEFAULTS[clave]) return { ok: true, asunto: render(DEFAULTS[clave].asunto, vars) };
+  return { ok: false, desconocida: true, detalle: `plantilla desconocida: ${clave}` };
+}
+
 export async function enviarEmailPlantilla(
   supabase: SupabaseClient,
   clave: string,
@@ -328,6 +366,7 @@ export async function enviarEmailPlantilla(
   const subject = render(options.subjectOverride ?? asunto, vars);
   const body = render(html, vars);
   const resultados: string[] = [];
+  const messageIds: string[] = [];
   let todosOk = true;
 
   for (const to of destinatarios) {
@@ -345,17 +384,24 @@ export async function enviarEmailPlantilla(
             'Content-Type': 'application/json',
             ...(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}),
           },
-          body: JSON.stringify({
-            from,
-            to,
-            subject,
-            html: body,
-            ...(adjuntos.length > 0 ? { attachments: adjuntos } : {}),
-          }),
+          body: JSON.stringify(
+            construirPayloadResend({
+              from,
+              to,
+              subject,
+              html: body,
+              adjuntos,
+              replyTo: options.replyTo,
+            })
+          ),
         });
         if (res.ok || (res.status === 409 && idempotencyKey)) {
           status = 'enviado';
           errorTxt = null;
+          if (res.ok) {
+            const enviado = (await res.json().catch(() => null)) as { id?: unknown } | null;
+            if (typeof enviado?.id === 'string') messageIds.push(enviado.id);
+          }
           break;
         }
         status = 'fallido';
@@ -386,7 +432,11 @@ export async function enviarEmailPlantilla(
     }
   }
 
-  return { ok: todosOk, detalle: resultados.join('; ') || undefined };
+  return {
+    ok: todosOk,
+    detalle: resultados.join('; ') || undefined,
+    ...(messageIds.length > 0 ? { messageId: messageIds[messageIds.length - 1], messageIds } : {}),
+  };
 }
 
 export const ESTADO_LABELS: Record<string, string> = {

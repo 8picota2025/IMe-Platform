@@ -2399,8 +2399,14 @@ function bindUsuarios() {
     email: string;
     rol: string;
     activo: boolean;
+    nombre?: string;
+    telefono?: string;
     focusPassword?: boolean;
   }) => {
+    const nombreInput = form.elements.namedItem('nombre') as HTMLInputElement | null;
+    const telefonoInput = form.elements.namedItem('telefono') as HTMLInputElement | null;
+    if (nombreInput) nombreInput.value = params.nombre ?? '';
+    if (telefonoInput) telefonoInput.value = params.telefono ?? '';
     const emailInput = form.elements.namedItem('email') as HTMLInputElement | null;
     const roleSelect = form.elements.namedItem('rol') as HTMLSelectElement | null;
     const passwordInput = form.elements.namedItem('password') as HTMLInputElement | null;
@@ -2440,6 +2446,8 @@ function bindUsuarios() {
     const password = String(data.get('password') ?? '').trim();
     const passwordConfirm = String(data.get('passwordConfirm') ?? '').trim();
     const rol = String(data.get('rol') ?? 'lectura');
+    const nombre = String(data.get('nombre') ?? '').trim();
+    const telefono = String(data.get('telefono') ?? '').trim();
     const activo =
       form.elements.namedItem('activo') instanceof HTMLInputElement &&
       (form.elements.namedItem('activo') as HTMLInputElement).checked;
@@ -2470,6 +2478,9 @@ function bindUsuarios() {
         activo,
         password: password || undefined,
         sendInvite,
+        // Cadena vacía = borrar el dato; el formulario siempre refleja el perfil actual.
+        nombre,
+        telefono,
       },
     });
 
@@ -2497,6 +2508,8 @@ function bindUsuarios() {
         email: button.getAttribute('data-admin-user-edit') ?? '',
         rol: button.getAttribute('data-admin-user-rol') ?? 'lectura',
         activo: button.getAttribute('data-admin-user-activo') === '1',
+        nombre: button.getAttribute('data-admin-user-nombre') ?? '',
+        telefono: button.getAttribute('data-admin-user-telefono') ?? '',
       });
     });
   });
@@ -2507,6 +2520,8 @@ function bindUsuarios() {
         email: button.getAttribute('data-admin-user-password') ?? '',
         rol: button.getAttribute('data-admin-user-rol') ?? 'lectura',
         activo: button.getAttribute('data-admin-user-activo') === '1',
+        nombre: button.getAttribute('data-admin-user-nombre') ?? '',
+        telefono: button.getAttribute('data-admin-user-telefono') ?? '',
         focusPassword: true,
       });
     });
@@ -2669,6 +2684,7 @@ function bindPropuestasFicha() {
 
 const ACCIONES_AGENTE: Record<string, string> = {
   preparar_borrado_crm: 'Borrar en Twenty CRM',
+  preparar_envio_cotizacion: 'Enviar cotización oficial al cliente',
   preparar_factura: 'Emitir factura DIAN',
   preparar_anulacion_factura: 'Anular factura DIAN',
   preparar_reembolso: 'Marcar pedido reembolsado',
@@ -3041,6 +3057,8 @@ type AdminUserRow = {
   email: string;
   rol: string;
   activo: boolean;
+  nombre?: string | null;
+  telefono?: string | null;
   confirmed_at: string | null;
   last_sign_in_at: string | null;
   synced: boolean;
@@ -3075,6 +3093,10 @@ async function usuariosView(): Promise<string> {
           ${field('email', 'Email', '', true, 'email')}
           ${selectStatic('rol', 'Rol', 'lectura', ADMIN_ROLES)}
         </div>
+        <div class="admin-editor__cols">
+          ${field('nombre', 'Nombre del asesor (sale en emails y PDFs de cotización)', '', false, 'text', 'maxlength="120" placeholder="Equipo Comercial I-ME"')}
+          ${field('telefono', 'Teléfono del asesor', '', false, 'tel', 'maxlength="30" placeholder="+57 300 000 0000"')}
+        </div>
         <label class="admin-field">Contraseña inicial opcional
           <input name="password" type="password" autocomplete="new-password" minlength="8" />
           <small>Si la dejas vacía se enviará invitación por email cuando el proveedor SMTP de Supabase esté disponible.</small>
@@ -3092,9 +3114,21 @@ async function usuariosView(): Promise<string> {
     <section class="admin-panel">
       <div class="admin-panel__head"><h2>Usuarios sincronizados (${users.length})</h2></div>
       ${table(
-        ['Email', 'Rol', 'Activo', 'Auth', 'Confirmado', 'Último acceso', 'Acciones'],
+        [
+          'Email',
+          'Nombre',
+          'Teléfono',
+          'Rol',
+          'Activo',
+          'Auth',
+          'Confirmado',
+          'Último acceso',
+          'Acciones',
+        ],
         users.map(user => [
           user.email,
+          user.nombre?.trim() || '—',
+          user.telefono?.trim() || '—',
           user.rol,
           user.activo ? 'Sí' : 'No',
           user.synced ? 'Sincronizado' : 'Falta Auth',
@@ -3113,8 +3147,8 @@ function adminUserActions(user: AdminUserRow): string {
   const active = user.activo ? '1' : '0';
   return `
     <div class="admin-row-actions">
-      <button class="admin-button admin-button--ghost" type="button" data-admin-user-edit="${email}" data-admin-user-id="${userId}" data-admin-user-rol="${role}" data-admin-user-activo="${active}">Editar</button>
-      <button class="admin-button admin-button--ghost" type="button" data-admin-user-password="${email}" data-admin-user-rol="${role}" data-admin-user-activo="${active}">Cambiar contraseña</button>
+      <button class="admin-button admin-button--ghost" type="button" data-admin-user-edit="${email}" data-admin-user-id="${userId}" data-admin-user-rol="${role}" data-admin-user-activo="${active}" data-admin-user-nombre="${escapeHtml(user.nombre ?? '')}" data-admin-user-telefono="${escapeHtml(user.telefono ?? '')}">Editar</button>
+      <button class="admin-button admin-button--ghost" type="button" data-admin-user-password="${email}" data-admin-user-rol="${role}" data-admin-user-activo="${active}" data-admin-user-nombre="${escapeHtml(user.nombre ?? '')}" data-admin-user-telefono="${escapeHtml(user.telefono ?? '')}">Cambiar contraseña</button>
       <button class="admin-button admin-button--ghost" type="button" data-admin-user-toggle="${email}" data-admin-user-rol="${role}" data-admin-user-activo="${active}">${user.activo ? 'Desactivar' : 'Activar'}</button>
       <button class="admin-button admin-button--danger" type="button" data-admin-user-delete="${email}" data-admin-user-id="${userId}">Eliminar</button>
     </div>`;

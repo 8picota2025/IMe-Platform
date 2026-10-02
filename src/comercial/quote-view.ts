@@ -326,6 +326,7 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
       created_by: state.userId,
       created_by_nombre: state.nombre,
       pedido_id: null,
+      impuestos_incluidos: null,
       incompleta: true,
       origen: 'pwa',
       editable: true,
@@ -410,6 +411,9 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
           </label>
           <label class="comercial-field"><span>Validez</span><input name="validez_hasta" type="date" value="${escapeHtml(quote.validez_hasta ?? '')}" ${disabled} /></label>
         </div>
+        <label class="comercial-field comercial-field--check"><span><input name="impuestos_incluidos" type="checkbox" data-quote-iva ${quote.impuestos_incluidos ? 'checked' : ''} ${disabled} /> Precios incluyen IVA</span>
+          <small class="comercial-help">Márcalo cuando los precios ofrecidos ya incluyen IVA. Sin esto, el cliente no podrá pedir factura electrónica al formalizar la cotización.</small>
+        </label>
         ${editable ? comboboxHtml() : ''}
         ${
           editable
@@ -519,6 +523,7 @@ function readForm(root: HTMLElement): {
   moneda: 'COP' | 'USD';
   validez_hasta: string | null;
   condiciones: string;
+  impuestos_incluidos: boolean;
   productos: CotizacionLineaOferta[];
 } {
   const form = root.querySelector<HTMLFormElement>('[data-quote-form]');
@@ -559,6 +564,7 @@ function readForm(root: HTMLElement): {
     moneda,
     validez_hasta: String(data.get('validez_hasta') ?? '').trim() || null,
     condiciones: String(data.get('condiciones') ?? '').trim(),
+    impuestos_incluidos: data.get('impuestos_incluidos') === 'on',
     productos: sanitizarLineasComercial(productos, moneda),
   };
 }
