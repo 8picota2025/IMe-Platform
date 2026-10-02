@@ -7,6 +7,7 @@
 
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { badRequest, errorResponse, notFound, internalError } from '../_shared/errors.ts';
+import { replyToDeCotizacion } from '../_shared/asesor.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { checkRateLimit } from '../_shared/rate-limit.ts';
 import { enviarEmailPlantilla, escapeHtml, DESTINATARIOS_INTERNOS } from '../_shared/email.ts';
@@ -620,6 +621,8 @@ Deno.serve(async req => {
     },
     pedidoId
   );
+  // Reply-To: el asesor dueño de la cotización (o la dirección comercial por defecto).
+  const replyToCliente = await replyToDeCotizacion(supabase, id);
   const emailCliente = await enviarEmailPlantilla(
     supabase,
     'transferencia_recibida_cliente',
@@ -630,7 +633,9 @@ Deno.serve(async req => {
       total: escapeHtml(String(total)),
       moneda: escapeHtml(moneda),
     },
-    pedidoId
+    pedidoId,
+    [],
+    { replyTo: replyToCliente }
   );
   if (!emailInterno.ok) {
     console.error('formalizar: email interno fallido', emailInterno.detalle);

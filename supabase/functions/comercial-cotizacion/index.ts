@@ -75,6 +75,7 @@ const DETAIL_COLUMNS = [
   'locale',
   'pedido_id',
   'campaign',
+  'impuestos_incluidos',
   'twenty_person_id',
   'twenty_company_id',
   'twenty_opportunity_id',
@@ -127,6 +128,8 @@ interface SaveBody {
   productos?: unknown;
   updated_at?: string | null;
   locale?: string;
+  /** "Precios incluyen IVA": habilita pedir factura electrónica al formalizar. */
+  impuestos_incluidos?: boolean | null;
 }
 
 type ServerSupabase = ReturnType<typeof getServerSupabase>;
@@ -189,6 +192,7 @@ function publicRow(
     created_by_nombre: createdByNombre ?? null,
     locale: row.locale === 'en' ? 'en' : 'es',
     pedido_id: row.pedido_id ?? null,
+    impuestos_incluidos: row.impuestos_incluidos ?? null,
     incompleta: !check.ok,
     incompleta_error: check.ok ? null : check.error,
     origen: row.created_by ? 'pwa' : 'web',
@@ -581,7 +585,7 @@ async function handleSave(
     );
   }
 
-  const canon = {
+  const canon: Record<string, unknown> = {
     nombre,
     empresa,
     email,
@@ -595,6 +599,10 @@ async function handleSave(
     locale,
     leida: true,
   };
+  // Solo se escribe si llega explícito: omitirlo conserva el valor existente (NULL = sin declarar).
+  if (typeof body.impuestos_incluidos === 'boolean') {
+    canon.impuestos_incluidos = body.impuestos_incluidos;
+  }
 
   const id = cleanText(body.id, 36);
   if (id) {
@@ -720,6 +728,7 @@ async function handleDuplicar(
     landing_path: '/comercial',
     campaign: 'pwa-revision',
     metadata: { revisa_de: row.id, revisa_numero: row.numero ?? null },
+    impuestos_incluidos: row.impuestos_incluidos ?? null,
     leida: true,
   };
   let inserted = await supabase

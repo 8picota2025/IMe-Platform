@@ -6,6 +6,18 @@
 import { createInterface } from 'node:readline';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import {
+  construirCambiosCotizacion,
+  construirLineasCotizacion,
+  detalleCotizacion,
+  normalizarFiltroCotizaciones,
+  resumenCotizacion,
+  type AsesorVista,
+  type FilaCotizacion,
+  type ProductoCatalogo,
+} from '../lib/cotizacion-mcp.ts';
+import { huellaOferta, validarEnvioCotizacion } from '../lib/cotizacion-envio.ts';
+import { esEmailValido } from '../lib/cotizacion-asesor.ts';
+import {
   cambioEtapaCrm,
   camposFichaPermitidos,
   confirmacionEjecutable,
@@ -81,12 +93,13 @@ async function preparar(
   db: SupabaseClient,
   args: Json,
   herramienta: string,
-  entidad: string
+  entidad: string,
+  venceMs = 24 * 60 * 60 * 1000
 ): Promise<Json> {
   const quien = actorDe(args);
   if (!quien.motivo) return { ok: false, error: 'Hace falta un motivo.' };
   // Margen para que un owner/admin la revise y apruebe en el CMS.
-  const vence = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+  const vence = new Date(Date.now() + venceMs).toISOString();
   const { data, error } = await db
     .from('comercio_confirmaciones')
     .insert({
@@ -171,6 +184,394 @@ async function borrarEnTwenty(objeto: ObjetoTwentyBorrable, id: string): Promise
   });
   if (res.ok || res.status === 404) return { ok: true };
   return { ok: false, error: `Twenty respondió HTTP ${res.status} al borrar ${objeto}/${id}.` };
+}
+
+const COTIZACION_COLS_LISTA =
+  'id,numero,estado,nombre,empresa,email,moneda,precio_total_ofertado,validez_hasta,created_by,updated_at,created_at,productos,metadata,pedido_id,impuestos_incluidos';
+const COTIZACION_COLS_DETALLE = `${COTIZACION_COLS_LISTA},telefono,condiciones,nit,responsable_iva,direccion_envio,direccion_facturacion,notas_internas,send_error,pdf_storage_path,oferta_enviada_at,locale`;
+// Huella y envío solo necesitan estas columnas (sin PII adicional).
+const COTIZACION_COLS_ENVIO =
+  'id,numero,estado,email,telefono,moneda,productos,condiciones,validez_hasta,impuestos_incluidos,pedido_id,created_by';
+
+/** Vigencia de una solicitud de envío: corta, para que no se apruebe una oferta vieja. */
+const ENVIO_COTIZACION_VENCE_MS = 4 * 60 * 60 * 1000;
+const MOTIVO_ENVIO_DEFECTO = 'Envío oficial de cotización';
+
+async function asesoresPorIds(
+  db: SupabaseClient,
+  ids: Array<string | null | undefined>
+): Promise<Map<string, AsesorVista>> {
+  const unicos = [...new Set(ids.filter((id): id is string => Boolean(id)))];
+  const mapa = new Map<string, AsesorVista>();
+  if (unicos.length === 0) return mapa;
+  const { data } = await db
+    .from('admin_profiles')
+    .select('user_id,nombre,email')
+    .in('user_id', unicos);
+  for (const fila of data ?? []) {
+    mapa.set(String(fila.user_id), {
+      user_id: String(fila.user_id),
+      nombre: fila.nombre ? String(fila.nombre) : null,
+      email: fila.email ? String(fila.email) : null,
+    });
+  }
+  return mapa;
+}
+
+/** Extrae `{ error: { code, message, details } }` de una respuesta HTTP de Edge Function. */
+async function errorDeFuncion(
+  error: unknown
+): Promise<{ message: string; code?: string; details?: string }> {
+  const respuesta = (error as { context?: Response } | null)?.context;
+  if (respuesta && typeof respuesta.json === 'function') {
+    try {
+      const cuerpo = (await respuesta.clone().json()) as {
+        error?: { code?: string; message?: string; details?: unknown };
+      };
+      const e = cuerpo?.error;
+      if (e?.message) {
+        const resultado: { message: string; code?: string; details?: string } = {
+          message: String(e.message),
+        };
+        if (e.code) resultado.code = String(e.code);
+        if (e.details != null) resultado.details = String(e.details).slice(0, 500);
+        return resultado;
+      }
+    } catch {
+      // cuerpo no JSON: se usa el mensaje genérico
+    }
+  }
+  return { message: error instanceof Error ? error.message : String(error) };
+}
+
+async function cotizacionPorId(
+  db: SupabaseClient,
+  args: Json,
+  columnas: string
+): Promise<{ ok: true; fila: FilaCotizacion } | { ok: false; error: string }> {
+  const id = String(args.cotizacion_id ?? args.id ?? '').trim();
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return { ok: false, error: 'Hace falta cotizacion_id (uuid).' };
+  const { data, error } = await db
+    .from('solicitudes_cotizacion')
+    .select(columnas)
+    .eq('id', id)
+    .maybeSingle();
+  if (error) return { ok: false, error: error.message };
+  if (!data) return { ok: false, error: 'Cotización no encontrada.' };
+  return { ok: true, fila: data as unknown as FilaCotizacion };
+}
+
+async function ejecutarCotizacion(
+  db: SupabaseClient,
+  nombre: string,
+  args: Json,
+  quien: { actor: string; rol: string; motivo: string }
+): Promise<Json | null> {
+  if (nombre === 'buscar_cotizaciones') {
+    const normalizado = normalizarFiltroCotizaciones(args);
+    if (!normalizado.ok) return normalizado;
+    const f = normalizado.filtro;
+    let consulta = db
+      .from('solicitudes_cotizacion')
+      .select(COTIZACION_COLS_LISTA)
+      .order('updated_at', { ascending: false })
+      .limit(f.limite);
+    if (f.estados.length > 0) consulta = consulta.in('estado', f.estados);
+    if (f.email) consulta = consulta.ilike('email', `%${f.email}%`);
+    if (f.empresa) consulta = consulta.ilike('empresa', `%${f.empresa}%`);
+    if (f.desde) consulta = consulta.gte('created_at', `${f.desde}T00:00:00Z`);
+    if (f.hasta) consulta = consulta.lte('created_at', `${f.hasta}T23:59:59.999Z`);
+    if (f.q) {
+      consulta = consulta.or(
+        `numero.ilike.%${f.q}%,nombre.ilike.%${f.q}%,empresa.ilike.%${f.q}%,email.ilike.%${f.q}%`
+      );
+    }
+    const { data, error } = await consulta;
+    if (error) return { ok: false, error: error.message };
+    const filas = (data ?? []) as unknown as FilaCotizacion[];
+    const asesores = await asesoresPorIds(
+      db,
+      filas.map(fila => fila.created_by)
+    );
+    return {
+      ok: true,
+      total: filas.length,
+      cotizaciones: filas.map(fila =>
+        resumenCotizacion(fila, fila.created_by ? (asesores.get(fila.created_by) ?? null) : null)
+      ),
+    };
+  }
+
+  if (nombre === 'obtener_cotizacion') {
+    const cargada = await cotizacionPorId(db, args, COTIZACION_COLS_DETALLE);
+    if (!cargada.ok) return cargada;
+    const fila = cargada.fila;
+    const asesores = await asesoresPorIds(db, [fila.created_by]);
+    let pdfUrl: string | null = null;
+    const ruta = (fila as { pdf_storage_path?: string | null }).pdf_storage_path;
+    if (ruta) {
+      const firmada = await db.storage.from('cotizaciones-pdf').createSignedUrl(ruta, 3600);
+      pdfUrl = firmada.data?.signedUrl ?? null;
+    }
+    return {
+      ok: true,
+      cotizacion: detalleCotizacion(
+        fila,
+        fila.created_by ? (asesores.get(fila.created_by) ?? null) : null,
+        { pdf_url: pdfUrl }
+      ),
+    };
+  }
+
+  if (nombre === 'actualizar_cotizacion') {
+    const cargada = await cotizacionPorId(db, args, COTIZACION_COLS_DETALLE);
+    if (!cargada.ok) return cargada;
+    const fila = cargada.fila;
+    if (
+      args.updated_at &&
+      fila.updated_at &&
+      new Date(String(args.updated_at)).getTime() !== new Date(fila.updated_at).getTime()
+    ) {
+      return {
+        ok: false,
+        code: 'CONCURRENT_UPDATE',
+        error: 'Otra persona modificó la cotización. Vuelve a leerla con obtener_cotizacion.',
+      };
+    }
+    let lineas: Awaited<ReturnType<typeof construirLineasCotizacion>> | null = null;
+    if (args.lineas !== undefined) {
+      const monedaFinal =
+        String(args.moneda ?? fila.moneda ?? 'COP').toUpperCase() === 'USD' ? 'USD' : 'COP';
+      const ids = (Array.isArray(args.lineas) ? (args.lineas as Json[]) : [])
+        .map(linea => String(linea?.producto_id ?? '').trim())
+        .filter(Boolean);
+      const catalogo = new Map<string, ProductoCatalogo>();
+      if (ids.length > 0) {
+        const { data, error } = await db
+          .from('productos')
+          .select('id,slug,nombre_es')
+          .in('id', ids);
+        if (error) return { ok: false, error: error.message };
+        for (const producto of data ?? []) {
+          catalogo.set(String(producto.id), {
+            id: String(producto.id),
+            slug: String(producto.slug ?? ''),
+            nombre_es: String(producto.nombre_es ?? ''),
+          });
+        }
+      }
+      lineas = construirLineasCotizacion(args.lineas, catalogo, monedaFinal);
+      if (!lineas.ok) return lineas;
+    }
+    const cambios = construirCambiosCotizacion(
+      args,
+      fila,
+      lineas && lineas.ok ? lineas.lineas : null
+    );
+    if (!cambios.ok) return cambios;
+    const { error } = await db
+      .from('solicitudes_cotizacion')
+      .update(cambios.cambios.patch)
+      .eq('id', fila.id);
+    if (error) return { ok: false, error: error.message };
+    await db.rpc('ensure_cotizacion_numero', { p_id: fila.id });
+    await registrar(db, {
+      ...quien,
+      herramienta: nombre,
+      entidad: 'solicitudes_cotizacion',
+      entidadId: fila.id,
+      antes: {
+        estado: fila.estado,
+        total: fila.precio_total_ofertado,
+        lineas: Array.isArray(fila.productos) ? fila.productos.length : null,
+      },
+      despues: { campos: cambios.cambios.campos },
+    });
+    const recargada = await cotizacionPorId(
+      db,
+      { cotizacion_id: fila.id },
+      COTIZACION_COLS_DETALLE
+    );
+    if (!recargada.ok) return { ok: true, actualizados: cambios.cambios.campos };
+    const asesores = await asesoresPorIds(db, [recargada.fila.created_by]);
+    return {
+      ok: true,
+      actualizados: cambios.cambios.campos,
+      cotizacion: detalleCotizacion(
+        recargada.fila,
+        recargada.fila.created_by ? (asesores.get(recargada.fila.created_by) ?? null) : null
+      ),
+      siguiente_paso:
+        'preparar_envio_cotizacion para enviarla al cliente (requiere aprobación de owner/admin).',
+    };
+  }
+
+  if (nombre === 'preparar_envio_cotizacion') {
+    const actorEmail = String(args.actor_email ?? '')
+      .trim()
+      .toLowerCase();
+    if (!esEmailValido(actorEmail)) {
+      return {
+        ok: false,
+        error:
+          'Hace falta actor_email: el usuario comercial a cuyo nombre se envía (p. ej. comercial1@i-me.com.co).',
+      };
+    }
+    const canal = args.canal === 'whatsapp' ? 'whatsapp' : 'email';
+    const cargada = await cotizacionPorId(db, args, COTIZACION_COLS_ENVIO);
+    if (!cargada.ok) return cargada;
+    const fila = cargada.fila;
+    if (fila.pedido_id || fila.estado === 'convertida') {
+      return {
+        ok: false,
+        code: 'COTIZACION_YA_CONVERTIDA',
+        error: 'La cotización ya fue convertida en pedido.',
+      };
+    }
+    const validada = validarEnvioCotizacion(fila, { canal, exigirPreciosFirmes: true });
+    if (!validada.ok) return { ok: false, code: validada.code, error: validada.message };
+    // Dry-run en la misma función que enviará: valida actor, plantilla activa y genera la vista previa.
+    const simulacion = await db.functions.invoke('enviar-cotizacion', {
+      body: { cotizacion_id: fila.id, canal, actor_email: actorEmail, dry_run: true },
+    });
+    if (simulacion.error) {
+      const detalle = await errorDeFuncion(simulacion.error);
+      return {
+        ok: false,
+        error: detalle.message,
+        ...(detalle.code ? { code: detalle.code } : {}),
+        ...(detalle.details ? { detalle: detalle.details } : {}),
+      };
+    }
+    const vista = simulacion.data as Json;
+    const huella = await huellaOferta(fila);
+    const resumen = {
+      destinatario: vista.destinatario,
+      asunto: vista.asunto ?? null,
+      total: vista.total,
+      moneda: vista.moneda,
+      validez_hasta: vista.validez_hasta ?? null,
+      lineas: vista.lineas,
+      asesor: vista.asesor,
+      reply_to: vista.reply_to,
+    };
+    const previa = await preparar(
+      db,
+      {
+        ...args,
+        motivo: quien.motivo || `${MOTIVO_ENVIO_DEFECTO} ${fila.numero ?? ''}`.trim(),
+        entidad_id: fila.id,
+        payload: {
+          cotizacion_id: fila.id,
+          canal,
+          actor_email: actorEmail,
+          huella,
+          pdf_preview_url: vista.pdf_preview_url ?? null,
+          resumen,
+        },
+      },
+      'preparar_envio_cotizacion',
+      'solicitudes_cotizacion',
+      ENVIO_COTIZACION_VENCE_MS
+    );
+    if (!previa.ok) return previa;
+    return {
+      ...previa,
+      cotizacion_id: fila.id,
+      numero: fila.numero ?? null,
+      resumen,
+      pdf_preview_url: vista.pdf_preview_url ?? null,
+      pdf_preview_error: vista.pdf_preview_error ?? null,
+      aprobacion:
+        'Un owner/admin debe aprobar esta solicitud en el CMS (Dashboard → Aprobaciones del agente) antes de confirmar. Vence en 4 h.',
+    };
+  }
+
+  if (nombre === 'confirmar_envio_cotizacion') {
+    const conMotivo = { ...args, motivo: quien.motivo || MOTIVO_ENVIO_DEFECTO };
+    const listo = await confirmar(db, conMotivo, 'preparar_envio_cotizacion');
+    if (!listo.ok) return listo;
+    const confirmacion = listo.fila as { id: string; entidad_id: string | null; payload: Json };
+    const payload = confirmacion.payload ?? {};
+    const cargada = await cotizacionPorId(
+      db,
+      { cotizacion_id: confirmacion.entidad_id },
+      COTIZACION_COLS_ENVIO
+    );
+    if (!cargada.ok) return cargada;
+    // La oferta no puede haber cambiado entre la aprobación y el envío.
+    if ((await huellaOferta(cargada.fila)) !== String(payload.huella ?? '')) {
+      return {
+        ok: false,
+        code: 'OFERTA_CAMBIADA',
+        error: 'La cotización cambió después de preparar el envío. Prepara y aprueba uno nuevo.',
+      };
+    }
+    const canal = payload.canal === 'whatsapp' ? 'whatsapp' : 'email';
+    const envio = await db.functions.invoke('enviar-cotizacion', {
+      body: {
+        cotizacion_id: confirmacion.entidad_id,
+        canal,
+        actor_email: String(payload.actor_email ?? ''),
+      },
+    });
+    if (envio.error) {
+      const detalle = await errorDeFuncion(envio.error);
+      await registrar(db, {
+        ...quien,
+        herramienta: nombre,
+        entidad: 'solicitudes_cotizacion',
+        entidadId: confirmacion.entidad_id,
+        despues: { enviado: false, send_error: detalle.details ?? detalle.message },
+        confirmacionId: confirmacion.id,
+      });
+      return {
+        ok: false,
+        error: detalle.message,
+        ...(detalle.code ? { code: detalle.code } : {}),
+        send_error: detalle.details ?? detalle.message,
+        nota: 'No se marcó como enviada. La aprobación sigue vigente: corrige la causa y vuelve a confirmar.',
+      };
+    }
+    const resultado = envio.data as Json;
+    await db
+      .from('comercio_confirmaciones')
+      .update({
+        estado: 'confirmada',
+        confirmada_en: new Date().toISOString(),
+        confirmada_por: quien.actor,
+      })
+      .eq('id', confirmacion.id);
+    await registrar(db, {
+      ...quien,
+      herramienta: nombre,
+      entidad: 'solicitudes_cotizacion',
+      entidadId: confirmacion.entidad_id,
+      despues: {
+        numero: resultado.numero,
+        estado: resultado.estado,
+        canal,
+        message_id: resultado.message_id ?? null,
+        reply_to: resultado.reply_to ?? null,
+      },
+      confirmacionId: confirmacion.id,
+    });
+    return {
+      ok: true,
+      cotizacion_id: confirmacion.entidad_id,
+      numero: resultado.numero,
+      estado: resultado.estado,
+      canal,
+      formalizar_url: resultado.formalizar_url,
+      whatsapp_url: resultado.whatsapp_url ?? null,
+      message_id: resultado.message_id ?? null,
+      asesor: resultado.asesor,
+      reply_to: resultado.reply_to ?? null,
+      confirmacion_id: confirmacion.id,
+    };
+  }
+
+  return null;
 }
 
 async function ejecutar(nombre: McpToolName, args: Json): Promise<Json> {
@@ -466,6 +867,9 @@ async function ejecutar(nombre: McpToolName, args: Json): Promise<Json> {
       envio: 'Lo envía una persona o el flujo recordatorio-carritos.',
     };
   }
+
+  const deCotizacion = await ejecutarCotizacion(db, nombre, args, quien);
+  if (deCotizacion) return deCotizacion;
 
   if (nombre === 'preparar_borrado_crm') {
     const objetivo = objetivoBorradoCrm(args.objeto, args.entidad_id);
@@ -896,6 +1300,33 @@ const inputSchema = {
     estado: { type: 'string' },
     tracking_number: { type: 'string' },
     tracking_url: { type: 'string' },
+    actor_email: {
+      type: 'string',
+      description:
+        'preparar_envio_cotizacion: usuario comercial (ventas/admin/owner activo) a cuyo nombre se envía.',
+    },
+    lineas: {
+      type: 'array',
+      description:
+        'actualizar_cotizacion: reemplaza las líneas. [{producto_id|nombre, cantidad, precio_unitario>0, descripcion?}]',
+    },
+    cliente: {
+      type: 'object',
+      description:
+        'actualizar_cotizacion: {nombre, empresa, nit, email, telefono, ciudad, direccion_envio, direccion_facturacion}',
+    },
+    condiciones: { type: 'string' },
+    validez_hasta: { type: 'string', description: 'YYYY-MM-DD' },
+    moneda: { type: 'string', description: 'COP | USD' },
+    impuestos_incluidos: { type: 'boolean' },
+    notas: { type: 'string' },
+    updated_at: {
+      type: 'string',
+      description: 'actualizar_cotizacion: control de concurrencia opcional',
+    },
+    desde: { type: 'string', description: 'buscar_cotizaciones: YYYY-MM-DD (created_at)' },
+    hasta: { type: 'string', description: 'buscar_cotizaciones: YYYY-MM-DD (created_at)' },
+    limite: { type: 'number', description: 'buscar_cotizaciones: 1-50 (def. 20)' },
   },
 };
 

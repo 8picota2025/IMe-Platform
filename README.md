@@ -97,3 +97,4 @@ cada sesión. Estado de fases en AGENTS.md sección "Estado de fases".
 - `PENDIENTES.md` — pendientes activos por etiqueta
 - `BACKLOG_V2.md` — fuera de alcance V1
 - `docs/prompts/` — prompts de fase versionados
+- `docs/mcp-ime-comercio-cotizaciones.md` — herramientas MCP `ime-comercio` para buscar, editar y enviar cotizaciones (envío oficial con asesor y Reply-To)

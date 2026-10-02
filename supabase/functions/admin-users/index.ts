@@ -12,6 +12,10 @@ interface AdminUsersRequest {
   activo?: boolean;
   password?: string;
   sendInvite?: boolean;
+  /** Nombre visible del asesor (email/PDF de cotizaciones). Omitido = no cambia; vacío = borra. */
+  nombre?: string | null;
+  /** Teléfono del asesor. Omitido = no cambia; vacío = borra. */
+  telefono?: string | null;
 }
 
 interface Row {
@@ -26,6 +30,24 @@ const VALID_ROLES = new Set<AdminRole>([
   'operaciones',
   'lectura',
 ]);
+
+const NOMBRE_MAX = 120;
+const TELEFONO_RE = /^[+\d][\d\s().-]{5,29}$/;
+
+/** undefined = no tocar; '' = borrar (null); texto = normalizado. */
+function normalizeOptionalText(
+  value: unknown,
+  campo: string,
+  max: number
+): string | null | undefined {
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+  if (typeof value !== 'string') throw new AdminUsersInputError(`${campo} invalido`);
+  const limpio = value.trim().replace(/\s+/g, ' ');
+  if (!limpio) return null;
+  if (limpio.length > max) throw new AdminUsersInputError(`${campo} demasiado largo (max ${max})`);
+  return limpio;
+}
 
 class AdminUsersInputError extends Error {
   constructor(
@@ -100,12 +122,20 @@ Deno.serve(async req => {
       redirectTo: new URL('/admin', origin ?? 'https://i-me.com.co').toString(),
     });
 
+    const nombre = normalizeOptionalText(body.nombre, 'Nombre', NOMBRE_MAX);
+    const telefono = normalizeOptionalText(body.telefono, 'Telefono', 30);
+    if (telefono && !TELEFONO_RE.test(telefono)) {
+      throw new AdminUsersInputError('Telefono invalido (usa digitos, +, espacios o guiones)');
+    }
     const { error: profileError } = await supabase.from('admin_profiles').upsert(
       {
         user_id: authUser.id,
         email,
         rol,
         activo,
+        // Solo se envían si vienen en la petición: activar/desactivar no borra el perfil.
+        ...(nombre !== undefined ? { nombre } : {}),
+        ...(telefono !== undefined ? { telefono } : {}),
       },
       { onConflict: 'email' }
     );
@@ -119,6 +149,8 @@ Deno.serve(async req => {
           email,
           rol,
           activo,
+          nombre: nombre ?? null,
+          telefono: telefono ?? null,
           invited: sendInvite && !password,
         },
       },
@@ -147,7 +179,7 @@ async function listAdminUsers(supabase: ReturnType<typeof getServerSupabase>) {
   const [{ data: profiles, error: profilesError }, authUsers] = await Promise.all([
     supabase
       .from('admin_profiles')
-      .select('user_id, email, rol, activo, created_at, updated_at')
+      .select('user_id, email, rol, activo, nombre, telefono, created_at, updated_at')
       .order('email'),
     listAllAuthUsers(supabase),
   ]);
@@ -163,6 +195,8 @@ async function listAdminUsers(supabase: ReturnType<typeof getServerSupabase>) {
         email: String(profile.email ?? auth?.email ?? ''),
         rol: profile.rol,
         activo: profile.activo,
+        nombre: profile.nombre ?? null,
+        telefono: profile.telefono ?? null,
         created_at: profile.created_at,
         updated_at: profile.updated_at,
         auth_email: auth?.email ?? null,

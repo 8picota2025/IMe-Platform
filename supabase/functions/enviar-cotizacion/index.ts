@@ -1,6 +1,10 @@
 /**
  * Envía oferta formal de cotización al cliente con PDF + link Formalizar.
  * Auth: JWT admin (ventas+) o service_role.
+ * "Enviar como": con service_role se puede indicar `actor_email` / `actor_user_id` de un
+ * usuario ventas/admin/owner activo; la cotización queda a su nombre (owner, asesor del
+ * email/PDF y Reply-To). Con JWT de usuario el actor es siempre el propio usuario.
+ * dry_run=true: valida todo, genera el PDF de vista previa y NO envía ni numera ni cambia estado.
  * canal=email  → estado=enviada SOLO si Resend acepta el correo.
  * canal=whatsapp → prepara PDF + enlace y abre wa.me (estado=enviada al devolver URL).
  */
@@ -15,7 +19,15 @@ import {
 } from '../_shared/errors.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { requireAdmin } from '../_shared/admin-auth.ts';
-import { enviarEmailPlantilla, escapeHtml, itemsToHtml } from '../_shared/email.ts';
+import {
+  enviarEmailPlantilla,
+  escapeHtml,
+  itemsToHtml,
+  previsualizarPlantilla,
+} from '../_shared/email.ts';
+import { perfilComercialActivo, perfilPorUsuario } from '../_shared/asesor.ts';
+import { resolverAsesor } from '../../../src/lib/cotizacion-asesor.ts';
+import { validarEnvioCotizacion } from '../../../src/lib/cotizacion-envio.ts';
 import { normalizeE164 } from '../_shared/phone.ts';
 import { renderQuotePdf } from '../_shared/render-quote-pdf.ts';
 import {
@@ -135,6 +147,11 @@ interface Body {
   rotar_token?: boolean;
   /** Canal de entrega. Default email. */
   canal?: 'email' | 'whatsapp';
+  /** Solo service_role: envía a nombre de este usuario comercial. */
+  actor_user_id?: string;
+  actor_email?: string;
+  /** Valida y genera vista previa sin enviar. */
+  dry_run?: boolean;
 }
 
 Deno.serve(async req => {
@@ -151,6 +168,44 @@ Deno.serve(async req => {
   const id = (body.cotizacion_id ?? '').trim();
   if (!id) return badRequest('cotizacion_id requerido', origin);
   const canal: 'email' | 'whatsapp' = body.canal === 'whatsapp' ? 'whatsapp' : 'email';
+  const dryRun = body.dry_run === true;
+
+  // Actor ("enviar como"): solo aceptado con service_role y para un usuario comercial activo.
+  let actor: { userId: string | null; email: string | null; role: string | null } = {
+    userId: auth.userId,
+    email: auth.email,
+    role: auth.role,
+  };
+  const actorDelegado = Boolean(
+    String(body.actor_user_id ?? '').trim() || String(body.actor_email ?? '').trim()
+  );
+  if (actorDelegado) {
+    if (auth.role !== 'service_role') {
+      return errorResponse(
+        {
+          code: 'ACTOR_NO_PERMITIDO',
+          message: 'actor_email / actor_user_id solo se aceptan con service role.',
+        },
+        403,
+        origin
+      );
+    }
+    const perfilActor = await perfilComercialActivo(supabase, {
+      userId: String(body.actor_user_id ?? '').trim() || null,
+      email: String(body.actor_email ?? '').trim() || null,
+    });
+    if (!perfilActor) {
+      return errorResponse(
+        {
+          code: 'ACTOR_INVALIDO',
+          message: 'El actor debe ser un usuario activo con rol ventas, admin u owner.',
+        },
+        422,
+        origin
+      );
+    }
+    actor = { userId: perfilActor.user_id, email: perfilActor.email, role: perfilActor.rol };
+  }
 
   const loadRow = async (): Promise<
     | { ok: true; row: CotizacionOfertaRow & { notas_internas?: string | null } }
@@ -176,7 +231,12 @@ Deno.serve(async req => {
   // Vendedores solo pueden operar cotizaciones propias. service_role y
   // supervisores conservan bandeja compartida; filas web sin propietario
   // pueden ser reclamadas por el vendedor que las envía.
-  if (auth.userId && auth.role === 'ventas' && row.created_by && row.created_by !== auth.userId) {
+  if (
+    actor.userId &&
+    actor.role === 'ventas' &&
+    row.created_by &&
+    row.created_by !== actor.userId
+  ) {
     return notFound(origin);
   }
 
@@ -196,7 +256,7 @@ Deno.serve(async req => {
     body.validez_hasta !== undefined;
   const inmutable = row.estado === 'enviada';
 
-  if (wantsPersist && !inmutable) {
+  if (wantsPersist && !inmutable && !dryRun) {
     const monedaPayload =
       body.moneda !== undefined ? normalizarMonedaOferta(body.moneda) : undefined;
     const lineasRaw = parseLineasOferta(
@@ -234,7 +294,7 @@ Deno.serve(async req => {
         : checkPayload.moneda === 'USD'
           ? 'INTL'
           : 'CO';
-    if (auth.userId) patch.created_by = auth.userId;
+    if (actor.userId) patch.created_by = actor.userId;
     let { error: saveError } = await supabase
       .from('solicitudes_cotizacion')
       .update(patch)
@@ -252,40 +312,156 @@ Deno.serve(async req => {
     row = reloaded.row;
   }
 
-  const lineas = parseLineasOferta(row.productos);
-  const oferta = normalizarOferta(lineas, row.condiciones, row.moneda);
-  if (!oferta.ok) {
+  const validado = validarEnvioCotizacion(row, { canal, exigirPreciosFirmes: dryRun });
+  if (!validado.ok) {
     return errorResponse(
-      { code: oferta.error, message: 'Completa precios y condiciones antes de enviar' },
-      422,
+      { code: validado.code, message: validado.message },
+      validado.status,
       origin
     );
   }
-
-  const email = String(row.email ?? '')
-    .trim()
-    .toLowerCase();
+  const oferta = { lineas: validado.lineas, total: validado.total, moneda: validado.moneda };
+  const email = validado.email;
   const telefonoCliente = String(row.telefono ?? '').trim();
-  if (canal === 'email') {
-    if (!email.includes('@')) {
-      return errorResponse(
-        { code: 'SIN_EMAIL', message: 'Cotizacion sin email de cliente' },
-        422,
-        origin
-      );
+
+  // Asesor que firma email/PDF: el actor; si no hay (service role sin actor), el
+  // propietario de la cotización; nunca el email en crudo (fallback "Equipo Comercial I-ME").
+  const perfilFirma = actor.userId
+    ? await perfilPorUsuario(supabase, actor.userId)
+    : row.created_by
+      ? await perfilPorUsuario(supabase, row.created_by)
+      : null;
+  const asesor = resolverAsesor(perfilFirma ?? (actor.email ? { email: actor.email } : null), {
+    replyToEntorno: Deno.env.get('COTIZACION_REPLY_TO'),
+  });
+  const siteUrl = (Deno.env.get('SITE_URL') ?? DEFAULT_SITE_URL).replace(/\/+$/, '');
+  const nombreComercial = asesor.nombre;
+  const correoComercial = asesor.correo;
+  const telefonoComercial = asesor.telefono;
+
+  const locale = row.locale === 'en' ? 'en' : 'es';
+  const renderPdf = async (numeroPdf: string) => {
+    const [annexes, logoBytes, whatsappIconBytes, fonts] = await Promise.all([
+      buildQuoteAnnexes(supabase, oferta.lineas, siteUrl),
+      loadQuotePdfLogo(siteUrl),
+      loadQuotePdfWhatsappIcon(siteUrl),
+      loadQuotePdfFonts(siteUrl),
+    ]);
+    const banco = getDatosBancariosTransferencia();
+    return renderQuotePdf({
+      numero: numeroPdf,
+      clienteNombre: String(row.nombre ?? 'Cliente'),
+      empresa: row.empresa,
+      email: row.email,
+      telefono: row.telefono,
+      condiciones: String(row.condiciones ?? ''),
+      validezHasta: row.validez_hasta ? String(row.validez_hasta) : null,
+      moneda: oferta.moneda,
+      total: oferta.total,
+      lineas: oferta.lineas,
+      locale,
+      nombreComercial,
+      correoComercial,
+      telefonoComercial,
+      annexes,
+      logoBytes,
+      whatsappIconBytes,
+      fontRegularBytes: fonts.regular,
+      fontBoldBytes: fonts.bold,
+      bancoLineas: bancoLineasCotizacion(banco),
+    });
+  };
+
+  if (dryRun) {
+    const metaPrev =
+      row.metadata && typeof row.metadata === 'object' && !Array.isArray(row.metadata)
+        ? (row.metadata as Record<string, unknown>)
+        : {};
+    const numeroPrev =
+      String(row.numero ?? '').trim() ||
+      String(metaPrev.numero_presupuesto ?? '').trim() ||
+      'BORRADOR';
+    let asunto: string | null = null;
+    let plantillaDry: string | null = null;
+    if (canal === 'email') {
+      plantillaDry = locale === 'en' ? 'cotizacion_oferta_cliente_en' : 'presupuesto';
+      const varsAsunto = {
+        cliente_nombre: String(row.nombre ?? 'Cliente'),
+        referencia: numeroPrev,
+        nombre_comercial: nombreComercial,
+        total: String(oferta.total),
+        moneda: oferta.moneda,
+      };
+      let prev = await previsualizarPlantilla(supabase, plantillaDry, varsAsunto);
+      if (!prev.ok && locale !== 'en' && prev.desconocida) {
+        plantillaDry = 'cotizacion_oferta_cliente_es';
+        prev = await previsualizarPlantilla(supabase, plantillaDry, varsAsunto);
+      }
+      if (!prev.ok) {
+        return errorResponse(
+          {
+            code: prev.inactiva ? 'TEMPLATE_INACTIVE' : 'PLANTILLA_NO_DISPONIBLE',
+            message: prev.inactiva
+              ? 'La plantilla presupuesto esta desactivada. Activala y reintenta.'
+              : 'La plantilla de email de cotizacion no esta disponible.',
+            details: prev.detalle,
+          },
+          422,
+          origin
+        );
+      }
+      asunto = prev.asunto ?? null;
     }
-  } else {
-    const phone = normalizeE164(telefonoCliente, '57');
-    if (!phone.ok || !phone.e164) {
-      return errorResponse(
-        {
-          code: 'SIN_TELEFONO',
-          message: 'Cotizacion sin telefono valido para WhatsApp.',
-        },
-        422,
-        origin
-      );
+    let pdfPreviewUrl: string | null = null;
+    let pdfPreviewError: string | null = null;
+    try {
+      const bytes = await renderPdf(numeroPrev);
+      const previewPath = `${id}/preview.pdf`;
+      const { error: upErr } = await supabase.storage
+        .from('cotizaciones-pdf')
+        .upload(previewPath, bytes, { contentType: 'application/pdf', upsert: true });
+      if (upErr) {
+        pdfPreviewError = upErr.message.slice(0, 300);
+      } else {
+        const { data: signed, error: signErr } = await supabase.storage
+          .from('cotizaciones-pdf')
+          .createSignedUrl(previewPath, 3600);
+        if (signErr || !signed?.signedUrl) pdfPreviewError = signErr?.message ?? 'sin url firmada';
+        else pdfPreviewUrl = signed.signedUrl;
+      }
+    } catch (err) {
+      pdfPreviewError = err instanceof Error ? err.message.slice(0, 300) : 'PDF_RENDER_FAILED';
     }
+    return new Response(
+      JSON.stringify({
+        ok: true,
+        dry_run: true,
+        cotizacion_id: id,
+        canal,
+        estado: row.estado ?? null,
+        numero: row.numero ?? null,
+        destinatario: canal === 'email' ? email : telefonoCliente,
+        asunto,
+        plantilla: plantillaDry,
+        total: oferta.total,
+        moneda: oferta.moneda,
+        validez_hasta: row.validez_hasta ?? null,
+        lineas: oferta.lineas.map(l => ({
+          nombre: l.nombre,
+          cantidad: l.cantidad,
+          precio_unitario: l.precio_unitario,
+          subtotal: l.subtotal,
+        })),
+        asesor: { nombre: nombreComercial, email: correoComercial, telefono: telefonoComercial },
+        reply_to: asesor.replyTo,
+        pdf_preview_url: pdfPreviewUrl,
+        pdf_preview_error: pdfPreviewError,
+      }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
+      }
+    );
   }
 
   // Numeración: RPC si existe; si no (sandbox sin migración PDF), metadata/fallback.
@@ -327,8 +503,6 @@ Deno.serve(async req => {
     // instancia parcialmente migrada. La función hace fallback a metadata.
     await releaseSendClaim(supabase, id, sendError);
   };
-  const locale = row.locale === 'en' ? 'en' : 'es';
-  const siteUrl = (Deno.env.get('SITE_URL') ?? DEFAULT_SITE_URL).replace(/\/+$/, '');
   const expiraAt = expiryFromValidez(row.validez_hasta);
   const forceRotate = body.rotar_token === true;
   const meta =
@@ -359,30 +533,12 @@ Deno.serve(async req => {
   meta.formalizacion_url = formalizarUrl;
   meta.numero_presupuesto = numero;
 
-  // Perfil comercial (nombre en PDF + plantilla presupuesto)
-  let nombreComercial = auth.email || 'Equipo comercial I-ME';
-  let correoComercial = auth.email || 'ventas@i-me.com.co';
-  let telefonoComercial = '';
-  if (auth.userId) {
-    const { data: perfil } = await supabase
-      .from('admin_profiles')
-      .select('nombre,email,telefono')
-      .eq('user_id', auth.userId)
-      .maybeSingle();
-    const p = perfil as { nombre?: string | null; email?: string; telefono?: string | null } | null;
-    if (p) {
-      nombreComercial = (p.nombre || '').trim() || p.email || nombreComercial;
-      correoComercial = p.email || correoComercial;
-      telefonoComercial = (p.telefono || '').trim();
-    }
-  }
-
-  const actor = correoComercial || auth.userId || 'admin';
+  const quienEnvia = asesor.deperfil ? asesor.correo : actor.email || actor.role || 'admin';
   const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 16);
   const destinoNota = canal === 'whatsapp' ? telefonoCliente || 'WhatsApp' : email;
   const nota = tokenRotated
-    ? `[${timestamp}] Presupuesto ${numero} enviado por ${canal} a ${destinoNota} por ${actor}. Nuevo enlace de formalizacion.`
-    : `[${timestamp}] Presupuesto ${numero} reenviado por ${canal} a ${destinoNota} por ${actor}. Mismo enlace vigente.`;
+    ? `[${timestamp}] Presupuesto ${numero} enviado por ${canal} a ${destinoNota} por ${quienEnvia}. Nuevo enlace de formalizacion.`
+    : `[${timestamp}] Presupuesto ${numero} reenviado por ${canal} a ${destinoNota} por ${quienEnvia}. Mismo enlace vigente.`;
   const notasPrevias = String(row.notas_internas ?? '').trim();
   const notas = notasPrevias ? `${notasPrevias}\n${nota}` : nota;
 
@@ -400,6 +556,8 @@ Deno.serve(async req => {
   if (tokenRotated && tokenHash) {
     preMail.formalizacion_token_hash = tokenHash;
   }
+  // Owner: quien envía (o el actor delegado) queda como propietario de la cotización.
+  if (actor.userId && (actorDelegado || !row.created_by)) preMail.created_by = actor.userId;
   // created_by / numero solo si el schema los tiene
   let { error: preError } = await supabase
     .from('solicitudes_cotizacion')
@@ -428,38 +586,9 @@ Deno.serve(async req => {
     return errorResponse({ code: 'ADJUNTOS_INVALIDOS', message: adjuntos.error }, 422, origin);
   }
 
-  let pdfBytes: Uint8Array;
+  let pdfBytes: Awaited<ReturnType<typeof renderPdf>>;
   try {
-    const [annexes, logoBytes, whatsappIconBytes, fonts] = await Promise.all([
-      buildQuoteAnnexes(supabase, oferta.lineas, siteUrl),
-      loadQuotePdfLogo(siteUrl),
-      loadQuotePdfWhatsappIcon(siteUrl),
-      loadQuotePdfFonts(siteUrl),
-    ]);
-
-    const banco = getDatosBancariosTransferencia();
-    pdfBytes = await renderQuotePdf({
-      numero,
-      clienteNombre: String(row.nombre ?? 'Cliente'),
-      empresa: row.empresa,
-      email: row.email,
-      telefono: row.telefono,
-      condiciones: String(row.condiciones ?? ''),
-      validezHasta: row.validez_hasta ? String(row.validez_hasta) : null,
-      moneda: oferta.moneda,
-      total: oferta.total,
-      lineas: oferta.lineas,
-      locale,
-      nombreComercial,
-      correoComercial,
-      telefonoComercial,
-      annexes,
-      logoBytes,
-      whatsappIconBytes,
-      fontRegularBytes: fonts.regular,
-      fontBoldBytes: fonts.bold,
-      bancoLineas: bancoLineasCotizacion(banco),
-    });
+    pdfBytes = await renderPdf(numero);
   } catch (err) {
     const detalle = err instanceof Error ? err.message : 'PDF_RENDER_FAILED';
     await releaseClaim(detalle);
@@ -528,6 +657,7 @@ Deno.serve(async req => {
 
   let whatsappUrl: string | null = null;
   let plantilla: string | null = null;
+  let messageId: string | null = null;
 
   if (canal === 'whatsapp') {
     const phone = normalizeE164(telefonoCliente, '57');
@@ -579,6 +709,7 @@ Deno.serve(async req => {
       {
         failOnInactive: true,
         idempotencyKey: `quote-send:${id}:${pdfRevision}`,
+        replyTo: asesor.replyTo,
       }
     );
     if (
@@ -596,6 +727,7 @@ Deno.serve(async req => {
         {
           failOnInactive: true,
           idempotencyKey: `quote-send:${id}:${pdfRevision}:es`,
+          replyTo: asesor.replyTo,
         }
       );
     }
@@ -616,6 +748,10 @@ Deno.serve(async req => {
       );
     }
     meta.quote_send_channel = 'email';
+    messageId = envio.messageId ?? null;
+    meta.quote_send_message_id = messageId;
+    meta.quote_send_reply_to = asesor.replyTo;
+    meta.quote_send_asesor = asesor.correo;
   }
 
   const postUpdate: Record<string, unknown> = {
@@ -677,6 +813,9 @@ Deno.serve(async req => {
       pdf_revision: pdfRevision,
       pdf_storage_path: storedPdfPath,
       plantilla,
+      message_id: messageId,
+      asesor: { nombre: nombreComercial, email: correoComercial, telefono: telefonoComercial },
+      reply_to: canal === 'email' ? asesor.replyTo : null,
       crm_sync_status: 'pending',
     }),
     {

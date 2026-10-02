@@ -45,6 +45,8 @@ export interface QuotePublic {
   created_by: string | null;
   created_by_nombre: string | null;
   pedido_id: string | null;
+  /** "Precios incluyen IVA" (null = sin declarar). */
+  impuestos_incluidos: boolean | null;
   incompleta: boolean;
   origen: 'pwa' | 'web';
   editable: boolean;
@@ -71,15 +73,16 @@ export interface QuoteSaveInput {
   validez_hasta: string | null;
   condiciones: string;
   productos: CotizacionLineaOferta[];
+  impuestos_incluidos?: boolean;
 }
 
 /** Columnas presentes en prod actual (OpenAPI). */
 const DETAIL_CORE =
-  'id,estado,nombre,empresa,email,telefono,moneda,mercado,validez_hasta,condiciones,productos,precio_total_ofertado,created_at,metadata,crm_sync_status,locale,pedido_id,campaign,landing_path,origen,tipo_solicitud';
+  'id,estado,nombre,empresa,email,telefono,moneda,mercado,validez_hasta,condiciones,productos,precio_total_ofertado,created_at,metadata,crm_sync_status,locale,pedido_id,campaign,landing_path,origen,tipo_solicitud,impuestos_incluidos';
 
 /** Extras de migración PDF/numeración — se intentan si existen. */
 const DETAIL_RICH =
-  'id,numero,estado,nombre,empresa,email,telefono,moneda,mercado,validez_hasta,condiciones,productos,precio_total_ofertado,updated_at,created_at,pdf_storage_path,pdf_revision,send_error,metadata,crm_sync_status,created_by,locale,pedido_id,campaign,landing_path,origen,tipo_solicitud';
+  'id,numero,estado,nombre,empresa,email,telefono,moneda,mercado,validez_hasta,condiciones,productos,precio_total_ofertado,updated_at,created_at,pdf_storage_path,pdf_revision,send_error,metadata,crm_sync_status,created_by,locale,pedido_id,campaign,landing_path,origen,tipo_solicitud,impuestos_incluidos';
 
 function missingSchema(message?: string | null, code?: string | null): boolean {
   if (code && /^(PGRST204|42703|42883)$/i.test(code)) return true;
@@ -174,6 +177,8 @@ export function mapQuoteRow(raw: unknown, createdByNombre?: string | null): Quot
     created_by: createdBy,
     created_by_nombre: createdByNombre ?? null,
     pedido_id: typeof row.pedido_id === 'string' ? row.pedido_id : null,
+    impuestos_incluidos:
+      typeof row.impuestos_incluidos === 'boolean' ? row.impuestos_incluidos : null,
     incompleta: !check.ok,
     origen: pwa ? 'pwa' : 'web',
     editable: quoteEditable(String(row.estado ?? 'nueva')),
@@ -634,6 +639,9 @@ async function saveQuoteRest(
     locale: 'es',
     leida: true,
   };
+  if (typeof input.impuestos_incluidos === 'boolean') {
+    canon['impuestos_incluidos'] = input.impuestos_incluidos;
+  }
 
   if (input.id) {
     const existing = await fetchQuoteRow(input.id);
@@ -709,6 +717,9 @@ async function duplicarQuoteRest(id: string): Promise<EdgeFunctionResult<{ quote
     validez_hasta: quote.validez_hasta,
     condiciones: quote.condiciones,
     productos: quote.productos,
+    ...(typeof quote.impuestos_incluidos === 'boolean'
+      ? { impuestos_incluidos: quote.impuestos_incluidos }
+      : {}),
   });
 }
 
