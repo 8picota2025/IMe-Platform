@@ -806,11 +806,10 @@ export async function getProductosBySlugs(slugs: string[], locale: Locale): Prom
       .select('*')
       .in('slug', slugs)
       .eq('activo', true);
-    if (!error && data && data.length > 0) {
+    if (!error && data) {
       return data.map(raw => mapProductoSupabase(raw, locale));
     }
     if (error) registrarErrorSupabase('getProductosBySlugs', error);
-    else if (data) registrarVacioSupabase('getProductosBySlugs');
   }
   return mockProductos
     .filter(p => slugs.includes(p.slug) && p.activo)

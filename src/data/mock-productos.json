@@ -1013,7 +1013,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Terapia CPAP neonatal",
@@ -1479,7 +1479,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Desinfección ambiental hospitalaria",
@@ -2028,7 +2028,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Mezcla precisa de aire y oxígeno",
@@ -2165,7 +2165,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Mezcla precisa de aire y oxígeno",
@@ -2302,7 +2302,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Mezcla precisa de aire y oxígeno",
@@ -2430,7 +2430,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Oxigenoterapia de alto flujo",
@@ -2702,7 +2702,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Humidificación de gases",
@@ -2789,7 +2789,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Terapia de alto flujo",
@@ -2858,7 +2858,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": ["Traqueostomía", "Terapia de alto flujo", "Humidificación de gases"],
     "aplicaciones_en": ["Tracheostomy", "High-flow therapy", "Gas humidification"],
@@ -2962,7 +2962,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": ["Humidificación de gases", "Ventilación mecánica", "HFV"],
     "aplicaciones_en": ["Gas humidification", "Mechanical ventilation", "HFV"],
@@ -3033,7 +3033,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": ["Ventilación mecánica", "Humidificación de gases", "Terapia respiratoria"],
     "aplicaciones_en": ["Mechanical ventilation", "Gas humidification", "Respiratory therapy"],
@@ -3077,7 +3077,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": ["Terapia de alto flujo", "Airvo 2", "Oxigenoterapia"],
     "aplicaciones_en": ["High-flow therapy", "Airvo 2", "Oxygen therapy"],
@@ -3151,7 +3151,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": ["Ventilación invasiva", "Ventilación no invasiva", "UCI", "Pediatría"],
     "aplicaciones_en": ["Invasive ventilation", "Non-invasive ventilation", "ICU", "Pediatrics"],
@@ -3234,7 +3234,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": ["Neonatología", "Ventilación invasiva"],
     "aplicaciones_en": ["Neonatology", "Invasive ventilation"],
@@ -3313,7 +3313,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": ["Neonatología", "Ventilación invasiva"],
     "aplicaciones_en": ["Neonatology", "Invasive ventilation"],
@@ -3392,7 +3392,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": ["Neonatología", "Ventilación invasiva", "Lactantes hasta 20 kg"],
     "aplicaciones_en": ["Neonatology", "Invasive ventilation", "Infants up to 20 kg"],
@@ -3471,7 +3471,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": ["Terapia de alto flujo", "Oxigenoterapia", "Adultos mayores de 20 kg"],
     "aplicaciones_en": ["High-flow therapy", "Oxygen therapy", "Adults over 20 kg"],
@@ -3564,7 +3564,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": ["Reanimación neonatal", "Ventilación de emergencia", "Lactantes"],
     "aplicaciones_en": ["Neonatal resuscitation", "Emergency ventilation", "Infants"],
@@ -3677,7 +3677,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Terapia de alto flujo pediátrica",
@@ -3770,7 +3770,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": ["Terapia de alto flujo neonatal", "Programa madre canguro", "Neonatología"],
     "aplicaciones_en": ["Neonatal high-flow therapy", "Kangaroo mother care", "Neonatology"],
@@ -5771,7 +5771,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Monitoreo de función cerebral neonatal",
@@ -6209,7 +6209,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Terapias respiratorias no invasivas",
@@ -6280,7 +6280,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Terapia CPAP en recién nacidos",
@@ -6425,7 +6425,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Ventilación mecánica",
@@ -6486,7 +6486,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Ventilación mecánica",
@@ -6567,7 +6567,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Cuidado intensivo neonatal",
@@ -6714,7 +6714,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Cuidado de bebés prematuros o bajo peso",
@@ -6852,7 +6852,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Terapia de alto flujo nasal (NHF) en neonatos y lactantes",
@@ -7159,7 +7159,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Asistencia respiratoria en recién nacidos",
@@ -7297,7 +7297,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Terapia de alto flujo nasal (NHF)",
@@ -7433,7 +7433,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Reanimación neonatal",
@@ -7571,7 +7571,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Desinfección de superficies y equipos médicos",
@@ -7652,7 +7652,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Absorción de derrames de fluidos corporales",
@@ -7740,7 +7740,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Desinfección de alto nivel en entornos clínicos",
@@ -7799,7 +7799,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Iluminación en procedimientos menores",
@@ -7884,7 +7884,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Tratamiento de ictericia neonatal",
@@ -7993,7 +7993,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Iluminación en procedimientos quirúrgicos",
@@ -8069,7 +8069,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Iluminación homogénea en cirugía",
@@ -9144,7 +9144,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Mantenimiento de normotermia en cirugía",
@@ -9252,7 +9252,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Quirófano de cirugía general",
@@ -9309,7 +9309,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Ventilación no invasiva en paciente adulto",
@@ -9353,7 +9353,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Ventilación no invasiva hospitalaria",
@@ -9420,7 +9420,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "CPAP neonatal",
@@ -9558,7 +9558,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Reanimación neonatal",
@@ -9679,7 +9679,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Terapia respiratoria neonatal",
@@ -9788,7 +9788,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Cirugía general",
@@ -9833,7 +9833,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Cirugía laparoscópica",
@@ -9878,7 +9878,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": ["Cirugía general", "Ortopedia", "Ginecología y cirugía plástica"],
     "aplicaciones_en": ["General surgery", "Orthopedics", "Gynecology and plastic surgery"],
@@ -9955,7 +9955,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Salas de observación y urgencias",
@@ -10078,7 +10078,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": ["Monitoreo en UCI", "Soporte en quirófano", "Transporte intrahospitalario"],
     "aplicaciones_en": ["ICU monitoring", "Operating room support", "Intrahospital transport"],
@@ -10176,7 +10176,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Cuidados intensivos adultos",
@@ -10263,7 +10263,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Transporte interhospitalario y prehospitalario",
@@ -10364,7 +10364,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Cuidados intensivos neonatales",
@@ -10427,7 +10427,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": ["Quirófanos", "UCIs", "Salas de recuperación", "Urgencias"],
     "aplicaciones_en": ["Operating rooms", "ICUs", "Recovery rooms", "Emergency departments"],
@@ -10502,7 +10502,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Urgencias",
@@ -10567,7 +10567,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": ["Hospitales", "Clínicas", "Ambulancias", "Atención domiciliaria"],
     "aplicaciones_en": ["Hospitals", "Clinics", "Ambulances", "Home care"],
@@ -10603,7 +10603,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": ["EEG", "ECG", "EMG", "aEEG"],
     "aplicaciones_en": ["EEG", "ECG", "EMG", "aEEG"],
@@ -10662,7 +10662,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Monitoreo cerebral no invasivo neonatal",
@@ -10766,7 +10766,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": ["Quirófanos", "Unidades de cuidados intensivos", "Áreas de anestesia"],
     "aplicaciones_en": ["Operating rooms", "Intensive care units", "Anesthesia areas"],
@@ -10820,7 +10820,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Terapia de oxígeno de alto flujo en adultos",
@@ -12089,7 +12089,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Fijación de cánulas Optiflow Junior",
@@ -12225,7 +12225,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Ventilación neonatal no invasiva",
@@ -12356,7 +12356,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "CPAP neonatal",
@@ -12686,7 +12686,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Reanimación neonatal",
@@ -12786,7 +12786,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Reanimación neonatal",
@@ -13086,7 +13086,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Ventilación neonatal",
@@ -13205,7 +13205,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Ventilación neonatal",
@@ -13350,7 +13350,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Terapia respiratoria de alto flujo",
@@ -13495,7 +13495,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Terapia respiratoria de alto flujo",
@@ -13573,7 +13573,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Ventilación con presión positiva pediátrica",
@@ -13713,7 +13713,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Manejo de temperatura post paro cardíaco",
@@ -13805,7 +13805,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Terapia de hipotermia neonatal/pediátrica",
@@ -13897,7 +13897,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Terapia de normotermia servocontrolada",
@@ -13997,7 +13997,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Ventilación no invasiva neonatal",
@@ -14086,7 +14086,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Reanimación neonatal",
@@ -25057,7 +25057,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Estudios de electroencefalografía (EEG)",
@@ -25144,7 +25144,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Cirugía laparoscópica general",
@@ -25192,7 +25192,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Cirugía general",
@@ -25261,7 +25261,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "CPAP neonatal",
@@ -25656,7 +25656,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Ventilación invasiva",
@@ -25898,7 +25898,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Transporte de pacientes críticos",
@@ -26122,7 +26122,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Transporte intrahospitalario",
@@ -26220,7 +26220,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Transporte de pacientes",
@@ -26372,7 +26372,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Terapia Napa no invasiva",
@@ -26524,7 +26524,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Ventilación convencional neonatal",
@@ -26637,7 +26637,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Unidad de cuidados intensivos neonatales (UCIN)",
@@ -26870,7 +26870,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": true,
+    "activo": false,
     "orden": 0,
     "aplicaciones_es": [
       "Hospitales",
