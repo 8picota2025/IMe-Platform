@@ -8,6 +8,7 @@ import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 import {
   detectarLocaleWhatsApp,
   sendWhatsAppText,
+  whatsAppRecipient,
   type WhatsAppGraphConfig,
 } from '../../../src/lib/whatsapp-cloud.ts';
 import {
@@ -172,17 +173,58 @@ async function cargarSnapshot(
   return { events, outbound, outboundOk: !outboundRes.error, pausedWaIds };
 }
 
-async function liberarReclamo(supabase: SupabaseClient, token: string): Promise<void> {
-  const { error } = await supabase
+async function fallarReclamo(
+  supabase: SupabaseClient,
+  token: string,
+  error: string,
+  release = true
+): Promise<void> {
+  const result = await supabase.rpc('fail_whatsapp_batch', {
+    p_token: token,
+    p_error: error,
+    p_release: release,
+  });
+  if (result.error) throw new Error('whatsapp_failure_record_failed');
+}
+
+export async function recipientForContact(
+  supabase: SupabaseClient,
+  sender: string
+): Promise<string | null> {
+  const { data, error } = await supabase
+    .from('whatsapp_contact_routes')
+    .select('bsuid, phone')
+    .eq('sender_id', sender)
+    .maybeSingle();
+  if (error) throw new Error('whatsapp_route_lookup_failed');
+  const candidate = data?.bsuid ?? data?.phone ?? sender;
+  return whatsAppRecipient(candidate) ? candidate : null;
+}
+
+export async function canDispatch(supabase: SupabaseClient, sender: string): Promise<boolean> {
+  const { data: reason, error } = await supabase.rpc('whatsapp_dispatch_drop_reason', {
+    p_sender: sender,
+  });
+  if (error) throw new Error('whatsapp_dispatch_guard_failed');
+  if (!reason) return true;
+  const { data, error: updateError } = await supabase
     .from('whatsapp_inbound_events')
-    .update({
-      agent_claimed_at: null,
-      agent_claim_token: null,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('agent_claim_token', token)
-    .eq('status', 'pending_agent');
-  if (error) console.warn('[whatsapp-dispatch] liberar reclamo:', error.message);
+    .update({ status: reason === 'paused' ? 'human_paused' : 'ignored', drop_reason: reason })
+    .eq('from_wa', sender)
+    .eq('status', 'pending_agent')
+    .select('wamid');
+  if (updateError) throw new Error('whatsapp_drop_update_failed');
+  if (data?.length) {
+    const { error: auditError } = await supabase.from('whatsapp_drop_log').insert(
+      data.map((row: { wamid: string }) => ({
+        wamid: row.wamid,
+        sender_id: sender,
+        drop_reason: reason,
+      }))
+    );
+    if (auditError) throw new Error('whatsapp_drop_audit_failed');
+  }
+  return false;
 }
 
 async function despertarLote(
@@ -193,6 +235,28 @@ async function despertarLote(
   wakeKey: string,
   fetchImpl: typeof fetch
 ): Promise<boolean> {
+  if (!(await canDispatch(supabase, fromWa))) return false;
+  const recipientId = await recipientForContact(supabase, fromWa);
+  if (!recipientId) {
+    const result = await supabase
+      .from('whatsapp_inbound_events')
+      .update({ status: 'ignored', drop_reason: 'no_sendable_recipient' })
+      .eq('from_wa', fromWa)
+      .eq('status', 'pending_agent')
+      .select('wamid');
+    if (result.error) throw new Error('whatsapp_drop_update_failed');
+    if (result.data?.length) {
+      const audit = await supabase.from('whatsapp_drop_log').insert(
+        result.data.map((row: { wamid: string }) => ({
+          wamid: row.wamid,
+          sender_id: fromWa,
+          drop_reason: 'no_sendable_recipient',
+        }))
+      );
+      if (audit.error) throw new Error('whatsapp_drop_audit_failed');
+    }
+    return false;
+  }
   const { data, error } = await supabase.rpc('claim_whatsapp_agent_batch', {
     p_from_wa: fromWa,
     p_quiet_seconds: Math.round(WHATSAPP_QUIET_MS / 1000),
@@ -210,6 +274,10 @@ async function despertarLote(
   );
   const token = latest.out_claim_token;
   const texto = (latest.out_body ?? '').trim();
+  if (!wakeUrl || !wakeKey) {
+    await fallarReclamo(supabase, token, 'wake_configuration_missing');
+    return false;
+  }
   const phoneNumberId = latest.out_phone_number_id ?? graph?.phoneNumberId ?? null;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), WAKE_TIMEOUT_MS);
@@ -226,6 +294,11 @@ async function despertarLote(
         channel: 'imeia',
         from: fromWa,
         text: texto,
+        claim_token: token,
+        sender_id: fromWa,
+        recipient: whatsAppRecipient(recipientId),
+        reply_endpoint: 'whatsapp-imeia-reply',
+        messages: filas.map(row => ({ wamid: row.out_wamid, body: row.out_body })),
         wamid: latest.out_wamid,
         phone_number_id: phoneNumberId,
         locale: detectarLocaleWhatsApp(filas.map(fila => fila.out_body ?? '').join('\n')),
@@ -236,7 +309,7 @@ async function despertarLote(
     if (!res.ok) {
       console.error('[whatsapp-dispatch] wake HTTP', res.status, cola(fromWa));
       await res.body?.cancel().catch(() => undefined);
-      await liberarReclamo(supabase, token);
+      await fallarReclamo(supabase, token, `wake_http_${res.status}`);
       return false;
     }
     await res.body?.cancel().catch(() => undefined);
@@ -248,9 +321,9 @@ async function despertarLote(
       '[whatsapp-dispatch] wake',
       aborted ? 'timeout (se conserva el reclamo)' : 'error',
       cola(fromWa),
-      err instanceof Error ? err.message : err
+      'wake_network_failure'
     );
-    if (!aborted) await liberarReclamo(supabase, token);
+    await fallarReclamo(supabase, token, aborted ? 'wake_timeout' : 'wake_network_error', !aborted);
     return false;
   } finally {
     clearTimeout(timer);
@@ -268,6 +341,9 @@ async function enviarEspera(
   graph: WhatsAppGraphConfig | null,
   fetchImpl: typeof fetch
 ): Promise<boolean> {
+  if (!(await canDispatch(supabase, plan.fromWa))) return false;
+  const recipient = await recipientForContact(supabase, plan.fromWa);
+  if (!recipient) return false;
   if (!graph) {
     console.warn('[whatsapp-dispatch] sin WHATSAPP_TOKEN: no se envía espera');
     return false;
@@ -365,14 +441,15 @@ async function enviarEspera(
   const id = (insertada as { id?: string } | null)?.id;
   if (!id) return false;
 
+  if (!(await canDispatch(supabase, plan.fromWa))) return false;
   const enviado = await sendWhatsAppText({
-    to: plan.fromWa,
+    to: recipient,
     body: plan.body,
     token: graph.token,
     phoneNumberId: plan.phoneNumberId ?? graph.phoneNumberId,
     apiVersion: graph.apiVersion,
     fetchImpl,
-  });
+  }).catch(() => ({ ok: false, error: 'holding_network_error', status: 0, messageId: undefined }));
   if (!enviado.ok) {
     console.error('[whatsapp-dispatch] Graph espera:', enviado.error ?? enviado.status);
     await supabase
@@ -389,6 +466,86 @@ async function enviarEspera(
   return true;
 }
 
+/** Durable reservation: a second holding is attempted at most once per alerted turn.
+ * An ambiguous network failure is left failed for human review, never resent automatically. */
+async function secondHoldings(
+  supabase: SupabaseClient,
+  graph: WhatsAppGraphConfig | null,
+  fetchImpl: typeof fetch
+): Promise<number> {
+  if (!graph) return 0;
+  const { data: alerts, error } = await supabase
+    .from('whatsapp_alerts')
+    .select('id, sender_id, turn_key')
+    .eq('second_holding_status', 'new')
+    .limit(100);
+  if (error) throw new Error('whatsapp_alert_lookup_failed');
+  let count = 0;
+  for (const alert of alerts ?? []) {
+    if (!(await canDispatch(supabase, alert.sender_id))) continue;
+    const recipient = await recipientForContact(supabase, alert.sender_id);
+    if (!recipient) continue;
+    const pending = await supabase
+      .from('whatsapp_inbound_events')
+      .select('status, created_at')
+      .eq('wamid', alert.turn_key)
+      .maybeSingle();
+    if (pending.error) throw new Error('whatsapp_pending_lookup_failed');
+    if (pending.data?.status !== 'pending_agent') continue;
+    const replied = await supabase
+      .from('whatsapp_outbound_messages')
+      .select('id')
+      .eq('to_wa', alert.sender_id)
+      .eq('kind', 'reply')
+      .eq('send_status', 'sent')
+      .gte('created_at', pending.data.created_at)
+      .limit(1);
+    if (replied.error) throw new Error('whatsapp_reply_lookup_failed');
+    if (replied.data?.length) continue;
+    const firstHolding = await supabase
+      .from('whatsapp_outbound_messages')
+      .select('id')
+      .eq('to_wa', alert.sender_id)
+      .eq('kind', 'holding')
+      .eq('turn_key', alert.turn_key)
+      .eq('send_status', 'sent')
+      .limit(1);
+    if (firstHolding.error) throw new Error('whatsapp_first_holding_lookup_failed');
+    if (!firstHolding.data?.length) continue;
+    const reserved = await supabase
+      .from('whatsapp_alerts')
+      .update({ second_holding_status: 'reserved' })
+      .eq('id', alert.id)
+      .eq('second_holding_status', 'new')
+      .select('id');
+    if (reserved.error) throw new Error('whatsapp_alert_reservation_failed');
+    if (!reserved.data?.length) continue;
+    const body =
+      'Seguimos revisando tu consulta. La respuesta está tardando más de lo previsto; nuestro equipo te atenderá lo antes posible.';
+    const sent = await sendWhatsAppText({ to: recipient, body, ...graph, fetchImpl }).catch(() => ({
+      ok: false,
+      messageId: undefined,
+    }));
+    const update = await supabase
+      .from('whatsapp_alerts')
+      .update({ second_holding_status: sent.ok ? 'sent' : 'failed' })
+      .eq('id', alert.id);
+    if (update.error) throw new Error('whatsapp_alert_status_failed');
+    const outbound = await supabase.from('whatsapp_outbound_messages').insert({
+      to_wa: alert.sender_id,
+      body,
+      kind: 'holding',
+      turn_key: `${alert.turn_key}:retry`,
+      send_status: sent.ok ? 'sent' : 'failed',
+      wamid: sent.messageId ?? null,
+      phone_number_id: graph.phoneNumberId,
+    });
+    if (outbound.error) throw new Error('whatsapp_second_holding_audit_failed');
+    if (sent.ok) count += 1;
+  }
+  return count;
+}
+
 export async function despacharWhatsAppImeia(opts: {
   supabase: SupabaseClient;
   graph: WhatsAppGraphConfig | null;
@@ -403,34 +560,39 @@ export async function despacharWhatsAppImeia(opts: {
   const now = opts.now ?? new Date();
   const fetchImpl = opts.fetchImpl ?? fetch;
   const fromWa = opts.fromWa ?? null;
+  const maintained = await opts.supabase.rpc('maintain_whatsapp_pipeline');
+  if (maintained.error) throw new Error('whatsapp_maintenance_failed');
   const snapshot = await cargarSnapshot(opts.supabase, fromWa, now);
   if (snapshot.pausedWaIds === null) return { wakes: 0, holdings: 0 };
   if (snapshot.events.length === 0) return { wakes: 0, holdings: 0 };
 
+  const allowedEvents: InboundEventRow[] = [];
+  for (const sender of new Set(snapshot.events.map(event => event.fromWa))) {
+    if (await canDispatch(opts.supabase, sender))
+      allowedEvents.push(...snapshot.events.filter(event => event.fromWa === sender));
+  }
   const plan = planWhatsAppDispatch({
     now,
-    events: snapshot.events,
+    events: allowedEvents,
     outbound: snapshot.outbound,
     pausedWaIds: snapshot.pausedWaIds,
   });
   let wakes = 0;
   let holdings = 0;
 
-  if (opts.wakes && opts.wakeUrl && opts.wakeKey) {
+  if (opts.wakes) {
     const candidatos = fromWa ? plan.wakes.filter(wake => wake.fromWa === fromWa) : plan.wakes;
     for (const wake of candidatos) {
       const ok = await despertarLote(
         opts.supabase,
         wake.fromWa,
         opts.graph,
-        opts.wakeUrl,
-        opts.wakeKey,
+        opts.wakeUrl ?? '',
+        opts.wakeKey ?? '',
         fetchImpl
       );
       if (ok) wakes += 1;
     }
-  } else if (opts.wakes && plan.wakes.length > 0 && (!opts.wakeUrl || !opts.wakeKey)) {
-    console.warn('[whatsapp-dispatch] IMEIA_AGENT_WEBHOOK_URL/KEY ausentes: no wake');
   }
 
   if (opts.holdings && snapshot.outboundOk) {
@@ -443,6 +605,7 @@ export async function despacharWhatsAppImeia(opts: {
     }
   }
 
+  if (opts.holdings) holdings += await secondHoldings(opts.supabase, opts.graph, fetchImpl);
   return { wakes, holdings };
 }
 

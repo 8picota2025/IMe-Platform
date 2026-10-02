@@ -424,3 +424,10 @@ enabled = true
 # Feed Merchant Center: crawl público (rate-limit en la function).
 [functions.generar-feed-google]
 verify_jwt = false
+
+# Auth inside handlers with existing Supabase secrets; cron bearer is not a JWT.
+[functions.recordatorio-carritos]
+verify_jwt = false
+
+[functions.whatsapp-imeia-reply]
+verify_jwt = false
