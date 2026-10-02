@@ -1,0 +1,1284 @@
+[
+  {
+    "sku": "EQ-1-E-0002",
+    "descripcion_larga_es": "El Neopuff de Fisher & Paykel es un reanimador neonatal en T que entrega presión inspiratoria pico (PIP) y PEEP de forma controlada y constante, con manómetro preciso y de fácil lectura, control de PIP y válvula de alivio de presión máxima. Admite oxígeno del 21 % al 100 % desde caudalímetros o mezclador de gas, con flujo de entrada de 5 a 15 L/min. La unidad pesa 1,9 kg (250 x 200 x 104 mm) y su manómetro cubre de -10 a 80 cmH₂O con precisión de ±2 % del fondo de escala.",
+    "descripcion_larga_en": "The Fisher & Paykel Neopuff is a neonatal T-piece resuscitator that delivers controlled, consistent peak inspiratory pressure (PIP) and PEEP, with an accurate, easy-to-read manometer, PIP control and maximum pressure relief valve. It accepts oxygen from 21% to 100% from flowmeters or a gas blender, with input flow of 5 to 15 L/min. The unit weighs 1.9 kg (250 x 200 x 104 mm) and its manometer covers -10 to 80 cmH₂O with ±2% full-scale accuracy.",
+    "beneficios_es": [
+      "Presiones PIP y PEEP más controladas y consistentes que con bolsas autoinflables, según el fabricante.",
+      "Manómetro de -10 a 80 cmH₂O y válvula de alivio de presión máxima de fábrica en 40 cmH₂O.",
+      "Oxígeno del 21 % al 100 % con flujo de entrada de 5 a 15 L/min; unidad ligera de 1,9 kg."
+    ],
+    "beneficios_en": [
+      "More controlled and consistent PIP and PEEP than self-inflating bags, per the manufacturer.",
+      "Manometer from -10 to 80 cmH₂O and maximum pressure relief valve factory-set at 40 cmH₂O.",
+      "Oxygen from 21% to 100% with 5 to 15 L/min input flow; light 1.9 kg unit."
+    ],
+    "valor_es": "Un reanimador neonatal en T con control preciso de presión, usado en sala de partos, UCIN y transporte, con documentación oficial de Fisher & Paykel.",
+    "valor_en": "A neonatal T-piece resuscitator with precise pressure control, used in the delivery room, NICU and transport, with official Fisher & Paykel documentation.",
+    "faq_es": [
+      {
+        "q": "¿Qué ventaja tiene un reanimador en T frente a una bolsa?",
+        "a": "Las guías internacionales de reanimación neonatal recomiendan el uso de un reanimador en T cuando hay fuente de gas; según Fisher & Paykel, entrega PIP y PEEP más controlados y consistentes que las bolsas autoinflables o de flujo."
+      },
+      {
+        "q": "¿Qué flujo de gas necesita?",
+        "a": "Un flujo de entrada de 5 a 15 L/min; el fabricante recomienda gas médico mezclado de aire y oxígeno."
+      },
+      {
+        "q": "¿Qué incluye la caja?",
+        "a": "Unidad Neopuff, línea de gas, adaptador de entrada de gas, pulmón de prueba, tapa de repuesto de la válvula de presión máxima e instrucciones de uso."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What advantage does a T-piece resuscitator have over a bag?",
+        "a": "International neonatal resuscitation guidelines recommend a T-piece resuscitator when a gas source is available; per Fisher & Paykel it delivers more controlled and consistent PIP and PEEP than self-inflating or flow-inflating bags."
+      },
+      {
+        "q": "What gas flow does it need?",
+        "a": "An input flow of 5 to 15 L/min; the manufacturer recommends blended medical-grade air and oxygen."
+      },
+      {
+        "q": "What is in the box?",
+        "a": "Neopuff unit, gas supply line, gas inlet adaptor, test lung, spare maximum pressure relief cap and user instructions."
+      }
+    ],
+    "seo_keywords_es": [
+      "reanimador neonatal en T",
+      "Neopuff Fisher & Paykel",
+      "reanimación neonatal en sala de partos",
+      "reanimador con PEEP controlado",
+      "equipo de reanimación neonatal Colombia",
+      "ficha técnica Neopuff RD900"
+    ],
+    "seo_keywords_en": [
+      "neonatal T-piece resuscitator",
+      "Fisher & Paykel Neopuff",
+      "neonatal resuscitation delivery room",
+      "resuscitator with controlled PEEP",
+      "neonatal resuscitation equipment Colombia",
+      "Neopuff RD900 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "Neopuff RD900 series"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Fisher & Paykel Healthcare"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Dimensiones / peso",
+        "valor": "250 x 200 x 104 mm; 1,9 kg"
+      },
+      {
+        "grupo": "Rendimiento",
+        "clave": "Manómetro",
+        "valor": "-10 a 80 cmH₂O, ±2 % del fondo de escala"
+      },
+      {
+        "grupo": "Rendimiento",
+        "clave": "Flujo de entrada",
+        "valor": "5 - 15 L/min"
+      },
+      {
+        "grupo": "Rendimiento",
+        "clave": "Alivio de presión máxima",
+        "valor": "5 - 70 cmH₂O (ajuste de fábrica 40 cmH₂O)"
+      },
+      {
+        "grupo": "Rendimiento",
+        "clave": "Oxígeno",
+        "valor": "21 - 100 %"
+      },
+      {
+        "grupo": "Regulatorio",
+        "clave": "Clasificación",
+        "valor": "Clase IIb (UE y Australia), Clase II (EE. UU.); origen Nueva Zelanda"
+      }
+    ]
+  },
+  {
+    "sku": "EQ-1-E-0003",
+    "descripcion_larga_es": "El AIRVO 2 de Fisher & Paykel es un humidificador con generador de flujo integrado que entrega gases respiratorios calentados y humidificados a flujos de 2 a 60 L/min, a través de interfaces nasales, de traqueostomía o mascarillas con conector estándar de 22 mm. Cumple la norma ISO 8185:2007 de humidificación, ofrece modo estándar (10-60 L/min en pasos de 5) y modo Junior (2-25 L/min en pasos de 1), pesa 2,2 kg y mide 295 x 170 x 175 mm.",
+    "descripcion_larga_en": "The Fisher & Paykel AIRVO 2 is a humidifier with integrated flow generator that delivers warmed and humidified respiratory gases at flows of 2 to 60 L/min, through nasal, tracheostomy or mask interfaces with a standard 22 mm taper. It complies with the ISO 8185:2007 humidification standard, offers a standard mode (10-60 L/min in 5 L/min steps) and a Junior mode (2-25 L/min in 1 L/min steps), weighs 2.2 kg and measures 295 x 170 x 175 mm.",
+    "beneficios_es": [
+      "Flujo de 2 a 60 L/min con humidificación integrada, para pacientes con respiración espontánea.",
+      "Compatible con cánulas nasales y traqueostomía Optiflow+ y mascarillas de 22 mm.",
+      "Compacto: 2,2 kg y 295 x 170 x 175 mm, con accesorios como soporte de poste y soporte de cilindro de oxígeno."
+    ],
+    "beneficios_en": [
+      "Flow from 2 to 60 L/min with integrated humidification, for spontaneously breathing patients.",
+      "Compatible with Optiflow+ nasal and tracheostomy interfaces and 22 mm masks.",
+      "Compact: 2.2 kg and 295 x 170 x 175 mm, with accessories such as a pole stand and oxygen bottle holder."
+    ],
+    "valor_es": "Un sistema de alto flujo nasal con humidificador integrado para hospitales y cuidados de larga estancia, con documentación oficial de Fisher & Paykel.",
+    "valor_en": "A nasal high flow system with integrated humidifier for hospitals and long-term care, with official Fisher & Paykel documentation.",
+    "faq_es": [
+      {
+        "q": "¿Para qué pacientes está indicado?",
+        "a": "Para pacientes con respiración espontánea que se benefician de gases calentados y humidificados a alto flujo, incluidos pacientes con vía aérea superior derivada, en hospitales y centros de larga estancia, según la ficha."
+      },
+      {
+        "q": "¿Qué rango de flujo tiene?",
+        "a": "De 2 a 60 L/min según la interfaz; el modo estándar usa 10-60 L/min y el modo Junior 2-25 L/min."
+      },
+      {
+        "q": "¿Qué accesorios admite?",
+        "a": "Kit de desinfección, filtros, kit de tubo y cámara, soporte de poste, kit de montaje UPS, soporte de cilindro de oxígeno y kit de entrada de oxígeno."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Which patients is it indicated for?",
+        "a": "Spontaneously breathing patients who benefit from warmed, humidified high-flow gases, including those with bypassed upper airways, in hospitals and long-term care, per the datasheet."
+      },
+      {
+        "q": "What flow range does it have?",
+        "a": "From 2 to 60 L/min depending on the interface; standard mode uses 10-60 L/min and Junior mode 2-25 L/min."
+      },
+      {
+        "q": "Which accessories does it support?",
+        "a": "Disinfection kit, filters, tube and chamber kit, pole stand, UPS mounting kit, oxygen bottle holder and oxygen inlet kit."
+      }
+    ],
+    "seo_keywords_es": [
+      "AIRVO 2",
+      "sistema de alto flujo nasal",
+      "cánula de alto flujo Optiflow",
+      "humidificador con generador de flujo",
+      "oxigenoterapia de alto flujo Colombia",
+      "ficha técnica AIRVO 2"
+    ],
+    "seo_keywords_en": [
+      "AIRVO 2",
+      "nasal high flow system",
+      "Optiflow high flow cannula",
+      "humidifier with flow generator",
+      "high flow oxygen therapy Colombia",
+      "AIRVO 2 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "AIRVO 2"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Fisher & Paykel Healthcare"
+      },
+      {
+        "grupo": "Rendimiento",
+        "clave": "Flujo",
+        "valor": "2 - 60 L/min"
+      },
+      {
+        "grupo": "Rendimiento",
+        "clave": "Humidificación",
+        "valor": "Cumple ISO 8185:2007"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Dimensiones / peso",
+        "valor": "295 x 170 x 175 mm; 2,2 kg (solo unidad)"
+      },
+      {
+        "grupo": "Eléctrico",
+        "clave": "Alimentación",
+        "valor": "100-115 V ~ 2,2 A / 220-240 V ~ 1,8 A, 50-60 Hz"
+      },
+      {
+        "grupo": "Uso",
+        "clave": "Entorno",
+        "valor": "Hospitales y centros de larga estancia"
+      }
+    ]
+  },
+  {
+    "sku": "EQ-1-C-0050-1",
+    "descripcion_larga_es": "La interfaz nasal Optiflow Junior 2 de Fisher & Paykel entrega terapia de alto flujo nasal calentado y humidificado a pacientes con respiración espontánea. Se ofrece en tallas XS a XXL (6,7 g a 28,2 g por kit), con conector easy-click, de un solo paciente y uso de hasta 14 días, vida útil de 5 años y sin látex natural, PVC ni ftalatos. Se vende en cajas de 20 o 10 unidades.",
+    "descripcion_larga_en": "The Fisher & Paykel Optiflow Junior 2 nasal interface delivers heated and humidified nasal high flow therapy to spontaneously breathing patients. It comes in sizes XS to XXL (6.7 g to 28.2 g per kit), with an easy-click connector, single patient use for up to 14 days, a 5-year shelf life and no natural latex, PVC or phthalates. It is sold in boxes of 20 or 10.",
+    "beneficios_es": [
+      "Seis tallas (XS a XXL) para ajustar la interfaz a lactantes y niños.",
+      "Conector easy-click, uso de hasta 14 días y vida útil de 5 años.",
+      "Sin látex natural, PVC ni ftalatos (DEHP, DBP, BBP)."
+    ],
+    "beneficios_en": [
+      "Six sizes (XS to XXL) to fit the interface to infants and children.",
+      "Easy-click connector, up to 14 days of use and 5-year shelf life.",
+      "No natural latex, PVC or phthalates (DEHP, DBP, BBP)."
+    ],
+    "valor_es": "Una interfaz de alto flujo nasal pediátrica en seis tallas, con especificaciones oficiales de Fisher & Paykel.",
+    "valor_en": "A paediatric nasal high flow interface in six sizes, with official Fisher & Paykel specifications.",
+    "faq_es": [
+      {
+        "q": "¿Qué tallas existen?",
+        "a": "XS, S, M, L, XL y XXL, con referencias OJR410, OJR412, OJR414, OJR416, OJR418 y OJR520."
+      },
+      {
+        "q": "¿Cuánto tiempo se puede usar?",
+        "a": "Es de un solo paciente y la duración de uso indicada es de 14 días."
+      },
+      {
+        "q": "¿Con qué sistemas se usa?",
+        "a": "Con un sistema de terapia de alto flujo nasal, por ejemplo equipos con humidificación F&P 950 o AIRVO, según la ficha."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Which sizes are available?",
+        "a": "XS, S, M, L, XL and XXL, with codes OJR410, OJR412, OJR414, OJR416, OJR418 and OJR520."
+      },
+      {
+        "q": "How long can it be used?",
+        "a": "It is single-patient use with a stated duration of 14 days."
+      },
+      {
+        "q": "Which systems is it used with?",
+        "a": "With a nasal high flow therapy system, for example units with F&P 950 or AIRVO humidification, per the datasheet."
+      }
+    ],
+    "seo_keywords_es": [
+      "interfaz nasal Optiflow Junior 2",
+      "cánula de alto flujo pediátrica",
+      "alto flujo nasal neonatal",
+      "interfaz Fisher & Paykel",
+      "terapia de alto flujo pediátrica Colombia",
+      "ficha técnica Optiflow Junior 2"
+    ],
+    "seo_keywords_en": [
+      "Optiflow Junior 2 nasal interface",
+      "paediatric high flow cannula",
+      "neonatal nasal high flow",
+      "Fisher & Paykel interface",
+      "paediatric high flow therapy Colombia",
+      "Optiflow Junior 2 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "Optiflow Junior 2 (OJR410-OJR520)"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Fisher & Paykel Healthcare"
+      },
+      {
+        "grupo": "Uso",
+        "clave": "Duración",
+        "valor": "14 días, un solo paciente"
+      },
+      {
+        "grupo": "Almacenamiento",
+        "clave": "Vida útil",
+        "valor": "5 años; -10 a +50 °C"
+      },
+      {
+        "grupo": "Presentación",
+        "clave": "Cantidad",
+        "valor": "Caja de 20 o de 10"
+      },
+      {
+        "grupo": "Materiales",
+        "clave": "Sin",
+        "valor": "Látex natural, PVC ni ftalatos"
+      }
+    ]
+  },
+  {
+    "sku": "EQ-1-C-0050-1-1",
+    "descripcion_larga_es": "El kit de blender de transición Optiflow Junior 2 de Fisher & Paykel permite usar la interfaz Optiflow Junior 2 con circuitos respiratorios F&P aprobados cuando se conecta a un mezclador, para administrar terapia de alto flujo nasal calentado y humidificado sin cambiar el circuito existente. Incluye interfaz, colector de alivio de presión y adaptador, con presión de alivio nominal de 40 cmH₂O; se presenta en cajas de 5 en tallas XS a XL.",
+    "descripcion_larga_en": "The Fisher & Paykel Optiflow Junior 2 Blender Transition Kit allows the Optiflow Junior 2 interface to be used with approved F&P breathing circuits when connected to a blender, delivering heated and humidified nasal high flow therapy without changing the existing circuit. It includes the interface, a pressure relief manifold and an adapter, with a nominal relief pressure of 40 cmH₂O; it comes in boxes of 5 in sizes XS to XL.",
+    "beneficios_es": [
+      "Permite pasar a alto flujo nasal sin reemplazar el circuito existente.",
+      "Colector de alivio de presión con presión de alivio nominal de 40 cmH₂O.",
+      "Cajas de 5 en tallas XS a XL; hasta 14 días de uso por paciente."
+    ],
+    "beneficios_en": [
+      "Lets you switch to nasal high flow without replacing the existing circuit.",
+      "Pressure relief manifold with 40 cmH₂O nominal relief pressure.",
+      "Boxes of 5 in sizes XS to XL; up to 14 days of use per patient."
+    ],
+    "valor_es": "Un kit de transición para ofrecer alto flujo nasal con el circuito y mezclador ya instalados, con ficha oficial de Fisher & Paykel.",
+    "valor_en": "A transition kit to offer nasal high flow with the circuit and blender already in place, with official Fisher & Paykel datasheet.",
+    "faq_es": [
+      {
+        "q": "¿Qué incluye el kit?",
+        "a": "Interfaz nasal Optiflow Junior 2, colector de alivio de presión, adaptador e instrucciones de uso."
+      },
+      {
+        "q": "¿Qué referencias tiene?",
+        "a": "OJR410B, OJR412B, OJR414B, OJR416B y OJR418B según la talla."
+      },
+      {
+        "q": "¿Cuál es la presión de alivio?",
+        "a": "Presión de alivio nominal de 40 cmH₂O."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What does the kit include?",
+        "a": "Optiflow Junior 2 nasal interface, pressure relief manifold, adapter and user instructions."
+      },
+      {
+        "q": "Which codes does it have?",
+        "a": "OJR410B, OJR412B, OJR414B, OJR416B and OJR418B depending on size."
+      },
+      {
+        "q": "What is the relief pressure?",
+        "a": "Nominal relief pressure of 40 cmH₂O."
+      }
+    ],
+    "seo_keywords_es": [
+      "kit de blender Optiflow Junior 2",
+      "transición de CPAP a alto flujo",
+      "alto flujo nasal neonatal",
+      "kit Fisher & Paykel",
+      "alto flujo neonatal Colombia",
+      "ficha técnica kit blender OJ2"
+    ],
+    "seo_keywords_en": [
+      "Optiflow Junior 2 blender kit",
+      "CPAP to high flow transition",
+      "neonatal nasal high flow",
+      "Fisher & Paykel kit",
+      "neonatal high flow Colombia",
+      "OJ2 blender kit datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "Optiflow Junior 2 Blender Transition Kit (OJR41xB)"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Fisher & Paykel Healthcare"
+      },
+      {
+        "grupo": "Seguridad",
+        "clave": "Presión de alivio nominal",
+        "valor": "40 cmH₂O"
+      },
+      {
+        "grupo": "Presentación",
+        "clave": "Cantidad",
+        "valor": "Caja de 5"
+      },
+      {
+        "grupo": "Uso",
+        "clave": "Duración",
+        "valor": "14 días, un solo paciente"
+      },
+      {
+        "grupo": "Almacenamiento",
+        "clave": "Vida útil",
+        "valor": "5 años"
+      }
+    ]
+  },
+  {
+    "sku": "EQ-1-C-0046",
+    "descripcion_larga_es": "Los Wigglepads de Fisher & Paykel son el accesorio que sustituye las cintas adhesivas para fijar las cánulas de alto flujo de la serie Optiflow Junior. La ficha oficial de la interfaz Optiflow Junior 2 los lista como repuestos compatibles (Wigglepads 2, referencias WJR110, WJR112 y WJR114), en cajas de 40 unidades (2 paquetes de 20).",
+    "descripcion_larga_en": "Fisher & Paykel Wigglepads are the accessory that replaces adhesive tape to secure Optiflow Junior series high flow cannulas. The official Optiflow Junior 2 interface datasheet lists them as compatible spares (Wigglepads 2, codes WJR110, WJR112 and WJR114), in cases of 40 (2 packs of 20).",
+    "beneficios_es": [
+      "Reemplazan las cintas adhesivas en la fijación de la cánula Optiflow Junior.",
+      "Listados como repuestos compatibles de la interfaz Optiflow Junior 2.",
+      "Presentación en caja de 40 unidades (2 paquetes de 20)."
+    ],
+    "beneficios_en": [
+      "Replace adhesive tape to secure the Optiflow Junior cannula.",
+      "Listed as compatible spares for the Optiflow Junior 2 interface.",
+      "Case of 40 (2 packs of 20)."
+    ],
+    "valor_es": "Un accesorio de fijación para cánulas Optiflow Junior, referenciado en la ficha oficial de Fisher & Paykel.",
+    "valor_en": "A securing accessory for Optiflow Junior cannulas, referenced in the official Fisher & Paykel datasheet.",
+    "faq_es": [
+      {
+        "q": "¿Para qué sirven?",
+        "a": "Para fijar las cánulas de alto flujo de la serie Optiflow Junior en lugar de usar cintas adhesivas."
+      },
+      {
+        "q": "¿Qué referencias figuran en la ficha?",
+        "a": "WJR110, WJR112 y WJR114 (Wigglepads 2)."
+      },
+      {
+        "q": "¿Cómo se presentan?",
+        "a": "En caja de 40 unidades (2 paquetes de 20)."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What are they for?",
+        "a": "To secure Optiflow Junior series high flow cannulas instead of using adhesive tape."
+      },
+      {
+        "q": "Which codes appear in the datasheet?",
+        "a": "WJR110, WJR112 and WJR114 (Wigglepads 2)."
+      },
+      {
+        "q": "How are they packed?",
+        "a": "In a case of 40 (2 packs of 20)."
+      }
+    ],
+    "seo_keywords_es": [
+      "Wigglepads Fisher & Paykel",
+      "fijación de cánula Optiflow Junior",
+      "accesorio alto flujo neonatal",
+      "Wigglepads Optiflow",
+      "insumos neonatales Colombia",
+      "ficha técnica Optiflow Junior 2"
+    ],
+    "seo_keywords_en": [
+      "Fisher & Paykel Wigglepads",
+      "Optiflow Junior cannula securement",
+      "neonatal high flow accessory",
+      "Optiflow Wigglepads",
+      "neonatal supplies Colombia",
+      "Optiflow Junior 2 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Fisher & Paykel Healthcare"
+      },
+      {
+        "grupo": "Compatibilidad",
+        "clave": "Interfaz",
+        "valor": "Optiflow Junior 2 (ficha oficial adjunta)"
+      },
+      {
+        "grupo": "Referencias",
+        "clave": "Wigglepads 2",
+        "valor": "WJR110, WJR112, WJR114"
+      },
+      {
+        "grupo": "Presentación",
+        "clave": "Caja",
+        "valor": "40 unidades (2 paquetes de 20)"
+      }
+    ]
+  },
+  {
+    "sku": "EQ-1-C-0057",
+    "descripcion_larga_es": "El arnés para CPAP de burbuja forma parte de las interfaces de Fisher & Paykel diseñadas para ofrecer CPAP con el máximo confort al neonato y apoyar los cuidados centrados en el desarrollo. La ficha del fabricante es el manual de instrucciones del sistema Bubble CPAP BC151/BC161: CPAP medio de 3 a 10 cmH₂O, flujo de entrada de 4 a 15 L/min, uso en UCIN/UCIP en neonatos de hasta 10 kg, componentes de un solo uso y duración máxima de 7 días.",
+    "descripcion_larga_en": "The bubble CPAP harness is part of the Fisher & Paykel interfaces designed to deliver CPAP with maximum comfort for the neonate and support developmental care. The manufacturer document is the Bubble CPAP System BC151/BC161 user instructions: mean CPAP of 3 to 10 cmH₂O, input flow of 4 to 15 L/min, for NICU/PICU use in neonates up to 10 kg, single-use components and a maximum use of 7 days.",
+    "beneficios_es": [
+      "Interfaz pensada para el confort del neonato y los cuidados centrados en el desarrollo.",
+      "Componente de un solo uso del sistema Bubble CPAP.",
+      "Documentado en las instrucciones oficiales del sistema."
+    ],
+    "beneficios_en": [
+      "Interface designed for neonate comfort and developmental care.",
+      "Single-use component of the Bubble CPAP system.",
+      "Documented in the official system instructions."
+    ],
+    "valor_es": "Un componente del sistema Bubble CPAP de Fisher & Paykel para soporte respiratorio neonatal, documentado en las instrucciones oficiales del sistema.",
+    "valor_en": "A component of the Fisher & Paykel Bubble CPAP system for neonatal respiratory support, documented in the official system instructions.",
+    "faq_es": [
+      {
+        "q": "¿Para qué pacientes es el sistema Bubble CPAP?",
+        "a": "Para neonatos y lactantes de hasta 10 kg que respiran espontáneamente y requieren CPAP, por ejemplo por prematuridad, en UCIN o UCIP, según las instrucciones del fabricante."
+      },
+      {
+        "q": "¿Se puede reutilizar?",
+        "a": "No. Todos los componentes del sistema son de un solo paciente y el uso máximo indicado es de 7 días."
+      },
+      {
+        "q": "¿Qué rango de CPAP maneja el sistema?",
+        "a": "CPAP medio de 3 a 10 cmH₂O con flujo de entrada de 4 a 15 L/min (inicial recomendado 6-8 L/min)."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Which patients is the Bubble CPAP system for?",
+        "a": "Spontaneously breathing neonates and infants up to 10 kg who need CPAP, for example due to prematurity, in NICU or PICU, per the manufacturer instructions."
+      },
+      {
+        "q": "Can it be reused?",
+        "a": "No. All system components are single-patient use and the stated maximum use is 7 days."
+      },
+      {
+        "q": "What CPAP range does the system provide?",
+        "a": "Mean CPAP of 3 to 10 cmH₂O with input flow of 4 to 15 L/min (recommended starting range 6-8 L/min)."
+      }
+    ],
+    "seo_keywords_es": [
+      "arnés CPAP de burbuja",
+      "arnés Fisher & Paykel neonatal",
+      "CPAP neonatal",
+      "interfaz CPAP prematuros",
+      "insumos CPAP neonatal Colombia",
+      "instrucciones Bubble CPAP BC161"
+    ],
+    "seo_keywords_en": [
+      "bubble CPAP harness",
+      "Fisher & Paykel neonatal harness",
+      "neonatal CPAP",
+      "preterm CPAP interface",
+      "neonatal CPAP supplies Colombia",
+      "Bubble CPAP BC161 instructions"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Fisher & Paykel Healthcare"
+      },
+      {
+        "grupo": "Sistema",
+        "clave": "Documento",
+        "valor": "Instrucciones de uso Bubble CPAP BC151/BC161 (REF 185042847)"
+      },
+      {
+        "grupo": "Terapia",
+        "clave": "CPAP medio",
+        "valor": "3 - 10 cmH₂O"
+      },
+      {
+        "grupo": "Terapia",
+        "clave": "Flujo de entrada",
+        "valor": "4 - 15 L/min"
+      },
+      {
+        "grupo": "Uso",
+        "clave": "Duración / paciente",
+        "valor": "Un solo paciente; máximo 7 días"
+      }
+    ]
+  },
+  {
+    "sku": "EQ-1-C-0062",
+    "descripcion_larga_es": "El kit CPAP de burbuja BC161-10 es el sistema de Fisher & Paykel para ofrecer asistencia respiratoria a recién nacidos, manteniendo la expansión pulmonar cuando el alvéolo tiende a colapsarse. El BC161 se usa con la interfaz FlexiTrunk. La ficha del fabricante es el manual de instrucciones del sistema Bubble CPAP BC151/BC161: CPAP medio de 3 a 10 cmH₂O, flujo de entrada de 4 a 15 L/min, uso en UCIN/UCIP en neonatos de hasta 10 kg, componentes de un solo uso y duración máxima de 7 días.",
+    "descripcion_larga_en": "The BC161-10 bubble CPAP kit is the Fisher & Paykel system to provide respiratory support to newborns, maintaining lung expansion when the alveolus tends to collapse. The BC161 is used with the FlexiTrunk interface. The manufacturer document is the Bubble CPAP System BC151/BC161 user instructions: mean CPAP of 3 to 10 cmH₂O, input flow of 4 to 15 L/min, for NICU/PICU use in neonates up to 10 kg, single-use components and a maximum use of 7 days.",
+    "beneficios_es": [
+      "Sistema BC161 diseñado para usarse con la interfaz FlexiTrunk.",
+      "CPAP medio de 3 a 10 cmH₂O con fuga de gas < 30 mL/min a 60 cmH₂O.",
+      "Humidificación > 33 mg/L en modo invasivo, según el fabricante."
+    ],
+    "beneficios_en": [
+      "BC161 system designed to be used with the FlexiTrunk interface.",
+      "Mean CPAP of 3 to 10 cmH₂O with gas leakage < 30 mL/min at 60 cmH₂O.",
+      "Humidification > 33 mg/L in invasive mode, per the manufacturer."
+    ],
+    "valor_es": "Un componente del sistema Bubble CPAP de Fisher & Paykel para soporte respiratorio neonatal, documentado en las instrucciones oficiales del sistema.",
+    "valor_en": "A component of the Fisher & Paykel Bubble CPAP system for neonatal respiratory support, documented in the official system instructions.",
+    "faq_es": [
+      {
+        "q": "¿Para qué pacientes es el sistema Bubble CPAP?",
+        "a": "Para neonatos y lactantes de hasta 10 kg que respiran espontáneamente y requieren CPAP, por ejemplo por prematuridad, en UCIN o UCIP, según las instrucciones del fabricante."
+      },
+      {
+        "q": "¿Se puede reutilizar?",
+        "a": "No. Todos los componentes del sistema son de un solo paciente y el uso máximo indicado es de 7 días."
+      },
+      {
+        "q": "¿Qué rango de CPAP maneja el sistema?",
+        "a": "CPAP medio de 3 a 10 cmH₂O con flujo de entrada de 4 a 15 L/min (inicial recomendado 6-8 L/min)."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Which patients is the Bubble CPAP system for?",
+        "a": "Spontaneously breathing neonates and infants up to 10 kg who need CPAP, for example due to prematurity, in NICU or PICU, per the manufacturer instructions."
+      },
+      {
+        "q": "Can it be reused?",
+        "a": "No. All system components are single-patient use and the stated maximum use is 7 days."
+      },
+      {
+        "q": "What CPAP range does the system provide?",
+        "a": "Mean CPAP of 3 to 10 cmH₂O with input flow of 4 to 15 L/min (recommended starting range 6-8 L/min)."
+      }
+    ],
+    "seo_keywords_es": [
+      "kit CPAP de burbuja BC161",
+      "CPAP de burbuja Fisher & Paykel",
+      "sistema CPAP neonatal",
+      "kit BC161-10",
+      "CPAP burbuja UCIN Colombia",
+      "instrucciones Bubble CPAP BC161"
+    ],
+    "seo_keywords_en": [
+      "BC161 bubble CPAP kit",
+      "Fisher & Paykel bubble CPAP",
+      "neonatal CPAP system",
+      "BC161-10 kit",
+      "bubble CPAP NICU Colombia",
+      "Bubble CPAP BC161 instructions"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Fisher & Paykel Healthcare"
+      },
+      {
+        "grupo": "Sistema",
+        "clave": "Documento",
+        "valor": "Instrucciones de uso Bubble CPAP BC151/BC161 (REF 185042847)"
+      },
+      {
+        "grupo": "Terapia",
+        "clave": "CPAP medio",
+        "valor": "3 - 10 cmH₂O"
+      },
+      {
+        "grupo": "Terapia",
+        "clave": "Flujo de entrada",
+        "valor": "4 - 15 L/min"
+      },
+      {
+        "grupo": "Uso",
+        "clave": "Duración / paciente",
+        "valor": "Un solo paciente; máximo 7 días"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "BC161-10"
+      },
+      {
+        "grupo": "Rendimiento",
+        "clave": "Fuga de gas a 60 cmH₂O",
+        "valor": "< 30 mL/min"
+      }
+    ]
+  },
+  {
+    "sku": "EQ-1-C-0063",
+    "descripcion_larga_es": "El tubo nasal FlexiTrunk es la interfaz de Fisher & Paykel para administrar CPAP a recién nacidos, prematuros y lactantes, y se integra con prongs, máscaras y gorros de la misma línea. El sistema BC161 está diseñado para usarse con el FlexiTrunk. La ficha del fabricante es el manual de instrucciones del sistema Bubble CPAP BC151/BC161: CPAP medio de 3 a 10 cmH₂O, flujo de entrada de 4 a 15 L/min, uso en UCIN/UCIP en neonatos de hasta 10 kg, componentes de un solo uso y duración máxima de 7 días.",
+    "descripcion_larga_en": "The FlexiTrunk nasal tube is the Fisher & Paykel interface to deliver CPAP to newborns, premature infants and infants, and integrates with prongs, masks and bonnets of the same line. The BC161 system is designed to be used with the FlexiTrunk. The manufacturer document is the Bubble CPAP System BC151/BC161 user instructions: mean CPAP of 3 to 10 cmH₂O, input flow of 4 to 15 L/min, for NICU/PICU use in neonates up to 10 kg, single-use components and a maximum use of 7 days.",
+    "beneficios_es": [
+      "Interfaz FlexiTrunk para CPAP en recién nacidos, prematuros y lactantes.",
+      "Se integra con prongs, máscaras y gorros de la misma línea.",
+      "El generador BC161 está diseñado para usarse con FlexiTrunk."
+    ],
+    "beneficios_en": [
+      "FlexiTrunk interface for CPAP in newborns, premature infants and infants.",
+      "Integrates with prongs, masks and bonnets of the same line.",
+      "The BC161 generator is designed for use with FlexiTrunk."
+    ],
+    "valor_es": "Un componente del sistema Bubble CPAP de Fisher & Paykel para soporte respiratorio neonatal, documentado en las instrucciones oficiales del sistema.",
+    "valor_en": "A component of the Fisher & Paykel Bubble CPAP system for neonatal respiratory support, documented in the official system instructions.",
+    "faq_es": [
+      {
+        "q": "¿Para qué pacientes es el sistema Bubble CPAP?",
+        "a": "Para neonatos y lactantes de hasta 10 kg que respiran espontáneamente y requieren CPAP, por ejemplo por prematuridad, en UCIN o UCIP, según las instrucciones del fabricante."
+      },
+      {
+        "q": "¿Se puede reutilizar?",
+        "a": "No. Todos los componentes del sistema son de un solo paciente y el uso máximo indicado es de 7 días."
+      },
+      {
+        "q": "¿Qué rango de CPAP maneja el sistema?",
+        "a": "CPAP medio de 3 a 10 cmH₂O con flujo de entrada de 4 a 15 L/min (inicial recomendado 6-8 L/min)."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Which patients is the Bubble CPAP system for?",
+        "a": "Spontaneously breathing neonates and infants up to 10 kg who need CPAP, for example due to prematurity, in NICU or PICU, per the manufacturer instructions."
+      },
+      {
+        "q": "Can it be reused?",
+        "a": "No. All system components are single-patient use and the stated maximum use is 7 days."
+      },
+      {
+        "q": "What CPAP range does the system provide?",
+        "a": "Mean CPAP of 3 to 10 cmH₂O with input flow of 4 to 15 L/min (recommended starting range 6-8 L/min)."
+      }
+    ],
+    "seo_keywords_es": [
+      "tubo nasal FlexiTrunk",
+      "FlexiTrunk Fisher & Paykel",
+      "interfaz CPAP neonatal",
+      "CPAP de burbuja prematuros",
+      "insumos CPAP neonatal Colombia",
+      "instrucciones Bubble CPAP BC161"
+    ],
+    "seo_keywords_en": [
+      "FlexiTrunk nasal tube",
+      "Fisher & Paykel FlexiTrunk",
+      "neonatal CPAP interface",
+      "preterm bubble CPAP",
+      "neonatal CPAP supplies Colombia",
+      "Bubble CPAP BC161 instructions"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Fisher & Paykel Healthcare"
+      },
+      {
+        "grupo": "Sistema",
+        "clave": "Documento",
+        "valor": "Instrucciones de uso Bubble CPAP BC151/BC161 (REF 185042847)"
+      },
+      {
+        "grupo": "Terapia",
+        "clave": "CPAP medio",
+        "valor": "3 - 10 cmH₂O"
+      },
+      {
+        "grupo": "Terapia",
+        "clave": "Flujo de entrada",
+        "valor": "4 - 15 L/min"
+      },
+      {
+        "grupo": "Uso",
+        "clave": "Duración / paciente",
+        "valor": "Un solo paciente; máximo 7 días"
+      }
+    ]
+  },
+  {
+    "sku": "EQ-1-C-0066",
+    "descripcion_larga_es": "La máscara nasal para CPAP de burbuja ofrece presión positiva continua en neonatos con diseño ergonómico y varias tallas que ayudan a evitar zonas de presión por exceso de ajuste, y es una alternativa de descanso cuando se alterna con prongs. La ficha del fabricante es el manual de instrucciones del sistema Bubble CPAP BC151/BC161: CPAP medio de 3 a 10 cmH₂O, flujo de entrada de 4 a 15 L/min, uso en UCIN/UCIP en neonatos de hasta 10 kg, componentes de un solo uso y duración máxima de 7 días.",
+    "descripcion_larga_en": "The bubble CPAP nasal mask provides continuous positive pressure in neonates with an ergonomic design and several sizes that help avoid pressure areas from over-tightening, and is a rest alternative when alternated with prongs. The manufacturer document is the Bubble CPAP System BC151/BC161 user instructions: mean CPAP of 3 to 10 cmH₂O, input flow of 4 to 15 L/min, for NICU/PICU use in neonates up to 10 kg, single-use components and a maximum use of 7 days.",
+    "beneficios_es": [
+      "Diseño ergonómico en varias tallas para evitar zonas de presión.",
+      "Alternativa de descanso al alternar con prongs nasales.",
+      "Componente de un solo uso del sistema Bubble CPAP."
+    ],
+    "beneficios_en": [
+      "Ergonomic design in several sizes to avoid pressure areas.",
+      "Rest alternative when alternated with nasal prongs.",
+      "Single-use component of the Bubble CPAP system."
+    ],
+    "valor_es": "Un componente del sistema Bubble CPAP de Fisher & Paykel para soporte respiratorio neonatal, documentado en las instrucciones oficiales del sistema.",
+    "valor_en": "A component of the Fisher & Paykel Bubble CPAP system for neonatal respiratory support, documented in the official system instructions.",
+    "faq_es": [
+      {
+        "q": "¿Para qué pacientes es el sistema Bubble CPAP?",
+        "a": "Para neonatos y lactantes de hasta 10 kg que respiran espontáneamente y requieren CPAP, por ejemplo por prematuridad, en UCIN o UCIP, según las instrucciones del fabricante."
+      },
+      {
+        "q": "¿Se puede reutilizar?",
+        "a": "No. Todos los componentes del sistema son de un solo paciente y el uso máximo indicado es de 7 días."
+      },
+      {
+        "q": "¿Qué rango de CPAP maneja el sistema?",
+        "a": "CPAP medio de 3 a 10 cmH₂O con flujo de entrada de 4 a 15 L/min (inicial recomendado 6-8 L/min)."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Which patients is the Bubble CPAP system for?",
+        "a": "Spontaneously breathing neonates and infants up to 10 kg who need CPAP, for example due to prematurity, in NICU or PICU, per the manufacturer instructions."
+      },
+      {
+        "q": "Can it be reused?",
+        "a": "No. All system components are single-patient use and the stated maximum use is 7 days."
+      },
+      {
+        "q": "What CPAP range does the system provide?",
+        "a": "Mean CPAP of 3 to 10 cmH₂O with input flow of 4 to 15 L/min (recommended starting range 6-8 L/min)."
+      }
+    ],
+    "seo_keywords_es": [
+      "máscara CPAP de burbuja",
+      "máscara nasal neonatal",
+      "CPAP neonatal Fisher & Paykel",
+      "interfaz nasal prematuros",
+      "insumos CPAP neonatal Colombia",
+      "instrucciones Bubble CPAP"
+    ],
+    "seo_keywords_en": [
+      "bubble CPAP mask",
+      "neonatal nasal mask",
+      "Fisher & Paykel neonatal CPAP",
+      "preterm nasal interface",
+      "neonatal CPAP supplies Colombia",
+      "Bubble CPAP instructions"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Fisher & Paykel Healthcare"
+      },
+      {
+        "grupo": "Sistema",
+        "clave": "Documento",
+        "valor": "Instrucciones de uso Bubble CPAP BC151/BC161 (REF 185042847)"
+      },
+      {
+        "grupo": "Terapia",
+        "clave": "CPAP medio",
+        "valor": "3 - 10 cmH₂O"
+      },
+      {
+        "grupo": "Terapia",
+        "clave": "Flujo de entrada",
+        "valor": "4 - 15 L/min"
+      },
+      {
+        "grupo": "Uso",
+        "clave": "Duración / paciente",
+        "valor": "Un solo paciente; máximo 7 días"
+      }
+    ]
+  },
+  {
+    "sku": "EQ-1-C-0070",
+    "descripcion_larga_es": "Los prongs nasales para CPAP de burbuja entregan CPAP no invasivo estable en neonatos y prematuros con un material suave y flexible que se adapta anatómicamente a las narinas del bebé. La ficha del fabricante es el manual de instrucciones del sistema Bubble CPAP BC151/BC161: CPAP medio de 3 a 10 cmH₂O, flujo de entrada de 4 a 15 L/min, uso en UCIN/UCIP en neonatos de hasta 10 kg, componentes de un solo uso y duración máxima de 7 días.",
+    "descripcion_larga_en": "The bubble CPAP nasal prongs deliver stable non-invasive CPAP to neonates and premature infants using a soft, flexible material that adapts anatomically to the baby's nostrils. The manufacturer document is the Bubble CPAP System BC151/BC161 user instructions: mean CPAP of 3 to 10 cmH₂O, input flow of 4 to 15 L/min, for NICU/PICU use in neonates up to 10 kg, single-use components and a maximum use of 7 days.",
+    "beneficios_es": [
+      "Material suave y flexible que se adapta a las narinas del bebé.",
+      "Terapia CPAP no invasiva en neonatos y prematuros.",
+      "Componente de un solo uso del sistema Bubble CPAP."
+    ],
+    "beneficios_en": [
+      "Soft, flexible material that adapts to the baby's nostrils.",
+      "Non-invasive CPAP therapy in neonates and premature infants.",
+      "Single-use component of the Bubble CPAP system."
+    ],
+    "valor_es": "Un componente del sistema Bubble CPAP de Fisher & Paykel para soporte respiratorio neonatal, documentado en las instrucciones oficiales del sistema.",
+    "valor_en": "A component of the Fisher & Paykel Bubble CPAP system for neonatal respiratory support, documented in the official system instructions.",
+    "faq_es": [
+      {
+        "q": "¿Para qué pacientes es el sistema Bubble CPAP?",
+        "a": "Para neonatos y lactantes de hasta 10 kg que respiran espontáneamente y requieren CPAP, por ejemplo por prematuridad, en UCIN o UCIP, según las instrucciones del fabricante."
+      },
+      {
+        "q": "¿Se puede reutilizar?",
+        "a": "No. Todos los componentes del sistema son de un solo paciente y el uso máximo indicado es de 7 días."
+      },
+      {
+        "q": "¿Qué rango de CPAP maneja el sistema?",
+        "a": "CPAP medio de 3 a 10 cmH₂O con flujo de entrada de 4 a 15 L/min (inicial recomendado 6-8 L/min)."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Which patients is the Bubble CPAP system for?",
+        "a": "Spontaneously breathing neonates and infants up to 10 kg who need CPAP, for example due to prematurity, in NICU or PICU, per the manufacturer instructions."
+      },
+      {
+        "q": "Can it be reused?",
+        "a": "No. All system components are single-patient use and the stated maximum use is 7 days."
+      },
+      {
+        "q": "What CPAP range does the system provide?",
+        "a": "Mean CPAP of 3 to 10 cmH₂O with input flow of 4 to 15 L/min (recommended starting range 6-8 L/min)."
+      }
+    ],
+    "seo_keywords_es": [
+      "prongs nasales CPAP de burbuja",
+      "prong nasal neonatal",
+      "CPAP neonatal prematuros",
+      "prongs Fisher & Paykel",
+      "insumos CPAP neonatal Colombia",
+      "instrucciones Bubble CPAP"
+    ],
+    "seo_keywords_en": [
+      "bubble CPAP nasal prongs",
+      "neonatal nasal prong",
+      "preterm neonatal CPAP",
+      "Fisher & Paykel prongs",
+      "neonatal CPAP supplies Colombia",
+      "Bubble CPAP instructions"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Fisher & Paykel Healthcare"
+      },
+      {
+        "grupo": "Sistema",
+        "clave": "Documento",
+        "valor": "Instrucciones de uso Bubble CPAP BC151/BC161 (REF 185042847)"
+      },
+      {
+        "grupo": "Terapia",
+        "clave": "CPAP medio",
+        "valor": "3 - 10 cmH₂O"
+      },
+      {
+        "grupo": "Terapia",
+        "clave": "Flujo de entrada",
+        "valor": "4 - 15 L/min"
+      },
+      {
+        "grupo": "Uso",
+        "clave": "Duración / paciente",
+        "valor": "Un solo paciente; máximo 7 días"
+      }
+    ]
+  },
+  {
+    "sku": "EQ-1-C-0081",
+    "descripcion_larga_es": "El gorro para CPAP de burbuja sujeta de forma segura la interfaz nasal FlexiTrunk en recién nacidos y prematuros; es de material suave, elástico y libre de látex que se adapta al contorno cefálico del bebé. La ficha del fabricante es el manual de instrucciones del sistema Bubble CPAP BC151/BC161: CPAP medio de 3 a 10 cmH₂O, flujo de entrada de 4 a 15 L/min, uso en UCIN/UCIP en neonatos de hasta 10 kg, componentes de un solo uso y duración máxima de 7 días.",
+    "descripcion_larga_en": "The bubble CPAP bonnet securely holds the FlexiTrunk nasal interface on newborns and premature infants; it is made of soft, elastic, latex-free material that adapts to the baby's head contour. The manufacturer document is the Bubble CPAP System BC151/BC161 user instructions: mean CPAP of 3 to 10 cmH₂O, input flow of 4 to 15 L/min, for NICU/PICU use in neonates up to 10 kg, single-use components and a maximum use of 7 days.",
+    "beneficios_es": [
+      "Sujeta de forma segura la interfaz FlexiTrunk.",
+      "Material suave, elástico y libre de látex.",
+      "Componente de un solo uso del sistema Bubble CPAP."
+    ],
+    "beneficios_en": [
+      "Securely holds the FlexiTrunk interface.",
+      "Soft, elastic, latex-free material.",
+      "Single-use component of the Bubble CPAP system."
+    ],
+    "valor_es": "Un componente del sistema Bubble CPAP de Fisher & Paykel para soporte respiratorio neonatal, documentado en las instrucciones oficiales del sistema.",
+    "valor_en": "A component of the Fisher & Paykel Bubble CPAP system for neonatal respiratory support, documented in the official system instructions.",
+    "faq_es": [
+      {
+        "q": "¿Para qué pacientes es el sistema Bubble CPAP?",
+        "a": "Para neonatos y lactantes de hasta 10 kg que respiran espontáneamente y requieren CPAP, por ejemplo por prematuridad, en UCIN o UCIP, según las instrucciones del fabricante."
+      },
+      {
+        "q": "¿Se puede reutilizar?",
+        "a": "No. Todos los componentes del sistema son de un solo paciente y el uso máximo indicado es de 7 días."
+      },
+      {
+        "q": "¿Qué rango de CPAP maneja el sistema?",
+        "a": "CPAP medio de 3 a 10 cmH₂O con flujo de entrada de 4 a 15 L/min (inicial recomendado 6-8 L/min)."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Which patients is the Bubble CPAP system for?",
+        "a": "Spontaneously breathing neonates and infants up to 10 kg who need CPAP, for example due to prematurity, in NICU or PICU, per the manufacturer instructions."
+      },
+      {
+        "q": "Can it be reused?",
+        "a": "No. All system components are single-patient use and the stated maximum use is 7 days."
+      },
+      {
+        "q": "What CPAP range does the system provide?",
+        "a": "Mean CPAP of 3 to 10 cmH₂O with input flow of 4 to 15 L/min (recommended starting range 6-8 L/min)."
+      }
+    ],
+    "seo_keywords_es": [
+      "gorro CPAP de burbuja",
+      "gorro FlexiTrunk",
+      "fijación CPAP neonatal",
+      "gorro Fisher & Paykel",
+      "insumos CPAP neonatal Colombia",
+      "instrucciones Bubble CPAP"
+    ],
+    "seo_keywords_en": [
+      "bubble CPAP bonnet",
+      "FlexiTrunk bonnet",
+      "neonatal CPAP securement",
+      "Fisher & Paykel bonnet",
+      "neonatal CPAP supplies Colombia",
+      "Bubble CPAP instructions"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Fisher & Paykel Healthcare"
+      },
+      {
+        "grupo": "Sistema",
+        "clave": "Documento",
+        "valor": "Instrucciones de uso Bubble CPAP BC151/BC161 (REF 185042847)"
+      },
+      {
+        "grupo": "Terapia",
+        "clave": "CPAP medio",
+        "valor": "3 - 10 cmH₂O"
+      },
+      {
+        "grupo": "Terapia",
+        "clave": "Flujo de entrada",
+        "valor": "4 - 15 L/min"
+      },
+      {
+        "grupo": "Uso",
+        "clave": "Duración / paciente",
+        "valor": "Un solo paciente; máximo 7 días"
+      }
+    ]
+  },
+  {
+    "sku": "EQ-1-C-0096",
+    "descripcion_larga_es": "El kit de máscaras de reanimación Neopuff de Fisher & Paykel (RD800-EN) reúne la gama de tallas para pacientes neonatales desde prematuros: RD803 (XS, 35 mm, espacio muerto 13 mL), RD804 (S, 42 mm, 21 mL), RD805 (M, 50 mm, 34 mL), RD806 (L, 60 mm, 58 mL) y RD807 (XL, 72 mm, 97 mL). Son de un solo uso, se conectan a un circuito en T o a un dispositivo manual con conector de 15 mm y están diseñadas para sellar sobre nariz y boca.",
+    "descripcion_larga_en": "The Fisher & Paykel Neopuff resuscitation mask kit (RD800-EN) brings together the size range for neonatal patients including premature infants: RD803 (XS, 35 mm, dead space 13 mL), RD804 (S, 42 mm, 21 mL), RD805 (M, 50 mm, 34 mL), RD806 (L, 60 mm, 58 mL) and RD807 (XL, 72 mm, 97 mL). They are single use, connect to a T-piece circuit or manual device with a 15 mm fitting and are designed to seal over the nose and mouth.",
+    "beneficios_es": [
+      "Cinco tallas (XS a XL) para ajustar la máscara desde prematuros.",
+      "Espacio muerto bajo documentado por talla, de 13 a 97 mL.",
+      "Un solo uso; se conecta a circuitos en T o a dispositivos manuales con conector de 15 mm."
+    ],
+    "beneficios_en": [
+      "Five sizes (XS to XL) to fit from premature infants.",
+      "Low dead space documented by size, from 13 to 97 mL.",
+      "Single use; connects to T-piece circuits or manual devices with a 15 mm fitting."
+    ],
+    "valor_es": "Un kit de iniciación con todas las tallas de máscara Neopuff, con especificaciones oficiales de Fisher & Paykel.",
+    "valor_en": "A starter kit with all Neopuff mask sizes, with official Fisher & Paykel specifications.",
+    "faq_es": [
+      {
+        "q": "¿Para qué pacientes es?",
+        "a": "Para neonatos y lactantes con insuficiencia respiratoria, en entorno hospitalario y por personal médico capacitado en reanimación infantil."
+      },
+      {
+        "q": "¿Se puede reutilizar?",
+        "a": "No. Es de un solo uso: no se debe remojar, lavar ni esterilizar."
+      },
+      {
+        "q": "¿Con qué se conecta?",
+        "a": "Con un conector cónico hembra de 15 mm (ISO 5356-1) de un circuito en T o un dispositivo de reanimación manual."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Which patients is it for?",
+        "a": "Neonates and infants with respiratory insufficiency, in hospital settings and by medical staff trained in infant resuscitation."
+      },
+      {
+        "q": "Can it be reused?",
+        "a": "No. It is single use: do not soak, wash or sterilise it."
+      },
+      {
+        "q": "What does it connect to?",
+        "a": "A 15 mm conical female fitting (ISO 5356-1) of a T-piece circuit or a manual resuscitation device."
+      }
+    ],
+    "seo_keywords_es": [
+      "kit de máscaras Neopuff",
+      "máscaras de reanimación neonatal",
+      "máscara de reanimación RD800",
+      "máscaras Fisher & Paykel",
+      "reanimación neonatal Colombia",
+      "ficha técnica máscara Neopuff"
+    ],
+    "seo_keywords_en": [
+      "Neopuff mask kit",
+      "neonatal resuscitation masks",
+      "RD800 resuscitation mask",
+      "Fisher & Paykel masks",
+      "neonatal resuscitation Colombia",
+      "Neopuff mask datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Fisher & Paykel Healthcare"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Referencia",
+        "valor": "RD800-EN (kit); RD803-RD807"
+      },
+      {
+        "grupo": "Tallas",
+        "clave": "Tallas y diámetro",
+        "valor": "RD803 XS 35 mm; RD804 S 42 mm; RD805 M 50 mm; RD806 L 60 mm; RD807 XL 72 mm"
+      },
+      {
+        "grupo": "Tallas",
+        "clave": "Espacio muerto",
+        "valor": "13 mL (XS), 21 mL (S), 34 mL (M), 58 mL (L), 97 mL (XL)"
+      },
+      {
+        "grupo": "Uso",
+        "clave": "Duración / paciente",
+        "valor": "Un solo uso; máximo 14 días"
+      },
+      {
+        "grupo": "Conexión",
+        "clave": "Conector",
+        "valor": "15 mm macho"
+      }
+    ]
+  },
+  {
+    "sku": "EQ-1-C-0097",
+    "descripcion_larga_es": "La máscara de reanimación Neopuff de Fisher & Paykel es una interfaz de un solo uso para dar soporte ventilatorio a neonatos y lactantes con insuficiencia respiratoria. Se ofrece en cinco tallas (RD803 XS 35 mm a RD807 XL 72 mm), con espacio muerto de 13 a 97 mL, y se conecta con conector de 15 mm a un circuito en T o a un dispositivo manual. Debe usarla personal médico capacitado en reanimación infantil.",
+    "descripcion_larga_en": "The Fisher & Paykel Neopuff resuscitation mask is a single-use interface to provide ventilatory support to neonates and infants with respiratory insufficiency. It is offered in five sizes (RD803 XS 35 mm to RD807 XL 72 mm), with dead space from 13 to 97 mL, and connects with a 15 mm fitting to a T-piece circuit or a manual device. It must be used by medical staff trained in infant resuscitation.",
+    "beneficios_es": [
+      "Interfaz de reanimación de un solo uso para neonatos y lactantes.",
+      "Cinco tallas con espacio muerto documentado de 13 a 97 mL.",
+      "Conexión de 15 mm compatible con circuitos en T y dispositivos manuales comunes."
+    ],
+    "beneficios_en": [
+      "Single-use resuscitation interface for neonates and infants.",
+      "Five sizes with documented dead space from 13 to 97 mL.",
+      "15 mm connection compatible with T-piece circuits and common manual devices."
+    ],
+    "valor_es": "Una máscara de reanimación neonatal en cinco tallas, con ficha oficial de Fisher & Paykel.",
+    "valor_en": "A neonatal resuscitation mask in five sizes, with official Fisher & Paykel datasheet.",
+    "faq_es": [
+      {
+        "q": "¿Para qué pacientes es?",
+        "a": "Para neonatos y lactantes con insuficiencia respiratoria, en entorno hospitalario y por personal médico capacitado en reanimación infantil."
+      },
+      {
+        "q": "¿Se puede reutilizar?",
+        "a": "No. Es de un solo uso: no se debe remojar, lavar ni esterilizar."
+      },
+      {
+        "q": "¿Con qué se conecta?",
+        "a": "Con un conector cónico hembra de 15 mm (ISO 5356-1) de un circuito en T o un dispositivo de reanimación manual."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Which patients is it for?",
+        "a": "Neonates and infants with respiratory insufficiency, in hospital settings and by medical staff trained in infant resuscitation."
+      },
+      {
+        "q": "Can it be reused?",
+        "a": "No. It is single use: do not soak, wash or sterilise it."
+      },
+      {
+        "q": "What does it connect to?",
+        "a": "A 15 mm conical female fitting (ISO 5356-1) of a T-piece circuit or a manual resuscitation device."
+      }
+    ],
+    "seo_keywords_es": [
+      "máscara de reanimación neonatal Neopuff",
+      "máscara Neopuff desechable",
+      "máscara de reanimación para recién nacidos",
+      "máscara Fisher & Paykel",
+      "reanimación neonatal Colombia",
+      "ficha técnica máscara Neopuff"
+    ],
+    "seo_keywords_en": [
+      "Neopuff neonatal resuscitation mask",
+      "disposable Neopuff mask",
+      "newborn resuscitation mask",
+      "Fisher & Paykel mask",
+      "neonatal resuscitation Colombia",
+      "Neopuff mask datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Fisher & Paykel Healthcare"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Referencias",
+        "valor": "RD803-RD807"
+      },
+      {
+        "grupo": "Tallas",
+        "clave": "Tallas y diámetro",
+        "valor": "RD803 XS 35 mm; RD804 S 42 mm; RD805 M 50 mm; RD806 L 60 mm; RD807 XL 72 mm"
+      },
+      {
+        "grupo": "Tallas",
+        "clave": "Espacio muerto",
+        "valor": "13 mL (XS), 21 mL (S), 34 mL (M), 58 mL (L), 97 mL (XL)"
+      },
+      {
+        "grupo": "Uso",
+        "clave": "Duración / paciente",
+        "valor": "Un solo uso; máximo 14 días"
+      },
+      {
+        "grupo": "Conexión",
+        "clave": "Conector",
+        "valor": "15 mm macho"
+      }
+    ]
+  },
+  {
+    "sku": "EQ-1-C-0111",
+    "descripcion_larga_es": "El circuito en T ergonómico Neopuff RD1300-10 de Fisher & Paykel es un circuito respiratorio de un solo uso que da soporte ventilatorio a neonatos y lactantes con insuficiencia respiratoria. Se conecta al reanimador Neopuff o a cualquier reanimador a gas conforme a ISO 10651-5, con un flujo de 5 a 15 L/min (8 L/min recomendado). Incorpora válvula PEEP, puerto de pico de pato integrado y otras funciones para uso hospitalario por personal médico capacitado.",
+    "descripcion_larga_en": "The Fisher & Paykel Neopuff ergonomic T-piece circuit RD1300-10 is a single-use breathing circuit that provides ventilatory support to neonates and infants with respiratory insufficiency. It connects to the Neopuff resuscitator or any gas-powered resuscitator compliant with ISO 10651-5, with a flow of 5 to 15 L/min (8 L/min recommended). It includes a PEEP valve, an integrated duckbill port and other functions for hospital use by trained medical staff.",
+    "beneficios_es": [
+      "Compatible con Neopuff y reanimadores a gas conformes a ISO 10651-5.",
+      "Válvula PEEP para seleccionar el nivel de presión espiratoria deseado.",
+      "Flujo de 5 a 15 L/min, con 8 L/min recomendado; un solo uso."
+    ],
+    "beneficios_en": [
+      "Compatible with Neopuff and gas-powered resuscitators compliant with ISO 10651-5.",
+      "PEEP valve to select the desired expiratory pressure level.",
+      "Flow of 5 to 15 L/min, 8 L/min recommended; single use."
+    ],
+    "valor_es": "Un circuito en T desechable para reanimación neonatal con válvula PEEP, con instrucciones oficiales de Fisher & Paykel.",
+    "valor_en": "A disposable T-piece circuit for neonatal resuscitation with PEEP valve, with official Fisher & Paykel instructions.",
+    "faq_es": [
+      {
+        "q": "¿Qué flujo se debe usar?",
+        "a": "Entre 5 y 15 L/min; el flujo recomendado es de 8 L/min y no debe usarse fuera de ese rango."
+      },
+      {
+        "q": "¿Con qué reanimadores es compatible?",
+        "a": "Con el reanimador en T Neopuff o cualquier reanimador a gas conforme a ISO 10651-5."
+      },
+      {
+        "q": "¿Qué debe haber disponible además?",
+        "a": "Un medio alternativo de reanimación sin gas, como una bolsa autoinflable, según las instrucciones."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What flow should be used?",
+        "a": "Between 5 and 15 L/min; the recommended flow is 8 L/min and it must not be used outside that range."
+      },
+      {
+        "q": "Which resuscitators is it compatible with?",
+        "a": "The Neopuff T-piece resuscitator or any gas-powered resuscitator compliant with ISO 10651-5."
+      },
+      {
+        "q": "What else must be available?",
+        "a": "An alternative non-gas-powered means of resuscitation, such as a self-inflating bag, per the instructions."
+      }
+    ],
+    "seo_keywords_es": [
+      "circuito en T Neopuff",
+      "circuito de reanimación neonatal RD1300",
+      "circuito desechable Neopuff",
+      "circuito Fisher & Paykel",
+      "reanimación neonatal Colombia",
+      "instrucciones RD1300-10"
+    ],
+    "seo_keywords_en": [
+      "Neopuff T-piece circuit",
+      "RD1300 neonatal resuscitation circuit",
+      "disposable Neopuff circuit",
+      "Fisher & Paykel circuit",
+      "neonatal resuscitation Colombia",
+      "RD1300-10 instructions"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Fisher & Paykel Healthcare"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Referencia",
+        "valor": "RD1300-10"
+      },
+      {
+        "grupo": "Uso",
+        "clave": "Flujo",
+        "valor": "5 - 15 L/min (recomendado 8 L/min)"
+      },
+      {
+        "grupo": "Uso",
+        "clave": "Tipo",
+        "valor": "Circuito en T de un solo uso"
+      },
+      {
+        "grupo": "Compatibilidad",
+        "clave": "Reanimadores",
+        "valor": "Neopuff o a gas conforme a ISO 10651-5"
+      }
+    ]
+  }
+]

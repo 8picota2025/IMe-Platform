@@ -1,0 +1,2213 @@
+[
+  {
+    "sku": "CDK-195",
+    "descripcion_larga_es": "El compresor nebulizador Carditek Zen administra de forma eficaz medicamentos inhalados en afecciones respiratorias, con nebulización eficiente de partículas finas (inferiores a 3 micras) que favorecen la absorción pulmonar. Es un compresor de trabajo continuo para uso domiciliario de niños y adultos y también en entornos clínicos, con garantía de 5 años o 2000 horas de uso.",
+    "descripcion_larga_en": "The Carditek Zen nebulizer compressor delivers inhaled medication effectively for respiratory conditions, with efficient nebulization of fine particles (below 3 microns) that favour lung absorption. It is a continuous-duty compressor for home use by children and adults and also in clinical settings, with a 5-year or 2000-hour warranty.",
+    "beneficios_es": [
+      "Partículas inferiores a 3 micras para una mejor absorción pulmonar.",
+      "Compresor de trabajo continuo, apto para casa y entornos clínicos.",
+      "Garantía de 5 años o 2000 horas de uso; compacto de 9,0 x 14,5 x 14,2 cm y 1,16 kg."
+    ],
+    "beneficios_en": [
+      "Particles below 3 microns for better lung absorption.",
+      "Continuous-duty compressor suitable for home and clinical settings.",
+      "5-year or 2000-hour warranty; compact 9.0 x 14.5 x 14.2 cm and 1.16 kg."
+    ],
+    "valor_es": "Un compresor nebulizador colombiano para terapia respiratoria en casa o en entornos clínicos, con ficha técnica oficial descargable.",
+    "valor_en": "A Colombian nebulizer compressor for respiratory therapy at home or in clinical settings, with an official downloadable datasheet.",
+    "faq_es": [
+      {
+        "q": "¿Es de uso continuo?",
+        "a": "Sí, es un compresor de trabajo continuo según la ficha de Carditek."
+      },
+      {
+        "q": "¿Qué garantía tiene?",
+        "a": "5 años o 2000 horas de uso."
+      },
+      {
+        "q": "¿Qué tamaño de partícula genera?",
+        "a": "Inferior a 3 micras."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Is it continuous duty?",
+        "a": "Yes, it is a continuous-duty compressor per the Carditek datasheet."
+      },
+      {
+        "q": "What warranty does it have?",
+        "a": "5 years or 2000 hours of use."
+      },
+      {
+        "q": "What particle size does it generate?",
+        "a": "Below 3 microns."
+      }
+    ],
+    "seo_keywords_es": [
+      "compresor nebulizador Carditek Zen",
+      "nebulizador para niños y adultos",
+      "nebulizador de trabajo continuo",
+      "nebulizador GMD",
+      "terapia respiratoria en casa Colombia",
+      "ficha técnica CDK-195"
+    ],
+    "seo_keywords_en": [
+      "Carditek Zen nebulizer compressor",
+      "nebulizer for children and adults",
+      "continuous-duty nebulizer",
+      "GMD nebulizer",
+      "home respiratory therapy Colombia",
+      "CDK-195 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Marca / fabricante",
+        "valor": "GMD (Colombia)"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Referencia",
+        "valor": "CDK-195"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Tamaño / peso",
+        "valor": "9,0 x 14,5 x 14,2 cm; 1,16 kg"
+      },
+      {
+        "grupo": "Rendimiento",
+        "clave": "Partícula",
+        "valor": "< 3 micras"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía",
+        "valor": "5 años o 2000 h"
+      },
+      {
+        "grupo": "Ambiente",
+        "clave": "Temperatura / humedad",
+        "valor": "-20 a 70 °C / 10 a 95 %"
+      }
+    ],
+    "append_descripcion": true
+  },
+  {
+    "sku": "CDK-222",
+    "descripcion_larga_es": "El compresor nebulizador Carditek Bubu tiene figura de búho y un kit de accesorios pensados para hacer más amable la terapia inhalada en niños y adultos. Ofrece nebulización constante con partículas inferiores a 3 micras, trabaja de forma continua para uso doméstico o clínico y cuenta con garantía de 5 años o 2000 horas de uso.",
+    "descripcion_larga_en": "The Carditek Bubu nebulizer compressor has an owl figure and an accessory kit designed to make inhaled therapy friendlier for children and adults. It offers constant nebulization with particles below 3 microns, runs continuously for home or clinical use and has a 5-year or 2000-hour warranty.",
+    "beneficios_es": [
+      "Diseño de búho que hace la terapia más amable para los niños.",
+      "Nebulización constante con partículas inferiores a 3 micras.",
+      "Trabajo continuo y garantía de 5 años o 2000 horas."
+    ],
+    "beneficios_en": [
+      "Owl design that makes therapy friendlier for children.",
+      "Constant nebulization with particles below 3 microns.",
+      "Continuous duty and 5-year or 2000-hour warranty."
+    ],
+    "valor_es": "Un compresor nebulizador colombiano para terapia respiratoria en casa o en entornos clínicos, con ficha técnica oficial descargable.",
+    "valor_en": "A Colombian nebulizer compressor for respiratory therapy at home or in clinical settings, with an official downloadable datasheet.",
+    "faq_es": [
+      {
+        "q": "¿Para quién está pensado?",
+        "a": "Para uso domiciliario de adultos y especialmente de niños, según la ficha."
+      },
+      {
+        "q": "¿Qué garantía tiene?",
+        "a": "5 años o 2000 horas de uso."
+      },
+      {
+        "q": "¿Incluye accesorios?",
+        "a": "Sí, incluye un kit de accesorios; consulta la ficha para el detalle."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Who is it designed for?",
+        "a": "Home use by adults and especially children, per the datasheet."
+      },
+      {
+        "q": "What warranty does it have?",
+        "a": "5 years or 2000 hours of use."
+      },
+      {
+        "q": "Does it include accessories?",
+        "a": "Yes, it includes an accessory kit; see the datasheet for details."
+      }
+    ],
+    "seo_keywords_es": [
+      "nebulizador Carditek Bubu",
+      "nebulizador infantil búho",
+      "compresor nebulizador pediátrico",
+      "nebulizador GMD",
+      "terapia respiratoria infantil Colombia",
+      "ficha técnica CDK-222"
+    ],
+    "seo_keywords_en": [
+      "Carditek Bubu nebulizer",
+      "owl children nebulizer",
+      "paediatric nebulizer compressor",
+      "GMD nebulizer",
+      "paediatric respiratory therapy Colombia",
+      "CDK-222 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Marca / fabricante",
+        "valor": "GMD (Colombia)"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Referencia",
+        "valor": "CDK-222"
+      },
+      {
+        "grupo": "Rendimiento",
+        "clave": "Partícula",
+        "valor": "< 3 micras"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía",
+        "valor": "5 años o 2000 h"
+      },
+      {
+        "grupo": "Ambiente",
+        "clave": "Temperatura / humedad",
+        "valor": "-20 a 70 °C / 10 a 95 %"
+      }
+    ],
+    "append_descripcion": true
+  },
+  {
+    "sku": "GMRN-211",
+    "descripcion_larga_es": "El compresor nebulizador Nube 3000+ incorpora un micronebulizador de flujo graduable que permite ajustar la cantidad de medicamento y evitar desperdicios, además de un lavador nasal para limpiar las vías respiratorias. Está diseñado para uso continuo en el hogar o en entornos clínicos, mide 9,5 x 17 x 15 cm, pesa 1,4 kg y tiene garantía de 5 años o 2000 horas.",
+    "descripcion_larga_en": "The Nube 3000+ nebulizer compressor includes an adjustable-flow micronebulizer that lets you adjust the amount of medication and avoid waste, plus a nasal washer to clean the airways. It is designed for continuous use at home or in clinical settings, measures 9.5 x 17 x 15 cm, weighs 1.4 kg and has a 5-year or 2000-hour warranty.",
+    "beneficios_es": [
+      "Micronebulizador de flujo graduable para ajustar la dosis y evitar desperdicio.",
+      "Lavador nasal incluido para un tratamiento más completo.",
+      "Uso continuo en casa o entornos clínicos; garantía de 5 años o 2000 horas."
+    ],
+    "beneficios_en": [
+      "Adjustable-flow micronebulizer to adjust the dose and avoid waste.",
+      "Nasal washer included for a more complete treatment.",
+      "Continuous use at home or clinical settings; 5-year or 2000-hour warranty."
+    ],
+    "valor_es": "Un compresor nebulizador colombiano para terapia respiratoria en casa o en entornos clínicos, con ficha técnica oficial descargable.",
+    "valor_en": "A Colombian nebulizer compressor for respiratory therapy at home or in clinical settings, with an official downloadable datasheet.",
+    "faq_es": [
+      {
+        "q": "¿Qué incluye el kit?",
+        "a": "Micronebulizador, línea neumática y los demás accesorios listados en la ficha técnica descargable."
+      },
+      {
+        "q": "¿Cuánto pesa?",
+        "a": "1,4 kg, con 9,5 x 17 x 15 cm."
+      },
+      {
+        "q": "¿Qué garantía tiene?",
+        "a": "5 años o 2000 horas de uso."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What does the kit include?",
+        "a": "Micronebulizer, pneumatic line and the other accessories listed in the downloadable datasheet."
+      },
+      {
+        "q": "How much does it weigh?",
+        "a": "1.4 kg, at 9.5 x 17 x 15 cm."
+      },
+      {
+        "q": "What warranty does it have?",
+        "a": "5 years or 2000 hours of use."
+      }
+    ],
+    "seo_keywords_es": [
+      "nebulizador Nube 3000+",
+      "compresor nebulizador con lavador nasal",
+      "micronebulizador de flujo graduable",
+      "nebulizador GMR",
+      "nebulizador Colombia",
+      "ficha técnica GMRN-211"
+    ],
+    "seo_keywords_en": [
+      "Nube 3000+ nebulizer",
+      "nebulizer compressor with nasal washer",
+      "adjustable-flow micronebulizer",
+      "GMR nebulizer",
+      "nebulizer Colombia",
+      "GMRN-211 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Marca / fabricante",
+        "valor": "GMD (Colombia)"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Referencia",
+        "valor": "GMRN-211 (Nube 3000+)"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Tamaño / peso",
+        "valor": "9,5 x 17 x 15 cm; 1,4 kg"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía",
+        "valor": "5 años o 2000 h"
+      },
+      {
+        "grupo": "Ambiente",
+        "clave": "Temperatura / humedad",
+        "valor": "-20 a 70 °C / 10 a 95 %"
+      }
+    ],
+    "append_descripcion": true
+  },
+  {
+    "sku": "GMRN-222",
+    "descripcion_larga_es": "El compresor nebulizador Nube 1000 con figura de búho está pensado para que los tratamientos respiratorios sean más agradables y menos intimidantes para los niños. Incluye un micronebulizador de flujo graduable y un lavador nasal, trabaja de forma continua en el hogar o en entornos clínicos y tiene garantía de 5 años o 2000 horas de uso.",
+    "descripcion_larga_en": "The Nube 1000 nebulizer compressor with a owl design is meant to make respiratory treatments more pleasant and less intimidating for children. It includes an adjustable-flow micronebulizer and a nasal washer, runs continuously at home or in clinical settings and has a 5-year or 2000-hour warranty.",
+    "beneficios_es": [
+      "Diseño de búho que hace la terapia más llevadera para los niños.",
+      "Micronebulizador de flujo graduable y lavador nasal incluidos.",
+      "Uso continuo y garantía de 5 años o 2000 horas."
+    ],
+    "beneficios_en": [
+      "Owl design that makes therapy easier for children.",
+      "Adjustable-flow micronebulizer and nasal washer included.",
+      "Continuous use and 5-year or 2000-hour warranty."
+    ],
+    "valor_es": "Un compresor nebulizador colombiano para terapia respiratoria en casa o en entornos clínicos, con ficha técnica oficial descargable.",
+    "valor_en": "A Colombian nebulizer compressor for respiratory therapy at home or in clinical settings, with an official downloadable datasheet.",
+    "faq_es": [
+      {
+        "q": "¿Para quién es?",
+        "a": "Está pensado para tratamientos respiratorios infantiles, aunque sirve en uso doméstico y clínico."
+      },
+      {
+        "q": "¿Es de trabajo continuo?",
+        "a": "Sí, según la ficha del fabricante."
+      },
+      {
+        "q": "¿Qué garantía tiene?",
+        "a": "5 años o 2000 horas de uso."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Who is it for?",
+        "a": "It is designed for children's respiratory treatments, though it works for home and clinical use."
+      },
+      {
+        "q": "Is it continuous duty?",
+        "a": "Yes, per the manufacturer datasheet."
+      },
+      {
+        "q": "What warranty does it have?",
+        "a": "5 years or 2000 hours of use."
+      }
+    ],
+    "seo_keywords_es": [
+      "nebulizador Nube 1000 búho",
+      "nebulizador infantil",
+      "compresor nebulizador pediátrico",
+      "nebulizador GMR",
+      "terapia respiratoria infantil Colombia",
+      "ficha técnica GMRN-222"
+    ],
+    "seo_keywords_en": [
+      "Nube 1000 owl nebulizer",
+      "children nebulizer",
+      "paediatric nebulizer compressor",
+      "GMR nebulizer",
+      "paediatric respiratory therapy Colombia",
+      "GMRN-222 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Marca / fabricante",
+        "valor": "GMD (Colombia)"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Referencia",
+        "valor": "GMRN-222"
+      },
+      {
+        "grupo": "Diseño",
+        "clave": "Figura",
+        "valor": "Búho"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía",
+        "valor": "5 años o 2000 h"
+      }
+    ],
+    "append_descripcion": true
+  },
+  {
+    "sku": "GMRN-235",
+    "descripcion_larga_es": "El compresor nebulizador Nube 1000 con figura de balón de fútbol está pensado para que los tratamientos respiratorios sean más agradables y menos intimidantes para los niños. Incluye un micronebulizador de flujo graduable y un lavador nasal, trabaja de forma continua en el hogar o en entornos clínicos y tiene garantía de 5 años o 2000 horas de uso.",
+    "descripcion_larga_en": "The Nube 1000 nebulizer compressor with a football design is meant to make respiratory treatments more pleasant and less intimidating for children. It includes an adjustable-flow micronebulizer and a nasal washer, runs continuously at home or in clinical settings and has a 5-year or 2000-hour warranty.",
+    "beneficios_es": [
+      "Diseño de balón de fútbol que hace la terapia más llevadera para los niños.",
+      "Micronebulizador de flujo graduable y lavador nasal incluidos.",
+      "Uso continuo y garantía de 5 años o 2000 horas."
+    ],
+    "beneficios_en": [
+      "Football design that makes therapy easier for children.",
+      "Adjustable-flow micronebulizer and nasal washer included.",
+      "Continuous use and 5-year or 2000-hour warranty."
+    ],
+    "valor_es": "Un compresor nebulizador colombiano para terapia respiratoria en casa o en entornos clínicos, con ficha técnica oficial descargable.",
+    "valor_en": "A Colombian nebulizer compressor for respiratory therapy at home or in clinical settings, with an official downloadable datasheet.",
+    "faq_es": [
+      {
+        "q": "¿Para quién es?",
+        "a": "Está pensado para tratamientos respiratorios infantiles, aunque sirve en uso doméstico y clínico."
+      },
+      {
+        "q": "¿Es de trabajo continuo?",
+        "a": "Sí, según la ficha del fabricante."
+      },
+      {
+        "q": "¿Qué garantía tiene?",
+        "a": "5 años o 2000 horas de uso."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Who is it for?",
+        "a": "It is designed for children's respiratory treatments, though it works for home and clinical use."
+      },
+      {
+        "q": "Is it continuous duty?",
+        "a": "Yes, per the manufacturer datasheet."
+      },
+      {
+        "q": "What warranty does it have?",
+        "a": "5 years or 2000 hours of use."
+      }
+    ],
+    "seo_keywords_es": [
+      "nebulizador Nube 1000 balón de fútbol",
+      "nebulizador infantil",
+      "compresor nebulizador pediátrico",
+      "nebulizador GMR",
+      "terapia respiratoria infantil Colombia",
+      "ficha técnica GMRN-235"
+    ],
+    "seo_keywords_en": [
+      "Nube 1000 football nebulizer",
+      "children nebulizer",
+      "paediatric nebulizer compressor",
+      "GMR nebulizer",
+      "paediatric respiratory therapy Colombia",
+      "GMRN-235 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Marca / fabricante",
+        "valor": "GMD (Colombia)"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Referencia",
+        "valor": "GMRN-235"
+      },
+      {
+        "grupo": "Diseño",
+        "clave": "Figura",
+        "valor": "Balón de fútbol"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía",
+        "valor": "5 años o 2000 h"
+      }
+    ],
+    "append_descripcion": true
+  },
+  {
+    "sku": "GMRN457-171",
+    "descripcion_larga_es": "El compresor nebulizador Nube 1000 con diseño de perro está orientado al tratamiento de asma, EPOC y otras enfermedades respiratorias en las que la medicación durante la terapia es indispensable, con vida útil extendida y enfoque pediátrico. Ofrece nebulización ininterrumpida, carcasa fácil de limpiar y sanitizar, accesorios (tubo de aire, micronebulizador, máscaras adulto y pediátrica, pieza bucal, 5 filtros y estuche) y 3 años de garantía.",
+    "descripcion_larga_en": "The Nube 1000 nebulizer compressor with a dog design is aimed at the treatment of asthma, COPD and other respiratory diseases where medication during therapy is essential, with extended service life and a paediatric focus. It offers uninterrupted nebulization, an easy-to-clean and sanitise housing, accessories (air tube, micronebulizer, adult and paediatric masks, mouthpiece, 5 filters and case) and a 3-year warranty.",
+    "beneficios_es": [
+      "Orientado a asma, EPOC y otras enfermedades respiratorias, con enfoque pediátrico.",
+      "Incluye tubo de aire, micronebulizador, máscaras (adulto y pediátrica), pieza bucal, 5 filtros y estuche.",
+      "Carcasa fácil de limpiar y sanitizar; 3 años de garantía."
+    ],
+    "beneficios_en": [
+      "Aimed at asthma, COPD and other respiratory diseases, with a paediatric focus.",
+      "Includes air tube, micronebulizer, masks (adult and paediatric), mouthpiece, 5 filters and case.",
+      "Easy-to-clean and sanitise housing; 3-year warranty."
+    ],
+    "valor_es": "Un compresor nebulizador colombiano para terapia respiratoria en casa o en entornos clínicos, con ficha técnica oficial descargable.",
+    "valor_en": "A Colombian nebulizer compressor for respiratory therapy at home or in clinical settings, with an official downloadable datasheet.",
+    "faq_es": [
+      {
+        "q": "¿Qué accesorios incluye?",
+        "a": "Tubo de aire, micronebulizador, máscaras adulto y pediátrica, pieza bucal, filtros de aire (x5) y estuche."
+      },
+      {
+        "q": "¿Para qué enfermedades se usa?",
+        "a": "Asma, EPOC y otras enfermedades respiratorias que requieren medicación durante la terapia."
+      },
+      {
+        "q": "¿Qué garantía tiene?",
+        "a": "3 años."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Which accessories are included?",
+        "a": "Air tube, micronebulizer, adult and paediatric masks, mouthpiece, air filters (x5) and storage case."
+      },
+      {
+        "q": "Which diseases is it used for?",
+        "a": "Asthma, COPD and other respiratory diseases requiring medication during therapy."
+      },
+      {
+        "q": "What warranty does it have?",
+        "a": "3 years."
+      }
+    ],
+    "seo_keywords_es": [
+      "nebulizador Nube 1000 perro",
+      "nebulizador pediátrico",
+      "nebulizador para asma y EPOC",
+      "nebulizador GMR",
+      "nebulizador Colombia",
+      "ficha técnica GMRN457-171"
+    ],
+    "seo_keywords_en": [
+      "Nube 1000 dog nebulizer",
+      "paediatric nebulizer",
+      "nebulizer for asthma and COPD",
+      "GMR nebulizer",
+      "nebulizer Colombia",
+      "GMRN457-171 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Marca / fabricante",
+        "valor": "GMD (Colombia)"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Referencia",
+        "valor": "GMRN457-171"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía",
+        "valor": "3 años"
+      },
+      {
+        "grupo": "Accesorios",
+        "clave": "Incluye",
+        "valor": "Tubo de aire, micronebulizador, máscaras adulto/pediátrica, pieza bucal, 5 filtros, estuche"
+      }
+    ],
+    "append_descripcion": true
+  },
+  {
+    "sku": "GMRN457-183",
+    "descripcion_larga_es": "El compresor nebulizador Nube 1000 con diseño de pez payaso se documenta con el manual de usuario del fabricante, que cubre la intención de uso, la información de seguridad, los componentes del NUBE 1000, los accesorios incluidos y disponibles para la venta, y el cuidado y mantenimiento (limpieza del compresor, desinfección de accesorios, reemplazo del nebulizador y del filtro de aire).",
+    "descripcion_larga_en": "The Nube 1000 nebulizer compressor with a clownfish design is documented with the manufacturer user manual, which covers intended use, safety information, NUBE 1000 components, included and available accessories, and care and maintenance (compressor cleaning, accessory disinfection, nebulizer and air filter replacement).",
+    "beneficios_es": [
+      "Manual de usuario oficial con instrucciones de uso, seguridad y mantenimiento.",
+      "Guía para limpiar el compresor y desinfectar los accesorios.",
+      "Instrucciones para reemplazar el nebulizador y el filtro de aire."
+    ],
+    "beneficios_en": [
+      "Official user manual with usage, safety and maintenance instructions.",
+      "Guide to clean the compressor and disinfect accessories.",
+      "Instructions to replace the nebulizer and air filter."
+    ],
+    "valor_es": "Un compresor nebulizador colombiano para terapia respiratoria en casa o en entornos clínicos, con ficha técnica oficial descargable.",
+    "valor_en": "A Colombian nebulizer compressor for respiratory therapy at home or in clinical settings, with an official downloadable datasheet.",
+    "faq_es": [
+      {
+        "q": "¿Qué documento se descarga?",
+        "a": "El manual de usuario del NUBE 1000 con intención de uso, seguridad, accesorios y mantenimiento."
+      },
+      {
+        "q": "¿Cómo se mantiene?",
+        "a": "El manual explica la limpieza del compresor, la desinfección de los accesorios y el reemplazo del nebulizador y del filtro."
+      },
+      {
+        "q": "¿Es un diseño infantil?",
+        "a": "Sí, este modelo tiene diseño de pez payaso."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Which document can I download?",
+        "a": "The NUBE 1000 user manual with intended use, safety, accessories and maintenance."
+      },
+      {
+        "q": "How is it maintained?",
+        "a": "The manual explains compressor cleaning, accessory disinfection and nebulizer and filter replacement."
+      },
+      {
+        "q": "Is it a children's design?",
+        "a": "Yes, this model has a clownfish design."
+      }
+    ],
+    "seo_keywords_es": [
+      "nebulizador Nube 1000 pez payaso",
+      "manual nebulizador Nube 1000",
+      "nebulizador infantil",
+      "nebulizador GMR",
+      "nebulizador Colombia",
+      "manual de usuario GMRN457-183"
+    ],
+    "seo_keywords_en": [
+      "Nube 1000 clownfish nebulizer",
+      "Nube 1000 nebulizer manual",
+      "children nebulizer",
+      "GMR nebulizer",
+      "nebulizer Colombia",
+      "GMRN457-183 user manual"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Marca / fabricante",
+        "valor": "GMD (Colombia)"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Referencia",
+        "valor": "GMRN457-183"
+      },
+      {
+        "grupo": "Documento",
+        "clave": "Documento adjunto",
+        "valor": "Manual de usuario Nube 1000"
+      }
+    ],
+    "append_descripcion": true
+  },
+  {
+    "sku": "GMRN457-12",
+    "descripcion_larga_es": "El compresor nebulizador Nube 3000 sirve para el tratamiento de asma, EPOC y otras enfermedades respiratorias en las que se requiere medicación durante la terapia, con vida útil extendida para uso doméstico. Es de diseño simple, compacto y portátil, con carcasa fácil de limpiar y sanitizar, trabajo continuo, 3 años de garantía y accesorios completos (tubo de aire, micronebulizador, máscaras adulto y pediátrica, pieza bucal, 5 filtros y estuche).",
+    "descripcion_larga_en": "The Nube 3000 nebulizer compressor is used to treat asthma, COPD and other respiratory diseases requiring medication during therapy, with extended service life for home use. It has a simple, compact, portable design, an easy-to-clean and sanitise housing, continuous duty, a 3-year warranty and complete accessories (air tube, micronebulizer, adult and paediatric masks, mouthpiece, 5 filters and case).",
+    "beneficios_es": [
+      "Diseño simple, compacto y portátil, fácil de transportar y guardar.",
+      "Para adultos y niños, con máscaras de ambas tallas incluidas.",
+      "Rendimiento: presión ≥ 35 PSI, flujo de 5 a 8 l/min y partículas de 3 micras."
+    ],
+    "beneficios_en": [
+      "Simple, compact, portable design, easy to carry and store.",
+      "For adults and children, with masks of both sizes included.",
+      "Performance: pressure ≥ 35 PSI, flow 5 to 8 l/min and 3-micron particles."
+    ],
+    "valor_es": "Un compresor nebulizador colombiano para terapia respiratoria en casa o en entornos clínicos, con ficha técnica oficial descargable.",
+    "valor_en": "A Colombian nebulizer compressor for respiratory therapy at home or in clinical settings, with an official downloadable datasheet.",
+    "faq_es": [
+      {
+        "q": "¿Qué rendimiento tiene?",
+        "a": "Presión ≥ 35 PSI, flujo de 5 a 8 l/min y tamaño de partícula de 3 micras, según la ficha."
+      },
+      {
+        "q": "¿Qué voltaje usa?",
+        "a": "110-120 V, con consumo inferior a 60 W."
+      },
+      {
+        "q": "¿Qué garantía tiene?",
+        "a": "3 años."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What performance does it have?",
+        "a": "Pressure ≥ 35 PSI, flow 5 to 8 l/min and 3-micron particle size, per the datasheet."
+      },
+      {
+        "q": "What voltage does it use?",
+        "a": "110-120 V, with consumption below 60 W."
+      },
+      {
+        "q": "What warranty does it have?",
+        "a": "3 years."
+      }
+    ],
+    "seo_keywords_es": [
+      "nebulizador Nube 3000",
+      "compresor nebulizador para asma",
+      "nebulizador portátil para el hogar",
+      "nebulizador GMR",
+      "nebulizador Colombia",
+      "ficha técnica GMRN457-12"
+    ],
+    "seo_keywords_en": [
+      "Nube 3000 nebulizer",
+      "nebulizer compressor for asthma",
+      "portable home nebulizer",
+      "GMR nebulizer",
+      "nebulizer Colombia",
+      "GMRN457-12 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Marca / fabricante",
+        "valor": "GMD (Colombia)"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Referencia",
+        "valor": "GMRN457-12 (Nube 3000)"
+      },
+      {
+        "grupo": "Rendimiento",
+        "clave": "Presión / flujo",
+        "valor": "≥ 35 PSI; 5 - 8 l/min"
+      },
+      {
+        "grupo": "Rendimiento",
+        "clave": "Partícula",
+        "valor": "3 micras"
+      },
+      {
+        "grupo": "Eléctrico",
+        "clave": "Alimentación",
+        "valor": "110-120 V; < 60 W"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía",
+        "valor": "3 años"
+      }
+    ],
+    "append_descripcion": true
+  },
+  {
+    "sku": "GMRN846",
+    "descripcion_larga_es": "El compresor nebulizador Nube 5000 es un sistema portátil de aerosolterapia para usar en cualquier lugar en el tratamiento del sistema respiratorio superior e inferior. Funciona con batería de polímero de ion de litio de 1650 mAh (3,7 V) o con entrada de 100-240 V, pesa 0,19 kg la unidad, trabaja 30 minutos encendido y 30 minutos apagado e incluye micronebulizador, máscaras adulto y pediátrica, pieza bucal, 5 filtros y estuche.",
+    "descripcion_larga_en": "The Nube 5000 nebulizer compressor is a portable aerosol therapy system to use anywhere for treating the upper and lower respiratory system. It runs on a 1650 mAh (3.7 V) lithium-ion polymer battery or on 100-240 V input, weighs 0.19 kg for the unit, works 30 minutes on and 30 minutes off and includes a micronebulizer, adult and paediatric masks, mouthpiece, 5 filters and a case.",
+    "beneficios_es": [
+      "Portátil con batería recargable de ion de litio de 1650 mAh.",
+      "Tratamiento de vías respiratorias superiores e inferiores en cualquier lugar.",
+      "Incluye micronebulizador, máscaras adulto/pediátrica, pieza bucal, 5 filtros y estuche."
+    ],
+    "beneficios_en": [
+      "Portable with a 1650 mAh rechargeable lithium-ion battery.",
+      "Treatment of upper and lower airways anywhere.",
+      "Includes micronebulizer, adult/paediatric masks, mouthpiece, 5 filters and case."
+    ],
+    "valor_es": "Un compresor nebulizador colombiano para terapia respiratoria en casa o en entornos clínicos, con ficha técnica oficial descargable.",
+    "valor_en": "A Colombian nebulizer compressor for respiratory therapy at home or in clinical settings, with an official downloadable datasheet.",
+    "faq_es": [
+      {
+        "q": "¿Funciona con batería?",
+        "a": "Sí, batería de polímero de ion de litio de 1650 mAh a 3,7 V; también con entrada de 100-240 V."
+      },
+      {
+        "q": "¿Qué volumen de medicamento admite?",
+        "a": "De 2 ml (mínimo) a 6 ml (máximo)."
+      },
+      {
+        "q": "¿Cuánto puede funcionar seguido?",
+        "a": "Hasta 30 minutos encendido y 30 minutos apagado."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Does it run on battery?",
+        "a": "Yes, a 1650 mAh 3.7 V lithium-ion polymer battery; also 100-240 V input."
+      },
+      {
+        "q": "What medication volume does it accept?",
+        "a": "From 2 ml (minimum) to 6 ml (maximum)."
+      },
+      {
+        "q": "How long can it run continuously?",
+        "a": "Up to 30 minutes on and 30 minutes off."
+      }
+    ],
+    "seo_keywords_es": [
+      "nebulizador portátil Nube 5000",
+      "nebulizador con batería",
+      "aerosolterapia portátil",
+      "nebulizador GMR",
+      "nebulizador Colombia",
+      "ficha técnica GMRN846"
+    ],
+    "seo_keywords_en": [
+      "Nube 5000 portable nebulizer",
+      "battery nebulizer",
+      "portable aerosol therapy",
+      "GMR nebulizer",
+      "nebulizer Colombia",
+      "GMRN846 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Marca / fabricante",
+        "valor": "GMD (Colombia)"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Referencia",
+        "valor": "GMRN846 (Nube 5000)"
+      },
+      {
+        "grupo": "Energía",
+        "clave": "Batería",
+        "valor": "Polímero de ion de litio 1650 mAh, 3,7 V"
+      },
+      {
+        "grupo": "Eléctrico",
+        "clave": "Entrada",
+        "valor": "100-240 V AC, 50-60 Hz, 0,5 A"
+      },
+      {
+        "grupo": "Rendimiento",
+        "clave": "Volumen de medicación",
+        "valor": "2 - 6 ml"
+      },
+      {
+        "grupo": "Rendimiento",
+        "clave": "Ciclo de uso",
+        "valor": "30 min encendido / 30 min apagado"
+      },
+      {
+        "grupo": "Regulatorio",
+        "clave": "Clasificación",
+        "valor": "Clase IIA (riesgo moderado)"
+      }
+    ],
+    "append_descripcion": true
+  },
+  {
+    "sku": "CDK-BPM-65B+",
+    "descripcion_larga_es": "El tensiómetro digital Carditek Power mide la presión arterial de forma automática en el brazo, con pantalla LCD cuya retroiluminación solo se activa para señalar resultados elevados. Tiene memoria de 192 registros para dos usuarios, batería recargable con cable USB y alarmas de movimiento del brazo y de pulso irregular; mide 140 x 110 x 81 mm, pesa unos 280 g y tiene una exactitud de ±3 mmHg o ±2 % de la lectura.",
+    "descripcion_larga_en": "The Carditek Power digital blood pressure monitor measures blood pressure automatically on the arm, with an LCD whose backlight only activates to flag elevated results. It has a 192-record memory for two users, a rechargeable battery with USB cable and arm-movement and irregular-pulse alarms; it measures 140 x 110 x 81 mm, weighs about 280 g and has an accuracy of ±3 mmHg or ±2% of reading.",
+    "beneficios_es": [
+      "La retroiluminación se activa solo ante cifras elevadas, para identificarlas de inmediato.",
+      "Dos usuarios con 192 registros cada uno para seguimiento continuo.",
+      "Batería recargable por USB y alarmas de movimiento del brazo y de pulso irregular."
+    ],
+    "beneficios_en": [
+      "Backlight activates only for elevated readings so they stand out immediately.",
+      "Two users with 192 records each for continuous follow-up.",
+      "USB rechargeable battery and arm-movement and irregular-pulse alarms."
+    ],
+    "valor_es": "Un tensiómetro de brazo con doble usuario y batería recargable para el control de la presión arterial en casa, con ficha oficial de Carditek.",
+    "valor_en": "An upper-arm monitor with dual user and rechargeable battery for home blood pressure control, with official Carditek datasheet.",
+    "faq_es": [
+      {
+        "q": "¿Qué rango de medición tiene?",
+        "a": "Presión estática de 0 a 280 mmHg, sistólica de 40 a 260 mmHg y diastólica de 20 a 240 mmHg."
+      },
+      {
+        "q": "¿Cuántos usuarios y registros maneja?",
+        "a": "Dos usuarios con hasta 192 mediciones en total, según la ficha."
+      },
+      {
+        "q": "¿Qué garantía tiene?",
+        "a": "La ficha de Carditek indica hasta 5 años de garantía."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What measurement range does it have?",
+        "a": "Static pressure 0 to 280 mmHg, systolic 40 to 260 mmHg and diastolic 20 to 240 mmHg."
+      },
+      {
+        "q": "How many users and records does it handle?",
+        "a": "Two users with up to 192 measurements, per the datasheet."
+      },
+      {
+        "q": "What warranty does it have?",
+        "a": "The Carditek datasheet states up to 5 years of warranty."
+      }
+    ],
+    "seo_keywords_es": [
+      "tensiómetro digital Carditek Power",
+      "tensiómetro de brazo automático",
+      "tensiómetro con batería recargable",
+      "tensiómetro doble usuario",
+      "tensiómetro Colombia",
+      "ficha técnica CDK-BPM-65B+"
+    ],
+    "seo_keywords_en": [
+      "Carditek Power digital blood pressure monitor",
+      "automatic upper-arm monitor",
+      "rechargeable blood pressure monitor",
+      "dual user blood pressure monitor",
+      "blood pressure monitor Colombia",
+      "CDK-BPM-65B+ datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Marca / fabricante",
+        "valor": "GMD (Colombia)"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Referencia",
+        "valor": "CDK-BPM-65B+ (Power)"
+      },
+      {
+        "grupo": "Medición",
+        "clave": "Rangos",
+        "valor": "Estática 0-280; sistólica 40-260; diastólica 20-240 mmHg"
+      },
+      {
+        "grupo": "Medición",
+        "clave": "Exactitud",
+        "valor": "±3 mmHg o ±2 % de la lectura"
+      },
+      {
+        "grupo": "Memoria",
+        "clave": "Usuarios x registros",
+        "valor": "2 x 192"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Tamaño / peso",
+        "valor": "140 x 110 x 81 mm; ~280 g"
+      }
+    ],
+    "append_descripcion": true
+  },
+  {
+    "sku": "CDK-BPM-65R",
+    "descripcion_larga_es": "El tensiómetro digital Carditek Vital está pensado para el monitoreo práctico de la presión arterial en casa, con funcionamiento automático y diseño sencillo que permite medir de forma segura incluso a quien no tiene experiencia previa. Ofrece memoria de 192 registros para dos usuarios, alarma de movimiento del brazo y brazalete adulto ajustable de 22 a 40 cm; mide 123 x 98 x 49 mm y pesa unos 198 g sin baterías.",
+    "descripcion_larga_en": "The Carditek Vital digital blood pressure monitor is designed for practical home blood pressure monitoring, with automatic operation and a simple design that allows safe measurement even for people with no prior experience. It offers a 192-record memory for two users, an arm-movement alarm and an adjustable adult cuff of 22 to 40 cm; it measures 123 x 98 x 49 mm and weighs about 198 g without batteries.",
+    "beneficios_es": [
+      "Uso sencillo y automático, apto para quien mide por primera vez.",
+      "Memoria de 192 registros para dos usuarios.",
+      "Brazalete adulto ajustable de 22 a 40 cm y alarma de movimiento del brazo."
+    ],
+    "beneficios_en": [
+      "Simple automatic use, suitable for first-time users.",
+      "192-record memory for two users.",
+      "Adjustable adult cuff of 22 to 40 cm and arm-movement alarm."
+    ],
+    "valor_es": "Un tensiómetro de brazo sencillo con doble usuario para autocuidado en casa, con ficha oficial de Carditek.",
+    "valor_en": "A simple upper-arm monitor with dual user for home self-care, with official Carditek datasheet.",
+    "faq_es": [
+      {
+        "q": "¿Qué tamaño de brazalete tiene?",
+        "a": "Brazalete adulto ajustable de 22 a 40 cm."
+      },
+      {
+        "q": "¿Cuántas mediciones guarda?",
+        "a": "192 por usuario, para 2 usuarios."
+      },
+      {
+        "q": "¿Cuánto pesa?",
+        "a": "Aproximadamente 198 g sin baterías."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What cuff size does it have?",
+        "a": "Adjustable adult cuff of 22 to 40 cm."
+      },
+      {
+        "q": "How many measurements does it store?",
+        "a": "192 per user, for 2 users."
+      },
+      {
+        "q": "How much does it weigh?",
+        "a": "About 198 g without batteries."
+      }
+    ],
+    "seo_keywords_es": [
+      "tensiómetro digital Carditek Vital",
+      "tensiómetro automático de brazo",
+      "tensiómetro para el hogar",
+      "tensiómetro 2 usuarios",
+      "tensiómetro Colombia",
+      "ficha técnica CDK-BPM-65R"
+    ],
+    "seo_keywords_en": [
+      "Carditek Vital digital blood pressure monitor",
+      "automatic upper-arm monitor",
+      "home blood pressure monitor",
+      "2-user blood pressure monitor",
+      "blood pressure monitor Colombia",
+      "CDK-BPM-65R datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Marca / fabricante",
+        "valor": "GMD (Colombia)"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Referencia",
+        "valor": "CDK-BPM-65R (Vital)"
+      },
+      {
+        "grupo": "Memoria",
+        "clave": "Usuarios x registros",
+        "valor": "2 x 192"
+      },
+      {
+        "grupo": "Accesorios",
+        "clave": "Brazalete adulto",
+        "valor": "22 - 40 cm"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Tamaño / peso",
+        "valor": "123 x 98 x 49 mm; ~198 g sin baterías"
+      }
+    ],
+    "append_descripcion": true
+  },
+  {
+    "sku": "CDK-BPM-66EP",
+    "descripcion_larga_es": "El tensiómetro digital Carditek Smart es un equipo automático de brazo con pantalla LCD XL retroiluminada, batería recargable integrada, conectividad Bluetooth, asistente de voz en español y memoria de 192 registros para dos usuarios. Mide presión sistólica de 40 a 260 mmHg y diastólica de 20 a 240 mmHg con ±3 mmHg o ±2 %, mide 140 x 110 x 81 mm y pesa unos 335 g.",
+    "descripcion_larga_en": "The Carditek Smart digital blood pressure monitor is an automatic upper-arm device with a backlit XL LCD, built-in rechargeable battery, Bluetooth connectivity, Spanish voice assistant and a 192-record memory for two users. It measures systolic pressure from 40 to 260 mmHg and diastolic from 20 to 240 mmHg with ±3 mmHg or ±2%, measures 140 x 110 x 81 mm and weighs about 335 g.",
+    "beneficios_es": [
+      "Asistente de voz en español para facilitar la lectura de resultados.",
+      "Conexión Bluetooth, pantalla XL retroiluminada y batería recargable.",
+      "Dos usuarios con 192 registros cada uno."
+    ],
+    "beneficios_en": [
+      "Spanish voice assistant to make results easy to read.",
+      "Bluetooth connection, backlit XL display and rechargeable battery.",
+      "Two users with 192 records each."
+    ],
+    "valor_es": "Un tensiómetro de brazo con Bluetooth y voz en español para seguimiento en el hogar, con ficha oficial de Carditek.",
+    "valor_en": "An upper-arm monitor with Bluetooth and Spanish voice for home follow-up, with official Carditek datasheet.",
+    "faq_es": [
+      {
+        "q": "¿Tiene conexión Bluetooth?",
+        "a": "Sí, incorpora conectividad Bluetooth."
+      },
+      {
+        "q": "¿Habla español?",
+        "a": "Sí, incluye asistente de voz en español."
+      },
+      {
+        "q": "¿Cómo se carga?",
+        "a": "Con batería de litio de 3,7 V recargable por USB (5 V, 500 mA)."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Does it have Bluetooth?",
+        "a": "Yes, it includes Bluetooth connectivity."
+      },
+      {
+        "q": "Does it speak Spanish?",
+        "a": "Yes, it includes a Spanish voice assistant."
+      },
+      {
+        "q": "How is it charged?",
+        "a": "With a 3.7 V lithium battery rechargeable via USB (5 V, 500 mA)."
+      }
+    ],
+    "seo_keywords_es": [
+      "tensiómetro Carditek Smart Bluetooth",
+      "tensiómetro con voz en español",
+      "tensiómetro digital con Bluetooth",
+      "tensiómetro recargable",
+      "tensiómetro Colombia",
+      "ficha técnica CDK-BPM-66EP"
+    ],
+    "seo_keywords_en": [
+      "Carditek Smart Bluetooth blood pressure monitor",
+      "blood pressure monitor with Spanish voice",
+      "Bluetooth digital blood pressure monitor",
+      "rechargeable blood pressure monitor",
+      "blood pressure monitor Colombia",
+      "CDK-BPM-66EP datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Marca / fabricante",
+        "valor": "GMD (Colombia)"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Referencia",
+        "valor": "CDK-BPM-66EP (Smart)"
+      },
+      {
+        "grupo": "Conectividad",
+        "clave": "Bluetooth / voz",
+        "valor": "Sí / asistente de voz en español"
+      },
+      {
+        "grupo": "Medición",
+        "clave": "Rangos",
+        "valor": "Sistólica 40-260; diastólica 20-240 mmHg; ±3 mmHg o ±2 %"
+      },
+      {
+        "grupo": "Memoria",
+        "clave": "Usuarios x registros",
+        "valor": "2 x 192"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Tamaño / peso",
+        "valor": "140 x 110 x 81 mm; ~335 g"
+      }
+    ],
+    "append_descripcion": true
+  },
+  {
+    "sku": "CDK-BPM-75B",
+    "descripcion_larga_es": "El tensiómetro digital de muñeca Carditek Pulse mide la presión arterial y el pulso con un solo botón, pantalla digital clara y diseño compacto de 90 x 61 x 21 mm y 95 g (sin batería). Incluye detección de latidos irregulares, alarma de movimiento del brazo y memoria de 192 registros para un usuario; funciona con 2 baterías AAA (no incluidas).",
+    "descripcion_larga_en": "The Carditek Pulse wrist digital blood pressure monitor measures blood pressure and pulse with a single button, a clear digital display and a compact 90 x 61 x 21 mm, 95 g (without battery) design. It includes irregular heartbeat detection, an arm-movement alarm and a 192-record memory for one user; it runs on 2 AAA batteries (not included).",
+    "beneficios_es": [
+      "Manejo con un solo botón y diseño compacto de 95 g.",
+      "Detección de latidos irregulares y alarma de movimiento.",
+      "Memoria de 192 registros; funciona con 2 pilas AAA."
+    ],
+    "beneficios_en": [
+      "One-button operation and compact 95 g design.",
+      "Irregular heartbeat detection and movement alarm.",
+      "192-record memory; runs on 2 AAA batteries."
+    ],
+    "valor_es": "Un tensiómetro de muñeca compacto con detección de latidos irregulares, con ficha oficial de Carditek.",
+    "valor_en": "A compact wrist monitor with irregular heartbeat detection, with official Carditek datasheet.",
+    "faq_es": [
+      {
+        "q": "¿Es de brazo o de muñeca?",
+        "a": "De muñeca."
+      },
+      {
+        "q": "¿Cuántos registros guarda?",
+        "a": "Hasta 192 mediciones para un usuario."
+      },
+      {
+        "q": "¿Qué pilas usa?",
+        "a": "2 pilas AAA (no incluidas)."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Is it upper-arm or wrist?",
+        "a": "Wrist."
+      },
+      {
+        "q": "How many records does it store?",
+        "a": "Up to 192 measurements for one user."
+      },
+      {
+        "q": "Which batteries does it use?",
+        "a": "2 AAA batteries (not included)."
+      }
+    ],
+    "seo_keywords_es": [
+      "tensiómetro de muñeca Carditek Pulse",
+      "tensiómetro digital de muñeca",
+      "tensiómetro compacto",
+      "tensiómetro portátil",
+      "tensiómetro Colombia",
+      "ficha técnica CDK-BPM-75B"
+    ],
+    "seo_keywords_en": [
+      "Carditek Pulse wrist blood pressure monitor",
+      "digital wrist blood pressure monitor",
+      "compact blood pressure monitor",
+      "portable blood pressure monitor",
+      "blood pressure monitor Colombia",
+      "CDK-BPM-75B datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Marca / fabricante",
+        "valor": "GMD (Colombia)"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Referencia",
+        "valor": "CDK-BPM-75B (Pulse)"
+      },
+      {
+        "grupo": "Medición",
+        "clave": "Rangos",
+        "valor": "Sistólica 60-260; diastólica 40-230 mmHg; ±3 mmHg o ±2 %"
+      },
+      {
+        "grupo": "Memoria",
+        "clave": "Usuarios x registros",
+        "valor": "1 x 192"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Tamaño / peso",
+        "valor": "90 x 61 x 21 mm; ~95 g sin batería"
+      },
+      {
+        "grupo": "Energía",
+        "clave": "Alimentación",
+        "valor": "2 pilas AAA"
+      }
+    ],
+    "append_descripcion": true
+  },
+  {
+    "sku": "CDK-BD-2317W",
+    "descripcion_larga_es": "La balanza digital de peso corporal Carditek mide de 5 a 180 kg con división de 0,1 kg, plataforma de vidrio templado con estructura HIPS y pantalla LCD de fácil lectura. Se enciende con tecnología SENSE ON, funciona con 2 pilas AAA (3 V), mide 26 x 26 x 2,4 cm, pesa 0,99 kg y tiene hasta 5 años de garantía.",
+    "descripcion_larga_en": "The Carditek digital body weight scale measures from 5 to 180 kg with 0.1 kg division, a tempered glass platform with HIPS structure and an easy-to-read LCD. It switches on with SENSE ON technology, runs on 2 AAA batteries (3 V), measures 26 x 26 x 2.4 cm, weighs 0.99 kg and has up to 5 years of warranty.",
+    "beneficios_es": [
+      "Rango de 5 a 180 kg con división de 0,1 kg.",
+      "Vidrio templado, pantalla LCD fácil de leer y encendido SENSE ON.",
+      "Compacta de 26 x 26 cm y hasta 5 años de garantía."
+    ],
+    "beneficios_en": [
+      "5 to 180 kg range with 0.1 kg division.",
+      "Tempered glass, easy-to-read LCD and SENSE ON start-up.",
+      "Compact 26 x 26 cm and up to 5 years of warranty."
+    ],
+    "valor_es": "Una balanza digital de vidrio templado para control de peso en casa o tamizajes, con ficha oficial de Carditek.",
+    "valor_en": "A tempered-glass digital scale for weight control at home or screenings, with official Carditek datasheet.",
+    "faq_es": [
+      {
+        "q": "¿Qué capacidad tiene?",
+        "a": "Hasta 180 kg, con medición desde 5 kg."
+      },
+      {
+        "q": "¿Qué precisión tiene?",
+        "a": "±0,3 kg de 5 a 60 kg, ±0,4 kg de 60 a 120 kg y ±0,5 kg de 120 a 180 kg."
+      },
+      {
+        "q": "¿Qué pilas usa?",
+        "a": "2 pilas AAA (3 V)."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What capacity does it have?",
+        "a": "Up to 180 kg, measuring from 5 kg."
+      },
+      {
+        "q": "How accurate is it?",
+        "a": "±0.3 kg from 5 to 60 kg, ±0.4 kg from 60 to 120 kg and ±0.5 kg from 120 to 180 kg."
+      },
+      {
+        "q": "Which batteries does it use?",
+        "a": "2 AAA batteries (3 V)."
+      }
+    ],
+    "seo_keywords_es": [
+      "balanza digital de peso corporal",
+      "balanza Carditek vidrio templado",
+      "báscula digital 180 kg",
+      "balanza para el hogar",
+      "balanza Colombia",
+      "ficha técnica CDK-BD-2317W"
+    ],
+    "seo_keywords_en": [
+      "digital body weight scale",
+      "Carditek tempered glass scale",
+      "180 kg digital scale",
+      "home scale",
+      "scale Colombia",
+      "CDK-BD-2317W datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Marca / fabricante",
+        "valor": "GMD (Colombia)"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Referencia",
+        "valor": "CDK-BD-2317W"
+      },
+      {
+        "grupo": "Medición",
+        "clave": "Rango / división",
+        "valor": "5 - 180 kg / 0,1 kg"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Tamaño / peso",
+        "valor": "26 x 26 x 2,4 cm; 0,99 kg"
+      },
+      {
+        "grupo": "Material",
+        "clave": "Plataforma",
+        "valor": "Vidrio templado de 5 mm, estructura HIPS"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía",
+        "valor": "Hasta 5 años"
+      }
+    ],
+    "append_descripcion": true
+  },
+  {
+    "sku": "LTD-BD-260",
+    "descripcion_larga_es": "La balanza con monitor de grasa Latidos mide peso, porcentaje de grasa, masa muscular e IMC, entre otros parámetros, con tecnología de bioimpedancia de 4 electrodos y Bluetooth. Su plataforma de vidrio templado de 5 mm soporta hasta 180 kg y los resultados se siguen con la app Fitdays; tiene hasta 2 años de garantía.",
+    "descripcion_larga_en": "The Latidos body-fat monitor scale measures weight, body fat percentage, muscle mass and BMI, among other parameters, using 4-electrode bioimpedance technology and Bluetooth. Its 5 mm tempered glass platform supports up to 180 kg and results are tracked with the Fitdays app; it has up to 2 years of warranty.",
+    "beneficios_es": [
+      "Bioimpedancia de 4 electrodos para peso, grasa, masa muscular e IMC.",
+      "Bluetooth y app Fitdays para seguir la evolución.",
+      "Vidrio templado de 5 mm y capacidad de hasta 180 kg."
+    ],
+    "beneficios_en": [
+      "4-electrode bioimpedance for weight, body fat, muscle mass and BMI.",
+      "Bluetooth and Fitdays app to track progress.",
+      "5 mm tempered glass and capacity up to 180 kg."
+    ],
+    "valor_es": "Una balanza de composición corporal con Bluetooth y app, para el hogar o evaluaciones de salud.",
+    "valor_en": "A body-composition scale with Bluetooth and app, for home or health assessments.",
+    "faq_es": [
+      {
+        "q": "¿Qué mide?",
+        "a": "Peso, porcentaje de grasa, masa muscular e IMC, entre otros."
+      },
+      {
+        "q": "¿Con qué app funciona?",
+        "a": "Con la app Fitdays por Bluetooth."
+      },
+      {
+        "q": "¿Qué capacidad tiene?",
+        "a": "Hasta 180 kg."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What does it measure?",
+        "a": "Weight, body fat percentage, muscle mass and BMI, among others."
+      },
+      {
+        "q": "Which app does it work with?",
+        "a": "The Fitdays app via Bluetooth."
+      },
+      {
+        "q": "What capacity does it have?",
+        "a": "Up to 180 kg."
+      }
+    ],
+    "seo_keywords_es": [
+      "balanza con monitor de grasa",
+      "balanza bioimpedancia Latidos",
+      "báscula inteligente Bluetooth",
+      "balanza de composición corporal",
+      "balanza Colombia",
+      "ficha técnica LTD-BD-260"
+    ],
+    "seo_keywords_en": [
+      "body fat monitor scale",
+      "Latidos bioimpedance scale",
+      "Bluetooth smart scale",
+      "body composition scale",
+      "scale Colombia",
+      "LTD-BD-260 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Marca / fabricante",
+        "valor": "GMD (Colombia)"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Referencia",
+        "valor": "LTD-BD-260"
+      },
+      {
+        "grupo": "Medición",
+        "clave": "Tecnología",
+        "valor": "Bioimpedancia de 4 electrodos"
+      },
+      {
+        "grupo": "Medición",
+        "clave": "Capacidad",
+        "valor": "Hasta 180 kg"
+      },
+      {
+        "grupo": "Conectividad",
+        "clave": "Conexión",
+        "valor": "Bluetooth; app Fitdays"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía",
+        "valor": "Hasta 2 años"
+      }
+    ],
+    "append_descripcion": true
+  },
+  {
+    "sku": "LTD-B10",
+    "descripcion_larga_es": "El glucómetro Latidos LTD-B10 mide la glucosa en sangre capilar de 20 a 600 mg/dL en 5 segundos con solo 0,8 µL de muestra. Guarda 512 mediciones, calcula promedios de 7, 14 y 28 días y permite marcar si la medición fue antes o después de comer. Mide 90,3 x 61 x 24 mm, pesa 47,1 g sin pilas (2 x AAA) y cumple exactitud ISO 15197:2015; tiene 5 años de garantía.",
+    "descripcion_larga_en": "The Latidos LTD-B10 glucometer measures capillary blood glucose from 20 to 600 mg/dL in 5 seconds with only 0.8 µL of sample. It stores 512 measurements, calculates 7-, 14- and 28-day averages and lets you mark whether the reading was before or after a meal. It measures 90.3 x 61 x 24 mm, weighs 47.1 g without batteries (2 x AAA) and meets ISO 15197:2015 accuracy; it has a 5-year warranty.",
+    "beneficios_es": [
+      "Resultado en 5 segundos con solo 0,8 µL de sangre.",
+      "Memoria de 512 mediciones, promedios de 7, 14 y 28 días y marcación antes/después de comer.",
+      "Exactitud según ISO 15197:2015; 5 años de garantía."
+    ],
+    "beneficios_en": [
+      "Result in 5 seconds with only 0.8 µL of blood.",
+      "512-measurement memory, 7-, 14- and 28-day averages and before/after-meal marking.",
+      "ISO 15197:2015 accuracy; 5-year warranty."
+    ],
+    "valor_es": "Un glucómetro compacto de 47 g con memoria de 512 mediciones, con ficha técnica oficial y registro sanitario.",
+    "valor_en": "A compact 47 g glucometer with 512-measurement memory, with official datasheet and health registration.",
+    "faq_es": [
+      {
+        "q": "¿Qué rango mide?",
+        "a": "De 20 a 600 mg/dL, con hematocrito de 35 a 55 %."
+      },
+      {
+        "q": "¿Qué exactitud declara?",
+        "a": "Cumple ISO 15197:2015: ±15 mg/dL por debajo de 100 mg/dL y ±15 % por encima."
+      },
+      {
+        "q": "¿Detecta cetonas?",
+        "a": "No; la ficha advierte que valores por encima de 240 mg/dL pueden indicar riesgo de cetoacidosis."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What range does it measure?",
+        "a": "From 20 to 600 mg/dL, with hematocrit 35 to 55%."
+      },
+      {
+        "q": "What accuracy does it declare?",
+        "a": "It meets ISO 15197:2015: ±15 mg/dL below 100 mg/dL and ±15% above."
+      },
+      {
+        "q": "Does it detect ketones?",
+        "a": "No; the datasheet warns that values above 240 mg/dL may indicate ketoacidosis risk."
+      }
+    ],
+    "seo_keywords_es": [
+      "glucómetro Latidos LTD-B10",
+      "glucómetro digital",
+      "medidor de glucosa en sangre",
+      "glucómetro con memoria",
+      "glucómetro Colombia",
+      "ficha técnica LTD-B10"
+    ],
+    "seo_keywords_en": [
+      "Latidos LTD-B10 glucometer",
+      "digital glucometer",
+      "blood glucose meter",
+      "glucometer with memory",
+      "glucometer Colombia",
+      "LTD-B10 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Marca / fabricante",
+        "valor": "GMD (Colombia)"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Referencia",
+        "valor": "LTD-B10"
+      },
+      {
+        "grupo": "Medición",
+        "clave": "Rango",
+        "valor": "20 - 600 mg/dL"
+      },
+      {
+        "grupo": "Medición",
+        "clave": "Tiempo / muestra",
+        "valor": "5 s / 0,8 µL"
+      },
+      {
+        "grupo": "Memoria",
+        "clave": "Memorias",
+        "valor": "512; promedios 7, 14 y 28 días"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Tamaño / peso",
+        "valor": "90,3 x 61 x 24 mm; 47,1 g sin pilas"
+      },
+      {
+        "grupo": "Regulatorio",
+        "clave": "Registro sanitario",
+        "valor": "2024DM-0029135 (glucómetro)"
+      }
+    ],
+    "append_descripcion": true
+  },
+  {
+    "sku": "LTD-B10-K",
+    "descripcion_larga_es": "El kit de glucometría Basic Latidos reúne en un paquete el glucómetro LTD-B10, 50 tirillas reactivas y 100 lancetas estériles para un monitoreo rápido y confiable. El glucómetro mide de 20 a 600 mg/dL en 5 segundos con 0,8 µL de muestra, guarda 512 mediciones y tiene 5 años de garantía.",
+    "descripcion_larga_en": "The Latidos Basic glucometry kit brings together in one package the LTD-B10 glucometer, 50 test strips and 100 sterile lancets for fast and reliable monitoring. The glucometer measures from 20 to 600 mg/dL in 5 seconds with 0.8 µL of sample, stores 512 measurements and has a 5-year warranty.",
+    "beneficios_es": [
+      "Todo en un paquete: glucómetro, 50 tirillas y 100 lancetas.",
+      "Resultado en 5 segundos con 0,8 µL y memoria de 512 mediciones.",
+      "Glucómetro con 5 años de garantía y ficha técnica oficial."
+    ],
+    "beneficios_en": [
+      "All in one package: glucometer, 50 strips and 100 lancets.",
+      "Result in 5 seconds with 0.8 µL and 512-measurement memory.",
+      "Glucometer with 5-year warranty and official datasheet."
+    ],
+    "valor_es": "Un kit de inicio para empezar a controlar la glucosa en casa, con documentación oficial de Latidos.",
+    "valor_en": "A starter kit to begin controlling glucose at home, with official Latidos documentation.",
+    "faq_es": [
+      {
+        "q": "¿Qué incluye el kit?",
+        "a": "Glucómetro LTD-B10, 50 tirillas reactivas y 100 lancetas estériles."
+      },
+      {
+        "q": "¿Qué rango mide el glucómetro?",
+        "a": "De 20 a 600 mg/dL."
+      },
+      {
+        "q": "¿Cuánto tarda la medición?",
+        "a": "5 segundos."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What does the kit include?",
+        "a": "LTD-B10 glucometer, 50 test strips and 100 sterile lancets."
+      },
+      {
+        "q": "What range does the glucometer measure?",
+        "a": "From 20 to 600 mg/dL."
+      },
+      {
+        "q": "How long does a measurement take?",
+        "a": "5 seconds."
+      }
+    ],
+    "seo_keywords_es": [
+      "kit de glucometría Latidos",
+      "kit de glucómetro con tirillas y lancetas",
+      "glucómetro LTD-B10 kit",
+      "monitoreo de glucosa en casa",
+      "glucómetro Colombia",
+      "ficha técnica LTD-B10-K"
+    ],
+    "seo_keywords_en": [
+      "Latidos glucometry kit",
+      "glucometer kit with strips and lancets",
+      "LTD-B10 kit",
+      "home glucose monitoring",
+      "glucometer Colombia",
+      "LTD-B10-K datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Marca / fabricante",
+        "valor": "GMD (Colombia)"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Referencia",
+        "valor": "LTD-B10-K"
+      },
+      {
+        "grupo": "Contenido",
+        "clave": "Incluye",
+        "valor": "Glucómetro LTD-B10, 50 tirillas, 100 lancetas"
+      },
+      {
+        "grupo": "Medición",
+        "clave": "Rango",
+        "valor": "20 - 600 mg/dL"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del glucómetro",
+        "valor": "5 años"
+      }
+    ],
+    "append_descripcion": true
+  },
+  {
+    "sku": "LTD-B10-L",
+    "descripcion_larga_es": "Las lancetas Latidos LTD-B10-L (caja de 50) son dispositivos de un solo uso para obtener sangre capilar de forma segura y con mínima molestia, con aguja de acero inoxidable y cuerpo de PVC de 32 x 6,4 mm. Se esterilizan por irradiación, con vigencia de la esterilización de 5 años, y tienen registro sanitario 2024DM-0029569 (clase IIA).",
+    "descripcion_larga_en": "The Latidos LTD-B10-L lancets (box of 50) are single-use devices to obtain capillary blood safely and with minimal discomfort, with a stainless-steel needle and a 32 x 6.4 mm PVC body. They are sterilised by irradiation, with a sterilisation validity of 5 years, and have health registration 2024DM-0029569 (class IIA).",
+    "beneficios_es": [
+      "Aguja de acero inoxidable de alta calidad para una punción precisa.",
+      "Un solo uso y esterilización por irradiación con 5 años de vigencia.",
+      "Caja de 50 unidades con registro sanitario."
+    ],
+    "beneficios_en": [
+      "High-quality stainless-steel needle for a precise puncture.",
+      "Single use and irradiation sterilisation with 5 years of validity.",
+      "Box of 50 units with health registration."
+    ],
+    "valor_es": "Lancetas estériles de un solo uso para el glucómetro LTD-B10, con ficha oficial de Latidos.",
+    "valor_en": "Sterile single-use lancets for the LTD-B10 glucometer, with official Latidos datasheet.",
+    "faq_es": [
+      {
+        "q": "¿Cómo se esterilizan?",
+        "a": "Por irradiación; la vigencia de la esterilización es de 5 años."
+      },
+      {
+        "q": "¿Son reutilizables?",
+        "a": "No, son dispositivos de un solo uso."
+      },
+      {
+        "q": "¿Cuántas trae la caja?",
+        "a": "50 unidades."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "How are they sterilised?",
+        "a": "By irradiation; the sterilisation validity is 5 years."
+      },
+      {
+        "q": "Are they reusable?",
+        "a": "No, they are single-use devices."
+      },
+      {
+        "q": "How many are in the box?",
+        "a": "50 units."
+      }
+    ],
+    "seo_keywords_es": [
+      "lancetas Latidos",
+      "lancetas para glucómetro x 50",
+      "lancetas estériles de un solo uso",
+      "lancetas LTD-B10-L",
+      "insumos de glucometría Colombia",
+      "ficha técnica LTD-B10-L"
+    ],
+    "seo_keywords_en": [
+      "Latidos lancets",
+      "glucometer lancets x 50",
+      "sterile single-use lancets",
+      "LTD-B10-L lancets",
+      "glucometry supplies Colombia",
+      "LTD-B10-L datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Marca / fabricante",
+        "valor": "GMD (Colombia)"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Referencia",
+        "valor": "LTD-B10-L"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Tamaño",
+        "valor": "32 x 6,4 mm"
+      },
+      {
+        "grupo": "Material",
+        "clave": "Aguja / cuerpo",
+        "valor": "Acero inoxidable / PVC"
+      },
+      {
+        "grupo": "Esterilización",
+        "clave": "Método",
+        "valor": "Irradiación; vigencia 5 años"
+      },
+      {
+        "grupo": "Regulatorio",
+        "clave": "Registro sanitario",
+        "valor": "2024DM-0029569; clase IIA"
+      }
+    ],
+    "append_descripcion": true
+  },
+  {
+    "sku": "LTD-B10-TR",
+    "descripcion_larga_es": "Las tirillas reactivas Latidos LTD-B10-TR (50 unidades, cajas de 2 x 25) miden glucosa en sangre entera capilar humana con enzima GDH-FAD y 0,8 µL de muestra, con rango de 20 a 600 mg/dL. Sirven para el monitoreo in vitro de pacientes diabéticos por profesionales o personas en casa; no se usan para diagnosticar diabetes ni para ajustar dosis de medicamentos. Registro INVIMA 2024RD-0008800.",
+    "descripcion_larga_en": "The Latidos LTD-B10-TR test strips (50 units, boxes of 2 x 25) measure glucose in human capillary whole blood using GDH-FAD enzyme and a 0.8 µL sample, with a range of 20 to 600 mg/dL. They are for in vitro monitoring of diabetic patients by professionals or people at home; they are not used to diagnose diabetes or to adjust medication doses. INVIMA registration 2024RD-0008800.",
+    "beneficios_es": [
+      "Enzima GDH-FAD y 4 electrodos de plata con solo 0,8 µL de muestra.",
+      "Rango de 20 a 600 mg/dL compatible con el glucómetro LTD-B10.",
+      "Vigencia de 24 meses sin abrir y 6 meses tras abrir el vial."
+    ],
+    "beneficios_en": [
+      "GDH-FAD enzyme and 4 silver electrodes with only 0.8 µL of sample.",
+      "20 to 600 mg/dL range compatible with the LTD-B10 glucometer.",
+      "24 months valid unopened and 6 months after opening the vial."
+    ],
+    "valor_es": "Tirillas de glucosa para el glucómetro LTD-B10 con registro INVIMA y ficha oficial de Latidos.",
+    "valor_en": "Glucose test strips for the LTD-B10 glucometer with INVIMA registration and official Latidos datasheet.",
+    "faq_es": [
+      {
+        "q": "¿Con qué glucómetro se usan?",
+        "a": "Con el glucómetro Latidos de referencia LTD-B10."
+      },
+      {
+        "q": "¿Sirven para diagnosticar diabetes?",
+        "a": "No: solo para monitorear la glucosa en pacientes diabéticos, no como base para ajustar dosis de medicamentos."
+      },
+      {
+        "q": "¿Cómo se almacenan?",
+        "a": "A temperatura ambiente de 4 a 30 °C y humedad relativa de 20 a 80 %, sin congelar."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Which glucometer do they work with?",
+        "a": "The Latidos glucometer reference LTD-B10."
+      },
+      {
+        "q": "Can they diagnose diabetes?",
+        "a": "No: only to monitor glucose in diabetic patients, not as a basis to adjust medication doses."
+      },
+      {
+        "q": "How are they stored?",
+        "a": "At room temperature of 4 to 30 °C and relative humidity of 20 to 80%, without freezing."
+      }
+    ],
+    "seo_keywords_es": [
+      "tirillas reactivas para glucómetro",
+      "tirillas Latidos LTD-B10-TR",
+      "tiras de glucosa x 50",
+      "tirillas de glucosa Colombia",
+      "insumos de glucometría",
+      "ficha técnica LTD-B10-TR"
+    ],
+    "seo_keywords_en": [
+      "glucometer test strips",
+      "Latidos LTD-B10-TR strips",
+      "glucose strips x 50",
+      "glucose strips Colombia",
+      "glucometry supplies",
+      "LTD-B10-TR datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Marca / fabricante",
+        "valor": "GMD (Colombia)"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Referencia",
+        "valor": "LTD-B10-TR"
+      },
+      {
+        "grupo": "Medición",
+        "clave": "Rango / muestra",
+        "valor": "20 - 600 mg/dL / 0,8 µL"
+      },
+      {
+        "grupo": "Composición",
+        "clave": "Enzima",
+        "valor": "GDH-FAD; 4 electrodos de plata"
+      },
+      {
+        "grupo": "Presentación",
+        "clave": "Unidades",
+        "valor": "50 (2 x 25)"
+      },
+      {
+        "grupo": "Regulatorio",
+        "clave": "Registro INVIMA",
+        "valor": "2024RD-0008800; tipo II"
+      }
+    ],
+    "append_descripcion": true
+  },
+  {
+    "sku": "GMR-SM181",
+    "descripcion_larga_es": "El aspirador de secreciones portátil ADS100 es una unidad de succión para eliminar fluidos de las vías respiratorias y material infeccioso de heridas, utilizable en quirófano o en la habitación del paciente, en adultos y niños. Genera presión de vacío de ≥ 0,07 MPa (525 mmHg), caudal ≥ 16 l/min y ruido ≤ 60 dB(A) a 1 m; funciona a 120 V (60 Hz), con válvula antidesborde y uso intermitente de máximo 30 minutos continuos. Tiene 3 años de garantía.",
+    "descripcion_larga_en": "The ADS100 portable suction unit is used to remove fluids from the airways and infectious material from wounds, usable in the operating room or the patient's room, for adults and children. It generates vacuum pressure of ≥ 0.07 MPa (525 mmHg), flow ≥ 16 l/min and noise ≤ 60 dB(A) at 1 m; it runs at 120 V (60 Hz), with an overflow valve and intermittent use of up to 30 continuous minutes. It has a 3-year warranty.",
+    "beneficios_es": [
+      "Vacío de ≥ 0,07 MPa (525 mmHg) y caudal de ≥ 16 l/min.",
+      "Portátil, con válvula antidesborde, para uso hospitalario y doméstico.",
+      "Ruido ≤ 60 dB(A) a 1 metro y 3 años de garantía."
+    ],
+    "beneficios_en": [
+      "Vacuum of ≥ 0.07 MPa (525 mmHg) and flow of ≥ 16 l/min.",
+      "Portable, with overflow valve, for hospital and home use.",
+      "Noise ≤ 60 dB(A) at 1 metre and 3-year warranty."
+    ],
+    "valor_es": "Un aspirador de secreciones portátil con 525 mmHg de vacío para uso hospitalario y domiciliario, con ficha oficial.",
+    "valor_en": "A portable suction unit with 525 mmHg vacuum for hospital and home use, with official datasheet.",
+    "faq_es": [
+      {
+        "q": "¿Cuánto tiempo puede funcionar seguido?",
+        "a": "Es de uso intermitente, con un máximo de 30 minutos continuos."
+      },
+      {
+        "q": "¿Qué rango de succión regula?",
+        "a": "De 0,02 a 0,07 MPa (150 a 525 mmHg)."
+      },
+      {
+        "q": "¿Qué voltaje usa?",
+        "a": "120 V (±10 % AC), 60 Hz."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "How long can it run continuously?",
+        "a": "It is intermittent-duty, with a maximum of 30 continuous minutes."
+      },
+      {
+        "q": "What suction range can be regulated?",
+        "a": "From 0.02 to 0.07 MPa (150 to 525 mmHg)."
+      },
+      {
+        "q": "What voltage does it use?",
+        "a": "120 V (±10% AC), 60 Hz."
+      }
+    ],
+    "seo_keywords_es": [
+      "aspirador de secreciones portátil",
+      "aspirador ADS100",
+      "succión portátil",
+      "aspirador de secreciones Colombia",
+      "equipo de succión hospitalaria",
+      "ficha técnica GMR-SM181"
+    ],
+    "seo_keywords_en": [
+      "portable suction unit",
+      "ADS100 aspirator",
+      "portable suction",
+      "secretion aspirator Colombia",
+      "hospital suction equipment",
+      "GMR-SM181 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Marca / fabricante",
+        "valor": "GMD (Colombia)"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Referencia",
+        "valor": "GMR-SM181 (ADS100)"
+      },
+      {
+        "grupo": "Rendimiento",
+        "clave": "Vacío máximo",
+        "valor": "≥ 0,07 MPa (525 mmHg)"
+      },
+      {
+        "grupo": "Rendimiento",
+        "clave": "Caudal",
+        "valor": "≥ 16 l/min"
+      },
+      {
+        "grupo": "Acústica",
+        "clave": "Ruido",
+        "valor": "≤ 60 dB(A) a 1 m"
+      },
+      {
+        "grupo": "Eléctrico",
+        "clave": "Alimentación",
+        "valor": "120 V ±10 % AC, 60 Hz"
+      },
+      {
+        "grupo": "Uso",
+        "clave": "Ciclo",
+        "valor": "Intermitente; máx. 30 min continuos"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía",
+        "valor": "3 años"
+      }
+    ],
+    "append_descripcion": true
+  },
+  {
+    "sku": "GMR870-015",
+    "descripcion_larga_es": "El regulador GMR870 para válvulas de cilindros pequeños de oxígeno tiene estructura de aluminio liviano con interior de cobre, conexión tipo yugo, manómetro tipo reloj, presión de entrada de 2200 PSI, presión de salida de 50 PSI y flujo de 0 a 15 lpm. Opera de -18 a 49 °C, es clase IIA (riesgo moderado) y cuenta con registro sanitario 2015DM-0014023.",
+    "descripcion_larga_en": "The GMR870 regulator for small oxygen cylinder valves has a lightweight aluminium structure with copper interior, a yoke connection, a dial gauge, 2200 PSI inlet pressure, 50 PSI outlet pressure and 0 to 15 lpm flow. It operates from -18 to 49 °C, is class IIA (moderate risk) and has health registration 2015DM-0014023.",
+    "beneficios_es": [
+      "Aluminio liviano con interior de cobre y conexión tipo yugo.",
+      "Manómetro tipo reloj, entrada de 2200 PSI, salida de 50 PSI y flujo de 0 a 15 lpm.",
+      "Clase IIA con registro sanitario vigente indicado en la ficha."
+    ],
+    "beneficios_en": [
+      "Lightweight aluminium with copper interior and yoke connection.",
+      "Dial gauge, 2200 PSI inlet, 50 PSI outlet and 0 to 15 lpm flow.",
+      "Class IIA with the health registration stated in the datasheet."
+    ],
+    "valor_es": "Un regulador de oxígeno de 0 a 15 lpm para cilindros pequeños, con ficha oficial.",
+    "valor_en": "A 0 to 15 lpm oxygen regulator for small cylinders, with official datasheet.",
+    "faq_es": [
+      {
+        "q": "¿Qué flujo entrega?",
+        "a": "De 0 a 15 lpm."
+      },
+      {
+        "q": "¿Con qué cilindros se usa?",
+        "a": "Con cilindros de tamaño pequeño con conexión tipo yugo."
+      },
+      {
+        "q": "¿Qué clasificación de riesgo tiene?",
+        "a": "Clase IIA (riesgo moderado)."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What flow does it deliver?",
+        "a": "0 to 15 lpm."
+      },
+      {
+        "q": "Which cylinders is it used with?",
+        "a": "Small cylinders with a yoke connection."
+      },
+      {
+        "q": "What risk classification does it have?",
+        "a": "Class IIA (moderate risk)."
+      }
+    ],
+    "seo_keywords_es": [
+      "regulador de oxígeno",
+      "regulador para válvulas GMR870",
+      "regulador 0-15 lpm",
+      "regulador de oxígeno Colombia",
+      "oxigenoterapia domiciliaria",
+      "ficha técnica GMR870-015"
+    ],
+    "seo_keywords_en": [
+      "oxygen regulator",
+      "GMR870 valve regulator",
+      "0-15 lpm regulator",
+      "oxygen regulator Colombia",
+      "home oxygen therapy",
+      "GMR870-015 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Marca / fabricante",
+        "valor": "GMD (Colombia)"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Referencia",
+        "valor": "GMR870-015"
+      },
+      {
+        "grupo": "Rendimiento",
+        "clave": "Presión de entrada / salida",
+        "valor": "2200 / 50 PSI"
+      },
+      {
+        "grupo": "Rendimiento",
+        "clave": "Flujo",
+        "valor": "0 - 15 lpm"
+      },
+      {
+        "grupo": "Material",
+        "clave": "Estructura",
+        "valor": "Aluminio con interior de cobre"
+      },
+      {
+        "grupo": "Regulatorio",
+        "clave": "Registro sanitario",
+        "valor": "2015DM-0014023; clase IIA"
+      }
+    ],
+    "append_descripcion": true
+  },
+  {
+    "sku": "KIT1",
+    "descripcion_larga_es": "El kit 1 de oxígeno se compone de un cilindro de oxígeno de 680 l (MD15-015), un carro para el cilindro, un regulador de 0 a 15 lpm, un acople y un humidificador. El regulador (GMR870-015) se factura por separado. El cilindro mide 66 cm de alto por 11 cm de diámetro, con válvula tipo yugo, y el kit cuenta con 1 año de garantía y registro sanitario 2015DM-0014023.",
+    "descripcion_larga_en": "Oxygen kit 1 consists of a 680 l oxygen cylinder (MD15-015), a cylinder cart, a 0 to 15 lpm regulator, a coupling and a humidifier. The regulator (GMR870-015) is invoiced separately. The cylinder is 66 cm high by 11 cm in diameter, with a yoke-type valve, and the kit has a 1-year warranty and health registration 2015DM-0014023.",
+    "beneficios_es": [
+      "Kit completo para oxigenoterapia: cilindro de 680 l, carro, acople y humidificador.",
+      "Regulador de 0 a 15 lpm disponible bajo la referencia GMR870-015.",
+      "Fácil de transportar y almacenar, con 1 año de garantía."
+    ],
+    "beneficios_en": [
+      "Complete oxygen-therapy kit: 680 l cylinder, cart, coupling and humidifier.",
+      "0 to 15 lpm regulator available under reference GMR870-015.",
+      "Easy to transport and store, with 1-year warranty."
+    ],
+    "valor_es": "Un kit de oxígeno domiciliario con cilindro de 680 l, carro y humidificador.",
+    "valor_en": "A home oxygen kit with 680 l cylinder, cart and humidifier.",
+    "faq_es": [
+      {
+        "q": "¿Qué incluye?",
+        "a": "Cilindro de oxígeno de 680 l, carro, acople y humidificador; el regulador se factura aparte."
+      },
+      {
+        "q": "¿Qué capacidad tiene el cilindro?",
+        "a": "680 litros."
+      },
+      {
+        "q": "¿Qué garantía tiene?",
+        "a": "1 año."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What does it include?",
+        "a": "680 l oxygen cylinder, cart, coupling and humidifier; the regulator is invoiced separately."
+      },
+      {
+        "q": "What capacity does the cylinder have?",
+        "a": "680 litres."
+      },
+      {
+        "q": "What warranty does it have?",
+        "a": "1 year."
+      }
+    ],
+    "seo_keywords_es": [
+      "kit de oxígeno con cilindro de 680 l",
+      "kit oxigenoterapia domiciliaria",
+      "cilindro de oxígeno con carro",
+      "oxígeno domiciliario Colombia",
+      "kit de oxígeno",
+      "ficha técnica KIT1"
+    ],
+    "seo_keywords_en": [
+      "oxygen kit with 680 l cylinder",
+      "home oxygen therapy kit",
+      "oxygen cylinder with cart",
+      "home oxygen Colombia",
+      "oxygen kit",
+      "KIT1 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Marca / fabricante",
+        "valor": "GMD (Colombia)"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Referencia",
+        "valor": "KIT1"
+      },
+      {
+        "grupo": "Contenido",
+        "clave": "Incluye",
+        "valor": "Cilindro 680 l (MD15-015), carro, acople, humidificador; regulador GMR870-015 aparte"
+      },
+      {
+        "grupo": "Cilindro",
+        "clave": "Dimensiones",
+        "valor": "66 cm alto x 11 cm diámetro; válvula tipo yugo"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía",
+        "valor": "1 año"
+      }
+    ],
+    "append_descripcion": true
+  },
+  {
+    "sku": "ME-2015",
+    "descripcion_larga_es": "El cilindro de oxígeno Metal Impact ME-2015 es totalmente metálico y está fabricado en aleación de aluminio. Tiene capacidad de 680 l, 11,2 cm de diámetro exterior, 64 cm de longitud, 3,4 kg de peso en vacío y 4,6 l de volumen interno.",
+    "descripcion_larga_en": "The Metal Impact ME-2015 oxygen cylinder is all-metal and made of an aluminium alloy. It has a 680 l capacity, 11.2 cm outside diameter, 64 cm length, 3.4 kg empty weight and 4.6 l internal volume.",
+    "beneficios_es": [
+      "Aleación de aluminio liviana: solo 3,4 kg en vacío.",
+      "Capacidad de 680 l en 64 cm de longitud.",
+      "Compatible con el kit de oxígeno GMD y el regulador GMR870-015."
+    ],
+    "beneficios_en": [
+      "Lightweight aluminium alloy: only 3.4 kg empty.",
+      "680 l capacity in 64 cm length.",
+      "Compatible with the GMD oxygen kit and the GMR870-015 regulator."
+    ],
+    "valor_es": "Un cilindro de oxígeno de aluminio de 680 l, ligero y de 4,6 l de volumen interno.",
+    "valor_en": "A 680 l aluminium oxygen cylinder, lightweight with 4.6 l internal volume.",
+    "faq_es": [
+      {
+        "q": "¿Qué capacidad tiene?",
+        "a": "680 litros de oxígeno."
+      },
+      {
+        "q": "¿Cuánto pesa vacío?",
+        "a": "3,4 kg."
+      },
+      {
+        "q": "¿Qué volumen interno tiene?",
+        "a": "4,6 l."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What capacity does it have?",
+        "a": "680 litres of oxygen."
+      },
+      {
+        "q": "How much does it weigh empty?",
+        "a": "3.4 kg."
+      },
+      {
+        "q": "What internal volume does it have?",
+        "a": "4.6 l."
+      }
+    ],
+    "seo_keywords_es": [
+      "cilindro de oxígeno 680 L",
+      "cilindro de aluminio ME-2015",
+      "cilindro Metal Impact",
+      "cilindro de oxígeno Colombia",
+      "oxígeno medicinal",
+      "ficha técnica ME-2015"
+    ],
+    "seo_keywords_en": [
+      "680 L oxygen cylinder",
+      "ME-2015 aluminium cylinder",
+      "Metal Impact cylinder",
+      "oxygen cylinder Colombia",
+      "medical oxygen",
+      "ME-2015 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Marca / fabricante",
+        "valor": "GMD (Colombia)"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Referencia",
+        "valor": "ME-2015"
+      },
+      {
+        "grupo": "Capacidad",
+        "clave": "Capacidad",
+        "valor": "680 l"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Diámetro / longitud",
+        "valor": "11,2 cm / 64 cm"
+      },
+      {
+        "grupo": "Peso",
+        "clave": "Peso en vacío",
+        "valor": "3,4 kg"
+      },
+      {
+        "grupo": "Volumen",
+        "clave": "Volumen interno",
+        "valor": "4,6 l"
+      }
+    ],
+    "append_descripcion": true
+  },
+  {
+    "sku": "JPD-FR202",
+    "descripcion_larga_es": "El termómetro digital infrarrojo JPD-FR202 toma la temperatura en la frente sin contacto en cerca de 1 segundo, a una distancia de 1 a 5 cm, con rango de 35 a 42,2 °C y exactitud de ±0,2 °C; también mide objetos (0 a 100 °C). Tiene alarma sonora de fiebre, memoria de las últimas 20 lecturas, apagado automático a los 10 segundos, pantalla HD LCD en °C/°F y cumple el estándar ASTM E1965-98.",
+    "descripcion_larga_en": "The JPD-FR202 infrared digital thermometer takes forehead temperature without contact in about 1 second, at a distance of 1 to 5 cm, with a range of 35 to 42.2 °C and ±0.2 °C accuracy; it also measures objects (0 to 100 °C). It has a fever sound alarm, memory of the last 20 readings, automatic shut-off after 10 seconds, an HD LCD in °C/°F and meets the ASTM E1965-98 standard.",
+    "beneficios_es": [
+      "Lectura sin contacto en cerca de 1 segundo, apta para adultos, niños y objetos.",
+      "Alarma sonora de fiebre y memoria de las últimas 20 lecturas.",
+      "Pantalla HD LCD en °C/°F, apagado automático y estuche incluido."
+    ],
+    "beneficios_en": [
+      "Contactless reading in about 1 second, suitable for adults, children and objects.",
+      "Fever sound alarm and memory of the last 20 readings.",
+      "HD LCD in °C/°F, automatic shut-off and case included."
+    ],
+    "valor_es": "Un termómetro infrarrojo de frente rápido y sin contacto, con ficha técnica oficial.",
+    "valor_en": "A fast contactless forehead infrared thermometer, with official datasheet.",
+    "faq_es": [
+      {
+        "q": "¿Qué rango mide en frente?",
+        "a": "De 35 a 42,2 °C con ±0,2 °C."
+      },
+      {
+        "q": "¿A qué distancia se usa?",
+        "a": "Entre 1 y 5 cm."
+      },
+      {
+        "q": "¿Qué incluye?",
+        "a": "Estuche de almacenamiento, 2 baterías AAA y manual de usuario."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What forehead range does it measure?",
+        "a": "From 35 to 42.2 °C with ±0.2 °C."
+      },
+      {
+        "q": "At what distance is it used?",
+        "a": "Between 1 and 5 cm."
+      },
+      {
+        "q": "What is included?",
+        "a": "Storage case, 2 AAA batteries and user manual."
+      }
+    ],
+    "seo_keywords_es": [
+      "termómetro infrarrojo de frente",
+      "termómetro digital sin contacto",
+      "termómetro JPD-FR202",
+      "termómetro con alarma de fiebre",
+      "termómetro Colombia",
+      "ficha técnica JPD-FR202"
+    ],
+    "seo_keywords_en": [
+      "forehead infrared thermometer",
+      "contactless digital thermometer",
+      "JPD-FR202 thermometer",
+      "thermometer with fever alarm",
+      "thermometer Colombia",
+      "JPD-FR202 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Marca / fabricante",
+        "valor": "GMD (Colombia)"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Referencia",
+        "valor": "JPD-FR202"
+      },
+      {
+        "grupo": "Medición",
+        "clave": "Rango frente",
+        "valor": "35 - 42,2 °C ±0,2 °C"
+      },
+      {
+        "grupo": "Medición",
+        "clave": "Rango objetos",
+        "valor": "0 - 100 °C ±1,0 °C"
+      },
+      {
+        "grupo": "Medición",
+        "clave": "Distancia / tiempo",
+        "valor": "1 - 5 cm / ≈ 1 s"
+      },
+      {
+        "grupo": "Memoria",
+        "clave": "Memoria",
+        "valor": "Últimas 20 lecturas"
+      },
+      {
+        "grupo": "Energía",
+        "clave": "Baterías",
+        "valor": "2 x AAA"
+      }
+    ],
+    "append_descripcion": true
+  }
+]
