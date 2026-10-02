@@ -1112,12 +1112,6 @@ const FAMILIA_HUB_LINKS: Record<string, FamiliaHubLink[]> = {
       label_es: 'Guía monitores Biolight UCI',
       label_en: 'Biolight ICU monitors guide',
     },
-    {
-      href_es: '/es/productos/monitor-de-paciente-modular-serie-p-ref-p15-biolight/',
-      href_en: '/en/products/monitor-de-paciente-modular-serie-p-ref-p15-biolight/',
-      label_es: 'Monitor Biolight P15',
-      label_en: 'Biolight P15 monitor',
-    },
   ],
   radiologia: [
     {
@@ -1183,18 +1177,6 @@ const FAMILIA_HUB_LINKS: Record<string, FamiliaHubLink[]> = {
       href_en: '/en/fisher-paykel-high-flow/',
       label_es: 'Guía alto flujo Fisher Paykel Airvo',
       label_en: 'Fisher Paykel Airvo high-flow guide',
-    },
-    {
-      href_es: '/es/productos/sistema-de-alto-flujo-ref-airvo-3-fisher-paykel/',
-      href_en: '/en/products/sistema-de-alto-flujo-ref-airvo-3-fisher-paykel/',
-      label_es: 'Alto flujo Fisher Paykel Airvo 3',
-      label_en: 'Fisher Paykel Airvo 3 high flow',
-    },
-    {
-      href_es: '/es/productos/circuito-para-alto-flujo-optiflow-junior-ref-rt330-fisher-paykel/',
-      href_en: '/en/products/circuito-para-alto-flujo-optiflow-junior-ref-rt330-fisher-paykel/',
-      label_es: 'Circuitos Optiflow Fisher Paykel',
-      label_en: 'Fisher Paykel Optiflow circuits',
     },
   ],
   'emergencias-traslado-inmovilizacion': [
