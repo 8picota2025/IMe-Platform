@@ -225,6 +225,18 @@ export function buildProductoPageTitle(
   return `${shortenProductName(name, PRODUCT_TITLE_HARD_MAX - brandSuffix.length)}${brandSuffix}`;
 }
 
+/**
+ * Contenido de la meta `robots`. Las vistas previas de PR se construyen con PUBLIC_NOINDEX=1:
+ * son copias de prueba servidas en el dominio de producción y nada de lo que publican debe
+ * indexarse, aunque la página no pida noindex por sí misma.
+ */
+export function resolveRobotsContent(
+  noindex: boolean | undefined = false,
+  noindexBuild: boolean = import.meta.env['PUBLIC_NOINDEX'] === '1'
+): string {
+  return noindex || noindexBuild ? 'noindex, nofollow' : 'index, follow, max-image-preview:large';
+}
+
 export function buildCanonical(path: string): string {
   const normalized = path.startsWith('/') ? path : `/${path}`;
   const [baseAndQuery, hash = ''] = normalized.split('#', 2);
