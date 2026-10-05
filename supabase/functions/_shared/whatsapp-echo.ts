@@ -6,12 +6,11 @@
  */
 
 import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
+import { clasificarTomaHumana } from '../../../src/lib/whatsapp-human-takeover.ts';
 import {
-  avisoTomaHumana,
-  clasificarTomaHumana,
-  tomaHumanaCompatibleConWake,
-} from '../../../src/lib/whatsapp-human-takeover.ts';
-import type { WhatsAppManualEcho } from '../../../src/lib/whatsapp-cloud.ts';
+  whatsAppIdentifierType,
+  type WhatsAppManualEcho,
+} from '../../../src/lib/whatsapp-cloud.ts';
 
 export async function contactoEstaPausado(
   supabase: SupabaseClient,
@@ -24,7 +23,7 @@ export async function contactoEstaPausado(
     .maybeSingle();
   if (error) {
     console.warn('[whatsapp-echo] no se pudo leer la pausa');
-    return false;
+    throw new Error('whatsapp_pause_lookup_failed');
   }
   return data?.paused === true;
 }
@@ -33,58 +32,23 @@ export async function registrarEcoManual(
   supabase: SupabaseClient,
   echo: WhatsAppManualEcho
 ): Promise<'duplicate' | 'pause' | 'resume' | 'logged'> {
-  const { data: ya, error: lectura } = await supabase
-    .from('whatsapp_outbound_messages')
-    .select('id')
-    .eq('wamid', echo.wamid)
-    .maybeSingle();
-  if (lectura) {
-    console.warn('[whatsapp-echo] no se pudo mirar el eco');
-  }
-  if (ya) return 'duplicate';
-
-  const accion = clasificarTomaHumana(echo.text);
-  if (accion) {
-    const ahora = new Date().toISOString();
-    const fila =
-      accion === 'pause'
-        ? { wa_id: echo.waId, paused: true, paused_at: ahora, updated_by: echo.wamid }
-        : { wa_id: echo.waId, paused: false, resumed_at: ahora, updated_by: echo.wamid };
-    const { error } = await supabase.from('whatsapp_contact_pauses').upsert(fila, {
-      onConflict: 'wa_id',
-    });
-    if (error) console.error('[whatsapp-echo] pausa:', error.message);
-    const aviso = avisoTomaHumana(accion, echo.waId);
-    if (tomaHumanaCompatibleConWake(aviso)) {
-      console.warn('[whatsapp-echo] aviso compatible con wake; no hay envío implementado');
-    }
-  }
-
-  const { error: salida } = await supabase.from('whatsapp_outbound_messages').insert({
-    to_wa: echo.waId,
-    body: echo.text.slice(0, 4096),
-    kind: 'other',
-    wamid: echo.wamid,
-    phone_number_id: echo.phoneNumberId,
-    send_status: 'sent',
+  const action = clasificarTomaHumana(echo.text) ?? 'pause';
+  const type = whatsAppIdentifierType(echo.waId);
+  const { data, error } = await supabase.rpc('ingest_whatsapp_event', {
+    p_event: {
+      wamid: echo.wamid,
+      sender_id: echo.waId,
+      sender_type: type,
+      phone: type === 'phone' ? echo.waId : null,
+      bsuid: type === 'bsuid' ? echo.waId : null,
+      body: echo.text,
+      kind: 'echo',
+      echo_action: action,
+      phone_number_id: echo.phoneNumberId,
+      raw: echo.raw ?? null,
+    },
   });
-  if (salida && salida.code !== '23505') {
-    console.warn('[whatsapp-echo] bitácora:', salida.message);
-  }
-
-  const { error: audit } = await supabase.from('whatsapp_inbound_events').insert({
-    wamid: echo.wamid,
-    from_wa: echo.waId,
-    phone_number_id: echo.phoneNumberId,
-    kind: 'echo',
-    status: 'echo',
-    body: echo.text.slice(0, 2000),
-  });
-  if (audit && audit.code !== '23505') {
-    console.warn('[whatsapp-echo] auditoria:', audit.message);
-  }
-
-  if (accion === 'pause') return 'pause';
-  if (accion === 'resume') return 'resume';
-  return 'logged';
+  if (error) throw new Error('whatsapp_echo_persistence_failed');
+  if (data?.status === 'duplicate' || data?.status === 'ignored') return 'duplicate';
+  return action;
 }

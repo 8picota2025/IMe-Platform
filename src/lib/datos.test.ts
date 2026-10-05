@@ -1,5 +1,4 @@
 import { describe, expect, it, vi } from 'vitest';
-import type productosCatalogo from '../data/mock-productos.json';
 import { getProductoBySlug, resolveMarcaSupabase } from './datos';
 
 // Estas pruebas verifican el mapper, no la disponibilidad del catálogo real.
@@ -8,10 +7,8 @@ vi.mock('./supabase', () => ({
   getSupabaseClient: () => null,
 }));
 
-vi.mock('../data/mock-productos.json', async importOriginal => {
-  const { default: productos } = await importOriginal<{ default: typeof productosCatalogo }>();
-  const base = productos.find(p => p.slug === 'ten-20-pasta-conductiva-8onz-ref-si1067-natus');
-  if (!base) throw new Error('Falta el producto de referencia del test del mapper');
+vi.mock('../data/mock-productos.json', async () => {
+  const { default: base } = await import('../../tests/fixtures/catalogo/producto-enriquecido.json');
   return {
     default: [
       { ...base, activo: true },

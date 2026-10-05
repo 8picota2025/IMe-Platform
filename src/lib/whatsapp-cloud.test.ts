@@ -110,7 +110,7 @@ describe('WhatsApp Cloud API — payload parse', () => {
     expect(isStatusOnlyWebhook(parsed)).toBe(true);
   });
 
-  it('ignora grupos y tipos no texto', () => {
+  it('ignora grupos y conserva mensajes multimedia', () => {
     const group = sampleInboundTextPayload({
       wamid: 'wamid.group',
       from: '573001112233',
@@ -135,8 +135,8 @@ describe('WhatsApp Cloud API — payload parse', () => {
     expect(groupParsed.ignored.some(item => item.reason === 'group')).toBe(true);
 
     const imageParsed = parseWhatsAppWebhook(image);
-    expect(imageParsed.texts).toEqual([]);
-    expect(imageParsed.ignored.some(item => item.reason === 'unsupported_type:image')).toBe(true);
+    expect(imageParsed.texts[0]).toMatchObject({ type: 'image', text: '[image]' });
+    expect(imageParsed.ignored).toEqual([]);
   });
 });
 
@@ -214,7 +214,7 @@ describe('WhatsApp Cloud API — IMEIA composition', () => {
 describe('WhatsApp Cloud API — Graph send scaffold', () => {
   it('arma URL Graph y envía texto con token + phone-number-id', async () => {
     expect(buildWhatsAppMessagesUrl('123456', WHATSAPP_DEFAULT_API_VERSION)).toBe(
-      'https://graph.facebook.com/v21.0/123456/messages'
+      'https://graph.facebook.com/v26.0/123456/messages'
     );
 
     const calls: Array<{ url: string; init: RequestInit }> = [];
