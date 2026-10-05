@@ -1,13 +1,31 @@
 import { describe, expect, it, vi } from 'vitest';
 import { getProductoBySlug, resolveMarcaSupabase } from './datos';
 
-// Snapshot of a real enriched product, explicitly active ONLY inside this test.
-// Unit mapping tests must not depend on the current catalog publication state or network.
-vi.mock('./supabase', () => ({ isSupabaseConfigured: () => false, getSupabaseClient: vi.fn() }));
+// Estas pruebas verifican el mapper, no la disponibilidad del catálogo real.
+vi.mock('./supabase', () => ({
+  isSupabaseConfigured: () => false,
+  getSupabaseClient: () => null,
+}));
+
 vi.mock('../data/mock-productos.json', async () => {
-  const { default: fixture } =
-    await import('../../tests/fixtures/catalogo/producto-enriquecido.json');
-  return { default: [fixture, { ...fixture, slug: 'fixture-inactive', activo: false }] };
+  const { default: base } = await import('../../tests/fixtures/catalogo/producto-enriquecido.json');
+  return {
+    default: [
+      { ...base, activo: true },
+      {
+        ...base,
+        slug: 'fixture-sin-enriquecimiento',
+        activo: true,
+        aplicaciones_es: undefined,
+        aplicaciones_en: undefined,
+        beneficios_es: undefined,
+        beneficios_en: undefined,
+        valor_es: undefined,
+        valor_en: undefined,
+      },
+      { ...base, slug: 'fixture-retirada', activo: false },
+    ],
+  };
 });
 
 describe('mapProducto — campos enriquecidos de landing', () => {
@@ -28,15 +46,19 @@ describe('mapProducto — campos enriquecidos de landing', () => {
   });
 
   it('resuelve siempre arreglos (nunca undefined) y valor string-o-null, incluso sin contenido enriquecido', async () => {
-    // Verify the public shape against a stable fixture, independent of live publication state.
-    const producto = await getProductoBySlug('ten-20-pasta-conductiva-8onz-ref-si1067-natus', 'es');
-    expect(producto).not.toBeNull();
-    expect(Array.isArray(producto!.aplicaciones)).toBe(true);
-    expect(Array.isArray(producto!.beneficios)).toBe(true);
-    expect(producto!.valor === null || typeof producto!.valor === 'string').toBe(true);
+    for (const locale of ['es', 'en'] as const) {
+      const producto = await getProductoBySlug('fixture-sin-enriquecimiento', locale);
+      expect(producto).not.toBeNull();
+      expect(producto!.aplicaciones).toEqual([]);
+      expect(producto!.beneficios).toEqual([]);
+      expect(producto!.valor).toBeNull();
+    }
   });
-  it('continúa ocultando productos inactivos', async () => {
-    expect(await getProductoBySlug('fixture-inactive', 'es')).toBeNull();
+
+  it('no devuelve productos retirados del catálogo en ningún idioma', async () => {
+    for (const locale of ['es', 'en'] as const) {
+      expect(await getProductoBySlug('fixture-retirada', locale)).toBeNull();
+    }
   });
 });
 
