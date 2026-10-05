@@ -6,12 +6,42 @@ const root = process.cwd();
 const read = file => readFile(path.join(root, file), 'utf8');
 
 describe('vistas previas de PR: no indexables', () => {
-  it('el workflow construye con PUBLIC_NOINDEX=1, añade la cabecera y apaga el robots.txt', async () => {
+  it('el workflow construye con PUBLIC_NOINDEX=1 y apaga el robots.txt de la copia', async () => {
     const wf = await read('.github/workflows/deploy-preview.yml');
     expect(wf).toMatch(/PUBLIC_NOINDEX:\s*'1'/);
-    expect(wf).toContain('Header always set X-Robots-Tag "noindex, nofollow"');
-    expect(wf).toMatch(/>>\s*dist\/\.htaccess/);
     expect(wf).toMatch(/>\s*dist\/robots\.txt/);
+  });
+
+  it('la cabecera X-Robots-Tag sale de la regla de public/.htaccess, no de un parche del workflow', async () => {
+    const wf = await read('.github/workflows/deploy-preview.yml');
+    expect(wf).not.toMatch(/>>\s*dist\/\.htaccess/);
+    const ht = await read('public/.htaccess');
+    expect(ht).toContain('SetEnvIf Request_URI "^/[1-9][0-9]*/" NOINDEX_PREVIEW');
+    expect(ht).toContain('Header always set X-Robots-Tag "noindex, nofollow" env=NOINDEX_PREVIEW');
+  });
+
+  it('el patrón de la regla coincide con las carpetas de vista previa y con ninguna ruta real', async () => {
+    const ht = await read('public/.htaccess');
+    const patron = ht.match(/^SetEnvIf Request_URI "([^"]+)" NOINDEX_PREVIEW$/m)?.[1];
+    expect(patron).toBeTruthy();
+    const re = new RegExp(patron);
+    for (const ruta of ['/166/es/', '/12/', '/9/', '/100/es/catalogo/pagina/7/', '/77/']) {
+      expect(re.test(ruta), ruta).toBe(true);
+    }
+    for (const ruta of [
+      '/',
+      '/es/',
+      '/en/products/',
+      '/es/productos/monitor-de-paciente-ref-sk-em005-saikang/',
+      '/_astro/Layout.abc123.js',
+      '/assets/img/1.png',
+      '/404.md',
+      '/1old/',
+      '/sitemap-index.xml',
+      '/robots.txt',
+    ]) {
+      expect(re.test(ruta), ruta).toBe(false);
+    }
   });
 
   it('el paso de marcado va antes del despliegue FTP, y el build antes del marcado', async () => {
