@@ -19,6 +19,7 @@
     "lint": "eslint src packages --max-warnings 0",
     "format": "prettier --write src packages",
     "test": "vitest run",
+    "htaccess:optimize": "node scripts/optimize-htaccess-redirects.mjs",
     "test:watch": "vitest",
     "canary:cotizacion": "node --env-file-if-exists=.env scripts/canary-cotizacion.mjs",
     "mirror:images": "node --env-file=.env scripts/mirror-cms-images.mjs",
