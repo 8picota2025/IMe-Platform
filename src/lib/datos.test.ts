@@ -1,5 +1,35 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import type productosCatalogo from '../data/mock-productos.json';
 import { getProductoBySlug, resolveMarcaSupabase } from './datos';
+
+// Estas pruebas verifican el mapper, no la disponibilidad del catálogo real.
+vi.mock('./supabase', () => ({
+  isSupabaseConfigured: () => false,
+  getSupabaseClient: () => null,
+}));
+
+vi.mock('../data/mock-productos.json', async importOriginal => {
+  const { default: productos } = await importOriginal<{ default: typeof productosCatalogo }>();
+  const base = productos.find(p => p.slug === 'ten-20-pasta-conductiva-8onz-ref-si1067-natus');
+  if (!base) throw new Error('Falta el producto de referencia del test del mapper');
+  return {
+    default: [
+      { ...base, activo: true },
+      {
+        ...base,
+        slug: 'fixture-sin-enriquecimiento',
+        activo: true,
+        aplicaciones_es: undefined,
+        aplicaciones_en: undefined,
+        beneficios_es: undefined,
+        beneficios_en: undefined,
+        valor_es: undefined,
+        valor_en: undefined,
+      },
+      { ...base, slug: 'fixture-retirada', activo: false },
+    ],
+  };
+});
 
 describe('mapProducto — campos enriquecidos de landing', () => {
   it('resuelve aplicaciones, beneficios y valor en español', async () => {
@@ -19,17 +49,19 @@ describe('mapProducto — campos enriquecidos de landing', () => {
   });
 
   it('resuelve siempre arreglos (nunca undefined) y valor string-o-null, incluso sin contenido enriquecido', async () => {
-    // No se fija en un slug específico "vacío": con el catálogo real
-    // sincronizado desde Supabase, casi todos los productos activos ya
-    // tienen aplicaciones/beneficios reales, así que un caso negativo por
-    // slug concreto sería frágil ante cambios de datos. En su lugar se
-    // verifica el invariante de forma (arrays nunca undefined, valor
-    // siempre string o null) sobre cualquier producto activo real.
-    const producto = await getProductoBySlug('ten-20-pasta-conductiva-8onz-ref-si1067-natus', 'es');
-    expect(producto).not.toBeNull();
-    expect(Array.isArray(producto!.aplicaciones)).toBe(true);
-    expect(Array.isArray(producto!.beneficios)).toBe(true);
-    expect(producto!.valor === null || typeof producto!.valor === 'string').toBe(true);
+    for (const locale of ['es', 'en'] as const) {
+      const producto = await getProductoBySlug('fixture-sin-enriquecimiento', locale);
+      expect(producto).not.toBeNull();
+      expect(producto!.aplicaciones).toEqual([]);
+      expect(producto!.beneficios).toEqual([]);
+      expect(producto!.valor).toBeNull();
+    }
+  });
+
+  it('no devuelve productos retirados del catálogo en ningún idioma', async () => {
+    for (const locale of ['es', 'en'] as const) {
+      expect(await getProductoBySlug('fixture-retirada', locale)).toBeNull();
+    }
   });
 });
 

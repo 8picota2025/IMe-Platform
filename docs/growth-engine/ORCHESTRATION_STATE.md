@@ -17,7 +17,33 @@
   0-3 en producción** — las 45 landings (12 campaña, 9 fabricante, 3 ciudad, 21 familia) se
   leen del CMS, con editor en el admin (texto e imágenes, borrador → Publicar, historial).
   Fase 2 → **ENTREGADA**. Fase 1 → **CERRADA**.
-- **Última actualización:** 2026-09-27 (Fase 3B, tanda 3 en producción)
+- **Última actualización:** 2026-10-05 (revisión técnica y disponibilidad pública; sin cambiar el gate del piloto)
+
+### Revisión técnica — 2026-10-05
+
+- Base revisada: `main` local en `82d278d` (2026-10-02). Los cambios posteriores a la
+  última actualización incluyen fichas oficiales de fabricantes, mejoras de presupuestos
+  y retirada de 87 productos con correcciones de enlaces de catálogo.
+- Los 3 tests fallidos de `datos.test.ts` consultaban Ten 20, ahora inactivo. Se aislaron
+  del cliente Supabase y se usa una copia del producto como fixture activo sólo dentro
+  del test. El catálogo no se modifica. El caso sin enriquecimiento comprueba valores
+  vacíos en ES/EN y un test adicional comprueba que los productos inactivos devuelven
+  `null`. Resultado local: **577/577 tests, 64 archivos**; lint limpio y
+  `astro check` sin errores ni warnings (7 hints en archivos no modificados).
+- Lectura HTTP directa de producción: **200** para `/es/conocimiento/` (19 artículos),
+  `/es/dotacion-monitoreo-uci/` y `/es/recursos/checklist-recepcion-monitor/`,
+  además de las alternas EN y `/admin/` (la ruta correcta, sin prefijo ES).
+  Esta comprobación no envía formularios ni valida la conversión o el CRM de extremo
+  a extremo.
+- La consulta de GitHub Actions devolvió ejecuciones exitosas fechadas hasta el
+  2026-09-24; no acredita los despliegues de los cambios del 2026-10-02.
+- **Tanda 5 sigue pendiente:** no basta con que haya transcurrido una semana. Falta
+  acreditar ausencia de incidencias y QA del editor con sesión real de `catalogo` o
+  `ventas` antes de retirar el respaldo TypeScript. Ver
+  `cms-pilot-verification-checklist.md` para los pasos y la evidencia requerida.
+- No se ha acreditado aún el visto bueno del PDF, la aprobación de posts ni la vista
+  de Twenty. El piloto conserva su estado pendiente; no se han publicado posts ni
+  modificado registros CRM durante esta revisión.
 
 ### Fase 3B — Landing Factory en CMS (2026-09-26/27)
 
