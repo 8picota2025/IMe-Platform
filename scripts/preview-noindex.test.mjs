@@ -15,6 +15,8 @@ describe('vistas previas de PR: no indexables', () => {
   it('la cabecera X-Robots-Tag sale de la regla de public/.htaccess, no de un parche del workflow', async () => {
     const wf = await read('.github/workflows/deploy-preview.yml');
     expect(wf).not.toMatch(/>>\s*dist\/\.htaccess/);
+    // La sonda de herencia fue solo para validar la regla en el hosting real; no debe quedar.
+    expect(wf).not.toContain('__sonda-noindex');
     const ht = await read('public/.htaccess');
     expect(ht).toContain('SetEnvIf Request_URI "^/[1-9][0-9]*/" NOINDEX_PREVIEW');
     expect(ht).toContain('Header always set X-Robots-Tag "noindex, nofollow" env=NOINDEX_PREVIEW');
