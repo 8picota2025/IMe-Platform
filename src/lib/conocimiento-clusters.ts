@@ -7,11 +7,11 @@ import type { Locale } from '../i18n/utils';
 
 /** /es/conocimiento/… y /en/knowledge/… (los temas: /tema/ y /topic/). */
 export const rutasConocimiento = {
-  indice: (locale: Locale) => (locale === 'en' ? '/en/knowledge' : '/es/conocimiento'),
+  indice: (locale: Locale) => (locale === 'en' ? '/en/knowledge/' : '/es/conocimiento/'),
   articulo: (locale: Locale, slug: string) =>
-    locale === 'en' ? `/en/knowledge/${slug}` : `/es/conocimiento/${slug}`,
+    locale === 'en' ? `/en/knowledge/${slug}/` : `/es/conocimiento/${slug}/`,
   tema: (locale: Locale, slug: string) =>
-    locale === 'en' ? `/en/knowledge/topic/${slug}` : `/es/conocimiento/tema/${slug}`,
+    locale === 'en' ? `/en/knowledge/topic/${slug}/` : `/es/conocimiento/tema/${slug}/`,
 };
 
 export interface TopicClusterRef {

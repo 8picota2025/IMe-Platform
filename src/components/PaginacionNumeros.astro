@@ -1,0 +1,86 @@
+---
+/**
+ * Lista de páginas numeradas (1 … 6 7 8 9 10 … 14) para paginación rastreable.
+ * Se coloca entre los enlaces anterior/siguiente de cada paginación.
+ */
+import { ventanaPaginacion } from '../lib/paginacion';
+
+interface Props {
+  page: number;
+  pageCount: number;
+  pagePath: (target: number) => string;
+  /** Texto de la etiqueta accesible de cada enlace, p. ej. "Ir a la página". */
+  irALabel: string;
+}
+
+const { page, pageCount, pagePath, irALabel } = Astro.props;
+const items = ventanaPaginacion(page, pageCount);
+---
+
+{
+  items.length > 0 && (
+    <ul class="paginacion-numeros" role="list">
+      {items.map(item =>
+        item === 'gap' ? (
+          <li class="paginacion-numeros__hueco" aria-hidden="true">
+            …
+          </li>
+        ) : item === page ? (
+          <li>
+            <span class="paginacion-numeros__actual" aria-current="page">
+              {item}
+            </span>
+          </li>
+        ) : (
+          <li>
+            <a href={pagePath(item)} aria-label={`${irALabel} ${item}`}>
+              {item}
+            </a>
+          </li>
+        )
+      )}
+    </ul>
+  )
+}
+
+<style>
+  .paginacion-numeros {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .paginacion-numeros a,
+  .paginacion-numeros__actual {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.25rem;
+    min-height: 2.25rem;
+    padding: 0 0.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    text-decoration: none;
+  }
+  .paginacion-numeros a {
+    color: var(--teal, #0f4c5c);
+    border: 1px solid currentColor;
+  }
+  .paginacion-numeros a:hover,
+  .paginacion-numeros a:focus-visible {
+    background: var(--teal, #0f4c5c);
+    color: #fff;
+  }
+  .paginacion-numeros__actual {
+    background: var(--teal, #0f4c5c);
+    color: #fff;
+    font-weight: 600;
+  }
+  .paginacion-numeros__hueco {
+    color: var(--text-mid, #555);
+  }
+</style>

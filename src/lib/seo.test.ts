@@ -282,6 +282,37 @@ describe('descripciones hermanas', () => {
   });
 });
 
+describe('buildProductoPageTitle · títulos muy cortos', () => {
+  it('añade la marca del fabricante cuando el título completo queda por debajo de 30 caracteres', () => {
+    expect(buildProductoPageTitle('Cama Manual K3k', 'es', undefined, 'Saikang')).toBe(
+      'Cama Manual K3k Saikang | I-ME'
+    );
+    expect(buildProductoPageTitle('Autoclave T-Max 6', 'es', undefined, 'Tuttnauer')).toBe(
+      'Autoclave T-Max 6 Tuttnauer | I-ME'
+    );
+  });
+
+  it('no repite la marca si el nombre ya la incluye', () => {
+    expect(buildProductoPageTitle('Cama Saikang K3k', 'es', undefined, 'Saikang')).toBe(
+      'Cama Saikang K3k | I-ME'
+    );
+  });
+
+  it('no toca los títulos que ya tienen longitud suficiente', () => {
+    const title = buildProductoPageTitle(
+      'Monitor de paciente Ref. SK-EM005',
+      'es',
+      undefined,
+      'Saikang'
+    );
+    expect(title).toBe('Monitor de paciente Ref. SK-EM005 | I-ME');
+  });
+
+  it('sin marca conserva el comportamiento anterior', () => {
+    expect(buildProductoPageTitle('Cama Manual K3k', 'es')).toBe('Cama Manual K3k | I-ME');
+  });
+});
+
 describe('resolveRobotsContent', () => {
   it('por defecto la página se indexa', () => {
     expect(resolveRobotsContent(false, false)).toBe('index, follow, max-image-preview:large');

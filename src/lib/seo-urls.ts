@@ -14,10 +14,14 @@ export function familyLandingPath(locale: Locale, slug: string): string {
   return locale === 'en' ? `/en/families/${slug}/` : `/es/familias/${slug}/`;
 }
 
-/** Enlace a familia con landing SEO; si no existe, filtro de catálogo (noindex vía redirect en host). */
+/**
+ * Enlace a una familia. Con landing SEO va a su URL limpia; sin landing va al catálogo base.
+ * No se enlaza `?familia=<slug>`: el host lo redirige a `/familias/<slug>/` (ver `.htaccess`) y,
+ * si esa landing no existe, el rastreador y el usuario acaban en un 404.
+ */
 export function familyCatalogHref(locale: Locale, slug: string): string {
   if (familyLandingSlugs.has(slug)) return familyLandingPath(locale, slug);
-  return `${catalogBasePath(locale)}?familia=${encodeURIComponent(slug)}`;
+  return catalogBasePath(locale);
 }
 
 export function hasFamilyLanding(slug: string): boolean {

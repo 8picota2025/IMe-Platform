@@ -19,6 +19,7 @@ import { sanitizeArticuloSlug, isValidArticuloSlug } from './articulo-slug';
 import type { TopicClusterRef } from './conocimiento-clusters';
 import { nombreTema } from '../data/temas-conocimiento';
 import mockProductos from '../data/mock-productos.json';
+import { esProductoDePrueba } from './productos-prueba';
 import mockTipos from '../data/mock-tipos.json';
 import productImageManifest from '../data/product-image-manifest.json';
 
@@ -754,13 +755,15 @@ export async function getProductos(filtros: FiltrosProductos, locale: Locale): P
       if (lote.length < hasta - desde + 1) break; // no hay más filas
     }
     if (!error && filas.length > 0) {
-      return filas.map(raw => mapProductoSupabase(raw, locale));
+      return filas
+        .filter(raw => !esProductoDePrueba(raw.slug))
+        .map(raw => mapProductoSupabase(raw, locale));
     }
     if (error) registrarErrorSupabase('getProductos', error);
     else if (!familia) registrarVacioSupabase('getProductos');
   }
 
-  let lista = mockProductos.filter(p => p.activo);
+  let lista = mockProductos.filter(p => p.activo && !esProductoDePrueba(p.slug));
   if (familia) lista = lista.filter(p => p.familia_slug === familia);
   if (tipo) lista = lista.filter(p => p.tipo_id === tipo);
   if (destacado !== undefined) lista = lista.filter(p => p.destacado === destacado);
@@ -807,12 +810,14 @@ export async function getProductosBySlugs(slugs: string[], locale: Locale): Prom
       .in('slug', slugs)
       .eq('activo', true);
     if (!error && data) {
-      return data.map(raw => mapProductoSupabase(raw, locale));
+      return data
+        .filter(raw => !esProductoDePrueba(raw.slug))
+        .map(raw => mapProductoSupabase(raw, locale));
     }
     if (error) registrarErrorSupabase('getProductosBySlugs', error);
   }
   return mockProductos
-    .filter(p => slugs.includes(p.slug) && p.activo)
+    .filter(p => slugs.includes(p.slug) && p.activo && !esProductoDePrueba(p.slug))
     .map(p => mapProducto(p, locale));
 }
 

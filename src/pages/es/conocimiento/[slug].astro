@@ -89,7 +89,8 @@ const jsonLd = combineJsonLd(
       <div class="container">
         <nav class="breadcrumb" aria-label="Ruta">
           <a href="/es/">Inicio</a><span class="sep">/</span>
-          <a href="/es/conocimiento">{t(locale, 'conocimiento.titulo')}</a><span class="sep">/</span
+          <a href="/es/conocimiento/">{t(locale, 'conocimiento.titulo')}</a><span class="sep"
+            >/</span
           >
           {
             tema && (
@@ -153,9 +154,11 @@ const jsonLd = combineJsonLd(
         </div>
         <RelacionadosTema articulo={articulo} relacionados={relacionados} locale={locale} />
         <div class="article-footer">
-          <a href="/es/conocimiento" class="btn btn-outline">← {t(locale, 'conocimiento.volver')}</a
+          <a href="/es/conocimiento/" class="btn btn-outline"
+            >← {t(locale, 'conocimiento.volver')}</a
           >
-          <a href="/es/contacto" class="btn btn-primary">{t(locale, 'conocimiento.cta_contacto')}</a
+          <a href="/es/contacto/" class="btn btn-primary"
+            >{t(locale, 'conocimiento.cta_contacto')}</a
           >
         </div>
       </div>

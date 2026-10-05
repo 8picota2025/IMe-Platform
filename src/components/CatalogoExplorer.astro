@@ -13,6 +13,7 @@ import type { CatalogoIndexItem } from '../lib/catalogo';
 import { getCatalogoTaxonomia } from '../lib/taxonomia-catalogo';
 import { listFamiliaSeoSlugs } from '../data/familia-seo';
 import ProductoCard from './ProductoCard.astro';
+import PaginacionNumeros from './PaginacionNumeros.astro';
 import FamiliaIcon from './FamiliaIcon.astro';
 
 interface Props {
@@ -108,11 +109,7 @@ const pagePath = (targetPage: number) =>
         taxonomia.map(grupo => (
           <li>
             <a
-              href={
-                familyLandingSlugs.has(grupo.slug)
-                  ? familyPath(grupo.slug)
-                  : `?familia=${grupo.slug}`
-              }
+              href={familyLandingSlugs.has(grupo.slug) ? familyPath(grupo.slug) : catalogPath}
               class="categoria-card"
               data-familia-link={grupo.slug}
               data-family-landing={familyLandingSlugs.has(grupo.slug) ? 'true' : undefined}
@@ -134,7 +131,7 @@ const pagePath = (targetPage: number) =>
                   href={
                     familyLandingSlugs.has(subfamilia.slug)
                       ? familyPath(subfamilia.slug)
-                      : `?familia=${subfamilia.slug}`
+                      : catalogPath
                   }
                   class="categoria-card__subfamilia"
                   data-familia-link={subfamilia.slug}
@@ -350,6 +347,12 @@ const pagePath = (targetPage: number) =>
             <p class="catalogo-paginacion__info">
               {t(locale, 'comun.pagina')} {page} {t(locale, 'comun.de')} {pageCount}
             </p>
+            <PaginacionNumeros
+              page={page}
+              pageCount={pageCount}
+              pagePath={pagePath}
+              irALabel={t(locale, 'comun.pagina')}
+            />
             {page < pageCount && (
               <a class="btn btn-secondary" href={pagePath(page + 1)}>
                 {t(locale, 'comun.siguiente')}
@@ -1022,6 +1025,7 @@ const pagePath = (targetPage: number) =>
   /* Paginación */
   .catalogo-paginacion {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: center;
     gap: var(--space-md);

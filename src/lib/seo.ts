@@ -69,6 +69,9 @@ export function buildPageTitle(pageTitle: string): string {
 /** Soft max for SERP title display (~65 chars including brand). */
 export const PRODUCT_TITLE_MAX = 65;
 
+/** Below this many characters (brand suffix included) a product title is too thin to rank. */
+export const PRODUCT_TITLE_MIN = 30;
+
 /**
  * Absolute ceiling. Between PRODUCT_TITLE_MAX and this, we keep the full product
  * name instead of truncating: a slightly long title still ranks, a title that lost
@@ -194,9 +197,17 @@ export function buildProductoPageTitle(
   primaryIntent?: string
 ): string {
   const brandSuffix = ` | ${BRAND}`;
-  const name = stripDangling(stripTrailingBrand(nombre));
-  if (marca && includesLoose(name, marca, locale) === false) {
-    /* keep manufacturer in product name as-is; do not append marca again */
+  let name = stripDangling(stripTrailingBrand(nombre));
+  // A very short name ("Cama Manual K3k") carries neither keyword nor manufacturer.
+  // Add the manufacturer only then — and only when the name lacks it — so the many titles
+  // that already read well are left untouched.
+  const marcaClean = marca?.trim();
+  if (
+    marcaClean &&
+    name.length + brandSuffix.length < PRODUCT_TITLE_MIN &&
+    !includesLoose(name, marcaClean, locale)
+  ) {
+    name = `${name} ${marcaClean}`;
   }
 
   const cat = categoria ? normalizeCategoriaLabel(categoria) : '';

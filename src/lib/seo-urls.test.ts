@@ -7,10 +7,9 @@ describe('seo-urls', () => {
     expect(familyCatalogHref('en', 'monitores')).toBe('/en/families/monitores/');
   });
 
-  it('conserva query solo para slugs sin landing', () => {
-    expect(familyCatalogHref('es', 'familia-inexistente-test')).toBe(
-      '/es/catalogo/?familia=familia-inexistente-test'
-    );
+  it('sin landing enlaza al catálogo base y nunca a ?familia= (el host lo redirige a una landing inexistente)', () => {
+    expect(familyCatalogHref('es', 'familia-inexistente-test')).toBe('/es/catalogo/');
+    expect(familyCatalogHref('en', 'familia-inexistente-test')).toBe('/en/catalog/');
   });
 
   it('expone rutas base y landing', () => {
