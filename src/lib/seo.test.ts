@@ -5,6 +5,7 @@ import {
   buildProductoSeo,
   buildOrganizationJsonLd,
   PRODUCT_TITLE_MAX,
+  resolveRobotsContent,
 } from './seo';
 
 describe('buildOrganizationJsonLd', () => {
@@ -309,5 +310,21 @@ describe('buildProductoPageTitle · títulos muy cortos', () => {
 
   it('sin marca conserva el comportamiento anterior', () => {
     expect(buildProductoPageTitle('Cama Manual K3k', 'es')).toBe('Cama Manual K3k | I-ME');
+  });
+});
+
+describe('resolveRobotsContent', () => {
+  it('por defecto la página se indexa', () => {
+    expect(resolveRobotsContent(false, false)).toBe('index, follow, max-image-preview:large');
+    expect(resolveRobotsContent(undefined, false)).toBe('index, follow, max-image-preview:large');
+  });
+
+  it('una página que pide noindex lo conserva', () => {
+    expect(resolveRobotsContent(true, false)).toBe('noindex, nofollow');
+  });
+
+  it('un build de vista previa (PUBLIC_NOINDEX=1) no indexa nada aunque la página lo permita', () => {
+    expect(resolveRobotsContent(false, true)).toBe('noindex, nofollow');
+    expect(resolveRobotsContent(undefined, true)).toBe('noindex, nofollow');
   });
 });

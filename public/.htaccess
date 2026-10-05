@@ -3,6 +3,12 @@
 
 RewriteEngine On
 
+# Vistas previas de PR (carpetas numéricas /<PR>/...): nunca deben indexarse, tampoco las antiguas
+# que se construyeron sin noindex. SetEnvIf y Header se heredan en las subcarpetas aunque tengan su
+# propio .htaccess. Las rutas reales del sitio no empiezan por un dígito.
+SetEnvIf Request_URI "^/[1-9][0-9]*/" NOINDEX_PREVIEW
+Header always set X-Robots-Tag "noindex, nofollow" env=NOINDEX_PREVIEW
+
 # Canonical host
 # Evita la cadena www → raíz → /es/ para la URL de entrada más frecuente.
 RewriteCond %{HTTP_HOST} ^www\.i-me\.com\.co$ [NC]
