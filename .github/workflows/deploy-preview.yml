@@ -51,9 +51,9 @@ jobs:
 
       - name: Marcar la vista previa como no indexable
         run: |
-          # Cabecera además del meta robots del build: cubre también PDF, imágenes y otros archivos.
-          printf '\n# Vista previa de PR: nunca indexar.\nHeader always set X-Robots-Tag "noindex, nofollow"\n' >> dist/.htaccess
-          # Los rastreadores solo leen el robots.txt de la raíz; este es solo coherencia.
+          # La cabecera X-Robots-Tag sale de la regla de public/.htaccess (SetEnvIf sobre /<PR>/),
+          # que ya viaja dentro de dist/.htaccess y cubre también PDF e imágenes. Aquí solo se
+          # apaga el robots.txt de la copia (los rastreadores leen el de la raíz; es coherencia).
           printf 'User-agent: *\nDisallow: /\n' > dist/robots.txt
 
       - name: Deploy to Hostinger Preview (FTP)
