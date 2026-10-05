@@ -1,6 +1,7 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
 import ProductoCard from '../../../components/ProductoCard.astro';
+import PaginacionNumeros from '../../../components/PaginacionNumeros.astro';
 import {
   buildFamiliaSeo,
   buildCanonical,
@@ -167,6 +168,14 @@ const jsonLd = combineJsonLd(
         {familyPage.pageCount > 1 && (
           <nav class="family-pagination" aria-label="Family pagination">
             <span>Page 1 of {familyPage.pageCount}</span>
+            <PaginacionNumeros
+              page={1}
+              pageCount={familyPage.pageCount}
+              pagePath={(n: number) =>
+                n === 1 ? `/en/families/${slug}/` : `/en/families/${slug}/pagina/${n}/`
+              }
+              irALabel="Go to page"
+            />
             <a class="btn btn-secondary" href={`/en/families/${slug}/pagina/2/`}>
               Next
             </a>

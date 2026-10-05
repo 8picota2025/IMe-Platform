@@ -69,11 +69,13 @@ describe('relacionadosEnTema', () => {
 describe('rutasConocimiento', () => {
   it('usa /es/conocimiento/tema y /en/knowledge/topic', () => {
     expect(rutasConocimiento.tema('es', 'monitoreo-uci')).toBe(
-      '/es/conocimiento/tema/monitoreo-uci'
+      '/es/conocimiento/tema/monitoreo-uci/'
     );
-    expect(rutasConocimiento.tema('en', 'monitoreo-uci')).toBe('/en/knowledge/topic/monitoreo-uci');
-    expect(rutasConocimiento.articulo('en', 'x')).toBe('/en/knowledge/x');
-    expect(rutasConocimiento.indice('es')).toBe('/es/conocimiento');
+    expect(rutasConocimiento.tema('en', 'monitoreo-uci')).toBe(
+      '/en/knowledge/topic/monitoreo-uci/'
+    );
+    expect(rutasConocimiento.articulo('en', 'x')).toBe('/en/knowledge/x/');
+    expect(rutasConocimiento.indice('es')).toBe('/es/conocimiento/');
   });
 });
 
