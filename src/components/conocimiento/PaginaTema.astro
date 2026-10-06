@@ -27,13 +27,114 @@ interface Props {
 
 const { locale, tema, temas, total } = Astro.props;
 const { cluster, articulos } = tema;
+const esTemaInvima = cluster.slug === 'invima-regulacion';
 const ruta = rutasConocimiento.tema(locale, cluster.slug);
 const canonical = buildCanonical(ruta);
 const intro = introTema(cluster.slug, locale);
 const tituloConocimiento = t(locale, 'conocimiento.titulo');
-const title = buildPageTitle(`${cluster.nombre} · ${tituloConocimiento}`);
+const title = buildPageTitle(
+  esTemaInvima ? cluster.nombre : `${cluster.nombre} · ${tituloConocimiento}`
+);
 const description = intro ?? `${tituloConocimiento}: ${cluster.nombre}`;
 const inicio = locale === 'en' ? '/en/' : '/es/';
+const guiaInvima =
+  locale === 'en'
+    ? {
+        guide: 'A practical guide for manufacturers',
+        guideIntro:
+          'Start by defining the device, its intended use and where it will be manufactured. Confirm the applicable route and current requirements with INVIMA for the specific product.',
+        national: 'Manufacturers in Colombia',
+        nationalBody:
+          'Organize product and manufacturer information, technical evidence and the records relevant to the device. Check the current INVIMA guidance to confirm which documents and steps apply to your case.',
+        foreign: 'Manufacturers outside Colombia',
+        foreignBody:
+          'Map the available manufacturer documentation to the Colombian process. Review whether translations, local representation or other supporting documents apply before setting the submission plan.',
+        costs: 'How to structure the costs',
+        costsIntro:
+          'Separate the official INVIMA fee from the work and resources needed to prepare the application. The total depends on the product, its evidence and the applicable process.',
+        fees: 'Official fees',
+        feesBody:
+          'Check the current fee schedule published by INVIMA and identify the item that corresponds to the procedure you have confirmed.',
+        prep: 'Preparation and internal effort',
+        prepBody:
+          'Plan document gathering and review, translations where needed, tests or evaluations if applicable, professional support and the time your team will dedicate to coordination and responses.',
+        schedule: 'Plan the work by phase',
+        scheduleIntro:
+          'Build a project calendar around the work stages. The time in each stage varies with the product, the completeness of the file and any requests made during review.',
+        phases: [
+          'Preparation: confirm the route, collect and review documentation, and address translations or tests if applicable.',
+          'Evaluation: submit through the applicable channel and track the review status.',
+          'Requests: assess each request, coordinate evidence and submit a complete response within the applicable period.',
+          'Launch planning: coordinate commercial and operational readiness after confirming the applicable authorization and conditions.',
+        ],
+        route: 'The most efficient path, with I-ME',
+        routeBody:
+          'I-ME has experience supporting biomedical technology projects in Colombia. We help define the applicable route, identify missing documents and organize preparation to avoid rework. The shortest path starts with a coherent dossier; INVIMA is responsible for its decision and review times.',
+        articles: 'Related articles',
+        articlesIntro: 'Explore the published articles in this topic:',
+        faq: 'Frequently asked questions',
+        q1: 'Are INVIMA fees the full cost of the process?',
+        a1: 'No. The official fee is one cost item. Document preparation, translations, tests when applicable, professional support and internal staff time may also need to be budgeted.',
+        q2: 'Is the process the same for a Colombian and a foreign manufacturer?',
+        a2: 'The applicable route and supporting documents depend on the product and its circumstances. Confirm the current requirements for the specific case with INVIMA.',
+        q3: 'How long does the process take?',
+        a3: 'There is no single timeline that applies to every product. Plan for preparation, evaluation and possible requests, and confirm current expectations through the applicable official channels.',
+        contact: 'Talk with I-ME about your device',
+        contactBody:
+          'Share the brand, model, manufacturing country, intended use, available documents and target launch date. I-ME can prepare a proposal covering scope, budget and a project schedule.',
+        contactCta: 'Request INVIMA support',
+        official: 'Official sources',
+        devices: 'INVIMA guidance for medical devices',
+        feeSchedule: 'INVIMA fee schedule',
+      }
+    : {
+        guide: 'Guía práctica para fabricantes',
+        guideIntro:
+          'Empieza por definir el dispositivo, su uso previsto y dónde se fabrica. Confirma ante INVIMA la ruta aplicable y los requisitos vigentes para ese producto.',
+        national: 'Fabricantes en Colombia',
+        nationalBody:
+          'Organiza la información del producto y del fabricante, la evidencia técnica y los antecedentes pertinentes para el dispositivo. Consulta la orientación vigente de INVIMA para confirmar qué documentos y etapas aplican a tu caso.',
+        foreign: 'Fabricantes en el exterior',
+        foreignBody:
+          'Relaciona la documentación disponible del fabricante con el proceso colombiano. Antes de definir el plan de radicación, revisa si aplican traducciones, representación local u otros documentos de soporte.',
+        costs: 'Cómo estructurar los costes',
+        costsIntro:
+          'Separa la tarifa oficial de INVIMA del trabajo y los recursos necesarios para preparar la solicitud. El total depende del producto, su evidencia y el trámite aplicable.',
+        fees: 'Tarifas oficiales',
+        feesBody:
+          'Consulta el tarifario vigente publicado por INVIMA e identifica el concepto correspondiente al trámite que hayas confirmado.',
+        prep: 'Preparación y esfuerzo interno',
+        prepBody:
+          'Presupuesta la recopilación y revisión documental, traducciones cuando se requieran, ensayos o evaluaciones si aplican, acompañamiento profesional y el tiempo que tu equipo dedicará a coordinar y responder.',
+        schedule: 'Planifica el trabajo por etapas',
+        scheduleIntro:
+          'Construye un calendario del proyecto con base en las etapas de trabajo. La duración de cada etapa varía según el producto, la integridad del expediente y los requerimientos que surjan durante la evaluación.',
+        phases: [
+          'Preparación: confirmar la ruta, recopilar y revisar documentos, y gestionar traducciones o ensayos si aplican.',
+          'Evaluación: radicar por el canal correspondiente y hacer seguimiento al estado de la revisión.',
+          'Requerimientos: analizar cada solicitud, coordinar la evidencia y presentar una respuesta completa dentro del plazo aplicable.',
+          'Planificación del lanzamiento: coordinar la preparación comercial y operativa después de confirmar la autorización y las condiciones aplicables.',
+        ],
+        route: 'El camino más eficiente, con I-ME',
+        routeBody:
+          'En I-ME tenemos experiencia acompañando proyectos de tecnología biomédica en Colombia. Te ayudamos a definir la ruta aplicable, detectar documentos faltantes y ordenar la preparación para evitar reprocesos. El camino más corto empieza con un expediente coherente; la decisión y los tiempos de evaluación corresponden al INVIMA.',
+        articles: 'Artículos relacionados',
+        articlesIntro: 'Consulta los artículos publicados en este tema:',
+        faq: 'Preguntas frecuentes',
+        q1: '¿Las tarifas de INVIMA son el coste total del proceso?',
+        a1: 'No. La tarifa oficial es uno de los conceptos. También puede ser necesario presupuestar preparación documental, traducciones, ensayos cuando apliquen, acompañamiento profesional y tiempo del equipo interno.',
+        q2: '¿El proceso es igual para un fabricante colombiano y uno extranjero?',
+        a2: 'La ruta aplicable y los documentos de soporte dependen del producto y sus circunstancias. Confirma los requisitos vigentes para el caso específico con INVIMA.',
+        q3: '¿Cuánto tarda el proceso?',
+        a3: 'No hay un plazo único para todos los productos. Planifica las etapas de preparación y evaluación, además de posibles requerimientos, y confirma las expectativas vigentes por los canales oficiales aplicables.',
+        contact: 'Conversemos sobre tu dispositivo',
+        contactBody:
+          'Comparte la marca, el modelo, el país de fabricación, el uso previsto, los documentos disponibles y el objetivo de lanzamiento. I-ME puede preparar una propuesta de alcance, presupuesto y cronograma del proyecto.',
+        contactCta: 'Solicitar acompañamiento INVIMA',
+        official: 'Fuentes oficiales',
+        devices: 'Orientación de INVIMA sobre dispositivos médicos',
+        feeSchedule: 'Tarifario de INVIMA',
+      };
 
 const jsonLd = combineJsonLd(
   buildOrganizationJsonLd(),
@@ -75,13 +176,168 @@ const jsonLd = combineJsonLd(
           ><span aria-current="page">{cluster.nombre}</span>
         </nav>
         <p class="tema-label">{t(locale, 'conocimiento.tema_label')}</p>
-        <h1 id="tema-h1">{cluster.nombre}</h1>
+        <h1 id="tema-h1">
+          {
+            esTemaInvima
+              ? locale === 'en'
+                ? 'INVIMA requirements for medical device manufacturers'
+                : 'Requisitos INVIMA para fabricantes de dispositivos médicos'
+              : cluster.nombre
+          }
+        </h1>
         {intro && <p class="ph-sub">{intro}</p>}
       </div>
     </header>
 
     <section class="section" aria-labelledby="tema-h1">
       <div class="container">
+        {
+          esTemaInvima && (
+            <div class="invima-hub">
+              <section class="invima-section" aria-labelledby="invima-guide-title">
+                <p class="invima-eyebrow">
+                  {locale === 'en' ? 'MANUFACTURER GUIDE' : 'GUÍA PARA FABRICANTES'}
+                </p>
+                <h2 id="invima-guide-title">{guiaInvima.guide}</h2>
+                <p class="invima-lead">{guiaInvima.guideIntro}</p>
+                <div class="invima-grid invima-grid--two">
+                  <article class="invima-card">
+                    <h3>{guiaInvima.national}</h3>
+                    <p>{guiaInvima.nationalBody}</p>
+                  </article>
+                  <article class="invima-card">
+                    <h3>{guiaInvima.foreign}</h3>
+                    <p>{guiaInvima.foreignBody}</p>
+                  </article>
+                </div>
+              </section>
+
+              <section class="invima-section" aria-labelledby="invima-costs-title">
+                <p class="invima-eyebrow">
+                  {locale === 'en' ? 'COST PLANNING' : 'PLANIFICACIÓN DE COSTES'}
+                </p>
+                <h2 id="invima-costs-title">{guiaInvima.costs}</h2>
+                <p class="invima-lead">{guiaInvima.costsIntro}</p>
+                <div class="invima-grid invima-grid--two">
+                  <article class="invima-card">
+                    <h3>{guiaInvima.fees}</h3>
+                    <p>{guiaInvima.feesBody}</p>
+                    <a
+                      href="https://www.invima.gov.co/tramites-y-servicios/tarifas"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {guiaInvima.feeSchedule}
+                      <span aria-hidden="true"> ↗</span>
+                    </a>
+                  </article>
+                  <article class="invima-card">
+                    <h3>{guiaInvima.prep}</h3>
+                    <p>{guiaInvima.prepBody}</p>
+                  </article>
+                </div>
+              </section>
+
+              <section class="invima-section" aria-labelledby="invima-schedule-title">
+                <p class="invima-eyebrow">
+                  {locale === 'en' ? 'PROJECT SEQUENCE' : 'SECUENCIA DEL PROYECTO'}
+                </p>
+                <h2 id="invima-schedule-title">{guiaInvima.schedule}</h2>
+                <p class="invima-lead">{guiaInvima.scheduleIntro}</p>
+                <ol class="invima-phases">
+                  {guiaInvima.phases.map(phase => (
+                    <li>{phase}</li>
+                  ))}
+                </ol>
+              </section>
+
+              <section class="invima-route" aria-labelledby="invima-route-title">
+                <div>
+                  <p class="invima-eyebrow">I-ME</p>
+                  <h2 id="invima-route-title">{guiaInvima.route}</h2>
+                  <p>{guiaInvima.routeBody}</p>
+                </div>
+                <a
+                  class="btn btn-primary"
+                  href={locale === 'en' ? '/en/contact/' : '/es/contacto/'}
+                >
+                  {guiaInvima.contactCta}
+                </a>
+              </section>
+
+              <section class="invima-section" aria-labelledby="invima-official-title">
+                <h2 id="invima-official-title">{guiaInvima.official}</h2>
+                <ul class="invima-links">
+                  <li>
+                    <a
+                      href="https://www.invima.gov.co/productos-vigilados/dispositivos-medicos/dispositivos-medicos-equipos-biomedicos"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {guiaInvima.devices}
+                      <span aria-hidden="true"> ↗</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="https://www.invima.gov.co/tramites-y-servicios/tarifas"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {guiaInvima.feeSchedule}
+                      <span aria-hidden="true"> ↗</span>
+                    </a>
+                  </li>
+                </ul>
+              </section>
+
+              {articulos.length > 0 && (
+                <section class="invima-section" aria-labelledby="invima-articles-title">
+                  <h2 id="invima-articles-title">{guiaInvima.articles}</h2>
+                  <p>{guiaInvima.articlesIntro}</p>
+                  <ul class="invima-links">
+                    {articulos.slice(0, 3).map(articulo => (
+                      <li>
+                        <a href={rutasConocimiento.articulo(locale, articulo.slug)}>
+                          {articulo.titulo}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+
+              <section class="invima-section invima-faq" aria-labelledby="invima-faq-title">
+                <h2 id="invima-faq-title">{guiaInvima.faq}</h2>
+                <details>
+                  <summary>{guiaInvima.q1}</summary>
+                  <p>{guiaInvima.a1}</p>
+                </details>
+                <details>
+                  <summary>{guiaInvima.q2}</summary>
+                  <p>{guiaInvima.a2}</p>
+                </details>
+                <details>
+                  <summary>{guiaInvima.q3}</summary>
+                  <p>{guiaInvima.a3}</p>
+                </details>
+              </section>
+
+              <aside class="invima-contact" aria-label={guiaInvima.contact}>
+                <div>
+                  <h2>{guiaInvima.contact}</h2>
+                  <p>{guiaInvima.contactBody}</p>
+                </div>
+                <a
+                  class="btn btn-primary"
+                  href={locale === 'en' ? '/en/contact/' : '/es/contacto/'}
+                >
+                  {guiaInvima.contactCta}
+                </a>
+              </aside>
+            </div>
+          )
+        }
         <NavTemas temas={temas} locale={locale} total={total} actual={cluster.slug} />
         <div class="knowledge-grid">
           {
@@ -113,6 +369,155 @@ const jsonLd = combineJsonLd(
     letter-spacing: 0.08em;
     text-transform: uppercase;
     opacity: 0.85;
+  }
+  .invima-hub {
+    max-width: 1000px;
+    margin: 0 auto 68px;
+  }
+  .invima-section {
+    margin: 0 0 52px;
+  }
+  .invima-section h2,
+  .invima-route h2,
+  .invima-contact h2 {
+    margin: 0 0 14px;
+    color: var(--ink);
+    font-family: 'Sora', sans-serif;
+    font-size: clamp(1.45rem, 3vw, 2rem);
+    line-height: 1.2;
+  }
+  .invima-eyebrow {
+    margin: 0 0 9px;
+    color: var(--t700);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .invima-lead {
+    max-width: 760px;
+    margin: 0 0 24px;
+    color: var(--text-mid);
+    font-size: 1.05rem;
+  }
+  .invima-grid {
+    display: grid;
+    gap: 18px;
+  }
+  .invima-grid--two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .invima-card {
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--off);
+  }
+  .invima-card h3 {
+    margin: 0 0 10px;
+    color: var(--t900);
+    font-family: 'Sora', sans-serif;
+    font-size: 1.1rem;
+    line-height: 1.35;
+  }
+  .invima-card p,
+  .invima-route p,
+  .invima-contact p,
+  .invima-faq details p {
+    margin: 0 0 12px;
+    color: var(--text-mid);
+  }
+  .invima-card a,
+  .invima-links a {
+    color: var(--t900);
+    font-weight: 700;
+    text-underline-offset: 3px;
+  }
+  .invima-phases {
+    display: grid;
+    gap: 12px;
+    margin: 24px 0 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: invima-phase;
+  }
+  .invima-phases li {
+    position: relative;
+    min-height: 48px;
+    padding: 12px 16px 12px 58px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--white);
+    counter-increment: invima-phase;
+  }
+  .invima-phases li::before {
+    position: absolute;
+    top: 10px;
+    left: 14px;
+    display: grid;
+    width: 28px;
+    height: 28px;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--t100);
+    color: var(--t900);
+    content: counter(invima-phase);
+    font-weight: 700;
+  }
+  .invima-route,
+  .invima-contact {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+    margin: 0 0 52px;
+    padding: 30px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--t50);
+  }
+  .invima-route p,
+  .invima-contact p {
+    max-width: 700px;
+    margin-bottom: 0;
+  }
+  .invima-links {
+    display: grid;
+    gap: 10px;
+    margin: 16px 0 0;
+    padding-left: 1.2rem;
+  }
+  .invima-faq details {
+    margin: 10px 0;
+    padding: 16px 18px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--white);
+  }
+  .invima-faq summary {
+    color: var(--t900);
+    cursor: pointer;
+    font-weight: 700;
+  }
+  .invima-faq summary:focus-visible,
+  .invima-hub a:focus-visible {
+    border-radius: 3px;
+    outline: 2px solid var(--t700);
+    outline-offset: 3px;
+  }
+  .invima-faq details p {
+    margin: 12px 0 0;
+  }
+  @media (max-width: 640px) {
+    .invima-grid--two {
+      grid-template-columns: 1fr;
+    }
+    .invima-route,
+    .invima-contact {
+      align-items: flex-start;
+      flex-direction: column;
+      padding: 24px;
+    }
   }
 </style>
 
