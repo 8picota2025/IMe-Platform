@@ -12,6 +12,7 @@ import { getArticulosConocimiento, esBorrador } from '../../../lib/conocimiento-
 import { relacionadosEnTema, rutasConocimiento } from '../../../lib/conocimiento-clusters';
 import RelacionadosTema from '../../../components/conocimiento/RelacionadosTema.astro';
 import { stripMarkdown } from '../../../lib/markdown';
+import { descripcionInvima } from '../../../data/invima-seo';
 import { renderArticleBody } from '../../../lib/conocimiento-articulo';
 import {
   resolverImagenArticulo,
@@ -40,7 +41,9 @@ const { articulo, relacionados } = Astro.props as Props;
 const tema = articulo.cluster;
 const canonical = buildCanonical(`/en/knowledge/${articulo.slug}`);
 const title = buildPageTitle(articulo.titulo);
-const description = stripMarkdown(articulo.cuerpo || articulo.titulo).slice(0, 155);
+const description =
+  descripcionInvima(articulo.slug, locale) ??
+  stripMarkdown(articulo.cuerpo || articulo.titulo).slice(0, 155);
 const imagen = resolverImagenArticulo(articulo, locale);
 const ogImagen = resolverOgImagenArticulo(articulo, locale);
 const ogImage = absoluteImagenUrl(ogImagen.src);
@@ -89,7 +92,7 @@ const jsonLd = combineJsonLd(
       <div class="container">
         <nav class="breadcrumb" aria-label="Breadcrumb">
           <a href="/en/">Home</a><span class="sep">/</span>
-          <a href="/en/knowledge/">{t(locale, 'conocimiento.titulo')}</a><span class="sep">/</span>
+          <a href="/en/knowledge">{t(locale, 'conocimiento.titulo')}</a><span class="sep">/</span>
           {
             tema && (
               <>
@@ -152,7 +155,7 @@ const jsonLd = combineJsonLd(
         </div>
         <RelacionadosTema articulo={articulo} relacionados={relacionados} locale={locale} />
         <div class="article-footer">
-          <a href="/en/knowledge/" class="btn btn-outline">← {t(locale, 'conocimiento.volver')}</a>
+          <a href="/en/knowledge" class="btn btn-outline">← {t(locale, 'conocimiento.volver')}</a>
           <a href="/en/contact/" class="btn btn-primary">{t(locale, 'conocimiento.cta_contacto')}</a
           >
         </div>
