@@ -23,6 +23,7 @@ import {
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { checkRateLimit } from '../_shared/rate-limit.ts';
 import { withTelemetry } from '../_shared/telemetry.ts';
+import { asesorDeUsuario } from '../_shared/asesor.ts';
 import { renderQuotePdf } from '../_shared/render-quote-pdf.ts';
 import {
   buildQuoteAnnexes,
@@ -514,6 +515,7 @@ async function handlePdf(
     live.numero ??
       (typeof liveMeta.numero_presupuesto === 'string' ? liveMeta.numero_presupuesto : 'BORRADOR')
   );
+  const asesor = await asesorDeUsuario(supabase, live.created_by);
   const bytes = await renderQuotePdf({
     numero,
     clienteNombre: String(live.nombre ?? 'Cliente'),
@@ -526,6 +528,9 @@ async function handlePdf(
     total: calcularTotalOfertado(lineas),
     lineas,
     locale: live.locale === 'en' ? 'en' : 'es',
+    nombreComercial: asesor.nombre,
+    correoComercial: asesor.correo,
+    telefonoComercial: asesor.telefono,
     annexes,
     logoBytes,
     whatsappIconBytes,

@@ -98,7 +98,7 @@ function winAnsi(s: string): string {
     .replace(/\u2079/g, '9')
     .replace(/\u207B/g, '-')
     .replace(/\u00A0/g, ' ')
-    .replace(/[^\t\n\r\x20-\x7E\xA0-\xFF]/g, '?');
+    .replace(/[^\t\n\r\x20-\x7E\xA0-\xFF\u2026]/g, '?');
 }
 
 function moneyPlain(value: number, moneda: string, locale: 'es' | 'en'): string {
@@ -533,7 +533,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
   // ——— Tabla + recuadro de precios (debajo de empresa y de pago; sin tope que pise) ———
   const tableLeft = 27;
   const tableRight = 568;
-  const tableTop = Math.max(companyBottom + 16, py + 10, 270);
+  let tableTop = Math.max(companyBottom + 16, py + 10, 270);
   const headerH = 36;
   const colXs = [tableLeft, 65, 175, 372, 462, tableRight];
   const unitRight = colXs[4]! - 8;
@@ -544,147 +544,180 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
   const conResumen = snapshot.lineas.some(l => lineasDeResumen(l.notas).length > 0);
   const rowHBase = conResumen ? 72 : 40;
   const footerGuard = 780;
-  const totalsBlockH = 118;
-  const available = footerGuard - totalsBlockH - (tableTop + headerH);
-  const maxRowsFit = Math.max(1, Math.floor(available / rowHBase));
-  const pageLines = snapshot.lineas.slice(0, maxRowsFit);
-  const overflowLines = snapshot.lineas.slice(maxRowsFit);
-
-  page.drawRectangle({
-    x: tableLeft,
-    y: topY(tableTop + headerH),
-    width: tableRight - tableLeft,
-    height: headerH,
-    color: BLUE,
-  });
-  const headerLabels =
-    locale === 'en'
-      ? [
-          [40, 'QTY'],
-          [74, 'REF'],
-          [186, 'DESCRIPTION'],
-        ]
-      : [
-          [40, 'CANT'],
-          [74, 'REF'],
-          [186, 'DESCRIPCION'],
-        ];
-  for (const [x, label] of headerLabels) {
-    drawText(page, String(label), {
-      x: Number(x),
+  // Reserve the totals only on the final table page. Keep at least one row
+  // for that page when the remaining rows fit without room for the totals.
+  const totalsBlockH = 136;
+  const drawTable = (pageLines: CotizacionLineaOferta[]): number => {
+    page.drawRectangle({
+      x: tableLeft,
+      y: topY(tableTop + headerH),
+      width: tableRight - tableLeft,
+      height: headerH,
+      color: BLUE,
+    });
+    const headerLabels =
+      locale === 'en'
+        ? [
+            [40, 'QTY'],
+            [74, 'REF'],
+            [186, 'DESCRIPTION'],
+          ]
+        : [
+            [40, 'CANT'],
+            [74, 'REF'],
+            [186, 'DESCRIPCION'],
+          ];
+    for (const [x, label] of headerLabels) {
+      drawText(page, String(label), {
+        x: Number(x),
+        top: tableTop + 12,
+        size: 11,
+        font: bold,
+        color: WHITE,
+      });
+    }
+    drawRight(page, locale === 'en' ? 'UNIT' : 'PRECIO UNIT', {
+      right: unitRight,
+      top: tableTop + 12,
+      size: 10,
+      font: bold,
+      color: WHITE,
+      maxWidth: 78,
+    });
+    drawRight(page, 'TOTAL', {
+      right: totalRight,
       top: tableTop + 12,
       size: 11,
       font: bold,
       color: WHITE,
+      maxWidth: 70,
     });
-  }
-  drawRight(page, locale === 'en' ? 'UNIT' : 'PRECIO UNIT', {
-    right: unitRight,
-    top: tableTop + 12,
-    size: 10,
-    font: bold,
-    color: WHITE,
-    maxWidth: 78,
-  });
-  drawRight(page, 'TOTAL', {
-    right: totalRight,
-    top: tableTop + 12,
-    size: 11,
-    font: bold,
-    color: WHITE,
-    maxWidth: 70,
-  });
 
-  const gridTop = tableTop + headerH;
-  const rowH = rowHBase;
-  const maxRows = Math.max(1, pageLines.length);
-  const gridBottom = gridTop + rowH * maxRows;
+    const gridTop = tableTop + headerH;
+    const rowH = rowHBase;
+    const maxRows = Math.max(1, pageLines.length);
+    const gridBottom = gridTop + rowH * maxRows;
 
-  pageLines.forEach((item, idx) => {
-    const rowTop = gridTop + idx * rowH;
-    const cant = String(item.cantidad);
-    const ref = fitOneLine(item.slug || item.nombre || '—', font, 10, refMaxW);
-    const descLines = wrapByWidth(item.nombre || item.slug || 'Producto', font, 10, descMaxW).slice(
-      0,
-      2
-    );
-    const pendiente = Boolean(item.precio_pendiente_validar);
-    const textTop = rowTop + (descLines.length > 1 ? 10 : 14);
-    drawText(page, cant, { x: 36, top: textTop, size: 11, font, maxWidth: 26 });
-    drawText(page, ref, { x: 70, top: textTop, size: 10, font, maxWidth: refMaxW });
-    descLines.forEach((line, i) => {
-      drawText(page, line, {
-        x: 186,
-        top: rowTop + 10 + i * 13,
-        size: 10,
+    pageLines.forEach((item, idx) => {
+      const rowTop = gridTop + idx * rowH;
+      const cant = String(item.cantidad);
+      const reference =
+        item.slug || (item.precio_pendiente_validar ? `ITEM-${offset + idx + 1}` : '—');
+      const ref = fitOneLine(reference, font, 10, refMaxW);
+      const descLines = wrapByWidth(
+        item.nombre || item.slug || 'Producto',
         font,
-        maxWidth: descMaxW,
-      });
-    });
-    if (conResumen) {
-      const resumenLineas = lineasDeResumen(item.notas)
-        .flatMap(linea => wrapByWidth(`• ${linea}`, font, 8, descMaxW).slice(0, 1))
-        .slice(0, 3);
-      const resumenTop = rowTop + 10 + descLines.length * 13 + 2;
-      resumenLineas.forEach((linea, i) => {
-        drawText(page, linea, {
+        10,
+        descMaxW
+      ).slice(0, 2);
+      const pendiente = Boolean(item.precio_pendiente_validar);
+      const textTop = rowTop + (descLines.length > 1 ? 10 : 14);
+      drawText(page, cant, { x: 36, top: textTop, size: 11, font, maxWidth: 26 });
+      drawText(page, ref, { x: 70, top: textTop, size: 10, font, maxWidth: refMaxW });
+      descLines.forEach((line, i) => {
+        drawText(page, line, {
           x: 186,
-          top: resumenTop + i * 10,
-          size: 8,
+          top: rowTop + 10 + i * 13,
+          size: 10,
           font,
           maxWidth: descMaxW,
         });
       });
-    }
-    drawRight(
-      page,
-      pendiente
-        ? locale === 'en'
-          ? 'Pending'
-          : 'Pendiente'
-        : moneyPlain(item.precio_unitario, snapshot.moneda, locale),
-      {
-        right: unitRight,
-        top: textTop,
-        size: pendiente ? 9 : 10,
-        font,
-        maxWidth: 74,
+      if (conResumen) {
+        const resumenLineas = lineasDeResumen(item.notas)
+          .flatMap(linea => wrapByWidth(`• ${linea}`, font, 8, descMaxW).slice(0, 1))
+          .slice(0, 3);
+        const resumenTop = rowTop + 10 + descLines.length * 13 + 2;
+        resumenLineas.forEach((linea, i) => {
+          drawText(page, linea, {
+            x: 186,
+            top: resumenTop + i * 10,
+            size: 8,
+            font,
+            maxWidth: descMaxW,
+          });
+        });
       }
-    );
-    drawRight(
-      page,
-      pendiente
-        ? locale === 'en'
-          ? 'Pending'
-          : 'Pendiente'
-        : moneyPlain(item.subtotal, snapshot.moneda, locale),
-      {
-        right: totalRight,
-        top: textTop,
-        size: pendiente ? 9 : 10,
-        font,
-        maxWidth: 86,
-      }
-    );
-  });
+      drawRight(
+        page,
+        pendiente
+          ? locale === 'en'
+            ? 'Pending'
+            : 'Pendiente'
+          : moneyPlain(item.precio_unitario, snapshot.moneda, locale),
+        {
+          right: unitRight,
+          top: textTop,
+          size: pendiente ? 9 : 10,
+          font,
+          maxWidth: 74,
+        }
+      );
+      drawRight(
+        page,
+        pendiente
+          ? locale === 'en'
+            ? 'Pending'
+            : 'Pendiente'
+          : moneyPlain(item.subtotal, snapshot.moneda, locale),
+        {
+          right: totalRight,
+          top: textTop,
+          size: pendiente ? 9 : 10,
+          font,
+          maxWidth: 86,
+        }
+      );
+    });
 
-  for (const x of colXs) {
-    page.drawLine({
-      start: { x, y: topY(gridBottom) },
-      end: { x, y: topY(gridTop) },
-      thickness: 1,
-      color: LINE,
+    for (const x of colXs) {
+      page.drawLine({
+        start: { x, y: topY(gridBottom) },
+        end: { x, y: topY(gridTop) },
+        thickness: 1,
+        color: LINE,
+      });
+    }
+    for (let i = 0; i <= maxRows; i += 1) {
+      const y = gridTop + i * rowH;
+      page.drawLine({
+        start: { x: tableLeft, y: topY(y) },
+        end: { x: tableRight, y: topY(y) },
+        thickness: 1,
+        color: LINE,
+      });
+    }
+
+    return gridBottom;
+  };
+
+  let offset = 0;
+  let gridBottom: number;
+  do {
+    const remaining = snapshot.lineas.length - offset;
+    const capacity = Math.max(1, Math.floor((footerGuard - tableTop - headerH) / rowHBase));
+    const finalCapacity = Math.max(
+      0,
+      Math.floor((footerGuard - totalsBlockH - tableTop - headerH) / rowHBase)
+    );
+    const isFinal = remaining <= finalCapacity;
+    const count = isFinal ? remaining : Math.min(capacity, Math.max(1, remaining - 1));
+    gridBottom = drawTable(snapshot.lineas.slice(offset, offset + count));
+    offset += count;
+    if (isFinal) break;
+    drawFooterBar(page, font, whatsappIcon);
+    page = doc.addPage([PAGE_W, PAGE_H]);
+    page.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: WHITE });
+    drawText(page, locale === 'en' ? 'QUOTATION — continued' : 'COTIZACIÓN — continuación', {
+      x: tableLeft,
+      top: 40,
+      size: 14,
+      font: bold,
+      color: BLUE,
     });
-  }
-  for (let i = 0; i <= maxRows; i += 1) {
-    const y = gridTop + i * rowH;
-    page.drawLine({
-      start: { x: tableLeft, y: topY(y) },
-      end: { x: tableRight, y: topY(y) },
-      thickness: 1,
-      color: LINE,
-    });
-  }
+    drawRight(page, numeroVisible, { right: tableRight, top: 42, size: 10, font, maxWidth: 150 });
+    tableTop = 76;
+  } while (offset < snapshot.lineas.length);
 
   // Totales (recuadro flush con columnas PRECIO/TOTAL) + NOTAS
   const boxRight = tableRight;
@@ -695,7 +728,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
   const boxPadY = 10;
   const boxPadX = 14;
   const boxH = boxPadY * 2 + totRowH * totRows;
-  const totalsTop = Math.min(gridBottom + 16, footerGuard - boxH - 8);
+  const totalsTop = gridBottom + 16;
   const LIGHT_BOX = rgb(0.972, 0.978, 0.992);
   const TOTAL_BAND = rgb(0.88, 0.93, 0.98);
   const RULE = rgb(0.72, 0.76, 0.8);
@@ -824,43 +857,6 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
   });
 
   drawFooterBar(page, font, whatsappIcon);
-
-  // Continuación de líneas si no caben en página 1
-  if (overflowLines.length > 0) {
-    page = doc.addPage([PAGE_W, PAGE_H]);
-    page.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: WHITE });
-    drawText(page, locale === 'en' ? 'Continued lines' : 'Continuación de líneas', {
-      x: 40,
-      top: 50,
-      size: 13,
-      font: bold,
-      color: BLUE,
-    });
-    let oy = 80;
-    for (const item of overflowLines) {
-      if (oy > 740) break;
-      const pendiente = Boolean(item.precio_pendiente_validar);
-      const line = `${item.cantidad} × ${item.nombre} — ${
-        pendiente
-          ? locale === 'en'
-            ? 'Pending'
-            : 'Pendiente validar'
-          : moneyCash(item.subtotal, snapshot.moneda, locale)
-      }`;
-      for (const chunk of wrapByWidth(line, font, 11, 500).slice(0, 2)) {
-        drawText(page, chunk, { x: 40, top: oy, size: 11, font, maxWidth: 510 });
-        oy += 15;
-      }
-      for (const resumen of lineasDeResumen(item.notas)) {
-        for (const chunk of wrapByWidth(`• ${resumen}`, font, 9, 490).slice(0, 1)) {
-          drawText(page, chunk, { x: 50, top: oy, size: 9, font, maxWidth: 500 });
-          oy += 12;
-        }
-      }
-      oy += 6;
-    }
-    drawFooterBar(page, font, whatsappIcon);
-  }
 
   // ——— Página consideraciones (boceto IPS p.2) ———
   page = doc.addPage([PAGE_W, PAGE_H]);
