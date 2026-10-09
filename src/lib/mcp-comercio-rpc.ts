@@ -31,7 +31,7 @@ export function safeMcpResult(value: unknown, secrets: readonly string[] = []): 
       Object.entries(value)
         .filter(
           ([key]) =>
-            !/(?:service_role|api_key|password|secret|authorization|access_token|refresh_token)/i.test(
+            !/(?:service[_-]?role|api_key|password|secret|authorization|access_token|refresh_token)/i.test(
               key
             )
         )
