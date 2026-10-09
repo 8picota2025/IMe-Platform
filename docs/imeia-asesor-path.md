@@ -2,7 +2,7 @@
 
 Widget (`Asesor.astro`) → `src/lib/asesor.ts` → Edge Function `asesor` → fila `asesor_agent_turns` → webhook routine IMEIA/Grok → fila `replied` → widget.
 
-Hermes, `IMEIA_API_*`, `IMEIA_CHAT_MODEL` y el navegador directo no forman parte del flujo web.
+Hermes, `IMEIA_API_*`, `IMEIA_CHAT_MODEL` y el navegador directo no forman parte del flujo web (secretos retirados de los workflows; el único uso restante de Hermes es local, ver [hermes-enrich-local.md](./hermes-enrich-local.md)).
 
 El cliente **no** mantiene una sola petición HTTP de 2 minutos (móviles y middleboxes la cortan):
 
