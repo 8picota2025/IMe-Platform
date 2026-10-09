@@ -204,6 +204,11 @@ describe('propuestas desde fichas PDF', () => {
       atributos: { beneficios_es: ['a'], seo_keywords_en: ['b'] },
     });
     expect(camposFichaPermitidos({ atributos: { precio_costo: 1 } })).toEqual({});
+    expect(
+      camposFichaPermitidos({
+        atributos: { seo_es: { title: 't' }, estudio_seo: { fuente: 'GSC' } },
+      })
+    ).toEqual({ atributos: { seo_es: { title: 't' }, estudio_seo: { fuente: 'GSC' } } });
   });
 
   it('mezcla atributos con los actuales sin borrar claves', () => {

@@ -16,7 +16,11 @@ Sustituye a `scripts/enrich-product-locale-fields-hermes.mjs` (usaba el perfil
      ruta `propuestas/<slug>/<sha256[:16]>.pdf`.
    - `proponer_producto` (producto nuevo) o `proponer_ficha` (existente). Ambas
      aceptan `nombre_en` y `atributos` de landing
-     (`beneficios_*`, `valor_*`, `preguntas_frecuentes_*`, `seo_keywords_*`).
+     (`beneficios_*`, `valor_*`, `preguntas_frecuentes_*`, `seo_keywords_*`)
+     y el estudio SEO (`seo_es|en`: title, meta description, H1/H2, intención;
+     `estudio_seo`: consultas reales de Google Search Console, canibalización,
+     enlaces internos, slug). `seo_es|en` aún no sobrescribe el title/meta que
+     genera `buildProductoSeo`: queda para revisión y un PR posterior.
 4. Revisión humana obligatoria en el admin:
    - Ingesta PDF → "Productos propuestos desde fichas PDF" → **Crear producto
      inactivo** (sin precio) o Rechazar.

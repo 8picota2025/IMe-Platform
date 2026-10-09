@@ -1371,7 +1371,7 @@ const inputSchema = {
     payload: {
       type: 'object',
       description:
-        'proponer_ficha / proponer_producto: campos de ficha (nombre_en, descripcion_*_es|en, aplicaciones_es|en, especificaciones, ficha_pdf, imagen_principal…) y atributos {beneficios_es|en, valor_es|en, preguntas_frecuentes_es|en, seo_keywords_es|en}. proponer_producto exige además slug y nombre_es; admite sku, familia_slug, tipo_slug, marca.',
+        'proponer_ficha / proponer_producto: campos de ficha (nombre_en, descripcion_*_es|en, aplicaciones_es|en, especificaciones, ficha_pdf, imagen_principal…) y atributos {beneficios_es|en, valor_es|en, preguntas_frecuentes_es|en, seo_keywords_es|en, seo_es|en {title, meta_description, h1, h2, intencion}, estudio_seo {fuente, periodo, consultas_gsc, canibalizacion, enlaces_internos, slug_propuesto}}. proponer_producto exige además slug y nombre_es; admite sku, familia_slug, tipo_slug, marca.',
     },
     sha256: { type: 'string', description: 'subir_ficha_pdf: huella SHA-256 del PDF (hex)' },
     bytes: { type: 'number', description: 'subir_ficha_pdf: tamaño del PDF en bytes (máx. 25 MB)' },

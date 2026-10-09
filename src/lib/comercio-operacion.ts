@@ -198,6 +198,11 @@ export const ATRIBUTOS_FICHA_PROPUESTA = [
   'preguntas_frecuentes_en',
   'seo_keywords_es',
   'seo_keywords_en',
+  // Estudio SEO para revisión humana: {title, meta_description, h1, h2[], intencion}
+  'seo_es',
+  'seo_en',
+  // {fuente, periodo, consultas_gsc[], canibalizacion[], enlaces_internos[], slug_propuesto}
+  'estudio_seo',
 ] as const;
 
 function esObjetoPlano(value: unknown): value is Record<string, unknown> {
