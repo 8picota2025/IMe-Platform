@@ -22,7 +22,13 @@ import {
   type DuplicateGroup,
   type ImportFieldError,
 } from '../lib/proveedor-import';
-import { camposFichaPermitidos, siguientePasoPedido } from '../lib/comercio-operacion';
+import {
+  cambiosFichaAplicables,
+  camposFichaPermitidos,
+  filaProductoDesdePropuesta,
+  productoNuevoPermitido,
+  siguientePasoPedido,
+} from '../lib/comercio-operacion';
 import { renderMarkdown } from '../lib/markdown';
 import { bindLandings, landingsView, type LandingsAdminCtx } from './landings-admin';
 import { CAMPANAS_PILOTO, resumirPiloto, rutasPiloto } from '../lib/piloto-monitoreo';
@@ -980,6 +986,7 @@ function bindView() {
   bindResenas();
   bindPropuestas();
   bindPropuestasFicha();
+  bindPropuestasProducto();
   bindAprobacionesAgente();
   bindAsesorPanel();
   bindCompraDirecta();
@@ -2641,9 +2648,22 @@ function bindPropuestasFicha() {
         await render();
         return;
       }
+      let cambios = campos;
+      if (campos['atributos']) {
+        const { data: actual, error: actualError } = await supabase!
+          .from('productos')
+          .select('atributos')
+          .eq('id', productoId)
+          .maybeSingle();
+        if (actualError || !actual) {
+          toast(actualError?.message ?? 'Producto no encontrado');
+          return;
+        }
+        cambios = cambiosFichaAplicables(campos, (actual as Row).atributos);
+      }
       const { error: updateError } = await supabase!
         .from('productos')
-        .update(campos)
+        .update(cambios)
         .eq('id', productoId);
       if (updateError) {
         toast(updateError.message);
@@ -2682,6 +2702,141 @@ function bindPropuestasFicha() {
   });
 }
 
+/**
+ * Productos nuevos que un agente propuso desde una ficha PDF. Crear uno lo deja
+ * INACTIVO y sin precio; la persona revisa la ficha, completa lo comercial y
+ * lo activa desde el formulario de producto.
+ */
+async function propuestasProductoHtml(): Promise<string> {
+  const { data, error } = await supabase!
+    .from('comercio_confirmaciones')
+    .select('id,creada_en,vence_en,actor,motivo,payload')
+    .eq('herramienta', 'proponer_producto')
+    .eq('estado', 'pendiente')
+    .order('creada_en', { ascending: false })
+    .limit(20);
+  if (error || !data?.length) return '';
+  const filas = (data as Row[]).map(row => {
+    const revisado = productoNuevoPermitido((row.payload as Row | null) ?? {});
+    const id = escapeHtml(text(row.id));
+    const campos = revisado.ok ? revisado.campos : {};
+    const pdf = text(campos['ficha_pdf']);
+    return `<li>
+      <p><strong>${escapeHtml(text(campos['nombre_es']) || '(sin nombre)')}</strong> · <code>${escapeHtml(text(campos['slug']))}</code></p>
+      <p class="admin-help">${escapeHtml(text(row.actor))} · ${formatCell(row.creada_en)} · ${escapeHtml(text(row.motivo))}${pdf ? ` · <a href="${escapeHtml(pdf)}" target="_blank" rel="noopener">Ver PDF</a>` : ''}</p>
+      ${revisado.ok ? '' : `<div class="admin-alert">${escapeHtml(revisado.error)}</div>`}
+      <details><summary>Ver contenido ES/EN</summary><pre class="admin-pre">${escapeHtml(JSON.stringify(campos, null, 2))}</pre></details>
+      <div class="admin-toolbar">
+        ${revisado.ok ? `<button class="admin-button" type="button" data-producto-propuesta-crear="${id}">Crear producto inactivo</button>` : ''}
+        <button class="admin-button admin-button--ghost" type="button" data-producto-propuesta-rechazar="${id}">Rechazar</button>
+      </div>
+    </li>`;
+  });
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Productos propuestos desde fichas PDF (${data.length})</h2><span class="admin-meta">Se crean inactivos; revise y active a mano</span></div>
+      <ul class="admin-list" style="padding:0 16px 16px">${filas.join('')}</ul>
+    </section>`;
+}
+
+function bindPropuestasProducto() {
+  const resolver = async (id: string, crear: boolean) => {
+    const { data: propuesta, error } = await supabase!
+      .from('comercio_confirmaciones')
+      .select('id,estado,vence_en,payload')
+      .eq('id', id)
+      .eq('herramienta', 'proponer_producto')
+      .maybeSingle();
+    if (error || !propuesta) {
+      toast(error?.message ?? 'Propuesta no encontrada');
+      return;
+    }
+    if (propuesta.estado !== 'pendiente') {
+      toast(`La propuesta ya está ${propuesta.estado}`);
+      return;
+    }
+    let productoId: string | null = null;
+    let fila: Row | null = null;
+    if (crear) {
+      if (new Date(text(propuesta.vence_en)).getTime() < Date.now()) {
+        await supabase!.from('comercio_confirmaciones').update({ estado: 'vencida' }).eq('id', id);
+        toast('La propuesta venció');
+        await render();
+        return;
+      }
+      const revisado = productoNuevoPermitido((propuesta.payload as Row | null) ?? {});
+      if (!revisado.ok) {
+        toast(revisado.error);
+        return;
+      }
+      const familiaSlug = text(revisado.campos['familia_slug']);
+      const familia = familiaSlug
+        ? (await supabase!.from('familias').select('id').eq('slug', familiaSlug).maybeSingle()).data
+        : null;
+      const tipoSlug = text(revisado.campos['tipo_slug']);
+      const tipo =
+        familia && tipoSlug
+          ? (
+              await supabase!
+                .from('tipos')
+                .select('id')
+                .eq('familia_id', text((familia as Row).id))
+                .eq('slug', tipoSlug)
+                .maybeSingle()
+            ).data
+          : null;
+      fila = filaProductoDesdePropuesta(revisado.campos, {
+        familiaId: familia ? text((familia as Row).id) : null,
+        tipoId: tipo ? text((tipo as Row).id) : null,
+      });
+      const { data: creado, error: insertError } = await supabase!
+        .from('productos')
+        .insert(fila)
+        .select('id')
+        .single();
+      if (insertError || !creado) {
+        toast(insertError?.message ?? 'No se pudo crear el producto');
+        return;
+      }
+      productoId = text((creado as Row).id);
+    }
+    const estado = crear ? 'confirmada' : 'rechazada';
+    const { error: estadoError } = await supabase!
+      .from('comercio_confirmaciones')
+      .update({ estado, confirmada_en: new Date().toISOString(), confirmada_por: state.email })
+      .eq('id', id);
+    if (estadoError) toast(estadoError.message);
+    await supabase!.from('comercio_actuaciones').insert({
+      actor: state.email,
+      rol: state.rol || 'admin',
+      herramienta: crear ? 'crear_producto_propuesto' : 'rechazar_propuesta_producto',
+      entidad: 'productos',
+      entidad_id: productoId,
+      despues: crear ? fila : null,
+      confirmacion_id: id,
+    });
+    if (crear && productoId) {
+      toast('Producto creado inactivo. Revise la ficha, complete precio y active.');
+      location.hash = `#/producto?id=${encodeURIComponent(productoId)}`;
+      return;
+    }
+    toast('Propuesta rechazada');
+    await render();
+  };
+  app.querySelectorAll<HTMLButtonElement>('[data-producto-propuesta-crear]').forEach(button => {
+    button.addEventListener('click', () => {
+      button.disabled = true;
+      void resolver(button.dataset['productoPropuestaCrear'] ?? '', true);
+    });
+  });
+  app.querySelectorAll<HTMLButtonElement>('[data-producto-propuesta-rechazar]').forEach(button => {
+    button.addEventListener('click', () => {
+      button.disabled = true;
+      void resolver(button.dataset['productoPropuestaRechazar'] ?? '', false);
+    });
+  });
+}
+
 const ACCIONES_AGENTE: Record<string, string> = {
   preparar_borrado_crm: 'Borrar en Twenty CRM',
   preparar_envio_cotizacion: 'Enviar cotización oficial al cliente',
@@ -2703,7 +2858,7 @@ async function aprobacionesAgenteHtml(): Promise<string> {
     .from('comercio_confirmaciones')
     .select('id,creada_en,vence_en,actor,herramienta,entidad,entidad_id,payload,motivo,estado')
     .in('estado', ['pendiente', 'aprobada'])
-    .neq('herramienta', 'proponer_ficha')
+    .not('herramienta', 'in', '(proponer_ficha,proponer_producto)')
     .order('creada_en', { ascending: false })
     .limit(20);
   if (error || !data?.length) return '';
@@ -6982,7 +7137,8 @@ async function ingestaView(): Promise<string> {
     ? await getRow('productos', ingestProductoObjetivo)
     : null;
   if (ingestProductoObjetivo && !objetivo) ingestProductoObjetivo = null;
-  return `
+  const propuestasProducto = objetivo ? '' : await propuestasProductoHtml();
+  return `${propuestasProducto}
     <section class="admin-panel">
       <div class="admin-panel__head"><h2>PDF a borrador revisable</h2></div>
       ${

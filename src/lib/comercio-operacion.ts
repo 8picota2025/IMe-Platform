@@ -170,6 +170,7 @@ export function unidadesReservables(
 
 /** Campos que una propuesta de ficha puede tocar. Nunca activo, precio ni dropship. */
 export const CAMPOS_FICHA_PROPUESTA = [
+  'nombre_en',
   'descripcion_corta_es',
   'descripcion_corta_en',
   'descripcion_larga_es',
@@ -183,12 +184,123 @@ export const CAMPOS_FICHA_PROPUESTA = [
   'peso_kg',
 ] as const;
 
+/**
+ * Claves de `productos.atributos` que una propuesta puede tocar (contenido de
+ * la landing en ES/EN). Se mezclan con lo existente al aplicar; nunca se
+ * reemplaza el objeto completo.
+ */
+export const ATRIBUTOS_FICHA_PROPUESTA = [
+  'beneficios_es',
+  'beneficios_en',
+  'valor_es',
+  'valor_en',
+  'preguntas_frecuentes_es',
+  'preguntas_frecuentes_en',
+  'seo_keywords_es',
+  'seo_keywords_en',
+] as const;
+
+function esObjetoPlano(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
 export function camposFichaPermitidos(payload: Record<string, unknown>): Record<string, unknown> {
   const limpio: Record<string, unknown> = {};
   for (const key of CAMPOS_FICHA_PROPUESTA) {
     if (payload[key] !== undefined) limpio[key] = payload[key];
   }
+  if (esObjetoPlano(payload['atributos'])) {
+    const atributos: Record<string, unknown> = {};
+    for (const key of ATRIBUTOS_FICHA_PROPUESTA) {
+      const value = payload['atributos'][key];
+      if (value !== undefined) atributos[key] = value;
+    }
+    if (Object.keys(atributos).length > 0) limpio['atributos'] = atributos;
+  }
   return limpio;
+}
+
+/**
+ * Cambios listos para `productos.update`: los atributos propuestos se mezclan
+ * con los actuales para no borrar claves que la propuesta no trae.
+ */
+export function cambiosFichaAplicables(
+  campos: Record<string, unknown>,
+  atributosActuales: unknown
+): Record<string, unknown> {
+  if (!esObjetoPlano(campos['atributos'])) return campos;
+  const base = esObjetoPlano(atributosActuales) ? atributosActuales : {};
+  return { ...campos, atributos: { ...base, ...campos['atributos'] } };
+}
+
+const SLUG_PRODUCTO_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+export function slugProductoValido(slug: unknown): slug is string {
+  return (
+    typeof slug === 'string' &&
+    slug.length >= 3 &&
+    slug.length <= 120 &&
+    SLUG_PRODUCTO_RE.test(slug)
+  );
+}
+
+/**
+ * Producto nuevo propuesto por un agente (p. ej. desde una ficha PDF). Solo
+ * contenido: se crea siempre inactivo y sin precio; una persona lo revisa,
+ * completa los datos comerciales y lo activa en el admin.
+ */
+export function productoNuevoPermitido(
+  payload: Record<string, unknown>
+): { ok: true; campos: Record<string, unknown> } | { ok: false; error: string } {
+  const slug = typeof payload['slug'] === 'string' ? payload['slug'].trim() : '';
+  const nombreEs = typeof payload['nombre_es'] === 'string' ? payload['nombre_es'].trim() : '';
+  if (!slugProductoValido(slug)) {
+    return { ok: false, error: 'slug inválido: minúsculas, números y guiones (3-120).' };
+  }
+  if (!nombreEs) return { ok: false, error: 'Falta nombre_es.' };
+  const campos: Record<string, unknown> = {
+    ...camposFichaPermitidos(payload),
+    slug,
+    nombre_es: nombreEs,
+  };
+  for (const key of ['sku', 'familia_slug', 'tipo_slug', 'marca'] as const) {
+    const value = payload[key];
+    if (typeof value === 'string' && value.trim()) campos[key] = value.trim();
+  }
+  return { ok: true, campos };
+}
+
+/**
+ * Fila para `productos.insert` a partir de una propuesta de producto nuevo.
+ * Siempre inactiva y sin precio: familia/tipo se resuelven fuera (slug → id).
+ */
+export function filaProductoDesdePropuesta(
+  campos: Record<string, unknown>,
+  ids: { familiaId?: string | null; tipoId?: string | null } = {}
+): Record<string, unknown> {
+  const fila: Record<string, unknown> = { ...camposFichaPermitidos(campos) };
+  fila['slug'] = campos['slug'];
+  fila['nombre_es'] = campos['nombre_es'];
+  if (typeof campos['sku'] === 'string' && campos['sku']) fila['sku'] = campos['sku'];
+  const atributos: Record<string, unknown> = esObjetoPlano(fila['atributos'])
+    ? { ...fila['atributos'] }
+    : {};
+  if (typeof campos['marca'] === 'string' && campos['marca']) atributos['marca'] = campos['marca'];
+  atributos['origen'] = 'propuesta_agente_ficha_pdf';
+  fila['atributos'] = atributos;
+  fila['familia_id'] = ids.familiaId ?? null;
+  fila['tipo_id'] = ids.tipoId ?? null;
+  fila['activo'] = false;
+  return fila;
+}
+
+/** Ruta en el bucket `fichas` donde un agente deja un PDF pendiente de revisión. */
+export function rutaFichaPropuesta(slug: string, huella: string): string {
+  const limpia = huella
+    .toLowerCase()
+    .replace(/[^a-f0-9]/g, '')
+    .slice(0, 16);
+  return `propuestas/${slug}/${limpia || 'sin-huella'}.pdf`;
 }
 
 /** Objetos de Twenty que el agente puede borrar, siempre tras confirmación humana. */
@@ -271,6 +383,8 @@ export const MCP_TOOLS = [
   'proponer_stock',
   'proponer_precio',
   'proponer_ficha',
+  'proponer_producto',
+  'subir_ficha_pdf',
   'reservar_stock',
   'registrar_handoff',
   'actualizar_etapa_crm',
