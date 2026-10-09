@@ -21,6 +21,9 @@ import {
   MCP_TOOLS,
   objetivoBorradoCrm,
   precioBajoPiso,
+  productoNuevoPermitido,
+  rutaFichaPropuesta,
+  slugProductoValido,
   siguientePasoPedido,
   unidadesReservables,
   type McpToolName,
@@ -28,6 +31,9 @@ import {
 } from './comercio-operacion.ts';
 
 type Json = Record<string, unknown>;
+
+const BUCKET_FICHAS = 'fichas';
+const MAX_FICHA_PDF_BYTES = 25 * 1024 * 1024;
 
 const PRODUCTO_COLS =
   'id,slug,sku,gtin,nombre_es,precio,precio_regular,stock,gestionar_stock,stock_estado,disponible,activo,ficha_pdf,imagen_principal,especificaciones,fulfillment_mode';
@@ -1210,6 +1216,88 @@ export async function ejecutarComercio(
     };
   }
 
+  if (nombre === 'proponer_producto') {
+    const revisado = productoNuevoPermitido((args.payload ?? {}) as Json);
+    if (!revisado.ok) return { ok: false, error: revisado.error };
+    if (!quien.motivo) return { ok: false, error: 'Hace falta un motivo.' };
+    const slug = String(revisado.campos.slug);
+    const existente = await db
+      .from('productos')
+      .select('id,slug,nombre_es,activo')
+      .eq('slug', slug)
+      .maybeSingle();
+    if (existente.error) return { ok: false, error: existente.error.message };
+    if (existente.data) {
+      return {
+        ok: false,
+        error: 'Ya existe un producto con ese slug. Usa proponer_ficha con su producto_id.',
+        producto: existente.data,
+      };
+    }
+    const { data, error } = await db
+      .from('comercio_confirmaciones')
+      .insert({
+        vence_en: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+        actor: quien.actor,
+        rol: quien.rol,
+        herramienta: 'proponer_producto',
+        entidad: 'productos',
+        entidad_id: null,
+        payload: revisado.campos,
+        motivo: quien.motivo,
+      })
+      .select('id,vence_en')
+      .single();
+    if (error) return { ok: false, error: error.message };
+    return {
+      ok: true,
+      propuesta_id: data.id,
+      vence_en: data.vence_en,
+      nota: 'El producto no existe hasta que una persona lo crea desde el admin (Ingesta PDF). Se crea inactivo y sin precio.',
+    };
+  }
+
+  if (nombre === 'subir_ficha_pdf') {
+    const slug = String(args.slug ?? '').trim();
+    const huella = String(args.sha256 ?? '')
+      .trim()
+      .toLowerCase();
+    const bytes = Number(args.bytes);
+    if (!slugProductoValido(slug)) {
+      return { ok: false, error: 'slug inválido: minúsculas, números y guiones (3-120).' };
+    }
+    if (!/^[a-f0-9]{64}$/.test(huella)) {
+      return { ok: false, error: 'Hace falta sha256 del PDF (64 caracteres hex).' };
+    }
+    if (!Number.isFinite(bytes) || bytes <= 0 || bytes > MAX_FICHA_PDF_BYTES) {
+      return { ok: false, error: `bytes debe estar entre 1 y ${MAX_FICHA_PDF_BYTES}.` };
+    }
+    const ruta = rutaFichaPropuesta(slug, huella);
+    const firmada = await db.storage.from(BUCKET_FICHAS).createSignedUploadUrl(ruta);
+    if (firmada.error || !firmada.data) {
+      return { ok: false, error: firmada.error?.message ?? 'No se pudo preparar la subida.' };
+    }
+    const fichaPdf = db.storage.from(BUCKET_FICHAS).getPublicUrl(ruta).data.publicUrl;
+    await registrar(db, {
+      actor: quien.actor,
+      rol: quien.rol,
+      herramienta: 'subir_ficha_pdf',
+      entidad: 'storage.fichas',
+      entidadId: ruta,
+      despues: { slug, sha256: huella, bytes },
+      motivo: quien.motivo || 'Ficha PDF para propuesta de producto',
+    });
+    return {
+      ok: true,
+      ruta,
+      upload_url: firmada.data.signedUrl,
+      metodo: 'PUT',
+      content_type: 'application/pdf',
+      ficha_pdf: fichaPdf,
+      nota: 'Sube el PDF con PUT a upload_url (Content-Type: application/pdf); la URL caduca en 2 h. Si responde 409 ya estaba subido. Usa ficha_pdf dentro del payload de proponer_producto o proponer_ficha: no se enlaza a ningún producto hasta que una persona aplica la propuesta.',
+    };
+  }
+
   if (nombre === 'proponer_fulfillment') {
     const id = String(args.id ?? '');
     const estado = args.estado ? String(args.estado) : '';
@@ -1280,7 +1368,13 @@ const inputSchema = {
       description: 'borrado_crm: opportunities | people | companies (Twenty)',
     },
     items: { type: 'array', description: '[{producto_id, cantidad}]' },
-    payload: { type: 'object' },
+    payload: {
+      type: 'object',
+      description:
+        'proponer_ficha / proponer_producto: campos de ficha (nombre_en, descripcion_*_es|en, aplicaciones_es|en, especificaciones, ficha_pdf, imagen_principal…) y atributos {beneficios_es|en, valor_es|en, preguntas_frecuentes_es|en, seo_keywords_es|en, seo_es|en {title, meta_description, h1, h2, intencion}, estudio_seo {fuente, periodo, consultas_gsc, canibalizacion, enlaces_internos, slug_propuesto}}. proponer_producto exige además slug y nombre_es; admite sku, familia_slug, tipo_slug, marca.',
+    },
+    sha256: { type: 'string', description: 'subir_ficha_pdf: huella SHA-256 del PDF (hex)' },
+    bytes: { type: 'number', description: 'subir_ficha_pdf: tamaño del PDF en bytes (máx. 25 MB)' },
     cantidad: { type: 'number' },
     minutos: { type: 'number' },
     pedido_id: { type: 'string' },
@@ -1331,10 +1425,19 @@ const inputSchema = {
   },
 };
 
+const DESCRIPCIONES_EXTRA: Partial<Record<McpToolName, string>> = {
+  proponer_ficha:
+    'Propone cambios de contenido (ES/EN, atributos de landing, ficha_pdf) a un producto existente. Una persona los aplica en el admin.',
+  proponer_producto:
+    'Propone un producto NUEVO desde una ficha (payload con slug, nombre_es y contenido ES/EN). Una persona lo crea inactivo en el admin; nunca se publica solo.',
+  subir_ficha_pdf:
+    'Devuelve una URL firmada (PUT, 2 h) para subir un PDF de ficha técnica al bucket fichas en propuestas/<slug>/. Requiere slug, sha256 y bytes.',
+};
+
 export function herramientasComercio() {
   return MCP_TOOLS.map(name => ({
     name,
-    description: `Operación ime-comercio: ${name}. No activa dropshipping ni devuelve secretos.`,
+    description: `Operación ime-comercio: ${name}. ${DESCRIPCIONES_EXTRA[name] ? `${DESCRIPCIONES_EXTRA[name]} ` : ''}No activa dropshipping ni devuelve secretos.`,
     inputSchema,
   }));
 }

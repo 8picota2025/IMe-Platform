@@ -14,6 +14,7 @@ import { isPurchasable } from '../lib/commerce-policy';
 import { normalizarEspecificaciones } from '../lib/especificaciones';
 import { getOptimizedImageUrl, isSupabaseStorageImage } from '../lib/image';
 import { familyCatalogHref } from '../lib/seo-urls';
+import { fichaPdfEspejo } from '../lib/fichas-pdf-manifest';
 
 interface Props {
   producto: Producto;
@@ -107,10 +108,12 @@ const stockMax =
   typeof producto.stock === 'number' && Number.isFinite(producto.stock) && producto.stock > 0
     ? Math.min(producto.stock, 99)
     : 99;
-const fichaUrl = producto.ficha_pdf
-  ? producto.ficha_pdf.startsWith('http')
-    ? producto.ficha_pdf
-    : `https://i-me.com.co${producto.ficha_pdf}`
+// Si el PDF de Supabase Storage se espejó en el build, se sirve desde el hosting.
+const fichaPdf = fichaPdfEspejo(producto.slug, producto.ficha_pdf) ?? producto.ficha_pdf;
+const fichaUrl = fichaPdf
+  ? fichaPdf.startsWith('http')
+    ? fichaPdf
+    : `https://i-me.com.co${fichaPdf}`
   : null;
 const whatsappMensaje =
   locale === 'en'

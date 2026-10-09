@@ -25,3 +25,6 @@ src/data/generated/
 .claude/skills/hyperresearch/
 .claude/skills/hyperresearch-*/
 .claude/agents/hyperresearch-*.md
+
+# Espejo de fichas PDF de Supabase Storage (scripts/mirror-fichas-pdf.mjs)
+/public/assets/productos/*/ficha-tecnica.pdf

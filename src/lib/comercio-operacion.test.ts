@@ -2,7 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { getAccionComercial } from './comercial';
 import {
   cambioEtapaCrm,
+  cambiosFichaAplicables,
   camposFichaPermitidos,
+  filaProductoDesdePropuesta,
+  productoNuevoPermitido,
+  rutaFichaPropuesta,
   confirmacionEjecutable,
   decidirCompra,
   filaSinSecretos,
@@ -185,5 +189,80 @@ describe('confirmación verificada contra admin de Supabase', () => {
         ahora
       ).ok
     ).toBe(false);
+  });
+});
+
+describe('propuestas desde fichas PDF', () => {
+  it('acepta nombre_en y solo atributos de landing permitidos', () => {
+    expect(
+      camposFichaPermitidos({
+        nombre_en: 'Monitor',
+        atributos: { beneficios_es: ['a'], seo_keywords_en: ['b'], precio_costo: 1 },
+      })
+    ).toEqual({
+      nombre_en: 'Monitor',
+      atributos: { beneficios_es: ['a'], seo_keywords_en: ['b'] },
+    });
+    expect(camposFichaPermitidos({ atributos: { precio_costo: 1 } })).toEqual({});
+    expect(
+      camposFichaPermitidos({
+        atributos: { seo_es: { title: 't' }, estudio_seo: { fuente: 'GSC' } },
+      })
+    ).toEqual({ atributos: { seo_es: { title: 't' }, estudio_seo: { fuente: 'GSC' } } });
+  });
+
+  it('mezcla atributos con los actuales sin borrar claves', () => {
+    expect(
+      cambiosFichaAplicables(
+        { descripcion_corta_es: 'x', atributos: { valor_es: 'nuevo' } },
+        { marca: 'Acme', valor_es: 'viejo' }
+      )
+    ).toEqual({ descripcion_corta_es: 'x', atributos: { marca: 'Acme', valor_es: 'nuevo' } });
+    expect(cambiosFichaAplicables({ nombre_en: 'y' }, { marca: 'Acme' })).toEqual({
+      nombre_en: 'y',
+    });
+  });
+
+  it('valida el producto nuevo y nunca deja pasar activo ni precio', () => {
+    expect(productoNuevoPermitido({ slug: 'Mal Slug', nombre_es: 'x' }).ok).toBe(false);
+    expect(productoNuevoPermitido({ slug: 'monitor-x1' }).ok).toBe(false);
+    const ok = productoNuevoPermitido({
+      slug: 'monitor-x1',
+      nombre_es: ' Monitor X1 ',
+      activo: true,
+      precio: 10,
+      marca: 'Acme',
+      descripcion_corta_en: 'Monitor',
+    });
+    expect(ok).toEqual({
+      ok: true,
+      campos: {
+        descripcion_corta_en: 'Monitor',
+        slug: 'monitor-x1',
+        nombre_es: 'Monitor X1',
+        marca: 'Acme',
+      },
+    });
+  });
+
+  it('crea la fila de producto siempre inactiva y con marca en atributos', () => {
+    const fila = filaProductoDesdePropuesta(
+      { slug: 'monitor-x1', nombre_es: 'Monitor X1', marca: 'Acme', precio: 5, activo: true },
+      { familiaId: 'f1' }
+    );
+    expect(fila).toEqual({
+      slug: 'monitor-x1',
+      nombre_es: 'Monitor X1',
+      atributos: { marca: 'Acme', origen: 'propuesta_agente_ficha_pdf' },
+      familia_id: 'f1',
+      tipo_id: null,
+      activo: false,
+    });
+  });
+
+  it('guarda el PDF propuesto bajo propuestas/<slug>/', () => {
+    expect(rutaFichaPropuesta('monitor-x1', 'ABCDEF0123456789ffff')).toBe(
+      'propuestas/monitor-x1/abcdef0123456789.pdf'
+    );
   });
 });
