@@ -3,16 +3,10 @@
  */
 // deno-lint-ignore-file no-explicit-any
 import type { CotizacionLineaOferta } from '../../../src/lib/cotizacion-oferta.ts';
+import { draftQuoteAnnex } from '../../../src/lib/quote-pdf-annex.ts';
 import type { QuotePdfAnnex } from './render-quote-pdf.ts';
 
 type ProductRow = Record<string, unknown>;
-
-function stripHtml(s: string): string {
-  return s
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
 
 function resolveImageUrl(raw: unknown, siteUrl: string): string | null {
   const src = String(raw ?? '').trim();
@@ -136,31 +130,24 @@ export async function buildQuoteAnnexes(
   const annexes: QuotePdfAnnex[] = [];
   for (const l of lineas) {
     const row = bySlug.get(l.slug);
-    const corta = String(row?.descripcion_corta_es ?? '').trim();
-    const larga = stripHtml(String(row?.descripcion_larga_es ?? ''));
-    const specs = Array.isArray(row?.especificaciones) ? row!.especificaciones : [];
-    const apps = Array.isArray(row?.aplicaciones_es) ? row!.aplicaciones_es : [];
-    const caracteristicas: string[] = [];
-    for (const s of specs) {
-      if (!s || typeof s !== 'object') continue;
-      const rec = s as Record<string, unknown>;
-      const k = String(rec.clave ?? '').trim();
-      const v = String(rec.valor ?? '').trim();
-      if (k && v) caracteristicas.push(`${k}: ${v}`);
-      else if (v) caracteristicas.push(v);
-    }
-    for (const a of apps) {
-      const t = String(a ?? '').trim();
-      if (t) caracteristicas.push(t);
-    }
+    const draft = draftQuoteAnnex({
+      linked: Boolean(row),
+      nombreLinea: l.nombre,
+      nombreProducto: row ? String(row.nombre_es ?? '') : null,
+      descripcionLarga: row ? String(row.descripcion_larga_es ?? '') : null,
+      descripcionCorta: row ? String(row.descripcion_corta_es ?? '') : null,
+      especificaciones: row?.especificaciones,
+      aplicaciones: row?.aplicaciones_es,
+    });
+    if (!draft) continue;
     const imageBytes = await fetchImageBytes(resolveImageUrl(row?.imagen_principal, base));
     annexes.push({
       slug: l.slug || String(row?.slug ?? ''),
-      nombre: String(row?.nombre_es ?? l.nombre),
+      nombre: draft.nombre,
       sku: typeof row?.sku === 'string' ? row.sku : null,
-      resumen: corta || l.nombre,
-      descripcion: larga || corta || l.nombre,
-      caracteristicas,
+      resumen: draft.resumen,
+      descripcion: draft.descripcion,
+      caracteristicas: draft.caracteristicas,
       url: l.slug ? `${base}/es/productos/${l.slug}/` : null,
       imageBytes,
     });

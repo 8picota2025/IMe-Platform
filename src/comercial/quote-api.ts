@@ -14,6 +14,7 @@ import {
   sanitizarLineasComercial,
   type CotizacionLineaOferta,
 } from '../lib/cotizacion-oferta';
+import { draftQuoteAnnex } from '../lib/quote-pdf-annex';
 import { bancoLineasCotizacion } from '../lib/transferencia-bancaria';
 import {
   callEdgeFunction,
@@ -268,25 +269,17 @@ async function loadQuoteAnnexes(lineas: CotizacionLineaOferta[]): Promise<
     ''
   );
 
-  if (slugs.length === 0) {
-    return lineas.map(l => ({
-      slug: l.slug || '',
-      nombre: l.nombre,
-      resumen: l.nombre,
-      descripcion: l.nombre,
-      caracteristicas: [],
-      url: null,
-      imageBytes: null,
-    }));
-  }
-
-  const { data } = await supabase
-    .from('productos')
-    .select(
-      'slug,sku,nombre_es,descripcion_corta_es,descripcion_larga_es,especificaciones,aplicaciones_es,imagen_principal'
-    )
-    .in('slug', slugs)
-    .eq('activo', true);
+  const data = slugs.length
+    ? (
+        await supabase
+          .from('productos')
+          .select(
+            'slug,sku,nombre_es,descripcion_corta_es,descripcion_larga_es,especificaciones,aplicaciones_es,imagen_principal'
+          )
+          .in('slug', slugs)
+          .eq('activo', true)
+      ).data
+    : [];
   const bySlug = new Map(
     ((data ?? []) as Array<Record<string, unknown>>).map(row => [String(row.slug ?? ''), row])
   );
@@ -332,34 +325,24 @@ async function loadQuoteAnnexes(lineas: CotizacionLineaOferta[]): Promise<
   const out = [];
   for (const l of lineas) {
     const row = bySlug.get(l.slug);
-    const corta = String(row?.descripcion_corta_es ?? '').trim();
-    const larga = String(row?.descripcion_larga_es ?? '')
-      .replace(/<[^>]+>/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
-    const specs = Array.isArray(row?.especificaciones) ? row.especificaciones : [];
-    const apps = Array.isArray(row?.aplicaciones_es) ? row.aplicaciones_es : [];
-    const caracteristicas: string[] = [];
-    for (const s of specs) {
-      if (!s || typeof s !== 'object') continue;
-      const rec = s as Record<string, unknown>;
-      const k = String(rec.clave ?? '').trim();
-      const v = String(rec.valor ?? '').trim();
-      if (k && v) caracteristicas.push(`${k}: ${v}`);
-      else if (v) caracteristicas.push(v);
-    }
-    for (const a of apps) {
-      const t = String(a ?? '').trim();
-      if (t) caracteristicas.push(t);
-    }
+    const draft = draftQuoteAnnex({
+      linked: Boolean(row),
+      nombreLinea: l.nombre,
+      nombreProducto: row ? String(row.nombre_es ?? '') : null,
+      descripcionLarga: row ? String(row.descripcion_larga_es ?? '') : null,
+      descripcionCorta: row ? String(row.descripcion_corta_es ?? '') : null,
+      especificaciones: row?.especificaciones,
+      aplicaciones: row?.aplicaciones_es,
+    });
+    if (!draft) continue;
     const imageBytes = await loadImage(resolveImageUrl(row?.imagen_principal));
     out.push({
       slug: l.slug || String(row?.slug ?? ''),
-      nombre: String(row?.nombre_es ?? l.nombre),
+      nombre: draft.nombre,
       sku: typeof row?.sku === 'string' ? row.sku : null,
-      resumen: corta || l.nombre,
-      descripcion: larga || corta || l.nombre,
-      caracteristicas,
+      resumen: draft.resumen,
+      descripcion: draft.descripcion,
+      caracteristicas: draft.caracteristicas,
       url: l.slug ? `${site}/es/productos/${l.slug}/` : null,
       imageBytes,
     });
