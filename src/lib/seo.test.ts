@@ -28,7 +28,7 @@ describe('buildProductJsonLd', () => {
   const producto = {
     nombre: 'Monitor de Paciente Biolight M12',
     descripcion_corta: 'Monitor de paciente compacto.',
-    imagen_principal: '/assets/importados/equitronic/img/monitor-de-paciente-m12-biolight-1.jpg',
+    imagen_principal: '/assets/productos/monitor-paciente.jpg',
     slug: 'eq-monitor-de-paciente-m12-biolight',
     precio: 12500000,
     moneda: 'COP',
