@@ -8,6 +8,7 @@ import {
   filaSinSecretos,
   MCP_TOOLS,
   objetivoBorradoCrm,
+  evaluacionPrecioMcp,
   precioBajoPiso,
   siguientePasoPedido,
   unidadesReservables,
@@ -73,6 +74,26 @@ describe('precio y secretos', () => {
     });
     expect(limpia).toEqual({ nombre: 'Acme' });
     expect(MCP_TOOLS).not.toContain('activar_dropship');
+  });
+
+  it('proponer_precio no se salta la confirmación omitiendo piso', () => {
+    // Recorte vs precio listado actual → confirmación aunque el agente no mande piso.
+    expect(evaluacionPrecioMcp(1, null, 1_000_000)).toEqual({
+      requiereConfirmacion: true,
+      piso: 1_000_000,
+    });
+    // Piso declarado artificialmente bajo no anula el precio actual.
+    expect(evaluacionPrecioMcp(50_000, 1, 100_000)).toEqual({
+      requiereConfirmacion: true,
+      piso: 100_000,
+    });
+    // Subida sobre el listado actual sin piso declarado: aplica directo.
+    expect(evaluacionPrecioMcp(120_000, null, 100_000)).toEqual({
+      requiereConfirmacion: false,
+      piso: 100_000,
+    });
+    // Sin listado ni piso: no se inventa un precio público sin aprobación.
+    expect(evaluacionPrecioMcp(100_000, null, null).requiereConfirmacion).toBe(true);
   });
 });
 

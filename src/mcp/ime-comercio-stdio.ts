@@ -22,12 +22,11 @@ import {
   camposFichaPermitidos,
   confirmacionEjecutable,
   decidirCompra,
+  evaluacionPrecioMcp,
   filaSinSecretos,
   MCP_TOOLS,
   objetivoBorradoCrm,
-  precioBajoPiso,
   siguientePasoPedido,
-  unidadesReservables,
   type McpToolName,
   type ObjetoTwentyBorrable,
 } from '../lib/comercio-operacion.ts';
@@ -815,18 +814,30 @@ async function ejecutar(nombre: McpToolName, args: Json): Promise<Json> {
   }
 
   if (nombre === 'proponer_precio') {
+    const id = String(args.producto_id ?? '');
     const precio = Number(args.precio);
-    const piso = args.piso == null || args.piso === '' ? null : Number(args.piso);
-    if (precioBajoPiso(precio, piso)) {
+    if (!id) return { ok: false, error: 'Hace falta producto_id.' };
+    if (!Number.isFinite(precio) || precio < 0) {
+      return { ok: false, error: 'precio debe ser un número ≥ 0.' };
+    }
+    const pisoDeclarado = args.piso == null || args.piso === '' ? null : Number(args.piso);
+    const antes = await db.from('productos').select('precio_regular').eq('id', id).maybeSingle();
+    if (antes.error) return { ok: false, error: antes.error.message };
+    if (!antes.data) return { ok: false, error: 'Producto no encontrado.' };
+    const actual = antes.data.precio_regular == null ? null : Number(antes.data.precio_regular);
+    const veredicto = evaluacionPrecioMcp(precio, pisoDeclarado, actual);
+    if (veredicto.requiereConfirmacion) {
       return preparar(
         db,
-        { ...args, payload: { precio, piso }, entidad_id: args.producto_id },
+        {
+          ...args,
+          payload: { precio, piso: veredicto.piso, piso_declarado: pisoDeclarado },
+          entidad_id: id,
+        },
         'preparar_precio_bajo_piso',
         'productos'
       );
     }
-    const id = String(args.producto_id ?? '');
-    const antes = await db.from('productos').select('precio_regular').eq('id', id).maybeSingle();
     const { error } = await db.from('productos').update({ precio_regular: precio }).eq('id', id);
     if (error) return { ok: false, error: error.message };
     await registrar(db, {
@@ -958,51 +969,53 @@ async function ejecutar(nombre: McpToolName, args: Json): Promise<Json> {
       return { ok: false, error: 'Hacen falta producto_id y cantidad > 0.' };
     }
     const minutos = Math.min(120, Math.max(5, Number(args.minutos) || 30));
-    const [producto, activas] = await Promise.all([
-      db.from('productos').select('id,stock,gestionar_stock').eq('id', productoId).maybeSingle(),
-      db
-        .from('stock_reservas')
-        .select('cantidad')
-        .eq('producto_id', productoId)
-        .eq('estado', 'activa')
-        .gt('expires_at', new Date().toISOString()),
-    ]);
-    if (producto.error) return { ok: false, error: producto.error.message };
-    if (!producto.data) return { ok: false, error: 'Producto no encontrado.' };
-    if (activas.error) return { ok: false, error: activas.error.message };
-    const reservadas = (activas.data ?? []).reduce(
-      (sum, row) => sum + Number(row.cantidad || 0),
-      0
-    );
-    const libres = unidadesReservables(
-      typeof producto.data.stock === 'number' ? producto.data.stock : null,
-      Boolean(producto.data.gestionar_stock),
-      reservadas
-    );
-    if (libres != null && libres < cantidad) {
-      return { ok: false, error: `Solo quedan ${libres} unidades sin reservar.`, libres };
-    }
-    const fila = {
-      producto_id: productoId,
-      pedido_id: args.pedido_id ? String(args.pedido_id) : null,
-      cantidad,
-      expires_at: new Date(Date.now() + minutos * 60 * 1000).toISOString(),
-      correlation_id: String(args.correlation_id ?? `mcp:${quien.actor}:${Date.now()}`),
-    };
-    const { data, error } = await db
-      .from('stock_reservas')
-      .insert(fila)
-      .select('id,expires_at')
-      .single();
+    // Atómico (FOR UPDATE en productos): no check-then-insert concurrente.
+    const { data, error } = await db.rpc('reservar_stock', {
+      p_producto_id: productoId,
+      p_cantidad: cantidad,
+      p_pedido_id: args.pedido_id ? String(args.pedido_id) : null,
+      p_ttl_minutes: minutos,
+      p_correlation_id: String(args.correlation_id ?? `mcp:${quien.actor}:${Date.now()}`),
+    });
     if (error) return { ok: false, error: error.message };
+    const row = (Array.isArray(data) ? data[0] : data) as
+      | {
+          ok?: boolean;
+          reserva_id?: string | null;
+          disponible_restante?: number | null;
+          motivo?: string;
+        }
+      | null
+      | undefined;
+    if (!row || row.ok !== true) {
+      const libres = typeof row?.disponible_restante === 'number' ? row.disponible_restante : 0;
+      return {
+        ok: false,
+        error:
+          row?.motivo === 'stock_insuficiente'
+            ? `Solo quedan ${libres} unidades sin reservar.`
+            : String(row?.motivo ?? 'reserva_rechazada'),
+        libres,
+      };
+    }
     await registrar(db, {
       ...quien,
       herramienta: nombre,
       entidad: 'productos',
       entidadId: productoId,
-      despues: { reserva_id: data.id, cantidad, expires_at: data.expires_at },
+      despues: {
+        reserva_id: row.reserva_id,
+        cantidad,
+        disponible_restante: row.disponible_restante,
+        motivo: row.motivo,
+      },
     });
-    return { ok: true, reserva_id: data.id, expires_at: data.expires_at, libres_antes: libres };
+    return {
+      ok: true,
+      reserva_id: row.reserva_id,
+      disponible_restante: row.disponible_restante,
+      motivo: row.motivo,
+    };
   }
 
   if (nombre === 'registrar_handoff') {
