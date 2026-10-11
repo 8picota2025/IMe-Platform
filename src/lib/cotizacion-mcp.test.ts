@@ -47,6 +47,9 @@ describe('herramientas MCP de cotizaciones', () => {
       'preparar_envio_cotizacion',
       'confirmar_envio_cotizacion',
       'crear_borrador_cotizacion',
+      'cambiar_estado_cotizacion',
+      'archivar_cotizacion',
+      'desarchivar_cotizacion',
     ]) {
       expect(MCP_TOOLS).toContain(nombre);
     }
@@ -205,6 +208,29 @@ describe('detalleCotizacion / resumenCotizacion', () => {
     expect(detalle.owner?.nombre).toBe('Equipo Comercial I-ME');
     expect(detalle.lineas[0]).toMatchObject({ nombre: 'Monitor M12', cantidad: 1 });
     expect(JSON.stringify(detalle)).not.toContain('NO-DEBE-SALIR');
+  });
+
+  it('ignora estado: actualizar_cotizacion no cambia el estado ni envía', () => {
+    const r = construirCambiosCotizacion(
+      { estado: 'perdida', condiciones: 'Pago anticipado' },
+      filaEditable,
+      null
+    );
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.cambios.patch).not.toHaveProperty('estado');
+    expect(r.cambios.campos).not.toContain('estado');
+    expect(r.cambios.patch.condiciones).toBe('Pago anticipado');
+  });
+
+  it('rechaza editar una cotización archivada', () => {
+    expect(
+      construirCambiosCotizacion(
+        { condiciones: 'x' },
+        { ...filaEditable, archived_at: '2026-10-01T00:00:00Z' },
+        null
+      )
+    ).toMatchObject({ ok: false, code: 'COTIZACION_ARCHIVADA' });
   });
 
   it('el resumen incluye cliente, total, moneda, estado y owner', () => {

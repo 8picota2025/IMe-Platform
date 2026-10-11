@@ -269,10 +269,18 @@ BEGIN
   ALTER TABLE solicitudes_cotizacion ADD CONSTRAINT solicitudes_cotizacion_estado_check
     CHECK (estado IN (
       'nueva', 'en_revision', 'respondida',
-      'enviada', 'convertida', 'expirada'
+      'enviada', 'convertida', 'expirada',
+      'perdida', 'declinada'
     ));
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
+
+ALTER TABLE solicitudes_cotizacion ADD COLUMN IF NOT EXISTS archived_at TIMESTAMPTZ;
+ALTER TABLE solicitudes_cotizacion ADD COLUMN IF NOT EXISTS archived_by UUID REFERENCES auth.users (id) ON DELETE SET NULL;
+ALTER TABLE solicitudes_cotizacion ADD COLUMN IF NOT EXISTS archived_reason TEXT;
+CREATE INDEX IF NOT EXISTS idx_solicitudes_cotizacion_activas
+  ON solicitudes_cotizacion (estado, created_at DESC)
+  WHERE archived_at IS NULL;
 
 -- ── 4b. clientes ────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS clientes (

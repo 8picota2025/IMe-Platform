@@ -36,6 +36,20 @@ describe('parseCotizacionesRoute', () => {
     expect(cotizacionesListHash({ tab: 'enviadas', equipo: true, q: 'clinic', page: 2 })).toBe(
       '#/cotizaciones?tab=enviadas&equipo=1&q=clinic&page=2'
     );
+    expect(cotizacionesListHash({ tab: 'cerradas', archivadas: '1' })).toBe(
+      '#/cotizaciones?tab=cerradas&archivadas=1'
+    );
+  });
+
+  it('incluye archivadas solo con el parámetro', () => {
+    expect(parseCotizacionesRoute('#/cotizaciones?archivadas=1')).toMatchObject({
+      archivadas: '1',
+      tab: 'pendientes',
+    });
+    expect(parseCotizacionesRoute('#/cotizaciones?tab=cerradas&archivadas=solo')).toMatchObject({
+      tab: 'cerradas',
+      archivadas: 'solo',
+    });
   });
 });
 

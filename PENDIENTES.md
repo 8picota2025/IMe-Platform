@@ -369,6 +369,8 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
 - [x] Estado/historial de publicaciones: tabla `cms_publish_log` + panel en dashboard
       (migración `20260804200000`; Edge `trigger-rebuild` escribe cada intento)
 
+- [ ] `BLOQUEANTE_BACKEND` Aplicar `supabase/migrations/20261011143000_cotizacion_estado_archivo.sql` en la base real antes de desplegar `comercial-cotizacion`. Sin esa migración, `perdida` / `declinada` y el archivo responden `MIGRACION_PENDIENTE`. No se ha ejecutado contra cotizaciones reales.
+
 ## BACKLOG_V2
 
 Ver BACKLOG_V2.md

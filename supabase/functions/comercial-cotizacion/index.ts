@@ -6,10 +6,14 @@
  * GET  /comercial-cotizacion?id=<uuid>        detail (allowlisted columns)
  * GET  /comercial-cotizacion?action=search&q= product typeahead (id,slug,sku,nombre_es)
  * GET  /comercial-cotizacion?action=pdf&id=   PDF base64 (stored or rendered)
- * POST /comercial-cotizacion                  save create/update
+ * POST /comercial-cotizacion                  save create/update (ignora `estado`)
  * POST /comercial-cotizacion?action=duplicar  new row (duplicate-on-revise)
  * POST /comercial-cotizacion?action=validar-crm  admin validates → Twenty CRM
- * DELETE /comercial-cotizacion?id=            admin/owner delete quote
+ * POST /comercial-cotizacion?action=cambiar-estado  {estado, motivo} sin avisar al cliente
+ * POST /comercial-cotizacion?action=archivar  {motivo} soft delete (archived_at)
+ * POST /comercial-cotizacion?action=desarchivar {motivo}
+ * DELETE /comercial-cotizacion?id=            admin/owner: archiva, no borra la fila
+ * GET  ...&incluir_archivadas=1 | &solo_archivadas=1
  */
 
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
@@ -34,8 +38,6 @@ import { bancoLineasCotizacion } from '../_shared/transferencia-bancaria.ts';
 import { syncCotizacionOfertaWithTwenty } from '../_shared/twenty-crm.ts';
 import {
   calcularTotalOfertado,
-  COTIZACION_ESTADOS_ENVIADAS,
-  COTIZACION_ESTADOS_PENDIENTES,
   normalizarMonedaOferta,
   ofertaCompleta,
   parseLineasOferta,
@@ -43,6 +45,16 @@ import {
   sanitizarLineasComercial,
   type CotizacionOfertaRow,
 } from '../../../src/lib/cotizacion-oferta.ts';
+import {
+  estadosDeBandeja,
+  planArchivo,
+  planCambioEstado,
+  planDesarchivo,
+  proyectarGuardadoCotizacion,
+  resolverFiltroArchivo,
+  type FilaEstadoCotizacion,
+  type PlanOk,
+} from '../../../src/lib/cotizacion-estado.ts';
 
 const FN_NAME = 'comercial-cotizacion';
 type ComercialRol = 'ventas' | 'admin' | 'owner';
@@ -79,6 +91,10 @@ const DETAIL_COLUMNS = [
   'twenty_person_id',
   'twenty_company_id',
   'twenty_opportunity_id',
+  'notas_internas',
+  'archived_at',
+  'archived_by',
+  'archived_reason',
 ].join(',');
 
 const DETAIL_COLUMNS_SAFE = [
@@ -197,6 +213,10 @@ function publicRow(
     incompleta_error: check.ok ? null : check.error,
     origen: row.created_by ? 'pwa' : 'web',
     editable: quoteEditable(row.estado),
+    archived_at: row.archived_at ?? null,
+    archived_by: row.archived_by ?? null,
+    archived_reason: row.archived_reason ?? null,
+    archivada: Boolean(row.archived_at),
   };
 }
 
@@ -264,18 +284,25 @@ Deno.serve(
             origin
           );
         }
-        const action = url.searchParams.get('action');
+        const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
+        const action =
+          url.searchParams.get('action') || (typeof body.action === 'string' ? body.action : '');
         if (action === 'duplicar') {
-          const id = url.searchParams.get('id') ?? '';
+          const id = url.searchParams.get('id') || cleanText(body.id, 36);
           if (!UUID_RE.test(id)) return badRequest('id invalido', origin);
           return await handleDuplicar(supabase, profile, id, origin);
         }
         if (action === 'validar-crm') {
-          const id = url.searchParams.get('id') ?? '';
+          const id = url.searchParams.get('id') || cleanText(body.id, 36);
           if (!UUID_RE.test(id)) return badRequest('id invalido', origin);
           return await handleValidarCrm(supabase, profile, id, origin);
         }
-        return await handleSave(req, supabase, profile, origin);
+        if (action === 'cambiar-estado' || action === 'archivar' || action === 'desarchivar') {
+          const id = url.searchParams.get('id') || cleanText(body.id, 36);
+          if (!UUID_RE.test(id)) return badRequest('id invalido', origin);
+          return await handleAccionAdmin(supabase, profile, action, id, body, origin);
+        }
+        return await handleSave(body, supabase, profile, origin);
       }
 
       if (req.method === 'DELETE') {
@@ -350,26 +377,42 @@ async function handleGetList(
   url: URL,
   origin: string | null
 ): Promise<Response> {
-  const tab = url.searchParams.get('tab') === 'enviadas' ? 'enviadas' : 'pendientes';
+  const tabParam = url.searchParams.get('tab');
+  const tab =
+    tabParam === 'enviadas' ||
+    tabParam === 'cerradas' ||
+    tabParam === 'expiradas' ||
+    tabParam === 'todas'
+      ? tabParam
+      : 'pendientes';
   const equipo = url.searchParams.get('equipo') === '1';
   const q = cleanText(url.searchParams.get('q'), 80);
   const page = Math.max(1, Number.parseInt(url.searchParams.get('page') ?? '1', 10) || 1);
   const pageSize = 20;
   const from = (page - 1) * pageSize;
-  const estados =
-    tab === 'enviadas' ? [...COTIZACION_ESTADOS_ENVIADAS] : [...COTIZACION_ESTADOS_PENDIENTES];
+  const estados = estadosDeBandeja(tab);
+  const archivo = resolverFiltroArchivo({
+    incluir_archivadas: url.searchParams.get('incluir_archivadas'),
+    solo_archivadas: url.searchParams.get('solo_archivadas'),
+    archivadas: url.searchParams.get('archivadas'),
+  });
 
   let cols = DETAIL_COLUMNS;
   let useCreatedBy = !equipo;
   let useNumero = Boolean(q);
   let useUpdatedAt = true;
+  let filtrarArchivo = archivo !== 'todas';
   let lastError = '';
 
-  for (let attempt = 0; attempt < 3; attempt += 1) {
-    let query = supabase
-      .from('solicitudes_cotizacion')
-      .select(cols, { count: 'exact' })
-      .in('estado', estados)
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    let query = supabase.from('solicitudes_cotizacion').select(cols, { count: 'exact' });
+    if (estados) query = query.in('estado', [...estados]);
+    if (filtrarArchivo && archivo === 'solo_archivadas') {
+      query = query.not('archived_at', 'is', null);
+    } else if (filtrarArchivo) {
+      query = query.is('archived_at', null);
+    }
+    query = query
       .order(useUpdatedAt ? 'updated_at' : 'created_at', { ascending: false })
       .order('created_at', { ascending: false })
       .range(from, from + pageSize - 1);
@@ -403,13 +446,20 @@ async function handleGetList(
           total: count ?? rows.length,
           tab,
           equipo,
+          archivo,
         },
         origin
       );
     }
     lastError = error.message;
     if (!isMissingSchema(error.message)) return internalError(error.message, origin);
-    cols = DETAIL_COLUMNS_SAFE;
+    if (/archived_at|archived_by|archived_reason|notas_internas/.test(error.message)) {
+      filtrarArchivo = false;
+      cols = cols.replace(/,notas_internas|,archived_at|,archived_by|,archived_reason/g, '');
+    }
+    if (!/archived_at|archived_by|archived_reason/.test(error.message)) {
+      cols = DETAIL_COLUMNS_SAFE;
+    }
     if (/created_by/.test(error.message)) useCreatedBy = false;
     if (/numero/.test(error.message)) useNumero = false;
     if (/updated_at/.test(error.message)) useUpdatedAt = false;
@@ -552,12 +602,12 @@ function base64(bytes: Uint8Array): string {
 }
 
 async function handleSave(
-  req: Request,
+  raw: Record<string, unknown>,
   supabase: ServerSupabase,
   profile: AdminProfileRow,
   origin: string | null
 ): Promise<Response> {
-  const body = (await req.json().catch(() => ({}))) as SaveBody;
+  const body = raw as SaveBody;
   const moneda = normalizarMonedaOferta(body.moneda);
   const productos = sanitizarLineasComercial(body.productos, moneda);
   const nombre = cleanText(body.nombre, 160);
@@ -603,13 +653,16 @@ async function handleSave(
   if (typeof body.impuestos_incluidos === 'boolean') {
     canon.impuestos_incluidos = body.impuestos_incluidos;
   }
+  // `estado` del body no entra: proyectarGuardadoCotizacion lo descarta.
+  // Cambiar estado sin avisar al cliente es POST ?action=cambiar-estado.
+  const writable = proyectarGuardadoCotizacion(canon);
 
   const id = cleanText(body.id, 36);
   if (id) {
     if (!UUID_RE.test(id)) return badRequest('id invalido', origin);
     let existing = await supabase
       .from('solicitudes_cotizacion')
-      .select('id, estado, updated_at, created_by, numero, pedido_id')
+      .select('id, estado, updated_at, created_by, numero, pedido_id, archived_at')
       .eq('id', id)
       .maybeSingle();
     if (existing.error && isMissingSchema(existing.error.message)) {
@@ -625,7 +678,18 @@ async function handleSave(
       estado: string;
       updated_at?: string | null;
       pedido_id: string | null;
+      archived_at?: string | null;
     };
+    if (row.archived_at) {
+      return errorResponse(
+        {
+          code: 'COTIZACION_ARCHIVADA',
+          message: 'La cotizacion esta archivada. Desarchivala antes de editarla.',
+        },
+        409,
+        origin
+      );
+    }
     if (row.pedido_id || !quoteEditable(row.estado)) {
       return errorResponse(
         {
@@ -649,7 +713,7 @@ async function handleSave(
     }
     const { error: updateError } = await supabase
       .from('solicitudes_cotizacion')
-      .update(canon)
+      .update(writable)
       .eq('id', id);
     if (updateError) return internalError(updateError.message, origin);
     const numbered = await ensureNumero(supabase, id);
@@ -664,7 +728,7 @@ async function handleSave(
   }
 
   const insertFull = {
-    ...canon,
+    ...writable,
     estado: 'nueva',
     consentimiento_datos: false,
     created_by: profile.user_id,
@@ -762,6 +826,171 @@ function isAdminRole(rol: string): boolean {
   return rol === 'admin' || rol === 'owner';
 }
 
+const FILA_ACCION =
+  'id, estado, pedido_id, notas_internas, archived_at, archived_by, archived_reason';
+
+function esMigracionPendiente(message: string): boolean {
+  return /solicitudes_cotizacion_estado_check|archived_at|archived_by|archived_reason/i.test(
+    message
+  );
+}
+
+async function cargarFilaAccion(
+  supabase: ServerSupabase,
+  id: string
+): Promise<{ fila: FilaEstadoCotizacion | null; error: string | null; missing: boolean }> {
+  const full = await supabase
+    .from('solicitudes_cotizacion')
+    .select(FILA_ACCION)
+    .eq('id', id)
+    .maybeSingle();
+  if (!full.error) {
+    return {
+      fila: (full.data as FilaEstadoCotizacion | null) ?? null,
+      error: null,
+      missing: false,
+    };
+  }
+  if (!isMissingSchema(full.error.message))
+    return { fila: null, error: full.error.message, missing: false };
+  const safe = await supabase
+    .from('solicitudes_cotizacion')
+    .select('id, estado, pedido_id, notas_internas')
+    .eq('id', id)
+    .maybeSingle();
+  if (safe.error) return { fila: null, error: safe.error.message, missing: false };
+  return {
+    fila: (safe.data as FilaEstadoCotizacion | null) ?? null,
+    error: null,
+    missing: true,
+  };
+}
+
+async function aplicarPlan(
+  supabase: ServerSupabase,
+  profile: AdminProfileRow,
+  id: string,
+  plan: PlanOk,
+  anterior: FilaEstadoCotizacion,
+  origin: string | null
+): Promise<Response> {
+  const { error: updateError } = await supabase
+    .from('solicitudes_cotizacion')
+    .update(plan.patch)
+    .eq('id', id);
+  if (updateError) {
+    if (esMigracionPendiente(updateError.message)) {
+      return errorResponse(
+        {
+          code: 'MIGRACION_PENDIENTE',
+          message:
+            'Falta aplicar la migracion de estado/archivo (perdida, declinada, archived_at). No se cambio la cotizacion.',
+          details: updateError.message,
+        },
+        409,
+        origin
+      );
+    }
+    return internalError(updateError.message, origin);
+  }
+  const { data: audit, error: auditError } = await supabase
+    .from('comercio_actuaciones')
+    .insert({
+      actor: profile.email,
+      rol: profile.rol,
+      herramienta: plan.auditoria.herramienta,
+      entidad: 'solicitudes_cotizacion',
+      entidad_id: id,
+      antes: plan.auditoria.antes,
+      despues: { ...plan.auditoria.despues, user_id: profile.user_id },
+      motivo: plan.auditoria.motivo,
+    })
+    .select('id, en')
+    .single();
+  if (auditError || !audit) {
+    await supabase
+      .from('solicitudes_cotizacion')
+      .update({
+        estado: anterior.estado ?? 'nueva',
+        notas_internas: anterior.notas_internas ?? null,
+        archived_at: anterior.archived_at ?? null,
+        archived_by: anterior.archived_by ?? null,
+        archived_reason: anterior.archived_reason ?? null,
+      })
+      .eq('id', id);
+    return internalError(
+      auditError?.message ?? 'No se pudo auditar; se revirtio el cambio.',
+      origin
+    );
+  }
+  const detail = await selectQuoteRow(supabase, id);
+  const quote =
+    detail.data && !detail.error
+      ? publicRow(detail.data as CotizacionOfertaRow, profile.nombre)
+      : null;
+  return json(
+    {
+      ok: true,
+      envio_cliente: false,
+      id,
+      estado_anterior: plan.auditoria.antes.estado ?? null,
+      estado: plan.auditoria.despues.estado ?? null,
+      motivo: plan.auditoria.motivo,
+      actor: profile.email,
+      auditoria: {
+        id: (audit as { id: string }).id,
+        en: (audit as { en: string }).en,
+        actor: profile.email,
+        rol: profile.rol,
+        motivo: plan.auditoria.motivo,
+        antes: plan.auditoria.antes,
+        despues: plan.auditoria.despues,
+      },
+      quote,
+    },
+    origin
+  );
+}
+
+async function handleAccionAdmin(
+  supabase: ServerSupabase,
+  profile: AdminProfileRow,
+  action: 'cambiar-estado' | 'archivar' | 'desarchivar',
+  id: string,
+  body: Record<string, unknown>,
+  origin: string | null
+): Promise<Response> {
+  const cargada = await cargarFilaAccion(supabase, id);
+  if (cargada.error) return internalError(cargada.error, origin);
+  if (!cargada.fila) return notFound(origin);
+  const ctx = {
+    motivo: String(body.motivo ?? ''),
+    actor: profile.email,
+    archivedBy: profile.user_id,
+  };
+  const plan =
+    action === 'cambiar-estado'
+      ? planCambioEstado(cargada.fila, body.estado, ctx)
+      : action === 'archivar'
+        ? planArchivo(cargada.fila, ctx)
+        : planDesarchivo(cargada.fila, ctx);
+  if (!plan.ok) {
+    return errorResponse({ code: plan.code, message: plan.error }, plan.status, origin);
+  }
+  if (cargada.missing && action !== 'cambiar-estado') {
+    return errorResponse(
+      {
+        code: 'MIGRACION_PENDIENTE',
+        message:
+          'Falta aplicar la migracion de archivo (archived_at, archived_by, archived_reason).',
+      },
+      409,
+      origin
+    );
+  }
+  return aplicarPlan(supabase, profile, id, plan, cargada.fila, origin);
+}
+
 async function handleDelete(
   supabase: ServerSupabase,
   profile: AdminProfileRow,
@@ -770,35 +999,23 @@ async function handleDelete(
 ): Promise<Response> {
   if (!isAdminRole(profile.rol)) {
     return errorResponse(
-      { code: 'FORBIDDEN', message: 'Solo administradores pueden borrar presupuestos.' },
+      {
+        code: 'FORBIDDEN',
+        message: 'Solo administradores pueden archivar presupuestos por DELETE.',
+      },
       403,
       origin
     );
   }
-  const { data, error } = await selectQuoteRow(supabase, id);
-  if (error) return internalError(error.message, origin);
-  if (!data) return notFound(origin);
-  const row = data as CotizacionOfertaRow;
-  if (row.pedido_id || row.estado === 'convertida') {
-    return errorResponse(
-      { code: 'QUOTE_LOCKED', message: 'No se puede borrar un presupuesto convertido a pedido.' },
-      409,
-      origin
-    );
-  }
-  const pdfPath =
-    row.pdf_storage_path ??
-    (row.metadata && typeof row.metadata === 'object' && !Array.isArray(row.metadata)
-      ? typeof (row.metadata as Record<string, unknown>).pdf_storage_path === 'string'
-        ? String((row.metadata as Record<string, unknown>).pdf_storage_path)
-        : null
-      : null);
-  if (pdfPath) {
-    await supabase.storage.from('cotizaciones-pdf').remove([pdfPath]);
-  }
-  const { error: delError } = await supabase.from('solicitudes_cotizacion').delete().eq('id', id);
-  if (delError) return internalError(delError.message, origin);
-  return json({ ok: true, deleted: id }, origin);
+  // Nunca borra la fila ni el PDF. El motivo queda en la auditoría.
+  return handleAccionAdmin(
+    supabase,
+    profile,
+    'archivar',
+    id,
+    { motivo: 'Archivado desde DELETE del CMS (no se elimina la fila ni el PDF).' },
+    origin
+  );
 }
 
 async function handleValidarCrm(

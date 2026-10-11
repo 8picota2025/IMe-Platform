@@ -22,8 +22,11 @@ import {
   toast,
   trackCommercialUsage,
 } from './shared';
+import { COTIZACION_ESTADOS } from '../lib/cotizacion-estado';
 import {
-  deleteQuote,
+  archivarQuote,
+  cambiarEstadoQuote,
+  desarchivarQuote,
   duplicarQuote,
   getQuote,
   listQuotes,
@@ -70,7 +73,14 @@ const ERROR_COPY: Record<string, string> = {
   SEND_IN_FLIGHT: 'Hay un envío en curso. Espera y reintenta.',
   COTIZACION_INMUTABLE: 'Esta cotización ya no se edita. Crea una revisión.',
   CONCURRENT_UPDATE: 'Otro comercial guardó esta oferta. Recarga.',
-  COTIZACION_YA_CONVERTIDA: 'Ya se convirtió en pedido.',
+  COTIZACION_YA_CONVERTIDA: 'Ya se convirtió en pedido. El estado no se cambia por aquí.',
+  COTIZACION_ARCHIVADA: 'Está archivada. Desarchívala antes de editar o cambiar el estado.',
+  MOTIVO_REQUERIDO: 'Escribe el motivo. Queda en la auditoría.',
+  ESTADO_INVALIDO: 'Ese estado no existe.',
+  ESTADO_IGUAL: 'Ya está en ese estado.',
+  YA_ARCHIVADA: 'Ya está archivada.',
+  NO_ARCHIVADA: 'No está archivada.',
+  MIGRACION_PENDIENTE: 'Falta aplicar la migración de estado/archivo en la base.',
   OCR_FAILED: 'OCR falló (Gemini/puente local). Revisa conexión o vuelve a intentar.',
   OCR_EMPTY: 'No se detectaron datos. Prueba otra foto o PDF más claro.',
   IMAGE_TOO_LARGE: 'Archivo demasiado grande. Comprime o recorta y reintenta.',
@@ -101,6 +111,34 @@ function errMsg(code?: string, fallback?: string): string {
   return fallback || 'No se pudo completar la operación.';
 }
 
+function seguimientoHtml(quote: QuotePublic): string {
+  const opciones = COTIZACION_ESTADOS.map(
+    estado =>
+      `<option value="${estado}" ${quote.estado === estado ? 'selected' : ''}>${escapeHtml(estadoLabel(estado))}</option>`
+  ).join('');
+  return `
+    <form class="comercial-form comercial-quote-estado" data-quote-estado>
+      <p class="comercial-help"><strong>Seguimiento.</strong> Cambiar estado no envía correo ni WhatsApp. Archivar oculta la cotización de las listas; no la borra.</p>
+      ${quote.archivada ? `<p class="comercial-help">Archivada${quote.archived_reason ? `: ${escapeHtml(quote.archived_reason)}` : ''}.</p>` : ''}
+      <div class="comercial-field-row">
+        <label class="comercial-field"><span>Estado</span>
+          <select name="estado" ${quote.pedido_id ? 'disabled' : ''}>${opciones}</select>
+        </label>
+        <label class="comercial-field"><span>Motivo (queda auditado)</span>
+          <input name="motivo" type="text" maxlength="500" required autocomplete="off" />
+        </label>
+      </div>
+      <div class="comercial-quote-footer">
+        <button class="comercial-button" type="submit" ${quote.pedido_id ? 'disabled' : ''}>Cambiar estado</button>
+        ${
+          quote.archivada
+            ? `<button class="comercial-button comercial-button--primary" type="button" data-quote-unarchive>Desarchivar</button>`
+            : `<button class="comercial-button comercial-button--ghost" type="button" data-quote-archive>Archivar</button>`
+        }
+      </div>
+    </form>`;
+}
+
 function estadoLabel(estado: string): string {
   const labels: Record<string, string> = {
     nueva: 'Nueva',
@@ -109,6 +147,8 @@ function estadoLabel(estado: string): string {
     enviada: 'Enviada',
     convertida: 'Convertida',
     expirada: 'Expirada',
+    perdida: 'Perdida',
+    declinada: 'Declinada',
   };
   return labels[estado] ?? estado;
 }
@@ -143,6 +183,8 @@ async function renderList(route: CotizacionesRoute): Promise<string> {
   };
   if (route.equipo) query['equipo'] = '1';
   if (route.q) query['q'] = route.q;
+  if (route.archivadas === 'solo') query['solo_archivadas'] = '1';
+  else if (route.archivadas === '1') query['incluir_archivadas'] = '1';
 
   const { data, error } = await listQuotes(query);
 
@@ -154,21 +196,35 @@ async function renderList(route: CotizacionesRoute): Promise<string> {
   const total = data?.total ?? 0;
   const pageSize = data?.pageSize ?? 20;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
-  const pendientesHref = cotizacionesListHash({ equipo: route.equipo, q: route.q });
-  const enviadasHref = cotizacionesListHash({ tab: 'enviadas', equipo: route.equipo, q: route.q });
-  const miasHref = cotizacionesListHash({ tab: route.tab, q: route.q });
-  const equipoHref = cotizacionesListHash({ tab: route.tab, equipo: true, q: route.q });
+  const listHash = (overrides: Parameters<typeof cotizacionesListHash>[0] = {}) =>
+    cotizacionesListHash({
+      tab: route.tab,
+      equipo: route.equipo,
+      q: route.q,
+      archivadas: route.archivadas,
+      ...overrides,
+    });
+  const pendientesHref = listHash({ tab: 'pendientes', equipo: route.equipo, q: route.q });
+  const enviadasHref = listHash({ tab: 'enviadas' });
+  const cerradasHref = listHash({ tab: 'cerradas' });
+  const miasHref = listHash({ equipo: false });
+  const equipoHref = listHash({ equipo: true });
+  const archivadasHref = listHash({
+    archivadas: route.archivadas === '1' ? '' : '1',
+  });
 
   const toolbar = `
     <div class="comercial-quote-toolbar">
       <div class="comercial-quote-tabs" role="tablist" aria-label="Bandeja de cotizaciones">
         <a class="comercial-nav-link${route.tab === 'pendientes' ? ' comercial-nav-link--active' : ''}" href="${escapeHtml(pendientesHref)}" ${route.tab === 'pendientes' ? 'aria-current="page"' : ''}>Pendientes</a>
         <a class="comercial-nav-link${route.tab === 'enviadas' ? ' comercial-nav-link--active' : ''}" href="${escapeHtml(enviadasHref)}" ${route.tab === 'enviadas' ? 'aria-current="page"' : ''}>Enviadas</a>
+        <a class="comercial-nav-link${route.tab === 'cerradas' ? ' comercial-nav-link--active' : ''}" href="${escapeHtml(cerradasHref)}" ${route.tab === 'cerradas' ? 'aria-current="page"' : ''}>Cerradas</a>
         <a class="comercial-nav-link" href="#/cotizaciones/escanear">Escanear</a>
       </div>
       <div class="comercial-quote-toolbar__actions">
         <a class="comercial-button ${route.equipo ? 'comercial-button--ghost' : 'comercial-button--primary'}" href="${escapeHtml(miasHref)}">Mías</a>
         <a class="comercial-button ${route.equipo ? 'comercial-button--primary' : 'comercial-button--ghost'}" href="${escapeHtml(equipoHref)}">Equipo</a>
+        <a class="comercial-button ${route.archivadas === '1' ? 'comercial-button--primary' : 'comercial-button--ghost'}" href="${escapeHtml(archivadasHref)}">${route.archivadas === '1' ? 'Ocultar archivadas' : 'Incluir archivadas'}</a>
         <a class="comercial-button comercial-button--ghost" href="#/cotizaciones/escanear">Foto OCR</a>
         <a class="comercial-button comercial-button--primary" href="#/cotizaciones/nueva">Nueva</a>
       </div>
@@ -176,12 +232,12 @@ async function renderList(route: CotizacionesRoute): Promise<string> {
     <form class="comercial-toolbar comercial-quote-search" data-quote-search>
       <input class="comercial-input" type="search" name="q" value="${escapeHtml(route.q)}" placeholder="Buscar número, empresa, contacto o email" aria-label="Buscar cotizaciones" />
       <button class="comercial-button" type="submit">Buscar</button>
-      ${route.q ? `<a class="comercial-button comercial-button--ghost" href="${escapeHtml(cotizacionesListHash({ tab: route.tab, equipo: route.equipo }))}">Limpiar</a>` : ''}
+      ${route.q ? `<a class="comercial-button comercial-button--ghost" href="${escapeHtml(listHash({ q: '' }))}">Limpiar</a>` : ''}
     </form>`;
 
   if (rows.length === 0) {
     const empty = route.q
-      ? `<p>Sin resultados.</p><a class="comercial-button comercial-button--ghost" href="${escapeHtml(cotizacionesListHash({ tab: route.tab, equipo: route.equipo }))}">Limpiar</a>`
+      ? `<p>Sin resultados.</p><a class="comercial-button comercial-button--ghost" href="${escapeHtml(listHash({ q: '' }))}">Limpiar</a>`
       : `<p>Aún no hay presupuestos formales.</p>
          <div class="comercial-quote-empty-actions">
            <a class="comercial-button comercial-button--primary" href="#/cotizaciones/escanear">Escanear foto competencia</a>
@@ -194,9 +250,9 @@ async function renderList(route: CotizacionesRoute): Promise<string> {
   const pager =
     totalPages > 1
       ? `<nav class="comercial-pager" aria-label="Paginación cotizaciones">
-          ${route.page > 1 ? `<a class="comercial-button comercial-button--ghost" href="${escapeHtml(cotizacionesListHash({ tab: route.tab, equipo: route.equipo, q: route.q, page: route.page - 1 }))}">Anterior</a>` : ''}
+          ${route.page > 1 ? `<a class="comercial-button comercial-button--ghost" href="${escapeHtml(listHash({ page: route.page - 1 }))}">Anterior</a>` : ''}
           <span class="comercial-help">Página ${route.page} / ${totalPages}</span>
-          ${route.page < totalPages ? `<a class="comercial-button comercial-button--ghost" href="${escapeHtml(cotizacionesListHash({ tab: route.tab, equipo: route.equipo, q: route.q, page: route.page + 1 }))}">Siguiente</a>` : ''}
+          ${route.page < totalPages ? `<a class="comercial-button comercial-button--ghost" href="${escapeHtml(listHash({ page: route.page + 1 }))}">Siguiente</a>` : ''}
         </nav>`
       : '';
 
@@ -221,7 +277,7 @@ async function renderList(route: CotizacionesRoute): Promise<string> {
               row => `
             <tr>
               <td>${escapeHtml(row.numero || 'Borrador')}</td>
-              <td>${escapeHtml(row.empresa || row.nombre)}${row.incompleta ? ' <span class="comercial-badge comercial-badge--status-warn">Precio incompleto</span>' : ''}${row.estado === 'expirada' ? ' <span class="comercial-badge comercial-badge--status-warn">Expirada</span>' : ''}</td>
+              <td>${escapeHtml(row.empresa || row.nombre)}${row.incompleta ? ' <span class="comercial-badge comercial-badge--status-warn">Precio incompleto</span>' : ''}${row.estado === 'expirada' ? ' <span class="comercial-badge comercial-badge--status-warn">Expirada</span>' : ''}${row.archivada ? ' <span class="comercial-badge comercial-badge--status-muted">Archivada</span>' : ''}</td>
               <td>${estadoBadge(row.estado)}</td>
               <td>${escapeHtml(formatQuoteMoney(row.precio_total_ofertado, row.moneda))}</td>
               <td>${escapeHtml(row.created_by_nombre || '—')}</td>
@@ -231,7 +287,7 @@ async function renderList(route: CotizacionesRoute): Promise<string> {
                 <a class="comercial-button comercial-button--primary comercial-button--sm" href="#/cotizaciones?id=${escapeHtml(row.id)}${route.equipo ? '&equipo=1' : ''}${route.tab === 'enviadas' ? '&tab=enviadas' : ''}">Abrir</a>
                 ${
                   esRolAdmin(state.rol) && row.estado !== 'convertida' && !row.pedido_id
-                    ? `<button class="comercial-button comercial-button--danger comercial-button--sm" type="button" data-quote-list-delete data-id="${escapeHtml(row.id)}" data-label="${escapeHtml(row.numero || row.empresa || row.nombre || 'presupuesto')}">Borrar</button>`
+                    ? `<button class="comercial-button comercial-button--danger comercial-button--sm" type="button" data-quote-list-delete data-id="${escapeHtml(row.id)}" data-label="${escapeHtml(row.numero || row.empresa || row.nombre || 'presupuesto')}">Archivar</button>`
                     : ''
                 }
               </td>
@@ -330,21 +386,27 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
       incompleta: true,
       origen: 'pwa',
       editable: true,
+      archived_at: null,
+      archived_by: null,
+      archived_reason: null,
+      archivada: false,
     };
   }
 
   const editable = quote.editable;
   const disabled = editable ? '' : 'disabled';
   const convertida = quote.estado === 'convertida' || Boolean(quote.pedido_id);
-  const banner = convertida
-    ? `<div class="comercial-quote-banner" role="status">Pedido en /admin — no editar.</div>`
-    : quote.estado === 'expirada'
-      ? `<div class="comercial-quote-banner" role="status">Vencida. Duplica a borrador para cotizar de nuevo.</div>`
-      : quote.estado === 'enviada'
-        ? `<div class="comercial-quote-banner" role="status">${escapeHtml(quote.numero || 'IME-Q')} enviada. El PDF anterior queda en archivo.</div>`
-        : quote.send_error
-          ? `<div class="comercial-quote-banner comercial-quote-banner--error" role="alert">${escapeHtml(quote.send_error)}</div>`
-          : '';
+  const banner = quote.archivada
+    ? `<div class="comercial-quote-banner" role="status">Archivada. No sale en las listas hasta desarchivarla.</div>`
+    : convertida
+      ? `<div class="comercial-quote-banner" role="status">Pedido en /admin — no editar.</div>`
+      : quote.estado === 'expirada'
+        ? `<div class="comercial-quote-banner" role="status">Vencida. Duplica a borrador para cotizar de nuevo.</div>`
+        : quote.estado === 'enviada'
+          ? `<div class="comercial-quote-banner" role="status">${escapeHtml(quote.numero || 'IME-Q')} enviada. El PDF anterior queda en archivo.</div>`
+          : quote.send_error
+            ? `<div class="comercial-quote-banner comercial-quote-banner--error" role="alert">${escapeHtml(quote.send_error)}</div>`
+            : '';
 
   const isAdmin = esRolAdmin(state.rol);
   const crmStatus = quote.crm_sync_status;
@@ -359,17 +421,10 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
             ? 'CRM omitido'
             : '';
   const canValidarCrm = Boolean(quote.id) && !quote.productos.some(l => l.precio_pendiente_validar);
-  const adminActions = isAdmin
-    ? `${
-        quote.id
-          ? `<button class="comercial-button comercial-button--danger" type="button" data-quote-delete>Borrar</button>`
-          : ''
-      }${
-        canValidarCrm
-          ? `<button class="comercial-button comercial-button--primary" type="button" data-quote-validar-crm>${crmStatus === 'synced' ? 'Revalidar CRM' : 'Validar → CRM'}</button>`
-          : ''
-      }`
-    : '';
+  const adminActions =
+    isAdmin && canValidarCrm
+      ? `<button class="comercial-button comercial-button--primary" type="button" data-quote-validar-crm>${crmStatus === 'synced' ? 'Revalidar CRM' : 'Validar → CRM'}</button>`
+      : '';
 
   return `
     <section class="comercial-panel comercial-quote-editor" data-quote-editor data-quote-id="${escapeHtml(quote.id)}" data-updated-at="${escapeHtml(quote.updated_at ?? '')}" data-estado="${escapeHtml(quote.estado)}" data-quote-numero="${escapeHtml(quote.numero ?? '')}">
@@ -453,6 +508,7 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
             ? `<p class="comercial-help">CRM: ${escapeHtml(crmLabel || 'sin sincronizar')}.</p>`
             : ''
       }
+      ${quote.id ? seguimientoHtml(quote) : ''}
     </section>
     <div data-quote-modal-slot></div>`;
 }
@@ -727,19 +783,16 @@ async function previewPdf(root: HTMLElement): Promise<void> {
 
 async function confirmAndDeleteQuote(id: string, label: string): Promise<boolean> {
   if (!id) return false;
-  if (
-    !window.confirm(
-      `¿Borrar ${label}? Esta acción no se puede deshacer (PDF incluido). Solo admin/owner.`
-    )
-  ) {
-    return false;
-  }
-  const { error, code } = await deleteQuote(id);
+  const motivo = window.prompt(
+    `Archivar ${label}. No se borra la fila ni el PDF; se puede recuperar. Motivo:`
+  );
+  if (!motivo?.trim()) return false;
+  const { error, code } = await archivarQuote(id, motivo.trim());
   if (error) {
     toast(errMsg(code, error), 'error');
     return false;
   }
-  toast('Presupuesto borrado.', 'success');
+  toast('Presupuesto archivado. Sigue en la base.', 'success');
   return true;
 }
 
@@ -753,7 +806,12 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
     const form = event.currentTarget as HTMLFormElement;
     const q = String(new FormData(form).get('q') ?? '').trim();
     const route = parseCotizacionesRoute(location.hash);
-    location.hash = cotizacionesListHash({ tab: route.tab, equipo: route.equipo, q });
+    location.hash = cotizacionesListHash({
+      tab: route.tab,
+      equipo: route.equipo,
+      q,
+      archivadas: route.archivadas,
+    });
   };
   container.querySelector('[data-quote-search]')?.addEventListener('submit', onSearchSubmit);
 
@@ -1084,17 +1142,66 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
     .querySelector('[data-quote-send-whatsapp]')
     ?.addEventListener('click', () => void runSend('whatsapp'));
 
-  editor.querySelector('[data-quote-delete]')?.addEventListener('click', async () => {
+  const estadoForm = editor.querySelector<HTMLFormElement>('[data-quote-estado]');
+  estadoForm?.addEventListener('submit', event => {
+    event.preventDefault();
     const id = editor.getAttribute('data-quote-id') || '';
     if (!id) return;
-    const numero = editor.querySelector('h2')?.textContent ?? 'este presupuesto';
-    const btn = editor.querySelector<HTMLButtonElement>('[data-quote-delete]');
-    if (btn) btn.disabled = true;
-    const ok = await confirmAndDeleteQuote(id, numero);
-    if (btn) btn.disabled = false;
-    if (!ok) return;
-    setDirty(false);
-    location.hash = '#/cotizaciones';
+    const data = new FormData(estadoForm);
+    const estado = String(data.get('estado') ?? '');
+    const motivo = String(data.get('motivo') ?? '').trim();
+    if (!motivo) {
+      toast(errMsg('MOTIVO_REQUERIDO'), 'error');
+      return;
+    }
+    const button = estadoForm.querySelector<HTMLButtonElement>('button[type="submit"]');
+    if (button) button.disabled = true;
+    void cambiarEstadoQuote(id, estado, motivo).then(({ error, code, data: saved }) => {
+      if (button) button.disabled = false;
+      if (error) {
+        toast(errMsg(code, error), 'error');
+        return;
+      }
+      toast(
+        saved?.envio_cliente === false
+          ? `Estado actualizado a ${estado}. No se envió nada al cliente.`
+          : `Estado actualizado a ${estado}.`,
+        'success'
+      );
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
+    });
+  });
+  editor.querySelector('[data-quote-archive]')?.addEventListener('click', () => {
+    const id = editor.getAttribute('data-quote-id') || '';
+    const motivo = String(new FormData(estadoForm ?? undefined).get('motivo') ?? '').trim();
+    if (!id || !motivo) {
+      toast(errMsg('MOTIVO_REQUERIDO'), 'error');
+      return;
+    }
+    void archivarQuote(id, motivo).then(({ error, code }) => {
+      if (error) {
+        toast(errMsg(code, error), 'error');
+        return;
+      }
+      toast('Presupuesto archivado. No se eliminó.', 'success');
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
+    });
+  });
+  editor.querySelector('[data-quote-unarchive]')?.addEventListener('click', () => {
+    const id = editor.getAttribute('data-quote-id') || '';
+    const motivo = String(new FormData(estadoForm ?? undefined).get('motivo') ?? '').trim();
+    if (!id || !motivo) {
+      toast(errMsg('MOTIVO_REQUERIDO'), 'error');
+      return;
+    }
+    void desarchivarQuote(id, motivo).then(({ error, code }) => {
+      if (error) {
+        toast(errMsg(code, error), 'error');
+        return;
+      }
+      toast('Presupuesto recuperado.', 'success');
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
+    });
   });
 
   editor.querySelector('[data-quote-validar-crm]')?.addEventListener('click', async () => {
