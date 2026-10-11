@@ -7,6 +7,8 @@ Cotización institucional: [https://i-me.com.co/es/contacto/](https://i-me.com.c
 
 El widget web (`src/components/Asesor.astro` → `asesor`) no cambia: Turnstile y rate-limit web siguen igual. Este canal es una Edge Function aparte.
 
+**BSUID, coexistencia Meta y pruebas de resiliencia:** `docs/WHATSAPP_BSUID_RESILIENCE.md` (identificadores opacos, takeover humano, fixtures y despliegue).
+
 ## Arquitectura
 
 ```
