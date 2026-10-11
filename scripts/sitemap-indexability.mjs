@@ -117,6 +117,9 @@ export function isIndexableSitemapUrl(page) {
   if (NON_INDEXABLE_PREFIXES.some(prefix => matchesPrefix(pathname, prefix))) return false;
   if (/^\/(?:es\/productos|en\/products)\/test(?:\/|$|-)/.test(pathname)) return false;
   if (/test-de-pasarela-de-pagos/.test(pathname)) return false;
+  // Datasheets are not pages. Equitronic competitor assets must not re-enter any sitemap.
+  if (/\.pdf$/i.test(pathname)) return false;
+  if (/\/assets\/importados\/equitronic(?:\/|$)/i.test(pathname)) return false;
 
   return true;
 }

@@ -1047,7 +1047,7 @@ function drawFooterBar(page: PDFPage, font: PDFFont, whatsappIcon: PDFImage | nu
     height: 39.4,
     color: BLUE,
   });
-  page.drawText(winAnsi('www.i-me.com.co'), {
+  page.drawText(winAnsi('i-me.com.co'), {
     x: 88.6,
     y: topY(812),
     size: 11,

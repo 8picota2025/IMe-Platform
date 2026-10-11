@@ -1467,8 +1467,7 @@
     "imagen_principal": "/assets/productos/importados/automate-ref-ahpv1115v-saniswiss/imagen-principal-automate-ref-ahpv1115v-saniswiss.jpg",
     "galeria": [
       "/assets/productos/importados/automate-ref-ahpv1115v-saniswiss/imagen-principal-automate-ref-ahpv1115v-saniswiss.jpg",
-      "/assets/productos/importados/automate-ref-ahpv1115v-saniswiss/galeria-automate-ref-ahpv1115v-saniswiss-02.jpg",
-      "/assets/productos/importados/automate-ref-ahpv1115v-saniswiss/galeria-automate-ref-ahpv1115v-saniswiss-03.png"
+      "/assets/productos/importados/automate-ref-ahpv1115v-saniswiss/galeria-automate-ref-ahpv1115v-saniswiss-02.jpg"
     ],
     "ficha_pdf": "/assets/productos/importados/automate-ref-ahpv1115v-saniswiss/ficha-automate-ref-ahpv1115v-saniswiss.pdf",
     "tipo_comercial": "equipo",
@@ -2013,12 +2012,8 @@
         "valor": "15 - 120 lpm, sin purga"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/blender-serie-alto-flujo-con-flujometro-de-0-a-70lpm-ref-2002f70d-bio-med/imagen-principal-blender-serie-alto-flujo-con-flujometro-de-0-a-70lpm-ref-2002f70d-bio-med.png",
-    "galeria": [
-      "/assets/productos/importados/blender-serie-alto-flujo-con-flujometro-de-0-a-70lpm-ref-2002f70d-bio-med/imagen-principal-blender-serie-alto-flujo-con-flujometro-de-0-a-70lpm-ref-2002f70d-bio-med.png",
-      "/assets/productos/importados/blender-serie-alto-flujo-con-flujometro-de-0-a-70lpm-ref-2002f70d-bio-med/galeria-blender-serie-alto-flujo-con-flujometro-de-0-a-70lpm-ref-2002f70d-bio-med-02.png",
-      "/assets/productos/importados/blender-serie-alto-flujo-con-flujometro-de-0-a-70lpm-ref-2002f70d-bio-med/galeria-blender-serie-alto-flujo-con-flujometro-de-0-a-70lpm-ref-2002f70d-bio-med-03.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": "/assets/productos/fichas/bio-med-devices/ddoc063-blender-gallery-product-sheet.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -2285,13 +2280,10 @@
         "valor": "Guilford, Connecticut, EE. UU."
       }
     ],
-    "imagen_principal": "/assets/productos/importados/blender-serie-bajo-flujo-con-flujometro-de-0-a-15-lpm-ref-2003fl-bio-med/imagen-principal-blender-serie-bajo-flujo-con-flujometro-de-0-a-15-lpm-ref-2003fl-bio-med.png",
+    "imagen_principal": "/assets/productos/importados/blender-serie-bajo-flujo-con-flujometro-de-0-a-15-lpm-ref-2003fl-bio-med/galeria-blender-serie-bajo-flujo-con-flujometro-de-0-a-15-lpm-ref-2003fl-bio-med-02.png",
     "galeria": [
-      "/assets/productos/importados/blender-serie-bajo-flujo-con-flujometro-de-0-a-15-lpm-ref-2003fl-bio-med/imagen-principal-blender-serie-bajo-flujo-con-flujometro-de-0-a-15-lpm-ref-2003fl-bio-med.png",
       "/assets/productos/importados/blender-serie-bajo-flujo-con-flujometro-de-0-a-15-lpm-ref-2003fl-bio-med/galeria-blender-serie-bajo-flujo-con-flujometro-de-0-a-15-lpm-ref-2003fl-bio-med-02.png",
-      "/assets/productos/importados/blender-serie-bajo-flujo-con-flujometro-de-0-a-15-lpm-ref-2003fl-bio-med/galeria-blender-serie-bajo-flujo-con-flujometro-de-0-a-15-lpm-ref-2003fl-bio-med-03.png",
-      "/assets/productos/importados/blender-serie-bajo-flujo-con-flujometro-de-0-a-15-lpm-ref-2003fl-bio-med/galeria-blender-serie-bajo-flujo-con-flujometro-de-0-a-15-lpm-ref-2003fl-bio-med-04.png",
-      "/assets/productos/importados/blender-serie-bajo-flujo-con-flujometro-de-0-a-15-lpm-ref-2003fl-bio-med/galeria-blender-serie-bajo-flujo-con-flujometro-de-0-a-15-lpm-ref-2003fl-bio-med-05.png"
+      "/assets/productos/importados/blender-serie-bajo-flujo-con-flujometro-de-0-a-15-lpm-ref-2003fl-bio-med/galeria-blender-serie-bajo-flujo-con-flujometro-de-0-a-15-lpm-ref-2003fl-bio-med-03.png"
     ],
     "ficha_pdf": "/assets/productos/fichas/bio-med-devices/ddoc063-blender-gallery-product-sheet.pdf",
     "tipo_comercial": "equipo",
@@ -2417,10 +2409,8 @@
         "valor": "15 - 120 lpm"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/blender-serie-de-alto-flujo-con-flujometro-de-0-a-30lpm-ref-2002f70d-bio-med/imagen-principal-blender-serie-de-alto-flujo-con-flujometro-de-0-a-30lpm-ref-2002f70d-bio-med.png",
-    "galeria": [
-      "/assets/productos/importados/blender-serie-de-alto-flujo-con-flujometro-de-0-a-30lpm-ref-2002f70d-bio-med/imagen-principal-blender-serie-de-alto-flujo-con-flujometro-de-0-a-30lpm-ref-2002f70d-bio-med.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": "/assets/productos/fichas/bio-med-devices/ddoc063-blender-gallery-product-sheet.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -2689,10 +2679,8 @@
         "valor": "Ayuda a limitar la condensación del circuito"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/cable-calefactor-para-circuito-de-doble-hilo-caliente-ref-900mr805-fisher-paykel/imagen-principal-cable-calefactor-para-circuito-de-doble-hilo-caliente-ref-900mr805-fisher-paykel.png",
-    "galeria": [
-      "/assets/productos/importados/cable-calefactor-para-circuito-de-doble-hilo-caliente-ref-900mr805-fisher-paykel/imagen-principal-cable-calefactor-para-circuito-de-doble-hilo-caliente-ref-900mr805-fisher-paykel.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": null,
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -2776,10 +2764,8 @@
     "descripcion_larga_es": "La interfaz nasal está diseñada específicamente para proporcionar una terapia de alto flujo eficaz y cómoda en pacientes que requieren soporte respiratorio no invasivo. Fabricada con materiales suaves y tecnología avanzada, garantiza una administración segura del flujo de gas, reduce el esfuerzo respiratorio y mejora la oxigenación.\n\nIncluye almohadillas laterales que brindan estabilidad al disminuir la presión facial, y un clip para correa que facilita la alimentación, la hidratación y la comunicación del paciente sin necesidad de retirar el dispositivo.",
     "descripcion_larga_en": "Nasal interface designed specifically to provide effective and comfortable high-flow therapy for patients requiring non-invasive respiratory support. Made with soft materials and advanced technology, it ensures safe gas flow delivery, reduces respiratory effort, and improves oxygenation. Includes lateral pads that provide stability by reducing facial pressure, and a headband clip that facilitates feeding, hydration, and communication without removing the device.",
     "especificaciones": [],
-    "imagen_principal": "/assets/productos/importados/canula-nasal-optiflow-adulto-fisher-paykel/imagen-principal-canula-nasal-optiflow-adulto-fisher-paykel.png",
-    "galeria": [
-      "/assets/productos/importados/canula-nasal-optiflow-adulto-fisher-paykel/imagen-principal-canula-nasal-optiflow-adulto-fisher-paykel.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": null,
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -2845,10 +2831,8 @@
         "valor": "Paquete de 20 unidades"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/canula-para-traqueostomia-adulto-ref-opt970-fisher-paykel/imagen-principal-canula-para-traqueostomia-adulto-ref-opt970-fisher-paykel.png",
-    "galeria": [
-      "/assets/productos/importados/canula-para-traqueostomia-adulto-ref-opt970-fisher-paykel/imagen-principal-canula-para-traqueostomia-adulto-ref-opt970-fisher-paykel.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": null,
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -2949,10 +2933,8 @@
         "valor": "MR290V: caja de 40; MR290VX: caja de 10; MR290HFV para HFV: caja de 40"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/cascada-desechable-para-humidificador-ref-mr290-fisher-paykel/imagen-principal-cascada-desechable-para-humidificador-ref-mr290-fisher-paykel.png",
-    "galeria": [
-      "/assets/productos/importados/cascada-desechable-para-humidificador-ref-mr290-fisher-paykel/imagen-principal-cascada-desechable-para-humidificador-ref-mr290-fisher-paykel.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": null,
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -3020,10 +3002,8 @@
     "descripcion_larga_es": "La cascada reusable diseñada para suministrar humidificación a los gases medicinales y es compatible con cualquier circuito que proporcione calefacción.",
     "descripcion_larga_en": "Reusable chamber designed to supply humidification to medical gases and compatible with any heated circuit.",
     "especificaciones": [],
-    "imagen_principal": "/assets/productos/importados/cascada-reusable-para-humidificador-ref-mr340s-fisher-paykel/imagen-principal-cascada-reusable-para-humidificador-ref-mr340s-fisher-paykel.png",
-    "galeria": [
-      "/assets/productos/importados/cascada-reusable-para-humidificador-ref-mr340s-fisher-paykel/imagen-principal-cascada-reusable-para-humidificador-ref-mr340s-fisher-paykel.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": null,
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -3064,10 +3044,8 @@
         "valor": "Caja de 10 unidades"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/circuito-airvo-spiral-ref-900pt561-fisher-paykel/imagen-principal-circuito-airvo-spiral-ref-900pt561-fisher-paykel.png",
-    "galeria": [
-      "/assets/productos/importados/circuito-airvo-spiral-ref-900pt561-fisher-paykel/imagen-principal-circuito-airvo-spiral-ref-900pt561-fisher-paykel.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": null,
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -3138,10 +3116,8 @@
         "valor": "Caja de 10 unidades"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/circuito-desachable-para-adulto-evaqua-con-linea-de-presion-ref-rt385-fisher-paykel/imagen-principal-circuito-desachable-para-adulto-evaqua-con-linea-de-presion-ref-rt385-fisher-paykel.png",
-    "galeria": [
-      "/assets/productos/importados/circuito-desachable-para-adulto-evaqua-con-linea-de-presion-ref-rt385-fisher-paykel/imagen-principal-circuito-desachable-para-adulto-evaqua-con-linea-de-presion-ref-rt385-fisher-paykel.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": null,
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -3221,10 +3197,8 @@
         "valor": "Caja de 10 unidades"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/circuito-desechable-bicalentado-cascada-ref-rt268-fisher-paykel/imagen-principal-circuito-desechable-bicalentado-cascada-ref-rt268-fisher-paykel.png",
-    "galeria": [
-      "/assets/productos/importados/circuito-desechable-bicalentado-cascada-ref-rt268-fisher-paykel/imagen-principal-circuito-desechable-bicalentado-cascada-ref-rt268-fisher-paykel.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": null,
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -3300,10 +3274,8 @@
         "valor": "Caja de 10 unidades"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/circuito-desechable-bicalentado-cascada-ref-rt269-fisher-paykel/imagen-principal-circuito-desechable-bicalentado-cascada-ref-rt269-fisher-paykel.png",
-    "galeria": [
-      "/assets/productos/importados/circuito-desechable-bicalentado-cascada-ref-rt269-fisher-paykel/imagen-principal-circuito-desechable-bicalentado-cascada-ref-rt269-fisher-paykel.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": null,
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -3379,10 +3351,8 @@
         "valor": "Caja de 10 unidades"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/circuito-desechable-neonatal-bical-cascada-evaqua-2-ref-rt265-fisher-paykel/imagen-principal-circuito-desechable-neonatal-bical-cascada-evaqua-2-ref-rt265-fisher-paykel.png",
-    "galeria": [
-      "/assets/productos/importados/circuito-desechable-neonatal-bical-cascada-evaqua-2-ref-rt265-fisher-paykel/imagen-principal-circuito-desechable-neonatal-bical-cascada-evaqua-2-ref-rt265-fisher-paykel.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": null,
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -3458,10 +3428,8 @@
         "valor": "Caja de 10 unidades"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/circuito-desechable-para-canula-de-alto-flujo-adulto-ref-rt202-fisher-paykel/imagen-principal-circuito-desechable-para-canula-de-alto-flujo-adulto-ref-rt202-fisher-paykel.png",
-    "galeria": [
-      "/assets/productos/importados/circuito-desechable-para-canula-de-alto-flujo-adulto-ref-rt202-fisher-paykel/imagen-principal-circuito-desechable-para-canula-de-alto-flujo-adulto-ref-rt202-fisher-paykel.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": null,
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -3551,10 +3519,8 @@
         "valor": "Neopuff o a gas conforme a ISO 10651-5"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/circuito-desechable-para-neopuff-ref-rd1300-10-fisher-paykel/imagen-principal-circuito-desechable-para-neopuff-ref-rd1300-10-fisher-paykel.png",
-    "galeria": [
-      "/assets/productos/importados/circuito-desechable-para-neopuff-ref-rd1300-10-fisher-paykel/imagen-principal-circuito-desechable-para-neopuff-ref-rd1300-10-fisher-paykel.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": "/assets/productos/fichas/fisher-paykel-healthcare/neopuff-t-piece-circuit-rd1300-10-ui-185045725.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -6265,12 +6231,8 @@
         "valor": "Un solo paciente; máximo 7 días"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/gorro-para-cpap-de-burbuja-fisher-paykel/imagen-principal-gorro-para-cpap-de-burbuja-fisher-paykel.png",
-    "galeria": [
-      "/assets/productos/importados/gorro-para-cpap-de-burbuja-fisher-paykel/imagen-principal-gorro-para-cpap-de-burbuja-fisher-paykel.png",
-      "/assets/productos/importados/gorro-para-cpap-de-burbuja-fisher-paykel/galeria-gorro-para-cpap-de-burbuja-fisher-paykel-02.png",
-      "/assets/productos/importados/gorro-para-cpap-de-burbuja-fisher-paykel/galeria-gorro-para-cpap-de-burbuja-fisher-paykel-03.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": "/assets/productos/fichas/fisher-paykel-healthcare/bubble-cpap-system-ui-185042847.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -6837,12 +6799,8 @@
         "valor": "Látex natural, PVC ni ftalatos"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/interfaz-nasal-optiflow-junior-2-fisher-paykel/imagen-principal-interfaz-nasal-optiflow-junior-2-fisher-paykel.png",
-    "galeria": [
-      "/assets/productos/importados/interfaz-nasal-optiflow-junior-2-fisher-paykel/imagen-principal-interfaz-nasal-optiflow-junior-2-fisher-paykel.png",
-      "/assets/productos/importados/interfaz-nasal-optiflow-junior-2-fisher-paykel/galeria-interfaz-nasal-optiflow-junior-2-fisher-paykel-02.png",
-      "/assets/productos/importados/interfaz-nasal-optiflow-junior-2-fisher-paykel/galeria-interfaz-nasal-optiflow-junior-2-fisher-paykel-03.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": "/assets/productos/fichas/fisher-paykel-healthcare/oj2-spec-sheet-north-america-pm-632890.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -7146,10 +7104,8 @@
         "valor": "< 30 mL/min"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/kit-cpap-de-burbuja-ref-bc161-10-fisher-paykel/imagen-principal-kit-cpap-de-burbuja-ref-bc161-10-fisher-paykel.png",
-    "galeria": [
-      "/assets/productos/importados/kit-cpap-de-burbuja-ref-bc161-10-fisher-paykel/imagen-principal-kit-cpap-de-burbuja-ref-bc161-10-fisher-paykel.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": "/assets/productos/fichas/fisher-paykel-healthcare/bubble-cpap-system-ui-185042847.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -7282,12 +7238,8 @@
         "valor": "5 años"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/kit-de-blender-para-transicion-fisher-paykel/imagen-principal-kit-de-blender-para-transicion-fisher-paykel.png",
-    "galeria": [
-      "/assets/productos/importados/kit-de-blender-para-transicion-fisher-paykel/imagen-principal-kit-de-blender-para-transicion-fisher-paykel.png",
-      "/assets/productos/importados/kit-de-blender-para-transicion-fisher-paykel/galeria-kit-de-blender-para-transicion-fisher-paykel-02.png",
-      "/assets/productos/importados/kit-de-blender-para-transicion-fisher-paykel/galeria-kit-de-blender-para-transicion-fisher-paykel-03.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": "/assets/productos/fichas/fisher-paykel-healthcare/oj2-blender-kit-spec-sheet-north-america-pm-632888.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -7420,10 +7372,8 @@
         "valor": "15 mm macho"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/kit-de-mascaras-para-neopuff-ref-rd800-en-fisher-paykel/imagen-principal-kit-de-mascaras-para-neopuff-ref-rd800-en-fisher-paykel.png",
-    "galeria": [
-      "/assets/productos/importados/kit-de-mascaras-para-neopuff-ref-rd800-en-fisher-paykel/imagen-principal-kit-de-mascaras-para-neopuff-ref-rd800-en-fisher-paykel.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": "/assets/productos/fichas/fisher-paykel-healthcare/neopuff-resuscitation-mask-ui-185043891.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -7556,12 +7506,8 @@
         "valor": "Vida útil de 3 años en el envase original cerrado; almacenar en lugar fresco, seco y ventilado, y cerrar bien el envase tras cada uso."
       }
     ],
-    "imagen_principal": "/assets/productos/importados/klorkleen-1-670mg-ref-411045-medentech/imagen-principal-klorkleen-1-670mg-ref-411045-medentech.png",
-    "galeria": [
-      "/assets/productos/importados/klorkleen-1-670mg-ref-411045-medentech/imagen-principal-klorkleen-1-670mg-ref-411045-medentech.png",
-      "/assets/productos/importados/klorkleen-1-670mg-ref-411045-medentech/galeria-klorkleen-1-670mg-ref-411045-medentech-02.png",
-      "/assets/productos/importados/klorkleen-1-670mg-ref-411045-medentech/galeria-klorkleen-1-670mg-ref-411045-medentech-03.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": "/assets/productos/importados/klorkleen-1-670mg-ref-411045-medentech/ficha-klorkleen-1-670mg-ref-411045-medentech.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -7639,10 +7585,8 @@
         "valor": "Fabricado por Medentech (Wexford, Irlanda) bajo normas de Buenas Prácticas de Manufactura (GMP) y certificación de calidad ISO 9001 e ISO 13485."
       }
     ],
-    "imagen_principal": "/assets/productos/importados/klorsept-granulos-500gr-ref-1013-medentech/imagen-principal-klorsept-granulos-500gr-ref-1013-medentech.png",
-    "galeria": [
-      "/assets/productos/importados/klorsept-granulos-500gr-ref-1013-medentech/imagen-principal-klorsept-granulos-500gr-ref-1013-medentech.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": "/assets/productos/importados/klorsept-granulos-500gr-ref-1013-medentech/ficha-klorsept-granulos-500gr-ref-1013-medentech.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -7725,12 +7669,8 @@
         "valor": "Fabricado por Medentech (Wexford, Irlanda) bajo normas de Buenas Prácticas de Manufactura (GMP) y certificación de calidad ISO 9001 e ISO 13485, con inspecciones periódicas de la autoridad reguladora irlandesa (HPRA)."
       }
     ],
-    "imagen_principal": "/assets/productos/importados/klorsept87-8-670mg-ref-411017-medentech/imagen-principal-klorsept87-8-670mg-ref-411017-medentech.png",
-    "galeria": [
-      "/assets/productos/importados/klorsept87-8-670mg-ref-411017-medentech/imagen-principal-klorsept87-8-670mg-ref-411017-medentech.png",
-      "/assets/productos/importados/klorsept87-8-670mg-ref-411017-medentech/galeria-klorsept87-8-670mg-ref-411017-medentech-02.png",
-      "/assets/productos/importados/klorsept87-8-670mg-ref-411017-medentech/galeria-klorsept87-8-670mg-ref-411017-medentech-03.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": "/assets/productos/importados/klorsept87-8-670mg-ref-411017-medentech/ficha-klorsept87-8-670mg-ref-411017-medentech.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -8055,7 +7995,6 @@
     "imagen_principal": "/assets/productos/importados/lampara-quirurgica-tipo-led-mach-led-ref-300mc-dr-mach/imagen-principal-lampara-quirurgica-tipo-led-mach-led-ref-300mc-dr-mach.png",
     "galeria": [
       "/assets/productos/importados/lampara-quirurgica-tipo-led-mach-led-ref-300mc-dr-mach/imagen-principal-lampara-quirurgica-tipo-led-mach-led-ref-300mc-dr-mach.png",
-      "/assets/productos/importados/lampara-quirurgica-tipo-led-mach-led-ref-300mc-dr-mach/galeria-lampara-quirurgica-tipo-led-mach-led-ref-300mc-dr-mach-02.png",
       "/assets/productos/importados/lampara-quirurgica-tipo-led-mach-led-ref-300mc-dr-mach/galeria-lampara-quirurgica-tipo-led-mach-led-ref-300mc-dr-mach-03.png",
       "/assets/productos/importados/lampara-quirurgica-tipo-led-mach-led-ref-300mc-dr-mach/galeria-lampara-quirurgica-tipo-led-mach-led-ref-300mc-dr-mach-04.png",
       "/assets/productos/importados/lampara-quirurgica-tipo-led-mach-led-ref-300mc-dr-mach/galeria-lampara-quirurgica-tipo-led-mach-led-ref-300mc-dr-mach-05.png"
@@ -9131,10 +9070,8 @@
         "valor": "Uso continuo de hasta 28 horas."
       }
     ],
-    "imagen_principal": "/assets/productos/importados/manta-thermowrap-ref-524/imagen-principal-manta-thermowrap-ref-524.png",
-    "galeria": [
-      "/assets/productos/importados/manta-thermowrap-ref-524/imagen-principal-manta-thermowrap-ref-524.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": "/assets/productos/importados/manta-thermowrap-ref-524/ficha-manta-thermowrap-ref-524.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -9243,7 +9180,7 @@
       "/assets/productos/importados/maquina-de-anestesia-prima-ref-460-penlon/galeria-maquina-de-anestesia-prima-ref-460-penlon-02.jpg",
       "/assets/productos/importados/maquina-de-anestesia-prima-ref-460-penlon/galeria-maquina-de-anestesia-prima-ref-460-penlon-03.jpg"
     ],
-    "ficha_pdf": "/assets/importados/equitronic/pdf/eq-maquina-de-anestesia-prima-ref-460-penlon.pdf",
+    "ficha_pdf": null,
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
     "precio": null,
@@ -9296,10 +9233,8 @@
     "descripcion_larga_es": "La máscara nasal desechable sin ventilación RT04, es una interfaz para el tratamiento respiratorio hospitalario. Se utiliza como accesorio de dispositivos que administran ventilación con presión positiva no invasiva, siempre que estos cuenten con alarmas y sistemas de seguridad adecuados ante posibles fallos del ventilador. Esta mascarilla está indicada para uso en un solo paciente adulto (mayor de 30 kg) con respiración espontánea, que presente insuficiencia o paro respiratorio, y que solo tolere ventilación de apoyo no invasiva.",
     "descripcion_larga_en": "Disposable non-ventilated nasal mask RT04 is an interface for hospital respiratory therapy. Used as an accessory for devices delivering non-invasive positive pressure ventilation, provided they have adequate alarms and safety systems against possible ventilator failures. Intended for single-patient adult use (over 30 kg) with spontaneous breathing presenting acute respiratory insufficiency or failure who only tolerate non-invasive ventilation support.",
     "especificaciones": [],
-    "imagen_principal": "/assets/productos/importados/mascara-nasal-desechable-no-ventilada-fisher-paykel/imagen-principal-mascara-nasal-desechable-no-ventilada-fisher-paykel.png",
-    "galeria": [
-      "/assets/productos/importados/mascara-nasal-desechable-no-ventilada-fisher-paykel/imagen-principal-mascara-nasal-desechable-no-ventilada-fisher-paykel.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": null,
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -9338,12 +9273,8 @@
     "descripcion_larga_es": "La máscara nasal NIVAIRO de Fisher & Paykel, está diseñada para terapia de ventilación no invasiva (VNI), ofreciendo un ajuste anatómico, confortable y seguro para el paciente. Su diseño ergonómico y materiales de alta calidad minimizan los puntos de presión, reducen el riesgo de fugas y mejoran la adherencia al tratamiento. Compatible con múltiples sistemas de ventilación, esta máscara es ideal para entornos hospitalarios que requieren eficacia, higiene y facilidad de uso.",
     "descripcion_larga_en": "Fisher & Paykel NIVAIRO nasal mask is designed for non-invasive ventilation therapy, offering anatomical, comfortable and secure patient fit. Ergonomic design and high-quality materials minimize pressure points, reduce leak risk and improve treatment adherence. Compatible with multiple ventilation systems, this mask is ideal for hospital settings requiring efficacy, hygiene and ease of use.",
     "especificaciones": [],
-    "imagen_principal": "/assets/productos/importados/mascara-nivairo-fisher-paykel/imagen-principal-mascara-nivairo-fisher-paykel.png",
-    "galeria": [
-      "/assets/productos/importados/mascara-nivairo-fisher-paykel/imagen-principal-mascara-nivairo-fisher-paykel.png",
-      "/assets/productos/importados/mascara-nivairo-fisher-paykel/galeria-mascara-nivairo-fisher-paykel-02.png",
-      "/assets/productos/importados/mascara-nivairo-fisher-paykel/galeria-mascara-nivairo-fisher-paykel-03.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": null,
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -9407,10 +9338,8 @@
         "valor": "Un solo paciente; máximo 7 días"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/mascara-para-cpap-de-burbuja-fisher-paykel/imagen-principal-mascara-para-cpap-de-burbuja-fisher-paykel.png",
-    "galeria": [
-      "/assets/productos/importados/mascara-para-cpap-de-burbuja-fisher-paykel/imagen-principal-mascara-para-cpap-de-burbuja-fisher-paykel.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": "/assets/productos/fichas/fisher-paykel-healthcare/bubble-cpap-system-ui-185042847.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -9543,12 +9472,8 @@
         "valor": "15 mm macho"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/mascara-para-neopuff-desechable-fisher-paykel/imagen-principal-mascara-para-neopuff-desechable-fisher-paykel.png",
-    "galeria": [
-      "/assets/productos/importados/mascara-para-neopuff-desechable-fisher-paykel/imagen-principal-mascara-para-neopuff-desechable-fisher-paykel.png",
-      "/assets/productos/importados/mascara-para-neopuff-desechable-fisher-paykel/galeria-mascara-para-neopuff-desechable-fisher-paykel-02.png",
-      "/assets/productos/importados/mascara-para-neopuff-desechable-fisher-paykel/galeria-mascara-para-neopuff-desechable-fisher-paykel-03.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": "/assets/productos/fichas/fisher-paykel-healthcare/neopuff-resuscitation-mask-ui-185043891.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -9666,10 +9591,8 @@
         "valor": "Transparent nCPAP Mask REV02, 28.01.2026"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/mascarilla-medin-medical/imagen-principal-mascarilla-medin-medical.png",
-    "galeria": [
-      "/assets/productos/importados/mascarilla-medin-medical/imagen-principal-mascarilla-medin-medical.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": "/assets/productos/fichas/medin-medical-innovations/transparent-ncpap-mask-rev02.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -9774,7 +9697,6 @@
     "imagen_principal": "/assets/productos/importados/mesa-de-cirugia-con-elevacion-de-rinon-ref-7000sk-benq/imagen-principal-mesa-de-cirugia-con-elevacion-de-rinon-ref-7000sk-benq.png",
     "galeria": [
       "/assets/productos/importados/mesa-de-cirugia-con-elevacion-de-rinon-ref-7000sk-benq/imagen-principal-mesa-de-cirugia-con-elevacion-de-rinon-ref-7000sk-benq.png",
-      "/assets/productos/importados/mesa-de-cirugia-con-elevacion-de-rinon-ref-7000sk-benq/galeria-mesa-de-cirugia-con-elevacion-de-rinon-ref-7000sk-benq-02.png",
       "/assets/productos/importados/mesa-de-cirugia-con-elevacion-de-rinon-ref-7000sk-benq/galeria-mesa-de-cirugia-con-elevacion-de-rinon-ref-7000sk-benq-03.png",
       "/assets/productos/importados/mesa-de-cirugia-con-elevacion-de-rinon-ref-7000sk-benq/galeria-mesa-de-cirugia-con-elevacion-de-rinon-ref-7000sk-benq-04.png",
       "/assets/productos/importados/mesa-de-cirugia-con-elevacion-de-rinon-ref-7000sk-benq/galeria-mesa-de-cirugia-con-elevacion-de-rinon-ref-7000sk-benq-05.png"
@@ -9820,8 +9742,6 @@
     "galeria": [
       "/assets/productos/importados/mesa-de-cirugia-para-neurologia-y-laparoscopia-ref-7000sn-benq/imagen-principal-mesa-de-cirugia-para-neurologia-y-laparoscopia-ref-7000sn-benq.png",
       "/assets/productos/importados/mesa-de-cirugia-para-neurologia-y-laparoscopia-ref-7000sn-benq/galeria-mesa-de-cirugia-para-neurologia-y-laparoscopia-ref-7000sn-benq-02.png",
-      "/assets/productos/importados/mesa-de-cirugia-para-neurologia-y-laparoscopia-ref-7000sn-benq/galeria-mesa-de-cirugia-para-neurologia-y-laparoscopia-ref-7000sn-benq-03.png",
-      "/assets/productos/importados/mesa-de-cirugia-para-neurologia-y-laparoscopia-ref-7000sn-benq/galeria-mesa-de-cirugia-para-neurologia-y-laparoscopia-ref-7000sn-benq-04.png",
       "/assets/productos/importados/mesa-de-cirugia-para-neurologia-y-laparoscopia-ref-7000sn-benq/galeria-mesa-de-cirugia-para-neurologia-y-laparoscopia-ref-7000sn-benq-05.png"
     ],
     "ficha_pdf": null,
@@ -9865,7 +9785,6 @@
     "galeria": [
       "/assets/productos/importados/mesa-de-cirugia-ref-7000s-benq/imagen-principal-mesa-de-cirugia-ref-7000s-benq.png",
       "/assets/productos/importados/mesa-de-cirugia-ref-7000s-benq/galeria-mesa-de-cirugia-ref-7000s-benq-02.png",
-      "/assets/productos/importados/mesa-de-cirugia-ref-7000s-benq/galeria-mesa-de-cirugia-ref-7000s-benq-03.png",
       "/assets/productos/importados/mesa-de-cirugia-ref-7000s-benq/galeria-mesa-de-cirugia-ref-7000s-benq-04.png",
       "/assets/productos/importados/mesa-de-cirugia-ref-7000s-benq/galeria-mesa-de-cirugia-ref-7000s-benq-05.png"
     ],
@@ -9946,7 +9865,7 @@
       "/assets/productos/importados/monitor-de-paciente-m12-biolight/galeria-monitor-de-paciente-m12-biolight-03.jpg",
       "/assets/productos/importados/monitor-de-paciente-m12-biolight/galeria-monitor-de-paciente-m12-biolight-04.jpg"
     ],
-    "ficha_pdf": "/assets/importados/equitronic/pdf/eq-monitor-de-paciente-m12-biolight.pdf",
+    "ficha_pdf": null,
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
     "precio": null,
@@ -10548,7 +10467,7 @@
     "nombre_en": "Portable Biolight M860 Vital Signs Monitor | Precision and Clinical Mobility",
     "descripcion_corta_es": "El Monitor de Signos Vitales Portátil Biolight M860 combina precisión, ligereza y autonomía para brindar un monitoreo confiable en entornos ambulatorios y de cuidado primario.",
     "descripcion_corta_en": "The Portable Biolight M860 Vital Signs Monitor combines precision, lightness, and autonomy for reliable monitoring in ambulatory and primary care settings.",
-    "descripcion_larga_es": "El Monitor de Signos Vitales Portátil Biolight M860 combina precisión, ligereza y autonomía para brindar un monitoreo confiable en entornos ambulatorios y de cuidado primario.\n\nDiseñado para pacientes adultos, pediátricos y neonatales, el M860 permite mediciones exactas de presión arterial no invasiva (NIBP), saturación de oxígeno (SpO₂) y frecuencia del pulso (PR), garantizando resultados precisos en cada lectura.\n\nSu pantalla TFT a color de 4.3”, con función de rotación automática, facilita la visualización de los parámetros desde cualquier ángulo, mientras que su batería de litio ofrece más de 20 horas de funcionamiento continuo, ideal para jornadas de monitoreo prolongadas.\n\nGracias a su diseño compacto y ergonómico, el M860 es perfecto para uso portátil en hospitales, clínicas, ambulancias y atención domiciliaria. Además, su capacidad de almacenamiento de hasta 96 registros y 500 mediciones permite acceder fácilmente a tablas de resumen, brindando una gestión organizada de los datos del paciente.\n\nUna herramienta confiable y práctica que combina movilidad, durabilidad y precisión clínica, respaldada por la calidad Biolight y el soporte técnico de Equitronic.",
+    "descripcion_larga_es": "El Monitor de Signos Vitales Portátil Biolight M860 combina precisión, ligereza y autonomía para brindar un monitoreo confiable en entornos ambulatorios y de cuidado primario.\n\nDiseñado para pacientes adultos, pediátricos y neonatales, el M860 permite mediciones exactas de presión arterial no invasiva (NIBP), saturación de oxígeno (SpO₂) y frecuencia del pulso (PR), garantizando resultados precisos en cada lectura.\n\nSu pantalla TFT a color de 4.3”, con función de rotación automática, facilita la visualización de los parámetros desde cualquier ángulo, mientras que su batería de litio ofrece más de 20 horas de funcionamiento continuo, ideal para jornadas de monitoreo prolongadas.\n\nGracias a su diseño compacto y ergonómico, el M860 es perfecto para uso portátil en hospitales, clínicas, ambulancias y atención domiciliaria. Además, su capacidad de almacenamiento de hasta 96 registros y 500 mediciones permite acceder fácilmente a tablas de resumen, brindando una gestión organizada de los datos del paciente.\n\nUna herramienta confiable y práctica que combina movilidad, durabilidad y precisión clínica, respaldada por la calidad Biolight.",
     "descripcion_larga_en": "The Portable Biolight M860 Vital Signs Monitor combines precision, lightness, and autonomy for reliable monitoring in ambulatory and primary care settings. Designed for adult, pediatric, and neonatal patients, the M860 enables accurate measurements of non-invasive blood pressure (NIBP), oxygen saturation (SpO₂), and pulse rate (PR). Its 4.3-inch color TFT display with automatic rotation facilitates viewing from any angle, while its lithium battery offers over 20 hours of continuous operation, ideal for long monitoring shifts. Its compact, ergonomic design makes it perfect for portable use in hospitals, clinics, ambulances, and home care. Additionally, its storage capacity of up to 96 records and 500 measurements provides organized patient data management.",
     "especificaciones": [],
     "imagen_principal": "/assets/productos/importados/monitor-de-signos-vitales-portatil-m860-biolight/imagen-principal-monitor-de-signos-vitales-portatil-m860-biolight.jpg",
@@ -10590,10 +10509,8 @@
     "descripcion_larga_es": "El gel preparador de piel Nuprep® está formulado para optimizar la calidad de las señales eléctricas en procedimientos como electroencefalograma (EEG), electrocardiograma (ECG), electromiografía (EMG), y pruebas de amplitud integrada de electroencefalografía (aEEG), preparando eficazmente la superficie cutánea antes de colocar los electrodos. Gracias a su composición ligeramente abrasiva y altamente conductiva, ayuda a eliminar células muertas y aceites superficiales, reduciendo la impedancia de la piel y minimizando los artefactos por movimiento, lo que se traduce en registros más precisos y confiables.",
     "descripcion_larga_en": "The Nuprep® skin preparation gel is formulated to optimize the quality of electrical signals in procedures such as electroencephalogram (EEG), electrocardiogram (ECG), electromyography (EMG), and integrated amplitude electroencephalography (aEEG), effectively preparing the skin surface before electrode placement. Its slightly abrasive and highly conductive composition helps remove dead cells and surface oils, reducing skin impedance and minimizing motion artifacts, resulting in more accurate and reliable recordings.",
     "especificaciones": [],
-    "imagen_principal": "/assets/productos/importados/nuprep-skin-markers-ref-122-736100-natus-medical/imagen-principal-nuprep-skin-markers-ref-122-736100-natus-medical.png",
-    "galeria": [
-      "/assets/productos/importados/nuprep-skin-markers-ref-122-736100-natus-medical/imagen-principal-nuprep-skin-markers-ref-122-736100-natus-medical.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": null,
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -10649,10 +10566,8 @@
         "valor": "Natus Medical Incorporated"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/obm-neonatal-hydrogel-sensors-ref-obm00042-natus-medical/imagen-principal-obm-neonatal-hydrogel-sensors-ref-obm00042-natus-medical.png",
-    "galeria": [
-      "/assets/productos/importados/obm-neonatal-hydrogel-sensors-ref-obm00042-natus-medical/imagen-principal-obm-neonatal-hydrogel-sensors-ref-obm00042-natus-medical.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": "/assets/productos/importados/obm-neonatal-hydrogel-sensors-ref-obm00042-natus-medical/ficha-obm-neonatal-hydrogel-sensors-ref-obm00042-natus-medical.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -10805,12 +10720,8 @@
     "descripcion_larga_es": "La cánula nasal de alto flujo Optiflow™ + Asymmetrical está diseñada para mejorar la eficiencia de la terapia de oxígeno en pacientes adultos, gracias a su exclusivo diseño asimétrico de puntas nasales, que facilita un flujo unidireccional y optimiza la eliminación del espacio muerto. Fabricada con materiales suaves y contorneados, ofrece un ajuste cómodo al tabique y a las fosas nasales. Además, incorpora almohadillas laterales que reducen la presión facial y proporcionan mayor estabilidad.",
     "descripcion_larga_en": "The Optiflow™ + Asymmetrical high-flow nasal cannula is designed to improve oxygen therapy efficiency in adult patients thanks to its exclusive asymmetrical nasal prong design, which facilitates unidirectional flow and optimizes dead space elimination. Made with soft, contoured materials, it offers comfortable fit to the septum and nasal cavities. Additionally, it includes lateral pads that reduce facial pressure and provide greater stability.",
     "especificaciones": [],
-    "imagen_principal": "/assets/productos/importados/optiflow-asymmetrical-nasal-cannula-fisher-paykel/imagen-principal-optiflow-asymmetrical-nasal-cannula-fisher-paykel.png",
-    "galeria": [
-      "/assets/productos/importados/optiflow-asymmetrical-nasal-cannula-fisher-paykel/imagen-principal-optiflow-asymmetrical-nasal-cannula-fisher-paykel.png",
-      "/assets/productos/importados/optiflow-asymmetrical-nasal-cannula-fisher-paykel/galeria-optiflow-asymmetrical-nasal-cannula-fisher-paykel-02.png",
-      "/assets/productos/importados/optiflow-asymmetrical-nasal-cannula-fisher-paykel/galeria-optiflow-asymmetrical-nasal-cannula-fisher-paykel-03.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": null,
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -12076,10 +11987,8 @@
         "valor": "40 unidades (2 paquetes de 20)"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/prematuro-wigglepads-ref-opt010-fisher-paykel/imagen-principal-prematuro-wigglepads-ref-opt010-fisher-paykel.png",
-    "galeria": [
-      "/assets/productos/importados/prematuro-wigglepads-ref-opt010-fisher-paykel/imagen-principal-prematuro-wigglepads-ref-opt010-fisher-paykel.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": "/assets/productos/fichas/fisher-paykel-healthcare/oj2-spec-sheet-north-america-pm-632890.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -12212,10 +12121,8 @@
         "valor": "10 piezas"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/prong-nasal-medin-medical/imagen-principal-prong-nasal-medin-medical.png",
-    "galeria": [
-      "/assets/productos/importados/prong-nasal-medin-medical/imagen-principal-prong-nasal-medin-medical.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": "/assets/productos/fichas/medin-medical-innovations/pb-nuflow-rev04.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -12343,10 +12250,8 @@
         "valor": "Un solo paciente; máximo 7 días"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/prong-nasal-para-cpap-burbuja-fisher-paykel/imagen-principal-prong-nasal-para-cpap-burbuja-fisher-paykel.png",
-    "galeria": [
-      "/assets/productos/importados/prong-nasal-para-cpap-burbuja-fisher-paykel/imagen-principal-prong-nasal-para-cpap-burbuja-fisher-paykel.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": "/assets/productos/fichas/fisher-paykel-healthcare/bubble-cpap-system-ui-185042847.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -12673,10 +12578,8 @@
         "valor": "Dispositivo desechable de un solo uso, sin necesidad de limpieza ni equipo de capital"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/resucitador-neo-tee-ref-10-50843-mercury/imagen-principal-resucitador-neo-tee-ref-10-50843-mercury.png",
-    "galeria": [
-      "/assets/productos/importados/resucitador-neo-tee-ref-10-50843-mercury/imagen-principal-resucitador-neo-tee-ref-10-50843-mercury.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": "/assets/productos/importados/resucitador-neo-tee-ref-10-50843-mercury/ficha-resucitador-neo-tee-ref-10-50843-mercury.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -13073,10 +12976,8 @@
         "valor": "Desechable"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/sensor-de-flujo-desechable-ref-n5302-05-sle/imagen-principal-sensor-de-flujo-desechable-ref-n5302-05-sle.png",
-    "galeria": [
-      "/assets/productos/importados/sensor-de-flujo-desechable-ref-n5302-05-sle/imagen-principal-sensor-de-flujo-desechable-ref-n5302-05-sle.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": null,
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -13560,10 +13461,8 @@
         "valor": "Un solo paciente; libre de látex"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/sistema-de-hiperinflado-de-1-litro-mercury/imagen-principal-sistema-de-hiperinflado-de-1-litro-mercury.png",
-    "galeria": [
-      "/assets/productos/importados/sistema-de-hiperinflado-de-1-litro-mercury/imagen-principal-sistema-de-hiperinflado-de-1-litro-mercury.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": "/assets/productos/fichas/mercury-medical/rdr-hyperinflationsystem.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -13704,7 +13603,7 @@
       "/assets/productos/importados/sistema-de-hipotermia-criticool-belmont/galeria-sistema-de-hipotermia-criticool-belmont-04.png",
       "/assets/productos/importados/sistema-de-hipotermia-criticool-belmont/galeria-sistema-de-hipotermia-criticool-belmont-05.png"
     ],
-    "ficha_pdf": "/assets/importados/equitronic/pdf/eq-sistema-de-hipotermia-criticool-belmont.pdf",
+    "ficha_pdf": null,
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
     "precio": null,
@@ -13792,7 +13691,6 @@
     "galeria": [
       "/assets/productos/importados/sistema-de-hipotermia-criticool-mini-belmont/imagen-principal-sistema-de-hipotermia-criticool-mini-belmont.png",
       "/assets/productos/importados/sistema-de-hipotermia-criticool-mini-belmont/galeria-sistema-de-hipotermia-criticool-mini-belmont-02.png",
-      "/assets/productos/importados/sistema-de-hipotermia-criticool-mini-belmont/galeria-sistema-de-hipotermia-criticool-mini-belmont-03.png",
       "/assets/productos/importados/sistema-de-hipotermia-criticool-mini-belmont/galeria-sistema-de-hipotermia-criticool-mini-belmont-04.png",
       "/assets/productos/importados/sistema-de-hipotermia-criticool-mini-belmont/galeria-sistema-de-hipotermia-criticool-mini-belmont-05.png"
     ],
@@ -25044,11 +24942,9 @@
         "valor": "Uso tópico solo en piel intacta; evitar contacto con ojos; vigilar el sitio del electrodo ante enrojecimiento o irritación"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/ten-20-pasta-conductiva-8onz-ref-si1067-natus/imagen-principal-ten-20-pasta-conductiva-8onz-ref-si1067-natus.png",
-    "galeria": [
-      "/assets/productos/importados/ten-20-pasta-conductiva-8onz-ref-si1067-natus/imagen-principal-ten-20-pasta-conductiva-8onz-ref-si1067-natus.png"
-    ],
-    "ficha_pdf": "/assets/importados/equitronic/pdf/eq-ten-20-pasta-conductiva-8onz-ref-si1067-natus.pdf",
+    "imagen_principal": null,
+    "galeria": [],
+    "ficha_pdf": null,
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
     "precio": null,
@@ -25126,8 +25022,8 @@
     "nombre_en": "4K Laparoscopic Tower SonoScape SV-M4K120",
     "descripcion_corta_es": "La Torre de Laparoscopia 4K SonoScape SV-M4K120 es un sistema de cirugía laparoscópica rígida y flexible, diseñado para ofrecer máxima calidad de imagen, precisión y eficiencia en quirófano.Su arquite",
     "descripcion_corta_en": "4K laparoscopic tower system combining the SV-M4K120 video processor and SL-ED40 LED light source for high-precision minimally invasive surgery.",
-    "descripcion_larga_es": "La Torre de Laparoscopia 4K SonoScape SV-M4K120 es un sistema de cirugía laparoscópica rígida y flexible, diseñado para ofrecer máxima calidad de imagen, precisión y eficiencia en quirófano.Su arquitectura combina el procesador de video 4K SV-M4K120 con la fuente de luz LED SL-ED40, integrando resolución Ultra HD y algoritmos avanzados de procesamiento que optimizan el contraste y reducen la fatiga visual del cirujano.\n\nLa fuente de luz de cuatro LEDs ofrece una reproducción cromática superior, garantizando iluminación homogénea y realce vascular incluso en estructuras anatómicas delicadas.\n\nEste sistema híbrido y versátil puede configurarse con cámaras y lentes rígidos, así como con endoscopios flexibles (rinolaringoscopios, cistoscopios, ureteroscopios y coledocoscopios), convirtiéndose en una solución integral para cirugía mínimamente invasiva en especialidades como urología, cirugía general, otorrinolaringología y ginecología.\n\nCon SonoScape 4K, Equitronic garantiza una visualización más precisa, menor tiempo quirúrgico y resultados clínicos más seguros.",
-    "descripcion_larga_en": "The 4K laparoscopic tower SonoScape SV-M4K120 is a rigid and flexible minimally invasive surgery system designed for maximum image quality, precision and operating room efficiency. Its architecture combines the SV-M4K120 4K video processor with the SL-ED40 LED light source, integrating Ultra HD resolution and advanced processing algorithms that optimize contrast and reduce surgeon eye strain. The four-LED light source offers superior color rendering, ensuring homogeneous illumination and vascular enhancement even in delicate anatomical structures. This hybrid and versatile system can be configured with rigid cameras and lenses as well as flexible endoscopes (rhinolaryngoscopes, cystoscopes, ureteroscopes and choledocoscopes), becoming a comprehensive solution for minimally invasive surgery in specialties such as urology, general surgery, otolaryngology and gynecology. With SonoScape 4K, Equitronic guarantees more precise visualization, shorter surgical time and safer clinical outcomes.",
+    "descripcion_larga_es": "La Torre de Laparoscopia 4K SonoScape SV-M4K120 es un sistema de cirugía laparoscópica rígida y flexible, diseñado para ofrecer máxima calidad de imagen, precisión y eficiencia en quirófano.Su arquitectura combina el procesador de video 4K SV-M4K120 con la fuente de luz LED SL-ED40, integrando resolución Ultra HD y algoritmos avanzados de procesamiento que optimizan el contraste y reducen la fatiga visual del cirujano.\n\nLa fuente de luz de cuatro LEDs ofrece una reproducción cromática superior, garantizando iluminación homogénea y realce vascular incluso en estructuras anatómicas delicadas.\n\nEste sistema híbrido y versátil puede configurarse con cámaras y lentes rígidos, así como con endoscopios flexibles (rinolaringoscopios, cistoscopios, ureteroscopios y coledocoscopios), convirtiéndose en una solución integral para cirugía mínimamente invasiva en especialidades como urología, cirugía general, otorrinolaringología y ginecología.",
+    "descripcion_larga_en": "The 4K laparoscopic tower SonoScape SV-M4K120 is a rigid and flexible minimally invasive surgery system designed for maximum image quality, precision and operating room efficiency. Its architecture combines the SV-M4K120 4K video processor with the SL-ED40 LED light source, integrating Ultra HD resolution and advanced processing algorithms that optimize contrast and reduce surgeon eye strain. The four-LED light source offers superior color rendering, ensuring homogeneous illumination and vascular enhancement even in delicate anatomical structures. This hybrid and versatile system can be configured with rigid cameras and lenses as well as flexible endoscopes (rhinolaryngoscopes, cystoscopes, ureteroscopes and choledocoscopes), becoming a comprehensive solution for minimally invasive surgery in specialties such as urology, general surgery, otolaryngology and gynecology.",
     "especificaciones": [],
     "imagen_principal": "/assets/productos/importados/torre-laparoscopia-4k-sonoscape-sv-m4k120/imagen-principal-torre-laparoscopia-4k-sonoscape-sv-m4k120.jpg",
     "galeria": [
@@ -25174,8 +25070,8 @@
     "nombre_en": "FHD Laparoscopic Tower SonoScape X-2600",
     "descripcion_corta_es": "La Torre de Laparoscopia SonoScape X-2600 es un sistema de endoscopia Full HD que integra en una sola consola el procesador de video y la fuente de luz LED, ofreciendo imágenes de alta precisión y un ",
     "descripcion_corta_en": "Full HD endoscopic tower integrating video processor and LED light source in a single console for optimized surgical workflow.",
-    "descripcion_larga_es": "La Torre de Laparoscopia SonoScape X-2600 es un sistema de endoscopia Full HD que integra en una sola consola el procesador de video y la fuente de luz LED, ofreciendo imágenes de alta precisión y un flujo de trabajo optimizado en el quirófano.\n\nSu tecnología SFI/VIST de cromoendoscopía digital realza el contraste de mucosas y vasos sanguíneos, facilitando diagnósticos en tiempo real durante procedimientos laparoscópicos y endoscópicos.\n\nGracias a su diseño híbrido y compacto, la torre X-2600 es compatible con cámaras, lentes rígidos y sistemas flexibles, incluyendo videorinolaringoscopios, videocistoscopios, videoureteroscopios, videocoledoscopios, videocolonoscopios, videogastroscopios y videobroncoscopios.Ideal para cirugía general, urología, otorrinolaringología, ginecología y endoscopia digestiva.\n\nCon la Torre de Laparoscopia FHD X-2600, Equitronic ofrece una solución eficiente, duradera y versátil para procedimientos quirúrgicos de alta exigencia.",
-    "descripcion_larga_en": "The SonoScape X-2600 FHD laparoscopic tower is a Full HD endoscopy system that integrates the video processor and LED light source into a single console, providing high-precision imaging and optimized workflow in the operating room. Its SFI/VIST digital chromoendoscopy technology enhances the contrast of mucosa and blood vessels, facilitating real-time diagnostics during laparoscopic and endoscopic procedures. Thanks to its hybrid, compact design, the X-2600 tower is compatible with rigid cameras and lenses as well as flexible systems, including video rhinolaryngoscopes, video cystoscopes, video ureteroscopes, video choledocoscopes, video colonoscopes, video gastroscopes and video bronchoscopes. Ideal for general surgery, urology, otolaryngology, gynecology and digestive endoscopy. Equitronic offers an efficient, durable and versatile solution for demanding surgical procedures with the FHD Laparoscopy Tower X-2600.",
+    "descripcion_larga_es": "La Torre de Laparoscopia SonoScape X-2600 es un sistema de endoscopia Full HD que integra en una sola consola el procesador de video y la fuente de luz LED, ofreciendo imágenes de alta precisión y un flujo de trabajo optimizado en el quirófano.\n\nSu tecnología SFI/VIST de cromoendoscopía digital realza el contraste de mucosas y vasos sanguíneos, facilitando diagnósticos en tiempo real durante procedimientos laparoscópicos y endoscópicos.\n\nGracias a su diseño híbrido y compacto, la torre X-2600 es compatible con cámaras, lentes rígidos y sistemas flexibles, incluyendo videorinolaringoscopios, videocistoscopios, videoureteroscopios, videocoledoscopios, videocolonoscopios, videogastroscopios y videobroncoscopios. Ideal para cirugía general, urología, otorrinolaringología, ginecología y endoscopia digestiva.",
+    "descripcion_larga_en": "The SonoScape X-2600 FHD laparoscopic tower is a Full HD endoscopy system that integrates the video processor and LED light source into a single console, providing high-precision imaging and optimized workflow in the operating room. Its SFI/VIST digital chromoendoscopy technology enhances the contrast of mucosa and blood vessels, facilitating real-time diagnostics during laparoscopic and endoscopic procedures. Thanks to its hybrid, compact design, the X-2600 tower is compatible with rigid cameras and lenses as well as flexible systems, including video rhinolaryngoscopes, video cystoscopes, video ureteroscopes, video choledocoscopes, video colonoscopes, video gastroscopes and video bronchoscopes. Ideal for general surgery, urology, otolaryngology, gynecology and digestive endoscopy.",
     "especificaciones": [],
     "imagen_principal": "/assets/productos/importados/torre-laparoscopia-fhd-sonoscape-x2600/imagen-principal-torre-laparoscopia-fhd-sonoscape-x2600.png",
     "galeria": [
@@ -25248,10 +25144,8 @@
         "valor": "Un solo paciente; máximo 7 días"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/tubo-nasal-para-cpap-de-burbuja-fisher-paykel/imagen-principal-tubo-nasal-para-cpap-de-burbuja-fisher-paykel.png",
-    "galeria": [
-      "/assets/productos/importados/tubo-nasal-para-cpap-de-burbuja-fisher-paykel/imagen-principal-tubo-nasal-para-cpap-de-burbuja-fisher-paykel.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": "/assets/productos/fichas/fisher-paykel-healthcare/bubble-cpap-system-ui-185042847.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -25883,12 +25777,8 @@
         "valor": "Fabricado por Air Liquide Medical Systems; sistema de gestión ambiental certificado ISO 14001:2015"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/ventilador-mecanico-de-transporte-monnal-ref-t60-advanced-air-liquide/imagen-principal-ventilador-mecanico-de-transporte-monnal-ref-t60-advanced-air-liquide.png",
-    "galeria": [
-      "/assets/productos/importados/ventilador-mecanico-de-transporte-monnal-ref-t60-advanced-air-liquide/imagen-principal-ventilador-mecanico-de-transporte-monnal-ref-t60-advanced-air-liquide.png",
-      "/assets/productos/importados/ventilador-mecanico-de-transporte-monnal-ref-t60-advanced-air-liquide/galeria-ventilador-mecanico-de-transporte-monnal-ref-t60-advanced-air-liquide-02.png",
-      "/assets/productos/importados/ventilador-mecanico-de-transporte-monnal-ref-t60-advanced-air-liquide/galeria-ventilador-mecanico-de-transporte-monnal-ref-t60-advanced-air-liquide-03.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": "/assets/productos/importados/ventilador-mecanico-de-transporte-monnal-ref-t60-advanced-air-liquide/ficha-ventilador-mecanico-de-transporte-monnal-ref-t60-advanced-air-liquide.pdf",
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
@@ -26109,8 +25999,6 @@
     "galeria": [
       "/assets/productos/importados/ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide/imagen-principal-ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide.png",
       "/assets/productos/importados/ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide/galeria-ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide-02.png",
-      "/assets/productos/importados/ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide/galeria-ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide-03.png",
-      "/assets/productos/importados/ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide/galeria-ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide-04.png",
       "/assets/productos/importados/ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide/galeria-ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide-05.png"
     ],
     "ficha_pdf": "/assets/productos/importados/ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide/ficha-ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide.pdf",
@@ -26355,12 +26243,9 @@
         "valor": "300 - 700 kPa (3,0 - 7,0 bar)"
       }
     ],
-    "imagen_principal": "/assets/productos/importados/ventilador-neonatal-no-invasivo-ref-nc3-medin/imagen-principal-ventilador-neonatal-no-invasivo-ref-nc3-medin.png",
+    "imagen_principal": "/assets/productos/importados/ventilador-neonatal-no-invasivo-ref-nc3-medin/galeria-ventilador-neonatal-no-invasivo-ref-nc3-medin-03.png",
     "galeria": [
-      "/assets/productos/importados/ventilador-neonatal-no-invasivo-ref-nc3-medin/imagen-principal-ventilador-neonatal-no-invasivo-ref-nc3-medin.png",
-      "/assets/productos/importados/ventilador-neonatal-no-invasivo-ref-nc3-medin/galeria-ventilador-neonatal-no-invasivo-ref-nc3-medin-02.png",
       "/assets/productos/importados/ventilador-neonatal-no-invasivo-ref-nc3-medin/galeria-ventilador-neonatal-no-invasivo-ref-nc3-medin-03.png",
-      "/assets/productos/importados/ventilador-neonatal-no-invasivo-ref-nc3-medin/galeria-ventilador-neonatal-no-invasivo-ref-nc3-medin-04.png",
       "/assets/productos/importados/ventilador-neonatal-no-invasivo-ref-nc3-medin/galeria-ventilador-neonatal-no-invasivo-ref-nc3-medin-05.png"
     ],
     "ficha_pdf": "/assets/productos/fichas/medin-medical-innovations/ts-medin-nc3-rev06.pdf",
@@ -26624,11 +26509,10 @@
       "/assets/productos/importados/ventilador-neonatal-pedriatrico-convencional-ref-6000-sle/imagen-principal-ventilador-neonatal-pedriatrico-convencional-ref-6000-sle.png",
       "/assets/productos/importados/ventilador-neonatal-pedriatrico-convencional-ref-6000-sle/galeria-ventilador-neonatal-pedriatrico-convencional-ref-6000-sle-02.png",
       "/assets/productos/importados/ventilador-neonatal-pedriatrico-convencional-ref-6000-sle/galeria-ventilador-neonatal-pedriatrico-convencional-ref-6000-sle-03.png",
-      "/assets/productos/importados/ventilador-neonatal-pedriatrico-convencional-ref-6000-sle/galeria-ventilador-neonatal-pedriatrico-convencional-ref-6000-sle-04.png",
       "/assets/productos/importados/ventilador-neonatal-pedriatrico-convencional-ref-6000-sle/galeria-ventilador-neonatal-pedriatrico-convencional-ref-6000-sle-05.png",
       "/assets/productos/importados/ventilador-neonatal-pedriatrico-convencional-ref-6000-sle/galeria-ventilador-neonatal-pedriatrico-convencional-ref-6000-sle-06.png"
     ],
-    "ficha_pdf": "/assets/importados/equitronic/pdf/eq-ventilador-neonatal-pedriatrico-convencional-ref-6000-sle.pdf",
+    "ficha_pdf": null,
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
     "precio": null,
@@ -26857,10 +26741,8 @@
     "descripcion_larga_es": "Limpieza segura e higiénica de objetos y superficies en hospitales, residencias de ancianos, consultorios médicos, laboratorios, cocinas, áreas sanitarias, y en industrias farmacéuticas y alimentarias. Tanto en áreas con riesgo de infección como en aquellas sin riesgo, se retira una toalla VITAL CARE impregnada con desinfectante para superficies y/o dispositivos médicos, optimizando todas las caras de la toalla y luego se descarta de manera segura.",
     "descripcion_larga_en": "Safe and hygienic cleaning of objects and surfaces in hospitals, nursing homes, medical offices, laboratories, kitchens, sanitary areas, and in pharmaceutical and food industries. In both infection-risk and non-risk areas, a VITAL CARE wipe impregnated with surface and/or medical device disinfectant is used, optimizing all sides of the wipe and then safely discarded.",
     "especificaciones": [],
-    "imagen_principal": "/assets/productos/importados/vital-care-wipes-ref-1240115-vital-care/imagen-principal-vital-care-wipes-ref-1240115-vital-care.png",
-    "galeria": [
-      "/assets/productos/importados/vital-care-wipes-ref-1240115-vital-care/imagen-principal-vital-care-wipes-ref-1240115-vital-care.png"
-    ],
+    "imagen_principal": null,
+    "galeria": [],
     "ficha_pdf": null,
     "tipo_comercial": "equipo",
     "fulfillment_mode": "cotizacion",
