@@ -85,6 +85,28 @@ Send must return `TEMPLATE_INACTIVE`. Restore `activo = true` after.
 Storage bucket `cotizaciones-pdf`, object `{id}/{revision}.pdf`.
 Email `referencia` = `numero`, attachment `{numero}.pdf`.
 
+## Páginas de anexo en el PDF (por línea)
+
+Tras la portada y la tabla de líneas, el renderer (`src/lib/render-quote-pdf.ts` y
+`supabase/functions/_shared/render-quote-pdf.ts`) puede añadir **una página de anexo por
+producto de catálogo** con ficha útil.
+
+Reglas (SoT: `src/lib/quote-pdf-annex.ts`):
+
+| Condición | ¿Página de anexo? |
+| --------- | ---------------- |
+| Línea libre (sin `producto_id` / no linked) | No |
+| Solo nombre o descripción corta repetida como «larga» | No |
+| Al menos una especificación (`clave: valor`) o aplicación en ficha | Sí |
+| Descripción larga (sin HTML) **distinta** del nombre del producto | Sí |
+
+`draftQuoteAnnex()` devuelve `null` cuando no hay contenido; `quoteAnnexHasSpecContent()`
+filtra antes de pintar. Misma lógica en `/comercial`, `enviar-cotizacion`, MCP preview y
+tests (`src/lib/render-quote-pdf.test.ts`, `src/lib/quote-pdf-annex.test.ts`).
+
+Implicación para QA: una cotización con líneas de catálogo «vacías» (sin specs ni descripción
+larga) genera un PDF más corto — no es fallo de render.
+
 ## Error codes
 
 | code                                                            | HTTP | meaning                        |
