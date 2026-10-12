@@ -12,13 +12,25 @@ mkdir -p "$RUNTIME"
 if [[ -f .env ]]; then
   set -a
   # shellcheck disable=SC2046
-  eval "$(grep -E '^(OCR_BRIDGE_SECRET|OCR_BRIDGE_PORT|LLM_VISION_MODEL|OCR_BRIDGE_URL)=' .env | sed 's/^/export /')"
+  eval "$(grep -E '^(OCR_BRIDGE_SECRET|OCR_BRIDGE_PORT|LLM_VISION_MODEL|OCR_BRIDGE_URL|SUPABASE_URL|OCR_BRIDGE_ALLOWED_HOSTS)=' .env | sed 's/^/export /')"
   set +a
 fi
 
 PORT="${OCR_BRIDGE_PORT:-3850}"
 MODEL="${LLM_VISION_MODEL:-moondream}"
 SECRET="${OCR_BRIDGE_SECRET:-}"
+
+if [[ -z "$SECRET" ]]; then
+  SECRET="$(openssl rand -hex 24)"
+  echo "[ocr] OCR_BRIDGE_SECRET vacío — generando y persistiendo en .env"
+  if grep -q '^OCR_BRIDGE_SECRET=' .env 2>/dev/null; then
+    sed -i "s|^OCR_BRIDGE_SECRET=.*|OCR_BRIDGE_SECRET=$SECRET|" .env
+  else
+    printf '\nOCR_BRIDGE_SECRET=%s\n' "$SECRET" >> .env
+  fi
+  export OCR_BRIDGE_SECRET="$SECRET"
+fi
+
 REPO="${IME_OCR_GH_REPO:-8picota2025/IMe-Platform}"
 
 status() {
@@ -47,6 +59,7 @@ sleep 1
 
 echo "[ocr] starting bridge :${PORT} model=${MODEL}"
 OCR_BRIDGE_SECRET="$SECRET" OCR_BRIDGE_PORT="$PORT" LLM_VISION_MODEL="$MODEL" \
+  SUPABASE_URL="${SUPABASE_URL:-}" OCR_BRIDGE_ALLOWED_HOSTS="${OCR_BRIDGE_ALLOWED_HOSTS:-}" \
   nohup node scripts/ocr-moondream-bridge.mjs >"$RUNTIME/bridge.log" 2>&1 &
 echo $! >"$RUNTIME/bridge.pid"
 
@@ -100,9 +113,7 @@ echo
 if command -v gh >/dev/null 2>&1; then
   echo "[ocr] sync GitHub secrets + Edge deploy…"
   gh secret set OCR_BRIDGE_URL --repo "$REPO" --body "$URL"
-  if [[ -n "$SECRET" ]]; then
-    gh secret set OCR_BRIDGE_SECRET --repo "$REPO" --body "$SECRET"
-  fi
+  gh secret set OCR_BRIDGE_SECRET --repo "$REPO" --body "$SECRET"
   gh secret set LLM_VISION_MODEL --repo "$REPO" --body "$MODEL" 2>/dev/null || true
   gh secret set OCR_VISION_PROVIDER --repo "$REPO" --body ollama 2>/dev/null || true
   gh workflow run "Deploy Supabase Functions" --repo "$REPO"
@@ -110,6 +121,7 @@ if command -v gh >/dev/null 2>&1; then
 else
   echo "[ocr] gh no disponible — actualiza secrets a mano:"
   echo "  OCR_BRIDGE_URL=$URL"
+  echo "  OCR_BRIDGE_SECRET=<set in .env>"
 fi
 
 echo
