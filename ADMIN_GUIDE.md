@@ -24,6 +24,9 @@
 - `Guardar borrador` crea o actualiza el producto.
 - `activo=false` mantiene el producto fuera del sitio publico.
 - `activo=true` lo deja listo para el siguiente rebuild estatico.
+- Retiros masivos y URLs legacy (410/301): ver `docs/catalogo-productos-retirados.md`.
+- **Ingesta sobre producto existente:** en `#/ingesta?producto=<id>` elegir «Actualizar el producto
+  existente con esta ficha»; la UI compara campo a campo y puede solicitar rebuild al publicar.
 - `precio` es el unico precio publico en COP. `precio_costo` vive solo en proveedor_producto y nunca debe exponerse al cliente.
 - Para consumibles con compra futura, el precio real debe estar aprobado antes de activar checkout.
 
@@ -120,20 +123,28 @@ La IA no publica, no autoguarda y no debe completar datos ausentes.
   el canal del proveedor) se implementa en F4; hasta entonces la funcion
   responde con `BLOQUEANTE_BACKEND` y el admin lo muestra como aviso.
 
-## Cotizaciones y Pedidos
+## Presupuestos (cotizaciones comerciales)
 
-- Cotizaciones y pedidos se listan en orden cronologico inverso, con un boton
-  "Ver" que abre el detalle de cada registro.
-- Se pueden marcar como leidos desde la lista o desde el detalle.
-- El boton CSV descarga los datos visibles para revision comercial.
-- Detalle de cotizacion: datos de contacto, productos solicitados (JSON),
-  mensaje y estado del consentimiento de datos.
-- Detalle de pedido: datos del cliente, items, totales, referencia de pago y
-  consentimiento. Incluye un formulario para cambiar el `estado` manualmente
-  (pendiente/pagado/procesando/enviado/entregado/cancelado/error); este cambio
-  es solo administrativo y **no** sustituye la verificación server-side de la
-  pasarela. Las notificaciones automaticas al proveedor se disparan desde los
-  webhooks/post-pago cuando el pedido queda pagado.
+Menu **Presupuestos** (`#/cotizaciones`):
+
+- Bandeja con pestanas (nuevas, en revision, enviadas, etc.), busqueda y **Exportar CSV**.
+- **Nuevo presupuesto:** ficha con lineas de catalogo o libres, condiciones, validez, cliente.
+  Campo **Resumen de especificaciones** por linea (textarea «lo vera el cliente en la oferta»).
+- **Escanear presupuesto** (`#/cotizaciones-escanear` o desde la ficha): OCR de PDF/imagen de
+  competencia para rellenar cliente, productos, cantidades y precios (requiere bridge OCR en prod;
+  ver `docs/plans/2026-08-15-ocr-cms-pwa.md`).
+- Previsualizar PDF y enviar por email/WhatsApp desde admin; el envio oficial numerado pasa por
+  Edge Function `enviar-cotizacion` (misma ruta que MCP). Runbook: `docs/commercial-quote-dev.md`.
+- Agentes IA: `docs/mcp-ime-comercio-cotizaciones.md` (aprobacion owner/admin obligatoria).
+
+Las **solicitudes web** del formulario publico siguen en la misma tabla; el panel distingue flujo
+comercial vs lead entrante. No borrar presupuestos convertidos a pedido (`QUOTE_LOCKED`).
+
+## Pedidos
+
+- Pedidos se listan en orden cronologico inverso, con detalle de cliente, items, totales y pago.
+- El `estado` manual (pendiente/pagado/…) es administrativo y **no** sustituye la verificacion
+  server-side de la pasarela. Notificaciones al proveedor: webhooks/post-pago cuando queda pagado.
 
 ## Legales y auditoría F5
 

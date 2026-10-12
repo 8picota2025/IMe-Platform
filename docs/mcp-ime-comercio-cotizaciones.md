@@ -239,7 +239,9 @@ rechaza la factura electrónica (`TRATAMIENTO_TRIBUTARIO_OFERTA_REQUERIDO`). El 
    (o crearla con `crear_borrador_cotizacion` con un email **tuyo**).
 2. `actualizar_cotizacion` con líneas de precio > 0, condiciones, validez e `impuestos_incluidos: true`.
 3. `preparar_envio_cotizacion { actor_email: "comercial1@i-me.com.co" }` → abrir `pdf_preview_url` y revisar
-   asesor, total y líneas.
+   asesor, total y líneas. Las páginas de anexo por producto solo aparecen si la ficha aporta
+   especificaciones/aplicaciones o descripción larga distinta del nombre (`src/lib/quote-pdf-annex.ts`;
+   runbook en `docs/commercial-quote-dev.md`).
 4. Aprobar en `/admin` → Dashboard → «Aprobaciones del agente» (owner/admin).
 5. `confirmar_envio_cotizacion { confirmacion_id }` → comprobar en tu bandeja: remitente `pedidos@`, firma del
    asesor, PDF adjunto, botón de formalizar y, al pulsar _Responder_, destinatario `comercial1@i-me.com.co`

@@ -91,3 +91,22 @@ curl -I https://i-me.com.co/knowledge
 
 - Drift FTP/docroot (`release-manifest` 404 live)
 - Sin mapa `/blog/<slug>` legacy
+
+## Seguimiento 2026-10 (`fix/seo-audit-1026`, merge #166)
+
+Cambios en código ya en `main` (verificar tras cada deploy prod):
+
+| Área | Qué hace | Dónde mirar |
+| ---- | -------- | ----------- |
+| Barras finales | Política `trailingSlash: 'always'`; redirects sin cadena 301→301 | `public/.htaccess`, rutas EN contacto |
+| Duplicados catálogo | 301 del slug retirado al canonical del sitemap | `.htaccess` + `supabase/retirar-duplicados-seo1026.sql` |
+| Productos retirados | 410 Gone para slugs dados de baja (HTML legacy en FTP) | Bloque «Productos retirados» en `.htaccess` |
+| Catálogo sin 404 internos | Landings/enlaces sin productos `activo=false` | Build + `docs/catalogo-productos-retirados.md` |
+| Previews PR | Carpetas `/<PR>/` con `X-Robots-Tag` + build `PUBLIC_NOINDEX` | `docs/deploy-preview.md` |
+
+Comandos de regresión local (sin sustituir smoke post-deploy):
+
+```bash
+npm run validate:seo
+npm run audit:seo-build
+```
