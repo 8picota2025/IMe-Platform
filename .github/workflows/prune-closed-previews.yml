@@ -1,0 +1,82 @@
+name: Limpiar vistas previas de PRs cerrados
+
+# Borrado único de las carpetas /<PR>/ de PRs ya fusionados, para liberar la cuota del hosting.
+# Solo borra los números de la lista de abajo (todos PRs fusionados a fecha de 2026-10-12).
+# Ejecutar primero con dry_run = true para ver qué existe en el servidor.
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Solo listar lo que se borraría (no borra nada)'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  prune:
+    name: Borrar vistas previas de PRs cerrados
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      FTP_HOST: ${{ secrets.HOSTINGER_FTP_HOST }}
+      FTP_USER: ${{ secrets.HOSTINGER_FTP_USER }}
+      FTP_PASSWORD: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
+      PREVIEW_PATH: ${{ secrets.HOSTINGER_PREVIEW_PATH }}
+      DRY_RUN: ${{ inputs.dry_run }}
+    steps:
+      - name: Instalar lftp
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq lftp
+
+      - name: Borrar carpetas /<PR>/ de PRs cerrados
+        run: |
+          set -uo pipefail
+          # Guarda: la ruta base debe ser absoluta y no vacía.
+          case "$PREVIEW_PATH" in /*[a-zA-Z0-9]*) ;; *) echo "HOSTINGER_PREVIEW_PATH debe ser una ruta absoluta no vacía"; exit 1 ;; esac
+
+          # PRs fusionados a 2026-10-12 (110). No añadir números de PRs abiertos.
+          PRS="1 2 3 4 5 6 7 9 10 11 12 23 26 30 31 32 33 37 39 40 41 42 45 46 47 48 49 50
+          52 53 54 55 64 65 68 69 72 82 84 87 92 93 94 96 97 99 100 101 102 103 108 109
+          110 112 114 116 117 118 119 120 121 122 123 124 125 126 127 128 129 130 131
+          132 133 134 135 136 137 138 139 140 141 142 143 144 147 148 149 150 151 152
+          154 155 156 157 158 159 160 161 162 163 164 165 166 167 168 169 172 175 178 182"
+
+          lftp_run() {
+            lftp -u "$FTP_USER","$FTP_PASSWORD" "ftp://$FTP_HOST" -e "$1; bye"
+          }
+
+          total=0; deleted=0; absent=0; failed=()
+          for n in $PRS; do
+            total=$((total + 1))
+            target="${PREVIEW_PATH%/}/$n"
+            # cls sobre una carpeta inexistente no devuelve nada.
+            listing="$(lftp_run "cls -1 '$target' 2>/dev/null" || true)"
+            if [ -z "$listing" ]; then
+              absent=$((absent + 1))
+              echo "[no existe] $target"
+              continue
+            fi
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "[dry-run] borraría $target ($(printf '%s\n' "$listing" | wc -l) entradas en la raíz)"
+              continue
+            fi
+            lftp_run "rm -r '$target'" >/dev/null 2>&1 || true
+            remaining="$(lftp_run "cls -1 '$target' 2>/dev/null" || true)"
+            if [ -n "$remaining" ]; then
+              echo "[FALLO] sigue existiendo: $target"
+              failed+=("$n")
+            else
+              deleted=$((deleted + 1))
+              echo "[borrado] $target"
+            fi
+          done
+
+          echo "----"
+          echo "PRs en la lista: $total | inexistentes: $absent | borrados: $deleted | fallidos: ${#failed[@]}"
+          if [ "${#failed[@]}" -gt 0 ]; then
+            echo "Fallidos: ${failed[*]}"
+            exit 1
+          fi
