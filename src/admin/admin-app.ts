@@ -94,7 +94,8 @@ import {
   fetchResumenCatalogo,
 } from '../lib/quote-line-tools';
 import {
-  deleteQuote as deleteQuoteApi,
+  archivarQuote,
+  desarchivarQuote,
   duplicarQuote,
   listQuotes,
   previewQuotePdf,
@@ -3953,6 +3954,8 @@ const COTIZACION_ESTADOS: Array<[string, string]> = [
   ['enviada', 'Enviada'],
   ['convertida', 'Convertida'],
   ['expirada', 'Expirada'],
+  ['perdida', 'Perdida'],
+  ['declinada', 'Declinada'],
 ];
 
 function cotizacionEstadoLabel(estado: string): string {
@@ -4018,6 +4021,29 @@ async function actualizarSeguimientoCotizacion(
     toast(error.message);
     return false;
   }
+  const motivo =
+    opciones.nota?.trim() || `Cambio de estado ${estadoAnterior} -> ${estado} desde /admin`;
+  const { error: auditError } = await supabase!.from('comercio_actuaciones').insert({
+    actor: state.email || 'admin',
+    rol: state.rol || 'admin',
+    herramienta: 'cambiar_estado_cotizacion',
+    entidad: 'solicitudes_cotizacion',
+    entidad_id: id,
+    antes: { estado: estadoAnterior },
+    despues: { estado },
+    motivo,
+  });
+  if (auditError) {
+    await supabase!
+      .from('solicitudes_cotizacion')
+      .update({
+        estado: estadoAnterior,
+        notas_internas: text(before?.notas_internas) || null,
+      })
+      .eq('id', id);
+    toast(`No se pudo auditar el cambio; se revirtió el estado. ${auditError.message}`);
+    return false;
+  }
   return true;
 }
 
@@ -4049,12 +4075,13 @@ async function actualizarSeguimientoFulfillment(
   return true;
 }
 
-type CotizacionesTab = 'pendientes' | 'enviadas' | 'expiradas' | 'todas';
+type CotizacionesTab = 'pendientes' | 'enviadas' | 'expiradas' | 'cerradas' | 'todas';
 
 const COTIZACIONES_TABS: Array<[CotizacionesTab, string]> = [
   ['pendientes', 'Pendientes'],
   ['enviadas', 'Enviadas'],
   ['expiradas', 'Expiradas'],
+  ['cerradas', 'Cerradas'],
   ['todas', 'Todas'],
 ];
 
@@ -4085,6 +4112,7 @@ async function cotizacionesView(): Promise<string> {
     COTIZACIONES_TABS.find(([value]) => value === tabParam)?.[0] ?? 'pendientes';
   const q = (params.get('q') ?? '').trim();
   const mias = params.get('mias') === '1';
+  const archivadas = params.get('archivadas') === '1';
   const page = Math.max(1, numberOrZero(params.get('page')) || 1);
 
   const { data, error } = await listQuotes({
@@ -4092,6 +4120,7 @@ async function cotizacionesView(): Promise<string> {
     page: String(page),
     ...(q ? { q } : {}),
     ...(mias ? { mias: '1' } : {}),
+    ...(archivadas ? { incluir_archivadas: '1' } : {}),
   });
   if (error || !data) {
     return `<section class="admin-panel"><div class="admin-alert">No fue posible cargar presupuestos: ${escapeHtml(error ?? 'sin datos')}</div><a class="admin-button admin-button--ghost" href="${cotizacionesLink({})}">Reintentar</a></section>`;
@@ -4148,12 +4177,13 @@ async function cotizacionesView(): Promise<string> {
           <button class="admin-button admin-button--ghost" type="button" data-cotizaciones-select-all>Seleccionar todo</button>
           <button class="admin-button admin-button--ghost" type="button" data-csv="${csvPayload}" data-filename="presupuestos.csv">Exportar CSV</button>
           <span class="admin-meta">Seleccionadas: <strong data-cotizaciones-selected-count>0</strong></span>
-          <button class="admin-button admin-button--danger" type="button" data-bulk-cotizacion-delete>Eliminar seleccionadas</button>
+          <button class="admin-button admin-button--danger" type="button" data-bulk-cotizacion-delete>Archivar seleccionadas</button>
         </div>
       </div>
       <div class="admin-toolbar" role="tablist" aria-label="Bandeja de presupuestos">
         ${tabs}
         <a class="admin-button ${mias ? '' : 'admin-button--ghost'}" href="${cotizacionesLink({ mias: mias ? '' : '1', page: '' })}">${mias ? 'Solo mías ✓' : 'Solo mías'}</a>
+        <a class="admin-button ${archivadas ? '' : 'admin-button--ghost'}" href="${cotizacionesLink({ archivadas: archivadas ? '' : '1', page: '' })}">${archivadas ? 'Ocultar archivadas' : 'Incluir archivadas'}</a>
       </div>
       <form class="admin-filters" data-cotizaciones-filter>
         ${field('q', 'Buscar número, empresa, contacto o email', q, false, 'search')}
@@ -4194,7 +4224,7 @@ async function cotizacionesView(): Promise<string> {
                 ? `<button class="admin-button admin-button--ghost" data-table="solicitudes_cotizacion" data-mark-read="${escapeHtml(row.id)}" type="button">Marcar leida</button>`
                 : '',
               borrable
-                ? `<button class="admin-button admin-button--danger" type="button" data-cotizacion-list-delete="${escapeHtml(row.id)}" data-label="${escapeHtml(row.numero || row.empresa || row.nombre || 'presupuesto')}">Borrar</button>`
+                ? `<button class="admin-button admin-button--danger" type="button" data-cotizacion-list-delete="${escapeHtml(row.id)}" data-label="${escapeHtml(row.numero || row.empresa || row.nombre || 'presupuesto')}">Archivar</button>`
                 : '',
             ]
               .filter(Boolean)
@@ -4383,8 +4413,10 @@ async function cotizacionDetailView(): Promise<string> {
           <a class="admin-button admin-button--ghost" href="mailto:${escapeHtml(text(row.email))}">Responder email</a>
           <a class="admin-button admin-button--ghost" href="#/cotizaciones">Volver</a>
           ${
-            puedeGestionar && !convertida
-              ? '<button class="admin-button admin-button--danger" type="button" data-cotizacion-borrar>Borrar</button>'
+            puedeGestionar
+              ? text(row.archived_at)
+                ? '<button class="admin-button" type="button" data-cotizacion-desarchivar>Desarchivar</button>'
+                : '<button class="admin-button admin-button--danger" type="button" data-cotizacion-borrar>Archivar</button>'
               : ''
           }
         </div>
@@ -9369,8 +9401,12 @@ async function guardarOfertaAdmin(args: GuardarOfertaArgs): Promise<boolean> {
 }
 
 const COTIZACION_ERROR_API: Record<string, string> = {
-  QUOTE_LOCKED: 'No se puede borrar un presupuesto convertido a pedido.',
+  QUOTE_LOCKED: 'No se archiva un presupuesto convertido a pedido desde este botón.',
   FORBIDDEN: 'No tienes permiso para esta acción.',
+  MOTIVO_REQUERIDO: 'Escribe el motivo. Queda en la auditoría.',
+  COTIZACION_ARCHIVADA: 'Está archivada. Desarchívala antes de editarla.',
+  YA_ARCHIVADA: 'Ya está archivada.',
+  MIGRACION_PENDIENTE: 'Falta aplicar la migración de estado/archivo en la base.',
   PRECIO_PENDIENTE: 'Hay líneas en Pendiente validar. Asigna precio antes de validar al CRM.',
   CRM_SYNC_FAILED: 'No se pudo sincronizar con el CRM.',
   COTIZACION_INMUTABLE: 'Esta cotización ya no se edita. Crea una revisión.',
@@ -9387,17 +9423,16 @@ function cotizacionErrorCopy(code: string | undefined, fallback?: string | null)
 }
 
 async function borrarCotizacionAdmin(id: string, label: string): Promise<boolean> {
-  if (
-    !confirm(`¿Borrar ${label}? Esta acción no se puede deshacer (PDF incluido). Solo admin/owner.`)
-  ) {
-    return false;
-  }
-  const { error, code } = await deleteQuoteApi(id);
+  const motivo = window.prompt(
+    `Archivar ${label}. No se borra la fila ni el PDF; se puede recuperar con Incluir archivadas. Motivo:`
+  );
+  if (!motivo?.trim()) return false;
+  const { error, code } = await archivarQuote(id, motivo.trim());
   if (error) {
     toast(cotizacionErrorCopy(code, error));
     return false;
   }
-  toast('Presupuesto borrado.');
+  toast('Presupuesto archivado. No se eliminó.');
   return true;
 }
 
@@ -9968,20 +10003,21 @@ function bindCotizaciones() {
       toast('Selecciona al menos una cotizacion.');
       return;
     }
-    if (!confirm(`Eliminar ${ids.length} cotizacion(es)? Esta accion no se puede deshacer.`)) {
-      return;
-    }
+    const motivo = window.prompt(
+      `Archivar ${ids.length} cotizacion(es). No se borran; se pueden recuperar. Motivo:`
+    );
+    if (!motivo?.trim()) return;
     let borradas = 0;
     let ultimoError = '';
     for (const id of ids) {
-      const { error, code } = await deleteQuoteApi(id);
+      const { error, code } = await archivarQuote(id, motivo.trim());
       if (error) ultimoError = cotizacionErrorCopy(code, error);
       else borradas += 1;
     }
     toast(
       ultimoError
-        ? `${borradas} de ${ids.length} eliminadas. ${ultimoError}`
-        : `${borradas} cotizacion(es) eliminadas.`
+        ? `${borradas} de ${ids.length} archivadas. ${ultimoError}`
+        : `${borradas} cotizacion(es) archivadas.`
     );
     await render();
   });
@@ -10005,6 +10041,22 @@ function bindCotizaciones() {
       if (ok) await render();
     });
   });
+
+  app
+    .querySelector<HTMLButtonElement>('[data-cotizacion-desarchivar]')
+    ?.addEventListener('click', async () => {
+      const id = state.recordId;
+      if (!id) return;
+      const motivo = window.prompt('Recuperar este presupuesto. Motivo:');
+      if (!motivo?.trim()) return;
+      const { error, code } = await desarchivarQuote(id, motivo.trim());
+      if (error) {
+        toast(cotizacionErrorCopy(code, error));
+        return;
+      }
+      toast('Presupuesto recuperado.');
+      await render();
+    });
 
   app
     .querySelector<HTMLButtonElement>('[data-cotizacion-borrar]')

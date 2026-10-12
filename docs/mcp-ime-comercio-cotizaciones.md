@@ -12,12 +12,20 @@ Se arranca con `npm run mcp:comercio` (stdio). Necesita `SUPABASE_URL` (o `PUBLI
 ```
 buscar_cotizaciones ─► obtener_cotizacion ─► actualizar_cotizacion
                                                    │
+                     cambiar_estado_cotizacion     │  (NO envía al cliente)
+                     archivar_cotizacion           │
+                     desarchivar_cotizacion        │
+                                                   │
                                   preparar_envio_cotizacion  (dry-run + vista previa PDF)
                                                    │
                      owner/admin aprueba en el CMS (Dashboard → «Aprobaciones del agente»)
                                                    │
                                   confirmar_envio_cotizacion  (envío oficial)
 ```
+
+`cambiar_estado_cotizacion` no sustituye al envío: marcar `enviada` aquí no escribe
+`oferta_enviada_at` ni llama a `enviar-cotizacion`. El único envío al cliente sigue siendo
+`confirmar_envio_cotizacion`.
 
 `preparar_*` / `confirmar_*` usan el mismo patrón que facturas y reembolsos (`comercio_confirmaciones`): el
 agente **no puede aprobarse a sí mismo**. La aprobación la hace un owner/admin con sesión; el trigger de la
@@ -42,8 +50,9 @@ Todas las acciones quedan en `comercio_actuaciones` (actor, herramienta, antes/d
 ### `buscar_cotizaciones`
 
 Filtros opcionales: `q` (numero/nombre/empresa/email), `email`, `empresa`, `estado`
-(`nueva|en_revision|respondida|enviada|convertida|expirada`, varios separados por espacio), `desde` / `hasta`
-(`YYYY-MM-DD`, sobre `created_at`), `limite` (1-50, def. 20).
+(`nueva|en_revision|respondida|enviada|convertida|expirada|perdida|declinada`, varios separados por espacio),
+`desde` / `hasta` (`YYYY-MM-DD`, sobre `created_at`), `limite` (1-50, def. 20), `incluir_archivadas`,
+`solo_archivadas`. Sin esos dos flags las archivadas no salen.
 
 ```json
 {
@@ -125,6 +134,86 @@ opcionales, pero debe haber al menos uno.
 ```
 
 Respuesta: `{ "ok": true, "actualizados": ["productos","precio_total_ofertado","nit",…], "cotizacion": { …detalle… } }`.
+
+`estado` en `actualizar_cotizacion` se ignora. El cambio de estado es la herramienta siguiente.
+
+### `cambiar_estado_cotizacion`
+
+Cambia el estado **sin** enviar correo, WhatsApp ni PDF. Exige `cotizacion_id`, `estado`, `motivo` y `actor`
+(email del comercial o nombre del agente). Estados: `nueva`, `en_revision`, `respondida`, `enviada`,
+`convertida`, `expirada`, `perdida`, `declinada`.
+
+No aplica si la cotización está archivada (`COTIZACION_ARCHIVADA`) o ya tiene `pedido_id`
+(`COTIZACION_YA_CONVERTIDA`). El mismo estado devuelve `ESTADO_IGUAL`.
+
+```json
+{
+  "name": "cambiar_estado_cotizacion",
+  "arguments": {
+    "cotizacion_id": "uuid",
+    "estado": "perdida",
+    "motivo": "El cliente eligió otro proveedor",
+    "actor": "arquitecto-comercial",
+    "rol": "agente"
+  }
+}
+```
+
+```json
+{
+  "ok": true,
+  "envio_cliente": false,
+  "cotizacion_id": "uuid",
+  "estado_anterior": "enviada",
+  "estado": "perdida",
+  "motivo": "El cliente eligió otro proveedor",
+  "actor": "arquitecto-comercial",
+  "auditoria": {
+    "id": "uuid",
+    "en": "2026-10-11T14:30:00Z",
+    "actor": "arquitecto-comercial",
+    "motivo": "El cliente eligió otro proveedor",
+    "antes": { "estado": "enviada" },
+    "despues": { "estado": "perdida" }
+  }
+}
+```
+
+La fila de `comercio_actuaciones` guarda quién, cuándo (`en`), el motivo y el estado anterior→nuevo.
+
+### `archivar_cotizacion` / `desarchivar_cotizacion`
+
+Soft delete. No hay `DELETE` de la fila ni del PDF.
+
+`archivar_cotizacion` escribe `archived_at`, `archived_reason` y, si llega `actor_user_id` (uuid de
+`auth.users`), `archived_by`. `desarchivar_cotizacion` los limpia. Ambas exigen `cotizacion_id`, `motivo`
+y `actor`.
+
+`buscar_cotizaciones` oculta archivadas. `incluir_archivadas: true` las mezcla con las activas;
+`solo_archivadas: true` devuelve solo esas. El resumen incluye `archivada` y `archived_at`.
+
+```json
+{
+  "name": "archivar_cotizacion",
+  "arguments": {
+    "cotizacion_id": "uuid",
+    "motivo": "Duplicada de IME-Q-2026-000010",
+    "actor": "gestor-presupuestos",
+    "actor_user_id": "uuid-del-comercial"
+  }
+}
+```
+
+```json
+{
+  "name": "desarchivar_cotizacion",
+  "arguments": {
+    "cotizacion_id": "uuid",
+    "motivo": "El cliente retomó la negociación",
+    "actor": "gestor-presupuestos"
+  }
+}
+```
 
 ### `preparar_envio_cotizacion`
 
@@ -244,7 +333,7 @@ rechaza la factura electrónica (`TRATAMIENTO_TRIBUTARIO_OFERTA_REQUERIDO`). El 
 5. `confirmar_envio_cotizacion { confirmacion_id }` → comprobar en tu bandeja: remitente `pedidos@`, firma del
    asesor, PDF adjunto, botón de formalizar y, al pulsar _Responder_, destinatario `comercial1@i-me.com.co`
    (cabecera `Reply-To`; también visible en el log de Resend con el `message_id`).
-6. Limpiar: borrar la cotización de prueba (los datos de prueba no deben quedar en producción ni en Twenty).
+6. Limpiar: `archivar_cotizacion` con motivo (no borra la fila). Los datos de prueba no deben quedar visibles en las listas ni en Twenty.
 
 ## Conexión remota oficial
 

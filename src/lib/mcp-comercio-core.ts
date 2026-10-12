@@ -10,6 +10,13 @@ import {
   type FilaCotizacion,
   type ProductoCatalogo,
 } from './cotizacion-mcp.ts';
+import {
+  planArchivo,
+  planCambioEstado,
+  planDesarchivo,
+  type FilaEstadoCotizacion,
+  type PlanOk,
+} from './cotizacion-estado.ts';
 import { huellaOferta, validarEnvioCotizacion } from './cotizacion-envio.ts';
 import { esEmailValido } from './cotizacion-asesor.ts';
 import {
@@ -184,8 +191,10 @@ async function borrarEnTwenty(
   return { ok: false, error: `Twenty respondió HTTP ${res.status} al borrar ${objeto}/${id}.` };
 }
 
+const COTIZACION_COLS_ARCHIVO = 'archived_at,archived_by,archived_reason';
 const COTIZACION_COLS_LISTA =
-  'id,numero,estado,nombre,empresa,email,moneda,precio_total_ofertado,validez_hasta,created_by,updated_at,created_at,productos,metadata,pedido_id,impuestos_incluidos';
+  'id,numero,estado,nombre,empresa,email,moneda,precio_total_ofertado,validez_hasta,created_by,updated_at,created_at,productos,metadata,pedido_id,impuestos_incluidos,' +
+  COTIZACION_COLS_ARCHIVO;
 const COTIZACION_COLS_DETALLE = `${COTIZACION_COLS_LISTA},telefono,condiciones,nit,responsable_iva,direccion_envio,direccion_facturacion,notas_internas,send_error,pdf_storage_path,oferta_enviada_at,locale`;
 // Huella y envío solo necesitan estas columnas (sin PII adicional).
 const COTIZACION_COLS_ENVIO =
@@ -242,6 +251,14 @@ async function errorDeFuncion(
   return { message: error instanceof Error ? error.message : String(error) };
 }
 
+function sinColumnasArchivo(columnas: string): string {
+  return columnas.replace(`,${COTIZACION_COLS_ARCHIVO}`, '').replace(COTIZACION_COLS_ARCHIVO, '');
+}
+
+function faltaColumnaArchivo(message: string): boolean {
+  return /archived_at|archived_by|archived_reason/i.test(message);
+}
+
 async function cotizacionPorId(
   db: SupabaseClient,
   args: Json,
@@ -249,14 +266,92 @@ async function cotizacionPorId(
 ): Promise<{ ok: true; fila: FilaCotizacion } | { ok: false; error: string }> {
   const id = String(args.cotizacion_id ?? args.id ?? '').trim();
   if (!/^[0-9a-f-]{36}$/i.test(id)) return { ok: false, error: 'Hace falta cotizacion_id (uuid).' };
-  const { data, error } = await db
-    .from('solicitudes_cotizacion')
-    .select(columnas)
-    .eq('id', id)
-    .maybeSingle();
-  if (error) return { ok: false, error: error.message };
-  if (!data) return { ok: false, error: 'Cotización no encontrada.' };
-  return { ok: true, fila: data as unknown as FilaCotizacion };
+  let usadas = columnas;
+  let resultado = await db.from('solicitudes_cotizacion').select(usadas).eq('id', id).maybeSingle();
+  if (resultado.error && faltaColumnaArchivo(resultado.error.message)) {
+    usadas = sinColumnasArchivo(columnas);
+    resultado = await db.from('solicitudes_cotizacion').select(usadas).eq('id', id).maybeSingle();
+  }
+  if (resultado.error) return { ok: false, error: resultado.error.message };
+  if (!resultado.data) return { ok: false, error: 'Cotización no encontrada.' };
+  return { ok: true, fila: resultado.data as unknown as FilaCotizacion };
+}
+
+const UUID_ACTOR_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function actorUserId(args: Json): { ok: true; id: string | null } | { ok: false; error: string } {
+  const crudo = args.actor_user_id;
+  if (crudo == null || crudo === '') return { ok: true, id: null };
+  const id = String(crudo).trim();
+  if (!UUID_ACTOR_RE.test(id)) {
+    return { ok: false, error: 'actor_user_id debe ser un uuid de auth.users.' };
+  }
+  return { ok: true, id };
+}
+
+async function aplicarPlanCotizacion(
+  db: SupabaseClient,
+  quien: { actor: string; rol: string; motivo: string },
+  id: string,
+  plan: PlanOk,
+  anterior: FilaEstadoCotizacion
+): Promise<Json> {
+  const { error } = await db.from('solicitudes_cotizacion').update(plan.patch).eq('id', id);
+  if (error) {
+    return {
+      ok: false,
+      error:
+        faltaColumnaArchivo(error.message) || /estado_check/i.test(error.message)
+          ? 'Falta aplicar la migración de estado/archivo (perdida, declinada, archived_at). No se cambió la cotización.'
+          : error.message,
+      code:
+        faltaColumnaArchivo(error.message) || /estado_check/i.test(error.message)
+          ? 'MIGRACION_PENDIENTE'
+          : 'UPDATE_FAILED',
+    };
+  }
+  const { data: audit, error: auditError } = await db
+    .from('comercio_actuaciones')
+    .insert({
+      actor: quien.actor,
+      rol: quien.rol,
+      herramienta: plan.auditoria.herramienta,
+      entidad: 'solicitudes_cotizacion',
+      entidad_id: id,
+      antes: plan.auditoria.antes,
+      despues: plan.auditoria.despues,
+      motivo: plan.auditoria.motivo,
+    })
+    .select('id, en')
+    .single();
+  if (auditError || !audit) {
+    await db
+      .from('solicitudes_cotizacion')
+      .update({
+        estado: anterior.estado ?? 'nueva',
+        notas_internas: anterior.notas_internas ?? null,
+        archived_at: anterior.archived_at ?? null,
+        archived_by: anterior.archived_by ?? null,
+        archived_reason: anterior.archived_reason ?? null,
+      })
+      .eq('id', id);
+    return {
+      ok: false,
+      error: `No se pudo auditar; se revirtió el cambio. ${auditError?.message ?? ''}`.trim(),
+    };
+  }
+  return {
+    ok: true,
+    auditoria: {
+      id: audit.id,
+      en: audit.en,
+      actor: quien.actor,
+      rol: quien.rol,
+      motivo: plan.auditoria.motivo,
+      antes: plan.auditoria.antes,
+      despues: plan.auditoria.despues,
+    },
+  };
 }
 
 async function ejecutarCotizacion(
@@ -269,22 +364,30 @@ async function ejecutarCotizacion(
     const normalizado = normalizarFiltroCotizaciones(args);
     if (!normalizado.ok) return normalizado;
     const f = normalizado.filtro;
-    let consulta = db
-      .from('solicitudes_cotizacion')
-      .select(COTIZACION_COLS_LISTA)
-      .order('updated_at', { ascending: false })
-      .limit(f.limite);
-    if (f.estados.length > 0) consulta = consulta.in('estado', f.estados);
-    if (f.email) consulta = consulta.ilike('email', `%${f.email}%`);
-    if (f.empresa) consulta = consulta.ilike('empresa', `%${f.empresa}%`);
-    if (f.desde) consulta = consulta.gte('created_at', `${f.desde}T00:00:00Z`);
-    if (f.hasta) consulta = consulta.lte('created_at', `${f.hasta}T23:59:59.999Z`);
-    if (f.q) {
-      consulta = consulta.or(
-        `numero.ilike.%${f.q}%,nombre.ilike.%${f.q}%,empresa.ilike.%${f.q}%,email.ilike.%${f.q}%`
-      );
+    const armar = (columnas: string, archivo: typeof f.archivo | 'sin_filtro') => {
+      let consulta = db
+        .from('solicitudes_cotizacion')
+        .select(columnas)
+        .order('updated_at', { ascending: false })
+        .limit(f.limite);
+      if (archivo === 'activas') consulta = consulta.is('archived_at', null);
+      if (archivo === 'solo_archivadas') consulta = consulta.not('archived_at', 'is', null);
+      if (f.estados.length > 0) consulta = consulta.in('estado', f.estados);
+      if (f.email) consulta = consulta.ilike('email', `%${f.email}%`);
+      if (f.empresa) consulta = consulta.ilike('empresa', `%${f.empresa}%`);
+      if (f.desde) consulta = consulta.gte('created_at', `${f.desde}T00:00:00Z`);
+      if (f.hasta) consulta = consulta.lte('created_at', `${f.hasta}T23:59:59.999Z`);
+      if (f.q) {
+        consulta = consulta.or(
+          `numero.ilike.%${f.q}%,nombre.ilike.%${f.q}%,empresa.ilike.%${f.q}%,email.ilike.%${f.q}%`
+        );
+      }
+      return consulta;
+    };
+    let { data, error } = await armar(COTIZACION_COLS_LISTA, f.archivo);
+    if (error && faltaColumnaArchivo(error.message)) {
+      ({ data, error } = await armar(sinColumnasArchivo(COTIZACION_COLS_LISTA), 'sin_filtro'));
     }
-    const { data, error } = await consulta;
     if (error) return { ok: false, error: error.message };
     const filas = (data ?? []) as unknown as FilaCotizacion[];
     const asesores = await asesoresPorIds(
@@ -294,6 +397,7 @@ async function ejecutarCotizacion(
     return {
       ok: true,
       total: filas.length,
+      archivo: f.archivo,
       cotizaciones: filas.map(fila =>
         resumenCotizacion(fila, fila.created_by ? (asesores.get(fila.created_by) ?? null) : null)
       ),
@@ -401,6 +505,63 @@ async function ejecutarCotizacion(
       ),
       siguiente_paso:
         'preparar_envio_cotizacion para enviarla al cliente (requiere aprobación de owner/admin).',
+    };
+  }
+
+  if (
+    nombre === 'cambiar_estado_cotizacion' ||
+    nombre === 'archivar_cotizacion' ||
+    nombre === 'desarchivar_cotizacion'
+  ) {
+    const actor = String(args.actor ?? '').trim();
+    if (!actor) {
+      return {
+        ok: false,
+        code: 'ACTOR_REQUERIDO',
+        error: 'Hace falta actor (quién: email del comercial o nombre del agente).',
+      };
+    }
+    const quienAccion = {
+      actor,
+      rol: String(args.rol ?? 'agente'),
+      motivo: String(args.motivo ?? ''),
+    };
+    const usuario = actorUserId(args);
+    if (!usuario.ok) return { ok: false, code: 'ACTOR_USER_ID_INVALID', error: usuario.error };
+    const cargada = await cotizacionPorId(db, args, COTIZACION_COLS_DETALLE);
+    if (!cargada.ok) return cargada;
+    const fila = cargada.fila;
+    const ctx = { motivo: quienAccion.motivo, actor, archivedBy: usuario.id };
+    const plan =
+      nombre === 'cambiar_estado_cotizacion'
+        ? planCambioEstado(fila, args.estado, ctx)
+        : nombre === 'archivar_cotizacion'
+          ? planArchivo(fila, ctx)
+          : planDesarchivo(fila, ctx);
+    if (!plan.ok) return plan;
+    const aplicado = await aplicarPlanCotizacion(db, quienAccion, fila.id, plan, fila);
+    if (!aplicado.ok) return aplicado;
+    const recargada = await cotizacionPorId(
+      db,
+      { cotizacion_id: fila.id },
+      COTIZACION_COLS_DETALLE
+    );
+    const asesores = recargada.ok ? await asesoresPorIds(db, [recargada.fila.created_by]) : null;
+    return {
+      ok: true,
+      envio_cliente: false,
+      cotizacion_id: fila.id,
+      estado_anterior: plan.auditoria.antes.estado ?? null,
+      estado: plan.auditoria.despues.estado ?? fila.estado ?? null,
+      motivo: plan.auditoria.motivo,
+      actor,
+      auditoria: aplicado.auditoria,
+      cotizacion: recargada.ok
+        ? detalleCotizacion(
+            recargada.fila,
+            recargada.fila.created_by ? (asesores?.get(recargada.fila.created_by) ?? null) : null
+          )
+        : null,
     };
   }
 
@@ -605,12 +766,18 @@ export async function ejecutarComercio(
 
   if (nombre === 'bandeja_trabajo') {
     const [cotizaciones, oportunidades, pedidos, carritos, fulfillments] = await Promise.all([
-      db
-        .from('solicitudes_cotizacion')
-        .select('id,numero,nombre,empresa,created_at')
-        .eq('leida', false)
-        .order('created_at', { ascending: false })
-        .limit(8),
+      (async () => {
+        const base = () =>
+          db
+            .from('solicitudes_cotizacion')
+            .select('id,numero,nombre,empresa,created_at')
+            .eq('leida', false)
+            .order('created_at', { ascending: false })
+            .limit(8);
+        const filtrada = await base().is('archived_at', null);
+        if (filtrada.error && faltaColumnaArchivo(filtrada.error.message)) return base();
+        return filtrada;
+      })(),
       db
         .from('crm_opportunities')
         .select('id,titulo,etapa,updated_at')
@@ -724,11 +891,17 @@ export async function ejecutarComercio(
     if (!data) return { ok: false, error: 'Cliente no encontrado.' };
     const [pedidos, cotizaciones] = await Promise.all([
       db.from('pedidos').select('id,estado,total,moneda,created_at').eq('cliente_id', id).limit(10),
-      db
-        .from('solicitudes_cotizacion')
-        .select('id,numero,nombre,created_at')
-        .eq('email', data.email)
-        .limit(10),
+      (async () => {
+        const base = () =>
+          db
+            .from('solicitudes_cotizacion')
+            .select('id,numero,nombre,created_at')
+            .eq('email', data.email)
+            .limit(10);
+        const filtrada = await base().is('archived_at', null);
+        if (filtrada.error && faltaColumnaArchivo(filtrada.error.message)) return base();
+        return filtrada;
+      })(),
     ]);
     return {
       ok: true,
@@ -1392,7 +1565,23 @@ const inputSchema = {
     telefono: { type: 'string' },
     empresa: { type: 'string' },
     mensaje: { type: 'string' },
-    estado: { type: 'string' },
+    estado: {
+      type: 'string',
+      description:
+        'cambiar_estado_cotizacion: nueva | en_revision | respondida | enviada | convertida | expirada | perdida | declinada. No envía al cliente. buscar_cotizaciones: uno o varios separados por espacio.',
+    },
+    incluir_archivadas: {
+      type: 'boolean',
+      description: 'buscar_cotizaciones: true incluye archivadas. Por defecto quedan ocultas.',
+    },
+    solo_archivadas: {
+      type: 'boolean',
+      description: 'buscar_cotizaciones: true devuelve solo archivadas.',
+    },
+    actor_user_id: {
+      type: 'string',
+      description: 'archivar_cotizacion: uuid de auth.users para archived_by. Opcional.',
+    },
     tracking_number: { type: 'string' },
     tracking_url: { type: 'string' },
     actor_email: {
@@ -1425,19 +1614,29 @@ const inputSchema = {
   },
 };
 
-const DESCRIPCIONES_EXTRA: Partial<Record<McpToolName, string>> = {
+const DESCRIPCIONES_HERRAMIENTA: Partial<Record<McpToolName, string>> = {
   proponer_ficha:
     'Propone cambios de contenido (ES/EN, atributos de landing, ficha_pdf) a un producto existente. Una persona los aplica en el admin.',
   proponer_producto:
     'Propone un producto NUEVO desde una ficha (payload con slug, nombre_es y contenido ES/EN). Una persona lo crea inactivo en el admin; nunca se publica solo.',
   subir_ficha_pdf:
     'Devuelve una URL firmada (PUT, 2 h) para subir un PDF de ficha técnica al bucket fichas en propuestas/<slug>/. Requiere slug, sha256 y bytes.',
+  buscar_cotizaciones:
+    'Lista cotizaciones. Por defecto oculta archivadas. incluir_archivadas=true las muestra; solo_archivadas=true solo esas. estado admite perdida y declinada.',
+  cambiar_estado_cotizacion:
+    'Cambia el estado comercial (nueva, en_revision, respondida, enviada, convertida, expirada, perdida, declinada) SIN enviar correo, WhatsApp ni PDF. Exige cotizacion_id, estado, motivo y actor. Audita quién, cuándo, motivo y estado anterior→nuevo. No escribe oferta_enviada_at.',
+  archivar_cotizacion:
+    'Archivo recuperable: escribe archived_at, archived_by y archived_reason. No borra la fila ni el PDF. Exige cotizacion_id, motivo y actor. actor_user_id (uuid) opcional para archived_by.',
+  desarchivar_cotizacion:
+    'Recupera una cotización archivada (limpia archived_at, archived_by y archived_reason). Exige cotizacion_id, motivo y actor. No borra el historial de auditoría.',
 };
 
 export function herramientasComercio() {
   return MCP_TOOLS.map(name => ({
     name,
-    description: `Operación ime-comercio: ${name}. ${DESCRIPCIONES_EXTRA[name] ? `${DESCRIPCIONES_EXTRA[name]} ` : ''}No activa dropshipping ni devuelve secretos.`,
+    description:
+      DESCRIPCIONES_HERRAMIENTA[name] ??
+      `Operación ime-comercio: ${name}. No activa dropshipping ni devuelve secretos.`,
     inputSchema,
   }));
 }

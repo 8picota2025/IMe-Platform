@@ -51,3 +51,17 @@ NOT EXISTS estado ... ADD COLUMN IF NOT EXISTS notas_internas TEXT`) sobre
   `undefined` (el selector cae a `'nueva'` por defecto vía `|| 'nueva'`, y la
   textarea queda vacía) sin error, igual que el patrón ya usado para
   `disponible` en catálogo/carrito.
+
+## Actualización 2026-10-11 — estado sin envío y archivo recuperable
+
+El CHECK pasa a incluir `perdida` y `declinada`. El POST de guardado de
+`comercial-cotizacion` sigue **sin** escribir `estado` (allowlist
+`CAMPOS_GUARDADO_COTIZACION`): un body con `"estado"` se descarta. El cambio
+de estado sin avisar al cliente es `POST ?action=cambiar-estado` (y la
+herramienta MCP `cambiar_estado_cotizacion`). No llama a `enviar-cotizacion`
+ni escribe `oferta_enviada_at`.
+
+Archivo recuperable: `archived_at`, `archived_by`, `archived_reason`.
+`POST ?action=archivar` / `desarchivar`. DELETE ya no borra la fila ni el PDF.
+Las listas ocultan `archived_at IS NOT NULL` salvo `incluir_archivadas=1`.
+Cada cambio queda en `comercio_actuaciones` (actor, momento, motivo, antes/después).
