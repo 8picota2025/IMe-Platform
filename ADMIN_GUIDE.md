@@ -77,6 +77,16 @@ La IA no publica, no autoguarda y no debe completar datos ausentes.
 - `owner` / `admin` ven y usan todo. RLS en Supabase sigue siendo la barrera real.
 - El topbar muestra `Rol: …` junto al email.
 
+## Landings (Fase 3B)
+
+- Menu **Landings** (`#/landings`): lista todas las landings del sitio (campaña, fabricante, ciudad, familia).
+- Solo se pueden **editar** las de campaña ya migradas al CMS (tanda 1); el resto aparece como «En código» hasta las tandas 2–3.
+- Roles con acceso UI + RLS (mismo criterio que Blog): `owner`, `admin`, `catalogo`, **`ventas`**.
+- Editable: textos, listas, FAQ, fotos (URLs del bucket o subida). **No** editable: rutas, slugs, productos del carrusel, filtros de catálogo ni códigos de campaña para el CRM (salen del codigo).
+- Flujo: **Guardar borrador** (no cambia la web) → **Publicar** (RPC `publicar_landing` + **Publicar cambios** / rebuild).
+- **Historial**: restaurar una version anterior la copia al borrador; hay que revisar y publicar de nuevo.
+- Runbook tecnico: `docs/landings-cms.md`. Plan de migracion: `docs/growth-engine/fase3b-plan.md`.
+
 ## Blog / Conocimiento
 
 - Menu **Blog** (`#/conocimiento` o `#/blog`): listar, buscar, editar Markdown (toolbar), autores, imagen, publicar.
@@ -91,6 +101,10 @@ La IA no publica, no autoguarda y no debe completar datos ausentes.
 - **Proveedores**: datos del proveedor dropship (no es transportista de ultima milla).
 
 ## Proveedores y productos asignados
+
+- **Directorio comercial** (`#/proveedores`): CRM interno de proveedores (contactos, fuentes, seguimiento). No expone webhook, tokens, `precio_costo` ni datos de clientes en la plantilla de importacion.
+- **Importacion Excel** (panel del directorio): upsert por `slug`. Columnas definidas en `src/lib/proveedor-import.ts` (`PROVEEDOR_IMPORT_COLUMNS`). Celda vacia **no borra** el valor guardado salvo que marques vaciar campos. Hoja opcional de contactos enlaza por `slug_proveedor`.
+- Descarga la plantilla desde el admin antes de importar; la Edge Function `admin-import` valida con la misma fuente que la UI.
 
 - Cada proveedor muestra cuantos productos tiene asignados y un boton "Productos"
   que abre la vista de asignacion.

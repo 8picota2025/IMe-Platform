@@ -8,6 +8,8 @@
 > **Tanda 3 implementada** (3 de ciudad y 21 de familia; paridad por Postgres 24/24). Guías de
 > criterios y hub links de familia siguen en el código (enlaces internos y estructura SEO).
 
+Runbook operativo (admin + build): [`docs/landings-cms.md`](../landings-cms.md).
+
 ## Qué se migra (inventario del 2026-09-26)
 
 | Tipo                  | Fuente hoy                        | Contenidos | Páginas (ES+EN) | Forma                                          |
