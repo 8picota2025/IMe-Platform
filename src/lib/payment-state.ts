@@ -3,25 +3,25 @@
  * Keeping this interface local makes the helper unit-testable without importing
  * the Supabase runtime into the browser test suite.
  */
+export interface PaymentStateUpdateResult {
+  data: { id: string } | null;
+  error: { message: string } | null;
+}
+
+export interface PaymentStateSelectBuilder {
+  maybeSingle(): Promise<PaymentStateUpdateResult>;
+}
+
+/** After the first `.eq('id', …)` the chain supports paid-claim (neq) or void-claim (eq). */
+export interface PaymentStateIdFilter {
+  neq(column: string, value: string): { select(columns: string): PaymentStateSelectBuilder };
+  eq(column: string, value: string): { select(columns: string): PaymentStateSelectBuilder };
+}
+
 export interface PaymentStateClient {
   from(table: string): {
     update(values: Record<string, unknown>): {
-      eq(
-        column: string,
-        value: string
-      ): {
-        neq(
-          column: string,
-          value: string
-        ): {
-          select(columns: string): {
-            maybeSingle(): Promise<{
-              data: { id: string } | null;
-              error: { message: string } | null;
-            }>;
-          };
-        };
-      };
+      eq(column: string, value: string): PaymentStateIdFilter;
     };
   };
 }
@@ -44,6 +44,27 @@ export async function claimPaidTransition(
     .update({ estado: 'pagado' })
     .eq('id', pedidoId)
     .neq('estado', 'pagado')
+    .select('id')
+    .maybeSingle();
+
+  if (error) return { claimed: false, error: error.message };
+  return { claimed: data !== null, error: null };
+}
+
+/**
+ * Atomically moves a paid order to cancelado after Wompi VOIDED (card void).
+ * Only the winner should notify the customer that payment was reversed.
+ */
+export async function claimCancelFromPaid(
+  client: PaymentStateClient,
+  pedidoId: string,
+  extraFields: Record<string, unknown> = {}
+): Promise<PaidTransitionClaim> {
+  const { data, error } = await client
+    .from('pedidos')
+    .update({ estado: 'cancelado', ...extraFields })
+    .eq('id', pedidoId)
+    .eq('estado', 'pagado')
     .select('id')
     .maybeSingle();
 

@@ -15,6 +15,8 @@
  * - SITE_URL (origen público del sitio, p.ej. https://i-me.com.co) — usado para redirect URLs
  */
 
+import { buildWompiEventId } from '../../../src/lib/wompi-event-id.ts';
+
 export type PaymentProvider = 'wompi' | 'stripe';
 export type Mercado = 'CO' | 'INTL';
 
@@ -315,8 +317,17 @@ export class WompiGateway implements PaymentGateway {
 
     if (!eventId || !transaction?.reference) return null;
 
+    // Include status + timestamp so APPROVED then VOIDED (same txn id) are
+    // distinct eventos_pago rows; identical retries remain idempotent.
+    const event_id = buildWompiEventId({
+      event: eventId,
+      transactionId: String(transaction.id ?? transaction.reference),
+      status: String(transaction.status ?? 'unknown'),
+      timestamp: payload['timestamp'] as string | number | undefined,
+    });
+
     return {
-      event_id: `${eventId}:${transaction.id ?? transaction.reference}`,
+      event_id,
       referencia_pasarela: String(transaction.reference),
       payload,
     };
