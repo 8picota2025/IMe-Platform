@@ -33,11 +33,11 @@ const INPUT_SCHEMA = {
   additionalProperties: false,
 };
 
-const toolName = (raw) => raw.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 64);
+const toolName = raw => raw.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 64);
 
 function buildTools() {
   const tools = new Map();
-  const add = (tool) => tools.set(tool.name, tool);
+  const add = tool => tools.set(tool.name, tool);
 
   const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
   for (const [name, command] of Object.entries(pkg.scripts ?? {})) {
@@ -45,7 +45,7 @@ function buildTools() {
       name: toolName(`npm_${name}`),
       description: `npm run ${name} (${command})`,
       inputSchema: INPUT_SCHEMA,
-      build: (args) => ({
+      build: args => ({
         cmd: 'npm',
         argv: ['run', name, ...(args.length ? ['--', ...args] : [])],
       }),
@@ -60,7 +60,7 @@ function buildTools() {
       name: toolName(`script_${basename(entry.name, ext)}`),
       description: `scripts/${entry.name}`,
       inputSchema: INPUT_SCHEMA,
-      build: (args) =>
+      build: args =>
         ext === '.mjs'
           ? { cmd: process.execPath, argv: ['--env-file-if-exists=.env', file, ...args] }
           : { cmd: 'bash', argv: [file, ...args] },
@@ -71,7 +71,7 @@ function buildTools() {
 }
 
 function runTool(tool, args) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     const { cmd, argv } = tool.build(args);
     const chunks = [];
     let size = 0;
@@ -83,7 +83,7 @@ function runTool(tool, args) {
       stdio: ['ignore', 'pipe', 'pipe'],
     });
 
-    const onData = (chunk) => {
+    const onData = chunk => {
       size += chunk.length;
       if (size <= MAX_OUTPUT_CHARS * 2) chunks.push(chunk);
     };
@@ -98,13 +98,15 @@ function runTool(tool, args) {
     const finish = (status, isError) => {
       clearTimeout(timer);
       let out = Buffer.concat(chunks).toString('utf8');
-      if (out.length > MAX_OUTPUT_CHARS) out = `${out.slice(0, MAX_OUTPUT_CHARS)}\n[salida truncada]`;
+      if (out.length > MAX_OUTPUT_CHARS)
+        out = `${out.slice(0, MAX_OUTPUT_CHARS)}\n[salida truncada]`;
       resolve({ isError, text: `${out}\n${status}`.trim() });
     };
 
-    child.on('error', (err) => finish(`Error al lanzar ${cmd}: ${err.message}`, true));
+    child.on('error', err => finish(`Error al lanzar ${cmd}: ${err.message}`, true));
     child.on('close', (code, signal) => {
-      if (timedOut) return finish(`Tiempo agotado (${TIMEOUT_MS / 1000}s); proceso terminado.`, true);
+      if (timedOut)
+        return finish(`Tiempo agotado (${TIMEOUT_MS / 1000}s); proceso terminado.`, true);
       if (code === 0) return finish('[exit 0]', false);
       finish(`[exit ${code ?? signal}]`, true);
     });
@@ -112,7 +114,7 @@ function runTool(tool, args) {
 }
 
 const rpcError = (code, message) => Object.assign(new Error(message), { code });
-const send = (message) => process.stdout.write(`${JSON.stringify(message)}\n`);
+const send = message => process.stdout.write(`${JSON.stringify(message)}\n`);
 
 const tools = buildTools();
 
@@ -136,7 +138,7 @@ async function handle(req) {
       const tool = tools.get(req.params?.name);
       if (!tool) throw rpcError(-32602, `Herramienta desconocida: ${req.params?.name}`);
       const args = req.params?.arguments?.args ?? [];
-      if (!Array.isArray(args) || args.some((a) => typeof a !== 'string')) {
+      if (!Array.isArray(args) || args.some(a => typeof a !== 'string')) {
         throw rpcError(-32602, 'args debe ser un array de strings');
       }
       const result = await runTool(tool, args);
@@ -149,7 +151,7 @@ async function handle(req) {
   }
 }
 
-createInterface({ input: process.stdin }).on('line', async (line) => {
+createInterface({ input: process.stdin }).on('line', async line => {
   if (!line.trim()) return;
   let req;
   try {
