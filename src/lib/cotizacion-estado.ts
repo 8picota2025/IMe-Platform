@@ -36,6 +36,8 @@ export const CAMPOS_GUARDADO_COTIZACION = [
   'locale',
   'leida',
   'impuestos_incluidos',
+  'cuenta_recaudo',
+  'condicion_pago',
 ] as const;
 
 const MOTIVO_MAX = 500;

@@ -47,6 +47,10 @@ const faq = content.faq.map(f => ({ q: f.q_en, a: f.a_en }));
 const criterios = getFamiliaGuide(slug, locale);
 const catalogoFamilia = '#equipment';
 const hubLinks = getFamiliaHubLinks(slug, locale);
+const relatedProducts = content.relatedSlugs.flatMap(relatedSlug => {
+  const item = productos.find(producto => producto.slug === relatedSlug);
+  return item ? [item] : [];
+});
 
 const jsonLd = combineJsonLd(
   buildOrganizationJsonLd(),
@@ -100,6 +104,20 @@ const jsonLd = combineJsonLd(
       content.body_en.map(p => (
         <p style="margin:0 0 1rem;line-height:1.6;color:var(--text-mid)">{p}</p>
       ))
+    }
+    {
+      relatedProducts.length > 0 && (
+        <nav aria-label="Related products" style="margin:1.25rem 0 0">
+          <h2 style="font-size:1.05rem;margin:0 0 0.5rem">Related products</h2>
+          <ul style="margin:0;padding-left:1.25rem;line-height:1.7">
+            {relatedProducts.map(producto => (
+              <li>
+                <a href={`/en/products/${producto.slug}/`}>{producto.nombre}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )
     }
     {
       hubLinks.length > 0 && (

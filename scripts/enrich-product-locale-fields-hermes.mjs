@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+// SOLO USO LOCAL: no lo ejecutes en CI ni en Edge. Ver docs/hermes-enrich-local.md.
 import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = process.env.PUBLIC_SUPABASE_URL;

@@ -181,7 +181,7 @@ describe('cableado API y MCP', () => {
     new URL('../../supabase/functions/comercial-cotizacion/index.ts', import.meta.url),
     'utf8'
   );
-  const mcp = readFileSync(new URL('../mcp/ime-comercio-stdio.ts', import.meta.url), 'utf8');
+  const mcp = readFileSync(new URL('./mcp-comercio-core.ts', import.meta.url), 'utf8');
 
   it('la función comercial no envía ni borra filas', () => {
     expect(edge).not.toContain('enviar-cotizacion');

@@ -11,6 +11,7 @@ import { isCondicionesSectionHeading, resolveCondicionesOferta } from './condici
 
 import { lineasDeResumen } from './quote-specs-summary';
 import { quoteAnnexHasSpecContent } from './quote-pdf-annex';
+import { aplicarNotaImportesUsd, notaImportesUsd } from './cotizacion-recaudo';
 
 export interface QuotePdfAnnex {
   slug: string;
@@ -116,7 +117,19 @@ function moneyPlain(value: number, moneda: string, locale: 'es' | 'en'): string 
 }
 
 function moneyCash(value: number, moneda: string, locale: 'es' | 'en'): string {
-  return `$${moneyPlain(value, moneda, locale)}`;
+  const plain = moneyPlain(value, moneda, locale);
+  return moneda === 'USD' ? `USD ${plain}` : `$${plain}`;
+}
+
+function formatCantidad(value: number, locale: 'es' | 'en'): string {
+  const n = Number.isFinite(value) ? value : 0;
+  try {
+    return new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'es-CO', {
+      maximumFractionDigits: 0,
+    }).format(n);
+  } catch {
+    return String(n);
+  }
 }
 
 /** Wrap using real glyph widths (fixes overflow with Poppins). */
@@ -486,22 +499,28 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     color: BLUE,
     maxWidth: 175,
   });
-  drawText(page, snapshot.condicionPago || (locale === 'en' ? 'Prepaid' : 'Contado'), {
-    x: 385,
-    top: 170,
-    size: 11,
-    font,
-    maxWidth: 175,
+  const condicion = snapshot.condicionPago?.trim() || (locale === 'en' ? 'Prepaid' : 'Contado');
+  const condicionLines = wrapByWidth(condicion, font, 11, 175).slice(0, 2);
+  condicionLines.forEach((line, index) => {
+    drawText(page, line, {
+      x: 385,
+      top: 170 + index * 14,
+      size: 11,
+      font,
+      maxWidth: 175,
+    });
   });
+  const medioTop = condicionLines.length > 1 ? 170 + condicionLines.length * 14 + 8 : 194;
   drawText(page, locale === 'en' ? 'PAYMENT METHOD:' : 'MEDIO  DE PAGO:', {
     x: 385,
-    top: 194,
+    top: medioTop,
     size: 11,
     font: bold,
     maxWidth: 175,
   });
-  let py = 210;
-  for (const line of banco.slice(0, 4)) {
+  const bancoLines = banco.flatMap(line => wrapByWidth(line, font, 11, 175)).slice(0, 6);
+  let py = medioTop + 16;
+  for (const line of bancoLines) {
     drawText(page, line, { x: 385, top: py, size: 11, font, maxWidth: 175 });
     py += 15;
   }
@@ -541,7 +560,8 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
   const firstTableTop = Math.max(companyBottom + 16, py + 10, 270);
   const contTableTop = 60;
   const headerH = 36;
-  const colXs = [tableLeft, 65, 175, 372, 462, tableRight];
+  // CANT más ancha: "50,000" / "50.000" (Poppins 11) no cabe en 26 px.
+  const colXs = [tableLeft, 108, 208, 372, 462, tableRight];
   const unitRight = colXs[4]! - 8;
   const totalRight = tableRight - 8;
   const descMaxW = colXs[3]! - colXs[2]! - 10;
@@ -569,14 +589,14 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     const headerLabels =
       locale === 'en'
         ? [
-            [40, 'QTY'],
-            [74, 'REF'],
-            [186, 'DESCRIPTION'],
+            [36, 'QTY'],
+            [116, 'REF'],
+            [219, 'DESCRIPTION'],
           ]
         : [
-            [40, 'CANT'],
-            [74, 'REF'],
-            [186, 'DESCRIPCION'],
+            [36, 'CANT'],
+            [116, 'REF'],
+            [219, 'DESCRIPCION'],
           ];
     for (const [x, label] of headerLabels) {
       drawText(p, String(label), {
@@ -646,15 +666,24 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
 
   const drawRow = (p: PDFPage, fila: (typeof filas)[number], rowTop: number): void => {
     const { item, descLines, resumenLineas } = fila;
-    const cant = String(item.cantidad);
+    const cant = formatCantidad(Number(item.cantidad) || 0, locale);
     const ref = fitOneLine(item.slug || item.nombre || '—', font, 10, refMaxW);
     const pendiente = Boolean(item.precio_pendiente_validar);
     const textTop = rowTop + (descLines.length > 1 ? 10 : 14);
-    drawText(p, cant, { x: 36, top: textTop, size: 11, font, maxWidth: 26 });
-    drawText(p, ref, { x: 70, top: textTop, size: 10, font, maxWidth: refMaxW });
+    const qtyX = colXs[0]! + 9;
+    const refX = colXs[1]! + 8;
+    const descX = colXs[2]! + 11;
+    drawText(p, cant, {
+      x: qtyX,
+      top: textTop,
+      size: 11,
+      font,
+      maxWidth: colXs[1]! - qtyX - 6,
+    });
+    drawText(p, ref, { x: refX, top: textTop, size: 10, font, maxWidth: refMaxW });
     descLines.forEach((line, i) => {
       drawText(p, line, {
-        x: 186,
+        x: descX,
         top: rowTop + 10 + i * descLineH,
         size: 10,
         font,
@@ -664,7 +693,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     const resumenTop = rowTop + 10 + descLines.length * descLineH + 2;
     resumenLineas.forEach((linea, i) => {
       drawText(p, linea, {
-        x: 186,
+        x: descX,
         top: resumenTop + i * resumenLineH,
         size: 8,
         font,
@@ -852,7 +881,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     size: 11,
     font: bold,
   });
-  const note = validezLabel
+  let note = validezLabel
     ? locale === 'en'
       ? `Valid until ${validezLabel}. After this date prices and lead times may change.`
       : `Válida hasta el ${validezLabel}. Posterior a esta fecha, los precios y tiempos de entrega podrán estar sujetos a revisión según condiciones de mercado.`
@@ -860,6 +889,10 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
       (locale === 'en'
         ? 'Prices subject to change according to market conditions.'
         : 'Precios sujetos a revisión según condiciones de mercado.');
+  if (snapshot.moneda === 'USD') {
+    const usdNote = notaImportesUsd(locale);
+    if (!note.includes(usdNote)) note = `${note} ${usdNote}`;
+  }
   drawJustifiedParagraph(page, note, {
     x: tableLeft,
     top: totalsTop + 22,
@@ -868,7 +901,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     maxWidth: Math.max(120, boxLeft - tableLeft - 16),
     lineHeight: 12,
     color: MUTED,
-    maxLines: 5,
+    maxLines: snapshot.moneda === 'USD' ? 8 : 5,
   });
 
   drawFooterBar(page, font, whatsappIcon);
@@ -884,7 +917,10 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     maxWidth: 480,
   });
   let cy = 88;
-  const terms = resolveCondicionesOferta(snapshot.condiciones, locale);
+  const terms = resolveCondicionesOferta(
+    aplicarNotaImportesUsd(snapshot.condiciones, snapshot.moneda, locale),
+    locale
+  );
   const termBlocks = terms
     .replace(/\r\n/g, '\n')
     .split(/\n+/)
@@ -1041,7 +1077,7 @@ function drawFooterBar(page: PDFPage, font: PDFFont, whatsappIcon: PDFImage | nu
     height: 39.4,
     color: BLUE,
   });
-  page.drawText(winAnsi('www.i-me.com.co'), {
+  page.drawText(winAnsi('i-me.com.co'), {
     x: 88.6,
     y: topY(812),
     size: 11,

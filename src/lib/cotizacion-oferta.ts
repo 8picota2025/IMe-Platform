@@ -54,6 +54,10 @@ export interface CotizacionOfertaRow {
   archived_at?: string | null;
   archived_by?: string | null;
   archived_reason?: string | null;
+  /** Id de cuenta de recaudo. Null = Bancolombia Ahorros COP. */
+  cuenta_recaudo?: string | null;
+  /** Condición de pago del PDF. Null = Contado (es) / Prepaid (en). */
+  condicion_pago?: string | null;
   created_by?: string | null;
   lead_comercial_id?: string | null;
   campaign?: string | null;

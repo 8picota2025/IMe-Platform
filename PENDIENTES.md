@@ -340,6 +340,10 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
 - [x] Widget Asesor probado en navegador (es): abre, muestra bienvenida, envía mensaje y
       degrada correctamente al estado de error con CTA de WhatsApp/reintentar cuando la
       Edge Function no responde (404 por no estar desplegada aún)
+- [ ] Cotización: aplicar `supabase/migrations/20261012030000_cotizacion_cuenta_recaudo_condicion_pago.sql`
+      y redesplegar `comercial-cotizacion`, `enviar-cotizacion` y `formalizar-cotizacion`
+      antes de publicar el estático. Sin la migración, el editor no persiste cuenta de
+      recaudo ni condición de pago. NO_EJECUTADO_ENTORNO — no desplegar sin aprobación.
 
 ## OPCIONAL_MEJORA — Admin CMS (F3)
 

@@ -413,6 +413,17 @@ ALTER TABLE solicitudes_cotizacion ADD COLUMN IF NOT EXISTS pdf_sha256 TEXT;
 ALTER TABLE solicitudes_cotizacion ADD COLUMN IF NOT EXISTS pdf_revision INTEGER NOT NULL DEFAULT 0;
 ALTER TABLE solicitudes_cotizacion ADD COLUMN IF NOT EXISTS send_claimed_at TIMESTAMPTZ;
 ALTER TABLE solicitudes_cotizacion ADD COLUMN IF NOT EXISTS send_error TEXT;
+ALTER TABLE solicitudes_cotizacion ADD COLUMN IF NOT EXISTS cuenta_recaudo TEXT;
+ALTER TABLE solicitudes_cotizacion ADD COLUMN IF NOT EXISTS condicion_pago TEXT;
+
+ALTER TABLE solicitudes_cotizacion
+  DROP CONSTRAINT IF EXISTS solicitudes_cotizacion_cuenta_recaudo_check;
+ALTER TABLE solicitudes_cotizacion
+  ADD CONSTRAINT solicitudes_cotizacion_cuenta_recaudo_check
+  CHECK (
+    cuenta_recaudo IS NULL
+    OR cuenta_recaudo IN ('bancolombia_ahorros', 'davivienda_sa')
+  );
 CREATE UNIQUE INDEX IF NOT EXISTS solicitudes_cotizacion_numero_uidx
   ON solicitudes_cotizacion (numero)
   WHERE numero IS NOT NULL;

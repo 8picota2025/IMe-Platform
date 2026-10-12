@@ -217,7 +217,7 @@ export const LANDINGS_INDICE: EntradaIndiceLanding[] = [
   {
     tipo: 'familia',
     clave: 'mobiliario',
-    nombre: 'Mobiliario hospitalario e infraestructura clínica',
+    nombre: 'Cama hospitalaria y cama eléctrica',
     path: '/es/familias/mobiliario/',
     pathEn: '/en/families/mobiliario/',
   },
@@ -259,7 +259,7 @@ export const LANDINGS_INDICE: EntradaIndiceLanding[] = [
   {
     tipo: 'familia',
     clave: 'monitores',
-    nombre: 'Monitores de signos vitales',
+    nombre: 'Monitores de paciente para hospitales',
     path: '/es/familias/monitores/',
     pathEn: '/en/families/monitores/',
   },

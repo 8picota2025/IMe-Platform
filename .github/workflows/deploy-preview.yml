@@ -2,7 +2,7 @@ name: Deploy Preview
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+    types: [opened, synchronize, reopened, ready_for_review, closed]
     branches: [develop, preprod, main]
   pull_request_review:
     types: [submitted]
@@ -18,7 +18,7 @@ permissions:
 jobs:
   deploy:
     name: Build · Deploy Preview
-    if: github.event.pull_request.draft == false
+    if: github.event.action != 'closed' && github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -64,6 +64,11 @@ jobs:
           password: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
           local-dir: ./dist/
           server-dir: ${{ secrets.HOSTINGER_PREVIEW_PATH }}/${{ github.event.pull_request.number }}/
+          # Los PDF e imágenes de fabricantes ya viven en producción (la vista previa enlaza a la raíz).
+          # Subirlos otra vez en cada PR consume cuota del hosting: ~950 ficheros por preview.
+          exclude: |
+            **/assets/productos/importados/**
+            assets/productos/importados/**
           dangerous-clean-slate: false
 
       - name: Comment PR with preview URL
@@ -87,3 +92,32 @@ jobs:
               repo: context.repo.repo,
               body: `✅ Preview deployment ready: ${previewUrl}\n\nNo indexable (meta robots y cabecera X-Robots-Tag). Los enlaces internos de la copia apuntan a la raíz de producción.`
             })
+
+  cleanup:
+    # Al cerrar o fusionar el PR, su vista previa deja de tener sentido y ocupa cuota del hosting
+    # (el FTP de producción también comparte cuenta: "Disk quota exceeded" rompía los despliegues).
+    name: Limpiar vista previa del PR cerrado
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Borrar carpeta /<PR>/ en el FTP
+        env:
+          FTP_HOST: ${{ secrets.HOSTINGER_FTP_HOST }}
+          FTP_USER: ${{ secrets.HOSTINGER_FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
+          PREVIEW_PATH: ${{ secrets.HOSTINGER_PREVIEW_PATH }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          # Guardas: solo borrar <ruta absoluta de previews>/<número>. Nunca la raíz ni rutas vacías.
+          case "$PR_NUMBER" in ''|*[!0-9]*) echo "Número de PR no válido: $PR_NUMBER"; exit 1 ;; esac
+          case "$PREVIEW_PATH" in /*[a-zA-Z0-9]*) ;; *) echo "HOSTINGER_PREVIEW_PATH debe ser una ruta absoluta no vacía"; exit 1 ;; esac
+          target="${PREVIEW_PATH%/}/${PR_NUMBER}"
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq lftp
+          lftp -u "$FTP_USER","$FTP_PASSWORD" "ftp://$FTP_HOST" -e "rm -r '$target'; bye" || true
+          # Si la carpeta sigue listándose, el borrado falló: el job queda en rojo.
+          remaining="$(lftp -u "$FTP_USER","$FTP_PASSWORD" "ftp://$FTP_HOST" -e "cls -1 '$target' 2>/dev/null; bye" || true)"
+          if [ -n "$remaining" ]; then echo "La carpeta sigue existiendo: $target"; exit 1; fi
+          echo "Vista previa eliminada (o inexistente): $target"
