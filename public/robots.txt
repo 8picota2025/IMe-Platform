@@ -10,6 +10,19 @@ Disallow: /mkt/
 Disallow: /mkt
 Disallow: /77/
 Disallow: /1old/
+
+# Vistas previas de PR: copias de prueba en carpetas numéricas del dominio (/<PR>/...). No son
+# contenido público. Ningún camino real empieza por un dígito (solo estas carpetas y los legados
+# /77/ y /1old/); un archivo suelto como /404.md no coincide porque no lleva "/" después.
+Disallow: /1*/
+Disallow: /2*/
+Disallow: /3*/
+Disallow: /4*/
+Disallow: /5*/
+Disallow: /6*/
+Disallow: /7*/
+Disallow: /8*/
+Disallow: /9*/
 Disallow: /es/pago/
 Disallow: /en/payment/
 

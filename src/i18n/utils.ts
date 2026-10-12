@@ -46,6 +46,10 @@ const PATH_SEGMENT_PAIRS: Array<{ es: string; en: string }> = [
   { es: 'productos', en: 'products' },
   { es: 'conocimiento', en: 'knowledge' },
   { es: 'seguimiento', en: 'order-status' },
+  { es: 'carrito', en: 'cart' },
+  { es: 'cuenta', en: 'account' },
+  { es: 'pago', en: 'payment' },
+  { es: 'cotizacion', en: 'quote' },
   { es: 'proyectos', en: 'projects' },
   { es: 'torres-laparoscopia', en: 'laparoscopy-towers' },
   { es: 'esterilizacion', en: 'sterilization' },
@@ -82,6 +86,13 @@ const NESTED_SLUG_PAIRS: Array<{
     es: 'checklist-recepcion-monitor',
     en: 'monitor-receiving-checklist',
   },
+  // Flujo de pago y cotización: sin estos pares el selector de idioma y el hreflang
+  // apuntan a rutas del otro idioma que no existen (404).
+  { sectionEs: 'pago', sectionEn: 'payment', es: 'exito', en: 'success' },
+  { sectionEs: 'pago', sectionEn: 'payment', es: 'fallo', en: 'failure' },
+  { sectionEs: 'pago', sectionEn: 'payment', es: 'pendiente', en: 'pending' },
+  { sectionEs: 'pago', sectionEn: 'payment', es: 'resultado', en: 'result' },
+  { sectionEs: 'cotizacion', sectionEn: 'quote', es: 'formalizar', en: 'formalize' },
 ];
 
 const LEGAL_SLUG_PAIRS: Array<{ es: string; en: string }> = [

@@ -1,6 +1,7 @@
 ---
 import Layout from '../../../../../layouts/Layout.astro';
 import ProductoCard from '../../../../../components/ProductoCard.astro';
+import PaginacionNumeros from '../../../../../components/PaginacionNumeros.astro';
 import { listFamiliaSeoSlugs, familiaDisplayName } from '../../../../../data/familia-seo';
 import { getFamiliaSeoCms } from '../../../../../lib/landings-cms';
 import { buildCatalogoIndex, paginateCatalogItems } from '../../../../../lib/catalogo';
@@ -92,6 +93,12 @@ const pagePath = (target: number) =>
     <nav class="family-pagination" aria-label="Family pagination">
       <a class="btn btn-secondary" href={pagePath(familyPage.page - 1)}>Previous</a>
       <span>Page {familyPage.page} of {familyPage.pageCount}</span>
+      <PaginacionNumeros
+        page={familyPage.page}
+        pageCount={familyPage.pageCount}
+        pagePath={pagePath}
+        irALabel="Go to page"
+      />
       {
         familyPage.page < familyPage.pageCount && (
           <a class="btn btn-secondary" href={pagePath(familyPage.page + 1)}>

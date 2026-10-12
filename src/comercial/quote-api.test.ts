@@ -28,6 +28,8 @@ describe('mapQuoteRow', () => {
     expect(quote.origen).toBe('pwa');
     expect(quote.numero).toBeNull();
     expect(quote.incompleta).toBe(true);
+    expect(quote.cuenta_recaudo).toBeNull();
+    expect(quote.condicion_pago).toBeNull();
   });
 
   it('recupera numero, PDF y error desde metadata en esquema legado', () => {
@@ -50,5 +52,23 @@ describe('mapQuoteRow', () => {
     expect(quote.pdf_storage_path).toContain('/1.pdf');
     expect(quote.pdf_revision).toBe(1);
     expect(quote.send_error).toContain('MAILER_API_KEY');
+  });
+
+  it('guarda la cuenta de recaudo y la condición de pago', () => {
+    const quote = mapQuoteRow({
+      id: '33333333-3333-4333-8333-333333333333',
+      estado: 'nueva',
+      nombre: 'Ana',
+      email: 'ana@clinic.co',
+      telefono: '300',
+      moneda: 'USD',
+      cuenta_recaudo: 'davivienda_sa',
+      condicion_pago: '35% / 35% / 30%',
+      productos: [],
+      condiciones: 'Entrega',
+    });
+    expect(quote.cuenta_recaudo).toBe('davivienda_sa');
+    expect(quote.condicion_pago).toBe('35% / 35% / 30%');
+    expect(quote.moneda).toBe('USD');
   });
 });

@@ -5,6 +5,14 @@ on:
     branches: [main]
     paths:
       - 'supabase/functions/**'
+      - 'supabase/config.toml'
+      - 'src/lib/mcp-comercio-*.ts'
+      - 'src/lib/comercio-operacion.ts'
+      - 'src/lib/commerce-policy.ts'
+      - 'src/lib/cotizacion-mcp.ts'
+      - 'src/lib/cotizacion-envio.ts'
+      - 'src/lib/cotizacion-oferta.ts'
+      - 'src/lib/cotizacion-asesor.ts'
       - '.github/workflows/deploy-supabase-functions.yml'
   workflow_dispatch:
 
@@ -62,15 +70,14 @@ jobs:
           OCR_BRIDGE_SECRET=${{ secrets.OCR_BRIDGE_SECRET }}
           OLLAMA_BASE_URL=${{ secrets.OLLAMA_BASE_URL }}
           OLLAMA_VISION_TIMEOUT_MS=${{ secrets.OLLAMA_VISION_TIMEOUT_MS }}
-          IMEIA_API_URL=${{ secrets.IMEIA_API_URL }}
-          IMEIA_API_KEY=${{ secrets.IMEIA_API_KEY }}
-          IMEIA_CHAT_MODEL=${{ secrets.IMEIA_CHAT_MODEL }}
           IMEIA_WEB_AGENT_WEBHOOK_URL=${{ secrets.IMEIA_WEB_AGENT_WEBHOOK_URL }}
           IMEIA_WEB_AGENT_WEBHOOK_KEY=${{ secrets.IMEIA_WEB_AGENT_WEBHOOK_KEY }}
           TURNSTILE_SECRET_KEY=${{ secrets.TURNSTILE_SECRET_KEY }}
           ASESOR_TURNSTILE_REQUIRED=${{ secrets.ASESOR_TURNSTILE_REQUIRED }}
           ASESOR_TURNSTILE_BYPASS=${{ secrets.ASESOR_TURNSTILE_BYPASS }}
           CANARY_SMOKE_SECRET=${{ secrets.CANARY_SMOKE_SECRET }}
+          IME_MCP_COMERCIO_TOKEN=${{ secrets.IME_MCP_COMERCIO_TOKEN }}
+          TWENTY_MCP_API_KEY=${{ secrets.TWENTY_MCP_API_KEY }}
           TWENTY_BASE_URL=${{ secrets.TWENTY_BASE_URL }}
           TWENTY_API_KEY=${{ secrets.TWENTY_API_KEY }}
           TWENTY_OWNER_ID=${{ secrets.TWENTY_OWNER_ID }}

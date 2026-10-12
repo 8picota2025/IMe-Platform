@@ -1,109 +1,253 @@
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { describe, expect, it } from 'vitest';
-import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
-import { renderQuotePdf, type QuotePdfSnapshot } from './render-quote-pdf';
+import { readFileSync } from 'node:fs';
+import { PDFDocument, PDFPage } from 'pdf-lib';
+import { format } from 'prettier';
+import { afterEach, expect, it, vi } from 'vitest';
+import { renderQuotePdf, type QuotePdfAnnex } from './render-quote-pdf';
+import { NOTA_IMPORTES_USD_EN, NOTA_IMPORTES_USD_ES } from './cotizacion-recaudo';
 
-const fixture = (count: number, locale: 'es' | 'en', summaries: boolean): QuotePdfSnapshot => ({
-  numero: 'IME-Q-2026-TEST',
-  clienteNombre: 'Cliente de prueba — datos sintéticos',
-  empresa: 'Ejemplo de verificación de PDF',
-  nombreComercial: 'Asesor de prueba',
-  condiciones: 'Ejemplo de prueba sin validez comercial.',
-  validezHasta: '2026-12-31',
-  fecha: '05/10/2026',
-  moneda: 'COP',
-  total: 0,
-  locale,
-  lineas: Array.from({ length: count }, (_, i) => ({
-    slug: i === 0 ? 'referencia-muy-larga-para-comprobar-la-elipsis-en-columna' : `REF-${i + 1}`,
-    nombre: `Equipo de prueba ${String(i + 1).padStart(3, '0')}`,
-    cantidad: 2,
-    precio_unitario: 1000,
-    subtotal: 2000,
-    moneda: 'COP',
-    precio_pendiente_validar: i % 3 === 0,
-    notas: summaries
-      ? 'Característica A: ejemplo\nCaracterística B: ejemplo\nCaracterística C: ejemplo'
-      : '',
-  })),
-});
+afterEach(() => vi.restoreAllMocks());
 
-async function extract(bytes: Uint8Array) {
-  const pdf = await getDocument({ data: bytes.slice(), useSystemFonts: true }).promise;
-  const pages: Array<Array<{ str: string; transform: number[] }>> = [];
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const content = await (await pdf.getPage(i)).getTextContent();
-    pages.push(
-      content.items.filter(
-        (item): item is (typeof content.items)[number] & { str: string; transform: number[] } =>
-          'str' in item
-      )
+it.each(['es', 'en'] as const)(
+  'keeps all 20 mixed-price rows in table grids (%s)',
+  async locale => {
+    const text = vi.spyOn(PDFPage.prototype, 'drawText');
+    const lines = vi.spyOn(PDFPage.prototype, 'drawLine');
+    const rows = Array.from({ length: 20 }, (_, i) => ({
+      slug: `reference-with-a-long-name-${i}`,
+      nombre: `Fixture row ${i}`,
+      cantidad: 1,
+      precio_unitario: 100,
+      subtotal: 100,
+      moneda: 'COP',
+      notas:
+        i % 2 === 0
+          ? 'Fixture specification A\nFixture specification B\nFixture specification C'
+          : '',
+      precio_pendiente_validar: i % 3 === 0,
+    }));
+    await renderQuotePdf({
+      numero: 'TEST',
+      clienteNombre: 'Test',
+      condiciones: '',
+      moneda: 'COP',
+      total: 1300,
+      lineas: rows,
+      locale,
+    });
+    const strings = text.mock.calls.map(([s]) => s);
+    expect(strings.join('\n')).not.toMatch(/Continuación de líneas|Continued lines/);
+    expect(
+      strings.filter(s => s === (locale === 'es' ? 'DESCRIPCION' : 'DESCRIPTION')).length
+    ).toBeGreaterThan(1);
+    expect(strings.filter(s => s === (locale === 'es' ? 'Pendiente' : 'Pending'))).toHaveLength(
+      rows.filter(row => row.precio_pendiente_validar).length * 2
     );
-  }
-  await pdf.cleanup();
-  return pages;
-}
-
-describe('quote PDF table pagination', () => {
-  for (const locale of ['es', 'en'] as const) {
-    for (const summaries of [false, true]) {
-      for (const count of [0, 1, 9, 15, 20, 60]) {
-        it(`${locale}: ${count} rows, summaries=${summaries}`, async () => {
-          const snapshot = fixture(count, locale, summaries);
-          const pages = await extract(await renderQuotePdf(snapshot));
-          const text = pages
-            .flat()
-            .map(item => item.str)
-            .join(' ');
-          expect(text).not.toMatch(/Continuación de líneas|Continued lines/);
-          const tables = pages.filter(page =>
-            page.some(item => item.str.includes(locale === 'es' ? 'DESCRIPCION' : 'DESCRIPTION'))
-          );
-          expect(tables.length).toBeGreaterThanOrEqual(count >= 15 ? 2 : 1);
-          const rows = tables.flat().filter(item => /^Equipo de prueba \d{3}$/.test(item.str));
-          expect(rows).toHaveLength(count);
-          expect(new Set(rows.map(item => item.str)).size).toBe(count);
-          expect(pages[0]!.some(item => item.str === 'Asesor: Asesor de prueba')).toBe(true);
-          if (count > 0) expect(text).toContain('…'); // long REF and other fitted text
-          expect(
-            tables.flat().filter(item => item.str === (locale === 'es' ? 'Pendiente' : 'Pending'))
-          ).toHaveLength(Math.ceil(count / 3) * 2);
-          const totalLabel = locale === 'es' ? 'TOTAL A PAGAR' : 'TOTAL DUE';
-          expect(
-            tables
-              .slice(0, -1)
-              .flat()
-              .some(item => item.str === totalLabel)
-          ).toBe(false);
-          const last = tables.at(-1)!;
-          const total = last.find(item => item.str === totalLabel)!;
-          expect(total).toBeDefined();
-          const lastRow = last.filter(item => /^Equipo de prueba \d{3}$/.test(item.str)).at(-1);
-          if (lastRow) expect(total.transform[5]).toBeLessThan(lastRow.transform[5]!);
-          expect(total.transform[5]).toBeGreaterThan(62);
-          const pricedRows = count - Math.ceil(count / 3);
-          expect(
-            last.some(
-              item =>
-                item.str ===
-                `$${new Intl.NumberFormat(locale === 'es' ? 'es-CO' : 'en-US').format(pricedRows * 2000 * 1.19)}`
-            )
-          ).toBe(true);
-        });
+    expect(strings.some(s => s.endsWith('…'))).toBe(true);
+    for (const row of rows) {
+      const indexes = text.mock.calls.flatMap(([s], i) => (s === row.nombre ? [i] : []));
+      expect(indexes).toHaveLength(1);
+      const idx = indexes[0]!;
+      const page = text.mock.instances[idx];
+      const y = text.mock.calls[idx]![1]!.y!;
+      const borders = lines.mock.calls.flatMap(([opts], i) =>
+        lines.mock.instances[i] === page && opts?.start.x === 27 && opts.end.x === 568
+          ? [opts.start.y]
+          : []
+      );
+      expect(borders.some(border => border > y)).toBe(true);
+      expect(borders.some(border => border < y)).toBe(true);
+      for (const x of [27, 108, 208, 372, 462, 568]) {
+        expect(
+          lines.mock.calls.some(
+            ([opts], i) =>
+              lines.mock.instances[i] === page &&
+              opts?.start.x === x &&
+              opts.end.x === x &&
+              opts.start.y < y &&
+              opts.end.y > y
+          )
+        ).toBe(true);
       }
     }
-  }
-  it('renders with production Poppins fonts and writes a review example on request', async () => {
-    const snapshot = fixture(20, 'es', true);
-    snapshot.fontRegularBytes = readFileSync('public/fonts/Poppins-Regular.ttf');
-    snapshot.fontBoldBytes = readFileSync('public/fonts/Poppins-Bold.ttf');
-    const bytes = await renderQuotePdf(snapshot);
+    const lastRow = strings.lastIndexOf(rows[19]!.nombre);
     expect(
-      (await extract(bytes)).flat().filter(item => /^Equipo de prueba \d{3}$/.test(item.str))
-    ).toHaveLength(20);
-    if (process.env.QUOTE_PDF_EXAMPLE_DIR) {
-      mkdirSync(process.env.QUOTE_PDF_EXAMPLE_DIR, { recursive: true });
-      writeFileSync(`${process.env.QUOTE_PDF_EXAMPLE_DIR}/after.pdf`, bytes);
-    }
+      strings.findIndex(s => s === (locale === 'es' ? 'TOTAL BRUTO' : 'GROSS TOTAL'))
+    ).toBeGreaterThan(lastRow);
+  }
+);
+
+it('omits annex pages that have no long description and no specs', async () => {
+  const lineas = Array.from({ length: 40 }, (_, i) => ({
+    slug: i < 7 ? `ficha-${i}` : '',
+    nombre: `Linea ${i}`,
+    cantidad: 1,
+    precio_unitario: 10,
+    subtotal: 10,
+    moneda: 'COP',
+  }));
+  const annexes: QuotePdfAnnex[] = lineas.map((linea, i) => {
+    const useful = i < 7;
+    const withDescription = useful && i % 2 === 0;
+    return {
+      slug: linea.slug,
+      nombre: useful ? `Ficha ${i}` : `Vacio ${i}`,
+      resumen: linea.nombre,
+      descripcion: withDescription
+        ? `Detalle tecnico de la ficha ${i} con texto suficiente.`
+        : i % 2 === 0
+          ? `Vacio ${i}`
+          : '',
+      caracteristicas: useful && !withDescription ? [`Parametro: ${i}`] : [],
+    };
   });
+  const snapshot = {
+    numero: 'IME-Q-2026-000033',
+    clienteNombre: 'Clinica',
+    condiciones: '',
+    moneda: 'COP',
+    total: 400,
+    lineas,
+    locale: 'es' as const,
+  };
+  const withoutAnnexes = await renderQuotePdf({ ...snapshot, annexes: [] });
+  const text = vi.spyOn(PDFPage.prototype, 'drawText');
+  const withAnnexes = await renderQuotePdf({ ...snapshot, annexes });
+  const pagesWith = (await PDFDocument.load(withAnnexes)).getPageCount();
+  const pagesWithout = (await PDFDocument.load(withoutAnnexes)).getPageCount();
+  expect(pagesWith - pagesWithout).toBe(7);
+
+  const strings = text.mock.calls.map(([value]) => String(value));
+  const drawn = strings.join('\n');
+  for (let i = 0; i < 40; i += 1) expect(strings).toContain(`Linea ${i}`);
+  for (let i = 0; i < 7; i += 1) expect(strings).toContain(`FICHA ${i}`);
+  for (let i = 7; i < 40; i += 1)
+    expect(strings.some(value => value.includes(`VACIO ${i}`))).toBe(false);
+  expect(drawn).toContain('Detalle tecnico de la ficha 0 con texto suficiente.');
+  expect(drawn).toContain('Parametro: 1');
+  expect(drawn).toContain('Características Inteligentes:');
+  expect(drawn).toContain('TOTAL BRUTO');
+  expect(drawn).toContain('Consideraciones de la oferta');
+  expect(drawn).toContain('+57 3137247353');
+  expect(drawn).not.toMatch(/300[\s-]*717[\s-]*2757/);
+  const lastRow = strings.lastIndexOf('Linea 39');
+  expect(strings.findIndex(value => value === 'TOTAL BRUTO')).toBeGreaterThan(lastRow);
+});
+
+it('keeps the Edge mirror synchronized with the source', async () => {
+  const source = readFileSync(new URL('./render-quote-pdf.ts', import.meta.url), 'utf8');
+  const edge = readFileSync(
+    new URL('../../supabase/functions/_shared/render-quote-pdf.ts', import.meta.url),
+    'utf8'
+  )
+    .replace('/**\n * Edge mirror of src/lib/render-quote-pdf.ts — keep in sync.\n */\n', '')
+    .replaceAll('npm:pdf-lib@1.17.1', 'pdf-lib')
+    .replaceAll('npm:@pdf-lib/fontkit', '@pdf-lib/fontkit')
+    .replaceAll(/\.\.\/\.\.\/\.\.\/src\/lib\/([\w-]+)\.ts/g, './$1');
+  // Prettier wraps the Edge imports because the Deno specifiers are longer.
+  // Formatting both copies after rewriting those specifiers compares the logic.
+  const [formattedSource, formattedEdge] = await Promise.all([
+    format(source, { parser: 'typescript' }),
+    format(edge, { parser: 'typescript' }),
+  ]);
+  expect(formattedEdge).toBe(formattedSource);
+});
+
+it('keeps COP payment box, Contado and the peso sign by default', async () => {
+  const text = vi.spyOn(PDFPage.prototype, 'drawText');
+  await renderQuotePdf({
+    numero: 'COP-DEFAULT',
+    clienteNombre: 'Clinica',
+    condiciones: 'Entrega:\n30 dias.',
+    moneda: 'COP',
+    total: 500000,
+    lineas: [
+      {
+        slug: 'ref',
+        nombre: 'Monitor',
+        cantidad: 50000,
+        precio_unitario: 10,
+        subtotal: 500000,
+        moneda: 'COP',
+      },
+    ],
+    locale: 'es',
+    bancoLineas: ['Transferencia bancaria:', '61400006521', 'Bancolombia/Ahorros'],
+  });
+  const strings = text.mock.calls.map(([value]) => String(value));
+  const drawn = strings.join(' ');
+  expect(strings).toContain('50.000');
+  expect(strings.some(value => value.includes('…') && value.includes('50'))).toBe(false);
+  expect(strings).toContain('Contado');
+  expect(strings).toContain('Bancolombia/Ahorros');
+  expect(strings).toContain('61400006521');
+  expect(drawn).not.toContain(NOTA_IMPORTES_USD_ES);
+  expect(drawn).not.toContain('USD ');
+  expect(strings.some(value => value.startsWith('$'))).toBe(true);
+});
+
+it('prints the selected account, payment terms, USD and the currency note', async () => {
+  const text = vi.spyOn(PDFPage.prototype, 'drawText');
+  await renderQuotePdf({
+    numero: 'USD-DAV',
+    clienteNombre: 'Clinic',
+    condiciones: 'Delivery:\n30 days.',
+    moneda: 'USD',
+    total: 1200,
+    condicionPago: '35% / 35% / 30%',
+    bancoLineas: [
+      'Transferencia bancaria:',
+      '0550108900697583',
+      'Davivienda S.A.',
+      'SWIFT: CAFECOBBXXX',
+      'International Medical Enterprise IME S.A.S.',
+    ],
+    lineas: [
+      {
+        slug: 'ref',
+        nombre: 'Monitor',
+        cantidad: 50000,
+        precio_unitario: 12,
+        subtotal: 600000,
+        moneda: 'USD',
+      },
+    ],
+    locale: 'en',
+  });
+  const strings = text.mock.calls.map(([value]) => String(value));
+  const drawn = strings.join(' ');
+  expect(strings).toContain('50,000');
+  expect(strings).toContain('35% / 35% / 30%');
+  expect(strings).toContain('0550108900697583');
+  expect(drawn).toContain('SWIFT: CAFECOBBXXX');
+  expect(drawn).toContain('Davivienda S.A.');
+  expect(drawn).not.toContain('Bancolombia/Ahorros');
+  expect(strings.some(value => value.startsWith('$'))).toBe(false);
+  expect(strings.some(value => value.startsWith('USD '))).toBe(true);
+  expect(drawn).toContain(NOTA_IMPORTES_USD_EN);
+});
+
+it('adds the Spanish USD note in the offer notes', async () => {
+  const text = vi.spyOn(PDFPage.prototype, 'drawText');
+  await renderQuotePdf({
+    numero: 'USD-ES',
+    clienteNombre: 'Clinica',
+    condiciones: 'Entrega:\n30 dias.',
+    moneda: 'USD',
+    total: 10,
+    lineas: [
+      {
+        slug: 'ref',
+        nombre: 'Monitor',
+        cantidad: 1,
+        precio_unitario: 10,
+        subtotal: 10,
+        moneda: 'USD',
+      },
+    ],
+    locale: 'es',
+  });
+  const drawn = text.mock.calls.map(([value]) => String(value)).join(' ');
+  expect(drawn).toContain(NOTA_IMPORTES_USD_ES);
+  expect(drawn).toContain('USD ');
+  expect(drawn).not.toMatch(/\$\d/);
 });

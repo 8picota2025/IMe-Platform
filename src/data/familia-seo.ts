@@ -189,27 +189,33 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
   },
   {
     slug: 'mobiliario',
-    name_es: 'Mobiliario hospitalario e infraestructura clínica',
-    name_en: 'Hospital furniture and clinical infrastructure',
-    title_es: 'Mobiliario hospitalario e infraestructura clínica | I-ME',
-    title_en: 'Hospital furniture and clinical infrastructure | I-ME',
+    name_es: 'Cama hospitalaria y cama eléctrica',
+    name_en: 'Hospital beds in Colombia',
+    title_es: 'Cama hospitalaria eléctrica para clínicas de Colombia | I-ME',
+    title_en: 'Electric hospital bed Colombia for clinics and wards | I-ME',
     description_es:
-      'Camas, camillas, carros, mesas y mobiliario clínico para hospitalización, UCI y áreas asistenciales.',
+      'Cama hospitalaria y cama eléctrica hospitalaria para clínicas en Colombia. Compare B-1000 Pro, B-2000 y B-2000 Plus y cotice la configuración del servicio.',
     description_en:
-      'Beds, stretchers, carts, tables and clinical furniture for wards, ICU and care areas.',
+      'Electric and manual hospital beds for wards and ICU in Colombia. Compare B-1000 Pro, B-2000 and B-2000 Plus, then request a quote for your service.',
     intro_es:
-      'Mobiliario hospitalario se selecciona por servicio, espacio, recorrido, ergonomía, limpieza y carga operativa; no como una lista genérica de muebles.',
+      'La cama hospitalaria se define por el servicio, el personal y el recorrido del área. La cama eléctrica hospitalaria cambia de posición con motores; la manual, con manivelas. Las dos se cotizan por referencia, no como un mueble genérico.',
     intro_en:
-      'Hospital furniture is selected by service, space, route, ergonomics, cleaning and operating load—not as a generic furniture list.',
+      'A hospital bed in Colombia is chosen for the ward, the staff and the route through the building. An electric hospital bed changes position with motors; a manual bed uses cranks. Both are quoted by reference, not as generic furniture.',
     body_es: [
-      'Camas, camillas, carros y mesas deben compararse dentro de su uso previsto y dimensiones reales del área.',
-      'Se revisan funciones, accesorios, materiales declarados, movilidad, mantenimiento y condiciones de entrega por referencia.',
+      'En el catálogo activo están la cama eléctrica Advanced B-1000 Pro, la B-2000 Plus y la Saikang V6K, y la cama hospitalaria manual Advanced B-2000. Las funciones y medidas de cada una están en su página; no se trasladan de un modelo a otro.',
+      'Esta familia también reúne camillas, carros y mesas del mismo entorno clínico. Las camillas de traslado están en emergencias, y las camas obstétricas en neonatología. Para cotizar, indique el espacio útil, las puertas y el uso previsto.',
     ],
     body_en: [
-      'Beds, stretchers, carts and tables should be compared within intended use and actual area dimensions.',
-      'Functions, accessories, declared materials, mobility, maintenance and delivery conditions are reviewed per model.',
+      'Active electric hospital beds include the Advanced B-1000 Pro, the B-2000 Plus and the Saikang V6K. The Advanced B-2000 is a manual hospital bed. Functions and dimensions stay on each product page; they are not copied from one model to another.',
+      'The same family also lists stretchers, carts and tables used on those wards. Transfer stretchers are in the emergency family, and obstetric beds are with neonatology. When you request a quote, send usable space, doors and the intended service.',
     ],
     faq: [
+      {
+        q_es: '¿Qué diferencia una cama eléctrica hospitalaria de una manual?',
+        a_es: 'La eléctrica ajusta la posición con motores y la manual con manivelas. Cuál conviene depende del servicio, del personal y del espacio. La configuración de cada referencia se confirma en su página y en la cotización.',
+        q_en: 'How does an electric hospital bed differ from a manual one?',
+        a_en: 'An electric bed changes position with motors; a manual bed uses cranks. Which one fits depends on the service, the staff and the room. Each reference’s configuration is confirmed on its page and in the quote.',
+      },
       {
         q_es: '¿Qué medidas debo enviar?',
         a_es: 'Espacio útil, puertas, ascensores, recorridos y restricciones del área, además del uso previsto.',
@@ -217,7 +223,12 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
         a_en: 'Usable space, doors, elevators, routes and area restrictions, plus intended use.',
       },
     ],
-    relatedSlugs: [],
+    relatedSlugs: [
+      'cama-hospitalaria-electrica-ref-b-1000-pro-advanced',
+      'cama-hospitalaria-electrica-ref-b-2000-plus-advanced',
+      'cama-hospitalaria-manual-ref-b-2000-advanced',
+      'cama-hospitalaria-electrica-ref-v6k-saikang',
+    ],
   },
   {
     slug: 'movilidad-rehabilitacion',
@@ -433,27 +444,25 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
   },
   {
     slug: 'monitores',
-    name_es: 'Monitores de signos vitales',
-    name_en: 'Patient monitors',
-    title_es: 'Monitores Biolight P15/S12 y multiparamétricos UCI | I-ME',
-    title_en: 'Biolight P15/S12 & ICU multiparameter monitors | I-ME',
+    name_es: 'Monitores de paciente para hospitales',
+    name_en: 'Patient monitors for hospitals',
+    title_es: 'Monitores de paciente para UCI y hospitales | I-ME',
+    title_en: 'Patient monitors for hospitals and ICU in Colombia | I-ME',
     description_es:
-      'Monitores de paciente Biolight P15, S12 y multiparamétricos UCI para hospitales. Orientación I-ME: parámetros, modularidad y soporte en Colombia.',
+      'Monitores de paciente multiparamétricos para UCI, urgencias y hospitalización en Colombia. I-ME orienta parámetros, modularidad y soporte antes de cotizar.',
     description_en:
-      'Biolight P15, S12 and ICU multiparameter patient monitors for hospitals. I-ME guidance on parameters, modularity and support in Colombia.',
+      'Compare multiparameter patient monitors for ICU, emergency and wards in Colombia. I-ME matches parameters, modularity and support before a quote.',
     intro_es:
-      'Elegir un monitor no es solo “pantalla grande”. En UCI, urgencias o transporte el criterio cambia: parámetros base, modularidad, alarma usable y cómo se integra a la estación central.',
+      'Un monitor de paciente se elige por el servicio que lo va a usar — observación, urgencias, transporte o UCI — y no solo por el tamaño de la pantalla.',
     intro_en:
-      'Choosing a monitor is not just “a bigger screen”. ICU, ER or transport change the brief: core parameters, modularity, usable alarms and how it joins a central station.',
+      'A patient monitor is chosen for the service that will use it — observation, emergency, transport or ICU — not by screen size alone.',
     body_es: [
-      'En Colombia, las instituciones suelen pedir monitores multiparamétricos con ECG, SpO₂ y NIBP como mínimo, y opciones de capnografía o presión invasiva según el servicio. I-ME ayuda a mapear el uso previsto antes de cotizar referencias.',
-      'También importa el flujo operativo: ¿quién responde alarmas?, ¿hay central multicama?, ¿se necesita transporte inter-área sin perder trazo? Esas preguntas evitan comprar potencia que no se usa o quedar cortos en criticidad.',
-      'Trabajamos con catálogo activo, soporte técnico y acompañamiento comercial para hospitales y clínicas en los 32 departamentos — sede en Envigado, cobertura nacional.',
+      'En hospitales de Colombia el punto de partida suele ser ECG, oximetría de pulso y presión no invasiva, y se suman capnografía o presión invasiva solo si ese servicio las usa. I-ME revisa alarmas, central y transporte antes de cotizar una referencia.',
+      'Las preguntas sobre Biolight S12 y P15 están en la guía de monitores UCI. En el catálogo activo está el monitor de paciente Advanced PM-2000A PRO, junto con la familia de cardiología y la de ventiladores. La documentación y el soporte se confirman por referencia.',
     ],
     body_en: [
-      'Colombian hospitals often need multiparameter monitors with ECG, SpO₂ and NIBP as a baseline, plus capnography or invasive pressure by service. I-ME maps intended use before quoting SKUs.',
-      'Operations matter too: who owns alarms, whether a multi-bed central exists, and whether transport must keep the trace. That prevents overbuying or under-specifying critical care.',
-      'We combine an active catalog, technical support and commercial guidance for hospitals nationwide — HQ in Envigado, national coverage.',
+      'Colombian hospitals usually start with ECG, pulse oximetry and non-invasive blood pressure, and add capnography or invasive pressure only when that service uses them. I-ME reviews alarms, central station and transport before quoting a reference.',
+      'Biolight S12 and P15 questions are covered in the ICU monitor guide. The active catalog includes the Advanced PM-2000A PRO patient monitor, plus the cardiology and ventilator families. Documentation and support are confirmed per reference.',
     ],
     faq: [
       {
@@ -469,19 +478,17 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
         a_en: 'Yes — installation and training scope are agreed in the quote by site and number of points.',
       },
       {
-        q_es: '¿Tienen monitores Biolight P15 o S12?',
-        a_es: 'Sí. P15 modular y S12 están en catálogo activo. Confirmamos configuración, central y disponibilidad al cotizar.',
-        q_en: 'Do you carry Biolight P15 or S12 monitors?',
-        a_en: 'Yes. Modular P15 and S12 are in the active catalog. We confirm configuration, central station and availability when quoting.',
+        q_es: '¿Tienen el monitor Biolight S12?',
+        a_es: 'La guía de monitores Biolight para UCI reúne las preguntas sobre S12 y P15. La disponibilidad se confirma al cotizar. El catálogo activo incluye monitores como el PM-2000A PRO.',
+        q_en: 'Do you cover the Biolight S12 monitor?',
+        a_en: 'The Biolight ICU monitor guide collects S12 and P15 questions. Availability is confirmed when quoting. The active catalog includes monitors such as the PM-2000A PRO.',
       },
     ],
     relatedSlugs: [
-      'monitor-de-paciente-modular-serie-p-ref-p15-biolight',
-      'monitor-de-paciente-ref-s12-biolight',
-      'monitor-multiparametrico-uci-avanzado',
-      'monitor-multiparametrico-basico',
+      'monitor-de-paciente-ref-pm-2000a-pro-advanced',
+      'monitor-modular-ref-pm-2000m-advanced',
       'monitor-central-uci-multicama',
-      'monitor-de-paciente-ref-m12-biolight',
+      'monitor-de-signos-vitales-ref-vsm-300-advanced',
     ],
   },
   {
@@ -1099,6 +1106,26 @@ const FAMILIA_HUB_LINKS: Record<string, FamiliaHubLink[]> = {
       label_en: 'Konfort Plus wheelchairs guide',
     },
   ],
+  mobiliario: [
+    {
+      href_es: '/es/familias/emergencias-traslado-inmovilizacion/',
+      href_en: '/en/families/emergencias-traslado-inmovilizacion/',
+      label_es: 'Familia de camillas y traslado',
+      label_en: 'Stretchers and transfer family',
+    },
+    {
+      href_es: '/es/camillas-medicas/',
+      href_en: '/en/medical-stretchers/',
+      label_es: 'Guía de camillas médicas',
+      label_en: 'Medical stretchers guide',
+    },
+    {
+      href_es: '/es/familias/neonatologia/',
+      href_en: '/en/families/neonatologia/',
+      label_es: 'Familia de neonatología',
+      label_en: 'Neonatology family',
+    },
+  ],
   monitores: [
     {
       href_es: '/es/dotacion-monitoreo-uci/',
@@ -1109,8 +1136,20 @@ const FAMILIA_HUB_LINKS: Record<string, FamiliaHubLink[]> = {
     {
       href_es: '/es/monitores-biolight-uci/',
       href_en: '/en/biolight-icu-monitors/',
-      label_es: 'Guía monitores Biolight UCI',
-      label_en: 'Biolight ICU monitors guide',
+      label_es: 'Guía Biolight S12 y P15 para UCI',
+      label_en: 'Biolight S12 and P15 ICU monitors',
+    },
+    {
+      href_es: '/es/familias/cardiologia/',
+      href_en: '/en/families/cardiologia/',
+      label_es: 'Familia de cardiología',
+      label_en: 'Cardiology family',
+    },
+    {
+      href_es: '/es/familias/ventiladores/',
+      href_en: '/en/families/ventiladores/',
+      label_es: 'Familia de ventiladores',
+      label_en: 'Ventilator family',
     },
   ],
   radiologia: [

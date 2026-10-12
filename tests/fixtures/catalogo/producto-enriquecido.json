@@ -37,11 +37,9 @@
       "valor": "Uso tópico solo en piel intacta; evitar contacto con ojos; vigilar el sitio del electrodo ante enrojecimiento o irritación"
     }
   ],
-  "imagen_principal": "/assets/productos/importados/ten-20-pasta-conductiva-8onz-ref-si1067-natus/imagen-principal-ten-20-pasta-conductiva-8onz-ref-si1067-natus.png",
-  "galeria": [
-    "/assets/productos/importados/ten-20-pasta-conductiva-8onz-ref-si1067-natus/imagen-principal-ten-20-pasta-conductiva-8onz-ref-si1067-natus.png"
-  ],
-  "ficha_pdf": "/assets/importados/equitronic/pdf/eq-ten-20-pasta-conductiva-8onz-ref-si1067-natus.pdf",
+  "imagen_principal": null,
+  "galeria": [],
+  "ficha_pdf": null,
   "tipo_comercial": "equipo",
   "fulfillment_mode": "cotizacion",
   "precio": null,

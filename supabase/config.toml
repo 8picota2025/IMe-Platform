@@ -431,3 +431,7 @@ verify_jwt = false
 
 [functions.whatsapp-imeia-reply]
 verify_jwt = false
+
+# Own opaque bearer authentication in the handler; never public browser access.
+[functions.mcp-comercio]
+verify_jwt = false

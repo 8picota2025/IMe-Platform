@@ -32,6 +32,12 @@ import {
   loadQuotePdfWhatsappIcon,
 } from '../_shared/quote-pdf-assets.ts';
 import { bancoLineasCotizacion } from '../_shared/transferencia-bancaria.ts';
+import {
+  cuentaRecaudoValida,
+  lineasMedioPagoCotizacion,
+  normalizarCondicionPago,
+  normalizarCuentaRecaudo,
+} from '../../../src/lib/cotizacion-recaudo.ts';
 import { syncCotizacionOfertaWithTwenty } from '../_shared/twenty-crm.ts';
 import {
   calcularTotalOfertado,
@@ -51,7 +57,7 @@ const ALLOWED_ROLES = new Set<ComercialRol>(['ventas', 'admin', 'owner']);
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-const DETAIL_COLUMNS = [
+const DETAIL_COLUMNS_BASE = [
   'id',
   'numero',
   'estado',
@@ -82,6 +88,8 @@ const DETAIL_COLUMNS = [
   'twenty_opportunity_id',
 ].join(',');
 
+const DETAIL_COLUMNS = `${DETAIL_COLUMNS_BASE},condicion_pago,cuenta_recaudo`;
+
 const DETAIL_COLUMNS_SAFE = [
   'id',
   'estado',
@@ -109,6 +117,18 @@ function isMissingSchema(message?: string | null): boolean {
   return /does not exist|schema cache|42703|42883/i.test(message ?? '');
 }
 
+function omitMissingColumn(
+  payload: Record<string, unknown>,
+  message: string
+): Record<string, unknown> | null {
+  const missing =
+    message.match(/'([a-z0-9_]+)'/i)?.[1] || message.match(/column [^.\s]+\.([a-z0-9_]+)/i)?.[1];
+  if (!missing || !(missing in payload)) return null;
+  const next = { ...payload };
+  delete next[missing];
+  return next;
+}
+
 interface AdminProfileRow {
   user_id: string;
   email: string;
@@ -131,6 +151,8 @@ interface SaveBody {
   locale?: string;
   /** "Precios incluyen IVA": habilita pedir factura electrónica al formalizar. */
   impuestos_incluidos?: boolean | null;
+  cuenta_recaudo?: string | null;
+  condicion_pago?: string | null;
 }
 
 type ServerSupabase = ReturnType<typeof getServerSupabase>;
@@ -194,6 +216,8 @@ function publicRow(
     locale: row.locale === 'en' ? 'en' : 'es',
     pedido_id: row.pedido_id ?? null,
     impuestos_incluidos: row.impuestos_incluidos ?? null,
+    cuenta_recaudo: normalizarCuentaRecaudo(row.cuenta_recaudo),
+    condicion_pago: normalizarCondicionPago(row.condicion_pago),
     incompleta: !check.ok,
     incompleta_error: check.ok ? null : check.error,
     origen: row.created_by ? 'pwa' : 'web',
@@ -327,6 +351,13 @@ async function selectQuoteRow(
     .maybeSingle();
   if (!full.error) return { data: (full.data as CotizacionOfertaRow | null) ?? null, error: null };
   if (!isMissingSchema(full.error.message)) return { data: null, error: full.error };
+  const rich = await supabase
+    .from('solicitudes_cotizacion')
+    .select(DETAIL_COLUMNS_BASE)
+    .eq('id', id)
+    .maybeSingle();
+  if (!rich.error) return { data: (rich.data as CotizacionOfertaRow | null) ?? null, error: null };
+  if (!isMissingSchema(rich.error.message)) return { data: null, error: rich.error };
   const safe = await supabase
     .from('solicitudes_cotizacion')
     .select(DETAIL_COLUMNS_SAFE)
@@ -366,7 +397,7 @@ async function handleGetList(
   let useUpdatedAt = true;
   let lastError = '';
 
-  for (let attempt = 0; attempt < 3; attempt += 1) {
+  for (let attempt = 0; attempt < 4; attempt += 1) {
     let query = supabase
       .from('solicitudes_cotizacion')
       .select(cols, { count: 'exact' })
@@ -410,7 +441,7 @@ async function handleGetList(
     }
     lastError = error.message;
     if (!isMissingSchema(error.message)) return internalError(error.message, origin);
-    cols = DETAIL_COLUMNS_SAFE;
+    cols = cols === DETAIL_COLUMNS ? DETAIL_COLUMNS_BASE : DETAIL_COLUMNS_SAFE;
     if (/created_by/.test(error.message)) useCreatedBy = false;
     if (/numero/.test(error.message)) useNumero = false;
     if (/updated_at/.test(error.message)) useUpdatedAt = false;
@@ -536,7 +567,8 @@ async function handlePdf(
     whatsappIconBytes,
     fontRegularBytes: fonts.regular,
     fontBoldBytes: fonts.bold,
-    bancoLineas: bancoLineasCotizacion(),
+    condicionPago: normalizarCondicionPago(live.condicion_pago),
+    bancoLineas: lineasMedioPagoCotizacion(live.cuenta_recaudo, bancoLineasCotizacion()),
   });
   return json(
     {
@@ -608,6 +640,19 @@ async function handleSave(
   if (typeof body.impuestos_incluidos === 'boolean') {
     canon.impuestos_incluidos = body.impuestos_incluidos;
   }
+  if (body.cuenta_recaudo !== undefined) {
+    if (!cuentaRecaudoValida(body.cuenta_recaudo)) {
+      return errorResponse(
+        { code: 'CUENTA_RECAUDO_INVALIDA', message: 'Cuenta de recaudo no reconocida.' },
+        422,
+        origin
+      );
+    }
+    canon.cuenta_recaudo = normalizarCuentaRecaudo(body.cuenta_recaudo);
+  }
+  if (body.condicion_pago !== undefined) {
+    canon.condicion_pago = normalizarCondicionPago(body.condicion_pago);
+  }
 
   const id = cleanText(body.id, 36);
   if (id) {
@@ -652,10 +697,23 @@ async function handleSave(
         origin
       );
     }
-    const { error: updateError } = await supabase
-      .from('solicitudes_cotizacion')
-      .update(canon)
-      .eq('id', id);
+    let updatePayload: Record<string, unknown> = { ...canon };
+    let updateError = (
+      await supabase.from('solicitudes_cotizacion').update(updatePayload).eq('id', id)
+    ).error;
+    for (
+      let attempt = 0;
+      attempt < 4 && updateError && isMissingSchema(updateError.message);
+      attempt += 1
+    ) {
+      const missing = updateError.message.match(/'([a-z0-9_]+)'/i)?.[1];
+      if (!missing || !(missing in updatePayload)) break;
+      delete updatePayload[missing];
+      updatePayload = { ...updatePayload };
+      updateError = (
+        await supabase.from('solicitudes_cotizacion').update(updatePayload).eq('id', id)
+      ).error;
+    }
     if (updateError) return internalError(updateError.message, origin);
     const numbered = await ensureNumero(supabase, id);
     if (numbered.error) return internalError(numbered.error, origin);
@@ -676,16 +734,23 @@ async function handleSave(
     landing_path: '/comercial',
     campaign: 'pwa-comercial',
   };
+  let insertPayload: Record<string, unknown> = { ...insertFull };
   let inserted = await supabase
     .from('solicitudes_cotizacion')
-    .insert(insertFull)
+    .insert(insertPayload)
     .select('id')
     .maybeSingle();
-  if (inserted.error && isMissingSchema(inserted.error.message)) {
-    const { created_by: _createdBy, ...rest } = insertFull;
+  for (
+    let attempt = 0;
+    attempt < 4 && inserted.error && isMissingSchema(inserted.error.message);
+    attempt += 1
+  ) {
+    const next = omitMissingColumn(insertPayload, inserted.error.message);
+    if (!next) break;
+    insertPayload = next;
     inserted = await supabase
       .from('solicitudes_cotizacion')
-      .insert(rest)
+      .insert(insertPayload)
       .select('id')
       .maybeSingle();
   }
@@ -734,18 +799,27 @@ async function handleDuplicar(
     campaign: 'pwa-revision',
     metadata: { revisa_de: row.id, revisa_numero: row.numero ?? null },
     impuestos_incluidos: row.impuestos_incluidos ?? null,
+    cuenta_recaudo: row.cuenta_recaudo ?? null,
+    condicion_pago: row.condicion_pago ?? null,
     leida: true,
   };
+  let insertPayload: Record<string, unknown> = { ...insertFull };
   let inserted = await supabase
     .from('solicitudes_cotizacion')
-    .insert(insertFull)
+    .insert(insertPayload)
     .select('id')
     .maybeSingle();
-  if (inserted.error && isMissingSchema(inserted.error.message)) {
-    const { created_by: _createdBy, metadata: _meta, ...rest } = insertFull;
+  for (
+    let attempt = 0;
+    attempt < 4 && inserted.error && isMissingSchema(inserted.error.message);
+    attempt += 1
+  ) {
+    const next = omitMissingColumn(insertPayload, inserted.error.message);
+    if (!next) break;
+    insertPayload = next;
     inserted = await supabase
       .from('solicitudes_cotizacion')
-      .insert(rest)
+      .insert(insertPayload)
       .select('id')
       .maybeSingle();
   }

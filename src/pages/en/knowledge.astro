@@ -15,7 +15,7 @@ import { t } from '../../i18n/utils';
 import '../../styles/site-faithful.css';
 
 const locale = 'en';
-const title = buildPageTitle(t(locale, 'conocimiento.titulo'));
+const title = buildPageTitle(t(locale, 'conocimiento.titulo_seo'));
 const description = t(locale, 'conocimiento.descripcion');
 const canonical = buildCanonical('/en/knowledge');
 const articulos = await getArticulosConocimiento(locale);
@@ -115,7 +115,7 @@ const jsonLd = combineJsonLd(
               questions about biomedical equipment.
             </p>
             <div class="cta-btns">
-              <a href="/en/knowledge/publish" class="btn btn-green">
+              <a href="/en/knowledge/publish/" class="btn btn-green">
                 <i class="fas fa-pen" aria-hidden="true"></i> Submit article
               </a>
               <a href="/en/contact/" class="btn btn-outline-white"

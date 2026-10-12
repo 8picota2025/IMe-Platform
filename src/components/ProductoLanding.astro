@@ -25,7 +25,6 @@ interface Props {
 const { producto, familia, relacionados, locale } = Astro.props;
 
 const catalogoPath = locale === 'en' ? '/en/catalog/' : '/es/catalogo/';
-const carritoPath = locale === 'en' ? '/en/cart/' : '/es/carrito/';
 
 const especificaciones = normalizarEspecificaciones(producto.especificaciones);
 const grupos = new Map<string, typeof especificaciones>();
@@ -112,7 +111,7 @@ const fichaUrl = producto.ficha_pdf
     ? producto.ficha_pdf
     : `https://i-me.com.co${producto.ficha_pdf}`
   : null;
-const whatsappMensaje =
+const whatsappMensajeCotizacion =
   locale === 'en'
     ? [
         `Hello, I would like to receive information and a quote for:`,
@@ -142,6 +141,21 @@ const whatsappMensaje =
       ]
         .filter(Boolean)
         .join('\n');
+const whatsappMensajeCompra =
+  locale === 'en'
+    ? [
+        'Hello, I have a question about this priced product.',
+        'The purchase is completed in the cart. This message is not an order.',
+        `Product: ${producto.nombre}`,
+        `Product page: ${productUrl}`,
+      ].join('\n')
+    : [
+        'Hola, tengo una duda sobre este producto con precio publicado.',
+        'La compra se completa en el carrito. Este mensaje no es un pedido.',
+        `Producto: ${producto.nombre}`,
+        `Página del producto: ${productUrl}`,
+      ].join('\n');
+const whatsappMensaje = esCommerce ? whatsappMensajeCompra : whatsappMensajeCotizacion;
 const whatsappHref = `https://wa.me/573137247353?text=${encodeURIComponent(whatsappMensaje)}`;
 
 const migas = [
@@ -367,9 +381,11 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
                   {disponibilidadTexto}
                 </p>
               </div>
-              <p class="product-purchase-panel__price-notice">
-                {t(locale, 'producto.iva_incluido')} · {t(locale, 'producto.envio_no_incluido')}
-              </p>
+              <ul class="product-purchase-panel__facts" role="list">
+                <li>{t(locale, 'producto.iva_incluido')}</li>
+                <li>{t(locale, 'producto.envio_no_incluido')}</li>
+                <li>{t(locale, 'producto.plazo_entrega')}</li>
+              </ul>
 
               {isPurchasableProduct ? (
                 <>
@@ -409,11 +425,11 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
                   >
                     {t(locale, 'producto.commerce_anadir_cesta')}
                   </button>
-                  <button type="button" class="btn-pdp btn-pdp--secondary" data-buy-now>
+                  <button type="button" class="btn-pdp btn-pdp--quiet" data-buy-now>
                     {t(locale, 'producto.commerce_comprar_ahora')}
                   </button>
                   <p class="product-purchase-panel__payments">
-                    {t(locale, 'producto.commerce_pago_wompi')}
+                    {t(locale, 'producto.commerce_pago_pasarela')}
                   </p>
                 </>
               ) : (
@@ -430,6 +446,7 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
               <ul class="product-purchase-panel__trust" role="list">
                 <li>{t(locale, 'producto.commerce_trust_segura')}</li>
                 <li>{t(locale, 'producto.commerce_trust_factura')}</li>
+                <li>{t(locale, 'producto.commerce_trust_datos')}</li>
               </ul>
 
               {producto.ficha_pdf && (
@@ -808,21 +825,37 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
 
     <aside class="pdp-lower__aside" aria-label={locale === 'en' ? 'Assistance' : 'Asistencia'}>
       <div class="pdp-assist-card">
-        <h2>{locale === 'en' ? 'Need advice?' : '¿Necesitas asesoría?'}</h2>
+        <h2>
+          {
+            esCommerce
+              ? t(locale, 'producto.commerce_ayuda_titulo')
+              : locale === 'en'
+                ? 'Need advice?'
+                : '¿Necesitas asesoría?'
+          }
+        </h2>
         <p>
           {
-            locale === 'en'
-              ? 'Talk with our team about this product.'
-              : 'Habla con nuestro equipo sobre este producto.'
+            esCommerce
+              ? t(locale, 'producto.commerce_ayuda_desc')
+              : locale === 'en'
+                ? 'Talk with our team about this product.'
+                : 'Habla con nuestro equipo sobre este producto.'
           }
         </p>
         <a
           href={whatsappHref}
-          class="btn-pdp btn-pdp--ghost"
+          class:list={['pdp-help-link', { 'btn-pdp btn-pdp--ghost': !esCommerce }]}
           target="_blank"
           rel="noopener noreferrer"
         >
-          {locale === 'en' ? 'Chat on WhatsApp' : 'Hablar por WhatsApp'}
+          {
+            esCommerce
+              ? `${t(locale, 'producto.commerce_ayuda_whatsapp')} · ${t(locale, 'producto.commerce_telefono')}`
+              : locale === 'en'
+                ? 'Chat on WhatsApp'
+                : 'Hablar por WhatsApp'
+          }
         </a>
       </div>
       {
@@ -913,14 +946,26 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
   <section class="cta-final">
     <div class="cta-final__bg" aria-hidden="true"></div>
     <div class="container cta-final__inner">
-      <h2>{t(locale, 'producto.contacto_titulo')}</h2>
-      <p>{t(locale, 'producto.contacto_desc')}</p>
+      <h2>
+        {
+          esCommerce && isPurchasableProduct
+            ? t(locale, 'producto.commerce_contacto_titulo')
+            : t(locale, 'producto.contacto_titulo')
+        }
+      </h2>
+      <p>
+        {
+          esCommerce && isPurchasableProduct
+            ? t(locale, 'producto.commerce_contacto_desc')
+            : t(locale, 'producto.contacto_desc')
+        }
+      </p>
       <div class="cta-final__acciones">
         {
           accionComercial.tipo === 'carrito' ? (
-            <a href={carritoPath} class="btn-hero-primary">
-              {t(locale, 'carrito.ir_pagar')}
-            </a>
+            <button type="button" class="btn-hero-primary" data-pdp-add-footer>
+              {t(locale, 'producto.commerce_anadir_cesta')}
+            </button>
           ) : esCotizacion ? (
             <button
               type="button"
@@ -950,9 +995,28 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
             </button>
           )
         }
-        <a href={whatsappHref} class="btn-hero-secondary" target="_blank" rel="noopener noreferrer">
-          <span aria-hidden="true">↗</span> WhatsApp
-        </a>
+        {
+          esCommerce && isPurchasableProduct ? (
+            <a
+              href={whatsappHref}
+              class="pdp-help-link pdp-help-link--on-dark"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t(locale, 'producto.commerce_ayuda_whatsapp')} ·{' '}
+              {t(locale, 'producto.commerce_telefono')}
+            </a>
+          ) : (
+            <a
+              href={whatsappHref}
+              class="btn-hero-secondary"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span aria-hidden="true">↗</span> WhatsApp
+            </a>
+          )
+        }
         <a href={catalogoPath} class="btn-hero-secondary">
           {t(locale, 'producto.volver_catalogo')}
         </a>
@@ -997,7 +1061,10 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
     ) : (
       <div class="cta-sticky cta-sticky--commerce" id="cta-sticky" hidden>
         <div class="container cta-sticky__inner">
-          <p class="cta-sticky__precio">{precioFormateado}</p>
+          <div class="cta-sticky__price">
+            <p class="cta-sticky__precio">{precioFormateado}</p>
+            <p class="cta-sticky__nota">{t(locale, 'producto.commerce_sticky_nota')}</p>
+          </div>
           <button
             type="button"
             class="btn btn-primary"
@@ -1543,6 +1610,12 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
     flex-wrap: wrap;
     gap: 1rem;
   }
+  @media (max-width: 700px) {
+    .cta-final__acciones {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
 
   /* ─── PDP unificada (commerce / quote) — sin hero turquesa ───────── */
   .producto-landing > .breadcrumb.container,
@@ -1704,11 +1777,15 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
   .pdp-top__grid--quote .pdp-identity {
     order: 1;
   }
-  .pdp-top__grid--commerce .pdp-gallery,
   .pdp-top__grid--quote .pdp-gallery {
     order: 2;
   }
-  .pdp-top__grid--commerce .product-purchase-panel,
+  .pdp-top__grid--commerce .product-purchase-panel {
+    order: 2;
+  }
+  .pdp-top__grid--commerce .pdp-gallery {
+    order: 3;
+  }
   .pdp-top__grid--quote .quote-card {
     order: 3;
   }
@@ -2002,6 +2079,32 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
     color: var(--text-mid);
     line-height: 1.45;
   }
+  .product-purchase-panel__facts {
+    list-style: none;
+    margin: 0;
+    padding: 0.85rem 0.95rem;
+    display: grid;
+    gap: 0.45rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--white);
+  }
+  .product-purchase-panel__facts li {
+    margin: 0;
+    font-size: 0.86rem;
+    line-height: 1.45;
+    color: var(--text);
+  }
+  .product-purchase-panel__facts li::before {
+    content: '';
+    display: inline-block;
+    width: 0.45rem;
+    height: 0.45rem;
+    margin-right: 0.45rem;
+    border-radius: 50%;
+    background: var(--t800);
+    vertical-align: 0.05rem;
+  }
   .product-purchase-panel__quantity {
     display: flex;
     flex-direction: column;
@@ -2064,6 +2167,29 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
     color: #fff;
     border: none;
   }
+  .btn-pdp--quiet {
+    background: transparent;
+    color: var(--t900);
+    border: 1.5px solid var(--border-mid);
+    font-weight: 700;
+  }
+  .btn-pdp--quiet:hover {
+    background: var(--t50);
+  }
+  .pdp-help-link {
+    color: var(--t800);
+    font-weight: 700;
+    font-size: 0.92rem;
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+  }
+  .pdp-help-link:focus-visible {
+    outline: 2px solid var(--t700);
+    outline-offset: 3px;
+  }
+  .pdp-help-link--on-dark {
+    color: var(--white);
+  }
   .btn-pdp--secondary:hover {
     filter: brightness(1.06);
   }
@@ -2121,6 +2247,18 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
     font-weight: 800;
     font-size: 1.05rem;
     color: var(--ink);
+  }
+  .cta-sticky__price {
+    min-width: 0;
+  }
+  .cta-sticky__nota {
+    margin: 0.1rem 0 0;
+    font-size: 0.75rem;
+    color: var(--text-mid);
+    line-height: 1.3;
+  }
+  .cta-sticky--commerce {
+    z-index: 180;
   }
   @media (max-width: 767px) {
     .cta-sticky {
@@ -2572,7 +2710,8 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
   // incluido "Personalizar" cookies (retiro del consentimiento, ADR-0012).
   const ctaPrincipal = document.getElementById('cta-principal');
   const ctaSticky = document.getElementById('cta-sticky');
-  if (ctaPrincipal && ctaSticky) {
+  const ctaWatch = ctaPrincipal?.querySelector<HTMLElement>('[data-add-carrito]') ?? ctaPrincipal;
+  if (ctaWatch && ctaSticky) {
     let principalVisible = true;
     let footerVisible = false;
     const sync = () => {
@@ -2585,7 +2724,7 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
         sync();
       },
       { rootMargin: '-80px 0px 0px 0px' }
-    ).observe(ctaPrincipal);
+    ).observe(ctaWatch);
     const footer = document.querySelector('footer[role="contentinfo"]');
     if (footer) {
       new IntersectionObserver(([entry]) => {
@@ -2693,14 +2832,21 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
     const stockRaw = addCarritoBtn.dataset['stock'];
     const stock = stockRaw ? Number(stockRaw) : null;
     if (!slug || !nombre || Number.isNaN(precio)) return;
-    void import('../lib/carrito').then(({ agregarAlCarrito }) => {
+    void import('../lib/carrito').then(({ agregarAlCarrito, abrirCarrito }) => {
       agregarAlCarrito({ slug, nombre, precio, moneda, stock }, quantity);
       confirmarAdd(addCarritoBtn);
-      if (goCheckout) window.location.href = checkoutPath;
+      if (goCheckout) {
+        window.location.href = checkoutPath;
+        return;
+      }
+      abrirCarrito();
     });
   };
 
   addCarritoBtn?.addEventListener('click', () => addToCart(false));
+  document
+    .querySelector('[data-pdp-add-footer]')
+    ?.addEventListener('click', () => addToCart(false));
   document.querySelector('[data-buy-now]')?.addEventListener('click', () => addToCart(true));
   document.querySelector('[data-sticky-add-carrito]')?.addEventListener('click', event => {
     event.preventDefault();

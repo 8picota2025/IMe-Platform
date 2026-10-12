@@ -16,6 +16,11 @@ import {
   getDatosBancariosTransferencia,
 } from '../_shared/transferencia-bancaria.ts';
 import {
+  cuentaRecaudoPorId,
+  esCuentaRecaudoDefault,
+  textoBancarioCuenta,
+} from '../../../src/lib/cotizacion-recaudo.ts';
+import {
   calcularTotalOfertado,
   hashTokenSha256,
   ofertaCompleta,
@@ -218,7 +223,23 @@ Deno.serve(async req => {
   const lineas = parseLineasOferta(row.productos);
   const total = Number(row.precio_total_ofertado) || calcularTotalOfertado(lineas);
   const moneda = lineas[0]?.moneda || String(row.moneda ?? 'COP');
-  const bancarios = getDatosBancariosTransferencia();
+  const cuentaId = (row as { cuenta_recaudo?: string | null }).cuenta_recaudo;
+  const cuentaElegida = esCuentaRecaudoDefault(cuentaId) ? null : cuentaRecaudoPorId(cuentaId);
+  const bancarios = cuentaElegida
+    ? {
+        banco: cuentaElegida.banco,
+        titular: cuentaElegida.titular,
+        nit: cuentaElegida.nit,
+        tipo_cuenta: cuentaElegida.tipo_cuenta,
+        numero_cuenta: cuentaElegida.numero_cuenta,
+        swift: cuentaElegida.swift,
+        instrucciones:
+          'Transfiere el valor exacto de la cotizacion e indica la referencia en el concepto. Luego sube el comprobante en el enlace del correo.',
+      }
+    : getDatosBancariosTransferencia();
+  const textoBancario = cuentaElegida
+    ? textoBancarioCuenta(cuentaElegida)
+    : datosBancariosTexto(bancarios);
 
   if (action === 'preview') {
     return new Response(
@@ -249,7 +270,7 @@ Deno.serve(async req => {
         },
         transferencia: {
           ...bancarios,
-          texto: datosBancariosTexto(bancarios),
+          texto: textoBancario,
         },
       }),
       {

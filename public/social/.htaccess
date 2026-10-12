@@ -1,0 +1,6 @@
+# Imágenes para publicar en redes (LinkedIn, Facebook, Instagram Graph API).
+# Públicas para que las redes las descarguen, pero fuera de buscadores. No se
+# bloquean en robots.txt: el fetcher de Meta podría respetarlo y no descargarlas.
+<IfModule mod_headers.c>
+  Header set X-Robots-Tag "noindex, nofollow, noimageindex"
+</IfModule>
