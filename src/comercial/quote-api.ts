@@ -5,8 +5,6 @@
  */
 import {
   calcularTotalOfertado,
-  COTIZACION_ESTADOS_ENVIADAS,
-  COTIZACION_ESTADOS_PENDIENTES,
   normalizarMonedaOferta,
   ofertaCompleta,
   parseLineasOferta,
@@ -14,6 +12,11 @@ import {
   sanitizarLineasComercial,
   type CotizacionLineaOferta,
 } from '../lib/cotizacion-oferta';
+import {
+  estadosDeBandeja,
+  proyectarGuardadoCotizacion,
+  resolverFiltroArchivo,
+} from '../lib/cotizacion-estado';
 import { draftQuoteAnnex } from '../lib/quote-pdf-annex';
 import { bancoLineasCotizacion } from '../lib/transferencia-bancaria';
 import {
@@ -61,6 +64,10 @@ export interface QuotePublic {
   incompleta: boolean;
   origen: 'pwa' | 'web';
   editable: boolean;
+  archived_at: string | null;
+  archived_by: string | null;
+  archived_reason: string | null;
+  archivada: boolean;
 }
 import { searchCatalogProducts, type CatalogProductHit } from '../lib/catalog-search';
 
@@ -95,7 +102,7 @@ const DETAIL_CORE =
 
 /** Extras de migración PDF/numeración — se intentan si existen. */
 const DETAIL_RICH =
-  'id,numero,estado,nombre,empresa,email,telefono,moneda,mercado,validez_hasta,condiciones,productos,precio_total_ofertado,updated_at,created_at,pdf_storage_path,pdf_revision,send_error,metadata,crm_sync_status,created_by,locale,pedido_id,campaign,landing_path,origen,tipo_solicitud,impuestos_incluidos';
+  'id,numero,estado,nombre,empresa,email,telefono,moneda,mercado,validez_hasta,condiciones,productos,precio_total_ofertado,updated_at,created_at,pdf_storage_path,pdf_revision,send_error,metadata,crm_sync_status,created_by,locale,pedido_id,campaign,landing_path,origen,tipo_solicitud,impuestos_incluidos,archived_at,archived_by,archived_reason';
 
 /** Recaudo y condición de pago. Si la migración no está aplicada, se reintenta sin ellas. */
 const DETAIL_PAGO = `${DETAIL_RICH},condicion_pago,cuenta_recaudo`;
@@ -200,6 +207,10 @@ export function mapQuoteRow(raw: unknown, createdByNombre?: string | null): Quot
     incompleta: !check.ok,
     origen: pwa ? 'pwa' : 'web',
     editable: quoteEditable(String(row.estado ?? 'nueva')),
+    archived_at: typeof row.archived_at === 'string' ? row.archived_at : null,
+    archived_by: typeof row.archived_by === 'string' ? row.archived_by : null,
+    archived_reason: typeof row.archived_reason === 'string' ? row.archived_reason : null,
+    archivada: typeof row.archived_at === 'string' && row.archived_at.length > 0,
   };
 }
 
@@ -243,6 +254,41 @@ export async function deleteQuote(id: string): Promise<EdgeFunctionResult<{ ok: 
   return callEdgeFunction('comercial-cotizacion', {
     method: 'DELETE',
     query: { id },
+  });
+}
+
+/** Cambia el estado comercial. No envía correo ni WhatsApp. */
+export async function cambiarEstadoQuote(
+  id: string,
+  estado: string,
+  motivo: string
+): Promise<EdgeFunctionResult<{ ok: boolean; envio_cliente: false; quote?: QuotePublic }>> {
+  return callEdgeFunction('comercial-cotizacion', {
+    method: 'POST',
+    query: { action: 'cambiar-estado', id },
+    body: { estado, motivo },
+  });
+}
+
+export async function archivarQuote(
+  id: string,
+  motivo: string
+): Promise<EdgeFunctionResult<{ ok: boolean; envio_cliente: false }>> {
+  return callEdgeFunction('comercial-cotizacion', {
+    method: 'POST',
+    query: { action: 'archivar', id },
+    body: { motivo },
+  });
+}
+
+export async function desarchivarQuote(
+  id: string,
+  motivo: string
+): Promise<EdgeFunctionResult<{ ok: boolean; envio_cliente: false }>> {
+  return callEdgeFunction('comercial-cotizacion', {
+    method: 'POST',
+    query: { action: 'desarchivar', id },
+    body: { motivo },
   });
 }
 
@@ -512,21 +558,22 @@ async function listQuotesRest(
   if (!session) return fail('Sesión expirada. Vuelve a iniciar sesión.', 401);
   // `expiradas` y `todas` solo los usa /admin; /comercial sigue con pendientes/enviadas.
   const tab =
-    query.tab === 'enviadas' || query.tab === 'expiradas' || query.tab === 'todas'
+    query.tab === 'enviadas' ||
+    query.tab === 'expiradas' ||
+    query.tab === 'cerradas' ||
+    query.tab === 'todas'
       ? query.tab
       : 'pendientes';
   const q = (query.q ?? '').trim();
   const page = Math.max(1, Number.parseInt(query.page ?? '1', 10) || 1);
   const pageSize = 20;
   const from = (page - 1) * pageSize;
-  const estados: string[] | null =
-    tab === 'enviadas'
-      ? [...COTIZACION_ESTADOS_ENVIADAS]
-      : tab === 'expiradas'
-        ? ['expirada']
-        : tab === 'todas'
-          ? null
-          : [...COTIZACION_ESTADOS_PENDIENTES];
+  const estados = estadosDeBandeja(tab);
+  const archivo = resolverFiltroArchivo({
+    incluir_archivadas: query.incluir_archivadas,
+    solo_archivadas: query.solo_archivadas,
+    archivadas: query.archivadas,
+  });
   const soloMias = query.mias === '1';
 
   const colAttempts = [
@@ -535,16 +582,22 @@ async function listQuotesRest(
     DETAIL_CORE,
     'id,estado,nombre,empresa,email,telefono,moneda,productos,condiciones,metadata,created_at,campaign,landing_path',
   ];
+  let archivoDisponible = true;
   let lastError = 'No fue posible cargar cotizaciones.';
 
-  for (const cols of colAttempts) {
+  for (let i = 0; i < colAttempts.length; ) {
+    const cols = archivoDisponible
+      ? colAttempts[i]!
+      : colAttempts[i]!.replace(/,archived_at|,archived_by|,archived_reason/g, '');
     const useNumero = cols.includes('numero');
-    let req = supabase
-      .from('solicitudes_cotizacion')
-      .select(cols, { count: 'exact' })
-      .order('created_at', { ascending: false })
-      .range(from, from + pageSize - 1);
-    if (estados) req = req.in('estado', estados);
+    let req = supabase.from('solicitudes_cotizacion').select(cols, { count: 'exact' });
+    if (estados) req = req.in('estado', [...estados]);
+    if (archivoDisponible && archivo === 'solo_archivadas') {
+      req = req.not('archived_at', 'is', null);
+    } else if (archivoDisponible && archivo === 'activas') {
+      req = req.is('archived_at', null);
+    }
+    req = req.order('created_at', { ascending: false }).range(from, from + pageSize - 1);
     if (soloMias) req = req.eq('created_by', session.user.id);
     if (q) {
       const safe = q.replace(/[%_,]/g, '');
@@ -568,6 +621,11 @@ async function listQuotesRest(
     }
     lastError = error.message;
     if (!missingSchema(error.message, error.code)) return fail(error.message, 500);
+    if (archivoDisponible && /archived_at|archived_by|archived_reason/.test(error.message)) {
+      archivoDisponible = false;
+      continue;
+    }
+    i += 1;
   }
   return fail(lastError, 500);
 }
@@ -653,11 +711,20 @@ async function saveQuoteRest(
   if (input.condicion_pago !== undefined) {
     canon['condicion_pago'] = normalizarCondicionPago(input.condicion_pago);
   }
+  // El guardado no escribe estado. Cambiarlo es cambiarEstadoQuote (sin envío).
+  const writable = proyectarGuardadoCotizacion(canon);
 
   if (input.id) {
     const existing = await fetchQuoteRow(input.id);
     if (isQuoteRowError(existing)) return fail(existing.error, existing.status);
     const estado = String(existing.estado ?? 'nueva');
+    if (typeof existing.archived_at === 'string' && existing.archived_at) {
+      return fail(
+        'La cotización está archivada. Desarchívala antes de editarla.',
+        409,
+        'COTIZACION_ARCHIVADA'
+      );
+    }
     if (existing.pedido_id || !quoteEditable(estado)) {
       return fail(
         'Esta cotización ya no se edita. Crea una revisión.',
@@ -665,7 +732,7 @@ async function saveQuoteRest(
         'COTIZACION_INMUTABLE'
       );
     }
-    let updatePayload: Record<string, unknown> = { ...canon };
+    let updatePayload: Record<string, unknown> = { ...writable };
     let updated = await supabase
       .from('solicitudes_cotizacion')
       .update(updatePayload)
@@ -689,7 +756,7 @@ async function saveQuoteRest(
 
   // created_by aún no existe en prod (migración PDF pendiente). No lo enviamos.
   let payload: Record<string, unknown> = {
-    ...canon,
+    ...writable,
     estado: 'nueva',
     consentimiento_datos: false,
     created_by: session.user.id,

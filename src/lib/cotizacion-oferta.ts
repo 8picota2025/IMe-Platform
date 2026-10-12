@@ -9,7 +9,9 @@ export type CotizacionEstadoOferta =
   | 'respondida'
   | 'enviada'
   | 'convertida'
-  | 'expirada';
+  | 'expirada'
+  | 'perdida'
+  | 'declinada';
 
 export interface CotizacionLineaOferta {
   slug: string;
@@ -49,6 +51,9 @@ export interface CotizacionOfertaRow {
   send_error?: string | null;
   /** true = los precios ofertados ya incluyen IVA (requisito para pedir factura electrónica al formalizar). */
   impuestos_incluidos?: boolean | null;
+  archived_at?: string | null;
+  archived_by?: string | null;
+  archived_reason?: string | null;
   /** Id de cuenta de recaudo. Null = Bancolombia Ahorros COP. */
   cuenta_recaudo?: string | null;
   /** Condición de pago del PDF. Null = Contado (es) / Prepaid (en). */

@@ -1,4 +1,4 @@
-export type CotizacionesTab = 'pendientes' | 'enviadas';
+export type CotizacionesTab = 'pendientes' | 'enviadas' | 'cerradas';
 
 export interface CotizacionesRoute {
   mode: 'list' | 'nueva' | 'edit' | 'escanear';
@@ -7,6 +7,8 @@ export interface CotizacionesRoute {
   equipo: boolean;
   q: string;
   page: number;
+  /** 1 = activas y archivadas; solo = solo archivadas. */
+  archivadas: '' | '1' | 'solo';
 }
 
 export function parseCotizacionesRoute(hash: string): CotizacionesRoute {
@@ -14,19 +16,24 @@ export function parseCotizacionesRoute(hash: string): CotizacionesRoute {
   const qIndex = stripped.indexOf('?');
   const path = (qIndex >= 0 ? stripped.slice(0, qIndex) : stripped).replace(/\/+$/, '');
   const query = new URLSearchParams(qIndex >= 0 ? stripped.slice(qIndex + 1) : '');
-  const tab: CotizacionesTab = query.get('tab') === 'enviadas' ? 'enviadas' : 'pendientes';
+  const tabParam = query.get('tab');
+  const tab: CotizacionesTab =
+    tabParam === 'enviadas' || tabParam === 'cerradas' ? tabParam : 'pendientes';
   const equipo = query.get('equipo') === '1';
   const q = (query.get('q') ?? '').trim();
   const page = Math.max(1, Number.parseInt(query.get('page') ?? '1', 10) || 1);
+  const archivadasParam = query.get('archivadas');
+  const archivadas: CotizacionesRoute['archivadas'] =
+    archivadasParam === '1' || archivadasParam === 'solo' ? archivadasParam : '';
   const id = (query.get('id') ?? '').trim();
   if (path === 'cotizaciones/escanear' || query.get('tab') === 'escanear') {
-    return { mode: 'escanear', tab, equipo, q, page };
+    return { mode: 'escanear', tab, equipo, q, page, archivadas };
   }
   if (path === 'cotizaciones/nueva' || id === 'new') {
-    return { mode: 'nueva', tab, equipo, q, page };
+    return { mode: 'nueva', tab, equipo, q, page, archivadas };
   }
-  if (id) return { mode: 'edit', id, tab, equipo, q, page };
-  return { mode: 'list', tab, equipo, q, page };
+  if (id) return { mode: 'edit', id, tab, equipo, q, page, archivadas };
+  return { mode: 'list', tab, equipo, q, page, archivadas };
 }
 
 export function cotizacionesListHash(opts: {
@@ -34,12 +41,15 @@ export function cotizacionesListHash(opts: {
   equipo?: boolean;
   q?: string;
   page?: number;
+  archivadas?: '' | '1' | 'solo';
 }): string {
   const params = new URLSearchParams();
-  if (opts.tab === 'enviadas') params.set('tab', 'enviadas');
+  if (opts.tab === 'enviadas' || opts.tab === 'cerradas') params.set('tab', opts.tab);
   if (opts.equipo) params.set('equipo', '1');
   if (opts.q) params.set('q', opts.q);
   if (opts.page && opts.page > 1) params.set('page', String(opts.page));
+  if (opts.archivadas === '1' || opts.archivadas === 'solo')
+    params.set('archivadas', opts.archivadas);
   const qs = params.toString();
   return qs ? `#/cotizaciones?${qs}` : '#/cotizaciones';
 }

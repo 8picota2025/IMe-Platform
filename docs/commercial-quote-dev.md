@@ -107,3 +107,25 @@ npx supabase functions deploy comercial-cotizacion enviar-cotizacion
 ```
 
 `/comercial` quote UI. Twenty offer sync. Duplicate-on-revise UI. RLS isolation.
+
+## Estado sin envío y archivo (no desplegar sin la migración)
+
+Migración: `supabase/migrations/20261011143000_cotizacion_estado_archivo.sql`.
+
+El guardado ignora `estado`. Para cambiarlo sin correo ni WhatsApp:
+
+```bash
+curl -sS -X POST "$PUBLIC_SUPABASE_URL/functions/v1/comercial-cotizacion?action=cambiar-estado&id=$COTIZACION_ID" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "apikey: $PUBLIC_SUPABASE_ANON_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"estado":"perdida","motivo":"El cliente eligió otro proveedor"}'
+```
+
+`envio_cliente` en la respuesta es `false`. Archivar / desarchivar:
+`?action=archivar` y `?action=desarchivar` con `{"motivo":"..."}`.
+Listas: sin parámetro ocultan archivadas; `incluir_archivadas=1` las muestra;
+`solo_archivadas=1` solo esas; `tab=cerradas` es perdida, declinada y expirada.
+
+Probar solo en una cotización creada para la prueba. No tocar cotizaciones reales.
+Cliente de caja: `tools/ime-cms/cms_api.py`. MCP: `docs/mcp-ime-comercio-cotizaciones.md`.

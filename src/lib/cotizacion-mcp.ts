@@ -11,15 +11,13 @@ import {
   type CotizacionOfertaRow,
 } from './cotizacion-oferta.ts';
 import { precioBajoPiso } from './comercio-operacion.ts';
+import {
+  COTIZACION_ESTADOS,
+  resolverFiltroArchivo,
+  type FiltroArchivo,
+} from './cotizacion-estado.ts';
 
-export const COTIZACION_ESTADOS = [
-  'nueva',
-  'en_revision',
-  'respondida',
-  'enviada',
-  'convertida',
-  'expirada',
-] as const;
+export { COTIZACION_ESTADOS };
 
 const LIMITE_DEFECTO = 20;
 const LIMITE_MAX = 50;
@@ -52,6 +50,8 @@ export interface FiltroCotizaciones {
   desde: string | null;
   hasta: string | null;
   limite: number;
+  /** Por defecto solo cotizaciones sin archived_at. */
+  archivo: FiltroArchivo;
 }
 
 /** Quita caracteres que rompen los filtros `or()`/`ilike` de PostgREST. */
@@ -106,6 +106,7 @@ export function normalizarFiltroCotizaciones(
       desde,
       hasta,
       limite,
+      archivo: resolverFiltroArchivo(args),
     },
   };
 }
@@ -154,6 +155,8 @@ export function resumenCotizacion(row: FilaCotizacion, asesor: AsesorVista | nul
     validez_hasta: row.validez_hasta ?? null,
     owner: asesor,
     updated_at: row.updated_at ?? row.created_at ?? null,
+    archivada: Boolean(row.archived_at),
+    archived_at: row.archived_at ?? null,
   };
 }
 
@@ -203,6 +206,8 @@ export function detalleCotizacion(
       oferta_enviada_at: (row as { oferta_enviada_at?: string | null }).oferta_enviada_at ?? null,
     },
     notas_internas: row.notas_internas ?? null,
+    archived_by: row.archived_by ?? null,
+    archived_reason: row.archived_reason ?? null,
     created_at: row.created_at ?? null,
   };
 }
@@ -291,6 +296,13 @@ export function construirCambiosCotizacion(
   lineasNuevas: CotizacionLineaOferta[] | null,
   ahora = new Date()
 ): { ok: true; cambios: CambiosCotizacion } | { ok: false; error: string; code?: string } {
+  if (actual.archived_at) {
+    return {
+      ok: false,
+      code: 'COTIZACION_ARCHIVADA',
+      error: 'La cotización está archivada. Desarchívala antes de editar la oferta.',
+    };
+  }
   if (actual.pedido_id || actual.estado === 'convertida') {
     return {
       ok: false,
