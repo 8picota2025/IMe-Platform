@@ -17,6 +17,12 @@ import {
 import { draftQuoteAnnex } from '../lib/quote-pdf-annex';
 import { bancoLineasCotizacion } from '../lib/transferencia-bancaria';
 import {
+  cuentaRecaudoValida,
+  lineasMedioPagoCotizacion,
+  normalizarCondicionPago,
+  normalizarCuentaRecaudo,
+} from '../lib/cotizacion-recaudo';
+import {
   callEdgeFunction,
   ensureAuthSession,
   supabase,
@@ -48,6 +54,10 @@ export interface QuotePublic {
   pedido_id: string | null;
   /** "Precios incluyen IVA" (null = sin declarar). */
   impuestos_incluidos: boolean | null;
+  /** Cuenta de recaudo. Null conserva Bancolombia Ahorros COP. */
+  cuenta_recaudo: string | null;
+  /** Condición de pago. Null conserva Contado en el PDF en español. */
+  condicion_pago: string | null;
   incompleta: boolean;
   origen: 'pwa' | 'web';
   editable: boolean;
@@ -75,6 +85,8 @@ export interface QuoteSaveInput {
   condiciones: string;
   productos: CotizacionLineaOferta[];
   impuestos_incluidos?: boolean;
+  cuenta_recaudo?: string | null;
+  condicion_pago?: string | null;
 }
 
 /** Columnas presentes en prod actual (OpenAPI). */
@@ -84,6 +96,9 @@ const DETAIL_CORE =
 /** Extras de migración PDF/numeración — se intentan si existen. */
 const DETAIL_RICH =
   'id,numero,estado,nombre,empresa,email,telefono,moneda,mercado,validez_hasta,condiciones,productos,precio_total_ofertado,updated_at,created_at,pdf_storage_path,pdf_revision,send_error,metadata,crm_sync_status,created_by,locale,pedido_id,campaign,landing_path,origen,tipo_solicitud,impuestos_incluidos';
+
+/** Recaudo y condición de pago. Si la migración no está aplicada, se reintenta sin ellas. */
+const DETAIL_PAGO = `${DETAIL_RICH},condicion_pago,cuenta_recaudo`;
 
 function missingSchema(message?: string | null, code?: string | null): boolean {
   if (code && /^(PGRST204|42703|42883)$/i.test(code)) return true;
@@ -180,6 +195,8 @@ export function mapQuoteRow(raw: unknown, createdByNombre?: string | null): Quot
     pedido_id: typeof row.pedido_id === 'string' ? row.pedido_id : null,
     impuestos_incluidos:
       typeof row.impuestos_incluidos === 'boolean' ? row.impuestos_incluidos : null,
+    cuenta_recaudo: normalizarCuentaRecaudo(row.cuenta_recaudo),
+    condicion_pago: normalizarCondicionPago(row.condicion_pago),
     incompleta: !check.ok,
     origen: pwa ? 'pwa' : 'web',
     editable: quoteEditable(String(row.estado ?? 'nueva')),
@@ -248,6 +265,8 @@ type QuotePdfSnapshot = {
   validez_hasta: string | null;
   moneda: 'COP' | 'USD';
   productos: CotizacionLineaOferta[];
+  cuenta_recaudo?: string | null;
+  condicion_pago?: string | null;
 };
 
 async function loadQuoteAnnexes(lineas: CotizacionLineaOferta[]): Promise<
@@ -430,7 +449,8 @@ async function renderQuotePdfLocal(
       whatsappIconBytes,
       fontRegularBytes: fonts.regular,
       fontBoldBytes: fonts.bold,
-      bancoLineas: bancoLineasCotizacion(),
+      condicionPago: snapshot.condicion_pago ?? null,
+      bancoLineas: lineasMedioPagoCotizacion(snapshot.cuenta_recaudo, bancoLineasCotizacion()),
     });
     return ok({ pdf_base64: bytesToBase64(bytes), numero });
   } catch (err) {
@@ -509,11 +529,16 @@ async function listQuotesRest(
           : [...COTIZACION_ESTADOS_PENDIENTES];
   const soloMias = query.mias === '1';
 
-  let cols = DETAIL_RICH;
-  let useNumero = true;
+  const colAttempts = [
+    DETAIL_PAGO,
+    DETAIL_RICH,
+    DETAIL_CORE,
+    'id,estado,nombre,empresa,email,telefono,moneda,productos,condiciones,metadata,created_at,campaign,landing_path',
+  ];
   let lastError = 'No fue posible cargar cotizaciones.';
 
-  for (let attempt = 0; attempt < 3; attempt += 1) {
+  for (const cols of colAttempts) {
+    const useNumero = cols.includes('numero');
     let req = supabase
       .from('solicitudes_cotizacion')
       .select(cols, { count: 'exact' })
@@ -543,13 +568,6 @@ async function listQuotesRest(
     }
     lastError = error.message;
     if (!missingSchema(error.message, error.code)) return fail(error.message, 500);
-    useNumero = false;
-    if (attempt === 0) {
-      cols = DETAIL_CORE;
-      continue;
-    }
-    cols =
-      'id,estado,nombre,empresa,email,telefono,moneda,productos,condiciones,metadata,created_at,campaign,landing_path';
   }
   return fail(lastError, 500);
 }
@@ -568,6 +586,7 @@ async function getQuoteRest(id: string): Promise<EdgeFunctionResult<{ quote: Quo
 async function fetchQuoteRow(id: string): Promise<Record<string, unknown> | QuoteRowError> {
   if (!supabase) return { error: 'Supabase no configurado.', status: 0 };
   const colSets = [
+    DETAIL_PAGO,
     DETAIL_RICH,
     DETAIL_CORE,
     'id,estado,nombre,empresa,email,telefono,moneda,mercado,validez_hasta,condiciones,productos,precio_total_ofertado,created_at,metadata,crm_sync_status,locale,pedido_id,campaign,landing_path',
@@ -625,6 +644,15 @@ async function saveQuoteRest(
   if (typeof input.impuestos_incluidos === 'boolean') {
     canon['impuestos_incluidos'] = input.impuestos_incluidos;
   }
+  if (input.cuenta_recaudo !== undefined) {
+    if (!cuentaRecaudoValida(input.cuenta_recaudo)) {
+      return fail('Cuenta de recaudo no reconocida.', 422, 'CUENTA_RECAUDO_INVALIDA');
+    }
+    canon['cuenta_recaudo'] = normalizarCuentaRecaudo(input.cuenta_recaudo);
+  }
+  if (input.condicion_pago !== undefined) {
+    canon['condicion_pago'] = normalizarCondicionPago(input.condicion_pago);
+  }
 
   if (input.id) {
     const existing = await fetchQuoteRow(input.id);
@@ -637,11 +665,20 @@ async function saveQuoteRest(
         'COTIZACION_INMUTABLE'
       );
     }
-    const { error } = await supabase
+    let updatePayload: Record<string, unknown> = { ...canon };
+    let updated = await supabase
       .from('solicitudes_cotizacion')
-      .update(canon)
+      .update(updatePayload)
       .eq('id', input.id);
-    if (error) return fail(error.message, 500);
+    for (let attempt = 0; attempt < 6 && updated.error; attempt += 1) {
+      if (!missingSchema(updated.error.message, updated.error.code)) break;
+      updatePayload = stripUnknownColumn(updatePayload, updated.error.message);
+      updated = await supabase
+        .from('solicitudes_cotizacion')
+        .update(updatePayload)
+        .eq('id', input.id);
+    }
+    if (updated.error) return fail(updated.error.message, 500);
     const numbered = await ensureNumero(input.id);
     const loaded = await getQuoteRest(input.id);
     if (!loaded.error && loaded.data?.quote && numbered && !loaded.data.quote.numero) {
@@ -666,7 +703,7 @@ async function saveQuoteRest(
     .insert(payload)
     .select('id')
     .maybeSingle();
-  for (let attempt = 0; attempt < 4 && inserted.error; attempt += 1) {
+  for (let attempt = 0; attempt < 6 && inserted.error; attempt += 1) {
     if (!missingSchema(inserted.error.message, inserted.error.code)) break;
     payload = stripUnknownColumn(payload, inserted.error.message);
     inserted = await supabase
@@ -703,6 +740,8 @@ async function duplicarQuoteRest(id: string): Promise<EdgeFunctionResult<{ quote
     ...(typeof quote.impuestos_incluidos === 'boolean'
       ? { impuestos_incluidos: quote.impuestos_incluidos }
       : {}),
+    cuenta_recaudo: quote.cuenta_recaudo,
+    condicion_pago: quote.condicion_pago,
   });
 }
 

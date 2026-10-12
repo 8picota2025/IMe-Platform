@@ -3,6 +3,7 @@ import { PDFDocument, PDFPage } from 'pdf-lib';
 import { format } from 'prettier';
 import { afterEach, expect, it, vi } from 'vitest';
 import { renderQuotePdf, type QuotePdfAnnex } from './render-quote-pdf';
+import { NOTA_IMPORTES_USD_EN, NOTA_IMPORTES_USD_ES } from './cotizacion-recaudo';
 
 afterEach(() => vi.restoreAllMocks());
 
@@ -55,7 +56,7 @@ it.each(['es', 'en'] as const)(
       );
       expect(borders.some(border => border > y)).toBe(true);
       expect(borders.some(border => border < y)).toBe(true);
-      for (const x of [27, 65, 175, 372, 462, 568]) {
+      for (const x of [27, 108, 208, 372, 462, 568]) {
         expect(
           lines.mock.calls.some(
             ([opts], i) =>
@@ -149,4 +150,104 @@ it('keeps the Edge mirror synchronized with the source', async () => {
     format(edge, { parser: 'typescript' }),
   ]);
   expect(formattedEdge).toBe(formattedSource);
+});
+
+it('keeps COP payment box, Contado and the peso sign by default', async () => {
+  const text = vi.spyOn(PDFPage.prototype, 'drawText');
+  await renderQuotePdf({
+    numero: 'COP-DEFAULT',
+    clienteNombre: 'Clinica',
+    condiciones: 'Entrega:\n30 dias.',
+    moneda: 'COP',
+    total: 500000,
+    lineas: [
+      {
+        slug: 'ref',
+        nombre: 'Monitor',
+        cantidad: 50000,
+        precio_unitario: 10,
+        subtotal: 500000,
+        moneda: 'COP',
+      },
+    ],
+    locale: 'es',
+    bancoLineas: ['Transferencia bancaria:', '61400006521', 'Bancolombia/Ahorros'],
+  });
+  const strings = text.mock.calls.map(([value]) => String(value));
+  const drawn = strings.join(' ');
+  expect(strings).toContain('50.000');
+  expect(strings.some(value => value.includes('…') && value.includes('50'))).toBe(false);
+  expect(strings).toContain('Contado');
+  expect(strings).toContain('Bancolombia/Ahorros');
+  expect(strings).toContain('61400006521');
+  expect(drawn).not.toContain(NOTA_IMPORTES_USD_ES);
+  expect(drawn).not.toContain('USD ');
+  expect(strings.some(value => value.startsWith('$'))).toBe(true);
+});
+
+it('prints the selected account, payment terms, USD and the currency note', async () => {
+  const text = vi.spyOn(PDFPage.prototype, 'drawText');
+  await renderQuotePdf({
+    numero: 'USD-DAV',
+    clienteNombre: 'Clinic',
+    condiciones: 'Delivery:\n30 days.',
+    moneda: 'USD',
+    total: 1200,
+    condicionPago: '35% / 35% / 30%',
+    bancoLineas: [
+      'Transferencia bancaria:',
+      '0550108900697583',
+      'Davivienda S.A.',
+      'SWIFT: CAFECOBBXXX',
+      'International Medical Enterprise IME S.A.S.',
+    ],
+    lineas: [
+      {
+        slug: 'ref',
+        nombre: 'Monitor',
+        cantidad: 50000,
+        precio_unitario: 12,
+        subtotal: 600000,
+        moneda: 'USD',
+      },
+    ],
+    locale: 'en',
+  });
+  const strings = text.mock.calls.map(([value]) => String(value));
+  const drawn = strings.join(' ');
+  expect(strings).toContain('50,000');
+  expect(strings).toContain('35% / 35% / 30%');
+  expect(strings).toContain('0550108900697583');
+  expect(drawn).toContain('SWIFT: CAFECOBBXXX');
+  expect(drawn).toContain('Davivienda S.A.');
+  expect(drawn).not.toContain('Bancolombia/Ahorros');
+  expect(strings.some(value => value.startsWith('$'))).toBe(false);
+  expect(strings.some(value => value.startsWith('USD '))).toBe(true);
+  expect(drawn).toContain(NOTA_IMPORTES_USD_EN);
+});
+
+it('adds the Spanish USD note in the offer notes', async () => {
+  const text = vi.spyOn(PDFPage.prototype, 'drawText');
+  await renderQuotePdf({
+    numero: 'USD-ES',
+    clienteNombre: 'Clinica',
+    condiciones: 'Entrega:\n30 dias.',
+    moneda: 'USD',
+    total: 10,
+    lineas: [
+      {
+        slug: 'ref',
+        nombre: 'Monitor',
+        cantidad: 1,
+        precio_unitario: 10,
+        subtotal: 10,
+        moneda: 'USD',
+      },
+    ],
+    locale: 'es',
+  });
+  const drawn = text.mock.calls.map(([value]) => String(value)).join(' ');
+  expect(drawn).toContain(NOTA_IMPORTES_USD_ES);
+  expect(drawn).toContain('USD ');
+  expect(drawn).not.toMatch(/\$\d/);
 });
