@@ -6,6 +6,7 @@
 import { getAlternateLinks } from '../i18n/utils';
 import type { Locale } from '../i18n/utils';
 import { resolveSearchConsoleVerification } from '../lib/analytics-config';
+import { resolveRobotsContent } from '../lib/seo';
 import '../styles/globals.css';
 
 interface Props {
@@ -51,7 +52,7 @@ const ogImageType = ogImagePath.endsWith('.svg')
       : 'image/jpeg';
 const ogWidth = String(ogImageWidth ?? 1200);
 const ogHeight = String(ogImageHeight ?? 630);
-const robotsContent = noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large';
+const robotsContent = resolveRobotsContent(noindex);
 const searchConsoleVerification = resolveSearchConsoleVerification();
 const googleFontsHref =
   'https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=Inter:wght@400;500;600&display=swap';
@@ -75,12 +76,7 @@ const googleFontsHref =
 </script>
 
 <!-- Carga fuentes sin bloquear el primer render; el navegador usa fallback mientras llegan. -->
-<link
-  rel="stylesheet"
-  href={googleFontsHref}
-  media="print"
-  data-deferred-stylesheet
-/>
+<link rel="stylesheet" href={googleFontsHref} media="print" data-deferred-stylesheet />
 <noscript><link rel="stylesheet" href={googleFontsHref} /></noscript>
 
 <!-- Primary Meta -->

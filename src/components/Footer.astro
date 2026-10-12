@@ -254,7 +254,7 @@ const legalLinks: Array<{ kind: LegalKind; label: string }> = [
       <nav class="footer__legal" aria-label={t(locale, 'footer.legal')}>
         {
           legalLinks.map(link => (
-            <a href={`/${locale}/legal/${getLegalSlug(link.kind, locale)}`}>{link.label}</a>
+            <a href={`/${locale}/legal/${getLegalSlug(link.kind, locale)}/`}>{link.label}</a>
           ))
         }
         <button type="button" id="ime-footer-consent-preferences" class="footer__legal-btn">

@@ -23,14 +23,14 @@ export const TEMAS_CONOCIMIENTO: Record<string, TextoTema> = {
   },
   'invima-regulacion': {
     es: {
-      nombre: 'INVIMA / regulación',
+      nombre: 'INVIMA para fabricantes de dispositivos médicos',
       intro:
-        'El marco regulatorio de los dispositivos médicos en Colombia desde el lado del comprador: qué es el registro sanitario INVIMA y qué verificar antes de comprar.',
+        'Guía INVIMA para fabricantes: requisitos, costes y tiempos de referencia para dispositivos médicos en Colombia.',
     },
     en: {
-      nombre: 'INVIMA / regulatory',
+      nombre: 'INVIMA for medical device manufacturers',
       intro:
-        "Colombia's medical device regulations from the buyer's side: what an INVIMA sanitary registration is and what to check before you buy.",
+        'INVIMA guide for medical device manufacturers: requirements, costs and planning timelines for Colombia.',
     },
   },
   'ventilacion-terapia-respiratoria': {

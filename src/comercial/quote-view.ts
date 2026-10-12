@@ -12,6 +12,13 @@ import {
 } from '../lib/cotizacion-oferta';
 import { defaultCondicionesOferta } from '../lib/condiciones-oferta';
 import {
+  aplicarNotaImportesUsd,
+  CUENTAS_RECAUDO,
+  cuentaRecaudoPorId,
+  NOTA_IMPORTES_USD_ES,
+  resumenCuentaRecaudo,
+} from '../lib/cotizacion-recaudo';
+import {
   callEdgeFunction,
   ensureAuthSession,
   escapeHtml,
@@ -327,6 +334,8 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
       created_by_nombre: state.nombre,
       pedido_id: null,
       impuestos_incluidos: null,
+      cuenta_recaudo: null,
+      condicion_pago: null,
       incompleta: true,
       origen: 'pwa',
       editable: true,
@@ -411,6 +420,18 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
           </label>
           <label class="comercial-field"><span>Validez</span><input name="validez_hasta" type="date" value="${escapeHtml(quote.validez_hasta ?? '')}" ${disabled} /></label>
         </div>
+        <div class="comercial-field-row">
+          <label class="comercial-field"><span>Cuenta de recaudo</span>
+            <select name="cuenta_recaudo" data-quote-cuenta ${disabled}>
+              ${cuentaOptions(quote.cuenta_recaudo)}
+            </select>
+          </label>
+          <label class="comercial-field"><span>Condición de pago</span>
+            <input name="condicion_pago" type="text" maxlength="160" placeholder="Contado" value="${escapeHtml(quote.condicion_pago ?? '')}" ${disabled} />
+          </label>
+        </div>
+        <p class="comercial-help" data-quote-cuenta-detalle>${escapeHtml(resumenCuentaRecaudo(cuentaRecaudoPorId(quote.cuenta_recaudo)))}</p>
+        <p class="comercial-help">Vacío imprime «Contado». Ejemplo: 35% / 35% / 30%.</p>
         <label class="comercial-field comercial-field--check"><span><input name="impuestos_incluidos" type="checkbox" data-quote-iva ${quote.impuestos_incluidos ? 'checked' : ''} ${disabled} /> Precios incluyen IVA</span>
           <small class="comercial-help">Márcalo cuando los precios ofrecidos ya incluyen IVA. Sin esto, el cliente no podrá pedir factura electrónica al formalizar la cotización.</small>
         </label>
@@ -428,8 +449,8 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
         }
         <div data-quote-lines>${linesHtml(quote.productos, quote.moneda, editable)}</div>
         <p class="comercial-quote-total" data-quote-total>Total ${escapeHtml(formatQuoteMoney(calcularTotalOfertado(quote.productos), quote.moneda))}</p>
-        <label class="comercial-field"><span>Condiciones / consideraciones de la oferta</span><textarea name="condiciones" rows="12" ${disabled}>${escapeHtml(quote.condiciones)}</textarea></label>
-        <p class="comercial-help">Secciones del boceto: Entrega, Costo de envío, Garantía, Instalación. Edita plazos y garantías por producto.</p>
+        <label class="comercial-field"><span>Condiciones / consideraciones de la oferta</span><textarea name="condiciones" rows="12" ${disabled}>${escapeHtml(aplicarNotaImportesUsd(quote.condiciones, quote.moneda, 'es'))}</textarea></label>
+        <p class="comercial-help">Secciones del boceto: Entrega, Costo de envío, Garantía, Instalación. Edita plazos y garantías por producto. En USD se añade sola: ${escapeHtml(NOTA_IMPORTES_USD_ES)}</p>
         <p class="comercial-help" data-quote-hint role="status"></p>
       </form>
       <div class="comercial-quote-footer">
@@ -455,6 +476,14 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
       }
     </section>
     <div data-quote-modal-slot></div>`;
+}
+
+function cuentaOptions(selected: string | null): string {
+  const id = selected || 'bancolombia_ahorros';
+  return CUENTAS_RECAUDO.map(
+    cuenta =>
+      `<option value="${escapeHtml(cuenta.id)}" ${cuenta.id === id ? 'selected' : ''}>${escapeHtml(cuenta.etiqueta)}</option>`
+  ).join('');
 }
 
 function comboboxHtml(): string {
@@ -524,6 +553,8 @@ function readForm(root: HTMLElement): {
   validez_hasta: string | null;
   condiciones: string;
   impuestos_incluidos: boolean;
+  cuenta_recaudo: string | null;
+  condicion_pago: string | null;
   productos: CotizacionLineaOferta[];
 } {
   const form = root.querySelector<HTMLFormElement>('[data-quote-form]');
@@ -563,10 +594,23 @@ function readForm(root: HTMLElement): {
     telefono: String(data.get('telefono') ?? '').trim(),
     moneda,
     validez_hasta: String(data.get('validez_hasta') ?? '').trim() || null,
-    condiciones: String(data.get('condiciones') ?? '').trim(),
+    condiciones: aplicarNotaImportesUsd(String(data.get('condiciones') ?? ''), moneda, 'es'),
     impuestos_incluidos: data.get('impuestos_incluidos') === 'on',
+    cuenta_recaudo: String(data.get('cuenta_recaudo') ?? '').trim() || null,
+    condicion_pago: String(data.get('condicion_pago') ?? '').trim() || null,
     productos: sanitizarLineasComercial(productos, moneda),
   };
+}
+
+function syncMonedaNotas(root: HTMLElement): void {
+  const area = root.querySelector<HTMLTextAreaElement>('[name="condiciones"]');
+  const moneda = root.querySelector<HTMLSelectElement>('[data-quote-moneda]')?.value;
+  if (!area || (moneda !== 'USD' && moneda !== 'COP')) return;
+  const next = aplicarNotaImportesUsd(area.value, moneda, 'es');
+  if (next !== area.value) area.value = next;
+  const detalle = root.querySelector('[data-quote-cuenta-detalle]');
+  const cuenta = root.querySelector<HTMLSelectElement>('[data-quote-cuenta]')?.value;
+  if (detalle) detalle.textContent = resumenCuentaRecaudo(cuentaRecaudoPorId(cuenta));
 }
 
 function refreshTotals(root: HTMLElement): void {
@@ -666,6 +710,8 @@ function htmlPreview(root: HTMLElement): string {
         <tbody>${rows}</tbody>
       </table>
       <p class="comercial-quote-total">Total ${escapeHtml(formatQuoteMoney(total, parsed.moneda))}</p>
+      <p class="comercial-help">Condición de pago: ${escapeHtml(parsed.condicion_pago || 'Contado')}</p>
+      <p class="comercial-help">Recaudo: ${escapeHtml(resumenCuentaRecaudo(cuentaRecaudoPorId(parsed.cuenta_recaudo)))}</p>
       ${parsed.condiciones ? `<pre class="comercial-quote-preview-terms">${escapeHtml(parsed.condiciones)}</pre>` : '<p class="comercial-help">Sin condiciones.</p>'}
     </article>`;
 }
@@ -887,8 +933,17 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
     };
   }
 
-  const onFormInput = () => {
+  const onFormInput = (event: Event) => {
     setDirty(true);
+    const target = event.target;
+    if (target instanceof HTMLSelectElement && target.name === 'moneda') {
+      syncMonedaNotas(editor);
+    } else if (target instanceof HTMLSelectElement && target.name === 'cuenta_recaudo') {
+      const detalle = editor.querySelector('[data-quote-cuenta-detalle]');
+      if (detalle) {
+        detalle.textContent = resumenCuentaRecaudo(cuentaRecaudoPorId(target.value));
+      }
+    }
     refreshTotals(editor);
     const email = editor.querySelector<HTMLInputElement>('[name="email"]')?.value ?? '';
     const copy = editor.querySelector('[data-quote-email-copy]');
@@ -1028,6 +1083,8 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
         moneda: parsed.moneda,
         validez_hasta: parsed.validez_hasta,
         mercado: parsed.moneda === 'USD' ? 'INTL' : 'CO',
+        cuenta_recaudo: parsed.cuenta_recaudo,
+        condicion_pago: parsed.condicion_pago,
       },
     });
     if (emailBtn) {
