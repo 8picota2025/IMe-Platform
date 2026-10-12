@@ -74,6 +74,8 @@ const config = {
     avisoFiscalEnvio: t(locale, 'carrito.aviso_fiscal_envio'),
     envio: t(locale, 'carrito.envio'),
     envioPendiente: t(locale, 'carrito.envio_pendiente'),
+    entrega: t(locale, 'carrito.entrega'),
+    entregaPlazo: t(locale, 'carrito.entrega_plazo'),
     totalProductos: t(locale, 'carrito.total_productos'),
     pasoDatos: t(locale, 'carrito.paso_datos'),
     errorCampos: t(locale, 'carrito.error_campos'),
@@ -145,6 +147,10 @@ const config = {
       <div class="carrito-resumen__row">
         <span>{config.i18n.envio}</span>
         <span>{config.i18n.envioPendiente}</span>
+      </div>
+      <div class="carrito-resumen__row">
+        <span>{config.i18n.entrega}</span>
+        <span>{config.i18n.entregaPlazo}</span>
       </div>
       <div class="carrito-resumen__row carrito-resumen__row--total">
         <span>{config.i18n.totalProductos}</span>
@@ -367,7 +373,11 @@ const config = {
       <span>{config.i18n.totalProductos}</span>
       <strong id="carrito-dock-total">—</strong>
     </p>
-    <p class="carrito-dock__nota">{config.i18n.envio}: {config.i18n.envioPendiente}</p>
+    <p class="carrito-dock__nota">
+      {config.i18n.envio}: {config.i18n.envioPendiente} · {config.i18n.entrega}: {
+        config.i18n.entregaPlazo
+      }
+    </p>
     <div class="carrito-actions">
       <button id="carrito-vaciar" class="btn btn-secondary" type="button">
         {config.i18n.vaciar}
@@ -813,6 +823,8 @@ const config = {
     avisoFiscalEnvio: string;
     envio: string;
     envioPendiente: string;
+    entrega: string;
+    entregaPlazo: string;
     totalProductos: string;
     pasoDatos: string;
     errorCampos: string;
