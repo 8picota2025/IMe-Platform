@@ -37,6 +37,8 @@ export interface CotizacionOfertaRow {
   formalizacion_token_hash?: string | null;
   formalizacion_token_expira_at?: string | null;
   pedido_id?: string | null;
+  /** Comercial declaró que precio_unitario ofertado ya incluye IVA. */
+  impuestos_incluidos?: boolean | null;
   locale?: string | null;
   mercado?: string | null;
   moneda?: string | null;
