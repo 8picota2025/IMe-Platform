@@ -46,6 +46,10 @@ const PATH_SEGMENT_PAIRS: Array<{ es: string; en: string }> = [
   { es: 'productos', en: 'products' },
   { es: 'conocimiento', en: 'knowledge' },
   { es: 'seguimiento', en: 'order-status' },
+  { es: 'carrito', en: 'cart' },
+  { es: 'cuenta', en: 'account' },
+  { es: 'pago', en: 'payment' },
+  { es: 'cotizacion', en: 'quote' },
   { es: 'proyectos', en: 'projects' },
   { es: 'torres-laparoscopia', en: 'laparoscopy-towers' },
   { es: 'esterilizacion', en: 'sterilization' },
@@ -58,6 +62,7 @@ const PATH_SEGMENT_PAIRS: Array<{ es: string; en: string }> = [
   { es: 'camillas-medicas', en: 'medical-stretchers' },
   { es: 'ventiladores-mecanicos-uci', en: 'mechanical-ventilators-icu' },
   { es: 'desfibriladores-hospitalarios', en: 'hospital-defibrillators' },
+  { es: 'dotacion-monitoreo-uci', en: 'icu-monitoring-projects' },
   { es: 'fabricantes', en: 'manufacturers' },
   { es: 'familias', en: 'families' },
   { es: 'ciudades', en: 'cities' },
@@ -70,7 +75,25 @@ const NESTED_SLUG_PAIRS: Array<{
   sectionEn: string;
   es: string;
   en: string;
-}> = [{ sectionEs: 'conocimiento', sectionEn: 'knowledge', es: 'publicar', en: 'publish' }];
+}> = [
+  { sectionEs: 'conocimiento', sectionEn: 'knowledge', es: 'publicar', en: 'publish' },
+  // Páginas de tema del Centro de Conocimiento (ADR-0014).
+  { sectionEs: 'conocimiento', sectionEn: 'knowledge', es: 'tema', en: 'topic' },
+  // Herramientas de Fase 3.
+  {
+    sectionEs: 'recursos',
+    sectionEn: 'resources',
+    es: 'checklist-recepcion-monitor',
+    en: 'monitor-receiving-checklist',
+  },
+  // Flujo de pago y cotización: sin estos pares el selector de idioma y el hreflang
+  // apuntan a rutas del otro idioma que no existen (404).
+  { sectionEs: 'pago', sectionEn: 'payment', es: 'exito', en: 'success' },
+  { sectionEs: 'pago', sectionEn: 'payment', es: 'fallo', en: 'failure' },
+  { sectionEs: 'pago', sectionEn: 'payment', es: 'pendiente', en: 'pending' },
+  { sectionEs: 'pago', sectionEn: 'payment', es: 'resultado', en: 'result' },
+  { sectionEs: 'cotizacion', sectionEn: 'quote', es: 'formalizar', en: 'formalize' },
+];
 
 const LEGAL_SLUG_PAIRS: Array<{ es: string; en: string }> = [
   { es: 'privacidad', en: 'privacy' },

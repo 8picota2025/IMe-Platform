@@ -1,0 +1,11 @@
+---
+import CampaignLandingPage from '../../components/CampaignLandingPage.astro';
+import { getCampaignLandingCms } from '../../lib/landings-cms';
+import { getProductosBySlugs } from '../../lib/datos';
+
+const locale = 'es' as const;
+const content = await getCampaignLandingCms('dotacion_monitoreo_uci', locale);
+const productos = await getProductosBySlugs(content.productSlugs, locale);
+---
+
+<CampaignLandingPage locale={locale} content={content} productos={productos} />

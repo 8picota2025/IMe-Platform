@@ -1,0 +1,37 @@
+{
+  "object": "whatsapp_business_account",
+  "entry": [
+    {
+      "id": "TEST_WABA",
+      "changes": [
+        {
+          "field": "messages",
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "phone_number_id": "TEST_PHONE_ID"
+            },
+            "contacts": [
+              {
+                "profile": {
+                  "name": "Cliente de prueba"
+                },
+                "wa_id": "573001112233"
+              }
+            ],
+            "messages": [
+              {
+                "id": "wamid.test.text",
+                "from": "573001112233",
+                "type": "text",
+                "text": {
+                  "body": "Hola"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

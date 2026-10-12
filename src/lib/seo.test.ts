@@ -5,6 +5,7 @@ import {
   buildProductoSeo,
   buildOrganizationJsonLd,
   PRODUCT_TITLE_MAX,
+  resolveRobotsContent,
 } from './seo';
 
 describe('buildOrganizationJsonLd', () => {
@@ -27,7 +28,7 @@ describe('buildProductJsonLd', () => {
   const producto = {
     nombre: 'Monitor de Paciente Biolight M12',
     descripcion_corta: 'Monitor de paciente compacto.',
-    imagen_principal: '/assets/importados/equitronic/img/monitor-de-paciente-m12-biolight-1.jpg',
+    imagen_principal: '/assets/productos/monitor-paciente.jpg',
     slug: 'eq-monitor-de-paciente-m12-biolight',
     precio: 12500000,
     moneda: 'COP',
@@ -210,7 +211,7 @@ describe('buildProductoSeo', () => {
         nombre: 'Bomba de Infusión IP-200',
         descripcion_corta: 'Bomba volumétrica para terapia IV hospitalaria.',
         imagen_principal: null,
-        slug: 'bomba-de-infusion-ip-200',
+        slug: 'bomba-de-infusion-ref-ip-200-advanced',
         seo_keywords: ['bombas infusión hospitalarias', 'terapia IV UCI'],
       },
       'es',
@@ -219,7 +220,7 @@ describe('buildProductoSeo', () => {
     );
     expect(seo.title).toContain('I-ME');
     expect(seo.description.toLowerCase()).toContain('bombas');
-    expect(seo.canonical).toContain('/es/productos/bomba-de-infusion-ip-200');
+    expect(seo.canonical).toContain('/es/productos/bomba-de-infusion-ref-ip-200-advanced');
   });
 
   it('cae a categoría como intent si no hay seo_keywords', () => {
@@ -228,7 +229,7 @@ describe('buildProductoSeo', () => {
         nombre: 'Autoclave Horizontal 5075',
         descripcion_corta: 'Esterilización a vapor para CSSD.',
         imagen_principal: null,
-        slug: 'autoclave-horizontal-5075',
+        slug: 'autoclave-horizontal-ref-5075-tuttnauer',
         seo_keywords: [],
       },
       'es',
@@ -278,5 +279,52 @@ describe('descripciones hermanas', () => {
       'Biolight'
     );
     expect(seo.description.startsWith('El monitor P22')).toBe(true);
+  });
+});
+
+describe('buildProductoPageTitle · títulos muy cortos', () => {
+  it('añade la marca del fabricante cuando el título completo queda por debajo de 30 caracteres', () => {
+    expect(buildProductoPageTitle('Cama Manual K3k', 'es', undefined, 'Saikang')).toBe(
+      'Cama Manual K3k Saikang | I-ME'
+    );
+    expect(buildProductoPageTitle('Autoclave T-Max 6', 'es', undefined, 'Tuttnauer')).toBe(
+      'Autoclave T-Max 6 Tuttnauer | I-ME'
+    );
+  });
+
+  it('no repite la marca si el nombre ya la incluye', () => {
+    expect(buildProductoPageTitle('Cama Saikang K3k', 'es', undefined, 'Saikang')).toBe(
+      'Cama Saikang K3k | I-ME'
+    );
+  });
+
+  it('no toca los títulos que ya tienen longitud suficiente', () => {
+    const title = buildProductoPageTitle(
+      'Monitor de paciente Ref. SK-EM005',
+      'es',
+      undefined,
+      'Saikang'
+    );
+    expect(title).toBe('Monitor de paciente Ref. SK-EM005 | I-ME');
+  });
+
+  it('sin marca conserva el comportamiento anterior', () => {
+    expect(buildProductoPageTitle('Cama Manual K3k', 'es')).toBe('Cama Manual K3k | I-ME');
+  });
+});
+
+describe('resolveRobotsContent', () => {
+  it('por defecto la página se indexa', () => {
+    expect(resolveRobotsContent(false, false)).toBe('index, follow, max-image-preview:large');
+    expect(resolveRobotsContent(undefined, false)).toBe('index, follow, max-image-preview:large');
+  });
+
+  it('una página que pide noindex lo conserva', () => {
+    expect(resolveRobotsContent(true, false)).toBe('noindex, nofollow');
+  });
+
+  it('un build de vista previa (PUBLIC_NOINDEX=1) no indexa nada aunque la página lo permita', () => {
+    expect(resolveRobotsContent(false, true)).toBe('noindex, nofollow');
+    expect(resolveRobotsContent(undefined, true)).toBe('noindex, nofollow');
   });
 });

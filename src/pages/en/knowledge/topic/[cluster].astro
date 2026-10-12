@@ -1,0 +1,25 @@
+---
+import PaginaTema from '../../../../components/conocimiento/PaginaTema.astro';
+import { getArticulosConocimiento } from '../../../../lib/conocimiento-borradores';
+import { agruparPorTema, type TemaConArticulos } from '../../../../lib/conocimiento-clusters';
+import type { Articulo } from '../../../../lib/datos';
+
+export async function getStaticPaths() {
+  const articulos = await getArticulosConocimiento('en');
+  const temas = agruparPorTema(articulos);
+  return temas.map(tema => ({
+    params: { cluster: tema.cluster.slug },
+    props: { tema, temas, total: articulos.length },
+  }));
+}
+
+interface Props {
+  tema: TemaConArticulos<Articulo>;
+  temas: TemaConArticulos<Articulo>[];
+  total: number;
+}
+
+const { tema, temas, total } = Astro.props as Props;
+---
+
+<PaginaTema locale="en" tema={tema} temas={temas} total={total} />

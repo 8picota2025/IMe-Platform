@@ -1,10 +1,10 @@
 ---
 import CampaignLandingPage from '../../../components/CampaignLandingPage.astro';
 import {
-  getFabricanteLanding,
   getFabricanteLandingIdBySlug,
   listFabricanteSlugs,
 } from '../../../data/fabricante-landings';
+import { getFabricanteLandingCms } from '../../../lib/landings-cms';
 
 export function getStaticPaths() {
   return listFabricanteSlugs().map(slug => ({ params: { slug } }));
@@ -16,7 +16,7 @@ const id = getFabricanteLandingIdBySlug(slug);
 if (!id) {
   return Astro.redirect('/es/fabricantes/');
 }
-const content = getFabricanteLanding(id, locale);
+const content = await getFabricanteLandingCms(id, locale);
 ---
 
 <CampaignLandingPage locale={locale} content={content} productos={[]} />

@@ -14,6 +14,7 @@ const analyticsHead = readFileSync(
   new URL('../components/AnalyticsHead.astro', import.meta.url),
   'utf8'
 );
+const consentLib = readFileSync(new URL('./consent.ts', import.meta.url), 'utf8');
 const baseHead = readFileSync(new URL('../components/BaseHead.astro', import.meta.url), 'utf8');
 const layout = readFileSync(new URL('../layouts/Layout.astro', import.meta.url), 'utf8');
 
@@ -58,7 +59,12 @@ describe('analytics head wiring', () => {
   it('loads GA4, Search Console meta and the client tracker from Layout', () => {
     expect(layout).toContain('AnalyticsHead');
     expect(analyticsHead).toContain('resolveGaId');
-    expect(analyticsHead).toContain('googletagmanager.com/gtag/js');
+    // ADR-0012: la URL de gtag/js ya no se inyecta incondicionalmente en
+    // AnalyticsHead — vive en consent.ts, detrás de hasAnalyticsConsent().
+    expect(analyticsHead).toContain("from '../lib/consent'");
+    expect(analyticsHead).toContain('hasAnalyticsConsent');
+    expect(analyticsHead).toContain('applyDefaultConsentMode');
+    expect(consentLib).toContain('googletagmanager.com/gtag/js');
     expect(baseHead).toContain('google-site-verification');
     expect(baseHead).toContain('resolveSearchConsoleVerification');
   });

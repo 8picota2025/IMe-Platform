@@ -237,6 +237,9 @@ const servicios = [
               alt="Tecnología biomédica de vanguardia — I-ME Colombia"
               width="460"
               height="380"
+              loading="eager"
+              fetchpriority="high"
+              decoding="async"
             />
           </div>
           <div class="hero-badge-overlay">
@@ -291,8 +294,24 @@ const servicios = [
     <section class="section" id="quienes-somos" aria-labelledby="about-h2">
       <div class="container">
         <div class="about-grid">
-          <div class="about-imgs about-imgs-bg fade-in" aria-hidden="true"></div>
+          <div class="about-imgs about-imgs-bg fade-in" aria-hidden="true">
+            <img
+              data-lazy-src="/assets/img/sala-cirugia-hospitalaria-ime-colombia.webp"
+              alt=""
+              width="1536"
+              height="878"
+              decoding="async"
+            />
+          </div>
           <div class="about-text fade-in d2">
+            <img
+              class="about-text-bg"
+              data-lazy-src="/assets/img/radiology-room.webp"
+              alt=""
+              width="1536"
+              height="878"
+              decoding="async"
+            />
             <div class="s-label">Quiénes somos</div>
             <h2 id="about-h2" class="s-title">
               Tecnología médica que transforma instituciones de salud
@@ -611,7 +630,7 @@ const servicios = [
             <div class="s-label">Lo que hacemos</div>
             <h2 id="svc-h2" class="s-title">Servicios especializados</h2>
           </div>
-          <a href="/es/servicios" class="btn btn-outline"
+          <a href="/es/servicios/" class="btn btn-outline"
             >Ver todos los servicios <i class="fas fa-arrow-right" style="font-size:11px"></i></a
           >
         </div>
@@ -708,6 +727,37 @@ const servicios = [
   // guardas data-ime-bound para no duplicar listeners.
   function initHome() {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Start decorative below-fold images shortly before they enter the viewport.
+    const deferredImages = document.querySelectorAll<HTMLImageElement>(
+      '.site-faithful img[data-lazy-src]:not([data-ime-bound])'
+    );
+    deferredImages.forEach(img => (img.dataset.imeBound = '1'));
+    if ('IntersectionObserver' in window) {
+      const imageObserver = new IntersectionObserver(
+        entries => {
+          entries.forEach(entry => {
+            if (!entry.isIntersecting) return;
+            const image = entry.target as HTMLImageElement;
+            const src = image.dataset.lazySrc;
+            if (src) {
+              image.loading = 'eager';
+              image.src = src;
+              delete image.dataset.lazySrc;
+            }
+            imageObserver.unobserve(image);
+          });
+        },
+        { rootMargin: '0px' }
+      );
+      deferredImages.forEach(img => imageObserver.observe(img));
+    } else {
+      deferredImages.forEach(img => {
+        const src = img.dataset.lazySrc;
+        if (src) img.src = src;
+        delete img.dataset.lazySrc;
+      });
+    }
 
     // ── Reveal on scroll (.fade-in ↔ .visible, fades back out when a section leaves view) ──
     const faders = document.querySelectorAll<HTMLElement>(

@@ -1,6 +1,31 @@
 import { formatFabricanteDistribuidor } from '../lib/producto-origen';
 import { sanitizeArticuloSlug, isValidArticuloSlug } from '../lib/articulo-slug';
+import {
+  CSV_MAPPABLE_FIELDS,
+  PROVEEDOR_CONTACTO_IMPORT_COLUMNS,
+  PROVEEDOR_CONTACTO_TEMPLATE_SAMPLE,
+  PROVEEDOR_ESTADOS_INVIMA,
+  PROVEEDOR_IMPORT_COLUMNS,
+  PROVEEDOR_TEMPLATE_SAMPLE,
+  applyCsvMapping,
+  defaultCsvMapping,
+  estadoInvimaLabel,
+  isValidEmail,
+  isValidHttpUrl,
+  normalizePais,
+  normalizeWhatsapp,
+  findDuplicateGroups,
+  matchExistingProveedor,
+  parseCsv,
+  prepareProveedorImportRow,
+  type ContactSuggestion,
+  type DuplicateGroup,
+  type ImportFieldError,
+} from '../lib/proveedor-import';
+import { camposFichaPermitidos, siguientePasoPedido } from '../lib/comercio-operacion';
 import { renderMarkdown } from '../lib/markdown';
+import { bindLandings, landingsView, type LandingsAdminCtx } from './landings-admin';
+import { CAMPANAS_PILOTO, resumirPiloto, rutasPiloto } from '../lib/piloto-monitoreo';
 import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase';
 import type { AuthChangeEvent } from '@supabase/supabase-js';
 import * as XLSX from 'xlsx';
@@ -40,8 +65,42 @@ import {
   productPdfStoragePath,
   revisableStringsFromDraft,
 } from '../lib/pdf-ingest-enrich';
-import type { CotizacionLineaOferta } from '../lib/cotizacion-oferta';
-import { bindQuoteCatalogSearch, bindQuoteProductIngest } from '../lib/quote-line-tools';
+import {
+  calcularTotalOfertado,
+  formatQuoteMoney,
+  ofertaCompleta,
+  parseLineasOferta,
+  quoteEditable,
+  sanitizarLineasComercial,
+  type CotizacionLineaOferta,
+} from '../lib/cotizacion-oferta';
+import { defaultCondicionesOferta } from '../lib/condiciones-oferta';
+import {
+  buscarCoincidencia,
+  calcularCambiosFicha,
+  construirActualizacion,
+  type CambioFicha,
+  type Coincidencia,
+} from './ficha-actualizar';
+import {
+  bindQuoteCatalogSearch,
+  bindQuoteProductIngest,
+  fetchResumenCatalogo,
+} from '../lib/quote-line-tools';
+import {
+  deleteQuote as deleteQuoteApi,
+  duplicarQuote,
+  listQuotes,
+  previewQuotePdf,
+  validarQuoteCrm,
+} from '../comercial/quote-api';
+import {
+  ocrPresupuestoCompetencia,
+  pickCompetenciaImage,
+  pickCompetenciaPdf,
+  prepareCompetenciaForOcr,
+} from '../comercial/quote-ocr';
+import { ensureAuthSession, state as comercialState } from '../comercial/shared';
 import { getAccionComercial } from '../lib/comercial';
 import { isPurchasable, resolveAvailability } from '../lib/commerce-policy';
 import { resolvePrecioPublico } from '../lib/format';
@@ -65,6 +124,7 @@ type View =
   | 'taxonomia'
   | 'cotizaciones'
   | 'cotizacion'
+  | 'cotizaciones-escanear'
   | 'clientes'
   | 'cliente'
   | 'pedidos'
@@ -86,6 +146,7 @@ type View =
   | 'envios'
   | 'resenas'
   | 'conocimiento'
+  | 'landings'
   | 'propuestas'
   | 'ingesta'
   | 'asesor'
@@ -264,6 +325,8 @@ interface EspecRevisable extends CampoRevisable {
 let ingestFamilias: Row[] = [];
 let ingestTipos: Row[] = [];
 let lastIngestPdfFile: File | null = null;
+/** Producto elegido desde su ficha (`#/ingesta?producto=<id>`): la ficha nueva lo actualiza. */
+let ingestProductoObjetivo: string | null = null;
 const INGEST_PDF_MAX_BYTES = 25 * 1024 * 1024;
 const INGEST_PDF_MAX_CHARS = 60_000;
 /** Tope imágenes producto (LCP / storage). PDFs usan INGEST_PDF_MAX_BYTES. */
@@ -291,6 +354,7 @@ const VISTAS_POR_ROL: Record<string, Set<View>> = {
     'taxonomia',
     'ingesta',
     'conocimiento',
+    'landings',
     'propuestas',
     'compra-directa',
   ]),
@@ -301,6 +365,7 @@ const VISTAS_POR_ROL: Record<string, Set<View>> = {
     'cliente',
     'cotizaciones',
     'cotizacion',
+    'cotizaciones-escanear',
     'pedidos',
     'pedido',
     'facturas',
@@ -315,6 +380,7 @@ const VISTAS_POR_ROL: Record<string, Set<View>> = {
     'marketing',
     'asesor',
     'conocimiento',
+    'landings',
     'propuestas',
     'compra-directa',
   ]),
@@ -462,6 +528,7 @@ function parseView(hash: string): View {
     raw === 'taxonomia' ||
     raw === 'cotizaciones' ||
     raw === 'cotizacion' ||
+    raw === 'cotizaciones-escanear' ||
     raw === 'clientes' ||
     raw === 'cliente' ||
     raw === 'pedidos' ||
@@ -483,6 +550,7 @@ function parseView(hash: string): View {
     raw === 'envios' ||
     raw === 'resenas' ||
     raw === 'conocimiento' ||
+    raw === 'landings' ||
     raw === 'blog' ||
     raw === 'propuestas' ||
     raw === 'ingesta' ||
@@ -528,11 +596,17 @@ async function render() {
   if (!state.rol) {
     const { data: perfil } = await supabase!
       .from('admin_profiles')
-      .select('rol')
+      .select('rol,nombre,telefono')
       .eq('user_id', session.user.id)
       .maybeSingle();
     state.rol = String((perfil as Row | null)?.rol ?? '');
+    comercialState.nombre = text((perfil as Row | null)?.nombre);
+    comercialState.telefono = text((perfil as Row | null)?.telefono);
   }
+  // Los módulos de presupuestos de /comercial (PDF, OCR, persistencia) leen este estado.
+  comercialState.email = state.email;
+  comercialState.rol = state.rol;
+  comercialState.userId = session.user.id;
 
   const view = await routeView();
   app.innerHTML = shellHtml(view.title, view.body);
@@ -693,6 +767,18 @@ function renderNewPassword() {
   });
 }
 
+/** Dependencias del editor de landings (Fase 3B), que vive en su propio módulo. */
+function landingsCtx(): LandingsAdminCtx {
+  return {
+    supabase: supabase!,
+    escapeHtml,
+    toast,
+    triggerRebuild,
+    uploadFile,
+    rerender: render,
+  };
+}
+
 async function routeView(): Promise<{ title: string; body: string }> {
   if (!vistaPermitida(state.view)) return accesoDenegadoView(state.view);
   if (state.view === 'crm') return { title: 'CRM', body: await crmView() };
@@ -701,6 +787,8 @@ async function routeView(): Promise<{ title: string; body: string }> {
   if (state.view === 'taxonomia') return { title: 'Taxonomia', body: await taxonomiaView() };
   if (state.view === 'cotizaciones')
     return { title: 'Presupuestos', body: await cotizacionesView() };
+  if (state.view === 'cotizaciones-escanear')
+    return { title: 'Escanear presupuesto', body: cotizacionEscanearView() };
   if (state.view === 'cotizacion')
     return { title: 'Presupuesto', body: await cotizacionDetailView() };
   if (state.view === 'clientes') return { title: 'Clientes', body: await clientesView() };
@@ -728,6 +816,8 @@ async function routeView(): Promise<{ title: string; body: string }> {
   if (state.view === 'resenas') return { title: 'Resenas', body: await resenasView() };
   if (state.view === 'conocimiento')
     return { title: 'Blog / Conocimiento', body: await conocimientoView() };
+  if (state.view === 'landings')
+    return { title: 'Landings', body: await landingsView(landingsCtx()) };
   if (state.view === 'propuestas')
     return { title: 'Propuestas de articulos', body: await propuestasView() };
   if (state.view === 'ingesta') return { title: 'Ingesta PDF', body: await ingestaView() };
@@ -779,6 +869,7 @@ function shellHtml(title: string, body: string): string {
       label: 'Contenido',
       items: [
         ['conocimiento', 'Blog'],
+        ['landings', 'Landings'],
         ['propuestas', 'Propuestas blog'],
       ],
     },
@@ -796,27 +887,25 @@ function shellHtml(title: string, body: string): string {
   const rolLabel = state.rol ? `Rol: ${state.rol}` : 'Rol: sin perfil';
   const navHtml = groups
     .map(group => {
-      const links = group.items
+      const visibles = group.items.filter(([view]) => vistaPermitida(view));
+      if (!visibles.length) return '';
+      const links = visibles
         .map(([view, label]) => {
-          const locked = !vistaPermitida(view);
           const current =
             state.view === view ||
             (view === 'conocimiento' && state.view === 'conocimiento') ||
             (view === 'productos' && state.view === 'producto') ||
             (view === 'cotizaciones' && state.view === 'cotizacion') ||
+            (view === 'cotizaciones' && state.view === 'cotizaciones-escanear') ||
             (view === 'clientes' && state.view === 'cliente') ||
             (view === 'pedidos' && state.view === 'pedido') ||
             (view === 'facturas' && state.view === 'factura') ||
             (view === 'cupones' && state.view === 'cupon') ||
             (view === 'listas' && state.view === 'lista') ||
             (view === 'proveedores' && state.view === 'proveedor-productos');
-          return `<a href="#/${view}" class="${locked ? 'is-locked' : ''}" ${
+          return `<a href="#/${view}" ${
             current ? 'aria-current="page"' : ''
-          } title="${escapeHtml(
-            locked ? `Requiere rol: ${rolesQuePuedenVer(view).join(', ')}` : label
-          )}">${escapeHtml(label)}${
-            locked ? '<span class="admin-nav__lock" aria-hidden="true">rol</span>' : ''
-          }</a>`;
+          } title="${escapeHtml(label)}">${escapeHtml(label)}</a>`;
         })
         .join('');
       return `<div class="admin-nav__group"><div class="admin-nav__label">${escapeHtml(
@@ -890,8 +979,11 @@ function bindView() {
   bindEnvios();
   bindResenas();
   bindPropuestas();
+  bindPropuestasFicha();
+  bindAprobacionesAgente();
   bindAsesorPanel();
   bindCompraDirecta();
+  if (state.view === 'landings') bindLandings(landingsCtx());
 }
 
 async function plantillasView(): Promise<string> {
@@ -1580,20 +1672,37 @@ async function crmView(): Promise<string> {
   const seguimiento = params.get('seguimiento') ?? '';
   const q = (params.get('q') ?? '').trim().toLowerCase();
   const twentyMembers = await loadTwentyMembers();
-  const [opportunitiesRes, contactsRes, accountsRes, activitiesRes] = await Promise.all([
-    supabase!
-      .from('crm_opportunities')
-      .select('*')
-      .order('updated_at', { ascending: false })
-      .limit(250),
-    supabase!.from('crm_contacts').select('*').order('updated_at', { ascending: false }).limit(250),
-    supabase!.from('crm_accounts').select('*').order('updated_at', { ascending: false }).limit(250),
-    supabase!
-      .from('crm_activities')
-      .select('*')
-      .order('occurred_at', { ascending: false })
-      .limit(120),
-  ]);
+  const [opportunitiesRes, contactsRes, accountsRes, activitiesRes, deletedRes] = await Promise.all(
+    [
+      supabase!
+        .from('crm_opportunities')
+        .select('*')
+        .is('eliminada_at', null)
+        .order('updated_at', { ascending: false })
+        .limit(250),
+      supabase!
+        .from('crm_contacts')
+        .select('*')
+        .order('updated_at', { ascending: false })
+        .limit(250),
+      supabase!
+        .from('crm_accounts')
+        .select('*')
+        .order('updated_at', { ascending: false })
+        .limit(250),
+      supabase!
+        .from('crm_activities')
+        .select('*')
+        .order('occurred_at', { ascending: false })
+        .limit(120),
+      supabase!
+        .from('crm_opportunities')
+        .select('id,titulo,etapa,valor_estimado,moneda,eliminada_at,eliminada_por,eliminada_motivo')
+        .not('eliminada_at', 'is', null)
+        .order('eliminada_at', { ascending: false })
+        .limit(50),
+    ]
+  );
 
   if (opportunitiesRes.error) {
     return `
@@ -1607,6 +1716,7 @@ async function crmView(): Promise<string> {
   if (contactsRes.error) toast(contactsRes.error.message);
   if (accountsRes.error) toast(accountsRes.error.message);
   if (activitiesRes.error) toast(activitiesRes.error.message);
+  const deletedOpportunities = deletedRes.error ? [] : ((deletedRes.data ?? []) as Row[]);
 
   const contacts = ((contactsRes.data ?? []) as Row[]).reduce<Map<string, Row>>((acc, row) => {
     acc.set(text(row.id), row);
@@ -1808,7 +1918,26 @@ async function crmView(): Promise<string> {
             crmSourceLink(row),
           ])
       )}
-    </section>`;
+    </section>
+    ${
+      deletedOpportunities.length
+        ? `<details class="admin-panel">
+      <summary class="admin-panel__head"><h2>Eliminadas (${deletedOpportunities.length})</h2><span class="admin-meta">Fuera del tablero y de las estadísticas</span></summary>
+      ${table(
+        ['Eliminada', 'Oportunidad', 'Etapa', 'Valor', 'Por', 'Motivo', ''],
+        deletedOpportunities.map(row => [
+          text(row.eliminada_at) ? formatDate(text(row.eliminada_at)) : '—',
+          escapeHtml(text(row.titulo) || text(row.id).slice(0, 8)),
+          escapeHtml(crmStageLabel(text(row.etapa))),
+          escapeHtml(crmMoney(Number(row.valor_estimado ?? 0), text(row.moneda) || 'COP')),
+          escapeHtml(text(row.eliminada_por)) || '—',
+          escapeHtml(text(row.eliminada_motivo)) || '—',
+          `<button class="admin-button admin-button--ghost" type="button" data-crm-restore="${escapeHtml(text(row.id))}">Restaurar</button>`,
+        ])
+      )}
+    </details>`
+        : ''
+    }`;
 }
 
 function crmOpportunityCard(
@@ -1841,24 +1970,42 @@ function crmOpportunityCard(
         .map(m => `<option value="${escapeHtml(m.id)}">${escapeHtml(m.name || m.email)}</option>`)
         .join('')
     : '';
+  const badge = `<span class="admin-badge ${due ? 'admin-badge--warn' : 'admin-badge--info'}">${escapeHtml(priority || crmStageLabel(etapa))}</span>`;
+  const who = `${text(account?.nombre) || 'Sin cuenta'} · ${text(contact?.email_norm) || text(contact?.telefono_e164) || 'Sin contacto'}`;
+  const money = crmMoney(Number(row.valor_estimado ?? 0), text(row.moneda) || 'COP');
+  const titleId = `crm-drawer-title-${id}`;
   return `
+    <article class="crm-item">
+    <button class="crm-tile" type="button" data-crm-open="${escapeHtml(id)}" aria-haspopup="dialog">
+      <span class="crm-tile__top">
+        <span class="crm-tile__title">${escapeHtml(title)}</span>
+        ${badge}
+      </span>
+      <span class="crm-tile__meta">${escapeHtml(who)}</span>
+      <span class="crm-tile__numbers">
+        <strong>${escapeHtml(money)}</strong>
+        <span>${Number(row.probabilidad ?? 0)}%</span>
+        <span class="crm-tile__due${due ? ' is-overdue' : ''}">${nextAction ? formatDate(nextAction) : '—'}</span>
+        <span class="crm-sync-dot${twentyLinked ? ' is-synced' : ''}" title="Twenty: ${twentyLinked ? 'sincronizado' : twentyOpp ? 'parcial' : 'pendiente'}"></span>
+      </span>
+    </button>
+    <dialog class="admin-drawer" data-crm-drawer="${escapeHtml(id)}" aria-labelledby="${escapeHtml(titleId)}">
+      <header class="admin-drawer__head">
+        <div>
+          ${badge}
+          <h2 id="${escapeHtml(titleId)}">${escapeHtml(title)}</h2>
+          <p class="admin-meta">${escapeHtml(who)}</p>
+        </div>
+        <button class="admin-button admin-button--ghost admin-drawer__close" type="button" data-drawer-close>Cerrar</button>
+      </header>
     <form class="crm-card" data-crm-opportunity-form="${escapeHtml(id)}" data-crm-account="${escapeHtml(text(row.account_id))}" data-crm-contact="${escapeHtml(text(row.contact_id))}">
-      <div class="crm-card__top">
-        <strong>${escapeHtml(title)}</strong>
-        <span class="admin-badge ${due ? 'admin-badge--warn' : 'admin-badge--info'}">${escapeHtml(priority || crmStageLabel(etapa))}</span>
-      </div>
-      <p class="admin-meta">${escapeHtml(text(account?.nombre) || 'Sin cuenta')} · ${escapeHtml(text(contact?.email_norm) || text(contact?.telefono_e164) || 'Sin contacto')}</p>
       <p class="admin-meta">
         Twenty:
-        <span class="admin-badge ${twentyLinked ? 'admin-badge--info' : 'admin-badge--warn'}">${twentyLinked ? 'Sincronizado' : twentyOpp ? 'Parcial' : 'Pendiente'}</span>
+        <span class="admin-badge ${twentyLinked ? 'admin-badge--ok' : 'admin-badge--warn'}">${twentyLinked ? 'Sincronizado' : twentyOpp ? 'Parcial' : 'Pendiente'}</span>
         ${twentyOpp ? `<span class="admin-meta">· ${escapeHtml(twentyOpp.slice(0, 8))}…</span>` : ''}
+        · ${escapeHtml(money)} · ${Number(row.probabilidad ?? 0)}% · act. ${text(row.updated_at) ? formatDate(text(row.updated_at)) : '—'}
       </p>
       ${campaign ? `<p class="admin-meta">Campaña: ${escapeHtml(campaign)}${text(metadata.horizonte) ? ` · ${escapeHtml(text(metadata.horizonte))}` : ''}</p>` : ''}
-      <div class="crm-card__numbers">
-        <span>${escapeHtml(crmMoney(Number(row.valor_estimado ?? 0), text(row.moneda) || 'COP'))}</span>
-        <span>${Number(row.probabilidad ?? 0)}%</span>
-        <span>${text(row.updated_at) ? formatDate(text(row.updated_at)) : '—'}</span>
-      </div>
       <label class="admin-field">Etapa
         <select name="etapa">
           ${CRM_ETAPAS.map(
@@ -1906,7 +2053,6 @@ function crmOpportunityCard(
         </label>`
           : ''
       }
-      <button class="admin-button" type="submit">Guardar y sync Twenty</button>
       ${
         contact && account && (!text(contact.twenty_person_id) || !text(account.twenty_company_id))
           ? `<button class="admin-button admin-button--ghost" type="button" data-crm-link-contact="${escapeHtml(text(contact.id))}" data-crm-link-account="${escapeHtml(text(account.id))}">Enlazar contacto ↔ cuenta Twenty</button>`
@@ -1915,12 +2061,33 @@ function crmOpportunityCard(
       <div class="admin-toolbar crm-card__actions">
         ${crmSourceLink(row)}
         ${text(contact?.email_norm) ? `<a class="admin-button admin-button--ghost" href="mailto:${escapeHtml(text(contact?.email_norm))}">Email</a>` : ''}
-        ${text(contact?.telefono_e164) ? `<a class="admin-button admin-button--ghost" href="https://wa.me/${escapeHtml(text(contact?.telefono_e164).replace(/\\D/g, ''))}" target="_blank" rel="noopener noreferrer">WhatsApp</a>` : ''}
+        ${text(contact?.telefono_e164) ? `<a class="admin-button admin-button--ghost" href="https://wa.me/${escapeHtml(text(contact?.telefono_e164).replace(/\D/g, ''))}" target="_blank" rel="noopener noreferrer">WhatsApp</a>` : ''}
       </div>
-    </form>`;
+      <div class="admin-drawer__footer">
+        <button class="admin-button admin-button--danger" type="button" data-crm-delete="${escapeHtml(id)}">Eliminar</button>
+        <button class="admin-button" type="submit">Guardar y sync Twenty</button>
+      </div>
+    </form>
+    </dialog>
+    </article>`;
 }
 
 function bindCrm() {
+  app.querySelectorAll<HTMLButtonElement>('[data-crm-open]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const drawer = btn.parentElement?.querySelector<HTMLDialogElement>('[data-crm-drawer]');
+      drawer?.showModal();
+    });
+  });
+  app.querySelectorAll<HTMLDialogElement>('[data-crm-drawer]').forEach(drawer => {
+    drawer
+      .querySelector<HTMLButtonElement>('[data-drawer-close]')
+      ?.addEventListener('click', () => drawer.close());
+    drawer.addEventListener('click', event => {
+      if (event.target === drawer) drawer.close();
+    });
+  });
+
   app.querySelector<HTMLFormElement>('[data-crm-filter]')?.addEventListener('submit', event => {
     event.preventDefault();
     const form = event.currentTarget as HTMLFormElement;
@@ -1993,6 +2160,82 @@ function bindCrm() {
         await render();
       }
       btn.disabled = false;
+    });
+  });
+
+  app.querySelectorAll<HTMLButtonElement>('[data-crm-delete]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset['crmDelete'] ?? '';
+      if (!id) return;
+      const motivo = window
+        .prompt(
+          'Eliminar oportunidad: sale del tablero y de las estadísticas (se puede restaurar). Motivo:'
+        )
+        ?.trim();
+      if (motivo === undefined) return;
+      if (!motivo) {
+        toast('Motivo requerido para eliminar.');
+        return;
+      }
+      btn.disabled = true;
+      const { data: antes } = await supabase!
+        .from('crm_opportunities')
+        .select('id,titulo,etapa,valor_estimado,moneda,source_table,source_id,cliente_id')
+        .eq('id', id)
+        .maybeSingle();
+      const eliminadaAt = new Date().toISOString();
+      const { error } = await supabase!
+        .from('crm_opportunities')
+        .update({
+          eliminada_at: eliminadaAt,
+          eliminada_por: state.email,
+          eliminada_motivo: motivo.slice(0, 500),
+        })
+        .eq('id', id);
+      if (error) {
+        toast(error.message);
+        btn.disabled = false;
+        return;
+      }
+      await supabase!.from('comercio_actuaciones').insert({
+        actor: state.email,
+        rol: state.rol || 'admin',
+        herramienta: 'eliminar_oportunidad',
+        entidad: 'crm_opportunities',
+        entidad_id: id,
+        antes,
+        despues: { eliminada_at: eliminadaAt },
+        motivo: motivo.slice(0, 500),
+      });
+      toast('Oportunidad eliminada de tablero y estadísticas');
+      await render();
+    });
+  });
+
+  app.querySelectorAll<HTMLButtonElement>('[data-crm-restore]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset['crmRestore'] ?? '';
+      if (!id) return;
+      btn.disabled = true;
+      const { error } = await supabase!
+        .from('crm_opportunities')
+        .update({ eliminada_at: null, eliminada_por: null, eliminada_motivo: null })
+        .eq('id', id);
+      if (error) {
+        toast(error.message);
+        btn.disabled = false;
+        return;
+      }
+      await supabase!.from('comercio_actuaciones').insert({
+        actor: state.email,
+        rol: state.rol || 'admin',
+        herramienta: 'restaurar_oportunidad',
+        entidad: 'crm_opportunities',
+        entidad_id: id,
+        despues: { eliminada_at: null },
+      });
+      toast('Oportunidad restaurada');
+      await render();
     });
   });
 
@@ -2156,8 +2399,14 @@ function bindUsuarios() {
     email: string;
     rol: string;
     activo: boolean;
+    nombre?: string;
+    telefono?: string;
     focusPassword?: boolean;
   }) => {
+    const nombreInput = form.elements.namedItem('nombre') as HTMLInputElement | null;
+    const telefonoInput = form.elements.namedItem('telefono') as HTMLInputElement | null;
+    if (nombreInput) nombreInput.value = params.nombre ?? '';
+    if (telefonoInput) telefonoInput.value = params.telefono ?? '';
     const emailInput = form.elements.namedItem('email') as HTMLInputElement | null;
     const roleSelect = form.elements.namedItem('rol') as HTMLSelectElement | null;
     const passwordInput = form.elements.namedItem('password') as HTMLInputElement | null;
@@ -2197,6 +2446,8 @@ function bindUsuarios() {
     const password = String(data.get('password') ?? '').trim();
     const passwordConfirm = String(data.get('passwordConfirm') ?? '').trim();
     const rol = String(data.get('rol') ?? 'lectura');
+    const nombre = String(data.get('nombre') ?? '').trim();
+    const telefono = String(data.get('telefono') ?? '').trim();
     const activo =
       form.elements.namedItem('activo') instanceof HTMLInputElement &&
       (form.elements.namedItem('activo') as HTMLInputElement).checked;
@@ -2227,6 +2478,9 @@ function bindUsuarios() {
         activo,
         password: password || undefined,
         sendInvite,
+        // Cadena vacía = borrar el dato; el formulario siempre refleja el perfil actual.
+        nombre,
+        telefono,
       },
     });
 
@@ -2254,6 +2508,8 @@ function bindUsuarios() {
         email: button.getAttribute('data-admin-user-edit') ?? '',
         rol: button.getAttribute('data-admin-user-rol') ?? 'lectura',
         activo: button.getAttribute('data-admin-user-activo') === '1',
+        nombre: button.getAttribute('data-admin-user-nombre') ?? '',
+        telefono: button.getAttribute('data-admin-user-telefono') ?? '',
       });
     });
   });
@@ -2264,6 +2520,8 @@ function bindUsuarios() {
         email: button.getAttribute('data-admin-user-password') ?? '',
         rol: button.getAttribute('data-admin-user-rol') ?? 'lectura',
         activo: button.getAttribute('data-admin-user-activo') === '1',
+        nombre: button.getAttribute('data-admin-user-nombre') ?? '',
+        telefono: button.getAttribute('data-admin-user-telefono') ?? '',
         focusPassword: true,
       });
     });
@@ -2328,6 +2586,306 @@ function bindUsuarios() {
   });
 }
 
+async function propuestasFichaHtml(productoId: string): Promise<string> {
+  if (!productoId) return '';
+  const { data, error } = await supabase!
+    .from('comercio_confirmaciones')
+    .select('id,creada_en,vence_en,actor,motivo,payload')
+    .eq('herramienta', 'proponer_ficha')
+    .eq('entidad_id', productoId)
+    .eq('estado', 'pendiente')
+    .order('creada_en', { ascending: false })
+    .limit(10);
+  if (error || !data?.length) return '';
+  const filas = (data as Row[]).map(row => {
+    const campos = camposFichaPermitidos((row.payload as Row | null) ?? {});
+    const id = escapeHtml(text(row.id));
+    return `<li>
+      <p><strong>${escapeHtml(text(row.actor))}</strong> · ${formatCell(row.creada_en)} · ${escapeHtml(text(row.motivo))}</p>
+      <p class="admin-help">Campos: ${escapeHtml(Object.keys(campos).join(', ') || 'ninguno permitido')}</p>
+      <details><summary>Ver contenido</summary><pre class="admin-pre">${escapeHtml(JSON.stringify(campos, null, 2))}</pre></details>
+      <div class="admin-toolbar">
+        <button class="admin-button" type="button" data-ficha-propuesta-aplicar="${id}">Aplicar a la ficha</button>
+        <button class="admin-button admin-button--ghost" type="button" data-ficha-propuesta-rechazar="${id}">Rechazar</button>
+      </div>
+    </li>`;
+  });
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Propuestas del agente (${data.length})</h2><span class="admin-meta">No cambian la ficha hasta aplicarlas</span></div>
+      <ul class="admin-list" style="padding:0 16px 16px">${filas.join('')}</ul>
+    </section>`;
+}
+
+function bindPropuestasFicha() {
+  const resolver = async (id: string, aplicar: boolean) => {
+    const { data: propuesta, error } = await supabase!
+      .from('comercio_confirmaciones')
+      .select('id,estado,vence_en,entidad_id,payload')
+      .eq('id', id)
+      .maybeSingle();
+    if (error || !propuesta) {
+      toast(error?.message ?? 'Propuesta no encontrada');
+      return;
+    }
+    if (propuesta.estado !== 'pendiente') {
+      toast(`La propuesta ya está ${propuesta.estado}`);
+      return;
+    }
+    const productoId = text(propuesta.entidad_id);
+    const campos = camposFichaPermitidos((propuesta.payload as Row | null) ?? {});
+    if (aplicar) {
+      if (new Date(text(propuesta.vence_en)).getTime() < Date.now()) {
+        await supabase!.from('comercio_confirmaciones').update({ estado: 'vencida' }).eq('id', id);
+        toast('La propuesta venció');
+        await render();
+        return;
+      }
+      const { error: updateError } = await supabase!
+        .from('productos')
+        .update(campos)
+        .eq('id', productoId);
+      if (updateError) {
+        toast(updateError.message);
+        return;
+      }
+    }
+    const estado = aplicar ? 'confirmada' : 'rechazada';
+    const { error: estadoError } = await supabase!
+      .from('comercio_confirmaciones')
+      .update({ estado, confirmada_en: new Date().toISOString(), confirmada_por: state.email })
+      .eq('id', id);
+    if (estadoError) toast(estadoError.message);
+    await supabase!.from('comercio_actuaciones').insert({
+      actor: state.email,
+      rol: state.rol || 'admin',
+      herramienta: aplicar ? 'aplicar_propuesta_ficha' : 'rechazar_propuesta_ficha',
+      entidad: 'productos',
+      entidad_id: productoId,
+      despues: aplicar ? campos : null,
+      confirmacion_id: id,
+    });
+    toast(aplicar ? 'Propuesta aplicada. Publica para llevarla al sitio.' : 'Propuesta rechazada');
+    await render();
+  };
+  app.querySelectorAll<HTMLButtonElement>('[data-ficha-propuesta-aplicar]').forEach(button => {
+    button.addEventListener('click', () => {
+      button.disabled = true;
+      void resolver(button.dataset['fichaPropuestaAplicar'] ?? '', true);
+    });
+  });
+  app.querySelectorAll<HTMLButtonElement>('[data-ficha-propuesta-rechazar]').forEach(button => {
+    button.addEventListener('click', () => {
+      button.disabled = true;
+      void resolver(button.dataset['fichaPropuestaRechazar'] ?? '', false);
+    });
+  });
+}
+
+const ACCIONES_AGENTE: Record<string, string> = {
+  preparar_borrado_crm: 'Borrar en Twenty CRM',
+  preparar_envio_cotizacion: 'Enviar cotización oficial al cliente',
+  preparar_factura: 'Emitir factura DIAN',
+  preparar_anulacion_factura: 'Anular factura DIAN',
+  preparar_reembolso: 'Marcar pedido reembolsado',
+  preparar_precio_bajo_piso: 'Precio por debajo del piso',
+  preparar_afirmacion_invima: 'Afirmación INVIMA de proveedor',
+};
+
+/**
+ * Acciones sensibles que el agente MCP preparó. Solo owner/admin las aprueban;
+ * el trigger de comercio_confirmaciones registra quién (auth.uid()) y el MCP
+ * no ejecuta nada sin esa aprobación.
+ */
+async function aprobacionesAgenteHtml(): Promise<string> {
+  if (state.rol && state.rol !== 'owner' && state.rol !== 'admin') return '';
+  const { data, error } = await supabase!
+    .from('comercio_confirmaciones')
+    .select('id,creada_en,vence_en,actor,herramienta,entidad,entidad_id,payload,motivo,estado')
+    .in('estado', ['pendiente', 'aprobada'])
+    .neq('herramienta', 'proponer_ficha')
+    .order('creada_en', { ascending: false })
+    .limit(20);
+  if (error || !data?.length) return '';
+  const filas = (data as Row[]).map(row => {
+    const id = escapeHtml(text(row.id));
+    const accion = ACCIONES_AGENTE[text(row.herramienta)] ?? text(row.herramienta);
+    const aprobada = text(row.estado) === 'aprobada';
+    return `<li>
+      <p><strong>${escapeHtml(accion)}</strong> · ${escapeHtml(text(row.entidad))} ${escapeHtml(text(row.entidad_id))}</p>
+      <p class="admin-help">${escapeHtml(text(row.actor))} · ${formatCell(row.creada_en)} · vence ${formatCell(row.vence_en)}</p>
+      <p>${escapeHtml(text(row.motivo))}</p>
+      <details><summary>Ver datos</summary><pre class="admin-pre">${escapeHtml(JSON.stringify(row.payload ?? {}, null, 2))}</pre></details>
+      <div class="admin-toolbar">
+        ${
+          aprobada
+            ? '<span class="admin-meta">Aprobada · el agente ya puede ejecutarla</span>'
+            : `<button class="admin-button" type="button" data-aprobacion-aprobar="${id}">Aprobar</button>`
+        }
+        <button class="admin-button admin-button--ghost" type="button" data-aprobacion-rechazar="${id}">Rechazar</button>
+      </div>
+    </li>`;
+  });
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Aprobaciones del agente (${data.length})</h2><span class="admin-meta">Nada se ejecuta sin aprobación de owner/admin</span></div>
+      <ul class="admin-list" style="padding:0 16px 16px">${filas.join('')}</ul>
+    </section>`;
+}
+
+function bindAprobacionesAgente() {
+  const resolver = async (id: string, aprobar: boolean) => {
+    const estado = aprobar ? 'aprobada' : 'rechazada';
+    const { error } = await supabase!
+      .from('comercio_confirmaciones')
+      .update({ estado })
+      .eq('id', id);
+    if (error) {
+      toast(error.message);
+      await render();
+      return;
+    }
+    await supabase!.from('comercio_actuaciones').insert({
+      actor: state.email,
+      rol: state.rol || 'admin',
+      herramienta: aprobar ? 'aprobar_accion_agente' : 'rechazar_accion_agente',
+      entidad: 'comercio_confirmaciones',
+      entidad_id: id,
+      despues: { estado },
+      confirmacion_id: id,
+    });
+    toast(aprobar ? 'Aprobada: el agente puede ejecutarla' : 'Rechazada');
+    await render();
+  };
+  app.querySelectorAll<HTMLButtonElement>('[data-aprobacion-aprobar]').forEach(button => {
+    button.addEventListener('click', () => {
+      button.disabled = true;
+      void resolver(button.dataset['aprobacionAprobar'] ?? '', true);
+    });
+  });
+  app.querySelectorAll<HTMLButtonElement>('[data-aprobacion-rechazar]').forEach(button => {
+    button.addEventListener('click', () => {
+      button.disabled = true;
+      void resolver(button.dataset['aprobacionRechazar'] ?? '', false);
+    });
+  });
+}
+
+async function actuacionesHtml(entidad: string, entidadId: string): Promise<string> {
+  if (!entidadId) return '';
+  const { data, error } = await supabase!
+    .from('comercio_actuaciones')
+    .select('en,actor,rol,herramienta,motivo')
+    .eq('entidad', entidad)
+    .eq('entidad_id', entidadId)
+    .order('en', { ascending: false })
+    .limit(20);
+  const body = error
+    ? `<p class="admin-help" style="padding:0 16px 16px">Registro no disponible: ${escapeHtml(error.message)}</p>`
+    : table(
+        ['Fecha', 'Quien', 'Accion', 'Motivo'],
+        ((data ?? []) as Row[]).map(row => [
+          formatCell(row.en),
+          `${text(row.actor)}${text(row.rol) ? ` (${text(row.rol)})` : ''}`,
+          text(row.herramienta),
+          text(row.motivo) || '—',
+        ])
+      );
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Actuaciones</h2></div>
+      ${body}
+    </section>`;
+}
+
+async function bandejaHoyHtml(): Promise<string> {
+  const tareas: string[] = [];
+  const avisos: string[] = [];
+  const pushError = (etiqueta: string, message: string | undefined) => {
+    if (message) avisos.push(`${etiqueta}: ${message}`);
+  };
+  const [cotizaciones, oportunidades, pedidos, carritos, fichas] = await Promise.all([
+    supabase!
+      .from('solicitudes_cotizacion')
+      .select('id,numero,nombre,empresa')
+      .eq('leida', false)
+      .order('created_at', { ascending: false })
+      .limit(6),
+    supabase!
+      .from('crm_opportunities')
+      .select('id,titulo,etapa')
+      .in('etapa', ['nuevo', 'cotizando'])
+      .is('eliminada_at', null)
+      .order('updated_at', { ascending: false })
+      .limit(6),
+    supabase!
+      .from('pedidos')
+      .select('id,estado,proveedor_pago,referencia_pasarela')
+      .in('estado', ['pendiente', 'pendiente_validacion'])
+      .order('created_at', { ascending: false })
+      .limit(6),
+    supabase!
+      .from('carritos_abandonados')
+      .select('id,subtotal,estado')
+      .eq('estado', 'activo')
+      .order('created_at', { ascending: false })
+      .limit(4),
+    supabase!
+      .from('productos')
+      .select('id,nombre_es,slug,imagen_principal,ficha_pdf,especificaciones,activo')
+      .eq('activo', true)
+      .limit(80),
+  ]);
+  pushError('Presupuestos', cotizaciones.error?.message);
+  pushError('CRM', oportunidades.error?.message);
+  pushError('Pedidos', pedidos.error?.message);
+  pushError('Carritos', carritos.error?.message);
+  pushError('Fichas', fichas.error?.message);
+  for (const row of cotizaciones.data ?? []) {
+    tareas.push(
+      `<li><a href="#/cotizacion?id=${encodeURIComponent(text(row.id))}"><strong>Presupuesto sin leer</strong><span>${escapeHtml(text(row.numero) || text(row.nombre) || text(row.empresa))}</span></a></li>`
+    );
+  }
+  for (const row of oportunidades.data ?? []) {
+    tareas.push(
+      `<li><a href="#/crm"><strong>${escapeHtml(text(row.etapa) === 'cotizando' ? 'Cotizando' : 'Oportunidad nueva')}</strong><span>${escapeHtml(text(row.titulo) || text(row.id).slice(0, 8))}</span></a></li>`
+    );
+  }
+  for (const row of pedidos.data ?? []) {
+    const paso = siguientePasoPedido({
+      estado: text(row.estado),
+      proveedorPago: text(row.proveedor_pago),
+    });
+    tareas.push(
+      `<li><a href="#/pedido?id=${encodeURIComponent(text(row.id))}"><strong>${escapeHtml(paso.accion)}</strong><span>Pedido ${escapeHtml(text(row.referencia_pasarela) || text(row.id).slice(0, 8))}</span></a></li>`
+    );
+  }
+  for (const row of carritos.data ?? []) {
+    tareas.push(
+      `<li><a href="#/reportes"><strong>Carrito abandonado</strong><span>Subtotal ${escapeHtml(text(row.subtotal) || '—')}</span></a></li>`
+    );
+  }
+  for (const row of (fichas.data ?? [])
+    .filter(item => {
+      const specs = item.especificaciones;
+      return (
+        !item.imagen_principal || !item.ficha_pdf || !Array.isArray(specs) || specs.length === 0
+      );
+    })
+    .slice(0, 4)) {
+    tareas.push(
+      `<li><a href="#/producto?id=${encodeURIComponent(text(row.id))}"><strong>Ficha incompleta</strong><span>${escapeHtml(text(row.nombre_es) || text(row.slug))}</span></a></li>`
+    );
+  }
+  const vacia = tareas.length
+    ? `<ul class="admin-queue__list">${tareas.join('')}</ul>`
+    : '<p class="admin-help">No hay tareas abiertas en esta consulta.</p>';
+  const alerta = avisos.length
+    ? `<div class="admin-alert">${avisos.map(item => escapeHtml(item)).join('<br />')}</div>`
+    : '';
+  return `<section class="admin-panel admin-queue"><div class="admin-panel__head"><h2>Hoy</h2><span class="admin-meta">Qué hacer ahora</span></div>${alerta}${vacia}</section>`;
+}
+
 async function dashboardView(): Promise<string> {
   const [
     productos,
@@ -2351,9 +2909,9 @@ async function dashboardView(): Promise<string> {
     count('productos', { fulfillment_mode: 'dropship' }),
     count('productos', { disponible: true }),
     count('solicitudes_cotizacion', { leida: false }),
-    count('crm_opportunities'),
-    count('crm_opportunities', { etapa: 'nuevo' }),
-    count('crm_opportunities', { etapa: 'cotizando' }),
+    count('crm_opportunities', { eliminada_at: null }),
+    count('crm_opportunities', { etapa: 'nuevo', eliminada_at: null }),
+    count('crm_opportunities', { etapa: 'cotizando', eliminada_at: null }),
     count('pedidos', { leida: false }),
     count('clientes'),
     count('cupones', { activo: true }),
@@ -2385,7 +2943,11 @@ async function dashboardView(): Promise<string> {
     )
     .slice(0, 12);
   const publishHistory = await publishLogPanel();
+  const hoy = await bandejaHoyHtml();
+  const aprobaciones = await aprobacionesAgenteHtml();
   return `
+    ${aprobaciones}
+    ${hoy}
     ${withoutProvider > 0 ? `<div class="admin-alert">${withoutProvider} productos dropship no tienen proveedor asignado.</div>` : ''}
     <section class="admin-grid">
       ${metric('Total productos', productos)}
@@ -2495,6 +3057,8 @@ type AdminUserRow = {
   email: string;
   rol: string;
   activo: boolean;
+  nombre?: string | null;
+  telefono?: string | null;
   confirmed_at: string | null;
   last_sign_in_at: string | null;
   synced: boolean;
@@ -2529,6 +3093,10 @@ async function usuariosView(): Promise<string> {
           ${field('email', 'Email', '', true, 'email')}
           ${selectStatic('rol', 'Rol', 'lectura', ADMIN_ROLES)}
         </div>
+        <div class="admin-editor__cols">
+          ${field('nombre', 'Nombre del asesor (sale en emails y PDFs de cotización)', '', false, 'text', 'maxlength="120" placeholder="Equipo Comercial I-ME"')}
+          ${field('telefono', 'Teléfono del asesor', '', false, 'tel', 'maxlength="30" placeholder="+57 300 000 0000"')}
+        </div>
         <label class="admin-field">Contraseña inicial opcional
           <input name="password" type="password" autocomplete="new-password" minlength="8" />
           <small>Si la dejas vacía se enviará invitación por email cuando el proveedor SMTP de Supabase esté disponible.</small>
@@ -2546,9 +3114,21 @@ async function usuariosView(): Promise<string> {
     <section class="admin-panel">
       <div class="admin-panel__head"><h2>Usuarios sincronizados (${users.length})</h2></div>
       ${table(
-        ['Email', 'Rol', 'Activo', 'Auth', 'Confirmado', 'Último acceso', 'Acciones'],
+        [
+          'Email',
+          'Nombre',
+          'Teléfono',
+          'Rol',
+          'Activo',
+          'Auth',
+          'Confirmado',
+          'Último acceso',
+          'Acciones',
+        ],
         users.map(user => [
           user.email,
+          user.nombre?.trim() || '—',
+          user.telefono?.trim() || '—',
           user.rol,
           user.activo ? 'Sí' : 'No',
           user.synced ? 'Sincronizado' : 'Falta Auth',
@@ -2567,8 +3147,8 @@ function adminUserActions(user: AdminUserRow): string {
   const active = user.activo ? '1' : '0';
   return `
     <div class="admin-row-actions">
-      <button class="admin-button admin-button--ghost" type="button" data-admin-user-edit="${email}" data-admin-user-id="${userId}" data-admin-user-rol="${role}" data-admin-user-activo="${active}">Editar</button>
-      <button class="admin-button admin-button--ghost" type="button" data-admin-user-password="${email}" data-admin-user-rol="${role}" data-admin-user-activo="${active}">Cambiar contraseña</button>
+      <button class="admin-button admin-button--ghost" type="button" data-admin-user-edit="${email}" data-admin-user-id="${userId}" data-admin-user-rol="${role}" data-admin-user-activo="${active}" data-admin-user-nombre="${escapeHtml(user.nombre ?? '')}" data-admin-user-telefono="${escapeHtml(user.telefono ?? '')}">Editar</button>
+      <button class="admin-button admin-button--ghost" type="button" data-admin-user-password="${email}" data-admin-user-rol="${role}" data-admin-user-activo="${active}" data-admin-user-nombre="${escapeHtml(user.nombre ?? '')}" data-admin-user-telefono="${escapeHtml(user.telefono ?? '')}">Cambiar contraseña</button>
       <button class="admin-button admin-button--ghost" type="button" data-admin-user-toggle="${email}" data-admin-user-rol="${role}" data-admin-user-activo="${active}">${user.activo ? 'Desactivar' : 'Activar'}</button>
       <button class="admin-button admin-button--danger" type="button" data-admin-user-delete="${email}" data-admin-user-id="${userId}">Eliminar</button>
     </div>`;
@@ -2779,10 +3359,23 @@ async function productosView(): Promise<string> {
     })
   );
 
-  let query = supabase!.from('productos').select('*', { count: 'exact' });
+  const productSelect = [
+    'id',
+    ...new Set([
+      ...PRODUCT_LIST_COLUMNS.filter(column => column.type !== 'computed').map(
+        column => column.key
+      ),
+      'atributos',
+    ]),
+  ].join(',');
+  let query = supabase!.from('productos').select(productSelect, { count: 'exact' });
   if (q) {
     const safeQ = q.replace(/[,()%]/g, '');
-    if (safeQ) query = query.or(`nombre_es.ilike.%${safeQ}%,slug.ilike.%${safeQ}%`);
+    if (safeQ) {
+      query = query.or(
+        `nombre_es.ilike.%${safeQ}%,nombre_en.ilike.%${safeQ}%,slug.ilike.%${safeQ}%,sku.ilike.%${safeQ}%,gtin.ilike.%${safeQ}%`
+      );
+    }
   }
   if (familiaId) query = query.eq('familia_id', familiaId);
   if (tipoId) query = query.eq('tipo_id', tipoId);
@@ -2827,7 +3420,7 @@ async function productosView(): Promise<string> {
         </div>
       </div>
       <form class="admin-filters" data-productos-filter>
-        ${field('q', 'Buscar por nombre o slug', q, false, 'search')}
+        ${field('q', 'Buscar por nombre, SKU o GTIN', q, false, 'search')}
         ${selectStatic('familia_id', 'Familia', familiaId, [
           ['', 'Todas las familias'],
           ...familias.map((f): [string, string] => [text(f.id), text(f.nombre_es)]),
@@ -2907,10 +3500,12 @@ async function productosView(): Promise<string> {
 }
 
 async function productoFormView(): Promise<string> {
-  const [familias, tipos, producto] = await Promise.all([
+  const [familias, tipos, producto, actuaciones, propuestas] = await Promise.all([
     selectRows('familias', '*', 'orden', 200),
     selectRows('tipos', '*', 'orden', 300),
     state.recordId ? getRow('productos', state.recordId) : Promise.resolve(null),
+    actuacionesHtml('productos', state.recordId ?? ''),
+    propuestasFichaHtml(state.recordId ?? ''),
   ]);
   const draft = productDraft(producto);
   return `
@@ -2920,11 +3515,13 @@ async function productoFormView(): Promise<string> {
         <h2>${draft.id ? 'Editar producto' : 'Crear producto'}</h2>
         <div class="admin-toolbar">
           <button class="admin-button" type="submit">Guardar borrador</button>
+          ${draft.id ? `<a class="admin-button admin-button--ghost" href="#/ingesta?producto=${encodeURIComponent(draft.id)}">Actualizar desde ficha PDF</a>` : ''}
           ${draft.id ? '<button class="admin-button admin-button--danger" data-delete-product type="button">Eliminar</button>' : ''}
         </div>
       </div>
       <div class="admin-editor">
         <div class="admin-form">
+          <h3 class="admin-task-title">Identidad</h3>
           <div class="admin-editor__cols">
             ${field('nombre_es', 'Nombre ES', draft.nombre_es, true)}
             ${field('nombre_en', 'Nombre EN', draft.nombre_en)}
@@ -2933,6 +3530,9 @@ async function productoFormView(): Promise<string> {
             ${field('gtin', 'GTIN / codigo externo', draft.gtin)}
             ${select('familia_id', 'Familia', draft.familia_id, familias, 'nombre_es')}
             ${select('tipo_id', 'Tipo', draft.tipo_id, tipos, 'nombre_es', true)}
+          </div>
+          <h3 class="admin-task-title">Venta y stock</h3>
+          <div class="admin-editor__cols">
             ${selectStatic('tipo_comercial', 'Tipo comercial', draft.tipo_comercial, [
               ['equipo', 'Equipo'],
               ['consumible', 'Consumible'],
@@ -2948,11 +3548,6 @@ async function productoFormView(): Promise<string> {
             ${field('oferta_inicio', 'Inicio oferta', draft.oferta_inicio, false, 'datetime-local')}
             ${field('oferta_fin', 'Fin oferta', draft.oferta_fin, false, 'datetime-local')}
             ${field('stock', 'Stock', draft.stock?.toString() ?? '', false, 'number')}
-            ${field('dian_codigo', 'Codigo DIAN / UNSPSC', draft.dian_codigo ?? '')}
-            ${field('tarifa_iva_pct', 'IVA %', draft.tarifa_iva_pct?.toString() ?? '', false, 'number')}
-            ${field('retencion_fuente_pct', 'Retefuente %', draft.retencion_fuente_pct?.toString() ?? '', false, 'number')}
-            ${field('retencion_iva_pct', 'ReteIVA %', draft.retencion_iva_pct?.toString() ?? '', false, 'number')}
-            ${field('retencion_ica_pct', 'ReteICA %', draft.retencion_ica_pct?.toString() ?? '', false, 'number')}
             ${selectStatic('stock_estado', 'Estado stock', draft.stock_estado, [
               ['instock', 'En stock'],
               ['outofstock', 'Agotado'],
@@ -2966,8 +3561,17 @@ async function productoFormView(): Promise<string> {
             ${field('peso_kg', 'Peso kg', draft.peso_kg?.toString() ?? '', false, 'number')}
             ${field('orden', 'Orden', String(draft.orden), false, 'number')}
           </div>
-          ${textarea('atributos', 'Atributos JSON', JSON.stringify(draft.atributos, null, 2))}
           ${textarea('dimensiones_cm', 'Dimensiones cm JSON', JSON.stringify(draft.dimensiones_cm, null, 2))}
+          <h3 class="admin-task-title">Fiscal</h3>
+          <div class="admin-editor__cols">
+            ${field('dian_codigo', 'Codigo DIAN / UNSPSC', draft.dian_codigo ?? '')}
+            ${field('tarifa_iva_pct', 'IVA %', draft.tarifa_iva_pct?.toString() ?? '', false, 'number')}
+            ${field('retencion_fuente_pct', 'Retefuente %', draft.retencion_fuente_pct?.toString() ?? '', false, 'number')}
+            ${field('retencion_iva_pct', 'ReteIVA %', draft.retencion_iva_pct?.toString() ?? '', false, 'number')}
+            ${field('retencion_ica_pct', 'ReteICA %', draft.retencion_ica_pct?.toString() ?? '', false, 'number')}
+          </div>
+          <h3 class="admin-task-title">Contenido</h3>
+          ${textarea('atributos', 'Atributos JSON', JSON.stringify(draft.atributos, null, 2))}
           ${textarea('descripcion_corta_es', 'Descripcion corta ES', draft.descripcion_corta_es)}
           ${textarea('descripcion_corta_en', 'Descripcion corta EN', draft.descripcion_corta_en)}
           ${textarea('descripcion_larga_es', 'Descripcion larga ES', draft.descripcion_larga_es)}
@@ -2977,6 +3581,7 @@ async function productoFormView(): Promise<string> {
           ${textarea('aplicaciones_en', 'Aplicaciones EN (una por linea)', draft.aplicaciones_en.join('\n'))}
         </div>
         <aside class="admin-form">
+          <h3 class="admin-task-title">Publicacion y medios</h3>
           ${field('imagen_principal', 'URL imagen principal', draft.imagen_principal)}
           ${upload('productos', 'imagen_principal', 'Subir imagen')}
           ${field('ficha_pdf', 'URL ficha PDF', draft.ficha_pdf)}
@@ -2992,7 +3597,9 @@ async function productoFormView(): Promise<string> {
           <div class="admin-alert">Guardar desde ingesta siempre debe quedar como borrador hasta revision humana. Publicar cambios dispara rebuild separado.</div>
         </aside>
       </div>
-    </form>`;
+    </form>
+    ${propuestas}
+    ${actuaciones}`;
 }
 
 async function taxonomiaView(): Promise<string> {
@@ -3177,6 +3784,13 @@ async function taxonomiaView(): Promise<string> {
     </section>`;
 }
 
+const COTIZACION_AVISOS: Record<string, string> = {
+  OFERTA_SIN_LINEAS: 'Agrega al menos un producto.',
+  OFERTA_SIN_PRECIO: 'Falta el precio en alguna línea (o márcala como Pendiente validar).',
+  OFERTA_SIN_CONDICIONES: 'Escribe las condiciones comerciales.',
+  OFERTA_MONEDA_MIXTA: 'Unifica la moneda de la oferta.',
+};
+
 const COTIZACION_ESTADOS: Array<[string, string]> = [
   ['nueva', 'Nueva'],
   ['en_revision', 'En revision'],
@@ -3280,59 +3894,152 @@ async function actualizarSeguimientoFulfillment(
   return true;
 }
 
+type CotizacionesTab = 'pendientes' | 'enviadas' | 'expiradas' | 'todas';
+
+const COTIZACIONES_TABS: Array<[CotizacionesTab, string]> = [
+  ['pendientes', 'Pendientes'],
+  ['enviadas', 'Enviadas'],
+  ['expiradas', 'Expiradas'],
+  ['todas', 'Todas'],
+];
+
+function cotizacionesLink(overrides: Record<string, string>): string {
+  const params = hashParams();
+  for (const [key, value] of Object.entries(overrides)) {
+    if (value) params.set(key, value);
+    else params.delete(key);
+  }
+  const qs = params.toString();
+  return `#/cotizaciones${qs ? `?${qs}` : ''}`;
+}
+
+function cotizacionEstadoBadge(estado: string): string {
+  const kind =
+    estado === 'enviada' || estado === 'convertida'
+      ? 'ok'
+      : estado === 'nueva' || estado === 'expirada'
+        ? 'warn'
+        : 'info';
+  return `<span class="admin-badge admin-badge--${kind}">${escapeHtml(cotizacionEstadoLabel(estado))}</span>`;
+}
+
 async function cotizacionesView(): Promise<string> {
-  const rows = await selectRows('solicitudes_cotizacion', '*', 'created_at', 100, false);
-  const csvPayload = escapeHtml(JSON.stringify(rows));
+  const params = hashParams();
+  const tabParam = params.get('tab') ?? 'pendientes';
+  const tab: CotizacionesTab =
+    COTIZACIONES_TABS.find(([value]) => value === tabParam)?.[0] ?? 'pendientes';
+  const q = (params.get('q') ?? '').trim();
+  const mias = params.get('mias') === '1';
+  const page = Math.max(1, numberOrZero(params.get('page')) || 1);
+
+  const { data, error } = await listQuotes({
+    tab,
+    page: String(page),
+    ...(q ? { q } : {}),
+    ...(mias ? { mias: '1' } : {}),
+  });
+  if (error || !data) {
+    return `<section class="admin-panel"><div class="admin-alert">No fue posible cargar presupuestos: ${escapeHtml(error ?? 'sin datos')}</div><a class="admin-button admin-button--ghost" href="${cotizacionesLink({})}">Reintentar</a></section>`;
+  }
+
+  const rows = data.quotes;
+  const totalPages = Math.max(1, Math.ceil(data.total / data.pageSize));
+  const unread = new Set<string>();
+  if (rows.length > 0) {
+    const { data: sinLeer } = await supabase!
+      .from('solicitudes_cotizacion')
+      .select('id')
+      .in(
+        'id',
+        rows.map(row => row.id)
+      )
+      .eq('leida', false);
+    for (const item of (sinLeer ?? []) as Row[]) unread.add(text(item.id));
+  }
+  const csvPayload = escapeHtml(
+    JSON.stringify(
+      rows.map(row => ({
+        numero: row.numero,
+        nombre: row.nombre,
+        empresa: row.empresa,
+        email: row.email,
+        telefono: row.telefono,
+        estado: row.estado,
+        moneda: row.moneda,
+        total_ofertado: row.precio_total_ofertado,
+        comercial: row.created_by_nombre,
+        origen: row.origen,
+        creada: row.created_at,
+        actualizada: row.updated_at,
+      }))
+    )
+  );
+
+  const tabs = COTIZACIONES_TABS.map(
+    ([value, label]) =>
+      `<a class="admin-button ${tab === value ? '' : 'admin-button--ghost'}" href="${cotizacionesLink({ tab: value === 'pendientes' ? '' : value, page: '' })}" ${tab === value ? 'aria-current="page"' : ''}>${label}</a>`
+  ).join('');
+
   return `
     <section class="admin-panel">
       <div class="admin-panel__head">
         <div>
-          <h2>Presupuestos (${rows.length})</h2>
-          <p class="admin-help">Solicitudes web y ofertas formales. Crea un presupuesto, importa ficha PDF, previsualiza y envía por email o WhatsApp sin salir de admin.</p>
+          <h2>Presupuestos (${data.total})</h2>
+          <p class="admin-help">Solicitudes web y ofertas formales. Crea un presupuesto, escanea el de la competencia, previsualiza y envía por email o WhatsApp sin salir de admin.</p>
         </div>
         <div class="admin-toolbar">
           <button class="admin-button" type="button" data-cotizacion-nuevo>Nuevo presupuesto</button>
+          <a class="admin-button admin-button--ghost" href="#/cotizaciones-escanear">Escanear competencia (OCR)</a>
           <button class="admin-button admin-button--ghost" type="button" data-cotizaciones-select-all>Seleccionar todo</button>
           <button class="admin-button admin-button--ghost" type="button" data-csv="${csvPayload}" data-filename="presupuestos.csv">Exportar CSV</button>
           <span class="admin-meta">Seleccionadas: <strong data-cotizaciones-selected-count>0</strong></span>
           <button class="admin-button admin-button--danger" type="button" data-bulk-cotizacion-delete>Eliminar seleccionadas</button>
         </div>
       </div>
+      <div class="admin-toolbar" role="tablist" aria-label="Bandeja de presupuestos">
+        ${tabs}
+        <a class="admin-button ${mias ? '' : 'admin-button--ghost'}" href="${cotizacionesLink({ mias: mias ? '' : '1', page: '' })}">${mias ? 'Solo mías ✓' : 'Solo mías'}</a>
+      </div>
+      <form class="admin-filters" data-cotizaciones-filter>
+        ${field('q', 'Buscar número, empresa, contacto o email', q, false, 'search')}
+        <button class="admin-button" type="submit">Buscar</button>
+        ${q ? `<a class="admin-button admin-button--ghost" href="${cotizacionesLink({ q: '', page: '' })}">Limpiar</a>` : ''}
+      </form>
       ${table(
         [
           '',
           'Numero',
           'Fecha',
-          'Nombre',
-          'Empresa',
+          'Cliente',
           'Email',
           'Estado',
-          'Moneda',
           'Total ofertado',
-          'Enviada',
+          'Comercial',
+          'Origen',
+          'Actualizada',
           'Acciones',
         ],
         rows.map(row => {
-          const moneda = normalizarMonedaCotizacion(row.moneda);
-          const total =
-            row.precio_total_ofertado != null && row.precio_total_ofertado !== ''
-              ? crmMoney(Number(row.precio_total_ofertado), moneda)
-              : '—';
+          const total = crmMoney(row.precio_total_ofertado, row.moneda);
+          const borrable = row.estado !== 'convertida' && !row.pedido_id;
           return [
-            `<input type="checkbox" data-cotizacion-select value="${escapeHtml(text(row.id))}" aria-label="Seleccionar cotizacion" />`,
-            escapeHtml(text(row.numero)) || '—',
+            `<input type="checkbox" data-cotizacion-select value="${escapeHtml(row.id)}" aria-label="Seleccionar cotizacion" />`,
+            escapeHtml(row.numero || 'Borrador'),
             formatCell(row.created_at),
-            escapeHtml(text(row.nombre)),
-            escapeHtml(text(row.empresa)) || '—',
-            escapeHtml(text(row.email)),
-            escapeHtml(cotizacionEstadoLabel(text(row.estado) || 'nueva')),
-            escapeHtml(moneda),
+            `${escapeHtml(row.empresa || row.nombre)}${row.incompleta ? ' <span class="admin-badge admin-badge--warn">Precio incompleto</span>' : ''}${unread.has(row.id) ? ' <span class="admin-badge admin-badge--warn">Sin leer</span>' : ''}`,
+            escapeHtml(row.email),
+            cotizacionEstadoBadge(row.estado),
             escapeHtml(total),
-            row.oferta_enviada_at ? formatCell(row.oferta_enviada_at) : '—',
+            escapeHtml(row.created_by_nombre || '—'),
+            row.origen === 'pwa' ? 'PWA' : 'Web',
+            formatCell(row.updated_at || row.created_at),
             [
-              `<a class="admin-button admin-button--ghost" href="#/cotizacion?id=${escapeHtml(text(row.id))}">Ver</a>`,
-              row.leida === false
-                ? `<button class="admin-button admin-button--ghost" data-table="solicitudes_cotizacion" data-mark-read="${escapeHtml(text(row.id))}" type="button">Marcar leida</button>`
+              `<a class="admin-button admin-button--ghost" href="#/cotizacion?id=${escapeHtml(row.id)}">Abrir</a>`,
+              unread.has(row.id)
+                ? `<button class="admin-button admin-button--ghost" data-table="solicitudes_cotizacion" data-mark-read="${escapeHtml(row.id)}" type="button">Marcar leida</button>`
+                : '',
+              borrable
+                ? `<button class="admin-button admin-button--danger" type="button" data-cotizacion-list-delete="${escapeHtml(row.id)}" data-label="${escapeHtml(row.numero || row.empresa || row.nombre || 'presupuesto')}">Borrar</button>`
                 : '',
             ]
               .filter(Boolean)
@@ -3340,7 +4047,65 @@ async function cotizacionesView(): Promise<string> {
           ];
         })
       )}
+      <div class="admin-pagination">
+        <span class="admin-meta">Pagina ${page} de ${totalPages}</span>
+        <div class="admin-toolbar">
+          <a class="admin-button admin-button--ghost" href="${cotizacionesLink({ page: page > 2 ? String(page - 1) : '' })}" ${page <= 1 ? 'aria-disabled="true" tabindex="-1" style="pointer-events:none;opacity:.5"' : ''}>Anterior</a>
+          <a class="admin-button admin-button--ghost" href="${cotizacionesLink({ page: String(page + 1) })}" ${page >= totalPages ? 'aria-disabled="true" tabindex="-1" style="pointer-events:none;opacity:.5"' : ''}>Siguiente</a>
+        </div>
+      </div>
     </section>`;
+}
+
+type CotizacionLineaFila = {
+  slug: string;
+  nombre: string;
+  cantidad: number;
+  precio_unitario: number;
+  precio_pendiente_validar?: boolean;
+  notas?: string;
+};
+
+/** Una fila del editor de líneas: misma semántica que /comercial (importe o "Pendiente validar"). */
+function cotizacionLineaRowHtml(
+  line: CotizacionLineaFila,
+  moneda: 'COP' | 'USD',
+  readOnly = false
+): string {
+  const step = moneda === 'USD' ? '0.01' : '1';
+  const disabled = readOnly ? 'disabled' : '';
+  const pendiente = Boolean(line.precio_pendiente_validar);
+  const cantidad = Math.max(1, Math.floor(Number(line.cantidad) || 1));
+  const precio = pendiente ? 0 : Number(line.precio_unitario) || 0;
+  const sinPrecio = !pendiente && !(precio > 0);
+  const nombre = line.nombre || line.slug;
+  return `
+      <tr data-cotizacion-linea>
+        <td>
+          <input class="admin-inline-input" type="text" data-linea-nombre value="${escapeHtml(nombre)}" placeholder="Nombre del producto" aria-label="Nombre del producto" required ${disabled} />
+          <input class="admin-inline-input" type="text" data-linea-slug value="${escapeHtml(line.slug)}" placeholder="SKU o referencia (opcional)" aria-label="SKU o referencia" ${disabled} />
+          <input type="hidden" data-linea-moneda value="${moneda}" />
+          <textarea class="admin-inline-input" data-linea-notas rows="3" placeholder="Resumen de especificaciones (lo verá el cliente en la oferta)" aria-label="Resumen de especificaciones" ${disabled}>${escapeHtml(line.notas ?? '')}</textarea>
+          ${readOnly ? '' : '<button class="admin-button admin-button--ghost" type="button" data-linea-specs-catalogo>Traer del catálogo</button>'}
+          <span data-linea-aviso>${
+            pendiente
+              ? '<span class="admin-badge admin-badge--warn">Pendiente validar</span>'
+              : sinPrecio
+                ? '<span class="admin-badge admin-badge--warn">Sin precio</span>'
+                : ''
+          }</span>
+        </td>
+        <td><input class="admin-inline-input" type="number" min="1" step="1" data-linea-cantidad value="${cantidad}" aria-label="Cantidad" ${disabled} /></td>
+        <td>
+          <select class="admin-inline-input" data-linea-precio-modo aria-label="Modo de precio" ${disabled}>
+            <option value="numero" ${pendiente ? '' : 'selected'}>Importe</option>
+            <option value="pendiente" ${pendiente ? 'selected' : ''}>Pendiente validar</option>
+          </select>
+          <input class="admin-inline-input" type="number" min="0" step="${step}" data-linea-precio value="${pendiente ? '' : precio}" placeholder="0" aria-label="Precio unitario" ${readOnly || pendiente ? 'disabled' : ''} />
+        </td>
+        <td data-linea-subtotal>${pendiente ? 'Pendiente validar' : crmMoney(precio * cantidad, moneda)}</td>
+        <td><button class="admin-button admin-button--ghost" type="button" data-linea-eliminar aria-label="Eliminar ${escapeHtml(nombre || 'producto')}" ${disabled}>Eliminar</button></td>
+      </tr>`;
 }
 
 function cotizacionLineasEditorHtml(
@@ -3348,10 +4113,8 @@ function cotizacionLineasEditorHtml(
   monedaDefault = 'COP',
   readOnly = false
 ): string {
-  const lineas = Array.isArray(productos) ? productos : [];
-  const monedaCabecera = monedaDefault === 'USD' ? 'USD' : 'COP';
-  const priceStep = monedaCabecera === 'USD' ? '0.01' : '1';
-  const disabled = readOnly ? 'disabled' : '';
+  const lineas = parseLineasOferta(productos);
+  const moneda: 'COP' | 'USD' = monedaDefault === 'USD' ? 'USD' : 'COP';
   const catalogTools = readOnly
     ? ''
     : `
@@ -3363,70 +4126,32 @@ function cotizacionLineasEditorHtml(
       </label>
       <button class="admin-button admin-button--ghost" type="button" data-cotizacion-ingest-pdf>Importar ficha PDF → producto</button>
       <input type="file" accept="application/pdf,.pdf" data-cotizacion-ingest-file hidden />
+    </div>
+    <div class="cotizacion-catalog-tools" style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+      <button class="admin-button admin-button--ghost" type="button" data-cotizacion-ocr="camera">Escanear con cámara</button>
+      <button class="admin-button admin-button--ghost" type="button" data-cotizacion-ocr="gallery">Foto de galería</button>
+      <button class="admin-button admin-button--ghost" type="button" data-cotizacion-ocr="pdf">Importar PDF de competencia</button>
+      <span class="admin-help" data-cotizacion-ocr-status role="status">OCR rellena este presupuesto con cliente, productos, unidades y precios.</span>
     </div>`;
-  const rows = lineas.map(raw => {
-    const item = raw && typeof raw === 'object' ? (raw as Row) : {};
-    const slug = text(item.slug);
-    const nombre = text(item.nombre) || slug;
-    const cantidad = Number(item.cantidad ?? 1) || 1;
-    const precio = Number(item.precio_unitario ?? 0) || 0;
-    const moneda = monedaCabecera;
-    return `
-      <tr data-cotizacion-linea>
-        <td>
-          <input class="admin-inline-input" type="text" data-linea-nombre value="${escapeHtml(nombre)}" placeholder="Nombre del producto" aria-label="Nombre del producto" required ${disabled} />
-          <input class="admin-inline-input" type="text" data-linea-slug value="${escapeHtml(slug)}" placeholder="SKU o referencia (opcional)" aria-label="SKU o referencia" ${disabled} />
-          <input type="hidden" data-linea-moneda value="${escapeHtml(moneda)}" />
-        </td>
-        <td><input class="admin-inline-input" type="number" min="1" step="1" data-linea-cantidad value="${cantidad}" ${disabled} /></td>
-        <td><input class="admin-inline-input" type="number" min="0" step="${priceStep}" data-linea-precio value="${precio}" ${disabled} /></td>
-        <td data-linea-subtotal>${crmMoney(precio * cantidad, moneda)}</td>
-        <td><button class="admin-button admin-button--ghost" type="button" data-linea-eliminar aria-label="Eliminar ${escapeHtml(nombre || 'producto')}" ${disabled}>Eliminar</button></td>
-      </tr>`;
-  });
   return `
     ${catalogTools}
     <div class="admin-table-wrap">
       <table class="admin-table">
-        <thead><tr><th>Producto / referencia</th><th>Cantidad</th><th>Precio unitario (${escapeHtml(monedaCabecera)})</th><th>Subtotal</th><th>Acciones</th></tr></thead>
-        <tbody>${rows.join('')}</tbody>
+        <thead><tr><th>Producto / referencia</th><th>Cantidad</th><th>Precio unitario (${moneda})</th><th>Subtotal</th><th>Acciones</th></tr></thead>
+        <tbody>${lineas.map(line => cotizacionLineaRowHtml(line, moneda, readOnly)).join('')}</tbody>
       </table>
     </div>
-    <button class="admin-button admin-button--ghost" type="button" data-cotizacion-linea-agregar ${disabled}>Añadir producto</button>
-    <p class="admin-meta" style="margin-top:8px">Total ofertado: <strong data-cotizacion-total-ofertado>—</strong></p>`;
+    <button class="admin-button admin-button--ghost" type="button" data-cotizacion-linea-agregar ${readOnly ? 'disabled' : ''}>Añadir producto</button>
+    <p class="admin-meta" style="margin-top:8px">Total ofertado: <strong data-cotizacion-total-ofertado>—</strong></p>
+    <p class="admin-help" data-cotizacion-hint role="status"></p>`;
 }
 
 function cotizacionLineaFromOfertaHtml(line: CotizacionLineaOferta, moneda: 'COP' | 'USD'): string {
-  const step = moneda === 'USD' ? '0.01' : '1';
-  const cantidad = Math.max(1, line.cantidad || 1);
-  const precio = line.precio_pendiente_validar ? 0 : Number(line.precio_unitario) || 0;
-  const subtotal = line.precio_pendiente_validar ? 0 : line.subtotal || precio * cantidad;
-  return `<tr data-cotizacion-linea>
-    <td>
-      <input class="admin-inline-input" type="text" data-linea-nombre value="${escapeHtml(line.nombre)}" placeholder="Nombre del producto" aria-label="Nombre del producto" required />
-      <input class="admin-inline-input" type="text" data-linea-slug value="${escapeHtml(line.slug)}" placeholder="SKU o referencia (opcional)" aria-label="SKU o referencia" />
-      <input type="hidden" data-linea-moneda value="${escapeHtml(moneda)}" />
-    </td>
-    <td><input class="admin-inline-input" type="number" min="1" step="1" data-linea-cantidad value="${cantidad}" aria-label="Cantidad" /></td>
-    <td><input class="admin-inline-input" type="number" min="0" step="${step}" data-linea-precio value="${precio}" aria-label="Precio unitario" /></td>
-    <td data-linea-subtotal>${crmMoney(subtotal, moneda)}</td>
-    <td><button class="admin-button admin-button--ghost" type="button" data-linea-eliminar aria-label="Eliminar ${escapeHtml(line.nombre || 'producto')}">Eliminar</button></td>
-  </tr>`;
+  return cotizacionLineaRowHtml(line, moneda);
 }
 
 function cotizacionLineaNuevaHtml(moneda: 'COP' | 'USD'): string {
-  const step = moneda === 'USD' ? '0.01' : '1';
-  return `<tr data-cotizacion-linea>
-    <td>
-      <input class="admin-inline-input" type="text" data-linea-nombre value="" placeholder="Nombre del producto" aria-label="Nombre del producto" required />
-      <input class="admin-inline-input" type="text" data-linea-slug value="" placeholder="SKU o referencia (opcional)" aria-label="SKU o referencia" />
-      <input type="hidden" data-linea-moneda value="${moneda}" />
-    </td>
-    <td><input class="admin-inline-input" type="number" min="1" step="1" data-linea-cantidad value="1" aria-label="Cantidad" /></td>
-    <td><input class="admin-inline-input" type="number" min="0" step="${step}" data-linea-precio value="0" aria-label="Precio unitario" /></td>
-    <td data-linea-subtotal>${crmMoney(0, moneda)}</td>
-    <td><button class="admin-button admin-button--ghost" type="button" data-linea-eliminar aria-label="Eliminar producto">Eliminar</button></td>
-  </tr>`;
+  return cotizacionLineaRowHtml({ slug: '', nombre: '', cantidad: 1, precio_unitario: 0 }, moneda);
 }
 
 function normalizarMonedaCotizacion(value: unknown): 'COP' | 'USD' {
@@ -3460,6 +4185,30 @@ async function cotizacionDetailView(): Promise<string> {
   const estado = text(row.estado) || 'nueva';
   const convertida = estado === 'convertida' || Boolean(row.pedido_id);
   const moneda = normalizarMonedaCotizacion(row.moneda);
+  // Igual que /comercial: solo nueva / en revisión / respondida se editan; enviada y expirada piden revisión.
+  const soloLectura = !quoteEditable(estado) || Boolean(row.pedido_id);
+  const puedeGestionar = !state.rol || state.rol === 'owner' || state.rol === 'admin';
+  const crmStatus = text(row.crm_sync_status);
+  const crmLabel =
+    crmStatus === 'synced'
+      ? 'CRM sincronizado'
+      : crmStatus === 'failed'
+        ? 'CRM falló'
+        : crmStatus === 'pending'
+          ? 'CRM pendiente de validación'
+          : crmStatus === 'skipped'
+            ? 'CRM omitido'
+            : '';
+  const tienePendientes = parseLineasOferta(productos).some(l => l.precio_pendiente_validar);
+  const condicionesValor =
+    text(row.condiciones) || (soloLectura ? '' : defaultCondicionesOferta('es'));
+  const banner = convertida
+    ? '<div class="admin-alert" role="status">Convertido en pedido — no se edita.</div>'
+    : estado === 'expirada'
+      ? '<div class="admin-alert" role="status">Vencida. Duplica a borrador para cotizar de nuevo.</div>'
+      : estado === 'enviada'
+        ? `<div class="admin-alert" role="status">${escapeHtml(text(row.numero) || 'IME-Q')} enviada. El PDF anterior queda en archivo; usa «Nueva revisión» para cambiarla.</div>`
+        : '';
   return `
     <section class="admin-panel">
       <div class="admin-panel__head">
@@ -3478,14 +4227,20 @@ async function cotizacionDetailView(): Promise<string> {
           <button class="admin-button admin-button--ghost" type="button" data-cotizacion-copy-summary>Copiar resumen</button>
           <a class="admin-button admin-button--ghost" href="mailto:${escapeHtml(text(row.email))}">Responder email</a>
           <a class="admin-button admin-button--ghost" href="#/cotizaciones">Volver</a>
+          ${
+            puedeGestionar && !convertida
+              ? '<button class="admin-button admin-button--danger" type="button" data-cotizacion-borrar>Borrar</button>'
+              : ''
+          }
         </div>
       </div>
+      ${banner}
       <div class="cotizacion-workflow">
         <div class="cotizacion-workflow__summary" data-cotizacion-summary hidden>${escapeHtml(resumen)}</div>
         <div class="cotizacion-workflow__chips">
           ${
             text(row.numero)
-              ? `<span class="admin-badge admin-badge--info">${escapeHtml(text(row.numero))}</span>`
+              ? `<span class="admin-badge admin-badge--info" data-cotizacion-numero>${escapeHtml(text(row.numero))}</span>`
               : ''
           }
           <span class="admin-badge admin-badge--info">${escapeHtml(text(row.empresa) || 'Sin empresa')}</span>
@@ -3501,14 +4256,25 @@ async function cotizacionDetailView(): Promise<string> {
               ? `<a class="admin-badge admin-badge--ok" href="#/pedido?id=${escapeHtml(text(row.pedido_id))}">Pedido vinculado</a>`
               : ''
           }
+          ${crmLabel ? `<span class="admin-badge ${crmStatus === 'synced' ? 'admin-badge--ok' : 'admin-badge--warn'}">${escapeHtml(crmLabel)}</span>` : ''}
         </div>
         <div class="admin-toolbar cotizacion-workflow__actions">
-          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="nueva" ${convertida ? 'disabled' : ''}>Volver a nueva</button>
-          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="en_revision" ${convertida ? 'disabled' : ''}>Enviar a revision</button>
-          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="respondida" ${convertida ? 'disabled' : ''}>Marcar respondida</button>
+          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="nueva" ${soloLectura ? 'disabled' : ''}>Volver a nueva</button>
+          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="en_revision" ${soloLectura ? 'disabled' : ''}>Enviar a revision</button>
+          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-quick-estado="respondida" ${soloLectura ? 'disabled' : ''}>Marcar respondida</button>
           <button class="admin-button admin-button--ghost" type="button" data-cotizacion-preview ${convertida ? 'disabled' : ''}>Vista previa PDF</button>
-          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-enviar-whatsapp ${convertida ? 'disabled' : ''}>WhatsApp</button>
-          <button class="admin-button" type="button" data-cotizacion-enviar ${convertida ? 'disabled' : ''}>Enviar email</button>
+          <button class="admin-button admin-button--ghost" type="button" data-cotizacion-enviar-whatsapp ${soloLectura ? 'disabled' : ''}>WhatsApp</button>
+          <button class="admin-button" type="button" data-cotizacion-enviar ${soloLectura ? 'disabled' : ''}>Enviar email</button>
+          ${
+            soloLectura && !row.pedido_id && (estado === 'enviada' || estado === 'expirada')
+              ? `<button class="admin-button" type="button" data-cotizacion-duplicar>${estado === 'enviada' ? 'Nueva revisión' : 'Duplicar a borrador'}</button>`
+              : ''
+          }
+          ${
+            puedeGestionar && !tienePendientes && !convertida
+              ? `<button class="admin-button" type="button" data-cotizacion-validar-crm>${crmStatus === 'synced' ? 'Revalidar CRM' : 'Validar → CRM'}</button>`
+              : ''
+          }
         </div>
       </div>
       <div style="padding:0 16px 16px">
@@ -3519,54 +4285,54 @@ async function cotizacionDetailView(): Promise<string> {
             : ''
         }
         <p class="admin-help">Edita los datos de la solicitud, los productos, precios y condiciones. La oferta guardada es la que recibirá el cliente al formalizar.</p>
-        <form class="admin-form" data-cotizacion-oferta-form>
+        <form class="admin-form" data-cotizacion-oferta-form ${soloLectura ? 'data-solo-lectura' : ''}>
           <input type="hidden" name="id" value="${escapeHtml(text(row.id))}" />
           <div class="admin-editor__cols">
             <label class="admin-field"><span>Nombre del contacto</span>
-              <input name="nombre" type="text" value="${escapeHtml(text(row.nombre))}" autocomplete="name" ${convertida ? 'disabled' : ''} />
+              <input name="nombre" type="text" value="${escapeHtml(text(row.nombre))}" autocomplete="name" ${soloLectura ? 'disabled' : ''} />
             </label>
             <label class="admin-field"><span>Empresa</span>
-              <input name="empresa" type="text" value="${escapeHtml(text(row.empresa))}" autocomplete="organization" ${convertida ? 'disabled' : ''} />
+              <input name="empresa" type="text" value="${escapeHtml(text(row.empresa))}" autocomplete="organization" ${soloLectura ? 'disabled' : ''} />
             </label>
             <label class="admin-field"><span>Email</span>
-              <input name="email" type="email" value="${escapeHtml(text(row.email))}" autocomplete="email" ${convertida ? 'disabled' : ''} />
+              <input name="email" type="email" value="${escapeHtml(text(row.email))}" autocomplete="email" ${soloLectura ? 'disabled' : ''} />
             </label>
             <label class="admin-field"><span>Teléfono</span>
-              <input name="telefono" type="tel" value="${escapeHtml(text(row.telefono))}" autocomplete="tel" ${convertida ? 'disabled' : ''} />
+              <input name="telefono" type="tel" value="${escapeHtml(text(row.telefono))}" autocomplete="tel" ${soloLectura ? 'disabled' : ''} />
             </label>
             <label class="admin-field"><span>NIT / identificación fiscal</span>
-              <input name="nit" type="text" value="${escapeHtml(text(row.nit))}" ${convertida ? 'disabled' : ''} />
+              <input name="nit" type="text" value="${escapeHtml(text(row.nit))}" ${soloLectura ? 'disabled' : ''} />
             </label>
             <label class="admin-field"><span>IVA</span>
-              <label class="admin-check"><input name="responsable_iva" type="checkbox" ${row.responsable_iva ? 'checked' : ''} ${convertida ? 'disabled' : ''} /> Responsable de IVA</label>
+              <label class="admin-check"><input name="responsable_iva" type="checkbox" ${row.responsable_iva ? 'checked' : ''} ${soloLectura ? 'disabled' : ''} /> Responsable de IVA</label>
             </label>
             <label class="admin-field"><span>Tratamiento tributario de la oferta</span>
-              <label class="admin-check"><input name="impuestos_incluidos" type="checkbox" ${row.impuestos_incluidos ? 'checked' : ''} ${convertida ? 'disabled' : ''} /> Los precios ofrecidos ya incluyen IVA cuando aplica</label>
+              <label class="admin-check"><input name="impuestos_incluidos" type="checkbox" ${row.impuestos_incluidos ? 'checked' : ''} ${soloLectura ? 'disabled' : ''} /> Los precios ofrecidos ya incluyen IVA cuando aplica</label>
             </label>
             <label class="admin-field"><span>Moneda de la oferta</span>
-              <select name="moneda" data-cotizacion-moneda ${convertida ? 'disabled' : ''}>
+              <select name="moneda" data-cotizacion-moneda ${soloLectura ? 'disabled' : ''}>
                 <option value="COP" ${moneda === 'COP' ? 'selected' : ''}>COP — Pesos colombianos</option>
                 <option value="USD" ${moneda === 'USD' ? 'selected' : ''}>USD — Dolares</option>
               </select>
             </label>
             <label class="admin-field"><span>Validez hasta</span>
-              <input name="validez_hasta" type="date" value="${escapeHtml(text(row.validez_hasta).slice(0, 10))}" ${convertida ? 'disabled' : ''} />
+              <input name="validez_hasta" type="date" value="${escapeHtml(text(row.validez_hasta).slice(0, 10))}" ${soloLectura ? 'disabled' : ''} />
             </label>
           </div>
-          ${cotizacionLineasEditorHtml(productos, moneda, convertida)}
+          ${cotizacionLineasEditorHtml(productos, moneda, soloLectura)}
           <label class="admin-field" style="margin-top:12px"><span>Mensaje o necesidad del solicitante</span>
-            <textarea name="mensaje" rows="4" placeholder="Necesidad, especificaciones o contexto" ${convertida ? 'disabled' : ''}>${escapeHtml(text(row.mensaje))}</textarea>
+            <textarea name="mensaje" rows="4" placeholder="Necesidad, especificaciones o contexto" ${soloLectura ? 'disabled' : ''}>${escapeHtml(text(row.mensaje))}</textarea>
           </label>
           <div class="admin-editor__cols">
             <label class="admin-field"><span>Dirección postal de envío</span>
-              <textarea name="direccion_envio" rows="3" ${convertida ? 'disabled' : ''}>${escapeHtml(text(row.direccion_envio))}</textarea>
+              <textarea name="direccion_envio" rows="3" ${soloLectura ? 'disabled' : ''}>${escapeHtml(text(row.direccion_envio))}</textarea>
             </label>
             <label class="admin-field"><span>Dirección de facturación</span>
-              <textarea name="direccion_facturacion" rows="3" ${convertida ? 'disabled' : ''}>${escapeHtml(text(row.direccion_facturacion))}</textarea>
+              <textarea name="direccion_facturacion" rows="3" ${soloLectura ? 'disabled' : ''}>${escapeHtml(text(row.direccion_facturacion))}</textarea>
             </label>
           </div>
           <label class="admin-field" style="margin-top:12px"><span>Adjuntos para el correo al cliente (PDF, Office o imagen; máx. 25 MB en total)</span>
-            <input type="file" data-cotizacion-adjuntos multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.webp" ${convertida ? 'disabled' : ''} />
+            <input type="file" data-cotizacion-adjuntos multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.webp" ${soloLectura ? 'disabled' : ''} />
             <span class="admin-help" data-cotizacion-adjuntos-estado>${
               adjuntos.length
                 ? `Adjuntos guardados: ${escapeHtml(
@@ -3580,11 +4346,11 @@ async function cotizacionDetailView(): Promise<string> {
             <input type="hidden" data-cotizacion-adjuntos-actuales value="${escapeHtml(JSON.stringify(adjuntos))}" />
           </label>
           <label class="admin-field" style="margin-top:12px"><span>Observaciones / condiciones de configuracion</span>
-            <textarea name="condiciones" rows="5" placeholder="Configuracion especifica, plazo de entrega, forma de pago, validez, exclusiones..." ${convertida ? 'disabled' : ''}>${escapeHtml(
-              text(row.condiciones)
+            <textarea name="condiciones" rows="5" placeholder="Configuracion especifica, plazo de entrega, forma de pago, validez, exclusiones..." ${soloLectura ? 'disabled' : ''}>${escapeHtml(
+              condicionesValor
             )}</textarea>
           </label>
-          ${convertida ? '' : '<button class="admin-button" type="submit">Guardar oferta</button>'}
+          ${soloLectura ? '' : '<button class="admin-button" type="submit">Guardar oferta</button>'}
         </form>
       </div>
       <div style="padding:0 16px 16px">
@@ -3642,14 +4408,16 @@ async function clientesView(): Promise<string> {
   const tipo = params.get('tipo_cliente') ?? '';
   let query = supabase!
     .from('clientes')
-    .select('*')
+    .select(
+      'id,email,nombre,apellido,telefono,institucion,razon_social,documento_numero,tipo_cliente,total_pedidos,total_gastado,updated_at'
+    )
     .order('updated_at', { ascending: false })
-    .limit(100);
+    .limit(500);
   if (q) {
     const safeQ = q.replace(/[,()%]/g, '');
     if (safeQ)
       query = query.or(
-        `email.ilike.%${safeQ}%,nombre.ilike.%${safeQ}%,apellido.ilike.%${safeQ}%,institucion.ilike.%${safeQ}%`
+        `email.ilike.%${safeQ}%,nombre.ilike.%${safeQ}%,apellido.ilike.%${safeQ}%,institucion.ilike.%${safeQ}%,razon_social.ilike.%${safeQ}%,documento_numero.ilike.%${safeQ}%`
       );
   }
   if (tipo) query = query.eq('tipo_cliente', tipo);
@@ -3658,6 +4426,7 @@ async function clientesView(): Promise<string> {
   const rows = (data ?? []) as unknown as Row[];
   return `
     <section class="admin-panel">
+      ${error ? `<div class="admin-alert">${escapeHtml(error.message)}</div>` : ''}
       <div class="admin-panel__head">
         <h2>Clientes (${rows.length})</h2>
         <div class="admin-toolbar">
@@ -3697,7 +4466,7 @@ async function clientesView(): Promise<string> {
 
 async function clienteDetailView(): Promise<string> {
   const cliente = state.recordId ? await getRow('clientes', state.recordId) : null;
-  const [direcciones, pedidos, cotizaciones] = cliente
+  const [direcciones, pedidos, cotizaciones, oportunidades, actuaciones] = cliente
     ? await Promise.all([
         selectRowsWhere(
           'cliente_direcciones',
@@ -3707,17 +4476,50 @@ async function clienteDetailView(): Promise<string> {
           50,
           false
         ),
-        selectRowsWhere('pedidos', '*', 'created_at', { cliente_id: text(cliente.id) }, 50, false),
+        selectRowsWhere(
+          'pedidos',
+          'id,created_at,estado,total,moneda,referencia_pasarela',
+          'created_at',
+          { cliente_id: text(cliente.id) },
+          50,
+          false
+        ),
         selectRowsWhere(
           'solicitudes_cotizacion',
-          '*',
+          'id,created_at,estado,precio_total_ofertado',
           'created_at',
           { email: text(cliente.email) },
           50,
           false
         ),
+        selectRowsWhere(
+          'crm_opportunities',
+          'id,updated_at,titulo,etapa,valor_estimado,moneda,next_action_at',
+          'updated_at',
+          { cliente_id: text(cliente.id), eliminada_at: null },
+          50,
+          false
+        ),
+        actuacionesHtml('clientes', text(cliente.id)),
       ])
-    : [[], [], []];
+    : [[], [], [], [], ''];
+  const pedidoIds = pedidos.map(row => text(row.id)).filter(Boolean);
+  const facturas: Row[] = pedidoIds.length
+    ? (((
+        await supabase!
+          .from('facturas_electronicas')
+          .select('id,pedido_id,estado,numero_factura,created_at')
+          .in('pedido_id', pedidoIds)
+      ).data ?? []) as Row[])
+    : [];
+  const valorAbierto = oportunidades
+    .filter(row => !['ganado', 'perdido'].includes(text(row.etapa)))
+    .reduce((sum, row) => sum + (Number(row.valor_estimado) || 0), 0);
+  const totalPedidos = pedidos
+    .filter(
+      row => !['cancelado', 'rechazado', 'expirado', 'reembolsado'].includes(text(row.estado))
+    )
+    .reduce((sum, row) => sum + (Number(row.total) || 0), 0);
 
   return `
     <section class="admin-panel">
@@ -3824,6 +4626,34 @@ async function clienteDetailView(): Promise<string> {
         </form>
       </section>
       <section class="admin-panel">
+        <div class="admin-panel__head"><h2>Vista 360</h2></div>
+        <div class="admin-grid" style="padding:0 16px 16px">
+          ${marketingMetric('Pedidos validos', `${totalPedidos.toLocaleString('es-CO')} COP`)}
+          ${marketingMetric('Oportunidades abiertas', `${valorAbierto.toLocaleString('es-CO')} COP`)}
+          ${metric('Cotizaciones', cotizaciones.length)}
+          ${metric('Facturas', facturas.length)}
+        </div>
+        ${table(
+          ['Oportunidad', 'Etapa', 'Valor', 'Proxima accion', 'Acciones'],
+          oportunidades.map(row => [
+            text(row.titulo),
+            text(row.etapa),
+            row.valor_estimado == null ? '—' : `${text(row.valor_estimado)} ${text(row.moneda)}`,
+            formatCell(row.next_action_at),
+            `<a class="admin-button admin-button--ghost" href="#/crm?q=${encodeURIComponent(text(row.titulo))}">CRM</a>`,
+          ])
+        )}
+        ${table(
+          ['Factura', 'Estado', 'Fecha', 'Pedido'],
+          facturas.map(row => [
+            text(row.numero_factura) || '—',
+            text(row.estado),
+            formatCell(row.created_at),
+            `<a class="admin-button admin-button--ghost" href="#/pedido?id=${encodeURIComponent(text(row.pedido_id))}">Ver</a>`,
+          ])
+        )}
+      </section>
+      <section class="admin-panel">
         <div class="admin-panel__head"><h2>Actividad comercial</h2></div>
         ${table(
           ['Fecha', 'Tipo', 'Estado', 'Total', 'Acciones'],
@@ -3844,7 +4674,8 @@ async function clienteDetailView(): Promise<string> {
             ]),
           ]
         )}
-      </section>`
+      </section>
+      ${actuaciones}`
         : ''
     }`;
 }
@@ -4186,6 +5017,16 @@ async function pedidoDetailView(): Promise<string> {
   const notas = (notasResult.data ?? []) as Row[];
   const timeline = (timelineResult.data ?? []) as Row[];
   const factura = (facturaResult.data ?? null) as Row | null;
+  const actuaciones = await actuacionesHtml('pedidos', text(row.id));
+  const tieneGuia = fulfillments.some(
+    item => text(item.tracking_number) || text(item.tracking_url)
+  );
+  const pasoPedido = siguientePasoPedido({
+    estado: text(row.estado),
+    proveedorPago: text(row.proveedor_pago),
+    tieneGuia,
+    facturaEstado: text(row.facturacion_electronica_estado) || text(factura?.estado),
+  });
   const metadata =
     row.metadata && typeof row.metadata === 'object' && !Array.isArray(row.metadata)
       ? (row.metadata as Row)
@@ -4291,6 +5132,11 @@ async function pedidoDetailView(): Promise<string> {
         </div>
       </div>
       <div class="admin-panel__body">
+        <div class="admin-next ${pasoPedido.cerrado ? 'is-done' : ''}">
+          <p class="admin-next__kicker">Siguiente paso</p>
+          <strong>${escapeHtml(pasoPedido.accion)}</strong>
+          <p>${escapeHtml(pasoPedido.detalle)}</p>
+        </div>
         <div class="pedido-workflow">
           <div class="pedido-workflow__summary" data-pedido-summary hidden>${escapeHtml(resumenPedido)}</div>
           <div class="pedido-workflow__meta">
@@ -4624,7 +5470,8 @@ async function pedidoDetailView(): Promise<string> {
         </div>
         <button class="admin-button" type="submit">Cambiar estado</button>
       </form>
-    </section>`;
+    </section>
+    ${actuaciones}`;
 }
 
 const CUPON_TIPOS: Array<[string, string]> = [
@@ -5011,6 +5858,78 @@ async function reportesView(): Promise<string> {
     </section>`;
 }
 
+const ETAPA_PILOTO_LABEL = {
+  contenido: 'Contenido (tema y artículos)',
+  landing: 'Landing de proyectos UCI',
+  herramienta: 'Checklist de recepción',
+} as const;
+
+/** Piloto Monitoreo/UCI (Growth Engine, mandato §24): embudo y fuentes de los últimos 30 días. */
+async function pilotoMonitoreoPanel(since: string): Promise<string> {
+  const [eventosRes, leadsRes] = await Promise.all([
+    supabase!
+      .from('analytics_eventos')
+      .select('event_name, session_id, page_path, utm_source, utm_medium')
+      .gte('ts', since)
+      .in('page_path', rutasPiloto())
+      .limit(20000),
+    supabase!
+      .from('leads_comerciales')
+      .select('campaign, tipo_proyecto, utm_source, utm_medium')
+      .gte('created_at', since)
+      .in('campaign', CAMPANAS_PILOTO)
+      .limit(5000),
+  ]);
+  const error = eventosRes.error ?? leadsRes.error;
+  if (error) {
+    return `
+      <section class="admin-panel">
+        <div class="admin-panel__head"><h2>Piloto Monitoreo/UCI</h2></div>
+        <div class="admin-panel__body" style="padding:16px">
+          <div class="admin-alert">No se pudieron leer los datos del piloto: ${escapeHtml(error.message)}</div>
+        </div>
+      </section>`;
+  }
+  const r = resumirPiloto(
+    (eventosRes.data ?? []) as Parameters<typeof resumirPiloto>[0],
+    (leadsRes.data ?? []) as Parameters<typeof resumirPiloto>[1]
+  );
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head">
+        <h2>Piloto Monitoreo/UCI · 30 días</h2>
+        <span class="admin-help">Analítica propia: todas las visitas (GA4 sólo cuenta a quien acepta cookies).</span>
+      </div>
+      <div class="admin-grid" style="padding:16px">
+        ${r.etapas
+          .map(e =>
+            marketingMetric(
+              `${ETAPA_PILOTO_LABEL[e.etapa]} · sesiones`,
+              e.sesiones.toLocaleString('es-CO')
+            )
+          )
+          .join('')}
+        ${marketingMetric('Checklist iniciados', r.herramienta.inicios.toLocaleString('es-CO'))}
+        ${marketingMetric('Checklist completos', r.herramienta.completados.toLocaleString('es-CO'))}
+        ${marketingMetric('Descargas PDF', r.herramienta.descargas.toLocaleString('es-CO'))}
+        ${marketingMetric('Leads herramienta', r.leads.herramienta.toLocaleString('es-CO'))}
+        ${marketingMetric('Leads landing', r.leads.landing.toLocaleString('es-CO'))}
+      </div>
+      <div style="padding:0 16px 16px">
+        <h3>Fuentes (sesiones en páginas del piloto y leads)</h3>
+        ${table(
+          ['Fuente / medio', 'Sesiones', 'Leads'],
+          r.fuentes.map(f => [escapeHtml(f.fuente), String(f.sesiones), String(f.leads)])
+        )}
+        <h3>Páginas del piloto</h3>
+        ${table(
+          ['Página', 'Vistas'],
+          r.paginas.map(p => [escapeHtml(p.ruta), String(p.vistas)])
+        )}
+      </div>
+    </section>`;
+}
+
 async function marketingView(): Promise<string> {
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   const { data, error } = await supabase!
@@ -5113,6 +6032,7 @@ async function marketingView(): Promise<string> {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 12);
   const commercialUsage = await commercialUsageSummary(30);
+  const piloto = await pilotoMonitoreoPanel(since);
 
   return `
     <section class="admin-grid">
@@ -5123,6 +6043,7 @@ async function marketingView(): Promise<string> {
       ${marketingMetric('Conversiones', conversions.length.toLocaleString('es-CO'))}
       ${marketingMetric('Conv. por sesion', `${conversionRate.toFixed(1)}%`)}
     </section>
+    ${piloto}
     <section class="admin-panel">
       <div class="admin-panel__head">
         <h2>Reporte de uso · /comercial/ · 30 días</h2>
@@ -5253,6 +6174,71 @@ function jsonRowsTable(items: unknown[]): string {
   );
 }
 
+async function loadProveedorDuplicateGroups(): Promise<DuplicateGroup[]> {
+  const { data, error } = await supabase!
+    .from('proveedores')
+    .select('id,slug,nombre,sitio_web,contacto_email')
+    .limit(1000);
+  if (error || !data) return [];
+  return findDuplicateGroups(
+    (data as unknown as Row[]).map(row => ({
+      id: text(row.id),
+      slug: text(row.slug),
+      nombre: text(row.nombre),
+      sitio_web: text(row.sitio_web),
+      contacto_email: text(row.contacto_email),
+    }))
+  );
+}
+
+function proveedorDuplicatePanel(groups: DuplicateGroup[]): string {
+  if (!groups.length) return '';
+  return `
+    <section class="admin-panel">
+      <div class="admin-panel__head"><h2>Posibles duplicados</h2><span class="admin-meta">Mismo nombre normalizado, mismo dominio o mismo email. Fusionar conserva productos, contactos y seguimiento en el registro elegido.</span></div>
+      ${groups
+        .map(group => {
+          const buttons = group.members
+            .map(member => {
+              const losers = group.members.filter(other => other.id !== member.id);
+              return `<button class="admin-button admin-button--ghost" type="button" data-merge-keeper="${escapeHtml(member.id)}" data-merge-losers="${escapeHtml(losers.map(other => other.id).join(','))}" data-merge-label="${escapeHtml(member.nombre)}">Conservar ${escapeHtml(member.nombre)}</button>`;
+            })
+            .join(' ');
+          const names = group.members
+            .map(member => `${escapeHtml(member.nombre)} (${escapeHtml(member.slug)})`)
+            .join(' · ');
+          return `<div style="padding:0 16px 16px"><p>${names}</p><div class="admin-toolbar">${buttons}</div></div>`;
+        })
+        .join('')}
+    </section>`;
+}
+
+function proveedorCsvImportPanel(): string {
+  const options = ['', ...CSV_MAPPABLE_FIELDS]
+    .map(field => `<option value="${escapeHtml(field)}">${escapeHtml(field || 'Ignorar')}</option>`)
+    .join('');
+  return `
+    <form class="admin-panel admin-form" data-proveedor-csv-form>
+      <div class="admin-panel__head">
+        <h2>Importar CSV interno</h2>
+        <button class="admin-button" type="submit">Importar CSV</button>
+      </div>
+      <div class="admin-upload-box">
+        <div>
+          <strong>Sube el CSV de marcas</strong>
+          <p>Mapea cada columna, revisa la vista previa y confirma los contactos extraídos de las notas antes de guardarlos.</p>
+        </div>
+        <label class="admin-button admin-button--ghost">
+          Seleccionar CSV
+          <input data-proveedor-csv-file type="file" accept=".csv,text/csv" hidden />
+        </label>
+      </div>
+      <p class="admin-help" data-proveedor-csv-status>Sin archivo seleccionado. Las celdas vacías no borran datos existentes.</p>
+      <div data-proveedor-csv-preview hidden></div>
+      <template data-proveedor-csv-options>${options}</template>
+    </form>`;
+}
+
 async function proveedoresView(): Promise<string> {
   const params = hashParams();
   const q = (params.get('q') ?? '').trim();
@@ -5305,7 +6291,7 @@ async function proveedoresView(): Promise<string> {
         </div>
       </div>
       <form class="admin-filters" data-proveedores-filter>
-        ${field('q', 'Buscar por nombre o slug', q, false, 'search')}
+        ${field('q', 'Buscar por nombre, equipo, email, país o INVIMA', q, false, 'search')}
         ${selectStatic('activo', 'Estado', activo, [
           ['', 'Todos'],
           ['1', 'Activo'],
@@ -5332,8 +6318,10 @@ async function proveedoresView(): Promise<string> {
         <button class="admin-button" type="submit">Filtrar</button>
         <a class="admin-button admin-button--ghost" href="#/proveedores">Limpiar</a>
       </form>
-      ${entityImportForm('proveedores', 'proveedores', 'Upsert por slug con datos operativos públicos. No importes tokens, claves, costos ni datos de clientes.')}
-      <form class="admin-panel admin-form" data-simple-form data-table="proveedores" data-fields="slug,nombre,razon_social,tipo_entidad,sitio_web,pais,ciudad,contacto_email,contacto_whatsapp,canal,lifecycle_status,dropship_enabled,notas,activo">
+      ${proveedorDuplicatePanel(await loadProveedorDuplicateGroups())}
+      ${proveedorCsvImportPanel()}
+      ${entityImportForm('proveedores', 'proveedores', 'Upsert por slug con datos operativos públicos. Una celda vacía no borra el valor guardado, salvo que marques vaciar campos. No importes tokens, claves, costos ni datos de clientes. La hoja opcional contactos se enlaza por slug.')}
+      <form class="admin-panel admin-form" data-simple-form data-table="proveedores" data-fields="slug,nombre,razon_social,tipo_entidad,sitio_web,pais,ciudad,direccion_comercial,contacto_email,contacto_whatsapp,canal,lifecycle_status,lineas_equipos,estado_invima,invima_titular,distribuidor_local,dropship_enabled,notas,activo">
         <div class="admin-panel__head"><h2>Crear proveedor</h2><button class="admin-button" type="submit">Guardar</button></div>
         <div style="padding:16px" class="admin-editor__cols">
           ${field('slug', 'Slug', '', true)}
@@ -5343,14 +6331,15 @@ async function proveedoresView(): Promise<string> {
           ${field('sitio_web', 'Sitio web', '', false, 'url')}
           ${field('pais', 'País')}
           ${field('ciudad', 'Ciudad')}
+          ${field('direccion_comercial', 'Dirección comercial')}
           ${field('contacto_email', 'Email')}
           ${field('contacto_whatsapp', 'WhatsApp')}
-          ${selectStatic('canal', 'Canal', 'email', [
-            ['email', 'Email'],
-            ['whatsapp', 'WhatsApp'],
-            ['manual', 'Manual'],
-          ])}
+          ${selectStatic('canal', 'Canal', 'email', PROVEEDOR_CANALES)}
           ${selectStatic('lifecycle_status', 'Estado de validación', 'prospect', PROVEEDOR_LIFECYCLES)}
+          ${textarea('lineas_equipos', 'Líneas de equipo')}
+          ${selectStatic('estado_invima', 'Estado INVIMA', '', PROVEEDOR_INVIMA_OPTIONS)}
+          ${field('invima_titular', 'Titular INVIMA')}
+          ${field('distribuidor_local', 'Distribuidor local')}
           ${checkbox(
             'dropship_enabled',
             'Habilitar dropshipping (requiere proveedor aprobado)',
@@ -5359,13 +6348,16 @@ async function proveedoresView(): Promise<string> {
           ${textarea('notas', 'Notas')}
           ${checkbox('activo', 'Activo', false)}
         </div>
-        <p id="dropship-help" class="admin-help">Los prospectos se crean inactivos y sin dropshipping. La habilitación exige validación comercial, canal de pedido y aprobación operativa.</p>
+        <p id="dropship-help" class="admin-help">Los prospectos se crean inactivos y sin dropshipping. Marcar el estado como aprobado no activa dropshipping. La habilitación exige validación comercial, canal de pedido y aprobación operativa.</p>
       </form>
+      <p class="admin-help">${rows.length} proveedores en esta vista.</p>
       ${table(
         [
           'Proveedor',
           'Ubicación',
+          'Equipos',
           'Validación',
+          'Último contacto',
           'Dropship',
           'Contactos / fuentes',
           'Productos',
@@ -5374,7 +6366,9 @@ async function proveedoresView(): Promise<string> {
         rows.map(r => [
           `<strong>${escapeHtml(text(r.nombre))}</strong><br /><span class="admin-meta">${escapeHtml(proveedorTipoLabel(text(r.tipo_entidad)))}</span>`,
           escapeHtml([text(r.ciudad), text(r.pais)].filter(Boolean).join(', ')) || '—',
+          escapeHtml(clipText(text(r.lineas_equipos))) || '—',
           proveedorLifecycleBadge(text(r.lifecycle_status)),
+          escapeHtml(text(r.ultimo_contacto_at).replace('T', ' ').slice(0, 16)) || '—',
           dropshipStatus(Boolean(r.dropship_enabled)),
           `${String(conteosContactos.get(text(r.id)) ?? 0)} contactos · ${String(conteosFuentesVerificadas.get(text(r.id)) ?? 0)} fuentes verificadas`,
           String(conteos.get(text(r.id)) ?? 0),
@@ -5453,8 +6447,8 @@ async function proveedorDetailView(): Promise<string> {
   const proveedorId = state.recordId;
   if (!proveedorId)
     return notFoundPanel('Selecciona un proveedor desde el directorio.', '#/proveedores');
-  const [proveedor, contactos, fuentes, canales, documentos] = await Promise.all([
-    getRow('proveedores', proveedorId),
+  const [proveedor, contactos, fuentes, canales, documentos, interacciones] = await Promise.all([
+    getProveedor(proveedorId),
     selectRows('proveedor_contactos', '*', 'tipo', 200).then(rows =>
       rows.filter(r => text(r.proveedor_id) === proveedorId)
     ),
@@ -5467,6 +6461,13 @@ async function proveedorDetailView(): Promise<string> {
     selectRows('proveedor_documentos', '*', 'created_at', 200).then(rows =>
       rows.filter(r => text(r.proveedor_id) === proveedorId)
     ),
+    supabase!
+      .from('proveedor_interacciones')
+      .select('id,fecha,tipo,resumen,proximo_paso,responsable')
+      .eq('proveedor_id', proveedorId)
+      .order('fecha', { ascending: false })
+      .limit(50)
+      .then(({ data }) => (data ?? []) as unknown as Row[]),
   ]);
   if (!proveedor) return notFoundPanel('Proveedor no encontrado.', '#/proveedores');
   return `
@@ -5485,13 +6486,13 @@ async function proveedorDetailView(): Promise<string> {
           ${field('pais', 'País', proveedorValue(proveedor, 'pais'))}
           ${field('ciudad', 'Ciudad', proveedorValue(proveedor, 'ciudad'))}
           ${field('direccion_comercial', 'Dirección comercial', proveedorValue(proveedor, 'direccion_comercial'))}
+          ${textarea('lineas_equipos', 'Líneas de equipo', proveedorValue(proveedor, 'lineas_equipos'))}
+          ${selectStatic('estado_invima', 'Estado INVIMA', proveedorValue(proveedor, 'estado_invima'), PROVEEDOR_INVIMA_OPTIONS)}
+          ${field('invima_titular', 'Titular INVIMA', proveedorValue(proveedor, 'invima_titular'))}
+          ${field('distribuidor_local', 'Distribuidor local', proveedorValue(proveedor, 'distribuidor_local'))}
           ${field('contacto_email', 'Email general', proveedorValue(proveedor, 'contacto_email'), false, 'email')}
           ${field('contacto_whatsapp', 'WhatsApp general', proveedorValue(proveedor, 'contacto_whatsapp'))}
-          ${selectStatic('canal', 'Canal legado', proveedorValue(proveedor, 'canal') || 'manual', [
-            ['email', 'Email'],
-            ['whatsapp', 'WhatsApp'],
-            ['manual', 'Manual'],
-          ])}
+          ${selectStatic('canal', 'Canal legado', proveedorValue(proveedor, 'canal') || 'manual', PROVEEDOR_CANALES)}
           ${selectStatic('lifecycle_status', 'Estado de validación', proveedorValue(proveedor, 'lifecycle_status'), PROVEEDOR_LIFECYCLES)}
           ${checkbox('dropship_enabled', 'Dropshipping habilitado', Boolean(proveedor.dropship_enabled))}
           ${field('cobertura_envios', 'Cobertura de envíos (separada por comas)', commaList(proveedor.cobertura_envios))}
@@ -5555,6 +6556,36 @@ async function proveedorDetailView(): Promise<string> {
         <input type="hidden" name="id" value="" />
         <div class="admin-editor__cols">${selectStatic('tipo', 'Rol', 'comercial', PROVEEDOR_CONTACTO_TIPOS)}${field('nombre', 'Nombre')}${field('cargo', 'Cargo')}${field('email', 'Email', '', false, 'email')}${field('telefono', 'Teléfono')}${field('whatsapp', 'WhatsApp')}${selectStatic('verification_status', 'Verificación', 'pendiente', VERIFICATION_STATUSES)}${checkbox('es_principal', 'Contacto principal de este rol', false)}${textarea('source_note', 'Nota de origen')}</div>
         <button class="admin-button" type="submit">Guardar contacto</button>
+      </form>
+    </section>
+    <section class="admin-panel admin-form">
+      <div class="admin-panel__head"><h2>Seguimiento comercial</h2><span class="admin-meta">Reuniones, pendientes y próximos pasos. No reemplaza las notas del directorio.</span></div>
+      ${table(
+        ['Fecha', 'Tipo', 'Resumen', 'Próximo paso', 'Responsable'],
+        interacciones.map(item => [
+          escapeHtml(text(item.fecha).replace('T', ' ').slice(0, 16)),
+          escapeHtml(text(item.tipo)),
+          escapeHtml(text(item.resumen)),
+          escapeHtml(text(item.proximo_paso)),
+          escapeHtml(text(item.responsable)),
+        ])
+      )}
+      <form data-proveedor-interaccion-form data-proveedor-id="${escapeHtml(proveedorId)}" style="padding:16px">
+        <div class="admin-editor__cols">
+          ${selectStatic('tipo', 'Tipo', 'nota', [
+            ['nota', 'Nota'],
+            ['reunion', 'Reunión'],
+            ['llamada', 'Llamada'],
+            ['email', 'Email'],
+            ['whatsapp', 'WhatsApp'],
+            ['seguimiento', 'Seguimiento'],
+          ])}
+          ${field('fecha', 'Fecha', '', false, 'datetime-local')}
+          ${field('responsable', 'Responsable')}
+          ${textarea('resumen', 'Resumen')}
+          ${textarea('proximo_paso', 'Próximo paso')}
+        </div>
+        <button class="admin-button" type="submit">Guardar seguimiento</button>
       </form>
     </section>
     <section class="admin-panel admin-form">
@@ -5946,9 +6977,19 @@ async function ingestaView(): Promise<string> {
   ]);
   ingestFamilias = familias;
   ingestTipos = tipos;
+  ingestProductoObjetivo = hashParams().get('producto');
+  const objetivo = ingestProductoObjetivo
+    ? await getRow('productos', ingestProductoObjetivo)
+    : null;
+  if (ingestProductoObjetivo && !objetivo) ingestProductoObjetivo = null;
   return `
     <section class="admin-panel">
       <div class="admin-panel__head"><h2>PDF a borrador revisable</h2></div>
+      ${
+        objetivo
+          ? `<div class="admin-alert">Ficha nueva para <strong>${escapeHtml(text(objetivo.nombre_es))}</strong>. El borrador se comparará con el producto actual y podrás aplicar solo lo que cambie. <a href="#/ingesta">Ingestar otro producto</a></div>`
+          : ''
+      }
       <form class="admin-form" data-ingest-form style="padding:16px">
         <div class="admin-upload-box">
           <div>
@@ -6513,6 +7554,13 @@ function bindTaxonomy() {
       ) {
         toast('Dropshipping solo se habilita para proveedores aprobados.');
         return;
+      }
+      if (tableName === 'proveedores') {
+        const contactoError = normalizarContactoProveedor(payload);
+        if (contactoError) {
+          toast(contactoError);
+          return;
+        }
       }
       const { error } = await supabase!.from(tableName).insert(payload);
       if (error) {
@@ -7201,12 +8249,41 @@ function formCheckbox(form: HTMLFormElement, name: string): boolean {
   return element instanceof HTMLInputElement && element.checked;
 }
 
+/** Valida email, URL y WhatsApp, y deja el teléfono en E.164 y el país normalizado. */
+function normalizarContactoProveedor(payload: Row): string | null {
+  const email = text(payload['contacto_email']);
+  if (email && !isValidEmail(email)) return `Email no válido: ${email}`;
+  if (email) payload['contacto_email'] = email.toLowerCase();
+  const site = text(payload['sitio_web']);
+  if (site && !isValidHttpUrl(site)) return `Sitio web no válido: ${site}`;
+  const whatsapp = normalizeWhatsapp(payload['contacto_whatsapp']);
+  if (!whatsapp.ok) return `WhatsApp debe estar en formato +573001112233 (${whatsapp.raw})`;
+  payload['contacto_whatsapp'] = whatsapp.value;
+  if (payload['pais']) payload['pais'] = normalizePais(payload['pais']);
+  return null;
+}
+
+function clipText(value: string, max = 90): string {
+  const clean = value.replace(/\s+/g, ' ').trim();
+  if (clean.length <= max) return clean;
+  return `${clean.slice(0, max - 1)}…`;
+}
+
 function contactPayload(form: HTMLFormElement): Row | null {
   const data = new FormData(form);
-  const email = emptyToNull(data.get('email'));
+  const emailRaw = text(data.get('email'));
+  if (emailRaw && !isValidEmail(emailRaw)) {
+    toast(`Email no válido: ${emailRaw}`);
+    return null;
+  }
+  const email = emailRaw ? emailRaw.toLowerCase() : null;
   const telefono = emptyToNull(data.get('telefono'));
-  const whatsapp = emptyToNull(data.get('whatsapp'));
-  if (!email && !telefono && !whatsapp) {
+  const whatsapp = normalizeWhatsapp(data.get('whatsapp'));
+  if (!whatsapp.ok) {
+    toast(`WhatsApp debe estar en formato +573001112233 (${whatsapp.raw})`);
+    return null;
+  }
+  if (!email && !telefono && !whatsapp.value) {
     toast('Indica email, teléfono o WhatsApp para el contacto.');
     return null;
   }
@@ -7217,7 +8294,7 @@ function contactPayload(form: HTMLFormElement): Row | null {
     cargo: emptyToNull(data.get('cargo')),
     email,
     telefono,
-    whatsapp,
+    whatsapp: whatsapp.value,
     es_principal: formCheckbox(form, 'es_principal'),
     verification_status: text(data.get('verification_status')) || 'pendiente',
     source_note: emptyToNull(data.get('source_note')),
@@ -7256,6 +8333,10 @@ function bindProveedorDetail() {
       pais: emptyToNull(data.get('pais')),
       ciudad: emptyToNull(data.get('ciudad')),
       direccion_comercial: emptyToNull(data.get('direccion_comercial')),
+      lineas_equipos: emptyToNull(data.get('lineas_equipos')),
+      estado_invima: emptyToNull(data.get('estado_invima')),
+      invima_titular: emptyToNull(data.get('invima_titular')),
+      distribuidor_local: emptyToNull(data.get('distribuidor_local')),
       contacto_email: emptyToNull(data.get('contacto_email')),
       contacto_whatsapp: emptyToNull(data.get('contacto_whatsapp')),
       canal: text(data.get('canal')),
@@ -7275,6 +8356,11 @@ function bindProveedorDetail() {
       notas: emptyToNull(data.get('notas')),
       activo: formCheckbox(master, 'activo'),
     };
+    const contactoError = normalizarContactoProveedor(payload);
+    if (contactoError) {
+      toast(contactoError);
+      return;
+    }
     const { error } = await supabase!
       .from('proveedores')
       .update(payload)
@@ -7317,6 +8403,36 @@ function bindProveedorDetail() {
   };
 
   bindChild('[data-proveedor-contact-form]', 'proveedor_contactos', contactPayload);
+  const interaccionForm = app.querySelector<HTMLFormElement>('[data-proveedor-interaccion-form]');
+  interaccionForm?.addEventListener('submit', async event => {
+    event.preventDefault();
+    const data = new FormData(interaccionForm);
+    const resumen = emptyToNull(data.get('resumen'));
+    if (!resumen) {
+      toast('Escribe el resumen del seguimiento.');
+      return;
+    }
+    const fecha = emptyToNull(data.get('fecha'));
+    const { error } = await supabase!.from('proveedor_interacciones').insert({
+      proveedor_id: text(interaccionForm.dataset['proveedorId']),
+      tipo: text(data.get('tipo')) || 'nota',
+      fecha: fecha ? new Date(fecha).toISOString() : new Date().toISOString(),
+      resumen,
+      proximo_paso: emptyToNull(data.get('proximo_paso')),
+      responsable: emptyToNull(data.get('responsable')),
+    });
+    if (error) {
+      toast(error.message);
+      return;
+    }
+    const { error: touchError } = await supabase!
+      .from('proveedores')
+      .update({ ultimo_contacto_at: new Date().toISOString() })
+      .eq('id', text(interaccionForm.dataset['proveedorId']));
+    if (touchError) toast(touchError.message);
+    else toast('Seguimiento guardado');
+    await render();
+  });
   bindChild('[data-proveedor-source-form]', 'proveedor_fuentes', form => {
     const data = new FormData(form);
     const url = emptyToNull(data.get('url'));
@@ -7612,12 +8728,14 @@ function bindEntityExcelTools() {
       }
       try {
         if (statusEl) statusEl.textContent = 'Leyendo Excel...';
-        const result = await importEntityExcel(entity, file);
-        if (statusEl) {
-          statusEl.innerHTML = `<strong>Importación completada.</strong> ${result.processed} filas procesadas, ${result.skipped} omitidas.`;
-        }
-        toast(`Importación ${entity}: ${result.processed} filas`);
-        await render();
+        const clearEmpty =
+          form.querySelector<HTMLInputElement>('[data-clear-empty]')?.checked === true;
+        const result = await importEntityExcel(entity, file, { clearEmpty });
+        if (statusEl) statusEl.innerHTML = formatEntityImportStatus(result);
+        toast(
+          `Importación ${entity}: ${result.processed} filas, ${result.rejected.length} rechazadas`
+        );
+        if (!result.rejected.length) await render();
       } catch (error) {
         const message = formatImportError(error);
         if (statusEl) {
@@ -7627,36 +8745,283 @@ function bindEntityExcelTools() {
       }
     });
   });
+  bindProveedorMerge();
+  bindProveedorCsvImport();
 }
 
-function leerLineasOfertaDesdeDom(): Array<{
-  slug: string;
-  nombre: string;
-  cantidad: number;
-  precio_unitario: number;
-  subtotal: number;
-  moneda: string;
-}> {
+function bindProveedorMerge(): void {
+  app.querySelectorAll<HTMLButtonElement>('[data-merge-keeper]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const keeper = button.dataset['mergeKeeper'] ?? '';
+      const losers = (button.dataset['mergeLosers'] ?? '').split(',').filter(Boolean);
+      const label = button.dataset['mergeLabel'] ?? 'el registro elegido';
+      if (!keeper || !losers.length) return;
+      if (
+        !confirm(
+          `Se conservará "${label}" y se fusionarán ${losers.length} duplicado(s). Los productos y contactos pasan al registro conservado.`
+        )
+      ) {
+        return;
+      }
+      button.disabled = true;
+      for (const duplicateId of losers) {
+        const { error } = await supabase!.rpc('merge_proveedores', {
+          keeper_id: keeper,
+          duplicate_id: duplicateId,
+        });
+        if (error) {
+          toast(error.message);
+          button.disabled = false;
+          return;
+        }
+      }
+      toast('Proveedores fusionados');
+      await render();
+    });
+  });
+}
+
+let csvImportRows: Record<string, string>[] = [];
+let csvImportMapping: Record<string, string> = {};
+
+function bindProveedorCsvImport(): void {
+  const form = app.querySelector<HTMLFormElement>('[data-proveedor-csv-form]');
+  const fileInput = form?.querySelector<HTMLInputElement>('[data-proveedor-csv-file]');
+  const statusEl = form?.querySelector<HTMLElement>('[data-proveedor-csv-status]');
+  const preview = form?.querySelector<HTMLElement>('[data-proveedor-csv-preview]');
+  fileInput?.addEventListener('change', async () => {
+    const file = fileInput.files?.[0];
+    if (!file || !preview) return;
+    const textContent = await file.text();
+    csvImportRows = parseCsv(textContent);
+    const headers = Object.keys(csvImportRows[0] ?? {});
+    csvImportMapping = defaultCsvMapping(headers);
+    if (statusEl)
+      statusEl.textContent = `${file.name}: ${csvImportRows.length} filas. Revisa el mapeo y la vista previa.`;
+    await renderProveedorCsvPreview(preview);
+  });
+  preview?.addEventListener('change', event => {
+    const target = event.target;
+    if (!(target instanceof HTMLSelectElement) || !target.dataset['csvColumn']) return;
+    csvImportMapping[target.dataset['csvColumn']] = target.value;
+    void renderProveedorCsvPreview(preview);
+  });
+  form?.addEventListener('submit', async event => {
+    event.preventDefault();
+    if (!csvImportRows.length) {
+      toast('Selecciona un CSV.');
+      return;
+    }
+    try {
+      if (statusEl) statusEl.textContent = 'Importando CSV...';
+      const result = await submitProveedorCsv(form);
+      if (statusEl) statusEl.innerHTML = formatEntityImportStatus(result);
+      toast(`CSV: ${result.processed} filas, ${result.rejected.length} rechazadas`);
+      if (!result.rejected.length) await render();
+    } catch (error) {
+      const message = formatImportError(error);
+      if (statusEl) {
+        statusEl.innerHTML = `<span class="admin-import-error">Error al importar:</span> ${escapeHtml(message)}`;
+      }
+      toast(message);
+    }
+  });
+}
+
+async function renderProveedorCsvPreview(preview: HTMLElement): Promise<void> {
+  const headers = Object.keys(csvImportRows[0] ?? {});
+  const directory = await loadProveedorDirectory();
+  const mappingRow = headers
+    .map(header => {
+      const options = ['', ...CSV_MAPPABLE_FIELDS]
+        .map(field => {
+          const selected = csvImportMapping[header] === field ? 'selected' : '';
+          return `<option value="${escapeHtml(field)}" ${selected}>${escapeHtml(field || 'Ignorar')}</option>`;
+        })
+        .join('');
+      return `<label class="admin-field">${escapeHtml(header)}<select data-csv-column="${escapeHtml(header)}">${options}</select></label>`;
+    })
+    .join('');
+  const body = csvImportRows
+    .slice(0, 30)
+    .map((row, index) => {
+      const mapped = applyCsvMapping(row, csvImportMapping);
+      const match = matchExistingProveedor(
+        {
+          nombre: text(mapped.proveedor.nombre),
+          sitio_web: text(mapped.proveedor.sitio_web),
+          contacto_email: text(mapped.proveedor.contacto_email),
+          slug: text(mapped.proveedor.slug),
+        },
+        directory
+      );
+      const prepared = prepareProveedorImportRow(
+        { ...mapped.proveedor, slug: match?.slug ?? mapped.proveedor.slug },
+        index + 2
+      );
+      const extras = mapped.contactosSugeridos
+        .map(
+          (contact, contactIndex) =>
+            `<label><input type="checkbox" data-csv-extra="${index}:${contactIndex}" /> ${escapeHtml(
+              [contact.nombre, contact.email, contact.whatsapp].filter(Boolean).join(' · ') ||
+                'Contacto sugerido'
+            )}</label>`
+        )
+        .join('<br />');
+      return `<tr>
+        <td>${escapeHtml(text(mapped.proveedor.nombre))}</td>
+        <td>${escapeHtml(match ? `Actualizar ${match.slug}` : `Crear ${text(mapped.proveedor.slug)}`)}</td>
+        <td>${prepared.ok ? 'Lista' : escapeHtml(prepared.errors.map(error => error.message).join(' '))}</td>
+        <td>${
+          mapped.contactoPrincipal
+            ? `<label><input type="checkbox" data-csv-principal="${index}" checked /> ${escapeHtml(mapped.contactoPrincipal.nombre ?? 'Contacto')}</label>`
+            : '—'
+        }</td>
+        <td>${extras || '—'}${
+          mapped.invimaTitularSugerido
+            ? `<br /><label><input type="checkbox" data-csv-titular="${index}" /> Titular: ${escapeHtml(mapped.invimaTitularSugerido)}</label>`
+            : ''
+        }${
+          mapped.distribuidorLocalSugerido
+            ? `<br /><label><input type="checkbox" data-csv-distribuidor="${index}" /> Distribuidor: ${escapeHtml(mapped.distribuidorLocalSugerido)}</label>`
+            : ''
+        }${
+          mapped.interaccion
+            ? `<br /><label><input type="checkbox" data-csv-note="${index}" checked /> Guardar nota como seguimiento</label>`
+            : ''
+        }</td>
+      </tr>`;
+    })
+    .join('');
+  preview.hidden = false;
+  preview.innerHTML = `<div class="admin-editor__cols" style="padding:16px">${mappingRow}</div>
+    <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Marca</th><th>Acción</th><th>Validación</th><th>Contacto principal</th><th>Confirmar antes de guardar</th></tr></thead><tbody>${body}</tbody></table></div>
+    ${
+      csvImportRows.length > 30
+        ? `<p class="admin-help">Vista previa de 30 de ${csvImportRows.length} filas. La importación incluye todas.</p>`
+        : ''
+    }`;
+}
+
+async function loadProveedorDirectory(): Promise<
+  Array<{ id: string; slug: string; nombre: string; sitio_web: string; contacto_email: string }>
+> {
+  const { data, error } = await supabase!
+    .from('proveedores')
+    .select('id,slug,nombre,sitio_web,contacto_email')
+    .limit(1000);
+  if (error || !data) return [];
+  return (data as unknown as Row[]).map(row => ({
+    id: text(row.id),
+    slug: text(row.slug),
+    nombre: text(row.nombre),
+    sitio_web: text(row.sitio_web),
+    contacto_email: text(row.contacto_email),
+  }));
+}
+
+async function submitProveedorCsv(form: HTMLFormElement): Promise<EntityImportResult> {
+  const directory = await loadProveedorDirectory();
+  const rows: Row[] = [];
+  const contactRows: Row[] = [];
+  const interactionRows: Row[] = [];
+  const rejected: ImportFieldError[] = [];
+  csvImportRows.forEach((row, index) => {
+    const mapped = applyCsvMapping(row, csvImportMapping);
+    const match = matchExistingProveedor(
+      {
+        nombre: text(mapped.proveedor.nombre),
+        sitio_web: text(mapped.proveedor.sitio_web),
+        contacto_email: text(mapped.proveedor.contacto_email),
+        slug: text(mapped.proveedor.slug),
+      },
+      directory
+    );
+    const payload: Row = { ...mapped.proveedor, slug: match?.slug ?? mapped.proveedor.slug };
+    if (form.querySelector<HTMLInputElement>(`[data-csv-titular="${index}"]`)?.checked) {
+      payload.invima_titular = mapped.invimaTitularSugerido;
+    }
+    if (form.querySelector<HTMLInputElement>(`[data-csv-distribuidor="${index}"]`)?.checked) {
+      payload.distribuidor_local = mapped.distribuidorLocalSugerido;
+    }
+    const prepared = prepareProveedorImportRow(payload, index + 2);
+    if (!prepared.ok) {
+      rejected.push(...prepared.errors);
+      return;
+    }
+    rows.push(prepared.payload);
+    const slug = text(prepared.payload.slug);
+    if (
+      form.querySelector<HTMLInputElement>(`[data-csv-principal="${index}"]`)?.checked &&
+      mapped.contactoPrincipal
+    ) {
+      contactRows.push(contactSuggestionRow(slug, mapped.contactoPrincipal));
+    }
+    mapped.contactosSugeridos.forEach((contact, contactIndex) => {
+      if (
+        form.querySelector<HTMLInputElement>(`[data-csv-extra="${index}:${contactIndex}"]`)?.checked
+      ) {
+        contactRows.push(contactSuggestionRow(slug, contact));
+      }
+    });
+    if (
+      form.querySelector<HTMLInputElement>(`[data-csv-note="${index}"]`)?.checked &&
+      mapped.interaccion
+    ) {
+      interactionRows.push({
+        slug_proveedor: slug,
+        tipo: mapped.interaccion.tipo,
+        resumen: mapped.interaccion.resumen,
+      });
+    }
+  });
+  if (!rows.length) {
+    return { ...emptyImportResult(0, csvImportRows.length), rejected };
+  }
+  const result = await invokeAdminImport('proveedores', rows, { contactRows, interactionRows });
+  return { ...result, rejected: [...rejected, ...result.rejected] };
+}
+
+function contactSuggestionRow(slug: string, contact: ContactSuggestion): Row {
+  return {
+    slug_proveedor: slug,
+    nombre: contact.nombre,
+    cargo: contact.cargo,
+    tipo: contact.tipo,
+    email: contact.email,
+    telefono: contact.telefono,
+    whatsapp: contact.whatsapp,
+    es_principal: contact.es_principal,
+    source_note: contact.source_note,
+  };
+}
+
+function leerLineasOfertaDesdeDom(): CotizacionLineaOferta[] {
   return Array.from(app.querySelectorAll<HTMLElement>('[data-cotizacion-linea]')).map(row => {
-    const slug = row.querySelector<HTMLInputElement>('[data-linea-slug]')?.value ?? '';
-    const nombre = row.querySelector<HTMLInputElement>('[data-linea-nombre]')?.value ?? slug;
+    const slug = row.querySelector<HTMLInputElement>('[data-linea-slug]')?.value.trim() ?? '';
+    const nombre = row.querySelector<HTMLInputElement>('[data-linea-nombre]')?.value.trim() || slug;
     const moneda = row.querySelector<HTMLInputElement>('[data-linea-moneda]')?.value || 'COP';
     const cantidad = Math.max(
       1,
       Math.floor(Number(row.querySelector<HTMLInputElement>('[data-linea-cantidad]')?.value ?? 1))
     );
-    const precio = Math.max(
-      0,
-      Number(row.querySelector<HTMLInputElement>('[data-linea-precio]')?.value ?? 0)
-    );
-    return {
+    const pendiente =
+      row.querySelector<HTMLSelectElement>('[data-linea-precio-modo]')?.value === 'pendiente';
+    const precio = pendiente
+      ? 0
+      : Math.max(0, Number(row.querySelector<HTMLInputElement>('[data-linea-precio]')?.value ?? 0));
+    const linea: CotizacionLineaOferta = {
       slug,
       nombre,
       cantidad,
       precio_unitario: precio,
-      subtotal: Math.round(precio * cantidad * 100) / 100,
+      subtotal: pendiente ? 0 : Math.round(precio * cantidad * 100) / 100,
       moneda,
     };
+    if (pendiente) linea.precio_pendiente_validar = true;
+    const notas = row.querySelector<HTMLTextAreaElement>('[data-linea-notas]')?.value.trim() ?? '';
+    if (notas) linea.notas = notas;
+    return linea;
   });
 }
 
@@ -7664,18 +9029,40 @@ function syncCotizacionTotalesDom() {
   const monedaSelect = app.querySelector<HTMLSelectElement>('[data-cotizacion-moneda]');
   const monedaCabecera = normalizarMonedaCotizacion(monedaSelect?.value);
   const lineas = leerLineasOfertaDesdeDom().map(l => ({ ...l, moneda: monedaCabecera }));
-  let total = 0;
   app.querySelectorAll<HTMLElement>('[data-cotizacion-linea]').forEach((row, index) => {
     const linea = lineas[index];
     if (!linea) return;
+    const pendiente = Boolean(linea.precio_pendiente_validar);
     const monedaInput = row.querySelector<HTMLInputElement>('[data-linea-moneda]');
     if (monedaInput) monedaInput.value = monedaCabecera;
-    total += linea.subtotal;
+    const modo = row.querySelector<HTMLSelectElement>('[data-linea-precio-modo]');
+    const precioInput = row.querySelector<HTMLInputElement>('[data-linea-precio]');
+    if (precioInput) precioInput.disabled = Boolean(modo?.disabled) || pendiente;
     const cell = row.querySelector<HTMLElement>('[data-linea-subtotal]');
-    if (cell) cell.textContent = crmMoney(linea.subtotal, monedaCabecera);
+    if (cell)
+      cell.textContent = pendiente ? 'Pendiente validar' : crmMoney(linea.subtotal, monedaCabecera);
+    const aviso = row.querySelector<HTMLElement>('[data-linea-aviso]');
+    if (aviso) {
+      aviso.innerHTML = pendiente
+        ? '<span class="admin-badge admin-badge--warn">Pendiente validar</span>'
+        : linea.precio_unitario > 0
+          ? ''
+          : '<span class="admin-badge admin-badge--warn">Sin precio</span>';
+    }
   });
   const totalEl = app.querySelector<HTMLElement>('[data-cotizacion-total-ofertado]');
-  if (totalEl) totalEl.textContent = crmMoney(total, monedaCabecera);
+  if (totalEl) totalEl.textContent = crmMoney(calcularTotalOfertado(lineas), monedaCabecera);
+  const hint = app.querySelector<HTMLElement>('[data-cotizacion-hint]');
+  if (hint) {
+    const condiciones =
+      app.querySelector<HTMLTextAreaElement>('[data-cotizacion-oferta-form] [name="condiciones"]')
+        ?.value ?? '';
+    const check = ofertaCompleta(
+      lineas.filter(l => l.slug || l.nombre),
+      condiciones
+    );
+    hint.textContent = check.ok ? '' : (COTIZACION_AVISOS[check.error] ?? '');
+  }
 }
 
 type CotizacionAdjunto = { path: string; nombre: string; tipo: string; size: number };
@@ -7747,6 +9134,117 @@ async function guardarAdjuntosCotizacion(id: string): Promise<CotizacionAdjunto[
   return resultado;
 }
 
+let cotizacionDirty = false;
+window.addEventListener('beforeunload', event => {
+  if (!cotizacionDirty) return;
+  event.preventDefault();
+  event.returnValue = '';
+});
+
+function cotizacionEscanearView(): string {
+  return `
+    <section class="admin-panel" data-cotizacion-scan>
+      <div class="admin-panel__head">
+        <div>
+          <h2>Escanear presupuesto de la competencia</h2>
+          <p class="admin-help">Toma una foto, elige una de la galería o importa un PDF. El OCR rellena cliente, productos, unidades y precios en un borrador nuevo que puedes revisar y mejorar.</p>
+        </div>
+        <a class="admin-button admin-button--ghost" href="#/cotizaciones">Bandeja</a>
+      </div>
+      <div class="admin-toolbar">
+        <button class="admin-button" type="button" data-cotizacion-ocr="camera">Tomar foto</button>
+        <button class="admin-button admin-button--ghost" type="button" data-cotizacion-ocr="gallery">Elegir de galería</button>
+        <button class="admin-button admin-button--ghost" type="button" data-cotizacion-ocr="pdf">Importar PDF</button>
+      </div>
+      <div hidden data-cotizacion-scan-preview style="margin-top:12px">
+        <img alt="Vista previa del presupuesto de la competencia" data-cotizacion-scan-img style="max-width:320px;border-radius:8px" />
+      </div>
+      <p class="admin-help" data-cotizacion-ocr-status role="status"></p>
+      <p class="admin-help">También puedes crear un presupuesto vacío y escanear después desde su ficha.</p>
+    </section>`;
+}
+
+type GuardarOfertaArgs = {
+  id: string;
+  datos: FormData;
+  lineas: CotizacionLineaOferta[];
+  condiciones: string;
+  validez: string | null;
+  moneda: 'COP' | 'USD';
+};
+
+/** Persiste la oferta (datos de contacto, líneas, fiscal, adjuntos) y asigna IME-Q-… si falta. */
+async function guardarOfertaAdmin(args: GuardarOfertaArgs): Promise<boolean> {
+  const adjuntos = await guardarAdjuntosCotizacion(args.id);
+  if (!adjuntos) return false;
+  const { error } = await supabase!
+    .from('solicitudes_cotizacion')
+    .update({
+      nombre: emptyToNull(args.datos.get('nombre')),
+      empresa: emptyToNull(args.datos.get('empresa')),
+      email: emptyToNull(args.datos.get('email')),
+      telefono: emptyToNull(args.datos.get('telefono')),
+      mensaje: emptyToNull(args.datos.get('mensaje')),
+      nit: emptyToNull(args.datos.get('nit')),
+      responsable_iva: args.datos.get('responsable_iva') === 'on',
+      impuestos_incluidos: args.datos.get('impuestos_incluidos') === 'on',
+      direccion_envio: emptyToNull(args.datos.get('direccion_envio')),
+      direccion_facturacion: emptyToNull(args.datos.get('direccion_facturacion')),
+      adjuntos,
+      productos: args.lineas,
+      condiciones: args.condiciones || null,
+      validez_hasta: args.validez,
+      precio_total_ofertado: calcularTotalOfertado(args.lineas),
+      moneda: args.moneda,
+      mercado: args.moneda === 'USD' ? 'INTL' : 'CO',
+      leida: true,
+    })
+    .eq('id', args.id);
+  if (error) {
+    toast(`No se pudo guardar la oferta: ${error.message}`);
+    return false;
+  }
+  const { error: numeroError } = await supabase!.rpc('ensure_cotizacion_numero', {
+    p_id: args.id,
+  });
+  if (numeroError) console.warn('ensure_cotizacion_numero', numeroError.message);
+  cotizacionDirty = false;
+  return true;
+}
+
+const COTIZACION_ERROR_API: Record<string, string> = {
+  QUOTE_LOCKED: 'No se puede borrar un presupuesto convertido a pedido.',
+  FORBIDDEN: 'No tienes permiso para esta acción.',
+  PRECIO_PENDIENTE: 'Hay líneas en Pendiente validar. Asigna precio antes de validar al CRM.',
+  CRM_SYNC_FAILED: 'No se pudo sincronizar con el CRM.',
+  COTIZACION_INMUTABLE: 'Esta cotización ya no se edita. Crea una revisión.',
+  OCR_FAILED: 'OCR falló. Revisa la conexión o vuelve a intentar.',
+  OCR_EMPTY: 'No se detectaron datos. Prueba otra foto o un PDF más claro.',
+  IMAGE_TOO_LARGE: 'Archivo demasiado grande. Comprime o recorta y reintenta.',
+  STORAGE_FAILED: 'No se pudo guardar la foto del presupuesto.',
+  RATE_LIMIT: 'Demasiados OCR. Espera un momento y reintenta.',
+};
+
+function cotizacionErrorCopy(code: string | undefined, fallback?: string | null): string {
+  if (code && COTIZACION_ERROR_API[code]) return COTIZACION_ERROR_API[code]!;
+  return fallback || 'No se pudo completar la operación.';
+}
+
+async function borrarCotizacionAdmin(id: string, label: string): Promise<boolean> {
+  if (
+    !confirm(`¿Borrar ${label}? Esta acción no se puede deshacer (PDF incluido). Solo admin/owner.`)
+  ) {
+    return false;
+  }
+  const { error, code } = await deleteQuoteApi(id);
+  if (error) {
+    toast(cotizacionErrorCopy(code, error));
+    return false;
+  }
+  toast('Presupuesto borrado.');
+  return true;
+}
+
 function bindCotizaciones() {
   app
     .querySelector<HTMLButtonElement>('[data-cotizacion-nuevo]')
@@ -7769,7 +9267,7 @@ function bindCotizaciones() {
         empresa: null,
         mensaje: 'Presupuesto creado desde admin.',
         productos: [],
-        condiciones: '',
+        condiciones: defaultCondicionesOferta('es'),
         moneda: 'COP',
         mercado: 'CO',
         estado: 'nueva',
@@ -7868,10 +9366,30 @@ function bindCotizaciones() {
 
   const bindLineaOferta = (row: HTMLElement) => {
     row
-      .querySelectorAll<HTMLInputElement>('[data-linea-cantidad], [data-linea-precio]')
+      .querySelectorAll<HTMLElement>(
+        '[data-linea-cantidad], [data-linea-precio], [data-linea-precio-modo]'
+      )
       .forEach(input => input.addEventListener('input', syncCotizacionTotalesDom));
+    row
+      .querySelector<HTMLButtonElement>('[data-linea-specs-catalogo]')
+      ?.addEventListener('click', async () => {
+        const slug = row.querySelector<HTMLInputElement>('[data-linea-slug]')?.value ?? '';
+        const destino = row.querySelector<HTMLTextAreaElement>('[data-linea-notas]');
+        if (!slug.trim()) {
+          toast('Escribe el SKU o slug del producto para traer sus especificaciones.');
+          return;
+        }
+        const resumen = supabase ? await fetchResumenCatalogo(supabase, slug) : '';
+        if (!resumen) {
+          toast('No hay especificaciones en el catálogo para esa referencia.');
+          return;
+        }
+        if (destino) destino.value = resumen;
+        cotizacionDirty = true;
+      });
     row.querySelector<HTMLButtonElement>('[data-linea-eliminar]')?.addEventListener('click', () => {
       row.remove();
+      cotizacionDirty = true;
       syncCotizacionTotalesDom();
     });
   };
@@ -7889,6 +9407,7 @@ function bindCotizaciones() {
       if (!(lineaNueva instanceof HTMLElement)) return;
       bindLineaOferta(lineaNueva);
       lineaNueva.querySelector<HTMLInputElement>('[data-linea-nombre]')?.focus();
+      cotizacionDirty = true;
       syncCotizacionTotalesDom();
     });
   app
@@ -7910,6 +9429,7 @@ function bindCotizaciones() {
     body.insertAdjacentHTML('beforeend', cotizacionLineaFromOfertaHtml(line, moneda));
     const lineaNueva = body.lastElementChild;
     if (lineaNueva instanceof HTMLElement) bindLineaOferta(lineaNueva);
+    cotizacionDirty = true;
     syncCotizacionTotalesDom();
   };
 
@@ -7944,6 +9464,17 @@ function bindCotizaciones() {
   }
 
   const ofertaForm = app.querySelector<HTMLFormElement>('[data-cotizacion-oferta-form]');
+  cotizacionDirty = false;
+  // Buscar en el catálogo o elegir un archivo no son cambios de la oferta.
+  const esCambioDeOferta = (event: Event) =>
+    !(event.target instanceof Element && event.target.closest('[data-cotizacion-catalog-tools]'));
+  ofertaForm?.addEventListener('input', event => {
+    if (esCambioDeOferta(event)) cotizacionDirty = true;
+    syncCotizacionTotalesDom();
+  });
+  ofertaForm?.addEventListener('change', event => {
+    if (esCambioDeOferta(event)) cotizacionDirty = true;
+  });
   ofertaForm?.addEventListener('submit', async event => {
     event.preventDefault();
     const data = new FormData(ofertaForm);
@@ -7951,55 +9482,27 @@ function bindCotizaciones() {
     if (!id) return;
     const moneda = normalizarMonedaCotizacion(data.get('moneda'));
     aplicarMonedaOfertaDom(moneda);
-    const lineas = leerLineasOfertaDesdeDom()
-      .filter(l => l.slug || l.nombre)
-      .map(l => ({ ...l, moneda }));
-    if (lineas.length === 0) {
-      toast('No hay lineas de producto.');
-      return;
-    }
-    if (lineas.some(l => !(l.precio_unitario > 0))) {
-      toast('Todas las lineas necesitan precio unitario > 0.');
-      return;
-    }
+    const lineas = sanitizarLineasComercial(
+      leerLineasOfertaDesdeDom().filter(l => l.slug || l.nombre),
+      moneda
+    );
     const condiciones = String(data.get('condiciones') ?? '').trim();
-    if (!condiciones) {
-      toast('Completa las condiciones de la cotizacion.');
-      return;
-    }
     const validez = String(data.get('validez_hasta') ?? '').trim() || null;
-    const total = lineas.reduce((acc, l) => acc + l.subtotal, 0);
-    const mercado = moneda === 'USD' ? 'INTL' : 'CO';
-    const adjuntos = await guardarAdjuntosCotizacion(id);
-    if (!adjuntos) return;
-    const { error } = await supabase!
-      .from('solicitudes_cotizacion')
-      .update({
-        nombre: emptyToNull(data.get('nombre')),
-        empresa: emptyToNull(data.get('empresa')),
-        email: emptyToNull(data.get('email')),
-        telefono: emptyToNull(data.get('telefono')),
-        mensaje: emptyToNull(data.get('mensaje')),
-        nit: emptyToNull(data.get('nit')),
-        responsable_iva: data.get('responsable_iva') === 'on',
-        impuestos_incluidos: data.get('impuestos_incluidos') === 'on',
-        direccion_envio: emptyToNull(data.get('direccion_envio')),
-        direccion_facturacion: emptyToNull(data.get('direccion_facturacion')),
-        adjuntos,
-        productos: lineas,
-        condiciones,
-        validez_hasta: validez,
-        precio_total_ofertado: total,
-        moneda,
-        mercado,
-        leida: true,
-      })
-      .eq('id', id);
-    if (error) {
-      toast(error.message);
-      return;
-    }
-    toast(`Oferta guardada en ${moneda}.`);
+    const guardada = await guardarOfertaAdmin({
+      id,
+      datos: data,
+      lineas,
+      condiciones,
+      validez,
+      moneda,
+    });
+    if (!guardada) return;
+    const check = ofertaCompleta(lineas, condiciones);
+    toast(
+      check.ok
+        ? `Oferta guardada en ${moneda}.`
+        : `Guardada como borrador: ${COTIZACION_AVISOS[check.error] ?? check.error}`
+    );
     await render();
   });
 
@@ -8077,18 +9580,6 @@ function bindCotizaciones() {
     const condicionesDom =
       app.querySelector<HTMLTextAreaElement>('[data-cotizacion-oferta-form] [name="condiciones"]')
         ?.value ?? '';
-    if (lineasDom.length === 0) {
-      toast(COTIZACION_ERROR_MENSAJES['OFERTA_SIN_LINEAS']!);
-      return { ok: false };
-    }
-    if (lineasDom.some(l => !(l.precio_unitario > 0))) {
-      toast(COTIZACION_ERROR_MENSAJES['OFERTA_SIN_PRECIO']!);
-      return { ok: false };
-    }
-    if (!condicionesDom.trim()) {
-      toast(COTIZACION_ERROR_MENSAJES['OFERTA_SIN_CONDICIONES']!);
-      return { ok: false };
-    }
     const validezDom =
       app.querySelector<HTMLInputElement>('[data-cotizacion-oferta-form] [name="validez_hasta"]')
         ?.value ?? '';
@@ -8096,7 +9587,14 @@ function bindCotizaciones() {
       app.querySelector<HTMLSelectElement>('[data-cotizacion-moneda]')?.value
     );
     aplicarMonedaOfertaDom(moneda);
-    const lineasConMoneda = lineasDom.map(l => ({ ...l, moneda }));
+    const lineasConMoneda = sanitizarLineasComercial(lineasDom, moneda);
+    const check = ofertaCompleta(lineasConMoneda, condicionesDom);
+    if (!check.ok) {
+      toast(
+        COTIZACION_ERROR_MENSAJES[check.error] ?? COTIZACION_AVISOS[check.error] ?? check.error
+      );
+      return { ok: false };
+    }
     const mercado = moneda === 'USD' ? 'INTL' : 'CO';
     return {
       ok: true,
@@ -8113,37 +9611,14 @@ function bindCotizaciones() {
   async function persistirOfertaAntesDeEnviar(
     payload: Extract<Awaited<ReturnType<typeof validarOfertaDomParaEnvio>>, { ok: true }>
   ): Promise<boolean> {
-    const totalDom = payload.lineasConMoneda.reduce((acc, l) => acc + l.subtotal, 0);
-    const adjuntos = await guardarAdjuntosCotizacion(payload.id);
-    if (!adjuntos) return false;
-    const { error: saveError } = await supabase!
-      .from('solicitudes_cotizacion')
-      .update({
-        nombre: emptyToNull(payload.datosOferta.get('nombre')),
-        empresa: emptyToNull(payload.datosOferta.get('empresa')),
-        email: emptyToNull(payload.datosOferta.get('email')),
-        telefono: emptyToNull(payload.datosOferta.get('telefono')),
-        mensaje: emptyToNull(payload.datosOferta.get('mensaje')),
-        nit: emptyToNull(payload.datosOferta.get('nit')),
-        responsable_iva: payload.datosOferta.get('responsable_iva') === 'on',
-        impuestos_incluidos: payload.datosOferta.get('impuestos_incluidos') === 'on',
-        direccion_envio: emptyToNull(payload.datosOferta.get('direccion_envio')),
-        direccion_facturacion: emptyToNull(payload.datosOferta.get('direccion_facturacion')),
-        adjuntos,
-        productos: payload.lineasConMoneda,
-        condiciones: payload.condicionesDom,
-        validez_hasta: payload.validezDom.trim() || null,
-        precio_total_ofertado: totalDom,
-        moneda: payload.moneda,
-        mercado: payload.mercado,
-        leida: true,
-      })
-      .eq('id', payload.id);
-    if (saveError) {
-      toast(`No se pudo guardar la oferta antes de enviar: ${saveError.message}`);
-      return false;
-    }
-    return true;
+    return guardarOfertaAdmin({
+      id: payload.id,
+      datos: payload.datosOferta,
+      lineas: payload.lineasConMoneda,
+      condiciones: payload.condicionesDom,
+      validez: payload.validezDom.trim() || null,
+      moneda: payload.moneda,
+    });
   }
 
   const openWhatsAppUrlAdmin = (url: string) => {
@@ -8164,11 +9639,20 @@ function bindCotizaciones() {
       toast(COTIZACION_ERROR_MENSAJES['SIN_EMAIL']!);
       return;
     }
+    if (canal === 'email' && /@(example\.(com|org|net)|ejemplo\.com)$/i.test(email)) {
+      toast(
+        'Usa un correo real del cliente: ese dominio es de ejemplo y el envío sería rechazado o iría a un tercero.'
+      );
+      return;
+    }
     const destino = canal === 'whatsapp' ? telefono : email;
-    const confirmMsg =
-      canal === 'whatsapp'
-        ? `¿Enviar presupuesto por WhatsApp a ${destino}?`
-        : '¿Enviar oferta formal al email del solicitante?';
+    const numeroActual =
+      app.querySelector<HTMLElement>('[data-cotizacion-numero]')?.textContent?.trim() ?? '';
+    const totalTexto = formatQuoteMoney(
+      calcularTotalOfertado(validated.lineasConMoneda),
+      validated.moneda
+    );
+    const confirmMsg = `¿Enviar presupuesto ${numeroActual || 'nuevo'} por ${canal === 'whatsapp' ? 'WhatsApp' : 'email'} a ${destino} (${totalTexto})?`;
     if (!confirm(confirmMsg)) return;
     const emailBtn = app.querySelector<HTMLButtonElement>('[data-cotizacion-enviar]');
     const waBtn = app.querySelector<HTMLButtonElement>('[data-cotizacion-enviar-whatsapp]');
@@ -8219,10 +9703,31 @@ function bindCotizaciones() {
   }
 
   async function previewCotizacionPdfAdmin(): Promise<void> {
-    const validated = await validarOfertaDomParaEnvio();
-    if (!validated.ok) return;
-    const saved = await persistirOfertaAntesDeEnviar(validated);
-    if (!saved) return;
+    // Presupuesto enviado/expirado/convertido: sus campos están deshabilitados (FormData los omite),
+    // así que no se guarda nada; el PDF sale de lo ya persistido.
+    const soloLectura = ofertaForm?.hasAttribute('data-solo-lectura') ?? false;
+    let idPdf = state.recordId ?? '';
+    let snapshot: Parameters<typeof previewQuotePdf>[1];
+    if (!soloLectura) {
+      const validated = await validarOfertaDomParaEnvio();
+      if (!validated.ok) return;
+      if (!(await persistirOfertaAntesDeEnviar(validated))) return;
+      idPdf = validated.id;
+      const numeroActual =
+        app.querySelector<HTMLElement>('[data-cotizacion-numero]')?.textContent?.trim() ?? '';
+      snapshot = {
+        ...(numeroActual ? { numero: numeroActual } : {}),
+        nombre: String(validated.datosOferta.get('nombre') ?? '').trim(),
+        empresa: String(validated.datosOferta.get('empresa') ?? '').trim(),
+        email: String(validated.datosOferta.get('email') ?? '').trim(),
+        telefono: String(validated.datosOferta.get('telefono') ?? '').trim(),
+        condiciones: validated.condicionesDom,
+        validez_hasta: validated.validezDom.trim() || null,
+        moneda: validated.moneda,
+        productos: validated.lineasConMoneda,
+      };
+    }
+    if (!idPdf) return;
     const slot = app.querySelector<HTMLElement>('[data-cotizacion-modal-slot]');
     if (!slot) return;
     slot.innerHTML = `<div class="quote-ingest-overlay" data-quote-ingest-overlay role="presentation"><div class="quote-ingest-modal quote-ingest-modal--wide" role="dialog" aria-modal="true"><header class="quote-ingest-modal__head"><h2>Vista previa · Presupuesto</h2><button type="button" class="quote-ingest-modal__close" data-quote-ingest-close aria-label="Cerrar">✕</button></header><div class="quote-ingest-modal__body" data-cotizacion-pdf-body><p class="quote-ingest-help">Generando PDF…</p></div></div></div>`;
@@ -8234,34 +9739,13 @@ function bindCotizaciones() {
       if (event.target === event.currentTarget) close();
     });
     const body = slot.querySelector<HTMLElement>('[data-cotizacion-pdf-body]');
-    const {
-      data: { session },
-    } = await supabase!.auth.getSession();
-    const token = session?.access_token;
-    if (!token || !body) {
+    if (!body) {
       close();
-      toast('Sesion expirada.');
       return;
     }
-    const url = new URL(
-      `${import.meta.env['PUBLIC_SUPABASE_URL']}/functions/v1/comercial-cotizacion`
-    );
-    url.searchParams.set('action', 'pdf');
-    url.searchParams.set('id', validated.id);
-    url.searchParams.set('fresh', '1');
-    const response = await fetch(url.toString(), {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        apikey: import.meta.env['PUBLIC_SUPABASE_ANON_KEY'] as string,
-      },
-    });
-    const json = (await response.json().catch(() => null)) as {
-      pdf_base64?: string;
-      numero?: string;
-      error?: { message?: string };
-    } | null;
-    if (!response.ok || !json?.pdf_base64) {
-      body.innerHTML = `<p class="quote-ingest-help">${escapeHtml(json?.error?.message ?? 'No se pudo generar el PDF.')}</p>`;
+    const { data: json, error: pdfError, code: pdfCode } = await previewQuotePdf(idPdf, snapshot);
+    if (pdfError || !json?.pdf_base64) {
+      body.innerHTML = `<p class="quote-ingest-help">${escapeHtml(cotizacionErrorCopy(pdfCode, pdfError ?? 'No se pudo generar el PDF.'))}</p>`;
       return;
     }
     try {
@@ -8331,13 +9815,203 @@ function bindCotizaciones() {
     if (!confirm(`Eliminar ${ids.length} cotizacion(es)? Esta accion no se puede deshacer.`)) {
       return;
     }
-    const { error } = await supabase!.from('solicitudes_cotizacion').delete().in('id', ids);
-    if (error) {
-      toast(error.message);
+    let borradas = 0;
+    let ultimoError = '';
+    for (const id of ids) {
+      const { error, code } = await deleteQuoteApi(id);
+      if (error) ultimoError = cotizacionErrorCopy(code, error);
+      else borradas += 1;
+    }
+    toast(
+      ultimoError
+        ? `${borradas} de ${ids.length} eliminadas. ${ultimoError}`
+        : `${borradas} cotizacion(es) eliminadas.`
+    );
+    await render();
+  });
+
+  const filtroCotizaciones = app.querySelector<HTMLFormElement>('[data-cotizaciones-filter]');
+  filtroCotizaciones?.addEventListener('submit', event => {
+    event.preventDefault();
+    const q = String(new FormData(filtroCotizaciones).get('q') ?? '').trim();
+    const destino = cotizacionesLink({ q, page: '' });
+    if (location.hash === destino) void render();
+    else location.hash = destino;
+  });
+
+  app.querySelectorAll<HTMLButtonElement>('[data-cotizacion-list-delete]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset['cotizacionListDelete'] ?? '';
+      if (!id) return;
+      btn.disabled = true;
+      const ok = await borrarCotizacionAdmin(id, btn.dataset['label'] || 'este presupuesto');
+      btn.disabled = false;
+      if (ok) await render();
+    });
+  });
+
+  app
+    .querySelector<HTMLButtonElement>('[data-cotizacion-borrar]')
+    ?.addEventListener('click', async () => {
+      const id = state.recordId;
+      if (!id) return;
+      const numero =
+        app.querySelector<HTMLElement>('[data-cotizacion-numero]')?.textContent?.trim() ||
+        'este presupuesto';
+      if (!(await borrarCotizacionAdmin(id, numero))) return;
+      cotizacionDirty = false;
+      location.hash = '#/cotizaciones';
+    });
+
+  app
+    .querySelector<HTMLButtonElement>('[data-cotizacion-duplicar]')
+    ?.addEventListener('click', async () => {
+      const id = state.recordId;
+      if (!id) return;
+      if (
+        !confirm(
+          'Esto crea una revisión nueva. El PDF anterior queda en archivo. El cliente recibirá un correo nuevo si envías.'
+        )
+      ) {
+        return;
+      }
+      const { data, error, code } = await duplicarQuote(id);
+      if (error || !data?.quote) {
+        toast(cotizacionErrorCopy(code, error));
+        return;
+      }
+      // /comercial no maneja estos datos: se copian para no perder lo que admin ya capturó.
+      const origen = await getRow('solicitudes_cotizacion', id);
+      if (origen) {
+        await supabase!
+          .from('solicitudes_cotizacion')
+          .update({
+            mensaje: origen.mensaje ?? null,
+            nit: origen.nit ?? null,
+            responsable_iva: Boolean(origen.responsable_iva),
+            impuestos_incluidos: Boolean(origen.impuestos_incluidos),
+            direccion_envio: origen.direccion_envio ?? null,
+            direccion_facturacion: origen.direccion_facturacion ?? null,
+          })
+          .eq('id', data.quote.id);
+      }
+      cotizacionDirty = false;
+      toast('Revisión creada.');
+      location.hash = `#/cotizacion?id=${encodeURIComponent(data.quote.id)}`;
+    });
+
+  app
+    .querySelector<HTMLButtonElement>('[data-cotizacion-validar-crm]')
+    ?.addEventListener('click', async () => {
+      const id = state.recordId;
+      if (!id) return;
+      const validated = await validarOfertaDomParaEnvio();
+      if (!validated.ok) return;
+      if (validated.lineasConMoneda.some(l => l.precio_pendiente_validar)) {
+        toast(COTIZACION_ERROR_API['PRECIO_PENDIENTE']!);
+        return;
+      }
+      if (cotizacionDirty && !(await persistirOfertaAntesDeEnviar(validated))) return;
+      if (
+        !confirm(
+          '¿Validar este presupuesto y enviarlo al CRM Twenty? Solo tras revisar precios y condiciones.'
+        )
+      ) {
+        return;
+      }
+      const btn = app.querySelector<HTMLButtonElement>('[data-cotizacion-validar-crm]');
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Validando…';
+      }
+      const { data, error, code } = await validarQuoteCrm(id);
+      if (btn) btn.disabled = false;
+      if (error) {
+        if (btn) btn.textContent = 'Validar → CRM';
+        toast(cotizacionErrorCopy(code, error));
+        return;
+      }
+      toast(
+        (data?.crm_sync_status ?? 'synced') === 'skipped'
+          ? 'Validado. CRM omitido (sin secrets Twenty).'
+          : 'Presupuesto validado y sincronizado con el CRM.'
+      );
+      await render();
+    });
+
+  const ejecutarOcrAdmin = async (mode: 'camera' | 'gallery' | 'pdf') => {
+    const statusEl = app.querySelector<HTMLElement>('[data-cotizacion-ocr-status]');
+    const preview = app.querySelector<HTMLElement>('[data-cotizacion-scan-preview]');
+    const img = app.querySelector<HTMLImageElement>('[data-cotizacion-scan-img]');
+    const setStatus = (mensaje: string) => {
+      if (statusEl) statusEl.textContent = mensaje;
+    };
+    const quoteId = state.view === 'cotizacion' ? state.recordId : null;
+    if (
+      quoteId &&
+      cotizacionDirty &&
+      !confirm('Hay cambios sin guardar. El OCR actualizará este presupuesto. ¿Continuar?')
+    ) {
       return;
     }
-    toast(`${ids.length} cotizacion(es) eliminadas.`);
-    await render();
+    const botones = app.querySelectorAll<HTMLButtonElement>('[data-cotizacion-ocr]');
+    botones.forEach(b => {
+      b.disabled = true;
+    });
+    try {
+      const file = mode === 'pdf' ? await pickCompetenciaPdf() : await pickCompetenciaImage(mode);
+      if (!file) {
+        setStatus('Cancelado.');
+        return;
+      }
+      if (preview && img && file.type.startsWith('image/')) {
+        img.src = URL.createObjectURL(file);
+        preview.hidden = false;
+      }
+      setStatus(mode === 'pdf' ? 'Leyendo PDF…' : 'Preparando imagen…');
+      const prepared = await prepareCompetenciaForOcr(file);
+      if (!prepared.ok) {
+        setStatus(prepared.error);
+        toast(prepared.error);
+        return;
+      }
+      setStatus('Enviando a OCR…');
+      // Renueva el JWT antes del POST largo: el OCR puede superar el token restante.
+      if (!(await ensureAuthSession())) {
+        setStatus('Sesión expirada. Vuelve a iniciar sesión.');
+        return;
+      }
+      const { data, error, code } = await ocrPresupuestoCompetencia({
+        file: prepared.blob,
+        filename: prepared.filename,
+        ...(quoteId ? { quoteId } : {}),
+      });
+      if (error || !data?.quote_id) {
+        const mensaje = cotizacionErrorCopy(code, error ?? 'OCR falló');
+        setStatus(mensaje);
+        toast(mensaje);
+        return;
+      }
+      const confianza =
+        data.extract?.confianza != null
+          ? ` · confianza ${(data.extract.confianza * 100).toFixed(0)}%`
+          : '';
+      toast(`OCR listo${confianza}. Abriendo borrador.`);
+      cotizacionDirty = false;
+      const destino = `#/cotizacion?id=${encodeURIComponent(data.quote_id)}`;
+      if (location.hash === destino) await render();
+      else location.hash = destino;
+    } finally {
+      botones.forEach(b => {
+        b.disabled = false;
+      });
+    }
+  };
+  app.querySelectorAll<HTMLButtonElement>('[data-cotizacion-ocr]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const mode = btn.dataset['cotizacionOcr'];
+      if (mode === 'camera' || mode === 'gallery' || mode === 'pdf') void ejecutarOcrAdmin(mode);
+    });
   });
 }
 
@@ -9527,6 +11201,7 @@ function renderIngestReview(draft: Row, pdfUrl: string): string {
       </div>
       <form class="admin-form" data-ingest-review-form style="padding:16px">
         <input type="hidden" name="ficha_pdf" value="${escapeHtml(pdfUrl)}" />
+        <div data-ficha-existente></div>
         <h3>Espanol (fuente)</h3>
         ${field('slug', 'Slug', slugify(nombre.valor), true)}
         ${campoRevisableField('nombre_es', 'Nombre', nombre)}
@@ -9653,6 +11328,7 @@ function bindIngestReview(container: HTMLElement) {
 
   const form = container.querySelector<HTMLFormElement>('[data-ingest-review-form]');
   if (!form) return;
+  void prepararFichaExistente(form);
 
   const nombreInput = form.elements.namedItem('nombre_es');
   if (nombreInput instanceof HTMLInputElement) {
@@ -9675,6 +11351,11 @@ function bindIngestReview(container: HTMLElement) {
     const payload = ingestPayload(form);
     if (!text(payload['nombre_es'])) {
       toast('El nombre en español (ES) es obligatorio para crear el producto');
+      return;
+    }
+    const destinoFicha = fichaDestinos.get(form);
+    if (destinoFicha && leerSeleccionFicha(form).modo === 'actualizar') {
+      await actualizarProductoDesdeFicha(form, destinoFicha, payload);
       return;
     }
     if (!text(payload['nombre_en'])) {
@@ -9734,6 +11415,231 @@ function bindIngestReview(container: HTMLElement) {
   });
 
   syncSpecJson(container);
+}
+
+type FichaDestino = { existente: Row; coincidencia: Coincidencia };
+const fichaDestinos = new WeakMap<HTMLFormElement, FichaDestino>();
+const fichaDesmarcados = new WeakMap<HTMLFormElement, Set<string>>();
+
+const FICHA_MOTIVO: Record<Coincidencia['motivo'], string> = {
+  slug: 'mismo slug',
+  sku: 'mismo SKU',
+  nombre: 'mismo nombre',
+  seleccion: 'elegido por ti',
+};
+
+function leerSeleccionFicha(form: HTMLFormElement): {
+  modo: 'actualizar' | 'crear';
+  campos: Set<string>;
+} {
+  const modo =
+    form.querySelector<HTMLInputElement>('input[name="ingest_modo"]:checked')?.value === 'crear'
+      ? 'crear'
+      : 'actualizar';
+  const campos = new Set(
+    Array.from(form.querySelectorAll<HTMLInputElement>('input[data-ficha-cambio]:checked')).map(
+      input => input.dataset['fichaCambio'] ?? ''
+    )
+  );
+  return { modo, campos };
+}
+
+function pintarPanelFicha(form: HTMLFormElement, destino: FichaDestino): void {
+  const slot = form.querySelector<HTMLElement>('[data-ficha-existente]');
+  if (!slot) return;
+  const modoActual = leerSeleccionFicha(form).modo;
+  const desmarcados = fichaDesmarcados.get(form) ?? new Set<string>();
+  fichaDesmarcados.set(form, desmarcados);
+  const cambios = calcularCambiosFicha(destino.existente, ingestPayload(form));
+  const { existente, coincidencia } = destino;
+  const boton = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+  if (boton) {
+    boton.dataset['textoCrear'] ??= boton.textContent ?? '';
+    boton.textContent =
+      modoActual === 'actualizar' ? 'Actualizar producto existente' : boton.dataset['textoCrear'];
+  }
+  const filas = cambios.map(
+    (cambio: CambioFicha) => `<tr>
+      <td><label><input type="checkbox" data-ficha-cambio="${escapeHtml(cambio.campo)}" ${desmarcados.has(cambio.campo) ? '' : 'checked'} /> ${escapeHtml(cambio.etiqueta)}</label></td>
+      <td>${escapeHtml(cambio.antes) || '<span class="admin-help">vacío</span>'}</td>
+      <td>${escapeHtml(cambio.despues)}</td>
+    </tr>`
+  );
+  slot.innerHTML = `
+    <div class="admin-alert" data-ficha-existente-panel>
+      <p><strong>Este producto ya existe en el catálogo:</strong>
+        <a href="#/producto?id=${encodeURIComponent(text(existente.id))}">${escapeHtml(text(existente.nombre_es))}</a>
+        <span class="admin-help">(${escapeHtml(text(existente.slug))} · ${FICHA_MOTIVO[coincidencia.motivo]})</span></p>
+      <div class="admin-form" style="gap:4px">
+        <label><input type="radio" name="ingest_modo" value="actualizar" ${modoActual === 'actualizar' ? 'checked' : ''} /> Actualizar el producto existente con esta ficha (recomendado)</label>
+        <label><input type="radio" name="ingest_modo" value="crear" ${modoActual === 'crear' ? 'checked' : ''} /> Crear un producto nuevo (se generará otro slug)</label>
+      </div>
+      ${
+        modoActual === 'actualizar'
+          ? cambios.length
+            ? `<p class="admin-help">Cambios que trae la ficha. Precio, stock, publicación y orden no se tocan; lo que la ficha no trae no se borra. Desmarca lo que no quieras aplicar.</p>
+               <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Campo</th><th>Ahora</th><th>Con la ficha nueva</th></tr></thead><tbody>${filas.join('')}</tbody></table></div>`
+            : '<p class="admin-help">La ficha no aporta cambios respecto al producto actual.</p>'
+          : ''
+      }
+    </div>`;
+}
+
+/** Busca si la ficha corresponde a un producto ya publicado o en borrador y pinta el panel de cambios. */
+async function prepararFichaExistente(form: HTMLFormElement): Promise<void> {
+  let coincidencia: Coincidencia | null = null;
+  if (ingestProductoObjetivo) {
+    const elegido = await getRow('productos', ingestProductoObjetivo);
+    if (elegido) {
+      coincidencia = {
+        producto: {
+          id: text(elegido.id),
+          slug: text(elegido.slug),
+          nombre_es: text(elegido.nombre_es),
+          sku: text(elegido.sku) || null,
+        },
+        motivo: 'seleccion',
+      };
+    }
+  }
+  if (!coincidencia) {
+    const { data, error } = await supabase!
+      .from('productos')
+      .select('id,slug,nombre_es,sku')
+      .range(0, 4999);
+    if (error) return;
+    const payload = ingestPayload(form);
+    coincidencia = buscarCoincidencia(
+      { slug: payload['slug'], nombre_es: payload['nombre_es'] },
+      ((data ?? []) as Row[]).map(row => ({
+        id: text(row.id),
+        slug: text(row.slug),
+        nombre_es: text(row.nombre_es),
+        sku: text(row.sku) || null,
+      }))
+    );
+  }
+  if (!coincidencia) return;
+  const existente = await getRow('productos', coincidencia.producto.id);
+  if (!existente) return;
+  const destino: FichaDestino = { existente, coincidencia };
+  fichaDestinos.set(form, destino);
+  pintarPanelFicha(form, destino);
+
+  form.addEventListener('change', event => {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement)) return;
+    const desmarcados = fichaDesmarcados.get(form) ?? new Set<string>();
+    if (target.dataset['fichaCambio']) {
+      if (target.checked) desmarcados.delete(target.dataset['fichaCambio']);
+      else desmarcados.add(target.dataset['fichaCambio']);
+    }
+    if (target.name === 'ingest_modo' || target.dataset['fichaCambio'])
+      pintarPanelFicha(form, destino);
+  });
+  let temporizador: number | undefined;
+  form.addEventListener('input', event => {
+    if (event.target instanceof HTMLElement && event.target.closest('[data-ficha-existente]'))
+      return;
+    window.clearTimeout(temporizador);
+    temporizador = window.setTimeout(() => pintarPanelFicha(form, destino), 350);
+  });
+}
+
+/** Landings y páginas que muestran este producto: se revisan tras aplicar la ficha nueva. */
+async function revisionLandingsProductoHtml(
+  productId: string,
+  slug: string,
+  nombre: string
+): Promise<string> {
+  const { listCampaignLandings } = await import('../data/comercial-landings');
+  const campanas = listCampaignLandings('es').filter(landing =>
+    landing.productSlugs.includes(slug)
+  );
+  const campanasHtml = campanas.length
+    ? `<ul>${campanas
+        .map(
+          landing =>
+            `<li><a href="${escapeHtml(landing.path)}" target="_blank" rel="noopener noreferrer">${escapeHtml(landing.h1 || landing.path)}</a> · <a href="#/landings?tipo=campana&id=${encodeURIComponent(landing.id)}">Editar en el CMS</a></li>`
+        )
+        .join('')}</ul>`
+    : '<p class="admin-help">Ninguna landing de campaña lista este producto.</p>';
+  return `
+    <section class="admin-panel" data-ficha-revision>
+      <div class="admin-panel__head"><h2>Revisar la landing de ${escapeHtml(nombre)}</h2></div>
+      <div style="padding:0 16px 16px">
+        <p>La ficha ya está aplicada al producto. La web pública se regenera con la publicación; revisa que estas páginas sigan coherentes con la ficha nueva:</p>
+        <ul>
+          <li><a href="/es/productos/${encodeURIComponent(slug)}/" target="_blank" rel="noopener noreferrer">Landing del producto (ES)</a> · <a href="/en/products/${encodeURIComponent(slug)}/" target="_blank" rel="noopener noreferrer">EN</a> · <a href="#/producto?id=${encodeURIComponent(productId)}">ficha en el admin</a></li>
+        </ul>
+        <h3>Landings de campaña que lo incluyen</h3>
+        ${campanasHtml}
+        <p class="admin-help">Comprueba titulares, beneficios, especificaciones citadas, marca y afirmaciones regulatorias (INVIMA, garantía) contra la ficha.</p>
+      </div>
+    </section>`;
+}
+
+async function actualizarProductoDesdeFicha(
+  form: HTMLFormElement,
+  destino: FichaDestino,
+  payload: Row
+): Promise<void> {
+  const statusEl = form.querySelector<HTMLElement>('[data-ingest-save-status]');
+  const submitButton = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+  const { existente } = destino;
+  const productId = text(existente.id);
+  const slug = text(existente.slug);
+  const cambios = calcularCambiosFicha(existente, payload);
+  const update = construirActualizacion(cambios, leerSeleccionFicha(form).campos);
+  if (Object.keys(update).length === 0) {
+    toast('No hay cambios seleccionados para aplicar.');
+    return;
+  }
+  if (submitButton) submitButton.disabled = true;
+  if (statusEl) statusEl.textContent = 'Actualizando el producto existente...';
+  const { error } = await supabase!.from('productos').update(update).eq('id', productId);
+  if (error) {
+    if (statusEl) {
+      statusEl.innerHTML = `<span class="admin-import-error">Error al actualizar:</span> ${escapeHtml(error.message)}`;
+    }
+    toast(error.message);
+    if (submitButton) submitButton.disabled = false;
+    return;
+  }
+  if ('ficha_pdf' in update && text(update['ficha_pdf'])) {
+    await persistIngestPdfForProduct(slug, text(update['ficha_pdf']));
+  }
+  const antes = Object.fromEntries(
+    Object.keys(update).map(campo => [campo, existente[campo] ?? null])
+  );
+  const { error: auditError } = await supabase!.from('comercio_actuaciones').insert({
+    actor: state.email,
+    rol: state.rol || 'admin',
+    herramienta: 'actualizar_desde_ficha',
+    entidad: 'productos',
+    entidad_id: productId,
+    antes,
+    despues: update,
+    motivo: 'Ficha PDF nueva aplicada desde Ingesta PDF',
+  });
+  if (auditError) console.warn('comercio_actuaciones', auditError.message);
+  const publicado = existente.activo === true;
+  if (publicado) {
+    await generarEmbeddingProducto(productId);
+    await triggerRebuild();
+  }
+  toast(
+    publicado
+      ? 'Producto actualizado con la ficha nueva y publicación solicitada.'
+      : 'Producto actualizado con la ficha nueva (sigue como borrador).'
+  );
+  if (statusEl)
+    statusEl.textContent = `Producto actualizado: ${Object.keys(update).length} campo(s).`;
+  const revision = await revisionLandingsProductoHtml(productId, slug, text(existente.nombre_es));
+  form.closest('section')?.insertAdjacentHTML('afterend', revision);
+  form.querySelectorAll('input,textarea,select,button').forEach(el => {
+    (el as HTMLInputElement).disabled = true;
+  });
 }
 
 function syncSpecJson(container: HTMLElement) {
@@ -10377,7 +12283,8 @@ async function selectRowsWhere(
   ascending = true
 ): Promise<Row[]> {
   let req = supabase!.from(tableName).select(columns).order(order, { ascending }).limit(limit);
-  for (const [key, value] of Object.entries(eq)) req = req.eq(key, value);
+  for (const [key, value] of Object.entries(eq))
+    req = value === null ? req.is(key, null) : req.eq(key, value);
   const { data, error } = await req;
   if (error) {
     toast(error.message);
@@ -10386,7 +12293,57 @@ async function selectRowsWhere(
   return (data ?? []) as unknown as Row[];
 }
 
+const PROVEEDOR_ADMIN_COLUMNS = [
+  'id',
+  'slug',
+  'nombre',
+  'razon_social',
+  'tipo_entidad',
+  'sitio_web',
+  'pais',
+  'ciudad',
+  'direccion_comercial',
+  'contacto_email',
+  'contacto_whatsapp',
+  'canal',
+  'lifecycle_status',
+  'lineas_equipos',
+  'estado_invima',
+  'invima_titular',
+  'distribuidor_local',
+  'notas',
+  'activo',
+  'dropship_enabled',
+  'cobertura_envios',
+  'incoterms',
+  'almacenes',
+  'moneda_operativa',
+  'sla_respuesta_horas',
+  'sla_despacho_dias_habiles',
+  'stock_feed_tipo',
+  'riesgo_operativo',
+  'ultimo_contacto_at',
+  'devoluciones_rma_notas',
+  'onboarding_notas',
+  'created_at',
+  'updated_at',
+].join(',');
+
+async function getProveedor(id: string): Promise<Row | null> {
+  const { data, error } = await supabase!
+    .from('proveedores')
+    .select(PROVEEDOR_ADMIN_COLUMNS)
+    .eq('id', id)
+    .maybeSingle();
+  if (error) {
+    toast(error.message);
+    return null;
+  }
+  return (data as Row | null) ?? null;
+}
+
 async function getRow(tableName: string, id: string): Promise<Row | null> {
+  if (tableName === 'proveedores') return getProveedor(id);
   const { data, error } = await supabase!.from(tableName).select('*').eq('id', id).maybeSingle();
   if (error) {
     toast(error.message);
@@ -10397,7 +12354,8 @@ async function getRow(tableName: string, id: string): Promise<Row | null> {
 
 async function count(tableName: string, eq?: Row): Promise<number> {
   let req = supabase!.from(tableName).select('id', { count: 'exact', head: true });
-  for (const [key, value] of Object.entries(eq ?? {})) req = req.eq(key, value);
+  for (const [key, value] of Object.entries(eq ?? {}))
+    req = value === null ? req.is(key, null) : req.eq(key, value);
   const { count: total, error } = await req;
   if (error) return 0;
   return total ?? 0;
@@ -10779,6 +12737,11 @@ function entityImportForm(entity: ExcelEntity, label: string, help: string): str
           <input data-entity-import-file type="file" accept=".xlsx,.xls" hidden />
         </label>
       </div>
+      ${
+        entity === 'proveedores'
+          ? '<label class="admin-field"><span><input data-clear-empty type="checkbox" /> Vaciar campos que vengan vacíos en el archivo</span></label>'
+          : ''
+      }
       <p class="admin-help" data-entity-import-status>Sin archivo seleccionado.</p>
     </form>`;
 }
@@ -11002,6 +12965,19 @@ const PROVEEDOR_LIFECYCLES: Array<[string, string]> = [
   ['rechazado', 'Rechazado'],
 ];
 
+const PROVEEDOR_CANALES: Array<[string, string]> = [
+  ['email', 'Email'],
+  ['whatsapp', 'WhatsApp'],
+  ['webhook', 'Webhook'],
+  ['api', 'API'],
+  ['manual', 'Manual'],
+];
+
+const PROVEEDOR_INVIMA_OPTIONS: Array<[string, string]> = [
+  ['', 'Sin definir'],
+  ...PROVEEDOR_ESTADOS_INVIMA.map((id): [string, string] => [id, estadoInvimaLabel(id)]),
+];
+
 function proveedorTipoLabel(value: string): string {
   return PROVEEDOR_TIPOS.find(([id]) => id === value)?.[1] ?? 'Proveedor';
 }
@@ -11176,21 +13152,7 @@ const CLIENTES_EXCEL_HEADERS = [
   'ultimo_pedido_at',
 ];
 
-const PROVEEDORES_EXCEL_HEADERS = [
-  'slug',
-  'nombre',
-  'razon_social',
-  'tipo_entidad',
-  'sitio_web',
-  'pais',
-  'ciudad',
-  'contacto_email',
-  'contacto_whatsapp',
-  'canal',
-  'lifecycle_status',
-  'notas',
-  'activo',
-];
+const PROVEEDORES_EXCEL_HEADERS = [...PROVEEDOR_IMPORT_COLUMNS];
 
 const PEDIDOS_EXCEL_HEADERS = [
   'id',
@@ -11249,21 +13211,7 @@ const ENTITY_EXCEL_CONFIGS: Record<ExcelEntity, EntityExcelConfig> = {
     sheet: 'proveedores',
     conflict: 'slug',
     headers: PROVEEDORES_EXCEL_HEADERS,
-    sample: {
-      slug: 'proveedor-ejemplo',
-      nombre: 'Proveedor ejemplo',
-      razon_social: 'Proveedor ejemplo S.A.S.',
-      tipo_entidad: 'proveedor',
-      sitio_web: 'https://proveedor.ejemplo.com',
-      pais: 'Colombia',
-      ciudad: 'Bogotá D.C.',
-      contacto_email: 'proveedor@ejemplo.com',
-      contacto_whatsapp: '+57 300 000 0000',
-      canal: 'email',
-      lifecycle_status: 'prospect',
-      notas: 'Condiciones internas',
-      activo: false,
-    },
+    sample: PROVEEDOR_TEMPLATE_SAMPLE,
   },
   pedidos: {
     entity: 'pedidos',
@@ -11414,6 +13362,15 @@ function buildEntityTemplateWorkbook(entity: ExcelEntity): XLSX.WorkBook {
     XLSX.utils.json_to_sheet([config.sample], { header: config.headers }),
     config.sheet
   );
+  if (entity === 'proveedores') {
+    XLSX.utils.book_append_sheet(
+      workbook,
+      XLSX.utils.json_to_sheet([PROVEEDOR_CONTACTO_TEMPLATE_SAMPLE], {
+        header: [...PROVEEDOR_CONTACTO_IMPORT_COLUMNS],
+      }),
+      'contactos'
+    );
+  }
   XLSX.utils.book_append_sheet(
     workbook,
     XLSX.utils.aoa_to_sheet([
@@ -11423,6 +13380,10 @@ function buildEntityTemplateWorkbook(entity: ExcelEntity): XLSX.WorkBook {
         `Clave de importación: ${entity === 'pedidos' ? 'id o referencia_pasarela' : config.conflict}.`,
       ],
       ['No cambies los encabezados de columnas.'],
+      ['Una celda vacía conserva el valor ya guardado.'],
+      ['Marcar aprobado no activa dropshipping.'],
+      ['La hoja contactos es opcional y se enlaza por slug_proveedor.'],
+      ['Borra la fila de ejemplo antes de importar contactos reales.'],
     ]),
     'instrucciones'
   );
@@ -11439,7 +13400,10 @@ async function fetchClientesForExcel(): Promise<Row[]> {
   const params = hashParams();
   const q = (params.get('q') ?? '').trim();
   const tipo = params.get('tipo_cliente') ?? '';
-  let query = supabase!.from('clientes').select('*').order('updated_at', { ascending: false });
+  let query = supabase!
+    .from('clientes')
+    .select(CLIENTES_EXCEL_HEADERS.join(','))
+    .order('updated_at', { ascending: false });
   if (q) {
     const safeQ = q.replace(/[,()%]/g, '');
     if (safeQ) {
@@ -11452,23 +13416,28 @@ async function fetchClientesForExcel(): Promise<Row[]> {
   return fetchQueryPages(query);
 }
 
-async function fetchProveedoresForExcel(): Promise<Row[]> {
-  const params = hashParams();
-  const filters: ProveedoresQuery = {
-    q: (params.get('q') ?? '').trim(),
-    activo: params.get('activo') ?? '',
-    tipo_entidad: params.get('tipo_entidad') ?? '',
-    lifecycle_status: params.get('lifecycle_status') ?? '',
-    dropship: params.get('dropship') ?? '',
-    incorporado_desde: params.get('incorporado_desde') ?? '',
-    incorporado_hasta: params.get('incorporado_hasta') ?? '',
-    ordenar: params.get('ordenar') ?? 'alfabetico_asc',
-  };
-  let query = supabase!.from('proveedores').select('*');
-  if (filters.q) {
-    const safeQ = filters.q.replace(/[,()%]/g, '');
-    if (safeQ) query = query.or(`nombre.ilike.%${safeQ}%,slug.ilike.%${safeQ}%`);
-  }
+function proveedorSearchFilter(q: string): string | null {
+  const safeQ = q.replace(/[,()%]/g, '');
+  if (!safeQ) return null;
+  const fields = [
+    'nombre',
+    'slug',
+    'razon_social',
+    'contacto_email',
+    'pais',
+    'ciudad',
+    'lineas_equipos',
+    'invima_titular',
+    'distribuidor_local',
+    'estado_invima',
+  ];
+  return fields.map(fieldName => `${fieldName}.ilike.%${safeQ}%`).join(',');
+}
+
+function proveedoresFilteredQuery(filters: ProveedoresQuery) {
+  let query = supabase!.from('proveedores').select(PROVEEDOR_ADMIN_COLUMNS);
+  const search = proveedorSearchFilter(filters.q);
+  if (search) query = query.or(search);
   if (filters.activo === '1') query = query.eq('activo', true);
   if (filters.activo === '0') query = query.eq('activo', false);
   if (filters.tipo_entidad) query = query.eq('tipo_entidad', filters.tipo_entidad);
@@ -11488,7 +13457,23 @@ async function fetchProveedoresForExcel(): Promise<Row[]> {
   } else {
     query = query.order('nombre', { ascending: true }).order('created_at', { ascending: false });
   }
-  return fetchQueryPages(query);
+  return query;
+}
+
+async function fetchProveedoresForExcel(): Promise<Row[]> {
+  const params = hashParams();
+  return fetchQueryPages(
+    proveedoresFilteredQuery({
+      q: (params.get('q') ?? '').trim(),
+      activo: params.get('activo') ?? '',
+      tipo_entidad: params.get('tipo_entidad') ?? '',
+      lifecycle_status: params.get('lifecycle_status') ?? '',
+      dropship: params.get('dropship') ?? '',
+      incorporado_desde: params.get('incorporado_desde') ?? '',
+      incorporado_hasta: params.get('incorporado_hasta') ?? '',
+      ordenar: params.get('ordenar') ?? 'alfabetico_asc',
+    })
+  );
 }
 
 async function fetchPedidosForExcel(): Promise<Row[]> {
@@ -11497,7 +13482,10 @@ async function fetchPedidosForExcel(): Promise<Row[]> {
   const estado = params.get('estado') ?? '';
   const mercado = params.get('mercado') ?? '';
   const leida = params.get('leida') ?? '';
-  let query = supabase!.from('pedidos').select('*').order('created_at', { ascending: false });
+  let query = supabase!
+    .from('pedidos')
+    .select(PEDIDOS_EXCEL_HEADERS.join(','))
+    .order('created_at', { ascending: false });
   if (q) {
     const safeQ = q.replace(/[,()%]/g, '');
     if (safeQ) {
@@ -11539,11 +13527,52 @@ function entityRowToExcel(row: Row, entity: ExcelEntity): Record<string, unknown
   return result;
 }
 
+type EntityImportResult = {
+  processed: number;
+  skipped: number;
+  created: number;
+  updated: number;
+  rejected: ImportFieldError[];
+  contactsProcessed: number;
+  interactionsProcessed: number;
+};
+
+function emptyImportResult(processed = 0, skipped = 0): EntityImportResult {
+  return {
+    processed,
+    skipped,
+    created: 0,
+    updated: 0,
+    rejected: [],
+    contactsProcessed: 0,
+    interactionsProcessed: 0,
+  };
+}
+
+function formatEntityImportStatus(result: EntityImportResult): string {
+  const rejected = result.rejected
+    .slice(0, 12)
+    .map(error => escapeHtml(error.message))
+    .join('<br />');
+  return `<strong>Importación terminada.</strong> ${result.created} creados, ${result.updated} actualizados, ${result.processed} procesados, ${result.rejected.length} rechazados. Contactos: ${result.contactsProcessed}. Seguimientos: ${result.interactionsProcessed}.<br />${rejected}`;
+}
+
 async function importEntityExcel(
   entity: ExcelEntity,
-  file: File
-): Promise<{ processed: number; skipped: number }> {
-  const rows = await readWorkbookRows(file, entity);
+  file: File,
+  options: { clearEmpty?: boolean } = {}
+): Promise<EntityImportResult> {
+  const buffer = await readFileArrayBuffer(file);
+  if (entity === 'proveedores') {
+    const workbook = XLSX.read(buffer, { type: 'array', cellDates: true });
+    const rows = workbookSheetRows(workbook, 'proveedores');
+    if (!rows.length) throw new Error('La hoja proveedores no contiene filas.');
+    return invokeAdminImport('proveedores', rows, {
+      contactRows: workbookSheetRows(workbook, 'contactos'),
+      clearEmpty: options.clearEmpty === true,
+    });
+  }
+  const rows = await readWorkbookRowsFromBuffer(buffer, entity);
   if (!rows.length) throw new Error('La hoja principal no contiene filas.');
   const parsedRows = rows.map((row, index) => ({
     row: normalizeEntityImportRow(entity, row),
@@ -11558,7 +13587,24 @@ async function importEntityExcel(
   }
 
   const result = await invokeAdminImport(entity, payloads);
-  return { processed: result.processed, skipped: rows.length - payloads.length + result.skipped };
+  return {
+    ...emptyImportResult(result.processed, rows.length - payloads.length + result.skipped),
+    ...result,
+  };
+}
+
+function workbookSheetRows(workbook: XLSX.WorkBook, sheetName: string): Row[] {
+  const found =
+    workbook.SheetNames.find(name => name.toLowerCase() === sheetName.toLowerCase()) ??
+    (sheetName === 'proveedores'
+      ? workbook.SheetNames.find(
+          name => name.toLowerCase() !== 'instrucciones' && name.toLowerCase() !== 'contactos'
+        )
+      : undefined);
+  if (!found) return [];
+  const sheet = workbook.Sheets[found];
+  if (!sheet) return [];
+  return XLSX.utils.sheet_to_json<Row>(sheet, { defval: '' });
 }
 
 async function readWorkbookRows(
@@ -11631,8 +13677,9 @@ async function readFileArrayBuffer(file: File): Promise<ArrayBuffer> {
 
 async function invokeAdminImport(
   entity: AdminImportEntity,
-  rows: Row[]
-): Promise<{ processed: number; skipped: number }> {
+  rows: Row[],
+  extra: { contactRows?: Row[]; interactionRows?: Row[]; clearEmpty?: boolean } = {}
+): Promise<EntityImportResult> {
   const {
     data: { session },
   } = await supabase!.auth.getSession();
@@ -11647,7 +13694,13 @@ async function invokeAdminImport(
       Authorization: `Bearer ${accessToken}`,
       apikey: import.meta.env['PUBLIC_SUPABASE_ANON_KEY'] as string,
     },
-    body: JSON.stringify({ entity, rows }),
+    body: JSON.stringify({
+      entity,
+      rows,
+      contactRows: extra.contactRows ?? [],
+      interactionRows: extra.interactionRows ?? [],
+      clearEmpty: extra.clearEmpty === true,
+    }),
   });
   const json = (await response.json().catch(() => null)) as Row | null;
   if (!response.ok) {
@@ -11655,10 +13708,42 @@ async function invokeAdminImport(
     const details = error?.details ? ` Detalle: ${formatErrorDetails(error.details)}` : '';
     throw new Error(`${text(error?.message) || `HTTP ${response.status}`}${details}`.trim());
   }
+  const contacts =
+    json?.contacts && typeof json.contacts === 'object' ? (json.contacts as Row) : {};
+  const interactions =
+    json?.interactions && typeof json.interactions === 'object' ? (json.interactions as Row) : {};
+  const rejected = [
+    ...importErrors(json?.rejected),
+    ...importErrors(contacts.rejected),
+    ...importErrors(interactions.rejected),
+  ];
   return {
     processed: Number(json?.processed ?? 0),
     skipped: Number(json?.skipped ?? 0),
+    created: Number(json?.created ?? 0),
+    updated: Number(json?.updated ?? 0),
+    rejected,
+    contactsProcessed: Number(contacts.processed ?? 0),
+    interactionsProcessed: Number(interactions.processed ?? 0),
   };
+}
+
+function importErrors(value: unknown): ImportFieldError[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap(item => {
+    if (!item || typeof item !== 'object') return [];
+    const row = item as Row;
+    const message = text(row.message);
+    if (!message) return [];
+    return [
+      {
+        row: Number(row.row ?? 0),
+        column: text(row.column),
+        value: text(row.value),
+        message,
+      },
+    ];
+  });
 }
 
 function normalizeEntityImportRow(entity: ExcelEntity, rawRow: Row): Row | null {
@@ -12109,31 +14194,7 @@ function productoToExcelRow(row: Row, familias: Row[], tipos: Row[]): Record<str
 }
 
 async function selectProveedores(filters: ProveedoresQuery): Promise<Row[]> {
-  let query = supabase!.from('proveedores').select('*');
-  if (filters.q) {
-    const safeQ = filters.q.replace(/[,()%]/g, '');
-    if (safeQ) query = query.or(`nombre.ilike.%${safeQ}%,slug.ilike.%${safeQ}%`);
-  }
-  if (filters.activo === '1') query = query.eq('activo', true);
-  if (filters.activo === '0') query = query.eq('activo', false);
-  if (filters.tipo_entidad) query = query.eq('tipo_entidad', filters.tipo_entidad);
-  if (filters.lifecycle_status) query = query.eq('lifecycle_status', filters.lifecycle_status);
-  if (filters.dropship === '1') query = query.eq('dropship_enabled', true);
-  if (filters.dropship === '0') query = query.eq('dropship_enabled', false);
-  if (filters.incorporado_desde)
-    query = query.gte('created_at', `${filters.incorporado_desde}T00:00:00`);
-  if (filters.incorporado_hasta)
-    query = query.lte('created_at', `${filters.incorporado_hasta}T23:59:59.999`);
-  if (filters.ordenar === 'alfabetico_desc') {
-    query = query.order('nombre', { ascending: false }).order('created_at', { ascending: false });
-  } else if (filters.ordenar === 'recientes') {
-    query = query.order('created_at', { ascending: false }).order('nombre', { ascending: true });
-  } else if (filters.ordenar === 'antiguos') {
-    query = query.order('created_at', { ascending: true }).order('nombre', { ascending: true });
-  } else {
-    query = query.order('nombre', { ascending: true }).order('created_at', { ascending: false });
-  }
-  const { data, error } = await query.limit(100);
+  const { data, error } = await proveedoresFilteredQuery(filters).limit(500);
   if (error) {
     toast(error.message);
     return [];

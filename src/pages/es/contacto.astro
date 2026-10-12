@@ -123,11 +123,11 @@ const canonical = buildCanonical('/es/contacto/');
               />
               <span
                 >{t(locale, 'contacto.consentimiento')}
-                <a href="/es/legal/privacidad" target="_blank" rel="noopener noreferrer">
+                <a href="/es/legal/privacidad/" target="_blank" rel="noopener noreferrer">
                   Política de privacidad
                 </a>
                 y
-                <a href="/es/legal/habeas-data" target="_blank" rel="noopener noreferrer">
+                <a href="/es/legal/habeas-data/" target="_blank" rel="noopener noreferrer">
                   autorización de habeas data
                 </a>.</span
               >
@@ -393,7 +393,7 @@ const canonical = buildCanonical('/es/contacto/');
 </style>
 
 <script>
-  import { submitCotizacion } from '../../lib/datos';
+  import { submitCotizacion } from '../../lib/submit-cotizacion';
   import { mensajeExitoCotizacion } from '../../lib/cotizacion-submit';
 
   const form = document.getElementById('contacto-form') as HTMLFormElement | null;

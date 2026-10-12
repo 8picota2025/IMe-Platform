@@ -61,12 +61,12 @@ const asesorConfig = {
 };
 ---
 
-<!-- Botón de reapertura: solo aparece después de cerrar el panel desplegado -->
+<!-- FAB: cerrado por defecto junto al panel (evita FOUC abierto) -->
 <button
   id="asesor-trigger"
   class="asesor-fab"
   aria-label={t(locale, 'asesor.abrir')}
-  aria-expanded="true"
+  aria-expanded="false"
   aria-controls="asesor-dialog"
   type="button"
   transition:persist={`asesor-fab-${locale}`}
@@ -88,12 +88,13 @@ const asesorConfig = {
   <span class="asesor-fab__label">{locale === 'es' ? 'IMEIA Ayuda' : 'IMEIA Help'}</span>
 </button>
 
-<!-- Panel del asesor: visible desde la primera visita -->
+<!-- Panel del asesor: cerrado por defecto en todos los breakpoints -->
 <aside
   id="asesor-dialog"
   class="asesor-dialog"
   role="complementary"
   aria-label={t(locale, 'asesor.titulo')}
+  hidden
   data-asesor-config={JSON.stringify(asesorConfig)}
   transition:persist={`asesor-dialog-${locale}`}
 >
@@ -635,6 +636,12 @@ const asesorConfig = {
   } from '../lib/asesor';
   import { copyForAsesorError } from '../lib/asesor-errors';
   import { mapAsesorTurnstileClientFailure } from '../lib/asesor-turnstile';
+  import {
+    elegirMensajeEspera,
+    esAcuseTrivial,
+    WHATSAPP_HOLDING_AFTER_MS,
+    WHATSAPP_HOLDING_MIN_GAP_MS,
+  } from '../lib/whatsapp-espera';
 
   interface AsesorI18n {
     bienvenida: string;
@@ -724,6 +731,8 @@ const asesorConfig = {
   } | null = null;
   let enviando = false;
   let ultimoMensaje: string | null = null;
+  let ultimoTextoEspera: string | null = null;
+  let ultimoTextoEsperaAt = 0;
   let ultimoTurnId: string | null = null;
   let greetingLock: Promise<void> | null = null;
   let turnstileWidgetId: string | null = null;
@@ -1255,7 +1264,27 @@ const asesorConfig = {
       ultimoMensaje = mensaje;
       setEnviando(true);
       let consumedToken = false;
-      const loadingBubble = addBubble(config.i18n.buscando, 'loading');
+      let avisoTimer: ReturnType<typeof setTimeout> | undefined;
+      const loadingBubble = addBubble('…', 'loading');
+      if (loadingBubble) {
+        loadingBubble.setAttribute('role', 'status');
+      }
+      if (loadingBubble && !esAcuseTrivial(mensaje)) {
+        avisoTimer = setTimeout(() => {
+          if (!loadingBubble.isConnected) return;
+          const ahora = Date.now();
+          if (
+            ultimoTextoEspera !== null &&
+            ahora - ultimoTextoEsperaAt < WHATSAPP_HOLDING_MIN_GAP_MS
+          ) {
+            return;
+          }
+          const texto = elegirMensajeEspera(config.locale, ultimoTextoEspera, mensaje);
+          loadingBubble.textContent = texto;
+          ultimoTextoEspera = texto;
+          ultimoTextoEsperaAt = ahora;
+        }, WHATSAPP_HOLDING_AFTER_MS);
+      }
       try {
         if (!asesorLib) asesorLib = await import('../lib/asesor');
         let turnstileToken: string | undefined;
@@ -1325,6 +1354,7 @@ const asesorConfig = {
             console.warn('[asesor] Turnstile remount falló', err)
           );
         }
+        if (avisoTimer !== undefined) clearTimeout(avisoTimer);
         loadingBubble?.remove();
         setEnviando(false);
       }
@@ -1435,11 +1465,11 @@ const asesorConfig = {
       { signal }
     );
 
-    if (sessionStorage.getItem(ASESOR_DISMISSED_KEY) === '1') {
-      dialog.setAttribute('hidden', '');
-      trigger.setAttribute('aria-expanded', 'false');
-    } else {
-      void openDialog(false, false);
+    // PDP/UX: chat starts closed; user must open explicitly.
+    dialog.setAttribute('hidden', '');
+    trigger.setAttribute('aria-expanded', 'false');
+    if (sessionStorage.getItem(ASESOR_DISMISSED_KEY) !== '1') {
+      // Keep dismissed flag unset so first open still feels fresh.
     }
   }
 

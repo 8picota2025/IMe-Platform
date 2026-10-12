@@ -2539,6 +2539,11 @@ export function getFabricanteLandingIdBySlug(slug: string): FabricanteLandingId 
   return SLUG_TO_ID.get(slug);
 }
 
+/** Ids de las landings de fabricante (orden de publicación). */
+export function listFabricanteLandingIds(): FabricanteLandingId[] {
+  return Object.keys(META) as FabricanteLandingId[];
+}
+
 export function listFabricanteSlugs(): string[] {
   return Object.values(META).map(m => m.slug);
 }

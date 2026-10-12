@@ -6,6 +6,8 @@ import {
 import {
   TwentyClient,
   deriveLifecycleFromOpportunityStage,
+  esCampanaLeadMagnet,
+  leadMagnetJobTitle,
   mapCrmEtapaToTwentyStage,
   mergeAccountLifecycle,
   type TwentyRecord,
@@ -122,6 +124,13 @@ function installTwentyMock(options: MockOptions = {}) {
       return record(target);
     }
 
+    if (url.pathname === '/rest/notes') {
+      return record({ id: 'note-1', ...body }, 201);
+    }
+    if (url.pathname === '/rest/noteTargets') {
+      return record({ id: 'note-target-1', ...body }, 201);
+    }
+
     return Response.json({ error: 'unexpected request' }, { status: 500 });
   }) as typeof fetch;
 
@@ -191,6 +200,65 @@ Deno.test('evento: crea persona, oportunidad, tarea y enlace con datos del asist
 
     const target = callsFor(mock.calls, 'POST', '/rest/taskTargets')[0]?.body;
     assertEquals(target?.targetOpportunityId, 'opportunity-1');
+  } finally {
+    mock.restore();
+  }
+});
+
+Deno.test(
+  'atribucion: UTM/landing/referrer/session se escriben en la nota de la tarea',
+  async () => {
+    const mock = installTwentyMock();
+    try {
+      await new TwentyClient({
+        baseUrl: 'https://twenty.test',
+        apiKey: 'test-key',
+      }).syncCotizacionLead(
+        eventInput({
+          attribution: {
+            landingPath: '/es/monitores-biolight-uci/',
+            referrer: 'https://www.google.com/',
+            sessionId: 'sess-abc123',
+            utmSource: 'linkedin',
+            utmMedium: 'social',
+            utmCampaign: 'lanzamiento-uci',
+            utmContent: 'carrusel-1',
+            utmTerm: 'monitor multiparametrico',
+          },
+        })
+      );
+
+      const task = callsFor(mock.calls, 'POST', '/rest/tasks')[0]?.body;
+      const taskBody = task?.bodyV2 as { markdown?: string };
+      const markdown = taskBody.markdown ?? '';
+      assertStringIncludes(markdown, '**UTM Source:** linkedin');
+      assertStringIncludes(markdown, '**UTM Medium:** social');
+      assertStringIncludes(markdown, '**UTM Campaign:** lanzamiento-uci');
+      assertStringIncludes(markdown, '**UTM Content:** carrusel-1');
+      assertStringIncludes(markdown, '**UTM Term:** monitor multiparametrico');
+      assertStringIncludes(markdown, '**Landing:** /es/monitores-biolight-uci/');
+      assertStringIncludes(markdown, '**Referrer:** https://www.google.com/');
+      assertStringIncludes(markdown, '**Session ID:** sess-abc123');
+    } finally {
+      mock.restore();
+    }
+  }
+);
+
+Deno.test('atribucion: ausente no agrega lineas vacias a la nota', async () => {
+  const mock = installTwentyMock();
+  try {
+    await new TwentyClient({
+      baseUrl: 'https://twenty.test',
+      apiKey: 'test-key',
+    }).syncCotizacionLead(eventInput());
+
+    const task = callsFor(mock.calls, 'POST', '/rest/tasks')[0]?.body;
+    const taskBody = task?.bodyV2 as { markdown?: string };
+    const markdown = taskBody.markdown ?? '';
+    assert(!markdown.includes('**UTM Source:**'));
+    assert(!markdown.includes('**Landing:**'));
+    assert(!markdown.includes('**Session ID:**'));
   } finally {
     mock.restore();
   }
@@ -454,4 +522,48 @@ Deno.test('reassignCommercialLead parchea owner, cuenta y tarea', async () => {
   } finally {
     mock.restore();
   }
+});
+
+Deno.test('lead magnet: contacto y nota con atribución, sin oportunidad ni tarea', async () => {
+  const mock = installTwentyMock();
+  try {
+    const result = await new TwentyClient({
+      baseUrl: 'https://twenty.test',
+      apiKey: 'test-key',
+    }).syncLeadMagnetContact({
+      nombre: 'Laura Gómez',
+      email: 'laura@example.test',
+      empresa: 'Clínica Demo',
+      leadMagnetId: 'checklist-recepcion-monitor',
+      campaign: 'herramienta',
+      familySlug: 'monitores',
+      ciudad: 'Medellín',
+      attribution: { utmSource: 'linkedin', utmMedium: 'social-organico' },
+    });
+
+    assertEquals(result.ok, true);
+    assertEquals(result.data, { personId: 'person-1', companyId: 'company-1', noteId: 'note-1' });
+    assertEquals(callsFor(mock.calls, 'POST', '/rest/opportunities').length, 0);
+    assertEquals(callsFor(mock.calls, 'POST', '/rest/tasks').length, 0);
+
+    const person = callsFor(mock.calls, 'POST', '/rest/people')[0];
+    assertEquals(person?.body?.jobTitle, 'Lead magnet · checklist-recepcion-monitor');
+
+    const note = callsFor(mock.calls, 'POST', '/rest/notes')[0];
+    const markdown = String((note?.body?.bodyV2 as { markdown?: string } | undefined)?.markdown);
+    assertStringIncludes(markdown, '**UTM Source:** linkedin');
+    assertStringIncludes(markdown, '**Lead magnet:** checklist-recepcion-monitor');
+    assertEquals(callsFor(mock.calls, 'POST', '/rest/noteTargets').length, 2);
+  } finally {
+    mock.restore();
+  }
+});
+
+Deno.test('lead magnet: herramientas y fichas; cargo acotado a 80 caracteres', () => {
+  assertEquals(esCampanaLeadMagnet('herramienta'), true);
+  assertEquals(esCampanaLeadMagnet('pdf_descarga'), true);
+  assertEquals(esCampanaLeadMagnet('dotacion_monitoreo_uci'), false);
+  assertEquals(esCampanaLeadMagnet('proyectos'), false);
+  assertEquals(esCampanaLeadMagnet(undefined), false);
+  assert(leadMagnetJobTitle('x'.repeat(200)).length <= 80);
 });

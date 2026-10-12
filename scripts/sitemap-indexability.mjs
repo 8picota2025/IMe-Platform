@@ -76,13 +76,13 @@ export const REDIRECT_ONLY_PRODUCT_PATHS = new Set([
   '/es/productos/lampara-quirurgica-ref-ainno-saikang/',
   '/en/products/lampara-quirurgica-ref-ainno-saikang/',
   // Mismo combo publicado con dos SKU (G-LTD-B10-* y GMD-LTD-B10-*).
-  '/es/productos/combo-100-cajas-de-tirillas-plus-100-cajas-de-lancetas-plus-25-glucometros-en-obsequio-75e09b13-8a2a-48/',
-  '/en/products/combo-100-cajas-de-tirillas-plus-100-cajas-de-lancetas-plus-25-glucometros-en-obsequio-75e09b13-8a2a-48/',
-  '/es/productos/combo-200-cajas-de-tirillas-plus-200-cajas-de-lancetas-plus-67-glucometros-en-obsequio-ee958bf4-f926-4d/',
-  '/en/products/combo-200-cajas-de-tirillas-plus-200-cajas-de-lancetas-plus-67-glucometros-en-obsequio-ee958bf4-f926-4d/',
+  '/es/productos/combo-100-cajas-de-tirillas-plus-100-cajas-de-lancetas-plus-25-glucometros-en-obsequio-7-ref-100/',
+  '/en/products/combo-100-cajas-de-tirillas-plus-100-cajas-de-lancetas-plus-25-glucometros-en-obsequio-7-ref-100/',
+  '/es/productos/combo-200-cajas-de-tirillas-plus-200-cajas-de-lancetas-plus-67-glucometros-en-obsequio-e-ref-200/',
+  '/en/products/combo-200-cajas-de-tirillas-plus-200-cajas-de-lancetas-plus-67-glucometros-en-obsequio-e-ref-200/',
   // Mismo sistema radiográfico publicado con dos slugs.
-  '/es/productos/sistema-radiografico-3d-wr-3d/',
-  '/en/products/sistema-radiografico-3d-wr-3d/',
+  '/es/productos/sistema-radiografico-3d-ref-wr-3d-angell/',
+  '/en/products/sistema-radiografico-3d-ref-wr-3d-angell/',
 ]);
 
 function normalizePathname(pathname) {
@@ -117,6 +117,9 @@ export function isIndexableSitemapUrl(page) {
   if (NON_INDEXABLE_PREFIXES.some(prefix => matchesPrefix(pathname, prefix))) return false;
   if (/^\/(?:es\/productos|en\/products)\/test(?:\/|$|-)/.test(pathname)) return false;
   if (/test-de-pasarela-de-pagos/.test(pathname)) return false;
+  // Datasheets are not pages. Equitronic competitor assets must not re-enter any sitemap.
+  if (/\.pdf$/i.test(pathname)) return false;
+  if (/\/assets\/importados\/equitronic(?:\/|$)/i.test(pathname)) return false;
 
   return true;
 }

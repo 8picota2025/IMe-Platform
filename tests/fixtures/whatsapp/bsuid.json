@@ -1,0 +1,39 @@
+{
+  "object": "whatsapp_business_account",
+  "entry": [
+    {
+      "id": "TEST_WABA",
+      "changes": [
+        {
+          "field": "messages",
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "phone_number_id": "TEST_PHONE_ID"
+            },
+            "contacts": [
+              {
+                "profile": {
+                  "name": "Institución de prueba",
+                  "username": "test.university"
+                },
+                "user_id": "CO.TestBsuid42"
+              }
+            ],
+            "messages": [
+              {
+                "id": "wamid.test.bsuid",
+                "from_user_id": "CO.TestBsuid42",
+                "timestamp": "1749416383",
+                "type": "text",
+                "text": {
+                  "body": "Necesito una cotización"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

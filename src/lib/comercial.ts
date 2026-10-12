@@ -4,12 +4,24 @@ import { tienePrecioPublico } from './format';
 
 export type AccionComercialTipo = 'carrito' | 'cotizacion' | 'consultar';
 
+/** Variante visual/funcional de la PDP. Independiente de stock. */
+export type ProductPurchaseMode = 'commerce' | 'quote';
+
 export type ProductoComercial = CommerceProductSignals;
 
 export interface AccionComercial {
   tipo: AccionComercialTipo;
   label: string;
   tienePrecio: boolean;
+}
+
+/**
+ * Fuente de verdad única para la variante PDP.
+ * Precio público válido (> 0) → commerce; si no → quote.
+ * No inferir stock ni disponibilidad desde la ausencia de precio.
+ */
+export function getProductPurchaseMode(producto: ProductoComercial): ProductPurchaseMode {
+  return tienePrecioPublico(producto.precio) ? 'commerce' : 'quote';
 }
 
 /**

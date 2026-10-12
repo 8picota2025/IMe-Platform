@@ -35,6 +35,26 @@ export interface TwentyResult<T> {
   data?: T;
 }
 
+/**
+ * Atribución de marketing (UTM/landing/referrer/sesión), ya capturada en
+ * `leads_comerciales`/`solicitudes_cotizacion` pero hasta ahora no
+ * propagada a Twenty. La API key de Twenty no tiene `create_field_metadata`
+ * hoy (requiere que un admin humano cree campos custom), así que esto se
+ * escribe como texto legible en la nota/tarea en vez de en campos
+ * estructurados — interino hasta que existan esos campos.
+ * Ver docs/growth-engine/IMPLEMENTATION_PLAN.md ADR-0011.
+ */
+export interface TwentyAttribution {
+  landingPath?: string | null;
+  referrer?: string | null;
+  sessionId?: string | null;
+  utmSource?: string | null;
+  utmMedium?: string | null;
+  utmCampaign?: string | null;
+  utmContent?: string | null;
+  utmTerm?: string | null;
+}
+
 /** Owner Twenty desde env; sin hardcode UUID (evita opp huérfanas si user borrado). */
 function resolveTwentyOwnerId(explicit?: string): string | undefined {
   const fromInput = explicit?.trim();
@@ -48,6 +68,22 @@ function resolveTwentyOwnerId(explicit?: string): string | undefined {
 export interface TwentyRecord {
   id: string;
   [key: string]: unknown;
+}
+
+/**
+ * Campañas que sólo generan contacto en Twenty (sin Opportunity hasta que haya cotización):
+ * herramientas y descargas de fichas técnicas. Espejo en la función SQL
+ * `crm_sync_from_lead_comercial()`: cambiar las dos a la vez.
+ */
+const LEAD_MAGNET_CAMPAIGNS = new Set(['herramienta', 'pdf_descarga']);
+
+export function esCampanaLeadMagnet(campaign?: string | null): boolean {
+  return Boolean(campaign && LEAD_MAGNET_CAMPAIGNS.has(campaign));
+}
+
+/** Filtro de la vista «Lead magnet — por explorar» en Twenty (Job Title contiene "Lead magnet"). */
+export function leadMagnetJobTitle(leadMagnetId: string): string {
+  return `Lead magnet · ${leadMagnetId}`.slice(0, 80);
 }
 
 /** Ciclo comercial I-ME sobre cuenta (Company), derivado del pipeline Twenty. */
@@ -1028,6 +1064,86 @@ export class TwentyClient {
   }
 
   /**
+   * Lead magnet (herramienta): sólo contacto + nota, **sin Opportunity** — la oportunidad nace
+   * cuando el lead pide cotización (decisión del usuario, 2026-09-25). El `jobTitle`
+   * `Lead magnet · <id>` es el filtro de la vista de Twenty «Lead magnet — por explorar»
+   * mientras no existan campos custom (ADR-0011). No pisa el cargo de un contacto que ya existía.
+   */
+  async syncLeadMagnetContact(input: {
+    nombre: string;
+    email?: string;
+    telefono?: string;
+    empresa?: string;
+    mensaje?: string;
+    leadMagnetId: string;
+    /** Producto de la ficha descargada (`tipo_slug` del lead), si aplica. */
+    productSlug?: string;
+    campaign: string;
+    familySlug?: string;
+    ciudad?: string;
+    leadReference?: string;
+    attribution?: TwentyAttribution;
+  }): Promise<TwentyResult<{ personId: string; companyId?: string; noteId?: string }>> {
+    let companyId: string | undefined;
+    const companyName = (input.empresa || '').trim();
+    if (companyName) {
+      const company = await this.upsertCompany({ name: companyName.slice(0, 120) });
+      if (!company.ok) return { ok: false, error: company.error };
+      companyId = company.data?.id;
+    }
+
+    let phoneNumber: string | undefined;
+    let phoneCallingCode: string | undefined;
+    const digits = (input.telefono || '').replace(/[^\d]/g, '');
+    if (digits.length >= 8) {
+      phoneCallingCode = '+57';
+      phoneNumber = digits.startsWith('57') && digits.length > 10 ? digits.slice(2) : digits;
+    }
+
+    const [firstName, ...restName] = input.nombre.trim().split(/\s+/);
+    const person = await this.upsertPerson({
+      firstName: firstName || 'Contacto',
+      lastName: restName.join(' ') || 'Web',
+      email: input.email,
+      phoneNumber,
+      phoneCallingCode,
+      jobTitle: leadMagnetJobTitle(input.leadMagnetId),
+      companyId,
+      preserveJobTitleOnUpdate: true,
+    });
+    if (!person.ok || !person.data) {
+      return { ok: false, error: person.error ?? 'Persona no creada' };
+    }
+
+    const a = input.attribution;
+    const note = await this.createNote({
+      title: `Lead magnet: ${input.leadMagnetId} — ${input.nombre}`.slice(0, 120),
+      bodyMarkdown: [
+        `**Lead magnet:** ${input.leadMagnetId}`,
+        ...(input.productSlug ? [`**Producto:** ${input.productSlug}`] : []),
+        `**Campaña:** ${input.campaign}`,
+        ...(input.familySlug ? [`**Familia:** ${input.familySlug}`] : []),
+        ...(input.ciudad ? [`**Ciudad:** ${input.ciudad}`] : []),
+        ...(input.leadReference ? [`**Lead:** ${input.leadReference}`] : []),
+        ...(a?.utmSource ? [`**UTM Source:** ${a.utmSource}`] : []),
+        ...(a?.utmMedium ? [`**UTM Medium:** ${a.utmMedium}`] : []),
+        ...(a?.utmCampaign ? [`**UTM Campaign:** ${a.utmCampaign}`] : []),
+        ...(a?.utmContent ? [`**UTM Content:** ${a.utmContent}`] : []),
+        ...(a?.landingPath ? [`**Landing:** ${a.landingPath}`] : []),
+        ...(a?.referrer ? [`**Referrer:** ${a.referrer}`] : []),
+        `**Mensaje:** ${input.mensaje || '—'}`,
+        'Sin oportunidad: se crea cuando pida cotización.',
+      ].join('\n'),
+    });
+    const noteId = note.data?.id;
+    if (note.ok && noteId) {
+      await this.linkNoteTarget({ noteId, targetPersonId: person.data.id });
+      if (companyId) await this.linkNoteTarget({ noteId, targetCompanyId: companyId });
+    }
+    return { ok: true, data: { personId: person.data.id, companyId, noteId } };
+  }
+
+  /**
    * Orquesta la sincronizacion de un `commercial_share`: upsert de
    * compania (si hay `medicalCenterName`), upsert de persona (dedup por
    * email o telefono), nota con el mensaje + lista de productos, y su
@@ -1362,6 +1478,7 @@ export class TwentyClient {
     /** Slug/nombre del evento presencial (ACISE, etc.) para etiquetar en Twenty. */
     eventSlug?: string;
     eventName?: string;
+    attribution?: TwentyAttribution;
   }): Promise<
     TwentyResult<{
       personId: string;
@@ -1539,6 +1656,28 @@ export class TwentyClient {
           ...(input.familySlug ? [`**Familia:** ${input.familySlug}`] : []),
           ...(input.purchaseHorizon ? [`**Horizonte:** ${input.purchaseHorizon}`] : []),
           ...(input.ciudad ? [`**Ciudad:** ${input.ciudad}`] : []),
+          // Atribución: ver TwentyAttribution — interino en texto hasta que
+          // existan campos custom en Twenty (ADR-0011).
+          ...(input.attribution?.utmSource
+            ? [`**UTM Source:** ${input.attribution.utmSource}`]
+            : []),
+          ...(input.attribution?.utmMedium
+            ? [`**UTM Medium:** ${input.attribution.utmMedium}`]
+            : []),
+          ...(input.attribution?.utmCampaign
+            ? [`**UTM Campaign:** ${input.attribution.utmCampaign}`]
+            : []),
+          ...(input.attribution?.utmContent
+            ? [`**UTM Content:** ${input.attribution.utmContent}`]
+            : []),
+          ...(input.attribution?.utmTerm ? [`**UTM Term:** ${input.attribution.utmTerm}`] : []),
+          ...(input.attribution?.landingPath
+            ? [`**Landing:** ${input.attribution.landingPath}`]
+            : []),
+          ...(input.attribution?.referrer ? [`**Referrer:** ${input.attribution.referrer}`] : []),
+          ...(input.attribution?.sessionId
+            ? [`**Session ID:** ${input.attribution.sessionId}`]
+            : []),
           `**Mensaje:** ${input.mensaje || '—'}`,
           // Congreso/evento: productos de interés van en la tarea para seguimiento.
           ...((input.productos || []).length ? [`**Productos:**\n${productList}`] : []),
@@ -1665,6 +1804,7 @@ export async function syncCotizacionWithTwenty(input: {
   twentyOpportunityId?: string | null;
   eventSlug?: string;
   eventName?: string;
+  attribution?: TwentyAttribution;
 }): Promise<
   TwentyResult<{
     personId: string;
@@ -1696,19 +1836,50 @@ export async function syncCommercialLeadWithTwenty(input: {
   ciudad?: string;
   leadReference?: string;
   twentyOpportunityId?: string | null;
+  /** `tipo_proyecto` del lead: en campañas lead magnet, el id de la herramienta. */
+  tipoProyecto?: string;
+  /** `tipo_slug` del lead: en descargas de fichas, el producto. */
+  tipoSlug?: string;
   /** Override de canal (p.ej. `congreso`); por defecto deriva de campaign. */
   origen?: string;
   eventSlug?: string;
   eventName?: string;
   productos?: Array<{ nombre?: string; slug?: string; cantidad?: number }>;
+  attribution?: TwentyAttribution;
 }): Promise<
   TwentyResult<{
     personId: string;
     companyId?: string;
-    opportunityId: string;
+    /** Ausente en lead magnets: sin Opportunity hasta que haya cotización. */
+    opportunityId?: string;
     taskId?: string;
   }>
 > {
+  if (esCampanaLeadMagnet(input.campaign)) {
+    const client = TwentyClient.fromEnv();
+    if (!client) {
+      return { ok: false, skipped: true, error: 'TWENTY_BASE_URL/TWENTY_API_KEY no configurados' };
+    }
+    return client.syncLeadMagnetContact({
+      nombre: input.nombre,
+      email: input.email,
+      telefono: input.telefono,
+      empresa: input.empresa,
+      mensaje: input.mensaje,
+      // Fichas: un solo cargo para todas (el producto va en la nota) para no partir la vista.
+      leadMagnetId:
+        input.campaign === 'pdf_descarga'
+          ? 'ficha-tecnica'
+          : input.tipoProyecto?.trim() || input.campaign,
+      productSlug:
+        input.campaign === 'pdf_descarga' ? input.tipoSlug?.trim() || undefined : undefined,
+      campaign: input.campaign,
+      familySlug: input.familySlug,
+      ciudad: input.ciudad,
+      leadReference: input.leadReference,
+      attribution: input.attribution,
+    });
+  }
   const isEvent = input.campaign === 'evento';
   return syncCotizacionWithTwenty({
     ...input,

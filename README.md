@@ -56,7 +56,7 @@ cp .env.example .env
 - Equipos: cotización o atención personalizada según `tipo_comercial` y `fulfillment_mode`.
 - Webhooks: `webhook-wompi` y `webhook-stripe` verifican firma y estado server-side.
 - Asesor IA: Edge Function `asesor` con Turnstile, rate-limit, presupuesto y fallback por palabra clave.
-- WhatsApp Cloud API: Edge Function `whatsapp-webhook` (verificación Meta + reply IMEIA). Setup: `docs/WHATSAPP_CLOUD_API.md`.
+- WhatsApp Cloud API: `whatsapp-webhook` (verificación Meta) y `whatsapp-imeia-dispatch` (un wake por remitente + espera solo si pasa un minuto). Setup: `docs/WHATSAPP_CLOUD_API.md`.
 - Las pruebas reales requieren secretos en Supabase/CI; ver `PENDIENTES.md`.
 - Desarrollo local sin credenciales: `LLM_PROVIDER=ollama` / `EMBEDDING_PROVIDER=ollama` (Ollama autoalojado, coste $0) — ver `docs/decisions/0005-ollama-asesor-local.md`.
 - Reindexado Voyage: usa `npm run reindex:voyage[:articles|:all]` tras cambiar `VOYAGE_API_KEY` o parámetros de embeddings.
@@ -97,3 +97,12 @@ cada sesión. Estado de fases en AGENTS.md sección "Estado de fases".
 - `PENDIENTES.md` — pendientes activos por etiqueta
 - `BACKLOG_V2.md` — fuera de alcance V1
 - `docs/prompts/` — prompts de fase versionados
+- `docs/mcp-ime-comercio-cotizaciones.md` — herramientas MCP `ime-comercio` para buscar, editar y enviar cotizaciones (envío oficial con asesor y Reply-To)
+
+## MCP de comercio para agentes remotos
+
+Conexión oficial por HTTPS: `https://nnfbucwiasuggyfoyydo.supabase.co/functions/v1/mcp-comercio`,
+con `Authorization: Bearer <IME_MCP_COMERCIO_TOKEN>`. Funciona en Supabase Edge
+sin el escritorio ni un proceso local. Configuración de Cursor, permisos,
+rotación y verificación: [MCP HTTP de comercio](docs/mcp-ime-comercio-http.md).
+El modo local sigue disponible con `npm run mcp:comercio`.

@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
+  componerMensajeCotizacion,
   interpretarErrorEdgeFunction,
   mensajeExitoCotizacion,
   normalizarPayloadCotizacion,
   resolverMensajeCotizacion,
+  urlAbsolutaProducto,
 } from './cotizacion-submit';
 
 describe('cotizacion-submit', () => {
@@ -90,5 +92,51 @@ describe('cotizacion-submit', () => {
     expect(mensajeExitoCotizacion('es', { interno: true, cliente: true })).toContain(
       'confirmación a tu correo'
     );
+  });
+
+  describe('componerMensajeCotizacion', () => {
+    const productos = [
+      { slug: 'fanghua', nombre: 'Mamógrafo Fanghua', cantidad: 1, modelo: 'FH-1' },
+      { slug: 'dm156', nombre: 'Mamógrafo DM156', cantidad: 2 },
+      { slug: 'dm166', nombre: 'Mamógrafo DM166', cantidad: 1 },
+    ];
+
+    it('incluye TODOS los productos aunque el usuario escriba comentarios', () => {
+      const mensaje = componerMensajeCotizacion({
+        locale: 'es',
+        comentarios: 'Entrega en Yopal',
+        productos,
+        ciudad: 'Casanare',
+        ciudadLabel: 'Ciudad / departamento',
+      });
+      expect(mensaje).toContain('Mamógrafo Fanghua (Ref. FH-1)');
+      expect(mensaje).toContain('Mamógrafo DM156 (x2)');
+      expect(mensaje).toContain('Mamógrafo DM166');
+      expect(mensaje).toContain('Comentarios:\nEntrega en Yopal');
+      expect(mensaje.startsWith('Ciudad / departamento: Casanare')).toBe(true);
+    });
+
+    it('sin productos usa solo los comentarios', () => {
+      expect(componerMensajeCotizacion({ locale: 'en', comentarios: ' Hi ' })).toBe('Hi');
+    });
+
+    it('vacío si no hay productos ni comentarios', () => {
+      expect(componerMensajeCotizacion({ locale: 'es', ciudad: 'Bogotá' })).toBe('');
+    });
+  });
+
+  it('convierte rutas relativas de tarjetas en enlace completo', () => {
+    expect(urlAbsolutaProducto('/es/productos/wr-3d/')).toBe(
+      'https://i-me.com.co/es/productos/wr-3d/'
+    );
+    expect(urlAbsolutaProducto('https://i-me.com.co/es/productos/x/')).toBe(
+      'https://i-me.com.co/es/productos/x/'
+    );
+    expect(urlAbsolutaProducto('  ')).toBeUndefined();
+    const mensaje = resolverMensajeCotizacion({
+      locale: 'es',
+      productos: [{ slug: 'wr-3d', nombre: 'WR-3D', cantidad: 1, url: '/es/productos/wr-3d/' }],
+    });
+    expect(mensaje).toContain('Página del producto: https://i-me.com.co/es/productos/wr-3d/');
   });
 });

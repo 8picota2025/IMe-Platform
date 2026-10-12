@@ -10,7 +10,7 @@ const products = JSON.parse(await readFile(file, 'utf8'));
 // MedicalExpo. La página antigua del fabricante ya no entrega el JPG, por
 // eso se conserva también la URL de referencia oficial para trazabilidad.
 const sources = {
-  'skm-b-skr007': {
+  'carro-abs-ref-skr007-saikang': {
     local: '/assets/productos/fabricante/saikang/skm-b-skr007.jpg',
     source: 'https://img.medicalexpo.com/pdf/repository_me/76520/skr007-abs-trolley-saikangmedical-238299_1mg.jpg',
     manufacturer: 'https://saikangmedical.co/English/Products/Carts/ABS-cart/index_2.html',

@@ -14,7 +14,7 @@ import { buildAsesorStaticFallback, esConsultaSitioOLegal } from './asesor-knowl
 import { IME_WHATSAPP_DISPLAY, IME_WHATSAPP_E164 } from './contacto-oficial.ts';
 
 export const IME_COTIZACION_URL = 'https://i-me.com.co/es/contacto/';
-export const WHATSAPP_DEFAULT_API_VERSION = 'v21.0';
+export const WHATSAPP_DEFAULT_API_VERSION = 'v26.0';
 export const WHATSAPP_TEXT_MAX_CHARS = 4096;
 
 const RADIOLOGY_RE =
@@ -44,6 +44,10 @@ export interface InboundWhatsAppText {
   contactName: string | null;
   isGroup: boolean;
   type: string;
+  senderType?: 'phone' | 'bsuid' | 'username';
+  username?: string | null;
+  raw?: unknown;
+  isBot?: boolean;
 }
 
 export interface WhatsAppStatusEvent {
@@ -52,9 +56,22 @@ export interface WhatsAppStatusEvent {
   recipientId: string | null;
 }
 
+/** Mensaje que Shoky envió desde la app (eco). `waId` es el cliente (`to`). */
+export interface WhatsAppManualEcho {
+  wamid: string;
+  waId: string;
+  fromWa: string;
+  text: string;
+  timestamp: string;
+  phoneNumberId: string | null;
+  field: string;
+  raw?: unknown;
+}
+
 export interface ParsedWhatsAppWebhook {
   object: string | null;
   texts: InboundWhatsAppText[];
+  echoes: WhatsAppManualEcho[];
   statuses: WhatsAppStatusEvent[];
   ignored: Array<{ reason: string; wamid?: string }>;
 }
@@ -205,48 +222,144 @@ export function detectarLocaleWhatsApp(texto: string): WhatsAppLocale {
   return englishHits > spanishHits ? 'en' : 'es';
 }
 
+/** Opaque BSUIDs are never reduced to digits. Usernames are display-only. */
+export function normalizeWhatsAppIdentifier(value: string): string {
+  const id = value.trim();
+  return /^\+?[\d ()]+$/.test(id) ? id.replace(/\D/g, '') : id;
+}
+
+export function whatsAppIdentifierType(id: string): 'phone' | 'bsuid' | 'username' {
+  if (/^\d{8,15}$/.test(normalizeWhatsAppIdentifier(id))) return 'phone';
+  if (/^[A-Z]{2}\.(?:ENT\.)?[a-zA-Z0-9]{1,128}$/.test(id)) return 'bsuid';
+  return 'username';
+}
+
+export function whatsAppRecipient(id: string): { to: string } | { recipient: string } | null {
+  const type = whatsAppIdentifierType(id);
+  return type === 'phone'
+    ? { to: normalizeWhatsAppIdentifier(id) }
+    : type === 'bsuid'
+      ? { recipient: id }
+      : null;
+}
+
+export function readableWhatsAppBody(message: Record<string, unknown>, type: string): string {
+  const content = asRecord(message[type]);
+  const interactive = asRecord(message.interactive);
+  const reply = asRecord(interactive?.button_reply) ?? asRecord(interactive?.list_reply);
+  return (
+    (
+      asString(content?.body) ||
+      asString(content?.caption) ||
+      asString(content?.text) ||
+      asString(reply?.title) ||
+      asString(reply?.id) ||
+      asString(content?.emoji) ||
+      asString(content?.name) ||
+      asString(content?.filename) ||
+      `[${type}]`
+    )
+      .trim()
+      .slice(0, 4096) || `[${type}]`
+  );
+}
+
 function isGroupMessage(raw: Record<string, unknown>): boolean {
   if (asString(raw.group_id).trim()) return true;
   const context = asRecord(raw.context);
   if (context && asString(context.group_id).trim()) return true;
   const from = asString(raw.from);
-  return /@g\.us\b/i.test(from) || from.includes('-');
+  return /@g\.us\b/i.test(from) || /^\d+-\d+$/.test(from);
+}
+
+function esIdentificadorGrupo(valor: string): boolean {
+  return /@g\.us\b/i.test(valor) || /^\d+-\d+$/.test(valor);
+}
+
+function considerarEco(
+  row: unknown,
+  field: string,
+  phoneNumberId: string | null,
+  echoes: WhatsAppManualEcho[],
+  ignored: Array<{ reason: string; wamid?: string }>
+): void {
+  const message = asRecord(row);
+  if (!message) {
+    ignored.push({ reason: 'malformed_echo' });
+    return;
+  }
+  const wamid = asString(message.id).trim();
+  const rawTo =
+    asString(message.to_user_id) || asString(message.to) || asString(message.recipient_user_id);
+  const waId = normalizeWhatsAppIdentifier(rawTo);
+  const fromWa = normalizeWhatsAppIdentifier(asString(message.from));
+  if (!wamid || !waId) {
+    ignored.push(wamid ? { reason: 'malformed_echo', wamid } : { reason: 'malformed_echo' });
+    return;
+  }
+  if (esIdentificadorGrupo(rawTo)) {
+    ignored.push({ reason: 'group', wamid });
+    return;
+  }
+  const type = asString(message.type) || 'unknown';
+  const text = readableWhatsAppBody(message, type);
+  echoes.push({
+    wamid,
+    waId,
+    fromWa,
+    text: text.slice(0, 4096),
+    timestamp: asString(message.timestamp),
+    phoneNumberId,
+    field: field || 'message_echoes',
+    raw: message,
+  });
 }
 
 export function parseWhatsAppWebhook(payload: unknown): ParsedWhatsAppWebhook {
   const root = asRecord(payload);
   const object = root ? asString(root.object) || null : null;
   const texts: InboundWhatsAppText[] = [];
+  const echoes: WhatsAppManualEcho[] = [];
   const statuses: WhatsAppStatusEvent[] = [];
   const ignored: Array<{ reason: string; wamid?: string }> = [];
+  const propio = IME_WHATSAPP_E164.replace(/\D/g, '');
 
   if (!root || object !== 'whatsapp_business_account') {
-    return { object, texts, statuses, ignored: [...ignored, { reason: 'not_whatsapp' }] };
+    return { object, texts, echoes, statuses, ignored: [...ignored, { reason: 'not_whatsapp' }] };
   }
 
   const entries = Array.isArray(root.entry) ? root.entry : [];
   for (const entry of entries) {
     const entryObj = asRecord(entry);
-    if (!entryObj) continue;
+    if (!entryObj) {
+      ignored.push({ reason: 'malformed_entry' });
+      continue;
+    }
     const changes = Array.isArray(entryObj.changes) ? entryObj.changes : [];
     for (const change of changes) {
       const changeObj = asRecord(change);
       const value = changeObj ? asRecord(changeObj.value) : null;
-      if (!value) continue;
+      if (!value) {
+        ignored.push({ reason: 'malformed_change' });
+        continue;
+      }
+      const field = changeObj ? asString(changeObj.field) : '';
 
       const metadata = asRecord(value.metadata);
       const phoneNumberId = metadata ? asString(metadata.phone_number_id) || null : null;
       const contacts = Array.isArray(value.contacts) ? value.contacts : [];
-      const firstContact = asRecord(contacts[0]);
-      const profile = firstContact ? asRecord(firstContact.profile) : null;
-      const contactName = profile ? asString(profile.name) || null : null;
-
       const statusRows = Array.isArray(value.statuses) ? value.statuses : [];
       for (const row of statusRows) {
         const statusObj = asRecord(row);
-        if (!statusObj) continue;
+        if (!statusObj) {
+          ignored.push({ reason: 'malformed_status' });
+          continue;
+        }
         const wamid = asString(statusObj.id).trim();
-        if (!wamid) continue;
+        if (!wamid) {
+          ignored.push({ reason: 'malformed_status' });
+          continue;
+        }
         statuses.push({
           wamid,
           status: asString(statusObj.status) || 'unknown',
@@ -254,48 +367,77 @@ export function parseWhatsAppWebhook(payload: unknown): ParsedWhatsAppWebhook {
         });
       }
 
+      const echoRows = [
+        ...(Array.isArray(value.message_echoes) ? value.message_echoes : []),
+        ...(Array.isArray(value.smb_message_echoes) ? value.smb_message_echoes : []),
+      ];
+      for (const row of echoRows) {
+        considerarEco(row, field || 'message_echoes', phoneNumberId, echoes, ignored);
+      }
+
       const messageRows = Array.isArray(value.messages) ? value.messages : [];
       for (const row of messageRows) {
         const message = asRecord(row);
-        if (!message) continue;
+        if (!message) {
+          ignored.push({ reason: 'malformed_message' });
+          continue;
+        }
+        const toRaw = asString(message.to_user_id) || asString(message.to);
+        const fromRaw = asString(message.from);
+        if (field === 'smb_message_echoes' || (toRaw && isOwnBusinessNumber(fromRaw, propio))) {
+          considerarEco(message, field || 'messages', phoneNumberId, echoes, ignored);
+          continue;
+        }
         const wamid = asString(message.id).trim();
-        const from = asString(message.from).replace(/\D/g, '');
+        const id = asString(message.from_user_id) || asString(message.user_id) || fromRaw;
+        const matching = contacts
+          .map(asRecord)
+          .filter((c): c is Record<string, unknown> => c !== null);
+        const contact =
+          matching.find(c => [c.wa_id, c.user_id].includes(id)) ??
+          (!id && matching.length === 1 ? matching[0] : null);
+        const profile = asRecord(contact?.profile);
+        const contactName = asString(profile?.name) || null;
+        const username =
+          asString(profile?.username) ||
+          asString(contact?.username) ||
+          asString(message.username) ||
+          null;
+        const from = normalizeWhatsAppIdentifier(
+          id || asString(contact?.user_id) || asString(contact?.wa_id) || username || ''
+        );
         const type = asString(message.type) || 'unknown';
         if (!wamid || !from) {
-          ignored.push(
-            wamid ? { reason: 'malformed_message', wamid } : { reason: 'malformed_message' }
-          );
+          ignored.push(wamid ? { reason: 'no_sender', wamid } : { reason: 'no_wamid' });
           continue;
         }
         if (isGroupMessage(message)) {
           ignored.push({ reason: 'group', wamid });
           continue;
         }
-        if (type !== 'text') {
-          ignored.push({ reason: `unsupported_type:${type}`, wamid });
-          continue;
-        }
-        const textObj = asRecord(message.text);
-        const text = asString(textObj?.body).trim();
-        if (!text) {
-          ignored.push({ reason: 'empty_text', wamid });
-          continue;
-        }
+        const text = readableWhatsAppBody(message, type);
         texts.push({
           wamid,
           from,
-          text: text.slice(0, 2000),
+          text: text.slice(0, 4096),
           timestamp: asString(message.timestamp),
           phoneNumberId,
           contactName,
           isGroup: false,
           type,
+          senderType: whatsAppIdentifierType(from),
+          username,
+          raw: { message, contact: contact ?? null, metadata: metadata ?? null },
+          isBot:
+            message.is_bot === true || contact?.is_bot === true || message.sender_type === 'bot',
         });
       }
     }
   }
 
-  return { object, texts, statuses, ignored };
+  if (!texts.length && !echoes.length && !statuses.length && !ignored.length)
+    ignored.push({ reason: 'empty' });
+  return { object, texts, echoes, statuses, ignored };
 }
 
 export function isStatusOnlyWebhook(parsed: ParsedWhatsAppWebhook): boolean {
@@ -303,7 +445,10 @@ export function isStatusOnlyWebhook(parsed: ParsedWhatsAppWebhook): boolean {
 }
 
 export function isOwnBusinessNumber(from: string, ownWaId = IME_WHATSAPP_E164): boolean {
-  return from.replace(/\D/g, '') === ownWaId.replace(/\D/g, '');
+  return (
+    whatsAppIdentifierType(from) === 'phone' &&
+    normalizeWhatsAppIdentifier(from) === normalizeWhatsAppIdentifier(ownWaId)
+  );
 }
 
 export async function decideWhatsAppInbound(
@@ -427,7 +572,9 @@ export async function sendWhatsAppText(
   params: SendWhatsAppTextParams
 ): Promise<SendWhatsAppTextResult> {
   const body = params.body.trim().slice(0, WHATSAPP_TEXT_MAX_CHARS);
-  const to = params.to.replace(/\D/g, '');
+  const to = normalizeWhatsAppIdentifier(params.to);
+  const recipient = whatsAppRecipient(to);
+  if (!recipient) return { ok: false, error: 'no_sendable_recipient' };
   if (!body || !to) return { ok: false, error: 'missing_to_or_body' };
 
   const url = buildWhatsAppMessagesUrl(params.phoneNumberId, params.apiVersion);
@@ -441,7 +588,7 @@ export async function sendWhatsAppText(
     body: JSON.stringify({
       messaging_product: 'whatsapp',
       recipient_type: 'individual',
-      to,
+      ...recipient,
       type: 'text',
       text: { preview_url: false, body },
     }),

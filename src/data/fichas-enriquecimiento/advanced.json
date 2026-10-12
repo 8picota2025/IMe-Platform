@@ -1,0 +1,2754 @@
+[
+  {
+    "sku": "A3158",
+    "descripcion_larga_es": "La incubadora de transporte neonatal Advanced A3158 está pensada para trasladar recién nacidos por tierra o aire con un equipo compacto y fácil de manejar. Combina doble pared de acrílico de alta calidad óptica, distribución precisa del calor en toda la campana y un nivel de ruido interno inferior a 60 dB. Controla la temperatura del aire y de la piel del paciente, incorpora un completo sistema de alarmas y puede funcionar con alimentación AC 100/240 V o con voltaje DC. La ficha del fabricante la presenta como una incubadora de transporte de nueva generación con dos años de garantía, cumplimiento de la directiva CE 93/42/EEC y estándar de calidad ISO 13485.",
+    "descripcion_larga_en": "The Advanced A3158 transport incubator is designed to move newborns by ground or air using a compact, easy-to-handle unit. It combines a double acrylic wall of high optical quality, precise heat distribution across the hood and an internal noise level below 60 dB. It monitors air and patient skin temperature, includes a comprehensive alarm system and runs on AC 100/240 V or DC power. The manufacturer datasheet presents it as a next-generation transport incubator with a two-year warranty, compliance with Directive CE 93/42/EEC and the ISO 13485 quality standard.",
+    "beneficios_es": [
+      "Diseño compacto que facilita su manipulación en traslados terrestres y aéreos de recién nacidos.",
+      "Doble pared de acrílico con visibilidad total y ruido interno inferior a 60 dB para un entorno más tranquilo.",
+      "Alarmas de falla de calefacción, sensor de piel, sensor de aire, circulación de aire, fuente de alimentación, sistema y batería baja.",
+      "Ruedas con freno, porta suero IV y puertos de acceso ovalados para trabajar con el paciente sin abrir la campana."
+    ],
+    "beneficios_en": [
+      "Compact design that makes handling easier during ground and air neonatal transport.",
+      "Double acrylic wall with full visibility and internal noise below 60 dB for a calmer environment.",
+      "Alarms for heater failure, skin sensor, air sensor, air circulation, power supply, system and low battery.",
+      "Wheels with brakes, IV pole and oval access ports to work with the patient without opening the hood."
+    ],
+    "valor_es": "Una incubadora de transporte con control de temperatura de aire y piel, alarmas integrales y alimentación AC/DC, respaldada por dos años de garantía del fabricante.",
+    "valor_en": "A transport incubator with air and skin temperature control, comprehensive alarms and AC/DC power, backed by the manufacturer's two-year warranty.",
+    "faq_es": [
+      {
+        "q": "¿Sirve para transporte aéreo y terrestre?",
+        "a": "Sí. La ficha del fabricante indica que su diseño compacto facilita la manipulación en el transporte aéreo o terrestre de recién nacidos."
+      },
+      {
+        "q": "¿Con qué alimentación funciona?",
+        "a": "Con alimentación AC 100/240 V a 50/60 Hz y también con voltaje DC, según la ficha técnica de Advanced."
+      },
+      {
+        "q": "¿Qué garantía tiene?",
+        "a": "El fabricante declara dos años de garantía y cumplimiento de la norma de calidad ISO 13485."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Is it suitable for air and ground transport?",
+        "a": "Yes. The manufacturer datasheet states that its compact design makes it easy to handle during air or ground transport of newborns."
+      },
+      {
+        "q": "What power does it use?",
+        "a": "AC 100/240 V at 50/60 Hz and also DC voltage, according to the Advanced datasheet."
+      },
+      {
+        "q": "What warranty does it have?",
+        "a": "The manufacturer declares a two-year warranty and compliance with the ISO 13485 quality standard."
+      }
+    ],
+    "seo_keywords_es": [
+      "incubadora de transporte neonatal",
+      "incubadora neonatal A3158",
+      "incubadora de transporte Advanced",
+      "transporte neonatal terrestre y aéreo",
+      "incubadora neonatal Colombia",
+      "ficha técnica A3158",
+      "cotizar incubadora de transporte"
+    ],
+    "seo_keywords_en": [
+      "neonatal transport incubator",
+      "A3158 neonatal incubator",
+      "Advanced transport incubator",
+      "ground and air neonatal transport",
+      "neonatal incubator Colombia",
+      "A3158 datasheet",
+      "request a quote transport incubator"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "A3158"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Control térmico",
+        "clave": "Control",
+        "valor": "Modo aire y modo piel; monitoreo de temperatura del aire y del paciente"
+      },
+      {
+        "grupo": "Acústica",
+        "clave": "Nivel de ruido interno",
+        "valor": "< 60 dB"
+      },
+      {
+        "grupo": "Eléctrico",
+        "clave": "Alimentación",
+        "valor": "AC 100/240 V, 50/60 Hz; DC 12 V"
+      },
+      {
+        "grupo": "Seguridad",
+        "clave": "Alarmas",
+        "valor": "Falla de calefacción, sensor de piel, sensor de aire, circulación de aire, fuente de alimentación, sistema, batería baja"
+      },
+      {
+        "grupo": "Normativa",
+        "clave": "Cumplimiento",
+        "valor": "CE 93/42/EEC (MDD); ISO 13485"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ]
+  },
+  {
+    "sku": "A3186",
+    "descripcion_larga_es": "La incubadora neonatal Advanced A3186 responde a los distintos niveles de atención de neonatología y es accesible para la mayoría de clínicas y hospitales. Ofrece seis ventanas transparentes y una puerta grande para un acceso fácil, nivel de ruido en la campana inferior a 50 dBA, flujo de aire bidireccional y un sistema de alarmas integral. Funciona con control por microprocesador, pantalla LED, modos de control de piel y de aire, posiciones Trendelenburg y Trendelenburg invertido, y estructura con ruedas con freno, soporte de suero y unidad con cajones. Opcionalmente admite altura variable, bandeja de rayos X y lámpara de fototerapia.",
+    "descripcion_larga_en": "The Advanced A3186 neonatal incubator meets the different levels of care in neonatology and is affordable for most clinics and hospitals. It offers six transparent windows and a large door for easy access, a hood noise level below 50 dBA, bidirectional airflow and a comprehensive alarm system. It features microprocessor control, an LED display, skin and air control modes, Trendelenburg and reverse Trendelenburg positions, and a stand with brake wheels, IV pole and drawer unit. Variable height, X-ray tray and phototherapy lamp are optional.",
+    "beneficios_es": [
+      "Seis ventanas transparentes y una puerta grande para acceder al recién nacido con facilidad.",
+      "Ruido en la campana inferior a 50 dBA y apertura y cierre de ventanas silenciosos.",
+      "Modos de control de piel y de aire con monitoreo de ambas temperaturas y sonda de piel del paciente.",
+      "Opcionales para crecer con el servicio: altura variable, bandeja de rayos X y lámpara de fototerapia."
+    ],
+    "beneficios_en": [
+      "Six transparent windows and a large door for easy access to the newborn.",
+      "Hood noise below 50 dBA and silent opening and closing of windows.",
+      "Skin and air control modes with monitoring of both temperatures and a patient skin probe.",
+      "Options to grow with the service: variable height, X-ray tray and phototherapy lamp."
+    ],
+    "valor_es": "Una incubadora neonatal de nueva generación con acceso fácil, operación silenciosa y alarmas completas, con garantía de dos años del fabricante.",
+    "valor_en": "A next-generation neonatal incubator with easy access, quiet operation and complete alarms, backed by a two-year manufacturer warranty.",
+    "faq_es": [
+      {
+        "q": "¿Qué modos de control tiene?",
+        "a": "Modo de piel y modo de control de aire, con monitoreo de la temperatura del aire y del paciente, según la ficha del fabricante."
+      },
+      {
+        "q": "¿Se puede añadir fototerapia?",
+        "a": "Sí, la lámpara de fototerapia, la bandeja de rayos X y la altura variable figuran como opcionales."
+      },
+      {
+        "q": "¿Qué tan silenciosa es?",
+        "a": "La ficha indica un nivel de ruido en la campana inferior a 50 dBA."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Which control modes does it have?",
+        "a": "Skin mode and air control mode, with monitoring of air and patient temperature, according to the manufacturer datasheet."
+      },
+      {
+        "q": "Can phototherapy be added?",
+        "a": "Yes. The phototherapy lamp, X-ray tray and variable height are listed as options."
+      },
+      {
+        "q": "How quiet is it?",
+        "a": "The datasheet states a hood noise level below 50 dBA."
+      }
+    ],
+    "seo_keywords_es": [
+      "incubadora neonatal",
+      "incubadora neonatal A3186",
+      "incubadora para recién nacidos",
+      "incubadora Advanced",
+      "equipo de neonatología",
+      "incubadora neonatal Colombia",
+      "ficha técnica A3186"
+    ],
+    "seo_keywords_en": [
+      "neonatal incubator",
+      "A3186 neonatal incubator",
+      "newborn incubator",
+      "Advanced incubator",
+      "neonatology equipment",
+      "neonatal incubator Colombia",
+      "A3186 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "A3186"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Control térmico",
+        "clave": "Modos de control",
+        "valor": "Modo piel y modo aire; sonda de piel del paciente"
+      },
+      {
+        "grupo": "Acústica",
+        "clave": "Ruido en la campana",
+        "valor": "< 50 dBA"
+      },
+      {
+        "grupo": "Acceso",
+        "clave": "Ventanas y puertas",
+        "valor": "6 ventanas transparentes y 1 puerta grande; 5 puertos ovalados y manga iris"
+      },
+      {
+        "grupo": "Posición",
+        "clave": "Inclinación",
+        "valor": "Trendelenburg y Trendelenburg invertido"
+      },
+      {
+        "grupo": "Eléctrico",
+        "clave": "Alimentación",
+        "valor": "AC 100/240 V, 50/60 Hz"
+      },
+      {
+        "grupo": "Normativa",
+        "clave": "Cumplimiento",
+        "valor": "CE 93/42/EEC (MDD); ISO 13485"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ]
+  },
+  {
+    "sku": "A3186-Plus",
+    "descripcion_larga_es": "La incubadora neonatal Advanced A3186+ añade a la plataforma A3186 pantalla gráfica LCD con tendencias, información en inglés, español y portugués, colchón de espuma de memoria y control activo de humedad. Mantiene el acceso por seis ventanas y una puerta grande, ruido en la campana inferior a 50 dBA, modos de piel y de aire, Trendelenburg y Trendelenburg invertido y un sistema de alarmas integral. Como opcionales la ficha lista carro de altura regulable, lámpara de fototerapia, oxímetro de pulso (SpO2) y balanza infantil integrada.",
+    "descripcion_larga_en": "The Advanced A3186+ neonatal incubator builds on the A3186 platform with a graphical LCD with trends, information in English, Spanish and Portuguese, a memory-foam mattress and active humidity control. It keeps access through six windows and a large door, hood noise below 50 dBA, skin and air modes, Trendelenburg and reverse Trendelenburg and a comprehensive alarm system. The datasheet lists an adjustable-height cart, phototherapy lamp, pulse oximeter (SpO2) and integrated infant scale as options.",
+    "beneficios_es": [
+      "Pantalla LCD gráfica con tendencias y menús en español, inglés y portugués.",
+      "Control activo de humedad y colchón de espuma de memoria pensado para la comodidad del recién nacido.",
+      "Acceso por seis ventanas y puerta grande con ruido en la campana inferior a 50 dBA.",
+      "Opcionales: carro de altura regulable, fototerapia, oxímetro SpO2 y balanza infantil integrada."
+    ],
+    "beneficios_en": [
+      "Graphical LCD with trends and menus in Spanish, English and Portuguese.",
+      "Active humidity control and a memory-foam mattress designed for newborn comfort.",
+      "Access through six windows and a large door with hood noise below 50 dBA.",
+      "Options: adjustable-height cart, phototherapy, SpO2 oximeter and integrated infant scale."
+    ],
+    "valor_es": "Una incubadora neonatal con pantalla de tendencias, humedad activa y opcionales de SpO2 y balanza, con dos años de garantía del fabricante.",
+    "valor_en": "A neonatal incubator with a trend display, active humidity and SpO2 and scale options, with a two-year manufacturer warranty.",
+    "faq_es": [
+      {
+        "q": "¿En qué se diferencia de la A3186?",
+        "a": "Según la ficha, la A3186+ incorpora pantalla LCD gráfica con tendencias, idiomas inglés/español/portugués, colchón de espuma de memoria y control activo de humedad."
+      },
+      {
+        "q": "¿Incluye balanza y oxímetro?",
+        "a": "Son opcionales: la ficha lista oxímetro de pulso (SpO2) y balanza infantil integrada como opciones."
+      },
+      {
+        "q": "¿Qué garantía ofrece?",
+        "a": "Dos años de garantía del fabricante y cumplimiento ISO 13485."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "How does it differ from the A3186?",
+        "a": "According to the datasheet, the A3186+ adds a graphical LCD with trends, English/Spanish/Portuguese languages, a memory-foam mattress and active humidity control."
+      },
+      {
+        "q": "Does it include a scale and oximeter?",
+        "a": "They are options: the datasheet lists a pulse oximeter (SpO2) and integrated infant scale as options."
+      },
+      {
+        "q": "What warranty does it offer?",
+        "a": "Two-year manufacturer warranty and ISO 13485 compliance."
+      }
+    ],
+    "seo_keywords_es": [
+      "incubadora neonatal A3186+",
+      "incubadora neonatal con balanza",
+      "incubadora con control de humedad",
+      "incubadora Advanced",
+      "equipo de neonatología",
+      "incubadora neonatal Colombia",
+      "ficha técnica A3186+"
+    ],
+    "seo_keywords_en": [
+      "A3186+ neonatal incubator",
+      "neonatal incubator with scale",
+      "incubator with humidity control",
+      "Advanced incubator",
+      "neonatology equipment",
+      "neonatal incubator Colombia",
+      "A3186+ datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "A3186+"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Pantalla",
+        "clave": "Pantalla",
+        "valor": "LCD gráfica con tendencias; inglés, español y portugués"
+      },
+      {
+        "grupo": "Control térmico",
+        "clave": "Humedad",
+        "valor": "Control de humedad activo"
+      },
+      {
+        "grupo": "Acústica",
+        "clave": "Ruido en la campana",
+        "valor": "< 50 dBA"
+      },
+      {
+        "grupo": "Eléctrico",
+        "clave": "Alimentación",
+        "valor": "AC 100/240 V, 50/60 Hz"
+      },
+      {
+        "grupo": "Normativa",
+        "clave": "Cumplimiento",
+        "valor": "CE 93/42/EEC (MDD); ISO 13485"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ]
+  },
+  {
+    "sku": "A4051",
+    "descripcion_larga_es": "La cuna de calor radiante Advanced A4051 está diseñada como unidad completa de cuidado infantil para recién nacidos que requieren el mayor nivel de atención. Ofrece control servo por piel del paciente, modo manual, precalentamiento inteligente y calentador infrarrojo de cuarzo, con tres opciones de pantalla (LCD a color, monitor monocromo o LED). Incluye reflector articulable para acceso a rayos X, iluminación LED auxiliar, protectores laterales de acrílico plegables, cama eléctrica o manual con Trendelenburg, contador de tiempo y de Apgar, y sistema de alarmas integral. La ficha lista como opcionales mezclador aire/oxígeno, colchón térmico, SpO2, CPAP y balanza.",
+    "descripcion_larga_en": "The Advanced A4051 radiant warmer is designed as a complete infant care unit for newborns who need the highest level of care. It offers patient-skin servo control, manual mode, intelligent pre-warming and a quartz infrared heater, with three display options (colour LCD, monochrome monitor or LED). It includes an articulating reflector for X-ray access, auxiliary LED lighting, folding acrylic side guards, electric or manual bed with Trendelenburg, time and Apgar counters and a comprehensive alarm system. The datasheet lists an air/oxygen blender, thermal mattress, SpO2, CPAP and scale as options.",
+    "beneficios_es": [
+      "Control servo por piel, modo manual y precalentamiento inteligente para estabilizar la temperatura del bebé.",
+      "Reflector articulable y bandeja para rayos X que permiten estudios sin retirar al paciente.",
+      "Contador de tiempo y de Apgar, flujómetros de oxígeno y aire y panel de gas con aspiración y resucitador.",
+      "Dos opciones de fototerapia: lámpara de 5 focos LED o fototerapia inversa."
+    ],
+    "beneficios_en": [
+      "Skin servo control, manual mode and intelligent pre-warming to stabilize the baby's temperature.",
+      "Articulating reflector and X-ray tray that allow imaging without moving the patient.",
+      "Time and Apgar counters, oxygen and air flowmeters and a gas panel with suction and resuscitator.",
+      "Two phototherapy options: 5-LED lamp or reverse phototherapy."
+    ],
+    "valor_es": "Una cuna de calor radiante con servocontrol, acceso a rayos X y fototerapia integrable, con dos años de garantía del fabricante.",
+    "valor_en": "A radiant warmer with servo control, X-ray access and integrable phototherapy, with a two-year manufacturer warranty.",
+    "faq_es": [
+      {
+        "q": "¿Qué opciones de pantalla tiene?",
+        "a": "Tres: LCD a color, monitor monocromo y pantalla LED, según la ficha del fabricante."
+      },
+      {
+        "q": "¿Se puede hacer fototerapia?",
+        "a": "Sí. Ofrece lámpara de fototerapia de 5 focos LED o fototerapia inversa como opciones."
+      },
+      {
+        "q": "¿Qué accesorios son opcionales?",
+        "a": "Mezclador aire/oxígeno, colchón térmico, oxímetro de pulso (SpO2), kit eléctrico de altura y transporte, CPAP y balanza."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What display options does it have?",
+        "a": "Three: colour LCD, monochrome monitor and LED display, according to the manufacturer datasheet."
+      },
+      {
+        "q": "Can phototherapy be performed?",
+        "a": "Yes. It offers a 5-LED phototherapy lamp or reverse phototherapy as options."
+      },
+      {
+        "q": "Which accessories are optional?",
+        "a": "Air/oxygen blender, thermal mattress, pulse oximeter (SpO2), electric height/transport kit, CPAP and scale."
+      }
+    ],
+    "seo_keywords_es": [
+      "cuna de calor radiante",
+      "cuna de calor radiante A4051",
+      "cuna radiante neonatal",
+      "cuna de calor neonatología",
+      "equipo de cuidados intensivos neonatales",
+      "cuna de calor Colombia",
+      "ficha técnica A4051"
+    ],
+    "seo_keywords_en": [
+      "radiant warmer",
+      "A4051 radiant warmer",
+      "neonatal radiant warmer",
+      "neonatal care radiant bed",
+      "NICU equipment",
+      "radiant warmer Colombia",
+      "A4051 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "A4051"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Calefacción",
+        "clave": "Calentador",
+        "valor": "Infrarrojo de cuarzo; servo por piel, modo manual y precalentamiento inteligente"
+      },
+      {
+        "grupo": "Pantalla",
+        "clave": "Opciones de pantalla",
+        "valor": "LCD a color, monitor monocromo o LED"
+      },
+      {
+        "grupo": "Cama",
+        "clave": "Cama",
+        "valor": "Eléctrica o manual, con Trendelenburg/Trendelenburg invertido"
+      },
+      {
+        "grupo": "Eléctrico",
+        "clave": "Alimentación",
+        "valor": "AC 100/240 V, 50/60 Hz"
+      },
+      {
+        "grupo": "Normativa",
+        "clave": "Cumplimiento",
+        "valor": "CE 93/42/EEC (MDD); ISO 13485"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ]
+  },
+  {
+    "sku": "B-1000-PRO",
+    "descripcion_larga_es": "La cama eléctrica Advanced B-1000 Pro está diseñada para pacientes hospitalizados y personas que requieren atención médica, con ocho funciones motorizadas, estructura de acero, barandas plegables de plástico con resorte de gas y batería de respaldo. Incluye teclados táctiles para paciente y enfermería, función CPR de reinicio a posición plana y baja, indicadores de ángulo y atril de suero ajustable.",
+    "descripcion_larga_en": "The Advanced B-1000 Pro electric bed is designed for hospitalized patients and people who need medical care, with eight motorized functions, a steel frame, folding plastic side rails with gas springs and a backup battery. It includes touch keypads for patient and nursing staff, a CPR reset function to a flat low position, angle indicators and an adjustable IV pole.",
+    "beneficios_es": [
+      "Ocho funciones: cama arriba/abajo, espaldar, piernas, movimiento conjunto, Trendelenburg e inverso y reinicio a posición plana y baja.",
+      "Controles para el paciente en ambas barandas frontales y para la enfermera en el panel de los pies.",
+      "Batería de respaldo incorporada, freno central y cuatro receptáculos para atril de suero."
+    ],
+    "beneficios_en": [
+      "Eight functions: bed up/down, backrest, leg section, combined movement, Trendelenburg and reverse, and reset to flat low position.",
+      "Patient controls on both front rails and nurse control on the foot panel.",
+      "Built-in backup battery, central brake and four IV pole receptacles."
+    ],
+    "valor_es": "Una cama eléctrica de ocho funciones con batería de respaldo y control dual para paciente y personal, con dos años de garantía.",
+    "valor_en": "An eight-function electric bed with backup battery and dual patient/staff control, with a two-year warranty.",
+    "faq_es": [
+      {
+        "q": "¿Cuántas funciones motorizadas tiene?",
+        "a": "Ocho funciones, según la ficha del fabricante."
+      },
+      {
+        "q": "¿Tiene batería de respaldo?",
+        "a": "Sí, incorpora batería de respaldo y funciona con AC 100/240 V."
+      },
+      {
+        "q": "¿Qué dimensiones tiene?",
+        "a": "Dimensiones totales de 84\" x 41\" (2133 mm x 1041 mm); superficie de cama de 76\" x 35\" (1930 mm x 889 mm)."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "How many motorized functions does it have?",
+        "a": "Eight functions, according to the manufacturer datasheet."
+      },
+      {
+        "q": "Does it have a backup battery?",
+        "a": "Yes, it includes a backup battery and runs on AC 100/240 V."
+      },
+      {
+        "q": "What are its dimensions?",
+        "a": "Overall 84\" x 41\" (2133 mm x 1041 mm); bed surface 76\" x 35\" (1930 mm x 889 mm)."
+      }
+    ],
+    "seo_keywords_es": [
+      "cama hospitalaria eléctrica",
+      "cama eléctrica B-1000 Pro",
+      "cama de hospital 8 funciones",
+      "cama hospitalaria Advanced",
+      "cama hospitalaria Colombia",
+      "ficha técnica B-1000 Pro"
+    ],
+    "seo_keywords_en": [
+      "electric hospital bed",
+      "B-1000 Pro electric bed",
+      "8-function hospital bed",
+      "Advanced hospital bed",
+      "hospital bed Colombia",
+      "B-1000 Pro datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "B-1000 Pro"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Funciones",
+        "clave": "Funciones motorizadas",
+        "valor": "8"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Dimensiones totales",
+        "valor": "2133 mm x 1041 mm (84\" x 41\")"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Superficie de cama",
+        "valor": "1930 mm x 889 mm (76\" x 35\")"
+      },
+      {
+        "grupo": "Eléctrico",
+        "clave": "Alimentación",
+        "valor": "AC 100/240 V, 50/60 Hz; batería de respaldo"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ]
+  },
+  {
+    "sku": "B-2000",
+    "descripcion_larga_es": "La cama hospitalaria Advanced B-2000 es una cama de hospital con capacidad de 250 kg, ajuste de altura entre 530 y 710 mm, Trendelenburg e inverso de ±10°, espaldar de 0 a 65° y apoyo de rodillas de 0 a 45°. Cuenta con ruedas de 150 mm, función CPR y batería de respaldo, y opera a 110/220 V.",
+    "descripcion_larga_en": "The Advanced B-2000 hospital bed has a 250 kg capacity, height adjustment from 530 to 710 mm, ±10° Trendelenburg and reverse, backrest from 0 to 65° and knee support from 0 to 45°. It has 150 mm wheels, a CPR function and a backup battery, and operates at 110/220 V.",
+    "beneficios_es": [
+      "Capacidad de 250 kg y altura ajustable de 530 a 710 mm.",
+      "Espaldar de 0 a 65°, apoyo de rodillas de 0 a 45° y Trendelenburg/inverso de ±10°.",
+      "Función CPR con botón de reinicio y baterías de respaldo."
+    ],
+    "beneficios_en": [
+      "250 kg capacity and adjustable height from 530 to 710 mm.",
+      "Backrest 0 to 65°, knee support 0 to 45° and ±10° Trendelenburg/reverse.",
+      "CPR function with reset button and backup batteries."
+    ],
+    "valor_es": "Una cama hospitalaria de 250 kg de capacidad con ajustes de altura y posición definidos en la ficha técnica y dos años de garantía.",
+    "valor_en": "A hospital bed with 250 kg capacity and height and position adjustments defined in the datasheet, with a two-year warranty.",
+    "faq_es": [
+      {
+        "q": "¿Qué capacidad de carga tiene?",
+        "a": "250 kg (500 lb), según la ficha del fabricante."
+      },
+      {
+        "q": "¿Cuál es su rango de altura?",
+        "a": "De 530 mm a 710 mm (20.9\" a 28\")."
+      },
+      {
+        "q": "¿Cuál es su alimentación?",
+        "a": "110/220 V, 50/60 Hz, potencia máxima de 130 W y dos baterías de 12 V / 1.3 Ah."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What load capacity does it have?",
+        "a": "250 kg (500 lb), according to the manufacturer datasheet."
+      },
+      {
+        "q": "What is its height range?",
+        "a": "From 530 mm to 710 mm (20.9\" to 28\")."
+      },
+      {
+        "q": "What is its power supply?",
+        "a": "110/220 V, 50/60 Hz, maximum power 130 W and two 12 V / 1.3 Ah batteries."
+      }
+    ],
+    "seo_keywords_es": [
+      "cama hospitalaria B-2000",
+      "cama de hospital 250 kg",
+      "cama hospitalaria Advanced",
+      "cama de hospital con función CPR",
+      "cama hospitalaria Colombia",
+      "ficha técnica B-2000"
+    ],
+    "seo_keywords_en": [
+      "B-2000 hospital bed",
+      "250 kg hospital bed",
+      "Advanced hospital bed",
+      "hospital bed with CPR function",
+      "hospital bed Colombia",
+      "B-2000 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "B-2000"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Capacidad",
+        "clave": "Capacidad",
+        "valor": "250 kg (500 lb)"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Dimensiones totales",
+        "valor": "2320 mm x 1050 mm (91.3\" x 41.3\")"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Altura ajustable",
+        "valor": "530 - 710 mm"
+      },
+      {
+        "grupo": "Posición",
+        "clave": "Espaldar / rodillas",
+        "valor": "0 - 65° / 0 - 45°"
+      },
+      {
+        "grupo": "Ruedas",
+        "clave": "Diámetro",
+        "valor": "150 mm (5.9\")"
+      },
+      {
+        "grupo": "Eléctrico",
+        "clave": "Alimentación",
+        "valor": "110/220 V, 50/60 Hz, 130 W; 2 baterías 12 V / 1.3 Ah"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ]
+  },
+  {
+    "sku": "B-2000-PLUS",
+    "descripcion_larga_es": "La ficha del fabricante disponible para esta línea corresponde a la cama eléctrica Advanced B-2000 Pro, que combina seis motores, posición de silla cardíaca, extensión motorizada de la sección de piernas, balanza integrada con registro de peso, pantalla táctil LCD de 7\" en baranda, alarma de salida de paciente y quinta rueda de dirección retráctil. Incluye batería de respaldo de 40 horas y palancas manuales de RCP en ambos lados.",
+    "descripcion_larga_en": "The manufacturer datasheet available for this line corresponds to the Advanced B-2000 Pro electric bed, which combines six motors, cardiac chair position, motorized leg extension, an integrated scale with weight log, a 7\" LCD touchscreen on the rail, a patient-exit alarm and a retractable fifth steering wheel. It includes a 40-hour backup battery and manual CPR levers on both sides.",
+    "beneficios_es": [
+      "Balanza integrada con registro de peso y alarma de salida de paciente.",
+      "Seis motores, posición de silla cardíaca y extensión motorizada de piernas.",
+      "Batería de respaldo de 40 horas y palanca manual de RCP que lleva el espaldar a plano en dos segundos."
+    ],
+    "beneficios_en": [
+      "Integrated scale with weight log and patient-exit alarm.",
+      "Six motors, cardiac chair position and motorized leg extension.",
+      "40-hour backup battery and manual CPR lever that flattens the backrest in two seconds."
+    ],
+    "valor_es": "Una cama eléctrica con balanza integrada, alarma de salida del paciente y silla cardíaca, según la ficha del modelo B-2000 Pro del fabricante (confirmar configuración exacta al cotizar).",
+    "valor_en": "An electric bed with integrated scale, patient-exit alarm and cardiac chair, per the manufacturer B-2000 Pro datasheet (confirm exact configuration when quoting).",
+    "faq_es": [
+      {
+        "q": "¿Incluye balanza?",
+        "a": "Sí, la ficha indica balanza integrada que guarda el registro de peso."
+      },
+      {
+        "q": "¿Cuánto dura la batería de respaldo?",
+        "a": "La ficha menciona una batería de respaldo de 40 horas de trabajo."
+      },
+      {
+        "q": "¿Tiene función de RCP?",
+        "a": "Sí: palanca manual de RCP en ambos lados (espaldar plano en dos segundos) y RCP eléctrico."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Does it include a scale?",
+        "a": "Yes, the datasheet lists an integrated scale that stores the weight record."
+      },
+      {
+        "q": "How long does the backup battery last?",
+        "a": "The datasheet mentions a 40-hour backup battery."
+      },
+      {
+        "q": "Does it have a CPR function?",
+        "a": "Yes: manual CPR lever on both sides (backrest flat in two seconds) and electric CPR."
+      }
+    ],
+    "seo_keywords_es": [
+      "cama eléctrica con balanza",
+      "cama hospitalaria B-2000 Pro",
+      "cama de hospital con silla cardíaca",
+      "cama hospitalaria Advanced",
+      "cama hospitalaria Colombia",
+      "ficha técnica B-2000 Pro"
+    ],
+    "seo_keywords_en": [
+      "electric bed with scale",
+      "B-2000 Pro hospital bed",
+      "hospital bed with cardiac chair",
+      "Advanced hospital bed",
+      "hospital bed Colombia",
+      "B-2000 Pro datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "B-2000 Pro (ref. B-2000 Plus)"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Funciones",
+        "clave": "Motores",
+        "valor": "6"
+      },
+      {
+        "grupo": "Funciones",
+        "clave": "Balanza",
+        "valor": "Integrada, con registro de peso"
+      },
+      {
+        "grupo": "Pantalla",
+        "clave": "Pantalla táctil",
+        "valor": "LCD de 7\" en baranda lateral"
+      },
+      {
+        "grupo": "Eléctrico",
+        "clave": "Batería de respaldo",
+        "valor": "40 horas de trabajo"
+      },
+      {
+        "grupo": "Eléctrico",
+        "clave": "Alimentación",
+        "valor": "AC 100/240 V, 50/60 Hz"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ]
+  },
+  {
+    "sku": "DUS-5000",
+    "descripcion_larga_es": "El DUS-5000 de Advanced es un sistema de ultrasonido digital compacto y portátil con Doppler color, Doppler de potencia y Doppler pulsado. Ofrece pantalla TFT-LCD a color, teclado alfanumérico plegable con trackball, dos puertos de transductor, modos B, B+B, 4B, B+M, M, B+PW, B+Color y combinados, archivo de imágenes integrado, batería recargable y puerto DICOM 3.0.",
+    "descripcion_larga_en": "The Advanced DUS-5000 is a compact, portable digital ultrasound system with colour Doppler, power Doppler and pulsed-wave Doppler. It offers a colour TFT-LCD, folding alphanumeric keyboard with trackball, two transducer ports, B, B+B, 4B, B+M, M, B+PW, B+Color and combined modes, built-in image archive, rechargeable battery and DICOM 3.0 port.",
+    "beneficios_es": [
+      "Doppler color, de potencia y pulsado en un equipo portátil con asa.",
+      "Transductores convexo, lineal, endocavitario y microconvexo, con dos puertos disponibles.",
+      "Archivo de imágenes integrado, puertos USB, red DICOM 3.0 y salidas VGA/video."
+    ],
+    "beneficios_en": [
+      "Colour, power and pulsed-wave Doppler in a portable unit with a handle.",
+      "Convex, linear, endocavity and micro-convex transducers, with two ports available.",
+      "Built-in image archive, USB ports, DICOM 3.0 network and VGA/video outputs."
+    ],
+    "valor_es": "Un ecógrafo portátil con Doppler color y conectividad DICOM, con garantía del fabricante.",
+    "valor_en": "A portable ultrasound with colour Doppler and DICOM connectivity, backed by the manufacturer warranty.",
+    "faq_es": [
+      {
+        "q": "¿Qué modos de imagen ofrece?",
+        "a": "B, B+B, 4B, B+M, M, B+PW, B+Color, B+Color+PW, B+PDI y B+PDI+PW."
+      },
+      {
+        "q": "¿Es portátil?",
+        "a": "Sí, es un equipo portátil con asa y batería recargable de alta capacidad integrada."
+      },
+      {
+        "q": "¿Conecta a DICOM?",
+        "a": "Incluye puerto de red DICOM 3.0 y dos puertos USB."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Which imaging modes does it offer?",
+        "a": "B, B+B, 4B, B+M, M, B+PW, B+Color, B+Color+PW, B+PDI and B+PDI+PW."
+      },
+      {
+        "q": "Is it portable?",
+        "a": "Yes, a portable unit with a handle and a high-capacity built-in rechargeable battery."
+      },
+      {
+        "q": "Does it connect to DICOM?",
+        "a": "It includes a DICOM 3.0 network port and two USB ports."
+      }
+    ],
+    "seo_keywords_es": [
+      "ecógrafo portátil",
+      "ecógrafo Doppler color",
+      "ultrasonido DUS-5000",
+      "ecógrafo Advanced",
+      "ecografía Colombia",
+      "ficha técnica DUS-5000"
+    ],
+    "seo_keywords_en": [
+      "portable ultrasound",
+      "colour Doppler ultrasound",
+      "DUS-5000 ultrasound",
+      "Advanced ultrasound system",
+      "ultrasound Colombia",
+      "DUS-5000 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "DUS-5000"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Pantalla",
+        "clave": "Pantalla",
+        "valor": "TFT-LCD a color con retroiluminación"
+      },
+      {
+        "grupo": "Transductores",
+        "clave": "Puertos de transductor",
+        "valor": "2"
+      },
+      {
+        "grupo": "Modos",
+        "clave": "Modos de visualización",
+        "valor": "B, B+B, 4B, B+M, M, B+PW, B+Color, B+Color+PW, B+PDI, B+PDI+PW"
+      },
+      {
+        "grupo": "Conectividad",
+        "clave": "Puertos",
+        "valor": "2 USB, red DICOM 3.0, salida VGA y de video"
+      },
+      {
+        "grupo": "Energía",
+        "clave": "Batería",
+        "valor": "Recargable de alta capacidad integrada"
+      },
+      {
+        "grupo": "Normativa",
+        "clave": "Cumplimiento",
+        "valor": "ISO 13485; FDA 510(k)"
+      }
+    ]
+  },
+  {
+    "sku": "DUS-5000-PLUS",
+    "descripcion_larga_es": "El DUS-5000 Plus amplía el sistema compacto de Advanced con imagen armónica de tejido e inversión de fase, Doppler color, de potencia direccional, tisular, pulsado y continuo, modo M anatómico, imagen compuesta espacial, panorámica en tiempo real, medición automática de IMT y guía de biopsia con visualización de aguja. Admite transductores convexo, lineal, endocavitario, microconvexo y phased array, y conectividad DICOM 3.0 con WiFi.",
+    "descripcion_larga_en": "The DUS-5000 Plus expands the compact Advanced system with tissue and phase-inversion harmonic imaging, colour, directional power, tissue, pulsed and continuous-wave Doppler, anatomic M-mode, spatial compound imaging, real-time panoramic imaging, automatic IMT measurement and biopsy guide with needle visualization. It supports convex, linear, endocavity, micro-convex and phased-array transducers and DICOM 3.0 connectivity with WiFi.",
+    "beneficios_es": [
+      "Doppler color, de potencia, tisular, pulsado (PW) y continuo (CW) en un equipo compacto.",
+      "Imagen panorámica en tiempo real, imagen compuesta espacial y medición automática de IMT.",
+      "Guía de biopsia con realce de visualización de aguja y DICOM 3.0 con WiFi."
+    ],
+    "beneficios_en": [
+      "Colour, power, tissue, pulsed (PW) and continuous (CW) Doppler in a compact unit.",
+      "Real-time panoramic imaging, spatial compound imaging and automatic IMT measurement.",
+      "Biopsy guide with needle visualization enhancement and DICOM 3.0 with WiFi."
+    ],
+    "valor_es": "Un ecógrafo compacto con Doppler completo y herramientas avanzadas de imagen, respaldado por dos años de garantía.",
+    "valor_en": "A compact ultrasound with full Doppler and advanced imaging tools, backed by a two-year warranty.",
+    "faq_es": [
+      {
+        "q": "¿Qué transductores admite?",
+        "a": "Convexo 3C-A (1-7 MHz), lineal L741 (4-16 MHz), endocavitario 6V1 (3-15 MHz), microconvexo C613 (4-13 MHz) y phased array, según la ficha."
+      },
+      {
+        "q": "¿Tiene Doppler continuo?",
+        "a": "Sí, incluye Doppler pulsado (PW) y continuo (CW), además de color y de potencia."
+      },
+      {
+        "q": "¿Qué garantía tiene?",
+        "a": "Dos años de garantía del fabricante."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Which transducers does it support?",
+        "a": "Convex 3C-A (1-7 MHz), linear L741 (4-16 MHz), endocavity 6V1 (3-15 MHz), micro-convex C613 (4-13 MHz) and phased array, per the datasheet."
+      },
+      {
+        "q": "Does it have continuous-wave Doppler?",
+        "a": "Yes, it includes pulsed (PW) and continuous (CW) Doppler, plus colour and power."
+      },
+      {
+        "q": "What warranty does it have?",
+        "a": "Two-year manufacturer warranty."
+      }
+    ],
+    "seo_keywords_es": [
+      "ecógrafo portátil Doppler",
+      "ecógrafo DUS-5000 Plus",
+      "ultrasonido con Doppler continuo",
+      "ecógrafo Advanced",
+      "ecografía Colombia",
+      "ficha técnica DUS-5000 Plus"
+    ],
+    "seo_keywords_en": [
+      "portable Doppler ultrasound",
+      "DUS-5000 Plus ultrasound",
+      "ultrasound with continuous Doppler",
+      "Advanced ultrasound",
+      "ultrasound Colombia",
+      "DUS-5000 Plus datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "DUS-5000 Plus"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Modos",
+        "clave": "Modos de imagen",
+        "valor": "B, THI, PHI, CFM, PDI, DPDI, TDI, PW, CW, M, Color M, M anatómico"
+      },
+      {
+        "grupo": "Funciones",
+        "clave": "Funciones",
+        "valor": "Imagen compuesta espacial, panorámica en tiempo real, IMT automático, guía de biopsia"
+      },
+      {
+        "grupo": "Conectividad",
+        "clave": "DICOM",
+        "valor": "DICOM 3.0 con WiFi"
+      },
+      {
+        "grupo": "Normativa",
+        "clave": "Cumplimiento",
+        "valor": "ISO 13485"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ]
+  },
+  {
+    "sku": "DUS-6000",
+    "descripcion_larga_es": "El DUS-6000 es un ecógrafo versátil y portátil con pantalla TFT-LCD de 12.1\", teclado alfanumérico plegable con trackball, dos puertos de transductor, imagen armónica de tejido (THI/TSI), Doppler pulsado (PW) y modos B, 2B, 4B, B+M, M y PW. Incorpora paquetes de medición y cálculo, cine bidireccional, archivo en disco local o removible, batería recargable y puerto DICOM 3.0.",
+    "descripcion_larga_en": "The DUS-6000 is a versatile portable ultrasound with a 12.1\" TFT-LCD, folding alphanumeric keyboard with trackball, two transducer ports, tissue harmonic imaging (THI/TSI), pulsed-wave Doppler (PW) and B, 2B, 4B, B+M, M and PW modes. It includes measurement and calculation packages, bidirectional cine, storage on local or removable disk, a rechargeable battery and a DICOM 3.0 port.",
+    "beneficios_es": [
+      "Pantalla de 12.1\" con teclado plegable y trackball en un equipo portátil.",
+      "Imagen armónica de tejido y Doppler pulsado, con paquetes de medición y cálculo.",
+      "Transductores convexo, lineal, transvaginal, endorrectal y microconvexo; DICOM 3.0."
+    ],
+    "beneficios_en": [
+      "12.1\" screen with folding keyboard and trackball in a portable unit.",
+      "Tissue harmonic imaging and pulsed Doppler, with measurement and calculation packages.",
+      "Convex, linear, transvaginal, endorectal and micro-convex transducers; DICOM 3.0."
+    ],
+    "valor_es": "Un ecógrafo portátil versátil con Doppler pulsado y conectividad DICOM, con dos años de garantía.",
+    "valor_en": "A versatile portable ultrasound with pulsed Doppler and DICOM connectivity, with a two-year warranty.",
+    "faq_es": [
+      {
+        "q": "¿Qué tamaño de pantalla tiene?",
+        "a": "TFT-LCD de 12.1\" con 256 niveles de gris, según la ficha."
+      },
+      {
+        "q": "¿Qué rango de frecuencia de transductor maneja?",
+        "a": "La ficha indica 2.0-10.0 MHz."
+      },
+      {
+        "q": "¿Incluye Doppler?",
+        "a": "Incluye Doppler pulsado (PW)."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What screen size does it have?",
+        "a": "12.1\" TFT-LCD with 256 gray levels, per the datasheet."
+      },
+      {
+        "q": "What transducer frequency range does it handle?",
+        "a": "The datasheet states 2.0-10.0 MHz."
+      },
+      {
+        "q": "Does it include Doppler?",
+        "a": "It includes pulsed-wave (PW) Doppler."
+      }
+    ],
+    "seo_keywords_es": [
+      "ecógrafo portátil",
+      "ecógrafo DUS-6000",
+      "ultrasonido portátil con Doppler pulsado",
+      "ecógrafo Advanced",
+      "ecografía Colombia",
+      "ficha técnica DUS-6000"
+    ],
+    "seo_keywords_en": [
+      "portable ultrasound",
+      "DUS-6000 ultrasound",
+      "portable ultrasound with pulsed Doppler",
+      "Advanced ultrasound",
+      "ultrasound Colombia",
+      "DUS-6000 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "DUS-6000"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Pantalla",
+        "clave": "Pantalla",
+        "valor": "TFT-LCD de 12.1\", 256 niveles de gris"
+      },
+      {
+        "grupo": "Transductores",
+        "clave": "Frecuencia / puertos",
+        "valor": "2.0 - 10.0 MHz; 2 puertos"
+      },
+      {
+        "grupo": "Modos",
+        "clave": "Modos",
+        "valor": "B, 2B, 4B, B+M, M, PW"
+      },
+      {
+        "grupo": "Conectividad",
+        "clave": "Puertos",
+        "valor": "2 USB, red DICOM 3.0, salida VGA y de video"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ]
+  },
+  {
+    "sku": "DUS-7000",
+    "descripcion_larga_es": "El DUS-7000 de Advanced es un sistema de ultrasonido digital de alta gama con imagen 3D/4D, pantalla LCD de 18.5\" en brazo articulado, segunda pantalla táctil de 8\", cuatro puertos de transductor activos, imagen armónica, compuesta y panorámica, elastografía, imagen con contraste, módulo ECG y DICOM. Cubre aplicaciones vasculares, abdominales, pediátricas, fetales y obstétricas.",
+    "descripcion_larga_en": "The Advanced DUS-7000 is a high-end digital ultrasound system with 3D/4D imaging, an 18.5\" LCD on an articulated arm, an 8\" touch second display, four active transducer ports, harmonic, compound and panoramic imaging, elastography, contrast imaging, ECG module and DICOM. It covers vascular, abdominal, pediatric, fetal and obstetric applications.",
+    "beneficios_es": [
+      "Imagen 3D/4D volumétrica con pantalla de 18.5\" y segunda pantalla táctil de 8\".",
+      "Cuatro puertos de transductor activos y panel de control rotatorio y ajustable.",
+      "Elastografía, imagen con contraste, estrés eco (opcional) y paquetes de medición por especialidad."
+    ],
+    "beneficios_en": [
+      "3D/4D volumetric imaging with an 18.5\" display and an 8\" touch second screen.",
+      "Four active transducer ports and a rotating, fully adjustable control panel.",
+      "Elastography, contrast imaging, stress echo (optional) and measurement packages by specialty."
+    ],
+    "valor_es": "Un ecógrafo de alta resolución 3D/4D para vascular, abdominal, pediatría y obstetricia, con dos años de garantía.",
+    "valor_en": "A high-resolution 3D/4D ultrasound for vascular, abdominal, pediatric and obstetric use, with a two-year warranty.",
+    "faq_es": [
+      {
+        "q": "¿Hace imagen 3D y 4D?",
+        "a": "Sí, ofrece imagen 3D/4D volumétrica y 3D de mano alzada (FreeHand 3D)."
+      },
+      {
+        "q": "¿Cuántos puertos de transductor tiene?",
+        "a": "Cuatro puertos de transductor activos."
+      },
+      {
+        "q": "¿Qué aplicaciones cubre?",
+        "a": "Vascular, abdominal, pediátrica/fetal y obstétrica, entre otras, según la ficha."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Does it perform 3D and 4D imaging?",
+        "a": "Yes, it offers 3D/4D volumetric and FreeHand 3D imaging."
+      },
+      {
+        "q": "How many transducer ports does it have?",
+        "a": "Four active transducer ports."
+      },
+      {
+        "q": "Which applications does it cover?",
+        "a": "Vascular, abdominal, pediatric/fetal and obstetric, among others, per the datasheet."
+      }
+    ],
+    "seo_keywords_es": [
+      "ecógrafo 4D",
+      "ecógrafo DUS-7000",
+      "ultrasonido 3D 4D",
+      "ecógrafo de alta gama",
+      "ecografía obstétrica Colombia",
+      "ficha técnica DUS-7000"
+    ],
+    "seo_keywords_en": [
+      "4D ultrasound",
+      "DUS-7000 ultrasound",
+      "3D 4D ultrasound system",
+      "high-end ultrasound",
+      "obstetric ultrasound Colombia",
+      "DUS-7000 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "DUS-7000"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Pantalla",
+        "clave": "Pantalla principal",
+        "valor": "LCD de 18.5\" en brazo articulado"
+      },
+      {
+        "grupo": "Pantalla",
+        "clave": "Segunda pantalla",
+        "valor": "Táctil de 8\""
+      },
+      {
+        "grupo": "Transductores",
+        "clave": "Puertos activos",
+        "valor": "4"
+      },
+      {
+        "grupo": "Imagen",
+        "clave": "Tecnologías",
+        "valor": "3D/4D, armónica, compuesta, panorámica, elastografía, contraste"
+      },
+      {
+        "grupo": "Conectividad",
+        "clave": "DICOM",
+        "valor": "Transmisión, worklist, MPPS, C-store, Q/R"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ]
+  },
+  {
+    "sku": "ECG-12C",
+    "descripcion_larga_es": "El electrocardiógrafo Advanced ECG-12C adquiere, analiza e imprime 12 derivaciones de forma simultánea, con pantalla a color de alta resolución, teclado alfanumérico y registrador térmico integrado. Ofrece formatos de impresión flexibles, funciones de medición e interpretación, detección de marcapasos, detección de electrodo suelto, memoria interna de alta capacidad y archivos en formatos DAT y PDF (SCP, F-DA-XML y DICOM opcionales).",
+    "descripcion_larga_en": "The Advanced ECG-12C electrocardiograph acquires, analyses and prints 12 leads simultaneously, with a high-resolution colour display, alphanumeric keyboard and integrated thermal recorder. It offers flexible print formats, measurement and interpretation functions, pacemaker detection, lead-off detection, high-capacity internal memory and DAT and PDF file formats (SCP, F-DA-XML and DICOM optional).",
+    "beneficios_es": [
+      "Adquisición, análisis e impresión de 12 derivaciones simultáneas con funciones de medición e interpretación.",
+      "Detección de marcapasos y de electrodo suelto, con registrador térmico integrado.",
+      "Archivos DAT y PDF; WiFi y escáner de código de barras opcionales; puertos Ethernet y RS232."
+    ],
+    "beneficios_en": [
+      "Simultaneous acquisition, analysis and printing of 12 leads with measurement and interpretation functions.",
+      "Pacemaker and lead-off detection, with integrated thermal recorder.",
+      "DAT and PDF files; optional WiFi and barcode scanner; Ethernet and RS232 ports."
+    ],
+    "valor_es": "Un electrocardiógrafo de 12 canales con interpretación, pantalla a color y batería de respaldo, con dos años de garantía.",
+    "valor_en": "A 12-channel electrocardiograph with interpretation, colour display and backup battery, with a two-year warranty.",
+    "faq_es": [
+      {
+        "q": "¿Cuántos canales tiene?",
+        "a": "Trabaja con 3, 6 y 12 canales y adquiere 12 derivaciones de forma simultánea."
+      },
+      {
+        "q": "¿Qué peso y dimensiones tiene?",
+        "a": "Aproximadamente 5.0 kg (sin papel ni batería) y 420 x 330 x 105 mm."
+      },
+      {
+        "q": "¿Exporta archivos?",
+        "a": "Sí: DAT y PDF, y opcionalmente SCP, F-DA-XML y DICOM."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "How many channels does it have?",
+        "a": "It works with 3, 6 and 12 channels and acquires 12 leads simultaneously."
+      },
+      {
+        "q": "What are its weight and dimensions?",
+        "a": "About 5.0 kg (excluding paper and battery) and 420 x 330 x 105 mm."
+      },
+      {
+        "q": "Does it export files?",
+        "a": "Yes: DAT and PDF, and optionally SCP, F-DA-XML and DICOM."
+      }
+    ],
+    "seo_keywords_es": [
+      "electrocardiógrafo 12 canales",
+      "electrocardiógrafo ECG-12C",
+      "ECG 12 derivaciones",
+      "electrocardiógrafo Advanced",
+      "electrocardiógrafo Colombia",
+      "ficha técnica ECG-12C"
+    ],
+    "seo_keywords_en": [
+      "12-channel electrocardiograph",
+      "ECG-12C electrocardiograph",
+      "12-lead ECG",
+      "Advanced electrocardiograph",
+      "electrocardiograph Colombia",
+      "ECG-12C datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "ECG-12C"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Canales",
+        "clave": "Canales",
+        "valor": "3, 6 y 12; 12 derivaciones simultáneas"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Dimensiones",
+        "valor": "420 x 330 x 105 mm"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Peso",
+        "valor": "Aprox. 5.0 kg (sin papel ni batería)"
+      },
+      {
+        "grupo": "Eléctrico",
+        "clave": "Alimentación",
+        "valor": "100 - 240 V, 50/60 Hz; batería recargable de respaldo"
+      },
+      {
+        "grupo": "Normativa",
+        "clave": "Cumplimiento",
+        "valor": "ISO 13485; FDA 510(k)"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ]
+  },
+  {
+    "sku": "ECG-3-Plus",
+    "descripcion_larga_es": "El electrocardiógrafo Advanced ECG-3 Plus es un equipo compacto y ligero de 1/3 canales, de unos 2,5 kg con batería y papel, con pantalla LCD a color de 3.9\", impresora térmica integrada de alta resolución y tres formatos de impresión (automático, manual y ritmo). Realiza mediciones e interpretación automáticas, ajuste automático de línea base y puede imprimir 12 derivaciones con impresora externa compatible.",
+    "descripcion_larga_en": "The Advanced ECG-3 Plus electrocardiograph is a compact, lightweight 1/3-channel unit weighing about 2.5 kg with battery and paper, with a 3.9\" colour LCD, a high-resolution integrated thermal printer and three print formats (automatic, manual and rhythm). It performs automatic measurements and interpretation, automatic baseline adjustment and can print 12 leads with a compatible external printer.",
+    "beneficios_es": [
+      "Equipo compacto de 300 x 260 x 80 mm y unos 2,5 kg, fácil de trasladar.",
+      "Mediciones e interpretación automáticas, con tres formatos de impresión seleccionables.",
+      "Datos transferibles a PC y batería recargable de gran capacidad."
+    ],
+    "beneficios_en": [
+      "Compact 300 x 260 x 80 mm unit weighing about 2.5 kg, easy to carry.",
+      "Automatic measurements and interpretation, with three selectable print formats.",
+      "Data can be transferred to a PC; high-capacity rechargeable battery."
+    ],
+    "valor_es": "Un electrocardiógrafo portátil de 2,5 kg con interpretación automática e impresora térmica, con dos años de garantía.",
+    "valor_en": "A portable 2.5 kg electrocardiograph with automatic interpretation and thermal printer, with a two-year warranty.",
+    "faq_es": [
+      {
+        "q": "¿Cuánto pesa?",
+        "a": "Aproximadamente 2,5 kg incluyendo batería y papel."
+      },
+      {
+        "q": "¿Qué pantalla tiene?",
+        "a": "Pantalla LCD a color de 3.9\" (320 x 240 puntos)."
+      },
+      {
+        "q": "¿Imprime 12 derivaciones?",
+        "a": "Sí, con una impresora externa compatible, según la ficha técnica."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "How much does it weigh?",
+        "a": "About 2.5 kg including battery and paper."
+      },
+      {
+        "q": "What display does it have?",
+        "a": "A 3.9\" colour LCD (320 x 240 dots)."
+      },
+      {
+        "q": "Does it print 12 leads?",
+        "a": "Yes, with a compatible external printer, per the datasheet."
+      }
+    ],
+    "seo_keywords_es": [
+      "electrocardiógrafo portátil",
+      "electrocardiógrafo ECG-3 Plus",
+      "ECG 3 canales",
+      "electrocardiógrafo Advanced",
+      "electrocardiógrafo Colombia",
+      "ficha técnica ECG-3 Plus"
+    ],
+    "seo_keywords_en": [
+      "portable electrocardiograph",
+      "ECG-3 Plus electrocardiograph",
+      "3-channel ECG",
+      "Advanced electrocardiograph",
+      "electrocardiograph Colombia",
+      "ECG-3 Plus datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "ECG-3 Plus"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Canales",
+        "clave": "Canales",
+        "valor": "1 / 3"
+      },
+      {
+        "grupo": "Pantalla",
+        "clave": "Pantalla",
+        "valor": "LCD a color de 3.9\", 320 x 240"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Dimensiones",
+        "valor": "300 x 260 x 80 mm"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Peso",
+        "valor": "Aprox. 2,5 kg (con batería y papel)"
+      },
+      {
+        "grupo": "Eléctrico",
+        "clave": "Alimentación",
+        "valor": "100 - 240 V, 50/60 Hz; batería recargable"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ]
+  },
+  {
+    "sku": "FM-9000-PLUS",
+    "descripcion_larga_es": "El monitor fetal y materno Advanced FM-9000 Plus incorpora función de gemelos con verificación de traslape de señales FHR, pantalla LCD táctil plegable a color, indicador de calidad de señal, sonda FHR impermeable e impresora térmica integrada. Además de la frecuencia cardiaca fetal, monitoriza ECG, PANI, SpO2, FC y temperatura maternos, ofrece análisis CTG, marcador remoto de eventos y estimulador fetal opcional.",
+    "descripcion_larga_en": "The Advanced FM-9000 Plus fetal and maternal monitor includes a twins function with FHR signal-overlap verification, a folding colour touchscreen LCD, a signal-quality indicator, a waterproof FHR probe and an integrated thermal printer. In addition to fetal heart rate, it monitors maternal ECG, NIBP, SpO2, HR and temperature, offers CTG analysis, a remote event marker and an optional fetal stimulator.",
+    "beneficios_es": [
+      "Función gemelos con verificación de señales FHR traslapadas para diferenciar a cada feto.",
+      "Monitoreo continuo materno: ECG, PANI, SpO2, FC y temperatura.",
+      "Impresión a 15 mm/s, análisis CTG y software Insight para gestión de datos en PC."
+    ],
+    "beneficios_en": [
+      "Twins function with overlapping FHR signal verification to tell each fetus apart.",
+      "Continuous maternal monitoring: ECG, NIBP, SpO2, HR and temperature.",
+      "15 mm/s printing, CTG analysis and Insight software for PC data management."
+    ],
+    "valor_es": "Un monitor fetal y materno con función gemelos y pantalla táctil, con dos años de garantía.",
+    "valor_en": "A fetal and maternal monitor with twins function and touchscreen, with a two-year warranty.",
+    "faq_es": [
+      {
+        "q": "¿Monitoriza gemelos?",
+        "a": "Sí, tiene función gemelos con verificación de señales FHR traslapadas."
+      },
+      {
+        "q": "¿Qué parámetros maternos mide?",
+        "a": "ECG, PANI, SpO2, frecuencia cardiaca y temperatura."
+      },
+      {
+        "q": "¿Se conecta a una estación central?",
+        "a": "Admite la estación central CMS-1000FM como opcional."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Does it monitor twins?",
+        "a": "Yes, it has a twins function with overlapping FHR signal verification."
+      },
+      {
+        "q": "Which maternal parameters does it measure?",
+        "a": "ECG, NIBP, SpO2, heart rate and temperature."
+      },
+      {
+        "q": "Can it connect to a central station?",
+        "a": "It supports the CMS-1000FM central station as an option."
+      }
+    ],
+    "seo_keywords_es": [
+      "monitor fetal",
+      "monitor fetal y materno FM-9000 Plus",
+      "cardiotocógrafo gemelos",
+      "monitor fetal Advanced",
+      "monitor fetal Colombia",
+      "ficha técnica FM-9000 Plus"
+    ],
+    "seo_keywords_en": [
+      "fetal monitor",
+      "FM-9000 Plus fetal and maternal monitor",
+      "twin cardiotocograph",
+      "Advanced fetal monitor",
+      "fetal monitor Colombia",
+      "FM-9000 Plus datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "FM-9000 Plus"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Fetal",
+        "clave": "Funciones",
+        "valor": "Gemelos, FHR, CTG, estimulador fetal (opcional)"
+      },
+      {
+        "grupo": "Materno",
+        "clave": "Parámetros",
+        "valor": "ECG, PANI, SpO2, FC, temperatura"
+      },
+      {
+        "grupo": "Impresión",
+        "clave": "Velocidad",
+        "valor": "15 mm/s, impresora térmica integrada"
+      },
+      {
+        "grupo": "Eléctrico",
+        "clave": "Alimentación",
+        "valor": "100 - 240 V, 50/60 Hz; batería de litio opcional"
+      },
+      {
+        "grupo": "Normativa",
+        "clave": "Cumplimiento",
+        "valor": "ISO 13485; FDA 510(k)"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ]
+  },
+  {
+    "sku": "IP-200",
+    "descripcion_larga_es": "La bomba de infusión Advanced IP-200 es una bomba volumétrica y de goteo compacta con pantalla táctil TFT de 4\", puerta motorizada con diseño de clip antifugas, caudal de 0.01 a 1200 ml/h, VTBI de 0.01 a 9999 ml y KVO ajustable. Registra más de 4000 eventos, incluye biblioteca de fármacos, alarma de oclusión en cuatro niveles, detección de presión aguas arriba y batería recargable de unas 9 horas a 25 ml/h.",
+    "descripcion_larga_en": "The Advanced IP-200 infusion pump is a compact volumetric and drip pump with a 4\" TFT touchscreen, a motorized door with leak-proof clip design, flow rate from 0.01 to 1200 ml/h, VTBI from 0.01 to 9999 ml and adjustable KVO. It logs 4000+ records, includes a drug library, four-level occlusion alarm, upstream pressure detection and a rechargeable battery of about 9 hours at 25 ml/h.",
+    "beneficios_es": [
+      "Pantalla táctil de 4\" y puerta motorizada con clip antifugas.",
+      "Caudal 0.01 - 1200 ml/h, VTBI hasta 9999 ml, bolo manual y automático.",
+      "Biblioteca de fármacos, historial de 4000+ registros y alarma de oclusión en cuatro niveles."
+    ],
+    "beneficios_en": [
+      "4\" touchscreen and motorized door with leak-proof clip.",
+      "Flow rate 0.01 - 1200 ml/h, VTBI up to 9999 ml, manual and automatic bolus.",
+      "Drug library, 4000+ record history and four-level occlusion alarm."
+    ],
+    "valor_es": "Una bomba de infusión compacta con biblioteca de fármacos, historial y batería de unas 9 horas, con dos años de garantía.",
+    "valor_en": "A compact infusion pump with drug library, history log and a battery of about 9 hours, with a two-year warranty.",
+    "faq_es": [
+      {
+        "q": "¿Qué rango de caudal tiene?",
+        "a": "De 0.01 a 1200 ml/h, según la ficha técnica."
+      },
+      {
+        "q": "¿Cuánto dura la batería?",
+        "a": "9 horas a 25 ml/h; tiempo de carga inferior a 6 horas."
+      },
+      {
+        "q": "¿Qué protección tiene contra líquidos?",
+        "a": "Protección IP24 contra la humedad."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What flow range does it have?",
+        "a": "From 0.01 to 1200 ml/h, per the datasheet."
+      },
+      {
+        "q": "How long does the battery last?",
+        "a": "9 hours at 25 ml/h; charging time under 6 hours."
+      },
+      {
+        "q": "What liquid protection does it have?",
+        "a": "IP24 moisture protection."
+      }
+    ],
+    "seo_keywords_es": [
+      "bomba de infusión",
+      "bomba de infusión IP-200",
+      "bomba volumétrica",
+      "bomba de infusión Advanced",
+      "bomba de infusión Colombia",
+      "ficha técnica IP-200"
+    ],
+    "seo_keywords_en": [
+      "infusion pump",
+      "IP-200 infusion pump",
+      "volumetric pump",
+      "Advanced infusion pump",
+      "infusion pump Colombia",
+      "IP-200 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "IP-200"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Infusión",
+        "clave": "Caudal",
+        "valor": "0.01 - 1200 ml/h"
+      },
+      {
+        "grupo": "Infusión",
+        "clave": "VTBI",
+        "valor": "0.01 - 9999 ml"
+      },
+      {
+        "grupo": "Pantalla",
+        "clave": "Pantalla",
+        "valor": "Táctil TFT de 4\""
+      },
+      {
+        "grupo": "Eléctrico",
+        "clave": "Alimentación",
+        "valor": "AC 220-230 V, 50-60 Hz; batería de litio ~9 h a 25 ml/h"
+      },
+      {
+        "grupo": "Protección",
+        "clave": "Protección",
+        "valor": "IP24"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ]
+  },
+  {
+    "sku": "OT-30",
+    "descripcion_larga_es": "La mesa de operaciones manual Advanced OT-30 es una mesa universal en acero inoxidable de 2000 mm x 500 mm, con altura hidráulica, Trendelenburg e inverso, inclinación lateral, flexión, secciones de espalda, pierna y cabeza ajustables, rieles laterales y freno central. Incluye arco de anestesia, soportes de hombros, tableros de brazos y apoyos de cuerpo, piernas y rodillas. Sirve a cirugía general, ginecología, urología y ortopedia.",
+    "descripcion_larga_en": "The Advanced OT-30 manual operating table is a universal stainless-steel table of 2000 mm x 500 mm with hydraulic height, Trendelenburg and reverse, lateral tilt, flexion, adjustable back, leg and head sections, side rails and central brake. It includes an anaesthesia screen, shoulder supports, arm boards and body, leg and knee supports. It serves general surgery, gynaecology, urology and orthopaedics.",
+    "beneficios_es": [
+      "Estructura de acero inoxidable con colchón fácil de retirar para limpieza y desinfección.",
+      "Altura hidráulica y múltiples ajustes de posición para una amplia variedad de cirugías.",
+      "Accesorios incluidos: arco de anestesia, tableros de brazos y apoyos de cuerpo y piernas."
+    ],
+    "beneficios_en": [
+      "Stainless-steel structure with an easily removable mattress for cleaning and disinfection.",
+      "Hydraulic height and multiple position adjustments for a wide range of surgeries.",
+      "Included accessories: anaesthesia screen, arm boards and body and leg supports."
+    ],
+    "valor_es": "Una mesa quirúrgica manual versátil en acero inoxidable con accesorios incluidos y dos años de garantía.",
+    "valor_en": "A versatile manual stainless-steel operating table with accessories included and a two-year warranty.",
+    "faq_es": [
+      {
+        "q": "¿Qué medidas tiene la superficie?",
+        "a": "2000 mm de largo por 500 mm de ancho."
+      },
+      {
+        "q": "¿Cuánto pesa?",
+        "a": "293 kg (645 lb), según la ficha."
+      },
+      {
+        "q": "¿Para qué cirugías sirve?",
+        "a": "Procedimientos generales: tórax, abdomen, ORL, ginecología y obstetricia, urología y ortopedia."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What are the surface dimensions?",
+        "a": "2000 mm long by 500 mm wide."
+      },
+      {
+        "q": "How much does it weigh?",
+        "a": "293 kg (645 lb), per the datasheet."
+      },
+      {
+        "q": "Which surgeries is it suited for?",
+        "a": "General procedures: thorax, abdomen, ENT, gynaecology and obstetrics, urology and orthopaedics."
+      }
+    ],
+    "seo_keywords_es": [
+      "mesa de operaciones manual",
+      "mesa quirúrgica OT-30",
+      "mesa de cirugía hidráulica",
+      "mesa quirúrgica Advanced",
+      "mesa de cirugía Colombia",
+      "ficha técnica OT-30"
+    ],
+    "seo_keywords_en": [
+      "manual operating table",
+      "OT-30 surgical table",
+      "hydraulic surgical table",
+      "Advanced operating table",
+      "operating table Colombia",
+      "OT-30 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "OT-30"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Superficie",
+        "valor": "2000 mm x 500 mm"
+      },
+      {
+        "grupo": "Peso",
+        "clave": "Peso",
+        "valor": "293 kg (645 lb)"
+      },
+      {
+        "grupo": "Material",
+        "clave": "Construcción",
+        "valor": "Acero inoxidable"
+      },
+      {
+        "grupo": "Ajustes",
+        "clave": "Posiciones",
+        "valor": "Altura hidráulica, Trendelenburg/inverso, inclinación lateral, flexión"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ]
+  },
+  {
+    "sku": "OT-500",
+    "descripcion_larga_es": "La mesa de operaciones eléctrica Advanced OT-500 se maneja con control remoto y control en la columna. Ofrece altura ajustable, Trendelenburg e inverso, inclinación lateral, deslizamiento longitudinal, secciones de cabeza y piernas con resorte de gas y freno central eléctrico. Admite elevador de riñón, extensión ortopédica y marco de neurocirugía como opcionales, para cirugía general, urología, ginecología, neurocirugía, ortopedia y torácica.",
+    "descripcion_larga_en": "The Advanced OT-500 electric operating table is operated with a remote control and a column control. It offers adjustable height, Trendelenburg and reverse, lateral tilt, longitudinal slide, gas-spring head and leg sections and an electric central brake. It supports a kidney elevator, orthopaedic extension and neurosurgery frame as options, for general surgery, urology, gynaecology, neurosurgery, orthopaedics and thoracic surgery.",
+    "beneficios_es": [
+      "Control remoto y control en columna con indicador de encendido.",
+      "Deslizamiento longitudinal compatible con estudios de imagen intraoperatorios.",
+      "Opcionales: elevador de riñón, extensión ortopédica y marco de neurocirugía."
+    ],
+    "beneficios_en": [
+      "Remote and column controls with a power indicator.",
+      "Longitudinal slide to ease intraoperative imaging.",
+      "Options: kidney elevator, orthopaedic extension and neurosurgery frame."
+    ],
+    "valor_es": "Una mesa quirúrgica eléctrica multipropósito con opcionales por especialidad y dos años de garantía.",
+    "valor_en": "A multipurpose electric operating table with specialty options and a two-year warranty.",
+    "faq_es": [
+      {
+        "q": "¿Cómo se opera?",
+        "a": "Con control remoto y control en la columna."
+      },
+      {
+        "q": "¿Qué accesorios opcionales tiene?",
+        "a": "Elevador de riñón, extensión ortopédica y marco de neurocirugía."
+      },
+      {
+        "q": "¿Cuál es su alimentación?",
+        "a": "AC 100/240 V, 50/60 Hz."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "How is it operated?",
+        "a": "With a remote control and a column control."
+      },
+      {
+        "q": "Which optional accessories are available?",
+        "a": "Kidney elevator, orthopaedic extension and neurosurgery frame."
+      },
+      {
+        "q": "What is its power supply?",
+        "a": "AC 100/240 V, 50/60 Hz."
+      }
+    ],
+    "seo_keywords_es": [
+      "mesa de operaciones eléctrica",
+      "mesa quirúrgica OT-500",
+      "mesa de cirugía multipropósito",
+      "mesa quirúrgica Advanced",
+      "mesa de cirugía Colombia",
+      "ficha técnica OT-500"
+    ],
+    "seo_keywords_en": [
+      "electric operating table",
+      "OT-500 surgical table",
+      "multipurpose operating table",
+      "Advanced operating table",
+      "operating table Colombia",
+      "OT-500 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "OT-500"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Control",
+        "clave": "Control",
+        "valor": "Remoto y en columna"
+      },
+      {
+        "grupo": "Material",
+        "clave": "Construcción",
+        "valor": "Acero inoxidable"
+      },
+      {
+        "grupo": "Ajustes",
+        "clave": "Posiciones",
+        "valor": "Altura, Trendelenburg/inverso, inclinación lateral, deslizamiento longitudinal"
+      },
+      {
+        "grupo": "Eléctrico",
+        "clave": "Alimentación",
+        "valor": "AC 100/240 V, 50/60 Hz"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ]
+  },
+  {
+    "sku": "PM-2000A-PRO",
+    "descripcion_larga_es": "El monitor de paciente Advanced PM-2000A PRO cubre las necesidades básicas de monitorización con pantalla TFT LCD a color de 12.1\" (800 x 600), hasta 8 trazos y análisis de ECG de 3/5 derivaciones con detección de marcapasos, análisis de arritmia y segmento ST. Mide respiración, SpO2, PANI y dos canales de temperatura, con IBP de dos canales y CO2 de flujo lateral opcionales, tendencias de 96 horas, OxyCRG para recién nacidos y comunicación con la estación central CMS-2000.",
+    "descripcion_larga_en": "The Advanced PM-2000A PRO patient monitor covers basic monitoring needs with a 12.1\" colour TFT LCD (800 x 600), up to 8 traces and 3/5-lead ECG analysis with pacemaker detection, arrhythmia and ST-segment analysis. It measures respiration, SpO2, NIBP and two temperature channels, with optional two-channel IBP and sidestream CO2, 96-hour trends, OxyCRG for newborns and communication with the CMS-2000 central station.",
+    "beneficios_es": [
+      "Pantalla de 12.1\" con hasta 8 trazos y letra grande para ver parámetros a distancia.",
+      "ECG con análisis de arritmia y segmento ST; SpO2, PANI, respiración y dos temperaturas.",
+      "Tendencias de 96 h, OxyCRG neonatal y conexión a estación central CMS-2000."
+    ],
+    "beneficios_en": [
+      "12.1\" display with up to 8 traces and large-font view for distance reading.",
+      "ECG with arrhythmia and ST-segment analysis; SpO2, NIBP, respiration and two temperatures.",
+      "96 h trends, neonatal OxyCRG and connection to the CMS-2000 central station."
+    ],
+    "valor_es": "Un monitor de paciente básico con ECG 3/5 derivaciones, tendencias de 96 h y opcionales de IBP y CO2, con dos años de garantía.",
+    "valor_en": "A basic patient monitor with 3/5-lead ECG, 96 h trends and IBP and CO2 options, with a two-year warranty.",
+    "faq_es": [
+      {
+        "q": "¿Qué tamaño de pantalla tiene?",
+        "a": "TFT LCD a color de 12.1\" con resolución de 800 x 600."
+      },
+      {
+        "q": "¿Cuánto pesa?",
+        "a": "4.2 kg con batería; 320 x 150 x 265 mm."
+      },
+      {
+        "q": "¿Qué parámetros mide?",
+        "a": "ECG, respiración, SpO2, PANI y dos canales de temperatura; IBP y CO2 son opcionales."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What screen size does it have?",
+        "a": "12.1\" colour TFT LCD with 800 x 600 resolution."
+      },
+      {
+        "q": "How much does it weigh?",
+        "a": "4.2 kg with battery; 320 x 150 x 265 mm."
+      },
+      {
+        "q": "Which parameters does it measure?",
+        "a": "ECG, respiration, SpO2, NIBP and two temperature channels; IBP and CO2 are optional."
+      }
+    ],
+    "seo_keywords_es": [
+      "monitor de paciente",
+      "monitor multiparámetro PM-2000A PRO",
+      "monitor de signos vitales",
+      "monitor Advanced",
+      "monitor de paciente Colombia",
+      "ficha técnica PM-2000A PRO"
+    ],
+    "seo_keywords_en": [
+      "patient monitor",
+      "PM-2000A PRO multiparameter monitor",
+      "vital signs monitor",
+      "Advanced patient monitor",
+      "patient monitor Colombia",
+      "PM-2000A PRO datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "PM-2000A PRO"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Pantalla",
+        "clave": "Pantalla",
+        "valor": "TFT LCD a color de 12.1\", 800 x 600; hasta 8 trazos"
+      },
+      {
+        "grupo": "Parámetros",
+        "clave": "Parámetros",
+        "valor": "ECG 3/5 derivaciones, RESP, SpO2, PANI, 2 temperaturas; IBP y CO2 opcionales"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Peso",
+        "valor": "4.2 kg con batería"
+      },
+      {
+        "grupo": "Eléctrico",
+        "clave": "Alimentación",
+        "valor": "100-240 V, 50/60 Hz; batería Li-ion recargable"
+      },
+      {
+        "grupo": "Normativa",
+        "clave": "Cumplimiento",
+        "valor": "ISO 13485; FDA 510(k)"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ]
+  },
+  {
+    "sku": "PM-2000M",
+    "descripcion_larga_es": "El monitor modular Advanced PM-2000M se usa para monitorizar, almacenar, revisar, registrar y alertar durante el tratamiento hospitalario. Su bastidor modular con módulos plug-and-play admite una amplia gama de parámetros simultáneos, desde cuidados críticos hasta anestesia, con capacidades opcionales como ICG, RM y BIS. La ficha también describe el módulo neonatal PM-2000TM, ligero y silencioso, con pantalla OxyCRG.",
+    "descripcion_larga_en": "The Advanced PM-2000M modular monitor is used to monitor, store, review, record and alert during hospital treatment. Its modular rack with plug-and-play modules supports a wide range of simultaneous parameters, from critical care to anaesthesia, with optional capabilities such as ICG, RM and BIS. The datasheet also describes the PM-2000TM neonatal module, lightweight and quiet, with OxyCRG display.",
+    "beneficios_es": [
+      "Módulos plug-and-play para adaptar los parámetros a cuidados críticos o anestesia.",
+      "Opcionales avanzados: ICG, RM y BIS.",
+      "Módulo neonatal PM-2000TM, ligero y silencioso, con pantalla OxyCRG."
+    ],
+    "beneficios_en": [
+      "Plug-and-play modules to adapt parameters to critical care or anaesthesia.",
+      "Advanced options: ICG, RM and BIS.",
+      "PM-2000TM neonatal module, lightweight and quiet, with OxyCRG display."
+    ],
+    "valor_es": "Un monitor modular plug-and-play para cuidados críticos y anestesia con opcionales avanzados, con dos años de garantía.",
+    "valor_en": "A plug-and-play modular monitor for critical care and anaesthesia with advanced options, with a two-year warranty.",
+    "faq_es": [
+      {
+        "q": "¿Es modular?",
+        "a": "Sí, usa un bastidor modular con módulos plug-and-play."
+      },
+      {
+        "q": "¿Sirve para anestesia?",
+        "a": "La ficha lo presenta para cuidados críticos y monitorización en anestesia."
+      },
+      {
+        "q": "¿Qué garantía tiene?",
+        "a": "Dos años de garantía del fabricante."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Is it modular?",
+        "a": "Yes, it uses a modular rack with plug-and-play modules."
+      },
+      {
+        "q": "Is it suitable for anaesthesia?",
+        "a": "The datasheet presents it for critical care and anaesthesia monitoring."
+      },
+      {
+        "q": "What warranty does it have?",
+        "a": "Two-year manufacturer warranty."
+      }
+    ],
+    "seo_keywords_es": [
+      "monitor modular",
+      "monitor modular PM-2000M",
+      "monitor de anestesia",
+      "monitor modular Advanced",
+      "monitor de cuidados críticos Colombia",
+      "ficha técnica PM-2000M"
+    ],
+    "seo_keywords_en": [
+      "modular monitor",
+      "PM-2000M modular monitor",
+      "anaesthesia monitor",
+      "Advanced modular monitor",
+      "critical care monitor Colombia",
+      "PM-2000M datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "PM-2000M"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Arquitectura",
+        "clave": "Tipo",
+        "valor": "Modular, módulos plug-and-play"
+      },
+      {
+        "grupo": "Opcionales",
+        "clave": "Opcionales",
+        "valor": "ICG, RM, BIS"
+      },
+      {
+        "grupo": "Neonatal",
+        "clave": "Módulo",
+        "valor": "PM-2000TM con pantalla OxyCRG"
+      },
+      {
+        "grupo": "Normativa",
+        "clave": "Cumplimiento",
+        "valor": "Estándares de seguridad IEC; ISO 13485"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ]
+  },
+  {
+    "sku": "PM-2000XL",
+    "descripcion_larga_es": "El Advanced PM-2000XL es una solución de monitorización multifuncional portátil para atención ambulatoria, de emergencia, intermedia y rehabilitación. Ofrece ECG de 3/5 derivaciones, OxyCRG neonatal, letra grande, tendencias (hasta 120 h), revisión de 1200 mediciones de PANI y comunicación con la estación central CMS-2000 por cable o WiFi con protocolo HL7. Admite CO2 de flujo lateral o principal como opcional.",
+    "descripcion_larga_en": "The Advanced PM-2000XL is a portable multifunction monitoring solution for ambulatory, emergency, intermediate care and rehabilitation. It offers 3/5-lead ECG, neonatal OxyCRG, large font, trends (up to 120 h), review of 1200 NIBP measurements and communication with the CMS-2000 central station by cable or WiFi with HL7 protocol. Sidestream or mainstream CO2 is optional.",
+    "beneficios_es": [
+      "Portátil todo en uno para emergencia, atención intermedia y rehabilitación.",
+      "Tendencias de 120 h y revisión de 1200 mediciones de PANI.",
+      "CO2 de flujo lateral o principal opcional; comunicación HL7 con CMS-2000 por cable o WiFi."
+    ],
+    "beneficios_en": [
+      "Portable all-in-one for emergency, intermediate care and rehabilitation.",
+      "120 h trends and review of 1200 NIBP measurements.",
+      "Optional sidestream or mainstream CO2; HL7 communication with CMS-2000 by cable or WiFi."
+    ],
+    "valor_es": "Un monitor portátil multifuncional con CMS-2000/HL7 y CO2 opcional, con dos años de garantía.",
+    "valor_en": "A portable multifunction monitor with CMS-2000/HL7 and optional CO2, with a two-year warranty.",
+    "faq_es": [
+      {
+        "q": "¿Para qué entornos está pensado?",
+        "a": "Atención ambulatoria, emergencia, atención intermedia y rehabilitación."
+      },
+      {
+        "q": "¿Se conecta a estación central?",
+        "a": "Sí, comunicación bidireccional con CMS-2000 por cable o WiFi."
+      },
+      {
+        "q": "¿Mide CO2?",
+        "a": "Opcionalmente, de flujo lateral o principal."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Which settings is it designed for?",
+        "a": "Ambulatory care, emergency, intermediate care and rehabilitation."
+      },
+      {
+        "q": "Does it connect to a central station?",
+        "a": "Yes, two-way communication with the CMS-2000 by cable or WiFi."
+      },
+      {
+        "q": "Does it measure CO2?",
+        "a": "Optionally, sidestream or mainstream."
+      }
+    ],
+    "seo_keywords_es": [
+      "monitor portátil multiparámetro",
+      "monitor PM-2000XL",
+      "monitor de paciente portátil",
+      "monitor Advanced",
+      "monitor de signos vitales Colombia",
+      "ficha técnica PM-2000XL"
+    ],
+    "seo_keywords_en": [
+      "portable multiparameter monitor",
+      "PM-2000XL monitor",
+      "portable patient monitor",
+      "Advanced monitor",
+      "vital signs monitor Colombia",
+      "PM-2000XL datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "PM-2000XL"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Parámetros",
+        "clave": "ECG",
+        "valor": "3/5 derivaciones; OxyCRG neonatal"
+      },
+      {
+        "grupo": "Revisión",
+        "clave": "Tendencias / PANI",
+        "valor": "120 h / 1200 mediciones"
+      },
+      {
+        "grupo": "Comunicación",
+        "clave": "Conectividad",
+        "valor": "CMS-2000, HL7, LAN, USB, WiFi"
+      },
+      {
+        "grupo": "Normativa",
+        "clave": "Cumplimiento",
+        "valor": "ISO 13485"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ]
+  },
+  {
+    "sku": "PM-2000XL-PRO",
+    "descripcion_larga_es": "El Advanced PM-2000XL PRO es un sistema de monitorización todo en uno para cuidados intensivos, recuperación postanestésica y quirófano. Cuenta con pantalla táctil TFT de 15\" (1024 x 768), hasta 13 formas de onda, ECG de 3/5 y 12 derivaciones con análisis de arritmia y segmento ST, protección contra desfibrilación e interferencia electroquirúrgica, y opcionales como gasto cardiaco, medición de agente anestésico, N2O y FiO2 paramagnético. Pesa 7 kg y admite WiFi, HL7 por XML y tarjeta SD.",
+    "descripcion_larga_en": "The Advanced PM-2000XL PRO is an all-in-one monitoring system for intensive care, post-anaesthesia recovery and operating rooms. It features a 15\" TFT touchscreen (1024 x 768), up to 13 waveforms, 3/5- and 12-lead ECG with arrhythmia and ST-segment analysis, defibrillation protection and electrosurgical interference protection, and options such as cardiac output, anaesthetic agent measurement, N2O and paramagnetic FiO2. It weighs 7 kg and supports WiFi, HL7 via XML and an SD card.",
+    "beneficios_es": [
+      "Pantalla táctil de 15\" con operación intuitiva al tocar parámetro o forma de onda.",
+      "ECG de 12 derivaciones, protección ante desfibrilación y electrocirugía.",
+      "Opcionales de gasto cardiaco, agente anestésico, N2O y FiO2; WiFi, HL7 y ranura SD."
+    ],
+    "beneficios_en": [
+      "15\" touchscreen with intuitive operation by touching a parameter or waveform.",
+      "12-lead ECG, defibrillation and electrosurgical protection.",
+      "Options for cardiac output, anaesthetic agent, N2O and FiO2; WiFi, HL7 and SD slot."
+    ],
+    "valor_es": "Un monitor todo en uno con pantalla táctil de 15\" para UCI, recuperación y quirófano, con dos años de garantía.",
+    "valor_en": "An all-in-one monitor with a 15\" touchscreen for ICU, recovery and operating rooms, with a two-year warranty.",
+    "faq_es": [
+      {
+        "q": "¿Qué pantalla tiene?",
+        "a": "Pantalla táctil TFT a color de 15\" con resolución de 1024 x 768."
+      },
+      {
+        "q": "¿Cuánto pesa?",
+        "a": "7 kg en configuración estándar con una batería; 370 x 175 x 320 mm."
+      },
+      {
+        "q": "¿Para qué áreas sirve?",
+        "a": "Cuidados intensivos, postanestesia y salas de operaciones."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What display does it have?",
+        "a": "15\" colour TFT touchscreen with 1024 x 768 resolution."
+      },
+      {
+        "q": "How much does it weigh?",
+        "a": "7 kg in standard configuration with one battery; 370 x 175 x 320 mm."
+      },
+      {
+        "q": "Which areas is it suited for?",
+        "a": "Intensive care, post-anaesthesia care and operating rooms."
+      }
+    ],
+    "seo_keywords_es": [
+      "monitor de paciente UCI",
+      "monitor PM-2000XL PRO",
+      "monitor de quirófano",
+      "monitor Advanced",
+      "monitor de cuidados críticos Colombia",
+      "ficha técnica PM-2000XL PRO"
+    ],
+    "seo_keywords_en": [
+      "ICU patient monitor",
+      "PM-2000XL PRO monitor",
+      "operating room monitor",
+      "Advanced monitor",
+      "critical care monitor Colombia",
+      "PM-2000XL PRO datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "PM-2000XL PRO"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Pantalla",
+        "clave": "Pantalla",
+        "valor": "TFT táctil a color de 15\", 1024 x 768; hasta 13 formas de onda"
+      },
+      {
+        "grupo": "Parámetros",
+        "clave": "ECG",
+        "valor": "3/5 y 12 derivaciones"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Peso",
+        "valor": "7 kg con una batería"
+      },
+      {
+        "grupo": "Comunicación",
+        "clave": "Conectividad",
+        "valor": "CMS-2000, WiFi, HL7 por XML, USB, RJ-45"
+      },
+      {
+        "grupo": "Normativa",
+        "clave": "Cumplimiento",
+        "valor": "IEC 60601-1, IEC 60601-1-8; ISO 13485; FDA 510(k)"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ]
+  },
+  {
+    "sku": "PM-200M",
+    "descripcion_larga_es": "El PM-200M de Advanced es un monitor modular completo para el cuidado agudo, con diseño ligero plug-and-play de 4.5 kg (318 x 264 x 152 mm). Permite capturar y revisar ECG de 12 derivaciones, tendencias gráficas y tabulares de hasta 168 horas, ver los parámetros de otra cama y usar la pantalla Oxy-CRG. Funciona con 100-240 V AC.",
+    "descripcion_larga_en": "The Advanced PM-200M is a complete modular monitor for acute care, with a lightweight plug-and-play design of 4.5 kg (318 x 264 x 152 mm). It lets you capture and review 12-lead ECG, graphic and tabular trends up to 168 hours, view parameters from another bed and use the Oxy-CRG display. It runs on 100-240 V AC.",
+    "beneficios_es": [
+      "Diseño modular plug-and-play de solo 4.5 kg.",
+      "ECG de 12 derivaciones con revisión de forma de onda y tendencias de hasta 168 h.",
+      "Visualización de otra cama y pantalla Oxy-CRG."
+    ],
+    "beneficios_en": [
+      "Plug-and-play modular design weighing only 4.5 kg.",
+      "12-lead ECG with waveform review and trends up to 168 h.",
+      "Other-bed view and Oxy-CRG display."
+    ],
+    "valor_es": "Un monitor modular ligero para cuidado agudo con ECG de 12 derivaciones y tendencias de 168 h.",
+    "valor_en": "A lightweight modular monitor for acute care with 12-lead ECG and 168 h trends.",
+    "faq_es": [
+      {
+        "q": "¿Cuánto pesa?",
+        "a": "4.5 kg, con 318 x 264 x 152 mm."
+      },
+      {
+        "q": "¿Cuánto tiempo de tendencias guarda?",
+        "a": "Tendencias gráficas y tabulares de hasta 168 horas."
+      },
+      {
+        "q": "¿Qué es Oxy-CRG?",
+        "a": "Una pantalla que combina las tendencias de frecuencia cardiaca, respiración y oxigenación."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "How much does it weigh?",
+        "a": "4.5 kg, at 318 x 264 x 152 mm."
+      },
+      {
+        "q": "How long are trends stored?",
+        "a": "Graphic and tabular trends up to 168 hours."
+      },
+      {
+        "q": "What is Oxy-CRG?",
+        "a": "A display combining heart rate, respiration and oxygenation trends."
+      }
+    ],
+    "seo_keywords_es": [
+      "monitor modular de paciente",
+      "monitor PM-200M",
+      "monitor para cuidado agudo",
+      "monitor Advanced",
+      "monitor de paciente Colombia",
+      "ficha técnica PM-200M"
+    ],
+    "seo_keywords_en": [
+      "modular patient monitor",
+      "PM-200M monitor",
+      "acute care monitor",
+      "Advanced monitor",
+      "patient monitor Colombia",
+      "PM-200M datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "PM-200M"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Tamaño / peso",
+        "valor": "318 x 264 x 152 mm; 4.5 kg"
+      },
+      {
+        "grupo": "Revisión",
+        "clave": "Tendencias",
+        "valor": "Hasta 168 h, gráficas y tabulares"
+      },
+      {
+        "grupo": "Parámetros",
+        "clave": "ECG",
+        "valor": "12 derivaciones"
+      },
+      {
+        "grupo": "Eléctrico",
+        "clave": "Alimentación",
+        "valor": "100-240 V AC, 50/60 Hz"
+      },
+      {
+        "grupo": "Normativa",
+        "clave": "Cumplimiento",
+        "valor": "IEC 60601-1 e IEC 60601-1-2"
+      }
+    ]
+  },
+  {
+    "sku": "PT-2000",
+    "descripcion_larga_es": "La lámpara de fototerapia Advanced PT-2000 emplea cinco Super-LED de espectro azul con ajuste de intensidad del 10 % al 100 % en pasos del 10 %, temporizador de tratamiento, contador de horas de la lámpara y memoria de radiación. Atenúa infrarrojos y ultravioleta, tiene ruido inferior a 52 dBA, salida RS232 y radiómetro con sonda óptica opcional.",
+    "descripcion_larga_en": "The Advanced PT-2000 phototherapy lamp uses five blue-spectrum Super LEDs with intensity adjustable from 10% to 100% in 10% steps, treatment timer, lamp hour counter and radiation memory. It attenuates infrared and ultraviolet, has noise below 52 dBA, RS232 output and an optional radiometer with optical probe.",
+    "beneficios_es": [
+      "Cinco Super-LED azules con intensidad ajustable de 10 % a 100 %.",
+      "Atenúa infrarrojos y ultravioleta; ruido inferior a 52 dBA.",
+      "Temporizador, contador de lámpara, memoria de radiación y salida RS232."
+    ],
+    "beneficios_en": [
+      "Five blue Super LEDs with intensity adjustable from 10% to 100%.",
+      "Attenuates infrared and ultraviolet; noise below 52 dBA.",
+      "Timer, lamp counter, radiation memory and RS232 output."
+    ],
+    "valor_es": "Una lámpara de fototerapia LED con control de intensidad y registro de uso, con dos años de garantía.",
+    "valor_en": "An LED phototherapy lamp with intensity control and usage logging, with a two-year warranty.",
+    "faq_es": [
+      {
+        "q": "¿Qué irradiancia entrega?",
+        "a": "A 30 cm, 6,75 a 9,75 mW/cm² (±10 %), según la ficha."
+      },
+      {
+        "q": "¿Se puede regular la intensidad?",
+        "a": "Sí, del 10 % al 100 % de la irradiación máxima en pasos del 10 %."
+      },
+      {
+        "q": "¿Cuánto pesa?",
+        "a": "2.5 kg (5 lb)."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What irradiance does it deliver?",
+        "a": "At 30 cm, 6.75 to 9.75 mW/cm² (±10%), per the datasheet."
+      },
+      {
+        "q": "Can intensity be adjusted?",
+        "a": "Yes, from 10% to 100% of maximum irradiance in 10% steps."
+      },
+      {
+        "q": "How much does it weigh?",
+        "a": "2.5 kg (5 lb)."
+      }
+    ],
+    "seo_keywords_es": [
+      "lámpara de fototerapia LED",
+      "fototerapia neonatal PT-2000",
+      "fototerapia luz azul",
+      "lámpara Advanced",
+      "fototerapia neonatal Colombia",
+      "ficha técnica PT-2000"
+    ],
+    "seo_keywords_en": [
+      "LED phototherapy lamp",
+      "PT-2000 neonatal phototherapy",
+      "blue light phototherapy",
+      "Advanced lamp",
+      "neonatal phototherapy Colombia",
+      "PT-2000 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "PT-2000"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Óptica",
+        "clave": "Fuente de luz",
+        "valor": "5 Super-LED de espectro azul"
+      },
+      {
+        "grupo": "Óptica",
+        "clave": "Irradiancia a 30 cm",
+        "valor": "6,75 - 9,75 mW/cm² (±10 %)"
+      },
+      {
+        "grupo": "Acústica",
+        "clave": "Ruido",
+        "valor": "< 52 dBA"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Peso",
+        "valor": "2.5 kg"
+      },
+      {
+        "grupo": "Eléctrico",
+        "clave": "Alimentación",
+        "valor": "AC 100-240 V, 50/60 Hz"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ]
+  },
+  {
+    "sku": "SL-Series",
+    "descripcion_larga_es": "Las lámparas quirúrgicas halógenas Advanced SL ofrecen iluminación sin sombras y reproducción real del color con intensidad de hasta 120 000 lux y temperatura de color de 4300 K. Un reflector multiprisma/multiángulo logra efecto sin sombra y buena profundidad de enfoque; el sistema de dos bombillos conmuta automáticamente para dar iluminación continua. Incluye control de intensidad, indicador LED de barras y mango para posicionar el cabezal.",
+    "descripcion_larga_en": "The Advanced SL halogen surgical lights offer shadow-free illumination and true colour reproduction with up to 120,000 lux intensity and a colour temperature of 4300 K. A multi-prism/multi-angle reflector gives a shadowless effect and good focusing depth; the two-bulb system switches automatically for continuous illumination. It includes intensity control, a bar-graph LED indicator and a handle to position the head.",
+    "beneficios_es": [
+      "Hasta 120 000 lux y 4300 K, cercano a la luz natural.",
+      "Dos bombillos con encendido automático para iluminación continua.",
+      "Control de intensidad con indicador LED de barras y mango para posicionar el cabezal."
+    ],
+    "beneficios_en": [
+      "Up to 120,000 lux and 4300 K, close to natural light.",
+      "Two bulbs with automatic switch-on for continuous illumination.",
+      "Intensity control with bar-graph LED indicator and handle to position the head."
+    ],
+    "valor_es": "Una lámpara quirúrgica halógena de hasta 120 000 lux con bombillo auxiliar automático, con dos años de garantía.",
+    "valor_en": "A halogen surgical light up to 120,000 lux with automatic auxiliary bulb, with a two-year warranty.",
+    "faq_es": [
+      {
+        "q": "¿Qué intensidad alcanza?",
+        "a": "Hasta 120 000 lux."
+      },
+      {
+        "q": "¿Qué temperatura de color tiene?",
+        "a": "4300 K, cercana a la luz natural."
+      },
+      {
+        "q": "¿Qué pasa si falla un bombillo?",
+        "a": "El sistema de dos bombillos se enciende automáticamente para dar iluminación continua."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What intensity does it reach?",
+        "a": "Up to 120,000 lux."
+      },
+      {
+        "q": "What colour temperature does it have?",
+        "a": "4300 K, close to natural light."
+      },
+      {
+        "q": "What happens if a bulb fails?",
+        "a": "The two-bulb system switches on automatically to provide continuous illumination."
+      }
+    ],
+    "seo_keywords_es": [
+      "lámpara quirúrgica halógena",
+      "lámpara de cirugía SL",
+      "luz de quirófano 120000 lux",
+      "lámpara Advanced",
+      "lámpara quirúrgica Colombia",
+      "ficha técnica SL Series"
+    ],
+    "seo_keywords_en": [
+      "halogen surgical light",
+      "SL series surgical lamp",
+      "operating room light 120,000 lux",
+      "Advanced surgical light",
+      "surgical light Colombia",
+      "SL Series datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "SL Series"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Óptica",
+        "clave": "Intensidad",
+        "valor": "Hasta 120 000 lux"
+      },
+      {
+        "grupo": "Óptica",
+        "clave": "Temperatura de color",
+        "valor": "4300 K"
+      },
+      {
+        "grupo": "Óptica",
+        "clave": "Fuente",
+        "valor": "Halógena, sistema de dos bombillos"
+      },
+      {
+        "grupo": "Normativa",
+        "clave": "Cumplimiento",
+        "valor": "ISO 13485"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ]
+  },
+  {
+    "sku": "ST-100",
+    "descripcion_larga_es": "La camilla manual Advanced ST-100 mide 1880 x 610 mm de superficie, soporta 250 kg y ajusta su altura entre 580 y 825 mm. Tiene respaldo de 0 a 45° con resorte de gas, barandas laterales plegables, frenos de pie, ruedas de 150 mm, soporte para cilindro de oxígeno, dos receptáculos y un atril de suero ajustable incluido, además del colchón.",
+    "descripcion_larga_en": "The Advanced ST-100 manual stretcher measures 1880 x 610 mm in surface, supports 250 kg and adjusts its height between 580 and 825 mm. It has a 0 to 45° gas-spring backrest, folding side rails, foot brakes, 150 mm wheels, an oxygen cylinder holder, two IV receptacles and an adjustable IV pole included, plus the mattress.",
+    "beneficios_es": [
+      "Capacidad de 250 kg y altura de 580 a 825 mm.",
+      "Respaldo de 0 a 45° con resorte de gas y barandas plegables.",
+      "Soporte para cilindro de oxígeno, atril de suero incluido y frenos de pie."
+    ],
+    "beneficios_en": [
+      "250 kg capacity and height from 580 to 825 mm.",
+      "0 to 45° gas-spring backrest and folding rails.",
+      "Oxygen cylinder holder, IV pole included and foot brakes."
+    ],
+    "valor_es": "Una camilla manual de 250 kg con soporte de oxígeno y atril de suero incluido, con dos años de garantía.",
+    "valor_en": "A 250 kg manual stretcher with oxygen holder and included IV pole, with a two-year warranty.",
+    "faq_es": [
+      {
+        "q": "¿Qué capacidad tiene?",
+        "a": "250 kg (550 lb)."
+      },
+      {
+        "q": "¿Cuánto pesa?",
+        "a": "99 kg (217 lb), según la ficha."
+      },
+      {
+        "q": "¿Incluye atril de suero?",
+        "a": "Sí, un atril de suero ajustable y dos receptáculos."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What capacity does it have?",
+        "a": "250 kg (550 lb)."
+      },
+      {
+        "q": "How much does it weigh?",
+        "a": "99 kg (217 lb), per the datasheet."
+      },
+      {
+        "q": "Does it include an IV pole?",
+        "a": "Yes, an adjustable IV pole and two receptacles."
+      }
+    ],
+    "seo_keywords_es": [
+      "camilla manual hospitalaria",
+      "camilla ST-100",
+      "camilla para transporte de pacientes",
+      "camilla Advanced",
+      "camilla hospitalaria Colombia",
+      "ficha técnica ST-100"
+    ],
+    "seo_keywords_en": [
+      "manual hospital stretcher",
+      "ST-100 stretcher",
+      "patient transport stretcher",
+      "Advanced stretcher",
+      "hospital stretcher Colombia",
+      "ST-100 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "ST-100"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Superficie",
+        "valor": "1880 x 610 mm (74\" x 24\")"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Altura",
+        "valor": "580 - 825 mm"
+      },
+      {
+        "grupo": "Capacidad",
+        "clave": "Capacidad",
+        "valor": "250 kg (550 lb)"
+      },
+      {
+        "grupo": "Peso",
+        "clave": "Peso",
+        "valor": "99 kg (217 lb)"
+      },
+      {
+        "grupo": "Ruedas",
+        "clave": "Diámetro",
+        "valor": "150 mm"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ]
+  },
+  {
+    "sku": "ST-2000",
+    "descripcion_larga_es": "La camilla hidráulica Advanced ST-2000 está diseñada para el transporte eficiente de pacientes de hasta 550 lb (250 kg), con altura regulable por pedales a ambos lados. Ofrece marco de acero, barandas plegables de acero inoxidable, quinta rueda retráctil de dirección, freno central con cuatro pedales, cinco funciones (cama arriba/abajo, respaldo, piernas, Trendelenburg e inverso), soporte para cilindro de oxígeno y atril de suero incluido. Bandeja de chasis de rayos X opcional.",
+    "descripcion_larga_en": "The Advanced ST-2000 hydraulic stretcher is designed for efficient patient transport up to 550 lb (250 kg), with height adjustable by pedals on both sides. It offers a steel frame, folding stainless-steel rails, retractable fifth steering wheel, central brake with four pedals, five functions (bed up/down, backrest, legs, Trendelenburg and reverse), an oxygen cylinder holder and an IV pole included. X-ray cassette tray optional.",
+    "beneficios_es": [
+      "Cinco funciones con pedales de control en ambos lados.",
+      "Quinta rueda retráctil y freno central de cuatro pedales para maniobrar con seguridad.",
+      "Placa de cama translúcida a rayos X y bandeja de chasis opcional."
+    ],
+    "beneficios_en": [
+      "Five functions with control pedals on both sides.",
+      "Retractable fifth wheel and four-pedal central brake for safe manoeuvring.",
+      "X-ray translucent bed plate and optional cassette tray."
+    ],
+    "valor_es": "Una camilla hidráulica de 250 kg con cinco funciones y quinta rueda de dirección, con dos años de garantía.",
+    "valor_en": "A 250 kg hydraulic stretcher with five functions and fifth steering wheel, with a two-year warranty.",
+    "faq_es": [
+      {
+        "q": "¿Qué peso soporta?",
+        "a": "Hasta 550 libras (250 kg)."
+      },
+      {
+        "q": "¿Tiene bandeja de rayos X?",
+        "a": "Sí, la bandeja de chasis de rayos X es opcional."
+      },
+      {
+        "q": "¿Cuántas funciones tiene?",
+        "a": "Cinco funciones con pedales a ambos lados."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What weight does it support?",
+        "a": "Up to 550 lb (250 kg)."
+      },
+      {
+        "q": "Does it have an X-ray tray?",
+        "a": "Yes, the X-ray cassette tray is optional."
+      },
+      {
+        "q": "How many functions does it have?",
+        "a": "Five functions with pedals on both sides."
+      }
+    ],
+    "seo_keywords_es": [
+      "camilla hidráulica",
+      "camilla ST-2000",
+      "camilla de paciente",
+      "camilla Advanced",
+      "camilla hospitalaria Colombia",
+      "ficha técnica ST-2000"
+    ],
+    "seo_keywords_en": [
+      "hydraulic stretcher",
+      "ST-2000 stretcher",
+      "patient stretcher",
+      "Advanced stretcher",
+      "hospital stretcher Colombia",
+      "ST-2000 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "ST-2000"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Capacidad",
+        "clave": "Capacidad",
+        "valor": "250 kg (550 lb)"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Dimensiones totales",
+        "valor": "2037 x 749 mm (80.19\" x 29.5\")"
+      },
+      {
+        "grupo": "Funciones",
+        "clave": "Funciones",
+        "valor": "5 (altura, respaldo, piernas, Trendelenburg e inverso)"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ]
+  },
+  {
+    "sku": "VSM-300",
+    "descripcion_larga_es": "El monitor de signos vitales Advanced VSM-300 captura y documenta SpO2, frecuencia de pulso, presión arterial no invasiva (SYS, DIA, MAP) y temperatura para pacientes adultos, pediátricos y neonatales. Tiene pantalla TFT LCD a color, llamada de enfermera, comunicación bidireccional por red cableada o inalámbrica con la estación central, impresora térmica opcional, lector de código de barras compatible y batería recargable. Pesa 3.5 kg con batería.",
+    "descripcion_larga_en": "The Advanced VSM-300 vital signs monitor captures and documents SpO2, pulse rate, non-invasive blood pressure (SYS, DIA, MAP) and temperature for adult, pediatric and neonatal patients. It has a colour TFT LCD, nurse call, two-way communication over wired or wireless network with the central station, optional thermal printer, compatible barcode reader and a rechargeable battery. It weighs 3.5 kg with battery.",
+    "beneficios_es": [
+      "Captura SpO2, pulso, PANI y temperatura para adultos, pediátricos y neonatos.",
+      "Comunicación bidireccional por red cableada o inalámbrica y lector de código de barras compatible.",
+      "Ligero y portátil: 3.5 kg con batería."
+    ],
+    "beneficios_en": [
+      "Captures SpO2, pulse, NIBP and temperature for adults, paediatrics and neonates.",
+      "Two-way wired or wireless network communication and compatible barcode reader.",
+      "Lightweight and portable: 3.5 kg with battery."
+    ],
+    "valor_es": "Un monitor de signos vitales portátil con conectividad a estación central, con dos años de garantía.",
+    "valor_en": "A portable vital signs monitor with central station connectivity, with a two-year warranty.",
+    "faq_es": [
+      {
+        "q": "¿Qué parámetros mide?",
+        "a": "SpO2, frecuencia de pulso, presión arterial no invasiva y temperatura."
+      },
+      {
+        "q": "¿Cuánto pesa?",
+        "a": "3.5 kg con batería; 200.8 x 241 x 189 mm."
+      },
+      {
+        "q": "¿Se conecta a red?",
+        "a": "Sí, puerto Ethernet RJ-45 y comunicación por red cableada o inalámbrica."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Which parameters does it measure?",
+        "a": "SpO2, pulse rate, non-invasive blood pressure and temperature."
+      },
+      {
+        "q": "How much does it weigh?",
+        "a": "3.5 kg with battery; 200.8 x 241 x 189 mm."
+      },
+      {
+        "q": "Does it connect to a network?",
+        "a": "Yes, RJ-45 Ethernet and wired or wireless network communication."
+      }
+    ],
+    "seo_keywords_es": [
+      "monitor de signos vitales",
+      "monitor VSM-300",
+      "monitor de signos vitales portátil",
+      "monitor Advanced",
+      "monitor de signos vitales Colombia",
+      "ficha técnica VSM-300"
+    ],
+    "seo_keywords_en": [
+      "vital signs monitor",
+      "VSM-300 monitor",
+      "portable vital signs monitor",
+      "Advanced monitor",
+      "vital signs monitor Colombia",
+      "VSM-300 datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "VSM-300"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Parámetros",
+        "clave": "Parámetros",
+        "valor": "SpO2, pulso, PANI (SYS/DIA/MAP), temperatura"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Tamaño / peso",
+        "valor": "200.8 x 241 x 189 mm; 3.5 kg con batería"
+      },
+      {
+        "grupo": "Comunicación",
+        "clave": "Puertos",
+        "valor": "USB, Ethernet RJ-45"
+      },
+      {
+        "grupo": "Eléctrico",
+        "clave": "Alimentación",
+        "valor": "AC 100-240 V, 50/60 Hz; batería recargable"
+      },
+      {
+        "grupo": "Normativa",
+        "clave": "Cumplimiento",
+        "valor": "IEC 60601-1-2; ISO 13485; FDA 510(k)"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ]
+  }
+]

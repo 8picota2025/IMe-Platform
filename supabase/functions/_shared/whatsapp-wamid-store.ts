@@ -38,7 +38,7 @@ export class SupabaseWamidStore implements WamidClaimStore {
 export async function markWamidStatus(
   supabase: SupabaseClient,
   wamid: string,
-  status: 'replied' | 'ignored' | 'rate_limited' | 'send_failed' | 'pending_agent',
+  status: 'replied' | 'ignored' | 'rate_limited' | 'send_failed' | 'pending_agent' | 'human_paused',
   extra: { fromWa?: string; phoneNumberId?: string; kind?: string; body?: string } = {}
 ): Promise<void> {
   const patch: Record<string, unknown> = {

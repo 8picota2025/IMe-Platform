@@ -15,6 +15,7 @@ import {
   errorResponse,
   internalError,
 } from '../_shared/errors.ts';
+import { replyToDeCotizacion } from '../_shared/asesor.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { requireAdmin } from '../_shared/admin-auth.ts';
 import { enviarEmailPlantilla, escapeHtml } from '../_shared/email.ts';
@@ -219,7 +220,9 @@ Deno.serve(async req => {
         motivo || (locale === 'en' ? 'Receipt not valid' : 'Comprobante no valido')
       ),
     },
-    pedidoId
+    pedidoId,
+    [],
+    { replyTo: await replyToDeCotizacion(supabase, cotizacionId || null) }
   );
 
   // Pedido ya rechazado y cotizacion reabierta: no devolver 502 si solo falla el email.

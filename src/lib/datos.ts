@@ -7,8 +7,7 @@
  */
 
 import type { Locale } from '../i18n/utils';
-import { emitAnalyticsEvent } from './analytics';
-import { captureCommercialAttribution, type CommercialAttribution } from './commercial-attribution';
+import type { CommercialAttribution } from './commercial-attribution';
 import { isSupabaseConfigured, getSupabaseClient } from './supabase';
 import { resolveFamiliaIcono } from './familias';
 import { resolveMarca } from './producto-origen';
@@ -17,7 +16,10 @@ import { resolvePrecioPublico } from './format';
 import mockFamilias from '../data/mock-familias.json';
 import mockArticulos from '../data/mock-articulos.json';
 import { sanitizeArticuloSlug, isValidArticuloSlug } from './articulo-slug';
+import type { TopicClusterRef } from './conocimiento-clusters';
+import { nombreTema } from '../data/temas-conocimiento';
 import mockProductos from '../data/mock-productos.json';
+import { esProductoDePrueba } from './productos-prueba';
 import mockTipos from '../data/mock-tipos.json';
 import productImageManifest from '../data/product-image-manifest.json';
 
@@ -31,12 +33,12 @@ const REQUIRE_LIVE_DATA = import.meta.env['REQUIRE_LIVE_DATA'] === 'true';
  * 20260828010000_correct_product_families.sql.
  */
 export const PRODUCT_FAMILY_CORRECTIONS: Readonly<Record<string, string>> = {
-  'lampara-cielitica-led-x36': 'sala-cirugia',
-  'lampara-cielitica-led-x3618-con-satelite': 'sala-cirugia',
-  'lampara-cielitica-led-x3636-con-satelite': 'sala-cirugia',
-  'led-x18-100k': 'sala-cirugia',
-  'ventilador-mecanico-crius-v6': 'ventiladores',
-  'ventilador-para-uci-v-1000': 'ventiladores',
+  'lampara-cielitica-ref-led-x36-ilumitec': 'sala-cirugia',
+  'lampara-cielitica-led-x3618-con-satelite-ref-led-x3618-ilumitec': 'sala-cirugia',
+  'lampara-cielitica-led-x3636-con-satelite-ref-led-x3636-ilumitec': 'sala-cirugia',
+  'ref-led-x18-100k-ilumitec': 'sala-cirugia',
+  'ventilador-mecanico-ref-crius-v6-northern': 'ventiladores',
+  'ventilador-para-uci-ref-v-1000-advanced': 'ventiladores',
   'ventilador-neonatal-pedriatrico-convencional-ref-6000-sle': 'ventiladores',
   'ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-teo-air-liquide': 'ventiladores',
   'ventilador-neonatal-pediatrico-alta-frecuencia-plus-convencional-ref-6000-sle': 'ventiladores',
@@ -46,36 +48,37 @@ export const PRODUCT_FAMILY_CORRECTIONS: Readonly<Record<string, string>> = {
   'ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide': 'ventiladores',
   'ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide': 'ventiladores',
   'ventilador-mecanico-uci-adulto-pediatrico': 'ventiladores',
-  'monitor-modular-multiparametro-virgo': 'monitores',
+  'monitor-modular-multiparametro-ref-virgo-northern': 'monitores',
   'monitor-multiparametrico-basico': 'monitores',
   'monitor-multiparametrico-uci-avanzado': 'monitores',
-  'monitor-multiparametro-acuarius': 'monitores',
-  'monitor-multiparametro-gemini': 'monitores',
-  'monitor-multiparametro-pisces': 'monitores',
-  'monitor-multiparametro-taurus': 'monitores',
-  'monitor-multiparametro-venus': 'monitores',
+  'monitor-multiparametro-ref-acuarius-northern': 'monitores',
+  'monitor-multiparametro-ref-gemini-northern': 'monitores',
+  'monitor-multiparametro-ref-pisces-northern': 'monitores',
+  'monitor-multiparametro-ref-taurus-northern': 'monitores',
+  'monitor-multiparametro-ref-venus-northern': 'monitores',
   'electrocardiografo-ref-sk-em103-saikang': 'cardiologia',
   'monitor-de-paciente-ref-sk-em005-saikang': 'monitores',
   'monitor-fetal-ref-sk-em006-saikang': 'neonatologia',
   'carro-clinico-ref-skr-r10-saikang': 'mobiliario',
   'mesa-quirurgica-electrica-ref-skl-c-saikang': 'sala-cirugia',
   'mesa-quirurgica-electrica-ref-skl-d-saikang': 'sala-cirugia',
-  'g-des-kbe1462ff-m23-d': 'insumos-accesorios',
-  'g-desde-kbe1462ff-m23-d': 'insumos-accesorios',
-  'g-kbe1432rf-mp23l-llt': 'insumos-accesorios',
-  'g-kbe1462-fr': 'insumos-accesorios',
-  'g-kbe1462ff-m23d-a': 'insumos-accesorios',
-  'g-kbe1462ff-m23d-rp': 'insumos-accesorios',
-  'g-kbe1462re-p23l-rp': 'insumos-accesorios',
-  'g-kbo1432rf-mp23-fr': 'insumos-accesorios',
-  'g-kbo1432rf-mp23-rp': 'insumos-accesorios',
-  'g-srels-lt': 'insumos-accesorios',
-  'g-srels-pad': 'insumos-accesorios',
-  'g-srels-rpe': 'insumos-accesorios',
-  'g-srels-rpr': 'insumos-accesorios',
-  'skb-1a-skb2a10': 'emergencias-traslado-inmovilizacion',
-  'skb-2a-skb2a11': 'emergencias-traslado-inmovilizacion',
-  'skb-4a-skb2a12': 'emergencias-traslado-inmovilizacion',
+  'deslizadores-traseros-para-sdr-kbe1462ff-m23-d-ref-des-kbe1462ff-m23-d': 'insumos-accesorios',
+  'deslizadores-delanteros-para-sdr-kbe1462ff-m23-d-ref-desde-kbe1462ff-m23-d':
+    'insumos-accesorios',
+  'llanta-trasera-para-sdr-kbe1432rf-mp23l-ref-kbe1432rf-mp23l-llt': 'insumos-accesorios',
+  'freno-para-sdr-estandar-color-gris-ref-kbe1462-fr': 'insumos-accesorios',
+  'asiento-para-sdr-kbe1462ff-m23-d-ref-kbe1462ff-m23d-a': 'insumos-accesorios',
+  'reposapies-para-sdr-kbe1452ff-m23-d-ref-kbe1462ff-m23d-rp': 'insumos-accesorios',
+  'reposapies-elevables-para-sdr-kbe1462re-pp23l-ref-kbe1462re-p23l-rp': 'insumos-accesorios',
+  'frenos-para-sdr-kbo1432rf-mp23-ref-kbo1432rf-mp23-fr': 'insumos-accesorios',
+  'reposapies-para-sdr-kbo1432rf-mp23-ref-kbo1432rf-mp23-rp': 'insumos-accesorios',
+  'llanta-trasera-para-sdr-iron-light-ref-srels-lt': 'insumos-accesorios',
+  'pad-para-sdr-iron-light-ref-srels-pad': 'insumos-accesorios',
+  'reposapies-elevables-para-sdr-iron-light-ref-srels-rpe': 'insumos-accesorios',
+  'reposapies-removibles-para-sdr-iron-light-ref-srels-rpr': 'insumos-accesorios',
+  'tablero-espinal-ref-skb2a10-saikang': 'emergencias-traslado-inmovilizacion',
+  'tablero-espinal-ref-skb2a11-saikang': 'emergencias-traslado-inmovilizacion',
+  'tablero-espinal-ref-skb2a12-saikang': 'emergencias-traslado-inmovilizacion',
 };
 
 export function correctedFamilySlug(productSlug: string, currentFamilySlug: string): string {
@@ -136,8 +139,12 @@ function localProductImage(slug: unknown): string | null {
   const aliases: Record<string, string> = {
     'sk-c1-v2k': 'sk-c1',
     'sk-c1-r00': 'sk-c1-r000w',
+    'camilla-manual-v2k-ref-sk-c1-v2k-saikang': 'sk-c1',
+    'cama-de-hospital-plana-r00-ref-sk-c1-r00-saikang': 'sk-c1-r000w',
     'led-rx18': 'led-rx18-100k',
+    'ref-led-rx18-100k-ilumitec': 'led-rx18-100k',
     'led-rx36-160k': 'led-rx36',
+    'ref-led-rx36-160k-ilumitec': 'led-rx36',
     ske001: 'ske001-19',
   };
   const manifest = productImageManifest as Record<string, string>;
@@ -145,29 +152,33 @@ function localProductImage(slug: unknown): string | null {
 }
 
 const ROBOT_IMPORT_GALLERY_COUNT: Record<string, number> = {
-  'padbot-x3-robot-recepcion': 2,
-  'padbot-x2-robot-servicio-interactivo': 2,
-  'padbot-p2-robot-telepresencia': 2,
-  'padbot-w2-robot-delivery-institucional': 2,
-  'padbot-w3s-robot-delivery-alimentos': 2,
-  'c3-robot-limpieza-autonoma': 2,
-  'padbot-t2-robot-educativo-social': 2,
-  'cruzr-robot-comercial-inteligente-ahuman-future': 1,
+  'padbot-x3-robot-recepcion-ref-padbot-x3-padbot': 2,
+  'padbot-x2-robot-servicio-interactivo-ref-padbot-x2-padbot': 2,
+  'padbot-p2-robot-telepresencia-ref-padbot-p2-padbot': 2,
+  'padbot-w2-robot-delivery-institucional-ref-padbot-w2-padbot': 2,
+  'padbot-w3s-robot-delivery-alimentos-ref-padbot-w3s-padbot': 2,
+  'c3-robot-limpieza-autonoma-ref-c3-cleaning-robot': 2,
+  'padbot-t2-robot-educativo-social-ref-padbot-t2-padbot': 2,
+  'cruzr-robot-comercial-inteligente-ref-cruzr-ahuman-future-ahuman-future': 1,
 };
 
 const ROBOT_MEDIA_SEO_SLUG: Record<string, string> = {
-  'cruzr-robot-comercial-inteligente-ahuman-future':
+  'cruzr-robot-comercial-inteligente-ref-cruzr-ahuman-future-ahuman-future':
     'robot-asistencial-recepcion-hospitalaria-cruzr-ahuman-future',
-  'padbot-x3-robot-recepcion': 'robot-asistencial-recepcion-clinicas-hospitales-padbot-x3',
-  'padbot-x2-robot-servicio-interactivo':
+  'padbot-x3-robot-recepcion-ref-padbot-x3-padbot':
+    'robot-asistencial-recepcion-clinicas-hospitales-padbot-x3',
+  'padbot-x2-robot-servicio-interactivo-ref-padbot-x2-padbot':
     'robot-asistencial-servicio-interactivo-clinicas-hospitales-padbot-x2',
-  'padbot-p2-robot-telepresencia': 'robot-telepresencia-telemedicina-tercera-edad-padbot-p2',
-  'padbot-w2-robot-delivery-institucional':
+  'padbot-p2-robot-telepresencia-ref-padbot-p2-padbot':
+    'robot-telepresencia-telemedicina-tercera-edad-padbot-p2',
+  'padbot-w2-robot-delivery-institucional-ref-padbot-w2-padbot':
     'robot-delivery-hospitalario-industrial-logistica-padbot-w2',
-  'padbot-w3s-robot-delivery-alimentos':
+  'padbot-w3s-robot-delivery-alimentos-ref-padbot-w3s-padbot':
     'robot-delivery-alimentos-restaurantes-hospitales-padbot-w3s',
-  'c3-robot-limpieza-autonoma': 'robot-limpieza-industrial-hospitalaria-autonoma-c3',
-  'padbot-t2-robot-educativo-social': 'robot-educativo-social-tercera-edad-padbot-t2',
+  'c3-robot-limpieza-autonoma-ref-c3-cleaning-robot':
+    'robot-limpieza-industrial-hospitalaria-autonoma-c3',
+  'padbot-t2-robot-educativo-social-ref-padbot-t2-padbot':
+    'robot-educativo-social-tercera-edad-padbot-t2',
 };
 
 function robotImportedAssetPath(slug: unknown, filename: string): string | null {
@@ -387,6 +398,61 @@ export interface Articulo {
   publicado: boolean;
   created_at: string;
   updated_at: string;
+  /** Topic cluster (ADR-0014); null si el artículo no tiene tema asignado. */
+  cluster: TopicClusterRef | null;
+  tags: string[];
+}
+
+/** Columnas de articulos + su topic cluster (FK cluster_id, embebido por PostgREST). */
+const ARTICULO_SELECT = '*, topic_clusters(slug, nombre_es, nombre_en)';
+
+function mapClusterEmbebido(raw: unknown, locale: Locale): TopicClusterRef | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const row = raw as RawRow;
+  const slug = stringValue(row.slug);
+  if (!slug) return null;
+  const nombre =
+    nombreTema(slug, locale) ??
+    (locale === 'en'
+      ? stringValue(row.nombre_en) || stringValue(row.nombre_es)
+      : stringValue(row.nombre_es));
+  return { slug, nombre: nombre || slug };
+}
+
+function mapArticuloRow(raw: RawRow, locale: Locale): Articulo {
+  const imagen = stringValue(raw.imagen);
+  return {
+    id: stringValue(raw.id),
+    slug: sanitizeArticuloSlug(stringValue(raw.slug)),
+    titulo:
+      locale === 'en'
+        ? stringValue(raw.titulo_en) || stringValue(raw.titulo_es)
+        : stringValue(raw.titulo_es),
+    cuerpo:
+      locale === 'en'
+        ? stringValue(raw.cuerpo_en) || stringValue(raw.cuerpo_es)
+        : stringValue(raw.cuerpo_es),
+    ...(imagen ? { imagen } : {}),
+    publicado: Boolean(raw.publicado),
+    created_at: stringValue(raw.created_at),
+    updated_at: stringValue(raw.updated_at),
+    cluster: mapClusterEmbebido(raw.topic_clusters, locale),
+    tags: Array.isArray(raw.tags) ? raw.tags.filter((t): t is string => typeof t === 'string') : [],
+  };
+}
+
+function mapArticuloMock(raw: (typeof mockArticulos)[0], locale: Locale): Articulo {
+  return {
+    id: raw.id,
+    slug: raw.slug,
+    titulo: locale === 'en' ? raw.titulo_en || raw.titulo_es : raw.titulo_es,
+    cuerpo: locale === 'en' ? raw.cuerpo_en || raw.cuerpo_es : raw.cuerpo_es,
+    publicado: raw.publicado,
+    created_at: raw.created_at,
+    updated_at: raw.updated_at,
+    cluster: null,
+    tags: [],
+  };
 }
 
 /* ============================================================
@@ -444,7 +510,7 @@ function mapProducto(raw: (typeof mockProductos)[0], locale: Locale): Producto {
         ? (raw as { seo_keywords_en?: string[] }).seo_keywords_en
         : (raw as { seo_keywords_es?: string[] }).seo_keywords_es) ?? [],
     marca: (raw as { marca?: string }).marca ?? null,
-    imagen_principal: publicImage(raw.imagen_principal),
+    imagen_principal: localProductImage(raw.slug) ?? publicImage(raw.imagen_principal),
     galeria: raw.galeria.map(publicImage).filter(isString),
     ficha_pdf: raw.ficha_pdf,
     tipo_comercial: raw.tipo_comercial as Producto['tipo_comercial'],
@@ -590,29 +656,114 @@ export async function getTipos(familiaSlug: string, locale: Locale): Promise<Tip
     }));
 }
 
+/**
+ * Columnas de productos que usa el sitio: todas salvo `embedding` (vector de
+ * 1024 dims, ~46% del peso de la tabla) y `busqueda_tsv`. Con `select('*')`
+ * la build pedía ~14 MB de JSON y el rol `anon` corta a los 3 s
+ * (`statement_timeout`), así que el despliegue fallaba de forma intermitente.
+ */
+export const PRODUCTO_SELECT = [
+  'id',
+  'slug',
+  'familia_id',
+  'tipo_id',
+  'nombre_es',
+  'nombre_en',
+  'descripcion_corta_es',
+  'descripcion_corta_en',
+  'descripcion_larga_es',
+  'descripcion_larga_en',
+  'especificaciones',
+  'aplicaciones_es',
+  'aplicaciones_en',
+  'imagen_principal',
+  'galeria',
+  'ficha_pdf',
+  'tipo_comercial',
+  'fulfillment_mode',
+  'precio',
+  'moneda',
+  'stock',
+  'destacado',
+  'nuevo',
+  'activo',
+  'orden',
+  'created_at',
+  'updated_at',
+  'sku',
+  'gtin',
+  'atributos',
+  'peso_kg',
+  'dimensiones_cm',
+  'precio_regular',
+  'precio_oferta',
+  'oferta_inicio',
+  'oferta_fin',
+  'gestionar_stock',
+  'stock_estado',
+  'backorder_policy',
+  'disponible',
+  'disponible_actualizado_at',
+  'dian_codigo',
+  'tarifa_iva_pct',
+  'retencion_fuente_pct',
+  'retencion_iva_pct',
+  'retencion_ica_pct',
+  'excluido_iva',
+].join(',');
+
+/** Filas por petición: páginas grandes (p. ej. 1000 en la build) se piden en lotes. */
+export const PRODUCTOS_LOTE = 200;
+
+/** Divide el rango [desde, hasta] (inclusivo) en lotes de como máximo `lote` filas. */
+export function lotesDeRango(
+  desde: number,
+  hasta: number,
+  lote = PRODUCTOS_LOTE
+): Array<[number, number]> {
+  const lotes: Array<[number, number]> = [];
+  for (let inicio = desde; inicio <= hasta; inicio += lote) {
+    lotes.push([inicio, Math.min(inicio + lote - 1, hasta)]);
+  }
+  return lotes;
+}
+
 export async function getProductos(filtros: FiltrosProductos, locale: Locale): Promise<Producto[]> {
   const { familia, tipo, destacado, query, page = 1, pageSize = 24 } = filtros;
 
   if (debeUsarSupabase()) {
     const supabase = getSupabaseClient()!;
     await cargarMapaFamilias(supabase);
-    let req = supabase.from('productos').select('*').eq('activo', true);
-    if (familia) {
-      const familiaId = familiaIdPorSlug?.[familia];
-      // Familia sin equivalente en Supabase: no hay filas que coincidan.
-      req = req.eq('familia_id', familiaId ?? '00000000-0000-0000-0000-000000000000');
+    const filas: RawRow[] = [];
+    let error: { message?: string } | null = null;
+    for (const [desde, hasta] of lotesDeRango((page - 1) * pageSize, page * pageSize - 1)) {
+      let req = supabase.from('productos').select(PRODUCTO_SELECT).eq('activo', true);
+      if (familia) {
+        const familiaId = familiaIdPorSlug?.[familia];
+        // Familia sin equivalente en Supabase: no hay filas que coincidan.
+        req = req.eq('familia_id', familiaId ?? '00000000-0000-0000-0000-000000000000');
+      }
+      if (destacado !== undefined) req = req.eq('destacado', destacado);
+      // `id` desempata `orden` repetidos: sin él, los lotes podrían solaparse o saltarse filas.
+      const res = await req.order('orden').order('id').range(desde, hasta);
+      if (res.error) {
+        error = res.error;
+        break;
+      }
+      const lote = (res.data ?? []) as unknown as RawRow[];
+      filas.push(...lote);
+      if (lote.length < hasta - desde + 1) break; // no hay más filas
     }
-    if (destacado !== undefined) req = req.eq('destacado', destacado);
-    req = req.order('orden').range((page - 1) * pageSize, page * pageSize - 1);
-    const { data, error } = await req;
-    if (!error && data && data.length > 0) {
-      return data.map(raw => mapProductoSupabase(raw, locale));
+    if (!error && filas.length > 0) {
+      return filas
+        .filter(raw => !esProductoDePrueba(raw.slug))
+        .map(raw => mapProductoSupabase(raw, locale));
     }
     if (error) registrarErrorSupabase('getProductos', error);
-    else if (data && !familia) registrarVacioSupabase('getProductos');
+    else if (!familia) registrarVacioSupabase('getProductos');
   }
 
-  let lista = mockProductos.filter(p => p.activo);
+  let lista = mockProductos.filter(p => p.activo && !esProductoDePrueba(p.slug));
   if (familia) lista = lista.filter(p => p.familia_slug === familia);
   if (tipo) lista = lista.filter(p => p.tipo_id === tipo);
   if (destacado !== undefined) lista = lista.filter(p => p.destacado === destacado);
@@ -658,14 +809,15 @@ export async function getProductosBySlugs(slugs: string[], locale: Locale): Prom
       .select('*')
       .in('slug', slugs)
       .eq('activo', true);
-    if (!error && data && data.length > 0) {
-      return data.map(raw => mapProductoSupabase(raw, locale));
+    if (!error && data) {
+      return data
+        .filter(raw => !esProductoDePrueba(raw.slug))
+        .map(raw => mapProductoSupabase(raw, locale));
     }
     if (error) registrarErrorSupabase('getProductosBySlugs', error);
-    else if (data) registrarVacioSupabase('getProductosBySlugs');
   }
   return mockProductos
-    .filter(p => slugs.includes(p.slug) && p.activo)
+    .filter(p => slugs.includes(p.slug) && p.activo && !esProductoDePrueba(p.slug))
     .map(p => mapProducto(p, locale));
 }
 
@@ -678,47 +830,38 @@ export async function getArticulos(locale: Locale): Promise<Articulo[]> {
     const supabase = getSupabaseClient()!;
     const { data, error } = await supabase
       .from('articulos')
-      .select('*')
+      .select(ARTICULO_SELECT)
       .eq('publicado', true)
       .order('created_at', { ascending: false });
     if (error) {
       registrarErrorSupabase('getArticulos', error);
     } else if (data) {
       return (data as RawRow[])
-        .map(raw => {
-          const imagen = stringValue(raw.imagen);
-          const slug = sanitizeArticuloSlug(stringValue(raw.slug));
-          return {
-            id: stringValue(raw.id),
-            slug,
-            titulo:
-              locale === 'en'
-                ? stringValue(raw.titulo_en) || stringValue(raw.titulo_es)
-                : stringValue(raw.titulo_es),
-            cuerpo:
-              locale === 'en'
-                ? stringValue(raw.cuerpo_en) || stringValue(raw.cuerpo_es)
-                : stringValue(raw.cuerpo_es),
-            ...(imagen ? { imagen } : {}),
-            publicado: Boolean(raw.publicado),
-            created_at: stringValue(raw.created_at),
-            updated_at: stringValue(raw.updated_at),
-          };
-        })
+        .map(raw => mapArticuloRow(raw, locale))
         .filter(articulo => isValidArticuloSlug(articulo.slug));
     }
   }
   return mockArticulos
     .filter(articulo => articulo.publicado)
-    .map(articulo => ({
-      id: articulo.id,
-      slug: articulo.slug,
-      titulo: locale === 'en' ? articulo.titulo_en || articulo.titulo_es : articulo.titulo_es,
-      cuerpo: locale === 'en' ? articulo.cuerpo_en || articulo.cuerpo_es : articulo.cuerpo_es,
-      publicado: articulo.publicado,
-      created_at: articulo.created_at,
-      updated_at: articulo.updated_at,
-    }));
+    .map(articulo => mapArticuloMock(articulo, locale));
+}
+
+/** Temas activos del Centro de Conocimiento (tabla topic_clusters, ADR-0014). */
+export async function getTopicClusters(locale: Locale): Promise<TopicClusterRef[]> {
+  if (debeUsarSupabase()) {
+    const supabase = getSupabaseClient()!;
+    const { data, error } = await supabase
+      .from('topic_clusters')
+      .select('slug, nombre_es, nombre_en')
+      .eq('activo', true);
+    if (error) registrarErrorSupabase('getTopicClusters', error);
+    else if (data) {
+      return (data as RawRow[])
+        .map(raw => mapClusterEmbebido(raw, locale))
+        .filter((c): c is TopicClusterRef => c !== null);
+    }
+  }
+  return [];
 }
 
 export async function getArticuloBySlug(slug: string, locale: Locale): Promise<Articulo | null> {
@@ -730,7 +873,7 @@ export async function getArticuloBySlug(slug: string, locale: Locale): Promise<A
     let row: RawRow | null = null;
     const { data: bySafe, error: errSafe } = await supabase
       .from('articulos')
-      .select('*')
+      .select(ARTICULO_SELECT)
       .eq('slug', safeSlug)
       .eq('publicado', true)
       .maybeSingle();
@@ -741,109 +884,19 @@ export async function getArticuloBySlug(slug: string, locale: Locale): Promise<A
     } else if (slug !== safeSlug) {
       const { data: byRaw, error: errRaw } = await supabase
         .from('articulos')
-        .select('*')
+        .select(ARTICULO_SELECT)
         .eq('slug', slug)
         .eq('publicado', true)
         .maybeSingle();
       if (errRaw) registrarErrorSupabase('getArticuloBySlug', errRaw);
       else if (byRaw) row = byRaw as RawRow;
     }
-    if (row) {
-      const imagen = stringValue(row.imagen);
-      return {
-        id: stringValue(row.id),
-        slug: safeSlug,
-        titulo:
-          locale === 'en'
-            ? stringValue(row.titulo_en) || stringValue(row.titulo_es)
-            : stringValue(row.titulo_es),
-        cuerpo:
-          locale === 'en'
-            ? stringValue(row.cuerpo_en) || stringValue(row.cuerpo_es)
-            : stringValue(row.cuerpo_es),
-        ...(imagen ? { imagen } : {}),
-        publicado: Boolean(row.publicado),
-        created_at: stringValue(row.created_at),
-        updated_at: stringValue(row.updated_at),
-      };
-    }
+    if (row) return { ...mapArticuloRow(row, locale), slug: safeSlug };
   }
   const found = mockArticulos.find(
     articulo => sanitizeArticuloSlug(articulo.slug) === safeSlug && articulo.publicado
   );
-  if (!found) return null;
-  return {
-    id: found.id,
-    slug: found.slug,
-    titulo: locale === 'en' ? found.titulo_en || found.titulo_es : found.titulo_es,
-    cuerpo: locale === 'en' ? found.cuerpo_en || found.cuerpo_es : found.cuerpo_es,
-    publicado: found.publicado,
-    created_at: found.created_at,
-    updated_at: found.updated_at,
-  };
+  return found ? mapArticuloMock(found, locale) : null;
 }
 
-export async function submitCotizacion(datos: CotizacionPayload): Promise<{
-  ok: boolean;
-  error?: string;
-  emails?: { interno?: boolean; cliente?: boolean };
-}> {
-  if (isSupabaseConfigured()) {
-    const supabase = getSupabaseClient()!;
-    const { normalizarPayloadCotizacion, interpretarErrorEdgeFunction } =
-      await import('./cotizacion-submit');
-    const payload = normalizarPayloadCotizacion({
-      ...captureCommercialAttribution(datos.campaign),
-      ...datos,
-    });
-    if (!payload.mensaje.trim()) {
-      return {
-        ok: false,
-        error:
-          payload.locale === 'en'
-            ? 'Message is required when no products are selected.'
-            : 'El mensaje es obligatorio si no hay productos en la solicitud.',
-      };
-    }
-    // Edge Function: registra la solicitud y envia emails (interno + cliente)
-    const { data, error } = await supabase.functions.invoke('registrar-cotizacion', {
-      body: payload,
-    });
-    if (error) {
-      return { ok: false, error: await interpretarErrorEdgeFunction(error, data) };
-    }
-    const result = data as {
-      ok?: boolean;
-      error?: string | { message?: string };
-      emails?: { interno?: boolean; cliente?: boolean };
-    } | null;
-    if (!result?.ok) {
-      const edgeError =
-        typeof result?.error === 'string'
-          ? result.error
-          : result?.error?.message
-            ? result.error.message
-            : await interpretarErrorEdgeFunction(null, data);
-      return { ok: false, error: edgeError };
-    }
-    emitAnalyticsEvent('quote_submit', {
-      origin: datos.origen,
-      has_products: Array.isArray(datos.productos) && datos.productos.length > 0,
-      item_count: datos.productos?.reduce((acc, producto) => acc + producto.cantidad, 0) ?? 0,
-      products: datos.productos?.map(producto => `${producto.slug}:${producto.cantidad}`).join(','),
-    });
-    if (result.emails) {
-      return { ok: true, emails: result.emails };
-    }
-    return { ok: true };
-  }
-  // Mock: siempre OK en desarrollo sin Supabase
-  console.warn('[datos] submitCotizacion mock (sin Supabase):', datos.email);
-  emitAnalyticsEvent('quote_submit', {
-    origin: datos.origen,
-    has_products: Array.isArray(datos.productos) && datos.productos.length > 0,
-    item_count: datos.productos?.reduce((acc, producto) => acc + producto.cantidad, 0) ?? 0,
-    products: datos.productos?.map(producto => `${producto.slug}:${producto.cantidad}`).join(','),
-  });
-  return { ok: true };
-}
+export { submitCotizacion } from './submit-cotizacion';

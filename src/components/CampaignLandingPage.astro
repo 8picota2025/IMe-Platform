@@ -125,8 +125,8 @@ const sitTitle = isEn ? 'Common project moments' : 'Momentos típicos del proyec
           <img
             src={content.heroImage}
             alt={content.heroImageAlt}
-            width="900"
-            height="1041"
+            width={content.heroImageWidth ?? 900}
+            height={content.heroImageHeight ?? 1041}
             fetchpriority="high"
             decoding="async"
           />
@@ -207,6 +207,23 @@ const sitTitle = isEn ? 'Common project moments' : 'Momentos típicos del proyec
         </div>
       </div>
     </section>
+
+    {
+      content.leadMagnet && (
+        <section class="clp-section" aria-labelledby="clp-lead-magnet">
+          <div class="container clp-soft-grid">
+            <div class="clp-soft">
+              <p class="s-label">{content.leadMagnet.label}</p>
+              <h2 id="clp-lead-magnet">{content.leadMagnet.title}</h2>
+              <p>{content.leadMagnet.body}</p>
+              <a class="btn btn-primary" href={content.leadMagnet.href}>
+                {content.leadMagnet.cta}
+              </a>
+            </div>
+          </div>
+        </section>
+      )
+    }
 
     <section class="clp-section" aria-labelledby="clp-aud">
       <div class="container clp-split">
@@ -314,6 +331,17 @@ const sitTitle = isEn ? 'Common project moments' : 'Momentos típicos del proyec
         <div class="clp-soft clp-soft--quiet">
           <h2>{isEn ? 'What we can (and cannot) claim' : 'Qué sí podemos decir — y qué no'}</h2>
           <p>{content.evidenceNote}</p>
+          {
+            content.relatedGuides && content.relatedGuides.length > 0 && (
+              <ul class="clp-list">
+                {content.relatedGuides.map(g => (
+                  <li>
+                    <a href={g.href}>{g.title}</a>
+                  </li>
+                ))}
+              </ul>
+            )
+          }
         </div>
       </div>
     </section>

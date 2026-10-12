@@ -469,7 +469,7 @@ Complementa la landing de [caminadores para adultos](/es/caminadores-para-adulto
 | Rollator | Fatiga y descanso con asiento |
 | Stand-up | Ayuda para ponerse de pie |
 
-Compare referencias publicadas (p. ej. [g-kp1-8160l](/es/productos/g-kp1-8160l/)) con el mismo checklist.
+Compare referencias publicadas (p. ej. [g-kp1-8160l](/es/productos/caminador-desarmable-en-aluminio-ref-kp1-8160l-konfort-plus/)) con el mismo checklist.
 
 ## 3. Cómo proceder con I-ME
 
@@ -508,7 +508,7 @@ It complements the [adult walkers](/en/adult-walkers/) landing and [mobility and
 | Rollator | Fatigue and seated rest |
 | Stand-up | Help standing with support |
 
-Compare published references (e.g. [g-kp1-8160l](/en/products/g-kp1-8160l/)) with the same checklist.
+Compare published references (e.g. [g-kp1-8160l](/en/products/caminador-desarmable-en-aluminio-ref-kp1-8160l-konfort-plus/)) with the same checklist.
 
 ## 3. How to proceed with I-ME
 

@@ -49,3 +49,15 @@ Cada sesión nueva de un agente empieza desde cero. AGENTS.md contiene el estado
 de fases, las decisiones inamovibles y el modelo comercial. Cuanto más actualizado
 esté (especialmente el estado de fases y los pendientes clave), menos tiempo
 pierde el agente reorientándose. Tratar AGENTS.md como un log vivo, no un doc estático.
+
+## Conexión oficial a ime-comercio
+
+Los agentes remotos usan Streamable HTTP en
+`https://nnfbucwiasuggyfoyydo.supabase.co/functions/v1/mcp-comercio`, con el bearer
+`IME_MCP_COMERCIO_TOKEN` desde el almacén de secretos del agente. No requieren
+Supabase service role ni contraseñas comerciales. Configuración y rotación:
+[docs/mcp-ime-comercio-http.md](docs/mcp-ime-comercio-http.md).
+
+El token identifica a la plataforma. Para enviar una cotización se conserva
+`actor_email` de un asesor activo, preparar → aprobar en CMS → confirmar.
+`npm run mcp:comercio` sigue siendo la alternativa stdio local.

@@ -176,6 +176,12 @@ a {
   padding: 10px 12px;
 }
 
+.comercial-field--check input[type='checkbox'] {
+  width: auto;
+  margin-right: 8px;
+  padding: 0;
+}
+
 .comercial-field textarea {
   min-height: 140px;
   resize: vertical;

@@ -78,15 +78,23 @@ export function isSupabaseConfigured(): boolean {
   return Boolean(supabaseUrl && supabaseAnonKey);
 }
 
-/**
- * Returns a Supabase client if env vars are set, otherwise null.
- * Callers must check isSupabaseConfigured() or handle null.
- */
-export function getSupabaseClient() {
-  if (!supabaseUrl || !supabaseAnonKey) return null;
-  return createClient(supabaseUrl, supabaseAnonKey, {
+function buildClient(url: string, key: string) {
+  return createClient(url, key, {
     global: {
       fetch: fetchWithTimeout,
     },
   });
+}
+
+let cachedClient: ReturnType<typeof buildClient> | null = null;
+
+/**
+ * Devuelve el cliente Supabase (null sin variables de entorno). Único por bundle: `/admin` reutiliza módulos de `/comercial` y ambos deben
+ * compartir sesión (dos GoTrueClient sobre el mismo storage compiten por el refresh token).
+ */
+/** Callers must check isSupabaseConfigured() or handle null. */
+export function getSupabaseClient() {
+  if (!supabaseUrl || !supabaseAnonKey) return null;
+  cachedClient ??= buildClient(supabaseUrl, supabaseAnonKey);
+  return cachedClient;
 }

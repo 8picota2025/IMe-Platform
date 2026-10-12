@@ -28,6 +28,7 @@ const PATH_SEGMENT_PAIRS = [
   { es: 'camillas-medicas', en: 'medical-stretchers' },
   { es: 'ventiladores-mecanicos-uci', en: 'mechanical-ventilators-icu' },
   { es: 'desfibriladores-hospitalarios', en: 'hospital-defibrillators' },
+  { es: 'dotacion-monitoreo-uci', en: 'icu-monitoring-projects' },
   { es: 'fabricantes', en: 'manufacturers' },
   { es: 'familias', en: 'families' },
   { es: 'ciudades', en: 'cities' },
@@ -62,8 +63,17 @@ for (const pair of LEGAL_SLUG_PAIRS) {
 }
 
 /** Nested slug pairs under a localized section (e.g. conocimiento/publicar). */
+// Copia de `NESTED_SLUG_PAIRS` en src/i18n/utils.ts: `sitemap-seo.test.ts` comprueba que
+// ambas den las mismas alternas.
 const NESTED_SLUG_PAIRS = [
   { sectionEs: 'conocimiento', sectionEn: 'knowledge', es: 'publicar', en: 'publish' },
+  { sectionEs: 'conocimiento', sectionEn: 'knowledge', es: 'tema', en: 'topic' },
+  {
+    sectionEs: 'recursos',
+    sectionEn: 'resources',
+    es: 'checklist-recepcion-monitor',
+    en: 'monitor-receiving-checklist',
+  },
 ];
 
 function localizeNestedSlugs(segments, targetLocale) {
@@ -87,6 +97,7 @@ const HIGH_PRIORITY_ES_PATHS = new Set([
   '/es/camillas-medicas/',
   '/es/ventiladores-mecanicos-uci/',
   '/es/desfibriladores-hospitalarios/',
+  '/es/dotacion-monitoreo-uci/',
   '/es/caminadores-para-adultos/',
   '/es/sillas-de-ruedas/',
   '/es/torres-laparoscopia/',

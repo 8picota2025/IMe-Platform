@@ -6,6 +6,7 @@
 
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { badRequest, unauthorized, notFound } from '../_shared/errors.ts';
+import { replyToDeCotizacion } from '../_shared/asesor.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { enviarEmailPlantilla, escapeHtml, itemsToHtml } from '../_shared/email.ts';
 
@@ -296,6 +297,10 @@ Deno.serve(async req => {
   const targetUrl = actionUrl(aEstado, locale, pedido.checkout_url, body.tracking_url ?? '');
   const actionHtml = `<p><a href="${escapeHtml(targetUrl)}" style="display:inline-block;padding:12px 20px;background:#0b3d4a;color:#fff;text-decoration:none;border-radius:4px">${escapeHtml(config.cta)}</a></p>`;
 
+  const cotizacionOrigen =
+    typeof pedido.metadata?.solicitud_cotizacion_id === 'string'
+      ? pedido.metadata.solicitud_cotizacion_id
+      : null;
   const resultado = await enviarEmailPlantilla(
     supabase,
     `pedido_estado_${aEstado}_${locale}`,
@@ -312,7 +317,10 @@ Deno.serve(async req => {
       tracking_html: trackingHtml,
       action_html: actionHtml,
     },
-    referencia
+    referencia,
+    [],
+    // Pedidos que vienen de una cotización responden al asesor de esa cotización.
+    cotizacionOrigen ? { replyTo: await replyToDeCotizacion(supabase, cotizacionOrigen) } : {}
   );
 
   return new Response(JSON.stringify({ ok: resultado.ok, detalle: resultado.detalle }), {

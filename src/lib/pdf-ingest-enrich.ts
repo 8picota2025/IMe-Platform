@@ -164,7 +164,6 @@ function detectMarca(corpus: string, nombre: string): string {
     'Hamilton',
     'Medtronic',
     'Saikang',
-    'Equitronic',
   ];
   const hit = brands.find(
     b => corpus.includes(b.toLowerCase()) || nombre.toLowerCase().includes(b.toLowerCase())

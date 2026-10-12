@@ -1,11 +1,11 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
-import { listCampaignLandings } from '../../../data/comercial-landings';
+import { listCampaignLandingsCms } from '../../../lib/landings-cms';
 import { buildPageTitle, buildCanonical, getInstitutionalOgImage } from '../../../lib/seo';
 import '../../../styles/site-faithful.css';
 
 const locale = 'es' as const;
-const landings = listCampaignLandings(locale);
+const landings = await listCampaignLandingsCms(locale);
 const title = buildPageTitle('Proyectos biomédicos para su institución');
 const description =
   'Torres de laparoscopia, esterilización, imagenología, robótica, caminadores y sillas de ruedas: elija el proyecto y reciba orientación de un asesor I-ME.';

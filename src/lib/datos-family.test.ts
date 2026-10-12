@@ -7,7 +7,7 @@ describe('correcciones editoriales de familia', () => {
     expect(correctedFamilySlug('monitor-de-paciente-ref-sk-em005-saikang', 'mobiliario')).toBe(
       'monitores'
     );
-    expect(correctedFamilySlug('skb-1a-skb2a10', 'radiologia')).toBe(
+    expect(correctedFamilySlug('tablero-espinal-ref-skb2a10-saikang', 'radiologia')).toBe(
       'emergencias-traslado-inmovilizacion'
     );
   });

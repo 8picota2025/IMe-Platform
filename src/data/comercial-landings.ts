@@ -60,6 +60,13 @@ export interface CampaignLandingContent {
   tertiaryCta: string;
   heroImage: string;
   heroImageAlt: string;
+  /** Dimensiones reales de `heroImage`; por defecto 900×1041 (retrato). */
+  heroImageWidth?: number;
+  heroImageHeight?: number;
+  /** Herramienta o lead magnet destacado (Fase 3, mandato §6). */
+  leadMagnet?: { label: string; title: string; body: string; href: string; cta: string };
+  /** Guías del Centro de Conocimiento en las que se apoya el contenido. */
+  relatedGuides?: { title: string; href: string }[];
   problemTitle: string;
   problemBody: string;
   solutionsTitle: string;
@@ -202,7 +209,7 @@ const TORRES: ContentMap = {
       { value: 'comparativo', label: 'Solo quiero comparar opciones' },
     ],
     productSlugs: [
-      'torre-laparoscopia-4k-sonoscape-sv-m4k120',
+      'torre-laparoscopia-4k-sonoscape-ref-sv-m4k120',
       'torre-laparoscopia-fhd-sonoscape-x2600',
     ],
     productsTitle: 'Dos caminos claros en catálogo',
@@ -318,7 +325,7 @@ const TORRES: ContentMap = {
       { value: 'comparativo', label: 'I only want to compare options' },
     ],
     productSlugs: [
-      'torre-laparoscopia-4k-sonoscape-sv-m4k120',
+      'torre-laparoscopia-4k-sonoscape-ref-sv-m4k120',
       'torre-laparoscopia-fhd-sonoscape-x2600',
     ],
     productsTitle: 'Two clear catalog paths',
@@ -437,7 +444,11 @@ const ESTERILIZACION: ContentMap = {
       { value: 'lavado_flujo', label: 'Lavado / mejorar el flujo' },
       { value: 'orientacion', label: 'Aún no sé — necesito que me orienten' },
     ],
-    productSlugs: ['autoclave-horizontal-5075', 't-max-6', 'automate-ref-ahpv1115v-saniswiss'],
+    productSlugs: [
+      'autoclave-horizontal-ref-5075-tuttnauer',
+      'ref-t-max-6-tuttnauer',
+      'automate-ref-ahpv1115v-saniswiss',
+    ],
     productsTitle: 'Equipos CapEx que sí están en catálogo',
     productsNote:
       'Tres referencias para conversar con datos. Abra la ficha si quiere detalle; aquí decidimos por escenario de central.',
@@ -551,7 +562,11 @@ const ESTERILIZACION: ContentMap = {
       { value: 'lavado_flujo', label: 'Wash / improve workflow' },
       { value: 'orientacion', label: 'Not sure yet — please guide me' },
     ],
-    productSlugs: ['autoclave-horizontal-5075', 't-max-6', 'automate-ref-ahpv1115v-saniswiss'],
+    productSlugs: [
+      'autoclave-horizontal-ref-5075-tuttnauer',
+      'ref-t-max-6-tuttnauer',
+      'automate-ref-ahpv1115v-saniswiss',
+    ],
     productsTitle: 'CapEx equipment already in the catalog',
     productsNote:
       'Three references to talk with data. Open the sheet for detail; here we decide by central scenario.',
@@ -658,11 +673,11 @@ const IMAGENOLOGIA: ContentMap = {
       { value: 'orientacion', label: 'Aún defino la modalidad' },
     ],
     productSlugs: [
-      'mamografo-digital-dm166-series',
-      'arco-en-c-alc-280-series',
-      'mamografo-digital-dm156-series-angell-technology',
-      'sistema-de-rayos-x-dr-montado-en-techo',
-      'sistema-de-ultrasonido-dus-5000',
+      'mamografo-digital-dm166-series-ref-dm166-angell',
+      'arco-en-c-alc-280-series-ref-alc-280-angell',
+      'mamografo-digital-dm156-series-angell-technology-ref-dm156-angell',
+      'sistema-de-rayos-x-dr-montado-en-techo-ref-dr-ceiling-angell',
+      'sistema-de-ultrasonido-ref-dus-5000-advanced',
     ],
     productsTitle: 'Algunas referencias para empezar la charla',
     productsNote: 'Ejemplos reales del catálogo. El mix final depende de su sede y volumen.',
@@ -766,11 +781,11 @@ const IMAGENOLOGIA: ContentMap = {
       { value: 'orientacion', label: 'Still defining modality' },
     ],
     productSlugs: [
-      'mamografo-digital-dm166-series',
-      'arco-en-c-alc-280-series',
-      'mamografo-digital-dm156-series-angell-technology',
-      'sistema-de-rayos-x-dr-montado-en-techo',
-      'sistema-de-ultrasonido-dus-5000',
+      'mamografo-digital-dm166-series-ref-dm166-angell',
+      'arco-en-c-alc-280-series-ref-alc-280-angell',
+      'mamografo-digital-dm156-series-angell-technology-ref-dm156-angell',
+      'sistema-de-rayos-x-dr-montado-en-techo-ref-dr-ceiling-angell',
+      'sistema-de-ultrasonido-ref-dus-5000-advanced',
     ],
     productsTitle: 'A few references to start the talk',
     productsNote: 'Real catalog examples. Final mix depends on your site and volume.',
@@ -876,10 +891,10 @@ const ROBOTICA: ContentMap = {
       { value: 'diseno_servicio', label: 'Diseñar el servicio con ustedes' },
     ],
     productSlugs: [
-      'padbot-x3-robot-recepcion',
-      'padbot-p2-robot-telepresencia',
-      'padbot-w2-robot-delivery-institucional',
-      'c3-robot-limpieza-autonoma',
+      'padbot-x3-robot-recepcion-ref-padbot-x3-padbot',
+      'padbot-p2-robot-telepresencia-ref-padbot-p2-padbot',
+      'padbot-w2-robot-delivery-institucional-ref-padbot-w2-padbot',
+      'c3-robot-limpieza-autonoma-ref-c3-cleaning-robot',
     ],
     productsTitle: 'Referencias para aterrizar la idea',
     productsNote: 'Modelos reales. La demo confirma si encajan en su edificio y protocolo.',
@@ -982,10 +997,10 @@ const ROBOTICA: ContentMap = {
       { value: 'diseno_servicio', label: 'Design the service with you' },
     ],
     productSlugs: [
-      'padbot-x3-robot-recepcion',
-      'padbot-p2-robot-telepresencia',
-      'padbot-w2-robot-delivery-institucional',
-      'c3-robot-limpieza-autonoma',
+      'padbot-x3-robot-recepcion-ref-padbot-x3-padbot',
+      'padbot-p2-robot-telepresencia-ref-padbot-p2-padbot',
+      'padbot-w2-robot-delivery-institucional-ref-padbot-w2-padbot',
+      'c3-robot-limpieza-autonoma-ref-c3-cleaning-robot',
     ],
     productsTitle: 'References to land the idea',
     productsNote: 'Real models. A demo confirms fit for your building and protocol.',
@@ -1097,10 +1112,10 @@ const MONITORES_BIOLIGHT: ContentMap = {
     ],
     productSlugs: [
       'monitor-de-paciente-modular-serie-p-ref-p15-biolight',
-      'monitor-de-paciente-s12-biolight',
-      'monitor-de-paciente-p12-biolight',
-      'monitor-de-paciente-m12-biolight',
-      'monitor-modular-de-paciente-pm-200m',
+      'monitor-de-paciente-ref-s12-biolight',
+      'monitor-de-paciente-ref-p12-biolight',
+      'monitor-de-paciente-ref-m12-biolight',
+      'monitor-modular-de-paciente-ref-pm-200m-advanced',
     ],
     productsTitle: 'Referencias Biolight con demanda real',
     productsNote: 'Modelos del catálogo I-ME. Configuración y central se confirman al cotizar.',
@@ -1208,10 +1223,10 @@ const MONITORES_BIOLIGHT: ContentMap = {
     ],
     productSlugs: [
       'monitor-de-paciente-modular-serie-p-ref-p15-biolight',
-      'monitor-de-paciente-s12-biolight',
-      'monitor-de-paciente-p12-biolight',
-      'monitor-de-paciente-m12-biolight',
-      'monitor-modular-de-paciente-pm-200m',
+      'monitor-de-paciente-ref-s12-biolight',
+      'monitor-de-paciente-ref-p12-biolight',
+      'monitor-de-paciente-ref-m12-biolight',
+      'monitor-modular-de-paciente-ref-pm-200m-advanced',
     ],
     productsTitle: 'Biolight references with real demand',
     productsNote: 'I-ME catalog models. Configuration and central station confirmed when quoting.',
@@ -1552,7 +1567,7 @@ const CAMILLAS_MEDICAS: ContentMap = {
       'camilla-de-traslado-ref-skb041-1-saikang',
       'camilla-plegable-ref-skb1a04-saikang',
       'camilla-cuchara-ref-skb2b01-saikang',
-      'camilla-manual-st-100',
+      'camilla-manual-ref-st-100-advanced',
     ],
     productsTitle: 'Referencias de camillas médicas',
     productsNote: 'Modelos reales del catálogo. Confirmamos variante y accesorios al cotizar.',
@@ -1664,7 +1679,7 @@ const CAMILLAS_MEDICAS: ContentMap = {
       'camilla-de-traslado-ref-skb041-1-saikang',
       'camilla-plegable-ref-skb1a04-saikang',
       'camilla-cuchara-ref-skb2b01-saikang',
-      'camilla-manual-st-100',
+      'camilla-manual-ref-st-100-advanced',
     ],
     productsTitle: 'Medical stretcher references',
     productsNote: 'Real catalog models. Variant and accessories confirmed when quoting.',
@@ -2180,12 +2195,12 @@ const CAMINADORES: ContentMap = {
       { value: 'orientacion', label: 'Aún comparando tipologías' },
     ],
     productSlugs: [
-      'g-kp1-8160l',
-      'g-kp1-816l-19',
-      'g-kp153-al-19',
-      'g-kp285-al-19',
-      'g-kp271-al-2',
-      'g-kp1-8130g-5',
+      'caminador-desarmable-en-aluminio-ref-kp1-8160l-konfort-plus',
+      'caminador-stand-up-doble-funcion-ref-kp1-816l-19-konfort-plus',
+      'caminador-con-ruedas-de-5-en-aluminio-color-gris-ref-kp153-al-19-konfort-plus',
+      'caminador-con-ruedas-rollator-en-aluminio-con-reposapies-ref-kp285-al-19',
+      'rollator-en-aluminio-ref-kp271-al-2-konfort-plus',
+      'caminador-doble-funcion-con-ruedas-ref-kp1-8130g-5',
     ],
     productsTitle: 'Referencias de caminadores y rollators',
     productsNote: 'Modelos reales del catálogo. Confirmamos stock y variante al cotizar.',
@@ -2292,12 +2307,12 @@ const CAMINADORES: ContentMap = {
       { value: 'orientacion', label: 'Still comparing typologies' },
     ],
     productSlugs: [
-      'g-kp1-8160l',
-      'g-kp1-816l-19',
-      'g-kp153-al-19',
-      'g-kp285-al-19',
-      'g-kp271-al-2',
-      'g-kp1-8130g-5',
+      'caminador-desarmable-en-aluminio-ref-kp1-8160l-konfort-plus',
+      'caminador-stand-up-doble-funcion-ref-kp1-816l-19-konfort-plus',
+      'caminador-con-ruedas-de-5-en-aluminio-color-gris-ref-kp153-al-19-konfort-plus',
+      'caminador-con-ruedas-rollator-en-aluminio-con-reposapies-ref-kp285-al-19',
+      'rollator-en-aluminio-ref-kp271-al-2-konfort-plus',
+      'caminador-doble-funcion-con-ruedas-ref-kp1-8130g-5',
     ],
     productsTitle: 'Walker and rollator references',
     productsNote: 'Real catalog models. We confirm stock and variant when quoting.',
@@ -2407,12 +2422,12 @@ const SILLAS: ContentMap = {
       { value: 'bariatrico', label: 'Bariátrica / ancho especial' },
     ],
     productSlugs: [
-      'g-kbe-9953',
-      'g-kbe-9125t',
-      'g-kbe-9630l',
-      'g-kbe-9113',
-      'g-kbe-9953-iii',
-      'g-kbe-622',
+      'silla-de-ruedas-estandar-en-acero-reclinable-ref-kbe-9953-konfort-plus',
+      'silla-de-ruedas-de-transporte-basica-en-acero-ref-kbe-9125t-konfort-plus',
+      'silla-de-ruedas-estandar-y-de-transporte-en-aluminio-ref-kbe-9630l-konfort-plus',
+      'silla-de-ruedas-estandar-desarmable-en-acero-con-tapiceria-acolchada-ref-kbe-9113-konfort-plus',
+      'silla-de-ruedas-estandar-en-acero-bariatrica-de-56-5-cm-ref-kbe-9953-iii-konfort-plus',
+      'silla-de-ruedas-estandar-en-acero-con-rin-estrella-22-de-45-7-cm-de-ancho-ref-kbe-622',
     ],
     productsTitle: 'Referencias de sillas de ruedas',
     productsNote: 'Incluye Konfort Plus y estándar. Stock y variante se confirman al cotizar.',
@@ -2518,12 +2533,12 @@ const SILLAS: ContentMap = {
       { value: 'bariatrico', label: 'Bariatric / special width' },
     ],
     productSlugs: [
-      'g-kbe-9953',
-      'g-kbe-9125t',
-      'g-kbe-9630l',
-      'g-kbe-9113',
-      'g-kbe-9953-iii',
-      'g-kbe-622',
+      'silla-de-ruedas-estandar-en-acero-reclinable-ref-kbe-9953-konfort-plus',
+      'silla-de-ruedas-de-transporte-basica-en-acero-ref-kbe-9125t-konfort-plus',
+      'silla-de-ruedas-estandar-y-de-transporte-en-aluminio-ref-kbe-9630l-konfort-plus',
+      'silla-de-ruedas-estandar-desarmable-en-acero-con-tapiceria-acolchada-ref-kbe-9113-konfort-plus',
+      'silla-de-ruedas-estandar-en-acero-bariatrica-de-56-5-cm-ref-kbe-9953-iii-konfort-plus',
+      'silla-de-ruedas-estandar-en-acero-con-rin-estrella-22-de-45-7-cm-de-ancho-ref-kbe-622',
     ],
     productsTitle: 'Wheelchair references',
     productsNote: 'Includes Konfort Plus and standard. Stock/variant confirmed when quoting.',
@@ -2531,9 +2546,318 @@ const SILLAS: ContentMap = {
   },
 };
 
-type StandardCampaignLandingId = Exclude<
+/**
+ * Fase 3, D2 (`docs/growth-engine/fase3-plan.md`): landing por proyecto, no por marca.
+ * Todo el contenido técnico sale de la validación biomédica del 2026-09-24 (cluster
+ * Monitoreo/UCI); los productos son los que citan esos artículos.
+ */
+const DOTACION_MONITOREO_UCI: ContentMap = {
+  es: {
+    tag: 'Proyectos UCI · Monitoreo',
+    title: 'Dotación de monitoreo para UCI: monitores y central | I-ME',
+    description:
+      '¿Abre o amplía camas de UCI? Dimensionamos el monitoreo por tipo de paciente, decidimos central o monitores independientes y acompañamos instalación y capacitación.',
+    h1: 'Dotar el monitoreo de una UCI, de la primera cama al acta de entrega',
+    lead: 'Si está abriendo una UCI o ampliando camas, el monitor es solo una parte. Le ayudamos a definir qué necesita cada cama según el paciente, si conviene una central y qué hay que preparar para que el equipo funcione desde el primer turno.',
+    formIntro:
+      'Cuéntenos cuántas camas, qué tipo de paciente y en qué plazo. Un asesor le responde con una propuesta pensada para su servicio.',
+    primaryCta: 'Quiero dimensionar mi proyecto',
+    secondaryCta: 'Escribir por WhatsApp',
+    tertiaryCta: 'Ver monitores en catálogo',
+    heroImage: '/assets/img/central-monitoreo-multicama.webp',
+    heroImageAlt: 'Central de monitoreo de una UCI con los datos de varias camas en pantalla',
+    heroImageWidth: 1168,
+    heroImageHeight: 784,
+    leadMagnet: {
+      label: 'Herramienta gratuita',
+      title: 'Checklist de recepción e instalación de monitores',
+      body: 'Los 36 puntos que conviene preparar, verificar y dejar firmados desde que se confirma la compra hasta el uso con pacientes. Márquelos en línea y descárguelo en PDF.',
+      href: '/es/recursos/checklist-recepcion-monitor/',
+      cta: 'Abrir el checklist',
+    },
+    relatedGuides: [
+      {
+        title: 'Guía completa de monitores multiparamétricos hospitalarios',
+        href: '/es/conocimiento/guia-monitores-multiparametricos-hospitalarios-colombia/',
+      },
+      {
+        title: 'Monitores para UCI adulto, pediátrica y neonatal',
+        href: '/es/conocimiento/monitores-uci-adulto-pediatrica-neonatal/',
+      },
+      {
+        title: 'Central de monitoreo multicama o monitores independientes',
+        href: '/es/conocimiento/central-monitoreo-multicama-o-monitores-independientes/',
+      },
+    ],
+    problemTitle: 'Dónde se complica un proyecto de monitoreo',
+    problemBody:
+      'Muchos problemas de la primera semana no son del monitor: una toma sin polo a tierra, una red que la central no reconoce, sensores de un solo tamaño o un único turno capacitado. Se evitan si se prevén desde la cotización.',
+    solutionsTitle: 'Cómo le ayudamos a dimensionarlo',
+    solutions: [
+      {
+        pain: 'No está claro si cada cama necesita un monitor básico o uno de UCI avanzado',
+        help: 'Si el servicio requiere monitoreo invasivo de rutina o atiende pacientes en ventilación mecánica o de alto riesgo, UCI avanzado. Si el volumen es alto y la complejidad baja, un básico o intermedio suele bastar.',
+      },
+      {
+        pain: 'La unidad atiende adultos, niños o neonatos',
+        help: 'Un mismo monitor puede servir a los tres si se cotizan los sensores y brazaletes de cada tamaño y se configuran los perfiles de paciente y las alarmas según el protocolo del servicio.',
+      },
+      {
+        pain: 'No saben si justifica una central multicama',
+        help: 'A partir de unas 4 camas de monitoreo continuo, o si enfermería supervisa varias camas a la vez, la central empieza a justificarse. Necesita red o VLAN dedicada y monitores compatibles.',
+      },
+      {
+        pain: 'Temen que el equipo llegue y no se use bien',
+        help: 'Incluimos en la propuesta la instalación, las pruebas con simulador antes del uso clínico, la capacitación por turno y un stock inicial de consumibles.',
+      },
+    ],
+    audienceYes: [
+      'IPS y hospitales que abren una UCI o amplían camas de cuidado crítico o intermedio',
+      'Ingeniería biomédica que prepara la especificación técnica del proyecto',
+      'Compras que necesitan comparar propuestas con el mismo alcance',
+    ],
+    audienceNo: [
+      'Quien busca un único monitor sin proyecto ni servicio definido',
+      'Quien necesita recomendaciones clínicas: los valores de alarma los define su protocolo',
+      'Solicitudes sin institución ni datos de contacto',
+    ],
+    situations: [
+      {
+        title: 'UCI nueva',
+        body: 'Definir desde cero monitores de cabecera, central, red e instalación.',
+      },
+      {
+        title: 'Ampliación de camas',
+        body: 'Sumar camas compatibles con la central y el protocolo que ya existen.',
+      },
+      {
+        title: 'Unidad pediátrica o neonatal',
+        body: 'Accesorios de cada tamaño, perfiles de paciente y capacitación diferenciada.',
+      },
+    ],
+    scopeTitle: 'Qué cubre la propuesta',
+    scope: [
+      'Monitores de cabecera según tipo de paciente y complejidad',
+      'Central multicama cuando el número de camas o la supervisión lo justifican',
+      'Accesorios y sensores de cada tamaño que el servicio necesita',
+      'Instalación, pruebas antes del uso clínico y acta de entrega',
+      'Capacitación por turno para el personal asistencial y para ingeniería biomédica',
+      'Stock inicial de consumibles y mantenimiento preventivo',
+    ],
+    requirementsTitle: 'Para dimensionar con sentido',
+    requirements: [
+      'Número de camas y tipo de paciente (adulto, pediátrico, neonatal)',
+      'Parámetros que exige su protocolo (ECG, SpO₂, NIBP, IBP, EtCO₂…)',
+      'Si hay transporte de pacientes o solo camas fijas',
+      'Estado de la instalación eléctrica y de la red de datos',
+      'Plazo de apertura o ampliación',
+    ],
+    financingNote:
+      'Los proyectos de dotación suelen financiarse por fases. Las condiciones se definen en la propuesta formal.',
+    evidenceNote:
+      'El contenido técnico de esta página está validado por el equipo de ingeniería biomédica de I-ME. No sustituye los protocolos clínicos de su institución ni la ficha técnica de cada modelo, que prevalece ante cualquier diferencia.',
+    processTitle: 'Cómo seguimos',
+    processSteps: [
+      'Nos cuenta el proyecto en el formulario',
+      'Revisamos camas, tipo de paciente y si conviene central',
+      'Proponemos monitores del catálogo con accesorios, instalación y capacitación',
+      'Cotización formal con el alcance completo',
+    ],
+    faqs: [
+      {
+        q: '¿Un mismo monitor sirve para adultos, niños y neonatos?',
+        a: 'Muchos sí, siempre que se incluyan los sensores, brazaletes y electrodos de cada tamaño y se configuren los perfiles de paciente. En neonatos, muchos equipos tienen además un modo o módulo "Neo".',
+      },
+      {
+        q: '¿Cuándo conviene una central de monitoreo?',
+        a: 'A partir de unas 4 camas de monitoreo continuo, cuando enfermería supervisa varias camas a la vez, cuando se necesita revisar alarmas pasadas o integrar la historia clínica, o si el diseño de la sala impide ver cada monitor.',
+      },
+      {
+        q: '¿Qué hay que preparar antes de que lleguen los equipos?',
+        a: 'Tomas reguladas con polo a tierra verificado, punto de red activo si habrá central, el sistema de montaje y personal de ingeniería biomédica para la recepción. Nuestro checklist de recepción recoge todos los puntos.',
+      },
+      {
+        q: '¿Incluyen capacitación?',
+        a: 'Sí, se define en la propuesta. Como referencia, de 2 a 4 horas por grupo o turno para el personal asistencial y de 4 a 8 horas para ingeniería biomédica, ajustadas al número de equipos y de turnos.',
+      },
+      {
+        q: '¿Qué documentos deben venir con los monitores?',
+        a: 'Manual de usuario en español, certificados de garantía, certificado de pruebas de fábrica o calibración inicial, copia del registro sanitario INVIMA vigente e inventario de accesorios.',
+      },
+    ],
+    projectOptions: [
+      { value: 'uci_nueva', label: 'Abrir una UCI nueva' },
+      { value: 'ampliacion_camas', label: 'Ampliar camas de monitoreo' },
+      { value: 'uci_pediatrica_neonatal', label: 'Unidad pediátrica o neonatal' },
+      { value: 'central_multicama', label: 'Central multicama' },
+    ],
+    productSlugs: [
+      'monitor-multiparametrico-uci-avanzado',
+      'monitor-multiparametrico-basico',
+      'monitor-de-paciente-modular-serie-p-ref-p15-biolight',
+      'monitor-de-paciente-ref-m12-biolight',
+      'monitor-central-uci-multicama',
+    ],
+    productsTitle: 'Monitores y central del catálogo',
+    productsNote:
+      'La configuración, los módulos y los accesorios de cada equipo se confirman al cotizar.',
+    catalogFilter: 'monitores',
+  },
+  en: {
+    tag: 'ICU projects · Monitoring',
+    title: 'ICU monitoring projects: monitors and central station | I-ME',
+    description:
+      'Opening or expanding ICU beds? We size monitoring by patient type, decide between a central station and standalone monitors, and support installation and training.',
+    h1: 'Equipping ICU monitoring, from the first bed to the handover record',
+    lead: 'If you are opening an ICU or adding beds, the monitor is only part of it. We help you define what each bed needs by patient type, whether a central station makes sense, and what to prepare so the equipment works from the first shift.',
+    formIntro:
+      'Tell us how many beds, the patient type and your timeline. An advisor replies with a proposal built for your unit.',
+    primaryCta: 'I want to size my project',
+    secondaryCta: 'Message on WhatsApp',
+    tertiaryCta: 'See monitors in the catalog',
+    heroImage: '/assets/img/central-monitoreo-multicama.webp',
+    heroImageAlt: 'ICU central monitoring station showing data from several beds',
+    heroImageWidth: 1168,
+    heroImageHeight: 784,
+    leadMagnet: {
+      label: 'Free tool',
+      title: 'Monitor receiving and installation checklist',
+      body: 'The 36 items to prepare, check and sign off from the moment the purchase is confirmed until use on patients. Check them online and download the PDF.',
+      href: '/en/resources/monitor-receiving-checklist/',
+      cta: 'Open the checklist',
+    },
+    relatedGuides: [
+      {
+        title: 'Complete guide to hospital multiparameter monitors',
+        href: '/en/knowledge/guia-monitores-multiparametricos-hospitalarios-colombia/',
+      },
+      {
+        title: 'Monitors for adult, pediatric and neonatal ICUs',
+        href: '/en/knowledge/monitores-uci-adulto-pediatrica-neonatal/',
+      },
+      {
+        title: 'Multi-bed central monitoring station or standalone monitors',
+        href: '/en/knowledge/central-monitoreo-multicama-o-monitores-independientes/',
+      },
+    ],
+    problemTitle: 'Where a monitoring project gets complicated',
+    problemBody:
+      'Many first-week problems are not the monitor: an ungrounded outlet, a network the central station does not recognize, sensors in only one size, or only one shift trained. They are avoided when planned from the quote.',
+    solutionsTitle: 'How we help you size it',
+    solutions: [
+      {
+        pain: 'It is not clear whether each bed needs a basic or an advanced ICU monitor',
+        help: 'If the unit needs routine invasive monitoring or treats ventilated or high-risk patients, advanced ICU. If volume is high and complexity low, a basic or mid-range monitor is usually enough.',
+      },
+      {
+        pain: 'The unit treats adults, children or neonates',
+        help: "One monitor can serve all three if the sensors and cuffs in each size are quoted and the patient profiles and alarms are configured per the unit's protocol.",
+      },
+      {
+        pain: 'Unsure whether a multi-bed central station is justified',
+        help: 'From about 4 continuously monitored beds, or when nurses supervise several beds at once, a central station starts to pay off. It needs a dedicated network or VLAN and compatible monitors.',
+      },
+      {
+        pain: 'Worried the equipment will arrive and not be used well',
+        help: 'The proposal includes installation, simulator testing before clinical use, training per shift and an initial stock of consumables.',
+      },
+    ],
+    audienceYes: [
+      'IPS and hospitals opening an ICU or adding critical or intermediate care beds',
+      'Clinical engineering preparing the project technical specification',
+      'Procurement comparing proposals with the same scope',
+    ],
+    audienceNo: [
+      'Looking for a single monitor with no defined project or unit',
+      'Needing clinical recommendations: alarm values are set by your protocol',
+      'Requests with no institution or contact details',
+    ],
+    situations: [
+      {
+        title: 'New ICU',
+        body: 'Define bedside monitors, central station, network and installation from scratch.',
+      },
+      {
+        title: 'Adding beds',
+        body: 'Add beds compatible with the existing central station and protocol.',
+      },
+      {
+        title: 'Pediatric or neonatal unit',
+        body: 'Accessories in each size, patient profiles and differentiated training.',
+      },
+    ],
+    scopeTitle: 'What the proposal covers',
+    scope: [
+      'Bedside monitors by patient type and complexity',
+      'Multi-bed central station when bed count or supervision justifies it',
+      'Accessories and sensors in each size the unit needs',
+      'Installation, testing before clinical use and handover record',
+      'Training per shift for clinical staff and for clinical engineering',
+      'Initial stock of consumables and preventive maintenance',
+    ],
+    requirementsTitle: 'To size it properly',
+    requirements: [
+      'Number of beds and patient type (adult, pediatric, neonatal)',
+      'Parameters your protocol requires (ECG, SpO₂, NIBP, IBP, EtCO₂…)',
+      'Whether patients are transported or beds are fixed',
+      'State of the electrical installation and data network',
+      'Opening or expansion timeline',
+    ],
+    financingNote:
+      'Equipment projects are often financed in phases. Terms are set in the formal proposal.',
+    evidenceNote:
+      "The technical content on this page is validated by I-ME's clinical engineering team. It does not replace your institution's clinical protocols or each model's data sheet, which prevails where they differ.",
+    processTitle: 'Next steps',
+    processSteps: [
+      'Tell us about the project in the form',
+      'We review beds, patient type and whether a central station makes sense',
+      'We propose catalog monitors with accessories, installation and training',
+      'Formal quote with the full scope',
+    ],
+    faqs: [
+      {
+        q: 'Can one monitor serve adults, children and neonates?',
+        a: 'Many can, as long as the sensors, cuffs and electrodes in each size are included and the patient profiles are configured. For neonates, many units also have a "Neo" mode or module.',
+      },
+      {
+        q: 'When does a central monitoring station make sense?',
+        a: 'From about 4 continuously monitored beds, when nurses supervise several beds at once, when past alarms must be reviewed or the EHR integrated, or when the room layout prevents seeing every monitor.',
+      },
+      {
+        q: 'What should be prepared before the equipment arrives?',
+        a: 'Regulated outlets with a verified ground, an active network port if there will be a central station, the mounting system and clinical engineering staff for receiving. Our receiving checklist covers every item.',
+      },
+      {
+        q: 'Is training included?',
+        a: 'Yes, it is defined in the proposal. As a reference, 2 to 4 hours per group or shift for clinical staff and 4 to 8 hours for clinical engineering, adjusted to the number of units and shifts.',
+      },
+      {
+        q: 'Which documents should come with the monitors?',
+        a: 'User manual in Spanish, warranty certificates, factory test or initial calibration certificate, a copy of the current INVIMA sanitary registration and the accessory inventory.',
+      },
+    ],
+    projectOptions: [
+      { value: 'uci_nueva', label: 'Open a new ICU' },
+      { value: 'ampliacion_camas', label: 'Add monitored beds' },
+      { value: 'uci_pediatrica_neonatal', label: 'Pediatric or neonatal unit' },
+      { value: 'central_multicama', label: 'Multi-bed central station' },
+    ],
+    productSlugs: [
+      'monitor-multiparametrico-uci-avanzado',
+      'monitor-multiparametrico-basico',
+      'monitor-de-paciente-modular-serie-p-ref-p15-biolight',
+      'monitor-de-paciente-ref-m12-biolight',
+      'monitor-central-uci-multicama',
+    ],
+    productsTitle: 'Monitors and central station from the catalog',
+    productsNote: "Each unit's configuration, modules and accessories are confirmed when quoting.",
+    catalogFilter: 'monitores',
+  },
+};
+
+export type StandardCampaignLandingId = Exclude<
   CampaignLandingId,
-  'proyectos' | 'pdf_descarga' | 'evento' | FabricanteLandingId
+  'proyectos' | 'pdf_descarga' | 'herramienta' | 'evento' | FabricanteLandingId
 >;
 
 const META: Record<
@@ -2598,6 +2922,11 @@ const META: Record<
     path: '/es/desfibriladores-hospitalarios/',
     pathEn: '/en/hospital-defibrillators/',
   },
+  dotacion_monitoreo_uci: {
+    familia_slug: 'monitores',
+    path: '/es/dotacion-monitoreo-uci/',
+    pathEn: '/en/icu-monitoring-projects/',
+  },
 };
 
 const BY_ID: Record<StandardCampaignLandingId, ContentMap> = {
@@ -2612,6 +2941,7 @@ const BY_ID: Record<StandardCampaignLandingId, ContentMap> = {
   camillas_medicas: CAMILLAS_MEDICAS,
   ventiladores_mecanicos: VENTILADORES_MECANICOS,
   desfibriladores_hospital: DESFIBRILADORES,
+  dotacion_monitoreo_uci: DOTACION_MONITOREO_UCI,
 };
 
 export function getCampaignLanding(
@@ -2625,6 +2955,11 @@ export function getCampaignLanding(
     ...meta,
     ...copy,
   };
+}
+
+/** Ids de las landings de campaña con página propia (orden de publicación). */
+export function listCampaignLandingIds(): StandardCampaignLandingId[] {
+  return Object.keys(BY_ID) as StandardCampaignLandingId[];
 }
 
 export function listCampaignLandings(locale: Locale): CampaignLandingContent[] {

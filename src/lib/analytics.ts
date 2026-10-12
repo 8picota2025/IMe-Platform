@@ -18,7 +18,12 @@ export type AnalyticsEventName =
   | 'imeia_open'
   | 'product_view'
   | 'quick_view'
-  | 'pdf_download';
+  | 'pdf_download'
+  // Herramientas de Fase 3 (mandato §7). Como el resto: GA4/Clarity sólo con consentimiento;
+  // la analítica propia (`analytics_eventos`) no se gatea (ADR-0012).
+  | 'tool_start'
+  | 'tool_complete'
+  | 'lead_magnet_download';
 
 export interface AnalyticsConfig {
   dataDomain: string;
@@ -71,6 +76,7 @@ declare global {
     __imeAnalyticsSearchTimer?: number;
     __imeAnalyticsScrollDepths?: number[];
     __imeAnalyticsPageStartedAt?: number;
+    __imeAnalyticsLastPageViewPayload?: AnalyticsParams;
   }
 }
 
@@ -209,6 +215,7 @@ function pushDataLayer(name: AnalyticsEventName, params: AnalyticsParams): void 
   const payload = normalizeParams(params);
   window.dataLayer = window.dataLayer ?? [];
   window.dataLayer.push({ event: name, ...payload });
+  if (name === 'page_view') window.__imeAnalyticsLastPageViewPayload = payload;
   window.gtag?.('event', name, payload);
   if (window.__imeAnalyticsConfig?.clarityEnabled) {
     window.clarity?.('event', name);
@@ -223,6 +230,20 @@ export function emitAnalyticsEvent(name: AnalyticsEventName, params: AnalyticsPa
       detail: { name, params: normalizeParams(params) },
     })
   );
+}
+
+/**
+ * ADR-0012: en la primera visita el page_view se emite antes de que el
+ * visitante acepte el banner, cuando gtag todavía no existe, y GA4 lo pierde
+ * (GTM sí lo ve: al cargar procesa lo que ya está en dataLayer). Es justo la
+ * landing con los UTM. Al aceptar, se reenvía sólo a gtag — no a dataLayer
+ * ni al endpoint propio, que ya lo registraron — para no duplicarlo.
+ */
+export function replayPageViewToGtag(): void {
+  if (typeof window === 'undefined') return;
+  const payload = window.__imeAnalyticsLastPageViewPayload;
+  if (!payload) return;
+  window.gtag?.('event', 'page_view', payload);
 }
 
 export function trackPageView(): void {

@@ -1,0 +1,3 @@
+# pg_cron llama sin JWT de Supabase. El bearer es el token de
+# whatsapp_dispatch_auth (o la service role, comparada en la función).
+verify_jwt = false

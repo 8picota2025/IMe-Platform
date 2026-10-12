@@ -12,7 +12,7 @@ interface Props {
 }
 
 const { locale } = Astro.props;
-const privacidadHref = locale === 'en' ? '/en/legal/privacy' : '/es/legal/privacidad';
+const privacidadHref = locale === 'en' ? '/en/legal/privacy/' : '/es/legal/privacidad/';
 
 const config = {
   locale,
@@ -401,9 +401,12 @@ const config = {
     alAbrirCotizacion,
     type CotizacionItem,
   } from '../lib/cotizacion-equipos';
-  import { submitCotizacion } from '../lib/datos';
   import { emitAnalyticsEvent } from '../lib/analytics';
-  import { resolverMensajeCotizacion, mensajeExitoCotizacion } from '../lib/cotizacion-submit';
+  import {
+    componerMensajeCotizacion,
+    mensajeExitoCotizacion,
+    urlAbsolutaProducto,
+  } from '../lib/cotizacion-submit';
   import { abrirDrawer, cerrarDrawer, resetTransientUiState } from '../lib/motion';
 
   interface CotizacionI18n {
@@ -473,6 +476,8 @@ const config = {
     const { i18n } = config;
     let enviando = false;
     const sentLabel = config.locale === 'en' ? 'Request sent' : 'Solicitud enviada';
+    const resumenPrefijo =
+      config.locale === 'en' ? 'I would like a quote for:' : 'Quiero solicitar cotización de:';
 
     function resetSubmitButton() {
       if (!submitBtn) return;
@@ -505,13 +510,11 @@ const config = {
       vaciarBtn.hidden = false;
       formEl.hidden = false;
 
-      // El mensaje inicial conserva producto, referencia y landing de origen.
-      // No pisa texto que el usuario ya haya escrito.
-      if (mensajeEl && !mensajeEl.value.trim()) {
-        mensajeEl.value = resolverMensajeCotizacion({
-          locale: config.locale,
-          productos: items,
-        });
+      // El resumen de productos se compone al enviar (componerMensajeCotizacion);
+      // el textarea es solo para comentarios. Un borrador antiguo precargado
+      // con el resumen se limpia para no enviar un resumen desactualizado.
+      if (mensajeEl && mensajeEl.value.trim().startsWith(resumenPrefijo)) {
+        mensajeEl.value = '';
       }
 
       itemsEl.innerHTML = items
@@ -642,19 +645,16 @@ const config = {
           slug: i.slug,
           nombre: i.nombre,
           cantidad: i.cantidad,
-          url: i.url,
+          url: urlAbsolutaProducto(i.url),
           modelo: i.modelo,
         }));
-        const ciudad = String(data.get('ciudad') ?? '').trim();
-        const mensajeBase = resolverMensajeCotizacion({
+        const mensaje = componerMensajeCotizacion({
           locale: config.locale,
-          mensaje: String(data.get('mensaje') ?? ''),
+          comentarios: String(data.get('mensaje') ?? ''),
           productos,
+          ciudad: String(data.get('ciudad') ?? ''),
+          ciudadLabel: i18n.ciudad,
         });
-        const mensaje =
-          ciudad && mensajeBase.trim()
-            ? `${i18n.ciudad}: ${ciudad}\n\n${mensajeBase}`
-            : mensajeBase;
         if (!mensaje.trim()) {
           showEstado(
             config.locale === 'en'
@@ -682,6 +682,7 @@ const config = {
         };
 
         try {
+          const { submitCotizacion } = await import('../lib/submit-cotizacion');
           const resultado = await submitCotizacion(payload);
 
           if (resultado.ok) {

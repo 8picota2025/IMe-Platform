@@ -58,7 +58,7 @@ describe('quote prefill precios', () => {
 
     writeQuotePrefill([
       {
-        slug: 'g-kbe-9000d',
+        slug: 'silla-de-ruedas-estandar-con-rin-estrella-kp-ref-kbe-9000d',
         nombre: 'Silla',
         cantidad: 2,
         precio_unitario: 285000,
@@ -68,7 +68,7 @@ describe('quote prefill precios', () => {
     const lines = takeQuotePrefill();
     expect(lines).toEqual([
       {
-        slug: 'g-kbe-9000d',
+        slug: 'silla-de-ruedas-estandar-con-rin-estrella-kp-ref-kbe-9000d',
         nombre: 'Silla',
         cantidad: 2,
         precio_unitario: 285000,

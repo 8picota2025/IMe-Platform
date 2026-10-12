@@ -10,6 +10,7 @@ import {
   type QuoteIngestDraft,
 } from './quote-product-ingest';
 import { uniqueProductSlug } from './quote-product-ingest';
+import { resumenEspecificaciones } from './quote-specs-summary';
 import {
   callAdminImportProduct,
   fetchIngestDraftFromPdf,
@@ -71,6 +72,23 @@ function ingestModalHtml(
 
 function closeIngestModal(slot: HTMLElement | null): void {
   slot?.replaceChildren();
+}
+
+/** Resumen de especificaciones del catálogo para un slug (cualquier estado: borrador incluido). */
+export async function fetchResumenCatalogo(
+  supabase: SupabaseClient,
+  slug: string
+): Promise<string> {
+  const clave = slug.trim();
+  if (!clave) return '';
+  const { data } = await supabase
+    .from('productos')
+    .select('especificaciones,aplicaciones_es')
+    .eq('slug', clave)
+    .maybeSingle();
+  if (!data) return '';
+  const fila = data as { especificaciones?: unknown; aplicaciones_es?: unknown };
+  return resumenEspecificaciones(fila.especificaciones, fila.aplicaciones_es);
 }
 
 export function bindQuoteCatalogSearch(

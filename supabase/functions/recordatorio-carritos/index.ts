@@ -5,6 +5,7 @@
  * service_role. Cada carrito se recuerda una sola vez.
  */
 
+import { timingSafeEqualString } from '../../../src/lib/whatsapp-cloud.ts';
 import { unauthorized } from '../_shared/errors.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { enviarEmailPlantilla, escapeHtml, itemsToHtml } from '../_shared/email.ts';
@@ -15,9 +16,20 @@ const MAX_POR_EJECUCION = 50;
 Deno.serve(async req => {
   const token = (req.headers.get('authorization') ?? '').replace(/^Bearer\s+/i, '').trim();
   const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
-  if (!token || token !== serviceKey) return unauthorized(null);
-
+  if (!token) return unauthorized(null);
   const supabase = getServerSupabase();
+  let allowed = !!serviceKey && timingSafeEqualString(token, serviceKey);
+  if (!allowed) {
+    const { data, error } = await supabase
+      .from('whatsapp_dispatch_auth')
+      .select('token')
+      .eq('id', 1)
+      .maybeSingle();
+    if (error) return new Response(null, { status: 503 });
+    allowed = typeof data?.token === 'string' && timingSafeEqualString(token, data.token);
+  }
+  if (!allowed) return unauthorized(null);
+
   const limite = new Date(Date.now() - HORAS_ESPERA * 3600 * 1000).toISOString();
 
   const { data, error } = await supabase

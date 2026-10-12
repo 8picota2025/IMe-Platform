@@ -1,8 +1,29 @@
 import { describe, expect, it } from 'vitest';
 import { serializeSitemapItem, chunkProducts, chunkKnowledge } from '../../scripts/sitemap-seo.mjs';
 import { isIndexableSitemapUrl } from '../../scripts/sitemap-indexability.mjs';
+import { getLocalizedPath } from '../i18n/utils';
 
 describe('sitemap-seo', () => {
+  it('da las mismas alternas que la web (getLocalizedPath) en rutas con par de sección o anidado', () => {
+    const rutas = [
+      '/es/conocimiento/tema/monitoreo-uci/',
+      '/en/knowledge/topic/monitoreo-uci/',
+      '/es/recursos/checklist-recepcion-monitor/',
+      '/en/resources/monitor-receiving-checklist/',
+      '/es/dotacion-monitoreo-uci/',
+      '/en/icu-monitoring-projects/',
+      '/es/conocimiento/publicar/',
+      '/es/monitores-biolight-uci/',
+    ];
+    for (const ruta of rutas) {
+      const links = serializeSitemapItem({ url: `https://i-me.com.co${ruta}` }).links ?? [];
+      const es = links.find(l => l.lang === 'es')?.url;
+      const en = links.find(l => l.lang === 'en')?.url;
+      expect(es, ruta).toBe(`https://i-me.com.co${getLocalizedPath(ruta, 'es')}`);
+      expect(en, ruta).toBe(`https://i-me.com.co${getLocalizedPath(ruta, 'en')}`);
+    }
+  });
+
   it('assigns high priority and hreflang to GSC campaign landings', () => {
     const item = serializeSitemapItem({
       url: 'https://i-me.com.co/es/monitores-biolight-uci/',

@@ -13,6 +13,22 @@ export interface CotizacionSubmitPayload {
   [key: string]: unknown;
 }
 
+export const SITIO_CANONICO = 'https://i-me.com.co';
+
+/**
+ * Las tarjetas de catálogo/familia pasan rutas relativas (`/es/productos/x/`);
+ * correos y CRM necesitan el enlace completo para abrir la ficha.
+ */
+export function urlAbsolutaProducto(url: string | undefined): string | undefined {
+  const raw = url?.trim();
+  if (!raw) return undefined;
+  try {
+    return new URL(raw, SITIO_CANONICO).href;
+  } catch {
+    return undefined;
+  }
+}
+
 /** Mensaje por defecto cuando el usuario no escribe detalle pero sí eligió productos. */
 export function resolverMensajeCotizacion(params: {
   locale?: 'es' | 'en' | undefined;
@@ -33,10 +49,11 @@ export function resolverMensajeCotizacion(params: {
         ? ` (Model ${producto.modelo})`
         : ` (Ref. ${producto.modelo})`
       : '';
-    const page = producto.url
+    const url = urlAbsolutaProducto(producto.url);
+    const page = url
       ? locale === 'en'
-        ? `\n  Product page: ${producto.url}`
-        : `\n  Página del producto: ${producto.url}`
+        ? `\n  Product page: ${url}`
+        : `\n  Página del producto: ${url}`
       : '';
     return `- ${producto.nombre}${ref}${qty}${page}`;
   });
@@ -56,6 +73,40 @@ export function resolverMensajeCotizacion(params: {
     '',
     'Por favor confirmar disponibilidad, configuración, plazo y soporte.',
   ].join('\n');
+}
+
+/**
+ * Mensaje final de la lista de cotización: el resumen se genera SIEMPRE con
+ * todos los productos actuales y los comentarios del usuario van aparte.
+ * Antes el textarea se precargaba con el primer producto y, al tener texto,
+ * no se actualizaba al añadir más: el resumen solo llevaba el primero.
+ */
+export function componerMensajeCotizacion(params: {
+  locale?: 'es' | 'en' | undefined;
+  comentarios?: string | undefined;
+  productos?: CotizacionMensajeProducto[] | undefined;
+  ciudad?: string | undefined;
+  ciudadLabel?: string | undefined;
+}): string {
+  const locale = params.locale === 'en' ? 'en' : 'es';
+  const comentarios = (params.comentarios ?? '').trim();
+  const resumen = resolverMensajeCotizacion({ locale, productos: params.productos });
+  if (!resumen && !comentarios) return '';
+
+  const partes: string[] = [];
+  const ciudad = (params.ciudad ?? '').trim();
+  if (ciudad) {
+    const label =
+      params.ciudadLabel ?? (locale === 'en' ? 'City / state' : 'Ciudad / departamento');
+    partes.push(`${label}: ${ciudad}`);
+  }
+  if (resumen) partes.push(resumen);
+  if (comentarios) {
+    partes.push(
+      resumen ? `${locale === 'en' ? 'Comments' : 'Comentarios'}:\n${comentarios}` : comentarios
+    );
+  }
+  return partes.join('\n\n').slice(0, 2000);
 }
 
 export interface CotizacionEmailStatus {

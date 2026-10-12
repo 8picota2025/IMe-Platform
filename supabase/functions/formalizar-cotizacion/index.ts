@@ -7,6 +7,7 @@
 
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { badRequest, errorResponse, notFound, internalError } from '../_shared/errors.ts';
+import { replyToDeCotizacion } from '../_shared/asesor.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { checkRateLimit } from '../_shared/rate-limit.ts';
 import { enviarEmailPlantilla, escapeHtml, DESTINATARIOS_INTERNOS } from '../_shared/email.ts';
@@ -14,6 +15,11 @@ import {
   datosBancariosTexto,
   getDatosBancariosTransferencia,
 } from '../_shared/transferencia-bancaria.ts';
+import {
+  cuentaRecaudoPorId,
+  esCuentaRecaudoDefault,
+  textoBancarioCuenta,
+} from '../../../src/lib/cotizacion-recaudo.ts';
 import {
   calcularTotalOfertado,
   hashTokenSha256,
@@ -217,7 +223,23 @@ Deno.serve(async req => {
   const lineas = parseLineasOferta(row.productos);
   const total = Number(row.precio_total_ofertado) || calcularTotalOfertado(lineas);
   const moneda = lineas[0]?.moneda || String(row.moneda ?? 'COP');
-  const bancarios = getDatosBancariosTransferencia();
+  const cuentaId = (row as { cuenta_recaudo?: string | null }).cuenta_recaudo;
+  const cuentaElegida = esCuentaRecaudoDefault(cuentaId) ? null : cuentaRecaudoPorId(cuentaId);
+  const bancarios = cuentaElegida
+    ? {
+        banco: cuentaElegida.banco,
+        titular: cuentaElegida.titular,
+        nit: cuentaElegida.nit,
+        tipo_cuenta: cuentaElegida.tipo_cuenta,
+        numero_cuenta: cuentaElegida.numero_cuenta,
+        swift: cuentaElegida.swift,
+        instrucciones:
+          'Transfiere el valor exacto de la cotizacion e indica la referencia en el concepto. Luego sube el comprobante en el enlace del correo.',
+      }
+    : getDatosBancariosTransferencia();
+  const textoBancario = cuentaElegida
+    ? textoBancarioCuenta(cuentaElegida)
+    : datosBancariosTexto(bancarios);
 
   if (action === 'preview') {
     return new Response(
@@ -248,7 +270,7 @@ Deno.serve(async req => {
         },
         transferencia: {
           ...bancarios,
-          texto: datosBancariosTexto(bancarios),
+          texto: textoBancario,
         },
       }),
       {
@@ -620,6 +642,8 @@ Deno.serve(async req => {
     },
     pedidoId
   );
+  // Reply-To: el asesor dueño de la cotización (o la dirección comercial por defecto).
+  const replyToCliente = await replyToDeCotizacion(supabase, id);
   const emailCliente = await enviarEmailPlantilla(
     supabase,
     'transferencia_recibida_cliente',
@@ -630,7 +654,9 @@ Deno.serve(async req => {
       total: escapeHtml(String(total)),
       moneda: escapeHtml(moneda),
     },
-    pedidoId
+    pedidoId,
+    [],
+    { replyTo: replyToCliente }
   );
   if (!emailInterno.ok) {
     console.error('formalizar: email interno fallido', emailInterno.detalle);
