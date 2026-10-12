@@ -7,6 +7,7 @@ import {
   formatQuoteNumero,
   hashBytesSha256,
   hashTokenSha256,
+  lineaOfertaLockedPorIndice,
   normalizarOferta,
   ofertaCompleta,
   parseLineasOferta,
@@ -215,5 +216,32 @@ describe('cotizacion-oferta', () => {
     expect(quoteEditable('nueva')).toBe(true);
     expect(quoteEditable('enviada')).toBe(false);
     expect(quoteEditable('convertida')).toBe(false);
+  });
+
+  it('lineaOfertaLockedPorIndice preserves distinct prices for duplicate slugs', () => {
+    const lineas = parseLineasOferta([
+      { slug: 'sku-x', nombre: 'X alto', cantidad: 1, precio_unitario: 1_000_000, moneda: 'COP' },
+      { slug: 'sku-x', nombre: 'X bajo', cantidad: 1, precio_unitario: 100_000, moneda: 'COP' },
+    ]);
+    expect(calcularTotalOfertado(lineas)).toBe(1_100_000);
+
+    // Regression: Map(slug→line) would charge 100k twice (200k) instead of 1.1M.
+    const bySlug = new Map(lineas.map(l => [l.slug, l]));
+    const collapsed = lineas.reduce(
+      (acc, l) => acc + bySlug.get(l.slug)!.precio_unitario * l.cantidad,
+      0
+    );
+    expect(collapsed).toBe(200_000);
+
+    const first = lineaOfertaLockedPorIndice(lineas, 0, 'sku-x');
+    const second = lineaOfertaLockedPorIndice(lineas, 1, 'sku-x');
+    expect(first?.precio_unitario).toBe(1_000_000);
+    expect(second?.precio_unitario).toBe(100_000);
+    expect(
+      first!.precio_unitario * first!.cantidad + second!.precio_unitario * second!.cantidad
+    ).toBe(1_100_000);
+
+    expect(lineaOfertaLockedPorIndice(lineas, 0, 'other')).toBeNull();
+    expect(lineaOfertaLockedPorIndice(lineas, 99, 'sku-x')).toBeNull();
   });
 });
