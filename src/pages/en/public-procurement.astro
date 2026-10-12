@@ -1,0 +1,112 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import {
+  buildBreadcrumbJsonLd,
+  buildCanonical,
+  buildOrganizationJsonLd,
+  buildPageTitle,
+  combineJsonLd,
+} from '../../lib/seo';
+
+const locale = 'en' as const;
+const title = buildPageTitle('Public procurement quotes for hospitals in Colombia | I-ME');
+const description =
+  'How to request an I-ME quote for Colombian public hospitals: published datasheets, catalog families and a formal proposal. No invented UNSPSC or INVIMA numbers.';
+const canonical = buildCanonical('/en/public-procurement');
+const jsonLd = combineJsonLd(
+  buildOrganizationJsonLd(),
+  buildBreadcrumbJsonLd([
+    { name: 'Home', url: buildCanonical('/en/') },
+    { name: 'Public procurement', url: canonical },
+  ])
+);
+
+const familias = [
+  { href: '/en/imaging/', label: 'Imaging' },
+  { href: '/en/imaging/rayos-x-digital/', label: 'Digital DR X-ray' },
+  { href: '/en/imaging/arco-en-c/', label: 'C-arm' },
+  { href: '/en/imaging/mamografia-digital/', label: 'Digital mammography' },
+  { href: '/en/families/ultrasonido/', label: 'Ultrasound' },
+  { href: '/en/sterilization/', label: 'Sterilization' },
+  { href: '/en/sterilization/autoclaves-hospitalarios/', label: 'Hospital autoclaves' },
+  { href: '/en/robotics-rehabilitation/telepresencia/', label: 'PadBot P2 telepresence robot' },
+];
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  locale={locale}
+  currentPath="/en/public-procurement"
+  jsonLd={jsonLd}
+>
+  <div
+    class="page-hero"
+    style="padding-top:130px;padding-bottom:var(--space-lg);background:var(--off)"
+  >
+    <div class="container" style="max-width:760px">
+      <h1>Public procurement: how to quote equipment for hospitals</h1>
+      <p style="color:var(--text-mid);line-height:1.6">
+        I-ME prepares the institutional quote from catalog references. The formal proposal is the
+        document for price, installation scope and support. The contact phone is +57 313 724 7353.
+      </p>
+      <p>
+        <a class="btn btn-primary" href="/en/contact/">Request a tender quote</a>
+        <a class="btn btn-ghost" href="tel:+573137247353">+57 313 724 7353</a>
+      </p>
+    </div>
+  </div>
+  <section class="container" style="max-width:760px;padding:var(--space-xl) 0">
+    <h2>How a quote is requested</h2>
+    <ol>
+      <li>
+        Send the institution, city, modality and catalog references, if you already have them.
+      </li>
+      <li>If the product page has a published PDF, that file is the datasheet you can attach.</li>
+      <li>I-ME replies with a proposal. The proposal price is not decided on this page.</li>
+    </ol>
+    <h2>Families for the tender file</h2>
+    <ul>
+      {
+        familias.map(item => (
+          <li>
+            <a href={item.href}>{item.label}</a>
+          </li>
+        ))
+      }
+    </ul>
+    <h2>Data this page does not invent</h2>
+    <ul>
+      <li>
+        TODO_CLIENTE — UNSPSC: there are no UNSPSC codes in the reviewed catalog or CMS. No code is
+        published until Shoky provides it per reference.
+      </li>
+      <li>
+        TODO_CLIENTE — Warranty: there is no single public-procurement warranty. If a sheet states a
+        manufacturer warranty, it is shown on that sheet. The rest waits for a real figure.
+      </li>
+      <li>
+        TODO_CLIENTE — INVIMA: there is no blanket INVIMA registration for these families. A number
+        is published only when it is on the product sheet.
+      </li>
+    </ul>
+    <p>
+      <a href="/en/services/">Sales and support services</a>
+      {' · '}
+      <a href="/en/legal/warranty/">Warranty legal text</a>
+    </p>
+  </section>
+</Layout>
+
+<style>
+  a:focus-visible,
+  .btn:focus-visible {
+    outline: 2px solid var(--t900);
+    outline-offset: 2px;
+  }
+  li {
+    margin: 0.4rem 0;
+    line-height: 1.5;
+  }
+</style>

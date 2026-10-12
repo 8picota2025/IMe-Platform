@@ -67,6 +67,8 @@ export interface CampaignLandingContent {
   leadMagnet?: { label: string; title: string; body: string; href: string; cta: string };
   /** Guías del Centro de Conocimiento en las que se apoya el contenido. */
   relatedGuides?: { title: string; href: string }[];
+  /** Enlaces a subpáginas de modalidad. Siempre salen del código (campo bloqueado). */
+  modalityLinks?: { title: string; href: string }[];
   problemTitle: string;
   problemBody: string;
   solutionsTitle: string;
@@ -341,8 +343,16 @@ const ESTERILIZACION: ContentMap = {
     title: 'Autoclave hospitalario y equipos de esterilización | Asesoría I-ME',
     description:
       '¿Autoclave nuevo, reemplazo o ampliar la central? Le orientamos por volumen y espacio (5075, T-Max 6 y más). Asesoría I-ME para clínicas en Colombia.',
-    h1: 'Cuando la central no da abasto, el problema no es “un autoclave barato”',
-    lead: 'Si la carga se atasca, el equipo espera canastas o están abriendo/ampliando central, le ayudamos a dimensionar vapor, flujo y —si aplica— desinfección de alto nivel, con instalación y soporte claros.',
+    h1: 'Equipos de esterilización y autoclaves hospitalarios en Colombia',
+    lead: 'Si la carga se atasca, el equipo espera canastas o están abriendo o ampliando la central, le ayudamos a dimensionar vapor y flujo con las referencias publicadas. La instalación y el soporte se escriben en la propuesta.',
+    modalityLinks: [
+      { title: 'Autoclaves hospitalarios', href: '/es/esterilizacion/autoclaves-hospitalarios/' },
+      { title: 'Esterilización por plasma o peróxido', href: '/es/esterilizacion/plasma-peroxido/' },
+      {
+        title: 'Lavadoras termodesinfectoras',
+        href: '/es/esterilizacion/lavadoras-termodesinfectoras/',
+      },
+    ],
     formIntro:
       'Cuéntenos volumen aproximado, espacio y si es compra nueva o reemplazo. Le respondemos en clave de central, no de catálogo suelto.',
     primaryCta: 'Necesito orientar mi central',
@@ -459,8 +469,13 @@ const ESTERILIZACION: ContentMap = {
     title: 'Hospital autoclave & sterilization equipment | I-ME advisory',
     description:
       'New autoclave, replacement or central expansion? We size by volume and space (5075, T-Max 6 and more). I-ME advisory for clinics in Colombia.',
-    h1: 'When the central cannot keep up, the answer is not “the cheapest autoclave”',
-    lead: 'If loads backlog, staff wait on baskets, or you are opening/expanding a central, we help size steam, workflow and — when needed — high-level disinfection, with clear install and support.',
+    h1: 'Hospital sterilization equipment and autoclaves in Colombia',
+    lead: 'If loads backlog, staff wait on baskets, or you are opening or expanding a central, we help size steam and workflow with the published references. Installation and support are written in the proposal.',
+    modalityLinks: [
+      { title: 'Hospital autoclaves', href: '/en/sterilization/autoclaves-hospitalarios/' },
+      { title: 'Plasma or peroxide sterilization', href: '/en/sterilization/plasma-peroxido/' },
+      { title: 'Washer-disinfectors', href: '/en/sterilization/lavadoras-termodesinfectoras/' },
+    ],
     formIntro:
       'Share approximate volume, space and whether this is new or replacement. We reply in central language, not a random catalog dump.',
     primaryCta: 'I need guidance for my central',
@@ -577,11 +592,18 @@ const ESTERILIZACION: ContentMap = {
 const IMAGENOLOGIA: ContentMap = {
   es: {
     tag: 'Imagen diagnóstica',
-    title: 'Mamografía digital y equipos de imagenología | Renovar con I-ME',
+    title:
+      'Equipos de imagenología: rayos X digital, arco en C, mamografía y ecografía en Colombia',
     description:
-      'Mamografía digital DM166/DM156, arco en C, DR y ultrasonido: oriente la renovación o apertura de su servicio de imagen con asesoría I-ME en Colombia.',
-    h1: 'Renovar imagen no es pedir un catálogo: es acertar modalidad y capacidad',
-    lead: 'Si abre, renueva o amplía mamografía, arco en C, rayos X digital o ultrasonido, le ayudamos a aterrizar el proyecto con instalación, capacitación y un plan de adquisición realista.',
+      'Equipos de imagenología en Colombia: rayos X digital, arco en C, mamografía y ecografía. I-ME cotiza cada referencia; el precio va en la propuesta.',
+    h1: 'Equipos de imagenología: rayos X digital, arco en C, mamografía y ecografía en Colombia',
+    lead: 'Elija la modalidad — rayos X digital, arco en C, mamografía o ecografía — y abra solo referencias del catálogo. El precio no se publica en esta página.',
+    modalityLinks: [
+      { title: 'Rayos X digital DR, fijos y móviles', href: '/es/imagenologia/rayos-x-digital/' },
+      { title: 'Arco en C', href: '/es/imagenologia/arco-en-c/' },
+      { title: 'Mamografía digital', href: '/es/imagenologia/mamografia-digital/' },
+      { title: 'Ecografía y equipos de ultrasonido', href: '/es/familias/ultrasonido/' },
+    ],
     formIntro:
       'Díganos qué servicio quiere mover y en cuánto tiempo. Le respondemos como proyecto de imagen, no como lista de precios.',
     primaryCta: 'Orientar mi proyecto de imagen',
@@ -677,6 +699,8 @@ const IMAGENOLOGIA: ContentMap = {
       'arco-en-c-alc-280-series-ref-alc-280-angell',
       'mamografo-digital-dm156-series-angell-technology-ref-dm156-angell',
       'sistema-de-rayos-x-dr-montado-en-techo-ref-dr-ceiling-angell',
+      'sistema-de-rayos-x-dr-movil-ref-dr-mobile-angell',
+      'dr-dinamico-de-brazo-ref-dr-uc-arm-angell',
       'sistema-de-ultrasonido-ref-dus-5000-advanced',
     ],
     productsTitle: 'Algunas referencias para empezar la charla',
@@ -685,11 +709,18 @@ const IMAGENOLOGIA: ContentMap = {
   },
   en: {
     tag: 'Diagnostic imaging',
-    title: 'Imaging equipment for clinics | Renew or expand with I-ME',
+    title:
+      'Imaging equipment: digital X-ray, C-arm, mammography and ultrasound in Colombia',
     description:
-      'C-arm, mammography, DR or ultrasound: guide renewal or opening of your imaging service with I-ME advisory in Colombia.',
-    h1: 'Renewing imaging is not requesting a catalog — it is nailing modality and capacity',
-    lead: 'Opening, renewing or expanding mammography, C-arm, digital X-ray or ultrasound? We help land the project with installation, training and a realistic acquisition plan.',
+      'Imaging equipment in Colombia: digital X-ray, C-arm, mammography and ultrasound. I-ME quotes each reference; the price is in the proposal.',
+    h1: 'Imaging equipment: digital X-ray, C-arm, mammography and ultrasound in Colombia',
+    lead: 'Choose the modality — digital X-ray, C-arm, mammography or ultrasound — and open only catalog references. The price is not published on this page.',
+    modalityLinks: [
+      { title: 'Digital DR X-ray, fixed and mobile', href: '/en/imaging/rayos-x-digital/' },
+      { title: 'C-arm', href: '/en/imaging/arco-en-c/' },
+      { title: 'Digital mammography', href: '/en/imaging/mamografia-digital/' },
+      { title: 'Ultrasound equipment', href: '/en/families/ultrasonido/' },
+    ],
     formIntro:
       'Tell us which service you want to move and when. We reply as an imaging project, not a price list.',
     primaryCta: 'Guide my imaging project',
@@ -785,6 +816,8 @@ const IMAGENOLOGIA: ContentMap = {
       'arco-en-c-alc-280-series-ref-alc-280-angell',
       'mamografo-digital-dm156-series-angell-technology-ref-dm156-angell',
       'sistema-de-rayos-x-dr-montado-en-techo-ref-dr-ceiling-angell',
+      'sistema-de-rayos-x-dr-movil-ref-dr-mobile-angell',
+      'dr-dinamico-de-brazo-ref-dr-uc-arm-angell',
       'sistema-de-ultrasonido-ref-dus-5000-advanced',
     ],
     productsTitle: 'A few references to start the talk',
@@ -801,6 +834,12 @@ const ROBOTICA: ContentMap = {
       '¿Recepción, telepresencia o delivery en su institución? Evalúe robots PadBot y soluciones de movilidad con asesoría I-ME — sin promesas clínicas vacías.',
     h1: 'Robótica que alivia operación — no ciencia ficción en el lobby',
     lead: 'Si exploran recepción automatizada, telepresencia, delivery interno o movilidad para programas institucionales, le ayudamos a ver qué encaja con su flujo real y qué queda fuera.',
+    modalityLinks: [
+      {
+        title: 'Robot de telepresencia hospitalaria PadBot P2',
+        href: '/es/robotica-rehabilitacion/telepresencia/',
+      },
+    ],
     formIntro:
       'Cuéntenos el problema operativo (filas, recorridos, acompañamiento). Le proponemos caminos del catálogo con los pies en la tierra.',
     primaryCta: 'Quiero evaluar una demo u orientación',
@@ -907,6 +946,12 @@ const ROBOTICA: ContentMap = {
       'Reception, telepresence or delivery at your institution? Evaluate PadBot robots and mobility with I-ME advisory — no empty clinical promises.',
     h1: 'Robotics that eases operations — not science fiction in the lobby',
     lead: 'Exploring automated reception, telepresence, internal delivery or mobility for institutional programs? We help see what fits your real workflow — and what does not.',
+    modalityLinks: [
+      {
+        title: 'Hospital telepresence robot PadBot P2',
+        href: '/en/robotics-rehabilitation/telepresencia/',
+      },
+    ],
     formIntro:
       'Tell us the operational problem (queues, routes, remote presence). We propose grounded catalog paths.',
     primaryCta: 'I want a demo or guidance',

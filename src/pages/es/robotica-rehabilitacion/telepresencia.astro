@@ -1,0 +1,102 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getProductosBySlugs } from '../../../lib/datos';
+import { TELEPRESENCIA_SLUG } from '../../../data/modalidades';
+import {
+  buildBreadcrumbJsonLd,
+  buildCanonical,
+  buildOrganizationJsonLd,
+  buildPageTitle,
+  combineJsonLd,
+} from '../../../lib/seo';
+
+const locale = 'es' as const;
+const productos = await getProductosBySlugs([TELEPRESENCIA_SLUG], locale);
+const producto = productos[0];
+const title = buildPageTitle('Robot de telepresencia hospitalaria PadBot P2 | I-ME');
+const description =
+  'Robot de telepresencia hospitalaria en Colombia: PadBot P2, con video llamada, control remoto, WiFi/4G y autocarga según su ficha. I-ME lo cotiza por referencia.';
+const canonical = buildCanonical('/es/robotica-rehabilitacion/telepresencia');
+const jsonLd = combineJsonLd(
+  buildOrganizationJsonLd(),
+  buildBreadcrumbJsonLd([
+    { name: 'Inicio', url: buildCanonical('/es/') },
+    { name: 'Robótica', url: buildCanonical('/es/robotica-rehabilitacion') },
+    { name: 'Telepresencia', url: canonical },
+  ])
+);
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  locale={locale}
+  currentPath="/es/robotica-rehabilitacion/telepresencia"
+  jsonLd={jsonLd}
+>
+  <div
+    class="page-hero"
+    style="padding-top:130px;padding-bottom:var(--space-lg);background:var(--off)"
+  >
+    <div class="container" style="max-width:760px">
+      <nav class="breadcrumb" aria-label="Ruta">
+        <a href="/es/">Inicio</a> / <a href="/es/robotica-rehabilitacion/">Robótica</a> /
+        <span aria-current="page">Telepresencia</span>
+      </nav>
+      <h1>Robot de telepresencia hospitalaria PadBot P2 en Colombia</h1>
+      <p style="color:var(--text-mid);line-height:1.6">
+        El catálogo publica el PadBot P2 como robot de telepresencia plegable, con pantalla HD de 10
+        pulgadas, WiFi/4G, video llamada, control remoto y autocarga. I-ME lo cotiza para hospitales
+        y clínicas. No sustituye una valoración clínica ni publica un precio de lista.
+      </p>
+      <p>
+        <a class="btn btn-primary" href="/es/contacto/">Solicitar cotización</a>
+        <a class="btn btn-ghost" href="tel:+573137247353">+57 313 724 7353</a>
+      </p>
+    </div>
+  </div>
+  <section class="container" style="max-width:760px;padding:var(--space-xl) 0">
+    <h2>Casos de uso que salen de la ficha</h2>
+    <ul>
+      <li>Presencia por video llamada dentro de la institución, con control remoto.</li>
+      <li>Conexión WiFi o 4G, según lo que describe la ficha del PadBot P2.</li>
+      <li>Equipo plegable con autocarga, para guardarlo y recargarlo en la sede.</li>
+    </ul>
+    <p style="color:var(--text-mid);line-height:1.6">
+      Esos usos describen la función publicada del robot. No prometen resultado clínico, reducción
+      de estancia ni reemplazo de personal.
+    </p>
+    {
+      producto && (
+        <p>
+          <a href={`/es/productos/${producto.slug}/`}>{producto.nombre}</a>
+          {producto.sku ? ` · SKU ${producto.sku}` : ''}
+          {producto.descripcion_corta ? ` — ${producto.descripcion_corta}` : ''}
+        </p>
+      )
+    }
+    <p>
+      <a href="/es/robotica-rehabilitacion/">Volver a robótica institucional</a>
+      {' · '}
+      <a href="/es/compras-publicas/">Compras públicas</a>
+    </p>
+    <p class="modalidad-todo" role="note">
+      TODO_CLIENTE: INVIMA, garantía, UNSPSC y precio del PadBot P2 no están en la ficha revisada.
+      No se publican hasta que Shoky entregue el dato.
+    </p>
+  </section>
+</Layout>
+
+<style>
+  .modalidad-todo {
+    padding: 0.9rem 1rem;
+    background: var(--off);
+    color: var(--text-mid);
+  }
+  a:focus-visible,
+  .btn:focus-visible {
+    outline: 2px solid var(--t900);
+    outline-offset: 2px;
+  }
+</style>

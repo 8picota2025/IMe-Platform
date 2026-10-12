@@ -584,8 +584,24 @@ function buildOfferShippingDetails(currency: string): Record<string, unknown> {
 }
 
 /**
- * JSON-LD Product — solo cuando hay precio público (Offer válido para Google Shopping/snippets).
- * Sin precio visible no emitimos Product: GSC exige offers, review o aggregateRating.
+ * Familias de cotización donde sí publicamos Product aunque no haya precio:
+ * imagen (radiología y ultrasonido), esterilización y robots.
+ */
+const FAMILIAS_PRODUCTO_COTIZACION = new Set([
+  'radiologia',
+  'ultrasonido',
+  'imagenologia',
+  'imagenologia-y-radiologia',
+  'esterilizacion-control-infecciones',
+  'robots',
+]);
+
+/**
+ * JSON-LD Product.
+ * Con precio público: Offer completo (price, priceCurrency) para rich results.
+ * Sin precio, en imagen, esterilización o robots: solo Product (marca, nombre/modelo,
+ * imagen, sku si existe). Un Offer sin `price` no es válido en las rich results de
+ * Google (offers.price es obligatorio), así que no se emite.
  * MedicalDevice se añade únicamente cuando hay sellos de normativa en specs.
  */
 export function buildProductJsonLd(
@@ -604,9 +620,13 @@ export function buildProductJsonLd(
   locale: Locale,
   categoria?: string,
   marca?: string | null,
-  opts?: { certificaciones?: string[]; familiaSlug?: string }
+  opts?: { certificaciones?: string[]; familiaSlug?: string; model?: string | null }
 ): Record<string, unknown> | null {
-  if (!tienePrecioPublico(producto.precio)) return null;
+  const precioPublico = tienePrecioPublico(producto.precio);
+  const familiaCotizacion = Boolean(
+    opts?.familiaSlug && FAMILIAS_PRODUCTO_COTIZACION.has(opts.familiaSlug)
+  );
+  if (!precioPublico && !familiaCotizacion) return null;
 
   const segment = locale === 'en' ? 'products' : 'productos';
   const canonicalUrl = buildCanonical(`/${locale}/${segment}/${producto.slug}`);
@@ -630,26 +650,30 @@ export function buildProductJsonLd(
       '@type': 'Brand',
       name: marca && marca.trim().length > 0 ? marca : 'I-ME International Medical Enterprise',
     },
-    seller: { '@id': `${SITE}/#organization` },
   };
-  const priceCurrency = normalizarMoneda(producto.moneda);
-  jsonLd.offers = {
-    '@type': 'Offer',
-    url: canonicalUrl,
-    price: producto.precio,
-    priceCurrency,
-    priceValidUntil: buildPriceValidUntil(),
-    itemCondition: 'https://schema.org/NewCondition',
-    availability:
-      producto.disponible === false
-        ? 'https://schema.org/OutOfStock'
-        : 'https://schema.org/InStock',
-    seller: { '@id': `${SITE}/#organization` },
-    areaServed: { '@type': 'Country', name: 'Colombia' },
-    businessFunction: 'http://purl.org/goodrelations/v1#Sell',
-    hasMerchantReturnPolicy: buildMerchantReturnPolicyJsonLd(locale),
-    shippingDetails: buildOfferShippingDetails(priceCurrency),
-  };
+  const modelo = opts?.model?.trim();
+  if (modelo) jsonLd.model = modelo;
+  if (precioPublico) {
+    jsonLd.seller = { '@id': `${SITE}/#organization` };
+    const priceCurrency = normalizarMoneda(producto.moneda);
+    jsonLd.offers = {
+      '@type': 'Offer',
+      url: canonicalUrl,
+      price: producto.precio,
+      priceCurrency,
+      priceValidUntil: buildPriceValidUntil(),
+      itemCondition: 'https://schema.org/NewCondition',
+      availability:
+        producto.disponible === false
+          ? 'https://schema.org/OutOfStock'
+          : 'https://schema.org/InStock',
+      seller: { '@id': `${SITE}/#organization` },
+      areaServed: { '@type': 'Country', name: 'Colombia' },
+      businessFunction: 'http://purl.org/goodrelations/v1#Sell',
+      hasMerchantReturnPolicy: buildMerchantReturnPolicyJsonLd(locale),
+      shippingDetails: buildOfferShippingDetails(priceCurrency),
+    };
+  }
   if (categoria) jsonLd.category = categoria;
   if (opts?.familiaSlug) {
     const famSeg = locale === 'en' ? 'families' : 'familias';

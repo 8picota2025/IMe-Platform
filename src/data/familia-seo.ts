@@ -628,23 +628,25 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
   },
   {
     slug: 'ultrasonido',
-    name_es: 'Ultrasonido',
-    name_en: 'Ultrasound',
-    title_es: 'Ecógrafos y ultrasonido hospitalario | I-ME',
-    title_en: 'Hospital ultrasound systems | I-ME',
+    name_es: 'Equipos de ultrasonido y ecógrafos en Colombia',
+    name_en: 'Ultrasound equipment and scanners in Colombia',
+    title_es: 'Ecógrafos Colombia: equipos de ultrasonido hospitalario | I-ME',
+    title_en: 'Hospital ultrasound equipment and scanners in Colombia | I-ME',
     description_es:
-      'Ecógrafos portátiles y Doppler para hospitales en Colombia. Asesoría I-ME por especialidad y flujo point-of-care.',
+      'Equipos de ultrasonido y ecógrafos en Colombia para hospitales y clínicas. Compare las referencias del catálogo I-ME y solicite cotización por modelo.',
     description_en:
-      'Portable and Doppler ultrasound for hospitals in Colombia. I-ME advisory by specialty and point-of-care flow.',
+      'Ultrasound equipment and scanners for hospitals and clinics in Colombia. Compare I-ME catalog references and request a quote by model.',
     intro_es:
-      'Ultrasonido se decide por sonda, especialidad (vascular, OB, urgencias) y si el informe debe salir en DICOM/PACS.',
+      'Equipos de ultrasonido y ecógrafos en Colombia se cotizan por referencia: el catálogo reúne los sistemas DUS y los ecógrafos portátiles publicados. El precio, la sonda y la documentación se confirman en cada ficha, no en un texto genérico.',
     intro_en:
-      'Ultrasound is decided by probe, specialty (vascular, OB, ER) and whether reports must leave via DICOM/PACS.',
+      'Ultrasound equipment in Colombia is quoted by reference: the catalog lists the published DUS systems and portable scanners. Price, probe and documentation are confirmed on each sheet, not in a generic paragraph.',
     body_es: [
-      'Separar “ecógrafo de consulta” vs “point-of-care” evita comprar conectividad que no se usa o quedar cortos en archivo clínico.',
+      'En el catálogo activo están DUS-3000, DUS-5000, DUS-5000 Plus, DUS-6000 y DUS-7000, el ecógrafo Color Doppler diagnóstico vascular, el ecógrafo portátil con WiFi y DICOM y el ultrasonido point-of-care pocket.',
+      'Separar ecógrafo de consulta y equipo point-of-care evita mezclar fichas. Lo que cada modelo hace está en su página.',
     ],
     body_en: [
-      'Separating clinic ultrasound vs point-of-care avoids buying unused connectivity or under-specifying clinical archive.',
+      'The active catalog includes DUS-3000, DUS-5000, DUS-5000 Plus, DUS-6000 and DUS-7000, the color Doppler vascular scanner, the portable WiFi DICOM scanner and the pocket point-of-care ultrasound.',
+      'Separating a clinic scanner from a point-of-care unit avoids mixing sheets. What each model does stays on its page.',
     ],
     faq: [
       {
@@ -655,6 +657,8 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
       },
     ],
     relatedSlugs: [
+      'sistema-de-ultrasonido-ref-dus-5000-advanced',
+      'sistema-de-ultrasonido-ref-dus-7000-advanced',
       'ecografo-color-doppler-diagnostico-vascular',
       'ecografo-portatil-con-wifi-y-dicom',
     ],
@@ -1152,12 +1156,52 @@ const FAMILIA_HUB_LINKS: Record<string, FamiliaHubLink[]> = {
       label_en: 'Ventilator family',
     },
   ],
+  'esterilizacion-control-infecciones': [
+    {
+      href_es: '/es/esterilizacion/',
+      href_en: '/en/sterilization/',
+      label_es: 'Equipos de esterilización',
+      label_en: 'Sterilization equipment',
+    },
+    {
+      href_es: '/es/esterilizacion/autoclaves-hospitalarios/',
+      href_en: '/en/sterilization/autoclaves-hospitalarios/',
+      label_es: 'Autoclaves hospitalarios',
+      label_en: 'Hospital autoclaves',
+    },
+  ],
+  ultrasonido: [
+    {
+      href_es: '/es/imagenologia/',
+      href_en: '/en/imaging/',
+      label_es: 'Equipos de imagenología',
+      label_en: 'Imaging equipment',
+    },
+    {
+      href_es: '/es/ciudades/medellin/',
+      href_en: '/en/cities/medellin/',
+      label_es: 'Ecógrafos para Medellín',
+      label_en: 'Ultrasound for Medellín',
+    },
+  ],
   radiologia: [
     {
       href_es: '/es/imagenologia/',
       href_en: '/en/imaging/',
-      label_es: 'Proyecto de imagenología',
-      label_en: 'Imaging project guide',
+      label_es: 'Equipos de imagenología',
+      label_en: 'Imaging equipment',
+    },
+    {
+      href_es: '/es/imagenologia/rayos-x-digital/',
+      href_en: '/en/imaging/rayos-x-digital/',
+      label_es: 'Rayos X digital DR',
+      label_en: 'Digital DR X-ray',
+    },
+    {
+      href_es: '/es/imagenologia/arco-en-c/',
+      href_en: '/en/imaging/arco-en-c/',
+      label_es: 'Arco en C',
+      label_en: 'C-arm',
     },
     {
       href_es: '/es/productos/mamografo-digital-dm166-series-ref-dm166-angell/',

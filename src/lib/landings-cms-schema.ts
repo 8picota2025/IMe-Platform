@@ -19,6 +19,7 @@ export const CAMPOS_BLOQUEADOS = [
   'productSlugs',
   'catalogFilter',
   'hubPath',
+  'modalityLinks',
 ] as const;
 
 export type TipoCampo = 'texto' | 'parrafo' | 'imagen' | 'numero' | 'lista' | 'pares' | 'objeto';

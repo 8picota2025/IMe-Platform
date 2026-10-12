@@ -67,6 +67,7 @@ const PATH_SEGMENT_PAIRS: Array<{ es: string; en: string }> = [
   { es: 'familias', en: 'families' },
   { es: 'ciudades', en: 'cities' },
   { es: 'recursos', en: 'resources' },
+  { es: 'compras-publicas', en: 'public-procurement' },
 ];
 
 /** Nested slug pairs under a localized section (e.g. conocimiento/publicar). */

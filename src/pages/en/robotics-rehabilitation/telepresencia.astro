@@ -1,0 +1,97 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getProductosBySlugs } from '../../../lib/datos';
+import { TELEPRESENCIA_SLUG } from '../../../data/modalidades';
+import {
+  buildBreadcrumbJsonLd,
+  buildCanonical,
+  buildOrganizationJsonLd,
+  buildPageTitle,
+  combineJsonLd,
+} from '../../../lib/seo';
+
+const locale = 'en' as const;
+const productos = await getProductosBySlugs([TELEPRESENCIA_SLUG], locale);
+const producto = productos[0];
+const title = buildPageTitle('Hospital telepresence robot PadBot P2 in Colombia | I-ME');
+const description =
+  'Hospital telepresence robot in Colombia: PadBot P2, with video calling, remote control, WiFi/4G and auto charging as published. I-ME quotes it by reference.';
+const canonical = buildCanonical('/en/robotics-rehabilitation/telepresencia');
+const jsonLd = combineJsonLd(
+  buildOrganizationJsonLd(),
+  buildBreadcrumbJsonLd([
+    { name: 'Home', url: buildCanonical('/en/') },
+    { name: 'Robotics', url: buildCanonical('/en/robotics-rehabilitation') },
+    { name: 'Telepresence', url: canonical },
+  ])
+);
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  locale={locale}
+  currentPath="/en/robotics-rehabilitation/telepresencia"
+  jsonLd={jsonLd}
+>
+  <div
+    class="page-hero"
+    style="padding-top:130px;padding-bottom:var(--space-lg);background:var(--off)"
+  >
+    <div class="container" style="max-width:760px">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/en/">Home</a> / <a href="/en/robotics-rehabilitation/">Robotics</a> /
+        <span aria-current="page">Telepresence</span>
+      </nav>
+      <h1>Hospital telepresence robot PadBot P2 in Colombia</h1>
+      <p style="color:var(--text-mid);line-height:1.6">
+        The catalog lists the PadBot P2 as a foldable telepresence robot with a 10-inch HD screen,
+        WiFi/4G, video calling, remote control and auto charging. I-ME quotes it for hospitals and
+        clinics. It does not replace a clinical assessment and it has no list price.
+      </p>
+      <p>
+        <a class="btn btn-primary" href="/en/contact/">Request a quote</a>
+        <a class="btn btn-ghost" href="tel:+573137247353">+57 313 724 7353</a>
+      </p>
+    </div>
+  </div>
+  <section class="container" style="max-width:760px;padding:var(--space-xl) 0">
+    <h2>Use cases taken from the sheet</h2>
+    <ul>
+      <li>Video-call presence inside the institution, with remote control.</li>
+      <li>WiFi or 4G connection, as the PadBot P2 sheet describes it.</li>
+      <li>A foldable unit with auto charging, so the site can store and recharge it.</li>
+    </ul>
+    <p style="color:var(--text-mid);line-height:1.6">
+      Those uses describe the published function of the robot. They do not promise a clinical
+      outcome, a shorter stay or a staff replacement.
+    </p>
+    {
+      producto && (
+        <p>
+          <a href={`/en/products/${producto.slug}/`}>{producto.nombre}</a>
+          {producto.sku ? ` · SKU ${producto.sku}` : ''}
+          {producto.descripcion_corta ? ` — ${producto.descripcion_corta}` : ''}
+        </p>
+      )
+    }
+    <p>
+      <a href="/en/robotics-rehabilitation/">Back to institutional robotics</a>
+      {' · '}
+      <a href="/en/public-procurement/">Public procurement</a>
+    </p>
+    <p role="note" style="padding:0.9rem 1rem;background:var(--off);color:var(--text-mid)">
+      TODO_CLIENTE: INVIMA, warranty, UNSPSC and the PadBot P2 price are not on the reviewed sheet.
+      They stay unpublished until Shoky provides the data.
+    </p>
+  </section>
+</Layout>
+
+<style>
+  a:focus-visible,
+  .btn:focus-visible {
+    outline: 2px solid var(--t900);
+    outline-offset: 2px;
+  }
+</style>
