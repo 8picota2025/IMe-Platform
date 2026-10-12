@@ -128,6 +128,41 @@ export function precioBajoPiso(precio: number, piso: number | null | undefined):
   return Number.isFinite(precio) && precio < piso;
 }
 
+/**
+ * Piso efectivo para `proponer_precio` vía MCP.
+ *
+ * El agente no puede omitir `piso` (ni declarar uno artificialmente bajo) para
+ * aplicar un recorte sin aprobación humana: se toma el máximo entre el piso
+ * declarado y el `precio_regular` actual. Sin ninguno de los dos, cualquier
+ * escritura exige confirmación (no se inventa un precio público a ciegas).
+ */
+export function evaluacionPrecioMcp(
+  precioPropuesto: number,
+  pisoDeclarado: number | null | undefined,
+  precioRegularActual: number | null | undefined
+): { requiereConfirmacion: boolean; piso: number | null } {
+  if (!Number.isFinite(precioPropuesto) || precioPropuesto < 0) {
+    return { requiereConfirmacion: true, piso: null };
+  }
+  const declarado =
+    pisoDeclarado != null && Number.isFinite(pisoDeclarado) ? Number(pisoDeclarado) : null;
+  const actual =
+    precioRegularActual != null &&
+    Number.isFinite(precioRegularActual) &&
+    Number(precioRegularActual) > 0
+      ? Number(precioRegularActual)
+      : null;
+  if (actual == null && declarado == null) {
+    return { requiereConfirmacion: true, piso: null };
+  }
+  const piso =
+    actual != null && declarado != null ? Math.max(actual, declarado) : (actual ?? declarado);
+  return {
+    requiereConfirmacion: precioBajoPiso(precioPropuesto, piso),
+    piso,
+  };
+}
+
 /** Etapas que admite el CHECK de crm_opportunities.etapa (migración 20260809090000). */
 export const CRM_ETAPAS_DB = [
   'nuevo',
