@@ -6195,7 +6195,7 @@ function proveedorDuplicatePanel(groups: DuplicateGroup[]): string {
   if (!groups.length) return '';
   return `
     <section class="admin-panel">
-      <div class="admin-panel__head"><h2>Posibles duplicados</h2><span class="admin-meta">Mismo nombre normalizado, mismo dominio o mismo email. Fusionar conserva productos, contactos y seguimiento en el registro elegido.</span></div>
+      <div class="admin-panel__head"><h2>Posibles duplicados</h2><span class="admin-meta">Mismo nombre normalizado, mismo dominio o mismo email. Fusionar conserva productos, contactos y seguimiento en el registro elegido. Si uno tiene dropshipping o credenciales de fulfillment, conserva ese registro — el otro se fusiona hacia él.</span></div>
       ${groups
         .map(group => {
           const buttons = group.members
@@ -8758,7 +8758,7 @@ function bindProveedorMerge(): void {
       if (!keeper || !losers.length) return;
       if (
         !confirm(
-          `Se conservará "${label}" y se fusionarán ${losers.length} duplicado(s). Los productos y contactos pasan al registro conservado.`
+          `Se conservará "${label}" y se fusionarán ${losers.length} duplicado(s). Los productos y contactos pasan al registro conservado. Si eliges un prospecto sobre un proveedor con dropshipping, la fusión se rechaza para no perder webhook/API.`
         )
       ) {
         return;
