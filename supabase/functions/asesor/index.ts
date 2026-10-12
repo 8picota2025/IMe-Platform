@@ -31,6 +31,7 @@ import { verifyTurnstile } from '../_shared/turnstile.ts';
 import { redactHistorial, redactPii } from '../_shared/pii-redact.ts';
 import { checkRateLimit } from '../_shared/rate-limit.ts';
 import { shouldSkipAsesorTurnstileVerify } from '../../../src/lib/asesor-turnstile.ts';
+import { shouldMarkAgentTurnFailedOnWakeError } from '../../../src/lib/asesor-agent-wake.ts';
 import {
   buildAsesorStaticFallback,
   esConsultaContacto,
@@ -553,11 +554,21 @@ async function despertarAgente(
     if (!res.ok) throw new Error(`wake HTTP ${res.status}`);
   } catch (err) {
     const message = err instanceof Error ? err.message.slice(0, 500) : 'wake falló';
-    await supabase
-      .from('asesor_agent_turns')
-      .update({ status: 'failed', error: message })
-      .eq('id', input.turnId)
-      .eq('status', 'pending');
+    // Abort/timeout after POST may still leave the agent processing. Routine only
+    // writes replied while status=pending — marking failed here permanently drops
+    // the late reply and pins widget Retry to a dead turnId.
+    if (shouldMarkAgentTurnFailedOnWakeError(err)) {
+      await supabase
+        .from('asesor_agent_turns')
+        .update({ status: 'failed', error: message })
+        .eq('id', input.turnId)
+        .eq('status', 'pending');
+    } else {
+      console.error('[asesor] wake ACK lento/abort; turno sigue pending', {
+        turnId: input.turnId,
+        message,
+      });
+    }
     throw err;
   } finally {
     clearTimeout(timer);
