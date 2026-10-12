@@ -651,7 +651,7 @@ Deno.serve(
           origin
         );
       }
-      if (cotizacion.estado !== 'enviada' && cotizacion.estado !== 'respondida') {
+      if (cotizacion.estado !== 'enviada') {
         return errorResponse(
           { code: 'COTIZACION_NO_ENVIADA', message: 'Cotizacion no disponible para formalizar' },
           409,

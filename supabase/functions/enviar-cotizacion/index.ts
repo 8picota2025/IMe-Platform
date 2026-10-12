@@ -58,9 +58,11 @@ import {
   generarTokenFormalizacion,
   hashBytesSha256,
   hashTokenSha256,
+  isCotizacionSendClaimMissing,
   normalizarMonedaOferta,
   normalizarOferta,
   parseLineasOferta,
+  stripFormalizacionCredentials,
   tokenExpirado,
   type CotizacionOfertaRow,
 } from '../../../src/lib/cotizacion-oferta.ts';
@@ -111,35 +113,38 @@ async function releaseSendClaim(
   id: string,
   sendError: string
 ): Promise<void> {
-  const { error } = await supabase
+  const { data: live } = await supabase
     .from('solicitudes_cotizacion')
-    .update({
-      send_claimed_at: null,
-      send_error: sendError.slice(0, 500),
-    })
-    .eq('id', id);
+    .select('estado, metadata')
+    .eq('id', id)
+    .maybeSingle();
+  const estado = String((live as { estado?: string } | null)?.estado ?? '');
+  // Only scrub formalization credentials when the quote never reached enviada —
+  // a failed re-send of an already-sent offer must keep the customer's live link.
+  const clearToken = estado !== 'enviada' && estado !== 'convertida';
+  const previous =
+    live?.metadata && typeof live.metadata === 'object' && !Array.isArray(live.metadata)
+      ? (live.metadata as Record<string, unknown>)
+      : {};
+  const metadata = {
+    ...(clearToken ? stripFormalizacionCredentials(previous) : previous),
+    quote_send_error: sendError.slice(0, 500),
+    quote_send_failed_at: new Date().toISOString(),
+  };
+  const patch: Record<string, unknown> = {
+    send_claimed_at: null,
+    send_error: sendError.slice(0, 500),
+    metadata,
+  };
+  if (clearToken) {
+    patch.formalizacion_token_hash = null;
+    patch.formalizacion_token_expira_at = null;
+  }
+  const { error } = await supabase.from('solicitudes_cotizacion').update(patch).eq('id', id);
   // Produccion puede tener la tabla antes de la migracion PDF. Conserva el
   // error en metadata para que la interfaz no presente un falso borrador sano.
   if (!error) return;
-  const { data } = await supabase
-    .from('solicitudes_cotizacion')
-    .select('metadata')
-    .eq('id', id)
-    .maybeSingle();
-  const previous =
-    data?.metadata && typeof data.metadata === 'object' && !Array.isArray(data.metadata)
-      ? (data.metadata as Record<string, unknown>)
-      : {};
-  await supabase
-    .from('solicitudes_cotizacion')
-    .update({
-      metadata: {
-        ...previous,
-        quote_send_error: sendError.slice(0, 500),
-        quote_send_failed_at: new Date().toISOString(),
-      },
-    })
-    .eq('id', id);
+  await supabase.from('solicitudes_cotizacion').update({ metadata }).eq('id', id);
 }
 
 const DEFAULT_SITE_URL = 'https://i-me.com.co';
@@ -530,10 +535,14 @@ Deno.serve(async req => {
   }
   if (!numero) return internalError('No se pudo asignar numero de presupuesto', origin);
 
-  // Claim atómico si existe; si no, continuar (sandbox).
+  // Claim atómico. Missing RPC → sandbox continue. Any other error → fail closed
+  // (otherwise parallel sends both rotate tokens and email the client).
   const { data: claimedRows, error: claimError } = await supabase.rpc('claim_cotizacion_send', {
     p_id: id,
   });
+  if (claimError && !isCotizacionSendClaimMissing(claimError.message)) {
+    return internalError(claimError.message, origin);
+  }
   const claimed = !claimError ? (Array.isArray(claimedRows) ? claimedRows[0] : claimedRows) : null;
   if (!claimError && !claimed) {
     return errorResponse(
@@ -578,8 +587,12 @@ Deno.serve(async req => {
     tokenRotated = true;
   }
 
-  meta.formalizacion_url = formalizarUrl;
+  // Keep formalizacion_url / token hash in memory for the outbound message.
+  // Persist them only with estado=enviada in postUpdate — writing them here while
+  // the row is still CMS-editable (respondida) lets a concurrent price cut
+  // undercharge Formalizar / crear-pago against the emailed PDF totals.
   meta.numero_presupuesto = numero;
+  const metaPreMail = stripFormalizacionCredentials(meta);
 
   const quienEnvia = asesor.deperfil ? asesor.correo : actor.email || actor.role || 'admin';
   const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 16);
@@ -592,17 +605,13 @@ Deno.serve(async req => {
 
   const preMail: Record<string, unknown> = {
     numero,
-    formalizacion_token_expira_at: expiraAt,
-    metadata: meta,
+    metadata: metaPreMail,
     precio_total_ofertado: oferta.total,
     moneda: oferta.moneda,
     leida: true,
   };
   if (!inmutable) {
     preMail.productos = oferta.lineas;
-  }
-  if (tokenRotated && tokenHash) {
-    preMail.formalizacion_token_hash = tokenHash;
   }
   // Owner: quien envía (o el actor delegado) queda como propietario de la cotización.
   if (actor.userId && (actorDelegado || !row.created_by)) preMail.created_by = actor.userId;
@@ -670,14 +679,16 @@ Deno.serve(async req => {
   const pdfSha = await hashBytesSha256(pdfBytes);
   // Persistir referencia del artefacto antes de llamar al proveedor de email.
   // Si Resend falla, el comercial aún puede abrir/descargar el PDF y reintentar.
+  // Still omit formalization credentials until estado=enviada.
   meta.pdf_storage_path = storedPdfPath;
   meta.pdf_sha256 = pdfSha;
   meta.pdf_revision = pdfRevision;
+  const metaArtifact = stripFormalizacionCredentials(meta);
   let { error: artifactError } = await supabase
     .from('solicitudes_cotizacion')
     .update({
       numero,
-      metadata: meta,
+      metadata: metaArtifact,
       ...(storedPdfPath
         ? {
             pdf_storage_path: storedPdfPath,
@@ -691,7 +702,7 @@ Deno.serve(async req => {
     // Legacy schema: metadata is always available, while PDF columns may not.
     ({ error: artifactError } = await supabase
       .from('solicitudes_cotizacion')
-      .update({ metadata: meta })
+      .update({ metadata: metaArtifact })
       .eq('id', id));
   }
   if (artifactError) {
@@ -810,13 +821,19 @@ Deno.serve(async req => {
     meta.quote_send_asesor = asesor.correo;
   }
 
+  // Atomic handoff: mark enviada and publish formalization credentials together.
+  meta.formalizacion_url = formalizarUrl;
   const postUpdate: Record<string, unknown> = {
     estado: 'enviada',
     oferta_enviada_at: new Date().toISOString(),
     notas_internas: notas,
     leida: true,
     metadata: meta,
+    formalizacion_token_expira_at: expiraAt,
   };
+  if (tokenHash) {
+    postUpdate.formalizacion_token_hash = tokenHash;
+  }
   if (storedPdfPath) {
     postUpdate.pdf_storage_path = storedPdfPath;
     postUpdate.pdf_sha256 = pdfSha;
@@ -836,7 +853,9 @@ Deno.serve(async req => {
       notas_internas: notas,
       leida: true,
       metadata: meta,
+      formalizacion_token_expira_at: expiraAt,
     };
+    if (tokenHash) softPost.formalizacion_token_hash = tokenHash;
     ({ error: updateError } = await supabase
       .from('solicitudes_cotizacion')
       .update(softPost)

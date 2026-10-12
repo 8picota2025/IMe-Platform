@@ -66,7 +66,31 @@ export interface CotizacionOfertaRow {
   utm_term?: string | null;
 }
 
-const ESTADOS_FORMALIZABLES = new Set(['enviada', 'respondida']);
+/**
+ * Solo `enviada` es formalizable. `respondida` is editable in the CMS — accepting
+ * a formalization token while still in that state lets a mid-send price cut
+ * undercharge checkout (token used to be written before estado flipped).
+ */
+const ESTADOS_FORMALIZABLES = new Set(['enviada']);
+
+/** True when claim_cotizacion_send is absent (partial sandbox schema). */
+export function isCotizacionSendClaimMissing(message: string | null | undefined): boolean {
+  return /could not find the function|schema cache|PGRST202|does not exist/i.test(
+    String(message ?? '')
+  );
+}
+
+/**
+ * Formalization URL/hash must not ride along on pre-mail metadata writes.
+ * Keep them for the outbound message in memory; persist only with estado=enviada.
+ */
+export function stripFormalizacionCredentials(
+  meta: Record<string, unknown>
+): Record<string, unknown> {
+  const next = { ...meta };
+  delete next.formalizacion_url;
+  return next;
+}
 
 export function parseLineasOferta(productos: unknown): CotizacionLineaOferta[] {
   if (!Array.isArray(productos)) return [];
@@ -364,15 +388,7 @@ export async function verificarTokenFormalizacion(
   now = new Date()
 ): Promise<boolean> {
   if (!token || !row.formalizacion_token_hash) return false;
-  if (
-    !puedeFormalizar(row, now) &&
-    String(row.estado) !== 'enviada' &&
-    String(row.estado) !== 'respondida'
-  ) {
-    return false;
-  }
-  if (tokenExpirado(row.formalizacion_token_expira_at, now)) return false;
-  if (row.pedido_id) return false;
+  if (!puedeFormalizar(row, now)) return false;
   const hash = await hashTokenSha256(token);
   return hash === row.formalizacion_token_hash;
 }

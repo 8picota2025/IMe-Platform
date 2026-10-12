@@ -96,7 +96,7 @@ async function loadCotizacionValidada(
       ),
     };
   }
-  if (row.estado !== 'enviada' && row.estado !== 'respondida') {
+  if (row.estado !== 'enviada') {
     return {
       ok: false,
       response: errorResponse(
@@ -595,7 +595,7 @@ Deno.serve(async req => {
       notas_internas: notasPrevias ? `${notasPrevias}\n${nota}` : nota,
     })
     .eq('id', id)
-    .in('estado', ['enviada', 'respondida'])
+    .eq('estado', 'enviada')
     .is('pedido_id', null)
     .select('id')
     .maybeSingle();
