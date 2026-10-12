@@ -42,6 +42,16 @@ import {
   bancoLineasCotizacion,
 } from '../_shared/transferencia-bancaria.ts';
 import {
+  aplicarNotaImportesUsd,
+  cuentaRecaudoPorId,
+  cuentaRecaudoValida,
+  esCuentaRecaudoDefault,
+  lineasMedioPagoCotizacion,
+  normalizarCondicionPago,
+  normalizarCuentaRecaudo,
+  textoBancarioCuenta,
+} from '../../../src/lib/cotizacion-recaudo.ts';
+import {
   canonizarLineasOferta,
   expiryFromValidez,
   formalizarPath,
@@ -143,6 +153,8 @@ interface Body {
   validez_hasta?: string | null;
   moneda?: string;
   mercado?: string;
+  cuenta_recaudo?: string | null;
+  condicion_pago?: string | null;
   /** Si true, invalida el enlace anterior y genera uno nuevo. Default: reutilizar si sigue vigente. */
   rotar_token?: boolean;
   /** Canal de entrega. Default email. */
@@ -253,7 +265,9 @@ Deno.serve(async req => {
     body.condiciones !== undefined ||
     body.moneda !== undefined ||
     body.mercado !== undefined ||
-    body.validez_hasta !== undefined;
+    body.validez_hasta !== undefined ||
+    body.cuenta_recaudo !== undefined ||
+    body.condicion_pago !== undefined;
   const inmutable = row.estado === 'enviada';
 
   if (wantsPersist && !inmutable && !dryRun) {
@@ -284,7 +298,26 @@ Deno.serve(async req => {
       precio_total_ofertado: checkPayload.total,
       moneda: checkPayload.moneda,
     };
-    if (body.condiciones !== undefined) patch.condiciones = condicionesPayload;
+    if (body.condiciones !== undefined) {
+      patch.condiciones = aplicarNotaImportesUsd(
+        condicionesPayload,
+        checkPayload.moneda,
+        row.locale === 'en' ? 'en' : 'es'
+      );
+    }
+    if (body.cuenta_recaudo !== undefined) {
+      if (!cuentaRecaudoValida(body.cuenta_recaudo)) {
+        return errorResponse(
+          { code: 'CUENTA_RECAUDO_INVALIDA', message: 'Cuenta de recaudo no reconocida' },
+          422,
+          origin
+        );
+      }
+      patch.cuenta_recaudo = normalizarCuentaRecaudo(body.cuenta_recaudo);
+    }
+    if (body.condicion_pago !== undefined) {
+      patch.condicion_pago = normalizarCondicionPago(body.condicion_pago);
+    }
     if (body.validez_hasta !== undefined) {
       patch.validez_hasta = body.validez_hasta ? String(body.validez_hasta).trim() || null : null;
     }
@@ -299,8 +332,19 @@ Deno.serve(async req => {
       .from('solicitudes_cotizacion')
       .update(patch)
       .eq('id', id);
-    if (saveError && /created_by|Could not find|schema cache/i.test(saveError.message)) {
-      delete patch.created_by;
+    for (
+      let attempt = 0;
+      attempt < 4 &&
+      saveError &&
+      /created_by|Could not find|schema cache|does not exist/i.test(saveError.message);
+      attempt += 1
+    ) {
+      const missing =
+        saveError.message.match(/'([a-z0-9_]+)'/i)?.[1] ||
+        saveError.message.match(/column [^.\s]+\.([a-z0-9_]+)/i)?.[1];
+      if (missing && missing in patch) delete patch[missing];
+      else if (/created_by/i.test(saveError.message)) delete patch.created_by;
+      else break;
       ({ error: saveError } = await supabase
         .from('solicitudes_cotizacion')
         .update(patch)
@@ -348,6 +392,7 @@ Deno.serve(async req => {
       loadQuotePdfFonts(siteUrl),
     ]);
     const banco = getDatosBancariosTransferencia();
+    const cuentaId = (row as { cuenta_recaudo?: string | null }).cuenta_recaudo;
     return renderQuotePdf({
       numero: numeroPdf,
       clienteNombre: String(row.nombre ?? 'Cliente'),
@@ -368,7 +413,10 @@ Deno.serve(async req => {
       whatsappIconBytes,
       fontRegularBytes: fonts.regular,
       fontBoldBytes: fonts.bold,
-      bancoLineas: bancoLineasCotizacion(banco),
+      condicionPago: normalizarCondicionPago(
+        (row as { condicion_pago?: string | null }).condicion_pago
+      ),
+      bancoLineas: lineasMedioPagoCotizacion(cuentaId, bancoLineasCotizacion(banco)),
     });
   };
 
@@ -693,8 +741,16 @@ Deno.serve(async req => {
       moneda: escapeHtml(oferta.moneda),
       validez: validezLabel,
       items_html: itemsToHtml(oferta.lineas, locale),
-      condiciones: escapeHtml(String(row.condiciones ?? '')),
-      datos_bancarios: escapeHtml(datosBancariosTexto(getDatosBancariosTransferencia())),
+      condiciones: escapeHtml(
+        aplicarNotaImportesUsd(String(row.condiciones ?? ''), oferta.moneda, locale)
+      ),
+      datos_bancarios: escapeHtml(
+        esCuentaRecaudoDefault((row as { cuenta_recaudo?: string | null }).cuenta_recaudo)
+          ? datosBancariosTexto(getDatosBancariosTransferencia())
+          : textoBancarioCuenta(
+              cuentaRecaudoPorId((row as { cuenta_recaudo?: string | null }).cuenta_recaudo)
+            )
+      ),
       formalizar_url: formalizarUrl,
       formalizar_url_href: escapeHtml(formalizarUrl),
     };

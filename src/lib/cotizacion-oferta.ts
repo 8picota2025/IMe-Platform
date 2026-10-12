@@ -49,6 +49,10 @@ export interface CotizacionOfertaRow {
   send_error?: string | null;
   /** true = los precios ofertados ya incluyen IVA (requisito para pedir factura electrónica al formalizar). */
   impuestos_incluidos?: boolean | null;
+  /** Id de cuenta de recaudo. Null = Bancolombia Ahorros COP. */
+  cuenta_recaudo?: string | null;
+  /** Condición de pago del PDF. Null = Contado (es) / Prepaid (en). */
+  condicion_pago?: string | null;
   created_by?: string | null;
   lead_comercial_id?: string | null;
   campaign?: string | null;
