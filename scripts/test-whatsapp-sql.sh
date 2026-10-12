@@ -30,7 +30,7 @@ SQL
     20260909050000_whatsapp_inbound_body.sql \
     20260925143000_whatsapp_outbound_dispatch.sql \
     20260925160000_whatsapp_human_takeover.sql \
-    20261002120000_whatsapp_identity_resilience.sql; do
+    20261002120500_whatsapp_identity_resilience.sql; do
     cat "supabase/migrations/$migration"
     echo
   done

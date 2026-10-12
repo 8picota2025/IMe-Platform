@@ -14,7 +14,7 @@ El wake mantiene `from`, `text` y `wamid` y añade `claim_token`, `sender_id`, `
 
 ## Migraciones
 
-`20261002120000_whatsapp_identity_resilience.sql`:
+`20261002120500_whatsapp_identity_resilience.sql`:
 
 - Añade `sender_id`, `sender_type`, `username`, `profile_name`, `raw`, `drop_reason`, `retry_count` y `last_error` a los eventos; mantiene `from_wa` como clave de ruta compatible. El backfill conserva los contactos telefónicos existentes.
 - Permite todos los `kind` y añade `stale` al estado. Un trigger actualiza `updated_at` en cualquier UPDATE, incluido `replied`.
