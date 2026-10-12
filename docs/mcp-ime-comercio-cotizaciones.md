@@ -245,3 +245,8 @@ rechaza la factura electrónica (`TRATAMIENTO_TRIBUTARIO_OFERTA_REQUERIDO`). El 
    asesor, PDF adjunto, botón de formalizar y, al pulsar _Responder_, destinatario `comercial1@i-me.com.co`
    (cabecera `Reply-To`; también visible en el log de Resend con el `message_id`).
 6. Limpiar: borrar la cotización de prueba (los datos de prueba no deben quedar en producción ni en Twenty).
+
+## Conexión remota oficial
+
+Para agentes sin escritorio, usar [MCP HTTP con bearer](mcp-ime-comercio-http.md).
+El stdio de esta guía se conserva para ejecución local.
