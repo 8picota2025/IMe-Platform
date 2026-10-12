@@ -16,6 +16,8 @@ import {
   sanitizarLineasComercial,
   formatQuoteMoney,
   splitNombreApellido,
+  stripFormalizacionCredentials,
+  isCotizacionSendClaimMissing,
   tokenExpirado,
 } from './cotizacion-oferta';
 
@@ -116,6 +118,33 @@ describe('cotizacion-oferta', () => {
         now
       )
     ).toBe(false);
+    // respondida stays CMS-editable — must not formalize even with a live token
+    expect(
+      puedeFormalizar(
+        {
+          id: 'x',
+          estado: 'respondida',
+          formalizacion_token_hash: 'abc',
+          formalizacion_token_expira_at: '2026-08-10T00:00:00Z',
+          condiciones: 'Pago contra entrega',
+          productos: [{ slug: 'a', cantidad: 1, precio_unitario: 10, nombre: 'A' }],
+        },
+        now
+      )
+    ).toBe(false);
+  });
+
+  it('stripFormalizacionCredentials / isCotizacionSendClaimMissing', () => {
+    expect(
+      stripFormalizacionCredentials({
+        formalizacion_url: 'https://i-me.com.co/es/cotizacion/formalizar?id=1&t=abc',
+        pdf_revision: 2,
+      })
+    ).toEqual({ pdf_revision: 2 });
+    expect(isCotizacionSendClaimMissing('Could not find the function claim_cotizacion_send')).toBe(
+      true
+    );
+    expect(isCotizacionSendClaimMissing('connection reset by peer')).toBe(false);
   });
 
   it('splitNombreApellido y formalizarPath', () => {
