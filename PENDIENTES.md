@@ -52,6 +52,17 @@ Asesor puede recuperarlos.
 
 ## TODO_CLIENTE — Datos o credenciales que entrega el cliente
 
+### SEO imagen, esterilización y robots (2026-10-12)
+
+- [ ] TODO_CLIENTE — Esterilizador por plasma o peróxido y lavadora termodesinfectadora: el catálogo no tiene modelos activos. Las subpáginas no se generan hasta que Shoky entregue modelo y ficha. Saniswiss aHPv1115v sigue inactivo. SKH041 es un carrito, no una termodesinfectadora.
+- [x] UNSPSC: Shoky confirmó que no está disponible. No se publica el campo.
+- [x] Garantía: texto confirmado «Garantía del fabricante» / «Manufacturer warranty», sin vigencia inventada. Si una ficha trae plazo, se muestra ese plazo.
+- [ ] TODO_CLIENTE — INVIMA de estas familias: no hay registro general. Publicar solo el que esté en la ficha.
+- [ ] TODO_CLIENTE — PadBot P2 y X3: la ficha revisada no trae INVIMA. El precio es por cotización. Con imagen de última generación (WR-3D, Talent II) o equipamiento de quirófano, I-ME puede incluir sin costo un P2 o un X3, según el pedido.
+- [ ] TODO_CLIENTE — DR móvil y UC-arm: sin precio público, sin marca ni SKU en la ficha.
+- [ ] TODO_CLIENTE — Autoclave SDL-D0313: sin volumen de cámara publicado; no entra en la tabla de capacidad.
+- [ ] BLOQUEANTE_BACKEND — Aplicar `supabase/migrations/20261012230000_seo_imagen_esterilizacion_ultrasonido.sql` en la BD real. El seed no actualiza filas ya publicadas (`ON CONFLICT DO NOTHING`).
+
 - [ ] `SUPABASE_URL` y `SUPABASE_ANON_KEY`: crear proyecto en supabase.com
 - [ ] `SUPABASE_SERVICE_ROLE_KEY`: después de crear el proyecto
 - [ ] `ANTHROPIC_API_KEY`: cuenta en console.anthropic.com

@@ -22,6 +22,16 @@ describe('getLocalizedPath · Centro de Conocimiento', () => {
   });
 });
 
+describe('getLocalizedPath · secciones que empiezan por es o en', () => {
+  it('no recorta esterilizacion al traducir el pie', () => {
+    expect(getLocalizedPath('/esterilizacion', 'en')).toBe('/en/sterilization/');
+    expect(getLocalizedPath('/esterilizacion', 'es')).toBe('/es/esterilizacion/');
+    expect(getLocalizedPath('/es/esterilizacion/autoclaves-hospitalarios/', 'en')).toBe(
+      '/en/sterilization/autoclaves-hospitalarios/'
+    );
+  });
+});
+
 describe('getLocalizedPath · carrito, cuenta, pago y cotización', () => {
   it('carrito ↔ cart (antes daba /en/carrito/ y /es/cart/, ambas 404)', () => {
     expect(getLocalizedPath('/es/carrito/', 'en')).toBe('/en/cart/');

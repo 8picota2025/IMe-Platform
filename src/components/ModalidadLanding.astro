@@ -1,0 +1,212 @@
+---
+import Layout from '../layouts/Layout.astro';
+import {
+  buildBreadcrumbJsonLd,
+  buildCanonical,
+  buildFaqJsonLd,
+  buildOrganizationJsonLd,
+  buildPageTitle,
+  combineJsonLd,
+} from '../lib/seo';
+import { normalizarEspecificaciones } from '../lib/especificaciones';
+import { capacidadesPublicadas } from '../lib/producto-confianza';
+import type { Locale } from '../i18n/utils';
+import type { Producto } from '../lib/datos';
+import type { PaginaModalidad } from '../data/modalidades';
+
+interface Props {
+  locale: Locale;
+  pagina: PaginaModalidad;
+  productos: Producto[];
+  currentPath: string;
+  parentHref: string;
+  parentLabel: string;
+}
+
+const { locale, pagina, productos, currentPath, parentHref, parentLabel } = Astro.props;
+const es = locale === 'es';
+const titleRaw = es ? pagina.title_es : pagina.title_en;
+const title = buildPageTitle(titleRaw);
+const description = es ? pagina.description_es : pagina.description_en;
+const h1 = es ? pagina.h1_es : pagina.h1_en;
+const intro = es ? pagina.intro_es : pagina.intro_en;
+const body = es ? pagina.body_es : pagina.body_en;
+const todo = es ? pagina.todo_es : pagina.todo_en;
+const canonical = buildCanonical(currentPath);
+const homeHref = es ? '/es/' : '/en/';
+const productBase = es ? '/es/productos/' : '/en/products/';
+const contactoHref = es ? '/es/contacto/' : '/en/contact/';
+const porSlug = new Map(productos.map(producto => [producto.slug, producto]));
+
+const filasCapacidad = pagina.tablaCapacidad
+  ? productos.flatMap(producto =>
+      capacidadesPublicadas(normalizarEspecificaciones(producto.especificaciones)).map(fila => ({
+        nombre: producto.nombre,
+        href: `${productBase}${producto.slug}/`,
+        clave: fila.clave,
+        valor: fila.valor,
+      }))
+    )
+  : [];
+
+const jsonLd = combineJsonLd(
+  buildOrganizationJsonLd(),
+  buildBreadcrumbJsonLd([
+    { name: es ? 'Inicio' : 'Home', url: buildCanonical(homeHref) },
+    { name: parentLabel, url: buildCanonical(parentHref) },
+    { name: h1, url: canonical },
+  ]),
+  buildFaqJsonLd([
+    {
+      q: es ? '¿El precio está en esta página?' : 'Is the price on this page?',
+      a: es
+        ? 'No. Estas referencias se cotizan. El precio se confirma en la propuesta.'
+        : 'No. These references are quoted. The price is confirmed in the proposal.',
+    },
+  ])
+);
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  locale={locale}
+  currentPath={currentPath}
+  jsonLd={jsonLd}
+>
+  <div class="page-hero modalidad-hero">
+    <div class="container modalidad-wrap">
+      <nav class="breadcrumb" aria-label={es ? 'Ruta' : 'Breadcrumb'}>
+        <a href={homeHref}>{es ? 'Inicio' : 'Home'}</a>
+        <span aria-hidden="true"> / </span>
+        <a href={parentHref}>{parentLabel}</a>
+        <span aria-hidden="true"> / </span>
+        <span aria-current="page">{h1}</span>
+      </nav>
+      <h1>{h1}</h1>
+      <p class="modalidad-intro">{intro}</p>
+      <p>
+        <a class="btn btn-primary" href={contactoHref}
+          >{es ? 'Solicitar cotización' : 'Request a quote'}</a
+        >
+        <a class="btn btn-ghost" href="tel:+573137247353">+57 313 724 7353</a>
+      </p>
+    </div>
+  </div>
+
+  <section class="container modalidad-wrap">
+    {body.map(parrafo => <p>{parrafo}</p>)}
+    {
+      todo && (
+        <p class="modalidad-todo" role="note">
+          {todo}
+        </p>
+      )
+    }
+    {
+      filasCapacidad.length > 0 && (
+        <div class="modalidad-tabla-wrap">
+          <h2>{es ? 'Capacidad publicada en la ficha' : 'Capacity published on the sheet'}</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>{es ? 'Referencia' : 'Reference'}</th>
+                <th>{es ? 'Dato de la ficha' : 'Sheet data'}</th>
+                <th>{es ? 'Valor' : 'Value'}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filasCapacidad.map(fila => (
+                <tr>
+                  <td>
+                    <a href={fila.href}>{fila.nombre}</a>
+                  </td>
+                  <td>{fila.clave}</td>
+                  <td>{fila.valor}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )
+    }
+    {
+      pagina.grupos.map(grupo => {
+        const items = grupo.slugs.flatMap(slug => {
+          const producto = porSlug.get(slug);
+          return producto ? [producto] : [];
+        });
+        if (items.length === 0) return null;
+        return (
+          <section>
+            <h2>{es ? grupo.titulo_es : grupo.titulo_en}</h2>
+            <ul class="modalidad-lista">
+              {items.map(producto => (
+                <li>
+                  <a href={`${productBase}${producto.slug}/`}>{producto.nombre}</a>
+                  {producto.descripcion_corta && <p>{producto.descripcion_corta}</p>}
+                </li>
+              ))}
+            </ul>
+          </section>
+        );
+      })
+    }
+  </section>
+</Layout>
+
+<style>
+  .modalidad-hero {
+    padding-top: 130px;
+    padding-bottom: var(--space-lg);
+    background: var(--off);
+  }
+  .modalidad-wrap {
+    max-width: 760px;
+    padding-bottom: var(--space-xl);
+  }
+  .modalidad-intro,
+  .modalidad-wrap p {
+    color: var(--text-mid);
+    line-height: 1.6;
+  }
+  .modalidad-todo {
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--border);
+    background: var(--off);
+  }
+  .modalidad-lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.9rem;
+  }
+  .modalidad-lista a {
+    font-weight: 650;
+  }
+  .modalidad-lista p {
+    margin: 0.25rem 0 0;
+  }
+  .modalidad-tabla-wrap {
+    overflow-x: auto;
+    margin: 1.25rem 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  th,
+  td {
+    text-align: left;
+    padding: 0.55rem 0.4rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  a:focus-visible,
+  .btn:focus-visible {
+    outline: 2px solid var(--t900);
+    outline-offset: 2px;
+  }
+</style>

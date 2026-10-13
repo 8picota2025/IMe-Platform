@@ -15,15 +15,20 @@ import { normalizarEspecificaciones } from '../lib/especificaciones';
 import { getOptimizedImageUrl, isSupabaseStorageImage } from '../lib/image';
 import { familyCatalogHref } from '../lib/seo-urls';
 import { fichaPdfEspejo } from '../lib/fichas-pdf-manifest';
+import { datosConfianzaProducto, GARANTIA_FABRICANTE } from '../lib/producto-confianza';
+import { muestraPromoPadbot } from '../data/promo-padbot';
+import NotaPromoPadbot from './NotaPromoPadbot.astro';
 
 interface Props {
   producto: Producto;
   familia: Familia;
   relacionados: Producto[];
   locale: Locale;
+  seoH1?: string;
+  seoIntro?: string;
 }
 
-const { producto, familia, relacionados, locale } = Astro.props;
+const { producto, familia, relacionados, locale, seoH1, seoIntro } = Astro.props;
 
 const catalogoPath = locale === 'en' ? '/en/catalog/' : '/es/catalogo/';
 
@@ -168,6 +173,10 @@ const migas = [
 ];
 
 const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
+const confianza = datosConfianzaProducto(especificaciones);
+const h1Visible = seoH1?.trim() || producto.nombre;
+const serviciosHref = locale === 'en' ? '/en/services/' : '/es/servicios/';
+const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
 ---
 
 <article
@@ -316,12 +325,14 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
             <span class="pdp-identity__category">{familia.nombre}</span>
             {referencia && <span class="pdp-identity__sku">SKU {referencia}</span>}
           </div>
-          <h1>{producto.nombre}</h1>
+          <h1>{h1Visible}</h1>
+          {seoIntro && <p class="pdp-identity__desc">{seoIntro}</p>}
           {
-            producto.descripcion_corta && (
+            producto.descripcion_corta && producto.descripcion_corta !== seoIntro && (
               <p class="pdp-identity__desc">{producto.descripcion_corta}</p>
             )
           }
+          {muestraPromoPadbot(producto.slug) && <NotaPromoPadbot locale={locale} />}
           <ul class="pdp-identity__trust" role="list">
             <li>
               <span
@@ -905,10 +916,68 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
     )
   }
 
+  <section class="section container pdp-confianza" aria-labelledby="confianza-heading">
+    <h2 id="confianza-heading">
+      {locale === 'en' ? 'Quote, documentation and support' : 'Cotización, documentación y soporte'}
+    </h2>
+    <ul>
+      {
+        confianza.invima.map(item => (
+          <li>
+            <strong>INVIMA.</strong> {item.clave}: {item.valor}
+          </li>
+        ))
+      }
+      <li>
+        <strong>{GARANTIA_FABRICANTE[locale]}.</strong>
+        {
+          confianza.garantia.length > 0 && (
+            <span>
+              {' '}
+              {locale === 'en' ? 'On this sheet:' : 'En esta ficha:'}{' '}
+              {confianza.garantia.map(item => item.valor).join('; ')}
+            </span>
+          )
+        }
+      </li>
+      <li>
+        <strong>{locale === 'en' ? 'Installation.' : 'Instalación.'}</strong>
+        {
+          locale === 'en'
+            ? ' Scope is defined in the quote for this reference. There is no single installation package published for every product.'
+            : ' El alcance se define en la cotización de esta referencia. No hay un paquete de instalación publicado para todos los productos.'
+        }
+      </li>
+      <li>
+        <strong>{locale === 'en' ? 'Technical service.' : 'Servicio técnico.'}</strong>
+        {
+          locale === 'en'
+            ? ' I-ME coordinates it per reference. Phone '
+            : ' I-ME lo coordina por referencia. Teléfono '
+        }
+        <a href="tel:+573137247353">+57 313 724 7353</a>.{' '}
+        <a href={serviciosHref}>{locale === 'en' ? 'Services' : 'Servicios'}</a>
+        {' · '}
+        <a href={contactoHref}>{locale === 'en' ? 'Request a quote' : 'Solicitar cotización'}</a>
+      </li>
+      {
+        relacionados.length > 0 && (
+          <li>
+            <a href="#relacionados">
+              {locale === 'en'
+                ? 'Related products in this family'
+                : 'Productos relacionados de esta familia'}
+            </a>
+          </li>
+        )
+      }
+    </ul>
+  </section>
+
   <!-- Relacionados -->
   {
     relacionados.length > 0 && (
-      <section class="section container" aria-labelledby="relacionados-heading">
+      <section id="relacionados" class="section container" aria-labelledby="relacionados-heading">
         <div class="section-header">
           <h2 id="relacionados-heading" class="section-title">
             {t(locale, 'producto.relacionados_titulo')}
@@ -2681,6 +2750,25 @@ const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
     .hero-producto__cta-group {
       justify-content: center;
     }
+  }
+  .pdp-confianza h2 {
+    margin: 0 0 0.75rem;
+    font-size: 1.25rem;
+  }
+  .pdp-confianza ul {
+    margin: 0;
+    padding-left: 1.2rem;
+    display: grid;
+    gap: 0.65rem;
+    line-height: 1.5;
+    color: var(--text-mid);
+  }
+  .pdp-confianza a {
+    color: var(--t900);
+  }
+  .pdp-confianza a:focus-visible {
+    outline: 2px solid var(--t900);
+    outline-offset: 2px;
   }
 </style>
 

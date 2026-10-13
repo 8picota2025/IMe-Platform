@@ -12,6 +12,7 @@ import { listCitySlugs, cityName } from '../../../data/city-landings';
 import { familiaDisplayName } from '../../../data/familia-seo';
 import { getCityLandingCms, getFamiliaSeoCms } from '../../../lib/landings-cms';
 import { t } from '../../../i18n/utils';
+import BloqueUltrasonidoCiudad from '../../../components/BloqueUltrasonidoCiudad.astro';
 
 export function getStaticPaths() {
   return listCitySlugs().map(slug => ({ params: { slug } }));
@@ -101,6 +102,8 @@ const jsonLd = combineJsonLd(
       </section>
     )
   }
+
+  {slug === 'medellin' && <BloqueUltrasonidoCiudad locale={locale} />}
 </Layout>
 
 <style>

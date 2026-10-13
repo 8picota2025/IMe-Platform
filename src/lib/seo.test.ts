@@ -106,6 +106,31 @@ describe('buildProductJsonLd', () => {
     const jsonLd = expectProductJsonLd({ ...producto, sku: 'M12-BIOLIGHT' }, 'es');
     expect(jsonLd.sku).toBe('M12-BIOLIGHT');
   });
+
+  it('en imagen, esterilización y robots sin precio emite Product y no un Offer inválido', () => {
+    for (const familiaSlug of ['radiologia', 'esterilizacion-control-infecciones', 'robots']) {
+      const jsonLd = expectProductJsonLd(
+        { ...producto, precio: null, sku: familiaSlug === 'robots' ? 'PADBOT-P2' : null },
+        'es',
+        'Imagen',
+        'Angell',
+        { familiaSlug, model: 'ALC-280' }
+      );
+      expect(jsonLd.offers).toBeUndefined();
+      expect(jsonLd.seller).toBeUndefined();
+      expect((jsonLd.brand as { name: string }).name).toBe('Angell');
+      expect(jsonLd.model).toBe('ALC-280');
+      expect(jsonLd.image).toContain('/assets/productos/monitor-paciente.jpg');
+      if (familiaSlug === 'robots') expect(jsonLd.sku).toBe('PADBOT-P2');
+      else expect(jsonLd.sku).toBeUndefined();
+    }
+  });
+
+  it('sin precio y fuera de esas familias no emite Product', () => {
+    expect(buildProductJsonLd({ ...producto, precio: null }, 'es', 'Monitores', 'Biolight', {
+      familiaSlug: 'monitores',
+    })).toBeNull();
+  });
 });
 
 describe('buildProductoPageTitle', () => {

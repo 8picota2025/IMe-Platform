@@ -1,0 +1,23 @@
+---
+import ModalidadLanding from '../../../components/ModalidadLanding.astro';
+import { getProductosBySlugs } from '../../../lib/datos';
+import { MODALIDADES_IMAGEN, getModalidad, slugsDeModalidad } from '../../../data/modalidades';
+
+export function getStaticPaths() {
+  return MODALIDADES_IMAGEN.map(pagina => ({ params: { slug: pagina.slug } }));
+}
+
+const locale = 'en' as const;
+const pagina = getModalidad(MODALIDADES_IMAGEN, Astro.params.slug ?? '');
+if (!pagina) throw new Error('Imaging modality is not published');
+const productos = await getProductosBySlugs(slugsDeModalidad(pagina), locale);
+---
+
+<ModalidadLanding
+  locale={locale}
+  pagina={pagina}
+  productos={productos}
+  currentPath={`/en/imaging/${pagina.slug}`}
+  parentHref="/en/imaging/"
+  parentLabel="Imaging"
+/>
