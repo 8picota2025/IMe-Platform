@@ -383,6 +383,10 @@ export interface CotizacionPayload extends CommercialAttribution {
   nombre: string;
   email: string;
   telefono: string;
+  /** Texto tal cual lo escribió el visitante. La Edge Function lo vuelve a normalizar. */
+  telefono_raw?: string;
+  /** Indicativo sin '+'. Vacío = Otro (no asumir país). */
+  telefono_pais?: string;
   empresa?: string;
   mensaje: string;
   consentimiento_datos: boolean;

@@ -1,0 +1,117 @@
+---
+/**
+ * Selector de país (Colombia por defecto) + número. El valor crudo y el
+ * indicativo los lee `collectVisitorPhone` al enviar.
+ */
+import type { Locale } from '../i18n/utils';
+import { VISITOR_PHONE_COUNTRIES, countryOptionLabel } from '../lib/visitor-phone';
+
+interface Props {
+  id: string;
+  locale: Locale;
+  required?: boolean;
+  maxLength?: number;
+}
+
+const { id, locale, required = false, maxLength = 40 } = Astro.props;
+const isEn = locale === 'en';
+const countries = [...VISITOR_PHONE_COUNTRIES].sort((a, b) => {
+  if (a.iso === 'CO') return -1;
+  if (b.iso === 'CO') return 1;
+  return (isEn ? a.en : a.es).localeCompare(isEn ? b.en : b.es, isEn ? 'en' : 'es');
+});
+const seenDial = new Set<string>();
+---
+
+<div class="visitor-phone" data-visitor-phone data-locale={locale}>
+  <div class="visitor-phone__country-wrap">
+    <select
+      class="visitor-phone__country"
+      name="telefono_pais"
+      data-visitor-phone-country
+      aria-label={isEn ? 'Country code' : 'Indicativo del país'}
+      autocomplete="tel-country-code"
+    >
+      <option value="57" selected>{isEn ? 'Colombia (+57)' : 'Colombia (+57)'}</option>
+      <option value="">{isEn ? 'Other — type + or 00' : 'Otro — escribe + o 00'}</option>
+      {
+        countries
+          .filter(country => country.iso !== 'CO')
+          .filter(country => {
+            if (seenDial.has(country.dial)) return false;
+            seenDial.add(country.dial);
+            return true;
+          })
+          .map(country => (
+            <option value={country.dial}>{countryOptionLabel(country, locale)}</option>
+          ))
+      }
+    </select>
+  </div>
+  <input
+    id={id}
+    class="visitor-phone__number"
+    name="telefono"
+    type="tel"
+    inputmode="tel"
+    autocomplete="tel-national"
+    data-visitor-phone-input
+    maxlength={maxLength}
+    size={12}
+    required={required}
+    aria-required={required ? 'true' : undefined}
+  />
+</div>
+
+<script>
+  import { bindVisitorPhoneFields } from '../lib/visitor-phone-field';
+
+  function bootVisitorPhoneFields() {
+    bindVisitorPhoneFields(document);
+  }
+
+  bootVisitorPhoneFields();
+  document.addEventListener('astro:page-load', bootVisitorPhoneFields);
+</script>
+
+<style is:global>
+  fieldset:has(.visitor-phone) {
+    min-width: 0;
+    max-width: 100%;
+  }
+</style>
+
+<style>
+  .visitor-phone {
+    display: grid;
+    grid-template-columns: minmax(0, 9.25rem) minmax(0, 1fr);
+    gap: 0.5rem;
+    align-items: stretch;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+  .visitor-phone__country-wrap {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  .visitor-phone__country,
+  .visitor-phone__number {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    min-height: 46px;
+    border: 1px solid var(--border-mid);
+    border-radius: var(--radius);
+    padding: 0.7rem 0.75rem;
+    color: var(--text);
+    background: var(--white);
+    font: inherit;
+  }
+  .visitor-phone__country:focus,
+  .visitor-phone__number:focus {
+    outline: 2px solid var(--t800);
+    outline-offset: 2px;
+  }
+</style>

@@ -6,6 +6,7 @@
 import type { Locale } from '../i18n/utils';
 import type { CampaignLandingId } from '../lib/comercial-leads';
 import type { CampaignOption } from '../data/comercial-landings';
+import PhoneField from './PhoneField.astro';
 
 interface Props {
   locale: Locale;
@@ -103,13 +104,7 @@ const turnstileSiteKey = (
       </div>
       <div class="lqf-field">
         <label for={`${formId}-telefono`}>{isEn ? 'Phone' : 'Teléfono'}</label>
-        <input
-          id={`${formId}-telefono`}
-          name="telefono"
-          type="tel"
-          autocomplete="tel"
-          placeholder="+57 …"
-        />
+        <PhoneField id={`${formId}-telefono`} locale={locale} />
       </div>
       <div class="lqf-field">
         <label for={`${formId}-email`}>{isEn ? 'Email' : 'Correo'}</label>
@@ -400,6 +395,7 @@ const turnstileSiteKey = (
     type HorizonteCompra,
   } from '../lib/comercial-leads';
   import { interpretarErrorEdgeFunction } from '../lib/cotizacion-submit';
+  import { collectVisitorPhone } from '../lib/visitor-phone-field';
 
   interface TurnstileApi {
     render: (container: HTMLElement, options: Record<string, unknown>) => string;
@@ -557,7 +553,11 @@ const turnstileSiteKey = (
       }
 
       const lead = data as CommercialLeadInput;
-      const url = buildWhatsAppUrl(lead);
+      const phone = collectVisitorPhone(form);
+      const url = buildWhatsAppUrl({
+        ...lead,
+        telefono: phone.telefono || lead.telefono || '',
+      });
       const supabaseModule = await import('../lib/supabase').catch(() => null);
       const supabase = supabaseModule?.getSupabaseClient();
       if (!supabase) {
@@ -599,6 +599,9 @@ const turnstileSiteKey = (
           {
             body: {
               ...lead,
+              telefono: phone.telefono,
+              telefono_raw: phone.telefono_raw,
+              telefono_pais: phone.telefono_pais,
               ...attribution,
               website: String(new FormData(form).get('website') ?? ''),
               idempotencyKey: form.dataset.idempotencyKey,

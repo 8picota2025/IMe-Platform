@@ -1,5 +1,6 @@
 ---
 import type { Locale } from '../i18n/utils';
+import PhoneField from './PhoneField.astro';
 
 interface Props {
   locale: Locale;
@@ -96,9 +97,9 @@ const habeasHref = isEn ? '/en/legal/data-authorization/' : '/es/legal/habeas-da
         <span aria-hidden="true">*</span>
         <input name="email" type="email" autocomplete="email" required />
       </label>
-      <label>
+      <label class="pdf-gate__phone">
         {isEn ? 'Phone' : 'Teléfono'}
-        <input name="telefono" type="tel" autocomplete="tel" placeholder="+57 …" />
+        <PhoneField id={`${modalId}-telefono`} locale={locale} />
       </label>
     </div>
 
@@ -283,6 +284,7 @@ const habeasHref = isEn ? '/en/legal/data-authorization/' : '/es/legal/habeas-da
     rememberCommercialLead,
   } from '../lib/commercial-attribution';
   import { getSupabaseClient } from '../lib/supabase';
+  import { collectVisitorPhone } from '../lib/visitor-phone-field';
 
   interface LeadResponse {
     ok?: boolean;
@@ -326,7 +328,10 @@ const habeasHref = isEn ? '/en/legal/data-authorization/' : '/es/legal/habeas-da
       const institucion = String(data.get('institucion') ?? '').trim();
       const ciudad = String(data.get('ciudad') ?? '').trim();
       const email = String(data.get('email') ?? '').trim();
-      const telefono = String(data.get('telefono') ?? '').trim();
+      const phone = form
+        ? collectVisitorPhone(form)
+        : { telefono: '', telefono_raw: '', telefono_pais: '' };
+      const telefono = phone.telefono;
       if (!form.checkValidity()) {
         form.reportValidity();
         return;
@@ -360,7 +365,9 @@ const habeasHref = isEn ? '/en/legal/data-authorization/' : '/es/legal/habeas-da
             institucion,
             ciudad,
             email,
-            ...(telefono ? { telefono } : {}),
+            ...(telefono
+              ? { telefono, telefono_raw: phone.telefono_raw, telefono_pais: phone.telefono_pais }
+              : {}),
             familia_slug: gate.dataset.familySlug ?? '',
             tipo_slug: gate.dataset.productSlug ?? '',
             tipo_proyecto: gate.dataset.tipoProyecto || 'descarga_ficha_tecnica',

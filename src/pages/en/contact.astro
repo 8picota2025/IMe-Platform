@@ -3,6 +3,7 @@
  * Contact EN — formulario con UI en inglés, datos de contacto reales.
  */
 import Layout from '../../layouts/Layout.astro';
+import PhoneField from '../../components/PhoneField.astro';
 import { buildPageTitle, buildCanonical, getInstitutionalOgImage } from '../../lib/seo';
 import { t } from '../../i18n/utils';
 import '../../styles/contact-spacing.css';
@@ -75,14 +76,7 @@ const canonical = buildCanonical('/en/contact/');
           </div>
           <div class="form-field">
             <label for="telefono" class="form-label">Phone (optional)</label>
-            <input
-              type="tel"
-              id="telefono"
-              name="telefono"
-              class="form-input"
-              autocomplete="tel"
-              placeholder="+57 3XX XXX XXXX"
-            />
+            <PhoneField id="telefono" locale={locale} />
           </div>
           <div class="form-field">
             <label for="productos" class="form-label">Products of interest</label>
@@ -383,6 +377,7 @@ const canonical = buildCanonical('/en/contact/');
 
 <script>
   import { submitCotizacion } from '../../lib/submit-cotizacion';
+  import { collectVisitorPhone } from '../../lib/visitor-phone-field';
   import { mensajeExitoCotizacion } from '../../lib/cotizacion-submit';
 
   const form = document.getElementById('contacto-form') as HTMLFormElement | null;
@@ -446,7 +441,7 @@ const canonical = buildCanonical('/en/contact/');
 
   form?.addEventListener('submit', async e => {
     e.preventDefault();
-    if (enviando) return;
+    if (!form || enviando) return;
     if (!form.checkValidity()) {
       form.reportValidity();
       return;
@@ -461,13 +456,16 @@ const canonical = buildCanonical('/en/contact/');
     if (whatsappFallback) whatsappFallback.hidden = true;
 
     const data = new FormData(form);
+    const phone = collectVisitorPhone(form);
     try {
       const result = await submitCotizacion({
         locale: 'en',
         origen: 'contact_form',
         nombre: (data.get('nombre') as string) ?? '',
         email: (data.get('email') as string) ?? '',
-        telefono: (data.get('telefono') as string) ?? '',
+        telefono: phone.telefono,
+        telefono_raw: phone.telefono_raw,
+        telefono_pais: phone.telefono_pais,
         mensaje: (data.get('mensaje') as string) ?? '',
         consentimiento_datos: data.get('consentimiento') === 'on',
         productos: parseProductos((data.get('productos') as string) ?? ''),

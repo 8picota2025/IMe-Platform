@@ -25,6 +25,8 @@ export interface CarritoCliente {
   apellido: string;
   email: string;
   telefono: string;
+  telefono_raw?: string;
+  telefono_pais?: string;
   institucion?: string;
   fiscal?: ClienteFiscalProfile;
 }
@@ -425,6 +427,8 @@ export async function solicitarCotizacionCompra(params: {
       empresa: params.cliente.institucion ?? '',
       email: params.cliente.email,
       telefono: params.cliente.telefono,
+      telefono_raw: params.cliente.telefono_raw,
+      telefono_pais: params.cliente.telefono_pais,
       mensaje: buildCompraValorarMensaje({
         cliente: params.cliente,
         mercado: params.mercado,

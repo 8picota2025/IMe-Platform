@@ -28,7 +28,7 @@ import {
 import { perfilComercialActivo, perfilPorUsuario } from '../_shared/asesor.ts';
 import { resolverAsesor } from '../../../src/lib/cotizacion-asesor.ts';
 import { validarEnvioCotizacion } from '../../../src/lib/cotizacion-envio.ts';
-import { normalizeE164 } from '../_shared/phone.ts';
+import { normalizeVisitorPhone } from '../../../src/lib/visitor-phone.ts';
 import { renderQuotePdf } from '../_shared/render-quote-pdf.ts';
 import {
   buildQuoteAnnexes,
@@ -708,8 +708,8 @@ Deno.serve(async req => {
   let messageId: string | null = null;
 
   if (canal === 'whatsapp') {
-    const phone = normalizeE164(telefonoCliente, '57');
-    if (!phone.ok || !phone.e164) {
+    const phone = normalizeVisitorPhone(telefonoCliente);
+    if (!phone.e164) {
       await releaseClaim('SIN_TELEFONO');
       return errorResponse(
         { code: 'SIN_TELEFONO', message: 'Telefono invalido para WhatsApp.' },
