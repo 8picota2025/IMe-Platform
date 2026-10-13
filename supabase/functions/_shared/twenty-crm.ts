@@ -22,6 +22,8 @@
  * de Twenty: todo fallo se traduce a `{ ok: false, error }` best-effort.
  */
 
+import { twentyPhoneFields } from '../../../src/lib/visitor-phone.ts';
+
 export interface TwentyConfig {
   baseUrl: string;
   apiKey: string;
@@ -822,20 +824,7 @@ export class TwentyClient {
     });
     if (!company.ok || !company.data) return { ok: false, error: company.error };
 
-    let phoneNumber: string | undefined;
-    let phoneCallingCode: string | undefined;
-    if (input.telefono) {
-      const digits = input.telefono.replace(/[^\d]/g, '');
-      if (digits.length >= 8) {
-        if (digits.startsWith('57') && digits.length > 10) {
-          phoneCallingCode = '+57';
-          phoneNumber = digits.slice(2);
-        } else {
-          phoneCallingCode = '+57';
-          phoneNumber = digits;
-        }
-      }
-    }
+    const { phoneNumber, phoneCallingCode } = twentyPhoneFields(input.telefono);
 
     const person = await this.upsertPerson({
       firstName: input.nombre.trim() || 'Cliente',
@@ -1092,13 +1081,7 @@ export class TwentyClient {
       companyId = company.data?.id;
     }
 
-    let phoneNumber: string | undefined;
-    let phoneCallingCode: string | undefined;
-    const digits = (input.telefono || '').replace(/[^\d]/g, '');
-    if (digits.length >= 8) {
-      phoneCallingCode = '+57';
-      phoneNumber = digits.startsWith('57') && digits.length > 10 ? digits.slice(2) : digits;
-    }
+    const { phoneNumber, phoneCallingCode } = twentyPhoneFields(input.telefono);
 
     const [firstName, ...restName] = input.nombre.trim().split(/\s+/);
     const person = await this.upsertPerson({
@@ -1322,20 +1305,7 @@ export class TwentyClient {
       await this.requestRaw('PATCH', `/companies/${companyId}`, { accountOwnerId: ownerId });
     }
 
-    let phoneNumber: string | undefined;
-    let phoneCallingCode: string | undefined;
-    if (input.telefono) {
-      const digits = input.telefono.replace(/[^\d]/g, '');
-      if (digits.length >= 8) {
-        if (digits.startsWith('57') && digits.length > 10) {
-          phoneCallingCode = '+57';
-          phoneNumber = digits.slice(2);
-        } else {
-          phoneCallingCode = '+57';
-          phoneNumber = digits;
-        }
-      }
-    }
+    const { phoneNumber, phoneCallingCode } = twentyPhoneFields(input.telefono);
 
     const [firstName, ...restName] = input.nombre.trim().split(/\s+/);
     const person = await this.upsertPerson({
@@ -1497,20 +1467,7 @@ export class TwentyClient {
       await this.requestRaw('PATCH', `/companies/${companyId}`, { accountOwnerId: ownerId });
     }
 
-    let phoneNumber: string | undefined;
-    let phoneCallingCode: string | undefined;
-    if (input.telefono) {
-      const digits = input.telefono.replace(/[^\d]/g, '');
-      if (digits.length >= 8) {
-        if (digits.startsWith('57') && digits.length > 10) {
-          phoneCallingCode = '+57';
-          phoneNumber = digits.slice(2);
-        } else {
-          phoneCallingCode = '+57';
-          phoneNumber = digits;
-        }
-      }
-    }
+    const { phoneNumber, phoneCallingCode } = twentyPhoneFields(input.telefono);
 
     const [firstName, ...restName] = input.nombre.trim().split(/\s+/);
     const isEventLead = input.campaign === 'evento';

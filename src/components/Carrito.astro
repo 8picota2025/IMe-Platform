@@ -6,6 +6,7 @@
  */
 import type { Locale } from '../i18n/utils';
 import { t } from '../i18n/utils';
+import PhoneField from './PhoneField.astro';
 
 interface Props {
   locale: Locale;
@@ -205,7 +206,7 @@ const config = {
         </div>
         <div class="carrito-field">
           <label for="carrito-telefono">{config.i18n.telefono}</label>
-          <input id="carrito-telefono" name="telefono" type="tel" required autocomplete="tel" />
+          <PhoneField id="carrito-telefono" locale={locale} required />
         </div>
         <div class="carrito-field">
           <label for="carrito-institucion">{config.i18n.institucion}</label>
@@ -767,6 +768,7 @@ const config = {
     type Mercado,
   } from '../lib/carrito';
   import { formatMoneda } from '../lib/format';
+  import { collectVisitorPhone } from '../lib/visitor-phone-field';
   import { abrirDrawer, cerrarDrawer, resetTransientUiState } from '../lib/motion';
 
   interface CarritoI18n {
@@ -1195,11 +1197,14 @@ const config = {
 
         const data = new FormData(formEl);
         const mercado = String(data.get('mercado') ?? 'CO') as Mercado;
+        const phone = collectVisitorPhone(formEl);
         const cliente = {
           nombre: String(data.get('nombre') ?? ''),
           apellido: String(data.get('apellido') ?? ''),
           email: String(data.get('email') ?? ''),
-          telefono: String(data.get('telefono') ?? ''),
+          telefono: phone.telefono,
+          telefono_raw: phone.telefono_raw,
+          telefono_pais: phone.telefono_pais,
         };
         const institucion = String(data.get('institucion') ?? '').trim();
         if (institucion) Object.assign(cliente, { institucion });

@@ -6,6 +6,7 @@
  */
 import type { Locale } from '../i18n/utils';
 import { t } from '../i18n/utils';
+import PhoneField from './PhoneField.astro';
 
 interface Props {
   locale: Locale;
@@ -120,7 +121,7 @@ const config = {
       </div>
       <div class="cotizacion-field">
         <label for="cotizacion-telefono">{config.i18n.telefono}</label>
-        <input id="cotizacion-telefono" name="telefono" type="tel" required autocomplete="tel" />
+        <PhoneField id="cotizacion-telefono" locale={locale} required />
       </div>
       <div class="cotizacion-field">
         <label for="cotizacion-institucion">{config.i18n.institucion}</label>
@@ -408,6 +409,7 @@ const config = {
     urlAbsolutaProducto,
   } from '../lib/cotizacion-submit';
   import { abrirDrawer, cerrarDrawer, resetTransientUiState } from '../lib/motion';
+  import { collectVisitorPhone } from '../lib/visitor-phone-field';
 
   interface CotizacionI18n {
     titulo: string;
@@ -669,12 +671,15 @@ const config = {
         submitBtn.disabled = true;
         submitBtn.textContent = i18n.enviando;
 
+        const phone = collectVisitorPhone(formEl);
         const payload = {
           locale: config.locale,
           origen: 'lista_cotizacion',
           nombre: String(data.get('nombre') ?? ''),
           email: String(data.get('email') ?? ''),
-          telefono: String(data.get('telefono') ?? ''),
+          telefono: phone.telefono,
+          telefono_raw: phone.telefono_raw,
+          telefono_pais: phone.telefono_pais,
           empresa: String(data.get('empresa') ?? ''),
           mensaje,
           consentimiento_datos: data.get('consentimiento') === 'on',

@@ -23,6 +23,7 @@ import {
 } from '../_shared/email.ts';
 import { withTelemetry, trackEvent } from '../_shared/telemetry.ts';
 import { syncCotizacionWithTwenty } from '../_shared/twenty-crm.ts';
+import { formatPhoneForEmail, resolveSubmittedPhone } from '../../../src/lib/visitor-phone.ts';
 
 const FN_NAME = 'registrar-cotizacion';
 
@@ -34,6 +35,8 @@ interface CotizacionBody {
   empresa?: string;
   email?: string;
   telefono?: string;
+  telefono_raw?: string;
+  telefono_pais?: string;
   mensaje?: string;
   consentimiento_datos?: boolean;
   productos?: Array<{
@@ -138,7 +141,13 @@ Deno.serve(
     const referencia = crypto.randomUUID();
     const nombre = (body.nombre ?? '').trim().slice(0, 120);
     const email = (body.email ?? '').trim().slice(0, 200);
-    const telefono = (body.telefono ?? '').trim().slice(0, 40);
+    const phone = resolveSubmittedPhone({
+      telefono: body.telefono,
+      telefono_raw: body.telefono_raw,
+      telefono_pais: body.telefono_pais,
+    });
+    const telefono = phone.phone.slice(0, 40);
+    const telefonoRaw = phone.raw.slice(0, 80);
     const empresa = (body.empresa ?? '').trim().slice(0, 160);
     let mensaje = (body.mensaje ?? '').trim().slice(0, 2000);
     const moneda = (body.moneda ?? 'COP').trim().slice(0, 8) || 'COP';
@@ -290,6 +299,10 @@ Deno.serve(
       metadata: {
         fiscal: body.fiscal ?? null,
         attribution,
+        ...(telefonoRaw ? { telefono_raw: telefonoRaw } : {}),
+        ...(typeof body.telefono_pais === 'string' && body.telefono_pais.trim()
+          ? { telefono_pais: body.telefono_pais.trim().slice(0, 8) }
+          : {}),
       },
       crm_sync_status: 'pending',
     };
@@ -336,7 +349,7 @@ Deno.serve(
       cliente_nombre: escapeHtml(nombre),
       cliente_email: escapeHtml(email),
       empresa: escapeHtml(empresa),
-      telefono: escapeHtml(telefono),
+      telefono: escapeHtml(formatPhoneForEmail(phone, locale)),
       // <br>: las plantillas usan <p>{{mensaje}}</p> y el resumen es multilínea.
       mensaje: escapeHtml(mensaje).replace(/\n/g, '<br>'),
       items_html: productos.length

@@ -3,7 +3,7 @@
  * Function `enviar-cotizacion` (envío real y dry-run) y el MCP `ime-comercio`
  * (preparar/confirmar), para que no diverjan.
  */
-import { normalizeE164 } from '../../supabase/functions/_shared/phone.ts';
+import { normalizeVisitorPhone } from './visitor-phone.ts';
 import {
   hashBytesSha256,
   normalizarOferta,
@@ -71,8 +71,8 @@ export function validarEnvioCotizacion(
       };
     }
   } else {
-    const phone = normalizeE164(String(row.telefono ?? '').trim(), '57');
-    if (!phone.ok || !phone.e164) {
+    const phone = normalizeVisitorPhone(String(row.telefono ?? '').trim());
+    if (!phone.e164) {
       return {
         ok: false,
         code: 'SIN_TELEFONO',

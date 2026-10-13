@@ -21,6 +21,7 @@ import {
   type CommercialLeadInput,
   type HorizonteCompra,
 } from '../../../src/lib/comercial-leads.ts';
+import { formatPhoneForEmail, resolveSubmittedPhone } from '../../../src/lib/visitor-phone.ts';
 
 const FN_NAME = 'registrar-lead-comercial';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -28,6 +29,8 @@ const IDEMPOTENCY_RE = /^[A-Za-z0-9_-]{16,200}$/;
 const HORIZONTES = new Set<HorizonteCompra>(['0-3', '4-12', 'exploracion']);
 
 interface LeadBody extends Partial<CommercialLeadInput> {
+  telefono_raw?: string;
+  telefono_pais?: string;
   nombres?: string;
   apellidos?: string;
   idempotencyKey?: string;
@@ -412,6 +415,13 @@ Deno.serve(
       );
     }
 
+    const phone = resolveSubmittedPhone({
+      telefono: body.telefono,
+      telefono_raw: body.telefono_raw,
+      telefono_pais: body.telefono_pais,
+    });
+    const telefonoPais =
+      typeof body.telefono_pais === 'string' ? body.telefono_pais.trim().slice(0, 8) : '';
     const eventFullName =
       campaign === 'evento' && eventFirstNames && eventLastNames
         ? `${eventFirstNames} ${eventLastNames}`.slice(0, 120)
@@ -421,7 +431,7 @@ Deno.serve(
       cargo: cleanText(body.cargo, 120) ?? undefined,
       institucion: cleanText(body.institucion, 180) ?? '',
       ciudad: cleanText(body.ciudad, 120) ?? '',
-      telefono: cleanText(body.telefono, 40) ?? undefined,
+      telefono: phone.phone ? phone.phone.slice(0, 40) : undefined,
       email: cleanText(body.email, 200)?.toLowerCase() ?? undefined,
       familia_slug: campaign === 'evento' ? 'evento' : (cleanText(body.familia_slug, 120) ?? ''),
       tipo_slug: campaign === 'evento' ? undefined : (cleanText(body.tipo_slug, 120) ?? undefined),
@@ -493,6 +503,8 @@ Deno.serve(
       utm_content: cleanText(body.utm_content, 160),
       utm_term: cleanText(body.utm_term, 160),
       metadata: {
+        ...(phone.raw ? { telefono_raw: phone.raw.slice(0, 80) } : {}),
+        ...(telefonoPais ? { telefono_pais: telefonoPais } : {}),
         turnstile: turnstile.success
           ? 'verified'
           : isTurnstileOptionalCampaign(campaign)
@@ -562,6 +574,7 @@ Deno.serve(
     }
     const emails = await sendCommercialLeadEmails(supabase, {
       ...saved,
+      telefono: formatPhoneForEmail(phone, lead.locale === 'en' ? 'en' : 'es'),
       locale: lead.locale ?? 'es',
     });
 

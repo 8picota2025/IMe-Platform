@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import PhoneField from '../components/PhoneField.astro';
 import { buildCanonical, buildPageTitle, getInstitutionalOgImage } from '../lib/seo';
 
 const title = buildPageTitle('Registro de asistentes al evento');
@@ -116,19 +117,7 @@ const turnstileSiteKey = (
 
               <div class="event-field">
                 <label for="event-telefono">Teléfono <span aria-hidden="true">*</span></label>
-                <input
-                  id="event-telefono"
-                  name="telefono"
-                  type="tel"
-                  autocomplete="tel"
-                  inputmode="tel"
-                  pattern="[+0-9()\u0020-]{7,40}"
-                  maxlength="40"
-                  required
-                  aria-required="true"
-                  placeholder="+57 3XX XXX XXXX"
-                  title="Ingresa un teléfono válido de al menos 7 caracteres"
-                />
+                <PhoneField id="event-telefono" locale="es" required />
               </div>
 
               <div class="event-field">
@@ -667,6 +656,7 @@ const turnstileSiteKey = (
     rememberCommercialLead,
   } from '../lib/commercial-attribution';
   import { getSupabaseClient } from '../lib/supabase';
+  import { collectVisitorPhone } from '../lib/visitor-phone-field';
 
   interface TurnstileApi {
     render: (container: HTMLElement, options: Record<string, unknown>) => string;
@@ -829,6 +819,7 @@ const turnstileSiteKey = (
 
       form.dataset.idempotencyKey ||= newIdempotencyKey();
       const formData = new FormData(form);
+      const phone = collectVisitorPhone(form);
       const attribution = captureCommercialAttribution('evento');
 
       if (submit) submit.disabled = true;
@@ -840,7 +831,9 @@ const turnstileSiteKey = (
           nombres: String(formData.get('nombres') ?? ''),
           apellidos: String(formData.get('apellidos') ?? ''),
           institucion: String(formData.get('institucion') ?? ''),
-          telefono: String(formData.get('telefono') ?? ''),
+          telefono: phone.telefono,
+          telefono_raw: phone.telefono_raw,
+          telefono_pais: phone.telefono_pais,
           email: String(formData.get('email') ?? ''),
           ciudad: String(formData.get('ciudad') ?? ''),
           consentimiento: formData.get('consentimiento') === '1',

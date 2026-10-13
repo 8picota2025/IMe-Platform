@@ -4,6 +4,7 @@ import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { checkRateLimit } from '../_shared/rate-limit.ts';
 import { withTelemetry, trackEvent } from '../_shared/telemetry.ts';
 import { syncCommercialLeadWithTwenty } from '../_shared/twenty-crm.ts';
+import { normalizeVisitorPhone } from '../../../src/lib/visitor-phone.ts';
 
 const FN_NAME = 'congreso-lead';
 const ROLES = new Set(['ventas', 'admin', 'owner']);
@@ -83,10 +84,7 @@ function clean(value: unknown, max: number): string {
 }
 
 function normalizePhone(value: string): string {
-  const digits = value.replace(/\D/g, '');
-  if (!digits) return '';
-  if (digits.startsWith('57') && digits.length > 10) return `+${digits}`;
-  return `+57${digits}`;
+  return normalizeVisitorPhone(value).phone;
 }
 
 function metadataText(metadata: LeadRow['metadata'], key: string): string | undefined {

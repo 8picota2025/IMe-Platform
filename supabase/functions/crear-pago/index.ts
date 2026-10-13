@@ -38,6 +38,7 @@ import {
   type CotizacionLineaOferta,
 } from '../../../src/lib/cotizacion-oferta.ts';
 import { isPurchasable } from '../../../src/lib/commerce-policy.ts';
+import { resolveSubmittedPhone } from '../../../src/lib/visitor-phone.ts';
 import { liberarReservasPedido, reservarStockProducto } from '../_shared/stock-reservas.ts';
 
 const FN_NAME = 'crear-pago';
@@ -54,6 +55,8 @@ interface ClienteRequest {
   apellido?: string;
   email?: string;
   telefono?: string;
+  telefono_raw?: string;
+  telefono_pais?: string;
   institucion?: string;
 }
 
@@ -554,23 +557,33 @@ Deno.serve(
       return badRequest(`maximo ${MAX_ITEMS} items por pedido`, origin);
     }
 
-    const cliente = body.cliente;
+    const clienteIn = body.cliente;
     if (
-      !cliente ||
-      typeof cliente.nombre !== 'string' ||
-      !cliente.nombre.trim() ||
-      typeof cliente.apellido !== 'string' ||
-      !cliente.apellido.trim() ||
-      typeof cliente.email !== 'string' ||
-      !cliente.email.includes('@') ||
-      typeof cliente.telefono !== 'string' ||
-      !cliente.telefono.trim()
+      !clienteIn ||
+      typeof clienteIn.nombre !== 'string' ||
+      !clienteIn.nombre.trim() ||
+      typeof clienteIn.apellido !== 'string' ||
+      !clienteIn.apellido.trim() ||
+      typeof clienteIn.email !== 'string' ||
+      !clienteIn.email.includes('@') ||
+      typeof clienteIn.telefono !== 'string' ||
+      !clienteIn.telefono.trim()
     ) {
       return badRequest(
         'cliente invalido: nombre, apellido, email y telefono son requeridos',
         origin
       );
     }
+    const phone = resolveSubmittedPhone({
+      telefono: clienteIn.telefono,
+      telefono_raw: clienteIn.telefono_raw,
+      telefono_pais: clienteIn.telefono_pais,
+    });
+    const cliente: ClienteRequest = {
+      ...clienteIn,
+      telefono: (phone.phone || clienteIn.telefono.trim()).slice(0, 40),
+      telefono_raw: phone.raw.slice(0, 80),
+    };
 
     const mercado = body.mercado;
     if (mercado !== 'CO' && mercado !== 'INTL') {
@@ -956,6 +969,7 @@ Deno.serve(
         apellido: cliente.apellido,
         email: cliente.email,
         telefono: cliente.telefono,
+        telefono_raw: cliente.telefono_raw ?? null,
         institucion: cliente.institucion ?? null,
       },
       items: itemsSnapshot,
