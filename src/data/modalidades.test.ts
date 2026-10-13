@@ -7,6 +7,7 @@ import {
   ULTRASONIDO_SLUGS,
   slugsDeModalidad,
 } from './modalidades';
+import { PROMO_PADBOT_EN, PROMO_PADBOT_ES, SLUGS_PROMO_PADBOT } from './promo-padbot';
 
 const productos = JSON.parse(
   readFileSync(new URL('./mock-productos.json', import.meta.url), 'utf8')
@@ -25,9 +26,22 @@ describe('modalidades', () => {
       ...MODALIDADES_ESTERILIZACION.flatMap(slugsDeModalidad),
       ...ULTRASONIDO_SLUGS,
       TELEPRESENCIA_SLUG,
+      ...SLUGS_PROMO_PADBOT,
     ];
     for (const slug of slugs) {
       expect(activos.has(slug), slug).toBe(true);
+    }
+  });
+
+  it('no publica plasma ni lavadoras sin modelo activo', () => {
+    const slugs = MODALIDADES_ESTERILIZACION.map(pagina => pagina.slug);
+    expect(slugs).toEqual(['autoclaves-hospitalarios']);
+  });
+
+  it('la promoción nombra P2 o X3 y no promete los dos robots', () => {
+    for (const texto of [PROMO_PADBOT_ES, PROMO_PADBOT_EN]) {
+      expect(texto).toMatch(/P2 o X3|P2 or X3/);
+      expect(texto.toLowerCase()).not.toMatch(/ambos|both robots|los dos/);
     }
   });
 });

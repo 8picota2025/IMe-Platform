@@ -11,7 +11,7 @@ import {
 const locale = 'en' as const;
 const title = buildPageTitle('Public procurement quotes for hospitals in Colombia | I-ME');
 const description =
-  'How to request an I-ME quote for Colombian public hospitals: published datasheets, catalog families and a formal proposal. No invented UNSPSC or INVIMA numbers.';
+  'How to request an I-ME quote for Colombian public hospitals: published datasheets, catalog families and a formal proposal. The price is in the quote.';
 const canonical = buildCanonical('/en/public-procurement');
 const jsonLd = combineJsonLd(
   buildOrganizationJsonLd(),
@@ -76,21 +76,16 @@ const familias = [
         ))
       }
     </ul>
-    <h2>Data this page does not invent</h2>
-    <ul>
-      <li>
-        TODO_CLIENTE — UNSPSC: there are no UNSPSC codes in the reviewed catalog or CMS. No code is
-        published until Shoky provides it per reference.
-      </li>
-      <li>
-        TODO_CLIENTE — Warranty: there is no single public-procurement warranty. If a sheet states a
-        manufacturer warranty, it is shown on that sheet. The rest waits for a real figure.
-      </li>
-      <li>
-        TODO_CLIENTE — INVIMA: there is no blanket INVIMA registration for these families. A number
-        is published only when it is on the product sheet.
-      </li>
-    </ul>
+    <h2>Manufacturer warranty</h2>
+    <p>
+      Equipment is quoted with the manufacturer warranty. This page does not publish a duration.
+      When a sheet states a term, that term stays on the sheet.
+    </p>
+    <h2>INVIMA</h2>
+    <p role="note" style="padding:0.9rem 1rem;background:var(--off);color:var(--text-mid)">
+      TODO_CLIENTE — there is no blanket INVIMA registration for these families. A number is
+      published only when it is on the product sheet.
+    </p>
     <p>
       <a href="/en/services/">Sales and support services</a>
       {' · '}

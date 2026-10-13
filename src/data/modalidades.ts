@@ -1,7 +1,8 @@
 /**
  * Subpáginas de modalidad. Los slugs son los canónicos del catálogo
  * (las URLs cortas dr-mobile, dr-uc-arm y arco-en-c-alc-280-series redirigen).
- * Sin precios, INVIMA, UNSPSC ni capacidades que no estén en la ficha.
+ * Sin precios, INVIMA ni capacidades que no estén en la ficha.
+ * Plasma, peróxido y lavadoras termodesinfectoras no se publican: el catálogo no tiene modelos activos.
  */
 export interface GrupoModalidad {
   titulo_es: string;
@@ -171,60 +172,6 @@ export const MODALIDADES_ESTERILIZACION: PaginaModalidad[] = [
         ],
       },
     ],
-  },
-  {
-    slug: 'plasma-peroxido',
-    title_es: 'Esterilización por plasma o peróxido | I-ME',
-    title_en: 'Plasma or peroxide sterilization | I-ME',
-    description_es:
-      'I-ME no publica hoy un esterilizador por plasma ni por peróxido de hidrógeno en el catálogo activo. Esta página no inventa modelo, capacidad ni registro.',
-    description_en:
-      'I-ME does not currently publish a plasma or hydrogen-peroxide sterilizer in the active catalog. This page does not invent a model, capacity or registration.',
-    h1_es: 'Esterilización por plasma o peróxido de hidrógeno',
-    h1_en: 'Plasma or hydrogen-peroxide sterilization',
-    intro_es:
-      'No hay una referencia activa de esterilización por plasma o por peróxido en el catálogo público. Mientras no exista, la vía es cotizar la central con los autoclaves publicados.',
-    intro_en:
-      'There is no active plasma or peroxide sterilization reference in the public catalog. Until there is one, the path is to quote the sterile service with the published autoclaves.',
-    body_es: [],
-    body_en: [],
-    grupos: [],
-    todo_es:
-      'TODO_CLIENTE: confirmar con Shoky si hay un esterilizador por plasma o por peróxido para publicar (modelo, ficha, capacidad e INVIMA). El catálogo activo no trae esa referencia. El Automate Saniswiss aHPv1115v está inactivo y no se lista aquí.',
-    todo_en:
-      'TODO_CLIENTE: confirm with Shoky whether a plasma or peroxide sterilizer should be published (model, datasheet, capacity and INVIMA). The active catalog has no such reference. Automate Saniswiss aHPv1115v is inactive and is not listed here.',
-  },
-  {
-    slug: 'lavadoras-termodesinfectoras',
-    title_es: 'Lavadoras termodesinfectoras hospitalarias | I-ME',
-    title_en: 'Hospital washer-disinfectors | I-ME',
-    description_es:
-      'El catálogo activo no trae una lavadora termodesinfectadora. El único equipo de lavado publicado es el carrito SKH041, que no es una termodesinfectadora.',
-    description_en:
-      'The active catalog has no washer-disinfector. The only published washing item is cart SKH041, which is not a washer-disinfector.',
-    h1_es: 'Lavadoras termodesinfectoras: qué hay en el catálogo',
-    h1_en: 'Washer-disinfectors: what the catalog has',
-    intro_es:
-      'No publicamos capacidad, ciclos ni registro de una termodesinfectadora porque esa referencia no está en el catálogo activo.',
-    intro_en:
-      'We do not publish capacity, cycles or a registration for a washer-disinfector because that reference is not in the active catalog.',
-    body_es: [
-      'El Carrito de Lavado SKH041 es un carro clínico del catálogo. Se enlaza para no confundirlo con una lavadora termodesinfectadora.',
-    ],
-    body_en: [
-      'Washing Cart SKH041 is a clinical cart in the catalog. It is linked so it is not mistaken for a washer-disinfector.',
-    ],
-    grupos: [
-      {
-        titulo_es: 'Equipo de lavado publicado (no es termodesinfectadora)',
-        titulo_en: 'Published washing item (not a washer-disinfector)',
-        slugs: ['carrito-de-lavado-ref-skh041-saikang'],
-      },
-    ],
-    todo_es:
-      'TODO_CLIENTE: si I-ME va a ofrecer lavadoras termodesinfectoras, Shoky debe entregar modelo, capacidad y ficha. Hoy no hay esa referencia activa.',
-    todo_en:
-      'TODO_CLIENTE: if I-ME will offer washer-disinfectors, Shoky needs to provide model, capacity and datasheet. There is no active reference today.',
   },
 ];
 

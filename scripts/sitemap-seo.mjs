@@ -108,8 +108,6 @@ const HIGH_PRIORITY_ES_PATHS = new Set([
   '/es/imagenologia/arco-en-c/',
   '/es/imagenologia/mamografia-digital/',
   '/es/esterilizacion/autoclaves-hospitalarios/',
-  '/es/esterilizacion/plasma-peroxido/',
-  '/es/esterilizacion/lavadoras-termodesinfectoras/',
   '/es/robotica-rehabilitacion/',
   '/es/robotica-rehabilitacion/telepresencia/',
   '/es/compras-publicas/',

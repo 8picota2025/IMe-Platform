@@ -11,7 +11,7 @@ import {
 const locale = 'es' as const;
 const title = buildPageTitle('Compras públicas de equipos biomédicos para ESE | I-ME');
 const description =
-  'Cómo cotizar equipos con I-ME para ESE y hospitales en Colombia: fichas publicadas, familias del catálogo y propuesta. Sin UNSPSC ni INVIMA inventados.';
+  'Cómo cotizar equipos con I-ME para ESE y hospitales en Colombia: fichas publicadas, familias del catálogo y propuesta. El precio va en la cotización.';
 const canonical = buildCanonical('/es/compras-publicas');
 const jsonLd = combineJsonLd(
   buildOrganizationJsonLd(),
@@ -80,21 +80,16 @@ const familias = [
         ))
       }
     </ul>
-    <h2>Datos que esta página no inventa</h2>
-    <ul>
-      <li>
-        TODO_CLIENTE — UNSPSC: no hay códigos UNSPSC en el catálogo ni en el CMS revisado. No se
-        publica un código hasta que Shoky lo entregue por referencia.
-      </li>
-      <li>
-        TODO_CLIENTE — Garantía: no hay una garantía única para compras públicas. Si una ficha trae
-        garantía del fabricante, se muestra en esa ficha. El resto queda pendiente de dato real.
-      </li>
-      <li>
-        TODO_CLIENTE — INVIMA: no hay un registro INVIMA general de I-ME para estas familias. El
-        número se publica solo cuando está en la ficha del producto.
-      </li>
-    </ul>
+    <h2>Garantía del fabricante</h2>
+    <p>
+      Los equipos se cotizan con garantía del fabricante. Esta página no publica una vigencia.
+      Cuando una ficha trae un plazo, ese plazo queda en la ficha.
+    </p>
+    <h2>INVIMA</h2>
+    <p class="modalidad-todo" role="note">
+      TODO_CLIENTE — no hay un registro INVIMA general de I-ME para estas familias. El número se
+      publica solo cuando está en la ficha del producto.
+    </p>
     <p>
       <a href="/es/servicios/">Servicios de venta y soporte</a>
       {' · '}
@@ -112,5 +107,10 @@ const familias = [
   li {
     margin: 0.4rem 0;
     line-height: 1.5;
+  }
+  .modalidad-todo {
+    padding: 0.9rem 1rem;
+    background: var(--off);
+    color: var(--text-mid);
   }
 </style>

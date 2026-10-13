@@ -347,11 +347,6 @@ const ESTERILIZACION: ContentMap = {
     lead: 'Si la carga se atasca, el equipo espera canastas o están abriendo o ampliando la central, le ayudamos a dimensionar vapor y flujo con las referencias publicadas. La instalación y el soporte se escriben en la propuesta.',
     modalityLinks: [
       { title: 'Autoclaves hospitalarios', href: '/es/esterilizacion/autoclaves-hospitalarios/' },
-      { title: 'Esterilización por plasma o peróxido', href: '/es/esterilizacion/plasma-peroxido/' },
-      {
-        title: 'Lavadoras termodesinfectoras',
-        href: '/es/esterilizacion/lavadoras-termodesinfectoras/',
-      },
     ],
     formIntro:
       'Cuéntenos volumen aproximado, espacio y si es compra nueva o reemplazo. Le respondemos en clave de central, no de catálogo suelto.',
@@ -473,8 +468,6 @@ const ESTERILIZACION: ContentMap = {
     lead: 'If loads backlog, staff wait on baskets, or you are opening or expanding a central, we help size steam and workflow with the published references. Installation and support are written in the proposal.',
     modalityLinks: [
       { title: 'Hospital autoclaves', href: '/en/sterilization/autoclaves-hospitalarios/' },
-      { title: 'Plasma or peroxide sterilization', href: '/en/sterilization/plasma-peroxido/' },
-      { title: 'Washer-disinfectors', href: '/en/sterilization/lavadoras-termodesinfectoras/' },
     ],
     formIntro:
       'Share approximate volume, space and whether this is new or replacement. We reply in central language, not a random catalog dump.',
@@ -709,8 +702,7 @@ const IMAGENOLOGIA: ContentMap = {
   },
   en: {
     tag: 'Diagnostic imaging',
-    title:
-      'Imaging equipment: digital X-ray, C-arm, mammography and ultrasound in Colombia',
+    title: 'Imaging equipment: digital X-ray, C-arm, mammography and ultrasound in Colombia',
     description:
       'Imaging equipment in Colombia: digital X-ray, C-arm, mammography and ultrasound. I-ME quotes each reference; the price is in the proposal.',
     h1: 'Imaging equipment: digital X-ray, C-arm, mammography and ultrasound in Colombia',

@@ -1,0 +1,20 @@
+---
+import type { Locale } from '../i18n/utils';
+import { textoPromoPadbot } from '../data/promo-padbot';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+---
+
+<p class="nota-promo-padbot">{textoPromoPadbot(locale)}</p>
+
+<style>
+  .nota-promo-padbot {
+    margin: 1rem 0;
+    line-height: 1.6;
+    color: var(--text-mid);
+  }
+</style>

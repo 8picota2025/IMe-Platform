@@ -15,7 +15,9 @@ import { normalizarEspecificaciones } from '../lib/especificaciones';
 import { getOptimizedImageUrl, isSupabaseStorageImage } from '../lib/image';
 import { familyCatalogHref } from '../lib/seo-urls';
 import { fichaPdfEspejo } from '../lib/fichas-pdf-manifest';
-import { datosConfianzaProducto } from '../lib/producto-confianza';
+import { datosConfianzaProducto, GARANTIA_FABRICANTE } from '../lib/producto-confianza';
+import { muestraPromoPadbot } from '../data/promo-padbot';
+import NotaPromoPadbot from './NotaPromoPadbot.astro';
 
 interface Props {
   producto: Producto;
@@ -330,6 +332,7 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
               <p class="pdp-identity__desc">{producto.descripcion_corta}</p>
             )
           }
+          {muestraPromoPadbot(producto.slug) && <NotaPromoPadbot locale={locale} />}
           <ul class="pdp-identity__trust" role="list">
             <li>
               <span
@@ -925,14 +928,18 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
           </li>
         ))
       }
-      {
-        confianza.garantia.map(item => (
-          <li>
-            <strong>{locale === 'en' ? 'Warranty.' : 'Garantía.'}</strong> {item.clave}:{' '}
-            {item.valor}
-          </li>
-        ))
-      }
+      <li>
+        <strong>{GARANTIA_FABRICANTE[locale]}.</strong>
+        {
+          confianza.garantia.length > 0 && (
+            <span>
+              {' '}
+              {locale === 'en' ? 'On this sheet:' : 'En esta ficha:'}{' '}
+              {confianza.garantia.map(item => item.valor).join('; ')}
+            </span>
+          )
+        }
+      </li>
       <li>
         <strong>{locale === 'en' ? 'Installation.' : 'Instalación.'}</strong>
         {

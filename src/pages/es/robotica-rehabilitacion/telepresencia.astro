@@ -2,6 +2,7 @@
 import Layout from '../../../layouts/Layout.astro';
 import { getProductosBySlugs } from '../../../lib/datos';
 import { TELEPRESENCIA_SLUG } from '../../../data/modalidades';
+import NotaPromoPadbot from '../../../components/NotaPromoPadbot.astro';
 import {
   buildBreadcrumbJsonLd,
   buildCanonical,
@@ -47,8 +48,8 @@ const jsonLd = combineJsonLd(
       <h1>Robot de telepresencia hospitalaria PadBot P2 en Colombia</h1>
       <p style="color:var(--text-mid);line-height:1.6">
         El catálogo publica el PadBot P2 como robot de telepresencia plegable, con pantalla HD de 10
-        pulgadas, WiFi/4G, video llamada, control remoto y autocarga. I-ME lo cotiza para hospitales
-        y clínicas. No sustituye una valoración clínica ni publica un precio de lista.
+        pulgadas, WiFi/4G, video llamada, control remoto y autocarga. El precio se cotiza. No
+        sustituye una valoración clínica.
       </p>
       <p>
         <a class="btn btn-primary" href="/es/contacto/">Solicitar cotización</a>
@@ -67,6 +68,7 @@ const jsonLd = combineJsonLd(
       Esos usos describen la función publicada del robot. No prometen resultado clínico, reducción
       de estancia ni reemplazo de personal.
     </p>
+    <NotaPromoPadbot locale={locale} />
     {
       producto && (
         <p>
@@ -82,8 +84,8 @@ const jsonLd = combineJsonLd(
       <a href="/es/compras-publicas/">Compras públicas</a>
     </p>
     <p class="modalidad-todo" role="note">
-      TODO_CLIENTE: INVIMA, garantía, UNSPSC y precio del PadBot P2 no están en la ficha revisada.
-      No se publican hasta que Shoky entregue el dato.
+      TODO_CLIENTE: el INVIMA del PadBot P2 no está en la ficha revisada. No se publica un registro
+      hasta que Shoky lo entregue.
     </p>
   </section>
 </Layout>

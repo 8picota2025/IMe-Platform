@@ -9,6 +9,12 @@ export interface DatoConfianza {
   valor: string;
 }
 
+/** Texto de garantía confirmado por Shoky. Sin vigencia: no está publicada. */
+export const GARANTIA_FABRICANTE = {
+  es: 'Garantía del fabricante',
+  en: 'Manufacturer warranty',
+} as const;
+
 export function datosConfianzaProducto(especificaciones: EspecificacionItem[]): {
   invima: DatoConfianza[];
   garantia: DatoConfianza[];
