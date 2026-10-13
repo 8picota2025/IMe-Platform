@@ -129,7 +129,7 @@ function withTrailingSlash(path) {
 }
 
 function getLocalizedPath(path, targetLocale) {
-  const stripped = path.replace(/^\/(es|en)/, '');
+  const stripped = path.replace(/^\/(es|en)(?=\/|$)/, '');
   if (!stripped || stripped === '/') return `/${targetLocale}/`;
 
   const segments = stripped.split('/').filter(Boolean);
