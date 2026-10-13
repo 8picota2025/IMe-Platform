@@ -488,7 +488,7 @@ async function renderQuotePdfLocal(
       lineas,
       locale: 'es',
       nombreComercial: state.nombre || state.email || 'Equipo comercial I-ME',
-      correoComercial: state.email || 'ventas@i-me.com.co',
+      correoComercial: state.email || 'comercial1@i-me.com.co',
       telefonoComercial: state.telefono || '',
       annexes,
       logoBytes,

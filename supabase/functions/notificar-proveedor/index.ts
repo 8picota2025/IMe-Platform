@@ -14,7 +14,7 @@
  *
  * Variables opcionales:
  * - MAILER_API_KEY (TODO_CLIENTE si algún proveedor usa canal='email'; API estilo Resend)
- * - MAILER_FROM (remitente, default pedidos@i-me.com.co)
+ * - MAILER_FROM (remitente, default proveedores@i-me.com.co)
  * Sin estas variables: canal='email' queda en estado 'error' con mensaje accionable
  * para que el admin notifique manualmente (modo mock documentado en F4).
  *
@@ -173,7 +173,7 @@ async function enviarEmail(
   to: string,
   payload: NotificacionPayload
 ): Promise<ResultadoNotificacion> {
-  const from = Deno.env.get('MAILER_FROM') ?? 'pedidos@i-me.com.co';
+  const from = Deno.env.get('MAILER_FROM') ?? 'proveedores@i-me.com.co';
   const itemsHtml = payload.items
     .map(i => `<li>${i.cantidad} x ${escapeHtml(i.nombre)} (ref: ${escapeHtml(i.slug)})</li>`)
     .join('');

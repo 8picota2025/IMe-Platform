@@ -10,13 +10,13 @@ import { resultadoPlantillaInactiva } from '../../../src/lib/cotizacion-oferta.t
 import { construirPayloadResend } from '../../../src/lib/email-payload.ts';
 
 export const DESTINATARIOS_INTERNOS = (
-  Deno.env.get('MAILER_INTERNAL') ?? 'root@i-me.com.co,ventas@i-me.com.co'
+  Deno.env.get('MAILER_INTERNAL') ?? 'root@i-me.com.co,comercial1@i-me.com.co'
 )
   .split(',')
   .map(s => s.trim())
   .filter(Boolean);
 
-export const DESTINATARIOS_COMPRAS = (Deno.env.get('MAILER_COMPRAS') ?? 'compras@i-me.com.co')
+export const DESTINATARIOS_COMPRAS = (Deno.env.get('MAILER_COMPRAS') ?? 'comercial1@i-me.com.co')
   .split(',')
   .map(s => s.trim())
   .filter(Boolean);
@@ -111,7 +111,7 @@ const DEFAULTS: Record<string, { asunto: string; html: string }> = {
   },
   cotizacion_confirmacion_cliente: {
     asunto: 'Hemos recibido tu solicitud de cotizacion - I-ME',
-    html: '<h2>Hola {{cliente_nombre}}</h2><p>Recibimos tu solicitud de presupuesto y te contactaremos en breve.</p><p><strong>Referencia:</strong> {{referencia}}</p><p><strong>Resumen solicitado:</strong></p><ul>{{items_html}}</ul><p><strong>Mensaje recibido:</strong></p><pre>{{mensaje}}</pre><p>Equipo I-ME<br>ventas@i-me.com.co</p>',
+    html: '<h2>Hola {{cliente_nombre}}</h2><p>Recibimos tu solicitud de presupuesto y te contactaremos en breve.</p><p><strong>Referencia:</strong> {{referencia}}</p><p><strong>Resumen solicitado:</strong></p><ul>{{items_html}}</ul><p><strong>Mensaje recibido:</strong></p><pre>{{mensaje}}</pre><p>Equipo I-ME<br>comercial1@i-me.com.co</p>',
   },
   evento_confirmacion_cliente: {
     asunto: 'Gracias por participar - I-ME',
@@ -122,23 +122,23 @@ const DEFAULTS: Record<string, { asunto: string; html: string }> = {
   },
   cotizacion_confirmacion_cliente_es: {
     asunto: 'Hemos recibido tu solicitud de presupuesto - I-ME',
-    html: '<h2>Hola {{cliente_nombre}}</h2><p>Recibimos tu solicitud de presupuesto y te contactaremos en breve.</p><p><strong>Referencia:</strong> {{referencia}}</p><p><strong>Resumen solicitado:</strong></p><ul>{{items_html}}</ul><p><strong>Mensaje recibido:</strong></p><pre>{{mensaje}}</pre><p>Equipo I-ME<br>ventas@i-me.com.co</p>',
+    html: '<h2>Hola {{cliente_nombre}}</h2><p>Recibimos tu solicitud de presupuesto y te contactaremos en breve.</p><p><strong>Referencia:</strong> {{referencia}}</p><p><strong>Resumen solicitado:</strong></p><ul>{{items_html}}</ul><p><strong>Mensaje recibido:</strong></p><pre>{{mensaje}}</pre><p>Equipo I-ME<br>comercial1@i-me.com.co</p>',
   },
   cotizacion_confirmacion_cliente_en: {
     asunto: 'We received your quote request - I-ME',
-    html: '<h2>Hello {{cliente_nombre}}</h2><p>We received your quote request and our commercial team will contact you shortly.</p><p><strong>Reference:</strong> {{referencia}}</p><p><strong>Request summary:</strong></p><ul>{{items_html}}</ul><p><strong>Message received:</strong></p><pre>{{mensaje}}</pre><p>I-ME Team<br>ventas@i-me.com.co</p>',
+    html: '<h2>Hello {{cliente_nombre}}</h2><p>We received your quote request and our commercial team will contact you shortly.</p><p><strong>Reference:</strong> {{referencia}}</p><p><strong>Request summary:</strong></p><ul>{{items_html}}</ul><p><strong>Message received:</strong></p><pre>{{mensaje}}</pre><p>I-ME Team<br>comercial1@i-me.com.co</p>',
   },
   cotizacion_oferta_cliente: {
     asunto: 'Tu cotizacion I-ME — pago por transferencia {{referencia}}',
-    html: '<h2>Hola {{cliente_nombre}}</h2><p>Hemos preparado tu cotizacion. Revisa el resumen y las observaciones de configuracion. Para formalizar, realiza la transferencia bancaria por el total ofertado y carga el comprobante en la plataforma.</p><p><strong>Referencia:</strong> {{referencia}}</p><p><strong>Total a transferir:</strong> {{total}} {{moneda}}</p><p><strong>Validez:</strong> {{validez}}</p><p><strong>Productos:</strong></p><ul>{{items_html}}</ul><p><strong>Observaciones / condiciones:</strong></p><pre>{{condiciones}}</pre><p><strong>Datos bancarios:</strong></p><pre>{{datos_bancarios}}</pre><p><a href="{{formalizar_url_href}}" style="display:inline-block;padding:12px 20px;background:#0b3d4a;color:#fff;text-decoration:none;border-radius:4px">Pagar por transferencia</a></p><p>Si el boton no funciona, copia este enlace:<br>{{formalizar_url}}</p><p>Equipo I-ME<br>ventas@i-me.com.co</p>',
+    html: '<h2>Hola {{cliente_nombre}}</h2><p>Hemos preparado tu cotizacion. Revisa el resumen y las observaciones de configuracion. Para formalizar, realiza la transferencia bancaria por el total ofertado y carga el comprobante en la plataforma.</p><p><strong>Referencia:</strong> {{referencia}}</p><p><strong>Total a transferir:</strong> {{total}} {{moneda}}</p><p><strong>Validez:</strong> {{validez}}</p><p><strong>Productos:</strong></p><ul>{{items_html}}</ul><p><strong>Observaciones / condiciones:</strong></p><pre>{{condiciones}}</pre><p><strong>Datos bancarios:</strong></p><pre>{{datos_bancarios}}</pre><p><a href="{{formalizar_url_href}}" style="display:inline-block;padding:12px 20px;background:#0b3d4a;color:#fff;text-decoration:none;border-radius:4px">Pagar por transferencia</a></p><p>Si el boton no funciona, copia este enlace:<br>{{formalizar_url}}</p><p>Equipo I-ME<br>comercial1@i-me.com.co</p>',
   },
   cotizacion_oferta_cliente_es: {
     asunto: 'Tu cotizacion I-ME — pago por transferencia {{referencia}}',
-    html: '<h2>Hola {{cliente_nombre}}</h2><p>Hemos preparado tu cotizacion. Revisa el resumen y las observaciones de configuracion. Para formalizar, realiza la transferencia bancaria por el total ofertado y carga el comprobante en la plataforma.</p><p><strong>Referencia:</strong> {{referencia}}</p><p><strong>Total a transferir:</strong> {{total}} {{moneda}}</p><p><strong>Validez:</strong> {{validez}}</p><p><strong>Productos:</strong></p><ul>{{items_html}}</ul><p><strong>Observaciones / condiciones:</strong></p><pre>{{condiciones}}</pre><p><strong>Datos bancarios:</strong></p><pre>{{datos_bancarios}}</pre><p><a href="{{formalizar_url_href}}" style="display:inline-block;padding:12px 20px;background:#0b3d4a;color:#fff;text-decoration:none;border-radius:4px">Pagar por transferencia</a></p><p>Si el boton no funciona, copia este enlace:<br>{{formalizar_url}}</p><p>Equipo I-ME<br>ventas@i-me.com.co</p>',
+    html: '<h2>Hola {{cliente_nombre}}</h2><p>Hemos preparado tu cotizacion. Revisa el resumen y las observaciones de configuracion. Para formalizar, realiza la transferencia bancaria por el total ofertado y carga el comprobante en la plataforma.</p><p><strong>Referencia:</strong> {{referencia}}</p><p><strong>Total a transferir:</strong> {{total}} {{moneda}}</p><p><strong>Validez:</strong> {{validez}}</p><p><strong>Productos:</strong></p><ul>{{items_html}}</ul><p><strong>Observaciones / condiciones:</strong></p><pre>{{condiciones}}</pre><p><strong>Datos bancarios:</strong></p><pre>{{datos_bancarios}}</pre><p><a href="{{formalizar_url_href}}" style="display:inline-block;padding:12px 20px;background:#0b3d4a;color:#fff;text-decoration:none;border-radius:4px">Pagar por transferencia</a></p><p>Si el boton no funciona, copia este enlace:<br>{{formalizar_url}}</p><p>Equipo I-ME<br>comercial1@i-me.com.co</p>',
   },
   cotizacion_oferta_cliente_en: {
     asunto: 'Your I-ME quote — pay by bank transfer {{referencia}}',
-    html: '<h2>Hello {{cliente_nombre}}</h2><p>We prepared your quote. Review the summary and configuration notes. To formalize, transfer the quoted total and upload the payment receipt on the platform.</p><p><strong>Reference:</strong> {{referencia}}</p><p><strong>Amount to transfer:</strong> {{total}} {{moneda}}</p><p><strong>Valid until:</strong> {{validez}}</p><p><strong>Products:</strong></p><ul>{{items_html}}</ul><p><strong>Notes / terms:</strong></p><pre>{{condiciones}}</pre><p><strong>Bank details:</strong></p><pre>{{datos_bancarios}}</pre><p><a href="{{formalizar_url_href}}" style="display:inline-block;padding:12px 20px;background:#0b3d4a;color:#fff;text-decoration:none;border-radius:4px">Pay by bank transfer</a></p><p>If the button does not work, copy this link:<br>{{formalizar_url}}</p><p>I-ME Team<br>ventas@i-me.com.co</p>',
+    html: '<h2>Hello {{cliente_nombre}}</h2><p>We prepared your quote. Review the summary and configuration notes. To formalize, transfer the quoted total and upload the payment receipt on the platform.</p><p><strong>Reference:</strong> {{referencia}}</p><p><strong>Amount to transfer:</strong> {{total}} {{moneda}}</p><p><strong>Valid until:</strong> {{validez}}</p><p><strong>Products:</strong></p><ul>{{items_html}}</ul><p><strong>Notes / terms:</strong></p><pre>{{condiciones}}</pre><p><strong>Bank details:</strong></p><pre>{{datos_bancarios}}</pre><p><a href="{{formalizar_url_href}}" style="display:inline-block;padding:12px 20px;background:#0b3d4a;color:#fff;text-decoration:none;border-radius:4px">Pay by bank transfer</a></p><p>If the button does not work, copy this link:<br>{{formalizar_url}}</p><p>I-ME Team<br>comercial1@i-me.com.co</p>',
   },
   presupuesto: {
     asunto: 'Presupuesto I-ME {{referencia}} — {{cliente_nombre}}',
@@ -171,15 +171,15 @@ const DEFAULTS: Record<string, { asunto: string; html: string }> = {
   },
   transferencia_comprobante_rechazado: {
     asunto: 'Comprobante no valido — reintenta la formalizacion {{referencia}}',
-    html: '<h2>Hola {{cliente_nombre}}</h2><p>Revisamos el comprobante de transferencia asociado a tu presupuesto <strong>{{referencia}}</strong> y <strong>no pudo ser validado</strong>.</p><p><strong>Motivo:</strong> {{motivo}}</p><p>Por favor vuelve a realizar el pago (si aplica) y carga un comprobante valido para completar la formalizacion.</p><p><strong>Total ofertado:</strong> {{total}} {{moneda}}</p><p><a href="{{formalizar_url_href}}" style="display:inline-block;padding:12px 20px;background:#0b3d4a;color:#fff;text-decoration:none;border-radius:4px">Reintentar validacion del presupuesto</a></p><p>Si el boton no funciona, copia este enlace:<br>{{formalizar_url}}</p><p>Si tienes dudas, responde a este correo o escribenos a ventas@i-me.com.co.</p><p>Equipo I-ME</p>',
+    html: '<h2>Hola {{cliente_nombre}}</h2><p>Revisamos el comprobante de transferencia asociado a tu presupuesto <strong>{{referencia}}</strong> y <strong>no pudo ser validado</strong>.</p><p><strong>Motivo:</strong> {{motivo}}</p><p>Por favor vuelve a realizar el pago (si aplica) y carga un comprobante valido para completar la formalizacion.</p><p><strong>Total ofertado:</strong> {{total}} {{moneda}}</p><p><a href="{{formalizar_url_href}}" style="display:inline-block;padding:12px 20px;background:#0b3d4a;color:#fff;text-decoration:none;border-radius:4px">Reintentar validacion del presupuesto</a></p><p>Si el boton no funciona, copia este enlace:<br>{{formalizar_url}}</p><p>Si tienes dudas, responde a este correo o escribenos a comercial1@i-me.com.co.</p><p>Equipo I-ME</p>',
   },
   transferencia_comprobante_rechazado_es: {
     asunto: 'Comprobante no valido — reintenta la formalizacion {{referencia}}',
-    html: '<h2>Hola {{cliente_nombre}}</h2><p>Revisamos el comprobante de transferencia asociado a tu presupuesto <strong>{{referencia}}</strong> y <strong>no pudo ser validado</strong>.</p><p><strong>Motivo:</strong> {{motivo}}</p><p>Por favor vuelve a realizar el pago (si aplica) y carga un comprobante valido para completar la formalizacion.</p><p><strong>Total ofertado:</strong> {{total}} {{moneda}}</p><p><a href="{{formalizar_url_href}}" style="display:inline-block;padding:12px 20px;background:#0b3d4a;color:#fff;text-decoration:none;border-radius:4px">Reintentar validacion del presupuesto</a></p><p>Si el boton no funciona, copia este enlace:<br>{{formalizar_url}}</p><p>Si tienes dudas, responde a este correo o escribenos a ventas@i-me.com.co.</p><p>Equipo I-ME</p>',
+    html: '<h2>Hola {{cliente_nombre}}</h2><p>Revisamos el comprobante de transferencia asociado a tu presupuesto <strong>{{referencia}}</strong> y <strong>no pudo ser validado</strong>.</p><p><strong>Motivo:</strong> {{motivo}}</p><p>Por favor vuelve a realizar el pago (si aplica) y carga un comprobante valido para completar la formalizacion.</p><p><strong>Total ofertado:</strong> {{total}} {{moneda}}</p><p><a href="{{formalizar_url_href}}" style="display:inline-block;padding:12px 20px;background:#0b3d4a;color:#fff;text-decoration:none;border-radius:4px">Reintentar validacion del presupuesto</a></p><p>Si el boton no funciona, copia este enlace:<br>{{formalizar_url}}</p><p>Si tienes dudas, responde a este correo o escribenos a comercial1@i-me.com.co.</p><p>Equipo I-ME</p>',
   },
   transferencia_comprobante_rechazado_en: {
     asunto: 'Payment receipt not valid — retry formalization {{referencia}}',
-    html: '<h2>Hello {{cliente_nombre}}</h2><p>We reviewed the bank transfer receipt for your quote <strong>{{referencia}}</strong> and it <strong>could not be validated</strong>.</p><p><strong>Reason:</strong> {{motivo}}</p><p>Please transfer again if needed and upload a valid receipt to complete formalization.</p><p><strong>Quoted total:</strong> {{total}} {{moneda}}</p><p><a href="{{formalizar_url_href}}" style="display:inline-block;padding:12px 20px;background:#0b3d4a;color:#fff;text-decoration:none;border-radius:4px">Retry quote validation</a></p><p>If the button does not work, copy this link:<br>{{formalizar_url}}</p><p>Questions? Reply to this email or write to ventas@i-me.com.co.</p><p>I-ME Team</p>',
+    html: '<h2>Hello {{cliente_nombre}}</h2><p>We reviewed the bank transfer receipt for your quote <strong>{{referencia}}</strong> and it <strong>could not be validated</strong>.</p><p><strong>Reason:</strong> {{motivo}}</p><p>Please transfer again if needed and upload a valid receipt to complete formalization.</p><p><strong>Quoted total:</strong> {{total}} {{moneda}}</p><p><a href="{{formalizar_url_href}}" style="display:inline-block;padding:12px 20px;background:#0b3d4a;color:#fff;text-decoration:none;border-radius:4px">Retry quote validation</a></p><p>If the button does not work, copy this link:<br>{{formalizar_url}}</p><p>Questions? Reply to this email or write to comercial1@i-me.com.co.</p><p>I-ME Team</p>',
   },
   compra_valorar_interna: {
     asunto: 'Compra a valorar {{referencia}} - {{total}} {{moneda}}',
@@ -362,7 +362,7 @@ export async function enviarEmailPlantilla(
     return { ok: false, detalle: `plantilla desconocida: ${clave}` };
   }
 
-  const from = Deno.env.get('MAILER_FROM') ?? 'pedidos@i-me.com.co';
+  const from = Deno.env.get('MAILER_FROM') ?? 'comercial1@i-me.com.co';
   const subject = render(options.subjectOverride ?? asunto, vars);
   const body = render(html, vars);
   const resultados: string[] = [];

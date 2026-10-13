@@ -1,5 +1,5 @@
 /**
- * Digest comercial diario → email a Rubén (+ opcional root).
+ * Digest comercial diario → comercial1@i-me.com.co (root@ sigue en la lista por defecto).
  * Usa TWENTY_* + MAILER_* (Resend) ya configurados en Edge secrets.
  *
  * Auth: Authorization Bearer = SUPABASE_SERVICE_ROLE_KEY o header x-crm-digest-secret
@@ -11,7 +11,7 @@ import { badRequest, internalError } from '../_shared/errors.ts';
 
 const FN_NAME = 'crm-digest';
 const OWNER_ID = Deno.env.get('TWENTY_OWNER_ID')?.trim() || '';
-const DIGEST_TO = (Deno.env.get('CRM_DIGEST_TO') ?? 'wangruben1@gmail.com,root@i-me.com.co')
+const DIGEST_TO = (Deno.env.get('CRM_DIGEST_TO') ?? 'comercial1@i-me.com.co,root@i-me.com.co')
   .split(',')
   .map(s => s.trim())
   .filter(Boolean);
@@ -50,7 +50,7 @@ async function sendResend(
 ): Promise<{ ok: boolean; detail?: string }> {
   const apiKey = Deno.env.get('MAILER_API_KEY') || Deno.env.get('RESEND_API_KEY');
   if (!apiKey) return { ok: false, detail: 'MAILER_API_KEY missing' };
-  const from = Deno.env.get('MAILER_FROM') ?? 'pedidos@i-me.com.co';
+  const from = Deno.env.get('MAILER_FROM') ?? 'comercial1@i-me.com.co';
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {

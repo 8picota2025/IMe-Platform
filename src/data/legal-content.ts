@@ -31,7 +31,7 @@ export const legalEs = {
         title: 'Identificación del responsable',
         paragraphs: [
           'El responsable del tratamiento es INTERNATIONAL MEDICAL ENTERPRISE. IME. S.A.S., identificada comercialmente como I-ME International Medical Enterprise.',
-          'Datos de contacto informados: NIT 901871720-1, domicilio principal en CL 28 SUR 29 83, Envigado, Antioquia, Colombia, correo inmedicalime@gmail.com y canal de contacto comercial por WhatsApp o teléfono.',
+          'Datos de contacto informados: NIT 901871720-1, domicilio principal en CL 28 SUR 29 83, Envigado, Antioquia, Colombia, correo info@i-me.com.co y canal de contacto comercial por WhatsApp o teléfono.',
         ],
       },
       {

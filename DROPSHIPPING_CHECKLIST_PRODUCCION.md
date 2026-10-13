@@ -11,7 +11,7 @@
 ### Environment variables
 
 - [ ] `MAILER_API_KEY` — Resend API key (si hay notificaciones por email)
-- [ ] `MAILER_FROM` — remitente (default: `pedidos@i-me.com.co`)
+- [ ] `MAILER_FROM` — remitente al proveedor (default: `proveedores@i-me.com.co`)
 
 ### Edge Functions
 
