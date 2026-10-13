@@ -73,10 +73,65 @@ jobs:
           if psql "$POOLER_DB_URL" -X -v ON_ERROR_STOP=1 -Atqc 'SELECT 1' >/dev/null 2>&1; then
             echo "Session Pooler conectado."
             supabase db push --db-url "$POOLER_DB_URL" --include-all --yes
+            cat > /tmp/audit-blind-prefix.sql <<'SQL'
+          SELECT COALESCE(json_agg(entry ORDER BY entry.created_at), '[]'::json)
+          FROM (
+            SELECT
+              'leads_comerciales'::text AS source,
+              id::text AS id,
+              created_at,
+              nombre AS name,
+              COALESCE(metadata->>'pais', metadata->>'country', metadata->>'telefono_pais', ciudad) AS country,
+              telefono AS phone
+            FROM leads_comerciales
+            WHERE telefono ~ '^\+57'
+              AND telefono !~ '^\+573[0-9]{9}$'
+              AND telefono !~ '^\+5760[0-9]{8}$'
+            UNION ALL
+            SELECT
+              'crm_contacts'::text,
+              id::text,
+              created_at,
+              trim(concat_ws(' ', nombre, apellido)),
+              COALESCE(metadata->>'pais', metadata->>'country', metadata->>'telefono_pais'),
+              telefono_e164
+            FROM crm_contacts
+            WHERE telefono_e164 ~ '^\+57'
+              AND telefono_e164 !~ '^\+573[0-9]{9}$'
+              AND telefono_e164 !~ '^\+5760[0-9]{8}$'
+            UNION ALL
+            SELECT
+              'solicitudes_cotizacion'::text,
+              id::text,
+              created_at,
+              nombre,
+              NULL::text,
+              telefono
+            FROM solicitudes_cotizacion
+            WHERE telefono ~ '^\+57'
+              AND telefono !~ '^\+573[0-9]{9}$'
+              AND telefono !~ '^\+5760[0-9]{8}$'
+          ) AS entry;
+          SQL
+            if psql "$POOLER_DB_URL" -X -v ON_ERROR_STOP=1 -Atq -f /tmp/audit-blind-prefix.sql > phone-audit-raw.json; then
+              echo "phone_audit_bytes=$(wc -c < phone-audit-raw.json)"
+            else
+              echo "::warning::No se pudo leer los teléfonos con +57. No se modificó ninguna fila."
+              echo '[]' > phone-audit-raw.json
+            fi
             exit 0
           fi
           echo "::error::No se pudo autenticar con el Session Pooler. No se aplicaron migraciones."
           exit 1
+
+      - name: Upload read-only phone audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phone-audit-raw
+          path: phone-audit-raw.json
+          retention-days: 3
+          if-no-files-found: ignore
 
       - name: Setup Node
         uses: actions/setup-node@v5
