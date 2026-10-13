@@ -294,7 +294,7 @@ export const LANDINGS_INDICE: EntradaIndiceLanding[] = [
   {
     tipo: 'familia',
     clave: 'ultrasonido',
-    nombre: 'Ultrasonido',
+    nombre: 'Equipos de ultrasonido y ecógrafos en Colombia',
     path: '/es/familias/ultrasonido/',
     pathEn: '/en/families/ultrasonido/',
   },

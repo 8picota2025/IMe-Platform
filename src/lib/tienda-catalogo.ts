@@ -73,7 +73,7 @@ export function textoSeoTienda(
     tensiometros: es ? 'Tensiómetros digitales' : 'Digital blood pressure monitors',
   } as const;
   const nombre = nombres[categoria];
-  const title = `${nombre} desde ${min} | ${envio}`;
+  const title = es ? `${nombre} desde ${min} | ${envio}` : `${nombre} from ${min} | ${envio}`;
   const description = es
     ? `${nombre} en el catálogo I-ME desde ${min} hasta ${max} COP, IVA incluido (${rango.count} referencias con precio). Envío a Colombia. ${entrega}`
     : `${nombre} in the I-ME catalog from ${min} to ${max} COP, VAT included (${rango.count} priced references). Shipping to Colombia. ${entrega}`;

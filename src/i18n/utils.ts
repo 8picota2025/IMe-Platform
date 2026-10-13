@@ -70,6 +70,7 @@ const PATH_SEGMENT_PAIRS: Array<{ es: string; en: string }> = [
   { es: 'familias', en: 'families' },
   { es: 'ciudades', en: 'cities' },
   { es: 'recursos', en: 'resources' },
+  { es: 'compras-publicas', en: 'public-procurement' },
 ];
 
 /** Nested slug pairs under a localized section (e.g. conocimiento/publicar). */
@@ -147,7 +148,8 @@ function withTrailingSlash(path: string): string {
  * if needed (e.g. /catalogo <-> /catalog), and adds the target locale.
  */
 export function getLocalizedPath(path: string, targetLocale: Locale): string {
-  const stripped = path.replace(/^\/(es|en)/, '');
+  // Solo el segmento de idioma. `/esterilizacion` no debe perder la «es» inicial.
+  const stripped = path.replace(/^\/(es|en)(?=\/|$)/, '');
   if (!stripped || stripped === '/') return `/${targetLocale}/`;
 
   const segments = stripped.split('/').filter(Boolean);

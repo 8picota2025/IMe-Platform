@@ -1,0 +1,116 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import {
+  buildBreadcrumbJsonLd,
+  buildCanonical,
+  buildOrganizationJsonLd,
+  buildPageTitle,
+  combineJsonLd,
+} from '../../lib/seo';
+
+const locale = 'es' as const;
+const title = buildPageTitle('Compras públicas de equipos biomédicos para ESE | I-ME');
+const description =
+  'Cómo cotizar equipos con I-ME para ESE y hospitales en Colombia: fichas publicadas, familias del catálogo y propuesta. El precio va en la cotización.';
+const canonical = buildCanonical('/es/compras-publicas');
+const jsonLd = combineJsonLd(
+  buildOrganizationJsonLd(),
+  buildBreadcrumbJsonLd([
+    { name: 'Inicio', url: buildCanonical('/es/') },
+    { name: 'Compras públicas', url: canonical },
+  ])
+);
+
+const familias = [
+  { href: '/es/imagenologia/', label: 'Imagenología' },
+  { href: '/es/imagenologia/rayos-x-digital/', label: 'Rayos X digital DR' },
+  { href: '/es/imagenologia/arco-en-c/', label: 'Arco en C' },
+  { href: '/es/imagenologia/mamografia-digital/', label: 'Mamografía digital' },
+  { href: '/es/familias/ultrasonido/', label: 'Ecógrafos y ultrasonido' },
+  { href: '/es/esterilizacion/', label: 'Esterilización' },
+  { href: '/es/esterilizacion/autoclaves-hospitalarios/', label: 'Autoclaves hospitalarios' },
+  { href: '/es/robotica-rehabilitacion/telepresencia/', label: 'Robot de telepresencia PadBot P2' },
+];
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  locale={locale}
+  currentPath="/es/compras-publicas"
+  jsonLd={jsonLd}
+>
+  <div
+    class="page-hero"
+    style="padding-top:130px;padding-bottom:var(--space-lg);background:var(--off)"
+  >
+    <div class="container" style="max-width:760px">
+      <h1>Compras públicas: cómo cotizar equipos para ESE y hospitales</h1>
+      <p style="color:var(--text-mid);line-height:1.6">
+        I-ME prepara la cotización institucional a partir de las referencias del catálogo. La
+        propuesta formal es el documento de precio, alcance de instalación y soporte. El teléfono de
+        contacto es +57 313 724 7353.
+      </p>
+      <p>
+        <a class="btn btn-primary" href="/es/contacto/">Pedir cotización para pliego</a>
+        <a class="btn btn-ghost" href="tel:+573137247353">+57 313 724 7353</a>
+      </p>
+    </div>
+  </div>
+  <section class="container" style="max-width:760px;padding:var(--space-xl) 0">
+    <h2>Cómo pedimos la cotización</h2>
+    <ol>
+      <li>Indique institución, ciudad, modalidad y referencias del catálogo, si ya las tiene.</li>
+      <li>
+        Si la ficha del producto tiene PDF publicado, ese archivo es la ficha técnica que puede
+        anexar al proceso.
+      </li>
+      <li>
+        I-ME responde con una propuesta. El precio de la propuesta no se decide en esta página.
+      </li>
+    </ol>
+    <h2>Familias para armar el pliego</h2>
+    <ul>
+      {
+        familias.map(item => (
+          <li>
+            <a href={item.href}>{item.label}</a>
+          </li>
+        ))
+      }
+    </ul>
+    <h2>Garantía del fabricante</h2>
+    <p>
+      Los equipos se cotizan con garantía del fabricante. Esta página no publica una vigencia.
+      Cuando una ficha trae un plazo, ese plazo queda en la ficha.
+    </p>
+    <h2>INVIMA</h2>
+    <p class="modalidad-todo" role="note">
+      TODO_CLIENTE — no hay un registro INVIMA general de I-ME para estas familias. El número se
+      publica solo cuando está en la ficha del producto.
+    </p>
+    <p>
+      <a href="/es/servicios/">Servicios de venta y soporte</a>
+      {' · '}
+      <a href="/es/legal/garantias/">Texto legal de garantías</a>
+    </p>
+  </section>
+</Layout>
+
+<style>
+  a:focus-visible,
+  .btn:focus-visible {
+    outline: 2px solid var(--t900);
+    outline-offset: 2px;
+  }
+  li {
+    margin: 0.4rem 0;
+    line-height: 1.5;
+  }
+  .modalidad-todo {
+    padding: 0.9rem 1rem;
+    background: var(--off);
+    color: var(--text-mid);
+  }
+</style>

@@ -1,0 +1,27 @@
+---
+import ModalidadLanding from '../../../components/ModalidadLanding.astro';
+import { getProductosBySlugs } from '../../../lib/datos';
+import {
+  MODALIDADES_ESTERILIZACION,
+  getModalidad,
+  slugsDeModalidad,
+} from '../../../data/modalidades';
+
+export function getStaticPaths() {
+  return MODALIDADES_ESTERILIZACION.map(pagina => ({ params: { slug: pagina.slug } }));
+}
+
+const locale = 'es' as const;
+const pagina = getModalidad(MODALIDADES_ESTERILIZACION, Astro.params.slug ?? '');
+if (!pagina) throw new Error('Modalidad de esterilización no publicada');
+const productos = await getProductosBySlugs(slugsDeModalidad(pagina), locale);
+---
+
+<ModalidadLanding
+  locale={locale}
+  pagina={pagina}
+  productos={productos}
+  currentPath={`/es/esterilizacion/${pagina.slug}`}
+  parentHref="/es/esterilizacion/"
+  parentLabel="Esterilización"
+/>

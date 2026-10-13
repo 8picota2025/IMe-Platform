@@ -30,13 +30,13 @@ interface Props {
 
 const { locale, content, productos } = Astro.props;
 const isEn = locale === 'en';
-const title = buildPageTitle(
-  content.title
-    .replace(/\s*\|\s*Asesoría I-ME.*$/i, '')
-    .replace(/\s*\|\s*I-ME.*$/i, '')
-    .replace(/\s*\|\s*I-ME advisory.*$/i, '')
-    .trim()
-);
+const titleSource = content.title
+  .replace(/\s*\|\s*Asesoría I-ME.*$/i, '')
+  .replace(/\s*\|\s*I-ME advisory.*$/i, '')
+  .replace(/\s*\|\s*I-ME.*$/i, '')
+  .trim();
+// Títulos de modalidad ya largos (imagenología) se publican tal cual, sin un segundo "| I-ME".
+const title = titleSource.length > 70 ? titleSource : buildPageTitle(titleSource);
 const path = locale === 'en' ? content.pathEn : content.path;
 const canonical = buildCanonical(path);
 const currentPath = path.replace(/\/$/, '');
@@ -115,6 +115,19 @@ const sitTitle = isEn ? 'Common project moments' : 'Momentos típicos del proyec
           <p class="clp-eyebrow">{content.tag}</p>
           <h1 id="clp-h1">{content.h1}</h1>
           <p class="clp-lead">{content.lead}</p>
+          {
+            content.modalityLinks && content.modalityLinks.length > 0 && (
+              <nav class="clp-modalidades" aria-label={isEn ? 'Modalities' : 'Modalidades'}>
+                <ul>
+                  {content.modalityLinks.map(link => (
+                    <li>
+                      <a href={link.href}>{link.title}</a>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            )
+          }
           <div class="clp-hero-actions">
             <a class="btn btn-primary" href={`#${content.id}-form`}>{content.primaryCta}</a>
             <a class="btn btn-secondary" href={seedWa} target="_blank" rel="noopener noreferrer">
@@ -500,7 +513,29 @@ const sitTitle = isEn ? 'Common project moments' : 'Momentos típicos del proyec
     line-height: 1.14;
     color: var(--ink);
     margin: 0 0 1.25rem;
-    max-width: 15ch;
+    max-width: 36ch;
+  }
+
+  .clp-modalidades ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 0.75rem;
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .clp-modalidades a {
+    display: inline-block;
+    padding: 0.35rem 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-weight: 650;
+  }
+
+  .clp-modalidades a:focus-visible {
+    outline: 2px solid var(--t900);
+    outline-offset: 2px;
   }
 
   .clp-lead {

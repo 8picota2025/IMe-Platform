@@ -579,10 +579,26 @@ function buildOfferShippingDetails(_currency: string): Record<string, unknown> {
 }
 
 /**
- * JSON-LD Product para todas las familias, incluidas imagen, esterilización y robots.
- * Plantilla única: el otro agente debe reutilizar `buildProductJsonLd` y no forkear el schema.
- * Con precio de catálogo, Offer lleva price. Sin precio público, Offer no lleva price
- * ni priceCurrency (no se inventa). MedicalDevice solo con sellos de normativa en specs.
+ * Familias de cotización donde un Offer sin precio rompería las rich results:
+ * imagen (radiología y ultrasonido), esterilización y robots.
+ */
+const FAMILIAS_PRODUCTO_SIN_OFFER = new Set([
+  'radiologia',
+  'ultrasonido',
+  'imagenologia',
+  'imagenologia-y-radiologia',
+  'esterilizacion-control-infecciones',
+  'robots',
+]);
+
+/**
+ * JSON-LD Product. Plantilla única: imagen, esterilización y robots reutilizan
+ * esta función y no forkear el schema.
+ * Con precio de catálogo: Offer con price y priceCurrency.
+ * Sin precio, en imagen, esterilización o robots: solo Product (marca, modelo,
+ * imagen, sku si existe). Un Offer sin price no es válido en esas rich results.
+ * Sin precio en el resto de familias: Offer sin price ni priceCurrency.
+ * MedicalDevice solo con sellos de normativa en specs.
  */
 export function buildProductJsonLd(
   producto: {
@@ -600,9 +616,12 @@ export function buildProductJsonLd(
   locale: Locale,
   categoria?: string,
   marca?: string | null,
-  opts?: { certificaciones?: string[]; familiaSlug?: string; model?: string }
+  opts?: { certificaciones?: string[]; familiaSlug?: string; model?: string | null }
 ): Record<string, unknown> {
-  const hasPrice = tienePrecioPublico(producto.precio);
+  const precioPublico = tienePrecioPublico(producto.precio);
+  const omitirOffer = Boolean(
+    !precioPublico && opts?.familiaSlug && FAMILIAS_PRODUCTO_SIN_OFFER.has(opts.familiaSlug)
+  );
 
   const segment = locale === 'en' ? 'products' : 'productos';
   const canonicalUrl = buildCanonical(`/${locale}/${segment}/${producto.slug}`);
@@ -626,31 +645,44 @@ export function buildProductJsonLd(
       '@type': 'Brand',
       name: marca && marca.trim().length > 0 ? marca : 'I-ME International Medical Enterprise',
     },
-    seller: { '@id': `${SITE}/#organization` },
   };
-  const priceCurrency = normalizarMoneda(producto.moneda);
-  const offer: Record<string, unknown> = {
-    '@type': 'Offer',
-    url: canonicalUrl,
-    itemCondition: 'https://schema.org/NewCondition',
-    availability:
-      producto.disponible === false
-        ? 'https://schema.org/OutOfStock'
-        : 'https://schema.org/InStock',
-    seller: { '@id': `${SITE}/#organization` },
-    areaServed: { '@type': 'Country', name: 'Colombia' },
-    businessFunction: 'http://purl.org/goodrelations/v1#Sell',
-  };
-  if (hasPrice) {
-    offer.price = producto.precio;
-    offer.priceCurrency = priceCurrency;
-    offer.priceValidUntil = buildPriceValidUntil();
-    offer.hasMerchantReturnPolicy = buildMerchantReturnPolicyJsonLd(locale);
-    offer.shippingDetails = buildOfferShippingDetails(priceCurrency);
-  }
-  jsonLd.offers = offer;
   const modelo = opts?.model?.trim();
   if (modelo) jsonLd.model = modelo;
+  if (precioPublico) {
+    jsonLd.seller = { '@id': `${SITE}/#organization` };
+    const priceCurrency = normalizarMoneda(producto.moneda);
+    jsonLd.offers = {
+      '@type': 'Offer',
+      url: canonicalUrl,
+      price: producto.precio,
+      priceCurrency,
+      priceValidUntil: buildPriceValidUntil(),
+      itemCondition: 'https://schema.org/NewCondition',
+      availability:
+        producto.disponible === false
+          ? 'https://schema.org/OutOfStock'
+          : 'https://schema.org/InStock',
+      seller: { '@id': `${SITE}/#organization` },
+      areaServed: { '@type': 'Country', name: 'Colombia' },
+      businessFunction: 'http://purl.org/goodrelations/v1#Sell',
+      hasMerchantReturnPolicy: buildMerchantReturnPolicyJsonLd(locale),
+      shippingDetails: buildOfferShippingDetails(priceCurrency),
+    };
+  } else if (!omitirOffer) {
+    jsonLd.seller = { '@id': `${SITE}/#organization` };
+    jsonLd.offers = {
+      '@type': 'Offer',
+      url: canonicalUrl,
+      itemCondition: 'https://schema.org/NewCondition',
+      availability:
+        producto.disponible === false
+          ? 'https://schema.org/OutOfStock'
+          : 'https://schema.org/InStock',
+      seller: { '@id': `${SITE}/#organization` },
+      areaServed: { '@type': 'Country', name: 'Colombia' },
+      businessFunction: 'http://purl.org/goodrelations/v1#Sell',
+    };
+  }
   if (categoria) jsonLd.category = categoria;
   if (opts?.familiaSlug) {
     const famSeg = locale === 'en' ? 'families' : 'familias';

@@ -217,6 +217,26 @@ WHERE landing.tipo = 'campana' AND landing.clave = 'ventiladores_mecanicos'
 
 UPDATE public.landings AS landing
 SET
+  contenido_es = replace(
+    landing.contenido_es::text,
+    'Ventilador portátil T60 para traslados intrahospitalarios.',
+    'El T60 de transporte no está en el catálogo activo. El brief de traslado se cotiza aparte del T75.'
+  )::jsonb,
+  contenido_en = replace(
+    landing.contenido_en::text,
+    'T60 portable ventilator for intrahospital transfers.',
+    'The T60 transport ventilator is not in the active catalog. A transfer brief is quoted separately from the ICU T75.'
+  )::jsonb,
+  version = landing.version + 1,
+  publicado_at = NOW()
+WHERE landing.tipo = 'campana' AND landing.clave = 'ventiladores_mecanicos'
+  AND (
+    landing.contenido_es::text LIKE '%Ventilador portátil T60 para traslados intrahospitalarios.%'
+    OR landing.contenido_en::text LIKE '%T60 portable ventilator for intrahospital transfers.%'
+  );
+
+UPDATE public.landings AS landing
+SET
   contenido_es = contenido_es || jsonb_build_object(
     'title', 'Alto flujo Fisher Paykel: fuera del catálogo activo | I-ME',
     'description', 'Airvo y Optiflow no están en el catálogo activo. La terapia respiratoria publicada son nebulizadores, aspiradores, oxígeno y ventiladores.',

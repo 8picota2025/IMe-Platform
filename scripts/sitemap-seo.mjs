@@ -36,6 +36,7 @@ const PATH_SEGMENT_PAIRS = [
   { es: 'familias', en: 'families' },
   { es: 'ciudades', en: 'cities' },
   { es: 'recursos', en: 'resources' },
+  { es: 'compras-publicas', en: 'public-procurement' },
   { es: 'cotizacion', en: 'quote' },
   { es: 'carrito', en: 'cart' },
   { es: 'cuenta', en: 'account' },
@@ -106,7 +107,13 @@ const HIGH_PRIORITY_ES_PATHS = new Set([
   '/es/torres-laparoscopia/',
   '/es/esterilizacion/',
   '/es/imagenologia/',
+  '/es/imagenologia/rayos-x-digital/',
+  '/es/imagenologia/arco-en-c/',
+  '/es/imagenologia/mamografia-digital/',
+  '/es/esterilizacion/autoclaves-hospitalarios/',
   '/es/robotica-rehabilitacion/',
+  '/es/robotica-rehabilitacion/telepresencia/',
+  '/es/compras-publicas/',
   '/es/conocimiento/caminadores-para-adultos-guia-compra-colombia/',
   '/es/conocimiento/guia-monitores-multiparametricos-uci/',
   '/es/proyectos/',
@@ -125,7 +132,7 @@ function withTrailingSlash(path) {
 }
 
 function getLocalizedPath(path, targetLocale) {
-  const stripped = path.replace(/^\/(es|en)/, '');
+  const stripped = path.replace(/^\/(es|en)(?=\/|$)/, '');
   if (!stripped || stripped === '/') return `/${targetLocale}/`;
 
   const segments = stripped.split('/').filter(Boolean);

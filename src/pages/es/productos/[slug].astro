@@ -15,6 +15,7 @@ import {
 } from '../../../lib/seo';
 import { getProductos, getFamilias, type Familia, type Producto } from '../../../lib/datos';
 import { normalizarEspecificaciones } from '../../../lib/especificaciones';
+import { getProductoSeoCopy } from '../../../data/producto-seo-copy';
 
 const locale = 'es';
 
@@ -60,7 +61,11 @@ interface Props {
 const { producto } = Astro.props as Props;
 const { familia, relacionados } = Astro.props as Props;
 
-const seo = buildProductoSeo(producto, locale, familia.nombre, producto.marca);
+const seoBase = buildProductoSeo(producto, locale, familia.nombre, producto.marca);
+const seoCopy = getProductoSeoCopy(producto.slug, locale);
+const seo = seoCopy
+  ? { ...seoBase, title: seoCopy.title, description: seoCopy.description }
+  : seoBase;
 const noindex = producto.slug === 'test';
 const especificaciones = normalizarEspecificaciones(producto.especificaciones);
 const certificaciones = especificaciones
@@ -102,5 +107,6 @@ const jsonLd = combineJsonLd(
     familia={familia}
     relacionados={relacionados}
     locale={locale}
+    {...seoCopy ? { seoH1: seoCopy.h1, seoIntro: seoCopy.intro } : {}}
   />
 </Layout>

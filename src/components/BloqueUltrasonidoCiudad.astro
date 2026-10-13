@@ -1,0 +1,58 @@
+---
+import { getProductosBySlugs } from '../lib/datos';
+import { ULTRASONIDO_SLUGS } from '../data/modalidades';
+import type { Locale } from '../i18n/utils';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const es = locale === 'es';
+const productos = await getProductosBySlugs(ULTRASONIDO_SLUGS, locale);
+const familiaHref = es ? '/es/familias/ultrasonido/' : '/en/families/ultrasonido/';
+const productBase = es ? '/es/productos/' : '/en/products/';
+---
+
+<section class="container ultrasonido-ciudad" aria-labelledby="ultrasonido-ciudad-titulo">
+  <h2 id="ultrasonido-ciudad-titulo">
+    {es ? 'Equipos de ultrasonido y ecógrafos en Medellín' : 'Ultrasound equipment in Medellín'}
+  </h2>
+  <p>
+    {
+      es
+        ? 'I-ME atiende Medellín desde Envigado. Estas son las referencias de ultrasonido publicadas en el catálogo; el precio se confirma en la cotización.'
+        : 'I-ME serves Medellín from Envigado. These are the published ultrasound references; the price is confirmed in the quote.'
+    }
+  </p>
+  <p>
+    <a href={familiaHref}>{es ? 'Ver la familia de ultrasonido' : 'See the ultrasound family'}</a>
+  </p>
+  {
+    productos.length > 0 && (
+      <ul>
+        {productos.map(producto => (
+          <li>
+            <a href={`${productBase}${producto.slug}/`}>{producto.nombre}</a>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</section>
+
+<style>
+  .ultrasonido-ciudad {
+    max-width: 760px;
+    padding-bottom: var(--space-2xl);
+  }
+  .ultrasonido-ciudad p,
+  .ultrasonido-ciudad li {
+    color: var(--text-mid);
+    line-height: 1.55;
+  }
+  a:focus-visible {
+    outline: 2px solid var(--t900);
+    outline-offset: 2px;
+  }
+</style>
