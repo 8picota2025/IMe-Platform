@@ -26,6 +26,58 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Apply pending Supabase migrations
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          SUPABASE_PROJECT_REF: nnfbucwiasuggyfoyydo
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_DB_URL" || {
+            echo "Falta configurar el secret SUPABASE_DB_URL."
+            exit 1
+          }
+          test -n "$SUPABASE_ACCESS_TOKEN" || {
+            echo "Falta configurar el secret SUPABASE_ACCESS_TOKEN."
+            exit 1
+          }
+          command -v psql >/dev/null || {
+            echo "psql no está disponible en el runner."
+            exit 1
+          }
+          pooler_config="$(curl --fail --silent --show-error \
+            -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+            "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/config/database/pooler")"
+          pooler_host="$(jq -r '[.[] | select(.database_type == "PRIMARY")][0].db_host // empty' <<<"$pooler_config")"
+          pooler_user="$(jq -r '[.[] | select(.database_type == "PRIMARY")][0].db_user // empty' <<<"$pooler_config")"
+          test -n "$pooler_host" || {
+            echo "Management API no devolvió host Session Pooler."
+            exit 1
+          }
+          if [ -z "$pooler_user" ] || [ "$pooler_user" = "postgres" ]; then
+            pooler_user="postgres.$SUPABASE_PROJECT_REF"
+          fi
+          POOLER_DB_URL="$(POOLER_HOST="$pooler_host" POOLER_USER="$pooler_user" node -e '
+            const url = new URL(process.env.SUPABASE_DB_URL);
+            url.hostname = process.env.POOLER_HOST;
+            url.port = "5432";
+            url.username = process.env.POOLER_USER;
+            url.searchParams.set("sslmode", "require");
+            url.searchParams.set("connect_timeout", "10");
+            process.stdout.write(url.toString());
+          ')"
+          if psql "$POOLER_DB_URL" -X -v ON_ERROR_STOP=1 -Atqc 'SELECT 1' >/dev/null 2>&1; then
+            echo "Session Pooler conectado."
+            supabase db push --db-url "$POOLER_DB_URL" --include-all --yes
+            exit 0
+          fi
+          echo "::error::No se pudo autenticar con el Session Pooler. No se aplicaron migraciones."
+          exit 1
+
       - name: Setup Node
         uses: actions/setup-node@v5
         with:
