@@ -4,7 +4,7 @@ export const FAMILIAS = [
   { slug: 'sala-cirugia', nombre: 'Sala de Cirugía' },
   { slug: 'neonatologia', nombre: 'Neonatología' },
   { slug: 'ultrasonido', nombre: 'Ultrasonido' },
-  { slug: 'soluciones-iv', nombre: 'Soluciones IV' },
+  { slug: 'soluciones-iv', nombre: 'Bombas de infusión' },
   { slug: 'mobiliario', nombre: 'Mobiliario Hospitalario' },
   { slug: 'anestesia', nombre: 'Anestesia y Ventilación' },
 ] as const;

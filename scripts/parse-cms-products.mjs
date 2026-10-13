@@ -54,7 +54,7 @@ const CATEGORIES = {
   'sala-cirugia':  'Sala de Cirugía',
   'neonatologia':  'Neonatología',
   'ultrasonido':   'Ultrasonido',
-  'soluciones-iv': 'Soluciones IV',
+  'soluciones-iv': 'Bombas de infusión',
   'mobiliario':    'Mobiliario Hospitalario',
   'anestesia':     'Anestesia y Ventilación',
 }

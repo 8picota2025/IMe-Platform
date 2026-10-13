@@ -1,11 +1,19 @@
 ---
 import CampaignLandingPage from '../../components/CampaignLandingPage.astro';
 import { getCampaignLandingCms } from '../../lib/landings-cms';
-import { getProductosBySlugs } from '../../lib/datos';
 
 const locale = 'es' as const;
-const content = await getCampaignLandingCms('alto_flujo_fisher_paykel', locale);
-const productos = await getProductosBySlugs(content.productSlugs, locale);
+const cms = await getCampaignLandingCms('alto_flujo_fisher_paykel', locale);
+const content = {
+  ...cms,
+  title: 'Alto flujo Fisher Paykel: fuera del catálogo activo | I-ME',
+  description:
+    'Airvo y Optiflow no están en el catálogo activo. La terapia respiratoria publicada son nebulizadores, aspiradores, oxígeno y ventiladores.',
+  h1: 'Alto flujo Fisher Paykel',
+  lead: 'Airvo, Optiflow y sus circuitos no están en el catálogo activo. La cotización de terapia respiratoria parte de nebulizadores, aspiradores y ventiladores publicados.',
+  productSlugs: [],
+  productsNote: 'No hay referencias Airvo activas para listar.',
+};
 ---
 
-<CampaignLandingPage locale={locale} content={content} productos={productos} />
+<CampaignLandingPage locale={locale} content={content} productos={[]} />

@@ -553,7 +553,7 @@ export function buildMerchantReturnPolicyJsonLd(locale: Locale): Record<string, 
 }
 
 /** Shipping defaults for Colombia — coste final se confirma en cotización. */
-function buildOfferShippingDetails(currency: string): Record<string, unknown> {
+function buildOfferShippingDetails(_currency: string): Record<string, unknown> {
   return {
     '@type': 'OfferShippingDetails',
     shippingDestination: {
@@ -575,18 +575,14 @@ function buildOfferShippingDetails(currency: string): Record<string, unknown> {
         unitCode: 'DAY',
       },
     },
-    shippingRate: {
-      '@type': 'MonetaryAmount',
-      value: 0,
-      currency,
-    },
   };
 }
 
 /**
- * JSON-LD Product — solo cuando hay precio público (Offer válido para Google Shopping/snippets).
- * Sin precio visible no emitimos Product: GSC exige offers, review o aggregateRating.
- * MedicalDevice se añade únicamente cuando hay sellos de normativa en specs.
+ * JSON-LD Product para todas las familias, incluidas imagen, esterilización y robots.
+ * Plantilla única: el otro agente debe reutilizar `buildProductJsonLd` y no forkear el schema.
+ * Con precio de catálogo, Offer lleva price. Sin precio público, Offer no lleva price
+ * ni priceCurrency (no se inventa). MedicalDevice solo con sellos de normativa en specs.
  */
 export function buildProductJsonLd(
   producto: {
@@ -604,9 +600,9 @@ export function buildProductJsonLd(
   locale: Locale,
   categoria?: string,
   marca?: string | null,
-  opts?: { certificaciones?: string[]; familiaSlug?: string }
-): Record<string, unknown> | null {
-  if (!tienePrecioPublico(producto.precio)) return null;
+  opts?: { certificaciones?: string[]; familiaSlug?: string; model?: string }
+): Record<string, unknown> {
+  const hasPrice = tienePrecioPublico(producto.precio);
 
   const segment = locale === 'en' ? 'products' : 'productos';
   const canonicalUrl = buildCanonical(`/${locale}/${segment}/${producto.slug}`);
@@ -633,12 +629,9 @@ export function buildProductJsonLd(
     seller: { '@id': `${SITE}/#organization` },
   };
   const priceCurrency = normalizarMoneda(producto.moneda);
-  jsonLd.offers = {
+  const offer: Record<string, unknown> = {
     '@type': 'Offer',
     url: canonicalUrl,
-    price: producto.precio,
-    priceCurrency,
-    priceValidUntil: buildPriceValidUntil(),
     itemCondition: 'https://schema.org/NewCondition',
     availability:
       producto.disponible === false
@@ -647,9 +640,17 @@ export function buildProductJsonLd(
     seller: { '@id': `${SITE}/#organization` },
     areaServed: { '@type': 'Country', name: 'Colombia' },
     businessFunction: 'http://purl.org/goodrelations/v1#Sell',
-    hasMerchantReturnPolicy: buildMerchantReturnPolicyJsonLd(locale),
-    shippingDetails: buildOfferShippingDetails(priceCurrency),
   };
+  if (hasPrice) {
+    offer.price = producto.precio;
+    offer.priceCurrency = priceCurrency;
+    offer.priceValidUntil = buildPriceValidUntil();
+    offer.hasMerchantReturnPolicy = buildMerchantReturnPolicyJsonLd(locale);
+    offer.shippingDetails = buildOfferShippingDetails(priceCurrency);
+  }
+  jsonLd.offers = offer;
+  const modelo = opts?.model?.trim();
+  if (modelo) jsonLd.model = modelo;
   if (categoria) jsonLd.category = categoria;
   if (opts?.familiaSlug) {
     const famSeg = locale === 'en' ? 'families' : 'familias';

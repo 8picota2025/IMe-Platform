@@ -89,12 +89,12 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
     slug: 'emergencias-traslado-inmovilizacion',
     name_es: 'Emergencias, traslado e inmovilización',
     name_en: 'Emergency, transport and immobilization',
-    title_es: 'Camillas médicas y equipos de traslado hospitalario | I-ME',
-    title_en: 'Medical stretchers and hospital transport equipment | I-ME',
+    title_es: 'Traslado, inmovilización y urgencias hospitalarias | I-ME',
+    title_en: 'Hospital transport, immobilization and emergency equipment | I-ME',
     description_es:
-      'Camillas médicas, de ambulancia, procedimientos, tableros e inmovilización para urgencias e instituciones de salud en Colombia.',
+      'Equipos de traslado, tableros e inmovilización para urgencias. Las camillas de traslado se cotizan en la guía de camillas médicas.',
     description_en:
-      'Medical stretchers, ambulance stretchers, procedure stretchers, spine boards and immobilization for ER and healthcare institutions in Colombia.',
+      'Transport equipment, spine boards and immobilization for emergency services. Transfer stretchers are quoted on the medical stretchers guide.',
     intro_es:
       'Traslado e inmovilización se dimensionan por recorrido, vehículo o área, manipulación, almacenamiento y protocolo institucional.',
     intro_en:
@@ -310,12 +310,12 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
     slug: 'terapia-respiratoria-soporte-vital',
     name_es: 'Terapia respiratoria y soporte vital',
     name_en: 'Respiratory therapy and life support',
-    title_es: 'Alto flujo Fisher Paykel Airvo y terapia respiratoria | I-ME',
-    title_en: 'Fisher Paykel Airvo high flow & respiratory therapy | I-ME',
+    title_es: 'Nebulizadores, aspiradores y terapia respiratoria | I-ME',
+    title_en: 'Nebulizers, suction units and respiratory therapy | I-ME',
     description_es:
-      'Sistemas de alto flujo Fisher Paykel Airvo, circuitos Optiflow, aspiración e interfaces respiratorias para UCI, neonatología y urgencias.',
+      'Nebulizadores, aspiradores de secreciones, oxígeno y ventiladores publicados para terapia respiratoria en Colombia. El alto flujo Airvo no está en el catálogo activo.',
     description_en:
-      'Fisher Paykel Airvo high-flow systems, Optiflow circuits, suction and respiratory interfaces for ICU, neonatal and emergency care.',
+      'Published nebulizers, suction units, oxygen and ventilators for respiratory therapy in Colombia. Airvo high-flow systems are not in the active catalog.',
     intro_es:
       'La familia respiratoria combina equipos y accesorios con funciones distintas. Entorno, gases, flujo, población y protocolo institucional definen la selección.',
     intro_en:
@@ -337,15 +337,16 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
       },
       {
         q_es: '¿Tienen sistemas de alto flujo Fisher Paykel?',
-        a_es: 'Sí. En catálogo hay Airvo y circuitos Optiflow Fisher Paykel. Confirmamos referencia, interfaces y consumibles al cotizar.',
+        a_es: 'Airvo y los circuitos Optiflow no están en el catálogo activo. La familia publicada incluye nebulizadores, aspiradores, oxígeno, CPAP neonatal y ventiladores Saikang. La referencia se confirma al cotizar.',
         q_en: 'Do you carry Fisher Paykel high-flow systems?',
-        a_en: 'Yes. The catalog includes Airvo and Fisher Paykel Optiflow circuits. We confirm model, interfaces and consumables when quoting.',
+        a_en: 'Airvo and Optiflow circuits are not in the active catalog. The published family includes nebulizers, suction units, oxygen, neonatal CPAP and Saikang ventilators. The reference is confirmed when quoting.',
       },
     ],
     relatedSlugs: [
-      'sistema-de-alto-flujo-ref-airvo-3-fisher-paykel',
-      'circuito-para-alto-flujo-optiflow-junior-ref-rt330-fisher-paykel',
-      'circuito-desechable-para-canula-de-alto-flujo-adulto-ref-rt202-fisher-paykel',
+      'compresor-nebulizador-carditek-bubu-ref-cdk-222',
+      'aspirador-de-secreciones-portatil-ads100-ref-gmr-sm181',
+      'ventilador-medico-ref-sk-eh302-saikang',
+      'sistema-cpap-neonatal-para-uci',
     ],
   },
   {
@@ -458,11 +459,11 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
       'A patient monitor is chosen for the service that will use it — observation, emergency, transport or ICU — not by screen size alone.',
     body_es: [
       'En hospitales de Colombia el punto de partida suele ser ECG, oximetría de pulso y presión no invasiva, y se suman capnografía o presión invasiva solo si ese servicio las usa. I-ME revisa alarmas, central y transporte antes de cotizar una referencia.',
-      'Las preguntas sobre Biolight S12 y P15 están en la guía de monitores UCI. En el catálogo activo está el monitor de paciente Advanced PM-2000A PRO, junto con la familia de cardiología y la de ventiladores. La documentación y el soporte se confirman por referencia.',
+      'Los monitores de paciente Biolight S12 y M12 están a la venta, con precio bajo cotización. También está el Advanced PM-2000A PRO. La documentación y el soporte se confirman por referencia.',
     ],
     body_en: [
       'Colombian hospitals usually start with ECG, pulse oximetry and non-invasive blood pressure, and add capnography or invasive pressure only when that service uses them. I-ME reviews alarms, central station and transport before quoting a reference.',
-      'Biolight S12 and P15 questions are covered in the ICU monitor guide. The active catalog includes the Advanced PM-2000A PRO patient monitor, plus the cardiology and ventilator families. Documentation and support are confirmed per reference.',
+      'Biolight S12 and M12 patient monitors are for sale, with price on request. The Advanced PM-2000A PRO is also published. Documentation and support are confirmed per reference.',
     ],
     faq: [
       {
@@ -478,17 +479,17 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
         a_en: 'Yes — installation and training scope are agreed in the quote by site and number of points.',
       },
       {
-        q_es: '¿Tienen el monitor Biolight S12?',
-        a_es: 'La guía de monitores Biolight para UCI reúne las preguntas sobre S12 y P15. La disponibilidad se confirma al cotizar. El catálogo activo incluye monitores como el PM-2000A PRO.',
-        q_en: 'Do you cover the Biolight S12 monitor?',
-        a_en: 'The Biolight ICU monitor guide collects S12 and P15 questions. Availability is confirmed when quoting. The active catalog includes monitors such as the PM-2000A PRO.',
+        q_es: '¿Tienen el monitor Biolight S12 y el M12?',
+        a_es: 'Sí. El S12 y el M12 están en el catálogo activo, con precio bajo cotización. Otros monitores Biolight retirados no se publican.',
+        q_en: 'Do you carry the Biolight S12 and M12 monitors?',
+        a_en: 'Yes. The S12 and the M12 are in the active catalog, with price on request. Other withdrawn Biolight monitors are not published.',
       },
     ],
     relatedSlugs: [
+      'monitor-de-paciente-ref-s12-biolight',
+      'monitor-de-paciente-ref-m12-biolight',
       'monitor-de-paciente-ref-pm-2000a-pro-advanced',
       'monitor-modular-ref-pm-2000m-advanced',
-      'monitor-central-uci-multicama',
-      'monitor-de-signos-vitales-ref-vsm-300-advanced',
     ],
   },
   {
@@ -533,12 +534,12 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
     slug: 'cardiologia-reanimacion',
     name_es: 'Cardiología y reanimación',
     name_en: 'Cardiology and resuscitation',
-    title_es: 'Desfibriladores y reanimación hospitalaria | I-ME',
-    title_en: 'Hospital defibrillators and resuscitation | I-ME',
+    title_es: 'Cardiología y reanimación hospitalaria | I-ME',
+    title_en: 'Hospital cardiology and resuscitation equipment | I-ME',
     description_es:
-      'Desfibriladores bifásicos con monitor para hospitales en Colombia. Orientación I-ME en tipología, ubicación y soporte postventa.',
+      'Electrocardiógrafos, Holter y reanimación para hospitales en Colombia. El desfibrilador bifásico se cotiza en su guía.',
     description_en:
-      'Biphasic defibrillators with monitor for hospitals in Colombia. I-ME guidance on typology, placement and after-sales support.',
+      'Electrocardiographs, Holter and resuscitation equipment for hospitals in Colombia. The biphasic defibrillator is quoted on its guide.',
     intro_es:
       'Un desfibrilador no se elige por brochure: se define por protocolo de código, quién lo opera y dónde vive el equipo (urgencias, UCI, quirófano, ambulancia).',
     intro_en:
@@ -661,18 +662,18 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
   },
   {
     slug: 'soluciones-iv',
-    name_es: 'Soluciones IV',
-    name_en: 'IV solutions',
-    title_es: 'Bombas de infusión hospitalarias | I-ME',
+    name_es: 'Bombas de infusión',
+    name_en: 'Infusion pumps',
+    title_es: 'Bomba de infusión hospitalaria | I-ME',
     title_en: 'Hospital infusion pumps | I-ME',
     description_es:
-      'Bombas de infusión y jeringa para UCI y hospitalización en Colombia. Orientación I-ME en seguridad de terapia IV.',
+      'Bombas de infusión y de jeringa para UCI y hospitalización en Colombia. I-ME orienta el parque antes de cotizar.',
     description_en:
-      'Infusion and syringe pumps for ICU and wards in Colombia. I-ME guidance on IV therapy safety.',
+      'Infusion and syringe pumps for ICU and wards in Colombia. I-ME matches the fleet before a quote.',
     intro_es:
-      'La terapia IV se dimensiona por camas, protocolos de biblioteca de fármacos y quién programa la bomba en turno.',
+      'Una bomba de infusión se elige por el servicio — UCI, hospitalización o pediatría —, la biblioteca de fármacos y quién la programa en el turno.',
     intro_en:
-      'IV therapy is sized by beds, drug-library protocols and who programs the pump each shift.',
+      'An infusion pump is chosen for the service — ICU, ward or pediatrics —, the drug library and who programs it each shift.',
     body_es: [
       'Volumétricas vs jeringa no son intercambiables. I-ME ayuda a mezclar parque según UCI, pediatría y hospitalización general.',
     ],
@@ -758,17 +759,18 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
   },
   {
     slug: 'terapia-de-infusion',
-    name_es: 'Terapia de infusión',
-    name_en: 'Infusion therapy',
-    title_es: 'Terapia de infusión hospitalaria | I-ME',
-    title_en: 'Hospital infusion therapy | I-ME',
+    name_es: 'Bombas de infusión',
+    name_en: 'Infusion pumps',
+    title_es: 'Bomba de infusión | página canónica en soluciones IV | I-ME',
+    title_en: 'Infusion pumps | canonical family page | I-ME',
     description_es:
-      'Parque de bombas de infusión para hospitales en Colombia. I-ME orienta tipología volumétrica y de jeringa.',
+      'Esta URL repite la familia de bombas de infusión. La página canónica es /es/familias/soluciones-iv/.',
     description_en:
-      'Infusion pump fleets for hospitals in Colombia. I-ME orients volumetric and syringe typologies.',
+      'This URL repeats the infusion pump family. The canonical page is /en/families/soluciones-iv/.',
     intro_es:
-      'Terapia de infusión es un sistema: bombas, consumibles compatibles y protocolo de enfermería.',
-    intro_en: 'Infusion therapy is a system: pumps, compatible sets and nursing protocol.',
+      'Las bombas de infusión están en la familia canónica. Esta página no se indexa.',
+    intro_en:
+      'Infusion pumps live on the canonical family page. This page is not indexed.',
     body_es: [
       'Revisamos estandarización de parque para reducir errores de programación y facilitar mantenimiento.',
     ],
@@ -1102,8 +1104,20 @@ const FAMILIA_HUB_LINKS: Record<string, FamiliaHubLink[]> = {
     {
       href_es: '/es/sillas-de-ruedas/',
       href_en: '/en/wheelchairs/',
-      label_es: 'Guía Konfort Plus sillas',
-      label_en: 'Konfort Plus wheelchairs guide',
+      label_es: 'Sillas de ruedas con precio',
+      label_en: 'Wheelchairs with a published price',
+    },
+    {
+      href_es: '/es/bastones/',
+      href_en: '/en/canes/',
+      label_es: 'Bastones con precio',
+      label_en: 'Walking canes with a published price',
+    },
+    {
+      href_es: '/es/tensiometros-digitales/',
+      href_en: '/en/digital-blood-pressure-monitors/',
+      label_es: 'Tensiómetros digitales',
+      label_en: 'Digital blood pressure monitors',
     },
   ],
   mobiliario: [
@@ -1127,6 +1141,18 @@ const FAMILIA_HUB_LINKS: Record<string, FamiliaHubLink[]> = {
     },
   ],
   monitores: [
+    {
+      href_es: '/es/productos/monitor-de-paciente-ref-s12-biolight/',
+      href_en: '/en/products/monitor-de-paciente-ref-s12-biolight/',
+      label_es: 'Monitor Biolight S12',
+      label_en: 'Biolight S12 patient monitor',
+    },
+    {
+      href_es: '/es/productos/monitor-de-paciente-ref-m12-biolight/',
+      href_en: '/en/products/monitor-de-paciente-ref-m12-biolight/',
+      label_es: 'Monitor Biolight M12',
+      label_en: 'Biolight M12 patient monitor',
+    },
     {
       href_es: '/es/dotacion-monitoreo-uci/',
       href_en: '/en/icu-monitoring-projects/',
@@ -1206,24 +1232,56 @@ const FAMILIA_HUB_LINKS: Record<string, FamiliaHubLink[]> = {
     {
       href_es: '/es/desfibriladores-hospitalarios/',
       href_en: '/en/hospital-defibrillators/',
-      label_es: 'Desfibriladores y reanimación',
-      label_en: 'Defibrillators & resuscitation',
+      label_es: 'Desfibriladores hospitalarios',
+      label_en: 'Hospital defibrillators',
+    },
+    {
+      href_es: '/es/conocimiento/holter-vs-ecg/',
+      href_en: '/en/knowledge/holter-vs-ecg/',
+      label_es: 'Holter y ECG de 12 derivaciones',
+      label_en: 'Holter and 12-lead ECG',
+    },
+    {
+      href_es: '/es/conocimiento/desfibrilador-bifasico-que-incluye/',
+      href_en: '/en/knowledge/desfibrilador-bifasico-que-incluye/',
+      label_es: 'Qué incluye el desfibrilador bifásico',
+      label_en: 'What the biphasic defibrillator includes',
     },
   ],
   'terapia-respiratoria-soporte-vital': [
     {
-      href_es: '/es/alto-flujo-fisher-paykel/',
-      href_en: '/en/fisher-paykel-high-flow/',
-      label_es: 'Guía alto flujo Fisher Paykel Airvo',
-      label_en: 'Fisher Paykel Airvo high-flow guide',
+      href_es: '/es/ventiladores-mecanicos-uci/',
+      href_en: '/en/mechanical-ventilators-icu/',
+      label_es: 'Ventilador mecánico UCI',
+      label_en: 'ICU mechanical ventilator',
     },
   ],
   'emergencias-traslado-inmovilizacion': [
     {
       href_es: '/es/camillas-medicas/',
       href_en: '/en/medical-stretchers/',
-      label_es: 'Guía camillas médicas y traslado',
-      label_en: 'Medical stretchers & transport guide',
+      label_es: 'Guía de camillas médicas',
+      label_en: 'Medical stretchers guide',
+    },
+  ],
+  'diagnostico-clinico-basico': [
+    {
+      href_es: '/es/conocimiento/como-elegir-tensiometro-digital/',
+      href_en: '/en/knowledge/como-elegir-tensiometro-digital/',
+      label_es: 'Cómo elegir tensiómetro digital',
+      label_en: 'How to choose a digital blood pressure monitor',
+    },
+    {
+      href_es: '/es/conocimiento/analizador-hematologico-para-laboratorio/',
+      href_en: '/en/knowledge/analizador-hematologico-para-laboratorio/',
+      label_es: 'Analizador hematológico para laboratorio',
+      label_en: 'Hematology analyzer for the laboratory',
+    },
+    {
+      href_es: '/es/tensiometros-digitales/',
+      href_en: '/en/digital-blood-pressure-monitors/',
+      label_es: 'Tensiómetros digitales con precio',
+      label_en: 'Digital blood pressure monitors with price',
     },
   ],
 };

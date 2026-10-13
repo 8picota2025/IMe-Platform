@@ -80,10 +80,15 @@ describe('buildProductJsonLd', () => {
   });
 
   it.each([0, null, undefined, NaN, 'invalido' as unknown as number])(
-    'no emite Product cuando precio no es público: %s',
+    'emite Product y Offer sin price cuando el precio no es público: %s',
     precio => {
       const jsonLd = buildProductJsonLd({ ...producto, precio }, 'es');
-      expect(jsonLd).toBeNull();
+      expect(jsonLd['@type']).toBe('Product');
+      const offers = jsonLd.offers as Record<string, unknown>;
+      expect(offers['@type']).toBe('Offer');
+      expect(offers.price).toBeUndefined();
+      expect(offers.priceCurrency).toBeUndefined();
+      expect(offers.availability).toBe('https://schema.org/InStock');
     }
   );
 

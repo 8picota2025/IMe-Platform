@@ -301,7 +301,7 @@ export const LANDINGS_INDICE: EntradaIndiceLanding[] = [
   {
     tipo: 'familia',
     clave: 'soluciones-iv',
-    nombre: 'Soluciones IV',
+    nombre: 'Bombas de infusión',
     path: '/es/familias/soluciones-iv/',
     pathEn: '/en/families/soluciones-iv/',
   },
@@ -322,7 +322,7 @@ export const LANDINGS_INDICE: EntradaIndiceLanding[] = [
   {
     tipo: 'familia',
     clave: 'terapia-de-infusion',
-    nombre: 'Terapia de infusión',
+    nombre: 'Bombas de infusión',
     path: '/es/familias/terapia-de-infusion/',
     pathEn: '/en/families/terapia-de-infusion/',
   },

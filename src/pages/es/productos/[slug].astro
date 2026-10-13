@@ -62,15 +62,18 @@ const { familia, relacionados } = Astro.props as Props;
 
 const seo = buildProductoSeo(producto, locale, familia.nombre, producto.marca);
 const noindex = producto.slug === 'test';
-const certificaciones = normalizarEspecificaciones(producto.especificaciones)
+const especificaciones = normalizarEspecificaciones(producto.especificaciones);
+const certificaciones = especificaciones
   .filter(item => /normativ/i.test(item.grupo ?? ''))
   .map(item => [item.clave, item.valor].filter(Boolean).join(': '))
   .filter(Boolean);
+const modelo = especificaciones.find(item => /^modelo$/i.test(item.clave))?.valor;
 
 const jsonLd = combineJsonLd(
   buildProductJsonLd(producto, locale, familia.nombre, producto.marca, {
     certificaciones,
     familiaSlug: familia.slug,
+    ...(modelo ? { model: modelo } : {}),
   }),
   ...(producto.preguntas_frecuentes.length > 0
     ? [buildFaqJsonLd(producto.preguntas_frecuentes)]

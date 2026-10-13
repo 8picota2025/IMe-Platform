@@ -1,0 +1,45 @@
+---
+import TiendaCategoria from '../../components/TiendaCategoria.astro';
+import { getProductosBySlugs } from '../../lib/datos';
+import { rangoPrecios } from '../../lib/tienda-catalogo';
+import { formatMoneda } from '../../lib/format';
+
+const locale = 'en' as const;
+const slugs = [
+  'lampara-cielitica-led-x3618-con-satelite-ref-led-x3618-ilumitec',
+  'lampara-cielitica-led-x3636-con-satelite-ref-led-x3636-ilumitec',
+  'lampara-cielitica-ref-led-x18-100k-ilumitec',
+  'lampara-cielitica-ref-led-x36-ilumitec',
+  'lampara-cialitica-led-doble-para-quirofano',
+];
+const productos = await getProductosBySlugs(slugs, locale);
+const rango = rangoPrecios(productos);
+if (!rango) throw new Error('Surgical lights without a catalog price');
+const min = formatMoneda(rango.min, 'COP', locale);
+const max = formatMoneda(rango.max, 'COP', locale);
+---
+
+<TiendaCategoria
+  locale={locale}
+  currentPath="/en/surgical-light/"
+  filtro={true}
+  title={`Surgical light (lámpara cialítica) from ${min} | I-ME`}
+  description={`Operating-room surgical lights from ${min} to ${max} COP, VAT included. LED-X18, LED-X36 and the double light have no price and are quoted.`}
+  h1="Surgical light for the operating room"
+  lead={`Two Ilumitec references have a published price, from ${min} to ${max} COP including VAT. The catalog spells “Cielítica” on Ilumitec and “Cialítica” on the double light.`}
+  intro={[
+    'LED-X3618 (36+18 LEDs with satellite) and LED-X3636 (36+36 LEDs with double satellite) have a price. LED-X18, LED-X36 and the double LED surgical light (120,000 lux, 4500K, ceiling) have no price and are quoted.',
+    'Lux and color temperature are not copied from one reference to another.',
+  ]}
+  productos={productos}
+  faqs={[
+    {
+      q: 'Which surgical light has a price?',
+      a: `LED-X3618 and LED-X3636. The published range is ${min} to ${max} COP including VAT. The other lights on this page are quoted.`,
+    },
+    {
+      q: 'Does the double light include a price?',
+      a: 'No. The published sheet says 120,000 lux, 4500K and ceiling mount. The price is not in the catalog.',
+    },
+  ]}
+/>

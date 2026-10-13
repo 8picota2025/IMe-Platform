@@ -1,0 +1,45 @@
+---
+import TiendaCategoria from '../../components/TiendaCategoria.astro';
+import { getProductosBySlugs } from '../../lib/datos';
+import { rangoPrecios } from '../../lib/tienda-catalogo';
+import { formatMoneda } from '../../lib/format';
+
+const locale = 'es' as const;
+const slugs = [
+  'lampara-cielitica-led-x3618-con-satelite-ref-led-x3618-ilumitec',
+  'lampara-cielitica-led-x3636-con-satelite-ref-led-x3636-ilumitec',
+  'lampara-cielitica-ref-led-x18-100k-ilumitec',
+  'lampara-cielitica-ref-led-x36-ilumitec',
+  'lampara-cialitica-led-doble-para-quirofano',
+];
+const productos = await getProductosBySlugs(slugs, locale);
+const rango = rangoPrecios(productos);
+if (!rango) throw new Error('Lámparas cialíticas sin precio de catálogo');
+const min = formatMoneda(rango.min, 'COP', locale);
+const max = formatMoneda(rango.max, 'COP', locale);
+---
+
+<TiendaCategoria
+  locale={locale}
+  currentPath="/es/lampara-cialitica/"
+  filtro={true}
+  title={`Lámpara cialítica desde ${min} | I-ME`}
+  description={`Lámpara cialítica y cielítica de quirófano desde ${min} hasta ${max} COP, IVA incluido. LED-X18, LED-X36 y la doble sin precio se cotizan.`}
+  h1="Lámpara cialítica para quirófano"
+  lead={`Dos referencias Ilumitec tienen precio publicado, de ${min} a ${max} COP con IVA. El catálogo escribe «Cielítica» en Ilumitec y «Cialítica» en la lámpara doble.`}
+  intro={[
+    'LED-X3618 (36+18 LEDs con satélite) y LED-X3636 (36+36 LEDs con satélite doble) tienen precio. LED-X18, LED-X36 y la lámpara cialítica LED doble (120.000 lux, 4500K, techo) no tienen precio y se cotizan.',
+    'No se trasladan lux ni temperatura de color de una referencia a otra.',
+  ]}
+  productos={productos}
+  faqs={[
+    {
+      q: '¿Cuál lámpara cialítica tiene precio?',
+      a: `LED-X3618 y LED-X3636. El rango publicado es ${min} a ${max} COP con IVA. Las demás de esta página se cotizan.`,
+    },
+    {
+      q: '¿La lámpara doble incluye precio?',
+      a: 'No. La ficha publicada dice 120.000 lux, 4500K y montaje en techo. El precio no está en el catálogo.',
+    },
+  ]}
+/>

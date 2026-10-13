@@ -1,0 +1,32 @@
+---
+import TiendaCategoria from '../../components/TiendaCategoria.astro';
+import { productosTienda, textoSeoTienda } from '../../lib/tienda-catalogo';
+
+const locale = 'en' as const;
+const { productos, rango } = await productosTienda(locale, 'bastones');
+if (!rango) throw new Error('Canes without a catalog price');
+const seo = textoSeoTienda(locale, 'bastones', rango);
+---
+
+<TiendaCategoria
+  locale={locale}
+  currentPath="/en/canes/"
+  title={seo.title}
+  description={seo.description}
+  h1={seo.h1}
+  lead={seo.lead}
+  intro={[
+    'This list is published canes with a price. Ferrules, handles, crutches and axillary canes are outside the range.',
+  ]}
+  productos={productos}
+  faqs={[
+    {
+      q: 'Do you ship to Colombia, and how soon?',
+      a: 'Yes, we ship to Colombia. Delivery is in under 10 business days. Freight is not included in the published price.',
+    },
+    {
+      q: 'Does the price include VAT?',
+      a: 'Yes. The published price includes VAT. Shipping is quoted separately.',
+    },
+  ]}
+/>

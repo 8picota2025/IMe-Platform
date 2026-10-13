@@ -40,6 +40,10 @@ const seo = buildFamiliaSeo(locale, {
   name: content.title_es,
   description: content.description_es,
 });
+const canonicalAlias =
+  slug === 'terapia-de-infusion' ? buildCanonical('/es/familias/soluciones-iv/') : null;
+const canonical = canonicalAlias ?? seo.canonical;
+const noindex = canonicalAlias !== null;
 // Una landing canónica muestra solo su familia editorial real. `familias_filtro`
 // contiene asociaciones amplias para búsqueda y no debe definir pertenencia.
 const productos = (await buildCatalogoIndex(locale)).filter(
@@ -60,14 +64,14 @@ const jsonLd = combineJsonLd(
   buildBreadcrumbJsonLd([
     { name: t(locale, 'catalogo.migas_inicio'), url: buildCanonical('/es/') },
     { name: t(locale, 'catalogo.migas_catalogo'), url: buildCanonical('/es/catalogo') },
-    { name: name, url: seo.canonical },
+    { name: name, url: canonical },
   ]),
   buildFaqJsonLd(faq),
   {
     '@type': 'CollectionPage',
     name: content.title_es,
     description: content.description_es,
-    url: seo.canonical,
+    url: canonical,
   }
 );
 ---
@@ -75,10 +79,11 @@ const jsonLd = combineJsonLd(
 <Layout
   title={seo.title}
   description={seo.description}
-  canonical={seo.canonical}
+  canonical={canonical}
   locale={locale}
   currentPath={`/es/familias/${slug}`}
   jsonLd={jsonLd}
+  noindex={noindex}
 >
   <div
     class="page-hero"
@@ -92,6 +97,13 @@ const jsonLd = combineJsonLd(
       </nav>
       <span class="section-tag">Familia</span>
       <h1>{name}</h1>
+      {
+        noindex && (
+          <p style="margin:0.75rem 0 0">
+            <a href="/es/familias/soluciones-iv/">Ver bombas de infusión</a>
+          </p>
+        )
+      }
       <p style="color:var(--text-mid);margin:0.75rem 0 0;line-height:1.55">{content.intro_es}</p>
       <p style="margin-top:1.25rem">
         <a class="btn btn-primary" href={catalogoFamilia}

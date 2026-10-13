@@ -1176,7 +1176,7 @@ const enPages: LegalPage[] = [
           'Operating room equipment, tables, lamps and electrosurgery.',
           'Neonatology, incubators, warmers and CPAP.',
           'Ultrasound and diagnostic imaging.',
-          'Infusion pumps and IV solutions.',
+          'Infusion pumps.',
           'Medical furniture.',
           'Anesthesia machines and ventilators.',
           'Radiology systems and diagnostic equipment.',

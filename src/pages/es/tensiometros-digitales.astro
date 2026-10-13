@@ -1,0 +1,32 @@
+---
+import TiendaCategoria from '../../components/TiendaCategoria.astro';
+import { productosTienda, textoSeoTienda } from '../../lib/tienda-catalogo';
+
+const locale = 'es' as const;
+const { productos, rango } = await productosTienda(locale, 'tensiometros');
+if (!rango) throw new Error('Tensiómetros sin precio de catálogo');
+const seo = textoSeoTienda(locale, 'tensiometros', rango);
+---
+
+<TiendaCategoria
+  locale={locale}
+  currentPath="/es/tensiometros-digitales/"
+  title={seo.title}
+  description={seo.description}
+  h1={seo.h1}
+  lead={seo.lead}
+  intro={[
+    'El rango usa solo los tensiómetros digitales con precio: Pulse, Vital y Smart. El Carditek Power no tiene precio publicado y figura como cotización. El adaptador no entra en la categoría.',
+  ]}
+  productos={productos}
+  faqs={[
+    {
+      q: '¿Hacen envío a Colombia y en qué plazo?',
+      a: 'Sí, hay envío a Colombia. La entrega es en menos de 10 días hábiles. El flete no está incluido en el precio publicado.',
+    },
+    {
+      q: '¿Por qué un tensiómetro no muestra precio?',
+      a: 'El Carditek Power está en el catálogo sin precio. Se cotiza. Pulse, Vital y Smart sí tienen precio publicado con IVA.',
+    },
+  ]}
+/>
