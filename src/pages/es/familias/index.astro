@@ -1,0 +1,126 @@
+---
+/**
+ * Hub de familias. Sin este índice, /es/familias/ es un directorio
+ * (403) o un 301 al catálogo, y Search Console no tiene URL canónica.
+ */
+import Layout from '../../../layouts/Layout.astro';
+import {
+  buildCanonical,
+  buildOrganizationJsonLd,
+  buildBreadcrumbJsonLd,
+  combineJsonLd,
+} from '../../../lib/seo';
+import { FAMILIA_SEO, familiaDisplayName } from '../../../data/familia-seo';
+import { t } from '../../../i18n/utils';
+
+const locale = 'es' as const;
+const canonical = buildCanonical('/es/familias');
+const title = 'Familias de equipos biomédicos | I-ME';
+const description =
+  'Índice de las familias publicadas del catálogo I-ME. Cada enlace abre la landing de esa línea.';
+const familias = FAMILIA_SEO.filter(content => content.slug !== 'terapia-de-infusion').map(content => ({
+  slug: content.slug,
+  name: familiaDisplayName(content, locale),
+  description: content.description_es,
+  href: `/es/familias/${content.slug}/`,
+}));
+const jsonLd = combineJsonLd(
+  buildOrganizationJsonLd(),
+  buildBreadcrumbJsonLd([
+    { name: t(locale, 'catalogo.migas_inicio'), url: buildCanonical('/es/') },
+    { name: 'Familias', url: canonical },
+  ]),
+  {
+    '@type': 'CollectionPage',
+    name: 'Familias de equipos biomédicos',
+    description,
+    url: canonical,
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: familias.map((familia, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: familia.name,
+        url: buildCanonical(familia.href),
+      })),
+    },
+  }
+);
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  locale={locale}
+  currentPath="/es/familias"
+  jsonLd={jsonLd}
+>
+  <div class="page-hero" style="padding-top:130px;padding-bottom:var(--space-lg);background:var(--off)">
+    <div class="container" style="max-width:760px">
+      <nav class="breadcrumb" aria-label="Ruta" style="margin-bottom:1rem;font-size:0.875rem">
+        <a href="/es/">Inicio</a><span aria-hidden="true"> / </span>
+        <span aria-current="page">Familias</span>
+      </nav>
+      <span class="section-tag">Catálogo</span>
+      <h1>Familias de equipos biomédicos</h1>
+      <p style="color:var(--text-mid);margin:0.75rem 0 0;line-height:1.55">
+        Cada familia reúne la landing y los equipos publicados de esa línea. El catálogo completo
+        sigue disponible para filtrar por tipo.
+      </p>
+      <p style="margin-top:1.25rem">
+        <a class="btn btn-primary" href="/es/catalogo/">Ver catálogo completo</a>
+      </p>
+    </div>
+  </div>
+
+  <section class="container" style="padding:var(--space-xl) 0" aria-labelledby="lista-familias">
+    <h2 id="lista-familias" class="sr-only">Listado de familias</h2>
+    <ul class="familia-hub">
+      {
+        familias.map(familia => (
+          <li>
+            <a href={familia.href}>
+              <h3>{familia.name}</h3>
+              <p>{familia.description}</p>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</Layout>
+
+<style>
+  .familia-hub {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    gap: var(--space-md);
+  }
+  .familia-hub a {
+    display: block;
+    height: 100%;
+    padding: var(--space-md);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--white);
+    text-decoration: none;
+    color: inherit;
+  }
+  .familia-hub a:hover,
+  .familia-hub a:focus-visible {
+    border-color: var(--t900);
+  }
+  .familia-hub h3 {
+    margin: 0 0 0.4rem;
+    font-size: 1.05rem;
+  }
+  .familia-hub p {
+    margin: 0;
+    color: var(--text-mid);
+    line-height: 1.5;
+  }
+</style>

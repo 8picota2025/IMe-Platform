@@ -20,6 +20,11 @@ describe('vistas previas de PR: no indexables', () => {
     const ht = await read('public/.htaccess');
     expect(ht).toContain('SetEnvIf Request_URI "^/[1-9][0-9]*/" NOINDEX_PREVIEW');
     expect(ht).toContain('Header always set X-Robots-Tag "noindex, nofollow" env=NOINDEX_PREVIEW');
+    expect(ht).toContain('SetEnvIf Request_URI "\\.pdf$" NOINDEX_PDF');
+    expect(ht).toContain('Header always set X-Robots-Tag "noindex, nofollow" env=NOINDEX_PDF');
+    expect(ht).not.toMatch(/RewriteRule \^es\/familias\/\?\$ \/es\/catalogo\//);
+    expect(ht).toContain('RewriteRule ^(?:es/catalogo|en/catalog)/pagina/[0-9]+/?$ - [R=404,L]');
+    expect(ht).toContain('RewriteRule (?:^|/)lib/analytics/?$ - [G,L]');
   });
 
   it('el patrón de la regla coincide con las carpetas de vista previa y con ninguna ruta real', async () => {

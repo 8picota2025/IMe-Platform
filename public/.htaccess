@@ -9,6 +9,14 @@ RewriteEngine On
 SetEnvIf Request_URI "^/[1-9][0-9]*/" NOINDEX_PREVIEW
 Header always set X-Robots-Tag "noindex, nofollow" env=NOINDEX_PREVIEW
 
+# Fichas y datasheets en /assets no son páginas. No indexar.
+SetEnvIf Request_URI "\.pdf$" NOINDEX_PDF
+Header always set X-Robots-Tag "noindex, nofollow" env=NOINDEX_PDF
+
+# Catálogo con ?familia=otras-especialidades: grupo de interfaz, no una landing.
+SetEnvIf Query_String "(^|&)familia=otras-especialidades(&|$)" NOINDEX_QS
+Header always set X-Robots-Tag "noindex, nofollow" env=NOINDEX_QS
+
 # Canonical host
 # Evita la cadena www → raíz → /es/ para la URL de entrada más frecuente.
 RewriteCond %{HTTP_HOST} ^www\.i-me\.com\.co$ [NC]
@@ -16,6 +24,9 @@ RewriteRule ^$ https://i-me.com.co/es/ [R=301,L]
 
 RewriteCond %{HTTP_HOST} ^www\.i-me\.com\.co$ [NC]
 RewriteRule ^ https://i-me.com.co%{REQUEST_URI} [R=301,L]
+
+# Imports relativos antiguos (lib/analytics) que el crawler resolvió como páginas.
+RewriteRule (?:^|/)lib/analytics/?$ - [G,L]
 
 # Productos retirados: responder 410 también si el FTP conserva HTML anterior.
 RewriteRule ^(?:es/productos|en/products)/(?:arnes-para-cpap-de-burbuja-fisher-paykel|automate-ref-ahpv1115v-saniswiss|blender-serie-alto-flujo-con-flujometro-de-0-a-70lpm-ref-2002f70d-bio-med|blender-serie-bajo-flujo-con-doble-flujometro-de-0-a-15-ref-2003ff15-bio-med|blender-serie-bajo-flujo-con-flujometro-de-0-a-15-lpm-ref-2003fl-bio-med|blender-serie-de-alto-flujo-con-flujometro-de-0-a-30lpm-ref-2002f70d-bio-med|cable-calefactor-para-circuito-de-doble-hilo-caliente-ref-900mr805-fisher-paykel|canula-nasal-optiflow-adulto-fisher-paykel|canula-para-traqueostomia-adulto-ref-opt970-fisher-paykel|cascada-desechable-para-humidificador-ref-mr290-fisher-paykel)(?:/index\.html|/?)$ - [G,L]
@@ -38,19 +49,33 @@ RewriteRule ^(?:assets/productos/importados/sensor\-de\-flujo\-desechable\-ref\-
 # Canonical entry points
 RewriteRule ^$ /es/ [R=301,L]
 RewriteRule ^index\.html$ /es/ [R=301,L]
+RewriteRule ^contacto\.html$ /es/contacto/ [R=301,L]
+RewriteRule ^es/cart/?$ /es/carrito/ [R=301,L]
+RewriteRule ^en/carrito/?$ /en/cart/ [R=301,L]
+RewriteRule ^es/conocimiento/publish/?$ /es/conocimiento/publicar/ [R=301,L]
+RewriteRule ^en/knowledge/publicar/?$ /en/knowledge/publish/ [R=301,L]
+RewriteRule ^en/knowledge/tema/([a-z0-9-]+)/?$ /en/knowledge/topic/$1/ [R=301,L,NE]
 RewriteRule ^pagoswompi$ /pagoswompi/ [R=301,L]
 RewriteRule ^clear-sw/?$ /clear-sw.html [L]
 RewriteRule ^77/?$ /es/ [R=301,L]
 RewriteRule ^77/index\.html$ /es/ [R=301,L]
+# /ruta/index.html es el mismo documento que /ruta/. Las reglas 410 de arriba ganan si aplican.
+RewriteRule ^(.+)/index\.html$ /$1/ [R=301,L]
 RewriteRule ^es/productos/?$ /es/catalogo/ [R=301,L]
 RewriteRule ^en/products/?$ /en/catalog/ [R=301,L]
 
-# Raíces de sección sin página índice (devolvían 403): al catálogo, igual que /productos/.
-RewriteRule ^es/familias/?$ /es/catalogo/ [R=301,L]
+# /es/familias/ y /en/families/ son hubs (index.html). Alias que no tienen landing.
 # Terapia de infusión duplica la familia de bombas (soluciones-iv).
 RewriteRule ^es/familias/terapia-de-infusion/?$ /es/familias/soluciones-iv/ [R=301,L]
 RewriteRule ^en/families/terapia-de-infusion/?$ /en/families/soluciones-iv/ [R=301,L]
-RewriteRule ^en/families/?$ /en/catalog/ [R=301,L]
+RewriteRule ^es/familias/quirofano-cuidado-critico/?$ /es/familias/sala-cirugia/ [R=301,L]
+RewriteRule ^en/families/quirofano-cuidado-critico/?$ /en/families/sala-cirugia/ [R=301,L]
+RewriteRule ^es/familias/gmd-actividades-de-la-vida-diaria/?$ /es/familias/actividades-vida-diaria/ [R=301,L]
+RewriteRule ^en/families/gmd-actividades-de-la-vida-diaria/?$ /en/families/actividades-vida-diaria/ [R=301,L]
+RewriteRule ^es/familias/radiolog-a-y-diagn-stico-por-imagen/?$ /es/familias/radiologia/ [R=301,L]
+RewriteRule ^en/families/radiolog-a-y-diagn-stico-por-imagen/?$ /en/families/radiologia/ [R=301,L]
+RewriteRule ^es/familias/otras-especialidades/?$ /es/catalogo/ [R=301,L]
+RewriteRule ^en/families/otras-especialidades/?$ /en/catalog/ [R=301,L]
 
 # Productos de prueba o de muestra: no existen como página pública (410 directo; antes 301 → 404).
 RewriteRule ^(?:es/productos|en/products)/(?:test|test-de-pasarela-de-pagos|ejemplo-producto|producto-de-ejemplo)(?:/index\.html|/?)$ - [G,L]
@@ -100,6 +125,28 @@ RewriteRule ^en/products/onitor-de-paciente-p22-biolight/?$ - [G,L]
 
 # Root legacy HTML (duplicate catalog without redirect)
 RewriteRule ^catalogo\.html$ /es/catalogo/ [R=301,L]
+
+# Paginación + filtro no es un documento. GSC: soft 404 en pagina/11/?familia=
+RewriteCond %{QUERY_STRING} (^|&)(?:familia|cat|tipo|q)= [NC]
+RewriteRule ^(?:es/catalogo|en/catalog)/pagina/[0-9]+/?$ - [R=404,L]
+
+# Alias de ?familia= que no coinciden con el slug de la landing.
+RewriteCond %{QUERY_STRING} ^familia=gmd-actividades-de-la-vida-diaria(?:&.*)?$ [NC]
+RewriteRule ^es/catalogo/?$ /es/familias/actividades-vida-diaria/? [R=301,L]
+RewriteCond %{QUERY_STRING} ^familia=gmd-actividades-de-la-vida-diaria(?:&.*)?$ [NC]
+RewriteRule ^en/catalog/?$ /en/families/actividades-vida-diaria/? [R=301,L]
+RewriteCond %{QUERY_STRING} ^familia=quirofano-cuidado-critico(?:&.*)?$ [NC]
+RewriteRule ^es/catalogo/?$ /es/familias/sala-cirugia/? [R=301,L]
+RewriteCond %{QUERY_STRING} ^familia=quirofano-cuidado-critico(?:&.*)?$ [NC]
+RewriteRule ^en/catalog/?$ /en/families/sala-cirugia/? [R=301,L]
+RewriteCond %{QUERY_STRING} ^familia=radiolog-a-y-diagn-stico-por-imagen(?:&.*)?$ [NC]
+RewriteRule ^es/catalogo/?$ /es/familias/radiologia/? [R=301,L]
+RewriteCond %{QUERY_STRING} ^familia=radiolog-a-y-diagn-stico-por-imagen(?:&.*)?$ [NC]
+RewriteRule ^en/catalog/?$ /en/families/radiologia/? [R=301,L]
+
+# Grupo de interfaz: no redirigir a una familia que no existe.
+RewriteCond %{QUERY_STRING} ^familia=otras-especialidades(?:&.*)?$ [NC]
+RewriteRule ^(?:es/catalogo|en/catalog)/?$ - [L]
 
 # Catalog ?familia= → SEO family landings (GSC: alternate canonical)
 RewriteCond %{QUERY_STRING} ^familia=([a-z0-9-]+)(&.*)?$ [NC]
