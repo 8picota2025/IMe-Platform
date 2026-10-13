@@ -11,7 +11,7 @@ import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { escapeHtml } from '../_shared/email.ts';
 
 const FN_NAME = 'reporte-semanal';
-const DEFAULT_TO = 'root@i-me.com.co,info@i-me.com.co,jfm8ime@gmail.com';
+const DEFAULT_TO = 'root@i-me.com.co,info@i-me.com.co';
 
 interface DayBucket {
   date: string;
@@ -771,7 +771,7 @@ Deno.serve(async req => {
     const subject = `I-ME reporte semanal ${week.startYmd} → ${week.endYmd} · ${money(pedImporte)} validados`;
     const apiKey = Deno.env.get('MAILER_API_KEY') || Deno.env.get('RESEND_API_KEY');
     if (!apiKey) return internalError('MAILER_API_KEY missing', origin);
-    const from = Deno.env.get('MAILER_FROM') ?? 'pedidos@i-me.com.co';
+    const from = Deno.env.get('MAILER_FROM') ?? 'info@i-me.com.co';
     const results: Record<string, string> = {};
 
     for (const dest of to) {

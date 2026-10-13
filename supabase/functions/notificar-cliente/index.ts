@@ -202,7 +202,7 @@ function actionUrl(
     return `${SITE_URL}/${locale}/${locale === 'es' ? 'contacto' : 'contact'}/`;
   }
   if (estado === 'retrasado' || estado === 'rechazado' || estado === 'cancelado') {
-    return `mailto:ventas@i-me.com.co`;
+    return `mailto:comercial1@i-me.com.co`;
   }
   return `${SITE_URL}/${locale}/${locale === 'es' ? 'seguimiento' : 'order-status'}/`;
 }

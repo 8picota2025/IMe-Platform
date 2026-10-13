@@ -1,6 +1,6 @@
 /**
  * Registra una solicitud de cotizacion y dispara los emails: aviso interno
- * (root@ + ventas@, o compras@ para compra a valorar) con el resumen completo
+ * (root@ + comercial1@, o comercial1@ para compra a valorar) con el resumen completo
  * y confirmación de recepción al cliente. Los emails son best-effort: si
  * fallan, la solicitud queda registrada igualmente. Si falla la sync con
  * Twenty CRM se envía además una alerta interna.

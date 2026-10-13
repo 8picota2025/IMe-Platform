@@ -324,7 +324,7 @@ Según tipo de cliente, incluye:
 
 **Para consultas sobre financiación:**
 
-- 📧 Email: financiacion@i-me.com.co
+- 📧 Email: comercial1@i-me.com.co
 - 📞 Teléfono: [A confirmar por cliente]
 - 🏢 Oficina: [A confirmar por cliente]
 
