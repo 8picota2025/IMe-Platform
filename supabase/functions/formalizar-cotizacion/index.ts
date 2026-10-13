@@ -96,6 +96,19 @@ async function loadCotizacionValidada(
       ),
     };
   }
+  if (row.archived_at) {
+    return {
+      ok: false,
+      response: errorResponse(
+        {
+          code: 'COTIZACION_ARCHIVADA',
+          message: 'Esta cotizacion fue archivada y ya no se puede formalizar',
+        },
+        409,
+        origin
+      ),
+    };
+  }
   if (row.estado !== 'enviada' && row.estado !== 'respondida') {
     return {
       ok: false,
