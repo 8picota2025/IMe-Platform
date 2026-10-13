@@ -98,6 +98,17 @@ Deno.serve(async req => {
     );
   }
 
+  if (row.archived_at) {
+    return errorResponse(
+      {
+        code: 'COTIZACION_ARCHIVADA',
+        message: 'La cotizacion esta archivada. Desarchivala antes de convertirla.',
+      },
+      409,
+      origin
+    );
+  }
+
   const lineas = parseLineasOferta(row.productos);
   const check = ofertaCompleta(lineas, row.condiciones);
   if (!check.ok) {

@@ -651,6 +651,16 @@ Deno.serve(
           origin
         );
       }
+      if (cotizacion.archived_at) {
+        return errorResponse(
+          {
+            code: 'COTIZACION_ARCHIVADA',
+            message: 'Esta cotizacion fue archivada y ya no se puede formalizar',
+          },
+          409,
+          origin
+        );
+      }
       if (cotizacion.estado !== 'enviada' && cotizacion.estado !== 'respondida') {
         return errorResponse(
           { code: 'COTIZACION_NO_ENVIADA', message: 'Cotizacion no disponible para formalizar' },

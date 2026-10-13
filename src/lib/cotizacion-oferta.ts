@@ -304,6 +304,8 @@ export function tokenExpirado(expiraAt: string | null | undefined, now = new Dat
 export function puedeFormalizar(row: CotizacionOfertaRow, now = new Date()): boolean {
   const estado = String(row.estado ?? '');
   if (!ESTADOS_FORMALIZABLES.has(estado)) return false;
+  // Soft-delete from #179: CMS/MCP archive hides the quote; formalizar must fail closed too.
+  if (row.archived_at) return false;
   if (row.pedido_id) return false;
   if (tokenExpirado(row.formalizacion_token_expira_at, now)) return false;
   if (!row.formalizacion_token_hash) return false;
@@ -369,6 +371,8 @@ export async function verificarTokenFormalizacion(
   now = new Date()
 ): Promise<boolean> {
   if (!token || !row.formalizacion_token_hash) return false;
+  if (row.archived_at) return false;
+  if (row.pedido_id) return false;
   if (
     !puedeFormalizar(row, now) &&
     String(row.estado) !== 'enviada' &&
@@ -377,7 +381,6 @@ export async function verificarTokenFormalizacion(
     return false;
   }
   if (tokenExpirado(row.formalizacion_token_expira_at, now)) return false;
-  if (row.pedido_id) return false;
   const hash = await hashTokenSha256(token);
   return hash === row.formalizacion_token_hash;
 }

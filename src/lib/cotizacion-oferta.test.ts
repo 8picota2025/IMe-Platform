@@ -116,6 +116,20 @@ describe('cotizacion-oferta', () => {
         now
       )
     ).toBe(false);
+    expect(
+      puedeFormalizar(
+        {
+          id: 'x',
+          estado: 'enviada',
+          archived_at: '2026-10-11T14:30:00.000Z',
+          formalizacion_token_hash: 'abc',
+          formalizacion_token_expira_at: '2026-08-10T00:00:00Z',
+          condiciones: 'Pago contra entrega',
+          productos: [{ slug: 'a', cantidad: 1, precio_unitario: 10, nombre: 'A' }],
+        },
+        now
+      )
+    ).toBe(false);
   });
 
   it('splitNombreApellido y formalizarPath', () => {
