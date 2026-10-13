@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { serializeSitemapItem, chunkProducts, chunkKnowledge } from '../../scripts/sitemap-seo.mjs';
-import { isIndexableSitemapUrl } from '../../scripts/sitemap-indexability.mjs';
+import {
+  goneProductSlugs,
+  isIndexableSitemapUrl,
+} from '../../scripts/sitemap-indexability.mjs';
 import { getLocalizedPath } from '../i18n/utils';
 
 describe('sitemap-seo', () => {
@@ -108,6 +111,27 @@ describe('sitemap-indexability', () => {
     ).toBe(false);
     expect(
       isIndexableSitemapUrl('https://i-me.com.co/es/productos/monitor-administrativo-demo/')
+    ).toBe(true);
+    expect(isIndexableSitemapUrl('https://i-me.com.co/es/lib/analytics')).toBe(false);
+    expect(isIndexableSitemapUrl('https://i-me.com.co/assets/productos/x/ficha.pdf')).toBe(false);
+    expect(isIndexableSitemapUrl('https://i-me.com.co/es/familias/')).toBe(true);
+    expect(isIndexableSitemapUrl('https://i-me.com.co/en/families/')).toBe(true);
+    expect(
+      isIndexableSitemapUrl('https://i-me.com.co/es/productos/mesita-de-noche-ref-sks008-saikang/')
+    ).toBe(true);
+  });
+
+  it('omite del sitemap los productos que .htaccess responde con 410', () => {
+    const gone = goneProductSlugs();
+    expect(gone.has('test')).toBe(true);
+    expect(gone.has('ejemplo-producto')).toBe(true);
+    expect(gone.has('monitor-de-paciente-ref-m12-biolight')).toBe(false);
+    expect(gone.has('monitor-de-paciente-ref-s12-biolight')).toBe(false);
+    expect(gone.has('lampara-auxiliar-tipo-led-ref-110-dr-mach')).toBe(true);
+    expect(
+      isIndexableSitemapUrl(
+        'https://i-me.com.co/es/productos/monitor-de-paciente-ref-s12-biolight/'
+      )
     ).toBe(true);
   });
 });

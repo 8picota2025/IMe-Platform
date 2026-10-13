@@ -2,6 +2,42 @@
  * Sitemap eligibility — pathname-based, no substring false positives.
  * Shared by astro.config.mjs and scripts/validate-seo.mjs.
  */
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const HTACCESS_PATH = join(dirname(fileURLToPath(import.meta.url)), '../public/.htaccess');
+
+/**
+ * Slugs que `.htaccess` responde con 410. El sitemap solo lista canónicas vivas.
+ * @param {string} [htaccess]
+ * @returns {Set<string>}
+ */
+export function goneProductSlugs(htaccess = readFileSync(HTACCESS_PATH, 'utf8')) {
+  const slugs = new Set();
+  const grouped =
+    /^RewriteRule \^\(\?:es\/productos\|en\/products\)\/\(\?:([^)]*)\)\(\?:\/index\\\.html\|\/\?\)\$ - \[G,L\]$/;
+  const bothLocales =
+    /^RewriteRule \^\(\?:es\/productos\|en\/products\)\/([a-z0-9.-]+)\(\?:\/index\\\.html\|\/\?\)\$ - \[G,L\]$/;
+  const oneLocale = /^RewriteRule \^(?:es\/productos|en\/products)\/([a-z0-9.-]+)\/\?\$ - \[G,L\]$/;
+  for (const line of htaccess.split('\n')) {
+    const group = line.match(grouped);
+    if (group) {
+      for (const slug of group[1].split('|')) if (slug) slugs.add(slug);
+      continue;
+    }
+    const shared = line.match(bothLocales);
+    if (shared?.[1]) {
+      slugs.add(shared[1]);
+      continue;
+    }
+    const single = line.match(oneLocale);
+    if (single?.[1]) slugs.add(single[1]);
+  }
+  return slugs;
+}
+
+const GONE_PRODUCT_SLUGS = goneProductSlugs();
 
 /**
  * Exact paths that must never appear in the sitemap.
@@ -119,6 +155,9 @@ export function isIndexableSitemapUrl(page) {
   if (/^\/(?:es\/productos|en\/products)\/g-[^/]+/.test(pathname)) return false;
   if (/^\/(?:es\/familias|en\/families)\/terapia-de-infusion\/?$/.test(pathname)) return false;
   if (/test-de-pasarela-de-pagos/.test(pathname)) return false;
+  if (/\/lib\/analytics\/?$/.test(pathname)) return false;
+  const productSlug = pathname.match(/^\/(?:es\/productos|en\/products)\/([^/]+)\/?$/)?.[1];
+  if (productSlug && GONE_PRODUCT_SLUGS.has(productSlug)) return false;
   // Datasheets are not pages. Equitronic competitor assets must not re-enter any sitemap.
   if (/\.pdf$/i.test(pathname)) return false;
   if (/\/assets\/importados\/equitronic(?:\/|$)/i.test(pathname)) return false;

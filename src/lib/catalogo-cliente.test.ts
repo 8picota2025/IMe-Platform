@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  catalogStatePath,
   collectTiposFromCards,
   matchesBase,
   matchesSearchText,
@@ -27,6 +28,22 @@ describe('paginateCatalogItems', () => {
 function card(attrs: Record<string, string>): HTMLElement {
   return { dataset: { ...attrs } } as unknown as HTMLElement;
 }
+
+describe('catalogStatePath', () => {
+  it('baja de /pagina/N/ al catálogo cuando hay filtro', () => {
+    expect(
+      catalogStatePath('/en/catalog/pagina/11/', 'familia=otras-especialidades')
+    ).toBe('/en/catalog/');
+    expect(catalogStatePath('/es/catalogo/pagina/3', '?cat=monitores&tipo=oximetros')).toBe(
+      '/es/catalogo/'
+    );
+  });
+
+  it('conserva la página estática cuando no hay filtro', () => {
+    expect(catalogStatePath('/en/catalog/pagina/11/', '')).toBe('/en/catalog/pagina/11/');
+    expect(catalogStatePath('/es/catalogo/pagina/2/', 'todos=1')).toBe('/es/catalogo/pagina/2/');
+  });
+});
 
 describe('catalogo-cliente tipo URL state', () => {
   it('parsea familia, cat alias y tipo desde la query', () => {

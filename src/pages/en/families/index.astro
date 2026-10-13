@@ -1,0 +1,126 @@
+---
+/**
+ * Family hub. Without this index, /en/families/ is a bare directory
+ * (403) or a redirect to the catalog, with no canonical URL.
+ */
+import Layout from '../../../layouts/Layout.astro';
+import {
+  buildCanonical,
+  buildOrganizationJsonLd,
+  buildBreadcrumbJsonLd,
+  combineJsonLd,
+} from '../../../lib/seo';
+import { FAMILIA_SEO, familiaDisplayName } from '../../../data/familia-seo';
+import { t } from '../../../i18n/utils';
+
+const locale = 'en' as const;
+const canonical = buildCanonical('/en/families');
+const title = 'Biomedical equipment families | I-ME';
+const description =
+  'Index of the published I-ME catalog families. Each link opens that line’s landing page.';
+const familias = FAMILIA_SEO.filter(content => content.slug !== 'terapia-de-infusion').map(content => ({
+  slug: content.slug,
+  name: familiaDisplayName(content, locale),
+  description: content.description_en,
+  href: `/en/families/${content.slug}/`,
+}));
+const jsonLd = combineJsonLd(
+  buildOrganizationJsonLd(),
+  buildBreadcrumbJsonLd([
+    { name: t(locale, 'catalogo.migas_inicio'), url: buildCanonical('/en/') },
+    { name: 'Families', url: canonical },
+  ]),
+  {
+    '@type': 'CollectionPage',
+    name: 'Biomedical equipment families',
+    description,
+    url: canonical,
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: familias.map((familia, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: familia.name,
+        url: buildCanonical(familia.href),
+      })),
+    },
+  }
+);
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  locale={locale}
+  currentPath="/en/families"
+  jsonLd={jsonLd}
+>
+  <div class="page-hero" style="padding-top:130px;padding-bottom:var(--space-lg);background:var(--off)">
+    <div class="container" style="max-width:760px">
+      <nav class="breadcrumb" aria-label="Breadcrumb" style="margin-bottom:1rem;font-size:0.875rem">
+        <a href="/en/">Home</a><span aria-hidden="true"> / </span>
+        <span aria-current="page">Families</span>
+      </nav>
+      <span class="section-tag">Catalog</span>
+      <h1>Biomedical equipment families</h1>
+      <p style="color:var(--text-mid);margin:0.75rem 0 0;line-height:1.55">
+        Each family brings together the landing page and the published equipment in that line. The
+        full catalog remains available to filter by type.
+      </p>
+      <p style="margin-top:1.25rem">
+        <a class="btn btn-primary" href="/en/catalog/">View full catalog</a>
+      </p>
+    </div>
+  </div>
+
+  <section class="container" style="padding:var(--space-xl) 0" aria-labelledby="family-list">
+    <h2 id="family-list" class="sr-only">Family list</h2>
+    <ul class="familia-hub">
+      {
+        familias.map(familia => (
+          <li>
+            <a href={familia.href}>
+              <h3>{familia.name}</h3>
+              <p>{familia.description}</p>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</Layout>
+
+<style>
+  .familia-hub {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    gap: var(--space-md);
+  }
+  .familia-hub a {
+    display: block;
+    height: 100%;
+    padding: var(--space-md);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--white);
+    text-decoration: none;
+    color: inherit;
+  }
+  .familia-hub a:hover,
+  .familia-hub a:focus-visible {
+    border-color: var(--t900);
+  }
+  .familia-hub h3 {
+    margin: 0 0 0.4rem;
+    font-size: 1.05rem;
+  }
+  .familia-hub p {
+    margin: 0;
+    color: var(--text-mid);
+    line-height: 1.5;
+  }
+</style>

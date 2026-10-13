@@ -78,6 +78,32 @@ export function parseStateFromUrl(
   };
 }
 
+/**
+ * Los filtros no viven en `/pagina/N/`: esa combinación es un soft 404.
+ * `todos=1` sí se queda en la página estática en la que el usuario ya está.
+ * @internal exported for unit tests
+ */
+export function catalogStatePath(pathname: string, query: string): string {
+  const params = new URLSearchParams(query.startsWith('?') ? query.slice(1) : query);
+  const movesOffPagination = [
+    'familia',
+    'cat',
+    'tipo',
+    'q',
+    'comercial',
+    'destacado',
+    'nuevo',
+    'disponible',
+    'modalidad',
+    'filtros',
+    'orden',
+    'pagina',
+  ].some(key => Boolean(params.get(key)));
+  const base = movesOffPagination ? pathname.replace(/\/pagina\/\d+\/?$/, '/') : pathname;
+  if (base === '/' || base === '') return '/';
+  return base.endsWith('/') ? base : `${base}/`;
+}
+
 /** @internal exported for unit tests */
 export function serializeState(state: CatalogoState): string {
   const params = new URLSearchParams();
@@ -994,7 +1020,8 @@ export function initCatalogo(locale: Locale): () => void {
 
   function buildUrl(): string {
     const qs = serializeState(state);
-    return qs ? `${window.location.pathname}?${qs}` : window.location.pathname;
+    const path = catalogStatePath(window.location.pathname, qs);
+    return qs ? `${path}?${qs}` : path;
   }
 
   function resetFiltros(): void {
