@@ -197,11 +197,11 @@ Trabajo de otra sesión/agente, integrado junto con el cierre de F4.1 anterior.
       `information_schema`.
 - [x] **Riesgo de bloqueo del admin resuelto**: `admin_profiles` se sembró en el
       mismo lote/transacción con el único usuario de Supabase Auth
-      (`8picota2025@gmail.com`, `rol='owner'`, `activo=true`), evitando que las
+      (`info@i-me.com.co`, `rol='owner'`, `activo=true`), evitando que las
       nuevas políticas RLS (`is_admin(roles)`) dejen `/admin` sin permisos de
       escritura.
 - [x] Verificación post-migración (2026-06-15) de `/admin` vía navegador contra
-      Supabase real: login con `8picota2025@gmail.com` OK, dashboard y listados leen
+      Supabase real: login con `info@i-me.com.co` OK, dashboard y listados leen
       datos reales (33 productos, cotizaciones, etc.) bajo las nuevas políticas RLS,
       y se probó un `UPDATE` real en `solicitudes_cotizacion.estado`/`notas_internas`
       (columnas F4.1 nuevas) desde `/admin#/cotizacion` — pasó de `nueva` a
@@ -312,7 +312,7 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
       `cliente_direcciones`, `cupones`, `cupon_usos`, `pedido_notas`,
       `pedido_eventos`, `admin_profiles`/RBAC, columnas nuevas de `productos`/`pedidos`)
       aplicada a la base de datos real el 2026-06-15 vía Management API, con
-      `admin_profiles` sembrado en el mismo paso (`8picota2025@gmail.com`,
+      `admin_profiles` sembrado en el mismo paso (`info@i-me.com.co`,
       `rol='owner'`) — ver detalle en secciones F4.1 y "Paridad WooCommerce/B2B-B2C"
       en BLOQUEANTE_BACKEND.
 - [ ] Prueba real de Wompi sandbox CO y Stripe test INTL — depende de que la migración

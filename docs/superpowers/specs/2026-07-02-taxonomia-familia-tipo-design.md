@@ -129,7 +129,7 @@ no el HTML del select.
 - No se toca el flujo de ingesta PDF.
 - No hay migración SQL: todo son mutaciones de datos vía el propio panel admin,
   ejecutadas por el usuario cuando tenga credenciales válidas (el intento de login
-  de esta sesión con `8picota2025@gmail.com` fue rechazado por Supabase Auth —
+  de esta sesión con `info@i-me.com.co` fue rechazado por Supabase Auth —
   "Invalid login credentials" — así que este spec no pudo probarse contra datos reales).
 
 ## Testing
