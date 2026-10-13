@@ -119,7 +119,7 @@
       {
         "tipo": "input",
         "name": "telefono",
-        "placeholder": "+57 300 000 0000",
+        "placeholder": "+57 3XX XXX XXXX",
         "requerido": true
       },
       {
