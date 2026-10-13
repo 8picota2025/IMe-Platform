@@ -9804,19 +9804,24 @@
     "marca": "Mesa de",
     "proveedor_ref": "equitronic"
   },
-  {
+    {
     "id": "b0d1ef08-06b7-4927-a1a5-3873be4c5f11",
     "slug": "monitor-de-paciente-ref-m12-biolight",
     "familia_id": "82aa3109-df88-468b-aed8-5ff953f2749a",
     "familia_slug": "monitores",
     "tipo_id": "4478f7f7-b567-4eab-ad35-b3e1a691f9ef",
-    "nombre_es": "Monitor de Paciente Biolight M12 | Precisión y Rendimiento Clínico Compacto",
-    "nombre_en": "Biolight M12 Patient Monitor | Compact Clinical Precision & Performance",
-    "descripcion_corta_es": "El Monitor de Paciente Biolight M12 combina tecnología confiable, diseño ergonómico y precisión clínica en un formato compacto, ideal para hospitales, clínicas y áreas de urgencias.",
-    "descripcion_corta_en": "Biolight M12 patient monitor combines reliable technology, ergonomic design and clinical precision in a compact format, ideal for hospitals, clinics and emergency areas.",
+    "nombre_es": "Monitor de paciente Biolight M12",
+    "nombre_en": "Biolight M12 patient monitor",
+    "descripcion_corta_es": "Monitor de paciente Biolight M12 con pantalla táctil de 12.1 pulgadas (1280×800). ECG, SpO₂, NIBP y temperatura para adultos, pediátricos y neonatales. Precio bajo cotización.",
+    "descripcion_corta_en": "Biolight M12 patient monitor with a 12.1-inch touchscreen (1280×800). ECG, SpO₂, NIBP and temperature for adult, pediatric and neonatal patients. Price on request.",
     "descripcion_larga_es": "El Monitor de Paciente Biolight M12 combina tecnología confiable, diseño ergonómico y precisión clínica en un formato compacto, ideal para hospitales, clínicas y áreas de urgencias.\nSu pantalla táctil de 12.1 pulgadas ofrece una visualización clara y organizada de los parámetros vitales, permitiendo al personal médico actuar con rapidez y eficacia.\nDiseñado para pacientes adultos, pediátricos y neonatales, el M12 mide con precisión ECG, SpO₂, frecuencia respiratoria, presión arterial no invasiva (NIBP) y temperatura, con posibilidad de ampliar sus funciones con IBP, CO₂ y gasto cardíaco (C.O.).\nCuenta con ventilador interno sellado, que minimiza el riesgo de contaminación cruzada, y herramientas de evaluación clínica integradas como EWS, GCS y OxyCRG, que facilitan el monitoreo de estados críticos.\nGracias a su batería interna de larga duración, su interfaz intuitiva y su estructura compacta y robusta, el M12 garantiza rendimiento continuo, movilidad y seguridad del paciente en cualquier entorno clínico.",
     "descripcion_larga_en": "The Biolight M12 Patient Monitor combines reliable technology, ergonomic design and clinical precision in a compact footprint, ideal for hospitals, clinics and emergency departments.\nIts 12.1-inch touchscreen delivers a clear, organized view of vital parameters, helping clinical staff act quickly and effectively.\nDesigned for adult, pediatric and neonatal patients, the M12 accurately measures ECG, SpO₂, respiratory rate, non-invasive blood pressure (NIBP) and temperature, with the option to expand its capabilities with IBP, CO₂ and cardiac output (C.O.).\nIt features a sealed internal ventilator that minimizes the risk of cross-contamination, along with built-in clinical assessment tools such as EWS, GCS and OxyCRG that support the monitoring of critical conditions.\nThanks to its long-lasting internal battery, intuitive interface and compact, rugged build, the M12 delivers continuous performance, mobility and patient safety in any clinical setting.",
     "especificaciones": [
+      {
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "M12"
+      },
       {
         "clave": "Pantalla",
         "grupo": "Pantalla y diseño",
@@ -9874,7 +9879,7 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": false,
+    "activo": true,
     "orden": 0,
     "aplicaciones_es": [
       "Salas de observación y urgencias",
@@ -9919,7 +9924,10 @@
       "hospital patient monitor Colombia"
     ],
     "atributos": {
-      "legacy_slugs": ["monitor-de-paciente-m12-biolight"]
+      "legacy_slugs": [
+        "monitor-de-paciente-m12-biolight"
+      ],
+      "marca": "Biolight"
     }
   },
   {
@@ -10317,19 +10325,45 @@
       "legacy_slugs": ["monitor-de-paciente-p12-biolight"]
     }
   },
-  {
+    {
     "id": "d1073be4-8269-4068-8104-97b0ab0c7d3b",
     "slug": "monitor-de-paciente-ref-s12-biolight",
     "familia_id": "82aa3109-df88-468b-aed8-5ff953f2749a",
     "familia_slug": "monitores",
     "tipo_id": "4478f7f7-b567-4eab-ad35-b3e1a691f9ef",
-    "nombre_es": "Monitor de Paciente Biolight S12 | Monitoreo Avanzado con Tecnología IoT",
-    "nombre_en": "Biolight S12 Patient Monitor | Advanced Monitoring with IoT Technology",
-    "descripcion_corta_es": "El Monitor de Paciente Biolight S12 integra tecnología inteligente, diseño ergonómico y una interfaz de usuario moderna para brindar monitoreo clínico confiable en todos los niveles de atención.",
-    "descripcion_corta_en": "The Biolight S12 Patient Monitor integrates intelligent technology, ergonomic design, and a modern user interface to provide reliable clinical monitoring at all care levels.",
+    "nombre_es": "Monitor de paciente Biolight S12",
+    "nombre_en": "Biolight S12 patient monitor",
+    "descripcion_corta_es": "Monitor de paciente Biolight S12 con pantalla multitáctil HD de 12.1 pulgadas. Mide ECG, SpO₂, NIBP, temperatura y frecuencia respiratoria en adultos, pediátricos y neonatales. Precio bajo cotización.",
+    "descripcion_corta_en": "Biolight S12 patient monitor with a 12.1-inch HD multitouch display. Measures ECG, SpO₂, NIBP, temperature and respiratory rate for adult, pediatric and neonatal patients. Price on request.",
     "descripcion_larga_es": "El Monitor de Paciente Biolight S12 integra tecnología inteligente, diseño ergonómico y una interfaz de usuario moderna para brindar monitoreo clínico confiable en todos los niveles de atención.\n\nEquipado con una pantalla multitáctil HD de 12.1 pulgadas, el S12 permite visualizar múltiples parámetros vitales de forma clara e intuitiva, optimizando la eficiencia del personal médico.\n\nPreconfigurado para pacientes adultos, pediátricos y neonatales, mide de manera precisa ECG, SpO₂, presión arterial no invasiva (NIBP), temperatura y frecuencia respiratoria, con opciones para incorporar CO₂, IBP y gasto cardíaco (C.O.) según las necesidades clínicas.\n\nGracias a su software de última generación, conectividad IoT y diseño ergonómico, el S12 garantiza monitoreo continuo, precisión diagnóstica y operación simplificada en entornos como quirófanos, UCIs, salas de recuperación y urgencias.\n\nUna herramienta versátil que combina rendimiento clínico, tecnología de vanguardia y facilidad de uso, respaldada por la confiabilidad Biolight.",
     "descripcion_larga_en": "The Biolight S12 Patient Monitor integrates intelligent technology, ergonomic design, and a modern user interface for reliable clinical monitoring across all care levels. Its 12.1-inch HD multitouch display provides clear, intuitive visualization of multiple vital parameters, enhancing clinical staff efficiency. Preconfigured for adult, pediatric, and neonatal patients, it accurately measures ECG, SpO₂, non-invasive blood pressure (NIBP), temperature, and respiratory rate, with options to add CO₂, IBP, and cardiac output (C.O.). Advanced software, IoT connectivity, and ergonomic design ensure continuous monitoring, diagnostic accuracy, and simplified operation in operating rooms, ICUs, recovery rooms, and emergency departments.",
-    "especificaciones": [],
+    "especificaciones": [
+      {
+        "clave": "Modelo",
+        "grupo": "Identificación",
+        "valor": "S12"
+      },
+      {
+        "clave": "Pantalla",
+        "grupo": "Pantalla y diseño",
+        "valor": "Multitáctil HD de 12.1 pulgadas"
+      },
+      {
+        "clave": "Población",
+        "grupo": "Uso",
+        "valor": "Adultos, pediátricos y neonatales"
+      },
+      {
+        "clave": "Parámetros estándar",
+        "grupo": "Parámetros monitoreados",
+        "valor": "ECG, SpO₂, presión arterial no invasiva (NIBP), temperatura y frecuencia respiratoria"
+      },
+      {
+        "clave": "Parámetros opcionales",
+        "grupo": "Parámetros monitoreados",
+        "valor": "CO₂, IBP y gasto cardíaco (C.O.)"
+      }
+    ],
     "imagen_principal": "/assets/productos/importados/monitor-de-paciente-s12-biolight/imagen-principal-monitor-de-paciente-s12-biolight.jpg",
     "galeria": [
       "/assets/productos/importados/monitor-de-paciente-s12-biolight/imagen-principal-monitor-de-paciente-s12-biolight.jpg",
@@ -10346,15 +10380,38 @@
     "disponible": true,
     "destacado": false,
     "nuevo": false,
-    "activo": false,
+    "activo": true,
     "orden": 0,
-    "aplicaciones_es": ["Quirófanos", "UCIs", "Salas de recuperación", "Urgencias"],
-    "aplicaciones_en": ["Operating rooms", "ICUs", "Recovery rooms", "Emergency departments"],
-    "marca": "Monitor de",
+    "aplicaciones_es": [
+      "Quirófanos",
+      "UCIs",
+      "Salas de recuperación",
+      "Urgencias"
+    ],
+    "aplicaciones_en": [
+      "Operating rooms",
+      "ICUs",
+      "Recovery rooms",
+      "Emergency departments"
+    ],
+    "marca": "Biolight",
     "proveedor_ref": "equitronic",
     "atributos": {
-      "legacy_slugs": ["monitor-de-paciente-s12-biolight"]
-    }
+      "legacy_slugs": [
+        "monitor-de-paciente-s12-biolight"
+      ],
+      "marca": "Biolight"
+    },
+    "seo_keywords_es": [
+      "monitor de paciente Biolight S12",
+      "monitor multiparamétrico S12",
+      "monitor hospitalario Colombia"
+    ],
+    "seo_keywords_en": [
+      "Biolight S12 patient monitor",
+      "S12 multiparameter monitor",
+      "hospital patient monitor Colombia"
+    ]
   },
   {
     "id": "62cb92c7-d8e3-4d1c-be23-5b449ea183ea",

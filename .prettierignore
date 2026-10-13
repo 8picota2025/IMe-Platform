@@ -1,3 +1,9 @@
 # prettier-plugin-astro no puede parsear el snippet GTM inline (llaves del
 # IIFE dentro de una expresión JSX); el archivo se formatea a mano.
 src/components/AnalyticsHead.astro
+
+# Estos archivos ya estaban fuera del formato de Prettier. Formatearlos
+# reescribe miles de líneas que no pertenecen a un cambio de contenido.
+src/data/mock-productos.json
+src/data/comercial-landings.ts
+src/data/familia-seo.ts

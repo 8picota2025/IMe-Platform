@@ -1,11 +1,12 @@
 ---
 import CampaignLandingPage from '../../components/CampaignLandingPage.astro';
 import { getCampaignLandingCms } from '../../lib/landings-cms';
-import { getProductosBySlugs } from '../../lib/datos';
+import { conSeoTienda, productosTienda } from '../../lib/tienda-catalogo';
 
 const locale = 'en' as const;
-const content = await getCampaignLandingCms('sillas_ruedas', locale);
-const productos = await getProductosBySlugs(content.productSlugs, locale);
+const cms = await getCampaignLandingCms('sillas_ruedas', locale);
+const { productos, rango } = await productosTienda(locale, 'sillas');
+const content = conSeoTienda(cms, locale, 'sillas', rango);
 ---
 
 <CampaignLandingPage locale={locale} content={content} productos={productos} />

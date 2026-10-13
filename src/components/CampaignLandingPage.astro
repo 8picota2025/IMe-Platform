@@ -8,6 +8,7 @@ import LeadQualificationForm from './LeadQualificationForm.astro';
 import type { Locale } from '../i18n/utils';
 import type { CampaignLandingContent } from '../data/comercial-landings';
 import type { Producto } from '../lib/datos';
+import { formatMoneda, tienePrecioPublico } from '../lib/format';
 import {
   buildPageTitle,
   buildCanonical,
@@ -299,6 +300,15 @@ const sitTitle = isEn ? 'Common project moments' : 'Momentos típicos del proyec
                   </div>
                   <div class="clp-product__body">
                     <h3>{p.nombre}</h3>
+                    {tienePrecioPublico(p.precio) ? (
+                      <p class="clp-product__price">
+                        {formatMoneda(p.precio, p.moneda ?? 'COP', locale)}
+                      </p>
+                    ) : (
+                      <p class="clp-product__price">
+                        {isEn ? 'Price on request' : 'Precio bajo cotización'}
+                      </p>
+                    )}
                     <p>{p.descripcion_corta}</p>
                     <span class="clp-product__link">
                       {isEn ? 'Open product sheet' : 'Ver ficha del producto'}
@@ -893,6 +903,14 @@ const sitTitle = isEn ? 'Common project moments' : 'Momentos típicos del proyec
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+
+  .clp-product__price {
+    display: block;
+    margin: 0;
+    font-weight: 700;
+    color: var(--t900);
+    -webkit-line-clamp: unset;
   }
 
   .clp-product__link {

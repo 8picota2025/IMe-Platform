@@ -1,0 +1,32 @@
+---
+import TiendaCategoria from '../../components/TiendaCategoria.astro';
+import { productosTienda, textoSeoTienda } from '../../lib/tienda-catalogo';
+
+const locale = 'en' as const;
+const { productos, rango } = await productosTienda(locale, 'tensiometros');
+if (!rango) throw new Error('Blood pressure monitors without a catalog price');
+const seo = textoSeoTienda(locale, 'tensiometros', rango);
+---
+
+<TiendaCategoria
+  locale={locale}
+  currentPath="/en/digital-blood-pressure-monitors/"
+  title={seo.title}
+  description={seo.description}
+  h1={seo.h1}
+  lead={seo.lead}
+  intro={[
+    'The range uses only priced digital monitors: Pulse, Vital and Smart. Carditek Power has no published price and is listed as a quote. The adapter is not part of the category.',
+  ]}
+  productos={productos}
+  faqs={[
+    {
+      q: 'Do you ship to Colombia, and how soon?',
+      a: 'Yes, we ship to Colombia. Delivery is in under 10 business days. Freight is not included in the published price.',
+    },
+    {
+      q: 'Why does one monitor have no price?',
+      a: 'Carditek Power is in the catalog without a price. It is quoted. Pulse, Vital and Smart have a published VAT-inclusive price.',
+    },
+  ]}
+/>

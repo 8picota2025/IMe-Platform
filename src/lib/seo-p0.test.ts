@@ -51,7 +51,7 @@ describe('SEO P0', () => {
     );
     const altoFlujo = getCampaignLanding('alto_flujo_fisher_paykel', 'es');
     expect(altoFlujo.path).toBe('/es/alto-flujo-fisher-paykel/');
-    expect(altoFlujo.productSlugs).toContain('sistema-de-alto-flujo-ref-airvo-3-fisher-paykel');
+    expect(altoFlujo.productSlugs).toEqual([]);
     const camillas = getCampaignLanding('camillas_medicas', 'es');
     expect(camillas.path).toBe('/es/camillas-medicas/');
     expect(camillas.productSlugs).toContain('camilla-de-traslado-ref-skb041-6-saikang');

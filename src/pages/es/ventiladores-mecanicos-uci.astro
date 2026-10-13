@@ -4,8 +4,18 @@ import { getCampaignLandingCms } from '../../lib/landings-cms';
 import { getProductosBySlugs } from '../../lib/datos';
 
 const locale = 'es' as const;
-const content = await getCampaignLandingCms('ventiladores_mecanicos', locale);
-const productos = await getProductosBySlugs(content.productSlugs, locale);
+const cms = await getCampaignLandingCms('ventiladores_mecanicos', locale);
+const t75 = 'ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide';
+const content = {
+  ...cms,
+  title: 'Ventilador mecánico UCI | Monnal T75 | I-ME',
+  description:
+    'Ventilador mecánico para UCI adulto y pediátrico: Monnal T75 publicado en el catálogo. TEO y T60 no están activos. Precio bajo cotización.',
+  h1: 'Ventilador mecánico para UCI',
+  lead: 'El ventilador publicado para UCI adulto y pediátrico es el Monnal T75. La configuración se cotiza. TEO y T60 no están en el catálogo activo.',
+  productSlugs: [t75],
+};
+const productos = await getProductosBySlugs([t75], locale);
 ---
 
 <CampaignLandingPage locale={locale} content={content} productos={productos} />

@@ -180,7 +180,7 @@
       "Sala de cirugía",
       "Neonatología",
       "Ultrasonido",
-      "Soluciones IV",
+      "Bombas de infusión",
       "Mobiliario hospitalario",
       "Anestesia y ventilación",
       "Otro"
@@ -387,6 +387,7 @@
     "ficha_disponible": "Disponible",
     "ficha_no_disponible": "No disponible temporalmente",
     "iva_incluido": "IVA 19% incluido",
+    "envio_colombia": "Envío a Colombia",
     "envio_no_incluido": "Gastos de envío no incluidos; se calculan según destino y se cobran por separado.",
     "ficha_atencion_desc": "Atención comercial y cotización asistida según la configuración del producto.",
     "precio_solicitud_largo": "Bajo cotización según especificaciones del producto",

@@ -1,0 +1,32 @@
+---
+import TiendaCategoria from '../../components/TiendaCategoria.astro';
+import { productosTienda, textoSeoTienda } from '../../lib/tienda-catalogo';
+
+const locale = 'es' as const;
+const { productos, rango } = await productosTienda(locale, 'bastones');
+if (!rango) throw new Error('Bastones sin precio de catálogo');
+const seo = textoSeoTienda(locale, 'bastones', rango);
+---
+
+<TiendaCategoria
+  locale={locale}
+  currentPath="/es/bastones/"
+  title={seo.title}
+  description={seo.description}
+  h1={seo.h1}
+  lead={seo.lead}
+  intro={[
+    'Los bastones de este listado son los publicados con precio. Recatones, manilares, muletas y bastones axilares no entran en el rango.',
+  ]}
+  productos={productos}
+  faqs={[
+    {
+      q: '¿Hacen envío a Colombia y en qué plazo?',
+      a: 'Sí, hay envío a Colombia. La entrega es en menos de 10 días hábiles. El flete no está incluido en el precio publicado.',
+    },
+    {
+      q: '¿El precio incluye IVA?',
+      a: 'Sí. El precio publicado incluye IVA. El envío se cotiza aparte.',
+    },
+  ]}
+/>

@@ -38,6 +38,10 @@ const seo = buildFamiliaSeo(locale, {
   name: content.title_en,
   description: content.description_en,
 });
+const canonicalAlias =
+  slug === 'terapia-de-infusion' ? buildCanonical('/en/families/soluciones-iv/') : null;
+const canonical = canonicalAlias ?? seo.canonical;
+const noindex = canonicalAlias !== null;
 // Canonical family pages use the editorial family only. `familias_filtro`
 // contains broad search associations and does not define membership.
 const productos = (await buildCatalogoIndex(locale)).filter(
@@ -58,14 +62,14 @@ const jsonLd = combineJsonLd(
   buildBreadcrumbJsonLd([
     { name: t(locale, 'catalogo.migas_inicio'), url: buildCanonical('/en/') },
     { name: t(locale, 'catalogo.migas_catalogo'), url: buildCanonical('/en/catalog') },
-    { name: name, url: seo.canonical },
+    { name: name, url: canonical },
   ]),
   buildFaqJsonLd(faq),
   {
     '@type': 'CollectionPage',
     name: content.title_en,
     description: content.description_en,
-    url: seo.canonical,
+    url: canonical,
   }
 );
 ---
@@ -73,10 +77,11 @@ const jsonLd = combineJsonLd(
 <Layout
   title={seo.title}
   description={seo.description}
-  canonical={seo.canonical}
+  canonical={canonical}
   locale={locale}
   currentPath={`/en/families/${slug}`}
   jsonLd={jsonLd}
+  noindex={noindex}
 >
   <div
     class="page-hero"
@@ -90,6 +95,13 @@ const jsonLd = combineJsonLd(
       </nav>
       <span class="section-tag">Family</span>
       <h1>{name}</h1>
+      {
+        noindex && (
+          <p style="margin:0.75rem 0 0">
+            <a href="/en/families/soluciones-iv/">View infusion pumps</a>
+          </p>
+        )
+      }
       <p style="color:var(--text-mid);margin:0.75rem 0 0;line-height:1.55">{content.intro_en}</p>
       <p style="margin-top:1.25rem">
         <a class="btn btn-primary" href={catalogoFamilia}

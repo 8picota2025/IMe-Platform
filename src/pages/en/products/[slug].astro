@@ -68,11 +68,11 @@ const seo = seoCopy
   : seoBase;
 const noindex = producto.slug === 'test';
 const especificaciones = normalizarEspecificaciones(producto.especificaciones);
-const modelo = especificaciones.find(item => item.clave.toLowerCase() === 'modelo')?.valor;
 const certificaciones = especificaciones
   .filter(item => /normativ/i.test(item.grupo ?? ''))
   .map(item => [item.clave, item.valor].filter(Boolean).join(': '))
   .filter(Boolean);
+const modelo = especificaciones.find(item => /^modelo$/i.test(item.clave))?.valor;
 
 const jsonLd = combineJsonLd(
   buildProductJsonLd(producto, locale, familia.nombre, producto.marca, {

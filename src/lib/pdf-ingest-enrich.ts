@@ -24,7 +24,7 @@ const FAMILY_HINTS: Array<[string, string[]]> = [
   ['Cardiología diagnóstica', ['ecg', 'electrocardio', 'holter']],
   ['Cardiología y reanimación', ['desfibrilador', 'reanimacion']],
   ['Neonatología', ['neonatal', 'incubadora', 'cpap', 'cuna radiante']],
-  ['Soluciones IV', ['infusion', 'jeringa', 'bomba de infusion']],
+  ['Bombas de infusión', ['infusion', 'jeringa', 'bomba de infusion']],
   ['Mobiliario Hospitalario', ['camilla', 'cama hospital', 'carro de paro']],
   ['Sala de Cirugía', ['quirurg', 'mesa quirurg', 'cialitica']],
 ];

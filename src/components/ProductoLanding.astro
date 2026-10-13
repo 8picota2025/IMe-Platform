@@ -397,6 +397,7 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
               </div>
               <ul class="product-purchase-panel__facts" role="list">
                 <li>{t(locale, 'producto.iva_incluido')}</li>
+                <li>{t(locale, 'producto.envio_colombia')}</li>
                 <li>{t(locale, 'producto.envio_no_incluido')}</li>
                 <li>{t(locale, 'producto.plazo_entrega')}</li>
               </ul>
@@ -445,6 +446,18 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
                   <p class="product-purchase-panel__payments">
                     {t(locale, 'producto.commerce_pago_pasarela')}
                   </p>
+                  {producto.tipo_comercial === 'equipo' && (
+                    <a
+                      class="btn-pdp btn-pdp--quiet"
+                      href={
+                        locale === 'en'
+                          ? `/en/quote/?producto=${producto.slug}`
+                          : `/es/cotizacion/?producto=${producto.slug}`
+                      }
+                    >
+                      {locale === 'en' ? 'Request a quote' : 'Cotizar'}
+                    </a>
+                  )}
                 </>
               ) : (
                 <a

@@ -1,11 +1,19 @@
 ---
 import CampaignLandingPage from '../../components/CampaignLandingPage.astro';
 import { getCampaignLandingCms } from '../../lib/landings-cms';
-import { getProductosBySlugs } from '../../lib/datos';
 
 const locale = 'en' as const;
-const content = await getCampaignLandingCms('alto_flujo_fisher_paykel', locale);
-const productos = await getProductosBySlugs(content.productSlugs, locale);
+const cms = await getCampaignLandingCms('alto_flujo_fisher_paykel', locale);
+const content = {
+  ...cms,
+  title: 'Fisher Paykel high flow: not in the active catalog | I-ME',
+  description:
+    'Airvo and Optiflow are not in the active catalog. Published respiratory therapy is nebulizers, suction units, oxygen and ventilators.',
+  h1: 'Fisher Paykel high flow',
+  lead: 'Airvo, Optiflow and their circuits are not in the active catalog. Respiratory therapy quotes start from published nebulizers, suction units and ventilators.',
+  productSlugs: [],
+  productsNote: 'There are no active Airvo references to list.',
+};
 ---
 
-<CampaignLandingPage locale={locale} content={content} productos={productos} />
+<CampaignLandingPage locale={locale} content={content} productos={[]} />

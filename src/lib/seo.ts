@@ -553,7 +553,7 @@ export function buildMerchantReturnPolicyJsonLd(locale: Locale): Record<string, 
 }
 
 /** Shipping defaults for Colombia — coste final se confirma en cotización. */
-function buildOfferShippingDetails(currency: string): Record<string, unknown> {
+function buildOfferShippingDetails(_currency: string): Record<string, unknown> {
   return {
     '@type': 'OfferShippingDetails',
     shippingDestination: {
@@ -575,19 +575,14 @@ function buildOfferShippingDetails(currency: string): Record<string, unknown> {
         unitCode: 'DAY',
       },
     },
-    shippingRate: {
-      '@type': 'MonetaryAmount',
-      value: 0,
-      currency,
-    },
   };
 }
 
 /**
- * Familias de cotización donde sí publicamos Product aunque no haya precio:
+ * Familias de cotización donde un Offer sin precio rompería las rich results:
  * imagen (radiología y ultrasonido), esterilización y robots.
  */
-const FAMILIAS_PRODUCTO_COTIZACION = new Set([
+const FAMILIAS_PRODUCTO_SIN_OFFER = new Set([
   'radiologia',
   'ultrasonido',
   'imagenologia',
@@ -597,12 +592,13 @@ const FAMILIAS_PRODUCTO_COTIZACION = new Set([
 ]);
 
 /**
- * JSON-LD Product.
- * Con precio público: Offer completo (price, priceCurrency) para rich results.
- * Sin precio, en imagen, esterilización o robots: solo Product (marca, nombre/modelo,
- * imagen, sku si existe). Un Offer sin `price` no es válido en las rich results de
- * Google (offers.price es obligatorio), así que no se emite.
- * MedicalDevice se añade únicamente cuando hay sellos de normativa en specs.
+ * JSON-LD Product. Plantilla única: imagen, esterilización y robots reutilizan
+ * esta función y no forkear el schema.
+ * Con precio de catálogo: Offer con price y priceCurrency.
+ * Sin precio, en imagen, esterilización o robots: solo Product (marca, modelo,
+ * imagen, sku si existe). Un Offer sin price no es válido en esas rich results.
+ * Sin precio en el resto de familias: Offer sin price ni priceCurrency.
+ * MedicalDevice solo con sellos de normativa en specs.
  */
 export function buildProductJsonLd(
   producto: {
@@ -621,12 +617,11 @@ export function buildProductJsonLd(
   categoria?: string,
   marca?: string | null,
   opts?: { certificaciones?: string[]; familiaSlug?: string; model?: string | null }
-): Record<string, unknown> | null {
+): Record<string, unknown> {
   const precioPublico = tienePrecioPublico(producto.precio);
-  const familiaCotizacion = Boolean(
-    opts?.familiaSlug && FAMILIAS_PRODUCTO_COTIZACION.has(opts.familiaSlug)
+  const omitirOffer = Boolean(
+    !precioPublico && opts?.familiaSlug && FAMILIAS_PRODUCTO_SIN_OFFER.has(opts.familiaSlug)
   );
-  if (!precioPublico && !familiaCotizacion) return null;
 
   const segment = locale === 'en' ? 'products' : 'productos';
   const canonicalUrl = buildCanonical(`/${locale}/${segment}/${producto.slug}`);
@@ -672,6 +667,20 @@ export function buildProductJsonLd(
       businessFunction: 'http://purl.org/goodrelations/v1#Sell',
       hasMerchantReturnPolicy: buildMerchantReturnPolicyJsonLd(locale),
       shippingDetails: buildOfferShippingDetails(priceCurrency),
+    };
+  } else if (!omitirOffer) {
+    jsonLd.seller = { '@id': `${SITE}/#organization` };
+    jsonLd.offers = {
+      '@type': 'Offer',
+      url: canonicalUrl,
+      itemCondition: 'https://schema.org/NewCondition',
+      availability:
+        producto.disponible === false
+          ? 'https://schema.org/OutOfStock'
+          : 'https://schema.org/InStock',
+      seller: { '@id': `${SITE}/#organization` },
+      areaServed: { '@type': 'Country', name: 'Colombia' },
+      businessFunction: 'http://purl.org/goodrelations/v1#Sell',
     };
   }
   if (categoria) jsonLd.category = categoria;

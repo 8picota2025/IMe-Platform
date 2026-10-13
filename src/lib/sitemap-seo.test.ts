@@ -14,6 +14,12 @@ describe('sitemap-seo', () => {
       '/en/icu-monitoring-projects/',
       '/es/conocimiento/publicar/',
       '/es/monitores-biolight-uci/',
+      '/es/bastones/',
+      '/en/canes/',
+      '/es/tensiometros-digitales/',
+      '/en/digital-blood-pressure-monitors/',
+      '/es/lampara-cialitica/',
+      '/en/surgical-light/',
     ];
     for (const ruta of rutas) {
       const links = serializeSitemapItem({ url: `https://i-me.com.co${ruta}` }).links ?? [];
@@ -79,6 +85,15 @@ describe('sitemap-indexability', () => {
     expect(isIndexableSitemapUrl('https://i-me.com.co/es/conocimiento/publicar/')).toBe(false);
     expect(isIndexableSitemapUrl('https://i-me.com.co/es/cotizacion/')).toBe(false);
     expect(isIndexableSitemapUrl('https://i-me.com.co/es/productos/test/')).toBe(false);
+    expect(isIndexableSitemapUrl('https://i-me.com.co/es/productos/g-kp1-8160l/')).toBe(false);
+    expect(isIndexableSitemapUrl('https://i-me.com.co/en/products/g-kp1-8160l/')).toBe(false);
+    expect(isIndexableSitemapUrl('https://i-me.com.co/es/familias/terapia-de-infusion/')).toBe(
+      false
+    );
+    expect(isIndexableSitemapUrl('https://i-me.com.co/en/families/terapia-de-infusion/')).toBe(
+      false
+    );
+    expect(isIndexableSitemapUrl('https://i-me.com.co/es/familias/soluciones-iv/')).toBe(true);
     expect(isIndexableSitemapUrl('https://i-me.com.co/en/products/test/')).toBe(false);
     expect(
       isIndexableSitemapUrl('https://i-me.com.co/es/productos/test-de-pasarela-de-pagos/')

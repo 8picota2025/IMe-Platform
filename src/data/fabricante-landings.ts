@@ -2329,7 +2329,7 @@ const M_LINE: Record<Locale, FabCopy> = {
     formIntro: 'Share services (ICU, ward, OR), fleet size and horizon.',
     primaryCta: 'Guide infusion typology',
     secondaryCta: 'WhatsApp us',
-    tertiaryCta: 'Browse IV solutions family',
+    tertiaryCta: 'Browse infusion pumps',
     heroImage: '/assets/img/hospital-uci-pasillo.webp',
     heroImageAlt: 'Hospital IV therapy environment — typologies I-ME Colombia',
     brandName: 'M',

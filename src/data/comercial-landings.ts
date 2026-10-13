@@ -1274,11 +1274,11 @@ const MONITORES_BIOLIGHT: ContentMap = {
 const ALTO_FLUJO_FISHER_PAYKEL: ContentMap = {
   es: {
     tag: 'Terapia respiratoria · Alto flujo',
-    title: 'Alto flujo Fisher Paykel Airvo y Optiflow | UCI y urgencias | I-ME',
+    title: 'Alto flujo Fisher Paykel: fuera del catálogo activo | I-ME',
     description:
-      'Sistemas de alto flujo Fisher Paykel Airvo 2/3, circuitos Optiflow y cánulas para UCI, neonatología y urgencias en Colombia. Orientación I-ME sin catálogo infinito.',
-    h1: 'Alto flujo Fisher Paykel — Airvo y Optiflow con criterio institucional',
-    lead: 'Si busca sistema de alto flujo, Airvo 3, circuitos Optiflow o consumibles Fisher Paykel, le ayudamos a acotar equipo principal, interfaces y repuestos con referencias reales del catálogo.',
+      'Airvo y Optiflow no están en el catálogo activo. La terapia respiratoria publicada son nebulizadores, aspiradores, oxígeno y ventiladores.',
+    h1: 'Alto flujo Fisher Paykel',
+    lead: 'Airvo, Optiflow y sus circuitos no están en el catálogo activo. La cotización de terapia respiratoria parte de nebulizadores, aspiradores y ventiladores publicados.',
     formIntro:
       'Indique servicio (UCI, neonatología, urgencias), población y si cotiza equipo, circuitos o ambos. Un asesor responde con alternativas Fisher Paykel publicadas.',
     primaryCta: 'Quiero orientación de alto flujo',
@@ -1293,7 +1293,7 @@ const ALTO_FLUJO_FISHER_PAYKEL: ContentMap = {
     solutions: [
       {
         pain: 'Renovación o primera compra de Airvo para UCI o urgencias',
-        help: 'Partimos del Airvo 3 o Airvo 2 publicado y definimos interfaces y circuitos obligatorios según protocolo.',
+        help: 'Airvo 3 y Airvo 2 no están en el catálogo activo. La cotización de terapia respiratoria parte de nebulizadores, aspiradores y ventiladores publicados.',
       },
       {
         pain: 'Reposición de circuitos Optiflow o cánulas sin mezclar referencias',
@@ -1356,7 +1356,7 @@ const ALTO_FLUJO_FISHER_PAYKEL: ContentMap = {
     faqs: [
       {
         q: '¿Tienen Airvo 3 Fisher Paykel?',
-        a: 'Sí. Airvo 3 y Airvo 2 están publicados. Confirmamos configuración, interfaces y disponibilidad al cotizar.',
+        a: 'No. Airvo 3 y Airvo 2 no están en el catálogo activo.',
       },
       {
         q: '¿Venden solo el circuito Optiflow?',
@@ -1373,24 +1373,18 @@ const ALTO_FLUJO_FISHER_PAYKEL: ContentMap = {
       { value: 'proyecto_uci', label: 'Proyecto UCI o urgencias' },
       { value: 'orientacion', label: 'Aún comparando referencias' },
     ],
-    productSlugs: [
-      'sistema-de-alto-flujo-ref-airvo-3-fisher-paykel',
-      'sistema-de-alto-flujo-airvo-2-fisher-paykel',
-      'circuito-para-alto-flujo-optiflow-junior-ref-rt330-fisher-paykel',
-      'circuito-desechable-para-canula-de-alto-flujo-adulto-ref-rt202-fisher-paykel',
-      'canula-nasal-optiflow-adulto-fisher-paykel',
-    ],
+    productSlugs: [],
     productsTitle: 'Referencias Fisher Paykel con demanda real',
     productsNote: 'Modelos del catálogo I-ME. Configuración y consumibles confirmados al cotizar.',
     catalogFilter: 'terapia-respiratoria-soporte-vital',
   },
   en: {
     tag: 'Respiratory therapy · High flow',
-    title: 'Fisher Paykel Airvo high flow & Optiflow | ICU & ER | I-ME',
+    title: 'Fisher Paykel high flow: not in the active catalog | I-ME',
     description:
-      'Fisher Paykel Airvo 2/3 high-flow systems, Optiflow circuits and cannulas for ICU, neonatal and emergency care in Colombia. I-ME guidance without an infinite catalog.',
-    h1: 'Fisher Paykel high flow — Airvo and Optiflow with institutional criteria',
-    lead: 'Searching for a high-flow system, Airvo 3, Optiflow circuits or Fisher Paykel consumables? We help narrow main equipment, interfaces and spares with real catalog references.',
+      'Airvo and Optiflow are not in the active catalog. Published respiratory therapy is nebulizers, suction units, oxygen and ventilators.',
+    h1: 'Fisher Paykel high flow',
+    lead: 'Airvo, Optiflow and their circuits are not in the active catalog. Respiratory therapy quotes start from published nebulizers, suction units and ventilators.',
     formIntro:
       'Share service (ICU, neonatal, ER), population and whether you need equipment, circuits or both. An advisor replies with published Fisher Paykel options.',
     primaryCta: 'I want high-flow guidance',
@@ -1405,7 +1399,7 @@ const ALTO_FLUJO_FISHER_PAYKEL: ContentMap = {
     solutions: [
       {
         pain: 'Airvo renewal or first purchase for ICU or ER',
-        help: 'We start from published Airvo 3 or Airvo 2 and define mandatory interfaces and circuits by protocol.',
+        help: 'Airvo 3 and Airvo 2 are not in the active catalog. Respiratory therapy quotes start from published nebulizers, suction units and ventilators.',
       },
       {
         pain: 'Optiflow circuit or cannula replenishment without mixing SKUs',
@@ -1467,7 +1461,7 @@ const ALTO_FLUJO_FISHER_PAYKEL: ContentMap = {
     faqs: [
       {
         q: 'Do you carry Fisher Paykel Airvo 3?',
-        a: 'Yes. Airvo 3 and Airvo 2 are published. We confirm configuration, interfaces and availability when quoting.',
+        a: 'No. Airvo 3 and Airvo 2 are not in the active catalog.',
       },
       {
         q: 'Do you sell Optiflow circuits only?',
@@ -1484,13 +1478,7 @@ const ALTO_FLUJO_FISHER_PAYKEL: ContentMap = {
       { value: 'proyecto_uci', label: 'ICU or ER project' },
       { value: 'orientacion', label: 'Still comparing references' },
     ],
-    productSlugs: [
-      'sistema-de-alto-flujo-ref-airvo-3-fisher-paykel',
-      'sistema-de-alto-flujo-airvo-2-fisher-paykel',
-      'circuito-para-alto-flujo-optiflow-junior-ref-rt330-fisher-paykel',
-      'circuito-desechable-para-canula-de-alto-flujo-adulto-ref-rt202-fisher-paykel',
-      'canula-nasal-optiflow-adulto-fisher-paykel',
-    ],
+    productSlugs: [],
     productsTitle: 'Fisher Paykel references with real demand',
     productsNote: 'I-ME catalog models. Configuration and consumables confirmed when quoting.',
     catalogFilter: 'terapia-respiratoria-soporte-vital',
@@ -1727,11 +1715,11 @@ const CAMILLAS_MEDICAS: ContentMap = {
 const VENTILADORES_MECANICOS: ContentMap = {
   es: {
     tag: 'UCI · Ventilación mecánica',
-    title: 'Ventiladores mecánicos UCI Monnal T75 y TEO | Adulto y pediátrico | I-ME',
+    title: 'Ventilador mecánico UCI | Monnal T75 | I-ME',
     description:
-      'Ventiladores mecánicos para UCI adulto/pediátrico, transporte y neonatología en Colombia. Monnal T75, TEO y T60 — orientación I-ME sin catálogo infinito.',
-    h1: 'Ventiladores mecánicos UCI — Monnal y tipología con criterio institucional',
-    lead: 'Si busca ventilador UCI, Monnal T75, ventilador de transporte o VNI neonatal, le ayudamos a separar tipologías (UCI vs transporte vs neonato) con referencias reales del catálogo.',
+      'Ventilador mecánico para UCI adulto y pediátrico: Monnal T75 publicado en el catálogo. TEO y T60 no están activos. Precio bajo cotización.',
+    h1: 'Ventilador mecánico para UCI',
+    lead: 'El ventilador publicado para UCI adulto y pediátrico es el Monnal T75. La configuración se cotiza. TEO y T60 no están en el catálogo activo.',
     formIntro:
       'Indique servicio (UCI, urgencias, transporte, neonatología), población y cantidad. Un asesor responde con alternativas publicadas.',
     primaryCta: 'Quiero orientación de ventiladores UCI',
@@ -1746,11 +1734,11 @@ const VENTILADORES_MECANICOS: ContentMap = {
     solutions: [
       {
         pain: 'Necesitan ventilador UCI adulto/pediátrico homogéneo',
-        help: 'Partimos de Monnal T75/TEO publicados y validamos población y modos obligatorios.',
+        help: 'Partimos del Monnal T75 publicado y validamos población y modos. TEO no está en el catálogo activo.',
       },
       {
         pain: 'Requieren ventilador de transporte intrahospitalario',
-        help: 'Separamos T60 transporte de UCI fija — distinto brief, distinto soporte.',
+        help: 'El T60 de transporte no está en el catálogo activo. El brief de traslado se cotiza aparte del T75 de UCI.',
       },
       {
         pain: 'Neonatología pide VNI o ventilación convencional',
@@ -1768,10 +1756,10 @@ const VENTILADORES_MECANICOS: ContentMap = {
       'Urgencias marketplace sin institución',
     ],
     situations: [
-      { title: 'Renovar flota UCI', body: 'Reemplazo T75/TEO con criterio de modos y soporte.' },
+      { title: 'Renovar flota UCI', body: 'Reemplazo del Monnal T75 publicado, con criterio de modos y soporte.' },
       {
         title: 'Transporte crítico',
-        body: 'Ventilador portátil T60 para traslados intrahospitalarios.',
+        body: 'El T60 de transporte no está en el catálogo activo. El brief de traslado se cotiza aparte del T75.',
       },
       { title: 'Ampliar camas UCI', body: 'Nuevas unidades compatibles con protocolo existente.' },
     ],
@@ -1806,7 +1794,7 @@ const VENTILADORES_MECANICOS: ContentMap = {
       },
       {
         q: '¿Sirve un ventilador UCI para transporte?',
-        a: 'No siempre. Recomendamos T60 transporte cuando el brief es traslado — lo evaluamos por servicio.',
+        a: 'No siempre. El T60 de transporte no está en el catálogo activo. El brief de traslado se cotiza aparte del T75.',
       },
       {
         q: '¿Incluyen instalación y capacitación?',
@@ -1821,9 +1809,6 @@ const VENTILADORES_MECANICOS: ContentMap = {
     ],
     productSlugs: [
       'ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide',
-      'ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-teo-air-liquide',
-      'ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide',
-      'ventilador-neonatal-no-invasivo-ref-nc3-medin',
     ],
     productsTitle: 'Referencias con demanda real',
     productsNote: 'Modelos del catálogo I-ME. Configuración y consumibles se confirman al cotizar.',
@@ -1831,11 +1816,11 @@ const VENTILADORES_MECANICOS: ContentMap = {
   },
   en: {
     tag: 'ICU · Mechanical ventilation',
-    title: 'ICU mechanical ventilators Monnal T75 & TEO | Adult & pediatric | I-ME',
+    title: 'ICU mechanical ventilator | Monnal T75 | I-ME',
     description:
-      'Mechanical ventilators for adult/pediatric ICU, transport and neonatology in Colombia. Monnal T75, TEO and T60 — I-ME guidance without an infinite catalog.',
-    h1: 'ICU mechanical ventilators — Monnal typology with institutional criteria',
-    lead: 'Looking for an ICU ventilator, Monnal T75, transport ventilator or neonatal NIV? We help separate typologies (ICU vs transport vs neonatal) with real catalog references.',
+      'Mechanical ventilator for adult and pediatric ICU: published Monnal T75. TEO and T60 are not active. Price on request.',
+    h1: 'Mechanical ventilator for the ICU',
+    lead: 'The published adult and pediatric ICU ventilator is the Monnal T75. Configuration is quoted. TEO and T60 are not in the active catalog.',
     formIntro:
       'Share service (ICU, ED, transport, neonatology), population and quantity. An advisor replies with published options.',
     primaryCta: 'I want ICU ventilator guidance',
@@ -1850,11 +1835,11 @@ const VENTILADORES_MECANICOS: ContentMap = {
     solutions: [
       {
         pain: 'Need homogeneous adult/pediatric ICU ventilator',
-        help: 'We start from published Monnal T75/TEO and validate population and mandatory modes.',
+        help: 'We start from the published Monnal T75 and validate population and modes. TEO is not in the active catalog.',
       },
       {
         pain: 'Require intrahospital transport ventilator',
-        help: 'We separate T60 transport from fixed ICU — different brief, different support.',
+        help: 'The T60 transport ventilator is not in the active catalog. A transfer brief is quoted separately from the ICU T75.',
       },
       {
         pain: 'Neonatology asks for NIV or conventional ventilation',
@@ -1872,8 +1857,8 @@ const VENTILADORES_MECANICOS: ContentMap = {
       'Marketplace urgency with no institution',
     ],
     situations: [
-      { title: 'Renew ICU fleet', body: 'T75/TEO replacement with modes and support criteria.' },
-      { title: 'Critical transport', body: 'T60 portable ventilator for intrahospital transfers.' },
+      { title: 'Renew ICU fleet', body: 'Replacement of the published Monnal T75, with modes and support criteria.' },
+      { title: 'Critical transport', body: 'The T60 transport ventilator is not in the active catalog. A transfer brief is quoted separately from the ICU T75.' },
       { title: 'Expand ICU beds', body: 'New units compatible with existing protocol.' },
     ],
     scopeTitle: 'What we cover',
@@ -1906,7 +1891,7 @@ const VENTILADORES_MECANICOS: ContentMap = {
       },
       {
         q: 'Can an ICU ventilator cover transport?',
-        a: 'Not always. We recommend T60 transport when the brief is transfer — we evaluate by service.',
+        a: 'Not always. The T60 transport ventilator is not in the active catalog. A transfer brief is quoted separately from the T75.',
       },
       {
         q: 'Do you include installation and training?',
@@ -1921,9 +1906,6 @@ const VENTILADORES_MECANICOS: ContentMap = {
     ],
     productSlugs: [
       'ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide',
-      'ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-teo-air-liquide',
-      'ventilador-mecanico-de-transporte-monnal-ref-t60-air-liquide',
-      'ventilador-neonatal-no-invasivo-ref-nc3-medin',
     ],
     productsTitle: 'References with real demand',
     productsNote: 'I-ME catalog models. Configuration and consumables confirmed when quoting.',
@@ -2222,7 +2204,7 @@ const CAMINADORES: ContentMap = {
       },
       {
         q: '¿El precio está en la web?',
-        a: 'Los equipos de movilidad suelen cotizarse según cantidad, ciudad y configuración. Pedimos contexto para no mandar un número genérico e inútil.',
+        a: 'Sí. Los caminadores publicados muestran precio con IVA. El envío a Colombia es adicional y la entrega es en menos de 10 días hábiles.',
       },
     ],
     projectOptions: [
@@ -2334,7 +2316,7 @@ const CAMINADORES: ContentMap = {
       },
       {
         q: 'Is the price on the website?',
-        a: 'Mobility equipment is usually quoted by quantity, city and configuration. Context beats a useless generic number.',
+        a: 'Yes. Published walkers show a VAT-inclusive price. Shipping to Colombia is extra and delivery is in under 10 business days.',
       },
     ],
     projectOptions: [

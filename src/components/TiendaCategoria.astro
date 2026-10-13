@@ -1,0 +1,201 @@
+---
+/**
+ * Categoría de tienda con precio de catálogo, filtro por nombre y orden por precio.
+ */
+import Layout from '../layouts/Layout.astro';
+import { formatMoneda, tienePrecioPublico } from '../lib/format';
+import { buildCanonical, buildFaqJsonLd, buildProductJsonLd, combineJsonLd } from '../lib/seo';
+import type { Locale } from '../i18n/utils';
+import type { Producto } from '../lib/datos';
+
+interface Faq {
+  q: string;
+  a: string;
+}
+
+interface Props {
+  locale: Locale;
+  currentPath: string;
+  title: string;
+  description: string;
+  h1: string;
+  lead: string;
+  intro: string[];
+  productos: Producto[];
+  faqs: Faq[];
+  filtro?: boolean;
+}
+
+const {
+  locale,
+  currentPath,
+  title,
+  description,
+  h1,
+  lead,
+  intro,
+  productos,
+  faqs,
+  filtro = true,
+} = Astro.props;
+const isEn = locale === 'en';
+const productBase = isEn ? '/en/products/' : '/es/productos/';
+const quoteBase = isEn ? '/en/quote/?producto=' : '/es/cotizacion/?producto=';
+const jsonLd = combineJsonLd(
+  ...productos.map(producto =>
+    buildProductJsonLd(producto, locale, h1, producto.marca, { familiaSlug: producto.familia_slug })
+  ),
+  buildFaqJsonLd(faqs)
+);
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={buildCanonical(currentPath)}
+  locale={locale}
+  currentPath={currentPath}
+  jsonLd={jsonLd}
+>
+  <div
+    class="page-hero"
+    style="padding-top:130px;padding-bottom:var(--space-lg);background:var(--off)"
+  >
+    <div class="container" style="max-width:760px">
+      <h1>{h1}</h1>
+      <p style="color:var(--text-mid);margin:0.75rem 0 0;line-height:1.55">{lead}</p>
+    </div>
+  </div>
+  <section class="container" style="padding:var(--space-xl) 0;max-width:960px">
+    {intro.map(p => <p style="margin:0 0 1rem;line-height:1.6;color:var(--text-mid)">{p}</p>)}
+    {
+      filtro && (
+        <form class="tienda-filtros" onsubmit="return false">
+          <label>
+            {isEn ? 'Filter by name' : 'Filtrar por nombre'}
+            <input id="tienda-q" type="search" autocomplete="off" />
+          </label>
+          <label>
+            {isEn ? 'Sort' : 'Orden'}
+            <select id="tienda-orden">
+              <option value="precio">{isEn ? 'Price' : 'Precio'}</option>
+              <option value="nombre">{isEn ? 'Name' : 'Nombre'}</option>
+            </select>
+          </label>
+        </form>
+      )
+    }
+    <ul class="tienda-lista" id="tienda-lista">
+      {
+        productos.map(producto => (
+          <li
+            data-nombre={producto.nombre.toLocaleLowerCase(locale)}
+            data-precio={tienePrecioPublico(producto.precio) ? String(producto.precio) : ''}
+          >
+            <a href={`${productBase}${producto.slug}/`}>
+              <strong>{producto.nombre}</strong>
+              <span>
+                {tienePrecioPublico(producto.precio)
+                  ? formatMoneda(producto.precio, producto.moneda, locale)
+                  : isEn
+                    ? 'Price on request'
+                    : 'Precio bajo cotización'}
+              </span>
+            </a>
+            <a href={`${quoteBase}${producto.slug}`}>{isEn ? 'Request a quote' : 'Cotizar'}</a>
+          </li>
+        ))
+      }
+    </ul>
+    <h2>{isEn ? 'Shipping' : 'Envío'}</h2>
+    {
+      faqs.map(faq => (
+        <details>
+          <summary>{faq.q}</summary>
+          <p>{faq.a}</p>
+        </details>
+      ))
+    }
+  </section>
+</Layout>
+
+<script>
+  const lista = document.getElementById('tienda-lista');
+  const q = document.getElementById('tienda-q');
+  const orden = document.getElementById('tienda-orden');
+  if (
+    lista instanceof HTMLElement &&
+    q instanceof HTMLInputElement &&
+    orden instanceof HTMLSelectElement
+  ) {
+    const items = Array.from(lista.querySelectorAll('li'));
+    const aplicar = () => {
+      const texto = q.value.trim().toLocaleLowerCase();
+      const modo = orden.value;
+      const visibles = items.filter(item => {
+        const nombre = item.getAttribute('data-nombre') || '';
+        const ok = !texto || nombre.includes(texto);
+        item.hidden = !ok;
+        return ok;
+      });
+      visibles.sort((a, b) => {
+        if (modo === 'nombre') {
+          return (a.getAttribute('data-nombre') || '').localeCompare(
+            b.getAttribute('data-nombre') || ''
+          );
+        }
+        const ap = Number(a.getAttribute('data-precio') || Infinity);
+        const bp = Number(b.getAttribute('data-precio') || Infinity);
+        return ap - bp;
+      });
+      for (const item of visibles) lista.appendChild(item);
+    };
+    q.addEventListener('input', aplicar);
+    orden.addEventListener('change', aplicar);
+  }
+</script>
+
+<style>
+  .tienda-filtros {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  .tienda-filtros label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: 0.9rem;
+  }
+  .tienda-filtros input,
+  .tienda-filtros select {
+    min-height: 2.5rem;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid var(--border);
+    background: var(--white);
+    color: var(--t900);
+  }
+  .tienda-lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+  .tienda-lista li {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: center;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .tienda-lista a {
+    color: var(--t900);
+  }
+  .tienda-lista span {
+    display: block;
+    font-weight: 700;
+  }
+</style>

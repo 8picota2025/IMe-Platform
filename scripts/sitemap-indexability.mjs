@@ -116,6 +116,8 @@ export function isIndexableSitemapUrl(page) {
   if (REDIRECT_ONLY_PRODUCT_PATHS.has(normalized)) return false;
   if (NON_INDEXABLE_PREFIXES.some(prefix => matchesPrefix(pathname, prefix))) return false;
   if (/^\/(?:es\/productos|en\/products)\/test(?:\/|$|-)/.test(pathname)) return false;
+  if (/^\/(?:es\/productos|en\/products)\/g-[^/]+/.test(pathname)) return false;
+  if (/^\/(?:es\/familias|en\/families)\/terapia-de-infusion\/?$/.test(pathname)) return false;
   if (/test-de-pasarela-de-pagos/.test(pathname)) return false;
   // Datasheets are not pages. Equitronic competitor assets must not re-enter any sitemap.
   if (/\.pdf$/i.test(pathname)) return false;
