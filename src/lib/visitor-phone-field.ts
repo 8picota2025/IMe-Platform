@@ -3,7 +3,7 @@
  * públicos. Equivale a intl-tel-input sin la librería: el indicativo viaja
  * en `telefono_pais` y el texto tal cual en `telefono_raw`.
  */
-import { normalizeVisitorPhone } from './visitor-phone';
+import { normalizeVisitorPhone } from './visitor-phone-core';
 
 const PLACEHOLDER: Record<string, { es: string; en: string }> = {
   '57': { es: '3XX XXX XXXX', en: '3XX XXX XXXX' },
