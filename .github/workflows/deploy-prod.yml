@@ -73,6 +73,18 @@ jobs:
           if psql "$POOLER_DB_URL" -X -v ON_ERROR_STOP=1 -Atqc 'SELECT 1' >/dev/null 2>&1; then
             echo "Session Pooler conectado."
             supabase db push --db-url "$POOLER_DB_URL" --include-all --yes
+            echo "jungho_read"
+            psql "$POOLER_DB_URL" -X -v ON_ERROR_STOP=1 -c "
+              SELECT 'crm_contacts' AS source, id::text, telefono_e164 AS phone,
+                     twenty_person_id, NULL::text AS twenty_company_id
+              FROM public.crm_contacts
+              WHERE id = '40bd33bc-b2f0-4093-b82f-05e279536667'
+              UNION ALL
+              SELECT 'clientes', id::text, telefono, twenty_person_id, twenty_company_id
+              FROM public.clientes
+              WHERE id::text LIKE 'aaef9981%'
+                AND telefono IN ('+57821092702720', '+821092702720');
+            "
             exit 0
           fi
           echo "::error::No se pudo autenticar con el Session Pooler. No se aplicaron migraciones."
