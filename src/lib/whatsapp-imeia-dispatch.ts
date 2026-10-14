@@ -24,7 +24,31 @@ export {
 } from './whatsapp-espera.ts';
 
 /** Silencio antes de despertar al agente: una ráfaga cuenta como un solo turno. */
-export const WHATSAPP_QUIET_MS = 25_000;
+export const WHATSAPP_QUIET_MS = 30_000;
+/**
+ * Si llegan indicadores de escritura, el silencio se alarga hasta que paren,
+ * como máximo este tiempo desde el último mensaje.
+ */
+export const WHATSAPP_TYPING_CAP_MS = 120_000;
+
+export type AudienciaWhatsApp = 'customer' | 'supplier' | 'internal';
+/** `reply` sale a un cliente o proveedor. `bot` es actividad interna del agente. */
+export type FaseDespachoWhatsApp = 'reply' | 'bot';
+
+/**
+ * Clientes y proveedores van antes que cualquier actividad interna del bot.
+ * Menor número = antes.
+ */
+export function prioridadDespachoWhatsApp(
+  audiencia: AudienciaWhatsApp,
+  fase: FaseDespachoWhatsApp
+): number {
+  if (fase === 'reply' && (audiencia === 'customer' || audiencia === 'supplier')) return 0;
+  if (fase === 'reply') return 2;
+  if (audiencia === 'customer' || audiencia === 'supplier') return 1;
+  return 3;
+}
+
 /** Reserva `pending` más vieja que esto se puede reintentar (el envío no terminó). */
 export const WHATSAPP_HOLDING_RESERVATION_MS = 90_000;
 /** Si el agente no marcó el turno, se puede volver a reclamar. Cubre una corrida de ~80 s. */
@@ -44,7 +68,7 @@ export interface InboundEventRow {
 export interface OutboundEventRow {
   toWa: string;
   body: string;
-  kind: 'holding' | 'reply' | 'other';
+  kind: 'holding' | 'reply' | 'template' | 'other';
   createdAt: string;
   sendStatus: 'pending' | 'sent' | 'failed';
   turnKey: string | null;
@@ -88,6 +112,8 @@ export interface PlanWhatsAppDispatchInput {
   outbound: readonly OutboundEventRow[];
   /** Clientes con `#pausa` vigente. Ni wake ni espera. */
   pausedWaIds?: readonly string[];
+  /** Cliente, proveedor o actividad interna. Lo que falta se trata como cliente. */
+  audiences?: ReadonlyMap<string, AudienciaWhatsApp>;
   quietMs?: number;
   holdingAfterMs?: number;
   holdingMinGapMs?: number;
@@ -125,11 +151,20 @@ export function reclamarLoteWhatsApp(
   filas: readonly FilaReclamo[],
   fromWa: string,
   nowMs: number,
-  options: { quietMs?: number; claimTtlMs?: number; ventanaMs?: number; paused?: boolean } = {}
+  options: {
+    quietMs?: number;
+    claimTtlMs?: number;
+    ventanaMs?: number;
+    paused?: boolean;
+    /** Fin del pulso de escritura. null = no está escribiendo. */
+    typingUntilMs?: number | null;
+    typingCapMs?: number;
+  } = {}
 ): string[] {
   const quietMs = options.quietMs ?? WHATSAPP_QUIET_MS;
   const claimTtlMs = options.claimTtlMs ?? WHATSAPP_CLAIM_TTL_MS;
   const ventanaMs = options.ventanaMs ?? WHATSAPP_PENDING_WINDOW_MS;
+  const typingCapMs = options.typingCapMs ?? WHATSAPP_TYPING_CAP_MS;
   if (!fromWa.trim() || esRemitenteGrupo(fromWa) || options.paused) return [];
 
   const enVentana = filas.filter(fila => {
@@ -142,6 +177,13 @@ export function reclamarLoteWhatsApp(
 
   const latest = Math.max(...pending.map(fila => fila.createdAtMs));
   if (nowMs - latest < quietMs) return [];
+  if (
+    options.typingUntilMs != null &&
+    options.typingUntilMs > nowMs &&
+    nowMs - latest < typingCapMs
+  ) {
+    return [];
+  }
 
   const ignorado = enVentana.some(fila => fila.status === 'ignored' && fila.createdAtMs >= latest);
   if (ignorado) return [];
@@ -175,7 +217,15 @@ export function planWhatsAppDispatch(input: PlanWhatsAppDispatchInput): Dispatch
   const wakes: WakePlan[] = [];
   const holdings: HoldingPlan[] = [];
   const pausados = new Set(input.pausedWaIds ?? []);
-  const remitentes = [...porRemitente.keys()].sort();
+  const audiencias = input.audiences ?? new Map<string, AudienciaWhatsApp>();
+  const faseDe = (fromWa: string): FaseDespachoWhatsApp =>
+    (audiencias.get(fromWa) ?? 'customer') === 'internal' ? 'bot' : 'reply';
+  const remitentes = [...porRemitente.keys()].sort((a, b) => {
+    const prioridad =
+      prioridadDespachoWhatsApp(audiencias.get(a) ?? 'customer', faseDe(a)) -
+      prioridadDespachoWhatsApp(audiencias.get(b) ?? 'customer', faseDe(b));
+    return prioridad || a.localeCompare(b);
+  });
 
   for (const fromWa of remitentes) {
     if (esRemitenteGrupo(fromWa) || pausados.has(fromWa)) continue;

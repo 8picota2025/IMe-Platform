@@ -1,6 +1,7 @@
 /**
- * Toma humana en el WhatsApp Business app (coexistencia).
- * `#pausa` / `#activa` los escribe Shoky en el chat del cliente.
+ * Toma humana en el WhatsApp Business app (coexistencia) o desde el número
+ * del dueño. `#pausa`, `/pausa` y `#pause` pausan; `#continua` y `#activa`
+ * reanudan. El texto del comando no se reenvía al cliente.
  * El wake del agente sigue siendo un turno de cliente (from, text, wamid):
  * un aviso {type, action, wa_id} no cabe ahí, así que no se envía.
  */
@@ -24,13 +25,15 @@ const CAMPOS_WAKE_OBLIGATORIOS = [
 
 /**
  * Primera palabra, sin puntuación final. `#pausa ya lo veo` pausa.
- * `#pausar` y `ok #pausa` no.
+ * `#pausar`, `#continuar` y `ok #pausa` no.
+ * Pausa: `#pausa`, `/pausa`, `#pause` (y `#parar`, ya en uso).
+ * Reanuda: `#continua`, `#activa`.
  */
 export function clasificarTomaHumana(texto: string): AccionTomaHumana | null {
   const primero = texto.trim().split(/\s+/, 1)[0] ?? '';
   const token = primero.replace(/[.,;:!?…]+$/u, '');
-  if (/^(#pausa|\/pausa|#parar)$/i.test(token)) return 'pause';
-  if (/^#activa$/i.test(token)) return 'resume';
+  if (/^(#pausa|\/pausa|#pause|#parar)$/i.test(token)) return 'pause';
+  if (/^(#continua|#activa)$/i.test(token)) return 'resume';
   return null;
 }
 

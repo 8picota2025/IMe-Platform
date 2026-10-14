@@ -16,10 +16,15 @@ describe('palabras de toma humana', () => {
     expect(clasificarTomaHumana('#Pausa.')).toBe('pause');
     expect(clasificarTomaHumana('#activa')).toBe('resume');
     expect(clasificarTomaHumana('#Activa retomamos')).toBe('resume');
+    expect(clasificarTomaHumana('#pause')).toBe('pause');
+    expect(clasificarTomaHumana('/pausa')).toBe('pause');
+    expect(clasificarTomaHumana('#continua ya')).toBe('resume');
+    expect(clasificarTomaHumana('#CONTINUA')).toBe('resume');
   });
 
   it('no pausa por una palabra parecida ni si la orden no va primero', () => {
     expect(clasificarTomaHumana('#pausar')).toBeNull();
+    expect(clasificarTomaHumana('#continuar')).toBeNull();
     expect(clasificarTomaHumana('#activado')).toBeNull();
     expect(clasificarTomaHumana('ok #pausa')).toBeNull();
     expect(clasificarTomaHumana('gracias')).toBeNull();
