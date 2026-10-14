@@ -25,6 +25,7 @@ import {
   verifyWhatsAppSignature,
 } from '../../../src/lib/whatsapp-cloud.ts';
 import { IME_WHATSAPP_E164 } from '../../../src/lib/contacto-oficial.ts';
+import { clasificarTomaHumana } from '../../../src/lib/whatsapp-human-takeover.ts';
 import { edgeWaitUntil, seguirTurnoWhatsApp } from '../_shared/whatsapp-dispatch.ts';
 import { contactoEstaPausado, registrarEcoManual } from '../_shared/whatsapp-echo.ts';
 import { auditWhatsAppDrop, ingestWhatsAppMessage } from '../_shared/whatsapp-ingest.ts';
@@ -122,6 +123,7 @@ Deno.serve(
     let queued = 0;
     let ignored = 0;
     let echoes = 0;
+    let typing = 0;
     const pendientes = new Set<string>();
 
     try {
@@ -145,7 +147,44 @@ Deno.serve(
           ignored += 1;
         } else echoes += 1;
       }
+      for (const indicator of parsed.typing) {
+        const { error } = await supabase.rpc('note_whatsapp_typing', {
+          p_sender: indicator.from,
+          p_active: indicator.active,
+        });
+        if (error) throw new Error('whatsapp_typing_failed');
+        typing += 1;
+      }
       for (const message of parsed.texts) {
+        const comando = clasificarTomaHumana(message.text);
+        if (comando && isOwnBusinessNumber(message.from, IME_WHATSAPP_E164)) {
+          const target = message.recipient ?? '';
+          if (target && !isOwnBusinessNumber(target, IME_WHATSAPP_E164)) {
+            const result = await registrarEcoManual(supabase, {
+              wamid: message.wamid,
+              waId: target,
+              fromWa: message.from,
+              text: message.text,
+              timestamp: message.timestamp,
+              phoneNumberId: message.phoneNumberId,
+              field: 'messages',
+              raw: message.raw,
+            });
+            if (result === 'duplicate') {
+              await auditWhatsAppDrop(supabase, 'duplicate', payload, message.wamid);
+              ignored += 1;
+            } else echoes += 1;
+          } else {
+            await auditWhatsAppDrop(
+              supabase,
+              'owner_command_without_target',
+              payload,
+              message.wamid
+            );
+            ignored += 1;
+          }
+          continue;
+        }
         let reason: string | null = message.isBot
           ? 'bot'
           : isOwnBusinessNumber(message.from, IME_WHATSAPP_E164)
@@ -195,6 +234,7 @@ Deno.serve(
       replied: 0,
       ignored,
       echoes,
+      typing,
       statuses: parsed.statuses.length,
     });
   })

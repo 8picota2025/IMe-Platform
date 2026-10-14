@@ -8,11 +8,13 @@ import {
 } from './whatsapp-espera';
 import {
   planWhatsAppDispatch,
+  prioridadDespachoWhatsApp,
   reclamarLoteWhatsApp,
   WHATSAPP_CLAIM_TTL_MS,
   WHATSAPP_HOLDING_AFTER_MS,
   WHATSAPP_HOLDING_MIN_GAP_MS,
   WHATSAPP_QUIET_MS,
+  WHATSAPP_TYPING_CAP_MS,
   type FilaReclamo,
   type InboundEventRow,
   type OutboundEventRow,
@@ -166,6 +168,33 @@ describe('reclamo de lote', () => {
         T0 + WHATSAPP_QUIET_MS
       )
     ).toEqual([]);
+  });
+
+  it('espera 30 s, y la escritura alarga el silencio hasta 2 minutos', () => {
+    const filas: FilaReclamo[] = [
+      {
+        wamid: 'wamid.t',
+        fromWa: FROM,
+        createdAtMs: T0,
+        status: 'pending_agent',
+        agentClaimedAtMs: null,
+      },
+    ];
+    expect(reclamarLoteWhatsApp(filas, FROM, T0 + 25_000)).toEqual([]);
+    expect(reclamarLoteWhatsApp(filas, FROM, T0 + WHATSAPP_QUIET_MS)).toEqual(['wamid.t']);
+    expect(reclamarLoteWhatsApp(filas, FROM, T0 + 40_000, { typingUntilMs: T0 + 55_000 })).toEqual(
+      []
+    );
+    expect(
+      reclamarLoteWhatsApp(filas, FROM, T0 + WHATSAPP_TYPING_CAP_MS - 1_000, {
+        typingUntilMs: T0 + 200_000,
+      })
+    ).toEqual([]);
+    expect(
+      reclamarLoteWhatsApp(filas, FROM, T0 + WHATSAPP_TYPING_CAP_MS, {
+        typingUntilMs: T0 + 200_000,
+      })
+    ).toEqual(['wamid.t']);
   });
 
   it('un cliente en pausa no se reclama', () => {
@@ -398,6 +427,50 @@ describe('plan de despacho', () => {
     });
     expect(plan.wakes).toEqual([]);
     expect(plan.holdings).toHaveLength(1);
+  });
+
+  it('despacha clientes y proveedores antes que la actividad interna', () => {
+    expect(prioridadDespachoWhatsApp('customer', 'reply')).toBeLessThan(
+      prioridadDespachoWhatsApp('internal', 'bot')
+    );
+    expect(prioridadDespachoWhatsApp('supplier', 'reply')).toBeLessThan(
+      prioridadDespachoWhatsApp('internal', 'bot')
+    );
+    const ahora = new Date(T0 + WHATSAPP_QUIET_MS + 1_000);
+    const plan = planWhatsAppDispatch({
+      now: ahora,
+      events: [
+        pendiente({
+          fromWa: '573137247353',
+          wamid: 'wamid.interno',
+          createdAt: new Date(T0).toISOString(),
+          body: 'nota interna',
+        }),
+        pendiente({
+          fromWa: '573009990099',
+          wamid: 'wamid.proveedor',
+          createdAt: new Date(T0).toISOString(),
+          body: 'despacho listo',
+        }),
+        pendiente({
+          fromWa: '573001110000',
+          wamid: 'wamid.cliente',
+          createdAt: new Date(T0).toISOString(),
+          body: '¿tienen stock?',
+        }),
+      ],
+      outbound: [],
+      audiences: new Map([
+        ['573137247353', 'internal'],
+        ['573009990099', 'supplier'],
+        ['573001110000', 'customer'],
+      ]),
+    });
+    expect(plan.wakes.map(wake => wake.fromWa)).toEqual([
+      '573001110000',
+      '573009990099',
+      '573137247353',
+    ]);
   });
 
   it('usa inglés si el pendiente está en inglés', () => {

@@ -14,6 +14,7 @@ import {
   parseWhatsAppWebhook,
   sampleInboundTextPayload,
   sampleStatusOnlyPayload,
+  sendWhatsAppTemplate,
   sendWhatsAppText,
   verifyWhatsAppChallenge,
   verifyWhatsAppSignature,
@@ -242,5 +243,96 @@ describe('WhatsApp Cloud API — Graph send scaffold', () => {
       type: 'text',
       text: { body: 'Hola I-ME', preview_url: false },
     });
+  });
+
+  it('no reenvía un comando de toma humana', async () => {
+    const result = await sendWhatsAppText({
+      to: '573001112233',
+      body: '#pausa',
+      token: 'EAAB-test',
+      phoneNumberId: '109900',
+      fetchImpl: (async () => {
+        throw new Error('no debe llamar a Graph');
+      }) as typeof fetch,
+    });
+    expect(result).toEqual({ ok: false, error: 'command_not_forwarded' });
+  });
+
+  it('envía la plantilla aviso_cotizacion_pendiente', async () => {
+    const calls: Array<{ url: string; init: RequestInit }> = [];
+    const result = await sendWhatsAppTemplate({
+      to: '573001112233',
+      templateName: 'aviso_cotizacion_pendiente',
+      languageCode: 'es',
+      bodyParameters: ['Clinica Norte'],
+      token: 'EAAB-test',
+      phoneNumberId: '109900',
+      apiVersion: 'v21.0',
+      fetchImpl: (async (input, init) => {
+        calls.push({ url: String(input), init: init ?? {} });
+        return new Response(JSON.stringify({ messages: [{ id: 'wamid.tpl.1' }] }), {
+          status: 200,
+        });
+      }) as typeof fetch,
+    });
+    expect(result).toEqual({ ok: true, status: 200, messageId: 'wamid.tpl.1' });
+    expect(JSON.parse(String(calls[0]?.init.body))).toMatchObject({
+      type: 'template',
+      to: '573001112233',
+      template: {
+        name: 'aviso_cotizacion_pendiente',
+        language: { code: 'es' },
+        components: [{ type: 'body', parameters: [{ type: 'text', text: 'Clinica Norte' }] }],
+      },
+    });
+  });
+});
+
+describe('WhatsApp Cloud API — indicadores de escritura', () => {
+  it('lee typing_indicators y un mensaje de tipo typing', () => {
+    const parsed = parseWhatsAppWebhook({
+      object: 'whatsapp_business_account',
+      entry: [
+        {
+          id: 'WABA',
+          changes: [
+            {
+              field: 'messages',
+              value: {
+                messaging_product: 'whatsapp',
+                metadata: { phone_number_id: 'PHONE' },
+                typing_indicators: [
+                  { from: '573001112233', status: 'typing', timestamp: '1710000010' },
+                ],
+                messages: [
+                  {
+                    from: '573009990044',
+                    id: 'wamid.typing.1',
+                    timestamp: '1710000011',
+                    type: 'typing',
+                    status: 'stop',
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      ],
+    });
+    expect(parsed.texts).toEqual([]);
+    expect(parsed.typing).toEqual([
+      {
+        from: '573001112233',
+        active: true,
+        timestamp: '1710000010',
+        phoneNumberId: 'PHONE',
+      },
+      {
+        from: '573009990044',
+        active: false,
+        timestamp: '1710000011',
+        phoneNumberId: 'PHONE',
+      },
+    ]);
   });
 });

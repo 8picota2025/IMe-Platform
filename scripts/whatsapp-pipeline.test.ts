@@ -55,6 +55,7 @@ function database(reason: string | null = null) {
     return { data: null, error: null };
   });
   const from = (table: string) => {
+    rows[table] ??= [];
     const predicates: Array<(row: Row) => boolean> = [];
     let mutation: 'insert' | 'update' | 'delete' | null = null;
     let values: Row | Row[] = {};

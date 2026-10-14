@@ -16,11 +16,13 @@ Meta Cloud API
        ├─ statuses / grupos / no-texto  → 200, sin reply
        ├─ wamid ya visto                → 200, no reenvía
        └─ texto 1:1 nuevo               → fila pending_agent (sin burbuja inmediata)
-            └─ seguimiento (~25 s de silencio, y otra pasada al minuto)
+            └─ seguimiento (~30 s de silencio; la escritura lo alarga hasta ~2 min, y otra pasada al minuto)
                  ├─ claim_whatsapp_agent_batch  → 1 wake del agente por remitente
                  └─ si el pendiente sigue >60 s y no hubo salida → 1 mensaje de espera
   pg_cron cada minuto → whatsapp-imeia-dispatch (mismo despacho, por si el isolate murió)
-  smb_message_echoes → #pausa / #activa de la app, o bitácora kind=other
+  smb_message_echoes → #pausa / /pausa / #pause / #continua / #activa, o bitácora kind=other
+  typing_indicators → alarga el silencio del lote (tope ~2 min)
+  plantillas Meta → whatsapp_outbound_messages.kind = template
 ```
 
 La respuesta al cliente la escribe el agente externo (no esta función, no Hermes). El webhook solo verifica firma, filtra grupos y guarda el texto. No se inventan precios ni RS INVIMA.
@@ -51,7 +53,7 @@ supabase secrets set \
   WHATSAPP_API_VERSION=v21.0
 ```
 
-Migraciones: `supabase/migrations/20260906020000_whatsapp_inbound_events.sql`, `20260909050000_whatsapp_inbound_body.sql`, `20260925143000_whatsapp_outbound_dispatch.sql`, `20260925150000_whatsapp_dispatch_cron.sql`, `20260925160000_whatsapp_human_takeover.sql`.
+Migraciones: `supabase/migrations/20260906020000_whatsapp_inbound_events.sql`, `20260909050000_whatsapp_inbound_body.sql`, `20260925143000_whatsapp_outbound_dispatch.sql`, `20260925150000_whatsapp_dispatch_cron.sql`, `20260925160000_whatsapp_human_takeover.sql`, `20261002120500_whatsapp_identity_resilience.sql`, `20261014170000_whatsapp_pausa_debounce_prioridad.sql`, `20261014171000_leads_consentimiento_pendiente.sql`.
 
 ## Setup en Meta Business Suite
 
@@ -61,7 +63,7 @@ Migraciones: `supabase/migrations/20260906020000_whatsapp_inbound_events.sql`, `
 4. App → **WhatsApp** → **Configuration** → **Webhook**:
    - Callback URL: `https://<supabase-project>.supabase.co/functions/v1/whatsapp-webhook`
    - Verify token: el mismo valor que `WHATSAPP_VERIFY_TOKEN`
-   - Subscribe to field **`messages`**
+   - Subscribe to fields **`messages`**, **`smb_message_echoes`** y, si la app lo ofrece, **`typing_indicators`**
 5. App → **Settings** → **Basic** → copia **App secret** a `WHATSAPP_APP_SECRET`.
 6. En producción usa un token permanente de sistema (no el temporal de 24 h).
 7. Envía un mensaje de texto al +57 313 724 7353 desde un número permitido (en modo desarrollo, solo testers de la app).
@@ -71,22 +73,22 @@ Proyecto I-ME actual: `https://nnfbucwiasuggyfoyydo.supabase.co/functions/v1/wha
 ## Deploy
 
 ```bash
-# 1. Migraciones ANTES que las funciones. La segunda programa el cron.
+# 1. Migraciones ANTES que las funciones.
 #    Workflow: Deploy Supabase Migrations (workflow_dispatch) sobre la rama
-#    que ya contiene 20260925143000 y 20260925150000. Tiene que decir
+#    que ya contiene 20261014170000 y 20261014171000. Tiene que decir
 #    "Session Pooler conectado." y aplicarlas con supabase db push.
 #    El fallback de Management API solo cubre 20260809090000 y no sirve aquí.
 supabase db push
 
-# 2. Funciones, después de las migraciones. Las dos van con verify_jwt = false.
-supabase functions deploy whatsapp-webhook whatsapp-imeia-dispatch --project-ref <ref>
+# 2. Funciones, después de las migraciones. verify_jwt = false en el webhook y el dispatch.
+supabase functions deploy whatsapp-webhook whatsapp-imeia-dispatch whatsapp-imeia-reply registrar-lead-comercial --project-ref <ref>
 ```
 
 No hace falta ningún secreto nuevo en git ni en Vault. Siguen `WHATSAPP_*` y `IMEIA_AGENT_WEBHOOK_URL` / `IMEIA_AGENT_WEBHOOK_KEY`. `SUPABASE_SERVICE_ROLE_KEY` ya lo inyecta la plataforma en la función.
 
 ### Cron (necesario como red de seguridad)
 
-El webhook agenda el seguimiento con `EdgeRuntime.waitUntil` (~25 s de silencio y una pasada al minuto). Si ese isolate muere, **nada despierta al agente** hasta que corre el cron.
+El webhook agenda el seguimiento con `EdgeRuntime.waitUntil` (~30 s de silencio; si llega un indicador de escritura, espera a que pare, con tope de ~2 min desde el último mensaje, y una pasada al minuto). Si ese isolate muere, **nada despierta al agente** hasta que corre el cron. El reclamo SQL usa el mismo silencio (`p_quiet_seconds` 30) y el mismo tope de escritura.
 
 `20260925150000_whatsapp_dispatch_cron.sql` hace el alta al aplicar la migración:
 
@@ -261,17 +263,21 @@ Sigue el contrato de siempre, una vez por lote, con el pendiente más reciente:
 
 El agente lee los `pending_agent` de ese `from` en las últimas 24 h y los marca `replied` o `ignored`. Un segundo despacho que reclama 0 filas no vuelve a despertarlo mientras el reclamo tenga menos de 3 minutos. Si el wake HTTP falla, el reclamo se suelta y el cron reintenta. Si el wake no responde a tiempo, el reclamo se conserva para no disparar otra corrida en paralelo.
 
-## Toma humana (`#pausa` / `#activa`)
+## Toma humana (`#pausa`, `/pausa`, `#pause`, `#continua`, `#activa`)
 
-Shoky escribe en el chat del cliente desde el WhatsApp Business app. Meta manda el eco en `smb_message_echoes` (`message_echoes[]`, `from` = negocio, `to` = cliente). Si el mismo eco llega dentro de `messages` con `from` igual al número del negocio y `to` del cliente, se trata igual.
+Shoky escribe en el chat del cliente desde el WhatsApp Business app. Meta manda el eco en `smb_message_echoes` (`message_echoes[]`, `from` = negocio, `to` = cliente). Si el mismo eco llega dentro de `messages` con `from` igual al número del negocio y `to` del cliente, se trata igual. Un comando escrito desde el propio número del negocio, con destinatario, hace lo mismo.
 
-- `#pausa` (sin importar mayúsculas, con espacios alrededor; puede llevar más texto detrás, `#pausa ya lo veo`) pone `whatsapp_contact_pauses.paused = true`. No caduca.
-- Mientras está en pausa, el reclamo devuelve 0 filas y el plan no arma wake ni espera. Los mensajes nuevos de ese cliente se guardan como `human_paused`, no como `pending_agent`. `#activa` no los convierte: no se responden después.
-- `#activa` vuelve a dejar los mensajes nuevos en `pending_agent`.
-- Cualquier otro texto de la app se anota en `whatsapp_outbound_messages` con `kind = other` (también la orden) y no cambia la pausa si no es la palabra clave. Así la espera no pisa lo que Shoky ya escribió.
+- `#pausa`, `/pausa`, `#pause` y `#parar` (primera palabra; mayúsculas y puntuación final no importan; puede llevar más texto detrás, `#pausa ya lo veo`) ponen `whatsapp_contact_pauses.paused = true`. No caduca.
+- `#continua` y `#activa` lo dejan en `paused = false`. El texto del comando gana aunque el eco llegue marcado como pausa.
+- Mientras está en pausa, el reclamo devuelve 0 filas y el plan no arma wake ni espera. Los mensajes nuevos de ese cliente se guardan como `human_paused`, no como `pending_agent`. Reanudar no convierte los que ya quedaron en pausa: no se responden después.
+- Cualquier otro eco que no sea un envío ya registrado de IMEIA (ni una plantilla) sigue pausando el chat. El texto se anota en `whatsapp_outbound_messages` con `kind = other`. El comando se guarda como `[toma-humana]`: Graph no lo reenvía al cliente.
+- Si en un chat ya pausado aparece un envío que no es IMEIA ni el eco del dueño, se inserta `whatsapp_watcher_flags` (`reason = paused_unmatched_outbound`, `acknowledged_at` nulo) para que el watcher lo lea.
+- `rate_limited` se audita en `whatsapp_drop_log` y la fila queda `pending_agent`, para que el siguiente lote la responda.
+- El despacho (cron, sin un solo remitente) despierta primero a clientes y proveedores y después la actividad del número del negocio. Las esperas salen después de esos wakes.
+- Una plantilla de Meta (eco o `enviarPlantillaWhatsApp`, p. ej. `aviso_cotizacion_pendiente`) se anota con `kind = template` y `origin = imeia`. No pausa el chat. Enviarla exige que la plantilla ya esté aprobada en Meta.
 - No se llama al webhook del agente. El aviso sería `{ "type": "human_takeover", "action": "pause" | "resume", "wa_id": "57300..." }` y ese cuerpo no trae `source`, `from`, `text` ni `wamid`. Mandarlo haría que el agente lo tomara por un turno de cliente.
 
-En el App Dashboard → **WhatsApp** → **Configuration** → Webhook fields, hace falta **`smb_message_echoes`** (además de `messages`). Sin ese campo Meta no entrega los ecos de la app.
+En el App Dashboard → **WhatsApp** → **Configuration** → Webhook fields, hace falta **`messages`** y **`smb_message_echoes`**. Sin el segundo, Meta no entrega los ecos de la app. Si la app ofrece **`typing_indicators`**, hay que suscribirlo para alargar el silencio mientras el contacto escribe. No hay secretos nuevos.
 
 ## Canal web
 

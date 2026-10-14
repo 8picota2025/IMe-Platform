@@ -5,8 +5,10 @@
  */
 
 import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
+import { IME_WHATSAPP_E164 } from '../../../src/lib/contacto-oficial.ts';
 import {
   detectarLocaleWhatsApp,
+  normalizeWhatsAppIdentifier,
   sendWhatsAppText,
   whatsAppRecipient,
   type WhatsAppGraphConfig,
@@ -19,6 +21,8 @@ import {
   WHATSAPP_HOLDING_RESERVATION_MS,
   WHATSAPP_PENDING_WINDOW_MS,
   WHATSAPP_QUIET_MS,
+  WHATSAPP_TYPING_CAP_MS,
+  type AudienciaWhatsApp,
   type HoldingPlan,
   type InboundEventRow,
   type OutboundEventRow,
@@ -39,7 +43,7 @@ interface InboundDb {
 interface OutboundDb {
   to_wa: string;
   body: string;
-  kind: 'holding' | 'reply' | 'other';
+  kind: 'holding' | 'reply' | 'template' | 'other';
   created_at: string;
   send_status: 'pending' | 'sent' | 'failed';
   turn_key: string | null;
@@ -171,6 +175,66 @@ async function cargarSnapshot(
     ? []
     : ((outboundRes.data ?? []) as OutboundDb[]).map(mapOutbound);
   return { events, outbound, outboundOk: !outboundRes.error, pausedWaIds };
+}
+
+function digitosWa(valor: string): string {
+  return valor.replace(/\D/g, '');
+}
+
+/** Clientes y proveedores antes que el número del negocio (actividad interna). */
+export async function audienciasWhatsApp(
+  supabase: SupabaseClient,
+  senders: readonly string[]
+): Promise<Map<string, AudienciaWhatsApp>> {
+  const map = new Map<string, AudienciaWhatsApp>();
+  const negocio = digitosWa(IME_WHATSAPP_E164);
+  for (const sender of senders) {
+    const digits = digitosWa(sender);
+    map.set(sender, digits.length > 0 && digits === negocio ? 'internal' : 'customer');
+  }
+  const proveedores = await supabase.from('proveedores').select('contacto_whatsapp');
+  const contactos = await supabase.from('proveedor_contactos').select('whatsapp');
+  if (proveedores.error && contactos.error) return map;
+  const supplierIds = new Set<string>();
+  for (const row of (proveedores.data ?? []) as Array<{ contacto_whatsapp?: string | null }>) {
+    const raw = row.contacto_whatsapp?.trim() ?? '';
+    if (!raw) continue;
+    supplierIds.add(normalizeWhatsAppIdentifier(raw));
+    const digits = digitosWa(raw);
+    if (digits) supplierIds.add(digits);
+  }
+  for (const row of (contactos.data ?? []) as Array<{ whatsapp?: string | null }>) {
+    const raw = row.whatsapp?.trim() ?? '';
+    if (!raw) continue;
+    supplierIds.add(normalizeWhatsAppIdentifier(raw));
+    const digits = digitosWa(raw);
+    if (digits) supplierIds.add(digits);
+  }
+  for (const sender of senders) {
+    if (map.get(sender) === 'internal') continue;
+    const digits = digitosWa(sender);
+    if (supplierIds.has(sender) || (digits.length > 0 && supplierIds.has(digits))) {
+      map.set(sender, 'supplier');
+    }
+  }
+  return map;
+}
+
+async function algunoEscribiendo(
+  supabase: SupabaseClient,
+  froms: readonly string[]
+): Promise<boolean> {
+  if (froms.length === 0) return false;
+  const { data, error } = await supabase
+    .from('whatsapp_typing_state')
+    .select('typing_until')
+    .in('sender_id', [...froms]);
+  if (error) return false;
+  const ahora = Date.now();
+  return ((data ?? []) as Array<{ typing_until?: string | null }>).some(fila => {
+    const hasta = Date.parse(fila.typing_until ?? '');
+    return Number.isFinite(hasta) && hasta > ahora;
+  });
 }
 
 async function fallarReclamo(
@@ -571,11 +635,15 @@ export async function despacharWhatsAppImeia(opts: {
     if (await canDispatch(opts.supabase, sender))
       allowedEvents.push(...snapshot.events.filter(event => event.fromWa === sender));
   }
+  const audiences = await audienciasWhatsApp(opts.supabase, [
+    ...new Set(allowedEvents.map(event => event.fromWa)),
+  ]);
   const plan = planWhatsAppDispatch({
     now,
     events: allowedEvents,
     outbound: snapshot.outbound,
     pausedWaIds: snapshot.pausedWaIds,
+    audiences,
   });
   let wakes = 0;
   let holdings = 0;
@@ -623,7 +691,13 @@ export async function seguirTurnoWhatsApp(opts: {
   fetchImpl?: typeof fetch;
 }): Promise<void> {
   const inicio = Date.now();
+  const limite = inicio + WHATSAPP_TYPING_CAP_MS;
   await sleep(WHATSAPP_QUIET_MS);
+  while (Date.now() < limite && (await algunoEscribiendo(opts.supabase, opts.froms))) {
+    const faltaEscritura = limite - Date.now();
+    if (faltaEscritura <= 0) break;
+    await sleep(Math.min(5_000, faltaEscritura));
+  }
   for (const fromWa of opts.froms) {
     await despacharWhatsAppImeia({ ...opts, fromWa, wakes: true, holdings: false });
   }

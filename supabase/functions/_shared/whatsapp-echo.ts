@@ -7,7 +7,10 @@
 
 import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 import { clasificarTomaHumana } from '../../../src/lib/whatsapp-human-takeover.ts';
+import { IME_WHATSAPP_E164 } from '../../../src/lib/contacto-oficial.ts';
 import {
+  isOwnBusinessNumber,
+  nombrePlantillaWhatsApp,
   whatsAppIdentifierType,
   type WhatsAppManualEcho,
 } from '../../../src/lib/whatsapp-cloud.ts';
@@ -28,11 +31,17 @@ export async function contactoEstaPausado(
   return data?.paused === true;
 }
 
+function ecoDelDueno(echo: WhatsAppManualEcho): boolean {
+  return echo.field === 'smb_message_echoes' || isOwnBusinessNumber(echo.fromWa, IME_WHATSAPP_E164);
+}
+
 export async function registrarEcoManual(
   supabase: SupabaseClient,
   echo: WhatsAppManualEcho
 ): Promise<'duplicate' | 'pause' | 'resume' | 'logged'> {
-  const action = clasificarTomaHumana(echo.text) ?? 'pause';
+  const templateName = nombrePlantillaWhatsApp(echo.raw);
+  const command = templateName ? null : clasificarTomaHumana(echo.text);
+  const action = templateName ? null : (command ?? 'pause');
   const type = whatsAppIdentifierType(echo.waId);
   const { data, error } = await supabase.rpc('ingest_whatsapp_event', {
     p_event: {
@@ -44,11 +53,14 @@ export async function registrarEcoManual(
       body: echo.text,
       kind: 'echo',
       echo_action: action,
+      template_name: templateName,
+      owner_echo: ecoDelDueno(echo),
+      command: command !== null,
       phone_number_id: echo.phoneNumberId,
       raw: echo.raw ?? null,
     },
   });
   if (error) throw new Error('whatsapp_echo_persistence_failed');
   if (data?.status === 'duplicate' || data?.status === 'ignored') return 'duplicate';
-  return action;
+  return action ?? 'logged';
 }

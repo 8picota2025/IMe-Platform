@@ -12,6 +12,7 @@ import {
 } from './asesor-guardrails.ts';
 import { buildAsesorStaticFallback, esConsultaSitioOLegal } from './asesor-knowledge.ts';
 import { IME_WHATSAPP_DISPLAY, IME_WHATSAPP_E164 } from './contacto-oficial.ts';
+import { clasificarTomaHumana } from './whatsapp-human-takeover.ts';
 
 export const IME_COTIZACION_URL = 'https://i-me.com.co/es/contacto/';
 export const WHATSAPP_DEFAULT_API_VERSION = 'v26.0';
@@ -46,6 +47,8 @@ export interface InboundWhatsAppText {
   type: string;
   senderType?: 'phone' | 'bsuid' | 'username';
   username?: string | null;
+  /** Destinatario si el mensaje trae `to` o un contexto. Lo usa el comando del dueño. */
+  recipient?: string | null;
   raw?: unknown;
   isBot?: boolean;
 }
@@ -54,6 +57,14 @@ export interface WhatsAppStatusEvent {
   wamid: string;
   status: string;
   recipientId: string | null;
+}
+
+/** El contacto está escribiendo (`active`) o dejó de hacerlo. */
+export interface WhatsAppTypingEvent {
+  from: string;
+  active: boolean;
+  timestamp: string;
+  phoneNumberId: string | null;
 }
 
 /** Mensaje que Shoky envió desde la app (eco). `waId` es el cliente (`to`). */
@@ -72,6 +83,7 @@ export interface ParsedWhatsAppWebhook {
   object: string | null;
   texts: InboundWhatsAppText[];
   echoes: WhatsAppManualEcho[];
+  typing: WhatsAppTypingEvent[];
   statuses: WhatsAppStatusEvent[];
   ignored: Array<{ reason: string; wamid?: string }>;
 }
@@ -122,6 +134,17 @@ export interface SendWhatsAppTextResult {
   messageId?: string;
   error?: string;
   status?: number;
+}
+
+export interface SendWhatsAppTemplateParams {
+  to: string;
+  templateName: string;
+  token: string;
+  phoneNumberId: string;
+  apiVersion?: string;
+  languageCode?: string;
+  bodyParameters?: readonly string[];
+  fetchImpl?: typeof fetch;
 }
 
 export interface ComposeWhatsAppImeiaParams {
@@ -276,6 +299,52 @@ function esIdentificadorGrupo(valor: string): boolean {
   return /@g\.us\b/i.test(valor) || /^\d+-\d+$/.test(valor);
 }
 
+const TYPING_ACTIVO = new Set(['on', 'typing', 'composing', 'start', 'started', 'true']);
+const TYPING_DETENIDO = new Set(['off', 'paused', 'stopped', 'stop', 'false']);
+
+/** Nombre de plantilla Meta (`template.name`), p. ej. `aviso_cotizacion_pendiente`. */
+export function nombrePlantillaWhatsApp(raw: unknown): string | null {
+  const message = asRecord(raw);
+  if (!message) return null;
+  const template = asRecord(message.template) ?? asRecord(message.template_message);
+  const name = asString(template?.name).trim();
+  if (name) return name.slice(0, 512);
+  if (asString(message.type) === 'template') return '[template]';
+  return null;
+}
+
+function typingActivo(status: string): boolean | null {
+  const valor = status.trim().toLowerCase();
+  if (!valor || TYPING_ACTIVO.has(valor)) return true;
+  if (TYPING_DETENIDO.has(valor)) return false;
+  return null;
+}
+
+function considerarTyping(
+  row: unknown,
+  phoneNumberId: string | null,
+  typing: WhatsAppTypingEvent[]
+): void {
+  const record = asRecord(row);
+  if (!record) return;
+  const from = normalizeWhatsAppIdentifier(
+    asString(record.from_user_id) ||
+      asString(record.user_id) ||
+      asString(record.from) ||
+      asString(record.wa_id)
+  );
+  if (!from) return;
+  const estado = asString(record.status) || asString(record.action) || asString(record.state);
+  const active = typingActivo(estado);
+  if (active === null) return;
+  typing.push({
+    from,
+    active,
+    timestamp: asString(record.timestamp),
+    phoneNumberId,
+  });
+}
+
 function considerarEco(
   row: unknown,
   field: string,
@@ -320,12 +389,20 @@ export function parseWhatsAppWebhook(payload: unknown): ParsedWhatsAppWebhook {
   const object = root ? asString(root.object) || null : null;
   const texts: InboundWhatsAppText[] = [];
   const echoes: WhatsAppManualEcho[] = [];
+  const typing: WhatsAppTypingEvent[] = [];
   const statuses: WhatsAppStatusEvent[] = [];
   const ignored: Array<{ reason: string; wamid?: string }> = [];
   const propio = IME_WHATSAPP_E164.replace(/\D/g, '');
 
   if (!root || object !== 'whatsapp_business_account') {
-    return { object, texts, echoes, statuses, ignored: [...ignored, { reason: 'not_whatsapp' }] };
+    return {
+      object,
+      texts,
+      echoes,
+      typing,
+      statuses,
+      ignored: [...ignored, { reason: 'not_whatsapp' }],
+    };
   }
 
   const entries = Array.isArray(root.entry) ? root.entry : [];
@@ -347,6 +424,14 @@ export function parseWhatsAppWebhook(payload: unknown): ParsedWhatsAppWebhook {
 
       const metadata = asRecord(value.metadata);
       const phoneNumberId = metadata ? asString(metadata.phone_number_id) || null : null;
+      const typingRows = [
+        ...(Array.isArray(value.typing_indicators) ? value.typing_indicators : []),
+        ...(Array.isArray(value.typing) ? value.typing : []),
+      ];
+      for (const row of typingRows) considerarTyping(row, phoneNumberId, typing);
+      if (field === 'typing_indicators' && typingRows.length === 0) {
+        considerarTyping(value, phoneNumberId, typing);
+      }
       const contacts = Array.isArray(value.contacts) ? value.contacts : [];
       const statusRows = Array.isArray(value.statuses) ? value.statuses : [];
       for (const row of statusRows) {
@@ -384,6 +469,11 @@ export function parseWhatsAppWebhook(payload: unknown): ParsedWhatsAppWebhook {
         }
         const toRaw = asString(message.to_user_id) || asString(message.to);
         const fromRaw = asString(message.from);
+        const typePreview = asString(message.type) || 'unknown';
+        if (typePreview === 'typing' || typePreview === 'typing_indicator') {
+          considerarTyping(message, phoneNumberId, typing);
+          continue;
+        }
         if (field === 'smb_message_echoes' || (toRaw && isOwnBusinessNumber(fromRaw, propio))) {
           considerarEco(message, field || 'messages', phoneNumberId, echoes, ignored);
           continue;
@@ -416,6 +506,11 @@ export function parseWhatsAppWebhook(payload: unknown): ParsedWhatsAppWebhook {
           continue;
         }
         const text = readableWhatsAppBody(message, type);
+        const context = asRecord(message.context);
+        const contextFrom = context
+          ? normalizeWhatsAppIdentifier(asString(context.from) || asString(context.from_user_id))
+          : '';
+        const recipient = normalizeWhatsAppIdentifier(toRaw || contextFrom);
         texts.push({
           wamid,
           from,
@@ -427,6 +522,7 @@ export function parseWhatsAppWebhook(payload: unknown): ParsedWhatsAppWebhook {
           type,
           senderType: whatsAppIdentifierType(from),
           username,
+          recipient: recipient && recipient !== from ? recipient : null,
           raw: { message, contact: contact ?? null, metadata: metadata ?? null },
           isBot:
             message.is_bot === true || contact?.is_bot === true || message.sender_type === 'bot',
@@ -435,9 +531,9 @@ export function parseWhatsAppWebhook(payload: unknown): ParsedWhatsAppWebhook {
     }
   }
 
-  if (!texts.length && !echoes.length && !statuses.length && !ignored.length)
+  if (!texts.length && !echoes.length && !typing.length && !statuses.length && !ignored.length)
     ignored.push({ reason: 'empty' });
-  return { object, texts, echoes, statuses, ignored };
+  return { object, texts, echoes, typing, statuses, ignored };
 }
 
 export function isStatusOnlyWebhook(parsed: ParsedWhatsAppWebhook): boolean {
@@ -576,6 +672,7 @@ export async function sendWhatsAppText(
   const recipient = whatsAppRecipient(to);
   if (!recipient) return { ok: false, error: 'no_sendable_recipient' };
   if (!body || !to) return { ok: false, error: 'missing_to_or_body' };
+  if (clasificarTomaHumana(body)) return { ok: false, error: 'command_not_forwarded' };
 
   const url = buildWhatsAppMessagesUrl(params.phoneNumberId, params.apiVersion);
   const fetchImpl = params.fetchImpl ?? fetch;
@@ -591,6 +688,59 @@ export async function sendWhatsAppText(
       ...recipient,
       type: 'text',
       text: { preview_url: false, body },
+    }),
+  });
+
+  const payload: unknown = await res.json().catch(() => null);
+  const record = asRecord(payload);
+  const messages = record && Array.isArray(record.messages) ? record.messages : [];
+  const first = asRecord(messages[0]);
+  const messageId = first ? asString(first.id) : '';
+  if (!res.ok) {
+    const errorObj = record ? asRecord(record.error) : null;
+    return {
+      ok: false,
+      status: res.status,
+      error: errorObj ? asString(errorObj.message) || `HTTP ${res.status}` : `HTTP ${res.status}`,
+    };
+  }
+  return messageId ? { ok: true, status: res.status, messageId } : { ok: true, status: res.status };
+}
+
+/** Envía una plantilla aprobada de Meta. Quien llama debe anotar kind=`template`. */
+export async function sendWhatsAppTemplate(
+  params: SendWhatsAppTemplateParams
+): Promise<SendWhatsAppTextResult> {
+  const templateName = params.templateName.trim();
+  const to = normalizeWhatsAppIdentifier(params.to);
+  const recipient = whatsAppRecipient(to);
+  if (!recipient) return { ok: false, error: 'no_sendable_recipient' };
+  if (!templateName || !to) return { ok: false, error: 'missing_to_or_template' };
+  if (clasificarTomaHumana(templateName)) return { ok: false, error: 'command_not_forwarded' };
+
+  const parameters = (params.bodyParameters ?? [])
+    .map(value => value.trim())
+    .filter(value => value.length > 0)
+    .slice(0, 20)
+    .map(text => ({ type: 'text', text: text.slice(0, 1024) }));
+  const url = buildWhatsAppMessagesUrl(params.phoneNumberId, params.apiVersion);
+  const fetchImpl = params.fetchImpl ?? fetch;
+  const res = await fetchImpl(url, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${params.token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      messaging_product: 'whatsapp',
+      recipient_type: 'individual',
+      ...recipient,
+      type: 'template',
+      template: {
+        name: templateName,
+        language: { code: params.languageCode?.trim() || 'es' },
+        ...(parameters.length > 0 ? { components: [{ type: 'body', parameters }] } : {}),
+      },
     }),
   });
 
