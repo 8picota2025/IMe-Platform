@@ -3,7 +3,7 @@ import {
   normalizeVisitorPhone,
   resolveSubmittedPhone,
   type VisitorPhoneResult,
-} from './visitor-phone-core';
+} from './visitor-phone-core.ts';
 
 export {
   formatPhoneForEmail,
