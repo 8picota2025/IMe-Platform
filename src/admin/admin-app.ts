@@ -11790,8 +11790,8 @@ async function revisionLandingsProductoHtml(
   slug: string,
   nombre: string
 ): Promise<string> {
-  const { listCampaignLandings } = await import('../data/comercial-landings');
-  const campanas = listCampaignLandings('es').filter(landing =>
+  const { listCampaignLandingRevision } = await import('../data/comercial-landings-revision');
+  const campanas = listCampaignLandingRevision().filter(landing =>
     landing.productSlugs.includes(slug)
   );
   const campanasHtml = campanas.length
