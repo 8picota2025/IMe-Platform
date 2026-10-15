@@ -9,7 +9,7 @@
  * `impuestos_incluidos` es de la cotización: el precio digitado ya es el total
  * con IVA. No se vuelve a sumar el impuesto encima.
  */
-import type { CotizacionLineaOferta } from './cotizacion-oferta';
+import type { CotizacionLineaOferta } from './cotizacion-oferta.ts';
 
 export const TRATAMIENTOS_IVA = ['19', '5', 'excluido', 'exento'] as const;
 export type TratamientoIva = (typeof TRATAMIENTOS_IVA)[number];
