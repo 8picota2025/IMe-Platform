@@ -27,8 +27,28 @@ import {
   type InboundEventRow,
   type OutboundEventRow,
 } from '../../../src/lib/whatsapp-imeia-dispatch.ts';
+import { esAcuseTrivial } from '../../../src/lib/whatsapp-espera.ts';
 
 const WAKE_TIMEOUT_MS = 120_000;
+const RECENT_OUTBOUND_MS = 10 * 60 * 1000;
+const RECENT_OUTBOUND_LIMIT = 3;
+
+/**
+ * Mensajes de espera apagados salvo `WHATSAPP_HOLDING_ENABLED=true` o `1`.
+ * Vacío, `false` y cualquier otro valor no envían espera.
+ */
+export function whatsappHoldingEnabled(): boolean {
+  const deno = (globalThis as { Deno?: { env?: { get?: (key: string) => string | undefined } } })
+    .Deno;
+  let raw: string | undefined;
+  try {
+    raw = deno?.env?.get?.('WHATSAPP_HOLDING_ENABLED');
+  } catch {
+    raw = undefined;
+  }
+  const value = raw?.trim().toLowerCase() ?? '';
+  return value === 'true' || value === '1';
+}
 
 interface InboundDb {
   from_wa: string | null;
@@ -343,6 +363,9 @@ async function despertarLote(
     return false;
   }
   const phoneNumberId = latest.out_phone_number_id ?? graph?.phoneNumberId ?? null;
+  const recentOutbound = await contextoSalidaReciente(supabase, fromWa);
+  // Un lote de solo acuses se despierta igual: el agente decide. No se cierra aquí.
+  const trivialAck = filas.every(fila => esAcuseTrivial(fila.out_body ?? ''));
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), WAKE_TIMEOUT_MS);
   try {
@@ -363,6 +386,8 @@ async function despertarLote(
         recipient: whatsAppRecipient(recipientId),
         reply_endpoint: 'whatsapp-imeia-reply',
         messages: filas.map(row => ({ wamid: row.out_wamid, body: row.out_body })),
+        recent_outbound: recentOutbound,
+        trivial_ack: trivialAck,
         wamid: latest.out_wamid,
         phone_number_id: phoneNumberId,
         locale: detectarLocaleWhatsApp(filas.map(fila => fila.out_body ?? '').join('\n')),
@@ -394,6 +419,30 @@ async function despertarLote(
   }
 }
 
+/** Últimas 3 salidas enviadas a ese contacto en 10 minutos, de la más antigua a la más nueva. */
+async function contextoSalidaReciente(
+  supabase: SupabaseClient,
+  fromWa: string
+): Promise<Array<{ time: string; text: string }>> {
+  const since = new Date(Date.now() - RECENT_OUTBOUND_MS).toISOString();
+  const { data, error } = await supabase
+    .from('whatsapp_outbound_messages')
+    .select('body, created_at')
+    .eq('to_wa', fromWa)
+    .eq('send_status', 'sent')
+    .gte('created_at', since)
+    .order('created_at', { ascending: false })
+    .limit(RECENT_OUTBOUND_LIMIT);
+  if (error) {
+    console.error('[whatsapp-dispatch] contexto salida:', error.message);
+    return [];
+  }
+  return ((data ?? []) as Array<{ body?: string | null; created_at?: string | null }>)
+    .filter(fila => typeof fila.created_at === 'string' && fila.created_at.length > 0)
+    .reverse()
+    .map(fila => ({ time: fila.created_at as string, text: fila.body ?? '' }));
+}
+
 function cola(fromWa: string): string {
   const digits = fromWa.replace(/\D/g, '');
   return digits.length <= 4 ? digits : `…${digits.slice(-4)}`;
@@ -405,6 +454,7 @@ async function enviarEspera(
   graph: WhatsAppGraphConfig | null,
   fetchImpl: typeof fetch
 ): Promise<boolean> {
+  if (!whatsappHoldingEnabled()) return false;
   if (!(await canDispatch(supabase, plan.fromWa))) return false;
   const recipient = await recipientForContact(supabase, plan.fromWa);
   if (!recipient) return false;
@@ -537,6 +587,7 @@ async function secondHoldings(
   graph: WhatsAppGraphConfig | null,
   fetchImpl: typeof fetch
 ): Promise<number> {
+  if (!whatsappHoldingEnabled()) return 0;
   if (!graph) return 0;
   const { data: alerts, error } = await supabase
     .from('whatsapp_alerts')
@@ -647,6 +698,7 @@ export async function despacharWhatsAppImeia(opts: {
   });
   let wakes = 0;
   let holdings = 0;
+  const holdingsOn = opts.holdings && whatsappHoldingEnabled();
 
   if (opts.wakes) {
     const candidatos = fromWa ? plan.wakes.filter(wake => wake.fromWa === fromWa) : plan.wakes;
@@ -663,7 +715,7 @@ export async function despacharWhatsAppImeia(opts: {
     }
   }
 
-  if (opts.holdings && snapshot.outboundOk) {
+  if (holdingsOn && snapshot.outboundOk) {
     const candidatos = fromWa
       ? plan.holdings.filter(holding => holding.fromWa === fromWa)
       : plan.holdings;
@@ -673,14 +725,14 @@ export async function despacharWhatsAppImeia(opts: {
     }
   }
 
-  if (opts.holdings) holdings += await secondHoldings(opts.supabase, opts.graph, fetchImpl);
+  if (holdingsOn) holdings += await secondHoldings(opts.supabase, opts.graph, fetchImpl);
   return { wakes, holdings };
 }
 
 /**
- * Tras guardar el inbound: espera el silencio, despierta una vez y, si la
- * respuesta sigue pendiente al minuto, manda la espera. El cron repite el
- * mismo despacho por si este isolate no llega al final.
+ * Tras guardar el inbound: espera el silencio y despierta una vez.
+ * La segunda pasada, al minuto, solo manda espera si WHATSAPP_HOLDING_ENABLED.
+ * El cron repite el mismo despacho por si este isolate no llega al final.
  */
 export async function seguirTurnoWhatsApp(opts: {
   supabase: SupabaseClient;
@@ -701,6 +753,7 @@ export async function seguirTurnoWhatsApp(opts: {
   for (const fromWa of opts.froms) {
     await despacharWhatsAppImeia({ ...opts, fromWa, wakes: true, holdings: false });
   }
+  if (!whatsappHoldingEnabled()) return;
   const falta = inicio + WHATSAPP_HOLDING_AFTER_MS + 5_000 - Date.now();
   if (falta > 0) await sleep(falta);
   for (const fromWa of opts.froms) {

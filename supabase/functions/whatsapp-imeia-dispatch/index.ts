@@ -10,7 +10,11 @@
 
 import { unauthorized } from '../_shared/errors.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
-import { despacharWhatsAppImeia, edgeWaitUntil } from '../_shared/whatsapp-dispatch.ts';
+import {
+  despacharWhatsAppImeia,
+  edgeWaitUntil,
+  whatsappHoldingEnabled,
+} from '../_shared/whatsapp-dispatch.ts';
 import {
   resolveWhatsAppGraphConfig,
   timingSafeEqualString,
@@ -81,7 +85,7 @@ Deno.serve(async req => {
       wakeUrl: Deno.env.get('IMEIA_AGENT_WEBHOOK_URL')?.trim() ?? null,
       wakeKey: Deno.env.get('IMEIA_AGENT_WEBHOOK_KEY')?.trim() ?? null,
       wakes: true,
-      holdings: true,
+      holdings: whatsappHoldingEnabled(),
     });
   })().catch(err => {
     console.error('[whatsapp-imeia-dispatch]', err instanceof Error ? err.message : err);
