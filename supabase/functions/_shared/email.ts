@@ -130,15 +130,15 @@ const DEFAULTS: Record<string, { asunto: string; html: string }> = {
   },
   cotizacion_oferta_cliente: {
     asunto: 'Tu cotizacion I-ME — pago por transferencia {{referencia}}',
-    html: '<h2>Hola {{cliente_nombre}}</h2><p>Hemos preparado tu cotizacion. Revisa el resumen y las observaciones de configuracion. Para formalizar, realiza la transferencia bancaria por el total ofertado y carga el comprobante en la plataforma.</p><p><strong>Referencia:</strong> {{referencia}}</p><p><strong>Total a transferir:</strong> {{total}} {{moneda}}</p><p><strong>Validez:</strong> {{validez}}</p><p><strong>Productos:</strong></p><ul>{{items_html}}</ul><p><strong>Observaciones / condiciones:</strong></p><pre>{{condiciones}}</pre><p><strong>Datos bancarios:</strong></p><pre>{{datos_bancarios}}</pre><p><a href="{{formalizar_url_href}}" style="display:inline-block;padding:12px 20px;background:#0b3d4a;color:#fff;text-decoration:none;border-radius:4px">Pagar por transferencia</a></p><p>Si el boton no funciona, copia este enlace:<br>{{formalizar_url}}</p><p>Equipo I-ME<br>comercial1@i-me.com.co</p>',
+    html: '<h2>Hola {{cliente_nombre}}</h2><p>Hemos preparado tu cotizacion. Puedes pagar por transferencia bancaria o con Wompi por el total ofertado.</p><p><strong>Referencia:</strong> {{referencia}}</p><p><strong>Total a pagar:</strong> {{total}} {{moneda}}</p><p>{{iva_resumen}}</p><p><strong>Validez:</strong> {{validez}}</p><p><strong>Productos:</strong></p><ul>{{items_html}}</ul><p><strong>Observaciones / condiciones:</strong></p><pre>{{condiciones}}</pre><p><strong>Datos bancarios:</strong></p><pre>{{datos_bancarios}}</pre>{{pago_wompi_html}}<p><a href="{{formalizar_url_href}}" style="display:inline-block;padding:12px 20px;background:#0b3d4a;color:#fff;text-decoration:none;border-radius:4px">Pagar por transferencia</a></p><p>Si el boton no funciona, copia este enlace:<br>{{formalizar_url}}</p><p>Equipo I-ME<br>comercial1@i-me.com.co</p>',
   },
   cotizacion_oferta_cliente_es: {
     asunto: 'Tu cotizacion I-ME — pago por transferencia {{referencia}}',
-    html: '<h2>Hola {{cliente_nombre}}</h2><p>Hemos preparado tu cotizacion. Revisa el resumen y las observaciones de configuracion. Para formalizar, realiza la transferencia bancaria por el total ofertado y carga el comprobante en la plataforma.</p><p><strong>Referencia:</strong> {{referencia}}</p><p><strong>Total a transferir:</strong> {{total}} {{moneda}}</p><p><strong>Validez:</strong> {{validez}}</p><p><strong>Productos:</strong></p><ul>{{items_html}}</ul><p><strong>Observaciones / condiciones:</strong></p><pre>{{condiciones}}</pre><p><strong>Datos bancarios:</strong></p><pre>{{datos_bancarios}}</pre><p><a href="{{formalizar_url_href}}" style="display:inline-block;padding:12px 20px;background:#0b3d4a;color:#fff;text-decoration:none;border-radius:4px">Pagar por transferencia</a></p><p>Si el boton no funciona, copia este enlace:<br>{{formalizar_url}}</p><p>Equipo I-ME<br>comercial1@i-me.com.co</p>',
+    html: '<h2>Hola {{cliente_nombre}}</h2><p>Hemos preparado tu cotizacion. Puedes pagar por transferencia bancaria o con Wompi por el total ofertado.</p><p><strong>Referencia:</strong> {{referencia}}</p><p><strong>Total a pagar:</strong> {{total}} {{moneda}}</p><p>{{iva_resumen}}</p><p><strong>Validez:</strong> {{validez}}</p><p><strong>Productos:</strong></p><ul>{{items_html}}</ul><p><strong>Observaciones / condiciones:</strong></p><pre>{{condiciones}}</pre><p><strong>Datos bancarios:</strong></p><pre>{{datos_bancarios}}</pre>{{pago_wompi_html}}<p><a href="{{formalizar_url_href}}" style="display:inline-block;padding:12px 20px;background:#0b3d4a;color:#fff;text-decoration:none;border-radius:4px">Pagar por transferencia</a></p><p>Si el boton no funciona, copia este enlace:<br>{{formalizar_url}}</p><p>Equipo I-ME<br>comercial1@i-me.com.co</p>',
   },
   cotizacion_oferta_cliente_en: {
     asunto: 'Your I-ME quote — pay by bank transfer {{referencia}}',
-    html: '<h2>Hello {{cliente_nombre}}</h2><p>We prepared your quote. Review the summary and configuration notes. To formalize, transfer the quoted total and upload the payment receipt on the platform.</p><p><strong>Reference:</strong> {{referencia}}</p><p><strong>Amount to transfer:</strong> {{total}} {{moneda}}</p><p><strong>Valid until:</strong> {{validez}}</p><p><strong>Products:</strong></p><ul>{{items_html}}</ul><p><strong>Notes / terms:</strong></p><pre>{{condiciones}}</pre><p><strong>Bank details:</strong></p><pre>{{datos_bancarios}}</pre><p><a href="{{formalizar_url_href}}" style="display:inline-block;padding:12px 20px;background:#0b3d4a;color:#fff;text-decoration:none;border-radius:4px">Pay by bank transfer</a></p><p>If the button does not work, copy this link:<br>{{formalizar_url}}</p><p>I-ME Team<br>comercial1@i-me.com.co</p>',
+    html: '<h2>Hello {{cliente_nombre}}</h2><p>We prepared your quote. You can pay by bank transfer or with Wompi for the quoted total.</p><p><strong>Reference:</strong> {{referencia}}</p><p><strong>Amount due:</strong> {{total}} {{moneda}}</p><p>{{iva_resumen}}</p><p><strong>Valid until:</strong> {{validez}}</p><p><strong>Products:</strong></p><ul>{{items_html}}</ul><p><strong>Notes / terms:</strong></p><pre>{{condiciones}}</pre><p><strong>Bank details:</strong></p><pre>{{datos_bancarios}}</pre>{{pago_wompi_html}}<p><a href="{{formalizar_url_href}}" style="display:inline-block;padding:12px 20px;background:#0b3d4a;color:#fff;text-decoration:none;border-radius:4px">Pay by bank transfer</a></p><p>If the button does not work, copy this link:<br>{{formalizar_url}}</p><p>I-ME Team<br>comercial1@i-me.com.co</p>',
   },
   presupuesto: {
     asunto: 'Presupuesto I-ME {{referencia}} — {{cliente_nombre}}',
@@ -153,10 +153,13 @@ const DEFAULTS: Record<string, { asunto: string; html: string }> = {
       '<p>Soy <strong>{{nombre_comercial}}</strong>, asesor(a) comercial de I-ME. Te envío el presupuesto con el detalle completo.</p>' +
       '<p><strong>Datos del cliente</strong><br>Nombre: {{cliente_nombre}}<br>Empresa: {{cliente_empresa}}<br>Email: {{cliente_email}}<br>Teléfono: {{cliente_telefono}}</p>' +
       '<p><strong>Asesor comercial</strong><br>{{nombre_comercial}}<br>{{correo_comercial}} · {{telefono_comercial}}</p>' +
-      '<p><strong>Total ofertado:</strong> {{total}} {{moneda}} · <strong>Validez:</strong> {{validez}}</p>' +
+      '<p><strong>Total a pagar:</strong> {{total}} {{moneda}} · <strong>Validez:</strong> {{validez}}</p>' +
+      '<p>{{iva_resumen}}</p>' +
       '<p><strong>Productos</strong></p><ul>{{items_html}}</ul>' +
       '<p><strong>Condiciones</strong></p><pre>{{condiciones}}</pre>' +
       '<p><strong>Datos bancarios</strong></p><pre>{{datos_bancarios}}</pre>' +
+      '{{pago_wompi_html}}' +
+      '<p>Puedes pagar por transferencia bancaria o con Wompi.</p>' +
       '<p><a href="{{formalizar_url_href}}" style="display:inline-block;padding:12px 20px;background:#005e60;color:#fff;text-decoration:none;border-radius:8px">Formalizar / pagar por transferencia</a></p>' +
       '<p style="font-size:12px;color:#5b6b6a">Si el botón no funciona:<br>{{formalizar_url}}</p>' +
       '<p>Saludos,<br>{{nombre_comercial}}<br>I-ME<br>{{correo_comercial}} · {{telefono_comercial}}</p></div></div>',
@@ -364,7 +367,9 @@ export async function enviarEmailPlantilla(
 
   const from = Deno.env.get('MAILER_FROM') ?? 'comercial1@i-me.com.co';
   const subject = render(options.subjectOverride ?? asunto, vars);
-  const body = render(html, vars);
+  let body = render(html, vars);
+  if (vars.pago_wompi_html && !html.includes('pago_wompi_html')) body += vars.pago_wompi_html;
+  if (vars.iva_resumen && !html.includes('iva_resumen')) body += `<p>${vars.iva_resumen}</p>`;
   const resultados: string[] = [];
   const messageIds: string[] = [];
   let todosOk = true;

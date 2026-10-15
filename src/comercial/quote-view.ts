@@ -3,6 +3,11 @@
  * Writes: Edge `comercial-cotizacion` con fallback PostgREST. Send: `enviar-cotizacion`.
  */
 import {
+  htmlOpcionesTratamientoIva,
+  parseTratamientoIva,
+  totalPagarCotizacion,
+} from '../lib/cotizacion-iva';
+import {
   calcularTotalOfertado,
   formatQuoteMoney,
   ofertaCompleta,
@@ -503,7 +508,7 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
             : ''
         }
         <div data-quote-lines>${linesHtml(quote.productos, quote.moneda, editable)}</div>
-        <p class="comercial-quote-total" data-quote-total>Total ${escapeHtml(formatQuoteMoney(calcularTotalOfertado(quote.productos), quote.moneda))}</p>
+        <p class="comercial-quote-total" data-quote-total>Total ${escapeHtml(formatQuoteMoney(totalPagarCotizacion(quote.productos, { impuestosIncluidos: quote.impuestos_incluidos === true, moneda: quote.moneda }), quote.moneda))}</p>
         <label class="comercial-field"><span>Condiciones / consideraciones de la oferta</span><textarea name="condiciones" rows="12" ${disabled}>${escapeHtml(aplicarNotaImportesUsd(quote.condiciones, quote.moneda, 'es'))}</textarea></label>
         <p class="comercial-help">Secciones del boceto: Entrega, Costo de envío, Garantía, Instalación. Edita plazos y garantías por producto. En USD se añade sola: ${escapeHtml(NOTA_IMPORTES_USD_ES)}</p>
         <p class="comercial-help" data-quote-hint role="status"></p>
@@ -591,6 +596,7 @@ function linesHtml(
               <option value="pendiente" ${pendiente ? 'selected' : ''}>Pendiente validar</option>
             </select>
             <input class="comercial-input" data-linea-precio type="number" min="0" step="${moneda === 'USD' ? '0.01' : '1'}" value="${pendiente ? '' : l.precio_unitario}" placeholder="0" ${disabled} ${pendiente ? 'disabled' : ''} />
+            <select class="comercial-input" data-linea-iva aria-label="IVA de la línea" ${disabled}>${htmlOpcionesTratamientoIva(l.tratamiento_iva)}</select>
           </div>
           <p class="comercial-quote-line__subtotal" data-linea-subtotal>${pendiente ? 'Pendiente validar' : escapeHtml(formatQuoteMoney(l.subtotal, moneda))}</p>
           ${editable ? `<button class="comercial-button comercial-button--ghost" type="button" data-linea-eliminar aria-label="Eliminar ${escapeHtml(l.nombre || 'línea')}">Eliminar</button>` : ''}
@@ -639,6 +645,10 @@ function readForm(root: HTMLElement): {
       moneda,
     };
     if (pendiente) linea.precio_pendiente_validar = true;
+    const tratamiento = parseTratamientoIva(
+      row.querySelector<HTMLSelectElement>('[data-linea-iva]')?.value
+    );
+    if (tratamiento) linea.tratamiento_iva = tratamiento;
     const notas = row.querySelector<HTMLTextAreaElement>('[data-linea-notas]')?.value.trim() ?? '';
     if (notas) linea.notas = notas;
     productos.push(linea);
@@ -671,7 +681,10 @@ function syncMonedaNotas(root: HTMLElement): void {
 
 function refreshTotals(root: HTMLElement): void {
   const parsed = readForm(root);
-  const total = calcularTotalOfertado(parsed.productos);
+  const total = totalPagarCotizacion(parsed.productos, {
+    impuestosIncluidos: parsed.impuestos_incluidos,
+    moneda: parsed.moneda,
+  });
   const totalEl = root.querySelector('[data-quote-total]');
   if (totalEl) totalEl.textContent = `Total ${formatQuoteMoney(total, parsed.moneda)}`;
   const emailCopy = root.querySelector('[data-quote-email-copy]');
@@ -738,7 +751,10 @@ function applySaved(root: HTMLElement, quote: QuotePublic): void {
 
 function htmlPreview(root: HTMLElement): string {
   const parsed = readForm(root);
-  const total = calcularTotalOfertado(parsed.productos);
+  const total = totalPagarCotizacion(parsed.productos, {
+    impuestosIncluidos: parsed.impuestos_incluidos,
+    moneda: parsed.moneda,
+  });
   const rows =
     parsed.productos.length === 0
       ? '<tr><td colspan="4">Sin líneas</td></tr>'
@@ -803,6 +819,7 @@ async function previewPdf(root: HTMLElement): Promise<void> {
     if (event.target === event.currentTarget) slot.innerHTML = '';
   });
   if (!error && data?.pdf_base64) {
+    if (data.wompi_error) toast(data.wompi_error, 'error');
     try {
       const binary = atob(data.pdf_base64);
       const bytes = new Uint8Array(binary.length);
@@ -1111,7 +1128,7 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
     const numero = editor.querySelector('h2')?.textContent ?? 'IME-Q';
     const destino = canal === 'whatsapp' ? parsed.telefono : parsed.email;
     const ok = window.confirm(
-      `¿Enviar presupuesto ${numero} por ${canal === 'whatsapp' ? 'WhatsApp' : 'email'} a ${destino} (${formatQuoteMoney(calcularTotalOfertado(parsed.productos), parsed.moneda)})?`
+      `¿Enviar presupuesto ${numero} por ${canal === 'whatsapp' ? 'WhatsApp' : 'email'} a ${destino} (${formatQuoteMoney(totalPagarCotizacion(parsed.productos, { impuestosIncluidos: parsed.impuestos_incluidos, moneda: parsed.moneda }), parsed.moneda)})?`
     );
     if (!ok) return;
     const emailBtn = editor.querySelector<HTMLButtonElement>('[data-quote-send-email]');

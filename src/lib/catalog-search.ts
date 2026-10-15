@@ -12,6 +12,8 @@ export interface CatalogProductHit {
   precio_oferta?: number | null;
   precio_regular?: number | null;
   moneda?: string | null;
+  tarifa_iva_pct?: number | string | null;
+  excluido_iva?: boolean | null;
   especificaciones?: unknown;
   aplicaciones_es?: unknown;
 }
@@ -27,7 +29,7 @@ export async function searchCatalogProducts(
   const { data, error } = await supabase
     .from('productos')
     .select(
-      'id,slug,sku,nombre_es,precio,precio_oferta,precio_regular,moneda,especificaciones,aplicaciones_es'
+      'id,slug,sku,nombre_es,precio,precio_oferta,precio_regular,moneda,tarifa_iva_pct,excluido_iva,especificaciones,aplicaciones_es'
     )
     .eq('activo', true)
     .or(`nombre_es.ilike.%${safe}%,sku.ilike.%${safe}%,slug.ilike.%${safe}%`)

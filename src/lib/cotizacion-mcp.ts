@@ -2,6 +2,7 @@
  * Lógica pura de las herramientas MCP de cotizaciones (`ime-comercio`):
  * buscar, obtener, actualizar. Sin acceso a BBDD, para poder probarla.
  */
+import { parseTratamientoIva, totalPagarCotizacion } from './cotizacion-iva.ts';
 import {
   calcularTotalOfertado,
   normalizarMonedaOferta,
@@ -274,6 +275,16 @@ export function construirLineasCotizacion(
     };
     const descripcion = texto(item.descripcion, 2000);
     if (descripcion) linea.notas = descripcion;
+    if (item.tratamiento_iva != null && item.tratamiento_iva !== '') {
+      const tratamiento = parseTratamientoIva(item.tratamiento_iva);
+      if (!tratamiento) {
+        return {
+          ok: false,
+          error: `Línea ${n}: tratamiento_iva debe ser 19, 5, excluido o exento.`,
+        };
+      }
+      linea.tratamiento_iva = tratamiento;
+    }
     lineas.push(linea);
   }
   return { ok: true, lineas };
@@ -396,7 +407,14 @@ export function construirCambiosCotizacion(
   }
   if (lineasFinales) {
     set('productos', lineasFinales);
-    set('precio_total_ofertado', calcularTotalOfertado(lineasFinales));
+    const incluidos =
+      typeof args.impuestos_incluidos === 'boolean'
+        ? args.impuestos_incluidos
+        : actual.impuestos_incluidos === true;
+    set(
+      'precio_total_ofertado',
+      totalPagarCotizacion(lineasFinales, { impuestosIncluidos: incluidos, moneda })
+    );
   }
 
   if (args.notas !== undefined) {

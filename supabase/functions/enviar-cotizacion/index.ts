@@ -28,6 +28,12 @@ import {
 import { perfilComercialActivo, perfilPorUsuario } from '../_shared/asesor.ts';
 import { resolverAsesor } from '../../../src/lib/cotizacion-asesor.ts';
 import { validarEnvioCotizacion } from '../../../src/lib/cotizacion-envio.ts';
+import { resumenIvaTexto } from '../../../src/lib/cotizacion-iva.ts';
+import {
+  desgloseDeLineas,
+  enlaceWompiDeCotizacion,
+  htmlBotonWompi,
+} from '../_shared/cotizacion-pago.ts';
 import { normalizeVisitorPhone } from '../../../src/lib/visitor-phone.ts';
 import { renderQuotePdf } from '../_shared/render-quote-pdf.ts';
 import {
@@ -292,10 +298,15 @@ Deno.serve(async req => {
         origin
       );
     }
+    const desgloseGuardado = await desgloseDeLineas(supabase, checkPayload.lineas, {
+      impuestosIncluidos:
+        (row as { impuestos_incluidos?: boolean | null }).impuestos_incluidos === true,
+      moneda: checkPayload.moneda,
+    });
     const patch: Record<string, unknown> = {
       leida: true,
       productos: checkPayload.lineas,
-      precio_total_ofertado: checkPayload.total,
+      precio_total_ofertado: desgloseGuardado.total,
       moneda: checkPayload.moneda,
     };
     if (body.condiciones !== undefined) {
@@ -365,6 +376,23 @@ Deno.serve(async req => {
     );
   }
   const oferta = { lineas: validado.lineas, total: validado.total, moneda: validado.moneda };
+  const impuestosIncluidos =
+    (row as { impuestos_incluidos?: boolean | null }).impuestos_incluidos === true;
+  const desglose = await desgloseDeLineas(supabase, oferta.lineas, {
+    impuestosIncluidos,
+    moneda: oferta.moneda,
+  });
+  const totalPagar = desglose.total;
+  const pagoDeNumero = (numeroPdf: string, redirectUrl: string) =>
+    enlaceWompiDeCotizacion({
+      numero: numeroPdf,
+      total: totalPagar,
+      moneda: oferta.moneda,
+      email: row.email,
+      nombre: row.nombre,
+      telefono: row.telefono,
+      redirectUrl,
+    });
   const email = validado.email;
   const telefonoCliente = String(row.telefono ?? '').trim();
 
@@ -384,7 +412,7 @@ Deno.serve(async req => {
   const telefonoComercial = asesor.telefono;
 
   const locale = row.locale === 'en' ? 'en' : 'es';
-  const renderPdf = async (numeroPdf: string) => {
+  const renderPdf = async (numeroPdf: string, wompiUrl: string | null) => {
     const [annexes, logoBytes, whatsappIconBytes, fonts] = await Promise.all([
       buildQuoteAnnexes(supabase, oferta.lineas, siteUrl),
       loadQuotePdfLogo(siteUrl),
@@ -402,8 +430,10 @@ Deno.serve(async req => {
       condiciones: String(row.condiciones ?? ''),
       validezHasta: row.validez_hasta ? String(row.validez_hasta) : null,
       moneda: oferta.moneda,
-      total: oferta.total,
+      total: totalPagar,
       lineas: oferta.lineas,
+      impuestosIncluidos,
+      wompiUrl,
       locale,
       nombreComercial,
       correoComercial,
@@ -437,7 +467,7 @@ Deno.serve(async req => {
         cliente_nombre: String(row.nombre ?? 'Cliente'),
         referencia: numeroPrev,
         nombre_comercial: nombreComercial,
-        total: String(oferta.total),
+        total: String(totalPagar),
         moneda: oferta.moneda,
       };
       let prev = await previsualizarPlantilla(supabase, plantillaDry, varsAsunto);
@@ -462,8 +492,13 @@ Deno.serve(async req => {
     }
     let pdfPreviewUrl: string | null = null;
     let pdfPreviewError: string | null = null;
+    let pagoPrev: { url: string | null; error: string | null } = { url: null, error: null };
     try {
-      const bytes = await renderPdf(numeroPrev);
+      pagoPrev = await pagoDeNumero(
+        numeroPrev,
+        `${siteUrl}${locale === 'en' ? '/en/payment/result' : '/es/pago/resultado'}?ref=${encodeURIComponent(numeroPrev)}`
+      );
+      const bytes = await renderPdf(numeroPrev, pagoPrev.url);
       const previewPath = `${id}/preview.pdf`;
       const { error: upErr } = await supabase.storage
         .from('cotizaciones-pdf')
@@ -491,7 +526,11 @@ Deno.serve(async req => {
         destinatario: canal === 'email' ? email : telefonoCliente,
         asunto,
         plantilla: plantillaDry,
-        total: oferta.total,
+        total: totalPagar,
+        base: desglose.base,
+        iva: desglose.iva,
+        wompi_url: pagoPrev.url,
+        wompi_error: pagoPrev.error,
         moneda: oferta.moneda,
         validez_hasta: row.validez_hasta ?? null,
         lineas: oferta.lineas.map(l => ({
@@ -594,7 +633,7 @@ Deno.serve(async req => {
     numero,
     formalizacion_token_expira_at: expiraAt,
     metadata: meta,
-    precio_total_ofertado: oferta.total,
+    precio_total_ofertado: totalPagar,
     moneda: oferta.moneda,
     leida: true,
   };
@@ -634,9 +673,12 @@ Deno.serve(async req => {
     return errorResponse({ code: 'ADJUNTOS_INVALIDOS', message: adjuntos.error }, 422, origin);
   }
 
+  const pago = await pagoDeNumero(numero, formalizarUrl);
+  meta.wompi_checkout_url = pago.url;
+  meta.wompi_error = pago.error;
   let pdfBytes: Awaited<ReturnType<typeof renderPdf>>;
   try {
-    pdfBytes = await renderPdf(numero);
+    pdfBytes = await renderPdf(numero, pago.url);
   } catch (err) {
     const detalle = err instanceof Error ? err.message : 'PDF_RENDER_FAILED';
     await releaseClaim(detalle);
@@ -717,11 +759,11 @@ Deno.serve(async req => {
         origin
       );
     }
-    const totalTxt = `${oferta.total} ${oferta.moneda}`;
+    const totalTxt = `${totalPagar} ${oferta.moneda}`;
     const mensaje =
       locale === 'en'
-        ? `Hello ${String(row.nombre ?? '').trim() || 'there'}, here is I-ME quote ${numero} for ${totalTxt}. Review and formalize: ${formalizarUrl}`
-        : `Hola ${String(row.nombre ?? '').trim() || 'cliente'}, te compartimos el presupuesto ${numero} de I-ME por ${totalTxt}. Revisa y formaliza aquí: ${formalizarUrl}`;
+        ? `Hello ${String(row.nombre ?? '').trim() || 'there'}, here is I-ME quote ${numero} for ${totalTxt}. Pay by bank transfer or Wompi: ${formalizarUrl}`
+        : `Hola ${String(row.nombre ?? '').trim() || 'cliente'}, te compartimos el presupuesto ${numero} de I-ME por ${totalTxt}. Puedes pagar por transferencia o con Wompi: ${formalizarUrl}`;
     const digits = phone.e164.replace(/^\+/, '');
     whatsappUrl = `https://wa.me/${digits}?text=${encodeURIComponent(mensaje)}`;
     meta.quote_send_channel = 'whatsapp';
@@ -737,7 +779,9 @@ Deno.serve(async req => {
       correo_comercial: escapeHtml(correoComercial),
       telefono_comercial: escapeHtml(telefonoComercial || '—'),
       referencia: escapeHtml(numero),
-      total: escapeHtml(String(oferta.total)),
+      total: escapeHtml(String(totalPagar)),
+      iva_resumen: escapeHtml(resumenIvaTexto(desglose, locale)),
+      pago_wompi_html: htmlBotonWompi(pago.url, locale),
       moneda: escapeHtml(oferta.moneda),
       validez: validezLabel,
       items_html: itemsToHtml(oferta.lineas, locale),
@@ -864,7 +908,11 @@ Deno.serve(async req => {
       formalizar_url: formalizarUrl,
       whatsapp_url: whatsappUrl,
       token_rotado: tokenRotated,
-      total: oferta.total,
+      total: totalPagar,
+      base: desglose.base,
+      iva: desglose.iva,
+      wompi_url: pago.url,
+      wompi_error: pago.error,
       moneda: oferta.moneda,
       pdf_revision: pdfRevision,
       pdf_storage_path: storedPdfPath,

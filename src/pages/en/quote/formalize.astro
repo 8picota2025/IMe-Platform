@@ -6,8 +6,8 @@ const currentPath = '/en/quote/formalize';
 ---
 
 <Layout
-  title={buildPageTitle('Pay quote by bank transfer')}
-  description="Review your I-ME quote, transfer the amount and upload the payment receipt."
+  title={buildPageTitle('Pay quote')}
+  description="Review your I-ME quote and pay by bank transfer or with Wompi."
   canonical={buildCanonical(currentPath)}
   locale="en"
   currentPath={currentPath}
@@ -15,12 +15,13 @@ const currentPath = '/en/quote/formalize';
 >
   <main class="formalizar container">
     <section class="formalizar__panel" data-formalizar-root>
-      <h1>Pay by bank transfer</h1>
+      <h1>Pay this quote</h1>
       <p class="formalizar__status" data-formalizar-status>Validating link…</p>
       <div data-formalizar-content hidden></div>
       <form class="formalizar__form" data-formalizar-form hidden>
         <h2>Bank details</h2>
         <pre class="formalizar__bank" data-formalizar-bank></pre>
+        <p data-formalizar-wompi hidden></p>
         <label class="formalizar__field">
           <span>Transfer reference / concept (optional)</span>
           <input name="referencia_transferencia" type="text" maxlength="120" autocomplete="off" />
@@ -159,6 +160,20 @@ const currentPath = '/en/quote/formalize';
     font-weight: 700;
     margin: 0 0 1rem;
   }
+  .formalizar__pay {
+    display: inline-block;
+    margin: 0 0 1.25rem;
+    padding: 0.75rem 1.25rem;
+    background: #005e60;
+    color: #fff;
+    font-weight: 700;
+    text-decoration: none;
+    border-radius: 8px;
+  }
+  .formalizar__pay:focus-visible {
+    outline: 2px solid #005e60;
+    outline-offset: 3px;
+  }
   .formalizar__form {
     display: grid;
     gap: 1rem;
@@ -211,6 +226,8 @@ const currentPath = '/en/quote/formalize';
     validez_hasta?: string;
     moneda: string;
     total: number;
+    iva_resumen?: string;
+    wompi_url?: string | null;
     permite_factura_electronica?: boolean;
     lineas: Linea[];
   };
@@ -345,7 +362,7 @@ const currentPath = '/en/quote/formalize';
     }
 
     const cotizacion = json.cotizacion;
-    statusEl.textContent = `Hello ${cotizacion.nombre ?? 'customer'}. Review the offer, transfer the total and upload the receipt.`;
+    statusEl.textContent = `Hello ${cotizacion.nombre ?? 'customer'}. Review the offer. You can pay by bank transfer or with Wompi.`;
     statusEl.classList.remove('formalizar__error');
     contentEl.hidden = false;
     contentEl.innerHTML = `
@@ -366,11 +383,18 @@ const currentPath = '/en/quote/formalize';
             .join('')}
         </tbody>
       </table>
-      <p class="formalizar__total">Amount to transfer: ${money(cotizacion.total, cotizacion.moneda)}</p>
+      <p class="formalizar__total">Amount due: ${money(cotizacion.total, cotizacion.moneda)}</p>
+      ${cotizacion.iva_resumen ? `<p>${escape(cotizacion.iva_resumen)}</p>` : ''}
       <h2>Notes / configuration</h2>
       <pre class="formalizar__condiciones">${escape(cotizacion.condiciones ?? '')}</pre>
     `;
     bankEl.textContent = json.transferencia?.texto ?? '';
+    const wompiEl = document.querySelector<HTMLElement>('[data-formalizar-wompi]');
+    const wompiUrl = cotizacion.wompi_url ?? '';
+    if (wompiEl && wompiUrl.startsWith('https://checkout.wompi.co/')) {
+      wompiEl.hidden = false;
+      wompiEl.innerHTML = `<a class="formalizar__pay" href="${escape(wompiUrl)}" rel="noopener noreferrer">Pay ${money(cotizacion.total, cotizacion.moneda)} with Wompi</a>`;
+    }
     form.hidden = false;
     if (fiscalBox && cotizacion.permite_factura_electronica) {
       fiscalBox.hidden = false;

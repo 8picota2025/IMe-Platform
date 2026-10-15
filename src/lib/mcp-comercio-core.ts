@@ -1592,7 +1592,7 @@ const inputSchema = {
     lineas: {
       type: 'array',
       description:
-        'actualizar_cotizacion: reemplaza las líneas. [{producto_id|nombre, cantidad, precio_unitario>0, descripcion?}]',
+        'actualizar_cotizacion: reemplaza las líneas. [{producto_id|nombre, cantidad, precio_unitario>0, descripcion?, tratamiento_iva?: 19|5|excluido|exento}]',
     },
     cliente: {
       type: 'object',

@@ -98,6 +98,7 @@ export async function huellaOferta(row: CotizacionOfertaRow): Promise<string> {
     moneda: l.moneda,
     pendiente: Boolean(l.precio_pendiente_validar),
     notas: l.notas ?? '',
+    tratamiento_iva: l.tratamiento_iva ?? null,
   }));
   const canonico = JSON.stringify({
     lineas,

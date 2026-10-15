@@ -127,7 +127,7 @@ it('omits annex pages that have no long description and no specs', async () => {
   expect(drawn).toContain('Características Inteligentes:');
   expect(drawn).toContain('TOTAL BRUTO');
   expect(drawn).toContain('Consideraciones de la oferta');
-  expect(drawn).toContain('+57 3137247353');
+  expect(drawn).toContain('+57 313 724 7353');
   expect(drawn).not.toMatch(/300[\s-]*717[\s-]*2757/);
   const lastRow = strings.lastIndexOf('Linea 39');
   expect(strings.findIndex(value => value === 'TOTAL BRUTO')).toBeGreaterThan(lastRow);
@@ -250,4 +250,61 @@ it('adds the Spanish USD note in the offer notes', async () => {
   expect(drawn).toContain(NOTA_IMPORTES_USD_ES);
   expect(drawn).toContain('USD ');
   expect(drawn).not.toMatch(/\$\d/);
+});
+
+it('does not add VAT on top when the quote price already includes it', async () => {
+  const text = vi.spyOn(PDFPage.prototype, 'drawText');
+  await renderQuotePdf({
+    numero: 'IME-Q-2026-000038',
+    clienteNombre: 'Clinica',
+    condiciones: 'Entrega:\n30 dias.',
+    moneda: 'COP',
+    total: 178900,
+    impuestosIncluidos: true,
+    lineas: [
+      {
+        slug: 'monitor',
+        nombre: 'Monitor',
+        cantidad: 1,
+        precio_unitario: 178900,
+        subtotal: 178900,
+        moneda: 'COP',
+        tratamiento_iva: '19',
+      },
+    ],
+    locale: 'es',
+  });
+  const drawn = text.mock.calls.map(([value]) => String(value)).join('\n');
+  expect(drawn).toContain('$178.900');
+  expect(drawn).toContain('IVA 19% incl.');
+  expect(drawn).not.toContain('212.891');
+});
+
+it('keeps a zero-VAT line at the quoted total', async () => {
+  const text = vi.spyOn(PDFPage.prototype, 'drawText');
+  await renderQuotePdf({
+    numero: 'IME-Q-2026-000039',
+    clienteNombre: 'Clinica',
+    condiciones: 'Entrega:\n30 dias.',
+    moneda: 'COP',
+    total: 178900,
+    impuestosIncluidos: true,
+    lineas: [
+      {
+        slug: 'caminador-con-ruedas-de-5-en-aluminio-color-gris-ref-kp153-al-19-konfort-plus',
+        nombre: 'Caminador KP153-AL-19',
+        cantidad: 1,
+        precio_unitario: 178900,
+        subtotal: 178900,
+        moneda: 'COP',
+        tratamiento_iva: 'excluido',
+      },
+    ],
+    locale: 'es',
+  });
+  const drawn = text.mock.calls.map(([value]) => String(value)).join('\n');
+  expect(drawn).toContain('$178.900');
+  expect(drawn).toContain('IVA 0%');
+  expect(drawn).not.toContain('212.891');
+  expect(drawn).not.toContain('150.336');
 });
