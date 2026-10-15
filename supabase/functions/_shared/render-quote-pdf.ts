@@ -6,7 +6,15 @@
  * (posiciones, tamaños, tabla con rejilla, totales, notas, footer,
  *  anexo con foto + características + descripción).
  */
-import { PDFDocument, rgb, type PDFFont, type PDFImage, type PDFPage } from 'npm:pdf-lib@1.17.1';
+import {
+  PDFDocument,
+  PDFName,
+  PDFString,
+  rgb,
+  type PDFFont,
+  type PDFImage,
+  type PDFPage,
+} from 'npm:pdf-lib@1.17.1';
 import fontkit from 'npm:@pdf-lib/fontkit';
 import type { CotizacionLineaOferta } from '../../../src/lib/cotizacion-oferta.ts';
 import { displayQuoteNumero } from '../../../src/lib/cotizacion-oferta.ts';
@@ -14,6 +22,7 @@ import {
   isCondicionesSectionHeading,
   resolveCondicionesOferta,
 } from '../../../src/lib/condiciones-oferta.ts';
+import { desgloseCotizacion, etiquetaIvaTotales } from '../../../src/lib/cotizacion-iva.ts';
 
 import { lineasDeResumen } from '../../../src/lib/quote-specs-summary.ts';
 import { quoteAnnexHasSpecContent } from '../../../src/lib/quote-pdf-annex.ts';
@@ -52,7 +61,10 @@ export interface QuotePdfSnapshot {
   condicionPago?: string | null;
   medioPago?: string | null;
   bancoLineas?: string[];
-  ivaPct?: number | null;
+  /** Precio digitado ya incluye IVA. El total a pagar no suma el impuesto encima. */
+  impuestosIncluidos?: boolean | null;
+  /** Enlace Web Checkout firmado. Vacío si no hay llaves o la cotización es USD. */
+  wompiUrl?: string | null;
   tagline?: string | null;
   annexes?: QuotePdfAnnex[];
   logoBytes?: Uint8Array | null;
@@ -366,16 +378,15 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     }
   }
 
-  const ivaPct =
-    snapshot.ivaPct != null ? Number(snapshot.ivaPct) : snapshot.moneda === 'COP' ? 19 : 0;
-  const subtotal = snapshot.lineas.reduce((acc, l) => {
-    if (l.precio_pendiente_validar) return acc;
-    const lineSub = Number(l.subtotal);
-    if (Number.isFinite(lineSub) && lineSub > 0) return acc + lineSub;
-    return acc + (Number(l.precio_unitario) || 0) * (Number(l.cantidad) || 0);
-  }, 0);
-  const iva = Math.round(subtotal * (ivaPct / 100) * 100) / 100;
-  const totalPagar = Math.round((subtotal + iva) * 100) / 100;
+  const impuestosIncluidos = snapshot.impuestosIncluidos === true;
+  const desglose = desgloseCotizacion(snapshot.lineas, {
+    impuestosIncluidos,
+    moneda: snapshot.moneda,
+  });
+  const subtotal = desglose.base;
+  const iva = desglose.iva;
+  const totalPagar = desglose.total;
+  const etiquetaIva = etiquetaIvaTotales(desglose, impuestosIncluidos, locale);
   const fecha = snapshot.fecha?.trim() || todayLabel(locale);
   const tagline =
     snapshot.tagline?.trim() ||
@@ -529,6 +540,20 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
   for (const line of bancoLines) {
     drawText(page, line, { x: 385, top: py, size: 11, font, maxWidth: 175 });
     py += 15;
+  }
+  const wompiUrl = snapshot.wompiUrl?.trim() ?? '';
+  if (wompiUrl.startsWith('https://')) {
+    const wompiLabel = locale === 'en' ? 'Pay with Wompi' : 'Pagar con Wompi';
+    drawText(page, wompiLabel, {
+      x: 385,
+      top: py,
+      size: 11,
+      font: bold,
+      color: BLUE,
+      maxWidth: 175,
+    });
+    anotarEnlace(page, wompiLabel, wompiUrl, { x: 385, top: py, size: 11, font: bold });
+    py += 16;
   }
 
   // Bloque empresa I-ME (columna izquierda; no espera a MEDIO DE PAGO)
@@ -828,7 +853,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
       value: moneyPlain(subtotal, snapshot.moneda, locale),
     },
     {
-      label: locale === 'en' ? `VAT ${ivaPct}%` : `IVA ${ivaPct}%`,
+      label: etiquetaIva,
       value: moneyPlain(iva, snapshot.moneda, locale),
     },
     {
@@ -1074,6 +1099,31 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
   return bytes;
 };
 
+function anotarEnlace(
+  page: PDFPage,
+  label: string,
+  url: string,
+  opts: { x: number; top: number; size: number; font: PDFFont }
+): void {
+  const text = winAnsi(label);
+  const width = Math.min(opts.font.widthOfTextAtSize(text, opts.size), 175);
+  const baseline = topY(opts.top + opts.size * 0.78);
+  const annot = page.doc.context.register(
+    page.doc.context.obj({
+      Type: 'Annot',
+      Subtype: 'Link',
+      Rect: [opts.x, baseline - 2, opts.x + Math.max(width, 40), baseline + opts.size],
+      Border: [0, 0, 0],
+      A: {
+        Type: 'Action',
+        S: 'URI',
+        URI: PDFString.of(url),
+      },
+    })
+  );
+  page.node.set(PDFName.of('Annots'), page.doc.context.obj([annot]));
+}
+
 function drawFooterBar(page: PDFPage, font: PDFFont, whatsappIcon: PDFImage | null): void {
   // Boceto footer bar y≈790–830, fill = mismo azul header
   page.drawRectangle({
@@ -1091,7 +1141,7 @@ function drawFooterBar(page: PDFPage, font: PDFFont, whatsappIcon: PDFImage | nu
     color: WHITE,
   });
 
-  const phone = '+57 3137247353';
+  const phone = '+57 313 724 7353';
   const phoneSize = 11;
   const iconSize = 12;
   const gap = 4;

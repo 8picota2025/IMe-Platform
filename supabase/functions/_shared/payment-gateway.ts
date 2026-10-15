@@ -15,6 +15,8 @@
  * - SITE_URL (origen público del sitio, p.ej. https://i-me.com.co) — usado para redirect URLs
  */
 
+import { buildWompiCheckoutUrl } from '../../../src/lib/wompi-checkout.ts';
+
 export type PaymentProvider = 'wompi' | 'stripe';
 export type Mercado = 'CO' | 'INTL';
 
@@ -118,7 +120,6 @@ async function hmacSha256Hex(key: string, input: string): Promise<string> {
    ============================================================ */
 
 const WOMPI_API_BASE = Deno.env.get('WOMPI_API_BASE') ?? 'https://production.wompi.co/v1';
-const WOMPI_CHECKOUT_BASE = 'https://checkout.wompi.co/p/';
 
 interface WompiTransaction {
   id: string;
@@ -150,24 +151,6 @@ function mapWompiEstado(status: string): PedidoEstado {
     default:
       return 'pendiente';
   }
-}
-
-/**
- * Calcula el checksum de integridad para el Web Checkout de Wompi.
- * SHA256( reference + amount_in_cents + currency + integrity_secret )
- */
-async function wompiIntegrityHash(
-  reference: string,
-  amountInCents: number,
-  currency: string,
-  integritySecret: string
-): Promise<string> {
-  const data = `${reference}${amountInCents}${currency}${integritySecret}`;
-  const enc = new TextEncoder();
-  const hashBuffer = await crypto.subtle.digest('SHA-256', enc.encode(data));
-  return Array.from(new Uint8Array(hashBuffer))
-    .map(b => b.toString(16).padStart(2, '0'))
-    .join('');
 }
 
 /**
@@ -220,35 +203,26 @@ export class WompiGateway implements PaymentGateway {
       return { ok: false, error: 'BLOQUEANTE_BACKEND: WOMPI_INTEGRITY_SECRET no configurado' };
     }
 
-    const amountInCents = Math.round(request.total * 100);
-    const currency = request.moneda; // COP
     const reference = request.referencia;
     const locale = request.locale === 'en' ? 'en' : 'es';
     const redirectPath = locale === 'en' ? '/en/payment/result' : '/es/pago/resultado';
     const redirectUrl = `${siteUrl}${redirectPath}?ref=${reference}`;
-
-    const integrityHash = await wompiIntegrityHash(
+    const built = await buildWompiCheckoutUrl({
+      publicKey,
+      integritySecret,
       reference,
-      amountInCents,
-      currency,
-      integritySecret
-    );
-
-    const params = new URLSearchParams({
-      'public-key': publicKey,
-      currency,
-      'amount-in-cents': String(amountInCents),
-      reference,
-      'signature:integrity': integrityHash,
-      'redirect-url': redirectUrl,
-      'customer-data:email': request.cliente.email,
-      'customer-data:full-name': `${request.cliente.nombre} ${request.cliente.apellido}`.trim(),
-      'customer-data:phone-number': request.cliente.telefono,
+      total: request.total,
+      currency: request.moneda,
+      redirectUrl,
+      email: request.cliente.email ?? '',
+      fullName: `${request.cliente.nombre} ${request.cliente.apellido}`.trim(),
+      phone: request.cliente.telefono ?? '',
     });
+    if (!built.ok) return { ok: false, error: built.error };
 
     return {
       ok: true,
-      checkout_url: `${WOMPI_CHECKOUT_BASE}?${params.toString()}`,
+      checkout_url: built.url,
       referencia_pasarela: reference,
     };
   }

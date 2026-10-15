@@ -72,7 +72,11 @@ import {
   revisableStringsFromDraft,
 } from '../lib/pdf-ingest-enrich';
 import {
-  calcularTotalOfertado,
+  htmlOpcionesTratamientoIva,
+  parseTratamientoIva,
+  totalPagarCotizacion,
+} from '../lib/cotizacion-iva';
+import {
   formatQuoteMoney,
   ofertaCompleta,
   parseLineasOferta,
@@ -4249,6 +4253,7 @@ type CotizacionLineaFila = {
   precio_unitario: number;
   precio_pendiente_validar?: boolean;
   notas?: string;
+  tratamiento_iva?: CotizacionLineaOferta['tratamiento_iva'];
 };
 
 /** Una fila del editor de líneas: misma semántica que /comercial (importe o "Pendiente validar"). */
@@ -4287,6 +4292,7 @@ function cotizacionLineaRowHtml(
             <option value="pendiente" ${pendiente ? 'selected' : ''}>Pendiente validar</option>
           </select>
           <input class="admin-inline-input" type="number" min="0" step="${step}" data-linea-precio value="${pendiente ? '' : precio}" placeholder="0" aria-label="Precio unitario" ${readOnly || pendiente ? 'disabled' : ''} />
+          <select class="admin-inline-input" data-linea-iva aria-label="IVA de la línea" ${disabled}>${htmlOpcionesTratamientoIva(line.tratamiento_iva)}</select>
         </td>
         <td data-linea-subtotal>${pendiente ? 'Pendiente validar' : crmMoney(precio * cantidad, moneda)}</td>
         <td><button class="admin-button admin-button--ghost" type="button" data-linea-eliminar aria-label="Eliminar ${escapeHtml(nombre || 'producto')}" ${disabled}>Eliminar</button></td>
@@ -9207,6 +9213,10 @@ function leerLineasOfertaDesdeDom(): CotizacionLineaOferta[] {
       moneda,
     };
     if (pendiente) linea.precio_pendiente_validar = true;
+    const tratamiento = parseTratamientoIva(
+      row.querySelector<HTMLSelectElement>('[data-linea-iva]')?.value
+    );
+    if (tratamiento) linea.tratamiento_iva = tratamiento;
     const notas = row.querySelector<HTMLTextAreaElement>('[data-linea-notas]')?.value.trim() ?? '';
     if (notas) linea.notas = notas;
     return linea;
@@ -9239,7 +9249,13 @@ function syncCotizacionTotalesDom() {
     }
   });
   const totalEl = app.querySelector<HTMLElement>('[data-cotizacion-total-ofertado]');
-  if (totalEl) totalEl.textContent = crmMoney(calcularTotalOfertado(lineas), monedaCabecera);
+  const impuestosIncluidos =
+    app.querySelector<HTMLInputElement>('[name="impuestos_incluidos"]')?.checked === true;
+  if (totalEl)
+    totalEl.textContent = crmMoney(
+      totalPagarCotizacion(lineas, { impuestosIncluidos, moneda: monedaCabecera }),
+      monedaCabecera
+    );
   const hint = app.querySelector<HTMLElement>('[data-cotizacion-hint]');
   if (hint) {
     const condiciones =
@@ -9382,7 +9398,10 @@ async function guardarOfertaAdmin(args: GuardarOfertaArgs): Promise<boolean> {
       productos: args.lineas,
       condiciones: args.condiciones || null,
       validez_hasta: args.validez,
-      precio_total_ofertado: calcularTotalOfertado(args.lineas),
+      precio_total_ofertado: totalPagarCotizacion(args.lineas, {
+        impuestosIncluidos: args.datos.get('impuestos_incluidos') === 'on',
+        moneda: args.moneda,
+      }),
       moneda: args.moneda,
       mercado: args.moneda === 'USD' ? 'INTL' : 'CO',
       leida: true,
@@ -9558,7 +9577,7 @@ function bindCotizaciones() {
   const bindLineaOferta = (row: HTMLElement) => {
     row
       .querySelectorAll<HTMLElement>(
-        '[data-linea-cantidad], [data-linea-precio], [data-linea-precio-modo]'
+        '[data-linea-cantidad], [data-linea-precio], [data-linea-precio-modo], [data-linea-iva]'
       )
       .forEach(input => input.addEventListener('input', syncCotizacionTotalesDom));
     row
@@ -9585,6 +9604,12 @@ function bindCotizaciones() {
     });
   };
   app.querySelectorAll<HTMLElement>('[data-cotizacion-linea]').forEach(bindLineaOferta);
+  app
+    .querySelector<HTMLInputElement>('[name="impuestos_incluidos"]')
+    ?.addEventListener('change', () => {
+      cotizacionDirty = true;
+      syncCotizacionTotalesDom();
+    });
   app
     .querySelector<HTMLButtonElement>('[data-cotizacion-linea-agregar]')
     ?.addEventListener('click', () => {
@@ -9840,7 +9865,10 @@ function bindCotizaciones() {
     const numeroActual =
       app.querySelector<HTMLElement>('[data-cotizacion-numero]')?.textContent?.trim() ?? '';
     const totalTexto = formatQuoteMoney(
-      calcularTotalOfertado(validated.lineasConMoneda),
+      totalPagarCotizacion(validated.lineasConMoneda, {
+        impuestosIncluidos: validated.datosOferta.get('impuestos_incluidos') === 'on',
+        moneda: validated.moneda,
+      }),
       validated.moneda
     );
     const confirmMsg = `¿Enviar presupuesto ${numeroActual || 'nuevo'} por ${canal === 'whatsapp' ? 'WhatsApp' : 'email'} a ${destino} (${totalTexto})?`;
@@ -9916,6 +9944,7 @@ function bindCotizaciones() {
         validez_hasta: validated.validezDom.trim() || null,
         moneda: validated.moneda,
         productos: validated.lineasConMoneda,
+        impuestos_incluidos: validated.datosOferta.get('impuestos_incluidos') === 'on',
       };
     }
     if (!idPdf) return;
@@ -9935,6 +9964,7 @@ function bindCotizaciones() {
       return;
     }
     const { data: json, error: pdfError, code: pdfCode } = await previewQuotePdf(idPdf, snapshot);
+    if (json?.wompi_error) toast(String(json.wompi_error));
     if (pdfError || !json?.pdf_base64) {
       body.innerHTML = `<p class="quote-ingest-help">${escapeHtml(cotizacionErrorCopy(pdfCode, pdfError ?? 'No se pudo generar el PDF.'))}</p>`;
       return;
@@ -11760,8 +11790,8 @@ async function revisionLandingsProductoHtml(
   slug: string,
   nombre: string
 ): Promise<string> {
-  const { listCampaignLandings } = await import('../data/comercial-landings');
-  const campanas = listCampaignLandings('es').filter(landing =>
+  const { listCampaignLandingRevision } = await import('../data/comercial-landings-revision');
+  const campanas = listCampaignLandingRevision().filter(landing =>
     landing.productSlugs.includes(slug)
   );
   const campanasHtml = campanas.length

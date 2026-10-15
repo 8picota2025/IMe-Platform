@@ -30,6 +30,13 @@ import {
   type CotizacionOfertaRow,
 } from '../../../src/lib/cotizacion-oferta.ts';
 import {
+  parseTratamientoIva,
+  resolverTratamientoLinea,
+  resumenIvaTexto,
+  tasaDeTratamiento,
+} from '../../../src/lib/cotizacion-iva.ts';
+import { desgloseDeLineas, enlaceWompiDeCotizacion } from '../_shared/cotizacion-pago.ts';
+import {
   buildDianInvoiceDraft,
   baseNetaDesdePrecioConIva,
   calculateFiscalSummary,
@@ -221,8 +228,32 @@ Deno.serve(async req => {
   if (!loaded.ok) return loaded.response;
   const row = loaded.row;
   const lineas = parseLineasOferta(row.productos);
-  const total = Number(row.precio_total_ofertado) || calcularTotalOfertado(lineas);
   const moneda = lineas[0]?.moneda || String(row.moneda ?? 'COP');
+  const impuestosIncluidos =
+    (row as { impuestos_incluidos?: unknown }).impuestos_incluidos === true;
+  const desglose = await desgloseDeLineas(supabase, lineas, {
+    impuestosIncluidos,
+    moneda,
+  });
+  const total =
+    desglose.total > 0
+      ? desglose.total
+      : Number(row.precio_total_ofertado) || calcularTotalOfertado(lineas);
+  const locale = row.locale === 'en' ? 'en' : 'es';
+  const numero = String(row.numero ?? '').trim();
+  const siteUrl = (Deno.env.get('SITE_URL') ?? 'https://i-me.com.co').replace(/\/+$/, '');
+  const pago =
+    numero && moneda.toUpperCase() === 'COP'
+      ? await enlaceWompiDeCotizacion({
+          numero,
+          total,
+          moneda,
+          email: row.email,
+          nombre: row.nombre,
+          telefono: (row as { telefono?: string | null }).telefono ?? null,
+          redirectUrl: `${siteUrl}${locale === 'en' ? '/en/quote/formalize' : '/es/cotizacion/formalizar'}?id=${encodeURIComponent(id)}&t=${encodeURIComponent(token)}`,
+        })
+      : { url: null, error: null };
   const cuentaId = (row as { cuenta_recaudo?: string | null }).cuenta_recaudo;
   const cuentaElegida = esCuentaRecaudoDefault(cuentaId) ? null : cuentaRecaudoPorId(cuentaId);
   const bancarios = cuentaElegida
@@ -258,6 +289,11 @@ Deno.serve(async req => {
           mercado: row.mercado === 'INTL' ? 'INTL' : 'CO',
           moneda,
           total,
+          base: desglose.base,
+          iva: desglose.iva,
+          iva_resumen: resumenIvaTexto(desglose, locale),
+          impuestos_incluidos: impuestosIncluidos,
+          wompi_url: pago.url,
           permite_factura_electronica: row.mercado !== 'INTL' && moneda.toUpperCase() === 'COP',
           lineas: lineas.map(l => ({
             slug: l.slug,
@@ -327,8 +363,6 @@ Deno.serve(async req => {
     );
   }
 
-  const impuestosIncluidos =
-    (row as { impuestos_incluidos?: unknown }).impuestos_incluidos === true;
   if (fiscalCliente.solicitar_factura_electronica && !impuestosIncluidos) {
     return errorResponse(
       {
@@ -389,11 +423,10 @@ Deno.serve(async req => {
           excluido_iva: true,
         };
       }
-      if (!producto) throw new Error(`Producto sin configuracion fiscal: ${l.slug}`);
-      const tarifaIva = producto.excluido_iva ? 0 : Number(producto.tarifa_iva_pct);
-      if (!producto.excluido_iva && (!Number.isFinite(tarifaIva) || tarifaIva < 0)) {
-        throw new Error(`Tarifa IVA invalida para producto: ${l.slug}`);
-      }
+      const explicito = parseTratamientoIva(l.tratamiento_iva) != null;
+      if (!explicito && !producto) throw new Error(`Producto sin configuracion fiscal: ${l.slug}`);
+      const tratamiento = resolverTratamientoLinea(l, producto ?? null, moneda);
+      const tarifaIva = tasaDeTratamiento(tratamiento);
       return {
         slug: l.slug,
         nombre: l.nombre,
@@ -401,13 +434,13 @@ Deno.serve(async req => {
         precio_unitario: baseNetaDesdePrecioConIva(l.precio_unitario, tarifaIva),
         tarifa_iva_pct: tarifaIva,
         retencion_fuente_pct:
-          producto.retencion_fuente_pct === null ? null : Number(producto.retencion_fuente_pct),
+          producto?.retencion_fuente_pct == null ? null : Number(producto.retencion_fuente_pct),
         retencion_iva_pct:
-          producto.retencion_iva_pct === null ? null : Number(producto.retencion_iva_pct),
+          producto?.retencion_iva_pct == null ? null : Number(producto.retencion_iva_pct),
         retencion_ica_pct:
-          producto.retencion_ica_pct === null ? null : Number(producto.retencion_ica_pct),
-        dian_codigo: producto.dian_codigo,
-        excluido_iva: producto.excluido_iva === true,
+          producto?.retencion_ica_pct == null ? null : Number(producto.retencion_ica_pct),
+        dian_codigo: producto?.dian_codigo ?? null,
+        excluido_iva: tarifaIva === 0,
       };
     });
     fiscalSummary = calculateFiscalSummary(lineasFiscales, fiscalCliente, {

@@ -11,6 +11,7 @@ import {
   type EspecItem,
 } from './pdf-ingest-enrich';
 import { resolveCatalogUnitPrice } from './cotizacion-oferta';
+import { tratamientoDesdeProducto } from './cotizacion-iva';
 import type { CotizacionLineaOferta } from './cotizacion-oferta';
 import type { CatalogProductHit } from './catalog-search';
 
@@ -199,6 +200,7 @@ export function catalogHitToQuoteLine(
     precio_unitario: precio,
     subtotal: precio > 0 ? Math.round(precio * cantidad * 100) / 100 : 0,
     moneda: lineMoneda,
+    tratamiento_iva: tratamientoDesdeProducto(hit),
     ...(resumen ? { notas: resumen } : {}),
     ...(precio <= 0 ? { precio_pendiente_validar: true } : {}),
   };

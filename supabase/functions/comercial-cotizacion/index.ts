@@ -52,6 +52,7 @@ import {
   sanitizarLineasComercial,
   type CotizacionOfertaRow,
 } from '../../../src/lib/cotizacion-oferta.ts';
+import { desgloseDeLineas, enlaceWompiDeCotizacion } from '../_shared/cotizacion-pago.ts';
 import {
   estadosDeBandeja,
   planArchivo,
@@ -322,6 +323,9 @@ Deno.serve(
           if (!UUID_RE.test(id)) return badRequest('id invalido', origin);
           return await handleValidarCrm(supabase, profile, id, origin);
         }
+        if (action === 'enlace-pago') {
+          return await handleEnlacePago(body, supabase, origin);
+        }
         if (action === 'cambiar-estado' || action === 'archivar' || action === 'desarchivar') {
           const id = url.searchParams.get('id') || cleanText(body.id, 36);
           if (!UUID_RE.test(id)) return badRequest('id invalido', origin);
@@ -522,7 +526,9 @@ async function handleSearch(
   if (q.length < 2) return json({ products: [] }, origin);
   const { data, error } = await supabase
     .from('productos')
-    .select('id,slug,sku,nombre_es,precio,precio_oferta,precio_regular,moneda')
+    .select(
+      'id,slug,sku,nombre_es,precio,precio_oferta,precio_regular,moneda,tarifa_iva_pct,excluido_iva'
+    )
     .eq('activo', true)
     .or(`nombre_es.ilike.%${q}%,sku.ilike.%${q}%,slug.ilike.%${q}%`)
     .order('nombre_es', { ascending: true })
@@ -598,6 +604,20 @@ async function handlePdf(
       (typeof liveMeta.numero_presupuesto === 'string' ? liveMeta.numero_presupuesto : 'BORRADOR')
   );
   const asesor = await asesorDeUsuario(supabase, live.created_by);
+  const monedaPdf = normalizarMonedaOferta(live.moneda);
+  const desglosePdf = await desgloseDeLineas(supabase, lineas, {
+    impuestosIncluidos: live.impuestos_incluidos === true,
+    moneda: monedaPdf,
+  });
+  const pagoPdf = await enlaceWompiDeCotizacion({
+    numero,
+    total: desglosePdf.total,
+    moneda: monedaPdf,
+    email: live.email,
+    nombre: live.nombre,
+    telefono: live.telefono,
+    redirectUrl: `${siteUrl}/es/pago/resultado?ref=${encodeURIComponent(numero)}`,
+  });
   const bytes = await renderQuotePdf({
     numero,
     clienteNombre: String(live.nombre ?? 'Cliente'),
@@ -606,9 +626,11 @@ async function handlePdf(
     telefono: live.telefono,
     condiciones: String(live.condiciones ?? ''),
     validezHasta: live.validez_hasta ? String(live.validez_hasta) : null,
-    moneda: normalizarMonedaOferta(live.moneda),
-    total: calcularTotalOfertado(lineas),
+    moneda: monedaPdf,
+    total: desglosePdf.total,
     lineas,
+    impuestosIncluidos: live.impuestos_incluidos === true,
+    wompiUrl: pagoPdf.url,
     locale: live.locale === 'en' ? 'en' : 'es',
     nombreComercial: asesor.nombre,
     correoComercial: asesor.correo,
@@ -626,6 +648,7 @@ async function handlePdf(
       pdf_base64: base64(bytes),
       numero,
       stored: false,
+      wompi_error: pagoPdf.error,
     },
     origin
   );
@@ -637,6 +660,43 @@ function base64(bytes: Uint8Array): string {
     binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
   }
   return btoa(binary);
+}
+
+async function handleEnlacePago(
+  body: Record<string, unknown>,
+  supabase: ServerSupabase,
+  origin: string | null
+): Promise<Response> {
+  const moneda = normalizarMonedaOferta(body.moneda);
+  const lineas = sanitizarLineasComercial(body.productos ?? body.lineas, moneda);
+  const desglose = await desgloseDeLineas(supabase, lineas, {
+    impuestosIncluidos: body.impuestos_incluidos === true,
+    moneda,
+  });
+  const numero = cleanText(body.numero, 40);
+  const siteUrl = (Deno.env.get('SITE_URL') ?? 'https://i-me.com.co').replace(/\/+$/, '');
+  const locale = body.locale === 'en' ? 'en' : 'es';
+  const redirectUrl = `${siteUrl}${locale === 'en' ? '/en/payment/result' : '/es/pago/resultado'}?ref=${encodeURIComponent(numero || 'cotizacion')}`;
+  const pago = await enlaceWompiDeCotizacion({
+    numero,
+    total: desglose.total,
+    moneda,
+    email: typeof body.email === 'string' ? body.email : null,
+    nombre: typeof body.nombre === 'string' ? body.nombre : null,
+    telefono: typeof body.telefono === 'string' ? body.telefono : null,
+    redirectUrl,
+  });
+  return json(
+    {
+      ok: true,
+      total: desglose.total,
+      base: desglose.base,
+      iva: desglose.iva,
+      wompi_url: pago.url,
+      wompi_error: pago.error,
+    },
+    origin
+  );
 }
 
 async function handleSave(
@@ -683,7 +743,12 @@ async function handleSave(
     productos,
     condiciones: condiciones || null,
     validez_hasta: validez,
-    precio_total_ofertado: calcularTotalOfertado(productos),
+    precio_total_ofertado: (
+      await desgloseDeLineas(supabase, productos, {
+        impuestosIncluidos: body.impuestos_incluidos === true,
+        moneda,
+      })
+    ).total,
     locale,
     leida: true,
   };
@@ -855,7 +920,12 @@ async function handleDuplicar(
     productos,
     condiciones: row.condiciones,
     validez_hasta: row.validez_hasta,
-    precio_total_ofertado: calcularTotalOfertado(productos),
+    precio_total_ofertado: (
+      await desgloseDeLineas(supabase, productos, {
+        impuestosIncluidos: row.impuestos_incluidos === true,
+        moneda,
+      })
+    ).total,
     locale: row.locale === 'en' ? 'en' : 'es',
     estado: 'nueva',
     consentimiento_datos: false,
@@ -1141,7 +1211,12 @@ async function handleValidarCrm(
       origin
     );
   }
-  const total = calcularTotalOfertado(lineas);
+  const total = (
+    await desgloseDeLineas(supabase, lineas, {
+      impuestosIncluidos: row.impuestos_incluidos === true,
+      moneda: normalizarMonedaOferta(row.moneda),
+    })
+  ).total;
   const numero =
     row.numero ??
     (row.metadata && typeof row.metadata === 'object' && !Array.isArray(row.metadata)

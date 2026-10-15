@@ -2,6 +2,7 @@
  * Helpers de oferta comercial sobre solicitudes_cotizacion.
  * Usados por CMS (admin), formalizar (front) y Edge Functions (crear-pago, enviar, convertir).
  */
+import { parseTratamientoIva } from './cotizacion-iva';
 
 export type CotizacionEstadoOferta =
   | 'nueva'
@@ -23,6 +24,11 @@ export interface CotizacionLineaOferta {
   /** Precio aún no validado: no entra al sumatorio ni bloquea oferta. */
   precio_pendiente_validar?: boolean;
   notas?: string;
+  /**
+   * Tarifa de esta línea. Si falta, manda la ficha del producto y, si esa
+   * también está en blanco, 19 %.
+   */
+  tratamiento_iva?: '19' | '5' | 'excluido' | 'exento';
 }
 
 export interface CotizacionOfertaRow {
@@ -111,6 +117,8 @@ export function parseLineasOferta(productos: unknown): CotizacionLineaOferta[] {
     if (typeof row.notas === 'string' && row.notas.trim()) {
       linea.notas = row.notas.trim();
     }
+    const tratamiento = parseTratamientoIva(row.tratamiento_iva);
+    if (tratamiento) linea.tratamiento_iva = tratamiento;
     out.push(linea);
   }
   return out;
@@ -178,6 +186,7 @@ export function canonizarLineasOferta(
     };
     if (pendiente) linea.precio_pendiente_validar = true;
     if (l.notas) linea.notas = l.notas;
+    if (l.tratamiento_iva) linea.tratamiento_iva = l.tratamiento_iva;
     return linea;
   });
   return {
@@ -271,6 +280,7 @@ export function sanitizarLineasComercial(
     };
     if (pendiente) linea.precio_pendiente_validar = true;
     if (l.notas) linea.notas = l.notas;
+    if (l.tratamiento_iva) linea.tratamiento_iva = l.tratamiento_iva;
     return linea;
   });
 }

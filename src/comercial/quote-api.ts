@@ -3,6 +3,7 @@
  * Writes van por PostgREST (mismo RLS ventas que `/admin`).
  * Edge `comercial-cotizacion` solo para PDF cuando esté desplegada.
  */
+import { totalPagarCotizacion } from '../lib/cotizacion-iva';
 import {
   calcularTotalOfertado,
   normalizarMonedaOferta,
@@ -313,6 +314,7 @@ type QuotePdfSnapshot = {
   productos: CotizacionLineaOferta[];
   cuenta_recaudo?: string | null;
   condicion_pago?: string | null;
+  impuestos_incluidos?: boolean | null;
 };
 
 async function loadQuoteAnnexes(lineas: CotizacionLineaOferta[]): Promise<
@@ -461,7 +463,9 @@ async function loadPoppinsFonts(): Promise<{
 async function renderQuotePdfLocal(
   id: string,
   snapshot: QuotePdfSnapshot
-): Promise<EdgeFunctionResult<{ pdf_base64: string; numero: string }>> {
+): Promise<
+  EdgeFunctionResult<{ pdf_base64: string; numero: string; wompi_error?: string | null }>
+> {
   try {
     const { renderQuotePdf, bytesToBase64 } = await import('../lib/render-quote-pdf');
     const numero =
@@ -469,6 +473,24 @@ async function renderQuotePdfLocal(
       (await ensureNumero(id)) ||
       `IME-Q-${new Date().getFullYear()}-${id.replace(/-/g, '').slice(0, 6).toUpperCase()}`;
     const lineas = sanitizarLineasComercial(snapshot.productos, snapshot.moneda);
+    const pago = await callEdgeFunction<{ wompi_url?: string | null; wompi_error?: string | null }>(
+      'comercial-cotizacion',
+      {
+        method: 'POST',
+        query: { action: 'enlace-pago' },
+        body: {
+          productos: lineas,
+          impuestos_incluidos: snapshot.impuestos_incluidos === true,
+          moneda: snapshot.moneda,
+          numero,
+          email: snapshot.email,
+          nombre: snapshot.nombre,
+          telefono: snapshot.telefono,
+        },
+      }
+    );
+    const wompiUrl = pago.data?.wompi_url ?? null;
+    const wompiError = pago.data?.wompi_error ?? (pago.error ? String(pago.error) : null);
     const [annexes, logoBytes, whatsappIconBytes, fonts] = await Promise.all([
       loadQuoteAnnexes(lineas),
       loadLogoBytes(),
@@ -484,7 +506,10 @@ async function renderQuotePdfLocal(
       condiciones: snapshot.condiciones,
       validezHasta: snapshot.validez_hasta,
       moneda: snapshot.moneda,
-      total: calcularTotalOfertado(lineas),
+      total: totalPagarCotizacion(lineas, {
+        impuestosIncluidos: snapshot.impuestos_incluidos === true,
+        moneda: snapshot.moneda,
+      }),
       lineas,
       locale: 'es',
       nombreComercial: state.nombre || state.email || 'Equipo comercial I-ME',
@@ -497,8 +522,10 @@ async function renderQuotePdfLocal(
       fontBoldBytes: fonts.bold,
       condicionPago: snapshot.condicion_pago ?? null,
       bancoLineas: lineasMedioPagoCotizacion(snapshot.cuenta_recaudo, bancoLineasCotizacion()),
+      impuestosIncluidos: snapshot.impuestos_incluidos === true,
+      wompiUrl,
     });
-    return ok({ pdf_base64: bytesToBase64(bytes), numero });
+    return ok({ pdf_base64: bytesToBase64(bytes), numero, wompi_error: wompiError });
   } catch (err) {
     return fail(
       err instanceof Error ? err.message : 'No se pudo generar el PDF.',
@@ -512,19 +539,22 @@ async function renderQuotePdfLocal(
 export async function previewQuotePdf(
   id: string,
   snapshot?: QuotePdfSnapshot
-): Promise<EdgeFunctionResult<{ pdf_base64: string; numero: string }>> {
+): Promise<
+  EdgeFunctionResult<{ pdf_base64: string; numero: string; wompi_error?: string | null }>
+> {
   if (snapshot) {
     const local = await renderQuotePdfLocal(id, snapshot);
     if (!local.error && local.data?.pdf_base64) return local;
   }
 
-  const edge = await callEdgeFunction<{ pdf_base64: string; numero: string }>(
-    'comercial-cotizacion',
-    {
-      method: 'GET',
-      query: { action: 'pdf', id, fresh: '1' },
-    }
-  );
+  const edge = await callEdgeFunction<{
+    pdf_base64: string;
+    numero: string;
+    wompi_error?: string | null;
+  }>('comercial-cotizacion', {
+    method: 'GET',
+    query: { action: 'pdf', id, fresh: '1' },
+  });
   if (!edge.error && edge.data?.pdf_base64) return edge;
 
   return fail(
@@ -695,7 +725,10 @@ async function saveQuoteRest(
     productos,
     condiciones: input.condiciones.trim() || null,
     validez_hasta: input.validez_hasta,
-    precio_total_ofertado: calcularTotalOfertado(productos),
+    precio_total_ofertado: totalPagarCotizacion(productos, {
+      impuestosIncluidos: input.impuestos_incluidos === true,
+      moneda,
+    }),
     locale: 'es',
     leida: true,
   };
