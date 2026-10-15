@@ -16,9 +16,9 @@ Meta Cloud API
        ├─ statuses / grupos / no-texto  → 200, sin reply
        ├─ wamid ya visto                → 200, no reenvía
        └─ texto 1:1 nuevo               → fila pending_agent (sin burbuja inmediata)
-            └─ seguimiento (~30 s de silencio; la escritura lo alarga hasta ~2 min, y otra pasada al minuto)
+            └─ seguimiento (~30 s de silencio; la escritura lo alarga hasta ~2 min; pasada al minuto solo con WHATSAPP_HOLDING_ENABLED)
                  ├─ claim_whatsapp_agent_batch  → 1 wake del agente por remitente
-                 └─ si el pendiente sigue >60 s y no hubo salida → 1 mensaje de espera
+                 └─ si WHATSAPP_HOLDING_ENABLED y el pendiente sigue >60 s sin salida → 1 mensaje de espera
   pg_cron cada minuto → whatsapp-imeia-dispatch (mismo despacho, por si el isolate murió)
   smb_message_echoes → #pausa / /pausa / #pause / #continua / #activa, o bitácora kind=other
   typing_indicators → alarga el silencio del lote (tope ~2 min)
@@ -33,14 +33,15 @@ Idempotencia: tabla `whatsapp_inbound_events` (PK `wamid`). Salidas: `whatsapp_o
 
 ## Secretos (nombres; nunca commitear valores)
 
-| Variable                   | Uso                                                                          |
-| -------------------------- | ---------------------------------------------------------------------------- |
-| `WHATSAPP_VERIFY_TOKEN`    | Token que pegas en la consola Meta (GET challenge)                           |
-| `WHATSAPP_APP_SECRET`      | App Secret → `X-Hub-Signature-256`. Si falta, se omite la firma (solo local) |
-| `WHATSAPP_TOKEN`           | Token permanente de la app (Graph)                                           |
-| `WHATSAPP_PHONE_NUMBER_ID` | ID del número, no el E.164                                                   |
-| `WHATSAPP_API_VERSION`     | Default `v21.0`                                                              |
-| `WHATSAPP_RATE_LIMIT_*`    | Ventana / tope diario por remitente                                          |
+| Variable                   | Uso                                                                           |
+| -------------------------- | ----------------------------------------------------------------------------- |
+| `WHATSAPP_VERIFY_TOKEN`    | Token que pegas en la consola Meta (GET challenge)                            |
+| `WHATSAPP_APP_SECRET`      | App Secret → `X-Hub-Signature-256`. Si falta, se omite la firma (solo local)  |
+| `WHATSAPP_TOKEN`           | Token permanente de la app (Graph)                                            |
+| `WHATSAPP_PHONE_NUMBER_ID` | ID del número, no el E.164                                                    |
+| `WHATSAPP_API_VERSION`     | Default `v21.0`                                                               |
+| `WHATSAPP_RATE_LIMIT_*`    | Ventana / tope diario por remitente                                           |
+| `WHATSAPP_HOLDING_ENABLED` | `true` o `1` activa la espera. Ausente, vacío o cualquier otro valor: apagada |
 
 En Supabase:
 
@@ -84,11 +85,11 @@ supabase db push
 supabase functions deploy whatsapp-webhook whatsapp-imeia-dispatch whatsapp-imeia-reply registrar-lead-comercial --project-ref <ref>
 ```
 
-No hace falta ningún secreto nuevo en git ni en Vault. Siguen `WHATSAPP_*` y `IMEIA_AGENT_WEBHOOK_URL` / `IMEIA_AGENT_WEBHOOK_KEY`. `SUPABASE_SERVICE_ROLE_KEY` ya lo inyecta la plataforma en la función.
+No hace falta ningún secreto nuevo en git ni en Vault. Siguen `WHATSAPP_*` y `IMEIA_AGENT_WEBHOOK_URL` / `IMEIA_AGENT_WEBHOOK_KEY`. `SUPABASE_SERVICE_ROLE_KEY` ya lo inyecta la plataforma en la función. `WHATSAPP_HOLDING_ENABLED` es opcional y, si falta, la espera queda apagada. Para volver a activarla: `supabase secrets set WHATSAPP_HOLDING_ENABLED=true --project-ref <ref>` y redesplegar `whatsapp-webhook` y `whatsapp-imeia-dispatch`.
 
 ### Cron (necesario como red de seguridad)
 
-El webhook agenda el seguimiento con `EdgeRuntime.waitUntil` (~30 s de silencio; si llega un indicador de escritura, espera a que pare, con tope de ~2 min desde el último mensaje, y una pasada al minuto). Si ese isolate muere, **nada despierta al agente** hasta que corre el cron. El reclamo SQL usa el mismo silencio (`p_quiet_seconds` 30) y el mismo tope de escritura.
+El webhook agenda el seguimiento con `EdgeRuntime.waitUntil` (~30 s de silencio; si llega un indicador de escritura, espera a que pare, con tope de ~2 min desde el último mensaje). Con `WHATSAPP_HOLDING_ENABLED` hay una segunda pasada al minuto para la espera. Si ese isolate muere, **nada despierta al agente** hasta que corre el cron. El reclamo SQL usa el mismo silencio (`p_quiet_seconds` 30) y el mismo tope de escritura.
 
 `20260925150000_whatsapp_dispatch_cron.sql` hace el alta al aplicar la migración:
 
@@ -215,7 +216,7 @@ Firma incorrecta → 401.
 
 ## Reglas del mensaje de espera
 
-No se envía al recibir el mensaje. Se envía solo si, en el despacho:
+Por defecto no se envía ninguna espera. Hace falta `WHATSAPP_HOLDING_ENABLED=true` (o `1`) en la Edge Function. Con el flag apagado, ni el cron ni el seguimiento del webhook llaman a `enviarEspera` ni a la segunda espera. Con el flag encendido, no se envía al recibir el mensaje. Se envía solo si, en el despacho:
 
 1. El pendiente más reciente de ese cliente tiene **más de 60 s** y el agente aún no lo cerró.
 2. **No hay ninguna salida** (`whatsapp_outbound_messages.send_status = sent`) hacia ese número desde que llegó ese pendiente. Una respuesta del agente cuenta, si quedó registrada.
@@ -254,12 +255,24 @@ Sigue el contrato de siempre, una vez por lote, con el pendiente más reciente:
   "channel": "imeia",
   "from": "573001112233",
   "text": "texto del último pendiente",
+  "claim_token": "uuid-del-lote",
   "wamid": "wamid.HBg...",
   "phone_number_id": "PHONE_NUMBER_ID",
   "locale": "es",
-  "received_at": "2026-09-25T15:00:00.000Z"
+  "received_at": "2026-09-25T15:00:00.000Z",
+  "recent_outbound": [
+    {
+      "time": "2026-09-25T14:55:00.000Z",
+      "text": "texto enviado hace unos minutos"
+    }
+  ],
+  "trivial_ack": false
 }
 ```
+
+`recent_outbound` son como mucho las 3 últimas salidas `sent` a ese contacto en los 10 minutos previos, de la más antigua a la más nueva. `trivial_ack` es `true` solo cuando todos los mensajes del lote son acuse trivial (`esAcuseTrivial`). El lote no se cierra por eso: sigue `pending_agent` hasta que el agente responda.
+
+Si, al responder, `whatsapp-imeia-reply` ve filas `pending_agent` del mismo contacto más nuevas que el lote reclamado, no envía. Suelta el `claim_token` (las filas vuelven a poder reclamarse juntas) y responde `409` con `{ "ok": false, "error": "new_messages" }`. El cuerpo del reply sigue siendo `{ "claim_token", "body" }`.
 
 El agente lee los `pending_agent` de ese `from` en las últimas 24 h y los marca `replied` o `ignored`. Un segundo despacho que reclama 0 filas no vuelve a despertarlo mientras el reclamo tenga menos de 3 minutos. Si el wake HTTP falla, el reclamo se suelta y el cron reintenta. Si el wake no responde a tiempo, el reclamo se conserva para no disparar otra corrida en paralelo.
 

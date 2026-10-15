@@ -1,6 +1,29 @@
+import { readFileSync } from 'node:fs';
+
 import { describe, expect, it, vi } from 'vitest';
-import { despacharWhatsAppImeia } from '../supabase/functions/_shared/whatsapp-dispatch';
+import {
+  despacharWhatsAppImeia,
+  whatsappHoldingEnabled,
+} from '../supabase/functions/_shared/whatsapp-dispatch';
 import { replyToWhatsAppBatch } from '../supabase/functions/_shared/whatsapp-reply';
+
+async function withHoldingFlag<T>(value: string | undefined, run: () => Promise<T>): Promise<T> {
+  const scope = globalThis as { Deno?: { env: { get(name: string): string | undefined } } };
+  const previous = scope.Deno;
+  scope.Deno = {
+    env: {
+      get(name: string) {
+        return name === 'WHATSAPP_HOLDING_ENABLED' ? value : undefined;
+      },
+    },
+  };
+  try {
+    return await run();
+  } finally {
+    if (previous === undefined) delete scope.Deno;
+    else scope.Deno = previous;
+  }
+}
 
 type Row = Record<string, unknown>;
 function database(reason: string | null = null) {
@@ -28,19 +51,21 @@ function database(reason: string | null = null) {
   let failures = 0;
   const rpc = vi.fn(async (name: string, params?: Row) => {
     if (name === 'whatsapp_dispatch_drop_reason') return { data: reason, error: null };
-    if (name === 'claim_whatsapp_agent_batch')
+    if (name === 'claim_whatsapp_agent_batch') {
+      const claimed = rows.whatsapp_inbound_events!.filter(
+        row => row.status === 'pending_agent' && row.agent_claim_token
+      );
       return {
-        data: [
-          {
-            out_wamid: 'test.turn',
-            out_body: '[audio]',
-            out_created_at: rows.whatsapp_inbound_events![0]!.created_at,
-            out_phone_number_id: 'test.phone',
-            out_claim_token: 'test.token',
-          },
-        ],
+        data: claimed.map(row => ({
+          out_wamid: row.wamid,
+          out_body: row.body,
+          out_created_at: row.created_at,
+          out_phone_number_id: row.phone_number_id,
+          out_claim_token: row.agent_claim_token,
+        })),
         error: null,
       };
+    }
     if (name === 'fail_whatsapp_batch') {
       failures += 1;
       if (failures >= 3 && !rows.whatsapp_alerts!.length)
@@ -175,6 +200,41 @@ describe('WhatsApp pipeline with mocked DB and HTTP (no real sends)', () => {
     }
   );
   it('counts wake failures and sends the second holding once after the threshold', async () => {
+    await withHoldingFlag('true', async () => {
+      const db = database();
+      const fetchImpl = vi.fn<typeof fetch>(async url =>
+        String(url).includes('/wake')
+          ? new Response(null, { status: 500 })
+          : Response.json({ messages: [{ id: 'test.holding' }] })
+      );
+      const opts = {
+        supabase: db.client,
+        graph,
+        wakeUrl: 'https://test.invalid/wake',
+        wakeKey: 'test-key',
+        wakes: true,
+        holdings: true,
+        fetchImpl,
+      };
+      for (let i = 0; i < 4; i++) await despacharWhatsAppImeia(opts);
+      const graphCalls = fetchImpl.mock.calls.filter(([url]) =>
+        String(url).includes('graph.facebook.com')
+      );
+      expect(graphCalls).toHaveLength(2);
+      expect(JSON.parse(String(graphCalls[0]?.[1]?.body))).toMatchObject({
+        recipient: 'CO.TestBsuid42',
+      });
+      expect(db.rows.whatsapp_alerts![0]?.second_holding_status).toBe('sent');
+      expect(db.rpc.mock.calls.filter(([name]) => name === 'fail_whatsapp_batch')).toHaveLength(4);
+    });
+  });
+  it('never sends a holding when WHATSAPP_HOLDING_ENABLED is off', async () => {
+    expect(whatsappHoldingEnabled()).toBe(false);
+    await withHoldingFlag('false', async () => expect(whatsappHoldingEnabled()).toBe(false));
+    await withHoldingFlag('0', async () => expect(whatsappHoldingEnabled()).toBe(false));
+    await withHoldingFlag(undefined, async () => expect(whatsappHoldingEnabled()).toBe(false));
+    await withHoldingFlag('true', async () => expect(whatsappHoldingEnabled()).toBe(true));
+    await withHoldingFlag('1', async () => expect(whatsappHoldingEnabled()).toBe(true));
     const db = database();
     const fetchImpl = vi.fn<typeof fetch>(async url =>
       String(url).includes('/wake')
@@ -194,12 +254,9 @@ describe('WhatsApp pipeline with mocked DB and HTTP (no real sends)', () => {
     const graphCalls = fetchImpl.mock.calls.filter(([url]) =>
       String(url).includes('graph.facebook.com')
     );
-    expect(graphCalls).toHaveLength(2);
-    expect(JSON.parse(String(graphCalls[0]?.[1]?.body))).toMatchObject({
-      recipient: 'CO.TestBsuid42',
-    });
-    expect(db.rows.whatsapp_alerts![0]?.second_holding_status).toBe('sent');
-    expect(db.rpc.mock.calls.filter(([name]) => name === 'fail_whatsapp_batch')).toHaveLength(4);
+    expect(graphCalls).toHaveLength(0);
+    expect(db.rows.whatsapp_outbound_messages).toEqual([]);
+    expect(db.rows.whatsapp_alerts![0]?.second_holding_status).toBe('new');
   });
   it('preserves the claim after a wake timeout while recording the failure', async () => {
     const db = database();
@@ -236,7 +293,116 @@ describe('WhatsApp pipeline with mocked DB and HTTP (no real sends)', () => {
       claim_token: 'test.token',
       recipient: { recipient: 'CO.TestBsuid42' },
       messages: [{ wamid: 'test.turn', body: '[audio]' }],
+      recent_outbound: [],
+      trivial_ack: false,
     });
+  });
+  it('adds the last three sent outbound messages from the past 10 minutes', async () => {
+    const db = database();
+    const now = Date.now();
+    const sent = (minutesAgo: number, body: string) => ({
+      to_wa: 'CO.TestBsuid42',
+      body,
+      kind: 'reply',
+      created_at: new Date(now - minutesAgo * 60_000).toISOString(),
+      send_status: 'sent',
+      turn_key: `out-${minutesAgo}`,
+    });
+    db.rows.whatsapp_outbound_messages!.push(
+      sent(11, 'fuera de ventana'),
+      sent(9, 'hace nueve'),
+      sent(6, 'hace seis'),
+      sent(3, 'hace tres'),
+      sent(1, 'hace uno'),
+      {
+        to_wa: 'CO.TestBsuid42',
+        body: 'falló',
+        kind: 'reply',
+        created_at: new Date(now - 30_000).toISOString(),
+        send_status: 'failed',
+        turn_key: 'out-failed',
+      },
+      {
+        to_wa: '573009998877',
+        body: 'otro contacto',
+        kind: 'reply',
+        created_at: new Date(now - 20_000).toISOString(),
+        send_status: 'sent',
+        turn_key: 'out-other',
+      }
+    );
+    const fetchImpl = vi.fn<typeof fetch>(async () => new Response(null, { status: 202 }));
+    await despacharWhatsAppImeia({
+      supabase: db.client,
+      graph,
+      wakeUrl: 'https://test.invalid/wake',
+      wakeKey: 'test-key',
+      wakes: true,
+      holdings: false,
+      fetchImpl,
+    });
+    const wake = JSON.parse(String(fetchImpl.mock.calls[0]?.[1]?.body));
+    expect(wake.recent_outbound).toEqual([
+      { time: sent(6, 'hace seis').created_at, text: 'hace seis' },
+      { time: sent(3, 'hace tres').created_at, text: 'hace tres' },
+      { time: sent(1, 'hace uno').created_at, text: 'hace uno' },
+    ]);
+  });
+  it('flags a trivial-ack batch and leaves it pending', async () => {
+    const db = database();
+    db.rows.whatsapp_inbound_events![0]!.body = 'gracias';
+    db.rows.whatsapp_inbound_events!.push({
+      ...db.rows.whatsapp_inbound_events![0],
+      wamid: 'test.ack',
+      body: 'ok',
+      created_at: new Date(Date.now() - 90_000).toISOString(),
+    });
+    const fetchImpl = vi.fn<typeof fetch>(async () => new Response(null, { status: 202 }));
+    await despacharWhatsAppImeia({
+      supabase: db.client,
+      graph,
+      wakeUrl: 'https://test.invalid/wake',
+      wakeKey: 'test-key',
+      wakes: true,
+      holdings: true,
+      fetchImpl,
+    });
+    const wake = JSON.parse(String(fetchImpl.mock.calls[0]?.[1]?.body));
+    expect(wake.trivial_ack).toBe(true);
+    expect(wake.messages).toEqual([
+      expect.objectContaining({ body: 'gracias' }),
+      expect.objectContaining({ body: 'ok' }),
+    ]);
+    expect(db.rows.whatsapp_inbound_events!.every(row => row.status === 'pending_agent')).toBe(
+      true
+    );
+    expect(fetchImpl.mock.calls.every(([url]) => !String(url).includes('graph.facebook.com'))).toBe(
+      true
+    );
+  });
+  it('does not flag a batch that mixes an ack with a real question', async () => {
+    const db = database();
+    db.rows.whatsapp_inbound_events![0]!.body = 'ok';
+    db.rows.whatsapp_inbound_events!.push({
+      ...db.rows.whatsapp_inbound_events![0],
+      wamid: 'test.question',
+      body: '¿Tienen monitores de paciente?',
+      created_at: new Date(Date.now() - 90_000).toISOString(),
+    });
+    const fetchImpl = vi.fn<typeof fetch>(async () => new Response(null, { status: 202 }));
+    await despacharWhatsAppImeia({
+      supabase: db.client,
+      graph,
+      wakeUrl: 'https://test.invalid/wake',
+      wakeKey: 'test-key',
+      wakes: true,
+      holdings: false,
+      fetchImpl,
+    });
+    expect(JSON.parse(String(fetchImpl.mock.calls[0]?.[1]?.body)).trivial_ack).toBe(false);
+    expect(db.rows.whatsapp_inbound_events!.every(row => row.status === 'pending_agent')).toBe(
+      true
+    );
   });
   it('replies using the latest BSUID and closes only the claimed batch', async () => {
     const db = database();
@@ -290,6 +456,68 @@ describe('WhatsApp pipeline with mocked DB and HTTP (no real sends)', () => {
     expect(db.rows.whatsapp_inbound_events![0]?.status).toBe('replied');
     expect(fetchImpl).not.toHaveBeenCalled();
   });
+  it('releases the claim instead of sending when a newer pending inbound exists', async () => {
+    const db = database();
+    const claimedAt = String(db.rows.whatsapp_inbound_events![0]!.created_at);
+    db.rows.whatsapp_inbound_events!.push(
+      {
+        ...db.rows.whatsapp_inbound_events![0],
+        wamid: 'newer.turn',
+        body: 'sigo con la consulta',
+        created_at: new Date(Date.parse(claimedAt) + 5_000).toISOString(),
+        agent_claim_token: null,
+        agent_claimed_at: null,
+        status: 'pending_agent',
+      },
+      {
+        ...db.rows.whatsapp_inbound_events![0],
+        wamid: 'other.contact',
+        from_wa: '573009998877',
+        created_at: new Date(Date.parse(claimedAt) + 9_000).toISOString(),
+        agent_claim_token: null,
+        status: 'pending_agent',
+      }
+    );
+    const fetchImpl = vi.fn<typeof fetch>(async () =>
+      Response.json({ messages: [{ id: 'test.reply' }] })
+    );
+    expect(
+      await replyToWhatsAppBatch(db.client, graph, 'test.token', 'Respuesta', fetchImpl)
+    ).toEqual({ ok: false, status: 409, error: 'new_messages' });
+    expect(fetchImpl).not.toHaveBeenCalled();
+    expect(db.rows.whatsapp_outbound_messages).toEqual([]);
+    expect(db.rows.whatsapp_inbound_events![0]).toMatchObject({
+      status: 'pending_agent',
+      agent_claim_token: null,
+      agent_claimed_at: null,
+    });
+    expect(db.rows.whatsapp_inbound_events![1]).toMatchObject({
+      wamid: 'newer.turn',
+      status: 'pending_agent',
+      agent_claim_token: null,
+    });
+  });
+  it('still sends when the only newer pending row belongs to another contact', async () => {
+    const db = database();
+    const claimedAt = String(db.rows.whatsapp_inbound_events![0]!.created_at);
+    db.rows.whatsapp_inbound_events!.push({
+      ...db.rows.whatsapp_inbound_events![0],
+      wamid: 'other.contact',
+      from_wa: '573009998877',
+      created_at: new Date(Date.parse(claimedAt) + 5_000).toISOString(),
+      agent_claim_token: null,
+      status: 'pending_agent',
+    });
+    const fetchImpl = vi.fn<typeof fetch>(async () =>
+      Response.json({ messages: [{ id: 'test.reply' }] })
+    );
+    expect(
+      await replyToWhatsAppBatch(db.client, graph, 'test.token', 'Respuesta', fetchImpl)
+    ).toEqual({ ok: true, status: 200 });
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    expect(db.rows.whatsapp_inbound_events![0]?.status).toBe('replied');
+    expect(db.rows.whatsapp_inbound_events![1]?.status).toBe('pending_agent');
+  });
   it('rejects replies after human takeover', async () => {
     const db = database('paused');
     const fetchImpl = vi.fn<typeof fetch>();
@@ -297,5 +525,20 @@ describe('WhatsApp pipeline with mocked DB and HTTP (no real sends)', () => {
       await replyToWhatsAppBatch(db.client, graph, 'test.token', 'Respuesta', fetchImpl)
     ).toEqual({ ok: false, status: 409 });
     expect(fetchImpl).not.toHaveBeenCalled();
+  });
+  it('reads WHATSAPP_HOLDING_ENABLED instead of forcing holdings on', () => {
+    const dispatch = readFileSync(
+      new URL('../supabase/functions/whatsapp-imeia-dispatch/index.ts', import.meta.url),
+      'utf8'
+    );
+    const followUp = readFileSync(
+      new URL('../supabase/functions/_shared/whatsapp-dispatch.ts', import.meta.url),
+      'utf8'
+    );
+    expect(dispatch).toContain('holdings: whatsappHoldingEnabled()');
+    expect(dispatch).not.toContain('holdings: true');
+    expect(followUp).toContain('if (!whatsappHoldingEnabled()) return;');
+    expect(followUp).toContain('if (!whatsappHoldingEnabled()) return false;');
+    expect(followUp).toContain('if (!whatsappHoldingEnabled()) return 0;');
   });
 });

@@ -36,7 +36,8 @@ Deno.serve(async req => {
       input.claim_token,
       input.body.trim()
     );
-    return Response.json({ ok: result.ok }, { status: result.status });
+    const payload = result.error ? { ok: false as const, error: result.error } : { ok: result.ok };
+    return Response.json(payload, { status: result.status });
   } catch {
     return Response.json({ ok: false }, { status: 503 });
   }
