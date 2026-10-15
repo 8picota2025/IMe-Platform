@@ -2,7 +2,7 @@
  * Helpers de oferta comercial sobre solicitudes_cotizacion.
  * Usados por CMS (admin), formalizar (front) y Edge Functions (crear-pago, enviar, convertir).
  */
-import { parseTratamientoIva } from './cotizacion-iva';
+import { parseTratamientoIva } from './cotizacion-iva.ts';
 
 export type CotizacionEstadoOferta =
   | 'nueva'
