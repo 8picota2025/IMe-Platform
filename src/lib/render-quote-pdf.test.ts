@@ -308,3 +308,31 @@ it('keeps a zero-VAT line at the quoted total', async () => {
   expect(drawn).not.toContain('212.891');
   expect(drawn).not.toContain('150.336');
 });
+
+it('honors caller total when line IVA is catalog-default (empty tratamiento)', async () => {
+  const text = vi.spyOn(PDFPage.prototype, 'drawText');
+  // Without tratamiento_iva, PDF desglose would invent +19% ($212.891).
+  // Caller already resolved catalog excluido → total 178900.
+  await renderQuotePdf({
+    numero: 'IME-Q-2026-000040',
+    clienteNombre: 'Clinica',
+    condiciones: 'Entrega:\n30 dias.',
+    moneda: 'COP',
+    total: 178900,
+    impuestosIncluidos: false,
+    lineas: [
+      {
+        slug: 'producto-excluido-catalogo',
+        nombre: 'Producto excluido',
+        cantidad: 1,
+        precio_unitario: 178900,
+        subtotal: 178900,
+        moneda: 'COP',
+      },
+    ],
+    locale: 'es',
+  });
+  const drawn = text.mock.calls.map(([value]) => String(value)).join('\n');
+  expect(drawn).toContain('$178.900');
+  expect(drawn).not.toContain('212.891');
+});

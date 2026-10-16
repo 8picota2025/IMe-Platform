@@ -52,7 +52,7 @@ import {
   sanitizarLineasComercial,
   type CotizacionOfertaRow,
 } from '../../../src/lib/cotizacion-oferta.ts';
-import { desgloseDeLineas, enlaceWompiDeCotizacion } from '../_shared/cotizacion-pago.ts';
+import { desgloseDeLineas } from '../_shared/cotizacion-pago.ts';
 import {
   estadosDeBandeja,
   planArchivo,
@@ -609,15 +609,7 @@ async function handlePdf(
     impuestosIncluidos: live.impuestos_incluidos === true,
     moneda: monedaPdf,
   });
-  const pagoPdf = await enlaceWompiDeCotizacion({
-    numero,
-    total: desglosePdf.total,
-    moneda: monedaPdf,
-    email: live.email,
-    nombre: live.nombre,
-    telefono: live.telefono,
-    redirectUrl: `${siteUrl}/es/pago/resultado?ref=${encodeURIComponent(numero)}`,
-  });
+  // Preview PDF: sin checkout firmado. El envío real enlaza a formalizar.
   const bytes = await renderQuotePdf({
     numero,
     clienteNombre: String(live.nombre ?? 'Cliente'),
@@ -630,7 +622,7 @@ async function handlePdf(
     total: desglosePdf.total,
     lineas,
     impuestosIncluidos: live.impuestos_incluidos === true,
-    wompiUrl: pagoPdf.url,
+    wompiUrl: null,
     locale: live.locale === 'en' ? 'en' : 'es',
     nombreComercial: asesor.nombre,
     correoComercial: asesor.correo,
@@ -648,7 +640,7 @@ async function handlePdf(
       pdf_base64: base64(bytes),
       numero,
       stored: false,
-      wompi_error: pagoPdf.error,
+      wompi_error: null,
     },
     origin
   );
@@ -673,27 +665,19 @@ async function handleEnlacePago(
     impuestosIncluidos: body.impuestos_incluidos === true,
     moneda,
   });
-  const numero = cleanText(body.numero, 40);
-  const siteUrl = (Deno.env.get('SITE_URL') ?? 'https://i-me.com.co').replace(/\/+$/, '');
-  const locale = body.locale === 'en' ? 'en' : 'es';
-  const redirectUrl = `${siteUrl}${locale === 'en' ? '/en/payment/result' : '/es/pago/resultado'}?ref=${encodeURIComponent(numero || 'cotizacion')}`;
-  const pago = await enlaceWompiDeCotizacion({
-    numero,
-    total: desglose.total,
-    moneda,
-    email: typeof body.email === 'string' ? body.email : null,
-    nombre: typeof body.nombre === 'string' ? body.nombre : null,
-    telefono: typeof body.telefono === 'string' ? body.telefono : null,
-    redirectUrl,
-  });
+  // No firmar checkout con número de cotización: el cliente paga vía formalizar
+  // (iniciar_pago_wompi → pedidos.id como reference).
   return json(
     {
       ok: true,
       total: desglose.total,
       base: desglose.base,
       iva: desglose.iva,
-      wompi_url: pago.url,
-      wompi_error: pago.error,
+      wompi_url: null,
+      wompi_error:
+        moneda.toUpperCase() === 'COP'
+          ? 'Usa el enlace Formalizar: el checkout Wompi se firma con el UUID del pedido.'
+          : null,
     },
     origin
   );

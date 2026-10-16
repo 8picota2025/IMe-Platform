@@ -1,6 +1,10 @@
 /**
  * Total a pagar y enlace Wompi de una cotización.
  * Las llaves se leen del entorno de la Edge Function y no se registran.
+ *
+ * REGLA: la `reference` de Wompi DEBE ser `pedidos.id` (= referencia_pasarela).
+ * Nunca el número de cotización (IME-Q-…): webhook-wompi solo busca pedidos
+ * por esa columna; si no hay fila marca el evento procesado y el cobro queda huérfano.
  */
 import { buildWompiCheckoutUrl } from '../../../src/lib/wompi-checkout.ts';
 import {
@@ -9,6 +13,7 @@ import {
   type ProductoIva,
 } from '../../../src/lib/cotizacion-iva.ts';
 import type { CotizacionLineaOferta } from '../../../src/lib/cotizacion-oferta.ts';
+import { esReferenciaPedidoUuid } from '../../../src/lib/pedido-referencia.ts';
 
 type ProductosQuery = {
   from: (table: string) => {
@@ -68,7 +73,8 @@ export async function desgloseDeLineas(
 }
 
 export async function enlaceWompiDeCotizacion(input: {
-  numero: string;
+  /** Debe ser pedidos.id (= referencia_pasarela). Nunca el número IME-Q-…. */
+  referencia: string;
   total: number;
   moneda: string;
   email?: string | null;
@@ -79,14 +85,21 @@ export async function enlaceWompiDeCotizacion(input: {
   if (String(input.moneda ?? 'COP').toUpperCase() !== 'COP') {
     return { url: null, error: null };
   }
-  const numero = input.numero.trim();
-  if (!numero) {
-    return { url: null, error: 'La cotización no tiene número para referenciar el pago Wompi.' };
+  const referencia = input.referencia.trim();
+  if (!referencia) {
+    return { url: null, error: 'Falta la referencia del pedido para Wompi.' };
+  }
+  if (!esReferenciaPedidoUuid(referencia)) {
+    return {
+      url: null,
+      error:
+        'La referencia Wompi debe ser el UUID del pedido. No se firma el número de cotización.',
+    };
   }
   const built = await buildWompiCheckoutUrl({
     publicKey: Deno.env.get('WOMPI_PUBLIC_KEY') ?? '',
     integritySecret: Deno.env.get('WOMPI_INTEGRITY_SECRET') ?? '',
-    reference: numero,
+    reference: referencia,
     total: input.total,
     currency: 'COP',
     redirectUrl: input.redirectUrl,
@@ -107,4 +120,17 @@ export function htmlBotonWompi(url: string | null, locale: 'es' | 'en'): string 
     .replace(/>/g, '&gt;');
   const label = locale === 'en' ? 'Pay with Wompi' : 'Pagar con Wompi';
   return `<p><a href="${href}" style="display:inline-block;padding:12px 20px;background:#005e60;color:#fff;text-decoration:none;border-radius:8px">${label}</a></p>`;
+}
+
+/**
+ * CTA Wompi en correo/PDF: apunta a formalizar (crea pedido + firma checkout).
+ * Nunca enlaza checkout.wompi.co con el número de cotización.
+ */
+export function htmlBotonWompiViaFormalizar(
+  formalizarUrl: string | null | undefined,
+  locale: 'es' | 'en'
+): string {
+  const url = String(formalizarUrl ?? '').trim();
+  if (!url.startsWith('https://') && !url.startsWith('http://')) return '';
+  return htmlBotonWompi(url, locale);
 }

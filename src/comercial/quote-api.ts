@@ -473,24 +473,7 @@ async function renderQuotePdfLocal(
       (await ensureNumero(id)) ||
       `IME-Q-${new Date().getFullYear()}-${id.replace(/-/g, '').slice(0, 6).toUpperCase()}`;
     const lineas = sanitizarLineasComercial(snapshot.productos, snapshot.moneda);
-    const pago = await callEdgeFunction<{ wompi_url?: string | null; wompi_error?: string | null }>(
-      'comercial-cotizacion',
-      {
-        method: 'POST',
-        query: { action: 'enlace-pago' },
-        body: {
-          productos: lineas,
-          impuestos_incluidos: snapshot.impuestos_incluidos === true,
-          moneda: snapshot.moneda,
-          numero,
-          email: snapshot.email,
-          nombre: snapshot.nombre,
-          telefono: snapshot.telefono,
-        },
-      }
-    );
-    const wompiUrl = pago.data?.wompi_url ?? null;
-    const wompiError = pago.data?.wompi_error ?? (pago.error ? String(pago.error) : null);
+    // Checkout Wompi se firma solo tras crear pedidos.id en formalizar (iniciar_pago_wompi).
     const [annexes, logoBytes, whatsappIconBytes, fonts] = await Promise.all([
       loadQuoteAnnexes(lineas),
       loadLogoBytes(),
@@ -523,9 +506,9 @@ async function renderQuotePdfLocal(
       condicionPago: snapshot.condicion_pago ?? null,
       bancoLineas: lineasMedioPagoCotizacion(snapshot.cuenta_recaudo, bancoLineasCotizacion()),
       impuestosIncluidos: snapshot.impuestos_incluidos === true,
-      wompiUrl,
+      wompiUrl: null,
     });
-    return ok({ pdf_base64: bytesToBase64(bytes), numero, wompi_error: wompiError });
+    return ok({ pdf_base64: bytesToBase64(bytes), numero, wompi_error: null });
   } catch (err) {
     return fail(
       err instanceof Error ? err.message : 'No se pudo generar el PDF.',

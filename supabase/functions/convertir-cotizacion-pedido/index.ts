@@ -21,6 +21,7 @@ import {
   splitNombreApellido,
   type CotizacionOfertaRow,
 } from '../../../src/lib/cotizacion-oferta.ts';
+import { desgloseDeLineas } from '../_shared/cotizacion-pago.ts';
 
 const ROLES = new Set(['owner', 'admin', 'ventas']);
 
@@ -127,7 +128,17 @@ Deno.serve(async req => {
   const mercado: Mercado = body.mercado === 'INTL' || row.mercado === 'INTL' ? 'INTL' : 'CO';
   const locale = body.locale === 'en' || row.locale === 'en' ? 'en' : 'es';
   const moneda = lineas[0]?.moneda || (mercado === 'CO' ? 'COP' : 'USD');
-  const total = calcularTotalOfertado(lineas);
+  const impuestosIncluidos =
+    (row as { impuestos_incluidos?: unknown }).impuestos_incluidos === true;
+  const desglose = await desgloseDeLineas(supabase, lineas, {
+    impuestosIncluidos,
+    moneda,
+  });
+  // Total a pagar (= desglose con IVA), no la suma neta pre-IVA.
+  const total =
+    desglose.total > 0
+      ? desglose.total
+      : Number(row.precio_total_ofertado) || calcularTotalOfertado(lineas);
 
   const slugs = lineas.map(l => l.slug);
   const { data: productos, error: prodErr } = await supabase

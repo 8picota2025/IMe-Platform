@@ -22,7 +22,11 @@ import {
   isCondicionesSectionHeading,
   resolveCondicionesOferta,
 } from '../../../src/lib/condiciones-oferta.ts';
-import { desgloseCotizacion, etiquetaIvaTotales } from '../../../src/lib/cotizacion-iva.ts';
+import {
+  desgloseCotizacion,
+  etiquetaIvaTotales,
+  roundMoney,
+} from '../../../src/lib/cotizacion-iva.ts';
 
 import { lineasDeResumen } from '../../../src/lib/quote-specs-summary.ts';
 import { quoteAnnexHasSpecContent } from '../../../src/lib/quote-pdf-annex.ts';
@@ -383,9 +387,15 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     impuestosIncluidos,
     moneda: snapshot.moneda,
   });
+  // El total del caller (desgloseDeLineas con catálogo) manda: sin mapa de
+  // productos, "Según catálogo" caería en 19 % y el PDF divergiría del correo.
+  const totalPagar =
+    Number.isFinite(snapshot.total) && snapshot.total > 0 ? roundMoney(snapshot.total) : desglose.total;
   const subtotal = desglose.base;
-  const iva = desglose.iva;
-  const totalPagar = desglose.total;
+  const iva =
+    Number.isFinite(snapshot.total) && snapshot.total > 0 && Math.abs(desglose.total - totalPagar) > 0.009
+      ? roundMoney(Math.max(0, totalPagar - subtotal))
+      : desglose.iva;
   const etiquetaIva = etiquetaIvaTotales(desglose, impuestosIncluidos, locale);
   const fecha = snapshot.fecha?.trim() || todayLabel(locale);
   const tagline =
