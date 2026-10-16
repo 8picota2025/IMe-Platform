@@ -168,9 +168,16 @@ const currentPath = '/es/cotizacion/formalizar';
     padding: 0.75rem 1.25rem;
     background: #005e60;
     color: #fff;
+    font: inherit;
     font-weight: 700;
     text-decoration: none;
+    border: 0;
     border-radius: 8px;
+    cursor: pointer;
+  }
+  .formalizar__pay:disabled {
+    opacity: 0.7;
+    cursor: wait;
   }
   .formalizar__pay:focus-visible {
     outline: 2px solid #005e60;
@@ -230,6 +237,7 @@ const currentPath = '/es/cotizacion/formalizar';
     total: number;
     iva_resumen?: string;
     wompi_url?: string | null;
+    permite_pago_wompi?: boolean;
     permite_factura_electronica?: boolean;
     lineas: Linea[];
   };
@@ -396,10 +404,46 @@ const currentPath = '/es/cotizacion/formalizar';
     `;
     bankEl.textContent = json.transferencia?.texto ?? '';
     const wompiEl = document.querySelector<HTMLElement>('[data-formalizar-wompi]');
-    const wompiUrl = json.wompi_url ?? cotizacion.wompi_url ?? '';
-    if (wompiEl && wompiUrl.startsWith('https://checkout.wompi.co/')) {
+    if (wompiEl && cotizacion.permite_pago_wompi !== false && cotizacion.moneda === 'COP') {
       wompiEl.hidden = false;
-      wompiEl.innerHTML = `<a class="formalizar__pay" href="${escape(wompiUrl)}" rel="noopener noreferrer">Pagar ${money(cotizacion.total, cotizacion.moneda)} con Wompi</a>`;
+      wompiEl.innerHTML = `<button type="button" class="formalizar__pay" data-formalizar-wompi-btn>Pagar ${money(cotizacion.total, cotizacion.moneda)} con Wompi</button>`;
+      const wompiBtn = wompiEl.querySelector<HTMLButtonElement>('[data-formalizar-wompi-btn]');
+      wompiBtn?.addEventListener('click', async () => {
+        wompiBtn.disabled = true;
+        wompiBtn.textContent = 'Preparando pago…';
+        try {
+          const { data: pagoData, error: pagoError } = await supabase.functions.invoke(
+            'formalizar-cotizacion',
+            {
+              body: {
+                action: 'iniciar_pago_wompi',
+                cotizacion_id: id,
+                token,
+                consentimiento_datos: true,
+              },
+            }
+          );
+          if (pagoError) {
+            throw new Error(
+              await messageFromInvokeError(pagoError, 'No se pudo iniciar el pago Wompi.')
+            );
+          }
+          const pagoJson = pagoData as {
+            ok?: boolean;
+            wompi_url?: string;
+            error?: { message?: string };
+          };
+          const checkout = pagoJson?.wompi_url ?? '';
+          if (!pagoJson?.ok || !checkout.startsWith('https://checkout.wompi.co/')) {
+            throw new Error(pagoJson?.error?.message || 'Wompi no disponible.');
+          }
+          location.assign(checkout);
+        } catch (err) {
+          wompiBtn.disabled = false;
+          wompiBtn.textContent = `Pagar ${money(cotizacion.total, cotizacion.moneda)} con Wompi`;
+          showError(err instanceof Error ? err.message : 'No se pudo iniciar el pago Wompi.');
+        }
+      });
     }
     form.hidden = false;
     if (fiscalBox && cotizacion.permite_factura_electronica) {

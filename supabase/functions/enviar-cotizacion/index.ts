@@ -29,11 +29,7 @@ import { perfilComercialActivo, perfilPorUsuario } from '../_shared/asesor.ts';
 import { resolverAsesor } from '../../../src/lib/cotizacion-asesor.ts';
 import { validarEnvioCotizacion } from '../../../src/lib/cotizacion-envio.ts';
 import { resumenIvaTexto } from '../../../src/lib/cotizacion-iva.ts';
-import {
-  desgloseDeLineas,
-  enlaceWompiDeCotizacion,
-  htmlBotonWompi,
-} from '../_shared/cotizacion-pago.ts';
+import { desgloseDeLineas, htmlBotonWompiViaFormalizar } from '../_shared/cotizacion-pago.ts';
 import { normalizeVisitorPhone } from '../../../src/lib/visitor-phone.ts';
 import { renderQuotePdf } from '../_shared/render-quote-pdf.ts';
 import {
@@ -383,16 +379,6 @@ Deno.serve(async req => {
     moneda: oferta.moneda,
   });
   const totalPagar = desglose.total;
-  const pagoDeNumero = (numeroPdf: string, redirectUrl: string) =>
-    enlaceWompiDeCotizacion({
-      numero: numeroPdf,
-      total: totalPagar,
-      moneda: oferta.moneda,
-      email: row.email,
-      nombre: row.nombre,
-      telefono: row.telefono,
-      redirectUrl,
-    });
   const email = validado.email;
   const telefonoCliente = String(row.telefono ?? '').trim();
 
@@ -492,13 +478,11 @@ Deno.serve(async req => {
     }
     let pdfPreviewUrl: string | null = null;
     let pdfPreviewError: string | null = null;
-    let pagoPrev: { url: string | null; error: string | null } = { url: null, error: null };
+    // Preview: no firmar checkout Wompi (requiere pedidos.id). El PDF de envío real
+    // enlaza a formalizar, donde iniciar_pago_wompi crea el pedido.
+    const pagoPrev: { url: string | null; error: string | null } = { url: null, error: null };
     try {
-      pagoPrev = await pagoDeNumero(
-        numeroPrev,
-        `${siteUrl}${locale === 'en' ? '/en/payment/result' : '/es/pago/resultado'}?ref=${encodeURIComponent(numeroPrev)}`
-      );
-      const bytes = await renderPdf(numeroPrev, pagoPrev.url);
+      const bytes = await renderPdf(numeroPrev, null);
       const previewPath = `${id}/preview.pdf`;
       const { error: upErr } = await supabase.storage
         .from('cotizaciones-pdf')
@@ -673,12 +657,14 @@ Deno.serve(async req => {
     return errorResponse({ code: 'ADJUNTOS_INVALIDOS', message: adjuntos.error }, 422, origin);
   }
 
-  const pago = await pagoDeNumero(numero, formalizarUrl);
-  meta.wompi_checkout_url = pago.url;
-  meta.wompi_error = pago.error;
+  // CTA Wompi → formalizar (crea pedidos.id y firma checkout). Nunca IME-Q-… como reference.
+  const wompiCtaUrl =
+    oferta.moneda.toUpperCase() === 'COP' ? formalizarUrl : null;
+  meta.wompi_checkout_url = null;
+  meta.wompi_formalizar_url = wompiCtaUrl;
   let pdfBytes: Awaited<ReturnType<typeof renderPdf>>;
   try {
-    pdfBytes = await renderPdf(numero, pago.url);
+    pdfBytes = await renderPdf(numero, wompiCtaUrl);
   } catch (err) {
     const detalle = err instanceof Error ? err.message : 'PDF_RENDER_FAILED';
     await releaseClaim(detalle);
@@ -781,7 +767,7 @@ Deno.serve(async req => {
       referencia: escapeHtml(numero),
       total: escapeHtml(String(totalPagar)),
       iva_resumen: escapeHtml(resumenIvaTexto(desglose, locale)),
-      pago_wompi_html: htmlBotonWompi(pago.url, locale),
+      pago_wompi_html: htmlBotonWompiViaFormalizar(wompiCtaUrl, locale),
       moneda: escapeHtml(oferta.moneda),
       validez: validezLabel,
       items_html: itemsToHtml(oferta.lineas, locale),
@@ -911,8 +897,8 @@ Deno.serve(async req => {
       total: totalPagar,
       base: desglose.base,
       iva: desglose.iva,
-      wompi_url: pago.url,
-      wompi_error: pago.error,
+      wompi_url: wompiCtaUrl,
+      wompi_error: null,
       moneda: oferta.moneda,
       pdf_revision: pdfRevision,
       pdf_storage_path: storedPdfPath,

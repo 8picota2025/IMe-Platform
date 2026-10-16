@@ -23,6 +23,11 @@ import {
 } from '../_shared/post-pago.ts';
 import { withTelemetry, trackEvent } from '../_shared/telemetry.ts';
 import { claimPaidTransition, type PaymentStateClient } from '../../../src/lib/payment-state.ts';
+import { pareceNumeroCotizacion } from '../../../src/lib/pedido-referencia.ts';
+import {
+  buscarCotizacionPorNumero,
+  crearOReusarPedidoWompiDesdeCotizacion,
+} from '../_shared/cotizacion-pedido-wompi.ts';
 
 const FN_NAME = 'webhook-wompi';
 
@@ -90,7 +95,7 @@ Deno.serve(
     }
 
     // ── Buscar pedido ──────────────────────────────────────────
-    const { data: pedido, error: pedidoError } = await supabase
+    let { data: pedido, error: pedidoError } = await supabase
       .from('pedidos')
       .select('id, estado, items, metadata')
       .eq('referencia_pasarela', evento.referencia_pasarela)
@@ -99,13 +104,42 @@ Deno.serve(
     if (pedidoError)
       return internalError(`error consultando pedido: ${pedidoError.message}`, origin);
 
-    if (!pedido) {
-      await supabase
-        .from('eventos_pago')
-        .update({ procesado: true })
-        .eq('proveedor_pago', 'wompi')
-        .eq('event_id', evento.event_id);
+    // Recuperación: PR #203 firmó checkout con el número de cotización (IME-Q-…)
+    // en lugar de pedidos.id. Si el cobro llegó sin pedido, materializamos uno
+    // con esa misma referencia_pasarela para no dejar el pago huérfano.
+    if (!pedido && pareceNumeroCotizacion(evento.referencia_pasarela)) {
+      const cotizacion = await buscarCotizacionPorNumero(supabase, evento.referencia_pasarela);
+      if (cotizacion) {
+        const creado = await crearOReusarPedidoWompiDesdeCotizacion(supabase, cotizacion, {
+          referenciaPasarelaOverride: evento.referencia_pasarela,
+        });
+        if (creado.ok) {
+          const reloaded = await supabase
+            .from('pedidos')
+            .select('id, estado, items, metadata')
+            .eq('id', creado.pedidoId)
+            .maybeSingle();
+          pedido = reloaded.data;
+          pedidoError = reloaded.error;
+          if (pedidoError) {
+            return internalError(`error recargando pedido: ${pedidoError.message}`, origin);
+          }
+        } else {
+          void trackEvent(
+            FN_NAME,
+            'webhook_cotizacion_sin_pedido',
+            {
+              referencia: evento.referencia_pasarela,
+              code: creado.code,
+            },
+            { nivel: 'warn' }
+          );
+        }
+      }
+    }
 
+    if (!pedido) {
+      // No marcar procesado: permite reintento tras crear el pedido (ops / fix).
       return new Response(JSON.stringify({ ok: true, pedido: 'no encontrado' }), {
         status: 200,
         headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },

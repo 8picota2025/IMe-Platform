@@ -1,7 +1,8 @@
 /**
- * Formalizar cotización por transferencia bancaria manual.
+ * Formalizar cotización por transferencia bancaria manual o Wompi.
  * Actions:
- *  - preview (default): resumen + datos bancarios
+ *  - preview (default): resumen + datos bancarios (sin checkout firmado)
+ *  - iniciar_pago_wompi: crea pedido pendiente + URL Wompi firmada con pedidos.id
  *  - registrar_transferencia: crea pedido pendiente_validacion + sube comprobante
  */
 
@@ -36,6 +37,7 @@ import {
   tasaDeTratamiento,
 } from '../../../src/lib/cotizacion-iva.ts';
 import { desgloseDeLineas, enlaceWompiDeCotizacion } from '../_shared/cotizacion-pago.ts';
+import { crearOReusarPedidoWompiDesdeCotizacion } from '../_shared/cotizacion-pedido-wompi.ts';
 import {
   buildDianInvoiceDraft,
   baseNetaDesdePrecioConIva,
@@ -47,7 +49,7 @@ import {
 import { pushClienteToTwenty } from '../_shared/twenty-commerce-sync.ts';
 
 interface Body {
-  action?: 'preview' | 'registrar_transferencia';
+  action?: 'preview' | 'registrar_transferencia' | 'iniciar_pago_wompi';
   cotizacion_id?: string;
   token?: string;
   referencia_transferencia?: string;
@@ -82,7 +84,8 @@ async function loadCotizacionValidada(
   supabase: ReturnType<typeof getServerSupabase>,
   id: string,
   token: string,
-  origin: string | null
+  origin: string | null,
+  opts?: { permitirWompiPendiente?: boolean }
 ): Promise<{ ok: true; row: CotizacionOfertaRow } | { ok: false; response: Response }> {
   const { data, error } = await supabase
     .from('solicitudes_cotizacion')
@@ -93,17 +96,37 @@ async function loadCotizacionValidada(
   if (!data) return { ok: false, response: notFound(origin) };
 
   const row = data as CotizacionOfertaRow;
-  if (row.pedido_id || row.estado === 'convertida') {
-    return {
-      ok: false,
-      response: errorResponse(
-        { code: 'COTIZACION_YA_CONVERTIDA', message: 'Esta cotizacion ya fue formalizada' },
-        409,
-        origin
-      ),
-    };
-  }
-  if (row.estado !== 'enviada' && row.estado !== 'respondida') {
+  const yaConvertida = Boolean(row.pedido_id) || row.estado === 'convertida';
+  if (yaConvertida) {
+    if (opts?.permitirWompiPendiente && row.pedido_id) {
+      const { data: pedidoPendiente } = await supabase
+        .from('pedidos')
+        .select('id, estado, proveedor_pago')
+        .eq('id', row.pedido_id)
+        .eq('proveedor_pago', 'wompi')
+        .eq('estado', 'pendiente')
+        .maybeSingle();
+      if (!pedidoPendiente) {
+        return {
+          ok: false,
+          response: errorResponse(
+            { code: 'COTIZACION_YA_CONVERTIDA', message: 'Esta cotizacion ya fue formalizada' },
+            409,
+            origin
+          ),
+        };
+      }
+    } else {
+      return {
+        ok: false,
+        response: errorResponse(
+          { code: 'COTIZACION_YA_CONVERTIDA', message: 'Esta cotizacion ya fue formalizada' },
+          409,
+          origin
+        ),
+      };
+    }
+  } else if (row.estado !== 'enviada' && row.estado !== 'respondida') {
     return {
       ok: false,
       response: errorResponse(
@@ -199,23 +222,33 @@ Deno.serve(async req => {
   const body = (await req.json().catch(() => ({}))) as Body;
   const id = (body.cotizacion_id ?? '').trim();
   const token = (body.token ?? '').trim();
-  const action = body.action === 'registrar_transferencia' ? 'registrar_transferencia' : 'preview';
+  const action =
+    body.action === 'registrar_transferencia'
+      ? 'registrar_transferencia'
+      : body.action === 'iniciar_pago_wompi'
+        ? 'iniciar_pago_wompi'
+        : 'preview';
   if (!id || !token) return badRequest('cotizacion_id y token requeridos', origin);
 
   const supabase = getServerSupabase();
   const ip = obtenerIp(req);
-  const rateAction = action === 'registrar_transferencia' ? 'crear-pago' : 'formalizar-preview';
+  const rateAction =
+    action === 'registrar_transferencia' || action === 'iniciar_pago_wompi'
+      ? 'crear-pago'
+      : 'formalizar-preview';
   const rateKey =
     action === 'registrar_transferencia'
       ? `formalizar:submit:ip:${ip}`
-      : `formalizar:preview:ip:${ip}`;
+      : action === 'iniciar_pago_wompi'
+        ? `formalizar:wompi:ip:${ip}`
+        : `formalizar:preview:ip:${ip}`;
   const limite = await checkRateLimit(supabase, rateKey, rateAction);
   if (limite.limited) {
     return errorResponse(
       {
         code: 'RATE_LIMITED',
         message:
-          action === 'registrar_transferencia'
+          action === 'registrar_transferencia' || action === 'iniciar_pago_wompi'
             ? 'Demasiados intentos de registro. Espera unos minutos e intenta de nuevo.'
             : 'Demasiadas consultas del enlace. Espera unos minutos e intenta de nuevo.',
       },
@@ -224,7 +257,9 @@ Deno.serve(async req => {
     );
   }
 
-  const loaded = await loadCotizacionValidada(supabase, id, token, origin);
+  const loaded = await loadCotizacionValidada(supabase, id, token, origin, {
+    permitirWompiPendiente: action === 'iniciar_pago_wompi',
+  });
   if (!loaded.ok) return loaded.response;
   const row = loaded.row;
   const lineas = parseLineasOferta(row.productos);
@@ -240,20 +275,7 @@ Deno.serve(async req => {
       ? desglose.total
       : Number(row.precio_total_ofertado) || calcularTotalOfertado(lineas);
   const locale = row.locale === 'en' ? 'en' : 'es';
-  const numero = String(row.numero ?? '').trim();
   const siteUrl = (Deno.env.get('SITE_URL') ?? 'https://i-me.com.co').replace(/\/+$/, '');
-  const pago =
-    numero && moneda.toUpperCase() === 'COP'
-      ? await enlaceWompiDeCotizacion({
-          numero,
-          total,
-          moneda,
-          email: row.email,
-          nombre: row.nombre,
-          telefono: (row as { telefono?: string | null }).telefono ?? null,
-          redirectUrl: `${siteUrl}${locale === 'en' ? '/en/quote/formalize' : '/es/cotizacion/formalizar'}?id=${encodeURIComponent(id)}&t=${encodeURIComponent(token)}`,
-        })
-      : { url: null, error: null };
   const cuentaId = (row as { cuenta_recaudo?: string | null }).cuenta_recaudo;
   const cuentaElegida = esCuentaRecaudoDefault(cuentaId) ? null : cuentaRecaudoPorId(cuentaId);
   const bancarios = cuentaElegida
@@ -293,7 +315,9 @@ Deno.serve(async req => {
           iva: desglose.iva,
           iva_resumen: resumenIvaTexto(desglose, locale),
           impuestos_incluidos: impuestosIncluidos,
-          wompi_url: pago.url,
+          // Checkout se firma solo tras crear pedidos.id (iniciar_pago_wompi).
+          wompi_url: null,
+          permite_pago_wompi: moneda.toUpperCase() === 'COP',
           permite_factura_electronica: row.mercado !== 'INTL' && moneda.toUpperCase() === 'COP',
           lineas: lineas.map(l => ({
             slug: l.slug,
@@ -308,6 +332,58 @@ Deno.serve(async req => {
           ...bancarios,
           texto: textoBancario,
         },
+      }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
+      }
+    );
+  }
+
+  if (action === 'iniciar_pago_wompi') {
+    if (body.consentimiento_datos !== true) {
+      return badRequest('consentimiento_datos requerido', origin);
+    }
+    const creado = await crearOReusarPedidoWompiDesdeCotizacion(supabase, row);
+    if (!creado.ok) {
+      return errorResponse(
+        { code: creado.code, message: creado.message },
+        creado.code === 'COTIZACION_YA_CONVERTIDA' ? 409 : 422,
+        origin
+      );
+    }
+    const redirectUrl = `${siteUrl}${locale === 'en' ? '/en/payment/result' : '/es/pago/resultado'}?ref=${encodeURIComponent(creado.pedidoId)}`;
+    const pago = await enlaceWompiDeCotizacion({
+      referencia: creado.pedidoId,
+      total: creado.total,
+      moneda: creado.moneda,
+      email: row.email,
+      nombre: row.nombre,
+      telefono: (row as { telefono?: string | null }).telefono ?? null,
+      redirectUrl,
+    });
+    if (!pago.url) {
+      return errorResponse(
+        {
+          code: 'WOMPI_NO_DISPONIBLE',
+          message: pago.error || 'No se pudo generar el enlace Wompi',
+        },
+        503,
+        origin
+      );
+    }
+    await supabase
+      .from('pedidos')
+      .update({ checkout_url: pago.url })
+      .eq('id', creado.pedidoId)
+      .eq('estado', 'pendiente');
+    return new Response(
+      JSON.stringify({
+        ok: true,
+        pedido_id: creado.pedidoId,
+        total: creado.total,
+        moneda: creado.moneda,
+        wompi_url: pago.url,
       }),
       {
         status: 200,
