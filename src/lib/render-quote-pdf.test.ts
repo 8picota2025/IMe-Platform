@@ -51,13 +51,13 @@ it.each(['es', 'en'] as const)(
       const page = text.mock.instances[idx];
       const y = text.mock.calls[idx]![1]!.y!;
       const borders = lines.mock.calls.flatMap(([opts], i) =>
-        lines.mock.instances[i] === page && opts?.start.x === 27 && opts.end.x === 568
+        lines.mock.instances[i] === page && opts?.start.x === 40 && opts.end.x === 555.5
           ? [opts.start.y]
           : []
       );
       expect(borders.some(border => border > y)).toBe(true);
       expect(borders.some(border => border < y)).toBe(true);
-      for (const x of [27, 108, 208, 372, 462, 568]) {
+      for (const x of [40, 92, 200, 391.5, 473.5, 555.5]) {
         expect(
           lines.mock.calls.some(
             ([opts], i) =>
@@ -393,14 +393,20 @@ it('prints a dash in the client block when the contact is empty or belongs to I-
   expect(drawn).toContain('Web: i-me.com.co');
   const baselines = text.mock.calls.map((call, index) => ({
     text: String(call[0]),
+    x: call[1]?.x,
     y: call[1]?.y,
     page: text.mock.instances[index],
   }));
   const totalPagar = baselines.find(item => item.text === 'TOTAL A PAGAR');
+  const totalDue = baselines.find(
+    item => item.page === totalPagar?.page && item.text === 'TOTAL DUE'
+  );
   const importe = baselines.find(
     item => item.page === totalPagar?.page && item.text.startsWith('USD ')
   );
-  expect(importe?.y).toBe(totalPagar?.y);
+  expect(totalPagar?.text).toBe('TOTAL A PAGAR');
+  expect(totalDue?.text).toBe('TOTAL DUE');
+  expect(Number(importe?.x)).toBeGreaterThan(Number(totalPagar?.x) + 40);
   expect(drawn).toContain('PRECIO UNIT');
   expect(drawn).toContain('UNIT PRICE');
   expect(drawn).toContain('0550108900697583');
@@ -523,4 +529,36 @@ it('does not leave a single table row alone on the next page', async () => {
     .filter(conteo => conteo > 0);
   expect(conteos.some(conteo => conteo === 1)).toBe(false);
   expect(conteos.reduce((a, b) => a + b, 0)).toBe(lineas.length);
+});
+
+it('aligns the table header and the footer to the same content width', async () => {
+  const rects = vi.spyOn(PDFPage.prototype, 'drawRectangle');
+  await renderQuotePdf({
+    numero: 'MARCO',
+    clienteNombre: 'Clinica',
+    condiciones: 'Entrega:\n30 dias.',
+    moneda: 'COP',
+    total: 10,
+    lineas: [
+      {
+        slug: '',
+        nombre: 'Sistema de integración de quirófano (por sala)',
+        nombre_en: 'OR Integration System (per room)',
+        cantidad: 1,
+        precio_unitario: 10,
+        subtotal: 10,
+        moneda: 'COP',
+      },
+    ],
+    locale: 'es',
+    idioma: 'es-en',
+  });
+  const bands = rects.mock.calls
+    .map(([opts]) => opts)
+    .filter(opts => (opts?.width ?? 0) > 480 && (opts?.width ?? 0) < 540);
+  expect(bands.length).toBeGreaterThan(1);
+  for (const band of bands) {
+    expect(band?.x).toBe(40);
+    expect(band?.width).toBe(515.5);
+  }
 });

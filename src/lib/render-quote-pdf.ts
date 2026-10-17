@@ -4,6 +4,7 @@
  *  anexo con foto + características + descripción).
  */
 import {
+  LineCapStyle,
   PDFDocument,
   PDFName,
   PDFString,
@@ -90,6 +91,10 @@ export interface QuotePdfSnapshot {
 /** Página A4 del boceto IPS. */
 const PAGE_W = 595.5;
 const PAGE_H = 842.25;
+/** Un solo margen para título, tabla, totales y pie. */
+const MARGIN = 40;
+const CONTENT_LEFT = MARGIN;
+const CONTENT_RIGHT = PAGE_W - MARGIN;
 const MAX_BYTES = 8 * 1024 * 1024;
 
 /** Azules del boceto IPS (header/footer bars). */
@@ -424,89 +429,98 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
   let page = doc.addPage([PAGE_W, PAGE_H]);
   page.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: WHITE });
 
-  // Logo web (navbar: logo-ime-site → logo-ime-pdf.png). Boceto ~x40.
+  // Logo a la izquierda, dentro del margen. Altura contenida para no chocar con el cliente.
+  let logoBottom = 18;
   if (logo) {
-    const maxW = 150;
-    const maxH = 74;
+    const maxW = 142;
+    const maxH = 48;
     const scale = Math.min(maxW / logo.width, maxH / logo.height);
     const w = logo.width * scale;
     const h = logo.height * scale;
     page.drawImage(logo, {
-      x: 40,
+      x: CONTENT_LEFT,
       y: topY(18 + h),
       width: w,
       height: h,
     });
+    logoBottom = 18 + h;
   }
 
-  // Título COTIZACIÓN — boceto derecha; evitar overflow
+  // Título a la derecha, alineado al margen. No sale de la página.
+  const titleRight = CONTENT_RIGHT;
   if (idioma === 'es-en') {
     drawRight(page, 'COTIZACIÓN', {
-      right: 555,
-      top: 46,
-      size: 16,
-      font: bold,
-      color: GRAY_TITLE,
-      maxWidth: 210,
-    });
-    drawRight(page, 'QUOTATION', {
-      right: 555,
-      top: 64,
-      size: 12,
-      font: bold,
-      color: GRAY_TITLE,
-      maxWidth: 210,
-    });
-  } else {
-    drawText(page, idioma === 'en' ? 'QUOTATION' : 'COTIZACIÓN', {
-      x: 348.6,
-      top: 57.8,
-      size: 26,
+      right: titleRight,
+      top: 20,
+      size: 15,
       font: bold,
       color: GRAY_TITLE,
       maxWidth: 200,
     });
-  }
-
-  // Tagline bajo el logo
-  drawText(page, `"${idioma === 'en' ? taglineEn : taglineEs}"`, {
-    x: 40,
-    top: 94,
-    size: 9,
-    font,
-    color: MUTED,
-    maxWidth: 280,
-  });
-  if (idioma === 'es-en') {
-    drawText(page, `"${taglineEn}"`, {
-      x: 40,
-      top: 106,
-      size: 8,
-      font,
-      color: MUTED,
-      maxWidth: 280,
+    drawRight(page, 'QUOTATION', {
+      right: titleRight,
+      top: 38,
+      size: 11,
+      font: bold,
+      color: GRAY_TITLE,
+      maxWidth: 200,
+    });
+  } else {
+    drawRight(page, idioma === 'en' ? 'QUOTATION' : 'COTIZACIÓN', {
+      right: titleRight,
+      top: 24,
+      size: 22,
+      font: bold,
+      color: GRAY_TITLE,
+      maxWidth: 230,
     });
   }
 
-  // N° / Fecha (derecha, número corto estilo boceto)
   const numeroVisible = displayQuoteNumero(snapshot.numero);
   drawRight(page, `${et('N°', 'No.')}: ${numeroVisible}`, {
-    right: 536,
-    top: 97,
-    size: 12,
+    right: titleRight,
+    top: 58,
+    size: 11,
     font,
-    maxWidth: 160,
+    maxWidth: 180,
   });
   drawRight(page, `${et('Fecha', 'Date')}: ${fecha}`, {
-    right: 536,
-    top: 115,
-    size: 12,
+    right: titleRight,
+    top: 72,
+    size: 11,
     font,
-    maxWidth: 160,
+    maxWidth: 180,
   });
 
+  // Tagline bajo el logo, con aire antes del bloque del cliente.
+  const taglineTop = logoBottom + 10;
+  const taglineW = 300;
+  drawText(page, `"${idioma === 'en' ? taglineEn : taglineEs}"`, {
+    x: CONTENT_LEFT,
+    top: taglineTop,
+    size: 8,
+    font,
+    color: MUTED,
+    maxWidth: taglineW,
+  });
+  let taglineBottom = taglineTop + 12;
+  if (idioma === 'es-en') {
+    drawText(page, `"${taglineEn}"`, {
+      x: CONTENT_LEFT,
+      top: taglineTop + 12,
+      size: 8,
+      font,
+      color: MUTED,
+      maxWidth: taglineW,
+    });
+    taglineBottom = taglineTop + 24;
+  }
+
   // CLIENTE — solo datos del cliente. Vacío o dato de I-ME se imprime como «—».
-  const leftColW = 310;
+  const bloqueTop = Math.max(taglineBottom + 18, 108);
+  const pagoW = 176;
+  const pagoX = CONTENT_RIGHT - pagoW;
+  const leftColW = pagoX - CONTENT_LEFT - 18;
   const clienteCampos: Array<[string, string]> = [
     [et('Razón social', 'Company'), textoCliente(snapshot.empresa, 'razon')],
     [et('NIT', 'Tax ID'), textoCliente(snapshot.nitCliente, 'nit')],
@@ -518,40 +532,56 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     [et('País', 'Country'), textoCliente(snapshot.paisCliente, 'texto')],
   ];
   drawText(page, et('CLIENTE', 'CLIENT'), {
-    x: 58.3,
-    top: 142.8,
+    x: CONTENT_LEFT,
+    top: bloqueTop,
     size: 11,
     font: bold,
     color: BLUE,
   });
-  let ry = 156;
+  let ry = bloqueTop + 16;
   for (const [etiqueta, valor] of clienteCampos) {
     const lineasCampo = wrapByWidth(`${etiqueta}: ${valor}`, font, 9, leftColW).slice(0, 2);
     for (const linea of lineasCampo) {
-      drawText(page, linea, { x: 59.5, top: ry, size: 9, font, maxWidth: leftColW });
+      drawText(page, linea, { x: CONTENT_LEFT, top: ry, size: 9, font, maxWidth: leftColW });
       ry += 12;
     }
   }
 
   // Condición / medio de pago (derecha). Los títulos bilingües bajan de línea, no se cortan.
-  const pagoX = 385;
-  const pagoW = 175;
-  const drawPagoTitulo = (texto: string, top: number): number => {
-    const lineas = (
-      texto.includes(' / ') ? texto.split(' / ') : wrapByWidth(texto, bold, 9, pagoW)
-    ).slice(0, 2);
-    lineas.forEach((linea, index) => {
-      drawText(page, linea, {
-        x: pagoX,
-        top: top + index * 11,
-        size: 9,
-        font: bold,
-        color: BLUE,
+  const drawPagoTitulo = (castellano: string, ingles: string, top: number): number => {
+    if (idioma !== 'es-en') {
+      const texto = idioma === 'en' ? ingles : castellano;
+      const lineas = wrapByWidth(texto, bold, 9, pagoW).slice(0, 2);
+      lineas.forEach((linea, index) => {
+        drawText(page, linea, {
+          x: pagoX,
+          top: top + index * 11,
+          size: 9,
+          font: bold,
+          color: BLUE,
+        });
       });
+      return top + Math.max(1, lineas.length) * 11;
+    }
+    drawText(page, castellano, {
+      x: pagoX,
+      top,
+      size: 9,
+      font: bold,
+      color: BLUE,
+      maxWidth: pagoW,
     });
-    return top + Math.max(1, lineas.length) * 11;
+    drawText(page, ingles, {
+      x: pagoX,
+      top: top + 11,
+      size: 7,
+      font,
+      color: BLUE,
+      maxWidth: pagoW,
+    });
+    return top + 21;
   };
-  let pagoY = drawPagoTitulo(et('CONDICIÓN DE PAGO', 'PAYMENT TERMS'), 150);
+  let pagoY = drawPagoTitulo('CONDICIÓN DE PAGO', 'PAYMENT TERMS', bloqueTop);
   const condicionEs = snapshot.condicionPago?.trim() || '';
   const condicionEn = snapshot.condicionPagoEn?.trim() || '';
   // El texto libre del usuario no se traduce. «Contado / Prepaid» solo si no escribió condición.
@@ -566,7 +596,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
   const condicionLines = condicion
     .split('\n')
     .flatMap(linea => wrapByWidth(linea, font, 9, pagoW))
-    .slice(0, 4);
+    .slice(0, 8);
   condicionLines.forEach((line, index) => {
     drawText(page, line, {
       x: pagoX,
@@ -576,7 +606,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     });
   });
   pagoY = pagoY + 2 + condicionLines.length * 11 + 6;
-  const medioTop = drawPagoTitulo(et('MEDIO DE PAGO', 'PAYMENT METHOD'), pagoY);
+  const medioTop = drawPagoTitulo('MEDIO DE PAGO', 'PAYMENT METHOD', pagoY);
   const bancoVisible = banco.map(linea =>
     linea.trim() === 'Transferencia bancaria:'
       ? et('Transferencia bancaria:', 'Bank transfer:')
@@ -590,28 +620,28 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     .slice(0, 8);
   let py = medioTop + 2;
   for (const line of bancoLines) {
-    drawText(page, line, { x: 385, top: py, size: 9, font, maxWidth: 175 });
+    drawText(page, line, { x: pagoX, top: py, size: 9, font, maxWidth: pagoW });
     py += 12;
   }
   const wompiUrl = snapshot.wompiUrl?.trim() ?? '';
   if (wompiUrl.startsWith('https://') && snapshot.moneda === 'COP') {
     const wompiLabel = et('Pagar con Wompi', 'Pay with Wompi');
     drawText(page, wompiLabel, {
-      x: 385,
+      x: pagoX,
       top: py,
       size: 10,
       font: bold,
       color: BLUE,
-      maxWidth: 175,
+      maxWidth: pagoW,
     });
-    anotarEnlace(page, wompiLabel, wompiUrl, { x: 385, top: py, size: 10, font: bold });
+    anotarEnlace(page, wompiLabel, wompiUrl, { x: pagoX, top: py, size: 10, font: bold });
     py += 14;
   }
 
   // Emisor: razón social, NIT, teléfono, correo y web de I-ME. Nunca en el bloque del cliente.
   const companyTop = ry + 10;
   drawText(page, et('EMISOR', 'ISSUER'), {
-    x: 59.5,
+    x: CONTENT_LEFT,
     top: companyTop,
     size: 10,
     font: bold,
@@ -629,7 +659,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
   let companyBottom = companyTop + 14;
   emisorLineas.forEach((linea, index) => {
     drawText(page, linea, {
-      x: 59.5,
+      x: CONTENT_LEFT,
       top: companyTop + 14 + index * 12,
       size: 9,
       font: index === 0 ? bold : font,
@@ -640,7 +670,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
   });
   if (snapshot.nombreComercial) {
     drawText(page, `${et('Asesor', 'Advisor')}: ${snapshot.nombreComercial}`, {
-      x: 59.5,
+      x: CONTENT_LEFT,
       top: companyBottom,
       size: 9,
       font,
@@ -655,18 +685,28 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
   // contenido (descripción + resumen de especificaciones); si una fila no cabe, la tabla
   // continúa en una página nueva repitiendo la cabecera. El recuadro de totales y las notas
   // se dibujan justo después de la última fila (en página nueva solo si no caben).
-  const tableLeft = 27;
-  const tableRight = 568;
-  const firstTableTop = Math.max(companyBottom + 16, py + 10, 270);
-  const contTableTop = 60;
-  const headerH = idioma === 'es-en' ? 46 : 36;
-  // CANT más ancha: "50,000" / "50.000" (Poppins 11) no cabe en 26 px.
-  const colXs = [tableLeft, 108, 208, 372, 462, tableRight];
+  const tableLeft = CONTENT_LEFT;
+  const tableRight = CONTENT_RIGHT;
+  const firstTableTop = Math.max(companyBottom + 18, py + 16);
+  const contTableTop = 54;
+  const headerH = idioma === 'es-en' ? 40 : 32;
+  // CANT estrecha (cabe "50.000"), REF con ancho para partir el nombre, precios iguales.
+  const qtyW = 52;
+  const refW = 108;
+  const moneyW = 82;
+  const colXs = [
+    tableLeft,
+    tableLeft + qtyW,
+    tableLeft + qtyW + refW,
+    tableRight - moneyW * 2,
+    tableRight - moneyW,
+    tableRight,
+  ];
   const unitRight = colXs[4]! - 8;
   const totalRight = tableRight - 8;
-  const descMaxW = colXs[3]! - colXs[2]! - 10;
-  const refMaxW = colXs[2]! - colXs[1]! - 8;
-  const footerGuard = 780;
+  const descMaxW = colXs[3]! - colXs[2]! - 16;
+  const refMaxW = colXs[2]! - colXs[1]! - 16;
+  const footerGuard = 788;
   const rowMinH = 40;
   const descLineH = 13;
   const resumenLineH = 10;
@@ -686,23 +726,24 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
       height: headerH,
       color: BLUE,
     });
+    const colPad = 8;
     const headerLabels: Array<[number, string, string]> =
       idioma === 'en'
         ? [
-            [36, 'QTY', ''],
-            [116, 'REF', ''],
-            [219, 'DESCRIPTION', ''],
+            [colXs[0]! + colPad, 'QTY', ''],
+            [colXs[1]! + colPad, 'REF', ''],
+            [colXs[2]! + colPad, 'DESCRIPTION', ''],
           ]
         : idioma === 'es-en'
           ? [
-              [36, 'CANT', 'QTY'],
-              [116, 'REF', 'REF'],
-              [219, 'DESCRIPCIÓN', 'DESCRIPTION'],
+              [colXs[0]! + colPad, 'CANT', 'QTY'],
+              [colXs[1]! + colPad, 'REF', ''],
+              [colXs[2]! + colPad, 'DESCRIPCIÓN', 'DESCRIPTION'],
             ]
           : [
-              [36, 'CANT', ''],
-              [116, 'REF', ''],
-              [219, 'DESCRIPCIÓN', ''],
+              [colXs[0]! + colPad, 'CANT', ''],
+              [colXs[1]! + colPad, 'REF', ''],
+              [colXs[2]! + colPad, 'DESCRIPCIÓN', ''],
             ];
     for (const [x, label, secundario] of headerLabels) {
       drawText(p, label, {
@@ -722,55 +763,72 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
         });
       }
     }
+    const priceHeadW = moneyW - 16;
     drawRight(p, idioma === 'en' ? 'UNIT' : 'PRECIO UNIT', {
       right: unitRight,
-      top: top + (idioma === 'es-en' ? 8 : 12),
+      top: top + (idioma === 'es-en' ? 7 : 10),
       size: idioma === 'es-en' ? 8 : 10,
       font: bold,
       color: WHITE,
-      maxWidth: 78,
+      maxWidth: priceHeadW,
     });
     if (idioma === 'es-en') {
       drawRight(p, 'UNIT PRICE', {
         right: unitRight,
-        top: top + 20,
+        top: top + 18,
         size: 7,
         font,
         color: WHITE,
-        maxWidth: 78,
+        maxWidth: priceHeadW,
       });
     }
     drawRight(p, 'TOTAL', {
       right: totalRight,
-      top: top + (idioma === 'es-en' ? 8 : 12),
-      size: 11,
+      top: top + (idioma === 'es-en' ? 7 : 10),
+      size: 10,
       font: bold,
       color: WHITE,
-      maxWidth: 70,
+      maxWidth: priceHeadW,
     });
   };
 
-  /** Rejilla de un tramo de tabla: verticales + una horizontal por cada límite de fila. */
+  /**
+   * Un solo sistema de bordes: mismo grosor, mismo color, esquinas rectas.
+   * El marco exterior incluye la cabecera. Las líneas de columna siguen dentro
+   * del azul para que la cabecera y el cuerpo midan exactamente lo mismo.
+   */
   const drawGrid = (p: PDFPage, rowEdges: number[]): void => {
     if (rowEdges.length < 2) return;
-    const gTop = rowEdges[0]!;
+    const headerBottom = rowEdges[0]!;
+    const headerTop = headerBottom - headerH;
     const gBottom = rowEdges[rowEdges.length - 1]!;
-    for (const x of colXs) {
+    const stroke = 1;
+    const rule = (
+      x1: number,
+      y1: number,
+      x2: number,
+      y2: number,
+      color: ReturnType<typeof rgb> = LINE,
+      cap: LineCapStyle = LineCapStyle.Butt
+    ) => {
       p.drawLine({
-        start: { x, y: topY(gBottom) },
-        end: { x, y: topY(gTop) },
-        thickness: 1,
-        color: LINE,
+        start: { x: x1, y: topY(y1) },
+        end: { x: x2, y: topY(y2) },
+        thickness: stroke,
+        color,
+        lineCap: cap,
       });
+    };
+    for (const x of colXs.slice(1, -1)) {
+      rule(x, headerBottom, x, headerTop, WHITE);
+      rule(x, gBottom, x, headerBottom);
     }
-    for (const y of rowEdges) {
-      p.drawLine({
-        start: { x: tableLeft, y: topY(y) },
-        end: { x: tableRight, y: topY(y) },
-        thickness: 1,
-        color: LINE,
-      });
-    }
+    const corner = LineCapStyle.Projecting;
+    rule(tableLeft, headerTop, tableRight, headerTop, LINE, corner);
+    rule(tableLeft, gBottom, tableRight, gBottom, LINE, corner);
+    rule(tableLeft, gBottom, tableLeft, headerTop, LINE, corner);
+    rule(tableRight, gBottom, tableRight, headerTop, LINE, corner);
+    for (const y of rowEdges.slice(0, -1)) rule(tableLeft, y, tableRight, y);
   };
 
   const refLineH = 11;
@@ -851,9 +909,9 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     const cant = formatCantidad(Number(item.cantidad) || 0, localeNumero);
     const pendiente = Boolean(item.precio_pendiente_validar);
     const textTop = rowTop + (descLines.length > 1 ? 10 : 14);
-    const qtyX = colXs[0]! + 9;
+    const qtyX = colXs[0]! + 8;
     const refX = colXs[1]! + 8;
-    const descX = colXs[2]! + 11;
+    const descX = colXs[2]! + 8;
     drawText(p, cant, {
       x: qtyX,
       top: textTop,
@@ -870,7 +928,6 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
         top: rowTop + 10 + i * descLineH,
         size: 10,
         font,
-        maxWidth: descMaxW,
       });
     });
     const resumenTop = rowTop + 10 + descLines.length * descLineH + 2;
@@ -884,17 +941,18 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
       });
     });
     const pendLabel = et('Pendiente', 'Pending');
+    const priceW = moneyW - 16;
     drawRight(
       p,
       pendiente ? pendLabel : moneyPlain(item.precio_unitario, snapshot.moneda, localeNumero),
-      { right: unitRight, top: textTop, size: pendiente ? 9 : 10, font, maxWidth: 74 }
+      { right: unitRight, top: textTop, size: pendiente ? 9 : 10, font, maxWidth: priceW }
     );
     drawRight(p, pendiente ? pendLabel : moneyPlain(item.subtotal, snapshot.moneda, localeNumero), {
       right: totalRight,
       top: textTop,
       size: pendiente ? 9 : 10,
       font,
-      maxWidth: 86,
+      maxWidth: priceW,
     });
   };
 
@@ -906,12 +964,12 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
         : idioma === 'es-en'
           ? `Cotización / Quotation N° ${numeroVisible}`
           : `Cotización N° ${numeroVisible} (continuación)`,
-      { x: tableLeft, top: 32, size: 11, font: bold, color: BLUE, maxWidth: 500 }
+      { x: tableLeft, top: 28, size: 11, font: bold, color: BLUE, maxWidth: tableRight - tableLeft }
     );
   };
 
   // Altura del bloque de totales. La última fila no debe quedarse sola en la página siguiente.
-  const totalsBlockH = 16 + 20 + 23 * 4 + 8;
+  const totalsBlockH = idioma === 'es-en' ? 148 : 112;
   const tramos: Array<{ items: typeof filas; tableTop: number }> = [];
   if (filas.length === 0) {
     tramos.push({ items: [], tableTop: firstTableTop });
@@ -970,61 +1028,19 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     gridBottom = cursorY;
   });
 
-  // Totales (recuadro flush con columnas PRECIO/TOTAL) + NOTAS, justo después de la última fila
+  // Totales alineados al borde derecho de la tabla. El resalte cabe dentro del marco.
   const boxRight = tableRight;
-  const boxLeft = colXs[3]!;
-  const boxWidth = boxRight - boxLeft;
-  const totRowH = 23;
-  const totRows = 4;
-  const boxPadY = 10;
-  const boxPadX = 14;
-  const boxH = boxPadY * 2 + totRowH * totRows;
-  let totalsTop = gridBottom + 16;
-  if (totalsTop + boxH > footerGuard - 8) {
-    drawFooterBar(page, font, whatsappIcon);
-    page = newPage();
-    drawContinuationTitle(page);
-    totalsTop = contTableTop;
-  }
-  const LIGHT_BOX = rgb(0.972, 0.978, 0.992);
-  const TOTAL_BAND = rgb(0.88, 0.93, 0.98);
-  const RULE = rgb(0.72, 0.76, 0.8);
-
-  page.drawRectangle({
-    x: boxLeft,
-    y: topY(totalsTop + boxH),
-    width: boxWidth,
-    height: boxH,
-    color: LIGHT_BOX,
-  });
-  // Acento superior (mismo azul del header de tabla)
-  page.drawRectangle({
-    x: boxLeft,
-    y: topY(totalsTop + 4),
-    width: boxWidth,
-    height: 4,
-    color: BLUE,
-  });
-  // Marco con las mismas coordenadas que la rejilla (sin inset de borderWidth)
-  const boxBottom = totalsTop + boxH;
-  for (const [x1, y1, x2, y2] of [
-    [boxLeft, totalsTop, boxRight, totalsTop],
-    [boxLeft, boxBottom, boxRight, boxBottom],
-    [boxLeft, totalsTop, boxLeft, boxBottom],
-    [boxRight, totalsTop, boxRight, boxBottom],
-  ] as const) {
-    page.drawLine({
-      start: { x: x1, y: topY(y1) },
-      end: { x: x2, y: topY(y2) },
-      thickness: 1.15,
-      color: LINE,
-    });
-  }
-
+  const boxWidth = 214;
+  const boxLeft = boxRight - boxWidth;
+  const boxPadX = 10;
+  const valorColW = 98;
+  const labelMaxW = boxWidth - boxPadX * 2 - valorColW - 8;
   const totEntries: Array<{
     label: string;
     value: string;
     emphasize?: boolean;
+    h: number;
+    partes: string[];
   }> = [
     {
       label: et('TOTAL BRUTO', 'GROSS TOTAL'),
@@ -1043,68 +1059,113 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
       value: moneyCash(totalPagar, snapshot.moneda, localeNumero),
       emphasize: true,
     },
-  ];
-
-  totEntries.forEach((row, i) => {
-    const rowTop = totalsTop + boxPadY + i * totRowH;
-    if (row.emphasize) {
-      page.drawRectangle({
-        x: boxLeft,
-        y: topY(Math.min(rowTop + totRowH, boxBottom)),
-        width: boxWidth,
-        height: Math.min(totRowH, boxBottom - rowTop),
-        color: TOTAL_BAND,
-      });
-    } else if (i < totEntries.length - 1) {
-      page.drawLine({
-        start: { x: boxLeft + boxPadX, y: topY(rowTop + totRowH) },
-        end: { x: boxRight - boxPadX, y: topY(rowTop + totRowH) },
-        thickness: 0.7,
-        color: RULE,
-      });
-    }
-    const textTop = rowTop + 7;
+  ].map(row => {
     const partes =
       idioma === 'es-en' && row.label.includes(' / ') ? row.label.split(' / ') : [row.label];
-    const etiquetaSize = partes.length > 1 ? 8 : 10;
-    const etiquetaTop = partes.length > 1 ? textTop - 2 : textTop;
-    const valorSize = partes.length > 1 ? (row.emphasize ? 10 : 9) : row.emphasize ? 11 : 10;
-    if (partes.length > 1) {
-      drawText(page, partes[0] ?? '', {
+    const h = partes.length > 1 ? (row.emphasize ? 34 : 28) : 22;
+    return { ...row, partes, h };
+  });
+  const boxH = totEntries.reduce((suma, row) => suma + row.h, 0);
+  let totalsTop = gridBottom + 16;
+  if (totalsTop + boxH > footerGuard - 8) {
+    drawFooterBar(page, font, whatsappIcon);
+    page = newPage();
+    drawContinuationTitle(page);
+    totalsTop = contTableTop;
+  }
+  const LIGHT_BOX = rgb(0.972, 0.978, 0.992);
+  const TOTAL_BAND = rgb(0.88, 0.93, 0.98);
+  const RULE = rgb(0.72, 0.76, 0.8);
+  const boxBottom = totalsTop + boxH;
+
+  page.drawRectangle({
+    x: boxLeft,
+    y: topY(boxBottom),
+    width: boxWidth,
+    height: boxH,
+    color: LIGHT_BOX,
+  });
+
+  let rowCursor = totalsTop;
+  for (const row of totEntries) {
+    const rowTop = rowCursor;
+    const rowBottom = rowCursor + row.h;
+    if (row.emphasize) {
+      const inset = 1.25;
+      page.drawRectangle({
+        x: boxLeft + inset,
+        y: topY(rowBottom) + inset,
+        width: boxWidth - inset * 2,
+        height: row.h - inset * 2,
+        color: TOTAL_BAND,
+      });
+    }
+    const valorSize = row.emphasize ? 10 : 9;
+    const valorTop =
+      row.partes.length > 1
+        ? rowTop + row.h / 2 - valorSize * 0.78
+        : rowTop + 6 + (10 - valorSize) * 0.78;
+    if (row.partes.length > 1) {
+      drawText(page, row.partes[0] ?? '', {
         x: boxLeft + boxPadX,
-        top: etiquetaTop,
-        size: etiquetaSize,
+        top: rowTop + 6,
+        size: 8,
         font: bold,
         color: row.emphasize ? BLUE : INK,
+        maxWidth: labelMaxW,
       });
-      drawText(page, partes[1] ?? '', {
+      drawText(page, row.partes[1] ?? '', {
         x: boxLeft + boxPadX,
-        top: textTop + 8,
+        top: rowTop + 17,
         size: 7,
         font,
         color: row.emphasize ? BLUE : INK,
+        maxWidth: labelMaxW,
       });
     } else {
       drawText(page, row.label, {
         x: boxLeft + boxPadX,
-        top: etiquetaTop,
-        size: etiquetaSize,
+        top: rowTop + 6,
+        size: 10,
         font: bold,
         color: row.emphasize ? BLUE : INK,
-        maxWidth: 120,
+        maxWidth: labelMaxW,
       });
     }
-    // Misma línea de base que la etiqueta principal. El importe no baja entre los dos idiomas.
-    const valorTop = etiquetaTop + (etiquetaSize - valorSize) * 0.78;
     drawRight(page, row.value, {
       right: boxRight - boxPadX,
       top: valorTop,
       size: valorSize,
       font: row.emphasize ? bold : font,
       color: row.emphasize ? BLUE : INK,
-      maxWidth: 110,
+      maxWidth: valorColW,
     });
-  });
+    rowCursor = rowBottom;
+  }
+
+  for (let i = 0; i < totEntries.length - 1; i += 1) {
+    const y = totalsTop + totEntries.slice(0, i + 1).reduce((suma, row) => suma + row.h, 0);
+    page.drawLine({
+      start: { x: boxLeft + boxPadX, y: topY(y) },
+      end: { x: boxRight - boxPadX, y: topY(y) },
+      thickness: 0.6,
+      color: RULE,
+    });
+  }
+  for (const [x1, y1, x2, y2] of [
+    [boxLeft, totalsTop, boxRight, totalsTop],
+    [boxLeft, boxBottom, boxRight, boxBottom],
+    [boxLeft, totalsTop, boxLeft, boxBottom],
+    [boxRight, totalsTop, boxRight, boxBottom],
+  ] as const) {
+    page.drawLine({
+      start: { x: x1, y: topY(y1) },
+      end: { x: x2, y: topY(y2) },
+      thickness: 1,
+      color: LINE,
+      lineCap: LineCapStyle.Projecting,
+    });
+  }
 
   const validezLabel = snapshot.validezHasta
     ? (() => {
@@ -1218,9 +1279,10 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
           ]
         : terminosEs;
   if (columnasBilingues) {
-    const colW = 250;
-    const leftX = 40;
-    const rightX = leftX + colW + 16;
+    const gutter = 18;
+    const colW = (CONTENT_RIGHT - CONTENT_LEFT - gutter) / 2;
+    const leftX = CONTENT_LEFT;
+    const rightX = CONTENT_RIGHT - colW;
     const maxLineas = 58;
     type LineaCol = { text: string; bold: boolean; size: number };
     const lineasBloque = (bloque: { texto: string; headingLocale: 'es' | 'en' }): LineaCol[] => {
@@ -1320,22 +1382,22 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
       cy += cy > 88 ? 10 : 0;
       ensureCondPage();
       drawText(page, block, {
-        x: 50,
+        x: CONTENT_LEFT,
         top: cy,
         size: 13,
         font: bold,
         color: BLUE,
-        maxWidth: 490,
+        maxWidth: CONTENT_RIGHT - CONTENT_LEFT,
       });
       cy += 20;
       continue;
     }
     cy = drawLeftParagraph(page, block, {
-      x: 50,
+      x: CONTENT_LEFT,
       top: cy,
       size: 11,
       font,
-      maxWidth: 490,
+      maxWidth: CONTENT_RIGHT - CONTENT_LEFT,
       lineHeight: 15,
     });
     cy += 8;
@@ -1470,31 +1532,35 @@ function anotarEnlace(
 }
 
 function drawFooterBar(page: PDFPage, font: PDFFont, whatsappIcon: PDFImage | null): void {
-  // Boceto footer bar y≈790–830, fill = mismo azul header
+  const barTop = 808;
+  const barH = 26;
+  const baseline = topY(barTop + 17);
   page.drawRectangle({
-    x: 46.4,
-    y: topY(829.8),
-    width: 520,
-    height: 39.4,
+    x: CONTENT_LEFT,
+    y: topY(barTop + barH),
+    width: CONTENT_RIGHT - CONTENT_LEFT,
+    height: barH,
     color: BLUE,
   });
+  const size = 10;
   page.drawText(winAnsi('i-me.com.co'), {
-    x: 88.6,
-    y: topY(812),
-    size: 11,
+    x: CONTENT_LEFT + 12,
+    y: baseline,
+    size,
     font,
     color: WHITE,
   });
 
   const phone = '+57 313 724 7353';
-  const phoneSize = 11;
-  const iconSize = 12;
+  const iconSize = 11;
   const gap = 4;
-  let cursorX = 252;
+  const phoneW = font.widthOfTextAtSize(winAnsi(phone), size);
+  const clusterW = (whatsappIcon ? iconSize + gap : 0) + phoneW;
+  let cursorX = (CONTENT_LEFT + CONTENT_RIGHT) / 2 - clusterW / 2;
   if (whatsappIcon) {
     page.drawImage(whatsappIcon, {
       x: cursorX,
-      y: topY(812) - 1,
+      y: baseline - 1,
       width: iconSize,
       height: iconSize,
     });
@@ -1502,16 +1568,18 @@ function drawFooterBar(page: PDFPage, font: PDFFont, whatsappIcon: PDFImage | nu
   }
   page.drawText(winAnsi(phone), {
     x: cursorX,
-    y: topY(812),
-    size: phoneSize,
+    y: baseline,
+    size,
     font,
     color: WHITE,
   });
 
-  page.drawText(winAnsi('info@i-me.com.co'), {
-    x: 411,
-    y: topY(812),
-    size: 11,
+  const email = 'info@i-me.com.co';
+  const emailW = font.widthOfTextAtSize(winAnsi(email), size);
+  page.drawText(winAnsi(email), {
+    x: CONTENT_RIGHT - 12 - emailW,
+    y: baseline,
+    size,
     font,
     color: WHITE,
   });
