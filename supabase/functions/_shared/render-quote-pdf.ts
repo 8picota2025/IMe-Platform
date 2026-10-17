@@ -108,6 +108,9 @@ function topY(yFromTop: number): number {
   return PAGE_H - yFromTop;
 }
 
+/** Poppins dibuja la raya «—». Helvetica (WinAnsi) no puede codificarla. */
+let conservarRaya = false;
+
 function winAnsi(s: string): string {
   const superMap: Record<string, string> = {
     '\u2070': '0',
@@ -121,8 +124,12 @@ function winAnsi(s: string): string {
     '\u2078': '8',
     '\u2079': '9',
   };
+  const rayas = conservarRaya ? /[\u2013\u2212\u2010\u2011]/g : /[\u2013\u2014\u2212\u2010\u2011]/g;
+  const permitido = conservarRaya
+    ? /[^\t\n\r\x20-\x7E\xA0-\xFF\u2014\u2026]/g
+    : /[^\t\n\r\x20-\x7E\xA0-\xFF\u2026]/g;
   return s
-    .replace(/[\u2013\u2014\u2212\u2010\u2011]/g, '-') // en/em/minus dashes → -
+    .replace(rayas, '-')
     .replace(/[\u00D7\u2715\u2716]/g, 'x') // × → x
     .replace(/[\u2022\u2023\u25CF\u25E6\u2219]/g, '#') // bullets → # (no · U+00B7)
     .replace(/\u2264/g, '<=')
@@ -133,7 +140,7 @@ function winAnsi(s: string): string {
     )
     .replace(/\u207B/g, '-')
     .replace(/\u00A0/g, ' ')
-    .replace(/[^\t\n\r\x20-\x7E\xA0-\xFF\u2026]/g, '?');
+    .replace(permitido, '?');
 }
 
 function moneyPlain(value: number, moneda: string, locale: 'es' | 'en'): string {
@@ -212,8 +219,11 @@ function fitOneLine(text: string, font: PDFFont, size: number, maxWidth: number)
   return lo > 0 ? `${s.slice(0, lo)}${ell}` : ell;
 }
 
-/** Dibuja párrafo justificado (última línea a la izquierda). Devuelve siguiente `top`. */
-function drawJustifiedParagraph(
+/**
+ * Párrafo alineado a la izquierda. La justificación abría huecos grandes
+ * en inglés. Devuelve el siguiente `top`.
+ */
+function drawLeftParagraph(
   page: PDFPage,
   text: string,
   opts: {
@@ -232,36 +242,16 @@ function drawJustifiedParagraph(
   const lines = wrapByWidth(text, opts.font, opts.size, opts.maxWidth);
   const limited = opts.maxLines != null ? lines.slice(0, opts.maxLines) : lines;
   let top = opts.top;
-  limited.forEach((line, idx) => {
-    const words = line.split(' ').filter(Boolean);
-    const isLast = idx === limited.length - 1;
-    const y = topY(top + opts.size * 0.78);
-    if (words.length <= 1 || isLast) {
-      page.drawText(winAnsi(line), {
-        x: opts.x,
-        y,
-        size: opts.size,
-        font: opts.font,
-        color,
-      });
-    } else {
-      const wordWidths = words.map(w => opts.font.widthOfTextAtSize(winAnsi(w), opts.size));
-      const wordsW = wordWidths.reduce((a, b) => a + b, 0);
-      const gap = (opts.maxWidth - wordsW) / (words.length - 1);
-      let cx = opts.x;
-      words.forEach((w, i) => {
-        page.drawText(winAnsi(w), {
-          x: cx,
-          y,
-          size: opts.size,
-          font: opts.font,
-          color,
-        });
-        cx += wordWidths[i]! + gap;
-      });
-    }
+  for (const line of limited) {
+    page.drawText(winAnsi(line), {
+      x: opts.x,
+      y: topY(top + opts.size * 0.78),
+      size: opts.size,
+      font: opts.font,
+      color,
+    });
     top += lineHeight;
-  });
+  }
   return top;
 }
 
@@ -356,6 +346,9 @@ function drawRight(
 export type QuotePdfRenderer = (snapshot: QuotePdfSnapshot) => Promise<Uint8Array>;
 
 export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
+  conservarRaya = Boolean(
+    snapshot.fontRegularBytes?.byteLength && snapshot.fontBoldBytes?.byteLength
+  );
   const locale = snapshot.locale === 'en' ? 'en' : 'es';
   const idioma: 'es' | 'en' | IdiomaCotizacion = snapshot.idioma === 'es-en' ? 'es-en' : locale;
   const localeNumero: 'es' | 'en' = idioma === 'en' ? 'en' : 'es';
@@ -404,16 +397,24 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
   // El total del caller (desgloseDeLineas con catálogo) manda: sin mapa de
   // productos, "Según catálogo" caería en 19 % y el PDF divergiría del correo.
   const totalPagar =
-    Number.isFinite(snapshot.total) && snapshot.total > 0 ? roundMoney(snapshot.total) : desglose.total;
+    Number.isFinite(snapshot.total) && snapshot.total > 0
+      ? roundMoney(snapshot.total)
+      : desglose.total;
   const subtotal = desglose.base;
   const iva =
-    Number.isFinite(snapshot.total) && snapshot.total > 0 && Math.abs(desglose.total - totalPagar) > 0.009
+    Number.isFinite(snapshot.total) &&
+    snapshot.total > 0 &&
+    Math.abs(desglose.total - totalPagar) > 0.009
       ? roundMoney(Math.max(0, totalPagar - subtotal))
       : desglose.iva;
   const etiquetaIvaEs = etiquetaIvaTotales(desglose, impuestosIncluidos, 'es');
   const etiquetaIvaEn = etiquetaIvaTotales(desglose, impuestosIncluidos, 'en');
   const etiquetaIva =
-    idioma === 'es-en' ? `${etiquetaIvaEs} / ${etiquetaIvaEn}` : idioma === 'en' ? etiquetaIvaEn : etiquetaIvaEs;
+    idioma === 'es-en'
+      ? `${etiquetaIvaEs} / ${etiquetaIvaEn}`
+      : idioma === 'en'
+        ? etiquetaIvaEn
+        : etiquetaIvaEs;
   const fecha = snapshot.fecha?.trim() || todayLabel(localeNumero);
   const taglineEs = snapshot.tagline?.trim() || 'Equipando tu misión de salvar vidas';
   const taglineEn = 'Equipping your mission to save lives';
@@ -553,7 +554,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     });
     return top + Math.max(1, lineas.length) * 11;
   };
-  let pagoY = drawPagoTitulo(et('CONDICION DE PAGO', 'PAYMENT TERMS'), 150);
+  let pagoY = drawPagoTitulo(et('CONDICIÓN DE PAGO', 'PAYMENT TERMS'), 150);
   const condicionEs = snapshot.condicionPago?.trim() || '';
   const condicionEn = snapshot.condicionPagoEn?.trim() || '';
   // El texto libre del usuario no se traduce. «Contado / Prepaid» solo si no escribió condición.
@@ -699,12 +700,12 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
           ? [
               [36, 'CANT', 'QTY'],
               [116, 'REF', 'REF'],
-              [219, 'DESCRIPCION', 'DESCRIPTION'],
+              [219, 'DESCRIPCIÓN', 'DESCRIPTION'],
             ]
           : [
               [36, 'CANT', ''],
               [116, 'REF', ''],
-              [219, 'DESCRIPCION', ''],
+              [219, 'DESCRIPCIÓN', ''],
             ];
     for (const [x, label, secundario] of headerLabels) {
       drawText(p, label, {
@@ -775,6 +776,44 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     }
   };
 
+  const refLineH = 11;
+  /** Código corto (SKU) o el nombre completo, en castellano y en inglés, sin puntos suspensivos. */
+  const lineasReferencia = (item: CotizacionLineaOferta): string[] => {
+    const slug = item.slug?.trim() ?? '';
+    const nombre = item.nombre?.trim() ?? '';
+    const nombreEn = item.nombre_en?.trim() ?? '';
+    const igual = (a: string, b: string) =>
+      a.length > 0 && a.toLocaleLowerCase('es') === b.toLocaleLowerCase('es');
+    const esCodigo =
+      slug.length > 0 && !igual(slug, nombre) && !igual(slug, nombreEn) && !/\s/.test(slug);
+    if (esCodigo) {
+      const trozos = slug.split('-');
+      const lineas: string[] = [];
+      let actual = '';
+      trozos.forEach((trozo, indice) => {
+        const pieza = indice < trozos.length - 1 ? `${trozo}-` : trozo;
+        const siguiente = actual ? `${actual}${pieza}` : pieza;
+        if (font.widthOfTextAtSize(winAnsi(siguiente), 9) <= refMaxW) {
+          actual = siguiente;
+          return;
+        }
+        if (actual) lineas.push(actual);
+        actual = pieza;
+      });
+      if (actual) lineas.push(actual);
+      return lineas.length > 0 ? lineas : [slug];
+    }
+    const base = nombre || slug;
+    const partes: string[] = [];
+    if (idioma === 'en') partes.push(nombreEn || base || '—');
+    else {
+      if (base) partes.push(base);
+      if (idioma === 'es-en' && nombreEn && !igual(nombreEn, base)) partes.push(nombreEn);
+      if (partes.length === 0) partes.push('—');
+    }
+    return partes.flatMap(parte => wrapByWidth(parte, font, 9, refMaxW));
+  };
+
   const filas = snapshot.lineas.map(item => {
     const nombreEs = item.nombre || item.slug || (idioma === 'en' ? 'Product' : 'Producto');
     const nombreEn = item.nombre_en?.trim() ?? '';
@@ -786,24 +825,33 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
       .flatMap(parte => wrapByWidth(parte, font, 10, descMaxW).slice(0, 3))
       .slice(0, 5);
     const notasEn =
-      idioma === 'es-en' && item.notas_en?.trim() && item.notas_en.trim() !== (item.notas ?? '').trim()
+      idioma === 'es-en' &&
+      item.notas_en?.trim() &&
+      item.notas_en.trim() !== (item.notas ?? '').trim()
         ? lineasDeResumen(item.notas_en)
         : [];
     const resumenLineas = [...lineasDeResumen(item.notas), ...notasEn]
       .flatMap(linea => wrapByWidth(`• ${linea}`, font, 8, descMaxW).slice(0, 2))
       .slice(0, RESUMEN_MAX_LINEAS);
+    const refLines = lineasReferencia(item);
     const contentH =
       10 +
       descLines.length * descLineH +
       (resumenLineas.length > 0 ? 2 + resumenLineas.length * resumenLineH : 0) +
       8;
-    return { item, descLines, resumenLineas, h: Math.max(rowMinH, Math.ceil(contentH)) };
+    const refH = 10 + refLines.length * refLineH + 8;
+    return {
+      item,
+      descLines,
+      resumenLineas,
+      refLines,
+      h: Math.max(rowMinH, Math.ceil(contentH), Math.ceil(refH)),
+    };
   });
 
   const drawRow = (p: PDFPage, fila: (typeof filas)[number], rowTop: number): void => {
-    const { item, descLines, resumenLineas } = fila;
+    const { item, descLines, resumenLineas, refLines } = fila;
     const cant = formatCantidad(Number(item.cantidad) || 0, localeNumero);
-    const ref = fitOneLine(item.slug || item.nombre || '—', font, 10, refMaxW);
     const pendiente = Boolean(item.precio_pendiente_validar);
     const textTop = rowTop + (descLines.length > 1 ? 10 : 14);
     const qtyX = colXs[0]! + 9;
@@ -816,7 +864,9 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
       font,
       maxWidth: colXs[1]! - qtyX - 6,
     });
-    drawText(p, ref, { x: refX, top: textTop, size: 10, font, maxWidth: refMaxW });
+    refLines.forEach((linea, i) => {
+      drawText(p, linea, { x: refX, top: rowTop + 10 + i * refLineH, size: 9, font });
+    });
     descLines.forEach((line, i) => {
       drawText(p, line, {
         x: descX,
@@ -863,37 +913,65 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     );
   };
 
-  drawTableHeader(page, firstTableTop);
-  let rowEdges: number[] = [firstTableTop + headerH];
-  let cursorY = firstTableTop + headerH;
-  // Altura del bloque de totales (se dibuja después de la tabla); se usa para no dejarlo solo en una página.
+  // Altura del bloque de totales. La última fila no debe quedarse sola en la página siguiente.
   const totalsBlockH = 16 + 20 + 23 * 4 + 8;
-  filas.forEach((fila, idx) => {
-    const esUltima = idx === filas.length - 1;
-    const noCabe = cursorY + fila.h > footerGuard;
-    // La última fila se lleva consigo el total: si fila + totales no caben y en esta página ya hay
-    // al menos otras 2 filas, la última pasa a la página siguiente junto al total.
-    const totalHuerfano =
-      esUltima && !noCabe && cursorY + fila.h + totalsBlockH > footerGuard && rowEdges.length > 2;
-    if ((noCabe || totalHuerfano) && rowEdges.length > 1) {
-      drawGrid(page, rowEdges);
+  const tramos: Array<{ items: typeof filas; tableTop: number }> = [];
+  if (filas.length === 0) {
+    tramos.push({ items: [], tableTop: firstTableTop });
+  } else {
+    let index = 0;
+    let primero = true;
+    while (index < filas.length) {
+      const tableTop = primero ? firstTableTop : contTableTop;
+      const start = index;
+      let y = tableTop + headerH;
+      while (index < filas.length) {
+        const fila = filas[index]!;
+        const colocadas = index - start;
+        const noCabe = y + fila.h > footerGuard;
+        const esUltima = index === filas.length - 1;
+        const totalHuerfano =
+          esUltima && !noCabe && y + fila.h + totalsBlockH > footerGuard && colocadas >= 2;
+        if (colocadas > 0 && (noCabe || totalHuerfano)) break;
+        y += fila.h;
+        index += 1;
+      }
+      let end = index;
+      if (filas.length - end === 1 && end - start >= 2) {
+        end -= 1;
+        index = end;
+      }
+      if (end === start) {
+        end = start + 1;
+        index = end;
+      }
+      tramos.push({ items: filas.slice(start, end), tableTop });
+      primero = false;
+    }
+  }
+
+  let gridBottom = firstTableTop + headerH;
+  tramos.forEach((tramo, indice) => {
+    if (indice > 0) {
       drawFooterBar(page, font, whatsappIcon);
       page = newPage();
       drawContinuationTitle(page);
-      drawTableHeader(page, contTableTop);
-      cursorY = contTableTop + headerH;
-      rowEdges = [cursorY];
     }
-    drawRow(page, fila, cursorY);
-    cursorY += fila.h;
-    rowEdges.push(cursorY);
+    drawTableHeader(page, tramo.tableTop);
+    let cursorY = tramo.tableTop + headerH;
+    const rowEdges = [cursorY];
+    for (const fila of tramo.items) {
+      drawRow(page, fila, cursorY);
+      cursorY += fila.h;
+      rowEdges.push(cursorY);
+    }
+    if (tramo.items.length === 0) {
+      cursorY += rowMinH;
+      rowEdges.push(cursorY);
+    }
+    drawGrid(page, rowEdges);
+    gridBottom = cursorY;
   });
-  if (filas.length === 0) {
-    cursorY += rowMinH;
-    rowEdges.push(cursorY);
-  }
-  drawGrid(page, rowEdges);
-  const gridBottom = cursorY;
 
   // Totales (recuadro flush con columnas PRECIO/TOTAL) + NOTAS, justo después de la última fila
   const boxRight = tableRight;
@@ -991,11 +1069,14 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     const textTop = rowTop + 7;
     const partes =
       idioma === 'es-en' && row.label.includes(' / ') ? row.label.split(' / ') : [row.label];
+    const etiquetaSize = partes.length > 1 ? 8 : 10;
+    const etiquetaTop = partes.length > 1 ? textTop - 2 : textTop;
+    const valorSize = partes.length > 1 ? (row.emphasize ? 10 : 9) : row.emphasize ? 11 : 10;
     if (partes.length > 1) {
       drawText(page, partes[0] ?? '', {
         x: boxLeft + boxPadX,
-        top: textTop - 2,
-        size: 8,
+        top: etiquetaTop,
+        size: etiquetaSize,
         font: bold,
         color: row.emphasize ? BLUE : INK,
       });
@@ -1009,20 +1090,22 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     } else {
       drawText(page, row.label, {
         x: boxLeft + boxPadX,
-        top: textTop,
-        size: 10,
+        top: etiquetaTop,
+        size: etiquetaSize,
         font: bold,
         color: row.emphasize ? BLUE : INK,
         maxWidth: 120,
       });
     }
+    // Misma línea de base que la etiqueta principal. El importe no baja entre los dos idiomas.
+    const valorTop = etiquetaTop + (etiquetaSize - valorSize) * 0.78;
     drawRight(page, row.value, {
       right: boxRight - boxPadX,
-      top: textTop,
-      size: row.emphasize ? 11 : 10,
+      top: valorTop,
+      size: valorSize,
       font: row.emphasize ? bold : font,
       color: row.emphasize ? BLUE : INK,
-      maxWidth: 120,
+      maxWidth: 110,
     });
   });
 
@@ -1046,15 +1129,20 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     ? `Valid until ${validezLabel}. After this date prices and lead times may change.`
     : 'Prices subject to change according to market conditions.';
   let note =
-    idioma === 'en' ? notaValidezEn : idioma === 'es-en' ? `${notaValidezEs} ${notaValidezEn}` : notaValidezEs;
+    idioma === 'en'
+      ? notaValidezEn
+      : idioma === 'es-en'
+        ? `${notaValidezEs} ${notaValidezEn}`
+        : notaValidezEs;
   if (snapshot.moneda === 'USD') {
     const notasUsd =
       idioma === 'es-en'
         ? `${notaImportesUsd('es')} ${notaImportesUsd('en')}`
         : notaImportesUsd(idioma === 'en' ? 'en' : 'es');
-    if (!note.includes(notaImportesUsd(idioma === 'en' ? 'en' : 'es'))) note = `${note} ${notasUsd}`;
+    if (!note.includes(notaImportesUsd(idioma === 'en' ? 'en' : 'es')))
+      note = `${note} ${notasUsd}`;
   }
-  drawJustifiedParagraph(page, note, {
+  drawLeftParagraph(page, note, {
     x: tableLeft,
     top: totalsTop + 22,
     size: 9,
@@ -1103,8 +1191,16 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
         texto => ({ texto, headingLocale: 'en' as const })
       )
     : [];
-  const termBlocks =
-    idioma === 'en'
+  const notaEnSuelta =
+    snapshot.moneda === 'USD' &&
+    !terminosEs.some(b => b.texto.includes(notaImportesUsd('en'))) &&
+    !terminosEnLibre.some(b => b.texto.includes(notaImportesUsd('en')))
+      ? [{ texto: notaImportesUsd('en'), headingLocale: 'en' as const }]
+      : [];
+  const columnasBilingues = idioma === 'es-en' && terminosEnLibre.length > 0;
+  const termBlocks = columnasBilingues
+    ? []
+    : idioma === 'en'
       ? partirBloques(
           resolveCondicionesOferta(
             aplicarNotaImportesUsd(
@@ -1118,21 +1214,92 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
       : idioma === 'es-en'
         ? [
             ...terminosEs,
-            ...terminosEnLibre,
-            ...(terminosEnLibre.length === 0 &&
-            !String(snapshot.condiciones ?? '').trim() &&
-            snapshot.moneda === 'USD'
-              ? [{ texto: notaImportesUsd('en'), headingLocale: 'en' as const }]
+            ...(terminosEnLibre.length === 0 && !String(snapshot.condiciones ?? '').trim()
+              ? notaEnSuelta
               : []),
-            ...(terminosEnLibre.length > 0 || String(snapshot.condiciones ?? '').trim()
-              ? snapshot.moneda === 'USD' &&
-                !terminosEs.some(b => b.texto.includes(notaImportesUsd('en'))) &&
-                !terminosEnLibre.some(b => b.texto.includes(notaImportesUsd('en')))
-                ? [{ texto: notaImportesUsd('en'), headingLocale: 'en' as const }]
-                : []
-              : []),
+            ...(String(snapshot.condiciones ?? '').trim() ? notaEnSuelta : []),
           ]
         : terminosEs;
+  if (columnasBilingues) {
+    const colW = 250;
+    const leftX = 40;
+    const rightX = leftX + colW + 16;
+    const maxLineas = 58;
+    type LineaCol = { text: string; bold: boolean; size: number };
+    const lineasBloque = (bloque: { texto: string; headingLocale: 'es' | 'en' }): LineaCol[] => {
+      const heading = isCondicionesSectionHeading(bloque.texto, bloque.headingLocale);
+      const size = heading ? 9 : 8;
+      const fuente = heading ? bold : font;
+      return wrapByWidth(bloque.texto, fuente, size, colW).map(text => ({
+        text,
+        bold: heading,
+        size,
+      }));
+    };
+    const pares: Array<{ izq?: LineaCol; der?: LineaCol }> = [];
+    const columnaEn = [...terminosEnLibre, ...notaEnSuelta];
+    const bloques = Math.max(terminosEs.length, columnaEn.length);
+    for (let indice = 0; indice < bloques; indice += 1) {
+      const izquierdas = terminosEs[indice] ? lineasBloque(terminosEs[indice]) : [];
+      const derechas = columnaEn[indice] ? lineasBloque(columnaEn[indice]) : [];
+      const alto = Math.max(izquierdas.length, derechas.length, 1);
+      for (let linea = 0; linea < alto; linea += 1) {
+        const fila: { izq?: LineaCol; der?: LineaCol } = {};
+        const izq = izquierdas[linea];
+        const der = derechas[linea];
+        if (izq) fila.izq = izq;
+        if (der) fila.der = der;
+        pares.push(fila);
+      }
+      pares.push({});
+    }
+    const paginas: Array<typeof pares> = [];
+    let cursor = 0;
+    while (cursor < pares.length) {
+      let take = Math.min(maxLineas, pares.length - cursor);
+      const ultimo = pares[cursor + take - 1];
+      if (cursor + take < pares.length && take > 1 && (ultimo?.izq?.bold || ultimo?.der?.bold)) {
+        take -= 1;
+      }
+      paginas.push(pares.slice(cursor, cursor + take));
+      cursor += take;
+    }
+    paginas.forEach((filasCol, indice) => {
+      if (indice > 0) {
+        drawFooterBar(page, font, whatsappIcon);
+        page = doc.addPage([PAGE_W, PAGE_H]);
+        page.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: WHITE });
+        drawCentered(page, 'Consideraciones de la oferta / Offer considerations (cont.)', {
+          top: 56,
+          size: 12,
+          font: bold,
+          color: BLUE,
+          maxWidth: 500,
+        });
+      }
+      filasCol.forEach((fila, numero) => {
+        const top = 88 + numero * 11;
+        if (fila.izq?.text) {
+          drawText(page, fila.izq.text, {
+            x: leftX,
+            top,
+            size: fila.izq.size,
+            font: fila.izq.bold ? bold : font,
+            color: fila.izq.bold ? BLUE : INK,
+          });
+        }
+        if (fila.der?.text) {
+          drawText(page, fila.der.text, {
+            x: rightX,
+            top,
+            size: fila.der.size,
+            font: fila.der.bold ? bold : font,
+            color: fila.der.bold ? BLUE : INK,
+          });
+        }
+      });
+    });
+  }
   const ensureCondPage = () => {
     if (cy <= 750) return;
     drawFooterBar(page, font, whatsappIcon);
@@ -1166,7 +1333,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
       cy += 20;
       continue;
     }
-    cy = drawJustifiedParagraph(page, block, {
+    cy = drawLeftParagraph(page, block, {
       x: 50,
       top: cy,
       size: 11,
@@ -1199,7 +1366,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     let ay = 52 + titleParts.length * 18 + 16;
     const body = (annex.descripcion || annex.resumen || '').replace(/\s+/g, ' ').trim();
     if (body) {
-      ay = drawJustifiedParagraph(page, body, {
+      ay = drawLeftParagraph(page, body, {
         x: 40,
         top: ay,
         size: 11,

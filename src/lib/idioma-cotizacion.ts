@@ -111,6 +111,10 @@ export function etiquetaBilingue(
   idioma: 'es' | 'en' | IdiomaCotizacion
 ): string {
   if (idioma === 'en') return ingles;
-  if (idioma === 'es-en') return `${castellano} / ${ingles}`;
+  if (idioma === 'es-en') {
+    const misma =
+      castellano.trim().toLocaleLowerCase('es') === ingles.trim().toLocaleLowerCase('es');
+    return misma ? castellano : `${castellano} / ${ingles}`;
+  }
   return castellano;
 }
