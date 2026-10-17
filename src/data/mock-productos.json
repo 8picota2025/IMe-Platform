@@ -15329,8 +15329,8 @@
     "nombre_en": "Neonatal Crib X01",
     "descripcion_corta_es": "Cuna neonatal de acrílico 810×490×960 mm",
     "descripcion_corta_en": "Acrylic neonatal crib, 810×490×960 mm",
-    "descripcion_larga_es": "La cuna neonatal Saikang X01 mide 810 x 490 x 960 mm y combina marco de acero inoxidable con lavabo transparente de acrílico no tóxico que puede esterilizarse a más de 100 °C. Incluye porta suero de acero inoxidable (carga de 15 kg), ruedas de 5\" con freno, cuatro tapones antipolvo desmontables, Trendelenburg por estructura mecánica y colchón antibacteriano a prueba de polvo y fácil de limpiar.",
-    "descripcion_larga_en": "The Saikang X01 neonatal crib measures 810 x 490 x 960 mm and combines a stainless-steel frame with a transparent non-toxic acrylic bassinet that can be sterilised above 100 °C. It includes a stainless-steel IV pole (15 kg load), 5\" casters with brakes, four removable dust plugs, mechanical Trendelenburg and an antibacterial, dust-proof, easy-to-clean mattress.",
+    "descripcion_larga_es": "La cuna neonatal hospitalaria Saikang X01 es una cuna de bebé compacta (810 × 490 × 960 mm) pensada para maternidad y neonatología en Colombia. Su lavabo transparente de acrílico no tóxico, esterilizable a más de 100 °C, permite observar al recién nacido con claridad mientras el marco de acero inoxidable Baosteel aporta la rigidez que espera el comprador institucional.\n\nIncluye porta suero de acero inoxidable (hasta 15 kg), cuatro ruedas de 5\" (dos con freno) y elementos a prueba de polvo. El colchón personalizado, suave y de fácil limpieza, completa un conjunto listo para la rutina de puerperio y observación neonatal.\n\nEl Trendelenburg controlado por estructura mecánica facilita inclinaciones convenientes para el cuidado, sin añadir complejidad eléctrica al equipo.",
+    "descripcion_larga_en": "The Saikang X01 neonatal crib is a compact hospital baby crib (810 × 490 × 960 mm) designed for maternity and neonatology in Colombia. Its clear non-toxic acrylic bassinet, sterilizable above 100 °C, keeps the newborn visible while the Baosteel stainless-steel frame delivers the rigidity institutional buyers expect.\n\nIt includes a stainless-steel IV pole (up to 15 kg), four 5\" casters (two with brakes) and dust-proof elements. A custom soft, easy-to-clean mattress completes a set ready for postpartum and neonatal observation routines.\n\nMechanically controlled Trendelenburg supports convenient tilt for care without adding electrical complexity to the unit.",
     "especificaciones": [
       {
         "clave": "Modelo",
@@ -15397,15 +15397,16 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": [
-      "Neonatología",
-      "Alojamiento conjunto",
-      "Cuidado de recién nacidos"
+      "Maternidad y puerperio",
+      "Observación neonatal",
+      "Unidades de cuidado del recién nacido",
+      "Traslado intradepartamental con frenos"
     ],
     "aplicaciones_en": [
-      "Neonatology",
-      "Rooming-in",
-      "Newborn care",
-      "Clinical procedures on crib"
+      "Maternity and postpartum care",
+      "Neonatal observation",
+      "Newborn care units",
+      "Intradepartmental transfer with brakes"
     ],
     "atributos": {
       "legacy_slugs": [
@@ -15421,29 +15422,31 @@
       "marca": "Saikang Medical"
     },
     "beneficios_es": [
-      "Lavabo de acrílico transparente y no tóxico, esterilizable a más de 100 °C.",
-      "Marco de acero inoxidable, porta suero de 15 kg y ruedas de 5\" con freno.",
-      "Trendelenburg mecánico, cómodo y seguro, con colchón antibacteriano fácil de limpiar."
+      "Lavabo acrílico transparente no tóxico, esterilizable a más de 100 °C para higiene y visibilidad.",
+      "Marco de acero inoxidable Baosteel con dimensiones externas 810 × 490 × 960 mm.",
+      "Porta suero de acero inoxidable de 15 kg y cuatro ruedas de 5\" (dos con freno).",
+      "Trendelenburg mecánico y colchón personalizado suave, antibacteriano y fácil de limpiar."
     ],
     "beneficios_en": [
-      "Transparent non-toxic acrylic bassinet, sterilisable above 100 °C.",
-      "Stainless-steel frame, 15 kg IV pole and 5\" casters with brakes.",
-      "Mechanical Trendelenburg, safe and easy, with an antibacterial mattress that is easy to clean."
+      "Clear non-toxic acrylic bassinet, sterilizable above 100 °C for hygiene and visibility.",
+      "Baosteel stainless-steel frame with external dimensions 810 × 490 × 960 mm.",
+      "15 kg stainless-steel IV pole and four 5\" casters (two with brakes).",
+      "Mechanical Trendelenburg and a custom soft, antibacterial, easy-to-clean mattress."
     ],
-    "valor_es": "Una cuna neonatal con lavabo de acrílico esterilizable y marco de acero inoxidable, según la ficha oficial de Saikang.",
-    "valor_en": "A neonatal crib with sterilisable acrylic bassinet and stainless-steel frame, per the official Saikang datasheet.",
+    "valor_es": "Una cuna neonatal hospitalaria con lavabo acrílico esterilizable y marco Baosteel, según la ficha oficial Saikang.",
+    "valor_en": "A hospital neonatal crib with sterilizable acrylic bassinet and Baosteel frame, per the official Saikang datasheet.",
     "preguntas_frecuentes_es": [
       {
-        "q": "¿Qué dimensiones tiene?",
-        "a": "810 x 490 x 960 mm."
+        "q": "¿Cuáles son las dimensiones de la X01?",
+        "a": "Dimensiones externas 810 × 490 × 960 mm, según la ficha técnica."
       },
       {
-        "q": "¿Se puede esterilizar el lavabo?",
-        "a": "Sí, la ficha indica que soporta esterilización a temperaturas superiores a 100 °C."
+        "q": "¿De qué material es el lavabo?",
+        "a": "Acrílico transparente no tóxico, esterilizable a temperaturas superiores a 100 °C."
       },
       {
-        "q": "¿Incluye porta suero?",
-        "a": "Sí, de acero inoxidable con capacidad de carga de 15 kg."
+        "q": "¿Qué carga admite el porta suero?",
+        "a": "El porta suero de acero inoxidable admite hasta 15 kg."
       },
       {
         "q": "¿Dónde descargo la ficha técnica de Cuna Neonatal X01?",
@@ -15452,16 +15455,16 @@
     ],
     "preguntas_frecuentes_en": [
       {
-        "q": "What are its dimensions?",
-        "a": "810 x 490 x 960 mm."
+        "q": "What are the X01 dimensions?",
+        "a": "External dimensions 810 × 490 × 960 mm, per the datasheet."
       },
       {
-        "q": "Can the bassinet be sterilised?",
-        "a": "Yes, the datasheet states it withstands sterilisation above 100 °C."
+        "q": "What is the bassinet made of?",
+        "a": "Clear non-toxic acrylic, sterilizable at temperatures above 100 °C."
       },
       {
-        "q": "Does it include an IV pole?",
-        "a": "Yes, stainless steel with a 15 kg load capacity."
+        "q": "What load does the IV pole support?",
+        "a": "The stainless-steel IV pole supports up to 15 kg."
       },
       {
         "q": "Where can I download the Neonatal Crib X01 datasheet?",
@@ -15469,20 +15472,22 @@
       }
     ],
     "seo_keywords_es": [
-      "cuna neonatal",
-      "cuna de bebé hospitalaria X01",
-      "cuna neonatal acrílico",
-      "cuna Saikang",
-      "mobiliario neonatal Colombia",
-      "ficha técnica X01"
+      "cuna neonatal hospitalaria",
+      "cuna de bebé X01 Saikang",
+      "cuna neonatal Colombia",
+      "cuna maternidad hospital",
+      "cuna acrílico transparente",
+      "mobiliario neonatal Saikang",
+      "ficha técnica X01 Saikang"
     ],
     "seo_keywords_en": [
-      "neonatal crib",
-      "X01 hospital baby crib",
-      "acrylic neonatal crib",
-      "Saikang crib",
-      "neonatal furniture Colombia",
-      "X01 datasheet"
+      "hospital neonatal crib",
+      "X01 Saikang baby crib",
+      "neonatal crib Colombia",
+      "maternity hospital crib",
+      "clear acrylic baby bassinet",
+      "Saikang neonatal furniture",
+      "X01 Saikang datasheet"
     ],
     "marca": "Saikang Medical"
   },
@@ -15496,8 +15501,8 @@
     "nombre_en": "Neonatal Crib X01-1",
     "descripcion_corta_es": "Cuna neonatal de acrílico con ruedas 360°",
     "descripcion_corta_en": "Acrylic neonatal crib with 360° casters",
-    "descripcion_larga_es": "La cuna neonatal Saikang X01-1 mide 880 x 520 x 770-940 mm y regula su altura con dos resortes de gas accionados por manivela. Ofrece Trendelenburg e inverso de 0 a 12°, lavabo transparente de acrílico no tóxico esterilizable a más de 100 °C, cuna de ABS, ruedas de caucho de Φ100 mm que giran 360° (dos con freno) y tres colores opcionales: azul, verde y rosa.",
-    "descripcion_larga_en": "The Saikang X01-1 neonatal crib measures 880 x 520 x 770-940 mm and adjusts height with two gas springs operated by a crank. It offers Trendelenburg and reverse from 0 to 12°, a transparent non-toxic acrylic bassinet sterilisable above 100 °C, an ABS crib, Φ100 mm rubber casters rotating 360° (two braked) and three optional colours: blue, green and pink.",
+    "descripcion_larga_es": "La cuna neonatal ajustable hospitalaria Saikang X01-1 (880 × 520 × 770–940 mm) suma a la línea de cunas el ajuste de altura y Trendelenburg/inverso 0–12° (±4°) mediante manivela y resortes de gas. Lavabo transparente de acrílico no tóxico, esterilizable a más de 100 °C, y ruedas de caucho Φ100 mm / 4\" (2 con freno) giratorias 360°.\n\nTres colores opcionales (azul, verde, rosa) ayudan a identificar áreas o preferencias de servicio. Diseño moderno y ergonómico orientado a la comodidad del bebé en maternidad y neonatología colombianas.\n\nFrente a la X01 fija, la X01-1 aporta rango de altura y Trendelenburg documentados para equipos que necesitan más flexibilidad postural.",
+    "descripcion_larga_en": "The Saikang X01-1 neonatal crib (880 × 520 × 770–940 mm) adds height adjustment and Trendelenburg/reverse 0–12° (±4°) via crank and gas springs to the hospital crib line. Clear non-toxic acrylic bassinet, sterilizable above 100 °C, and Φ100 mm / 4\" rubber casters (2 braked) that swivel 360°.\n\nThree optional colours (blue, green, pink) help identify areas or service preferences. A modern ergonomic design oriented to infant comfort in Colombian maternity and neonatology.\n\nVersus the fixed X01, the X01-1 brings documented height range and Trendelenburg for teams that need more postural flexibility.",
     "especificaciones": [
       {
         "clave": "Modelo",
@@ -15574,13 +15579,16 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": [
-      "Neonatología"
+      "Maternidad y neonatología",
+      "Cuidado del recién nacido con inclinación",
+      "Habitaciones de puerperio",
+      "Unidades que requieren altura variable"
     ],
     "aplicaciones_en": [
-      "Neonatology",
-      "Internal newborn transport",
-      "Newborn care",
-      "Rooming-in units"
+      "Maternity and neonatology",
+      "Newborn care with tilt",
+      "Postpartum rooms",
+      "Units needing variable height"
     ],
     "atributos": {
       "legacy_slugs": [
@@ -15596,29 +15604,31 @@
       "marca": "Saikang Medical"
     },
     "beneficios_es": [
-      "Altura regulable de 770 a 940 mm con resortes de gas y manivela.",
-      "Trendelenburg e inverso de 0 a 12° y lavabo de acrílico esterilizable.",
-      "Tres colores opcionales (azul, verde, rosa) y ruedas giratorias 360° con freno."
+      "Altura 770–940 mm con manivela y resortes de gas.",
+      "Trendelenburg e inverso 0–12° (±4°).",
+      "Lavabo acrílico no tóxico esterilizable > 100 °C.",
+      "Ruedas de caucho 4\" / Φ100 mm (2 con freno); colores azul, verde o rosa."
     ],
     "beneficios_en": [
-      "Height adjustable from 770 to 940 mm with gas springs and crank.",
-      "0 to 12° Trendelenburg and reverse and sterilisable acrylic bassinet.",
-      "Three optional colours (blue, green, pink) and 360° casters with brakes."
+      "Height 770–940 mm with crank and gas springs.",
+      "Trendelenburg and reverse 0–12° (±4°).",
+      "Non-toxic acrylic bassinet sterilizable > 100 °C.",
+      "4\" / Φ100 mm rubber casters (2 braked); blue, green or pink colours."
     ],
-    "valor_es": "Una cuna neonatal con altura y Trendelenburg ajustables y lavabo de acrílico esterilizable, según la ficha de Saikang.",
-    "valor_en": "A neonatal crib with adjustable height and Trendelenburg and a sterilisable acrylic bassinet, per the Saikang datasheet.",
+    "valor_es": "Una cuna neonatal con altura ajustable y Trendelenburg 0–12°, según ficha Saikang.",
+    "valor_en": "A neonatal crib with adjustable height and 0–12° Trendelenburg, per the Saikang datasheet.",
     "preguntas_frecuentes_es": [
       {
-        "q": "¿Qué colores tiene?",
-        "a": "Azul, verde o rosa como opciones."
+        "q": "¿Qué rango de altura tiene la X01-1?",
+        "a": "770 a 940 mm (±10 mm) en dimensiones externas 880 × 520 mm."
       },
       {
-        "q": "¿Cuál es su rango de altura?",
-        "a": "De 770 a 940 mm."
+        "q": "¿Ofrece Trendelenburg?",
+        "a": "Sí: Trendelenburg e inverso de 0 a 12° (±4°)."
       },
       {
-        "q": "¿Qué inclinaciones permite?",
-        "a": "Trendelenburg e inverso de 0 a 12° (±4°)."
+        "q": "¿Qué colores hay?",
+        "a": "Azul, verde o rosa, opcionales según ficha."
       },
       {
         "q": "¿Dónde descargo la ficha técnica de Cuna Neonatal X01-1?",
@@ -15627,16 +15637,16 @@
     ],
     "preguntas_frecuentes_en": [
       {
-        "q": "Which colours are available?",
-        "a": "Blue, green or pink as options."
+        "q": "What height range does the X01-1 have?",
+        "a": "770 to 940 mm (±10 mm) at external footprint 880 × 520 mm."
       },
       {
-        "q": "What is its height range?",
-        "a": "From 770 to 940 mm."
+        "q": "Does it offer Trendelenburg?",
+        "a": "Yes: Trendelenburg and reverse from 0 to 12° (±4°)."
       },
       {
-        "q": "Which tilts does it allow?",
-        "a": "Trendelenburg and reverse from 0 to 12° (±4°)."
+        "q": "What colours are available?",
+        "a": "Blue, green or pink, optional per the datasheet."
       },
       {
         "q": "Where can I download the Neonatal Crib X01-1 datasheet?",
@@ -15644,20 +15654,22 @@
       }
     ],
     "seo_keywords_es": [
-      "cuna neonatal",
-      "cuna de bebé hospitalaria X01-1",
-      "cuna neonatal ajustable",
-      "cuna Saikang",
-      "mobiliario neonatal Colombia",
-      "ficha técnica X01-1"
+      "cuna neonatal ajustable hospitalaria",
+      "cuna bebé X01-1 Saikang",
+      "cuna neonatal Trendelenburg Colombia",
+      "cuna maternidad altura ajustable",
+      "cuna acrílico hospitalaria",
+      "mobiliario neonatal ajustable",
+      "ficha técnica X01-1 Saikang"
     ],
     "seo_keywords_en": [
-      "neonatal crib",
-      "X01-1 hospital baby crib",
-      "adjustable neonatal crib",
-      "Saikang crib",
-      "neonatal furniture Colombia",
-      "X01-1 datasheet"
+      "adjustable hospital neonatal crib",
+      "X01-1 Saikang baby crib",
+      "Trendelenburg neonatal crib Colombia",
+      "adjustable height maternity crib",
+      "acrylic hospital baby crib",
+      "adjustable neonatal furniture",
+      "X01-1 Saikang datasheet"
     ],
     "marca": "Saikang Medical"
   },
@@ -15886,8 +15898,8 @@
     "nombre_en": "Manual Stretcher V2k",
     "descripcion_corta_es": "Camilla manual con plataforma de polipropileno",
     "descripcion_corta_en": "Manual stretcher with polypropylene platform",
-    "descripcion_larga_es": "La cama manual Saikang V2k tiene dimensiones externas de 2130 x 995 mm, plataforma de colchón de 1925 x 900 mm, carga segura de 200 kg y altura de 500 mm. Ajusta el respaldo de 0 a 70° y el apoyo de rodillas de 0 a 38° con dos manivelas, e incorpora cabeceras de PP con bloqueo de seguridad, plataforma de PP con retenedor de colchón, riel lateral plegable, soporte de suero con cuatro ganchos, ganchos de drenaje y ruedas cubiertas de 5\". Su diseño sin juntas favorece el control de infecciones.",
-    "descripcion_larga_en": "The Saikang V2k manual bed has external dimensions of 2130 x 995 mm, a 1925 x 900 mm mattress platform, 200 kg safe working load and 500 mm height. It adjusts the backrest from 0 to 70° and knee rest from 0 to 38° with two cranks, and features PP bed ends with safety lock, PP platform with mattress retainer, folding side rail, IV pole with four hooks, drainage hooks and 5\" covered castors. Its seamless design supports infection control.",
+    "descripcion_larga_es": "La cama manual hospitalaria Saikang V2k (2130 × 995 mm externos; plataforma 1925 × 900 mm) ofrece hospitalización robusta con carga segura de 200 kg y altura externa de 500 mm. Dos manivelas ajustan respaldo (0–70°) y apoyo de rodillas (0–38°) para reposicionar al paciente sin depender de motores.\n\nPlataforma de PP con retenedor de colchón, extremos de PP con bloqueo seguro y ruedas parachoques Ø65, riel lateral plegable de aleación de aluminio con postes de acero inoxidable, ruedas cubiertas de 5\", porta suero de 4 ganchos y ganchos de drenaje conforman un paquete clínico completo. Acero Baosteel con soldadura robótica Panasonic y plástico esterilizable a 100 °C respaldan la durabilidad.\n\nDiseño aséptico sin costuras en cabecera, piecero y superficie para desinfección rápida: una cama manual pensada para control de infecciones en hospitales colombianos.",
+    "descripcion_larga_en": "The Saikang V2k manual bed (2130 × 995 mm external; 1925 × 900 mm platform) delivers robust inpatient care with a 200 kg safe working load and 500 mm external height. Two cranks adjust backrest (0–70°) and knee support (0–38°) to reposition the patient without motors.\n\nPP platform with mattress retainer, PP ends with safe lock and Ø65 bumper wheels, foldable aluminium-alloy side rail with stainless-steel poles, covered 5\" casters, 4-hook IV pole and drainage hooks form a complete clinical package. Baosteel steel with Panasonic robotic welding and plastic sterilizable at 100 °C back durability.\n\nAseptic seamless design at head, foot and surface for quick disinfection: a manual bed built for infection control in Colombian hospitals.",
     "especificaciones": [
       {
         "clave": "Modelo",
@@ -15968,13 +15980,16 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": [
-      "Transporte de pacientes"
+      "Hospitalización general",
+      "Unidades con preferencia de cama manual",
+      "Control de infecciones en piso",
+      "Reposición de paciente con manivelas"
     ],
     "aplicaciones_en": [
-      "Patient transport",
-      "Intrahospital mobilization",
-      "Emergency",
-      "Transfer to examinations"
+      "General inpatient care",
+      "Units preferring manual beds",
+      "Floor infection control",
+      "Patient repositioning with cranks"
     ],
     "atributos": {
       "legacy_slugs": [
@@ -15990,29 +16005,31 @@
       "marca": "Saikang Medical"
     },
     "beneficios_es": [
-      "Carga segura de 200 kg con respaldo de 0 a 70° y rodillas de 0 a 38°.",
-      "Diseño sin juntas y plataforma de PP lavable, alineado con el control de infecciones.",
-      "Opcionales: función de autorregresión de espaldar, estante auxiliar y barra triángulo."
+      "Carga segura 200 kg con 2 manivelas: respaldo 0–70° y rodillas 0–38°.",
+      "Plataforma PP con retenedor, extremos PP con bloqueo y riel de aluminio plegable.",
+      "Acero Baosteel con soldadura robótica y plástico esterilizable a 100 °C.",
+      "Porta suero 4 ganchos, ganchos de drenaje y ruedas cubiertas de 5\"."
     ],
     "beneficios_en": [
-      "200 kg safe working load with 0 to 70° backrest and 0 to 38° knee rest.",
-      "Seamless design and washable PP platform, aligned with infection control.",
-      "Options: backrest auto-regression, utility shelf and trapeze bar."
+      "200 kg safe load with 2 cranks: backrest 0–70° and knees 0–38°.",
+      "PP platform with retainer, PP ends with lock and foldable aluminium rail.",
+      "Baosteel with robotic welding and plastic sterilizable at 100 °C.",
+      "4-hook IV pole, drainage hooks and covered 5\" casters."
     ],
-    "valor_es": "Una cama manual de dos manivelas con plataforma de PP y diseño sin juntas, según la ficha de Saikang.",
-    "valor_en": "A two-crank manual bed with PP platform and seamless design, per the Saikang datasheet.",
+    "valor_es": "Una cama manual de 200 kg con plataforma PP lavable y acero Baosteel, según ficha Saikang.",
+    "valor_en": "A 200 kg manual bed with washable PP platform and Baosteel steel, per the Saikang datasheet.",
     "preguntas_frecuentes_es": [
       {
-        "q": "¿Qué dimensiones tiene?",
-        "a": "2130 x 995 mm externas y plataforma de 1925 x 900 mm."
+        "q": "¿Qué carga segura tiene la V2k?",
+        "a": "Carga de trabajo segura de 200 kg."
       },
       {
-        "q": "¿Qué carga soporta?",
-        "a": "Una carga segura de trabajo de 200 kg."
+        "q": "¿Cómo se ajusta?",
+        "a": "Con 2 manivelas: respaldo 0–70° (±10°) y rodillas 0–38°."
       },
       {
-        "q": "¿Cuáles son sus opcionales?",
-        "a": "Autorregresión del espaldar, estante auxiliar y barra triángulo, según la ficha."
+        "q": "¿Qué materiales destacan?",
+        "a": "Plataforma y extremos de PP, riel de aluminio, acero Baosteel y plástico esterilizable a 100 °C."
       },
       {
         "q": "¿Dónde descargo la ficha técnica de Camilla Manual V2k?",
@@ -16021,16 +16038,16 @@
     ],
     "preguntas_frecuentes_en": [
       {
-        "q": "What are its dimensions?",
-        "a": "2130 x 995 mm external and a 1925 x 900 mm platform."
+        "q": "What safe working load does the V2k have?",
+        "a": "Safe working load of 200 kg."
       },
       {
-        "q": "What load does it support?",
-        "a": "A safe working load of 200 kg."
+        "q": "How is it adjusted?",
+        "a": "With 2 cranks: backrest 0–70° (±10°) and knees 0–38°."
       },
       {
-        "q": "Which options does it have?",
-        "a": "Backrest auto-regression, utility shelf and trapeze bar, per the datasheet."
+        "q": "What materials stand out?",
+        "a": "PP platform and ends, aluminium rail, Baosteel steel and plastic sterilizable at 100 °C."
       },
       {
         "q": "Where can I download the Manual Stretcher V2k datasheet?",
@@ -16039,19 +16056,21 @@
     ],
     "seo_keywords_es": [
       "cama manual hospitalaria",
-      "cama manual V2k",
-      "cama de hospital 2 manivelas",
-      "cama Saikang",
-      "cama hospitalaria Colombia",
-      "ficha técnica V2k"
+      "cama manual V2k Saikang",
+      "cama hospital 2 manivelas Colombia",
+      "cama PP lavable hospitalaria",
+      "cama Baosteel hospital",
+      "cama hospitalización manual",
+      "ficha técnica V2k Saikang"
     ],
     "seo_keywords_en": [
       "manual hospital bed",
-      "V2k manual bed",
-      "two-crank hospital bed",
-      "Saikang bed",
-      "hospital bed Colombia",
-      "V2k datasheet"
+      "V2k Saikang manual bed",
+      "2-crank hospital bed Colombia",
+      "washable PP hospital bed",
+      "Baosteel hospital bed",
+      "manual inpatient bed",
+      "V2k Saikang datasheet"
     ],
     "marca": "Saikang Medical"
   },
@@ -16923,8 +16942,8 @@
     "nombre_en": "Transport Stretcher SKB1A02",
     "descripcion_corta_es": "Camilla transportadora plegable de aleación de aluminio",
     "descripcion_corta_en": "Folding aluminum alloy transport stretcher",
-    "descripcion_larga_es": "La camilla plegable Saikang SKB1A02 es de aleación de aluminio con plegado en dos y tela Oxford ignífuga, resistente al moho y al desgaste de 100 000 ciclos. Se despliega a 2080 x 570 x 140 mm, se pliega a 1040 x 180 x 90 mm, soporta hasta 159 kg y pesa 6 kg netos. Se aplica a personas mayores, seguridad escolar y evacuaciones en hospitales y hoteles.",
-    "descripcion_larga_en": "The Saikang SKB1A02 folding stretcher is aluminium-alloy with a two-fold design and flame-retardant Oxford fabric resistant to mould and 100,000 wear cycles. It unfolds to 2080 x 570 x 140 mm, folds to 1040 x 180 x 90 mm, supports up to 159 kg and weighs 6 kg net. It applies to elderly care, school safety and evacuations in hospitals and hotels.",
+    "descripcion_larga_es": "La camilla transportadora plegable Saikang SKB1A02 (2 pliegues) equilibra capacidad y guardado: 2080 × 570 × 140 mm desplegada y 1040 × 180 × 90 mm plegada, con solo 6 kg netos y carga de trabajo ≤ 159 kg. Aleación de aluminio y tela Oxford ignífuga —resistente al moho y al desgaste 100.000 ciclos— la hacen ligera y durable.\n\nDiseño ergonómico de estructura simple y alta seguridad para ancianos, seguridad escolar y evacuaciones en hospitales y hoteles, según la ficha.\n\nEs la hermana de 2 pliegues de la línea SKB1A: más compacta al plegarse a lo largo, ideal cuando el espacio de almacenamiento es crítico.",
+    "descripcion_larga_en": "The Saikang SKB1A02 folding stretcher (2 folds) balances capacity and storage: 2080 × 570 × 140 mm unfolded and 1040 × 180 × 90 mm folded, at only 6 kg net with working load ≤ 159 kg. Aluminium alloy and fire-retardant Oxford cloth —mildew-resistant and wear-tested to 100,000 cycles— keep it light and durable.\n\nAn ergonomic simple structure with high safety for the elderly, school safety and evacuations in hospitals and hotels, per the datasheet.\n\nIt is the 2-fold sibling in the SKB1A line: more compact when folded lengthwise, ideal when storage space is critical.",
     "especificaciones": [
       {
         "clave": "Modelo",
@@ -16989,13 +17008,16 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": [
-      "Transporte"
+      "Evacuación hospitalaria",
+      "Seguridad escolar y hotelera",
+      "Traslado de personas mayores",
+      "Respuesta de emergencia ligera"
     ],
     "aplicaciones_en": [
-      "Prehospital transport",
-      "Ambulances",
-      "Emergencies",
-      "Rescue"
+      "Hospital evacuation",
+      "School and hotel safety",
+      "Elderly transfer",
+      "Light emergency response"
     ],
     "atributos": {
       "legacy_slugs": [
@@ -17011,29 +17033,31 @@
       "marca": "Saikang Medical"
     },
     "beneficios_es": [
-      "Plegado en dos y de solo 6 kg, fácil de transportar y guardar.",
-      "Tela Oxford ignífuga resistente al moho y al desgaste.",
-      "Carga de trabajo de hasta 159 kg."
+      "2 pliegues: 2080 × 570 × 140 mm / 1040 × 180 × 90 mm.",
+      "Solo 6 kg netos con carga ≤ 159 kg.",
+      "Aluminio y Oxford ignífugo resistente a 100.000 ciclos.",
+      "Indicada para evacuación en hospitales, escuelas y hoteles."
     ],
     "beneficios_en": [
-      "Two-fold and only 6 kg, easy to carry and store.",
-      "Flame-retardant Oxford fabric resistant to mould and wear.",
-      "Working load up to 159 kg."
+      "2 folds: 2080 × 570 × 140 mm / 1040 × 180 × 90 mm.",
+      "Only 6 kg net with load ≤ 159 kg.",
+      "Aluminium and fire-retardant Oxford rated to 100,000 cycles.",
+      "Indicated for evacuation in hospitals, schools and hotels."
     ],
-    "valor_es": "Una camilla plegable ligera de aluminio para traslados y evacuaciones, según la ficha de Saikang.",
-    "valor_en": "A light aluminium folding stretcher for transfers and evacuations, per the Saikang datasheet.",
+    "valor_es": "Una camilla plegable de 2 pliegues, 6 kg y ≤ 159 kg de carga, según ficha Saikang.",
+    "valor_en": "A 2-fold stretcher at 6 kg with ≤ 159 kg load, per the Saikang datasheet.",
     "preguntas_frecuentes_es": [
       {
+        "q": "¿En qué se diferencia de la SKB1A01?",
+        "a": "La SKB1A02 es de 2 pliegues (la SKB1A01 es de 4); dimensiones y formato plegado difieren según cada ficha."
+      },
+      {
+        "q": "¿Qué carga admite?",
+        "a": "Carga de trabajo ≤ 159 kg."
+      },
+      {
         "q": "¿Cuánto pesa?",
-        "a": "6 kg netos."
-      },
-      {
-        "q": "¿Cuánto mide plegada?",
-        "a": "1040 x 180 x 90 mm."
-      },
-      {
-        "q": "¿Qué carga soporta?",
-        "a": "Hasta 159 kg."
+        "a": "Peso neto 6 kg."
       },
       {
         "q": "¿Dónde descargo la ficha técnica de Camilla Transportadora SKB1A02?",
@@ -17042,16 +17066,16 @@
     ],
     "preguntas_frecuentes_en": [
       {
-        "q": "How much does it weigh?",
-        "a": "6 kg net."
-      },
-      {
-        "q": "How big is it folded?",
-        "a": "1040 x 180 x 90 mm."
+        "q": "How does it differ from the SKB1A01?",
+        "a": "The SKB1A02 is 2-fold (SKB1A01 is 4-fold); dimensions and folded format differ per each datasheet."
       },
       {
         "q": "What load does it support?",
-        "a": "Up to 159 kg."
+        "a": "Working load ≤ 159 kg."
+      },
+      {
+        "q": "How much does it weigh?",
+        "a": "Net weight 6 kg."
       },
       {
         "q": "Where can I download the Transport Stretcher SKB1A02 datasheet?",
@@ -17059,19 +17083,21 @@
       }
     ],
     "seo_keywords_es": [
-      "camilla plegable",
-      "camilla transportadora SKB1A02",
-      "camilla de aluminio plegable",
-      "camilla Saikang",
-      "camilla de traslado Colombia",
+      "camilla transportadora plegable",
+      "camilla SKB1A02 Saikang",
+      "camilla aluminio 2 pliegues Colombia",
+      "camilla evacuación ligera",
+      "camilla emergencia 6 kg",
+      "folding stretcher hospitalaria",
       "ficha técnica SKB1A02"
     ],
     "seo_keywords_en": [
-      "folding stretcher",
-      "SKB1A02 transport stretcher",
-      "aluminium folding stretcher",
-      "Saikang stretcher",
-      "transfer stretcher Colombia",
+      "folding transfer stretcher",
+      "SKB1A02 Saikang folding stretcher",
+      "2-fold aluminium stretcher Colombia",
+      "light evacuation stretcher",
+      "6 kg emergency stretcher",
+      "hospital folding stretcher",
       "SKB1A02 datasheet"
     ],
     "marca": "Saikang Medical"
@@ -17086,8 +17112,8 @@
     "nombre_en": "Folding Stretcher SKB1A01",
     "descripcion_corta_es": "Camilla plegable de aleación de aluminio para emergencias",
     "descripcion_corta_en": "Folding aluminum alloy stretcher for emergencies",
-    "descripcion_larga_es": "La camilla plegable Saikang SKB1A01 es de aleación de aluminio con plegado en cuatro y tela Oxford de alta resistencia, ignífuga y resistente al moho y al desgaste (100 000 ciclos). Se despliega a 2100 x 500 x 100 mm, se pliega a 580 x 220 x 210 mm, soporta 159 kg y pesa 6 kg netos. Se usa en emergencias, hospitales, ambulancias, evacuación en hoteles, seguridad escolar y fuerzas armadas.",
-    "descripcion_larga_en": "The Saikang SKB1A01 folding stretcher is aluminium-alloy with a four-fold design and high-strength Oxford fabric that is flame-retardant and resistant to mould and wear (100,000 cycles). It unfolds to 2100 x 500 x 100 mm, folds to 580 x 220 x 210 mm, supports 159 kg and weighs 6 kg net. It is used in emergencies, hospitals, ambulances, hotel evacuation, school safety and armed forces.",
+    "descripcion_larga_es": "La camilla plegable de emergencia Saikang SKB1A01 (4 pliegues) es ligera —solo 6 kg netos— y se despliega a 2100 × 500 × 100 mm o se guarda en 580 × 220 × 210 mm. Estructura de aleación de aluminio y tela Oxford ignífuga de alta resistencia (resistente al moho y al desgaste 100.000 ciclos) soportan una carga de trabajo de 159 kg.\n\nSu diseño ergonómico y operación simple la hacen práctica para evacuación de emergencia en hospitales, seguridad escolar, hoteles y atención a personas mayores, según indica la ficha.\n\nCuando el equipo necesita una camilla compacta que cabe en un vehículo o depósito sin sacrificar capacidad, la SKB1A01 es una respuesta clara y documentada.",
+    "descripcion_larga_en": "The Saikang SKB1A01 folding stretcher (4 folds) is light —only 6 kg net— and unfolds to 2100 × 500 × 100 mm or stores at 580 × 220 × 210 mm. An aluminium-alloy frame and high-strength fire-retardant Oxford cloth (mildew-resistant and wear-tested to 100,000 cycles) support a 159 kg working load.\n\nIts ergonomic design and simple operation make it practical for emergency evacuation in hospitals, school safety, hotels and elderly care, as the datasheet indicates.\n\nWhen teams need a compact stretcher that fits in a vehicle or storeroom without sacrificing capacity, the SKB1A01 is a clear, documented answer.",
     "especificaciones": [
       {
         "clave": "Modelo",
@@ -17152,17 +17178,16 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": [
-      "Emergencias",
-      "Hospitales",
-      "Campos deportivos",
-      "Ambulancias",
-      "Fuerzas armadas"
+      "Evacuación de emergencia en hospitales",
+      "Seguridad escolar y hoteles",
+      "Atención a personas mayores",
+      "Traslado ligero en campo"
     ],
     "aplicaciones_en": [
-      "Emergencies",
-      "Hospitals",
-      "Ambulances",
-      "Sports fields"
+      "Hospital emergency evacuation",
+      "School and hotel safety",
+      "Elderly care transfer",
+      "Light field transfer"
     ],
     "atributos": {
       "legacy_slugs": [
@@ -17178,29 +17203,31 @@
       "marca": "Saikang Medical"
     },
     "beneficios_es": [
-      "Plegable en cuatro y de solo 6 kg: fácil de transportar y guardar.",
-      "Tela Oxford ignífuga y resistente al moho y al desgaste de 100 000 ciclos.",
-      "Carga de trabajo de 159 kg para emergencias y evacuaciones."
+      "Solo 6 kg netos con carga de trabajo 159 kg.",
+      "4 pliegues: 2100 × 500 × 100 mm desplegada / 580 × 220 × 210 mm plegada.",
+      "Aleación de aluminio y Oxford ignífugo resistente a 100.000 ciclos de desgaste.",
+      "Diseño ergonómico para evacuación en hospitales, escuelas y hoteles."
     ],
     "beneficios_en": [
-      "Four-fold and only 6 kg: easy to carry and store.",
-      "Flame-retardant Oxford fabric resistant to mould and 100,000 wear cycles.",
-      "159 kg working load for emergencies and evacuations."
+      "Only 6 kg net with 159 kg working load.",
+      "4 folds: 2100 × 500 × 100 mm unfolded / 580 × 220 × 210 mm folded.",
+      "Aluminium alloy and fire-retardant Oxford rated to 100,000 wear cycles.",
+      "Ergonomic design for evacuation in hospitals, schools and hotels."
     ],
-    "valor_es": "Una camilla plegable ultraligera de aluminio para emergencias y evacuación, según la ficha de Saikang.",
-    "valor_en": "An ultralight aluminium folding stretcher for emergencies and evacuation, per the Saikang datasheet.",
+    "valor_es": "Una camilla plegable de 6 kg y 159 kg de carga para evacuaciones, según ficha Saikang.",
+    "valor_en": "A 6 kg folding stretcher with 159 kg load for evacuations, per the Saikang datasheet.",
     "preguntas_frecuentes_es": [
       {
-        "q": "¿Cuánto pesa?",
-        "a": "6 kg netos."
+        "q": "¿Cuánto pesa la SKB1A01?",
+        "a": "Peso neto de 6 kg."
       },
       {
-        "q": "¿Qué tamaño tiene plegada?",
-        "a": "580 x 220 x 210 mm."
+        "q": "¿Qué carga de trabajo admite?",
+        "a": "159 kg."
       },
       {
-        "q": "¿Qué carga soporta?",
-        "a": "Una carga de trabajo de 159 kg."
+        "q": "¿Cómo se pliega?",
+        "a": "Es de 4 pliegues; plegada mide 580 × 220 × 210 mm."
       },
       {
         "q": "¿Dónde descargo la ficha técnica de Camilla Plegable SKB1A01?",
@@ -17209,16 +17236,16 @@
     ],
     "preguntas_frecuentes_en": [
       {
-        "q": "How much does it weigh?",
-        "a": "6 kg net."
+        "q": "How much does the SKB1A01 weigh?",
+        "a": "Net weight of 6 kg."
       },
       {
-        "q": "How big is it folded?",
-        "a": "580 x 220 x 210 mm."
+        "q": "What working load does it support?",
+        "a": "159 kg."
       },
       {
-        "q": "What load does it support?",
-        "a": "A working load of 159 kg."
+        "q": "How does it fold?",
+        "a": "It is a 4-fold design; folded size is 580 × 220 × 210 mm."
       },
       {
         "q": "Where can I download the Folding Stretcher SKB1A01 datasheet?",
@@ -17226,19 +17253,21 @@
       }
     ],
     "seo_keywords_es": [
-      "camilla plegable",
-      "camilla plegable de aluminio SKB1A01",
-      "camilla de emergencia",
-      "camilla Saikang",
-      "camilla de emergencia Colombia",
+      "camilla plegable de emergencia",
+      "camilla SKB1A01 Saikang",
+      "camilla aluminio plegable Colombia",
+      "camilla evacuación hospital",
+      "camilla ligera 6 kg",
+      "stretcher plegable emergencia",
       "ficha técnica SKB1A01"
     ],
     "seo_keywords_en": [
-      "folding stretcher",
-      "SKB1A01 aluminium folding stretcher",
-      "emergency stretcher",
-      "Saikang stretcher",
-      "emergency stretcher Colombia",
+      "folding emergency stretcher",
+      "SKB1A01 Saikang folding stretcher",
+      "aluminium folding stretcher Colombia",
+      "hospital evacuation stretcher",
+      "lightweight 6 kg stretcher",
+      "portable emergency stretcher",
       "SKB1A01 datasheet"
     ],
     "marca": "Saikang Medical"
@@ -17253,8 +17282,8 @@
     "nombre_en": "Spinal Board SKB2A10",
     "descripcion_corta_es": "Tablero espinal con 8 pasadores, translúcido a rayos X",
     "descripcion_corta_en": "Spinal board with 8 pins, X-ray translucent",
-    "descripcion_larga_es": "El tablero espinal Saikang SKB2A10 mide 1380 x 350 x 50 mm y está fabricado en polietileno de alta densidad (HDPE) de alta resistencia al impacto y al frío. Está pensado para pacientes pediátricos, soporta hasta 159 kg, es traslúcido a rayos X para realizar fluoroscopia, incluye tres correas y permite elevar el respaldo de 0 a 60°.",
-    "descripcion_larga_en": "The Saikang SKB2A10 spine board measures 1380 x 350 x 50 mm and is made of high-density polyethylene (HDPE) with high impact and cold resistance. It is intended for paediatric patients, supports up to 159 kg, is X-ray translucent for fluoroscopy, includes three straps and allows the backrest to be raised from 0 to 60°.",
+    "descripcion_larga_es": "El tablero espinal de emergencia Saikang SKB2A10 (1380 × 350 × 50 mm) es equipo de transferencia en HDPE de alta resistencia, capaz de permitir fluoroscopia/rayos X durante el traslado según la ficha. Carga ≤ 159 kg, tres correas y respaldo elevable 0–60° para adaptar la posición del paciente.\n\nSu formato rígido y materiales de ingeniería plástica facilitan la inmovilización y el movimiento coordinado del equipo de emergencias en Colombia.\n\nCuando el protocolo exige un spine board documentado —dimensiones, carga y compatibilidad con imagen— el SKB2A10 responde con datos claros de fabricante.",
+    "descripcion_larga_en": "The Saikang SKB2A10 spine board (1380 × 350 × 50 mm) is high-strength HDPE emergency transfer equipment that can allow X-ray/fluoroscopy during transfer per the datasheet. Load ≤ 159 kg, three straps and a backrest raisable 0–60° to adapt patient position.\n\nIts rigid format and engineering-plastic materials support immobilization and coordinated movement by emergency teams in Colombia.\n\nWhen protocol requires a documented spine board —dimensions, load and imaging compatibility— the SKB2A10 answers with clear manufacturer data.",
     "especificaciones": [
       {
         "clave": "Modelo",
@@ -17334,14 +17363,16 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": [
-      "Emergencias",
-      "Inmovilización espinal"
+      "Transferencia de emergencia",
+      "Inmovilización en rescate",
+      "Urgencias y trauma",
+      "Traslado con necesidad de imagen"
     ],
     "aplicaciones_en": [
-      "Spinal immobilization",
-      "Prehospital emergencies",
-      "Trauma",
-      "Emergency care"
+      "Emergency transfer",
+      "Rescue immobilization",
+      "Emergency and trauma care",
+      "Transfer needing imaging"
     ],
     "atributos": {
       "legacy_slugs": [
@@ -17357,29 +17388,31 @@
       "marca": "Saikang Medical"
     },
     "beneficios_es": [
-      "HDPE de alta resistencia al impacto, al frío y al agrietamiento por estrés.",
-      "Permite estudios de rayos X sin retirar al paciente.",
-      "Tres correas incluidas y respaldo elevable de 0 a 60°; para uso pediátrico."
+      "HDPE de alta resistencia, tamaño 1380 × 350 × 50 mm (±10 mm).",
+      "Carga ≤ 159 kg con tres correas de sujeción.",
+      "Respaldo elevable de 0 a 60°.",
+      "Apta para transferencia de emergencia con fluoroscopia/rayos X según ficha."
     ],
     "beneficios_en": [
-      "HDPE with high resistance to impact, cold and stress cracking.",
-      "Allows X-ray imaging without moving the patient.",
-      "Three straps included and backrest raisable from 0 to 60°; for paediatric use."
+      "High-strength HDPE, size 1380 × 350 × 50 mm (±10 mm).",
+      "Load ≤ 159 kg with three securing straps.",
+      "Backrest raisable from 0 to 60°.",
+      "Suitable for emergency transfer with X-ray/fluoroscopy per datasheet."
     ],
-    "valor_es": "Un tablero espinal pediátrico en HDPE, translúcido a rayos X, según la ficha de Saikang.",
-    "valor_en": "A paediatric HDPE spine board, X-ray translucent, per the Saikang datasheet.",
+    "valor_es": "Un tablero espinal HDPE ≤ 159 kg con respaldo 0–60° y compatibilidad de imagen, según ficha Saikang.",
+    "valor_en": "An HDPE spine board ≤ 159 kg with 0–60° backrest and imaging compatibility, per Saikang datasheet.",
     "preguntas_frecuentes_es": [
       {
-        "q": "¿Para quién está pensado?",
-        "a": "La ficha indica como público objetivo a niños."
+        "q": "¿Qué tamaño tiene el SKB2A10?",
+        "a": "1380 × 350 × 50 mm (±10 mm)."
       },
       {
-        "q": "¿Qué carga soporta?",
-        "a": "Hasta 159 kg."
+        "q": "¿Qué carga admite?",
+        "a": "≤ 159 kg."
       },
       {
-        "q": "¿Se puede radiografiar?",
-        "a": "Sí, es un equipo de traslado de emergencia que permite fluoroscopia de rayos X."
+        "q": "¿Permite rayos X?",
+        "a": "La ficha lo describe como equipo de transferencia de emergencia que puede realizar fluoroscopia/rayos X."
       },
       {
         "q": "¿Dónde descargo la ficha técnica de Tablero Espinal SKB2A10?",
@@ -17388,16 +17421,16 @@
     ],
     "preguntas_frecuentes_en": [
       {
-        "q": "Who is it intended for?",
-        "a": "The datasheet lists children as the target audience."
+        "q": "What size is the SKB2A10?",
+        "a": "1380 × 350 × 50 mm (±10 mm)."
       },
       {
         "q": "What load does it support?",
-        "a": "Up to 159 kg."
+        "a": "≤ 159 kg."
       },
       {
-        "q": "Can it be X-rayed?",
-        "a": "Yes, it is emergency transfer equipment that allows X-ray fluoroscopy."
+        "q": "Does it allow X-ray?",
+        "a": "The datasheet describes it as emergency transfer equipment that can perform X-ray/fluoroscopy."
       },
       {
         "q": "Where can I download the Spinal Board SKB2A10 datasheet?",
@@ -17405,19 +17438,21 @@
       }
     ],
     "seo_keywords_es": [
-      "tablero espinal pediátrico",
-      "tablero espinal SKB2A10",
-      "inmovilización espinal",
-      "tablero Saikang",
-      "emergencias prehospitalarias Colombia",
+      "tablero espinal de emergencia",
+      "spine board SKB2A10 Saikang",
+      "tabla espinal Colombia",
+      "tablero inmovilización HDPE",
+      "camilla rígida emergencia",
+      "spine board hospitalario",
       "ficha técnica SKB2A10"
     ],
     "seo_keywords_en": [
-      "paediatric spine board",
-      "SKB2A10 spine board",
-      "spinal immobilisation",
-      "Saikang spine board",
-      "prehospital emergency Colombia",
+      "emergency spine board",
+      "SKB2A10 Saikang spine board",
+      "spine board Colombia",
+      "HDPE immobilization board",
+      "rigid emergency backboard",
+      "hospital spine board",
       "SKB2A10 datasheet"
     ],
     "marca": "Saikang Medical"
@@ -17563,8 +17598,8 @@
     "nombre_en": "Transport Stretcher SKB039(H)",
     "descripcion_corta_es": "Camilla transportadora con ajuste de altura en 3 etapas",
     "descripcion_corta_en": "Transport stretcher with 3-stage height adjustment",
-    "descripcion_larga_es": "La camilla transportadora Saikang SKB039(H) se despliega a 1950 x 570 x 910 mm y se pliega a 2030 x 570 x 300 mm. Ajusta la altura en tres posiciones (78, 87 y 91 cm), el respaldo de 0 a 75° y las piernas de 0 a 15°, con capacidad de hasta 220 kg. Se opera con una sola persona, la superficie se separa y se bloquea, e incluye ruedas de 6\" (2 con freno), correa de pecho y de pierna, colchón de PVC impermeable de 100 mm, porta suero extensible y cierre de fijación en ambulancia.",
-    "descripcion_larga_en": "The Saikang SKB039(H) stretcher trolley unfolds to 1950 x 570 x 910 mm and folds to 2030 x 570 x 300 mm. It adjusts height in three positions (78, 87 and 91 cm), the backrest from 0 to 75° and the legs from 0 to 15°, with capacity up to 220 kg. It is operated by one person, the surface can be separated and locked, and it includes 6\" casters (2 with brakes), chest and leg straps, a 100 mm waterproof PVC mattress, extendable IV rack and ambulance fixing lock.",
+    "descripcion_larga_es": "La camilla transportadora ambulancia Saikang SKB039(H) está diseñada para carga y descarga en ambulancias con un solo operador. Desplegada mide 1950 × 570 × 910 mm y plegada 2030 × 570 × 300 mm; ofrece tres alturas (78, 87 y 91 cm), respaldo 0–75°, piernas 0–15° y carga ≤ 220 kg.\n\nPatas en H, superficie separable con dispositivo de bloqueo, estructura de aleación de aluminio y acero inoxidable, ruedas de 6\" (dos con freno), correas de pecho y pierna, colchón de esponja engrosada impermeable PVC de 100 mm y porta suero telescópico (hasta 71 cm) componen un sistema de traslado robusto.\n\nEs una solución de alto rendimiento para flotas que necesitan plegado compacto, bloqueo de fijación y operación por un solo miembro del equipo.",
+    "descripcion_larga_en": "The Saikang SKB039(H) stretcher trolley is designed for ambulance loading and unloading by a single operator. Unfolded it measures 1950 × 570 × 910 mm and folded 2030 × 570 × 300 mm; it offers three heights (78, 87 and 91 cm), backrest 0–75°, legs 0–15° and load ≤ 220 kg.\n\nH-shaped legs, a separable surface with locking device, aluminium-alloy and stainless-steel structure, 6\" casters (two braked), chest and leg straps, a 100 mm thickened waterproof PVC sponge mattress and a telescopic IV rack (up to 71 cm) form a robust transfer system.\n\nIt is a high-performance option for fleets that need compact folding, fixation locking and one-person operation.",
     "especificaciones": [
       {
         "clave": "Modelo",
@@ -17639,14 +17674,16 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": [
-      "Transporte",
-      "Paramédicos"
+      "Carga y descarga en ambulancias",
+      "Traslado prehospitalario",
+      "Evacuación de emergencia",
+      "Servicios de urgencias"
     ],
     "aplicaciones_en": [
-      "Medical transport",
-      "Paramedic services",
-      "Critical patient transfers",
-      "Ground ambulances"
+      "Ambulance loading and unloading",
+      "Prehospital transfer",
+      "Emergency evacuation",
+      "Emergency departments"
     ],
     "atributos": {
       "legacy_slugs": [
@@ -17664,29 +17701,31 @@
       "marca": "Saikang Medical"
     },
     "beneficios_es": [
-      "Capacidad de hasta 220 kg con altura ajustable en tres posiciones (78, 87 y 91 cm).",
-      "Estructura plegable de aleación de aluminio y acero inoxidable, operable por una sola persona.",
-      "Correas de pecho y piernas, colchón impermeable de 100 mm y cierre de fijación en ambulancia."
+      "Carga ≤ 220 kg con operación por un solo miembro del equipo.",
+      "Tres alturas (78/87/91 cm), respaldo 0–75° y piernas 0–15°.",
+      "Superficie separable con bloqueo; patas en H de aluminio/acero inoxidable.",
+      "Colchón PVC impermeable de 100 mm, correas pecho/pierna y porta suero telescópico."
     ],
     "beneficios_en": [
-      "Capacity up to 220 kg with height adjustable in three positions (78, 87 and 91 cm).",
-      "Foldable aluminium-alloy and stainless-steel structure, operable by one person.",
-      "Chest and leg straps, 100 mm waterproof mattress and ambulance fixing lock."
+      "Load ≤ 220 kg with single-operator use.",
+      "Three heights (78/87/91 cm), backrest 0–75° and legs 0–15°.",
+      "Separable surface with lock; H-shaped aluminium/stainless-steel legs.",
+      "100 mm waterproof PVC mattress, chest/leg straps and telescopic IV rack."
     ],
-    "valor_es": "Una camilla transportadora plegable de 220 kg para uso con ambulancia, según la ficha oficial de Saikang.",
-    "valor_en": "A foldable 220 kg stretcher trolley for ambulance use, per the official Saikang datasheet.",
+    "valor_es": "Una camilla de ambulancia ≤ 220 kg operable por una persona, con tres alturas y colchón de 100 mm, según ficha Saikang.",
+    "valor_en": "A ≤ 220 kg ambulance stretcher operable by one person, with three heights and a 100 mm mattress, per Saikang datasheet.",
     "preguntas_frecuentes_es": [
       {
-        "q": "¿Qué capacidad tiene?",
-        "a": "Hasta 220 kg."
-      },
-      {
-        "q": "¿Qué alturas permite?",
-        "a": "Tres posiciones: 78, 87 y 91 cm."
+        "q": "¿Qué carga admite la SKB039(H)?",
+        "a": "Capacidad de carga ≤ 220 kg."
       },
       {
         "q": "¿Cuántas personas se necesitan para operarla?",
-        "a": "Una sola persona, según la ficha."
+        "a": "La ficha indica que se requiere un miembro del equipo para operarla."
+      },
+      {
+        "q": "¿Qué alturas ofrece?",
+        "a": "78 cm, 87 cm y 91 cm."
       },
       {
         "q": "¿Dónde descargo la ficha técnica de Camilla Transportadora SKB039(H)?",
@@ -17695,16 +17734,16 @@
     ],
     "preguntas_frecuentes_en": [
       {
-        "q": "What capacity does it have?",
-        "a": "Up to 220 kg."
-      },
-      {
-        "q": "Which heights does it allow?",
-        "a": "Three positions: 78, 87 and 91 cm."
+        "q": "What load does the SKB039(H) support?",
+        "a": "Load capacity ≤ 220 kg."
       },
       {
         "q": "How many people are needed to operate it?",
-        "a": "One person, per the datasheet."
+        "a": "The datasheet states one staff member is required to operate it."
+      },
+      {
+        "q": "What heights does it offer?",
+        "a": "78 cm, 87 cm and 91 cm."
       },
       {
         "q": "Where can I download the Transport Stretcher SKB039(H) datasheet?",
@@ -17712,20 +17751,22 @@
       }
     ],
     "seo_keywords_es": [
-      "camilla transportadora",
-      "camilla SKB039(H)",
-      "camilla plegable para ambulancia",
-      "camilla Saikang",
-      "camilla de ambulancia Colombia",
-      "ficha técnica SKB039(H)"
+      "camilla transportadora ambulancia",
+      "camilla SKB039H Saikang",
+      "camilla ambulancia plegable Colombia",
+      "stretcher trolley 220 kg",
+      "camilla carga un operador",
+      "camilla aluminio ambulancia",
+      "ficha técnica SKB039H"
     ],
     "seo_keywords_en": [
-      "stretcher trolley",
-      "SKB039(H) stretcher",
-      "foldable ambulance stretcher",
-      "Saikang stretcher",
-      "ambulance stretcher Colombia",
-      "SKB039(H) datasheet"
+      "ambulance stretcher trolley",
+      "SKB039H Saikang stretcher",
+      "folding ambulance stretcher Colombia",
+      "220 kg stretcher trolley",
+      "single operator ambulance stretcher",
+      "aluminium ambulance stretcher",
+      "SKB039H datasheet"
     ],
     "marca": "Saikang Medical"
   },
@@ -17739,8 +17780,8 @@
     "nombre_en": "Soft Stretcher SKB3A104",
     "descripcion_corta_es": "Camilla blanda plegable de 1800×650 mm",
     "descripcion_corta_en": "Folding soft stretcher, 1800×650 mm",
-    "descripcion_larga_es": "La camilla blanda Saikang SKB3A104 se despliega a 1800 x 670 mm y se pliega a 500 x 270 mm, con tela Oxford de doble capa engrosada y capacidad de hasta 159 kg. Cuenta con diez asas (ocho perimetrales y dos en los extremos) con tubos plásticos, pensadas para rescate en montaña y traslados largos, dos correas de seguridad (pecho y piernas) y bolsa de almacenamiento.",
-    "descripcion_larga_en": "The Saikang SKB3A104 soft stretcher unfolds to 1800 x 670 mm and folds to 500 x 270 mm, in thickened double-layer Oxford fabric with capacity up to 159 kg. It has ten handles (eight around the perimeter and two at the ends) with plastic tubes, designed for mountain rescue and long-distance transport, two safety straps (chest and legs) and a storage bag.",
+    "descripcion_larga_es": "La camilla blanda de rescate Saikang SKB3A104 está hecha para terreno difícil y traslados largos en Colombia: se despliega a 1800 × 670 mm y se pliega a 500 × 270 mm para caber en una bolsa de transporte. Su tela Oxford de doble capa engrosada soporta hasta 159 kg con diez asas (ocho perimetrales y dos en los extremos) reforzadas con tubo plástico.\n\nDos correas de seguridad en pecho y piernas estabilizan al paciente durante el movimiento. El formato blando permite pasar por espacios estrechos donde una camilla rígida no cabe.\n\nEs la opción ligera y plegable que equipos de rescate y emergencias necesitan cuando el peso y el volumen importan tanto como la capacidad de carga.",
+    "descripcion_larga_en": "The Saikang SKB3A104 soft stretcher is built for difficult-terrain rescue and long-distance transfers in Colombia: it unfolds to 1800 × 670 mm and folds to 500 × 270 mm to fit in a carry bag. Thickened double-layer Oxford cloth supports up to 159 kg with ten handles (eight around the perimeter and two at the ends) reinforced with plastic tubing.\n\nTwo safety straps at chest and legs stabilize the patient in motion. The soft format can pass through tight spaces where a rigid stretcher cannot.\n\nIt is the light, foldable option rescue and emergency teams need when weight and bulk matter as much as load capacity.",
     "especificaciones": [
       {
         "clave": "Modelo",
@@ -17804,16 +17845,16 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": [
-      "Emergencias prehospitalarias",
-      "Ambulancias",
-      "Rescate en espacios reducidos",
-      "Campañas de salud"
+      "Rescate en montaña y terreno irregular",
+      "Transporte a larga distancia",
+      "Evacuación en espacios estrechos",
+      "Equipos de emergencias"
     ],
     "aplicaciones_en": [
-      "Prehospital emergencies",
-      "Ambulances",
-      "Confined space rescue",
-      "Health campaigns"
+      "Mountain and rough-terrain rescue",
+      "Long-distance transportation",
+      "Evacuation in tight spaces",
+      "Emergency response teams"
     ],
     "atributos": {
       "legacy_slugs": [
@@ -17831,29 +17872,31 @@
       "marca": "Saikang Medical"
     },
     "beneficios_es": [
-      "Plegable a 500 x 270 mm y guardada en bolsa para llevar a cualquier lugar.",
-      "Diez asas con tubo plástico para rescate en montaña y traslados largos.",
-      "Tela Oxford de doble capa resistente al desgaste y capacidad de hasta 159 kg."
+      "Tela Oxford de doble capa con carga ≤ 159 kg.",
+      "Diez asas con tubo plástico para rescate y transporte largo.",
+      "Se pliega a 500 × 270 mm y guarda en bolsa de transporte.",
+      "Dos correas de seguridad en pecho y piernas."
     ],
     "beneficios_en": [
-      "Folds to 500 x 270 mm and comes in a bag to carry anywhere.",
-      "Ten handles with plastic tubes for mountain rescue and long transport.",
-      "Wear-resistant double-layer Oxford fabric and capacity up to 159 kg."
+      "Double-layer Oxford cloth with load ≤ 159 kg.",
+      "Ten plastic-tubed handles for rescue and long transport.",
+      "Folds to 500 × 270 mm and stores in a tote bag.",
+      "Two safety straps at chest and legs."
     ],
-    "valor_es": "Una camilla blanda plegable de 159 kg con diez asas para rescate y traslado, según la ficha de Saikang.",
-    "valor_en": "A foldable 159 kg soft stretcher with ten handles for rescue and transport, per the Saikang datasheet.",
+    "valor_es": "Una camilla blanda plegable ≤ 159 kg con 10 asas para rescate y traslado largo, según ficha Saikang.",
+    "valor_en": "A foldable soft stretcher ≤ 159 kg with 10 handles for rescue and long transfer, per Saikang datasheet.",
     "preguntas_frecuentes_es": [
       {
-        "q": "¿Qué carga soporta?",
-        "a": "Hasta 159 kg."
-      },
-      {
-        "q": "¿Cuánto mide plegada?",
-        "a": "500 x 270 mm."
+        "q": "¿Qué carga admite la SKB3A104?",
+        "a": "Capacidad de carga ≤ 159 kg."
       },
       {
         "q": "¿Cuántas asas tiene?",
-        "a": "Diez: ocho perimetrales y dos en los extremos."
+        "a": "Diez asas: ocho alrededor y dos en los extremos, con tubo plástico."
+      },
+      {
+        "q": "¿Para qué usos la indica la ficha?",
+        "a": "Rescate en montaña y transporte a larga distancia."
       },
       {
         "q": "¿Dónde descargo la ficha técnica de Camilla Blanda SKB3A104?",
@@ -17862,16 +17905,16 @@
     ],
     "preguntas_frecuentes_en": [
       {
-        "q": "What load does it support?",
-        "a": "Up to 159 kg."
-      },
-      {
-        "q": "How big is it folded?",
-        "a": "500 x 270 mm."
+        "q": "What load does the SKB3A104 support?",
+        "a": "Load capacity ≤ 159 kg."
       },
       {
         "q": "How many handles does it have?",
-        "a": "Ten: eight around the perimeter and two at the ends."
+        "a": "Ten handles: eight around and two at the ends, with plastic tubing."
+      },
+      {
+        "q": "What uses does the datasheet indicate?",
+        "a": "Mountain rescue and long-distance transportation."
       },
       {
         "q": "Where can I download the Soft Stretcher SKB3A104 datasheet?",
@@ -17879,19 +17922,21 @@
       }
     ],
     "seo_keywords_es": [
-      "camilla blanda",
-      "camilla flexible de rescate SKB3A104",
-      "camilla plegable de tela",
-      "camilla Saikang",
-      "camilla de rescate Colombia",
+      "camilla blanda de rescate",
+      "camilla flexible SKB3A104 Saikang",
+      "camilla Oxford plegable Colombia",
+      "camilla rescate montaña",
+      "soft stretcher hospitalario",
+      "camilla emergencia tela",
       "ficha técnica SKB3A104"
     ],
     "seo_keywords_en": [
-      "soft stretcher",
-      "SKB3A104 rescue stretcher",
-      "foldable fabric stretcher",
-      "Saikang stretcher",
-      "rescue stretcher Colombia",
+      "soft rescue stretcher",
+      "SKB3A104 Saikang soft stretcher",
+      "foldable Oxford stretcher Colombia",
+      "mountain rescue stretcher",
+      "soft stretcher emergency",
+      "fabric emergency stretcher",
       "SKB3A104 datasheet"
     ],
     "marca": "Saikang Medical"
@@ -17906,8 +17951,8 @@
     "nombre_en": "Ambulance Stretcher SKB039(D)",
     "descripcion_corta_es": "Camilla para ambulancia con capacidad 160 kg",
     "descripcion_corta_en": "Ambulance stretcher with 160 kg capacity",
-    "descripcion_larga_es": "La camilla de ambulancia Saikang SKB039(D) tiene estructura de aleación de aluminio ligera y estable, respaldo de 0 a 70° y capacidad de carga de hasta 160 kg. Incluye dos cinturones de seguridad, barandillas plegables, esponja ignífuga de 5 cm (30 kg/m³), cuero ignífugo resistente al desgaste, porta suero plegable y ajustable, ruedas silenciosas de 5\" con freno y agarraderos a ambos lados para subirla a la ambulancia con facilidad.",
-    "descripcion_larga_en": "The Saikang SKB039(D) ambulance stretcher has a light and stable aluminium-alloy structure, a 0 to 70° backrest and a load capacity up to 160 kg. It includes two safety belts, folding side rails, 5 cm flame-retardant sponge (30 kg/m³), wear-resistant flame-retardant leather, a folding adjustable IV pole, silent 5\" casters with brake and handles on both sides to load it into the ambulance easily.",
+    "descripcion_larga_es": "La camilla para ambulancia hospitalaria Saikang SKB039(D) está pensada para el traslado seguro de pacientes en servicios de emergencia y ambulancias en Colombia. Su estructura de aleación de aluminio combina ligereza con la resistencia que exige el uso intensivo, y el ajuste de respaldo de 0 a 70° permite acomodar al paciente durante el transporte.\n\nSoporta hasta 160 kg y viene con colchón de esponja ignífuga de 5 cm (30 kg/m³), dos cinturones de seguridad y ruedas silenciosas de 5\" con freno universal de protección avanzada para mover y bloquear con facilidad.\n\nEl tapizado en cuero a prueba de llama, resistente al amarilleo y a los hongos, facilita la limpieza entre servicios —una ventaja operativa real para flotas de traslado.",
+    "descripcion_larga_en": "The Saikang SKB039(D) ambulance stretcher is built for safe patient transfer in emergency services and ambulances in Colombia. Its aluminium-alloy structure combines lightness with the strength intensive use demands, and the 0–70° backrest adjustment lets crews position the patient during transport.\n\nIt supports up to 160 kg and comes with a 5 cm fire-retardant sponge mattress (30 kg/m³), two safety belts and quiet 5\" casters with an advanced universal brake for easy movement and locking.\n\nFlame-resistant leather upholstery that resists yellowing and mildew simplifies cleaning between runs —a real operational advantage for transfer fleets.",
     "especificaciones": [
       {
         "clave": "Modelo",
@@ -18007,13 +18052,16 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": [
-      "Ambulancia"
+      "Ambulancias y traslado prehospitalario",
+      "Servicios de urgencias",
+      "Traslado entre áreas hospitalarias",
+      "Flotas de evacuación"
     ],
     "aplicaciones_en": [
-      "Ambulance transport",
-      "Emergency transfers",
-      "Medical emergencies",
-      "Mobile services"
+      "Ambulances and prehospital transfer",
+      "Emergency departments",
+      "Inter-area hospital transfer",
+      "Evacuation fleets"
     ],
     "atributos": {
       "legacy_slugs": [
@@ -18029,29 +18077,31 @@
       "marca": "Saikang Medical"
     },
     "beneficios_es": [
-      "Aleación de aluminio ligera y estable, con capacidad de hasta 160 kg.",
-      "Dos cinturones de seguridad, barandillas plegables y porta suero ajustable.",
-      "Agarraderos laterales y ruedas silenciosas con freno para cargar y mover con facilidad."
+      "Estructura de aleación de aluminio con capacidad de carga ≤ 160 kg.",
+      "Respaldo ajustable de 0 a 70° para acomodar al paciente en traslado.",
+      "Colchón de esponja ignífuga de 5 cm (30 kg/m³) y dos cinturones de seguridad.",
+      "Ruedas silenciosas de 5\" con freno universal de protección avanzada."
     ],
     "beneficios_en": [
-      "Light, stable aluminium alloy with capacity up to 160 kg.",
-      "Two safety belts, folding rails and adjustable IV pole.",
-      "Side handles and silent braked casters for easy loading and moving."
+      "Aluminium-alloy frame with load capacity ≤ 160 kg.",
+      "Backrest adjustable from 0 to 70° to position the patient in transfer.",
+      "5 cm fire-retardant sponge mattress (30 kg/m³) and two safety belts.",
+      "Quiet 5\" casters with advanced universal brake protection."
     ],
-    "valor_es": "Una camilla de ambulancia ligera de aluminio con cinturones y porta suero, según la ficha de Saikang.",
-    "valor_en": "A light aluminium ambulance stretcher with belts and IV pole, per the Saikang datasheet.",
+    "valor_es": "Una camilla de ambulancia de aluminio con respaldo 0–70° y carga ≤ 160 kg, según la ficha oficial Saikang.",
+    "valor_en": "An aluminium ambulance stretcher with 0–70° backrest and ≤ 160 kg load, per the official Saikang datasheet.",
     "preguntas_frecuentes_es": [
       {
-        "q": "¿Qué capacidad tiene?",
-        "a": "Hasta 160 kg."
+        "q": "¿Qué carga admite la SKB039(D)?",
+        "a": "Capacidad de carga ≤ 160 kg, según la ficha técnica."
       },
       {
-        "q": "¿Cuánto reclina el respaldo?",
-        "a": "De 0 a 70°."
+        "q": "¿Hasta qué ángulo ajusta el respaldo?",
+        "a": "El respaldo se ajusta de 0 a 70°."
       },
       {
-        "q": "¿De qué material es la estructura?",
-        "a": "Aleación de aluminio de alta calidad."
+        "q": "¿Qué incluye el colchón?",
+        "a": "Esponja ignífuga de 5 cm con densidad de 30 kg/m³, más dos cinturones de seguridad."
       },
       {
         "q": "¿Dónde descargo la ficha técnica de Camilla para Ambulancia SKB039(D)?",
@@ -18060,16 +18110,16 @@
     ],
     "preguntas_frecuentes_en": [
       {
-        "q": "What capacity does it have?",
-        "a": "Up to 160 kg."
+        "q": "What load does the SKB039(D) support?",
+        "a": "Load capacity ≤ 160 kg, per the datasheet."
       },
       {
-        "q": "How far does the backrest recline?",
-        "a": "From 0 to 70°."
+        "q": "What backrest angle range does it have?",
+        "a": "The backrest adjusts from 0 to 70°."
       },
       {
-        "q": "What is the structure made of?",
-        "a": "High-quality aluminium alloy."
+        "q": "What does the mattress include?",
+        "a": "A 5 cm fire-retardant sponge at 30 kg/m³, plus two safety belts."
       },
       {
         "q": "Where can I download the Ambulance Stretcher SKB039(D) datasheet?",
@@ -18077,20 +18127,22 @@
       }
     ],
     "seo_keywords_es": [
-      "camilla de ambulancia",
-      "camilla para ambulancia SKB039(D)",
-      "camilla de traslado",
-      "camilla Saikang",
-      "camilla ambulancia Colombia",
-      "ficha técnica SKB039(D)"
+      "camilla para ambulancia hospitalaria",
+      "camilla ambulancia SKB039D Saikang",
+      "camilla de emergencia Colombia",
+      "camilla aluminio ambulancia",
+      "stretcher trolley ambulancia",
+      "camilla traslado pacientes",
+      "ficha técnica SKB039D"
     ],
     "seo_keywords_en": [
-      "ambulance stretcher",
-      "SKB039(D) ambulance stretcher",
-      "transport stretcher",
-      "Saikang stretcher",
-      "ambulance stretcher Colombia",
-      "SKB039(D) datasheet"
+      "ambulance stretcher trolley",
+      "SKB039D Saikang ambulance stretcher",
+      "emergency stretcher Colombia",
+      "aluminium ambulance stretcher",
+      "patient transfer stretcher",
+      "ambulance trolley Saikang",
+      "SKB039D datasheet"
     ],
     "marca": "Saikang Medical"
   },
@@ -18180,8 +18232,8 @@
     "nombre_en": "Pediatric Care Bed CQ8k",
     "descripcion_corta_es": "Cama de atención pediátrica con plataforma PP lavable",
     "descripcion_corta_en": "Pediatric care bed with washable PP platform",
-    "descripcion_larga_es": "La cama pediátrica Saikang CQ8k tiene cinco funciones con dos motores lineales, plataforma de PP lavable con retenedor de colchón integrado, rieles laterales de aleación de aluminio con protección adicional y cabecera y piecero de PP con bloqueo seguro. Sus dimensiones son 1975 x 880 x 480-770 mm, con plataforma de 1730 x 780 mm y carga máxima de 200 kg. Ajusta el respaldo de 0 a 75°, las piernas de 0 a 35° y ofrece Trendelenburg e inverso de 0 a 12°. Opcionales: barra con triángulo de Balkan y ruedas direccionales.",
-    "descripcion_larga_en": "The Saikang CQ8k paediatric bed has five functions with two linear motors, a washable PP platform with integrated mattress retainer, aluminium-alloy side rails with extra protection and PP head and foot boards with secure locking. Its dimensions are 1975 x 880 x 480-770 mm, with a 1730 x 780 mm platform and 200 kg maximum load. It adjusts the backrest from 0 to 75°, legs from 0 to 35° and offers Trendelenburg and reverse from 0 to 12°. Options: Balkan frame and directional casters.",
+    "descripcion_larga_es": "La cama pediátrica eléctrica hospitalaria Saikang CQ8k concentra cinco funciones clínicas en un equipo pensado para unidades pediátricas en Colombia: dos motores lineales mueven altura (480–770 mm), respaldo (0–75°), piernas (0–35°) y Trendelenburg e inverso (0–12°), de modo que el equipo de enfermería puede reposicionar al paciente sin esfuerzo manual excesivo.\n\nSu plataforma de PP lavable con retenedor de colchón integrado, rieles de aleación de aluminio con protección adicional y cabecera/piecero de PP con bloqueo seguro facilitan la higiene y la contención. El acero Baosteel con soldadura robótica Panasonic y el plástico esterilizable a 100 °C respaldan la durabilidad hospitalaria que exigen los compradores institucionales.\n\nCon carga máxima de 200 kg, ruedas dobles de 5\" con bloqueo central, soporte de suero y ganchos de drenaje de serie —y opcionales como barra con triángulo de Balkan o ruedas direccionales— la CQ8k ofrece movilidad y accesorios listos para la rutina de pediatría.",
+    "descripcion_larga_en": "The Saikang CQ8k electric paediatric bed brings five clinical functions into a unit suited to paediatric wards in Colombia: two linear motors drive height (480–770 mm), backrest (0–75°), legs (0–35°) and Trendelenburg and reverse (0–12°), so nursing teams can reposition the patient without heavy manual effort.\n\nIts washable PP platform with integrated mattress retainer, aluminium-alloy side rails with extra protection and PP head/foot boards with secure locking support hygiene and containment. Baosteel steel with Panasonic robotic welding and plastic sterilizable at 100 °C back the hospital-grade durability institutional buyers expect.\n\nWith a 200 kg maximum load, dual 5\" casters with central lock, IV pole and drainage hooks as standard —plus options such as a Balkan frame or directional casters— the CQ8k delivers mobility and accessories ready for paediatric routines.",
     "especificaciones": [
       {
         "clave": "Modelo",
@@ -18265,13 +18317,16 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": [
-      "Pediatría"
+      "Hospitalización pediátrica",
+      "Unidades de cuidado infantil",
+      "Reposición y Trendelenburg en cama",
+      "Movilización intradepartamental con ruedas bloqueables"
     ],
     "aplicaciones_en": [
-      "Pediatric hospitalization",
-      "Basic pediatric care",
-      "Low-complexity units",
-      "General pediatrics"
+      "Paediatric inpatient care",
+      "Children's care units",
+      "In-bed repositioning and Trendelenburg",
+      "Intradepartmental transfer with lockable casters"
     ],
     "atributos": {
       "legacy_slugs": [
@@ -18287,29 +18342,31 @@
       "marca": "Saikang Medical"
     },
     "beneficios_es": [
-      "Cinco funciones con dos motores lineales y ajuste de altura de 480 a 770 mm.",
-      "Plataforma de PP lavable con retenedor de colchón y rieles de aluminio con protección adicional.",
-      "Ruedas dobles de 5\" con bloqueo central, soporte de suero y ganchos de drenaje incluidos."
+      "Cinco funciones con dos motores lineales: altura 480–770 mm, respaldo 0–75°, piernas 0–35° y Trendelenburg/inverso 0–12°.",
+      "Plataforma de PP lavable con retenedor de colchón y rieles de aluminio con protección adicional para higiene y seguridad.",
+      "Acero Baosteel con soldadura robótica y plástico esterilizable a 100 °C para un mobiliario médico de larga vida útil.",
+      "Ruedas dobles de 5\" con bloqueo central, soporte de suero y ganchos de drenaje; opcionales Balkan y ruedas direccionales."
     ],
     "beneficios_en": [
-      "Five functions with two linear motors and height adjustment from 480 to 770 mm.",
-      "Washable PP platform with mattress retainer and aluminium rails with extra protection.",
-      "Dual 5\" casters with central lock, IV pole and drainage hooks included."
+      "Five functions with two linear motors: height 480–770 mm, backrest 0–75°, legs 0–35° and Trendelenburg/reverse 0–12°.",
+      "Washable PP platform with mattress retainer and aluminium rails with extra protection for hygiene and safety.",
+      "Baosteel steel with robotic welding and plastic sterilizable at 100 °C for long-life medical furniture.",
+      "Dual 5\" casters with central lock, IV pole and drainage hooks; Balkan frame and directional casters optional."
     ],
-    "valor_es": "Una cama pediátrica eléctrica de 200 kg de carga con plataforma lavable y rieles protegidos, según la ficha oficial de Saikang.",
-    "valor_en": "A 200 kg electric paediatric bed with washable platform and protected rails, per the official Saikang datasheet.",
+    "valor_es": "Una cama pediátrica eléctrica de 200 kg con plataforma lavable, rieles protegidos y Trendelenburg, documentada en la ficha oficial Saikang.",
+    "valor_en": "A 200 kg electric paediatric bed with washable platform, protected rails and Trendelenburg, documented in the official Saikang datasheet.",
     "preguntas_frecuentes_es": [
       {
-        "q": "¿Qué carga soporta?",
-        "a": "La carga máxima admisible es de 200 kg."
+        "q": "¿Qué carga máxima admite la CQ8k?",
+        "a": "La carga máxima admisible es de 200 kg, según la ficha técnica Saikang."
       },
       {
-        "q": "¿Qué ajustes tiene?",
-        "a": "Respaldo 0-75°, piernas 0-35°, Trendelenburg 0-12° e inverso 0-12°, además de altura."
+        "q": "¿Qué ángulos de ajuste ofrece?",
+        "a": "Respaldo 0–75°, piernas 0–35°, Trendelenburg 0–12° e inverso 0–12°, además de altura de 480 a 770 mm."
       },
       {
-        "q": "¿Qué opcionales ofrece?",
-        "a": "Barra con triángulo de Balkan y ruedas direccionales."
+        "q": "¿Qué accesorios opcionales tiene?",
+        "a": "Barra con triángulo de Balkan y ruedas direccionales, además del soporte de suero y ganchos de drenaje de serie."
       },
       {
         "q": "¿Dónde descargo la ficha técnica de Cama de Atención Pediátrica CQ8k?",
@@ -18318,16 +18375,16 @@
     ],
     "preguntas_frecuentes_en": [
       {
-        "q": "What load does it support?",
-        "a": "The maximum permissible load is 200 kg."
+        "q": "What maximum load does the CQ8k support?",
+        "a": "The maximum allowable load is 200 kg, per the Saikang datasheet."
       },
       {
-        "q": "Which adjustments does it have?",
-        "a": "Backrest 0-75°, legs 0-35°, Trendelenburg 0-12° and reverse 0-12°, plus height."
+        "q": "What adjustment angles does it offer?",
+        "a": "Backrest 0–75°, legs 0–35°, Trendelenburg 0–12° and reverse 0–12°, plus height from 480 to 770 mm."
       },
       {
-        "q": "Which options does it offer?",
-        "a": "Balkan frame and directional casters."
+        "q": "What optional accessories are available?",
+        "a": "Balkan frame and directional casters, in addition to the standard IV pole and drainage hooks."
       },
       {
         "q": "Where can I download the Pediatric Care Bed CQ8k datasheet?",
@@ -18335,20 +18392,22 @@
       }
     ],
     "seo_keywords_es": [
-      "cama pediátrica eléctrica",
-      "cama de atención pediátrica CQ8k",
-      "cama hospitalaria infantil",
-      "cama pediátrica Saikang",
-      "mobiliario hospitalario pediátrico Colombia",
-      "ficha técnica CQ8k"
+      "cama pediátrica eléctrica hospitalaria",
+      "cama pediátrica CQ8k Saikang",
+      "cama eléctrica infantil Colombia",
+      "cama pediátrica Trendelenburg",
+      "mobiliario pediátrico hospitalario",
+      "cama 5 funciones pediatría",
+      "ficha técnica CQ8k Saikang"
     ],
     "seo_keywords_en": [
-      "electric paediatric bed",
-      "CQ8k paediatric care bed",
-      "children hospital bed",
-      "Saikang paediatric bed",
-      "paediatric hospital furniture Colombia",
-      "CQ8k datasheet"
+      "electric paediatric hospital bed",
+      "CQ8k Saikang paediatric bed",
+      "electric children bed Colombia",
+      "paediatric Trendelenburg bed",
+      "paediatric hospital furniture",
+      "5-function paediatric bed",
+      "CQ8k Saikang datasheet"
     ],
     "marca": "Saikang Medical"
   },
@@ -18623,8 +18682,8 @@
     "nombre_en": "Assistant Chair SKE001",
     "descripcion_corta_es": "Silla de asistente convertible en cama",
     "descripcion_corta_en": "Convertible assistant chair-bed",
-    "descripcion_larga_es": "La silla de asistente Saikang SKE001 es un sillón reclinable que se convierte en cama para el acompañante nocturno. Mide 640 x 720 x 940 mm sentada y 640 x 1900 x 420 mm en posición horizontal. Tiene reposacabezas que protege las vértebras cervicales, ruedas médicas silenciosas y antiestáticas, cuero ignífugo resistente al desgaste de 100 000 ciclos, soldadura robotizada sin ángulos muertos y pintura epoxi de 11 procesos.",
-    "descripcion_larga_en": "The Saikang SKE001 attendant chair is a recliner that converts into a bed for the overnight companion. It measures 640 x 720 x 940 mm seated and 640 x 1900 x 420 mm in the horizontal position. It has a headrest that protects the cervical vertebrae, silent antistatic medical casters, flame-retardant leather resistant to 100,000 wear cycles, robotic welding without blind spots and 11-process epoxy paint.",
+    "descripcion_larga_es": "La silla reclinable de acompañante Saikang SKE001 acompaña al familiar en habitación: 640 × 720 × 940 mm en posición sentada y 640 × 1900 × 420 mm en horizontal, con tapizado de cuero ignífugo. Puede retirarse/convertirse para uso como cama y hacer más cómoda la noche del acompañante, según la ficha.\n\nReposacabezas pensado para proteger vértebras cervicales, ruedas médicas silenciosas antiestáticas de 2\" (×4) y 3\" (×2), impermeables y antibacterianas, más fundas antideslizantes para pies de cama y almohada incluida.\n\nEs la silla-cama de asistente compacta que muchas habitaciones colombianas necesitan cuando no cabe un sofá completo.",
+    "descripcion_larga_en": "The Saikang SKE001 recliner accompanies family in the room: 640 × 720 × 940 mm seated and 640 × 1900 × 420 mm horizontal, with fire-retardant leather upholstery. It can be converted for bed use to make the attendant's night more comfortable, per the datasheet.\n\nA headrest designed to protect cervical vertebrae, quiet antistatic medical casters of 2\" (×4) and 3\" (×2), waterproof and antibacterial, plus non-slip bed-foot covers and an included pillow.\n\nIt is the compact attendant recliner-bed many Colombian rooms need when a full sofa will not fit.",
     "especificaciones": [
       {
         "clave": "Modelo",
@@ -18683,16 +18742,16 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": [
-      "Habitaciones de hospitalización",
-      "Espacios de acompañamiento familiar",
-      "Áreas de descanso del personal",
-      "Unidades de corta estancia"
+      "Habitaciones con acompañante",
+      "Descanso nocturno familiar",
+      "Hospitalización general",
+      "Espacios reducidos de habitación"
     ],
     "aplicaciones_en": [
-      "Patient rooms",
-      "Family accompaniment areas",
-      "Staff rest areas",
-      "Short-stay units"
+      "Rooms with companions",
+      "Overnight family rest",
+      "General inpatient care",
+      "Compact patient rooms"
     ],
     "atributos": {
       "legacy_slugs": [
@@ -18710,29 +18769,31 @@
       "marca": "Saikang Medical"
     },
     "beneficios_es": [
-      "Se convierte en cama (1900 mm) para que el acompañante descanse de noche.",
-      "Reposacabezas que protege las vértebras cervicales y ruedas médicas silenciosas y antiestáticas.",
-      "Cuero ignífugo resistente al desgaste de 100 000 ciclos y pintura epoxi de 11 procesos."
+      "Pasa de sentada 640 × 720 × 940 mm a horizontal 640 × 1900 × 420 mm.",
+      "Cuero ignífugo y reposacabezas ergonómico para el cuello.",
+      "Ruedas silenciosas antiestáticas de 2\" y 3\", impermeables y antibacterianas.",
+      "Incluye almohada y fundas antideslizantes para pies de cama."
     ],
     "beneficios_en": [
-      "Converts into a 1900 mm bed so the companion can rest overnight.",
-      "Headrest protects cervical vertebrae; silent antistatic medical casters.",
-      "Flame-retardant leather resistant to 100,000 wear cycles and 11-process epoxy paint."
+      "Converts from seated 640 × 720 × 940 mm to horizontal 640 × 1900 × 420 mm.",
+      "Fire-retardant leather and ergonomic headrest for the neck.",
+      "Quiet antistatic 2\" and 3\" casters, waterproof and antibacterial.",
+      "Includes pillow and non-slip bed-foot covers."
     ],
-    "valor_es": "Una silla de acompañante que se convierte en cama, con tapizado ignífugo y ruedas silenciosas, según la ficha de Saikang.",
-    "valor_en": "A companion chair that converts into a bed, with flame-retardant upholstery and silent casters, per the Saikang datasheet.",
+    "valor_es": "Una silla reclinable de acompañante que se convierte en cama 1900 mm, según ficha Saikang.",
+    "valor_en": "An attendant recliner that converts to a 1900 mm bed, per the Saikang datasheet.",
     "preguntas_frecuentes_es": [
       {
-        "q": "¿Se convierte en cama?",
-        "a": "Sí, puede retirarse para ser cama; en horizontal mide 640 x 1900 x 420 mm."
+        "q": "¿Qué medidas tiene sentada y horizontal?",
+        "a": "Sentada 640 × 720 × 940 mm; horizontal 640 × 1900 × 420 mm."
       },
       {
-        "q": "¿Qué ruedas tiene?",
-        "a": "Cuatro ruedas de 2\" y dos de 3\", médicas, silenciosas y antiestáticas."
+        "q": "¿Se puede usar como cama?",
+        "a": "Sí: la ficha indica que puede retirarse/convertirse para que los acompañantes nocturnos estén más cómodos."
       },
       {
-        "q": "¿De qué es el tapizado?",
-        "a": "Cuero ignífugo, resistente al amarilleo, al moho y al desgaste de 100 000 ciclos."
+        "q": "¿Qué ruedas trae?",
+        "a": "4 ruedas de 2\" y 2 de 3\", médicas silenciosas antiestáticas."
       },
       {
         "q": "¿Dónde descargo la ficha técnica de Silla de Asistente SKE001?",
@@ -18741,16 +18802,16 @@
     ],
     "preguntas_frecuentes_en": [
       {
-        "q": "Does it convert into a bed?",
-        "a": "Yes, it can be laid out as a bed; horizontally it measures 640 x 1900 x 420 mm."
+        "q": "What are the seated and horizontal sizes?",
+        "a": "Seated 640 × 720 × 940 mm; horizontal 640 × 1900 × 420 mm."
       },
       {
-        "q": "Which casters does it have?",
-        "a": "Four 2\" and two 3\" medical casters, silent and antistatic."
+        "q": "Can it be used as a bed?",
+        "a": "Yes: the datasheet states it can convert so overnight attendants are more comfortable."
       },
       {
-        "q": "What is the upholstery?",
-        "a": "Flame-retardant leather, resistant to yellowing, mould and 100,000 wear cycles."
+        "q": "What casters does it have?",
+        "a": "4 casters of 2\" and 2 of 3\", quiet antistatic medical wheels."
       },
       {
         "q": "Where can I download the Assistant Chair SKE001 datasheet?",
@@ -18758,19 +18819,21 @@
       }
     ],
     "seo_keywords_es": [
-      "silla de acompañante hospitalaria",
-      "silla de asistente SKE001",
-      "sillón cama para acompañante",
-      "silla Saikang",
-      "mobiliario hospitalario Colombia",
+      "silla reclinable de acompañante",
+      "silla asistente SKE001 Saikang",
+      "silla cama acompañante Colombia",
+      "sillón familiar hospitalario",
+      "silla reclinable habitación hospital",
+      "attendant chair hospitalaria",
       "ficha técnica SKE001"
     ],
     "seo_keywords_en": [
-      "hospital attendant chair",
-      "SKE001 attendant chair",
-      "companion chair bed",
-      "Saikang chair",
-      "hospital furniture Colombia",
+      "attendant recliner chair",
+      "SKE001 Saikang attendant chair",
+      "hospital companion chair bed Colombia",
+      "family hospital recliner",
+      "inpatient attendant recliner",
+      "medical attendant chair",
       "SKE001 datasheet"
     ],
     "marca": "Saikang Medical"
@@ -18785,8 +18848,8 @@
     "nombre_en": "Assistant Sofa SKE001-19",
     "descripcion_corta_es": "Sofá de asistente convertible, capacidad 250 kg",
     "descripcion_corta_en": "Convertible assistant sofa, 250 kg capacity",
-    "descripcion_larga_es": "El sofá de asistente Saikang SKE001-19 se convierte de sofá de dos plazas (1600 x 700 x 655 mm) a cama individual (2200 x 700 x 655 mm) con una extensión de 300 mm. Soporta 250 kg, tiene base de tubo de acero de más de 1,5 mm con recubrimiento electrostático, apoyabrazos anchos de 100 mm con funda desmontable y lavable, tapizado de cuero PU resistente al alcohol y relleno de esponja de alta resiliencia de 40 kg/m³.",
-    "descripcion_larga_en": "The Saikang SKE001-19 attendant sofa converts from a two-seater sofa (1600 x 700 x 655 mm) to a single bed (2200 x 700 x 655 mm) with a 300 mm extension. It supports 250 kg, has a steel-tube base over 1.5 mm thick with electrostatic coating, 100 mm wide armrests with detachable washable covers, alcohol-resistant PU leather upholstery and 40 kg/m³ high-resilience sponge filling.",
+    "descripcion_larga_es": "El sofá de acompañante hospitalario Saikang SKE001-19 convierte el descanso del acompañante en una superficie más larga: 1600 × 700 × 655 mm plegado y 2200 × 700 × 655 mm extendido (extensión 300 mm), con carga de 250 kg. Tapizado en cuero PU con relleno de esponja de 40 kg/m³ y base de tubo de acero > 1,5 mm con recubrimiento electrostático.\n\nDiseño ergonómico de uso sencillo y aspecto premium para habitaciones donde la familia permanece muchas horas. El ancho de apoyabrazos de 100 mm aporta apoyo lateral cómodo.\n\nEs el sofá-cama de acompañante que equilibran compras hospitalarias cuando buscan durabilidad, carga alta y extensión real documentada en ficha.",
+    "descripcion_larga_en": "The Saikang SKE001-19 attendant sofa turns companion rest into a longer surface: 1600 × 700 × 655 mm folded and 2200 × 700 × 655 mm extended (300 mm extension), with a 250 kg load. PU leather upholstery with 40 kg/m³ sponge fill and a > 1.5 mm steel-tube base with electrostatic coating.\n\nAn easy-to-use ergonomic, high-end design for rooms where families stay for many hours. 100 mm armrest width adds comfortable side support.\n\nIt is the attendant sofa-bed hospital buyers balance when they want durability, high load and a real extension documented on the datasheet.",
     "especificaciones": [
       {
         "clave": "Modelo",
@@ -18861,16 +18924,16 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": [
-      "Habitaciones de hospitalización",
-      "Unidades de cuidados intensivos",
-      "Zonas de descanso de acompañantes",
-      "Espacios de atención primaria"
+      "Habitaciones con acompañante",
+      "Hospitalización general",
+      "Descanso nocturno de familiares",
+      "Suites de paciente"
     ],
     "aplicaciones_en": [
-      "Inpatient rooms",
-      "Intensive care units",
-      "Companion rest areas",
-      "Primary care spaces"
+      "Rooms with companions",
+      "General inpatient care",
+      "Overnight family rest",
+      "Patient suites"
     ],
     "atributos": {
       "legacy_slugs": [
@@ -18888,29 +18951,31 @@
       "marca": "Saikang Medical"
     },
     "beneficios_es": [
-      "Se convierte de sofá de dos plazas a cama individual de 2200 mm.",
-      "Capacidad de 250 kg con base de acero y deslizadores de servicio pesado.",
-      "Tapizado de cuero PU resistente a la corrosión y al alcohol; funda de apoyabrazos lavable."
+      "Extensión de 300 mm: 1600 mm plegado / 2200 mm extendido.",
+      "Carga de 250 kg para uso intensivo de acompañantes.",
+      "Cuero PU con esponja 40 kg/m³ y base de acero > 1,5 mm.",
+      "Diseño ergonómico con apoyabrazos de 100 mm."
     ],
     "beneficios_en": [
-      "Converts from two-seater sofa to a 2200 mm single bed.",
-      "250 kg capacity with steel base and heavy-duty slides.",
-      "PU leather upholstery resistant to corrosion and alcohol; washable armrest cover."
+      "300 mm extension: 1600 mm folded / 2200 mm extended.",
+      "250 kg load for intensive attendant use.",
+      "PU leather with 40 kg/m³ sponge and > 1.5 mm steel base.",
+      "Ergonomic design with 100 mm armrests."
     ],
-    "valor_es": "Un sofá-cama para acompañantes de 250 kg de capacidad, con tapizado fácil de limpiar, según la ficha de Saikang.",
-    "valor_en": "A 250 kg attendant sofa-bed with easy-to-clean upholstery, per the Saikang datasheet.",
+    "valor_es": "Un sofá de acompañante extensible de 250 kg para habitaciones hospitalarias, según ficha Saikang.",
+    "valor_en": "A 250 kg extendable attendant sofa for hospital rooms, per the Saikang datasheet.",
     "preguntas_frecuentes_es": [
       {
-        "q": "¿Qué medidas tiene abierto?",
-        "a": "2200 x 700 x 655 mm (cerrado: 1600 x 700 x 655 mm)."
+        "q": "¿Qué carga admite el SKE001-19?",
+        "a": "Carga de 250 kg."
       },
       {
-        "q": "¿Qué carga soporta?",
-        "a": "250 kg."
+        "q": "¿Cuánto se extiende?",
+        "a": "Distancia de extensión 300 mm; de 1600 mm plegado a 2200 mm extendido."
       },
       {
-        "q": "¿Cómo es el tapizado?",
-        "a": "Cuero PU resistente a la corrosión y al alcohol, fácil de limpiar."
+        "q": "¿De qué está tapizado?",
+        "a": "Cuero PU con relleno de esponja de 40 kg/m³."
       },
       {
         "q": "¿Dónde descargo la ficha técnica de Sofá de Asistente SKE001-19?",
@@ -18919,16 +18984,16 @@
     ],
     "preguntas_frecuentes_en": [
       {
-        "q": "What are its dimensions unfolded?",
-        "a": "2200 x 700 x 655 mm (folded: 1600 x 700 x 655 mm)."
+        "q": "What load does the SKE001-19 support?",
+        "a": "Loading of 250 kg."
       },
       {
-        "q": "What load does it support?",
-        "a": "250 kg."
+        "q": "How far does it extend?",
+        "a": "Extension distance 300 mm; from 1600 mm folded to 2200 mm unfolded."
       },
       {
-        "q": "What is the upholstery like?",
-        "a": "PU leather resistant to corrosion and alcohol, easy to clean."
+        "q": "What is the upholstery?",
+        "a": "PU leather with 40 kg/m³ sponge fill."
       },
       {
         "q": "Where can I download the Assistant Sofa SKE001-19 datasheet?",
@@ -18936,19 +19001,21 @@
       }
     ],
     "seo_keywords_es": [
-      "sofá de acompañante",
-      "sofá cama hospitalario SKE001-19",
-      "sofá para acompañantes",
-      "sofá Saikang",
-      "mobiliario hospitalario Colombia",
+      "sofá de acompañante hospitalario",
+      "sofá asistente SKE001-19 Saikang",
+      "sofá cama acompañante Colombia",
+      "mobiliario habitación familiar hospital",
+      "sofá hospitalario extensible",
+      "attendant sofa hospitalario",
       "ficha técnica SKE001-19"
     ],
     "seo_keywords_en": [
-      "attendant sofa",
-      "SKE001-19 hospital sofa bed",
-      "companion sofa",
-      "Saikang sofa",
-      "hospital furniture Colombia",
+      "hospital attendant sofa",
+      "SKE001-19 Saikang attendant sofa",
+      "hospital companion sofa bed Colombia",
+      "family inpatient room furniture",
+      "extendable hospital sofa",
+      "medical attendant sofa",
       "SKE001-19 datasheet"
     ],
     "marca": "Saikang Medical"
@@ -19030,8 +19097,8 @@
     "nombre_en": "Waiting Chair SKE011",
     "descripcion_corta_es": "Silla de espera de PU monopieza, capacidad 250 kg",
     "descripcion_corta_en": "One-piece PU waiting chair, 250 kg capacity",
-    "descripcion_larga_es": "La silla de espera Saikang SKE011 es un asiento y respaldo de poliuretano moldeado en una sola pieza, resistente al aceite, al envejecimiento, al moho y a la abrasión, y libre de toxinas. La versión de tres plazas con apoyabrazos mide 1770 x 605 x 845 mm, con asiento de 520 mm de ancho, 450 mm de fondo y 440 mm de altura, y pesa 52,5 kg. Los apoyabrazos son de aluminio fundido con recubrimiento electrostático.",
-    "descripcion_larga_en": "The Saikang SKE011 waiting chair has a one-piece moulded polyurethane seat and backrest that is oil-, ageing-, mould- and abrasion-resistant and non-toxic. The three-seater with armrests measures 1770 x 605 x 845 mm, with a 520 mm seat width, 450 mm depth and 440 mm height, and weighs 52.5 kg. The armrests are die-cast aluminium with electrostatic powder coating.",
+    "descripcion_larga_es": "La silla de espera clínica 3 plazas Saikang SKE011 (1770 × 605 × 845 mm con apoyabrazos) ofrece asiento y respaldo de poliuretano moldeado en una pieza, resistentes a aceite, envejecimiento, hongos y abrasión, con propiedades ecológicas no tóxicas según la ficha. Asiento de 520 × 450 mm a 440 mm del piso y peso de 52,5 kg por módulo.\n\nApoyabrazos y patas de aleación de aluminio fundido con recubrimiento electrostático; patas tipo palo de golf y pads antideslizantes ocultos que agarran el piso sin ruido. El diseño ergonómico busca evitar deformación por sedestación prolongada.\n\nIdeal para salas de espera clínicas y hospitalarias en Colombia que necesitan presencia sólida, limpieza sencilla y confort diario.",
+    "descripcion_larga_en": "The Saikang SKE011 waiting chair (3-seater with armrests, 1770 × 605 × 845 mm) offers a one-piece moulded polyurethane seat and back that resist oil, aging, mould and abrasion, with eco-friendly non-toxic properties per the datasheet. Seat 520 × 450 mm at 440 mm from the floor and 52.5 kg module weight.\n\nCast aluminium-alloy armrests and legs with electrostatic coating; golf-club-shaped legs and hidden non-slip pads that grip the floor quietly. The ergonomic design aims to prevent deformation from prolonged sitting.\n\nIdeal for clinical and hospital waiting rooms in Colombia that need solid presence, easy cleaning and everyday comfort.",
     "especificaciones": [
       {
         "clave": "Modelo",
@@ -19100,13 +19167,16 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": [
-      "Salas de espera"
+      "Salas de espera clínicas",
+      "Hospitales y centros de salud",
+      "Áreas de admisión",
+      "Vestíbulos institucionales"
     ],
     "aplicaciones_en": [
-      "Waiting rooms",
-      "Outpatient consultation areas",
-      "Admission zones",
-      "Priority care spaces"
+      "Clinical waiting rooms",
+      "Hospitals and health centres",
+      "Admission areas",
+      "Institutional lobbies"
     ],
     "atributos": {
       "legacy_slugs": [
@@ -19124,29 +19194,31 @@
       "marca": "Saikang Medical"
     },
     "beneficios_es": [
-      "Asiento y respaldo monopieza de poliuretano, fácil de limpiar y de mantener.",
-      "Resistente a aceite, envejecimiento, moho y abrasión; material ecológico y no tóxico.",
-      "Versión de tres plazas de 1770 mm con apoyabrazos de aluminio fundido."
+      "3 plazas 1770 × 605 × 845 mm con PU moldeado en una pieza.",
+      "Resistencia a aceite, hongos y abrasión; peso del módulo 52,5 kg.",
+      "Apoyabrazos y patas de aluminio fundido con pads antideslizantes ocultos.",
+      "Diseño ergonómico antideformación para espera prolongada."
     ],
     "beneficios_en": [
-      "One-piece polyurethane seat and backrest, easy to clean and maintain.",
-      "Resistant to oil, ageing, mould and abrasion; eco-friendly, non-toxic material.",
-      "1770 mm three-seater with die-cast aluminium armrests."
+      "3-seater 1770 × 605 × 845 mm with one-piece moulded PU.",
+      "Oil, mould and abrasion resistance; module weight 52.5 kg.",
+      "Cast aluminium armrests and legs with hidden non-slip pads.",
+      "Ergonomic anti-deformation design for long waits."
     ],
-    "valor_es": "Una silla de espera de tres plazas en poliuretano monopieza, duradera y fácil de limpiar, según la ficha de Saikang.",
-    "valor_en": "A three-seat waiting chair in one-piece polyurethane, durable and easy to clean, per the Saikang datasheet.",
+    "valor_es": "Una banca de espera de 3 plazas en PU moldeado con patas de aluminio, según ficha Saikang.",
+    "valor_en": "A 3-seater moulded-PU waiting bench with aluminium legs, per the Saikang datasheet.",
     "preguntas_frecuentes_es": [
       {
-        "q": "¿Qué dimensiones tiene?",
-        "a": "1770 x 605 x 845 mm en la versión de tres plazas con apoyabrazos."
+        "q": "¿Qué dimensiones tiene la SKE011?",
+        "a": "1770 × 605 × 845 mm (±5 mm) en versión de 3 plazas con apoyabrazos."
       },
       {
-        "q": "¿Qué material es el asiento?",
-        "a": "Poliuretano (PU) moldeado en espuma en una sola pieza."
+        "q": "¿De qué material son asiento y respaldo?",
+        "a": "Poliuretano (PU) moldeado en una pieza."
       },
       {
         "q": "¿Cuánto pesa?",
-        "a": "52,5 kg."
+        "a": "52,5 kg por módulo."
       },
       {
         "q": "¿Dónde descargo la ficha técnica de Silla de Espera SKE011?",
@@ -19155,16 +19227,16 @@
     ],
     "preguntas_frecuentes_en": [
       {
-        "q": "What are its dimensions?",
-        "a": "1770 x 605 x 845 mm for the three-seater with armrests."
+        "q": "What are the SKE011 dimensions?",
+        "a": "1770 × 605 × 845 mm (±5 mm) for the 3-seater with armrests."
       },
       {
-        "q": "What is the seat made of?",
-        "a": "Polyurethane (PU) one-piece foam moulding."
+        "q": "What are the seat and back made of?",
+        "a": "One-piece moulded polyurethane (PU)."
       },
       {
         "q": "How much does it weigh?",
-        "a": "52.5 kg."
+        "a": "52.5 kg per module."
       },
       {
         "q": "Where can I download the Waiting Chair SKE011 datasheet?",
@@ -19172,19 +19244,21 @@
       }
     ],
     "seo_keywords_es": [
-      "silla de espera hospitalaria",
-      "silla de espera SKE011",
-      "silla de 3 plazas para sala de espera",
-      "silla Saikang",
-      "mobiliario sala de espera Colombia",
+      "silla de espera clínica 3 plazas",
+      "banca espera SKE011 Saikang",
+      "silla espera hospital Colombia",
+      "mobiliario sala de espera PU",
+      "banca aluminio clínica",
+      "waiting chair hospitalaria",
       "ficha técnica SKE011"
     ],
     "seo_keywords_en": [
-      "hospital waiting chair",
-      "SKE011 waiting chair",
-      "three-seat waiting room chair",
-      "Saikang chair",
-      "waiting room furniture Colombia",
+      "3-seater clinical waiting chair",
+      "SKE011 Saikang waiting bench",
+      "hospital waiting chair Colombia",
+      "PU waiting room furniture",
+      "aluminium clinic waiting bench",
+      "medical waiting chair",
       "SKE011 datasheet"
     ],
     "marca": "Saikang Medical"
@@ -19199,8 +19273,8 @@
     "nombre_en": "Waiting Chair SKE011-1",
     "descripcion_corta_es": "Silla de espera de PU alta densidad monopieza",
     "descripcion_corta_en": "One-piece high-density PU waiting chair",
-    "descripcion_larga_es": "La silla de espera Saikang SKE011-1 se fabrica en poliuretano de alta densidad (asiento ≥ 380 kg/m³) sobre estructura de tubo de acero Q235, con asiento y respaldo en una sola pieza fácil de limpiar. La versión de tres plazas mide 1630 x 665 x 850 mm, con asiento de 520 mm de ancho, 460 mm de fondo y 430 mm de altura, y pesa 52,5 kg. Los apoyabrazos son de aluminio fundido con recubrimiento epoxi electrostático resistente al desgaste.",
-    "descripcion_larga_en": "The Saikang SKE011-1 waiting chair is made of high-density polyurethane (seat ≥ 380 kg/m³) on a Q235 steel tube frame, with a one-piece seat and backrest that is easy to clean. The three-seater measures 1630 x 665 x 850 mm, with a 520 mm seat width, 460 mm depth and 430 mm height, and weighs 52.5 kg. The armrests are die-cast aluminium with wear-resistant electrostatic epoxy coating.",
+    "descripcion_larga_es": "La silla de espera hospitalaria 3 plazas Saikang SKE011-1 (1630 × 665 × 850 mm) aporta asientos ergonómicos para salas de espera clínicas y hospitalarias en Colombia. Asiento y respaldo de poliuretano de alta densidad (≥ 380 kg/m³) con estructura interna de acero Q235 resisten el uso prolongado sin deformarse con facilidad.\n\nLos apoyabrazos de aluminio fundido y el diseño integral del asiento facilitan la limpieza diaria. Con asiento de 520 mm de ancho, 460 mm de fondo y 430 mm de altura al piso, y un peso de 52,5 kg por módulo, ofrece presencia estable en vestíbulos de alto tráfico.\n\nEs una solución de mobiliario de espera pensada para confort duradero y mantenimiento sencillo —exactamente lo que buscan compras hospitalarias.",
+    "descripcion_larga_en": "The Saikang SKE011-1 waiting chair (3-seater, 1630 × 665 × 850 mm) provides ergonomic seating for clinical and hospital waiting rooms in Colombia. High-density polyurethane seat and back (≥ 380 kg/m³) with an internal Q235 steel frame resist prolonged use without easy deformation.\n\nCast aluminium armrests and a one-piece seat design simplify daily cleaning. With a 520 mm seat width, 460 mm depth and 430 mm height from the floor, and a 52.5 kg module weight, it feels stable in high-traffic lobbies.\n\nIt is waiting furniture built for durable comfort and simple maintenance —exactly what hospital purchasing teams look for.",
     "especificaciones": [
       {
         "clave": "Modelo",
@@ -19279,13 +19353,16 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": [
-      "Salas de espera"
+      "Salas de espera hospitalarias",
+      "Consultorios y clínicas",
+      "Vestíbulos de alto tráfico",
+      "Áreas de admisión"
     ],
     "aplicaciones_en": [
-      "Waiting rooms",
-      "Triage areas",
-      "Outpatient care zones",
-      "Vaccination points"
+      "Hospital waiting rooms",
+      "Clinics and consulting suites",
+      "High-traffic lobbies",
+      "Admission areas"
     ],
     "atributos": {
       "legacy_slugs": [
@@ -19303,29 +19380,31 @@
       "marca": "Saikang Medical"
     },
     "beneficios_es": [
-      "Poliuretano de alta densidad (≥ 380 kg/m³) moldeado en una pieza, fácil de limpiar.",
-      "Estructura de tubo de acero Q235 y apoyabrazos de aluminio con recubrimiento epoxi resistente.",
-      "Versión de tres plazas de 1630 mm, ergonómica para evitar deformaciones por uso prolongado."
+      "Módulo de 3 plazas 1630 × 665 × 850 mm con asiento ergonómico antideformación.",
+      "Poliuretano de alta densidad ≥ 380 kg/m³ con marco interno de acero Q235.",
+      "Apoyabrazos de aluminio fundido y superficie fácil de limpiar.",
+      "Asiento 520 × 460 mm a 430 mm del piso; peso del módulo 52,5 kg."
     ],
     "beneficios_en": [
-      "High-density polyurethane (≥ 380 kg/m³) moulded in one piece, easy to clean.",
-      "Q235 steel tube frame and aluminium armrests with wear-resistant epoxy coating.",
-      "1630 mm three-seater, ergonomic to prevent deformation from prolonged sitting."
+      "3-seater module 1630 × 665 × 850 mm with ergonomic anti-deformation seating.",
+      "High-density polyurethane ≥ 380 kg/m³ with internal Q235 steel frame.",
+      "Cast aluminium armrests and easy-to-clean surface.",
+      "520 × 460 mm seat at 430 mm from floor; module weight 52.5 kg."
     ],
-    "valor_es": "Una silla de espera de poliuretano monopieza, fácil de limpiar y de larga duración, según la ficha de Saikang.",
-    "valor_en": "A one-piece polyurethane waiting chair, easy to clean and long-lasting, per the Saikang datasheet.",
+    "valor_es": "Una banca de espera de 3 plazas en PU de alta densidad para vestíbulos clínicos, según ficha Saikang.",
+    "valor_en": "A 3-seater high-density PU waiting bench for clinical lobbies, per the Saikang datasheet.",
     "preguntas_frecuentes_es": [
       {
-        "q": "¿Qué medidas tiene la versión de tres plazas?",
-        "a": "1630 x 665 x 850 mm."
+        "q": "¿Qué dimensiones tiene la SKE011-1 de 3 plazas?",
+        "a": "1630 × 665 × 850 mm (±10 mm)."
       },
       {
-        "q": "¿De qué está hecho el asiento?",
-        "a": "De poliuretano de alta densidad moldeado, con densidad ≥ 380 kg/m³."
+        "q": "¿De qué material son asiento y respaldo?",
+        "a": "Poliuretano de alta densidad ≥ 380 kg/m³ con marco de acero Q235."
       },
       {
-        "q": "¿Cuánto pesa?",
-        "a": "52,5 kg la versión de tres plazas."
+        "q": "¿Cuánto pesa el módulo?",
+        "a": "52,5 kg por módulo (roll), según la ficha."
       },
       {
         "q": "¿Dónde descargo la ficha técnica de Silla de Espera SKE011-1?",
@@ -19334,16 +19413,16 @@
     ],
     "preguntas_frecuentes_en": [
       {
-        "q": "What are the three-seater dimensions?",
-        "a": "1630 x 665 x 850 mm."
+        "q": "What are the 3-seater SKE011-1 dimensions?",
+        "a": "1630 × 665 × 850 mm (±10 mm)."
       },
       {
-        "q": "What is the seat made of?",
-        "a": "Moulded high-density polyurethane, density ≥ 380 kg/m³."
+        "q": "What are the seat and back made of?",
+        "a": "High-density polyurethane ≥ 380 kg/m³ with a Q235 steel frame."
       },
       {
-        "q": "How much does it weigh?",
-        "a": "52.5 kg for the three-seater."
+        "q": "How much does the module weigh?",
+        "a": "52.5 kg per module (roll), per the datasheet."
       },
       {
         "q": "Where can I download the Waiting Chair SKE011-1 datasheet?",
@@ -19351,19 +19430,21 @@
       }
     ],
     "seo_keywords_es": [
-      "silla de espera hospitalaria",
-      "silla de espera SKE011-1",
-      "silla de sala de espera 3 plazas",
-      "silla Saikang",
-      "mobiliario sala de espera Colombia",
+      "silla de espera hospitalaria 3 plazas",
+      "banca de espera SKE011-1 Saikang",
+      "silla espera clínica Colombia",
+      "mobiliario sala de espera hospital",
+      "asiento poliuretano hospitalario",
+      "banca 3 puestos clínica",
       "ficha técnica SKE011-1"
     ],
     "seo_keywords_en": [
-      "hospital waiting chair",
-      "SKE011-1 waiting chair",
-      "three-seat waiting room chair",
-      "Saikang chair",
-      "waiting room furniture Colombia",
+      "3-seater hospital waiting chair",
+      "SKE011-1 Saikang waiting bench",
+      "clinical waiting chair Colombia",
+      "hospital waiting room furniture",
+      "polyurethane hospital seating",
+      "3-seat clinic bench",
       "SKE011-1 datasheet"
     ],
     "marca": "Saikang Medical"
@@ -19378,8 +19459,8 @@
     "nombre_en": "Stool SKE020-1",
     "descripcion_corta_es": "Taburete doble escalón de acero inoxidable",
     "descripcion_corta_en": "Double-step stainless steel stool",
-    "descripcion_larga_es": "El taburete escalera Saikang SKE020-1 es un banco de doble escalón con estructura de acero inoxidable y superficie superior de ABS de alta calidad. Mide 490 x 405 mm y su altura va de 170 a 340 mm. Incluye cuatro cubiertas antideslizantes para los pies y se empaca individualmente o de dos en dos.",
-    "descripcion_larga_en": "The Saikang SKE020-1 step stool is a double-step stool with a stainless-steel frame and a high-quality ABS top. It measures 490 x 405 mm and its height ranges from 170 to 340 mm. It includes four anti-slip foot covers and is packed individually or in pairs.",
+    "descripcion_larga_es": "El taburete escalera hospitalario Saikang SKE020-1 (L490 × A405 × H170–340 mm) es un apoyo de dos peldaños para que pacientes y personal suban o bajen con más seguridad junto a camas y camillas en hospitales de Colombia. Su estructura de acero inoxidable con superficie superior de ABS de alta calidad combina higiene y firmeza.\n\nCuatro cubiertas antideslizantes fijas en los pies mejoran el agarre al piso —un detalle pequeño que reduce resbalones en áreas clínicas húmedas o de alto tráfico.\n\nCompacto y fácil de ubicar en habitación o pasillo, es el accesorio de apoyo que completa el mobiliario de hospitalización sin ocupar espacio innecesario.",
+    "descripcion_larga_en": "The Saikang SKE020-1 foot step (L490 × W405 × H170–340 mm) is a two-step stool that helps patients and staff step up or down more safely beside beds and stretchers in Colombian hospitals. Its stainless-steel structure with a high-quality ABS top surface combines hygiene and firmness.\n\nFour fixed non-slip foot covers improve floor grip —a small detail that reduces slips in wet or high-traffic clinical areas.\n\nCompact and easy to place in a room or corridor, it is the support accessory that completes inpatient furniture without wasting space.",
     "especificaciones": [
       {
         "clave": "Modelo",
@@ -19443,16 +19524,16 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": [
-      "Laboratorios clínicos",
-      "Áreas de esterilización",
-      "Sala de equipos",
-      "Zonas de almacenamiento alto"
+      "Acceso a cama hospitalaria",
+      "Habitaciones de hospitalización",
+      "Apoyo junto a camillas",
+      "Áreas de consulta"
     ],
     "aplicaciones_en": [
-      "Clinical laboratories",
-      "Sterilization areas",
-      "Equipment rooms",
-      "High storage zones"
+      "Hospital bed access",
+      "Inpatient rooms",
+      "Support beside stretchers",
+      "Consultation areas"
     ],
     "atributos": {
       "legacy_slugs": [
@@ -19470,29 +19551,31 @@
       "marca": "Saikang Medical"
     },
     "beneficios_es": [
-      "Doble escalón con estructura de acero inoxidable y superficie ABS.",
-      "Cuatro cubiertas antideslizantes para los pies.",
-      "Altura de 170 a 340 mm, útil para acceder a zonas altas."
+      "Escalones dobles en formato L490 × A405 × H170–340 mm.",
+      "Estructura de acero inoxidable con superficie superior de ABS.",
+      "Cuatro cubiertas antideslizantes fijas para mayor agarre.",
+      "Diseño compacto para habitaciones y pasillos hospitalarios."
     ],
     "beneficios_en": [
-      "Double step with a stainless-steel frame and ABS surface.",
-      "Four anti-slip foot covers.",
-      "Height from 170 to 340 mm, useful to reach high areas."
+      "Two steps in L490 × W405 × H170–340 mm format.",
+      "Stainless-steel structure with ABS top surface.",
+      "Four fixed non-slip foot covers for better grip.",
+      "Compact design for hospital rooms and corridors."
     ],
-    "valor_es": "Un taburete de dos escalones en acero inoxidable con base antideslizante, según la ficha de Saikang.",
-    "valor_en": "A two-step stainless-steel stool with anti-slip base, per the Saikang datasheet.",
+    "valor_es": "Un taburete de dos peldaños en acero inoxidable y ABS con pies antideslizantes, según ficha Saikang.",
+    "valor_en": "A two-step stainless-steel and ABS foot stool with non-slip feet, per the Saikang datasheet.",
     "preguntas_frecuentes_es": [
       {
-        "q": "¿Qué medidas tiene?",
-        "a": "490 x 405 mm de superficie y 170 a 340 mm de altura."
+        "q": "¿Qué tamaño tiene el SKE020-1?",
+        "a": "L490 × A405 × H170–340 mm."
       },
       {
-        "q": "¿De qué material es?",
+        "q": "¿De qué materiales está hecho?",
         "a": "Estructura de acero inoxidable con superficie superior de ABS."
       },
       {
-        "q": "¿Es antideslizante?",
-        "a": "Sí, incluye cuatro cubiertas antideslizantes para los pies."
+        "q": "¿Incluye antideslizantes?",
+        "a": "Sí: cuatro cubiertas antideslizantes fijas para los pies."
       },
       {
         "q": "¿Dónde descargo la ficha técnica de Taburete SKE020-1?",
@@ -19501,16 +19584,16 @@
     ],
     "preguntas_frecuentes_en": [
       {
-        "q": "What are its dimensions?",
-        "a": "490 x 405 mm surface and 170 to 340 mm height."
+        "q": "What size is the SKE020-1?",
+        "a": "L490 × W405 × H170–340 mm."
       },
       {
-        "q": "What is it made of?",
-        "a": "Stainless-steel frame with an ABS top surface."
+        "q": "What materials is it made of?",
+        "a": "Stainless-steel structure with an ABS top surface."
       },
       {
-        "q": "Is it anti-slip?",
-        "a": "Yes, it includes four anti-slip foot covers."
+        "q": "Does it include non-slip features?",
+        "a": "Yes: four fixed non-slip foot covers."
       },
       {
         "q": "Where can I download the Stool SKE020-1 datasheet?",
@@ -19519,18 +19602,20 @@
     ],
     "seo_keywords_es": [
       "taburete escalera hospitalario",
-      "taburete SKE020-1",
-      "banco de dos escalones",
-      "taburete Saikang",
-      "mobiliario hospitalario Colombia",
+      "banco de pie SKE020-1 Saikang",
+      "escalón hospitalario Colombia",
+      "taburete dos peldaños clínico",
+      "apoyo para cama hospitalaria",
+      "foot step hospitalario",
       "ficha técnica SKE020-1"
     ],
     "seo_keywords_en": [
-      "hospital step stool",
-      "SKE020-1 stool",
-      "two-step stool",
-      "Saikang stool",
-      "hospital furniture Colombia",
+      "hospital foot step stool",
+      "SKE020-1 Saikang foot step",
+      "hospital step stool Colombia",
+      "two-step clinical stool",
+      "bedside hospital step",
+      "medical foot step",
       "SKE020-1 datasheet"
     ],
     "marca": "Saikang Medical"
@@ -19545,8 +19630,8 @@
     "nombre_en": "Reclining Chair SKE941",
     "descripcion_corta_es": "Silla reclinable manual de 4 secciones para diálisis y cuidados",
     "descripcion_corta_en": "Manual 4-section reclining chair for dialysis and care",
-    "descripcion_larga_es": "La silla reclinable Saikang SKE941 mide 1100 x 770 x 1280 mm y tiene cuatro secciones (espalda, cadera, piernas y pies) con tres modos: sentado, semirrecostado y recostado, con ajuste neumático del respaldo (37°-61°) y reposapiernas de 13° a 36°. Soporta 113 kg, incluye bandeja de 480 x 255 mm, espuma moldeada de hasta 130 mm, cuero PU ignífugo de 1,2 mm y colores rojo, verde o azul.",
-    "descripcion_larga_en": "The Saikang SKE941 recliner measures 1100 x 770 x 1280 mm and has four sections (back, hip, leg and foot) with three modes: sitting, semi-reclined and reclined, with pneumatic backrest adjustment (37°-61°) and leg rest from 13° to 36°. It supports 113 kg, includes a 480 x 255 mm tray, moulded foam up to 130 mm, 1.2 mm flame-retardant PU leather and red, green or blue colours.",
+    "descripcion_larga_es": "La silla reclinable para diálisis Saikang SKE941 (1100 × 770 × 1280 mm) está indicada en ficha para diálisis, extracción de sangre y cuidados respiratorios y cardíacos. Cuatro secciones (espalda, cadera, piernas y pies) con ajuste neumático del respaldo (37°–61°) y reposapiernas (13°–36°); tres modos: sentado, semirrecostado y recostado, con reposapiés oculto al sentarse para evitar golpes.\n\nAsiento 540 × 460 × 560 mm, bandeja 480 × 255 mm y carga segura 113 kg. Tapizado en cuero PU ignífugo de 1,2 mm (rojo, verde o azul) sobre espuma moldeada.\n\nEs el sillón de procedimientos que equipos de nefrología y toma de muestras en Colombia eligen cuando necesitan reclinado neumático documentado y bandeja integrada.",
+    "descripcion_larga_en": "The Saikang SKE941 recliner (1100 × 770 × 1280 mm) is datasheet-indicated for dialysis, blood collection and respiratory and cardiac care. Four sections (back, hip, legs and feet) with pneumatic backrest (37°–61°) and leg-rest (13°–36°); three modes: sitting, semi-reclining and reclining, with the footrest hidden when sitting to avoid knocks.\n\nSeat 540 × 460 × 560 mm, tray 480 × 255 mm and safe working load 113 kg. 1.2 mm fire-retardant PU leather (red, green or blue) over moulded foam.\n\nIt is the procedure recliner nephrology and phlebotomy teams in Colombia choose when they need documented pneumatic recline and an integrated tray.",
     "especificaciones": [
       {
         "clave": "Modelo",
@@ -19606,16 +19691,16 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": [
-      "Diálisis",
-      "Extracción sangre",
-      "Cuidados respiratorios",
-      "Cuidados cardíacos"
+      "Unidades de diálisis",
+      "Toma de muestras",
+      "Cuidados respiratorios y cardíacos",
+      "Atención a adultos mayores"
     ],
     "aplicaciones_en": [
-      "Dialysis",
-      "Blood extraction",
-      "Respiratory care",
-      "Cardiac care"
+      "Dialysis units",
+      "Blood collection",
+      "Respiratory and cardiac care",
+      "Elderly care"
     ],
     "atributos": {
       "legacy_slugs": [
@@ -19633,29 +19718,31 @@
       "marca": "Saikang Medical"
     },
     "beneficios_es": [
-      "Cuatro secciones y tres modos con ajuste neumático del respaldo.",
-      "Bandeja incluida y espuma moldeada de hasta 130 mm con cuero PU ignífugo.",
-      "Carga segura de 113 kg; ideal para diálisis, extracción de sangre y cuidados respiratorios y cardíacos."
+      "Ajuste neumático: respaldo 37°–61° y reposapiernas 13°–36°.",
+      "Tres modos con reposapiés ocultable; carga segura 113 kg.",
+      "Bandeja 480 × 255 mm e asiento 540 × 460 × 560 mm.",
+      "Cuero PU ignífugo 1,2 mm en rojo, verde o azul."
     ],
     "beneficios_en": [
-      "Four sections and three modes with pneumatic backrest adjustment.",
-      "Tray included and moulded foam up to 130 mm with flame-retardant PU leather.",
-      "113 kg safe working load; ideal for dialysis, blood collection and respiratory and cardiac care."
+      "Pneumatic adjustment: backrest 37°–61° and leg-rest 13°–36°.",
+      "Three modes with hideable footrest; 113 kg safe working load.",
+      "480 × 255 mm tray and 540 × 460 × 560 mm seat.",
+      "1.2 mm fire-retardant PU leather in red, green or blue."
     ],
-    "valor_es": "Una silla reclinable de cuatro secciones para diálisis y toma de muestras, según la ficha de Saikang.",
-    "valor_en": "A four-section recliner for dialysis and blood collection, per the Saikang datasheet.",
+    "valor_es": "Una silla reclinable neumática de 113 kg para diálisis y toma de muestras, según ficha Saikang.",
+    "valor_en": "A 113 kg pneumatic recliner for dialysis and blood collection, per the Saikang datasheet.",
     "preguntas_frecuentes_es": [
       {
-        "q": "¿Qué dimensiones tiene?",
-        "a": "1100 x 770 x 1280 mm; asiento de 540 x 460 x 560 mm."
+        "q": "¿Qué carga segura tiene la SKE941?",
+        "a": "113 kg."
       },
       {
-        "q": "¿Qué carga soporta?",
-        "a": "113 kg de carga de trabajo segura."
+        "q": "¿El ajuste del respaldo es neumático?",
+        "a": "Sí: la ficha describe ajuste neumático del respaldo con tres modos."
       },
       {
-        "q": "¿Incluye bandeja?",
-        "a": "Sí, de 480 x 255 mm."
+        "q": "¿Para qué usos la indica el fabricante?",
+        "a": "Diálisis, extracción de sangre, cuidados respiratorios y cardíacos."
       },
       {
         "q": "¿Dónde descargo la ficha técnica de Silla Reclinable SKE941?",
@@ -19664,16 +19751,16 @@
     ],
     "preguntas_frecuentes_en": [
       {
-        "q": "What are its dimensions?",
-        "a": "1100 x 770 x 1280 mm; seat 540 x 460 x 560 mm."
+        "q": "What safe working load does the SKE941 have?",
+        "a": "113 kg."
       },
       {
-        "q": "What load does it support?",
-        "a": "113 kg safe working load."
+        "q": "Is the backrest adjustment pneumatic?",
+        "a": "Yes: the datasheet describes pneumatic backrest adjustment with three modes."
       },
       {
-        "q": "Does it include a tray?",
-        "a": "Yes, 480 x 255 mm."
+        "q": "What uses does the manufacturer indicate?",
+        "a": "Dialysis, blood collection, respiratory and cardiac care."
       },
       {
         "q": "Where can I download the Reclining Chair SKE941 datasheet?",
@@ -19682,18 +19769,20 @@
     ],
     "seo_keywords_es": [
       "silla reclinable para diálisis",
-      "silla reclinable SKE941",
-      "sillón para toma de muestras",
-      "silla Saikang",
-      "mobiliario hospitalario Colombia",
+      "silla reclinable SKE941 Saikang",
+      "sillón toma de muestras Colombia",
+      "recliner neumático hospitalario",
+      "silla diálisis con bandeja",
+      "sillón procedimientos clínicos",
       "ficha técnica SKE941"
     ],
     "seo_keywords_en": [
       "dialysis recliner chair",
-      "SKE941 recliner",
-      "blood collection chair",
-      "Saikang recliner",
-      "hospital furniture Colombia",
+      "SKE941 Saikang recliner",
+      "blood collection recliner Colombia",
+      "pneumatic hospital recliner",
+      "dialysis chair with tray",
+      "clinical procedure recliner",
       "SKE941 datasheet"
     ],
     "marca": "Saikang Medical"
@@ -19708,8 +19797,8 @@
     "nombre_en": "Recliner Chair SKE942",
     "descripcion_corta_es": "Sillón reclinable manual de 4 secciones",
     "descripcion_corta_en": "Manual 4-section recliner chair",
-    "descripcion_larga_es": "El sillón reclinable manual Saikang SKE942 tiene cuatro secciones (respaldo, cadera, pierna y pie) y tres modos: sentado, semiacostado y acostado, con reposapiés oculto en posición sentada para evitar tropiezos. Mide 1205 x 668 x 1180 mm, con respaldo de 37° a 61°, reposapiernas de 13° a 36° y carga segura de 113 kg. Incluye mesa desmontable de cinco posiciones, ruedas de 5\" con freno y tapizado de PU en rojo, verde o azul.",
-    "descripcion_larga_en": "The Saikang SKE942 manual recliner has four sections (back, hip, leg, foot) and three modes: sitting, semi-lying and lying, with a footrest hidden in sitting mode to prevent trips. It measures 1205 x 668 x 1180 mm, with a 37° to 61° backrest, 13° to 36° leg rest and 113 kg safe working load. It includes a detachable five-position table, 5\" casters with brake and PU upholstery in red, green or blue.",
+    "descripcion_larga_es": "El sillón reclinable hospitalario Saikang SKE942 (1205 × 668 × 1180 mm) está pensado para diálisis, toma de muestras, cuidados respiratorios y cardíacos, y atención a adultos mayores en instituciones colombianas. Sus cuatro secciones (espalda, cadera, piernas y pies) con ajuste manual del respaldo (37°–61°) y reposapiernas (13°–36°) ofrecen tres modos: sentado, semirrecostado y recostado.\n\nLa bandeja de 650 × 390 mm con instalación tipo plug-in y cinco posiciones ayuda a adaptar el apoyo a cada paciente. Ruedas de 5\" con freno y carga segura de 113 kg facilitan mover y fijar el sillón en sala.\n\nTapizado en cuero PU (rojo, verde o azul) y diseño ergonómico con reposapiés ocultable en modo sentado reducen riesgos de golpe y mejoran la experiencia del paciente en procedimientos prolongados.",
+    "descripcion_larga_en": "The Saikang SKE942 recliner (1205 × 668 × 1180 mm) is designed for dialysis, blood collection, respiratory and cardiac care, and elderly care in Colombian facilities. Its four sections (back, hip, legs and feet) with manual backrest (37°–61°) and leg-rest (13°–36°) adjustment offer three modes: sitting, semi-reclining and lying.\n\nThe 650 × 390 mm tray with plug-in installation and five positions helps adapt support to each patient. 5\" braked casters and a 113 kg safe working load make it easy to move and secure the chair in the room.\n\nPU leather upholstery (red, green or blue) and an ergonomic design with a fully hidden footrest in sitting mode reduce knock risks and improve comfort during longer procedures.",
     "especificaciones": [
       {
         "clave": "Modelo",
@@ -19774,16 +19863,16 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": [
-      "Diálisis",
-      "Toma de sangre",
-      "Cuidados respiratorios",
-      "Cuidados cardíacos"
+      "Unidades de diálisis",
+      "Toma de muestras y flebotomía",
+      "Cuidados respiratorios y cardíacos",
+      "Atención a adultos mayores"
     ],
     "aplicaciones_en": [
-      "Dialysis",
-      "Blood sampling",
-      "Respiratory care",
-      "Cardiac care"
+      "Dialysis units",
+      "Blood collection and phlebotomy",
+      "Respiratory and cardiac care",
+      "Elderly care settings"
     ],
     "atributos": {
       "legacy_slugs": [
@@ -19801,29 +19890,31 @@
       "marca": "Saikang Medical"
     },
     "beneficios_es": [
-      "Cuatro secciones y tres modos (sentado, semiacostado, acostado) con ajuste manual.",
-      "Mesa desmontable de cinco posiciones y ruedas de 5\" con freno.",
-      "Tapizado de cuero PU en rojo, verde o azul; carga segura de 113 kg."
+      "Cuatro secciones con modos sentado, semirrecostado y recostado; carga segura 113 kg.",
+      "Respaldo 37°–61° y reposapiernas 13°–36° con reposapiés ocultable al sentarse.",
+      "Bandeja 650 × 390 mm con cinco posiciones de ajuste tipo plug-in.",
+      "Ruedas de 5\" con freno y tapizado PU en rojo, verde o azul."
     ],
     "beneficios_en": [
-      "Four sections and three modes (sitting, semi-lying, lying) with manual adjustment.",
-      "Detachable five-position table and 5\" casters with brake.",
-      "PU leather upholstery in red, green or blue; 113 kg safe working load."
+      "Four sections with sitting, semi-reclining and lying modes; 113 kg safe working load.",
+      "Backrest 37°–61° and leg-rest 13°–36° with footrest hidden when sitting.",
+      "650 × 390 mm tray with five plug-in adjustment positions.",
+      "5\" braked casters and PU leather in red, green or blue."
     ],
-    "valor_es": "Un sillón reclinable manual para diálisis, toma de muestras y cuidados respiratorios o cardíacos, según la ficha de Saikang.",
-    "valor_en": "A manual recliner for dialysis, blood collection and respiratory or cardiac care, per the Saikang datasheet.",
+    "valor_es": "Un sillón reclinable de 113 kg para diálisis y toma de muestras, con bandeja multiposición, según ficha Saikang.",
+    "valor_en": "A 113 kg recliner for dialysis and blood collection with a multi-position tray, per the Saikang datasheet.",
     "preguntas_frecuentes_es": [
       {
-        "q": "¿Para qué atenciones se usa?",
-        "a": "La ficha lo propone para diálisis, toma de sangre y cuidados respiratorios y cardíacos."
+        "q": "¿Qué carga segura tiene el SKE942?",
+        "a": "Carga de trabajo segura de 113 kg."
       },
       {
-        "q": "¿Qué carga soporta?",
-        "a": "113 kg."
+        "q": "¿Para qué usos indica la ficha el sillón?",
+        "a": "Diálisis, extracción de sangre, cuidados respiratorios y cardíacos, adaptándose a las necesidades del paciente."
       },
       {
-        "q": "¿Qué colores tiene?",
-        "a": "Rojo, verde o azul como opción."
+        "q": "¿Qué rangos de ajuste tiene?",
+        "a": "Respaldo 37°–61° y reposapiernas 13°–36°."
       },
       {
         "q": "¿Dónde descargo la ficha técnica de Sillón Reclinable SKE942?",
@@ -19832,16 +19923,16 @@
     ],
     "preguntas_frecuentes_en": [
       {
-        "q": "Which care settings is it used for?",
-        "a": "The datasheet proposes it for dialysis, blood collection and respiratory and cardiac care."
+        "q": "What safe working load does the SKE942 have?",
+        "a": "Safe working load of 113 kg."
       },
       {
-        "q": "What load does it support?",
-        "a": "113 kg."
+        "q": "What uses does the datasheet indicate?",
+        "a": "Dialysis, blood collection, respiratory and cardiac care, adapting to patient needs."
       },
       {
-        "q": "Which colours are available?",
-        "a": "Red, green or blue as an option."
+        "q": "What adjustment ranges does it have?",
+        "a": "Backrest 37°–61° and leg-rest 13°–36°."
       },
       {
         "q": "Where can I download the Recliner Chair SKE942 datasheet?",
@@ -19849,19 +19940,21 @@
       }
     ],
     "seo_keywords_es": [
-      "sillón reclinable",
-      "sillón reclinable SKE942",
-      "sillón para diálisis y toma de muestras",
-      "sillón Saikang",
-      "sillón hospitalario Colombia",
+      "sillón reclinable hospitalario",
+      "sillón diálisis SKE942 Saikang",
+      "silla reclinable toma de muestras",
+      "recliner hospitalario Colombia",
+      "sillón adultos mayores hospital",
+      "silla reclinable con bandeja",
       "ficha técnica SKE942"
     ],
     "seo_keywords_en": [
-      "recliner chair",
-      "SKE942 recliner",
-      "dialysis and blood collection chair",
-      "Saikang recliner",
+      "hospital recliner chair",
+      "SKE942 Saikang dialysis recliner",
+      "blood collection recliner",
       "hospital recliner Colombia",
+      "elderly care recliner chair",
+      "recliner with tray table",
       "SKE942 datasheet"
     ],
     "marca": "Saikang Medical"
@@ -19876,8 +19969,8 @@
     "nombre_en": "Overbed Table SKH042",
     "descripcion_corta_es": "Mesa de sobrecama con resorte a gas, altura ajustable",
     "descripcion_corta_en": "Overbed table with gas spring, height adjustable",
-    "descripcion_larga_es": "La mesa de cama Saikang SKH042 mide 800 x 410 mm y sube de 730 a 1130 mm gracias a un resorte de gas. Su tablero es de MDF con cubiertas laterales de PVC, el marco inferior es de acero al carbono rociado con centro de gravedad estable y cuenta con cuatro ruedas giratorias de goma, silenciosas y resistentes al desgaste. Funciona como mesa de comedor móvil o mesa de noche de enfermería con varias camas de hospital.",
-    "descripcion_larga_en": "The Saikang SKH042 overbed table measures 800 x 410 mm and rises from 730 to 1130 mm using a gas spring. Its top is MDF with PVC side covers, the lower frame is sprayed carbon steel with a stable centre of gravity, and it has four swivelling rubber casters that are quiet and wear-resistant. It works as a mobile dining table or nursing bedside table with several hospital beds.",
+    "descripcion_larga_es": "La mesa de sobrecama hospitalaria Saikang SKH042 ofrece un tablero de 800 × 410 mm con elevación de altura de 730 a 1130 mm para acercar comida o actividades al paciente en hospitalización colombiana. El tablero de MDF con cubiertas laterales de PVC y el marco inferior de acero al carbono pulverizado aportan una base estable.\n\nCuatro ruedas de goma giratorias permiten desplazar la mesa entre camas con facilidad. Es un accesorio de sobrecama sencillo, robusto y fácil de integrar en la dotación de piso.\n\nCuando el servicio necesita una mesa de cama con amplio rango de altura y materiales claros en ficha, la SKH042 cumple sin complicaciones.",
+    "descripcion_larga_en": "The Saikang SKH042 overbed table offers an 800 × 410 mm top with height lift from 730 to 1130 mm to bring meals or activities closer to inpatients in Colombia. An MDF top with PVC side covers and a powder-coated carbon-steel lower frame provide a stable base.\n\nFour swivel rubber casters make it easy to move the table between beds. It is a simple, robust overbed accessory that fits floor inventories cleanly.\n\nWhen a service needs an overbed table with a wide height range and clear datasheet materials, the SKH042 delivers without fuss.",
     "especificaciones": [
       {
         "clave": "Modelo",
@@ -19946,13 +20039,16 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": [
-      "Hospitalización"
+      "Habitaciones de hospitalización",
+      "Apoyo para comidas en cama",
+      "Actividades del paciente en cama",
+      "Pisos de enfermería"
     ],
     "aplicaciones_en": [
-      "Inpatient care",
-      "Postoperative care",
-      "Hospital home care",
-      "Internal medicine units"
+      "Inpatient rooms",
+      "In-bed meal support",
+      "In-bed patient activities",
+      "Nursing floors"
     ],
     "atributos": {
       "legacy_slugs": [
@@ -19970,29 +20066,31 @@
       "marca": "Saikang Medical"
     },
     "beneficios_es": [
-      "Altura de 730 a 1130 mm con resorte de gas.",
-      "Tablero de MDF con cubiertas de PVC y marco de acero al carbono estable.",
-      "Cuatro ruedas de goma giratorias, silenciosas y resistentes."
+      "Tablero 800 × 410 mm con altura 730–1130 mm.",
+      "MDF con cubiertas PVC y marco de acero al carbono pulverizado.",
+      "Cuatro ruedas de goma giratorias para movilidad.",
+      "Centro de gravedad estable para uso junto a la cama."
     ],
     "beneficios_en": [
-      "Height from 730 to 1130 mm with gas spring.",
-      "MDF top with PVC covers and stable carbon-steel frame.",
-      "Four swivelling rubber casters, quiet and durable."
+      "800 × 410 mm top with height 730–1130 mm.",
+      "MDF with PVC covers and powder-coated carbon-steel frame.",
+      "Four swivel rubber casters for mobility.",
+      "Stable centre of gravity for bedside use."
     ],
-    "valor_es": "Una mesa de cama de altura ajustable con resorte de gas, según la ficha de Saikang.",
-    "valor_en": "A gas-spring height-adjustable overbed table, per the Saikang datasheet.",
+    "valor_es": "Una mesa de sobrecama 800 × 410 mm con altura 730–1130 mm, según ficha Saikang.",
+    "valor_en": "An 800 × 410 mm overbed table with 730–1130 mm height, per the Saikang datasheet.",
     "preguntas_frecuentes_es": [
       {
         "q": "¿Qué tamaño tiene el tablero?",
-        "a": "800 x 410 mm."
+        "a": "800 × 410 mm."
       },
       {
-        "q": "¿Cuál es su rango de altura?",
-        "a": "De 730 a 1130 mm."
+        "q": "¿Cuál es el rango de altura?",
+        "a": "730 a 1130 mm."
       },
       {
-        "q": "¿Para qué se usa?",
-        "a": "Como mesa de comedor móvil o mesa de noche de enfermería con varias camas."
+        "q": "¿De qué materiales está hecha?",
+        "a": "Tablero MDF con cubiertas de PVC y marco de acero al carbono pulverizado."
       },
       {
         "q": "¿Dónde descargo la ficha técnica de Mesa de Sobrecama SKH042?",
@@ -20001,16 +20099,16 @@
     ],
     "preguntas_frecuentes_en": [
       {
-        "q": "What size is the top?",
-        "a": "800 x 410 mm."
+        "q": "What size is the tabletop?",
+        "a": "800 × 410 mm."
       },
       {
-        "q": "What is its height range?",
-        "a": "From 730 to 1130 mm."
+        "q": "What is the height range?",
+        "a": "730 to 1130 mm."
       },
       {
-        "q": "What is it used for?",
-        "a": "As a mobile dining table or nursing bedside table with several beds."
+        "q": "What materials is it made of?",
+        "a": "MDF top with PVC covers and powder-coated carbon-steel frame."
       },
       {
         "q": "Where can I download the Overbed Table SKH042 datasheet?",
@@ -20018,19 +20116,21 @@
       }
     ],
     "seo_keywords_es": [
-      "mesa de cama hospitalaria",
-      "mesa puente SKH042",
-      "mesa de sobrecama",
-      "mesa Saikang",
-      "mobiliario hospitalario Colombia",
+      "mesa de sobrecama hospitalaria",
+      "mesa de cama SKH042 Saikang",
+      "mesa hospitalaria ajustable Colombia",
+      "overbed table hospital",
+      "mesa paciente con ruedas",
+      "mobiliario cama hospitalaria",
       "ficha técnica SKH042"
     ],
     "seo_keywords_en": [
       "hospital overbed table",
-      "SKH042 overbed table",
-      "bed table",
-      "Saikang table",
-      "hospital furniture Colombia",
+      "SKH042 Saikang bed table",
+      "adjustable hospital table Colombia",
+      "medical overbed table",
+      "rolling patient bed table",
+      "hospital bedside table furniture",
       "SKH042 datasheet"
     ],
     "marca": "Saikang Medical"
@@ -20201,8 +20301,8 @@
     "nombre_en": "Nightstand SKH046-2",
     "descripcion_corta_es": "Mesita de noche con altura ajustable y estructura acero",
     "descripcion_corta_en": "Nightstand with height adjustment and steel frame",
-    "descripcion_larga_es": "La mesa de cama Saikang SKH046-2 mide 890 x 445 mm y su altura se ajusta de 760 a 1050 mm con un sistema de resorte de gas. Su tablero de ABS es fácil de limpiar y resistente a limpiadores químicos, con porta vaso, borde elevado y esquinas redondeadas. Tiene cuatro ruedas de goma giratorias y un marco inferior de acero al carbono pulverizado con centro de gravedad estable. Sirve como mesa de comedor móvil o mesita de enfermería compatible con varias camas.",
-    "descripcion_larga_en": "The Saikang SKH046-2 overbed table measures 890 x 445 mm and its height adjusts from 760 to 1050 mm with a gas-spring system. Its ABS top is easy to clean and resistant to chemical cleaners, with a cup holder, raised edge and rounded corners. It has four swivelling rubber casters and a powder-coated carbon-steel lower frame with a stable centre of gravity. It serves as a mobile dining table or nursing table compatible with several beds.",
+    "descripcion_larga_es": "La mesa de cama hospitalaria ajustable Saikang SKH046-2 (890 × 445 × 760–1050 mm) acerca comida, lectura o dispositivos al paciente sin forzar posturas incómodas. El sistema de resorte de gas ajusta la altura de la cubierta con suavidad, y el tablero de ABS facilita la limpieza diaria en habitaciones hospitalarias de Colombia.\n\nEl marco de acero al carbono pulverizado y cuatro ruedas de goma giratorias aportan estabilidad y movilidad entre camas. Es un accesorio de sobrecama pensado para enfermería y confort del paciente en hospitalización.\n\nCompacta, rodante y de altura variable: exactamente el tipo de mobiliario auxiliar que agiliza la rutina de piso.",
+    "descripcion_larga_en": "The Saikang SKH046-2 overbed table (890 × 445 × 760–1050 mm) brings meals, reading or devices closer to the patient without awkward postures. A gas-spring system raises and lowers the tabletop smoothly, and the ABS board simplifies daily cleaning in Colombian hospital rooms.\n\nA powder-coated carbon-steel frame and four swivel rubber casters add stability and mobility between beds. It is an overbed accessory built for nursing workflow and patient comfort on the ward.\n\nCompact, rolling and height-adjustable: exactly the auxiliary furniture that speeds floor routines.",
     "especificaciones": [
       {
         "clave": "Modelo",
@@ -20276,13 +20376,16 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": [
-      "Hospitalización"
+      "Habitaciones de hospitalización",
+      "Apoyo para comidas en cama",
+      "Uso de dispositivos junto al paciente",
+      "Pisos de enfermería"
     ],
     "aplicaciones_en": [
-      "Inpatient care",
-      "Patient rooms",
-      "Palliative care units",
-      "Home care services"
+      "Inpatient rooms",
+      "In-bed meal support",
+      "Device use at the bedside",
+      "Nursing floors"
     ],
     "atributos": {
       "legacy_slugs": [
@@ -20300,29 +20403,31 @@
       "marca": "Saikang Medical"
     },
     "beneficios_es": [
-      "Altura de 760 a 1050 mm con resorte de gas.",
-      "Tablero de ABS resistente a químicos con porta vaso y borde elevado.",
-      "Cuatro ruedas giratorias y marco de acero al carbono con centro de gravedad estable."
+      "Altura ajustable 760–1050 mm con resorte de gas.",
+      "Tablero ABS fácil de limpiar sobre marco de acero al carbono pulverizado.",
+      "Cuatro ruedas de goma giratorias para mover la mesa entre camas.",
+      "Formato 890 × 445 mm ideal como mesa de sobrecama."
     ],
     "beneficios_en": [
-      "Height from 760 to 1050 mm with gas spring.",
-      "Chemical-resistant ABS top with cup holder and raised edge.",
-      "Four swivelling casters and carbon-steel frame with stable centre of gravity."
+      "Height adjustable 760–1050 mm with gas spring.",
+      "Easy-clean ABS top on powder-coated carbon-steel frame.",
+      "Four swivel rubber casters to move the table between beds.",
+      "890 × 445 mm format ideal as an overbed table."
     ],
-    "valor_es": "Una mesa de cama ajustable con tablero ABS resistente a la limpieza química, según la ficha de Saikang.",
-    "valor_en": "An adjustable overbed table with chemical-cleaning-resistant ABS top, per the Saikang datasheet.",
+    "valor_es": "Una mesa de sobrecama con altura a gas 760–1050 mm y tablero ABS, según ficha Saikang.",
+    "valor_en": "An overbed table with gas height 760–1050 mm and ABS top, per the Saikang datasheet.",
     "preguntas_frecuentes_es": [
       {
-        "q": "¿Qué medidas tiene?",
-        "a": "890 x 445 mm, con altura de 760 a 1050 mm."
+        "q": "¿Qué rango de altura tiene la SKH046-2?",
+        "a": "De 760 a 1050 mm, con ajuste por resorte de gas."
       },
       {
-        "q": "¿Cómo se ajusta la altura?",
-        "a": "Con un sistema de resorte de gas."
+        "q": "¿De qué material es el tablero?",
+        "a": "Tablero de ABS; marco de acero al carbono pulverizado."
       },
       {
-        "q": "¿Con qué camas se usa?",
-        "a": "Se puede utilizar con varias camas de hospital, según la ficha."
+        "q": "¿Tiene ruedas?",
+        "a": "Sí: cuatro ruedas de goma giratorias."
       },
       {
         "q": "¿Dónde descargo la ficha técnica de Mesita de Noche SKH046-2?",
@@ -20331,16 +20436,16 @@
     ],
     "preguntas_frecuentes_en": [
       {
-        "q": "What are its dimensions?",
-        "a": "890 x 445 mm, with a height of 760 to 1050 mm."
+        "q": "What height range does the SKH046-2 have?",
+        "a": "From 760 to 1050 mm, with gas-spring adjustment."
       },
       {
-        "q": "How is height adjusted?",
-        "a": "With a gas-spring system."
+        "q": "What is the tabletop made of?",
+        "a": "ABS board; powder-coated carbon-steel frame."
       },
       {
-        "q": "Which beds can it be used with?",
-        "a": "It can be used with several hospital beds, per the datasheet."
+        "q": "Does it have casters?",
+        "a": "Yes: four swivel rubber casters."
       },
       {
         "q": "Where can I download the Nightstand SKH046-2 datasheet?",
@@ -20348,19 +20453,21 @@
       }
     ],
     "seo_keywords_es": [
-      "mesa de cama hospitalaria",
-      "mesa puente SKH046-2",
-      "mesa de comedor para cama",
-      "mesa Saikang",
-      "mobiliario hospitalario Colombia",
+      "mesa de cama hospitalaria ajustable",
+      "mesa sobrecama SKH046-2 Saikang",
+      "mesa de cama Colombia",
+      "mesa hospitalaria con ruedas",
+      "mobiliario habitación hospital",
+      "overbed table hospitalaria",
       "ficha técnica SKH046-2"
     ],
     "seo_keywords_en": [
-      "hospital overbed table",
-      "SKH046-2 overbed table",
-      "bed dining table",
-      "Saikang table",
-      "hospital furniture Colombia",
+      "adjustable hospital overbed table",
+      "SKH046-2 Saikang overbed table",
+      "hospital bed table Colombia",
+      "rolling hospital table",
+      "inpatient room furniture",
+      "medical overbed table",
       "SKH046-2 datasheet"
     ],
     "marca": "Saikang Medical"
@@ -20601,8 +20708,8 @@
     "nombre_en": "ABS Cart SKR-IB00",
     "descripcion_corta_es": "Carro de ABS con encimera de acero inoxidable 304 y vidrio templado",
     "descripcion_corta_en": "ABS cart with 304 stainless steel top and tempered glass",
-    "descripcion_larga_es": "El carro para portátil Saikang SKR-IB00 mide 533 x 455 mm y su altura se ajusta de 750 a 1150 mm. Tiene tablero de ABS fácil de limpiar y resistente a rayones, columna de aleación de aluminio, compartimento con llave para portátiles de hasta 17\", soporte telescópico de mouse para zurdos y diestros, cesta grande, bandeja y cuatro ruedas dobles silenciosas (dos delanteras con freno de 360°). Opcionalmente se configura con batería de litio y luz LED.",
-    "descripcion_larga_en": "The Saikang SKR-IB00 laptop cart measures 533 x 455 mm and its height adjusts from 750 to 1150 mm. It has an easy-to-clean, scratch-resistant ABS top, aluminium-alloy column, lockable compartment for laptops up to 17\", telescopic mouse holder for left- and right-handed use, a large basket, a tray and four silent dual casters (two front with 360° brakes). A lithium battery system with LED light is optional.",
+    "descripcion_larga_es": "El carro para computador hospitalario Saikang SKR-IB00 (533 × 455 × 750–1150 mm) acerca el computador portátil al punto de atención en pisos de enfermería de Colombia. Tablero de ABS fácil de limpiar y resistente a rayones, columna de aleación de aluminio y base metálica cubierta de ABS aportan estabilidad y mantenimiento sencillo.\n\nIncluye 1 cesta grande, 1 bandeja, soporte telescópico de ratón ambidiestro y compartimento con llave. Ruedas de doble cara silenciosas (2 delanteras con freno 360°). Opcional: batería de litio de alto rendimiento con luz LED para alimentación estable.\n\nEs el carro de ABS que digitaliza la ronda clínica sin improvisar mesas ni cables sueltos.",
+    "descripcion_larga_en": "The Saikang SKR-IB00 cart (533 × 455 × 750–1150 mm) brings the laptop to the point of care on Colombian nursing floors. An easy-clean scratch-resistant ABS top, aluminium-alloy column and metal base with ABS cover add stability and simple maintenance.\n\nIt includes 1 large basket, 1 tray, ambidextrous telescopic mouse support and a lockable compartment. Quiet dual casters (2 front brakes at 360°). Optional: high-performance lithium battery with LED light for stable power.\n\nIt is the ABS cart that digitizes clinical rounds without improvised tables or loose cables.",
     "especificaciones": [
       {
         "clave": "Modelo",
@@ -20683,16 +20790,16 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": [
-      "Enfermería clínica",
-      "Administración de medicamentos",
-      "Transporte de insumos",
-      "Procedimientos de consulta externa"
+      "Rondas de enfermería con portátil",
+      "Registro electrónico en piso",
+      "Punto de atención móvil",
+      "Áreas de hospitalización"
     ],
     "aplicaciones_en": [
-      "Clinical nursing",
-      "Medication administration",
-      "Supplies transport",
-      "Outpatient consultation procedures"
+      "Nursing rounds with laptop",
+      "Electronic charting on the floor",
+      "Mobile point of care",
+      "Inpatient areas"
     ],
     "atributos": {
       "legacy_slugs": [
@@ -20708,29 +20815,31 @@
       "marca": "Saikang Medical"
     },
     "beneficios_es": [
-      "Altura ajustable de 750 a 1150 mm para trabajar de pie o sentado.",
-      "Compartimento con llave para portátiles de hasta 17\" y soporte de mouse ambidiestro.",
-      "Ruedas silenciosas con freno de 360° y cesta grande; batería de litio opcional."
+      "Altura 750–1150 mm con tablero ABS y columna de aluminio.",
+      "Cesta, bandeja, soporte de ratón ambidiestro y compartimento con llave.",
+      "Ruedas silenciosas con 2 frenos delanteros bloqueables a 360°.",
+      "Opcional: batería de litio con luz LED para alimentación móvil."
     ],
     "beneficios_en": [
-      "Height adjustable from 750 to 1150 mm for standing or seated work.",
-      "Lockable compartment for laptops up to 17\" and ambidextrous mouse holder.",
-      "Silent casters with 360° brakes and a large basket; optional lithium battery."
+      "Height 750–1150 mm with ABS top and aluminium column.",
+      "Basket, tray, ambidextrous mouse support and lockable compartment.",
+      "Quiet casters with 2 front brakes lockable at 360°.",
+      "Optional: lithium battery with LED light for mobile power."
     ],
-    "valor_es": "Un carro para portátil ajustable en altura con compartimento con llave, según la ficha de Saikang.",
-    "valor_en": "A height-adjustable laptop cart with lockable compartment, per the Saikang datasheet.",
+    "valor_es": "Un carro para portátil de ABS con altura 750–1150 mm y compartimento con llave, según ficha Saikang.",
+    "valor_en": "An ABS laptop cart with 750–1150 mm height and lockable compartment, per Saikang datasheet.",
     "preguntas_frecuentes_es": [
       {
-        "q": "¿Qué portátiles admite?",
-        "a": "Cualquier portátil de menos de 17\", guardado bajo la cubierta superior con llave."
+        "q": "¿Qué dimensiones tiene el SKR-IB00?",
+        "a": "533 × 455 × 750–1150 mm."
       },
       {
-        "q": "¿Qué altura tiene?",
-        "a": "De 750 a 1150 mm."
+        "q": "¿Qué incluye de serie?",
+        "a": "1 cesta grande, 1 bandeja y 4 ruedas; más soporte de ratón y compartimento con llave según configuración técnica."
       },
       {
-        "q": "¿Tiene batería?",
-        "a": "Una batería de litio con luz LED es opcional."
+        "q": "¿Hay opción de batería?",
+        "a": "Sí: batería de litio de alto rendimiento con luz LED, opcional."
       },
       {
         "q": "¿Dónde descargo la ficha técnica de Carro de ABS SKR-IB00?",
@@ -20739,16 +20848,16 @@
     ],
     "preguntas_frecuentes_en": [
       {
-        "q": "Which laptops does it hold?",
-        "a": "Any laptop under 17\", stored under the lockable top cover."
+        "q": "What are the SKR-IB00 dimensions?",
+        "a": "533 × 455 × 750–1150 mm."
       },
       {
-        "q": "What height range does it have?",
-        "a": "From 750 to 1150 mm."
+        "q": "What is included as standard?",
+        "a": "1 large basket, 1 tray and 4 casters; plus mouse support and lockable compartment per the technical configuration."
       },
       {
-        "q": "Does it have a battery?",
-        "a": "A lithium battery with LED light is optional."
+        "q": "Is there a battery option?",
+        "a": "Yes: optional high-performance lithium battery with LED light."
       },
       {
         "q": "Where can I download the ABS Cart SKR-IB00 datasheet?",
@@ -20756,19 +20865,21 @@
       }
     ],
     "seo_keywords_es": [
-      "carro para computador portátil",
-      "carro de ABS SKR-IB00",
-      "carro de enfermería con portátil",
-      "carro Saikang",
-      "carro hospitalario Colombia",
+      "carro para computador hospitalario",
+      "carro portátil SKR-IB00 Saikang",
+      "carro enfermería computador Colombia",
+      "carro ABS hospitalario",
+      "trolley laptop clínico",
+      "carro punto de atención",
       "ficha técnica SKR-IB00"
     ],
     "seo_keywords_en": [
-      "laptop cart",
-      "SKR-IB00 ABS cart",
-      "nursing laptop cart",
-      "Saikang cart",
-      "hospital cart Colombia",
+      "hospital laptop cart",
+      "SKR-IB00 Saikang computer trolley",
+      "nursing laptop cart Colombia",
+      "ABS hospital computer cart",
+      "clinical laptop trolley",
+      "point of care cart",
       "SKR-IB00 datasheet"
     ],
     "marca": "Saikang Medical"
@@ -24143,8 +24254,8 @@
     "nombre_en": "Patient Stretcher SKB037(C)",
     "descripcion_corta_es": "Camilla para pacientes con ajuste de altura 620-880 mm",
     "descripcion_corta_en": "Patient stretcher with height adjustment 620-880 mm",
-    "descripcion_larga_es": "La camilla para pacientes Saikang SKB037(C) mide 1970 x 760 x 620-900 mm, con respaldo de 0 a 75°, apoyo de rodillas de 0 a 35° y carga segura de 200 kg. Opera con tres manivelas, e incluye ruedas cubiertas de 5\", barandas de aleación de aluminio, dos porta sueros, soporte de cilindro de oxígeno, plato de residuos y colchón. Su superficie de tablero fenólico compacto es más delgada y fácil de radiografiar.",
-    "descripcion_larga_en": "The Saikang SKB037(C) patient trolley measures 1970 x 760 x 620-900 mm, with a 0 to 75° backrest, 0 to 35° knee rest and 200 kg safe working load. It is operated with three hand cranks and includes 5\" covered casters, aluminium-alloy side rails, two IV poles, an oxygen cylinder holder, a debris plate and a mattress. Its compact phenolic board surface is thinner and easier to X-ray.",
+    "descripcion_larga_es": "La camilla para pacientes hospitalaria Saikang SKB037(C) es un trolley de 1970 × 760 × 620–900 mm con carga segura de 200 kg, ideal para traslado y atención en pasillos y servicios de Colombia. Tres manivelas controlan respaldo (0–75°) y apoyo de rodillas (0–35°), dando al personal control manual preciso sin depender de motores.\n\nEl marco de acero inoxidable con acabado espejo, la superficie de tablero fenólico compacto (más delgada y apta para rayos X) y los rieles laterales de aleación de aluminio aportan higiene y acceso clínico. Ruedas cubiertas de 5\" con freno universal y banda protectora remachada refuerzan la seguridad en movimiento.\n\nDe serie incluye dos porta sueros, soporte de oxígeno, plato de residuos y colchón: un paquete completo para la rutina de traslado intradepartamental.",
+    "descripcion_larga_en": "The Saikang SKB037(C) patient trolley is a hospital stretcher at 1970 × 760 × 620–900 mm with a 200 kg safe working load, ideal for transfer and care in corridors and wards in Colombia. Three cranks control backrest (0–75°) and knee support (0–35°), giving staff precise manual control without motors.\n\nA stainless-steel frame with mirror finish, phenolic compact-board surface (thinner and X-ray friendly) and aluminium-alloy side rails support hygiene and clinical access. Covered 5\" casters with universal brake and a riveted bumper strip reinforce safety in motion.\n\nIt ships with two IV poles, oxygen bottle holder, debris plate and mattress: a complete package for intradepartmental transfer routines.",
     "especificaciones": [
       {
         "clave": "Modelo",
@@ -24219,10 +24330,16 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": [
-      "Transporte de pacientes"
+      "Traslado intradepartamental",
+      "Urgencias y observación",
+      "Procedimientos con acceso a rayos X",
+      "Hospitalización general"
     ],
     "aplicaciones_en": [
-      "Patient transportation"
+      "Intradepartmental transfer",
+      "Emergency and observation",
+      "Procedures needing X-ray access",
+      "General inpatient care"
     ],
     "atributos": {
       "legacy_slugs": [
@@ -24238,29 +24355,31 @@
       "marca": "Saikang Medical"
     },
     "beneficios_es": [
-      "Carga segura de 200 kg y altura de 620 a 900 mm.",
-      "Superficie de tablero fenólico más delgada y fácil de radiografiar.",
-      "Incluye dos porta sueros, soporte de oxígeno, barandas de aluminio y colchón."
+      "Carga segura de 200 kg con altura de 620 a 900 mm y tres manivelas de control.",
+      "Respaldo 0–75° y rodillas 0–35° para reposicionar al paciente en el traslado.",
+      "Superficie fenólica compacta apta para rayos X y marco de acero inoxidable pulido.",
+      "Incluye 2 porta sueros, soporte de oxígeno, plato de residuos y colchón."
     ],
     "beneficios_en": [
-      "200 kg safe working load and height from 620 to 900 mm.",
-      "Thinner phenolic board surface that is easier to X-ray.",
-      "Includes two IV poles, oxygen holder, aluminium rails and mattress."
+      "200 kg safe working load with height from 620 to 900 mm and three control cranks.",
+      "Backrest 0–75° and knees 0–35° to reposition the patient during transfer.",
+      "X-ray-friendly phenolic compact surface and mirror-polished stainless-steel frame.",
+      "Includes 2 IV poles, oxygen holder, debris plate and mattress."
     ],
-    "valor_es": "Una camilla manual de tres manivelas con soporte de oxígeno y superficie apta para rayos X, según la ficha de Saikang.",
-    "valor_en": "A three-crank manual trolley with oxygen holder and X-ray-friendly surface, per the Saikang datasheet.",
+    "valor_es": "Una camilla de pacientes de 200 kg con tres manivelas y superficie apta para rayos X, según la ficha Saikang.",
+    "valor_en": "A 200 kg patient trolley with three cranks and an X-ray-friendly surface, per the Saikang datasheet.",
     "preguntas_frecuentes_es": [
       {
-        "q": "¿Qué carga segura tiene?",
-        "a": "200 kg."
+        "q": "¿Qué carga segura tiene la SKB037(C)?",
+        "a": "Carga de trabajo segura de 200 kg."
       },
       {
-        "q": "¿Cuál es su rango de altura?",
-        "a": "De 620 a 900 mm."
+        "q": "¿Cómo se operan los ajustes?",
+        "a": "Con tres manivelas: respaldo 0–75° y apoyo de rodillas 0–35°, más altura."
       },
       {
-        "q": "¿Es fácil de radiografiar?",
-        "a": "La ficha indica una superficie de tablero fenólico compacto más delgada y fácil para rayos X."
+        "q": "¿La superficie permite rayos X?",
+        "a": "Sí: la superficie es de tablero fenólico compacto, más delgada y más fácil para radiografía, según la ficha."
       },
       {
         "q": "¿Dónde descargo la ficha técnica de Camilla para Pacientes SKB037(C)?",
@@ -24269,16 +24388,16 @@
     ],
     "preguntas_frecuentes_en": [
       {
-        "q": "What safe working load does it have?",
-        "a": "200 kg."
+        "q": "What safe working load does the SKB037(C) have?",
+        "a": "Safe working load of 200 kg."
       },
       {
-        "q": "What is its height range?",
-        "a": "From 620 to 900 mm."
+        "q": "How are the adjustments operated?",
+        "a": "With three cranks: backrest 0–75° and knee support 0–35°, plus height."
       },
       {
-        "q": "Is it X-ray friendly?",
-        "a": "The datasheet states a thinner compact phenolic board surface that is easier for X-ray."
+        "q": "Is the surface X-ray compatible?",
+        "a": "Yes: the surface is phenolic compact board, thinner and easier for X-ray, per the datasheet."
       },
       {
         "q": "Where can I download the Patient Stretcher SKB037(C) datasheet?",
@@ -24286,20 +24405,22 @@
       }
     ],
     "seo_keywords_es": [
-      "camilla de paciente",
-      "camilla hospitalaria SKB037(C)",
-      "camilla de transporte hospitalaria",
-      "camilla Saikang",
-      "camilla de pacientes Colombia",
-      "ficha técnica SKB037(C)"
+      "camilla para pacientes hospitalaria",
+      "camilla SKB037C Saikang",
+      "trolley de pacientes Colombia",
+      "camilla hospitalaria manivelas",
+      "camilla traslado rayos X",
+      "camilla acero inoxidable hospital",
+      "ficha técnica SKB037C"
     ],
     "seo_keywords_en": [
-      "patient trolley",
-      "SKB037(C) hospital stretcher",
-      "hospital transport trolley",
-      "Saikang trolley",
+      "hospital patient trolley",
+      "SKB037C Saikang stretcher",
       "patient trolley Colombia",
-      "SKB037(C) datasheet"
+      "manual crank hospital stretcher",
+      "X-ray compatible stretcher",
+      "stainless steel patient trolley",
+      "SKB037C datasheet"
     ],
     "marca": "Saikang Medical"
   },
@@ -24397,8 +24518,8 @@
     "nombre_en": "Memory Foam Mattress SKP011",
     "descripcion_corta_es": "Colchón viscoelástico con capa base firme de poliuretano",
     "descripcion_corta_en": "Memory foam mattress with firm polyurethane base layer",
-    "descripcion_larga_es": "El colchón viscoelástico seccional Saikang SKP011 mide 1920 x 870 x 100 mm. Su capa superior es de espuma viscoelástica de 40 mm (42-45 kg/m³) con propiedades termoactivas que ofrecen soporte y alivio de presión, y su base firme es de espuma de poliuretano de 40 kg/m³. La funda de PU con cremallera larga es impermeable, transpirable y antiinfecciosa, y se retira fácilmente para lavar. La ficha está disponible en francés; se admiten tamaños personalizados.",
-    "descripcion_larga_en": "The Saikang SKP011 sectional memory-foam mattress measures 1920 x 870 x 100 mm. Its top layer is 40 mm visco-elastic memory foam (42-45 kg/m³) with thermo-active properties that provide support and pressure relief, and its firm base is 40 kg/m³ polyurethane foam. The PU zip cover is waterproof, breathable and anti-infection, and removes easily for washing. The datasheet is available in French; custom sizes are accepted.",
+    "descripcion_larga_es": "El colchón viscoelástico hospitalario Saikang SKP011 de espuma con memoria seccional (1920 × 870 × 100 mm) combina una capa superior viscoelástica de 40 mm (42–45 kg/m³) con base de espuma de poliuretano (40 kg/m³) para apoyo y alivio de presión, según la ficha del fabricante (documento en francés).\n\nLa funda de PU con cremallera larga es impermeable, transpirable, suave y de alta resistencia a la tracción; se retira con facilidad para lavar. Se acepta tamaño personalizado y colores de funda gris o azul oscuro; la capa superior puede ser azul, verde o negra.\n\nEs un colchón hospitalario de espuma de memoria documentado para instituciones en Colombia que buscan confort de superficie sin inventar indicaciones clínicas fuera de la ficha.",
+    "descripcion_larga_en": "The Saikang SKP011 sectional memory-foam mattress (1920 × 870 × 100 mm) combines a 40 mm viscoelastic top layer (42–45 kg/m³) with a polyurethane foam base (40 kg/m³) for support and pressure relief, per the manufacturer datasheet (French document).\n\nThe PU zip cover is waterproof, breathable, soft and high in tensile strength; the long zipper design makes it easy to remove and wash. Custom sizing is acceptable; cover colours grey or dark blue; top layer may be blue, green or black.\n\nIt is a documented hospital memory-foam mattress for Colombian facilities seeking surface comfort without inventing clinical claims beyond the datasheet.",
     "especificaciones": [
       {
         "clave": "Modelo",
@@ -24472,16 +24593,16 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": [
-      "Prevención de úlceras por presión en pacientes hospitalizados",
-      "Descanso en camas de hospitalización y UCI",
-      "Apoyo en recuperación posquirúrgica",
-      "Distribución en servicios de atención domiciliaria y clínica"
+      "Camas de hospitalización",
+      "Superficies de descanso clínico",
+      "Dotación de colchones institucionales",
+      "Habitaciones de paciente"
     ],
     "aplicaciones_en": [
-      "Prevention of pressure ulcers in hospitalized patients",
-      "Rest in hospitalization and ICU beds",
-      "Support in postoperative recovery",
-      "Distribution in home care and clinical services"
+      "Inpatient beds",
+      "Clinical rest surfaces",
+      "Institutional mattress inventories",
+      "Patient rooms"
     ],
     "atributos": {
       "legacy_slugs": [
@@ -24499,29 +24620,31 @@
       "marca": "Saikang Medical"
     },
     "beneficios_es": [
-      "Capa superior viscoelástica de 40 mm que brinda soporte y alivio de presión.",
-      "Diseño seccional que se adapta a las distintas posiciones de la cama.",
-      "Funda de PU impermeable, transpirable y antiinfecciosa, con cremallera para lavar."
+      "Capa viscoelástica 40 mm (42–45 kg/m³) sobre base PU 40 kg/m³.",
+      "Formato 1920 × 870 × 100 mm; tamaño personalizado aceptable.",
+      "Funda PU con cremallera larga, impermeable y transpirable, lavable.",
+      "Propiedades termoactivas de la espuma de memoria para apoyo y alivio de presión (ficha)."
     ],
     "beneficios_en": [
-      "40 mm memory-foam top layer providing support and pressure relief.",
-      "Sectional design that fits different bed positions.",
-      "Waterproof, breathable, anti-infection PU cover with zip for washing."
+      "40 mm viscoelastic layer (42–45 kg/m³) over 40 kg/m³ PU base.",
+      "1920 × 870 × 100 mm format; custom size acceptable.",
+      "PU long-zip cover, waterproof and breathable, washable.",
+      "Thermo-active memory-foam properties for support and pressure relief (datasheet)."
     ],
-    "valor_es": "Un colchón viscoelástico seccional con funda impermeable lavable; tamaños personalizados disponibles.",
-    "valor_en": "A sectional memory-foam mattress with washable waterproof cover; custom sizes available.",
+    "valor_es": "Un colchón viscoelástico 1920 × 870 × 100 mm con funda PU lavable, según ficha Saikang.",
+    "valor_en": "A 1920 × 870 × 100 mm viscoelastic mattress with washable PU cover, per Saikang datasheet.",
     "preguntas_frecuentes_es": [
       {
-        "q": "¿Qué medidas tiene?",
-        "a": "1920 x 870 x 100 mm; se aceptan tamaños personalizados."
+        "q": "¿Qué dimensiones tiene el SKP011?",
+        "a": "1920 × 870 × 100 mm; la ficha indica que se acepta tamaño personalizado."
       },
       {
-        "q": "¿Qué densidad tiene la espuma?",
-        "a": "La capa superior 42-45 kg/m³ y la base de poliuretano 40 kg/m³."
+        "q": "¿Cómo está construido?",
+        "a": "Capa superior de espuma viscoelástica 40 mm (42–45 kg/m³) y base de espuma de poliuretano 40 kg/m³."
       },
       {
-        "q": "¿La funda se lava?",
-        "a": "Sí, tiene cremallera larga y se retira fácilmente para lavar."
+        "q": "¿La funda se puede lavar?",
+        "a": "Sí: funda PU con cremallera larga, fácil de retirar y lavar; impermeable y transpirable."
       },
       {
         "q": "¿Dónde descargo la ficha técnica de Colchón Viscoelástico SKP011?",
@@ -24530,16 +24653,16 @@
     ],
     "preguntas_frecuentes_en": [
       {
-        "q": "What are its dimensions?",
-        "a": "1920 x 870 x 100 mm; custom sizes are accepted."
+        "q": "What are the SKP011 dimensions?",
+        "a": "1920 × 870 × 100 mm; the datasheet states custom size is acceptable."
       },
       {
-        "q": "What is the foam density?",
-        "a": "Top layer 42-45 kg/m³ and polyurethane base 40 kg/m³."
+        "q": "How is it built?",
+        "a": "40 mm viscoelastic top (42–45 kg/m³) and polyurethane foam base at 40 kg/m³."
       },
       {
-        "q": "Is the cover washable?",
-        "a": "Yes, it has a long zip and removes easily for washing."
+        "q": "Can the cover be washed?",
+        "a": "Yes: PU cover with long zipper, easy to remove and wash; waterproof and breathable."
       },
       {
         "q": "Where can I download the Memory Foam Mattress SKP011 datasheet?",
@@ -24547,19 +24670,21 @@
       }
     ],
     "seo_keywords_es": [
-      "colchón viscoelástico",
-      "colchón hospitalario SKP011",
-      "colchón antiescaras",
-      "colchón Saikang",
+      "colchón viscoelástico hospitalario",
+      "colchón memoria SKP011 Saikang",
       "colchón hospitalario Colombia",
+      "colchón espuma memoria clínica",
+      "colchón PU impermeable hospital",
+      "mattress viscoelástico cama hospital",
       "ficha técnica SKP011"
     ],
     "seo_keywords_en": [
-      "memory foam mattress",
-      "SKP011 hospital mattress",
-      "pressure-relief mattress",
-      "Saikang mattress",
+      "hospital viscoelastic mattress",
+      "SKP011 Saikang memory foam mattress",
       "hospital mattress Colombia",
+      "clinical memory foam mattress",
+      "waterproof PU hospital mattress",
+      "viscoelastic hospital bed mattress",
       "SKP011 datasheet"
     ],
     "marca": "Saikang Medical"
@@ -24574,8 +24699,8 @@
     "nombre_en": "Anesthesia Cart SKR-AT625-1",
     "descripcion_corta_es": "Carro de anestesia con múltiples cajones",
     "descripcion_corta_en": "Anesthesia cart with multiple drawers",
-    "descripcion_larga_es": "El carro de anestesia Saikang SKR-AT625-1 mide 620 x 475 x 945 mm (altura al tablero) y se construye en acero y plástico de ingeniería ABS con cuatro columnas portantes. Su tablero antideslizante con barandas de acero 304 y vidrio blando evita caídas durante el traslado. Tiene cerradura central, dos cajones con separadores 3x3, mesa auxiliar oculta, contenedor rotatorio de cortopunzantes de 3 L, cubo de residuos de ABS y riel de anestesia con cinco cajas colgantes.",
-    "descripcion_larga_en": "The Saikang SKR-AT625-1 anaesthesia trolley measures 620 x 475 x 945 mm (height to tabletop) and is built of steel and ABS engineering plastic with four load-bearing columns. Its anti-slip tabletop with 304 stainless-steel guardrails and soft glass prevents items from falling during transport. It has a central lock, two drawers with 3x3 dividers, a hidden auxiliary workbench, a rotary 3 L sharps container, an ABS waste bin and an anaesthesia rack with five hanging medicine boxes.",
+    "descripcion_larga_es": "El carro de anestesia hospitalario Saikang SKR-AT625-1 organiza medicamentos e insumos en quirófano y salas de procedimiento en Colombia. Mide 620 × 475 × 945 mm (altura al tablero) y combina estructura de acero y ABS con cuatro columnas portantes para un puesto de trabajo estable y móvil.\n\nDos cajones (alturas de panel 80 mm y 120 mm) con separadores 3×3 libres y placa-nombre transparentes, cerradura de control central, gabinete, banco auxiliar extraíble y caja de almacenamiento a la izquierda, más contenedor rotatorio de cortopunzantes de 3 L y cubo de residuos ABS a la derecha, ordenan el flujo de trabajo anestésico.\n\nEl tablero antideslizante con barandillas de acero inoxidable 304 y vidrio blando transparente, la bandeja de anestesia de una fila con cinco cajas para medicamentos y las ruedas de 4\" (dos con freno) completan un carro listo para la rutina perioperatoria.",
+    "descripcion_larga_en": "The Saikang SKR-AT625-1 anesthesia trolley organizes medicines and supplies in operating rooms and procedure suites in Colombia. It measures 620 × 475 × 945 mm (height to tabletop) and combines a steel and ABS structure with four load-bearing columns for a stable, mobile workstation.\n\nTwo drawers (panel heights 80 mm and 120 mm) with free 3×3 partitions and transparent nameplates, central control lock, cabinet body, left-side pull-out auxiliary workbench and storage box, plus a rotatable 3 L sharps container and ABS waste bucket on the right, keep the anesthetic workflow ordered.\n\nAn anti-slip recessed tabletop with 304 stainless-steel guardrails and transparent soft glass, a single-row anesthesia rack with five medicine boxes and 4\" casters (two with brakes) complete a cart ready for perioperative routines.",
     "especificaciones": [
       {
         "clave": "Modelo",
@@ -24655,16 +24780,16 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": [
-      "Soporte en sala de anestesia",
-      "Transporte organizado de suministros",
-      "Almacenamiento de equipos menores",
-      "Movilización en procedimientos quirúrgicos"
+      "Quirófanos y salas de recuperación",
+      "Procedimientos con anestesia",
+      "Organización de medicamentos perioperatorios",
+      "Áreas de procedimientos menores"
     ],
     "aplicaciones_en": [
-      "Support in anesthesia rooms",
-      "Organized supply transport",
-      "Storage of minor equipment",
-      "Mobility in surgical procedures"
+      "Operating and recovery rooms",
+      "Anesthesia procedures",
+      "Perioperative medication organization",
+      "Minor procedure areas"
     ],
     "atributos": {
       "legacy_slugs": [
@@ -24681,29 +24806,31 @@
       "marca": "Saikang Medical"
     },
     "beneficios_es": [
-      "Tablero antideslizante con barandas de acero 304 y vidrio blando para transportar sin derrames.",
-      "Cerradura central, dos cajones con separadores 3x3 y mesa auxiliar oculta.",
-      "Contenedor rotatorio de cortopunzantes de 3 L y cubo de residuos ABS integrados."
+      "Estructura acero/ABS con cuatro columnas y tablero antideslizante con barandillas AISI 304.",
+      "Dos cajones con separadores 3×3 libres, cerradura central y gabinete para insumos.",
+      "Contenedor rotatorio de cortopunzantes de 3 L y cubo de residuos ABS de dos colores.",
+      "Banco auxiliar extraíble, rack de anestesia con 5 cajas y ruedas de 4\" (2 con freno)."
     ],
     "beneficios_en": [
-      "Anti-slip tabletop with 304 stainless-steel guardrails and soft glass to transport without spills.",
-      "Central lock, two drawers with 3x3 dividers and a hidden auxiliary workbench.",
-      "Integrated rotary 3 L sharps container and ABS waste bin."
+      "Steel/ABS structure with four columns and anti-slip tabletop with 304 stainless guardrails.",
+      "Two drawers with free 3×3 partitions, central lock and cabinet for supplies.",
+      "Rotatable 3 L sharps container and two-color ABS waste bucket.",
+      "Pull-out auxiliary workbench, anesthesia rack with 5 boxes and 4\" casters (2 braked)."
     ],
-    "valor_es": "Un carro de anestesia organizado con cajones, cerradura central y contenedor de cortopunzantes, según la ficha de Saikang.",
-    "valor_en": "An organised anaesthesia trolley with drawers, central lock and sharps container, per the Saikang datasheet.",
+    "valor_es": "Un carro de anestesia compacto con cajones organizados, cortopunzantes de 3 L y tablero AISI 304, según ficha Saikang.",
+    "valor_en": "A compact anesthesia trolley with organized drawers, 3 L sharps container and 304 tabletop rails, per Saikang datasheet.",
     "preguntas_frecuentes_es": [
       {
-        "q": "¿Qué dimensiones tiene?",
-        "a": "620 x 475 x 945 mm (altura hasta el tablero)."
+        "q": "¿Qué dimensiones tiene el carro?",
+        "a": "620 × 475 × 945 mm (±10 mm) de altura al tablero."
       },
       {
-        "q": "¿Cómo es su sistema de ruedas?",
-        "a": "Ruedas de 4\", dos con freno."
+        "q": "¿Cuántos cajones incluye?",
+        "a": "Dos cajones (paneles de 80 mm y 120 mm) con separadores 3×3 libres."
       },
       {
         "q": "¿Incluye contenedor de cortopunzantes?",
-        "a": "Sí, un contenedor circular rotatorio de 3 L en el costado derecho."
+        "a": "Sí: contenedor circular rotatorio de 3 L en el lado derecho."
       },
       {
         "q": "¿Dónde descargo la ficha técnica de Carro de Anestesia SKR-AT625-1?",
@@ -24712,16 +24839,16 @@
     ],
     "preguntas_frecuentes_en": [
       {
-        "q": "What are its dimensions?",
-        "a": "620 x 475 x 945 mm (height to tabletop)."
+        "q": "What are the cart dimensions?",
+        "a": "620 × 475 × 945 mm (±10 mm) height to tabletop."
       },
       {
-        "q": "What casters does it have?",
-        "a": "4-inch casters, two with brakes."
+        "q": "How many drawers does it include?",
+        "a": "Two drawers (80 mm and 120 mm panels) with free 3×3 partitions."
       },
       {
         "q": "Does it include a sharps container?",
-        "a": "Yes, a rotary circular 3 L container on the right side."
+        "a": "Yes: a rotatable 3 L circular sharps container on the right side."
       },
       {
         "q": "Where can I download the Anesthesia Cart SKR-AT625-1 datasheet?",
@@ -24729,19 +24856,21 @@
       }
     ],
     "seo_keywords_es": [
-      "carro de anestesia",
-      "carro de anestesia SKR-AT625-1",
-      "carro de medicamentos anestesia",
-      "carro Saikang",
-      "carro hospitalario Colombia",
+      "carro de anestesia hospitalario",
+      "carro anestesia SKR-AT625-1",
+      "carro de medicamentos quirófano",
+      "trolley anestesia Colombia",
+      "carro hospitalario ABS acero",
+      "carro cortopunzantes 3 litros",
       "ficha técnica SKR-AT625-1"
     ],
     "seo_keywords_en": [
-      "anaesthesia trolley",
-      "SKR-AT625-1 anaesthesia cart",
-      "anaesthesia medicine cart",
-      "Saikang trolley",
-      "hospital cart Colombia",
+      "hospital anesthesia trolley",
+      "SKR-AT625-1 anesthesia cart",
+      "operating room medicine cart",
+      "anesthesia trolley Colombia",
+      "ABS steel hospital trolley",
+      "3 litre sharps cart",
       "SKR-AT625-1 datasheet"
     ],
     "marca": "Saikang Medical"
@@ -25015,8 +25144,8 @@
     "nombre_en": "Nightstand SKS008",
     "descripcion_corta_es": "Mesita de noche ABS con ruedas",
     "descripcion_corta_en": "ABS nightstand with casters",
-    "descripcion_larga_es": "La mesita de noche Saikang SKS008 es una mesilla de ABS y acero de 500 x 510 x 705 mm. Su cuerpo es de plástico sobre acero de alta calidad; la encimera, los cajones y las puertas son de ABS inyectado 100 % puro, no tóxico, resistente al óxido y la corrosión y fácil de limpiar. Incluye una tabla de comedor extraíble entre el cajón y la encimera, dos capas de almacenamiento interior, ganchos para toallas ocultos a ambos lados y ruedas silenciosas.",
-    "descripcion_larga_en": "The Saikang SKS008 bedside table is an ABS and steel cabinet of 500 x 510 x 705 mm. The body is plastic over high-quality steel; the top, drawers and doors are injection-moulded 100% pure ABS, non-toxic, rust- and corrosion-resistant and easy to clean. It includes a pull-out dining board between the drawer and the top, two inner storage layers, hidden towel hooks on both sides and silent casters.",
+    "descripcion_larga_es": "La mesita de noche hospitalaria ABS Saikang SKS008 (500 × 510 × 705 mm) combina cuerpo de acero con pulverizado plástico de alta calidad y encimeras, cajones y puertas de ABS inyectado: fuerte, resistente a la oxidación y fácil de limpiar. Entre el cajón y el tablero hay una tabla de comedor extraíble de dos capas internas con gran espacio de almacenamiento.\n\nGanchos para toallas ocultos, ruedas silenciosas anti-enrollamiento y un diseño pensado para no deformarse completan una mesita de noche hospitalaria práctica para habitaciones en Colombia.\n\nMateriales mixtos acero/ABS documentados en ficha: durabilidad visible y mantenimiento sencillo para compras de piso.",
+    "descripcion_larga_en": "The Saikang SKS008 bedside cabinet (500 × 510 × 705 mm) combines a high-quality plastic-sprayed steel body with injection-moulded ABS tops, drawers and doors: strong, oxidation-resistant and easy to clean. Between the drawer and the top sits a pull-out dining board with two internal layers and generous storage.\n\nHidden towel hooks, quiet anti-winding casters and a design meant not to deform complete a practical hospital nightstand for rooms in Colombia.\n\nDatasheet-documented mixed steel/ABS materials: visible durability and simple maintenance for floor purchasing.",
     "especificaciones": [
       {
         "clave": "Modelo",
@@ -25080,12 +25209,16 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": [
-      "Hospitalización"
+      "Habitaciones de hospitalización",
+      "Almacenamiento y comidas en cama",
+      "Pisos de enfermería",
+      "Dotación de mobiliario auxiliar"
     ],
     "aplicaciones_en": [
-      "Hospitalization",
-      "Clinical rooms",
-      "Supply mobility"
+      "Inpatient rooms",
+      "Storage and in-bed meals",
+      "Nursing floors",
+      "Auxiliary furniture inventories"
     ],
     "atributos": {
       "legacy_slugs": [
@@ -25103,29 +25236,31 @@
       "marca": "Saikang Medical"
     },
     "beneficios_es": [
-      "ABS inyectado 100 % puro y no tóxico, resistente al óxido y fácil de limpiar.",
-      "Tabla de comedor extraíble y dos capas de almacenamiento interior.",
-      "Ganchos para toallas ocultos a ambos lados y ruedas silenciosas."
+      "Dimensiones 500 × 510 × 705 mm con cuerpo acero pulverizado.",
+      "Encimeras, cajones y puertas de ABS inyectado fáciles de limpiar.",
+      "Tabla de comedor extraíble con almacenamiento de dos capas.",
+      "Ganchos para toallas ocultos y ruedas silenciosas anti-enrollamiento."
     ],
     "beneficios_en": [
-      "Injection-moulded 100% pure, non-toxic ABS, rust-resistant and easy to clean.",
-      "Pull-out dining board and two inner storage layers.",
-      "Hidden towel hooks on both sides and silent casters."
+      "500 × 510 × 705 mm with plastic-sprayed steel body.",
+      "Injection-moulded ABS tops, drawers and doors, easy to clean.",
+      "Pull-out dining board with two-layer storage.",
+      "Hidden towel hooks and quiet anti-winding casters."
     ],
-    "valor_es": "Una mesilla de ABS y acero con tabla de comedor extraíble y almacenamiento amplio, según la ficha de Saikang.",
-    "valor_en": "An ABS and steel bedside cabinet with pull-out dining board and ample storage, per the Saikang datasheet.",
+    "valor_es": "Una mesita ABS/acero con tabla de comedor extraíble, según ficha Saikang.",
+    "valor_en": "An ABS/steel bedside cabinet with pull-out dining board, per the Saikang datasheet.",
     "preguntas_frecuentes_es": [
       {
-        "q": "¿Qué medidas tiene?",
-        "a": "500 x 510 x 705 mm."
+        "q": "¿Qué dimensiones tiene la SKS008?",
+        "a": "500 × 510 × 705 mm."
       },
       {
-        "q": "¿De qué material es?",
-        "a": "Cuerpo de plástico sobre acero; encimera, cajones y puertas de ABS inyectado."
+        "q": "¿De qué material son cajones y puertas?",
+        "a": "ABS inyectado; el cuerpo es acero con pulverizado plástico."
       },
       {
-        "q": "¿Incluye mesa de comedor?",
-        "a": "Sí, una tabla de comedor extraíble entre el cajón y la encimera."
+        "q": "¿Incluye tabla de comedor?",
+        "a": "Sí: tabla de comedor extraíble entre el cajón y el tablero."
       },
       {
         "q": "¿Dónde descargo la ficha técnica de Mesita de Noche SKS008?",
@@ -25134,16 +25269,16 @@
     ],
     "preguntas_frecuentes_en": [
       {
-        "q": "What are its dimensions?",
-        "a": "500 x 510 x 705 mm."
+        "q": "What are the SKS008 dimensions?",
+        "a": "500 × 510 × 705 mm."
       },
       {
-        "q": "What is it made of?",
-        "a": "Plastic-over-steel body; top, drawers and doors in injection-moulded ABS."
+        "q": "What are drawers and doors made of?",
+        "a": "Injection-moulded ABS; the body is plastic-sprayed steel."
       },
       {
-        "q": "Does it include a dining table?",
-        "a": "Yes, a pull-out dining board between the drawer and the top."
+        "q": "Does it include a dining board?",
+        "a": "Yes: a pull-out dining board between the drawer and the top."
       },
       {
         "q": "Where can I download the Nightstand SKS008 datasheet?",
@@ -25151,19 +25286,21 @@
       }
     ],
     "seo_keywords_es": [
-      "mesilla de noche hospitalaria",
-      "mesita de noche SKS008",
-      "mesilla ABS y acero",
-      "mesilla Saikang",
-      "mobiliario hospitalario Colombia",
+      "mesita de noche hospitalaria ABS",
+      "mesilla SKS008 Saikang",
+      "mesa de noche ABS Colombia",
+      "mesita paciente con tabla comedor",
+      "mobiliario habitación ABS acero",
+      "bedside table hospitalaria ABS",
       "ficha técnica SKS008"
     ],
     "seo_keywords_en": [
-      "hospital bedside cabinet",
-      "SKS008 bedside table",
-      "ABS and steel bedside cabinet",
-      "Saikang bedside cabinet",
-      "hospital furniture Colombia",
+      "ABS hospital bedside table",
+      "SKS008 Saikang nightstand",
+      "ABS bedside cabinet Colombia",
+      "patient nightstand with dining board",
+      "ABS steel room furniture",
+      "hospital ABS bedside table",
       "SKS008 datasheet"
     ],
     "marca": "Saikang Medical"
@@ -25178,8 +25315,8 @@
     "nombre_en": "Nightstand SKS009-2",
     "descripcion_corta_es": "Mesita de noche de aleación de aluminio con cajón amortiguado",
     "descripcion_corta_en": "Aluminum alloy nightstand with dampened drawer",
-    "descripcion_larga_es": "La mesilla de noche Saikang SKS009-2 mide 510 x 480 x 750 mm y su mesa de comedor llega a 950 mm de altura. El cuerpo es de tablero fenólico compacto con bordes redondeados, antiácido, antiálcali, impermeable y ignífugo por 4 horas. Incorpora un cajón con tres rieles de amortiguación silenciosos, un gabinete, barandilla de acero inoxidable, tablero de escritura lateral plegable y ajustable en altura, y cuatro ruedas silenciosas (dos con freno de 360°).",
-    "descripcion_larga_en": "The Saikang SKS009-2 bedside cabinet measures 510 x 480 x 750 mm and its dining table reaches 950 mm in height. The body is compact phenolic board with rounded edges, acid- and alkali-resistant, waterproof and fire-resistant for 4 hours. It includes a drawer with three silent damping rails, a cabinet, a stainless-steel top rail, a folding side writing board with adjustable height, and four silent casters (two with 360° brakes).",
+    "descripcion_larga_es": "La mesita de noche hospitalaria fenólica Saikang SKS009-2 (510 × 480 × 750 mm, mesa de comedor hasta 950 mm) organiza pertenencias del paciente con un cajón, un gabinete, espacio abierto intermedio y tablero de escritura lateral. El cuerpo fenólico con tratamiento redondeado es antiácido, antiálcali, impermeable, fácil de limpiar e ignífugo durante 4 horas según la ficha.\n\nRuedas médicas silenciosas de doble cara (dos con freno bloqueable a 360°) y pistas deslizantes silenciosas mejoran el movimiento y el uso diario. El mango de aleación de aluminio anodizado y la barandilla superior de acero inoxidable completan un mueble de habitación resistente.\n\nEs la mesita de noche hospitalaria que combina almacenamiento, superficie de apoyo y movilidad silenciosa para pisos de hospitalización en Colombia.",
+    "descripcion_larga_en": "The Saikang SKS009-2 phenolic compact bedside cabinet (510 × 480 × 750 mm, dining board up to 950 mm) organizes patient belongings with one drawer, one cabinet, an open mid space and a side writing board. The rounded phenolic body is acid- and alkali-resistant, waterproof, easy to clean and fire-resistant for 4 hours per the datasheet.\n\nQuiet dual medical casters (two with 360° lockable brakes) and quiet slide tracks improve daily movement and use. An anodized aluminium-alloy handle and stainless-steel top rail complete a durable room cabinet.\n\nIt is the hospital bedside table that combines storage, support surface and quiet mobility for inpatient floors in Colombia.",
     "especificaciones": [
       {
         "clave": "Modelo",
@@ -25254,12 +25391,16 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": [
-      "Hospitalización"
+      "Habitaciones de hospitalización",
+      "Almacenamiento de pertenencias del paciente",
+      "Apoyo para comidas junto a la cama",
+      "Pisos de enfermería"
     ],
     "aplicaciones_en": [
-      "Hospitalization",
-      "Patient rooms",
-      "Use in critical areas"
+      "Inpatient rooms",
+      "Patient belongings storage",
+      "Bedside meal support",
+      "Nursing floors"
     ],
     "atributos": {
       "legacy_slugs": [
@@ -25277,29 +25418,31 @@
       "marca": "Saikang Medical"
     },
     "beneficios_es": [
-      "Tablero fenólico compacto: antiácido, antiálcali, impermeable e ignífugo por 4 horas.",
-      "Cajón con tres rieles de amortiguación silenciosos y gabinete.",
-      "Tablero de escritura lateral plegable y ruedas silenciosas (dos con freno de 360°)."
+      "Cuerpo de tablero fenólico compacto antiácido, impermeable e ignífugo 4 h.",
+      "1 cajón, 1 gabinete, tablero de escritura lateral y mesa de comedor hasta 950 mm.",
+      "Ruedas silenciosas de doble cara con 2 frenos bloqueables a 360°.",
+      "Mango de aluminio anodizado y barandilla superior de acero inoxidable."
     ],
     "beneficios_en": [
-      "Compact phenolic board: acid- and alkali-resistant, waterproof and fire-resistant for 4 hours.",
-      "Drawer with three silent damping rails and cabinet.",
-      "Folding side writing board and silent casters (two with 360° brakes)."
+      "Phenolic compact body: acid-resistant, waterproof and fire-resistant for 4 h.",
+      "1 drawer, 1 cabinet, side writing board and dining board up to 950 mm.",
+      "Quiet dual casters with 2 brakes lockable at 360°.",
+      "Anodized aluminium handle and stainless-steel top rail."
     ],
-    "valor_es": "Una mesilla de noche de resina fenólica fácil de limpiar, con cajón amortiguado y tablero de escritura, según la ficha de Saikang.",
-    "valor_en": "A phenolic-resin bedside cabinet that is easy to clean, with a damped drawer and writing board, per the Saikang datasheet.",
+    "valor_es": "Una mesita fenólica hospitalaria con cajón, gabinete y ruedas silenciosas, según ficha Saikang.",
+    "valor_en": "A phenolic hospital bedside cabinet with drawer, cupboard and quiet casters, per Saikang datasheet.",
     "preguntas_frecuentes_es": [
       {
-        "q": "¿Qué medidas tiene?",
-        "a": "510 x 480 x 750 mm; la mesa de comedor llega a 950 mm."
+        "q": "¿Qué dimensiones tiene la SKS009-2?",
+        "a": "Externas 510 × 480 × 750 mm; altura máxima de la mesa de comedor 950 mm."
       },
       {
-        "q": "¿De qué material es?",
-        "a": "Tablero compacto fenólico; la estructura es de aleación de aluminio."
+        "q": "¿De qué material es el cuerpo?",
+        "a": "Tablero compacto fenólico con tratamiento de redondeo."
       },
       {
-        "q": "¿Tiene ruedas con freno?",
-        "a": "Sí, cuatro ruedas: dos con freno bloqueable a 360° y dos libres."
+        "q": "¿Qué almacenamiento incluye?",
+        "a": "1 cajón, 1 gabinete, espacio abierto, tablero de escritura lateral y 4 ruedas."
       },
       {
         "q": "¿Dónde descargo la ficha técnica de Mesita de Noche SKS009-2?",
@@ -25308,16 +25451,16 @@
     ],
     "preguntas_frecuentes_en": [
       {
-        "q": "What are its dimensions?",
-        "a": "510 x 480 x 750 mm; the dining table reaches 950 mm."
+        "q": "What are the SKS009-2 dimensions?",
+        "a": "External 510 × 480 × 750 mm; dining board maximum height 950 mm."
       },
       {
-        "q": "What is it made of?",
-        "a": "Compact phenolic board; the frame is aluminium alloy."
+        "q": "What is the body made of?",
+        "a": "Phenolic compact board with rounded-edge treatment."
       },
       {
-        "q": "Does it have braked casters?",
-        "a": "Yes, four casters: two with 360° lockable brakes and two free."
+        "q": "What storage does it include?",
+        "a": "1 drawer, 1 cabinet, open space, side writing board and 4 casters."
       },
       {
         "q": "Where can I download the Nightstand SKS009-2 datasheet?",
@@ -25325,19 +25468,21 @@
       }
     ],
     "seo_keywords_es": [
-      "mesilla de noche hospitalaria",
-      "mesita de noche SKS009-2",
-      "gabinete de cabecera resina fenólica",
-      "mesilla Saikang",
-      "mobiliario hospitalario Colombia",
+      "mesita de noche hospitalaria fenólica",
+      "mesilla SKS009-2 Saikang",
+      "mesa de noche hospital Colombia",
+      "mobiliario habitación fenólico",
+      "mesita paciente con ruedas",
+      "bedside table hospitalaria",
       "ficha técnica SKS009-2"
     ],
     "seo_keywords_en": [
+      "phenolic hospital bedside table",
+      "SKS009-2 Saikang bedside cabinet",
+      "hospital nightstand Colombia",
+      "phenolic inpatient furniture",
+      "rolling patient bedside table",
       "hospital bedside cabinet",
-      "SKS009-2 bedside table",
-      "phenolic resin bedside cabinet",
-      "Saikang bedside cabinet",
-      "hospital furniture Colombia",
       "SKS009-2 datasheet"
     ],
     "marca": "Saikang Medical"
@@ -25509,8 +25654,8 @@
     "nombre_en": "Night Table SKS036",
     "descripcion_corta_es": "Mesa de noche 440×440×790 mm",
     "descripcion_corta_en": "Night table, 440×440×790 mm",
-    "descripcion_larga_es": "La mesa de noche Saikang SKS036 mide 440 x 440 x 790 mm. Su gabinete es de acero laminado en frío de primera calidad y el tablero superior de acero inoxidable 304 de 0,7 mm. Tiene rieles de bolas de acero silenciosos probados a 10 000 ciclos, con 35 kg de carga por cajón y llave plegable, bisagras hidráulicas 304 con amortiguación, cierre magnético y cuatro ruedas universales (las dos delanteras con freno) que soportan 100 kg.",
-    "descripcion_larga_en": "The Saikang SKS036 bedside table measures 440 x 440 x 790 mm. Its cabinet is first-grade cold-rolled steel and the top is 0.7 mm 304 stainless steel. It has silent steel-ball slide rails tested for 10,000 push-pull cycles, 35 kg per drawer and a folding key, 304 hydraulic soft-close hinges, magnetic closure and four universal casters (front two braked) supporting 100 kg.",
+    "descripcion_larga_es": "La mesa de noche hospitalaria acero Saikang SKS036 (440 × 440 × 790 mm) aporta almacenamiento compacto en habitación con gabinete de acero laminado en frío de primer grado y encimera de acero inoxidable 304 de 0,7 mm. Cada cajón admite hasta 35 kg; cuatro ruedas universales (2 delanteras con freno) soportan 100 kg de carga en ruedas.\n\nPaneles de cajón y puerta con acabado limpio para el entorno clínico. Es un bedside table metálico pensado para durar en el uso intensivo de pisos hospitalarios en Colombia.\n\nDimensiones contenidas, materiales explícitos en ficha y movilidad con freno: una mesita de noche sin adornos innecesarios.",
+    "descripcion_larga_en": "The Saikang SKS036 bedside table (440 × 440 × 790 mm) brings compact room storage with a first-grade cold-rolled steel cabinet and 0.7 mm 304 stainless-steel top. Each drawer holds up to 35 kg; four universal casters (2 front braked) support 100 kg caster load.\n\nDrawer and door panels with a clean finish for the clinical environment. It is a metal bedside table built to last under intensive use on Colombian hospital floors.\n\nContained dimensions, datasheet-explicit materials and braked mobility: a nightstand without unnecessary frills.",
     "especificaciones": [
       {
         "clave": "Modelo",
@@ -25564,12 +25709,16 @@
     "activo": true,
     "orden": 0,
     "aplicaciones_es": [
-      "Hospitalización",
-      "Habitaciones clínicas"
+      "Habitaciones de hospitalización",
+      "Almacenamiento compacto del paciente",
+      "Pisos con preferencia de mobiliario metálico",
+      "Dotación institucional"
     ],
     "aplicaciones_en": [
-      "Hospitalization",
-      "Clinical rooms"
+      "Inpatient rooms",
+      "Compact patient storage",
+      "Floors preferring metal furniture",
+      "Institutional inventories"
     ],
     "atributos": {
       "legacy_slugs": [
@@ -25587,29 +25736,31 @@
       "marca": "Saikang Medical"
     },
     "beneficios_es": [
-      "Gabinete de acero laminado en frío y tablero de acero inoxidable 304 fácil de limpiar.",
-      "Rieles silenciosos probados a 10 000 ciclos y 35 kg por cajón con llave.",
-      "Bisagras hidráulicas con cierre amortiguado y ruedas universales con freno delantero."
+      "Formato compacto 440 × 440 × 790 mm.",
+      "Gabinete de acero laminado en frío y tablero AISI 304 de 0,7 mm.",
+      "Carga por cajón 35 kg.",
+      "4 ruedas universales (2 con freno) con carga de ruedas 100 kg."
     ],
     "beneficios_en": [
-      "Cold-rolled steel cabinet and easy-to-clean 304 stainless-steel top.",
-      "Silent rails tested for 10,000 cycles and 35 kg per lockable drawer.",
-      "Hydraulic soft-close hinges and universal casters with front brakes."
+      "Compact 440 × 440 × 790 mm format.",
+      "Cold-rolled steel cabinet and 0.7 mm 304 stainless top.",
+      "35 kg load per drawer.",
+      "4 universal casters (2 braked) with 100 kg caster load."
     ],
-    "valor_es": "Una mesa de noche metálica con tablero inoxidable, rieles silenciosos y cierre amortiguado, según la ficha de Saikang.",
-    "valor_en": "A metal bedside table with stainless top, silent rails and soft-close doors, per the Saikang datasheet.",
+    "valor_es": "Una mesa de noche de acero 440 mm con tablero 304 y cajones de 35 kg, según ficha Saikang.",
+    "valor_en": "A 440 mm steel bedside table with 304 top and 35 kg drawers, per Saikang datasheet.",
     "preguntas_frecuentes_es": [
       {
-        "q": "¿Qué medidas tiene?",
-        "a": "440 x 440 x 790 mm."
+        "q": "¿Qué tamaño tiene la SKS036?",
+        "a": "440 × 440 × 790 mm."
       },
       {
-        "q": "¿Cuánta carga soporta cada cajón?",
-        "a": "35 kg y trae llave plegable."
-      },
-      {
-        "q": "¿De qué material es el tablero?",
+        "q": "¿De qué material es la encimera?",
         "a": "Acero inoxidable 304 de 0,7 mm."
+      },
+      {
+        "q": "¿Qué carga admite cada cajón?",
+        "a": "35 kg por cajón."
       },
       {
         "q": "¿Dónde descargo la ficha técnica de Mesa de Noche SKS036?",
@@ -25618,16 +25769,16 @@
     ],
     "preguntas_frecuentes_en": [
       {
-        "q": "What are its dimensions?",
-        "a": "440 x 440 x 790 mm."
-      },
-      {
-        "q": "What load does each drawer bear?",
-        "a": "35 kg, and it comes with a folding key."
+        "q": "What size is the SKS036?",
+        "a": "440 × 440 × 790 mm."
       },
       {
         "q": "What is the top made of?",
         "a": "0.7 mm 304 stainless steel."
+      },
+      {
+        "q": "What load does each drawer support?",
+        "a": "35 kg per drawer."
       },
       {
         "q": "Where can I download the Night Table SKS036 datasheet?",
@@ -25635,19 +25786,21 @@
       }
     ],
     "seo_keywords_es": [
-      "mesa de noche hospitalaria",
-      "mesa de noche SKS036",
-      "mesilla de cabecera de acero",
-      "mesa Saikang",
-      "mobiliario hospitalario Colombia",
+      "mesa de noche hospitalaria acero",
+      "mesita SKS036 Saikang",
+      "mesa de noche inoxidable Colombia",
+      "bedside table hospital acero",
+      "mobiliario habitación metálico",
+      "mesita paciente con freno",
       "ficha técnica SKS036"
     ],
     "seo_keywords_en": [
-      "hospital bedside table",
-      "SKS036 bedside table",
-      "steel bedside cabinet",
-      "Saikang bedside table",
-      "hospital furniture Colombia",
+      "steel hospital bedside table",
+      "SKS036 Saikang nightstand",
+      "stainless bedside table Colombia",
+      "hospital steel bedside cabinet",
+      "metal inpatient room furniture",
+      "braked patient nightstand",
       "SKS036 datasheet"
     ],
     "marca": "Saikang Medical"
