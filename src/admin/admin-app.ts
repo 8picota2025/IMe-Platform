@@ -86,6 +86,11 @@ import {
 } from '../lib/cotizacion-oferta';
 import { defaultCondicionesOferta } from '../lib/condiciones-oferta';
 import {
+  validarContactoClienteBorrador,
+  validarContactoClienteParaEnvio,
+} from '../lib/contacto-cliente';
+import { resolverIdiomaCotizacion } from '../lib/idioma-cotizacion';
+import {
   buscarCoincidencia,
   calcularCambiosFicha,
   construirActualizacion,
@@ -4249,10 +4254,12 @@ async function cotizacionesView(): Promise<string> {
 type CotizacionLineaFila = {
   slug: string;
   nombre: string;
+  nombre_en?: string;
   cantidad: number;
   precio_unitario: number;
   precio_pendiente_validar?: boolean;
   notas?: string;
+  notas_en?: string;
   tratamiento_iva?: CotizacionLineaOferta['tratamiento_iva'];
 };
 
@@ -4276,6 +4283,8 @@ function cotizacionLineaRowHtml(
           <input class="admin-inline-input" type="text" data-linea-slug value="${escapeHtml(line.slug)}" placeholder="SKU o referencia (opcional)" aria-label="SKU o referencia" ${disabled} />
           <input type="hidden" data-linea-moneda value="${moneda}" />
           <textarea class="admin-inline-input" data-linea-notas rows="3" placeholder="Resumen de especificaciones (lo verá el cliente en la oferta)" aria-label="Resumen de especificaciones" ${disabled}>${escapeHtml(line.notas ?? '')}</textarea>
+          <input class="admin-inline-input" type="text" data-linea-nombre-en value="${escapeHtml(line.nombre_en ?? '')}" placeholder="Nombre en inglés (opcional)" aria-label="Nombre en inglés" ${disabled} />
+          <textarea class="admin-inline-input" data-linea-notas-en rows="2" placeholder="Especificaciones en inglés (opcional)" aria-label="Especificaciones en inglés" ${disabled}>${escapeHtml(line.notas_en ?? '')}</textarea>
           ${readOnly ? '' : '<button class="admin-button admin-button--ghost" type="button" data-linea-specs-catalogo>Traer del catálogo</button>'}
           <span data-linea-aviso>${
             pendiente
@@ -4363,6 +4372,12 @@ function aplicarMonedaOfertaDom(moneda: 'COP' | 'USD') {
   });
   const head = app.querySelector('.admin-table thead th:nth-child(3)');
   if (head) head.textContent = `Precio unitario (${moneda})`;
+  const form = app.querySelector<HTMLFormElement>('[data-cotizacion-oferta-form]');
+  const idioma = form?.querySelector<HTMLSelectElement>('[name="idioma"]');
+  if (idioma && !form?.hasAttribute('data-solo-lectura')) {
+    idioma.disabled = moneda === 'COP';
+    idioma.value = moneda === 'USD' ? 'es-en' : 'es';
+  }
   syncCotizacionTotalesDom();
 }
 
@@ -4493,8 +4508,21 @@ async function cotizacionDetailView(): Promise<string> {
             <label class="admin-field"><span>Teléfono</span>
               <input name="telefono" type="tel" value="${escapeHtml(text(row.telefono))}" autocomplete="tel" ${soloLectura ? 'disabled' : ''} />
             </label>
-            <label class="admin-field"><span>NIT / identificación fiscal</span>
+            <label class="admin-field"><span>NIT / Tax ID del cliente</span>
               <input name="nit" type="text" value="${escapeHtml(text(row.nit))}" ${soloLectura ? 'disabled' : ''} />
+            </label>
+            <label class="admin-field"><span>Ciudad</span>
+              <input name="ciudad" type="text" value="${escapeHtml(text(row.ciudad))}" ${soloLectura ? 'disabled' : ''} />
+            </label>
+            <label class="admin-field"><span>País</span>
+              <input name="pais" type="text" value="${escapeHtml(text(row.pais))}" ${soloLectura ? 'disabled' : ''} />
+            </label>
+            <label class="admin-field"><span>Idioma de la oferta</span>
+              <select name="idioma" ${soloLectura || moneda === 'COP' ? 'disabled' : ''}>
+                <option value="es" ${moneda !== 'USD' && text(row.idioma) !== 'es-en' ? 'selected' : ''}>Solo castellano</option>
+                <option value="es-en" ${moneda === 'USD' || text(row.idioma) === 'es-en' ? 'selected' : ''}>Castellano e inglés</option>
+              </select>
+              <span class="admin-help">COP nacional: solo castellano. USD o mercado INTL: castellano e inglés. El correo y el teléfono del cliente no pueden ser de I-ME.</span>
             </label>
             <label class="admin-field"><span>IVA</span>
               <label class="admin-check"><input name="responsable_iva" type="checkbox" ${row.responsable_iva ? 'checked' : ''} ${soloLectura ? 'disabled' : ''} /> Responsable de IVA</label>
@@ -4541,6 +4569,11 @@ async function cotizacionDetailView(): Promise<string> {
           <label class="admin-field" style="margin-top:12px"><span>Observaciones / condiciones de configuracion</span>
             <textarea name="condiciones" rows="5" placeholder="Configuracion especifica, plazo de entrega, forma de pago, validez, exclusiones..." ${soloLectura ? 'disabled' : ''}>${escapeHtml(
               condicionesValor
+            )}</textarea>
+          </label>
+          <label class="admin-field" style="margin-top:12px"><span>Condiciones en inglés (opcional)</span>
+            <textarea name="condiciones_en" rows="5" placeholder="Si se deja vacío, la oferta bilingüe muestra el texto en castellano." ${soloLectura ? 'disabled' : ''}>${escapeHtml(
+              text(row.condiciones_en)
             )}</textarea>
           </label>
           ${soloLectura ? '' : '<button class="admin-button" type="submit">Guardar oferta</button>'}
@@ -9219,6 +9252,10 @@ function leerLineasOfertaDesdeDom(): CotizacionLineaOferta[] {
     if (tratamiento) linea.tratamiento_iva = tratamiento;
     const notas = row.querySelector<HTMLTextAreaElement>('[data-linea-notas]')?.value.trim() ?? '';
     if (notas) linea.notas = notas;
+    const nombreEn = row.querySelector<HTMLInputElement>('[data-linea-nombre-en]')?.value.trim() ?? '';
+    if (nombreEn) linea.nombre_en = nombreEn;
+    const notasEn = row.querySelector<HTMLTextAreaElement>('[data-linea-notas-en]')?.value.trim() ?? '';
+    if (notasEn) linea.notas_en = notasEn;
     return linea;
   });
 }
@@ -9377,19 +9414,42 @@ type GuardarOfertaArgs = {
   moneda: 'COP' | 'USD';
 };
 
+function idiomaOfertaAdmin(
+  moneda: 'COP' | 'USD',
+  datos: FormData,
+  condiciones: string
+): 'es' | 'es-en' {
+  return resolverIdiomaCotizacion({
+    moneda,
+    mercado: moneda === 'USD' ? 'INTL' : 'CO',
+    idioma: String(datos.get('idioma') ?? ''),
+    texto: `${condiciones}\n${String(datos.get('condiciones_en') ?? '')}`,
+  });
+}
+
 /** Persiste la oferta (datos de contacto, líneas, fiscal, adjuntos) y asigna IME-Q-… si falta. */
 async function guardarOfertaAdmin(args: GuardarOfertaArgs): Promise<boolean> {
+  const email = String(args.datos.get('email') ?? '').trim();
+  const telefono = String(args.datos.get('telefono') ?? '').trim();
+  const contacto = validarContactoClienteBorrador({ email, telefono });
+  if (!contacto.ok) {
+    toast(contacto.message);
+    return false;
+  }
   const adjuntos = await guardarAdjuntosCotizacion(args.id);
   if (!adjuntos) return false;
+  const condicionesEn = String(args.datos.get('condiciones_en') ?? '').trim();
   const { error } = await supabase!
     .from('solicitudes_cotizacion')
     .update({
       nombre: emptyToNull(args.datos.get('nombre')),
       empresa: emptyToNull(args.datos.get('empresa')),
-      email: emptyToNull(args.datos.get('email')),
-      telefono: emptyToNull(args.datos.get('telefono')),
+      email: email.toLowerCase(),
+      telefono,
       mensaje: emptyToNull(args.datos.get('mensaje')),
       nit: emptyToNull(args.datos.get('nit')),
+      ciudad: emptyToNull(args.datos.get('ciudad')),
+      pais: emptyToNull(args.datos.get('pais')),
       responsable_iva: args.datos.get('responsable_iva') === 'on',
       impuestos_incluidos: args.datos.get('impuestos_incluidos') === 'on',
       direccion_envio: emptyToNull(args.datos.get('direccion_envio')),
@@ -9397,6 +9457,7 @@ async function guardarOfertaAdmin(args: GuardarOfertaArgs): Promise<boolean> {
       adjuntos,
       productos: args.lineas,
       condiciones: args.condiciones || null,
+      condiciones_en: condicionesEn || null,
       validez_hasta: args.validez,
       precio_total_ofertado: totalPagarCotizacion(args.lineas, {
         impuestosIncluidos: args.datos.get('impuestos_incluidos') === 'on',
@@ -9404,11 +9465,17 @@ async function guardarOfertaAdmin(args: GuardarOfertaArgs): Promise<boolean> {
       }),
       moneda: args.moneda,
       mercado: args.moneda === 'USD' ? 'INTL' : 'CO',
+      idioma: idiomaOfertaAdmin(args.moneda, args.datos, args.condiciones),
       leida: true,
     })
     .eq('id', args.id);
   if (error) {
-    toast(`No se pudo guardar la oferta: ${error.message}`);
+    const faltaColumna = /ciudad|pais|idioma|condiciones_en/i.test(error.message);
+    toast(
+      faltaColumna
+        ? `No se pudo guardar la oferta: falta aplicar la migración de idioma y contacto del cliente (${error.message}).`
+        : `No se pudo guardar la oferta: ${error.message}`
+    );
     return false;
   }
   const { error: numeroError } = await supabase!.rpc('ensure_cotizacion_numero', {
@@ -9714,11 +9781,15 @@ function bindCotizaciones() {
     });
     if (!guardada) return;
     const check = ofertaCompleta(lineas, condiciones);
-    toast(
-      check.ok
-        ? `Oferta guardada en ${moneda}.`
-        : `Guardada como borrador: ${COTIZACION_AVISOS[check.error] ?? check.error}`
-    );
+    const contacto = validarContactoClienteParaEnvio({
+      email: String(data.get('email') ?? ''),
+      telefono: String(data.get('telefono') ?? ''),
+    });
+    let mensaje = `Oferta guardada en ${moneda}.`;
+    if (!contacto.ok) mensaje = `Guardada como borrador: ${contacto.message}`;
+    else if (!check.ok)
+      mensaje = `Guardada como borrador: ${COTIZACION_AVISOS[check.error] ?? check.error}`;
+    toast(mensaje);
     await render();
   });
 
@@ -9729,7 +9800,10 @@ function bindCotizaciones() {
     OFERTA_SIN_CONDICIONES:
       'Faltan las observaciones/condiciones. Completalas y pulsa "Guardar oferta" antes de enviar.',
     OFERTA_MONEDA_MIXTA: 'Hay lineas en COP y USD. Unifica la moneda de la oferta antes de enviar.',
-    SIN_EMAIL: 'La cotizacion no tiene email de cliente.',
+    SIN_EMAIL: 'La cotizacion no tiene un correo válido del cliente.',
+    SIN_TELEFONO: 'La cotizacion no tiene teléfono del cliente.',
+    CONTACTO_IME:
+      'El correo o el teléfono del cliente no pueden ser de I-ME. Corrígelos antes de enviar.',
     COTIZACION_YA_CONVERTIDA: 'Esta cotizacion ya se convirtio en pedido.',
     EMAIL_FALLIDO: 'Email no salio. Cotizacion no marcada enviada. Reintenta el envio.',
     TEMPLATE_INACTIVE:
@@ -9847,12 +9921,9 @@ function bindCotizaciones() {
     if (!validated.ok) return;
     const telefono = String(validated.datosOferta.get('telefono') ?? '').trim();
     const email = String(validated.datosOferta.get('email') ?? '').trim();
-    if (canal === 'whatsapp' && !telefono) {
-      toast('La cotizacion no tiene telefono para WhatsApp.');
-      return;
-    }
-    if (canal === 'email' && !email) {
-      toast(COTIZACION_ERROR_MENSAJES['SIN_EMAIL']!);
+    const contacto = validarContactoClienteParaEnvio({ email, telefono });
+    if (!contacto.ok) {
+      toast(COTIZACION_ERROR_MENSAJES[contacto.code] ?? contacto.message);
       return;
     }
     if (canal === 'email' && /@(example\.(com|org|net)|ejemplo\.com)$/i.test(email)) {
@@ -9934,15 +10005,26 @@ function bindCotizaciones() {
       idPdf = validated.id;
       const numeroActual =
         app.querySelector<HTMLElement>('[data-cotizacion-numero]')?.textContent?.trim() ?? '';
+      const direccionCliente =
+        String(validated.datosOferta.get('direccion_facturacion') ?? '').trim() ||
+        String(validated.datosOferta.get('direccion_envio') ?? '').trim();
       snapshot = {
         ...(numeroActual ? { numero: numeroActual } : {}),
         nombre: String(validated.datosOferta.get('nombre') ?? '').trim(),
         empresa: String(validated.datosOferta.get('empresa') ?? '').trim(),
         email: String(validated.datosOferta.get('email') ?? '').trim(),
         telefono: String(validated.datosOferta.get('telefono') ?? '').trim(),
+        nit: String(validated.datosOferta.get('nit') ?? '').trim(),
+        direccion: direccionCliente,
+        ciudad: String(validated.datosOferta.get('ciudad') ?? '').trim(),
+        pais: String(validated.datosOferta.get('pais') ?? '').trim(),
         condiciones: validated.condicionesDom,
+        condiciones_en: String(validated.datosOferta.get('condiciones_en') ?? '').trim(),
         validez_hasta: validated.validezDom.trim() || null,
         moneda: validated.moneda,
+        mercado: validated.mercado,
+        locale: 'es',
+        idioma: idiomaOfertaAdmin(validated.moneda, validated.datosOferta, validated.condicionesDom),
         productos: validated.lineasConMoneda,
         impuestos_incluidos: validated.datosOferta.get('impuestos_incluidos') === 'on',
       };

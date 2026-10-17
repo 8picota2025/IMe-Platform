@@ -98,11 +98,28 @@ describe('cotizacion-oferta', () => {
           formalizacion_token_hash: 'abc',
           formalizacion_token_expira_at: '2026-08-10T00:00:00Z',
           condiciones: 'Pago contra entrega',
+          email: 'compras@cliente.co',
+          telefono: '+57 604 444 1000',
           productos: [{ slug: 'a', cantidad: 1, precio_unitario: 10, nombre: 'A' }],
         },
         now
       )
     ).toBe(true);
+    expect(
+      puedeFormalizar(
+        {
+          id: 'x',
+          estado: 'enviada',
+          formalizacion_token_hash: 'abc',
+          formalizacion_token_expira_at: '2026-08-10T00:00:00Z',
+          condiciones: 'Pago contra entrega',
+          email: 'pendiente@i-me.com.co',
+          telefono: '+57 313 724 7353',
+          productos: [{ slug: 'a', cantidad: 1, precio_unitario: 10, nombre: 'A' }],
+        },
+        now
+      )
+    ).toBe(false);
     expect(
       puedeFormalizar(
         {
@@ -125,6 +142,7 @@ describe('cotizacion-oferta', () => {
     });
     expect(formalizarPath('es', 'id1', 'tok')).toContain('/es/cotizacion/formalizar?id=id1');
     expect(formalizarPath('en', 'id1', 'tok')).toContain('/en/quote/formalize?id=id1');
+    expect(formalizarPath('es-en', 'id1', 'tok')).toContain('/es/cotizacion/formalizar?id=id1');
   });
 
   it('expiryFromValidez usa validez_hasta o default dias', () => {

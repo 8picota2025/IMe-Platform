@@ -115,6 +115,44 @@ export function textoBancarioCuenta(cuenta: CuentaRecaudo): string {
   return lineas.join('\n');
 }
 
+const INSTRUCCIONES_TRANSFERENCIA_EN =
+  'Transfer the exact quoted amount and put the quote reference in the description. Then upload the receipt from the link in the email. Confirm any change of bank details in writing and by phone with I-ME.';
+
+/**
+ * Mismos datos de la cuenta elegida. En es-en las etiquetas fijas van en los dos idiomas.
+ * No cambia la cuenta (`bancolombia_ahorros` / `davivienda_sa`) ni los números.
+ */
+export function textoBancarioCuentaIdioma(
+  cuenta: CuentaRecaudo,
+  idioma: 'es' | 'en' | 'es-en' = 'es'
+): string {
+  if (idioma === 'es') return textoBancarioCuenta(cuenta);
+  const banco = idioma === 'es-en' ? `Banco / Bank: ${cuenta.banco}` : `Bank: ${cuenta.banco}`;
+  const titular =
+    idioma === 'es-en' ? `Titular / Account name: ${cuenta.titular}` : `Account name: ${cuenta.titular}`;
+  const nit = idioma === 'es-en' ? `NIT / Tax ID: ${cuenta.nit}` : `Tax ID: ${cuenta.nit}`;
+  const lineas = [banco, titular, nit];
+  if (cuenta.tipo_cuenta) {
+    lineas.push(
+      idioma === 'es-en'
+        ? `Tipo de cuenta / Account type: ${cuenta.tipo_cuenta}`
+        : `Account type: ${cuenta.tipo_cuenta}`
+    );
+  }
+  lineas.push(
+    idioma === 'es-en'
+      ? `Número de cuenta / Account number: ${cuenta.numero_cuenta}`
+      : `Account number: ${cuenta.numero_cuenta}`
+  );
+  if (cuenta.swift) lineas.push(`SWIFT: ${cuenta.swift}`);
+  lineas.push(
+    idioma === 'es-en'
+      ? `${INSTRUCCIONES_TRANSFERENCIA}\n${INSTRUCCIONES_TRANSFERENCIA_EN}`
+      : INSTRUCCIONES_TRANSFERENCIA_EN
+  );
+  return lineas.join('\n');
+}
+
 export function normalizarCondicionPago(value: unknown): string | null {
   const text = String(value ?? '')
     .replace(/\s+/g, ' ')

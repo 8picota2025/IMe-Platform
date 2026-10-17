@@ -38,6 +38,14 @@ export const CAMPOS_GUARDADO_COTIZACION = [
   'impuestos_incluidos',
   'cuenta_recaudo',
   'condicion_pago',
+  'condicion_pago_en',
+  'nit',
+  'direccion_facturacion',
+  'direccion_envio',
+  'ciudad',
+  'pais',
+  'idioma',
+  'condiciones_en',
 ] as const;
 
 const MOTIVO_MAX = 500;

@@ -15,6 +15,7 @@ import {
   sanitizarLineasComercial,
   type CotizacionLineaOferta,
 } from '../lib/cotizacion-oferta';
+import { validarContactoClienteParaEnvio } from '../lib/contacto-cliente';
 import { defaultCondicionesOferta } from '../lib/condiciones-oferta';
 import {
   aplicarNotaImportesUsd,
@@ -78,6 +79,8 @@ const ERROR_COPY: Record<string, string> = {
   SIN_EMAIL: 'Email del cliente inválido.',
   SIN_NOMBRE: 'Nombre del contacto requerido.',
   SIN_TELEFONO: 'Teléfono del contacto requerido.',
+  CONTACTO_IME:
+    'El correo o el teléfono del cliente no pueden ser de I-ME. En borrador pueden quedar vacíos.',
   EMAIL_FALLIDO:
     'Email no salió. Cotización no marcada enviada. Usa un correo real (no @example.com).',
   TEMPLATE_INACTIVE: 'La plantilla de oferta está desactivada.',
@@ -397,6 +400,12 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
       impuestos_incluidos: null,
       cuenta_recaudo: null,
       condicion_pago: null,
+      nit: null,
+      ciudad: null,
+      pais: null,
+      direccion: null,
+      idioma: 'es',
+      condiciones_en: null,
       incompleta: true,
       origen: 'pwa',
       editable: true,
@@ -468,9 +477,25 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
           <label class="comercial-field"><span>Empresa</span><input name="empresa" type="text" autocomplete="organization" value="${escapeHtml(quote.empresa ?? '')}" ${disabled} /></label>
         </div>
         <div class="comercial-field-row">
-          <label class="comercial-field"><span>Email</span><input name="email" type="email" required autocomplete="email" value="${escapeHtml(quote.email)}" ${disabled} /></label>
-          <label class="comercial-field"><span>Teléfono</span><input name="telefono" type="tel" required autocomplete="tel" value="${escapeHtml(quote.telefono)}" ${disabled} /></label>
+          <label class="comercial-field"><span>Email del cliente</span><input name="email" type="email" autocomplete="email" value="${escapeHtml(quote.email)}" ${disabled} /></label>
+          <label class="comercial-field"><span>Teléfono del cliente</span><input name="telefono" type="tel" autocomplete="tel" value="${escapeHtml(quote.telefono)}" ${disabled} /></label>
         </div>
+        <p class="comercial-help">En borrador pueden quedar vacíos (el PDF muestra «—»). Para enviar no pueden estar vacíos ni ser un correo @i-me.com.co o el teléfono de I-ME.</p>
+        <div class="comercial-field-row">
+          <label class="comercial-field"><span>NIT o Tax ID</span><input name="nit" type="text" autocomplete="off" value="${escapeHtml(quote.nit ?? '')}" ${disabled} /></label>
+          <label class="comercial-field"><span>Ciudad</span><input name="ciudad" type="text" autocomplete="address-level2" value="${escapeHtml(quote.ciudad ?? '')}" ${disabled} /></label>
+        </div>
+        <div class="comercial-field-row">
+          <label class="comercial-field"><span>País</span><input name="pais" type="text" autocomplete="country-name" value="${escapeHtml(quote.pais ?? '')}" ${disabled} /></label>
+          <label class="comercial-field"><span>Idioma de la oferta</span>
+            <select name="idioma" data-quote-idioma ${quote.moneda === 'COP' ? 'disabled' : ''} ${disabled}>
+              <option value="es" ${(quote.idioma ?? 'es') === 'es' ? 'selected' : ''}>Solo castellano</option>
+              <option value="es-en" ${quote.idioma === 'es-en' ? 'selected' : ''}>Castellano e inglés</option>
+            </select>
+          </label>
+        </div>
+        <p class="comercial-help">Las cotizaciones en COP nacionales salen solo en castellano. USD e INTL salen en castellano e inglés.</p>
+        <label class="comercial-field"><span>Dirección</span><textarea name="direccion" rows="2" ${disabled}>${escapeHtml(quote.direccion ?? '')}</textarea></label>
         <div class="comercial-field-row">
           <label class="comercial-field"><span>Moneda</span>
             <select name="moneda" data-quote-moneda ${disabled}>
@@ -510,7 +535,8 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
         <div data-quote-lines>${linesHtml(quote.productos, quote.moneda, editable)}</div>
         <p class="comercial-quote-total" data-quote-total>Total ${escapeHtml(formatQuoteMoney(totalPagarCotizacion(quote.productos, { impuestosIncluidos: quote.impuestos_incluidos === true, moneda: quote.moneda }), quote.moneda))}</p>
         <label class="comercial-field"><span>Condiciones / consideraciones de la oferta</span><textarea name="condiciones" rows="12" ${disabled}>${escapeHtml(aplicarNotaImportesUsd(quote.condiciones, quote.moneda, 'es'))}</textarea></label>
-        <p class="comercial-help">Secciones del boceto: Entrega, Costo de envío, Garantía, Instalación. Edita plazos y garantías por producto. En USD se añade sola: ${escapeHtml(NOTA_IMPORTES_USD_ES)}</p>
+        <label class="comercial-field"><span>Condiciones en inglés (opcional)</span><textarea name="condiciones_en" rows="8" ${disabled}>${escapeHtml(quote.condiciones_en ?? '')}</textarea></label>
+        <p class="comercial-help">Secciones del boceto: Entrega, Costo de envío, Garantía, Instalación. Si no hay versión en inglés, la oferta bilingüe muestra el castellano. En USD se añade sola: ${escapeHtml(NOTA_IMPORTES_USD_ES)}</p>
         <p class="comercial-help" data-quote-hint role="status"></p>
       </form>
       <div class="comercial-quote-footer">
@@ -582,6 +608,8 @@ function linesHtml(
             <input class="comercial-input" data-linea-nombre value="${escapeHtml(l.nombre)}" placeholder="Nombre del producto" aria-label="Nombre" ${disabled} />
             <input class="comercial-input" data-linea-slug value="${escapeHtml(l.slug)}" placeholder="SKU (opcional)" aria-label="SKU" ${disabled} />
             <textarea class="comercial-input" data-linea-notas rows="3" placeholder="Resumen de especificaciones (lo verá el cliente en la oferta)" aria-label="Resumen de especificaciones" ${disabled}>${escapeHtml(l.notas ?? '')}</textarea>
+            <input class="comercial-input" data-linea-nombre-en value="${escapeHtml(l.nombre_en ?? '')}" placeholder="Nombre en inglés (opcional)" aria-label="Nombre en inglés" ${disabled} />
+            <textarea class="comercial-input" data-linea-notas-en rows="2" placeholder="Especificaciones en inglés (opcional)" aria-label="Especificaciones en inglés" ${disabled}>${escapeHtml(l.notas_en ?? '')}</textarea>
             ${editable ? '<button class="comercial-button comercial-button--ghost comercial-button--sm" type="button" data-linea-specs-catalogo>Traer del catálogo</button>' : ''}
             ${missing ? '<span class="comercial-badge comercial-badge--status-warn">Sin precio</span>' : ''}
             ${pendiente ? '<span class="comercial-badge comercial-badge--status-warn">Pendiente validar</span>' : ''}
@@ -611,9 +639,15 @@ function readForm(root: HTMLElement): {
   empresa: string;
   email: string;
   telefono: string;
+  nit: string;
+  ciudad: string;
+  pais: string;
+  direccion: string;
+  idioma: 'es' | 'es-en';
   moneda: 'COP' | 'USD';
   validez_hasta: string | null;
   condiciones: string;
+  condiciones_en: string;
   impuestos_incluidos: boolean;
   cuenta_recaudo: string | null;
   condicion_pago: string | null;
@@ -651,6 +685,10 @@ function readForm(root: HTMLElement): {
     if (tratamiento) linea.tratamiento_iva = tratamiento;
     const notas = row.querySelector<HTMLTextAreaElement>('[data-linea-notas]')?.value.trim() ?? '';
     if (notas) linea.notas = notas;
+    const nombreEn = row.querySelector<HTMLInputElement>('[data-linea-nombre-en]')?.value.trim() ?? '';
+    if (nombreEn) linea.nombre_en = nombreEn;
+    const notasEn = row.querySelector<HTMLTextAreaElement>('[data-linea-notas-en]')?.value.trim() ?? '';
+    if (notasEn) linea.notas_en = notasEn;
     productos.push(linea);
   });
   return {
@@ -658,9 +696,15 @@ function readForm(root: HTMLElement): {
     empresa: String(data.get('empresa') ?? '').trim(),
     email: String(data.get('email') ?? '').trim(),
     telefono: String(data.get('telefono') ?? '').trim(),
+    nit: String(data.get('nit') ?? '').trim(),
+    ciudad: String(data.get('ciudad') ?? '').trim(),
+    pais: String(data.get('pais') ?? '').trim(),
+    direccion: String(data.get('direccion') ?? '').trim(),
+    idioma: String(data.get('idioma') ?? 'es') === 'es-en' ? 'es-en' : 'es',
     moneda,
     validez_hasta: String(data.get('validez_hasta') ?? '').trim() || null,
     condiciones: aplicarNotaImportesUsd(String(data.get('condiciones') ?? ''), moneda, 'es'),
+    condiciones_en: String(data.get('condiciones_en') ?? '').trim(),
     impuestos_incluidos: data.get('impuestos_incluidos') === 'on',
     cuenta_recaudo: String(data.get('cuenta_recaudo') ?? '').trim() || null,
     condicion_pago: String(data.get('condicion_pago') ?? '').trim() || null,
@@ -670,7 +714,13 @@ function readForm(root: HTMLElement): {
 
 function syncMonedaNotas(root: HTMLElement): void {
   const area = root.querySelector<HTMLTextAreaElement>('[name="condiciones"]');
-  const moneda = root.querySelector<HTMLSelectElement>('[data-quote-moneda]')?.value;
+  const monedaSelect = root.querySelector<HTMLSelectElement>('[data-quote-moneda]');
+  const moneda = monedaSelect?.value;
+  const idioma = root.querySelector<HTMLSelectElement>('[data-quote-idioma]');
+  if (idioma && !monedaSelect?.disabled) {
+    idioma.disabled = moneda !== 'USD';
+    idioma.value = moneda === 'USD' ? 'es-en' : 'es';
+  }
   if (!area || (moneda !== 'USD' && moneda !== 'COP')) return;
   const next = aplicarNotaImportesUsd(area.value, moneda, 'es');
   if (next !== area.value) area.value = next;
@@ -1119,6 +1169,11 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
     }
     if (canal === 'email' && /@example\.com$/i.test(parsed.email)) {
       toast('Usa un correo real del cliente. Resend rechaza @example.com.', 'error');
+      return;
+    }
+    const contacto = validarContactoClienteParaEnvio(parsed);
+    if (!contacto.ok) {
+      toast(contacto.message, 'error');
       return;
     }
     if (canal === 'whatsapp' && !parsed.telefono.trim()) {

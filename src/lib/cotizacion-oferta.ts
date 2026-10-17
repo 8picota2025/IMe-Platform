@@ -2,6 +2,7 @@
  * Helpers de oferta comercial sobre solicitudes_cotizacion.
  * Usados por CMS (admin), formalizar (front) y Edge Functions (crear-pago, enviar, convertir).
  */
+import { validarContactoClienteParaEnvio } from './contacto-cliente.ts';
 import { parseTratamientoIva } from './cotizacion-iva.ts';
 
 export type CotizacionEstadoOferta =
@@ -24,6 +25,10 @@ export interface CotizacionLineaOferta {
   /** Precio aún no validado: no entra al sumatorio ni bloquea oferta. */
   precio_pendiente_validar?: boolean;
   notas?: string;
+  /** Nombre en inglés. Si falta, la oferta bilingüe muestra el castellano. */
+  nombre_en?: string;
+  /** Especificaciones en inglés. Si faltan, se muestran las castellanas. */
+  notas_en?: string;
   /**
    * Tarifa de esta línea. Si falta, manda la ficha del producto y, si esa
    * también está en blanco, 19 %.
@@ -117,6 +122,12 @@ export function parseLineasOferta(productos: unknown): CotizacionLineaOferta[] {
     if (typeof row.notas === 'string' && row.notas.trim()) {
       linea.notas = row.notas.trim();
     }
+    if (typeof row.nombre_en === 'string' && row.nombre_en.trim()) {
+      linea.nombre_en = row.nombre_en.trim();
+    }
+    if (typeof row.notas_en === 'string' && row.notas_en.trim()) {
+      linea.notas_en = row.notas_en.trim();
+    }
     const tratamiento = parseTratamientoIva(row.tratamiento_iva);
     if (tratamiento) linea.tratamiento_iva = tratamiento;
     out.push(linea);
@@ -186,6 +197,8 @@ export function canonizarLineasOferta(
     };
     if (pendiente) linea.precio_pendiente_validar = true;
     if (l.notas) linea.notas = l.notas;
+    if (l.nombre_en) linea.nombre_en = l.nombre_en;
+    if (l.notas_en) linea.notas_en = l.notas_en;
     if (l.tratamiento_iva) linea.tratamiento_iva = l.tratamiento_iva;
     return linea;
   });
@@ -280,6 +293,8 @@ export function sanitizarLineasComercial(
     };
     if (pendiente) linea.precio_pendiente_validar = true;
     if (l.notas) linea.notas = l.notas;
+    if (l.nombre_en) linea.nombre_en = l.nombre_en;
+    if (l.notas_en) linea.notas_en = l.notas_en;
     if (l.tratamiento_iva) linea.tratamiento_iva = l.tratamiento_iva;
     return linea;
   });
@@ -317,6 +332,7 @@ export function puedeFormalizar(row: CotizacionOfertaRow, now = new Date()): boo
   if (row.pedido_id) return false;
   if (tokenExpirado(row.formalizacion_token_expira_at, now)) return false;
   if (!row.formalizacion_token_hash) return false;
+  if (!validarContactoClienteParaEnvio(row).ok) return false;
   return ofertaCompleta(parseLineasOferta(row.productos), row.condiciones).ok;
 }
 

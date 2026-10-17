@@ -111,14 +111,19 @@ export async function enlaceWompiDeCotizacion(input: {
   return { url: built.url, error: null };
 }
 
-export function htmlBotonWompi(url: string | null, locale: 'es' | 'en'): string {
+export function htmlBotonWompi(url: string | null, locale: 'es' | 'en' | 'es-en'): string {
   if (!url) return '';
   const href = url
     .replace(/&/g, '&amp;')
     .replace(/"/g, '&quot;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
-  const label = locale === 'en' ? 'Pay with Wompi' : 'Pagar con Wompi';
+  const label =
+    locale === 'en'
+      ? 'Pay with Wompi'
+      : locale === 'es-en'
+        ? 'Pagar con Wompi / Pay with Wompi'
+        : 'Pagar con Wompi';
   return `<p><a href="${href}" style="display:inline-block;padding:12px 20px;background:#005e60;color:#fff;text-decoration:none;border-radius:8px">${label}</a></p>`;
 }
 
@@ -128,7 +133,7 @@ export function htmlBotonWompi(url: string | null, locale: 'es' | 'en'): string 
  */
 export function htmlBotonWompiViaFormalizar(
   formalizarUrl: string | null | undefined,
-  locale: 'es' | 'en'
+  locale: 'es' | 'en' | 'es-en'
 ): string {
   const url = String(formalizarUrl ?? '').trim();
   if (!url.startsWith('https://') && !url.startsWith('http://')) return '';

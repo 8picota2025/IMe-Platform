@@ -336,3 +336,105 @@ it('honors caller total when line IVA is catalog-default (empty tratamiento)', a
   expect(drawn).toContain('$178.900');
   expect(drawn).not.toContain('212.891');
 });
+
+it('prints a dash in the client block when the contact is empty or belongs to I-ME', async () => {
+  const text = vi.spyOn(PDFPage.prototype, 'drawText');
+  await renderQuotePdf({
+    numero: 'IME-Q-2026-000042',
+    clienteNombre: 'Essam Yaseen',
+    empresa: '2M Trading',
+    email: 'pendiente-2mtrading@i-me.com.co',
+    telefono: '+573137247353',
+    nitCliente: '901871720',
+    direccionCliente: '',
+    ciudadCliente: 'Doha',
+    paisCliente: 'Qatar',
+    condiciones: 'Entrega:\n30 dias.',
+    moneda: 'USD',
+    total: 10,
+    lineas: [
+      {
+        slug: 'ref',
+        nombre: 'Monitor',
+        cantidad: 1,
+        precio_unitario: 10,
+        subtotal: 10,
+        moneda: 'USD',
+      },
+    ],
+    locale: 'es',
+    idioma: 'es-en',
+    condicionPago: '50 % anticipo OC / 50 % antes de embarque',
+    bancoLineas: [
+      'Transferencia bancaria:',
+      '0550108900697583',
+      'Davivienda S.A.',
+      'SWIFT: CAFECOBBXXX',
+    ],
+  });
+  const strings = text.mock.calls.map(([value]) => String(value));
+  const drawn = strings.join('\n');
+  expect(drawn).not.toContain('pendiente-2mtrading@i-me.com.co');
+  expect(drawn).not.toContain('+573137247353');
+  expect(strings).toContain('Correo / Email: -');
+  expect(strings).toContain('Correo / Email: info@i-me.com.co');
+  expect(strings).toContain('Teléfono / Phone: -');
+  expect(strings).toContain('NIT / Tax ID: -');
+  expect(drawn).toContain('International Medical Enterprise IME S.A.S.');
+  expect(drawn).toContain('NIT: 901871720');
+  expect(drawn).toContain('info@i-me.com.co');
+  expect(drawn).toContain('i-me.com.co');
+  expect(drawn).toContain('+57 313 724 7353');
+  expect(drawn).toContain('CLIENTE / CLIENT');
+  expect(drawn).toContain('EMISOR / ISSUER');
+  expect(drawn).toContain('PRECIO UNIT');
+  expect(drawn).toContain('UNIT PRICE');
+  expect(drawn).toContain('0550108900697583');
+  expect(drawn).toContain('50 % anticipo OC / 50 % antes');
+  expect(drawn).not.toContain('Prepaid');
+  expect(drawn).toContain(NOTA_IMPORTES_USD_ES);
+  expect(drawn).toContain(NOTA_IMPORTES_USD_EN);
+  expect(drawn).not.toContain('Pagar con Wompi');
+});
+
+it('keeps a national COP quote in Spanish and still links Wompi', async () => {
+  const text = vi.spyOn(PDFPage.prototype, 'drawText');
+  await renderQuotePdf({
+    numero: 'IME-Q-2026-000041',
+    clienteNombre: 'Clinica Norte',
+    empresa: 'Clinica Norte S.A.S.',
+    email: '',
+    telefono: '',
+    condiciones: 'Entrega:\n30 dias.',
+    moneda: 'COP',
+    total: 100000,
+    wompiUrl: 'https://checkout.wompi.co/l/ejemplo',
+    lineas: [
+      {
+        slug: 'ref',
+        nombre: 'Monitor',
+        cantidad: 1,
+        precio_unitario: 100000,
+        subtotal: 100000,
+        moneda: 'COP',
+      },
+    ],
+    locale: 'es',
+    bancoLineas: ['Transferencia bancaria:', '61400006521', 'Bancolombia/Ahorros'],
+  });
+  const strings = text.mock.calls.map(([value]) => String(value));
+  const drawn = strings.join('\n');
+  expect(drawn).toContain('COTIZACIÓN');
+  expect(drawn).not.toContain('QUOTATION');
+  expect(drawn).not.toContain('UNIT PRICE');
+  expect(drawn).toContain('PRECIO UNIT');
+  expect(drawn).toContain('DESCRIPCION');
+  expect(drawn).toContain('CLIENTE');
+  expect(drawn).not.toContain('CLIENTE / CLIENT');
+  expect(drawn).toContain('Correo: -');
+  expect(drawn).toContain('Teléfono: -');
+  expect(drawn).toContain('Pagar con Wompi');
+  expect(drawn).toContain('61400006521');
+  expect(drawn).not.toContain(NOTA_IMPORTES_USD_ES);
+  expect(drawn).toContain('Correo: info@i-me.com.co');
+});

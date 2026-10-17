@@ -29,7 +29,7 @@ export function escapeHtml(str: string): string {
     .replace(/"/g, '&quot;');
 }
 
-type EmailLocale = 'es' | 'en';
+type EmailLocale = 'es' | 'en' | 'es-en';
 
 function formatMoney(value: unknown, moneda: unknown, locale: EmailLocale = 'es'): string {
   const amount = Number(value);
@@ -45,6 +45,7 @@ function formatMoney(value: unknown, moneda: unknown, locale: EmailLocale = 'es'
 export function itemsToHtml(
   items: Array<{
     nombre?: string;
+    nombre_en?: string | null;
     cantidad?: number;
     modelo?: string;
     url?: string;
@@ -52,18 +53,25 @@ export function itemsToHtml(
     subtotal?: number | null;
     moneda?: string;
     notas?: string;
+    notas_en?: string | null;
   }>,
   locale: EmailLocale = 'es'
 ): string {
   const fallbackName = locale === 'en' ? 'Product' : 'Producto';
-  const unitLabel = locale === 'en' ? 'Unit' : 'Unitario';
-  const totalLabel = locale === 'en' ? 'Line total' : 'Total';
-  const pendingLabel = locale === 'en' ? 'to be validated' : 'por validar';
+  const unitLabel = locale === 'en' ? 'Unit' : locale === 'es-en' ? 'Unitario / Unit' : 'Unitario';
+  const totalLabel =
+    locale === 'en' ? 'Line total' : locale === 'es-en' ? 'Total / Line total' : 'Total';
+  const pendingLabel = locale === 'en' ? 'to be validated' : locale === 'es-en' ? 'por validar / to be validated' : 'por validar';
 
   return items
     .map(i => {
       const cantidad = Number(i.cantidad ?? 1);
-      const nombre = escapeHtml(String(i.nombre ?? fallbackName));
+      const nombreEs = escapeHtml(String(i.nombre ?? fallbackName));
+      const nombreEn = String(i.nombre_en ?? '').trim();
+      const nombre =
+        locale === 'es-en' && nombreEn && nombreEn.toLowerCase() !== String(i.nombre ?? '').trim().toLowerCase()
+          ? `${nombreEs}<br><span style="color:#3d5a63">${escapeHtml(nombreEn)}</span>`
+          : nombreEs;
       const precio = formatMoney(i.precio_unitario, i.moneda, locale);
       const subtotal = formatMoney(i.subtotal, i.moneda, locale);
       const valores =
@@ -79,7 +87,13 @@ export function itemsToHtml(
       const resumen = lineasDeResumen(i.notas)
         .map(linea => `<br>&bull; ${escapeHtml(linea)}`)
         .join('');
-      return `<li>${cantidad} x ${nombre}${modelo}${valores}${resumen}${enlace}</li>`;
+      const resumenEn =
+        locale === 'es-en'
+          ? lineasDeResumen(i.notas_en)
+              .map(linea => `<br>&bull; ${escapeHtml(linea)}`)
+              .join('')
+          : '';
+      return `<li>${cantidad} x ${nombre}${modelo}${valores}${resumen}${resumenEn}${enlace}</li>`;
     })
     .join('');
 }
@@ -163,6 +177,31 @@ const DEFAULTS: Record<string, { asunto: string; html: string }> = {
       '<p><a href="{{formalizar_url_href}}" style="display:inline-block;padding:12px 20px;background:#005e60;color:#fff;text-decoration:none;border-radius:8px">Formalizar / pagar por transferencia</a></p>' +
       '<p style="font-size:12px;color:#5b6b6a">Si el botón no funciona:<br>{{formalizar_url}}</p>' +
       '<p>Saludos,<br>{{nombre_comercial}}<br>I-ME<br>{{correo_comercial}} · {{telefono_comercial}}</p></div></div>',
+  },
+  presupuesto_es_en: {
+    asunto: 'Presupuesto / Quote I-ME {{referencia}} — {{cliente_nombre}}',
+    html:
+      '<div style="font-family:Segoe UI,Helvetica,Arial,sans-serif;color:#14201f">' +
+      '<div style="background:#005e60;color:#fff;padding:18px 20px;border-radius:10px 10px 0 0">' +
+      '<div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.85">I-ME International Medical Enterprise</div>' +
+      '<div style="font-size:22px;font-weight:700;margin-top:4px">Presupuesto / Quotation</div>' +
+      '<div style="margin-top:6px;font-size:13px">Ref. {{referencia}}</div></div>' +
+      '<div style="border:1px solid #d7e3e2;border-top:0;padding:18px 20px;border-radius:0 0 10px 10px">' +
+      '<p>Hola <strong>{{cliente_nombre}}</strong>,<br>Hello <strong>{{cliente_nombre}}</strong>,</p>' +
+      '<p>Soy <strong>{{nombre_comercial}}</strong>, asesor(a) comercial de I-ME. Te envío el presupuesto con el detalle completo.<br>' +
+      'I am <strong>{{nombre_comercial}}</strong>, I-ME commercial advisor. Please find the full quotation attached.</p>' +
+      '<p><strong>Datos del cliente / Client</strong><br>Razón social / Company: {{cliente_empresa}}<br>NIT / Tax ID: {{cliente_nit}}<br>Contacto / Contact: {{cliente_nombre}}<br>Correo / Email: {{cliente_email}}<br>Teléfono / Phone: {{cliente_telefono}}<br>Dirección / Address: {{cliente_direccion}}<br>Ciudad / City: {{cliente_ciudad}}<br>País / Country: {{cliente_pais}}</p>' +
+      '<p><strong>Emisor / Issuer</strong><br>International Medical Enterprise IME S.A.S.<br>NIT 901871720<br>{{correo_comercial}} · {{telefono_comercial}}<br>i-me.com.co</p>' +
+      '<p><strong>Total a pagar / Amount due:</strong> {{total}} {{moneda}} · <strong>Validez / Valid until:</strong> {{validez}}</p>' +
+      '<p>{{iva_resumen}}</p>' +
+      '<p><strong>Productos / Products</strong></p><ul>{{items_html}}</ul>' +
+      '<p><strong>Condiciones / Terms</strong></p><pre>{{condiciones}}</pre>' +
+      '<p><strong>Datos bancarios / Bank details</strong></p><pre>{{datos_bancarios}}</pre>' +
+      '{{pago_wompi_html}}' +
+      '<p>Puedes pagar por transferencia bancaria. Wompi aplica solo a pesos colombianos (COP).<br>You can pay by bank transfer. Wompi applies to Colombian pesos (COP) only.</p>' +
+      '<p><a href="{{formalizar_url_href}}" style="display:inline-block;padding:12px 20px;background:#005e60;color:#fff;text-decoration:none;border-radius:8px">Formalizar / Accept and pay</a></p>' +
+      '<p style="font-size:12px;color:#5b6b6a">Si el botón no funciona / If the button does not work:<br>{{formalizar_url}}</p>' +
+      '<p>Saludos / Regards,<br>{{nombre_comercial}}<br>I-ME<br>{{correo_comercial}} · {{telefono_comercial}}</p></div></div>',
   },
   transferencia_recibida_interna: {
     asunto: 'Comprobante pendiente de validacion {{referencia}}',

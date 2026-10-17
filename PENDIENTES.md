@@ -355,6 +355,11 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
       y redesplegar `comercial-cotizacion`, `enviar-cotizacion` y `formalizar-cotizacion`
       antes de publicar el estático. Sin la migración, el editor no persiste cuenta de
       recaudo ni condición de pago. NO_EJECUTADO_ENTORNO — no desplegar sin aprobación.
+- [ ] NO_EJECUTADO_ENTORNO — Cotización bilingüe y contacto del cliente: aplicar
+      `supabase/migrations/20261017120000_cotizacion_idioma_contacto.sql` y redesplegar
+      `comercial-cotizacion`, `enviar-cotizacion` y `formalizar-cotizacion` antes del
+      estático. Sin esas columnas el guardado de ciudad, país, idioma y condiciones en
+      inglés responde error de esquema. No desplegar sin aprobación.
 - [ ] NO_EJECUTADO_ENTORNO — WhatsApp pausa/debounce (2026-10-14): aplicar
       `20261014170000_whatsapp_pausa_debounce_prioridad.sql` y
       `20261014171000_leads_consentimiento_pendiente.sql` antes de redeploy de
