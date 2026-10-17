@@ -118,8 +118,8 @@ VALIDITY
   total: 2365162.46,
   locale: 'es',
   idioma: 'es-en',
-  condicionPago: '50 % anticipo con OC / 50 % antes de embarque',
-  condicionPagoEn: '50% advance with PO / 50% before shipment',
+  condicionPago: '50 % pedido / 30 % antes de aduana en Qatar / 20 % puesta en marcha',
+  condicionPagoEn: '50% order / 30% before Qatar customs release / 20% commissioning',
   impuestosIncluidos: true,
   wompiUrl: 'https://checkout.wompi.co/l/no-debe-salir',
   bancoLineas: [
