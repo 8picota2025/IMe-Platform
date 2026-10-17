@@ -37,12 +37,13 @@ it.each(['es', 'en'] as const)(
     const strings = text.mock.calls.map(([s]) => s);
     expect(strings.join('\n')).not.toMatch(/Continuación de líneas|Continued lines/);
     expect(
-      strings.filter(s => s === (locale === 'es' ? 'DESCRIPCION' : 'DESCRIPTION')).length
+      strings.filter(s => s === (locale === 'es' ? 'DESCRIPCIÓN' : 'DESCRIPTION')).length
     ).toBeGreaterThan(1);
     expect(strings.filter(s => s === (locale === 'es' ? 'Pendiente' : 'Pending'))).toHaveLength(
       rows.filter(row => row.precio_pendiente_validar).length * 2
     );
-    expect(strings.some(s => s.endsWith('…'))).toBe(true);
+    expect(strings.some(s => s.endsWith('…'))).toBe(false);
+    expect(strings.some(s => s.includes('reference-with-'))).toBe(true);
     for (const row of rows) {
       const indexes = text.mock.calls.flatMap(([s], i) => (s === row.nombre ? [i] : []));
       expect(indexes).toHaveLength(1);
@@ -387,6 +388,19 @@ it('prints a dash in the client block when the contact is empty or belongs to I-
   expect(drawn).toContain('+57 313 724 7353');
   expect(drawn).toContain('CLIENTE / CLIENT');
   expect(drawn).toContain('EMISOR / ISSUER');
+  expect(drawn).toContain('CONDICIÓN DE PAGO');
+  expect(drawn).not.toContain('Web / Web');
+  expect(drawn).toContain('Web: i-me.com.co');
+  const baselines = text.mock.calls.map((call, index) => ({
+    text: String(call[0]),
+    y: call[1]?.y,
+    page: text.mock.instances[index],
+  }));
+  const totalPagar = baselines.find(item => item.text === 'TOTAL A PAGAR');
+  const importe = baselines.find(
+    item => item.page === totalPagar?.page && item.text.startsWith('USD ')
+  );
+  expect(importe?.y).toBe(totalPagar?.y);
   expect(drawn).toContain('PRECIO UNIT');
   expect(drawn).toContain('UNIT PRICE');
   expect(drawn).toContain('0550108900697583');
@@ -428,7 +442,7 @@ it('keeps a national COP quote in Spanish and still links Wompi', async () => {
   expect(drawn).not.toContain('QUOTATION');
   expect(drawn).not.toContain('UNIT PRICE');
   expect(drawn).toContain('PRECIO UNIT');
-  expect(drawn).toContain('DESCRIPCION');
+  expect(drawn).toContain('DESCRIPCIÓN');
   expect(drawn).toContain('CLIENTE');
   expect(drawn).not.toContain('CLIENTE / CLIENT');
   expect(drawn).toContain('Correo: -');
@@ -437,4 +451,76 @@ it('keeps a national COP quote in Spanish and still links Wompi', async () => {
   expect(drawn).toContain('61400006521');
   expect(drawn).not.toContain(NOTA_IMPORTES_USD_ES);
   expect(drawn).toContain('Correo: info@i-me.com.co');
+});
+
+it('keeps an em dash when the embedded font can draw it', async () => {
+  const text = vi.spyOn(PDFPage.prototype, 'drawText');
+  await renderQuotePdf({
+    numero: 'RAYA',
+    clienteNombre: 'Clinica',
+    email: '',
+    telefono: '',
+    condiciones: 'Entrega:\n30 dias.',
+    moneda: 'COP',
+    total: 10,
+    fontRegularBytes: readFileSync(
+      new URL('../../public/fonts/Poppins-Regular.ttf', import.meta.url)
+    ),
+    fontBoldBytes: readFileSync(new URL('../../public/fonts/Poppins-Bold.ttf', import.meta.url)),
+    lineas: [
+      {
+        slug: '',
+        nombre: 'Monitor de signos',
+        nombre_en: 'Vital signs monitor',
+        cantidad: 1,
+        precio_unitario: 10,
+        subtotal: 10,
+        moneda: 'COP',
+      },
+    ],
+    locale: 'es',
+    idioma: 'es-en',
+  });
+  const strings = text.mock.calls.map(([value]) => String(value));
+  expect(strings).toContain('Correo / Email: —');
+  expect(strings).toContain('Teléfono / Phone: —');
+  expect(strings).not.toContain('Correo / Email: -');
+  expect(strings.some(value => value.includes('Monitor de signos'))).toBe(true);
+  expect(strings.some(value => value.includes('Vital signs'))).toBe(true);
+  expect(strings.some(value => value.endsWith('…'))).toBe(false);
+});
+
+it('does not leave a single table row alone on the next page', async () => {
+  const text = vi.spyOn(PDFPage.prototype, 'drawText');
+  const nota = 'Especificacion de linea '.repeat(18).trim();
+  const lineas = ['Alfa', 'Beta', 'Gamma', 'Delta'].map(nombre => ({
+    slug: '',
+    nombre,
+    cantidad: 1,
+    precio_unitario: 10,
+    subtotal: 10,
+    moneda: 'COP' as const,
+    notas: nota,
+  }));
+  await renderQuotePdf({
+    numero: 'HUERFANA',
+    clienteNombre: 'Clinica',
+    condiciones: 'Entrega:\n30 dias.',
+    moneda: 'COP',
+    total: 40,
+    lineas,
+    locale: 'es',
+  });
+  const porPagina = new Map<PDFPage, string[]>();
+  text.mock.calls.forEach((call, index) => {
+    const page = text.mock.instances[index] as PDFPage;
+    const lista = porPagina.get(page) ?? [];
+    lista.push(String(call[0]));
+    porPagina.set(page, lista);
+  });
+  const conteos = [...porPagina.values()]
+    .map(lista => lineas.filter(linea => lista.includes(linea.nombre)).length)
+    .filter(conteo => conteo > 0);
+  expect(conteos.some(conteo => conteo === 1)).toBe(false);
+  expect(conteos.reduce((a, b) => a + b, 0)).toBe(lineas.length);
 });

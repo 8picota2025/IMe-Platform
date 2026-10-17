@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { resolverIdiomaCotizacion, textoPareceIngles } from './idioma-cotizacion';
+import { etiquetaBilingue, resolverIdiomaCotizacion, textoPareceIngles } from './idioma-cotizacion';
 
 describe('resolverIdiomaCotizacion', () => {
   it('deja las COP nacionales solo en castellano', () => {
@@ -35,5 +35,15 @@ describe('resolverIdiomaCotizacion', () => {
         texto: 'Delivery and payment for this quote until shipping',
       })
     ).toBe('es-en');
+  });
+});
+
+describe('etiquetaBilingue', () => {
+  it('no repite la etiqueta cuando el castellano y el inglés coinciden', () => {
+    expect(etiquetaBilingue('Web', 'Web', 'es-en')).toBe('Web');
+    expect(etiquetaBilingue('REF', 'ref', 'es-en')).toBe('REF');
+    expect(etiquetaBilingue('N°', 'No.', 'es-en')).toBe('N° / No.');
+    expect(etiquetaBilingue('Web', 'Web', 'es')).toBe('Web');
+    expect(etiquetaBilingue('Web', 'Website', 'en')).toBe('Website');
   });
 });
