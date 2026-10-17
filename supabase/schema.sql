@@ -415,6 +415,11 @@ ALTER TABLE solicitudes_cotizacion ADD COLUMN IF NOT EXISTS send_claimed_at TIME
 ALTER TABLE solicitudes_cotizacion ADD COLUMN IF NOT EXISTS send_error TEXT;
 ALTER TABLE solicitudes_cotizacion ADD COLUMN IF NOT EXISTS cuenta_recaudo TEXT;
 ALTER TABLE solicitudes_cotizacion ADD COLUMN IF NOT EXISTS condicion_pago TEXT;
+ALTER TABLE solicitudes_cotizacion ADD COLUMN IF NOT EXISTS condicion_pago_en TEXT;
+ALTER TABLE solicitudes_cotizacion ADD COLUMN IF NOT EXISTS ciudad TEXT;
+ALTER TABLE solicitudes_cotizacion ADD COLUMN IF NOT EXISTS pais TEXT;
+ALTER TABLE solicitudes_cotizacion ADD COLUMN IF NOT EXISTS idioma TEXT;
+ALTER TABLE solicitudes_cotizacion ADD COLUMN IF NOT EXISTS condiciones_en TEXT;
 
 ALTER TABLE solicitudes_cotizacion
   DROP CONSTRAINT IF EXISTS solicitudes_cotizacion_cuenta_recaudo_check;
@@ -424,6 +429,12 @@ ALTER TABLE solicitudes_cotizacion
     cuenta_recaudo IS NULL
     OR cuenta_recaudo IN ('bancolombia_ahorros', 'davivienda_sa')
   );
+
+ALTER TABLE solicitudes_cotizacion
+  DROP CONSTRAINT IF EXISTS solicitudes_cotizacion_idioma_check;
+ALTER TABLE solicitudes_cotizacion
+  ADD CONSTRAINT solicitudes_cotizacion_idioma_check
+  CHECK (idioma IS NULL OR idioma IN ('es', 'es-en'));
 CREATE UNIQUE INDEX IF NOT EXISTS solicitudes_cotizacion_numero_uidx
   ON solicitudes_cotizacion (numero)
   WHERE numero IS NOT NULL;

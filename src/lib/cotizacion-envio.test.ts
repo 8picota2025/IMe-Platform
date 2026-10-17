@@ -153,6 +153,24 @@ describe('validarEnvioCotizacion', () => {
     ).toMatchObject({ ok: false, code: 'PRECIO_PENDIENTE' });
   });
 
+  it('rechaza correo o teléfono de I-ME, y el vacío, en cualquier canal', () => {
+    expect(
+      validarEnvioCotizacion(
+        { ...filaBase, email: 'pendiente-2mtrading@i-me.com.co' },
+        { canal: 'email' }
+      )
+    ).toMatchObject({ ok: false, code: 'CONTACTO_IME' });
+    expect(
+      validarEnvioCotizacion({ ...filaBase, telefono: '+57 313 724 7353' }, { canal: 'whatsapp' })
+    ).toMatchObject({ ok: false, code: 'CONTACTO_IME' });
+    expect(validarEnvioCotizacion({ ...filaBase, email: '' }, { canal: 'whatsapp' })).toMatchObject(
+      { ok: false, code: 'SIN_EMAIL' }
+    );
+    expect(validarEnvioCotizacion({ ...filaBase, telefono: '' }, { canal: 'email' })).toMatchObject(
+      { ok: false, code: 'SIN_TELEFONO' }
+    );
+  });
+
   it('exige email real (email) o teléfono válido (whatsapp)', () => {
     expect(
       validarEnvioCotizacion({ ...filaBase, email: 'sin-arroba' }, { canal: 'email' })

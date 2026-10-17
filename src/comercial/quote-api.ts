@@ -3,6 +3,8 @@
  * Writes van por PostgREST (mismo RLS ventas que `/admin`).
  * Edge `comercial-cotizacion` solo para PDF cuando esté desplegada.
  */
+import { validarContactoClienteBorrador } from '../lib/contacto-cliente';
+import { resolverIdiomaCotizacion } from '../lib/idioma-cotizacion';
 import { totalPagarCotizacion } from '../lib/cotizacion-iva';
 import {
   calcularTotalOfertado,
@@ -62,6 +64,12 @@ export interface QuotePublic {
   cuenta_recaudo: string | null;
   /** Condición de pago. Null conserva Contado en el PDF en español. */
   condicion_pago: string | null;
+  nit: string | null;
+  ciudad: string | null;
+  pais: string | null;
+  direccion: string | null;
+  idioma: 'es' | 'es-en';
+  condiciones_en: string | null;
   incompleta: boolean;
   origen: 'pwa' | 'web';
   editable: boolean;
@@ -95,6 +103,12 @@ export interface QuoteSaveInput {
   impuestos_incluidos?: boolean;
   cuenta_recaudo?: string | null;
   condicion_pago?: string | null;
+  nit?: string;
+  ciudad?: string;
+  pais?: string;
+  direccion?: string;
+  idioma?: 'es' | 'es-en';
+  condiciones_en?: string;
 }
 
 /** Columnas presentes en prod actual (OpenAPI). */
@@ -106,7 +120,7 @@ const DETAIL_RICH =
   'id,numero,estado,nombre,empresa,email,telefono,moneda,mercado,validez_hasta,condiciones,productos,precio_total_ofertado,updated_at,created_at,pdf_storage_path,pdf_revision,send_error,metadata,crm_sync_status,created_by,locale,pedido_id,campaign,landing_path,origen,tipo_solicitud,impuestos_incluidos,archived_at,archived_by,archived_reason';
 
 /** Recaudo y condición de pago. Si la migración no está aplicada, se reintenta sin ellas. */
-const DETAIL_PAGO = `${DETAIL_RICH},condicion_pago,cuenta_recaudo`;
+const DETAIL_PAGO = `${DETAIL_RICH},condicion_pago,cuenta_recaudo,nit,direccion_facturacion,direccion_envio,ciudad,pais,idioma,condiciones_en`;
 
 function missingSchema(message?: string | null, code?: string | null): boolean {
   if (code && /^(PGRST204|42703|42883)$/i.test(code)) return true;
@@ -205,6 +219,23 @@ export function mapQuoteRow(raw: unknown, createdByNombre?: string | null): Quot
       typeof row.impuestos_incluidos === 'boolean' ? row.impuestos_incluidos : null,
     cuenta_recaudo: normalizarCuentaRecaudo(row.cuenta_recaudo),
     condicion_pago: normalizarCondicionPago(row.condicion_pago),
+    nit: typeof row.nit === 'string' ? row.nit : null,
+    ciudad: typeof row.ciudad === 'string' ? row.ciudad : null,
+    pais: typeof row.pais === 'string' ? row.pais : null,
+    direccion:
+      typeof row.direccion_facturacion === 'string' && row.direccion_facturacion
+        ? row.direccion_facturacion
+        : typeof row.direccion_envio === 'string'
+          ? row.direccion_envio
+          : null,
+    idioma: resolverIdiomaCotizacion({
+      moneda,
+      mercado: typeof row.mercado === 'string' ? row.mercado : null,
+      locale: typeof row.locale === 'string' ? row.locale : null,
+      idioma: typeof row.idioma === 'string' ? row.idioma : null,
+      texto: `${String(row.condiciones ?? '')}\n${String(row.condiciones_en ?? '')}`,
+    }),
+    condiciones_en: typeof row.condiciones_en === 'string' ? row.condiciones_en : null,
     incompleta: !check.ok,
     origen: pwa ? 'pwa' : 'web',
     editable: quoteEditable(String(row.estado ?? 'nueva')),
@@ -308,9 +339,17 @@ type QuotePdfSnapshot = {
   empresa?: string | null | undefined;
   email: string;
   telefono: string;
+  nit?: string | null;
+  direccion?: string | null;
+  ciudad?: string | null;
+  pais?: string | null;
   condiciones: string;
+  condiciones_en?: string | null;
   validez_hasta: string | null;
   moneda: 'COP' | 'USD';
+  mercado?: string | null;
+  locale?: string | null;
+  idioma?: string | null;
   productos: CotizacionLineaOferta[];
   cuenta_recaudo?: string | null;
   condicion_pago?: string | null;
@@ -480,13 +519,25 @@ async function renderQuotePdfLocal(
       loadWhatsappIconBytes(),
       loadPoppinsFonts(),
     ]);
+    const idiomaPdf = resolverIdiomaCotizacion({
+      moneda: snapshot.moneda,
+      mercado: snapshot.mercado,
+      locale: snapshot.locale,
+      idioma: snapshot.idioma,
+      texto: `${snapshot.condiciones}\n${snapshot.condiciones_en ?? ''}`,
+    });
     const bytes = await renderQuotePdf({
       numero,
       clienteNombre: snapshot.nombre,
       empresa: snapshot.empresa ?? null,
       email: snapshot.email,
       telefono: snapshot.telefono,
+      nitCliente: snapshot.nit ?? null,
+      direccionCliente: snapshot.direccion ?? null,
+      ciudadCliente: snapshot.ciudad ?? null,
+      paisCliente: snapshot.pais ?? null,
       condiciones: snapshot.condiciones,
+      condicionesEn: snapshot.condiciones_en ?? null,
       validezHasta: snapshot.validez_hasta,
       moneda: snapshot.moneda,
       total: totalPagarCotizacion(lineas, {
@@ -495,6 +546,7 @@ async function renderQuotePdfLocal(
       }),
       lineas,
       locale: 'es',
+      idioma: idiomaPdf,
       nombreComercial: state.nombre || state.email || 'Equipo comercial I-ME',
       correoComercial: state.email || 'comercial1@i-me.com.co',
       telefonoComercial: state.telefono || '',
@@ -693,10 +745,14 @@ async function saveQuoteRest(
   const email = input.email.trim().toLowerCase();
   const telefono = input.telefono.trim();
   if (!nombre) return fail('Nombre del contacto requerido.', 422, 'SIN_NOMBRE');
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return fail('Email del cliente inválido.', 422, 'SIN_EMAIL');
-  }
-  if (!telefono) return fail('Teléfono del contacto requerido.', 422, 'SIN_TELEFONO');
+  const contacto = validarContactoClienteBorrador({ email, telefono });
+  if (!contacto.ok) return fail(contacto.message, contacto.status, contacto.code);
+  const idioma = resolverIdiomaCotizacion({
+    moneda,
+    mercado: moneda === 'USD' ? 'INTL' : 'CO',
+    idioma: input.idioma,
+    texto: `${input.condiciones}\n${input.condiciones_en ?? ''}`,
+  });
 
   const canon: Record<string, unknown> = {
     nombre,
@@ -713,6 +769,12 @@ async function saveQuoteRest(
       moneda,
     }),
     locale: 'es',
+    idioma,
+    nit: input.nit?.trim() || null,
+    ciudad: input.ciudad?.trim() || null,
+    pais: input.pais?.trim() || null,
+    direccion_facturacion: input.direccion?.trim() || null,
+    condiciones_en: input.condiciones_en?.trim() || null,
     leida: true,
   };
   if (typeof input.impuestos_incluidos === 'boolean') {

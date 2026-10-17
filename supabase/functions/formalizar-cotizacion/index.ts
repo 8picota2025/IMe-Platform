@@ -17,9 +17,15 @@ import {
   getDatosBancariosTransferencia,
 } from '../_shared/transferencia-bancaria.ts';
 import {
+  textoCliente,
+  validarContactoClienteParaEnvio,
+} from '../../../src/lib/contacto-cliente.ts';
+import { resolverIdiomaCotizacion } from '../../../src/lib/idioma-cotizacion.ts';
+import {
   cuentaRecaudoPorId,
   esCuentaRecaudoDefault,
   textoBancarioCuenta,
+  textoBancarioCuentaIdioma,
 } from '../../../src/lib/cotizacion-recaudo.ts';
 import {
   calcularTotalOfertado,
@@ -187,6 +193,17 @@ async function loadCotizacionValidada(
       response: errorResponse({ code: check.error, message: 'Oferta incompleta' }, 422, origin),
     };
   }
+  const contacto = validarContactoClienteParaEnvio(row);
+  if (!contacto.ok) {
+    return {
+      ok: false,
+      response: errorResponse(
+        { code: contacto.code, message: contacto.message },
+        contacto.status,
+        origin
+      ),
+    };
+  }
 
   return { ok: true, row };
 }
@@ -275,6 +292,13 @@ Deno.serve(async req => {
       ? desglose.total
       : Number(row.precio_total_ofertado) || calcularTotalOfertado(lineas);
   const locale = row.locale === 'en' ? 'en' : 'es';
+  const idioma = resolverIdiomaCotizacion({
+    moneda,
+    mercado: row.mercado,
+    locale,
+    idioma: (row as { idioma?: string | null }).idioma,
+    texto: `${row.condiciones ?? ''}\n${(row as { condiciones_en?: string | null }).condiciones_en ?? ''}`,
+  });
   const siteUrl = (Deno.env.get('SITE_URL') ?? 'https://i-me.com.co').replace(/\/+$/, '');
   const cuentaId = (row as { cuenta_recaudo?: string | null }).cuenta_recaudo;
   const cuentaElegida = esCuentaRecaudoDefault(cuentaId) ? null : cuentaRecaudoPorId(cuentaId);
@@ -290,9 +314,26 @@ Deno.serve(async req => {
           'Transfiere el valor exacto de la cotizacion e indica la referencia en el concepto. Luego sube el comprobante en el enlace del correo.',
       }
     : getDatosBancariosTransferencia();
-  const textoBancario = cuentaElegida
-    ? textoBancarioCuenta(cuentaElegida)
-    : datosBancariosTexto(bancarios);
+  const textoBancario =
+    idioma === 'es-en'
+      ? cuentaElegida
+        ? textoBancarioCuentaIdioma(cuentaElegida, 'es-en')
+        : textoBancarioCuentaIdioma(
+            {
+              id: 'bancolombia_ahorros',
+              etiqueta: 'Bancolombia',
+              banco: bancarios.banco,
+              tipo_cuenta: bancarios.tipo_cuenta,
+              numero_cuenta: bancarios.numero_cuenta,
+              titular: bancarios.titular,
+              nit: bancarios.nit,
+              swift: bancarios.swift,
+            },
+            'es-en'
+          )
+      : cuentaElegida
+        ? textoBancarioCuenta(cuentaElegida)
+        : datosBancariosTexto(bancarios);
 
   if (action === 'preview') {
     return new Response(
@@ -300,14 +341,27 @@ Deno.serve(async req => {
         ok: true,
         cotizacion: {
           id: row.id,
-          nombre: row.nombre,
-          empresa: row.empresa,
-          email: row.email,
-          telefono: (row as { telefono?: string }).telefono ?? null,
+          nombre: textoCliente(String(row.nombre ?? ''), 'texto'),
+          empresa: textoCliente(String(row.empresa ?? ''), 'razon'),
+          email: textoCliente(String(row.email ?? ''), 'email'),
+          telefono: textoCliente(String((row as { telefono?: string }).telefono ?? ''), 'telefono'),
+          nit: textoCliente(String((row as { nit?: string | null }).nit ?? ''), 'nit'),
+          direccion: textoCliente(
+            String(
+              (row as { direccion_facturacion?: string | null }).direccion_facturacion ||
+                (row as { direccion_envio?: string | null }).direccion_envio ||
+                ''
+            ),
+            'texto'
+          ),
+          ciudad: textoCliente(String((row as { ciudad?: string | null }).ciudad ?? ''), 'texto'),
+          pais: textoCliente(String((row as { pais?: string | null }).pais ?? ''), 'texto'),
           condiciones: row.condiciones,
+          condiciones_en: (row as { condiciones_en?: string | null }).condiciones_en ?? null,
           validez_hasta: row.validez_hasta,
           estado: row.estado,
           locale: row.locale === 'en' ? 'en' : 'es',
+          idioma,
           mercado: row.mercado === 'INTL' ? 'INTL' : 'CO',
           moneda,
           total,
@@ -322,6 +376,9 @@ Deno.serve(async req => {
           lineas: lineas.map(l => ({
             slug: l.slug,
             nombre: l.nombre,
+            nombre_en: l.nombre_en ?? null,
+            notas: l.notas ?? null,
+            notas_en: l.notas_en ?? null,
             cantidad: l.cantidad,
             precio_unitario: l.precio_unitario,
             subtotal: l.subtotal,

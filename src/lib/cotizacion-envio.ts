@@ -3,6 +3,7 @@
  * Function `enviar-cotizacion` (envío real y dry-run) y el MCP `ime-comercio`
  * (preparar/confirmar), para que no diverjan.
  */
+import { validarContactoClienteParaEnvio } from './contacto-cliente.ts';
 import { normalizeVisitorPhone } from './visitor-phone.ts';
 import {
   hashBytesSha256,
@@ -58,9 +59,9 @@ export function validarEnvioCotizacion(
       status: 422,
     };
   }
-  const email = String(row.email ?? '')
-    .trim()
-    .toLowerCase();
+  const contacto = validarContactoClienteParaEnvio(row);
+  if (!contacto.ok) return contacto;
+  const email = contacto.email;
   if (opciones.canal === 'email') {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return {
@@ -98,6 +99,8 @@ export async function huellaOferta(row: CotizacionOfertaRow): Promise<string> {
     moneda: l.moneda,
     pendiente: Boolean(l.precio_pendiente_validar),
     notas: l.notas ?? '',
+    nombre_en: l.nombre_en ?? '',
+    notas_en: l.notas_en ?? '',
     tratamiento_iva: l.tratamiento_iva ?? null,
   }));
   const canonico = JSON.stringify({
@@ -108,6 +111,9 @@ export async function huellaOferta(row: CotizacionOfertaRow): Promise<string> {
     email: String(row.email ?? '')
       .trim()
       .toLowerCase(),
+    telefono: String(row.telefono ?? '').trim(),
+    idioma: (row as { idioma?: string | null }).idioma ?? null,
+    condiciones_en: (row as { condiciones_en?: string | null }).condiciones_en ?? null,
     impuestos_incluidos:
       (row as { impuestos_incluidos?: boolean | null }).impuestos_incluidos ?? null,
   });

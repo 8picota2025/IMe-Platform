@@ -216,10 +216,14 @@ const currentPath = '/es/cotizacion/formalizar';
 <script>
   import { getSupabaseClient } from '../../../lib/supabase';
   import { verificarNitCampo } from '../../../lib/nit-dian';
+  import { htmlResumenFormalizar, saludoFormalizar } from '../../../lib/formalizar-resumen';
 
   type Linea = {
     slug: string;
     nombre: string;
+    nombre_en?: string | null;
+    notas?: string | null;
+    notas_en?: string | null;
     cantidad: number;
     precio_unitario: number;
     subtotal: number;
@@ -231,8 +235,15 @@ const currentPath = '/es/cotizacion/formalizar';
     nombre?: string;
     empresa?: string;
     email?: string;
+    telefono?: string;
+    nit?: string;
+    direccion?: string;
+    ciudad?: string;
+    pais?: string;
     condiciones?: string;
+    condiciones_en?: string | null;
     validez_hasta?: string;
+    idioma?: string | null;
     moneda: string;
     total: number;
     iva_resumen?: string;
@@ -262,14 +273,6 @@ const currentPath = '/es/cotizacion/formalizar';
       currency: moneda || 'COP',
       maximumFractionDigits: moneda === 'COP' ? 0 : 2,
     }).format(value);
-  }
-
-  function escape(value: string): string {
-    return value
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
   }
 
   function showError(msg: string) {
@@ -376,32 +379,10 @@ const currentPath = '/es/cotizacion/formalizar';
     }
 
     const cotizacion = json.cotizacion;
-    statusEl.textContent = `Hola ${cotizacion.nombre ?? 'cliente'}. Revisa la oferta. Puedes pagar por transferencia o con Wompi.`;
+    statusEl.textContent = saludoFormalizar(cotizacion.nombre, cotizacion.idioma);
     statusEl.classList.remove('formalizar__error');
     contentEl.hidden = false;
-    contentEl.innerHTML = `
-      ${cotizacion.empresa ? `<p><strong>Empresa:</strong> ${escape(cotizacion.empresa)}</p>` : ''}
-      ${cotizacion.validez_hasta ? `<p><strong>Validez:</strong> ${escape(cotizacion.validez_hasta)}</p>` : ''}
-      <table class="formalizar__table">
-        <thead><tr><th>Producto</th><th>Cant.</th><th>Unitario</th><th>Subtotal</th></tr></thead>
-        <tbody>
-          ${cotizacion.lineas
-            .map(
-              l => `<tr>
-                <td>${escape(l.nombre)}</td>
-                <td>${l.cantidad}</td>
-                <td>${money(l.precio_unitario, l.moneda)}</td>
-                <td>${money(l.subtotal, l.moneda)}</td>
-              </tr>`
-            )
-            .join('')}
-        </tbody>
-      </table>
-      <p class="formalizar__total">Total a pagar: ${money(cotizacion.total, cotizacion.moneda)}</p>
-      ${cotizacion.iva_resumen ? `<p>${escape(cotizacion.iva_resumen)}</p>` : ''}
-      <h2>Observaciones / configuración</h2>
-      <pre class="formalizar__condiciones">${escape(cotizacion.condiciones ?? '')}</pre>
-    `;
+    contentEl.innerHTML = htmlResumenFormalizar(cotizacion, money);
     bankEl.textContent = json.transferencia?.texto ?? '';
     const wompiEl = document.querySelector<HTMLElement>('[data-formalizar-wompi]');
     if (wompiEl && cotizacion.permite_pago_wompi !== false && cotizacion.moneda === 'COP') {

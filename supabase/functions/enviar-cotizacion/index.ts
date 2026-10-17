@@ -31,6 +31,8 @@ import { validarEnvioCotizacion } from '../../../src/lib/cotizacion-envio.ts';
 import { resumenIvaTexto } from '../../../src/lib/cotizacion-iva.ts';
 import { desgloseDeLineas, htmlBotonWompiViaFormalizar } from '../_shared/cotizacion-pago.ts';
 import { normalizeVisitorPhone } from '../../../src/lib/visitor-phone.ts';
+import { textoCliente } from '../../../src/lib/contacto-cliente.ts';
+import { resolverIdiomaCotizacion } from '../../../src/lib/idioma-cotizacion.ts';
 import { renderQuotePdf } from '../_shared/render-quote-pdf.ts';
 import {
   buildQuoteAnnexes,
@@ -52,6 +54,7 @@ import {
   normalizarCondicionPago,
   normalizarCuentaRecaudo,
   textoBancarioCuenta,
+  textoBancarioCuentaIdioma,
 } from '../../../src/lib/cotizacion-recaudo.ts';
 import {
   canonizarLineasOferta,
@@ -398,6 +401,13 @@ Deno.serve(async req => {
   const telefonoComercial = asesor.telefono;
 
   const locale = row.locale === 'en' ? 'en' : 'es';
+  const idioma = resolverIdiomaCotizacion({
+    moneda: oferta.moneda,
+    mercado: row.mercado,
+    locale,
+    idioma: (row as { idioma?: string | null }).idioma,
+    texto: `${row.condiciones ?? ''}\n${(row as { condiciones_en?: string | null }).condiciones_en ?? ''}`,
+  });
   const renderPdf = async (numeroPdf: string, wompiUrl: string | null) => {
     const [annexes, logoBytes, whatsappIconBytes, fonts] = await Promise.all([
       buildQuoteAnnexes(supabase, oferta.lineas, siteUrl),
@@ -409,18 +419,27 @@ Deno.serve(async req => {
     const cuentaId = (row as { cuenta_recaudo?: string | null }).cuenta_recaudo;
     return renderQuotePdf({
       numero: numeroPdf,
-      clienteNombre: String(row.nombre ?? 'Cliente'),
+      clienteNombre: String(row.nombre ?? ''),
       empresa: row.empresa,
       email: row.email,
       telefono: row.telefono,
+      nitCliente: (row as { nit?: string | null }).nit ?? null,
+      direccionCliente:
+        (row as { direccion_facturacion?: string | null }).direccion_facturacion ||
+        (row as { direccion_envio?: string | null }).direccion_envio ||
+        null,
+      ciudadCliente: (row as { ciudad?: string | null }).ciudad ?? null,
+      paisCliente: (row as { pais?: string | null }).pais ?? null,
       condiciones: String(row.condiciones ?? ''),
+      condicionesEn: (row as { condiciones_en?: string | null }).condiciones_en ?? null,
       validezHasta: row.validez_hasta ? String(row.validez_hasta) : null,
       moneda: oferta.moneda,
       total: totalPagar,
       lineas: oferta.lineas,
       impuestosIncluidos,
-      wompiUrl,
+      wompiUrl: oferta.moneda === 'COP' ? wompiUrl : null,
       locale,
+      idioma,
       nombreComercial,
       correoComercial,
       telefonoComercial,
@@ -431,6 +450,9 @@ Deno.serve(async req => {
       fontBoldBytes: fonts.bold,
       condicionPago: normalizarCondicionPago(
         (row as { condicion_pago?: string | null }).condicion_pago
+      ),
+      condicionPagoEn: normalizarCondicionPago(
+        (row as { condicion_pago_en?: string | null }).condicion_pago_en
       ),
       bancoLineas: lineasMedioPagoCotizacion(cuentaId, bancoLineasCotizacion(banco)),
     });
@@ -448,7 +470,12 @@ Deno.serve(async req => {
     let asunto: string | null = null;
     let plantillaDry: string | null = null;
     if (canal === 'email') {
-      plantillaDry = locale === 'en' ? 'cotizacion_oferta_cliente_en' : 'presupuesto';
+      plantillaDry =
+        idioma === 'es-en'
+          ? 'presupuesto_es_en'
+          : locale === 'en'
+            ? 'cotizacion_oferta_cliente_en'
+            : 'presupuesto';
       const varsAsunto = {
         cliente_nombre: String(row.nombre ?? 'Cliente'),
         referencia: numeroPrev,
@@ -597,7 +624,7 @@ Deno.serve(async req => {
   } else {
     const token = generarTokenFormalizacion();
     tokenHash = await hashTokenSha256(token);
-    formalizarUrl = `${siteUrl}${formalizarPath(locale, id, token)}`;
+    formalizarUrl = `${siteUrl}${formalizarPath(idioma === 'es-en' ? 'es-en' : locale, id, token)}`;
     tokenRotated = true;
   }
 
@@ -747,40 +774,90 @@ Deno.serve(async req => {
     }
     const totalTxt = `${totalPagar} ${oferta.moneda}`;
     const mensaje =
-      locale === 'en'
-        ? `Hello ${String(row.nombre ?? '').trim() || 'there'}, here is I-ME quote ${numero} for ${totalTxt}. Pay by bank transfer or Wompi: ${formalizarUrl}`
-        : `Hola ${String(row.nombre ?? '').trim() || 'cliente'}, te compartimos el presupuesto ${numero} de I-ME por ${totalTxt}. Puedes pagar por transferencia o con Wompi: ${formalizarUrl}`;
+      idioma === 'es-en'
+        ? `Hola ${String(row.nombre ?? '').trim() || 'cliente'} / Hello, presupuesto / quote ${numero} de I-ME por / for ${totalTxt}. Transferencia bancaria / Bank transfer: ${formalizarUrl}`
+        : locale === 'en'
+          ? `Hello ${String(row.nombre ?? '').trim() || 'there'}, here is I-ME quote ${numero} for ${totalTxt}. Pay by bank transfer or Wompi: ${formalizarUrl}`
+          : `Hola ${String(row.nombre ?? '').trim() || 'cliente'}, te compartimos el presupuesto ${numero} de I-ME por ${totalTxt}. Puedes pagar por transferencia o con Wompi: ${formalizarUrl}`;
     const digits = phone.e164.replace(/^\+/, '');
     whatsappUrl = `https://wa.me/${digits}?text=${encodeURIComponent(mensaje)}`;
     meta.quote_send_channel = 'whatsapp';
     meta.whatsapp_url = whatsappUrl;
   } else {
-    plantilla = locale === 'en' ? 'cotizacion_oferta_cliente_en' : 'presupuesto';
+    plantilla =
+      idioma === 'es-en'
+        ? 'presupuesto_es_en'
+        : locale === 'en'
+          ? 'cotizacion_oferta_cliente_en'
+          : 'presupuesto';
+    const cuentaIdCorreo = (row as { cuenta_recaudo?: string | null }).cuenta_recaudo;
+    const bancoPorDefecto = getDatosBancariosTransferencia();
+    const datosBancarios =
+      idioma === 'es-en'
+        ? esCuentaRecaudoDefault(cuentaIdCorreo)
+          ? textoBancarioCuentaIdioma(
+              {
+                id: 'bancolombia_ahorros',
+                etiqueta: 'Bancolombia',
+                banco: bancoPorDefecto.banco,
+                tipo_cuenta: bancoPorDefecto.tipo_cuenta,
+                numero_cuenta: bancoPorDefecto.numero_cuenta,
+                titular: bancoPorDefecto.titular,
+                nit: bancoPorDefecto.nit,
+                swift: bancoPorDefecto.swift,
+              },
+              'es-en'
+            )
+          : textoBancarioCuentaIdioma(cuentaRecaudoPorId(cuentaIdCorreo), 'es-en')
+        : esCuentaRecaudoDefault(cuentaIdCorreo)
+          ? datosBancariosTexto(bancoPorDefecto)
+          : textoBancarioCuenta(cuentaRecaudoPorId(cuentaIdCorreo));
+    const condicionesEn = String((row as { condiciones_en?: string | null }).condiciones_en ?? '').trim();
+    const condicionesCorreo =
+      idioma === 'es-en'
+        ? `${aplicarNotaImportesUsd(String(row.condiciones ?? ''), oferta.moneda, 'es')}${
+            condicionesEn
+              ? `\n\n${aplicarNotaImportesUsd(condicionesEn, oferta.moneda, 'en')}`
+              : ''
+          }`
+        : aplicarNotaImportesUsd(String(row.condiciones ?? ''), oferta.moneda, locale);
     const emailVars = {
-      cliente_nombre: escapeHtml(String(row.nombre ?? 'Cliente')),
-      cliente_empresa: escapeHtml(String(row.empresa ?? '—')),
-      cliente_email: escapeHtml(String(row.email ?? '')),
-      cliente_telefono: escapeHtml(String(row.telefono ?? '—')),
+      cliente_nombre: escapeHtml(textoCliente(String(row.nombre ?? ''), 'texto')),
+      cliente_empresa: escapeHtml(textoCliente(String(row.empresa ?? ''), 'razon')),
+      cliente_nit: escapeHtml(textoCliente(String((row as { nit?: string | null }).nit ?? ''), 'nit')),
+      cliente_email: escapeHtml(textoCliente(String(row.email ?? ''), 'email')),
+      cliente_telefono: escapeHtml(textoCliente(String(row.telefono ?? ''), 'telefono')),
+      cliente_direccion: escapeHtml(
+        textoCliente(
+          String(
+            (row as { direccion_facturacion?: string | null }).direccion_facturacion ||
+              (row as { direccion_envio?: string | null }).direccion_envio ||
+              ''
+          ),
+          'texto'
+        )
+      ),
+      cliente_ciudad: escapeHtml(
+        textoCliente(String((row as { ciudad?: string | null }).ciudad ?? ''), 'texto')
+      ),
+      cliente_pais: escapeHtml(
+        textoCliente(String((row as { pais?: string | null }).pais ?? ''), 'texto')
+      ),
       nombre_comercial: escapeHtml(nombreComercial),
       correo_comercial: escapeHtml(correoComercial),
       telefono_comercial: escapeHtml(telefonoComercial || '—'),
       referencia: escapeHtml(numero),
       total: escapeHtml(String(totalPagar)),
       iva_resumen: escapeHtml(resumenIvaTexto(desglose, locale)),
-      pago_wompi_html: htmlBotonWompiViaFormalizar(wompiCtaUrl, locale),
+      pago_wompi_html: htmlBotonWompiViaFormalizar(
+        oferta.moneda === 'COP' ? wompiCtaUrl : null,
+        idioma === 'es-en' ? 'es-en' : locale
+      ),
       moneda: escapeHtml(oferta.moneda),
       validez: validezLabel,
-      items_html: itemsToHtml(oferta.lineas, locale),
-      condiciones: escapeHtml(
-        aplicarNotaImportesUsd(String(row.condiciones ?? ''), oferta.moneda, locale)
-      ),
-      datos_bancarios: escapeHtml(
-        esCuentaRecaudoDefault((row as { cuenta_recaudo?: string | null }).cuenta_recaudo)
-          ? datosBancariosTexto(getDatosBancariosTransferencia())
-          : textoBancarioCuenta(
-              cuentaRecaudoPorId((row as { cuenta_recaudo?: string | null }).cuenta_recaudo)
-            )
-      ),
+      items_html: itemsToHtml(oferta.lineas, idioma === 'es-en' ? 'es-en' : locale),
+      condiciones: escapeHtml(condicionesCorreo),
+      datos_bancarios: escapeHtml(datosBancarios),
       formalizar_url: formalizarUrl,
       formalizar_url_href: escapeHtml(formalizarUrl),
     };

@@ -28,6 +28,8 @@ import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { checkRateLimit } from '../_shared/rate-limit.ts';
 import { withTelemetry } from '../_shared/telemetry.ts';
 import { asesorDeUsuario } from '../_shared/asesor.ts';
+import { validarContactoClienteBorrador } from '../../../src/lib/contacto-cliente.ts';
+import { resolverIdiomaCotizacion } from '../../../src/lib/idioma-cotizacion.ts';
 import { renderQuotePdf } from '../_shared/render-quote-pdf.ts';
 import {
   buildQuoteAnnexes,
@@ -105,7 +107,7 @@ const DETAIL_COLUMNS_BASE = [
   'archived_reason',
 ].join(',');
 
-const DETAIL_COLUMNS = `${DETAIL_COLUMNS_BASE},condicion_pago,cuenta_recaudo`;
+const DETAIL_COLUMNS = `${DETAIL_COLUMNS_BASE},condicion_pago,condicion_pago_en,cuenta_recaudo,nit,direccion_facturacion,direccion_envio,ciudad,pais,idioma,condiciones_en`;
 
 const DETAIL_COLUMNS_SAFE = [
   'id',
@@ -166,6 +168,14 @@ interface SaveBody {
   productos?: unknown;
   updated_at?: string | null;
   locale?: string;
+  idioma?: string | null;
+  nit?: string | null;
+  direccion_facturacion?: string | null;
+  direccion_envio?: string | null;
+  ciudad?: string | null;
+  pais?: string | null;
+  condiciones_en?: string | null;
+  condicion_pago_en?: string | null;
   /** "Precios incluyen IVA": habilita pedir factura electrónica al formalizar. */
   impuestos_incluidos?: boolean | null;
   cuenta_recaudo?: string | null;
@@ -231,6 +241,20 @@ function publicRow(
     created_by: row.created_by ?? null,
     created_by_nombre: createdByNombre ?? null,
     locale: row.locale === 'en' ? 'en' : 'es',
+    idioma: resolverIdiomaCotizacion({
+      moneda: row.moneda,
+      mercado: row.mercado,
+      locale: row.locale,
+      idioma: (row as { idioma?: string | null }).idioma,
+      texto: `${row.condiciones ?? ''}\n${(row as { condiciones_en?: string | null }).condiciones_en ?? ''}`,
+    }),
+    nit: (row as { nit?: string | null }).nit ?? null,
+    direccion_facturacion: (row as { direccion_facturacion?: string | null }).direccion_facturacion ?? null,
+    direccion_envio: (row as { direccion_envio?: string | null }).direccion_envio ?? null,
+    ciudad: (row as { ciudad?: string | null }).ciudad ?? null,
+    pais: (row as { pais?: string | null }).pais ?? null,
+    condiciones_en: (row as { condiciones_en?: string | null }).condiciones_en ?? null,
+    condicion_pago_en: (row as { condicion_pago_en?: string | null }).condicion_pago_en ?? null,
     pedido_id: row.pedido_id ?? null,
     impuestos_incluidos: row.impuestos_incluidos ?? null,
     cuenta_recaudo: normalizarCuentaRecaudo(row.cuenta_recaudo),
@@ -610,13 +634,28 @@ async function handlePdf(
     moneda: monedaPdf,
   });
   // Preview PDF: sin checkout firmado. El envío real enlaza a formalizar.
+  const idiomaPdf = resolverIdiomaCotizacion({
+    moneda: monedaPdf,
+    mercado: live.mercado,
+    locale: live.locale,
+    idioma: (live as { idioma?: string | null }).idioma,
+    texto: `${live.condiciones ?? ''}\n${(live as { condiciones_en?: string | null }).condiciones_en ?? ''}`,
+  });
   const bytes = await renderQuotePdf({
     numero,
-    clienteNombre: String(live.nombre ?? 'Cliente'),
+    clienteNombre: String(live.nombre ?? ''),
     empresa: live.empresa,
     email: live.email,
     telefono: live.telefono,
+    nitCliente: (live as { nit?: string | null }).nit ?? null,
+    direccionCliente:
+      (live as { direccion_facturacion?: string | null }).direccion_facturacion ||
+      (live as { direccion_envio?: string | null }).direccion_envio ||
+      null,
+    ciudadCliente: (live as { ciudad?: string | null }).ciudad ?? null,
+    paisCliente: (live as { pais?: string | null }).pais ?? null,
     condiciones: String(live.condiciones ?? ''),
+    condicionesEn: (live as { condiciones_en?: string | null }).condiciones_en ?? null,
     validezHasta: live.validez_hasta ? String(live.validez_hasta) : null,
     moneda: monedaPdf,
     total: desglosePdf.total,
@@ -624,6 +663,7 @@ async function handlePdf(
     impuestosIncluidos: live.impuestos_incluidos === true,
     wompiUrl: null,
     locale: live.locale === 'en' ? 'en' : 'es',
+    idioma: idiomaPdf,
     nombreComercial: asesor.nombre,
     correoComercial: asesor.correo,
     telefonoComercial: asesor.telefono,
@@ -633,6 +673,9 @@ async function handlePdf(
     fontRegularBytes: fonts.regular,
     fontBoldBytes: fonts.bold,
     condicionPago: normalizarCondicionPago(live.condicion_pago),
+    condicionPagoEn: normalizarCondicionPago(
+      (live as { condicion_pago_en?: string | null }).condicion_pago_en
+    ),
     bancoLineas: lineasMedioPagoCotizacion(live.cuenta_recaudo, bancoLineasCotizacion()),
   });
   return json(
@@ -699,6 +742,21 @@ async function handleSave(
   const condiciones = cleanText(body.condiciones, 8000);
   const validez = cleanText(body.validez_hasta, 32) || null;
   const locale = body.locale === 'en' ? 'en' : 'es';
+  const contactoBorrador = validarContactoClienteBorrador({ email, telefono });
+  if (!contactoBorrador.ok) {
+    return errorResponse(
+      { code: contactoBorrador.code, message: contactoBorrador.message },
+      contactoBorrador.status,
+      origin
+    );
+  }
+  const idioma = resolverIdiomaCotizacion({
+    moneda,
+    mercado: moneda === 'USD' ? 'INTL' : 'CO',
+    locale,
+    idioma: body.idioma,
+    texto: `${condiciones}\n${cleanText(body.condiciones_en, 8000)}`,
+  });
 
   if (!nombre)
     return errorResponse(
@@ -706,15 +764,8 @@ async function handleSave(
       422,
       origin
     );
-  if (!EMAIL_RE.test(email)) {
+  if (email && !EMAIL_RE.test(email)) {
     return errorResponse({ code: 'SIN_EMAIL', message: 'Email de cliente invalido.' }, 422, origin);
-  }
-  if (!telefono) {
-    return errorResponse(
-      { code: 'SIN_TELEFONO', message: 'Telefono del contacto requerido.' },
-      422,
-      origin
-    );
   }
 
   const canon: Record<string, unknown> = {
@@ -734,6 +785,13 @@ async function handleSave(
       })
     ).total,
     locale,
+    idioma,
+    nit: cleanText(body.nit, 40) || null,
+    direccion_facturacion: cleanText(body.direccion_facturacion, 400) || null,
+    direccion_envio: cleanText(body.direccion_envio, 400) || null,
+    ciudad: cleanText(body.ciudad, 120) || null,
+    pais: cleanText(body.pais, 120) || null,
+    condiciones_en: cleanText(body.condiciones_en, 8000) || null,
     leida: true,
   };
   // Solo se escribe si llega explícito: omitirlo conserva el valor existente (NULL = sin declarar).
@@ -752,6 +810,9 @@ async function handleSave(
   }
   if (body.condicion_pago !== undefined) {
     canon.condicion_pago = normalizarCondicionPago(body.condicion_pago);
+  }
+  if (body.condicion_pago_en !== undefined) {
+    canon.condicion_pago_en = normalizarCondicionPago(body.condicion_pago_en);
   }
   // `estado` del body no entra: proyectarGuardadoCotizacion lo descarta.
   // Cambiar estado sin avisar al cliente es POST ?action=cambiar-estado.

@@ -21,6 +21,15 @@ import { desgloseCotizacion, etiquetaIvaTotales, roundMoney } from './cotizacion
 import { lineasDeResumen } from './quote-specs-summary';
 import { quoteAnnexHasSpecContent } from './quote-pdf-annex';
 import { aplicarNotaImportesUsd, notaImportesUsd } from './cotizacion-recaudo';
+import {
+  IME_EMAIL_PUBLICO,
+  IME_NIT,
+  IME_RAZON_SOCIAL,
+  IME_WEB,
+  textoCliente,
+} from './contacto-cliente';
+import { etiquetaBilingue, type IdiomaCotizacion } from './idioma-cotizacion';
+import { IME_WHATSAPP_DISPLAY } from './contacto-oficial';
 
 export interface QuotePdfAnnex {
   slug: string;
@@ -43,7 +52,14 @@ export interface QuotePdfSnapshot {
   email?: string | null;
   telefono?: string | null;
   nitCliente?: string | null;
+  direccionCliente?: string | null;
+  ciudadCliente?: string | null;
+  paisCliente?: string | null;
   condiciones: string;
+  /** Condiciones libres en inglés. Si faltan, la oferta bilingüe muestra las castellanas. */
+  condicionesEn?: string | null;
+  /** `es-en` imprime etiquetas, títulos y textos fijos en castellano e inglés. */
+  idioma?: IdiomaCotizacion | null;
   validezHasta?: string | null;
   moneda: string;
   total: number;
@@ -53,6 +69,8 @@ export interface QuotePdfSnapshot {
   correoComercial?: string | null;
   telefonoComercial?: string | null;
   condicionPago?: string | null;
+  /** Versión en inglés de la condición de pago libre. Si falta, se muestra la castellana. */
+  condicionPagoEn?: string | null;
   medioPago?: string | null;
   bancoLineas?: string[];
   /** Precio digitado ya incluye IVA. El total a pagar no suma el impuesto encima. */
@@ -336,6 +354,9 @@ export type QuotePdfRenderer = (snapshot: QuotePdfSnapshot) => Promise<Uint8Arra
 
 export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
   const locale = snapshot.locale === 'en' ? 'en' : 'es';
+  const idioma: 'es' | 'en' | IdiomaCotizacion = snapshot.idioma === 'es-en' ? 'es-en' : locale;
+  const localeNumero: 'es' | 'en' = idioma === 'en' ? 'en' : 'es';
+  const et = (castellano: string, ingles: string) => etiquetaBilingue(castellano, ingles, idioma);
   const doc = await PDFDocument.create();
   doc.registerFontkit(fontkit);
 
@@ -386,13 +407,13 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     Number.isFinite(snapshot.total) && snapshot.total > 0 && Math.abs(desglose.total - totalPagar) > 0.009
       ? roundMoney(Math.max(0, totalPagar - subtotal))
       : desglose.iva;
-  const etiquetaIva = etiquetaIvaTotales(desglose, impuestosIncluidos, locale);
-  const fecha = snapshot.fecha?.trim() || todayLabel(locale);
-  const tagline =
-    snapshot.tagline?.trim() ||
-    (locale === 'en'
-      ? 'Equipping your mission to save lives'
-      : 'Equipando tu misión de salvar vidas');
+  const etiquetaIvaEs = etiquetaIvaTotales(desglose, impuestosIncluidos, 'es');
+  const etiquetaIvaEn = etiquetaIvaTotales(desglose, impuestosIncluidos, 'en');
+  const etiquetaIva =
+    idioma === 'es-en' ? `${etiquetaIvaEs} / ${etiquetaIvaEn}` : idioma === 'en' ? etiquetaIvaEn : etiquetaIvaEs;
+  const fecha = snapshot.fecha?.trim() || todayLabel(localeNumero);
+  const taglineEs = snapshot.tagline?.trim() || 'Equipando tu misión de salvar vidas';
+  const taglineEn = 'Equipping your mission to save lives';
   const banco =
     snapshot.bancoLineas && snapshot.bancoLineas.length > 0
       ? snapshot.bancoLineas
@@ -418,17 +439,36 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
   }
 
   // Título COTIZACIÓN — boceto derecha; evitar overflow
-  drawText(page, locale === 'en' ? 'QUOTATION' : 'COTIZACIÓN', {
-    x: 348.6,
-    top: 57.8,
-    size: 26,
-    font: bold,
-    color: GRAY_TITLE,
-    maxWidth: 200,
-  });
+  if (idioma === 'es-en') {
+    drawRight(page, 'COTIZACIÓN', {
+      right: 555,
+      top: 46,
+      size: 16,
+      font: bold,
+      color: GRAY_TITLE,
+      maxWidth: 210,
+    });
+    drawRight(page, 'QUOTATION', {
+      right: 555,
+      top: 64,
+      size: 12,
+      font: bold,
+      color: GRAY_TITLE,
+      maxWidth: 210,
+    });
+  } else {
+    drawText(page, idioma === 'en' ? 'QUOTATION' : 'COTIZACIÓN', {
+      x: 348.6,
+      top: 57.8,
+      size: 26,
+      font: bold,
+      color: GRAY_TITLE,
+      maxWidth: 200,
+    });
+  }
 
   // Tagline bajo el logo
-  drawText(page, `"${tagline}"`, {
+  drawText(page, `"${idioma === 'en' ? taglineEn : taglineEs}"`, {
     x: 40,
     top: 94,
     size: 9,
@@ -436,17 +476,27 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     color: MUTED,
     maxWidth: 280,
   });
+  if (idioma === 'es-en') {
+    drawText(page, `"${taglineEn}"`, {
+      x: 40,
+      top: 106,
+      size: 8,
+      font,
+      color: MUTED,
+      maxWidth: 280,
+    });
+  }
 
   // N° / Fecha (derecha, número corto estilo boceto)
   const numeroVisible = displayQuoteNumero(snapshot.numero);
-  drawRight(page, `${locale === 'en' ? 'No.' : 'N°'}: ${numeroVisible}`, {
+  drawRight(page, `${et('N°', 'No.')}: ${numeroVisible}`, {
     right: 536,
     top: 97,
     size: 12,
     font,
     maxWidth: 160,
   });
-  drawRight(page, `${locale === 'en' ? 'Date' : 'Fecha'}: ${fecha}`, {
+  drawRight(page, `${et('Fecha', 'Date')}: ${fecha}`, {
     right: 536,
     top: 115,
     size: 12,
@@ -454,131 +504,149 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     maxWidth: 160,
   });
 
-  // RECEPTOR — nombre, organización, teléfono, email
-  const leftColW = 300;
-  drawText(page, locale === 'en' ? 'RECIPIENT:' : 'RECEPTOR:', {
+  // CLIENTE — solo datos del cliente. Vacío o dato de I-ME se imprime como «—».
+  const leftColW = 310;
+  const clienteCampos: Array<[string, string]> = [
+    [et('Razón social', 'Company'), textoCliente(snapshot.empresa, 'razon')],
+    [et('NIT', 'Tax ID'), textoCliente(snapshot.nitCliente, 'nit')],
+    [et('Contacto', 'Contact'), textoCliente(snapshot.clienteNombre, 'texto')],
+    [et('Correo', 'Email'), textoCliente(snapshot.email, 'email')],
+    [et('Teléfono', 'Phone'), textoCliente(snapshot.telefono, 'telefono')],
+    [et('Dirección', 'Address'), textoCliente(snapshot.direccionCliente, 'texto')],
+    [et('Ciudad', 'City'), textoCliente(snapshot.ciudadCliente, 'texto')],
+    [et('País', 'Country'), textoCliente(snapshot.paisCliente, 'texto')],
+  ];
+  drawText(page, et('CLIENTE', 'CLIENT'), {
     x: 58.3,
     top: 142.8,
     size: 11,
     font: bold,
     color: BLUE,
   });
-  drawText(page, snapshot.clienteNombre || '—', {
-    x: 59.5,
-    top: 155.4,
-    size: 11,
-    font,
-    maxWidth: leftColW,
-  });
-  let ry = 172.7;
-  if (snapshot.empresa) {
-    drawText(page, snapshot.empresa, { x: 59.5, top: ry, size: 11, font, maxWidth: leftColW });
-    ry += 16;
-  }
-  if (snapshot.nitCliente) {
-    drawText(page, `Nit: ${snapshot.nitCliente}`, {
-      x: 59.5,
-      top: ry,
-      size: 11,
-      font,
-      maxWidth: leftColW,
-    });
-    ry += 16;
-  }
-  if (snapshot.telefono) {
-    drawText(page, `${locale === 'en' ? 'Phone' : 'Teléfono'}: ${snapshot.telefono}`, {
-      x: 59.5,
-      top: ry,
-      size: 11,
-      font,
-      maxWidth: leftColW,
-    });
-    ry += 16;
-  }
-  if (snapshot.email) {
-    const emailLabel = `${locale === 'en' ? 'Email' : 'Correo electrónico'}: `;
-    const emailLines = wrapByWidth(`${emailLabel}${snapshot.email}`, font, 11, leftColW).slice(
-      0,
-      2
-    );
-    for (const line of emailLines) {
-      drawText(page, line, { x: 59.5, top: ry, size: 11, font, maxWidth: leftColW });
-      ry += 15;
+  let ry = 156;
+  for (const [etiqueta, valor] of clienteCampos) {
+    const lineasCampo = wrapByWidth(`${etiqueta}: ${valor}`, font, 9, leftColW).slice(0, 2);
+    for (const linea of lineasCampo) {
+      drawText(page, linea, { x: 59.5, top: ry, size: 9, font, maxWidth: leftColW });
+      ry += 12;
     }
   }
 
-  // Condición / medio de pago (derecha) — anclado, no empuja tabla
-  drawText(page, locale === 'en' ? 'PAYMENT TERMS:' : 'CONDICION DE PAGO:', {
-    x: 385,
-    top: 155,
-    size: 11,
-    font: bold,
-    color: BLUE,
-    maxWidth: 175,
-  });
-  const condicion = snapshot.condicionPago?.trim() || (locale === 'en' ? 'Prepaid' : 'Contado');
-  const condicionLines = wrapByWidth(condicion, font, 11, 175).slice(0, 2);
+  // Condición / medio de pago (derecha). Los títulos bilingües bajan de línea, no se cortan.
+  const pagoX = 385;
+  const pagoW = 175;
+  const drawPagoTitulo = (texto: string, top: number): number => {
+    const lineas = (
+      texto.includes(' / ') ? texto.split(' / ') : wrapByWidth(texto, bold, 9, pagoW)
+    ).slice(0, 2);
+    lineas.forEach((linea, index) => {
+      drawText(page, linea, {
+        x: pagoX,
+        top: top + index * 11,
+        size: 9,
+        font: bold,
+        color: BLUE,
+      });
+    });
+    return top + Math.max(1, lineas.length) * 11;
+  };
+  let pagoY = drawPagoTitulo(et('CONDICION DE PAGO', 'PAYMENT TERMS'), 150);
+  const condicionEs = snapshot.condicionPago?.trim() || '';
+  const condicionEn = snapshot.condicionPagoEn?.trim() || '';
+  // El texto libre del usuario no se traduce. «Contado / Prepaid» solo si no escribió condición.
+  const condicion =
+    idioma === 'es-en'
+      ? condicionEs && condicionEn
+        ? `${condicionEs}\n${condicionEn}`
+        : condicionEs || condicionEn || 'Contado\nPrepaid'
+      : idioma === 'en'
+        ? condicionEn || condicionEs || 'Prepaid'
+        : condicionEs || 'Contado';
+  const condicionLines = condicion
+    .split('\n')
+    .flatMap(linea => wrapByWidth(linea, font, 9, pagoW))
+    .slice(0, 4);
   condicionLines.forEach((line, index) => {
     drawText(page, line, {
-      x: 385,
-      top: 170 + index * 14,
-      size: 11,
+      x: pagoX,
+      top: pagoY + 2 + index * 11,
+      size: 9,
       font,
-      maxWidth: 175,
     });
   });
-  const medioTop = condicionLines.length > 1 ? 170 + condicionLines.length * 14 + 8 : 194;
-  drawText(page, locale === 'en' ? 'PAYMENT METHOD:' : 'MEDIO  DE PAGO:', {
-    x: 385,
-    top: medioTop,
-    size: 11,
-    font: bold,
-    maxWidth: 175,
-  });
-  const bancoLines = banco.flatMap(line => wrapByWidth(line, font, 11, 175)).slice(0, 6);
-  let py = medioTop + 16;
+  pagoY = pagoY + 2 + condicionLines.length * 11 + 6;
+  const medioTop = drawPagoTitulo(et('MEDIO DE PAGO', 'PAYMENT METHOD'), pagoY);
+  const bancoVisible = banco.map(linea =>
+    linea.trim() === 'Transferencia bancaria:'
+      ? et('Transferencia bancaria:', 'Bank transfer:')
+      : linea
+  );
+  const bancoLines = bancoVisible
+    .flatMap(line => {
+      const partes = idioma === 'es-en' && line.includes(' / ') ? line.split(' / ') : [line];
+      return partes.flatMap(parte => wrapByWidth(parte, font, 9, pagoW));
+    })
+    .slice(0, 8);
+  let py = medioTop + 2;
   for (const line of bancoLines) {
-    drawText(page, line, { x: 385, top: py, size: 11, font, maxWidth: 175 });
-    py += 15;
+    drawText(page, line, { x: 385, top: py, size: 9, font, maxWidth: 175 });
+    py += 12;
   }
   const wompiUrl = snapshot.wompiUrl?.trim() ?? '';
-  if (wompiUrl.startsWith('https://')) {
-    const wompiLabel = locale === 'en' ? 'Pay with Wompi' : 'Pagar con Wompi';
+  if (wompiUrl.startsWith('https://') && snapshot.moneda === 'COP') {
+    const wompiLabel = et('Pagar con Wompi', 'Pay with Wompi');
     drawText(page, wompiLabel, {
       x: 385,
       top: py,
-      size: 11,
+      size: 10,
       font: bold,
       color: BLUE,
       maxWidth: 175,
     });
-    anotarEnlace(page, wompiLabel, wompiUrl, { x: 385, top: py, size: 11, font: bold });
-    py += 16;
+    anotarEnlace(page, wompiLabel, wompiUrl, { x: 385, top: py, size: 10, font: bold });
+    py += 14;
   }
 
-  // Bloque empresa I-ME (columna izquierda; no espera a MEDIO DE PAGO)
-  const companyTop = Math.max(ry + 12, 228);
-  drawText(page, 'INTERNATIONAL MEDICAL ENTERPRISE', {
+  // Emisor: razón social, NIT, teléfono, correo y web de I-ME. Nunca en el bloque del cliente.
+  const companyTop = ry + 10;
+  drawText(page, et('EMISOR', 'ISSUER'), {
     x: 59.5,
     top: companyTop,
     size: 10,
     font: bold,
     color: BLUE,
-    maxWidth: 310,
+    maxWidth: leftColW,
   });
-  drawText(page, 'Nit: 901871720', { x: 59.5, top: companyTop + 15, size: 10, font });
-  drawText(page, 'Medellín', { x: 59.5, top: companyTop + 30, size: 10, font });
-  let companyBottom = companyTop + 42;
-  if (snapshot.nombreComercial) {
-    drawText(page, `Asesor: ${snapshot.nombreComercial}`, {
+  const emisorLineas = [
+    IME_RAZON_SOCIAL,
+    `NIT: ${IME_NIT}`,
+    `${et('Teléfono', 'Phone')}: ${IME_WHATSAPP_DISPLAY}`,
+    `${et('Correo', 'Email')}: ${IME_EMAIL_PUBLICO}`,
+    `${et('Web', 'Web')}: ${IME_WEB}`,
+    'Medellín, Colombia',
+  ];
+  let companyBottom = companyTop + 14;
+  emisorLineas.forEach((linea, index) => {
+    drawText(page, linea, {
       x: 59.5,
-      top: companyTop + 45,
+      top: companyTop + 14 + index * 12,
+      size: 9,
+      font: index === 0 ? bold : font,
+      color: index === 0 ? BLUE : INK,
+      maxWidth: leftColW,
+    });
+    companyBottom = companyTop + 14 + index * 12 + 12;
+  });
+  if (snapshot.nombreComercial) {
+    drawText(page, `${et('Asesor', 'Advisor')}: ${snapshot.nombreComercial}`, {
+      x: 59.5,
+      top: companyBottom,
       size: 9,
       font,
       color: MUTED,
-      maxWidth: 310,
+      maxWidth: leftColW,
     });
-    companyBottom = companyTop + 58;
+    companyBottom += 12;
   }
 
   // ——— Tabla de líneas (paginada) + recuadro de precios ———
@@ -590,7 +658,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
   const tableRight = 568;
   const firstTableTop = Math.max(companyBottom + 16, py + 10, 270);
   const contTableTop = 60;
-  const headerH = 36;
+  const headerH = idioma === 'es-en' ? 46 : 36;
   // CANT más ancha: "50,000" / "50.000" (Poppins 11) no cabe en 26 px.
   const colXs = [tableLeft, 108, 208, 372, 462, tableRight];
   const unitRight = colXs[4]! - 8;
@@ -617,38 +685,63 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
       height: headerH,
       color: BLUE,
     });
-    const headerLabels =
-      locale === 'en'
+    const headerLabels: Array<[number, string, string]> =
+      idioma === 'en'
         ? [
-            [36, 'QTY'],
-            [116, 'REF'],
-            [219, 'DESCRIPTION'],
+            [36, 'QTY', ''],
+            [116, 'REF', ''],
+            [219, 'DESCRIPTION', ''],
           ]
-        : [
-            [36, 'CANT'],
-            [116, 'REF'],
-            [219, 'DESCRIPCION'],
-          ];
-    for (const [x, label] of headerLabels) {
-      drawText(p, String(label), {
+        : idioma === 'es-en'
+          ? [
+              [36, 'CANT', 'QTY'],
+              [116, 'REF', 'REF'],
+              [219, 'DESCRIPCION', 'DESCRIPTION'],
+            ]
+          : [
+              [36, 'CANT', ''],
+              [116, 'REF', ''],
+              [219, 'DESCRIPCION', ''],
+            ];
+    for (const [x, label, secundario] of headerLabels) {
+      drawText(p, label, {
         x: Number(x),
-        top: top + 12,
-        size: 11,
+        top: top + (secundario && secundario !== label ? 8 : 12),
+        size: secundario && secundario !== label ? 9 : 11,
         font: bold,
         color: WHITE,
       });
+      if (secundario && secundario !== label) {
+        drawText(p, secundario, {
+          x: Number(x),
+          top: top + 20,
+          size: 8,
+          font,
+          color: WHITE,
+        });
+      }
     }
-    drawRight(p, locale === 'en' ? 'UNIT' : 'PRECIO UNIT', {
+    drawRight(p, idioma === 'en' ? 'UNIT' : 'PRECIO UNIT', {
       right: unitRight,
-      top: top + 12,
-      size: 10,
+      top: top + (idioma === 'es-en' ? 8 : 12),
+      size: idioma === 'es-en' ? 8 : 10,
       font: bold,
       color: WHITE,
       maxWidth: 78,
     });
+    if (idioma === 'es-en') {
+      drawRight(p, 'UNIT PRICE', {
+        right: unitRight,
+        top: top + 20,
+        size: 7,
+        font,
+        color: WHITE,
+        maxWidth: 78,
+      });
+    }
     drawRight(p, 'TOTAL', {
       right: totalRight,
-      top: top + 12,
+      top: top + (idioma === 'es-en' ? 8 : 12),
       size: 11,
       font: bold,
       color: WHITE,
@@ -680,11 +773,20 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
   };
 
   const filas = snapshot.lineas.map(item => {
-    const descLines = wrapByWidth(item.nombre || item.slug || 'Producto', font, 10, descMaxW).slice(
-      0,
-      3
-    );
-    const resumenLineas = lineasDeResumen(item.notas)
+    const nombreEs = item.nombre || item.slug || (idioma === 'en' ? 'Product' : 'Producto');
+    const nombreEn = item.nombre_en?.trim() ?? '';
+    const partesNombre = [nombreEs];
+    if (idioma === 'es-en' && nombreEn && nombreEn.toLowerCase() !== nombreEs.toLowerCase()) {
+      partesNombre.push(nombreEn);
+    }
+    const descLines = partesNombre
+      .flatMap(parte => wrapByWidth(parte, font, 10, descMaxW).slice(0, 3))
+      .slice(0, 5);
+    const notasEn =
+      idioma === 'es-en' && item.notas_en?.trim() && item.notas_en.trim() !== (item.notas ?? '').trim()
+        ? lineasDeResumen(item.notas_en)
+        : [];
+    const resumenLineas = [...lineasDeResumen(item.notas), ...notasEn]
       .flatMap(linea => wrapByWidth(`• ${linea}`, font, 8, descMaxW).slice(0, 2))
       .slice(0, RESUMEN_MAX_LINEAS);
     const contentH =
@@ -697,7 +799,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
 
   const drawRow = (p: PDFPage, fila: (typeof filas)[number], rowTop: number): void => {
     const { item, descLines, resumenLineas } = fila;
-    const cant = formatCantidad(Number(item.cantidad) || 0, locale);
+    const cant = formatCantidad(Number(item.cantidad) || 0, localeNumero);
     const ref = fitOneLine(item.slug || item.nombre || '—', font, 10, refMaxW);
     const pendiente = Boolean(item.precio_pendiente_validar);
     const textTop = rowTop + (descLines.length > 1 ? 10 : 14);
@@ -731,13 +833,13 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
         maxWidth: descMaxW,
       });
     });
-    const pendLabel = locale === 'en' ? 'Pending' : 'Pendiente';
+    const pendLabel = et('Pendiente', 'Pending');
     drawRight(
       p,
-      pendiente ? pendLabel : moneyPlain(item.precio_unitario, snapshot.moneda, locale),
+      pendiente ? pendLabel : moneyPlain(item.precio_unitario, snapshot.moneda, localeNumero),
       { right: unitRight, top: textTop, size: pendiente ? 9 : 10, font, maxWidth: 74 }
     );
-    drawRight(p, pendiente ? pendLabel : moneyPlain(item.subtotal, snapshot.moneda, locale), {
+    drawRight(p, pendiente ? pendLabel : moneyPlain(item.subtotal, snapshot.moneda, localeNumero), {
       right: totalRight,
       top: textTop,
       size: pendiente ? 9 : 10,
@@ -749,9 +851,11 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
   const drawContinuationTitle = (p: PDFPage): void => {
     drawText(
       p,
-      locale === 'en'
+      idioma === 'en'
         ? `Quotation No. ${numeroVisible} (continued)`
-        : `Cotización N° ${numeroVisible} (continuación)`,
+        : idioma === 'es-en'
+          ? `Cotización / Quotation N° ${numeroVisible}`
+          : `Cotización N° ${numeroVisible} (continuación)`,
       { x: tableLeft, top: 32, size: 11, font: bold, color: BLUE, maxWidth: 500 }
     );
   };
@@ -845,20 +949,20 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     emphasize?: boolean;
   }> = [
     {
-      label: locale === 'en' ? 'GROSS TOTAL' : 'TOTAL BRUTO',
-      value: moneyPlain(subtotal, snapshot.moneda, locale),
+      label: et('TOTAL BRUTO', 'GROSS TOTAL'),
+      value: moneyPlain(subtotal, snapshot.moneda, localeNumero),
     },
     {
       label: 'SUBTOTAL',
-      value: moneyPlain(subtotal, snapshot.moneda, locale),
+      value: moneyPlain(subtotal, snapshot.moneda, localeNumero),
     },
     {
       label: etiquetaIva,
-      value: moneyPlain(iva, snapshot.moneda, locale),
+      value: moneyPlain(iva, snapshot.moneda, localeNumero),
     },
     {
-      label: locale === 'en' ? 'TOTAL DUE' : 'TOTAL A PAGAR',
-      value: moneyCash(totalPagar, snapshot.moneda, locale),
+      label: et('TOTAL A PAGAR', 'TOTAL DUE'),
+      value: moneyCash(totalPagar, snapshot.moneda, localeNumero),
       emphasize: true,
     },
   ];
@@ -882,14 +986,33 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
       });
     }
     const textTop = rowTop + 7;
-    drawText(page, row.label, {
-      x: boxLeft + boxPadX,
-      top: textTop,
-      size: 10,
-      font: bold,
-      color: row.emphasize ? BLUE : INK,
-      maxWidth: 120,
-    });
+    const partes =
+      idioma === 'es-en' && row.label.includes(' / ') ? row.label.split(' / ') : [row.label];
+    if (partes.length > 1) {
+      drawText(page, partes[0] ?? '', {
+        x: boxLeft + boxPadX,
+        top: textTop - 2,
+        size: 8,
+        font: bold,
+        color: row.emphasize ? BLUE : INK,
+      });
+      drawText(page, partes[1] ?? '', {
+        x: boxLeft + boxPadX,
+        top: textTop + 8,
+        size: 7,
+        font,
+        color: row.emphasize ? BLUE : INK,
+      });
+    } else {
+      drawText(page, row.label, {
+        x: boxLeft + boxPadX,
+        top: textTop,
+        size: 10,
+        font: bold,
+        color: row.emphasize ? BLUE : INK,
+        maxWidth: 120,
+      });
+    }
     drawRight(page, row.value, {
       right: boxRight - boxPadX,
       top: textTop,
@@ -906,23 +1029,27 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
         return m ? `${m[3]}/${m[2]}/${m[1]}` : snapshot.validezHasta;
       })()
     : null;
-  drawText(page, locale === 'en' ? 'NOTES' : 'NOTAS', {
+  drawText(page, et('NOTAS', 'NOTES'), {
     x: tableLeft,
     top: totalsTop + 4,
     size: 11,
     font: bold,
   });
-  let note = validezLabel
-    ? locale === 'en'
-      ? `Valid until ${validezLabel}. After this date prices and lead times may change.`
-      : `Válida hasta el ${validezLabel}. Posterior a esta fecha, los precios y tiempos de entrega podrán estar sujetos a revisión según condiciones de mercado.`
+  const notaValidezEs = validezLabel
+    ? `Válida hasta el ${validezLabel}. Posterior a esta fecha, los precios y tiempos de entrega podrán estar sujetos a revisión según condiciones de mercado.`
     : snapshot.condiciones.slice(0, 280) ||
-      (locale === 'en'
-        ? 'Prices subject to change according to market conditions.'
-        : 'Precios sujetos a revisión según condiciones de mercado.');
+      'Precios sujetos a revisión según condiciones de mercado.';
+  const notaValidezEn = validezLabel
+    ? `Valid until ${validezLabel}. After this date prices and lead times may change.`
+    : 'Prices subject to change according to market conditions.';
+  let note =
+    idioma === 'en' ? notaValidezEn : idioma === 'es-en' ? `${notaValidezEs} ${notaValidezEn}` : notaValidezEs;
   if (snapshot.moneda === 'USD') {
-    const usdNote = notaImportesUsd(locale);
-    if (!note.includes(usdNote)) note = `${note} ${usdNote}`;
+    const notasUsd =
+      idioma === 'es-en'
+        ? `${notaImportesUsd('es')} ${notaImportesUsd('en')}`
+        : notaImportesUsd(idioma === 'en' ? 'en' : 'es');
+    if (!note.includes(notaImportesUsd(idioma === 'en' ? 'en' : 'es'))) note = `${note} ${notasUsd}`;
   }
   drawJustifiedParagraph(page, note, {
     x: tableLeft,
@@ -940,23 +1067,69 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
   // ——— Página consideraciones (boceto IPS p.2) ———
   page = doc.addPage([PAGE_W, PAGE_H]);
   page.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: WHITE });
-  drawCentered(page, locale === 'en' ? 'Offer considerations' : 'Consideraciones de la oferta', {
-    top: 56,
-    size: 14,
-    font: bold,
-    color: BLUE,
-    maxWidth: 480,
-  });
-  let cy = 88;
-  const terms = resolveCondicionesOferta(
-    aplicarNotaImportesUsd(snapshot.condiciones, snapshot.moneda, locale),
-    locale
+  drawCentered(
+    page,
+    idioma === 'es-en'
+      ? 'Consideraciones de la oferta / Offer considerations'
+      : idioma === 'en'
+        ? 'Offer considerations'
+        : 'Consideraciones de la oferta',
+    {
+      top: 56,
+      size: idioma === 'es-en' ? 12 : 14,
+      font: bold,
+      color: BLUE,
+      maxWidth: 500,
+    }
   );
-  const termBlocks = terms
-    .replace(/\r\n/g, '\n')
-    .split(/\n+/)
-    .map(s => s.trim())
-    .filter(Boolean);
+  let cy = 88;
+  const partirBloques = (texto: string) =>
+    texto
+      .replace(/\r\n/g, '\n')
+      .split(/\n+/)
+      .map(s => s.trim())
+      .filter(Boolean);
+  const terminosEs = partirBloques(
+    resolveCondicionesOferta(
+      aplicarNotaImportesUsd(snapshot.condiciones, snapshot.moneda, 'es'),
+      'es'
+    )
+  ).map(texto => ({ texto, headingLocale: 'es' as const }));
+  const terminosEnLibre = snapshot.condicionesEn?.trim()
+    ? partirBloques(aplicarNotaImportesUsd(snapshot.condicionesEn, snapshot.moneda, 'en')).map(
+        texto => ({ texto, headingLocale: 'en' as const })
+      )
+    : [];
+  const termBlocks =
+    idioma === 'en'
+      ? partirBloques(
+          resolveCondicionesOferta(
+            aplicarNotaImportesUsd(
+              snapshot.condicionesEn?.trim() || snapshot.condiciones,
+              snapshot.moneda,
+              'en'
+            ),
+            'en'
+          )
+        ).map(texto => ({ texto, headingLocale: 'en' as const }))
+      : idioma === 'es-en'
+        ? [
+            ...terminosEs,
+            ...terminosEnLibre,
+            ...(terminosEnLibre.length === 0 &&
+            !String(snapshot.condiciones ?? '').trim() &&
+            snapshot.moneda === 'USD'
+              ? [{ texto: notaImportesUsd('en'), headingLocale: 'en' as const }]
+              : []),
+            ...(terminosEnLibre.length > 0 || String(snapshot.condiciones ?? '').trim()
+              ? snapshot.moneda === 'USD' &&
+                !terminosEs.some(b => b.texto.includes(notaImportesUsd('en'))) &&
+                !terminosEnLibre.some(b => b.texto.includes(notaImportesUsd('en')))
+                ? [{ texto: notaImportesUsd('en'), headingLocale: 'en' as const }]
+                : []
+              : []),
+          ]
+        : terminosEs;
   const ensureCondPage = () => {
     if (cy <= 750) return;
     drawFooterBar(page, font, whatsappIcon);
@@ -964,14 +1137,19 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     page.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: WHITE });
     drawCentered(
       page,
-      locale === 'en' ? 'Offer considerations (cont.)' : 'Consideraciones de la oferta (cont.)',
-      { top: 56, size: 13, font: bold, color: BLUE, maxWidth: 480 }
+      idioma === 'en'
+        ? 'Offer considerations (cont.)'
+        : idioma === 'es-en'
+          ? 'Consideraciones de la oferta / Offer considerations (cont.)'
+          : 'Consideraciones de la oferta (cont.)',
+      { top: 56, size: 12, font: bold, color: BLUE, maxWidth: 500 }
     );
     cy = 88;
   };
-  for (const block of termBlocks) {
+  for (const bloque of termBlocks) {
+    const block = bloque.texto;
     ensureCondPage();
-    if (isCondicionesSectionHeading(block, locale)) {
+    if (isCondicionesSectionHeading(block, bloque.headingLocale)) {
       cy += cy > 88 ? 10 : 0;
       ensureCondPage();
       drawText(page, block, {
@@ -1066,7 +1244,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
         page.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: WHITE });
         ay = 50;
       }
-      drawText(page, locale === 'en' ? 'Smart features:' : 'Características Inteligentes:', {
+      drawText(page, et('Características Inteligentes:', 'Smart features:'), {
         x: 47,
         top: ay,
         size: 12,
