@@ -55,6 +55,45 @@ async function soltarReclamo(supabase: SupabaseClient, token: string): Promise<b
   return !released.error;
 }
 
+/** Outbound reply row for this turn (unique to_wa+kind+turn_key). */
+async function outboundReplyForTurn(
+  supabase: SupabaseClient,
+  fromWa: string,
+  turnKey: string
+): Promise<{ error: true } | { error: false; row: { id: string; send_status: string } | null }> {
+  const prior = await supabase
+    .from('whatsapp_outbound_messages')
+    .select('id, send_status')
+    .eq('to_wa', fromWa)
+    .eq('turn_key', turnKey)
+    .eq('kind', 'reply')
+    .maybeSingle();
+  if (prior.error) return { error: true };
+  const row = prior.data as { id: string; send_status: string } | null;
+  return { error: false, row };
+}
+
+/**
+ * If Graph already accepted this turn's reply but the inbound close failed,
+ * close the claimed batch as replied. Newer pending rows (other tokens) stay open.
+ */
+async function cerrarLoteSiReplyYaEnviado(
+  supabase: SupabaseClient,
+  token: string,
+  fromWa: string,
+  turnKey: string
+): Promise<WhatsAppReplyResult | null> {
+  const prior = await outboundReplyForTurn(supabase, fromWa, turnKey);
+  if (prior.error) return { ok: false, status: 503 };
+  if (prior.row?.send_status !== 'sent') return null;
+  const closed = await supabase
+    .from('whatsapp_inbound_events')
+    .update({ status: 'replied', retry_count: 0, last_error: null })
+    .eq('agent_claim_token', token)
+    .eq('status', 'pending_agent');
+  return { ok: !closed.error, status: closed.error ? 503 : 200 };
+}
+
 async function descartarReservaPendiente(
   supabase: SupabaseClient,
   reservationId: string
@@ -97,6 +136,15 @@ export async function replyToWhatsAppBatch(
   const antes = await hayPendingMasNuevo(supabase, latest.from_wa, newest);
   if (antes === null) return { ok: false, status: 503 };
   if (antes) {
+    // Send may have already succeeded while close failed; do not release that
+    // batch back to pending or a later claim will Graph-send again under a new turn_key.
+    const recovered = await cerrarLoteSiReplyYaEnviado(
+      supabase,
+      token,
+      latest.from_wa,
+      latest.wamid
+    );
+    if (recovered) return recovered;
     const released = await soltarReclamo(supabase, token);
     if (!released) return { ok: false, status: 503 };
     return { ok: false, status: 409, error: 'new_messages' };
@@ -118,27 +166,20 @@ export async function replyToWhatsAppBatch(
     .select('id')
     .single();
   if (reservation.error?.code === '23505') {
-    const prior = await supabase
-      .from('whatsapp_outbound_messages')
-      .select('id, send_status')
-      .eq('to_wa', latest.from_wa)
-      .eq('turn_key', latest.wamid)
-      .eq('kind', 'reply')
-      .maybeSingle();
+    const recovered = await cerrarLoteSiReplyYaEnviado(
+      supabase,
+      token,
+      latest.from_wa,
+      latest.wamid
+    );
+    if (recovered) return recovered;
+    const prior = await outboundReplyForTurn(supabase, latest.from_wa, latest.wamid);
     if (prior.error) return { ok: false, status: 503 };
-    if (prior.data?.send_status === 'sent') {
-      const closed = await supabase
-        .from('whatsapp_inbound_events')
-        .update({ status: 'replied', retry_count: 0, last_error: null })
-        .eq('agent_claim_token', token)
-        .eq('status', 'pending_agent');
-      return { ok: !closed.error, status: closed.error ? 503 : 200 };
-    }
-    if (prior.data?.send_status !== 'failed') return { ok: false, status: 409 };
+    if (prior.row?.send_status !== 'failed') return { ok: false, status: 409 };
     reservation = await supabase
       .from('whatsapp_outbound_messages')
       .update({ send_status: 'pending', body })
-      .eq('id', prior.data.id)
+      .eq('id', prior.row.id)
       .eq('send_status', 'failed')
       .select('id')
       .single();

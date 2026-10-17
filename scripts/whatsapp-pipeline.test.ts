@@ -497,6 +497,43 @@ describe('WhatsApp pipeline with mocked DB and HTTP (no real sends)', () => {
       agent_claim_token: null,
     });
   });
+  it('closes a Graph-sent batch when newer pending would otherwise release it', async () => {
+    // Regression: send OK + close fail left inbound pending; a newer message then
+    // hit new_messages → soltarReclamo without sent-recovery → second Graph send.
+    const db = database();
+    const claimedAt = String(db.rows.whatsapp_inbound_events![0]!.created_at);
+    db.rows.whatsapp_outbound_messages!.push({
+      id: 'prior-sent',
+      to_wa: 'CO.TestBsuid42',
+      kind: 'reply',
+      turn_key: 'test.turn',
+      send_status: 'sent',
+    });
+    db.rows.whatsapp_inbound_events!.push({
+      ...db.rows.whatsapp_inbound_events![0],
+      wamid: 'newer.turn',
+      body: 'otra pregunta',
+      created_at: new Date(Date.parse(claimedAt) + 5_000).toISOString(),
+      agent_claim_token: null,
+      agent_claimed_at: null,
+      status: 'pending_agent',
+    });
+    const fetchImpl = vi.fn<typeof fetch>();
+    expect(
+      await replyToWhatsAppBatch(db.client, graph, 'test.token', 'Respuesta', fetchImpl)
+    ).toEqual({ ok: true, status: 200 });
+    expect(fetchImpl).not.toHaveBeenCalled();
+    expect(db.rows.whatsapp_inbound_events![0]).toMatchObject({
+      wamid: 'test.turn',
+      status: 'replied',
+      agent_claim_token: 'test.token',
+    });
+    expect(db.rows.whatsapp_inbound_events![1]).toMatchObject({
+      wamid: 'newer.turn',
+      status: 'pending_agent',
+      agent_claim_token: null,
+    });
+  });
   it('still sends when the only newer pending row belongs to another contact', async () => {
     const db = database();
     const claimedAt = String(db.rows.whatsapp_inbound_events![0]!.created_at);
