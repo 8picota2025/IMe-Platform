@@ -1,0 +1,38 @@
+{
+  "fabricante": "Mindray",
+  "generado": "2026-10-17T21:39:02.378Z",
+  "total": 2,
+  "con_ficha": 0,
+  "sin_ficha": 2,
+  "imgs_ge_3": 2,
+  "productos": [
+    {
+      "id": "7519e9b7-661b-4ed4-8fca-256020a6dcc1",
+      "slug": "analizador-hematologico-automatico-mindray-ref-bc-10-mindray",
+      "nombre": "Analizador hematológico automático Mindray BC-10",
+      "fabricante": "Mindray",
+      "categoria": "diagnostico-clinico-basico",
+      "tiene_precio": false,
+      "precio": null,
+      "tiene_ficha": false,
+      "ficha_pdf": "/assets/productos/hematologia/mindray-bc-10/ficha-tecnica.pdf",
+      "imagenes": 4,
+      "estado": "documentado",
+      "actualizado": "2026-10-17"
+    },
+    {
+      "id": "d1269a6d-ba2a-4617-9bdd-61e4ac4ce2ba",
+      "slug": "analizador-hematologico-automatico-mindray-ref-bc-30s-mindray",
+      "nombre": "Analizador hematológico automático Mindray BC-30s",
+      "fabricante": "Mindray",
+      "categoria": "diagnostico-clinico-basico",
+      "tiene_precio": false,
+      "precio": null,
+      "tiene_ficha": false,
+      "ficha_pdf": "/assets/productos/hematologia/mindray-bc-30s/ficha-tecnica.pdf",
+      "imagenes": 4,
+      "estado": "documentado",
+      "actualizado": "2026-10-17"
+    }
+  ]
+}

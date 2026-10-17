@@ -1,0 +1,66 @@
+{
+  "fabricante": "Ilumitec",
+  "generado": "2026-10-17T21:39:02.378Z",
+  "total": 4,
+  "con_ficha": 0,
+  "sin_ficha": 4,
+  "imgs_ge_3": 0,
+  "productos": [
+    {
+      "id": "07744b15-ea76-4a89-998d-643db572ed75",
+      "slug": "lampara-rodable-ref-led-rx18-ilumitec",
+      "nombre": "Lámpara Rodable LED-RX18",
+      "fabricante": "Ilumitec",
+      "categoria": "sala-cirugia",
+      "tiene_precio": false,
+      "precio": null,
+      "tiene_ficha": false,
+      "ficha_pdf": null,
+      "imagenes": 2,
+      "estado": "inventariado",
+      "actualizado": "2026-10-17"
+    },
+    {
+      "id": "8ced91cd-f340-4ef5-886f-f7c8c3b81a13",
+      "slug": "lampara-rodable-ref-led-rx18-100k-ilumitec",
+      "nombre": "Lámpara Rodable LED-RX18 100K",
+      "fabricante": "Ilumitec",
+      "categoria": "sala-cirugia",
+      "tiene_precio": false,
+      "precio": null,
+      "tiene_ficha": false,
+      "ficha_pdf": null,
+      "imagenes": 2,
+      "estado": "inventariado",
+      "actualizado": "2026-10-17"
+    },
+    {
+      "id": "4b054412-8127-46be-af9c-b616ea5f29e5",
+      "slug": "lampara-rodable-ref-led-rx36-ilumitec",
+      "nombre": "Lámpara Rodable LED-RX36",
+      "fabricante": "Ilumitec",
+      "categoria": "sala-cirugia",
+      "tiene_precio": false,
+      "precio": null,
+      "tiene_ficha": false,
+      "ficha_pdf": null,
+      "imagenes": 2,
+      "estado": "inventariado",
+      "actualizado": "2026-10-17"
+    },
+    {
+      "id": "a5881ac2-595f-462b-8d5b-c4d51fd8869d",
+      "slug": "lampara-rodable-ref-led-rx36-160k-ilumitec",
+      "nombre": "Lámpara Rodable LED-RX36-160K",
+      "fabricante": "Ilumitec",
+      "categoria": "sala-cirugia",
+      "tiene_precio": false,
+      "precio": null,
+      "tiene_ficha": false,
+      "ficha_pdf": null,
+      "imagenes": 2,
+      "estado": "inventariado",
+      "actualizado": "2026-10-17"
+    }
+  ]
+}

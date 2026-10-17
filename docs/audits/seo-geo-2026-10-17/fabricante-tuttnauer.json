@@ -1,0 +1,24 @@
+{
+  "fabricante": "Tuttnauer",
+  "generado": "2026-10-17T21:39:02.378Z",
+  "total": 1,
+  "con_ficha": 0,
+  "sin_ficha": 1,
+  "imgs_ge_3": 1,
+  "productos": [
+    {
+      "id": "bc7bd033-1ecb-4b27-8a16-f556dd11fe36",
+      "slug": "autoclave-ref-t-max-6-tuttnauer",
+      "nombre": "Autoclave T-Max 6",
+      "fabricante": "Tuttnauer",
+      "categoria": "esterilizacion-control-infecciones",
+      "tiene_precio": false,
+      "precio": null,
+      "tiene_ficha": false,
+      "ficha_pdf": "/assets/productos/importados/t-max-6/ficha-t-max-6-en.pdf",
+      "imagenes": 3,
+      "estado": "documentado",
+      "actualizado": "2026-10-17"
+    }
+  ]
+}

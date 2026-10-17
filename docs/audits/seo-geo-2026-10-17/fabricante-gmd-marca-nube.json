@@ -1,0 +1,38 @@
+{
+  "fabricante": "GMD (marca Nube)",
+  "generado": "2026-10-17T21:39:02.378Z",
+  "total": 2,
+  "con_ficha": 2,
+  "sin_ficha": 0,
+  "imgs_ge_3": 2,
+  "productos": [
+    {
+      "id": "ca5ca260-49d3-44b6-ae5a-8ca2c740ed09",
+      "slug": "compresor-nebulizador-nube-5000-ref-gmrn846",
+      "nombre": "Compresor Nebulizador Nube 5000",
+      "fabricante": "GMD (marca Nube)",
+      "categoria": "terapia-respiratoria-soporte-vital",
+      "tiene_precio": false,
+      "precio": null,
+      "tiene_ficha": true,
+      "ficha_pdf": "/assets/productos/fichas/gmd-nube/gmrn846-ft.pdf",
+      "imagenes": 7,
+      "estado": "documentado",
+      "actualizado": "2026-10-17"
+    },
+    {
+      "id": "def1a4d8-ad67-4812-9c6e-f42d37e8a66b",
+      "slug": "compresor-nebulizador-nube-1000-con-diseno-de-pez-payaso-ref-gmrn457-183",
+      "nombre": "Compresor Nebulizador Nube 1000 Con Diseño De Pez Payaso",
+      "fabricante": "GMD (marca Nube)",
+      "categoria": "terapia-respiratoria-soporte-vital",
+      "tiene_precio": false,
+      "precio": null,
+      "tiene_ficha": true,
+      "ficha_pdf": "/assets/productos/fichas/gmd-nube/gmrn457-183-ft.pdf",
+      "imagenes": 6,
+      "estado": "documentado",
+      "actualizado": "2026-10-17"
+    }
+  ]
+}

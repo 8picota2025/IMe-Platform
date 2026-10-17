@@ -1,0 +1,24 @@
+{
+  "fabricante": "GMD (marca Carditek)",
+  "generado": "2026-10-17T21:39:02.378Z",
+  "total": 1,
+  "con_ficha": 1,
+  "sin_ficha": 0,
+  "imgs_ge_3": 0,
+  "productos": [
+    {
+      "id": "679455c8-a6c9-4f2e-a599-2b0a10e44579",
+      "slug": "tensiometro-digital-carditek-power-ref-cdk-bpm-65b",
+      "nombre": "Tensiómetro Digital Carditek Power",
+      "fabricante": "GMD (marca Carditek)",
+      "categoria": "diagnostico-clinico-basico",
+      "tiene_precio": false,
+      "precio": null,
+      "tiene_ficha": true,
+      "ficha_pdf": "/assets/productos/fichas/gmd-carditek/cdk-bpm-65b-ft.pdf",
+      "imagenes": 2,
+      "estado": "documentado",
+      "actualizado": "2026-10-17"
+    }
+  ]
+}

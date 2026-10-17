@@ -1,0 +1,140 @@
+{
+  "generado": "2026-10-17T21:39:02.378Z",
+  "totales": {
+    "activos": 631,
+    "con_precio": 89,
+    "sin_precio": 542,
+    "sin_precio_con_ficha": 99,
+    "sin_precio_imgs_deficit": 380,
+    "fichas_manifest": 200,
+    "fabricantes_sin_precio": 21
+  },
+  "fabricantes": {
+    "Saikang Medical": {
+      "total": 287,
+      "con_ficha": 26,
+      "sin_ficha": 261,
+      "imgs_ge_3": 26
+    },
+    "(sin marca)": {
+      "total": 153,
+      "con_ficha": 0,
+      "sin_ficha": 153,
+      "imgs_ge_3": 61
+    },
+    "GMD (marca Konfort Plus)": {
+      "total": 41,
+      "con_ficha": 41,
+      "sin_ficha": 0,
+      "imgs_ge_3": 27
+    },
+    "Advanced Instrumentations": {
+      "total": 27,
+      "con_ficha": 27,
+      "sin_ficha": 0,
+      "imgs_ge_3": 24
+    },
+    "PadBot": {
+      "total": 6,
+      "con_ficha": 0,
+      "sin_ficha": 6,
+      "imgs_ge_3": 6
+    },
+    "Angell Technology": {
+      "total": 5,
+      "con_ficha": 0,
+      "sin_ficha": 5,
+      "imgs_ge_3": 1
+    },
+    "Ilumitec": {
+      "total": 4,
+      "con_ficha": 0,
+      "sin_ficha": 4,
+      "imgs_ge_3": 0
+    },
+    "BIOBASE": {
+      "total": 3,
+      "con_ficha": 0,
+      "sin_ficha": 3,
+      "imgs_ge_3": 3
+    },
+    "Biolight": {
+      "total": 2,
+      "con_ficha": 0,
+      "sin_ficha": 2,
+      "imgs_ge_3": 2
+    },
+    "GMD (marca Nube)": {
+      "total": 2,
+      "con_ficha": 2,
+      "sin_ficha": 0,
+      "imgs_ge_3": 2
+    },
+    "Mindray": {
+      "total": 2,
+      "con_ficha": 0,
+      "sin_ficha": 2,
+      "imgs_ge_3": 2
+    },
+    "Autoclave 5075": {
+      "total": 1,
+      "con_ficha": 0,
+      "sin_ficha": 1,
+      "imgs_ge_3": 0
+    },
+    "Tuttnauer": {
+      "total": 1,
+      "con_ficha": 0,
+      "sin_ficha": 1,
+      "imgs_ge_3": 1
+    },
+    "Air Liquide": {
+      "total": 1,
+      "con_ficha": 0,
+      "sin_ficha": 1,
+      "imgs_ge_3": 1
+    },
+    "GMD (marca Carditek)": {
+      "total": 1,
+      "con_ficha": 1,
+      "sin_ficha": 0,
+      "imgs_ge_3": 0
+    },
+    "GMD (marca GMR)": {
+      "total": 1,
+      "con_ficha": 1,
+      "sin_ficha": 0,
+      "imgs_ge_3": 1
+    },
+    "GMD (marca Latidos)": {
+      "total": 1,
+      "con_ficha": 1,
+      "sin_ficha": 0,
+      "imgs_ge_3": 1
+    },
+    "C3": {
+      "total": 1,
+      "con_ficha": 0,
+      "sin_ficha": 1,
+      "imgs_ge_3": 1
+    },
+    "AHuman Future": {
+      "total": 1,
+      "con_ficha": 0,
+      "sin_ficha": 1,
+      "imgs_ge_3": 1
+    },
+    "Rayto": {
+      "total": 1,
+      "con_ficha": 0,
+      "sin_ficha": 1,
+      "imgs_ge_3": 1
+    },
+    "SUNNYMED": {
+      "total": 1,
+      "con_ficha": 0,
+      "sin_ficha": 1,
+      "imgs_ge_3": 1
+    }
+  }
+}

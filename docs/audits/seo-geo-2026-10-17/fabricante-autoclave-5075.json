@@ -1,0 +1,24 @@
+{
+  "fabricante": "Autoclave 5075",
+  "generado": "2026-10-17T21:39:02.378Z",
+  "total": 1,
+  "con_ficha": 0,
+  "sin_ficha": 1,
+  "imgs_ge_3": 0,
+  "productos": [
+    {
+      "id": "fc6d02da-6eac-4331-80da-207320b90ef5",
+      "slug": "autoclave-horizontal-ref-5075-tuttnauer",
+      "nombre": "Autoclave Horizontal 5075",
+      "fabricante": "Autoclave 5075",
+      "categoria": "esterilizacion-control-infecciones",
+      "tiene_precio": false,
+      "precio": null,
+      "tiene_ficha": false,
+      "ficha_pdf": "ficha_Autoclave_Horizontal_5075_EN.pdf",
+      "imagenes": 2,
+      "estado": "documentado",
+      "actualizado": "2026-10-17"
+    }
+  ]
+}

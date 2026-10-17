@@ -1,0 +1,52 @@
+{
+  "fabricante": "BIOBASE",
+  "generado": "2026-10-17T21:39:02.378Z",
+  "total": 3,
+  "con_ficha": 0,
+  "sin_ficha": 3,
+  "imgs_ge_3": 3,
+  "productos": [
+    {
+      "id": "08b935d0-17e9-4589-b665-af56b3665cc8",
+      "slug": "analizador-bioquimico-semiautomatico-biobase-claire",
+      "nombre": "Analizador bioquímico semiautomático BIOBASE-Claire",
+      "fabricante": "BIOBASE",
+      "categoria": "diagnostico-clinico-basico",
+      "tiene_precio": false,
+      "precio": null,
+      "tiene_ficha": false,
+      "ficha_pdf": "/assets/productos/bioquimica/biobase-claire/ficha-tecnica.pdf",
+      "imagenes": 3,
+      "estado": "documentado",
+      "actualizado": "2026-10-17"
+    },
+    {
+      "id": "18f5314a-b532-4b03-a847-b229bc94a779",
+      "slug": "analizador-bioquimico-semiautomatico-biobase-silver",
+      "nombre": "Analizador bioquímico semiautomático BIOBASE-Silver",
+      "fabricante": "BIOBASE",
+      "categoria": "diagnostico-clinico-basico",
+      "tiene_precio": false,
+      "precio": null,
+      "tiene_ficha": false,
+      "ficha_pdf": "/assets/productos/bioquimica/biobase-silver/ficha-tecnica.pdf",
+      "imagenes": 3,
+      "estado": "documentado",
+      "actualizado": "2026-10-17"
+    },
+    {
+      "id": "e3c6b8a1-34f9-4e9b-96e2-937ad3ce3386",
+      "slug": "analizador-bioquimico-semiautomatico-biobase-silver-plus",
+      "nombre": "Analizador bioquímico semiautomático BIOBASE-Silver Plus",
+      "fabricante": "BIOBASE",
+      "categoria": "diagnostico-clinico-basico",
+      "tiene_precio": false,
+      "precio": null,
+      "tiene_ficha": false,
+      "ficha_pdf": "/assets/productos/bioquimica/biobase-silver-plus/ficha-tecnica.pdf",
+      "imagenes": 3,
+      "estado": "documentado",
+      "actualizado": "2026-10-17"
+    }
+  ]
+}

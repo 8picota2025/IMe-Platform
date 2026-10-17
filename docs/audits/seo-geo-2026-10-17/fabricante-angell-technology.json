@@ -1,0 +1,80 @@
+{
+  "fabricante": "Angell Technology",
+  "generado": "2026-10-17T21:39:02.378Z",
+  "total": 5,
+  "con_ficha": 0,
+  "sin_ficha": 5,
+  "imgs_ge_3": 1,
+  "productos": [
+    {
+      "id": "4b61d185-a3cd-4126-b26a-467c241271d7",
+      "slug": "mamografo-digital-dm156-series-angell-technology-ref-dm156-angell",
+      "nombre": "Mamógrafo Digital DM156 Series",
+      "fabricante": "Angell Technology",
+      "categoria": "radiologia",
+      "tiene_precio": false,
+      "precio": null,
+      "tiene_ficha": false,
+      "ficha_pdf": "/assets/productos/importados/dm156/datasheet-01.pdf",
+      "imagenes": 2,
+      "estado": "documentado",
+      "actualizado": "2026-10-17"
+    },
+    {
+      "id": "37c8ebe5-7cba-4ad9-85aa-7167ee825684",
+      "slug": "mamografo-digital-dm166-series-ref-dm166-angell",
+      "nombre": "Mamógrafo digital DM166 Series Angell con tomosíntesis 3D y CESM",
+      "fabricante": "Angell Technology",
+      "categoria": "radiologia",
+      "tiene_precio": false,
+      "precio": null,
+      "tiene_ficha": false,
+      "ficha_pdf": "/assets/productos/radiologia/dm166-angell-datasheet.pdf",
+      "imagenes": 2,
+      "estado": "documentado",
+      "actualizado": "2026-10-17"
+    },
+    {
+      "id": "0016c354-917d-4bf5-980f-15463b0fbb3b",
+      "slug": "sistema-radiografico-3d-wr-3d-angell-technology-ref-wr-3d-angell",
+      "nombre": "Sistema radiográfico 3D en carga WR-3D Angell Technology",
+      "fabricante": "Angell Technology",
+      "categoria": "radiologia",
+      "tiene_precio": false,
+      "precio": null,
+      "tiene_ficha": false,
+      "ficha_pdf": "/assets/productos/radiologia/wr-3d-angell-brochure.pdf",
+      "imagenes": 5,
+      "estado": "documentado",
+      "actualizado": "2026-10-17"
+    },
+    {
+      "id": "2e41fd47-833f-404e-864e-a5c71c04b04b",
+      "slug": "sistema-radiografico-3d-ref-wr-3d-angell",
+      "nombre": "Sistema radiográfico 3D en carga WR-3D Angell Technology",
+      "fabricante": "Angell Technology",
+      "categoria": "radiologia",
+      "tiene_precio": false,
+      "precio": null,
+      "tiene_ficha": false,
+      "ficha_pdf": "/assets/productos/radiologia/wr-3d-angell-brochure.pdf",
+      "imagenes": 2,
+      "estado": "documentado",
+      "actualizado": "2026-10-17"
+    },
+    {
+      "id": "402b29ca-0ab4-4e83-ae7c-3d246661a1e3",
+      "slug": "telemando-digital-rf-ref-talent-ii-angell",
+      "nombre": "Sistema de telemando digital R/F Talent II DTP886 Angell",
+      "fabricante": "Angell Technology",
+      "categoria": "radiologia",
+      "tiene_precio": false,
+      "precio": null,
+      "tiene_ficha": false,
+      "ficha_pdf": "/assets/productos/radiologia/talent-ii-angell-specifications.pdf",
+      "imagenes": 2,
+      "estado": "documentado",
+      "actualizado": "2026-10-17"
+    }
+  ]
+}
