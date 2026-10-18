@@ -385,3 +385,27 @@ describe('resolveRobotsContent', () => {
     expect(resolveRobotsContent(undefined, true)).toBe('noindex, nofollow');
   });
 });
+
+describe('buildProductoSeo · meta description sin cortes a mitad de palabra', () => {
+  // Regresión: la meta salía como "…movilidad co. silla de ruedas…" y "Konfort Plu.".
+  const source =
+    'La Silla de Ruedas Estándar con Rin Estrella KP está diseñada para ofrecer movilidad confiable, confort y resistencia para uso diario en hogares y clínicas de Colombia.';
+
+  it('la parte inicial de la descripción termina en una palabra completa', () => {
+    const seo = buildProductoSeo(
+      {
+        nombre: 'Silla De Ruedas Estándar Con Rin Estrella KP',
+        descripcion_corta: source,
+        imagen_principal: null,
+        slug: 'silla-de-ruedas-estandar-con-rin-estrella-kp-ref-kbe-9000',
+        seo_keywords: ['silla de ruedas estándar KP'],
+      },
+      'es',
+      'Sillas de ruedas',
+      'Konfort Plus'
+    );
+    const lead = seo.description.split(' silla de ruedas')[0].replace(/\.$/, '');
+    expect(source.startsWith(lead)).toBe(true);
+    expect(' .,;:'.includes(source.charAt(lead.length))).toBe(true);
+  });
+});
