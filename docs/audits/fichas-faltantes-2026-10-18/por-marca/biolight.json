@@ -1,0 +1,34 @@
+{
+  "marca": "Biolight",
+  "n": 2,
+  "productos": [
+    {
+      "slug": "monitor-de-paciente-ref-m12-biolight",
+      "nombre_es": "Monitor de paciente Biolight M12",
+      "nombre_en": "Biolight M12 patient monitor",
+      "marca": "Biolight",
+      "familia_slug": "monitores",
+      "ref_hint": "m12-biolight",
+      "descripcion_corta_es": "Monitor de paciente Biolight M12 con pantalla táctil de 12.1 pulgadas (1280×800). ECG, SpO₂, NIBP y temperatura para adultos, pediátricos y neonatales. Precio bajo cotización.",
+      "specs_n": 9,
+      "estado": "pendiente",
+      "ficha_url": null,
+      "ficha_local": null,
+      "fuente_pagina_fabricante": null
+    },
+    {
+      "slug": "monitor-de-paciente-ref-s12-biolight",
+      "nombre_es": "Monitor de paciente Biolight S12",
+      "nombre_en": "Biolight S12 patient monitor",
+      "marca": "Biolight",
+      "familia_slug": "monitores",
+      "ref_hint": "s12-biolight",
+      "descripcion_corta_es": "Monitor de paciente Biolight S12 con pantalla multitáctil HD de 12.1 pulgadas. Mide ECG, SpO₂, NIBP, temperatura y frecuencia respiratoria en adultos, pediátricos y neonatales. Precio bajo cotización.",
+      "specs_n": 5,
+      "estado": "pendiente",
+      "ficha_url": null,
+      "ficha_local": null,
+      "fuente_pagina_fabricante": null
+    }
+  ]
+}

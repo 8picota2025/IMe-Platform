@@ -1,0 +1,1682 @@
+{
+  "matched_pdf": [
+    {
+      "slug": "maquina-de-anestesia-ref-atlas-n3-northern",
+      "marca": "Northern Meditec",
+      "fuente": "/home/shoky/FTP/pdf producto/ficha-atlas-n3-maquina-de-anestesia-northern.pdf",
+      "ficha_pdf": "/assets/productos/fichas/recuperadas/maquina-de-anestesia-ref-atlas-n3-northern-16dcc1ff6a.pdf",
+      "score": 8
+    },
+    {
+      "slug": "maquina-de-anestesia-ref-atlas-n5-northern",
+      "marca": "Northern Meditec",
+      "fuente": "/home/shoky/FTP/pdf producto/ficha-atlas-n3-maquina-de-anestesia-northern.pdf",
+      "ficha_pdf": "/assets/productos/fichas/recuperadas/maquina-de-anestesia-ref-atlas-n5-northern-16dcc1ff6a.pdf",
+      "score": 8
+    },
+    {
+      "slug": "maquina-de-anestesia-ref-atlas-n7-northern",
+      "marca": "Northern Meditec",
+      "fuente": "/home/shoky/FTP/pdf producto/ficha-atlas-n3-maquina-de-anestesia-northern.pdf",
+      "ficha_pdf": "/assets/productos/fichas/recuperadas/maquina-de-anestesia-ref-atlas-n7-northern-16dcc1ff6a.pdf",
+      "score": 8
+    },
+    {
+      "slug": "monitor-de-paciente-ref-m12-biolight",
+      "marca": "Biolight",
+      "fuente": "/home/shoky/FTP/pdf producto/ficha-monitor-de-paciente-m12-biolight.pdf",
+      "ficha_pdf": "/assets/productos/fichas/recuperadas/monitor-de-paciente-ref-m12-biolight-13ceee5bc7.pdf",
+      "score": 17
+    },
+    {
+      "slug": "carro-abs-sk-ref-et750-saikang",
+      "marca": "Saikang",
+      "fuente": "/home/shoky/cursor/ime-platform-growth-engine/public/assets/productos/importados/saikang-sk-et75077a/ficha-tecnica-saikang.pdf",
+      "ficha_pdf": "/assets/productos/fichas/recuperadas/carro-abs-sk-ref-et750-saikang-42e69fe437.pdf",
+      "score": 11
+    },
+    {
+      "slug": "carrito-de-lavado-ref-skh041-saikang",
+      "marca": "Saikang",
+      "fuente": "/home/shoky/cursor/ime-platform-growth-engine/public/assets/productos/importados/saikang-skh041-3/ficha-tecnica-saikang.pdf",
+      "ficha_pdf": "/assets/productos/fichas/recuperadas/carrito-de-lavado-ref-skh041-saikang-4cabc38387.pdf",
+      "score": 10
+    },
+    {
+      "slug": "camilla-de-hospital-skb037-b-ref-skb037b-saikang",
+      "marca": "Saikang",
+      "fuente": "/home/shoky/Desktop/MDs/CAT/Productos/SKM-C-SKB037B_Camilla_de_Hospital_SKB037/ficha_SKM-C-SKB037B_spec_sheet.pdf",
+      "ficha_pdf": "/assets/productos/fichas/recuperadas/camilla-de-hospital-skb037-b-ref-skb037b-saikang-2b9cee0b8b.pdf",
+      "score": 17
+    },
+    {
+      "slug": "frenos-para-kbe1432rf-mp23l-ref-kbe1432rf-mp23l-fr",
+      "marca": "Sin marca",
+      "fuente": "/home/shoky/wa-wake-hotfix/wt/public/assets/productos/fichas/gmd-konfort-plus/kbe1432rf-mp23l-ft.pdf",
+      "ficha_pdf": "/assets/productos/fichas/recuperadas/frenos-para-kbe1432rf-mp23l-ref-kbe1432rf-mp23l-fr-97803be319.pdf",
+      "score": 8
+    },
+    {
+      "slug": "llanta-trasera-para-sdr-kbe1432rf-mp23l-ref-kbe1432rf-mp23l-llt",
+      "marca": "Sin marca",
+      "fuente": "/home/shoky/wa-wake-hotfix/wt/public/assets/productos/fichas/gmd-konfort-plus/kbe1432rf-mp23l-ft.pdf",
+      "ficha_pdf": "/assets/productos/fichas/recuperadas/llanta-trasera-para-sdr-kbe1432rf-mp23l-ref-kbe1432rf-mp23l-llt-97803be319.pdf",
+      "score": 8
+    },
+    {
+      "slug": "llanta-delantera-para-kbe1432rf-mp23l-ref-kbe1432rf-mp23l-lld",
+      "marca": "Sin marca",
+      "fuente": "/home/shoky/wa-wake-hotfix/wt/public/assets/productos/fichas/gmd-konfort-plus/kbe1432rf-mp23l-ft.pdf",
+      "ficha_pdf": "/assets/productos/fichas/recuperadas/llanta-delantera-para-kbe1432rf-mp23l-ref-kbe1432rf-mp23l-lld-97803be319.pdf",
+      "score": 8
+    },
+    {
+      "slug": "asiento-para-kbe1432rf-mp23l-ref-kbe1432rf-mp23l-as",
+      "marca": "Sin marca",
+      "fuente": "/home/shoky/wa-wake-hotfix/wt/public/assets/productos/fichas/gmd-konfort-plus/kbe1432rf-mp23l-ft.pdf",
+      "ficha_pdf": "/assets/productos/fichas/recuperadas/asiento-para-kbe1432rf-mp23l-ref-kbe1432rf-mp23l-as-97803be319.pdf",
+      "score": 8
+    },
+    {
+      "slug": "respaldo-para-kbe1432rf-mp23l-ref-kbe1432rf-mp23-rp",
+      "marca": "Sin marca",
+      "fuente": "/home/shoky/wa-wake-hotfix/wt/public/assets/productos/fichas/gmd-konfort-plus/kbe1432rf-mp23l-ft.pdf",
+      "ficha_pdf": "/assets/productos/fichas/recuperadas/respaldo-para-kbe1432rf-mp23l-ref-kbe1432rf-mp23-rp-97803be319.pdf",
+      "score": 8
+    },
+    {
+      "slug": "reposapies-para-sdr-kbo1432rf-mp23-ref-kbo1432rf-mp23-rp",
+      "marca": "Sin marca",
+      "fuente": "/home/shoky/wa-wake-hotfix/wt/public/assets/productos/fichas/gmd-konfort-plus/kbo1432rf-mp23-ft.pdf",
+      "ficha_pdf": "/assets/productos/fichas/recuperadas/reposapies-para-sdr-kbo1432rf-mp23-ref-kbo1432rf-mp23-rp-a01a61d946.pdf",
+      "score": 8
+    },
+    {
+      "slug": "filtro-para-compresor-nebulizador-nube-3000-ref-gmrn457-12f",
+      "marca": "GMD",
+      "fuente": "/home/shoky/wa-wake-hotfix/wt/public/assets/productos/fichas/gmd-nube/gmrn457-12-ft.pdf",
+      "ficha_pdf": "/assets/productos/fichas/recuperadas/filtro-para-compresor-nebulizador-nube-3000-ref-gmrn457-12f-0b8e674b33.pdf",
+      "score": 14
+    },
+    {
+      "slug": "frenos-para-sdr-kbo1432rf-mp23-ref-kbo1432rf-mp23-fr",
+      "marca": "Sin marca",
+      "fuente": "/home/shoky/wa-wake-hotfix/wt/public/assets/productos/fichas/gmd-konfort-plus/kbo1432rf-mp23-ft.pdf",
+      "ficha_pdf": "/assets/productos/fichas/recuperadas/frenos-para-sdr-kbo1432rf-mp23-ref-kbo1432rf-mp23-fr-a01a61d946.pdf",
+      "score": 8
+    },
+    {
+      "slug": "equipo-hospitalario-ref-skh046-1-saikang",
+      "marca": "Saikang",
+      "fuente": "/home/shoky/cursor/ime-platform-growth-engine/public/assets/productos/importados/saikang-skh046-14/ficha-tecnica-saikang.pdf",
+      "ficha_pdf": "/assets/productos/fichas/recuperadas/equipo-hospitalario-ref-skh046-1-saikang-3d8426067d.pdf",
+      "score": 11
+    }
+  ],
+  "misses": [
+    {
+      "slug": "monitor-multiparametro-ref-acuarius-northern",
+      "marca": "Northern Meditec",
+      "codes": [
+        "ACUARIUSNORTHERN"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "arco-en-c-alc-280-series-ref-alc-280-angell",
+      "marca": "Angell Technology",
+      "codes": [
+        "ALC280",
+        "ALC280ANGELL"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "oximetro-ref-aquarius-lite-northern",
+      "marca": "Northern Meditec",
+      "codes": [
+        "AQUARIUSLITENORTHERN"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "sillon-reclinable-bme002-bm-ref-bme002",
+      "marca": "BM",
+      "codes": [
+        "BME002"
+      ],
+      "best_score": 0
+    },
+    {
+      "slug": "silla-reclinable-bme006-bm-ref-bme006",
+      "marca": "BM",
+      "codes": [
+        "BME006"
+      ],
+      "best_score": 0
+    },
+    {
+      "slug": "sillon-reclinable-bme007-bm-ref-bme007",
+      "marca": "BM",
+      "codes": [
+        "BME007"
+      ],
+      "best_score": 0
+    },
+    {
+      "slug": "ventilador-mecanico-ref-crius-v6-northern",
+      "marca": "Northern Meditec",
+      "codes": [
+        "CRIUSV6NORTHERN"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "sistema-de-rayos-x-dr-montado-en-techo-ref-dr-ceiling-angell",
+      "marca": "Angell Technology",
+      "codes": [
+        "DRCEILINGANGELL"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "sistema-de-rayos-x-dr-montado-en-suelo-ref-dr-floor-angell",
+      "marca": "Angell Technology",
+      "codes": [
+        "DRFLOORANGELL"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "sistema-de-rayos-x-dr-movil-ref-dr-mobile-angell",
+      "marca": "Angell Technology",
+      "codes": [
+        "DRMOBILEANGELL"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "sistema-dr-de-mesa-telecomandada-ref-dr-telecomand-angell",
+      "marca": "Angell Technology",
+      "codes": [
+        "DRTELECOMANDANGELL"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "dr-dinamico-de-brazo-ref-dr-uc-arm-angell",
+      "marca": "Angell Technology",
+      "codes": [
+        "DRUCARMANGELL"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "dr-dinamico-ref-dtp573-angell",
+      "marca": "Angell Technology",
+      "codes": [
+        "DTP573ANGELL"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "sistema-de-ultrasonido-ref-dus-3000-advanced",
+      "marca": "Advanced Instrumentations",
+      "codes": [
+        "DUS3000",
+        "DUS3000ADVANCED"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "balanza-para-bebe-electronica-ref-ebsa-20-perlong",
+      "marca": "Perlong",
+      "codes": [
+        "EBSA20PERLONG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "monitor-fetal-y-materno-ref-fm-9000-northern",
+      "marca": "Northern Meditec",
+      "codes": [
+        "FM9000NORTHERN"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "monitor-multiparametro-ref-gemini-northern",
+      "marca": "Northern Meditec",
+      "codes": [
+        "GEMININORTHERN"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "lampara-rodable-ref-led-rx18-ilumitec",
+      "marca": "Ilumitec",
+      "codes": [
+        "LEDRX18ILUMITEC"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "lampara-rodable-ref-led-rx18-100k-ilumitec",
+      "marca": "Ilumitec",
+      "codes": [
+        "LEDRX18100KILUMITEC"
+      ],
+      "best_score": 6
+    },
+    {
+      "slug": "lampara-rodable-ref-led-rx36-ilumitec",
+      "marca": "Ilumitec",
+      "codes": [
+        "LEDRX36ILUMITEC"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "lampara-rodable-ref-led-rx36-160k-ilumitec",
+      "marca": "Ilumitec",
+      "codes": [
+        "LEDRX36160KILUMITEC"
+      ],
+      "best_score": 6
+    },
+    {
+      "slug": "lampara-cielitica-ref-led-x18-100k-ilumitec",
+      "marca": "Ilumitec",
+      "codes": [
+        "LEDX18100KILUMITEC"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "lampara-cielitica-ref-led-x36-ilumitec",
+      "marca": "Ilumitec",
+      "codes": [
+        "LEDX36ILUMITEC"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "lampara-cielitica-led-x3618-con-satelite-ref-led-x3618-ilumitec",
+      "marca": "Ilumitec",
+      "codes": [
+        "LEDX3618ILUMITEC"
+      ],
+      "best_score": 6
+    },
+    {
+      "slug": "lampara-cielitica-led-x3636-con-satelite-ref-led-x3636-ilumitec",
+      "marca": "Ilumitec",
+      "codes": [
+        "LEDX3636ILUMITEC"
+      ],
+      "best_score": 6
+    },
+    {
+      "slug": "monitor-de-paciente-ref-s12-biolight",
+      "marca": "Biolight",
+      "codes": [
+        "S12BIOLIGHT"
+      ],
+      "best_score": 6
+    },
+    {
+      "slug": "monitor-multiparametro-ref-pisces-northern",
+      "marca": "Northern Meditec",
+      "codes": [
+        "PISCESNORTHERN"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "bascula-corporal-doble-regla-ref-rgt-a-200-rt-perlong",
+      "marca": "Perlong",
+      "codes": [
+        "RGTA200RTPERLONG"
+      ],
+      "best_score": 0
+    },
+    {
+      "slug": "balanza-corporal-con-doble-regla-ref-rgt-rt-perlong",
+      "marca": "Perlong",
+      "codes": [
+        "RGTRTPERLONG"
+      ],
+      "best_score": 0
+    },
+    {
+      "slug": "cama-de-hospital-ref-sk-c1-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKC1",
+        "SKC1SAIKANG"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "cama-de-hospital-plana-r00-ref-sk-c1-r00-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKC1R00SAIKANG"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "camilla-manual-de-una-funcion-r000w-ref-sk-c1-r000w-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKC1R000WSAIKANG"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "cama-manual-k3k-ref-sk-cd1-k3k-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKCD1K3KSAIKANG"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "cama-hospitalaria-manual-v3k-ref-sk-cd1-v3k-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKCD1V3KSAIKANG"
+      ],
+      "best_score": 6
+    },
+    {
+      "slug": "cama-manual-v3v-ref-sk-cd1-v3v-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKCD1V3VSAIKANG"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "camilla-manual-v4v-ref-sk-cd1-v4v-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKCD1V4VSAIKANG"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "cama-manual-v4w-ref-sk-cd1-v4w-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKCD1V4WSAIKANG"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "gabinete-dental-ref-sk-d2c-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKD2C",
+        "SKD2CSAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "tablero-espinal-ref-skb2a11-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKB2A11",
+        "SKB2A11SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "tablero-espinal-ref-skb2a12-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKB2A12",
+        "SKB2A12SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "cama-de-atencion-pediatrica-z0n-ref-skd-a-z0n-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKDAZ0NSAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "cama-de-atencion-domiciliaria-ref-hb421-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "HB421",
+        "HB421SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "cama-de-atencion-domiciliaria-ref-hb422-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "HB422",
+        "HB422SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "cama-de-atencion-domiciliaria-ref-hb424-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "HB424",
+        "HB424SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "cama-de-atencion-domiciliaria-vip-h6k-ref-skd-d-h6k-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKDDH6KSAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "silla-de-espera-ref-ske008-1-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKE0081",
+        "SKE0081SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "estanteria-hospitalaria-ref-skh050-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKH050",
+        "SKH050SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "estanteria-hospitalaria-ref-skh061-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKH061",
+        "SKH061SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "gabinete-de-almacenamiento-ref-skh092-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKH092",
+        "SKH092SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "carrito-abs-sk-ref-ct75077c2-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "CT75077C2SAIKANG",
+        "SKCT75077C2",
+        "SKREFCT75077C2SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "carro-abs-sk-ref-mt650-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "MT650SAIKANG",
+        "SKMT650",
+        "SKREFMT650SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "carro-de-acero-inoxidable-ref-skh001-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKH001",
+        "SKH001SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "carro-de-tratamientos-ref-skh006-5-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKH0065",
+        "SKH0065SAIKANG"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "carro-de-acero-inoxidable-ref-skh029-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKH029",
+        "SKH029SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "carrito-de-infusion-ref-skh032-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKH032",
+        "SKH032SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "estanteria-de-acero-inoxidable-ref-skh078-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKH078",
+        "SKH078SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "carro-abs-skr-ref-ct231-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "CT231SAIKANG",
+        "SKRCT231",
+        "SKRREFCT231SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "carro-abs-skr-ref-ct750-1-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "CT7501SAIKANG",
+        "SKRCT7501",
+        "SKRREFCT7501SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "carro-de-abs-skr-ref-et850-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "ET850SAIKANG",
+        "SKRET850",
+        "SKRREFET850SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "carro-de-infusion-skr-ref-iv588-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "IV588SAIKANG",
+        "SKRIV588",
+        "SKRREFIV588SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "carro-de-abs-skr-ref-mt625-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "MT625SAIKANG",
+        "SKRMT625",
+        "SKRREFMT625SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "carro-de-abs-ref-skr002-3-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKR0023",
+        "SKR0023SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "carro-abs-ref-skr007-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKR007",
+        "SKR007SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "colchon-ref-skp001-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKP001",
+        "SKP001SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "carro-de-infusion-skr-ref-it625-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "IT625SAIKANG",
+        "SKRIT625",
+        "SKRREFIT625SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "carro-de-enfermeria-ref-skr058-ct-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKR058CT",
+        "SKR058CTSAIKANG"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "mesita-de-noche-ref-sks002-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKS002",
+        "SKS002SAIKANG"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "mesita-de-noche-ref-sks002-w-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKS002W",
+        "SKS002WSAIKANG"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "camilla-de-ambulancia-ref-skb2c01-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKB2C01",
+        "SKB2C01SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "silla-para-subir-escaleras-ref-skb1c02-1-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKB1C021",
+        "SKB1C021SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "monitor-multiparametro-ref-taurus-northern",
+      "marca": "Northern Meditec",
+      "codes": [
+        "TAURUSNORTHERN"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "detector-plano-inalambrico-ref-tcq-iii-angell",
+      "marca": "Angell Technology",
+      "codes": [
+        "TCQIIIANGELL"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "bascula-corporal-electronica-ref-tcs-200-rt-perlong",
+      "marca": "Perlong",
+      "codes": [
+        "TCS200RTPERLONG"
+      ],
+      "best_score": 0
+    },
+    {
+      "slug": "balanza-corporal-electronica-ref-tcs-200b-rt-perlong",
+      "marca": "Perlong",
+      "codes": [
+        "TCS200BRTPERLONG"
+      ],
+      "best_score": 0
+    },
+    {
+      "slug": "test",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 0
+    },
+    {
+      "slug": "ventilador-para-uci-ref-v-1000-advanced",
+      "marca": "Advanced Instrumentations",
+      "codes": [
+        "V1000ADVANCED"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "monitor-multiparametro-ref-venus-northern",
+      "marca": "Northern Meditec",
+      "codes": [
+        "VENUSNORTHERN"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "monitor-modular-multiparametro-ref-virgo-northern",
+      "marca": "Northern Meditec",
+      "codes": [
+        "VIRGONORTHERN"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "bomba-de-infusion-ref-vp-50",
+      "marca": "Sin marca",
+      "codes": [
+        "VP50"
+      ],
+      "best_score": 0
+    },
+    {
+      "slug": "balanza-para-bebe-ref-yrbb-20-perlong",
+      "marca": "Perlong",
+      "codes": [
+        "YRBB20PERLONG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "bascula-corporal-ref-zt-120-perlong",
+      "marca": "Perlong",
+      "codes": [
+        "ZT120PERLONG"
+      ],
+      "best_score": 0
+    },
+    {
+      "slug": "bascula-corporal-ref-zt-150a-perlong",
+      "marca": "Perlong",
+      "codes": [
+        "ZT150APERLONG"
+      ],
+      "best_score": 0
+    },
+    {
+      "slug": "monitor-multiparametrico-uci-avanzado",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 2
+    },
+    {
+      "slug": "monitor-multiparametrico-basico",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 2
+    },
+    {
+      "slug": "monitor-de-transporte-prehospitalario",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 2
+    },
+    {
+      "slug": "monitor-central-uci-multicama",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 2
+    },
+    {
+      "slug": "electrocardiografo-12-derivaciones-digital",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 0
+    },
+    {
+      "slug": "desfibrilador-bifasico-con-monitor",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 2
+    },
+    {
+      "slug": "holter-24-horas-ritmo-cardiaco",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 0
+    },
+    {
+      "slug": "mesa-quirurgica-motorizada-multiposicion",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 2
+    },
+    {
+      "slug": "lampara-cialitica-led-doble-para-quirofano",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 4
+    },
+    {
+      "slug": "maquina-de-anestesia-con-ventilador",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 4
+    },
+    {
+      "slug": "incubadora-neonatal-de-transporte",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 2
+    },
+    {
+      "slug": "cuna-de-calor-radiante-neonatal-servo",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 2
+    },
+    {
+      "slug": "ecografo-color-doppler-diagnostico-vascular",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 0
+    },
+    {
+      "slug": "ecografo-portatil-con-wifi-y-dicom",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 0
+    },
+    {
+      "slug": "ultrasonido-point-of-care-pocket",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 2
+    },
+    {
+      "slug": "bomba-de-infusion-volumetrica-uci",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 0
+    },
+    {
+      "slug": "caminador-con-ruedas-rollator-en-aluminio-con-reposapies-ref-kp285-al-19",
+      "marca": "Sin marca",
+      "codes": [
+        "KP285AL19"
+      ],
+      "best_score": 0
+    },
+    {
+      "slug": "bomba-de-jeringa-precision-microdosis",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 0
+    },
+    {
+      "slug": "camilla-hospitalaria-electrica-articulable",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 2
+    },
+    {
+      "slug": "carro-de-paro-para-reanimacion",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 2
+    },
+    {
+      "slug": "monitor-fetal-ctg-con-impresora",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 2
+    },
+    {
+      "slug": "electrocardiografo-inalambrico-portatil",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 0
+    },
+    {
+      "slug": "sistema-cpap-neonatal-para-uci",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 2
+    },
+    {
+      "slug": "mesa-quirurgica-ortopedica-radiolucida",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 2
+    },
+    {
+      "slug": "ventilador-mecanico-uci-adulto-pediatrico",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 6
+    },
+    {
+      "slug": "rx-movil-dinamico-lingxi",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 0
+    },
+    {
+      "slug": "rx-techo-dinamico-qomo",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 0
+    },
+    {
+      "slug": "rx-techo-dinamico-changfeng",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 0
+    },
+    {
+      "slug": "rx-multifuncional-uc-arm-ref-dtp580",
+      "marca": "Sin marca",
+      "codes": [
+        "DTP580"
+      ],
+      "best_score": 0
+    },
+    {
+      "slug": "rx-piso-mtp",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 0
+    },
+    {
+      "slug": "mamografo-digital-fanghua",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 0
+    },
+    {
+      "slug": "arco-c-movil-dinamico-hua-ii",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 0
+    },
+    {
+      "slug": "adaptador-ac-dc-para-tensiometro-latidos-ref-latidos-c",
+      "marca": "GMD",
+      "codes": [
+        "LATIDOSC"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "nebulizador-para-compresor-nube-ref-gmrn-nb",
+      "marca": "GMD",
+      "codes": [
+        "GMRNNB"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "kit-de-nebulizacion-pediatrico-nube-3000-ref-gmrn211-kitpe",
+      "marca": "GMD",
+      "codes": [
+        "GMRN211KITPE"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "kit-de-nebulizacion-adulto-nube-3000-ref-gmrn211-kita",
+      "marca": "GMD",
+      "codes": [
+        "GMRN211KITA"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "patas-en-aluminio-para-comodo-sanitario-kp-ref-kp-parf-2",
+      "marca": "Sin marca",
+      "codes": [
+        "KPPARF2"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "balde-para-comodo-sanitario-kp-ref-kp-bal-2",
+      "marca": "Sin marca",
+      "codes": [
+        "KPBAL2"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "deslizadores-delanteros-para-sdr-kbe1462ff-m23-d-ref-desde-kbe1462ff-m23-d",
+      "marca": "Sin marca",
+      "codes": [
+        "DESDEKBE1462FFM23D"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "deslizadores-traseros-para-sdr-kbe1462ff-m23-d-ref-des-kbe1462ff-m23-d",
+      "marca": "Sin marca",
+      "codes": [
+        "DESKBE1462FFM23D"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "pata-con-rueda-sin-freno-en-aluminio-ref-kb225cr-al19-srf",
+      "marca": "Sin marca",
+      "codes": [
+        "KB225CRAL19SRF"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "pata-con-rueda-sin-freno-color-blanco-ref-kb225cr-ap1-sfr",
+      "marca": "Sin marca",
+      "codes": [
+        "KB225CRAP1SFR"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "manilares-para-muletas-kp-ref-kb3-2010",
+      "marca": "Sin marca",
+      "codes": [
+        "KB32010"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "axilares-para-muletas-ref-kb3-2001l",
+      "marca": "Sin marca",
+      "codes": [
+        "KB32001L"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "tapon-en-forma-de-x-4-apoyos-ref-kp4-4t-d14",
+      "marca": "Sin marca",
+      "codes": [
+        "KP44TD14"
+      ],
+      "best_score": 0
+    },
+    {
+      "slug": "kit-de-nebulizacion-del-nube-5000-ref-gmrn846-kitmn",
+      "marca": "GMD",
+      "codes": [
+        "GMRN846KITMN"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "kit-de-nebulizacion-smart-del-nube-5000-ref-gmrn846-kit",
+      "marca": "GMD",
+      "codes": [
+        "GMRN846KIT"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "kit-de-nebulizacion-del-nube-7000-ref-gmrn818-kitmn",
+      "marca": "GMD",
+      "codes": [
+        "GMRN818KITMN"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "clenny-kit-para-nube-7000-ref-gmrn818-kit",
+      "marca": "GMD",
+      "codes": [
+        "GMRN818KIT"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "recaton-color-negro-para-baston-de-4-apoyos-ref-kp4-4t-20d",
+      "marca": "Sin marca",
+      "codes": [
+        "KP44T20D"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "recaton-color-gris-para-baston-de-4-apoyos-ref-kp4-4t-19d",
+      "marca": "Sin marca",
+      "codes": [
+        "KP44T19D"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "recaton-color-cafe-para-baston-de-1-apoyo-ref-kp4-1t-26d",
+      "marca": "Sin marca",
+      "codes": [
+        "KP41T26D"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "recaton-color-negro-para-baston-de-1-apoyo-ref-kp4-1t-20d",
+      "marca": "Sin marca",
+      "codes": [
+        "KP41T20D"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "rueda-delantera-sin-tenedor-ref-kbe1462ff-m23d-rst",
+      "marca": "Sin marca",
+      "codes": [
+        "KBE1462FFM23DRST"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "pata-con-rueda-y-freno-en-acero-color-blanco-ref-kb225cr-ap1-rf",
+      "marca": "Sin marca",
+      "codes": [
+        "KB225CRAP1RF"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "arnes-movil-para-grua-hidraulica-ref-jbs168-00-021",
+      "marca": "Sin marca",
+      "codes": [
+        "JBS16800021"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "reposapies-elevables-para-sdr-iron-light-ref-srels-rpe",
+      "marca": "Sin marca",
+      "codes": [
+        "SRELSRPE"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "aro-y-tapa-para-comodo-sanitario-ref-kb225cr-ap1-ta",
+      "marca": "Sin marca",
+      "codes": [
+        "KB225CRAP1TA"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "balde-para-comodo-sanitario-ref-kb215sr-al-b",
+      "marca": "Sin marca",
+      "codes": [
+        "KB215SRALB"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "respaldo-para-comodo-sanitario-kp-ref-kp2-6543cr-al19-r",
+      "marca": "Sin marca",
+      "codes": [
+        "KP26543CRAL19R"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "tapon-para-comodo-kp2-6542sr-ref-kp2-6542sr-tipn",
+      "marca": "Sin marca",
+      "codes": [
+        "KP26542SRTIPN"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "espaldar-para-comodo-sanitario-kp2-6542sr-ref-kp2-6542sr-ap1-r",
+      "marca": "Sin marca",
+      "codes": [
+        "KP26542SRAP1R"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "asiento-para-comodo-sanitario-kp2-6542sr-ref-kp2-6542sr-ap1-a",
+      "marca": "Sin marca",
+      "codes": [
+        "KP26542SRAP1A"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "reposapies-removibles-para-sdr-iron-light-ref-srels-rpr",
+      "marca": "Sin marca",
+      "codes": [
+        "SRELSRPR"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "pad-para-sdr-iron-light-ref-srels-pad",
+      "marca": "Sin marca",
+      "codes": [
+        "SRELSPAD"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "llanta-trasera-para-sdr-iron-light-ref-srels-lt",
+      "marca": "Sin marca",
+      "codes": [
+        "SRELSLT"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "reposapies-elevables-para-sdr-kbe1462re-pp23l-ref-kbe1462re-p23l-rp",
+      "marca": "Sin marca",
+      "codes": [
+        "KBE1462REP23LRP"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "freno-para-sdr-estandar-color-gris-ref-kbe1462-fr",
+      "marca": "Sin marca",
+      "codes": [
+        "KBE1462FR"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "asiento-para-sdr-kbe1462ff-m23-d-ref-kbe1462ff-m23d-a",
+      "marca": "Sin marca",
+      "codes": [
+        "KBE1462FFM23DA"
+      ],
+      "best_score": 6
+    },
+    {
+      "slug": "asiento-para-silla-de-ruedas-pediatrica-ref-fs980la-35-a",
+      "marca": "Sin marca",
+      "codes": [
+        "FS980LA35A"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "espaldar-en-nailon-para-silla-de-transporte-ref-fs976abj-43-e",
+      "marca": "Sin marca",
+      "codes": [
+        "FS976ABJ43E"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "actuador-hidraulico-para-jbs168-1-ref-jbs168-00-1a",
+      "marca": "Sin marca",
+      "codes": [
+        "JBS168001A"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "rueda-trasera-con-freno-de-4-para-grua-hidraulica-ref-jbs168-00-012-konfort-plus",
+      "marca": "GMD",
+      "codes": [
+        "JBS16800012KONFORTPLUS"
+      ],
+      "best_score": 6
+    },
+    {
+      "slug": "rueda-delantera-de-4-para-grua-hidraulica-ref-jbs168-00-011-konfort-plus",
+      "marca": "GMD",
+      "codes": [
+        "JBS16800011KONFORTPLUS"
+      ],
+      "best_score": 6
+    },
+    {
+      "slug": "kit-de-nebulizacion-pediatrico-nube-ref-gmrn457-kitpe",
+      "marca": "GMD",
+      "codes": [
+        "GMRN457KITPE"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "kit-de-nebulizacion-adulto-nube-ref-gmrn457-kit",
+      "marca": "GMD",
+      "codes": [
+        "GMRN457KIT"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "filtro-par-compresor-nebulizador-panda-ref-gmrn457-1f",
+      "marca": "Sin marca",
+      "codes": [
+        "GMRN4571F"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "recaton-color-gris-para-baston-de-1-apoyo-dc-ref-kp4-1t-19d",
+      "marca": "Sin marca",
+      "codes": [
+        "KP41T19D"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "reposapies-para-sdr-kbe1452ff-m23-d-ref-kbe1462ff-m23d-rp",
+      "marca": "Sin marca",
+      "codes": [
+        "KBE1462FFM23DRP"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "tapon-para-caminador-kp1-816l-color-gris-ref-kp1-816l-tip",
+      "marca": "Sin marca",
+      "codes": [
+        "KP1816LTIP"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "rueda-trasera-para-silla-de-transporte-ref-kbo1432rf-mp23-rt",
+      "marca": "Sin marca",
+      "codes": [
+        "KBO1432RFMP23RT"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "de-oxigeno-con-cilindro-de-416-l-ref-kit-2",
+      "marca": "Sin marca",
+      "codes": [
+        "KIT2"
+      ],
+      "best_score": 0
+    },
+    {
+      "slug": "cilindro-de-oxigeno-416-l-ref-md15-015",
+      "marca": "Sin marca",
+      "codes": [
+        "MD15015"
+      ],
+      "best_score": 0
+    },
+    {
+      "slug": "carra-para-cilindro-680-l-ref-150-0100",
+      "marca": "Sin marca",
+      "codes": [
+        "1500100"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "baston-con-empunadura-en-t-ergonomico-color-cromo-ref-kp4102-22-konfort-plus",
+      "marca": "GMD",
+      "codes": [
+        "KP410222KONFORTPLUS"
+      ],
+      "best_score": 6
+    },
+    {
+      "slug": "tapon-para-silla-ducha-kb2-798l-ref-kb2-798l-t",
+      "marca": "Sin marca",
+      "codes": [
+        "KB2798LT"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "empaque-para-regulador-de-valvulas-gmr-ref-gmr540-mdk-001",
+      "marca": "Sin marca",
+      "codes": [
+        "GMR540MDK001"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "tapon-para-comodo-sanitario-ref-kb215sr-al-tip",
+      "marca": "Sin marca",
+      "codes": [
+        "KB215SRALTIP"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "pata-para-comodo-sanitario-en-aluminio-ref-kb215sr-al-leg",
+      "marca": "Sin marca",
+      "codes": [
+        "KB215SRALLEG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "llanta-con-freno-para-comodo-sanitario-ref-fs696-rf",
+      "marca": "Sin marca",
+      "codes": [
+        "FS696RF"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "llanta-sin-freno-para-comodo-sanitario-ref-fs696-r",
+      "marca": "Sin marca",
+      "codes": [
+        "FS696R"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "combo-600-cajas-de-tirillas-plus-600-cajas-de-lancetas-plus-200-glucometros-en-o-ref-ltd-b10-600",
+      "marca": "Sin marca",
+      "codes": [
+        "LTDB10600"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "combo-cajas-de-tirillas-plus-cajas-de-lancetas-plus-67-glucometros-en-obsequio-ref-200",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 4
+    },
+    {
+      "slug": "combo-200-cajas-de-tirillas-plus-200-cajas-de-lancetas-plus-67-glucometros-en-obsequio-e-ref-200",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 4
+    },
+    {
+      "slug": "combo-cajas-de-tirillas-plus-cajas-de-lancetas-plus-25-glucometros-en-obsequio-ref-100",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 4
+    },
+    {
+      "slug": "combo-100-cajas-de-tirillas-plus-100-cajas-de-lancetas-plus-25-glucometros-en-obsequio-7-ref-100",
+      "marca": "Sin marca",
+      "codes": [],
+      "best_score": 4
+    },
+    {
+      "slug": "combo-50-cajas-de-tirillas-plus-50-cajas-de-lancetas-plus-10-glucometros-en-obseq-ref-ltd-b10-50",
+      "marca": "Sin marca",
+      "codes": [
+        "LTDB1050"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "cama-hospitalaria-electrica-ref-skd-a-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKDA",
+        "SKDASAIKANG"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "cama-hospitalaria-electrica-ref-skd-b-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKDB",
+        "SKDBSAIKANG"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "carro-clinico-ref-skr021-5-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKR0215",
+        "SKR0215SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "cama-hospitalaria-ref-sk-a2-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKA2",
+        "SKA2SAIKANG"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "cama-hospitalaria-ref-sk-a3-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKA3",
+        "SKA3SAIKANG"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "camilla-de-traslado-ref-skk-b-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKKB",
+        "SKKBSAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "sillon-odontologico-ref-se802-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SE802SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "sillon-clinico-ref-ske052-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKE052",
+        "SKE052SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "sillon-clinico-ref-ske711-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKE711",
+        "SKE711SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "sillon-clinico-ref-ske055-8-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKE0558",
+        "SKE0558SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "cama-hospitalaria-manual-ref-v4w-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "V4WSAIKANG"
+      ],
+      "best_score": 6
+    },
+    {
+      "slug": "sillon-clinico-ref-skeo52-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKEO52",
+        "SKEO52SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "equipo-hospitalario-ref-skn002-gauze-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKN002GAUZE",
+        "SKN002GAUZESAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "equipo-hospitalario-ref-skn031-stainless-steel-kidney-dish-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKN031",
+        "SKN031STAINLESSSTEELKIDNEYDISHSAIKANG"
+      ],
+      "best_score": 4
+    },
+    {
+      "slug": "equipo-hospitalario-ref-skno31-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKNO31",
+        "SKNO31SAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "mesa-quirurgica-electrica-ref-skl-c-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKLC",
+        "SKLCSAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "mesa-quirurgica-electrica-ref-skl-d-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKLD",
+        "SKLDSAIKANG"
+      ],
+      "best_score": 2
+    },
+    {
+      "slug": "mesa-quirurgica-electrica-ref-skl-e-saikang",
+      "marca": "Saikang",
+      "codes": [
+        "SKLE",
+        "SKLESAIKANG"
+      ],
+      "best_score": 2
+    }
+  ]
+}

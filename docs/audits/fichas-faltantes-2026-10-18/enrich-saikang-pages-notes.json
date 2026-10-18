@@ -1,0 +1,224 @@
+{
+  "fecha": "2026-10-18",
+  "archivo": "src/data/fichas-enriquecimiento/saikang-paginas-sin-pdf-20261018.json",
+  "criterio": "pagina_fabricante presente, sin ficha_pdf en mock-productos.json; prioridad camas/carros/camillas/mesas OR",
+  "enriquecidos": 19,
+  "fuentes": [
+    {
+      "slug": "cama-de-hospital-ref-sk-c1-saikang",
+      "sku": "sk-c1-saikang",
+      "pagina_fabricante": "https://saikangmedical.com/en/product/k2k-manual-bed/",
+      "titulo_pagina": "K2k MANUAL BED (SK-C1)",
+      "codigos": [
+        "K2k",
+        "SK-C1"
+      ],
+      "fetch_ok": true,
+      "notas": null
+    },
+    {
+      "slug": "cama-manual-v4w-ref-sk-cd1-v4w-saikang",
+      "sku": "sk-cd1-v4w-saikang",
+      "pagina_fabricante": "https://saikangmedical.com/en/product/v4w-manual-bed/",
+      "titulo_pagina": "V4W MANUAL BED (SK-CF1)",
+      "codigos": [
+        "V4W",
+        "SK-CF1"
+      ],
+      "fetch_ok": true,
+      "notas": null
+    },
+    {
+      "slug": "cama-de-atencion-pediatrica-z0n-ref-skd-a-z0n-saikang",
+      "sku": "skd-a-z0n-saikang",
+      "pagina_fabricante": "https://saikangmedical.com/en/product/cq8k-electric-children-bed/",
+      "titulo_pagina": "CQ8k ELECTRIC CHILDREN BED (SKD-C)",
+      "codigos": [
+        "CQ8k",
+        "SKD-C"
+      ],
+      "fetch_ok": true,
+      "notas": "En IME la referencia comercial es Z0N; la página Saikang enlazada describe la serie CQ8k (SKD-C). Confirme equivalencia al cotizar."
+    },
+    {
+      "slug": "cama-de-atencion-domiciliaria-ref-hb421-saikang",
+      "sku": "hb421-saikang",
+      "pagina_fabricante": "https://m.saikangmedical.com/Espa%C3%B1ol/Productos/Camas-de-hospital/Atenci%C3%B3n-domiciliaria-VIP/",
+      "titulo_pagina": "Atención domiciliaria VIP (listado categoría)",
+      "codigos": [
+        "HB421"
+      ],
+      "fetch_ok": false,
+      "notas": "La URL de categoría Saikang (móvil) no respondió al fetch 2026-10-18; no se extrajeron parámetros. Modelo HB421 según catálogo IME."
+    },
+    {
+      "slug": "cama-de-atencion-domiciliaria-ref-hb422-saikang",
+      "sku": "hb422-saikang",
+      "pagina_fabricante": "https://m.saikangmedical.com/Espa%C3%B1ol/Productos/Camas-de-hospital/Atenci%C3%B3n-domiciliaria-VIP/",
+      "titulo_pagina": "Atención domiciliaria VIP (listado categoría)",
+      "codigos": [
+        "HB422"
+      ],
+      "fetch_ok": false,
+      "notas": "La URL de categoría Saikang no respondió al fetch 2026-10-18. Modelo HB422 según catálogo IME."
+    },
+    {
+      "slug": "cama-de-atencion-domiciliaria-ref-hb424-saikang",
+      "sku": "hb424-saikang",
+      "pagina_fabricante": "https://m.saikangmedical.com/Espa%C3%B1ol/Productos/Camas-de-hospital/Atenci%C3%B3n-domiciliaria-VIP/",
+      "titulo_pagina": "Atención domiciliaria VIP (listado categoría)",
+      "codigos": [
+        "HB424"
+      ],
+      "fetch_ok": false,
+      "notas": "La URL de categoría Saikang no respondió al fetch 2026-10-18. Modelo HB424 según catálogo IME."
+    },
+    {
+      "slug": "cama-de-atencion-domiciliaria-vip-h6k-ref-skd-d-h6k-saikang",
+      "sku": "skd-d-h6k-saikang",
+      "pagina_fabricante": "https://saikangmedical.com/en/product/k6k-electric-hospital-bed/",
+      "titulo_pagina": "K6k ELECTRIC BED (SKD-D)",
+      "codigos": [
+        "K6k",
+        "SKD-D"
+      ],
+      "fetch_ok": true,
+      "notas": "En IME la referencia es H6k VIP; la página Saikang publica K6k (SKD-D). Confirme equivalencia al cotizar."
+    },
+    {
+      "slug": "carro-abs-skr-ref-ct750-1-saikang",
+      "sku": "ct750-1-saikang",
+      "pagina_fabricante": "https://saikangmedical.com/en/product/skr-ct750-1-treatment-trolley/",
+      "titulo_pagina": "SKR-CT750-1 Treatment Trolley (URL audit)",
+      "codigos": [
+        "SKR-CT750-1"
+      ],
+      "fetch_ok": false,
+      "notas": "La URL del audit (skr-ct750-1-treatment-trolley) devolvió HTTP 404 el 2026-10-18; no se importaron datos de otros modelos Saikang."
+    },
+    {
+      "slug": "carro-de-enfermeria-ref-skr058-ct-saikang",
+      "sku": "skr058-ct-saikang",
+      "pagina_fabricante": "https://saikangmedical.com/en/product/skr058-ct-nursing-trolley/",
+      "titulo_pagina": "SKR058-CT NURSING TROLLEY",
+      "codigos": [
+        "SKR058-CT"
+      ],
+      "fetch_ok": true,
+      "notas": null
+    },
+    {
+      "slug": "cama-hospitalaria-electrica-ref-skd-a-saikang",
+      "sku": "skd-a-saikang",
+      "pagina_fabricante": "https://saikangmedical.com/en/product/skd-a-electric-hospital-bed/",
+      "titulo_pagina": "SKD-A Electric Hospital Bed",
+      "codigos": [
+        "SKD-A"
+      ],
+      "fetch_ok": true,
+      "notas": null
+    },
+    {
+      "slug": "cama-hospitalaria-electrica-ref-skd-b-saikang",
+      "sku": "skd-b-saikang",
+      "pagina_fabricante": "https://saikangmedical.com/en/product/skd-b-electric-hospital-bed/",
+      "titulo_pagina": "SKD-B Electric Hospital Bed",
+      "codigos": [
+        "SKD-B"
+      ],
+      "fetch_ok": true,
+      "notas": null
+    },
+    {
+      "slug": "carro-clinico-ref-skr021-5-saikang",
+      "sku": "skr021-5-saikang",
+      "pagina_fabricante": "https://saikangmedical.com/en/product/skr021-5-case-history-trolley/",
+      "titulo_pagina": "SKR021-5 CASE HISTORY TROLLEY",
+      "codigos": [
+        "SKR021-5"
+      ],
+      "fetch_ok": true,
+      "notas": null
+    },
+    {
+      "slug": "cama-hospitalaria-ref-sk-a2-saikang",
+      "sku": "sk-a2-saikang",
+      "pagina_fabricante": "https://saikangmedical.com/en/product/sk-a2-hospital-bed/",
+      "titulo_pagina": "SK-A2 Hospital Bed",
+      "codigos": [
+        "SK-A2"
+      ],
+      "fetch_ok": true,
+      "notas": null
+    },
+    {
+      "slug": "cama-hospitalaria-ref-sk-a3-saikang",
+      "sku": "sk-a3-saikang",
+      "pagina_fabricante": "https://saikangmedical.com/en/product/sk-a3-hospital-bed/",
+      "titulo_pagina": "SK-A3 Hospital Bed",
+      "codigos": [
+        "SK-A3"
+      ],
+      "fetch_ok": true,
+      "notas": null
+    },
+    {
+      "slug": "camilla-de-traslado-ref-skk-b-saikang",
+      "sku": "skk-b-saikang",
+      "pagina_fabricante": "https://saikangmedical.com/en/product/skk-b-patient-transportation-trolley/",
+      "titulo_pagina": "SKK-B Patient Transportation Trolley",
+      "codigos": [
+        "SKK-B"
+      ],
+      "fetch_ok": true,
+      "notas": null
+    },
+    {
+      "slug": "cama-hospitalaria-manual-ref-v4w-saikang",
+      "sku": "v4w-saikang",
+      "pagina_fabricante": "https://saikangmedical.com/en/product/v4w-manual-bed/",
+      "titulo_pagina": "V4W MANUAL BED (SK-CF1)",
+      "codigos": [
+        "V4W",
+        "SK-CF1"
+      ],
+      "fetch_ok": true,
+      "notas": null
+    },
+    {
+      "slug": "mesa-quirurgica-electrica-ref-skl-c-saikang",
+      "sku": "skl-c-saikang",
+      "pagina_fabricante": "https://saikangmedical.com/en/product/skl-c-electric-operating-table/",
+      "titulo_pagina": "SKL-C Electric Operating Table | Delivery Bed",
+      "codigos": [
+        "SKL-C"
+      ],
+      "fetch_ok": true,
+      "notas": null
+    },
+    {
+      "slug": "mesa-quirurgica-electrica-ref-skl-d-saikang",
+      "sku": "skl-d-saikang",
+      "pagina_fabricante": "https://saikangmedical.com/en/product/skl-d-electric-operating-table/",
+      "titulo_pagina": "SKL-D Electric Operating Table | Delivery Bed",
+      "codigos": [
+        "SKL-D"
+      ],
+      "fetch_ok": false,
+      "notas": null
+    },
+    {
+      "slug": "mesa-quirurgica-electrica-ref-skl-e-saikang",
+      "sku": "skl-e-saikang",
+      "pagina_fabricante": "https://saikangmedical.com/en/product/skl-e-electric-operating-table/",
+      "titulo_pagina": "SKL-E Electric Operating Table",
+      "codigos": [
+        "SKL-E"
+      ],
+      "fetch_ok": false,
+      "notas": null
+    }
+  ],
+  "apply_script_ejecutado": true,
+  "apply_ts": "2026101833"
+}

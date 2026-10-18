@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "slug": "monitor-multiparametro-ref-acuarius-northern",
+      "page": "https://en.northernmeditec.com/prodet/14.html",
+      "specs_n": 11,
+      "imgs": 1
+    },
+    {
+      "slug": "maquina-de-anestesia-ref-atlas-n3-northern",
+      "page": "https://en.northernmeditec.com/prodet/2.html",
+      "specs_n": 9,
+      "imgs": 4
+    },
+    {
+      "slug": "maquina-de-anestesia-ref-atlas-n5-northern",
+      "page": "https://en.northernmeditec.com/prodet/3.html",
+      "specs_n": 9,
+      "imgs": 1
+    },
+    {
+      "slug": "maquina-de-anestesia-ref-atlas-n7-northern",
+      "page": "https://en.northernmeditec.com/prodet/13.html",
+      "specs_n": 5,
+      "imgs": 1
+    },
+    {
+      "slug": "monitor-multiparametro-ref-gemini-northern",
+      "page": "https://en.northernmeditec.com/prodet/11.html",
+      "specs_n": 5,
+      "imgs": 1
+    }
+  ],
+  "enriched": 5,
+  "manifest_added": 5
+}

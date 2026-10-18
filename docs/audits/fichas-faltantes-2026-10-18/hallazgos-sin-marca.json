@@ -1,0 +1,754 @@
+{
+  "total": 93,
+  "por_inferencia": {
+    "junk": 1,
+    "unknown": 79,
+    "angell": 13
+  },
+  "items": [
+    {
+      "slug": "test",
+      "nombre": "Test de pasarela de pagos",
+      "guess": "junk",
+      "detail": "test",
+      "desc_len": 140,
+      "has_pdf": false
+    },
+    {
+      "slug": "bomba-de-infusion-ref-vp-50",
+      "nombre": "Bomba de Infusión VP-50",
+      "guess": null,
+      "detail": null,
+      "desc_len": 431,
+      "has_pdf": false
+    },
+    {
+      "slug": "monitor-multiparametrico-uci-avanzado",
+      "nombre": "Monitor Multiparamétrico UCI Avanzado",
+      "guess": null,
+      "detail": null,
+      "desc_len": 229,
+      "has_pdf": false
+    },
+    {
+      "slug": "monitor-multiparametrico-basico",
+      "nombre": "Monitor Multiparamétrico Básico",
+      "guess": null,
+      "detail": null,
+      "desc_len": 226,
+      "has_pdf": false
+    },
+    {
+      "slug": "monitor-de-transporte-prehospitalario",
+      "nombre": "Monitor de Transporte Prehospitalario",
+      "guess": null,
+      "detail": null,
+      "desc_len": 211,
+      "has_pdf": false
+    },
+    {
+      "slug": "monitor-central-uci-multicama",
+      "nombre": "Monitor Central UCI Multicama",
+      "guess": null,
+      "detail": null,
+      "desc_len": 197,
+      "has_pdf": false
+    },
+    {
+      "slug": "electrocardiografo-12-derivaciones-digital",
+      "nombre": "Electrocardiógrafo 12 Derivaciones Digital",
+      "guess": null,
+      "detail": null,
+      "desc_len": 196,
+      "has_pdf": false
+    },
+    {
+      "slug": "desfibrilador-bifasico-con-monitor",
+      "nombre": "Desfibrilador Bifásico con Monitor",
+      "guess": null,
+      "detail": null,
+      "desc_len": 354,
+      "has_pdf": false
+    },
+    {
+      "slug": "holter-24-horas-ritmo-cardiaco",
+      "nombre": "Holter 24 Horas Ritmo Cardíaco",
+      "guess": null,
+      "detail": null,
+      "desc_len": 388,
+      "has_pdf": false
+    },
+    {
+      "slug": "mesa-quirurgica-motorizada-multiposicion",
+      "nombre": "Mesa Quirúrgica Motorizada Multiposición",
+      "guess": null,
+      "detail": null,
+      "desc_len": 315,
+      "has_pdf": false
+    },
+    {
+      "slug": "lampara-cialitica-led-doble-para-quirofano",
+      "nombre": "Lámpara Cialítica LED Doble para Quirófano",
+      "guess": null,
+      "detail": null,
+      "desc_len": 256,
+      "has_pdf": false
+    },
+    {
+      "slug": "maquina-de-anestesia-con-ventilador",
+      "nombre": "Máquina de Anestesia con Ventilador",
+      "guess": null,
+      "detail": null,
+      "desc_len": 327,
+      "has_pdf": false
+    },
+    {
+      "slug": "incubadora-neonatal-de-transporte",
+      "nombre": "Incubadora Neonatal de Transporte",
+      "guess": null,
+      "detail": null,
+      "desc_len": 291,
+      "has_pdf": false
+    },
+    {
+      "slug": "cuna-de-calor-radiante-neonatal-servo",
+      "nombre": "Cuna de Calor Radiante Neonatal Servo",
+      "guess": null,
+      "detail": null,
+      "desc_len": 303,
+      "has_pdf": false
+    },
+    {
+      "slug": "ecografo-color-doppler-diagnostico-vascular",
+      "nombre": "Ecógrafo Color Doppler Diagnóstico Vascular",
+      "guess": null,
+      "detail": null,
+      "desc_len": 344,
+      "has_pdf": false
+    },
+    {
+      "slug": "ecografo-portatil-con-wifi-y-dicom",
+      "nombre": "Ecógrafo Portátil con WiFi y DICOM",
+      "guess": null,
+      "detail": null,
+      "desc_len": 336,
+      "has_pdf": false
+    },
+    {
+      "slug": "ultrasonido-point-of-care-pocket",
+      "nombre": "Ultrasonido Point-of-Care Pocket",
+      "guess": null,
+      "detail": null,
+      "desc_len": 292,
+      "has_pdf": false
+    },
+    {
+      "slug": "bomba-de-infusion-volumetrica-uci",
+      "nombre": "Bomba de Infusión Volumétrica UCI",
+      "guess": null,
+      "detail": null,
+      "desc_len": 291,
+      "has_pdf": false
+    },
+    {
+      "slug": "caminador-con-ruedas-rollator-en-aluminio-con-reposapies-ref-kp285-al-19",
+      "nombre": "Caminador con ruedas Rollator en aluminio con reposapiés",
+      "guess": null,
+      "detail": null,
+      "desc_len": 552,
+      "has_pdf": false
+    },
+    {
+      "slug": "bomba-de-jeringa-precision-microdosis",
+      "nombre": "Bomba de Jeringa Precisión Microdosis",
+      "guess": null,
+      "detail": null,
+      "desc_len": 276,
+      "has_pdf": false
+    },
+    {
+      "slug": "camilla-hospitalaria-electrica-articulable",
+      "nombre": "Camilla Hospitalaria Eléctrica Articulable",
+      "guess": null,
+      "detail": null,
+      "desc_len": 293,
+      "has_pdf": false
+    },
+    {
+      "slug": "carro-de-paro-para-reanimacion",
+      "nombre": "Carro de Paro para Reanimación",
+      "guess": null,
+      "detail": null,
+      "desc_len": 293,
+      "has_pdf": false
+    },
+    {
+      "slug": "monitor-fetal-ctg-con-impresora",
+      "nombre": "Monitor Fetal CTG con Impresora",
+      "guess": null,
+      "detail": null,
+      "desc_len": 263,
+      "has_pdf": false
+    },
+    {
+      "slug": "electrocardiografo-inalambrico-portatil",
+      "nombre": "Electrocardiógrafo Inalámbrico Portátil",
+      "guess": null,
+      "detail": null,
+      "desc_len": 276,
+      "has_pdf": false
+    },
+    {
+      "slug": "sistema-cpap-neonatal-para-uci",
+      "nombre": "Sistema CPAP Neonatal para UCI",
+      "guess": null,
+      "detail": null,
+      "desc_len": 283,
+      "has_pdf": false
+    },
+    {
+      "slug": "mesa-quirurgica-ortopedica-radiolucida",
+      "nombre": "Mesa Quirúrgica Ortopédica Radiolúcida",
+      "guess": null,
+      "detail": null,
+      "desc_len": 298,
+      "has_pdf": false
+    },
+    {
+      "slug": "ventilador-mecanico-uci-adulto-pediatrico",
+      "nombre": "Ventilador Mecánico UCI Adulto-Pediátrico",
+      "guess": null,
+      "detail": null,
+      "desc_len": 279,
+      "has_pdf": false
+    },
+    {
+      "slug": "rx-movil-dinamico-lingxi",
+      "nombre": "Equipo Móvil de Radiografía Digital Dinámica Lingxi",
+      "guess": null,
+      "detail": null,
+      "desc_len": 515,
+      "has_pdf": false
+    },
+    {
+      "slug": "rx-techo-dinamico-qomo",
+      "nombre": "Sistema de Radiografía Digital Dinámica de Techo QOMO",
+      "guess": null,
+      "detail": null,
+      "desc_len": 459,
+      "has_pdf": false
+    },
+    {
+      "slug": "rx-techo-dinamico-changfeng",
+      "nombre": "Sistema de Radiografía Digital Dinámica de Techo Changfeng",
+      "guess": null,
+      "detail": null,
+      "desc_len": 432,
+      "has_pdf": false
+    },
+    {
+      "slug": "rx-multifuncional-uc-arm-ref-dtp580",
+      "nombre": "Sistema de Radiografía Digital Dinámica UC-ARM DTP580",
+      "guess": null,
+      "detail": null,
+      "desc_len": 448,
+      "has_pdf": false
+    },
+    {
+      "slug": "rx-piso-mtp",
+      "nombre": "Sistema Radiográfico de Piso MTP",
+      "guess": null,
+      "detail": null,
+      "desc_len": 421,
+      "has_pdf": false
+    },
+    {
+      "slug": "mamografo-digital-fanghua",
+      "nombre": "Sistema de Mamografía Digital Fanghua",
+      "guess": null,
+      "detail": null,
+      "desc_len": 552,
+      "has_pdf": false
+    },
+    {
+      "slug": "arco-c-movil-dinamico-hua-ii",
+      "nombre": "Arco en C Móvil de Radiografía Digital Dinámica HUA II",
+      "guess": null,
+      "detail": null,
+      "desc_len": 401,
+      "has_pdf": false
+    },
+    {
+      "slug": "patas-en-aluminio-para-comodo-sanitario-kp-ref-kp-parf-2",
+      "nombre": "Patas en Aluminio para Cómodo Sanitario KP",
+      "guess": null,
+      "detail": null,
+      "desc_len": 374,
+      "has_pdf": false
+    },
+    {
+      "slug": "balde-para-comodo-sanitario-kp-ref-kp-bal-2",
+      "nombre": "Balde para Cómodo Sanitario KP",
+      "guess": null,
+      "detail": null,
+      "desc_len": 338,
+      "has_pdf": false
+    },
+    {
+      "slug": "frenos-para-kbe1432rf-mp23l-ref-kbe1432rf-mp23l-fr",
+      "nombre": "Frenos para KBE1432RF-MP23L",
+      "guess": null,
+      "detail": null,
+      "desc_len": 257,
+      "has_pdf": false
+    },
+    {
+      "slug": "llanta-trasera-para-sdr-kbe1432rf-mp23l-ref-kbe1432rf-mp23l-llt",
+      "nombre": "Llanta Trasera para SDR KBE1432RF-MP23L",
+      "guess": "angell",
+      "detail": "angell",
+      "desc_len": 192,
+      "has_pdf": false
+    },
+    {
+      "slug": "llanta-delantera-para-kbe1432rf-mp23l-ref-kbe1432rf-mp23l-lld",
+      "nombre": "Llanta Delantera para KBE1432RF-MP23L",
+      "guess": null,
+      "detail": null,
+      "desc_len": 186,
+      "has_pdf": false
+    },
+    {
+      "slug": "asiento-para-kbe1432rf-mp23l-ref-kbe1432rf-mp23l-as",
+      "nombre": "Asiento para KBE1432RF-MP23L",
+      "guess": null,
+      "detail": null,
+      "desc_len": 172,
+      "has_pdf": false
+    },
+    {
+      "slug": "respaldo-para-kbe1432rf-mp23l-ref-kbe1432rf-mp23-rp",
+      "nombre": "Respaldo para KBE1432RF-MP23L",
+      "guess": null,
+      "detail": null,
+      "desc_len": 142,
+      "has_pdf": false
+    },
+    {
+      "slug": "reposapies-para-sdr-kbo1432rf-mp23-ref-kbo1432rf-mp23-rp",
+      "nombre": "Reposapiés para SDR KBO1432RF-MP23",
+      "guess": "angell",
+      "detail": "angell",
+      "desc_len": 186,
+      "has_pdf": false
+    },
+    {
+      "slug": "deslizadores-delanteros-para-sdr-kbe1462ff-m23-d-ref-desde-kbe1462ff-m23-d",
+      "nombre": "Deslizadores Delanteros para SDR KBE1462FF-M23-D",
+      "guess": "angell",
+      "detail": "angell",
+      "desc_len": 173,
+      "has_pdf": false
+    },
+    {
+      "slug": "deslizadores-traseros-para-sdr-kbe1462ff-m23-d-ref-des-kbe1462ff-m23-d",
+      "nombre": "Deslizadores Traseros para SDR KBE1462FF-M23-D",
+      "guess": "angell",
+      "detail": "angell",
+      "desc_len": 180,
+      "has_pdf": false
+    },
+    {
+      "slug": "pata-con-rueda-sin-freno-en-aluminio-ref-kb225cr-al19-srf",
+      "nombre": "Pata con Rueda sin Freno en Aluminio",
+      "guess": null,
+      "detail": null,
+      "desc_len": 201,
+      "has_pdf": false
+    },
+    {
+      "slug": "pata-con-rueda-sin-freno-color-blanco-ref-kb225cr-ap1-sfr",
+      "nombre": "Pata con Rueda sin Freno color Blanco",
+      "guess": null,
+      "detail": null,
+      "desc_len": 179,
+      "has_pdf": false
+    },
+    {
+      "slug": "manilares-para-muletas-kp-ref-kb3-2010",
+      "nombre": "Manilares para Muletas KP",
+      "guess": null,
+      "detail": null,
+      "desc_len": 172,
+      "has_pdf": false
+    },
+    {
+      "slug": "axilares-para-muletas-ref-kb3-2001l",
+      "nombre": "Axilares para Muletas",
+      "guess": null,
+      "detail": null,
+      "desc_len": 165,
+      "has_pdf": false
+    },
+    {
+      "slug": "tapon-en-forma-de-x-4-apoyos-ref-kp4-4t-d14",
+      "nombre": "Tapón En Forma De X - 4 Apoyos",
+      "guess": null,
+      "detail": null,
+      "desc_len": 169,
+      "has_pdf": false
+    },
+    {
+      "slug": "recaton-color-negro-para-baston-de-4-apoyos-ref-kp4-4t-20d",
+      "nombre": "Recatón Color Negro para Bastón de 4 Apoyos",
+      "guess": null,
+      "detail": null,
+      "desc_len": 414,
+      "has_pdf": false
+    },
+    {
+      "slug": "recaton-color-gris-para-baston-de-4-apoyos-ref-kp4-4t-19d",
+      "nombre": "Recatón Color Gris para Bastón de 4 Apoyos",
+      "guess": null,
+      "detail": null,
+      "desc_len": 370,
+      "has_pdf": false
+    },
+    {
+      "slug": "recaton-color-cafe-para-baston-de-1-apoyo-ref-kp4-1t-26d",
+      "nombre": "Recatón Color Café Para Bastón De 1 Apoyo",
+      "guess": null,
+      "detail": null,
+      "desc_len": 30,
+      "has_pdf": false
+    },
+    {
+      "slug": "recaton-color-negro-para-baston-de-1-apoyo-ref-kp4-1t-20d",
+      "nombre": "Recatón Color Negro Para Bastón De 1 Apoyo",
+      "guess": null,
+      "detail": null,
+      "desc_len": 30,
+      "has_pdf": false
+    },
+    {
+      "slug": "rueda-delantera-sin-tenedor-ref-kbe1462ff-m23d-rst",
+      "nombre": "Rueda Delantera sin Tenedor",
+      "guess": null,
+      "detail": null,
+      "desc_len": 384,
+      "has_pdf": false
+    },
+    {
+      "slug": "pata-con-rueda-y-freno-en-acero-color-blanco-ref-kb225cr-ap1-rf",
+      "nombre": "Pata Con Rueda Y Freno En Acero Color Blanco",
+      "guess": null,
+      "detail": null,
+      "desc_len": 387,
+      "has_pdf": false
+    },
+    {
+      "slug": "arnes-movil-para-grua-hidraulica-ref-jbs168-00-021",
+      "nombre": "Arnés Móvil para Grúa Hidráulica",
+      "guess": null,
+      "detail": null,
+      "desc_len": 32,
+      "has_pdf": false
+    },
+    {
+      "slug": "reposapies-elevables-para-sdr-iron-light-ref-srels-rpe",
+      "nombre": "Reposapiés Elevables para SDR Iron Light",
+      "guess": "angell",
+      "detail": "angell",
+      "desc_len": 378,
+      "has_pdf": false
+    },
+    {
+      "slug": "aro-y-tapa-para-comodo-sanitario-ref-kb225cr-ap1-ta",
+      "nombre": "Aro Y Tapa Para Cómodo Sanitario",
+      "guess": null,
+      "detail": null,
+      "desc_len": 284,
+      "has_pdf": false
+    },
+    {
+      "slug": "balde-para-comodo-sanitario-ref-kb215sr-al-b",
+      "nombre": "Balde Para Comodo Sanitario",
+      "guess": null,
+      "detail": null,
+      "desc_len": 271,
+      "has_pdf": false
+    },
+    {
+      "slug": "respaldo-para-comodo-sanitario-kp-ref-kp2-6543cr-al19-r",
+      "nombre": "Respaldo Para Cómodo Sanitario KP",
+      "guess": null,
+      "detail": null,
+      "desc_len": 303,
+      "has_pdf": false
+    },
+    {
+      "slug": "tapon-para-comodo-kp2-6542sr-ref-kp2-6542sr-tipn",
+      "nombre": "Tapón Para Cómodo KP2-6542SR",
+      "guess": null,
+      "detail": null,
+      "desc_len": 226,
+      "has_pdf": false
+    },
+    {
+      "slug": "espaldar-para-comodo-sanitario-kp2-6542sr-ref-kp2-6542sr-ap1-r",
+      "nombre": "Espaldar Para Cómodo Sanitario KP2-6542SR",
+      "guess": null,
+      "detail": null,
+      "desc_len": 235,
+      "has_pdf": false
+    },
+    {
+      "slug": "asiento-para-comodo-sanitario-kp2-6542sr-ref-kp2-6542sr-ap1-a",
+      "nombre": "Asiento Para Cómodo Sanitario KP2-6542SR",
+      "guess": null,
+      "detail": null,
+      "desc_len": 254,
+      "has_pdf": false
+    },
+    {
+      "slug": "reposapies-removibles-para-sdr-iron-light-ref-srels-rpr",
+      "nombre": "Reposapiés Removibles para SDR Iron Light",
+      "guess": "angell",
+      "detail": "angell",
+      "desc_len": 389,
+      "has_pdf": false
+    },
+    {
+      "slug": "pad-para-sdr-iron-light-ref-srels-pad",
+      "nombre": "Pad para SDR Iron Light",
+      "guess": "angell",
+      "detail": "angell",
+      "desc_len": 31,
+      "has_pdf": false
+    },
+    {
+      "slug": "llanta-trasera-para-sdr-iron-light-ref-srels-lt",
+      "nombre": "Llanta Trasera para SDR Iron Light",
+      "guess": "angell",
+      "detail": "angell",
+      "desc_len": 31,
+      "has_pdf": false
+    },
+    {
+      "slug": "reposapies-elevables-para-sdr-kbe1462re-pp23l-ref-kbe1462re-p23l-rp",
+      "nombre": "Reposapiés elevables para SDR KBE1462RE-PP23L",
+      "guess": "angell",
+      "detail": "angell",
+      "desc_len": 345,
+      "has_pdf": false
+    },
+    {
+      "slug": "freno-para-sdr-estandar-color-gris-ref-kbe1462-fr",
+      "nombre": "Freno para SDR Estándar color Gris",
+      "guess": "angell",
+      "detail": "angell",
+      "desc_len": 61,
+      "has_pdf": false
+    },
+    {
+      "slug": "asiento-para-sdr-kbe1462ff-m23-d-ref-kbe1462ff-m23d-a",
+      "nombre": "Asiento para SDR KBE1462FF-M23-D",
+      "guess": "angell",
+      "detail": "angell",
+      "desc_len": 284,
+      "has_pdf": false
+    },
+    {
+      "slug": "asiento-para-silla-de-ruedas-pediatrica-ref-fs980la-35-a",
+      "nombre": "Asiento Para Silla De Ruedas Pediátrica",
+      "guess": null,
+      "detail": null,
+      "desc_len": 31,
+      "has_pdf": false
+    },
+    {
+      "slug": "espaldar-en-nailon-para-silla-de-transporte-ref-fs976abj-43-e",
+      "nombre": "Espaldar En Nailon Para Silla De Transporte",
+      "guess": null,
+      "detail": null,
+      "desc_len": 31,
+      "has_pdf": false
+    },
+    {
+      "slug": "actuador-hidraulico-para-jbs168-1-ref-jbs168-00-1a",
+      "nombre": "Actuador hidráulico para jbs168-1",
+      "guess": null,
+      "detail": null,
+      "desc_len": 32,
+      "has_pdf": false
+    },
+    {
+      "slug": "filtro-par-compresor-nebulizador-panda-ref-gmrn457-1f",
+      "nombre": "Filtro Par Compresor Nebulizador Panda",
+      "guess": null,
+      "detail": null,
+      "desc_len": 35,
+      "has_pdf": false
+    },
+    {
+      "slug": "recaton-color-gris-para-baston-de-1-apoyo-dc-ref-kp4-1t-19d",
+      "nombre": "Recatón Color Gris para Bastón de 1 Apoyo Dc",
+      "guess": null,
+      "detail": null,
+      "desc_len": 30,
+      "has_pdf": false
+    },
+    {
+      "slug": "reposapies-para-sdr-kbe1452ff-m23-d-ref-kbe1462ff-m23d-rp",
+      "nombre": "Reposapiés para SDR KBE1452FF-M23-D",
+      "guess": "angell",
+      "detail": "angell",
+      "desc_len": 295,
+      "has_pdf": false
+    },
+    {
+      "slug": "tapon-para-caminador-kp1-816l-color-gris-ref-kp1-816l-tip",
+      "nombre": "Tapón para Caminador KP1-816L Color Gris",
+      "guess": null,
+      "detail": null,
+      "desc_len": 138,
+      "has_pdf": false
+    },
+    {
+      "slug": "rueda-trasera-para-silla-de-transporte-ref-kbo1432rf-mp23-rt",
+      "nombre": "Rueda Trasera Para Silla De Transporte",
+      "guess": null,
+      "detail": null,
+      "desc_len": 31,
+      "has_pdf": false
+    },
+    {
+      "slug": "frenos-para-sdr-kbo1432rf-mp23-ref-kbo1432rf-mp23-fr",
+      "nombre": "Frenos para SDR KBO1432RF-MP23",
+      "guess": "angell",
+      "detail": "angell",
+      "desc_len": 31,
+      "has_pdf": false
+    },
+    {
+      "slug": "de-oxigeno-con-cilindro-de-416-l-ref-kit-2",
+      "nombre": "Kit 2 De Oxígeno Con Cilindro De 416 l",
+      "guess": null,
+      "detail": null,
+      "desc_len": 407,
+      "has_pdf": false
+    },
+    {
+      "slug": "cilindro-de-oxigeno-416-l-ref-md15-015",
+      "nombre": "Cilindro De Oxígeno 416 L",
+      "guess": null,
+      "detail": null,
+      "desc_len": 196,
+      "has_pdf": false
+    },
+    {
+      "slug": "carra-para-cilindro-680-l-ref-150-0100",
+      "nombre": "Carra Para Cilindro - 680 L",
+      "guess": null,
+      "detail": null,
+      "desc_len": 141,
+      "has_pdf": false
+    },
+    {
+      "slug": "tapon-para-silla-ducha-kb2-798l-ref-kb2-798l-t",
+      "nombre": "Tapón Para Silla Ducha KB2-798L",
+      "guess": null,
+      "detail": null,
+      "desc_len": 28,
+      "has_pdf": false
+    },
+    {
+      "slug": "empaque-para-regulador-de-valvulas-gmr-ref-gmr540-mdk-001",
+      "nombre": "Empaque para Regulador de Válvulas GMR",
+      "guess": null,
+      "detail": null,
+      "desc_len": 71,
+      "has_pdf": false
+    },
+    {
+      "slug": "tapon-para-comodo-sanitario-ref-kb215sr-al-tip",
+      "nombre": "Tapón Para Cómodo Sanitario",
+      "guess": null,
+      "detail": null,
+      "desc_len": 274,
+      "has_pdf": false
+    },
+    {
+      "slug": "pata-para-comodo-sanitario-en-aluminio-ref-kb215sr-al-leg",
+      "nombre": "Pata Para Cómodo Sanitario En Aluminio",
+      "guess": null,
+      "detail": null,
+      "desc_len": 279,
+      "has_pdf": false
+    },
+    {
+      "slug": "llanta-con-freno-para-comodo-sanitario-ref-fs696-rf",
+      "nombre": "Llanta Con Freno Para Cómodo Sanitario",
+      "guess": null,
+      "detail": null,
+      "desc_len": 54,
+      "has_pdf": false
+    },
+    {
+      "slug": "llanta-sin-freno-para-comodo-sanitario-ref-fs696-r",
+      "nombre": "Llanta Sin Freno Para Cómodo Sanitario",
+      "guess": null,
+      "detail": null,
+      "desc_len": 51,
+      "has_pdf": false
+    },
+    {
+      "slug": "combo-600-cajas-de-tirillas-plus-600-cajas-de-lancetas-plus-200-glucometros-en-o-ref-ltd-b10-600",
+      "nombre": "Combo 600 Cajas de Tirillas + 600 Cajas de Lancetas + 200 Glucómetros en obsequio",
+      "guess": null,
+      "detail": null,
+      "desc_len": 132,
+      "has_pdf": false
+    },
+    {
+      "slug": "combo-cajas-de-tirillas-plus-cajas-de-lancetas-plus-67-glucometros-en-obsequio-ref-200",
+      "nombre": "Combo 200 Cajas de Tirillas + 200 Cajas de Lancetas + 67 Glucómetros en obsequio",
+      "guess": null,
+      "detail": null,
+      "desc_len": 131,
+      "has_pdf": false
+    },
+    {
+      "slug": "combo-200-cajas-de-tirillas-plus-200-cajas-de-lancetas-plus-67-glucometros-en-obsequio-e-ref-200",
+      "nombre": "Combo 200 Cajas de Tirillas + 200 Cajas de Lancetas + 67 Glucómetros en obsequio",
+      "guess": null,
+      "detail": null,
+      "desc_len": 131,
+      "has_pdf": false
+    },
+    {
+      "slug": "combo-cajas-de-tirillas-plus-cajas-de-lancetas-plus-25-glucometros-en-obsequio-ref-100",
+      "nombre": "Combo 100 Cajas de Tirillas + 100 Cajas de Lancetas + 25 Glucómetros en obsequio",
+      "guess": null,
+      "detail": null,
+      "desc_len": 123,
+      "has_pdf": false
+    },
+    {
+      "slug": "combo-100-cajas-de-tirillas-plus-100-cajas-de-lancetas-plus-25-glucometros-en-obsequio-7-ref-100",
+      "nombre": "Combo 100 Cajas de Tirillas + 100 Cajas de Lancetas + 25 Glucómetros en obsequio",
+      "guess": null,
+      "detail": null,
+      "desc_len": 123,
+      "has_pdf": false
+    },
+    {
+      "slug": "combo-50-cajas-de-tirillas-plus-50-cajas-de-lancetas-plus-10-glucometros-en-obseq-ref-ltd-b10-50",
+      "nombre": "Combo 50 Cajas de Tirillas + 50 Cajas de Lancetas + 10 Glucómetros en obsequio",
+      "guess": null,
+      "detail": null,
+      "desc_len": 129,
+      "has_pdf": false
+    }
+  ]
+}

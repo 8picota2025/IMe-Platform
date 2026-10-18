@@ -1,0 +1,40 @@
+{
+  "updated": "2026-10-18T02:16:43.805399+00:00",
+  "fase2_cola_sin_pdf_original": 213,
+  "cola_con_pdf_ahora": 51,
+  "cola_aun_sin_pdf": 162,
+  "catalogo_total": 718,
+  "catalogo_con_pdf": 513,
+  "batches_recientes": [
+    "northern 9+acuarius PDFs",
+    "saikang +3 (V3v, SKH041, SKR058); total saikang cola OK 11",
+    "sin-marca Advanced 13 PDFs wired + marca",
+    "Advanced V-1000 y DUS-3000 enriquecidos sin PDF (metadata catálogo)"
+  ],
+  "pendiente_principal": {
+    "Saikang_sin_pdf": 52,
+    "Sin_marca_sin_pdf": 80,
+    "otras_marcas": 37
+  },
+  "subagentes_en_curso": [
+    "hallazgos-saikang-v3",
+    "hallazgos-marcas-misc-v3",
+    "wire-sin-marca-advanced",
+    "enrich-saikang-seo",
+    "enrich-advanced-seo",
+    "hallazgos-northern-advanced-rest"
+  ],
+  "sin_push_deploy": true,
+  "nota_calidad": "Rechazados SKR058-NT→CT y SKH0411 IV-stand→SKH041 lavado (exact-model)",
+  "seo_saikang_mejorados": 11,
+  "sin_marca_advanced_pdf": 13,
+  "ilumitec_ftp_wired": 8,
+  "bm_perlong_page_enrich": [
+    "bme002",
+    "yrbb-20"
+  ],
+  "followup_agents": "ilumitec-8-ftp + sks002-w + bm/perlong pages; saikang-v3 only 2 hits",
+  "advanced_seo_reapplied": true,
+  "saikang_v3": "V3v+SKS002-W already wired; ~53 remaining without exact PDF",
+  "saikang_paginas_sin_pdf_enriched": 19
+}

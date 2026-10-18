@@ -1,0 +1,227 @@
+[
+  {
+    "sku": "V-1000",
+    "slug": "ventilador-para-uci-ref-v-1000-advanced",
+    "descripcion_larga_es": "El Ventilador para UCI V-1000 de Advanced Instrumentations forma parte del catálogo IME para instituciones de salud en Colombia.\n\nVentilador para UCI pediátrico y adulto.\n\nModelo de referencia: V-1000. Datos tomados del catálogo IME; solicite la ficha técnica oficial al cotizar.",
+    "descripcion_larga_en": "The ICU Ventilator V-1000 from Advanced Instrumentations is listed in the IME catalog for healthcare institutions in Colombia.\n\nVentilador para UCI pediátrico y adulto.\n\nReference model: V-1000. Data from the IME catalog; request the official datasheet when quoting.",
+    "beneficios_es": [
+      "Control electrónico y neumático",
+      "Amplia gama modos ventilación",
+      "Pediátrico y adulto"
+    ],
+    "beneficios_en": [
+      "Control electrónico y neumático",
+      "Amplia gama modos ventilación",
+      "Pediátrico y adulto"
+    ],
+    "valor_es": "Ventilador para UCI V-1000 (Advanced Instrumentations) con datos de catálogo IME.",
+    "valor_en": "ICU Ventilator V-1000 (Advanced Instrumentations) with IME catalog data.",
+    "aplicaciones_es": [
+      "UCI",
+      "Cuidados intensivos"
+    ],
+    "aplicaciones_en": [
+      "UCI",
+      "Cuidados intensivos"
+    ],
+    "faq_es": [
+      {
+        "q": "¿Qué producto es el Ventilador para UCI V-1000?",
+        "a": "Equipo Advanced Instrumentations del catálogo IME, referencia V-1000."
+      },
+      {
+        "q": "¿Qué características declara el catálogo?",
+        "a": "Control electrónico y neumático; Amplia gama modos ventilación; Pediátrico y adulto"
+      },
+      {
+        "q": "¿Aplicaciones?",
+        "a": "UCI; Cuidados intensivos"
+      },
+      {
+        "q": "¿Hay ficha PDF?",
+        "a": "Solicite la ficha técnica oficial al cotizar con IME."
+      },
+      {
+        "q": "¿Cómo cotizo?",
+        "a": "Indique el modelo V-1000 y el área clínica."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What is the ICU Ventilator V-1000?",
+        "a": "Advanced Instrumentations device in the IME catalog, reference V-1000."
+      },
+      {
+        "q": "Key catalog specs?",
+        "a": "Control electrónico y neumático; Amplia gama modos ventilación; Pediátrico y adulto"
+      },
+      {
+        "q": "Applications?",
+        "a": "UCI; Cuidados intensivos"
+      },
+      {
+        "q": "PDF datasheet?",
+        "a": "Request the official datasheet when quoting with IME."
+      },
+      {
+        "q": "How to quote?",
+        "a": "Provide model V-1000 and clinical area."
+      }
+    ],
+    "seo_keywords_es": [
+      "Ventilador para UCI V-1000",
+      "V-1000 Advanced",
+      "Ventilador para UCI V-1000 Colombia",
+      "ventilador UCI",
+      "IME"
+    ],
+    "seo_keywords_en": [
+      "ICU Ventilator V-1000",
+      "V-1000 Advanced Instrumentations",
+      "IME Colombia"
+    ],
+    "especificaciones": [
+      {
+        "clave": "Fabricante",
+        "grupo": "Identificación",
+        "valor": "Advanced Instrumentations"
+      },
+      {
+        "clave": "Modelo / SKU",
+        "grupo": "Identificación",
+        "valor": "V-1000"
+      },
+      {
+        "clave": "Característica",
+        "grupo": "Catálogo",
+        "valor": "Control electrónico y neumático"
+      },
+      {
+        "clave": "Característica",
+        "grupo": "Catálogo",
+        "valor": "Amplia gama modos ventilación"
+      },
+      {
+        "clave": "Característica",
+        "grupo": "Catálogo",
+        "valor": "Pediátrico y adulto"
+      }
+    ],
+    "append_descripcion": false
+  },
+  {
+    "sku": "DUS-3000",
+    "slug": "sistema-de-ultrasonido-ref-dus-3000-advanced",
+    "descripcion_larga_es": "El Sistema de Ultrasonido DUS-3000 de Advanced Instrumentations forma parte del catálogo IME para instituciones de salud en Colombia.\n\nSistema de diagnóstico por imagen ultrasónica digital.\n\nModelo de referencia: DUS-3000. Datos tomados del catálogo IME; solicite la ficha técnica oficial al cotizar.",
+    "descripcion_larga_en": "The Ultrasound System DUS-3000 from Advanced Instrumentations is listed in the IME catalog for healthcare institutions in Colombia.\n\nSistema de diagnóstico por imagen ultrasónica digital.\n\nReference model: DUS-3000. Data from the IME catalog; request the official datasheet when quoting.",
+    "beneficios_es": [
+      "Memoria de bucle de cine de 128 cuadros",
+      "Conector para 2 transductores",
+      "Almacenamiento de imágenes integrado",
+      "Alta tecnología digital"
+    ],
+    "beneficios_en": [
+      "Memoria de bucle de cine de 128 cuadros",
+      "Conector para 2 transductores",
+      "Almacenamiento de imágenes integrado",
+      "Alta tecnología digital"
+    ],
+    "valor_es": "Sistema de Ultrasonido DUS-3000 (Advanced Instrumentations) con datos de catálogo IME.",
+    "valor_en": "Ultrasound System DUS-3000 (Advanced Instrumentations) with IME catalog data.",
+    "aplicaciones_es": [
+      "Diagnóstico por imagen"
+    ],
+    "aplicaciones_en": [
+      "Diagnóstico por imagen"
+    ],
+    "faq_es": [
+      {
+        "q": "¿Qué producto es el Sistema de Ultrasonido DUS-3000?",
+        "a": "Equipo Advanced Instrumentations del catálogo IME, referencia DUS-3000."
+      },
+      {
+        "q": "¿Qué características declara el catálogo?",
+        "a": "Memoria de bucle de cine de 128 cuadros; Conector para 2 transductores; Almacenamiento de imágenes integrado; Alta tecnología digital"
+      },
+      {
+        "q": "¿Aplicaciones?",
+        "a": "Diagnóstico por imagen"
+      },
+      {
+        "q": "¿Hay ficha PDF?",
+        "a": "Solicite la ficha técnica oficial al cotizar con IME."
+      },
+      {
+        "q": "¿Cómo cotizo?",
+        "a": "Indique el modelo DUS-3000 y el área clínica."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What is the Ultrasound System DUS-3000?",
+        "a": "Advanced Instrumentations device in the IME catalog, reference DUS-3000."
+      },
+      {
+        "q": "Key catalog specs?",
+        "a": "Memoria de bucle de cine de 128 cuadros; Conector para 2 transductores; Almacenamiento de imágenes integrado; Alta tecnología digital"
+      },
+      {
+        "q": "Applications?",
+        "a": "Diagnóstico por imagen"
+      },
+      {
+        "q": "PDF datasheet?",
+        "a": "Request the official datasheet when quoting with IME."
+      },
+      {
+        "q": "How to quote?",
+        "a": "Provide model DUS-3000 and clinical area."
+      }
+    ],
+    "seo_keywords_es": [
+      "Sistema de Ultrasonido DUS-3000",
+      "DUS-3000 Advanced",
+      "Sistema de Ultrasonido DUS-3000 Colombia",
+      "ultrasonido DUS-3000",
+      "IME"
+    ],
+    "seo_keywords_en": [
+      "Ultrasound System DUS-3000",
+      "DUS-3000 Advanced Instrumentations",
+      "IME Colombia"
+    ],
+    "especificaciones": [
+      {
+        "clave": "Fabricante",
+        "grupo": "Identificación",
+        "valor": "Advanced Instrumentations"
+      },
+      {
+        "clave": "Modelo / SKU",
+        "grupo": "Identificación",
+        "valor": "DUS-3000"
+      },
+      {
+        "clave": "Característica",
+        "grupo": "Catálogo",
+        "valor": "Memoria de bucle de cine de 128 cuadros"
+      },
+      {
+        "clave": "Característica",
+        "grupo": "Catálogo",
+        "valor": "Conector para 2 transductores"
+      },
+      {
+        "clave": "Característica",
+        "grupo": "Catálogo",
+        "valor": "Almacenamiento de imágenes integrado"
+      },
+      {
+        "clave": "Característica",
+        "grupo": "Catálogo",
+        "valor": "Alta tecnología digital"
+      }
+    ],
+    "append_descripcion": false
+  }
+]

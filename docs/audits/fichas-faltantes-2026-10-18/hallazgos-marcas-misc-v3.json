@@ -1,0 +1,364 @@
+{
+  "generado": "2026-10-18",
+  "metodo": "WebSearch + fetch sitios fabricante + carpetas Desktop MDs/CAT/Productos + skip mock-productos con ficha_pdf",
+  "items": [
+    {
+      "slug": "arco-en-c-alc-280-series-ref-alc-280-angell",
+      "marca": "Angell Technology",
+      "ref": "ALC-280",
+      "ficha_url": null,
+      "pagina_fabricante": "https://en.szangell.com/product/hua-ii-series/",
+      "pdf_local_desktop": null,
+      "confianza": "baja",
+      "notas": "HUA II = ALC280 en blog oficial; sin PDF en angell-tech.com/en/service/downloads/ ni en página producto. MedicalExpo no es dominio fabricante."
+    },
+    {
+      "slug": "sistema-de-rayos-x-dr-montado-en-techo-ref-dr-ceiling-angell",
+      "marca": "Angell Technology",
+      "ref": "DR-CEILING",
+      "ficha_url": null,
+      "pagina_fabricante": "https://en.szangell.com/product/qomo-series/",
+      "pdf_local_desktop": null,
+      "confianza": "baja",
+      "notas": "IME SKU DR-CEILING mapea a serie QOMO; sin PDF público con modelo exacto en angell-tech.com o szangell.com."
+    },
+    {
+      "slug": "sistema-de-rayos-x-dr-montado-en-suelo-ref-dr-floor-angell",
+      "marca": "Angell Technology",
+      "ref": "DR-FLOOR",
+      "ficha_url": null,
+      "pagina_fabricante": "https://en.szangell.com/product/mtp-series/",
+      "pdf_local_desktop": null,
+      "confianza": "baja",
+      "notas": "IME SKU DR-FLOOR ↔ serie MTP; sin PDF verificado con DR-FLOOR."
+    },
+    {
+      "slug": "sistema-de-rayos-x-dr-movil-ref-dr-mobile-angell",
+      "marca": "Angell Technology",
+      "ref": "DR-MOBILE",
+      "ficha_url": null,
+      "pagina_fabricante": "https://angell-tech.com/en/dtp-326-mobile-digital-radiography/",
+      "pdf_local_desktop": null,
+      "confianza": "media",
+      "notas": "PDF oficial angell-tech DP326 Mobile DR Flyer (modelo fabricante DP326, no SKU IME DR-MOBILE): https://angell-tech.com/wp-content/uploads/2023/06/Angell-Technology-GmbH-DP326-Mobile-DR-Flyer-English-Version.pdf — no cumple match exacto para confianza alta."
+    },
+    {
+      "slug": "sistema-dr-de-mesa-telecomandada-ref-dr-telecomand-angell",
+      "marca": "Angell Technology",
+      "ref": "DR-TELECOMAND",
+      "ficha_url": null,
+      "pagina_fabricante": "https://angell-tech.com/en/dtp-576-dynamic-table-digital-r-f/",
+      "pdf_local_desktop": null,
+      "confianza": "media",
+      "notas": "PDF oficial DTP576 DR Table Flyer (modelo DTP576, no SKU DR-TELECOMAND): https://angell-tech.com/wp-content/uploads/2023/06/Angell-Technology-GmbH-DTP576-DR-Table-Flyer-English-Version.pdf"
+    },
+    {
+      "slug": "dr-dinamico-de-brazo-ref-dr-uc-arm-angell",
+      "marca": "Angell Technology",
+      "ref": "DR-UC-ARM",
+      "ficha_url": null,
+      "pagina_fabricante": "https://angell-tech.com/en/dtp-580-dynamic-uc-arm-digital-r-f/",
+      "pdf_local_desktop": null,
+      "confianza": "media",
+      "notas": "PDF oficial DTP580 UC Arm Flyer (serie DTP580, no SKU DR-UC-ARM): https://angell-tech.com/wp-content/uploads/2023/06/Angell-Technology-GmbH-DTP580-UC-Arm-Flyer-English-Version.pdf"
+    },
+    {
+      "slug": "dr-dinamico-ref-dtp573-angell",
+      "marca": "Angell Technology",
+      "ref": "DTP573",
+      "ficha_url": null,
+      "pagina_fabricante": "https://angell-tech.com/en/dtp573-dynamic-dr-system/",
+      "pdf_local_desktop": null,
+      "confianza": "baja",
+      "notas": "Página oficial DTP573 en angell-tech.com; sin enlace PDF público en HTML (solo WR-3D/DTP580 en centro de descargas)."
+    },
+    {
+      "slug": "detector-plano-inalambrico-ref-tcq-iii-angell",
+      "marca": "Angell Technology",
+      "ref": "TCQ-III",
+      "ficha_url": null,
+      "pagina_fabricante": "https://en.szangell.com/product/components/",
+      "pdf_local_desktop": null,
+      "confianza": "baja",
+      "notas": "Detector TCQ-III en catálogo Angell; página legacy info.aspx?itemid=465 sin PDF; brochures TCQ-III solo en terceros (Scribd), no dominio fabricante."
+    },
+    {
+      "slug": "sillon-reclinable-bme002-bm-ref-bme002",
+      "marca": "BM",
+      "ref": "BME002",
+      "ficha_url": null,
+      "pagina_fabricante": "https://www.brothermedical.com/Medical-Dual-Motor-Grey-Lift-Chair-pd40439220.html",
+      "pdf_local_desktop": null,
+      "confianza": "alta",
+      "notas": "BM = Shanghai Brother Medical; página oficial lista Model BME002; brothermedical.com/download.html sin PDF BME002."
+    },
+    {
+      "slug": "silla-reclinable-bme006-bm-ref-bme006",
+      "marca": "BM",
+      "ref": "BME006",
+      "ficha_url": null,
+      "pagina_fabricante": null,
+      "pdf_local_desktop": null,
+      "confianza": "baja",
+      "notas": "BME006 no listado en brothermedical.com (products.html ni búsqueda); metadata Desktop apunta a URL turca no coincidente."
+    },
+    {
+      "slug": "sillon-reclinable-bme007-bm-ref-bme007",
+      "marca": "BM",
+      "ref": "BME007",
+      "ficha_url": null,
+      "pagina_fabricante": null,
+      "pdf_local_desktop": null,
+      "confianza": "baja",
+      "notas": "BME007 aparece en listados Tradewheel del fabricante pero no en brothermedical.com; sin PDF oficial."
+    },
+    {
+      "slug": "lampara-rodable-ref-led-rx18-ilumitec",
+      "marca": "Ilumitec",
+      "ref": "LED-RX18",
+      "ficha_url": null,
+      "pagina_fabricante": "https://www.ilumitecsas.com/",
+      "pdf_local_desktop": "/home/shoky/FTP/pdf producto/Ilumitec/LED-RX18.pdf",
+      "confianza": "baja",
+      "notas": "Fabricante Ilumitec S.A.S. (Colombia): ilumitecsas.com sin PDFs por referencia; PDF local IME/FTP por SKU (no URL pública fabricante)."
+    },
+    {
+      "slug": "lampara-rodable-ref-led-rx18-100k-ilumitec",
+      "marca": "Ilumitec",
+      "ref": "LED-RX18 100K",
+      "ficha_url": null,
+      "pagina_fabricante": "https://www.ilumitecsas.com/",
+      "pdf_local_desktop": "/home/shoky/FTP/pdf producto/Ilumitec/LED-RX18-100K.pdf",
+      "confianza": "baja",
+      "notas": "Fabricante Ilumitec S.A.S. (Colombia): ilumitecsas.com sin PDFs por referencia; PDF local IME/FTP por SKU (no URL pública fabricante)."
+    },
+    {
+      "slug": "lampara-rodable-ref-led-rx36-ilumitec",
+      "marca": "Ilumitec",
+      "ref": "LED-RX36",
+      "ficha_url": null,
+      "pagina_fabricante": "https://www.ilumitecsas.com/",
+      "pdf_local_desktop": "/home/shoky/FTP/pdf producto/Ilumitec/LED-RX36.pdf",
+      "confianza": "baja",
+      "notas": "Fabricante Ilumitec S.A.S. (Colombia): ilumitecsas.com sin PDFs por referencia; PDF local IME/FTP por SKU (no URL pública fabricante)."
+    },
+    {
+      "slug": "lampara-rodable-ref-led-rx36-160k-ilumitec",
+      "marca": "Ilumitec",
+      "ref": "LED-RX36-160K",
+      "ficha_url": null,
+      "pagina_fabricante": "https://www.ilumitecsas.com/",
+      "pdf_local_desktop": "/home/shoky/FTP/pdf producto/Ilumitec/LED-RX36-160K.pdf",
+      "confianza": "baja",
+      "notas": "Fabricante Ilumitec S.A.S. (Colombia): ilumitecsas.com sin PDFs por referencia; PDF local IME/FTP por SKU (no URL pública fabricante)."
+    },
+    {
+      "slug": "lampara-cielitica-ref-led-x18-100k-ilumitec",
+      "marca": "Ilumitec",
+      "ref": "LED-X18 100K",
+      "ficha_url": null,
+      "pagina_fabricante": "https://www.ilumitecsas.com/",
+      "pdf_local_desktop": "/home/shoky/FTP/pdf producto/Ilumitec/LED-X18-100K.pdf",
+      "confianza": "baja",
+      "notas": "Fabricante Ilumitec S.A.S. (Colombia): ilumitecsas.com sin PDFs por referencia; PDF local IME/FTP por SKU (no URL pública fabricante)."
+    },
+    {
+      "slug": "lampara-cielitica-ref-led-x36-ilumitec",
+      "marca": "Ilumitec",
+      "ref": "LED-X36",
+      "ficha_url": null,
+      "pagina_fabricante": "https://www.ilumitecsas.com/",
+      "pdf_local_desktop": "/home/shoky/FTP/pdf producto/Ilumitec/LED-X36.pdf",
+      "confianza": "baja",
+      "notas": "Fabricante Ilumitec S.A.S. (Colombia): ilumitecsas.com sin PDFs por referencia; PDF local IME/FTP por SKU (no URL pública fabricante)."
+    },
+    {
+      "slug": "lampara-cielitica-led-x3618-con-satelite-ref-led-x3618-ilumitec",
+      "marca": "Ilumitec",
+      "ref": "LED-X3618",
+      "ficha_url": null,
+      "pagina_fabricante": "https://www.ilumitecsas.com/",
+      "pdf_local_desktop": "/home/shoky/FTP/pdf producto/Ilumitec/LED-X3618.pdf",
+      "confianza": "baja",
+      "notas": "Fabricante Ilumitec S.A.S. (Colombia): ilumitecsas.com sin PDFs por referencia; PDF local IME/FTP por SKU (no URL pública fabricante)."
+    },
+    {
+      "slug": "lampara-cielitica-led-x3636-con-satelite-ref-led-x3636-ilumitec",
+      "marca": "Ilumitec",
+      "ref": "LED-X3636",
+      "ficha_url": null,
+      "pagina_fabricante": "https://www.ilumitecsas.com/",
+      "pdf_local_desktop": "/home/shoky/FTP/pdf producto/Ilumitec/LED-X3636.pdf",
+      "confianza": "baja",
+      "notas": "Fabricante Ilumitec S.A.S. (Colombia): ilumitecsas.com sin PDFs por referencia; PDF local IME/FTP por SKU (no URL pública fabricante)."
+    },
+    {
+      "slug": "balanza-para-bebe-electronica-ref-ebsa-20-perlong",
+      "marca": "Perlong",
+      "ref": "EBSA-20",
+      "ficha_url": null,
+      "pagina_fabricante": "https://www.perlong-china.com/Scale-pl6383726.html",
+      "pdf_local_desktop": null,
+      "confianza": "baja",
+      "notas": "EBSA-20 no listado en perlong-china.com; catálogo muestra EBSC-20/ACS-20-YE (modelos distintos)."
+    },
+    {
+      "slug": "bascula-corporal-doble-regla-ref-rgt-a-200-rt-perlong",
+      "marca": "Perlong",
+      "ref": "RGT.A-200-RT",
+      "ficha_url": null,
+      "pagina_fabricante": "https://www.perlong-china.com/Scale-pl6383726.html",
+      "pdf_local_desktop": null,
+      "confianza": "baja",
+      "notas": "RGT.A-200-RT sin página ni PDF en perlong-china.com."
+    },
+    {
+      "slug": "balanza-corporal-con-doble-regla-ref-rgt-rt-perlong",
+      "marca": "Perlong",
+      "ref": "RGT-RT",
+      "ficha_url": null,
+      "pagina_fabricante": "https://www.perlong-china.com/Scale-pl6383726.html",
+      "pdf_local_desktop": null,
+      "confianza": "baja",
+      "notas": "RGT-RT sin coincidencia exacta en sitio Perlong."
+    },
+    {
+      "slug": "bascula-corporal-electronica-ref-tcs-200-rt-perlong",
+      "marca": "Perlong",
+      "ref": "TCS-200-RT",
+      "ficha_url": null,
+      "pagina_fabricante": "https://www.perlong-china.com/Electronic-Body-Scale-pd6616338.html",
+      "pdf_local_desktop": null,
+      "confianza": "baja",
+      "notas": "Página pd6616338 no declara modelo TCS-200-RT (solo specs 200 kg); TCS-200-RT no indexado en perlong-china.com."
+    },
+    {
+      "slug": "balanza-corporal-electronica-ref-tcs-200b-rt-perlong",
+      "marca": "Perlong",
+      "ref": "TCS-200B-RT",
+      "ficha_url": null,
+      "pagina_fabricante": "https://www.perlong-china.com/Electronic-Body-Scale-pd95322436.html",
+      "pdf_local_desktop": null,
+      "confianza": "baja",
+      "notas": "Página oficial declara Model 200B-RT (300 kg), no TCS-200B-RT exacto; sin PDF."
+    },
+    {
+      "slug": "balanza-para-bebe-ref-yrbb-20-perlong",
+      "marca": "Perlong",
+      "ref": "YRBB-20",
+      "ficha_url": null,
+      "pagina_fabricante": "https://www.perlong-china.com/YRBB-20-Baby-Scale-pd569477798.html",
+      "pdf_local_desktop": null,
+      "confianza": "alta",
+      "notas": "Página fabricante con Model YRBB-20; download.html solo catálogo general (Catalogue-PERLONG 2024-S.pdf vía JS encodeFileId, no ficha unitaria)."
+    },
+    {
+      "slug": "bascula-corporal-ref-zt-120-perlong",
+      "marca": "Perlong",
+      "ref": "ZT-120",
+      "ficha_url": null,
+      "pagina_fabricante": "https://www.perlong-china.com/Dial-Body-Scale-pd6026338.html",
+      "pdf_local_desktop": null,
+      "confianza": "baja",
+      "notas": "Dial Body Scale pd6026338 sin token ZT-120 en HTML; sin PDF oficial por modelo."
+    },
+    {
+      "slug": "bascula-corporal-ref-zt-150a-perlong",
+      "marca": "Perlong",
+      "ref": "ZT-150A",
+      "ficha_url": null,
+      "pagina_fabricante": "https://www.perlong-china.com/Scale-pl6383726.html",
+      "pdf_local_desktop": null,
+      "confianza": "baja",
+      "notas": "ZT-150A no encontrado en perlong-china.com."
+    },
+    {
+      "slug": "sistema-de-ultrasonido-ref-dus-3000-advanced",
+      "marca": "Advanced Instrumentations",
+      "ref": "DUS-3000",
+      "ficha_url": null,
+      "pagina_fabricante": "https://advanced-inst.com/ultrasound/",
+      "pdf_local_desktop": null,
+      "confianza": "baja",
+      "notas": "advanced-inst.com publica PDFs DUS-5000/5000Plus/6000/7000; búsqueda DUS-3000 sin resultados; DUS-3000.pdf probado 404."
+    },
+    {
+      "slug": "ventilador-para-uci-ref-v-1000-advanced",
+      "marca": "Advanced Instrumentations",
+      "ref": "V-1000",
+      "ficha_url": null,
+      "pagina_fabricante": "https://advanced-inst.com/turbine-driven-v-1000t-plus/",
+      "pdf_local_desktop": null,
+      "confianza": "baja",
+      "notas": "Solo V-1000T Plus en web; V-1000.pdf en wp-content/uploads 404; IME pide V-1000 exacto."
+    },
+    {
+      "slug": "monitor-de-paciente-ref-s12-biolight",
+      "marca": "Biolight",
+      "ref": "S12",
+      "ficha_url": null,
+      "pagina_fabricante": "https://www.blt.com.cn/product1-ebeea5e0075f445b8d24586413e5927d",
+      "pdf_local_desktop": null,
+      "confianza": "baja",
+      "notas": "Página oficial 型号 S12; global.blt.com.cn solo manuales S-series en Baidu/OneDrive (sin PDF datasheet directo en dominio blt). Brochures S10/S12 en distribuidores, no alta."
+    }
+  ],
+  "resumen_por_marca": {
+    "Angell Technology": {
+      "total": 8,
+      "ficha_url_alta": 0,
+      "pagina_fabricante_alta": 0,
+      "pdf_local_no_oficial": 0,
+      "media_serie_pdf": 3
+    },
+    "BM": {
+      "total": 3,
+      "ficha_url_alta": 0,
+      "pagina_fabricante_alta": 1,
+      "pdf_local_no_oficial": 0,
+      "media_serie_pdf": 0
+    },
+    "Ilumitec": {
+      "total": 8,
+      "ficha_url_alta": 0,
+      "pagina_fabricante_alta": 0,
+      "pdf_local_no_oficial": 8,
+      "media_serie_pdf": 0
+    },
+    "Perlong": {
+      "total": 8,
+      "ficha_url_alta": 0,
+      "pagina_fabricante_alta": 1,
+      "pdf_local_no_oficial": 0,
+      "media_serie_pdf": 0
+    },
+    "Advanced Instrumentations": {
+      "total": 2,
+      "ficha_url_alta": 0,
+      "pagina_fabricante_alta": 0,
+      "pdf_local_no_oficial": 0,
+      "media_serie_pdf": 0
+    },
+    "Biolight": {
+      "total": 1,
+      "ficha_url_alta": 0,
+      "pagina_fabricante_alta": 0,
+      "pdf_local_no_oficial": 0,
+      "media_serie_pdf": 0
+    }
+  },
+  "alta_hits": [
+    {
+      "slug": "sillon-reclinable-bme002-bm-ref-bme002",
+      "ref": "BME002",
+      "ficha_url": null,
+      "pagina_fabricante": "https://www.brothermedical.com/Medical-Dual-Motor-Grey-Lift-Chair-pd40439220.html"
+    },
+    {
+      "slug": "balanza-para-bebe-ref-yrbb-20-perlong",
+      "ref": "YRBB-20",
+      "ficha_url": null,
+      "pagina_fabricante": "https://www.perlong-china.com/YRBB-20-Baby-Scale-pd569477798.html"
+    }
+  ]
+}

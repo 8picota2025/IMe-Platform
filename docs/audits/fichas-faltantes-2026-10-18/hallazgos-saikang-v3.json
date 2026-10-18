@@ -1,0 +1,22 @@
+{
+  "marca": "Saikang",
+  "encontradas": 2,
+  "items": [
+    {
+      "slug": "cama-manual-v3v-ref-sk-cd1-v3v-saikang",
+      "ref": "sk-cd1-v3v-saikang",
+      "ficha_url": "https://saikangmedical.com/wp-content/uploads/2025/10/V3v5c_Manual-Bed_SaikangMedical.pdf",
+      "pagina_fabricante": "https://saikangmedical.com/en/product/v3v5c-manual-bed/",
+      "confianza": "media",
+      "notas": "Saikang public datasheet filename/title uses V3v5c; IME ref V3v maps to same EN product page. ES/PT/RU variants also linked on product page. Rejected V3k/K2k/V2k PDFs (different models)."
+    },
+    {
+      "slug": "mesita-de-noche-ref-sks002-w-saikang",
+      "ref": "sks002-w-saikang",
+      "ficha_url": "https://saikangmedical.com/wp-content/uploads/2025/08/SKS02-W_ABS-Bedside-Table_SaikangMedical-1.pdf",
+      "pagina_fabricante": "https://saikangmedical.com/en/product/skso2-w-abs-hospital-bedside-cabinet/",
+      "confianza": "media",
+      "notas": "Official product page lists SKS02-W PDFs (letter O in filename vs IME SKS002-W). FR/RU variants available on same product page."
+    }
+  ]
+}

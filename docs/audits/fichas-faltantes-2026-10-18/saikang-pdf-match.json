@@ -1,0 +1,500 @@
+{
+  "matched": [
+    {
+      "slug": "carro-abs-sk-ref-et750-saikang",
+      "path": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/saikang/carro-abs-sk-ref-et750-saikang-42e69fe437.pdf",
+      "fuente": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/recuperadas/carro-abs-sk-ref-et750-saikang-42e69fe437.pdf",
+      "score": 10,
+      "why": [
+        "skrefet750"
+      ],
+      "bytes": 1902935
+    },
+    {
+      "slug": "carrito-de-lavado-ref-skh041-saikang",
+      "path": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/saikang/carrito-de-lavado-ref-skh041-saikang-4cabc38387.pdf",
+      "fuente": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/recuperadas/carrito-de-lavado-ref-skh041-saikang-4cabc38387.pdf",
+      "score": 6,
+      "why": [
+        "skh041"
+      ],
+      "bytes": 5757452
+    },
+    {
+      "slug": "equipo-hospitalario-ref-skh046-1-saikang",
+      "path": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/saikang/equipo-hospitalario-ref-skh046-1-saikang-3d8426067d.pdf",
+      "fuente": "/home/shoky/0 IME/Fabricantes/Saikang/saikang pdfs/SKH046-14_Overbed-Table_SaikangMedical.pdf",
+      "score": 7,
+      "why": [
+        "skh0461"
+      ],
+      "bytes": 1707931
+    }
+  ],
+  "misses": [
+    {
+      "slug": "cama-de-hospital-ref-sk-c1-saikang",
+      "mods": [
+        "skc1"
+      ],
+      "url": null
+    },
+    {
+      "slug": "cama-de-hospital-plana-r00-ref-sk-c1-r00-saikang",
+      "mods": [
+        "c1r00",
+        "r00refskc1r00",
+        "skc1r00"
+      ],
+      "url": null
+    },
+    {
+      "slug": "camilla-manual-de-una-funcion-r000w-ref-sk-c1-r000w-saikang",
+      "mods": [
+        "c1r000w",
+        "r000w",
+        "r000wrefskc1r000w",
+        "skc1r000w"
+      ],
+      "url": null
+    },
+    {
+      "slug": "cama-manual-k3k-ref-sk-cd1-k3k-saikang",
+      "mods": [
+        "2025",
+        "cd1k3k",
+        "k3k",
+        "k3krefskcd1k3k",
+        "skcd1k3k"
+      ],
+      "url": "https://saikangmedical.com/wp-content/uploads/2025/07/K3k_Manual-Bed_SaikangMedical_2024.pdf"
+    },
+    {
+      "slug": "cama-hospitalaria-manual-v3k-ref-sk-cd1-v3k-saikang",
+      "mods": [
+        "2025",
+        "cd1v3k",
+        "skcd1v3k",
+        "v3k",
+        "v3krefskcd1v3k"
+      ],
+      "url": "https://saikangmedical.com/wp-content/uploads/2025/07/V3k_Manual-Bed_SaikangMedical_ES.pdf"
+    },
+    {
+      "slug": "cama-manual-v3v-ref-sk-cd1-v3v-saikang",
+      "mods": [
+        "cd1v3v",
+        "skcd1v3v",
+        "v3vrefskcd1v3v"
+      ],
+      "url": null
+    },
+    {
+      "slug": "camilla-manual-v4v-ref-sk-cd1-v4v-saikang",
+      "mods": [
+        "cd1v4v",
+        "skcd1v4v",
+        "v4vrefskcd1v4v"
+      ],
+      "url": null
+    },
+    {
+      "slug": "cama-manual-v4w-ref-sk-cd1-v4w-saikang",
+      "mods": [
+        "cd1v4w",
+        "skcd1v4w",
+        "v4wrefskcd1v4w"
+      ],
+      "url": null
+    },
+    {
+      "slug": "gabinete-dental-ref-sk-d2c-saikang",
+      "mods": [
+        "skd2c"
+      ],
+      "url": null
+    },
+    {
+      "slug": "tablero-espinal-ref-skb2a11-saikang",
+      "mods": [
+        "skb2a11"
+      ],
+      "url": null
+    },
+    {
+      "slug": "tablero-espinal-ref-skb2a12-saikang",
+      "mods": [
+        "skb2a12"
+      ],
+      "url": null
+    },
+    {
+      "slug": "cama-de-atencion-pediatrica-z0n-ref-skd-a-z0n-saikang",
+      "mods": [
+        "skdaz0n",
+        "z0n",
+        "z0nrefskdaz0n"
+      ],
+      "url": null
+    },
+    {
+      "slug": "cama-de-atencion-domiciliaria-ref-hb421-saikang",
+      "mods": [
+        "hb421"
+      ],
+      "url": null
+    },
+    {
+      "slug": "cama-de-atencion-domiciliaria-ref-hb422-saikang",
+      "mods": [
+        "hb422"
+      ],
+      "url": null
+    },
+    {
+      "slug": "cama-de-atencion-domiciliaria-ref-hb424-saikang",
+      "mods": [
+        "hb424"
+      ],
+      "url": null
+    },
+    {
+      "slug": "cama-de-atencion-domiciliaria-vip-h6k-ref-skd-d-h6k-saikang",
+      "mods": [
+        "h6k",
+        "h6krefskddh6k",
+        "skddh6k"
+      ],
+      "url": null
+    },
+    {
+      "slug": "silla-de-espera-ref-ske008-1-saikang",
+      "mods": [
+        "ske0081"
+      ],
+      "url": null
+    },
+    {
+      "slug": "estanteria-hospitalaria-ref-skh050-saikang",
+      "mods": [
+        "skh050"
+      ],
+      "url": null
+    },
+    {
+      "slug": "estanteria-hospitalaria-ref-skh061-saikang",
+      "mods": [
+        "skh061"
+      ],
+      "url": null
+    },
+    {
+      "slug": "gabinete-de-almacenamiento-ref-skh092-saikang",
+      "mods": [
+        "skh092"
+      ],
+      "url": null
+    },
+    {
+      "slug": "carrito-abs-sk-ref-ct75077c2-saikang",
+      "mods": [
+        "2025",
+        "ct75077c2",
+        "skct75077c2",
+        "skrefct75077c2"
+      ],
+      "url": "https://saikangmedical.com/wp-content/uploads/2025/08/SK-CT75077C2_Treatment-Trolley_SaikangMedical.pdf"
+    },
+    {
+      "slug": "carro-abs-sk-ref-mt650-saikang",
+      "mods": [
+        "mt650",
+        "skmt650",
+        "skrefmt650"
+      ],
+      "url": null
+    },
+    {
+      "slug": "carro-de-acero-inoxidable-ref-skh001-saikang",
+      "mods": [
+        "skh001"
+      ],
+      "url": null
+    },
+    {
+      "slug": "carro-de-tratamientos-ref-skh006-5-saikang",
+      "mods": [
+        "skh0065"
+      ],
+      "url": null
+    },
+    {
+      "slug": "carro-de-acero-inoxidable-ref-skh029-saikang",
+      "mods": [
+        "skh029"
+      ],
+      "url": null
+    },
+    {
+      "slug": "carrito-de-infusion-ref-skh032-saikang",
+      "mods": [
+        "skh032"
+      ],
+      "url": null
+    },
+    {
+      "slug": "estanteria-de-acero-inoxidable-ref-skh078-saikang",
+      "mods": [
+        "skh078"
+      ],
+      "url": null
+    },
+    {
+      "slug": "carro-abs-skr-ref-ct231-saikang",
+      "mods": [
+        "ct231",
+        "skrct231",
+        "skrrefct231"
+      ],
+      "url": null
+    },
+    {
+      "slug": "carro-abs-skr-ref-ct750-1-saikang",
+      "mods": [
+        "ct7501",
+        "skrct7501",
+        "skrrefct7501"
+      ],
+      "url": null
+    },
+    {
+      "slug": "carro-de-abs-skr-ref-et850-saikang",
+      "mods": [
+        "2025",
+        "et850",
+        "skret850",
+        "skrrefet850"
+      ],
+      "url": "https://saikangmedical.com/wp-content/uploads/2025/08/SKR-ET850_Emergency-Trolley_SaikangMedical_ES.pdf"
+    },
+    {
+      "slug": "carro-de-infusion-skr-ref-iv588-saikang",
+      "mods": [
+        "iv588",
+        "skriv588",
+        "skrrefiv588"
+      ],
+      "url": null
+    },
+    {
+      "slug": "carro-de-abs-skr-ref-mt625-saikang",
+      "mods": [
+        "2025",
+        "mt625",
+        "skrmt625",
+        "skrrefmt625"
+      ],
+      "url": "https://saikangmedical.com/wp-content/uploads/2025/08/SKR-MT625_Medicine-Trolley_SaikangMedical.pdf"
+    },
+    {
+      "slug": "carro-de-abs-ref-skr002-3-saikang",
+      "mods": [
+        "skr0023"
+      ],
+      "url": null
+    },
+    {
+      "slug": "carro-abs-ref-skr007-saikang",
+      "mods": [
+        "skr007"
+      ],
+      "url": null
+    },
+    {
+      "slug": "camilla-de-hospital-skb037-b-ref-skb037b-saikang",
+      "mods": [
+        "2025",
+        "skb037",
+        "skb037b",
+        "skb037brefskb037b"
+      ],
+      "url": "https://saikangmedical.com/wp-content/uploads/2025/10/SKB037B_Patient-Trolley_SaikangMedical.pdf"
+    },
+    {
+      "slug": "colchon-ref-skp001-saikang",
+      "mods": [
+        "skp001"
+      ],
+      "url": null
+    },
+    {
+      "slug": "carro-de-infusion-skr-ref-it625-saikang",
+      "mods": [
+        "it625",
+        "skrit625",
+        "skrrefit625"
+      ],
+      "url": null
+    },
+    {
+      "slug": "carro-de-enfermeria-ref-skr058-ct-saikang",
+      "mods": [
+        "skr058ct"
+      ],
+      "url": null
+    },
+    {
+      "slug": "mesita-de-noche-ref-sks002-saikang",
+      "mods": [
+        "sks002"
+      ],
+      "url": null
+    },
+    {
+      "slug": "mesita-de-noche-ref-sks002-w-saikang",
+      "mods": [
+        "sks002w"
+      ],
+      "url": null
+    },
+    {
+      "slug": "camilla-de-ambulancia-ref-skb2c01-saikang",
+      "mods": [
+        "skb2c01"
+      ],
+      "url": null
+    },
+    {
+      "slug": "silla-para-subir-escaleras-ref-skb1c02-1-saikang",
+      "mods": [
+        "skb1c021"
+      ],
+      "url": null
+    },
+    {
+      "slug": "cama-hospitalaria-electrica-ref-skd-a-saikang",
+      "mods": [
+        "skda"
+      ],
+      "url": null
+    },
+    {
+      "slug": "cama-hospitalaria-electrica-ref-skd-b-saikang",
+      "mods": [
+        "skdb"
+      ],
+      "url": null
+    },
+    {
+      "slug": "carro-clinico-ref-skr021-5-saikang",
+      "mods": [
+        "skr0215"
+      ],
+      "url": null
+    },
+    {
+      "slug": "cama-hospitalaria-ref-sk-a2-saikang",
+      "mods": [
+        "ska2"
+      ],
+      "url": null
+    },
+    {
+      "slug": "cama-hospitalaria-ref-sk-a3-saikang",
+      "mods": [
+        "ska3"
+      ],
+      "url": null
+    },
+    {
+      "slug": "camilla-de-traslado-ref-skk-b-saikang",
+      "mods": [
+        "skkb"
+      ],
+      "url": null
+    },
+    {
+      "slug": "sillon-odontologico-ref-se802-saikang",
+      "mods": [
+        "se802"
+      ],
+      "url": null
+    },
+    {
+      "slug": "sillon-clinico-ref-ske052-saikang",
+      "mods": [
+        "ske052"
+      ],
+      "url": null
+    },
+    {
+      "slug": "sillon-clinico-ref-ske711-saikang",
+      "mods": [
+        "ske711"
+      ],
+      "url": null
+    },
+    {
+      "slug": "sillon-clinico-ref-ske055-8-saikang",
+      "mods": [
+        "ske0558"
+      ],
+      "url": null
+    },
+    {
+      "slug": "cama-hospitalaria-manual-ref-v4w-saikang",
+      "mods": [],
+      "url": null
+    },
+    {
+      "slug": "sillon-clinico-ref-skeo52-saikang",
+      "mods": [
+        "skeo52"
+      ],
+      "url": null
+    },
+    {
+      "slug": "equipo-hospitalario-ref-skn002-gauze-saikang",
+      "mods": [
+        "skn002gauze"
+      ],
+      "url": null
+    },
+    {
+      "slug": "equipo-hospitalario-ref-skn031-stainless-steel-kidney-dish-saikang",
+      "mods": [
+        "skn031",
+        "skn031stainlesssteelkidneydish"
+      ],
+      "url": null
+    },
+    {
+      "slug": "equipo-hospitalario-ref-skno31-saikang",
+      "mods": [
+        "skno31"
+      ],
+      "url": null
+    },
+    {
+      "slug": "mesa-quirurgica-electrica-ref-skl-c-saikang",
+      "mods": [
+        "sklc"
+      ],
+      "url": null
+    },
+    {
+      "slug": "mesa-quirurgica-electrica-ref-skl-d-saikang",
+      "mods": [
+        "skld"
+      ],
+      "url": null
+    },
+    {
+      "slug": "mesa-quirurgica-electrica-ref-skl-e-saikang",
+      "mods": [
+        "skle"
+      ],
+      "url": null
+    }
+  ]
+}

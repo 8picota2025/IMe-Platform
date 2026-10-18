@@ -1,0 +1,345 @@
+{
+  "fecha": "2026-10-18",
+  "archivo": "src/data/fichas-enriquecimiento/resto-paginas-fabricante-20261018.json",
+  "n_enriquecidos": 17,
+  "n_intentados": 48,
+  "sources": [
+    {
+      "slug": "arco-en-c-alc-280-series-ref-alc-280-angell",
+      "sku": "alc-280",
+      "url": "https://en.szangell.com/product/hua-ii-series/",
+      "http_status": 200,
+      "title": "Mobile Dynamic FPD C-Arm System Supplier | Angell",
+      "match": "series_token:HUA II",
+      "specs_n": 0
+    },
+    {
+      "slug": "sistema-de-rayos-x-dr-montado-en-techo-ref-dr-ceiling-angell",
+      "sku": "dr-ceiling",
+      "url": "https://en.szangell.com/product/qomo-series/",
+      "http_status": 200,
+      "title": "QOMO Series Ceiling-Mounted Dynamic DR System | Angell",
+      "match": "series_token:QOMO",
+      "specs_n": 20
+    },
+    {
+      "slug": "sistema-de-rayos-x-dr-montado-en-suelo-ref-dr-floor-angell",
+      "sku": "dr-floor",
+      "url": "https://en.szangell.com/product/mtp-series/",
+      "http_status": 200,
+      "title": "Floor-Mounted Radiography System with Auto-Tracking | Angell",
+      "match": "series_token:MTP",
+      "specs_n": 0
+    },
+    {
+      "slug": "sistema-de-rayos-x-dr-movil-ref-dr-mobile-angell",
+      "sku": "dr-mobile",
+      "url": "https://angell-tech.com/en/dtp-326-mobile-digital-radiography/",
+      "http_status": 200,
+      "title": "DTP 326: Mobiles digitales Röntgen am Bett | Angell",
+      "match": "series_token:326",
+      "specs_n": 0
+    },
+    {
+      "slug": "sistema-dr-de-mesa-telecomandada-ref-dr-telecomand-angell",
+      "sku": "dr-telecomand",
+      "url": "https://angell-tech.com/en/dtp-576-dynamic-table-digital-r-f/",
+      "http_status": 200,
+      "title": "DTP 576: Ferngesteuerter R/F-Untersuchungstisch | Angell",
+      "match": "series_token:576",
+      "specs_n": 0
+    },
+    {
+      "slug": "dr-dinamico-de-brazo-ref-dr-uc-arm-angell",
+      "sku": "dr-uc-arm",
+      "url": "https://angell-tech.com/en/dtp-580-dynamic-uc-arm-digital-r-f/",
+      "http_status": 200,
+      "title": "DTP 580: Dynamisches DR-System mit UC-Arm | Angell",
+      "match": "series_token:580",
+      "specs_n": 0
+    },
+    {
+      "slug": "sistema-de-ultrasonido-ref-dus-3000-advanced",
+      "sku": "dus-3000",
+      "url": "https://advanced-inst.com/ultrasound/",
+      "http_status": 200,
+      "title": "Ultrasound – Advanced Instrumentations",
+      "match": "series_token:ultrasound",
+      "specs_n": 0
+    },
+    {
+      "slug": "carrito-de-lavado-ref-skh041-saikang",
+      "sku": "skh041",
+      "url": "https://saikangmedical.com/en/product/skh0411-2-iv-stand/",
+      "http_status": 200,
+      "title": "SKH041(1)-2 IV Stand - SAIKANG MEDICAL",
+      "match": "ref_on_page",
+      "specs_n": 0
+    },
+    {
+      "slug": "detector-plano-inalambrico-ref-tcq-iii-angell",
+      "sku": "tcq-iii",
+      "url": "https://en.szangell.com/product/components/",
+      "http_status": 200,
+      "title": "DR Components & X-Ray Equipment Parts Supplier | Angell",
+      "match": "series_token:flat panel",
+      "specs_n": 0
+    },
+    {
+      "slug": "rx-techo-dinamico-qomo",
+      "sku": "rx",
+      "url": "https://en.szangell.com/product/qomo-series/",
+      "http_status": 200,
+      "title": "QOMO Series Ceiling-Mounted Dynamic DR System | Angell",
+      "match": "series_token:QOMO",
+      "specs_n": 20
+    },
+    {
+      "slug": "rx-techo-dinamico-changfeng",
+      "sku": "rx",
+      "url": "https://en.szangell.com/product/changfeng-series/",
+      "http_status": 200,
+      "title": "Full-Length Ceiling-Mounted DR System | Angell",
+      "match": "series_token:CHANGFENG",
+      "specs_n": 0
+    },
+    {
+      "slug": "rx-piso-mtp",
+      "sku": "rx",
+      "url": "https://en.szangell.com/product/mtp-series/",
+      "http_status": 200,
+      "title": "Floor-Mounted Radiography System with Auto-Tracking | Angell",
+      "match": "series_token:MTP",
+      "specs_n": 0
+    },
+    {
+      "slug": "arco-c-movil-dinamico-hua-ii",
+      "sku": "arco",
+      "url": "https://en.szangell.com/product/hua-ii-series/",
+      "http_status": 200,
+      "title": "Mobile Dynamic FPD C-Arm System Supplier | Angell",
+      "match": "series_token:HUA II",
+      "specs_n": 0
+    },
+    {
+      "slug": "sillon-odontologico-ref-se802-saikang",
+      "sku": "SE802",
+      "url": "https://saikangmedical.com/en/product/se802-dental-chair/",
+      "http_status": 200,
+      "title": "SE802 Dental Chair | Electric Dental Treatment Unit | SAIKANG MEDICAL",
+      "match": "ref_on_page",
+      "specs_n": 3
+    },
+    {
+      "slug": "equipo-hospitalario-ref-skh046-1-saikang",
+      "sku": "SKH046-1",
+      "url": "https://saikangmedical.com/en/product/skh046-1-telescopic-dining-board/",
+      "http_status": 200,
+      "title": "SKH046-1 TELESCOPIC DINING BOARD - SAIKANG MEDICAL",
+      "match": "ref_on_page",
+      "specs_n": 0
+    },
+    {
+      "slug": "equipo-hospitalario-ref-skn031-stainless-steel-kidney-dish-saikang",
+      "sku": "SKN031_STAINLESS-STEEL-KIDNEY-DISH",
+      "url": "https://saikangmedical.com/en/product/skn031_stainless-steel-kidney-dish/",
+      "http_status": 200,
+      "title": "SKN031_Stainless-Steel-Kidney-Dish - SAIKANG MEDICAL",
+      "match": "ref_on_page",
+      "specs_n": 0
+    },
+    {
+      "slug": "equipo-hospitalario-ref-skno31-saikang",
+      "sku": "SKNO31",
+      "url": "https://saikangmedical.com/en/product/skno31-stainless-steel-kidney-dish/",
+      "http_status": 200,
+      "title": "SKNO31 Stainless Steel Kidney Dish | Medical Kidney Tray | SAIKANG MEDICAL",
+      "match": "ref_on_page",
+      "specs_n": 0
+    }
+  ],
+  "failed_fetches": [
+    {
+      "slug": "oximetro-ref-aquarius-lite-northern",
+      "reason": "no_url"
+    },
+    {
+      "slug": "sillon-reclinable-bme002-bm-ref-bme002",
+      "url": "https://www.brothermedical.com/Medical-Dual-Motor-Grey-Lift-Chair-pd40439220.html",
+      "http_status": 200,
+      "title": "",
+      "reason": "model_not_on_page",
+      "match_note": "no_match"
+    },
+    {
+      "slug": "silla-reclinable-bme006-bm-ref-bme006",
+      "reason": "no_url"
+    },
+    {
+      "slug": "sillon-reclinable-bme007-bm-ref-bme007",
+      "reason": "no_url"
+    },
+    {
+      "slug": "dr-dinamico-ref-dtp573-angell",
+      "url": "https://angell-tech.com/en/dtp573-dynamic-dr-system/",
+      "http_status": 404,
+      "reason": "fetch_failed"
+    },
+    {
+      "slug": "balanza-para-bebe-electronica-ref-ebsa-20-perlong",
+      "url": "https://www.perlong-china.com/Scale-pl6383726.html",
+      "http_status": 200,
+      "title": "",
+      "reason": "model_not_on_page",
+      "match_note": "no_match"
+    },
+    {
+      "slug": "monitor-fetal-y-materno-ref-fm-9000-northern",
+      "reason": "no_url"
+    },
+    {
+      "slug": "bascula-corporal-doble-regla-ref-rgt-a-200-rt-perlong",
+      "url": "https://www.perlong-china.com/Scale-pl6383726.html",
+      "http_status": 200,
+      "title": "",
+      "reason": "model_not_on_page",
+      "match_note": "no_match"
+    },
+    {
+      "slug": "balanza-corporal-con-doble-regla-ref-rgt-rt-perlong",
+      "url": "https://www.perlong-china.com/Scale-pl6383726.html",
+      "http_status": 200,
+      "title": "",
+      "reason": "model_not_on_page",
+      "match_note": "no_match"
+    },
+    {
+      "slug": "cama-de-hospital-plana-r00-ref-sk-c1-r00-saikang",
+      "reason": "no_url"
+    },
+    {
+      "slug": "camilla-manual-de-una-funcion-r000w-ref-sk-c1-r000w-saikang",
+      "reason": "no_url"
+    },
+    {
+      "slug": "gabinete-dental-ref-sk-d2c-saikang",
+      "reason": "no_url"
+    },
+    {
+      "slug": "tablero-espinal-ref-skb2a11-saikang",
+      "reason": "no_url"
+    },
+    {
+      "slug": "tablero-espinal-ref-skb2a12-saikang",
+      "reason": "no_url"
+    },
+    {
+      "slug": "silla-de-espera-ref-ske008-1-saikang",
+      "url": "https://saikangmedical.com/en/product/ske008-1-waiting-chair/",
+      "http_status": 404,
+      "reason": "fetch_failed"
+    },
+    {
+      "slug": "estanteria-hospitalaria-ref-skh050-saikang",
+      "reason": "no_url"
+    },
+    {
+      "slug": "estanteria-hospitalaria-ref-skh061-saikang",
+      "reason": "no_url"
+    },
+    {
+      "slug": "gabinete-de-almacenamiento-ref-skh092-saikang",
+      "url": "https://saikangmedical.com/en/product/skh092-storage-cabinet/",
+      "http_status": 404,
+      "reason": "fetch_failed"
+    },
+    {
+      "slug": "colchon-ref-skp001-saikang",
+      "reason": "no_url"
+    },
+    {
+      "slug": "carro-de-infusion-skr-ref-it625-saikang",
+      "reason": "no_url"
+    },
+    {
+      "slug": "mesita-de-noche-ref-sks002-saikang",
+      "url": "https://saikangmedical.com/en/product/skso2-w-abs-hospital-bedside-cabinet/",
+      "http_status": 200,
+      "title": "SKS02-W ABS Bedside Table | Hospital Bedside Cabinet | SAIKANG MEDICAL",
+      "reason": "model_not_on_page",
+      "match_note": "no_match"
+    },
+    {
+      "slug": "camilla-de-ambulancia-ref-skb2c01-saikang",
+      "reason": "no_url"
+    },
+    {
+      "slug": "silla-para-subir-escaleras-ref-skb1c02-1-saikang",
+      "reason": "no_url"
+    },
+    {
+      "slug": "bascula-corporal-electronica-ref-tcs-200-rt-perlong",
+      "url": "https://www.perlong-china.com/Electronic-Body-Scale-pd6616338.html",
+      "http_status": 200,
+      "title": "",
+      "reason": "model_not_on_page",
+      "match_note": "no_match"
+    },
+    {
+      "slug": "balanza-corporal-electronica-ref-tcs-200b-rt-perlong",
+      "url": "https://www.perlong-china.com/Electronic-Body-Scale-pd95322436.html",
+      "http_status": 200,
+      "title": "",
+      "reason": "model_not_on_page",
+      "match_note": "no_match"
+    },
+    {
+      "slug": "ventilador-para-uci-ref-v-1000-advanced",
+      "url": "https://advanced-inst.com/turbine-driven-v-1000t-plus/",
+      "http_status": 200,
+      "title": "Turbine-driven V-1000T Plus – Advanced Instrumentations",
+      "reason": "model_not_on_page",
+      "match_note": "blocked_distinct_model:V-1000T"
+    },
+    {
+      "slug": "balanza-para-bebe-ref-yrbb-20-perlong",
+      "url": "https://www.perlong-china.com/YRBB-20-Baby-Scale-pd569477798.html",
+      "http_status": 200,
+      "title": "",
+      "reason": "model_not_on_page",
+      "match_note": "no_match"
+    },
+    {
+      "slug": "bascula-corporal-ref-zt-120-perlong",
+      "url": "https://www.perlong-china.com/Dial-Body-Scale-pd6026338.html",
+      "http_status": 200,
+      "title": "",
+      "reason": "model_not_on_page",
+      "match_note": "no_match"
+    },
+    {
+      "slug": "bascula-corporal-ref-zt-150a-perlong",
+      "url": "https://www.perlong-china.com/Scale-pl6383726.html",
+      "http_status": 200,
+      "title": "",
+      "reason": "model_not_on_page",
+      "match_note": "no_match"
+    },
+    {
+      "slug": "bomba-de-jeringa-precision-microdosis",
+      "url": "https://advanced-inst.com/syringe-pump/",
+      "http_status": 200,
+      "title": "Syringe Pump – Advanced Instrumentations",
+      "reason": "model_not_on_page",
+      "match_note": "no_match"
+    },
+    {
+      "slug": "rx-multifuncional-uc-arm-ref-dtp580",
+      "url": "https://angell-tech.com/en/dtp-580-dynamic-uc-arm-digital-r-f/",
+      "http_status": 200,
+      "title": "DTP 580: Dynamisches DR-System mit UC-Arm | Angell",
+      "reason": "model_not_on_page",
+      "match_note": "no_match"
+    }
+  ]
+}

@@ -1,0 +1,320 @@
+{
+  "matched": [],
+  "unmatched": [
+    {
+      "slug": "cama-de-hospital-ref-sk-c1-saikang",
+      "nombre_es": "Cama de Hospital SK-C1",
+      "ref_hint": "sk-c1-saikang"
+    },
+    {
+      "slug": "cama-de-hospital-plana-r00-ref-sk-c1-r00-saikang",
+      "nombre_es": "Cama de Hospital Plana R00",
+      "ref_hint": "sk-c1-r00-saikang"
+    },
+    {
+      "slug": "camilla-manual-de-una-funcion-r000w-ref-sk-c1-r000w-saikang",
+      "nombre_es": "Camilla Manual de Una Función R000w",
+      "ref_hint": "sk-c1-r000w-saikang"
+    },
+    {
+      "slug": "cama-manual-k3k-ref-sk-cd1-k3k-saikang",
+      "nombre_es": "Cama Manual K3k",
+      "ref_hint": "sk-cd1-k3k-saikang"
+    },
+    {
+      "slug": "cama-hospitalaria-manual-v3k-ref-sk-cd1-v3k-saikang",
+      "nombre_es": "Cama Hospitalaria Manual V3k",
+      "ref_hint": "sk-cd1-v3k-saikang"
+    },
+    {
+      "slug": "cama-manual-v3v-ref-sk-cd1-v3v-saikang",
+      "nombre_es": "Cama Manual V3v",
+      "ref_hint": "sk-cd1-v3v-saikang"
+    },
+    {
+      "slug": "camilla-manual-v4v-ref-sk-cd1-v4v-saikang",
+      "nombre_es": "Camilla Manual V4v",
+      "ref_hint": "sk-cd1-v4v-saikang"
+    },
+    {
+      "slug": "cama-manual-v4w-ref-sk-cd1-v4w-saikang",
+      "nombre_es": "Cama Manual V4w",
+      "ref_hint": "sk-cd1-v4w-saikang"
+    },
+    {
+      "slug": "gabinete-dental-ref-sk-d2c-saikang",
+      "nombre_es": "Gabinete Dental SK-D2C",
+      "ref_hint": "sk-d2c-saikang"
+    },
+    {
+      "slug": "tablero-espinal-ref-skb2a11-saikang",
+      "nombre_es": "Tablero Espinal SKB2A11",
+      "ref_hint": "skb2a11-saikang"
+    },
+    {
+      "slug": "tablero-espinal-ref-skb2a12-saikang",
+      "nombre_es": "Tablero Espinal SKB2A12",
+      "ref_hint": "skb2a12-saikang"
+    },
+    {
+      "slug": "cama-de-atencion-pediatrica-z0n-ref-skd-a-z0n-saikang",
+      "nombre_es": "Cama de Atención Pediátrica Z0n",
+      "ref_hint": "skd-a-z0n-saikang"
+    },
+    {
+      "slug": "cama-de-atencion-domiciliaria-ref-hb421-saikang",
+      "nombre_es": "Cama de Atención Domiciliaria HB421",
+      "ref_hint": "hb421-saikang"
+    },
+    {
+      "slug": "cama-de-atencion-domiciliaria-ref-hb422-saikang",
+      "nombre_es": "Cama de Atención Domiciliaria HB422",
+      "ref_hint": "hb422-saikang"
+    },
+    {
+      "slug": "cama-de-atencion-domiciliaria-ref-hb424-saikang",
+      "nombre_es": "Cama de Atención Domiciliaria HB424",
+      "ref_hint": "hb424-saikang"
+    },
+    {
+      "slug": "cama-de-atencion-domiciliaria-vip-h6k-ref-skd-d-h6k-saikang",
+      "nombre_es": "Cama de Atención Domiciliaria VIP H6k",
+      "ref_hint": "skd-d-h6k-saikang"
+    },
+    {
+      "slug": "silla-de-espera-ref-ske008-1-saikang",
+      "nombre_es": "Silla de Espera SKE008-1",
+      "ref_hint": "ske008-1-saikang"
+    },
+    {
+      "slug": "estanteria-hospitalaria-ref-skh050-saikang",
+      "nombre_es": "Estantería Hospitalaria SKH050",
+      "ref_hint": "skh050-saikang"
+    },
+    {
+      "slug": "estanteria-hospitalaria-ref-skh061-saikang",
+      "nombre_es": "Estantería Hospitalaria SKH061",
+      "ref_hint": "skh061-saikang"
+    },
+    {
+      "slug": "gabinete-de-almacenamiento-ref-skh092-saikang",
+      "nombre_es": "Gabinete de Almacenamiento SKH092",
+      "ref_hint": "skh092-saikang"
+    },
+    {
+      "slug": "carrito-abs-sk-ref-ct75077c2-saikang",
+      "nombre_es": "Carrito ABS SK-CT75077C2",
+      "ref_hint": "ct75077c2-saikang"
+    },
+    {
+      "slug": "carro-abs-sk-ref-et750-saikang",
+      "nombre_es": "Carro ABS SK-ET750",
+      "ref_hint": "et750-saikang"
+    },
+    {
+      "slug": "carro-abs-sk-ref-mt650-saikang",
+      "nombre_es": "Carro ABS SK-MT650",
+      "ref_hint": "mt650-saikang"
+    },
+    {
+      "slug": "carro-de-acero-inoxidable-ref-skh001-saikang",
+      "nombre_es": "Carro de Acero Inoxidable SKH001",
+      "ref_hint": "skh001-saikang"
+    },
+    {
+      "slug": "carro-de-tratamientos-ref-skh006-5-saikang",
+      "nombre_es": "Carro de Tratamientos SKH006-5",
+      "ref_hint": "skh006-5-saikang"
+    },
+    {
+      "slug": "carro-de-acero-inoxidable-ref-skh029-saikang",
+      "nombre_es": "Carro de Acero Inoxidable SKH029",
+      "ref_hint": "skh029-saikang"
+    },
+    {
+      "slug": "carrito-de-infusion-ref-skh032-saikang",
+      "nombre_es": "Carrito de Infusión SKH032",
+      "ref_hint": "skh032-saikang"
+    },
+    {
+      "slug": "carrito-de-lavado-ref-skh041-saikang",
+      "nombre_es": "Carrito de Lavado SKH041",
+      "ref_hint": "skh041-saikang"
+    },
+    {
+      "slug": "estanteria-de-acero-inoxidable-ref-skh078-saikang",
+      "nombre_es": "Estantería de Acero Inoxidable SKH078",
+      "ref_hint": "skh078-saikang"
+    },
+    {
+      "slug": "carro-abs-skr-ref-ct231-saikang",
+      "nombre_es": "Carro ABS SKR-CT231",
+      "ref_hint": "ct231-saikang"
+    },
+    {
+      "slug": "carro-abs-skr-ref-ct750-1-saikang",
+      "nombre_es": "Carro ABS SKR-CT750-1",
+      "ref_hint": "ct750-1-saikang"
+    },
+    {
+      "slug": "carro-de-abs-skr-ref-et850-saikang",
+      "nombre_es": "Carro de ABS SKR-ET850",
+      "ref_hint": "et850-saikang"
+    },
+    {
+      "slug": "carro-de-infusion-skr-ref-iv588-saikang",
+      "nombre_es": "Carro de Infusión SKR-IV588",
+      "ref_hint": "iv588-saikang"
+    },
+    {
+      "slug": "carro-de-abs-skr-ref-mt625-saikang",
+      "nombre_es": "Carro de ABS SKR-MT625",
+      "ref_hint": "mt625-saikang"
+    },
+    {
+      "slug": "carro-de-abs-ref-skr002-3-saikang",
+      "nombre_es": "Carro de ABS SKR002-3",
+      "ref_hint": "skr002-3-saikang"
+    },
+    {
+      "slug": "carro-abs-ref-skr007-saikang",
+      "nombre_es": "Carro ABS SKR007",
+      "ref_hint": "skr007-saikang"
+    },
+    {
+      "slug": "camilla-de-hospital-skb037-b-ref-skb037b-saikang",
+      "nombre_es": "Camilla de Hospital SKB037(B)",
+      "ref_hint": "skb037b-saikang"
+    },
+    {
+      "slug": "colchon-ref-skp001-saikang",
+      "nombre_es": "Colchón SKP001",
+      "ref_hint": "skp001-saikang"
+    },
+    {
+      "slug": "carro-de-infusion-skr-ref-it625-saikang",
+      "nombre_es": "Carro de Infusión SKR-IT625",
+      "ref_hint": "it625-saikang"
+    },
+    {
+      "slug": "carro-de-enfermeria-ref-skr058-ct-saikang",
+      "nombre_es": "Carro de Enfermería SKR058-CT",
+      "ref_hint": "skr058-ct-saikang"
+    },
+    {
+      "slug": "mesita-de-noche-ref-sks002-saikang",
+      "nombre_es": "Mesita de Noche SKS002",
+      "ref_hint": "sks002-saikang"
+    },
+    {
+      "slug": "mesita-de-noche-ref-sks002-w-saikang",
+      "nombre_es": "Mesita de Noche SKS002-W",
+      "ref_hint": "sks002-w-saikang"
+    },
+    {
+      "slug": "camilla-de-ambulancia-ref-skb2c01-saikang",
+      "nombre_es": "Camilla de Ambulancia SKB2C01",
+      "ref_hint": "skb2c01-saikang"
+    },
+    {
+      "slug": "silla-para-subir-escaleras-ref-skb1c02-1-saikang",
+      "nombre_es": "Silla para Subir Escaleras SKB1C02-1",
+      "ref_hint": "skb1c02-1-saikang"
+    },
+    {
+      "slug": "cama-hospitalaria-electrica-ref-skd-a-saikang",
+      "nombre_es": "Cama hospitalaria eléctrica Ref. SKD-A Saikang",
+      "ref_hint": "skd-a-saikang"
+    },
+    {
+      "slug": "cama-hospitalaria-electrica-ref-skd-b-saikang",
+      "nombre_es": "Cama hospitalaria eléctrica Ref. SKD-B Saikang",
+      "ref_hint": "skd-b-saikang"
+    },
+    {
+      "slug": "carro-clinico-ref-skr021-5-saikang",
+      "nombre_es": "Carro clínico Ref. SKR021-5 Saikang",
+      "ref_hint": "skr021-5-saikang"
+    },
+    {
+      "slug": "cama-hospitalaria-ref-sk-a2-saikang",
+      "nombre_es": "Cama hospitalaria Ref. SK-A2 Saikang",
+      "ref_hint": "sk-a2-saikang"
+    },
+    {
+      "slug": "cama-hospitalaria-ref-sk-a3-saikang",
+      "nombre_es": "Cama hospitalaria Ref. SK-A3 Saikang",
+      "ref_hint": "sk-a3-saikang"
+    },
+    {
+      "slug": "camilla-de-traslado-ref-skk-b-saikang",
+      "nombre_es": "Camilla de traslado Ref. SKK-B Saikang",
+      "ref_hint": "skk-b-saikang"
+    },
+    {
+      "slug": "sillon-odontologico-ref-se802-saikang",
+      "nombre_es": "Sillón odontológico Ref. SE802 Saikang",
+      "ref_hint": "se802-saikang"
+    },
+    {
+      "slug": "sillon-clinico-ref-ske052-saikang",
+      "nombre_es": "Sillón clínico Ref. SKE052 Saikang",
+      "ref_hint": "ske052-saikang"
+    },
+    {
+      "slug": "sillon-clinico-ref-ske711-saikang",
+      "nombre_es": "Sillón clínico Ref. SKE711 Saikang",
+      "ref_hint": "ske711-saikang"
+    },
+    {
+      "slug": "sillon-clinico-ref-ske055-8-saikang",
+      "nombre_es": "Sillón clínico Ref. SKE055-8 Saikang",
+      "ref_hint": "ske055-8-saikang"
+    },
+    {
+      "slug": "cama-hospitalaria-manual-ref-v4w-saikang",
+      "nombre_es": "Cama hospitalaria manual Ref. V4W Saikang",
+      "ref_hint": "v4w-saikang"
+    },
+    {
+      "slug": "equipo-hospitalario-ref-skh046-1-saikang",
+      "nombre_es": "Equipo hospitalario Ref. SKH046-1 Saikang",
+      "ref_hint": "skh046-1-saikang"
+    },
+    {
+      "slug": "sillon-clinico-ref-skeo52-saikang",
+      "nombre_es": "Sillón clínico Ref. SKEO52 Saikang",
+      "ref_hint": "skeo52-saikang"
+    },
+    {
+      "slug": "equipo-hospitalario-ref-skn002-gauze-saikang",
+      "nombre_es": "Equipo hospitalario Ref. SKN002-GAUZE Saikang",
+      "ref_hint": "skn002-gauze-saikang"
+    },
+    {
+      "slug": "equipo-hospitalario-ref-skn031-stainless-steel-kidney-dish-saikang",
+      "nombre_es": "Equipo hospitalario Ref. SKN031_STAINLESS-STEEL-KIDNEY-DISH Saikang",
+      "ref_hint": "skn031-stainless-steel-kidney-dish-saikang"
+    },
+    {
+      "slug": "equipo-hospitalario-ref-skno31-saikang",
+      "nombre_es": "Equipo hospitalario Ref. SKNO31 Saikang",
+      "ref_hint": "skno31-saikang"
+    },
+    {
+      "slug": "mesa-quirurgica-electrica-ref-skl-c-saikang",
+      "nombre_es": "Mesa quirúrgica eléctrica Ref. SKL-C Saikang",
+      "ref_hint": "skl-c-saikang"
+    },
+    {
+      "slug": "mesa-quirurgica-electrica-ref-skl-d-saikang",
+      "nombre_es": "Mesa quirúrgica eléctrica Ref. SKL-D Saikang",
+      "ref_hint": "skl-d-saikang"
+    },
+    {
+      "slug": "mesa-quirurgica-electrica-ref-skl-e-saikang",
+      "nombre_es": "Mesa quirúrgica eléctrica Ref. SKL-E Saikang",
+      "ref_hint": "skl-e-saikang"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "marca": "BM",
+  "n": 3,
+  "productos": [
+    {
+      "slug": "sillon-reclinable-bme002-bm-ref-bme002",
+      "nombre_es": "Sillón Reclinable BME002",
+      "nombre_en": "Recliner Chair BME002",
+      "marca": "BM",
+      "familia_slug": "mobiliario",
+      "ref_hint": "bme002",
+      "descripcion_corta_es": "Sillón reclinable con motor doble, capacidad 145 kg",
+      "specs_n": 4,
+      "estado": "pendiente",
+      "ficha_url": null,
+      "ficha_local": null,
+      "fuente_pagina_fabricante": null
+    },
+    {
+      "slug": "silla-reclinable-bme006-bm-ref-bme006",
+      "nombre_es": "Silla Reclinable BME006",
+      "nombre_en": "Reclining Chair BME006",
+      "marca": "BM",
+      "familia_slug": "mobiliario",
+      "ref_hint": "bme006",
+      "descripcion_corta_es": "Silla reclinable con motor doble, capacidad 125 kg",
+      "specs_n": 2,
+      "estado": "pendiente",
+      "ficha_url": null,
+      "ficha_local": null,
+      "fuente_pagina_fabricante": null
+    },
+    {
+      "slug": "sillon-reclinable-bme007-bm-ref-bme007",
+      "nombre_es": "Sillón Reclinable BME007",
+      "nombre_en": "Recliner Chair BME007",
+      "marca": "BM",
+      "familia_slug": "mobiliario",
+      "ref_hint": "bme007",
+      "descripcion_corta_es": "Sillón reclinable con motor doble, capacidad 125 kg",
+      "specs_n": 2,
+      "estado": "pendiente",
+      "ficha_url": null,
+      "ficha_local": null,
+      "fuente_pagina_fabricante": null
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "fecha": "2026-10-18",
+  "marca": "Saikang",
+  "cola_saikang_con_ficha_pdf_en_mock": 11,
+  "items_mejorados": 11,
+  "pdf_texto_extraible": [
+    "cama-manual-v3v-ref-sk-cd1-v3v-saikang",
+    "camilla-de-hospital-skb037-b-ref-skb037b-saikang",
+    "carrito-abs-sk-ref-ct75077c2-saikang",
+    "carro-abs-sk-ref-et750-saikang",
+    "carro-de-abs-skr-ref-et850-saikang",
+    "carro-de-abs-skr-ref-mt625-saikang",
+    "carro-de-enfermeria-ref-skr058-ct-saikang",
+    "carrito-de-lavado-ref-skh041-saikang"
+  ],
+  "solo_pagina_o_pdf_imagen": [
+    "cama-manual-k3k-ref-sk-cd1-k3k-saikang",
+    "cama-hospitalaria-manual-v3k-ref-sk-cd1-v3k-saikang",
+    "carro-de-tratamientos-ref-skh006-5-saikang"
+  ],
+  "notas_variante_pdf": {
+    "carro-de-enfermeria-ref-skr058-ct-saikang": "PDF SKR058-NT; landing SKU SKR058-CT",
+    "carrito-de-lavado-ref-skh041-saikang": "PDF SKH041(1)-2 IV stand; SKU IME SKH041"
+  },
+  "metodo_extraccion": "pdfminer.six; pdftotext no instalado",
+  "apply_script_ejecutado": false
+}

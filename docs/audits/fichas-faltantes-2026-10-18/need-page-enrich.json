@@ -1,0 +1,1121 @@
+{
+  "n": 124,
+  "items": [
+    {
+      "slug": "arco-en-c-alc-280-series-ref-alc-280-angell",
+      "nombre": "Arco en C ALC-280 Series",
+      "marca": "Angell Technology",
+      "ref": "alc-280",
+      "desc_len": 406,
+      "has_faq": true,
+      "pagina": "https://en.szangell.com/product/hua-ii-series/"
+    },
+    {
+      "slug": "oximetro-ref-aquarius-lite-northern",
+      "nombre": "Oxímetro Aquarius LITE",
+      "marca": "Northern Meditec",
+      "ref": "aquarius-lite",
+      "desc_len": 379,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "sillon-reclinable-bme002-bm-ref-bme002",
+      "nombre": "Sillón Reclinable BME002",
+      "marca": "BM",
+      "ref": "bme002",
+      "desc_len": 180,
+      "has_faq": true,
+      "pagina": "https://www.brothermedical.com/Medical-Dual-Motor-Grey-Lift-Chair-pd40439220.html"
+    },
+    {
+      "slug": "silla-reclinable-bme006-bm-ref-bme006",
+      "nombre": "Silla Reclinable BME006",
+      "marca": "BM",
+      "ref": "bme006",
+      "desc_len": 238,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "sillon-reclinable-bme007-bm-ref-bme007",
+      "nombre": "Sillón Reclinable BME007",
+      "marca": "BM",
+      "ref": "bme007",
+      "desc_len": 240,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "sistema-de-rayos-x-dr-montado-en-techo-ref-dr-ceiling-angell",
+      "nombre": "Sistema de Rayos X DR Montado en Techo",
+      "marca": "Angell Technology",
+      "ref": "dr-ceiling",
+      "desc_len": 384,
+      "has_faq": true,
+      "pagina": "https://en.szangell.com/product/qomo-series/"
+    },
+    {
+      "slug": "sistema-de-rayos-x-dr-montado-en-suelo-ref-dr-floor-angell",
+      "nombre": "Sistema de Rayos X DR Montado en Suelo",
+      "marca": "Angell Technology",
+      "ref": "dr-floor",
+      "desc_len": 348,
+      "has_faq": true,
+      "pagina": "https://en.szangell.com/product/mtp-series/"
+    },
+    {
+      "slug": "sistema-de-rayos-x-dr-movil-ref-dr-mobile-angell",
+      "nombre": "Sistema de Rayos X DR Móvil",
+      "marca": "Angell Technology",
+      "ref": "dr-mobile",
+      "desc_len": 363,
+      "has_faq": true,
+      "pagina": "https://angell-tech.com/en/dtp-326-mobile-digital-radiography/"
+    },
+    {
+      "slug": "sistema-dr-de-mesa-telecomandada-ref-dr-telecomand-angell",
+      "nombre": "Sistema DR de Mesa Telecomandada",
+      "marca": "Angell Technology",
+      "ref": "dr-telecomand",
+      "desc_len": 333,
+      "has_faq": true,
+      "pagina": "https://angell-tech.com/en/dtp-576-dynamic-table-digital-r-f/"
+    },
+    {
+      "slug": "dr-dinamico-de-brazo-ref-dr-uc-arm-angell",
+      "nombre": "DR Dinámico de Brazo-UC",
+      "marca": "Angell Technology",
+      "ref": "dr-uc-arm",
+      "desc_len": 324,
+      "has_faq": true,
+      "pagina": "https://angell-tech.com/en/dtp-580-dynamic-uc-arm-digital-r-f/"
+    },
+    {
+      "slug": "dr-dinamico-ref-dtp573-angell",
+      "nombre": "DR Dinámico DTP573",
+      "marca": "Angell Technology",
+      "ref": "dtp573",
+      "desc_len": 392,
+      "has_faq": true,
+      "pagina": "https://angell-tech.com/en/dtp573-dynamic-dr-system/"
+    },
+    {
+      "slug": "sistema-de-ultrasonido-ref-dus-3000-advanced",
+      "nombre": "Sistema de Ultrasonido DUS-3000",
+      "marca": "Advanced Instrumentations",
+      "ref": "dus-3000",
+      "desc_len": 300,
+      "has_faq": true,
+      "pagina": "https://advanced-inst.com/ultrasound/"
+    },
+    {
+      "slug": "balanza-para-bebe-electronica-ref-ebsa-20-perlong",
+      "nombre": "Balanza para Bebé Electrónica EBSA-20",
+      "marca": "Perlong",
+      "ref": "ebsa-20",
+      "desc_len": 350,
+      "has_faq": true,
+      "pagina": "https://www.perlong-china.com/Scale-pl6383726.html"
+    },
+    {
+      "slug": "monitor-fetal-y-materno-ref-fm-9000-northern",
+      "nombre": "Monitor Fetal y Materno FM-9000",
+      "marca": "Northern Meditec",
+      "ref": "fm-9000",
+      "desc_len": 307,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "bascula-corporal-doble-regla-ref-rgt-a-200-rt-perlong",
+      "nombre": "Báscula Corporal Doble Regla RGT.A-200-RT",
+      "marca": "Perlong",
+      "ref": "rgt-a-200-rt",
+      "desc_len": 311,
+      "has_faq": true,
+      "pagina": "https://www.perlong-china.com/Scale-pl6383726.html"
+    },
+    {
+      "slug": "balanza-corporal-con-doble-regla-ref-rgt-rt-perlong",
+      "nombre": "Balanza Corporal con Doble Regla RGT-RT",
+      "marca": "Perlong",
+      "ref": "rgt-rt",
+      "desc_len": 270,
+      "has_faq": true,
+      "pagina": "https://www.perlong-china.com/Scale-pl6383726.html"
+    },
+    {
+      "slug": "cama-de-hospital-plana-r00-ref-sk-c1-r00-saikang",
+      "nombre": "Cama de Hospital Plana R00",
+      "marca": "Saikang",
+      "ref": "sk-c1-r00",
+      "desc_len": 295,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "camilla-manual-de-una-funcion-r000w-ref-sk-c1-r000w-saikang",
+      "nombre": "Camilla Manual de Una Función R000w",
+      "marca": "Saikang",
+      "ref": "sk-c1-r000w",
+      "desc_len": 314,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "gabinete-dental-ref-sk-d2c-saikang",
+      "nombre": "Gabinete Dental SK-D2C",
+      "marca": "Saikang",
+      "ref": "sk-d2c",
+      "desc_len": 389,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "tablero-espinal-ref-skb2a11-saikang",
+      "nombre": "Tablero Espinal SKB2A11",
+      "marca": "Saikang",
+      "ref": "skb2a11",
+      "desc_len": 275,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "tablero-espinal-ref-skb2a12-saikang",
+      "nombre": "Tablero Espinal SKB2A12",
+      "marca": "Saikang",
+      "ref": "skb2a12",
+      "desc_len": 292,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "silla-de-espera-ref-ske008-1-saikang",
+      "nombre": "Silla de Espera SKE008-1",
+      "marca": "Saikang",
+      "ref": "ske008-1",
+      "desc_len": 315,
+      "has_faq": true,
+      "pagina": "https://saikangmedical.com/en/product/ske008-1-waiting-chair/"
+    },
+    {
+      "slug": "estanteria-hospitalaria-ref-skh050-saikang",
+      "nombre": "Estantería Hospitalaria SKH050",
+      "marca": "Saikang",
+      "ref": "skh050",
+      "desc_len": 348,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "estanteria-hospitalaria-ref-skh061-saikang",
+      "nombre": "Estantería Hospitalaria SKH061",
+      "marca": "Saikang",
+      "ref": "skh061",
+      "desc_len": 348,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "gabinete-de-almacenamiento-ref-skh092-saikang",
+      "nombre": "Gabinete de Almacenamiento SKH092",
+      "marca": "Saikang",
+      "ref": "skh092",
+      "desc_len": 396,
+      "has_faq": true,
+      "pagina": "https://saikangmedical.com/en/product/skh092-storage-cabinet/"
+    },
+    {
+      "slug": "carrito-de-lavado-ref-skh041-saikang",
+      "nombre": "Carrito de Lavado SKH041",
+      "marca": "Saikang",
+      "ref": "skh041",
+      "desc_len": 471,
+      "has_faq": true,
+      "pagina": "https://saikangmedical.com/en/product/skh0411-2-iv-stand/"
+    },
+    {
+      "slug": "colchon-ref-skp001-saikang",
+      "nombre": "Colchón SKP001",
+      "marca": "Saikang",
+      "ref": "skp001",
+      "desc_len": 306,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "carro-de-infusion-skr-ref-it625-saikang",
+      "nombre": "Carro de Infusión SKR-IT625",
+      "marca": "Saikang",
+      "ref": "it625",
+      "desc_len": 285,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "mesita-de-noche-ref-sks002-saikang",
+      "nombre": "Mesita de Noche SKS002",
+      "marca": "Saikang",
+      "ref": "sks002",
+      "desc_len": 181,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "camilla-de-ambulancia-ref-skb2c01-saikang",
+      "nombre": "Camilla de Ambulancia SKB2C01",
+      "marca": "Saikang",
+      "ref": "skb2c01",
+      "desc_len": 202,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "silla-para-subir-escaleras-ref-skb1c02-1-saikang",
+      "nombre": "Silla para Subir Escaleras SKB1C02-1",
+      "marca": "Saikang",
+      "ref": "skb1c02-1",
+      "desc_len": 225,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "detector-plano-inalambrico-ref-tcq-iii-angell",
+      "nombre": "Detector Plano Inalámbrico TCQ-III",
+      "marca": "Angell Technology",
+      "ref": "tcq-iii",
+      "desc_len": 313,
+      "has_faq": true,
+      "pagina": "https://en.szangell.com/product/components/"
+    },
+    {
+      "slug": "bascula-corporal-electronica-ref-tcs-200-rt-perlong",
+      "nombre": "Báscula Corporal Electrónica TCS-200-RT",
+      "marca": "Perlong",
+      "ref": "tcs-200-rt",
+      "desc_len": 349,
+      "has_faq": true,
+      "pagina": "https://www.perlong-china.com/Electronic-Body-Scale-pd6616338.html"
+    },
+    {
+      "slug": "balanza-corporal-electronica-ref-tcs-200b-rt-perlong",
+      "nombre": "Balanza Corporal Electrónica TCS-200B-RT",
+      "marca": "Perlong",
+      "ref": "tcs-200b-rt",
+      "desc_len": 352,
+      "has_faq": true,
+      "pagina": "https://www.perlong-china.com/Electronic-Body-Scale-pd95322436.html"
+    },
+    {
+      "slug": "test",
+      "nombre": "Test de pasarela de pagos",
+      "marca": "Sin marca",
+      "ref": "",
+      "desc_len": 140,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "ventilador-para-uci-ref-v-1000-advanced",
+      "nombre": "Ventilador para UCI V-1000",
+      "marca": "Advanced Instrumentations",
+      "ref": "v-1000",
+      "desc_len": 279,
+      "has_faq": true,
+      "pagina": "https://advanced-inst.com/turbine-driven-v-1000t-plus/"
+    },
+    {
+      "slug": "bomba-de-infusion-ref-vp-50",
+      "nombre": "Bomba de Infusión VP-50",
+      "marca": "Sin marca",
+      "ref": "vp-50",
+      "desc_len": 431,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "balanza-para-bebe-ref-yrbb-20-perlong",
+      "nombre": "Balanza para Bebé YRBB-20",
+      "marca": "Perlong",
+      "ref": "yrbb-20",
+      "desc_len": 160,
+      "has_faq": true,
+      "pagina": "https://www.perlong-china.com/YRBB-20-Baby-Scale-pd569477798.html"
+    },
+    {
+      "slug": "bascula-corporal-ref-zt-120-perlong",
+      "nombre": "Báscula Corporal ZT-120",
+      "marca": "Perlong",
+      "ref": "zt-120",
+      "desc_len": 307,
+      "has_faq": true,
+      "pagina": "https://www.perlong-china.com/Dial-Body-Scale-pd6026338.html"
+    },
+    {
+      "slug": "bascula-corporal-ref-zt-150a-perlong",
+      "nombre": "Báscula Corporal ZT-150A",
+      "marca": "Perlong",
+      "ref": "zt-150a",
+      "desc_len": 300,
+      "has_faq": true,
+      "pagina": "https://www.perlong-china.com/Scale-pl6383726.html"
+    },
+    {
+      "slug": "desfibrilador-bifasico-con-monitor",
+      "nombre": "Desfibrilador Bifásico con Monitor",
+      "marca": "Sin marca",
+      "ref": "",
+      "desc_len": 354,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "holter-24-horas-ritmo-cardiaco",
+      "nombre": "Holter 24 Horas Ritmo Cardíaco",
+      "marca": "Sin marca",
+      "ref": "",
+      "desc_len": 388,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "lampara-cialitica-led-doble-para-quirofano",
+      "nombre": "Lámpara Cialítica LED Doble para Quirófano",
+      "marca": "Sin marca",
+      "ref": "",
+      "desc_len": 256,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "maquina-de-anestesia-con-ventilador",
+      "nombre": "Máquina de Anestesia con Ventilador",
+      "marca": "Sin marca",
+      "ref": "",
+      "desc_len": 327,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "bomba-de-jeringa-precision-microdosis",
+      "nombre": "Bomba de Jeringa Precisión Microdosis",
+      "marca": "Advanced Instrumentations",
+      "ref": "",
+      "desc_len": 276,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "carro-de-paro-para-reanimacion",
+      "nombre": "Carro de Paro para Reanimación",
+      "marca": "Sin marca",
+      "ref": "",
+      "desc_len": 293,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "monitor-fetal-ctg-con-impresora",
+      "nombre": "Monitor Fetal CTG con Impresora",
+      "marca": "Sin marca",
+      "ref": "",
+      "desc_len": 263,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "electrocardiografo-inalambrico-portatil",
+      "nombre": "Electrocardiógrafo Inalámbrico Portátil",
+      "marca": "Sin marca",
+      "ref": "",
+      "desc_len": 276,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "sistema-cpap-neonatal-para-uci",
+      "nombre": "Sistema CPAP Neonatal para UCI",
+      "marca": "Sin marca",
+      "ref": "",
+      "desc_len": 283,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "mesa-quirurgica-ortopedica-radiolucida",
+      "nombre": "Mesa Quirúrgica Ortopédica Radiolúcida",
+      "marca": "Sin marca",
+      "ref": "",
+      "desc_len": 298,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "ventilador-mecanico-uci-adulto-pediatrico",
+      "nombre": "Ventilador Mecánico UCI Adulto-Pediátrico",
+      "marca": "Sin marca",
+      "ref": "",
+      "desc_len": 279,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "rx-techo-dinamico-qomo",
+      "nombre": "Sistema de Radiografía Digital Dinámica de Techo QOMO",
+      "marca": "Angell Technology",
+      "ref": "",
+      "desc_len": 459,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "rx-techo-dinamico-changfeng",
+      "nombre": "Sistema de Radiografía Digital Dinámica de Techo Changfeng",
+      "marca": "Angell Technology",
+      "ref": "",
+      "desc_len": 432,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "rx-multifuncional-uc-arm-ref-dtp580",
+      "nombre": "Sistema de Radiografía Digital Dinámica UC-ARM DTP580",
+      "marca": "Angell Technology",
+      "ref": "dtp580",
+      "desc_len": 448,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "rx-piso-mtp",
+      "nombre": "Sistema Radiográfico de Piso MTP",
+      "marca": "Angell Technology",
+      "ref": "",
+      "desc_len": 421,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "arco-c-movil-dinamico-hua-ii",
+      "nombre": "Arco en C Móvil de Radiografía Digital Dinámica HUA II",
+      "marca": "Angell Technology",
+      "ref": "",
+      "desc_len": 401,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "adaptador-ac-dc-para-tensiometro-latidos-ref-latidos-c",
+      "nombre": "Adaptador AC-DC para Tensiómetro Latidos",
+      "marca": "GMD",
+      "ref": "latidos-c",
+      "desc_len": 245,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "nebulizador-para-compresor-nube-ref-gmrn-nb",
+      "nombre": "Nebulizador para Compresor NUBE",
+      "marca": "GMD",
+      "ref": "gmrn-nb",
+      "desc_len": 249,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "patas-en-aluminio-para-comodo-sanitario-kp-ref-kp-parf-2",
+      "nombre": "Patas en Aluminio para Cómodo Sanitario KP",
+      "marca": "Sin marca",
+      "ref": "kp-parf-2",
+      "desc_len": 374,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "balde-para-comodo-sanitario-kp-ref-kp-bal-2",
+      "nombre": "Balde para Cómodo Sanitario KP",
+      "marca": "Sin marca",
+      "ref": "kp-bal-2",
+      "desc_len": 338,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "frenos-para-kbe1432rf-mp23l-ref-kbe1432rf-mp23l-fr",
+      "nombre": "Frenos para KBE1432RF-MP23L",
+      "marca": "Sin marca",
+      "ref": "kbe1432rf-mp23l-fr",
+      "desc_len": 257,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "llanta-trasera-para-sdr-kbe1432rf-mp23l-ref-kbe1432rf-mp23l-llt",
+      "nombre": "Llanta Trasera para SDR KBE1432RF-MP23L",
+      "marca": "Sin marca",
+      "ref": "kbe1432rf-mp23l-llt",
+      "desc_len": 192,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "llanta-delantera-para-kbe1432rf-mp23l-ref-kbe1432rf-mp23l-lld",
+      "nombre": "Llanta Delantera para KBE1432RF-MP23L",
+      "marca": "Sin marca",
+      "ref": "kbe1432rf-mp23l-lld",
+      "desc_len": 186,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "asiento-para-kbe1432rf-mp23l-ref-kbe1432rf-mp23l-as",
+      "nombre": "Asiento para KBE1432RF-MP23L",
+      "marca": "Sin marca",
+      "ref": "kbe1432rf-mp23l-as",
+      "desc_len": 172,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "respaldo-para-kbe1432rf-mp23l-ref-kbe1432rf-mp23-rp",
+      "nombre": "Respaldo para KBE1432RF-MP23L",
+      "marca": "Sin marca",
+      "ref": "kbe1432rf-mp23-rp",
+      "desc_len": 142,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "reposapies-para-sdr-kbo1432rf-mp23-ref-kbo1432rf-mp23-rp",
+      "nombre": "Reposapiés para SDR KBO1432RF-MP23",
+      "marca": "Sin marca",
+      "ref": "kbo1432rf-mp23-rp",
+      "desc_len": 186,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "deslizadores-delanteros-para-sdr-kbe1462ff-m23-d-ref-desde-kbe1462ff-m23-d",
+      "nombre": "Deslizadores Delanteros para SDR KBE1462FF-M23-D",
+      "marca": "Sin marca",
+      "ref": "desde-kbe1462ff-m23-d",
+      "desc_len": 173,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "deslizadores-traseros-para-sdr-kbe1462ff-m23-d-ref-des-kbe1462ff-m23-d",
+      "nombre": "Deslizadores Traseros para SDR KBE1462FF-M23-D",
+      "marca": "Sin marca",
+      "ref": "des-kbe1462ff-m23-d",
+      "desc_len": 180,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "pata-con-rueda-sin-freno-en-aluminio-ref-kb225cr-al19-srf",
+      "nombre": "Pata con Rueda sin Freno en Aluminio",
+      "marca": "Sin marca",
+      "ref": "kb225cr-al19-srf",
+      "desc_len": 201,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "pata-con-rueda-sin-freno-color-blanco-ref-kb225cr-ap1-sfr",
+      "nombre": "Pata con Rueda sin Freno color Blanco",
+      "marca": "Sin marca",
+      "ref": "kb225cr-ap1-sfr",
+      "desc_len": 179,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "manilares-para-muletas-kp-ref-kb3-2010",
+      "nombre": "Manilares para Muletas KP",
+      "marca": "Sin marca",
+      "ref": "kb3-2010",
+      "desc_len": 172,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "axilares-para-muletas-ref-kb3-2001l",
+      "nombre": "Axilares para Muletas",
+      "marca": "Sin marca",
+      "ref": "kb3-2001l",
+      "desc_len": 165,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "tapon-en-forma-de-x-4-apoyos-ref-kp4-4t-d14",
+      "nombre": "Tapón En Forma De X - 4 Apoyos",
+      "marca": "Sin marca",
+      "ref": "kp4-4t-d14",
+      "desc_len": 169,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "kit-de-nebulizacion-del-nube-7000-ref-gmrn818-kitmn",
+      "nombre": "Kit de Nebulización Del Nube 7000",
+      "marca": "GMD",
+      "ref": "gmrn818-kitmn",
+      "desc_len": 389,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "clenny-kit-para-nube-7000-ref-gmrn818-kit",
+      "nombre": "Clenny Kit Para Nube 7000",
+      "marca": "GMD",
+      "ref": "gmrn818-kit",
+      "desc_len": 382,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "recaton-color-negro-para-baston-de-4-apoyos-ref-kp4-4t-20d",
+      "nombre": "Recatón Color Negro para Bastón de 4 Apoyos",
+      "marca": "Sin marca",
+      "ref": "kp4-4t-20d",
+      "desc_len": 414,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "recaton-color-gris-para-baston-de-4-apoyos-ref-kp4-4t-19d",
+      "nombre": "Recatón Color Gris para Bastón de 4 Apoyos",
+      "marca": "Sin marca",
+      "ref": "kp4-4t-19d",
+      "desc_len": 370,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "recaton-color-cafe-para-baston-de-1-apoyo-ref-kp4-1t-26d",
+      "nombre": "Recatón Color Café Para Bastón De 1 Apoyo",
+      "marca": "Sin marca",
+      "ref": "kp4-1t-26d",
+      "desc_len": 30,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "recaton-color-negro-para-baston-de-1-apoyo-ref-kp4-1t-20d",
+      "nombre": "Recatón Color Negro Para Bastón De 1 Apoyo",
+      "marca": "Sin marca",
+      "ref": "kp4-1t-20d",
+      "desc_len": 30,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "rueda-delantera-sin-tenedor-ref-kbe1462ff-m23d-rst",
+      "nombre": "Rueda Delantera sin Tenedor",
+      "marca": "Sin marca",
+      "ref": "kbe1462ff-m23d-rst",
+      "desc_len": 384,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "pata-con-rueda-y-freno-en-acero-color-blanco-ref-kb225cr-ap1-rf",
+      "nombre": "Pata Con Rueda Y Freno En Acero Color Blanco",
+      "marca": "Sin marca",
+      "ref": "kb225cr-ap1-rf",
+      "desc_len": 387,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "arnes-movil-para-grua-hidraulica-ref-jbs168-00-021",
+      "nombre": "Arnés Móvil para Grúa Hidráulica",
+      "marca": "GMD",
+      "ref": "jbs168-00-021",
+      "desc_len": 32,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "reposapies-elevables-para-sdr-iron-light-ref-srels-rpe",
+      "nombre": "Reposapiés Elevables para SDR Iron Light",
+      "marca": "GMD",
+      "ref": "srels-rpe",
+      "desc_len": 378,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "aro-y-tapa-para-comodo-sanitario-ref-kb225cr-ap1-ta",
+      "nombre": "Aro Y Tapa Para Cómodo Sanitario",
+      "marca": "Sin marca",
+      "ref": "kb225cr-ap1-ta",
+      "desc_len": 284,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "balde-para-comodo-sanitario-ref-kb215sr-al-b",
+      "nombre": "Balde Para Comodo Sanitario",
+      "marca": "GMD",
+      "ref": "kb215sr-al-b",
+      "desc_len": 271,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "respaldo-para-comodo-sanitario-kp-ref-kp2-6543cr-al19-r",
+      "nombre": "Respaldo Para Cómodo Sanitario KP",
+      "marca": "Sin marca",
+      "ref": "kp2-6543cr-al19-r",
+      "desc_len": 303,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "tapon-para-comodo-kp2-6542sr-ref-kp2-6542sr-tipn",
+      "nombre": "Tapón Para Cómodo KP2-6542SR",
+      "marca": "Sin marca",
+      "ref": "kp2-6542sr-tipn",
+      "desc_len": 226,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "espaldar-para-comodo-sanitario-kp2-6542sr-ref-kp2-6542sr-ap1-r",
+      "nombre": "Espaldar Para Cómodo Sanitario KP2-6542SR",
+      "marca": "Sin marca",
+      "ref": "kp2-6542sr-ap1-r",
+      "desc_len": 235,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "asiento-para-comodo-sanitario-kp2-6542sr-ref-kp2-6542sr-ap1-a",
+      "nombre": "Asiento Para Cómodo Sanitario KP2-6542SR",
+      "marca": "Sin marca",
+      "ref": "kp2-6542sr-ap1-a",
+      "desc_len": 254,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "reposapies-removibles-para-sdr-iron-light-ref-srels-rpr",
+      "nombre": "Reposapiés Removibles para SDR Iron Light",
+      "marca": "GMD",
+      "ref": "srels-rpr",
+      "desc_len": 389,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "pad-para-sdr-iron-light-ref-srels-pad",
+      "nombre": "Pad para SDR Iron Light",
+      "marca": "GMD",
+      "ref": "srels-pad",
+      "desc_len": 31,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "llanta-trasera-para-sdr-iron-light-ref-srels-lt",
+      "nombre": "Llanta Trasera para SDR Iron Light",
+      "marca": "GMD",
+      "ref": "srels-lt",
+      "desc_len": 31,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "reposapies-elevables-para-sdr-kbe1462re-pp23l-ref-kbe1462re-p23l-rp",
+      "nombre": "Reposapiés elevables para SDR KBE1462RE-PP23L",
+      "marca": "Sin marca",
+      "ref": "kbe1462re-p23l-rp",
+      "desc_len": 345,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "freno-para-sdr-estandar-color-gris-ref-kbe1462-fr",
+      "nombre": "Freno para SDR Estándar color Gris",
+      "marca": "GMD",
+      "ref": "kbe1462-fr",
+      "desc_len": 61,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "asiento-para-sdr-kbe1462ff-m23-d-ref-kbe1462ff-m23d-a",
+      "nombre": "Asiento para SDR KBE1462FF-M23-D",
+      "marca": "Sin marca",
+      "ref": "kbe1462ff-m23d-a",
+      "desc_len": 284,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "asiento-para-silla-de-ruedas-pediatrica-ref-fs980la-35-a",
+      "nombre": "Asiento Para Silla De Ruedas Pediátrica",
+      "marca": "Sin marca",
+      "ref": "fs980la-35-a",
+      "desc_len": 31,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "espaldar-en-nailon-para-silla-de-transporte-ref-fs976abj-43-e",
+      "nombre": "Espaldar En Nailon Para Silla De Transporte",
+      "marca": "Sin marca",
+      "ref": "fs976abj-43-e",
+      "desc_len": 31,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "actuador-hidraulico-para-jbs168-1-ref-jbs168-00-1a",
+      "nombre": "Actuador hidráulico para jbs168-1",
+      "marca": "GMD",
+      "ref": "jbs168-00-1a",
+      "desc_len": 32,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "filtro-par-compresor-nebulizador-panda-ref-gmrn457-1f",
+      "nombre": "Filtro Par Compresor Nebulizador Panda",
+      "marca": "GMD",
+      "ref": "gmrn457-1f",
+      "desc_len": 35,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "recaton-color-gris-para-baston-de-1-apoyo-dc-ref-kp4-1t-19d",
+      "nombre": "Recatón Color Gris para Bastón de 1 Apoyo Dc",
+      "marca": "Sin marca",
+      "ref": "kp4-1t-19d",
+      "desc_len": 30,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "reposapies-para-sdr-kbe1452ff-m23-d-ref-kbe1462ff-m23d-rp",
+      "nombre": "Reposapiés para SDR KBE1452FF-M23-D",
+      "marca": "Sin marca",
+      "ref": "kbe1462ff-m23d-rp",
+      "desc_len": 295,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "tapon-para-caminador-kp1-816l-color-gris-ref-kp1-816l-tip",
+      "nombre": "Tapón para Caminador KP1-816L Color Gris",
+      "marca": "GMD",
+      "ref": "kp1-816l-tip",
+      "desc_len": 138,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "rueda-trasera-para-silla-de-transporte-ref-kbo1432rf-mp23-rt",
+      "nombre": "Rueda Trasera Para Silla De Transporte",
+      "marca": "Sin marca",
+      "ref": "kbo1432rf-mp23-rt",
+      "desc_len": 31,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "frenos-para-sdr-kbo1432rf-mp23-ref-kbo1432rf-mp23-fr",
+      "nombre": "Frenos para SDR KBO1432RF-MP23",
+      "marca": "Sin marca",
+      "ref": "kbo1432rf-mp23-fr",
+      "desc_len": 31,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "de-oxigeno-con-cilindro-de-416-l-ref-kit-2",
+      "nombre": "Kit 2 De Oxígeno Con Cilindro De 416 l",
+      "marca": "GMD",
+      "ref": "kit-2",
+      "desc_len": 407,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "cilindro-de-oxigeno-416-l-ref-md15-015",
+      "nombre": "Cilindro De Oxígeno 416 L",
+      "marca": "Luxfer",
+      "ref": "md15-015",
+      "desc_len": 196,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "carra-para-cilindro-680-l-ref-150-0100",
+      "nombre": "Carra Para Cilindro - 680 L",
+      "marca": "Sin marca",
+      "ref": "150-0100",
+      "desc_len": 141,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "baston-con-empunadura-en-t-ergonomico-color-cromo-ref-kp4102-22-konfort-plus",
+      "nombre": "Baston Con Empuñadura En T Ergonómico Color Cromo Konfort Plus",
+      "marca": "GMD",
+      "ref": "kp4102-22-konfort-plus",
+      "desc_len": 429,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "tapon-para-silla-ducha-kb2-798l-ref-kb2-798l-t",
+      "nombre": "Tapón Para Silla Ducha KB2-798L",
+      "marca": "Sin marca",
+      "ref": "kb2-798l-t",
+      "desc_len": 28,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "empaque-para-regulador-de-valvulas-gmr-ref-gmr540-mdk-001",
+      "nombre": "Empaque para Regulador de Válvulas GMR",
+      "marca": "GMD",
+      "ref": "gmr540-mdk-001",
+      "desc_len": 71,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "tapon-para-comodo-sanitario-ref-kb215sr-al-tip",
+      "nombre": "Tapón Para Cómodo Sanitario",
+      "marca": "GMD",
+      "ref": "kb215sr-al-tip",
+      "desc_len": 274,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "pata-para-comodo-sanitario-en-aluminio-ref-kb215sr-al-leg",
+      "nombre": "Pata Para Cómodo Sanitario En Aluminio",
+      "marca": "GMD",
+      "ref": "kb215sr-al-leg",
+      "desc_len": 279,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "llanta-con-freno-para-comodo-sanitario-ref-fs696-rf",
+      "nombre": "Llanta Con Freno Para Cómodo Sanitario",
+      "marca": "GMD",
+      "ref": "fs696-rf",
+      "desc_len": 54,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "llanta-sin-freno-para-comodo-sanitario-ref-fs696-r",
+      "nombre": "Llanta Sin Freno Para Cómodo Sanitario",
+      "marca": "GMD",
+      "ref": "fs696-r",
+      "desc_len": 51,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "combo-600-cajas-de-tirillas-plus-600-cajas-de-lancetas-plus-200-glucometros-en-o-ref-ltd-b10-600",
+      "nombre": "Combo 600 Cajas de Tirillas + 600 Cajas de Lancetas + 200 Glucómetros en obsequio",
+      "marca": "GMD",
+      "ref": "ltd-b10-600",
+      "desc_len": 132,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "combo-cajas-de-tirillas-plus-cajas-de-lancetas-plus-67-glucometros-en-obsequio-ref-200",
+      "nombre": "Combo 200 Cajas de Tirillas + 200 Cajas de Lancetas + 67 Glucómetros en obsequio",
+      "marca": "GMD",
+      "ref": "200",
+      "desc_len": 131,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "combo-200-cajas-de-tirillas-plus-200-cajas-de-lancetas-plus-67-glucometros-en-obsequio-e-ref-200",
+      "nombre": "Combo 200 Cajas de Tirillas + 200 Cajas de Lancetas + 67 Glucómetros en obsequio",
+      "marca": "GMD",
+      "ref": "200",
+      "desc_len": 131,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "combo-cajas-de-tirillas-plus-cajas-de-lancetas-plus-25-glucometros-en-obsequio-ref-100",
+      "nombre": "Combo 100 Cajas de Tirillas + 100 Cajas de Lancetas + 25 Glucómetros en obsequio",
+      "marca": "GMD",
+      "ref": "100",
+      "desc_len": 123,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "combo-100-cajas-de-tirillas-plus-100-cajas-de-lancetas-plus-25-glucometros-en-obsequio-7-ref-100",
+      "nombre": "Combo 100 Cajas de Tirillas + 100 Cajas de Lancetas + 25 Glucómetros en obsequio",
+      "marca": "GMD",
+      "ref": "100",
+      "desc_len": 123,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "combo-50-cajas-de-tirillas-plus-50-cajas-de-lancetas-plus-10-glucometros-en-obseq-ref-ltd-b10-50",
+      "nombre": "Combo 50 Cajas de Tirillas + 50 Cajas de Lancetas + 10 Glucómetros en obsequio",
+      "marca": "GMD",
+      "ref": "ltd-b10-50",
+      "desc_len": 129,
+      "has_faq": true,
+      "pagina": null
+    },
+    {
+      "slug": "sillon-odontologico-ref-se802-saikang",
+      "nombre": "Sillón odontológico Ref. SE802 Saikang",
+      "marca": "Saikang",
+      "ref": "se802",
+      "desc_len": 428,
+      "has_faq": true,
+      "pagina": "https://saikangmedical.com/en/product/se802-dental-chair/"
+    },
+    {
+      "slug": "equipo-hospitalario-ref-skh046-1-saikang",
+      "nombre": "Equipo hospitalario Ref. SKH046-1 Saikang",
+      "marca": "Saikang",
+      "ref": "skh046-1",
+      "desc_len": 356,
+      "has_faq": true,
+      "pagina": "https://saikangmedical.com/en/product/skh046-1-telescopic-dining-board/"
+    },
+    {
+      "slug": "equipo-hospitalario-ref-skn031-stainless-steel-kidney-dish-saikang",
+      "nombre": "Equipo hospitalario Ref. SKN031_STAINLESS-STEEL-KIDNEY-DISH Saikang",
+      "marca": "Saikang",
+      "ref": "skn031-stainless-steel-kidney-dish",
+      "desc_len": 474,
+      "has_faq": true,
+      "pagina": "https://saikangmedical.com/en/product/skn031_stainless-steel-kidney-dish/"
+    },
+    {
+      "slug": "equipo-hospitalario-ref-skno31-saikang",
+      "nombre": "Equipo hospitalario Ref. SKNO31 Saikang",
+      "marca": "Saikang",
+      "ref": "skno31",
+      "desc_len": 423,
+      "has_faq": true,
+      "pagina": "https://saikangmedical.com/en/product/skno31-stainless-steel-kidney-dish/"
+    }
+  ]
+}

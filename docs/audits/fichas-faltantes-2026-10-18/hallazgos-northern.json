@@ -1,0 +1,115 @@
+{
+  "marca": "Northern Meditec",
+  "encontradas": 9,
+  "no_encontradas": 3,
+  "items": [
+    {
+      "slug": "monitor-multiparametro-ref-acuarius-northern",
+      "nombre_es": "Monitor Multiparámetro Acuarius",
+      "ficha_url": null,
+      "pagina_fabricante": null,
+      "http_status": null,
+      "idioma": null,
+      "notas": "Sin PDF en northernmeditec.com/es/en/www; widget e_download vacío (API get_comp 403). No aparece prodet en sitemap. Documentación cercana 'Aquarius/Taurus E' en catálogos de terceros no usa el nombre exacto Acuarius."
+    },
+    {
+      "slug": "oximetro-ref-aquarius-lite-northern",
+      "nombre_es": "Oxímetro Aquarius LITE",
+      "ficha_url": null,
+      "pagina_fabricante": null,
+      "http_status": null,
+      "idioma": null,
+      "notas": "Sin modelo 'Aquarius LITE' ni oxímetro standalone en sitio oficial ni en pdf.medicalexpo.com (Northern Meditec). 'Aquarius' en web es monitor de signos vitales multiparamétrico, no oxímetro LITE."
+    },
+    {
+      "slug": "maquina-de-anestesia-ref-atlas-n3-northern",
+      "nombre_es": "Máquina de Anestesia Atlas N3",
+      "ficha_url": "https://img1.wsimg.com/blobby/go/c01c3d71-7833-4189-a7a1-9758185b4530/N3%20BROCHURE.pdf",
+      "pagina_fabricante": "https://en.northernmeditec.com/prodet/2.html",
+      "http_status": 200,
+      "idioma": "en",
+      "notas": "Brochure oficial Northern (GoDaddy blob img1.wsimg.com, pie con www.northernmeditec.com). ficha_local:tmp/ficha-search/northern/maquina-de-anestesia-ref-atlas-n3-northern.pdf"
+    },
+    {
+      "slug": "maquina-de-anestesia-ref-atlas-n5-northern",
+      "nombre_es": "Máquina de Anestesia Atlas N5",
+      "ficha_url": "https://img1.wsimg.com/blobby/go/c01c3d71-7833-4189-a7a1-9758185b4530/N5%20BROCHURE.pdf",
+      "pagina_fabricante": "https://en.northernmeditec.com/prodet/3.html",
+      "http_status": 200,
+      "idioma": "en",
+      "notas": "Brochure oficial Northern (img1.wsimg.com). ficha_local:tmp/ficha-search/northern/maquina-de-anestesia-ref-atlas-n5-northern.pdf"
+    },
+    {
+      "slug": "maquina-de-anestesia-ref-atlas-n7-northern",
+      "nombre_es": "Máquina de Anestesia Atlas N7",
+      "ficha_url": "https://img1.wsimg.com/blobby/go/c01c3d71-7833-4189-a7a1-9758185b4530/N7%20BROCHURE.pdf",
+      "pagina_fabricante": "https://en.northernmeditec.com/prodet/13.html",
+      "http_status": 200,
+      "idioma": "en",
+      "notas": "Brochure oficial Northern (img1.wsimg.com). ficha_local:tmp/ficha-search/northern/maquina-de-anestesia-ref-atlas-n7-northern.pdf"
+    },
+    {
+      "slug": "ventilador-mecanico-ref-crius-v6-northern",
+      "nombre_es": "Ventilador Mecánico Crius V6",
+      "ficha_url": "https://img1.wsimg.com/blobby/go/c01c3d71-7833-4189-a7a1-9758185b4530/ICU%20Ventilator%20Crius%20V6.pdf",
+      "pagina_fabricante": "https://en.northernmeditec.com/prodet/10.html",
+      "http_status": 200,
+      "idioma": "en",
+      "notas": "Hoja de producto ICU Ventilator Crius V6 (img1.wsimg.com). Manual operador alternativo MedicalExpo CDN: portalimages.blob.core.windows.net/products/pdfs/2vzhecch_Northern-V6-ICU-Ventilator.pdf (200). ficha_local:tmp/ficha-search/northern/ventilador-mecanico-ref-crius-v6-northern.pdf"
+    },
+    {
+      "slug": "monitor-fetal-y-materno-ref-fm-9000-northern",
+      "nombre_es": "Monitor Fetal y Materno FM-9000",
+      "ficha_url": null,
+      "pagina_fabricante": null,
+      "http_status": null,
+      "idioma": null,
+      "notas": "FM-9000 no listado en catálogo Northern Meditec (MedicalExpo ni web corporativa). FM-9000 Plus documentado por Advanced Instrumentations (marca distinta)."
+    },
+    {
+      "slug": "monitor-multiparametro-ref-gemini-northern",
+      "nombre_es": "Monitor Multiparámetro Gemini",
+      "ficha_url": "https://img1.wsimg.com/blobby/go/c01c3d71-7833-4189-a7a1-9758185b4530/Gemini%20%E5%90%88%E9%A1%B5.pdf",
+      "pagina_fabricante": "https://en.northernmeditec.com/prodet/11.html",
+      "http_status": 200,
+      "idioma": "en",
+      "notas": "Brochure Anesthesia Patient Monitor Gemini (img1.wsimg.com). ficha_local:tmp/ficha-search/northern/monitor-multiparametro-ref-gemini-northern.pdf"
+    },
+    {
+      "slug": "monitor-multiparametro-ref-pisces-northern",
+      "nombre_es": "Monitor Multiparámetro Pisces",
+      "ficha_url": "https://img1.wsimg.com/blobby/go/27dfc2ac-fea6-408d-8ec0-e7d3ea021f02/Pisces%20%E5%8D%95%E9%A1%B5.pdf",
+      "pagina_fabricante": "https://en.northernmeditec.com/prodet/1.html",
+      "http_status": 200,
+      "idioma": "en",
+      "notas": "Brochure Bed-side Patient Monitor Pisces (img1.wsimg.com). ficha_local:tmp/ficha-search/northern/monitor-multiparametro-ref-pisces-northern.pdf"
+    },
+    {
+      "slug": "monitor-multiparametro-ref-taurus-northern",
+      "nombre_es": "Monitor Multiparámetro Taurus",
+      "ficha_url": "https://img1.wsimg.com/blobby/go/27dfc2ac-fea6-408d-8ec0-e7d3ea021f02/Taurus%20%E5%8D%95%E9%A1%B5.pdf",
+      "pagina_fabricante": "https://en.northernmeditec.com/prodet/8.html",
+      "http_status": 200,
+      "idioma": "en",
+      "notas": "Brochure Multi-parameter Patient Monitor Taurus (img1.wsimg.com). ficha_local:tmp/ficha-search/northern/monitor-multiparametro-ref-taurus-northern.pdf"
+    },
+    {
+      "slug": "monitor-multiparametro-ref-venus-northern",
+      "nombre_es": "Monitor Multiparámetro Venus",
+      "ficha_url": "https://img1.wsimg.com/blobby/go/27dfc2ac-fea6-408d-8ec0-e7d3ea021f02/Venus%20%E5%90%88%E9%A1%B5.pdf",
+      "pagina_fabricante": "https://en.northernmeditec.com/prodet/9.html",
+      "http_status": 200,
+      "idioma": "en",
+      "notas": "Brochure Critical Care Patient Monitor Venus (img1.wsimg.com). ficha_local:tmp/ficha-search/northern/monitor-multiparametro-ref-venus-northern.pdf"
+    },
+    {
+      "slug": "monitor-modular-multiparametro-ref-virgo-northern",
+      "nombre_es": "Monitor Modular Multiparámetro Virgo",
+      "ficha_url": "https://img1.wsimg.com/blobby/go/27dfc2ac-fea6-408d-8ec0-e7d3ea021f02/Virgo%20Patient%20Monitor.pdf",
+      "pagina_fabricante": "https://en.northernmeditec.com/prodet/7.html",
+      "http_status": 200,
+      "idioma": "en",
+      "notas": "Brochure Patient Monitor Virgo (img1.wsimg.com). Espejo MedicalExpo: portalimages.blob.core.windows.net/products/pdfs/q1naqhhr_Northern_Virgo_Patient_Monitor_Brochure.pdf (200). ficha_local:tmp/ficha-search/northern/monitor-modular-multiparametro-ref-virgo-northern.pdf"
+    }
+  ]
+}

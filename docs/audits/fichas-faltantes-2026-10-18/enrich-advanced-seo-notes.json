@@ -1,0 +1,235 @@
+{
+  "fecha": "2026-10-18",
+  "marca": "Advanced Instrumentations",
+  "enrich_file": "/home/shoky/cursor/ime-platform-landing-audit/src/data/fichas-enriquecimiento/sin-marca-advanced-faltantes-20261018.json",
+  "items_mejorados": 13,
+  "total_esperado": 13,
+  "metodo_extraccion": "pdfminer.six (pdftotext vacío en PDFs con fuentes embebidas); contenido técnico validado vía advanced.json",
+  "fabricante_web": "https://www.advanced-inst.com",
+  "apply_script_ejecutado": true,
+  "deploy": false,
+  "items": [
+    {
+      "slug": "monitor-multiparametrico-uci-avanzado",
+      "sku": "PM-2000XL-PRO",
+      "pdf": "pm-2000xl-pro-spa.pdf",
+      "status": "upgraded",
+      "descripcion_chars_before": 427,
+      "descripcion_chars_after": 1078,
+      "specs_n": 8,
+      "faq_n": 5,
+      "seo_keywords_n": 10,
+      "pdf_text_extracted": true,
+      "sources": [
+        "advanced.json (PDF-backed)",
+        "Desktop metadata.txt",
+        "pm-2000xl-pro-spa.pdf"
+      ]
+    },
+    {
+      "slug": "monitor-multiparametrico-basico",
+      "sku": "VSM-300",
+      "pdf": "vsm-300-spa.pdf",
+      "status": "upgraded",
+      "descripcion_chars_before": 309,
+      "descripcion_chars_after": 1037,
+      "specs_n": 8,
+      "faq_n": 5,
+      "seo_keywords_n": 10,
+      "pdf_text_extracted": true,
+      "sources": [
+        "advanced.json (PDF-backed)",
+        "Desktop metadata.txt",
+        "vsm-300-spa.pdf"
+      ]
+    },
+    {
+      "slug": "monitor-de-transporte-prehospitalario",
+      "sku": "PM-2000XL",
+      "pdf": "pm-2000xl-spa.pdf",
+      "status": "upgraded",
+      "descripcion_chars_before": 360,
+      "descripcion_chars_after": 957,
+      "specs_n": 7,
+      "faq_n": 5,
+      "seo_keywords_n": 10,
+      "pdf_text_extracted": true,
+      "sources": [
+        "advanced.json (PDF-backed)",
+        "Desktop metadata.txt",
+        "pm-2000xl-spa.pdf"
+      ]
+    },
+    {
+      "slug": "monitor-central-uci-multicama",
+      "sku": "PM-2000M",
+      "pdf": "pm-2000m-spa.pdf",
+      "status": "upgraded",
+      "descripcion_chars_before": 291,
+      "descripcion_chars_after": 953,
+      "specs_n": 7,
+      "faq_n": 5,
+      "seo_keywords_n": 10,
+      "pdf_text_extracted": true,
+      "sources": [
+        "advanced.json (PDF-backed)",
+        "Desktop metadata.txt",
+        "pm-2000m-spa.pdf"
+      ]
+    },
+    {
+      "slug": "electrocardiografo-12-derivaciones-digital",
+      "sku": "ECG-12C",
+      "pdf": "ecg-12c-spa.pdf",
+      "status": "upgraded",
+      "descripcion_chars_before": 272,
+      "descripcion_chars_after": 1008,
+      "specs_n": 8,
+      "faq_n": 5,
+      "seo_keywords_n": 10,
+      "pdf_text_extracted": true,
+      "sources": [
+        "advanced.json (PDF-backed)",
+        "Desktop metadata.txt",
+        "ecg-12c-spa.pdf"
+      ]
+    },
+    {
+      "slug": "mesa-quirurgica-motorizada-multiposicion",
+      "sku": "OT-500",
+      "pdf": "ot-500-spa.pdf",
+      "status": "upgraded",
+      "descripcion_chars_before": 295,
+      "descripcion_chars_after": 1012,
+      "specs_n": 7,
+      "faq_n": 5,
+      "seo_keywords_n": 10,
+      "pdf_text_extracted": true,
+      "sources": [
+        "advanced.json (PDF-backed)",
+        "Desktop metadata.txt",
+        "ot-500-spa.pdf"
+      ]
+    },
+    {
+      "slug": "incubadora-neonatal-de-transporte",
+      "sku": "A3158",
+      "pdf": "a3158-spa.pdf",
+      "status": "upgraded",
+      "descripcion_chars_before": 311,
+      "descripcion_chars_after": 1343,
+      "specs_n": 8,
+      "faq_n": 5,
+      "seo_keywords_n": 10,
+      "pdf_text_extracted": true,
+      "sources": [
+        "advanced.json (PDF-backed)",
+        "Desktop metadata.txt",
+        "a3158-spa.pdf"
+      ]
+    },
+    {
+      "slug": "cuna-de-calor-radiante-neonatal-servo",
+      "sku": "A4051",
+      "pdf": "a4051-spa.pdf",
+      "status": "upgraded",
+      "descripcion_chars_before": 302,
+      "descripcion_chars_after": 1306,
+      "specs_n": 8,
+      "faq_n": 5,
+      "seo_keywords_n": 10,
+      "pdf_text_extracted": true,
+      "sources": [
+        "advanced.json (PDF-backed)",
+        "Desktop metadata.txt",
+        "a4051-spa.pdf"
+      ]
+    },
+    {
+      "slug": "ecografo-color-doppler-diagnostico-vascular",
+      "sku": "DUS-5000",
+      "pdf": "dus-5000.pdf",
+      "status": "upgraded",
+      "descripcion_chars_before": 355,
+      "descripcion_chars_after": 964,
+      "specs_n": 8,
+      "faq_n": 5,
+      "seo_keywords_n": 10,
+      "pdf_text_extracted": true,
+      "sources": [
+        "advanced.json (PDF-backed)",
+        "Desktop metadata.txt",
+        "dus-5000.pdf"
+      ]
+    },
+    {
+      "slug": "ecografo-portatil-con-wifi-y-dicom",
+      "sku": "DUS-5000-PLUS",
+      "pdf": "dus-5000-plus.pdf",
+      "status": "upgraded",
+      "descripcion_chars_before": 318,
+      "descripcion_chars_after": 1065,
+      "specs_n": 7,
+      "faq_n": 5,
+      "seo_keywords_n": 10,
+      "pdf_text_extracted": true,
+      "sources": [
+        "advanced.json (PDF-backed)",
+        "Desktop metadata.txt",
+        "dus-5000-plus.pdf"
+      ]
+    },
+    {
+      "slug": "ultrasonido-point-of-care-pocket",
+      "sku": "DUS-6000",
+      "pdf": "dus-6000.pdf",
+      "status": "upgraded",
+      "descripcion_chars_before": 320,
+      "descripcion_chars_after": 947,
+      "specs_n": 7,
+      "faq_n": 5,
+      "seo_keywords_n": 10,
+      "pdf_text_extracted": true,
+      "sources": [
+        "advanced.json (PDF-backed)",
+        "Desktop metadata.txt",
+        "dus-6000.pdf"
+      ]
+    },
+    {
+      "slug": "bomba-de-infusion-volumetrica-uci",
+      "sku": "IP-200",
+      "pdf": "ip-200-spa.pdf",
+      "status": "upgraded",
+      "descripcion_chars_before": 282,
+      "descripcion_chars_after": 929,
+      "specs_n": 8,
+      "faq_n": 5,
+      "seo_keywords_n": 10,
+      "pdf_text_extracted": true,
+      "sources": [
+        "advanced.json (PDF-backed)",
+        "Desktop metadata.txt",
+        "ip-200-spa.pdf"
+      ]
+    },
+    {
+      "slug": "camilla-hospitalaria-electrica-articulable",
+      "sku": "B-1000-PRO",
+      "pdf": "b-1000-pro-esp.pdf",
+      "status": "upgraded",
+      "descripcion_chars_before": 312,
+      "descripcion_chars_after": 983,
+      "specs_n": 7,
+      "faq_n": 5,
+      "seo_keywords_n": 10,
+      "pdf_text_extracted": true,
+      "sources": [
+        "advanced.json (PDF-backed)",
+        "Desktop metadata.txt",
+        "b-1000-pro-esp.pdf"
+      ]
+    }
+  ],
+  "apply_ts": "2026101832"
+}

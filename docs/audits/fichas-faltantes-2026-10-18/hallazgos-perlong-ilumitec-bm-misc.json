@@ -1,0 +1,247 @@
+{
+  "generado": "2026-10-18",
+  "marcas": {
+    "Perlong": {
+      "marca": "Perlong",
+      "encontradas": 1,
+      "no_encontradas": 7,
+      "items": [
+        {
+          "slug": "balanza-para-bebe-electronica-ref-ebsa-20-perlong",
+          "nombre_es": "Balanza para Bebé Electrónica EBSA-20",
+          "ficha_url": null,
+          "pagina_fabricante": null,
+          "pdf_local": null,
+          "notas": "Sin página ni PDF en perlong-china.com con modelo EBSA-20; en catálogo Perlong aparece EBSC-20 (modelo distinto). OEM Kinlee lista EBSA-20 pero no es sitio Perlong.",
+          "confianza": "baja"
+        },
+        {
+          "slug": "bascula-corporal-doble-regla-ref-rgt-a-200-rt-perlong",
+          "nombre_es": "Báscula Corporal Doble Regla RGT.A-200-RT",
+          "ficha_url": null,
+          "pagina_fabricante": null,
+          "pdf_local": null,
+          "notas": "Modelo RGT.A-200-RT no listado en sitemap ni búsqueda de perlong-china.com; solo imágenes en importados.",
+          "confianza": "baja"
+        },
+        {
+          "slug": "balanza-corporal-con-doble-regla-ref-rgt-rt-perlong",
+          "nombre_es": "Balanza Corporal con Doble Regla RGT-RT",
+          "ficha_url": null,
+          "pagina_fabricante": null,
+          "pdf_local": null,
+          "notas": "Modelo RGT-RT no encontrado en perlong-china.com (coincidencia exacta).",
+          "confianza": "baja"
+        },
+        {
+          "slug": "bascula-corporal-electronica-ref-tcs-200-rt-perlong",
+          "nombre_es": "Báscula Corporal Electrónica TCS-200-RT",
+          "ficha_url": null,
+          "pagina_fabricante": null,
+          "pdf_local": null,
+          "notas": "Modelo TCS-200-RT no listado en perlong-china.com; productos cercanos TCS-180L / 200B-RT son referencias distintas.",
+          "confianza": "baja"
+        },
+        {
+          "slug": "balanza-corporal-electronica-ref-tcs-200b-rt-perlong",
+          "nombre_es": "Balanza Corporal Electrónica TCS-200B-RT",
+          "ficha_url": null,
+          "pagina_fabricante": null,
+          "pdf_local": null,
+          "notas": "Modelo TCS-200B-RT no listado en perlong-china.com; página 200B-RT tiene capacidad/specs distintos.",
+          "confianza": "baja"
+        },
+        {
+          "slug": "balanza-para-bebe-ref-yrbb-20-perlong",
+          "nombre_es": "Balanza para Bebé YRBB-20",
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.perlong-china.com/YRBB-20-Baby-Scale-pd569477798.html",
+          "pdf_local": null,
+          "notas": "Página oficial Perlong con modelo YRBB-20; sin PDF de ficha en dominio del fabricante.",
+          "confianza": "alta"
+        },
+        {
+          "slug": "bascula-corporal-ref-zt-120-perlong",
+          "nombre_es": "Báscula Corporal ZT-120",
+          "ficha_url": null,
+          "pagina_fabricante": null,
+          "pdf_local": null,
+          "notas": "Modelo ZT-120 no encontrado en perlong-china.com.",
+          "confianza": "baja"
+        },
+        {
+          "slug": "bascula-corporal-ref-zt-150a-perlong",
+          "nombre_es": "Báscula Corporal ZT-150A",
+          "ficha_url": null,
+          "pagina_fabricante": null,
+          "pdf_local": null,
+          "notas": "Modelo ZT-150A no encontrado en perlong-china.com.",
+          "confianza": "baja"
+        }
+      ]
+    },
+    "Ilumitec": {
+      "marca": "Ilumitec",
+      "encontradas": 8,
+      "no_encontradas": 0,
+      "items": [
+        {
+          "slug": "lampara-rodable-ref-led-rx18-ilumitec",
+          "nombre_es": "Lámpara Rodable LED-RX18",
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.ilumitecsas.com/",
+          "pdf_local": "/home/shoky/FTP/pdf producto/Ilumitec/LED-RX18.pdf",
+          "notas": "Fabricante Ilumitec S.A.S. (Colombia); ilumitec.com.br sin catálogo. PDF local por referencia; no URL pública por modelo en sitio del fabricante.",
+          "confianza": "media"
+        },
+        {
+          "slug": "lampara-rodable-ref-led-rx18-100k-ilumitec",
+          "nombre_es": "Lámpara Rodable LED-RX18 100K",
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.ilumitecsas.com/",
+          "pdf_local": "/home/shoky/FTP/pdf producto/Ilumitec/LED-RX18-100K.pdf",
+          "notas": "PDF local LED-RX18-100K; sitio oficial sin ficha descargable por SKU.",
+          "confianza": "media"
+        },
+        {
+          "slug": "lampara-rodable-ref-led-rx36-ilumitec",
+          "nombre_es": "Lámpara Rodable LED-RX36",
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.ilumitecsas.com/",
+          "pdf_local": "/home/shoky/FTP/pdf producto/Ilumitec/LED-RX36.pdf",
+          "notas": "PDF local LED-RX36; sin PDF oficial en ilumitecsas.com.",
+          "confianza": "media"
+        },
+        {
+          "slug": "lampara-rodable-ref-led-rx36-160k-ilumitec",
+          "nombre_es": "Lámpara Rodable LED-RX36-160K",
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.ilumitecsas.com/",
+          "pdf_local": "/home/shoky/FTP/pdf producto/Ilumitec/LED-RX36-160K.pdf",
+          "notas": "PDF local LED-RX36-160K; sin PDF oficial en ilumitecsas.com.",
+          "confianza": "media"
+        },
+        {
+          "slug": "lampara-cielitica-ref-led-x18-100k-ilumitec",
+          "nombre_es": "Lámpara Cielítica LED-X18 100K",
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.ilumitecsas.com/",
+          "pdf_local": "/home/shoky/FTP/pdf producto/Ilumitec/LED-X18-100K.pdf",
+          "notas": "PDF local LED-X18-100K; sitio oficial sin página por referencia.",
+          "confianza": "media"
+        },
+        {
+          "slug": "lampara-cielitica-ref-led-x36-ilumitec",
+          "nombre_es": "Lámpara Cielítica LED-X36",
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.ilumitecsas.com/",
+          "pdf_local": "/home/shoky/FTP/pdf producto/Ilumitec/LED-X36.pdf",
+          "notas": "PDF local LED-X36; sin PDF en dominio ilumitecsas.com.",
+          "confianza": "media"
+        },
+        {
+          "slug": "lampara-cielitica-led-x3618-con-satelite-ref-led-x3618-ilumitec",
+          "nombre_es": "Lámpara Cielítica LED-X3618 con Satélite",
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.ilumitecsas.com/",
+          "pdf_local": "/home/shoky/FTP/pdf producto/Ilumitec/LED-X3618.pdf",
+          "notas": "PDF local LED-X3618; sin ficha pública del fabricante por modelo.",
+          "confianza": "media"
+        },
+        {
+          "slug": "lampara-cielitica-led-x3636-con-satelite-ref-led-x3636-ilumitec",
+          "nombre_es": "Lámpara Cielítica LED-X3636 con Satélite",
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.ilumitecsas.com/",
+          "pdf_local": "/home/shoky/FTP/pdf producto/Ilumitec/LED-X3636.pdf",
+          "notas": "PDF local LED-X3636; sin ficha pública del fabricante por modelo.",
+          "confianza": "media"
+        }
+      ]
+    },
+    "BM": {
+      "marca": "BM",
+      "encontradas": 1,
+      "no_encontradas": 2,
+      "items": [
+        {
+          "slug": "sillon-reclinable-bme002-bm-ref-bme002",
+          "nombre_es": "Sillón Reclinable BME002",
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.brothermedical.com/Medical-Dual-Motor-Grey-Lift-Chair-pd40439220.html",
+          "pdf_local": null,
+          "notas": "BM identificado como Shanghai Brother Medical; página con Model BME002; sin PDF oficial en brothermedical.com.",
+          "confianza": "alta"
+        },
+        {
+          "slug": "silla-reclinable-bme006-bm-ref-bme006",
+          "nombre_es": "Silla Reclinable BME006",
+          "ficha_url": null,
+          "pagina_fabricante": null,
+          "pdf_local": null,
+          "notas": "BME006 no listado en brothermedical.com (búsqueda y catálogo); metadata previa apuntaba a producto no coincidente.",
+          "confianza": "baja"
+        },
+        {
+          "slug": "sillon-reclinable-bme007-bm-ref-bme007",
+          "nombre_es": "Sillón Reclinable BME007",
+          "ficha_url": null,
+          "pagina_fabricante": null,
+          "pdf_local": null,
+          "notas": "BME007 no listado en brothermedical.com.",
+          "confianza": "baja"
+        }
+      ]
+    },
+    "Advanced Instrumentations": {
+      "marca": "Advanced Instrumentations",
+      "encontradas": 0,
+      "no_encontradas": 2,
+      "items": [
+        {
+          "slug": "sistema-de-ultrasonido-ref-dus-3000-advanced",
+          "nombre_es": "Sistema de Ultrasonido DUS-3000",
+          "ficha_url": null,
+          "pagina_fabricante": null,
+          "pdf_local": null,
+          "notas": "advanced-inst.com: búsqueda DUS-3000 sin resultados; PDFs publicados son DUS-5000/6000/7000 (modelos distintos).",
+          "confianza": "baja"
+        },
+        {
+          "slug": "ventilador-para-uci-ref-v-1000-advanced",
+          "nombre_es": "Ventilador para UCI V-1000",
+          "ficha_url": null,
+          "pagina_fabricante": null,
+          "pdf_local": null,
+          "notas": "En advanced-inst.com solo V-1000T Plus (turbina); no hay página ni PDF para V-1000 exacto.",
+          "confianza": "baja"
+        }
+      ]
+    },
+    "Biolight": {
+      "marca": "Biolight",
+      "encontradas": 2,
+      "no_encontradas": 0,
+      "items": [
+        {
+          "slug": "monitor-de-paciente-ref-m12-biolight",
+          "nombre_es": "Monitor de paciente Biolight M12",
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.blt.com.cn/product1-c26f88fbe609456c85d4dfff7bbdf602",
+          "pdf_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/importados/monitor-de-paciente-m12-biolight/ficha-monitor-de-paciente-m12-biolight.pdf",
+          "notas": "Página oficial Guangdong Biolight (型号 M12); manuales M-series en global.blt.com.cn vía cloud links, sin PDF datasheet directo en dominio; PDF local (catálogo M10/M12).",
+          "confianza": "media"
+        },
+        {
+          "slug": "monitor-de-paciente-ref-s12-biolight",
+          "nombre_es": "Monitor de paciente Biolight S12",
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.blt.com.cn/product1-ebeea5e0075f445b8d24586413e5927d",
+          "pdf_local": null,
+          "notas": "Página oficial con 型号 S12; sin PDF local ni URL PDF oficial verificada en blt.com.cn/global.blt.com.cn.",
+          "confianza": "media"
+        }
+      ]
+    }
+  }
+}

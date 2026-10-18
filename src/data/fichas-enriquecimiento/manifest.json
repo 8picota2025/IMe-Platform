@@ -1798,5 +1798,1652 @@
     "origen_local": "/home/shoky/0 IME/Fabricantes/Saikang/web/SKS008_ABSSteel-Bedside-Table_SaikangMedical_ES.pdf",
     "url": "https://saikangmedical.com/wp-content/uploads/2025/08/SKS008_ABSSteel-Bedside-Table_SaikangMedical_ES.pdf",
     "lang": "es"
+  },
+  {
+    "slug": "monitor-multiparametro-ref-acuarius-northern",
+    "sku": "acuarius-northern",
+    "fabricante": "Northern Meditec",
+    "fab_slug": "northern-meditec",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/tmp/ficha-search/northern/aquarius.pdf",
+    "url": "https://img1.wsimg.com/blobby/go/27dfc2ac-fea6-408d-8ec0-e7d3ea021f02/Aquarius%20%E5%8D%95%E9%A1%B5.pdf",
+    "lang": "en"
+  },
+  {
+    "slug": "maquina-de-anestesia-ref-atlas-n3-northern",
+    "sku": "atlas-n3-northern",
+    "fabricante": "Northern Meditec",
+    "fab_slug": "northern-meditec",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/northern-meditec/maquina-de-anestesia-ref-atlas-n3-northern-9bb4738d6d.pdf",
+    "url": "https://img1.wsimg.com/blobby/go/c01c3d71-7833-4189-a7a1-9758185b4530/N3%20BROCHURE.pdf",
+    "lang": "en"
+  },
+  {
+    "slug": "maquina-de-anestesia-ref-atlas-n5-northern",
+    "sku": "atlas-n5-northern",
+    "fabricante": "Northern Meditec",
+    "fab_slug": "northern-meditec",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/northern-meditec/maquina-de-anestesia-ref-atlas-n5-northern-4f40da836b.pdf",
+    "url": "https://img1.wsimg.com/blobby/go/c01c3d71-7833-4189-a7a1-9758185b4530/N5%20BROCHURE.pdf",
+    "lang": "en"
+  },
+  {
+    "slug": "maquina-de-anestesia-ref-atlas-n7-northern",
+    "sku": "atlas-n7-northern",
+    "fabricante": "Northern Meditec",
+    "fab_slug": "northern-meditec",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/northern-meditec/maquina-de-anestesia-ref-atlas-n7-northern-1979e65efc.pdf",
+    "url": "https://img1.wsimg.com/blobby/go/c01c3d71-7833-4189-a7a1-9758185b4530/N7%20BROCHURE.pdf",
+    "lang": "en"
+  },
+  {
+    "slug": "monitor-multiparametro-ref-gemini-northern",
+    "sku": "gemini-northern",
+    "fabricante": "Northern Meditec",
+    "fab_slug": "northern-meditec",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/northern-meditec/monitor-multiparametro-ref-gemini-northern-13b39d2049.pdf",
+    "url": "https://img1.wsimg.com/blobby/go/c01c3d71-7833-4189-a7a1-9758185b4530/Gemini%20%E5%90%88%E9%A1%B5.pdf",
+    "lang": "en"
+  },
+  {
+    "slug": "arco-en-c-alc-280-series-ref-alc-280-angell",
+    "sku": "ALC-280",
+    "fabricante": "Angell Technology",
+    "fab_slug": "angell-technology",
+    "origen_local": "",
+    "url": "https://en.szangell.com/product/hua-ii-series/",
+    "lang": "es"
+  },
+  {
+    "slug": "sillon-reclinable-bme002-bm-ref-bme002",
+    "sku": "BME002",
+    "fabricante": "BM",
+    "fab_slug": "bm",
+    "origen_local": "",
+    "url": "https://www.brothermedical.com/Medical-Dual-Motor-Grey-Lift-Chair-pd40439220.html",
+    "lang": "es"
+  },
+  {
+    "slug": "silla-reclinable-bme006-bm-ref-bme006",
+    "sku": "BME006",
+    "fabricante": "BM",
+    "fab_slug": "bm",
+    "origen_local": "",
+    "url": "https://www.i-me.com.co",
+    "lang": "es"
+  },
+  {
+    "slug": "sillon-reclinable-bme007-bm-ref-bme007",
+    "sku": "BME007",
+    "fabricante": "BM",
+    "fab_slug": "bm",
+    "origen_local": "",
+    "url": "https://www.i-me.com.co",
+    "lang": "es"
+  },
+  {
+    "slug": "dr-dinamico-ref-dtp573-angell",
+    "sku": "DTP573",
+    "fabricante": "Angell Technology",
+    "fab_slug": "angell-technology",
+    "origen_local": "",
+    "url": "https://angell-tech.com/en/dtp573-dynamic-dr-system/",
+    "lang": "es"
+  },
+  {
+    "slug": "sistema-de-ultrasonido-ref-dus-3000-advanced",
+    "sku": "DUS-3000",
+    "fabricante": "Advanced",
+    "fab_slug": "advanced-instrumentations",
+    "origen_local": "",
+    "url": "https://advanced-inst.com/ultrasound/",
+    "lang": "es"
+  },
+  {
+    "slug": "balanza-para-bebe-electronica-ref-ebsa-20-perlong",
+    "sku": "EBSA-20",
+    "fabricante": "Perlong",
+    "fab_slug": "perlong",
+    "origen_local": "",
+    "url": "https://www.perlong-china.com/Scale-pl6383726.html",
+    "lang": "es"
+  },
+  {
+    "slug": "lampara-rodable-ref-led-rx36-160k-ilumitec",
+    "sku": "LED-RX36-160K",
+    "fabricante": "Ilumitec",
+    "fab_slug": "ilumitec",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/ilumitec/lampara-rodable-ref-led-rx36-160k-ilumitec.pdf",
+    "url": "https://ilumitecsas.com/",
+    "lang": "es"
+  },
+  {
+    "slug": "lampara-cielitica-led-x3618-con-satelite-ref-led-x3618-ilumitec",
+    "sku": "LED-X3618",
+    "fabricante": "Ilumitec",
+    "fab_slug": "ilumitec",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/ilumitec/lampara-cielitica-led-x3618-con-satelite-ref-led-x3618-ilumitec.pdf",
+    "url": "https://ilumitecsas.com/",
+    "lang": "es"
+  },
+  {
+    "slug": "lampara-cielitica-led-x3636-con-satelite-ref-led-x3636-ilumitec",
+    "sku": "LED-X3636",
+    "fabricante": "Ilumitec",
+    "fab_slug": "ilumitec",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/ilumitec/lampara-cielitica-led-x3636-con-satelite-ref-led-x3636-ilumitec.pdf",
+    "url": "https://ilumitecsas.com/",
+    "lang": "es"
+  },
+  {
+    "slug": "monitor-de-paciente-ref-m12-biolight",
+    "sku": "m12-biolight",
+    "fabricante": "Biolight",
+    "fab_slug": "biolight",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/biolight/monitor-de-paciente-ref-m12-biolight-13ceee5bc7.pdf",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "bascula-corporal-doble-regla-ref-rgt-a-200-rt-perlong",
+    "sku": "RGT-A-200-RT",
+    "fabricante": "Perlong",
+    "fab_slug": "perlong",
+    "origen_local": "",
+    "url": "https://www.perlong-china.com/Scale-pl6383726.html",
+    "lang": "es"
+  },
+  {
+    "slug": "cama-de-hospital-ref-sk-c1-saikang",
+    "sku": "sk-c1-saikang",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://saikangmedical.com/en/product/k2k-manual-bed/",
+    "lang": "es"
+  },
+  {
+    "slug": "cama-manual-v3v-ref-sk-cd1-v3v-saikang",
+    "sku": "sk-cd1-v3v-saikang",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/saikang/cama-manual-v3v-ref-sk-cd1-v3v-saikang.pdf",
+    "url": "https://saikangmedical.com/wp-content/uploads/2025/10/V3v5c_Manual-Bed_SaikangMedical.pdf",
+    "lang": "en"
+  },
+  {
+    "slug": "cama-manual-v4w-ref-sk-cd1-v4w-saikang",
+    "sku": "sk-cd1-v4w-saikang",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://saikangmedical.com/en/product/v4w-manual-bed/",
+    "lang": "es"
+  },
+  {
+    "slug": "gabinete-dental-ref-sk-d2c-saikang",
+    "sku": "SK-D2C",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://www.i-me.com.co",
+    "lang": "es"
+  },
+  {
+    "slug": "cama-de-atencion-pediatrica-z0n-ref-skd-a-z0n-saikang",
+    "sku": "skd-a-z0n-saikang",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://saikangmedical.com/en/product/cq8k-electric-children-bed/",
+    "lang": "es"
+  },
+  {
+    "slug": "cama-de-atencion-domiciliaria-vip-h6k-ref-skd-d-h6k-saikang",
+    "sku": "skd-d-h6k-saikang",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://saikangmedical.com/en/product/k6k-electric-hospital-bed/",
+    "lang": "es"
+  },
+  {
+    "slug": "silla-de-espera-ref-ske008-1-saikang",
+    "sku": "SKE008-1",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://saikangmedical.com/en/product/ske008-1-waiting-chair/",
+    "lang": "es"
+  },
+  {
+    "slug": "estanteria-hospitalaria-ref-skh050-saikang",
+    "sku": "SKH050",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://www.i-me.com.co",
+    "lang": "es"
+  },
+  {
+    "slug": "estanteria-hospitalaria-ref-skh061-saikang",
+    "sku": "SKH061",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://www.i-me.com.co",
+    "lang": "es"
+  },
+  {
+    "slug": "gabinete-de-almacenamiento-ref-skh092-saikang",
+    "sku": "SKH092",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://saikangmedical.com/en/product/skh092-storage-cabinet/",
+    "lang": "es"
+  },
+  {
+    "slug": "carrito-abs-sk-ref-ct75077c2-saikang",
+    "sku": "ct75077c2-saikang",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/saikang/carrito-abs-sk-ref-ct75077c2-saikang.pdf",
+    "url": "https://saikangmedical.com/en/product/sk-ct75077c2-treatment-trolley/",
+    "lang": "es"
+  },
+  {
+    "slug": "carro-abs-sk-ref-et750-saikang",
+    "sku": "et750-saikang",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/saikang/carro-abs-sk-ref-et750-saikang.pdf",
+    "url": "https://saikangmedical.com/en/product/sk-et75077a-emergency-trolley/",
+    "lang": "es"
+  },
+  {
+    "slug": "carro-de-tratamientos-ref-skh006-5-saikang",
+    "sku": "skh006-5-saikang",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/saikang/carro-de-tratamientos-ref-skh006-5-saikang.pdf",
+    "url": "https://saikangmedical.com/en/product/skh006c-instrument-trolley/",
+    "lang": "es"
+  },
+  {
+    "slug": "carrito-de-lavado-ref-skh041-saikang",
+    "sku": "SKM-B-SKH041-5",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://saikangmedical.com/en/product/skh0411-2-iv-stand/",
+    "lang": "es"
+  },
+  {
+    "slug": "carro-abs-skr-ref-ct750-1-saikang",
+    "sku": "ct750-1-saikang",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://saikangmedical.com/en/product/skr-ct750-1-treatment-trolley/",
+    "lang": "es"
+  },
+  {
+    "slug": "carro-de-abs-skr-ref-et850-saikang",
+    "sku": "et850-saikang",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/saikang/carro-de-abs-skr-ref-et850-saikang.pdf",
+    "url": "https://saikangmedical.com/en/product/skr-et850-emergency-trolley/",
+    "lang": "es"
+  },
+  {
+    "slug": "carro-de-abs-skr-ref-mt625-saikang",
+    "sku": "mt625-saikang",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/saikang/carro-de-abs-skr-ref-mt625-saikang.pdf",
+    "url": "https://saikangmedical.com/en/product/skr-mt625-medicine-trolley/",
+    "lang": "es"
+  },
+  {
+    "slug": "colchon-ref-skp001-saikang",
+    "sku": "SKP001",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://www.i-me.com.co",
+    "lang": "es"
+  },
+  {
+    "slug": "carro-de-infusion-skr-ref-it625-saikang",
+    "sku": "SKR-IT625",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://www.i-me.com.co",
+    "lang": "es"
+  },
+  {
+    "slug": "carro-de-enfermeria-ref-skr058-ct-saikang",
+    "sku": "skr058-ct-saikang",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://saikangmedical.com/en/product/skr058-ct-nursing-trolley/",
+    "lang": "en"
+  },
+  {
+    "slug": "mesita-de-noche-ref-sks002-w-saikang",
+    "sku": "sks002-w-saikang",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/saikang/mesita-de-noche-ref-sks002-w-saikang.pdf",
+    "url": "https://saikangmedical.com/wp-content/uploads/2025/08/SKS02-W_ABS-Bedside-Table_SaikangMedical-1.pdf",
+    "lang": "en"
+  },
+  {
+    "slug": "bascula-corporal-electronica-ref-tcs-200-rt-perlong",
+    "sku": "TCS-200-RT",
+    "fabricante": "Perlong",
+    "fab_slug": "perlong",
+    "origen_local": "",
+    "url": "https://www.perlong-china.com/Electronic-Body-Scale-pd6616338.html",
+    "lang": "es"
+  },
+  {
+    "slug": "balanza-corporal-electronica-ref-tcs-200b-rt-perlong",
+    "sku": "TCS-200B-RT",
+    "fabricante": "Perlong",
+    "fab_slug": "perlong",
+    "origen_local": "",
+    "url": "https://www.perlong-china.com/Electronic-Body-Scale-pd95322436.html",
+    "lang": "es"
+  },
+  {
+    "slug": "ventilador-para-uci-ref-v-1000-advanced",
+    "sku": "V-1000",
+    "fabricante": "Advanced",
+    "fab_slug": "advanced-instrumentations",
+    "origen_local": "",
+    "url": "https://advanced-inst.com/turbine-driven-v-1000t-plus/",
+    "lang": "es"
+  },
+  {
+    "slug": "bomba-de-infusion-ref-vp-50",
+    "sku": "VP-50",
+    "fabricante": "M",
+    "fab_slug": "m",
+    "origen_local": "",
+    "url": "https://www.i-me.com.co",
+    "lang": "es"
+  },
+  {
+    "slug": "balanza-para-bebe-ref-yrbb-20-perlong",
+    "sku": "YRBB-20",
+    "fabricante": "Perlong",
+    "fab_slug": "perlong",
+    "origen_local": "",
+    "url": "https://www.perlong-china.com/YRBB-20-Baby-Scale-pd569477798.html",
+    "lang": "es"
+  },
+  {
+    "slug": "bascula-corporal-ref-zt-120-perlong",
+    "sku": "ZT-120",
+    "fabricante": "Perlong",
+    "fab_slug": "perlong",
+    "origen_local": "",
+    "url": "https://www.perlong-china.com/Dial-Body-Scale-pd6026338.html",
+    "lang": "es"
+  },
+  {
+    "slug": "bascula-corporal-ref-zt-150a-perlong",
+    "sku": "ZT-150A",
+    "fabricante": "Perlong",
+    "fab_slug": "perlong",
+    "origen_local": "",
+    "url": "https://www.perlong-china.com/Scale-pl6383726.html",
+    "lang": "es"
+  },
+  {
+    "slug": "kit-de-nebulizacion-pediatrico-nube-3000-ref-gmrn211-kitpe",
+    "sku": "gmrn211-kitpe",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/gmd/kit-de-nebulizacion-pediatrico-nube-3000-ref-gmrn211-ki-90dd454d58.pdf",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "kit-de-nebulizacion-adulto-nube-3000-ref-gmrn211-kita",
+    "sku": "gmrn211-kita",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/gmd/kit-de-nebulizacion-adulto-nube-3000-ref-gmrn211-kita-90dd454d58.pdf",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "kit-de-nebulizacion-del-nube-5000-ref-gmrn846-kitmn",
+    "sku": "gmrn846-kitmn",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/gmd/kit-de-nebulizacion-del-nube-5000-ref-gmrn846-kitmn-079f5056a9.pdf",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "kit-de-nebulizacion-smart-del-nube-5000-ref-gmrn846-kit",
+    "sku": "gmrn846-kit",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/gmd/kit-de-nebulizacion-smart-del-nube-5000-ref-gmrn846-kit-079f5056a9.pdf",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "rueda-trasera-con-freno-de-4-para-grua-hidraulica-ref-jbs168-00-012-konfort-plus",
+    "sku": "jbs168-00-012-konfort-plus",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/gmd/rueda-trasera-con-freno-de-4-para-grua-hidraulica-ref-j-3de23001b7.pdf",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "rueda-delantera-de-4-para-grua-hidraulica-ref-jbs168-00-011-konfort-plus",
+    "sku": "jbs168-00-011-konfort-plus",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/gmd/rueda-delantera-de-4-para-grua-hidraulica-ref-jbs168-00-3de23001b7.pdf",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "kit-de-nebulizacion-pediatrico-nube-ref-gmrn457-kitpe",
+    "sku": "gmrn457-kitpe",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/gmd/kit-de-nebulizacion-pediatrico-nube-ref-gmrn457-kitpe-b2bead9321.pdf",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "kit-de-nebulizacion-adulto-nube-ref-gmrn457-kit",
+    "sku": "gmrn457-kit",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/gmd/kit-de-nebulizacion-adulto-nube-ref-gmrn457-kit-511b6d6a20.pdf",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "filtro-para-compresor-nebulizador-nube-3000-ref-gmrn457-12f",
+    "sku": "gmrn457-12f",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/gmd/filtro-para-compresor-nebulizador-nube-3000-ref-gmrn457-0b8e674b33.pdf",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "cama-hospitalaria-electrica-ref-skd-a-saikang",
+    "sku": "SKD-A",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://saikangmedical.com/en/product/skd-a-electric-hospital-bed/",
+    "lang": "es"
+  },
+  {
+    "slug": "cama-hospitalaria-electrica-ref-skd-b-saikang",
+    "sku": "SKD-B",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://saikangmedical.com/en/product/skd-b-electric-hospital-bed/",
+    "lang": "es"
+  },
+  {
+    "slug": "carro-clinico-ref-skr021-5-saikang",
+    "sku": "SKR021-5",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://saikangmedical.com/en/product/skr021-5-case-history-trolley/",
+    "lang": "es"
+  },
+  {
+    "slug": "cama-hospitalaria-ref-sk-a2-saikang",
+    "sku": "SK-A2",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://saikangmedical.com/en/product/sk-a2-hospital-bed/",
+    "lang": "es"
+  },
+  {
+    "slug": "cama-hospitalaria-ref-sk-a3-saikang",
+    "sku": "SK-A3",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://saikangmedical.com/en/product/sk-a3-hospital-bed/",
+    "lang": "es"
+  },
+  {
+    "slug": "sillon-odontologico-ref-se802-saikang",
+    "sku": "se802",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://saikangmedical.com/en/product/se802-dental-chair/",
+    "lang": "es"
+  },
+  {
+    "slug": "cama-hospitalaria-manual-ref-v4w-saikang",
+    "sku": "V4W",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://saikangmedical.com/en/product/v4w-manual-bed/",
+    "lang": "es"
+  },
+  {
+    "slug": "equipo-hospitalario-ref-skn031-stainless-steel-kidney-dish-saikang",
+    "sku": "skn031-stainless-steel-kidney-dish",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://saikangmedical.com/en/product/skn031_stainless-steel-kidney-dish/",
+    "lang": "es"
+  },
+  {
+    "slug": "equipo-hospitalario-ref-skno31-saikang",
+    "sku": "skno31",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://saikangmedical.com/en/product/skno31-stainless-steel-kidney-dish/",
+    "lang": "es"
+  },
+  {
+    "slug": "mesa-quirurgica-electrica-ref-skl-c-saikang",
+    "sku": "SKL-C",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://saikangmedical.com/en/product/skl-c-electric-operating-table/",
+    "lang": "es"
+  },
+  {
+    "slug": "mesa-quirurgica-electrica-ref-skl-d-saikang",
+    "sku": "SKL-D",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://saikangmedical.com/en/product/skl-d-electric-operating-table/",
+    "lang": "es"
+  },
+  {
+    "slug": "mesa-quirurgica-electrica-ref-skl-e-saikang",
+    "sku": "SKL-E",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://saikangmedical.com/en/product/skl-e-electric-operating-table/",
+    "lang": "es"
+  },
+  {
+    "slug": "equipo-hospitalario-ref-skh046-1-saikang",
+    "sku": "SKH046-11",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://saikangmedical.com/en/product/skh046-1-telescopic-dining-board/",
+    "lang": "es"
+  },
+  {
+    "slug": "cama-manual-k3k-ref-sk-cd1-k3k-saikang",
+    "sku": "cama-manual-k3k-ref-sk-cd1-k3k-saikang",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/saikang/cama-manual-k3k-ref-sk-cd1-k3k-saikang.pdf",
+    "url": "https://saikangmedical.com/wp-content/uploads/2025/07/K3k_Manual-Bed_SaikangMedical_2024.pdf",
+    "lang": "en"
+  },
+  {
+    "slug": "cama-hospitalaria-manual-v3k-ref-sk-cd1-v3k-saikang",
+    "sku": "cama-hospitalaria-manual-v3k-ref-sk-cd1-v3k-saikang",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/saikang/cama-hospitalaria-manual-v3k-ref-sk-cd1-v3k-saikang.pdf",
+    "url": "https://saikangmedical.com/wp-content/uploads/2025/07/V3k_Manual-Bed_SaikangMedical_ES.pdf",
+    "lang": "en"
+  },
+  {
+    "slug": "camilla-de-hospital-skb037-b-ref-skb037b-saikang",
+    "sku": "camilla-de-hospital-skb037-b-ref-skb037b-saikang",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/saikang/camilla-de-hospital-skb037-b-ref-skb037b-saikang.pdf",
+    "url": "https://saikangmedical.com/wp-content/uploads/2025/10/SKB037B_Patient-Trolley_SaikangMedical.pdf",
+    "lang": "en"
+  },
+  {
+    "slug": "ventilador-mecanico-ref-crius-v6-northern",
+    "sku": "ventilador-mecanico-ref-crius-v6-northern",
+    "fabricante": "Northern Meditec",
+    "fab_slug": "northern-meditec",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/northern-meditec/ventilador-mecanico-ref-crius-v6-northern-288b609c1a.pdf",
+    "url": "https://img1.wsimg.com/blobby/go/c01c3d71-7833-4189-a7a1-9758185b4530/ICU%20Ventilator%20Crius%20V6.pdf",
+    "lang": "en"
+  },
+  {
+    "slug": "monitor-multiparametro-ref-pisces-northern",
+    "sku": "monitor-multiparametro-ref-pisces-northern",
+    "fabricante": "Northern Meditec",
+    "fab_slug": "northern-meditec",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/northern-meditec/monitor-multiparametro-ref-pisces-northern-460c0376c0.pdf",
+    "url": "https://img1.wsimg.com/blobby/go/27dfc2ac-fea6-408d-8ec0-e7d3ea021f02/Pisces%20%E5%8D%95%E9%A1%B5.pdf",
+    "lang": "en"
+  },
+  {
+    "slug": "monitor-multiparametro-ref-taurus-northern",
+    "sku": "monitor-multiparametro-ref-taurus-northern",
+    "fabricante": "Northern Meditec",
+    "fab_slug": "northern-meditec",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/northern-meditec/monitor-multiparametro-ref-taurus-northern-00b2c5a01c.pdf",
+    "url": "https://img1.wsimg.com/blobby/go/27dfc2ac-fea6-408d-8ec0-e7d3ea021f02/Taurus%20%E5%8D%95%E9%A1%B5.pdf",
+    "lang": "en"
+  },
+  {
+    "slug": "monitor-multiparametro-ref-venus-northern",
+    "sku": "monitor-multiparametro-ref-venus-northern",
+    "fabricante": "Northern Meditec",
+    "fab_slug": "northern-meditec",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/northern-meditec/monitor-multiparametro-ref-venus-northern-d00ff03fd4.pdf",
+    "url": "https://img1.wsimg.com/blobby/go/27dfc2ac-fea6-408d-8ec0-e7d3ea021f02/Venus%20%E5%90%88%E9%A1%B5.pdf",
+    "lang": "en"
+  },
+  {
+    "slug": "monitor-modular-multiparametro-ref-virgo-northern",
+    "sku": "monitor-modular-multiparametro-ref-virgo-northern",
+    "fabricante": "Northern Meditec",
+    "fab_slug": "northern-meditec",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/northern-meditec/monitor-modular-multiparametro-ref-virgo-northern-8e66fda549.pdf",
+    "url": "https://img1.wsimg.com/blobby/go/27dfc2ac-fea6-408d-8ec0-e7d3ea021f02/Virgo%20Patient%20Monitor.pdf",
+    "lang": "en"
+  },
+  {
+    "slug": "monitor-multiparametrico-uci-avanzado",
+    "sku": "PM-2000XL-PRO",
+    "fabricante": "Advanced Instrumentations",
+    "fab_slug": "advanced-instrumentations",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/pm-2000xl-pro-spa.pdf",
+    "url": "https://www.i-me.com.co",
+    "lang": "es"
+  },
+  {
+    "slug": "monitor-multiparametrico-basico",
+    "sku": "VSM-300",
+    "fabricante": "Advanced Instrumentations",
+    "fab_slug": "advanced-instrumentations",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/vsm-300-spa.pdf",
+    "url": "https://www.i-me.com.co",
+    "lang": "es"
+  },
+  {
+    "slug": "monitor-de-transporte-prehospitalario",
+    "sku": "PM-2000XL",
+    "fabricante": "Advanced Instrumentations",
+    "fab_slug": "advanced-instrumentations",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/pm-2000xl-spa.pdf",
+    "url": "https://www.i-me.com.co",
+    "lang": "es"
+  },
+  {
+    "slug": "monitor-central-uci-multicama",
+    "sku": "PM-2000M",
+    "fabricante": "Advanced Instrumentations",
+    "fab_slug": "advanced-instrumentations",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/pm-2000m-spa.pdf",
+    "url": "https://www.i-me.com.co",
+    "lang": "es"
+  },
+  {
+    "slug": "electrocardiografo-12-derivaciones-digital",
+    "sku": "ECG-12C",
+    "fabricante": "Advanced Instrumentations",
+    "fab_slug": "advanced-instrumentations",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/ecg-12c-spa.pdf",
+    "url": "https://www.i-me.com.co",
+    "lang": "es"
+  },
+  {
+    "slug": "mesa-quirurgica-motorizada-multiposicion",
+    "sku": "OT-500",
+    "fabricante": "Advanced Instrumentations",
+    "fab_slug": "advanced-instrumentations",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/ot-500-spa.pdf",
+    "url": "https://www.i-me.com.co",
+    "lang": "es"
+  },
+  {
+    "slug": "incubadora-neonatal-de-transporte",
+    "sku": "A3158",
+    "fabricante": "Advanced Instrumentations",
+    "fab_slug": "advanced-instrumentations",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/a3158-spa.pdf",
+    "url": "https://www.i-me.com.co",
+    "lang": "es"
+  },
+  {
+    "slug": "cuna-de-calor-radiante-neonatal-servo",
+    "sku": "A4051",
+    "fabricante": "Advanced Instrumentations",
+    "fab_slug": "advanced-instrumentations",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/a4051-spa.pdf",
+    "url": "https://www.i-me.com.co",
+    "lang": "es"
+  },
+  {
+    "slug": "ecografo-color-doppler-diagnostico-vascular",
+    "sku": "DUS-5000",
+    "fabricante": "Advanced Instrumentations",
+    "fab_slug": "advanced-instrumentations",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/dus-5000.pdf",
+    "url": "https://www.i-me.com.co",
+    "lang": "es"
+  },
+  {
+    "slug": "ecografo-portatil-con-wifi-y-dicom",
+    "sku": "DUS-5000-PLUS",
+    "fabricante": "Advanced Instrumentations",
+    "fab_slug": "advanced-instrumentations",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/dus-5000-plus.pdf",
+    "url": "https://www.i-me.com.co",
+    "lang": "es"
+  },
+  {
+    "slug": "ultrasonido-point-of-care-pocket",
+    "sku": "DUS-6000",
+    "fabricante": "Advanced Instrumentations",
+    "fab_slug": "advanced-instrumentations",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/dus-6000.pdf",
+    "url": "https://www.i-me.com.co",
+    "lang": "es"
+  },
+  {
+    "slug": "bomba-de-infusion-volumetrica-uci",
+    "sku": "IP-200",
+    "fabricante": "Advanced Instrumentations",
+    "fab_slug": "advanced-instrumentations",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/ip-200-spa.pdf",
+    "url": "https://www.i-me.com.co",
+    "lang": "es"
+  },
+  {
+    "slug": "camilla-hospitalaria-electrica-articulable",
+    "sku": "B-1000-PRO",
+    "fabricante": "Advanced Instrumentations",
+    "fab_slug": "advanced-instrumentations",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/b-1000-pro-esp.pdf",
+    "url": "https://www.i-me.com.co",
+    "lang": "es"
+  },
+  {
+    "slug": "lampara-rodable-ref-led-rx18-ilumitec",
+    "sku": "LED-RX18",
+    "fabricante": "Ilumitec",
+    "fab_slug": "ilumitec",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/ilumitec/lampara-rodable-ref-led-rx18-ilumitec.pdf",
+    "url": "https://ilumitecsas.com/",
+    "lang": "es"
+  },
+  {
+    "slug": "lampara-rodable-ref-led-rx18-100k-ilumitec",
+    "sku": "LED-RX18-100K",
+    "fabricante": "Ilumitec",
+    "fab_slug": "ilumitec",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/ilumitec/lampara-rodable-ref-led-rx18-100k-ilumitec.pdf",
+    "url": "https://ilumitecsas.com/",
+    "lang": "es"
+  },
+  {
+    "slug": "lampara-rodable-ref-led-rx36-ilumitec",
+    "sku": "LED-RX36",
+    "fabricante": "Ilumitec",
+    "fab_slug": "ilumitec",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/ilumitec/lampara-rodable-ref-led-rx36-ilumitec.pdf",
+    "url": "https://ilumitecsas.com/",
+    "lang": "es"
+  },
+  {
+    "slug": "lampara-cielitica-ref-led-x18-100k-ilumitec",
+    "sku": "LED-X18-100K",
+    "fabricante": "Ilumitec",
+    "fab_slug": "ilumitec",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/ilumitec/lampara-cielitica-ref-led-x18-100k-ilumitec.pdf",
+    "url": "https://ilumitecsas.com/",
+    "lang": "es"
+  },
+  {
+    "slug": "lampara-cielitica-ref-led-x36-ilumitec",
+    "sku": "LED-X36",
+    "fabricante": "Ilumitec",
+    "fab_slug": "ilumitec",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/ilumitec/lampara-cielitica-ref-led-x36-ilumitec.pdf",
+    "url": "https://ilumitecsas.com/",
+    "lang": "es"
+  },
+  {
+    "slug": "cama-de-atencion-domiciliaria-ref-hb421-saikang",
+    "sku": "hb421-saikang",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "lang": "es",
+    "origen_local": "",
+    "url": "https://m.saikangmedical.com/Espa%C3%B1ol/Productos/Camas-de-hospital/Atenci%C3%B3n-domiciliaria-VIP/"
+  },
+  {
+    "slug": "cama-de-atencion-domiciliaria-ref-hb422-saikang",
+    "sku": "hb422-saikang",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "lang": "es",
+    "origen_local": "",
+    "url": "https://m.saikangmedical.com/Espa%C3%B1ol/Productos/Camas-de-hospital/Atenci%C3%B3n-domiciliaria-VIP/"
+  },
+  {
+    "slug": "cama-de-atencion-domiciliaria-ref-hb424-saikang",
+    "sku": "hb424-saikang",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "lang": "es",
+    "origen_local": "",
+    "url": "https://m.saikangmedical.com/Espa%C3%B1ol/Productos/Camas-de-hospital/Atenci%C3%B3n-domiciliaria-VIP/"
+  },
+  {
+    "slug": "camilla-de-traslado-ref-skk-b-saikang",
+    "sku": "skk-b-saikang",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "lang": "es",
+    "origen_local": "",
+    "url": "https://saikangmedical.com/en/product/skk-b-patient-transportation-trolley/"
+  },
+  {
+    "slug": "oximetro-ref-aquarius-lite-northern",
+    "sku": "Aquarius-LITE",
+    "fabricante": "Northern",
+    "fab_slug": "northern-meditec",
+    "origen_local": "",
+    "url": "https://www.i-me.com.co",
+    "lang": "es"
+  },
+  {
+    "slug": "sistema-de-rayos-x-dr-montado-en-techo-ref-dr-ceiling-angell",
+    "sku": "DR-CEILING",
+    "fabricante": "Angell Technology",
+    "fab_slug": "angell-technology",
+    "origen_local": "",
+    "url": "https://en.szangell.com/product/qomo-series/",
+    "lang": "es"
+  },
+  {
+    "slug": "sistema-de-rayos-x-dr-montado-en-suelo-ref-dr-floor-angell",
+    "sku": "DR-FLOOR",
+    "fabricante": "Angell Technology",
+    "fab_slug": "angell-technology",
+    "origen_local": "",
+    "url": "https://en.szangell.com/product/mtp-series/",
+    "lang": "es"
+  },
+  {
+    "slug": "sistema-de-rayos-x-dr-movil-ref-dr-mobile-angell",
+    "sku": "DR-MOBILE",
+    "fabricante": "Angell Technology",
+    "fab_slug": "angell-technology",
+    "origen_local": "",
+    "url": "https://angell-tech.com/en/dtp-326-mobile-digital-radiography/",
+    "lang": "es"
+  },
+  {
+    "slug": "sistema-dr-de-mesa-telecomandada-ref-dr-telecomand-angell",
+    "sku": "DR-TELECOMAND",
+    "fabricante": "Angell Technology",
+    "fab_slug": "angell-technology",
+    "origen_local": "",
+    "url": "https://angell-tech.com/en/dtp-576-dynamic-table-digital-r-f/",
+    "lang": "es"
+  },
+  {
+    "slug": "dr-dinamico-de-brazo-ref-dr-uc-arm-angell",
+    "sku": "DR-UC-ARM",
+    "fabricante": "Angell Technology",
+    "fab_slug": "angell-technology",
+    "origen_local": "",
+    "url": "https://angell-tech.com/en/dtp-580-dynamic-uc-arm-digital-r-f/",
+    "lang": "es"
+  },
+  {
+    "slug": "monitor-fetal-y-materno-ref-fm-9000-northern",
+    "sku": "FM-9000",
+    "fabricante": "Northern",
+    "fab_slug": "northern-meditec",
+    "origen_local": "",
+    "url": "https://www.i-me.com.co",
+    "lang": "es"
+  },
+  {
+    "slug": "balanza-corporal-con-doble-regla-ref-rgt-rt-perlong",
+    "sku": "RGT-RT",
+    "fabricante": "Perlong",
+    "fab_slug": "perlong",
+    "origen_local": "",
+    "url": "https://www.perlong-china.com/Scale-pl6383726.html",
+    "lang": "es"
+  },
+  {
+    "slug": "cama-de-hospital-plana-r00-ref-sk-c1-r00-saikang",
+    "sku": "SK-C1-R00",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://www.i-me.com.co",
+    "lang": "es"
+  },
+  {
+    "slug": "camilla-manual-de-una-funcion-r000w-ref-sk-c1-r000w-saikang",
+    "sku": "SK-C1-R000w",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://www.i-me.com.co",
+    "lang": "es"
+  },
+  {
+    "slug": "tablero-espinal-ref-skb2a11-saikang",
+    "sku": "SKB-2A-SKB2A11",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://www.i-me.com.co",
+    "lang": "es"
+  },
+  {
+    "slug": "tablero-espinal-ref-skb2a12-saikang",
+    "sku": "SKB-4A-SKB2A12",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://www.i-me.com.co",
+    "lang": "es"
+  },
+  {
+    "slug": "mesita-de-noche-ref-sks002-saikang",
+    "sku": "SKS002",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://www.i-me.com.co",
+    "lang": "es"
+  },
+  {
+    "slug": "camilla-de-ambulancia-ref-skb2c01-saikang",
+    "sku": "SKU-B1-SKB2C01",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://www.i-me.com.co",
+    "lang": "es"
+  },
+  {
+    "slug": "silla-para-subir-escaleras-ref-skb1c02-1-saikang",
+    "sku": "SKW-B2-SKB1C02",
+    "fabricante": "Saikang",
+    "fab_slug": "saikang",
+    "origen_local": "",
+    "url": "https://www.i-me.com.co",
+    "lang": "es"
+  },
+  {
+    "slug": "detector-plano-inalambrico-ref-tcq-iii-angell",
+    "sku": "TCQ-III",
+    "fabricante": "Angell Technology",
+    "fab_slug": "angell-technology",
+    "origen_local": "",
+    "url": "https://en.szangell.com/product/components/",
+    "lang": "es"
+  },
+  {
+    "slug": "bomba-de-jeringa-precision-microdosis",
+    "sku": "bomba-de-jeringa-precision-microdosis",
+    "fabricante": "Advanced Instrumentations",
+    "fab_slug": "advanced-instrumentations",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "rx-techo-dinamico-qomo",
+    "sku": "rx-techo-dinamico-qomo",
+    "fabricante": "Angell Technology",
+    "fab_slug": "angell-technology",
+    "origen_local": "",
+    "url": "https://en.szangell.com/product/qomo-series/",
+    "lang": "es"
+  },
+  {
+    "slug": "rx-techo-dinamico-changfeng",
+    "sku": "rx-techo-dinamico-changfeng",
+    "fabricante": "Angell Technology",
+    "fab_slug": "angell-technology",
+    "origen_local": "",
+    "url": "https://en.szangell.com/product/changfeng-series/",
+    "lang": "es"
+  },
+  {
+    "slug": "rx-multifuncional-uc-arm-ref-dtp580",
+    "sku": "dtp580",
+    "fabricante": "Angell Technology",
+    "fab_slug": "angell-technology",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "rx-piso-mtp",
+    "sku": "rx-piso-mtp",
+    "fabricante": "Angell Technology",
+    "fab_slug": "angell-technology",
+    "origen_local": "",
+    "url": "https://en.szangell.com/product/mtp-series/",
+    "lang": "es"
+  },
+  {
+    "slug": "arco-c-movil-dinamico-hua-ii",
+    "sku": "arco-c-movil-dinamico-hua-ii",
+    "fabricante": "Angell Technology",
+    "fab_slug": "angell-technology",
+    "origen_local": "",
+    "url": "https://en.szangell.com/product/hua-ii-series/",
+    "lang": "es"
+  },
+  {
+    "slug": "adaptador-ac-dc-para-tensiometro-latidos-ref-latidos-c",
+    "sku": "latidos-c",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "nebulizador-para-compresor-nube-ref-gmrn-nb",
+    "sku": "gmrn-nb",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "patas-en-aluminio-para-comodo-sanitario-kp-ref-kp-parf-2",
+    "sku": "kp-parf-2",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "balde-para-comodo-sanitario-kp-ref-kp-bal-2",
+    "sku": "kp-bal-2",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "frenos-para-kbe1432rf-mp23l-ref-kbe1432rf-mp23l-fr",
+    "sku": "kbe1432rf-mp23l-fr",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "llanta-trasera-para-sdr-kbe1432rf-mp23l-ref-kbe1432rf-mp23l-llt",
+    "sku": "kbe1432rf-mp23l-llt",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "llanta-delantera-para-kbe1432rf-mp23l-ref-kbe1432rf-mp23l-lld",
+    "sku": "kbe1432rf-mp23l-lld",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "asiento-para-kbe1432rf-mp23l-ref-kbe1432rf-mp23l-as",
+    "sku": "kbe1432rf-mp23l-as",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "respaldo-para-kbe1432rf-mp23l-ref-kbe1432rf-mp23-rp",
+    "sku": "kbe1432rf-mp23-rp",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "reposapies-para-sdr-kbo1432rf-mp23-ref-kbo1432rf-mp23-rp",
+    "sku": "kbo1432rf-mp23-rp",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "deslizadores-delanteros-para-sdr-kbe1462ff-m23-d-ref-desde-kbe1462ff-m23-d",
+    "sku": "desde-kbe1462ff-m23-d",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "deslizadores-traseros-para-sdr-kbe1462ff-m23-d-ref-des-kbe1462ff-m23-d",
+    "sku": "des-kbe1462ff-m23-d",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "pata-con-rueda-sin-freno-en-aluminio-ref-kb225cr-al19-srf",
+    "sku": "kb225cr-al19-srf",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "pata-con-rueda-sin-freno-color-blanco-ref-kb225cr-ap1-sfr",
+    "sku": "kb225cr-ap1-sfr",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "manilares-para-muletas-kp-ref-kb3-2010",
+    "sku": "kb3-2010",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "axilares-para-muletas-ref-kb3-2001l",
+    "sku": "kb3-2001l",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "tapon-en-forma-de-x-4-apoyos-ref-kp4-4t-d14",
+    "sku": "kp4-4t-d14",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "kit-de-nebulizacion-del-nube-7000-ref-gmrn818-kitmn",
+    "sku": "gmrn818-kitmn",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "clenny-kit-para-nube-7000-ref-gmrn818-kit",
+    "sku": "gmrn818-kit",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "recaton-color-negro-para-baston-de-4-apoyos-ref-kp4-4t-20d",
+    "sku": "kp4-4t-20d",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "recaton-color-gris-para-baston-de-4-apoyos-ref-kp4-4t-19d",
+    "sku": "kp4-4t-19d",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "recaton-color-cafe-para-baston-de-1-apoyo-ref-kp4-1t-26d",
+    "sku": "kp4-1t-26d",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "recaton-color-negro-para-baston-de-1-apoyo-ref-kp4-1t-20d",
+    "sku": "kp4-1t-20d",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "rueda-delantera-sin-tenedor-ref-kbe1462ff-m23d-rst",
+    "sku": "kbe1462ff-m23d-rst",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "pata-con-rueda-y-freno-en-acero-color-blanco-ref-kb225cr-ap1-rf",
+    "sku": "kb225cr-ap1-rf",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "arnes-movil-para-grua-hidraulica-ref-jbs168-00-021",
+    "sku": "jbs168-00-021",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "reposapies-elevables-para-sdr-iron-light-ref-srels-rpe",
+    "sku": "srels-rpe",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "aro-y-tapa-para-comodo-sanitario-ref-kb225cr-ap1-ta",
+    "sku": "kb225cr-ap1-ta",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "balde-para-comodo-sanitario-ref-kb215sr-al-b",
+    "sku": "kb215sr-al-b",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "respaldo-para-comodo-sanitario-kp-ref-kp2-6543cr-al19-r",
+    "sku": "kp2-6543cr-al19-r",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "tapon-para-comodo-kp2-6542sr-ref-kp2-6542sr-tipn",
+    "sku": "kp2-6542sr-tipn",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "espaldar-para-comodo-sanitario-kp2-6542sr-ref-kp2-6542sr-ap1-r",
+    "sku": "kp2-6542sr-ap1-r",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "asiento-para-comodo-sanitario-kp2-6542sr-ref-kp2-6542sr-ap1-a",
+    "sku": "kp2-6542sr-ap1-a",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "reposapies-removibles-para-sdr-iron-light-ref-srels-rpr",
+    "sku": "srels-rpr",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "pad-para-sdr-iron-light-ref-srels-pad",
+    "sku": "srels-pad",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "llanta-trasera-para-sdr-iron-light-ref-srels-lt",
+    "sku": "srels-lt",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "reposapies-elevables-para-sdr-kbe1462re-pp23l-ref-kbe1462re-p23l-rp",
+    "sku": "kbe1462re-p23l-rp",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "freno-para-sdr-estandar-color-gris-ref-kbe1462-fr",
+    "sku": "kbe1462-fr",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "asiento-para-sdr-kbe1462ff-m23-d-ref-kbe1462ff-m23d-a",
+    "sku": "kbe1462ff-m23d-a",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "asiento-para-silla-de-ruedas-pediatrica-ref-fs980la-35-a",
+    "sku": "fs980la-35-a",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "espaldar-en-nailon-para-silla-de-transporte-ref-fs976abj-43-e",
+    "sku": "fs976abj-43-e",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "actuador-hidraulico-para-jbs168-1-ref-jbs168-00-1a",
+    "sku": "jbs168-00-1a",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "filtro-par-compresor-nebulizador-panda-ref-gmrn457-1f",
+    "sku": "gmrn457-1f",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "recaton-color-gris-para-baston-de-1-apoyo-dc-ref-kp4-1t-19d",
+    "sku": "kp4-1t-19d",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "reposapies-para-sdr-kbe1452ff-m23-d-ref-kbe1462ff-m23d-rp",
+    "sku": "kbe1462ff-m23d-rp",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "tapon-para-caminador-kp1-816l-color-gris-ref-kp1-816l-tip",
+    "sku": "kp1-816l-tip",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "rueda-trasera-para-silla-de-transporte-ref-kbo1432rf-mp23-rt",
+    "sku": "kbo1432rf-mp23-rt",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "frenos-para-sdr-kbo1432rf-mp23-ref-kbo1432rf-mp23-fr",
+    "sku": "kbo1432rf-mp23-fr",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "de-oxigeno-con-cilindro-de-416-l-ref-kit-2",
+    "sku": "kit-2",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "cilindro-de-oxigeno-416-l-ref-md15-015",
+    "sku": "md15-015",
+    "fabricante": "Luxfer",
+    "fab_slug": "luxfer",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "carra-para-cilindro-680-l-ref-150-0100",
+    "sku": "150-0100",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "baston-con-empunadura-en-t-ergonomico-color-cromo-ref-kp4102-22-konfort-plus",
+    "sku": "kp4102-22-konfort-plus",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "tapon-para-silla-ducha-kb2-798l-ref-kb2-798l-t",
+    "sku": "kb2-798l-t",
+    "fabricante": "Sin marca",
+    "fab_slug": "sin-marca",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "empaque-para-regulador-de-valvulas-gmr-ref-gmr540-mdk-001",
+    "sku": "gmr540-mdk-001",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "tapon-para-comodo-sanitario-ref-kb215sr-al-tip",
+    "sku": "kb215sr-al-tip",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "pata-para-comodo-sanitario-en-aluminio-ref-kb215sr-al-leg",
+    "sku": "kb215sr-al-leg",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "llanta-con-freno-para-comodo-sanitario-ref-fs696-rf",
+    "sku": "fs696-rf",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "llanta-sin-freno-para-comodo-sanitario-ref-fs696-r",
+    "sku": "fs696-r",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "combo-600-cajas-de-tirillas-plus-600-cajas-de-lancetas-plus-200-glucometros-en-o-ref-ltd-b10-600",
+    "sku": "ltd-b10-600",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "combo-cajas-de-tirillas-plus-cajas-de-lancetas-plus-67-glucometros-en-obsequio-ref-200",
+    "sku": "200",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "combo-200-cajas-de-tirillas-plus-200-cajas-de-lancetas-plus-67-glucometros-en-obsequio-e-ref-200",
+    "sku": "200",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "combo-cajas-de-tirillas-plus-cajas-de-lancetas-plus-25-glucometros-en-obsequio-ref-100",
+    "sku": "100",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "combo-100-cajas-de-tirillas-plus-100-cajas-de-lancetas-plus-25-glucometros-en-obsequio-7-ref-100",
+    "sku": "100",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
+  },
+  {
+    "slug": "combo-50-cajas-de-tirillas-plus-50-cajas-de-lancetas-plus-10-glucometros-en-obseq-ref-ltd-b10-50",
+    "sku": "ltd-b10-50",
+    "fabricante": "GMD",
+    "fab_slug": "gmd",
+    "origen_local": "",
+    "url": "",
+    "lang": "es"
   }
 ]

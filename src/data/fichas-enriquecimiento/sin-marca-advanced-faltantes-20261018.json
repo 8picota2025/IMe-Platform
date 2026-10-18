@@ -1,0 +1,1929 @@
+[
+  {
+    "slug": "monitor-multiparametrico-uci-avanzado",
+    "sku": "PM-2000XL-PRO",
+    "marca": "Advanced Instrumentations",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/pm-2000xl-pro-spa.pdf",
+    "url_oficial": "https://www.i-me.com.co",
+    "fuentes": [
+      "Catálogo IME #1 2025 (PDF)",
+      "metadata.txt: /home/shoky/Desktop/MDs/CAT/Productos/PM-2000XL-PRO_Sistema_de_Monitorización_PM-2000XL_PRO/metadata.txt"
+    ],
+    "descripcion_larga_es": "El Sistema de monitorización PM-2000XL PRO de Advanced Instrumentations está en el catálogo IME Colombia con ficha técnica PDF oficial descargable en esta landing.\n\nEl Advanced PM-2000XL PRO es un sistema de monitorización todo en uno para cuidados intensivos, recuperación postanestésica y quirófano. Cuenta con pantalla táctil TFT de 15\" (1024 x 768), hasta 13 formas de onda, ECG de 3/5 y 12 derivaciones con análisis de arritmia y segmento ST, protección contra desfibrilación e interferencia electroquirúrgica, y opcionales como gasto cardiaco, medición de agente anestésico, N2O y FiO2 paramagnético. Pesa 7 kg y admite WiFi, HL7 por XML y tarjeta SD.\n\nSegún la ficha técnica Advanced (pm-2000xl-pro-spa.pdf): Pantalla: TFT táctil a color de 15\", 1024 x 768; hasta 13 formas de onda; ECG: 3/5 y 12 derivaciones; Peso: 7 kg con una batería; Conectividad: CMS-2000, WiFi, HL7 por XML, USB, RJ-45.\n\nModelo / SKU: PM-2000XL-PRO. Use la ficha PDF del fabricante para validar parámetros, accesorios y normativa antes de cotizar; IME apoya compras de equipos médicos en Colombia.",
+    "descripcion_larga_en": "The PM-2000XL PRO all-in-one monitoring system from Advanced Instrumentations is listed in the IME Colombia catalog with an official manufacturer PDF datasheet available on this page.\n\nThe Advanced PM-2000XL PRO is an all-in-one monitoring system for intensive care, post-anaesthesia recovery and operating rooms. It features a 15\" TFT touchscreen (1024 x 768), up to 13 waveforms, 3/5- and 12-lead ECG with arrhythmia and ST-segment analysis, defibrillation protection and electrosurgical interference protection, and options such as cardiac output, anaesthetic agent measurement, N2O and paramagnetic FiO2. It weighs 7 kg and supports WiFi, HL7 via XML and an SD card.\n\nModel / SKU: PM-2000XL-PRO. Use the manufacturer PDF to validate parameters, accessories and compliance before quoting; IME supports medical equipment procurement in Colombia.",
+    "beneficios_es": [
+      "Pantalla táctil de 15\" con operación intuitiva al tocar parámetro o forma de onda.",
+      "ECG de 12 derivaciones, protección ante desfibrilación y electrocirugía.",
+      "Opcionales de gasto cardiaco, agente anestésico, N2O y FiO2; WiFi, HL7 y ranura SD."
+    ],
+    "beneficios_en": [
+      "15\" touchscreen with intuitive operation by touching a parameter or waveform.",
+      "12-lead ECG, defibrillation and electrosurgical protection.",
+      "Options for cardiac output, anaesthetic agent, N2O and FiO2; WiFi, HL7 and SD slot."
+    ],
+    "valor_es": "Un monitor todo en uno con pantalla táctil de 15\" para UCI, recuperación y quirófano, con dos años de garantía.",
+    "valor_en": "An all-in-one monitor with a 15\" touchscreen for ICU, recovery and operating rooms, with a two-year warranty.",
+    "aplicaciones_es": [
+      "Atención ambulatoria",
+      "Cuidados de emergencia",
+      "Cuidados intermedios",
+      "Rehabilitación"
+    ],
+    "aplicaciones_en": [
+      "Outpatient care",
+      "Emergency care",
+      "Intermediate care",
+      "Rehabilitation"
+    ],
+    "faq_es": [
+      {
+        "q": "¿Qué pantalla tiene?",
+        "a": "Pantalla táctil TFT a color de 15\" con resolución de 1024 x 768."
+      },
+      {
+        "q": "¿Cuánto pesa?",
+        "a": "7 kg en configuración estándar con una batería; 370 x 175 x 320 mm."
+      },
+      {
+        "q": "¿Para qué áreas sirve?",
+        "a": "Cuidados intensivos, postanestesia y salas de operaciones."
+      },
+      {
+        "q": "¿Dónde obtengo la ficha técnica?",
+        "a": "Descargue el PDF oficial de Advanced Instrumentations en esta landing (modelo PM-2000XL-PRO)."
+      },
+      {
+        "q": "¿Cómo solicito cotización a IME?",
+        "a": "Indique el modelo exacto (PM-2000XL-PRO), el área clínica y las aplicaciones previstas (Atención ambulatoria; Cuidados de emergencia; Cuidados intermedios; Rehabilitación); IME confirma disponibilidad, ficha técnica y condiciones en Colombia."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What display does it have?",
+        "a": "15\" colour TFT touchscreen with 1024 x 768 resolution."
+      },
+      {
+        "q": "How much does it weigh?",
+        "a": "7 kg in standard configuration with one battery; 370 x 175 x 320 mm."
+      },
+      {
+        "q": "Which areas is it suited for?",
+        "a": "Intensive care, post-anaesthesia care and operating rooms."
+      },
+      {
+        "q": "Where is the datasheet?",
+        "a": "Download the official Advanced Instrumentations PDF on this page (model PM-2000XL-PRO)."
+      },
+      {
+        "q": "How do I get a quote?",
+        "a": "Provide exact model (PM-2000XL-PRO), clinical area and intended applications (Outpatient care; Emergency care; Intermediate care; Rehabilitation); IME confirms availability, datasheet and terms in Colombia."
+      }
+    ],
+    "seo_title": "Monitor Multiparamétrico UCI Avanzado PM-2000XL-PRO | Advanced Instrumentations | IME Colombia",
+    "seo_meta_description": "Sistema de Monitorización PM-2000XL (PM-2000XL-PRO) Advanced Instrumentations en catálogo IME. Solución de monitorización portátil multifuncional Ficha técnica PDF y cotización para instituciones de salud.",
+    "seo_keywords_es": [
+      "monitor de paciente UCI",
+      "monitor PM-2000XL PRO",
+      "monitor de quirófano",
+      "monitor Advanced",
+      "monitor de cuidados críticos Colombia",
+      "ficha técnica PM-2000XL PRO",
+      "Sistema de monitorización PM-2000XL PRO",
+      "Sistema de monitorización PM-2000XL PRO Advanced Instrumentations",
+      "ficha técnica PM-2000XL-PRO",
+      "PM-2000XL-PRO Colombia"
+    ],
+    "seo_keywords_en": [
+      "ICU patient monitor",
+      "PM-2000XL PRO monitor",
+      "operating room monitor",
+      "Advanced monitor",
+      "critical care monitor Colombia",
+      "PM-2000XL PRO datasheet",
+      "PM-2000XL PRO all-in-one monitoring system",
+      "PM-2000XL PRO all-in-one monitoring system Advanced Instrumentations",
+      "PM-2000XL-PRO datasheet",
+      "PM-2000XL-PRO Colombia"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "PM-2000XL PRO"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Pantalla",
+        "clave": "Pantalla",
+        "valor": "TFT táctil a color de 15\", 1024 x 768; hasta 13 formas de onda"
+      },
+      {
+        "grupo": "Parámetros",
+        "clave": "ECG",
+        "valor": "3/5 y 12 derivaciones"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Peso",
+        "valor": "7 kg con una batería"
+      },
+      {
+        "grupo": "Comunicación",
+        "clave": "Conectividad",
+        "valor": "CMS-2000, WiFi, HL7 por XML, USB, RJ-45"
+      },
+      {
+        "grupo": "Normativa",
+        "clave": "Cumplimiento",
+        "valor": "IEC 60601-1, IEC 60601-1-8; ISO 13485; FDA 510(k)"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ],
+    "atributos": {
+      "marca": "Advanced Instrumentations"
+    },
+    "append_descripcion": false
+  },
+  {
+    "slug": "monitor-multiparametrico-basico",
+    "sku": "VSM-300",
+    "marca": "Advanced Instrumentations",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/vsm-300-spa.pdf",
+    "url_oficial": "https://www.i-me.com.co",
+    "fuentes": [
+      "Catálogo IME #1 2025 (PDF)",
+      "metadata.txt: /home/shoky/Desktop/MDs/CAT/Productos/VSM-300_Monitor_de_Signos_Vitales_VSM-300/metadata.txt"
+    ],
+    "descripcion_larga_es": "El Monitor de signos vitales VSM-300 de Advanced Instrumentations está en el catálogo IME Colombia con ficha técnica PDF oficial descargable en esta landing.\n\nEl monitor de signos vitales Advanced VSM-300 captura y documenta SpO2, frecuencia de pulso, presión arterial no invasiva (SYS, DIA, MAP) y temperatura para pacientes adultos, pediátricos y neonatales. Tiene pantalla TFT LCD a color, llamada de enfermera, comunicación bidireccional por red cableada o inalámbrica con la estación central, impresora térmica opcional, lector de código de barras compatible y batería recargable. Pesa 3.5 kg con batería.\n\nSegún la ficha técnica Advanced (vsm-300-spa.pdf): Parámetros: SpO2, pulso, PANI (SYS/DIA/MAP), temperatura; Tamaño / peso: 200.8 x 241 x 189 mm; 3.5 kg con batería; Puertos: USB, Ethernet RJ-45; Alimentación: AC 100-240 V, 50/60 Hz; batería recargable.\n\nModelo / SKU: VSM-300. Use la ficha PDF del fabricante para validar parámetros, accesorios y normativa antes de cotizar; IME apoya compras de equipos médicos en Colombia.",
+    "descripcion_larga_en": "The VSM-300 vital signs monitor from Advanced Instrumentations is listed in the IME Colombia catalog with an official manufacturer PDF datasheet available on this page.\n\nThe Advanced VSM-300 vital signs monitor captures and documents SpO2, pulse rate, non-invasive blood pressure (SYS, DIA, MAP) and temperature for adult, pediatric and neonatal patients. It has a colour TFT LCD, nurse call, two-way communication over wired or wireless network with the central station, optional thermal printer, compatible barcode reader and a rechargeable battery. It weighs 3.5 kg with battery.\n\nModel / SKU: VSM-300. Use the manufacturer PDF to validate parameters, accessories and compliance before quoting; IME supports medical equipment procurement in Colombia.",
+    "beneficios_es": [
+      "Captura SpO2, pulso, PANI y temperatura para adultos, pediátricos y neonatos.",
+      "Comunicación bidireccional por red cableada o inalámbrica y lector de código de barras compatible.",
+      "Ligero y portátil: 3.5 kg con batería."
+    ],
+    "beneficios_en": [
+      "Captures SpO2, pulse, NIBP and temperature for adults, paediatrics and neonates.",
+      "Two-way wired or wireless network communication and compatible barcode reader.",
+      "Lightweight and portable: 3.5 kg with battery."
+    ],
+    "valor_es": "Un monitor de signos vitales portátil con conectividad a estación central, con dos años de garantía.",
+    "valor_en": "A portable vital signs monitor with central station connectivity, with a two-year warranty.",
+    "aplicaciones_es": [
+      "Toma de decisiones clínicas",
+      "Seguridad del paciente"
+    ],
+    "aplicaciones_en": [
+      "Clinical decision-making",
+      "Patient safety"
+    ],
+    "faq_es": [
+      {
+        "q": "¿Qué parámetros mide?",
+        "a": "SpO2, frecuencia de pulso, presión arterial no invasiva y temperatura."
+      },
+      {
+        "q": "¿Cuánto pesa?",
+        "a": "3.5 kg con batería; 200.8 x 241 x 189 mm."
+      },
+      {
+        "q": "¿Se conecta a red?",
+        "a": "Sí, puerto Ethernet RJ-45 y comunicación por red cableada o inalámbrica."
+      },
+      {
+        "q": "¿Dónde obtengo la ficha técnica?",
+        "a": "Descargue el PDF oficial de Advanced Instrumentations en esta landing (modelo VSM-300)."
+      },
+      {
+        "q": "¿Cómo solicito cotización a IME?",
+        "a": "Indique el modelo exacto (VSM-300), el área clínica y las aplicaciones previstas (Toma de decisiones clínicas; Seguridad del paciente); IME confirma disponibilidad, ficha técnica y condiciones en Colombia."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Which parameters does it measure?",
+        "a": "SpO2, pulse rate, non-invasive blood pressure and temperature."
+      },
+      {
+        "q": "How much does it weigh?",
+        "a": "3.5 kg with battery; 200.8 x 241 x 189 mm."
+      },
+      {
+        "q": "Does it connect to a network?",
+        "a": "Yes, RJ-45 Ethernet and wired or wireless network communication."
+      },
+      {
+        "q": "Where is the datasheet?",
+        "a": "Download the official Advanced Instrumentations PDF on this page (model VSM-300)."
+      },
+      {
+        "q": "How do I get a quote?",
+        "a": "Provide exact model (VSM-300), clinical area and intended applications (Clinical decision-making; Patient safety); IME confirms availability, datasheet and terms in Colombia."
+      }
+    ],
+    "seo_title": "Monitor Multiparamétrico Básico VSM-300 | Advanced Instrumentations | IME Colombia",
+    "seo_meta_description": "Monitor de Signos Vitales VSM-300 (VSM-300) Advanced Instrumentations en catálogo IME. Monitor de signos vitales para captura y documentación clínica Ficha técnica PDF y cotización para instituciones de salud.",
+    "seo_keywords_es": [
+      "monitor de signos vitales",
+      "monitor VSM-300",
+      "monitor de signos vitales portátil",
+      "monitor Advanced",
+      "monitor de signos vitales Colombia",
+      "ficha técnica VSM-300",
+      "Monitor de signos vitales VSM-300",
+      "Monitor de signos vitales VSM-300 Advanced Instrumentations",
+      "VSM-300 Colombia",
+      "equipo médico IME"
+    ],
+    "seo_keywords_en": [
+      "vital signs monitor",
+      "VSM-300 monitor",
+      "portable vital signs monitor",
+      "Advanced monitor",
+      "vital signs monitor Colombia",
+      "VSM-300 datasheet",
+      "VSM-300 vital signs monitor",
+      "VSM-300 vital signs monitor Advanced Instrumentations",
+      "VSM-300 Colombia",
+      "IME medical equipment"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "VSM-300"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Parámetros",
+        "clave": "Parámetros",
+        "valor": "SpO2, pulso, PANI (SYS/DIA/MAP), temperatura"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Tamaño / peso",
+        "valor": "200.8 x 241 x 189 mm; 3.5 kg con batería"
+      },
+      {
+        "grupo": "Comunicación",
+        "clave": "Puertos",
+        "valor": "USB, Ethernet RJ-45"
+      },
+      {
+        "grupo": "Eléctrico",
+        "clave": "Alimentación",
+        "valor": "AC 100-240 V, 50/60 Hz; batería recargable"
+      },
+      {
+        "grupo": "Normativa",
+        "clave": "Cumplimiento",
+        "valor": "IEC 60601-1-2; ISO 13485; FDA 510(k)"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ],
+    "atributos": {
+      "marca": "Advanced Instrumentations"
+    },
+    "append_descripcion": false
+  },
+  {
+    "slug": "monitor-de-transporte-prehospitalario",
+    "sku": "PM-2000XL",
+    "marca": "Advanced Instrumentations",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/pm-2000xl-spa.pdf",
+    "url_oficial": "https://www.i-me.com.co",
+    "fuentes": [
+      "Catálogo IME #1 2025 (PDF)",
+      "metadata.txt: /home/shoky/Desktop/MDs/CAT/Productos/PM-2000XL_Sistema_de_Monitorización_PM-2000XL/metadata.txt"
+    ],
+    "descripcion_larga_es": "El Sistema de monitorización PM-2000XL de Advanced Instrumentations está en el catálogo IME Colombia con ficha técnica PDF oficial descargable en esta landing.\n\nEl Advanced PM-2000XL es una solución de monitorización multifuncional portátil para atención ambulatoria, de emergencia, intermedia y rehabilitación. Ofrece ECG de 3/5 derivaciones, OxyCRG neonatal, letra grande, tendencias (hasta 120 h), revisión de 1200 mediciones de PANI y comunicación con la estación central CMS-2000 por cable o WiFi con protocolo HL7. Admite CO2 de flujo lateral o principal como opcional.\n\nSegún la ficha técnica Advanced (pm-2000xl-spa.pdf): ECG: 3/5 derivaciones; OxyCRG neonatal; Tendencias / PANI: 120 h / 1200 mediciones; Conectividad: CMS-2000, HL7, LAN, USB, WiFi; Cumplimiento: ISO 13485.\n\nModelo / SKU: PM-2000XL. Use la ficha PDF del fabricante para validar parámetros, accesorios y normativa antes de cotizar; IME apoya compras de equipos médicos en Colombia.",
+    "descripcion_larga_en": "The PM-2000XL monitoring system from Advanced Instrumentations is listed in the IME Colombia catalog with an official manufacturer PDF datasheet available on this page.\n\nThe Advanced PM-2000XL is a portable multifunction monitoring solution for ambulatory, emergency, intermediate care and rehabilitation. It offers 3/5-lead ECG, neonatal OxyCRG, large font, trends (up to 120 h), review of 1200 NIBP measurements and communication with the CMS-2000 central station by cable or WiFi with HL7 protocol. Sidestream or mainstream CO2 is optional.\n\nModel / SKU: PM-2000XL. Use the manufacturer PDF to validate parameters, accessories and compliance before quoting; IME supports medical equipment procurement in Colombia.",
+    "beneficios_es": [
+      "Portátil todo en uno para emergencia, atención intermedia y rehabilitación.",
+      "Tendencias de 120 h y revisión de 1200 mediciones de PANI.",
+      "CO2 de flujo lateral o principal opcional; comunicación HL7 con CMS-2000 por cable o WiFi."
+    ],
+    "beneficios_en": [
+      "Portable all-in-one for emergency, intermediate care and rehabilitation.",
+      "120 h trends and review of 1200 NIBP measurements.",
+      "Optional sidestream or mainstream CO2; HL7 communication with CMS-2000 by cable or WiFi."
+    ],
+    "valor_es": "Un monitor portátil multifuncional con CMS-2000/HL7 y CO2 opcional, con dos años de garantía.",
+    "valor_en": "A portable multifunction monitor with CMS-2000/HL7 and optional CO2, with a two-year warranty.",
+    "aplicaciones_es": [
+      "Atención ambulatoria",
+      "Cuidados de emergencia",
+      "Cuidados intermedios",
+      "Rehabilitación"
+    ],
+    "aplicaciones_en": [
+      "Ambulatory care",
+      "Emergency care",
+      "Intermediate care",
+      "Rehabilitation"
+    ],
+    "faq_es": [
+      {
+        "q": "¿Para qué entornos está pensado?",
+        "a": "Atención ambulatoria, emergencia, atención intermedia y rehabilitación."
+      },
+      {
+        "q": "¿Se conecta a estación central?",
+        "a": "Sí, comunicación bidireccional con CMS-2000 por cable o WiFi."
+      },
+      {
+        "q": "¿Mide CO2?",
+        "a": "Opcionalmente, de flujo lateral o principal."
+      },
+      {
+        "q": "¿Dónde obtengo la ficha técnica?",
+        "a": "Descargue el PDF oficial de Advanced Instrumentations en esta landing (modelo PM-2000XL)."
+      },
+      {
+        "q": "¿Cómo solicito cotización a IME?",
+        "a": "Indique el modelo exacto (PM-2000XL), el área clínica y las aplicaciones previstas (Según indicación clínica del fabricante y evaluación hospitalaria.); IME confirma disponibilidad, ficha técnica y condiciones en Colombia."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Which settings is it designed for?",
+        "a": "Ambulatory care, emergency, intermediate care and rehabilitation."
+      },
+      {
+        "q": "Does it connect to a central station?",
+        "a": "Yes, two-way communication with the CMS-2000 by cable or WiFi."
+      },
+      {
+        "q": "Does it measure CO2?",
+        "a": "Optionally, sidestream or mainstream."
+      },
+      {
+        "q": "Where is the datasheet?",
+        "a": "Download the official Advanced Instrumentations PDF on this page (model PM-2000XL)."
+      },
+      {
+        "q": "How do I get a quote?",
+        "a": "Provide exact model (PM-2000XL), clinical area and intended applications (Per manufacturer indication and hospital evaluation.); IME confirms availability, datasheet and terms in Colombia."
+      }
+    ],
+    "seo_title": "Monitor de Transporte Prehospitalario PM-2000XL | Advanced Instrumentations | IME Colombia",
+    "seo_meta_description": "Sistema de Monitorización PM-2000XL (PM-2000XL) Advanced Instrumentations en catálogo IME. Ficha técnica PDF y cotización para instituciones de salud.",
+    "seo_keywords_es": [
+      "monitor portátil multiparámetro",
+      "monitor PM-2000XL",
+      "monitor de paciente portátil",
+      "monitor Advanced",
+      "monitor de signos vitales Colombia",
+      "ficha técnica PM-2000XL",
+      "Sistema de monitorización PM-2000XL",
+      "Sistema de monitorización PM-2000XL Advanced Instrumentations",
+      "PM-2000XL Colombia",
+      "equipo médico IME"
+    ],
+    "seo_keywords_en": [
+      "portable multiparameter monitor",
+      "PM-2000XL monitor",
+      "portable patient monitor",
+      "Advanced monitor",
+      "vital signs monitor Colombia",
+      "PM-2000XL datasheet",
+      "PM-2000XL monitoring system",
+      "PM-2000XL monitoring system Advanced Instrumentations",
+      "PM-2000XL Colombia",
+      "IME medical equipment"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "PM-2000XL"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Parámetros",
+        "clave": "ECG",
+        "valor": "3/5 derivaciones; OxyCRG neonatal"
+      },
+      {
+        "grupo": "Revisión",
+        "clave": "Tendencias / PANI",
+        "valor": "120 h / 1200 mediciones"
+      },
+      {
+        "grupo": "Comunicación",
+        "clave": "Conectividad",
+        "valor": "CMS-2000, HL7, LAN, USB, WiFi"
+      },
+      {
+        "grupo": "Normativa",
+        "clave": "Cumplimiento",
+        "valor": "ISO 13485"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ],
+    "atributos": {
+      "marca": "Advanced Instrumentations"
+    },
+    "append_descripcion": false
+  },
+  {
+    "slug": "monitor-central-uci-multicama",
+    "sku": "PM-2000M",
+    "marca": "Advanced Instrumentations",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/pm-2000m-spa.pdf",
+    "url_oficial": "https://www.i-me.com.co",
+    "fuentes": [
+      "Catálogo IME #1 2025 (PDF)",
+      "metadata.txt: /home/shoky/Desktop/MDs/CAT/Productos/PM-2000M_Monitor_Modular_PM-2000M/metadata.txt"
+    ],
+    "descripcion_larga_es": "El Monitor modular PM-2000M de Advanced Instrumentations está en el catálogo IME Colombia con ficha técnica PDF oficial descargable en esta landing.\n\nEl monitor modular Advanced PM-2000M se usa para monitorizar, almacenar, revisar, registrar y alertar durante el tratamiento hospitalario. Su bastidor modular con módulos plug-and-play admite una amplia gama de parámetros simultáneos, desde cuidados críticos hasta anestesia, con capacidades opcionales como ICG, RM y BIS. La ficha también describe el módulo neonatal PM-2000TM, ligero y silencioso, con pantalla OxyCRG.\n\nSegún la ficha técnica Advanced (pm-2000m-spa.pdf): Tipo: Modular, módulos plug-and-play; Opcionales: ICG, RM, BIS; Módulo: PM-2000TM con pantalla OxyCRG; Cumplimiento: Estándares de seguridad IEC; ISO 13485.\n\nModelo / SKU: PM-2000M. Use la ficha PDF del fabricante para validar parámetros, accesorios y normativa antes de cotizar; IME apoya compras de equipos médicos en Colombia.",
+    "descripcion_larga_en": "The PM-2000M modular monitor from Advanced Instrumentations is listed in the IME Colombia catalog with an official manufacturer PDF datasheet available on this page.\n\nThe Advanced PM-2000M modular monitor is used to monitor, store, review, record and alert during hospital treatment. Its modular rack with plug-and-play modules supports a wide range of simultaneous parameters, from critical care to anaesthesia, with optional capabilities such as ICG, RM and BIS. The datasheet also describes the PM-2000TM neonatal module, lightweight and quiet, with OxyCRG display.\n\nModel / SKU: PM-2000M. Use the manufacturer PDF to validate parameters, accessories and compliance before quoting; IME supports medical equipment procurement in Colombia.",
+    "beneficios_es": [
+      "Módulos plug-and-play para adaptar los parámetros a cuidados críticos o anestesia.",
+      "Opcionales avanzados: ICG, RM y BIS.",
+      "Módulo neonatal PM-2000TM, ligero y silencioso, con pantalla OxyCRG."
+    ],
+    "beneficios_en": [
+      "Plug-and-play modules to adapt parameters to critical care or anaesthesia.",
+      "Advanced options: ICG, RM and BIS.",
+      "PM-2000TM neonatal module, lightweight and quiet, with OxyCRG display."
+    ],
+    "valor_es": "Un monitor modular plug-and-play para cuidados críticos y anestesia con opcionales avanzados, con dos años de garantía.",
+    "valor_en": "A plug-and-play modular monitor for critical care and anaesthesia with advanced options, with a two-year warranty.",
+    "aplicaciones_es": [
+      "Cuidados críticos",
+      "Monitorización en anestesia"
+    ],
+    "aplicaciones_en": [
+      "Critical care",
+      "Anesthesia monitoring"
+    ],
+    "faq_es": [
+      {
+        "q": "¿Es modular?",
+        "a": "Sí, usa un bastidor modular con módulos plug-and-play."
+      },
+      {
+        "q": "¿Sirve para anestesia?",
+        "a": "La ficha lo presenta para cuidados críticos y monitorización en anestesia."
+      },
+      {
+        "q": "¿Qué garantía tiene?",
+        "a": "Dos años de garantía del fabricante."
+      },
+      {
+        "q": "¿Dónde obtengo la ficha técnica?",
+        "a": "Descargue el PDF oficial de Advanced Instrumentations en esta landing (modelo PM-2000M)."
+      },
+      {
+        "q": "¿Cómo solicito cotización a IME?",
+        "a": "Indique el modelo exacto (PM-2000M), el área clínica y las aplicaciones previstas (Cuidados críticos; Monitorización en anestesia); IME confirma disponibilidad, ficha técnica y condiciones en Colombia."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Is it modular?",
+        "a": "Yes, it uses a modular rack with plug-and-play modules."
+      },
+      {
+        "q": "Is it suitable for anaesthesia?",
+        "a": "The datasheet presents it for critical care and anaesthesia monitoring."
+      },
+      {
+        "q": "What warranty does it have?",
+        "a": "Two-year manufacturer warranty."
+      },
+      {
+        "q": "Where is the datasheet?",
+        "a": "Download the official Advanced Instrumentations PDF on this page (model PM-2000M)."
+      },
+      {
+        "q": "How do I get a quote?",
+        "a": "Provide exact model (PM-2000M), clinical area and intended applications (Critical care; Anesthesia monitoring); IME confirms availability, datasheet and terms in Colombia."
+      }
+    ],
+    "seo_title": "Monitor Central UCI Multicama PM-2000M | Advanced Instrumentations | IME Colombia",
+    "seo_meta_description": "Monitor Modular PM-2000M (PM-2000M) Advanced Instrumentations en catálogo IME. Monitor totalmente modular con módulos plug-and-play Ficha técnica PDF y cotización para instituciones de salud.",
+    "seo_keywords_es": [
+      "monitor modular",
+      "monitor modular PM-2000M",
+      "monitor de anestesia",
+      "monitor modular Advanced",
+      "monitor de cuidados críticos Colombia",
+      "ficha técnica PM-2000M",
+      "Monitor modular PM-2000M Advanced Instrumentations",
+      "PM-2000M Colombia",
+      "equipo médico IME",
+      "Advanced Instrumentations Colombia"
+    ],
+    "seo_keywords_en": [
+      "modular monitor",
+      "PM-2000M modular monitor",
+      "anaesthesia monitor",
+      "Advanced modular monitor",
+      "critical care monitor Colombia",
+      "PM-2000M datasheet",
+      "PM-2000M modular monitor Advanced Instrumentations",
+      "PM-2000M Colombia",
+      "IME medical equipment",
+      "Advanced Instrumentations Colombia"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "PM-2000M"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Arquitectura",
+        "clave": "Tipo",
+        "valor": "Modular, módulos plug-and-play"
+      },
+      {
+        "grupo": "Opcionales",
+        "clave": "Opcionales",
+        "valor": "ICG, RM, BIS"
+      },
+      {
+        "grupo": "Neonatal",
+        "clave": "Módulo",
+        "valor": "PM-2000TM con pantalla OxyCRG"
+      },
+      {
+        "grupo": "Normativa",
+        "clave": "Cumplimiento",
+        "valor": "Estándares de seguridad IEC; ISO 13485"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ],
+    "atributos": {
+      "marca": "Advanced Instrumentations"
+    },
+    "append_descripcion": false
+  },
+  {
+    "slug": "electrocardiografo-12-derivaciones-digital",
+    "sku": "ECG-12C",
+    "marca": "Advanced Instrumentations",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/ecg-12c-spa.pdf",
+    "url_oficial": "https://www.i-me.com.co",
+    "fuentes": [
+      "Catálogo IME #1 2025 (PDF)",
+      "metadata.txt: /home/shoky/Desktop/MDs/CAT/Productos/ECG-12C_Electrocardiógrafo_ECG-12C/metadata.txt"
+    ],
+    "descripcion_larga_es": "El Electrocardiógrafo ECG-12C de Advanced Instrumentations está en el catálogo IME Colombia con ficha técnica PDF oficial descargable en esta landing.\n\nEl electrocardiógrafo Advanced ECG-12C adquiere, analiza e imprime 12 derivaciones de forma simultánea, con pantalla a color de alta resolución, teclado alfanumérico y registrador térmico integrado. Ofrece formatos de impresión flexibles, funciones de medición e interpretación, detección de marcapasos, detección de electrodo suelto, memoria interna de alta capacidad y archivos en formatos DAT y PDF (SCP, F-DA-XML y DICOM opcionales).\n\nSegún la ficha técnica Advanced (ecg-12c-spa.pdf): Canales: 3, 6 y 12; 12 derivaciones simultáneas; Dimensiones: 420 x 330 x 105 mm; Peso: Aprox. 5.0 kg (sin papel ni batería); Alimentación: 100 - 240 V, 50/60 Hz; batería recargable de respaldo.\n\nModelo / SKU: ECG-12C. Use la ficha PDF del fabricante para validar parámetros, accesorios y normativa antes de cotizar; IME apoya compras de equipos médicos en Colombia.",
+    "descripcion_larga_en": "The ECG-12C 12-channel ECG machine from Advanced Instrumentations is listed in the IME Colombia catalog with an official manufacturer PDF datasheet available on this page.\n\nThe Advanced ECG-12C electrocardiograph acquires, analyses and prints 12 leads simultaneously, with a high-resolution colour display, alphanumeric keyboard and integrated thermal recorder. It offers flexible print formats, measurement and interpretation functions, pacemaker detection, lead-off detection, high-capacity internal memory and DAT and PDF file formats (SCP, F-DA-XML and DICOM optional).\n\nModel / SKU: ECG-12C. Use the manufacturer PDF to validate parameters, accessories and compliance before quoting; IME supports medical equipment procurement in Colombia.",
+    "beneficios_es": [
+      "Adquisición, análisis e impresión de 12 derivaciones simultáneas con funciones de medición e interpretación.",
+      "Detección de marcapasos y de electrodo suelto, con registrador térmico integrado.",
+      "Archivos DAT y PDF; WiFi y escáner de código de barras opcionales; puertos Ethernet y RS232."
+    ],
+    "beneficios_en": [
+      "Simultaneous acquisition, analysis and printing of 12 leads with measurement and interpretation functions.",
+      "Pacemaker and lead-off detection, with integrated thermal recorder.",
+      "DAT and PDF files; optional WiFi and barcode scanner; Ethernet and RS232 ports."
+    ],
+    "valor_es": "Un electrocardiógrafo de 12 canales con interpretación, pantalla a color y batería de respaldo, con dos años de garantía.",
+    "valor_en": "A 12-channel electrocardiograph with interpretation, colour display and backup battery, with a two-year warranty.",
+    "aplicaciones_es": [
+      "Cardiología"
+    ],
+    "aplicaciones_en": [
+      "Cardiology"
+    ],
+    "faq_es": [
+      {
+        "q": "¿Cuántos canales tiene?",
+        "a": "Trabaja con 3, 6 y 12 canales y adquiere 12 derivaciones de forma simultánea."
+      },
+      {
+        "q": "¿Qué peso y dimensiones tiene?",
+        "a": "Aproximadamente 5.0 kg (sin papel ni batería) y 420 x 330 x 105 mm."
+      },
+      {
+        "q": "¿Exporta archivos?",
+        "a": "Sí: DAT y PDF, y opcionalmente SCP, F-DA-XML y DICOM."
+      },
+      {
+        "q": "¿Dónde obtengo la ficha técnica?",
+        "a": "Descargue el PDF oficial de Advanced Instrumentations en esta landing (modelo ECG-12C)."
+      },
+      {
+        "q": "¿Cómo solicito cotización a IME?",
+        "a": "Indique el modelo exacto (ECG-12C), el área clínica y las aplicaciones previstas (Según indicación clínica del fabricante y evaluación hospitalaria.); IME confirma disponibilidad, ficha técnica y condiciones en Colombia."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "How many channels does it have?",
+        "a": "It works with 3, 6 and 12 channels and acquires 12 leads simultaneously."
+      },
+      {
+        "q": "What are its weight and dimensions?",
+        "a": "About 5.0 kg (excluding paper and battery) and 420 x 330 x 105 mm."
+      },
+      {
+        "q": "Does it export files?",
+        "a": "Yes: DAT and PDF, and optionally SCP, F-DA-XML and DICOM."
+      },
+      {
+        "q": "Where is the datasheet?",
+        "a": "Download the official Advanced Instrumentations PDF on this page (model ECG-12C)."
+      },
+      {
+        "q": "How do I get a quote?",
+        "a": "Provide exact model (ECG-12C), clinical area and intended applications (Per manufacturer indication and hospital evaluation.); IME confirms availability, datasheet and terms in Colombia."
+      }
+    ],
+    "seo_title": "Electrocardiógrafo 12 Derivaciones Digital ECG-12C | Advanced Instrumentations | IME Colombia",
+    "seo_meta_description": "Electrocardiógrafo ECG-12C (ECG-12C) Advanced Instrumentations en catálogo IME. Electrocardiógrafo de 12 canales Ficha técnica PDF y cotización para instituciones de salud.",
+    "seo_keywords_es": [
+      "electrocardiógrafo 12 canales",
+      "electrocardiógrafo ECG-12C",
+      "ECG 12 derivaciones",
+      "electrocardiógrafo Advanced",
+      "electrocardiógrafo Colombia",
+      "ficha técnica ECG-12C",
+      "Electrocardiógrafo ECG-12C Advanced Instrumentations",
+      "ECG-12C Colombia",
+      "equipo médico IME",
+      "Advanced Instrumentations Colombia"
+    ],
+    "seo_keywords_en": [
+      "12-channel electrocardiograph",
+      "ECG-12C electrocardiograph",
+      "12-lead ECG",
+      "Advanced electrocardiograph",
+      "electrocardiograph Colombia",
+      "ECG-12C datasheet",
+      "ECG-12C 12-channel ECG machine",
+      "ECG-12C 12-channel ECG machine Advanced Instrumentations",
+      "ECG-12C Colombia",
+      "IME medical equipment"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "ECG-12C"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Canales",
+        "clave": "Canales",
+        "valor": "3, 6 y 12; 12 derivaciones simultáneas"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Dimensiones",
+        "valor": "420 x 330 x 105 mm"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Peso",
+        "valor": "Aprox. 5.0 kg (sin papel ni batería)"
+      },
+      {
+        "grupo": "Eléctrico",
+        "clave": "Alimentación",
+        "valor": "100 - 240 V, 50/60 Hz; batería recargable de respaldo"
+      },
+      {
+        "grupo": "Normativa",
+        "clave": "Cumplimiento",
+        "valor": "ISO 13485; FDA 510(k)"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ],
+    "atributos": {
+      "marca": "Advanced Instrumentations"
+    },
+    "append_descripcion": false
+  },
+  {
+    "slug": "mesa-quirurgica-motorizada-multiposicion",
+    "sku": "OT-500",
+    "marca": "Advanced Instrumentations",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/ot-500-spa.pdf",
+    "url_oficial": "https://www.i-me.com.co",
+    "fuentes": [
+      "Catálogo IME #1 2025 (PDF)",
+      "metadata.txt: /home/shoky/Desktop/MDs/CAT/Productos/OT-500_Mesa_de_Operaciones_OT-500/metadata.txt"
+    ],
+    "descripcion_larga_es": "El Mesa de operaciones OT-500 de Advanced Instrumentations está en el catálogo IME Colombia con ficha técnica PDF oficial descargable en esta landing.\n\nLa mesa de operaciones eléctrica Advanced OT-500 se maneja con control remoto y control en la columna. Ofrece altura ajustable, Trendelenburg e inverso, inclinación lateral, deslizamiento longitudinal, secciones de cabeza y piernas con resorte de gas y freno central eléctrico. Admite elevador de riñón, extensión ortopédica y marco de neurocirugía como opcionales, para cirugía general, urología, ginecología, neurocirugía, ortopedia y torácica.\n\nSegún la ficha técnica Advanced (ot-500-spa.pdf): Control: Remoto y en columna; Construcción: Acero inoxidable; Posiciones: Altura, Trendelenburg/inverso, inclinación lateral, deslizamiento longitudinal; Alimentación: AC 100/240 V, 50/60 Hz.\n\nModelo / SKU: OT-500. Use la ficha PDF del fabricante para validar parámetros, accesorios y normativa antes de cotizar; IME apoya compras de equipos médicos en Colombia.",
+    "descripcion_larga_en": "The OT-500 operating table from Advanced Instrumentations is listed in the IME Colombia catalog with an official manufacturer PDF datasheet available on this page.\n\nThe Advanced OT-500 electric operating table is operated with a remote control and a column control. It offers adjustable height, Trendelenburg and reverse, lateral tilt, longitudinal slide, gas-spring head and leg sections and an electric central brake. It supports a kidney elevator, orthopaedic extension and neurosurgery frame as options, for general surgery, urology, gynaecology, neurosurgery, orthopaedics and thoracic surgery.\n\nModel / SKU: OT-500. Use the manufacturer PDF to validate parameters, accessories and compliance before quoting; IME supports medical equipment procurement in Colombia.",
+    "beneficios_es": [
+      "Control remoto y control en columna con indicador de encendido.",
+      "Deslizamiento longitudinal compatible con estudios de imagen intraoperatorios.",
+      "Opcionales: elevador de riñón, extensión ortopédica y marco de neurocirugía."
+    ],
+    "beneficios_en": [
+      "Remote and column controls with a power indicator.",
+      "Longitudinal slide to ease intraoperative imaging.",
+      "Options: kidney elevator, orthopaedic extension and neurosurgery frame."
+    ],
+    "valor_es": "Una mesa quirúrgica eléctrica multipropósito con opcionales por especialidad y dos años de garantía.",
+    "valor_en": "A multipurpose electric operating table with specialty options and a two-year warranty.",
+    "aplicaciones_es": [
+      "Cirugía general",
+      "Urología",
+      "Ginecología",
+      "Neurocirugía",
+      "Ortopedia",
+      "Cirugía torácica"
+    ],
+    "aplicaciones_en": [
+      "General surgery",
+      "Urology",
+      "Gynecology",
+      "Neurosurgery",
+      "Orthopedics",
+      "Thoracic surgery"
+    ],
+    "faq_es": [
+      {
+        "q": "¿Cómo se opera?",
+        "a": "Con control remoto y control en la columna."
+      },
+      {
+        "q": "¿Qué accesorios opcionales tiene?",
+        "a": "Elevador de riñón, extensión ortopédica y marco de neurocirugía."
+      },
+      {
+        "q": "¿Cuál es su alimentación?",
+        "a": "AC 100/240 V, 50/60 Hz."
+      },
+      {
+        "q": "¿Dónde obtengo la ficha técnica?",
+        "a": "Descargue el PDF oficial de Advanced Instrumentations en esta landing (modelo OT-500)."
+      },
+      {
+        "q": "¿Cómo solicito cotización a IME?",
+        "a": "Indique el modelo exacto (OT-500), el área clínica y las aplicaciones previstas (Cirugía general; Urología; Ginecología; Neurocirugía; Ortopedia; Cirugía torácica); IME confirma disponibilidad, ficha técnica y condiciones en Colombia."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "How is it operated?",
+        "a": "With a remote control and a column control."
+      },
+      {
+        "q": "Which optional accessories are available?",
+        "a": "Kidney elevator, orthopaedic extension and neurosurgery frame."
+      },
+      {
+        "q": "What is its power supply?",
+        "a": "AC 100/240 V, 50/60 Hz."
+      },
+      {
+        "q": "Where is the datasheet?",
+        "a": "Download the official Advanced Instrumentations PDF on this page (model OT-500)."
+      },
+      {
+        "q": "How do I get a quote?",
+        "a": "Provide exact model (OT-500), clinical area and intended applications (General surgery; Urology; Gynecology; Neurosurgery; Orthopedics; Thoracic surgery); IME confirms availability, datasheet and terms in Colombia."
+      }
+    ],
+    "seo_title": "Mesa Quirúrgica Motorizada Multiposición OT-500 | Advanced Instrumentations | IME Colombia",
+    "seo_meta_description": "Mesa de Operaciones OT-500 (OT-500) Advanced Instrumentations en catálogo IME. Mesa de operaciones para cirugía general y especializada Ficha técnica PDF y cotización para instituciones de salud.",
+    "seo_keywords_es": [
+      "mesa de operaciones eléctrica",
+      "mesa quirúrgica OT-500",
+      "mesa de cirugía multipropósito",
+      "mesa quirúrgica Advanced",
+      "mesa de cirugía Colombia",
+      "ficha técnica OT-500",
+      "Mesa de operaciones OT-500",
+      "Mesa de operaciones OT-500 Advanced Instrumentations",
+      "OT-500 Colombia",
+      "equipo médico IME"
+    ],
+    "seo_keywords_en": [
+      "electric operating table",
+      "OT-500 surgical table",
+      "multipurpose operating table",
+      "Advanced operating table",
+      "operating table Colombia",
+      "OT-500 datasheet",
+      "OT-500 operating table",
+      "OT-500 operating table Advanced Instrumentations",
+      "OT-500 Colombia",
+      "IME medical equipment"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "OT-500"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Control",
+        "clave": "Control",
+        "valor": "Remoto y en columna"
+      },
+      {
+        "grupo": "Material",
+        "clave": "Construcción",
+        "valor": "Acero inoxidable"
+      },
+      {
+        "grupo": "Ajustes",
+        "clave": "Posiciones",
+        "valor": "Altura, Trendelenburg/inverso, inclinación lateral, deslizamiento longitudinal"
+      },
+      {
+        "grupo": "Eléctrico",
+        "clave": "Alimentación",
+        "valor": "AC 100/240 V, 50/60 Hz"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ],
+    "atributos": {
+      "marca": "Advanced Instrumentations"
+    },
+    "append_descripcion": false
+  },
+  {
+    "slug": "incubadora-neonatal-de-transporte",
+    "sku": "A3158",
+    "marca": "Advanced Instrumentations",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/a3158-spa.pdf",
+    "url_oficial": "https://www.i-me.com.co",
+    "fuentes": [
+      "Catálogo IME #1 2025 (PDF)",
+      "metadata.txt: /home/shoky/Desktop/MDs/CAT/Productos/A3158_Incubadora_Neonatal_de_Transporte_A3158/metadata.txt"
+    ],
+    "descripcion_larga_es": "El Incubadora neonatal de transporte A3158 de Advanced Instrumentations está en el catálogo IME Colombia con ficha técnica PDF oficial descargable en esta landing.\n\nLa incubadora de transporte neonatal Advanced A3158 está pensada para trasladar recién nacidos por tierra o aire con un equipo compacto y fácil de manejar. Combina doble pared de acrílico de alta calidad óptica, distribución precisa del calor en toda la campana y un nivel de ruido interno inferior a 60 dB. Controla la temperatura del aire y de la piel del paciente, incorpora un completo sistema de alarmas y puede funcionar con alimentación AC 100/240 V o con voltaje DC. La ficha del fabricante la presenta como una incubadora de transporte de nueva generación con dos años de garantía, cumplimiento de la directiva CE 93/42/EEC y estándar de calidad ISO 13485.\n\nSegún la ficha técnica Advanced (a3158-spa.pdf): Control: Modo aire y modo piel; monitoreo de temperatura del aire y del paciente; Nivel de ruido interno: < 60 dB; Alimentación: AC 100/240 V, 50/60 Hz; DC 12 V; Alarmas: Falla de calefacción, sensor de piel, sensor de aire, circulación de aire, fuente de alimentación, sistema, batería baja.\n\nModelo / SKU: A3158. Use la ficha PDF del fabricante para validar parámetros, accesorios y normativa antes de cotizar; IME apoya compras de equipos médicos en Colombia.",
+    "descripcion_larga_en": "The A3158 neonatal transport incubator from Advanced Instrumentations is listed in the IME Colombia catalog with an official manufacturer PDF datasheet available on this page.\n\nThe Advanced A3158 transport incubator is designed to move newborns by ground or air using a compact, easy-to-handle unit. It combines a double acrylic wall of high optical quality, precise heat distribution across the hood and an internal noise level below 60 dB. It monitors air and patient skin temperature, includes a comprehensive alarm system and runs on AC 100/240 V or DC power. The manufacturer datasheet presents it as a next-generation transport incubator with a two-year warranty, compliance with Directive CE 93/42/EEC and the ISO 13485 quality standard.\n\nModel / SKU: A3158. Use the manufacturer PDF to validate parameters, accessories and compliance before quoting; IME supports medical equipment procurement in Colombia.",
+    "beneficios_es": [
+      "Diseño compacto que facilita su manipulación en traslados terrestres y aéreos de recién nacidos.",
+      "Doble pared de acrílico con visibilidad total y ruido interno inferior a 60 dB para un entorno más tranquilo.",
+      "Alarmas de falla de calefacción, sensor de piel, sensor de aire, circulación de aire, fuente de alimentación, sistema y batería baja.",
+      "Ruedas con freno, porta suero IV y puertos de acceso ovalados para trabajar con el paciente sin abrir la campana."
+    ],
+    "beneficios_en": [
+      "Compact design that makes handling easier during ground and air neonatal transport.",
+      "Double acrylic wall with full visibility and internal noise below 60 dB for a calmer environment.",
+      "Alarms for heater failure, skin sensor, air sensor, air circulation, power supply, system and low battery.",
+      "Wheels with brakes, IV pole and oval access ports to work with the patient without opening the hood."
+    ],
+    "valor_es": "Una incubadora de transporte con control de temperatura de aire y piel, alarmas integrales y alimentación AC/DC, respaldada por dos años de garantía del fabricante.",
+    "valor_en": "A transport incubator with air and skin temperature control, comprehensive alarms and AC/DC power, backed by the manufacturer's two-year warranty.",
+    "aplicaciones_es": [
+      "Transporte neonatal"
+    ],
+    "aplicaciones_en": [
+      "Neonatal transport"
+    ],
+    "faq_es": [
+      {
+        "q": "¿Sirve para transporte aéreo y terrestre?",
+        "a": "Sí. La ficha del fabricante indica que su diseño compacto facilita la manipulación en el transporte aéreo o terrestre de recién nacidos."
+      },
+      {
+        "q": "¿Con qué alimentación funciona?",
+        "a": "Con alimentación AC 100/240 V a 50/60 Hz y también con voltaje DC, según la ficha técnica de Advanced."
+      },
+      {
+        "q": "¿Qué garantía tiene?",
+        "a": "El fabricante declara dos años de garantía y cumplimiento de la norma de calidad ISO 13485."
+      },
+      {
+        "q": "¿Dónde obtengo la ficha técnica?",
+        "a": "Descargue el PDF oficial de Advanced Instrumentations en esta landing (modelo A3158)."
+      },
+      {
+        "q": "¿Cómo solicito cotización a IME?",
+        "a": "Indique el modelo exacto (A3158), el área clínica y las aplicaciones previstas (Transporte neonatal); IME confirma disponibilidad, ficha técnica y condiciones en Colombia."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Is it suitable for air and ground transport?",
+        "a": "Yes. The manufacturer datasheet states that its compact design makes it easy to handle during air or ground transport of newborns."
+      },
+      {
+        "q": "What power does it use?",
+        "a": "AC 100/240 V at 50/60 Hz and also DC voltage, according to the Advanced datasheet."
+      },
+      {
+        "q": "What warranty does it have?",
+        "a": "The manufacturer declares a two-year warranty and compliance with the ISO 13485 quality standard."
+      },
+      {
+        "q": "Where is the datasheet?",
+        "a": "Download the official Advanced Instrumentations PDF on this page (model A3158)."
+      },
+      {
+        "q": "How do I get a quote?",
+        "a": "Provide exact model (A3158), clinical area and intended applications (Neonatal transport); IME confirms availability, datasheet and terms in Colombia."
+      }
+    ],
+    "seo_title": "Incubadora Neonatal de Transporte A3158 | Advanced Instrumentations | IME Colombia",
+    "seo_meta_description": "Incubadora Neonatal de Transporte A3158 (A3158) Advanced Instrumentations en catálogo IME. Incubadora neonatal de transporte para uso terrestre y aéreo Ficha técnica PDF y cotización para instituciones de salud.",
+    "seo_keywords_es": [
+      "incubadora de transporte neonatal",
+      "incubadora neonatal A3158",
+      "incubadora de transporte Advanced",
+      "transporte neonatal terrestre y aéreo",
+      "incubadora neonatal Colombia",
+      "ficha técnica A3158",
+      "cotizar incubadora de transporte",
+      "Incubadora neonatal de transporte A3158",
+      "Incubadora neonatal de transporte A3158 Advanced Instrumentations",
+      "A3158 Colombia"
+    ],
+    "seo_keywords_en": [
+      "neonatal transport incubator",
+      "A3158 neonatal incubator",
+      "Advanced transport incubator",
+      "ground and air neonatal transport",
+      "neonatal incubator Colombia",
+      "A3158 datasheet",
+      "request a quote transport incubator",
+      "A3158 neonatal transport incubator",
+      "A3158 neonatal transport incubator Advanced Instrumentations",
+      "A3158 Colombia"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "A3158"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Control térmico",
+        "clave": "Control",
+        "valor": "Modo aire y modo piel; monitoreo de temperatura del aire y del paciente"
+      },
+      {
+        "grupo": "Acústica",
+        "clave": "Nivel de ruido interno",
+        "valor": "< 60 dB"
+      },
+      {
+        "grupo": "Eléctrico",
+        "clave": "Alimentación",
+        "valor": "AC 100/240 V, 50/60 Hz; DC 12 V"
+      },
+      {
+        "grupo": "Seguridad",
+        "clave": "Alarmas",
+        "valor": "Falla de calefacción, sensor de piel, sensor de aire, circulación de aire, fuente de alimentación, sistema, batería baja"
+      },
+      {
+        "grupo": "Normativa",
+        "clave": "Cumplimiento",
+        "valor": "CE 93/42/EEC (MDD); ISO 13485"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ],
+    "atributos": {
+      "marca": "Advanced Instrumentations"
+    },
+    "append_descripcion": false
+  },
+  {
+    "slug": "cuna-de-calor-radiante-neonatal-servo",
+    "sku": "A4051",
+    "marca": "Advanced Instrumentations",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/a4051-spa.pdf",
+    "url_oficial": "https://www.i-me.com.co",
+    "fuentes": [
+      "Catálogo IME #1 2025 (PDF)",
+      "metadata.txt: /home/shoky/Desktop/MDs/CAT/Productos/A4051_Cuna_de_Calor_Radiante_A4051/metadata.txt"
+    ],
+    "descripcion_larga_es": "El Cuna de calor radiante A4051 de Advanced Instrumentations está en el catálogo IME Colombia con ficha técnica PDF oficial descargable en esta landing.\n\nLa cuna de calor radiante Advanced A4051 está diseñada como unidad completa de cuidado infantil para recién nacidos que requieren el mayor nivel de atención. Ofrece control servo por piel del paciente, modo manual, precalentamiento inteligente y calentador infrarrojo de cuarzo, con tres opciones de pantalla (LCD a color, monitor monocromo o LED). Incluye reflector articulable para acceso a rayos X, iluminación LED auxiliar, protectores laterales de acrílico plegables, cama eléctrica o manual con Trendelenburg, contador de tiempo y de Apgar, y sistema de alarmas integral. La ficha lista como opcionales mezclador aire/oxígeno, colchón térmico, SpO2, CPAP y balanza.\n\nSegún la ficha técnica Advanced (a4051-spa.pdf): Calentador: Infrarrojo de cuarzo; servo por piel, modo manual y precalentamiento inteligente; Opciones de pantalla: LCD a color, monitor monocromo o LED; Cama: Eléctrica o manual, con Trendelenburg/Trendelenburg invertido; Alimentación: AC 100/240 V, 50/60 Hz.\n\nModelo / SKU: A4051. Use la ficha PDF del fabricante para validar parámetros, accesorios y normativa antes de cotizar; IME apoya compras de equipos médicos en Colombia.",
+    "descripcion_larga_en": "The A4051 radiant warmer from Advanced Instrumentations is listed in the IME Colombia catalog with an official manufacturer PDF datasheet available on this page.\n\nThe Advanced A4051 radiant warmer is designed as a complete infant care unit for newborns who need the highest level of care. It offers patient-skin servo control, manual mode, intelligent pre-warming and a quartz infrared heater, with three display options (colour LCD, monochrome monitor or LED). It includes an articulating reflector for X-ray access, auxiliary LED lighting, folding acrylic side guards, electric or manual bed with Trendelenburg, time and Apgar counters and a comprehensive alarm system. The datasheet lists an air/oxygen blender, thermal mattress, SpO2, CPAP and scale as options.\n\nModel / SKU: A4051. Use the manufacturer PDF to validate parameters, accessories and compliance before quoting; IME supports medical equipment procurement in Colombia.",
+    "beneficios_es": [
+      "Control servo por piel, modo manual y precalentamiento inteligente para estabilizar la temperatura del bebé.",
+      "Reflector articulable y bandeja para rayos X que permiten estudios sin retirar al paciente.",
+      "Contador de tiempo y de Apgar, flujómetros de oxígeno y aire y panel de gas con aspiración y resucitador.",
+      "Dos opciones de fototerapia: lámpara de 5 focos LED o fototerapia inversa."
+    ],
+    "beneficios_en": [
+      "Skin servo control, manual mode and intelligent pre-warming to stabilize the baby's temperature.",
+      "Articulating reflector and X-ray tray that allow imaging without moving the patient.",
+      "Time and Apgar counters, oxygen and air flowmeters and a gas panel with suction and resuscitator.",
+      "Two phototherapy options: 5-LED lamp or reverse phototherapy."
+    ],
+    "valor_es": "Una cuna de calor radiante con servocontrol, acceso a rayos X y fototerapia integrable, con dos años de garantía del fabricante.",
+    "valor_en": "A radiant warmer with servo control, X-ray access and integrable phototherapy, with a two-year manufacturer warranty.",
+    "aplicaciones_es": [
+      "Neonatología",
+      "Cuidados intensivos neonatales"
+    ],
+    "aplicaciones_en": [
+      "Neonatology",
+      "Neonatal intensive care"
+    ],
+    "faq_es": [
+      {
+        "q": "¿Qué opciones de pantalla tiene?",
+        "a": "Tres: LCD a color, monitor monocromo y pantalla LED, según la ficha del fabricante."
+      },
+      {
+        "q": "¿Se puede hacer fototerapia?",
+        "a": "Sí. Ofrece lámpara de fototerapia de 5 focos LED o fototerapia inversa como opciones."
+      },
+      {
+        "q": "¿Qué accesorios son opcionales?",
+        "a": "Mezclador aire/oxígeno, colchón térmico, oxímetro de pulso (SpO2), kit eléctrico de altura y transporte, CPAP y balanza."
+      },
+      {
+        "q": "¿Dónde obtengo la ficha técnica?",
+        "a": "Descargue el PDF oficial de Advanced Instrumentations en esta landing (modelo A4051)."
+      },
+      {
+        "q": "¿Cómo solicito cotización a IME?",
+        "a": "Indique el modelo exacto (A4051), el área clínica y las aplicaciones previstas (Neonatología; Cuidados intensivos neonatales); IME confirma disponibilidad, ficha técnica y condiciones en Colombia."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What display options does it have?",
+        "a": "Three: colour LCD, monochrome monitor and LED display, according to the manufacturer datasheet."
+      },
+      {
+        "q": "Can phototherapy be performed?",
+        "a": "Yes. It offers a 5-LED phototherapy lamp or reverse phototherapy as options."
+      },
+      {
+        "q": "Which accessories are optional?",
+        "a": "Air/oxygen blender, thermal mattress, pulse oximeter (SpO2), electric height/transport kit, CPAP and scale."
+      },
+      {
+        "q": "Where is the datasheet?",
+        "a": "Download the official Advanced Instrumentations PDF on this page (model A4051)."
+      },
+      {
+        "q": "How do I get a quote?",
+        "a": "Provide exact model (A4051), clinical area and intended applications (Neonatology; Neonatal intensive care); IME confirms availability, datasheet and terms in Colombia."
+      }
+    ],
+    "seo_title": "Cuna de Calor Radiante Neonatal Servo A4051 | Advanced Instrumentations | IME Colombia",
+    "seo_meta_description": "Cuna de Calor Radiante A4051 (A4051) Advanced Instrumentations en catálogo IME. Cuna de calor radiante para recién nacidos de alta complejidad Ficha técnica PDF y cotización para instituciones de salud.",
+    "seo_keywords_es": [
+      "cuna de calor radiante",
+      "cuna de calor radiante A4051",
+      "cuna radiante neonatal",
+      "cuna de calor neonatología",
+      "equipo de cuidados intensivos neonatales",
+      "cuna de calor Colombia",
+      "ficha técnica A4051",
+      "Cuna de calor radiante A4051 Advanced Instrumentations",
+      "A4051 Colombia",
+      "equipo médico IME"
+    ],
+    "seo_keywords_en": [
+      "radiant warmer",
+      "A4051 radiant warmer",
+      "neonatal radiant warmer",
+      "neonatal care radiant bed",
+      "NICU equipment",
+      "radiant warmer Colombia",
+      "A4051 datasheet",
+      "A4051 radiant warmer Advanced Instrumentations",
+      "A4051 Colombia",
+      "IME medical equipment"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "A4051"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Calefacción",
+        "clave": "Calentador",
+        "valor": "Infrarrojo de cuarzo; servo por piel, modo manual y precalentamiento inteligente"
+      },
+      {
+        "grupo": "Pantalla",
+        "clave": "Opciones de pantalla",
+        "valor": "LCD a color, monitor monocromo o LED"
+      },
+      {
+        "grupo": "Cama",
+        "clave": "Cama",
+        "valor": "Eléctrica o manual, con Trendelenburg/Trendelenburg invertido"
+      },
+      {
+        "grupo": "Eléctrico",
+        "clave": "Alimentación",
+        "valor": "AC 100/240 V, 50/60 Hz"
+      },
+      {
+        "grupo": "Normativa",
+        "clave": "Cumplimiento",
+        "valor": "CE 93/42/EEC (MDD); ISO 13485"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ],
+    "atributos": {
+      "marca": "Advanced Instrumentations"
+    },
+    "append_descripcion": false
+  },
+  {
+    "slug": "ecografo-color-doppler-diagnostico-vascular",
+    "sku": "DUS-5000",
+    "marca": "Advanced Instrumentations",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/dus-5000.pdf",
+    "url_oficial": "https://www.i-me.com.co",
+    "fuentes": [
+      "Catálogo IME #1 2025 (PDF)",
+      "metadata.txt: /home/shoky/Desktop/MDs/CAT/Productos/DUS-5000_Sistema_de_Ultrasonido_DUS-5000/metadata.txt"
+    ],
+    "descripcion_larga_es": "El Sistema de ultrasonido DUS-5000 de Advanced Instrumentations está en el catálogo IME Colombia con ficha técnica PDF oficial descargable en esta landing.\n\nEl DUS-5000 de Advanced es un sistema de ultrasonido digital compacto y portátil con Doppler color, Doppler de potencia y Doppler pulsado. Ofrece pantalla TFT-LCD a color, teclado alfanumérico plegable con trackball, dos puertos de transductor, modos B, B+B, 4B, B+M, M, B+PW, B+Color y combinados, archivo de imágenes integrado, batería recargable y puerto DICOM 3.0.\n\nSegún la ficha técnica Advanced (dus-5000.pdf): Pantalla: TFT-LCD a color con retroiluminación; Puertos de transductor: 2; Modos de visualización: B, B+B, 4B, B+M, M, B+PW, B+Color, B+Color+PW, B+PDI, B+PDI+PW; Puertos: 2 USB, red DICOM 3.0, salida VGA y de video.\n\nModelo / SKU: DUS-5000. Use la ficha PDF del fabricante para validar parámetros, accesorios y normativa antes de cotizar; IME apoya compras de equipos médicos en Colombia.",
+    "descripcion_larga_en": "The DUS-5000 ultrasound system from Advanced Instrumentations is listed in the IME Colombia catalog with an official manufacturer PDF datasheet available on this page.\n\nThe Advanced DUS-5000 is a compact, portable digital ultrasound system with colour Doppler, power Doppler and pulsed-wave Doppler. It offers a colour TFT-LCD, folding alphanumeric keyboard with trackball, two transducer ports, B, B+B, 4B, B+M, M, B+PW, B+Color and combined modes, built-in image archive, rechargeable battery and DICOM 3.0 port.\n\nModel / SKU: DUS-5000. Use the manufacturer PDF to validate parameters, accessories and compliance before quoting; IME supports medical equipment procurement in Colombia.",
+    "beneficios_es": [
+      "Doppler color, de potencia y pulsado en un equipo portátil con asa.",
+      "Transductores convexo, lineal, endocavitario y microconvexo, con dos puertos disponibles.",
+      "Archivo de imágenes integrado, puertos USB, red DICOM 3.0 y salidas VGA/video."
+    ],
+    "beneficios_en": [
+      "Colour, power and pulsed-wave Doppler in a portable unit with a handle.",
+      "Convex, linear, endocavity and micro-convex transducers, with two ports available.",
+      "Built-in image archive, USB ports, DICOM 3.0 network and VGA/video outputs."
+    ],
+    "valor_es": "Un ecógrafo portátil con Doppler color y conectividad DICOM, con garantía del fabricante.",
+    "valor_en": "A portable ultrasound with colour Doppler and DICOM connectivity, backed by the manufacturer warranty.",
+    "aplicaciones_es": [
+      "Diagnóstico por imagen"
+    ],
+    "aplicaciones_en": [
+      "Diagnostic imaging"
+    ],
+    "faq_es": [
+      {
+        "q": "¿Qué modos de imagen ofrece?",
+        "a": "B, B+B, 4B, B+M, M, B+PW, B+Color, B+Color+PW, B+PDI y B+PDI+PW."
+      },
+      {
+        "q": "¿Es portátil?",
+        "a": "Sí, es un equipo portátil con asa y batería recargable de alta capacidad integrada."
+      },
+      {
+        "q": "¿Conecta a DICOM?",
+        "a": "Incluye puerto de red DICOM 3.0 y dos puertos USB."
+      },
+      {
+        "q": "¿Dónde obtengo la ficha técnica?",
+        "a": "Descargue el PDF oficial de Advanced Instrumentations en esta landing (modelo DUS-5000)."
+      },
+      {
+        "q": "¿Cómo solicito cotización a IME?",
+        "a": "Indique el modelo exacto (DUS-5000), el área clínica y las aplicaciones previstas (Según indicación clínica del fabricante y evaluación hospitalaria.); IME confirma disponibilidad, ficha técnica y condiciones en Colombia."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Which imaging modes does it offer?",
+        "a": "B, B+B, 4B, B+M, M, B+PW, B+Color, B+Color+PW, B+PDI and B+PDI+PW."
+      },
+      {
+        "q": "Is it portable?",
+        "a": "Yes, a portable unit with a handle and a high-capacity built-in rechargeable battery."
+      },
+      {
+        "q": "Does it connect to DICOM?",
+        "a": "It includes a DICOM 3.0 network port and two USB ports."
+      },
+      {
+        "q": "Where is the datasheet?",
+        "a": "Download the official Advanced Instrumentations PDF on this page (model DUS-5000)."
+      },
+      {
+        "q": "How do I get a quote?",
+        "a": "Provide exact model (DUS-5000), clinical area and intended applications (Per manufacturer indication and hospital evaluation.); IME confirms availability, datasheet and terms in Colombia."
+      }
+    ],
+    "seo_title": "Ecógrafo Color Doppler Diagnóstico Vascular DUS-5000 | Advanced Instrumentations | IME Colombia",
+    "seo_meta_description": "Sistema de Ultrasonido DUS-5000 (DUS-5000) Advanced Instrumentations en catálogo IME. Ficha técnica PDF y cotización para instituciones de salud.",
+    "seo_keywords_es": [
+      "ecógrafo portátil",
+      "ecógrafo Doppler color",
+      "ultrasonido DUS-5000",
+      "ecógrafo Advanced",
+      "ecografía Colombia",
+      "ficha técnica DUS-5000",
+      "Sistema de ultrasonido DUS-5000",
+      "Sistema de ultrasonido DUS-5000 Advanced Instrumentations",
+      "DUS-5000 Colombia",
+      "equipo médico IME"
+    ],
+    "seo_keywords_en": [
+      "portable ultrasound",
+      "colour Doppler ultrasound",
+      "DUS-5000 ultrasound",
+      "Advanced ultrasound system",
+      "ultrasound Colombia",
+      "DUS-5000 datasheet",
+      "DUS-5000 ultrasound system",
+      "DUS-5000 ultrasound system Advanced Instrumentations",
+      "DUS-5000 Colombia",
+      "IME medical equipment"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "DUS-5000"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Pantalla",
+        "clave": "Pantalla",
+        "valor": "TFT-LCD a color con retroiluminación"
+      },
+      {
+        "grupo": "Transductores",
+        "clave": "Puertos de transductor",
+        "valor": "2"
+      },
+      {
+        "grupo": "Modos",
+        "clave": "Modos de visualización",
+        "valor": "B, B+B, 4B, B+M, M, B+PW, B+Color, B+Color+PW, B+PDI, B+PDI+PW"
+      },
+      {
+        "grupo": "Conectividad",
+        "clave": "Puertos",
+        "valor": "2 USB, red DICOM 3.0, salida VGA y de video"
+      },
+      {
+        "grupo": "Energía",
+        "clave": "Batería",
+        "valor": "Recargable de alta capacidad integrada"
+      },
+      {
+        "grupo": "Normativa",
+        "clave": "Cumplimiento",
+        "valor": "ISO 13485; FDA 510(k)"
+      }
+    ],
+    "atributos": {
+      "marca": "Advanced Instrumentations"
+    },
+    "append_descripcion": false
+  },
+  {
+    "slug": "ecografo-portatil-con-wifi-y-dicom",
+    "sku": "DUS-5000-PLUS",
+    "marca": "Advanced Instrumentations",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/dus-5000-plus.pdf",
+    "url_oficial": "https://www.i-me.com.co",
+    "fuentes": [
+      "Catálogo IME #1 2025 (PDF)",
+      "metadata.txt: /home/shoky/Desktop/MDs/CAT/Productos/DUS-5000-PLUS_Sistema_de_Ultrasonido_DUS-5000_Plus/metadata.txt"
+    ],
+    "descripcion_larga_es": "El Sistema de ultrasonido DUS-5000 Plus de Advanced Instrumentations está en el catálogo IME Colombia con ficha técnica PDF oficial descargable en esta landing.\n\nEl DUS-5000 Plus amplía el sistema compacto de Advanced con imagen armónica de tejido e inversión de fase, Doppler color, de potencia direccional, tisular, pulsado y continuo, modo M anatómico, imagen compuesta espacial, panorámica en tiempo real, medición automática de IMT y guía de biopsia con visualización de aguja. Admite transductores convexo, lineal, endocavitario, microconvexo y phased array, y conectividad DICOM 3.0 con WiFi.\n\nSegún la ficha técnica Advanced (dus-5000-plus.pdf): Modos de imagen: B, THI, PHI, CFM, PDI, DPDI, TDI, PW, CW, M, Color M, M anatómico; Funciones: Imagen compuesta espacial, panorámica en tiempo real, IMT automático, guía de biopsia; DICOM: DICOM 3.0 con WiFi; Cumplimiento: ISO 13485.\n\nModelo / SKU: DUS-5000-PLUS. Use la ficha PDF del fabricante para validar parámetros, accesorios y normativa antes de cotizar; IME apoya compras de equipos médicos en Colombia.",
+    "descripcion_larga_en": "The DUS-5000 Plus ultrasound system from Advanced Instrumentations is listed in the IME Colombia catalog with an official manufacturer PDF datasheet available on this page.\n\nThe DUS-5000 Plus expands the compact Advanced system with tissue and phase-inversion harmonic imaging, colour, directional power, tissue, pulsed and continuous-wave Doppler, anatomic M-mode, spatial compound imaging, real-time panoramic imaging, automatic IMT measurement and biopsy guide with needle visualization. It supports convex, linear, endocavity, micro-convex and phased-array transducers and DICOM 3.0 connectivity with WiFi.\n\nModel / SKU: DUS-5000-PLUS. Use the manufacturer PDF to validate parameters, accessories and compliance before quoting; IME supports medical equipment procurement in Colombia.",
+    "beneficios_es": [
+      "Doppler color, de potencia, tisular, pulsado (PW) y continuo (CW) en un equipo compacto.",
+      "Imagen panorámica en tiempo real, imagen compuesta espacial y medición automática de IMT.",
+      "Guía de biopsia con realce de visualización de aguja y DICOM 3.0 con WiFi."
+    ],
+    "beneficios_en": [
+      "Colour, power, tissue, pulsed (PW) and continuous (CW) Doppler in a compact unit.",
+      "Real-time panoramic imaging, spatial compound imaging and automatic IMT measurement.",
+      "Biopsy guide with needle visualization enhancement and DICOM 3.0 with WiFi."
+    ],
+    "valor_es": "Un ecógrafo compacto con Doppler completo y herramientas avanzadas de imagen, respaldado por dos años de garantía.",
+    "valor_en": "A compact ultrasound with full Doppler and advanced imaging tools, backed by a two-year warranty.",
+    "aplicaciones_es": [
+      "Diagnóstico por imagen"
+    ],
+    "aplicaciones_en": [
+      "Medical imaging"
+    ],
+    "faq_es": [
+      {
+        "q": "¿Qué transductores admite?",
+        "a": "Convexo 3C-A (1-7 MHz), lineal L741 (4-16 MHz), endocavitario 6V1 (3-15 MHz), microconvexo C613 (4-13 MHz) y phased array, según la ficha."
+      },
+      {
+        "q": "¿Tiene Doppler continuo?",
+        "a": "Sí, incluye Doppler pulsado (PW) y continuo (CW), además de color y de potencia."
+      },
+      {
+        "q": "¿Qué garantía tiene?",
+        "a": "Dos años de garantía del fabricante."
+      },
+      {
+        "q": "¿Dónde obtengo la ficha técnica?",
+        "a": "Descargue el PDF oficial de Advanced Instrumentations en esta landing (modelo DUS-5000-PLUS)."
+      },
+      {
+        "q": "¿Cómo solicito cotización a IME?",
+        "a": "Indique el modelo exacto (DUS-5000-PLUS), el área clínica y las aplicaciones previstas (Diagnóstico por imagen); IME confirma disponibilidad, ficha técnica y condiciones en Colombia."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Which transducers does it support?",
+        "a": "Convex 3C-A (1-7 MHz), linear L741 (4-16 MHz), endocavity 6V1 (3-15 MHz), micro-convex C613 (4-13 MHz) and phased array, per the datasheet."
+      },
+      {
+        "q": "Does it have continuous-wave Doppler?",
+        "a": "Yes, it includes pulsed (PW) and continuous (CW) Doppler, plus colour and power."
+      },
+      {
+        "q": "What warranty does it have?",
+        "a": "Two-year manufacturer warranty."
+      },
+      {
+        "q": "Where is the datasheet?",
+        "a": "Download the official Advanced Instrumentations PDF on this page (model DUS-5000-PLUS)."
+      },
+      {
+        "q": "How do I get a quote?",
+        "a": "Provide exact model (DUS-5000-PLUS), clinical area and intended applications (Medical imaging); IME confirms availability, datasheet and terms in Colombia."
+      }
+    ],
+    "seo_title": "Ecógrafo Portátil con WiFi y DICOM DUS-5000-PLUS | Advanced Instrumentations | IME Colombia",
+    "seo_meta_description": "Sistema de Ultrasonido DUS-5000 Plus (DUS-5000-PLUS) Advanced Instrumentations en catálogo IME. Sistema de ultrasonido digital compacto Plus con Doppler color Ficha técnica PDF y cotización para instituciones de salud.",
+    "seo_keywords_es": [
+      "ecógrafo portátil Doppler",
+      "ecógrafo DUS-5000 Plus",
+      "ultrasonido con Doppler continuo",
+      "ecógrafo Advanced",
+      "ecografía Colombia",
+      "ficha técnica DUS-5000 Plus",
+      "Sistema de ultrasonido DUS-5000 Plus",
+      "Sistema de ultrasonido DUS-5000 Plus Advanced Instrumentations",
+      "ficha técnica DUS-5000-PLUS",
+      "DUS-5000-PLUS Colombia"
+    ],
+    "seo_keywords_en": [
+      "portable Doppler ultrasound",
+      "DUS-5000 Plus ultrasound",
+      "ultrasound with continuous Doppler",
+      "Advanced ultrasound",
+      "ultrasound Colombia",
+      "DUS-5000 Plus datasheet",
+      "DUS-5000 Plus ultrasound system",
+      "DUS-5000 Plus ultrasound system Advanced Instrumentations",
+      "DUS-5000-PLUS datasheet",
+      "DUS-5000-PLUS Colombia"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "DUS-5000 Plus"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Modos",
+        "clave": "Modos de imagen",
+        "valor": "B, THI, PHI, CFM, PDI, DPDI, TDI, PW, CW, M, Color M, M anatómico"
+      },
+      {
+        "grupo": "Funciones",
+        "clave": "Funciones",
+        "valor": "Imagen compuesta espacial, panorámica en tiempo real, IMT automático, guía de biopsia"
+      },
+      {
+        "grupo": "Conectividad",
+        "clave": "DICOM",
+        "valor": "DICOM 3.0 con WiFi"
+      },
+      {
+        "grupo": "Normativa",
+        "clave": "Cumplimiento",
+        "valor": "ISO 13485"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ],
+    "atributos": {
+      "marca": "Advanced Instrumentations"
+    },
+    "append_descripcion": false
+  },
+  {
+    "slug": "ultrasonido-point-of-care-pocket",
+    "sku": "DUS-6000",
+    "marca": "Advanced Instrumentations",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/dus-6000.pdf",
+    "url_oficial": "https://www.i-me.com.co",
+    "fuentes": [
+      "Catálogo IME #1 2025 (PDF)",
+      "metadata.txt: /home/shoky/Desktop/MDs/CAT/Productos/DUS-6000_Sistema_de_Ultrasonido_Versátil_DUS-6000/metadata.txt"
+    ],
+    "descripcion_larga_es": "El Sistema de ultrasonido versátil DUS-6000 de Advanced Instrumentations está en el catálogo IME Colombia con ficha técnica PDF oficial descargable en esta landing.\n\nEl DUS-6000 es un ecógrafo versátil y portátil con pantalla TFT-LCD de 12.1\", teclado alfanumérico plegable con trackball, dos puertos de transductor, imagen armónica de tejido (THI/TSI), Doppler pulsado (PW) y modos B, 2B, 4B, B+M, M y PW. Incorpora paquetes de medición y cálculo, cine bidireccional, archivo en disco local o removible, batería recargable y puerto DICOM 3.0.\n\nSegún la ficha técnica Advanced (dus-6000.pdf): Pantalla: TFT-LCD de 12.1\", 256 niveles de gris; Frecuencia / puertos: 2.0 - 10.0 MHz; 2 puertos; Modos: B, 2B, 4B, B+M, M, PW; Puertos: 2 USB, red DICOM 3.0, salida VGA y de video.\n\nModelo / SKU: DUS-6000. Use la ficha PDF del fabricante para validar parámetros, accesorios y normativa antes de cotizar; IME apoya compras de equipos médicos en Colombia.",
+    "descripcion_larga_en": "The DUS-6000 versatile ultrasound system from Advanced Instrumentations is listed in the IME Colombia catalog with an official manufacturer PDF datasheet available on this page.\n\nThe DUS-6000 is a versatile portable ultrasound with a 12.1\" TFT-LCD, folding alphanumeric keyboard with trackball, two transducer ports, tissue harmonic imaging (THI/TSI), pulsed-wave Doppler (PW) and B, 2B, 4B, B+M, M and PW modes. It includes measurement and calculation packages, bidirectional cine, storage on local or removable disk, a rechargeable battery and a DICOM 3.0 port.\n\nModel / SKU: DUS-6000. Use the manufacturer PDF to validate parameters, accessories and compliance before quoting; IME supports medical equipment procurement in Colombia.",
+    "beneficios_es": [
+      "Pantalla de 12.1\" con teclado plegable y trackball en un equipo portátil.",
+      "Imagen armónica de tejido y Doppler pulsado, con paquetes de medición y cálculo.",
+      "Transductores convexo, lineal, transvaginal, endorrectal y microconvexo; DICOM 3.0."
+    ],
+    "beneficios_en": [
+      "12.1\" screen with folding keyboard and trackball in a portable unit.",
+      "Tissue harmonic imaging and pulsed Doppler, with measurement and calculation packages.",
+      "Convex, linear, transvaginal, endorectal and micro-convex transducers; DICOM 3.0."
+    ],
+    "valor_es": "Un ecógrafo portátil versátil con Doppler pulsado y conectividad DICOM, con dos años de garantía.",
+    "valor_en": "A versatile portable ultrasound with pulsed Doppler and DICOM connectivity, with a two-year warranty.",
+    "aplicaciones_es": [
+      "Diagnóstico por imagen"
+    ],
+    "aplicaciones_en": [
+      "Medical imaging"
+    ],
+    "faq_es": [
+      {
+        "q": "¿Qué tamaño de pantalla tiene?",
+        "a": "TFT-LCD de 12.1\" con 256 niveles de gris, según la ficha."
+      },
+      {
+        "q": "¿Qué rango de frecuencia de transductor maneja?",
+        "a": "La ficha indica 2.0-10.0 MHz."
+      },
+      {
+        "q": "¿Incluye Doppler?",
+        "a": "Incluye Doppler pulsado (PW)."
+      },
+      {
+        "q": "¿Dónde obtengo la ficha técnica?",
+        "a": "Descargue el PDF oficial de Advanced Instrumentations en esta landing (modelo DUS-6000)."
+      },
+      {
+        "q": "¿Cómo solicito cotización a IME?",
+        "a": "Indique el modelo exacto (DUS-6000), el área clínica y las aplicaciones previstas (Diagnóstico por imagen); IME confirma disponibilidad, ficha técnica y condiciones en Colombia."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What screen size does it have?",
+        "a": "12.1\" TFT-LCD with 256 gray levels, per the datasheet."
+      },
+      {
+        "q": "What transducer frequency range does it handle?",
+        "a": "The datasheet states 2.0-10.0 MHz."
+      },
+      {
+        "q": "Does it include Doppler?",
+        "a": "It includes pulsed-wave (PW) Doppler."
+      },
+      {
+        "q": "Where is the datasheet?",
+        "a": "Download the official Advanced Instrumentations PDF on this page (model DUS-6000)."
+      },
+      {
+        "q": "How do I get a quote?",
+        "a": "Provide exact model (DUS-6000), clinical area and intended applications (Medical imaging); IME confirms availability, datasheet and terms in Colombia."
+      }
+    ],
+    "seo_title": "Ultrasonido Point-of-Care Pocket DUS-6000 | Advanced Instrumentations | IME Colombia",
+    "seo_meta_description": "Sistema de Ultrasonido Versátil DUS-6000 (DUS-6000) Advanced Instrumentations en catálogo IME. Sistema de ultrasonido versátil portátil con teclado alfanumérico Ficha técnica PDF y cotización para instituciones de salud.",
+    "seo_keywords_es": [
+      "ecógrafo portátil",
+      "ecógrafo DUS-6000",
+      "ultrasonido portátil con Doppler pulsado",
+      "ecógrafo Advanced",
+      "ecografía Colombia",
+      "ficha técnica DUS-6000",
+      "Sistema de ultrasonido versátil DUS-6000",
+      "Sistema de ultrasonido versátil DUS-6000 Advanced Instrumentations",
+      "DUS-6000 Colombia",
+      "equipo médico IME"
+    ],
+    "seo_keywords_en": [
+      "portable ultrasound",
+      "DUS-6000 ultrasound",
+      "portable ultrasound with pulsed Doppler",
+      "Advanced ultrasound",
+      "ultrasound Colombia",
+      "DUS-6000 datasheet",
+      "DUS-6000 versatile ultrasound system",
+      "DUS-6000 versatile ultrasound system Advanced Instrumentations",
+      "DUS-6000 Colombia",
+      "IME medical equipment"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "DUS-6000"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Pantalla",
+        "clave": "Pantalla",
+        "valor": "TFT-LCD de 12.1\", 256 niveles de gris"
+      },
+      {
+        "grupo": "Transductores",
+        "clave": "Frecuencia / puertos",
+        "valor": "2.0 - 10.0 MHz; 2 puertos"
+      },
+      {
+        "grupo": "Modos",
+        "clave": "Modos",
+        "valor": "B, 2B, 4B, B+M, M, PW"
+      },
+      {
+        "grupo": "Conectividad",
+        "clave": "Puertos",
+        "valor": "2 USB, red DICOM 3.0, salida VGA y de video"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ],
+    "atributos": {
+      "marca": "Advanced Instrumentations"
+    },
+    "append_descripcion": false
+  },
+  {
+    "slug": "bomba-de-infusion-volumetrica-uci",
+    "sku": "IP-200",
+    "marca": "Advanced Instrumentations",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/ip-200-spa.pdf",
+    "url_oficial": "https://www.i-me.com.co",
+    "fuentes": [
+      "Catálogo IME #1 2025 (PDF)",
+      "metadata.txt: /home/shoky/Desktop/MDs/CAT/Productos/IP-200_Bomba_de_Infusión_IP-200/metadata.txt"
+    ],
+    "descripcion_larga_es": "El Bomba de infusión IP-200 de Advanced Instrumentations está en el catálogo IME Colombia con ficha técnica PDF oficial descargable en esta landing.\n\nLa bomba de infusión Advanced IP-200 es una bomba volumétrica y de goteo compacta con pantalla táctil TFT de 4\", puerta motorizada con diseño de clip antifugas, caudal de 0.01 a 1200 ml/h, VTBI de 0.01 a 9999 ml y KVO ajustable. Registra más de 4000 eventos, incluye biblioteca de fármacos, alarma de oclusión en cuatro niveles, detección de presión aguas arriba y batería recargable de unas 9 horas a 25 ml/h.\n\nSegún la ficha técnica Advanced (ip-200-spa.pdf): Caudal: 0.01 - 1200 ml/h; VTBI: 0.01 - 9999 ml; Pantalla: Táctil TFT de 4\"; Alimentación: AC 220-230 V, 50-60 Hz; batería de litio ~9 h a 25 ml/h.\n\nModelo / SKU: IP-200. Use la ficha PDF del fabricante para validar parámetros, accesorios y normativa antes de cotizar; IME apoya compras de equipos médicos en Colombia.",
+    "descripcion_larga_en": "The IP-200 infusion pump from Advanced Instrumentations is listed in the IME Colombia catalog with an official manufacturer PDF datasheet available on this page.\n\nThe Advanced IP-200 infusion pump is a compact volumetric and drip pump with a 4\" TFT touchscreen, a motorized door with leak-proof clip design, flow rate from 0.01 to 1200 ml/h, VTBI from 0.01 to 9999 ml and adjustable KVO. It logs 4000+ records, includes a drug library, four-level occlusion alarm, upstream pressure detection and a rechargeable battery of about 9 hours at 25 ml/h.\n\nModel / SKU: IP-200. Use the manufacturer PDF to validate parameters, accessories and compliance before quoting; IME supports medical equipment procurement in Colombia.",
+    "beneficios_es": [
+      "Pantalla táctil de 4\" y puerta motorizada con clip antifugas.",
+      "Caudal 0.01 - 1200 ml/h, VTBI hasta 9999 ml, bolo manual y automático.",
+      "Biblioteca de fármacos, historial de 4000+ registros y alarma de oclusión en cuatro niveles."
+    ],
+    "beneficios_en": [
+      "4\" touchscreen and motorized door with leak-proof clip.",
+      "Flow rate 0.01 - 1200 ml/h, VTBI up to 9999 ml, manual and automatic bolus.",
+      "Drug library, 4000+ record history and four-level occlusion alarm."
+    ],
+    "valor_es": "Una bomba de infusión compacta con biblioteca de fármacos, historial y batería de unas 9 horas, con dos años de garantía.",
+    "valor_en": "A compact infusion pump with drug library, history log and a battery of about 9 hours, with a two-year warranty.",
+    "aplicaciones_es": [
+      "Medicina",
+      "Pediatría",
+      "Ginecología",
+      "Oncología",
+      "Neurología",
+      "UCI",
+      "CCU"
+    ],
+    "aplicaciones_en": [
+      "Medicine",
+      "Pediatrics",
+      "Gynecology",
+      "Oncology",
+      "Neurology",
+      "ICU",
+      "CCU"
+    ],
+    "faq_es": [
+      {
+        "q": "¿Qué rango de caudal tiene?",
+        "a": "De 0.01 a 1200 ml/h, según la ficha técnica."
+      },
+      {
+        "q": "¿Cuánto dura la batería?",
+        "a": "9 horas a 25 ml/h; tiempo de carga inferior a 6 horas."
+      },
+      {
+        "q": "¿Qué protección tiene contra líquidos?",
+        "a": "Protección IP24 contra la humedad."
+      },
+      {
+        "q": "¿Dónde obtengo la ficha técnica?",
+        "a": "Descargue el PDF oficial de Advanced Instrumentations en esta landing (modelo IP-200)."
+      },
+      {
+        "q": "¿Cómo solicito cotización a IME?",
+        "a": "Indique el modelo exacto (IP-200), el área clínica y las aplicaciones previstas (Medicina; Pediatría; Ginecología; Oncología; Neurología; UCI; CCU); IME confirma disponibilidad, ficha técnica y condiciones en Colombia."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What flow range does it have?",
+        "a": "From 0.01 to 1200 ml/h, per the datasheet."
+      },
+      {
+        "q": "How long does the battery last?",
+        "a": "9 hours at 25 ml/h; charging time under 6 hours."
+      },
+      {
+        "q": "What liquid protection does it have?",
+        "a": "IP24 moisture protection."
+      },
+      {
+        "q": "Where is the datasheet?",
+        "a": "Download the official Advanced Instrumentations PDF on this page (model IP-200)."
+      },
+      {
+        "q": "How do I get a quote?",
+        "a": "Provide exact model (IP-200), clinical area and intended applications (Medicine; Pediatrics; Gynecology; Oncology; Neurology; ICU; CCU); IME confirms availability, datasheet and terms in Colombia."
+      }
+    ],
+    "seo_title": "Bomba de Infusión Volumétrica UCI IP-200 | Advanced Instrumentations | IME Colombia",
+    "seo_meta_description": "Bomba de Infusión IP-200 (IP-200) Advanced Instrumentations en catálogo IME. Bomba de infusión de volumen y goteo compacta Ficha técnica PDF y cotización para instituciones de salud.",
+    "seo_keywords_es": [
+      "bomba de infusión",
+      "bomba de infusión IP-200",
+      "bomba volumétrica",
+      "bomba de infusión Advanced",
+      "bomba de infusión Colombia",
+      "ficha técnica IP-200",
+      "Bomba de infusión IP-200 Advanced Instrumentations",
+      "IP-200 Colombia",
+      "equipo médico IME",
+      "Advanced Instrumentations Colombia"
+    ],
+    "seo_keywords_en": [
+      "infusion pump",
+      "IP-200 infusion pump",
+      "volumetric pump",
+      "Advanced infusion pump",
+      "infusion pump Colombia",
+      "IP-200 datasheet",
+      "IP-200 infusion pump Advanced Instrumentations",
+      "IP-200 Colombia",
+      "IME medical equipment",
+      "Advanced Instrumentations Colombia"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "IP-200"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Infusión",
+        "clave": "Caudal",
+        "valor": "0.01 - 1200 ml/h"
+      },
+      {
+        "grupo": "Infusión",
+        "clave": "VTBI",
+        "valor": "0.01 - 9999 ml"
+      },
+      {
+        "grupo": "Pantalla",
+        "clave": "Pantalla",
+        "valor": "Táctil TFT de 4\""
+      },
+      {
+        "grupo": "Eléctrico",
+        "clave": "Alimentación",
+        "valor": "AC 220-230 V, 50-60 Hz; batería de litio ~9 h a 25 ml/h"
+      },
+      {
+        "grupo": "Protección",
+        "clave": "Protección",
+        "valor": "IP24"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ],
+    "atributos": {
+      "marca": "Advanced Instrumentations"
+    },
+    "append_descripcion": false
+  },
+  {
+    "slug": "camilla-hospitalaria-electrica-articulable",
+    "sku": "B-1000-PRO",
+    "marca": "Advanced Instrumentations",
+    "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/b-1000-pro-esp.pdf",
+    "url_oficial": "https://www.i-me.com.co",
+    "fuentes": [
+      "Catálogo IME #1 2025 (PDF)",
+      "metadata.txt: /home/shoky/Desktop/MDs/CAT/Productos/B-1000-PRO_Cama_Hospitalaria_Eléctrica_B-1000_Pro/metadata.txt"
+    ],
+    "descripcion_larga_es": "El Cama hospitalaria eléctrica B-1000 Pro de Advanced Instrumentations está en el catálogo IME Colombia con ficha técnica PDF oficial descargable en esta landing.\n\nLa cama eléctrica Advanced B-1000 Pro está diseñada para pacientes hospitalizados y personas que requieren atención médica, con ocho funciones motorizadas, estructura de acero, barandas plegables de plástico con resorte de gas y batería de respaldo. Incluye teclados táctiles para paciente y enfermería, función CPR de reinicio a posición plana y baja, indicadores de ángulo y atril de suero ajustable.\n\nSegún la ficha técnica Advanced (b-1000-pro-esp.pdf): Funciones motorizadas: 8; Dimensiones totales: 2133 mm x 1041 mm (84\" x 41\"); Superficie de cama: 1930 mm x 889 mm (76\" x 35\"); Alimentación: AC 100/240 V, 50/60 Hz; batería de respaldo.\n\nModelo / SKU: B-1000-PRO. Use la ficha PDF del fabricante para validar parámetros, accesorios y normativa antes de cotizar; IME apoya compras de equipos médicos en Colombia.",
+    "descripcion_larga_en": "The B-1000 Pro electric hospital bed from Advanced Instrumentations is listed in the IME Colombia catalog with an official manufacturer PDF datasheet available on this page.\n\nThe Advanced B-1000 Pro electric bed is designed for hospitalized patients and people who need medical care, with eight motorized functions, a steel frame, folding plastic side rails with gas springs and a backup battery. It includes touch keypads for patient and nursing staff, a CPR reset function to a flat low position, angle indicators and an adjustable IV pole.\n\nModel / SKU: B-1000-PRO. Use the manufacturer PDF to validate parameters, accessories and compliance before quoting; IME supports medical equipment procurement in Colombia.",
+    "beneficios_es": [
+      "Ocho funciones: cama arriba/abajo, espaldar, piernas, movimiento conjunto, Trendelenburg e inverso y reinicio a posición plana y baja.",
+      "Controles para el paciente en ambas barandas frontales y para la enfermera en el panel de los pies.",
+      "Batería de respaldo incorporada, freno central y cuatro receptáculos para atril de suero."
+    ],
+    "beneficios_en": [
+      "Eight functions: bed up/down, backrest, leg section, combined movement, Trendelenburg and reverse, and reset to flat low position.",
+      "Patient controls on both front rails and nurse control on the foot panel.",
+      "Built-in backup battery, central brake and four IV pole receptacles."
+    ],
+    "valor_es": "Una cama eléctrica de ocho funciones con batería de respaldo y control dual para paciente y personal, con dos años de garantía.",
+    "valor_en": "An eight-function electric bed with backup battery and dual patient/staff control, with a two-year warranty.",
+    "aplicaciones_es": [
+      "Hospitalización",
+      "Cuidados médicos"
+    ],
+    "aplicaciones_en": [
+      "Inpatient care",
+      "Medical care"
+    ],
+    "faq_es": [
+      {
+        "q": "¿Cuántas funciones motorizadas tiene?",
+        "a": "Ocho funciones, según la ficha del fabricante."
+      },
+      {
+        "q": "¿Tiene batería de respaldo?",
+        "a": "Sí, incorpora batería de respaldo y funciona con AC 100/240 V."
+      },
+      {
+        "q": "¿Qué dimensiones tiene?",
+        "a": "Dimensiones totales de 84\" x 41\" (2133 mm x 1041 mm); superficie de cama de 76\" x 35\" (1930 mm x 889 mm)."
+      },
+      {
+        "q": "¿Dónde obtengo la ficha técnica?",
+        "a": "Descargue el PDF oficial de Advanced Instrumentations en esta landing (modelo B-1000-PRO)."
+      },
+      {
+        "q": "¿Cómo solicito cotización a IME?",
+        "a": "Indique el modelo exacto (B-1000-PRO), el área clínica y las aplicaciones previstas (Hospitalización; Cuidados médicos); IME confirma disponibilidad, ficha técnica y condiciones en Colombia."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "How many motorized functions does it have?",
+        "a": "Eight functions, according to the manufacturer datasheet."
+      },
+      {
+        "q": "Does it have a backup battery?",
+        "a": "Yes, it includes a backup battery and runs on AC 100/240 V."
+      },
+      {
+        "q": "What are its dimensions?",
+        "a": "Overall 84\" x 41\" (2133 mm x 1041 mm); bed surface 76\" x 35\" (1930 mm x 889 mm)."
+      },
+      {
+        "q": "Where is the datasheet?",
+        "a": "Download the official Advanced Instrumentations PDF on this page (model B-1000-PRO)."
+      },
+      {
+        "q": "How do I get a quote?",
+        "a": "Provide exact model (B-1000-PRO), clinical area and intended applications (Inpatient care; Medical care); IME confirms availability, datasheet and terms in Colombia."
+      }
+    ],
+    "seo_title": "Camilla Hospitalaria Eléctrica Articulable B-1000-PRO | Advanced Instrumentations | IME Colombia",
+    "seo_meta_description": "Cama Hospitalaria Eléctrica B-1000 Pro (B-1000-PRO) Advanced Instrumentations en catálogo IME. Cama hospitalaria eléctrica para pacientes hospitalizados Ficha técnica PDF y cotización para instituciones de salud.",
+    "seo_keywords_es": [
+      "cama hospitalaria eléctrica",
+      "cama eléctrica B-1000 Pro",
+      "cama de hospital 8 funciones",
+      "cama hospitalaria Advanced",
+      "cama hospitalaria Colombia",
+      "ficha técnica B-1000 Pro",
+      "Cama hospitalaria eléctrica B-1000 Pro",
+      "Cama hospitalaria eléctrica B-1000 Pro Advanced Instrumentations",
+      "ficha técnica B-1000-PRO",
+      "B-1000-PRO Colombia"
+    ],
+    "seo_keywords_en": [
+      "electric hospital bed",
+      "B-1000 Pro electric bed",
+      "8-function hospital bed",
+      "Advanced hospital bed",
+      "hospital bed Colombia",
+      "B-1000 Pro datasheet",
+      "B-1000 Pro electric hospital bed",
+      "B-1000 Pro electric hospital bed Advanced Instrumentations",
+      "B-1000-PRO datasheet",
+      "B-1000-PRO Colombia"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Identificación",
+        "clave": "Modelo",
+        "valor": "B-1000 Pro"
+      },
+      {
+        "grupo": "Identificación",
+        "clave": "Fabricante",
+        "valor": "Advanced Instrumentations Inc."
+      },
+      {
+        "grupo": "Funciones",
+        "clave": "Funciones motorizadas",
+        "valor": "8"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Dimensiones totales",
+        "valor": "2133 mm x 1041 mm (84\" x 41\")"
+      },
+      {
+        "grupo": "Dimensiones",
+        "clave": "Superficie de cama",
+        "valor": "1930 mm x 889 mm (76\" x 35\")"
+      },
+      {
+        "grupo": "Eléctrico",
+        "clave": "Alimentación",
+        "valor": "AC 100/240 V, 50/60 Hz; batería de respaldo"
+      },
+      {
+        "grupo": "Garantía",
+        "clave": "Garantía del fabricante",
+        "valor": "2 años"
+      }
+    ],
+    "atributos": {
+      "marca": "Advanced Instrumentations"
+    },
+    "append_descripcion": false
+  }
+]
