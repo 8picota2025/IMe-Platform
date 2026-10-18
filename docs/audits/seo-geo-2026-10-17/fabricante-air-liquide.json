@@ -1,0 +1,24 @@
+{
+  "fabricante": "Air Liquide",
+  "generado": "2026-10-17T21:39:02.378Z",
+  "total": 1,
+  "con_ficha": 0,
+  "sin_ficha": 1,
+  "imgs_ge_3": 1,
+  "productos": [
+    {
+      "id": "6eb9126d-3a7f-43ff-a96c-191a3af32140",
+      "slug": "ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide",
+      "nombre": "ESPECIFICACIONES VENTILADOR DE CUIDADOS  INTENSIVOS MONNAL T75",
+      "fabricante": "Air Liquide",
+      "categoria": "ventiladores",
+      "tiene_precio": false,
+      "precio": null,
+      "tiene_ficha": false,
+      "ficha_pdf": "/assets/productos/importados/ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide/ficha-ventilador-cuidado-intensivo-adulto-pediatrico-monnal-ref-t75-air-liquide.pdf",
+      "imagenes": 5,
+      "estado": "documentado",
+      "actualizado": "2026-10-17"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "fabricante": "C3",
+  "generado": "2026-10-17T21:39:02.378Z",
+  "total": 1,
+  "con_ficha": 0,
+  "sin_ficha": 1,
+  "imgs_ge_3": 1,
+  "productos": [
+    {
+      "id": "9f7f8781-1fda-40d7-bb1c-0def7e7156e6",
+      "slug": "c3-robot-limpieza-autonoma-ref-c3-cleaning-robot",
+      "nombre": "C3 Robot de Limpieza Autónoma",
+      "fabricante": "C3",
+      "categoria": "robots",
+      "tiene_precio": false,
+      "precio": null,
+      "tiene_ficha": false,
+      "ficha_pdf": "/assets/productos/importados/c3-robot-limpieza-autonoma/ficha-c3-robot-limpieza-autonoma.pdf",
+      "imagenes": 4,
+      "estado": "documentado",
+      "actualizado": "2026-10-17"
+    }
+  ]
+}

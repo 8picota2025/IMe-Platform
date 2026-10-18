@@ -1,0 +1,24 @@
+{
+  "fabricante": "SUNNYMED",
+  "generado": "2026-10-17T21:39:02.378Z",
+  "total": 1,
+  "con_ficha": 0,
+  "sin_ficha": 1,
+  "imgs_ge_3": 1,
+  "productos": [
+    {
+      "id": "d2ff9c7c-ad3a-4d9b-bf40-6507370e5072",
+      "slug": "analizador-bioquimico-semiautomatico-sunnymed-ref-sy-b010-sunny",
+      "nombre": "Analizador bioquímico semiautomático SUNNYMED SY-B010",
+      "fabricante": "SUNNYMED",
+      "categoria": "diagnostico-clinico-basico",
+      "tiene_precio": false,
+      "precio": null,
+      "tiene_ficha": false,
+      "ficha_pdf": "/assets/productos/bioquimica/sunnymed-sy-b010/ficha-tecnica.pdf",
+      "imagenes": 3,
+      "estado": "documentado",
+      "actualizado": "2026-10-17"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "fabricante": "Rayto",
+  "generado": "2026-10-17T21:39:02.378Z",
+  "total": 1,
+  "con_ficha": 0,
+  "sin_ficha": 1,
+  "imgs_ge_3": 1,
+  "productos": [
+    {
+      "id": "74f21d04-d798-4fce-91e9-c40312f8b6f0",
+      "slug": "analizador-bioquimico-semiautomatico-rayto-ref-rt-1904c-rayto",
+      "nombre": "Analizador bioquímico semiautomático Rayto RT-1904C",
+      "fabricante": "Rayto",
+      "categoria": "diagnostico-clinico-basico",
+      "tiene_precio": false,
+      "precio": null,
+      "tiene_ficha": false,
+      "ficha_pdf": "/assets/productos/bioquimica/rayto-rt-1904c/ficha-tecnica.pdf",
+      "imagenes": 5,
+      "estado": "documentado",
+      "actualizado": "2026-10-17"
+    }
+  ]
+}

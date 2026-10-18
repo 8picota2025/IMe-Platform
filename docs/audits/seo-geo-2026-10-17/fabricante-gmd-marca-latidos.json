@@ -1,0 +1,24 @@
+{
+  "fabricante": "GMD (marca Latidos)",
+  "generado": "2026-10-17T21:39:02.378Z",
+  "total": 1,
+  "con_ficha": 1,
+  "sin_ficha": 0,
+  "imgs_ge_3": 1,
+  "productos": [
+    {
+      "id": "f5d31130-2a10-48f6-8d40-3fa049b3c45b",
+      "slug": "kit-de-glucometria-basic-latidos-ref-ltd-b10-k",
+      "nombre": "Kit de Glucometría Basic Latidos",
+      "fabricante": "GMD (marca Latidos)",
+      "categoria": "diagnostico-clinico-basico",
+      "tiene_precio": false,
+      "precio": null,
+      "tiene_ficha": true,
+      "ficha_pdf": "/assets/productos/fichas/gmd-latidos/ltd-b10-k-ft.pdf",
+      "imagenes": 4,
+      "estado": "documentado",
+      "actualizado": "2026-10-17"
+    }
+  ]
+}

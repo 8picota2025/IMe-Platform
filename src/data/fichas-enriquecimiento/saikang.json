@@ -17,30 +17,38 @@
     "valor_en": "A 200 kg electric paediatric bed with washable platform and protected rails, per the official Saikang datasheet.",
     "faq_es": [
       {
-        "q": "¿Qué carga soporta?",
-        "a": "La carga máxima admisible es de 200 kg."
+        "q": "¿Qué cama pediátrica eléctrica hospitalaria usar en unidades infantiles?",
+        "a": "La Saikang CQ8k es una cama pediátrica eléctrica de cinco funciones con dos motores lineales, pensada para hospitalización infantil según su ficha oficial."
       },
       {
-        "q": "¿Qué ajustes tiene?",
-        "a": "Respaldo 0-75°, piernas 0-35°, Trendelenburg 0-12° e inverso 0-12°, además de altura."
+        "q": "¿Qué carga máxima admite una cama pediátrica Saikang CQ8k?",
+        "a": "La carga máxima admisible es de 200 kg, documentada en la ficha técnica Saikang."
       },
       {
-        "q": "¿Qué opcionales ofrece?",
-        "a": "Barra con triángulo de Balkan y ruedas direccionales."
+        "q": "¿Cómo se ajustan altura, respaldo y Trendelenburg en la CQ8k?",
+        "a": "Altura 480-770 mm, respaldo 0-75°, piernas 0-35°, Trendelenburg e inverso 0-12°, según la ficha Saikang."
+      },
+      {
+        "q": "¿Qué accesorios opcionales pedir para pediatría en la CQ8k?",
+        "a": "Barra con triángulo de Balkan y ruedas direccionales; de serie incluye soporte de suero y ganchos de drenaje, según ficha."
       }
     ],
     "faq_en": [
       {
-        "q": "What load does it support?",
-        "a": "The maximum permissible load is 200 kg."
+        "q": "Which electric pediatric hospital bed for children’s wards?",
+        "a": "The Saikang CQ8k is a five-function electric pediatric bed with two linear motors for pediatric inpatient use, per its official datasheet."
       },
       {
-        "q": "Which adjustments does it have?",
-        "a": "Backrest 0-75°, legs 0-35°, Trendelenburg 0-12° and reverse 0-12°, plus height."
+        "q": "What max load does the Saikang CQ8k pediatric bed support?",
+        "a": "Maximum permissible load is 200 kg, documented in the Saikang datasheet."
       },
       {
-        "q": "Which options does it offer?",
-        "a": "Balkan frame and directional casters."
+        "q": "How do height, backrest and Trendelenburg adjust on the CQ8k?",
+        "a": "Height 480-770 mm, backrest 0-75°, legs 0-35°, Trendelenburg and reverse 0-12°, per the Saikang datasheet."
+      },
+      {
+        "q": "Which optional accessories for pediatric use on the CQ8k?",
+        "a": "Balkan frame and directional casters; IV pole and drainage hooks are standard, per the datasheet."
       }
     ],
     "seo_keywords_es": [
@@ -125,30 +133,30 @@
     "valor_en": "A neonatal crib with sterilisable acrylic bassinet and stainless-steel frame, per the official Saikang datasheet.",
     "faq_es": [
       {
-        "q": "¿Qué dimensiones tiene?",
-        "a": "810 x 490 x 960 mm."
+        "q": "¿Qué dimensiones externas y de plataforma tiene la Saikang SK-A3-X01?",
+        "a": "810 x 490 x 960 mm, según la ficha Saikang."
       },
       {
-        "q": "¿Se puede esterilizar el lavabo?",
+        "q": "¿Se puede esterilizar el lavabo según ficha Saikang?",
         "a": "Sí, la ficha indica que soporta esterilización a temperaturas superiores a 100 °C."
       },
       {
-        "q": "¿Incluye porta suero?",
-        "a": "Sí, de acero inoxidable con capacidad de carga de 15 kg."
+        "q": "¿Incluye porta suero según ficha Saikang?",
+        "a": "Sí, de acero inoxidable con capacidad de carga de 15 kg, según la ficha Saikang."
       }
     ],
     "faq_en": [
       {
-        "q": "What are its dimensions?",
-        "a": "810 x 490 x 960 mm."
+        "q": "What external and platform dimensions does Saikang SK-A3-X01 have?",
+        "a": "810 x 490 x 960 mm, per the Saikang datasheet."
       },
       {
-        "q": "Can the bassinet be sterilised?",
+        "q": "Can the bassinet be sterilised per Saikang datasheet?",
         "a": "Yes, the datasheet states it withstands sterilisation above 100 °C."
       },
       {
-        "q": "Does it include an IV pole?",
-        "a": "Yes, stainless steel with a 15 kg load capacity."
+        "q": "Does it include an IV pole per Saikang datasheet?",
+        "a": "Yes, stainless steel with a 15 kg load capacity, per the Saikang datasheet."
       }
     ],
     "seo_keywords_es": [
@@ -223,30 +231,30 @@
     "valor_en": "A light aluminium ambulance stretcher with belts and IV pole, per the Saikang datasheet.",
     "faq_es": [
       {
-        "q": "¿Qué capacidad tiene?",
-        "a": "Hasta 160 kg."
+        "q": "¿Qué capacidad tiene según ficha Saikang?",
+        "a": "Hasta 160 kg, según la ficha Saikang."
       },
       {
-        "q": "¿Cuánto reclina el respaldo?",
-        "a": "De 0 a 70°."
+        "q": "¿Cuánto reclina el respaldo según ficha Saikang?",
+        "a": "De 0 a 70°, según la ficha Saikang."
       },
       {
-        "q": "¿De qué material es la estructura?",
-        "a": "Aleación de aluminio de alta calidad."
+        "q": "¿Qué materiales documenta la ficha Saikang de SKC-3B5-SKB039D para limpieza hospitalaria?",
+        "a": "Aleación de aluminio de alta calidad, según la ficha Saikang."
       }
     ],
     "faq_en": [
       {
-        "q": "What capacity does it have?",
-        "a": "Up to 160 kg."
+        "q": "What capacity does it have per Saikang datasheet?",
+        "a": "Up to 160 kg, per the Saikang datasheet."
       },
       {
-        "q": "How far does the backrest recline?",
-        "a": "From 0 to 70°."
+        "q": "How far does the backrest recline per Saikang datasheet?",
+        "a": "From 0 to 70°, per the Saikang datasheet."
       },
       {
-        "q": "What is the structure made of?",
-        "a": "High-quality aluminium alloy."
+        "q": "What is the structure made of per Saikang datasheet?",
+        "a": "High-quality aluminium alloy, per the Saikang datasheet."
       }
     ],
     "seo_keywords_es": [
@@ -326,30 +334,30 @@
     "valor_en": "A three-crank manual trolley with oxygen holder and X-ray-friendly surface, per the Saikang datasheet.",
     "faq_es": [
       {
-        "q": "¿Qué carga segura tiene?",
-        "a": "200 kg."
+        "q": "¿Qué camilla hospitalaria usar cuando necesito rayos X en piso?",
+        "a": "La Saikang SKB037(C) tiene superficie de tablero fenólico compacto más delgada y fácil para radiografía, según su ficha oficial."
       },
       {
-        "q": "¿Cuál es su rango de altura?",
-        "a": "De 620 a 900 mm."
+        "q": "¿Qué carga segura y rango de altura tiene la camilla SKB037(C)?",
+        "a": "Carga segura de 200 kg y altura de 620 a 900 mm, según la ficha Saikang."
       },
       {
-        "q": "¿Es fácil de radiografiar?",
-        "a": "La ficha indica una superficie de tablero fenólico compacto más delgada y fácil para rayos X."
+        "q": "¿Cómo se operan respaldo y rodillas en la SKB037(C)?",
+        "a": "Con manivelas: la ficha documenta ajustes de respaldo y apoyo de rodillas junto con la altura."
       }
     ],
     "faq_en": [
       {
-        "q": "What safe working load does it have?",
-        "a": "200 kg."
+        "q": "Which hospital stretcher when floor X-ray access is needed?",
+        "a": "The Saikang SKB037(C) has a thinner compact phenolic board surface that is easier for radiography, per its official datasheet."
       },
       {
-        "q": "What is its height range?",
-        "a": "From 620 to 900 mm."
+        "q": "What safe working load and height range does the SKB037(C) have?",
+        "a": "Safe working load 200 kg and height 620 to 900 mm, per the Saikang datasheet."
       },
       {
-        "q": "Is it X-ray friendly?",
-        "a": "The datasheet states a thinner compact phenolic board surface that is easier for X-ray."
+        "q": "How are backrest and knee adjustments operated on the SKB037(C)?",
+        "a": "With cranks: the datasheet documents backrest and knee support adjustments together with height."
       }
     ],
     "seo_keywords_es": [
@@ -424,30 +432,30 @@
     "valor_en": "An organised anaesthesia trolley with drawers, central lock and sharps container, per the Saikang datasheet.",
     "faq_es": [
       {
-        "q": "¿Qué dimensiones tiene?",
-        "a": "620 x 475 x 945 mm (altura hasta el tablero)."
+        "q": "¿Qué dimensiones externas y de plataforma tiene la Saikang SKR-AT625-1?",
+        "a": "620 x 475 x 945 mm (altura hasta el tablero), según la ficha Saikang."
       },
       {
-        "q": "¿Cómo es su sistema de ruedas?",
-        "a": "Ruedas de 4\", dos con freno."
+        "q": "¿Cómo es su sistema de ruedas según ficha Saikang?",
+        "a": "Ruedas de 4\", dos con freno, según la ficha Saikang."
       },
       {
-        "q": "¿Incluye contenedor de cortopunzantes?",
-        "a": "Sí, un contenedor circular rotatorio de 3 L en el costado derecho."
+        "q": "¿Incluye contenedor de cortopunzantes según ficha Saikang?",
+        "a": "Sí, un contenedor circular rotatorio de 3 L en el costado derecho, según la ficha Saikang."
       }
     ],
     "faq_en": [
       {
-        "q": "What are its dimensions?",
-        "a": "620 x 475 x 945 mm (height to tabletop)."
+        "q": "What external and platform dimensions does Saikang SKR-AT625-1 have?",
+        "a": "620 x 475 x 945 mm (height to tabletop), per the Saikang datasheet."
       },
       {
-        "q": "What casters does it have?",
-        "a": "4-inch casters, two with brakes."
+        "q": "What casters does it have per Saikang datasheet?",
+        "a": "4-inch casters, two with brakes, per the Saikang datasheet."
       },
       {
-        "q": "Does it include a sharps container?",
-        "a": "Yes, a rotary circular 3 L container on the right side."
+        "q": "Does it include a sharps container per Saikang datasheet?",
+        "a": "Yes, a rotary circular 3 L container on the right side, per the Saikang datasheet."
       }
     ],
     "seo_keywords_es": [
@@ -522,30 +530,30 @@
     "valor_en": "A one-piece polyurethane waiting chair, easy to clean and long-lasting, per the Saikang datasheet.",
     "faq_es": [
       {
-        "q": "¿Qué medidas tiene la versión de tres plazas?",
-        "a": "1630 x 665 x 850 mm."
+        "q": "¿Qué medidas tiene la versión de tres plazas según ficha Saikang?",
+        "a": "1630 x 665 x 850 mm, según la ficha Saikang."
       },
       {
-        "q": "¿De qué está hecho el asiento?",
-        "a": "De poliuretano de alta densidad moldeado, con densidad ≥ 380 kg/m³."
+        "q": "¿De qué está hecho el asiento según ficha Saikang?",
+        "a": "De poliuretano de alta densidad moldeado, con densidad ≥ 380 kg/m³, según la ficha Saikang."
       },
       {
-        "q": "¿Cuánto pesa?",
-        "a": "52,5 kg la versión de tres plazas."
+        "q": "¿Cuánto pesa según ficha Saikang?",
+        "a": "52,5 kg la versión de tres plazas, según la ficha Saikang."
       }
     ],
     "faq_en": [
       {
-        "q": "What are the three-seater dimensions?",
-        "a": "1630 x 665 x 850 mm."
+        "q": "What external and platform dimensions does Saikang SKE011-1 have?",
+        "a": "1630 x 665 x 850 mm, per the Saikang datasheet."
       },
       {
-        "q": "What is the seat made of?",
-        "a": "Moulded high-density polyurethane, density ≥ 380 kg/m³."
+        "q": "What is the seat made of per Saikang datasheet?",
+        "a": "Moulded high-density polyurethane, density ≥ 380 kg/m³, per the Saikang datasheet."
       },
       {
-        "q": "How much does it weigh?",
-        "a": "52.5 kg for the three-seater."
+        "q": "How much does it weigh per Saikang datasheet?",
+        "a": "52.5 kg for the three-seater, per the Saikang datasheet."
       }
     ],
     "seo_keywords_es": [
@@ -620,30 +628,30 @@
     "valor_en": "A manual recliner for dialysis, blood collection and respiratory or cardiac care, per the Saikang datasheet.",
     "faq_es": [
       {
-        "q": "¿Para qué atenciones se usa?",
+        "q": "¿Para qué atenciones se usa según ficha Saikang?",
         "a": "La ficha lo propone para diálisis, toma de sangre y cuidados respiratorios y cardíacos."
       },
       {
-        "q": "¿Qué carga soporta?",
-        "a": "113 kg."
+        "q": "¿Qué carga máxima o segura documenta la ficha Saikang de SKE942?",
+        "a": "113 kg, según la ficha Saikang."
       },
       {
-        "q": "¿Qué colores tiene?",
-        "a": "Rojo, verde o azul como opción."
+        "q": "¿Qué colores tiene según ficha Saikang?",
+        "a": "Rojo, verde o azul como opción, según la ficha Saikang."
       }
     ],
     "faq_en": [
       {
-        "q": "Which care settings is it used for?",
+        "q": "Which care settings is it used for per Saikang datasheet?",
         "a": "The datasheet proposes it for dialysis, blood collection and respiratory and cardiac care."
       },
       {
-        "q": "What load does it support?",
-        "a": "113 kg."
+        "q": "What max or safe load does the Saikang SKE942 datasheet document?",
+        "a": "113 kg, per the Saikang datasheet."
       },
       {
-        "q": "Which colours are available?",
-        "a": "Red, green or blue as an option."
+        "q": "Which colours are available per Saikang datasheet?",
+        "a": "Red, green or blue as an option, per the Saikang datasheet."
       }
     ],
     "seo_keywords_es": [
@@ -718,29 +726,29 @@
     "valor_en": "A foldable 220 kg stretcher trolley for ambulance use, per the official Saikang datasheet.",
     "faq_es": [
       {
-        "q": "¿Qué capacidad tiene?",
-        "a": "Hasta 220 kg."
+        "q": "¿Qué capacidad tiene según ficha Saikang?",
+        "a": "Hasta 220 kg, según la ficha Saikang."
       },
       {
-        "q": "¿Qué alturas permite?",
-        "a": "Tres posiciones: 78, 87 y 91 cm."
+        "q": "¿Qué rango de altura tiene este equipo Saikang (SKB039-H) según ficha?",
+        "a": "Tres posiciones: 78, 87 y 91 cm, según la ficha Saikang."
       },
       {
-        "q": "¿Cuántas personas se necesitan para operarla?",
+        "q": "¿Cuántas personas se necesitan para operarla según ficha Saikang?",
         "a": "Una sola persona, según la ficha."
       }
     ],
     "faq_en": [
       {
-        "q": "What capacity does it have?",
-        "a": "Up to 220 kg."
+        "q": "What capacity does it have per Saikang datasheet?",
+        "a": "Up to 220 kg, per the Saikang datasheet."
       },
       {
-        "q": "Which heights does it allow?",
-        "a": "Three positions: 78, 87 and 91 cm."
+        "q": "What height range does Saikang SKB039-H list on the datasheet?",
+        "a": "Three positions: 78, 87 and 91 cm, per the Saikang datasheet."
       },
       {
-        "q": "How many people are needed to operate it?",
+        "q": "How many people are needed to operate it per Saikang datasheet?",
         "a": "One person, per the datasheet."
       }
     ],
@@ -816,30 +824,30 @@
     "valor_en": "A two-step stainless-steel stool with anti-slip base, per the Saikang datasheet.",
     "faq_es": [
       {
-        "q": "¿Qué medidas tiene?",
-        "a": "490 x 405 mm de superficie y 170 a 340 mm de altura."
+        "q": "¿Qué medidas tiene según ficha Saikang?",
+        "a": "490 x 405 mm de superficie y 170 a 340 mm de altura, según la ficha Saikang."
       },
       {
-        "q": "¿De qué material es?",
-        "a": "Estructura de acero inoxidable con superficie superior de ABS."
+        "q": "¿Qué materiales documenta la ficha Saikang de SKE020-1 para limpieza hospitalaria?",
+        "a": "Estructura de acero inoxidable con superficie superior de ABS, según la ficha Saikang."
       },
       {
-        "q": "¿Es antideslizante?",
-        "a": "Sí, incluye cuatro cubiertas antideslizantes para los pies."
+        "q": "¿Es antideslizante según ficha Saikang?",
+        "a": "Sí, incluye cuatro cubiertas antideslizantes para los pies, según la ficha Saikang."
       }
     ],
     "faq_en": [
       {
-        "q": "What are its dimensions?",
-        "a": "490 x 405 mm surface and 170 to 340 mm height."
+        "q": "What external and platform dimensions does Saikang SKE020-1 have?",
+        "a": "490 x 405 mm surface and 170 to 340 mm height, per the Saikang datasheet."
       },
       {
-        "q": "What is it made of?",
-        "a": "Stainless-steel frame with an ABS top surface."
+        "q": "What is it made of per Saikang datasheet?",
+        "a": "Stainless-steel frame with an ABS top surface, per the Saikang datasheet."
       },
       {
-        "q": "Is it anti-slip?",
-        "a": "Yes, it includes four anti-slip foot covers."
+        "q": "Is it anti-slip per Saikang datasheet?",
+        "a": "Yes, it includes four anti-slip foot covers, per the Saikang datasheet."
       }
     ],
     "seo_keywords_es": [
@@ -904,30 +912,30 @@
     "valor_en": "A foldable 159 kg soft stretcher with ten handles for rescue and transport, per the Saikang datasheet.",
     "faq_es": [
       {
-        "q": "¿Qué carga soporta?",
-        "a": "Hasta 159 kg."
+        "q": "¿Qué carga máxima o segura documenta la ficha Saikang de SKB3A104?",
+        "a": "Hasta 159 kg, según la ficha Saikang."
       },
       {
-        "q": "¿Cuánto mide plegada?",
-        "a": "500 x 270 mm."
+        "q": "¿Cuánto mide plegada según ficha Saikang?",
+        "a": "500 x 270 mm, según la ficha Saikang."
       },
       {
-        "q": "¿Cuántas asas tiene?",
-        "a": "Diez: ocho perimetrales y dos en los extremos."
+        "q": "¿Cuántas asas tiene según ficha Saikang?",
+        "a": "Diez: ocho perimetrales y dos en los extremos, según la ficha Saikang."
       }
     ],
     "faq_en": [
       {
-        "q": "What load does it support?",
-        "a": "Up to 159 kg."
+        "q": "What max or safe load does the Saikang SKB3A104 datasheet document?",
+        "a": "Up to 159 kg, per the Saikang datasheet."
       },
       {
-        "q": "How big is it folded?",
-        "a": "500 x 270 mm."
+        "q": "How big is it folded per Saikang datasheet?",
+        "a": "500 x 270 mm, per the Saikang datasheet."
       },
       {
-        "q": "How many handles does it have?",
-        "a": "Ten: eight around the perimeter and two at the ends."
+        "q": "How many handles does it have per Saikang datasheet?",
+        "a": "Ten: eight around the perimeter and two at the ends, per the Saikang datasheet."
       }
     ],
     "seo_keywords_es": [
@@ -997,29 +1005,29 @@
     "valor_en": "An adjustable overbed table with chemical-cleaning-resistant ABS top, per the Saikang datasheet.",
     "faq_es": [
       {
-        "q": "¿Qué medidas tiene?",
-        "a": "890 x 445 mm, con altura de 760 a 1050 mm."
+        "q": "¿Qué medidas tiene según ficha Saikang?",
+        "a": "890 x 445 mm, con altura de 760 a 1050 mm, según la ficha Saikang."
       },
       {
-        "q": "¿Cómo se ajusta la altura?",
-        "a": "Con un sistema de resorte de gas."
+        "q": "¿Qué rango de altura tiene este equipo Saikang (SKH046-2) según ficha?",
+        "a": "Con un sistema de resorte de gas, según la ficha Saikang."
       },
       {
-        "q": "¿Con qué camas se usa?",
+        "q": "¿Con qué camas se usa según ficha Saikang?",
         "a": "Se puede utilizar con varias camas de hospital, según la ficha."
       }
     ],
     "faq_en": [
       {
-        "q": "What are its dimensions?",
-        "a": "890 x 445 mm, with a height of 760 to 1050 mm."
+        "q": "What external and platform dimensions does Saikang SKH046-2 have?",
+        "a": "890 x 445 mm, with a height of 760 to 1050 mm, per the Saikang datasheet."
       },
       {
-        "q": "How is height adjusted?",
-        "a": "With a gas-spring system."
+        "q": "What height range does Saikang SKH046-2 list on the datasheet?",
+        "a": "With a gas-spring system, per the Saikang datasheet."
       },
       {
-        "q": "Which beds can it be used with?",
+        "q": "Which beds can it be used with per Saikang datasheet?",
         "a": "It can be used with several hospital beds, per the datasheet."
       }
     ],
@@ -1090,30 +1098,30 @@
     "valor_en": "A phenolic-resin bedside cabinet that is easy to clean, with a damped drawer and writing board, per the Saikang datasheet.",
     "faq_es": [
       {
-        "q": "¿Qué medidas tiene?",
-        "a": "510 x 480 x 750 mm; la mesa de comedor llega a 950 mm."
+        "q": "¿Qué medidas tiene según ficha Saikang?",
+        "a": "510 x 480 x 750 mm; la mesa de comedor llega a 950 mm, según la ficha Saikang."
       },
       {
-        "q": "¿De qué material es?",
-        "a": "Tablero compacto fenólico; la estructura es de aleación de aluminio."
+        "q": "¿Qué materiales documenta la ficha Saikang de SKS009-2 para limpieza hospitalaria?",
+        "a": "Tablero compacto fenólico; la estructura es de aleación de aluminio, según la ficha Saikang."
       },
       {
-        "q": "¿Tiene ruedas con freno?",
-        "a": "Sí, cuatro ruedas: dos con freno bloqueable a 360° y dos libres."
+        "q": "¿Tiene ruedas con freno según ficha Saikang?",
+        "a": "Sí, cuatro ruedas: dos con freno bloqueable a 360° y dos libres, según la ficha Saikang."
       }
     ],
     "faq_en": [
       {
-        "q": "What are its dimensions?",
-        "a": "510 x 480 x 750 mm; the dining table reaches 950 mm."
+        "q": "What external and platform dimensions does Saikang SKS009-2 have?",
+        "a": "510 x 480 x 750 mm; the dining table reaches 950 mm, per the Saikang datasheet."
       },
       {
-        "q": "What is it made of?",
-        "a": "Compact phenolic board; the frame is aluminium alloy."
+        "q": "What is it made of per Saikang datasheet?",
+        "a": "Compact phenolic board; the frame is aluminium alloy, per the Saikang datasheet."
       },
       {
-        "q": "Does it have braked casters?",
-        "a": "Yes, four casters: two with 360° lockable brakes and two free."
+        "q": "Does it have braked casters per Saikang datasheet?",
+        "a": "Yes, four casters: two with 360° lockable brakes and two free, per the Saikang datasheet."
       }
     ],
     "seo_keywords_es": [
@@ -1183,30 +1191,30 @@
     "valor_en": "An ultralight aluminium folding stretcher for emergencies and evacuation, per the Saikang datasheet.",
     "faq_es": [
       {
-        "q": "¿Cuánto pesa?",
-        "a": "6 kg netos."
+        "q": "¿Cuánto pesa según ficha Saikang?",
+        "a": "6 kg netos, según la ficha Saikang."
       },
       {
-        "q": "¿Qué tamaño tiene plegada?",
-        "a": "580 x 220 x 210 mm."
+        "q": "¿Qué tamaño tiene plegada según ficha Saikang?",
+        "a": "580 x 220 x 210 mm, según la ficha Saikang."
       },
       {
-        "q": "¿Qué carga soporta?",
-        "a": "Una carga de trabajo de 159 kg."
+        "q": "¿Qué carga máxima o segura documenta la ficha Saikang de SKA-1C-SKB1A01?",
+        "a": "Una carga de trabajo de 159 kg, según la ficha Saikang."
       }
     ],
     "faq_en": [
       {
-        "q": "How much does it weigh?",
-        "a": "6 kg net."
+        "q": "How much does it weigh per Saikang datasheet?",
+        "a": "6 kg net, per the Saikang datasheet."
       },
       {
-        "q": "How big is it folded?",
-        "a": "580 x 220 x 210 mm."
+        "q": "How big is it folded per Saikang datasheet?",
+        "a": "580 x 220 x 210 mm, per the Saikang datasheet."
       },
       {
-        "q": "What load does it support?",
-        "a": "A working load of 159 kg."
+        "q": "What max or safe load does the Saikang SKA-1C-SKB1A01 datasheet document?",
+        "a": "A working load of 159 kg, per the Saikang datasheet."
       }
     ],
     "seo_keywords_es": [
@@ -1276,30 +1284,30 @@
     "valor_en": "A 250 kg attendant sofa-bed with easy-to-clean upholstery, per the Saikang datasheet.",
     "faq_es": [
       {
-        "q": "¿Qué medidas tiene abierto?",
-        "a": "2200 x 700 x 655 mm (cerrado: 1600 x 700 x 655 mm)."
+        "q": "¿Qué medidas tiene abierto según ficha Saikang?",
+        "a": "2200 x 700 x 655 mm (cerrado: 1600 x 700 x 655 mm), según la ficha Saikang."
       },
       {
-        "q": "¿Qué carga soporta?",
-        "a": "250 kg."
+        "q": "¿Qué carga máxima o segura documenta la ficha Saikang de SKE001-19?",
+        "a": "250 kg, según la ficha Saikang."
       },
       {
-        "q": "¿Cómo es el tapizado?",
-        "a": "Cuero PU resistente a la corrosión y al alcohol, fácil de limpiar."
+        "q": "¿Cómo es el tapizado según ficha Saikang?",
+        "a": "Cuero PU resistente a la corrosión y al alcohol, fácil de limpiar, según la ficha Saikang."
       }
     ],
     "faq_en": [
       {
-        "q": "What are its dimensions unfolded?",
-        "a": "2200 x 700 x 655 mm (folded: 1600 x 700 x 655 mm)."
+        "q": "What external and platform dimensions does Saikang SKE001-19 have?",
+        "a": "2200 x 700 x 655 mm (folded: 1600 x 700 x 655 mm), per the Saikang datasheet."
       },
       {
-        "q": "What load does it support?",
-        "a": "250 kg."
+        "q": "What max or safe load does the Saikang SKE001-19 datasheet document?",
+        "a": "250 kg, per the Saikang datasheet."
       },
       {
-        "q": "What is the upholstery like?",
-        "a": "PU leather resistant to corrosion and alcohol, easy to clean."
+        "q": "What is the upholstery like per Saikang datasheet?",
+        "a": "PU leather resistant to corrosion and alcohol, easy to clean, per the Saikang datasheet."
       }
     ],
     "seo_keywords_es": [
@@ -1369,30 +1377,30 @@
     "valor_en": "A three-seat waiting chair in one-piece polyurethane, durable and easy to clean, per the Saikang datasheet.",
     "faq_es": [
       {
-        "q": "¿Qué dimensiones tiene?",
-        "a": "1770 x 605 x 845 mm en la versión de tres plazas con apoyabrazos."
+        "q": "¿Qué dimensiones externas y de plataforma tiene la Saikang SKE011?",
+        "a": "1770 x 605 x 845 mm en la versión de tres plazas con apoyabrazos, según la ficha Saikang."
       },
       {
-        "q": "¿Qué material es el asiento?",
-        "a": "Poliuretano (PU) moldeado en espuma en una sola pieza."
+        "q": "¿Qué materiales documenta la ficha Saikang de SKE011 para limpieza hospitalaria?",
+        "a": "Poliuretano (PU) moldeado en espuma en una sola pieza, según la ficha Saikang."
       },
       {
-        "q": "¿Cuánto pesa?",
-        "a": "52,5 kg."
+        "q": "¿Cuánto pesa según ficha Saikang?",
+        "a": "52,5 kg, según la ficha Saikang."
       }
     ],
     "faq_en": [
       {
-        "q": "What are its dimensions?",
-        "a": "1770 x 605 x 845 mm for the three-seater with armrests."
+        "q": "What external and platform dimensions does Saikang SKE011 have?",
+        "a": "1770 x 605 x 845 mm for the three-seater with armrests, per the Saikang datasheet."
       },
       {
-        "q": "What is the seat made of?",
-        "a": "Polyurethane (PU) one-piece foam moulding."
+        "q": "What is the seat made of per Saikang datasheet?",
+        "a": "Polyurethane (PU) one-piece foam moulding, per the Saikang datasheet."
       },
       {
-        "q": "How much does it weigh?",
-        "a": "52.5 kg."
+        "q": "How much does it weigh per Saikang datasheet?",
+        "a": "52.5 kg, per the Saikang datasheet."
       }
     ],
     "seo_keywords_es": [
@@ -1462,30 +1470,30 @@
     "valor_en": "A gas-spring height-adjustable overbed table, per the Saikang datasheet.",
     "faq_es": [
       {
-        "q": "¿Qué tamaño tiene el tablero?",
-        "a": "800 x 410 mm."
+        "q": "¿Qué tamaño tiene el tablero según ficha Saikang?",
+        "a": "800 x 410 mm, según la ficha Saikang."
       },
       {
-        "q": "¿Cuál es su rango de altura?",
-        "a": "De 730 a 1130 mm."
+        "q": "¿Qué rango de altura tiene este equipo Saikang (SKH042) según ficha?",
+        "a": "De 730 a 1130 mm, según la ficha Saikang."
       },
       {
-        "q": "¿Para qué se usa?",
-        "a": "Como mesa de comedor móvil o mesa de noche de enfermería con varias camas."
+        "q": "¿Para qué se usa según ficha Saikang?",
+        "a": "Como mesa de comedor móvil o mesa de noche de enfermería con varias camas, según la ficha Saikang."
       }
     ],
     "faq_en": [
       {
-        "q": "What size is the top?",
-        "a": "800 x 410 mm."
+        "q": "What size is the top per Saikang datasheet?",
+        "a": "800 x 410 mm, per the Saikang datasheet."
       },
       {
-        "q": "What is its height range?",
-        "a": "From 730 to 1130 mm."
+        "q": "What height range does Saikang SKH042 list on the datasheet?",
+        "a": "From 730 to 1130 mm, per the Saikang datasheet."
       },
       {
-        "q": "What is it used for?",
-        "a": "As a mobile dining table or nursing bedside table with several beds."
+        "q": "What is it used for per Saikang datasheet?",
+        "a": "As a mobile dining table or nursing bedside table with several beds, per the Saikang datasheet."
       }
     ],
     "seo_keywords_es": [
@@ -1555,30 +1563,30 @@
     "valor_en": "A height-adjustable laptop cart with lockable compartment, per the Saikang datasheet.",
     "faq_es": [
       {
-        "q": "¿Qué portátiles admite?",
-        "a": "Cualquier portátil de menos de 17\", guardado bajo la cubierta superior con llave."
+        "q": "¿Qué portátiles admite según ficha Saikang?",
+        "a": "Cualquier portátil de menos de 17\", guardado bajo la cubierta superior con llave, según la ficha Saikang."
       },
       {
-        "q": "¿Qué altura tiene?",
-        "a": "De 750 a 1150 mm."
+        "q": "¿Qué rango de altura tiene este equipo Saikang (SKM-A-SKR-IB00) según ficha?",
+        "a": "De 750 a 1150 mm, según la ficha Saikang."
       },
       {
-        "q": "¿Tiene batería?",
-        "a": "Una batería de litio con luz LED es opcional."
+        "q": "¿Tiene batería según ficha Saikang?",
+        "a": "Una batería de litio con luz LED es opcional, según la ficha Saikang."
       }
     ],
     "faq_en": [
       {
-        "q": "Which laptops does it hold?",
-        "a": "Any laptop under 17\", stored under the lockable top cover."
+        "q": "Which laptops does it hold per Saikang datasheet?",
+        "a": "Any laptop under 17\", stored under the lockable top cover, per the Saikang datasheet."
       },
       {
-        "q": "What height range does it have?",
-        "a": "From 750 to 1150 mm."
+        "q": "What height range does Saikang SKM-A-SKR-IB00 list on the datasheet?",
+        "a": "From 750 to 1150 mm, per the Saikang datasheet."
       },
       {
-        "q": "Does it have a battery?",
-        "a": "A lithium battery with LED light is optional."
+        "q": "Does it have a battery per Saikang datasheet?",
+        "a": "A lithium battery with LED light is optional, per the Saikang datasheet."
       }
     ],
     "seo_keywords_es": [
@@ -1648,30 +1656,30 @@
     "valor_en": "A paediatric HDPE spine board, X-ray translucent, per the Saikang datasheet.",
     "faq_es": [
       {
-        "q": "¿Para quién está pensado?",
+        "q": "¿Para quién está pensado según ficha Saikang?",
         "a": "La ficha indica como público objetivo a niños."
       },
       {
-        "q": "¿Qué carga soporta?",
-        "a": "Hasta 159 kg."
+        "q": "¿Qué carga máxima o segura documenta la ficha Saikang de SKB-1A-SKB2A10?",
+        "a": "Hasta 159 kg, según la ficha Saikang."
       },
       {
-        "q": "¿Se puede radiografiar?",
-        "a": "Sí, es un equipo de traslado de emergencia que permite fluoroscopia de rayos X."
+        "q": "¿Esta referencia Saikang (SKB-1A-SKB2A10) facilita radiografía en piso?",
+        "a": "Sí, es un equipo de traslado de emergencia que permite fluoroscopia de rayos X, según la ficha Saikang."
       }
     ],
     "faq_en": [
       {
-        "q": "Who is it intended for?",
+        "q": "Who is it intended for per Saikang datasheet?",
         "a": "The datasheet lists children as the target audience."
       },
       {
-        "q": "What load does it support?",
-        "a": "Up to 159 kg."
+        "q": "What max or safe load does the Saikang SKB-1A-SKB2A10 datasheet document?",
+        "a": "Up to 159 kg, per the Saikang datasheet."
       },
       {
-        "q": "Can it be X-rayed?",
-        "a": "Yes, it is emergency transfer equipment that allows X-ray fluoroscopy."
+        "q": "Does Saikang SKB-1A-SKB2A10 support floor radiography needs?",
+        "a": "Yes, it is emergency transfer equipment that allows X-ray fluoroscopy, per the Saikang datasheet."
       }
     ],
     "seo_keywords_es": [
@@ -1741,30 +1749,30 @@
     "valor_en": "A two-crank manual bed with PP platform and seamless design, per the Saikang datasheet.",
     "faq_es": [
       {
-        "q": "¿Qué dimensiones tiene?",
-        "a": "2130 x 995 mm externas y plataforma de 1925 x 900 mm."
+        "q": "¿Qué camilla manual hospitalaria elegir para transferencia segura de 200 kg?",
+        "a": "La Saikang V2k documenta carga de trabajo segura de 200 kg y plataforma 1925 x 900 mm en su ficha oficial."
       },
       {
-        "q": "¿Qué carga soporta?",
-        "a": "Una carga segura de trabajo de 200 kg."
+        "q": "¿Cómo se ajusta respaldo y rodillas en la camilla manual V2k?",
+        "a": "Con 2 manivelas: respaldo 0–70° (±10°) y rodillas 0–38°, según la ficha Saikang."
       },
       {
-        "q": "¿Cuáles son sus opcionales?",
+        "q": "¿Qué opcionales tiene la camilla Saikang V2k para piso?",
         "a": "Autorregresión del espaldar, estante auxiliar y barra triángulo, según la ficha."
       }
     ],
     "faq_en": [
       {
-        "q": "What are its dimensions?",
-        "a": "2130 x 995 mm external and a 1925 x 900 mm platform."
+        "q": "Which manual hospital stretcher for safe 200 kg transfers?",
+        "a": "The Saikang V2k documents a 200 kg safe working load and 1925 x 900 mm platform in its official datasheet."
       },
       {
-        "q": "What load does it support?",
-        "a": "A safe working load of 200 kg."
+        "q": "How do backrest and knee adjustments work on the V2k?",
+        "a": "With 2 cranks: backrest 0–70° (±10°) and knees 0–38°, per the Saikang datasheet."
       },
       {
-        "q": "Which options does it have?",
-        "a": "Backrest auto-regression, utility shelf and trapeze bar, per the datasheet."
+        "q": "Which options does the Saikang V2k stretcher offer for floor use?",
+        "a": "Backrest auto-regression, auxiliary shelf and Balkan frame, per the datasheet."
       }
     ],
     "seo_keywords_es": [
@@ -1844,30 +1852,30 @@
     "valor_en": "A light aluminium folding stretcher for transfers and evacuations, per the Saikang datasheet.",
     "faq_es": [
       {
-        "q": "¿Cuánto pesa?",
-        "a": "6 kg netos."
+        "q": "¿Cuánto pesa según ficha Saikang?",
+        "a": "6 kg netos, según la ficha Saikang."
       },
       {
-        "q": "¿Cuánto mide plegada?",
-        "a": "1040 x 180 x 90 mm."
+        "q": "¿Cuánto mide plegada según ficha Saikang?",
+        "a": "1040 x 180 x 90 mm, según la ficha Saikang."
       },
       {
-        "q": "¿Qué carga soporta?",
-        "a": "Hasta 159 kg."
+        "q": "¿Qué carga máxima o segura documenta la ficha Saikang de SKA-1B-SKB1A02?",
+        "a": "Hasta 159 kg, según la ficha Saikang."
       }
     ],
     "faq_en": [
       {
-        "q": "How much does it weigh?",
-        "a": "6 kg net."
+        "q": "How much does it weigh per Saikang datasheet?",
+        "a": "6 kg net, per the Saikang datasheet."
       },
       {
-        "q": "How big is it folded?",
-        "a": "1040 x 180 x 90 mm."
+        "q": "How big is it folded per Saikang datasheet?",
+        "a": "1040 x 180 x 90 mm, per the Saikang datasheet."
       },
       {
-        "q": "What load does it support?",
-        "a": "Up to 159 kg."
+        "q": "What max or safe load does the Saikang SKA-1B-SKB1A02 datasheet document?",
+        "a": "Up to 159 kg, per the Saikang datasheet."
       }
     ],
     "seo_keywords_es": [
@@ -1937,30 +1945,30 @@
     "valor_en": "A companion chair that converts into a bed, with flame-retardant upholstery and silent casters, per the Saikang datasheet.",
     "faq_es": [
       {
-        "q": "¿Se convierte en cama?",
-        "a": "Sí, puede retirarse para ser cama; en horizontal mide 640 x 1900 x 420 mm."
+        "q": "¿Se convierte en cama según ficha Saikang?",
+        "a": "Sí, puede retirarse para ser cama; en horizontal mide 640 x 1900 x 420 mm, según la ficha Saikang."
       },
       {
-        "q": "¿Qué ruedas tiene?",
-        "a": "Cuatro ruedas de 2\" y dos de 3\", médicas, silenciosas y antiestáticas."
+        "q": "¿Qué ruedas tiene según ficha Saikang?",
+        "a": "Cuatro ruedas de 2\" y dos de 3\", médicas, silenciosas y antiestáticas, según la ficha Saikang."
       },
       {
-        "q": "¿De qué es el tapizado?",
-        "a": "Cuero ignífugo, resistente al amarilleo, al moho y al desgaste de 100 000 ciclos."
+        "q": "¿De qué es el tapizado según ficha Saikang?",
+        "a": "Cuero ignífugo, resistente al amarilleo, al moho y al desgaste de 100 000 ciclos, según la ficha Saikang."
       }
     ],
     "faq_en": [
       {
-        "q": "Does it convert into a bed?",
-        "a": "Yes, it can be laid out as a bed; horizontally it measures 640 x 1900 x 420 mm."
+        "q": "Does it convert into a bed per Saikang datasheet?",
+        "a": "Yes, it can be laid out as a bed; horizontally it measures 640 x 1900 x 420 mm, per the Saikang datasheet."
       },
       {
-        "q": "Which casters does it have?",
-        "a": "Four 2\" and two 3\" medical casters, silent and antistatic."
+        "q": "Which casters does it have per Saikang datasheet?",
+        "a": "Four 2\" and two 3\" medical casters, silent and antistatic, per the Saikang datasheet."
       },
       {
-        "q": "What is the upholstery?",
-        "a": "Flame-retardant leather, resistant to yellowing, mould and 100,000 wear cycles."
+        "q": "What is the upholstery per Saikang datasheet?",
+        "a": "Flame-retardant leather, resistant to yellowing, mould and 100,000 wear cycles, per the Saikang datasheet."
       }
     ],
     "seo_keywords_es": [
@@ -2030,30 +2038,30 @@
     "valor_en": "A sectional memory-foam mattress with washable waterproof cover; custom sizes available.",
     "faq_es": [
       {
-        "q": "¿Qué medidas tiene?",
-        "a": "1920 x 870 x 100 mm; se aceptan tamaños personalizados."
+        "q": "¿Qué medidas tiene según ficha Saikang?",
+        "a": "1920 x 870 x 100 mm; se aceptan tamaños personalizados, según la ficha Saikang."
       },
       {
-        "q": "¿Qué densidad tiene la espuma?",
-        "a": "La capa superior 42-45 kg/m³ y la base de poliuretano 40 kg/m³."
+        "q": "¿Qué densidad tiene la espuma según ficha Saikang?",
+        "a": "La capa superior 42-45 kg/m³ y la base de poliuretano 40 kg/m³, según la ficha Saikang."
       },
       {
-        "q": "¿La funda se lava?",
-        "a": "Sí, tiene cremallera larga y se retira fácilmente para lavar."
+        "q": "¿La funda se lava según ficha Saikang?",
+        "a": "Sí, tiene cremallera larga y se retira fácilmente para lavar, según la ficha Saikang."
       }
     ],
     "faq_en": [
       {
-        "q": "What are its dimensions?",
-        "a": "1920 x 870 x 100 mm; custom sizes are accepted."
+        "q": "What external and platform dimensions does Saikang SKP011 have?",
+        "a": "1920 x 870 x 100 mm; custom sizes are accepted, per the Saikang datasheet."
       },
       {
-        "q": "What is the foam density?",
-        "a": "Top layer 42-45 kg/m³ and polyurethane base 40 kg/m³."
+        "q": "What is the foam density per Saikang datasheet?",
+        "a": "Top layer 42-45 kg/m³ and polyurethane base 40 kg/m³, per the Saikang datasheet."
       },
       {
-        "q": "Is the cover washable?",
-        "a": "Yes, it has a long zip and removes easily for washing."
+        "q": "Is the cover washable per Saikang datasheet?",
+        "a": "Yes, it has a long zip and removes easily for washing, per the Saikang datasheet."
       }
     ],
     "seo_keywords_es": [
@@ -2123,30 +2131,30 @@
     "valor_en": "A metal bedside table with stainless top, silent rails and soft-close doors, per the Saikang datasheet.",
     "faq_es": [
       {
-        "q": "¿Qué medidas tiene?",
-        "a": "440 x 440 x 790 mm."
+        "q": "¿Qué medidas tiene según ficha Saikang?",
+        "a": "440 x 440 x 790 mm, según la ficha Saikang."
       },
       {
-        "q": "¿Cuánta carga soporta cada cajón?",
-        "a": "35 kg y trae llave plegable."
+        "q": "¿Qué carga máxima o segura documenta la ficha Saikang de SKS036?",
+        "a": "35 kg y trae llave plegable, según la ficha Saikang."
       },
       {
-        "q": "¿De qué material es el tablero?",
-        "a": "Acero inoxidable 304 de 0,7 mm."
+        "q": "¿Qué materiales documenta la ficha Saikang de SKS036 para limpieza hospitalaria?",
+        "a": "Acero inoxidable 304 de 0,7 mm, según la ficha Saikang."
       }
     ],
     "faq_en": [
       {
-        "q": "What are its dimensions?",
-        "a": "440 x 440 x 790 mm."
+        "q": "What external and platform dimensions does Saikang SKS036 have?",
+        "a": "440 x 440 x 790 mm, per the Saikang datasheet."
       },
       {
-        "q": "What load does each drawer bear?",
-        "a": "35 kg, and it comes with a folding key."
+        "q": "What max or safe load does the Saikang SKS036 datasheet document?",
+        "a": "35 kg, and it comes with a folding key, per the Saikang datasheet."
       },
       {
-        "q": "What is the top made of?",
-        "a": "0.7 mm 304 stainless steel."
+        "q": "What is the top made of per Saikang datasheet?",
+        "a": "0.7 mm 304 stainless steel, per the Saikang datasheet."
       }
     ],
     "seo_keywords_es": [
@@ -2216,30 +2224,30 @@
     "valor_en": "A neonatal crib with adjustable height and Trendelenburg and a sterilisable acrylic bassinet, per the Saikang datasheet.",
     "faq_es": [
       {
-        "q": "¿Qué colores tiene?",
-        "a": "Azul, verde o rosa como opciones."
+        "q": "¿Qué colores tiene según ficha Saikang?",
+        "a": "Azul, verde o rosa como opciones, según la ficha Saikang."
       },
       {
-        "q": "¿Cuál es su rango de altura?",
-        "a": "De 770 a 940 mm."
+        "q": "¿Qué rango de altura tiene este equipo Saikang (SK-AD3-X01-1) según ficha?",
+        "a": "De 770 a 940 mm, según la ficha Saikang."
       },
       {
-        "q": "¿Qué inclinaciones permite?",
-        "a": "Trendelenburg e inverso de 0 a 12° (±4°)."
+        "q": "¿Qué inclinaciones permite según ficha Saikang?",
+        "a": "Trendelenburg e inverso de 0 a 12° (±4°), según la ficha Saikang."
       }
     ],
     "faq_en": [
       {
-        "q": "Which colours are available?",
-        "a": "Blue, green or pink as options."
+        "q": "Which colours are available per Saikang datasheet?",
+        "a": "Blue, green or pink as options, per the Saikang datasheet."
       },
       {
-        "q": "What is its height range?",
-        "a": "From 770 to 940 mm."
+        "q": "What height range does Saikang SK-AD3-X01-1 list on the datasheet?",
+        "a": "From 770 to 940 mm, per the Saikang datasheet."
       },
       {
-        "q": "Which tilts does it allow?",
-        "a": "Trendelenburg and reverse from 0 to 12° (±4°)."
+        "q": "Which tilts does it allow per Saikang datasheet?",
+        "a": "Trendelenburg and reverse from 0 to 12° (±4°), per the Saikang datasheet."
       }
     ],
     "seo_keywords_es": [
@@ -2309,30 +2317,30 @@
     "valor_en": "A four-section recliner for dialysis and blood collection, per the Saikang datasheet.",
     "faq_es": [
       {
-        "q": "¿Qué dimensiones tiene?",
-        "a": "1100 x 770 x 1280 mm; asiento de 540 x 460 x 560 mm."
+        "q": "¿Qué dimensiones externas y de plataforma tiene la Saikang SKE941?",
+        "a": "1100 x 770 x 1280 mm; asiento de 540 x 460 x 560 mm, según la ficha Saikang."
       },
       {
-        "q": "¿Qué carga soporta?",
-        "a": "113 kg de carga de trabajo segura."
+        "q": "¿Qué carga máxima o segura documenta la ficha Saikang de SKE941?",
+        "a": "113 kg de carga de trabajo segura, según la ficha Saikang."
       },
       {
-        "q": "¿Incluye bandeja?",
-        "a": "Sí, de 480 x 255 mm."
+        "q": "¿Incluye bandeja según ficha Saikang?",
+        "a": "Sí, de 480 x 255 mm, según la ficha Saikang."
       }
     ],
     "faq_en": [
       {
-        "q": "What are its dimensions?",
-        "a": "1100 x 770 x 1280 mm; seat 540 x 460 x 560 mm."
+        "q": "What external and platform dimensions does Saikang SKE941 have?",
+        "a": "1100 x 770 x 1280 mm; seat 540 x 460 x 560 mm, per the Saikang datasheet."
       },
       {
-        "q": "What load does it support?",
-        "a": "113 kg safe working load."
+        "q": "What max or safe load does the Saikang SKE941 datasheet document?",
+        "a": "113 kg safe working load, per the Saikang datasheet."
       },
       {
-        "q": "Does it include a tray?",
-        "a": "Yes, 480 x 255 mm."
+        "q": "Does it include a tray per Saikang datasheet?",
+        "a": "Yes, 480 x 255 mm, per the Saikang datasheet."
       }
     ],
     "seo_keywords_es": [
@@ -2402,30 +2410,30 @@
     "valor_en": "An ABS and steel bedside cabinet with pull-out dining board and ample storage, per the Saikang datasheet.",
     "faq_es": [
       {
-        "q": "¿Qué medidas tiene?",
-        "a": "500 x 510 x 705 mm."
+        "q": "¿Qué medidas tiene según ficha Saikang?",
+        "a": "500 x 510 x 705 mm, según la ficha Saikang."
       },
       {
-        "q": "¿De qué material es?",
-        "a": "Cuerpo de plástico sobre acero; encimera, cajones y puertas de ABS inyectado."
+        "q": "¿Qué materiales documenta la ficha Saikang de SKS008 para limpieza hospitalaria?",
+        "a": "Cuerpo de plástico sobre acero; encimera, cajones y puertas de ABS inyectado, según la ficha Saikang."
       },
       {
-        "q": "¿Incluye mesa de comedor?",
-        "a": "Sí, una tabla de comedor extraíble entre el cajón y la encimera."
+        "q": "¿Incluye mesa de comedor según ficha Saikang?",
+        "a": "Sí, una tabla de comedor extraíble entre el cajón y la encimera, según la ficha Saikang."
       }
     ],
     "faq_en": [
       {
-        "q": "What are its dimensions?",
-        "a": "500 x 510 x 705 mm."
+        "q": "What external and platform dimensions does Saikang SKS008 have?",
+        "a": "500 x 510 x 705 mm, per the Saikang datasheet."
       },
       {
-        "q": "What is it made of?",
-        "a": "Plastic-over-steel body; top, drawers and doors in injection-moulded ABS."
+        "q": "What is it made of per Saikang datasheet?",
+        "a": "Plastic-over-steel body; top, drawers and doors in injection-moulded ABS, per the Saikang datasheet."
       },
       {
-        "q": "Does it include a dining table?",
-        "a": "Yes, a pull-out dining board between the drawer and the top."
+        "q": "Does it include a dining table per Saikang datasheet?",
+        "a": "Yes, a pull-out dining board between the drawer and the top, per the Saikang datasheet."
       }
     ],
     "seo_keywords_es": [

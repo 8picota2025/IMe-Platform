@@ -1,0 +1,24 @@
+{
+  "fabricante": "AHuman Future",
+  "generado": "2026-10-17T21:39:02.378Z",
+  "total": 1,
+  "con_ficha": 0,
+  "sin_ficha": 1,
+  "imgs_ge_3": 1,
+  "productos": [
+    {
+      "id": "b0e856bd-b2c9-4dd1-b53e-6e60831df04d",
+      "slug": "cruzr-robot-comercial-inteligente-ref-cruzr-ahuman-future-ahuman-future",
+      "nombre": "Cruzr Robot Comercial Inteligente AHuman Future",
+      "fabricante": "AHuman Future",
+      "categoria": "robots",
+      "tiene_precio": false,
+      "precio": null,
+      "tiene_ficha": false,
+      "ficha_pdf": "/assets/productos/importados/cruzr-robot-comercial-inteligente-ahuman-future/ficha-cruzr-robot-comercial-inteligente-ahuman-future.pdf",
+      "imagenes": 3,
+      "estado": "documentado",
+      "actualizado": "2026-10-17"
+    }
+  ]
+}

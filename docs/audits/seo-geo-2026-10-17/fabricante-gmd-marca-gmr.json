@@ -1,0 +1,24 @@
+{
+  "fabricante": "GMD (marca GMR)",
+  "generado": "2026-10-17T21:39:02.378Z",
+  "total": 1,
+  "con_ficha": 1,
+  "sin_ficha": 0,
+  "imgs_ge_3": 1,
+  "productos": [
+    {
+      "id": "901db48a-bd08-47ce-a165-2a5082e22168",
+      "slug": "regulador-para-valvulas-gmr870-ref-gmr870-015",
+      "nombre": "Regulador Para Válvulas GMR870",
+      "fabricante": "GMD (marca GMR)",
+      "categoria": "terapia-respiratoria-soporte-vital",
+      "tiene_precio": false,
+      "precio": null,
+      "tiene_ficha": true,
+      "ficha_pdf": "/assets/productos/fichas/gmd-gmr/gmr870-015-ft.pdf",
+      "imagenes": 3,
+      "estado": "documentado",
+      "actualizado": "2026-10-17"
+    }
+  ]
+}

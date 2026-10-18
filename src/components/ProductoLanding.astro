@@ -676,7 +676,7 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
           )
         }
         {
-          esCotizacion && producto.aplicaciones.length > 0 ? (
+          esCotizacion && producto.aplicaciones.length > 0 && (
             <button
               type="button"
               class="pdp-tabs__tab"
@@ -688,7 +688,10 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
             >
               {t(locale, 'producto.aplicaciones_titulo')}
             </button>
-          ) : producto.preguntas_frecuentes.length > 0 ? (
+          )
+        }
+        {
+          producto.preguntas_frecuentes.length > 0 && (
             <button
               type="button"
               class="pdp-tabs__tab"
@@ -700,7 +703,7 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
             >
               {locale === 'en' ? 'FAQ' : 'Preguntas frecuentes'}
             </button>
-          ) : null
+          )
         }
       </div>
 
@@ -798,7 +801,7 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
       }
 
       {
-        esCotizacion && producto.aplicaciones.length > 0 ? (
+        esCotizacion && producto.aplicaciones.length > 0 && (
           <div
             class="pdp-tabs__panel"
             role="tabpanel"
@@ -819,7 +822,10 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
               ))}
             </ul>
           </div>
-        ) : producto.preguntas_frecuentes.length > 0 ? (
+        )
+      }
+      {
+        producto.preguntas_frecuentes.length > 0 && (
           <div
             class="pdp-tabs__panel"
             role="tabpanel"
@@ -838,7 +844,7 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
               ))}
             </div>
           </div>
-        ) : null
+        )
       }
 
       {
@@ -1621,9 +1627,9 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
     background: var(--white);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    padding: 2rem 2.25rem;
+    padding: 1.35rem 1.5rem;
     box-shadow: var(--shadow-md);
-    max-width: 720px;
+    max-width: none;
   }
   .cert-badges {
     display: flex;
@@ -1809,7 +1815,7 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
     padding-block: 1.75rem;
   }
   .pdp-top {
-    background: #f7f9fb;
+    background: var(--off);
     padding-block: 0.75rem 1.5rem;
     color: var(--ink);
   }
@@ -1897,10 +1903,20 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
     }
     .pdp-top__grid--quote {
       grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      align-items: stretch;
+      gap: 1.25rem 1.75rem;
     }
     .pdp-top__grid--quote .pdp-gallery {
       grid-column: 1;
       grid-row: 1 / span 2;
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+    }
+    .pdp-top__grid--quote .pdp-gallery__main {
+      flex: 1 1 auto;
+      max-height: none;
+      min-height: 280px;
     }
     .pdp-top__grid--quote .pdp-identity {
       grid-column: 2;
@@ -1933,11 +1949,9 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
 
   .pdp-gallery__main {
     position: relative;
-    aspect-ratio: 1 / 1;
-    max-height: min(560px, 70vh);
-    background:
-      radial-gradient(ellipse at 30% 20%, rgba(126, 217, 87, 0.06), transparent 55%),
-      linear-gradient(160deg, #f0f6f8 0%, #ffffff 48%, #eef3f6 100%);
+    aspect-ratio: 4 / 3;
+    max-height: min(480px, 58vh);
+    background: var(--white);
     border: 1px solid var(--border);
     border-radius: 1rem;
     overflow: hidden;
@@ -1945,7 +1959,6 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
     place-items: center;
     height: auto;
     min-height: 0;
-    box-shadow: 0 1px 0 rgba(15, 76, 92, 0.04);
   }
   .pdp-highlights {
     list-style: none;
@@ -1961,11 +1974,12 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
     align-items: flex-start;
     font-size: 0.88rem;
     line-height: 1.35;
-    color: var(--ink);
+    color: var(--text);
   }
   .pdp-highlights li > span:first-child {
     color: var(--green, #2f9e44);
     font-weight: 800;
+    flex-shrink: 0;
   }
   @media (max-width: 899px) {
     .pdp-highlights {
@@ -1973,14 +1987,14 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
     }
     .pdp-gallery__main {
       aspect-ratio: 4 / 3;
-      max-height: 42vh;
+      max-height: 36vh;
     }
   }
   .pdp-gallery__img {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    padding: 1rem;
+    padding: 0.35rem;
   }
   .pdp-gallery__badges {
     position: absolute;
@@ -2707,21 +2721,29 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
   }
 
   .producto-contexto {
-    max-width: 76ch;
+    max-width: none;
     color: var(--text-mid);
     font-size: 1.02rem;
     line-height: 1.75;
   }
   .producto-contexto p {
     margin: 0 0 1rem;
+    text-align: justify;
+    text-wrap: pretty;
+    hyphens: auto;
   }
   .producto-contexto p:last-child {
     margin-bottom: 0;
   }
+  .pdp-assist-card p {
+    text-align: justify;
+    text-wrap: pretty;
+    hyphens: auto;
+  }
   .producto-faq {
     display: grid;
     gap: 0.75rem;
-    max-width: 900px;
+    max-width: none;
   }
   .producto-faq details {
     border: 1px solid var(--border);
@@ -2738,6 +2760,9 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
     margin: 0.75rem 0 0;
     color: var(--text-mid);
     line-height: 1.65;
+    text-align: justify;
+    text-wrap: pretty;
+    hyphens: auto;
   }
 
   .sr-only {

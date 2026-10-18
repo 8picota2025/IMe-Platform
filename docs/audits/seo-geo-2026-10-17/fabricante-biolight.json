@@ -1,0 +1,38 @@
+{
+  "fabricante": "Biolight",
+  "generado": "2026-10-17T21:39:02.378Z",
+  "total": 2,
+  "con_ficha": 0,
+  "sin_ficha": 2,
+  "imgs_ge_3": 2,
+  "productos": [
+    {
+      "id": "b0d1ef08-06b7-4927-a1a5-3873be4c5f11",
+      "slug": "monitor-de-paciente-ref-m12-biolight",
+      "nombre": "Monitor de paciente Biolight M12",
+      "fabricante": "Biolight",
+      "categoria": "monitores",
+      "tiene_precio": false,
+      "precio": null,
+      "tiene_ficha": false,
+      "ficha_pdf": null,
+      "imagenes": 5,
+      "estado": "inventariado",
+      "actualizado": "2026-10-17"
+    },
+    {
+      "id": "d1073be4-8269-4068-8104-97b0ab0c7d3b",
+      "slug": "monitor-de-paciente-ref-s12-biolight",
+      "nombre": "Monitor de paciente Biolight S12",
+      "fabricante": "Biolight",
+      "categoria": "monitores",
+      "tiene_precio": false,
+      "precio": null,
+      "tiene_ficha": false,
+      "ficha_pdf": null,
+      "imagenes": 5,
+      "estado": "inventariado",
+      "actualizado": "2026-10-17"
+    }
+  ]
+}
