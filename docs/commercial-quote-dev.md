@@ -129,3 +129,67 @@ Listas: sin parámetro ocultan archivadas; `incluir_archivadas=1` las muestra;
 
 Probar solo en una cotización creada para la prueba. No tocar cotizaciones reales.
 Cliente de caja: `tools/ime-cms/cms_api.py`. MCP: `docs/mcp-ime-comercio-cotizaciones.md`.
+
+## Contenido del PDF (renderer)
+
+Código: `src/lib/render-quote-pdf.ts` (Edge: `supabase/functions/_shared/render-quote-pdf.ts`).
+Snapshot único para email + Storage. El total que se persiste en `precio_total_ofertado` es el
+**total a pagar** del desglose fiscal, no solo `Σ precio × cantidad` cuando hay IVA distinto por línea.
+
+### IVA por línea
+
+Lógica: `src/lib/cotizacion-iva.ts`; en Edge `desgloseDeLineas` (`supabase/functions/_shared/cotizacion-pago.ts`).
+
+| Precedencia | Campo | Efecto |
+| ----------- | ----- | ------ |
+| 1 | `tratamiento_iva` en la línea (`19`, `5`, `excluido`, `exento`) | Gana sobre catálogo |
+| 2 | `productos.tarifa_iva_pct` / `excluido_iva` | Tarifa de ficha |
+| 3 | (vacío) | 19 % en COP; USD fuerza `excluido` |
+
+`impuestos_incluidos = true` en la cotización: el precio unitario digitado **ya incluye** IVA; el PDF
+muestra subtotal neto + IVA desglosado sin sumar impuesto encima del total ofertado. Obligatorio para
+factura electrónica en formalizar (`TRATAMIENTO_TRIBUTARIO_OFERTA_REQUERIDO` si falta).
+
+UI: selector IVA por línea en `/comercial` y en admin cotizaciones. Tests:
+`src/lib/cotizacion-iva.test.ts`, casos IVA en `src/lib/render-quote-pdf.test.ts`.
+
+### Oferta bilingüe (ES / EN)
+
+- `locale` (`es` \| `en`) y `idioma` (`es`, `en`, `es-en`) en `solicitudes_cotizacion`.
+- `condiciones_en` y `condicion_pago_en` opcionales; si faltan, el bloque EN repite el castellano.
+- Etiquetas de tabla y totales usan pares ES/EN (`et()` en el renderer).
+- Condiciones de pago en la columna derecha: títulos bilingües con salto de línea (no truncar).
+
+Migraciones/columnas: `condiciones_en`, `idioma`, `ciudad`, `pais` (ver parches en
+`comercial-cotizacion` / admin si el schema aún no las tiene).
+
+### Contacto cliente vs I-ME
+
+`src/lib/contacto-cliente.ts`: correos `@i-me.com.co`, NIT 901871720 y teléfonos oficiales (+57 313…)
+**nunca** rellenan huecos del bloque cliente, email de envío ni aceptación. Si falta dato del cliente →
+`—`, no datos de I-ME. El pie y la firma del asesor sí muestran contacto comercial.
+
+### Anexos de ficha
+
+`src/lib/quote-pdf-annex.ts`: una página de anexo por línea de catálogo solo si hay descripción larga
+útil (distinta del nombre) **o** especificaciones/aplicaciones. Nombre solo o ficha vacía → sin anexo.
+Tests: `src/lib/quote-pdf-annex.test.ts`. Tabla multipágina: `docs/qa/quote-pdf-multipage/README.md`.
+
+### Wompi en PDF y email
+
+Regla de referencia: la `reference` de Wompi debe ser **`pedidos.id`** (`referencia_pasarela`), nunca
+`IME-Q-…` (`cotizacion-pago.ts`, `webhook-wompi`).
+
+| Momento | Enlace en PDF / correo |
+| ------- | ---------------------- |
+| `dry_run` / vista previa (`comercial-cotizacion?action=pdf`) | Sin checkout Wompi (`wompiUrl: null`); CTA formalizar opcional |
+| Envío real (`enviar-cotizacion`) | «Pagar con Wompi» apunta a **`formalizarUrl`** (token), no a checkout firmado |
+| Cliente en formalizar → `iniciar_pago_wompi` | Crea o reutiliza pedido pendiente + URL checkout con `pedidos.id` |
+
+El email incluye botón Wompi vía `htmlBotonWompiViaFormalizar` (misma URL de formalización en COP).
+Metadata: `wompi_formalizar_url`, no `wompi_checkout_url` hasta que exista pedido.
+
+Recuperación legacy: si un cobro llegó con referencia `IME-Q-…`, `webhook-wompi` puede materializar
+pedido desde la cotización (`cotizacion-pedido-wompi.ts`). Flujo nuevo no debe generar esas referencias.
+
+Ver también: `COMMERCE_GUIDE.md` (referencia pasarela) y `formalizar-cotizacion` (`iniciar_pago_wompi`).

@@ -272,7 +272,11 @@ Sigue el contrato de siempre, una vez por lote, con el pendiente más reciente:
 
 `recent_outbound` son como mucho las 3 últimas salidas `sent` a ese contacto en los 10 minutos previos, de la más antigua a la más nueva. `trivial_ack` es `true` solo cuando todos los mensajes del lote son acuse trivial (`esAcuseTrivial`). El lote no se cierra por eso: sigue `pending_agent` hasta que el agente responda.
 
-Si, al responder, `whatsapp-imeia-reply` ve filas `pending_agent` del mismo contacto más nuevas que el lote reclamado, no envía. Suelta el `claim_token` (las filas vuelven a poder reclamarse juntas) y responde `409` con `{ "ok": false, "error": "new_messages" }`. El cuerpo del reply sigue siendo `{ "claim_token", "body" }`.
+Si, al responder, `whatsapp-imeia-reply` ve filas `pending_agent` del mismo contacto más nuevas que el lote reclamado, no envía. Responde `409` con `{ "ok": false, "error": "new_messages" }`. El cuerpo del reply sigue siendo `{ "claim_token", "body" }`.
+
+**Excepción (Graph ya envió):** si Meta ya aceptó la respuesta de este turno (`whatsapp_outbound_messages` con `kind = reply`, `turn_key = wamid` del lote y `send_status = sent`) pero el cierre del lote inbound falló, **no** se suelta el reclamo de vuelta a `pending_agent`. Eso evitaría un segundo envío por Graph bajo otro `turn_key`. En su lugar, `replyToWhatsAppBatch` cierra solo las filas del `claim_token` como `replied` y responde `200`. Implementación: `cerrarLoteSiReplyYaEnviado` en `supabase/functions/_shared/whatsapp-reply.ts`.
+
+En el caso normal de `new_messages` (aún sin texto saliente en Graph), sí se suelta el `claim_token` para que el siguiente claim agrupe el lote anterior con los mensajes nuevos.
 
 El agente lee los `pending_agent` de ese `from` en las últimas 24 h y los marca `replied` o `ignored`. Un segundo despacho que reclama 0 filas no vuelve a despertarlo mientras el reclamo tenga menos de 3 minutos. Si el wake HTTP falla, el reclamo se suelta y el cron reintenta. Si el wake no responde a tiempo, el reclamo se conserva para no disparar otra corrida en paralelo.
 
