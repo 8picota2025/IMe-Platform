@@ -26,8 +26,15 @@ function buildVersionedOgImage(path: string): string {
 function truncateMetaDescription(value: string, maxLength = 155): string {
   const clean = value.replace(/\s+/g, ' ').trim();
   if (clean.length <= maxLength) return clean;
+  // Corta en la última palabra completa. El umbral escala con maxLength: un lead
+  // de ~80 caracteres antes cortaba siempre a mitad de palabra ("movilidad co").
   const boundary = clean.lastIndexOf(' ', maxLength - 1);
-  return clean.slice(0, boundary > 120 ? boundary : maxLength).trim();
+  const minBoundary = Math.min(120, Math.floor(maxLength * 0.6));
+  const cut = boundary >= minBoundary ? boundary : maxLength;
+  return clean
+    .slice(0, cut)
+    .trim()
+    .replace(/[,;:]+$/, '');
 }
 
 function compactMetaLead(value: string, maxLength: number): string {
