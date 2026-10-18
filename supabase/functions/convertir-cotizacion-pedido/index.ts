@@ -15,10 +15,10 @@ import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { requireAdmin } from '../_shared/admin-auth.ts';
 import { getPaymentGateway, type CheckoutItem, type Mercado } from '../_shared/payment-gateway.ts';
 import {
-  calcularTotalOfertado,
   ofertaCompleta,
   parseLineasOferta,
   splitNombreApellido,
+  totalCobroOfertaLocked,
   type CotizacionOfertaRow,
 } from '../../../src/lib/cotizacion-oferta.ts';
 import { desgloseDeLineas } from '../_shared/cotizacion-pago.ts';
@@ -134,11 +134,8 @@ Deno.serve(async req => {
     impuestosIncluidos,
     moneda,
   });
-  // Total a pagar (= desglose con IVA), no la suma neta pre-IVA.
-  const total =
-    desglose.total > 0
-      ? desglose.total
-      : Number(row.precio_total_ofertado) || calcularTotalOfertado(lineas);
+  // Total ofertado al enviar manda sobre desglose vivo (IVA de ficha puede cambiar).
+  const total = totalCobroOfertaLocked(row, desglose.total, lineas);
 
   const slugs = lineas.map(l => l.slug);
   const { data: productos, error: prodErr } = await supabase
