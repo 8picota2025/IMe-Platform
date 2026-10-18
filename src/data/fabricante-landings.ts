@@ -149,20 +149,24 @@ const TUTTNAUER: Record<Locale, FabCopy> = {
       'Separamos tipología, capacidad documentable y lo que depende del sitio. Sin promesas clínicas ni ROI inventado. Contacto solo con I-ME — sin datos del fabricante.',
     faqs: [
       {
-        q: '¿Por qué no muestran productos Tuttnauer aquí?',
-        a: 'Porque esta landing educa tipologías y problemas de sector. Las referencias se discuten en asesoría cuando hay contexto de carga — no como vitrina.',
+        q: '¿Autoclave de vapor o esterilización a baja temperatura para mi CSSD?',
+        a: 'Depende de la carga: instrumental termorresistente suele ir a vapor hospitalario; materiales sensibles a calor pueden requerir baja temperatura. I-ME tipifica con su volumen y mix real.',
       },
       {
         q: '¿Qué tipología conviene si el quirófano espera instrumental?',
-        a: 'Casi siempre hay que mirar vapor hospitalario vs lavado vs flujo; a veces el cuello no es el autoclave. Lo diagnosticamos con su volumen real.',
+        a: 'A menudo el cuello no es solo el autoclave: hay que mirar lavado, flujo y capacidad de cámara en pico. Lo diagnosticamos con carga y turnos de su central.',
       },
       {
-        q: '¿I-ME inventa claims clínicos?',
-        a: 'No. Tipología + ficha aplicable + alcance acordado. Sin promesas de resultado clínico.',
+        q: '¿Cómo dimensionar cámara de autoclave sin sobredimensionar CapEx?',
+        a: 'Partimos de volumen de bandejas/ciclo, picos quirúrgicos y utilidades (agua, vapor, drenaje). Tuttnauer se evalúa por tipología aplicable, no por el modelo más grande del brochure.',
       },
       {
-        q: '¿Puedo contactar al fabricante?',
-        a: 'No desde esta página. El canal de asesoría y cotización en Colombia es I-ME.',
+        q: '¿I-ME publica promesas clínicas de esterilización?',
+        a: 'No. Hablamos tipología + ficha aplicable + alcance acordado. Sin ROI inventado ni claims clínicos.',
+      },
+      {
+        q: '¿Puedo contactar a Tuttnauer desde esta página?',
+        a: 'No. El canal de asesoría y cotización en Colombia es I-ME.',
       },
     ],
     projectOptions: [
@@ -304,20 +308,24 @@ const TUTTNAUER: Record<Locale, FabCopy> = {
       'We separate typology, documentable capability and site-dependent factors. No clinical promises or invented ROI. Contact only via I-ME — no manufacturer contact data.',
     faqs: [
       {
-        q: 'Why are there no Tuttnauer products here?',
-        a: 'This landing teaches typologies and sector problems. References are discussed in advisory once load context exists — not as a showcase.',
+        q: 'Steam autoclave or low-temperature sterilization for my CSSD?',
+        a: 'Depends on load: heat-stable instruments usually need hospital steam; heat-sensitive goods may need low temperature. I-ME tipifies with your real volume and mix.',
       },
       {
         q: 'Which typology if the OR waits on instruments?',
-        a: 'Often steam vs wash vs flow; sometimes the autoclave is not the bottleneck. We diagnose with your real volume.',
+        a: 'Often the bottleneck is not only the autoclave: wash, flow and chamber capacity at peak matter. We diagnose with your CSSD load and shifts.',
       },
       {
-        q: 'Does I-ME invent clinical claims?',
-        a: 'No. Typology + applicable sheet + agreed scope. No clinical outcome promises.',
+        q: 'How to size autoclave chamber without overbuying CapEx?',
+        a: 'We start from tray/cycle volume, surgical peaks and utilities (water, steam, drain). Tuttnauer is evaluated by applicable typology, not the largest brochure model.',
       },
       {
-        q: 'Can I contact the manufacturer?',
-        a: 'Not from this page. Advisory and quoting in Colombia go through I-ME.',
+        q: 'Does I-ME publish clinical sterilization promises?',
+        a: 'No. Typology + applicable datasheet + agreed scope. No invented ROI or clinical claims.',
+      },
+      {
+        q: 'Can I contact Tuttnauer from this page?',
+        a: 'No. Advisory and quoting in Colombia go through I-ME.',
       },
     ],
     projectOptions: [
@@ -340,18 +348,18 @@ const SAIKANG: Record<Locale, FabCopy> = {
     description:
       'Flujo de piso trabado? Tipologías de cama hospitalaria, camilla y carro clínico: ergonomía, transferencia y densidad. Orientación I-ME sin vitrina de producto.',
     h1: 'Cuando el mobiliario frena el flujo de atención',
-    lead: 'Saikang se especializa en mobiliario clínico. Aquí enriquecemos SEO con tipologías y problemas de piso, hospitalización y transporte interno — sin fotos ni listados de producto.',
+    lead: 'Saikang fabrica mobiliario clínico hospitalario: camas, camillas y carros para hospitalización, transporte interno y apoyo de piso. I-ME orienta la tipología según el flujo de su institución, con fichas oficiales del fabricante.',
     formIntro:
       'Describa servicio, densidad de camas y plazo. Respondemos en lenguaje de piso y biomédica.',
     primaryCta: 'Orientar mobiliario de mi institución',
     secondaryCta: 'Escribir por WhatsApp',
     tertiaryCta: 'Ver familia mobiliario',
-    heroImage: '/assets/img/hospital-uci-pasillo.webp',
-    heroImageAlt: 'Pasillo hospitalario — tipologías de mobiliario clínico I-ME Colombia',
+    heroImage: '/assets/productos/seo/cama-hospitalaria-manual-v3k-ref-sk-cd1-v3k-saikang.webp',
+    heroImageAlt: 'Cama hospitalaria Saikang — mobiliario clínico oficial del fabricante',
     brandName: 'Saikang',
-    brandProfileTitle: 'Especialidad: mobiliario hospitalario y flujo de paciente',
+    brandProfileTitle: 'Saikang: mobiliario hospitalario y flujo de paciente',
     brandProfileBody:
-      'Fabricante orientado a camas, camillas, carros y mobiliario de apoyo. Esta página explica tipologías y dolores institucionales. Sin logos de producto ni contactos del fabricante: canal I-ME.',
+      'Saikang es el fabricante de camas, camillas, carros y mobiliario de apoyo. I-ME canaliza la evaluación por tipología y ficha oficial; el contacto comercial es con I-ME, no directo con la planta.',
     typologiesTitle: 'Tipologías de mobiliario que pregunta el sector',
     typologiesIntro:
       'Compras y enfermería no piden “una cama bonita”: piden transferencia segura, limpieza, densidad y menos lesiones del personal.',
@@ -453,16 +461,28 @@ const SAIKANG: Record<Locale, FabCopy> = {
       'Separamos tipología, capacidad documentable y lo que depende del sitio. Sin promesas clínicas ni ROI inventado. Contacto solo con I-ME — sin datos del fabricante.',
     faqs: [
       {
-        q: '¿Por qué no hay fotos de camas Saikang?',
-        a: 'Priorizamos tipología y problemas de sector. Las referencias se evalúan en asesoría con contexto de sitio.',
+        q: '¿Cama hospitalaria o camilla de traslado para mi cuello de botella?',
+        a: 'Si el dolor es estancia y rotación de habitación, tipifique cama Saikang. Si el cuello está entre servicios (imagen, quirófano, urgencias), tipifique camilla de transporte. I-ME lo separa con su flujo real.',
       },
       {
-        q: '¿Cama o camilla para mi cuello de botella?',
-        a: 'Depende si el dolor es estancia o transporte. Lo separamos en la primera llamada.',
+        q: '¿Cómo estandarizar flota de mobiliario Saikang sin mezclar tipologías incompatibles?',
+        a: 'Defina tipología por servicio (hospitalización, transporte, carros de apoyo), luego referencias Saikang con ficha oficial y criterios de limpieza, carga y transferencia. Evita flotas mixtas imposibles de mantener.',
       },
       {
-        q: '¿Financiación institucional?',
-        a: 'Orientativa según proyecto; condiciones en propuesta formal I-ME.',
+        q: '¿Qué carga y altura revisar en una cama pediátrica eléctrica Saikang?',
+        a: 'En fichas Saikang de camas pediátricas eléctricas suelen documentarse carga máxima (p. ej. 200 kg en CQ8k), rango de altura y ángulos de respaldo/piernas/Trendelenburg. Validamos la ficha contra su protocolo de piso.',
+      },
+      {
+        q: '¿El mobiliario Saikang sirve para renovación de flota hospitalaria?',
+        a: 'Sí, cuando la renovación parte de tipología y ficha oficial (no solo de foto). I-ME orienta sustitución por desgaste, limpieza y estandarización sin romper protocolos de enfermería.',
+      },
+      {
+        q: '¿Las fotos e información son del fabricante Saikang?',
+        a: 'Sí: usamos imágenes y fichas oficiales Saikang. La referencia exacta se confirma en asesoría según sitio y tipología; el canal comercial es I-ME.',
+      },
+      {
+        q: '¿Hay financiación institucional para mobiliario clínico?',
+        a: 'Orientativa según proyecto y tipología; condiciones en propuesta formal I-ME, no en promesa genérica de página.',
       },
     ],
     projectOptions: [
@@ -482,17 +502,17 @@ const SAIKANG: Record<Locale, FabCopy> = {
     description:
       'Floor flow stuck? Hospital bed, stretcher and clinical cart typologies: ergonomics, transfer and density. I-ME guidance — no product gallery.',
     h1: 'When furniture slows care flow',
-    lead: 'Saikang specializes in clinical furniture. We enrich SEO with typologies and floor/ward problems — no product photos or listings.',
+    lead: 'Saikang manufactures hospital clinical furniture: beds, stretchers and carts for inpatient care, internal transport and floor support. I-ME matches typology to your workflow using official manufacturer datasheets.',
     formIntro: 'Describe service, bed density and timeline. We reply in floor and biomed language.',
     primaryCta: 'Guide my furniture project',
     secondaryCta: 'WhatsApp us',
     tertiaryCta: 'Browse furniture family',
-    heroImage: '/assets/img/hospital-uci-pasillo.webp',
-    heroImageAlt: 'Hospital corridor — clinical furniture typologies I-ME Colombia',
+    heroImage: '/assets/productos/seo/cama-hospitalaria-manual-v3k-ref-sk-cd1-v3k-saikang.webp',
+    heroImageAlt: 'Saikang hospital bed — official manufacturer clinical furniture',
     brandName: 'Saikang',
-    brandProfileTitle: 'Specialty: hospital furniture and patient flow',
+    brandProfileTitle: 'Saikang: hospital furniture and patient flow',
     brandProfileBody:
-      'Manufacturer focused on beds, stretchers, carts and support furniture. This page explains typologies and institutional pain. No product logos or manufacturer contacts: I-ME channel.',
+      'Saikang is the manufacturer of beds, stretchers, carts and support furniture. I-ME channels evaluation by typology and official datasheet; commercial contact is with I-ME, not the plant directly.',
     typologiesTitle: 'Furniture typologies the sector asks about',
     typologiesIntro:
       'Purchasing and nursing do not ask for a pretty bed: they ask for safe transfer, cleaning, density and fewer staff injuries.',
@@ -582,16 +602,28 @@ const SAIKANG: Record<Locale, FabCopy> = {
       'We separate typology, documentable capability and site-dependent factors. No clinical promises or invented ROI. Contact only via I-ME — no manufacturer contact data.',
     faqs: [
       {
-        q: 'Why no Saikang bed photos?',
-        a: 'We prioritize typology and sector problems. References are evaluated in advisory with site context.',
+        q: 'Hospital bed or transfer stretcher for my bottleneck?',
+        a: 'If the pain is stay and room turnover, tipify a Saikang bed. If the bottleneck is between services (imaging, OR, ED), tipify a transport stretcher. I-ME separates that with your real flow.',
       },
       {
-        q: 'Bed or stretcher for my bottleneck?',
-        a: 'Depends on stay vs transport pain. We separate that on the first call.',
+        q: 'How do we standardize a Saikang furniture fleet without incompatible mixes?',
+        a: 'Define typology by service (inpatient, transport, support carts), then Saikang references with official datasheets and cleaning, load and transfer criteria. Avoids mixed fleets that cannot be maintained.',
       },
       {
-        q: 'Institutional financing?',
-        a: 'Indicative by project; terms in a formal I-ME proposal.',
+        q: 'Which load and height should we check on a Saikang electric pediatric bed?',
+        a: 'Saikang pediatric electric bed datasheets typically document max load (e.g. 200 kg on CQ8k), height range and backrest/leg/Trendelenburg angles. We validate the sheet against your floor protocol.',
+      },
+      {
+        q: 'Is Saikang furniture suitable for hospital fleet renewal?',
+        a: 'Yes when renewal starts from typology and official datasheet — not photo alone. I-ME guides wear replacement, cleaning and standardization without breaking nursing protocols.',
+      },
+      {
+        q: 'Are photos and specs from manufacturer Saikang?',
+        a: 'Yes: we use official Saikang images and datasheets. Exact references are confirmed in advisory for your site and typology; commercial channel is I-ME.',
+      },
+      {
+        q: 'Is institutional financing available for clinical furniture?',
+        a: 'Indicative by project and typology; terms in a formal I-ME proposal, not a generic page promise.',
       },
     ],
     projectOptions: [
@@ -727,16 +759,24 @@ const ANGELL: Record<Locale, FabCopy> = {
       'Separamos tipología, capacidad documentable y lo que depende del sitio. Sin promesas clínicas ni ROI inventado. Contacto solo con I-ME — sin datos del fabricante.',
     faqs: [
       {
-        q: '¿Por qué no hay equipos Angell listados?',
-        a: 'Esta landing cubre tipologías y problemas SEO del sector imagen. Referencias en asesoría con contexto de sala.',
+        q: '¿Mamografía digital 2D o tomosíntesis 3D para mi servicio de mama?',
+        a: 'Depende del mix de pacientes, capacidad de lectura y sala. Angell se tipifica con ese contexto antes de fijar referencia.',
       },
       {
-        q: '¿Mamografía digital o 3D primero?',
-        a: 'Depende de mix de pacientes, lectura y capacidad de sala. Lo priorizamos con su realidad.',
+        q: '¿Qué revisar si la sala de mamografía satura en agenda?',
+        a: 'Flujo de paciente, tiempo de adquisición/lectura y tipología (2D vs 3D/CESM). I-ME orienta con datos de sala, no solo con brochure.',
       },
       {
-        q: '¿I-ME da datos de contacto del fabricante?',
-        a: 'No. Solo canal I-ME.',
+        q: '¿Cómo cotizar un mamógrafo Angell sin equivocar tipología?',
+        a: 'Describa volumen, sala y prioridad clínica. Validamos ficha oficial Angell y alcance de instalación con I-ME.',
+      },
+      {
+        q: '¿Las especificaciones son del fabricante Angell?',
+        a: 'Sí cuando hay ficha oficial vinculada. El canal comercial en Colombia es I-ME.',
+      },
+      {
+        q: '¿Financiación institucional para imagen mamaria?',
+        a: 'Orientativa según proyecto; condiciones en propuesta formal I-ME.',
       },
     ],
     projectOptions: [
@@ -865,16 +905,24 @@ const ANGELL: Record<Locale, FabCopy> = {
       'We separate typology, documentable capability and site-dependent factors. No clinical promises or invented ROI. Contact only via I-ME — no manufacturer contact data.',
     faqs: [
       {
-        q: 'Why no Angell units listed?',
-        a: 'This landing covers imaging typologies and SEO sector problems. References in advisory with room context.',
+        q: 'Digital 2D mammography or 3D tomosynthesis for my breast service?',
+        a: 'Depends on patient mix, reading capacity and room. Angell is tipified with that context before locking a reference.',
       },
       {
-        q: 'Digital mammo or 3D first?',
-        a: 'Depends on patient mix, reading and room capacity. We prioritize with your reality.',
+        q: 'What to check if the mammography room saturates the schedule?',
+        a: 'Patient flow, acquisition/reading time and typology (2D vs 3D/CESM). I-ME guides with room data, not brochure alone.',
       },
       {
-        q: 'Does I-ME share manufacturer contacts?',
-        a: 'No. I-ME channel only.',
+        q: 'How to quote an Angell mammograph without wrong typology?',
+        a: 'Share volume, room and clinical priority. We validate the official Angell datasheet and install scope with I-ME.',
+      },
+      {
+        q: 'Are specs from manufacturer Angell?',
+        a: 'Yes when an official datasheet is linked. Commercial channel in Colombia is I-ME.',
+      },
+      {
+        q: 'Institutional financing for breast imaging?',
+        a: 'Indicative by project; terms in a formal I-ME proposal.',
       },
     ],
     projectOptions: [
@@ -1005,16 +1053,24 @@ const NORTHERN: Record<Locale, FabCopy> = {
       'Separamos tipología, capacidad documentable y lo que depende del sitio. Sin promesas clínicas ni ROI inventado. Contacto solo con I-ME — sin datos del fabricante.',
     faqs: [
       {
-        q: '¿Por qué no listan monitores Northern?',
-        a: 'Educamos tipologías y problemas de sector. Referencias en asesoría con contexto de servicio.',
+        q: '¿Un solo monitor multiparámetro sirve para UCI y quirófano?',
+        a: 'A menudo no: tipologías y módulos difieren. Northern se evalúa por servicio (UCI, anestesia, transporte) antes de unificar flota.',
       },
       {
-        q: '¿Un solo monitor para UCI y quirófano?',
-        a: 'A menudo no. Tipologías distintas; lo evaluamos con su mix.',
+        q: '¿Cómo renovar monitores Northern sin romper protocolos de alarma?',
+        a: 'Mapeamos parámetros críticos, conectividad y formación. La ficha oficial define módulos; I-ME aterriza el corte por cama/servicio.',
       },
       {
-        q: '¿Contacto del fabricante?',
-        a: 'No. Solo I-ME.',
+        q: '¿Qué preguntar si compras quiere “el monitor más completo”?',
+        a: 'Mix de pacientes, parámetros obligatorios y red. Completo en brochure no equivale a tipología correcta para su piso.',
+      },
+      {
+        q: '¿Las fichas son del fabricante Northern Meditec?',
+        a: 'Sí cuando están publicadas en la ficha del producto. Canal comercial: I-ME Colombia.',
+      },
+      {
+        q: '¿Se puede estandarizar flota multiparámetro multi-sede?',
+        a: 'Sí, con tipología por servicio y criterios comunes de módulos/consumibles. Lo planificamos en asesoría.',
       },
     ],
     projectOptions: [
@@ -1142,16 +1198,24 @@ const NORTHERN: Record<Locale, FabCopy> = {
       'We separate typology, documentable capability and site-dependent factors. No clinical promises or invented ROI. Contact only via I-ME — no manufacturer contact data.',
     faqs: [
       {
-        q: 'Why no Northern monitors listed?',
-        a: 'We teach typologies and sector problems. References in advisory with service context.',
+        q: 'Will one multiparameter monitor cover ICU and OR?',
+        a: 'Often no: typologies and modules differ. Northern is evaluated by service (ICU, anesthesia, transport) before fleet unification.',
       },
       {
-        q: 'One monitor for ICU and OR?',
-        a: 'Often no. Different typologies; we assess with your mix.',
+        q: 'How to renew Northern monitors without breaking alarm protocols?',
+        a: 'We map critical parameters, connectivity and training. The official datasheet defines modules; I-ME lands the cut per bed/service.',
       },
       {
-        q: 'Manufacturer contact?',
-        a: 'No. I-ME only.',
+        q: 'What to ask if purchasing wants “the most complete monitor”?',
+        a: 'Patient mix, mandatory parameters and network. Brochure completeness ≠ correct typology for your floor.',
+      },
+      {
+        q: 'Are datasheets from manufacturer Northern Meditec?',
+        a: 'Yes when published on the product sheet. Commercial channel: I-ME Colombia.',
+      },
+      {
+        q: 'Can we standardize multiparameter fleets across sites?',
+        a: 'Yes, with typology by service and shared module/consumable criteria. Planned in advisory.',
       },
     ],
     projectOptions: [
@@ -1282,16 +1346,24 @@ const ILUMITEC: Record<Locale, FabCopy> = {
       'Separamos tipología, capacidad documentable y lo que depende del sitio. Sin promesas clínicas ni ROI inventado. Contacto solo con I-ME — sin datos del fabricante.',
     faqs: [
       {
-        q: '¿Por qué no muestran lámparas Ilumitec?',
-        a: 'Prioridad: tipologías y problemas SEO de quirófano. Referencias en asesoría con datos de sala.',
+        q: '¿Lámpara quirúrgica de cúpula simple o doble para mi quirófano?',
+        a: 'Depende de sombra, especialidad y techo. Ilumitec se tipifica con datos de sala antes de fijar referencia LED.',
       },
       {
-        q: '¿Simple o doble cúpula?',
-        a: 'Depende de sombra, mix y techo. Lo resolvemos con su contexto.',
+        q: '¿Cuándo conviene apoyo rodable además de la lámpara de techo?',
+        a: 'Cuando hay quirófanos satélite, mantenimiento o backup. Lo evaluamos con ocupación real de salas.',
       },
       {
-        q: '¿Fabricante colombiano implica contacto directo aquí?',
-        a: 'No. Canal de proyecto: I-ME.',
+        q: '¿Cómo renovar iluminación quirúrgica sin parar agenda?',
+        a: 'Plan de corte por sala, validación eléctrica/techo y ficha Ilumitec. I-ME coordina alcance de instalación.',
+      },
+      {
+        q: '¿Ilumitec es fabricante colombiano y eso implica contacto directo aquí?',
+        a: 'Es fabricante local; el canal de proyecto y cotización en esta web es I-ME.',
+      },
+      {
+        q: '¿Qué datos de sala pedir antes de cotizar una lámpara Ilumitec?',
+        a: 'Altura de techo, especialidades, necesidad de cámara/registro y si requiere doble cúpula o satélite.',
       },
     ],
     projectOptions: [
@@ -1415,16 +1487,24 @@ const ILUMITEC: Record<Locale, FabCopy> = {
       'We separate typology, documentable capability and site-dependent factors. No clinical promises or invented ROI. Contact only via I-ME — no manufacturer contact data.',
     faqs: [
       {
-        q: 'Why no Ilumitec lamps shown?',
-        a: 'Priority: OR typologies and SEO problems. References in advisory with room data.',
+        q: 'Single or dual-head surgical light for my OR?',
+        a: 'Depends on shadow, specialty and ceiling. Ilumitec is tipified with room data before locking an LED reference.',
       },
       {
-        q: 'Single or dual head?',
-        a: 'Depends on shadow, mix and ceiling. We resolve with your context.',
+        q: 'When is a mobile light needed besides the ceiling lamp?',
+        a: 'Satellite ORs, maintenance or backup. We assess with real room occupancy.',
       },
       {
-        q: 'Colombian manufacturer means direct contact here?',
-        a: 'No. Project channel: I-ME.',
+        q: 'How to renew surgical lighting without stopping the schedule?',
+        a: 'Room-by-room cutover, electrical/ceiling validation and Ilumitec datasheet. I-ME coordinates install scope.',
+      },
+      {
+        q: 'Ilumitec is Colombian — does that mean direct contact here?',
+        a: 'It is a local manufacturer; project and quoting channel on this site is I-ME.',
+      },
+      {
+        q: 'Which room data before quoting an Ilumitec lamp?',
+        a: 'Ceiling height, specialties, camera/recording needs and whether dual-head or satellite is required.',
       },
     ],
     projectOptions: [
@@ -1545,12 +1625,20 @@ const PERLONG: Record<Locale, FabCopy> = {
       'Separamos tipología, capacidad documentable y lo que depende del sitio. Sin promesas clínicas ni ROI inventado. Contacto solo con I-ME — sin datos del fabricante.',
     faqs: [
       {
-        q: '¿Por qué no hay productos Perlong?',
-        a: 'Enfocamos tipologías y preguntas SEO del diagnóstico básico.',
+        q: '¿Una balanza clínica sirve igual para adulto y pediatría?',
+        a: 'A menudo no: rangos y plataformas difieren. Perlong se tipifica por perfil de paciente y flujo de consulta.',
       },
       {
-        q: '¿Una balanza sirve para adulto y niño?',
-        a: 'A menudo no. Tipologías distintas; lo aclaramos en asesoría.',
+        q: '¿Cómo estandarizar medición en multi-sede sin mezclar tipologías?',
+        a: 'Defina tipología por servicio (consulta, pediatría, emergencia) y luego referencias Perlong con ficha. Evita flotas incompatibles.',
+      },
+      {
+        q: '¿Qué revisar si las tomas de peso no son trazables?',
+        a: 'Calibración, tipología correcta y protocolo de uso. I-ME orienta con el contexto de su consulta.',
+      },
+      {
+        q: '¿Las fichas son del fabricante Perlong?',
+        a: 'Sí cuando están publicadas en la ficha del producto. Canal comercial: I-ME.',
       },
     ],
     projectOptions: [
@@ -1664,12 +1752,20 @@ const PERLONG: Record<Locale, FabCopy> = {
       'We separate typology, documentable capability and site-dependent factors. No clinical promises or invented ROI. Contact only via I-ME — no manufacturer contact data.',
     faqs: [
       {
-        q: 'Why no Perlong products?',
-        a: 'We focus on typologies and SEO questions for basic diagnostics.',
+        q: 'Will one clinical scale work for adult and pediatrics?',
+        a: 'Often no: ranges and platforms differ. Perlong is tipified by patient profile and clinic flow.',
       },
       {
-        q: 'One scale for adult and child?',
-        a: 'Often no. Different typologies; we clarify in advisory.',
+        q: 'How to standardize measurement across sites without mixed typologies?',
+        a: 'Define typology by service (outpatient, pediatrics, ED) then Perlong references with datasheet. Avoids incompatible fleets.',
+      },
+      {
+        q: 'What to check if weight readings are not traceable?',
+        a: 'Calibration, correct typology and use protocol. I-ME guides with your clinic context.',
+      },
+      {
+        q: 'Are datasheets from manufacturer Perlong?',
+        a: 'Yes when published on the product sheet. Commercial channel: I-ME.',
       },
     ],
     projectOptions: [
@@ -1797,12 +1893,20 @@ const BM: Record<Locale, FabCopy> = {
       'Separamos tipología, capacidad documentable y lo que depende del sitio. Sin promesas clínicas ni ROI inventado. Contacto solo con I-ME — sin datos del fabricante.',
     faqs: [
       {
-        q: '¿Por qué no hay sillones BM en foto?',
-        a: 'Esta página educa tipologías. Referencias en asesoría.',
+        q: '¿Un sillón de hogar sirve en hospitalización o terapias?',
+        a: 'Casi nunca: faltan criterios de limpieza, transferencia y uso intensivo. BM se tipifica como reclinable clínico.',
       },
       {
-        q: '¿Sirve un sillón de hogar?',
-        a: 'Casi nunca en protocolo hospitalario de limpieza y transferencia.',
+        q: '¿Cuándo pedir sillón reclinable BM en larga estancia?',
+        a: 'Cuando el dolor es confort + transferencia segura del paciente. Validamos tipología y ficha con el servicio.',
+      },
+      {
+        q: '¿Cómo renovar reclinables sin romper protocolos de limpieza?',
+        a: 'Materiales lavables, tipología por servicio y estandarización de flota. I-ME orienta el corte.',
+      },
+      {
+        q: '¿Las referencias BM se cotizan con I-ME?',
+        a: 'Sí. Canal comercial y soporte: I-ME Colombia.',
       },
     ],
     projectOptions: [
@@ -1917,12 +2021,20 @@ const BM: Record<Locale, FabCopy> = {
       'We separate typology, documentable capability and site-dependent factors. No clinical promises or invented ROI. Contact only via I-ME — no manufacturer contact data.',
     faqs: [
       {
-        q: 'Why no BM recliner photos?',
-        a: 'This page teaches typologies. References in advisory.',
+        q: 'Will a home recliner work in wards or therapies?',
+        a: 'Almost never: cleaning, transfer and intensive-use criteria are missing. BM is tipified as a clinical recliner.',
       },
       {
-        q: 'Will a home recliner work?',
-        a: 'Almost never under hospital cleaning and transfer protocol.',
+        q: 'When to request a BM recliner for long stay?',
+        a: 'When the pain is comfort + safe patient transfer. We validate typology and datasheet with the service.',
+      },
+      {
+        q: 'How to renew recliners without breaking cleaning protocols?',
+        a: 'Washable materials, typology by service and fleet standardization. I-ME guides cutover.',
+      },
+      {
+        q: 'Are BM references quoted through I-ME?',
+        a: 'Yes. Commercial and support channel: I-ME Colombia.',
       },
     ],
     projectOptions: [
@@ -2044,12 +2156,24 @@ const ADVANCED: Record<Locale, FabCopy> = {
       'Separamos tipología, capacidad documentable y lo que depende del sitio. Sin promesas clínicas ni ROI inventado. Contacto solo con I-ME — sin datos del fabricante.',
     faqs: [
       {
-        q: '¿Por qué no listan ecógrafos Advanced?',
-        a: 'Educación de tipologías y problemas SEO. Referencias en asesoría.',
+        q: '¿Qué ecógrafo Advanced tipificar para consulta vs quirófano?',
+        a: 'Depende de sondas, portabilidad y flujo. Advanced se orienta por tipología de servicio antes de la referencia.',
       },
       {
-        q: '¿POC o equipo de radiología?',
-        a: 'Depende de quién opera y qué decide el estudio. Lo separamos con su flujo.',
+        q: '¿Cómo cotizar ultrasonido sin comprar por foto?',
+        a: 'Liste aplicaciones clínicas, sondas necesarias y movilidad. Validamos ficha oficial Advanced con I-ME.',
+      },
+      {
+        q: '¿Se puede unificar flota de ultrasonido multi-sede?',
+        a: 'Sí, con tipología por servicio y criterios de sondas/consumibles comunes.',
+      },
+      {
+        q: '¿Las fichas son del fabricante Advanced Instrumentations?',
+        a: 'Sí cuando están publicadas. Canal comercial: I-ME Colombia.',
+      },
+      {
+        q: '¿Financiación para torres o sistemas de ultrasonido?',
+        a: 'Orientativa según proyecto; condiciones en propuesta formal I-ME.',
       },
     ],
     projectOptions: [
@@ -2164,12 +2288,24 @@ const ADVANCED: Record<Locale, FabCopy> = {
       'We separate typology, documentable capability and site-dependent factors. No clinical promises or invented ROI. Contact only via I-ME — no manufacturer contact data.',
     faqs: [
       {
-        q: 'Why no Advanced ultrasound units listed?',
-        a: 'Typology education and SEO problems. References in advisory.',
+        q: 'Which Advanced ultrasound typology for clinic vs OR?',
+        a: 'Depends on probes, portability and flow. Advanced is guided by service typology before the reference.',
       },
       {
-        q: 'POC or radiology system?',
-        a: 'Depends on who operates and what the study decides. We separate with your flow.',
+        q: 'How to quote ultrasound without buying by photo?',
+        a: 'List clinical apps, required probes and mobility. We validate the official Advanced datasheet with I-ME.',
+      },
+      {
+        q: 'Can ultrasound fleets be unified across sites?',
+        a: 'Yes, with typology by service and shared probe/consumable criteria.',
+      },
+      {
+        q: 'Are datasheets from manufacturer Advanced Instrumentations?',
+        a: 'Yes when published. Commercial channel: I-ME Colombia.',
+      },
+      {
+        q: 'Financing for ultrasound systems?',
+        a: 'Indicative by project; terms in a formal I-ME proposal.',
       },
     ],
     projectOptions: [
@@ -2296,16 +2432,20 @@ const M_LINE: Record<Locale, FabCopy> = {
       'Separamos tipología, capacidad documentable y lo que depende del sitio. Sin promesas clínicas ni ROI inventado. Contacto solo con I-ME — sin datos del fabricante.',
     faqs: [
       {
-        q: '¿Por qué no hay bombas M listadas?',
-        a: 'Priorizamos tipologías y preguntas de seguridad IV. Referencias en asesoría.',
+        q: '¿Bomba de infusión volumétrica o jeringa para mi servicio?',
+        a: 'Depende de terapia, precisión y flujo de enfermería. Tipificamos la línea M según protocolo antes de la referencia.',
       },
       {
-        q: '¿Volumétrica o jeringa?',
-        a: 'Depende de volumen, servicio y protocolo. Lo definimos con su mix.',
+        q: '¿Cómo reducir errores de medicación con tipología correcta de bomba?',
+        a: 'Alineando tipología (volumétrica/jeringa), bibliotecas y formación. I-ME orienta con su mix de terapias — sin claims clínicos inventados.',
       },
       {
-        q: '¿Contacto del fabricante?',
-        a: 'No. Canal I-ME.',
+        q: '¿Se puede estandarizar bombas en UCI y hospitalización?',
+        a: 'Sí, con criterios por servicio y consumibles compatibles. Se planifica en asesoría.',
+      },
+      {
+        q: '¿Dónde cotizar bombas de la línea M?',
+        a: 'Con I-ME Colombia; validamos ficha oficial cuando esté disponible.',
       },
     ],
     projectOptions: [
@@ -2425,16 +2565,20 @@ const M_LINE: Record<Locale, FabCopy> = {
       'We separate typology, documentable capability and site-dependent factors. No clinical promises or invented ROI. Contact only via I-ME — no manufacturer contact data.',
     faqs: [
       {
-        q: 'Why no M pumps listed?',
-        a: 'We prioritize IV typologies and safety questions. References in advisory.',
+        q: 'Volumetric or syringe infusion pump for my service?',
+        a: 'Depends on therapy, precision and nursing flow. We tipify the M line by protocol before the reference.',
       },
       {
-        q: 'Volumetric or syringe?',
-        a: 'Depends on volume, service and protocol. We define with your mix.',
+        q: 'How to reduce medication errors with the right pump typology?',
+        a: 'Align typology (volumetric/syringe), libraries and training. I-ME guides with your therapy mix — no invented clinical claims.',
       },
       {
-        q: 'Manufacturer contact?',
-        a: 'No. I-ME channel.',
+        q: 'Can pumps be standardized across ICU and wards?',
+        a: 'Yes, with criteria by service and compatible consumables. Planned in advisory.',
+      },
+      {
+        q: 'Where to quote M-line pumps?',
+        a: 'Through I-ME Colombia; we validate the official datasheet when available.',
       },
     ],
     projectOptions: [
