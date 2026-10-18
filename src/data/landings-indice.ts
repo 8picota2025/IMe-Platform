@@ -259,7 +259,7 @@ export const LANDINGS_INDICE: EntradaIndiceLanding[] = [
   {
     tipo: 'familia',
     clave: 'monitores',
-    nombre: 'Monitores de paciente para hospitales',
+    nombre: 'Monitores de signos vitales',
     path: '/es/familias/monitores/',
     pathEn: '/en/families/monitores/',
   },
