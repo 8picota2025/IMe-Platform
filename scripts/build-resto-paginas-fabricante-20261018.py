@@ -120,6 +120,9 @@ def strip_html(s: str) -> str:
 
 
 def page_title(html: str) -> str:
+    m = re.search(r'<meta[^>]+property=["\']og:title["\'][^>]+content=["\']([^"\']+)', html, re.I)
+    if m:
+        return strip_html(m.group(1))
     m = re.search(r"<title[^>]*>([^<]+)</title>", html, re.I)
     if m:
         return strip_html(m.group(1))
@@ -431,6 +434,16 @@ def main() -> None:
     man_index = {m["slug"]: i for i, m in enumerate(manifest)}
 
     items = [i for i in need["items"] if i["slug"] not in SKIP_SLUGS and is_priority(i)]
+    if not any(i["slug"] == "monitor-de-paciente-ref-s12-biolight" for i in items):
+        items.append(
+            {
+                "slug": "monitor-de-paciente-ref-s12-biolight",
+                "nombre": "Monitor de paciente Biolight S12",
+                "marca": "Biolight",
+                "ref": "s12",
+                "pagina": URL_OVERRIDES["monitor-de-paciente-ref-s12-biolight"],
+            }
+        )
     saikang_sitemap = load_saikang_sitemap_urls()
 
     enriched: list[dict] = []
