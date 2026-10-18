@@ -104,6 +104,21 @@ frontend de I-ME — ver `docs/decisions/0002-pse-checkout-hospedado.md`.
   sigue `pendiente`, consulta el estado real contra Wompi y actualiza a
   `pagado`/`rechazado` para no depender exclusivamente del webhook en el
   retorno del usuario.
+
+### Cotizaciones → Wompi (referencia pasarela)
+
+- El checkout firmado usa **`pedidos.id`** como `reference` / `referencia_pasarela`.
+  `webhook-wompi` busca el pedido por ese UUID; una referencia `IME-Q-…` no
+  encuentra fila y el evento queda sin pedido (cobro huérfano).
+- Flujo correcto: PDF/correo enlazan a **formalizar** → el cliente elige pago en
+  línea → `formalizar-cotizacion` con `iniciar_pago_wompi` crea (o reutiliza) un
+  `pedidos` `pendiente` vía `crearOReusarPedidoWompiDesdeCotizacion` y entonces
+  firma la URL de checkout (`supabase/functions/_shared/cotizacion-pago.ts`).
+- Vista previa PDF / `dry_run` de envío **no** firman checkout (aún no hay
+  `pedidos.id`). Detalle operativo: `docs/commercial-quote-dev.md` (Wompi en PDF).
+- Recuperación: si llega un webhook con referencia antigua tipo `IME-Q-…`,
+  `webhook-wompi` intenta crear pedido desde la cotización (`pareceNumeroCotizacion`).
+  No usar eso como flujo nuevo.
 - `pedidos.estado` acepta: `pendiente|pagado|rechazado|expirado|cancelado|
 reembolsado|error_verificacion|procesando|enviado|entregado|retrasado`
   (`retrasado` = Escenario A, rotura de stock post-pago — ver F4.1 en
