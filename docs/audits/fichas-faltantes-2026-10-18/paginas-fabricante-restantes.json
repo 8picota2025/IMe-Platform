@@ -15,12 +15,12 @@
   "monitor-fetal-y-materno-ref-fm-9000-northern": null,
   "bascula-corporal-doble-regla-ref-rgt-a-200-rt-perlong": "https://www.perlong-china.com/Scale-pl6383726.html",
   "balanza-corporal-con-doble-regla-ref-rgt-rt-perlong": "https://www.perlong-china.com/Scale-pl6383726.html",
-  "cama-de-hospital-plana-r00-ref-sk-c1-r00-saikang": null,
-  "camilla-manual-de-una-funcion-r000w-ref-sk-c1-r000w-saikang": null,
+  "cama-de-hospital-plana-r00-ref-sk-c1-r00-saikang": "https://saikangmedical.com/en/product/k2k-manual-bed/",
+  "camilla-manual-de-una-funcion-r000w-ref-sk-c1-r000w-saikang": "https://saikangmedical.com/en/product/k2k-manual-bed/",
   "gabinete-dental-ref-sk-d2c-saikang": null,
   "tablero-espinal-ref-skb2a11-saikang": null,
   "tablero-espinal-ref-skb2a12-saikang": null,
-  "silla-de-espera-ref-ske008-1-saikang": "https://saikangmedical.com/en/product/ske008-1-waiting-chair/",
+  "silla-de-espera-ref-ske008-1-saikang": "https://saikangmedical.com/en/product/ske011-1-treat-waiting-chair/",
   "estanteria-hospitalaria-ref-skh050-saikang": null,
   "estanteria-hospitalaria-ref-skh061-saikang": null,
   "gabinete-de-almacenamiento-ref-skh092-saikang": "https://saikangmedical.com/en/product/skh092-storage-cabinet/",
@@ -46,5 +46,6 @@
   "sillon-odontologico-ref-se802-saikang": "https://saikangmedical.com/en/product/se802-dental-chair/",
   "equipo-hospitalario-ref-skh046-1-saikang": "https://saikangmedical.com/en/product/skh046-1-telescopic-dining-board/",
   "equipo-hospitalario-ref-skn031-stainless-steel-kidney-dish-saikang": "https://saikangmedical.com/en/product/skn031_stainless-steel-kidney-dish/",
-  "equipo-hospitalario-ref-skno31-saikang": "https://saikangmedical.com/en/product/skno31-stainless-steel-kidney-dish/"
+  "equipo-hospitalario-ref-skno31-saikang": "https://saikangmedical.com/en/product/skno31-stainless-steel-kidney-dish/",
+  "monitor-de-paciente-ref-s12-biolight": "http://www.blt.com.cn/product1-ebeea5e0075f445b8d24586413e5927d"
 }

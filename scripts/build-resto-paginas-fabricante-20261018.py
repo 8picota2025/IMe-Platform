@@ -30,7 +30,7 @@ URL_OVERRIDES: dict[str, str | list[str]] = {
     "rx-piso-mtp": "https://en.szangell.com/product/mtp-series/",
     "arco-c-movil-dinamico-hua-ii": "https://en.szangell.com/product/hua-ii-series/",
     "mesita-de-noche-ref-sks002-saikang": "https://saikangmedical.com/en/product/skso2-w-abs-hospital-bedside-cabinet/",
-    "monitor-de-paciente-ref-s12-biolight": "https://www.blt.com.cn/product1-ebeea5e0075f445b8d24586413e5927d",
+    "monitor-de-paciente-ref-s12-biolight": "http://www.blt.com.cn/product1-ebeea5e0075f445b8d24586413e5927d",
     "bomba-de-jeringa-precision-microdosis": "https://advanced-inst.com/syringe-pump/",
     "cama-de-hospital-plana-r00-ref-sk-c1-r00-saikang": "https://saikangmedical.com/en/product/k2k-manual-bed/",
     "camilla-manual-de-una-funcion-r000w-ref-sk-c1-r000w-saikang": "https://saikangmedical.com/en/product/k2k-manual-bed/",
@@ -59,7 +59,7 @@ SERIES_TOKENS: dict[str, list[str]] = {
     "sistema-dr-de-mesa-telecomandada-ref-dr-telecomand-angell": ["DTP576", "576"],
     "dr-dinamico-de-brazo-ref-dr-uc-arm-angell": ["DTP580", "580"],
     "dr-dinamico-ref-dtp573-angell": ["DTP573", "573"],
-    "detector-plano-inalambrico-ref-tcq-iii-angell": ["TCQ", "TCQ-III", "flat panel"],
+    "detector-plano-inalambrico-ref-tcq-iii-angell": ["TCQ-III", "TCQ III"],
     "sistema-de-ultrasonido-ref-dus-3000-advanced": ["DUS-3000", "DUS 3000"],
     "rx-multifuncional-uc-arm-ref-dtp580": ["DTP580", "DTP-580", "580"],
 }
@@ -72,7 +72,7 @@ BLOCK_IF_PAGE_CONTAINS: dict[str, list[str]] = {
 SKIP_SLUGS = {"test"}
 
 
-def fetch(url: str, timeout: int = 45) -> tuple[int | None, str]:
+def fetch(url: str, timeout: int = 120) -> tuple[int | None, str]:
     try:
         proc = subprocess.run(
             ["curl", "-sL", "--compressed", "-A", UA, "-w", "\n%{http_code}", url],
@@ -81,9 +81,9 @@ def fetch(url: str, timeout: int = 45) -> tuple[int | None, str]:
             timeout=timeout,
             check=False,
         )
-        if proc.returncode != 0:
-            return None, proc.stderr or "curl_error"
         out = proc.stdout
+        if not out and proc.returncode != 0:
+            return None, proc.stderr or "curl_error"
         if not out:
             return None, "empty"
         *body_parts, status_line = out.rsplit("\n", 1)
@@ -293,7 +293,14 @@ def build_entry(
 
     descripcion_en_parts = [
         f"{nombre_ime} ({marca}) in the IME Colombia catalog for healthcare institutions.",
-        intro_extra.replace("En IME", "In IME").replace("Confirme", "Confirm") if intro_extra else "",
+        (
+            intro_extra.replace("En IME la referencia comercial es", "In IME the commercial reference is")
+            .replace("Confirme equivalencia al cotizar.", "Confirm equivalence when requesting a quote.")
+            .replace("la página del fabricante describe la serie indicada.", "the manufacturer page describes the indicated series.")
+            .replace("la categoría Syringe Pump (sin SKU único publicado).", "the Syringe Pump category (no single published SKU).")
+        )
+        if intro_extra
+        else "",
         f"Per {marca} official page: {title}." if title else "",
         f"Codes on manufacturer page: {', '.join(codigos)}." if codigos else "",
         (
@@ -377,6 +384,13 @@ def build_entry(
     }
 
 
+def load_perlong_product_urls() -> list[str]:
+    st, body = fetch("https://www.perlong-china.com/sitemap.xml")
+    if st != 200:
+        return []
+    return re.findall(r"<loc>(https://www\.perlong-china\.com/[^<]+\.html)</loc>", body)
+
+
 def load_saikang_sitemap_urls() -> list[str]:
     urls: list[str] = []
     for sm in (
@@ -387,6 +401,31 @@ def load_saikang_sitemap_urls() -> list[str]:
         if st == 200:
             urls.extend(re.findall(r"<loc>(https://saikangmedical.com/en/product/[^<]+)</loc>", body))
     return urls
+
+
+def discover_url_by_content(ref: str, candidate_urls: list[str], extra_tokens: list[str] | None = None) -> str | None:
+    if not ref and not extra_tokens:
+        return None
+    tokens = []
+    if ref:
+        r = ref.upper()
+        tokens.extend([r, r.replace("-", ""), r.replace(".", ""), r.replace("_", "-")])
+    if extra_tokens:
+        tokens.extend([t.upper() for t in extra_tokens])
+    for u in candidate_urls:
+        ul = u.lower()
+        if ref and ref.lower().replace("_", "-") in ul.replace("_", "-"):
+            st, html = fetch(u)
+            if st == 200 and model_ok("", ref, html, page_title(html))[0]:
+                return u
+            continue
+        st, html = fetch(u)
+        if st != 200:
+            continue
+        blob = strip_html(html).upper()
+        if any(t for t in tokens if t and t in blob):
+            return u
+    return None
 
 
 def saikang_url_for_ref(ref: str, sitemap_urls: list[str]) -> str | None:
@@ -403,13 +442,13 @@ def saikang_url_for_ref(ref: str, sitemap_urls: list[str]) -> str | None:
 
 
 def resolve_url(slug: str, item: dict) -> str | None:
-    if item.get("pagina"):
-        return item["pagina"]
     ov = URL_OVERRIDES.get(slug)
     if isinstance(ov, list):
         return ov[0]
     if isinstance(ov, str):
         return ov
+    if item.get("pagina"):
+        return item["pagina"]
     return None
 
 
@@ -445,6 +484,7 @@ def main() -> None:
             }
         )
     saikang_sitemap = load_saikang_sitemap_urls()
+    perlong_urls = load_perlong_product_urls()
 
     enriched: list[dict] = []
     url_map: dict[str, str | None] = {}
@@ -454,8 +494,20 @@ def main() -> None:
     for item in items:
         slug = item["slug"]
         url = resolve_url(slug, item)
+        ref = item.get("ref") or ""
         if not url and item.get("marca") == "Saikang":
-            url = saikang_url_for_ref(item.get("ref") or "", saikang_sitemap)
+            url = saikang_url_for_ref(ref, saikang_sitemap)
+        if not url and item.get("marca") == "Perlong":
+            url = saikang_url_for_ref(ref, perlong_urls)
+        if not url and item.get("marca") == "Saikang":
+            path_hits = [
+                u
+                for u in saikang_sitemap
+                if ref and ref.lower().replace("_", "-") in u.lower().replace("_", "-")
+            ]
+            url = discover_url_by_content(
+                ref, path_hits, REF_ALIASES.get(ref.lower(), [])
+            )
         url_map[slug] = url
         if not url:
             failed.append({"slug": slug, "reason": "no_url"})
