@@ -445,24 +445,26 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
   },
   {
     slug: 'monitores',
-    name_es: 'Monitores de paciente para hospitales',
-    name_en: 'Patient monitors for hospitals',
-    title_es: 'Monitores de paciente para UCI y hospitales | I-ME',
-    title_en: 'Patient monitors for hospitals and ICU in Colombia | I-ME',
+    name_es: 'Monitores de signos vitales',
+    name_en: 'Patient monitors',
+    title_es: 'Monitores Biolight S12/M12 y multiparamétricos UCI | I-ME',
+    title_en: 'Biolight S12/M12 & ICU multiparameter monitors | I-ME',
     description_es:
-      'Monitores de paciente multiparamétricos para UCI, urgencias y hospitalización en Colombia. I-ME orienta parámetros, modularidad y soporte antes de cotizar.',
+      'Monitores de paciente Biolight S12, M12 y multiparamétricos UCI para hospitales. Orientación I-ME: parámetros, modularidad y soporte en Colombia.',
     description_en:
-      'Compare multiparameter patient monitors for ICU, emergency and wards in Colombia. I-ME matches parameters, modularity and support before a quote.',
+      'Biolight S12, M12 and ICU multiparameter patient monitors for hospitals. I-ME guidance on parameters, modularity and support in Colombia.',
     intro_es:
-      'Un monitor de paciente se elige por el servicio que lo va a usar — observación, urgencias, transporte o UCI — y no solo por el tamaño de la pantalla.',
+      'Elegir un monitor no es solo “pantalla grande”. En UCI, urgencias o transporte el criterio cambia: parámetros base, modularidad, alarma usable y cómo se integra a la estación central.',
     intro_en:
-      'A patient monitor is chosen for the service that will use it — observation, emergency, transport or ICU — not by screen size alone.',
+      'Choosing a monitor is not just “a bigger screen”. ICU, ER or transport change the brief: core parameters, modularity, usable alarms and how it joins a central station.',
     body_es: [
-      'En hospitales de Colombia el punto de partida suele ser ECG, oximetría de pulso y presión no invasiva, y se suman capnografía o presión invasiva solo si ese servicio las usa. I-ME revisa alarmas, central y transporte antes de cotizar una referencia.',
+      'En Colombia, las instituciones suelen pedir monitores multiparamétricos con ECG, SpO₂ y NIBP como mínimo, y opciones de capnografía o presión invasiva según el servicio. I-ME ayuda a mapear el uso previsto antes de cotizar referencias.',
+      'También importa el flujo operativo: ¿quién responde alarmas?, ¿hay central multicama?, ¿se necesita transporte inter-área sin perder trazo? Esas preguntas evitan comprar potencia que no se usa o quedar cortos en criticidad.',
       'Los monitores de paciente Biolight S12 y M12 están a la venta, con precio bajo cotización. También está el Advanced PM-2000A PRO. La documentación y el soporte se confirman por referencia.',
     ],
     body_en: [
-      'Colombian hospitals usually start with ECG, pulse oximetry and non-invasive blood pressure, and add capnography or invasive pressure only when that service uses them. I-ME reviews alarms, central station and transport before quoting a reference.',
+      'Colombian hospitals often need multiparameter monitors with ECG, SpO₂ and NIBP as a baseline, plus capnography or invasive pressure by service. I-ME maps intended use before quoting SKUs.',
+      'Operations matter too: who owns alarms, whether a multi-bed central exists, and whether transport must keep the trace. That prevents overbuying or under-specifying critical care.',
       'Biolight S12 and M12 patient monitors are for sale, with price on request. The Advanced PM-2000A PRO is also published. Documentation and support are confirmed per reference.',
     ],
     faq: [

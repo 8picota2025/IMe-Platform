@@ -12,6 +12,24 @@ export interface ProductoSeoCopy {
 }
 
 const COPY: Record<string, { es: ProductoSeoCopy; en: ProductoSeoCopy }> = {
+  'monitor-de-paciente-ref-s12-biolight': {
+    es: {
+      title: 'Monitor de Paciente Biolight S12 | Monitoreo Avanzado con Tecnología IoT | I-ME',
+      description:
+        'El Monitor de Paciente Biolight S12 integra tecnología inteligente, diseño ergonómico y una interfaz de usuario moderna para brindar monitoreo clínico confiable en todos los niveles de atención.',
+      h1: 'Monitor de Paciente Biolight S12 | Monitoreo Avanzado con Tecnología IoT',
+      intro:
+        'El Monitor de Paciente Biolight S12 integra tecnología inteligente, diseño ergonómico y una interfaz de usuario moderna para brindar monitoreo clínico confiable en todos los niveles de atención.',
+    },
+    en: {
+      title: 'Biolight S12 Patient Monitor | Advanced Monitoring with IoT Technology | I-ME',
+      description:
+        'The Biolight S12 Patient Monitor integrates intelligent technology, ergonomic design, and a modern user interface to provide reliable clinical monitoring at all care levels.',
+      h1: 'Biolight S12 Patient Monitor | Advanced Monitoring with IoT Technology',
+      intro:
+        'The Biolight S12 Patient Monitor integrates intelligent technology, ergonomic design, and a modern user interface to provide reliable clinical monitoring at all care levels.',
+    },
+  },
   'sistema-de-rayos-x-dr-movil-ref-dr-mobile-angell': {
     es: {
       title: 'Sistema de rayos X DR móvil para hospitales en Colombia | I-ME',

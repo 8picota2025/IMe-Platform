@@ -49,6 +49,12 @@ RewriteRule ^(?:assets/productos/importados/sensor\-de\-flujo\-desechable\-ref\-
 # Canonical entry points
 RewriteRule ^$ /es/ [R=301,L]
 RewriteRule ^index\.html$ /es/ [R=301,L]
+# /es y /en sin barra son el mismo documento que la home con barra.
+RewriteRule ^es$ /es/ [R=301,L]
+RewriteRule ^en$ /en/ [R=301,L]
+# Guía INVIMA: Search Console también vio la URL sin barra final.
+RewriteRule ^es/conocimiento/tema/invima-regulacion$ /es/conocimiento/tema/invima-regulacion/ [R=301,L]
+RewriteRule ^en/knowledge/topic/invima-regulacion$ /en/knowledge/topic/invima-regulacion/ [R=301,L]
 RewriteRule ^contacto\.html$ /es/contacto/ [R=301,L]
 RewriteRule ^es/cart/?$ /es/carrito/ [R=301,L]
 RewriteRule ^en/carrito/?$ /en/cart/ [R=301,L]

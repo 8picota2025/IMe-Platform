@@ -263,6 +263,23 @@ describe('buildProductoSeo', () => {
     expect(seo.canonical).toContain('/es/productos/bomba-de-infusion-ref-ip-200-advanced');
   });
 
+  it('no mete «quote» ni «cotización» en el title', () => {
+    const seo = buildProductoSeo(
+      {
+        nombre: 'Biolight S12 patient monitor',
+        descripcion_corta: 'Biolight S12 patient monitor with a 12.1-inch display.',
+        imagen_principal: null,
+        slug: 'monitor-de-paciente-ref-s12-biolight',
+        seo_keywords: ['biolight s12 patient monitor', 'biolight', 'quote', 'hospital equipment'],
+      },
+      'en',
+      'Patient monitors',
+      'Biolight'
+    );
+    expect(seo.title.toLowerCase()).not.toContain('quote');
+    expect(seo.title).not.toContain('hospital equipment');
+  });
+
   it('cae a categoría como intent si no hay seo_keywords', () => {
     const seo = buildProductoSeo(
       {

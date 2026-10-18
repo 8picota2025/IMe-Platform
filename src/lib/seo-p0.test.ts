@@ -17,9 +17,15 @@ describe('SEO P0', () => {
   });
 
   it('home title is brand-first', () => {
-    expect(buildHomeSeo('es').title.startsWith('I-ME |')).toBe(true);
-    expect(buildHomeSeo('en').title.startsWith('I-ME |')).toBe(true);
-    expect(buildHomeSeo('es').description).toContain('i-me.com.co');
+    const es = buildHomeSeo('es');
+    const en = buildHomeSeo('en');
+    expect(es.title.startsWith('I-ME |')).toBe(true);
+    expect(en.title.startsWith('I-ME |')).toBe(true);
+    expect(es.title.length).toBeLessThanOrEqual(60);
+    expect(en.title.length).toBeLessThanOrEqual(65);
+    expect(es.description).toContain('i-me.com.co');
+    expect(es.canonical).toBe('https://i-me.com.co/es/');
+    expect(buildOrganizationJsonLd().url).toBe('https://i-me.com.co/es/');
   });
 
   it('about/nosotros targets brand queries', () => {

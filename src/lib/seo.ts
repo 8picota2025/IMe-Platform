@@ -262,11 +262,11 @@ export function buildHomeSeo(locale: Locale): SeoPageMeta {
   return {
     // Brand-first titles: GSC showed impressions for "i me" / "ime" / "i-me.com" with ~0 CTR.
     title: isEs
-      ? 'I-ME | Equipos biomédicos certificados en Colombia — venta, soporte e INVIMA'
-      : 'I-ME | Certified biomedical equipment in Colombia — sales, support & INVIMA',
+      ? 'I-ME | Equipos biomédicos en Colombia — venta y soporte'
+      : 'I-ME | Biomedical equipment in Colombia — sales and support',
     description: isEs
-      ? 'I-ME (i-me.com.co · IME · International Medical Enterprise): distribuidor biomédico en Colombia — equipos con respaldo INVIMA/CE/FDA, soporte técnico, calibración y financiamiento para hospitales y clínicas.'
-      : 'I-ME (i-me.com.co · IME · International Medical Enterprise): biomedical distributor in Colombia — INVIMA/CE/FDA equipment, technical support, calibration and financing for hospitals and clinics.',
+      ? 'I-ME (i-me.com.co · IME): venta, soporte técnico y financiamiento de equipos biomédicos para hospitales y clínicas en Colombia. Documentación por referencia.'
+      : 'I-ME (i-me.com.co · IME): biomedical equipment sales, technical support and financing for hospitals and clinics in Colombia. Documentation per reference.',
     canonical: buildCanonical(`/${locale}/`),
     ogImage: DEFAULT_OG_IMAGE,
   };
@@ -303,11 +303,21 @@ export function buildProductoSeo(
   const normalizedExclusions = [producto.nombre, marca, categoria]
     .filter((value): value is string => Boolean(value))
     .map(value => value.trim().toLocaleLowerCase(locale));
+  const genericIntent = new Set([
+    'quote',
+    'cotización',
+    'cotizacion',
+    'hospital equipment',
+    'equipo hospitalario',
+    'i-me colombia',
+    'ime datasheet',
+  ]);
   const primaryIntent =
     (producto.seo_keywords ?? [])
       .map(k => k.trim())
       .filter(Boolean)
       .filter(keyword => !normalizedExclusions.includes(keyword.toLocaleLowerCase(locale)))
+      .filter(keyword => !genericIntent.has(keyword.toLocaleLowerCase(locale)))
       .at(0) ??
     (categoria && !includesLoose(producto.nombre, categoria, locale)
       ? categoria.trim()
@@ -443,7 +453,7 @@ export function buildOrganizationJsonLd(catalogItemCount?: number): Record<strin
       'i-me.com.co',
       'i.me.com',
     ],
-    url: SITE,
+    url: `${SITE}/es/`,
     logo: {
       '@type': 'ImageObject',
       url: LOGO,
@@ -512,7 +522,7 @@ export function buildWebSiteJsonLd(): Record<string, unknown> {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     '@id': `${SITE}/#website`,
-    url: SITE,
+    url: `${SITE}/es/`,
     name: 'I-ME International Medical Enterprise',
     alternateName: ['I-ME', 'IME', 'I ME', 'i-me.com', 'i-me.com.co'],
     description:
