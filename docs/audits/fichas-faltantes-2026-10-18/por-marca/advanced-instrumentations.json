@@ -1,0 +1,34 @@
+{
+  "marca": "Advanced Instrumentations",
+  "n": 2,
+  "productos": [
+    {
+      "slug": "sistema-de-ultrasonido-ref-dus-3000-advanced",
+      "nombre_es": "Sistema de Ultrasonido DUS-3000",
+      "nombre_en": "Ultrasound System DUS-3000",
+      "marca": "Advanced Instrumentations",
+      "familia_slug": "ultrasonido",
+      "ref_hint": "dus-3000-advanced",
+      "descripcion_corta_es": "Sistema de diagnóstico por imagen ultrasónica digital",
+      "specs_n": 4,
+      "estado": "pendiente",
+      "ficha_url": null,
+      "ficha_local": null,
+      "fuente_pagina_fabricante": null
+    },
+    {
+      "slug": "ventilador-para-uci-ref-v-1000-advanced",
+      "nombre_es": "Ventilador para UCI V-1000",
+      "nombre_en": "ICU Ventilator V-1000",
+      "marca": "Advanced Instrumentations",
+      "familia_slug": "anestesia",
+      "ref_hint": "v-1000-advanced",
+      "descripcion_corta_es": "Ventilador para UCI pediátrico y adulto",
+      "specs_n": 3,
+      "estado": "pendiente",
+      "ficha_url": null,
+      "ficha_local": null,
+      "fuente_pagina_fabricante": null
+    }
+  ]
+}

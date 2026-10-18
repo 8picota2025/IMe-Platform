@@ -1,0 +1,367 @@
+{
+  "fecha": "2026-10-18",
+  "sitios_oficiales": {
+    "Angell Technology": [
+      "https://angell-tech.com/",
+      "https://en.szangell.com/"
+    ],
+    "Ilumitec": [
+      "https://www.ilumitecsas.com/"
+    ],
+    "Perlong": [
+      "https://www.perlong-china.com/",
+      "http://www.perlong.com.cn/"
+    ]
+  },
+  "marcas": {
+    "Angell Technology": {
+      "marca": "Angell Technology",
+      "encontradas": 0,
+      "no_encontradas": 8,
+      "items": [
+        {
+          "slug": "arco-en-c-alc-280-series-ref-alc-280-angell",
+          "nombre_es": "Arco en C ALC-280 Series",
+          "ref_hint": "alc-280-angell",
+          "modelos_buscados": [
+            "ALC-280"
+          ],
+          "ficha_url": null,
+          "pagina_fabricante": "https://en.szangell.com/product/hua-ii-series/",
+          "http_status": null,
+          "idioma": null,
+          "ficha_local": null,
+          "notas": "Sin PDF oficial verificado con modelo exacto en angell-tech.com (29 PDFs indexados)."
+        },
+        {
+          "slug": "sistema-de-rayos-x-dr-montado-en-techo-ref-dr-ceiling-angell",
+          "nombre_es": "Sistema de Rayos X DR Montado en Techo",
+          "ref_hint": "dr-ceiling-angell",
+          "modelos_buscados": [],
+          "ficha_url": null,
+          "pagina_fabricante": "https://en.szangell.com/product/qomo-series/",
+          "http_status": null,
+          "idioma": null,
+          "ficha_local": null,
+          "notas": "Sin PDF oficial verificado con modelo exacto en angell-tech.com (29 PDFs indexados). Producto sin código de modelo en nombre; no se infieren series."
+        },
+        {
+          "slug": "sistema-de-rayos-x-dr-montado-en-suelo-ref-dr-floor-angell",
+          "nombre_es": "Sistema de Rayos X DR Montado en Suelo",
+          "ref_hint": "dr-floor-angell",
+          "modelos_buscados": [],
+          "ficha_url": null,
+          "pagina_fabricante": "https://en.szangell.com/product/mtp-series/",
+          "http_status": null,
+          "idioma": null,
+          "ficha_local": null,
+          "notas": "Sin PDF oficial verificado con modelo exacto en angell-tech.com (29 PDFs indexados). Producto sin código de modelo en nombre; no se infieren series."
+        },
+        {
+          "slug": "sistema-de-rayos-x-dr-movil-ref-dr-mobile-angell",
+          "nombre_es": "Sistema de Rayos X DR Móvil",
+          "ref_hint": "dr-mobile-angell",
+          "modelos_buscados": [],
+          "ficha_url": null,
+          "pagina_fabricante": "https://en.szangell.com/product/lingxi-series/",
+          "http_status": null,
+          "idioma": null,
+          "ficha_local": null,
+          "notas": "Sin PDF oficial verificado con modelo exacto en angell-tech.com (29 PDFs indexados). Producto sin código de modelo en nombre; no se infieren series."
+        },
+        {
+          "slug": "sistema-dr-de-mesa-telecomandada-ref-dr-telecomand-angell",
+          "nombre_es": "Sistema DR de Mesa Telecomandada",
+          "ref_hint": "dr-telecomand-angell",
+          "modelos_buscados": [],
+          "ficha_url": null,
+          "pagina_fabricante": "https://en.szangell.com/product/fanghua-series/",
+          "http_status": null,
+          "idioma": null,
+          "ficha_local": null,
+          "notas": "Sin PDF oficial verificado con modelo exacto en angell-tech.com (29 PDFs indexados). Producto sin código de modelo en nombre; no se infieren series."
+        },
+        {
+          "slug": "dr-dinamico-de-brazo-ref-dr-uc-arm-angell",
+          "nombre_es": "DR Dinámico de Brazo-UC",
+          "ref_hint": "dr-uc-arm-angell",
+          "modelos_buscados": [],
+          "ficha_url": null,
+          "pagina_fabricante": "https://en.szangell.com/product/dtp580-series/",
+          "http_status": null,
+          "idioma": null,
+          "ficha_local": null,
+          "notas": "Sin PDF oficial verificado con modelo exacto en angell-tech.com (29 PDFs indexados). Producto sin código de modelo en nombre; no se infieren series."
+        },
+        {
+          "slug": "dr-dinamico-ref-dtp573-angell",
+          "nombre_es": "DR Dinámico DTP573",
+          "ref_hint": "dtp573-angell",
+          "modelos_buscados": [
+            "DTP573"
+          ],
+          "ficha_url": null,
+          "pagina_fabricante": "https://en.szangell.com/product/dtp580-series/",
+          "http_status": null,
+          "idioma": null,
+          "ficha_local": null,
+          "notas": "Sin PDF oficial verificado con modelo exacto en angell-tech.com (29 PDFs indexados)."
+        },
+        {
+          "slug": "detector-plano-inalambrico-ref-tcq-iii-angell",
+          "nombre_es": "Detector Plano Inalámbrico TCQ-III",
+          "ref_hint": "tcq-iii-angell",
+          "modelos_buscados": [
+            "TCQ-III"
+          ],
+          "ficha_url": null,
+          "pagina_fabricante": "https://en.szangell.com/product/components/",
+          "http_status": null,
+          "idioma": null,
+          "ficha_local": null,
+          "notas": "Sin PDF oficial verificado con modelo exacto en angell-tech.com (29 PDFs indexados)."
+        }
+      ]
+    },
+    "Ilumitec": {
+      "marca": "Ilumitec",
+      "encontradas": 0,
+      "no_encontradas": 8,
+      "items": [
+        {
+          "slug": "lampara-rodable-ref-led-rx18-ilumitec",
+          "nombre_es": "Lámpara Rodable LED-RX18",
+          "ref_hint": "led-rx18-ilumitec",
+          "modelos_buscados": [
+            "LED-RX18",
+            "RX18"
+          ],
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.ilumitecsas.com/",
+          "http_status": 200,
+          "idioma": null,
+          "ficha_local": null,
+          "notas": "Ilumitec S.A.S. (Colombia): sitio oficial sin PDFs públicos por referencia; solicitar ficha al fabricante."
+        },
+        {
+          "slug": "lampara-rodable-ref-led-rx18-100k-ilumitec",
+          "nombre_es": "Lámpara Rodable LED-RX18 100K",
+          "ref_hint": "led-rx18-100k-ilumitec",
+          "modelos_buscados": [
+            "LED-RX18",
+            "RX18"
+          ],
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.ilumitecsas.com/",
+          "http_status": 200,
+          "idioma": null,
+          "ficha_local": null,
+          "notas": "Ilumitec S.A.S. (Colombia): sitio oficial sin PDFs públicos por referencia; solicitar ficha al fabricante."
+        },
+        {
+          "slug": "lampara-rodable-ref-led-rx36-ilumitec",
+          "nombre_es": "Lámpara Rodable LED-RX36",
+          "ref_hint": "led-rx36-ilumitec",
+          "modelos_buscados": [
+            "LED-RX36",
+            "RX36"
+          ],
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.ilumitecsas.com/",
+          "http_status": 200,
+          "idioma": null,
+          "ficha_local": null,
+          "notas": "Ilumitec S.A.S. (Colombia): sitio oficial sin PDFs públicos por referencia; solicitar ficha al fabricante."
+        },
+        {
+          "slug": "lampara-rodable-ref-led-rx36-160k-ilumitec",
+          "nombre_es": "Lámpara Rodable LED-RX36-160K",
+          "ref_hint": "led-rx36-160k-ilumitec",
+          "modelos_buscados": [
+            "LED-RX36-160K",
+            "RX36-160K"
+          ],
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.ilumitecsas.com/",
+          "http_status": 200,
+          "idioma": null,
+          "ficha_local": null,
+          "notas": "Ilumitec S.A.S. (Colombia): sitio oficial sin PDFs públicos por referencia; solicitar ficha al fabricante."
+        },
+        {
+          "slug": "lampara-cielitica-ref-led-x18-100k-ilumitec",
+          "nombre_es": "Lámpara Cielítica LED-X18 100K",
+          "ref_hint": "led-x18-100k-ilumitec",
+          "modelos_buscados": [
+            "LED-X18"
+          ],
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.ilumitecsas.com/",
+          "http_status": 200,
+          "idioma": null,
+          "ficha_local": null,
+          "notas": "Ilumitec S.A.S. (Colombia): sitio oficial sin PDFs públicos por referencia; solicitar ficha al fabricante."
+        },
+        {
+          "slug": "lampara-cielitica-ref-led-x36-ilumitec",
+          "nombre_es": "Lámpara Cielítica LED-X36",
+          "ref_hint": "led-x36-ilumitec",
+          "modelos_buscados": [
+            "LED-X36"
+          ],
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.ilumitecsas.com/",
+          "http_status": 200,
+          "idioma": null,
+          "ficha_local": null,
+          "notas": "Ilumitec S.A.S. (Colombia): sitio oficial sin PDFs públicos por referencia; solicitar ficha al fabricante."
+        },
+        {
+          "slug": "lampara-cielitica-led-x3618-con-satelite-ref-led-x3618-ilumitec",
+          "nombre_es": "Lámpara Cielítica LED-X3618 con Satélite",
+          "ref_hint": "led-x3618-ilumitec",
+          "modelos_buscados": [
+            "LED-X3618"
+          ],
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.ilumitecsas.com/",
+          "http_status": 200,
+          "idioma": null,
+          "ficha_local": null,
+          "notas": "Ilumitec S.A.S. (Colombia): sitio oficial sin PDFs públicos por referencia; solicitar ficha al fabricante."
+        },
+        {
+          "slug": "lampara-cielitica-led-x3636-con-satelite-ref-led-x3636-ilumitec",
+          "nombre_es": "Lámpara Cielítica LED-X3636 con Satélite",
+          "ref_hint": "led-x3636-ilumitec",
+          "modelos_buscados": [
+            "LED-X3636"
+          ],
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.ilumitecsas.com/",
+          "http_status": 200,
+          "idioma": null,
+          "ficha_local": null,
+          "notas": "Ilumitec S.A.S. (Colombia): sitio oficial sin PDFs públicos por referencia; solicitar ficha al fabricante."
+        }
+      ]
+    },
+    "Perlong": {
+      "marca": "Perlong",
+      "encontradas": 0,
+      "no_encontradas": 8,
+      "items": [
+        {
+          "slug": "balanza-para-bebe-electronica-ref-ebsa-20-perlong",
+          "nombre_es": "Balanza para Bebé Electrónica EBSA-20",
+          "ref_hint": "ebsa-20-perlong",
+          "modelos_buscados": [
+            "EBSA-20"
+          ],
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.perlong-china.com/Scale-pl6383726.html",
+          "http_status": null,
+          "idioma": null,
+          "ficha_local": null,
+          "notas": "Sin PDF público verificado en perlong-china.com/perlong.com.cn con el modelo exacto. Catálogo export lista EBSC-20 (modelo distinto)."
+        },
+        {
+          "slug": "bascula-corporal-doble-regla-ref-rgt-a-200-rt-perlong",
+          "nombre_es": "Báscula Corporal Doble Regla RGT.A-200-RT",
+          "ref_hint": "rgt-a-200-rt-perlong",
+          "modelos_buscados": [],
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.perlong-china.com/Scale-pl6383726.html",
+          "http_status": null,
+          "idioma": null,
+          "ficha_local": null,
+          "notas": "Sin PDF público verificado en perlong-china.com/perlong.com.cn con el modelo exacto."
+        },
+        {
+          "slug": "balanza-corporal-con-doble-regla-ref-rgt-rt-perlong",
+          "nombre_es": "Balanza Corporal con Doble Regla RGT-RT",
+          "ref_hint": "rgt-rt-perlong",
+          "modelos_buscados": [
+            "RGT-RT"
+          ],
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.perlong-china.com/Scale-pl6383726.html",
+          "http_status": null,
+          "idioma": null,
+          "ficha_local": null,
+          "notas": "Sin PDF público verificado en perlong-china.com/perlong.com.cn con el modelo exacto."
+        },
+        {
+          "slug": "bascula-corporal-electronica-ref-tcs-200-rt-perlong",
+          "nombre_es": "Báscula Corporal Electrónica TCS-200-RT",
+          "ref_hint": "tcs-200-rt-perlong",
+          "modelos_buscados": [
+            "TCS-200-RT"
+          ],
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.perlong-china.com/Scale-pl6383726.html",
+          "http_status": null,
+          "idioma": null,
+          "ficha_local": null,
+          "notas": "Sin PDF público verificado en perlong-china.com/perlong.com.cn con el modelo exacto."
+        },
+        {
+          "slug": "balanza-corporal-electronica-ref-tcs-200b-rt-perlong",
+          "nombre_es": "Balanza Corporal Electrónica TCS-200B-RT",
+          "ref_hint": "tcs-200b-rt-perlong",
+          "modelos_buscados": [
+            "TCS-200B-RT"
+          ],
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.perlong-china.com/Scale-pl6383726.html",
+          "http_status": null,
+          "idioma": null,
+          "ficha_local": null,
+          "notas": "Sin PDF público verificado en perlong-china.com/perlong.com.cn con el modelo exacto."
+        },
+        {
+          "slug": "balanza-para-bebe-ref-yrbb-20-perlong",
+          "nombre_es": "Balanza para Bebé YRBB-20",
+          "ref_hint": "yrbb-20-perlong",
+          "modelos_buscados": [
+            "YRBB-20"
+          ],
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.perlong-china.com/YRBB-20-Baby-Scale-pd569477798.html",
+          "http_status": 200,
+          "idioma": null,
+          "ficha_local": null,
+          "notas": "Sin PDF público verificado en perlong-china.com/perlong.com.cn con el modelo exacto. Página catálogo: https://www.perlong-china.com/YRBB-20-Baby-Scale-pd569477798.html."
+        },
+        {
+          "slug": "bascula-corporal-ref-zt-120-perlong",
+          "nombre_es": "Báscula Corporal ZT-120",
+          "ref_hint": "zt-120-perlong",
+          "modelos_buscados": [
+            "ZT-120"
+          ],
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.perlong-china.com/Scale-pl6383726.html",
+          "http_status": null,
+          "idioma": null,
+          "ficha_local": null,
+          "notas": "Sin PDF público verificado en perlong-china.com/perlong.com.cn con el modelo exacto."
+        },
+        {
+          "slug": "bascula-corporal-ref-zt-150a-perlong",
+          "nombre_es": "Báscula Corporal ZT-150A",
+          "ref_hint": "zt-150a-perlong",
+          "modelos_buscados": [
+            "ZT-150A"
+          ],
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.perlong-china.com/Scale-pl6383726.html",
+          "http_status": null,
+          "idioma": null,
+          "ficha_local": null,
+          "notas": "Sin PDF público verificado en perlong-china.com/perlong.com.cn con el modelo exacto."
+        }
+      ]
+    }
+  }
+}

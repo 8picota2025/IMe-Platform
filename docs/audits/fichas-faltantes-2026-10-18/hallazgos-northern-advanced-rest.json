@@ -1,0 +1,110 @@
+{
+  "generado": "2026-10-18",
+  "alcance": "Northern Meditec (Acuarius/Aquarius, Aquarius LITE, FM-9000) + Advanced (DUS-3000, V-1000) — modelos exactos únicamente",
+  "resumen": {
+    "wired": 1,
+    "no_encontradas": 4
+  },
+  "wired": [
+    {
+      "slug": "monitor-multiparametro-ref-acuarius-northern",
+      "nombre_es": "Monitor Multiparámetro Acuarius",
+      "marca": "Northern Meditec",
+      "modelo_oficial": "Aquarius (catálogo IME: Acuarius)",
+      "ficha_url": "https://img1.wsimg.com/blobby/go/27dfc2ac-fea6-408d-8ec0-e7d3ea021f02/Aquarius%20%E5%8D%95%E9%A1%B5.pdf",
+      "pagina_fabricante": "https://en.northernmeditec.com/prodet/14.html",
+      "http_status": 200,
+      "idioma": "en",
+      "verificacion_pdf": {
+        "archivo_tmp": "tmp/ficha-search/northern/aquarius.pdf",
+        "texto_extraido": "Northern Meditec Limited; Vital Sign Monitor; Aquarius; SpO2+NIBP+ECG+TEMP; batería Li-ion 15 h; spot-check/continuous",
+        "sha256": "d989893bece3d6487f1e50f5b4aa94320fd32cc3d08b111a09e372d5799fbebd",
+        "coincide_descarga_oficial": true
+      },
+      "WIRED": true,
+      "download_path": "public/assets/productos/fichas/northern-meditec/monitor-multiparametro-ref-acuarius-northern.pdf",
+      "manifest_origen_local": "/home/shoky/cursor/ime-platform-landing-audit/tmp/ficha-search/northern/aquarius.pdf",
+      "notas": "Brochure oficial Northern en GoDaddy blob (img1.wsimg.com, bucket 27dfc2ac). Widget e_download en prodet/14 vacío; PDF no enlazado en HTML. WIRED: copia verificada en public/assets y manifest origen_local actualizado."
+    }
+  ],
+  "no_encontradas": [
+    {
+      "slug": "oximetro-ref-aquarius-lite-northern",
+      "nombre_es": "Oxímetro Aquarius LITE",
+      "marca": "Northern Meditec",
+      "ficha_url": null,
+      "pagina_fabricante": null,
+      "http_status": null,
+      "idioma": null,
+      "notas": "Sin modelo «Aquarius LITE» oxímetro standalone en northernmeditec.com (en/es), sitemap prodet ni blobs wsimg probados (404). «Aquarius» en web oficial es monitor multiparamétrico (prodet/14), producto distinto.",
+      "WIRED": false
+    },
+    {
+      "slug": "monitor-fetal-y-materno-ref-fm-9000-northern",
+      "nombre_es": "Monitor Fetal y Materno FM-9000",
+      "marca": "Northern Meditec",
+      "ficha_url": null,
+      "pagina_fabricante": null,
+      "http_status": null,
+      "idioma": null,
+      "notas": "FM-9000 no aparece en catálogo Northern Meditec (sitemap prodet, MedicalExpo PDF Northern). No usar FM-9000 Plus (Advanced Instrumentations). Blobs wsimg FM-9000 probados: 404.",
+      "WIRED": false
+    },
+    {
+      "slug": "sistema-de-ultrasonido-ref-dus-3000-advanced",
+      "nombre_es": "Sistema de Ultrasonido DUS-3000",
+      "marca": "Advanced Instrumentations",
+      "ficha_url": null,
+      "pagina_fabricante": null,
+      "http_status": null,
+      "idioma": null,
+      "notas": "advanced-inst.com: búsqueda «DUS-3000» sin resultados. PDFs publicados en sitio son DUS-5000/6000/7000 (modelos distintos). Rutas wp-content/uploads/2019/12 y 2020/04 para DUS-3000*: 404. Sin copia local en ~/0 IME/Fabricantes/Advanced.",
+      "WIRED": false
+    },
+    {
+      "slug": "ventilador-para-uci-ref-v-1000-advanced",
+      "nombre_es": "Ventilador para UCI V-1000",
+      "marca": "Advanced Instrumentations",
+      "ficha_url": null,
+      "pagina_fabricante": "https://advanced-inst.com/turbine-driven-v-1000t-plus/",
+      "http_status": null,
+      "idioma": "en",
+      "notas": "En advanced-inst.com solo V-1000T Plus (turbina); PDF publicado es V-1000T Plus Rev01.pdf — modelo distinto de V-1000. Búsqueda «V-1000» no devuelve ficha del V-1000 exacto. wp-content/uploads V-1000*.pdf probados: 404.",
+      "WIRED": false
+    }
+  ],
+  "marcas": {
+    "Northern Meditec": {
+      "encontradas": 1,
+      "no_encontradas": 2,
+      "items": [
+        {
+          "slug": "monitor-multiparametro-ref-acuarius-northern",
+          "WIRED": true
+        },
+        {
+          "slug": "oximetro-ref-aquarius-lite-northern",
+          "WIRED": false
+        },
+        {
+          "slug": "monitor-fetal-y-materno-ref-fm-9000-northern",
+          "WIRED": false
+        }
+      ]
+    },
+    "Advanced Instrumentations": {
+      "encontradas": 0,
+      "no_encontradas": 2,
+      "items": [
+        {
+          "slug": "sistema-de-ultrasonido-ref-dus-3000-advanced",
+          "WIRED": false
+        },
+        {
+          "slug": "ventilador-para-uci-ref-v-1000-advanced",
+          "WIRED": false
+        }
+      ]
+    }
+  }
+}

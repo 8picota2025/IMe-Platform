@@ -66,29 +66,37 @@ for (const f of files) {
     const base = snap.get(m.slug) ?? prod;
     if (!base) { sinProducto.push(`${marca}:${m.slug} (sin producto)`); continue; }
 
-    // 1. PDF público
+    // 1. PDF público (opcional: enriquecimiento desde página fabricante / catálogo sin PDF aún)
     // Los PDF idénticos (mismo contenido) se publican una sola vez y se reutiliza la ruta.
-    const hash = createHash('sha1').update(readFileSync(m.origen_local)).digest('hex');
-    const pdfName = `${slugify(path.basename(m.origen_local, '.pdf'))}.pdf`;
-    const pdfRel = pdfPorHash.get(hash) ?? `/assets/productos/fichas/${m.fab_slug}/${pdfName}`;
-    const yaCopiado = pdfPorHash.has(hash);
-    pdfPorHash.set(hash, pdfRel);
-    if (!DRY && !yaCopiado) {
-      mkdirSync(path.join(root, 'public', path.dirname(pdfRel)), { recursive: true });
-      // No sobrescribe un PDF ya publicado (puede estar optimizado por scripts/optimize-fichas-pdf.py).
-      if (!existsSync(path.join(root, 'public', pdfRel))) copyFileSync(m.origen_local, path.join(root, 'public', pdfRel));
+    const hasPdf = Boolean(m.origen_local && existsSync(m.origen_local));
+    let pdfRel = null;
+    if (hasPdf) {
+      const hash = createHash('sha1').update(readFileSync(m.origen_local)).digest('hex');
+      const pdfName = `${slugify(path.basename(m.origen_local, '.pdf'))}.pdf`;
+      pdfRel = pdfPorHash.get(hash) ?? `/assets/productos/fichas/${m.fab_slug}/${pdfName}`;
+      const yaCopiado = pdfPorHash.has(hash);
+      pdfPorHash.set(hash, pdfRel);
+      if (!DRY && !yaCopiado) {
+        mkdirSync(path.join(root, 'public', path.dirname(pdfRel)), { recursive: true });
+        // No sobrescribe un PDF ya publicado (puede estar optimizado por scripts/optimize-fichas-pdf.py).
+        if (!existsSync(path.join(root, 'public', pdfRel))) copyFileSync(m.origen_local, path.join(root, 'public', pdfRel));
+      }
     }
     const [idEs, idEn] = IDIOMA[m.lang] ?? IDIOMA.en;
     const nombreEs = base.nombre_es, nombreEn = base.nombre_en || base.nombre_es;
-    const faqEs = [...it.faq_es, { q: `¿Dónde descargo la ficha técnica de ${nombreEs}?`, a: `En esta página, con el botón «Descargar ficha técnica»: es el PDF oficial de ${m.fabricante} (en ${idEs}).` }];
-    const faqEn = [...it.faq_en, { q: `Where can I download the ${nombreEn} datasheet?`, a: `On this page, with the “Download datasheet” button: it is the official ${m.fabricante} PDF (in ${idEn}).` }];
+    const faqEs = hasPdf
+      ? [...it.faq_es, { q: `¿Dónde descargo la ficha técnica de ${nombreEs}?`, a: `En esta página, con el botón «Descargar ficha técnica»: es el PDF oficial de ${m.fabricante} (en ${idEs}).` }]
+      : it.faq_es;
+    const faqEn = hasPdf
+      ? [...it.faq_en, { q: `Where can I download the ${nombreEn} datasheet?`, a: `On this page, with the “Download datasheet” button: it is the official ${m.fabricante} PDF (in ${idEn}).` }]
+      : it.faq_en;
     const specs = mergeSpecs(base.especificaciones, it.especificaciones);
     const attrs = {
       beneficios_es: it.beneficios_es, beneficios_en: it.beneficios_en,
       valor_es: it.valor_es, valor_en: it.valor_en,
       preguntas_frecuentes_es: faqEs, preguntas_frecuentes_en: faqEn,
       seo_keywords_es: it.seo_keywords_es, seo_keywords_en: it.seo_keywords_en,
-      ficha_fabricante: { fabricante: m.fabricante, idioma: m.lang, url_origen: m.url, descargada: '2026-10-02' },
+      ficha_fabricante: { fabricante: m.fabricante, idioma: m.lang, url_origen: m.url, descargada: hasPdf ? '2026-10-18' : null, sin_pdf: !hasPdf },
     };
     const apps = it.aplicaciones_es ? { es: it.aplicaciones_es, en: it.aplicaciones_en } : null;
 
@@ -99,7 +107,7 @@ for (const f of files) {
 
     // 2. mock
     if (prod && !DRY) {
-      prod.ficha_pdf = pdfRel;
+      if (pdfRel) prod.ficha_pdf = pdfRel;
       prod.descripcion_larga_es = descEs; prod.descripcion_larga_en = descEn;
       prod.especificaciones = specs;
       if (apps) { prod.aplicaciones_es = apps.es; prod.aplicaciones_en = apps.en; }
@@ -111,7 +119,7 @@ for (const f of files) {
 
     // 3. SQL
     sql.push(`UPDATE public.productos SET`,
-      `  ficha_pdf = ${sq(pdfRel)},`,
+      ...(pdfRel ? [`  ficha_pdf = ${sq(pdfRel)},`] : []),
       `  descripcion_larga_es = ${dq('d', descEs)},`,
       `  descripcion_larga_en = ${dq('d', descEn)},`,
       `  especificaciones = ${dq('j', specs)}::jsonb,`,

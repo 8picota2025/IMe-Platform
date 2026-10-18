@@ -1,0 +1,217 @@
+{
+  "generado": "2026-10-18",
+  "marcas": {
+    "Northern Meditec": {
+      "encontradas": 10,
+      "no_encontradas": 2,
+      "items": [
+        {
+          "slug": "monitor-multiparametro-ref-acuarius-northern",
+          "nombre_es": "Monitor Multiparámetro Acuarius",
+          "ficha_url": "https://img1.wsimg.com/blobby/go/27dfc2ac-fea6-408d-8ec0-e7d3ea021f02/Aquarius%20%E5%8D%95%E9%A1%B5.pdf",
+          "pagina_fabricante": "https://en.northernmeditec.com/prodet/14.html",
+          "pdf_local": "tmp/ficha-search/northern/aquarius.pdf",
+          "specs_from_page": "Pantalla LCD TFT 8.4\"; SpO2+NIBP+ECG+TEMP; batería Li-ion 15 h; opcional Masimo/Nellcor SpO2, EtCO2",
+          "notas": "Catálogo IME «Acuarius» = web oficial «Aquarius» (prodet/14). PDF Northern en GoDaddy blob (img1.wsimg.com), título Vital Sign Monitor Aquarius. Sin enlace PDF en HTML del sitio.",
+          "confianza": "alta"
+        },
+        {
+          "slug": "oximetro-ref-aquarius-lite-northern",
+          "nombre_es": "Oxímetro Aquarius LITE",
+          "ficha_url": null,
+          "pagina_fabricante": null,
+          "pdf_local": null,
+          "specs_from_page": "SPO2 oxímetro adulto (solo catálogo IME)",
+          "notas": "Modelo «Aquarius LITE» oxímetro standalone no listado en northernmeditec.com (en/es). «Aquarius» en web es monitor multiparamétrico, producto distinto.",
+          "confianza": "baja"
+        },
+        {
+          "slug": "maquina-de-anestesia-ref-atlas-n3-northern",
+          "nombre_es": "Máquina de Anestesia Atlas N3",
+          "ficha_url": "https://img1.wsimg.com/blobby/go/c01c3d71-7833-4189-a7a1-9758185b4530/N3%20BROCHURE.pdf",
+          "pagina_fabricante": "https://en.northernmeditec.com/prodet/2.html",
+          "pdf_local": "/home/shoky/FTP/pdf producto/ficha-atlas-n3-maquina-de-anestesia-northern.pdf",
+          "specs_from_page": "Pantalla TFT 8.4\"; VT 10-1500 ml; 6 tubos de caudal; circuito PPSU/metálico",
+          "notas": "Brochure oficial Northern (img1.wsimg.com). Copia local en FTP.",
+          "confianza": "alta"
+        },
+        {
+          "slug": "maquina-de-anestesia-ref-atlas-n5-northern",
+          "nombre_es": "Máquina de Anestesia Atlas N5",
+          "ficha_url": "https://img1.wsimg.com/blobby/go/c01c3d71-7833-4189-a7a1-9758185b4530/N5%20BROCHURE.pdf",
+          "pagina_fabricante": "https://en.northernmeditec.com/prodet/3.html",
+          "pdf_local": "tmp/ficha-search/northern/maquina-de-anestesia-ref-atlas-n5-northern.pdf",
+          "specs_from_page": "Pantalla táctil TFT 12.1\"; caudalímetro electrónico; VT 10-1500 ml",
+          "notas": "Brochure oficial Northern (img1.wsimg.com).",
+          "confianza": "alta"
+        },
+        {
+          "slug": "maquina-de-anestesia-ref-atlas-n7-northern",
+          "nombre_es": "Máquina de Anestesia Atlas N7",
+          "ficha_url": "https://img1.wsimg.com/blobby/go/c01c3d71-7833-4189-a7a1-9758185b4530/N7%20BROCHURE.pdf",
+          "pagina_fabricante": "https://en.northernmeditec.com/prodet/13.html",
+          "pdf_local": "tmp/ficha-search/northern/maquina-de-anestesia-ref-atlas-n7-northern.pdf",
+          "specs_from_page": "Pantalla táctil TFT 15.6\"; monitor paciente integrado; control electrónico completo",
+          "notas": "Brochure oficial Northern (img1.wsimg.com).",
+          "confianza": "alta"
+        },
+        {
+          "slug": "ventilador-mecanico-ref-crius-v6-northern",
+          "nombre_es": "Ventilador Mecánico Crius V6",
+          "ficha_url": "https://img1.wsimg.com/blobby/go/c01c3d71-7833-4189-a7a1-9758185b4530/ICU%20Ventilator%20Crius%20V6.pdf",
+          "pagina_fabricante": "https://en.northernmeditec.com/prodet/10.html",
+          "pdf_local": "tmp/ficha-search/northern/ventilador-mecanico-ref-crius-v6-northern.pdf",
+          "specs_from_page": "Ventilador ICU turbina; invasivo/no invasivo; pantalla táctil 15.6\" (ficha ampliada en PDF)",
+          "notas": "Hoja ICU Ventilator Crius V6 (img1.wsimg.com). URL canónica prodet/10 (también existe prodet/4).",
+          "confianza": "alta"
+        },
+        {
+          "slug": "monitor-fetal-y-materno-ref-fm-9000-northern",
+          "nombre_es": "Monitor Fetal y Materno FM-9000",
+          "ficha_url": null,
+          "pagina_fabricante": null,
+          "pdf_local": null,
+          "specs_from_page": "Pantalla LCD TFT 12.1\" (catálogo IME); no confirmado en web Northern",
+          "notas": "FM-9000 ausente en northernmeditec.com y listados de producto monitorizados. Documentación pública asociada a Advanced Instrumentations (FM-9000 Plus), marca distinta; no usar como ficha Northern.",
+          "confianza": "baja"
+        },
+        {
+          "slug": "monitor-multiparametro-ref-gemini-northern",
+          "nombre_es": "Monitor Multiparámetro Gemini",
+          "ficha_url": "https://img1.wsimg.com/blobby/go/c01c3d71-7833-4189-a7a1-9758185b4530/Gemini%20%E5%90%88%E9%A1%B5.pdf",
+          "pagina_fabricante": "https://en.northernmeditec.com/prodet/11.html",
+          "pdf_local": "tmp/ficha-search/northern/monitor-multiparametro-ref-gemini-northern.pdf",
+          "specs_from_page": "Pantalla táctil 15.6\"/19\"; ECG, SpO2, NIBP, TEMP, Resp, PR; batería Li-ion",
+          "notas": "Brochure Anesthesia Patient Monitor Gemini (img1.wsimg.com).",
+          "confianza": "alta"
+        },
+        {
+          "slug": "monitor-multiparametro-ref-pisces-northern",
+          "nombre_es": "Monitor Multiparámetro Pisces",
+          "ficha_url": "https://img1.wsimg.com/blobby/go/27dfc2ac-fea6-408d-8ec0-e7d3ea021f02/Pisces%20%E5%8D%95%E9%A1%B5.pdf",
+          "pagina_fabricante": "https://en.northernmeditec.com/prodet/1.html",
+          "pdf_local": "tmp/ficha-search/northern/monitor-multiparametro-ref-pisces-northern.pdf",
+          "specs_from_page": "Pantalla TFT táctil 12.1\"; ECG+SpO2+NIBP+2TEMP+PR+RESP; batería Li-ion",
+          "notas": "Brochure Bed-side Patient Monitor Pisces (img1.wsimg.com).",
+          "confianza": "alta"
+        },
+        {
+          "slug": "monitor-multiparametro-ref-taurus-northern",
+          "nombre_es": "Monitor Multiparámetro Taurus",
+          "ficha_url": "https://img1.wsimg.com/blobby/go/27dfc2ac-fea6-408d-8ec0-e7d3ea021f02/Taurus%20%E5%8D%95%E9%A1%B5.pdf",
+          "pagina_fabricante": "https://en.northernmeditec.com/prodet/8.html",
+          "pdf_local": "tmp/ficha-search/northern/monitor-multiparametro-ref-taurus-northern.pdf",
+          "specs_from_page": "Pantalla TFT táctil 12.1\"; 8 formas de onda; ECG 12 derivaciones; ICU/CCU/NICU",
+          "notas": "Brochure Multi-parameter Patient Monitor Taurus (img1.wsimg.com).",
+          "confianza": "alta"
+        },
+        {
+          "slug": "monitor-multiparametro-ref-venus-northern",
+          "nombre_es": "Monitor Multiparámetro Venus",
+          "ficha_url": "https://img1.wsimg.com/blobby/go/27dfc2ac-fea6-408d-8ec0-e7d3ea021f02/Venus%20%E5%90%88%E9%A1%B5.pdf",
+          "pagina_fabricante": "https://en.northernmeditec.com/prodet/9.html",
+          "pdf_local": "tmp/ficha-search/northern/monitor-multiparametro-ref-venus-northern.pdf",
+          "specs_from_page": "5-lead ECG, SpO2, NIBP, TEMP, Resp, PR; pantalla táctil e HDMI; opciones IBP, EtCO2, BIS",
+          "notas": "Brochure Critical Care Patient Monitor Venus (img1.wsimg.com).",
+          "confianza": "alta"
+        },
+        {
+          "slug": "monitor-modular-multiparametro-ref-virgo-northern",
+          "nombre_es": "Monitor Modular Multiparámetro Virgo",
+          "ficha_url": "https://img1.wsimg.com/blobby/go/27dfc2ac-fea6-408d-8ec0-e7d3ea021f02/Virgo%20Patient%20Monitor.pdf",
+          "pagina_fabricante": "https://en.northernmeditec.com/prodet/7.html",
+          "pdf_local": "tmp/ficha-search/northern/monitor-modular-multiparametro-ref-virgo-northern.pdf",
+          "specs_from_page": "Pantalla TFT 12.1\"; SpO2+NIBP+ECG+TEMP+RESP+2IBP+CO+ETCO2 (config. base en metadata)",
+          "notas": "Brochure Patient Monitor Virgo (img1.wsimg.com).",
+          "confianza": "alta"
+        }
+      ]
+    },
+    "Angell Technology": {
+      "encontradas": 3,
+      "no_encontradas": 5,
+      "items": [
+        {
+          "slug": "arco-en-c-alc-280-series-ref-alc-280-angell",
+          "nombre_es": "Arco en C ALC-280 Series",
+          "ficha_url": null,
+          "pagina_fabricante": "https://en.szangell.com/product/hua-ii-series/",
+          "pdf_local": null,
+          "specs_from_page": "Serie HUA II = ALC280 mobile dynamic FPD C-arm (blog Angell); detector FPD, fluoroscopia/radiografía",
+          "notas": "Sin PDF público en angell-tech.com/szangell para ALC-280. Página de serie HUA II; equivalencia ALC280 documentada en blog oficial Angell.",
+          "confianza": "media"
+        },
+        {
+          "slug": "sistema-de-rayos-x-dr-montado-en-techo-ref-dr-ceiling-angell",
+          "nombre_es": "Sistema de Rayos X DR Montado en Techo",
+          "ficha_url": null,
+          "pagina_fabricante": "https://en.szangell.com/product/qomo-series/",
+          "pdf_local": null,
+          "specs_from_page": "QOMO ceiling-mounted dynamic DR; suspensión techo; seguimiento automático (descripción catálogo IME)",
+          "notas": "Sin flyer PDF en dominio Angell verificado (2026-10-18). Producto comercial QOMO Series en szangell.com.",
+          "confianza": "media"
+        },
+        {
+          "slug": "sistema-de-rayos-x-dr-montado-en-suelo-ref-dr-floor-angell",
+          "nombre_es": "Sistema de Rayos X DR Montado en Suelo",
+          "ficha_url": null,
+          "pagina_fabricante": "https://en.szangell.com/product/mtp-series/",
+          "pdf_local": null,
+          "specs_from_page": "MTP floor-mounted radiography; detector FPD inalámbrico; doble columna (catálogo IME)",
+          "notas": "Sin PDF público en angell-tech.com/szangell para MTP. Página oficial MTP Series.",
+          "confianza": "media"
+        },
+        {
+          "slug": "sistema-de-rayos-x-dr-movil-ref-dr-mobile-angell",
+          "nombre_es": "Sistema de Rayos X DR Móvil",
+          "ficha_url": "https://angell-tech.com/wp-content/uploads/2023/06/Angell-Technology-GmbH-DP326-Mobile-DR-Flyer-English-Version.pdf",
+          "pagina_fabricante": "https://angell-tech.com/en/dtp-326-mobile-digital-radiography/",
+          "pdf_local": null,
+          "specs_from_page": "DTP326 mobile DR; pantalla táctil 19\"; detector FPD inalámbrico; exposición remota",
+          "notas": "Flyer inglés oficial (angell-tech.com wp-content). También product-gallery DTP-326.",
+          "confianza": "alta"
+        },
+        {
+          "slug": "sistema-dr-de-mesa-telecomandada-ref-dr-telecomand-angell",
+          "nombre_es": "Sistema DR de Mesa Telecomandada",
+          "ficha_url": "https://angell-tech.com/wp-content/uploads/2023/06/Angell-Technology-GmbH-DTP576-DR-Table-Flyer-English-Version.pdf",
+          "pagina_fabricante": "https://angell-tech.com/en/dtp-576-dynamic-table-digital-r-f/",
+          "pdf_local": null,
+          "specs_from_page": "DTP576 mesa telecomandada; radiografía + fluoroscopia; detector dinámico 43×43 cm",
+          "notas": "Flyer inglés oficial DTP576 (angell-tech.com). SKU IME DR-TELECOMAND mapea a DTP576.",
+          "confianza": "alta"
+        },
+        {
+          "slug": "dr-dinamico-de-brazo-ref-dr-uc-arm-angell",
+          "nombre_es": "DR Dinámico de Brazo-UC",
+          "ficha_url": "https://angell-tech.com/wp-content/uploads/2023/06/Angell-Technology-GmbH-DTP580-UC-Arm-Flyer-English-Version.pdf",
+          "pagina_fabricante": "https://angell-tech.com/en/dtp-580-dynamic-uc-arm-digital-r-f/",
+          "pdf_local": null,
+          "specs_from_page": "DTP580 UC-Arm dynamic DR; FPD 17×17\"; radiografía/fluoroscopia/contraste",
+          "notas": "Flyer inglés oficial DTP580 (angell-tech.com).",
+          "confianza": "alta"
+        },
+        {
+          "slug": "dr-dinamico-ref-dtp573-angell",
+          "nombre_es": "DR Dinámico DTP573",
+          "ficha_url": null,
+          "pagina_fabricante": null,
+          "pdf_local": null,
+          "specs_from_page": "Generador HF 50 kW; detector dinámico; fluoroscopia (catálogo IME)",
+          "notas": "Código exacto «DTP573» no aparece en angell-tech.com ni en.szangell.com (2026-10-18). Serie dinámica documentada como DTP570/DTP576/Talent II sin PDF modelo 573.",
+          "confianza": "baja"
+        },
+        {
+          "slug": "detector-plano-inalambrico-ref-tcq-iii-angell",
+          "nombre_es": "Detector Plano Inalámbrico TCQ-III",
+          "ficha_url": null,
+          "pagina_fabricante": null,
+          "pdf_local": null,
+          "specs_from_page": "a-Si + CsI; 35×43 / 43×43 cm; pixel 140 µm (catálogo IME)",
+          "notas": "Modelo TCQ-III sin página ni PDF en sitios Angell verificados. Catálogo genérico «Flat Panel Detector» en agregadores no enlazado desde fabricante.",
+          "confianza": "baja"
+        }
+      ]
+    }
+  }
+}

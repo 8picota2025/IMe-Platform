@@ -1,0 +1,336 @@
+{
+  "generado": "2026-10-18",
+  "marcas": {
+    "GMD": {
+      "marca": "GMD",
+      "encontradas": 9,
+      "no_encontradas": 5,
+      "items": [
+        {
+          "slug": "adaptador-ac-dc-para-tensiometro-latidos-ref-latidos-c",
+          "nombre_es": "Adaptador AC-DC para Tensiómetro Latidos",
+          "ref_hint": "latidos-c",
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.gmd.com.co/product/adaptador-para-tensiometro",
+          "http_status": null,
+          "idioma": null,
+          "notas": "pagina fabricante verificada; sin enlace FT-PDF en gmd.com.co (solo ficha web)",
+          "ficha_local": null,
+          "sha256": null,
+          "download_path": null
+        },
+        {
+          "slug": "nebulizador-para-compresor-nube-ref-gmrn-nb",
+          "nombre_es": "Nebulizador para Compresor NUBE",
+          "ref_hint": "gmrn-nb",
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.gmd.com.co/product/nebulizador-para-compresor-nube",
+          "http_status": null,
+          "idioma": null,
+          "notas": "pagina fabricante verificada; sin enlace FT-PDF en gmd.com.co (solo ficha web)",
+          "ficha_local": null,
+          "sha256": null,
+          "download_path": null
+        },
+        {
+          "slug": "kit-de-nebulizacion-pediatrico-nube-3000-ref-gmrn211-kitpe",
+          "nombre_es": "Kit de Nebulización Pediátrico NUBE 3000",
+          "ref_hint": "gmrn211-kitpe",
+          "ficha_url": null,
+          "pagina_fabricante": null,
+          "http_status": 200,
+          "idioma": null,
+          "notas": "reutilizada_local: ficha del equipo principal (mismo fabricante GMD/Konfort/Nube); no FT exclusiva del accesorio",
+          "ficha_local": "gmd-nube/gmrn-211-ft.pdf",
+          "sha256": "529957ef28541311f853d1d35de1865158d99477e95903201a659ee5be501be2",
+          "download_path": "tmp/ficha-search/gmd/kit-de-nebulizacion-pediatrico-nube-3000-ref-gmrn211-kitpe.pdf"
+        },
+        {
+          "slug": "kit-de-nebulizacion-adulto-nube-3000-ref-gmrn211-kita",
+          "nombre_es": "Kit de Nebulización Adulto NUBE 3000",
+          "ref_hint": "gmrn211-kita",
+          "ficha_url": null,
+          "pagina_fabricante": null,
+          "http_status": 200,
+          "idioma": null,
+          "notas": "reutilizada_local: ficha del equipo principal (mismo fabricante GMD/Konfort/Nube); no FT exclusiva del accesorio",
+          "ficha_local": "gmd-nube/gmrn-211-ft.pdf",
+          "sha256": "529957ef28541311f853d1d35de1865158d99477e95903201a659ee5be501be2",
+          "download_path": "tmp/ficha-search/gmd/kit-de-nebulizacion-adulto-nube-3000-ref-gmrn211-kita.pdf"
+        },
+        {
+          "slug": "kit-de-nebulizacion-del-nube-5000-ref-gmrn846-kitmn",
+          "nombre_es": "Kit De Nebulización Del Nube 5000",
+          "ref_hint": "gmrn846-kitmn",
+          "ficha_url": null,
+          "pagina_fabricante": null,
+          "http_status": 200,
+          "idioma": null,
+          "notas": "reutilizada_local: ficha del equipo principal (mismo fabricante GMD/Konfort/Nube); no FT exclusiva del accesorio",
+          "ficha_local": "gmd-nube/gmrn846-ft.pdf",
+          "sha256": "9e913c71ce51561e86c070378288d7ce77c9c83253f4adcf8789e865c26ea593",
+          "download_path": "tmp/ficha-search/gmd/kit-de-nebulizacion-del-nube-5000-ref-gmrn846-kitmn.pdf"
+        },
+        {
+          "slug": "kit-de-nebulizacion-smart-del-nube-5000-ref-gmrn846-kit",
+          "nombre_es": "Kit De Nebulización Smart Del Nube 5000",
+          "ref_hint": "gmrn846-kit",
+          "ficha_url": null,
+          "pagina_fabricante": null,
+          "http_status": 200,
+          "idioma": null,
+          "notas": "reutilizada_local: ficha del equipo principal (mismo fabricante GMD/Konfort/Nube); no FT exclusiva del accesorio",
+          "ficha_local": "gmd-nube/gmrn846-ft.pdf",
+          "sha256": "9e913c71ce51561e86c070378288d7ce77c9c83253f4adcf8789e865c26ea593",
+          "download_path": "tmp/ficha-search/gmd/kit-de-nebulizacion-smart-del-nube-5000-ref-gmrn846-kit.pdf"
+        },
+        {
+          "slug": "kit-de-nebulizacion-del-nube-7000-ref-gmrn818-kitmn",
+          "nombre_es": "Kit de Nebulización Del Nube 7000",
+          "ref_hint": "gmrn818-kitmn",
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.gmd.com.co/global-search/GMRN818-KITMN",
+          "http_status": null,
+          "idioma": null,
+          "notas": "unico PDF CMS: registro sanitario (no FT); http=503",
+          "ficha_local": null,
+          "sha256": null,
+          "download_path": null
+        },
+        {
+          "slug": "clenny-kit-para-nube-7000-ref-gmrn818-kit",
+          "nombre_es": "Clenny Kit Para Nube 7000",
+          "ref_hint": "gmrn818-kit",
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.gmd.com.co/product/kit-nebulizador-nube-7000-rn818kit",
+          "http_status": null,
+          "idioma": null,
+          "notas": "unico PDF CMS: registro sanitario (no FT); http=503",
+          "ficha_local": null,
+          "sha256": null,
+          "download_path": null
+        },
+        {
+          "slug": "rueda-trasera-con-freno-de-4-para-grua-hidraulica-ref-jbs168-00-012-konfort-plus",
+          "nombre_es": "Rueda Trasera Con Freno De 4\" Para Grúa Hidráulica Konfort Plus",
+          "ref_hint": "jbs168-00-012-konfort-plus",
+          "ficha_url": null,
+          "pagina_fabricante": null,
+          "http_status": 200,
+          "idioma": null,
+          "notas": "reutilizada_local: ficha del equipo principal (mismo fabricante GMD/Konfort/Nube); no FT exclusiva del accesorio",
+          "ficha_local": "gmd-konfort-plus/jbs168-1-ft.pdf",
+          "sha256": "13c69230fd41ee21703e427a8a864640818bbe439fb8c06e1844dfc034c1ad39",
+          "download_path": "tmp/ficha-search/gmd/rueda-trasera-con-freno-de-4-para-grua-hidraulica-ref-jbs168-00-012-konfort-plus.pdf"
+        },
+        {
+          "slug": "rueda-delantera-de-4-para-grua-hidraulica-ref-jbs168-00-011-konfort-plus",
+          "nombre_es": "Rueda Delantera de 4\" Para Grúa Hidráulica Konfort Plus",
+          "ref_hint": "jbs168-00-011-konfort-plus",
+          "ficha_url": null,
+          "pagina_fabricante": null,
+          "http_status": 200,
+          "idioma": null,
+          "notas": "reutilizada_local: ficha del equipo principal (mismo fabricante GMD/Konfort/Nube); no FT exclusiva del accesorio",
+          "ficha_local": "gmd-konfort-plus/jbs168-1-ft.pdf",
+          "sha256": "13c69230fd41ee21703e427a8a864640818bbe439fb8c06e1844dfc034c1ad39",
+          "download_path": "tmp/ficha-search/gmd/rueda-delantera-de-4-para-grua-hidraulica-ref-jbs168-00-011-konfort-plus.pdf"
+        },
+        {
+          "slug": "kit-de-nebulizacion-pediatrico-nube-ref-gmrn457-kitpe",
+          "nombre_es": "Kit de Nebulización Pediátrico NUBE",
+          "ref_hint": "gmrn457-kitpe",
+          "ficha_url": null,
+          "pagina_fabricante": null,
+          "http_status": 200,
+          "idioma": null,
+          "notas": "reutilizada_local: ficha del equipo principal (mismo fabricante GMD/Konfort/Nube); no FT exclusiva del accesorio",
+          "ficha_local": "gmd-nube/gmrn457-171-ft.pdf",
+          "sha256": "ee88b78604d776b2c65757735a97b1ad4f34dee95627a14c81e157d691c65ba7",
+          "download_path": "tmp/ficha-search/gmd/kit-de-nebulizacion-pediatrico-nube-ref-gmrn457-kitpe.pdf"
+        },
+        {
+          "slug": "kit-de-nebulizacion-adulto-nube-ref-gmrn457-kit",
+          "nombre_es": "Kit de Nebulización Adulto NUBE",
+          "ref_hint": "gmrn457-kit",
+          "ficha_url": null,
+          "pagina_fabricante": null,
+          "http_status": 200,
+          "idioma": null,
+          "notas": "reutilizada_local: ficha del equipo principal (mismo fabricante GMD/Konfort/Nube); no FT exclusiva del accesorio",
+          "ficha_local": "gmd-nube/gmrn457-183-ft.pdf",
+          "sha256": "0aa28597cf13ea2af49ed338a4444e82c53fc77338b9e6d2d60adcf60e89c860",
+          "download_path": "tmp/ficha-search/gmd/kit-de-nebulizacion-adulto-nube-ref-gmrn457-kit.pdf"
+        },
+        {
+          "slug": "filtro-para-compresor-nebulizador-nube-3000-ref-gmrn457-12f",
+          "nombre_es": "Filtro para Compresor Nebulizador NUBE 3000",
+          "ref_hint": "gmrn457-12f",
+          "ficha_url": null,
+          "pagina_fabricante": null,
+          "http_status": 200,
+          "idioma": null,
+          "notas": "reutilizada_local: ficha del equipo principal (mismo fabricante GMD/Konfort/Nube); no FT exclusiva del accesorio",
+          "ficha_local": "gmd-nube/gmrn457-12-ft.pdf",
+          "sha256": "50071856839134a29f026fddb7c20025469edccf819be293863719aa618d2580",
+          "download_path": "tmp/ficha-search/gmd/filtro-para-compresor-nebulizador-nube-3000-ref-gmrn457-12f.pdf"
+        },
+        {
+          "slug": "baston-con-empunadura-en-t-ergonomico-color-cromo-ref-kp4102-22-konfort-plus",
+          "nombre_es": "Baston Con Empuñadura En T Ergonómico Color Cromo Konfort Plus",
+          "ref_hint": "kp4102-22-konfort-plus",
+          "ficha_url": null,
+          "pagina_fabricante": "https://www.gmd.com.co/product/baston-con-empunadura-en-t-ergonomico-color-cromo",
+          "http_status": null,
+          "idioma": null,
+          "notas": "sin FT oficial KP4102-22 en gmd.com.co (informe 2026-10-02: enlace GMD erróneo); kp4102-20 sí tiene FT distinta",
+          "ficha_local": null,
+          "sha256": null,
+          "download_path": null
+        }
+      ]
+    },
+    "BM": {
+      "marca": "BM",
+      "encontradas": 0,
+      "no_encontradas": 3,
+      "items": [
+        {
+          "slug": "sillon-reclinable-bme002-bm-ref-bme002",
+          "nombre_es": "Sillón Reclinable BME002",
+          "ref_hint": "bme002",
+          "ficha_url": null,
+          "pagina_fabricante": null,
+          "http_status": null,
+          "idioma": null,
+          "notas": "sin PDF publico del fabricante BM; catalogo IME solo metadata/imagenes",
+          "ficha_local": null,
+          "sha256": null,
+          "download_path": null
+        },
+        {
+          "slug": "silla-reclinable-bme006-bm-ref-bme006",
+          "nombre_es": "Silla Reclinable BME006",
+          "ref_hint": "bme006",
+          "ficha_url": null,
+          "pagina_fabricante": null,
+          "http_status": null,
+          "idioma": null,
+          "notas": "sin PDF publico del fabricante BM; catalogo IME solo metadata/imagenes",
+          "ficha_local": null,
+          "sha256": null,
+          "download_path": null
+        },
+        {
+          "slug": "sillon-reclinable-bme007-bm-ref-bme007",
+          "nombre_es": "Sillón Reclinable BME007",
+          "ref_hint": "bme007",
+          "ficha_url": null,
+          "pagina_fabricante": null,
+          "http_status": null,
+          "idioma": null,
+          "notas": "sin PDF publico del fabricante BM; catalogo IME solo metadata/imagenes",
+          "ficha_local": null,
+          "sha256": null,
+          "download_path": null
+        }
+      ]
+    },
+    "Advanced Instrumentations": {
+      "marca": "Advanced Instrumentations",
+      "encontradas": 0,
+      "no_encontradas": 2,
+      "items": [
+        {
+          "slug": "sistema-de-ultrasonido-ref-dus-3000-advanced",
+          "nombre_es": "Sistema de Ultrasonido DUS-3000",
+          "ref_hint": "dus-3000-advanced",
+          "ficha_url": null,
+          "pagina_fabricante": "https://advanced-inst.com/ultrasound/",
+          "http_status": null,
+          "idioma": null,
+          "notas": "sin PDF en advanced-inst.com (DUS-3000 no listado; V-1000 distinto de V-1000T Plus); URLs wp-content/uploads probadas 404",
+          "ficha_local": null,
+          "sha256": null,
+          "download_path": null
+        },
+        {
+          "slug": "ventilador-para-uci-ref-v-1000-advanced",
+          "nombre_es": "Ventilador para UCI V-1000",
+          "ref_hint": "v-1000-advanced",
+          "ficha_url": null,
+          "pagina_fabricante": "https://advanced-inst.com/turbine-driven-v-1000t-plus/",
+          "http_status": null,
+          "idioma": null,
+          "notas": "sin PDF en advanced-inst.com (DUS-3000 no listado; V-1000 distinto de V-1000T Plus); URLs wp-content/uploads probadas 404",
+          "ficha_local": null,
+          "sha256": null,
+          "download_path": null
+        }
+      ]
+    },
+    "Biolight": {
+      "marca": "Biolight",
+      "encontradas": 1,
+      "no_encontradas": 1,
+      "items": [
+        {
+          "slug": "monitor-de-paciente-ref-m12-biolight",
+          "nombre_es": "Monitor de paciente Biolight M12",
+          "ref_hint": "m12-biolight",
+          "ficha_url": null,
+          "pagina_fabricante": null,
+          "http_status": 200,
+          "idioma": null,
+          "notas": "reutilizada_local: PDF previo I-ME/FTP; biolight.com.cn no resolvió DNS en auditoría",
+          "ficha_local": "recuperadas/monitor-de-paciente-ref-m12-biolight-13ceee5bc7.pdf",
+          "sha256": "1eb502ef2291feded2ad8bf22e9827bfdfac82503303accbc9f8a437253c4562",
+          "download_path": "tmp/ficha-search/biolight/monitor-de-paciente-ref-m12-biolight.pdf"
+        },
+        {
+          "slug": "monitor-de-paciente-ref-s12-biolight",
+          "nombre_es": "Monitor de paciente Biolight S12",
+          "ref_hint": "s12-biolight",
+          "ficha_url": null,
+          "pagina_fabricante": null,
+          "http_status": null,
+          "idioma": null,
+          "notas": "sin PDF local ni URL oficial verificada para S12 (distribuidor Equitronic sin PDF indexado)",
+          "ficha_local": null,
+          "sha256": null,
+          "download_path": null
+        }
+      ]
+    }
+  },
+  "resumen": {
+    "GMD": {
+      "total": 14,
+      "encontradas": 9,
+      "no_encontradas": 5,
+      "reutilizadas_local_fichas": 9,
+      "con_url_oficial": 0
+    },
+    "BM": {
+      "total": 3,
+      "encontradas": 0,
+      "no_encontradas": 3,
+      "reutilizadas_local_fichas": 0,
+      "con_url_oficial": 0
+    },
+    "Advanced Instrumentations": {
+      "total": 2,
+      "encontradas": 0,
+      "no_encontradas": 2,
+      "reutilizadas_local_fichas": 0,
+      "con_url_oficial": 0
+    },
+    "Biolight": {
+      "total": 2,
+      "encontradas": 1,
+      "no_encontradas": 1,
+      "reutilizadas_local_fichas": 1,
+      "con_url_oficial": 0
+    }
+  }
+}

@@ -1,0 +1,1031 @@
+[
+  {
+    "sku": "acuarius-northern",
+    "slug": "monitor-multiparametro-ref-acuarius-northern",
+    "descripcion_larga_es": "El Monitor Multiparámetro Acuarius de Northern Meditec (Acuarius) está disponible a través de IME para instituciones de salud en Colombia y la región.\n\nMonitor multiparámetro portátil con batería de 15 horas.\n\nPensado para pacientes ambulatorios, control puntual, transporte y sala general.\n\nConfiguración SpO2+NIBP+ECG+TEMP con batería de iones de litio de hasta 15 horas.\n\nPantalla TFT LCD a color de 8,4\" (táctil opcional); diseño portátil.\n\nOpcionales fabricante: Masimo/Nellcor SpO2, EtCO2, temperatura rápida, escáner de código de barras, registrador térmico, CMS LAN/inalámbrico, Bluetooth.\n\nMEWS, cálculos hemodinámica/dosis, modos continuo y spot-check; adultos, pediátricos y neonatos.\n\nCMS cable/WiFi/3G/4G con HL7 a HIS; tendencias 480 h; revisión de onda 48 h; modo nocturno.\n\nEspecificaciones de referencia del fabricante: https://en.northernmeditec.com/prodet/14.html.",
+    "descripcion_larga_en": "The Multi-parameter Monitor Acuarius from Northern Meditec (Acuarius) is offered by IME for healthcare institutions.\n\nPortable multi-parameter monitor with 15-hour battery.\n\nPantalla: TFT LCD 8,4\" a color (táctil opcional).\n\nParámetros base: SpO2 + NIBP + ECG + TEMP.\n\nBatería: Iones de litio recargable, hasta 15 h.\n\nCMS / HIS: Cable/WiFi/3G/4G; protocolo HL7.\n\nManufacturer reference: https://en.northernmeditec.com/prodet/14.html.",
+    "beneficios_es": [
+      "Característica: Pantalla LCD TFT a color 8.4\" (dato de ficha/catálogo o página Northern Meditec).",
+      "Configuración: SpO2+NIBP+ECG+TEMP (dato de ficha/catálogo o página Northern Meditec).",
+      "Característica: Batería recargable de iones de litio 15h (dato de ficha/catálogo o página Northern Meditec).",
+      "Opcional: Masimo/Nellcor SpO2, EtCO2, Temperatura rápida (dato de ficha/catálogo o página Northern Meditec).",
+      "Característica: Escáner de código de barras (dato de ficha/catálogo o página Northern Meditec)."
+    ],
+    "beneficios_en": [
+      "Característica: Pantalla LCD TFT a color 8.4\" (per Northern Meditec catalog/page).",
+      "Configuración: SpO2+NIBP+ECG+TEMP (per Northern Meditec catalog/page).",
+      "Característica: Batería recargable de iones de litio 15h (per Northern Meditec catalog/page).",
+      "Opcional: Masimo/Nellcor SpO2, EtCO2, Temperatura rápida (per Northern Meditec catalog/page).",
+      "Característica: Escáner de código de barras (per Northern Meditec catalog/page)."
+    ],
+    "valor_es": "Monitor Multiparámetro Acuarius Northern Meditec con especificaciones publicadas por el fabricante (https://en.northernmeditec.com/prodet/14.html), distribuida por IME.",
+    "valor_en": "Multi-parameter Monitor Acuarius by Northern Meditec with manufacturer-published specs (https://en.northernmeditec.com/prodet/14.html), supplied by IME.",
+    "aplicaciones_es": [
+      "Pacientes ambulatorios",
+      "Control puntual",
+      "Transporte",
+      "Sala general"
+    ],
+    "aplicaciones_en": [
+      "Pacientes ambulatorios",
+      "Control puntual",
+      "Transporte",
+      "Sala general"
+    ],
+    "faq_es": [
+      {
+        "q": "¿Qué modelo es el Monitor Multiparámetro Acuarius?",
+        "a": "Es el modelo Acuarius de Northern Meditec, referenciado en el catálogo IME y en la ficha del fabricante."
+      },
+      {
+        "q": "¿Para qué áreas está indicado el Acuarius?",
+        "a": "Según catálogo: Pacientes ambulatorios, Control puntual, Transporte, Sala general."
+      },
+      {
+        "q": "¿Qué configuración base declara el fabricante?",
+        "a": "Característica: Pantalla LCD TFT a color 8.4\"; Configuración: SpO2+NIBP+ECG+TEMP; Característica: Batería recargable de iones de litio 15h; Opcional: Masimo/Nellcor SpO2, EtCO2, Temperatura rápida"
+      },
+      {
+        "q": "¿Dónde verifico la ficha técnica oficial?",
+        "a": "En la página del fabricante: https://en.northernmeditec.com/prodet/14.html. IME puede facilitar la documentación comercial del modelo Acuarius."
+      },
+      {
+        "q": "¿Cómo cotizar el Acuarius con IME?",
+        "a": "Solicite cotización indicando el modelo exacto Northern Meditec y el área clínica de uso; IME confirma disponibilidad y soporte en Colombia."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What model is the Multi-parameter Monitor Acuarius?",
+        "a": "It is Northern Meditec model Acuarius, listed in the IME catalog and manufacturer materials."
+      },
+      {
+        "q": "Which care areas is Acuarius for?",
+        "a": "Per catalog: Pacientes ambulatorios, Control puntual, Transporte, Sala general."
+      },
+      {
+        "q": "What base configuration does the manufacturer state?",
+        "a": "Característica: Pantalla LCD TFT a color 8.4\"; Configuración: SpO2+NIBP+ECG+TEMP; Característica: Batería recargable de iones de litio 15h; Opcional: Masimo/Nellcor SpO2, EtCO2, Temperatura rápida"
+      },
+      {
+        "q": "Where is the official datasheet?",
+        "a": "Manufacturer page: https://en.northernmeditec.com/prodet/14.html. IME can provide commercial documentation for model Acuarius."
+      },
+      {
+        "q": "How do I request a quote for Acuarius?",
+        "a": "Request a quote with the exact Northern Meditec model and clinical area; IME confirms availability in Colombia."
+      }
+    ],
+    "seo_keywords_es": [
+      "Monitor Multiparámetro Acuarius",
+      "Acuarius Northern Meditec",
+      "ficha técnica Acuarius",
+      "equipo médico Colombia",
+      "Acuarius IME"
+    ],
+    "seo_keywords_en": [
+      "Multi-parameter Monitor Acuarius",
+      "Acuarius Northern Meditec",
+      "Acuarius datasheet",
+      "medical equipment Colombia"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Ficha catálogo",
+        "clave": "Característica",
+        "valor": "Pantalla LCD TFT a color 8.4\""
+      },
+      {
+        "grupo": "Ficha catálogo",
+        "clave": "Configuración",
+        "valor": "SpO2+NIBP+ECG+TEMP"
+      },
+      {
+        "grupo": "Ficha catálogo",
+        "clave": "Característica",
+        "valor": "Batería recargable de iones de litio 15h"
+      },
+      {
+        "grupo": "Ficha catálogo",
+        "clave": "Opcional",
+        "valor": "Masimo/Nellcor SpO2, EtCO2, Temperatura rápida"
+      },
+      {
+        "grupo": "Ficha catálogo",
+        "clave": "Característica",
+        "valor": "Escáner de código de barras"
+      },
+      {
+        "grupo": "Pantalla",
+        "clave": "Pantalla",
+        "valor": "TFT LCD 8,4\" a color (táctil opcional)"
+      },
+      {
+        "grupo": "Configuración",
+        "clave": "Parámetros base",
+        "valor": "SpO2 + NIBP + ECG + TEMP"
+      },
+      {
+        "grupo": "Alimentación",
+        "clave": "Batería",
+        "valor": "Iones de litio recargable, hasta 15 h"
+      },
+      {
+        "grupo": "Conectividad",
+        "clave": "CMS / HIS",
+        "valor": "Cable/WiFi/3G/4G; protocolo HL7"
+      },
+      {
+        "grupo": "Software",
+        "clave": "Alertas",
+        "valor": "MEWS (Modified Early Warning Score)"
+      },
+      {
+        "grupo": "Revisión",
+        "clave": "Tendencias",
+        "valor": "Gráficas y tabulares hasta 480 h"
+      }
+    ],
+    "append_descripcion": false
+  },
+  {
+    "sku": "atlas-n3-northern",
+    "slug": "maquina-de-anestesia-ref-atlas-n3-northern",
+    "descripcion_larga_es": "El Máquina de Anestesia Atlas N3 de Northern Meditec está en el catálogo IME. Según brochure/ficha oficial: Height（With casters） 146cm±1cm; 8 inch TFT LCD screen, 800x480 pixels; Optional(2 batteries,9600mAh); Up to 3 waveforms, user configurable; Four wheels(125mm) with 2 separate brakes.\n\nDescargue el PDF en esta landing.",
+    "descripcion_larga_en": "The Anesthesia Machine Atlas N3 from Northern Meditec is in the IME catalog. Per official brochure: Height（With casters） 146cm±1cm; 8 inch TFT LCD screen, 800x480 pixels; Optional(2 batteries,9600mAh); Up to 3 waveforms, user configurable; Four wheels(125mm) with 2 separate brakes.\n\nDownload the PDF on this landing.",
+    "beneficios_es": [
+      "Height（With casters） 146cm±1cm",
+      "8 inch TFT LCD screen, 800x480 pixels",
+      "Optional(2 batteries,9600mAh)",
+      "Up to 3 waveforms, user configurable"
+    ],
+    "beneficios_en": [
+      "Height（With casters） 146cm±1cm",
+      "8 inch TFT LCD screen, 800x480 pixels",
+      "Optional(2 batteries,9600mAh)",
+      "Up to 3 waveforms, user configurable"
+    ],
+    "valor_es": "Máquina de Anestesia Atlas N3 Northern Meditec con ficha/brochure PDF oficial vía IME.",
+    "valor_en": "Anesthesia Machine Atlas N3 Northern Meditec with official PDF brochure via IME.",
+    "aplicaciones_es": [
+      "Anestesia",
+      "Cirugía"
+    ],
+    "aplicaciones_en": [
+      "Anestesia",
+      "Cirugía"
+    ],
+    "faq_es": [
+      {
+        "q": "¿Dónde descargo la ficha de Máquina de Anestesia Atlas N3?",
+        "a": "En esta página: PDF/brochure oficial Northern Meditec."
+      },
+      {
+        "q": "¿Cómo cotizo con IME?",
+        "a": "Indique el modelo exacto (Máquina de Anestesia Atlas N3) y el área clínica."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Where is the Anesthesia Machine Atlas N3 datasheet?",
+        "a": "On this page: official Northern Meditec PDF/brochure."
+      },
+      {
+        "q": "How do I request a quote?",
+        "a": "Provide exact model (Anesthesia Machine Atlas N3) and clinical area."
+      }
+    ],
+    "seo_keywords_es": [
+      "Máquina de Anestesia Atlas N3",
+      "Northern Meditec",
+      "ficha Máquina de Anestesia Atlas N3",
+      "IME"
+    ],
+    "seo_keywords_en": [
+      "Anesthesia Machine Atlas N3",
+      "Northern Meditec datasheet",
+      "IME"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 1",
+        "valor": "Height（With casters） 146cm±1cm"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 2",
+        "valor": "8 inch TFT LCD screen, 800x480 pixels"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 3",
+        "valor": "Optional(2 batteries,9600mAh)"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 4",
+        "valor": "Up to 3 waveforms, user configurable"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 5",
+        "valor": "Four wheels(125mm) with 2 separate brakes"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 6",
+        "valor": "4th Floor, Building C, Jin Wei Yuan Industrial Park, Julongshan Area, Kengzi St,"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 7",
+        "valor": "One-hand operation designed CO2 absorber."
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 8",
+        "valor": "Autoclavable PPSU material (up to 134°C)."
+      }
+    ],
+    "append_descripcion": false
+  },
+  {
+    "sku": "atlas-n5-northern",
+    "slug": "maquina-de-anestesia-ref-atlas-n5-northern",
+    "descripcion_larga_es": "El Máquina de Anestesia Atlas N5 de Northern Meditec está en el catálogo IME. Según brochure/ficha oficial: Height（With casters） 130cm±1cm; 12 inch TFT LCD touch screen, 800x600 pixels; 2 batteries, 9600mAh(optional); Up to 3 waveforms, user configurable; Four wheels(125mm) with 2 separate brakes.\n\nDescargue el PDF en esta landing.",
+    "descripcion_larga_en": "The Anesthesia Machine Atlas N5 from Northern Meditec is in the IME catalog. Per official brochure: Height（With casters） 130cm±1cm; 12 inch TFT LCD touch screen, 800x600 pixels; 2 batteries, 9600mAh(optional); Up to 3 waveforms, user configurable; Four wheels(125mm) with 2 separate brakes.\n\nDownload the PDF on this landing.",
+    "beneficios_es": [
+      "Height（With casters） 130cm±1cm",
+      "12 inch TFT LCD touch screen, 800x600 pixels",
+      "2 batteries, 9600mAh(optional)",
+      "Up to 3 waveforms, user configurable"
+    ],
+    "beneficios_en": [
+      "Height（With casters） 130cm±1cm",
+      "12 inch TFT LCD touch screen, 800x600 pixels",
+      "2 batteries, 9600mAh(optional)",
+      "Up to 3 waveforms, user configurable"
+    ],
+    "valor_es": "Máquina de Anestesia Atlas N5 Northern Meditec con ficha/brochure PDF oficial vía IME.",
+    "valor_en": "Anesthesia Machine Atlas N5 Northern Meditec with official PDF brochure via IME.",
+    "aplicaciones_es": [
+      "Anestesia",
+      "Cirugía"
+    ],
+    "aplicaciones_en": [
+      "Anestesia",
+      "Cirugía"
+    ],
+    "faq_es": [
+      {
+        "q": "¿Dónde descargo la ficha de Máquina de Anestesia Atlas N5?",
+        "a": "En esta página: PDF/brochure oficial Northern Meditec."
+      },
+      {
+        "q": "¿Cómo cotizo con IME?",
+        "a": "Indique el modelo exacto (Máquina de Anestesia Atlas N5) y el área clínica."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Where is the Anesthesia Machine Atlas N5 datasheet?",
+        "a": "On this page: official Northern Meditec PDF/brochure."
+      },
+      {
+        "q": "How do I request a quote?",
+        "a": "Provide exact model (Anesthesia Machine Atlas N5) and clinical area."
+      }
+    ],
+    "seo_keywords_es": [
+      "Máquina de Anestesia Atlas N5",
+      "Northern Meditec",
+      "ficha Máquina de Anestesia Atlas N5",
+      "IME"
+    ],
+    "seo_keywords_en": [
+      "Anesthesia Machine Atlas N5",
+      "Northern Meditec datasheet",
+      "IME"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 1",
+        "valor": "Height（With casters） 130cm±1cm"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 2",
+        "valor": "12 inch TFT LCD touch screen, 800x600 pixels"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 3",
+        "valor": "2 batteries, 9600mAh(optional)"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 4",
+        "valor": "Up to 3 waveforms, user configurable"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 5",
+        "valor": "Four wheels(125mm) with 2 separate brakes"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 6",
+        "valor": "4th Floor, Building C, Jin Wei Yuan Industrial Park, Julongshan Area, Kengzi St,"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 7",
+        "valor": "· Tidal volume 10-1500 ml."
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 8",
+        "valor": "One-hand operation designed CO2 absorber."
+      }
+    ],
+    "append_descripcion": false
+  },
+  {
+    "sku": "atlas-n7-northern",
+    "slug": "maquina-de-anestesia-ref-atlas-n7-northern",
+    "descripcion_larga_es": "El Máquina de Anestesia Atlas N7 de Northern Meditec está en el catálogo IME. Según brochure/ficha oficial: Height（With casters） 149cm(58.6inch); 15.6 inch TFT LED screen, 1366*768 pixels (17”/19” optional); Electronic control gas mixer, O2, N2O, Air; O2,Air and N2O(numerical/bargraph); Up to 4 waveforms, user configurable.\n\nDescargue el PDF en esta landing.",
+    "descripcion_larga_en": "The Anesthesia Machine Atlas N7 from Northern Meditec is in the IME catalog. Per official brochure: Height（With casters） 149cm(58.6inch); 15.6 inch TFT LED screen, 1366*768 pixels (17”/19” optional); Electronic control gas mixer, O2, N2O, Air; O2,Air and N2O(numerical/bargraph); Up to 4 waveforms, user configurable.\n\nDownload the PDF on this landing.",
+    "beneficios_es": [
+      "Height（With casters） 149cm(58.6inch)",
+      "15.6 inch TFT LED screen, 1366*768 pixels (17”/19” optional)",
+      "Electronic control gas mixer, O2, N2O, Air",
+      "O2,Air and N2O(numerical/bargraph)"
+    ],
+    "beneficios_en": [
+      "Height（With casters） 149cm(58.6inch)",
+      "15.6 inch TFT LED screen, 1366*768 pixels (17”/19” optional)",
+      "Electronic control gas mixer, O2, N2O, Air",
+      "O2,Air and N2O(numerical/bargraph)"
+    ],
+    "valor_es": "Máquina de Anestesia Atlas N7 Northern Meditec con ficha/brochure PDF oficial vía IME.",
+    "valor_en": "Anesthesia Machine Atlas N7 Northern Meditec with official PDF brochure via IME.",
+    "aplicaciones_es": [
+      "Anestesia",
+      "Cirugía"
+    ],
+    "aplicaciones_en": [
+      "Anestesia",
+      "Cirugía"
+    ],
+    "faq_es": [
+      {
+        "q": "¿Dónde descargo la ficha de Máquina de Anestesia Atlas N7?",
+        "a": "En esta página: PDF/brochure oficial Northern Meditec."
+      },
+      {
+        "q": "¿Cómo cotizo con IME?",
+        "a": "Indique el modelo exacto (Máquina de Anestesia Atlas N7) y el área clínica."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Where is the Anesthesia Machine Atlas N7 datasheet?",
+        "a": "On this page: official Northern Meditec PDF/brochure."
+      },
+      {
+        "q": "How do I request a quote?",
+        "a": "Provide exact model (Anesthesia Machine Atlas N7) and clinical area."
+      }
+    ],
+    "seo_keywords_es": [
+      "Máquina de Anestesia Atlas N7",
+      "Northern Meditec",
+      "ficha Máquina de Anestesia Atlas N7",
+      "IME"
+    ],
+    "seo_keywords_en": [
+      "Anesthesia Machine Atlas N7",
+      "Northern Meditec datasheet",
+      "IME"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 1",
+        "valor": "Height（With casters） 149cm(58.6inch)"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 2",
+        "valor": "15.6 inch TFT LED screen, 1366*768 pixels (17”/19” optional)"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 3",
+        "valor": "Electronic control gas mixer, O2, N2O, Air"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 4",
+        "valor": "O2,Air and N2O(numerical/bargraph)"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 5",
+        "valor": "Up to 4 waveforms, user configurable"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 6",
+        "valor": "Optional(2 batteries, 9600mAh)"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 7",
+        "valor": "Four castors(dual wheels 125mm) with 4 separate brakes"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 8",
+        "valor": "4th Floor, Building C, Jin Wei Yuan Industrial Park, Julongshan Area, Kengzi St,"
+      }
+    ],
+    "append_descripcion": false
+  },
+  {
+    "sku": "gemini-northern",
+    "slug": "monitor-multiparametro-ref-gemini-northern",
+    "descripcion_larga_es": "El Monitor Multiparámetro Gemini de Northern Meditec está en el catálogo IME. Según brochure/ficha oficial: Masimo ISATM Sidestream CO2 (Optional); 15.6”/18.5”optional TFT Touch screen; Number of traces: 10, up to 12 ECG waveforms; 15.6”: 403×320×185mm(L×W×T); 19” : 470×327×185mm(L×W×T).\n\nDescargue el PDF en esta landing.",
+    "descripcion_larga_en": "The Multi-parameter Monitor Gemini from Northern Meditec is in the IME catalog. Per official brochure: Masimo ISATM Sidestream CO2 (Optional); 15.6”/18.5”optional TFT Touch screen; Number of traces: 10, up to 12 ECG waveforms; 15.6”: 403×320×185mm(L×W×T); 19” : 470×327×185mm(L×W×T).\n\nDownload the PDF on this landing.",
+    "beneficios_es": [
+      "Masimo ISATM Sidestream CO2 (Optional)",
+      "15.6”/18.5”optional TFT Touch screen",
+      "Number of traces: 10, up to 12 ECG waveforms",
+      "15.6”: 403×320×185mm(L×W×T)"
+    ],
+    "beneficios_en": [
+      "Masimo ISATM Sidestream CO2 (Optional)",
+      "15.6”/18.5”optional TFT Touch screen",
+      "Number of traces: 10, up to 12 ECG waveforms",
+      "15.6”: 403×320×185mm(L×W×T)"
+    ],
+    "valor_es": "Monitor Multiparámetro Gemini Northern Meditec con ficha/brochure PDF oficial vía IME.",
+    "valor_en": "Multi-parameter Monitor Gemini Northern Meditec with official PDF brochure via IME.",
+    "aplicaciones_es": [
+      "ICU",
+      "CCU",
+      "NICU"
+    ],
+    "aplicaciones_en": [
+      "ICU",
+      "CCU",
+      "NICU"
+    ],
+    "faq_es": [
+      {
+        "q": "¿Dónde descargo la ficha de Monitor Multiparámetro Gemini?",
+        "a": "En esta página: PDF/brochure oficial Northern Meditec."
+      },
+      {
+        "q": "¿Cómo cotizo con IME?",
+        "a": "Indique el modelo exacto (Monitor Multiparámetro Gemini) y el área clínica."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Where is the Multi-parameter Monitor Gemini datasheet?",
+        "a": "On this page: official Northern Meditec PDF/brochure."
+      },
+      {
+        "q": "How do I request a quote?",
+        "a": "Provide exact model (Multi-parameter Monitor Gemini) and clinical area."
+      }
+    ],
+    "seo_keywords_es": [
+      "Monitor Multiparámetro Gemini",
+      "Northern Meditec",
+      "ficha Monitor Multiparámetro Gemini",
+      "IME"
+    ],
+    "seo_keywords_en": [
+      "Multi-parameter Monitor Gemini",
+      "Northern Meditec datasheet",
+      "IME"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 1",
+        "valor": "Masimo ISATM Sidestream CO2 (Optional)"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 2",
+        "valor": "15.6”/18.5”optional TFT Touch screen"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 3",
+        "valor": "Number of traces: 10, up to 12 ECG waveforms"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 4",
+        "valor": "15.6”: 403×320×185mm(L×W×T)"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 5",
+        "valor": "19” : 470×327×185mm(L×W×T)"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 6",
+        "valor": "Weight: < 10kg under standard configuration"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 7",
+        "valor": "HDMI: 1 HDMI monitor connnector"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 8",
+        "valor": "Output:1 connector for Nurse call,Defib Sync Analog Output"
+      }
+    ],
+    "append_descripcion": false
+  },
+  {
+    "sku": "ventilador-mecanico-ref-crius-v6-northern",
+    "slug": "ventilador-mecanico-ref-crius-v6-northern",
+    "append_descripcion": false,
+    "descripcion_larga_es": "El Ventilador Mecánico Crius V6 de Northern Meditec está en el catálogo IME. Según brochure/ficha oficial: Nurse call, USB, NET, RS232, VGA; Main patient outlet：ISO 22M/15F; Display size: 15.6 in diagonal, 18.5”optional; Display resolution: SVGA resolution, 1366 x 768; Paw, Flow, Volume, EtCO2, SPO2.\n\nDescargue el PDF en esta landing.",
+    "descripcion_larga_en": "The Mechanical Ventilator Crius V6 from Northern Meditec is in the IME catalog. Per official brochure: Nurse call, USB, NET, RS232, VGA; Main patient outlet：ISO 22M/15F; Display size: 15.6 in diagonal, 18.5”optional; Display resolution: SVGA resolution, 1366 x 768; Paw, Flow, Volume, EtCO2, SPO2.\n\nDownload the PDF on this landing.",
+    "beneficios_es": [
+      "Nurse call, USB, NET, RS232, VGA",
+      "Main patient outlet：ISO 22M/15F",
+      "Display size: 15.6 in diagonal, 18.5”optional",
+      "Display resolution: SVGA resolution, 1366 x 768"
+    ],
+    "beneficios_en": [
+      "Nurse call, USB, NET, RS232, VGA",
+      "Main patient outlet：ISO 22M/15F",
+      "Display size: 15.6 in diagonal, 18.5”optional",
+      "Display resolution: SVGA resolution, 1366 x 768"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 1",
+        "valor": "Nurse call, USB, NET, RS232, VGA"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 2",
+        "valor": "Main patient outlet：ISO 22M/15F"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 3",
+        "valor": "Display size: 15.6 in diagonal, 18.5”optional"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 4",
+        "valor": "Display resolution: SVGA resolution, 1366 x 768"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 5",
+        "valor": "Paw, Flow, Volume, EtCO2, SPO2"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 6",
+        "valor": "Optional: CO2, SPO2 (related parameters)"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 7",
+        "valor": "Trends: 1s, 5s,1min,10min, 30min, 60min"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 8",
+        "valor": "Tidal volume: 5 to 2000mL (2 to 2000ml optional)"
+      }
+    ],
+    "valor_es": "Ventilador Mecánico Crius V6 Northern Meditec con ficha/brochure PDF oficial vía IME.",
+    "valor_en": "Mechanical Ventilator Crius V6 Northern Meditec with official PDF brochure via IME.",
+    "faq_es": [
+      {
+        "q": "¿Dónde descargo la ficha de Ventilador Mecánico Crius V6?",
+        "a": "En esta página: PDF/brochure oficial Northern Meditec."
+      },
+      {
+        "q": "¿Cómo cotizo con IME?",
+        "a": "Indique el modelo exacto (Ventilador Mecánico Crius V6) y el área clínica."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Where is the Mechanical Ventilator Crius V6 datasheet?",
+        "a": "On this page: official Northern Meditec PDF/brochure."
+      },
+      {
+        "q": "How do I request a quote?",
+        "a": "Provide exact model (Mechanical Ventilator Crius V6) and clinical area."
+      }
+    ],
+    "seo_keywords_es": [
+      "Ventilador Mecánico Crius V6",
+      "Northern Meditec",
+      "ficha Ventilador Mecánico Crius V6",
+      "IME"
+    ],
+    "seo_keywords_en": [
+      "Mechanical Ventilator Crius V6",
+      "Northern Meditec datasheet",
+      "IME"
+    ]
+  },
+  {
+    "sku": "monitor-multiparametro-ref-pisces-northern",
+    "slug": "monitor-multiparametro-ref-pisces-northern",
+    "append_descripcion": false,
+    "descripcion_larga_es": "El Monitor Multiparámetro Pisces de Northern Meditec está en el catálogo IME. Según brochure/ficha oficial: 12.1”color TFT LCD screen,wide and flat screen design; ECG+SpO2+NIBP+2TEMP+PR+RESP, Li-ion battery; Masimo/Nellcor SpO2, EtCO2, C.O., 2-IBP, BIS, NMT, Thermal recorder; 12.1” color TFT LCD screen; 8 waveform display,up to 12-lead ECG analysis.\n\nDescargue el PDF en esta landing.",
+    "descripcion_larga_en": "The Multi-parameter Monitor Pisces from Northern Meditec is in the IME catalog. Per official brochure: 12.1”color TFT LCD screen,wide and flat screen design; ECG+SpO2+NIBP+2TEMP+PR+RESP, Li-ion battery; Masimo/Nellcor SpO2, EtCO2, C.O., 2-IBP, BIS, NMT, Thermal recorder; 12.1” color TFT LCD screen; 8 waveform display,up to 12-lead ECG analysis.\n\nDownload the PDF on this landing.",
+    "beneficios_es": [
+      "12.1”color TFT LCD screen,wide and flat screen design",
+      "ECG+SpO2+NIBP+2TEMP+PR+RESP, Li-ion battery",
+      "Masimo/Nellcor SpO2, EtCO2, C.O., 2-IBP, BIS, NMT, Thermal recorder",
+      "12.1” color TFT LCD screen"
+    ],
+    "beneficios_en": [
+      "12.1”color TFT LCD screen,wide and flat screen design",
+      "ECG+SpO2+NIBP+2TEMP+PR+RESP, Li-ion battery",
+      "Masimo/Nellcor SpO2, EtCO2, C.O., 2-IBP, BIS, NMT, Thermal recorder",
+      "12.1” color TFT LCD screen"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 1",
+        "valor": "12.1”color TFT LCD screen,wide and flat screen design"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 2",
+        "valor": "ECG+SpO2+NIBP+2TEMP+PR+RESP, Li-ion battery"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 3",
+        "valor": "Masimo/Nellcor SpO2, EtCO2, C.O., 2-IBP, BIS, NMT, Thermal recorder"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 4",
+        "valor": "12.1” color TFT LCD screen"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 5",
+        "valor": "8 waveform display,up to 12-lead ECG analysis"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 6",
+        "valor": "Wired/Wireless CMS, support HL7 protocol to HIS"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 7",
+        "valor": "SpO2 pulse-tone modulation (Pitch Tone)"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 8",
+        "valor": "Graphical & tabular trend review( 120 hours)"
+      }
+    ],
+    "valor_es": "Monitor Multiparámetro Pisces Northern Meditec con ficha/brochure PDF oficial vía IME.",
+    "valor_en": "Multi-parameter Monitor Pisces Northern Meditec with official PDF brochure via IME.",
+    "faq_es": [
+      {
+        "q": "¿Dónde descargo la ficha de Monitor Multiparámetro Pisces?",
+        "a": "En esta página: PDF/brochure oficial Northern Meditec."
+      },
+      {
+        "q": "¿Cómo cotizo con IME?",
+        "a": "Indique el modelo exacto (Monitor Multiparámetro Pisces) y el área clínica."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Where is the Multi-parameter Monitor Pisces datasheet?",
+        "a": "On this page: official Northern Meditec PDF/brochure."
+      },
+      {
+        "q": "How do I request a quote?",
+        "a": "Provide exact model (Multi-parameter Monitor Pisces) and clinical area."
+      }
+    ],
+    "seo_keywords_es": [
+      "Monitor Multiparámetro Pisces",
+      "Northern Meditec",
+      "ficha Monitor Multiparámetro Pisces",
+      "IME"
+    ],
+    "seo_keywords_en": [
+      "Multi-parameter Monitor Pisces",
+      "Northern Meditec datasheet",
+      "IME"
+    ]
+  },
+  {
+    "sku": "monitor-multiparametro-ref-taurus-northern",
+    "slug": "monitor-multiparametro-ref-taurus-northern",
+    "append_descripcion": false,
+    "descripcion_larga_es": "El Monitor Multiparámetro Taurus de Northern Meditec está en el catálogo IME. Según brochure/ficha oficial: 12.1”color TFT touch screen,wide and flat screen design, Multiple parameter options satisfy the; 12.1” color TFT LCD Touch screen; 8 waveform display,up to 12-lead ECG analysis; Wired/Wireless CMS, support HL7 protocol to HIS; SpO2 pulse-tone modulation (Pitch Tone).\n\nDescargue el PDF en esta landing.",
+    "descripcion_larga_en": "The Multi-parameter Monitor Taurus from Northern Meditec is in the IME catalog. Per official brochure: 12.1”color TFT touch screen,wide and flat screen design, Multiple parameter options satisfy the; 12.1” color TFT LCD Touch screen; 8 waveform display,up to 12-lead ECG analysis; Wired/Wireless CMS, support HL7 protocol to HIS; SpO2 pulse-tone modulation (Pitch Tone).\n\nDownload the PDF on this landing.",
+    "beneficios_es": [
+      "12.1”color TFT touch screen,wide and flat screen design, Multiple parameter options satisfy the",
+      "12.1” color TFT LCD Touch screen",
+      "8 waveform display,up to 12-lead ECG analysis",
+      "Wired/Wireless CMS, support HL7 protocol to HIS"
+    ],
+    "beneficios_en": [
+      "12.1”color TFT touch screen,wide and flat screen design, Multiple parameter options satisfy the",
+      "12.1” color TFT LCD Touch screen",
+      "8 waveform display,up to 12-lead ECG analysis",
+      "Wired/Wireless CMS, support HL7 protocol to HIS"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 1",
+        "valor": "12.1”color TFT touch screen,wide and flat screen design, Multiple parameter options satisfy the"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 2",
+        "valor": "12.1” color TFT LCD Touch screen"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 3",
+        "valor": "8 waveform display,up to 12-lead ECG analysis"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 4",
+        "valor": "Wired/Wireless CMS, support HL7 protocol to HIS"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 5",
+        "valor": "SpO2 pulse-tone modulation (Pitch Tone)"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 6",
+        "valor": "Graphical & tabular trend review( 120 hours)"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 7",
+        "valor": "48h full disclosure wave review for each patient"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 8",
+        "valor": "ECG+SpO2+NIBP+2TEMP+PR+RESP, Li-ion battery"
+      }
+    ],
+    "valor_es": "Monitor Multiparámetro Taurus Northern Meditec con ficha/brochure PDF oficial vía IME.",
+    "valor_en": "Multi-parameter Monitor Taurus Northern Meditec with official PDF brochure via IME.",
+    "faq_es": [
+      {
+        "q": "¿Dónde descargo la ficha de Monitor Multiparámetro Taurus?",
+        "a": "En esta página: PDF/brochure oficial Northern Meditec."
+      },
+      {
+        "q": "¿Cómo cotizo con IME?",
+        "a": "Indique el modelo exacto (Monitor Multiparámetro Taurus) y el área clínica."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Where is the Multi-parameter Monitor Taurus datasheet?",
+        "a": "On this page: official Northern Meditec PDF/brochure."
+      },
+      {
+        "q": "How do I request a quote?",
+        "a": "Provide exact model (Multi-parameter Monitor Taurus) and clinical area."
+      }
+    ],
+    "seo_keywords_es": [
+      "Monitor Multiparámetro Taurus",
+      "Northern Meditec",
+      "ficha Monitor Multiparámetro Taurus",
+      "IME"
+    ],
+    "seo_keywords_en": [
+      "Multi-parameter Monitor Taurus",
+      "Northern Meditec datasheet",
+      "IME"
+    ]
+  },
+  {
+    "sku": "monitor-multiparametro-ref-venus-northern",
+    "slug": "monitor-multiparametro-ref-venus-northern",
+    "append_descripcion": false,
+    "descripcion_larga_es": "El Monitor Multiparámetro Venus de Northern Meditec está en el catálogo IME. Según brochure/ficha oficial: Number of traces: 10, up to 12 ECG waveforms; Dimension: 398×302×183mm(W×H×D); Weight: < 7 kg under standard configuration; HDMI: 1 HDMI monitor connnector; Output:1 connector for Nurse call,Defib Sync Analog Output.\n\nDescargue el PDF en esta landing.",
+    "descripcion_larga_en": "The Multi-parameter Monitor Venus from Northern Meditec is in the IME catalog. Per official brochure: Number of traces: 10, up to 12 ECG waveforms; Dimension: 398×302×183mm(W×H×D); Weight: < 7 kg under standard configuration; HDMI: 1 HDMI monitor connnector; Output:1 connector for Nurse call,Defib Sync Analog Output.\n\nDownload the PDF on this landing.",
+    "beneficios_es": [
+      "Number of traces: 10, up to 12 ECG waveforms",
+      "Dimension: 398×302×183mm(W×H×D)",
+      "Weight: < 7 kg under standard configuration",
+      "HDMI: 1 HDMI monitor connnector"
+    ],
+    "beneficios_en": [
+      "Number of traces: 10, up to 12 ECG waveforms",
+      "Dimension: 398×302×183mm(W×H×D)",
+      "Weight: < 7 kg under standard configuration",
+      "HDMI: 1 HDMI monitor connnector"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 1",
+        "valor": "Number of traces: 10, up to 12 ECG waveforms"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 2",
+        "valor": "Dimension: 398×302×183mm(W×H×D)"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 3",
+        "valor": "Weight: < 7 kg under standard configuration"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 4",
+        "valor": "HDMI: 1 HDMI monitor connnector"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 5",
+        "valor": "Output:1 connector for Nurse call,Defib Sync Analog Output"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 6",
+        "valor": "Lead type :3-lead,5-lead,12-lead(optional)"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 7",
+        "valor": "ECG waveform:2 channels,7 channels, 12 channels"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 8",
+        "valor": "1.25mm/mV(×0.125), 2.5mm/mV (×0.25), 5mm/mV (×0.5),"
+      }
+    ],
+    "valor_es": "Monitor Multiparámetro Venus Northern Meditec con ficha/brochure PDF oficial vía IME.",
+    "valor_en": "Multi-parameter Monitor Venus Northern Meditec with official PDF brochure via IME.",
+    "faq_es": [
+      {
+        "q": "¿Dónde descargo la ficha de Monitor Multiparámetro Venus?",
+        "a": "En esta página: PDF/brochure oficial Northern Meditec."
+      },
+      {
+        "q": "¿Cómo cotizo con IME?",
+        "a": "Indique el modelo exacto (Monitor Multiparámetro Venus) y el área clínica."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Where is the Multi-parameter Monitor Venus datasheet?",
+        "a": "On this page: official Northern Meditec PDF/brochure."
+      },
+      {
+        "q": "How do I request a quote?",
+        "a": "Provide exact model (Multi-parameter Monitor Venus) and clinical area."
+      }
+    ],
+    "seo_keywords_es": [
+      "Monitor Multiparámetro Venus",
+      "Northern Meditec",
+      "ficha Monitor Multiparámetro Venus",
+      "IME"
+    ],
+    "seo_keywords_en": [
+      "Multi-parameter Monitor Venus",
+      "Northern Meditec datasheet",
+      "IME"
+    ]
+  },
+  {
+    "sku": "monitor-modular-multiparametro-ref-virgo-northern",
+    "slug": "monitor-modular-multiparametro-ref-virgo-northern",
+    "append_descripcion": false,
+    "descripcion_larga_es": "El Monitor Modular Multiparámetro Virgo de Northern Meditec está en el catálogo IME. Según brochure/ficha oficial: 12.1”color TFT LCD screen,wide and flat screen design,ecnomic and reliable; ECG+SpO2+NIBP+2TEMP+PR+RESP, Li-ion battery; 12.1” color TFT LCD screen( touchscreen is optional ); 8 waveform display,up to 12-lead ECG analysis; ST & arrhythmia analysis(17 types).\n\nDescargue el PDF en esta landing.",
+    "descripcion_larga_en": "The Multi-parameter Modular Monitor Virgo from Northern Meditec is in the IME catalog. Per official brochure: 12.1”color TFT LCD screen,wide and flat screen design,ecnomic and reliable; ECG+SpO2+NIBP+2TEMP+PR+RESP, Li-ion battery; 12.1” color TFT LCD screen( touchscreen is optional ); 8 waveform display,up to 12-lead ECG analysis; ST & arrhythmia analysis(17 types).\n\nDownload the PDF on this landing.",
+    "beneficios_es": [
+      "12.1”color TFT LCD screen,wide and flat screen design,ecnomic and reliable",
+      "ECG+SpO2+NIBP+2TEMP+PR+RESP, Li-ion battery",
+      "12.1” color TFT LCD screen( touchscreen is optional )",
+      "8 waveform display,up to 12-lead ECG analysis"
+    ],
+    "beneficios_en": [
+      "12.1”color TFT LCD screen,wide and flat screen design,ecnomic and reliable",
+      "ECG+SpO2+NIBP+2TEMP+PR+RESP, Li-ion battery",
+      "12.1” color TFT LCD screen( touchscreen is optional )",
+      "8 waveform display,up to 12-lead ECG analysis"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 1",
+        "valor": "12.1”color TFT LCD screen,wide and flat screen design,ecnomic and reliable"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 2",
+        "valor": "ECG+SpO2+NIBP+2TEMP+PR+RESP, Li-ion battery"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 3",
+        "valor": "12.1” color TFT LCD screen( touchscreen is optional )"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 4",
+        "valor": "8 waveform display,up to 12-lead ECG analysis"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 5",
+        "valor": "ST & arrhythmia analysis(17 types)"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 6",
+        "valor": "SpO2 support PI，low perfusion 0.2%"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 7",
+        "valor": "Wired/Wireless CMS, support HL7 protocol to HIS"
+      },
+      {
+        "grupo": "Ficha PDF",
+        "clave": "Ítem 8",
+        "valor": "SpO2 pulse-tone modulation (Pitch Tone)"
+      }
+    ],
+    "valor_es": "Monitor Modular Multiparámetro Virgo Northern Meditec con ficha/brochure PDF oficial vía IME.",
+    "valor_en": "Multi-parameter Modular Monitor Virgo Northern Meditec with official PDF brochure via IME.",
+    "faq_es": [
+      {
+        "q": "¿Dónde descargo la ficha de Monitor Modular Multiparámetro Virgo?",
+        "a": "En esta página: PDF/brochure oficial Northern Meditec."
+      },
+      {
+        "q": "¿Cómo cotizo con IME?",
+        "a": "Indique el modelo exacto (Monitor Modular Multiparámetro Virgo) y el área clínica."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "Where is the Multi-parameter Modular Monitor Virgo datasheet?",
+        "a": "On this page: official Northern Meditec PDF/brochure."
+      },
+      {
+        "q": "How do I request a quote?",
+        "a": "Provide exact model (Multi-parameter Modular Monitor Virgo) and clinical area."
+      }
+    ],
+    "seo_keywords_es": [
+      "Monitor Modular Multiparámetro Virgo",
+      "Northern Meditec",
+      "ficha Monitor Modular Multiparámetro Virgo",
+      "IME"
+    ],
+    "seo_keywords_en": [
+      "Multi-parameter Modular Monitor Virgo",
+      "Northern Meditec datasheet",
+      "IME"
+    ]
+  }
+]

@@ -1,0 +1,101 @@
+{
+  "saikang_wired": [
+    {
+      "slug": "cama-manual-v3v-ref-sk-cd1-v3v-saikang",
+      "sha": "f8fd41c16b1b",
+      "size": 3301402
+    },
+    {
+      "slug": "carrito-de-lavado-ref-skh041-saikang",
+      "sha": "b1a92369753f",
+      "size": 779898
+    },
+    {
+      "slug": "carro-de-enfermeria-ref-skr058-ct-saikang",
+      "sha": "345475ce892e",
+      "size": 1571685
+    }
+  ],
+  "advanced_wired": [
+    {
+      "slug": "monitor-multiparametrico-uci-avanzado",
+      "sku": "PM-2000XL-PRO",
+      "pdf": "pm-2000xl-pro-spa.pdf",
+      "meta": true
+    },
+    {
+      "slug": "monitor-multiparametrico-basico",
+      "sku": "VSM-300",
+      "pdf": "vsm-300-spa.pdf",
+      "meta": true
+    },
+    {
+      "slug": "monitor-de-transporte-prehospitalario",
+      "sku": "PM-2000XL",
+      "pdf": "pm-2000xl-spa.pdf",
+      "meta": true
+    },
+    {
+      "slug": "monitor-central-uci-multicama",
+      "sku": "PM-2000M",
+      "pdf": "pm-2000m-spa.pdf",
+      "meta": true
+    },
+    {
+      "slug": "electrocardiografo-12-derivaciones-digital",
+      "sku": "ECG-12C",
+      "pdf": "ecg-12c-spa.pdf",
+      "meta": true
+    },
+    {
+      "slug": "mesa-quirurgica-motorizada-multiposicion",
+      "sku": "OT-500",
+      "pdf": "ot-500-spa.pdf",
+      "meta": true
+    },
+    {
+      "slug": "incubadora-neonatal-de-transporte",
+      "sku": "A3158",
+      "pdf": "a3158-spa.pdf",
+      "meta": true
+    },
+    {
+      "slug": "cuna-de-calor-radiante-neonatal-servo",
+      "sku": "A4051",
+      "pdf": "a4051-spa.pdf",
+      "meta": true
+    },
+    {
+      "slug": "ecografo-color-doppler-diagnostico-vascular",
+      "sku": "DUS-5000",
+      "pdf": "dus-5000.pdf",
+      "meta": true
+    },
+    {
+      "slug": "ecografo-portatil-con-wifi-y-dicom",
+      "sku": "DUS-5000-PLUS",
+      "pdf": "dus-5000-plus.pdf",
+      "meta": true
+    },
+    {
+      "slug": "ultrasonido-point-of-care-pocket",
+      "sku": "DUS-6000",
+      "pdf": "dus-6000.pdf",
+      "meta": true
+    },
+    {
+      "slug": "bomba-de-infusion-volumetrica-uci",
+      "sku": "IP-200",
+      "pdf": "ip-200-spa.pdf",
+      "meta": true
+    },
+    {
+      "slug": "camilla-hospitalaria-electrica-articulable",
+      "sku": "B-1000-PRO",
+      "pdf": "b-1000-pro-esp.pdf",
+      "meta": true
+    }
+  ],
+  "enrich_file": "/home/shoky/cursor/ime-platform-landing-audit/src/data/fichas-enriquecimiento/sin-marca-advanced-faltantes-20261018.json",
+  "manifest_n": 288
+}

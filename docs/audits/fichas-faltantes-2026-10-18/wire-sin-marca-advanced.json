@@ -1,0 +1,183 @@
+{
+  "generated": "2026-10-18",
+  "source_inferencia": "/home/shoky/cursor/ime-platform-landing-audit/docs/audits/fichas-faltantes-2026-10-18/inferencia-sin-marca.json",
+  "enrich_file": "/home/shoky/cursor/ime-platform-landing-audit/src/data/fichas-enriquecimiento/sin-marca-advanced-faltantes-20261018.json",
+  "n_items": 13,
+  "skipped": [
+    {
+      "slug": "bomba-de-jeringa-precision-microdosis",
+      "reason": "wrong model match to IP-200 (excluded per map)"
+    }
+  ],
+  "wired": [
+    {
+      "slug": "monitor-multiparametrico-uci-avanzado",
+      "sku": "PM-2000XL-PRO",
+      "pdf": "pm-2000xl-pro-spa.pdf",
+      "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/pm-2000xl-pro-spa.pdf",
+      "metadata_local": "/home/shoky/Desktop/MDs/CAT/Productos/PM-2000XL-PRO_Sistema_de_Monitorización_PM-2000XL_PRO/metadata.txt",
+      "metadata_found": true,
+      "metadata_sku": "PM-2000XL",
+      "pdf_sha1": "8ee931eaf297b01256c0e5f9b5dd4bc527e64dc2",
+      "pdf_size": 1866090,
+      "marca_inferida_confidence": "high",
+      "skipped": false
+    },
+    {
+      "slug": "monitor-multiparametrico-basico",
+      "sku": "VSM-300",
+      "pdf": "vsm-300-spa.pdf",
+      "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/vsm-300-spa.pdf",
+      "metadata_local": "/home/shoky/Desktop/MDs/CAT/Productos/VSM-300_Monitor_de_Signos_Vitales_VSM-300/metadata.txt",
+      "metadata_found": true,
+      "metadata_sku": "VSM-300",
+      "pdf_sha1": "1d0333e13e4e6e2ecb7306af1baa493500d9e545",
+      "pdf_size": 1006131,
+      "marca_inferida_confidence": "high",
+      "skipped": false
+    },
+    {
+      "slug": "monitor-de-transporte-prehospitalario",
+      "sku": "PM-2000XL",
+      "pdf": "pm-2000xl-spa.pdf",
+      "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/pm-2000xl-spa.pdf",
+      "metadata_local": "/home/shoky/Desktop/MDs/CAT/Productos/PM-2000XL_Sistema_de_Monitorización_PM-2000XL/metadata.txt",
+      "metadata_found": true,
+      "metadata_sku": "PM-2000XL",
+      "pdf_sha1": "5339dd2d11d0b34f43b24881b8e6023699d45f17",
+      "pdf_size": 1668504,
+      "marca_inferida_confidence": "high",
+      "skipped": false
+    },
+    {
+      "slug": "monitor-central-uci-multicama",
+      "sku": "PM-2000M",
+      "pdf": "pm-2000m-spa.pdf",
+      "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/pm-2000m-spa.pdf",
+      "metadata_local": "/home/shoky/Desktop/MDs/CAT/Productos/PM-2000M_Monitor_Modular_PM-2000M/metadata.txt",
+      "metadata_found": true,
+      "metadata_sku": "PM-2000M",
+      "pdf_sha1": "85587f0546d7c81476b17eac4e2bc299ee082f57",
+      "pdf_size": 2334441,
+      "marca_inferida_confidence": "high",
+      "skipped": false
+    },
+    {
+      "slug": "electrocardiografo-12-derivaciones-digital",
+      "sku": "ECG-12C",
+      "pdf": "ecg-12c-spa.pdf",
+      "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/ecg-12c-spa.pdf",
+      "metadata_local": "/home/shoky/Desktop/MDs/CAT/Productos/ECG-12C_Electrocardiógrafo_ECG-12C/metadata.txt",
+      "metadata_found": true,
+      "metadata_sku": "ECG-12C",
+      "pdf_sha1": "82219c8ff5f0939713a319e45465bfcb98f64102",
+      "pdf_size": 2140258,
+      "marca_inferida_confidence": "high",
+      "skipped": false
+    },
+    {
+      "slug": "mesa-quirurgica-motorizada-multiposicion",
+      "sku": "OT-500",
+      "pdf": "ot-500-spa.pdf",
+      "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/ot-500-spa.pdf",
+      "metadata_local": "/home/shoky/Desktop/MDs/CAT/Productos/OT-500_Mesa_de_Operaciones_OT-500/metadata.txt",
+      "metadata_found": true,
+      "metadata_sku": "OT-500",
+      "pdf_sha1": "0e5bfbf11746ea3b2005cfdd907bd0271dd82a7e",
+      "pdf_size": 1275108,
+      "marca_inferida_confidence": "high",
+      "skipped": false
+    },
+    {
+      "slug": "incubadora-neonatal-de-transporte",
+      "sku": "A3158",
+      "pdf": "a3158-spa.pdf",
+      "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/a3158-spa.pdf",
+      "metadata_local": "/home/shoky/Desktop/MDs/CAT/Productos/A3158_Incubadora_Neonatal_de_Transporte_A3158/metadata.txt",
+      "metadata_found": true,
+      "metadata_sku": "A3158",
+      "pdf_sha1": "320541f8b6a88792f108c2f900d83f764549da8e",
+      "pdf_size": 1971592,
+      "marca_inferida_confidence": "high",
+      "skipped": false
+    },
+    {
+      "slug": "cuna-de-calor-radiante-neonatal-servo",
+      "sku": "A4051",
+      "pdf": "a4051-spa.pdf",
+      "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/a4051-spa.pdf",
+      "metadata_local": "/home/shoky/Desktop/MDs/CAT/Productos/A4051_Cuna_de_Calor_Radiante_A4051/metadata.txt",
+      "metadata_found": true,
+      "metadata_sku": "A4051",
+      "pdf_sha1": "5b6149770720e53fa44f1ddcccc5a162b99cb358",
+      "pdf_size": 1456285,
+      "marca_inferida_confidence": "high",
+      "skipped": false
+    },
+    {
+      "slug": "ecografo-color-doppler-diagnostico-vascular",
+      "sku": "DUS-5000",
+      "pdf": "dus-5000.pdf",
+      "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/dus-5000.pdf",
+      "metadata_local": "/home/shoky/Desktop/MDs/CAT/Productos/DUS-5000_Sistema_de_Ultrasonido_DUS-5000/metadata.txt",
+      "metadata_found": true,
+      "metadata_sku": "DUS-5000",
+      "pdf_sha1": "d49ea4af3f30a579fab9b556297d184916fc3116",
+      "pdf_size": 1702248,
+      "marca_inferida_confidence": "high",
+      "skipped": false
+    },
+    {
+      "slug": "ecografo-portatil-con-wifi-y-dicom",
+      "sku": "DUS-5000-PLUS",
+      "pdf": "dus-5000-plus.pdf",
+      "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/dus-5000-plus.pdf",
+      "metadata_local": "/home/shoky/Desktop/MDs/CAT/Productos/DUS-5000-PLUS_Sistema_de_Ultrasonido_DUS-5000_Plus/metadata.txt",
+      "metadata_found": true,
+      "metadata_sku": "DUS-5000-PLUS",
+      "pdf_sha1": "179753d5a80c88e2c3b0c54508982c559eebe1d8",
+      "pdf_size": 691880,
+      "marca_inferida_confidence": "high",
+      "skipped": false
+    },
+    {
+      "slug": "ultrasonido-point-of-care-pocket",
+      "sku": "DUS-6000",
+      "pdf": "dus-6000.pdf",
+      "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/dus-6000.pdf",
+      "metadata_local": "/home/shoky/Desktop/MDs/CAT/Productos/DUS-6000_Sistema_de_Ultrasonido_Versátil_DUS-6000/metadata.txt",
+      "metadata_found": true,
+      "metadata_sku": "DUS-6000",
+      "pdf_sha1": "28c2ed247b81b9f527aeb0a68189ff39f85b7aaf",
+      "pdf_size": 1008044,
+      "marca_inferida_confidence": "high",
+      "skipped": false
+    },
+    {
+      "slug": "bomba-de-infusion-volumetrica-uci",
+      "sku": "IP-200",
+      "pdf": "ip-200-spa.pdf",
+      "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/ip-200-spa.pdf",
+      "metadata_local": "/home/shoky/Desktop/MDs/CAT/Productos/IP-200_Bomba_de_Infusión_IP-200/metadata.txt",
+      "metadata_found": true,
+      "metadata_sku": "IP-200",
+      "pdf_sha1": "8c47e69008d71583d2550342903ba69ce31109be",
+      "pdf_size": 1452960,
+      "marca_inferida_confidence": "high",
+      "skipped": false
+    },
+    {
+      "slug": "camilla-hospitalaria-electrica-articulable",
+      "sku": "B-1000-PRO",
+      "pdf": "b-1000-pro-esp.pdf",
+      "origen_local": "/home/shoky/cursor/ime-platform-landing-audit/public/assets/productos/fichas/advanced-instrumentations/b-1000-pro-esp.pdf",
+      "metadata_local": "/home/shoky/Desktop/MDs/CAT/Productos/B-1000-PRO_Cama_Hospitalaria_Eléctrica_B-1000_Pro/metadata.txt",
+      "metadata_found": true,
+      "metadata_sku": "B-1000-PRO",
+      "pdf_sha1": "952795ed3b29908a838681ce58a9ffc9d966f636",
+      "pdf_size": 978612,
+      "marca_inferida_confidence": "high",
+      "skipped": false
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "copied": [],
+  "missed": [
+    {
+      "slug": "cama-manual-k3k-ref-sk-cd1-k3k-saikang",
+      "file": "K3k_Manual-Bed_SaikangMedical_2024.pdf"
+    },
+    {
+      "slug": "cama-hospitalaria-manual-v3k-ref-sk-cd1-v3k-saikang",
+      "file": "V3k_Manual-Bed_SaikangMedical.pdf"
+    },
+    {
+      "slug": "cama-de-atencion-pediatrica-z0n-ref-skd-a-z0n-saikang",
+      "file": "D6d_Manual-bed_SaikangMedical_FR.pdf"
+    },
+    {
+      "slug": "cama-de-atencion-domiciliaria-vip-h6k-ref-skd-d-h6k-saikang",
+      "file": "D6d_Manual-bed_SaikangMedical_FR.pdf"
+    },
+    {
+      "slug": "carrito-abs-sk-ref-ct75077c2-saikang",
+      "file": "SK-CT75077C2_Treatment-Trolley_SaikangMedical.pdf"
+    },
+    {
+      "slug": "carro-abs-sk-ref-et750-saikang",
+      "file": "SK-ET75077A_Emergency-Trolley_SaikangMedical.pdf"
+    },
+    {
+      "slug": "carro-de-tratamientos-ref-skh006-5-saikang",
+      "file": "SKH006C_Instrument-Trolley_SaikangMedical.pdf"
+    },
+    {
+      "slug": "carrito-de-lavado-ref-skh041-saikang",
+      "file": "SAIKANG_SKH0411-2.pdf"
+    },
+    {
+      "slug": "carro-abs-skr-ref-ct750-1-saikang",
+      "file": "SK-CT75077C2_Treatment-Trolley_SaikangMedical.pdf"
+    },
+    {
+      "slug": "carro-de-abs-skr-ref-et850-saikang",
+      "file": "SKR-ET850_Emergency-Trolley_SaikangMedical.pdf"
+    },
+    {
+      "slug": "carro-de-abs-skr-ref-mt625-saikang",
+      "file": "SKR-MT625_Medicine-Trolley_SaikangMedical.pdf"
+    },
+    {
+      "slug": "camilla-de-hospital-skb037-b-ref-skb037b-saikang",
+      "file": "SKB037B_Patient-Trolley_SaikangMedical.pdf"
+    },
+    {
+      "slug": "cama-hospitalaria-electrica-ref-skd-a-saikang",
+      "file": "D6d_Manual-bed_SaikangMedical_FR.pdf"
+    }
+  ]
+}

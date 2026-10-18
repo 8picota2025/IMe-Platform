@@ -1,0 +1,121 @@
+[
+  {
+    "sku": "vp-50",
+    "slug": "bomba-de-infusion-ref-vp-50",
+    "descripcion_larga_es": "El Bomba de Infusión VP-50 de Sin marca forma parte del catálogo IME para instituciones de salud.\n\nBomba de infusión de un canal con pantalla táctil 4.3\".\n\nSegún catálogo / documentación de referencia: Característica: Un canal de infusión; Característica: Pantalla táctil color LCD 4.3\"; Característica: Apilable hasta 3 en rack; Característica: Compatible mayoría líneas infusión; Característica: Programación y monitoreo digital.",
+    "descripcion_larga_en": "The Infusion Pump VP-50 from Sin marca is listed in the IME catalog for healthcare institutions.\n\nSingle-channel infusion pump with 4.3\" touch screen.\n\nReference specs: Característica: Un canal de infusión; Característica: Pantalla táctil color LCD 4.3\"; Característica: Apilable hasta 3 en rack; Característica: Compatible mayoría líneas infusión; Característica: Programación y monitoreo digital.",
+    "beneficios_es": [
+      "Característica: Un canal de infusión",
+      "Característica: Pantalla táctil color LCD 4.3\"",
+      "Característica: Apilable hasta 3 en rack",
+      "Característica: Compatible mayoría líneas infusión",
+      "Característica: Programación y monitoreo digital"
+    ],
+    "beneficios_en": [
+      "Característica: Un canal de infusión",
+      "Característica: Pantalla táctil color LCD 4.3\"",
+      "Característica: Apilable hasta 3 en rack",
+      "Característica: Compatible mayoría líneas infusión",
+      "Característica: Programación y monitoreo digital"
+    ],
+    "valor_es": "Bomba de Infusión VP-50 (Sin marca) con datos de catálogo IME.",
+    "valor_en": "Infusion Pump VP-50 (Sin marca) with IME catalog data.",
+    "aplicaciones_es": [
+      "UCI",
+      "Emergencia",
+      "Sala de operaciones",
+      "Hospitalización"
+    ],
+    "aplicaciones_en": [
+      "UCI",
+      "Emergencia",
+      "Sala de operaciones",
+      "Hospitalización"
+    ],
+    "faq_es": [
+      {
+        "q": "¿Qué producto es el Bomba de Infusión VP-50?",
+        "a": "Es un equipo Sin marca del catálogo IME."
+      },
+      {
+        "q": "¿Qué características principales declara el catálogo?",
+        "a": "Característica: Un canal de infusión; Característica: Pantalla táctil color LCD 4.3\"; Característica: Apilable hasta 3 en rack; Característica: Compatible mayoría líneas infusión"
+      },
+      {
+        "q": "¿En qué aplicaciones se usa?",
+        "a": "UCI, Emergencia, Sala de operaciones, Hospitalización"
+      },
+      {
+        "q": "¿Dónde obtengo la ficha técnica?",
+        "a": "Solicite a IME la ficha técnica oficial del modelo exacto."
+      },
+      {
+        "q": "¿Cómo solicito cotización a IME?",
+        "a": "Indique el modelo exacto (Bomba de Infusión VP-50) y el área clínica; IME confirma disponibilidad y documentación."
+      }
+    ],
+    "faq_en": [
+      {
+        "q": "What is the Infusion Pump VP-50?",
+        "a": "It is a Sin marca device in the IME catalog."
+      },
+      {
+        "q": "What key specs are listed?",
+        "a": "Característica: Un canal de infusión; Característica: Pantalla táctil color LCD 4.3\"; Característica: Apilable hasta 3 en rack; Característica: Compatible mayoría líneas infusión"
+      },
+      {
+        "q": "Typical applications?",
+        "a": "UCI, Emergencia, Sala de operaciones, Hospitalización"
+      },
+      {
+        "q": "Where is the datasheet?",
+        "a": "Request the official datasheet from IME."
+      },
+      {
+        "q": "How do I get a quote?",
+        "a": "Provide exact model (Infusion Pump VP-50) and clinical area; IME confirms availability."
+      }
+    ],
+    "seo_keywords_es": [
+      "Bomba de Infusión VP-50",
+      "Bomba de Infusión VP-50 Sin marca",
+      "ficha técnica Bomba de Infusión VP-50",
+      "equipo médico Colombia",
+      "IME"
+    ],
+    "seo_keywords_en": [
+      "Infusion Pump VP-50",
+      "Infusion Pump VP-50 Sin marca",
+      "medical equipment Colombia",
+      "IME datasheet"
+    ],
+    "especificaciones": [
+      {
+        "grupo": "Catálogo IME",
+        "clave": "Característica",
+        "valor": "Un canal de infusión"
+      },
+      {
+        "grupo": "Catálogo IME",
+        "clave": "Característica",
+        "valor": "Pantalla táctil color LCD 4.3\""
+      },
+      {
+        "grupo": "Catálogo IME",
+        "clave": "Característica",
+        "valor": "Apilable hasta 3 en rack"
+      },
+      {
+        "grupo": "Catálogo IME",
+        "clave": "Característica",
+        "valor": "Compatible mayoría líneas infusión"
+      },
+      {
+        "grupo": "Catálogo IME",
+        "clave": "Característica",
+        "valor": "Programación y monitoreo digital"
+      }
+    ],
+    "append_descripcion": false
+  }
+]

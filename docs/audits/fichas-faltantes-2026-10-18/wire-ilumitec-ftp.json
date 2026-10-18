@@ -1,0 +1,53 @@
+{
+  "n": 8,
+  "items": [
+    {
+      "slug": "lampara-rodable-ref-led-rx18-ilumitec",
+      "sku": "LED-RX18",
+      "sha": "14c5d2d4973c",
+      "size": 264844
+    },
+    {
+      "slug": "lampara-rodable-ref-led-rx18-100k-ilumitec",
+      "sku": "LED-RX18-100K",
+      "sha": "b18c99fb11e1",
+      "size": 265101
+    },
+    {
+      "slug": "lampara-rodable-ref-led-rx36-ilumitec",
+      "sku": "LED-RX36",
+      "sha": "1dda562d274c",
+      "size": 814653
+    },
+    {
+      "slug": "lampara-rodable-ref-led-rx36-160k-ilumitec",
+      "sku": "LED-RX36-160K",
+      "sha": "0291917c0299",
+      "size": 5398731
+    },
+    {
+      "slug": "lampara-cielitica-ref-led-x18-100k-ilumitec",
+      "sku": "LED-X18-100K",
+      "sha": "cc33494b69de",
+      "size": 197199
+    },
+    {
+      "slug": "lampara-cielitica-ref-led-x36-ilumitec",
+      "sku": "LED-X36",
+      "sha": "6794683df45d",
+      "size": 212954
+    },
+    {
+      "slug": "lampara-cielitica-led-x3618-con-satelite-ref-led-x3618-ilumitec",
+      "sku": "LED-X3618",
+      "sha": "c6bce5dec9e1",
+      "size": 3813324
+    },
+    {
+      "slug": "lampara-cielitica-led-x3636-con-satelite-ref-led-x3636-ilumitec",
+      "sku": "LED-X3636",
+      "sha": "4294e7e75e80",
+      "size": 242146
+    }
+  ]
+}

@@ -28,3 +28,5 @@ src/data/generated/
 
 # Espejo de fichas PDF de Supabase Storage (scripts/mirror-fichas-pdf.mjs)
 /public/assets/productos/*/ficha-tecnica.pdf
+
+tmp/
