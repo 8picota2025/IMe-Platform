@@ -77,7 +77,8 @@ for (const m of manifest) {
   }
 
   sql.push(
-    `UPDATE public.productos SET marca = COALESCE(NULLIF(marca, ''), ${sq(m.fabricante)}), atributos = COALESCE(atributos, '{}'::jsonb) || jsonb_build_object('marca', ${sq(m.fabricante)}, 'fabricante', ${sq(m.fabricante)}, 'ficha_fabricante', jsonb_build_object('fabricante', ${sq(m.fabricante)}, 'idioma', ${sq(m.lang || 'es')}, 'url_origen', ${sq(m.url || '')}, 'descargada', '2026-10-17')) WHERE slug = ${sq(m.slug)};`,
+    // marca vive en atributos JSONB (no hay columna productos.marca)
+    `UPDATE public.productos SET atributos = COALESCE(atributos, '{}'::jsonb) || jsonb_build_object('marca', ${sq(m.fabricante)}, 'fabricante', ${sq(m.fabricante)}, 'ficha_fabricante', jsonb_build_object('fabricante', ${sq(m.fabricante)}, 'idioma', ${sq(m.lang || 'es')}, 'url_origen', ${sq(m.url || '')}, 'descargada', '2026-10-17')) WHERE slug = ${sq(m.slug)};`,
   );
 }
 
