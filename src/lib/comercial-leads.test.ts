@@ -171,7 +171,7 @@ describe('isKnownCampaign', () => {
   });
 
   it('acepta los formularios que no son landing', () => {
-    for (const id of ['proyectos', 'pdf_descarga', 'herramienta', 'evento']) {
+    for (const id of ['proyectos', 'pdf_descarga', 'herramienta', 'evento', 'invima_fabricantes']) {
       expect(isKnownCampaign(id), id).toBe(true);
     }
   });

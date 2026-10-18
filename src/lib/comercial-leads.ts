@@ -35,6 +35,7 @@ export type CampaignLandingId =
   | 'pdf_descarga'
   | 'herramienta'
   | 'evento'
+  | 'invima_fabricantes'
   | FabricanteLandingId;
 
 /**
@@ -59,6 +60,7 @@ const CAMPAIGN_FLAGS: Record<CampaignLandingId, true> = {
   pdf_descarga: true,
   herramienta: true,
   evento: true,
+  invima_fabricantes: true,
   fab_tuttnauer: true,
   fab_saikang: true,
   fab_angell: true,
@@ -160,6 +162,17 @@ export function validateCommercialLead(input: Partial<CommercialLeadInput>): Val
 }
 
 export function buildWhatsAppMessage(input: CommercialLeadInput): string {
+  if (input.campaign === 'invima_fabricantes') {
+    const lines = [
+      `Hola, soy ${input.nombre.trim()}${input.cargo?.trim() ? ` (${input.cargo.trim()})` : ''} de ${input.institucion.trim()} (${input.ciudad.trim()}).`,
+      'Solicito acompañamiento INVIMA / acceso regulatorio a Colombia.',
+      `Tipo de solicitud: ${input.tipo_proyecto}.`,
+      `Horizonte: ${input.horizonte}.`,
+      `Detalle: ${input.necesidad.trim()}.`,
+    ];
+    return lines.filter(Boolean).join('\n');
+  }
+
   const lines = [
     `Hola, soy ${input.nombre.trim()}${input.cargo?.trim() ? ` (${input.cargo.trim()})` : ''} de ${input.institucion.trim()} en ${input.ciudad.trim()}.`,
     `Familia: ${input.familia_slug}.`,

@@ -1,0 +1,472 @@
+---
+/**
+ * Landing comercial INVIMA para fabricantes — site-faithful, SEO + FAQ JSON-LD.
+ */
+import Layout from '../layouts/Layout.astro';
+import InvimaFabricanteForm from './InvimaFabricanteForm.astro';
+import type { Locale } from '../i18n/utils';
+import {
+  getInvimaFabricantesCopy,
+  INVIMA_FABRICANTES_PATHS,
+} from '../data/invima-fabricantes-landing';
+import {
+  buildPageTitle,
+  buildCanonical,
+  getInstitutionalOgImage,
+  buildFaqJsonLd,
+  buildBreadcrumbJsonLd,
+  buildOrganizationJsonLd,
+  combineJsonLd,
+} from '../lib/seo';
+import '../styles/site-faithful.css';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const isEn = locale === 'en';
+const content = getInvimaFabricantesCopy(locale);
+const path = INVIMA_FABRICANTES_PATHS[locale];
+const titleSource = content.title.replace(/\s*\|\s*I-ME.*$/i, '').trim();
+const title = titleSource.length > 70 ? titleSource : buildPageTitle(titleSource);
+const canonical = buildCanonical(path);
+const currentPath = path.replace(/\/$/, '');
+const homeHref = isEn ? '/en/' : '/es/';
+const hubHref = isEn
+  ? '/en/knowledge/topic/invima-regulacion/'
+  : '/es/conocimiento/tema/invima-regulacion/';
+const hubLabel = isEn ? 'INVIMA knowledge' : 'Conocimiento INVIMA';
+const formAnchor = 'invima-fabricantes-form';
+const quoteHref = `#${formAnchor}`;
+const contactHref = isEn ? '/en/contact/' : '/es/contacto/';
+
+const crumbs = [
+  { name: isEn ? 'Home' : 'Inicio', url: `https://i-me.com.co${homeHref}` },
+  { name: hubLabel, url: `https://i-me.com.co${hubHref}` },
+  { name: content.tag, url: `https://i-me.com.co${path}` },
+];
+
+const jsonLd = combineJsonLd(
+  buildOrganizationJsonLd(),
+  buildBreadcrumbJsonLd(crumbs),
+  buildFaqJsonLd(content.faqs),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: content.h1,
+    description: content.description,
+    url: `https://i-me.com.co${path}`,
+    inLanguage: isEn ? 'en' : 'es',
+    isPartOf: { '@type': 'WebSite', name: 'I-ME', url: 'https://i-me.com.co/' },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: content.h1,
+    description: content.description,
+    provider: { '@type': 'Organization', name: 'I-ME International Medical Enterprise' },
+    areaServed: 'CO',
+    url: `https://i-me.com.co${path}`,
+    serviceType: isEn
+      ? 'INVIMA regulatory support for medical device manufacturers'
+      : 'Acompañamiento regulatorio INVIMA para fabricantes de dispositivos médicos',
+  }
+);
+---
+
+<Layout
+  title={title}
+  description={content.description}
+  canonical={canonical}
+  locale={locale}
+  currentPath={currentPath}
+  ogImage={getInstitutionalOgImage()}
+  jsonLd={jsonLd}
+>
+  <div class="site-faithful clp ifl">
+    <header class="clp-hero" aria-labelledby="ifl-h1">
+      <div class="container clp-hero__grid">
+        <div class="clp-hero__copy">
+          <nav class="breadcrumb" aria-label={isEn ? 'Breadcrumb' : 'Ruta'}>
+            <a href={homeHref}>{isEn ? 'Home' : 'Inicio'}</a>
+            <span class="sep" aria-hidden="true">/</span>
+            <a href={hubHref}>{hubLabel}</a>
+            <span class="sep" aria-hidden="true">/</span>
+            <span aria-current="page">{content.tag}</span>
+          </nav>
+          <p class="clp-eyebrow">{content.tag}</p>
+          <h1 id="ifl-h1">{content.h1}</h1>
+          <p class="clp-lead">{content.lead}</p>
+          <div class="clp-hero__actions">
+            <a class="btn btn-primary" href={quoteHref} data-cta="invima-primary"
+              >{content.primaryCta}</a
+            >
+            <a class="btn btn-secondary" href={quoteHref} data-cta="invima-secondary"
+              >{content.secondaryCta}</a
+            >
+          </div>
+        </div>
+        <div class="clp-hero__media">
+          <img
+            src={content.heroImage}
+            alt={content.heroImageAlt}
+            width="900"
+            height="1041"
+            loading="eager"
+            decoding="async"
+          />
+        </div>
+      </div>
+    </header>
+
+    <section class="clp-section" aria-labelledby="ifl-problem">
+      <div class="container">
+        <header class="clp-section__head clp-section__head--wide">
+          <h2 id="ifl-problem">{content.problemTitle}</h2>
+          <p>{content.problemBody}</p>
+        </header>
+        <ul class="ifl-barriers">
+          {
+            content.barriers.map(b => (
+              <li>
+                <h3>{b.title}</h3>
+                <p>{b.body}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <section class="clp-section clp-section--tint" aria-labelledby="ifl-offer">
+      <div class="container">
+        <header class="clp-section__head clp-section__head--wide">
+          <h2 id="ifl-offer">{content.offerTitle}</h2>
+          <p>{content.offerIntro}</p>
+        </header>
+        <ul class="ifl-list">
+          {content.offerItems.map(item => <li>{item}</li>)}
+        </ul>
+        <div class="ifl-limits">
+          <h3>{content.offerLimitsTitle}</h3>
+          <ul>
+            {content.offerLimits.map(item => <li>{item}</li>)}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="clp-section" aria-labelledby="ifl-proc">
+      <div class="container">
+        <header class="clp-section__head">
+          <h2 id="ifl-proc">{content.processTitle}</h2>
+        </header>
+        <ol class="ifl-steps">
+          {
+            content.processSteps.map(step => (
+              <li>
+                <h3>{step.title}</h3>
+                <p>{step.body}</p>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+
+    <section class="clp-section clp-section--tint" aria-labelledby="ifl-aud">
+      <div class="container ifl-aud">
+        <div>
+          <h2 id="ifl-aud">{content.audienceTitle}</h2>
+          <p class="ifl-aud-label">
+            {isEn ? 'This page is for you if…' : 'Esta página es para usted si…'}
+          </p>
+          <ul class="ifl-list">
+            {content.audienceYes.map(item => <li>{item}</li>)}
+          </ul>
+        </div>
+        <div>
+          <p class="ifl-aud-label">{isEn ? 'Probably not if…' : 'Tal vez no es para usted si…'}</p>
+          <ul class="ifl-list ifl-list--muted">
+            {content.audienceNo.map(item => <li>{item}</li>)}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="clp-section" aria-labelledby="ifl-adv">
+      <div class="container">
+        <header class="clp-section__head">
+          <h2 id="ifl-adv">{content.advantagesTitle}</h2>
+        </header>
+        <ul class="ifl-list">
+          {content.advantages.map(item => <li>{item}</li>)}
+        </ul>
+      </div>
+    </section>
+
+    <section class="clp-section clp-section--tint" aria-labelledby="ifl-docs">
+      <div class="container">
+        <header class="clp-section__head clp-section__head--wide">
+          <h2 id="ifl-docs">{content.docsTitle}</h2>
+          <p>{content.docsIntro}</p>
+        </header>
+        <div class="ifl-table-wrap" role="region" aria-label={content.docsTitle} tabindex="0">
+          <table class="ifl-table">
+            <thead>
+              <tr>
+                <th scope="col">{isEn ? 'Document' : 'Documento'}</th>
+                <th scope="col">{isEn ? 'Note' : 'Nota'}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                content.docs.map(row => (
+                  <tr>
+                    <td>{row.item}</td>
+                    <td>{row.note}</td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="clp-section" aria-labelledby="ifl-costs">
+      <div class="container">
+        <header class="clp-section__head clp-section__head--wide">
+          <h2 id="ifl-costs">{content.costsTitle}</h2>
+          <p>{content.costsBody}</p>
+        </header>
+        <h3>{content.trustTitle}</h3>
+        <p>{content.trustBody}</p>
+      </div>
+    </section>
+
+    <section class="clp-section clp-section--tint" aria-labelledby="ifl-form-title" id={formAnchor}>
+      <div class="container">
+        <header class="clp-section__head clp-section__head--wide">
+          <h2 id="ifl-form-title">{content.formTitle}</h2>
+          <p>{content.formIntro}</p>
+        </header>
+        <InvimaFabricanteForm
+          locale={locale}
+          primaryCta={content.primaryCta}
+          projectOptions={content.projectOptions}
+        />
+        <p class="ifl-alt-contact">
+          {
+            isEn ? (
+              <>
+                Prefer email? <a href={contactHref}>Use the contact form</a>.
+              </>
+            ) : (
+              <>
+                ¿Prefiere correo? <a href={contactHref}>Use el formulario de contacto</a>.
+              </>
+            )
+          }
+        </p>
+      </div>
+    </section>
+
+    <section class="clp-section" aria-labelledby="ifl-faq">
+      <div class="container">
+        <header class="clp-section__head">
+          <h2 id="ifl-faq">{content.faqTitle}</h2>
+        </header>
+        <div class="clp-faq">
+          {
+            content.faqs.map(f => (
+              <details>
+                <summary>{f.q}</summary>
+                <p>{f.a}</p>
+              </details>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="clp-section clp-section--tint" aria-labelledby="ifl-related">
+      <div class="container">
+        <h2 id="ifl-related">{content.relatedTitle}</h2>
+        <ul class="ifl-links">
+          {
+            content.relatedGuides.map(g => (
+              <li>
+                <a href={g.href}>{g.title}</a>
+              </li>
+            ))
+          }
+        </ul>
+        <h3>{content.officialTitle}</h3>
+        <ul class="ifl-links">
+          {
+            content.officialLinks.map(l => (
+              <li>
+                <a href={l.href} target="_blank" rel="noopener noreferrer">
+                  {l.label}
+                  <span aria-hidden="true"> ↗</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="ifl-disclaimer">{content.disclaimer}</p>
+      </div>
+    </section>
+
+    <section class="clp-bottom-cta" aria-label={isEn ? 'Contact' : 'Contacto'}>
+      <div class="container">
+        <h2>{content.bottomTitle}</h2>
+        <p>{content.bottomBody}</p>
+        <div class="clp-hero__actions">
+          <a class="btn btn-primary" href={quoteHref}>{content.primaryCta}</a>
+          <a class="btn btn-secondary" href={quoteHref}>{content.secondaryCta}</a>
+        </div>
+      </div>
+    </section>
+  </div>
+</Layout>
+
+<style>
+  .ifl-barriers {
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 1.25rem;
+  }
+  @media (min-width: 900px) {
+    .ifl-barriers {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .ifl-barriers h3 {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    color: var(--t900);
+    margin: 0 0 0.5rem;
+  }
+  .ifl-barriers p {
+    margin: 0;
+    color: var(--text-mid);
+  }
+  .ifl-list {
+    margin: 1rem 0 0;
+    padding-left: 1.2rem;
+    display: grid;
+    gap: 0.55rem;
+  }
+  .ifl-list--muted {
+    color: var(--text-muted);
+  }
+  .ifl-limits {
+    margin-top: 1.75rem;
+    padding: 1.25rem 1.35rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--white);
+  }
+  .ifl-limits h3 {
+    margin: 0 0 0.75rem;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    color: var(--t900);
+  }
+  .ifl-steps {
+    margin: 1.25rem 0 0;
+    padding-left: 1.25rem;
+    display: grid;
+    gap: 1.1rem;
+  }
+  .ifl-steps h3 {
+    margin: 0 0 0.35rem;
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    color: var(--t900);
+  }
+  .ifl-steps p {
+    margin: 0;
+    color: var(--text-mid);
+  }
+  .ifl-aud {
+    display: grid;
+    gap: 2rem;
+  }
+  @media (min-width: 900px) {
+    .ifl-aud {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .ifl-aud-label {
+    font-weight: 700;
+    font-family: var(--font-display);
+    color: var(--t900);
+    margin: 1rem 0 0.35rem;
+  }
+  .ifl-table-wrap {
+    overflow-x: auto;
+    margin-top: 1.25rem;
+  }
+  .ifl-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+  }
+  .ifl-table th,
+  .ifl-table td {
+    border: 1px solid var(--border);
+    padding: 0.85rem 1rem;
+    text-align: left;
+    vertical-align: top;
+  }
+  .ifl-table th {
+    background: var(--white);
+    font-family: var(--font-display);
+    color: var(--t900);
+  }
+  .ifl-links {
+    list-style: none;
+    margin: 0.75rem 0 1.5rem;
+    padding: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+  .ifl-links a {
+    color: var(--t900);
+    font-weight: 600;
+    text-decoration: underline;
+  }
+  .ifl-disclaimer {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 1.5rem 0 0;
+  }
+  .ifl-alt-contact {
+    margin-top: 1.25rem;
+    font-size: 0.9rem;
+    color: var(--text-mid);
+  }
+  .ifl-alt-contact a {
+    color: var(--t900);
+    font-weight: 600;
+  }
+</style>
+
+<script>
+  import { emitAnalyticsEvent } from '../lib/analytics';
+
+  document.querySelectorAll<HTMLAnchorElement>('[data-cta^="invima-"]').forEach(a => {
+    a.addEventListener('click', () => {
+      emitAnalyticsEvent('cta_clicked', {
+        cta: a.dataset.cta ?? 'invima',
+        origin: 'invima_fabricantes',
+      });
+    });
+  });
+</script>

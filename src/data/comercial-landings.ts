@@ -2876,7 +2876,12 @@ const DOTACION_MONITOREO_UCI: ContentMap = {
 
 export type StandardCampaignLandingId = Exclude<
   CampaignLandingId,
-  'proyectos' | 'pdf_descarga' | 'herramienta' | 'evento' | FabricanteLandingId
+  | 'proyectos'
+  | 'pdf_descarga'
+  | 'herramienta'
+  | 'evento'
+  | 'invima_fabricantes'
+  | FabricanteLandingId
 >;
 
 const META: Record<

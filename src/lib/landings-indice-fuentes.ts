@@ -7,10 +7,23 @@ import { getCampaignLanding, listCampaignLandingIds } from '../data/comercial-la
 import { listFabricanteLandings } from '../data/fabricante-landings';
 import { CITY_LANDINGS } from '../data/city-landings';
 import { FAMILIA_SEO } from '../data/familia-seo';
+import {
+  getInvimaFabricantesCopy,
+  INVIMA_FABRICANTES_CAMPAIGN,
+  INVIMA_FABRICANTES_PATHS,
+} from '../data/invima-fabricantes-landing';
 import type { EntradaIndiceLanding } from '../data/landings-indice';
 
 export function calcularIndiceLandings(): EntradaIndiceLanding[] {
+  const invima = getInvimaFabricantesCopy('es');
   return [
+    {
+      tipo: 'campana' as const,
+      clave: INVIMA_FABRICANTES_CAMPAIGN,
+      nombre: invima.tag,
+      path: INVIMA_FABRICANTES_PATHS.es,
+      pathEn: INVIMA_FABRICANTES_PATHS.en,
+    },
     ...listCampaignLandingIds().map(id => {
       const c = getCampaignLanding(id, 'es');
       return { tipo: 'campana' as const, clave: id, nombre: c.tag, path: c.path, pathEn: c.pathEn };

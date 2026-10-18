@@ -13,6 +13,13 @@ export interface EntradaIndiceLanding {
 export const LANDINGS_INDICE: EntradaIndiceLanding[] = [
   {
     tipo: 'campana',
+    clave: 'invima_fabricantes',
+    nombre: 'Fabricantes · INVIMA',
+    path: '/es/registro-sanitario-invima-fabricantes/',
+    pathEn: '/en/medical-device-registration-colombia/',
+  },
+  {
+    tipo: 'campana',
     clave: 'torres_laparoscopia',
     nombre: 'Quirófano',
     path: '/es/torres-laparoscopia/',
