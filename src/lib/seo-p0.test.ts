@@ -119,7 +119,8 @@ describe('SEO P0', () => {
   it('EN services targets GSC B2B queries', () => {
     const en = buildServiciosSeo('en');
     expect(en.title.toLowerCase()).toContain('leading');
-    expect(en.description.toLowerCase()).toContain('renewal');
-    expect(en.description.toLowerCase()).toContain('health sector');
+    expect(en.title.toLowerCase()).toContain('renewal');
+    expect(en.title.toLowerCase()).toContain('health sector');
+    expect(en.description.toLowerCase()).toContain('calibration included');
   });
 });

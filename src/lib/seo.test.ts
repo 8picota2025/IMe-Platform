@@ -419,8 +419,11 @@ describe('buildServiciosSeo', () => {
       expect(blob).not.toMatch(/registro INVIMA|INVIMA-registered|ingenieros certificados/i);
       expect(blob.toLowerCase()).not.toContain('certified engineers');
     }
-    expect(buildServiciosSeo('en').description.toLowerCase()).toContain('renewal');
-    expect(buildServiciosSeo('en').description.toLowerCase()).toContain('health sector');
+    expect(buildServiciosSeo('es').description.toLowerCase()).toContain('calibración incluida');
+    expect(buildServiciosSeo('en').description.toLowerCase()).toContain('calibration included');
+    expect(buildServiciosSeo('es').description).not.toMatch(/venta,\s*calibración/i);
+    expect(buildServiciosSeo('en').title.toLowerCase()).toContain('renewal');
+    expect(buildServiciosSeo('en').title.toLowerCase()).toContain('health sector');
   });
 });
 
