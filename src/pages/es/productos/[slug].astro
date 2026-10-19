@@ -7,6 +7,7 @@ import ProductoLanding from '../../../components/ProductoLanding.astro';
 import { t } from '../../../i18n/utils';
 import {
   buildProductoSeo,
+  truncateMetaDescription,
   buildCanonical,
   buildProductJsonLd,
   buildBreadcrumbJsonLd,
@@ -64,7 +65,11 @@ const { familia, relacionados } = Astro.props as Props;
 const seoBase = buildProductoSeo(producto, locale, familia.nombre, producto.marca);
 const seoCopy = getProductoSeoCopy(producto.slug, locale);
 const seo = seoCopy
-  ? { ...seoBase, title: seoCopy.title, description: seoCopy.description }
+  ? {
+      ...seoBase,
+      title: seoCopy.title,
+      description: truncateMetaDescription(seoCopy.description),
+    }
   : seoBase;
 const noindex = producto.slug === 'test';
 const especificaciones = normalizarEspecificaciones(producto.especificaciones);

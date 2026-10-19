@@ -3,6 +3,10 @@ import {
   buildProductJsonLd,
   buildProductoPageTitle,
   buildProductoSeo,
+  truncateMetaDescription,
+  buildServiciosSeo,
+  buildServiciosFaqItems,
+  buildServiciosJsonLd,
   buildOrganizationJsonLd,
   PRODUCT_TITLE_MAX,
   resolveRobotsContent,
@@ -383,6 +387,40 @@ describe('resolveRobotsContent', () => {
   it('un build de vista previa (PUBLIC_NOINDEX=1) no indexa nada aunque la página lo permita', () => {
     expect(resolveRobotsContent(false, true)).toBe('noindex, nofollow');
     expect(resolveRobotsContent(undefined, true)).toBe('noindex, nofollow');
+  });
+});
+
+describe('truncateMetaDescription', () => {
+  it('recorta en el último espacio y no añade elipsis', () => {
+    const head = 'palabra '.repeat(14);
+    const value = `${head}${'Z'.repeat(50)} fin`;
+    const out = truncateMetaDescription(value, 155);
+    expect(out.length).toBeLessThanOrEqual(155);
+    expect(out.endsWith('palabra')).toBe(true);
+    expect(out).not.toContain('Z');
+    expect(out).not.toMatch(/…|\.\.\./);
+  });
+
+  it('deja intacto un texto que ya cabe', () => {
+    expect(truncateMetaDescription('Cotice por WhatsApp.')).toBe('Cotice por WhatsApp.');
+  });
+});
+
+describe('buildServiciosSeo', () => {
+  it('no afirma registro INVIMA ni ingenieros certificados', () => {
+    for (const locale of ['es', 'en'] as const) {
+      const seo = buildServiciosSeo(locale);
+      const faq = buildServiciosFaqItems(locale)
+        .map(item => `${item.q} ${item.a}`)
+        .join(' ');
+      const json = JSON.stringify(buildServiciosJsonLd(locale));
+      const blob = `${seo.description} ${faq} ${json}`;
+      expect(seo.description.length).toBeLessThanOrEqual(155);
+      expect(blob).not.toMatch(/registro INVIMA|INVIMA-registered|ingenieros certificados/i);
+      expect(blob.toLowerCase()).not.toContain('certified engineers');
+    }
+    expect(buildServiciosSeo('en').description.toLowerCase()).toContain('renewal');
+    expect(buildServiciosSeo('en').description.toLowerCase()).toContain('health sector');
   });
 });
 

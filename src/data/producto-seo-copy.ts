@@ -14,20 +14,38 @@ export interface ProductoSeoCopy {
 const COPY: Record<string, { es: ProductoSeoCopy; en: ProductoSeoCopy }> = {
   'monitor-de-paciente-ref-s12-biolight': {
     es: {
-      title: 'Monitor de Paciente Biolight S12 | Monitoreo Avanzado con Tecnología IoT | I-ME',
+      title: 'Monitor Biolight S12 en Colombia | I-ME',
       description:
-        'El Monitor de Paciente Biolight S12 integra tecnología inteligente, diseño ergonómico y una interfaz de usuario moderna para brindar monitoreo clínico confiable en todos los niveles de atención.',
-      h1: 'Monitor de Paciente Biolight S12 | Monitoreo Avanzado con Tecnología IoT',
+        'Monitor de paciente Biolight S12 en Colombia, pantalla HD de 12,1 pulgadas. Cotice por WhatsApp o en línea. Envío y soporte técnico.',
+      h1: 'Monitor de paciente Biolight S12 en Colombia',
       intro:
-        'El Monitor de Paciente Biolight S12 integra tecnología inteligente, diseño ergonómico y una interfaz de usuario moderna para brindar monitoreo clínico confiable en todos los niveles de atención.',
+        'Monitor de paciente Biolight S12 en Colombia, pantalla HD de 12,1 pulgadas. Cotice por WhatsApp o en línea. Envío y soporte técnico.',
     },
     en: {
-      title: 'Biolight S12 Patient Monitor | Advanced Monitoring with IoT Technology | I-ME',
+      title: 'Biolight S12 patient monitor in Colombia | I-ME',
       description:
-        'The Biolight S12 Patient Monitor integrates intelligent technology, ergonomic design, and a modern user interface to provide reliable clinical monitoring at all care levels.',
-      h1: 'Biolight S12 Patient Monitor | Advanced Monitoring with IoT Technology',
+        'Biolight S12 patient monitor in Colombia, 12.1-inch HD display. Quote by WhatsApp or online. Shipping and technical support.',
+      h1: 'Biolight S12 patient monitor in Colombia',
       intro:
-        'The Biolight S12 Patient Monitor integrates intelligent technology, ergonomic design, and a modern user interface to provide reliable clinical monitoring at all care levels.',
+        'Biolight S12 patient monitor in Colombia, 12.1-inch HD display. Quote by WhatsApp or online. Shipping and technical support.',
+    },
+  },
+  'silla-de-ruedas-estandar-con-rin-estrella-kp-ref-kbe-9000d': {
+    es: {
+      title: 'Silla de ruedas KBE-9000D en Colombia | I-ME',
+      description:
+        'Silla de ruedas estándar plegable KBE-9000D, Konfort Plus, en Colombia. Cotice por WhatsApp o en línea. Envío y soporte técnico.',
+      h1: 'Silla de ruedas KBE-9000D en Colombia',
+      intro:
+        'Silla de ruedas estándar plegable KBE-9000D, Konfort Plus, en Colombia. Cotice por WhatsApp o en línea. Envío y soporte técnico.',
+    },
+    en: {
+      title: 'Wheelchair KBE-9000D in Colombia | I-ME',
+      description:
+        'Foldable standard wheelchair KBE-9000D, Konfort Plus, in Colombia. Quote by WhatsApp or online. Shipping and technical support.',
+      h1: 'Wheelchair KBE-9000D in Colombia',
+      intro:
+        'Foldable standard wheelchair KBE-9000D, Konfort Plus, in Colombia. Quote by WhatsApp or online. Shipping and technical support.',
     },
   },
   'sistema-de-rayos-x-dr-movil-ref-dr-mobile-angell': {

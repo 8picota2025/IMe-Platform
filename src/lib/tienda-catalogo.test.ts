@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { itemDeTienda, rangoPrecios, textoSeoTienda } from './tienda-catalogo';
+import {
+  enlaceFamiliaTensiometro,
+  itemDeTienda,
+  rangoPrecios,
+  textoSeoTienda,
+} from './tienda-catalogo';
 import type { CatalogoIndexItem } from './catalogo';
 
 function item(
@@ -53,11 +58,31 @@ describe('tienda catalogo', () => {
     expect(seo.title).toContain('327');
     expect(seo.title.toLowerCase()).toContain('envío a colombia');
     expect(seo.description).toContain('10 días hábiles');
+    expect(seo.description).not.toMatch(/\$|COP|\d{3,}/);
+    expect(seo.description.toLowerCase()).toContain('cotice');
+    expect(
+      textoSeoTienda('es', 'tensiometros', { min: 60829, max: 115418, count: 3 }).description
+    ).not.toMatch(/\$|COP|\d{3,}/);
     expect(rangoPrecios([{ precio: null }, { precio: 100 }, { precio: 40 }])).toEqual({
       min: 40,
       max: 100,
       count: 2,
     });
     expect(rangoPrecios([{ precio: null }])).toBeNull();
+  });
+
+  it('enlaza la ficha del tensiómetro digital con la página de familia', () => {
+    expect(
+      enlaceFamiliaTensiometro('es', 'tensiometro-digital-carditek-vital-ref-cdk-bpm-65r')
+    ).toEqual({
+      href: '/es/tensiometros-digitales/',
+      label: 'Ver tensiómetros digitales',
+    });
+    expect(
+      enlaceFamiliaTensiometro('en', 'tensiometro-digital-carditek-smart-ref-cdk-bpm-66ep')?.href
+    ).toBe('/en/digital-blood-pressure-monitors/');
+    expect(
+      enlaceFamiliaTensiometro('es', 'silla-de-ruedas-estandar-con-rin-estrella-kp-ref-kbe-9000d')
+    ).toBeNull();
   });
 });

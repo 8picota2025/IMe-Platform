@@ -6,6 +6,7 @@ import type { Locale } from '../i18n/utils';
 import { buildCatalogoIndex, type CatalogoIndexItem } from './catalogo';
 import { getProductosBySlugs, type Producto } from './datos';
 import { formatMoneda, tienePrecioPublico } from './format';
+import { truncateMetaDescription } from './seo';
 
 export type TiendaCategoria = 'sillas' | 'caminadores' | 'bastones' | 'tensiometros';
 
@@ -74,9 +75,12 @@ export function textoSeoTienda(
   } as const;
   const nombre = nombres[categoria];
   const title = es ? `${nombre} desde ${min} | ${envio}` : `${nombre} from ${min} | ${envio}`;
-  const description = es
-    ? `${nombre} en el catálogo I-ME desde ${min} hasta ${max} COP, IVA incluido (${rango.count} referencias con precio). Envío a Colombia. ${entrega}`
-    : `${nombre} in the I-ME catalog from ${min} to ${max} COP, VAT included (${rango.count} priced references). Shipping to Colombia. ${entrega}`;
+  // El precio sigue en el title, el lead y la ficha. La meta no publica cifras.
+  const description = truncateMetaDescription(
+    es
+      ? `${nombre} en el catálogo I-ME. Vea el precio en cada ficha o cotice por WhatsApp. Envío a Colombia. ${entrega}`
+      : `${nombre} in the I-ME catalog. See the price on each product page or request a quote. Shipping and support in Colombia.`
+  );
   const h1 = es ? `${nombre} con precio publicado` : `${nombre} with a published price`;
   const lead = es
     ? `${nombre} desde ${min} hasta ${max} COP, IVA incluido. Envío a Colombia. ${entrega} El flete no está incluido en el precio.`
@@ -122,6 +126,20 @@ export function conSeoTienda<
     lead: seo.lead,
     faqs,
   };
+}
+
+/** Ficha de tensiómetro digital → página de familia de la tienda. */
+export function enlaceFamiliaTensiometro(
+  locale: Locale,
+  slug: string
+): { href: string; label: string } | null {
+  if (!/tensiometro-digital/.test(slug)) return null;
+  return locale === 'es'
+    ? { href: '/es/tensiometros-digitales/', label: 'Ver tensiómetros digitales' }
+    : {
+        href: '/en/digital-blood-pressure-monitors/',
+        label: 'See digital blood pressure monitors',
+      };
 }
 
 export async function productosTienda(

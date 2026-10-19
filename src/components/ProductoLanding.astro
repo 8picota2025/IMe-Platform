@@ -14,6 +14,7 @@ import { isPurchasable } from '../lib/commerce-policy';
 import { normalizarEspecificaciones } from '../lib/especificaciones';
 import { getOptimizedImageUrl, isSupabaseStorageImage } from '../lib/image';
 import { familyCatalogHref } from '../lib/seo-urls';
+import { enlaceFamiliaTensiometro } from '../lib/tienda-catalogo';
 import { fichaPdfEspejo } from '../lib/fichas-pdf-manifest';
 import { datosConfianzaProducto, GARANTIA_FABRICANTE } from '../lib/producto-confianza';
 import { muestraPromoPadbot } from '../data/promo-padbot';
@@ -175,6 +176,7 @@ const migas = [
 const pdfGateId = `pdf-gate-${producto.slug.replace(/[^a-z0-9_-]/gi, '-')}`;
 const confianza = datosConfianzaProducto(especificaciones);
 const h1Visible = seoH1?.trim() || producto.nombre;
+const enlaceTensiometros = enlaceFamiliaTensiometro(locale, producto.slug);
 const serviciosHref = locale === 'en' ? '/en/services/' : '/es/servicios/';
 const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
 ---
@@ -330,6 +332,13 @@ const contactoHref = locale === 'en' ? '/en/contact/' : '/es/contacto/';
           {
             producto.descripcion_corta && producto.descripcion_corta !== seoIntro && (
               <p class="pdp-identity__desc">{producto.descripcion_corta}</p>
+            )
+          }
+          {
+            enlaceTensiometros && (
+              <p class="pdp-identity__desc">
+                <a href={enlaceTensiometros.href}>{enlaceTensiometros.label}</a>
+              </p>
             )
           }
           {muestraPromoPadbot(producto.slug) && <NotaPromoPadbot locale={locale} />}

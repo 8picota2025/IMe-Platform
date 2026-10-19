@@ -39,15 +39,33 @@ describe('GSC 10–16 oct 2026', () => {
     expect(familia!.body_en.join(' ')).not.toContain('P15');
   });
 
-  it('el PDP S12 vuelve al title anterior a octubre y no dice quote', () => {
-    const en = getProductoSeoCopy('monitor-de-paciente-ref-s12-biolight', 'en');
-    const es = getProductoSeoCopy('monitor-de-paciente-ref-s12-biolight', 'es');
-    expect(en?.title).toBe(
-      'Biolight S12 Patient Monitor | Advanced Monitoring with IoT Technology | I-ME'
+  it('S12 y KBE-9000D tienen title y meta de cotización, sin promesa clínica', () => {
+    const slugs = [
+      'monitor-de-paciente-ref-s12-biolight',
+      'silla-de-ruedas-estandar-con-rin-estrella-kp-ref-kbe-9000d',
+    ];
+    for (const slug of slugs) {
+      for (const locale of ['es', 'en'] as const) {
+        const copy = getProductoSeoCopy(slug, locale);
+        expect(copy, slug).toBeDefined();
+        expect(copy!.title.length).toBeLessThanOrEqual(60);
+        expect(copy!.description.length).toBeLessThanOrEqual(155);
+        expect(copy!.description).not.toMatch(/…|\.\.\./);
+        expect(copy!.title.toLowerCase()).toContain('colombia');
+        expect(copy!.description.toLowerCase()).toContain('whatsapp');
+        expect(copy!.description.toLowerCase()).not.toMatch(
+          /clínic|clinic|diagnóst|iot|confiable|reliable/
+        );
+      }
+    }
+    const s12 = getProductoSeoCopy('monitor-de-paciente-ref-s12-biolight', 'en');
+    const kbe = getProductoSeoCopy(
+      'silla-de-ruedas-estandar-con-rin-estrella-kp-ref-kbe-9000d',
+      'es'
     );
-    expect(en?.h1).toContain('Advanced Monitoring with IoT Technology');
-    expect(en?.title.toLowerCase()).not.toContain('quote');
-    expect(es?.h1).toContain('Monitoreo Avanzado con Tecnología IoT');
+    expect(s12?.title).toContain('S12');
+    expect(s12?.title.toLowerCase()).not.toContain('quote');
+    expect(kbe?.title).toContain('KBE-9000D');
   });
 
   it('la variante sin barra de INVIMA y de /es redirige a la URL con barra', () => {
