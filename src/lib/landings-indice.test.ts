@@ -10,6 +10,6 @@ describe('índice de landings', () => {
   it('claves únicas por tipo y 45 landings', () => {
     const claves = LANDINGS_INDICE.map(l => `${l.tipo}:${l.clave}`);
     expect(new Set(claves).size).toBe(claves.length);
-    expect(LANDINGS_INDICE).toHaveLength(45);
+    expect(LANDINGS_INDICE).toHaveLength(46);
   });
 });

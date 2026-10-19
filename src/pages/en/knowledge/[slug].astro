@@ -39,6 +39,13 @@ interface Props {
 
 const { articulo, relacionados } = Astro.props as Props;
 const tema = articulo.cluster;
+const esArticuloInvima = articulo.slug.includes('invima');
+const ctaHref = esArticuloInvima
+  ? '/en/medical-device-registration-colombia/#invima-fabricantes-form'
+  : '/en/contact/';
+const ctaLabel = esArticuloInvima
+  ? 'Request INVIMA assessment'
+  : t(locale, 'conocimiento.cta_contacto');
 const canonical = buildCanonical(`/en/knowledge/${articulo.slug}`);
 const title = buildPageTitle(articulo.titulo);
 const description =
@@ -156,8 +163,7 @@ const jsonLd = combineJsonLd(
         <RelacionadosTema articulo={articulo} relacionados={relacionados} locale={locale} />
         <div class="article-footer">
           <a href="/en/knowledge/" class="btn btn-outline">← {t(locale, 'conocimiento.volver')}</a>
-          <a href="/en/contact/" class="btn btn-primary">{t(locale, 'conocimiento.cta_contacto')}</a
-          >
+          <a href={ctaHref} class="btn btn-primary">{ctaLabel}</a>
         </div>
       </div>
     </article>

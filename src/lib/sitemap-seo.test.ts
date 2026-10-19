@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { serializeSitemapItem, chunkProducts, chunkKnowledge } from '../../scripts/sitemap-seo.mjs';
-import {
-  goneProductSlugs,
-  isIndexableSitemapUrl,
-} from '../../scripts/sitemap-indexability.mjs';
+import { goneProductSlugs, isIndexableSitemapUrl } from '../../scripts/sitemap-indexability.mjs';
 import { getLocalizedPath } from '../i18n/utils';
 
 describe('sitemap-seo', () => {
@@ -79,6 +76,12 @@ describe('sitemap-indexability', () => {
   it('excludes private and legacy prefixes without substring false positives', () => {
     expect(isIndexableSitemapUrl('https://i-me.com.co/es/conocimiento/')).toBe(true);
     expect(isIndexableSitemapUrl('https://i-me.com.co/es/catalogo/')).toBe(true);
+    expect(
+      isIndexableSitemapUrl('https://i-me.com.co/es/registro-sanitario-invima-fabricantes/')
+    ).toBe(true);
+    expect(
+      isIndexableSitemapUrl('https://i-me.com.co/en/medical-device-registration-colombia/')
+    ).toBe(true);
     expect(isIndexableSitemapUrl('https://i-me.com.co/admin/')).toBe(false);
     expect(isIndexableSitemapUrl('https://i-me.com.co/es/pago/xyz/')).toBe(false);
     expect(isIndexableSitemapUrl('https://i-me.com.co/en/payment/xyz/')).toBe(false);

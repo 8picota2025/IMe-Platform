@@ -1,0 +1,994 @@
+---
+/**
+ * Landing comercial INVIMA para fabricantes — UI CRO (Stitch brief + site-faithful).
+ * Copy sin cambios; CTAs distribuidos + barra flotante de conversión.
+ */
+import Layout from '../layouts/Layout.astro';
+import InvimaFabricanteForm from './InvimaFabricanteForm.astro';
+import type { Locale } from '../i18n/utils';
+import {
+  getInvimaFabricantesCopy,
+  INVIMA_FABRICANTES_PATHS,
+} from '../data/invima-fabricantes-landing';
+import {
+  buildPageTitle,
+  buildCanonical,
+  getInstitutionalOgImage,
+  buildFaqJsonLd,
+  buildBreadcrumbJsonLd,
+  buildOrganizationJsonLd,
+  combineJsonLd,
+} from '../lib/seo';
+import '../styles/site-faithful.css';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const isEn = locale === 'en';
+const content = getInvimaFabricantesCopy(locale);
+const path = INVIMA_FABRICANTES_PATHS[locale];
+const titleSource = content.title.replace(/\s*\|\s*I-ME.*$/i, '').trim();
+const title = titleSource.length > 70 ? titleSource : buildPageTitle(titleSource);
+const canonical = buildCanonical(path);
+const currentPath = path.replace(/\/$/, '');
+const homeHref = isEn ? '/en/' : '/es/';
+const hubHref = isEn
+  ? '/en/knowledge/topic/invima-regulacion/'
+  : '/es/conocimiento/tema/invima-regulacion/';
+const hubLabel = isEn ? 'INVIMA knowledge' : 'Conocimiento INVIMA';
+const formAnchor = 'invima-fabricantes-form';
+const quoteHref = `#${formAnchor}`;
+const contactHref = isEn ? '/en/contact/' : '/es/contacto/';
+const brandLine = 'I-ME';
+const floatHint = isEn
+  ? 'Regulatory assessment for manufacturers'
+  : 'Evaluación regulatoria para fabricantes';
+
+const crumbs = [
+  { name: isEn ? 'Home' : 'Inicio', url: `https://i-me.com.co${homeHref}` },
+  { name: hubLabel, url: `https://i-me.com.co${hubHref}` },
+  { name: content.tag, url: `https://i-me.com.co${path}` },
+];
+
+const jsonLd = combineJsonLd(
+  buildOrganizationJsonLd(),
+  buildBreadcrumbJsonLd(crumbs),
+  buildFaqJsonLd(content.faqs),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: content.h1,
+    description: content.description,
+    url: `https://i-me.com.co${path}`,
+    inLanguage: isEn ? 'en' : 'es',
+    isPartOf: { '@type': 'WebSite', name: 'I-ME', url: 'https://i-me.com.co/' },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: content.h1,
+    description: content.description,
+    provider: { '@type': 'Organization', name: 'I-ME International Medical Enterprise' },
+    areaServed: 'CO',
+    url: `https://i-me.com.co${path}`,
+    serviceType: isEn
+      ? 'INVIMA regulatory support for medical device manufacturers'
+      : 'Acompañamiento regulatorio INVIMA para fabricantes de dispositivos médicos',
+  }
+);
+---
+
+<Layout
+  title={title}
+  description={content.description}
+  canonical={canonical}
+  locale={locale}
+  currentPath={currentPath}
+  ogImage={getInstitutionalOgImage()}
+  jsonLd={jsonLd}
+>
+  <div class="site-faithful ifl" data-ifl-root>
+    <header class="ifl-hero" aria-labelledby="ifl-h1">
+      <div class="ifl-hero__bg" aria-hidden="true">
+        <img
+          src={content.heroImage}
+          alt=""
+          width="1600"
+          height="900"
+          loading="eager"
+          decoding="async"
+        />
+      </div>
+      <div class="container ifl-hero__inner">
+        <nav class="breadcrumb ifl-hero__crumb" aria-label={isEn ? 'Breadcrumb' : 'Ruta'}>
+          <a href={homeHref}>{isEn ? 'Home' : 'Inicio'}</a>
+          <span class="sep" aria-hidden="true">/</span>
+          <a href={hubHref}>{hubLabel}</a>
+          <span class="sep" aria-hidden="true">/</span>
+          <span aria-current="page">{content.tag}</span>
+        </nav>
+        <p class="ifl-brand">{brandLine}</p>
+        <p class="clp-eyebrow">{content.tag}</p>
+        <h1 id="ifl-h1">{content.h1}</h1>
+        <p class="ifl-hero__lead">{content.lead}</p>
+        <div class="ifl-actions">
+          <a class="btn btn-primary" href={quoteHref} data-cta="invima-hero-primary"
+            >{content.primaryCta}</a
+          >
+          <a
+            class="btn btn-secondary ifl-btn-ghost"
+            href={quoteHref}
+            data-cta="invima-hero-secondary">{content.secondaryCta}</a
+          >
+        </div>
+      </div>
+    </header>
+
+    <section class="ifl-section" aria-labelledby="ifl-problem">
+      <div class="container">
+        <header class="ifl-section__head">
+          <h2 id="ifl-problem">{content.problemTitle}</h2>
+          <p>{content.problemBody}</p>
+        </header>
+        <ul class="ifl-barriers">
+          {
+            content.barriers.map(b => (
+              <li>
+                <h3>{b.title}</h3>
+                <p>{b.body}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <section class="ifl-section ifl-section--tint" aria-labelledby="ifl-offer">
+      <div class="container">
+        <header class="ifl-section__head">
+          <h2 id="ifl-offer">{content.offerTitle}</h2>
+          <p>{content.offerIntro}</p>
+        </header>
+        <ul class="ifl-list ifl-list--check">
+          {content.offerItems.map(item => <li>{item}</li>)}
+        </ul>
+        <div class="ifl-limits">
+          <h3>{content.offerLimitsTitle}</h3>
+          <ul>
+            {content.offerLimits.map(item => <li>{item}</li>)}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <aside class="ifl-cta-band" aria-label={content.primaryCta}>
+      <div class="container ifl-cta-band__inner">
+        <p class="ifl-cta-band__text">{content.formIntro}</p>
+        <div class="ifl-actions">
+          <a class="btn btn-primary" href={quoteHref} data-cta="invima-mid1-primary"
+            >{content.primaryCta}</a
+          >
+          <a
+            class="btn btn-secondary ifl-btn-on-dark"
+            href={quoteHref}
+            data-cta="invima-mid1-secondary">{content.secondaryCta}</a
+          >
+        </div>
+      </div>
+    </aside>
+
+    <section class="ifl-section" aria-labelledby="ifl-proc">
+      <div class="container">
+        <header class="ifl-section__head">
+          <h2 id="ifl-proc">{content.processTitle}</h2>
+        </header>
+        <ol class="ifl-steps">
+          {
+            content.processSteps.map((step, i) => (
+              <li>
+                <span class="ifl-steps__n" aria-hidden="true">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <div>
+                  <h3>{step.title}</h3>
+                  <p>{step.body}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+
+    <section class="ifl-section ifl-section--tint" aria-labelledby="ifl-aud">
+      <div class="container ifl-aud">
+        <div>
+          <h2 id="ifl-aud">{content.audienceTitle}</h2>
+          <p class="ifl-aud-label">
+            {isEn ? 'This page is for you if…' : 'Esta página es para usted si…'}
+          </p>
+          <ul class="ifl-list ifl-list--check">
+            {content.audienceYes.map(item => <li>{item}</li>)}
+          </ul>
+        </div>
+        <div class="ifl-aud__no">
+          <p class="ifl-aud-label">{isEn ? 'Probably not if…' : 'Tal vez no es para usted si…'}</p>
+          <ul class="ifl-list ifl-list--muted">
+            {content.audienceNo.map(item => <li>{item}</li>)}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="ifl-section" aria-labelledby="ifl-adv">
+      <div class="container">
+        <header class="ifl-section__head">
+          <h2 id="ifl-adv">{content.advantagesTitle}</h2>
+        </header>
+        <ul class="ifl-list ifl-list--check ifl-list--cols">
+          {content.advantages.map(item => <li>{item}</li>)}
+        </ul>
+      </div>
+    </section>
+
+    <section class="ifl-section ifl-section--tint" aria-labelledby="ifl-docs">
+      <div class="container">
+        <header class="ifl-section__head">
+          <h2 id="ifl-docs">{content.docsTitle}</h2>
+          <p>{content.docsIntro}</p>
+        </header>
+        <div class="ifl-table-wrap" role="region" aria-label={content.docsTitle} tabindex="0">
+          <table class="ifl-table">
+            <thead>
+              <tr>
+                <th scope="col">{isEn ? 'Document' : 'Documento'}</th>
+                <th scope="col">{isEn ? 'Note' : 'Nota'}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                content.docs.map(row => (
+                  <tr>
+                    <td>{row.item}</td>
+                    <td>{row.note}</td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="ifl-section" aria-labelledby="ifl-costs">
+      <div class="container">
+        <header class="ifl-section__head">
+          <h2 id="ifl-costs">{content.costsTitle}</h2>
+          <p>{content.costsBody}</p>
+        </header>
+        <div class="ifl-trust">
+          <h3>{content.trustTitle}</h3>
+          <p>{content.trustBody}</p>
+        </div>
+      </div>
+    </section>
+
+    <aside class="ifl-cta-band ifl-cta-band--soft" aria-label={content.secondaryCta}>
+      <div class="container ifl-cta-band__inner">
+        <p class="ifl-cta-band__text">{content.bottomBody}</p>
+        <div class="ifl-actions">
+          <a class="btn btn-primary" href={quoteHref} data-cta="invima-mid2-primary"
+            >{content.primaryCta}</a
+          >
+          <a class="btn btn-secondary" href={quoteHref} data-cta="invima-mid2-secondary"
+            >{content.secondaryCta}</a
+          >
+        </div>
+      </div>
+    </aside>
+
+    <section
+      class="ifl-section ifl-section--form"
+      aria-labelledby="ifl-form-title"
+      id={formAnchor}
+      data-ifl-form
+    >
+      <div class="container">
+        <div class="ifl-form-panel">
+          <header class="ifl-section__head">
+            <h2 id="ifl-form-title">{content.formTitle}</h2>
+            <p>{content.formIntro}</p>
+          </header>
+          <InvimaFabricanteForm
+            locale={locale}
+            primaryCta={content.primaryCta}
+            projectOptions={content.projectOptions}
+          />
+          <p class="ifl-alt-contact">
+            {
+              isEn ? (
+                <>
+                  Prefer email? <a href={contactHref}>Use the contact form</a>.
+                </>
+              ) : (
+                <>
+                  ¿Prefiere correo? <a href={contactHref}>Use el formulario de contacto</a>.
+                </>
+              )
+            }
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="ifl-section ifl-section--tint" aria-labelledby="ifl-faq">
+      <div class="container">
+        <header class="ifl-section__head">
+          <h2 id="ifl-faq">{content.faqTitle}</h2>
+        </header>
+        <div class="ifl-faq">
+          {
+            content.faqs.map(f => (
+              <details>
+                <summary>{f.q}</summary>
+                <p>{f.a}</p>
+              </details>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="ifl-section" aria-labelledby="ifl-related">
+      <div class="container">
+        <h2 id="ifl-related">{content.relatedTitle}</h2>
+        <ul class="ifl-links">
+          {
+            content.relatedGuides.map(g => (
+              <li>
+                <a href={g.href}>{g.title}</a>
+              </li>
+            ))
+          }
+        </ul>
+        <h3 class="ifl-related-sub">{content.officialTitle}</h3>
+        <ul class="ifl-links">
+          {
+            content.officialLinks.map(l => (
+              <li>
+                <a href={l.href} target="_blank" rel="noopener noreferrer">
+                  {l.label}
+                  <span aria-hidden="true"> ↗</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="ifl-disclaimer">{content.disclaimer}</p>
+      </div>
+    </section>
+
+    <section class="ifl-cta-band" aria-label={isEn ? 'Contact' : 'Contacto'}>
+      <div class="container ifl-cta-band__inner ifl-cta-band__inner--final">
+        <div>
+          <h2 class="ifl-cta-band__title">{content.bottomTitle}</h2>
+          <p class="ifl-cta-band__text">{content.bottomBody}</p>
+        </div>
+        <div class="ifl-actions">
+          <a class="btn btn-primary" href={quoteHref} data-cta="invima-final-primary"
+            >{content.primaryCta}</a
+          >
+          <a
+            class="btn btn-secondary ifl-btn-on-dark"
+            href={quoteHref}
+            data-cta="invima-final-secondary">{content.secondaryCta}</a
+          >
+        </div>
+      </div>
+    </section>
+
+    <div class="ifl-float" data-ifl-float aria-hidden="true">
+      <div class="ifl-float__inner">
+        <p class="ifl-float__hint">{floatHint}</p>
+        <div class="ifl-float__actions">
+          <a class="btn btn-primary" href={quoteHref} data-cta="invima-float-primary" tabindex="-1"
+            >{content.primaryCta}</a
+          >
+          <a
+            class="ifl-float__link"
+            href={quoteHref}
+            data-cta="invima-float-secondary"
+            tabindex="-1">{content.secondaryCta}</a
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .ifl {
+    --ifl-canvas: #f7f9fb;
+    --ifl-ink: #0f4c5c;
+    --ifl-ink-soft: #1a5f6e;
+    --ifl-body: #1d3a47;
+    --ifl-muted: #456070;
+    --ifl-line: rgba(15, 76, 92, 0.12);
+    --ifl-float-h: 4.75rem;
+    background: var(--ifl-canvas);
+    color: var(--ifl-body);
+    padding-bottom: calc(var(--ifl-float-h) + 1rem);
+  }
+
+  /* Cuerpo de lectura justificado; títulos/CTAs siguen alineados a la izquierda. */
+  .ifl-hero__lead,
+  .ifl-section__head p,
+  .ifl-barriers p,
+  .ifl-list li,
+  .ifl-limits li,
+  .ifl-steps p,
+  .ifl-trust p,
+  .ifl-table td,
+  .ifl-faq details p,
+  .ifl-disclaimer,
+  .ifl-cta-band__text,
+  .ifl-alt-contact {
+    text-align: justify;
+    text-justify: inter-word;
+    hyphens: auto;
+  }
+
+  .ifl-hero {
+    position: relative;
+    min-height: min(92vh, 52rem);
+    display: flex;
+    align-items: flex-end;
+    color: #fff;
+    overflow: hidden;
+  }
+  .ifl-hero__bg {
+    position: absolute;
+    inset: 0;
+  }
+  .ifl-hero__bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 35%;
+  }
+  .ifl-hero__bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(
+        105deg,
+        rgba(11, 42, 51, 0.92) 0%,
+        rgba(11, 42, 51, 0.78) 42%,
+        rgba(11, 42, 51, 0.35) 72%,
+        rgba(11, 42, 51, 0.2) 100%
+      ),
+      linear-gradient(0deg, rgba(11, 42, 51, 0.55) 0%, transparent 45%);
+  }
+  .ifl-hero__inner {
+    position: relative;
+    z-index: 1;
+    max-width: 44rem;
+    padding-block: 4.5rem 3.5rem;
+  }
+  .ifl-hero__crumb,
+  .ifl-hero__crumb a {
+    color: rgba(255, 255, 255, 0.82);
+  }
+  .ifl-hero__crumb .sep {
+    opacity: 0.55;
+  }
+  .ifl-brand {
+    margin: 1.25rem 0 0.35rem;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(1.75rem, 4vw, 2.35rem);
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+  .ifl-hero .clp-eyebrow {
+    color: rgba(255, 255, 255, 0.75);
+    margin-bottom: 0.65rem;
+  }
+  .ifl-hero h1 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(1.65rem, 3.6vw, 2.55rem);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    max-width: 18ch;
+  }
+  .ifl-hero__lead {
+    margin: 1.1rem 0 0;
+    font-size: 1.05rem;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.9);
+    max-width: 38rem;
+  }
+  .ifl-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+  .ifl-actions .btn {
+    min-height: 48px;
+  }
+  .ifl-btn-ghost {
+    background: transparent;
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.55);
+  }
+  .ifl-btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #fff;
+    color: #fff;
+  }
+  .ifl-btn-on-dark {
+    background: transparent;
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.45);
+  }
+  .ifl-btn-on-dark:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+  }
+
+  .ifl-section {
+    padding: 4rem 0;
+  }
+  .ifl-section--tint {
+    background: rgba(15, 76, 92, 0.04);
+  }
+  .ifl-section--form {
+    padding-block: 3.5rem 4.5rem;
+  }
+  .ifl-section__head {
+    max-width: 46rem;
+    margin-bottom: 1.75rem;
+  }
+  .ifl-section__head h2,
+  .ifl-section h2 {
+    margin: 0 0 0.75rem;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(1.45rem, 2.4vw, 1.85rem);
+    color: var(--ifl-ink);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+  .ifl-section__head p,
+  .ifl-section p {
+    margin: 0;
+    color: var(--ifl-muted);
+    line-height: 1.6;
+  }
+
+  .ifl-barriers {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1px;
+    background: var(--ifl-line);
+    border: 1px solid var(--ifl-line);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  @media (min-width: 900px) {
+    .ifl-barriers {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .ifl-barriers li {
+    background: #fff;
+    padding: 1.5rem 1.35rem;
+  }
+  .ifl-barriers h3 {
+    margin: 0 0 0.55rem;
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    color: var(--ifl-ink);
+  }
+  .ifl-barriers p {
+    margin: 0;
+    color: var(--ifl-muted);
+    font-size: 0.95rem;
+  }
+
+  .ifl-list {
+    margin: 0;
+    padding-left: 1.15rem;
+    display: grid;
+    gap: 0.65rem;
+    color: var(--ifl-body);
+  }
+  .ifl-list--check {
+    list-style: none;
+    padding-left: 0;
+  }
+  .ifl-list--check li {
+    position: relative;
+    padding-left: 1.5rem;
+  }
+  .ifl-list--check li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.45rem;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 999px;
+    background: var(--ifl-ink);
+  }
+  .ifl-list--muted {
+    color: var(--ifl-muted);
+  }
+  @media (min-width: 900px) {
+    .ifl-list--cols {
+      grid-template-columns: 1fr 1fr;
+      column-gap: 2rem;
+    }
+  }
+
+  .ifl-limits {
+    margin-top: 1.75rem;
+    padding: 1.35rem 1.4rem;
+    background: #fff;
+    border: 1px solid var(--ifl-line);
+    border-radius: 12px;
+  }
+  .ifl-limits h3 {
+    margin: 0 0 0.65rem;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    color: var(--ifl-ink);
+  }
+  .ifl-limits ul {
+    margin: 0;
+    padding-left: 1.15rem;
+    display: grid;
+    gap: 0.45rem;
+    color: var(--ifl-muted);
+  }
+
+  .ifl-steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+  }
+  @media (min-width: 900px) {
+    .ifl-steps {
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.85rem;
+    }
+  }
+  .ifl-steps li {
+    background: #fff;
+    border: 1px solid var(--ifl-line);
+    border-radius: 12px;
+    padding: 1.2rem 1.1rem 1.35rem;
+    display: grid;
+    gap: 0.65rem;
+  }
+  .ifl-steps__n {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    color: var(--ifl-ink-soft);
+  }
+  .ifl-steps h3 {
+    margin: 0 0 0.4rem;
+    font-family: var(--font-display);
+    font-size: 0.98rem;
+    color: var(--ifl-ink);
+    line-height: 1.3;
+  }
+  .ifl-steps p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ifl-muted);
+  }
+
+  .ifl-aud {
+    display: grid;
+    gap: 2rem;
+  }
+  @media (min-width: 900px) {
+    .ifl-aud {
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 2.5rem;
+      align-items: start;
+    }
+  }
+  .ifl-aud__no {
+    background: #fff;
+    border: 1px solid var(--ifl-line);
+    border-radius: 12px;
+    padding: 1.35rem 1.4rem;
+  }
+  .ifl-aud-label {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--ifl-ink);
+    margin: 0.85rem 0 0.5rem;
+  }
+
+  .ifl-trust {
+    margin-top: 1.5rem;
+    max-width: 46rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--ifl-line);
+  }
+  .ifl-trust h3 {
+    margin: 0 0 0.5rem;
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    color: var(--ifl-ink);
+  }
+
+  .ifl-table-wrap {
+    overflow-x: auto;
+    background: #fff;
+    border: 1px solid var(--ifl-line);
+    border-radius: 12px;
+  }
+  .ifl-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+  }
+  .ifl-table th,
+  .ifl-table td {
+    padding: 0.95rem 1.1rem;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--ifl-line);
+  }
+  .ifl-table tr:last-child td {
+    border-bottom: 0;
+  }
+  .ifl-table th {
+    font-family: var(--font-display);
+    color: var(--ifl-ink);
+    background: rgba(15, 76, 92, 0.04);
+  }
+
+  .ifl-form-panel {
+    background: #fff;
+    border: 1px solid var(--ifl-line);
+    border-radius: 16px;
+    padding: 1.75rem 1.35rem 2rem;
+    box-shadow: 0 18px 40px rgba(11, 42, 51, 0.06);
+  }
+  @media (min-width: 720px) {
+    .ifl-form-panel {
+      padding: 2.25rem 2.35rem 2.5rem;
+    }
+  }
+
+  .ifl-faq {
+    display: grid;
+    gap: 0.65rem;
+    max-width: 48rem;
+  }
+  .ifl-faq details {
+    background: #fff;
+    border: 1px solid var(--ifl-line);
+    border-radius: 10px;
+    padding: 0.15rem 1rem;
+  }
+  .ifl-faq summary {
+    cursor: pointer;
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--ifl-ink);
+    padding: 0.95rem 0;
+    list-style-position: outside;
+  }
+  .ifl-faq details p {
+    margin: 0 0 1rem;
+    color: var(--ifl-muted);
+    line-height: 1.55;
+  }
+
+  .ifl-links {
+    list-style: none;
+    margin: 0.75rem 0 1.35rem;
+    padding: 0;
+    display: grid;
+    gap: 0.45rem;
+  }
+  .ifl-links a {
+    color: var(--ifl-ink);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+  .ifl-related-sub {
+    margin: 1.75rem 0 0.5rem;
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    color: var(--ifl-ink);
+  }
+  .ifl-disclaimer {
+    margin: 1.75rem 0 0;
+    font-size: 0.85rem;
+    color: var(--ifl-muted);
+    max-width: 48rem;
+  }
+  .ifl-alt-contact {
+    margin-top: 1.25rem;
+    font-size: 0.9rem;
+    color: var(--ifl-muted);
+  }
+  .ifl-alt-contact a {
+    color: var(--ifl-ink);
+    font-weight: 600;
+  }
+
+  .ifl-cta-band {
+    background: var(--ifl-ink);
+    color: #fff;
+    padding: 2rem 0;
+  }
+  .ifl-cta-band--soft {
+    background: rgba(15, 76, 92, 0.08);
+    color: var(--ifl-body);
+  }
+  .ifl-cta-band--soft .ifl-cta-band__text {
+    color: var(--ifl-muted);
+  }
+  .ifl-cta-band__inner {
+    display: grid;
+    gap: 1.25rem;
+    align-items: center;
+  }
+  @media (min-width: 900px) {
+    .ifl-cta-band__inner {
+      grid-template-columns: 1.4fr auto;
+      gap: 2rem;
+    }
+    .ifl-cta-band__inner--final {
+      align-items: end;
+    }
+  }
+  .ifl-cta-band__title {
+    margin: 0 0 0.5rem;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(1.35rem, 2.2vw, 1.7rem);
+    color: #fff;
+    letter-spacing: -0.02em;
+  }
+  .ifl-cta-band__text {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.88);
+    line-height: 1.5;
+    max-width: 40rem;
+  }
+  .ifl-cta-band--soft .ifl-cta-band__inner .btn-secondary {
+    background: #fff;
+  }
+
+  .ifl-float {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 60;
+    background: rgba(255, 255, 255, 0.96);
+    border-top: 1px solid var(--ifl-line);
+    box-shadow: 0 -8px 28px rgba(11, 42, 51, 0.08);
+    transform: translateY(110%);
+    transition:
+      transform 220ms ease,
+      opacity 220ms ease;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .ifl-float.is-visible {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .ifl-float__inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0.7rem 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.65rem 1rem;
+  }
+  .ifl-float__hint {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: var(--ifl-ink);
+  }
+  .ifl-float__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.65rem 1rem;
+  }
+  .ifl-float__actions .btn {
+    min-height: 44px;
+  }
+  .ifl-float__link {
+    color: var(--ifl-ink);
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+  @media (max-width: 640px) {
+    .ifl-float__hint {
+      display: none;
+    }
+    .ifl-float__actions {
+      width: 100%;
+    }
+    .ifl-float__actions .btn {
+      flex: 1;
+      justify-content: center;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ifl-float {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  import { emitAnalyticsEvent } from '../lib/analytics';
+
+  const root = document.querySelector<HTMLElement>('[data-ifl-root]');
+  if (root) {
+    root.querySelectorAll<HTMLAnchorElement>('[data-cta^="invima-"]').forEach(a => {
+      a.addEventListener('click', () => {
+        emitAnalyticsEvent('cta_clicked', {
+          cta: a.dataset.cta ?? 'invima',
+          origin: 'invima_fabricantes',
+        });
+      });
+    });
+
+    const floatBar = root.querySelector<HTMLElement>('[data-ifl-float]');
+    const formSection = root.querySelector<HTMLElement>('[data-ifl-form]');
+    if (floatBar && formSection) {
+      const floatLinks = floatBar.querySelectorAll<HTMLAnchorElement>('a');
+      const syncFloat = () => {
+        const scrolled = window.scrollY > Math.min(window.innerHeight * 0.55, 420);
+        const formRect = formSection.getBoundingClientRect();
+        const formInView = formRect.top < window.innerHeight * 0.72 && formRect.bottom > 80;
+        const show = scrolled && !formInView;
+        floatBar.classList.toggle('is-visible', show);
+        floatBar.setAttribute('aria-hidden', show ? 'false' : 'true');
+        floatLinks.forEach(link => {
+          if (show) link.removeAttribute('tabindex');
+          else link.setAttribute('tabindex', '-1');
+        });
+      };
+      syncFloat();
+      window.addEventListener('scroll', syncFloat, { passive: true });
+      window.addEventListener('resize', syncFloat);
+    }
+  }
+</script>

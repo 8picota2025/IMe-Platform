@@ -1,0 +1,623 @@
+---
+/**
+ * Formulario de evaluación INVIMA para fabricantes internacionales.
+ * Persiste vía registrar-lead-comercial (campaign invima_fabricantes).
+ */
+import type { Locale } from '../i18n/utils';
+import type { CampaignOption } from '../data/comercial-landings';
+import {
+  INVIMA_FABRICANTES_CAMPAIGN,
+  INVIMA_FABRICANTES_FAMILIA,
+} from '../data/invima-fabricantes-landing';
+import PhoneField from './PhoneField.astro';
+
+interface Props {
+  locale: Locale;
+  primaryCta: string;
+  projectOptions: CampaignOption[];
+  formId?: string;
+}
+
+const { locale, primaryCta, projectOptions, formId = 'invima-fabricante-form' } = Astro.props;
+
+const isEn = locale === 'en';
+const privacyHref = isEn ? '/en/legal/privacy/' : '/es/legal/privacidad/';
+const habeasHref = isEn ? '/en/legal/data-authorization/' : '/es/legal/habeas-data/';
+const turnstileSiteKey = (
+  (import.meta.env['PUBLIC_TURNSTILE_SITE_KEY'] as string | undefined) ?? ''
+).trim();
+---
+
+<form
+  id={formId}
+  class="lqf iff"
+  novalidate
+  data-locale={locale}
+  data-campaign={INVIMA_FABRICANTES_CAMPAIGN}
+  data-familia={INVIMA_FABRICANTES_FAMILIA}
+  data-turnstile-site-key={turnstileSiteKey}
+  aria-label={isEn ? 'INVIMA manufacturer assessment form' : 'Formulario de evaluación INVIMA'}
+>
+  <input type="hidden" name="familia_slug" value={INVIMA_FABRICANTES_FAMILIA} />
+  <input type="hidden" name="tipo_slug" value="fabricantes" />
+  <input type="hidden" name="campaign" value={INVIMA_FABRICANTES_CAMPAIGN} />
+  <label class="lqf-honeypot" aria-hidden="true">
+    Website
+    <input name="website" type="text" tabindex="-1" autocomplete="off" />
+  </label>
+
+  <fieldset class="lqf-step">
+    <legend class="lqf-legend"
+      >{isEn ? 'Manufacturer & product details' : 'Fabricante y producto'}</legend
+    >
+
+    <div class="lqf-grid">
+      <div class="lqf-field">
+        <label for={`${formId}-nombre`}
+          >{isEn ? 'Name' : 'Nombre'} <span class="req" aria-hidden="true">*</span></label
+        >
+        <input id={`${formId}-nombre`} name="nombre" type="text" autocomplete="name" required />
+      </div>
+      <div class="lqf-field">
+        <label for={`${formId}-empresa`}
+          >{isEn ? 'Company' : 'Empresa'} <span class="req" aria-hidden="true">*</span></label
+        >
+        <input
+          id={`${formId}-empresa`}
+          name="empresa"
+          type="text"
+          autocomplete="organization"
+          required
+        />
+      </div>
+      <div class="lqf-field">
+        <label for={`${formId}-pais`}
+          >{isEn ? 'Country' : 'País'} <span class="req" aria-hidden="true">*</span></label
+        >
+        <input
+          id={`${formId}-pais`}
+          name="pais"
+          type="text"
+          autocomplete="country-name"
+          required
+          placeholder={isEn ? 'e.g. Germany, USA, China…' : 'Ej. Alemania, EE. UU., China…'}
+        />
+      </div>
+      <div class="lqf-field">
+        <label for={`${formId}-email`}
+          >{isEn ? 'Corporate email' : 'Email corporativo'}
+          <span class="req" aria-hidden="true">*</span></label
+        >
+        <input id={`${formId}-email`} name="email" type="email" autocomplete="email" required />
+      </div>
+      <div class="lqf-field">
+        <label for={`${formId}-telefono`}>{isEn ? 'Phone (optional)' : 'Teléfono (opcional)'}</label
+        >
+        <PhoneField id={`${formId}-telefono`} locale={locale} />
+      </div>
+      <div class="lqf-field">
+        <label for={`${formId}-fabricante`}
+          >{isEn ? 'Manufacturer / brand' : 'Fabricante / marca'}
+          <span class="req" aria-hidden="true">*</span></label
+        >
+        <input id={`${formId}-fabricante`} name="fabricante" type="text" required />
+      </div>
+      <div class="lqf-field">
+        <label for={`${formId}-tipo_producto`}
+          >{isEn ? 'Product type' : 'Tipo de producto'}
+          <span class="req" aria-hidden="true">*</span></label
+        >
+        <input
+          id={`${formId}-tipo_producto`}
+          name="tipo_producto"
+          type="text"
+          required
+          placeholder={isEn
+            ? 'e.g. patient monitor, autoclave…'
+            : 'Ej. monitor de signos, autoclave…'}
+        />
+      </div>
+      <div class="lqf-field">
+        <label for={`${formId}-referencias`}
+          >{isEn ? 'Approx. number of SKUs' : 'Referencias (aprox.)'}</label
+        >
+        <input
+          id={`${formId}-referencias`}
+          name="referencias"
+          type="text"
+          inputmode="numeric"
+          placeholder={isEn ? 'e.g. 3, 12, 40…' : 'Ej. 3, 12, 40…'}
+        />
+      </div>
+      <div class="lqf-field lqf-field--full">
+        <label for={`${formId}-tipo_proyecto`}
+          >{isEn ? 'Request type' : 'Tipo de solicitud'}
+          <span class="req" aria-hidden="true">*</span></label
+        >
+        <select id={`${formId}-tipo_proyecto`} name="tipo_proyecto" required class="lqf-select">
+          <option value="">{isEn ? 'Select…' : 'Selecciona…'}</option>
+          {projectOptions.map(opt => <option value={opt.value}>{opt.label}</option>)}
+        </select>
+      </div>
+      <div class="lqf-field">
+        <label for={`${formId}-horizonte`}
+          >{isEn ? 'Timeline' : 'Horizonte'} <span class="req" aria-hidden="true">*</span></label
+        >
+        <select id={`${formId}-horizonte`} name="horizonte" required class="lqf-select">
+          <option value="">{isEn ? 'Select…' : 'Selecciona…'}</option>
+          <option value="0-3">{isEn ? '0–3 months' : '0–3 meses'}</option>
+          <option value="4-12">{isEn ? '4–12 months' : '4–12 meses'}</option>
+          <option value="exploracion">{isEn ? 'Early exploration' : 'Exploración temprana'}</option>
+        </select>
+      </div>
+      <div class="lqf-field lqf-field--full">
+        <label for={`${formId}-mensaje`}>{isEn ? 'Message' : 'Mensaje'}</label>
+        <textarea
+          id={`${formId}-mensaje`}
+          name="mensaje"
+          rows="3"
+          placeholder={isEn
+            ? 'Intended use, target class if known, available certificates…'
+            : 'Uso previsto, clase si la conoce, certificados disponibles…'}></textarea>
+      </div>
+    </div>
+
+    <div class="lqf-consent">
+      <label>
+        <input type="checkbox" name="consentimiento" value="1" required />
+        <span>
+          {
+            isEn ? (
+              <>
+                I authorize contact regarding this regulatory assessment, per the{' '}
+                <a href={privacyHref} target="_blank" rel="noopener noreferrer">
+                  privacy policy
+                </a>{' '}
+                and{' '}
+                <a href={habeasHref} target="_blank" rel="noopener noreferrer">
+                  habeas data authorization
+                </a>
+                .
+              </>
+            ) : (
+              <>
+                Autorizo el contacto sobre esta evaluación regulatoria, conforme a la{' '}
+                <a href={privacyHref} target="_blank" rel="noopener noreferrer">
+                  política de privacidad
+                </a>{' '}
+                y la{' '}
+                <a href={habeasHref} target="_blank" rel="noopener noreferrer">
+                  autorización de habeas data
+                </a>
+                .
+              </>
+            )
+          }
+        </span>
+      </label>
+    </div>
+
+    <div class="lqf-actions">
+      <button type="submit" class="btn btn-primary" data-submit>
+        {primaryCta}
+      </button>
+    </div>
+    <div class="lqf-turnstile" data-turnstile></div>
+  </fieldset>
+
+  <div class="lqf-status" role="status" aria-live="polite" data-status></div>
+  <a
+    class="lqf-whatsapp-fallback"
+    data-whatsapp-fallback
+    hidden
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    {isEn ? 'Open WhatsApp' : 'Abrir WhatsApp'}
+  </a>
+</form>
+
+<style>
+  .lqf {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .lqf-step {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem 1.6rem 1.85rem;
+    background: var(--white);
+    margin: 0;
+  }
+  .lqf-legend {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--t900);
+    padding: 0 0.35rem;
+  }
+  .lqf-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.15rem;
+    margin-block: 1.35rem;
+  }
+  @media (min-width: 720px) {
+    .lqf-grid {
+      grid-template-columns: 1fr 1fr;
+      column-gap: 1.25rem;
+      row-gap: 1.15rem;
+    }
+    .lqf-field--full {
+      grid-column: 1 / -1;
+    }
+  }
+  .lqf-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+  .lqf-field label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-family: var(--font-display);
+    color: var(--ink);
+  }
+  .req {
+    color: #c0392b;
+  }
+  .lqf-field input,
+  .lqf-field textarea,
+  .lqf-select {
+    border: 1px solid var(--border-mid);
+    border-radius: var(--radius);
+    padding: 0.8rem 1rem;
+    font: inherit;
+    color: var(--text);
+    background: var(--white);
+    width: 100%;
+    min-height: 48px;
+  }
+  .lqf-field textarea {
+    min-height: 6.5rem;
+  }
+  .lqf-field input:focus,
+  .lqf-field textarea:focus,
+  .lqf-select:focus {
+    outline: 2px solid var(--t800);
+    outline-offset: 2px;
+  }
+  .lqf-consent {
+    margin: 0.25rem 0 1.25rem;
+  }
+  .lqf-consent label {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    font-size: 0.82rem;
+    color: var(--text-mid);
+    line-height: 1.5;
+    cursor: pointer;
+  }
+  .lqf-consent input {
+    margin-top: 0.2rem;
+    accent-color: var(--t900);
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+  .lqf-consent a {
+    color: var(--t900);
+    text-decoration: underline;
+  }
+  .lqf-actions .btn {
+    min-height: 48px;
+  }
+  .lqf-status {
+    min-height: 1.4rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  .lqf-status.is-ok {
+    color: #2a7d1e;
+  }
+  .lqf-status.is-err {
+    color: #c0392b;
+  }
+  .lqf-honeypot {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .lqf-turnstile {
+    margin-top: 1rem;
+  }
+  .lqf-turnstile:empty {
+    display: none;
+  }
+  .lqf-whatsapp-fallback {
+    align-self: flex-start;
+    color: var(--t900);
+    font-weight: 700;
+    text-decoration: underline;
+  }
+</style>
+
+<script>
+  import {
+    captureCommercialAttribution,
+    rememberCommercialLead,
+  } from '../lib/commercial-attribution';
+  import {
+    buildWhatsAppUrl,
+    classifyLead,
+    slaForPriority,
+    validateCommercialLead,
+    type CommercialLeadInput,
+    type HorizonteCompra,
+  } from '../lib/comercial-leads';
+  import { interpretarErrorEdgeFunction } from '../lib/cotizacion-submit';
+  import { collectVisitorPhone } from '../lib/visitor-phone-field';
+  import { emitAnalyticsEvent } from '../lib/analytics';
+
+  interface TurnstileApi {
+    render: (container: HTMLElement, options: Record<string, unknown>) => string;
+    reset: (id?: string) => void;
+  }
+
+  interface LeadResponse {
+    ok?: boolean;
+    leadId?: string;
+    priority?: 'P1' | 'P2' | 'P3';
+    error?: string;
+    emails?: { interno?: boolean; cliente?: boolean };
+  }
+
+  let turnstileLoaded: Promise<void> | null = null;
+  const turnstileTokens = new WeakMap<HTMLFormElement, string>();
+  const turnstileWidgets = new WeakMap<HTMLFormElement, string>();
+
+  function loadTurnstile(): Promise<void> {
+    if ((window as Window & { turnstile?: TurnstileApi }).turnstile) return Promise.resolve();
+    if (turnstileLoaded) return turnstileLoaded;
+    turnstileLoaded = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      script.async = true;
+      script.defer = true;
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error('turnstile load error'));
+      document.head.appendChild(script);
+    });
+    return turnstileLoaded;
+  }
+
+  async function ensureTurnstile(form: HTMLFormElement): Promise<string | undefined> {
+    const sitekey = form.dataset.turnstileSiteKey?.trim();
+    if (!sitekey) return undefined;
+    const container = form.querySelector<HTMLElement>('[data-turnstile]');
+    if (!container) return undefined;
+    await loadTurnstile();
+    const api = (window as Window & { turnstile?: TurnstileApi }).turnstile;
+    if (!api) return undefined;
+    if (!turnstileWidgets.has(form)) {
+      const widget = api.render(container, {
+        sitekey,
+        size: 'flexible',
+        callback: (token: string) => turnstileTokens.set(form, token),
+        'expired-callback': () => turnstileTokens.delete(form),
+        'error-callback': () => turnstileTokens.delete(form),
+      });
+      turnstileWidgets.set(form, widget);
+    }
+    return turnstileTokens.get(form);
+  }
+
+  function newIdempotencyKey(): string {
+    if (typeof window.crypto?.randomUUID === 'function') return window.crypto.randomUUID();
+    return `${Date.now()}_${Math.random().toString(36).slice(2)}`;
+  }
+
+  function initForm(form: HTMLFormElement) {
+    if (form.dataset.bound === '1') return;
+    form.dataset.bound = '1';
+
+    const locale = (form.dataset.locale === 'en' ? 'en' : 'es') as 'es' | 'en';
+    const status = form.querySelector<HTMLElement>('[data-status]');
+    const submitBtn = form.querySelector<HTMLButtonElement>('[data-submit]');
+    const whatsappFallback = form.querySelector<HTMLAnchorElement>('[data-whatsapp-fallback]');
+    let enviando = false;
+    let began = false;
+
+    function showStatus(message: string, kind: 'ok' | 'err' | null) {
+      if (!status) return;
+      status.className = kind ? `lqf-status is-${kind}` : 'lqf-status';
+      status.textContent = message;
+      if (message) status.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function read(): CommercialLeadInput | null {
+      const fd = new FormData(form);
+      const empresa = String(fd.get('empresa') ?? '').trim();
+      const pais = String(fd.get('pais') ?? '').trim();
+      const fabricante = String(fd.get('fabricante') ?? '').trim();
+      const tipoProducto = String(fd.get('tipo_producto') ?? '').trim();
+      const referencias = String(fd.get('referencias') ?? '').trim();
+      const mensaje = String(fd.get('mensaje') ?? '').trim();
+      const necesidad = [
+        `Fabricante/marca: ${fabricante}`,
+        `Tipo de producto: ${tipoProducto}`,
+        referencias ? `Referencias aprox.: ${referencias}` : null,
+        mensaje ? `Mensaje: ${mensaje}` : null,
+      ]
+        .filter(Boolean)
+        .join('\n');
+
+      const lead: CommercialLeadInput = {
+        nombre: String(fd.get('nombre') ?? ''),
+        cargo: 'fabricante',
+        institucion: empresa,
+        ciudad: pais,
+        telefono: String(fd.get('telefono') ?? ''),
+        email: String(fd.get('email') ?? ''),
+        familia_slug: String(fd.get('familia_slug') ?? form.dataset.familia ?? ''),
+        tipo_slug: String(fd.get('tipo_slug') ?? 'fabricantes'),
+        tipo_proyecto: String(fd.get('tipo_proyecto') ?? ''),
+        horizonte: String(fd.get('horizonte') ?? '') as HorizonteCompra,
+        necesidad,
+        consentimiento: fd.get('consentimiento') === '1',
+        campaign: 'invima_fabricantes',
+        locale,
+      };
+      return lead;
+    }
+
+    form.addEventListener(
+      'focusin',
+      () => {
+        if (began) return;
+        began = true;
+        emitAnalyticsEvent('quote_begin', { origin: 'invima_fabricantes', locale });
+      },
+      { once: true }
+    );
+
+    void ensureTurnstile(form).catch(() => undefined);
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      if (enviando) return;
+      const data = read();
+      if (!data) return;
+      const result = validateCommercialLead(data);
+      if (!result.valid) {
+        showStatus(Object.values(result.errors)[0] ?? 'Error', 'err');
+        return;
+      }
+
+      const phone = collectVisitorPhone(form);
+      const url = buildWhatsAppUrl({
+        ...data,
+        telefono: phone.telefono || data.telefono || '',
+      });
+      const supabaseModule = await import('../lib/supabase').catch(() => null);
+      const supabase = supabaseModule?.getSupabaseClient();
+      if (!supabase) {
+        showStatus(
+          locale === 'en'
+            ? 'The request service is unavailable. Please try again.'
+            : 'El servicio de solicitudes no está disponible. Intenta de nuevo.',
+          'err'
+        );
+        return;
+      }
+
+      const sitekey = form.dataset.turnstileSiteKey?.trim();
+      const turnstileToken = await ensureTurnstile(form).catch(() => undefined);
+      if (sitekey && !turnstileToken) {
+        showStatus(
+          locale === 'en'
+            ? 'Complete the security verification.'
+            : 'Completa la verificación de seguridad.',
+          'err'
+        );
+        return;
+      }
+
+      form.dataset.idempotencyKey ||= newIdempotencyKey();
+      const attribution = captureCommercialAttribution(data.campaign);
+      const originalSubmitText = submitBtn?.textContent ?? '';
+      enviando = true;
+      showStatus(locale === 'en' ? 'Saving request…' : 'Registrando solicitud…', null);
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = locale === 'en' ? 'Saving…' : 'Registrando…';
+      }
+      if (whatsappFallback) whatsappFallback.hidden = true;
+
+      try {
+        const { data: response, error } = await supabase.functions.invoke(
+          'registrar-lead-comercial',
+          {
+            body: {
+              ...data,
+              telefono: phone.telefono,
+              telefono_raw: phone.telefono_raw,
+              telefono_pais: phone.telefono_pais,
+              ...attribution,
+              website: String(new FormData(form).get('website') ?? ''),
+              idempotencyKey: form.dataset.idempotencyKey,
+              turnstileToken,
+              landing_path:
+                locale === 'en'
+                  ? '/en/medical-device-registration-colombia/'
+                  : '/es/registro-sanitario-invima-fabricantes/',
+            },
+          }
+        );
+        const saved = response as LeadResponse | null;
+        if (error || !saved?.ok || !saved.leadId) {
+          const edgeError = saved?.error?.trim()
+            ? saved.error
+            : await interpretarErrorEdgeFunction(error, response);
+          showStatus(
+            edgeError ||
+              (locale === 'en'
+                ? 'We could not register the request. Please try again.'
+                : 'No pudimos registrar la solicitud. Intenta de nuevo.'),
+            'err'
+          );
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalSubmitText;
+          }
+          const widget = turnstileWidgets.get(form);
+          if (widget) {
+            (window as Window & { turnstile?: TurnstileApi }).turnstile?.reset(widget);
+            turnstileTokens.delete(form);
+          }
+          return;
+        }
+
+        rememberCommercialLead(saved.leadId, data.campaign);
+        emitAnalyticsEvent('quote_success', { origin: 'invima_fabricantes', locale });
+        const priority = saved.priority ?? classifyLead(data.horizonte);
+        let successMessage = slaForPriority(priority, locale);
+        if (saved.emails?.cliente) {
+          successMessage +=
+            locale === 'en'
+              ? ' We sent a confirmation to your email.'
+              : ' Enviamos confirmación a tu correo.';
+        }
+        showStatus(successMessage, 'ok');
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = locale === 'en' ? 'Request saved' : 'Solicitud registrada';
+        }
+        const popup = window.open(url, '_blank', 'noopener,noreferrer');
+        if (whatsappFallback) {
+          whatsappFallback.href = url;
+          whatsappFallback.hidden = popup !== null;
+        }
+      } catch {
+        showStatus(
+          locale === 'en'
+            ? 'Unexpected error. Please try again.'
+            : 'Error inesperado. Intenta de nuevo.',
+          'err'
+        );
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalSubmitText;
+        }
+      } finally {
+        enviando = false;
+      }
+    });
+  }
+
+  document.querySelectorAll<HTMLFormElement>('form.iff').forEach(initForm);
+</script>
