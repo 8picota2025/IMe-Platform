@@ -66,6 +66,7 @@ const PATH_SEGMENT_PAIRS: Array<{ es: string; en: string }> = [
   { es: 'lampara-cialitica', en: 'surgical-light' },
   { es: 'desfibriladores-hospitalarios', en: 'hospital-defibrillators' },
   { es: 'dotacion-monitoreo-uci', en: 'icu-monitoring-projects' },
+  { es: 'registro-sanitario-invima-fabricantes', en: 'medical-device-registration-colombia' },
   { es: 'fabricantes', en: 'manufacturers' },
   { es: 'familias', en: 'families' },
   { es: 'ciudades', en: 'cities' },

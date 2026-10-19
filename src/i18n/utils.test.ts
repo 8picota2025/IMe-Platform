@@ -55,3 +55,14 @@ describe('getLocalizedPath · carrito, cuenta, pago y cotización', () => {
     expect(getLocalizedPath('/en/quote/formalize/', 'es')).toBe('/es/cotizacion/formalizar/');
   });
 });
+
+describe('getLocalizedPath · landing INVIMA fabricantes', () => {
+  it('registro-sanitario-invima-fabricantes ↔ medical-device-registration-colombia', () => {
+    expect(getLocalizedPath('/es/registro-sanitario-invima-fabricantes/', 'en')).toBe(
+      '/en/medical-device-registration-colombia/'
+    );
+    expect(getLocalizedPath('/en/medical-device-registration-colombia/', 'es')).toBe(
+      '/es/registro-sanitario-invima-fabricantes/'
+    );
+  });
+});

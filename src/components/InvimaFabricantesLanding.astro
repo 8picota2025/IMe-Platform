@@ -422,6 +422,24 @@ const jsonLd = combineJsonLd(
     padding-bottom: calc(var(--ifl-float-h) + 1rem);
   }
 
+  /* Cuerpo de lectura justificado; títulos/CTAs siguen alineados a la izquierda. */
+  .ifl-hero__lead,
+  .ifl-section__head p,
+  .ifl-barriers p,
+  .ifl-list li,
+  .ifl-limits li,
+  .ifl-steps p,
+  .ifl-trust p,
+  .ifl-table td,
+  .ifl-faq details p,
+  .ifl-disclaimer,
+  .ifl-cta-band__text,
+  .ifl-alt-contact {
+    text-align: justify;
+    text-justify: inter-word;
+    hyphens: auto;
+  }
+
   .ifl-hero {
     position: relative;
     min-height: min(92vh, 52rem);
