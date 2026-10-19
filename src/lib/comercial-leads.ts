@@ -134,9 +134,20 @@ export function validateCommercialLead(input: Partial<CommercialLeadInput>): Val
   };
 
   if (!input.nombre?.trim()) req('nombre', 'Indica tu nombre.', 'Enter your name.');
-  if (!input.institucion?.trim())
-    req('institucion', 'Indica la institución.', 'Enter the institution.');
-  if (!input.ciudad?.trim()) req('ciudad', 'Indica la ciudad.', 'Enter the city.');
+  if (!input.institucion?.trim()) {
+    if (input.campaign === 'invima_fabricantes') {
+      req('institucion', 'Indica la empresa.', 'Enter the company.');
+    } else {
+      req('institucion', 'Indica la institución.', 'Enter the institution.');
+    }
+  }
+  if (!input.ciudad?.trim()) {
+    if (input.campaign === 'invima_fabricantes') {
+      req('ciudad', 'Indica el país.', 'Enter the country.');
+    } else {
+      req('ciudad', 'Indica la ciudad.', 'Enter the city.');
+    }
+  }
   if (input.campaign === 'evento') {
     if (!input.telefono?.trim()) req('telefono', 'Indica el teléfono.', 'Enter the phone number.');
     if (!input.email?.trim()) req('email', 'Indica el correo.', 'Enter the email address.');
