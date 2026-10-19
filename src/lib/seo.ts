@@ -387,8 +387,8 @@ export function buildServiciosSeo(locale: Locale): SeoPageMeta {
         : 'I-ME | Leading biomedical company in Colombia health sector | device renewal',
     description: truncateMetaDescription(
       locale === 'es'
-        ? 'Instalación, mantenimiento y soporte técnico de equipos biomédicos en Colombia. Venta, calibración y financiamiento para hospitales y clínicas.'
-        : 'Installation, maintenance and technical support for biomedical equipment in Colombia. Device renewal and financing for the health sector.'
+        ? 'Instalación con calibración incluida, mantenimiento y soporte técnico de equipos biomédicos en Colombia. Venta y financiamiento para hospitales y clínicas.'
+        : 'Installation with calibration included, maintenance and support for biomedical equipment in Colombia. Sales and financing for hospitals and clinics.'
     ),
     canonical: buildCanonical(locale === 'es' ? '/es/servicios' : '/en/services'),
     ogImage: DEFAULT_OG_IMAGE,
@@ -756,7 +756,7 @@ export function buildServiciosJsonLd(locale: Locale): Record<string, unknown> {
           serviceType: 'Soporte técnico de equipos biomédicos',
           name: 'Soporte técnico de equipos biomédicos',
           description:
-            'Mantenimiento preventivo y correctivo, calibración y verificación metrológica según el alcance acordado. Los tiempos de atención se confirman para cada solicitud.',
+            'Mantenimiento preventivo y correctivo. La calibración va incluida en la instalación. Los tiempos de atención se confirman para cada solicitud.',
           url: `${pageUrl}#soporte`,
           provider: orgRef,
           areaServed: { '@type': 'Country', name: 'Colombia' },
@@ -798,7 +798,7 @@ export function buildServiciosJsonLd(locale: Locale): Record<string, unknown> {
           serviceType: 'Biomedical equipment technical support',
           name: 'Biomedical equipment technical support',
           description:
-            'Preventive and corrective maintenance, calibration and metrological verification according to the agreed scope. Service times are confirmed for each request.',
+            'Preventive and corrective maintenance. Calibration is included with installation. Service times are confirmed for each request.',
           url: `${pageUrl}#soporte`,
           provider: orgRef,
           areaServed: { '@type': 'Country', name: 'Colombia' },
