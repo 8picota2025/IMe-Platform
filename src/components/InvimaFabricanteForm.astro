@@ -59,24 +59,27 @@ const turnstileSiteKey = (
         <input id={`${formId}-nombre`} name="nombre" type="text" autocomplete="name" required />
       </div>
       <div class="lqf-field">
-        <label for={`${formId}-empresa`}
+        <label for={`${formId}-institucion`}
           >{isEn ? 'Company' : 'Empresa'} <span class="req" aria-hidden="true">*</span></label
         >
         <input
-          id={`${formId}-empresa`}
-          name="empresa"
+          id={`${formId}-institucion`}
+          name="institucion"
           type="text"
           autocomplete="organization"
           required
+          placeholder={isEn
+            ? 'Your company / manufacturer name'
+            : 'Nombre de su empresa / fabricante'}
         />
       </div>
       <div class="lqf-field">
-        <label for={`${formId}-pais`}
+        <label for={`${formId}-ciudad`}
           >{isEn ? 'Country' : 'País'} <span class="req" aria-hidden="true">*</span></label
         >
         <input
-          id={`${formId}-pais`}
-          name="pais"
+          id={`${formId}-ciudad`}
+          name="ciudad"
           type="text"
           autocomplete="country-name"
           required
@@ -441,8 +444,9 @@ const turnstileSiteKey = (
 
     function read(): CommercialLeadInput | null {
       const fd = new FormData(form);
-      const empresa = String(fd.get('empresa') ?? '').trim();
-      const pais = String(fd.get('pais') ?? '').trim();
+      // name=institucion/ciudad (API); fallback empresa/pais por si hay HTML cacheado.
+      const institucion = String(fd.get('institucion') ?? fd.get('empresa') ?? '').trim();
+      const ciudad = String(fd.get('ciudad') ?? fd.get('pais') ?? '').trim();
       const fabricante = String(fd.get('fabricante') ?? '').trim();
       const tipoProducto = String(fd.get('tipo_producto') ?? '').trim();
       const referencias = String(fd.get('referencias') ?? '').trim();
@@ -459,8 +463,8 @@ const turnstileSiteKey = (
       const lead: CommercialLeadInput = {
         nombre: String(fd.get('nombre') ?? ''),
         cargo: 'fabricante',
-        institucion: empresa,
-        ciudad: pais,
+        institucion,
+        ciudad,
         telefono: String(fd.get('telefono') ?? ''),
         email: String(fd.get('email') ?? ''),
         familia_slug: String(fd.get('familia_slug') ?? form.dataset.familia ?? ''),
@@ -494,7 +498,11 @@ const turnstileSiteKey = (
       if (!data) return;
       const result = validateCommercialLead(data);
       if (!result.valid) {
-        showStatus(Object.values(result.errors)[0] ?? 'Error', 'err');
+        const firstKey = Object.keys(result.errors)[0];
+        showStatus((firstKey && result.errors[firstKey]) || 'Error', 'err');
+        if (firstKey) {
+          form.querySelector<HTMLElement>(`[name="${firstKey}"]`)?.focus({ preventScroll: false });
+        }
         return;
       }
 

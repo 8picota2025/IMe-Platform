@@ -33,6 +33,23 @@ describe('validateCommercialLead', () => {
     expect(r.errors.institucion).toBeTruthy();
   });
 
+  it('INVIMA: pide empresa/país (no institución/ciudad)', () => {
+    const r = validateCommercialLead({
+      nombre: 'Hans',
+      telefono: '+49170',
+      tipo_proyecto: 'evaluacion_invima',
+      horizonte: '0-3',
+      necesidad: 'Fabricante/marca: X\nTipo de producto: monitor',
+      consentimiento: true,
+      familia_slug: 'invima-fabricantes',
+      campaign: 'invima_fabricantes',
+      locale: 'es',
+    });
+    expect(r.valid).toBe(false);
+    expect(r.errors.institucion).toMatch(/empresa/i);
+    expect(r.errors.ciudad).toMatch(/país/i);
+  });
+
   it('acepta payload mínimo válido', () => {
     const r = validateCommercialLead({
       nombre: 'Ana López',
