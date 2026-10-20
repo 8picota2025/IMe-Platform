@@ -1,9 +1,9 @@
 # ADR-0019: IVA unitario, descuento directo/inverso y bancos en presupuesto
 
 - Fecha: 2026-10-20
-- Estado: **en espera** — no mergear a `main` ni desplegar hasta decisión explícita
+- Estado: **en espera para producción** — activo solo como herramienta local (`:44339`)
 - Rama: `feature/presupuesto-iva-descuento-bancos`
-- Runbook de reactivación: `docs/presupuesto-iva-descuento-bancos.md`
+- Uso local: `docs/presupuesto-iva-descuento-bancos.md` · `npm run presupuesto:local`
 
 ## Contexto
 

@@ -78,8 +78,9 @@ export default defineConfig({
         },
       }),
   server: {
-    port: 44334,
-    host: '0.0.0.0',
+    port: Number(process.env.IME_PRESUPUESTO_PORT || 44334),
+    host: process.env.IME_PRESUPUESTO_PORT ? '127.0.0.1' : '0.0.0.0',
+    strictPort: Boolean(process.env.IME_PRESUPUESTO_PORT),
   },
   devToolbar: {
     enabled: false,
