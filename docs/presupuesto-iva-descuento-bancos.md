@@ -8,8 +8,8 @@ Rama: `feature/presupuesto-iva-descuento-bancos`.
 
 Desde cualquier equipo de la VPN (laptop, móvil):
 
-- Comercial: https://server-main.tail05fdf1.ts.net:44339/comercial/
-- Admin: https://server-main.tail05fdf1.ts.net:44339/admin/
+- Comercial: http://server-main.tail05fdf1.ts.net:44339/comercial/
+- Admin: http://server-main.tail05fdf1.ts.net:44339/admin/
 
 En el servidor:
 
@@ -19,8 +19,8 @@ npm run presupuesto:status
 npm run presupuesto:restart
 ```
 
-Astro escucha solo `127.0.0.1:44339`. Tailscale Serve lo publica en el
-tailnet (`--https 44339`). La IP pública `2.25.149.6` no lo sirve.
+Astro escucha solo `127.0.0.1:44339`. Tailscale Serve lo publica en HTTP
+plano en el tailnet (`--tcp 44339`, sin certificado). La IP pública no lo sirve.
 
 Persistencia: `ime-presupuesto-iva.service` (systemd --user, linger ya
 activo). Tras un reboot arranca solo.

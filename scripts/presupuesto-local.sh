@@ -12,7 +12,7 @@ PORT="${IME_PRESUPUESTO_PORT:-44339}"
 BIND="127.0.0.1"
 LOCAL_URL="http://${BIND}:${PORT}"
 VPN_HOST="${IME_PRESUPUESTO_VPN_HOST:-server-main.tail05fdf1.ts.net}"
-VPN_URL="https://${VPN_HOST}:${PORT}"
+VPN_URL="http://${VPN_HOST}:${PORT}"
 BRANCH_ESPERADA="feature/presupuesto-iva-descuento-bancos"
 UNIT_NAME="ime-presupuesto-iva.service"
 UNIT_SRC="${ROOT}/scripts/${UNIT_NAME}"
@@ -45,7 +45,9 @@ ensure_vpn() {
     echo "tailscale no está en PATH; el puerto queda solo en ${LOCAL_URL}" >&2
     return 1
   fi
-  tailscale serve --bg --yes --https "${PORT}" "http://${BIND}:${PORT}"
+  tailscale serve --https="${PORT}" off >/dev/null 2>&1 || true
+  tailscale serve --http="${PORT}" off >/dev/null 2>&1 || true
+  tailscale serve --bg --yes --tcp "${PORT}" "tcp://${BIND}:${PORT}"
 }
 
 print_urls() {
