@@ -1,0 +1,20 @@
+[Unit]
+Description=I-ME presupuesto IVA/descuento (local, solo Tailscale)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/shoky/cursor/ime-platform-presupuesto-iva
+Environment=IME_PRESUPUESTO_PORT=44339
+Environment=ASTRO_NO_I18N=1
+Environment=NODE_ENV=development
+ExecStart=/home/shoky/cursor/ime-platform-presupuesto-iva/scripts/presupuesto-local.sh --foreground
+ExecStartPost=/usr/bin/tailscale serve --bg --yes --https 44339 http://127.0.0.1:44339
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target

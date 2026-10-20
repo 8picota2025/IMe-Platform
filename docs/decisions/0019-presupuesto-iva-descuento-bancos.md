@@ -1,9 +1,9 @@
 # ADR-0019: IVA unitario, descuento directo/inverso y bancos en presupuesto
 
 - Fecha: 2026-10-20
-- Estado: **en espera para producción** — activo solo como herramienta local (`:44339`)
+- Estado: **en espera para producción** — activo en local/VPN (`:44339`, Tailscale)
 - Rama: `feature/presupuesto-iva-descuento-bancos`
-- Uso local: `docs/presupuesto-iva-descuento-bancos.md` · `npm run presupuesto:local`
+- Uso: `docs/presupuesto-iva-descuento-bancos.md` · `systemctl --user status ime-presupuesto-iva`
 
 ## Contexto
 

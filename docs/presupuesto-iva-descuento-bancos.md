@@ -1,24 +1,34 @@
 # Presupuesto IVA/descuento — herramienta local
 
-**No está en producción.** Se usa solo en este worktree, puerto fijo **44339**.
-ADR: `docs/decisions/0019-presupuesto-iva-descuento-bancos.md`.
+**No está en producción.** Worktree + puerto **44339** en localhost, publicado
+solo por Tailscale. ADR: `docs/decisions/0019-presupuesto-iva-descuento-bancos.md`.
 Rama: `feature/presupuesto-iva-descuento-bancos`.
 
 ## Cómo usarlo para armar un presupuesto
 
+Desde cualquier equipo de la VPN (laptop, móvil):
+
+- Comercial: https://server-main.tail05fdf1.ts.net:44339/comercial/
+- Admin: https://server-main.tail05fdf1.ts.net:44339/admin/
+
+En el servidor:
+
 ```bash
 cd /home/shoky/cursor/ime-platform-presupuesto-iva
-npm run presupuesto:local
+npm run presupuesto:status
+npm run presupuesto:restart
 ```
 
-Si ya corre y `/comercial/` responde 200, el script lo reusa. Si el puerto
-está ocupado pero roto, lo reinicia. Arranca con `ASTRO_NO_I18N=1` para que
-`/comercial/` y `/admin/` existan en `astro dev` (sin eso, i18n las 404).
+Astro escucha solo `127.0.0.1:44339`. Tailscale Serve lo publica en el
+tailnet (`--https 44339`). La IP pública `2.25.149.6` no lo sirve.
 
-- Comercial: http://127.0.0.1:44339/comercial/
-- Admin: http://127.0.0.1:44339/admin/
-- Estado: `npm run presupuesto:status`
-- Reinicio: `npm run presupuesto:restart`
+Persistencia: `ime-presupuesto-iva.service` (systemd --user, linger ya
+activo). Tras un reboot arranca solo.
+
+```bash
+npm run presupuesto:install   # primera vez o si se mueve el unit
+systemctl --user status ime-presupuesto-iva
+```
 
 Entras con tu usuario comercial o admin (mismo Supabase que el resto).
 Armas la cotización (bruto / % / neto, IVA unitario, banco, 50/50 en nuevas).
@@ -47,6 +57,7 @@ Worktree: `/home/shoky/cursor/ime-platform-presupuesto-iva`.
 | Editores | `src/comercial/quote-view.ts`, `src/admin/admin-app.ts` |
 | PDF local + espejo Edge | `src/lib/render-quote-pdf.ts` |
 | Arranque del sandbox | `scripts/presupuesto-local.sh` |
+| Persistencia + VPN | `scripts/ime-presupuesto-iva.service` |
 
 ## Verificar
 
