@@ -151,4 +151,84 @@ describe('fiscal', () => {
     expect(draft?.lineas[0]?.tarifa_iva_pct).toBe(19);
     expect(draft?.totales.total).toBe(fiscal.total);
   });
+
+  it('no reparte un cupon restringido hacia lineas gravadas (evita IVA undercharge)', () => {
+    const clienteSinRetencion: ClienteFiscalProfile = {
+      ...clienteFiscal,
+      agente_retencion: false,
+      agente_reteica: false,
+    };
+    const fiscal = calculateFiscalSummary(
+      [
+        {
+          slug: 'excluido-iva',
+          nombre: 'Excluido IVA',
+          cantidad: 1,
+          precio_unitario: 10_000_000,
+          excluido_iva: true,
+        },
+        {
+          slug: 'gravado-iva',
+          nombre: 'Gravado IVA',
+          cantidad: 1,
+          precio_unitario: 10_000_000,
+          tarifa_iva_pct: 19,
+        },
+      ],
+      clienteSinRetencion,
+      {
+        moneda: 'COP',
+        mercado: 'CO',
+        // Cupon 100% solo sobre el producto excluido de IVA.
+        descuento_total: 10_000_000,
+        descuento_slugs_elegibles: ['excluido-iva'],
+        default_iva_pct: 19,
+      }
+    );
+
+    expect(fiscal.lineas[0]?.descuento_asignado).toBe(10_000_000);
+    expect(fiscal.lineas[0]?.base_neta).toBe(0);
+    expect(fiscal.lineas[1]?.descuento_asignado).toBe(0);
+    expect(fiscal.lineas[1]?.base_neta).toBe(10_000_000);
+    expect(fiscal.impuesto_total).toBe(1_900_000);
+    expect(fiscal.total).toBe(11_900_000);
+  });
+
+  it('sin slugs elegibles mantiene prorrateo sobre todo el carrito', () => {
+    const clienteSinRetencion: ClienteFiscalProfile = {
+      ...clienteFiscal,
+      agente_retencion: false,
+      agente_reteica: false,
+    };
+    const fiscal = calculateFiscalSummary(
+      [
+        {
+          slug: 'excluido-iva',
+          nombre: 'Excluido IVA',
+          cantidad: 1,
+          precio_unitario: 10_000_000,
+          excluido_iva: true,
+        },
+        {
+          slug: 'gravado-iva',
+          nombre: 'Gravado IVA',
+          cantidad: 1,
+          precio_unitario: 10_000_000,
+          tarifa_iva_pct: 19,
+        },
+      ],
+      clienteSinRetencion,
+      {
+        moneda: 'COP',
+        mercado: 'CO',
+        descuento_total: 10_000_000,
+        default_iva_pct: 19,
+      }
+    );
+
+    expect(fiscal.lineas[0]?.descuento_asignado).toBe(5_000_000);
+    expect(fiscal.lineas[1]?.descuento_asignado).toBe(5_000_000);
+    expect(fiscal.impuesto_total).toBe(950_000);
+    expect(fiscal.total).toBe(10_950_000);
+  });
 });
