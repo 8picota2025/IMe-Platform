@@ -80,12 +80,122 @@ export function roundMoney(value: number): number {
   return Math.round(value * 100) / 100;
 }
 
+export function clampDescuentoPct(value: unknown): number {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return 0;
+  return Math.min(100, Math.max(0, n));
+}
+
+/** Neto = bruto × (1 − descuento/100). */
+export function aplicarDescuento(bruto: number, descuentoPct: number): number {
+  return roundMoney(bruto * (1 - clampDescuentoPct(descuentoPct) / 100));
+}
+
+/** Bruto = neto ÷ (1 − descuento/100). */
+export function revertirDescuento(neto: number, descuentoPct: number): number {
+  const tasa = clampDescuentoPct(descuentoPct);
+  if (!(neto > 0)) return 0;
+  if (tasa >= 100) return 0;
+  if (tasa === 0) return roundMoney(neto);
+  return roundMoney(neto / (1 - tasa / 100));
+}
+
+export type OrigenPrecioLinea = 'bruto' | 'neto';
+
+export function resolverPreciosLinea(
+  linea: {
+    precio_bruto?: number | null;
+    descuento_pct?: number | null;
+    precio_neto?: number | null;
+    precio_unitario?: number | null;
+  },
+  origen: OrigenPrecioLinea = 'bruto'
+): { bruto: number; descuento_pct: number; neto: number } {
+  const descuento_pct = clampDescuentoPct(linea.descuento_pct);
+  const brutoRaw = Number(linea.precio_bruto);
+  const netoRaw = Number(linea.precio_neto);
+  const unitRaw = Number(linea.precio_unitario);
+  const hasBruto = Number.isFinite(brutoRaw) && brutoRaw > 0;
+  const hasNeto = Number.isFinite(netoRaw) && netoRaw > 0;
+  const hasUnit = Number.isFinite(unitRaw) && unitRaw > 0;
+  if (origen === 'neto' && (hasNeto || hasUnit)) {
+    const neto = roundMoney(hasNeto ? netoRaw : unitRaw);
+    return { bruto: revertirDescuento(neto, descuento_pct), descuento_pct, neto };
+  }
+  if (hasBruto) {
+    const bruto = roundMoney(brutoRaw);
+    return { bruto, descuento_pct, neto: aplicarDescuento(bruto, descuento_pct) };
+  }
+  if (hasNeto) {
+    const neto = roundMoney(netoRaw);
+    return { bruto: revertirDescuento(neto, descuento_pct), descuento_pct, neto };
+  }
+  if (hasUnit) {
+    const unit = roundMoney(unitRaw);
+    return { bruto: unit, descuento_pct, neto: aplicarDescuento(unit, descuento_pct) };
+  }
+  return { bruto: 0, descuento_pct, neto: 0 };
+}
+
+/** IVA por unidad a partir de la tarifa. No pisa un iva_unitario ya guardado. */
+export function calcularIvaUnitario(
+  neto: number,
+  tratamiento: TratamientoIva,
+  impuestosIncluidos: boolean
+): number {
+  const tasaPct = tasaDeTratamiento(tratamiento);
+  if (!(neto > 0) || tasaPct === 0) return 0;
+  if (impuestosIncluidos) {
+    const base = roundMoney(neto / (1 + tasaPct / 100));
+    return roundMoney(neto - base);
+  }
+  return roundMoney(neto * (tasaPct / 100));
+}
+
+/** Si la línea trae IVA unitario, se usa tal cual. */
+export function ivaUnitarioGuardado(value: unknown): number | null {
+  if (value == null || value === '') return null;
+  const n = Number(value);
+  return Number.isFinite(n) && n >= 0 ? roundMoney(n) : null;
+}
+
+/**
+ * IVA unitario que entra al sumatorio.
+ * Un 0 guardado no cuenta como IVA cuando la tarifa es 19 % o 5 %:
+ * es el hueco de “marcado el IVA, precio después” y hay que calcularlo.
+ * Un importe > 0 sí se respeta (productos con IVA distinto o digitado a mano).
+ */
+export function ivaUnitarioEfectivo(
+  value: unknown,
+  neto: number,
+  tratamiento: TratamientoIva,
+  impuestosIncluidos: boolean
+): number {
+  const tasaPct = tasaDeTratamiento(tratamiento);
+  const guardado = ivaUnitarioGuardado(value);
+  if (guardado != null && (guardado > 0 || tasaPct === 0)) return guardado;
+  return calcularIvaUnitario(neto, tratamiento, impuestosIncluidos);
+}
+
+/** La línea declaró IVA (tarifa o importe). Las antiguas sin campo no inventan 19 %. */
+export function lineaDeclaraIva(linea: {
+  tratamiento_iva?: unknown;
+  iva_unitario?: unknown;
+}): boolean {
+  if (parseTratamientoIva(linea.tratamiento_iva) != null) return true;
+  const iva = ivaUnitarioGuardado(linea.iva_unitario);
+  return iva != null && iva > 0;
+}
+
 export interface DesgloseLinea {
   base: number;
   iva: number;
   total: number;
+  /** Suma de precios de lista (bruto × cantidad). */
+  bruto: number;
   tasaPct: number;
   tratamiento: TratamientoIva;
+  ivaUnitario: number;
 }
 
 export function desgloseLinea(input: {
@@ -94,28 +204,63 @@ export function desgloseLinea(input: {
   tratamiento: TratamientoIva;
   impuestosIncluidos: boolean;
   pendiente?: boolean;
+  precioBruto?: number | null;
+  descuentoPct?: number | null;
+  /** Si viene, no se recalcula. Productos distintos pueden tener IVA distinto. */
+  ivaUnitario?: number | null;
 }): DesgloseLinea {
   const tratamiento = input.tratamiento;
   const tasaPct = tasaDeTratamiento(tratamiento);
   if (input.pendiente) {
-    return { base: 0, iva: 0, total: 0, tasaPct, tratamiento };
+    return { base: 0, iva: 0, total: 0, bruto: 0, tasaPct, tratamiento, ivaUnitario: 0 };
   }
-  const bruto = roundMoney(input.precioUnitario * input.cantidad);
-  if (tasaPct === 0) {
-    return { base: bruto, iva: 0, total: bruto, tasaPct: 0, tratamiento };
+  const precios = resolverPreciosLinea({
+    precio_bruto: input.precioBruto,
+    descuento_pct: input.descuentoPct,
+    precio_unitario: input.precioUnitario,
+  });
+  const cantidad = Math.max(0, Number(input.cantidad) || 0);
+  const bruto = roundMoney(precios.bruto * cantidad);
+  const netoLinea = roundMoney(precios.neto * cantidad);
+  const ivaGuardado = ivaUnitarioGuardado(input.ivaUnitario);
+  const ivaUnitario = ivaUnitarioEfectivo(
+    input.ivaUnitario,
+    precios.neto,
+    tratamiento,
+    input.impuestosIncluidos
+  );
+  const iva = roundMoney(ivaUnitario * cantidad);
+  if (tasaPct === 0 && !(ivaGuardado != null && ivaGuardado > 0)) {
+    return {
+      base: netoLinea,
+      iva: 0,
+      total: netoLinea,
+      bruto,
+      tasaPct: 0,
+      tratamiento,
+      ivaUnitario: 0,
+    };
   }
   if (input.impuestosIncluidos) {
-    const base = roundMoney(bruto / (1 + tasaPct / 100));
-    const iva = roundMoney(bruto - base);
-    return { base, iva, total: bruto, tasaPct, tratamiento };
+    const base = roundMoney(Math.max(0, netoLinea - iva));
+    return { base, iva, total: netoLinea, bruto, tasaPct, tratamiento, ivaUnitario };
   }
-  const iva = roundMoney(bruto * (tasaPct / 100));
-  return { base: bruto, iva, total: roundMoney(bruto + iva), tasaPct, tratamiento };
+  return {
+    base: netoLinea,
+    iva,
+    total: roundMoney(netoLinea + iva),
+    bruto,
+    tasaPct,
+    tratamiento,
+    ivaUnitario,
+  };
 }
 
 export interface DesgloseCotizacion {
   base: number;
   iva: number;
+  /** Suma de precios de lista. */
+  bruto: number;
   /** Importe que el cliente paga. Nunca la base sin IVA. */
   total: number;
   impuestosIncluidos: boolean;
@@ -128,7 +273,15 @@ export function desgloseCotizacion(
   lineas: Array<
     Pick<
       CotizacionLineaOferta,
-      'precio_unitario' | 'cantidad' | 'slug' | 'moneda' | 'precio_pendiente_validar'
+      | 'precio_unitario'
+      | 'cantidad'
+      | 'slug'
+      | 'moneda'
+      | 'precio_pendiente_validar'
+      | 'precio_bruto'
+      | 'descuento_pct'
+      | 'precio_neto'
+      | 'iva_unitario'
     > & { tratamiento_iva?: unknown }
   >,
   opts: {
@@ -149,10 +302,14 @@ export function desgloseCotizacion(
       tratamiento,
       impuestosIncluidos: opts.impuestosIncluidos,
       pendiente: Boolean(linea.precio_pendiente_validar),
+      precioBruto: linea.precio_bruto,
+      descuentoPct: linea.descuento_pct,
+      ivaUnitario: linea.iva_unitario,
     });
   });
   const base = roundMoney(detalles.reduce((acc, linea) => acc + linea.base, 0));
   const iva = roundMoney(detalles.reduce((acc, linea) => acc + linea.iva, 0));
+  const bruto = roundMoney(detalles.reduce((acc, linea) => acc + linea.bruto, 0));
   const total = roundMoney(detalles.reduce((acc, linea) => acc + linea.total, 0));
   const tasas = new Set(
     detalles.filter(linea => linea.base > 0 || linea.total > 0).map(linea => linea.tasaPct)
@@ -161,6 +318,7 @@ export function desgloseCotizacion(
   return {
     base,
     iva,
+    bruto,
     total,
     impuestosIncluidos: opts.impuestosIncluidos,
     lineas: detalles,
@@ -176,17 +334,11 @@ export function totalPagarCotizacion(
 }
 
 export function etiquetaIvaTotales(
-  desglose: Pick<DesgloseCotizacion, 'tasaUnica'>,
-  impuestosIncluidos: boolean,
+  _desglose: Pick<DesgloseCotizacion, 'tasaUnica'>,
+  _impuestosIncluidos: boolean,
   locale: 'es' | 'en'
 ): string {
-  const tasa = desglose.tasaUnica;
-  if (tasa == null) return locale === 'en' ? 'VAT' : 'IVA';
-  if (tasa === 0) return locale === 'en' ? 'VAT 0%' : 'IVA 0%';
-  if (impuestosIncluidos) {
-    return locale === 'en' ? `VAT ${tasa}% incl.` : `IVA ${tasa}% incl.`;
-  }
-  return locale === 'en' ? `VAT ${tasa}%` : `IVA ${tasa}%`;
+  return locale === 'en' ? 'Total VAT:' : 'Total IVA:';
 }
 
 export function resumenIvaTexto(desglose: DesgloseCotizacion, locale: 'es' | 'en' = 'es'): string {

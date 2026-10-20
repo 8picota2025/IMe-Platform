@@ -750,6 +750,21 @@ details.admin-panel > summary {
   text-decoration: underline;
 }
 
+[data-cotizacion-linea] .admin-help {
+  display: block;
+  margin-top: 6px;
+}
+
+[data-cotizacion-linea] .admin-help .admin-inline-input {
+  display: block;
+  width: 120px;
+  margin-top: 2px;
+}
+
+[data-cotizacion-total-ofertado] {
+  line-height: 1.45;
+}
+
 .admin-inline-input {
   width: 150px;
   min-height: 34px;

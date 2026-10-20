@@ -11,7 +11,7 @@ import {
   type EspecItem,
 } from './pdf-ingest-enrich';
 import { resolveCatalogUnitPrice } from './cotizacion-oferta';
-import { tratamientoDesdeProducto } from './cotizacion-iva';
+import { calcularIvaUnitario, tratamientoDesdeProducto } from './cotizacion-iva';
 import type { CotizacionLineaOferta } from './cotizacion-oferta';
 import type { CatalogProductHit } from './catalog-search';
 
@@ -193,14 +193,22 @@ export function catalogHitToQuoteLine(
   const precio = resolveCatalogUnitPrice(hit);
   const lineMoneda = precio > 0 ? (hit.moneda === 'USD' ? 'USD' : 'COP') : moneda;
   const resumen = resumenEspecificaciones(hit.especificaciones, hit.aplicaciones_es);
+  const tratamiento = tratamientoDesdeProducto(hit);
+  const ivaUnitario =
+    precio > 0 && lineMoneda !== 'USD' ? calcularIvaUnitario(precio, tratamiento, false) : undefined;
   return {
     slug: hit.slug,
     nombre: hit.nombre_es,
     cantidad: Math.max(1, cantidad),
     precio_unitario: precio,
+    precio_bruto: precio > 0 ? precio : undefined,
+    precio_neto: precio > 0 ? precio : undefined,
+    descuento_pct: precio > 0 ? 0 : undefined,
+    iva_unitario: ivaUnitario,
+    iva_total: ivaUnitario != null ? Math.round(ivaUnitario * cantidad * 100) / 100 : undefined,
     subtotal: precio > 0 ? Math.round(precio * cantidad * 100) / 100 : 0,
     moneda: lineMoneda,
-    tratamiento_iva: tratamientoDesdeProducto(hit),
+    tratamiento_iva: tratamiento,
     ...(resumen ? { notas: resumen } : {}),
     ...(precio <= 0 ? { precio_pendiente_validar: true } : {}),
   };
@@ -229,13 +237,20 @@ export function draftToQuoteLine(
       precio_pendiente_validar: true,
     };
   }
+  const ivaUnitario = moneda === 'USD' ? 0 : calcularIvaUnitario(unit, '19', false);
   return {
     slug,
     nombre: draft.nombre_es,
     cantidad: qty,
     precio_unitario: unit,
+    precio_bruto: unit,
+    descuento_pct: 0,
+    precio_neto: unit,
+    iva_unitario: ivaUnitario,
+    iva_total: Math.round(ivaUnitario * qty * 100) / 100,
     subtotal: Math.round(unit * qty * 100) / 100,
     moneda,
+    tratamiento_iva: moneda === 'USD' ? 'excluido' : '19',
     ...notas,
   };
 }

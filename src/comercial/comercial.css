@@ -1247,7 +1247,7 @@ a {
 
 .comercial-quote-line {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) 100px 150px 130px auto;
+  grid-template-columns: minmax(0, 2fr) 100px minmax(220px, 1fr) 140px auto;
   gap: 10px;
   align-items: end;
   padding: 14px;
@@ -1340,6 +1340,31 @@ a {
 
 .comercial-quote-precio [data-linea-precio-modo] {
   font-size: 0.9rem;
+}
+
+.comercial-quote-precio__mini {
+  display: grid;
+  gap: 2px;
+}
+
+.comercial-quote-precio__mini span {
+  font-size: 0.75rem;
+  color: var(--comercial-muted, #5b6470);
+}
+
+.comercial-quote-totales {
+  display: grid;
+  gap: 4px;
+  margin: 8px 0 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--comercial-line);
+  border-radius: var(--comercial-radius);
+  background: #f7fafa;
+}
+
+.comercial-quote-totales p {
+  margin: 0;
+  font-size: 0.95rem;
 }
 
 .comercial-catalog-table th:nth-child(5),

@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
+  aplicarDescuento,
   desgloseCotizacion,
   parseTratamientoIva,
+  resolverPreciosLinea,
   resolverTratamientoLinea,
+  revertirDescuento,
   totalPagarCotizacion,
 } from './cotizacion-iva';
 import { buildWompiCheckoutUrl } from './wompi-checkout';
@@ -72,6 +75,106 @@ describe('IVA por línea de la cotización', () => {
     expect(resolverTratamientoLinea(linea, { tarifa_iva_pct: 5 }, 'COP')).toBe('5');
     expect(parseTratamientoIva('exento')).toBe('exento');
     expect(parseTratamientoIva('cualquiera')).toBeNull();
+  });
+
+  it('suma IVA unitario por producto sin reescribirlo, aunque las tarifas difieran', () => {
+    const desglose = desgloseCotizacion(
+      [
+        {
+          slug: 'a',
+          nombre: 'A',
+          cantidad: 2,
+          precio_unitario: 100000,
+          precio_bruto: 100000,
+          descuento_pct: 0,
+          iva_unitario: 19000,
+          subtotal: 200000,
+          moneda: 'COP',
+          tratamiento_iva: '19',
+        },
+        {
+          slug: 'b',
+          nombre: 'B',
+          cantidad: 1,
+          precio_unitario: 50000,
+          precio_bruto: 50000,
+          iva_unitario: 2500,
+          subtotal: 50000,
+          moneda: 'COP',
+          tratamiento_iva: '5',
+        },
+      ],
+      { impuestosIncluidos: false, moneda: 'COP' }
+    );
+    expect(desglose.lineas[0]!.ivaUnitario).toBe(19000);
+    expect(desglose.lineas[0]!.iva).toBe(38000);
+    expect(desglose.lineas[1]!.iva).toBe(2500);
+    expect(desglose.iva).toBe(40500);
+    expect(desglose.total).toBe(290500);
+    expect(desglose.tasaUnica).toBeNull();
+  });
+
+  it('si el IVA está marcado y el unitario viene en 0, lo calcula y lo suma', () => {
+    const desglose = desgloseCotizacion(
+      [
+        {
+          slug: 'a',
+          nombre: 'A',
+          cantidad: 2,
+          precio_unitario: 80000,
+          precio_bruto: 100000,
+          descuento_pct: 20,
+          iva_unitario: 0,
+          subtotal: 160000,
+          moneda: 'COP',
+          tratamiento_iva: '19',
+        },
+      ],
+      { impuestosIncluidos: false, moneda: 'COP' }
+    );
+    expect(desglose.lineas[0]!.ivaUnitario).toBe(15200);
+    expect(desglose.iva).toBe(30400);
+    expect(desglose.base).toBe(160000);
+    expect(desglose.total).toBe(190400);
+  });
+
+  it('el descuento baja el neto y no toca un IVA unitario guardado', () => {
+    const desglose = desgloseCotizacion(
+      [
+        {
+          slug: 'a',
+          nombre: 'A',
+          cantidad: 1,
+          precio_unitario: 80000,
+          precio_bruto: 100000,
+          descuento_pct: 20,
+          iva_unitario: 11111,
+          subtotal: 80000,
+          moneda: 'COP',
+          tratamiento_iva: '19',
+        },
+      ],
+      { impuestosIncluidos: false, moneda: 'COP' }
+    );
+    expect(desglose.base).toBe(80000);
+    expect(desglose.iva).toBe(11111);
+    expect(desglose.bruto).toBe(100000);
+    expect(desglose.total).toBe(91111);
+  });
+
+  it('el descuento es directo desde bruto e inverso desde neto', () => {
+    expect(aplicarDescuento(100000, 20)).toBe(80000);
+    expect(revertirDescuento(80000, 20)).toBe(100000);
+    expect(resolverPreciosLinea({ precio_bruto: 100000, descuento_pct: 10 }).neto).toBe(90000);
+    expect(
+      resolverPreciosLinea({ precio_neto: 90000, descuento_pct: 10 }, 'neto').bruto
+    ).toBe(100000);
+    expect(
+      resolverPreciosLinea(
+        { precio_bruto: 100000, precio_neto: 80000, descuento_pct: 20 },
+        'neto'
+      ).bruto
+    ).toBe(100000);
   });
 
   it('exento también deja el total en el precio digitado', () => {

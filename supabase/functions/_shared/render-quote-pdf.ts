@@ -19,13 +19,14 @@ import {
 import fontkit from 'npm:@pdf-lib/fontkit';
 import type { CotizacionLineaOferta } from '../../../src/lib/cotizacion-oferta.ts';
 import { displayQuoteNumero } from '../../../src/lib/cotizacion-oferta.ts';
-import {
-  isCondicionesSectionHeading,
-  resolveCondicionesOferta,
-} from '../../../src/lib/condiciones-oferta.ts';
+import { isCondicionesSectionHeading, resolveCondicionesOferta } from '../../../src/lib/condiciones-oferta.ts';
 import {
   desgloseCotizacion,
   etiquetaIvaTotales,
+  ivaUnitarioEfectivo,
+  lineaDeclaraIva,
+  resolverPreciosLinea,
+  resolverTratamientoLinea,
   roundMoney,
 } from '../../../src/lib/cotizacion-iva.ts';
 
@@ -406,16 +407,17 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     impuestosIncluidos,
     moneda: snapshot.moneda,
   });
-  // El total del caller (desgloseDeLineas con catálogo) manda: sin mapa de
-  // productos, "Según catálogo" caería en 19 % y el PDF divergiría del correo.
+  // Caller manda solo si las líneas no declararon IVA: si no, un total viejo
+  // (neto sin impuesto) tapaba el IVA del desglose.
+  const callerTotal =
+    Number.isFinite(snapshot.total) && snapshot.total > 0 ? roundMoney(snapshot.total) : 0;
+  const ivaDeclarado = snapshot.lineas.some(lineaDeclaraIva) && desglose.iva > 0;
   const totalPagar =
-    Number.isFinite(snapshot.total) && snapshot.total > 0
-      ? roundMoney(snapshot.total)
+    callerTotal > 0 && (!ivaDeclarado || callerTotal >= desglose.total - 0.009)
+      ? callerTotal
       : desglose.total;
   const subtotal = desglose.base;
   const iva =
-    Number.isFinite(snapshot.total) &&
-    snapshot.total > 0 &&
     Math.abs(desglose.total - totalPagar) > 0.009
       ? roundMoney(Math.max(0, totalPagar - subtotal))
       : desglose.iva;
@@ -437,13 +439,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
 
   // ——— Página 1: COTIZACIÓN ———
   let page = doc.addPage([PAGE_W, PAGE_H]);
-  page.drawRectangle({
-    x: 0,
-    y: 0,
-    width: PAGE_W,
-    height: PAGE_H,
-    color: WHITE,
-  });
+  page.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: WHITE });
 
   // Logo a la izquierda, dentro del margen. Altura contenida para no chocar con el cliente.
   let logoBottom = 18;
@@ -558,13 +554,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
   for (const [etiqueta, valor] of clienteCampos) {
     const lineasCampo = wrapByWidth(`${etiqueta}: ${valor}`, font, 9, leftColW).slice(0, 2);
     for (const linea of lineasCampo) {
-      drawText(page, linea, {
-        x: CONTENT_LEFT,
-        top: ry,
-        size: 9,
-        font,
-        maxWidth: leftColW,
-      });
+      drawText(page, linea, { x: CONTENT_LEFT, top: ry, size: 9, font, maxWidth: leftColW });
       ry += 12;
     }
   }
@@ -656,12 +646,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
       color: BLUE,
       maxWidth: pagoW,
     });
-    anotarEnlace(page, wompiLabel, wompiUrl, {
-      x: pagoX,
-      top: py,
-      size: 10,
-      font: bold,
-    });
+    anotarEnlace(page, wompiLabel, wompiUrl, { x: pagoX, top: py, size: 10, font: bold });
     py += 14;
   }
 
@@ -717,22 +702,32 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
   const firstTableTop = Math.max(companyBottom + 18, py + 16);
   const contTableTop = 54;
   const headerH = idioma === 'es-en' ? 40 : 32;
-  // CANT estrecha (cabe "50.000"), REF con ancho para partir el nombre, precios iguales.
+  // CANT | REF | DESC | BRUTO | % | NETO | IVA | TOTAL
   const qtyW = 52;
-  const refW = 108;
-  const moneyW = 82;
+  const refW = 72;
+  const brutoW = 54;
+  const pctW = 32;
+  const netoW = 54;
+  const ivaW = 50;
+  const totalW = 56;
   const colXs = [
     tableLeft,
     tableLeft + qtyW,
     tableLeft + qtyW + refW,
-    tableRight - moneyW * 2,
-    tableRight - moneyW,
+    tableRight - totalW - ivaW - netoW - pctW - brutoW,
+    tableRight - totalW - ivaW - netoW - pctW,
+    tableRight - totalW - ivaW - netoW,
+    tableRight - totalW - ivaW,
+    tableRight - totalW,
     tableRight,
   ];
-  const unitRight = colXs[4]! - 8;
-  const totalRight = tableRight - 8;
-  const descMaxW = colXs[3]! - colXs[2]! - 16;
-  const refMaxW = colXs[2]! - colXs[1]! - 16;
+  const brutoRight = colXs[4]! - 6;
+  const pctRight = colXs[5]! - 6;
+  const netoRight = colXs[6]! - 6;
+  const ivaRight = colXs[7]! - 6;
+  const totalRight = tableRight - 6;
+  const descMaxW = colXs[3]! - colXs[2]! - 12;
+  const refMaxW = colXs[2]! - colXs[1]! - 12;
   const footerGuard = 788;
   const rowMinH = 40;
   const descLineH = 13;
@@ -741,13 +736,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
 
   const newPage = (): PDFPage => {
     const p = doc.addPage([PAGE_W, PAGE_H]);
-    p.drawRectangle({
-      x: 0,
-      y: 0,
-      width: PAGE_W,
-      height: PAGE_H,
-      color: WHITE,
-    });
+    p.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: WHITE });
     return p;
   };
 
@@ -796,33 +785,33 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
         });
       }
     }
-    const priceHeadW = moneyW - 16;
-    drawRight(p, idioma === 'en' ? 'UNIT' : 'PRECIO UNIT', {
-      right: unitRight,
-      top: top + (idioma === 'es-en' ? 7 : 10),
-      size: idioma === 'es-en' ? 8 : 10,
-      font: bold,
-      color: WHITE,
-      maxWidth: priceHeadW,
-    });
-    if (idioma === 'es-en') {
-      drawRight(p, 'UNIT PRICE', {
-        right: unitRight,
-        top: top + 18,
-        size: 7,
-        font,
+    const moneyHeads: Array<[number, string, string, number]> = [
+      [brutoRight, idioma === 'en' ? 'GROSS' : 'BRUTO', idioma === 'es-en' ? 'GROSS' : '', brutoW - 10],
+      [pctRight, '%', '', pctW - 8],
+      [netoRight, idioma === 'en' ? 'NET' : 'NETO', idioma === 'es-en' ? 'NET' : '', netoW - 10],
+      [ivaRight, idioma === 'en' ? 'VAT' : 'IVA', idioma === 'es-en' ? 'VAT' : '', ivaW - 10],
+      [totalRight, 'TOTAL', '', totalW - 10],
+    ];
+    for (const [right, label, secundario, maxW] of moneyHeads) {
+      drawRight(p, label, {
+        right,
+        top: top + (secundario && secundario !== label ? 7 : 10),
+        size: idioma === 'es-en' ? 7 : 8,
+        font: bold,
         color: WHITE,
-        maxWidth: priceHeadW,
+        maxWidth: maxW,
       });
+      if (secundario && secundario !== label) {
+        drawRight(p, secundario, {
+          right,
+          top: top + 18,
+          size: 6,
+          font,
+          color: WHITE,
+          maxWidth: maxW,
+        });
+      }
     }
-    drawRight(p, 'TOTAL', {
-      right: totalRight,
-      top: top + (idioma === 'es-en' ? 7 : 10),
-      size: 10,
-      font: bold,
-      color: WHITE,
-      maxWidth: priceHeadW,
-    });
   };
 
   /**
@@ -953,12 +942,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
       maxWidth: colXs[1]! - qtyX - 6,
     });
     refLines.forEach((linea, i) => {
-      drawText(p, linea, {
-        x: refX,
-        top: rowTop + 10 + i * refLineH,
-        size: 9,
-        font,
-      });
+      drawText(p, linea, { x: refX, top: rowTop + 10 + i * refLineH, size: 9, font });
     });
     descLines.forEach((line, i) => {
       drawText(p, line, {
@@ -979,25 +963,33 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
       });
     });
     const pendLabel = et('Pendiente', 'Pending');
-    const priceW = moneyW - 16;
-    drawRight(
-      p,
-      pendiente ? pendLabel : moneyPlain(item.precio_unitario, snapshot.moneda, localeNumero),
-      {
-        right: unitRight,
-        top: textTop,
-        size: pendiente ? 9 : 10,
-        font,
-        maxWidth: priceW,
-      }
+    const precios = resolverPreciosLinea(item);
+    const tratamiento = resolverTratamientoLinea(item, null, snapshot.moneda);
+    const ivaUnit = ivaUnitarioEfectivo(
+      item.iva_unitario,
+      precios.neto,
+      tratamiento,
+      snapshot.impuestosIncluidos === true
     );
-    drawRight(p, pendiente ? pendLabel : moneyPlain(item.subtotal, snapshot.moneda, localeNumero), {
-      right: totalRight,
+    const money = (value: number, right: number, width: number) =>
+      drawRight(p, pendiente ? pendLabel : moneyPlain(value, snapshot.moneda, localeNumero), {
+        right,
+        top: textTop,
+        size: pendiente ? 7 : 8,
+        font,
+        maxWidth: width,
+      });
+    money(precios.bruto, brutoRight, brutoW - 10);
+    drawRight(p, pendiente ? '—' : `${precios.descuento_pct} %`, {
+      right: pctRight,
       top: textTop,
-      size: pendiente ? 9 : 10,
+      size: 8,
       font,
-      maxWidth: priceW,
+      maxWidth: pctW - 8,
     });
+    money(precios.neto, netoRight, netoW - 10);
+    money(ivaUnit, ivaRight, ivaW - 10);
+    money(item.subtotal || roundMoney(precios.neto * (Number(item.cantidad) || 0)), totalRight, totalW - 10);
   };
 
   const drawContinuationTitle = (p: PDFPage): void => {
@@ -1008,14 +1000,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
         : idioma === 'es-en'
           ? `Cotización / Quotation N° ${numeroVisible}`
           : `Cotización N° ${numeroVisible} (continuación)`,
-      {
-        x: tableLeft,
-        top: 28,
-        size: 11,
-        font: bold,
-        color: BLUE,
-        maxWidth: tableRight - tableLeft,
-      }
+      { x: tableLeft, top: 28, size: 11, font: bold, color: BLUE, maxWidth: tableRight - tableLeft }
     );
   };
 
@@ -1095,7 +1080,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
   }> = [
     {
       label: et('TOTAL BRUTO', 'GROSS TOTAL'),
-      value: moneyPlain(subtotal, snapshot.moneda, localeNumero),
+      value: moneyPlain(desglose.bruto > 0 ? desglose.bruto : subtotal, snapshot.moneda, localeNumero),
     },
     {
       label: 'SUBTOTAL',
@@ -1266,13 +1251,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
 
   // ——— Página consideraciones (boceto IPS p.2) ———
   page = doc.addPage([PAGE_W, PAGE_H]);
-  page.drawRectangle({
-    x: 0,
-    y: 0,
-    width: PAGE_W,
-    height: PAGE_H,
-    color: WHITE,
-  });
+  page.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: WHITE });
   drawCentered(
     page,
     idioma === 'es-en'
@@ -1384,13 +1363,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
       if (indice > 0) {
         drawFooterBar(page, font, whatsappIcon);
         page = doc.addPage([PAGE_W, PAGE_H]);
-        page.drawRectangle({
-          x: 0,
-          y: 0,
-          width: PAGE_W,
-          height: PAGE_H,
-          color: WHITE,
-        });
+        page.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: WHITE });
         drawCentered(page, 'Consideraciones de la oferta / Offer considerations (cont.)', {
           top: 56,
           size: 12,
@@ -1426,13 +1399,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
     if (cy <= 750) return;
     drawFooterBar(page, font, whatsappIcon);
     page = doc.addPage([PAGE_W, PAGE_H]);
-    page.drawRectangle({
-      x: 0,
-      y: 0,
-      width: PAGE_W,
-      height: PAGE_H,
-      color: WHITE,
-    });
+    page.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: WHITE });
     drawCentered(
       page,
       idioma === 'en'
@@ -1478,13 +1445,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
   for (const annex of snapshot.annexes ?? []) {
     if (!quoteAnnexHasSpecContent(annex)) continue;
     page = doc.addPage([PAGE_W, PAGE_H]);
-    page.drawRectangle({
-      x: 0,
-      y: 0,
-      width: PAGE_W,
-      height: PAGE_H,
-      color: WHITE,
-    });
+    page.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: WHITE });
 
     const titleParts = wrapByWidth(annex.nombre.toUpperCase(), bold, 13, 500).slice(0, 2);
     titleParts.forEach((line, i) => {
@@ -1545,13 +1506,7 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
       if (ay > 700) {
         drawFooterBar(page, font, whatsappIcon);
         page = doc.addPage([PAGE_W, PAGE_H]);
-        page.drawRectangle({
-          x: 0,
-          y: 0,
-          width: PAGE_W,
-          height: PAGE_H,
-          color: WHITE,
-        });
+        page.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: WHITE });
         ay = 50;
       }
       drawText(page, et('Características Inteligentes:', 'Smart features:'), {
@@ -1565,24 +1520,12 @@ export const renderQuotePdf: QuotePdfRenderer = async snapshot => {
         if (ay > 760) {
           drawFooterBar(page, font, whatsappIcon);
           page = doc.addPage([PAGE_W, PAGE_H]);
-          page.drawRectangle({
-            x: 0,
-            y: 0,
-            width: PAGE_W,
-            height: PAGE_H,
-            color: WHITE,
-          });
+          page.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: WHITE });
           ay = 50;
         }
         const lines = wrapByWidth(`# ${c}`, font, 11, 470);
         for (const line of lines.slice(0, 3)) {
-          drawText(page, line, {
-            x: 55,
-            top: ay,
-            size: 11,
-            font,
-            maxWidth: 480,
-          });
+          drawText(page, line, { x: 55, top: ay, size: 11, font, maxWidth: 480 });
           ay += 14;
         }
         ay += 4;

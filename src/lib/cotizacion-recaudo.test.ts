@@ -6,6 +6,7 @@ import {
   cuentaRecaudoPorId,
   lineasMedioPagoCotizacion,
   lineasPagoCuenta,
+  CONDICION_PAGO_DEFAULT_NUEVA,
   normalizarCondicionPago,
   normalizarCuentaRecaudo,
   NOTA_IMPORTES_USD_ES,
@@ -41,6 +42,7 @@ describe('condición de pago y nota USD', () => {
   it('normaliza la condición y deja vacío como null', () => {
     expect(normalizarCondicionPago('  35% / 35% / 30%  ')).toBe('35% / 35% / 30%');
     expect(normalizarCondicionPago('   ')).toBeNull();
+    expect(normalizarCondicionPago(CONDICION_PAGO_DEFAULT_NUEVA)).toBe(CONDICION_PAGO_DEFAULT_NUEVA);
   });
 
   it('añade la nota USD y la retira al volver a COP', () => {

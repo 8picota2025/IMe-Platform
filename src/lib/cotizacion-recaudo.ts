@@ -153,6 +153,10 @@ export function textoBancarioCuentaIdioma(
   return lineas.join('\n');
 }
 
+/** Prefill solo en cotizaciones nuevas. Las antiguas conservan lo guardado (null = Contado). */
+export const CONDICION_PAGO_DEFAULT_NUEVA =
+  '50 % al formalizar el pedido y 50 % a la entrega del mismo.';
+
 export function normalizarCondicionPago(value: unknown): string | null {
   const text = String(value ?? '')
     .replace(/\s+/g, ' ')

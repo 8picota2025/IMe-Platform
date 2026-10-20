@@ -3,8 +3,15 @@
  * Writes: Edge `comercial-cotizacion` con fallback PostgREST. Send: `enviar-cotizacion`.
  */
 import {
+  calcularIvaUnitario,
+  desgloseCotizacion,
   htmlOpcionesTratamientoIva,
+  ivaUnitarioEfectivo,
+  ivaUnitarioGuardado,
   parseTratamientoIva,
+  resolverPreciosLinea,
+  resolverTratamientoLinea,
+  roundMoney,
   totalPagarCotizacion,
 } from '../lib/cotizacion-iva';
 import {
@@ -19,6 +26,7 @@ import { validarContactoClienteParaEnvio } from '../lib/contacto-cliente';
 import { defaultCondicionesOferta } from '../lib/condiciones-oferta';
 import {
   aplicarNotaImportesUsd,
+  CONDICION_PAGO_DEFAULT_NUEVA,
   CUENTAS_RECAUDO,
   cuentaRecaudoPorId,
   NOTA_IMPORTES_USD_ES,
@@ -181,7 +189,19 @@ function estadoBadge(estado: string): string {
 }
 
 function emptyLine(moneda: 'COP' | 'USD'): CotizacionLineaOferta {
-  return { slug: '', nombre: '', cantidad: 1, precio_unitario: 0, subtotal: 0, moneda };
+  return {
+    slug: '',
+    nombre: '',
+    cantidad: 1,
+    precio_unitario: 0,
+    precio_bruto: 0,
+    descuento_pct: 0,
+    precio_neto: 0,
+    subtotal: 0,
+    moneda,
+    tratamiento_iva: moneda === 'USD' ? 'excluido' : '19',
+    iva_unitario: 0,
+  };
 }
 
 export async function renderCotizacionesView(): Promise<string> {
@@ -339,7 +359,7 @@ function renderScanView(): string {
         </button>
       </div>
       <div class="comercial-quote-scan__preview" data-quote-scan-preview hidden>
-        <img alt="Vista previa presupuesto competencia" data-quote-scan-img />
+        <img alt="Vista previa presupuesto competencia" data-quote-scan-img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="1" height="1" />
       </div>
       <p class="comercial-help comercial-quote-scan__status" data-quote-scan-status role="status"></p>
       <p class="comercial-help">También puedes crear un presupuesto vacío en <a href="#/cotizaciones/nueva">Nueva</a> y escanear después.</p>
@@ -399,7 +419,7 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
       pedido_id: null,
       impuestos_incluidos: null,
       cuenta_recaudo: null,
-      condicion_pago: null,
+      condicion_pago: CONDICION_PAGO_DEFAULT_NUEVA,
       nit: null,
       ciudad: null,
       pais: null,
@@ -512,11 +532,11 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
             </select>
           </label>
           <label class="comercial-field"><span>Condición de pago</span>
-            <input name="condicion_pago" type="text" maxlength="160" placeholder="Contado" value="${escapeHtml(quote.condicion_pago ?? '')}" ${disabled} />
+            <input name="condicion_pago" type="text" maxlength="160" placeholder="${escapeHtml(CONDICION_PAGO_DEFAULT_NUEVA)}" value="${escapeHtml(quote.condicion_pago ?? '')}" ${disabled} />
           </label>
         </div>
         <p class="comercial-help" data-quote-cuenta-detalle>${escapeHtml(resumenCuentaRecaudo(cuentaRecaudoPorId(quote.cuenta_recaudo)))}</p>
-        <p class="comercial-help">Vacío imprime «Contado». Ejemplo: 35% / 35% / 30%.</p>
+        <p class="comercial-help">En cotizaciones nuevas se prellena 50/50. Las antiguas conservan lo guardado; vacío imprime «Contado».</p>
         <label class="comercial-field comercial-field--check"><span><input name="impuestos_incluidos" type="checkbox" data-quote-iva ${quote.impuestos_incluidos ? 'checked' : ''} ${disabled} /> Precios incluyen IVA</span>
           <small class="comercial-help">Márcalo cuando los precios ofrecidos ya incluyen IVA. Sin esto, el cliente no podrá pedir factura electrónica al formalizar la cotización.</small>
         </label>
@@ -532,8 +552,8 @@ async function renderEditor(route: CotizacionesRoute): Promise<string> {
         </div>`
             : ''
         }
-        <div data-quote-lines>${linesHtml(quote.productos, quote.moneda, editable)}</div>
-        <p class="comercial-quote-total" data-quote-total>Total ${escapeHtml(formatQuoteMoney(totalPagarCotizacion(quote.productos, { impuestosIncluidos: quote.impuestos_incluidos === true, moneda: quote.moneda }), quote.moneda))}</p>
+        <div data-quote-lines>${linesHtml(quote.productos, quote.moneda, editable, quote.impuestos_incluidos === true)}</div>
+        ${totalesHtml(quote.productos, quote.moneda, quote.impuestos_incluidos === true)}
         <label class="comercial-field"><span>Condiciones / consideraciones de la oferta</span><textarea name="condiciones" rows="12" ${disabled}>${escapeHtml(aplicarNotaImportesUsd(quote.condiciones, quote.moneda, 'es'))}</textarea></label>
         <label class="comercial-field"><span>Condiciones en inglés (opcional)</span><textarea name="condiciones_en" rows="8" ${disabled}>${escapeHtml(quote.condiciones_en ?? '')}</textarea></label>
         <p class="comercial-help">Secciones del boceto: Entrega, Costo de envío, Garantía, Instalación. Si no hay versión en inglés, la oferta bilingüe muestra el castellano. En USD se añade sola: ${escapeHtml(NOTA_IMPORTES_USD_ES)}</p>
@@ -592,16 +612,24 @@ function comboboxHtml(): string {
 function linesHtml(
   lineas: CotizacionLineaOferta[],
   moneda: 'COP' | 'USD',
-  editable: boolean
+  editable: boolean,
+  impuestosIncluidos = false
 ): string {
   const disabled = editable ? '' : 'disabled';
+  const step = moneda === 'USD' ? '0.01' : '1';
   const rows =
     lineas.length === 0
       ? `<p class="comercial-help">Sin productos. Busca en catálogo o añade una línea libre.</p>`
       : lineas
           .map((l, index) => {
             const pendiente = Boolean(l.precio_pendiente_validar);
-            const missing = !pendiente && !(l.precio_unitario > 0);
+            const precios = resolverPreciosLinea(l);
+            const missing = !pendiente && !(precios.neto > 0);
+            const tratamiento = resolverTratamientoLinea(l, null, moneda);
+            const ivaUnit =
+              ivaUnitarioGuardado(l.iva_unitario) ??
+              calcularIvaUnitario(precios.neto, tratamiento, impuestosIncluidos);
+            const ivaTotal = pendiente ? 0 : roundMoney(ivaUnit * l.cantidad);
             return `
         <article class="comercial-quote-line" data-quote-line data-index="${index}">
           <div class="comercial-quote-line__name">
@@ -619,19 +647,46 @@ function linesHtml(
           </label>
           <div class="comercial-field comercial-quote-precio">
             <span>Precio (${escapeHtml(moneda)})</span>
+            <p class="comercial-help">Si escribes el bruto, se descuenta el neto. Si escribes el neto, se calcula el bruto.</p>
             <select class="comercial-input" data-linea-precio-modo aria-label="Modo de precio" ${disabled}>
               <option value="numero" ${pendiente ? '' : 'selected'}>Importe</option>
               <option value="pendiente" ${pendiente ? 'selected' : ''}>Pendiente validar</option>
             </select>
-            <input class="comercial-input" data-linea-precio type="number" min="0" step="${moneda === 'USD' ? '0.01' : '1'}" value="${pendiente ? '' : l.precio_unitario}" placeholder="0" ${disabled} ${pendiente ? 'disabled' : ''} />
+            <label class="comercial-quote-precio__mini"><span>Bruto</span>
+              <input class="comercial-input" data-linea-bruto type="number" min="0" step="${step}" value="${pendiente ? '' : precios.bruto || ''}" placeholder="0" ${disabled} ${pendiente ? 'disabled' : ''} />
+            </label>
+            <label class="comercial-quote-precio__mini"><span>Desc. %</span>
+              <input class="comercial-input" data-linea-descuento type="number" min="0" max="100" step="0.1" value="${pendiente ? '' : precios.descuento_pct}" ${disabled} ${pendiente ? 'disabled' : ''} />
+            </label>
+            <label class="comercial-quote-precio__mini"><span>Neto</span>
+              <input class="comercial-input" data-linea-precio data-linea-neto type="number" min="0" step="${step}" value="${pendiente ? '' : precios.neto || ''}" placeholder="0" ${disabled} ${pendiente ? 'disabled' : ''} />
+            </label>
             <select class="comercial-input" data-linea-iva aria-label="IVA de la línea" ${disabled}>${htmlOpcionesTratamientoIva(l.tratamiento_iva)}</select>
+            <label class="comercial-quote-precio__mini"><span>IVA unitario</span>
+              <input class="comercial-input" data-linea-iva-unitario type="number" min="0" step="${step}" value="${pendiente ? '' : ivaUnit || ''}" ${disabled} ${pendiente ? 'disabled' : ''} />
+            </label>
+            <p class="comercial-help" data-linea-iva-total>${pendiente ? 'IVA —' : `IVA línea ${escapeHtml(formatQuoteMoney(ivaTotal, moneda))}`}</p>
           </div>
-          <p class="comercial-quote-line__subtotal" data-linea-subtotal>${pendiente ? 'Pendiente validar' : escapeHtml(formatQuoteMoney(l.subtotal, moneda))}</p>
+          <p class="comercial-quote-line__subtotal" data-linea-subtotal>${pendiente ? 'Pendiente validar' : escapeHtml(formatQuoteMoney(precios.neto * l.cantidad, moneda))}</p>
           ${editable ? `<button class="comercial-button comercial-button--ghost" type="button" data-linea-eliminar aria-label="Eliminar ${escapeHtml(l.nombre || 'línea')}">Eliminar</button>` : ''}
         </article>`;
           })
           .join('');
   return `<div class="comercial-quote-lines">${rows}</div>`;
+}
+
+function totalesHtml(
+  lineas: CotizacionLineaOferta[],
+  moneda: 'COP' | 'USD',
+  impuestosIncluidos: boolean
+): string {
+  const desglose = desgloseCotizacion(lineas, { impuestosIncluidos, moneda });
+  return `<div class="comercial-quote-totales" data-quote-total>
+    <p>Total bruto ${escapeHtml(formatQuoteMoney(desglose.bruto, moneda))}</p>
+    <p>Subtotal neto ${escapeHtml(formatQuoteMoney(desglose.base, moneda))}</p>
+    <p>Total IVA: ${escapeHtml(formatQuoteMoney(desglose.iva, moneda))}</p>
+    <p class="comercial-quote-total">Total a pagar ${escapeHtml(formatQuoteMoney(desglose.total, moneda))}</p>
+  </div>`;
 }
 
 function readForm(root: HTMLElement): {
@@ -666,23 +721,43 @@ function readForm(root: HTMLElement): {
     );
     const pendiente =
       row.querySelector<HTMLSelectElement>('[data-linea-precio-modo]')?.value === 'pendiente';
-    const precio = pendiente
-      ? 0
-      : Number(row.querySelector<HTMLInputElement>('[data-linea-precio]')?.value) || 0;
+    const precios = resolverPreciosLinea(
+      {
+        precio_bruto: Number(row.querySelector<HTMLInputElement>('[data-linea-bruto]')?.value),
+        descuento_pct: Number(row.querySelector<HTMLInputElement>('[data-linea-descuento]')?.value),
+        precio_neto: Number(row.querySelector<HTMLInputElement>('[data-linea-precio]')?.value),
+        precio_unitario: Number(row.querySelector<HTMLInputElement>('[data-linea-precio]')?.value),
+      },
+      row.dataset['precioOrigen'] === 'neto' ? 'neto' : 'bruto'
+    );
+    const precio = pendiente ? 0 : precios.neto;
     if (!nombre && !slug) return;
     const linea: CotizacionLineaOferta = {
       slug,
       nombre: nombre || slug,
       cantidad,
       precio_unitario: precio,
-      subtotal: pendiente ? 0 : Math.round(precio * cantidad * 100) / 100,
+      precio_bruto: pendiente ? 0 : precios.bruto,
+      descuento_pct: pendiente ? 0 : precios.descuento_pct,
+      precio_neto: precio,
+      subtotal: pendiente ? 0 : roundMoney(precio * cantidad),
       moneda,
     };
     if (pendiente) linea.precio_pendiente_validar = true;
-    const tratamiento = parseTratamientoIva(
-      row.querySelector<HTMLSelectElement>('[data-linea-iva]')?.value
-    );
-    if (tratamiento) linea.tratamiento_iva = tratamiento;
+    const tratamiento =
+      parseTratamientoIva(row.querySelector<HTMLSelectElement>('[data-linea-iva]')?.value) ??
+      (moneda === 'USD' ? 'excluido' : '19');
+    linea.tratamiento_iva = tratamiento;
+    const ivaUnitario = pendiente
+      ? 0
+      : ivaUnitarioEfectivo(
+          row.querySelector<HTMLInputElement>('[data-linea-iva-unitario]')?.value,
+          precio,
+          tratamiento,
+          data.get('impuestos_incluidos') === 'on'
+        );
+    linea.iva_unitario = ivaUnitario;
+    linea.iva_total = pendiente ? 0 : roundMoney(ivaUnitario * cantidad);
     const notas = row.querySelector<HTMLTextAreaElement>('[data-linea-notas]')?.value.trim() ?? '';
     if (notas) linea.notas = notas;
     const nombreEn = row.querySelector<HTMLInputElement>('[data-linea-nombre-en]')?.value.trim() ?? '';
@@ -729,16 +804,10 @@ function syncMonedaNotas(root: HTMLElement): void {
   if (detalle) detalle.textContent = resumenCuentaRecaudo(cuentaRecaudoPorId(cuenta));
 }
 
-function refreshTotals(root: HTMLElement): void {
-  const parsed = readForm(root);
-  const total = totalPagarCotizacion(parsed.productos, {
-    impuestosIncluidos: parsed.impuestos_incluidos,
-    moneda: parsed.moneda,
-  });
-  const totalEl = root.querySelector('[data-quote-total]');
-  if (totalEl) totalEl.textContent = `Total ${formatQuoteMoney(total, parsed.moneda)}`;
-  const emailCopy = root.querySelector('[data-quote-email-copy]');
-  if (emailCopy) emailCopy.textContent = parsed.email || '…';
+function refreshTotals(root: HTMLElement, source?: EventTarget | null): void {
+  const impuestosCheckbox = root.querySelector<HTMLInputElement>('[name="impuestos_incluidos"]');
+  const moneda = root.querySelector<HTMLSelectElement>('[name="moneda"]')?.value === 'USD' ? 'USD' : 'COP';
+  const impuestosIncluidos = impuestosCheckbox?.checked === true;
   root.querySelectorAll<HTMLElement>('[data-quote-line]').forEach(row => {
     const cantidad = Math.max(
       1,
@@ -746,18 +815,78 @@ function refreshTotals(root: HTMLElement): void {
     );
     const modo = row.querySelector<HTMLSelectElement>('[data-linea-precio-modo]');
     const pendiente = modo?.value === 'pendiente';
+    const brutoInput = row.querySelector<HTMLInputElement>('[data-linea-bruto]');
+    const descInput = row.querySelector<HTMLInputElement>('[data-linea-descuento]');
     const precioInput = row.querySelector<HTMLInputElement>('[data-linea-precio]');
-    if (precioInput && modo) {
-      precioInput.disabled = Boolean(modo.disabled) || Boolean(pendiente);
+    const ivaSelect = row.querySelector<HTMLSelectElement>('[data-linea-iva]');
+    const ivaUnitInput = row.querySelector<HTMLInputElement>('[data-linea-iva-unitario]');
+    for (const input of [brutoInput, descInput, precioInput, ivaUnitInput]) {
+      if (input && modo) input.disabled = Boolean(modo.disabled) || Boolean(pendiente);
     }
-    const precio = pendiente ? 0 : Number(precioInput?.value) || 0;
+    if (source === precioInput) {
+      row.dataset['precioOrigen'] = 'neto';
+    } else if (source === brutoInput) {
+      row.dataset['precioOrigen'] = 'bruto';
+    }
+    const origen = row.dataset['precioOrigen'] === 'neto' ? 'neto' : 'bruto';
+    const precios = resolverPreciosLinea(
+      {
+        precio_bruto: Number(brutoInput?.value),
+        descuento_pct: Number(descInput?.value),
+        precio_neto: Number(precioInput?.value),
+        precio_unitario: Number(precioInput?.value),
+      },
+      origen
+    );
+    if (!pendiente) {
+      if (origen === 'neto') {
+        if (brutoInput) brutoInput.value = precios.bruto ? String(precios.bruto) : '';
+      } else if (precioInput) {
+        precioInput.value = precios.neto ? String(precios.neto) : '';
+      }
+    }
+    const tratamiento =
+      parseTratamientoIva(ivaSelect?.value) ?? (moneda === 'USD' ? 'excluido' : '19');
+    if (source === ivaSelect && ivaUnitInput) delete ivaUnitInput.dataset['ivaManual'];
+    if (source === ivaUnitInput && ivaUnitInput) ivaUnitInput.dataset['ivaManual'] = '1';
+    const manual = ivaUnitInput?.dataset['ivaManual'] === '1';
+    const debeCalcular =
+      !pendiente &&
+      !manual &&
+      (source === ivaSelect ||
+        source === brutoInput ||
+        source === descInput ||
+        source === precioInput ||
+        source === impuestosCheckbox ||
+        (ivaUnitarioGuardado(ivaUnitInput?.value) ?? 0) === 0);
+    if (ivaUnitInput && debeCalcular) {
+      ivaUnitInput.value = precios.neto
+        ? String(calcularIvaUnitario(precios.neto, tratamiento, impuestosIncluidos))
+        : '';
+    }
+    const ivaUnit = pendiente
+      ? 0
+      : ivaUnitarioEfectivo(ivaUnitInput?.value, precios.neto, tratamiento, impuestosIncluidos);
+    const ivaTotalEl = row.querySelector('[data-linea-iva-total]');
+    if (ivaTotalEl) {
+      ivaTotalEl.textContent = pendiente
+        ? 'IVA —'
+        : `IVA línea ${formatQuoteMoney(roundMoney(ivaUnit * cantidad), moneda)}`;
+    }
     const cell = row.querySelector('[data-linea-subtotal]');
     if (cell) {
       cell.textContent = pendiente
         ? 'Pendiente validar'
-        : formatQuoteMoney(precio * cantidad, parsed.moneda);
+        : formatQuoteMoney(precios.neto * cantidad, moneda);
     }
   });
+  const parsed = readForm(root);
+  const totalEl = root.querySelector('[data-quote-total]');
+  if (totalEl) {
+    totalEl.outerHTML = totalesHtml(parsed.productos, parsed.moneda, parsed.impuestos_incluidos);
+  }
+  const emailCopy = root.querySelector('[data-quote-email-copy]');
+  if (emailCopy) emailCopy.textContent = parsed.email || '…';
   const hint = root.querySelector('[data-quote-hint]');
   const check = ofertaCompleta(parseLineasOferta(parsed.productos), parsed.condiciones);
   if (hint) {
@@ -801,7 +930,7 @@ function applySaved(root: HTMLElement, quote: QuotePublic): void {
 
 function htmlPreview(root: HTMLElement): string {
   const parsed = readForm(root);
-  const total = totalPagarCotizacion(parsed.productos, {
+  const desglose = desgloseCotizacion(parsed.productos, {
     impuestosIncluidos: parsed.impuestos_incluidos,
     moneda: parsed.moneda,
   });
@@ -831,7 +960,7 @@ function htmlPreview(root: HTMLElement): string {
         <thead><tr><th>Producto</th><th>Cant.</th><th>Precio</th><th>Subtotal</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
-      <p class="comercial-quote-total">Total ${escapeHtml(formatQuoteMoney(total, parsed.moneda))}</p>
+      ${totalesHtml(parsed.productos, parsed.moneda, parsed.impuestos_incluidos)}
       <p class="comercial-help">Condición de pago: ${escapeHtml(parsed.condicion_pago || 'Contado')}</p>
       <p class="comercial-help">Recaudo: ${escapeHtml(resumenCuentaRecaudo(cuentaRecaudoPorId(parsed.cuenta_recaudo)))}</p>
       ${parsed.condiciones ? `<pre class="comercial-quote-preview-terms">${escapeHtml(parsed.condiciones)}</pre>` : '<p class="comercial-help">Sin condiciones.</p>'}
@@ -1069,7 +1198,7 @@ export function bindCotizacionesView(container: HTMLElement): () => void {
         detalle.textContent = resumenCuentaRecaudo(cuentaRecaudoPorId(target.value));
       }
     }
-    refreshTotals(editor);
+    refreshTotals(editor, target);
     const email = editor.querySelector<HTMLInputElement>('[name="email"]')?.value ?? '';
     const copy = editor.querySelector('[data-quote-email-copy]');
     if (copy) copy.textContent = email.trim() || '…';

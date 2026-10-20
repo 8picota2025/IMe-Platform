@@ -234,4 +234,51 @@ describe('cotizacion-oferta', () => {
     expect(quoteEditable('enviada')).toBe(false);
     expect(quoteEditable('convertida')).toBe(false);
   });
+
+  it('parseLineasOferta aplica descuento y conserva IVA unitario', () => {
+    const lineas = parseLineasOferta([
+      {
+        slug: 'a',
+        nombre: 'A',
+        cantidad: 2,
+        precio_bruto: 100000,
+        descuento_pct: 10,
+        iva_unitario: 12345,
+        moneda: 'COP',
+      },
+    ]);
+    expect(lineas[0]!.precio_neto).toBe(90000);
+    expect(lineas[0]!.precio_unitario).toBe(90000);
+    expect(lineas[0]!.subtotal).toBe(180000);
+    expect(lineas[0]!.iva_unitario).toBe(12345);
+    expect(lineas[0]!.iva_total).toBe(24690);
+  });
+
+  it('parseLineasOferta calcula IVA unitario si la tarifa está y el valor vino en 0', () => {
+    const lineas = parseLineasOferta([
+      {
+        slug: 'a',
+        nombre: 'A',
+        cantidad: 1,
+        precio_bruto: 100000,
+        descuento_pct: 0,
+        tratamiento_iva: '19',
+        iva_unitario: 0,
+        moneda: 'COP',
+      },
+    ]);
+    expect(lineas[0]!.precio_neto).toBe(100000);
+    expect(lineas[0]!.iva_unitario).toBe(19000);
+    expect(lineas[0]!.iva_total).toBe(19000);
+  });
+
+  it('sanitizarLineasComercial no inventa IVA en lineas viejas', () => {
+    const lineas = sanitizarLineasComercial(
+      [{ slug: 'a', nombre: 'A', cantidad: 1, precio_unitario: 1000, moneda: 'COP' }],
+      'COP'
+    );
+    expect(lineas[0]!.precio_unitario).toBe(1000);
+    expect(lineas[0]!.iva_unitario).toBeUndefined();
+    expect(lineas[0]!.precio_bruto).toBeUndefined();
+  });
 });

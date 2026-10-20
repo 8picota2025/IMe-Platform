@@ -72,8 +72,15 @@ import {
   revisableStringsFromDraft,
 } from '../lib/pdf-ingest-enrich';
 import {
+  calcularIvaUnitario,
+  desgloseCotizacion,
   htmlOpcionesTratamientoIva,
+  ivaUnitarioEfectivo,
+  ivaUnitarioGuardado,
   parseTratamientoIva,
+  resolverPreciosLinea,
+  resolverTratamientoLinea,
+  roundMoney,
   totalPagarCotizacion,
 } from '../lib/cotizacion-iva';
 import {
@@ -85,6 +92,14 @@ import {
   type CotizacionLineaOferta,
 } from '../lib/cotizacion-oferta';
 import { defaultCondicionesOferta } from '../lib/condiciones-oferta';
+import {
+  CONDICION_PAGO_DEFAULT_NUEVA,
+  CUENTAS_RECAUDO,
+  cuentaRecaudoPorId,
+  normalizarCondicionPago,
+  normalizarCuentaRecaudo,
+  resumenCuentaRecaudo,
+} from '../lib/cotizacion-recaudo';
 import {
   validarContactoClienteBorrador,
   validarContactoClienteParaEnvio,
@@ -4261,6 +4276,10 @@ type CotizacionLineaFila = {
   notas?: string;
   notas_en?: string;
   tratamiento_iva?: CotizacionLineaOferta['tratamiento_iva'];
+  precio_bruto?: number;
+  descuento_pct?: number;
+  precio_neto?: number;
+  iva_unitario?: number;
 };
 
 /** Una fila del editor de líneas: misma semántica que /comercial (importe o "Pendiente validar"). */
@@ -4273,9 +4292,14 @@ function cotizacionLineaRowHtml(
   const disabled = readOnly ? 'disabled' : '';
   const pendiente = Boolean(line.precio_pendiente_validar);
   const cantidad = Math.max(1, Math.floor(Number(line.cantidad) || 1));
-  const precio = pendiente ? 0 : Number(line.precio_unitario) || 0;
+  const precios = resolverPreciosLinea(line);
+  const precio = pendiente ? 0 : precios.neto;
   const sinPrecio = !pendiente && !(precio > 0);
   const nombre = line.nombre || line.slug;
+  const tratamiento = resolverTratamientoLinea(line, null, moneda);
+  const ivaUnit =
+    ivaUnitarioGuardado(line.iva_unitario) ??
+    calcularIvaUnitario(precios.neto, tratamiento, false);
   return `
       <tr data-cotizacion-linea>
         <td>
@@ -4300,8 +4324,20 @@ function cotizacionLineaRowHtml(
             <option value="numero" ${pendiente ? '' : 'selected'}>Importe</option>
             <option value="pendiente" ${pendiente ? 'selected' : ''}>Pendiente validar</option>
           </select>
-          <input class="admin-inline-input" type="number" min="0" step="${step}" data-linea-precio value="${pendiente ? '' : precio}" placeholder="0" aria-label="Precio unitario" ${readOnly || pendiente ? 'disabled' : ''} />
+          <label class="admin-help">Bruto
+            <input class="admin-inline-input" type="number" min="0" step="${step}" data-linea-bruto value="${pendiente ? '' : precios.bruto || ''}" placeholder="0" aria-label="Precio bruto" ${readOnly || pendiente ? 'disabled' : ''} />
+          </label>
+          <label class="admin-help">Desc. %
+            <input class="admin-inline-input" type="number" min="0" max="100" step="0.1" data-linea-descuento value="${pendiente ? '' : precios.descuento_pct}" aria-label="Descuento porcentual" ${readOnly || pendiente ? 'disabled' : ''} />
+          </label>
+          <label class="admin-help">Neto
+            <input class="admin-inline-input" type="number" min="0" step="${step}" data-linea-precio data-linea-neto value="${pendiente ? '' : precio || ''}" placeholder="0" aria-label="Precio neto" ${readOnly || pendiente ? 'disabled' : ''} />
+          </label>
           <select class="admin-inline-input" data-linea-iva aria-label="IVA de la línea" ${disabled}>${htmlOpcionesTratamientoIva(line.tratamiento_iva)}</select>
+          <label class="admin-help">IVA unitario
+            <input class="admin-inline-input" type="number" min="0" step="${step}" data-linea-iva-unitario value="${pendiente ? '' : ivaUnit || ''}" aria-label="IVA unitario" ${readOnly || pendiente ? 'disabled' : ''} />
+          </label>
+          <p class="admin-help" data-linea-iva-total>${pendiente ? 'IVA —' : `IVA línea ${crmMoney(roundMoney(ivaUnit * cantidad), moneda)}`}</p>
         </td>
         <td data-linea-subtotal>${pendiente ? 'Pendiente validar' : crmMoney(precio * cantidad, moneda)}</td>
         <td><button class="admin-button admin-button--ghost" type="button" data-linea-eliminar aria-label="Eliminar ${escapeHtml(nombre || 'producto')}" ${disabled}>Eliminar</button></td>
@@ -4337,12 +4373,12 @@ function cotizacionLineasEditorHtml(
     ${catalogTools}
     <div class="admin-table-wrap">
       <table class="admin-table">
-        <thead><tr><th>Producto / referencia</th><th>Cantidad</th><th>Precio unitario (${moneda})</th><th>Subtotal</th><th>Acciones</th></tr></thead>
+        <thead><tr><th>Producto / referencia</th><th>Cantidad</th><th>Bruto / descuento / neto / IVA (${moneda})</th><th>Subtotal</th><th>Acciones</th></tr></thead>
         <tbody>${lineas.map(line => cotizacionLineaRowHtml(line, moneda, readOnly)).join('')}</tbody>
       </table>
     </div>
     <button class="admin-button admin-button--ghost" type="button" data-cotizacion-linea-agregar ${readOnly ? 'disabled' : ''}>Añadir producto</button>
-    <p class="admin-meta" style="margin-top:8px">Total ofertado: <strong data-cotizacion-total-ofertado>—</strong></p>
+    <div class="admin-meta" style="margin-top:8px" data-cotizacion-total-ofertado>Total ofertado: —</div>
     <p class="admin-help" data-cotizacion-hint role="status"></p>`;
 }
 
@@ -4351,7 +4387,16 @@ function cotizacionLineaFromOfertaHtml(line: CotizacionLineaOferta, moneda: 'COP
 }
 
 function cotizacionLineaNuevaHtml(moneda: 'COP' | 'USD'): string {
-  return cotizacionLineaRowHtml({ slug: '', nombre: '', cantidad: 1, precio_unitario: 0 }, moneda);
+  return cotizacionLineaRowHtml(
+    {
+      slug: '',
+      nombre: '',
+      cantidad: 1,
+      precio_unitario: 0,
+      tratamiento_iva: moneda === 'USD' ? 'excluido' : '19',
+    },
+    moneda
+  );
 }
 
 function normalizarMonedaCotizacion(value: unknown): 'COP' | 'USD' {
@@ -4367,11 +4412,13 @@ function aplicarMonedaOfertaDom(moneda: 'COP' | 'USD') {
   app.querySelectorAll<HTMLInputElement>('[data-linea-moneda]').forEach(input => {
     input.value = moneda;
   });
-  app.querySelectorAll<HTMLInputElement>('[data-linea-precio]').forEach(input => {
+  app.querySelectorAll<HTMLInputElement>(
+    '[data-linea-precio], [data-linea-bruto], [data-linea-iva-unitario]'
+  ).forEach(input => {
     input.step = step;
   });
   const head = app.querySelector('.admin-table thead th:nth-child(3)');
-  if (head) head.textContent = `Precio unitario (${moneda})`;
+  if (head) head.textContent = `Bruto / descuento / neto / IVA (${moneda})`;
   const form = app.querySelector<HTMLFormElement>('[data-cotizacion-oferta-form]');
   const idioma = form?.querySelector<HTMLSelectElement>('[name="idioma"]');
   if (idioma && !form?.hasAttribute('data-solo-lectura')) {
@@ -4538,6 +4585,19 @@ async function cotizacionDetailView(): Promise<string> {
             </label>
             <label class="admin-field"><span>Validez hasta</span>
               <input name="validez_hasta" type="date" value="${escapeHtml(text(row.validez_hasta).slice(0, 10))}" ${soloLectura ? 'disabled' : ''} />
+            </label>
+            <label class="admin-field"><span>Cuenta de recaudo</span>
+              <select name="cuenta_recaudo" ${soloLectura ? 'disabled' : ''}>
+                ${CUENTAS_RECAUDO.map(
+                  cuenta =>
+                    `<option value="${escapeHtml(cuenta.id)}" ${cuenta.id === (text(row.cuenta_recaudo) || 'bancolombia_ahorros') ? 'selected' : ''}>${escapeHtml(cuenta.etiqueta)}</option>`
+                ).join('')}
+              </select>
+              <span class="admin-help">${escapeHtml(resumenCuentaRecaudo(cuentaRecaudoPorId(row.cuenta_recaudo)))}</span>
+            </label>
+            <label class="admin-field"><span>Condición de pago</span>
+              <input name="condicion_pago" type="text" maxlength="160" placeholder="${escapeHtml(CONDICION_PAGO_DEFAULT_NUEVA)}" value="${escapeHtml(text(row.condicion_pago))}" ${soloLectura ? 'disabled' : ''} />
+              <span class="admin-help">Vacío en cotizaciones antiguas imprime «Contado». No se reescribe lo ya guardado.</span>
             </label>
           </div>
           ${cotizacionLineasEditorHtml(productos, moneda, soloLectura)}
@@ -9234,22 +9294,44 @@ function leerLineasOfertaDesdeDom(): CotizacionLineaOferta[] {
     );
     const pendiente =
       row.querySelector<HTMLSelectElement>('[data-linea-precio-modo]')?.value === 'pendiente';
-    const precio = pendiente
-      ? 0
-      : Math.max(0, Number(row.querySelector<HTMLInputElement>('[data-linea-precio]')?.value ?? 0));
+    const precios = resolverPreciosLinea(
+      {
+        precio_bruto: Number(row.querySelector<HTMLInputElement>('[data-linea-bruto]')?.value),
+        descuento_pct: Number(row.querySelector<HTMLInputElement>('[data-linea-descuento]')?.value),
+        precio_neto: Number(row.querySelector<HTMLInputElement>('[data-linea-precio]')?.value),
+        precio_unitario: Number(row.querySelector<HTMLInputElement>('[data-linea-precio]')?.value),
+      },
+      row.dataset['precioOrigen'] === 'neto' ? 'neto' : 'bruto'
+    );
+    const precio = pendiente ? 0 : precios.neto;
     const linea: CotizacionLineaOferta = {
       slug,
       nombre,
       cantidad,
       precio_unitario: precio,
-      subtotal: pendiente ? 0 : Math.round(precio * cantidad * 100) / 100,
+      precio_bruto: pendiente ? 0 : precios.bruto,
+      descuento_pct: pendiente ? 0 : precios.descuento_pct,
+      precio_neto: precio,
+      subtotal: pendiente ? 0 : roundMoney(precio * cantidad),
       moneda,
     };
     if (pendiente) linea.precio_pendiente_validar = true;
-    const tratamiento = parseTratamientoIva(
-      row.querySelector<HTMLSelectElement>('[data-linea-iva]')?.value
-    );
-    if (tratamiento) linea.tratamiento_iva = tratamiento;
+    const tratamiento =
+      parseTratamientoIva(row.querySelector<HTMLSelectElement>('[data-linea-iva]')?.value) ??
+      (moneda === 'USD' ? 'excluido' : '19');
+    linea.tratamiento_iva = tratamiento;
+    const impuestosIncluidos =
+      app.querySelector<HTMLInputElement>('[name="impuestos_incluidos"]')?.checked === true;
+    const ivaUnitario = pendiente
+      ? 0
+      : ivaUnitarioEfectivo(
+          row.querySelector<HTMLInputElement>('[data-linea-iva-unitario]')?.value,
+          precio,
+          tratamiento,
+          impuestosIncluidos
+        );
+    linea.iva_unitario = ivaUnitario;
+    linea.iva_total = pendiente ? 0 : roundMoney(ivaUnitario * cantidad);
     const notas = row.querySelector<HTMLTextAreaElement>('[data-linea-notas]')?.value.trim() ?? '';
     if (notas) linea.notas = notas;
     const nombreEn = row.querySelector<HTMLInputElement>('[data-linea-nombre-en]')?.value.trim() ?? '';
@@ -9260,39 +9342,100 @@ function leerLineasOfertaDesdeDom(): CotizacionLineaOferta[] {
   });
 }
 
-function syncCotizacionTotalesDom() {
+function syncCotizacionTotalesDom(source?: EventTarget | null) {
   const monedaSelect = app.querySelector<HTMLSelectElement>('[data-cotizacion-moneda]');
   const monedaCabecera = normalizarMonedaCotizacion(monedaSelect?.value);
-  const lineas = leerLineasOfertaDesdeDom().map(l => ({ ...l, moneda: monedaCabecera }));
-  app.querySelectorAll<HTMLElement>('[data-cotizacion-linea]').forEach((row, index) => {
-    const linea = lineas[index];
-    if (!linea) return;
-    const pendiente = Boolean(linea.precio_pendiente_validar);
+  const impuestosIncluidos =
+    app.querySelector<HTMLInputElement>('[name="impuestos_incluidos"]')?.checked === true;
+  app.querySelectorAll<HTMLElement>('[data-cotizacion-linea]').forEach(row => {
     const monedaInput = row.querySelector<HTMLInputElement>('[data-linea-moneda]');
     if (monedaInput) monedaInput.value = monedaCabecera;
     const modo = row.querySelector<HTMLSelectElement>('[data-linea-precio-modo]');
+    const pendiente = modo?.value === 'pendiente';
+    const brutoInput = row.querySelector<HTMLInputElement>('[data-linea-bruto]');
+    const descInput = row.querySelector<HTMLInputElement>('[data-linea-descuento]');
     const precioInput = row.querySelector<HTMLInputElement>('[data-linea-precio]');
-    if (precioInput) precioInput.disabled = Boolean(modo?.disabled) || pendiente;
+    const ivaSelect = row.querySelector<HTMLSelectElement>('[data-linea-iva]');
+    const ivaUnitInput = row.querySelector<HTMLInputElement>('[data-linea-iva-unitario]');
+    for (const input of [brutoInput, descInput, precioInput, ivaUnitInput]) {
+      if (input && modo) input.disabled = Boolean(modo.disabled) || Boolean(pendiente);
+    }
+    if (source === precioInput) {
+      row.dataset['precioOrigen'] = 'neto';
+    } else if (source === brutoInput) {
+      row.dataset['precioOrigen'] = 'bruto';
+    }
+    const origen = row.dataset['precioOrigen'] === 'neto' ? 'neto' : 'bruto';
+    const precios = resolverPreciosLinea(
+      {
+        precio_bruto: Number(brutoInput?.value),
+        descuento_pct: Number(descInput?.value),
+        precio_neto: Number(precioInput?.value),
+        precio_unitario: Number(precioInput?.value),
+      },
+      origen
+    );
+    if (!pendiente) {
+      if (origen === 'neto') {
+        if (brutoInput) brutoInput.value = precios.bruto ? String(precios.bruto) : '';
+      } else if (precioInput) {
+        precioInput.value = precios.neto ? String(precios.neto) : '';
+      }
+    }
+    const tratamiento =
+      parseTratamientoIva(ivaSelect?.value) ?? (monedaCabecera === 'USD' ? 'excluido' : '19');
+    if (source === ivaSelect && ivaUnitInput) delete ivaUnitInput.dataset['ivaManual'];
+    if (source === ivaUnitInput && ivaUnitInput) ivaUnitInput.dataset['ivaManual'] = '1';
+    const impuestosEl = app.querySelector<HTMLInputElement>('[name="impuestos_incluidos"]');
+    const manual = ivaUnitInput?.dataset['ivaManual'] === '1';
+    const debeCalcular =
+      !pendiente &&
+      !manual &&
+      (source === ivaSelect ||
+        source === brutoInput ||
+        source === descInput ||
+        source === precioInput ||
+        source === impuestosEl ||
+        (ivaUnitarioGuardado(ivaUnitInput?.value) ?? 0) === 0);
+    if (ivaUnitInput && debeCalcular) {
+      ivaUnitInput.value = precios.neto
+        ? String(calcularIvaUnitario(precios.neto, tratamiento, impuestosIncluidos))
+        : '';
+    }
+    const cantidad = Math.max(
+      1,
+      Math.floor(Number(row.querySelector<HTMLInputElement>('[data-linea-cantidad]')?.value ?? 1))
+    );
+    const ivaUnit = pendiente
+      ? 0
+      : ivaUnitarioEfectivo(ivaUnitInput?.value, precios.neto, tratamiento, impuestosIncluidos);
+    const ivaTotalEl = row.querySelector('[data-linea-iva-total]');
+    if (ivaTotalEl) {
+      ivaTotalEl.textContent = pendiente
+        ? 'IVA —'
+        : `IVA línea ${crmMoney(roundMoney(ivaUnit * cantidad), monedaCabecera)}`;
+    }
     const cell = row.querySelector<HTMLElement>('[data-linea-subtotal]');
-    if (cell)
-      cell.textContent = pendiente ? 'Pendiente validar' : crmMoney(linea.subtotal, monedaCabecera);
+    if (cell) {
+      cell.textContent = pendiente
+        ? 'Pendiente validar'
+        : crmMoney(precios.neto * cantidad, monedaCabecera);
+    }
     const aviso = row.querySelector<HTMLElement>('[data-linea-aviso]');
     if (aviso) {
       aviso.innerHTML = pendiente
         ? '<span class="admin-badge admin-badge--warn">Pendiente validar</span>'
-        : linea.precio_unitario > 0
+        : precios.neto > 0
           ? ''
           : '<span class="admin-badge admin-badge--warn">Sin precio</span>';
     }
   });
+  const lineas = leerLineasOfertaDesdeDom().map(l => ({ ...l, moneda: monedaCabecera }));
   const totalEl = app.querySelector<HTMLElement>('[data-cotizacion-total-ofertado]');
-  const impuestosIncluidos =
-    app.querySelector<HTMLInputElement>('[name="impuestos_incluidos"]')?.checked === true;
-  if (totalEl)
-    totalEl.textContent = crmMoney(
-      totalPagarCotizacion(lineas, { impuestosIncluidos, moneda: monedaCabecera }),
-      monedaCabecera
-    );
+  if (totalEl) {
+    const desglose = desgloseCotizacion(lineas, { impuestosIncluidos, moneda: monedaCabecera });
+    totalEl.innerHTML = `Total bruto ${crmMoney(desglose.bruto, monedaCabecera)} · Subtotal neto ${crmMoney(desglose.base, monedaCabecera)} · Total IVA: ${crmMoney(desglose.iva, monedaCabecera)} · <strong>Total a pagar ${crmMoney(desglose.total, monedaCabecera)}</strong>`;
+  }
   const hint = app.querySelector<HTMLElement>('[data-cotizacion-hint]');
   if (hint) {
     const condiciones =
@@ -9398,7 +9541,7 @@ function cotizacionEscanearView(): string {
         <button class="admin-button admin-button--ghost" type="button" data-cotizacion-ocr="pdf">Importar PDF</button>
       </div>
       <div hidden data-cotizacion-scan-preview style="margin-top:12px">
-        <img alt="Vista previa del presupuesto de la competencia" data-cotizacion-scan-img style="max-width:320px;border-radius:8px" />
+        <img alt="Vista previa del presupuesto de la competencia" data-cotizacion-scan-img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="1" height="1" style="max-width:320px;border-radius:8px" />
       </div>
       <p class="admin-help" data-cotizacion-ocr-status role="status"></p>
       <p class="admin-help">También puedes crear un presupuesto vacío y escanear después desde su ficha.</p>
@@ -9452,6 +9595,8 @@ async function guardarOfertaAdmin(args: GuardarOfertaArgs): Promise<boolean> {
       pais: emptyToNull(args.datos.get('pais')),
       responsable_iva: args.datos.get('responsable_iva') === 'on',
       impuestos_incluidos: args.datos.get('impuestos_incluidos') === 'on',
+      cuenta_recaudo: normalizarCuentaRecaudo(args.datos.get('cuenta_recaudo')),
+      condicion_pago: normalizarCondicionPago(args.datos.get('condicion_pago')),
       direccion_envio: emptyToNull(args.datos.get('direccion_envio')),
       direccion_facturacion: emptyToNull(args.datos.get('direccion_facturacion')),
       adjuntos,
@@ -9470,10 +9615,12 @@ async function guardarOfertaAdmin(args: GuardarOfertaArgs): Promise<boolean> {
     })
     .eq('id', args.id);
   if (error) {
-    const faltaColumna = /ciudad|pais|idioma|condiciones_en/i.test(error.message);
+    const faltaColumna = /ciudad|pais|idioma|condiciones_en|cuenta_recaudo|condicion_pago/i.test(
+      error.message
+    );
     toast(
       faltaColumna
-        ? `No se pudo guardar la oferta: falta aplicar la migración de idioma y contacto del cliente (${error.message}).`
+        ? `No se pudo guardar la oferta: falta aplicar la migración (${error.message}).`
         : `No se pudo guardar la oferta: ${error.message}`
     );
     return false;
@@ -9554,6 +9701,7 @@ function bindCotizaciones() {
         origen: 'admin',
         tipo_solicitud: 'cotizacion',
         validez_hasta: validez,
+        condicion_pago: CONDICION_PAGO_DEFAULT_NUEVA,
         precio_total_ofertado: 0,
         ...(userId ? { created_by: userId } : {}),
       };
@@ -9644,9 +9792,11 @@ function bindCotizaciones() {
   const bindLineaOferta = (row: HTMLElement) => {
     row
       .querySelectorAll<HTMLElement>(
-        '[data-linea-cantidad], [data-linea-precio], [data-linea-precio-modo], [data-linea-iva]'
+        '[data-linea-cantidad], [data-linea-bruto], [data-linea-descuento], [data-linea-precio], [data-linea-precio-modo], [data-linea-iva], [data-linea-iva-unitario]'
       )
-      .forEach(input => input.addEventListener('input', syncCotizacionTotalesDom));
+      .forEach(input =>
+        input.addEventListener('input', event => syncCotizacionTotalesDom(event.target))
+      );
     row
       .querySelector<HTMLButtonElement>('[data-linea-specs-catalogo]')
       ?.addEventListener('click', async () => {
@@ -9677,6 +9827,11 @@ function bindCotizaciones() {
       cotizacionDirty = true;
       syncCotizacionTotalesDom();
     });
+  app.querySelector<HTMLSelectElement>('[name="cuenta_recaudo"]')?.addEventListener('change', event => {
+    const select = event.target as HTMLSelectElement;
+    const help = select.closest('label')?.querySelector('.admin-help');
+    if (help) help.textContent = resumenCuentaRecaudo(cuentaRecaudoPorId(select.value));
+  });
   app
     .querySelector<HTMLButtonElement>('[data-cotizacion-linea-agregar]')
     ?.addEventListener('click', () => {
@@ -9753,7 +9908,7 @@ function bindCotizaciones() {
     !(event.target instanceof Element && event.target.closest('[data-cotizacion-catalog-tools]'));
   ofertaForm?.addEventListener('input', event => {
     if (esCambioDeOferta(event)) cotizacionDirty = true;
-    syncCotizacionTotalesDom();
+    syncCotizacionTotalesDom(event.target);
   });
   ofertaForm?.addEventListener('change', event => {
     if (esCambioDeOferta(event)) cotizacionDirty = true;

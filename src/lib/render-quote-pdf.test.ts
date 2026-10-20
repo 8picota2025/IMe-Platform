@@ -40,7 +40,7 @@ it.each(['es', 'en'] as const)(
       strings.filter(s => s === (locale === 'es' ? 'DESCRIPCIÓN' : 'DESCRIPTION')).length
     ).toBeGreaterThan(1);
     expect(strings.filter(s => s === (locale === 'es' ? 'Pendiente' : 'Pending'))).toHaveLength(
-      rows.filter(row => row.precio_pendiente_validar).length * 2
+      rows.filter(row => row.precio_pendiente_validar).length * 4
     );
     expect(strings.some(s => s.endsWith('…'))).toBe(false);
     expect(strings.some(s => s.includes('reference-with-'))).toBe(true);
@@ -57,7 +57,7 @@ it.each(['es', 'en'] as const)(
       );
       expect(borders.some(border => border > y)).toBe(true);
       expect(borders.some(border => border < y)).toBe(true);
-      for (const x of [40, 92, 200, 391.5, 473.5, 555.5]) {
+      for (const x of [40, 92, 164, 309.5, 363.5, 395.5, 449.5, 499.5, 555.5]) {
         expect(
           lines.mock.calls.some(
             ([opts], i) =>
@@ -277,7 +277,7 @@ it('does not add VAT on top when the quote price already includes it', async () 
   });
   const drawn = text.mock.calls.map(([value]) => String(value)).join('\n');
   expect(drawn).toContain('$178.900');
-  expect(drawn).toContain('IVA 19% incl.');
+  expect(drawn).toContain('Total IVA:');
   expect(drawn).not.toContain('212.891');
 });
 
@@ -305,7 +305,8 @@ it('keeps a zero-VAT line at the quoted total', async () => {
   });
   const drawn = text.mock.calls.map(([value]) => String(value)).join('\n');
   expect(drawn).toContain('$178.900');
-  expect(drawn).toContain('IVA 0%');
+  expect(drawn).toContain('Total IVA:');
+  expect(drawn).not.toContain('IVA 0%');
   expect(drawn).not.toContain('212.891');
   expect(drawn).not.toContain('150.336');
 });
@@ -407,8 +408,12 @@ it('prints a dash in the client block when the contact is empty or belongs to I-
   expect(totalPagar?.text).toBe('TOTAL A PAGAR');
   expect(totalDue?.text).toBe('TOTAL DUE');
   expect(Number(importe?.x)).toBeGreaterThan(Number(totalPagar?.x) + 40);
-  expect(drawn).toContain('PRECIO UNIT');
-  expect(drawn).toContain('UNIT PRICE');
+  expect(drawn).toContain('BRUTO');
+  expect(drawn).toContain('GROSS');
+  expect(drawn).toContain('NETO');
+  expect(drawn).toContain('NET');
+  expect(drawn).toContain('IVA');
+  expect(drawn).toContain('VAT');
   expect(drawn).toContain('0550108900697583');
   expect(drawn).toContain('50 % anticipo OC / 50 % antes');
   expect(drawn).not.toContain('Prepaid');
@@ -447,7 +452,9 @@ it('keeps a national COP quote in Spanish and still links Wompi', async () => {
   expect(drawn).toContain('COTIZACIÓN');
   expect(drawn).not.toContain('QUOTATION');
   expect(drawn).not.toContain('UNIT PRICE');
-  expect(drawn).toContain('PRECIO UNIT');
+  expect(drawn).toContain('BRUTO');
+  expect(drawn).toContain('NETO');
+  expect(drawn).toContain('IVA');
   expect(drawn).toContain('DESCRIPCIÓN');
   expect(drawn).toContain('CLIENTE');
   expect(drawn).not.toContain('CLIENTE / CLIENT');
@@ -457,6 +464,40 @@ it('keeps a national COP quote in Spanish and still links Wompi', async () => {
   expect(drawn).toContain('61400006521');
   expect(drawn).not.toContain(NOTA_IMPORTES_USD_ES);
   expect(drawn).toContain('Correo: info@i-me.com.co');
+});
+
+it('prints bruto, discount, net, unit VAT and adds VAT even if the saved total omitted it', async () => {
+  const text = vi.spyOn(PDFPage.prototype, 'drawText');
+  await renderQuotePdf({
+    numero: 'IVA-SUM',
+    clienteNombre: 'Clinica',
+    condiciones: 'Entrega:\n30 dias.',
+    moneda: 'COP',
+    total: 100000,
+    impuestosIncluidos: false,
+    lineas: [
+      {
+        slug: 'ref',
+        nombre: 'Monitor',
+        cantidad: 1,
+        precio_bruto: 100000,
+        descuento_pct: 10,
+        precio_unitario: 90000,
+        iva_unitario: 0,
+        tratamiento_iva: '19',
+        subtotal: 90000,
+        moneda: 'COP',
+      },
+    ],
+    locale: 'es',
+  });
+  const strings = text.mock.calls.map(([value]) => String(value));
+  expect(strings).toContain('BRUTO');
+  expect(strings).toContain('NETO');
+  expect(strings).toContain('IVA');
+  expect(strings).toContain('10 %');
+  expect(strings).toContain('17.100');
+  expect(strings.some(value => value.includes('107.100'))).toBe(true);
 });
 
 it('keeps an em dash when the embedded font can draw it', async () => {

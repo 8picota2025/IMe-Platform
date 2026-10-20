@@ -3,7 +3,13 @@
  * Usados por CMS (admin), formalizar (front) y Edge Functions (crear-pago, enviar, convertir).
  */
 import { validarContactoClienteParaEnvio } from './contacto-cliente.ts';
-import { parseTratamientoIva } from './cotizacion-iva.ts';
+import {
+  ivaUnitarioEfectivo,
+  ivaUnitarioGuardado,
+  parseTratamientoIva,
+  resolverPreciosLinea,
+  roundMoney,
+} from './cotizacion-iva.ts';
 
 export type CotizacionEstadoOferta =
   | 'nueva'
@@ -19,6 +25,7 @@ export interface CotizacionLineaOferta {
   slug: string;
   nombre: string;
   cantidad: number;
+  /** Precio neto (después de descuento). Es el que entra al sumatorio. */
   precio_unitario: number;
   subtotal: number;
   moneda: string;
@@ -34,6 +41,19 @@ export interface CotizacionLineaOferta {
    * también está en blanco, 19 %.
    */
   tratamiento_iva?: '19' | '5' | 'excluido' | 'exento';
+  /** Precio de lista / antes de descuento. */
+  precio_bruto?: number;
+  /** Porcentaje de descuento (0–100). */
+  descuento_pct?: number;
+  /** Bruto × (1 − descuento/100). Se iguala a precio_unitario. */
+  precio_neto?: number;
+  /**
+   * IVA por unidad. Si está, no se recalcula: cada producto puede tener
+   * un IVA distinto y el total es la suma de iva_unitario × cantidad.
+   */
+  iva_unitario?: number;
+  /** iva_unitario × cantidad. */
+  iva_total?: number;
 }
 
 export interface CotizacionOfertaRow {
@@ -84,6 +104,59 @@ export interface CotizacionOfertaRow {
 
 const ESTADOS_FORMALIZABLES = new Set(['enviada', 'respondida']);
 
+function readMoneyField(value: unknown): number | undefined {
+  if (value == null || value === '') return undefined;
+  const n = Number(value);
+  return Number.isFinite(n) && n >= 0 ? roundMoney(n) : undefined;
+}
+
+function readPctField(value: unknown): number | undefined {
+  if (value == null || value === '') return undefined;
+  const n = Number(value);
+  return Number.isFinite(n) ? Math.min(100, Math.max(0, n)) : undefined;
+}
+
+/** Copia bruto/dto/IVA. Recalcula neto; calcula IVA si hay tarifa y el unitario vino en 0. */
+function aplicarPreciosLinea(
+  linea: CotizacionLineaOferta,
+  src: Record<string, unknown> | CotizacionLineaOferta
+): CotizacionLineaOferta {
+  const row = src as Record<string, unknown>;
+  const bruto = readMoneyField(row.precio_bruto);
+  const descuento = readPctField(row.descuento_pct);
+  const tratamiento = parseTratamientoIva(row.tratamiento_iva ?? linea.tratamiento_iva);
+  if (bruto != null) linea.precio_bruto = bruto;
+  if (descuento != null) linea.descuento_pct = descuento;
+  const precios = resolverPreciosLinea({
+    precio_bruto: linea.precio_bruto,
+    descuento_pct: linea.descuento_pct,
+    precio_unitario: linea.precio_unitario,
+    precio_neto: readMoneyField(row.precio_neto),
+  });
+  if (linea.precio_bruto != null || linea.descuento_pct != null) {
+    linea.precio_neto = linea.precio_pendiente_validar ? 0 : precios.neto;
+    linea.precio_unitario = linea.precio_pendiente_validar ? 0 : precios.neto;
+    linea.subtotal = linea.precio_pendiente_validar
+      ? 0
+      : roundMoney(precios.neto * linea.cantidad);
+  } else if (linea.precio_unitario > 0 && !linea.precio_pendiente_validar) {
+    linea.precio_neto = linea.precio_unitario;
+  }
+  const hayIvaDeclarado =
+    tratamiento != null || ivaUnitarioGuardado(row.iva_unitario) != null;
+  if (hayIvaDeclarado && !linea.precio_pendiente_validar) {
+    const ivaUnitario = ivaUnitarioEfectivo(
+      row.iva_unitario,
+      precios.neto,
+      tratamiento ?? '19',
+      false
+    );
+    linea.iva_unitario = ivaUnitario;
+    linea.iva_total = roundMoney(ivaUnitario * linea.cantidad);
+  }
+  return linea;
+}
+
 export function parseLineasOferta(productos: unknown): CotizacionLineaOferta[] {
   if (!Array.isArray(productos)) return [];
   const out: CotizacionLineaOferta[] = [];
@@ -130,6 +203,7 @@ export function parseLineasOferta(productos: unknown): CotizacionLineaOferta[] {
     }
     const tratamiento = parseTratamientoIva(row.tratamiento_iva);
     if (tratamiento) linea.tratamiento_iva = tratamiento;
+    aplicarPreciosLinea(linea, row);
     out.push(linea);
   }
   return out;
@@ -200,6 +274,7 @@ export function canonizarLineasOferta(
     if (l.nombre_en) linea.nombre_en = l.nombre_en;
     if (l.notas_en) linea.notas_en = l.notas_en;
     if (l.tratamiento_iva) linea.tratamiento_iva = l.tratamiento_iva;
+    aplicarPreciosLinea(linea, l);
     return linea;
   });
   return {
@@ -296,6 +371,7 @@ export function sanitizarLineasComercial(
     if (l.nombre_en) linea.nombre_en = l.nombre_en;
     if (l.notas_en) linea.notas_en = l.notas_en;
     if (l.tratamiento_iva) linea.tratamiento_iva = l.tratamiento_iva;
+    aplicarPreciosLinea(linea, l);
     return linea;
   });
 }
