@@ -74,6 +74,39 @@ async function outboundReplyForTurn(
 }
 
 /**
+ * Marks the claimed batch replied. Prefers claim_token; if a concurrent
+ * new_messages release cleared the token after Graph already accepted the
+ * reply, falls back to the batch wamids so we never return 200 on a no-op.
+ */
+async function cerrarLoteReclamado(
+  supabase: SupabaseClient,
+  token: string,
+  fromWa: string,
+  wamids: readonly string[]
+): Promise<WhatsAppReplyResult> {
+  const byToken = await supabase
+    .from('whatsapp_inbound_events')
+    .update({ status: 'replied', retry_count: 0, last_error: null })
+    .eq('agent_claim_token', token)
+    .eq('status', 'pending_agent')
+    .select('wamid');
+  if (byToken.error) return { ok: false, status: 503 };
+  if ((byToken.data?.length ?? 0) > 0) return { ok: true, status: 200 };
+
+  if (wamids.length === 0) return { ok: false, status: 503 };
+  const byWamid = await supabase
+    .from('whatsapp_inbound_events')
+    .update({ status: 'replied', retry_count: 0, last_error: null })
+    .eq('from_wa', fromWa)
+    .eq('status', 'pending_agent')
+    .in('wamid', [...wamids])
+    .select('wamid');
+  if (byWamid.error) return { ok: false, status: 503 };
+  if ((byWamid.data?.length ?? 0) > 0) return { ok: true, status: 200 };
+  return { ok: false, status: 503 };
+}
+
+/**
  * If Graph already accepted this turn's reply but the inbound close failed,
  * close the claimed batch as replied. Newer pending rows (other tokens) stay open.
  */
@@ -81,17 +114,13 @@ async function cerrarLoteSiReplyYaEnviado(
   supabase: SupabaseClient,
   token: string,
   fromWa: string,
-  turnKey: string
+  turnKey: string,
+  wamids: readonly string[]
 ): Promise<WhatsAppReplyResult | null> {
   const prior = await outboundReplyForTurn(supabase, fromWa, turnKey);
   if (prior.error) return { ok: false, status: 503 };
   if (prior.row?.send_status !== 'sent') return null;
-  const closed = await supabase
-    .from('whatsapp_inbound_events')
-    .update({ status: 'replied', retry_count: 0, last_error: null })
-    .eq('agent_claim_token', token)
-    .eq('status', 'pending_agent');
-  return { ok: !closed.error, status: closed.error ? 503 : 200 };
+  return cerrarLoteReclamado(supabase, token, fromWa, wamids);
 }
 
 async function descartarReservaPendiente(
@@ -132,6 +161,7 @@ export async function replyToWhatsAppBatch(
   if (!latest) return { ok: false, status: 409 };
   const newest = newestCreatedAt(claimed);
   if (!newest) return { ok: false, status: 503 };
+  const claimedWamids = claimed.map(row => row.wamid);
 
   const antes = await hayPendingMasNuevo(supabase, latest.from_wa, newest);
   if (antes === null) return { ok: false, status: 503 };
@@ -142,9 +172,15 @@ export async function replyToWhatsAppBatch(
       supabase,
       token,
       latest.from_wa,
-      latest.wamid
+      latest.wamid,
+      claimedWamids
     );
     if (recovered) return recovered;
+    // Sibling reply may be mid-Graph with outbound still pending — releasing
+    // would make its post-send close a no-op (200) and leave inbound reclaimable.
+    const inFlight = await outboundReplyForTurn(supabase, latest.from_wa, latest.wamid);
+    if (inFlight.error) return { ok: false, status: 503 };
+    if (inFlight.row?.send_status === 'pending') return { ok: false, status: 503 };
     const released = await soltarReclamo(supabase, token);
     if (!released) return { ok: false, status: 503 };
     return { ok: false, status: 409, error: 'new_messages' };
@@ -170,7 +206,8 @@ export async function replyToWhatsAppBatch(
       supabase,
       token,
       latest.from_wa,
-      latest.wamid
+      latest.wamid,
+      claimedWamids
     );
     if (recovered) return recovered;
     const prior = await outboundReplyForTurn(supabase, latest.from_wa, latest.wamid);
@@ -226,10 +263,5 @@ export async function replyToWhatsAppBatch(
     });
     return { ok: false, status: 502 };
   }
-  const closed = await supabase
-    .from('whatsapp_inbound_events')
-    .update({ status: 'replied', retry_count: 0, last_error: null })
-    .eq('agent_claim_token', token)
-    .eq('status', 'pending_agent');
-  return { ok: !closed.error, status: closed.error ? 503 : 200 };
+  return cerrarLoteReclamado(supabase, token, latest.from_wa, claimedWamids);
 }

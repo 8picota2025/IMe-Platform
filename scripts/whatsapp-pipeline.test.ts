@@ -534,6 +534,57 @@ describe('WhatsApp pipeline with mocked DB and HTTP (no real sends)', () => {
       agent_claim_token: null,
     });
   });
+  it('does not release under an in-flight pending outbound when newer pending exists', async () => {
+    // Residual after #207: sibling new_messages path released while Graph was
+    // mid-flight → post-send close matched 0 rows but returned 200 → reclaim
+    // Graph-sent again under a new turn_key.
+    const db = database();
+    const claimedAt = String(db.rows.whatsapp_inbound_events![0]!.created_at);
+    db.rows.whatsapp_outbound_messages!.push({
+      id: 'in-flight',
+      to_wa: 'CO.TestBsuid42',
+      kind: 'reply',
+      turn_key: 'test.turn',
+      send_status: 'pending',
+    });
+    db.rows.whatsapp_inbound_events!.push({
+      ...db.rows.whatsapp_inbound_events![0],
+      wamid: 'newer.turn',
+      body: 'sigo',
+      created_at: new Date(Date.parse(claimedAt) + 5_000).toISOString(),
+      agent_claim_token: null,
+      agent_claimed_at: null,
+      status: 'pending_agent',
+    });
+    const fetchImpl = vi.fn<typeof fetch>();
+    expect(
+      await replyToWhatsAppBatch(db.client, graph, 'test.token', 'Respuesta', fetchImpl)
+    ).toEqual({ ok: false, status: 503 });
+    expect(fetchImpl).not.toHaveBeenCalled();
+    expect(db.rows.whatsapp_inbound_events![0]).toMatchObject({
+      wamid: 'test.turn',
+      status: 'pending_agent',
+      agent_claim_token: 'test.token',
+    });
+  });
+  it('closes by batch wamid when claim_token was cleared during Graph send', async () => {
+    const db = database();
+    const fetchImpl = vi.fn<typeof fetch>(async () => {
+      const row = db.rows.whatsapp_inbound_events![0]!;
+      row.agent_claim_token = null;
+      row.agent_claimed_at = null;
+      return Response.json({ messages: [{ id: 'test.reply' }] });
+    });
+    expect(
+      await replyToWhatsAppBatch(db.client, graph, 'test.token', 'Respuesta', fetchImpl)
+    ).toEqual({ ok: true, status: 200 });
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    expect(db.rows.whatsapp_inbound_events![0]).toMatchObject({
+      wamid: 'test.turn',
+      status: 'replied',
+    });
+    expect(db.rows.whatsapp_outbound_messages![0]?.send_status).toBe('sent');
+  });
   it('still sends when the only newer pending row belongs to another contact', async () => {
     const db = database();
     const claimedAt = String(db.rows.whatsapp_inbound_events![0]!.created_at);
