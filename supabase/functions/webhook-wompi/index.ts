@@ -22,7 +22,11 @@ import {
   registrarPedidoPagado,
 } from '../_shared/post-pago.ts';
 import { withTelemetry, trackEvent } from '../_shared/telemetry.ts';
-import { claimPaidTransition, type PaymentStateClient } from '../../../src/lib/payment-state.ts';
+import {
+  claimPaidTransition,
+  montosCobroCoinciden,
+  type PaymentStateClient,
+} from '../../../src/lib/payment-state.ts';
 import { pareceNumeroCotizacion } from '../../../src/lib/pedido-referencia.ts';
 import {
   buscarCotizacionPorNumero,
@@ -34,6 +38,7 @@ const FN_NAME = 'webhook-wompi';
 interface PedidoRow {
   id: string;
   estado: string;
+  total: number | string | null;
   items: Array<{ producto_id: string }>;
   metadata: Record<string, unknown> | null;
 }
@@ -94,10 +99,15 @@ Deno.serve(
       }
     }
 
+    // ── Verificación server-side del estado real (nunca confiar solo en el payload) ──
+    // Se consulta antes de materializar pedidos de recuperación IME-Q para fijar
+    // pedido.total al monto realmente cobrado (evita cumplir ofertas con total live ≠ cobro).
+    const verificacion = await gateway.verificarPago(evento.referencia_pasarela);
+
     // ── Buscar pedido ──────────────────────────────────────────
     let { data: pedido, error: pedidoError } = await supabase
       .from('pedidos')
-      .select('id, estado, items, metadata')
+      .select('id, estado, total, items, metadata')
       .eq('referencia_pasarela', evento.referencia_pasarela)
       .maybeSingle();
 
@@ -112,11 +122,17 @@ Deno.serve(
       if (cotizacion) {
         const creado = await crearOReusarPedidoWompiDesdeCotizacion(supabase, cotizacion, {
           referenciaPasarelaOverride: evento.referencia_pasarela,
+          totalOverride:
+            verificacion.estado === 'pagado' &&
+            typeof verificacion.monto === 'number' &&
+            verificacion.monto > 0
+              ? verificacion.monto
+              : null,
         });
         if (creado.ok) {
           const reloaded = await supabase
             .from('pedidos')
-            .select('id, estado, items, metadata')
+            .select('id, estado, total, items, metadata')
             .eq('id', creado.pedidoId)
             .maybeSingle();
           pedido = reloaded.data;
@@ -148,14 +164,51 @@ Deno.serve(
 
     const pedidoRow = pedido as unknown as PedidoRow;
 
-    // ── Verificación server-side del estado real (nunca confiar solo en el payload) ──
-    const verificacion = await gateway.verificarPago(evento.referencia_pasarela);
     const nuevoEstado = verificacion.estado;
     const eraPagado = pedidoRow.estado === 'pagado';
     let pagoReclamado = false;
     let estadoActualizado = false;
 
     if (!eraPagado && nuevoEstado === 'pagado') {
+      const match = montosCobroCoinciden(Number(pedidoRow.total), verificacion.monto);
+      if (match.comparable && !match.coincide) {
+        void trackEvent(
+          FN_NAME,
+          'pago_monto_mismatch',
+          {
+            pedido_id: pedidoRow.id,
+            total_pedido: Number(pedidoRow.total),
+            monto_pasarela: verificacion.monto,
+            referencia: evento.referencia_pasarela,
+          },
+          { nivel: 'error' }
+        );
+        await supabase
+          .from('pedidos')
+          .update({
+            metadata: {
+              ...(pedidoRow.metadata ?? {}),
+              pago_monto_mismatch: {
+                event_id: evento.event_id,
+                total_pedido: Number(pedidoRow.total),
+                monto_pasarela: verificacion.monto,
+                at: new Date().toISOString(),
+              },
+            },
+          })
+          .eq('id', pedidoRow.id)
+          .neq('estado', 'pagado');
+        // Marcar procesado: reintentos de Wompi no cambiarán el desajuste; ops reconcilia.
+        await supabase
+          .from('eventos_pago')
+          .update({ procesado: true })
+          .eq('proveedor_pago', 'wompi')
+          .eq('event_id', evento.event_id);
+        return new Response(JSON.stringify({ ok: true, monto_mismatch: true }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
+        });
+      }
       const claim = await claimPaidTransition(
         supabase as unknown as PaymentStateClient,
         pedidoRow.id

@@ -10,9 +10,11 @@ import {
 } from '../../../src/lib/cotizacion-oferta.ts';
 import { desgloseDeLineas } from './cotizacion-pago.ts';
 
+/* eslint-disable @typescript-eslint/no-explicit-any -- Edge query facade */
 type SupabaseLike = {
   from: (table: string) => any;
 };
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 export type PedidoWompiDesdeCotizacion =
   | { ok: true; pedidoId: string; total: number; moneda: string; created: boolean }
@@ -21,8 +23,11 @@ export type PedidoWompiDesdeCotizacion =
 function totalAPagar(
   desgloseTotal: number,
   row: CotizacionOfertaRow,
-  lineas: ReturnType<typeof parseLineasOferta>
+  lineas: ReturnType<typeof parseLineasOferta>,
+  totalOverride?: number | null
 ): number {
+  const forced = Number(totalOverride);
+  if (Number.isFinite(forced) && forced > 0) return forced;
   if (desgloseTotal > 0) return desgloseTotal;
   const locked = Number(row.precio_total_ofertado);
   if (Number.isFinite(locked) && locked > 0) return locked;
@@ -30,13 +35,38 @@ function totalAPagar(
 }
 
 /**
+ * Revierte un pedido Wompi pendiente creado al fallar el firmado de checkout,
+ * y libera la cotización para reintento / transferencia.
+ */
+export async function revertirPedidoWompiPendienteCotizacion(
+  supabase: SupabaseLike,
+  pedidoId: string,
+  cotizacionId: string
+): Promise<void> {
+  await supabase.from('pedidos').delete().eq('id', pedidoId).eq('estado', 'pendiente');
+  await supabase
+    .from('solicitudes_cotizacion')
+    .update({ estado: 'enviada', pedido_id: null })
+    .eq('id', cotizacionId)
+    .eq('pedido_id', pedidoId)
+    .eq('estado', 'convertida');
+}
+
+/**
  * Inserta pedido pendiente + reclama la cotización (estado convertida).
  * Si ya hay pedido con la misma cotización y proveedor wompi pendiente, lo reutiliza.
+ *
+ * `reclamarCotizacion: false` deja el pedido huérfano de claim para que el caller
+ * firme Wompi primero y reclame después (evita convertida sin checkout_url).
  */
 export async function crearOReusarPedidoWompiDesdeCotizacion(
   supabase: SupabaseLike,
   row: CotizacionOfertaRow,
-  opts?: { referenciaPasarelaOverride?: string | null }
+  opts?: {
+    referenciaPasarelaOverride?: string | null;
+    totalOverride?: number | null;
+    reclamarCotizacion?: boolean;
+  }
 ): Promise<PedidoWompiDesdeCotizacion> {
   const id = String(row.id);
   if (row.pedido_id) {
@@ -83,7 +113,7 @@ export async function crearOReusarPedidoWompiDesdeCotizacion(
     impuestosIncluidos,
     moneda,
   });
-  const total = totalAPagar(desglose.total, row, lineas);
+  const total = totalAPagar(desglose.total, row, lineas, opts?.totalOverride);
   if (!(total > 0)) {
     return { ok: false, code: 'TOTAL_INVALIDO', message: 'Total a pagar invalido' };
   }
@@ -216,6 +246,33 @@ export async function crearOReusarPedidoWompiDesdeCotizacion(
     };
   }
 
+  if (opts?.reclamarCotizacion === false) {
+    return { ok: true, pedidoId, total, moneda, created: true };
+  }
+
+  const reclamada = await reclamarCotizacionParaPedidoWompi(supabase, row, pedidoId, total);
+  if (!reclamada.ok) {
+    await supabase.from('pedidos').delete().eq('id', pedidoId);
+    return {
+      ok: false,
+      code: reclamada.code,
+      message: reclamada.message,
+    };
+  }
+
+  return { ok: true, pedidoId, total, moneda, created: true };
+}
+
+/**
+ * CAS: enviada|respondida + sin pedido → convertida con pedido_id.
+ */
+export async function reclamarCotizacionParaPedidoWompi(
+  supabase: SupabaseLike,
+  row: CotizacionOfertaRow,
+  pedidoId: string,
+  total: number
+): Promise<{ ok: true } | { ok: false; code: string; message: string }> {
+  const id = String(row.id);
   const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 16);
   const notasPrevias = String((row as { notas_internas?: string }).notas_internas ?? '').trim();
   const nota = `[${timestamp}] Cliente inicio pago Wompi. Pedido ${pedidoId.slice(0, 8)}.`;
@@ -236,15 +293,13 @@ export async function crearOReusarPedidoWompiDesdeCotizacion(
     .maybeSingle();
 
   if (claimError || !claimed) {
-    await supabase.from('pedidos').delete().eq('id', pedidoId);
     return {
       ok: false,
       code: 'COTIZACION_YA_CONVERTIDA',
       message: claimError?.message ?? 'Esta cotizacion ya fue formalizada',
     };
   }
-
-  return { ok: true, pedidoId, total, moneda, created: true };
+  return { ok: true };
 }
 
 /**

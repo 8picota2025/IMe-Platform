@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
-import { claimPaidTransition, type PaymentStateClient } from './payment-state';
+import {
+  claimPaidTransition,
+  montoDesdeCentavos,
+  montosCobroCoinciden,
+  type PaymentStateClient,
+} from './payment-state';
 
 function createClient(result: { data: { id: string } | null; error: { message: string } | null }) {
   const maybeSingle = vi.fn().mockResolvedValue(result);
@@ -45,5 +50,47 @@ describe('claimPaidTransition', () => {
       claimed: false,
       error: 'database unavailable',
     });
+  });
+});
+
+describe('montosCobroCoinciden', () => {
+  it('treats missing gateway amount as non-comparable (caller may fail-open)', () => {
+    expect(montosCobroCoinciden(178_900, undefined)).toEqual({
+      comparable: false,
+      coincide: true,
+    });
+    expect(montosCobroCoinciden(178_900, null)).toEqual({
+      comparable: false,
+      coincide: true,
+    });
+  });
+
+  it('matches COP major units against gateway major units', () => {
+    expect(montosCobroCoinciden(178_900, 178_900)).toEqual({
+      comparable: true,
+      coincide: true,
+    });
+    expect(montosCobroCoinciden(178_900, montoDesdeCentavos(17_890_000))).toEqual({
+      comparable: true,
+      coincide: true,
+    });
+  });
+
+  it('rejects under/overcharge vs pedido.total', () => {
+    expect(montosCobroCoinciden(178_900, 150_000)).toEqual({
+      comparable: true,
+      coincide: false,
+    });
+    expect(montosCobroCoinciden(178_900, 200_000)).toEqual({
+      comparable: true,
+      coincide: false,
+    });
+  });
+});
+
+describe('montoDesdeCentavos', () => {
+  it('converts minor units to major units', () => {
+    expect(montoDesdeCentavos(17_890_000)).toBe(178_900);
+    expect(montoDesdeCentavos(undefined)).toBeUndefined();
   });
 });
