@@ -15,6 +15,7 @@
  * - SITE_URL (origen público del sitio, p.ej. https://i-me.com.co) — usado para redirect URLs
  */
 
+import { montoDesdeCentavos } from '../../../src/lib/payment-state.ts';
 import { buildWompiCheckoutUrl } from '../../../src/lib/wompi-checkout.ts';
 
 export type PaymentProvider = 'wompi' | 'stripe';
@@ -70,6 +71,9 @@ export interface CheckoutResult {
 
 export interface VerificacionPago {
   estado: PedidoEstado;
+  /** Monto cobrado en unidades mayores (COP pesos / USD), si la pasarela lo reporta. */
+  monto?: number;
+  moneda?: string;
   raw?: unknown;
 }
 
@@ -254,8 +258,14 @@ export class WompiGateway implements PaymentGateway {
       // Prioridad: APPROVED > cualquier otro
       const approved = transactions.find(t => t.status?.toUpperCase() === 'APPROVED');
       const latest = approved ?? transactions[transactions.length - 1];
+      if (!latest) return { estado: 'pendiente' };
 
-      return { estado: mapWompiEstado(latest!.status), raw: latest };
+      return {
+        estado: mapWompiEstado(latest.status),
+        monto: montoDesdeCentavos(latest.amount_in_cents),
+        moneda: latest.currency ? String(latest.currency).toUpperCase() : undefined,
+        raw: latest,
+      };
     } catch {
       return { estado: 'error_verificacion' };
     }
@@ -309,6 +319,8 @@ interface StripeCheckoutSession {
   status?: string;
   payment_status?: string;
   client_reference_id?: string | null;
+  amount_total?: number | null;
+  currency?: string | null;
 }
 
 function mapStripeEstado(session: StripeCheckoutSession): PedidoEstado {
@@ -385,7 +397,12 @@ export class StripeGateway implements PaymentGateway {
       );
       if (!res.ok) return { estado: 'error_verificacion' };
       const json = (await res.json()) as StripeCheckoutSession;
-      return { estado: mapStripeEstado(json), raw: json };
+      return {
+        estado: mapStripeEstado(json),
+        monto: montoDesdeCentavos(json.amount_total ?? undefined),
+        moneda: json.currency ? String(json.currency).toUpperCase() : undefined,
+        raw: json,
+      };
     } catch {
       return { estado: 'error_verificacion' };
     }

@@ -32,6 +32,32 @@ export interface PaidTransitionClaim {
 }
 
 /**
+ * Compare pedido.total (major units) with a gateway-reported charge.
+ * Missing gateway amount → unknown (caller may fail-open); mismatch → false.
+ */
+export function montosCobroCoinciden(
+  pedidoTotal: number,
+  montoPasarela: number | null | undefined
+): { comparable: boolean; coincide: boolean } {
+  if (montoPasarela === null || montoPasarela === undefined || !Number.isFinite(montoPasarela)) {
+    return { comparable: false, coincide: true };
+  }
+  if (!Number.isFinite(pedidoTotal)) {
+    return { comparable: true, coincide: false };
+  }
+  return {
+    comparable: true,
+    coincide: Math.round(pedidoTotal * 100) === Math.round(montoPasarela * 100),
+  };
+}
+
+/** Wompi/Stripe report integer minor units (centavos / cents). */
+export function montoDesdeCentavos(centavos: number | null | undefined): number | undefined {
+  if (centavos === null || centavos === undefined || !Number.isFinite(centavos)) return undefined;
+  return centavos / 100;
+}
+
+/**
  * Atomically changes a non-paid order to paid and returns whether this caller
  * won the transition. Only the winner may execute customer/provider side effects.
  */
