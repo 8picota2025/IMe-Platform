@@ -52,9 +52,7 @@ describe('SEO P0', () => {
     expect(caminadores.productSlugs.length).toBeGreaterThan(0);
     const monitores = getCampaignLanding('monitores_biolight', 'es');
     expect(monitores.path).toBe('/es/monitores-biolight-uci/');
-    expect(monitores.productSlugs).toContain(
-      'monitor-de-paciente-modular-serie-p-ref-p15-biolight'
-    );
+    expect(monitores.productSlugs).toContain('monitor-de-paciente-ref-s12-biolight');
     const altoFlujo = getCampaignLanding('alto_flujo_fisher_paykel', 'es');
     expect(altoFlujo.path).toBe('/es/alto-flujo-fisher-paykel/');
     expect(altoFlujo.productSlugs).toEqual([]);

@@ -14,7 +14,14 @@ import {
   buildFaqJsonLd,
   combineJsonLd,
 } from '../../../lib/seo';
-import { getProductos, getFamilias, type Familia, type Producto } from '../../../lib/datos';
+import {
+  CATALOG_INDEX_FETCH,
+  getProductos,
+  getFamilias,
+  type Familia,
+  type Producto,
+} from '../../../lib/datos';
+import { seleccionarRelacionados } from '../../../lib/relacion-accesorios';
 import { normalizarEspecificaciones } from '../../../lib/especificaciones';
 import { getProductoSeoCopy } from '../../../data/producto-seo-copy';
 
@@ -22,7 +29,7 @@ const locale = 'es';
 
 export async function getStaticPaths() {
   const [productos, familias] = await Promise.all([
-    getProductos({ pageSize: 1000 }, 'es'),
+    getProductos({ pageSize: CATALOG_INDEX_FETCH }, 'es'),
     getFamilias('es'),
   ]);
   const familiasPorSlug = new Map(familias.map(familia => [familia.slug, familia] as const));
@@ -46,9 +53,11 @@ export async function getStaticPaths() {
         orden: 0,
         activo: true,
       },
-      relacionados: (productosPorFamilia.get(producto.familia_slug) ?? [])
-        .filter(item => item.slug !== producto.slug)
-        .slice(0, 4),
+      relacionados: seleccionarRelacionados(
+        producto,
+        productosPorFamilia.get(producto.familia_slug) ?? [],
+        productos
+      ),
     },
   }));
 }

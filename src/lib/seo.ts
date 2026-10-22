@@ -557,67 +557,14 @@ function buildPriceValidUntil(): string {
   return until.toISOString().slice(0, 10);
 }
 
-/** Merchant return policy — alineada a /es/legal/devoluciones/ y términos B2B. */
-export function buildMerchantReturnPolicyJsonLd(locale: Locale): Record<string, unknown> {
-  const legalPath = locale === 'en' ? '/en/legal/returns/' : '/es/legal/devoluciones/';
-  return {
-    '@type': 'MerchantReturnPolicy',
-    '@id': `${SITE}/#return-policy`,
-    applicableCountry: 'CO',
-    returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
-    merchantReturnDays: 5,
-    returnMethod: 'https://schema.org/ReturnByMail',
-    returnFees: 'https://schema.org/ReturnFeesCustomerResponsibility',
-    returnPolicyUrl: `${SITE}${legalPath}`,
-  };
-}
-
-/** Shipping defaults for Colombia — coste final se confirma en cotización. */
-function buildOfferShippingDetails(_currency: string): Record<string, unknown> {
-  return {
-    '@type': 'OfferShippingDetails',
-    shippingDestination: {
-      '@type': 'DefinedRegion',
-      addressCountry: 'CO',
-    },
-    deliveryTime: {
-      '@type': 'ShippingDeliveryTime',
-      handlingTime: {
-        '@type': 'QuantitativeValue',
-        minValue: 1,
-        maxValue: 5,
-        unitCode: 'DAY',
-      },
-      transitTime: {
-        '@type': 'QuantitativeValue',
-        minValue: 2,
-        maxValue: 15,
-        unitCode: 'DAY',
-      },
-    },
-  };
-}
-
 /**
- * Familias de cotización donde un Offer sin precio rompería las rich results:
- * imagen (radiología y ultrasonido), esterilización y robots.
- */
-const FAMILIAS_PRODUCTO_SIN_OFFER = new Set([
-  'radiologia',
-  'ultrasonido',
-  'imagenologia',
-  'imagenologia-y-radiologia',
-  'esterilizacion-control-infecciones',
-  'robots',
-]);
-
-/**
- * JSON-LD Product. Plantilla única: imagen, esterilización y robots reutilizan
- * esta función y no forkear el schema.
- * Con precio de catálogo: Offer con price y priceCurrency.
- * Sin precio, en imagen, esterilización o robots: solo Product (marca, modelo,
- * imagen, sku si existe). Un Offer sin price no es válido en esas rich results.
- * Sin precio en el resto de familias: Offer sin price ni priceCurrency.
+ * JSON-LD Product para rich results de producto.
+ * Con precio público: Offer con price, priceCurrency y availability.
+ * Sin precio: no se emite Product. Un Offer sin price, o un Product sin
+ * offers/review/aggregateRating, es el «1 elemento no válido» de Search Console.
+ * No se inventan precios. shippingDetails y hasMerchantReturnPolicy se omiten:
+ * no hay tarifa de flete publicada (el flete no va en el precio) y la garantía
+ * es la del fabricante, no una ventana de devolución del comercio.
  * MedicalDevice solo con sellos de normativa en specs.
  */
 export function buildProductJsonLd(
@@ -637,11 +584,8 @@ export function buildProductJsonLd(
   categoria?: string,
   marca?: string | null,
   opts?: { certificaciones?: string[]; familiaSlug?: string; model?: string | null }
-): Record<string, unknown> {
-  const precioPublico = tienePrecioPublico(producto.precio);
-  const omitirOffer = Boolean(
-    !precioPublico && opts?.familiaSlug && FAMILIAS_PRODUCTO_SIN_OFFER.has(opts.familiaSlug)
-  );
+): Record<string, unknown> | null {
+  if (!tienePrecioPublico(producto.precio)) return null;
 
   const segment = locale === 'en' ? 'products' : 'productos';
   const canonicalUrl = buildCanonical(`/${locale}/${segment}/${producto.slug}`);
@@ -668,41 +612,20 @@ export function buildProductJsonLd(
   };
   const modelo = opts?.model?.trim();
   if (modelo) jsonLd.model = modelo;
-  if (precioPublico) {
-    jsonLd.seller = { '@id': `${SITE}/#organization` };
-    const priceCurrency = normalizarMoneda(producto.moneda);
-    jsonLd.offers = {
-      '@type': 'Offer',
-      url: canonicalUrl,
-      price: producto.precio,
-      priceCurrency,
-      priceValidUntil: buildPriceValidUntil(),
-      itemCondition: 'https://schema.org/NewCondition',
-      availability:
-        producto.disponible === false
-          ? 'https://schema.org/OutOfStock'
-          : 'https://schema.org/InStock',
-      seller: { '@id': `${SITE}/#organization` },
-      areaServed: { '@type': 'Country', name: 'Colombia' },
-      businessFunction: 'http://purl.org/goodrelations/v1#Sell',
-      hasMerchantReturnPolicy: buildMerchantReturnPolicyJsonLd(locale),
-      shippingDetails: buildOfferShippingDetails(priceCurrency),
-    };
-  } else if (!omitirOffer) {
-    jsonLd.seller = { '@id': `${SITE}/#organization` };
-    jsonLd.offers = {
-      '@type': 'Offer',
-      url: canonicalUrl,
-      itemCondition: 'https://schema.org/NewCondition',
-      availability:
-        producto.disponible === false
-          ? 'https://schema.org/OutOfStock'
-          : 'https://schema.org/InStock',
-      seller: { '@id': `${SITE}/#organization` },
-      areaServed: { '@type': 'Country', name: 'Colombia' },
-      businessFunction: 'http://purl.org/goodrelations/v1#Sell',
-    };
-  }
+  const priceCurrency = normalizarMoneda(producto.moneda);
+  jsonLd.offers = {
+    '@type': 'Offer',
+    url: canonicalUrl,
+    price: producto.precio,
+    priceCurrency,
+    priceValidUntil: buildPriceValidUntil(),
+    itemCondition: 'https://schema.org/NewCondition',
+    availability:
+      producto.disponible === false
+        ? 'https://schema.org/OutOfStock'
+        : 'https://schema.org/InStock',
+    seller: { '@id': `${SITE}/#organization` },
+  };
   if (categoria) jsonLd.category = categoria;
   if (opts?.familiaSlug) {
     const famSeg = locale === 'en' ? 'families' : 'familias';
@@ -834,6 +757,26 @@ export function buildServiciosJsonLd(locale: Locale): Record<string, unknown> {
 /**
  * JSON-LD BreadcrumbList — a partir de una lista ordenada {name, url}.
  */
+/**
+ * ItemList de URLs. No anida Product: un Product sin precio válido
+ * invalida los rich results de la página de listado.
+ */
+export function buildUrlItemList(input: {
+  name: string;
+  items: Array<{ name: string; url: string }>;
+}): Record<string, unknown> {
+  return {
+    '@type': 'ItemList',
+    name: input.name,
+    itemListElement: input.items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      url: item.url,
+    })),
+  };
+}
+
 export function buildBreadcrumbJsonLd(
   items: Array<{ name: string; url: string }>
 ): Record<string, unknown> {

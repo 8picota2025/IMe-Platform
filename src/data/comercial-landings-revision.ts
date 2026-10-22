@@ -18,20 +18,13 @@ const REVISION_ES: readonly CampaignLandingRevision[] = [
     id: 'torres_laparoscopia',
     path: '/es/torres-laparoscopia/',
     h1: 'Su quirófano merece una torre que el equipo quiera usar',
-    productSlugs: [
-      'torre-laparoscopia-4k-sonoscape-ref-sv-m4k120',
-      'torre-laparoscopia-fhd-sonoscape-x2600',
-    ],
+    productSlugs: [],
   },
   {
     id: 'esterilizacion',
     path: '/es/esterilizacion/',
     h1: 'Equipos de esterilización y autoclaves hospitalarios en Colombia',
-    productSlugs: [
-      'autoclave-horizontal-ref-5075-tuttnauer',
-      'ref-t-max-6-tuttnauer',
-      'automate-ref-ahpv1115v-saniswiss',
-    ],
+    productSlugs: ['autoclave-horizontal-ref-5075-tuttnauer', 'autoclave-ref-t-max-6-tuttnauer'],
   },
   {
     id: 'imagenologia',
@@ -89,9 +82,7 @@ const REVISION_ES: readonly CampaignLandingRevision[] = [
     path: '/es/monitores-biolight-uci/',
     h1: 'Monitores Biolight para UCI — P15 modular y S12 con criterio institucional',
     productSlugs: [
-      'monitor-de-paciente-modular-serie-p-ref-p15-biolight',
       'monitor-de-paciente-ref-s12-biolight',
-      'monitor-de-paciente-ref-p12-biolight',
       'monitor-de-paciente-ref-m12-biolight',
       'monitor-modular-de-paciente-ref-pm-200m-advanced',
     ],
@@ -133,7 +124,6 @@ const REVISION_ES: readonly CampaignLandingRevision[] = [
     productSlugs: [
       'monitor-multiparametrico-uci-avanzado',
       'monitor-multiparametrico-basico',
-      'monitor-de-paciente-modular-serie-p-ref-p15-biolight',
       'monitor-de-paciente-ref-m12-biolight',
       'monitor-central-uci-multicama',
     ],

@@ -45,9 +45,9 @@ Do **not** use this site for:
 
 ## Trust anchors
 
-- About: https://i-me.com.co/about/ | https://i-me.com.co/es/nosotros/ | https://i-me.com.co/en/about/
-- Privacy: https://i-me.com.co/privacy/ | https://i-me.com.co/es/legal/privacidad/ | https://i-me.com.co/en/legal/privacy/
-- Contact: https://i-me.com.co/contact/ | https://i-me.com.co/es/contacto/ | https://i-me.com.co/en/contact/
+- About: https://i-me.com.co/es/nosotros/ | https://i-me.com.co/en/about/
+- Privacy: https://i-me.com.co/es/legal/privacidad/ | https://i-me.com.co/en/legal/privacy/
+- Contact: https://i-me.com.co/es/contacto/ | https://i-me.com.co/en/contact/
 
 ## Crawling and citations
 

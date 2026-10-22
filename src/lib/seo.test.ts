@@ -84,25 +84,28 @@ describe('buildProductJsonLd', () => {
   });
 
   it.each([0, null, undefined, NaN, 'invalido' as unknown as number])(
-    'emite Product y Offer sin price cuando el precio no es público: %s',
+    'no emite Product ni Offer cuando el precio no es público: %s',
     precio => {
-      const jsonLd = buildProductJsonLd({ ...producto, precio }, 'es');
-      expect(jsonLd['@type']).toBe('Product');
-      const offers = jsonLd.offers as Record<string, unknown>;
-      expect(offers['@type']).toBe('Offer');
-      expect(offers.price).toBeUndefined();
-      expect(offers.priceCurrency).toBeUndefined();
-      expect(offers.availability).toBe('https://schema.org/InStock');
+      expect(buildProductJsonLd({ ...producto, precio }, 'es')).toBeNull();
     }
   );
 
-  it('Offer incluye campos merchant listing cuando hay precio', () => {
+  it('Offer con precio incluye moneda, disponibilidad y omite flete o devolución no publicados', () => {
     const jsonLd = expectProductJsonLd(producto, 'es', 'Monitores', 'Biolight');
     const offers = jsonLd.offers as Record<string, unknown>;
     expect(offers.itemCondition).toBe('https://schema.org/NewCondition');
     expect(offers.priceValidUntil).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-    expect(offers.hasMerchantReturnPolicy).toBeDefined();
-    expect(offers.shippingDetails).toBeDefined();
+    expect(offers.availability).toBe('https://schema.org/InStock');
+    expect(offers.priceCurrency).toBe('COP');
+    expect(offers.hasMerchantReturnPolicy).toBeUndefined();
+    expect(offers.shippingDetails).toBeUndefined();
+  });
+
+  it('marca agotado solo cuando disponible es false', () => {
+    const jsonLd = expectProductJsonLd({ ...producto, disponible: false }, 'es');
+    expect((jsonLd.offers as { availability: string }).availability).toBe(
+      'https://schema.org/OutOfStock'
+    );
   });
 
   it('no añade reviews ni aggregateRating sin datos reales', () => {
@@ -116,39 +119,18 @@ describe('buildProductJsonLd', () => {
     expect(jsonLd.sku).toBe('M12-BIOLIGHT');
   });
 
-  it('en imagen, esterilización y robots sin precio emite Product y no un Offer inválido', () => {
+  it('sin precio no emite Product aunque la familia sea de imagen, esterilización o robots', () => {
     for (const familiaSlug of ['radiologia', 'esterilizacion-control-infecciones', 'robots']) {
-      const jsonLd = expectProductJsonLd(
-        { ...producto, precio: null, sku: familiaSlug === 'robots' ? 'PADBOT-P2' : null },
-        'es',
-        'Imagen',
-        'Angell',
-        { familiaSlug, model: 'ALC-280' }
-      );
-      expect(jsonLd.offers).toBeUndefined();
-      expect(jsonLd.seller).toBeUndefined();
-      expect((jsonLd.brand as { name: string }).name).toBe('Angell');
-      expect(jsonLd.model).toBe('ALC-280');
-      expect(jsonLd.image).toContain('/assets/productos/monitor-paciente.jpg');
-      if (familiaSlug === 'robots') expect(jsonLd.sku).toBe('PADBOT-P2');
-      else expect(jsonLd.sku).toBeUndefined();
+      expect(
+        buildProductJsonLd(
+          { ...producto, precio: null, sku: familiaSlug === 'robots' ? 'PADBOT-P2' : null },
+          'es',
+          'Imagen',
+          'Angell',
+          { familiaSlug, model: 'ALC-280' }
+        )
+      ).toBeNull();
     }
-  });
-
-  it('sin precio y fuera de esas familias emite Offer sin price', () => {
-    const jsonLd = expectProductJsonLd(
-      { ...producto, precio: null },
-      'es',
-      'Monitores',
-      'Biolight',
-      {
-        familiaSlug: 'monitores',
-      }
-    );
-    const offers = jsonLd.offers as Record<string, unknown>;
-    expect(offers['@type']).toBe('Offer');
-    expect(offers.price).toBeUndefined();
-    expect(offers.priceCurrency).toBeUndefined();
   });
 });
 

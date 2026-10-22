@@ -132,6 +132,73 @@ jobs:
           # índice remoto limpio tras migración global de URLs.
           state-name: .ftp-deploy-sync-state-v3.json
 
+      - name: Remove legacy PR preview folders
+        env:
+          FTP_HOST: ${{ secrets.HOSTINGER_FTP_HOST }}
+          FTP_USER: ${{ secrets.HOSTINGER_FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
+          PROD_PATH: ${{ secrets.HOSTINGER_PROD_PATH }}
+        run: |
+          python3 << 'PY'
+          import ftplib
+          import os
+          import re
+
+          host = os.environ["FTP_HOST"].strip()
+          host = re.sub(r"^ftp://", "", host).strip("/")
+          user = os.environ["FTP_USER"]
+          password = os.environ["FTP_PASSWORD"]
+          root = os.environ["PROD_PATH"].rstrip("/")
+          if not root.startswith("/") or root in ("", "/"):
+              raise SystemExit("HOSTINGER_PROD_PATH must be an absolute non-root path")
+
+          def is_dir(ftp, path):
+              current = ftp.pwd()
+              try:
+                  ftp.cwd(path)
+                  ftp.cwd(current)
+                  return True
+              except ftplib.error_perm:
+                  return False
+
+          def rmtree(ftp, path):
+              current = ftp.pwd()
+              ftp.cwd(path)
+              names = []
+              ftp.retrlines("NLST", names.append)
+              for name in names:
+                  base = name.rstrip("/").split("/")[-1]
+                  if base in (".", "..") or base == "":
+                      continue
+                  child = name if name.startswith("/") else f"{path.rstrip('/')}/{base}"
+                  if is_dir(ftp, child):
+                      rmtree(ftp, child)
+                  else:
+                      ftp.delete(child)
+              ftp.cwd(current)
+              ftp.rmd(path)
+
+          ftp = ftplib.FTP(host, timeout=120)
+          ftp.login(user, password)
+          ftp.cwd(root)
+          names = []
+          ftp.retrlines("NLST", names.append)
+          removed = []
+          for name in names:
+              base = name.rstrip("/").split("/")[-1]
+              if not re.fullmatch(r"[0-9]+", base):
+                  continue
+              target = f"{root}/{base}"
+              print(f"Removing preview folder {target}")
+              try:
+                  rmtree(ftp, target)
+                  removed.append(base)
+              except ftplib.error_perm as exc:
+                  print(f"Skip {target}: {exc}")
+          ftp.quit()
+          print("Removed preview folders:", ", ".join(removed) if removed else "(none)")
+          PY
+
       - name: Smoke test producción
         env:
           PROD_URL: https://i-me.com.co

@@ -11,6 +11,7 @@ import {
   buildOrganizationJsonLd,
   buildBreadcrumbJsonLd,
   buildFaqJsonLd,
+  buildUrlItemList,
   combineJsonLd,
 } from '../../../lib/seo';
 import {
@@ -68,6 +69,15 @@ const jsonLd = combineJsonLd(
     { name: name, url: canonical },
   ]),
   buildFaqJsonLd(faq),
+  familyPage.items.length > 0
+    ? buildUrlItemList({
+        name,
+        items: familyPage.items.map(item => ({
+          name: item.nombre,
+          url: buildCanonical(`/es/productos/${item.slug}`),
+        })),
+      })
+    : null,
   {
     '@type': 'CollectionPage',
     name: content.title_es,

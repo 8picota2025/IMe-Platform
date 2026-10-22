@@ -4,7 +4,7 @@
  */
 
 import type { Locale } from '../i18n/utils';
-import { getFamilias, getProductos, getTipos, type Producto } from './datos';
+import { CATALOG_INDEX_FETCH, getFamilias, getProductos, getTipos, type Producto } from './datos';
 import { getFamiliasFiltro } from './taxonomia-catalogo';
 
 export interface CatalogoIndexItem {
@@ -86,7 +86,7 @@ const catalogIndexCache = new Map<Locale, Promise<CatalogoIndexItem[]>>();
 
 async function buildCatalogoIndexUncached(locale: Locale): Promise<CatalogoIndexItem[]> {
   const familias = await getFamilias(locale);
-  const productos = await getProductos({ pageSize: 1000 }, locale);
+  const productos = await getProductos({ pageSize: CATALOG_INDEX_FETCH }, locale);
 
   const tiposPorFamilia = new Map<string, Map<string, { slug: string; nombre: string }>>();
   for (const familia of familias) {

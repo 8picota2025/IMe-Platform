@@ -190,7 +190,7 @@ RewriteCond %{HTTP:Accept} !text/markdown\\s*;\\s*q\\s*=\\s*0 [NC]
 RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI}index.md -f
 RewriteRule ^(.+?)/?$ $1/index.md [L]
 
-# Trust anchors: static pages at /about/, /privacy/, /contact/ (no redirect needed).
+# Trust anchors redirect earlier in public/.htaccess. Do not repeat them here.
 
 # Agent-friendly 404: markdown body when requested.
 RewriteCond %{REQUEST_FILENAME} !-f

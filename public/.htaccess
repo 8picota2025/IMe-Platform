@@ -104,6 +104,11 @@ RewriteRule ^en/products/combo-200-cajas-de-tirillas-plus-200-cajas-de-lancetas-
 RewriteCond %{QUERY_STRING} ^$
 RewriteRule ^en/contact$ /en/contact/ [R=301,L]
 
+# /contact /about /privacy respondían 200 con canonical a EN. Un 301 evita el duplicado.
+RewriteRule ^contact/?$ /en/contact/ [R=301,L]
+RewriteRule ^about/?$ /en/about/ [R=301,L]
+RewriteRule ^privacy/?$ /en/legal/privacy/ [R=301,L]
+
 # Legacy editorial aliases → conocimiento / knowledge (trailing slash = site policy)
 # Exact hubs only — do not blanket-redirect /blog/* without per-slug maps.
 RewriteRule ^blog/?$ /es/conocimiento/ [R=301,L,NE]
@@ -129,12 +134,24 @@ RewriteRule ^feed-google\.xml$ https://nnfbucwiasuggyfoyydo.supabase.co/function
 RewriteRule ^es/productos/onitor-de-paciente-p22-biolight/?$ - [G,L]
 RewriteRule ^en/products/onitor-de-paciente-p22-biolight/?$ - [G,L]
 
+# Slug truncado: no hay un producto único "g-g" (las reglas g-gmrn-* siguen abajo).
+RewriteRule ^(?:es/productos|en/products)/g-g/?$ - [G,L]
+
 # Root legacy HTML (duplicate catalog without redirect)
 RewriteRule ^catalogo\.html$ /es/catalogo/ [R=301,L]
 
 # Paginación + filtro no es un documento. GSC: soft 404 en pagina/11/?familia=
 RewriteCond %{QUERY_STRING} (^|&)(?:familia|cat|tipo|q)= [NC]
 RewriteRule ^(?:es/catalogo|en/catalog)/pagina/[0-9]+/?$ - [R=404,L]
+
+# Paginación que no existe como directorio (p. ej. /en/catalog/pagina/15/) → raíz del catálogo.
+# Las páginas generadas son directorios con index.html y siguen en 200.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^en/catalog/pagina/[0-9]+/?$ /en/catalog/? [R=301,L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^es/catalogo/pagina/[0-9]+/?$ /es/catalogo/? [R=301,L]
 
 # Alias de ?familia= que no coinciden con el slug de la landing.
 RewriteCond %{QUERY_STRING} ^familia=gmd-actividades-de-la-vida-diaria(?:&.*)?$ [NC]

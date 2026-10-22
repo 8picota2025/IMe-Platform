@@ -4,7 +4,13 @@
  */
 import Layout from '../layouts/Layout.astro';
 import { formatMoneda, tienePrecioPublico } from '../lib/format';
-import { buildCanonical, buildFaqJsonLd, buildProductJsonLd, combineJsonLd } from '../lib/seo';
+import {
+  buildCanonical,
+  buildFaqJsonLd,
+  buildProductJsonLd,
+  buildUrlItemList,
+  combineJsonLd,
+} from '../lib/seo';
 import type { Locale } from '../i18n/utils';
 import type { Producto } from '../lib/datos';
 
@@ -41,10 +47,23 @@ const {
 const isEn = locale === 'en';
 const productBase = isEn ? '/en/products/' : '/es/productos/';
 const quoteBase = isEn ? '/en/quote/?producto=' : '/es/cotizacion/?producto=';
+const productNodes = productos.flatMap(producto => {
+  const node = buildProductJsonLd(producto, locale, h1, producto.marca, {
+    familiaSlug: producto.familia_slug,
+  });
+  return node ? [node] : [];
+});
 const jsonLd = combineJsonLd(
-  ...productos.map(producto =>
-    buildProductJsonLd(producto, locale, h1, producto.marca, { familiaSlug: producto.familia_slug })
-  ),
+  productos.length > 0
+    ? buildUrlItemList({
+        name: h1,
+        items: productos.map(producto => ({
+          name: producto.nombre,
+          url: buildCanonical(`${productBase}${producto.slug}`),
+        })),
+      })
+    : null,
+  ...productNodes,
   buildFaqJsonLd(faqs)
 );
 ---

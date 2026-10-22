@@ -2,8 +2,9 @@
 /**
  * CatalogoExplorer — explorador de catálogo compartido ES/EN.
  * Jerarquía Familia → Tipo → Producto, con búsqueda, filtros,
- * facetas dinámicas, paginación, comparador y sincronización de estado
- * vía query params (`?familia=&tipo=`). Progressive enhancement:
+ * facetas dinámicas, paginación, comparador y sincronización de estado.
+ * Las familias con landing usan su URL; el resto filtra sin `?familia=` ni `?cat=`.
+ * Progressive enhancement:
  * todo el contenido está en el HTML; el script solo filtra/oculta.
  */
 import { t, type Locale } from '../i18n/utils';
@@ -183,6 +184,9 @@ const pagePath = (targetPage: number) =>
                   type="button"
                   class="catalogo-filtros__familia catalogo-filtros__familia--principal"
                   data-familia-filter={grupo.slug}
+                  data-familia-href={
+                    familyLandingSlugs.has(grupo.slug) ? familyPath(grupo.slug) : undefined
+                  }
                   data-familia-icono={grupo.icono}
                 >
                   <span class="catalogo-filtros__familia-icono" aria-hidden="true">
@@ -195,6 +199,9 @@ const pagePath = (targetPage: number) =>
                     type="button"
                     class="catalogo-filtros__familia catalogo-filtros__familia--subfamilia"
                     data-familia-filter={familia.slug}
+                    data-familia-href={
+                      familyLandingSlugs.has(familia.slug) ? familyPath(familia.slug) : undefined
+                    }
                     data-familia-icono={familia.icono}
                   >
                     <span class="catalogo-filtros__familia-icono" aria-hidden="true">

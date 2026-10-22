@@ -107,7 +107,8 @@ export function catalogStatePath(pathname: string, query: string): string {
 /** @internal exported for unit tests */
 export function serializeState(state: CatalogoState): string {
   const params = new URLSearchParams();
-  if (state.familia) params.set('familia', state.familia);
+  // `familia` y `cat` no se escriben: Apache los redirige a /familias/<slug>/
+  // (404 si no hay landing) o los trata como duplicado del catálogo.
   if (state.tipo) params.set('tipo', state.tipo);
   if (state.q) params.set('q', state.q);
   if (state.comercial.size > 0) params.set('comercial', [...state.comercial].join(','));
@@ -348,13 +349,16 @@ export function initCatalogo(locale: Locale): () => void {
             entries.forEach(entry => {
               if (!entry.isIntersecting) return;
               const image = entry.target as HTMLImageElement;
-              const picture = image.parentElement?.tagName === 'PICTURE' ? image.parentElement : null;
-              picture?.querySelectorAll<HTMLSourceElement>('source[data-lazy-srcset]').forEach(source => {
-                const srcset = source.dataset['lazySrcset'];
-                if (!srcset) return;
-                source.srcset = srcset;
-                delete source.dataset['lazySrcset'];
-              });
+              const picture =
+                image.parentElement?.tagName === 'PICTURE' ? image.parentElement : null;
+              picture
+                ?.querySelectorAll<HTMLSourceElement>('source[data-lazy-srcset]')
+                .forEach(source => {
+                  const srcset = source.dataset['lazySrcset'];
+                  if (!srcset) return;
+                  source.srcset = srcset;
+                  delete source.dataset['lazySrcset'];
+                });
               const src = image.dataset['lazySrc'];
               if (src) {
                 image.loading = 'eager';
@@ -1098,6 +1102,11 @@ export function initCatalogo(locale: Locale): () => void {
   // Filtro por familia (sidebar)
   familiaLista?.querySelectorAll<HTMLButtonElement>('[data-familia-filter]').forEach(btn => {
     const onClick = () => {
+      const href = btn.dataset['familiaHref'];
+      if (href) {
+        window.location.assign(href);
+        return;
+      }
       const next = btn.dataset['familiaFilter'] ?? '';
       state.familia = next;
       state.tipo = '';

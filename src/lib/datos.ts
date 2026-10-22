@@ -719,6 +719,12 @@ export const PRODUCTO_SELECT = [
 /** Filas por petición: páginas grandes (p. ej. 1000 en la build) se piden en lotes. */
 export const PRODUCTOS_LOTE = 200;
 
+/**
+ * Tope de la build para índice, fichas y sitemap.
+ * 1000 recortaba el catálogo en silencio al pasar de ese tamaño.
+ */
+export const CATALOG_INDEX_FETCH = 5000;
+
 /** Divide el rango [desde, hasta] (inclusivo) en lotes de como máximo `lote` filas. */
 export function lotesDeRango(
   desde: number,

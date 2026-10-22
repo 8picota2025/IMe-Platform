@@ -210,10 +210,7 @@ const TORRES: ContentMap = {
       { value: 'reemplazo', label: 'Reemplazar torre actual' },
       { value: 'comparativo', label: 'Solo quiero comparar opciones' },
     ],
-    productSlugs: [
-      'torre-laparoscopia-4k-sonoscape-ref-sv-m4k120',
-      'torre-laparoscopia-fhd-sonoscape-x2600',
-    ],
+    productSlugs: [],
     productsTitle: 'Dos caminos claros en catálogo',
     productsNote:
       'Fichas reales, sin inventar specs. Entre a cada modelo si quiere detalle técnico; aquí le ayudamos a decidir con mirada de proyecto.',
@@ -326,10 +323,7 @@ const TORRES: ContentMap = {
       { value: 'reemplazo', label: 'Replace current tower' },
       { value: 'comparativo', label: 'I only want to compare options' },
     ],
-    productSlugs: [
-      'torre-laparoscopia-4k-sonoscape-ref-sv-m4k120',
-      'torre-laparoscopia-fhd-sonoscape-x2600',
-    ],
+    productSlugs: [],
     productsTitle: 'Two clear catalog paths',
     productsNote:
       'Real product sheets — no invented specs. Open each model for technical detail; here we help you decide as a project.',
@@ -451,8 +445,7 @@ const ESTERILIZACION: ContentMap = {
     ],
     productSlugs: [
       'autoclave-horizontal-ref-5075-tuttnauer',
-      'ref-t-max-6-tuttnauer',
-      'automate-ref-ahpv1115v-saniswiss',
+      'autoclave-ref-t-max-6-tuttnauer',
     ],
     productsTitle: 'Equipos CapEx que sí están en catálogo',
     productsNote:
@@ -572,8 +565,7 @@ const ESTERILIZACION: ContentMap = {
     ],
     productSlugs: [
       'autoclave-horizontal-ref-5075-tuttnauer',
-      'ref-t-max-6-tuttnauer',
-      'automate-ref-ahpv1115v-saniswiss',
+      'autoclave-ref-t-max-6-tuttnauer',
     ],
     productsTitle: 'CapEx equipment already in the catalog',
     productsNote:
@@ -1148,9 +1140,7 @@ const MONITORES_BIOLIGHT: ContentMap = {
       { value: 'orientacion', label: 'Aún comparando modelos Biolight' },
     ],
     productSlugs: [
-      'monitor-de-paciente-modular-serie-p-ref-p15-biolight',
       'monitor-de-paciente-ref-s12-biolight',
-      'monitor-de-paciente-ref-p12-biolight',
       'monitor-de-paciente-ref-m12-biolight',
       'monitor-modular-de-paciente-ref-pm-200m-advanced',
     ],
@@ -1259,9 +1249,7 @@ const MONITORES_BIOLIGHT: ContentMap = {
       { value: 'orientacion', label: 'Still comparing Biolight models' },
     ],
     productSlugs: [
-      'monitor-de-paciente-modular-serie-p-ref-p15-biolight',
       'monitor-de-paciente-ref-s12-biolight',
-      'monitor-de-paciente-ref-p12-biolight',
       'monitor-de-paciente-ref-m12-biolight',
       'monitor-modular-de-paciente-ref-pm-200m-advanced',
     ],
@@ -2713,7 +2701,6 @@ const DOTACION_MONITOREO_UCI: ContentMap = {
     productSlugs: [
       'monitor-multiparametrico-uci-avanzado',
       'monitor-multiparametrico-basico',
-      'monitor-de-paciente-modular-serie-p-ref-p15-biolight',
       'monitor-de-paciente-ref-m12-biolight',
       'monitor-central-uci-multicama',
     ],
@@ -2864,7 +2851,6 @@ const DOTACION_MONITOREO_UCI: ContentMap = {
     productSlugs: [
       'monitor-multiparametrico-uci-avanzado',
       'monitor-multiparametrico-basico',
-      'monitor-de-paciente-modular-serie-p-ref-p15-biolight',
       'monitor-de-paciente-ref-m12-biolight',
       'monitor-central-uci-multicama',
     ],

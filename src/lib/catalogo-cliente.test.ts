@@ -31,9 +31,9 @@ function card(attrs: Record<string, string>): HTMLElement {
 
 describe('catalogStatePath', () => {
   it('baja de /pagina/N/ al catálogo cuando hay filtro', () => {
-    expect(
-      catalogStatePath('/en/catalog/pagina/11/', 'familia=otras-especialidades')
-    ).toBe('/en/catalog/');
+    expect(catalogStatePath('/en/catalog/pagina/11/', 'familia=otras-especialidades')).toBe(
+      '/en/catalog/'
+    );
     expect(catalogStatePath('/es/catalogo/pagina/3', '?cat=monitores&tipo=oximetros')).toBe(
       '/es/catalogo/'
     );
@@ -72,7 +72,9 @@ describe('catalogo-cliente tipo URL state', () => {
       todos: false,
       orden: 'relevancia',
     });
-    expect(qs).toBe('familia=sala-cirugia&tipo=mesas-quirurgicas');
+    expect(qs).toBe('tipo=mesas-quirurgicas');
+    expect(qs).not.toContain('familia=');
+    expect(qs).not.toContain('cat=');
   });
 });
 

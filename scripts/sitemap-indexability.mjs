@@ -42,9 +42,8 @@ const GONE_PRODUCT_SLUGS = goneProductSlugs();
 /**
  * Exact paths that must never appear in the sitemap.
  *
- * `/about/`, `/contact/` and `/privacy/` stay reachable as language-neutral
- * trust anchors for agents (declared in public/llms.txt) but canonicalize to
- * their /en/ counterparts, so only the localized page belongs in the sitemap.
+ * `/about/`, `/contact/` and `/privacy/` 301 to their /en/ counterparts
+ * (see public/.htaccess) and stay out of the sitemap.
  */
 export const NON_INDEXABLE_PATHS = new Set([
   '/',

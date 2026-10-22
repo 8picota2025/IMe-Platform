@@ -14,7 +14,6 @@ export const SLUGS_PROMO_PADBOT = [
   'padbot-p2-robot-telepresencia-ref-padbot-p2-padbot',
   'padbot-x3-robot-recepcion-ref-padbot-x3-padbot',
   'sistema-radiografico-3d-wr-3d-angell-technology-ref-wr-3d-angell',
-  'sistema-radiografico-3d-ref-wr-3d-angell',
   'telemando-digital-rf-ref-talent-ii-angell',
 ] as const;
 

@@ -627,7 +627,7 @@ export const FAMILIA_SEO: FamiliaSeoContent[] = [
         a_en: 'It depends on neonatal level and procedures. We define it with the clinical service; there is no single catalog “right answer”.',
       },
     ],
-    relatedSlugs: ['incubadora-abierta-o-servocuna-ref-bt550-bistos'],
+    relatedSlugs: [],
   },
   {
     slug: 'ultrasonido',

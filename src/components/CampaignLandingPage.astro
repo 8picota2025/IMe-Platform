@@ -16,6 +16,7 @@ import {
   buildFaqJsonLd,
   buildBreadcrumbJsonLd,
   buildOrganizationJsonLd,
+  buildUrlItemList,
   combineJsonLd,
 } from '../lib/seo';
 import { buildWhatsAppUrl } from '../lib/comercial-leads';
@@ -75,6 +76,15 @@ const jsonLd = combineJsonLd(
   buildOrganizationJsonLd(),
   buildBreadcrumbJsonLd(crumbs),
   buildFaqJsonLd(content.faqs),
+  productos.length > 0
+    ? buildUrlItemList({
+        name: content.productsTitle,
+        items: productos.map(producto => ({
+          name: producto.nombre,
+          url: buildCanonical(`${productBase}${producto.slug}`),
+        })),
+      })
+    : null,
   {
     '@context': 'https://schema.org',
     '@type': 'Service',
