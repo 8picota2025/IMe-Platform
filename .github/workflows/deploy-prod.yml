@@ -143,58 +143,72 @@ jobs:
           import ftplib
           import os
           import re
+          import ssl
 
           host = os.environ["FTP_HOST"].strip()
           host = re.sub(r"^ftp://", "", host).strip("/")
           user = os.environ["FTP_USER"]
           password = os.environ["FTP_PASSWORD"]
-          root = os.environ["PROD_PATH"].rstrip("/")
-          if not root.startswith("/") or root in ("", "/"):
-              raise SystemExit("HOSTINGER_PROD_PATH must be an absolute non-root path")
+          root = os.environ["PROD_PATH"].strip().rstrip("/")
+          if root in ("", "/", ".", "..") or any(part in ("", ".", "..") for part in root.split("/")):
+              raise SystemExit("HOSTINGER_PROD_PATH is empty or unsafe")
 
-          def is_dir(ftp, path):
-              current = ftp.pwd()
+          def connect():
               try:
-                  ftp.cwd(path)
-                  ftp.cwd(current)
-                  return True
-              except ftplib.error_perm:
-                  return False
+                  ftp = ftplib.FTP_TLS(host, timeout=120, context=ssl.create_default_context())
+                  ftp.login(user, password)
+                  ftp.prot_p()
+                  return ftp
+              except Exception as exc:
+                  print(f"FTP_TLS unavailable ({type(exc).__name__}); using plain FTP")
+                  ftp = ftplib.FTP(host, timeout=120)
+                  ftp.login(user, password)
+                  return ftp
 
-          def rmtree(ftp, path):
-              current = ftp.pwd()
-              ftp.cwd(path)
+          def basenames(ftp):
               names = []
               ftp.retrlines("NLST", names.append)
+              found = []
               for name in names:
-                  base = name.rstrip("/").split("/")[-1]
-                  if base in (".", "..") or base == "":
+                  base = name.strip().rstrip("/").split("/")[-1]
+                  if base in ("", ".", ".."):
                       continue
-                  child = name if name.startswith("/") else f"{path.rstrip('/')}/{base}"
-                  if is_dir(ftp, child):
-                      rmtree(ftp, child)
-                  else:
-                      ftp.delete(child)
-              ftp.cwd(current)
-              ftp.rmd(path)
+                  found.append(base)
+              return found
 
-          ftp = ftplib.FTP(host, timeout=120)
-          ftp.login(user, password)
+          def rmtree_cwd(ftp):
+              here = ftp.pwd()
+              for base in basenames(ftp):
+                  try:
+                      ftp.cwd(base)
+                  except ftplib.error_perm:
+                      ftp.delete(base)
+                      continue
+                  if ftp.pwd() == here:
+                      continue
+                  rmtree_cwd(ftp)
+                  ftp.cwd(here)
+                  ftp.rmd(base)
+
+          ftp = connect()
           ftp.cwd(root)
-          names = []
-          ftp.retrlines("NLST", names.append)
+          site = ftp.pwd()
           removed = []
-          for name in names:
-              base = name.rstrip("/").split("/")[-1]
+          for base in basenames(ftp):
               if not re.fullmatch(r"[0-9]+", base):
                   continue
-              target = f"{root}/{base}"
-              print(f"Removing preview folder {target}")
+              print(f"Removing preview folder {base}")
               try:
-                  rmtree(ftp, target)
+                  ftp.cwd(base)
+                  if ftp.pwd() == site:
+                      continue
+                  rmtree_cwd(ftp)
+                  ftp.cwd(site)
+                  ftp.rmd(base)
                   removed.append(base)
               except ftplib.error_perm as exc:
-                  print(f"Skip {target}: {exc}")
+                  print(f"Skip {base}: {exc}")
+                  ftp.cwd(site)
           ftp.quit()
           print("Removed preview folders:", ", ".join(removed) if removed else "(none)")
           PY
