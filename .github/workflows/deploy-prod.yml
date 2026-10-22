@@ -142,7 +142,9 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq lftp
           set +e
-          python3 << 'PY'
+          # 18 minutos: el job completo es de 45 y el FTP ya consumió buena parte.
+          # Si queda alguna carpeta, el siguiente deploy sigue; el smoke no se salta.
+          timeout 18m python3 << 'PY'
           import ftplib
           import os
           import re
@@ -230,6 +232,10 @@ jobs:
           PY
           code=$?
           set -e
+          if [ "$code" -eq 124 ]; then
+            echo "Preview cleanup paused after 18 minutes. The next deploy continues with the remaining numeric folders."
+            exit 0
+          fi
           if [ "$code" -ne 0 ]; then
             echo "Preview cleanup failed with exit ${code}."
             exit "$code"
