@@ -23,7 +23,10 @@ import {
 } from '../_shared/post-pago.ts';
 import { withTelemetry, trackEvent } from '../_shared/telemetry.ts';
 import { claimPaidTransition, type PaymentStateClient } from '../../../src/lib/payment-state.ts';
-import { pareceNumeroCotizacion } from '../../../src/lib/pedido-referencia.ts';
+import {
+  debeRecuperarPedidoImeQ,
+  pareceNumeroCotizacion,
+} from '../../../src/lib/pedido-referencia.ts';
 import {
   buscarCotizacionPorNumero,
   crearOReusarPedidoWompiDesdeCotizacion,
@@ -94,6 +97,11 @@ Deno.serve(
       }
     }
 
+    // ── Verificación server-side del estado real (nunca confiar solo en el payload) ──
+    // Antes de recuperar IME-Q: DECLINED/VOIDED no deben materializar pedido ni
+    // reclamar la cotización como convertida ( Formalizar quedaría bloqueado ).
+    const verificacion = await gateway.verificarPago(evento.referencia_pasarela);
+
     // ── Buscar pedido ──────────────────────────────────────────
     let { data: pedido, error: pedidoError } = await supabase
       .from('pedidos')
@@ -105,9 +113,9 @@ Deno.serve(
       return internalError(`error consultando pedido: ${pedidoError.message}`, origin);
 
     // Recuperación: PR #203 firmó checkout con el número de cotización (IME-Q-…)
-    // en lugar de pedidos.id. Si el cobro llegó sin pedido, materializamos uno
-    // con esa misma referencia_pasarela para no dejar el pago huérfano.
-    if (!pedido && pareceNumeroCotizacion(evento.referencia_pasarela)) {
+    // en lugar de pedidos.id. Solo si el cobro está APPROVED materializamos /
+    // reusamos pedido; si no, ACK sin tocar la cotización.
+    if (!pedido && debeRecuperarPedidoImeQ(evento.referencia_pasarela, verificacion.estado)) {
       const cotizacion = await buscarCotizacionPorNumero(supabase, evento.referencia_pasarela);
       if (cotizacion) {
         const creado = await crearOReusarPedidoWompiDesdeCotizacion(supabase, cotizacion, {
@@ -139,6 +147,32 @@ Deno.serve(
     }
 
     if (!pedido) {
+      // IME-Q DECLINED/VOIDED/PENDING: ACK procesado sin tocar la cotización.
+      // Pagado huérfano u otros refs: no marcar procesado (reintento ops).
+      if (
+        pareceNumeroCotizacion(evento.referencia_pasarela) &&
+        verificacion.estado !== 'pagado' &&
+        verificacion.estado !== 'error_verificacion'
+      ) {
+        await supabase
+          .from('eventos_pago')
+          .update({ procesado: true })
+          .eq('proveedor_pago', 'wompi')
+          .eq('event_id', evento.event_id);
+        void trackEvent(
+          FN_NAME,
+          'webhook_imeq_sin_materializar',
+          {
+            referencia: evento.referencia_pasarela,
+            estado: verificacion.estado,
+          },
+          { nivel: 'info' }
+        );
+        return new Response(JSON.stringify({ ok: true, pedido: 'no materializado' }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
+        });
+      }
       // No marcar procesado: permite reintento tras crear el pedido (ops / fix).
       return new Response(JSON.stringify({ ok: true, pedido: 'no encontrado' }), {
         status: 200,
@@ -148,8 +182,6 @@ Deno.serve(
 
     const pedidoRow = pedido as unknown as PedidoRow;
 
-    // ── Verificación server-side del estado real (nunca confiar solo en el payload) ──
-    const verificacion = await gateway.verificarPago(evento.referencia_pasarela);
     const nuevoEstado = verificacion.estado;
     const eraPagado = pedidoRow.estado === 'pagado';
     let pagoReclamado = false;

@@ -8,11 +8,14 @@ import {
   splitNombreApellido,
   type CotizacionOfertaRow,
 } from '../../../src/lib/cotizacion-oferta.ts';
+import { compatibilidadReferenciaWompi } from '../../../src/lib/pedido-referencia.ts';
 import { desgloseDeLineas } from './cotizacion-pago.ts';
 
+/* eslint-disable @typescript-eslint/no-explicit-any -- Edge query facade */
 type SupabaseLike = {
   from: (table: string) => any;
 };
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 export type PedidoWompiDesdeCotizacion =
   | { ok: true; pedidoId: string; total: number; moneda: string; created: boolean }
@@ -50,6 +53,35 @@ export async function crearOReusarPedidoWompiDesdeCotizacion(
       String(existente.proveedor_pago) === 'wompi' &&
       String(existente.estado) === 'pendiente'
     ) {
+      const override = String(opts?.referenciaPasarelaOverride ?? '').trim() || null;
+      const compat = compatibilidadReferenciaWompi({
+        referenciaExistente: existente.referencia_pasarela,
+        override,
+        estadoPedido: existente.estado,
+      });
+      if (compat === 'reject') {
+        return {
+          ok: false,
+          code: 'PEDIDO_REF_DISTINTA',
+          message: 'La cotizacion ya tiene un pedido Wompi con otra referencia',
+        };
+      }
+      if (compat === 'rebind' && override) {
+        // Adjunta el cobro IME-Q (#203) al pedido Formalizar (UUID) pendiente
+        // para no marcar pagado un ref distinto ni dejar checkout paralelo vivo.
+        const { error: rebindError } = await supabase
+          .from('pedidos')
+          .update({ referencia_pasarela: override })
+          .eq('id', existente.id)
+          .eq('estado', 'pendiente');
+        if (rebindError) {
+          return {
+            ok: false,
+            code: 'PEDIDO_REF_REBIND_ERROR',
+            message: rebindError.message ?? 'No se pudo alinear la referencia Wompi',
+          };
+        }
+      }
       return {
         ok: true,
         pedidoId: String(existente.id),
