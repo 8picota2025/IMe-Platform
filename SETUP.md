@@ -69,6 +69,20 @@ Notas:
 - El script usa lotes con pausa automática para respetar límites de Voyage.
 - Si quieres ajustar el ritmo, puedes usar `REINDEX_BATCH_SIZE`, `REINDEX_REQUEST_GAP_MS` y `REINDEX_MAX_RETRIES`.
 
+## Formularios: teléfono del visitante
+
+Normalización compartida: `src/lib/visitor-phone-core.ts` (sin catálogo de países en el bundle JS).
+El selector de país lo renderiza Astro (`visitor-phone-field.ts`); no importar el JSON de países desde
+componentes cliente.
+
+Reglas que aplican cotización, contacto, leads y CRM:
+
+- No anteponer `+57` a números que no son móvil colombiano (10 dígitos empezando en 3).
+- Si el visitante ya escribió indicativo internacional, se respeta (`international()`).
+- Salida: `phone` para mostrar/guardar; `e164` solo cuando el país es conocido y la longitud es válida (8–15 dígitos).
+
+Tests: `src/lib/visitor-phone.test.ts`. Placeholder UI de referencia: `+57 3XX XXX XXXX` (contacto).
+
 ## Instalar agentes IA
 
 ```bash
