@@ -149,9 +149,15 @@ jobs:
           host = re.sub(r"^ftp://", "", host).strip("/")
           user = os.environ["FTP_USER"]
           password = os.environ["FTP_PASSWORD"]
-          root = os.environ["PROD_PATH"].strip().rstrip("/")
-          if root in ("", "/", ".", "..") or any(part in ("", ".", "..") for part in root.split("/")):
-              raise SystemExit("HOSTINGER_PROD_PATH is empty or unsafe")
+          root = os.environ["PROD_PATH"].strip()
+          # El FTP de producción está enjaulado: "/" es la raíz del sitio, no el disco.
+          if root == "":
+              raise SystemExit("HOSTINGER_PROD_PATH is empty")
+          if root != "/":
+              root = root.rstrip("/")
+          parts = [part for part in root.split("/") if part]
+          if any(part in (".", "..") for part in parts):
+              raise SystemExit("HOSTINGER_PROD_PATH is unsafe")
 
           def connect():
               try:
