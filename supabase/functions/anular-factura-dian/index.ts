@@ -9,6 +9,9 @@
  *  - observaciones (optional)
  *  - dry_run (optional)
  *  - stamp (optional, default true) — enviar a DIAN
+ *
+ * Concurrency: CAS claim emitida → anulando before Siigo NC; finalize anulada.
+ * Prevents two parallel calls from each creating a credit note.
  */
 
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
@@ -28,6 +31,10 @@ import {
   listarMediosPago,
   listarTiposDocumento,
 } from '../_shared/siigo-client.ts';
+import {
+  evaluateAnularClaim,
+  evaluateLostAnularClaim,
+} from '../../../src/lib/dian-anular-guard.ts';
 
 const ROLES = new Set(['owner', 'admin']);
 const MOTIVO_ANULACION = 2;
@@ -92,10 +99,14 @@ Deno.serve(async req => {
     payload: Record<string, unknown> | null;
   };
 
-  if (factura.estado === 'anulada') {
+  const claimDecision = evaluateAnularClaim({
+    dryRun: body.dry_run === true,
+    facturaEstado: factura.estado,
+  });
+  if (!claimDecision.ok) {
     return errorResponse(
-      { code: 'YA_ANULADA', message: 'La factura ya esta marcada como anulada' },
-      409,
+      { code: claimDecision.code, message: claimDecision.message },
+      claimDecision.status,
       origin
     );
   }
@@ -220,7 +231,7 @@ Deno.serve(async req => {
     mail: { send: false },
   };
 
-  if (body.dry_run === true) {
+  if (claimDecision.action === 'dry_run') {
     return new Response(
       JSON.stringify({
         ok: true,
@@ -241,14 +252,58 @@ Deno.serve(async req => {
     );
   }
 
+  // CAS: only one caller may transition emitida → anulando before Siigo NC.
+  const claimedAt = new Date().toISOString();
+  const { data: claimedRow, error: claimError } = await supabase
+    .from('facturas_electronicas')
+    .update({
+      estado: 'anulando',
+      error: null,
+      respuesta: {
+        ...respuesta,
+        anulacion_claimed_at: claimedAt,
+      },
+    })
+    .eq('pedido_id', pedidoId)
+    .eq('estado', 'emitida')
+    .select('pedido_id, estado, numero_factura, respuesta')
+    .maybeSingle();
+
+  if (claimError) return internalError(claimError.message, origin);
+  if (!claimedRow) {
+    const { data: current } = await supabase
+      .from('facturas_electronicas')
+      .select('estado')
+      .eq('pedido_id', pedidoId)
+      .maybeSingle();
+    const lost = evaluateLostAnularClaim(
+      (current as { estado?: string } | null)?.estado ?? factura.estado
+    );
+    return errorResponse({ code: lost.code, message: lost.message }, lost.status, origin);
+  }
+
+  await supabase
+    .from('pedidos')
+    .update({ facturacion_electronica_estado: 'anulando' })
+    .eq('id', pedidoId)
+    .eq('facturacion_electronica_estado', 'emitida');
+
   const resultado = await crearNotaCredito(token, config, payload);
   if (!resultado.ok) {
     await supabase
       .from('facturas_electronicas')
       .update({
+        estado: 'emitida',
         error: `Nota credito fallida: ${resultado.error ?? 'error'}`,
+        respuesta,
       })
-      .eq('pedido_id', pedidoId);
+      .eq('pedido_id', pedidoId)
+      .eq('estado', 'anulando');
+    await supabase
+      .from('pedidos')
+      .update({ facturacion_electronica_estado: 'emitida' })
+      .eq('id', pedidoId)
+      .eq('facturacion_electronica_estado', 'anulando');
     return errorResponse(
       {
         code: 'NOTA_CREDITO_FALLIDA',
@@ -268,7 +323,7 @@ Deno.serve(async req => {
   const prevMeta =
     (metaPedido.data as { metadata?: Record<string, unknown> } | null)?.metadata ?? {};
 
-  await supabase
+  const { data: finalized, error: finalizeError } = await supabase
     .from('facturas_electronicas')
     .update({
       estado: 'anulada',
@@ -278,9 +333,28 @@ Deno.serve(async req => {
         nota_credito: resultado.raw,
         anulada_at: new Date().toISOString(),
         anulacion_motivo: observaciones,
+        anulacion_claimed_at: claimedAt,
       },
     })
-    .eq('pedido_id', pedidoId);
+    .eq('pedido_id', pedidoId)
+    .eq('estado', 'anulando')
+    .select('pedido_id')
+    .maybeSingle();
+
+  if (finalizeError) return internalError(finalizeError.message, origin);
+  if (!finalized) {
+    // NC already created at Siigo; surface conflict so ops can reconcile manually.
+    return errorResponse(
+      {
+        code: 'ANULACION_ESTADO_INCONSISTENTE',
+        message:
+          'Nota credito creada en Siigo pero el estado local ya no estaba en anulando. Revisar factura manualmente.',
+        details: { nota_credito: resultado.numeroNota ?? null, cude: resultado.cude ?? null },
+      },
+      409,
+      origin
+    );
+  }
 
   await supabase
     .from('pedidos')
