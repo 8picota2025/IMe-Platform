@@ -139,11 +139,15 @@ jobs:
           FTP_PASSWORD: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
           PROD_PATH: ${{ secrets.HOSTINGER_PROD_PATH }}
         run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq lftp
+          set +e
           python3 << 'PY'
           import ftplib
           import os
           import re
           import ssl
+          import subprocess
 
           host = os.environ["FTP_HOST"].strip()
           host = re.sub(r"^ftp://", "", host).strip("/")
@@ -182,42 +186,54 @@ jobs:
                   found.append(base)
               return found
 
-          def rmtree_cwd(ftp):
-              here = ftp.pwd()
-              for base in basenames(ftp):
-                  try:
-                      ftp.cwd(base)
-                  except ftplib.error_perm:
-                      ftp.delete(base)
-                      continue
-                  if ftp.pwd() == here:
-                      continue
-                  rmtree_cwd(ftp)
-                  ftp.cwd(here)
-                  ftp.rmd(base)
+          def lftp_quote(value):
+              return '"' + value.replace("\\", "\\\\").replace('"', '\\"') + '"'
+
+          def remove_with_lftp(base):
+              script = "\n".join(
+                  [
+                      "set ftp:ssl-allow true",
+                      "set ssl:verify-certificate no",
+                      "set net:max-retries 2",
+                      "set net:connection-limit 8",
+                      "set cmd:fail-exit yes",
+                      f"open ftp://{host}",
+                      f"user {lftp_quote(user)} {lftp_quote(password)}",
+                      f"cd {lftp_quote(root)}",
+                      f"rm -r {lftp_quote(base)}",
+                      "bye",
+                  ]
+              )
+              completed = subprocess.run(
+                  ["lftp", "-f", "/dev/stdin"],
+                  input=script,
+                  text=True,
+                  check=False,
+              )
+              if completed.returncode != 0:
+                  raise RuntimeError(f"lftp rm {base} exited {completed.returncode}")
 
           ftp = connect()
           ftp.cwd(root)
-          site = ftp.pwd()
+          targets = [base for base in basenames(ftp) if re.fullmatch(r"[0-9]+", base)]
+          ftp.quit()
+          print("Preview folders:", ", ".join(targets) if targets else "(none)")
           removed = []
-          for base in basenames(ftp):
-              if not re.fullmatch(r"[0-9]+", base):
-                  continue
+          for base in targets:
               print(f"Removing preview folder {base}")
               try:
-                  ftp.cwd(base)
-                  if ftp.pwd() == site:
-                      continue
-                  rmtree_cwd(ftp)
-                  ftp.cwd(site)
-                  ftp.rmd(base)
+                  remove_with_lftp(base)
                   removed.append(base)
-              except ftplib.error_perm as exc:
+              except Exception as exc:
                   print(f"Skip {base}: {exc}")
-                  ftp.cwd(site)
-          ftp.quit()
           print("Removed preview folders:", ", ".join(removed) if removed else "(none)")
           PY
+          code=$?
+          set -e
+          if [ "$code" -ne 0 ]; then
+            echo "Preview cleanup failed with exit ${code}."
+            exit "$code"
+          fi
 
       - name: Smoke test producción
         env:
