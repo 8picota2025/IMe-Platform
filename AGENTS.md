@@ -86,3 +86,12 @@ CLAUDE.md, AGENTS.md, PENDIENTES.md, BACKLOG_V2.md, README.md
 
 TODO_CLIENTE | COPY_CLIENTE_REVISAR | BLOQUEANTE_BACKEND | BLOQUEANTE_CONTENIDO
 BLOQUEANTE_LEGAL | OPCIONAL_MEJORA | BACKLOG_V2 | NO_EJECUTADO_ENTORNO
+
+## Cursor Cloud specific instructions
+
+- Comandos estándar (dev/build/check/lint/test/validate) están en `README.md` y `package.json`; no los dupliques.
+- El dev server (`npm run dev`) escucha en `0.0.0.0:44334`. Funciona **completo sin backend**: `src/lib/datos.ts`/`supabase.ts` degradan a los JSON mock en `src/data/mock-*.json` cuando faltan las vars de Supabase, así que el catálogo, fichas de producto y flujo de cotización/carrito son navegables sin credenciales. No hace falta Supabase para verificar la UI del producto.
+- `.env` no es necesario para arrancar; `cp .env.example .env` deja todos los valores en blanco y el sitio arranca igual. Todos los servicios externos (Supabase, Wompi/Stripe, LLM/Voyage, Turnstile, Ollama) son opcionales para desarrollo local y sólo se necesitan para probar flujos dinámicos reales (pago real, login admin, Asesor RAG).
+- `npm run build` ejecuta primero `scripts/mirror-cms-images.mjs`, que es un **no-op silencioso sin credenciales de Supabase**, por lo que el build funciona offline (genera ~995 páginas estáticas).
+- Node: `engines` pide `>=22.12.0`. Al instalar aparece un warning `EBADENGINE` de una dependencia transitiva que pide `>=22.22.1`; con el Node 22.14 del entorno todo (install/lint/check/test/build/dev) funciona correctamente — es sólo un warning.
+- Supabase Edge Functions (`supabase/functions/`, Deno) se despliegan a Supabase Cloud vía CI; no hay `supabase/config.toml` ni stack local en el repo.
