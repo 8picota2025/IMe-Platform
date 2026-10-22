@@ -2854,6 +2854,7 @@ const ACCIONES_AGENTE: Record<string, string> = {
   preparar_anulacion_factura: 'Anular factura DIAN',
   preparar_reembolso: 'Marcar pedido reembolsado',
   preparar_precio_bajo_piso: 'Precio por debajo del piso',
+  preparar_cambio_stock: 'Cambio de stock / disponible',
   preparar_afirmacion_invima: 'Afirmación INVIMA de proveedor',
 };
 
