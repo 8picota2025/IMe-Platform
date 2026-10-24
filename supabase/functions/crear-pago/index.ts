@@ -920,11 +920,7 @@ Deno.serve(
         impuestosIncluidos: impuestosIncluidosOferta,
         moneda,
       });
-      total = totalCobroOfertaLocked(
-        cotizacionAtribucion.precio_total_ofertado,
-        desglose.total,
-        lineasCotizacion
-      );
+      total = totalCobroOfertaLocked(cotizacionAtribucion, desglose.total, lineasCotizacion);
       if (!(total > 0)) {
         return errorResponse(
           { code: 'TOTAL_INVALIDO', message: 'Total a pagar de la cotizacion invalido' },
