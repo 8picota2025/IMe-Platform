@@ -43,7 +43,11 @@ import {
   tasaDeTratamiento,
 } from '../../../src/lib/cotizacion-iva.ts';
 import { desgloseDeLineas, enlaceWompiDeCotizacion } from '../_shared/cotizacion-pago.ts';
-import { crearOReusarPedidoWompiDesdeCotizacion } from '../_shared/cotizacion-pedido-wompi.ts';
+import {
+  crearOReusarPedidoWompiDesdeCotizacion,
+  reclamarCotizacionParaPedidoWompi,
+  revertirPedidoWompiPendienteCotizacion,
+} from '../_shared/cotizacion-pedido-wompi.ts';
 import {
   buildDianInvoiceDraft,
   baseNetaDesdePrecioConIva,
@@ -275,7 +279,10 @@ Deno.serve(async req => {
   }
 
   const loaded = await loadCotizacionValidada(supabase, id, token, origin, {
-    permitirWompiPendiente: action === 'iniciar_pago_wompi',
+    // Preview must work after an abandoned/failed Wompi start so the customer
+    // can retry checkout (and see bank details). Transfer remains blocked until
+    // the pending Wompi pedido is paid or ops clears it.
+    permitirWompiPendiente: action === 'iniciar_pago_wompi' || action === 'preview',
   });
   if (!loaded.ok) return loaded.response;
   const row = loaded.row;
@@ -401,7 +408,11 @@ Deno.serve(async req => {
     if (body.consentimiento_datos !== true) {
       return badRequest('consentimiento_datos requerido', origin);
     }
-    const creado = await crearOReusarPedidoWompiDesdeCotizacion(supabase, row);
+    // Create pedido first; claim quote only after Wompi URL is signed so a
+    // missing integrity secret / gateway blip does not stick convertida forever.
+    const creado = await crearOReusarPedidoWompiDesdeCotizacion(supabase, row, {
+      reclamarCotizacion: false,
+    });
     if (!creado.ok) {
       return errorResponse(
         { code: creado.code, message: creado.message },
@@ -420,6 +431,9 @@ Deno.serve(async req => {
       redirectUrl,
     });
     if (!pago.url) {
+      if (creado.created) {
+        await revertirPedidoWompiPendienteCotizacion(supabase, creado.pedidoId, String(row.id));
+      }
       return errorResponse(
         {
           code: 'WOMPI_NO_DISPONIBLE',
@@ -428,6 +442,20 @@ Deno.serve(async req => {
         503,
         origin
       );
+    }
+    if (creado.created || !row.pedido_id) {
+      const reclamada = await reclamarCotizacionParaPedidoWompi(
+        supabase,
+        row,
+        creado.pedidoId,
+        creado.total
+      );
+      if (!reclamada.ok) {
+        if (creado.created) {
+          await revertirPedidoWompiPendienteCotizacion(supabase, creado.pedidoId, String(row.id));
+        }
+        return errorResponse({ code: reclamada.code, message: reclamada.message }, 409, origin);
+      }
     }
     await supabase
       .from('pedidos')
