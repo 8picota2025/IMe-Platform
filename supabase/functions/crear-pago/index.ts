@@ -20,20 +20,27 @@ import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { checkRateLimit } from '../_shared/rate-limit.ts';
 import { getPaymentGateway, type CheckoutItem, type Mercado } from '../_shared/payment-gateway.ts';
 import {
+  baseNetaDesdePrecioConIva,
   buildDianInvoiceDraft,
   calculateFiscalSummary,
   validateClienteFiscal,
   type ClienteFiscalProfile,
 } from '../../../src/lib/fiscal.ts';
+import {
+  parseTratamientoIva,
+  resolverTratamientoLinea,
+  tasaDeTratamiento,
+} from '../../../src/lib/cotizacion-iva.ts';
 import { withTelemetry, trackEvent } from '../_shared/telemetry.ts';
 import { notificarEstadoPedido } from '../_shared/post-pago.ts';
 import { pushClienteToTwenty } from '../_shared/twenty-commerce-sync.ts';
+import { desgloseDeLineas } from '../_shared/cotizacion-pago.ts';
 import {
-  calcularTotalOfertado,
   hashTokenSha256,
   ofertaCompleta,
   parseLineasOferta,
   tokenExpirado,
+  totalCobroOfertaLocked,
   type CotizacionOfertaRow,
   type CotizacionLineaOferta,
 } from '../../../src/lib/cotizacion-oferta.ts';
@@ -900,51 +907,187 @@ Deno.serve(
       : { ok: true as const, descuento: 0, cupon: null as CuponRow | null };
     if (!descuento.ok) return descuento.response;
 
-    // Envio por zona (solo CO; INTL se cotiza aparte)
-    const envioTotal =
-      mercado === 'CO'
-        ? await calcularEnvio(
-            supabase,
-            body.fiscal?.direccion_facturacion?.departamento,
-            subtotal - descuento.descuento
-          )
-        : 0;
+    // Cotización locked: el total es el de la oferta (#203 IVA por línea), no
+    // el fiscal de catálogo. Envío de zona tampoco aplica (precio negociado).
+    const impuestosIncluidosOferta =
+      lineasCotizacion != null && cotizacionAtribucion?.impuestos_incluidos === true;
+    let envioTotal = 0;
+    let total: number;
+    let fiscal: ReturnType<typeof calculateFiscalSummary>;
 
-    const fiscal = calculateFiscalSummary(
-      fiscalItems as Array<{
-        producto_id: string;
-        slug: string;
-        nombre: string;
-        cantidad: number;
-        precio_unitario: number;
-        tarifa_iva_pct?: number | null;
-        retencion_fuente_pct?: number | null;
-        retencion_iva_pct?: number | null;
-        retencion_ica_pct?: number | null;
-        dian_codigo?: string | null;
-        excluido_iva?: boolean;
-      }>,
-      fiscalCliente,
-      {
+    if (lineasCotizacion && cotizacionAtribucion) {
+      const desglose = await desgloseDeLineas(supabase, lineasCotizacion, {
+        impuestosIncluidos: impuestosIncluidosOferta,
         moneda,
-        mercado: mercado as Mercado,
-        descuento_total: descuento.descuento,
-        envio_total: envioTotal,
-        // productos.precio es siempre base sin IVA. Las ofertas formalizadas
-        // conservan su importe locked: su tratamiento fiscal ya fue acordado
-        // al emitir la cotizacion y no se le aplica este fallback.
-        default_iva_pct: lineasCotizacion ? 0 : parseEnvNumber('CO_DEFAULT_IVA_PCT', 19),
-        default_retencion_fuente_pct: parseEnvNumber('CO_DEFAULT_RETEFUENTE_PCT', 0),
-        default_retencion_iva_pct: parseEnvNumber('CO_DEFAULT_RETEIVA_PCT', 0),
-        default_retencion_ica_pct: parseEnvNumber('CO_DEFAULT_RETEICA_PCT', 0),
-        retefuente_base_minima: parseEnvNumber('CO_RETEFUENTE_BASE_MINIMA', 0),
-        reteiva_base_minima: parseEnvNumber('CO_RETEIVA_BASE_MINIMA', 0),
-        reteica_base_minima: parseEnvNumber('CO_RETEICA_BASE_MINIMA', 0),
+      });
+      total = totalCobroOfertaLocked(cotizacionAtribucion, desglose.total, lineasCotizacion);
+      if (!(total > 0)) {
+        return errorResponse(
+          { code: 'TOTAL_INVALIDO', message: 'Total a pagar de la cotizacion invalido' },
+          422,
+          origin
+        );
       }
-    );
 
-    const _impuestoTotal = fiscal.impuesto_total;
-    const total = fiscal.total;
+      let fiscalItemsCobro: typeof fiscalItems;
+      if (fiscalCliente.solicitar_factura_electronica) {
+        if (!impuestosIncluidosOferta) {
+          return errorResponse(
+            {
+              code: 'TRATAMIENTO_TRIBUTARIO_OFERTA_REQUERIDO',
+              message:
+                'La oferta no declara que sus precios incluyen impuestos. Solicita a I-ME una cotizacion revisada antes de emitir factura electronica.',
+            },
+            422,
+            origin
+          );
+        }
+        const productosIva = new Map(
+          fiscalItems.map(item => [
+            String(item.slug),
+            {
+              tarifa_iva_pct: item.tarifa_iva_pct as number | string | null | undefined,
+              excluido_iva: item.excluido_iva === true,
+              retencion_fuente_pct: item.retencion_fuente_pct as number | string | null | undefined,
+              retencion_iva_pct: item.retencion_iva_pct as number | string | null | undefined,
+              retencion_ica_pct: item.retencion_ica_pct as number | string | null | undefined,
+              dian_codigo: (item.dian_codigo as string | null | undefined) ?? null,
+            },
+          ])
+        );
+        try {
+          fiscalItemsCobro = lineasCotizacion.map(linea => {
+            const producto = productosIva.get(linea.slug);
+            const explicito = parseTratamientoIva(linea.tratamiento_iva) != null;
+            if (!explicito && !producto) {
+              throw new Error(`Producto sin configuracion fiscal: ${linea.slug}`);
+            }
+            const tratamiento = resolverTratamientoLinea(linea, producto ?? null, moneda);
+            const tarifaIva = tasaDeTratamiento(tratamiento);
+            const catalogo = productosPorSlug.get(linea.slug);
+            return {
+              producto_id: catalogo?.id ?? '',
+              slug: linea.slug,
+              nombre: linea.nombre,
+              cantidad: linea.cantidad,
+              precio_unitario: baseNetaDesdePrecioConIva(linea.precio_unitario, tarifaIva),
+              tarifa_iva_pct: tarifaIva,
+              retencion_fuente_pct:
+                producto?.retencion_fuente_pct == null
+                  ? null
+                  : Number(producto.retencion_fuente_pct),
+              retencion_iva_pct:
+                producto?.retencion_iva_pct == null ? null : Number(producto.retencion_iva_pct),
+              retencion_ica_pct:
+                producto?.retencion_ica_pct == null ? null : Number(producto.retencion_ica_pct),
+              dian_codigo: producto?.dian_codigo ?? null,
+              excluido_iva: tarifaIva === 0,
+            };
+          });
+        } catch (error) {
+          return errorResponse(
+            {
+              code: 'CONFIGURACION_FISCAL_PRODUCTO_INVALIDA',
+              message: error instanceof Error ? error.message : 'Configuracion fiscal invalida',
+            },
+            422,
+            origin
+          );
+        }
+      } else {
+        // Sin FE: el cobro es el total ofertado; no re-apilar IVA de catálogo.
+        fiscalItemsCobro = fiscalItems.map(item => ({
+          ...item,
+          excluido_iva: true,
+          tarifa_iva_pct: 0,
+        }));
+      }
+
+      fiscal = calculateFiscalSummary(
+        fiscalItemsCobro as Array<{
+          producto_id: string;
+          slug: string;
+          nombre: string;
+          cantidad: number;
+          precio_unitario: number;
+          tarifa_iva_pct?: number | null;
+          retencion_fuente_pct?: number | null;
+          retencion_iva_pct?: number | null;
+          retencion_ica_pct?: number | null;
+          dian_codigo?: string | null;
+          excluido_iva?: boolean;
+        }>,
+        fiscalCliente,
+        {
+          moneda,
+          mercado: mercado as Mercado,
+          descuento_total: 0,
+          envio_total: 0,
+          default_iva_pct: 0,
+          default_retencion_fuente_pct: parseEnvNumber('CO_DEFAULT_RETEFUENTE_PCT', 0),
+          default_retencion_iva_pct: parseEnvNumber('CO_DEFAULT_RETEIVA_PCT', 0),
+          default_retencion_ica_pct: parseEnvNumber('CO_DEFAULT_RETEICA_PCT', 0),
+          retefuente_base_minima: parseEnvNumber('CO_RETEFUENTE_BASE_MINIMA', 0),
+          reteiva_base_minima: parseEnvNumber('CO_RETEIVA_BASE_MINIMA', 0),
+          reteica_base_minima: parseEnvNumber('CO_RETEICA_BASE_MINIMA', 0),
+        }
+      );
+
+      if (fiscalCliente.solicitar_factura_electronica && Math.abs(fiscal.total - total) > 1) {
+        return errorResponse(
+          {
+            code: 'TOTAL_FISCAL_NO_CUADRA',
+            message:
+              'El total fiscal no coincide con el total ofrecido. Solicita una cotizacion revisada.',
+          },
+          422,
+          origin
+        );
+      }
+      // Gateway siempre cobra el total ofertado (puede diferir del subtotal neto
+      // cuando impuestos_incluidos=false y el IVA se suma en el desglose).
+    } else {
+      envioTotal =
+        mercado === 'CO'
+          ? await calcularEnvio(
+              supabase,
+              body.fiscal?.direccion_facturacion?.departamento,
+              subtotal - descuento.descuento
+            )
+          : 0;
+
+      fiscal = calculateFiscalSummary(
+        fiscalItems as Array<{
+          producto_id: string;
+          slug: string;
+          nombre: string;
+          cantidad: number;
+          precio_unitario: number;
+          tarifa_iva_pct?: number | null;
+          retencion_fuente_pct?: number | null;
+          retencion_iva_pct?: number | null;
+          retencion_ica_pct?: number | null;
+          dian_codigo?: string | null;
+          excluido_iva?: boolean;
+        }>,
+        fiscalCliente,
+        {
+          moneda,
+          mercado: mercado as Mercado,
+          descuento_total: descuento.descuento,
+          envio_total: envioTotal,
+          default_iva_pct: parseEnvNumber('CO_DEFAULT_IVA_PCT', 19),
+          default_retencion_fuente_pct: parseEnvNumber('CO_DEFAULT_RETEFUENTE_PCT', 0),
+          default_retencion_iva_pct: parseEnvNumber('CO_DEFAULT_RETEIVA_PCT', 0),
+          default_retencion_ica_pct: parseEnvNumber('CO_DEFAULT_RETEICA_PCT', 0),
+          retefuente_base_minima: parseEnvNumber('CO_RETEFUENTE_BASE_MINIMA', 0),
+          reteiva_base_minima: parseEnvNumber('CO_RETEIVA_BASE_MINIMA', 0),
+          reteica_base_minima: parseEnvNumber('CO_RETEICA_BASE_MINIMA', 0),
+        }
+      );
+      total = fiscal.total;
+    }
+
     const pedidoId = crypto.randomUUID();
     const dianDraft = buildDianInvoiceDraft({
       referencia: pedidoId,
@@ -1008,7 +1151,8 @@ Deno.serve(
               lead_comercial_id: cotizacionAtribucion?.lead_comercial_id ?? null,
               origen: 'cotizacion',
               precios_locked: true,
-              total_ofertado: calcularTotalOfertado(lineasCotizacion),
+              total_ofertado: total,
+              impuestos_incluidos: impuestosIncluidosOferta,
               attribution: {
                 campaign: cotizacionAtribucion?.campaign ?? null,
                 landing_path: cotizacionAtribucion?.landing_path ?? null,
@@ -1076,7 +1220,8 @@ Deno.serve(
         .update({
           estado: 'convertida',
           pedido_id: pedidoId,
-          precio_total_ofertado: calcularTotalOfertado(lineasCotizacion),
+          // Conservar el total a pagar (#203), no la suma neta de líneas.
+          precio_total_ofertado: total,
           leida: true,
         })
         .eq('id', cotizacionId);
