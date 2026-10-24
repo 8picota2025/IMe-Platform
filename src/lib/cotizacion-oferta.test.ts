@@ -17,6 +17,7 @@ import {
   formatQuoteMoney,
   splitNombreApellido,
   tokenExpirado,
+  totalCobroOfertaLocked,
 } from './cotizacion-oferta';
 
 describe('cotizacion-oferta', () => {
@@ -77,6 +78,16 @@ describe('cotizacion-oferta', () => {
         ])
       )
     ).toBe(250);
+  });
+
+  it('totalCobroOfertaLocked prefiere precio_total_ofertado sobre desglose vivo', () => {
+    const lineas = parseLineasOferta([
+      { slug: 'a', cantidad: 1, precio_unitario: 150_336.13, tratamiento_iva: '19' },
+    ]);
+    // Locked at send (net + 19%). Live desglose after catalog flip must not win.
+    expect(totalCobroOfertaLocked(178_899.99, 150_336.13, lineas)).toBe(178_899.99);
+    expect(totalCobroOfertaLocked(null, 178_899.99, lineas)).toBe(178_899.99);
+    expect(totalCobroOfertaLocked(0, 0, lineas)).toBe(150_336.13);
   });
 
   it('hashTokenSha256 estable', async () => {

@@ -146,6 +146,23 @@ export function calcularTotalOfertado(lineas: CotizacionLineaOferta[]): number {
   );
 }
 
+/**
+ * Importe a cobrar de una oferta ya enviada.
+ * Tras #203 el total con IVA vive en `precio_total_ofertado` (congelado al enviar).
+ * Solo si falta, se usa el desglose vivo; nunca la suma neta de líneas cuando
+ * `impuestos_incluidos=false` y hay IVA por añadir.
+ */
+export function totalCobroOfertaLocked(
+  precioTotalOfertado: number | string | null | undefined,
+  desgloseTotal: number,
+  lineas: CotizacionLineaOferta[]
+): number {
+  const locked = Number(precioTotalOfertado);
+  if (Number.isFinite(locked) && locked > 0) return locked;
+  if (Number.isFinite(desgloseTotal) && desgloseTotal > 0) return desgloseTotal;
+  return calcularTotalOfertado(lineas);
+}
+
 export function normalizarMonedaOferta(value: unknown): 'COP' | 'USD' {
   return String(value ?? 'COP')
     .trim()
