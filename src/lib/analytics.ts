@@ -1,3 +1,5 @@
+import { hasAnalyticsConsent } from './consent';
+
 export type AnalyticsEventName =
   | 'page_view'
   | 'session_engaged'
@@ -77,6 +79,7 @@ declare global {
     __imeAnalyticsScrollDepths?: number[];
     __imeAnalyticsPageStartedAt?: number;
     __imeAnalyticsLastPageViewPayload?: AnalyticsParams;
+    __imeAnalyticsFirstPartyReplayed?: boolean;
   }
 }
 
@@ -194,7 +197,11 @@ function firstPartyPayload(
 }
 
 function sendFirstPartyEvent(name: AnalyticsEventName, params: AnalyticsParams): void {
-  if (!FIRST_PARTY_ENDPOINT || !SUPABASE_ANON_KEY || typeof window === 'undefined') return;
+  if (typeof window === 'undefined') return;
+  // ADR-0012: la analítica propia también es no esencial. No se envía nada a
+  // Supabase hasta que el visitante acepta la categoría de analítica.
+  if (!hasAnalyticsConsent()) return;
+  if (!FIRST_PARTY_ENDPOINT || !SUPABASE_ANON_KEY) return;
   const payload = firstPartyPayload(name, params);
   window
     .fetch(FIRST_PARTY_ENDPOINT, {
@@ -236,14 +243,19 @@ export function emitAnalyticsEvent(name: AnalyticsEventName, params: AnalyticsPa
  * ADR-0012: en la primera visita el page_view se emite antes de que el
  * visitante acepte el banner, cuando gtag todavía no existe, y GA4 lo pierde
  * (GTM sí lo ve: al cargar procesa lo que ya está en dataLayer). Es justo la
- * landing con los UTM. Al aceptar, se reenvía sólo a gtag — no a dataLayer
- * ni al endpoint propio, que ya lo registraron — para no duplicarlo.
+ * landing con los UTM. Al aceptar se reenvía a gtag y, una sola vez, al
+ * endpoint propio (que ahora está gateado por consentimiento y no registró
+ * ese primer page_view). No se reenvía a dataLayer para no duplicarlo.
  */
 export function replayPageViewToGtag(): void {
   if (typeof window === 'undefined') return;
   const payload = window.__imeAnalyticsLastPageViewPayload;
   if (!payload) return;
   window.gtag?.('event', 'page_view', payload);
+  if (hasAnalyticsConsent() && !window.__imeAnalyticsFirstPartyReplayed) {
+    window.__imeAnalyticsFirstPartyReplayed = true;
+    sendFirstPartyEvent('page_view', payload);
+  }
 }
 
 export function trackPageView(): void {

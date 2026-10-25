@@ -10,7 +10,7 @@ import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { badRequest, errorResponse, notFound, internalError } from '../_shared/errors.ts';
 import { replyToDeCotizacion } from '../_shared/asesor.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
-import { checkRateLimit } from '../_shared/rate-limit.ts';
+import { checkRateLimit, clientIp } from '../_shared/rate-limit.ts';
 import { enviarEmailPlantilla, escapeHtml, DESTINATARIOS_INTERNOS } from '../_shared/email.ts';
 import {
   datosBancariosTexto,
@@ -79,11 +79,7 @@ const MAX_COMPROBANTE_BYTES = 5 * 1024 * 1024;
 const MIME_OK = new Set(['image/jpeg', 'image/png', 'image/webp', 'application/pdf']);
 
 function obtenerIp(req: Request): string {
-  return (
-    req.headers.get('cf-connecting-ip') ||
-    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    '0.0.0.0'
-  );
+  return clientIp(req);
 }
 
 async function loadCotizacionValidada(

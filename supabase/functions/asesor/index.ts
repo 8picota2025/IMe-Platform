@@ -29,7 +29,7 @@ import { createLogger, generateRequestId } from '../_shared/logging.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
 import { verifyTurnstile } from '../_shared/turnstile.ts';
 import { redactHistorial, redactPii } from '../_shared/pii-redact.ts';
-import { checkRateLimit } from '../_shared/rate-limit.ts';
+import { checkRateLimit, clientIp } from '../_shared/rate-limit.ts';
 import { shouldSkipAsesorTurnstileVerify } from '../../../src/lib/asesor-turnstile.ts';
 import {
   buildAsesorStaticFallback,
@@ -565,12 +565,7 @@ async function despertarAgente(
 }
 
 function obtenerIp(req: Request): string {
-  const xff = req.headers.get('x-forwarded-for');
-  if (xff) {
-    const primera = xff.split(',')[0]?.trim();
-    if (primera) return primera;
-  }
-  return req.headers.get('cf-connecting-ip') ?? 'desconocida';
+  return clientIp(req);
 }
 
 function limpiarTexto(value: unknown, max = 500): string {

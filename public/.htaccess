@@ -179,16 +179,23 @@ RewriteCond %{QUERY_STRING} ^familia=([a-z0-9-]+)(&.*)?$ [NC]
 RewriteRule ^en/catalog/?$ /en/families/%1/? [R=301,L]
 
 # Other catalog query variants → base catalog URL
+# Conserva atribución y búsqueda (utm_*, gclid, fbclid, msclkid, q). Sin esta
+# exclusión el 301 borra el UTM de campañas que aterrizan en catálogo/contacto
+# y el buscador (?q=) no sobrevive a un refresh.
+RewriteCond %{QUERY_STRING} !(^|&)(utm_[a-z]+|gclid|fbclid|msclkid|q)= [NC]
 RewriteCond %{QUERY_STRING} .+
 RewriteRule ^es/catalogo/?$ /es/catalogo/? [R=301,L]
 
+RewriteCond %{QUERY_STRING} !(^|&)(utm_[a-z]+|gclid|fbclid|msclkid|q)= [NC]
 RewriteCond %{QUERY_STRING} .+
 RewriteRule ^en/catalog/?$ /en/catalog/? [R=301,L]
 
 # Contact tracking/query params → canonical contact page
+RewriteCond %{QUERY_STRING} !(^|&)(utm_[a-z]+|gclid|fbclid|msclkid|q)= [NC]
 RewriteCond %{QUERY_STRING} .+
 RewriteRule ^es/contacto/?$ /es/contacto/? [R=301,L]
 
+RewriteCond %{QUERY_STRING} !(^|&)(utm_[a-z]+|gclid|fbclid|msclkid|q)= [NC]
 RewriteCond %{QUERY_STRING} .+
 RewriteRule ^en/contact/?$ /en/contact/? [R=301,L]
 
