@@ -97,6 +97,9 @@ cada sesión. Estado de fases en AGENTS.md sección "Estado de fases".
 - `PENDIENTES.md` — pendientes activos por etiqueta
 - `BACKLOG_V2.md` — fuera de alcance V1
 - `docs/prompts/` — prompts de fase versionados
+- `docs/deploy-preview.md` — PR previews en Hostinger (FTP, noindex, limpieza de cuota)
+- `docs/seo/pdp-seo-developer.md` — metas PDP, JSON-LD Product, relacionados por SKU
+- `docs/invima-landings-fabricantes.md` — hub conocimiento INVIMA + landing comercial fabricantes
 - `docs/mcp-ime-comercio-cotizaciones.md` — herramientas MCP `ime-comercio` para buscar, editar y enviar cotizaciones (envío oficial con asesor y Reply-To)
 
 ## MCP de comercio para agentes remotos
