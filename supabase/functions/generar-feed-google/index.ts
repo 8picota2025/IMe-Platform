@@ -10,7 +10,7 @@
 
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
-import { checkRateLimit } from '../_shared/rate-limit.ts';
+import { checkRateLimit, clientIp } from '../_shared/rate-limit.ts';
 import { resolvePrecioPublico } from '../_shared/precio-publico.ts';
 import { buildMerchantFeedXml, type MerchantFeedProduct } from '../../../src/lib/merchant-feed.ts';
 
@@ -25,10 +25,7 @@ Deno.serve(async req => {
   }
 
   const supabase = getServerSupabase();
-  const ip =
-    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-    req.headers.get('x-real-ip') ??
-    'desconocida';
+  const ip = clientIp(req);
   const limite = await checkRateLimit(supabase, `feed-google:ip:${ip}`, 'cotizacion');
   if (limite.limited) {
     return new Response('Too many requests', {

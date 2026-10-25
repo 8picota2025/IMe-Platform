@@ -152,3 +152,22 @@ export async function checkRateLimit(
   }
   return { limited: false };
 }
+
+/**
+ * IP del cliente con hops de confianza.
+ *
+ * `x-forwarded-for` es una lista donde cada proxy añade su extremo. El primer
+ * valor lo controla el cliente (`X-Forwarded-For: <lo-que-sea>`), así que usarlo
+ * para el rate-limit permite rotar el header y saltarse el límite. Preferimos
+ * cabeceras que fija la plataforma (`cf-connecting-ip`, `x-real-ip`) y, como
+ * último recurso, el último hop de `x-forwarded-for` (mismo criterio que
+ * `src/lib/mcp-comercio-http.ts`).
+ */
+export function clientIp(req: Request): string {
+  return (
+    req.headers.get('cf-connecting-ip')?.trim() ||
+    req.headers.get('x-real-ip')?.trim() ||
+    req.headers.get('x-forwarded-for')?.split(',').at(-1)?.trim() ||
+    'unknown'
+  );
+}

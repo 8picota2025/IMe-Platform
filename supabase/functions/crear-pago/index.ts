@@ -17,7 +17,7 @@
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { badRequest, errorResponse, internalError } from '../_shared/errors.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
-import { checkRateLimit } from '../_shared/rate-limit.ts';
+import { checkRateLimit, clientIp } from '../_shared/rate-limit.ts';
 import { getPaymentGateway, type CheckoutItem, type Mercado } from '../_shared/payment-gateway.ts';
 import {
   buildDianInvoiceDraft,
@@ -145,11 +145,7 @@ interface CuponRow {
 }
 
 function obtenerIp(req: Request): string {
-  return (
-    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-    req.headers.get('cf-connecting-ip') ??
-    'unknown'
-  );
+  return clientIp(req);
 }
 
 interface ListaPrecioResuelta {

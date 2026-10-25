@@ -15,6 +15,7 @@ const analyticsHead = readFileSync(
   'utf8'
 );
 const consentLib = readFileSync(new URL('./consent.ts', import.meta.url), 'utf8');
+const analyticsLib = readFileSync(new URL('./analytics.ts', import.meta.url), 'utf8');
 const baseHead = readFileSync(new URL('../components/BaseHead.astro', import.meta.url), 'utf8');
 const layout = readFileSync(new URL('../layouts/Layout.astro', import.meta.url), 'utf8');
 
@@ -67,5 +68,13 @@ describe('analytics head wiring', () => {
     expect(consentLib).toContain('googletagmanager.com/gtag/js');
     expect(baseHead).toContain('google-site-verification');
     expect(baseHead).toContain('resolveSearchConsoleVerification');
+  });
+});
+
+describe('analítica propia (first-party) gateada por consentimiento', () => {
+  it('no envía a track-analytics sin consentimiento (ADR-0012)', () => {
+    expect(analyticsLib).toContain("import { hasAnalyticsConsent } from './consent'");
+    const sendFn = analyticsLib.slice(analyticsLib.indexOf('function sendFirstPartyEvent'));
+    expect(sendFn).toContain('hasAnalyticsConsent()');
   });
 });

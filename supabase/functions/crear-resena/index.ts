@@ -6,7 +6,7 @@
 import { handleCors, getCorsHeaders } from '../_shared/cors.ts';
 import { badRequest, internalError } from '../_shared/errors.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
-import { checkRateLimit } from '../_shared/rate-limit.ts';
+import { checkRateLimit, clientIp } from '../_shared/rate-limit.ts';
 
 interface CrearResenaBody {
   producto_slug?: string;
@@ -25,10 +25,7 @@ Deno.serve(async req => {
   if (req.method !== 'POST') return badRequest('Metodo no soportado', origin);
 
   const supabase = getServerSupabase();
-  const ip =
-    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-    req.headers.get('x-real-ip') ??
-    'desconocida';
+  const ip = clientIp(req);
   const limite = await checkRateLimit(supabase, `resena:ip:${ip}`, 'cotizacion');
   if (limite.limited) {
     return new Response(JSON.stringify({ ok: false, error: 'Demasiadas solicitudes' }), {
