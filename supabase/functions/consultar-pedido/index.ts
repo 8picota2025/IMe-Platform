@@ -20,7 +20,7 @@ import {
   registrarPedidoPagado,
 } from '../_shared/post-pago.ts';
 import { getServerSupabase } from '../_shared/supabase-server.ts';
-import { checkRateLimit } from '../_shared/rate-limit.ts';
+import { checkRateLimit, clientIp } from '../_shared/rate-limit.ts';
 import { claimPaidTransition, type PaymentStateClient } from '../../../src/lib/payment-state.ts';
 
 const REFERENCIA_REGEX = /^[a-zA-Z0-9-]{8,64}$/;
@@ -40,11 +40,7 @@ interface PedidoRow {
 }
 
 function obtenerIp(req: Request): string {
-  return (
-    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-    req.headers.get('cf-connecting-ip') ??
-    'unknown'
-  );
+  return clientIp(req);
 }
 
 Deno.serve(async req => {

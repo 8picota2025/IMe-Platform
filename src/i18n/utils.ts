@@ -46,6 +46,10 @@ const PATH_SEGMENT_PAIRS: Array<{ es: string; en: string }> = [
   { es: 'productos', en: 'products' },
   { es: 'conocimiento', en: 'knowledge' },
   { es: 'seguimiento', en: 'order-status' },
+  { es: 'carrito', en: 'cart' },
+  { es: 'cotizacion', en: 'quote' },
+  { es: 'cuenta', en: 'account' },
+  { es: 'formalizar', en: 'formalize' },
   { es: 'proyectos', en: 'projects' },
   { es: 'torres-laparoscopia', en: 'laparoscopy-towers' },
   { es: 'esterilizacion', en: 'sterilization' },
@@ -82,6 +86,9 @@ const NESTED_SLUG_PAIRS: Array<{
     es: 'checklist-recepcion-monitor',
     en: 'monitor-receiving-checklist',
   },
+  // Sub-pasos de comercio (no artículos): /es/cotizacion/formalizar ↔
+  // /en/quote/formalize.
+  { sectionEs: 'cotizacion', sectionEn: 'quote', es: 'formalizar', en: 'formalize' },
 ];
 
 const LEGAL_SLUG_PAIRS: Array<{ es: string; en: string }> = [

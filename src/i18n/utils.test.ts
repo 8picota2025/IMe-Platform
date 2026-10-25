@@ -21,3 +21,25 @@ describe('getLocalizedPath · Centro de Conocimiento', () => {
     expect(getLocalizedPath('/en/knowledge/publish', 'es')).toBe('/es/conocimiento/publicar/');
   });
 });
+
+describe('getLocalizedPath · rutas de comercio', () => {
+  it('traduce carrito ↔ cart', () => {
+    expect(getLocalizedPath('/es/carrito/', 'en')).toBe('/en/cart/');
+    expect(getLocalizedPath('/en/cart/', 'es')).toBe('/es/carrito/');
+  });
+
+  it('traduce cotizacion ↔ quote', () => {
+    expect(getLocalizedPath('/es/cotizacion/', 'en')).toBe('/en/quote/');
+    expect(getLocalizedPath('/en/quote/', 'es')).toBe('/es/cotizacion/');
+  });
+
+  it('traduce cuenta ↔ account', () => {
+    expect(getLocalizedPath('/es/cuenta/', 'en')).toBe('/en/account/');
+    expect(getLocalizedPath('/en/account/', 'es')).toBe('/es/cuenta/');
+  });
+
+  it('traduce el sub-paso formalizar ↔ formalize', () => {
+    expect(getLocalizedPath('/es/cotizacion/formalizar/', 'en')).toBe('/en/quote/formalize/');
+    expect(getLocalizedPath('/en/quote/formalize/', 'es')).toBe('/es/cotizacion/formalizar/');
+  });
+});

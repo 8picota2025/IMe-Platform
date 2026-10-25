@@ -2,12 +2,13 @@ name: Deploy Producción
 
 # Solo manual hasta F5: el deploy automático en cada push a main
 # publicaría el sitio con catálogo mock y copy EN sin revisar en cuanto
-# existan los secretos FTP. Reactivar push/repository_dispatch al cerrar
-# F5 (auditoría, legales y despliegue).
+# existan los secretos FTP. `push` queda desactivado hasta cerrar F5.
+# Los rebuilds por cambio de CMS siguen entrando por `repository_dispatch`
+# (los dispara sync-productos-supabase.yml), que es intencional.
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
+  # push:
+  #   branches: [main]
   repository_dispatch:
     types: [trigger-rebuild]
 
