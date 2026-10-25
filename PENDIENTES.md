@@ -399,6 +399,10 @@ real — NO_EJECUTADO_ENTORNO hasta tener tráfico real con credenciales LLM act
 
 - [ ] `BLOQUEANTE_BACKEND` Aplicar `supabase/migrations/20261011143000_cotizacion_estado_archivo.sql` en la base real antes de desplegar `comercial-cotizacion`. Sin esa migración, `perdida` / `declinada` y el archivo responden `MIGRACION_PENDIENTE`. No se ha ejecutado contra cotizaciones reales.
 
+- [ ] BLOQUEANTE_BACKEND — Inteligencia de precios (2026-10-25): aplicar `supabase/migrations/20261025120000_market_price_intelligence.sql` y desplegar la Edge `price-intelligence` antes de usar `#/inteligencia-precios`. Sin la tabla, el CMS muestra el aviso de migración pendiente.
+- [ ] TODO_CLIENTE — Definir `PRICE_INTEL_INGEST_KEY` solo como secreto de la Edge Function (n8n, Hermes y scrapers). No va en el cliente ni en `dist/`.
+- [ ] TODO_CLIENTE — UniGuajira: faltan equipo, URL y precio de las referencias web con estampillas. No se sembraron filas. El +30 % se aplica en el CMS al cotizar, sobre el precio máximo, cuando el usuario lo marca.
+
 ## BACKLOG_V2
 
 Ver BACKLOG_V2.md

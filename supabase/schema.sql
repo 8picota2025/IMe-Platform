@@ -2248,3 +2248,90 @@ INSERT INTO topic_clusters (slug, nombre_es, nombre_en, descripcion) VALUES
   ('invima-regulacion', 'INVIMA / regulación', 'INVIMA / regulatory',
    'Sin contenido publicado hoy; datos ya existen (invima-knowledge-base.json, sin usar). Candidato fuerte solo despues de que exista el modelo de evidencia (ADR-0013) — no antes.')
 ON CONFLICT (slug) DO NOTHING;
+
+-- ============================================================
+-- Inteligencia de precios (confidencial)
+-- Espejo de supabase/migrations/20261025120000_market_price_intelligence.sql
+-- La semilla de precios reales está en esa migración.
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS market_price_entries (
+  id                          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  product_id                  UUID REFERENCES productos(id) ON DELETE SET NULL,
+  category                    TEXT,
+  equipment_name              TEXT NOT NULL,
+  brand                       TEXT,
+  model                       TEXT,
+  specs_summary               TEXT,
+  invima_registration         TEXT,
+  invima_status               TEXT,
+  source_type                 TEXT NOT NULL
+                              CHECK (source_type IN (
+                                'factory_fob', 'factory_exw', 'factory_cif',
+                                'local_distributor', 'web_scrape', 'historical_quote'
+                              )),
+  supplier_or_source_name     TEXT,
+  supplier_country            TEXT,
+  contact_email               TEXT,
+  source_url_or_ref           TEXT,
+  currency                    TEXT NOT NULL CHECK (currency ~ '^[A-Z]{3}$'),
+  unit_cost_original          NUMERIC NOT NULL CHECK (unit_cost_original >= 0),
+  price_min_original          NUMERIC,
+  price_avg_original          NUMERIC,
+  price_max_original          NUMERIC,
+  incoterm                    TEXT NOT NULL
+                              CHECK (incoterm IN ('FOB', 'EXW', 'CIF', 'DDP_COLOMBIA', 'WEB_REF', 'LOCAL')),
+  tier_min_qty                INTEGER NOT NULL DEFAULT 1 CHECK (tier_min_qty >= 1),
+  lead_time                   TEXT,
+  iva_mode                    TEXT CHECK (iva_mode IS NULL OR iva_mode IN ('incluido', 'mas_iva', 'no_aplica')),
+  trm_applied                 NUMERIC,
+  freight_pct                 NUMERIC,
+  duty_pct                    NUMERIC,
+  ime_margin_pct              NUMERIC,
+  estimated_landed_cost_cop   NUMERIC,
+  suggested_sale_price_cop    NUMERIC,
+  max_reference_price_cop     NUMERIC,
+  public_stamp_surcharge_pct  NUMERIC,
+  valid_until                 DATE,
+  captured_at                 TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  notes                       TEXT,
+  raw_metadata                JSONB NOT NULL DEFAULT '{}'::jsonb,
+  external_key                TEXT UNIQUE,
+  created_by                  UUID,
+  created_at                  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at                  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE OR REPLACE VIEW supplier_price_intelligence
+WITH (security_invoker = true) AS
+SELECT * FROM market_price_entries;
+
+ALTER TABLE market_price_entries ENABLE ROW LEVEL SECURITY;
+
+REVOKE ALL ON TABLE market_price_entries FROM PUBLIC, anon;
+REVOKE ALL ON TABLE supplier_price_intelligence FROM PUBLIC, anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE market_price_entries TO authenticated;
+GRANT SELECT ON TABLE supplier_price_intelligence TO authenticated;
+GRANT ALL ON TABLE market_price_entries TO service_role;
+GRANT SELECT ON TABLE supplier_price_intelligence TO service_role;
+
+DROP POLICY IF EXISTS market_price_entries_select ON market_price_entries;
+CREATE POLICY market_price_entries_select
+  ON market_price_entries FOR SELECT TO authenticated
+  USING (is_admin(ARRAY['ventas', 'operaciones', 'catalogo']));
+
+DROP POLICY IF EXISTS market_price_entries_insert ON market_price_entries;
+CREATE POLICY market_price_entries_insert
+  ON market_price_entries FOR INSERT TO authenticated
+  WITH CHECK (is_admin(ARRAY['ventas', 'operaciones', 'catalogo']));
+
+DROP POLICY IF EXISTS market_price_entries_update ON market_price_entries;
+CREATE POLICY market_price_entries_update
+  ON market_price_entries FOR UPDATE TO authenticated
+  USING (is_admin(ARRAY['ventas', 'operaciones', 'catalogo']))
+  WITH CHECK (is_admin(ARRAY['ventas', 'operaciones', 'catalogo']));
+
+DROP POLICY IF EXISTS market_price_entries_delete ON market_price_entries;
+CREATE POLICY market_price_entries_delete
+  ON market_price_entries FOR DELETE TO authenticated
+  USING (is_admin(ARRAY['operaciones']));

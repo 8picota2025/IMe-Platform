@@ -435,3 +435,7 @@ verify_jwt = false
 # Own opaque bearer authentication in the handler; never public browser access.
 [functions.mcp-comercio]
 verify_jwt = false
+
+# Inteligencia de precios: JWT de admin, service_role o PRICE_INTEL_INGEST_KEY.
+[functions.price-intelligence]
+verify_jwt = false
