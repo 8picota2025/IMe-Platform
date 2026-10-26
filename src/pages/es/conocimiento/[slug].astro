@@ -12,6 +12,7 @@ import type { Articulo } from '../../../lib/datos';
 import { getArticulosConocimiento, esBorrador } from '../../../lib/conocimiento-borradores';
 import { relacionadosEnTema, rutasConocimiento } from '../../../lib/conocimiento-clusters';
 import RelacionadosTema from '../../../components/conocimiento/RelacionadosTema.astro';
+import InvimaConversion from '../../../components/conocimiento/InvimaConversion.astro';
 import { stripMarkdown } from '../../../lib/markdown';
 import { descripcionInvima } from '../../../data/invima-seo';
 import { renderArticleBody } from '../../../lib/conocimiento-articulo';
@@ -40,13 +41,18 @@ interface Props {
 
 const { articulo, relacionados } = Astro.props as Props;
 const tema = articulo.cluster;
+const esClusterInvima = articulo.cluster?.slug === 'invima-regulacion';
 const esArticuloInvima = articulo.slug.includes('invima');
-const ctaHref = esArticuloInvima
-  ? '/es/registro-sanitario-invima-fabricantes/#invima-fabricantes-form'
-  : '/es/contacto/';
-const ctaLabel = esArticuloInvima
-  ? 'Solicitar evaluación INVIMA'
-  : t(locale, 'conocimiento.cta_contacto');
+const ctaHref = esClusterInvima
+  ? '#invima-prediagnostico'
+  : esArticuloInvima
+    ? '/es/registro-sanitario-invima-fabricantes/#invima-fabricantes-form'
+    : '/es/contacto/';
+const ctaLabel = esClusterInvima
+  ? 'Evaluar mi producto y cotizar'
+  : esArticuloInvima
+    ? 'Solicitar evaluación INVIMA'
+    : t(locale, 'conocimiento.cta_contacto');
 const canonical = buildCanonical(`/es/conocimiento/${articulo.slug}`);
 const title = buildPageTitle(articulo.titulo);
 const description =
@@ -163,6 +169,7 @@ const jsonLd = combineJsonLd(
             set:html={renderArticleBody(articulo.cuerpo, t(locale, 'conocimiento.vacio'))}
           />
         </div>
+        {esClusterInvima && <InvimaConversion locale={locale} />}
         <RelacionadosTema articulo={articulo} relacionados={relacionados} locale={locale} />
         <div class="article-footer">
           <a href="/es/conocimiento/" class="btn btn-outline"

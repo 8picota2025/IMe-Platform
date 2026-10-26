@@ -16,6 +16,7 @@ import {
 } from '../../lib/seo';
 import { rutasConocimiento, type TemaConArticulos } from '../../lib/conocimiento-clusters';
 import { introTema } from '../../data/temas-conocimiento';
+import InvimaConversion from './InvimaConversion.astro';
 import '../../styles/site-faithful.css';
 
 interface Props {
@@ -260,6 +261,8 @@ const jsonLd = combineJsonLd(
                   {guiaInvima.contactCta}
                 </a>
               </section>
+
+              <InvimaConversion locale={locale} />
 
               <section class="invima-section" aria-labelledby="invima-official-title">
                 <h2 id="invima-official-title">{guiaInvima.official}</h2>

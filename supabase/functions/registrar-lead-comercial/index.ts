@@ -22,6 +22,15 @@ import {
   type HorizonteCompra,
 } from '../../../src/lib/comercial-leads.ts';
 import { formatPhoneForEmail, resolveSubmittedPhone } from '../../../src/lib/visitor-phone.ts';
+import {
+  CAMPANA_INVIMA_CONOCIMIENTO,
+  FAMILIA_INVIMA_CONOCIMIENTO,
+  TIPO_PROYECTO_INVIMA_CONOCIMIENTO,
+  asuntoCotizacionInvima,
+  destinatariosInvimaConocimiento,
+  resumenPrediagnostico,
+  validarSeleccionPrediagnostico,
+} from '../../../src/lib/invima-prediagnostico.ts';
 
 const FN_NAME = 'registrar-lead-comercial';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -36,6 +45,10 @@ interface LeadBody extends Partial<CommercialLeadInput> {
   idempotencyKey?: string;
   turnstileToken?: string;
   website?: string;
+  producto?: string;
+  referencias_rango?: string;
+  documentacion_origen?: string;
+  representacion_colombia?: string;
   landing_path?: string;
   referrer?: string;
   analytics_session_id?: string;
@@ -256,13 +269,22 @@ async function sendCommercialLeadEmails(
   supabase: ReturnType<typeof getServerSupabase>,
   lead: Pick<
     LeadRow,
-    'id' | 'campaign' | 'nombre' | 'email' | 'telefono' | 'institucion' | 'necesidad' | 'metadata'
+    | 'id'
+    | 'campaign'
+    | 'nombre'
+    | 'email'
+    | 'telefono'
+    | 'institucion'
+    | 'ciudad'
+    | 'necesidad'
+    | 'metadata'
   > & { locale?: string | null }
 ): Promise<{ interno: boolean; cliente: boolean } | undefined> {
   if (lead.campaign === 'evento') return undefined;
 
   const locale = lead.locale === 'en' ? 'en' : 'es';
   const referencia = lead.id;
+  const esInvimaConocimiento = lead.campaign === CAMPANA_INVIMA_CONOCIMIENTO;
   const vars = {
     referencia: escapeHtml(referencia),
     cliente_nombre: escapeHtml(lead.nombre),
@@ -270,8 +292,13 @@ async function sendCommercialLeadEmails(
     empresa: escapeHtml(lead.institucion),
     telefono: escapeHtml(lead.telefono ?? ''),
     mensaje: escapeHtml(lead.necesidad),
-    items_html:
-      locale === 'en'
+    items_html: esInvimaConocimiento
+      ? lead.necesidad
+          .split('\n')
+          .filter(linea => linea.trim())
+          .map(linea => `<li>${escapeHtml(linea)}</li>`)
+          .join('')
+      : locale === 'en'
         ? `<li>${escapeHtml(lead.campaign)} lead</li>`
         : `<li>Lead comercial (${escapeHtml(lead.campaign)})</li>`,
     total: 'Por validar',
@@ -280,6 +307,12 @@ async function sendCommercialLeadEmails(
       timeZone: 'America/Bogota',
     }),
   };
+  const destinatariosInternos = esInvimaConocimiento
+    ? destinatariosInvimaConocimiento(DESTINATARIOS_INTERNOS)
+    : DESTINATARIOS_INTERNOS;
+  const subjectOverride = esInvimaConocimiento
+    ? asuntoCotizacionInvima(lead.institucion, lead.ciudad)
+    : undefined;
   const plantillaCliente =
     locale === 'en' ? 'cotizacion_confirmacion_cliente_en' : 'cotizacion_confirmacion_cliente_es';
   const destinatariosCliente = lead.email ? [lead.email] : [];
@@ -288,9 +321,11 @@ async function sendCommercialLeadEmails(
       enviarEmailPlantilla(
         supabase,
         'cotizacion_interna',
-        DESTINATARIOS_INTERNOS,
+        destinatariosInternos,
         vars,
-        referencia
+        referencia,
+        [],
+        subjectOverride ? { subjectOverride } : {}
       ),
       destinatariosCliente.length
         ? enviarEmailPlantilla(supabase, plantillaCliente, destinatariosCliente, vars, referencia)
@@ -440,6 +475,37 @@ Deno.serve(
       campaign: campaign as CommercialLeadInput['campaign'],
       locale: body.locale === 'en' ? 'en' : 'es',
     };
+    const productoInvima = cleanText(body.producto, 300) ?? '';
+    const referenciasInvima = cleanText(body.referencias_rango, 80) ?? '';
+    const documentacionInvima = cleanText(body.documentacion_origen, 160) ?? '';
+    const representacionInvima = cleanText(body.representacion_colombia, 180) ?? '';
+    if (lead.campaign === CAMPANA_INVIMA_CONOCIMIENTO) {
+      const seleccion = validarSeleccionPrediagnostico(
+        {
+          producto: productoInvima,
+          referencias: referenciasInvima,
+          documentacion: documentacionInvima,
+          representacion: representacionInvima,
+        },
+        lead.locale === 'en' ? 'en' : 'es'
+      );
+      if (!seleccion.ok) return jsonResponse({ ok: false, error: seleccion.error }, origin, 422);
+      lead.familia_slug = FAMILIA_INVIMA_CONOCIMIENTO;
+      lead.tipo_slug = 'fabricantes';
+      lead.tipo_proyecto = TIPO_PROYECTO_INVIMA_CONOCIMIENTO;
+      lead.horizonte = 'exploracion';
+      lead.necesidad = resumenPrediagnostico({
+        producto: productoInvima,
+        referencias: referenciasInvima,
+        documentacion: documentacionInvima,
+        representacion: representacionInvima,
+        nombre: lead.nombre,
+        empresa: lead.institucion,
+        pais: lead.ciudad,
+        email: lead.email ?? '',
+        ...(lead.telefono ? { telefono: lead.telefono } : {}),
+      });
+    }
     const validation = validateCommercialLead(lead);
     if (!validation.valid) {
       return jsonResponse(
@@ -507,6 +573,15 @@ Deno.serve(
               nombres: eventFirstNames,
               apellidos: eventLastNames,
               tipo_registro: 'asistente_evento',
+            }
+          : {}),
+        ...(campaign === CAMPANA_INVIMA_CONOCIMIENTO
+          ? {
+              producto: productoInvima,
+              referencias: referenciasInvima,
+              documentacion: documentacionInvima,
+              representacion: representacionInvima,
+              asunto: asuntoCotizacionInvima(lead.institucion, lead.ciudad),
             }
           : {}),
       },

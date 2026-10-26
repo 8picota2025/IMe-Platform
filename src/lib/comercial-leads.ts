@@ -36,6 +36,7 @@ export type CampaignLandingId =
   | 'herramienta'
   | 'evento'
   | 'invima_fabricantes'
+  | 'invima_conocimiento'
   | FabricanteLandingId;
 
 /**
@@ -61,6 +62,7 @@ const CAMPAIGN_FLAGS: Record<CampaignLandingId, true> = {
   herramienta: true,
   evento: true,
   invima_fabricantes: true,
+  invima_conocimiento: true,
   fab_tuttnauer: true,
   fab_saikang: true,
   fab_angell: true,
@@ -135,18 +137,23 @@ export function validateCommercialLead(input: Partial<CommercialLeadInput>): Val
 
   if (!input.nombre?.trim()) req('nombre', 'Indica tu nombre.', 'Enter your name.');
   if (!input.institucion?.trim()) {
-    if (input.campaign === 'invima_fabricantes') {
+    if (input.campaign === 'invima_conocimiento') {
+      req('institucion', 'Indica la empresa fabricante.', 'Enter the manufacturer.');
+    } else if (input.campaign === 'invima_fabricantes') {
       req('institucion', 'Indica la empresa.', 'Enter the company.');
     } else {
       req('institucion', 'Indica la institución.', 'Enter the institution.');
     }
   }
   if (!input.ciudad?.trim()) {
-    if (input.campaign === 'invima_fabricantes') {
+    if (input.campaign === 'invima_conocimiento' || input.campaign === 'invima_fabricantes') {
       req('ciudad', 'Indica el país.', 'Enter the country.');
     } else {
       req('ciudad', 'Indica la ciudad.', 'Enter the city.');
     }
+  }
+  if (input.campaign === 'invima_conocimiento' && !input.email?.trim()) {
+    req('email', 'Indica el correo corporativo.', 'Enter the corporate email.');
   }
   if (input.campaign === 'evento') {
     if (!input.telefono?.trim()) req('telefono', 'Indica el teléfono.', 'Enter the phone number.');

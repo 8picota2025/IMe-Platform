@@ -50,6 +50,23 @@ describe('validateCommercialLead', () => {
     expect(r.errors.ciudad).toMatch(/país/i);
   });
 
+  it('pre-diagnóstico de conocimiento exige correo corporativo', () => {
+    const r = validateCommercialLead({
+      nombre: 'Ana',
+      institucion: 'Acme',
+      ciudad: 'Germany',
+      tipo_proyecto: 'prediagnostico_registro_invima',
+      horizonte: 'exploracion',
+      necesidad: 'Producto y finalidad prevista: monitor',
+      consentimiento: true,
+      familia_slug: 'invima-regulacion',
+      campaign: 'invima_conocimiento',
+      locale: 'es',
+    });
+    expect(r.valid).toBe(false);
+    expect(r.errors.email).toMatch(/corporativo/i);
+  });
+
   it('acepta payload mínimo válido', () => {
     const r = validateCommercialLead({
       nombre: 'Ana López',
@@ -188,7 +205,14 @@ describe('isKnownCampaign', () => {
   });
 
   it('acepta los formularios que no son landing', () => {
-    for (const id of ['proyectos', 'pdf_descarga', 'herramienta', 'evento', 'invima_fabricantes']) {
+    for (const id of [
+      'proyectos',
+      'pdf_descarga',
+      'herramienta',
+      'evento',
+      'invima_fabricantes',
+      'invima_conocimiento',
+    ]) {
       expect(isKnownCampaign(id), id).toBe(true);
     }
   });
