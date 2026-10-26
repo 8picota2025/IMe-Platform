@@ -176,15 +176,7 @@ const jsonLd = combineJsonLd(
           ><span aria-current="page">{cluster.nombre}</span>
         </nav>
         <p class="tema-label">{t(locale, 'conocimiento.tema_label')}</p>
-        <h1 id="tema-h1">
-          {
-            esTemaInvima
-              ? locale === 'en'
-                ? 'INVIMA: what it is and how to check a registration'
-                : 'INVIMA: qué es y cómo consultar el registro sanitario'
-              : cluster.nombre
-          }
-        </h1>
+        <h1 id="tema-h1">{cluster.nombre}</h1>
         {intro && <p class="ph-sub">{intro}</p>}
       </div>
     </header>

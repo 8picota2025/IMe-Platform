@@ -9,6 +9,26 @@ describe('GSC 10–16 oct 2026', () => {
   it('la guía INVIMA abre con la consulta y no inventa registros', () => {
     const tema = TEMAS_CONOCIMIENTO['invima-regulacion'];
     expect(tema).toBeDefined();
+    expect(tema!.es).toEqual({
+      nombre: 'INVIMA: registro sanitario de dispositivos médicos',
+      intro:
+        'Cómo consultar registros INVIMA y planificar el registro sanitario de dispositivos médicos en Colombia (Decreto 4725 de 2005): requisitos y tarifas. I-ME.',
+    });
+    expect(tema!.en).toEqual({
+      nombre: 'INVIMA: Medical Device Registration in Colombia',
+      intro:
+        'How to check INVIMA registrations and plan medical device registration in Colombia (Decree 4725 of 2005): requirements, fees and phases. Contact I-ME.',
+    });
+    expect(tema!.es.intro).toHaveLength(154);
+    expect(tema!.en.intro).toHaveLength(150);
+    expect(buildPageTitle(tema!.es.nombre)).toBe(
+      'INVIMA: registro sanitario de dispositivos médicos | I-ME'
+    );
+    expect(buildPageTitle(tema!.es.nombre)).toHaveLength(57);
+    expect(buildPageTitle(tema!.en.nombre)).toBe(
+      'INVIMA: Medical Device Registration in Colombia | I-ME'
+    );
+    expect(buildPageTitle(tema!.en.nombre)).toHaveLength(54);
     for (const locale of ['es', 'en'] as const) {
       const copy = tema![locale];
       expect(copy.nombre.startsWith('INVIMA:')).toBe(true);

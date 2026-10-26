@@ -23,14 +23,14 @@ export const TEMAS_CONOCIMIENTO: Record<string, TextoTema> = {
   },
   'invima-regulacion': {
     es: {
-      nombre: 'INVIMA: qué es y cómo consultar el registro sanitario',
+      nombre: 'INVIMA: registro sanitario de dispositivos médicos',
       intro:
-        'Qué es el INVIMA (Instituto Nacional de Vigilancia de Medicamentos y Alimentos) y cómo consultar un registro sanitario. Decreto 4725 de 2005.',
+        'Cómo consultar registros INVIMA y planificar el registro sanitario de dispositivos médicos en Colombia (Decreto 4725 de 2005): requisitos y tarifas. I-ME.',
     },
     en: {
-      nombre: 'INVIMA: what it is and how to check a registration',
+      nombre: 'INVIMA: Medical Device Registration in Colombia',
       intro:
-        'What INVIMA (Instituto Nacional de Vigilancia de Medicamentos y Alimentos) is and how to check a sanitary registration. Decree 4725 of 2005.',
+        'How to check INVIMA registrations and plan medical device registration in Colombia (Decree 4725 of 2005): requirements, fees and phases. Contact I-ME.',
     },
   },
   'ventilacion-terapia-respiratoria': {
