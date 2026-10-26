@@ -2867,6 +2867,7 @@ export type StandardCampaignLandingId = Exclude<
   | 'herramienta'
   | 'evento'
   | 'invima_fabricantes'
+  | 'invima_conocimiento'
   | FabricanteLandingId
 >;
 

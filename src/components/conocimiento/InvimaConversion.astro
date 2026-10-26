@@ -1,0 +1,908 @@
+---
+/**
+ * Bloque editorial y pre-diagnóstico para el cluster INVIMA.
+ * El envío usa registrar-lead-comercial (campaña invima_conocimiento).
+ */
+import type { Locale } from '../../i18n/utils';
+import PhoneField from '../PhoneField.astro';
+import {
+  CAMPANA_INVIMA_CONOCIMIENTO,
+  FAMILIA_INVIMA_CONOCIMIENTO,
+  TIPO_PROYECTO_INVIMA_CONOCIMIENTO,
+  opcionesPrediagnostico,
+} from '../../lib/invima-prediagnostico';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const isEn = locale === 'en';
+const opciones = opcionesPrediagnostico(locale);
+const privacyHref = isEn ? '/en/legal/privacy/' : '/es/legal/privacidad/';
+const habeasHref = isEn ? '/en/legal/data-authorization/' : '/es/legal/habeas-data/';
+const turnstileSiteKey = (
+  (import.meta.env['PUBLIC_TURNSTILE_SITE_KEY'] as string | undefined) ?? ''
+).trim();
+const formId = 'invima-prediagnostico';
+
+const copy = isEn
+  ? {
+      h2: 'Are You a Manufacturer? How to Minimize Costs and Avoid Delays in Your INVIMA Registration',
+      lead: 'While INVIMA\u2019s internal review timelines are set by regulation, most cost overruns and multi-month delays happen before the dossier is even filed. Structuring your technical submission properly from day one is the key to entering the Colombian market smoothly without costly rework.',
+      cards: [
+        {
+          title: 'Smart Product Family Grouping (Article 7, Decree 4725 of 2005)',
+          body: 'Foreign manufacturers often pay multiple official INVIMA filing fees for models that could legally be covered under a single sanitary registration. We analyze your product line to group all eligible references into one submission.',
+        },
+        {
+          title: 'Pre-filing Audit of Your Certificate of Free Sale (CFS/CVL) & Technical File',
+          before:
+            'Submitting an export certificate instead of a compliant Certificate of Free Sale, or having minor mismatches in model codes across apostilled documents, triggers formal deficiency letters (',
+          em: 'autos de requerimiento',
+          after:
+            ') and forces you to repeat legalizations and official translations. We audit your source documents before you translate or file.',
+        },
+        {
+          title: 'Keep Ownership of Your Registration with an Authorized Importer in Colombia',
+          body: 'A foreign manufacturer can hold the INVIMA registration in its own name to retain full commercial control of its brand, while appointing an authorized local importer. I-ME supports both your regulatory filing and your local importation and distribution setup in Colombia.',
+        },
+      ],
+      badge: 'REGULATORY SERVICE FOR MANUFACTURERS · DECREE 4725 OF 2005',
+      h3: 'Request a Technical Dossier Pre-Assessment & Service Quote',
+      supportBefore:
+        'Share 4 quick details about your device. Our regulatory team will review your case and send you a ',
+      strong1: 'preliminary risk classification (Article 7)',
+      supportMid: ', an assessment of ',
+      strong2: 'how to group your models under a single registration',
+      supportAfter: ' to save on INVIMA fees, the exact document checklist, and a ',
+      strong3: 'tailored service quotation',
+      supportEnd: '.',
+      product: '1. Device name & intended use',
+      productHint:
+        'e.g., Patient monitor, electro-hydraulic operating table, neonatal bubble CPAP...',
+      refs: '2. How many models/references do you plan to register?',
+      docs: '3. Home-country documentation',
+      local: '4. Local setup in Colombia',
+      contact: '5. Your contact details',
+      name: 'Full name & role',
+      companyLegend: 'Manufacturer name & country',
+      company: 'Manufacturer',
+      country: 'Country',
+      email: 'Corporate email',
+      phone: 'WhatsApp / Phone (optional)',
+      submit: 'Request Pre-Assessment & Quote →',
+      note: "Regulatory note: I-ME provides technical dossier preparation, filing, requirement response, and regulatory follow-up services. Sanitary registrations and marketing permits are issued exclusively by INVIMA in the holder's name under Decree 4725 of 2005.",
+      sticky:
+        'Planning to sell your medical devices in Colombia? Avoid costly dossier rejections and duplicate INVIMA fees.',
+      stickyCta: 'Assess My Device & Get a Quote',
+      consentLead: 'I authorize I-ME to contact me about this pre-assessment, per the ',
+      privacy: 'privacy policy',
+      consentMid: ' and ',
+      habeas: 'habeas data authorization',
+      consentEnd: '.',
+    }
+  : {
+      h2: '¿Es fabricante? Cómo reducir costes y evitar retrasos en su registro sanitario INVIMA',
+      lead: 'Los tiempos internos de revisión del INVIMA están definidos por la norma, pero la mayoría de los sobrecostes y meses perdidos ocurren antes de radicar. Estructurar bien el expediente desde el primer día marca la diferencia entre entrar al mercado colombiano con agilidad o quedar detenido en requerimientos técnicos.',
+      cards: [
+        {
+          title: 'Agrupación inteligente de familias y referencias (Art. 7, Decreto 4725 de 2005)',
+          body: 'Muchos fabricantes pagan varias tarifas oficiales a INVIMA por modelos que, bien sustentados técnicamente, podían ampararse bajo un único registro sanitario. Evaluamos su catálogo para agrupar todas las referencias permitidas en un solo expediente.',
+        },
+        {
+          title: 'Revisión previa del Certificado de Venta Libre (CVL) y anexos técnicos',
+          body: 'Un certificado de exportación que no cumpla los requisitos de un CVL, o una mínima discrepancia entre el nombre del producto, las referencias y la apostilla, genera un auto de requerimiento y obliga a repetir legalizaciones y traducciones oficiales. Validamos cada documento en origen antes de traducir y radicar.',
+        },
+        {
+          title: 'Titularidad a su nombre e importador habilitado en Colombia',
+          body: 'Un fabricante extranjero puede ser el titular de su propio registro sanitario en Colombia para conservar el control comercial de su marca, designando un importador local autorizado. En I-ME le acompañamos en la estructuración regulatoria y como puente comercial e importador en el país.',
+        },
+      ],
+      badge: 'SERVICIO REGULATORIO PARA FABRICANTES · DECRETO 4725 DE 2005',
+      h3: 'Solicite un pre-diagnóstico técnico de su expediente y cotización en 24 h',
+      supportBefore:
+        'Indíquenos 4 datos básicos de su producto. Nuestro equipo regulatorio revisará su caso y le entregará una ',
+      strong1: 'evaluación preliminar de clase de riesgo (Art. 7)',
+      supportMid: ', la viabilidad de ',
+      strong2: 'agrupar sus referencias en un solo registro',
+      supportAfter: ' para optimizar tasas ante INVIMA, la lista de documentos aplicables y el ',
+      strong3: 'presupuesto de gestión',
+      supportEnd: '.',
+      product: '1. Producto y finalidad prevista',
+      productHint: 'Ej.: Monitor de signos vitales, mesa quirúrgica, sistema CPAP neonatal...',
+      refs: '2. ¿Cuántas referencias o modelos desea registrar?',
+      docs: '3. Documentación en país de origen',
+      local: '4. Representación en Colombia',
+      contact: '5. Sus datos de contacto',
+      name: 'Nombre y cargo',
+      companyLegend: 'Empresa fabricante y país',
+      company: 'Empresa fabricante',
+      country: 'País',
+      email: 'Correo corporativo',
+      phone: 'WhatsApp / Teléfono (opcional)',
+      submit: 'Solicitar pre-diagnóstico y cotización →',
+      note: 'Nota regulatoria: I-ME presta el servicio técnico de diagnóstico, estructuración, radicación y seguimiento del expediente. El registro sanitario o permiso de comercialización es expedido exclusivamente por el INVIMA a nombre del titular conforme al Decreto 4725 de 2005.',
+      sticky:
+        '¿Quiere comercializar sus dispositivos médicos en Colombia? Ahorre tasas y evite reprocesos en su expediente INVIMA.',
+      stickyCta: 'Evaluar mi producto y cotizar',
+      consentLead: 'Autorizo a I-ME a contactarme sobre este pre-diagnóstico, conforme a la ',
+      privacy: 'política de privacidad',
+      consentMid: ' y la ',
+      habeas: 'autorización de habeas data',
+      consentEnd: '.',
+    };
+---
+
+<section class="invima-value" aria-labelledby="invima-value-title">
+  <h2 id="invima-value-title">{copy.h2}</h2>
+  <p class="invima-value__lead">{copy.lead}</p>
+  <div class="invima-value__grid">
+    {
+      copy.cards.map(card => (
+        <article class="invima-value__card">
+          <svg
+            class="invima-value__icon"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            width="28"
+            height="28"
+          >
+            <rect
+              x="3"
+              y="3"
+              width="18"
+              height="18"
+              rx="4"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+            />
+            <path d="M7 12h10M12 7v10" fill="none" stroke="currentColor" stroke-width="1.6" />
+          </svg>
+          <h3>{card.title}</h3>
+          <p>
+            {'body' in card ? card.body : card.before}
+            {'em' in card && <em>{card.em}</em>}
+            {'after' in card && card.after}
+          </p>
+        </article>
+      ))
+    }
+  </div>
+</section>
+
+<section class="invima-quote" id={formId} aria-labelledby="invima-quote-title">
+  <p class="invima-quote__badge">{copy.badge}</p>
+  <h3 id="invima-quote-title">{copy.h3}</h3>
+  <p class="invima-quote__support">
+    {copy.supportBefore}<strong>{copy.strong1}</strong>{copy.supportMid}<strong
+      >{copy.strong2}</strong
+    >{copy.supportAfter}<strong>{copy.strong3}</strong>{copy.supportEnd}
+  </p>
+
+  <form
+    class="invima-form"
+    novalidate
+    data-invima-prediagnostico
+    data-locale={locale}
+    data-turnstile-site-key={turnstileSiteKey}
+    aria-label={copy.h3}
+  >
+    <input type="hidden" name="campaign" value={CAMPANA_INVIMA_CONOCIMIENTO} />
+    <input type="hidden" name="familia_slug" value={FAMILIA_INVIMA_CONOCIMIENTO} />
+    <input type="hidden" name="tipo_proyecto" value={TIPO_PROYECTO_INVIMA_CONOCIMIENTO} />
+    <input type="hidden" name="horizonte" value="exploracion" />
+    <label class="invima-honeypot" aria-hidden="true">
+      Website
+      <input name="website" type="text" tabindex="-1" autocomplete="off" />
+    </label>
+
+    <div class="invima-field">
+      <label for={`${formId}-producto`}>
+        {copy.product}
+        <span class="req" aria-hidden="true">*</span>
+      </label>
+      <input
+        id={`${formId}-producto`}
+        name="producto"
+        type="text"
+        required
+        maxlength="300"
+        autocomplete="off"
+        placeholder={copy.productHint}
+      />
+    </div>
+
+    <fieldset class="invima-step">
+      <legend>
+        {copy.refs}
+        <span class="req" aria-hidden="true">*</span>
+      </legend>
+      <div class="invima-chips">
+        {
+          opciones.referencias.map(opcion => (
+            <label class="invima-chip">
+              <input type="radio" name="referencias_rango" value={opcion} required />
+              <span>{opcion}</span>
+            </label>
+          ))
+        }
+      </div>
+    </fieldset>
+
+    <fieldset class="invima-step">
+      <legend>
+        {copy.docs}
+        <span class="req" aria-hidden="true">*</span>
+      </legend>
+      <div class="invima-chips">
+        {
+          opciones.documentacion.map(opcion => (
+            <label class="invima-chip">
+              <input type="radio" name="documentacion_origen" value={opcion} required />
+              <span>{opcion}</span>
+            </label>
+          ))
+        }
+      </div>
+    </fieldset>
+
+    <fieldset class="invima-step">
+      <legend>
+        {copy.local}
+        <span class="req" aria-hidden="true">*</span>
+      </legend>
+      <div class="invima-chips">
+        {
+          opciones.representacion.map(opcion => (
+            <label class="invima-chip">
+              <input type="radio" name="representacion_colombia" value={opcion} required />
+              <span>{opcion}</span>
+            </label>
+          ))
+        }
+      </div>
+    </fieldset>
+
+    <fieldset class="invima-step">
+      <legend>{copy.contact}</legend>
+      <div class="invima-grid">
+        <div class="invima-field">
+          <label for={`${formId}-nombre`}>
+            {copy.name}
+            <span class="req" aria-hidden="true">*</span>
+          </label>
+          <input
+            id={`${formId}-nombre`}
+            name="nombre"
+            type="text"
+            autocomplete="name"
+            required
+            maxlength="120"
+          />
+        </div>
+        <div class="invima-field">
+          <label for={`${formId}-institucion`}>
+            {copy.company}
+            <span class="req" aria-hidden="true">*</span>
+          </label>
+          <input
+            id={`${formId}-institucion`}
+            name="institucion"
+            type="text"
+            autocomplete="organization"
+            required
+            maxlength="180"
+            aria-describedby={`${formId}-empresa-pais`}
+          />
+          <span id={`${formId}-empresa-pais`} class="invima-hint">{copy.companyLegend}</span>
+        </div>
+        <div class="invima-field">
+          <label for={`${formId}-ciudad`}>
+            {copy.country}
+            <span class="req" aria-hidden="true">*</span>
+          </label>
+          <input
+            id={`${formId}-ciudad`}
+            name="ciudad"
+            type="text"
+            autocomplete="country-name"
+            required
+            maxlength="120"
+          />
+        </div>
+        <div class="invima-field">
+          <label for={`${formId}-email`}>
+            {copy.email}
+            <span class="req" aria-hidden="true">*</span>
+          </label>
+          <input
+            id={`${formId}-email`}
+            name="email"
+            type="email"
+            autocomplete="email"
+            required
+            maxlength="200"
+          />
+        </div>
+        <div class="invima-field invima-field--full">
+          <label for={`${formId}-telefono`}>{copy.phone}</label>
+          <PhoneField id={`${formId}-telefono`} locale={locale} />
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="invima-consent">
+      <label>
+        <input type="checkbox" name="consentimiento" value="1" required />
+        <span>
+          {copy.consentLead}
+          <a href={privacyHref} target="_blank" rel="noopener noreferrer">{copy.privacy}</a>
+          {copy.consentMid}
+          <a href={habeasHref} target="_blank" rel="noopener noreferrer">{copy.habeas}</a>
+          {copy.consentEnd}
+        </span>
+      </label>
+    </div>
+
+    <button type="submit" class="btn btn-primary" data-submit>{copy.submit}</button>
+    <p class="invima-note">{copy.note}</p>
+    <div class="invima-turnstile" data-turnstile></div>
+    <p class="invima-status" role="status" aria-live="polite" data-status></p>
+  </form>
+</section>
+
+<aside class="invima-sticky" data-invima-sticky data-target={formId} hidden>
+  <p>{copy.sticky}</p>
+  <button type="button" class="btn btn-primary">{copy.stickyCta}</button>
+</aside>
+
+<style>
+  .invima-value,
+  .invima-quote {
+    margin: 0 0 52px;
+  }
+  .invima-quote {
+    scroll-margin-top: 96px;
+    padding: 28px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--white);
+  }
+  .invima-value h2,
+  .invima-quote h3 {
+    margin: 0 0 14px;
+    color: var(--ink);
+    font-family: 'Sora', sans-serif;
+    line-height: 1.2;
+  }
+  .invima-value h2 {
+    font-size: clamp(1.45rem, 3vw, 2rem);
+  }
+  .invima-quote h3 {
+    font-size: clamp(1.25rem, 2.4vw, 1.6rem);
+  }
+  .invima-value__lead,
+  .invima-quote__support,
+  .invima-note,
+  .invima-value__card p {
+    margin: 0;
+    color: var(--text-mid);
+  }
+  .invima-value__lead,
+  .invima-quote__support {
+    max-width: 760px;
+    margin-bottom: 24px;
+    font-size: 1.05rem;
+  }
+  .invima-value__grid {
+    display: grid;
+    gap: 18px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .invima-value__card {
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--off);
+  }
+  .invima-value__icon {
+    display: block;
+    margin-bottom: 12px;
+    color: var(--t700);
+  }
+  .invima-value__card h3 {
+    margin: 0 0 10px;
+    color: var(--t900);
+    font-family: 'Sora', sans-serif;
+    font-size: 1.05rem;
+    line-height: 1.35;
+  }
+  .invima-quote__badge {
+    margin: 0 0 10px;
+    color: var(--t700);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+  .invima-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .invima-step {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+  }
+  .invima-step legend,
+  .invima-field label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .invima-grid {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .invima-field--full {
+    grid-column: 1 / -1;
+  }
+  .invima-field input,
+  .invima-consent {
+    width: 100%;
+  }
+  .invima-field input[type='text'],
+  .invima-field input[type='email'] {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--white);
+    color: var(--ink);
+  }
+  .invima-field input:focus-visible,
+  .invima-consent input:focus-visible,
+  .invima-chip input:focus-visible + span,
+  .invima-sticky button:focus-visible,
+  .invima-form button:focus-visible {
+    outline: 2px solid var(--t700);
+    outline-offset: 3px;
+  }
+  .invima-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .invima-chip {
+    position: relative;
+    cursor: pointer;
+  }
+  .invima-chip input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+  .invima-chip span {
+    display: inline-block;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--off);
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .invima-chip input:checked + span {
+    border-color: var(--t700);
+    background: var(--white);
+    color: var(--t900);
+  }
+  .invima-hint,
+  .req {
+    color: var(--text-mid);
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+  .req {
+    color: var(--t700);
+  }
+  .invima-consent label {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    color: var(--text-mid);
+  }
+  .invima-consent a {
+    color: var(--t900);
+    font-weight: 700;
+  }
+  .invima-note {
+    font-size: 0.92rem;
+    font-style: italic;
+  }
+  .invima-status:empty,
+  .invima-turnstile:empty,
+  .invima-honeypot {
+    display: none;
+  }
+  .invima-honeypot {
+    position: absolute;
+    left: -10000px;
+  }
+  .invima-status.is-err {
+    color: var(--t900);
+    font-weight: 700;
+  }
+  .invima-status.is-ok {
+    color: var(--t700);
+    font-weight: 700;
+  }
+  .invima-sticky {
+    position: fixed;
+    z-index: 700;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--border);
+    background: var(--white);
+    box-shadow: var(--shadow-md);
+  }
+  .invima-sticky[hidden] {
+    display: none;
+  }
+  .invima-sticky p {
+    margin: 0;
+    color: var(--ink);
+    font-weight: 600;
+  }
+  :global(html.has-invima-sticky) body {
+    padding-bottom: 96px;
+  }
+  @media (max-width: 900px) {
+    .invima-value__grid,
+    .invima-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 720px) {
+    .invima-quote {
+      padding: 20px;
+    }
+    .invima-sticky {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .invima-sticky,
+    .invima-quote {
+      scroll-behavior: auto;
+    }
+  }
+</style>
+
+<script>
+  import {
+    captureCommercialAttribution,
+    rememberCommercialLead,
+  } from '../../lib/commercial-attribution';
+  import {
+    CAMPANA_INVIMA_CONOCIMIENTO,
+    FAMILIA_INVIMA_CONOCIMIENTO,
+    TIPO_PROYECTO_INVIMA_CONOCIMIENTO,
+    resumenPrediagnostico,
+    validarSeleccionPrediagnostico,
+  } from '../../lib/invima-prediagnostico';
+  import {
+    classifyLead,
+    slaForPriority,
+    validateCommercialLead,
+    type CommercialLeadInput,
+  } from '../../lib/comercial-leads';
+  import { interpretarErrorEdgeFunction } from '../../lib/cotizacion-submit';
+  import { collectVisitorPhone } from '../../lib/visitor-phone-field';
+  import { emitAnalyticsEvent } from '../../lib/analytics';
+
+  interface TurnstileApi {
+    render: (container: HTMLElement, options: Record<string, unknown>) => string;
+    reset: (id?: string) => void;
+  }
+
+  interface LeadResponse {
+    ok?: boolean;
+    leadId?: string;
+    priority?: 'P1' | 'P2' | 'P3';
+    error?: string;
+    emails?: { interno?: boolean; cliente?: boolean };
+  }
+
+  let turnstileLoaded: Promise<void> | null = null;
+  const turnstileTokens = new WeakMap<HTMLFormElement, string>();
+  const turnstileWidgets = new WeakMap<HTMLFormElement, string>();
+
+  function loadTurnstile(): Promise<void> {
+    if ((window as Window & { turnstile?: TurnstileApi }).turnstile) return Promise.resolve();
+    if (turnstileLoaded) return turnstileLoaded;
+    turnstileLoaded = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      script.async = true;
+      script.defer = true;
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error('turnstile load error'));
+      document.head.appendChild(script);
+    });
+    return turnstileLoaded;
+  }
+
+  async function ensureTurnstile(form: HTMLFormElement): Promise<string | undefined> {
+    const sitekey = form.dataset.turnstileSiteKey?.trim();
+    if (!sitekey) return undefined;
+    const container = form.querySelector<HTMLElement>('[data-turnstile]');
+    if (!container) return undefined;
+    await loadTurnstile();
+    const api = (window as Window & { turnstile?: TurnstileApi }).turnstile;
+    if (!api) return undefined;
+    if (!turnstileWidgets.has(form)) {
+      const widget = api.render(container, {
+        sitekey,
+        callback: (token: string) => turnstileTokens.set(form, token),
+        'expired-callback': () => turnstileTokens.delete(form),
+        'error-callback': () => turnstileTokens.delete(form),
+      });
+      turnstileWidgets.set(form, widget);
+    }
+    return turnstileTokens.get(form);
+  }
+
+  function newIdempotencyKey(): string {
+    if (typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+    return `invima_${Date.now()}_${Math.random().toString(36).slice(2, 12)}`;
+  }
+
+  function initForm(form: HTMLFormElement) {
+    if (form.dataset.bound === '1') return;
+    form.dataset.bound = '1';
+    const locale = (form.dataset.locale === 'en' ? 'en' : 'es') as 'es' | 'en';
+    const status = form.querySelector<HTMLElement>('[data-status]');
+    const submitBtn = form.querySelector<HTMLButtonElement>('[data-submit]');
+    let enviando = false;
+    let began = false;
+
+    function showStatus(message: string, kind: 'ok' | 'err' | null) {
+      if (!status) return;
+      status.className = kind ? `invima-status is-${kind}` : 'invima-status';
+      status.textContent = message;
+    }
+
+    form.addEventListener(
+      'focusin',
+      () => {
+        if (began) return;
+        began = true;
+        emitAnalyticsEvent('quote_begin', { origin: CAMPANA_INVIMA_CONOCIMIENTO, locale });
+      },
+      { once: true }
+    );
+    void ensureTurnstile(form).catch(() => undefined);
+
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      if (enviando) return;
+      const fd = new FormData(form);
+      const producto = String(fd.get('producto') ?? '').trim();
+      const referencias = String(fd.get('referencias_rango') ?? '').trim();
+      const documentacion = String(fd.get('documentacion_origen') ?? '').trim();
+      const representacion = String(fd.get('representacion_colombia') ?? '').trim();
+      const seleccion = validarSeleccionPrediagnostico(
+        { producto, referencias, documentacion, representacion },
+        locale
+      );
+      if (!seleccion.ok) {
+        showStatus(seleccion.error, 'err');
+        return;
+      }
+      const phone = collectVisitorPhone(form);
+      const nombre = String(fd.get('nombre') ?? '').trim();
+      const empresa = String(fd.get('institucion') ?? '').trim();
+      const pais = String(fd.get('ciudad') ?? '').trim();
+      const email = String(fd.get('email') ?? '').trim();
+      const lead: CommercialLeadInput = {
+        nombre,
+        institucion: empresa,
+        ciudad: pais,
+        telefono: phone.telefono,
+        email,
+        familia_slug: FAMILIA_INVIMA_CONOCIMIENTO,
+        tipo_slug: 'fabricantes',
+        tipo_proyecto: TIPO_PROYECTO_INVIMA_CONOCIMIENTO,
+        horizonte: 'exploracion',
+        necesidad: resumenPrediagnostico({
+          producto,
+          referencias,
+          documentacion,
+          representacion,
+          nombre,
+          empresa,
+          pais,
+          email,
+          ...(phone.telefono ? { telefono: phone.telefono } : {}),
+        }),
+        consentimiento: fd.get('consentimiento') === '1',
+        campaign: CAMPANA_INVIMA_CONOCIMIENTO,
+        locale,
+      };
+      const result = validateCommercialLead(lead);
+      if (!result.valid) {
+        const firstKey = Object.keys(result.errors)[0];
+        showStatus((firstKey && result.errors[firstKey]) || 'Error', 'err');
+        if (firstKey) form.querySelector<HTMLElement>(`[name="${firstKey}"]`)?.focus();
+        return;
+      }
+
+      const supabaseModule = await import('../../lib/supabase').catch(() => null);
+      const supabase = supabaseModule?.getSupabaseClient();
+      if (!supabase) {
+        showStatus(
+          locale === 'en'
+            ? 'The request service is unavailable. Please try again.'
+            : 'El servicio de solicitudes no está disponible. Intenta de nuevo.',
+          'err'
+        );
+        return;
+      }
+      const sitekey = form.dataset.turnstileSiteKey?.trim();
+      const turnstileToken = await ensureTurnstile(form).catch(() => undefined);
+      if (sitekey && !turnstileToken) {
+        showStatus(
+          locale === 'en'
+            ? 'Complete the security verification.'
+            : 'Completa la verificación de seguridad.',
+          'err'
+        );
+        return;
+      }
+
+      form.dataset.idempotencyKey ||= newIdempotencyKey();
+      const attribution = captureCommercialAttribution(lead.campaign);
+      const original = submitBtn?.textContent ?? '';
+      enviando = true;
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = locale === 'en' ? 'Sending…' : 'Enviando…';
+      }
+      showStatus(locale === 'en' ? 'Sending request…' : 'Enviando solicitud…', null);
+      try {
+        const { data: response, error } = await supabase.functions.invoke(
+          'registrar-lead-comercial',
+          {
+            body: {
+              ...lead,
+              producto,
+              referencias_rango: referencias,
+              documentacion_origen: documentacion,
+              representacion_colombia: representacion,
+              telefono: phone.telefono,
+              telefono_raw: phone.telefono_raw,
+              telefono_pais: phone.telefono_pais,
+              ...attribution,
+              website: String(fd.get('website') ?? ''),
+              idempotencyKey: form.dataset.idempotencyKey,
+              turnstileToken,
+              landing_path: window.location.pathname,
+            },
+          }
+        );
+        const saved = response as LeadResponse | null;
+        if (error || !saved?.ok || !saved.leadId) {
+          const edgeError = saved?.error?.trim()
+            ? saved.error
+            : await interpretarErrorEdgeFunction(error, response);
+          showStatus(
+            edgeError ||
+              (locale === 'en'
+                ? 'We could not register the request. Please try again.'
+                : 'No pudimos registrar la solicitud. Intenta de nuevo.'),
+            'err'
+          );
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = original;
+          }
+          const widget = turnstileWidgets.get(form);
+          if (widget) {
+            (window as Window & { turnstile?: TurnstileApi }).turnstile?.reset(widget);
+            turnstileTokens.delete(form);
+          }
+          enviando = false;
+          return;
+        }
+        rememberCommercialLead(saved.leadId, lead.campaign);
+        emitAnalyticsEvent('quote_success', { origin: CAMPANA_INVIMA_CONOCIMIENTO, locale });
+        const priority = saved.priority ?? classifyLead(lead.horizonte);
+        let success =
+          locale === 'en'
+            ? 'We received your pre-assessment. Our regulatory team will review the case and send the service quotation.'
+            : 'Recibimos su pre-diagnóstico. El equipo regulatorio revisará el caso y le enviará la cotización de gestión.';
+        success += ` ${slaForPriority(priority, locale)}`;
+        if (saved.emails?.cliente) {
+          success +=
+            locale === 'en'
+              ? ' We sent a confirmation to your email.'
+              : ' Enviamos confirmación a su correo.';
+        }
+        showStatus(success, 'ok');
+        if (submitBtn)
+          submitBtn.textContent = locale === 'en' ? 'Request sent' : 'Solicitud enviada';
+      } catch {
+        enviando = false;
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = original;
+        }
+        showStatus(
+          locale === 'en'
+            ? 'Unexpected error. Please try again.'
+            : 'Error inesperado. Intenta de nuevo.',
+          'err'
+        );
+      }
+    });
+  }
+
+  function initSticky(bar: HTMLElement) {
+    if (bar.dataset.bound === '1') return;
+    bar.dataset.bound = '1';
+    const targetId = bar.dataset.target || 'invima-prediagnostico';
+    const target = document.getElementById(targetId);
+    const button = bar.querySelector('button');
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let formVisible = false;
+    const sync = () => {
+      const show = window.scrollY > 320 && !formVisible;
+      bar.hidden = !show;
+      document.documentElement.classList.toggle('has-invima-sticky', show);
+    };
+    if (target) {
+      const observer = new IntersectionObserver(
+        entries => {
+          formVisible = entries.some(entry => entry.isIntersecting);
+          sync();
+        },
+        { threshold: 0.25 }
+      );
+      observer.observe(target);
+    }
+    window.addEventListener('scroll', sync, { passive: true });
+    button?.addEventListener('click', () => {
+      target?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+      target?.querySelector<HTMLElement>('input, select, textarea')?.focus({ preventScroll: true });
+    });
+    sync();
+  }
+
+  function boot() {
+    if (!document.querySelector('[data-invima-sticky]')) {
+      document.documentElement.classList.remove('has-invima-sticky');
+    }
+    document
+      .querySelectorAll<HTMLFormElement>('form[data-invima-prediagnostico]')
+      .forEach(initForm);
+    document.querySelectorAll<HTMLElement>('[data-invima-sticky]').forEach(initSticky);
+  }
+
+  boot();
+  document.addEventListener('astro:page-load', boot);
+</script>
